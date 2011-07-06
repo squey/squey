@@ -1,0 +1,56 @@
+//! \file PVLayerFilterWebmailFinder.cpp
+//! $Id$
+//! Copyright (C) Sébastien Tricaud 2009-2011
+//! Copyright (C) Philippe Saadé 2009-2011
+//! Copyright (C) Picviz Labs 2011
+
+#include "PVLayerFilterWebmailFinder.h"
+#include <picviz/PVColor.h>
+#include <pvcore/PVAxisIndexType.h>
+
+/******************************************************************************
+ *
+ * Picviz::PVLayerFilterWebmailFinder::PVLayerFilterWebmailFinder
+ *
+ *****************************************************************************/
+Picviz::PVLayerFilterWebmailFinder::PVLayerFilterWebmailFinder(PVFilter::PVArgumentList const& l)
+	: PVLayerFilter(l)
+{
+	INIT_FILTER(PVLayerFilterWebmailFinder, l);
+}
+
+/******************************************************************************
+ *
+ * DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterWebmailFinder)
+ *
+ *****************************************************************************/
+DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterWebmailFinder)
+{
+	PVFilter::PVArgumentList args;
+	// args["Regular expression"] = QRegExp("(.*)");
+	args["URL Axis"].setValue(PVCore::PVAxisIndexType(0));
+	return args;
+}
+
+/******************************************************************************
+ *
+ * Picviz::PVLayerFilterWebmailFinder::operator()
+ *
+ *****************************************************************************/
+void Picviz::PVLayerFilterWebmailFinder::operator()(PVLayer& /*in*/, PVLayer &out)
+{	
+	int axis_id = _args["URL Axis"].value<PVCore::PVAxisIndexType>().get_original_index();
+	// QRegExp re = _args["Regular expression"].toRegExp();
+	// PVLOG_INFO("Apply filter search to axis %d with regexp %s.\n", axis_id, qPrintable(re.pattern()));
+
+	PVRow nb_lines = _view->get_qtnraw_parent().size();
+
+	PVRush::PVNraw::nraw_table const& nraw = _view->get_qtnraw_parent();
+	
+	// for (PVRow r = 0; r < nb_lines; r++) {
+	// 	QStringList const& nraw_r = nraw.at(r);
+	// 	out.get_selection().set_line(r, re.indexIn(nraw_r[axis_id]) != -1);
+	// }
+}
+
+IMPL_FILTER(Picviz::PVLayerFilterWebmailFinder)

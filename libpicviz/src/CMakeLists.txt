@@ -1,0 +1,212 @@
+include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/libpicviz/src/include)
+
+add_definitions(${PICVIZ_DEFINITIONS})
+include_directories(AFTER ${PICVIZ_INCLUDE_DIRS})
+include_directories(AFTER ${PVFILTER_INCLUDE_DIRS})
+
+# # APR
+# add_definitions(${APR_FLAGS})
+# include_directories(AFTER ${APR_INCLUDES})
+# # PCRE
+# include_directories(AFTER ${PCRE_INCLUDE_DIR})
+# # PCAP
+# include_directories(AFTER ${PCAP_INCLUDE_DIRS})
+# # DUMBNET
+# include_directories(AFTER ${DUMBNET_INCLUDE_DIRS})
+# # ZLIB
+#include_directories(AFTER ${ZLIB_INCLUDE_DIRS})
+# Archive
+#include_directories(AFTER ${ARCHIVE_CFLAGS})
+
+if (NOT WIN32)
+set(MATHS_LIBRARY "-lm")
+endif(NOT WIN32)
+
+
+set(NONCUDA_HEADER_FILES
+	#include/picviz/selection.h
+)
+
+set(CUDA_HEADER_FILES
+include/picviz/cuda/PVPlotted_create_table_cuda.h
+include/picviz/cuda/PVMapped_create_table_cuda.h
+include/picviz/cuda/PVCudaDefine.h
+	#include/picviz/selection.h
+)
+
+set(HEADER_FILES
+include/bithacks.h
+include/picviz
+
+include/picviz/arguments.h
+include/picviz/defs.h
+include/picviz/discover.h
+include/picviz/eventline.h
+include/picviz/general.h
+include/picviz/index-array.h
+include/picviz/init.h
+include/picviz/layer.h
+include/picviz/layer-index-array.h
+include/picviz/layer-stack.h
+include/picviz/limits.h
+#include/picviz/line-properties.h
+include/picviz/memory.h
+include/picviz/plugins.h
+
+include/picviz/PVAxesCombination.h
+include/picviz/PVAxis.h
+include/picviz/PVBitset.h
+include/picviz/PVColor.h
+include/picviz/PVEventline.h
+include/picviz/PVIndexArray.h
+include/picviz/PVLayer.h
+include/picviz/PVLayerIndexArray.h
+include/picviz/PVLayerFilter.h
+include/picviz/PVLinesProperties.h
+include/picviz/PVMapped.h
+include/picviz/PVMapping.h
+include/picviz/PVMappingFilter.h
+include/picviz/PVMandatoryMappingFactory.h
+include/picviz/PVMandatoryMappingFunction.h
+include/picviz/PVMandatoryMappingFilter.h
+include/picviz/PVMappingFactory.h
+include/picviz/PVMappingFunction.h
+include/picviz/PVMappingProperties.h
+include/picviz/PVPlotted.h
+include/picviz/PVPlotting.h
+include/picviz/PVPlottingFilter.h
+include/picviz/PVPlottingFactory.h
+include/picviz/PVPlottingFunction.h
+include/picviz/PVPlottingProperties.h
+include/picviz/PVRoot.h
+include/picviz/PVScene.h
+include/picviz/PVSelection.h
+include/picviz/PVSelectionFilter.h
+include/picviz/PVSelectionFilterScatterPlotSelectionSquare.h
+include/picviz/PVSortQVectorQStringList.h
+include/picviz/PVSortQVectorQStringListThread.h
+include/picviz/PVSource.h
+include/picviz/PVSquareArea.h
+include/picviz/PVVector.h
+include/picviz/PVView.h
+include/picviz/PVZLevelArray.h
+
+include/picviz/square-area.h
+include/picviz/state-machine.h
+include/picviz/tags.h
+include/picviz/time.h
+include/picviz/type-discovery.h
+include/picviz/z-level-array.h
+)
+
+set(NONCUDA_SRC_FILES
+#selection.cpp
+)
+
+set(CUDA_SRC_FILES
+cuda/PVPlotted_create_table_cuda.cu
+cuda/PVMapped_create_table_cuda.cu
+#cuda/selection.cu
+)
+
+set(SRC_FILES
+#arguments.cpp 
+discover.cpp
+#eventline.cpp
+#index-array.cpp 
+init.cpp
+#layer.cpp 
+#layer-index-array.cpp 
+#layer-stack.cpp 
+#line-properties.cpp 
+
+PVAxesCombination.cpp
+PVAxis.cpp
+PVColor.cpp
+PVEventline.cpp
+PVIndexArray.cpp
+PVLayer.cpp
+PVLayerFilter.cpp
+PVLayerIndexArray.cpp
+PVLayerStack.cpp
+PVLinesProperties.cpp
+PVMapped.cpp
+PVMapping.cpp 
+PVMappingFilter.cpp
+#PVMandatoryMappingFactory.cpp
+PVMandatoryMappingFunction.cpp
+PVMandatoryMappingFilter.cpp
+#PVMappingFactory.cpp
+PVMappingFunction.cpp
+PVMappingProperties.cpp 
+PVPlotted.cpp
+PVPlotting.cpp
+PVPlottingFilter.cpp
+PVPlottingProperties.cpp
+#PVPlottingFactory.cpp
+PVPlottingFunction.cpp
+PVRoot.cpp
+PVScene.cpp
+PVSelection.cpp
+PVSelectionFilter.cpp
+PVSelectionFilterScatterPlotSelectionSquare.cpp
+PVSquareArea.cpp
+PVSortQVectorQStringList.cpp
+PVSortQVectorQStringListThread.cpp
+PVSource.cpp
+PVVector.cpp
+PVView.cpp
+PVZLevelArray.cpp
+
+memory.cpp
+plugins.cpp
+#square-area.cpp
+state-machine.cpp
+type-discovery.cpp 
+update-protocol.cpp 
+#z-level-array.cpp
+)
+
+set(MOC_HEADERS
+include/picviz/PVSortQVectorQStringList.h
+include/picviz/PVSortQVectorQStringListThread.h
+
+)
+QT4_WRAP_CPP(MOC_SRC ${MOC_HEADERS})
+
+if(CUDA_FOUND)
+  set(CUDA_PROPAGATE_HOST_FLAGS "OFF")
+
+  remove_definitions(-DPICVIZ_FUNCTIONS_DIR="${PICVIZ_FUNCTIONS_DIR}")
+  remove_definitions(-DPICVIZ_FILTERS_DIR="${PICVIZ_FILTERS_DIR}")
+  remove_definitions(-DPICVIZ_LAYER_FILTERS_DIR="${PICVIZ_LAYER_FILTERS_DIR}")
+  remove_definitions(-DPICVIZ_MAPPING_FILTERS_DIR="${PICVIZ_MAPPING_FILTERS_DIR}")
+  remove_definitions(-DPICVIZ_PLOTTING_FILTERS_DIR="${PICVIZ_PLOTTING_FILTERS_DIR}")
+  set(CUDA_NVCC_FLAGS -Xcompiler -fPIC -arch=compute_20 -code=sm_20 -g)
+  #set(CUDA_NVCC_FLAGS -Xcompiler -fPIC)
+  cuda_compile(CUDA_GENERATED_FILES ${CUDA_SRC_FILES})
+  add_definitions(-DPICVIZ_FUNCTIONS_DIR="${PICVIZ_FUNCTIONS_DIR}")
+  add_definitions(-DPICVIZ_FILTERS_DIR="${PICVIZ_FILTERS_DIR}")
+  add_definitions(-DPICVIZ_LAYER_FILTERS_DIR="${PICVIZ_LAYER_FILTERS_DIR}")
+  add_definitions(-DPICVIZ_MAPPING_FILTERS_DIR="${PICVIZ_MAPPING_FILTERS_DIR}")
+  add_definitions(-DPICVIZ_PLOTTING_FILTERS_DIR="${PICVIZ_PLOTTING_FILTERS_DIR}")
+
+#  cuda_add_library(picviz SHARED ${CUDA_GENERATED_FILES} ${CUDA_HEADER_FILES})
+  cuda_add_library(picviz SHARED ${SRC_FILES} ${HEADER_FILES} ${MOC_SRC} ${MOC_HEADERS} ${CUDA_GENERATED_FILES})
+else(CUDA_FOUND)
+  add_library(picviz SHARED ${SRC_FILES} ${HEADER_FILES} ${MOC_SRC} ${MOC_HEADERS} ${NONCUDA_SRC_FILES} ${NONCUDA_HEADER_FILES})
+endif(CUDA_FOUND)
+#add_library(picviz STATIC ${SRC_FILES} ${HEADER_FILES})
+
+add_definitions(-DUSE_PARALLEL_MAPPING_FILTERS)
+add_definitions(-DUSE_PARALLEL_PLOTTING_FILTERS)
+set_target_properties(picviz PROPERTIES SOVERSION 1)
+
+target_link_libraries(picviz ${PCRE_PCRE_LIBRARY} ${PCAP_LIBRARIES} ${DUMBNET_LIBRARIES} ${MATHS_LIBRARY} ${PICVIZ_LIBRARIES_WITHOUT_PICVIZ} ${QT_LIBRARIES} ${PVCORE_LIBRARY} ${PVFILTER_LIBRARY} ${PVRUSH_LIBRARY} ${TBB_LIBRARIES} ${TBB_MALLOC_LIBRARY} ${Boost_LIBRARIES} ${ICU_LIBRARY})
+
+INSTALL(TARGETS picviz DESTINATION .)
+if(WIN32)
+	#  INSTALL(FILES ${ZLIB_FILE_DLL} DESTINATION .)
+  INSTALL(FILES ${PCRE_FILES_DLL} DESTINATION .)
+  #  INSTALL(FILES ${ARCHIVE_FILE_DLL} DESTINATION .)
+endif(WIN32)

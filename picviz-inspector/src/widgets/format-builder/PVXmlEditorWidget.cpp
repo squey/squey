@@ -1,0 +1,371 @@
+//! \file PVXmlEditorWidget.cpp
+//! $Id$
+//! Copyright (C) Sébastien Tricaud 2011-2011
+//! Copyright (C) Philippe Saadé 2011-2011
+//! Copyright (C) Picviz Labs 2011
+
+
+#include <PVXmlEditorWidget.h>
+#include <PVXmlTreeItemDelegate.h>
+#include <PVXmlTreeNodeDom.h>
+#include <PVXmlParamWidget.h>
+
+
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVXmlEditorWidget::PVXmlEditorWidget
+ *
+ *****************************************************************************/
+PVInspector::PVXmlEditorWidget::PVXmlEditorWidget():QWidget() {
+    
+    /*
+     * ****************************************************************************
+     * Création of graphics elements.
+     * ****************************************************************************
+     */    
+    QVBoxLayout *vb=new QVBoxLayout();
+    vb->setMargin(0);
+    QHBoxLayout *hb=new QHBoxLayout();
+    vbParam=new QVBoxLayout();
+    
+    
+    //initialisation of the toolbar.
+    this->initToolBar(vb);
+
+    menuBar =new QMenuBar();
+    initMenuBar();
+    vb->setMenuBar(menuBar);
+    //layout()->setMenuBar(menuBar);
+    
+    vb->addItem(hb);
+    
+    
+    //the view
+    this->myTreeView = new PVXmlTreeView();
+    hb->addWidget(this->myTreeView);
+
+    
+    //the model
+    this->myTreeModel = new PVXmlDomModel();
+    this->myTreeView->setModel(this->myTreeModel);
+
+    
+    hb->addItem(vbParam);
+    //parameter board
+    this->myParamBord = new PVXmlParamWidget();
+
+ 
+    vbParam->addWidget(this->myParamBord);  
+
+    
+    
+    setLayout(vb);
+    
+    //setWindowModality(Qt::ApplicationModal);
+    
+    /*
+     * ****************************************************************************
+     * Initialisation de toutes les connexions.
+     * ****************************************************************************
+     */
+    initConnexions();
+    
+}
+/******************************************************************************
+ *
+ * PVInspector::PVXmlEditorWidget::~PVXmlEditorWidget
+ *
+ *****************************************************************************/
+PVInspector::PVXmlEditorWidget::~PVXmlEditorWidget() {
+    actionAddFilterAfter->deleteLater();
+    actionAddRegExAfter->deleteLater();
+    actionDelete->deleteLater();
+    myTreeView->deleteLater();
+}
+/******************************************************************************
+ *
+ * PVInspector::PVXmlEditorWidget::initConnexions
+ *
+ *****************************************************************************/
+void PVInspector::PVXmlEditorWidget::initConnexions() {
+    //connexion to update the parameter board
+    connect(myTreeView, SIGNAL(clicked(const QModelIndex &)), myParamBord, SLOT(edit(const QModelIndex &)));
+    //connexion to endable/desable items in toolsbar menu.
+    connect(myTreeView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(slotUpdateToolDesabled(const QModelIndex &)));
+
+    /*
+     * Connexions for the toolBar.
+     */
+    connect(actionAddAxisIn,  SIGNAL(triggered()),this,SLOT(slotAddAxisIn()));
+    connect(actionAddFilterAfter, SIGNAL(triggered()), this, SLOT(slotAddFilterAfter()));
+    connect(actionAddRegExAfter, SIGNAL(triggered()), this, SLOT(slotAddRegExAfter()));
+    connect(actionDelete, SIGNAL(triggered()), this, SLOT(slotDelete()));
+    connect(actionMoveDown,SIGNAL(triggered()),this,SLOT(slotMoveDown()));
+    connect(actionMoveUp,SIGNAL(triggered()),this,SLOT(slotMoveUp()));
+    connect(actionOpen,SIGNAL(triggered()),this,SLOT(slotOpen()));
+    connect(actionSave, SIGNAL(triggered()), this, SLOT(slotSave()));
+    connect(actionAddUrl, SIGNAL(triggered()), this, SLOT(slotAddUrl()));
+    connect(myParamBord,SIGNAL(signalNeedApply()),this,SLOT(slotNeedApply()));
+    connect(myParamBord,SIGNAL(signalSelectNext()),myTreeView,SLOT(slotSelectNext()));
+}
+
+/******************************************************************************
+ *
+ * PVInspector::PVXmlEditorWidget::initToolBar
+ *
+ *****************************************************************************/
+void PVInspector::PVXmlEditorWidget::initToolBar(QVBoxLayout *vb){
+
+    QToolBar *tools = new QToolBar();
+
+    actionAddAxisIn = new QAction("add an axis",(QObject*)tools);
+    actionAddAxisIn->setIcon(QIcon(":/add-axis"));
+    actionAddFilterAfter = new QAction("add a filter",(QObject*)tools);
+    actionAddFilterAfter->setIcon(QIcon(":/filter"));
+    actionAddRegExAfter = new QAction("add a RegEx",(QObject*)tools);
+    actionAddRegExAfter->setIcon(QIcon(":/add-regexp"));
+    actionAddUrl = new QAction("add an URL",(QObject*)tools);
+    actionAddUrl->setIcon(QIcon(":/add-url"));
+
+    actionSave = new QAction("&Save",(QObject*)tools);
+    actionSave->setShortcut(QKeySequence(Qt::CTRL+Qt::Key_S));
+    actionSave->setIcon(QIcon(":/save"));
+    actionDelete = new QAction("Delete",(QObject*)tools);
+    actionDelete->setShortcut(QKeySequence(Qt::Key_Delete));
+    actionDelete->setIcon(QIcon(":/red-cross"));
+    actionDelete->setEnabled(false);
+    actionMoveDown = new QAction("move down",(QObject*)tools);
+    actionMoveDown->setShortcut(QKeySequence(Qt::Key_Down));
+    actionMoveDown->setIcon(QIcon(":/go-down.png"));
+    actionMoveUp = new QAction("move up", (QObject*) tools);
+    actionMoveUp->setShortcut(QKeySequence(Qt::Key_Up));
+    actionMoveUp->setIcon(QIcon(":/go-up.png"));
+    actionOpen = new QAction("Open",(QObject*)tools);
+    actionOpen->setShortcut(QKeySequence(Qt::CTRL+Qt::Key_O));
+    actionOpen->setIcon(QIcon(":/document-open.png"));
+
+    tools->addAction(actionAddFilterAfter);
+    tools->addAction(actionAddAxisIn);
+    tools->addSeparator();
+    tools->addAction(actionAddRegExAfter);
+    tools->addAction(actionAddUrl);
+    tools->addSeparator();
+    tools->addAction(actionMoveDown);
+    tools->addAction(actionMoveUp);
+    tools->addSeparator();
+    tools->addAction(actionDelete);
+    tools->addSeparator();
+    tools->addAction(actionOpen);
+    tools->addAction(actionSave);
+
+    vb->addWidget(tools);
+}
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVXmlEditorWidget::slotAddAxisIn
+ *
+ *****************************************************************************/
+void PVInspector::PVXmlEditorWidget::slotAddAxisIn() {
+    myTreeView->addAxisIn();
+}
+
+/******************************************************************************
+ *
+ * PVInspector::PVXmlEditorWidget::slotAddFilterAfter
+ *
+ *****************************************************************************/
+void PVInspector::PVXmlEditorWidget::slotAddFilterAfter() {
+    myTreeView->addFilterAfter();
+}
+
+/******************************************************************************
+ *
+ * PVInspector::PVXmlEditorWidget::slotAddRegExAfter
+ *
+ *****************************************************************************/
+void PVInspector::PVXmlEditorWidget::slotAddRegExAfter() {
+    myTreeView->addRegExIn();
+}
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVXmlEditorWidget::slotAddUrl
+ *
+ *****************************************************************************/
+void PVInspector::PVXmlEditorWidget::slotAddUrl(){
+    myTreeView->addUrlIn();
+}
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVXmlEditorWidget::slotApplyModification
+ *
+ *****************************************************************************/
+void PVInspector::PVXmlEditorWidget::slotApplyModification() {
+  QModelIndex index;
+    myTreeView->applyModification(myParamBord,index);
+}
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVXmlEditorWidget::slotDelete
+ *
+ *****************************************************************************/
+void PVInspector::PVXmlEditorWidget::slotDelete() {
+    QDialog confirm(this);
+    QVBoxLayout vb;
+    confirm.setLayout(&vb);
+    vb.addWidget(new QLabel("Do realy want to delete it ?"));
+    QHBoxLayout bas;
+    vb.addLayout(&bas);
+    QPushButton no("No");
+    bas.addWidget(&no);
+    QPushButton yes("Yes");
+    bas.addWidget(&yes);
+    
+    connect(&no,SIGNAL(clicked()),&confirm,SLOT(reject()));
+    connect(&yes,SIGNAL(clicked()),&confirm,SLOT(accept()));
+
+    //if confirmed then apply
+    if(confirm.exec()){
+        myTreeView->deleteSelection();
+        QModelIndex ind;
+        myParamBord->drawForNo(ind);
+    }
+}
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVXmlEditorWidget::slotMoveUp
+ *
+ *****************************************************************************/
+void PVInspector::PVXmlEditorWidget::slotMoveUp() {
+    myTreeView->moveUp();
+}
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVXmlEditorWidget::slotMoveDown
+ *
+ *****************************************************************************/
+void PVInspector::PVXmlEditorWidget::slotMoveDown() {
+    myTreeView->moveDown();
+}
+
+/******************************************************************************
+ *
+ * PVInspector::PVXmlEditorWidget::slotNeedApply
+ *
+ *****************************************************************************/
+void PVInspector::PVXmlEditorWidget::slotNeedApply(){
+  QModelIndex index;
+    myTreeView->applyModification(myParamBord,index);
+}
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVXmlEditorWidget::slotOpen
+ *
+ *****************************************************************************/
+void PVInspector::PVXmlEditorWidget::slotOpen(){
+    QFileDialog fd;
+    //open file chooser
+    QString urlFile = fd.getOpenFileName(0,QString("Select the file."),PVRush::normalize_get_helpers_plugins_dirs(QString("text")).first());
+    QFile f(urlFile);
+    if(f.exists()){//if the file exists...
+      myTreeModel->openXml(urlFile);//open it
+    }
+}
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVXmlEditorWidget::slotSave
+ *
+ *****************************************************************************/
+void PVInspector::PVXmlEditorWidget::slotSave() {
+    QModelIndex index;
+    myTreeView->applyModification(myParamBord,index);
+    QFileDialog fd;
+     //open file chooser
+    QString urlFile = fd.getSaveFileName(0,QString("Select the file."),PVRush::normalize_get_helpers_plugins_dirs(QString("text")).first());
+    myTreeModel->saveXml(urlFile); //save file
+}
+
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVXmlEditorWidget::slotUpdateToolDesabled
+ *
+ *****************************************************************************/
+void PVInspector::PVXmlEditorWidget::slotUpdateToolDesabled(const QModelIndex &index){
+    PVXmlTreeNodeDom *node = myTreeModel->nodeFromIndex(index);
+    
+    if (node->getDom().tagName() == "field") {
+        myTreeView->expandRecursive(index);
+        actionAddFilterAfter->setEnabled(true);
+        actionAddAxisIn->setEnabled(true);
+        actionAddRegExAfter->setEnabled(true);
+        actionAddUrl->setEnabled(true);
+        actionDelete->setEnabled(false);
+    } else if (node->getDom().tagName() == "axis") {
+        actionAddFilterAfter->setEnabled(false);
+        actionAddAxisIn->setEnabled(false);
+        actionAddRegExAfter->setEnabled(false);
+        actionAddUrl->setEnabled(false);
+        actionDelete->setEnabled(true);
+    } else if (node->getDom().tagName() == "filter") {
+        actionAddFilterAfter->setEnabled(false);
+        actionAddAxisIn->setEnabled(false);
+        actionAddRegExAfter->setEnabled(false);
+        actionAddUrl->setEnabled(false);
+        actionDelete->setEnabled(true);
+    } else if (node->getDom().tagName() == "RegEx") {
+        myTreeView->expandRecursive(index);
+        actionAddFilterAfter->setEnabled(false);
+        actionAddAxisIn->setEnabled(false);
+        actionAddRegExAfter->setEnabled(false);
+        actionAddUrl->setEnabled(false);
+        actionDelete->setEnabled(true);
+    } else if (node->getDom().tagName() == "url") {
+        actionAddFilterAfter->setEnabled(false);
+        actionAddAxisIn->setEnabled(false);
+        actionAddRegExAfter->setEnabled(false);
+        actionAddUrl->setEnabled(false);
+        actionDelete->setEnabled(true);
+    } else {
+        actionAddFilterAfter->setEnabled(true);
+        actionAddAxisIn->setEnabled(true);
+        actionAddRegExAfter->setEnabled(true);
+        actionAddUrl->setEnabled(true);
+        actionDelete->setEnabled(false);
+    }
+}
+
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVXmlEditorWidget::initMenuBar
+ *
+ *****************************************************************************/
+void PVInspector::PVXmlEditorWidget::initMenuBar(){
+    QMenu *file = menuBar->addMenu(tr("&File"));
+    file->addAction(actionOpen);
+    file->addAction(actionSave);
+    QMenu *splitter = menuBar->addMenu(tr("&Splitter"));
+    splitter->addAction(actionAddUrl);
+    splitter->addAction(actionAddRegExAfter);
+}
+

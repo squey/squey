@@ -1,0 +1,84 @@
+.\" Hey Emacs! This file is -*- nroff -*- source.
+.\"
+.\" Copyright © 2002 - Philip Howard - All rights reserved
+.\"
+.\" This program is free software; you can redistribute it and/or
+.\" modify it under the terms of the GNU Lesser General Public
+.\" License as published by the Free Software Foundation; either
+.\" version 2.1 of the License, or (at your option) any later version.
+.\"
+.\" This library is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+.\" Lesser General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU Lesser General Public
+.\" License along with this library; if not, write to the Free Software
+.\" Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+.\"
+.TH vrb_put 3 2002-09-30 vrb "VRB Programmer's Manual"
+.SH NAME
+vrb_put - put data into a VRB
+.SH LIBRARY
+.B -lvrb
+.SH SYNOPSIS
+.B #include <vrb.h>
+.sp
+.IB "size_t " "vrb_put" "(vrb_p " "vrb" ", char *" "source" ", size_t " "size" ");"
+.SH DESCRIPTION
+.B vrb_put
+puts caller provided data into a virtual ring buffer.
+If less space is available in the virtual ring buffer,
+then only as much will be copied as can be fit in.
+.SH ARGUMENTS
+.IB "vrb_p " vrb
+.br
+specifies which virtual ring buffer.
+.sp
+.IB "char *" source
+.br
+specifies the location where to copy the data from.
+.sp
+.IB "size_t " size
+.br
+specifies the length of data provided by the caller.
+.SH "RETURN VALUE"
+.I size_t
+.br
+The actual length of data copied is returned, which can be any
+value from 0 to the specified size.
+.SH ERRORS
+If an error is returned, then
+.I errno
+will have the following value:
+.TP
+.B EINVAL
+An invalid virtual ring buffer pointer was specified.
+.SH "SEE ALSO"
+.BR vrb (3),
+.BR vrb_capacity (3),
+.BR vrb_data_len (3),
+.BR vrb_data_ptr (3),
+.BR vrb_destroy (3),
+.BR vrb_get (3),
+.BR vrb_get_min (3),
+.BR vrb_give (3),
+.BR vrb_init (3),
+.BR vrb_init_opt (3),
+.BR vrb_is_empty (3),
+.BR vrb_is_full (3),
+.BR vrb_is_not_empty (3),
+.BR vrb_is_not_full (3),
+.BR vrb_move (3),
+.BR vrb_new (3),
+.BR vrb_new_opt (3),
+.BR vrb_put_all (3),
+.BR vrb_read (3),
+.BR vrb_read_min (3),
+.BR vrb_resize (3),
+.BR vrb_space_len (3),
+.BR vrb_space_ptr (3),
+.BR vrb_take (3),
+.BR vrb_uninit (3),
+.BR vrb_write (3),
+.BR vrb_write_min (3)

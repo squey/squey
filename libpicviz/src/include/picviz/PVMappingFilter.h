@@ -1,0 +1,68 @@
+//! \file PVMappingFilter.h
+//! $Id: PVMappingFilter.h 3221 2011-06-30 11:45:19Z aguinet $
+//! Copyright (C) Sébastien Tricaud 2011-2011
+//! Copyright (C) Philippe Saadé 2011-2011
+//! Copyright (C) Picviz Labs 2011
+
+#ifndef PVFILTER_PVMAPPINGFILTER_H
+#define PVFILTER_PVMAPPINGFILTER_H
+
+#include <pvcore/general.h>
+#include <pvfilter/PVFilterFunction.h>
+#include <pvfilter/PVFilterLibrary.h>
+#include <pvrush/PVNraw.h>
+#include <QString>
+#include <QVector>
+
+namespace PVRush {
+class PVFormat;
+}
+
+#ifdef WIN32
+#ifdef picviz_EXPORTS
+#define PVLibExport __declspec(dllexport)
+#else
+#define PVLibExport __declspec(dllimport)
+#endif
+#else
+#define PVLibExport
+#endif
+
+namespace Picviz {
+
+class PVLibExport PVMappingFilter: public PVFilter::PVFilterFunctionRegistrable<float*, PVRush::PVNraw::nraw_table_line const&>
+{
+public:
+	typedef PVFilter::PVFilterFunctionRegistrable<float*, PVRush::PVNraw::nraw_table_line const&>::base_registrable base_registrable;
+
+public:
+	typedef PVMappingFilter FilterT;
+	typedef boost::shared_ptr<PVMappingFilter> p_type;
+public:
+	PVMappingFilter();
+public:
+	// Here we provide a default implementation which call operator()(QString const&) over an OpenMP-parallelised
+	// for loop over values
+	virtual float* operator()(PVRush::PVNraw::nraw_table_line const& values);
+
+	virtual float operator()(QString const& value);
+	virtual void init_from_first(QString const& value);
+
+	void set_dest_array(PVRow size, float *ptr);
+	void set_format(PVCol current_col, PVRush::PVFormat& format);
+protected:
+	PVRow _dest_size;
+	float* _dest;
+	PVRush::PVFormat* _format;
+	PVCol _cur_col;
+};
+
+typedef PVMappingFilter::func_type PVMappingFilter_f;
+
+}
+
+#ifdef WIN32
+picviz_FilterLibraryDecl PVFilter::PVFilterLibrary<Picviz::PVMappingFilter::FilterT>;
+#endif
+
+#endif

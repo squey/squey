@@ -1,0 +1,13 @@
+revision = 1
+
+axes {
+     time 24h default "Time"
+     ipv4 default default "Source IP"
+     ipv4 default default "Dest IP"
+     integer default default "Source Port"
+     integer default default "Dest Port"
+     integer default default "wft1"
+     integer default default "wft2"
+     integer default default "wft3"
+     integer default default "wft4"
+}

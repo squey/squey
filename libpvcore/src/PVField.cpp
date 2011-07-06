@@ -1,0 +1,29 @@
+#include <pvcore/PVField.h>
+#include <pvcore/PVElementData.h>
+
+PVCore::PVField::PVField(PVCore::PVElement const& parent, char* begin, char* end) :
+	PVBufferSlice(begin, end, parent.realloc_bufs())
+{
+	_valid = true;
+	_parent = parent.d.data();
+}
+
+bool PVCore::PVField::valid() const
+{
+	return _valid;
+}
+
+void PVCore::PVField::set_invalid()
+{
+	_valid = false;
+}
+
+PVCore::PVElement* PVCore::PVField::elt_parent()
+{
+	return _parent->_elt;
+}
+
+void PVCore::PVField::set_parent(PVCore::PVElement const& parent)
+{
+	_parent = parent.d.data();
+}

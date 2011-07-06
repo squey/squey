@@ -1,0 +1,25 @@
+add_definitions(-DPICVIZ_INSPECTOR)
+
+option(USE_OWN_LIBCURL "We have problems with quite some distributions with libcurl. Use installed version in /opt/curl/" TRUE)
+	#endif(WIN32)
+
+#########################################
+# BEGIN: SET VARIOUS REQUIRED LIBRARIES #
+#########################################
+include_directories(AFTER ${PVCORE_INCLUDE_DIRS})
+include_directories(AFTER ${PVRUSH_INCLUDE_DIRS})
+include_directories(AFTER ${PVGL_INCLUDE_DIRS})
+include_directories(AFTER ${PICVIZ_INCLUDE_DIRS})
+include_directories(AFTER ${PVFILTER_INCLUDE_DIRS})
+include_directories(AFTER ${ICU_INCLUDE})
+
+#######################################
+# END: SET VARIOUS REQUIRED LIBRARIES #
+#######################################
+
+if (WIN32)
+    list( APPEND ALL_SOURCES src/icons/winicon.rc )
+    source_group( "Resources" FILES Resources/icon.rc )
+endif(WIN32)
+
+add_subdirectory(src)

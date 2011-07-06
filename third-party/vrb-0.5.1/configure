@@ -1,0 +1,1735 @@
+#!/usr/bin/env bash
+#-----------------------------------------------------------------------------
+# script	configure
+# purpose	To generate a Makefile in a compilation directory (usually
+#		starting as an empty directory apart from the source).
+# requires	bash, gawk
+# author	Phil Howard, <vrb at ipal dot org>
+#-----------------------------------------------------------------------------
+allargs=( "$@" )
+tab="	"
+
+trap "echo Hangup 1>&2 ; exit 1" HUP
+trap "echo Interrupt 1>&2 ; exit 1" INT
+trap "echo Termination 1>&2 ; exit 1" TERM
+
+#-----------------------------------------------------------------------------
+# Define message functions.  All messages go to stderr.
+#-----------------------------------------------------------------------------
+function dmsg {
+    echo "DEBUG" "`exec date +%H:%M:%S`" "$@" 1>&2
+}
+function msg {
+    echo "`exec date +%H:%M:%S`" "$@" 1>&2
+}
+function vmsg {
+    [[ $1 -gt ${verbose} ]] && return
+    shift
+    echo "`exec date +%H:%M:%S`" "$@" 1>&2
+}
+function emsg {
+    echo "ERROR" "`exec date +%H:%M:%S`" "$@" 1>&2
+}
+
+#-----------------------------------------------------------------------------
+# Define other general use functions.
+#-----------------------------------------------------------------------------
+function extension {
+    echo "${1}" | gawk -F. '{print $(NF);}'
+}
+function noextension {
+    echo "${1}" | gawk -F. '{if(NF>1){print substr($0,1,length($0)-length($(NF)-1));}else{print $0;}}'
+}
+function sortpath {
+    tr / '\034' | sort "$@" | tr '\034' /
+}
+
+function oneof {
+    local a
+    local s
+    s="${1}"
+    shift
+    for a in "$@"; do
+	if [[ "${s}" = "${a}" ]]; then
+	    return 0
+	fi
+    done
+    return 1
+}
+
+#-----------------------------------------------------------------------------
+# Initialize defaults before command line parsing.
+#-----------------------------------------------------------------------------
+verbose=0
+
+#-----------------------------------------------------------------------------
+# If the --BUILDHEADER option is specified, then extract header contributions
+# Argument 1 is the name of the header file to append to.
+# Argument 2 is the identity of the pass.
+# Remaining arguments are source files to extract from.
+#-----------------------------------------------------------------------------
+# prefix
+# include	includes for other headers
+# config	configuration definitions
+# define	structs, defines, value definitions
+# fmacro	macro functions
+# inline	inline functions
+# proto		function prototypes
+# alias		function aliases
+# suffix
+#-----------------------------------------------------------------------------
+hdropt="BUILDHEADER"
+hdrlist=( prefix include config define fmacro inline proto alias suffix )
+if [[ "${1}" = "--${hdropt}" ]]; then
+    shift
+    hdrfile="${1}"
+    shift
+    rm -f "${hdrfile}"
+    hdrdir=$( dirname "${hdrfile}" )
+    [[ -d "${hdrdir}" ]] || mkdir -p "${hdrdir}"
+    for pass in "${hdrlist[@]}"; do
+	export PASS=$( echo "${pass}" | tr 'a-z' 'A-Z' )
+	hdrdir=$( dirname "${hdrfile}" )
+	[[ -d "${hdrdir}" ]] || mkdir -p "${hdrdir}" || exit 1
+	for infile in "$@"; do
+	    gawk 'BEGIN{p=ENVIRON["PASS"];e="__" p "_";b=e "BEGIN__";e=e "END__";}{if($1==e){if(p=="PROTO"){printf ";\n\n";}else{printf "\n";};x=0;}else if($1==b){x=1;}else if(x){print $0;}}' <"${infile}" >>"${hdrfile}"
+	done
+    done
+    exit 0
+fi
+
+#-----------------------------------------------------------------------------
+# Set initial defaults which can be overridden by empty values.
+#-----------------------------------------------------------------------------
+std=""
+
+#-----------------------------------------------------------------------------
+# Parse command line for options.
+#-----------------------------------------------------------------------------
+while [[ $# -gt 0 ]]; do
+	value=$( echo "${1}" | cut -d = -f 2 )
+	case "${1}" in
+	    ( --no-arlib | --noarlib )		noarlib=1				;;
+	    ( --no-solib | --nosolib )		nosolib=1				;;
+	    ( --no-strip | --nostrip )		nostrip=1				;;
+	    ( --execdynamic | --exec-dynamic )	execdynamic=1				;;
+	    ( --execstatic | --exec-static )	execstatic=1				;;
+	    ( --hardalias )			hardalias=1				;;
+	    ( --quiet | -q )			verbose=$[ $verbose - 1 ]		;;
+	    ( --verbose=* | -v=* )		verbose="${value}"			;;
+	    ( --verbose | -v )			verbose=$[ $verbose + 1 ]		;;
+	    ( --cp-verbose=* )			cp_verbose="${value}"			;;
+	    ( --cp-verbose )			cp_verbose=1				;;
+	    ( --cc-verbose=* )			cc_verbose="${value}"			;;
+	    ( --cc-verbose )			cc_verbose=1				;;
+	    ( --as-verbose=* )			as_verbose="${value}"			;;
+	    ( --as-verbose )			as_verbose=1				;;
+	    ( --ld-verbose=* )			ld_verbose="${value}"			;;
+	    ( --ld-verbose )			ld_verbose=1				;;
+	    ( --optimize=* )			optimize="${value}"			;;
+	    ( --optimize )			optimize=3				;;
+	    ( --std=* )				std="${value}"				;;
+	    ( -O[0-9] )				optimize="${1:2:1}"			;;
+	    ( --warninline | --warn-inline )	warninline=1				;;
+	    ( --remove-old )			removeold=1				;;
+	    ( --cpreprocess | --cpp )		cpp=1					;;
+	    ( --assembly | --asm )		asm=1					;;
+	    ( --save-temps | --savetemps )	savetemps=1				;;
+	    ( --source=* | -s=* )		source="${value}"			;;
+	    ( --package=* )			package="${value}"			;;
+	    ( --version=* )			version="${value}"			;;
+	    ( --prefix=* | -p=* )		prefix="${value}"			;;
+	    ( --bin-prefix=* )			binprefix="${value}"			;;
+	    ( --cgi-prefix=* )			cgiprefix="${value}"			;;
+	    ( --include-prefix=* )		includeprefix="${value}"		;;
+	    ( --lib-prefix=* )			libprefix="${value}"			;;
+	    ( --sbin-prefix=* )			sbinprefix="${value}"			;;
+	    ( --install-prefix=* )		installprefix="${value}"		;;
+	    ( --install-bin-prefix=* )		installbinprefix="${value}"		;;
+	    ( --install-cgi-prefix=* )		installcgiprefix="${value}"		;;
+	    ( --install-include-prefix=* )	installincludeprefix="${value}"		;;
+	    ( --install-lib-prefix=* )		installlibprefix="${value}"		;;
+	    ( --install-man-prefix=* )		installmanprefix="${value}"		;;
+	    ( --install-sbin-prefix=* )		installsbinprefix="${value}"		;;
+	    ( --make )				domake=1				;;
+	    ( --make-install )			domakeinstall=1				;;
+	    ( -* )				echo "Unknown option '${1}'" 1>&2	;;
+	    ( * )				echo "Unknown argument '${1}'" 1>&2	;;
+	esac
+	shift
+done
+
+#-----------------------------------------------------------------------------
+# Make sure at least one of the library classes is to be built.
+#-----------------------------------------------------------------------------
+if [[ -n "${noarlib}" && -n "${nosolib}" ]]; then
+    emsg "Options '--no-arlib' and '--no-solib' cannot be used together"
+    exit 1
+fi
+
+#-----------------------------------------------------------------------------
+# If source is not specified, derive it from this script path, if known.
+#-----------------------------------------------------------------------------
+scriptfile="${0}"
+if [[ -z "${source}" ]]; then
+    source=$( dirname "${scriptfile}" )
+    if [[ -z "${source}" || "${source}" = "${scriptfile}" ]]; then
+	emsg "Unable to determine source directory from script name"
+	emsg "Use the --source= option to specify the source directory"
+	exit 1
+    fi
+    if [[ "${source}" = "." && "${scriptfile:0:2}" != "./" ]]; then
+	emsg "Unable to determine source directory from script name"
+	emsg "Use the --source= option to specify the source directory"
+	exit 1
+    fi
+fi
+canonsource=$( cd "${source}" && exec pwd )
+
+#-----------------------------------------------------------------------------
+# If the current directory is the source directory, go to a subdirectory.
+#-----------------------------------------------------------------------------
+pwd=$( exec pwd )
+if [[ "${pwd}" = "${canonsource}" || -f configure ]]; then
+    if [[ -e build ]]; then
+	echo ""
+	echo "This configure script does not support compiling in the source directory"
+	echo "if subdirectory 'build' already exists.  Either remove 'build' or create"
+	echo "an empty directory, change to it as the current directory, then execute:"
+	echo "    ${canonsource}/configure"
+	echo ""
+	exit 1
+    fi
+
+    #-----------------------------------------------------------
+    # Build a tiny Makefile to switch to the build subdirectory.
+    #-----------------------------------------------------------
+    rm -f Makefile
+    echo "all:"						>Makefile
+    echo "${tab}( cd build && exec make all )"		>>Makefile
+    echo ""						>>Makefile
+    echo "install:"					>>Makefile
+    echo "${tab}( cd build && exec make install )"	>>Makefile
+    echo ""						>>Makefile
+    echo "love:"					>>Makefile
+    echo "${tab}@echo not war!"				>>Makefile
+    echo ""						>>Makefile
+    echo "pwd =" $( exec pwd )
+
+    #-------------------------------------------------
+    # Do the rest of the building in the subdirectory.
+    #-------------------------------------------------
+    echo "Switching to subdirectory 'build'"
+    mkdir build || exit 1
+    ls -ld build || exit 1
+    cd build || exit 1
+    source=".."
+    canonsource=$( cd "${source}" && exec pwd )
+    scriptfile="../configure"
+fi
+pwd=$( exec pwd )
+
+#-----------------------------------------------------------------------------
+# Derive the package name.
+#-----------------------------------------------------------------------------
+if [[ -z "${package}" ]]; then
+    sourceabs=$( cd "${source}" && exec pwd )
+    package=$( echo "${sourceabs}" | gawk -F/ '{print $NF;}' )
+fi
+
+#-----------------------------------------------------------------------------
+# Derive the package version number, which gets appended to library names,
+# from the source path, unless specified.
+#-----------------------------------------------------------------------------
+if [[ -z "${version}" ]]; then
+    sourceabs=$( cd "${source}" && exec pwd )
+    version=$( echo "${sourceabs}" | gawk -F- '{print $NF;}' )
+fi
+vstr="version = ${version}"
+vernums=( $( echo "${version}" | tr . ' ' ) )
+if [[ "${#vernums[@]}" -ge 1 ]]; then
+    version1="${vernums[0]}"
+    vstr="${vstr} (${version1})"
+    if [[ "${#vernums[@]}" -ge 2 ]]; then
+	version2="${vernums[0]}.${vernums[1]}"
+	vstr="${vstr} (${version2})"
+	if [[ "${#vernums[@]}" -ge 3 ]]; then
+	    version3="${vernums[0]}.${vernums[1]}.${vernums[2]}"
+	    vstr="${vstr} (${version3})"
+	    if [[ "${#vernums[@]}" -ge 4 ]]; then
+		version4="${vernums[0]}.${vernums[1]}.${vernums[2]}.${vernums[3]}"
+		vstr="${vstr} (${version4})"
+	    fi
+	fi
+    fi
+fi
+msg "${vstr}"
+
+#-----------------------------------------------------------------------------
+# Set up defaults where nothing was specified, or was specified empty.
+#-----------------------------------------------------------------------------
+[[ -n "${prefix}" ]] || prefix="/tmp/${package}"
+[[ -n "${binprefix}" ]] || binprefix="${prefix}"
+[[ -n "${cgiprefix}" ]] || cgiprefix="${prefix}"
+[[ -n "${includeprefix}" ]] || includeprefix="${prefix}"
+[[ -n "${libprefix}" ]] || libprefix="${prefix}"
+[[ -n "${manprefix}" ]] || manprefix="${prefix}"
+[[ -n "${sbinprefix}" ]] || sbinprefix="${prefix}"
+
+[[ -n "${installprefix}" ]] || installprefix="${prefix}"
+[[ -n "${installbinprefix}" ]] || installbinprefix="${installprefix}"
+[[ -n "${installcgiprefix}" ]] || installcgiprefix="${installprefix}"
+[[ -n "${installincludeprefix}" ]] || installincludeprefix="${installprefix}"
+[[ -n "${installlibprefix}" ]] || installlibprefix="${installprefix}"
+[[ -n "${installmanprefix}" ]] || installmanprefix="${installprefix}"
+[[ -n "${installsbinprefix}" ]] || installsbinprefix="${installprefix}"
+
+[[ -n "${optimize}" ]] || optimize=2
+
+#-----------------------------------------------------------------------------
+# Compile tools we need to use.
+#-----------------------------------------------------------------------------
+rm -fr tool
+mkdir tool
+
+vmsg 1 "Compiling tools while in directory" $( exec pwd )
+
+gcc -o tool/readsymlink "${sourceabs}/CONFIG/readsymlink.c" || die=1
+[[ 1 -gt ${verbose} ]] || ls -ld "${pwd}/tool/readsymlink"
+
+gcc -o tool/buildheader "${sourceabs}/CONFIG/buildheader.c" || die=1
+[[ 1 -gt ${verbose} ]] || ls -ld "${pwd}/tool/buildheader"
+
+[[ -z "${die}" ]] || exit 1
+
+readsymlink="${pwd}/tool/readsymlink"
+buildheader="${pwd}/tool/buildheader"
+
+function readlink {
+    "${readsymlink}" "$@"
+}
+
+#-----------------------------------------------------------------------------
+# Configure system specific features.
+#-----------------------------------------------------------------------------
+unamem=$( uname -m | tr ' ' '_' )
+unames=$( uname -s | tr ' ' '_' )
+unamer=$( uname -r | tr ' ' '_' )
+
+gcc="gcc"
+
+lib_cp_cmd="${gcc}"
+pgm_cp_cmd="${gcc}"
+
+lib_cc_cmd="${gcc}"
+pgm_cc_cmd="${gcc}"
+
+lib_as_cmd="${gcc}"
+pgm_as_cmd="${gcc}"
+
+lib_ld_cmd="${gcc}"
+pgm_ld_cmd="${gcc}"
+
+lib_def=( "${lib_def[@]}" "-DARCH_${unamem}" "-DARCH=${unamem}" )
+pgm_def=( "${pgm_def[@]}" "-DARCH_${unamem}" "-DARCH=${unamem}" )
+
+lib_warn=( -Werror -Wall -Wnested-externs -Wno-cast-qual -Wno-trigraphs -Wuninitialized -Wwrite-strings )
+pgm_warn=( -Werror -Wall -Wnested-externs -Wno-cast-qual -Wno-trigraphs -Wuninitialized -Wwrite-strings )
+
+if [[ -n "${warninline}" ]]; then
+    lib_warn=( "${lib_warn[@]}" -Winline )
+    pgm_warn=( "${pgm_warn[@]}" -Winline )
+fi
+
+lib_feat=( -fomit-frame-pointer -funsigned-char -funsigned-bitfields -frerun-loop-opt -finline -finline-functions )
+pgm_feat=( -fomit-frame-pointer -funsigned-char -funsigned-bitfields -frerun-loop-opt -finline -finline-functions )
+
+lib_cp_opt=( -pipe )
+pgm_cp_opt=( -pipe )
+
+if [[ -n "${std}" ]]; then
+    lib_cp_opt=( "${lib_cp_opt[@]}" "-std=${std}" )
+    pgm_cp_opt=( "${pgm_cp_opt[@]}" "-std=${std}" )
+fi
+
+if [[ -n "${cp_verbose}" ]]; then
+    lib_cp_opt=( -v "${lib_cp_opt[@]}" )
+    pgm_cp_opt=( -v "${pgm_cp_opt[@]}" )
+fi
+
+lib_cc_opt=( -pipe "-O${optimize}" )
+pgm_cc_opt=( -pipe "-O${optimize}" )
+
+if [[ -n "${std}" ]]; then
+    lib_cc_opt=( "${lib_cc_opt[@]}" "-std=${std}" )
+    pgm_cc_opt=( "${pgm_cc_opt[@]}" "-std=${std}" )
+fi
+
+if [[ -n "${cc_verbose}" ]]; then
+    lib_cc_opt=( -v "${lib_cc_opt[@]}" )
+    pgm_cc_opt=( -v "${pgm_cc_opt[@]}" )
+fi
+
+lib_as_opt=( -pipe )
+pgm_as_opt=( -pipe )
+if [[ -n "${as_verbose}" ]]; then
+    lib_as_opt=( -v "${lib_as_opt[@]}" )
+    pgm_as_opt=( -v "${pgm_as_opt[@]}" )
+fi
+
+lib_ld_opt=( -pipe -shared -nostdlib -nostartfiles )
+pgm_ld_opt=( -pipe )
+if [[ -n "${ld_verbose}" ]]; then
+    lib_ld_opt=( -v "${lib_ld_opt[@]}" )
+    pgm_ld_opt=( -v "${pgm_ld_opt[@]}" )
+fi
+
+case "${unamem}" in
+    ( i386 | i486 | i586 | i686 )
+    lib_def=( "${lib_def[@]}" -DGENARCH_i386 -DGENARCH=i386 -DENDIAN2=01 -DENDIAN4=0123 -DENDIAN8=01234567 )
+    pgm_def=( "${pgm_def[@]}" -DGENARCH_i386 -DGENARCH=i386 -DENDIAN2=01 -DENDIAN4=0123 -DENDIAN8=01234567 )
+    ;;
+
+    ( sparc | sparc32 )
+#    lib_warn=( "${lib_warn[@]}" -Wcast-align )
+#    pgm_warn=( "${lib_warn[@]}" -Wcast-align )
+    lib_def=( "${lib_def[@]}" -DGENARCH_sparc -DGENARCH=sparc -DENDIAN2=10 -DENDIAN4=3210 -DENDIAN8=76543210 )
+    pgm_def=( "${pgm_def[@]}" -DGENARCH_sparc -DGENARCH=sparc -DENDIAN2=10 -DENDIAN4=3210 -DENDIAN8=76543210 )
+    ;;
+
+    ( ultrasparc | usparc | sparc64 )
+#    lib_warn=( "${lib_warn[@]}" -Wcast-align )
+#    pgm_warn=( "${lib_warn[@]}" -Wcast-align )
+    lib_def=( "${lib_def[@]}" -DGENARCH_usparc -DGENARCH=usparc -DENDIAN2=10 -DENDIAN4=3210 -DENDIAN8=76543210 )
+    pgm_def=( "${pgm_def[@]}" -DGENARCH_usparc -DGENARCH=usparc -DENDIAN2=10 -DENDIAN4=3210 -DENDIAN8=76543210 )
+    ;;
+
+    ( s390 )
+    lib_def=( "${lib_def[@]}" -DGENARCH_s390 -DGENARCH=s390 -DENDIAN2=10 -DENDIAN4=3210 -DENDIAN8=76543210 )
+    pgm_def=( "${pgm_def[@]}" -DGENARCH_s390 -DGENARCH=s390 -DENDIAN2=10 -DENDIAN4=3210 -DENDIAN8=76543210 )
+    ;;
+
+    ( * )
+    lib_def=( "${lib_def[@]}" -DGENARCH_unknown -DGENARCH=unknown -DENDIAN2=10 -DENDIAN4=3210 -DENDIAN8=76543210 )
+    pgm_def=( "${pgm_def[@]}" -DGENARCH_unknown -DGENARCH=unknown -DENDIAN2=10 -DENDIAN4=3210 -DENDIAN8=76543210 )
+    ;;
+esac
+
+case "${unames}" in
+    ( OpenBSD )
+    lib_def=( "${lib_def[@]}" -DOpenBSD -DBSD )
+    pgm_def=( "${pgm_def[@]}" -DOpenBSD -DBSD )
+    case "${unamer}" in
+	( 2.* | 3.* )
+	havec99=0
+	strtoq=1
+	strtouq=1
+	lib_def=( "${lib_def[@]}" -DLIBC1999=0 -DUSE_strtoq -DUSE_strtouq -DNO_strtold )
+	pgm_def=( "${pgm_def[@]}" -DLIBC1999=0 -DUSE_strtoq -DUSE_strtouq -DNO_strtold )
+	;;
+
+	( * )
+	;;
+    esac
+    ;;
+
+    ( FreeBSD )
+    lib_def=( "${lib_def[@]}" -DFreeBSD -DBSD )
+    pgm_def=( "${pgm_def[@]}" -DFreeBSD -DBSD )
+    v=$( echo "${unamer}" | cut -d . -f 1-2 )
+    case "${unamer}" in
+	( 2.* | 3.* | 4.* )
+	havec99=0
+	strtoq=1
+	strtouq=1
+	lib_def=( "${lib_def[@]}" -DLIBC1999=0 -DUSE_strtoq -DUSE_strtouq -DNO_strtold )
+	pgm_def=( "${pgm_def[@]}" -DLIBC1999=0 -DUSE_strtoq -DUSE_strtouq -DNO_strtold )
+	;;
+
+	( * )
+	;;
+    esac
+    ;;
+
+    ( NetBSD )
+    lib_def=( "${lib_def[@]}" -DNetBSD -DBSD )
+    pgm_def=( "${pgm_def[@]}" -DNetBSD -DBSD )
+    havec99=0
+    strtoq=1
+    strtouq=1
+    lib_def=( "${lib_def[@]}" -DLIBC1999=0 -DUSE_strtoq -DUSE_strtouq -DNO_strtold )
+    pgm_def=( "${pgm_def[@]}" -DLIBC1999=0 -DUSE_strtoq -DUSE_strtouq -DNO_strtold )
+    ;;
+
+    ( Linux )
+    lib_def=( "${lib_def[@]}" -DLIBC1999=1 -DLinux -DGNU )
+    pgm_def=( "${pgm_def[@]}" -DLIBC1999=1 -DLinux -DGNU )
+    ;;
+
+    ( * )
+    lib_def=( "${lib_def[@]}" -DunknownOS -DOSunknown )
+    pgm_def=( "${pgm_def[@]}" -DunknownOS -DOSunknown )
+    ;;
+esac
+
+case "${unames}/${unamem}" in
+
+	( FreeBSD/i386 | FreeBSD/i486 | FreeBSD/i586 | FreeBSD/i686 )
+	;;
+
+	( FreeBSD/ultrasparc | FreeBSD/usparc | FreeBSD/sparc64 )
+	;;
+
+	( Linux/i386 | Linux/i486 | Linux/i586 | Linux/i686 )
+	;;
+
+	( Linux/sparc | Linux/sparc32 )
+	;;
+
+	( Linux/ultrasparc | Linux/usparc | Linux/sparc64 )
+	;;
+
+	( Linux/s390 )
+	;;
+
+	( NetBSD/i386 | NetBSD/i486 | NetBSD/i586 | NetBSD/i686 )
+	;;
+
+	( NetBSD/sparc | NetBSD/sparc32 )
+	;;
+
+	( NetBSD/ultrasparc | NetBSD/usparc | NetBSD/sparc64 )
+	;;
+
+	( OpenBSD/i386 | OpenBSD/i486 | OpenBSD/i586 | OpenBSD/i686 )
+	;;
+
+	( OpenBSD/sparc | OpenBSD/sparc32 )
+	;;
+
+	( OpenBSD/ultrasparc | OpenBSD/usparc | OpenBSD/sparc64 )
+	;;
+
+	( */* )
+	;;
+esac
+
+#-----------------------------------------------------------------------------
+# Clean up and prepare to build the Makefile.
+#-----------------------------------------------------------------------------
+tablefile="config.dat"
+datalog="config.log"
+
+#-----------------------------------------------------------------------------
+# Record all products.
+#-----------------------------------------------------------------------------
+function product {
+    echo "$@" 1>&3
+}    
+
+#-----------------------------------------------------------------------------
+# Record how this contribution is to be produced.
+#-----------------------------------------------------------------------------
+function namescan {
+    local alias
+    local dir
+    local fulldir
+    local fullname
+    local name
+
+    name="${1}"
+    dir="${2}"
+    fulldir="${3}"
+    fullname="${fulldir}/${name}"
+
+    #-------------------------------------------
+    # Check if this directory is a target class.
+    #-------------------------------------------
+    case "${dir}" in
+	( bin-* | cgi-* | lib-* )
+	obj_class="${dir:0:3}"
+	obj_target="${dir:4}"
+	;;
+
+	( sbin-* | test-* )
+	obj_class="${dir:0:4}"
+	obj_target="${dir:5}"
+	;;
+
+	( hdr-* )
+	hdr_target="${dir:4}"
+	;;
+
+	( bin | cgi | lib | sbin | test )
+	obj_class="${dir}"
+	obj_target=$( noextension "${name}" )
+	;;
+
+	( hdr )
+	hdr_target=$( noextension "${name}" )
+	;;
+    esac
+
+    #---------------------------------------------
+    # If a directory, descend into it via dirscan.
+    # Symlinks are program aliases.
+    #---------------------------------------------  
+    if [[ -d "${name}" && ! -L "${name}" ]]; then
+	( cd "${name}" && dirscan "${name}" "${fulldir}/${name}" )
+	return $?
+    fi
+
+    #---------------------------------------------
+    # Check if this name is to be installed as-is.
+    # The value is the subdirectory to install to.
+    #---------------------------------------------
+    if [[ -L "${name}.DIR" ]]; then
+	target=$( readlink "${name}.DIR" )
+	product "copy ${target}/${name} ${fullname}"
+	return 0
+    fi
+    if [[ -L "${name}.FILE" ]]; then
+	target=$( readlink "${name}.FILE" )
+	product "copy ${target} ${fullname}"
+	return 0
+    fi
+
+    #-----------------------------------------------------
+    # Check if this name has a different target specified.
+    #-----------------------------------------------------
+    if [[ -L "${name}.OBJ" ]]; then
+	tmp=$( readlink "${name}.OBJ" )
+	tmp_class=$( dirname "${tmp}" )
+	if [[ "${tmp_class}" != "." ]]; then
+	    obj_class="${tmp_class}"
+	fi
+	obj_target=$( basename "${tmp}" )
+    fi
+
+    #------------------------------------------
+    # Also check for a different header target.
+    #------------------------------------------
+    if [[ -L "${name}.HDR" ]]; then
+	hdr_target=$( readlink "${name}.HDR" )
+	hdr_ext=$( extension "${hdr_target}" )
+	if [[ "${hdr_ext}" != "h" ]]; then
+	    hdr_target="${hdr_target}.h"
+	fi
+    fi
+
+    #-----------------------------------------
+    # Check if this file needs more libraries.
+    #-----------------------------------------
+    if [[ -L "${name}.DEPLIB" ]]; then
+	deps=$( readlink "${name}.DEPLIB" )
+	dep_libs="${dep_libs} ${deps}"
+    fi
+
+    #-----------------------------------
+    # If not a file, nothing to do here.
+    #-----------------------------------
+    if [[ ! -f "${name}" ]]; then
+	return 0
+    fi
+
+    #-----------------------------------------
+    # If this is a symlink for a program class
+    # then it will be a produced alias.
+    #-----------------------------------------
+    if [[ -L "${name}" ]]; then
+	if oneof "${obj_class}" bin cgi sbin test; then
+	    alias=$( readlink "${name}" )
+	    if [[ -d "${alias}" ]]; then
+		product "alias ${obj_class} ${alias} ${name}"
+	    else
+		a=$( noextension "${alias}" )
+		b=$( noextension "${name}" )
+		case "${name}" in
+
+		    ( *.c )
+		    product "alias ${obj_class} ${a} ${b}"
+		    ;;
+
+		    ( *.m )
+		    product "alias ${obj_class} ${a} ${b}"
+		    ;;
+
+		    ( *.cc | *.cp | *.cxx | *.cpp | *.c++ | *.C  )
+		    product "alias ${obj_class} ${a} ${b}"
+		    ;;
+
+		    ( *.f | *.for | *.FOR )
+		    product "alias ${obj_class} ${a} ${b}"
+		    ;;
+
+		    ( *.s | *.S )
+		    product "alias ${obj_class} ${a} ${b}"
+		    ;;
+
+		esac
+	    fi
+	fi
+	return 0
+    fi
+
+    #-------------------------------------
+    # Otherwise this is a regular product.
+    #-------------------------------------
+    case "${1}" in
+
+	( *.h )
+	if [[ -n "${hdr_target}" ]]; then
+	    product "hdr ${hdr_target} ${fullname}"
+	fi
+	;;
+
+	( *.c )
+	if [[ -n "${obj_class}" && -n "${obj_target}" ]]; then
+	    if [[ "${obj_class}" = "lib" && -n "${hdr_target}" ]]; then
+		product "hdr ${hdr_target} ${fullname}"
+	    fi
+	    product "${obj_class} c ${obj_target} ${fullname} ${dep_libs}"
+	fi
+	;;
+
+	( *.m )
+	if [[ -n "${obj_class}" && -n "${obj_target}" ]]; then
+	    if [[ "${obj_class}" = "lib" && -n "${hdr_target}" ]]; then
+		product "hdr ${hdr_target} ${fullname}"
+	    fi
+	    product "${obj_class} objc ${obj_target} ${fullname} ${dep_libs}"
+	fi
+	;;
+
+	( *.cc | *.cp | *.cxx | *.cpp | *.c++ | *.C  )
+	if [[ -n "${obj_class}" && -n "${obj_target}" ]]; then
+	    if [[ "${obj_class}" = "lib" && -n "${hdr_target}" ]]; then
+		product "hdr ${hdr_target} ${fullname}"
+	    fi
+	    product "${obj_class} c++ ${obj_target} ${fullname} ${dep_libs}"
+	fi
+	;;
+
+	( *.f | *.for | *.FOR )
+	if [[ -n "${obj_class}" && -n "${obj_target}" ]]; then
+	    product "${obj_class} for ${obj_target} ${fullname} ${dep_libs}"
+	fi
+	;;
+
+	( *.s | *.S )
+	if [[ -n "${obj_class}" && -n "${obj_target}" ]]; then
+	    product "${obj_class} asm ${obj_target} ${fullname} ${dep_libs}"
+	fi
+	;;
+
+	#-----------------------------------------------
+	# Man page files contribute to their own target.
+	#-----------------------------------------------
+	( *.[0-9] )
+	sec=$( extension "${name}" )
+	product "man man/man${sec}/${name} ${fullname}"
+	;;
+
+	#------------------------------------
+	# Anything else is not a contributor.
+	#------------------------------------
+	( * )
+	# product "# ${fullname}"
+	;;
+
+    esac
+}
+
+#-----------------------------------------------------------------------------
+# Scan the source file tree at each level incrementally.
+#-----------------------------------------------------------------------------
+function dirscan {
+    local deps
+    local dir
+    local fulldir
+    local link
+    local links
+    local prefix
+    local uclink
+
+    dir="${1}"
+    fulldir="${2}"
+
+    dirdepth=$[ $dirdepth + 1 ]
+    vmsg $dirdepth "directory: ${fulldir}"
+
+    #----------------------------------
+    # Scan object target symlink names.
+    #----------------------------------
+    links=( )
+    for link in bin cgi lib sbin test; do
+	uclink=$( echo "${link}" | tr 'a-z' 'A-Z' )
+	if [[ -L "${link}" ]]; then
+	    links=( "${links[@]}" "${link}" )
+	    obj_class="${link}"
+	    obj_target=$( readlink "${uclink}" )
+	fi
+    done
+
+    #----------------------------------------------------
+    # No more than one of these is allowed to be present.
+    #----------------------------------------------------
+    if [[ ${#links[@]} -gt 1 ]]; then
+	echo "in ${fulldir}: redundant object target class links: ${links[*]}" 1>&2
+	return
+    fi
+
+    #--------------------------------------------
+    # If a header target is specified, record it.
+    #--------------------------------------------
+    if [[ -L HDR ]]; then
+	hdr_target=$( readlink HDR )
+    fi
+
+    #------------------------------------------------------------
+    # If dependent libraries are specified, add them to the list.
+    #------------------------------------------------------------
+    if [[ -L DEPLIB ]]; then
+	deps=$( readlink DEPLIB )
+	dep_libs="${dep_libs} ${deps}"
+    fi
+
+    #--------------------------------------------------
+    # Scan all files and directories for contributors.
+    # Directory names must be lower case to contribute.
+    #--------------------------------------------------
+    ls -1 | egrep '^[a-z]' | while read name; do	
+	( namescan "${name}" "${dir}" "${fulldir}" )
+    done
+
+    return 0
+}
+
+dirdepth=0
+( cd "${source}" && dirscan . "${source}" ) 3>"${tablefile}"
+ls -ld "${tablefile}"
+
+#-----------------------------------------------------------------------------
+# function	hr1
+# function	hr2
+# function	hr3
+#-----------------------------------------------------------------------------
+function hr1 {
+    echo "##############################################################################"
+    echo ""
+}
+function hr2 {
+    echo "#============================================================================="
+    echo ""
+}
+function hr3 {
+    echo "#-----------------------------------------------------------------------------"
+    echo ""
+}
+function hr4 {
+    echo "#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
+    echo ""
+}
+
+#-----------------------------------------------------------------------------
+# function	make_start
+#-----------------------------------------------------------------------------
+function make_start {
+    vmsg 2 "Generating Makefile section: start"
+    echo "##############################################################################"
+    echo "# This Makefile was generated:"
+    echo "# date/time: " $( exec date '+%Y-%m-%d %H:%M:%S' )
+    echo "# configure: " "${scriptfile}"
+    echo "# sourcetree:" "${source}"
+    echo "# hostname:  " $( exec hostname )
+    echo "# username:  " $( exec whoami )
+    echo "##############################################################################"
+    echo ""
+    echo "lib_def = ${lib_def[@]}"
+    echo "pgm_def = ${pgm_def[@]}"
+    echo ""
+    echo "lib_warn = ${lib_warn[@]}"
+    echo "pgm_warn = ${pgm_warn[@]}"
+    echo ""
+    echo "lib_feat = ${lib_feat[@]}"
+    echo "pgm_feat = ${pgm_feat[@]}"
+
+    if [[ -n "${cpp}" ]]; then
+	echo ""
+	echo "lib_cp_cmd = ${lib_cp_cmd}"
+	echo "pgm_cp_cmd = ${pgm_cp_cmd}"
+	echo ""
+	echo "lib_cp_opt =" "${lib_cp_opt[@]}" "\$(lib_def)"
+	echo "pgm_cp_opt =" "${pgm_cp_opt[@]}" "\$(pgm_def)"
+
+	if [[ -n "${asm}" ]]; then
+	    echo ""
+	    echo "lib_cc_cmd = ${lib_cc_cmd}"
+	    echo "pgm_cc_cmd = ${pgm_cc_cmd}"
+	    echo ""
+	    echo "lib_cc_opt =" "${lib_cc_opt[@]}" "\$(lib_feat)" "\$(lib_warn)"
+	    echo "pgm_cc_opt =" "${pgm_cc_opt[@]}" "\$(pgm_feat)" "\$(pgm_warn)"
+	    echo ""
+	    echo "lib_as_cmd = ${lib_as_cmd}"
+	    echo "pgm_as_cmd = ${pgm_as_cmd}"
+	    echo ""
+	    echo "lib_as_opt =" "${lib_as_opt[@]}"
+	    echo "pgm_as_opt =" "${pgm_as_opt[@]}"
+	else
+	    echo ""
+	    echo "lib_cc_cmd = ${lib_cc_cmd}"
+	    echo "pgm_cc_cmd = ${pgm_cc_cmd}"
+	    echo ""
+	    echo "lib_cc_opt =" "${lib_cc_opt[@]}" "\$(lib_feat)" "\$(lib_warn)"
+	    echo "pgm_cc_opt =" "${pgm_cc_opt[@]}" "\$(pgm_feat)" "\$(pgm_warn)"
+	fi
+    else
+	if [[ -n "${asm}" ]]; then
+	    echo ""
+	    echo "lib_cc_cmd = ${lib_cc_cmd}"
+	    echo "pgm_cc_cmd = ${pgm_cc_cmd}"
+	    echo ""
+	    echo "lib_cc_opt =" "${lib_cc_opt[@]}" "\$(lib_def)" "\$(lib_feat)" "\$(lib_warn)"
+	    echo "pgm_cc_opt =" "${pgm_cc_opt[@]}" "\$(pgm_def)" "\$(pgm_feat)" "\$(pgm_warn)"
+	    echo ""
+	    echo "lib_as_cmd = ${lib_as_cmd}"
+	    echo "pgm_as_cmd = ${pgm_as_cmd}"
+	    echo ""
+	    echo "lib_as_opt =" "${lib_as_opt[@]}"
+	    echo "pgm_as_opt =" "${pgm_as_opt[@]}"
+	else
+	    echo ""
+	    echo "lib_cc_cmd = ${lib_cc_cmd}"
+	    echo "pgm_cc_cmd = ${pgm_cc_cmd}"
+	    echo ""
+	    echo "lib_cc_opt =" "${lib_cc_opt[@]}" "\$(lib_def)" "\$(lib_feat)" "\$(lib_warn)"
+	    echo "pgm_cc_opt =" "${pgm_cc_opt[@]}" "\$(pgm_def)" "\$(pgm_feat)" "\$(pgm_warn)"
+	fi
+    fi
+
+    echo ""
+    echo "lib_ld_cmd = ${lib_ld_cmd}"
+    echo "pgm_ld_cmd = ${pgm_ld_cmd}"
+    echo ""
+    echo "lib_ld_opt =" "${lib_ld_opt[@]}"
+    echo "pgm_ld_opt =" "${pgm_ld_opt[@]}"
+    echo ""
+
+    echo "##############################################################################"
+    echo ""
+    echo ".SUFFIXES:"
+    echo ""
+}
+
+#-----------------------------------------------------------------------------
+# function	just_once
+# purpose	Return true the first time, and false all subsequent times
+#		for a given string.  This will be saved in a file named
+#		"just_once" in the build directory.
+# arguments	1 key string
+#-----------------------------------------------------------------------------
+justonce="${pwd}/just_once"
+function just_once {
+    local result
+    if [[ -e "${justonce}" ]]; then
+	result=$( egrep '^'"${1}"'$' < "${justonce}" | head -1 )
+    else
+	result=""
+    fi
+    [[ -z "${result}" ]] || return 1
+    echo "x${1}" | cut -c 2- >>"${justonce}"
+    return 0
+}
+
+#-----------------------------------------------------------------------------
+# function	make_dir
+# purpose	Output Makefile specs to create a directory.
+# arguments	1 directory name
+#-----------------------------------------------------------------------------
+function make_dir {
+    local dir
+    for dir in "$@"; do
+	if just_once "${dir}"; then
+	    echo "${dir}:"
+	    echo "${tab}mkdir -p ${dir}"
+	    echo ""
+	fi
+    done
+    return 0
+}
+
+#-----------------------------------------------------------------------------
+# function	all_headers
+# function	header_src           header
+# function	all_products         class
+# function	class_product_src    class product
+# function	class_product_obj    class product
+# function	class_product_lib    class product
+#-----------------------------------------------------------------------------
+# These are functions to extract specific lists from the stored tables.
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# function	all_headers
+# arguments	-none-
+# results	list of all produced header files
+#-----------------------------------------------------------------------------
+function all_headers {
+    gawk '{if($1=="hdr"){print $2;}}' <"${tablefile}" | sort -u
+}
+
+#-----------------------------------------------------------------------------
+# function	header_src
+# arguments	1: header target
+# results	list of source files that contribute to that header target
+#-----------------------------------------------------------------------------
+function header_src {
+    N="${1}" gawk '{if($1=="hdr"&&$2==ENVIRON["N"]){print $3;}}' <"${tablefile}" | sortpath
+}
+
+#-----------------------------------------------------------------------------
+# function	all_copy
+# arguments	-none-
+# results	files to install: destination, source
+#-----------------------------------------------------------------------------
+function all_copy {
+    gawk '{if($1=="copy"){print $2,$3;}}' <"${tablefile}"
+}
+
+#-----------------------------------------------------------------------------
+# function	all_products
+# arguments	1: product class
+# results	product name
+#-----------------------------------------------------------------------------
+function all_products {
+    C="${1}" gawk '{if($1==ENVIRON["C"]){print $3;}}' <"${tablefile}" | sort -u
+}
+
+#-----------------------------------------------------------------------------
+# function	class_product_src
+# arguments	1: product class
+#		2: product target name
+# results	product source file names (in source tree)
+#-----------------------------------------------------------------------------
+function class_product_src {
+    C="${1}" N="${2}" gawk '{if($1==ENVIRON["C"]&&$3==ENVIRON["N"]){print $4;}}' <"${tablefile}" | sortpath
+}
+
+#-----------------------------------------------------------------------------
+# function	class_product_dep
+# arguments	1: product class
+#		2: product target name
+# results	product library dependencies
+#-----------------------------------------------------------------------------
+function class_product_dep {
+    C="${1}" N="${2}" gawk '{if($1==ENVIRON["C"]&&$3==ENVIRON["N"]){for(i=5;i<=NF;++i){print $i;}}}' <"${tablefile}" | sort -u
+}
+
+#-----------------------------------------------------------------------------
+# function	class_product_obj
+# arguments	1: product class
+#		2: product target name
+# results	product object file names
+#-----------------------------------------------------------------------------
+function class_product_obj {
+    C="${1}" N="${2}" gawk '{if($1==ENVIRON["C"]&&$3==ENVIRON["N"]){print $4;}}' <"${tablefile}" | gawk -F/ '{print $NF;}' | gawk -F. 'BEGIN{OFS=".";}{$NF="o";print $0;}' | sort
+}
+
+#-----------------------------------------------------------------------------
+# function	class_product_lib
+# arguments	1: product class
+#		2: product target name
+# results	additional libraries the product depends on
+#-----------------------------------------------------------------------------
+function class_product_lib {
+    C="${1}" N="${2}" gawk '{if($1==ENVIRON["C"]&&$3==ENVIRON["N"]){for(i=5;i<=NF;++i){print $i;}}}' <"${tablefile}" | sort -u
+}
+
+#-----------------------------------------------------------------------------
+# function	these_classes
+# arguments	list of classes to determine
+# results	list of given classes in which a product is produced
+#-----------------------------------------------------------------------------
+function these_classes {
+    local class
+    for class in "$@"; do
+	C="${class}" gawk 'BEGIN{c=ENVIRON["C"];}{if($1==c){++n;}}END{if(n>0){print c;}}' <"${tablefile}"
+    done
+}
+
+#-----------------------------------------------------------------------------
+# function	alias_of
+# arguments	1: alias target name
+# results	list of alias names
+#-----------------------------------------------------------------------------
+function alias_of {
+    C="${1}" N="${2}" gawk '{if($1=="alias"&&$2==ENVIRON["C"]&&$3==ENVIRON["N"]){print $4;}}' <"${tablefile}"
+}
+
+#-----------------------------------------------------------------------------
+# function	logdata
+#-----------------------------------------------------------------------------
+# Log the output of the specified data source.
+#-----------------------------------------------------------------------------
+function logdata {
+    local name
+#    if [[ -n "${dologdata}" ]]; then
+	echo "" >>"${datalog}"
+	echo "==>" "$@" "<==" >>"${datalog}"
+	"$@" >>"${datalog}"
+#    fi
+}
+
+#-----------------------------------------------------------------------------
+# function	make_all
+#-----------------------------------------------------------------------------
+# Generate Makefile target "all" with prerequisites of each product class
+# that actually has a product.
+#-----------------------------------------------------------------------------
+function make_all {
+    vmsg 2 "Generating Makefile section: all"
+    hr1
+    echo -n "all:"
+    logdata these_classes copy hdr lib bin cgi sbin test
+    these_classes copy hdr lib bin cgi sbin test | gawk '{printf " all_%s",$1;}END{printf "\n\n";}'
+}
+
+#-----------------------------------------------------------------------------
+# function	make_copy
+#-----------------------------------------------------------------------------
+# Generate Makefile specs for files to be copied.
+#-----------------------------------------------------------------------------
+function make_copy {
+    vmsg 2 "Generating Makefile section: copy"
+    hr1
+    logdata all_copy
+    echo -n "all_copy:"
+    all_copy | gawk '{printf " %s",$1;}END{printf "\n";}'
+    echo ""
+    all_copy | while read dst src; do
+	dstdir=$( dirname "${dst}" )
+	vmsg 3 "Generating Makefile section: copy ${dst}"
+	make_dir "${dstdir}"
+	echo "${dst}: ${dstdir} ${src}"
+	echo "${tab}cp -p ${src} ${dst}"
+	echo ""
+    done
+}
+
+#-----------------------------------------------------------------------------
+# function	make_hdr
+#-----------------------------------------------------------------------------
+# Generate Makefile specs for:
+# 1.  Target "all_hdr" listing all headers as prerequisites.
+# 2.  Targets for each header to build it from all its sources.
+#-----------------------------------------------------------------------------
+function make_hdr {
+    vmsg 2 "Generating Makefile section: hdr"
+    hdr=$( these_classes hdr )
+    [[ -n "${hdr}" ]] || return
+    hr1
+    echo -n "all_hdr:"
+    logdata all_headers
+    all_headers | gawk '{printf " include/%s",$1;}END{printf "\n";}'
+    echo ""
+    all_headers | while read hdrname; do
+	vmsg 3 "Generating Makefile section: hdr ${hdrname}"
+	hr2
+	make_dir $( dirname "include/${hdrname}" )
+	echo -n "include/${hdrname}:"
+	echo -n $( dirname " include/${hdrname}" )
+	logdata header_src "${hdrname}"
+	header_src "${hdrname}" | gawk '{printf " %s",$1;}END{printf "\n";}'
+#	echo -n "${tab}${scriptfile} --${hdropt} include/${hdrname}"
+	echo -n "${tab}${buildheader} include/${hdrname}"
+	header_src "${hdrname}" | gawk '{printf " %s",$1;}END{printf "\n";}'
+	echo ""
+    done
+}
+
+#-----------------------------------------------------------------------------
+# function	make_lib
+#-----------------------------------------------------------------------------
+# Generate Makefile specs for:
+# 1.  Target "all_lib" listing all libraries as prerequisites.
+# 2.  Targets for each library to build it from the .o files.
+# 3.  Targets for each library .o to build it from its source.
+#-----------------------------------------------------------------------------
+function make_lib {
+    vmsg 2 "Generating Makefile section: lib"
+    hr1
+
+    #-------------------------------------------
+    # Generate Makefile specs for all libraries.
+    #-------------------------------------------
+    echo -n "all_lib:"
+    [[ -n "${noarlib}" ]] || echo -n " all_arlib"
+    [[ -n "${nosolib}" ]] || echo -n " all_solib"
+    echo ""
+    echo ""
+
+    if [[ -z "${noarlib}" ]]; then
+	all_products lib \
+	    | V="${version}" gawk 'BEGIN{printf "all_arlib:";}{printf " lib/lib%s.a.%s",$1,ENVIRON["V"];}'
+	echo ""
+	echo ""
+    fi
+
+    if [[ -z "${nosolib}" ]]; then
+	all_products lib \
+	    | V="${version}" gawk 'BEGIN{printf "all_solib:";}{printf " lib/lib%s.so.%s",$1,ENVIRON["V"];}'
+	echo ""
+	echo ""
+    fi
+
+    #-----------------------------------------------
+    # Generate Makefile specs to build each library.
+    #-----------------------------------------------
+    for libname in "${all_libs[@]}"; do
+	vmsg 3 "Generating Makefile section: lib ${libname}"
+	hr2
+	logdata class_product_obj lib "${libname}"
+	logdata class_product_dep lib "${libname}"
+	logdata class_product_src lib "${libname}"
+
+	#-----------------------------------------------------
+	# Generate Makefile specs to build an archive library.
+	#-----------------------------------------------------
+	if [[ -z "${noarlib}" ]]; then
+	    make_dir "lib"
+	    make_dir "obj/arlib/${libname}"
+
+	    echo -n "lib/lib${libname}.a.${version}: lib obj/arlib/${libname}"
+	    class_product_obj lib "${libname}" | N="${libname}" gawk '{printf " obj/arlib/%s/%s",ENVIRON["N"],$1;}'
+	    echo ""
+
+	    echo -n "${tab}ar qcs lib/lib${libname}.a.${version}"
+	    class_product_obj lib "${libname}" | N="${libname}" gawk '{printf " obj/arlib/%s/%s",ENVIRON["N"],$1;}'
+	    echo ""
+
+	    if [[ "${#vernums[@]}" -gt 3 ]]; then
+		echo "${tab}ln -fs lib${libname}.a.${version4} lib/lib${libname}.a.${version3}"
+	    fi
+
+	    if [[ "${#vernums[@]}" -gt 2 ]]; then
+		echo "${tab}ln -fs lib${libname}.a.${version3} lib/lib${libname}.a.${version2}"
+	    fi
+
+	    if [[ "${#vernums[@]}" -gt 1 ]]; then
+		echo "${tab}ln -fs lib${libname}.a.${version2} lib/lib${libname}.a.${version1}"
+	    fi
+
+	    if [[ "${#vernums[@]}" -gt 0 ]]; then
+		echo "${tab}ln -fs lib${libname}.a.${version1} lib/lib${libname}.a"
+	    fi
+
+	    echo ""
+	fi
+
+	#---------------------------------------------------
+	# Generate Makefile specs to build a shared library.
+	#---------------------------------------------------
+	if [[ -z "${nosolib}" ]]; then
+	    make_dir "lib"
+	    make_dir "obj/solib/${libname}"
+
+	    echo -n "lib/lib${libname}.so.${version}: lib obj/solib/${libname}"
+	    class_product_obj lib "${libname}" | N="${libname}" gawk '{printf " obj/solib/%s/%s",ENVIRON["N"],$1;}'
+	    echo ""
+
+	    echo -n "${tab}\$(lib_ld_cmd) \$(lib_ld_opt)" \
+		"-Wl,-S,-soname,lib${libname}.so.${version1} -o lib/lib${libname}.so.${version}"
+	    class_product_obj lib "${libname}" | N="${libname}" gawk '{printf " obj/solib/%s/%s",ENVIRON["N"],$1;}'
+	    class_product_dep lib "${libname}" | gawk '{printf " -l%s",$1;}'
+	    echo ""
+
+	    if [[ "${#vernums[@]}" -gt 3 ]]; then
+		echo "${tab}ln -fs lib${libname}.so.${version4} lib/lib${libname}.so.${version3}"
+	    fi
+
+	    if [[ "${#vernums[@]}" -gt 2 ]]; then
+		echo "${tab}ln -fs lib${libname}.so.${version3} lib/lib${libname}.so.${version2}"
+	    fi
+
+	    if [[ "${#vernums[@]}" -gt 1 ]]; then
+		echo "${tab}ln -fs lib${libname}.so.${version2} lib/lib${libname}.so.${version1}"
+	    fi
+
+	    if [[ "${#vernums[@]}" -gt 0 ]]; then
+		echo "${tab}ln -fs lib${libname}.so.${version1} lib/lib${libname}.so"
+	    fi
+
+	    echo ""
+	fi
+
+	#----------------------------------------------------
+	# Generate Makefile specs to compile library sources.
+	#----------------------------------------------------
+	class_product_src lib "${libname}" | while read srcname; do
+	    vmsg 9 "Generating Makefile section: lib ${libname} ${srcname}"
+	    srcdir=$( dirname "${srcname}" )
+	    srcref="-I ${srcdir} -I ${source}/include -I- -I ./include ${srcname}"
+	    objname=$( echo "${srcname}" | gawk -F/ '{print $NF;}' | gawk -F. 'BEGIN{OFS=".";}{$NF="o";print $0;}' )
+	    for lc in arlib solib; do
+		[[ "${lc}" = "arlib" ]] && libfeat=( -DARLIBRARY=1 )
+		[[ "${lc}" = "solib" ]] && libfeat=( -DSOLIBRARY=1 -DfPIC=1 -fPIC )
+
+		echo "obj/${lc}/${libname}/${objname}: ${srcname}"
+
+		if [[ -n "${asm}" ]]; then
+		    if [[ -n "${cpp}" ]]; then
+			cppname=$( echo "${objname}" | gawk -F. 'BEGIN{OFS=".";}{$NF="i";print $0;}' )
+			asmname=$( echo "${objname}" | gawk -F. 'BEGIN{OFS=".";}{$NF="s";print $0;}' )
+			echo "${tab}\$(lib_cp_cmd) \$(lib_cp_opt)" \
+			    "-E -o obj/${lc}/${libname}/${cppname} ${srcref}"
+			echo "${tab}\$(lib_cc_cmd) \$(lib_cc_opt)" "${libfeat[@]}" "-fverbose-asm" \
+			    "-S -o obj/${lc}/${libname}/${asmname} obj/${lc}/${libname}/${cppname}"
+			echo "${tab}\$(lib_as_cmd) \$(lib_as_opt)" \
+			    "-c -o obj/${lc}/${libname}/${objname} obj/${lc}/${libname}/${asmname}"
+		    else
+			asmname=$( echo "${objname}" | gawk -F. 'BEGIN{OFS=".";}{$NF="s";print $0;}' )
+			echo "${tab}\$(lib_cc_cmd) \$(lib_cc_opt)" "${libfeat[@]}" "-fverbose-asm" \
+			    "-S -o obj/${lc}/${libname}/${asmname} ${srcref}"
+			echo "${tab}\$(lib_as_cmd) \$(lib_as_opt)" \
+			    "-c -o obj/${lc}/${libname}/${objname} obj/${lc}/${libname}/${asmname}"
+		    fi
+		else
+		    if [[ -n "${cpp}" ]]; then
+			cppname=$( echo "${objname}" | gawk -F. 'BEGIN{OFS=".";}{$NF="i";print $0;}' )
+			echo "${tab}\$(lib_cp_cmd) \$(lib_cp_opt)" \
+			    "-E -o obj/${lc}/${libname}/${cppname} ${srcref}"
+			echo "${tab}\$(lib_cc_cmd) \$(lib_cc_opt)" "${libfeat[@]}" \
+			    "-c -o obj/${lc}/${libname}/${objname} obj/${lc}/${libname}/${cppname}"
+		    else
+			echo "${tab}\$(lib_cc_cmd) \$(lib_cc_opt)" "${libfeat[@]}" \
+			    "-c -o obj/${lc}/${libname}/${objname} ${srcref}"
+		    fi
+		fi
+		echo ""
+	    done
+	done
+
+    done
+}
+
+#-----------------------------------------------------------------------------
+# function	make_pgm
+#-----------------------------------------------------------------------------
+# Generate Makefile specs for each of:  bin cgi sbin test
+# 1.  Target "all_class" listing all programs as prerequisites.
+# 2.  Targets for each program to build it from the .o files.
+# 3.  Targets for each program .o to build it from its source.
+#-----------------------------------------------------------------------------
+function make_pgm {
+    local pgmclass
+    pgmclass="${1}"
+
+    vmsg 2 "Generating Makefile section: ${pgmclass}"
+    logdata all_products "${pgmclass}"
+
+    # specify all targets
+    hr1
+    make_dir "${pgmclass}"
+
+    echo -n "all_${pgmclass}: ${pgmclass}"
+    all_products "${pgmclass}" | while read pgmname; do
+	echo -n " ${pgmclass}/${pgmname}"
+    done
+    echo ""
+    echo ""
+
+    all_products "${pgmclass}" | while read pgmname; do
+	vmsg 3 "Generating Makefile section: ${pgmclass} ${pgmname}"
+	logdata class_product_obj "${pgmclass}" "${pgmname}"
+	logdata class_product_dep "${pgmclass}" "${pgmname}"
+
+	# target: dependencies
+	hr2
+	make_dir "obj/${pgmclass}/${pgmname}"
+
+	echo -n "${pgmclass}/${pgmname}: ${pgmclass} obj/${pgmclass}/${pgmname}"
+	class_product_obj "${pgmclass}" "${pgmname}" | while read objname; do
+	    echo -n " obj/${pgmclass}/${pgmname}/${objname}"
+	done
+	echo ""
+
+	# link, object files, libraries
+	echo -n "${tab}\$(pgm_ld_cmd) \$(pgm_ld_opt) -o ${pgmclass}/${pgmname}"
+	class_product_obj "${pgmclass}" "${pgmname}" | while read objname; do
+	    echo -n " obj/${pgmclass}/${pgmname}/${objname}"
+	done
+	if [[ -z "${nosolib}" && -n "${execdynamic}" ]]; then
+	    echo -n " -L./lib"
+	    class_product_dep "${pgmclass}" "${pgmname}" | while read depname; do
+		echo -n " -l${depname}"
+	    done
+	else
+	    class_product_dep "${pgmclass}" "${pgmname}" | while read depname; do
+		if [[ -n "${execstatic}" ]]; then
+		    # make it entirely static for all libs
+		    echo -n " -static"
+		fi
+		if oneof "${depname}" "${all_libs[@]}"; then
+		    # if built here then use the static library
+		    echo -n " lib/lib${depname}.a.${version}"
+		else
+		    # otherwise use the dynamic shared library
+		    echo -n " -l${depname}"
+		fi
+	    done
+	fi
+	echo ""
+
+	# strip executable
+	[[ -n "${nostrip}" ]] || echo "${tab}strip ${pgmclass}/${pgmname}"
+
+	# create aliases
+	alias_of "${pgmclass}" "${pgmname}" | while read aliasname; do
+	    if [[ -n "${hardalias}" ]]; then
+		echo "${tab}ln -f ${pgmclass}/${pgmname} ${pgmclass}/${aliasname}"
+	    else
+		echo "${tab}ln -fs ${pgmname} ${pgmclass}/${aliasname}"
+	    fi
+	done
+
+	echo ""
+
+	# compile each source file for each object needed by this executable
+	class_product_src "${pgmclass}" "${pgmname}" | while read srcname; do
+	    vmsg 9 "Generating Makefile section: ${pgmclass} ${pgmname} ${srcname}"
+	    srcdir=$( dirname "${srcname}" )
+	    srcref="-I ${srcdir} -I ${source}/include -I- -I ./include ${srcname}"
+	    objname=$( echo "${srcname}" | gawk -F/ '{print $NF;}' | gawk -F. 'BEGIN{OFS=".";}{$NF="o";print $0;}' )
+	    echo "obj/${pgmclass}/${pgmname}/${objname}: ${srcname}"
+	    if [[ -n "${asm}" ]]; then
+		if [[ -n "${cpp}" ]]; then
+		    cppname=$( echo "${objname}" | gawk -F. 'BEGIN{OFS=".";}{$NF="i";print $0;}' )
+		    asmname=$( echo "${objname}" | gawk -F. 'BEGIN{OFS=".";}{$NF="s";print $0;}' )
+		    echo "${tab}\$(pgm_cp_cmd) \$(pgm_cp_opt)" \
+			"-E -o obj/${pgmclass}/${pgmname}/${cppname} ${srcref}"
+		    echo "${tab}\$(pgm_cc_cmd) \$(pgm_cc_opt)" "-fverbose-asm" \
+			"-S -o obj/${pgmclass}/${pgmname}/${asmname} obj/${pgmclass}/${pgmname}/${cppname}"
+		    echo "${tab}\$(pgm_as_cmd) \$(pgm_as_opt)" \
+			"-c -o obj/${pgmclass}/${pgmname}/${objname} obj/${pgmclass}/${pgmname}/${asmname}"
+		else
+		    asmname=$( echo "${objname}" | gawk -F. 'BEGIN{OFS=".";}{$NF="s";print $0;}' )
+		    echo "${tab}\$(pgm_cc_cmd) \$(pgm_cc_opt)" "-fverbose-asm" \
+			"-S -o obj/${pgmclass}/${pgmname}/${asmname} ${srcref}"
+		    echo "${tab}\$(pgm_as_cmd) \$(pgm_as_opt)" \
+			"-c -o obj/${pgmclass}/${pgmname}/${objname} obj/${pgmclass}/${pgmname}/${asmname}"
+		fi
+	    else
+		if [[ -n "${cpp}" ]]; then
+		    cppname=$( echo "${objname}" | gawk -F. 'BEGIN{OFS=".";}{$NF="i";print $0;}' )
+		    echo "${tab}\$(pgm_cp_cmd) \$(pgm_cp_opt)" \
+			"-E -o obj/${pgmclass}/${pgmname}/${cppname} ${srcref}"
+		    echo "${tab}\$(pgm_cc_cmd) \$(pgm_cc_opt)" \
+			"-c -o obj/${pgmclass}/${pgmname}/${objname} obj/${pgmclass}/${pgmname}/${cppname}"
+		else
+		    echo "${tab}\$(pgm_cc_cmd) \$(pgm_cc_opt)" \
+			"-c -o obj/${pgmclass}/${pgmname}/${objname} ${srcref}"
+		fi
+	    fi
+	    echo ""
+	done
+    done
+}
+
+#-----------------------------------------------------------------------------
+# functions install_X
+#-----------------------------------------------------------------------------
+# Generate Makefile specs to do a general install in 5 phases.  Each phase
+# is done across all file names before the next phase is done.
+#-----------------------------------------------------------------------------
+# 1: remove any leftover "new" files from incomplete previous installs
+# 2: copy installable files to a temporary "new" name
+# 3: hard link the current file to an "old" name
+# 4: move the "new" file to replace and become the current one
+# 5: remove the old files, if the --remove-old option is requested
+# prep copy link move final
+#-----------------------------------------------------------------------------
+function install_1 {
+    echo "${tab}rm -f ${2}.NEW ${2}.OLD"
+}
+function install_2 {
+    echo "${tab}cp -dfp ${1} ${2}.NEW"
+    echo "${tab}chmod go=u-w ${2}.NEW"
+}
+function install_3 {
+    echo "${tab}-ln -f ${2} ${2}.OLD"
+}
+function install_4 {
+    echo "${tab}mv -f ${2}.NEW ${2}"
+    name="${2}"
+    shift
+    shift
+    for link in "$@"; do
+	echo "${tab}ln -fs" $( basename "${name}" ) "${link}"
+	name="${link}"
+    done
+}
+function install_5 {
+    if [[ -n "${removeold}" ]]; then
+	echo "${tab}rm -f ${2}.OLD"
+    fi
+}
+
+#-----------------------------------------------------------------------------
+# function	install_dirs
+# purpose	output all the needed install target directory names
+#-----------------------------------------------------------------------------
+function install_dirs {
+    logdata all_copy
+    if [[ $( all_copy | wc -l ) -gt 0 ]]; then
+	all_copy | while read dst src; do
+	    thisclass=$( echo "${dst}" | cut -d / -f 1 )
+	    case "${thisclass}" in
+		( include )	thisprefix="${installincludeprefix}"	;;
+		( lib )		thisprefix="${installlibprefix}"	;;
+		( man )		thisprefix="${installmanprefix}"	;;
+		( bin )		thisprefix="${installbinprefix}"	;;
+		( cgi )		thisprefix="${installcgiprefix}"	;;
+		( sbin )	thisprefix="${installsbinprefix}"	;;
+		( * )	continue ;;
+	    esac
+	    dirname "${thisprefix}/${dst}"
+	done
+    fi
+    logdata all_headers
+    if [[ $( all_headers | wc -l ) -gt 0 ]]; then
+	all_headers | while read hdrname; do
+	    dirname "${installincludeprefix}/include/${hdrname}"
+	done
+    fi
+    if [[ ${#all_libs[@]} -gt 0 ]]; then
+	echo "${installlibprefix}/lib"
+    fi
+    logdata all_products bin
+    if [[ $( all_products bin | wc -l ) -gt 0 ]]; then
+	all_products bin | while read pgmname; do
+	    dirname "${installbinprefix}/bin/${pgmname}"
+	done
+    fi
+    logdata all_products cgi
+    if [[ $( all_products cgi | wc -l ) -gt 0 ]]; then
+	all_products cgi | while read pgmname; do
+	    dirname "${installcgiprefix}/cgi/${pgmname}"
+	done
+    fi
+    logdata all_products sbin
+    if [[ $( all_products sbin | wc -l ) -gt 0 ]]; then
+	all_products sbin | while read pgmname; do
+	    dirname "${installsbinprefix}/sbin/${pgmname}"
+	done
+    fi
+    return 0
+}
+
+#-----------------------------------------------------------------------------
+# function	make_install
+#-----------------------------------------------------------------------------
+function make_install {
+    vmsg 2 "Generating Makefile section: install"
+    hr1
+    echo "install: all"
+
+    install_dirs | sortpath -u | gawk '{printf "\ttest -d %s || mkdir -p %s\n",$1,$1;}'
+
+    for phase in 1 2 3 4 5; do
+	vmsg 3 "Generating Makefile section: install ${phase}"
+	logdata all_copy
+	if [[ $( all_copy | wc -l ) -gt 0 ]]; then
+	    all_copy | while read dst src; do
+		vmsg 9 "Generating Makefile section: install ${phase} copy: ${src}"
+		thisclass=$( echo "${dst}" | cut -d / -f 1 )
+		case "${thisclass}" in
+		    ( include )	thisprefix="${installincludeprefix}"	;;
+		    ( lib )	thisprefix="${installlibprefix}"	;;
+		    ( man )	thisprefix="${installmanprefix}"	;;
+		    ( bin )	thisprefix="${installbinprefix}"	;;
+		    ( cgi )	thisprefix="${installcgiprefix}"	;;
+		    ( sbin )	thisprefix="${installsbinprefix}"	;;
+		    ( * )	continue ;;
+		esac
+		install_${phase} "${src}" "${thisprefix}/${dst}"
+	    done
+	fi
+	logdata all_headers
+	if [[ $( all_headers | wc -l ) -gt 0 ]]; then
+	    all_headers | while read hdrname; do
+		vmsg 9 "Generating Makefile section: install ${phase} hdr: ${hdrname}"
+		install_${phase} "include/${hdrname}" "${installincludeprefix}/include/${hdrname}"
+	    done
+	fi
+	if [[ "${#all_libs[@]}" -gt 0 ]]; then
+	    if [[ -z "${noarlib}" ]]; then
+		for libname in "${all_libs[@]}"; do
+		    vmsg 9 "Generating Makefile section: install ${phase} arlib: ${libname}"
+		    case "${#vernums[@]}" in
+			( 1 )
+			install_${phase} "lib/lib${libname}.so.${version}" \
+			    "${installlibprefix}/lib/lib${libname}.a.${version1}" \
+			    "${installlibprefix}/lib/lib${libname}.a"
+			;;
+			( 2 )
+			install_${phase} "lib/lib${libname}.a.${version}" \
+			    "${installlibprefix}/lib/lib${libname}.a.${version2}" \
+			    "${installlibprefix}/lib/lib${libname}.a.${version1}" \
+			    "${installlibprefix}/lib/lib${libname}.a"
+			;;
+			( 3 )
+			install_${phase} "lib/lib${libname}.a.${version}" \
+			    "${installlibprefix}/lib/lib${libname}.a.${version3}" \
+			    "${installlibprefix}/lib/lib${libname}.a.${version2}" \
+			    "${installlibprefix}/lib/lib${libname}.a.${version1}" \
+			    "${installlibprefix}/lib/lib${libname}.a"
+			;;
+			( 4 )
+			install_${phase} "lib/lib${libname}.a.${version}" \
+			    "${installlibprefix}/lib/lib${libname}.a.${version4}" \
+			    "${installlibprefix}/lib/lib${libname}.a.${version3}" \
+			    "${installlibprefix}/lib/lib${libname}.a.${version2}" \
+			    "${installlibprefix}/lib/lib${libname}.a.${version1}" \
+			    "${installlibprefix}/lib/lib${libname}.a"
+			;;
+		    esac
+		done
+	    fi
+	    if [[ -z "${nosolib}" ]]; then
+		for libname in "${all_libs[@]}"; do
+		    vmsg 9 "Generating Makefile section: install ${phase} solib: ${libname}"
+		    case "${#vernums[@]}" in
+			( 1 )
+			install_${phase} "lib/lib${libname}.so.${version}" \
+			    "${installlibprefix}/lib/lib${libname}.so.${version1}" \
+			    "${installlibprefix}/lib/lib${libname}.so"
+			;;
+			( 2 )
+			install_${phase} "lib/lib${libname}.so.${version}" \
+			    "${installlibprefix}/lib/lib${libname}.so.${version2}" \
+			    "${installlibprefix}/lib/lib${libname}.so.${version1}" \
+			    "${installlibprefix}/lib/lib${libname}.so"
+			;;
+			( 3 )
+			install_${phase} "lib/lib${libname}.so.${version}" \
+			    "${installlibprefix}/lib/lib${libname}.so.${version3}" \
+			    "${installlibprefix}/lib/lib${libname}.so.${version2}" \
+			    "${installlibprefix}/lib/lib${libname}.so.${version1}" \
+			    "${installlibprefix}/lib/lib${libname}.so"
+			;;
+			( 4 )
+			install_${phase} "lib/lib${libname}.so.${version}" \
+			    "${installlibprefix}/lib/lib${libname}.so.${version4}" \
+			    "${installlibprefix}/lib/lib${libname}.so.${version3}" \
+			    "${installlibprefix}/lib/lib${libname}.so.${version2}" \
+			    "${installlibprefix}/lib/lib${libname}.so.${version1}" \
+			    "${installlibprefix}/lib/lib${libname}.so"
+			;;
+		    esac
+		done
+	    fi
+	fi
+
+	for pgmclass in bin cgi sbin; do
+	    logdata all_products "${pgmclass}"
+	    all_products "${pgmclass}" | while read pgmname; do
+		vmsg 9 "Generating Makefile section: install ${phase} ${pgmclass}: ${pgmname}"
+		eval "thisdir=\${install${pgmclass}prefix}/${pgmclass}"
+		install_${phase} "${pgmclass}/${pgmname}" "${thisdir}/${pgmname}"
+		if [[ "${phase}" = 4 ]]; then
+		    alias_of "${pgmclass}" "${pgmname}" | while read aliasname; do
+			if [[ -n "${hardalias}" ]]; then
+			    echo "${tab}ln -f ${thisdir}/${pgmname} ${thisdir}/${aliasname}"
+			else
+			    echo "${tab}ln -fs ${pgmname} ${thisdir}/${aliasname}"
+			fi
+		    done
+		fi
+	    done
+	done
+
+    done
+    echo ""
+    return 0
+}
+
+#-----------------------------------------------------------------------------
+# function	make_clean
+#-----------------------------------------------------------------------------
+function make_clean {
+    vmsg 2 "Generating Makefile section: clean"
+    hr1
+    echo "clean:"
+    echo "${tab}rm -fr bin"
+    echo "${tab}rm -fr cgi"
+    echo "${tab}rm -fr include"
+    echo "${tab}rm -fr lib"
+    echo "${tab}rm -fr obj"
+    echo "${tab}rm -fr sbin"
+    echo "${tab}rm -fr test"
+    echo ""
+    echo "distclean: clean"
+    echo "${tab}rm -f config.dat"
+    echo "${tab}rm -f readsymlink"
+    echo "${tab}rm -f readsymlink.c"
+    echo "${tab}rm -f Makefile"
+    echo ""
+}
+
+#-----------------------------------------------------------------------------
+# function	make_finish
+#-----------------------------------------------------------------------------
+function make_finish {
+    vmsg 2 "Generating Makefile section: finish"
+    echo "love:"
+    echo "${tab}@echo not war!"
+    echo ""
+    echo "##############################################################################"
+}
+
+#-----------------------------------------------------------------------------
+# function	make_make
+#-----------------------------------------------------------------------------
+function make_make {
+    make_start
+    make_all
+    make_copy
+    make_hdr
+    make_lib
+    make_pgm bin
+    make_pgm cgi
+    make_pgm sbin
+    make_pgm test
+    make_install
+    make_clean
+    make_finish
+}
+
+#-----------------------------------------------------------------------------
+# Collect a list of libraries built in this package.
+#-----------------------------------------------------------------------------
+logdata all_products lib
+all_libs=( $( all_products lib ) )
+
+#-----------------------------------------------------------------------------
+# Output the Makefile.
+#-----------------------------------------------------------------------------
+rm -f Makefile
+make_make >Makefile
+
+#-----------------------------------------------------------------------------
+# Display the final messages.
+#-----------------------------------------------------------------------------
+ls -ld Makefile
+if [[ -z "${domake}" && -z "${domakeinstall}" ]]; then
+    echo ""
+    echo "You may now build the project with:"
+    echo "    make"
+    echo "and install the project with:"
+    echo "    make install"
+    echo ""
+else
+    [[ -z "${domake}" ]] || make || exit 1
+    [[ -z "${domakeinstall}" ]] || make install || exit 1
+fi
+exit 0

@@ -1,0 +1,3 @@
+The following environment variable can be used to override the default search dir:
+PICVIZ_PARSERS_DIR
+PICVIZ_NORMALIZE_DIR

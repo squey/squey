@@ -1,0 +1,75 @@
+-----------------------------------------------------------------------------
+This library and associated documentation is:
+
+Copyright © 2002,2006 - by Philip D. Howard - All rights reserved
+
+Author/editor:  Phil Howard
+-----------------------------------------------------------------------------
+
+If you have not read file "README", you should.
+
+
+Installation:
+
+There is a script called "configure" which requires either bash or ksh
+to run.  It first runs via /bin/sh and determines whether /bin/bash or
+/bin/ksh is present, then writes out a copy of itself to use that shell
+interpreter, then runs that copy.  This script scans all the files and
+builds the Makefiles needed to compile VRB.  It also includes a special
+command used during compilation to extract function prototypes as well
+as macro definitions from .c sources to build .h headers.  This allows
+for a single point of definition which makes it easy to develop more
+functions and programs, and not have to keep other files in sync all
+the time.
+
+The "configure" script will take a "--prefix=" option to specify the
+installation location for the library.  It also takes a few variations
+to control the installation specificall for different classes of files.
+The default installation target is a temporary directory in /tmp so it
+is necessary to actually specific "--prefix=" to do a permanent install
+in a usual place like /usr/local.  This information is used only to
+build the Makefiles to do the installation.  It is not copied into the
+code or headers.  This means that you can choose to manually copy all
+the files from the temporary installation, or just build a tarball from
+the temporary installation.
+
+Simply execute it like:
+
+    ./configure
+
+or like:
+
+    ./configure --prefix=/usr/local
+
+Once it builds the various Makefiles, then you can do:
+
+    make clean
+    make install
+
+You can also do just "make" to see it compile without installing.
+
+Installation includes the library, version symlinks for the library, header
+files, and demo programs.  There are also test programs but those are not
+installed.  The demo programs differ from the test programs in that the
+demo programs have some potential uses.
+
+You will need to update your system library cache.  Read your system man
+page for "ldconfig" for particulars.
+
+Man pages are also included, but they are NOT installed automatically.
+They will need to be copied manually to install them.
+
+
+Warning:
+
+This is an BETA release.  API's are NOT finalized and may change without
+specific mention of the changes being made.  While I encourage others to
+use the library, at present I do not encourage distribution of programs
+that use the library until a final release.
+
+
+Contact:
+
+Bug reports and other matters may be addressed to:  vrb@ipal.org
+
+-----------------------------------------------------------------------------

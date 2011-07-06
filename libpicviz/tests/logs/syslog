@@ -1,0 +1,5 @@
+Feb 22 15:44:31 kirkophone rsyslogd: [origin software="rsyslogd" swVersion="5.7.3" x-pid="1708" x-info="http://www.rsyslog.com"] rsyslogd was HUPed
+Feb 22 15:44:35 kirkophone anacron[1838]: Job `cron.daily' terminated
+Feb 22 15:44:35 kirkophone anacron[1838]: Normal exit (1 job run)
+Feb 22 16:01:26 kirkophone kernel: [ 2452.042323] CE: hpet increasing min_delta_ns to 22500 nsec
+Feb 22 16:17:01 kirkophone /USR/SBIN/CRON[5589]: (root) CMD (   cd / && run-parts --report /etc/cron.hourly)

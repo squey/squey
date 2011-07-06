@@ -1,0 +1,178 @@
+#
+# QT is needed for both libpvgl and picviz-inspector
+#
+ADD_DEFINITIONS(-DQT_NO_DEBUG)
+ADD_DEFINITIONS(-DQT_SHARED)
+find_package(Qt4 REQUIRED)
+# QT XML support
+set(QT_USE_QTXML TRUE)
+include(${QT_USE_FILE})
+
+# It is OK to find those package even if they are not compiled
+# since we've defined the variable PICVIZ_SINGLE_TREE_BUILD 
+# it just returns PATHS and avoid adding multiple search of the
+# same package in the different sub directories.
+find_package(PVCore REQUIRED)
+find_package(PVFilter REQUIRED)
+find_package(PVRush REQUIRED)
+find_package(Picviz REQUIRED)
+find_package(PVGL REQUIRED)
+
+#find_package(CUDA)
+if(CUDA_SDK_ROOT_DIR MATCHES "CUDA_SDK_ROOT_DIR-NOTFOUND")
+  set(CUDA_SDK_ROOT_DIR "/opt/cuda_sdk/")
+endif(CUDA_SDK_ROOT_DIR MATCHES "CUDA_SDK_ROOT_DIR-NOTFOUND")
+
+if(CUDA_FOUND)
+  add_definitions(-DCUDA)
+endif(CUDA_FOUND)
+
+#
+# Check for Intel TBB library
+#
+
+if(WIN32)
+	set(TBB_FOUND "true")
+	set(TBB_INCLUDE_DIRS "C:\\dev\\tbb\\include\\")
+	if(CMAKE_BUILD_TYPE MATCHES "Debug")	
+		set(TBB_LIBRARIES "C:\\dev\\tbb\\lib\\ia32\\vc9\\tbb_debug.lib" "C:\\dev\\tbb\\lib\\ia32\\vc9\\tbbmalloc_debug.lib")
+	else()
+		set(TBB_LIBRARIES "C:\\dev\\tbb\\lib\\ia32\\vc9\\tbb.lib" "C:\\dev\\tbb\\lib\\ia32\\vc9\\tbbmalloc.lib")
+	endif()
+else(WIN32)
+find_package(TBB REQUIRED)
+endif(WIN32)
+
+#
+# Check for Boost library
+#
+
+if(WIN32)
+	set(Boost_USE_STATIC_LIBS       OFF)
+	set(Boost_USE_MULTITHREADED      ON)
+	set(Boost_USE_STATIC_RUNTIME    OFF)
+	find_package(Boost REQUIRED)
+	set(Boost_LIBRARIES ${Boost_LIBRARIES})
+	set(BOOST_INCLUDEDIR "C:\\dev\\boost\\")
+	link_directories("C:\\dev\\boost\\stage\\lib\\")
+else(WIN32)
+	set(Boost_USE_STATIC_LIBS       OFF)
+	set(Boost_USE_MULTITHREADED      ON)
+	set(Boost_USE_STATIC_RUNTIME    OFF)
+	find_package(Boost REQUIRED)
+	set(Boost_LIBRARIES ${Boost_LIBRARIES} "-lboost_thread")
+	set(BOOST_INCLUDEDIR "/usr/include")
+endif(WIN32)
+
+########################
+# Needed for libpvrush #
+########################
+
+#
+# Check for PCAP library
+#
+if(NOT WIN32)
+	find_package(PCAP REQUIRED)
+else(NOT WIN32)
+	set(PCAP_LIBRARIES "C:\\dev\\winpcap\\Lib\\wpcap.lib")
+	set(PCAP_INCLUDE_DIRS "C:\\dev\\winpcap\\Include")
+endif(NOT WIN32)
+
+#
+# Check for DUMBNET library
+#
+
+if(WIN32)
+	set(DUMBNET_LIBRARIES "C:\\dev\\libdnet\\lib\\dnet.lib" "ws2_32.lib")
+	set(DUMBNET_INCLUDE_DIRS "C:\\dev\\libdnet\\include")
+else(WIN32)
+	find_package(DUMBNET REQUIRED)
+endif(WIN32)
+
+#
+# Check for Archive library
+#
+
+if (WIN32)
+	set(ARCHIVE_LIBRARY "C:\\dev\\libarchive\\libarchive\\Release\\archive_static.lib")
+	set(ARCHIVE_INCLUDE_DIRS "C:\\dev\\libarchive\\libarchive\\")
+	add_definitions(-DLIBARCHIVE_STATIC=1)
+else(WIN32)
+	set(ARCHIVE_LIBRARY "archive")
+	set(ARCHIVE_INCLUDE_DIRS "")
+endif(WIN32)
+
+#
+# Check for libpcre++
+#
+if (NOT WIN32)
+	find_package(PCRE REQUIRED)
+else (NOT WIN32)
+endif (NOT WIN32)
+
+######################
+# Needed for libpvgl #
+######################
+#
+# OpenGL
+#
+find_package(OpenGL REQUIRED)
+
+#
+# GLEW
+#
+if (WIN32)
+	set(GLEW_INCLUDE_PATH "C:\\dev\\glew\\include")
+	set(GLEW_LIBRARY "C:\\dev\\glew\\lib\\glew32s.lib")
+else(WIN32)
+	find_package(GLEW REQUIRED)
+endif(WIN32)
+
+#
+# GLUT
+#
+if (WIN32)
+	set(GLUT_INCLUDE_DIR "C:\\dev\\freeglut\\include\\")
+	set(GLUT_glut_LIBRARY "C:\\dev\\freeglut\\freeglut.lib")
+else(WIN32)
+  find_package(GLUT REQUIRED)
+endif(WIN32)
+
+#
+# Freetype
+#
+if (WIN32)
+	set(FREETYPE_LIBRARY "C:\\dev\\GnuWin32\\lib\\freetype.lib")
+	set(FREETYPE_INCLUDE_DIRS "C:\\dev\\GnuWin32\\include\\freetype2")
+else(WIN32)
+	find_package(Freetype REQUIRED)
+endif(WIN32)
+
+#
+# IBM ICU
+#
+if (WIN32)
+	set(ICU_LIBRARY "C:\\dev\\icu\\lib\\icudt.lib" "C:\\dev\\icu\\lib\\icuin.lib" "C:\\dev\\icu\\lib\\icuio.lib" "C:\\dev\\icu\\lib\\icule.lib" "C:\\dev\\icu\\lib\\iculx.lib" "C:\\dev\\icu\\lib\\icutu.lib" "C:\\dev\\icu\\lib\\icuuc.lib")
+	set(ICU_INCLUDE "C:\\dev\\icu\\include\\")
+else(WIN32)
+	find_package(ICU REQUIRED) 
+endif(WIN32)
+
+###############################
+# Needed for picviz-inspector #
+###############################
+
+#if (USE_OWN_LIBCURL)
+if(WIN32)
+	add_definitions(-DCURL_STATICLIB)
+	set(CURL_INCLUDE_DIR "C:\\dev\\curl\\include")
+#	set(CURL_LIBRARY "C:\\dev\\curl\\lib\\LIB-Release\\libcurl.lib" "wldap32.lib")
+	set(CURL_LIBRARY "C:\\dev\\curl\\lib\\Release\\curllib_static.lib" "C:\\dev\\curl\\openldap.lib" "C:\\dev\\curl\\ssleay32.lib" "C:\\dev\\curl\\libeay32.lib")
+else(WIN32)
+	set(CURL_INCLUDE_DIR "/opt/curl/include")
+	set(CURL_LIBRARY "/opt/curl/lib/libcurl.so")
+endif(WIN32)
+#else(USE_OWN_LIBCURL)
+# 	find_package(CURL REQUIRED)
+#endif(USE_OWN_LIBCURL)
+

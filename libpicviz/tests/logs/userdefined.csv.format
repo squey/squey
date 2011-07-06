@@ -1,0 +1,19 @@
+<format name="test">
+<axes>
+
+<axis>
+<name>First axis</name>
+<type>user-defined</type>
+<mapping>default</mapping>
+<plotting>default</plotting>
+</axis>
+
+<axis>
+<name>Second axis</name>
+<type>enum</type>
+<mapping>default</mapping>
+<plotting>default</plotting>
+</axis>
+
+</axes>
+</format>

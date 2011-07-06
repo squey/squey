@@ -1,0 +1,7 @@
+Picviz Inspector is Copyright (C):
+Copyright (C) Sebastien Tricaud 2009-2011
+Copyright (C) Philippe Saade 2009-2011
+Copyright (C) Picviz Labs 2011
+
+All rights reserved.
+

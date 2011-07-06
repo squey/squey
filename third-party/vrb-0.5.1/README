@@ -1,0 +1,77 @@
+-----------------------------------------------------------------------------
+This library and associated documentation is:
+
+Copyright © 2002,2006 - by Philip D. Howard - All rights reserved
+
+Author/editor:  Phil Howard
+-----------------------------------------------------------------------------
+
+Name:   VRB
+
+
+Licensing:
+
+As the author of the library, I reserve for myself all rights to the
+library, including the right to change the licensing terms of future
+versions.  This version is distributed according to the GNU Lesser
+General Public License, in the version in effect at the time I did
+this release, or the current version in effect at the time you choose
+to use the current version.  The licensing applied to this version is
+permanent; that is, the license of a future version, if different, will
+not take away any rights attached to this version, including all copies
+made of this version even after a newer version is released.
+
+For more information see the file "LICENSE" or "lesser.txt" included
+with this library, or http://www.gnu.org/copyleft/lesser.html
+
+
+Description:
+
+The VRB library implements a ring buffer, also known as a character
+FIFO or circular buffer, with a special property that any data present
+in the buffer, as well as any empty space, are always seen as a single
+contiguous extent by the calling program.  This is implemented with
+virtual memory mapping by creating a mirror image of the buffer contents
+at the memory location in the virtual address space immediately after
+the main buffer location.  This allows the mirror image to always be
+seen without doing any copying of data.
+
+VRB is written in C and is intended for C programmers.  It can be used
+in C++ but C++ programmers will find that their usual ways of coding for
+objects does not apply.  And this is because it is intended just for C.
+
+
+Installation:
+
+The installation instructions are in file "INSTALL".  But if you are in
+a hurry, you can just do:
+
+    ./configure --prefix=/usr/local
+    make clean
+    make install
+
+You will probably have to configure your operating system to properly use
+the new library.
+
+
+Usage:
+
+Once installed, usage is usually done by placing the appropriate include
+statements in your C program, coding calls to the functions according to
+their documentation, and placing the appropriate -L(directory) and -lvrb
+options on your gcc compilation, or the equivalent for other compilers/linkers.
+
+
+Warning:
+
+This is an BETA release.  API's are NOT finalized and may change without
+specific mention of the changes being made.  While I encourage others to
+use the library, at present I do not encourage distribution of programs
+that use the library until a final release.
+
+
+Contact:
+
+Bug reports and other matters may be addressed to:  vrb@ipal.org
+
+-----------------------------------------------------------------------------

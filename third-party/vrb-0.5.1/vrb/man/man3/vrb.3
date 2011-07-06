@@ -1,0 +1,177 @@
+.\" Hey Emacs! This file is -*- nroff -*- source.
+.\"
+.\" Copyright © 2002 - Philip Howard - All rights reserved
+.\"
+.\" This program is free software; you can redistribute it and/or
+.\" modify it under the terms of the GNU Lesser General Public
+.\" License as published by the Free Software Foundation; either
+.\" version 2.1 of the License, or (at your option) any later version.
+.\"
+.\" This library is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+.\" Lesser General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU Lesser General Public
+.\" License along with this library; if not, write to the Free Software
+.\" Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+.\"
+.TH vrb 3 2002-09-30 vrb "VRB Programmer's Manual"
+.SH NAME
+vrb - virtual ring buffer
+.SH LIBRARY
+.B -lvrb
+.SH HEADERS
+.B #include <vrb.h>
+.SH DESCRIPTION
+A
+.B virtual ring buffer
+is a character FIFO queue with the special property that any
+sequence of characters, either the data present in the buffer,
+or any empty space, may be accessed as a single
+contiguous block of memory, eliminating the need to deal with
+breaks in string continuity to test for wraparounds or splits,
+and allowing the direct use of string construction or parsing
+tools, such as
+.B snprintf(3),
+or
+.B sscanf(3).
+.sp
+As a character FIFO queue, data comes out in the same order as it was put it.
+Unlike other FIFO queues and ring buffers, which have to chop up the data
+into pieces, and/or copy the data between caller space and buffer space, the
+.B virtual ring buffer
+allows the calling program to access the buffer space directly because the
+data to be accessed to get from the buffer, or the space to be accessed to
+put data into the buffer, is always addressesable as a single linear
+contiguous range of addresses.
+When the caller is going to have data to place into the buffer, it obtains
+the pointer and length of available space, and can place the data directly
+into the buffer, usually eliminating one step of copying.
+For example, the caller can use the pointer to read data directly into the
+buffer.
+Or it can call functions, such as
+.B snprintf(3),
+to make conversions directly.
+Likewise, when the caller is going to extract data from the buffer, it obtains
+the pointer and length of the data, and can directly address it in place.
+.sp
+Once data has been placed into empty space, or extracted from a data space,
+the caller indicates how much was put in or taken out, and pointers are
+then updated accordingly.
+.sp
+The VRB functions never copy data around within the buffer.
+The property of always have a linear range of memory for both all the data
+in the buffer as well as all the empty space in the buffer is implemented
+by memory mapping two virtual memory ranges to the same memory object,
+and making those two ranges immediately adjacent.
+Thus anything in the first range is seen identically in the second range.
+A span of data or empty space that would wrap around is now simply
+extended from the first range into the second range.
+.SH FUNCTIONS
+.TP
+.B vrb_new
+Create a new virtual ring buffer.
+.TP
+.B vrb_new_opt
+Create a new virtual ring buffer with options.
+.TP
+.B vrb_destroy
+Destroy an allocated virtual ring buffer.
+.TP
+.B vrb_init
+Initialize a virtual ring buffer in a static struct.
+.TP
+.B vrb_init_opt
+Initialize a virtual ring buffer in a static struct with options.
+.TP
+.B vrb_uninit
+Uninitialize a virtual ring buffer in a static struct.
+.TP
+.B vrb_capacity
+Obtain the total buffer capacity of a VRB.
+.TP
+.B vrb_data_len
+Obtain the length of data in the buffer.
+.TP
+.B vrb_data_ptr
+Obtain the pointer to the data in the buffer.
+.TP
+.B vrb_space_len
+Obtain the length of empty space in the buffer.
+.TP
+.B vrb_space_ptr
+Obtain the pointer to the empty space in the buffer.
+.TP
+.B vrb_is_empty
+Determine if the buffer is currently empty.
+.TP
+.B vrb_is_full
+Determine if the buffer is currently full.
+.TP
+.B vrb_is_not_empty
+Determine if there is at least some data in the buffer.
+.TP
+.B vrb_is_not_full
+Determine if there is at least some empty space in the buffer.
+.TP
+.B vrb_give
+Indicate how much empty space had data put in by the caller.
+.TP
+.B vrb_take
+Indicate how much data in the buffer was used by the caller.
+.TP
+.B vrb_get
+Copy data from the virtual ring buffer to a caller location.
+.TP
+.B vrb_get_min
+Copy a minimum amount of data from the VRB only if it will fit.
+.TP
+.B vrb_put
+Copy data from a caller location to the virtual ring buffer.
+.TP
+.B vrb_put_all
+Copy data to the VRB only if all of it will fit.
+.TP
+.B vrb_read
+read(2) data into a VRB until EOF or full, or I/O would block.
+.TP
+.B vrb_read_min
+read(2) a minimum amount of data into a VRB until EOF or full, or I/O would block.
+.TP
+.B vrb_write
+write(2) data from a VRB until empty, or I/O would block.
+.TP
+.B vrb_resize
+Change the size of a VRB while keeping any data in the buffer.
+.TP
+.B vrb_move
+Move data from one VRB to another.
+.SH "SEE ALSO"
+.BR vrb_capacity (3),
+.BR vrb_data_len (3),
+.BR vrb_data_ptr (3),
+.BR vrb_destroy (3),
+.BR vrb_get (3),
+.BR vrb_get_min (3),
+.BR vrb_give (3),
+.BR vrb_init (3),
+.BR vrb_init_opt (3),
+.BR vrb_is_empty (3),
+.BR vrb_is_full (3),
+.BR vrb_is_not_empty (3),
+.BR vrb_is_not_full (3),
+.BR vrb_move (3),
+.BR vrb_new (3),
+.BR vrb_new_opt (3),
+.BR vrb_put (3),
+.BR vrb_put_all (3),
+.BR vrb_read (3),
+.BR vrb_read_min (3),
+.BR vrb_resize (3),
+.BR vrb_space_len (3),
+.BR vrb_space_ptr (3),
+.BR vrb_take (3),
+.BR vrb_uninit (3),
+.BR vrb_write (3),
+.BR vrb_write_min (3)

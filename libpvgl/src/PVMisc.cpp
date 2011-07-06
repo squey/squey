@@ -1,0 +1,62 @@
+//! \file PVMisc.cpp
+//! $Id: PVMisc.cpp 2520 2011-04-30 12:26:48Z stricaud $
+//! Copyright (C) Sébastien Tricaud 2009, 2010
+//! Copyright (C) Philippe Saade 2009,2010
+//! Copyright (C) Picviz Labs 2011
+
+#include <pvgl/PVWidgetManager.h>
+#include <pvgl/PVContainer.h>
+
+#include <pvgl/PVMisc.h>
+
+/******************************************************************************
+ *
+ * PVGL::PVMisc::PVMisc
+ *
+ *****************************************************************************/
+PVGL::PVMisc::PVMisc(PVWidgetManager *widget_manager_) :
+PVWidget(widget_manager_)
+{
+	PVLOG_DEBUG("PVGL::PVMisc::%s\n", __FUNCTION__);
+
+	align_x = align_y = 0.5;
+	padding_x = padding_y = 0;
+}
+
+/******************************************************************************
+ *
+ * PVGL::PVMisc::set_alignment
+ *
+ *****************************************************************************/
+void PVGL::PVMisc::set_alignment(float x, float y)
+{
+	PVLOG_DEBUG("PVGL::PVMisc::%s\n", __FUNCTION__);
+
+	align_x = std::min(std::max(x, 0.0f), 1.0f);
+	align_y = std::min(std::max(y, 0.0f), 1.0f);
+}
+
+/******************************************************************************
+ *
+ * PVGL::PVMisc::set_padding
+ *
+ *****************************************************************************/
+void PVGL::PVMisc::set_padding(int x, int y)
+{
+	PVLOG_DEBUG("PVGL::PVMisc::%s\n", __FUNCTION__);
+
+  x = std::max(x, 0);
+	y = std::max(y, 0);
+
+	if (x != padding_x || y != padding_y) {
+		requisition.width -= 2 * padding_x;
+		requisition.height-= 2 * padding_y;
+		padding_x = x;
+		padding_y = y;
+		requisition.width += 2 * padding_x;
+		requisition.height+= 2 * padding_y;
+		if (parent)
+			parent->size_adjust();
+	}
+}
+

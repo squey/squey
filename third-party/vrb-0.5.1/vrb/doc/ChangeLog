@@ -1,0 +1,38 @@
+2002-09-30	Phil Howard
+	Release 0.4.0
+
+2002-09-30	Phil Howard
+	Added vbuf demo program
+	Removed iobuffer demo program
+	COMPATIBILITY: Changed typedef "VRB" to not be a pointer type
+	COMPATIBILITY: Changed the pointer typedef from "vrb" to "vrb_p"
+	Added comments explaining the name argument (Kasper Dupont)
+	Restructured vrb_init_opt error cleanup logic
+	Added options to vrb_init_opt to disable guard pages
+	Changed vrb_init to be a macro that calls vrb_init_opt
+	Added macro vrb_new_opt
+	Renamed function vrb_init to vrb_init_opt
+	Added guard page feature for buffer overflow protection
+
+2002-09-29	Phil Howard
+	Use MAP_ANONYMOUS by default since MAP_ANON is depricated
+	Added man pages
+
+2001-12-10	Phil Howard
+	Release 0.3.0
+
+2001-12-10	Phil Howard
+	Removed typedef for vrb_t (not for callers)
+	Removed typedef for vrb_p (redundant)
+	Added macro vrb_data_end
+	Added macro vrb_space_end
+	Corrected struct references in macro vrb_is_full (Warren Dale)
+	Corrected spelling of label in vrb_init.c
+	Corrected length allocation bug in vrb_init.c (Warren Dale)
+	Changed macro vrb_space_len
+	Changed macro vrb_capacity (removed add 0)
+	Changed comments for vrb_data_ptr
+	Changed comments for vrb_space_ptr
+
+2001-03-03	Phil Howard
+	Original release 0.2.0

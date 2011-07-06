@@ -1,0 +1,4 @@
+LIBPICVIZPATH=../libpicviz
+
+PICVIZ_NORMALIZE_DIR=$LIBPICVIZPATH/plugins/normalize PICVIZ_PARSERS_DIR=$LIBPICVIZPATH/plugins/parsers LD_LIBRARY_PATH=../libpicviz/src/ $@
+

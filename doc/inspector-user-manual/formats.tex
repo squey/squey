@@ -1,0 +1,38 @@
+\chapter{Formats}
+
+Formats allow Picviz to know what to do with files read. From title to the variable that is recommended to plot data on each axis. Every input needs a format.
+
+\newpage
+
+The easiest way to understand a format is to have a look at the ones used by pcre normalization plugins. They are installed by default in the directory \textit{normalize-helpers/pcre}. 
+
+\begin{lstlisting}
+# Rule created to parse iptable logs
+revision = 1
+
+pcre = "(\w+\s+\d+\s+\d+:\d+:\d+).*SRC=(\d+\.\d+\.\d+\.\d+).*DST=(\d+\.\d+\.\d+\.\d+).*LEN=(\d+).*TTL=(\d+).*ID=(\d+).*PROTO=(\S+).*SPT=(\d+).*DPT=(\d+).*"
+
+# Feb 9 22:46:32
+time-format[1] = "%b %d %H:%M:%S"
+
+key-axes = "2,3,9"
+
+axes {
+   time 24h default "Time"
+   ipv4 default default "Source"
+   ipv4 default default "Destination"
+   integer default minmax "Length"
+   integer default minmax "TTL"
+   integer default default "ID"
+   enum default default "Protocol"
+   integer default port "Source Port"
+   integer default port "Destination Port"
+}
+\end{lstlisting}
+
+\section{Format for CSV files}
+CSV files can be given a format which can be one of those two files:
+\begin{itemize}
+\item \textbf{file.csv.format}: Add the \textbf{.format} extension to a given CSV file to use it when opening the file.
+\item \textbf{picviz.format}: If it is in a directory, use it to open any CSV file contained in it. Useful when you have several CSV files to open.
+\end{itemize}

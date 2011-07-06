@@ -1,0 +1,36 @@
+<format name="test.time">
+
+<revision>1</revision>
+
+<regex>(\w+\s+\d+\s+\d+:\d+:\d+) \[(\d+\/\w+\/\d+:\d+:\d+:\d+).*\]</regex>
+
+<time-format>
+<item>
+<axis>1</axis>
+<fmt>MMM d hh:mm:ss</fmt>
+</item>
+<item>
+<axis>2</axis>
+<fmt>dd/MMM/yyyy:hh:mm:ss</fmt>
+</item>
+</time-format>
+
+<axes>
+
+<axis>
+<name>Time</name>
+<type>time</type>
+<mapping>24h</mapping>
+<plotting>default</plotting>
+</axis>
+
+<axis>
+<name>Second Time</name>
+<type>time</type>
+<mapping>24h</mapping>
+<plotting>default</plotting>
+</axis>
+
+</axes>
+
+</format>

@@ -1,0 +1,56 @@
+//! \file PVLayerFilterSearch.cpp
+//! $Id: PVLayerFilterSearch.cpp 2526 2011-05-02 12:21:26Z psaade $
+//! Copyright (C) Sébastien Tricaud 2009-2011
+//! Copyright (C) Philippe Saadé 2009-2011
+//! Copyright (C) Picviz Labs 2011
+
+#include "PVLayerFilterSearch.h"
+#include <picviz/PVColor.h>
+#include <pvcore/PVAxisIndexType.h>
+
+/******************************************************************************
+ *
+ * Picviz::PVLayerFilterSearch::PVLayerFilterSearch
+ *
+ *****************************************************************************/
+Picviz::PVLayerFilterSearch::PVLayerFilterSearch(PVFilter::PVArgumentList const& l)
+	: PVLayerFilter(l)
+{
+	INIT_FILTER(PVLayerFilterSearch, l);
+}
+
+/******************************************************************************
+ *
+ * DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterSearch)
+ *
+ *****************************************************************************/
+DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterSearch)
+{
+	PVFilter::PVArgumentList args;
+	args["Regular expression"] = QRegExp("(.*)");
+	args["Axis"].setValue(PVCore::PVAxisIndexType(0));
+	return args;
+}
+
+/******************************************************************************
+ *
+ * Picviz::PVLayerFilterSearch::operator()
+ *
+ *****************************************************************************/
+void Picviz::PVLayerFilterSearch::operator()(PVLayer& /*in*/, PVLayer &out)
+{	
+	int axis_id = _args["Axis"].value<PVCore::PVAxisIndexType>().get_original_index();
+	QRegExp re = _args["Regular expression"].toRegExp();
+	PVLOG_INFO("Apply filter search to axis %d with regexp %s.\n", axis_id, qPrintable(re.pattern()));
+
+	PVRow nb_lines = _view->get_qtnraw_parent().size();
+
+	PVRush::PVNraw::nraw_table const& nraw = _view->get_qtnraw_parent();
+	
+	for (PVRow r = 0; r < nb_lines; r++) {
+		PVRush::PVNraw::nraw_table_line const& nraw_r = nraw.at(r);
+		out.get_selection().set_line(r, re.indexIn(nraw_r[axis_id]) != -1);
+	}
+}
+
+IMPL_FILTER(Picviz::PVLayerFilterSearch)

@@ -1,0 +1,1804 @@
+Feb 22 15:44:31 kirkophone rsyslogd: [origin software="rsyslogd" swVersion="5.7.3" x-pid="1708" x-info="http://www.rsyslog.com"] rsyslogd was HUPed
+Feb 22 15:44:35 kirkophone anacron[1838]: Job `cron.daily' terminated
+Feb 22 15:44:35 kirkophone anacron[1838]: Normal exit (1 job run)
+Feb 22 16:01:26 kirkophone kernel: [ 2452.042323] CE: hpet increasing min_delta_ns to 22500 nsec
+Feb 22 16:17:01 kirkophone /USR/SBIN/CRON[5589]: (root) CMD (   cd / && run-parts --report /etc/cron.hourly)
+Feb 22 16:38:06 kirkophone kernel: [ 4650.293593] CE: hpet increasing min_delta_ns to 33750 nsec
+Feb 22 17:17:01 kirkophone /USR/SBIN/CRON[6627]: (root) CMD (   cd / && run-parts --report /etc/cron.hourly)
+Feb 22 17:39:54 kirkophone kernel: imklog 5.7.3, log source = /proc/kmsg started.
+Feb 22 17:39:54 kirkophone rsyslogd: [origin software="rsyslogd" swVersion="5.7.3" x-pid="2089" x-info="http://www.rsyslog.com"] start
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] Initializing cgroup subsys cpuset
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] Initializing cgroup subsys cpu
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] Linux version 2.6.32-5-amd64 (Debian 2.6.32-30) (ben@decadent.org.uk) (gcc version 4.3.5 (Debian 4.3.5-4) ) #1 SMP Wed Jan 12 03:40:32 UTC 2011
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] Command line: BOOT_IMAGE=/vmlinuz-2.6.32-5-amd64 root=/dev/mapper/kirkophone-root ro quiet
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] KERNEL supported cpus:
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]   Intel GenuineIntel
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]   AMD AuthenticAMD
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]   Centaur CentaurHauls
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] BIOS-provided physical RAM map:
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]  BIOS-e820: 0000000000000000 - 000000000009bc00 (usable)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]  BIOS-e820: 000000000009bc00 - 00000000000a0000 (reserved)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]  BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]  BIOS-e820: 0000000000100000 - 00000000bb4f3000 (usable)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]  BIOS-e820: 00000000bb4f3000 - 00000000bb533000 (ACPI NVS)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]  BIOS-e820: 00000000bb533000 - 00000000bb544000 (reserved)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]  BIOS-e820: 00000000bb544000 - 00000000bb555000 (ACPI NVS)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]  BIOS-e820: 00000000bb555000 - 00000000bb55e000 (reserved)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]  BIOS-e820: 00000000bb55e000 - 00000000bb566000 (ACPI NVS)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]  BIOS-e820: 00000000bb566000 - 00000000bb580000 (reserved)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]  BIOS-e820: 00000000bb580000 - 00000000bb581000 (ACPI NVS)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]  BIOS-e820: 00000000bb581000 - 00000000bb58f000 (reserved)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]  BIOS-e820: 00000000bb58f000 - 00000000bb594000 (ACPI NVS)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]  BIOS-e820: 00000000bb594000 - 00000000bb59c000 (reserved)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]  BIOS-e820: 00000000bb59c000 - 00000000bb59d000 (ACPI NVS)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]  BIOS-e820: 00000000bb59d000 - 00000000bb5a0000 (reserved)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]  BIOS-e820: 00000000bb5a0000 - 00000000bb5a3000 (ACPI data)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]  BIOS-e820: 00000000bb5a3000 - 00000000bb5a8000 (reserved)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]  BIOS-e820: 00000000bb5a8000 - 00000000bb5b6000 (ACPI NVS)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]  BIOS-e820: 00000000bb5b6000 - 00000000bb5cc000 (reserved)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]  BIOS-e820: 00000000bb5cc000 - 00000000bb5ce000 (ACPI NVS)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]  BIOS-e820: 00000000bb5ce000 - 00000000c0000000 (reserved)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]  BIOS-e820: 00000000e0000000 - 00000000f0000000 (reserved)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]  BIOS-e820: 00000000fec00000 - 00000000fec01000 (reserved)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]  BIOS-e820: 00000000fed1b000 - 00000000fed20000 (reserved)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]  BIOS-e820: 00000000fee00000 - 00000000fee01000 (reserved)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]  BIOS-e820: 00000000ffa00000 - 00000000ffc00000 (reserved)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]  BIOS-e820: 00000000ffe00000 - 0000000100000000 (reserved)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]  BIOS-e820: 0000000100000000 - 0000000240000000 (usable)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] DMI 2.6 present.
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] AMI BIOS detected: BIOS may corrupt low RAM, working around it.
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] e820 update range: 0000000000000000 - 0000000000010000 (usable) ==> (reserved)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] last_pfn = 0x240000 max_arch_pfn = 0x400000000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] MTRR default type: uncachable
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] MTRR fixed ranges enabled:
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]   00000-9FFFF write-back
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]   A0000-BFFFF uncachable
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]   C0000-CFFFF write-protect
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]   D0000-DFFFF uncachable
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]   E0000-FFFFF write-protect
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] MTRR variable ranges enabled:
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]   0 base 000000000 mask F80000000 write-back
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]   1 base 080000000 mask FC0000000 write-back
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]   2 base 0BC000000 mask FFC000000 uncachable
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]   3 base 100000000 mask F00000000 write-back
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]   4 base 200000000 mask FC0000000 write-back
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]   5 base 0FFE00000 mask FFFE00000 write-protect
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]   6 disabled
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]   7 disabled
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] x86 PAT enabled: cpu 0, old 0x7040600070406, new 0x7010600070106
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] last_pfn = 0xbb4f3 max_arch_pfn = 0x400000000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] initial memory mapped : 0 - 20000000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] init_memory_mapping: 0000000000000000-00000000bb4f3000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]  0000000000 - 00bb400000 page 2M
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]  00bb400000 - 00bb4f3000 page 4k
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] kernel direct mapping tables up to bb4f3000 @ 10000-15000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] init_memory_mapping: 0000000100000000-0000000240000000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]  0100000000 - 0240000000 page 2M
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] kernel direct mapping tables up to 240000000 @ 13000-1d000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] RAMDISK: 36b46000 - 3759a0a1
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] ACPI: RSDP 00000000000f0410 00024 (v02 _ASUS_)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] ACPI: XSDT 00000000bb5a1e18 0006C (v01 _ASUS_ Notebook 06222004 MSFT 00010013)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] ACPI: FACP 00000000bb580c18 000F4 (v04 _ASUS_ Notebook 06222004 MSFT 00010013)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] ACPI Warning: 32/64 FACS address mismatch in FADT - two FACS tables! (20090903/tbfadt-369)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] ACPI Warning: 32/64X FACS address mismatch in FADT - BB5B3F40/00000000BB5CDD40, using 32 (20090903/tbfadt-486)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] ACPI: DSDT 00000000bb544018 104AC (v01 _ASUS_ Notebook 00000000 INTL 20051117)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] ACPI: FACS 00000000bb5b3f40 00040
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] ACPI: APIC 00000000bb5a0f18 0008C (v02 _ASUS_ Notebook 06222004 MSFT 00010013)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] ACPI: DBGP 00000000bb5a2f18 00034 (v01 _ASUS_ Notebook 06222004 MSFT 00010013)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] ACPI: ECDT 00000000bb5cda18 000C1 (v01 _ASUS_ Notebook 06222004 AMI. 00000003)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] ACPI: SLIC 00000000bb5aec18 00176 (v01 _ASUS_ Notebook 06222004 ASUS 00000001)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] ACPI: MCFG 00000000bb5ccd18 0003C (v01 _ASUS_ Notebook 06222004 MSFT 00000097)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] ACPI: HPET 00000000bb5ccc98 00038 (v01 _ASUS_ Notebook 06222004 AMI. 00000003)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] ACPI: SSDT 00000000bb59c018 009F1 (v01  PmRef    CpuPm 00003000 INTL 20051117)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] ACPI: DMAR 00000000bb5cdb18 00068 (v01 INTEL  CP_FIELD 00000001 INTL 00000001)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] ACPI: Local APIC address 0xfee00000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] No NUMA configuration found
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] Faking a node at 0000000000000000-0000000240000000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] Bootmem setup node 0 0000000000000000-0000000240000000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]   NODE_DATA [0000000000018000 - 000000000001ffff]
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]   bootmap [0000000000020000 -  0000000000067fff] pages 48
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] (8 early reservations) ==> bootmem [0000000000 - 0240000000]
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]   #0 [0000000000 - 0000001000]   BIOS data page ==> [0000000000 - 0000001000]
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]   #1 [0000006000 - 0000008000]       TRAMPOLINE ==> [0000006000 - 0000008000]
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]   #2 [0001000000 - 000168a414]    TEXT DATA BSS ==> [0001000000 - 000168a414]
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]   #3 [0036b46000 - 003759a0a1]          RAMDISK ==> [0036b46000 - 003759a0a1]
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]   #4 [000009bc00 - 0000100000]    BIOS reserved ==> [000009bc00 - 0000100000]
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]   #5 [000168b000 - 000168b241]              BRK ==> [000168b000 - 000168b241]
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]   #6 [0000010000 - 0000013000]          PGTABLE ==> [0000010000 - 0000013000]
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]   #7 [0000013000 - 0000018000]          PGTABLE ==> [0000013000 - 0000018000]
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] found SMP MP-table at [ffff8800000fcb00] fcb00
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]  [ffffea0000000000-ffffea0007dfffff] PMD -> [ffff880001800000-ffff8800087fffff] on node 0
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] Zone PFN ranges:
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]   DMA      0x00000010 -> 0x00001000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]   DMA32    0x00001000 -> 0x00100000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]   Normal   0x00100000 -> 0x00240000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] Movable zone start PFN for each node
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] early_node_map[3] active PFN ranges
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]     0: 0x00000010 -> 0x0000009b
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]     0: 0x00000100 -> 0x000bb4f3
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]     0: 0x00100000 -> 0x00240000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] On node 0 totalpages: 2077822
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]   DMA zone: 56 pages used for memmap
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]   DMA zone: 111 pages reserved
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]   DMA zone: 3812 pages, LIFO batch:0
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]   DMA32 zone: 14280 pages used for memmap
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]   DMA32 zone: 748843 pages, LIFO batch:31
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]   Normal zone: 17920 pages used for memmap
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]   Normal zone: 1292800 pages, LIFO batch:31
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] ACPI: PM-Timer IO Port: 0x408
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] ACPI: Local APIC address 0xfee00000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] ACPI: LAPIC (acpi_id[0x01] lapic_id[0x00] enabled)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] ACPI: LAPIC (acpi_id[0x02] lapic_id[0x02] enabled)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] ACPI: LAPIC (acpi_id[0x03] lapic_id[0x04] enabled)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] ACPI: LAPIC (acpi_id[0x04] lapic_id[0x06] enabled)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] ACPI: LAPIC (acpi_id[0x05] lapic_id[0x01] enabled)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] ACPI: LAPIC (acpi_id[0x06] lapic_id[0x03] enabled)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] ACPI: LAPIC (acpi_id[0x07] lapic_id[0x05] enabled)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] ACPI: LAPIC (acpi_id[0x08] lapic_id[0x07] enabled)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] ACPI: IOAPIC (id[0x02] address[0xfec00000] gsi_base[0])
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] IOAPIC[0]: apic_id 2, version 32, address 0xfec00000, GSI 0-23
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] ACPI: INT_SRC_OVR (bus 0 bus_irq 0 global_irq 2 dfl dfl)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] ACPI: INT_SRC_OVR (bus 0 bus_irq 9 global_irq 9 high level)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] ACPI: IRQ0 used by override.
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] ACPI: IRQ2 used by override.
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] ACPI: IRQ9 used by override.
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] Using ACPI (MADT) for SMP configuration information
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] ACPI: HPET id: 0x8086a701 base: 0xfed00000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] SMP: Allowing 8 CPUs, 0 hotplug CPUs
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] nr_irqs_gsi: 24
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] PM: Registered nosave memory: 000000000009b000 - 000000000009c000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] PM: Registered nosave memory: 000000000009c000 - 00000000000a0000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] PM: Registered nosave memory: 00000000000a0000 - 00000000000e0000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] PM: Registered nosave memory: 00000000000e0000 - 0000000000100000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] PM: Registered nosave memory: 00000000bb4f3000 - 00000000bb533000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] PM: Registered nosave memory: 00000000bb533000 - 00000000bb544000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] PM: Registered nosave memory: 00000000bb544000 - 00000000bb555000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] PM: Registered nosave memory: 00000000bb555000 - 00000000bb55e000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] PM: Registered nosave memory: 00000000bb55e000 - 00000000bb566000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] PM: Registered nosave memory: 00000000bb566000 - 00000000bb580000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] PM: Registered nosave memory: 00000000bb580000 - 00000000bb581000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] PM: Registered nosave memory: 00000000bb581000 - 00000000bb58f000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] PM: Registered nosave memory: 00000000bb58f000 - 00000000bb594000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] PM: Registered nosave memory: 00000000bb594000 - 00000000bb59c000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] PM: Registered nosave memory: 00000000bb59c000 - 00000000bb59d000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] PM: Registered nosave memory: 00000000bb59d000 - 00000000bb5a0000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] PM: Registered nosave memory: 00000000bb5a0000 - 00000000bb5a3000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] PM: Registered nosave memory: 00000000bb5a3000 - 00000000bb5a8000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] PM: Registered nosave memory: 00000000bb5a8000 - 00000000bb5b6000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] PM: Registered nosave memory: 00000000bb5b6000 - 00000000bb5cc000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] PM: Registered nosave memory: 00000000bb5cc000 - 00000000bb5ce000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] PM: Registered nosave memory: 00000000bb5ce000 - 00000000c0000000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] PM: Registered nosave memory: 00000000c0000000 - 00000000e0000000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] PM: Registered nosave memory: 00000000e0000000 - 00000000f0000000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] PM: Registered nosave memory: 00000000f0000000 - 00000000fec00000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] PM: Registered nosave memory: 00000000fec00000 - 00000000fec01000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] PM: Registered nosave memory: 00000000fec01000 - 00000000fed1b000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] PM: Registered nosave memory: 00000000fed1b000 - 00000000fed20000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] PM: Registered nosave memory: 00000000fed20000 - 00000000fee00000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] PM: Registered nosave memory: 00000000fee00000 - 00000000fee01000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] PM: Registered nosave memory: 00000000fee01000 - 00000000ffa00000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] PM: Registered nosave memory: 00000000ffa00000 - 00000000ffc00000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] PM: Registered nosave memory: 00000000ffc00000 - 00000000ffe00000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] PM: Registered nosave memory: 00000000ffe00000 - 0000000100000000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] Allocating PCI resources starting at c0000000 (gap: c0000000:20000000)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] Booting paravirtualized kernel on bare hardware
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] NR_CPUS:512 nr_cpumask_bits:512 nr_cpu_ids:8 nr_node_ids:1
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] PERCPU: Embedded 30 pages/cpu @ffff880008a00000 s90328 r8192 d24360 u262144
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] pcpu-alloc: s90328 r8192 d24360 u262144 alloc=1*2097152
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] pcpu-alloc: [0] 0 1 2 3 4 5 6 7 
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] Built 1 zonelists in Zone order, mobility grouping on.  Total pages: 2045455
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] Policy zone: Normal
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] Kernel command line: BOOT_IMAGE=/vmlinuz-2.6.32-5-amd64 root=/dev/mapper/kirkophone-root ro quiet
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] PID hash table entries: 4096 (order: 3, 32768 bytes)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] Initializing CPU#0
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] Checking aperture...
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] No AGP bridge found
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] Calgary: detecting Calgary via BIOS EBDA area
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] Calgary: Unable to locate Rio Grande table in EBDA - bailing!
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] PCI-DMA: Using software bounce buffering for IO (SWIOTLB)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] Placing 64MB software IO TLB between ffff880008bde000 - ffff88000cbde000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] software IO TLB at phys 0x8bde000 - 0xcbde000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] Memory: 8111964k/9437184k available (3079k kernel code, 1125896k absent, 199324k reserved, 1892k data, 592k init)
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] SLUB: Genslabs=14, HWalign=64, Order=0-3, MinObjects=0, CPUs=8, Nodes=1
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] Hierarchical RCU implementation.
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] NR_IRQS:4352 nr_irqs:472
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] Extended CMOS year: 2000
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] Console: colour VGA+ 80x25
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] console [tty0] enabled
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] hpet clockevent registered
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]   alloc irq_desc for 24 on node -1
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]   alloc kstat_irqs on node -1
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]   alloc irq_desc for 25 on node -1
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]   alloc kstat_irqs on node -1
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]   alloc irq_desc for 26 on node -1
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]   alloc kstat_irqs on node -1
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]   alloc irq_desc for 27 on node -1
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]   alloc kstat_irqs on node -1
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]   alloc irq_desc for 28 on node -1
+Feb 22 17:39:54 kirkophone kernel: [    0.000000]   alloc kstat_irqs on node -1
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] HPET: 8 timers in total, 5 timers will be used for per-cpu timer
+Feb 22 17:39:54 kirkophone kernel: [    0.000000] Fast TSC calibration using PIT
+Feb 22 17:39:54 kirkophone kernel: [    0.004000] Detected 1596.019 MHz processor.
+Feb 22 17:39:54 kirkophone kernel: [    0.000008] Calibrating delay loop (skipped), value calculated using timer frequency.. 3192.03 BogoMIPS (lpj=6384076)
+Feb 22 17:39:54 kirkophone kernel: [    0.000023] Security Framework initialized
+Feb 22 17:39:54 kirkophone kernel: [    0.000029] SELinux:  Disabled at boot.
+Feb 22 17:39:54 kirkophone kernel: [    0.000502] Dentry cache hash table entries: 1048576 (order: 11, 8388608 bytes)
+Feb 22 17:39:54 kirkophone kernel: [    0.002150] Inode-cache hash table entries: 524288 (order: 10, 4194304 bytes)
+Feb 22 17:39:54 kirkophone kernel: [    0.002786] Mount-cache hash table entries: 256
+Feb 22 17:39:54 kirkophone kernel: [    0.002873] Initializing cgroup subsys ns
+Feb 22 17:39:54 kirkophone kernel: [    0.002875] Initializing cgroup subsys cpuacct
+Feb 22 17:39:54 kirkophone kernel: [    0.002878] Initializing cgroup subsys devices
+Feb 22 17:39:54 kirkophone kernel: [    0.002880] Initializing cgroup subsys freezer
+Feb 22 17:39:54 kirkophone kernel: [    0.002881] Initializing cgroup subsys net_cls
+Feb 22 17:39:54 kirkophone kernel: [    0.002895] CPU: Physical Processor ID: 0
+Feb 22 17:39:54 kirkophone kernel: [    0.002896] CPU: Processor Core ID: 0
+Feb 22 17:39:54 kirkophone kernel: [    0.002899] CPU: L1 I cache: 32K, L1 D cache: 32K
+Feb 22 17:39:54 kirkophone kernel: [    0.002900] CPU: L2 cache: 256K
+Feb 22 17:39:54 kirkophone kernel: [    0.002901] CPU: L3 cache: 6144K
+Feb 22 17:39:54 kirkophone kernel: [    0.002903] CPU 0/0x0 -> Node 0
+Feb 22 17:39:54 kirkophone kernel: [    0.002905] mce: CPU supports 9 MCE banks
+Feb 22 17:39:54 kirkophone kernel: [    0.002913] CPU0: Thermal monitoring enabled (TM1)
+Feb 22 17:39:54 kirkophone kernel: [    0.002916] CPU 0 MCA banks CMCI:2 CMCI:3 CMCI:5 CMCI:6 CMCI:8
+Feb 22 17:39:54 kirkophone kernel: [    0.002922] using mwait in idle threads.
+Feb 22 17:39:54 kirkophone kernel: [    0.002923] Performance Events: Nehalem/Corei7 events, Intel PMU driver.
+Feb 22 17:39:54 kirkophone kernel: [    0.002927] ... version:                3
+Feb 22 17:39:54 kirkophone kernel: [    0.002928] ... bit width:              48
+Feb 22 17:39:54 kirkophone kernel: [    0.002929] ... generic registers:      4
+Feb 22 17:39:54 kirkophone kernel: [    0.002930] ... value mask:             0000ffffffffffff
+Feb 22 17:39:54 kirkophone kernel: [    0.002931] ... max period:             000000007fffffff
+Feb 22 17:39:54 kirkophone kernel: [    0.002932] ... fixed-purpose events:   3
+Feb 22 17:39:54 kirkophone kernel: [    0.002933] ... event mask:             000000070000000f
+Feb 22 17:39:54 kirkophone kernel: [    0.003583] ACPI: Core revision 20090903
+Feb 22 17:39:54 kirkophone kernel: [    0.042811] DMAR: Host address width 36
+Feb 22 17:39:54 kirkophone kernel: [    0.042814] DMAR: DRHD base: 0x000000fed90000 flags: 0x1
+Feb 22 17:39:54 kirkophone kernel: [    0.042824] IOMMU fed90000: ver 1:0 cap c90780106f0462 ecap f020e2
+Feb 22 17:39:54 kirkophone kernel: [    0.042827] DMAR: RMRR base: 0x000000bb567000 end: 0x000000bb57afff
+Feb 22 17:39:54 kirkophone kernel: [    0.042829] DMAR: No ATSR found
+Feb 22 17:39:54 kirkophone kernel: [    0.042852] Setting APIC routing to flat
+Feb 22 17:39:54 kirkophone kernel: [    0.043162] ..TIMER: vector=0x30 apic1=0 pin1=2 apic2=0 pin2=0
+Feb 22 17:39:54 kirkophone kernel: [    0.082809] CPU0: Intel(R) Core(TM) i7 CPU       Q 720  @ 1.60GHz stepping 05
+Feb 22 17:39:54 kirkophone kernel: [    0.188214] Booting processor 1 APIC 0x2 ip 0x6000
+Feb 22 17:39:54 kirkophone kernel: [    0.198715] Initializing CPU#1
+Feb 22 17:39:54 kirkophone kernel: [    0.276049] CPU: Physical Processor ID: 0
+Feb 22 17:39:54 kirkophone kernel: [    0.276051] CPU: Processor Core ID: 1
+Feb 22 17:39:54 kirkophone kernel: [    0.276053] CPU: L1 I cache: 32K, L1 D cache: 32K
+Feb 22 17:39:54 kirkophone kernel: [    0.276054] CPU: L2 cache: 256K
+Feb 22 17:39:54 kirkophone kernel: [    0.276055] CPU: L3 cache: 6144K
+Feb 22 17:39:54 kirkophone kernel: [    0.276057] CPU 1/0x2 -> Node 0
+Feb 22 17:39:54 kirkophone kernel: [    0.276067] CPU1: Thermal monitoring enabled (TM1)
+Feb 22 17:39:54 kirkophone kernel: [    0.276069] CPU 1 MCA banks CMCI:2 CMCI:3 CMCI:5 SHD:6 SHD:8
+Feb 22 17:39:54 kirkophone kernel: [    0.276173] CPU1: Intel(R) Core(TM) i7 CPU       Q 720  @ 1.60GHz stepping 05
+Feb 22 17:39:54 kirkophone kernel: [    0.276183] checking TSC synchronization [CPU#0 -> CPU#1]: passed.
+Feb 22 17:39:54 kirkophone kernel: [    0.296234] Booting processor 2 APIC 0x4 ip 0x6000
+Feb 22 17:39:54 kirkophone kernel: [    0.306499] Initializing CPU#2
+Feb 22 17:39:54 kirkophone kernel: [    0.383947] CPU: Physical Processor ID: 0
+Feb 22 17:39:54 kirkophone kernel: [    0.383948] CPU: Processor Core ID: 2
+Feb 22 17:39:54 kirkophone kernel: [    0.383951] CPU: L1 I cache: 32K, L1 D cache: 32K
+Feb 22 17:39:54 kirkophone kernel: [    0.383953] CPU: L2 cache: 256K
+Feb 22 17:39:54 kirkophone kernel: [    0.383954] CPU: L3 cache: 6144K
+Feb 22 17:39:54 kirkophone kernel: [    0.383957] CPU 2/0x4 -> Node 0
+Feb 22 17:39:54 kirkophone kernel: [    0.383969] CPU2: Thermal monitoring enabled (TM1)
+Feb 22 17:39:54 kirkophone kernel: [    0.383972] CPU 2 MCA banks CMCI:2 CMCI:3 CMCI:5 SHD:6 SHD:8
+Feb 22 17:39:54 kirkophone kernel: [    0.384013] CPU2: Intel(R) Core(TM) i7 CPU       Q 720  @ 1.60GHz stepping 05
+Feb 22 17:39:54 kirkophone kernel: [    0.384025] checking TSC synchronization [CPU#0 -> CPU#2]: passed.
+Feb 22 17:39:54 kirkophone kernel: [    0.404087] Booting processor 3 APIC 0x6 ip 0x6000
+Feb 22 17:39:54 kirkophone kernel: [    0.414346] Initializing CPU#3
+Feb 22 17:39:54 kirkophone kernel: [    0.491839] CPU: Physical Processor ID: 0
+Feb 22 17:39:54 kirkophone kernel: [    0.491840] CPU: Processor Core ID: 3
+Feb 22 17:39:54 kirkophone kernel: [    0.491843] CPU: L1 I cache: 32K, L1 D cache: 32K
+Feb 22 17:39:54 kirkophone kernel: [    0.491845] CPU: L2 cache: 256K
+Feb 22 17:39:54 kirkophone kernel: [    0.491846] CPU: L3 cache: 6144K
+Feb 22 17:39:54 kirkophone kernel: [    0.491849] CPU 3/0x6 -> Node 0
+Feb 22 17:39:54 kirkophone kernel: [    0.491861] CPU3: Thermal monitoring enabled (TM1)
+Feb 22 17:39:54 kirkophone kernel: [    0.491864] CPU 3 MCA banks CMCI:2 CMCI:3 CMCI:5 SHD:6 SHD:8
+Feb 22 17:39:54 kirkophone kernel: [    0.491956] CPU3: Intel(R) Core(TM) i7 CPU       Q 720  @ 1.60GHz stepping 05
+Feb 22 17:39:54 kirkophone kernel: [    0.491967] checking TSC synchronization [CPU#0 -> CPU#3]: passed.
+Feb 22 17:39:54 kirkophone kernel: [    0.512032] Booting processor 4 APIC 0x1 ip 0x6000
+Feb 22 17:39:54 kirkophone kernel: [    0.522292] Initializing CPU#4
+Feb 22 17:39:54 kirkophone kernel: [    0.599731] CPU: Physical Processor ID: 0
+Feb 22 17:39:54 kirkophone kernel: [    0.599733] CPU: Processor Core ID: 0
+Feb 22 17:39:54 kirkophone kernel: [    0.599736] CPU: L1 I cache: 32K, L1 D cache: 32K
+Feb 22 17:39:54 kirkophone kernel: [    0.599738] CPU: L2 cache: 256K
+Feb 22 17:39:54 kirkophone kernel: [    0.599739] CPU: L3 cache: 6144K
+Feb 22 17:39:54 kirkophone kernel: [    0.599742] CPU 4/0x1 -> Node 0
+Feb 22 17:39:54 kirkophone kernel: [    0.599756] CPU4: Thermal monitoring enabled (TM1)
+Feb 22 17:39:54 kirkophone kernel: [    0.599759] CPU 4 MCA banks SHD:2 SHD:3 SHD:5 SHD:6 SHD:8
+Feb 22 17:39:54 kirkophone kernel: [    0.599821] CPU4: Intel(R) Core(TM) i7 CPU       Q 720  @ 1.60GHz stepping 05
+Feb 22 17:39:54 kirkophone kernel: [    0.599830] checking TSC synchronization [CPU#0 -> CPU#4]: passed.
+Feb 22 17:39:54 kirkophone kernel: [    0.619897] Booting processor 5 APIC 0x3 ip 0x6000
+Feb 22 17:39:54 kirkophone kernel: [    0.630149] Initializing CPU#5
+Feb 22 17:39:54 kirkophone kernel: [    0.707622] CPU: Physical Processor ID: 0
+Feb 22 17:39:54 kirkophone kernel: [    0.707624] CPU: Processor Core ID: 1
+Feb 22 17:39:54 kirkophone kernel: [    0.707626] CPU: L1 I cache: 32K, L1 D cache: 32K
+Feb 22 17:39:54 kirkophone kernel: [    0.707628] CPU: L2 cache: 256K
+Feb 22 17:39:54 kirkophone kernel: [    0.707629] CPU: L3 cache: 6144K
+Feb 22 17:39:54 kirkophone kernel: [    0.707632] CPU 5/0x3 -> Node 0
+Feb 22 17:39:54 kirkophone kernel: [    0.707644] CPU5: Thermal monitoring enabled (TM1)
+Feb 22 17:39:54 kirkophone kernel: [    0.707647] CPU 5 MCA banks SHD:2 SHD:3 SHD:5 SHD:6 SHD:8
+Feb 22 17:39:54 kirkophone kernel: [    0.707667] CPU5: Intel(R) Core(TM) i7 CPU       Q 720  @ 1.60GHz stepping 05
+Feb 22 17:39:54 kirkophone kernel: [    0.707679] checking TSC synchronization [CPU#0 -> CPU#5]: passed.
+Feb 22 17:39:54 kirkophone kernel: [    0.727743] Booting processor 6 APIC 0x5 ip 0x6000
+Feb 22 17:39:54 kirkophone kernel: [    0.738000] Initializing CPU#6
+Feb 22 17:39:54 kirkophone kernel: [    0.815514] CPU: Physical Processor ID: 0
+Feb 22 17:39:54 kirkophone kernel: [    0.815515] CPU: Processor Core ID: 2
+Feb 22 17:39:54 kirkophone kernel: [    0.815518] CPU: L1 I cache: 32K, L1 D cache: 32K
+Feb 22 17:39:54 kirkophone kernel: [    0.815520] CPU: L2 cache: 256K
+Feb 22 17:39:54 kirkophone kernel: [    0.815521] CPU: L3 cache: 6144K
+Feb 22 17:39:54 kirkophone kernel: [    0.815524] CPU 6/0x5 -> Node 0
+Feb 22 17:39:54 kirkophone kernel: [    0.815536] CPU6: Thermal monitoring enabled (TM1)
+Feb 22 17:39:54 kirkophone kernel: [    0.815539] CPU 6 MCA banks SHD:2 SHD:3 SHD:5 SHD:6 SHD:8
+Feb 22 17:39:54 kirkophone kernel: [    0.815613] CPU6: Intel(R) Core(TM) i7 CPU       Q 720  @ 1.60GHz stepping 05
+Feb 22 17:39:54 kirkophone kernel: [    0.815625] checking TSC synchronization [CPU#0 -> CPU#6]: passed.
+Feb 22 17:39:54 kirkophone kernel: [    0.835688] Booting processor 7 APIC 0x7 ip 0x6000
+Feb 22 17:39:54 kirkophone kernel: [    0.845944] Initializing CPU#7
+Feb 22 17:39:54 kirkophone kernel: [    0.923406] CPU: Physical Processor ID: 0
+Feb 22 17:39:54 kirkophone kernel: [    0.923407] CPU: Processor Core ID: 3
+Feb 22 17:39:54 kirkophone kernel: [    0.923410] CPU: L1 I cache: 32K, L1 D cache: 32K
+Feb 22 17:39:54 kirkophone kernel: [    0.923412] CPU: L2 cache: 256K
+Feb 22 17:39:54 kirkophone kernel: [    0.923413] CPU: L3 cache: 6144K
+Feb 22 17:39:54 kirkophone kernel: [    0.923416] CPU 7/0x7 -> Node 0
+Feb 22 17:39:54 kirkophone kernel: [    0.923428] CPU7: Thermal monitoring enabled (TM1)
+Feb 22 17:39:54 kirkophone kernel: [    0.923431] CPU 7 MCA banks SHD:2 SHD:3 SHD:5 SHD:6 SHD:8
+Feb 22 17:39:54 kirkophone kernel: [    0.923459] CPU7: Intel(R) Core(TM) i7 CPU       Q 720  @ 1.60GHz stepping 05
+Feb 22 17:39:54 kirkophone kernel: [    0.923470] checking TSC synchronization [CPU#0 -> CPU#7]: passed.
+Feb 22 17:39:54 kirkophone kernel: [    0.943472] Brought up 8 CPUs
+Feb 22 17:39:54 kirkophone kernel: [    0.943475] Total of 8 processors activated (25534.92 BogoMIPS).
+Feb 22 17:39:54 kirkophone kernel: [    0.946895] CPU0 attaching sched-domain:
+Feb 22 17:39:54 kirkophone kernel: [    0.946899]  domain 0: span 0,4 level SIBLING
+Feb 22 17:39:54 kirkophone kernel: [    0.946901]   groups: 0 (cpu_power = 589) 4 (cpu_power = 589)
+Feb 22 17:39:54 kirkophone kernel: [    0.946907]   domain 1: span 0-7 level MC
+Feb 22 17:39:54 kirkophone kernel: [    0.946910]    groups: 0,4 (cpu_power = 1178) 1,5 (cpu_power = 1178) 2,6 (cpu_power = 1178) 3,7 (cpu_power = 1178)
+Feb 22 17:39:54 kirkophone kernel: [    0.946921] CPU1 attaching sched-domain:
+Feb 22 17:39:54 kirkophone kernel: [    0.946923]  domain 0: span 1,5 level SIBLING
+Feb 22 17:39:54 kirkophone kernel: [    0.946925]   groups: 1 (cpu_power = 589) 5 (cpu_power = 589)
+Feb 22 17:39:54 kirkophone kernel: [    0.946930]   domain 1: span 0-7 level MC
+Feb 22 17:39:54 kirkophone kernel: [    0.946932]    groups: 1,5 (cpu_power = 1178) 2,6 (cpu_power = 1178) 3,7 (cpu_power = 1178) 0,4 (cpu_power = 1178)
+Feb 22 17:39:54 kirkophone kernel: [    0.946942] CPU2 attaching sched-domain:
+Feb 22 17:39:54 kirkophone kernel: [    0.946944]  domain 0: span 2,6 level SIBLING
+Feb 22 17:39:54 kirkophone kernel: [    0.946946]   groups: 2 (cpu_power = 589) 6 (cpu_power = 589)
+Feb 22 17:39:54 kirkophone kernel: [    0.946951]   domain 1: span 0-7 level MC
+Feb 22 17:39:54 kirkophone kernel: [    0.946953]    groups: 2,6 (cpu_power = 1178) 3,7 (cpu_power = 1178) 0,4 (cpu_power = 1178) 1,5 (cpu_power = 1178)
+Feb 22 17:39:54 kirkophone kernel: [    0.946963] CPU3 attaching sched-domain:
+Feb 22 17:39:54 kirkophone kernel: [    0.946965]  domain 0: span 3,7 level SIBLING
+Feb 22 17:39:54 kirkophone kernel: [    0.946967]   groups: 3 (cpu_power = 589) 7 (cpu_power = 589)
+Feb 22 17:39:54 kirkophone kernel: [    0.946972]   domain 1: span 0-7 level MC
+Feb 22 17:39:54 kirkophone kernel: [    0.946974]    groups: 3,7 (cpu_power = 1178) 0,4 (cpu_power = 1178) 1,5 (cpu_power = 1178) 2,6 (cpu_power = 1178)
+Feb 22 17:39:54 kirkophone kernel: [    0.946983] CPU4 attaching sched-domain:
+Feb 22 17:39:54 kirkophone kernel: [    0.946985]  domain 0: span 0,4 level SIBLING
+Feb 22 17:39:54 kirkophone kernel: [    0.946988]   groups: 4 (cpu_power = 589) 0 (cpu_power = 589)
+Feb 22 17:39:54 kirkophone kernel: [    0.946993]   domain 1: span 0-7 level MC
+Feb 22 17:39:54 kirkophone kernel: [    0.946995]    groups: 0,4 (cpu_power = 1178) 1,5 (cpu_power = 1178) 2,6 (cpu_power = 1178) 3,7 (cpu_power = 1178)
+Feb 22 17:39:54 kirkophone kernel: [    0.947004] CPU5 attaching sched-domain:
+Feb 22 17:39:54 kirkophone kernel: [    0.947006]  domain 0: span 1,5 level SIBLING
+Feb 22 17:39:54 kirkophone kernel: [    0.947008]   groups: 5 (cpu_power = 589) 1 (cpu_power = 589)
+Feb 22 17:39:54 kirkophone kernel: [    0.947013]   domain 1: span 0-7 level MC
+Feb 22 17:39:54 kirkophone kernel: [    0.947016]    groups: 1,5 (cpu_power = 1178) 2,6 (cpu_power = 1178) 3,7 (cpu_power = 1178) 0,4 (cpu_power = 1178)
+Feb 22 17:39:54 kirkophone kernel: [    0.947025] CPU6 attaching sched-domain:
+Feb 22 17:39:54 kirkophone kernel: [    0.947027]  domain 0: span 2,6 level SIBLING
+Feb 22 17:39:54 kirkophone kernel: [    0.947029]   groups: 6 (cpu_power = 589) 2 (cpu_power = 589)
+Feb 22 17:39:54 kirkophone kernel: [    0.947034]   domain 1: span 0-7 level MC
+Feb 22 17:39:54 kirkophone kernel: [    0.947036]    groups: 2,6 (cpu_power = 1178) 3,7 (cpu_power = 1178) 0,4 (cpu_power = 1178) 1,5 (cpu_power = 1178)
+Feb 22 17:39:54 kirkophone kernel: [    0.947045] CPU7 attaching sched-domain:
+Feb 22 17:39:54 kirkophone kernel: [    0.947047]  domain 0: span 3,7 level SIBLING
+Feb 22 17:39:54 kirkophone kernel: [    0.947050]   groups: 7 (cpu_power = 589) 3 (cpu_power = 589)
+Feb 22 17:39:54 kirkophone kernel: [    0.947055]   domain 1: span 0-7 level MC
+Feb 22 17:39:54 kirkophone kernel: [    0.947057]    groups: 3,7 (cpu_power = 1178) 0,4 (cpu_power = 1178) 1,5 (cpu_power = 1178) 2,6 (cpu_power = 1178)
+Feb 22 17:39:54 kirkophone kernel: [    0.947442] devtmpfs: initialized
+Feb 22 17:39:54 kirkophone kernel: [    0.952715] regulator: core version 0.5
+Feb 22 17:39:54 kirkophone kernel: [    0.952766] NET: Registered protocol family 16
+Feb 22 17:39:54 kirkophone kernel: [    0.952852] ACPI FADT declares the system doesn't support PCIe ASPM, so disable it
+Feb 22 17:39:54 kirkophone kernel: [    0.952854] ACPI: bus type pci registered
+Feb 22 17:39:54 kirkophone kernel: [    0.952932] PCI: MCFG configuration 0: base e0000000 segment 0 buses 0 - 255
+Feb 22 17:39:54 kirkophone kernel: [    0.952935] PCI: MCFG area at e0000000 reserved in E820
+Feb 22 17:39:54 kirkophone kernel: [    0.966062] PCI: Using MMCONFIG at e0000000 - efffffff
+Feb 22 17:39:54 kirkophone kernel: [    0.966064] PCI: Using configuration type 1 for base access
+Feb 22 17:39:54 kirkophone kernel: [    0.966726] bio: create slab <bio-0> at 0
+Feb 22 17:39:54 kirkophone kernel: [    0.968301] ACPI: EC: EC description table is found, configuring boot EC
+Feb 22 17:39:54 kirkophone kernel: [    0.970167] ACPI: Executed 1 blocks of module-level executable AML code
+Feb 22 17:39:54 kirkophone kernel: [    0.977515] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.010223] ACPI: Interpreter enabled
+Feb 22 17:39:54 kirkophone kernel: [    1.010227] ACPI: (supports S0 S3 S4 S5)
+Feb 22 17:39:54 kirkophone kernel: [    1.010259] ACPI: Using IOAPIC for interrupt routing
+Feb 22 17:39:54 kirkophone kernel: [    1.016487] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.016971] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.017455] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.018487] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.018971] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.019463] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.020496] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.020980] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.021464] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.022493] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.022976] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.023468] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.025360] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.025843] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.026327] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.027365] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.027851] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.028335] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.029358] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.029840] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.030323] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.037498] ACPI: EC: GPE = 0x1b, I/O: command/status = 0x66, data = 0x62
+Feb 22 17:39:54 kirkophone kernel: [    1.037958] ACPI: No dock devices found.
+Feb 22 17:39:54 kirkophone kernel: [    1.039558] ACPI: PCI Root Bridge [PCI0] (0000:00)
+Feb 22 17:39:54 kirkophone kernel: [    1.039702] pci 0000:00:03.0: PME# supported from D0 D3hot D3cold
+Feb 22 17:39:54 kirkophone kernel: [    1.039706] pci 0000:00:03.0: PME# disabled
+Feb 22 17:39:54 kirkophone kernel: [    1.040032] pci 0000:00:16.0: reg 10 64bit mmio: [0xd3e0a000-0xd3e0a00f]
+Feb 22 17:39:54 kirkophone kernel: [    1.040089] pci 0000:00:16.0: PME# supported from D0 D3hot D3cold
+Feb 22 17:39:54 kirkophone kernel: [    1.040098] pci 0000:00:16.0: PME# disabled
+Feb 22 17:39:54 kirkophone kernel: [    1.040167] pci 0000:00:1a.0: reg 10 32bit mmio: [0xd3e08000-0xd3e083ff]
+Feb 22 17:39:54 kirkophone kernel: [    1.040227] pci 0000:00:1a.0: PME# supported from D0 D3hot D3cold
+Feb 22 17:39:54 kirkophone kernel: [    1.040236] pci 0000:00:1a.0: PME# disabled
+Feb 22 17:39:54 kirkophone kernel: [    1.040294] pci 0000:00:1b.0: reg 10 64bit mmio: [0xd3e00000-0xd3e03fff]
+Feb 22 17:39:54 kirkophone kernel: [    1.040346] pci 0000:00:1b.0: PME# supported from D0 D3hot D3cold
+Feb 22 17:39:54 kirkophone kernel: [    1.040354] pci 0000:00:1b.0: PME# disabled
+Feb 22 17:39:54 kirkophone kernel: [    1.040435] pci 0000:00:1c.0: PME# supported from D0 D3hot D3cold
+Feb 22 17:39:54 kirkophone kernel: [    1.040444] pci 0000:00:1c.0: PME# disabled
+Feb 22 17:39:54 kirkophone kernel: [    1.040521] pci 0000:00:1c.1: PME# supported from D0 D3hot D3cold
+Feb 22 17:39:54 kirkophone kernel: [    1.040530] pci 0000:00:1c.1: PME# disabled
+Feb 22 17:39:54 kirkophone kernel: [    1.040614] pci 0000:00:1c.5: PME# supported from D0 D3hot D3cold
+Feb 22 17:39:54 kirkophone kernel: [    1.040623] pci 0000:00:1c.5: PME# disabled
+Feb 22 17:39:54 kirkophone kernel: [    1.040686] pci 0000:00:1d.0: reg 10 32bit mmio: [0xd3e07000-0xd3e073ff]
+Feb 22 17:39:54 kirkophone kernel: [    1.040746] pci 0000:00:1d.0: PME# supported from D0 D3hot D3cold
+Feb 22 17:39:54 kirkophone kernel: [    1.040753] pci 0000:00:1d.0: PME# disabled
+Feb 22 17:39:54 kirkophone kernel: [    1.040979] pci 0000:00:1f.2: reg 10 io port: [0xe070-0xe077]
+Feb 22 17:39:54 kirkophone kernel: [    1.040990] pci 0000:00:1f.2: reg 14 io port: [0xe060-0xe063]
+Feb 22 17:39:54 kirkophone kernel: [    1.041000] pci 0000:00:1f.2: reg 18 io port: [0xe050-0xe057]
+Feb 22 17:39:54 kirkophone kernel: [    1.041011] pci 0000:00:1f.2: reg 1c io port: [0xe040-0xe043]
+Feb 22 17:39:54 kirkophone kernel: [    1.041022] pci 0000:00:1f.2: reg 20 io port: [0xe020-0xe03f]
+Feb 22 17:39:54 kirkophone kernel: [    1.041033] pci 0000:00:1f.2: reg 24 32bit mmio: [0xd3e06000-0xd3e067ff]
+Feb 22 17:39:54 kirkophone kernel: [    1.041074] pci 0000:00:1f.2: PME# supported from D3hot
+Feb 22 17:39:54 kirkophone kernel: [    1.041082] pci 0000:00:1f.2: PME# disabled
+Feb 22 17:39:54 kirkophone kernel: [    1.041129] pci 0000:00:1f.3: reg 10 64bit mmio: [0xd3e05000-0xd3e050ff]
+Feb 22 17:39:54 kirkophone kernel: [    1.041148] pci 0000:00:1f.3: reg 20 io port: [0xe000-0xe01f]
+Feb 22 17:39:54 kirkophone kernel: [    1.041206] pci 0000:01:00.0: reg 10 64bit mmio pref: [0xc0000000-0xcfffffff]
+Feb 22 17:39:54 kirkophone kernel: [    1.041216] pci 0000:01:00.0: reg 18 64bit mmio: [0xd0020000-0xd003ffff]
+Feb 22 17:39:54 kirkophone kernel: [    1.041222] pci 0000:01:00.0: reg 20 io port: [0xd000-0xd0ff]
+Feb 22 17:39:54 kirkophone kernel: [    1.041232] pci 0000:01:00.0: reg 30 32bit mmio pref: [0xd0000000-0xd001ffff]
+Feb 22 17:39:54 kirkophone kernel: [    1.041252] pci 0000:01:00.0: supports D1 D2
+Feb 22 17:39:54 kirkophone kernel: [    1.041287] pci 0000:01:00.1: reg 10 64bit mmio: [0xd0040000-0xd0043fff]
+Feb 22 17:39:54 kirkophone kernel: [    1.041323] pci 0000:01:00.1: supports D1 D2
+Feb 22 17:39:54 kirkophone kernel: [    1.041367] pci 0000:00:03.0: bridge io port: [0xd000-0xdfff]
+Feb 22 17:39:54 kirkophone kernel: [    1.041370] pci 0000:00:03.0: bridge 32bit mmio: [0xc0000000-0xd00fffff]
+Feb 22 17:39:54 kirkophone kernel: [    1.041417] pci 0000:00:1c.0: bridge io port: [0xc000-0xcfff]
+Feb 22 17:39:54 kirkophone kernel: [    1.041426] pci 0000:00:1c.0: bridge 32bit mmio: [0xd2a00000-0xd3dfffff]
+Feb 22 17:39:54 kirkophone kernel: [    1.041504] pci 0000:03:00.0: reg 10 64bit mmio: [0xd1600000-0xd160ffff]
+Feb 22 17:39:54 kirkophone kernel: [    1.041582] pci 0000:03:00.0: supports D1
+Feb 22 17:39:54 kirkophone kernel: [    1.041584] pci 0000:03:00.0: PME# supported from D0 D1 D3hot D3cold
+Feb 22 17:39:54 kirkophone kernel: [    1.041593] pci 0000:03:00.0: PME# disabled
+Feb 22 17:39:54 kirkophone kernel: [    1.041664] pci 0000:00:1c.1: bridge io port: [0xb000-0xbfff]
+Feb 22 17:39:54 kirkophone kernel: [    1.041673] pci 0000:00:1c.1: bridge 32bit mmio: [0xd1600000-0xd29fffff]
+Feb 22 17:39:54 kirkophone kernel: [    1.041752] pci 0000:04:00.0: reg 10 64bit mmio: [0xd0200000-0xd023ffff]
+Feb 22 17:39:54 kirkophone kernel: [    1.041765] pci 0000:04:00.0: reg 18 io port: [0xa000-0xa07f]
+Feb 22 17:39:54 kirkophone kernel: [    1.041836] pci 0000:04:00.0: PME# supported from D0 D1 D2 D3hot D3cold
+Feb 22 17:39:54 kirkophone kernel: [    1.041845] pci 0000:04:00.0: PME# disabled
+Feb 22 17:39:54 kirkophone kernel: [    1.041913] pci 0000:00:1c.5: bridge io port: [0xa000-0xafff]
+Feb 22 17:39:54 kirkophone kernel: [    1.041922] pci 0000:00:1c.5: bridge 32bit mmio: [0xd0200000-0xd15fffff]
+Feb 22 17:39:54 kirkophone kernel: [    1.041990] pci 0000:00:1e.0: transparent bridge
+Feb 22 17:39:54 kirkophone kernel: [    1.042040] ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
+Feb 22 17:39:54 kirkophone kernel: [    1.042502] ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.PEG3._PRT]
+Feb 22 17:39:54 kirkophone kernel: [    1.042758] ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.P0P1._PRT]
+Feb 22 17:39:54 kirkophone kernel: [    1.043158] ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.RP01._PRT]
+Feb 22 17:39:54 kirkophone kernel: [    1.043382] ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.RP02._PRT]
+Feb 22 17:39:54 kirkophone kernel: [    1.043632] ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.RP06._PRT]
+Feb 22 17:39:54 kirkophone kernel: [    1.044687] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.045171] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.045655] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.046215] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.046697] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.047180] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.047747] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.048230] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.048714] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.049273] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.049755] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.050239] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.050812] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.051299] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.051786] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.052345] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.052827] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.053311] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.053870] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.054352] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.054835] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.055961] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.056443] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.056925] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.057484] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.057965] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.058448] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.059006] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.059495] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.059978] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.060537] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.061018] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.061501] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.062073] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.062554] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.063037] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.063602] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.064083] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.064565] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.065124] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.065604] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.066087] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.067207] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.067703] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.068187] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.068746] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.069228] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.069710] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.070269] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.070750] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.071232] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.071798] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.072280] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.072762] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.073335] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.073816] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.074299] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.074857] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.075342] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.075828] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.076386] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.076868] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.077351] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.078468] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.078950] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.079440] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.079999] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.080480] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.080963] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.081521] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.082002] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.082484] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.083043] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.083531] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.084014] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.084586] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.085068] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.085550] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.086108] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.086589] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.087072] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.087637] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.088118] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.088601] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.089717] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.090198] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.090680] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.091247] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.091733] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.092218] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.092781] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.093265] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.093750] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.094310] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.094794] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.095284] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.095861] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.096345] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.096828] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.097389] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.097872] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.098357] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.098917] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.099407] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.099892] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.101010] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.101492] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.101975] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.102533] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.103014] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.103504] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.104063] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.104544] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.105026] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.105584] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.106066] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.106548] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.107121] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.107609] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.108092] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.108651] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.109132] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.109616] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.110174] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.110655] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.111137] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.112257] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.112740] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.113222] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.113781] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.114262] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.114745] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.115308] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.115792] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.116274] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.116832] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.117313] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.117796] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.118368] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.118849] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.119339] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.119898] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.120379] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.120862] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.121419] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.121901] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.122383] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.123507] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.123989] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.124472] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.125031] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.125513] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.125996] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.126555] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.127037] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.127527] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.128087] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.128570] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.129052] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.129625] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.130108] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.130591] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.131149] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.131637] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.132120] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.132679] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.133160] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.133642] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.134756] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.135243] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.135728] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.136288] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.136769] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.137252] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.137810] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.138292] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.138775] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.139341] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.139824] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.140307] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.140880] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.141362] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.141845] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.142404] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.142886] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.143375] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.143935] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.144417] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.144900] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.146017] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.146500] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.146982] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.147549] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.148031] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.148513] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.149072] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.149554] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.150037] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.150596] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.151078] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.151567] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.152140] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.152622] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.153105] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.153664] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.154146] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.154630] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.155196] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.155681] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.156165] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.157284] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.157766] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.158250] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.158809] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.159299] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.159783] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.160342] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.160824] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.161307] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.161866] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.162348] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.162831] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.163410] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.163892] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.164376] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.164935] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.165417] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.165901] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.166459] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.166941] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.167431] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.168552] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.169035] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.169518] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.170078] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.170560] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.171043] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.171610] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.172092] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.172575] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.173134] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.173616] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.174099] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.174671] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.175157] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.175644] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.176203] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.176685] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.177168] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.177726] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.178209] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.178691] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.179815] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.180298] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.180781] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.181340] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.181822] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.182305] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.182863] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.183352] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.183836] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.184395] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.184877] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.185359] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.185932] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.186414] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.186897] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.187462] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.187945] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.188428] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.188987] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.189469] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.189952] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.191071] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.191564] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.192051] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.192613] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.193098] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.193583] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.194145] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.194630] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.195116] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.195685] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.196169] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.196655] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.197230] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.197714] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.198200] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.198761] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.199251] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.199739] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.200301] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.200785] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.201271] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.202392] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.202875] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.203365] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.203925] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.204407] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.204889] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.205448] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.205929] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.206412] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.206971] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.207460] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.207943] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.208516] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.208998] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.209481] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.210040] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.210522] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.211005] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.211570] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.212052] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.212535] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.213652] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.214134] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.214617] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.215181] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.215666] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.216150] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.216709] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.217191] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.217673] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.218232] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.218714] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.219201] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.219776] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.220257] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.220740] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.221298] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.221780] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.222262] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.222821] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.223309] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.223792] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.224912] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.225394] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.225877] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.226436] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.226917] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.227407] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.227967] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.228449] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.228932] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.229490] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.229972] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.230455] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.231027] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.231516] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.231999] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.232557] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.233039] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.233522] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.234080] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.234562] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.235045] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.236168] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.236651] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.237133] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.237692] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.238175] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.238658] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.239224] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.239706] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.240190] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.240749] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.241230] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.241713] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.242285] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.242766] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.243254] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.243814] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.244296] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.244778] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.245336] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.245818] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.246300] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.247427] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.247910] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.248393] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.248952] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.249433] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.249916] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.250475] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.250957] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.251449] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.252009] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.252492] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.252975] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.253548] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.254030] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.254513] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.255075] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.255561] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.256044] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.256604] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.257086] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.257569] ACPI: BIOS _OSI(Linux) query ignored
+Feb 22 17:39:54 kirkophone kernel: [    1.258513] ACPI: PCI Root Bridge [CPBG] (0000:ff)
+Feb 22 17:39:54 kirkophone kernel: [    1.259553] ACPI: PCI Interrupt Link [LNKA] (IRQs 1 3 4 5 6 7 10 12 14 15) *11
+Feb 22 17:39:54 kirkophone kernel: [    1.259750] ACPI: PCI Interrupt Link [LNKB] (IRQs 1 3 4 5 6 7 11 12 14 15) *10
+Feb 22 17:39:54 kirkophone kernel: [    1.259943] ACPI: PCI Interrupt Link [LNKC] (IRQs 1 3 4 5 6 7 *10 12 14 15)
+Feb 22 17:39:54 kirkophone kernel: [    1.260137] ACPI: PCI Interrupt Link [LNKD] (IRQs 1 3 4 *5 6 7 11 12 14 15)
+Feb 22 17:39:54 kirkophone kernel: [    1.260329] ACPI: PCI Interrupt Link [LNKE] (IRQs 1 3 4 5 6 7 10 12 14 15) *0, disabled.
+Feb 22 17:39:54 kirkophone kernel: [    1.260520] ACPI: PCI Interrupt Link [LNKF] (IRQs 1 3 4 5 6 7 11 12 14 15) *0, disabled.
+Feb 22 17:39:54 kirkophone kernel: [    1.260713] ACPI: PCI Interrupt Link [LNKG] (IRQs 1 *3 4 5 6 7 10 12 14 15)
+Feb 22 17:39:54 kirkophone kernel: [    1.260906] ACPI: PCI Interrupt Link [LNKH] (IRQs 1 3 *4 5 6 7 11 12 14 15)
+Feb 22 17:39:54 kirkophone kernel: [    1.261047] vgaarb: device added: PCI:0000:01:00.0,decodes=io+mem,owns=io+mem,locks=none
+Feb 22 17:39:54 kirkophone kernel: [    1.261058] vgaarb: loaded
+Feb 22 17:39:54 kirkophone kernel: [    1.261120] PCI: Using ACPI for IRQ routing
+Feb 22 17:39:54 kirkophone kernel: [    1.261418] hpet0: at MMIO 0xfed00000, IRQs 2, 8, 24, 25, 26, 27, 28, 0
+Feb 22 17:39:54 kirkophone kernel: [    1.261425] hpet0: 8 comparators, 64-bit 14.318180 MHz counter
+Feb 22 17:39:54 kirkophone kernel: [    1.267087] hpet: hpet2 irq 24 for MSI
+Feb 22 17:39:54 kirkophone kernel: [    1.267256] hpet: hpet3 irq 25 for MSI
+Feb 22 17:39:54 kirkophone kernel: [    1.271200] hpet: hpet4 irq 26 for MSI
+Feb 22 17:39:54 kirkophone kernel: [    1.275254] hpet: hpet5 irq 27 for MSI
+Feb 22 17:39:54 kirkophone kernel: [    1.279213] hpet: hpet6 irq 28 for MSI
+Feb 22 17:39:54 kirkophone kernel: [    1.287180] Switching to clocksource tsc
+Feb 22 17:39:54 kirkophone kernel: [    1.288463] pnp: PnP ACPI init
+Feb 22 17:39:54 kirkophone kernel: [    1.288472] ACPI: bus type pnp registered
+Feb 22 17:39:54 kirkophone kernel: [    1.292185] pnp: PnP ACPI: found 12 devices
+Feb 22 17:39:54 kirkophone kernel: [    1.292187] ACPI: ACPI bus type pnp unregistered
+Feb 22 17:39:54 kirkophone kernel: [    1.292197] system 00:05: ioport range 0x680-0x69f has been reserved
+Feb 22 17:39:54 kirkophone kernel: [    1.292201] system 00:05: ioport range 0xff00-0xff0f has been reserved
+Feb 22 17:39:54 kirkophone kernel: [    1.292204] system 00:05: ioport range 0xffff-0xffff has been reserved
+Feb 22 17:39:54 kirkophone kernel: [    1.292207] system 00:05: ioport range 0xffff-0xffff has been reserved
+Feb 22 17:39:54 kirkophone kernel: [    1.292210] system 00:05: ioport range 0x400-0x47f has been reserved
+Feb 22 17:39:54 kirkophone kernel: [    1.292213] system 00:05: ioport range 0x500-0x57f has been reserved
+Feb 22 17:39:54 kirkophone kernel: [    1.292216] system 00:05: ioport range 0x164e-0x164f has been reserved
+Feb 22 17:39:54 kirkophone kernel: [    1.292222] system 00:07: ioport range 0x240-0x259 has been reserved
+Feb 22 17:39:54 kirkophone kernel: [    1.292229] system 00:0a: iomem range 0xfed1c000-0xfed1ffff has been reserved
+Feb 22 17:39:54 kirkophone kernel: [    1.292232] system 00:0a: iomem range 0xfed1b000-0xfed1bfff has been reserved
+Feb 22 17:39:54 kirkophone kernel: [    1.292236] system 00:0a: iomem range 0xe0000000-0xefffffff has been reserved
+Feb 22 17:39:54 kirkophone kernel: [    1.292239] system 00:0a: iomem range 0xfed20000-0xfed3ffff has been reserved
+Feb 22 17:39:54 kirkophone kernel: [    1.292242] system 00:0a: iomem range 0xfed90000-0xfed93fff has been reserved
+Feb 22 17:39:54 kirkophone kernel: [    1.292245] system 00:0a: iomem range 0xfed45000-0xfed8ffff has been reserved
+Feb 22 17:39:54 kirkophone kernel: [    1.292249] system 00:0a: iomem range 0xff000000-0xffffffff could not be reserved
+Feb 22 17:39:54 kirkophone kernel: [    1.292252] system 00:0a: iomem range 0xfee00000-0xfeefffff could not be reserved
+Feb 22 17:39:54 kirkophone kernel: [    1.292255] system 00:0a: iomem range 0xd3e0b000-0xd3e0bfff has been reserved
+Feb 22 17:39:54 kirkophone kernel: [    1.297104] pci 0000:00:03.0: PCI bridge, secondary bus 0000:01
+Feb 22 17:39:54 kirkophone kernel: [    1.297107] pci 0000:00:03.0:   IO window: 0xd000-0xdfff
+Feb 22 17:39:54 kirkophone kernel: [    1.297112] pci 0000:00:03.0:   MEM window: 0xc0000000-0xd00fffff
+Feb 22 17:39:54 kirkophone kernel: [    1.297115] pci 0000:00:03.0:   PREFETCH window: disabled
+Feb 22 17:39:54 kirkophone kernel: [    1.297120] pci 0000:00:1c.0: PCI bridge, secondary bus 0000:02
+Feb 22 17:39:54 kirkophone kernel: [    1.297125] pci 0000:00:1c.0:   IO window: 0xc000-0xcfff
+Feb 22 17:39:54 kirkophone kernel: [    1.297135] pci 0000:00:1c.0:   MEM window: 0xd2a00000-0xd3dfffff
+Feb 22 17:39:54 kirkophone kernel: [    1.297143] pci 0000:00:1c.0:   PREFETCH window: 0x000000d3f00000-0x000000d40fffff
+Feb 22 17:39:54 kirkophone kernel: [    1.297154] pci 0000:00:1c.1: PCI bridge, secondary bus 0000:03
+Feb 22 17:39:54 kirkophone kernel: [    1.297162] pci 0000:00:1c.1:   IO window: 0xb000-0xbfff
+Feb 22 17:39:54 kirkophone kernel: [    1.297172] pci 0000:00:1c.1:   MEM window: 0xd1600000-0xd29fffff
+Feb 22 17:39:54 kirkophone kernel: [    1.297181] pci 0000:00:1c.1:   PREFETCH window: 0x000000d4100000-0x000000d42fffff
+Feb 22 17:39:54 kirkophone kernel: [    1.297192] pci 0000:00:1c.5: PCI bridge, secondary bus 0000:04
+Feb 22 17:39:54 kirkophone kernel: [    1.297199] pci 0000:00:1c.5:   IO window: 0xa000-0xafff
+Feb 22 17:39:54 kirkophone kernel: [    1.297209] pci 0000:00:1c.5:   MEM window: 0xd0200000-0xd15fffff
+Feb 22 17:39:54 kirkophone kernel: [    1.297217] pci 0000:00:1c.5:   PREFETCH window: 0x000000d4300000-0x000000d44fffff
+Feb 22 17:39:54 kirkophone kernel: [    1.297228] pci 0000:00:1e.0: PCI bridge, secondary bus 0000:05
+Feb 22 17:39:54 kirkophone kernel: [    1.297230] pci 0000:00:1e.0:   IO window: disabled
+Feb 22 17:39:54 kirkophone kernel: [    1.297239] pci 0000:00:1e.0:   MEM window: disabled
+Feb 22 17:39:54 kirkophone kernel: [    1.297247] pci 0000:00:1e.0:   PREFETCH window: disabled
+Feb 22 17:39:54 kirkophone kernel: [    1.297264]   alloc irq_desc for 16 on node -1
+Feb 22 17:39:54 kirkophone kernel: [    1.297266]   alloc kstat_irqs on node -1
+Feb 22 17:39:54 kirkophone kernel: [    1.297274] pci 0000:00:03.0: PCI INT A -> GSI 16 (level, low) -> IRQ 16
+Feb 22 17:39:54 kirkophone kernel: [    1.297279] pci 0000:00:03.0: setting latency timer to 64
+Feb 22 17:39:54 kirkophone kernel: [    1.297291] pci 0000:00:1c.0: PCI INT A -> GSI 16 (level, low) -> IRQ 16
+Feb 22 17:39:54 kirkophone kernel: [    1.297300] pci 0000:00:1c.0: setting latency timer to 64
+Feb 22 17:39:54 kirkophone kernel: [    1.297312]   alloc irq_desc for 17 on node -1
+Feb 22 17:39:54 kirkophone kernel: [    1.297314]   alloc kstat_irqs on node -1
+Feb 22 17:39:54 kirkophone kernel: [    1.297318] pci 0000:00:1c.1: PCI INT B -> GSI 17 (level, low) -> IRQ 17
+Feb 22 17:39:54 kirkophone kernel: [    1.297323] pci 0000:00:1c.1: setting latency timer to 64
+Feb 22 17:39:54 kirkophone kernel: [    1.297340] pci 0000:00:1c.5: PCI INT B -> GSI 17 (level, low) -> IRQ 17
+Feb 22 17:39:54 kirkophone kernel: [    1.297349] pci 0000:00:1c.5: setting latency timer to 64
+Feb 22 17:39:54 kirkophone kernel: [    1.297364] pci 0000:00:1e.0: setting latency timer to 64
+Feb 22 17:39:54 kirkophone kernel: [    1.297373] pci_bus 0000:00: resource 0 io:  [0x00-0xffff]
+Feb 22 17:39:54 kirkophone kernel: [    1.297375] pci_bus 0000:00: resource 1 mem: [0x000000-0xffffffffffffffff]
+Feb 22 17:39:54 kirkophone kernel: [    1.297378] pci_bus 0000:01: resource 0 io:  [0xd000-0xdfff]
+Feb 22 17:39:54 kirkophone kernel: [    1.297380] pci_bus 0000:01: resource 1 mem: [0xc0000000-0xd00fffff]
+Feb 22 17:39:54 kirkophone kernel: [    1.297383] pci_bus 0000:02: resource 0 io:  [0xc000-0xcfff]
+Feb 22 17:39:54 kirkophone kernel: [    1.297386] pci_bus 0000:02: resource 1 mem: [0xd2a00000-0xd3dfffff]
+Feb 22 17:39:54 kirkophone kernel: [    1.297388] pci_bus 0000:02: resource 2 pref mem [0xd3f00000-0xd40fffff]
+Feb 22 17:39:54 kirkophone kernel: [    1.297391] pci_bus 0000:03: resource 0 io:  [0xb000-0xbfff]
+Feb 22 17:39:54 kirkophone kernel: [    1.297393] pci_bus 0000:03: resource 1 mem: [0xd1600000-0xd29fffff]
+Feb 22 17:39:54 kirkophone kernel: [    1.297396] pci_bus 0000:03: resource 2 pref mem [0xd4100000-0xd42fffff]
+Feb 22 17:39:54 kirkophone kernel: [    1.297399] pci_bus 0000:04: resource 0 io:  [0xa000-0xafff]
+Feb 22 17:39:54 kirkophone kernel: [    1.297401] pci_bus 0000:04: resource 1 mem: [0xd0200000-0xd15fffff]
+Feb 22 17:39:54 kirkophone kernel: [    1.297404] pci_bus 0000:04: resource 2 pref mem [0xd4300000-0xd44fffff]
+Feb 22 17:39:54 kirkophone kernel: [    1.297406] pci_bus 0000:05: resource 3 io:  [0x00-0xffff]
+Feb 22 17:39:54 kirkophone kernel: [    1.297409] pci_bus 0000:05: resource 4 mem: [0x000000-0xffffffffffffffff]
+Feb 22 17:39:54 kirkophone kernel: [    1.297412] pci_bus 0000:ff: resource 0 io:  [0x00-0xffff]
+Feb 22 17:39:54 kirkophone kernel: [    1.297414] pci_bus 0000:ff: resource 1 mem: [0x000000-0xffffffffffffffff]
+Feb 22 17:39:54 kirkophone kernel: [    1.297441] NET: Registered protocol family 2
+Feb 22 17:39:54 kirkophone kernel: [    1.297688] IP route cache hash table entries: 262144 (order: 9, 2097152 bytes)
+Feb 22 17:39:54 kirkophone kernel: [    1.298833] TCP established hash table entries: 524288 (order: 11, 8388608 bytes)
+Feb 22 17:39:54 kirkophone kernel: [    1.302380] TCP bind hash table entries: 65536 (order: 8, 1048576 bytes)
+Feb 22 17:39:54 kirkophone kernel: [    1.302808] TCP: Hash tables configured (established 524288 bind 65536)
+Feb 22 17:39:54 kirkophone kernel: [    1.302810] TCP reno registered
+Feb 22 17:39:54 kirkophone kernel: [    1.302908] NET: Registered protocol family 1
+Feb 22 17:39:54 kirkophone kernel: [    1.635064] pci 0000:01:00.0: Boot video device
+Feb 22 17:39:54 kirkophone kernel: [    1.635147] Unpacking initramfs...
+Feb 22 17:39:54 kirkophone kernel: [    1.913069] Freeing initrd memory: 10576k freed
+Feb 22 17:39:54 kirkophone kernel: [    1.915526] audit: initializing netlink socket (disabled)
+Feb 22 17:39:54 kirkophone kernel: [    1.915536] type=2000 audit(1298396304.664:1): initialized
+Feb 22 17:39:54 kirkophone kernel: [    1.919950] HugeTLB registered 2 MB page size, pre-allocated 0 pages
+Feb 22 17:39:54 kirkophone kernel: [    1.921515] VFS: Disk quotas dquot_6.5.2
+Feb 22 17:39:54 kirkophone kernel: [    1.921569] Dquot-cache hash table entries: 512 (order 0, 4096 bytes)
+Feb 22 17:39:54 kirkophone kernel: [    1.921645] msgmni has been set to 15864
+Feb 22 17:39:54 kirkophone kernel: [    1.922018] alg: No test for stdrng (krng)
+Feb 22 17:39:54 kirkophone kernel: [    1.922068] Block layer SCSI generic (bsg) driver version 0.4 loaded (major 253)
+Feb 22 17:39:54 kirkophone kernel: [    1.922071] io scheduler noop registered
+Feb 22 17:39:54 kirkophone kernel: [    1.922073] io scheduler anticipatory registered
+Feb 22 17:39:54 kirkophone kernel: [    1.922075] io scheduler deadline registered
+Feb 22 17:39:54 kirkophone kernel: [    1.922107] io scheduler cfq registered (default)
+Feb 22 17:39:54 kirkophone kernel: [    1.922244]   alloc irq_desc for 29 on node -1
+Feb 22 17:39:54 kirkophone kernel: [    1.922246]   alloc kstat_irqs on node -1
+Feb 22 17:39:54 kirkophone kernel: [    1.922256] pcieport 0000:00:03.0: irq 29 for MSI/MSI-X
+Feb 22 17:39:54 kirkophone kernel: [    1.922263] pcieport 0000:00:03.0: setting latency timer to 64
+Feb 22 17:39:54 kirkophone kernel: [    1.922367]   alloc irq_desc for 30 on node -1
+Feb 22 17:39:54 kirkophone kernel: [    1.922369]   alloc kstat_irqs on node -1
+Feb 22 17:39:54 kirkophone kernel: [    1.922381] pcieport 0000:00:1c.0: irq 30 for MSI/MSI-X
+Feb 22 17:39:54 kirkophone kernel: [    1.922393] pcieport 0000:00:1c.0: setting latency timer to 64
+Feb 22 17:39:54 kirkophone kernel: [    1.922510]   alloc irq_desc for 31 on node -1
+Feb 22 17:39:54 kirkophone kernel: [    1.922512]   alloc kstat_irqs on node -1
+Feb 22 17:39:54 kirkophone kernel: [    1.922523] pcieport 0000:00:1c.1: irq 31 for MSI/MSI-X
+Feb 22 17:39:54 kirkophone kernel: [    1.922536] pcieport 0000:00:1c.1: setting latency timer to 64
+Feb 22 17:39:54 kirkophone kernel: [    1.922652]   alloc irq_desc for 32 on node -1
+Feb 22 17:39:54 kirkophone kernel: [    1.922654]   alloc kstat_irqs on node -1
+Feb 22 17:39:54 kirkophone kernel: [    1.922666] pcieport 0000:00:1c.5: irq 32 for MSI/MSI-X
+Feb 22 17:39:54 kirkophone kernel: [    1.922678] pcieport 0000:00:1c.5: setting latency timer to 64
+Feb 22 17:39:54 kirkophone kernel: [    1.923022] aer 0000:00:03.0:pcie02: service driver aer loaded
+Feb 22 17:39:54 kirkophone kernel: [    1.924455] Linux agpgart interface v0.103
+Feb 22 17:39:54 kirkophone kernel: [    1.924498] Serial: 8250/16550 driver, 4 ports, IRQ sharing enabled
+Feb 22 17:39:54 kirkophone kernel: [    1.924947] input: Macintosh mouse button emulation as /devices/virtual/input/input0
+Feb 22 17:39:54 kirkophone kernel: [    1.925000] PNP: PS/2 Controller [PNP0303:PS2K,PNP0f03:PS2M] at 0x60,0x64 irq 1,12
+Feb 22 17:39:54 kirkophone kernel: [    1.926921] i8042.c: Detected active multiplexing controller, rev 1.1.
+Feb 22 17:39:54 kirkophone kernel: [    1.928157] serio: i8042 KBD port at 0x60,0x64 irq 1
+Feb 22 17:39:54 kirkophone kernel: [    1.928163] serio: i8042 AUX0 port at 0x60,0x64 irq 12
+Feb 22 17:39:54 kirkophone kernel: [    1.928166] serio: i8042 AUX1 port at 0x60,0x64 irq 12
+Feb 22 17:39:54 kirkophone kernel: [    1.928169] serio: i8042 AUX2 port at 0x60,0x64 irq 12
+Feb 22 17:39:54 kirkophone kernel: [    1.928172] serio: i8042 AUX3 port at 0x60,0x64 irq 12
+Feb 22 17:39:54 kirkophone kernel: [    1.928248] mice: PS/2 mouse device common for all mice
+Feb 22 17:39:54 kirkophone kernel: [    1.928300] rtc_cmos 00:06: RTC can wake from S4
+Feb 22 17:39:54 kirkophone kernel: [    1.928331] rtc_cmos 00:06: rtc core: registered rtc_cmos as rtc0
+Feb 22 17:39:54 kirkophone kernel: [    1.928376] rtc0: alarms up to one year, y3k, 242 bytes nvram, hpet irqs
+Feb 22 17:39:54 kirkophone kernel: [    1.928387] cpuidle: using governor ladder
+Feb 22 17:39:54 kirkophone kernel: [    1.928388] cpuidle: using governor menu
+Feb 22 17:39:54 kirkophone kernel: [    1.928392] No iBFT detected.
+Feb 22 17:39:54 kirkophone kernel: [    1.928700] TCP cubic registered
+Feb 22 17:39:54 kirkophone kernel: [    1.928811] NET: Registered protocol family 10
+Feb 22 17:39:54 kirkophone kernel: [    1.929275] lo: Disabled Privacy Extensions
+Feb 22 17:39:54 kirkophone kernel: [    1.929552] Mobile IPv6
+Feb 22 17:39:54 kirkophone kernel: [    1.929554] NET: Registered protocol family 17
+Feb 22 17:39:54 kirkophone kernel: [    1.929623] PM: Resume from disk failed.
+Feb 22 17:39:54 kirkophone kernel: [    1.929630] registered taskstats version 1
+Feb 22 17:39:54 kirkophone kernel: [    1.930151] rtc_cmos 00:06: setting system clock to 2011-02-22 17:38:25 UTC (1298396305)
+Feb 22 17:39:54 kirkophone kernel: [    1.930234] Initalizing network drop monitor service
+Feb 22 17:39:54 kirkophone kernel: [    1.930266] Freeing unused kernel memory: 592k freed
+Feb 22 17:39:54 kirkophone kernel: [    1.930368] Write protecting the kernel read-only data: 4236k
+Feb 22 17:39:54 kirkophone kernel: [    1.965637] input: AT Translated Set 2 keyboard as /devices/platform/i8042/serio0/input/input1
+Feb 22 17:39:54 kirkophone kernel: [    2.006673] udev[119]: starting version 166
+Feb 22 17:39:54 kirkophone kernel: [    2.025733] thermal LNXTHERM:01: registered as thermal_zone0
+Feb 22 17:39:54 kirkophone kernel: [    2.025745] ACPI: Thermal Zone [THRM] (77 C)
+Feb 22 17:39:54 kirkophone kernel: [    2.058161] usbcore: registered new interface driver usbfs
+Feb 22 17:39:54 kirkophone kernel: [    2.058182] usbcore: registered new interface driver hub
+Feb 22 17:39:54 kirkophone kernel: [    2.058219] usbcore: registered new device driver usb
+Feb 22 17:39:54 kirkophone kernel: [    2.060569] atl1c 0000:04:00.0: PCI INT A -> GSI 17 (level, low) -> IRQ 17
+Feb 22 17:39:54 kirkophone kernel: [    2.060590] atl1c 0000:04:00.0: setting latency timer to 64
+Feb 22 17:39:54 kirkophone kernel: [    2.078626] SCSI subsystem initialized
+Feb 22 17:39:54 kirkophone kernel: [    2.080228] ehci_hcd: USB 2.0 'Enhanced' Host Controller (EHCI) Driver
+Feb 22 17:39:54 kirkophone kernel: [    2.080258] ehci_hcd 0000:00:1a.0: PCI INT A -> GSI 16 (level, low) -> IRQ 16
+Feb 22 17:39:54 kirkophone kernel: [    2.080286] ehci_hcd 0000:00:1a.0: setting latency timer to 64
+Feb 22 17:39:54 kirkophone kernel: [    2.080294] ehci_hcd 0000:00:1a.0: EHCI Host Controller
+Feb 22 17:39:54 kirkophone kernel: [    2.080318] ehci_hcd 0000:00:1a.0: new USB bus registered, assigned bus number 1
+Feb 22 17:39:54 kirkophone kernel: [    2.080370] ehci_hcd 0000:00:1a.0: debug port 2
+Feb 22 17:39:54 kirkophone kernel: [    2.084354] ehci_hcd 0000:00:1a.0: cache line size of 32 is not supported
+Feb 22 17:39:54 kirkophone kernel: [    2.084381] ehci_hcd 0000:00:1a.0: irq 16, io mem 0xd3e08000
+Feb 22 17:39:54 kirkophone kernel: [    2.099359] ehci_hcd 0000:00:1a.0: USB 2.0 started, EHCI 1.00
+Feb 22 17:39:54 kirkophone kernel: [    2.099390] usb usb1: New USB device found, idVendor=1d6b, idProduct=0002
+Feb 22 17:39:54 kirkophone kernel: [    2.099394] usb usb1: New USB device strings: Mfr=3, Product=2, SerialNumber=1
+Feb 22 17:39:54 kirkophone kernel: [    2.099398] usb usb1: Product: EHCI Host Controller
+Feb 22 17:39:54 kirkophone kernel: [    2.099401] usb usb1: Manufacturer: Linux 2.6.32-5-amd64 ehci_hcd
+Feb 22 17:39:54 kirkophone kernel: [    2.099405] usb usb1: SerialNumber: 0000:00:1a.0
+Feb 22 17:39:54 kirkophone kernel: [    2.099505] usb usb1: configuration #1 chosen from 1 choice
+Feb 22 17:39:54 kirkophone kernel: [    2.099553] hub 1-0:1.0: USB hub found
+Feb 22 17:39:54 kirkophone kernel: [    2.099561] hub 1-0:1.0: 2 ports detected
+Feb 22 17:39:54 kirkophone kernel: [    2.099647]   alloc irq_desc for 23 on node -1
+Feb 22 17:39:54 kirkophone kernel: [    2.099650]   alloc kstat_irqs on node -1
+Feb 22 17:39:54 kirkophone kernel: [    2.099659] ehci_hcd 0000:00:1d.0: PCI INT A -> GSI 23 (level, low) -> IRQ 23
+Feb 22 17:39:54 kirkophone kernel: [    2.099689] ehci_hcd 0000:00:1d.0: setting latency timer to 64
+Feb 22 17:39:54 kirkophone kernel: [    2.099698] ehci_hcd 0000:00:1d.0: EHCI Host Controller
+Feb 22 17:39:54 kirkophone kernel: [    2.099711] ehci_hcd 0000:00:1d.0: new USB bus registered, assigned bus number 2
+Feb 22 17:39:54 kirkophone kernel: [    2.099749] ehci_hcd 0000:00:1d.0: debug port 2
+Feb 22 17:39:54 kirkophone kernel: [    2.103711] ehci_hcd 0000:00:1d.0: cache line size of 32 is not supported
+Feb 22 17:39:54 kirkophone kernel: [    2.103733] ehci_hcd 0000:00:1d.0: irq 23, io mem 0xd3e07000
+Feb 22 17:39:54 kirkophone kernel: [    2.110023] libata version 3.00 loaded.
+Feb 22 17:39:54 kirkophone kernel: [    2.119345] ehci_hcd 0000:00:1d.0: USB 2.0 started, EHCI 1.00
+Feb 22 17:39:54 kirkophone kernel: [    2.119376] usb usb2: New USB device found, idVendor=1d6b, idProduct=0002
+Feb 22 17:39:54 kirkophone kernel: [    2.119381] usb usb2: New USB device strings: Mfr=3, Product=2, SerialNumber=1
+Feb 22 17:39:54 kirkophone kernel: [    2.119386] usb usb2: Product: EHCI Host Controller
+Feb 22 17:39:54 kirkophone kernel: [    2.119389] usb usb2: Manufacturer: Linux 2.6.32-5-amd64 ehci_hcd
+Feb 22 17:39:54 kirkophone kernel: [    2.119393] usb usb2: SerialNumber: 0000:00:1d.0
+Feb 22 17:39:54 kirkophone kernel: [    2.119458] usb usb2: configuration #1 chosen from 1 choice
+Feb 22 17:39:54 kirkophone kernel: [    2.119484] hub 2-0:1.0: USB hub found
+Feb 22 17:39:54 kirkophone kernel: [    2.119490] hub 2-0:1.0: 2 ports detected
+Feb 22 17:39:54 kirkophone kernel: [    2.119547] ahci 0000:00:1f.2: version 3.0
+Feb 22 17:39:54 kirkophone kernel: [    2.119573]   alloc irq_desc for 19 on node -1
+Feb 22 17:39:54 kirkophone kernel: [    2.119575]   alloc kstat_irqs on node -1
+Feb 22 17:39:54 kirkophone kernel: [    2.119583] ahci 0000:00:1f.2: PCI INT B -> GSI 19 (level, low) -> IRQ 19
+Feb 22 17:39:54 kirkophone kernel: [    2.119637]   alloc irq_desc for 33 on node -1
+Feb 22 17:39:54 kirkophone kernel: [    2.119640]   alloc kstat_irqs on node -1
+Feb 22 17:39:54 kirkophone kernel: [    2.119655] ahci 0000:00:1f.2: irq 33 for MSI/MSI-X
+Feb 22 17:39:54 kirkophone kernel: [    2.119728] ahci 0000:00:1f.2: AHCI 0001.0300 32 slots 4 ports 3 Gbps 0x13 impl SATA mode
+Feb 22 17:39:54 kirkophone kernel: [    2.119732] ahci 0000:00:1f.2: flags: 64bit ncq sntf pm led clo pio slum part ems apst 
+Feb 22 17:39:54 kirkophone kernel: [    2.119741] ahci 0000:00:1f.2: setting latency timer to 64
+Feb 22 17:39:54 kirkophone kernel: [    2.136409] scsi0 : ahci
+Feb 22 17:39:54 kirkophone kernel: [    2.136497] scsi1 : ahci
+Feb 22 17:39:54 kirkophone kernel: [    2.136560] scsi2 : ahci
+Feb 22 17:39:54 kirkophone kernel: [    2.136621] scsi3 : ahci
+Feb 22 17:39:54 kirkophone kernel: [    2.136682] scsi4 : ahci
+Feb 22 17:39:54 kirkophone kernel: [    2.137159] ata1: SATA max UDMA/133 irq_stat 0x00400040 irconnection status changed
+Feb 22 17:39:54 kirkophone kernel: [    2.137167] ata2: SATA max UDMA/133 irq_stat 0x00400040, connection status changed
+Feb 22 17:39:54 kirkophone kernel: [    2.137169] ata3: DUMMY
+Feb 22 17:39:54 kirkophone kernel: [    2.137170] ata4: DUMMY
+Feb 22 17:39:54 kirkophone kernel: [    2.137177] ata5: SATA max UDMA/133 irq_stat 0x00400040, connection status changed
+Feb 22 17:39:54 kirkophone kernel: [    2.144770] atl1c 0000:04:00.0: version 1.0.0.2-NAPI
+Feb 22 17:39:54 kirkophone kernel: [    2.410312] usb 1-1: new high speed USB device using ehci_hcd and address 2
+Feb 22 17:39:54 kirkophone kernel: [    2.542572] usb 1-1: New USB device found, idVendor=8087, idProduct=0020
+Feb 22 17:39:54 kirkophone kernel: [    2.542577] usb 1-1: New USB device strings: Mfr=0, Product=0, SerialNumber=0
+Feb 22 17:39:54 kirkophone kernel: [    2.542671] usb 1-1: configuration #1 chosen from 1 choice
+Feb 22 17:39:54 kirkophone kernel: [    2.542843] hub 1-1:1.0: USB hub found
+Feb 22 17:39:54 kirkophone kernel: [    2.542938] hub 1-1:1.0: 6 ports detected
+Feb 22 17:39:54 kirkophone kernel: [    2.654087] usb 2-1: new high speed USB device using ehci_hcd and address 2
+Feb 22 17:39:54 kirkophone kernel: [    2.786342] usb 2-1: New USB device found, idVendor=8087, idProduct=0020
+Feb 22 17:39:54 kirkophone kernel: [    2.786348] usb 2-1: New USB device strings: Mfr=0, Product=0, SerialNumber=0
+Feb 22 17:39:54 kirkophone kernel: [    2.786434] usb 2-1: configuration #1 chosen from 1 choice
+Feb 22 17:39:54 kirkophone kernel: [    2.786618] hub 2-1:1.0: USB hub found
+Feb 22 17:39:54 kirkophone kernel: [    2.786709] hub 2-1:1.0: 8 ports detected
+Feb 22 17:39:54 kirkophone kernel: [    2.857912] ata1: SATA link up 3.0 Gbps (SStatus 123 SControl 300)
+Feb 22 17:39:54 kirkophone kernel: [    2.857920] ata2: SATA link up 1.5 Gbps (SStatus 113 SControl 300)
+Feb 22 17:39:54 kirkophone kernel: [    2.858030] usb 1-1.2: new high speed USB device using ehci_hcd and address 3
+Feb 22 17:39:54 kirkophone kernel: [    2.858903] ata5: SATA link up 3.0 Gbps (SStatus 123 SControl 300)
+Feb 22 17:39:54 kirkophone kernel: [    2.860697] ata1.00: ACPI cmd f5/00:00:00:00:00:a0 (SECURITY FREEZE LOCK) filtered out
+Feb 22 17:39:54 kirkophone kernel: [    2.860852] ata5.00: ACPI cmd f5/00:00:00:00:00:a0 (SECURITY FREEZE LOCK) filtered out
+Feb 22 17:39:54 kirkophone kernel: [    2.860877] ata1.00: ACPI cmd ef/10:06:00:00:00:a0 (SET FEATURES) succeeded
+Feb 22 17:39:54 kirkophone kernel: [    2.860881] ata1.00: ACPI cmd ef/10:03:00:00:00:a0 (SET FEATURES) filtered out
+Feb 22 17:39:54 kirkophone kernel: [    2.860929] ata2.00: ACPI cmd ef/10:06:00:00:00:a0 (SET FEATURES) succeeded
+Feb 22 17:39:54 kirkophone kernel: [    2.860938] ata2.00: ACPI cmd ef/10:03:00:00:00:a0 (SET FEATURES) filtered out
+Feb 22 17:39:54 kirkophone kernel: [    2.861055] ata5.00: ACPI cmd ef/10:06:00:00:00:a0 (SET FEATURES) succeeded
+Feb 22 17:39:54 kirkophone kernel: [    2.861062] ata5.00: ACPI cmd ef/10:03:00:00:00:a0 (SET FEATURES) filtered out
+Feb 22 17:39:54 kirkophone kernel: [    2.862006] ata2.00: ATAPI: MATSHITABD-CMB UJ141AS, 1.00, max UDMA/100
+Feb 22 17:39:54 kirkophone kernel: [    2.864167] ata2.00: ACPI cmd ef/10:06:00:00:00:a0 (SET FEATURES) succeeded
+Feb 22 17:39:54 kirkophone kernel: [    2.864175] ata2.00: ACPI cmd ef/10:03:00:00:00:a0 (SET FEATURES) filtered out
+Feb 22 17:39:54 kirkophone kernel: [    2.865286] ata2.00: configured for UDMA/100
+Feb 22 17:39:54 kirkophone kernel: [    2.912913] ata1.00: ATA-8: ST9500325AS, 0003SDM1, max UDMA/133
+Feb 22 17:39:54 kirkophone kernel: [    2.912919] ata1.00: 976773168 sectors, multi 16: LBA48 NCQ (depth 31/32)
+Feb 22 17:39:54 kirkophone kernel: [    2.915390] ata1.00: ACPI cmd f5/00:00:00:00:00:a0 (SECURITY FREEZE LOCK) filtered out
+Feb 22 17:39:54 kirkophone kernel: [    2.915644] ata5.00: ATA-8: ST9500325AS, 0003SDM1, max UDMA/133
+Feb 22 17:39:54 kirkophone kernel: [    2.915649] ata5.00: 976773168 sectors, multi 16: LBA48 NCQ (depth 31/32)
+Feb 22 17:39:54 kirkophone kernel: [    2.915701] ata1.00: ACPI cmd ef/10:06:00:00:00:a0 (SET FEATURES) succeeded
+Feb 22 17:39:54 kirkophone kernel: [    2.915707] ata1.00: ACPI cmd ef/10:03:00:00:00:a0 (SET FEATURES) filtered out
+Feb 22 17:39:54 kirkophone kernel: [    2.917550] ata1.00: configured for UDMA/133
+Feb 22 17:39:54 kirkophone kernel: [    2.918107] ata5.00: ACPI cmd f5/00:00:00:00:00:a0 (SECURITY FREEZE LOCK) filtered out
+Feb 22 17:39:54 kirkophone kernel: [    2.918441] ata5.00: ACPI cmd ef/10:06:00:00:00:a0 (SET FEATURES) succeeded
+Feb 22 17:39:54 kirkophone kernel: [    2.918447] ata5.00: ACPI cmd ef/10:03:00:00:00:a0 (SET FEATURES) filtered out
+Feb 22 17:39:54 kirkophone kernel: [    2.920294] ata5.00: configured for UDMA/133
+Feb 22 17:39:54 kirkophone kernel: [    2.929961] scsi 0:0:0:0: Direct-Access     ATA      ST9500325AS      0003 PQ: 0 ANSI: 5
+Feb 22 17:39:54 kirkophone kernel: [    2.930991] scsi 1:0:0:0: CD-ROM            MATSHITA BD-CMB UJ141AS   1.00 PQ: 0 ANSI: 5
+Feb 22 17:39:54 kirkophone kernel: [    2.938695] scsi 4:0:0:0: Direct-Access     ATA      ST9500325AS      0003 PQ: 0 ANSI: 5
+Feb 22 17:39:54 kirkophone kernel: [    2.944880] sd 0:0:0:0: [sda] 976773168 512-byte logical blocks: (500 GB/465 GiB)
+Feb 22 17:39:54 kirkophone kernel: [    2.944909] sd 4:0:0:0: [sdb] 976773168 512-byte logical blocks: (500 GB/465 GiB)
+Feb 22 17:39:54 kirkophone kernel: [    2.944961] sd 0:0:0:0: [sda] Write Protect is off
+Feb 22 17:39:54 kirkophone kernel: [    2.944965] sd 0:0:0:0: [sda] Mode Sense: 00 3a 00 00
+Feb 22 17:39:54 kirkophone kernel: [    2.944993] sd 4:0:0:0: [sdb] Write Protect is off
+Feb 22 17:39:54 kirkophone kernel: [    2.944997] sd 4:0:0:0: [sdb] Mode Sense: 00 3a 00 00
+Feb 22 17:39:54 kirkophone kernel: [    2.945000] sd 0:0:0:0: [sda] Write cache: enabled, read cache: enabled, doesn't support DPO or FUA
+Feb 22 17:39:54 kirkophone kernel: [    2.945037] sd 4:0:0:0: [sdb] Write cache: enabled, read cache: enabled, doesn't support DPO or FUA
+Feb 22 17:39:54 kirkophone kernel: [    2.945242]  sda:
+Feb 22 17:39:54 kirkophone kernel: [    2.945284]  sdb: sda1 sda2 sda3
+Feb 22 17:39:54 kirkophone kernel: [    2.948854] sd 0:0:0:0: [sda] Attached SCSI disk
+Feb 22 17:39:54 kirkophone kernel: [    2.950406] sr0: scsi3-mmc drive: 62x/62x writer dvd-ram cd/rw xa/form2 cdda tray
+Feb 22 17:39:54 kirkophone kernel: [    2.950412] Uniform CD-ROM driver Revision: 3.20
+Feb 22 17:39:54 kirkophone kernel: [    2.950516] sr 1:0:0:0: Attached scsi CD-ROM sr0
+Feb 22 17:39:54 kirkophone kernel: [    2.951433]  sdb1 sdb2
+Feb 22 17:39:54 kirkophone kernel: [    2.951725] sd 4:0:0:0: [sdb] Attached SCSI disk
+Feb 22 17:39:54 kirkophone kernel: [    2.955247] sd 0:0:0:0: Attached scsi generic sg0 type 0
+Feb 22 17:39:54 kirkophone kernel: [    2.955286] sr 1:0:0:0: Attached scsi generic sg1 type 5
+Feb 22 17:39:54 kirkophone kernel: [    2.955313] sd 4:0:0:0: Attached scsi generic sg2 type 0
+Feb 22 17:39:54 kirkophone kernel: [    3.011636] usb 1-1.2: New USB device found, idVendor=04f2, idProduct=b106
+Feb 22 17:39:54 kirkophone kernel: [    3.011642] usb 1-1.2: New USB device strings: Mfr=2, Product=1, SerialNumber=0
+Feb 22 17:39:54 kirkophone kernel: [    3.011647] usb 1-1.2: Product: USB2.0 2.0M UVC WebCam
+Feb 22 17:39:54 kirkophone kernel: [    3.011651] usb 1-1.2: Manufacturer: Chicony Electronics Co., Ltd
+Feb 22 17:39:54 kirkophone kernel: [    3.011734] usb 1-1.2: configuration #1 chosen from 1 choice
+Feb 22 17:39:54 kirkophone kernel: [    3.085835] usb 2-1.4: new low speed USB device using ehci_hcd and address 3
+Feb 22 17:39:54 kirkophone kernel: [    3.182727] usb 2-1.4: New USB device found, idVendor=0458, idProduct=0007
+Feb 22 17:39:54 kirkophone kernel: [    3.182733] usb 2-1.4: New USB device strings: Mfr=1, Product=2, SerialNumber=0
+Feb 22 17:39:54 kirkophone kernel: [    3.182738] usb 2-1.4: Product: Optical Mouse
+Feb 22 17:39:54 kirkophone kernel: [    3.182742] usb 2-1.4: Manufacturer:  KYE  
+Feb 22 17:39:54 kirkophone kernel: [    3.182825] usb 2-1.4: configuration #1 chosen from 1 choice
+Feb 22 17:39:54 kirkophone kernel: [    3.191341] usbcore: registered new interface driver hiddev
+Feb 22 17:39:54 kirkophone kernel: [    3.193746] input:  KYE   Optical Mouse as /devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1.4/2-1.4:1.0/input/input2
+Feb 22 17:39:54 kirkophone kernel: [    3.193805] generic-usb 0003:0458:0007.0001: input,hidraw0: USB HID v1.10 Mouse [ KYE   Optical Mouse] on usb-0000:00:1d.0-1.4/input0
+Feb 22 17:39:54 kirkophone kernel: [    3.193824] usbcore: registered new interface driver usbhid
+Feb 22 17:39:54 kirkophone kernel: [    3.193826] usbhid: v2.6:USB HID core driver
+Feb 22 17:39:54 kirkophone kernel: [    3.626450] device-mapper: uevent: version 1.0.3
+Feb 22 17:39:54 kirkophone kernel: [    3.626582] device-mapper: ioctl: 4.15.0-ioctl (2009-04-01) initialised: dm-devel@redhat.com
+Feb 22 17:39:54 kirkophone kernel: [    9.051403] PM: Starting manual resume from disk
+Feb 22 17:39:54 kirkophone kernel: [    9.051407] PM: Resume from partition 254:2
+Feb 22 17:39:54 kirkophone kernel: [    9.051408] PM: Checking hibernation image.
+Feb 22 17:39:54 kirkophone kernel: [    9.060748] PM: Error -22 checking image file
+Feb 22 17:39:54 kirkophone kernel: [    9.060750] PM: Resume from disk failed.
+Feb 22 17:39:54 kirkophone kernel: [    9.133253] EXT3-fs: INFO: recovery required on readonly filesystem.
+Feb 22 17:39:54 kirkophone kernel: [    9.133256] EXT3-fs: write access will be enabled during recovery.
+Feb 22 17:39:54 kirkophone kernel: [   16.500465] kjournald starting.  Commit interval 5 seconds
+Feb 22 17:39:54 kirkophone kernel: [   16.500480] EXT3-fs: dm-1: orphan cleanup on readonly fs
+Feb 22 17:39:54 kirkophone kernel: [   16.500486] ext3_orphan_cleanup: deleting unreferenced inode 282245
+Feb 22 17:39:54 kirkophone kernel: [   16.500648] ext3_orphan_cleanup: deleting unreferenced inode 282601
+Feb 22 17:39:54 kirkophone kernel: [   16.500657] ext3_orphan_cleanup: deleting unreferenced inode 282599
+Feb 22 17:39:54 kirkophone kernel: [   16.500665] ext3_orphan_cleanup: deleting unreferenced inode 282596
+Feb 22 17:39:54 kirkophone kernel: [   16.500672] ext3_orphan_cleanup: deleting unreferenced inode 282594
+Feb 22 17:39:54 kirkophone kernel: [   16.500680] ext3_orphan_cleanup: deleting unreferenced inode 282592
+Feb 22 17:39:54 kirkophone kernel: [   16.500688] ext3_orphan_cleanup: deleting unreferenced inode 282587
+Feb 22 17:39:54 kirkophone kernel: [   16.500695] ext3_orphan_cleanup: deleting unreferenced inode 282586
+Feb 22 17:39:54 kirkophone kernel: [   16.500703] ext3_orphan_cleanup: deleting unreferenced inode 282584
+Feb 22 17:39:54 kirkophone kernel: [   16.500710] ext3_orphan_cleanup: deleting unreferenced inode 282582
+Feb 22 17:39:54 kirkophone kernel: [   16.500717] ext3_orphan_cleanup: deleting unreferenced inode 282580
+Feb 22 17:39:54 kirkophone kernel: [   16.500724] ext3_orphan_cleanup: deleting unreferenced inode 282578
+Feb 22 17:39:54 kirkophone kernel: [   16.500734] ext3_orphan_cleanup: deleting unreferenced inode 282576
+Feb 22 17:39:54 kirkophone kernel: [   16.500742] ext3_orphan_cleanup: deleting unreferenced inode 282574
+Feb 22 17:39:54 kirkophone kernel: [   16.500750] ext3_orphan_cleanup: deleting unreferenced inode 282573
+Feb 22 17:39:54 kirkophone kernel: [   16.500761] EXT3-fs: dm-1: 15 orphan inodes deleted
+Feb 22 17:39:54 kirkophone kernel: [   16.500763] EXT3-fs: recovery complete.
+Feb 22 17:39:54 kirkophone kernel: [   16.564649] EXT3-fs: mounted filesystem with ordered data mode.
+Feb 22 17:39:54 kirkophone kernel: [   19.430946] udev[546]: starting version 166
+Feb 22 17:39:54 kirkophone kernel: [   19.886411] ACPI: SSDT 00000000bb59fa98 002E1 (v01  PmRef  Cpu0Ist 00003000 INTL 20051117)
+Feb 22 17:39:54 kirkophone kernel: [   19.887148] ACPI: AC Adapter [AC0] (on-line)
+Feb 22 17:39:54 kirkophone kernel: [   19.887268] ACPI: SSDT 00000000bb59e698 005F8 (v01  PmRef  Cpu0Cst 00003001 INTL 20051117)
+Feb 22 17:39:54 kirkophone kernel: [   19.888133] input: Lid Switch as /devices/LNXSYSTM:00/LNXSYBUS:00/PNP0C0D:00/input/input3
+Feb 22 17:39:54 kirkophone kernel: [   19.888665] Monitor-Mwait will be used to enter C-1 state
+Feb 22 17:39:54 kirkophone kernel: [   19.888709] Monitor-Mwait will be used to enter C-2 state
+Feb 22 17:39:54 kirkophone kernel: [   19.888817] processor LNXCPU:00: registered as cooling_device0
+Feb 22 17:39:54 kirkophone kernel: [   19.889826] ACPI: SSDT 00000000bb59f718 00303 (v01  PmRef    ApIst 00003000 INTL 20051117)
+Feb 22 17:39:54 kirkophone kernel: [   19.891285] ACPI: SSDT 00000000bb59dd98 00119 (v01  PmRef    ApCst 00003000 INTL 20051117)
+Feb 22 17:39:54 kirkophone kernel: [   19.892008] ACPI: Lid Switch [LID]
+Feb 22 17:39:54 kirkophone kernel: [   19.892239] input: Sleep Button as /devices/LNXSYSTM:00/LNXSYBUS:00/PNP0C0E:00/input/input4
+Feb 22 17:39:54 kirkophone kernel: [   19.892250] ACPI: Sleep Button [SLPB]
+Feb 22 17:39:54 kirkophone kernel: [   19.892626] processor LNXCPU:01: registered as cooling_device1
+Feb 22 17:39:54 kirkophone kernel: [   19.892693] input: Power Button as /devices/LNXSYSTM:00/LNXPWRBN:00/input/input5
+Feb 22 17:39:54 kirkophone kernel: [   19.892697] ACPI: Power Button [PWRF]
+Feb 22 17:39:54 kirkophone kernel: [   19.894112] processor LNXCPU:02: registered as cooling_device2
+Feb 22 17:39:54 kirkophone kernel: [   19.895791] processor LNXCPU:03: registered as cooling_device3
+Feb 22 17:39:54 kirkophone kernel: [   19.897415] processor LNXCPU:04: registered as cooling_device4
+Feb 22 17:39:54 kirkophone kernel: [   19.898706] processor LNXCPU:05: registered as cooling_device5
+Feb 22 17:39:54 kirkophone kernel: [   19.900191] processor LNXCPU:06: registered as cooling_device6
+Feb 22 17:39:54 kirkophone kernel: [   19.901844] processor LNXCPU:07: registered as cooling_device7
+Feb 22 17:39:54 kirkophone kernel: [   19.903120] ACPI Warning: _BQC returned an invalid level (20090903/video-631)
+Feb 22 17:39:54 kirkophone kernel: [   19.922925] acpi device:0b: registered as cooling_device8
+Feb 22 17:39:54 kirkophone kernel: [   19.923080] input: Video Bus as /devices/LNXSYSTM:00/LNXSYBUS:00/PNP0A08:00/device:08/LNXVIDEO:01/input/input6
+Feb 22 17:39:54 kirkophone kernel: [   19.923085] ACPI: Video Device [GFX0] (multi-head: yes  rom: no  post: no)
+Feb 22 17:39:54 kirkophone kernel: [   19.925054] ACPI: Battery Slot [BAT0] (battery present)
+Feb 22 17:39:54 kirkophone kernel: [   20.697606] Synaptics Touchpad, model: 1, fw: 7.2, id: 0x1c0b1, caps: 0xd04731/0xa40000/0xa0000
+Feb 22 17:39:54 kirkophone kernel: [   20.729237] input: SynPS/2 Synaptics TouchPad as /devices/platform/i8042/serio4/input/input7
+Feb 22 17:39:54 kirkophone kernel: [   21.019438] fglrx: module license 'Proprietary. (C) 2002 - ATI Technologies, Starnberg, GERMANY' taints kernel.
+Feb 22 17:39:54 kirkophone kernel: [   21.019443] Disabling lock debugging due to kernel taint
+Feb 22 17:39:54 kirkophone kernel: [   21.110363] [fglrx] Maximum main memory to use for locked dma buffers: 7700 MBytes.
+Feb 22 17:39:54 kirkophone kernel: [   21.110921] [fglrx]   vendor: 1002 device: 68a0 count: 1
+Feb 22 17:39:54 kirkophone kernel: [   21.112030] [fglrx] ioport: bar 4, base 0xd000, size: 0x100
+Feb 22 17:39:54 kirkophone kernel: [   21.112054] pci 0000:01:00.0: PCI INT A -> GSI 16 (level, low) -> IRQ 16
+Feb 22 17:39:54 kirkophone kernel: [   21.112062] pci 0000:01:00.0: setting latency timer to 64
+Feb 22 17:39:54 kirkophone kernel: [   21.112676] [fglrx] Kernel PAT support is enabled
+Feb 22 17:39:54 kirkophone kernel: [   21.112707] [fglrx] module loaded - fglrx 8.82.8 [Jan 26 2011] with 1 minors
+Feb 22 17:39:54 kirkophone kernel: [   21.115434] input: PC Speaker as /devices/platform/pcspkr/input/input8
+Feb 22 17:39:54 kirkophone kernel: [   21.121285] asus_laptop: Asus Laptop Support version 0.42
+Feb 22 17:39:54 kirkophone kernel: [   21.126044] asus_laptop: BSTS called, 0xe01a returned
+Feb 22 17:39:54 kirkophone kernel: [   21.129325] input: Asus Laptop extra buttons as /devices/virtual/input/input9
+Feb 22 17:39:54 kirkophone kernel: [   21.129494] Registered led device: asus::kbd_backlight
+Feb 22 17:39:54 kirkophone kernel: [   21.129752] asus_laptop: Brightness ignored, must be controlled by ACPI video driver
+Feb 22 17:39:54 kirkophone kernel: [   21.206333]   alloc irq_desc for 18 on node -1
+Feb 22 17:39:54 kirkophone kernel: [   21.206338]   alloc kstat_irqs on node -1
+Feb 22 17:39:54 kirkophone kernel: [   21.206351] i801_smbus 0000:00:1f.3: PCI INT C -> GSI 18 (level, low) -> IRQ 18
+Feb 22 17:39:54 kirkophone kernel: [   21.206359] ACPI: I/O resource 0000:00:1f.3 [0xe000-0xe01f] conflicts with ACPI region SMB0 [0xe000-0xe00f]
+Feb 22 17:39:54 kirkophone kernel: [   21.206490] ACPI: If an ACPI driver is available for this device, you should use it instead of the native driver
+Feb 22 17:39:54 kirkophone kernel: [   21.256507] cfg80211: Using static regulatory domain info
+Feb 22 17:39:54 kirkophone kernel: [   21.256510] cfg80211: Regulatory domain: US
+Feb 22 17:39:54 kirkophone kernel: [   21.256511] 	(start_freq - end_freq @ bandwidth), (max_antenna_gain, max_eirp)
+Feb 22 17:39:54 kirkophone kernel: [   21.256514] 	(2402000 KHz - 2472000 KHz @ 40000 KHz), (600 mBi, 2700 mBm)
+Feb 22 17:39:54 kirkophone kernel: [   21.256517] 	(5170000 KHz - 5190000 KHz @ 40000 KHz), (600 mBi, 2300 mBm)
+Feb 22 17:39:54 kirkophone kernel: [   21.256520] 	(5190000 KHz - 5210000 KHz @ 40000 KHz), (600 mBi, 2300 mBm)
+Feb 22 17:39:54 kirkophone kernel: [   21.256523] 	(5210000 KHz - 5230000 KHz @ 40000 KHz), (600 mBi, 2300 mBm)
+Feb 22 17:39:54 kirkophone kernel: [   21.256525] 	(5230000 KHz - 5330000 KHz @ 40000 KHz), (600 mBi, 2300 mBm)
+Feb 22 17:39:54 kirkophone kernel: [   21.256528] 	(5735000 KHz - 5835000 KHz @ 40000 KHz), (600 mBi, 3000 mBm)
+Feb 22 17:39:54 kirkophone kernel: [   21.256535] cfg80211: Calling CRDA for country: US
+Feb 22 17:39:54 kirkophone kernel: [   21.407131] Linux video capture interface: v2.00
+Feb 22 17:39:54 kirkophone kernel: [   21.477654] uvcvideo: Found UVC 1.00 device USB2.0 2.0M UVC WebCam (04f2:b106)
+Feb 22 17:39:54 kirkophone kernel: [   21.489202] input: USB2.0 2.0M UVC WebCam as /devices/pci0000:00/0000:00:1a.0/usb1/1-1/1-1.2/1-1.2:1.0/input/input10
+Feb 22 17:39:54 kirkophone kernel: [   21.489253] usbcore: registered new interface driver uvcvideo
+Feb 22 17:39:54 kirkophone kernel: [   21.489256] USB Video Class driver (v0.1.0)
+Feb 22 17:39:54 kirkophone kernel: [   21.625738] ath9k 0000:03:00.0: PCI INT A -> GSI 17 (level, low) -> IRQ 17
+Feb 22 17:39:54 kirkophone kernel: [   21.625752] ath9k 0000:03:00.0: setting latency timer to 64
+Feb 22 17:39:54 kirkophone kernel: [   21.679176] ath: EEPROM regdomain: 0x60
+Feb 22 17:39:54 kirkophone kernel: [   21.679178] ath: EEPROM indicates we should expect a direct regpair map
+Feb 22 17:39:54 kirkophone kernel: [   21.679181] ath: Country alpha2 being used: 00
+Feb 22 17:39:54 kirkophone kernel: [   21.679183] ath: Regpair used: 0x60
+Feb 22 17:39:54 kirkophone kernel: [   21.823501]   alloc irq_desc for 22 on node -1
+Feb 22 17:39:54 kirkophone kernel: [   21.823508]   alloc kstat_irqs on node -1
+Feb 22 17:39:54 kirkophone kernel: [   21.823526] HDA Intel 0000:00:1b.0: PCI INT A -> GSI 22 (level, low) -> IRQ 22
+Feb 22 17:39:54 kirkophone kernel: [   21.823721] HDA Intel 0000:00:1b.0: setting latency timer to 64
+Feb 22 17:39:54 kirkophone kernel: [   21.841796] phy0: Selected rate control algorithm 'ath9k_rate_control'
+Feb 22 17:39:54 kirkophone kernel: [   21.842463] Registered led device: ath9k-phy0::radio
+Feb 22 17:39:54 kirkophone kernel: [   21.842489] Registered led device: ath9k-phy0::assoc
+Feb 22 17:39:54 kirkophone kernel: [   21.842517] Registered led device: ath9k-phy0::tx
+Feb 22 17:39:54 kirkophone kernel: [   21.842544] Registered led device: ath9k-phy0::rx
+Feb 22 17:39:54 kirkophone kernel: [   21.842582] phy0: Atheros AR9285 MAC/BB Rev:2 AR5133 RF Rev:e0: mem=0xffffc90011ee0000, irq=17
+Feb 22 17:39:54 kirkophone kernel: [   21.969531] hda_codec: ALC269: BIOS auto-probing.
+Feb 22 17:39:54 kirkophone kernel: [   21.970223] input: HDA Digital PCBeep as /devices/pci0000:00/0000:00:1b.0/input/input11
+Feb 22 17:39:54 kirkophone kernel: [   21.973569] HDA Intel 0000:01:00.1: PCI INT B -> GSI 17 (level, low) -> IRQ 17
+Feb 22 17:39:54 kirkophone kernel: [   21.973670] HDA Intel 0000:01:00.1: setting latency timer to 64
+Feb 22 17:39:54 kirkophone kernel: [   22.297640] CE: hpet increasing min_delta_ns to 15000 nsec
+Feb 22 17:39:54 kirkophone kernel: [   23.089200] EXT3 FS on dm-1, internal journal
+Feb 22 17:39:54 kirkophone kernel: [   23.398212] loop: module loaded
+Feb 22 17:39:54 kirkophone kernel: [   23.622676] [drm] Initialized drm 1.1.0 20060810
+Feb 22 17:39:54 kirkophone kernel: [   23.718900] [drm] radeon kernel modesetting enabled.
+Feb 22 17:39:54 kirkophone kernel: [   24.281630] Adding 19595256k swap on /dev/mapper/kirkophone-swap_1.  Priority:-1 extents:1 across:19595256k 
+Feb 22 17:39:54 kirkophone kernel: [   87.005833] kjournald starting.  Commit interval 5 seconds
+Feb 22 17:39:54 kirkophone kernel: [   87.012104] EXT3 FS on dm-3, internal journal
+Feb 22 17:39:54 kirkophone kernel: [   87.012113] EXT3-fs: mounted filesystem with ordered data mode.
+Feb 22 17:39:54 kirkophone kernel: [   88.283511] fuse init (API version 7.13)
+Feb 22 17:39:54 kirkophone kernel: [   89.054073]   alloc irq_desc for 34 on node -1
+Feb 22 17:39:54 kirkophone kernel: [   89.054078]   alloc kstat_irqs on node -1
+Feb 22 17:39:54 kirkophone kernel: [   89.054118] atl1c 0000:04:00.0: irq 34 for MSI/MSI-X
+Feb 22 17:39:54 kirkophone kernel: [   89.056681] ADDRCONF(NETDEV_UP): eth0: link is not ready
+Feb 22 17:39:54 kirkophone kernel: [   90.114875] vboxdrv: Found 8 processor cores.
+Feb 22 17:39:54 kirkophone kernel: [   90.114937] VBoxDrv: dbg - g_abExecMemory=ffffffffa070a580
+Feb 22 17:39:54 kirkophone kernel: [   90.115237] vboxdrv: fAsync=0 offMin=0x1b3 offMax=0x219d2
+Feb 22 17:39:54 kirkophone kernel: [   90.115275] vboxdrv: TSC mode is 'synchronous', kernel timer mode is 'normal'.
+Feb 22 17:39:54 kirkophone kernel: [   90.115277] vboxdrv: Successfully loaded version 4.0.2_OSE (interface 0x00160000).
+Feb 22 17:39:54 kirkophone kernel: [   90.409108] input: ACPI Virtual Keyboard Device as /devices/virtual/input/input12
+Feb 22 17:39:58 kirkophone NetworkManager[2160]: <info> NetworkManager (version 0.8.2) is starting...
+
+Feb 22 17:39:58 kirkophone NetworkManager[2160]: <info> Read config file /etc/NetworkManager/NetworkManager.conf
+
+Feb 22 17:39:58 kirkophone NetworkManager[2160]: <info> VPN: loaded org.freedesktop.NetworkManager.pptp
+
+Feb 22 17:39:58 kirkophone NetworkManager[2160]: <info> VPN: loaded org.freedesktop.NetworkManager.openvpn
+
+Feb 22 17:39:58 kirkophone NetworkManager[2160]: <info> VPN: loaded org.freedesktop.NetworkManager.vpnc
+
+Feb 22 17:39:58 kirkophone NetworkManager[2160]: <info> trying to start the modem manager...
+
+Feb 22 17:39:58 kirkophone modem-manager: ModemManager (version 0.4) starting...
+Feb 22 17:39:59 kirkophone modem-manager: Loaded plugin MotoC
+Feb 22 17:39:59 kirkophone modem-manager: Loaded plugin SimTech
+Feb 22 17:39:59 kirkophone modem-manager: Loaded plugin Sierra
+Feb 22 17:39:59 kirkophone modem-manager: Loaded plugin Huawei
+Feb 22 17:39:59 kirkophone modem-manager: Loaded plugin Longcheer
+Feb 22 17:39:59 kirkophone modem-manager: Loaded plugin ZTE
+Feb 22 17:39:59 kirkophone modem-manager: Loaded plugin Gobi
+Feb 22 17:39:59 kirkophone modem-manager: Loaded plugin Generic
+Feb 22 17:39:59 kirkophone modem-manager: Loaded plugin Nokia
+Feb 22 17:39:59 kirkophone modem-manager: Loaded plugin AnyData
+Feb 22 17:39:59 kirkophone modem-manager: Loaded plugin Novatel
+Feb 22 17:39:59 kirkophone modem-manager: Loaded plugin Option
+Feb 22 17:39:59 kirkophone modem-manager: Loaded plugin Option High-Speed
+Feb 22 17:39:59 kirkophone modem-manager: Loaded plugin Ericsson MBM
+Feb 22 17:39:59 kirkophone modem-manager: (tty/ttyS0): port's parent platform driver is not whitelisted
+Feb 22 17:39:59 kirkophone modem-manager: (tty/ttyS1): port's parent platform driver is not whitelisted
+Feb 22 17:39:59 kirkophone modem-manager: (tty/ttyS2): port's parent platform driver is not whitelisted
+Feb 22 17:39:59 kirkophone modem-manager: (tty/ttyS3): port's parent platform driver is not whitelisted
+Feb 22 17:39:59 kirkophone modem-manager: (net/vboxnet0): could not get port's parent device
+Feb 22 17:39:59 kirkophone acpid: starting up with netlink and the input layer
+
+Feb 22 17:39:59 kirkophone acpid: 42 rules loaded
+
+Feb 22 17:39:59 kirkophone acpid: waiting for events: event logging is off
+
+Feb 22 17:39:59 kirkophone polkitd[2182]: started daemon version 0.99 using authority implementation `local' version `0.99'
+Feb 22 17:39:59 kirkophone NetworkManager[2160]: <info> monitoring kernel firmware directory '/lib/firmware'.
+
+Feb 22 17:39:59 kirkophone NetworkManager[2160]:    SCPlugin-Ifupdown: init!
+Feb 22 17:39:59 kirkophone NetworkManager[2160]:    SCPlugin-Ifupdown: update_system_hostname
+Feb 22 17:39:59 kirkophone NetworkManager[2160]:    SCPluginIfupdown: guessed connection type (eth0) = 802-3-ethernet
+Feb 22 17:39:59 kirkophone NetworkManager[2160]:    SCPlugin-Ifupdown: update_connection_setting_from_if_block: name:eth0, type:802-3-ethernet, id:Ifupdown (eth0), uuid: 681b428f-beaf-8932-dce4-687ed5bae28e
+Feb 22 17:39:59 kirkophone NetworkManager[2160]:    SCPlugin-Ifupdown: addresses count: 1
+Feb 22 17:39:59 kirkophone NetworkManager[2160]:    SCPlugin-Ifupdown: adding eth0 to iface_connections
+Feb 22 17:39:59 kirkophone NetworkManager[2160]:    SCPlugin-Ifupdown: adding iface eth0 to well_known_interfaces
+Feb 22 17:39:59 kirkophone NetworkManager[2160]:    SCPlugin-Ifupdown: autoconnect
+Feb 22 17:39:59 kirkophone NetworkManager[2160]:    SCPluginIfupdown: management mode: unmanaged
+Feb 22 17:39:59 kirkophone NetworkManager[2160]:    SCPlugin-Ifupdown: devices added (path: /sys/devices/pci0000:00/0000:00:1c.1/0000:03:00.0/net/wlan0, iface: wlan0)
+Feb 22 17:39:59 kirkophone NetworkManager[2160]:    SCPlugin-Ifupdown: device added (path: /sys/devices/pci0000:00/0000:00:1c.1/0000:03:00.0/net/wlan0, iface: wlan0): no ifupdown configuration found.
+Feb 22 17:39:59 kirkophone NetworkManager[2160]:    SCPlugin-Ifupdown: devices added (path: /sys/devices/pci0000:00/0000:00:1c.5/0000:04:00.0/net/eth0, iface: eth0)
+Feb 22 17:39:59 kirkophone NetworkManager[2160]:    SCPluginIfupdown: locking wired connection setting
+Feb 22 17:39:59 kirkophone NetworkManager[2160]:    SCPlugin-Ifupdown: devices added (path: /sys/devices/virtual/net/lo, iface: lo)
+Feb 22 17:39:59 kirkophone NetworkManager[2160]:    SCPlugin-Ifupdown: device added (path: /sys/devices/virtual/net/lo, iface: lo): no ifupdown configuration found.
+Feb 22 17:39:59 kirkophone NetworkManager[2160]:    SCPlugin-Ifupdown: devices added (path: /sys/devices/virtual/net/vboxnet0, iface: vboxnet0)
+Feb 22 17:39:59 kirkophone NetworkManager[2160]:    SCPlugin-Ifupdown: device added (path: /sys/devices/virtual/net/vboxnet0, iface: vboxnet0): no ifupdown configuration found.
+Feb 22 17:39:59 kirkophone NetworkManager[2160]:    SCPlugin-Ifupdown: end _init.
+Feb 22 17:39:59 kirkophone NetworkManager[2160]: <info> Loaded plugin ifupdown: (C) 2008 Canonical Ltd.  To report bugs please use the NetworkManager mailing list.
+
+Feb 22 17:39:59 kirkophone NetworkManager[2160]: <info> Loaded plugin keyfile: (c) 2007 - 2010 Red Hat, Inc.  To report bugs please use the NetworkManager mailing list.
+
+Feb 22 17:39:59 kirkophone NetworkManager[2160]:    Ifupdown: get unmanaged devices count: 1
+Feb 22 17:39:59 kirkophone NetworkManager[2160]:    SCPlugin-Ifupdown: (28071264) ... get_connections.
+Feb 22 17:39:59 kirkophone NetworkManager[2160]:    SCPlugin-Ifupdown: (28071264) ... get_connections (managed=false): return empty list.
+Feb 22 17:39:59 kirkophone NetworkManager[2160]:    Ifupdown: get unmanaged devices count: 1
+Feb 22 17:39:59 kirkophone NetworkManager[2160]: <info> found WiFi radio killswitch rfkill0 (at /sys/devices/pci0000:00/0000:00:1c.1/0000:03:00.0/ieee80211/phy0/rfkill0) (driver <unknown>)
+
+Feb 22 17:40:00 kirkophone NetworkManager[2160]: <info> WiFi enabled by radio killswitch; enabled by state file
+
+Feb 22 17:40:00 kirkophone NetworkManager[2160]: <info> WWAN enabled by radio killswitch; enabled by state file
+
+Feb 22 17:40:00 kirkophone NetworkManager[2160]: <info> WiMAX enabled by radio killswitch; enabled by state file
+
+Feb 22 17:40:00 kirkophone NetworkManager[2160]: <info> Networking is enabled by state file
+
+Feb 22 17:40:00 kirkophone NetworkManager[2160]: <error> [1298392800.67973] [nm-device-wifi.c:3097] real_update_permanent_hw_address(): (wlan0): unable to read permanent MAC address (error 95)
+
+Feb 22 17:40:00 kirkophone NetworkManager[2160]: <info> (wlan0): driver supports SSID scans (scan_capa 0x01).
+
+Feb 22 17:40:00 kirkophone NetworkManager[2160]: <info> (wlan0): new 802.11 WiFi device (driver: 'ath9k' ifindex: 3)
+
+Feb 22 17:40:00 kirkophone NetworkManager[2160]: <info> (wlan0): exported as /org/freedesktop/NetworkManager/Devices/0
+
+Feb 22 17:40:00 kirkophone NetworkManager[2160]: <info> (wlan0): now managed
+
+Feb 22 17:40:00 kirkophone NetworkManager[2160]: <info> (wlan0): device state change: 1 -> 2 (reason 2)
+
+Feb 22 17:40:00 kirkophone NetworkManager[2160]: <info> (wlan0): bringing up device.
+
+Feb 22 17:40:00 kirkophone kernel: [   96.467348] ADDRCONF(NETDEV_UP): wlan0: link is not ready
+Feb 22 17:40:00 kirkophone NetworkManager[2160]: <info> (wlan0): preparing device.
+
+Feb 22 17:40:00 kirkophone NetworkManager[2160]: <info> (wlan0): deactivating device (reason: 2).
+
+Feb 22 17:40:00 kirkophone NetworkManager[2160]: supplicant_interface_acquire: assertion `mgr_state == NM_SUPPLICANT_MANAGER_STATE_IDLE' failed
+Feb 22 17:40:00 kirkophone NetworkManager[2160]: <info> (eth0): carrier is OFF
+
+Feb 22 17:40:00 kirkophone NetworkManager[2160]: <info> (eth0): new Ethernet device (driver: 'atl1c' ifindex: 2)
+
+Feb 22 17:40:00 kirkophone NetworkManager[2160]: <info> (eth0): exported as /org/freedesktop/NetworkManager/Devices/1
+
+Feb 22 17:40:00 kirkophone NetworkManager[2160]: <warn> /sys/devices/virtual/net/vboxnet0: couldn't determine device driver; ignoring...
+
+Feb 22 17:40:00 kirkophone NetworkManager[2160]: <info> modem-manager is now available
+
+Feb 22 17:40:00 kirkophone NetworkManager[2160]: <warn> bluez error getting default adapter: The name org.bluez was not provided by any .service files
+
+Feb 22 17:40:00 kirkophone NetworkManager[2160]: <info> Trying to start the supplicant...
+
+Feb 22 17:40:00 kirkophone NetworkManager[2160]: <info> (wlan0): supplicant manager state:  down -> idle
+
+Feb 22 17:40:00 kirkophone NetworkManager[2160]: <info> (wlan0): device state change: 2 -> 3 (reason 0)
+
+Feb 22 17:40:00 kirkophone NetworkManager[2160]: <info> (wlan0): supplicant interface state:  starting -> ready
+
+Feb 22 17:40:00 kirkophone wpa_supplicant[2200]: Failed to initiate AP scan.
+Feb 22 17:40:02 kirkophone anacron[2242]: Anacron 2.3 started on 2011-02-22
+Feb 22 17:40:02 kirkophone anacron[2242]: Normal exit (0 jobs run)
+Feb 22 17:40:03 kirkophone avahi-daemon[2268]: Found user 'avahi' (UID 105) and group 'avahi' (GID 111).
+Feb 22 17:40:03 kirkophone avahi-daemon[2268]: Successfully dropped root privileges.
+Feb 22 17:40:03 kirkophone avahi-daemon[2268]: avahi-daemon 0.6.28 starting up.
+Feb 22 17:40:03 kirkophone avahi-daemon[2268]: Successfully called chroot().
+Feb 22 17:40:03 kirkophone avahi-daemon[2268]: Successfully dropped remaining capabilities.
+Feb 22 17:40:03 kirkophone avahi-daemon[2268]: No service file found in /etc/avahi/services.
+Feb 22 17:40:03 kirkophone avahi-daemon[2268]: Joining mDNS multicast group on interface eth0.IPv4 with address 192.168.0.177.
+Feb 22 17:40:03 kirkophone avahi-daemon[2268]: New relevant interface eth0.IPv4 for mDNS.
+Feb 22 17:40:03 kirkophone avahi-daemon[2268]: Network interface enumeration completed.
+Feb 22 17:40:03 kirkophone avahi-daemon[2268]: Registering new address record for 192.168.0.177 on eth0.IPv4.
+Feb 22 17:40:03 kirkophone avahi-daemon[2268]: Registering HINFO record with values 'X86_64'/'LINUX'.
+Feb 22 17:40:03 kirkophone bluetoothd[2279]: Bluetooth deamon 4.87
+Feb 22 17:40:03 kirkophone bluetoothd[2279]: Starting SDP server
+Feb 22 17:40:03 kirkophone bluetoothd[2279]: opening L2CAP socket: Address family not supported by protocol
+Feb 22 17:40:03 kirkophone bluetoothd[2279]: Server initialization failed
+Feb 22 17:40:03 kirkophone kernel: [  100.135509] Bluetooth: Core ver 2.15
+Feb 22 17:40:03 kirkophone kernel: [  100.135625] NET: Registered protocol family 31
+Feb 22 17:40:03 kirkophone kernel: [  100.135628] Bluetooth: HCI device and connection manager initialized
+Feb 22 17:40:03 kirkophone kernel: [  100.135631] Bluetooth: HCI socket layer initialized
+Feb 22 17:40:03 kirkophone kernel: [  100.204522] Bluetooth: L2CAP ver 2.14
+Feb 22 17:40:03 kirkophone kernel: [  100.204526] Bluetooth: L2CAP socket layer initialized
+Feb 22 17:40:03 kirkophone kernel: [  100.235997] Bluetooth: RFCOMM TTY layer initialized
+Feb 22 17:40:03 kirkophone kernel: [  100.236004] Bluetooth: RFCOMM socket layer initialized
+Feb 22 17:40:03 kirkophone kernel: [  100.236007] Bluetooth: RFCOMM ver 1.11
+Feb 22 17:40:03 kirkophone kernel: [  100.238808] Bluetooth: BNEP (Ethernet Emulation) ver 1.3
+Feb 22 17:40:03 kirkophone kernel: [  100.238813] Bluetooth: BNEP filters: protocol multicast
+Feb 22 17:40:03 kirkophone acpid: client connected from 2231[0:0]
+
+Feb 22 17:40:03 kirkophone acpid: 1 client rule loaded
+
+Feb 22 17:40:03 kirkophone kernel: [  100.268080] Bluetooth: SCO (Voice Link) ver 0.6
+Feb 22 17:40:03 kirkophone kernel: [  100.268084] Bluetooth: SCO socket layer initialized
+Feb 22 17:40:03 kirkophone NetworkManager[2160]: <warn> bluez error getting default adapter: No such adapter
+
+Feb 22 17:40:03 kirkophone avahi-daemon[2268]: Server startup complete. Host name is kirkophone.local. Local service cookie is 546157944.
+Feb 22 17:40:08 kirkophone /usr/sbin/cron[2463]: (CRON) INFO (pidfile fd = 3)
+Feb 22 17:40:08 kirkophone /usr/sbin/cron[2466]: (CRON) STARTUP (fork ok)
+Feb 22 17:40:08 kirkophone /usr/sbin/cron[2466]: (CRON) INFO (Running @reboot jobs)
+Feb 22 17:40:08 kirkophone kernel: [  104.911381]   alloc irq_desc for 35 on node -1
+Feb 22 17:40:08 kirkophone kernel: [  104.911384]   alloc kstat_irqs on node -1
+Feb 22 17:40:08 kirkophone kernel: [  104.911396] fglrx_pci 0000:01:00.0: irq 35 for MSI/MSI-X
+Feb 22 17:40:08 kirkophone kernel: [  104.912192] [fglrx] Firegl kernel thread PID: 2480
+Feb 22 17:40:08 kirkophone kernel: [  104.912247] [fglrx] Firegl kernel thread PID: 2481
+Feb 22 17:40:08 kirkophone kernel: [  104.912299] [fglrx] Firegl kernel thread PID: 2482
+Feb 22 17:40:08 kirkophone kernel: [  104.912566] [fglrx] IRQ 35 Enabled
+Feb 22 17:40:08 kirkophone kernel: [  105.283339] lp: driver loaded but no devices found
+Feb 22 17:40:08 kirkophone kernel: [  105.295582] ppdev: user-space parallel port driver
+Feb 22 17:40:09 kirkophone kernel: [  105.729701] [fglrx] Gart USWC size:1280 M.
+Feb 22 17:40:09 kirkophone kernel: [  105.729707] [fglrx] Gart cacheable size:508 M.
+Feb 22 17:40:09 kirkophone kernel: [  105.729718] [fglrx] Reserved FB block: Shared offset:0, size:1000000 
+Feb 22 17:40:09 kirkophone kernel: [  105.729723] [fglrx] Reserved FB block: Unshared offset:f8fd000, size:403000 
+Feb 22 17:40:09 kirkophone kernel: [  105.729728] [fglrx] Reserved FB block: Unshared offset:3fff4000, size:c000 
+Feb 22 17:40:11 kirkophone /usr/sbin/gpm[2643]: *** info [daemon/startup.c(131)]: 
+Feb 22 17:40:11 kirkophone /usr/sbin/gpm[2643]: Started gpm successfully. Entered daemon mode.
+Feb 22 17:40:13 kirkophone postfix/master[2714]: daemon started -- version 2.7.1, configuration /etc/postfix
+Feb 22 17:40:13 kirkophone kernel: [  110.077201] /dev/vmmon[2724]: Module vmmon: registered with major=10 minor=165
+Feb 22 17:40:13 kirkophone kernel: [  110.077292] /dev/vmmon[2724]: Initial HV check: anyNotCapable=0 anyUnlocked=0 anyEnabled=1 anyDisabled=0
+Feb 22 17:40:13 kirkophone kernel: [  110.077313] /dev/vmmon[2724]: HV check: anyNotCapable=0 anyUnlocked=0 anyEnabled=1 anyDisabled=0
+Feb 22 17:40:13 kirkophone kernel: [  110.077319] /dev/vmmon[2724]: Module vmmon: initialized
+Feb 22 17:40:14 kirkophone kernel: [  110.382749] /dev/vmci[2734]: VMCI: Driver initialized.
+Feb 22 17:40:14 kirkophone kernel: [  110.383041] /dev/vmci[2734]: Module vmci: registered with major=10 minor=55
+Feb 22 17:40:14 kirkophone kernel: [  110.383049] /dev/vmci[2734]: Module vmci: initialized
+Feb 22 17:40:15 kirkophone vmnetBridge: Daemon created.
+
+Feb 22 17:40:15 kirkophone vmnetBridge: RTM_NEWROUTE: index:2
+
+Feb 22 17:40:16 kirkophone vmnet-dhcpd: Internet Software Consortium DHCP Server 2.0
+Feb 22 17:40:16 kirkophone vmnet-dhcpd: Copyright 1995, 1996, 1997, 1998, 1999 The Internet Software Consortium.
+Feb 22 17:40:16 kirkophone vmnet-dhcpd: All rights reserved.
+Feb 22 17:40:16 kirkophone vmnet-dhcpd: 
+Feb 22 17:40:16 kirkophone vmnet-dhcpd: Please contribute if you find this software useful.
+Feb 22 17:40:16 kirkophone vmnet-dhcpd: For info, please visit http://www.isc.org/dhcp-contrib.html
+Feb 22 17:40:16 kirkophone vmnet-dhcpd: 
+Feb 22 17:40:16 kirkophone vmnet-dhcpd: Configured subnet: 172.16.212.0
+Feb 22 17:40:16 kirkophone vmnet-dhcpd: Setting vmnet-dhcp IP address: 172.16.212.254
+Feb 22 17:40:16 kirkophone vmnet-dhcpd: Recving on     VNet/vmnet1/172.16.212.0
+Feb 22 17:40:16 kirkophone vmnet-dhcpd: Sending on     VNet/vmnet1/172.16.212.0
+Feb 22 17:40:16 kirkophone kernel: [  113.138812] /dev/vmnet: open called by PID 2802 (vmnet-dhcpd)
+Feb 22 17:40:16 kirkophone kernel: [  113.138824] /dev/vmnet: hub 1 does not exist, allocating memory.
+Feb 22 17:40:16 kirkophone kernel: [  113.138867] /dev/vmnet: port on hub 1 successfully opened
+Feb 22 17:40:16 kirkophone kernel: [  113.200078] /dev/vmnet: open called by PID 2804 (vmnet-netifup)
+Feb 22 17:40:16 kirkophone kernel: [  113.200093] /dev/vmnet: port on hub 1 successfully opened
+Feb 22 17:40:16 kirkophone NetworkManager[2160]:    SCPlugin-Ifupdown: devices added (path: /sys/devices/virtual/net/vmnet1, iface: vmnet1)
+Feb 22 17:40:16 kirkophone NetworkManager[2160]:    SCPlugin-Ifupdown: device added (path: /sys/devices/virtual/net/vmnet1, iface: vmnet1): no ifupdown configuration found.
+Feb 22 17:40:16 kirkophone modem-manager: (net/vmnet1): could not get port's parent device
+Feb 22 17:40:16 kirkophone NetworkManager[2160]: <warn> /sys/devices/virtual/net/vmnet1: couldn't determine device driver; ignoring...
+
+Feb 22 17:40:16 kirkophone avahi-daemon[2268]: Joining mDNS multicast group on interface vmnet1.IPv4 with address 172.16.212.1.
+Feb 22 17:40:16 kirkophone avahi-daemon[2268]: New relevant interface vmnet1.IPv4 for mDNS.
+Feb 22 17:40:16 kirkophone avahi-daemon[2268]: Registering new address record for 172.16.212.1 on vmnet1.IPv4.
+Feb 22 17:40:16 kirkophone vmnet-dhcpd: Internet Software Consortium DHCP Server 2.0
+Feb 22 17:40:16 kirkophone vmnet-dhcpd: Copyright 1995, 1996, 1997, 1998, 1999 The Internet Software Consortium.
+Feb 22 17:40:16 kirkophone vmnet-dhcpd: All rights reserved.
+Feb 22 17:40:16 kirkophone vmnet-dhcpd: 
+Feb 22 17:40:16 kirkophone vmnet-dhcpd: Please contribute if you find this software useful.
+Feb 22 17:40:16 kirkophone vmnet-dhcpd: For info, please visit http://www.isc.org/dhcp-contrib.html
+Feb 22 17:40:16 kirkophone vmnet-dhcpd: 
+Feb 22 17:40:16 kirkophone vmnet-dhcpd: Configured subnet: 172.16.46.0
+Feb 22 17:40:16 kirkophone vmnet-dhcpd: Setting vmnet-dhcp IP address: 172.16.46.254
+Feb 22 17:40:16 kirkophone vmnet-dhcpd: Recving on     VNet/vmnet8/172.16.46.0
+Feb 22 17:40:16 kirkophone vmnet-dhcpd: Sending on     VNet/vmnet8/172.16.46.0
+Feb 22 17:40:16 kirkophone kernel: [  113.263667] /dev/vmnet: open called by PID 2813 (vmnet-dhcpd)
+Feb 22 17:40:16 kirkophone kernel: [  113.263680] /dev/vmnet: hub 8 does not exist, allocating memory.
+Feb 22 17:40:16 kirkophone kernel: [  113.263724] /dev/vmnet: port on hub 8 successfully opened
+Feb 22 17:40:17 kirkophone kernel: [  113.399352] /dev/vmnet: open called by PID 2817 (vmnet-natd)
+Feb 22 17:40:17 kirkophone kernel: [  113.399368] /dev/vmnet: port on hub 8 successfully opened
+Feb 22 17:40:17 kirkophone kernel: [  113.458642] /dev/vmnet: open called by PID 2818 (vmnet-netifup)
+Feb 22 17:40:17 kirkophone kernel: [  113.458658] /dev/vmnet: port on hub 8 successfully opened
+Feb 22 17:40:17 kirkophone NetworkManager[2160]:    SCPlugin-Ifupdown: devices added (path: /sys/devices/virtual/net/vmnet8, iface: vmnet8)
+Feb 22 17:40:17 kirkophone NetworkManager[2160]:    SCPlugin-Ifupdown: device added (path: /sys/devices/virtual/net/vmnet8, iface: vmnet8): no ifupdown configuration found.
+Feb 22 17:40:17 kirkophone NetworkManager[2160]: <warn> /sys/devices/virtual/net/vmnet8: couldn't determine device driver; ignoring...
+
+Feb 22 17:40:17 kirkophone modem-manager: (net/vmnet8): could not get port's parent device
+Feb 22 17:40:17 kirkophone avahi-daemon[2268]: Joining mDNS multicast group on interface vmnet8.IPv4 with address 172.16.46.1.
+Feb 22 17:40:17 kirkophone avahi-daemon[2268]: New relevant interface vmnet8.IPv4 for mDNS.
+Feb 22 17:40:17 kirkophone avahi-daemon[2268]: Registering new address record for 172.16.46.1 on vmnet8.IPv4.
+Feb 22 17:40:17 kirkophone vmnet-detect[2828]: NetDetectDaemonInit: No host policy file found. Not initializing filter.
+
+Feb 22 17:40:17 kirkophone vmnet-detect[2828]: Unable to initialize the daemon
+
+Feb 22 17:40:18 kirkophone avahi-daemon[2268]: Joining mDNS multicast group on interface vmnet8.IPv6 with address fe80::250:56ff:fec0:8.
+Feb 22 17:40:18 kirkophone avahi-daemon[2268]: New relevant interface vmnet8.IPv6 for mDNS.
+Feb 22 17:40:18 kirkophone avahi-daemon[2268]: Registering new address record for fe80::250:56ff:fec0:8 on vmnet8.*.
+Feb 22 17:40:18 kirkophone avahi-daemon[2268]: Joining mDNS multicast group on interface vmnet1.IPv6 with address fe80::250:56ff:fec0:1.
+Feb 22 17:40:18 kirkophone avahi-daemon[2268]: New relevant interface vmnet1.IPv6 for mDNS.
+Feb 22 17:40:18 kirkophone avahi-daemon[2268]: Registering new address record for fe80::250:56ff:fec0:1 on vmnet1.*.
+Feb 22 17:40:21 kirkophone NetworkManager[2160]: <error> [1298392821.453057] [nm-manager.c:1368] user_proxy_init(): could not init user settings proxy: (3) Could not get owner of name 'org.freedesktop.NetworkManagerUserSettings': no such name
+
+Feb 22 17:40:21 kirkophone NetworkManager[2160]: <error> [1298392821.453561] [nm-manager.c:1368] user_proxy_init(): could not init user settings proxy: (3) Could not get owner of name 'org.freedesktop.NetworkManagerUserSettings': no such name
+
+Feb 22 17:40:21 kirkophone NetworkManager[2160]: <error> [1298392821.453986] [nm-manager.c:1368] user_proxy_init(): could not init user settings proxy: (3) Could not get owner of name 'org.freedesktop.NetworkManagerUserSettings': no such name
+
+Feb 22 17:40:27 kirkophone kernel: [  123.493746] vmnet8: no IPv6 routers present
+Feb 22 17:40:27 kirkophone kernel: [  124.037208] vmnet1: no IPv6 routers present
+Feb 22 17:40:29 kirkophone anacron[3014]: Anacron 2.3 started on 2011-02-22
+Feb 22 17:40:29 kirkophone anacron[3014]: Normal exit (0 jobs run)
+Feb 22 17:40:30 kirkophone kernel: [  126.800877] CPU0 attaching NULL sched-domain.
+Feb 22 17:40:30 kirkophone kernel: [  126.800880] CPU1 attaching NULL sched-domain.
+Feb 22 17:40:30 kirkophone kernel: [  126.800882] CPU2 attaching NULL sched-domain.
+Feb 22 17:40:30 kirkophone kernel: [  126.800884] CPU3 attaching NULL sched-domain.
+Feb 22 17:40:30 kirkophone kernel: [  126.800885] CPU4 attaching NULL sched-domain.
+Feb 22 17:40:30 kirkophone kernel: [  126.800887] CPU5 attaching NULL sched-domain.
+Feb 22 17:40:30 kirkophone kernel: [  126.800888] CPU6 attaching NULL sched-domain.
+Feb 22 17:40:30 kirkophone kernel: [  126.800890] CPU7 attaching NULL sched-domain.
+Feb 22 17:40:30 kirkophone kernel: [  126.876391] CPU0 attaching sched-domain:
+Feb 22 17:40:30 kirkophone kernel: [  126.876394]  domain 0: span 0,4 level SIBLING
+Feb 22 17:40:30 kirkophone kernel: [  126.876396]   groups: 0 (cpu_power = 589) 4 (cpu_power = 589)
+Feb 22 17:40:30 kirkophone kernel: [  126.876400]   domain 1: span 0-7 level MC
+Feb 22 17:40:30 kirkophone kernel: [  126.876402]    groups: 0,4 (cpu_power = 1178) 1,5 (cpu_power = 1178) 2,6 (cpu_power = 1178) 3,7 (cpu_power = 1178)
+Feb 22 17:40:30 kirkophone kernel: [  126.876409] CPU1 attaching sched-domain:
+Feb 22 17:40:30 kirkophone kernel: [  126.876411]  domain 0: span 1,5 level SIBLING
+Feb 22 17:40:30 kirkophone kernel: [  126.876413]   groups: 1 (cpu_power = 589) 5 (cpu_power = 589)
+Feb 22 17:40:30 kirkophone kernel: [  126.876416]   domain 1: span 0-7 level MC
+Feb 22 17:40:30 kirkophone kernel: [  126.876418]    groups: 1,5 (cpu_power = 1178) 2,6 (cpu_power = 1178) 3,7 (cpu_power = 1178) 0,4 (cpu_power = 1178)
+Feb 22 17:40:30 kirkophone kernel: [  126.876425] CPU2 attaching sched-domain:
+Feb 22 17:40:30 kirkophone kernel: [  126.876426]  domain 0: span 2,6 level SIBLING
+Feb 22 17:40:30 kirkophone kernel: [  126.876428]   groups: 2 (cpu_power = 589) 6 (cpu_power = 589)
+Feb 22 17:40:30 kirkophone kernel: [  126.876432]   domain 1: span 0-7 level MC
+Feb 22 17:40:30 kirkophone kernel: [  126.876433]    groups: 2,6 (cpu_power = 1178) 3,7 (cpu_power = 1178) 0,4 (cpu_power = 1178) 1,5 (cpu_power = 1178)
+Feb 22 17:40:30 kirkophone kernel: [  126.876440] CPU3 attaching sched-domain:
+Feb 22 17:40:30 kirkophone kernel: [  126.876441]  domain 0: span 3,7 level SIBLING
+Feb 22 17:40:30 kirkophone kernel: [  126.876443]   groups: 3 (cpu_power = 589) 7 (cpu_power = 589)
+Feb 22 17:40:30 kirkophone kernel: [  126.876447]   domain 1: span 0-7 level MC
+Feb 22 17:40:30 kirkophone kernel: [  126.876448]    groups: 3,7 (cpu_power = 1178) 0,4 (cpu_power = 1178) 1,5 (cpu_power = 1178) 2,6 (cpu_power = 1178)
+Feb 22 17:40:30 kirkophone kernel: [  126.876455] CPU4 attaching sched-domain:
+Feb 22 17:40:30 kirkophone kernel: [  126.876457]  domain 0: span 0,4 level SIBLING
+Feb 22 17:40:30 kirkophone kernel: [  126.876458]   groups: 4 (cpu_power = 589) 0 (cpu_power = 589)
+Feb 22 17:40:30 kirkophone kernel: [  126.876462]   domain 1: span 0-7 level MC
+Feb 22 17:40:30 kirkophone kernel: [  126.876464]    groups: 0,4 (cpu_power = 1178) 1,5 (cpu_power = 1178) 2,6 (cpu_power = 1178) 3,7 (cpu_power = 1178)
+Feb 22 17:40:30 kirkophone kernel: [  126.876470] CPU5 attaching sched-domain:
+Feb 22 17:40:30 kirkophone kernel: [  126.876472]  domain 0: span 1,5 level SIBLING
+Feb 22 17:40:30 kirkophone kernel: [  126.876473]   groups: 5 (cpu_power = 589) 1 (cpu_power = 589)
+Feb 22 17:40:30 kirkophone kernel: [  126.876477]   domain 1: span 0-7 level MC
+Feb 22 17:40:30 kirkophone kernel: [  126.876479]    groups: 1,5 (cpu_power = 1178) 2,6 (cpu_power = 1178) 3,7 (cpu_power = 1178) 0,4 (cpu_power = 1178)
+Feb 22 17:40:30 kirkophone kernel: [  126.876485] CPU6 attaching sched-domain:
+Feb 22 17:40:30 kirkophone kernel: [  126.876487]  domain 0: span 2,6 level SIBLING
+Feb 22 17:40:30 kirkophone kernel: [  126.876488]   groups: 6 (cpu_power = 589) 2 (cpu_power = 589)
+Feb 22 17:40:30 kirkophone kernel: [  126.876492]   domain 1: span 0-7 level MC
+Feb 22 17:40:30 kirkophone kernel: [  126.876494]    groups: 2,6 (cpu_power = 1178) 3,7 (cpu_power = 1178) 0,4 (cpu_power = 1178) 1,5 (cpu_power = 1178)
+Feb 22 17:40:30 kirkophone kernel: [  126.876500] CPU7 attaching sched-domain:
+Feb 22 17:40:30 kirkophone kernel: [  126.876502]  domain 0: span 3,7 level SIBLING
+Feb 22 17:40:30 kirkophone kernel: [  126.876503]   groups: 7 (cpu_power = 589) 3 (cpu_power = 589)
+Feb 22 17:40:30 kirkophone kernel: [  126.876507]   domain 1: span 0-7 level MC
+Feb 22 17:40:30 kirkophone kernel: [  126.876509]    groups: 3,7 (cpu_power = 1178) 0,4 (cpu_power = 1178) 1,5 (cpu_power = 1178) 2,6 (cpu_power = 1178)
+Feb 22 17:40:31 kirkophone gdm-simple-greeter[2953]: Gtk-WARNING: /scratch/build-area/gtk+2.0-2.20.1/gtk/gtkwidget.c:5628: widget not within a GtkWindow
+
+Feb 22 17:40:48 kirkophone ntpdate[2465]: Can't find host 0.debian.pool.ntp.org: Name or service not known (-2)
+
+Feb 22 17:40:48 kirkophone gdm-simple-greeter[2953]: WARNING: Failed to send buffer
+
+Feb 22 17:40:49 kirkophone NetworkManager[2160]: <error> [1298392849.686142] [nm-manager.c:1368] user_proxy_init(): could not init user settings proxy: (3) Could not get owner of name 'org.freedesktop.NetworkManagerUserSettings': no such name
+
+Feb 22 17:40:49 kirkophone NetworkManager[2160]: <error> [1298392849.687200] [nm-manager.c:1368] user_proxy_init(): could not init user settings proxy: (3) Could not get owner of name 'org.freedesktop.NetworkManagerUserSettings': no such name
+
+Feb 22 17:40:49 kirkophone NetworkManager[2160]: <error> [1298392849.687927] [nm-manager.c:1368] user_proxy_init(): could not init user settings proxy: (3) Could not get owner of name 'org.freedesktop.NetworkManagerUserSettings': no such name
+
+Feb 22 17:40:49 kirkophone NetworkManager[2160]: <error> [1298392849.688498] [nm-manager.c:1368] user_proxy_init(): could not init user settings proxy: (3) Could not get owner of name 'org.freedesktop.NetworkManagerUserSettings': no such name
+
+Feb 22 17:40:49 kirkophone NetworkManager[2160]: <error> [1298392849.689084] [nm-manager.c:1368] user_proxy_init(): could not init user settings proxy: (3) Could not get owner of name 'org.freedesktop.NetworkManagerUserSettings': no such name
+
+Feb 22 17:40:57 kirkophone gnome-session[3063]: WARNING: Could not launch application 'print-applet.desktop': Unable to start application: Failed to execute child process "system-config-printer-applet" (No such file or directory)
+
+Feb 22 17:40:57 kirkophone gnome-session[3063]: WARNING: Could not launch application 'update-notifier.desktop': Unable to start application: Failed to execute child process "update-notifier" (No such file or directory)
+
+Feb 22 17:41:08 kirkophone NetworkManager[2160]: <info> Activation (wlan0) starting connection 'Auto CarmelaEtSebastien'
+
+Feb 22 17:41:08 kirkophone NetworkManager[2160]: <info> (wlan0): device state change: 3 -> 4 (reason 0)
+
+Feb 22 17:41:08 kirkophone NetworkManager[2160]: <info> Activation (wlan0) Stage 1 of 5 (Device Prepare) scheduled...
+
+Feb 22 17:41:08 kirkophone NetworkManager[2160]: <info> Activation (wlan0) Stage 1 of 5 (Device Prepare) started...
+
+Feb 22 17:41:08 kirkophone NetworkManager[2160]: <info> Activation (wlan0) Stage 2 of 5 (Device Configure) scheduled...
+
+Feb 22 17:41:08 kirkophone NetworkManager[2160]: <info> Activation (wlan0) Stage 1 of 5 (Device Prepare) complete.
+
+Feb 22 17:41:08 kirkophone NetworkManager[2160]: <info> Activation (wlan0) Stage 2 of 5 (Device Configure) starting...
+
+Feb 22 17:41:08 kirkophone NetworkManager[2160]: <info> (wlan0): device state change: 4 -> 5 (reason 0)
+
+Feb 22 17:41:08 kirkophone NetworkManager[2160]: <info> Activation (wlan0/wireless): access point 'Auto CarmelaEtSebastien' has security, but secrets are required.
+
+Feb 22 17:41:08 kirkophone NetworkManager[2160]: <info> (wlan0): device state change: 5 -> 6 (reason 0)
+
+Feb 22 17:41:08 kirkophone NetworkManager[2160]: <info> Activation (wlan0) Stage 2 of 5 (Device Configure) complete.
+
+Feb 22 17:41:08 kirkophone NetworkManager[2160]: <info> Activation (wlan0) Stage 1 of 5 (Device Prepare) scheduled...
+
+Feb 22 17:41:08 kirkophone NetworkManager[2160]: <info> Activation (wlan0) Stage 1 of 5 (Device Prepare) started...
+
+Feb 22 17:41:08 kirkophone NetworkManager[2160]: <info> (wlan0): device state change: 6 -> 4 (reason 0)
+
+Feb 22 17:41:08 kirkophone NetworkManager[2160]: <info> Activation (wlan0) Stage 2 of 5 (Device Configure) scheduled...
+
+Feb 22 17:41:08 kirkophone NetworkManager[2160]: <info> Activation (wlan0) Stage 1 of 5 (Device Prepare) complete.
+
+Feb 22 17:41:08 kirkophone NetworkManager[2160]: <info> Activation (wlan0) Stage 2 of 5 (Device Configure) starting...
+
+Feb 22 17:41:08 kirkophone NetworkManager[2160]: <info> (wlan0): device state change: 4 -> 5 (reason 0)
+
+Feb 22 17:41:08 kirkophone NetworkManager[2160]: <info> Activation (wlan0/wireless): connection 'Auto CarmelaEtSebastien' has security, and secrets exist.  No new secrets needed.
+
+Feb 22 17:41:08 kirkophone NetworkManager[2160]: <info> Config: added 'ssid' value 'CarmelaEtSebastien'
+
+Feb 22 17:41:08 kirkophone NetworkManager[2160]: <info> Config: added 'scan_ssid' value '1'
+
+Feb 22 17:41:08 kirkophone NetworkManager[2160]: <info> Config: added 'key_mgmt' value 'WPA-PSK'
+
+Feb 22 17:41:08 kirkophone NetworkManager[2160]: <info> Config: added 'psk' value '<omitted>'
+
+Feb 22 17:41:08 kirkophone NetworkManager[2160]: <info> Activation (wlan0) Stage 2 of 5 (Device Configure) complete.
+
+Feb 22 17:41:08 kirkophone NetworkManager[2160]: <info> Config: set interface ap_scan to 1
+
+Feb 22 17:41:08 kirkophone NetworkManager[2160]: <info> (wlan0): supplicant connection state:  inactive -> scanning
+
+Feb 22 17:41:09 kirkophone wpa_supplicant[2200]: Trying to associate with 82:6b:ce:33:e9:cc (SSID='CarmelaEtSebastien' freq=2412 MHz)
+Feb 22 17:41:09 kirkophone NetworkManager[2160]: <info> (wlan0): supplicant connection state:  scanning -> associating
+
+Feb 22 17:41:09 kirkophone kernel: [  165.754619] wlan0: direct probe to AP 82:6b:ce:33:e9:cc (try 1)
+Feb 22 17:41:09 kirkophone kernel: [  165.758758] wlan0: direct probe responded
+Feb 22 17:41:09 kirkophone kernel: [  165.758765] wlan0: authenticate with AP 82:6b:ce:33:e9:cc (try 1)
+Feb 22 17:41:09 kirkophone kernel: [  165.761186] wlan0: authenticated
+Feb 22 17:41:09 kirkophone kernel: [  165.761209] wlan0: associate with AP 82:6b:ce:33:e9:cc (try 1)
+Feb 22 17:41:09 kirkophone wpa_supplicant[2200]: Associated with 82:6b:ce:33:e9:cc
+Feb 22 17:41:09 kirkophone kernel: [  165.768799] wlan0: RX AssocResp from 82:6b:ce:33:e9:cc (capab=0x411 status=0 aid=3)
+Feb 22 17:41:09 kirkophone kernel: [  165.768801] wlan0: associated
+Feb 22 17:41:09 kirkophone kernel: [  165.770008] ADDRCONF(NETDEV_CHANGE): wlan0: link becomes ready
+Feb 22 17:41:09 kirkophone NetworkManager[2160]: <info> (wlan0): supplicant connection state:  associating -> associated
+
+Feb 22 17:41:09 kirkophone NetworkManager[2160]: <info> (wlan0): supplicant connection state:  associated -> 4-way handshake
+
+Feb 22 17:41:09 kirkophone NetworkManager[2160]: <info> (wlan0): supplicant connection state:  4-way handshake -> group handshake
+
+Feb 22 17:41:09 kirkophone wpa_supplicant[2200]: WPA: Key negotiation completed with 82:6b:ce:33:e9:cc [PTK=CCMP GTK=CCMP]
+Feb 22 17:41:09 kirkophone wpa_supplicant[2200]: CTRL-EVENT-CONNECTED - Connection to 82:6b:ce:33:e9:cc completed (auth) [id=0 id_str=]
+Feb 22 17:41:09 kirkophone NetworkManager[2160]: <info> (wlan0): supplicant connection state:  group handshake -> completed
+
+Feb 22 17:41:09 kirkophone NetworkManager[2160]: <info> Activation (wlan0/wireless) Stage 2 of 5 (Device Configure) successful.  Connected to wireless network 'CarmelaEtSebastien'.
+
+Feb 22 17:41:09 kirkophone NetworkManager[2160]: <info> Activation (wlan0) Stage 3 of 5 (IP Configure Start) scheduled.
+
+Feb 22 17:41:09 kirkophone NetworkManager[2160]: <info> Activation (wlan0) Stage 3 of 5 (IP Configure Start) started...
+
+Feb 22 17:41:09 kirkophone NetworkManager[2160]: <info> (wlan0): device state change: 5 -> 7 (reason 0)
+
+Feb 22 17:41:09 kirkophone NetworkManager[2160]: <info> Activation (wlan0) Beginning DHCPv4 transaction (timeout in 45 seconds)
+
+Feb 22 17:41:09 kirkophone vmnetBridge: Adding interface wlan0 index:3
+
+Feb 22 17:41:09 kirkophone vmnetBridge: Started bridge wlan0 to virtual network 0.
+
+Feb 22 17:41:09 kirkophone kernel: [  166.188763] /dev/vmnet: open called by PID 2791 (vmnet-bridge)
+Feb 22 17:41:09 kirkophone kernel: [  166.188779] /dev/vmnet: hub 0 does not exist, allocating memory.
+Feb 22 17:41:09 kirkophone kernel: [  166.188822] /dev/vmnet: port on hub 0 successfully opened
+Feb 22 17:41:09 kirkophone kernel: [  166.188847] bridge-wlan0: device is wireless, enabling SMAC
+Feb 22 17:41:09 kirkophone kernel: [  166.188853] bridge-wlan0: up
+Feb 22 17:41:09 kirkophone kernel: [  166.188859] bridge-wlan0: attached
+Feb 22 17:41:10 kirkophone NetworkManager[2160]: <info> dhclient started with pid 3204
+
+Feb 22 17:41:10 kirkophone NetworkManager[2160]: <info> Activation (wlan0) Stage 3 of 5 (IP Configure Start) complete.
+
+Feb 22 17:41:10 kirkophone dhclient: Internet Systems Consortium DHCP Client 4.1.1-P1
+Feb 22 17:41:10 kirkophone dhclient: Copyright 2004-2010 Internet Systems Consortium.
+Feb 22 17:41:10 kirkophone dhclient: All rights reserved.
+Feb 22 17:41:10 kirkophone dhclient: For info, please visit https://www.isc.org/software/dhcp/
+Feb 22 17:41:10 kirkophone dhclient: 
+Feb 22 17:41:10 kirkophone NetworkManager[2160]: <info> (wlan0): DHCPv4 state changed nbi -> preinit
+
+Feb 22 17:41:10 kirkophone dhclient: Listening on LPF/wlan0/1c:4b:d6:a9:4d:a5
+Feb 22 17:41:10 kirkophone dhclient: Sending on   LPF/wlan0/1c:4b:d6:a9:4d:a5
+Feb 22 17:41:10 kirkophone dhclient: Sending on   Socket/fallback
+Feb 22 17:41:10 kirkophone avahi-daemon[2268]: Joining mDNS multicast group on interface wlan0.IPv6 with address fe80::1e4b:d6ff:fea9:4da5.
+Feb 22 17:41:10 kirkophone avahi-daemon[2268]: New relevant interface wlan0.IPv6 for mDNS.
+Feb 22 17:41:10 kirkophone avahi-daemon[2268]: Registering new address record for fe80::1e4b:d6ff:fea9:4da5 on wlan0.*.
+Feb 22 17:41:12 kirkophone dhclient: DHCPREQUEST on wlan0 to 255.255.255.255 port 67
+Feb 22 17:41:12 kirkophone dhclient: DHCPACK from 192.168.42.254
+Feb 22 17:41:12 kirkophone dhclient: bound to 192.168.42.12 -- renewal in 351919 seconds.
+Feb 22 17:41:12 kirkophone NetworkManager[2160]: <info> (wlan0): DHCPv4 state changed preinit -> reboot
+
+Feb 22 17:41:12 kirkophone NetworkManager[2160]: <info> Activation (wlan0) Stage 4 of 5 (IP4 Configure Get) scheduled...
+
+Feb 22 17:41:12 kirkophone NetworkManager[2160]: <info> Activation (wlan0) Stage 4 of 5 (IP4 Configure Get) started...
+
+Feb 22 17:41:12 kirkophone NetworkManager[2160]: <info>   address 192.168.42.12
+
+Feb 22 17:41:12 kirkophone NetworkManager[2160]: <info>   prefix 24 (255.255.255.0)
+
+Feb 22 17:41:12 kirkophone NetworkManager[2160]: <info>   gateway 192.168.42.254
+
+Feb 22 17:41:12 kirkophone NetworkManager[2160]: <info>   nameserver '212.27.40.241'
+
+Feb 22 17:41:12 kirkophone NetworkManager[2160]: <info>   nameserver '212.27.40.240'
+
+Feb 22 17:41:12 kirkophone NetworkManager[2160]: <info> Activation (wlan0) Stage 5 of 5 (IP Configure Commit) scheduled...
+
+Feb 22 17:41:12 kirkophone NetworkManager[2160]: <info> Activation (wlan0) Stage 4 of 5 (IP4 Configure Get) complete.
+
+Feb 22 17:41:12 kirkophone NetworkManager[2160]: <info> Activation (wlan0) Stage 5 of 5 (IP Configure Commit) started...
+
+Feb 22 17:41:12 kirkophone avahi-daemon[2268]: Joining mDNS multicast group on interface wlan0.IPv4 with address 192.168.42.12.
+Feb 22 17:41:12 kirkophone avahi-daemon[2268]: New relevant interface wlan0.IPv4 for mDNS.
+Feb 22 17:41:12 kirkophone avahi-daemon[2268]: Registering new address record for 192.168.42.12 on wlan0.IPv4.
+Feb 22 17:41:13 kirkophone NetworkManager[2160]: <info> (wlan0): device state change: 7 -> 8 (reason 0)
+
+Feb 22 17:41:13 kirkophone NetworkManager[2160]: <info> Policy set 'Auto CarmelaEtSebastien' (wlan0) as default for IPv4 routing and DNS.
+
+Feb 22 17:41:13 kirkophone vmnetBridge: RTM_NEWROUTE: index:3
+
+Feb 22 17:41:13 kirkophone NetworkManager[2160]: <info> Activation (wlan0) successful, device activated.
+
+Feb 22 17:41:13 kirkophone NetworkManager[2160]: <info> Activation (wlan0) Stage 5 of 5 (IP Configure Commit) complete.
+
+Feb 22 17:41:13 kirkophone postfix/master[2714]: reload -- version 2.7.1, configuration /etc/postfix
+Feb 22 17:41:19 kirkophone kernel: [  176.168732] wlan0: no IPv6 routers present
+Feb 22 17:41:23 kirkophone ntpdate[2465]: step time server 213.251.153.36 offset 0.403027 sec
+Feb 22 17:41:39 kirkophone ntpdate[3294]: adjust time server 193.55.167.2 offset -0.000476 sec
+Feb 22 17:54:24 kirkophone kernel: [  959.284861] CE: hpet increasing min_delta_ns to 22500 nsec
+Feb 22 18:17:01 kirkophone /USR/SBIN/CRON[3636]: (root) CMD (   cd / && run-parts --report /etc/cron.hourly)
+Feb 22 19:17:01 kirkophone /USR/SBIN/CRON[3648]: (root) CMD (   cd / && run-parts --report /etc/cron.hourly)
+Feb 22 20:17:01 kirkophone /USR/SBIN/CRON[3660]: (root) CMD (   cd / && run-parts --report /etc/cron.hourly)
+Feb 22 21:14:09 kirkophone kernel: [12933.960456] CE: hpet increasing min_delta_ns to 33750 nsec
+Feb 22 21:17:02 kirkophone /USR/SBIN/CRON[3670]: (root) CMD (   cd / && run-parts --report /etc/cron.hourly)
+Feb 22 22:17:01 kirkophone /USR/SBIN/CRON[3799]: (root) CMD (   cd / && run-parts --report /etc/cron.hourly)

@@ -1,0 +1,129 @@
+.\" Hey Emacs! This file is -*- nroff -*- source.
+.\"
+.\" Copyright © 2002 - Philip Howard - All rights reserved
+.\"
+.\" This program is free software; you can redistribute it and/or
+.\" modify it under the terms of the GNU Lesser General Public
+.\" License as published by the Free Software Foundation; either
+.\" version 2.1 of the License, or (at your option) any later version.
+.\"
+.\" This library is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+.\" Lesser General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU Lesser General Public
+.\" License along with this library; if not, write to the Free Software
+.\" Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+.\"
+.TH vrb_new_opt 3 2002-09-30 vrb "VRB Programmer's Manual"
+.SH NAME
+vrb_new_opt - create a new virtual ring buffer
+.SH LIBRARY
+.B -lvrb
+.SH SYNOPSIS
+.B #include <vrb.h>
+.sp
+.IB "vrb_p " "vrb_new_opt" "(size_t " "size" ", const char *" "name" ", int " "options" ");"
+.SH DESCRIPTION
+.B vrb_new_opt
+creates a new instance of a virtual ring buffer.
+.sp
+A virtual ring buffer is a character FIFO queue with the special
+property that any sequence of characters in the buffer may be
+accessed as a single contiguous block of memory, eliminating the
+need to split any sequence to handle a buffer wraparound.
+.SH ARGUMENTS
+.IB "size_t " size
+.br
+specifies the requested minimum buffer size to be allocated.
+The given value will be rounded up to the nearest or equal whole
+multiple of the system page size.
+The virtual ring buffer is implemented by mapping two adjacent
+blocks of memory to the same memory object.
+Thus, twice as much virtual address space will be used and the
+specified size must be less than half of the available virtual
+address space for this process.
+.sp
+.IB "const char *" name
+.br
+specifies an optional temporary name pattern or an actual name
+of a file to be used as backing store via
+.B mmap(2)
+in a mounted filesystem in which the process has write permission.
+If the name string ends in "XXXXXX" then
+.B mkstemp(3)
+will be used to make the file unique.
+Otherwise it will be used as is.
+If the named file already exists or otherwise cannot be opened
+for write, an error will occur.
+If
+.B NULL
+is given, swap space will be used as backing store via
+.B shmat(2).
+.sp
+.IB "int options"
+.br
+specifies option flags that may be given to alter the behaviour of the
+virtual ring buffer.
+The implemented options are:
+.TP
+.B VRB_NOGUARD
+Do not include guard pages that would protect against buffer overflow
+errors.
+.TP
+.B VRB_ENVGUARD
+Override VRB_NOGUARD if the environment variable VRBGUARD is defined
+with a value other than the string "0".
+.SH "RETURN VALUE"
+.I vrb_p
+.br
+On success, a handle (pointer) to the newly created virtual ring buffer
+is returned.
+On error,
+.B NULL
+is returned.
+.SH ERRORS
+If an error is returned, then
+.I errno
+will have one of the following values:
+.TP
+.B EINVAL
+A buffer size was requested which is too large for address space
+allocation arithmetic.
+.TP
+.B ENOMEM
+Out of memory allocating the virtual ring buffer structure.
+.TP
+-
+An
+.I errno
+value set by a failing system call.
+.SH "SEE ALSO"
+.BR vrb (3),
+.BR vrb_capacity (3),
+.BR vrb_data_len (3),
+.BR vrb_data_ptr (3),
+.BR vrb_destroy (3),
+.BR vrb_get (3),
+.BR vrb_get_min (3),
+.BR vrb_give (3),
+.BR vrb_init (3),
+.BR vrb_init_opt (3),
+.BR vrb_is_empty (3),
+.BR vrb_is_full (3),
+.BR vrb_is_not_empty (3),
+.BR vrb_is_not_full (3),
+.BR vrb_move (3),
+.BR vrb_new (3),
+.BR vrb_put (3),
+.BR vrb_put_all (3),
+.BR vrb_read (3),
+.BR vrb_read_min (3),
+.BR vrb_resize (3),
+.BR vrb_space_len (3),
+.BR vrb_space_ptr (3),
+.BR vrb_take (3),
+.BR vrb_uninit (3),
+.BR vrb_write (3),
+.BR vrb_write_min (3)

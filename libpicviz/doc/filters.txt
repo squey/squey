@@ -1,0 +1,27 @@
+object picviz_filter_t qui contient les filter_function possibles.
+
+Class filter rack
+  -> list de filter units
+  -> Liste des inputlayers
+
+Class filter Unit
+ -> reference a la fonction utilisee
+ -> Choix des parametres
+
+selection Filter_function(tableau de layer_t, selection, array_args)
+
+Layer:
+ -> le filter rack
+
+Exemple:
+ heatline: filtrer les frequences
+
+
+============================================
+
+Splitter le temps syslog en plusieurs columns
+1) Quand on deplace la souris sur l'axe du temps (qui est sur 24h), on affiche dans une petite fenetre l'axe des mois, du jour et de l'heure.
+2) Quand on double-click, on rajoute effectivement les deux columns
+
+On récupère la premiere column du nraw, on applique un PCRE pour creer un deuxième nraw que l'on ratache a Source avec un tag comme 'temps'.
+

@@ -1,0 +1,63 @@
+if(WIN32)
+	set(TBB_DIST_FILES
+	C:\\\\dev\\\\tbb\\\\bin\\\\ia32\\\\vc9\\\\tbb.dll
+	C:\\\\dev\\\\tbb\\\\bin\\\\ia32\\\\vc9\\\\tbbmalloc.dll
+	)
+    install(FILES ${TBB_DIST_FILES} DESTINATION .)
+
+	set(QT4_DIST_FILES
+	C:\\\\Qt\\\\4.7.3\\\\bin\\\\phonon4.dll
+	C:\\\\Qt\\\\4.7.3\\\\bin\\\\QtCore4.dll
+	C:\\\\Qt\\\\4.7.3\\\\bin\\\\QtGui4.dll
+	C:\\\\Qt\\\\4.7.3\\\\bin\\\\QtMultimedia4.dll
+	C:\\\\Qt\\\\4.7.3\\\\bin\\\\QtNetwork4.dll
+	C:\\\\Qt\\\\4.7.3\\\\bin\\\\QtOpenGL4.dll
+	C:\\\\Qt\\\\4.7.3\\\\bin\\\\QtScript4.dll
+	C:\\\\Qt\\\\4.7.3\\\\bin\\\\QtSvg4.dll
+	C:\\\\Qt\\\\4.7.3\\\\bin\\\\QtWebKit4.dll
+	C:\\\\Qt\\\\4.7.3\\\\bin\\\\QtXml4.dll
+	C:\\\\Qt\\\\4.7.3\\\\bin\\\\QtXmlPatterns4.dll
+	)
+	install(FILES ${QT4_DIST_FILES} ${INSPECTOR_ICON} DESTINATION .)
+
+	set(CURL_DIST_FILES
+	C:\\\\dev\\\\curl\\\\curllib.dll
+	C:\\\\dev\\\\curl\\\\libeay32.dll
+	C:\\\\dev\\\\curl\\\\openldap.dll
+	C:\\\\dev\\\\curl\\\\ssleay32.dll
+	)
+	install(FILES ${CURL_DIST_FILES} DESTINATION .)
+	
+	set(FREEGLUT_DIST_FILES
+	C:\\\\dev\\\\freeglut\\\\freeglut.dll
+	)
+	install(FILES ${FREEGLUT_DIST_FILES} DESTINATION .)
+
+	set(FREETYPE_DIST_FILES
+	C:\\\\dev\\\\GnuWin32\\\\bin\\\\freetype6.dll
+	)
+	install(FILES ${FREETYPE_DIST_FILES} DESTINATION .)	
+
+	set(PCRE_DIST_FILES
+	C:\\\\dev\\\\GnuWin32\\\\bin\\\\pcre3.dll
+	C:\\\\dev\\\\GnuWin32\\\\bin\\\\pcreposix3.dll
+	)
+	install(FILES ${PCRE_DIST_FILES} DESTINATION .)		
+
+	set(ZLIB_DIST_FILES
+	C:\\\\dev\\\\GnuWin32\\\\bin\\\\zlib1.dll
+	)
+	install(FILES ${ZLIB_DIST_FILES} DESTINATION .)	
+
+	set(ICU_DIST_FILES
+	c:\\\\dev\\\\icu\\\\bin\\\\icudt48.dll
+	c:\\\\dev\\\\icu\\\\bin\\\\icuio48.dll
+	c:\\\\dev\\\\icu\\\\bin\\\\iculx48.dll
+	c:\\\\dev\\\\icu\\\\bin\\\\icule48.dll
+	c:\\\\dev\\\\icu\\\\bin\\\\icutu48.dll
+	c:\\\\dev\\\\icu\\\\bin\\\\icuin48.dll
+	c:\\\\dev\\\\icu\\\\bin\\\\icuuc48.dll
+	)
+	install(FILES ${ICU_DIST_FILES} DESTINATION .)
+	
+endif(WIN32)

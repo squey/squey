@@ -1,0 +1,34 @@
+#!/bin/bash
+# Waiting for a better dependency support in our CMake configuration files, here is a script that will "make -j" libraries in the good order...
+#
+# Based on the order of the "add_subdirectory" in the root CMakeList.txt
+
+LIBS_ORDER="libpvcore libpvfilter libpvrush libpicviz libpvgl picviz-inspector"
+TESTS_ORDER="libpvcore libpvfilter libpvrush libpicviz"
+PLUGINS_ORDER="libpvrush libpicviz"
+
+# compile sources
+for l in $LIBS_ORDER; do
+	echo "Compiling sources of $l..."
+	cd $l/src || exit 1
+	make -j $1 || exit 1
+	cd ../..
+done
+
+## compile sources
+#for l in $PLUGINS_ORDER; do
+#	echo "Compiling plugins of $l..."
+#	cd $l/plugins || exit 1
+#	make -j $1 || exit 1
+#	cd ../..
+#done
+#
+## compile tests
+#for l in $TESTS_ORDER; do
+#	echo "Compiling tests of $l..."
+#	cd $l/tests || exit 1
+#	make -j $1 || exit 1
+#	cd ../..
+#done
+
+make -j $1

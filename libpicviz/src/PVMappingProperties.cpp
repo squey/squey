@@ -1,0 +1,23 @@
+//! \file PVMappingProperties.cpp
+//! $Id: PVMappingProperties.cpp 3062 2011-06-07 08:33:36Z aguinet $
+//! Copyright (C) Sébastien Tricaud 2009-2011
+//! Copyright (C) Philippe Saadé 2009-2011
+//! Copyright (C) Picviz Labs 2011
+
+#include <picviz/PVMappingProperties.h>
+#include <pvfilter/PVFilterLibrary.h>
+#include <picviz/PVRoot.h>
+
+Picviz::PVMappingProperties::PVMappingProperties(PVRoot_p root, PVRush::PVFormat fmt, int idx)
+{
+	format = fmt;
+	index = idx;
+
+	QString type = format.axes[idx]["type"];
+	QString mode = format.axes[idx]["mapping"];
+
+	mapping_filter = LIB_FILTER(Picviz::PVMappingFilter)::get().get_filter_by_name(type + "_" + mode);
+	if (!mapping_filter) {
+		PVLOG_ERROR("Mapping '%s' for type '%s' does not exist !\n", qPrintable(mode), qPrintable(type));
+	}
+}

@@ -1,0 +1,1000 @@
+﻿name,Genome,Membership - Evidence,Membership - Group
+alpha-2-macroglobulin pseudogene,Human genome,,
+N-acetyltransferase 1 (arylamine N-acetyltransferase),Human genome,Inferred from Electronic Annotation,arylamine N-acetyltransferase activity
+,,Inferred from Electronic Annotation,metabolic process
+,,Inferred from Electronic Annotation,acetyltransferase activity
+,,Inferred from Electronic Annotation,transferase activity
+N-acetyltransferase 2 (arylamine N-acetyltransferase),Human genome,Inferred from Electronic Annotation,arylamine N-acetyltransferase activity
+,,Inferred from Electronic Annotation,metabolic process
+,,Inferred from Electronic Annotation,acetyltransferase activity
+,,Inferred from Electronic Annotation,transferase activity
+arylamide acetylase pseudogene,Human genome,,
+"serpin peptidase inhibitor, clade A (alpha-1 antiproteinase, antitrypsin), member 3",Human genome,Inferred by Curator,DNA binding
+,,Inferred from Physical Interaction,protein binding
+,,Non-traceable Author Statement,extracellular region
+,,Non-traceable Author Statement,intracellular
+,,Traceable Author Statement,nucleus
+,,Inferred from Electronic Annotation,acute-phase response
+arylacetamide deacetylase (esterase),Human genome,Inferred from Electronic Annotation,endoplasmic reticulum
+,,Inferred from Direct Assay,endoplasmic reticulum membrane
+,,Traceable Author Statement,microsome
+,,Inferred from Electronic Annotation,metabolic process
+,,Inferred from Electronic Annotation,membrane
+,,Inferred from Electronic Annotation,integral to membrane
+"angio-associated, migratory cell protein",Human genome,Not Recorded,cell motility
+,,Traceable Author Statement,heparin binding
+arylalkylamine N-acetyltransferase,Human genome,Traceable Author Statement,aralkylamine N-acetyltransferase activity
+,,Traceable Author Statement,circadian rhythm
+,,Inferred from Electronic Annotation,acyltransferase activity
+,,Inferred from Electronic Annotation,transferase activity
+alanyl-tRNA synthetase,Human genome,Traceable Author Statement,tRNA binding
+,,Inferred from Electronic Annotation,nucleotide binding
+,,Inferred from Electronic Annotation,nucleic acid binding
+,,Inferred from Electronic Annotation,alanine-tRNA ligase activity
+,,Inferred from Electronic Annotation,ATP binding
+,,Traceable Author Statement,soluble fraction
+adeno-associated virus integration site 1,Human genome,,
+4-aminobutyrate aminotransferase,Human genome,Inferred from Direct Assay,4-aminobutyrate transaminase activity
+,,Inferred from Sequence or Structural Similarity,mitochondrion
+,,Non-traceable Author Statement,behavior
+,,Non-traceable Author Statement,gamma-aminobutyric acid catabolic process
+,,Inferred from Electronic Annotation,transferase activity
+,,Inferred from Direct Assay,pyridoxal phosphate binding
+"ATP-binding cassette, sub-family A (ABC1), member 1",Human genome,Inferred from Electronic Annotation,nucleotide binding
+,,Inferred from Physical Interaction,protein binding
+,,Inferred from Electronic Annotation,ATP binding
+,,Traceable Author Statement,membrane fraction
+,,Inferred from Electronic Annotation,Golgi apparatus
+,,Non-traceable Author Statement,integral to plasma membrane
+"ATP-binding cassette, sub-family A (ABC1), member 2",Human genome,Inferred from Electronic Annotation,nucleotide binding
+,,Inferred from Direct Assay,ATP binding
+,,No biological Data available,cellular_component
+,,Inferred from Direct Assay,lysosomal membrane
+,,Inferred from Sequence or Structural Similarity,microtubule organizing center
+,,Inferred from Direct Assay,regulation of transcription from RNA polymerase II promoter
+"ATP-binding cassette, sub-family A (ABC1), member 3",Human genome,Inferred from Electronic Annotation,nucleotide binding
+,,Traceable Author Statement,transporter activity
+,,Inferred from Electronic Annotation,ATP binding
+,,Traceable Author Statement,membrane fraction
+,,Inferred from Direct Assay,plasma membrane
+,,Inferred from Direct Assay,transport
+"ATP-binding cassette, sub-family B (MDR/TAP), member 7",Human genome,Inferred from Electronic Annotation,nucleotide binding
+,,Traceable Author Statement,ATP binding
+,,Inferred from Electronic Annotation,mitochondrion
+,,Traceable Author Statement,mitochondrial inner membrane
+,,Traceable Author Statement,transport
+,,Traceable Author Statement,heme transporter activity
+"ATP-binding cassette, sub-family F (GCN20), member 1",Human genome,Inferred from Electronic Annotation,nucleotide binding
+,,Inferred from Electronic Annotation,ATP binding
+,,Traceable Author Statement,translation
+,,Traceable Author Statement,inflammatory response
+,,Traceable Author Statement,"translation factor activity, nucleic acid binding"
+,,Inferred from Electronic Annotation,ATPase activity
+amiloride binding protein 1 (amine oxidase (copper-containing)),Human genome,Inferred from Electronic Annotation,copper ion binding
+,,Inferred from Electronic Annotation,calcium ion binding
+,,Non-traceable Author Statement,peroxisome
+,,Inferred from Direct Assay,amine oxidase activity
+,,Not Recorded,drug binding
+,,Not Recorded,metabolic process
+"v-abl Abelson murine leukemia viral oncogene homolog 2 (arg, Abelson-related gene)",Human genome,Inferred from Electronic Annotation,nucleotide binding
+,,Inferred from Direct Assay,magnesium ion binding
+,,Inferred from Direct Assay,protein-tyrosine kinase activity
+,,Inferred from Physical Interaction,protein binding
+,,Inferred from Electronic Annotation,ATP binding
+,,Not Recorded,cytoplasm
+"ABO blood group (transferase A, alpha 1-3-N-acetylgalactosaminyltransferase; transferase B, alpha 1-3-galactosyltransferase)",Human genome,Inferred from Electronic Annotation,glycoprotein-fucosylgalactoside alpha-N-acetylgalactosaminyltransferase activity
+,,Non-traceable Author Statement,fucosylgalactoside 3-alpha-galactosyltransferase activity
+,,No biological Data available,cellular_component
+,,Non-traceable Author Statement,extracellular region
+,,Inferred from Electronic Annotation,carbohydrate metabolic process
+,,Non-traceable Author Statement,protein amino acid glycosylation
+active BCR-related gene,Human genome,Inferred from Electronic Annotation,guanyl-nucleotide exchange factor activity
+,,Inferred from Electronic Annotation,Rho guanyl-nucleotide exchange factor activity
+,,Traceable Author Statement,GTPase activator activity
+,,Inferred from Electronic Annotation,intracellular
+,,Inferred from Electronic Annotation,intracellular signaling cascade
+,,Traceable Author Statement,small GTPase mediated signal transduction
+acetyl-Coenzyme A acyltransferase 1 (peroxisomal 3-oxoacyl-Coenzyme A thiolase),Human genome,Inferred from Electronic Annotation,acetyl-CoA C-acyltransferase activity
+,,Non-traceable Author Statement,peroxisome
+,,Traceable Author Statement,generation of precursor metabolites and energy
+,,Inferred from Electronic Annotation,lipid metabolic process
+,,Inferred from Electronic Annotation,fatty acid metabolic process
+,,Inferred from Electronic Annotation,acyltransferase activity
+acetyl-Coenzyme A carboxylase alpha,Human genome,Inferred from Electronic Annotation,nucleotide binding
+,,Inferred from Electronic Annotation,acetyl-CoA carboxylase activity
+,,Inferred from Electronic Annotation,biotin carboxylase activity
+,,Inferred from Physical Interaction,protein binding
+,,Inferred from Electronic Annotation,ATP binding
+,,Inferred from Electronic Annotation,fatty acid biosynthetic process
+acetyl-Coenzyme A carboxylase beta,Human genome,Inferred from Electronic Annotation,nucleotide binding
+,,Inferred from Electronic Annotation,acetyl-CoA carboxylase activity
+,,Inferred from Electronic Annotation,biotin carboxylase activity
+,,Inferred from Electronic Annotation,ATP binding
+,,Inferred from Electronic Annotation,fatty acid biosynthetic process
+,,Inferred from Electronic Annotation,metabolic process
+"acyl-Coenzyme A dehydrogenase, long chain",Human genome,Inferred from Electronic Annotation,acyl-CoA dehydrogenase activity
+,,Traceable Author Statement,long-chain-acyl-CoA dehydrogenase activity
+,,Inferred from Electronic Annotation,mitochondrion
+,,Inferred from Electronic Annotation,electron transport
+,,Inferred from Electronic Annotation,lipid metabolic process
+,,Inferred from Electronic Annotation,fatty acid metabolic process
+"acyl-Coenzyme A dehydrogenase, C-2 to C-3 short chain",Human genome,Inferred from Electronic Annotation,butyryl-CoA dehydrogenase activity
+,,Inferred from Electronic Annotation,mitochondrion
+,,Inferred from Electronic Annotation,electron transport
+,,Inferred from Electronic Annotation,lipid metabolic process
+,,Inferred from Electronic Annotation,fatty acid metabolic process
+,,Traceable Author Statement,fatty acid beta-oxidation
+"acyl-Coenzyme A dehydrogenase, short/branched chain",Human genome,Traceable Author Statement,acyl-CoA dehydrogenase activity
+,,Traceable Author Statement,mitochondrion
+,,Inferred from Electronic Annotation,electron transport
+,,Inferred from Electronic Annotation,lipid metabolic process
+,,Traceable Author Statement,fatty acid metabolic process
+,,Inferred from Electronic Annotation,metabolic process
+"acyl-Coenzyme A dehydrogenase, very long chain",Human genome,Traceable Author Statement,long-chain-acyl-CoA dehydrogenase activity
+,,Traceable Author Statement,mitochondrion
+,,Inferred from Electronic Annotation,electron transport
+,,Inferred from Electronic Annotation,lipid metabolic process
+,,Inferred from Electronic Annotation,fatty acid metabolic process
+,,Traceable Author Statement,fatty acid beta-oxidation
+acetyl-Coenzyme A acetyltransferase 1 (acetoacetyl Coenzyme A thiolase),Human genome,Traceable Author Statement,acetyl-CoA C-acetyltransferase activity
+,,Traceable Author Statement,mitochondrion
+,,Inferred from Electronic Annotation,mitochondrial inner membrane
+,,Inferred from Electronic Annotation,acyltransferase activity
+,,Inferred from Electronic Annotation,transferase activity
+acetyl-Coenzyme A acetyltransferase 2 (acetoacetyl Coenzyme A thiolase),Human genome,Inferred from Electronic Annotation,acetyl-CoA C-acetyltransferase activity
+,,Traceable Author Statement,cytoplasm
+,,Traceable Author Statement,lipid metabolic process
+,,Inferred from Electronic Annotation,acyltransferase activity
+,,Inferred from Electronic Annotation,transferase activity
+"amiloride-sensitive cation channel 1, neuronal (degenerin)",Human genome,Inferred from Electronic Annotation,ion channel activity
+,,Inferred from Physical Interaction,protein binding
+,,Not Recorded,membrane fraction
+,,Traceable Author Statement,integral to plasma membrane
+,,Inferred from Electronic Annotation,ion transport
+,,Inferred from Electronic Annotation,sodium ion transport
+"amiloride-sensitive cation channel 2, neuronal",Human genome,Inferred from Electronic Annotation,ion channel activity
+,,Inferred from Electronic Annotation,calcium ion binding
+,,Inferred from Physical Interaction,protein binding
+,,Traceable Author Statement,integral to plasma membrane
+,,Inferred from Electronic Annotation,ion transport
+,,Non-traceable Author Statement,sodium ion transport
+acetylcholinesterase (Yt blood group),Human genome,Non-traceable Author Statement,acetylcholine catabolic process in synaptic cleft
+,,Traceable Author Statement,beta-amyloid binding
+,,Inferred from Expression Pattern,osteoblast development
+,,Inferred from Mutant Phenotype,acetylcholinesterase activity
+,,Inferred from Direct Assay,cholinesterase activity
+,,Inferred from Electronic Annotation,serine esterase activity
+acrocallosal syndrome,Human genome,,
+"aconitase 1, soluble",Human genome,Inferred from Direct Assay,RNA binding
+,,Inferred from Direct Assay,aconitate hydratase activity
+,,Inferred from Electronic Annotation,iron ion binding
+,,Non-traceable Author Statement,cytoplasm
+,,Inferred from Electronic Annotation,tricarboxylic acid cycle
+,,Inferred from Electronic Annotation,metabolic process
+"aconitase 2, mitochondrial",Human genome,Inferred from Electronic Annotation,aconitate hydratase activity
+,,Inferred from Direct Assay,iron ion binding
+,,Inferred from Electronic Annotation,mitochondrion
+,,Traceable Author Statement,generation of precursor metabolites and energy
+,,Inferred from Direct Assay,tricarboxylic acid cycle
+,,Inferred from Direct Assay,citrate metabolic process
+"acyl-Coenzyme A oxidase 1, palmitoyl",Human genome,Inferred from Electronic Annotation,acyl-CoA dehydrogenase activity
+,,Non-traceable Author Statement,acyl-CoA oxidase activity
+,,Non-traceable Author Statement,peroxisome
+,,Inferred from Electronic Annotation,electron transport
+,,Traceable Author Statement,lipid metabolic process
+,,Inferred from Electronic Annotation,fatty acid beta-oxidation
+"acid phosphatase 1, soluble",Human genome,Traceable Author Statement,acid phosphatase activity
+,,Inferred from Electronic Annotation,protein tyrosine phosphatase activity
+,,Inferred from Electronic Annotation,non-membrane spanning protein tyrosine phosphatase activity
+,,Traceable Author Statement,soluble fraction
+,,Not Recorded,cytoplasm
+,,Inferred from Electronic Annotation,protein amino acid dephosphorylation
+"acid phosphatase 2, lysosomal",Human genome,Inferred from Electronic Annotation,skeletal development
+,,Traceable Author Statement,acid phosphatase activity
+,,Not Recorded,lysosomal membrane
+,,Inferred from Electronic Annotation,lysosome organization and biogenesis
+,,Traceable Author Statement,integral to membrane
+,,Inferred from Electronic Annotation,hydrolase activity
+"acid phosphatase 5, tartrate resistant",Human genome,Traceable Author Statement,acid phosphatase activity
+,,Inferred from Electronic Annotation,iron ion binding
+,,Inferred from Electronic Annotation,lysosome
+,,Traceable Author Statement,integral to membrane
+,,Inferred from Electronic Annotation,hydrolase activity
+,,Inferred from Electronic Annotation,metal ion binding
+"acid phosphatase, prostate",Human genome,Traceable Author Statement,regulation of progression through cell cycle
+,,Inferred from Electronic Annotation,acid phosphatase activity
+,,Not Recorded,protein tyrosine phosphatase activity
+,,Not Recorded,extracellular region
+,,Inferred from Electronic Annotation,hydrolase activity
+acrosomal vesicle protein 1,Human genome,Inferred from Electronic Annotation,acrosome
+,,Traceable Author Statement,multicellular organismal development
+"actin, alpha 2, smooth muscle, aorta",Human genome,Inferred from Electronic Annotation,nucleotide binding
+,,Inferred from Electronic Annotation,structural molecule activity
+,,Inferred from Electronic Annotation,protein binding
+,,Inferred from Electronic Annotation,ATP binding
+,,Inferred from Electronic Annotation,cytoskeleton
+"actin, beta pseudogene 1",Human genome,,
+"actin, beta pseudogene 2",Human genome,,
+"actin, beta pseudogene 3",Human genome,,
+"actin, beta pseudogene 4",Human genome,,
+"actin, beta pseudogene 5",Human genome,,
+"actin, beta pseudogene 6",Human genome,,
+"actin, beta pseudogene 7",Human genome,,
+"actin, beta pseudogene 8",Human genome,,
+"actin, beta pseudogene 9",Human genome,,
+"actin, alpha, cardiac muscle 1",Human genome,Inferred from Electronic Annotation,nucleotide binding
+,,Inferred from Electronic Annotation,protein binding
+,,Inferred from Electronic Annotation,ATP binding
+,,Inferred from Electronic Annotation,cytoskeleton
+,,Traceable Author Statement,actin filament
+,,Traceable Author Statement,muscle contraction
+"actin, gamma pseudogene 1",Human genome,,
+"actin, gamma pseudogene 2",Human genome,,
+"actin, gamma pseudogene 3",Human genome,,
+"actin, gamma pseudogene 4",Human genome,,
+"actin, gamma pseudogene 5",Human genome,,
+"actin, gamma pseudogene 6",Human genome,,
+"actin, gamma pseudogene 7",Human genome,,
+"actin, gamma pseudogene 8",Human genome,,
+"actinin, alpha 4",Human genome,Non-traceable Author Statement,regulation of progression through cell cycle
+,,Inferred from Electronic Annotation,stress fiber
+,,Inferred from Direct Assay,nucleoside binding
+,,Traceable Author Statement,integrin binding
+,,Inferred from Electronic Annotation,calcium ion binding
+,,Inferred from Physical Interaction,protein binding
+"actin, gamma pseudogene 9",Human genome,,
+"actin, gamma pseudogene 10",Human genome,,
+actin-like 4,Human genome,,
+actin-like 5,Human genome,,
+actin-like 6A,Human genome,Inferred from Electronic Annotation,regulation of cell growth
+,,Traceable Author Statement,chromatin binding
+,,Inferred from Electronic Annotation,protein binding
+,,Inferred from Electronic Annotation,ATP binding
+,,Inferred from Electronic Annotation,nucleus
+,,Inferred from Direct Assay,plasma membrane
+"actinin, alpha 1",Human genome,Inferred from Electronic Annotation,actin binding
+,,Inferred from Direct Assay,integrin binding
+,,Inferred from Electronic Annotation,calcium ion binding
+,,Inferred from Physical Interaction,protein binding
+,,Inferred from Electronic Annotation,cytoskeleton
+,,Inferred from Mutant Phenotype,focal adhesion
+"actinin, alpha 2",Human genome,Inferred from Electronic Annotation,actin binding
+,,Traceable Author Statement,integrin binding
+,,Inferred from Electronic Annotation,calcium ion binding
+,,Non-traceable Author Statement,cytoskeleton
+,,Traceable Author Statement,actin filament
+,,Inferred from Mutant Phenotype,focal adhesion
+"actinin, alpha 3",Human genome,Inferred from Electronic Annotation,actin binding
+,,Traceable Author Statement,integrin binding
+,,Inferred from Electronic Annotation,calcium ion binding
+,,Inferred from Physical Interaction,protein binding
+,,Traceable Author Statement,actin filament
+,,Inferred from Mutant Phenotype,focal adhesion
+"activin A receptor, type I",Human genome,Inferred from Mutant Phenotype,G1/S transition of mitotic cell cycle
+,,Inferred from Electronic Annotation,nucleotide binding
+,,Inferred from Electronic Annotation,magnesium ion binding
+,,Inferred from Electronic Annotation,embryonic development (sensu Mammalia)
+,,Inferred from Electronic Annotation,mesoderm formation
+,,Inferred from Electronic Annotation,neural crest cell migration
+"activin A receptor, type IB",Human genome,Inferred from Direct Assay,G1/S transition of mitotic cell cycle
+,,Inferred from Electronic Annotation,nucleotide binding
+,,Inferred from Electronic Annotation,magnesium ion binding
+,,Inferred from Electronic Annotation,embryonic development (sensu Mammalia)
+,,Inferred from Electronic Annotation,hair follicle development
+,,Inferred from Direct Assay,protein serine/threonine kinase activity
+"activin A receptor, type IIA",Human genome,Inferred from Electronic Annotation,nucleotide binding
+,,Inferred from Electronic Annotation,magnesium ion binding
+,,Inferred from Electronic Annotation,receptor activity
+,,Inferred from Electronic Annotation,ATP binding
+,,Inferred from Direct Assay,cytoplasm
+,,Traceable Author Statement,integral to plasma membrane
+"activin A receptor, type IIB",Human genome,Inferred from Electronic Annotation,nucleotide binding
+,,Inferred from Electronic Annotation,magnesium ion binding
+,,Inferred from Electronic Annotation,receptor signaling protein serine/threonine kinase activity
+,,Inferred from Electronic Annotation,protein threonine/tyrosine kinase activity
+,,Inferred from Electronic Annotation,receptor activity
+,,Inferred from Electronic Annotation,transforming growth factor beta receptor activity
+activin A receptor type II-like 1,Human genome,Inferred from Electronic Annotation,nucleotide binding
+,,Inferred from Electronic Annotation,magnesium ion binding
+,,Inferred from Mutant Phenotype,angiogenesis
+,,Inferred from Electronic Annotation,receptor activity
+,,Inferred from Direct Assay,ATP binding
+,,Inferred from Direct Assay,integral to plasma membrane
+aminoacylase 1,Human genome,Traceable Author Statement,aminoacylase activity
+,,Inferred from Electronic Annotation,cytoplasm
+,,Traceable Author Statement,cytosol
+,,Inferred from Electronic Annotation,proteolysis
+,,Inferred from Electronic Annotation,amino acid metabolic process
+,,Inferred from Electronic Annotation,metallopeptidase activity
+aminoacylase 1-like,Human genome,,
+"acylphosphatase 1, erythrocyte (common) type",Human genome,Inferred from Electronic Annotation,acylphosphatase activity
+,,Traceable Author Statement,phosphate metabolic process
+,,Inferred from Electronic Annotation,hydrolase activity
+"acylphosphatase 2, muscle type",Human genome,Traceable Author Statement,acylphosphatase activity
+,,Traceable Author Statement,phosphate metabolic process
+,,Inferred from Electronic Annotation,hydrolase activity
+ADAM metallopeptidase domain 8,Human genome,Inferred from Electronic Annotation,metalloendopeptidase activity
+,,Inferred from Electronic Annotation,plasma membrane
+,,Traceable Author Statement,integral to plasma membrane
+,,Inferred from Electronic Annotation,proteolysis
+,,Inferred from Electronic Annotation,zinc ion binding
+,,Inferred from Electronic Annotation,cell-cell adhesion
+ADAM metallopeptidase domain 10,Human genome,Inferred from Sequence or Structural Similarity,embryonic development (sensu Mammalia)
+,,Non-traceable Author Statement,metalloendopeptidase activity
+,,Non-traceable Author Statement,integrin binding
+,,Inferred from Sequence or Structural Similarity,nucleus
+,,Inferred from Sequence or Structural Similarity,cytoplasm
+,,Inferred from Direct Assay,Golgi apparatus
+"adenosine deaminase, RNA-specific",Human genome,Inferred from Electronic Annotation,DNA binding
+,,Inferred from Electronic Annotation,double-stranded RNA binding
+,,Non-traceable Author Statement,double-stranded RNA adenosine deaminase activity
+,,Inferred from Electronic Annotation,intracellular
+,,Traceable Author Statement,nucleus
+,,Traceable Author Statement,cytoplasm
+"adenosine deaminase, RNA-specific, B1 (RED1 homolog rat)",Human genome,Inferred from Electronic Annotation,double-stranded RNA binding
+,,Inferred from Electronic Annotation,adenosine deaminase activity
+,,Inferred from Electronic Annotation,intracellular
+,,Inferred from Electronic Annotation,mRNA processing
+,,Inferred from Electronic Annotation,zinc ion binding
+,,Inferred from Electronic Annotation,hydrolase activity
+"adenosine deaminase, RNA-specific, B2 (RED2 homolog rat)",Human genome,Inferred from Electronic Annotation,RNA binding
+,,Traceable Author Statement,double-stranded RNA binding
+,,Traceable Author Statement,single-stranded RNA binding
+,,Inferred from Electronic Annotation,adenosine deaminase activity
+,,Inferred from Electronic Annotation,intracellular
+,,Inferred from Electronic Annotation,nucleus
+adenosine deaminase complexing protein 1,Human genome,,
+adenylate cyclase 1 (brain),Human genome,Inferred from Electronic Annotation,magnesium ion binding
+,,Non-traceable Author Statement,calmodulin binding
+,,Non-traceable Author Statement,cAMP biosynthetic process
+,,Inferred from Electronic Annotation,intracellular signaling cascade
+,,Non-traceable Author Statement,calcium- and calmodulin-responsive adenylate cyclase activity
+,,Inferred from Electronic Annotation,membrane
+adenylate cyclase 2 (brain),Human genome,Inferred from Electronic Annotation,magnesium ion binding
+,,Non-traceable Author Statement,adenylate cyclase activity
+,,Non-traceable Author Statement,cAMP biosynthetic process
+,,Inferred from Electronic Annotation,intracellular signaling cascade
+,,Inferred from Electronic Annotation,membrane
+,,Non-traceable Author Statement,integral to membrane
+adenylate cyclase 3,Human genome,Inferred from Electronic Annotation,magnesium ion binding
+,,Traceable Author Statement,adenylate cyclase activity
+,,Inferred from Electronic Annotation,calmodulin binding
+,,Traceable Author Statement,plasma membrane
+,,Traceable Author Statement,integral to plasma membrane
+,,Inferred from Electronic Annotation,cAMP biosynthetic process
+adenylate cyclase 5,Human genome,Inferred from Electronic Annotation,magnesium ion binding
+,,Inferred from Electronic Annotation,adenosine receptor signaling pathway
+,,Inferred from Electronic Annotation,adenylate cyclase activity
+,,Inferred from Electronic Annotation,cAMP biosynthetic process
+,,Inferred from Electronic Annotation,"dopamine receptor, adenylate cyclase activating pathway"
+,,Inferred from Electronic Annotation,"dopamine receptor, adenylate cyclase inhibiting pathway"
+adenylate cyclase 6,Human genome,Inferred from Electronic Annotation,magnesium ion binding
+,,Inferred from Electronic Annotation,adenylate cyclase activity
+,,Inferred from Electronic Annotation,cAMP biosynthetic process
+,,Inferred from Electronic Annotation,intracellular signaling cascade
+,,Inferred from Electronic Annotation,membrane
+,,Inferred from Electronic Annotation,integral to membrane
+adenylate cyclase 7,Human genome,Inferred from Electronic Annotation,magnesium ion binding
+,,Inferred from Sequence or Structural Similarity,adenylate cyclase activity
+,,Traceable Author Statement,plasma membrane
+,,Traceable Author Statement,integral to plasma membrane
+,,Inferred from Sequence or Structural Similarity,cAMP biosynthetic process
+,,Inferred from Sequence or Structural Similarity,adenylate cyclase activation
+adenylate cyclase 8 (brain),Human genome,Inferred from Electronic Annotation,magnesium ion binding
+,,Inferred from Electronic Annotation,adenylate cyclase activity
+,,Traceable Author Statement,membrane fraction
+,,Traceable Author Statement,plasma membrane
+,,Inferred from Electronic Annotation,cAMP biosynthetic process
+,,Inferred from Electronic Annotation,intracellular signaling cascade
+adenylate cyclase 9,Human genome,Inferred from Electronic Annotation,magnesium ion binding
+,,Traceable Author Statement,adenylate cyclase activity
+,,Traceable Author Statement,integral to plasma membrane
+,,Inferred from Electronic Annotation,cAMP biosynthetic process
+,,Inferred from Electronic Annotation,intracellular signaling cascade
+,,Inferred from Electronic Annotation,membrane
+adenylate cyclase activating polypeptide 1 (pituitary),Human genome,Inferred from Electronic Annotation,hormone activity
+,,Traceable Author Statement,neuropeptide hormone activity
+,,Inferred from Electronic Annotation,extracellular region
+,,Traceable Author Statement,soluble fraction
+,,Traceable Author Statement,adenylate cyclase activation
+,,Traceable Author Statement,cell-cell signaling
+adenylate cyclase activating polypeptide 1 (pituitary) receptor type I,Human genome,Inferred from Electronic Annotation,receptor activity
+,,Inferred from Electronic Annotation,G-protein coupled receptor activity
+,,Inferred from Electronic Annotation,vasoactive intestinal polypeptide receptor activity
+,,Traceable Author Statement,plasma membrane
+,,Traceable Author Statement,integral to plasma membrane
+,,Inferred from Electronic Annotation,G-protein coupled receptor protein signaling pathway
+adducin 1 (alpha),Human genome,Traceable Author Statement,actin binding
+,,Not Recorded,structural constituent of cytoskeleton
+,,Inferred from Electronic Annotation,calmodulin binding
+,,Not Recorded,actin cytoskeleton
+,,Inferred from Electronic Annotation,membrane
+,,Inferred from Electronic Annotation,metal ion binding
+adducin 2 (beta),Human genome,Traceable Author Statement,actin binding
+,,Inferred from Electronic Annotation,structural molecule activity
+,,Inferred from Electronic Annotation,calmodulin binding
+,,Not Recorded,actin cytoskeleton
+,,Inferred from Electronic Annotation,membrane
+,,Inferred from Electronic Annotation,hemopoiesis
+adducin 3 (gamma),Human genome,Traceable Author Statement,structural constituent of cytoskeleton
+,,Inferred from Electronic Annotation,calmodulin binding
+,,Inferred from Electronic Annotation,cytoskeleton
+,,Traceable Author Statement,membrane
+,,Inferred from Electronic Annotation,metal ion binding
+albinism-deafness syndrome,Human genome,,
+adipose differentiation-related protein,Human genome,Traceable Author Statement,extracellular region
+,,Inferred from Electronic Annotation,nucleus
+,,Inferred from Electronic Annotation,cytoplasm
+,,Traceable Author Statement,endoplasmic reticulum
+,,Traceable Author Statement,lipid particle
+,,Inferred from Electronic Annotation,plasma membrane
+"alcohol dehydrogenase 1A (class I), alpha polypeptide",Human genome,Non-traceable Author Statement,"alcohol dehydrogenase activity, zinc-dependent"
+,,Non-traceable Author Statement,cytoplasm
+,,Non-traceable Author Statement,alcohol metabolic process
+,,Inferred from Electronic Annotation,zinc ion binding
+,,Inferred from Electronic Annotation,oxidoreductase activity
+,,Inferred from Electronic Annotation,metal ion binding
+"alcohol dehydrogenase IB (class I), beta polypeptide",Human genome,Traceable Author Statement,"alcohol dehydrogenase activity, zinc-dependent"
+,,Traceable Author Statement,ethanol oxidation
+,,Inferred from Direct Assay,zinc ion binding
+,,Traceable Author Statement,electron carrier activity
+,,Inferred from Electronic Annotation,metal ion binding
+"alcohol dehydrogenase 1C (class I), gamma polypeptide",Human genome,Non-traceable Author Statement,"alcohol dehydrogenase activity, zinc-dependent"
+,,Non-traceable Author Statement,cytoplasm
+,,Non-traceable Author Statement,alcohol metabolic process
+,,Inferred from Electronic Annotation,zinc ion binding
+,,Inferred from Electronic Annotation,oxidoreductase activity
+,,Inferred from Electronic Annotation,metal ion binding
+"alcohol dehydrogenase 4 (class II), pi polypeptide",Human genome,Traceable Author Statement,alcohol dehydrogenase activity
+,,Traceable Author Statement,electron-transferring-flavoprotein dehydrogenase activity
+,,Traceable Author Statement,alcohol metabolic process
+,,Not Recorded,ethanol oxidation
+,,Traceable Author Statement,aldehyde metabolic process
+,,Inferred from Electronic Annotation,zinc ion binding
+"alcohol dehydrogenase 5 (class III), chi polypeptide",Human genome,Inferred from Electronic Annotation,retinoid metabolic process
+,,Inferred from Electronic Annotation,alcohol dehydrogenase activity
+,,Traceable Author Statement,formaldehyde dehydrogenase (glutathione) activity
+,,Traceable Author Statement,fatty acid binding
+,,Traceable Author Statement,ethanol oxidation
+,,Inferred from Electronic Annotation,zinc ion binding
+"alcohol dehydrogenase 5 (class III), chi polypeptide, pseudogene 1",Human genome,,
+alcohol dehydrogenase 6 (class V),Human genome,Inferred from Electronic Annotation,alcohol dehydrogenase activity
+,,Traceable Author Statement,ethanol oxidation
+,,Inferred from Electronic Annotation,zinc ion binding
+,,Traceable Author Statement,electron carrier activity
+,,Inferred from Electronic Annotation,oxidoreductase activity
+,,Inferred from Electronic Annotation,metal ion binding
+"alcohol dehydrogenase 7 (class IV), mu or sigma polypeptide",Human genome,Inferred from Direct Assay,"alcohol dehydrogenase activity, zinc-dependent"
+,,Inferred from Direct Assay,retinol dehydrogenase activity
+,,Inferred from Direct Assay,ethanol oxidation
+,,Inferred from Direct Assay,electron transport
+,,Inferred from Electronic Annotation,zinc ion binding
+,,Inferred from Electronic Annotation,oxidoreductase activity
+adenosine kinase,Human genome,Inferred from Electronic Annotation,magnesium ion binding
+,,Traceable Author Statement,adenosine kinase activity
+,,Inferred from Electronic Annotation,nucleus
+,,Inferred from Electronic Annotation,purine ribonucleoside salvage
+,,Traceable Author Statement,ribonucleoside monophosphate biosynthetic process
+,,Inferred from Electronic Annotation,kinase activity
+adenosine A1 receptor,Human genome,Inferred from Electronic Annotation,rhodopsin-like receptor activity
+,,Inferred from Electronic Annotation,"A1 adenosine receptor activity, G-protein coupled"
+,,Inferred from Electronic Annotation,receptor activity
+,,Traceable Author Statement,integral to plasma membrane
+,,Traceable Author Statement,phagocytosis
+,,Traceable Author Statement,inflammatory response
+adenosine A2a receptor,Human genome,Inferred from Electronic Annotation,rhodopsin-like receptor activity
+,,Inferred from Electronic Annotation,"A2A adenosine receptor activity, G-protein coupled"
+,,Inferred from Electronic Annotation,"synaptic transmission, dopaminergic"
+,,Inferred from Electronic Annotation,adenosine receptor signaling pathway
+,,Inferred from Electronic Annotation,receptor activity
+,,Traceable Author Statement,membrane fraction
+adenosine A2b receptor,Human genome,Traceable Author Statement,activation of MAPK activity
+,,Inferred from Electronic Annotation,rhodopsin-like receptor activity
+,,Inferred from Electronic Annotation,"A2B adenosine receptor activity, G-protein coupled"
+,,Inferred from Electronic Annotation,receptor activity
+,,Traceable Author Statement,integral to plasma membrane
+,,Traceable Author Statement,cellular defense response
+adenosine A2b receptor pseudogene,Human genome,,
+adenosine A3 receptor,Human genome,Inferred from Electronic Annotation,rhodopsin-like receptor activity
+,,Inferred from Electronic Annotation,"A3 adenosine receptor activity, G-protein coupled"
+,,Inferred from Electronic Annotation,receptor activity
+,,Traceable Author Statement,integral to plasma membrane
+,,Traceable Author Statement,inflammatory response
+,,Traceable Author Statement,signal transduction
+ADP-ribosylarginine hydrolase,Human genome,Inferred from Electronic Annotation,magnesium ion binding
+,,Traceable Author Statement,ADP-ribosylarginine hydrolase activity
+,,Inferred from Electronic Annotation,protein amino acid ADP-ribosylation
+,,Inferred from Electronic Annotation,hydrolase activity
+"poly (ADP-ribose) polymerase family, member 1",Human genome,Inferred from Electronic Annotation,telomere maintenance
+,,Traceable Author Statement,DNA binding
+,,Traceable Author Statement,NAD+ ADP-ribosyltransferase activity
+,,Inferred from Electronic Annotation,intracellular
+,,Traceable Author Statement,nucleus
+,,Inferred from Direct Assay,nuclear envelope
+"poly (ADP-ribose) polymerase family, member 4",Human genome,Traceable Author Statement,DNA binding
+,,Non-traceable Author Statement,NAD+ ADP-ribosyltransferase activity
+,,Inferred from Electronic Annotation,intracellular
+,,Non-traceable Author Statement,nucleus
+,,Non-traceable Author Statement,DNA repair
+,,Non-traceable Author Statement,protein amino acid ADP-ribosylation
+"poly (ADP-ribose) polymerase family, member 1 pseudogene 1",Human genome,,
+"poly (ADP-ribose) polymerase family, member 1 pseudogene 2",Human genome,,
+"adrenergic, alpha-1D-, receptor",Human genome,Inferred from Electronic Annotation,rhodopsin-like receptor activity
+,,Inferred from Electronic Annotation,receptor activity
+,,Inferred from Electronic Annotation,adrenoceptor activity
+,,Traceable Author Statement,alpha1-adrenergic receptor activity
+,,Traceable Author Statement,integral to plasma membrane
+,,Traceable Author Statement,DNA metabolic process
+"adrenergic, alpha-1B-, receptor",Human genome,Inferred from Electronic Annotation,integral to membrane of membrane fraction
+,,Inferred from Electronic Annotation,rhodopsin-like receptor activity
+,,Inferred from Electronic Annotation,blood vessel remodeling
+,,Inferred from Electronic Annotation,response to amphetamine
+,,Inferred from Electronic Annotation,vasoconstriction of artery during baroreceptor response to lowering of blood pressure
+,,Inferred from Electronic Annotation,positive regulation of heart contraction rate by epinephrine-norepinephrine
+"adrenergic, alpha-1A-, receptor",Human genome,Inferred from Electronic Annotation,rhodopsin-like receptor activity
+,,Inferred from Electronic Annotation,receptor activity
+,,Inferred from Electronic Annotation,adrenoceptor activity
+,,Non-traceable Author Statement,alpha1-adrenergic receptor activity
+,,Traceable Author Statement,integral to plasma membrane
+,,Traceable Author Statement,apoptosis
+"adrenergic, alpha-2A-, receptor",Human genome,Traceable Author Statement,activation of MAPK activity
+,,Inferred from Electronic Annotation,rhodopsin-like receptor activity
+,,Inferred from Electronic Annotation,receptor activity
+,,Inferred from Electronic Annotation,adrenoceptor activity
+,,Traceable Author Statement,alpha2-adrenergic receptor activity
+,,Inferred from Electronic Annotation,protein binding
+"adrenergic, alpha-2B-, receptor",Human genome,Inferred from Electronic Annotation,rhodopsin-like receptor activity
+,,Inferred from Electronic Annotation,receptor activity
+,,Inferred from Electronic Annotation,adrenoceptor activity
+,,Traceable Author Statement,alpha2-adrenergic receptor activity
+,,Traceable Author Statement,plasma membrane
+,,Traceable Author Statement,integral to plasma membrane
+"adrenergic, alpha-2C-, receptor",Human genome,Traceable Author Statement,activation of MAPK activity
+,,Inferred from Electronic Annotation,rhodopsin-like receptor activity
+,,Inferred from Electronic Annotation,receptor activity
+,,Inferred from Electronic Annotation,adrenoceptor activity
+,,Inferred from Electronic Annotation,alpha2-adrenergic receptor activity
+,,Traceable Author Statement,endosome
+"adrenergic, beta-1-, receptor",Human genome,Inferred from Electronic Annotation,rhodopsin-like receptor activity
+,,Inferred from Electronic Annotation,positive regulation of heart contraction rate by epinephrine-norepinephrine
+,,Inferred from Electronic Annotation,increased strength of heart contraction by epinephrine-norepinephrine
+,,Inferred from Electronic Annotation,diet induced thermogenesis
+,,Inferred from Electronic Annotation,norepinephrine-epinephrine vasodilation during regulation of blood pressure
+,,Inferred from Electronic Annotation,receptor activity
+"adrenergic, beta-2-, receptor, surface",Human genome,Traceable Author Statement,activation of MAPK activity
+,,Inferred from Electronic Annotation,rhodopsin-like receptor activity
+,,Inferred from Electronic Annotation,diet induced thermogenesis
+,,Inferred from Electronic Annotation,norepinephrine-epinephrine vasodilation during regulation of blood pressure
+,,Inferred from Electronic Annotation,regulation of sodium ion transport
+,,Inferred from Direct Assay,arrestin mediated desensitization of G-protein coupled receptor protein signaling pathway
+"adrenergic, beta-3-, receptor",Human genome,Inferred from Electronic Annotation,rhodopsin-like receptor activity
+,,Inferred from Electronic Annotation,diet induced thermogenesis
+,,Inferred from Electronic Annotation,norepinephrine-epinephrine vasodilation during regulation of blood pressure
+,,Inferred from Direct Assay,arrestin mediated desensitization of G-protein coupled receptor protein signaling pathway
+,,Inferred from Electronic Annotation,receptor activity
+,,Inferred from Electronic Annotation,membrane fraction
+"adrenergic, beta, receptor kinase 1",Human genome,Inferred from Electronic Annotation,nucleotide binding
+,,Inferred from Electronic Annotation,cardiac inotropy
+,,Inferred from Electronic Annotation,desensitization of G-protein coupled receptor protein signaling pathway
+,,Inferred from Electronic Annotation,protein serine/threonine kinase activity
+,,Inferred from Electronic Annotation,G-protein coupled receptor kinase activity
+,,Inferred from Electronic Annotation,signal transducer activity
+"adrenergic, beta, receptor kinase 2",Human genome,Inferred from Electronic Annotation,nucleotide binding
+,,Inferred from Electronic Annotation,G-protein coupled receptor kinase activity
+,,Inferred from Electronic Annotation,signal transducer activity
+,,Inferred from Electronic Annotation,ATP binding
+,,Inferred from Electronic Annotation,protein amino acid phosphorylation
+,,Inferred from Electronic Annotation,signal transduction
+adenylosuccinate lyase,Human genome,Traceable Author Statement,adenylosuccinate lyase activity
+,,Inferred from Direct Assay,cytoplasm
+,,Inferred from Electronic Annotation,purine ribonucleotide biosynthetic process
+,,Inferred from Electronic Annotation,lyase activity
+adenylosuccinate synthase,Human genome,Inferred from Electronic Annotation,nucleotide binding
+,,Inferred from Electronic Annotation,magnesium ion binding
+,,Inferred from Electronic Annotation,adenylosuccinate synthase activity
+,,Inferred from Electronic Annotation,GTP binding
+,,Inferred from Electronic Annotation,purine nucleotide biosynthetic process
+,,Traceable Author Statement,AMP biosynthetic process
+"adaptor-related protein complex 2, alpha 1 subunit",Human genome,Inferred from Electronic Annotation,structural molecule activity
+,,Inferred from Electronic Annotation,protein binding
+,,Inferred from Electronic Annotation,coated pit
+,,Inferred from Electronic Annotation,protein complex assembly
+,,Non-traceable Author Statement,intracellular protein transport
+,,Non-traceable Author Statement,Golgi to endosome transport
+"adaptor-related protein complex 2, alpha 2 subunit",Human genome,Inferred from Electronic Annotation,structural molecule activity
+,,Inferred from Electronic Annotation,binding
+,,Inferred from Electronic Annotation,coated pit
+,,Inferred from Electronic Annotation,protein complex assembly
+,,Non-traceable Author Statement,intracellular protein transport
+,,Inferred from Electronic Annotation,endocytosis
+"adaptor-related protein complex 1, beta 1 subunit",Human genome,Traceable Author Statement,transporter activity
+,,Inferred from Electronic Annotation,binding
+,,Inferred from Physical Interaction,protein binding
+,,Inferred from Electronic Annotation,coated pit
+,,Inferred from Electronic Annotation,protein complex assembly
+,,Inferred from Electronic Annotation,intracellular protein transport
+"adaptor-related protein complex 2, beta 1 subunit",Human genome,Inferred from Electronic Annotation,binding
+,,Inferred from Physical Interaction,protein binding
+,,Inferred from Electronic Annotation,coated pit
+,,Inferred from Electronic Annotation,protein complex assembly
+,,Inferred from Electronic Annotation,intracellular protein transport
+,,Inferred from Electronic Annotation,clathrin coat of trans-Golgi network vesicle
+"adaptor-related protein complex 1, gamma 1 subunit",Human genome,Traceable Author Statement,transporter activity
+,,Inferred from Electronic Annotation,binding
+,,Inferred from Electronic Annotation,protein binding
+,,Traceable Author Statement,cytoplasm
+,,Inferred from Direct Assay,Golgi apparatus
+,,Inferred from Electronic Annotation,coated pit
+AE binding protein 1,Human genome,Traceable Author Statement,skeletal development
+,,Traceable Author Statement,transcription factor activity
+,,Traceable Author Statement,carboxypeptidase activity
+,,Inferred from Electronic Annotation,carboxypeptidase A activity
+,,Not Recorded,cytoplasm
+,,Inferred from Electronic Annotation,proteolysis
+amino-terminal enhancer of split,Human genome,Inferred from Physical Interaction,protein binding
+,,Inferred from Electronic Annotation,nucleus
+,,Inferred from Electronic Annotation,transcription
+,,Inferred from Electronic Annotation,"regulation of transcription, DNA-dependent"
+,,Traceable Author Statement,multicellular organismal development
+,,Traceable Author Statement,organ morphogenesis
+cysteine-rich secretory protein 1,Human genome,Inferred from Electronic Annotation,extracellular region
+,,Traceable Author Statement,extracellular space
+,,Not Recorded,spermatogenesis
+,,Traceable Author Statement,fusion of sperm to egg plasma membrane
+AF8 temperature sensitivity complementing,Human genome,,
+ankyloblepharon filiforme adnatum,Human genome,,
+"acrofacial dysostosis 1, Nager type",Human genome,,
+AFG3 ATPase family gene 3-like 1 (S. cerevisiae),Human genome,Inferred from Electronic Annotation,nucleotide binding
+,,Inferred from Electronic Annotation,metalloendopeptidase activity
+,,Inferred from Electronic Annotation,ATP binding
+,,Non-traceable Author Statement,mitochondrion
+,,Inferred from Electronic Annotation,proteolysis
+,,No biological Data available,Biological Process
+afamin,Human genome,Inferred from Electronic Annotation,carrier activity
+,,Traceable Author Statement,extracellular region
+,,Inferred from Electronic Annotation,extracellular space
+,,Inferred from Electronic Annotation,transport
+aggrecan,Human genome,Non-traceable Author Statement,skeletal development
+,,Inferred from Electronic Annotation,cartilage condensation
+,,Inferred from Electronic Annotation,protein binding
+,,Inferred from Electronic Annotation,sugar binding
+,,Inferred from Sequence or Structural Similarity,hyaluronic acid binding
+,,No biological Data available,cellular_component
+advanced glycosylation end product-specific receptor,Human genome,Inferred from Electronic Annotation,receptor activity
+,,Traceable Author Statement,transmembrane receptor activity
+,,Inferred from Electronic Annotation,protein binding
+,,Non-traceable Author Statement,plasma membrane
+,,Traceable Author Statement,integral to plasma membrane
+,,Traceable Author Statement,inflammatory response
+"amylo-1, 6-glucosidase, 4-alpha-glucanotransferase (glycogen debranching enzyme, glycogen storage disease type III)",Human genome,Inferred from Electronic Annotation,4-alpha-glucanotransferase activity
+,,Inferred from Electronic Annotation,"amylo-alpha-1,6-glucosidase activity"
+,,Inferred from Electronic Annotation,carbohydrate metabolic process
+,,Inferred from Electronic Annotation,glycogen biosynthetic process
+,,Inferred from Electronic Annotation,metabolic process
+,,Inferred from Electronic Annotation,transferase activity
+"agammaglobulinemia, X-linked 2 (with growth hormone deficiency)",Human genome,,
+agouti related protein homolog (mouse),Human genome,Traceable Author Statement,receptor binding
+,,Traceable Author Statement,neuropeptide hormone activity
+,,Inferred from Electronic Annotation,extracellular region
+,,Traceable Author Statement,neuropeptide signaling pathway
+,,Traceable Author Statement,feeding behavior
+,,Inferred from Electronic Annotation,hormone-mediated signaling
+jagged 1 (Alagille syndrome),Human genome,Non-traceable Author Statement,angiogenesis
+,,Non-traceable Author Statement,cell fate determination
+,,Inferred from Electronic Annotation,morphogenesis of an epithelial sheet
+,,Non-traceable Author Statement,Notch binding
+,,Non-traceable Author Statement,structural molecule activity
+,,Inferred from Electronic Annotation,calcium ion binding
+"angiotensinogen (serpin peptidase inhibitor, clade A, member 8)",Human genome,Inferred from Electronic Annotation,ovarian follicle rupture
+,,Inferred from Electronic Annotation,blood vessel development
+,,Inferred from Electronic Annotation,ureteric bud branching
+,,Inferred from Electronic Annotation,kidney development
+,,Inferred from Electronic Annotation,angiotensin mediated vasoconstriction during regulation of blood pressure
+,,Inferred from Electronic Annotation,renal response to blood flow during renin-angiotensin regulation of blood pressure
+"angiotensin II receptor, type 1",Human genome,Inferred from Electronic Annotation,rhodopsin-like receptor activity
+,,Inferred from Electronic Annotation,receptor activity
+,,Inferred from Electronic Annotation,angiotensin type II receptor activity
+,,Inferred from Electronic Annotation,bradykinin receptor activity
+,,Traceable Author Statement,plasma membrane
+,,Traceable Author Statement,integral to plasma membrane
+"angiotensin II receptor, type 2",Human genome,Inferred from Electronic Annotation,rhodopsin-like receptor activity
+,,Inferred from Electronic Annotation,angiotensin mediated vasodilation during regulation of blood pressure
+,,Inferred from Electronic Annotation,brain renin-angiotensin system
+,,Traceable Author Statement,protein kinase inhibitor activity
+,,Inferred from Electronic Annotation,receptor activity
+,,Traceable Author Statement,angiotensin type II receptor activity
+angiotensin II receptor-like 1,Human genome,Inferred from Electronic Annotation,rhodopsin-like receptor activity
+,,Inferred from Electronic Annotation,receptor activity
+,,Traceable Author Statement,plasma membrane
+,,Traceable Author Statement,integral to plasma membrane
+,,Inferred from Electronic Annotation,signal transduction
+,,Inferred from Electronic Annotation,G-protein coupled receptor protein signaling pathway
+alanine-glyoxylate aminotransferase (oxalosis I; hyperoxaluria I; glycolicaciduria; serine-pyruvate aminotransferase),Human genome,Inferred from Electronic Annotation,serine-pyruvate transaminase activity
+,,Inferred from Physical Interaction,protein binding
+,,Inferred from Electronic Annotation,mitochondrion
+,,Inferred from Direct Assay,peroxisome
+,,Inferred from Mutant Phenotype,protein targeting to peroxisome
+,,Inferred from Electronic Annotation,metabolic process
+"nuclear receptor subfamily 0, group B, member 1",Human genome,Inferred from Electronic Annotation,transcription factor activity
+,,Inferred from Direct Assay,ligand-regulated transcription factor activity
+,,Inferred from Electronic Annotation,steroid hormone receptor activity
+,,Inferred from Direct Assay,RNA binding
+,,Inferred from Physical Interaction,protein binding
+,,Inferred from Direct Assay,membrane fraction
+S-adenosylhomocysteine hydrolase,Human genome,Traceable Author Statement,adenosylhomocysteinase activity
+,,Non-traceable Author Statement,cytoplasm
+,,Non-traceable Author Statement,one-carbon compound metabolic process
+,,Inferred from Electronic Annotation,hydrolase activity
+alpha-2-HS-glycoprotein,Human genome,Inferred from Electronic Annotation,ossification
+,,Inferred from Electronic Annotation,cysteine protease inhibitor activity
+,,Non-traceable Author Statement,extracellular region
+,,Non-traceable Author Statement,extracellular space
+,,Non-traceable Author Statement,pinocytosis
+,,Inferred from Direct Assay,acute-phase response
+"Aland island eye disease (Forsius-Eriksson ocular albinism, ocular albinism type 2)",Human genome,,
+allograft inflammatory factor 1,Human genome,No biological Data available,molecular_function
+,,Inferred from Electronic Annotation,calcium ion binding
+,,No biological Data available,cellular_component
+,,Traceable Author Statement,nucleus
+,,Traceable Author Statement,response to stress
+,,Traceable Author Statement,inflammatory response
+"amelogenesis imperfecta 3, hypomaturation or hypoplastic type",Human genome,,
+absent in melanoma 1,Human genome,No biological Data available,molecular_function
+,,Inferred from Electronic Annotation,sugar binding
+,,No biological Data available,cellular_component
+,,No biological Data available,Biological Process
+adenylate kinase 1,Human genome,Inferred from Electronic Annotation,nucleotide binding
+,,Inferred from Electronic Annotation,adenylate kinase activity
+,,Inferred from Electronic Annotation,ATP binding
+,,Inferred from Electronic Annotation,cytoplasm
+,,Not Recorded,cytosol
+,,Inferred from Electronic Annotation,"nucleobase, nucleoside, nucleotide and nucleic acid metabolic process"
+adenylate kinase 2,Human genome,Inferred from Electronic Annotation,nucleotide binding
+,,Traceable Author Statement,adenylate kinase activity
+,,Inferred from Electronic Annotation,ATP binding
+,,Inferred from Electronic Annotation,mitochondrion
+,,Inferred from Electronic Annotation,mitochondrial inner membrane
+,,Inferred from Electronic Annotation,"nucleobase, nucleoside, nucleotide and nucleic acid metabolic process"
+adenylate kinase 3-like 1,Human genome,Inferred from Electronic Annotation,nucleotide binding
+,,Inferred from Electronic Annotation,adenylate kinase activity
+,,Inferred from Electronic Annotation,ATP binding
+,,Inferred from Electronic Annotation,GTP binding
+,,Inferred from Electronic Annotation,mitochondrion
+,,Inferred from Electronic Annotation,"nucleobase, nucleoside, nucleotide and nucleic acid metabolic process"
+adenylate kinase 3 pseudogene 1,Human genome,,
+v-akt murine thymoma viral oncogene homolog 1,Human genome,Inferred from Mutant Phenotype,"protein import into nucleus, translocation"
+,,Inferred from Electronic Annotation,nucleotide binding
+,,Inferred from Electronic Annotation,protein kinase activity
+,,Inferred from Direct Assay,protein serine/threonine kinase activity
+,,Inferred from Electronic Annotation,sugar porter activity
+,,Inferred by Curator,ATP binding
+v-akt murine thymoma viral oncogene homolog 2,Human genome,Inferred from Electronic Annotation,nucleotide binding
+,,Inferred from Electronic Annotation,protein serine/threonine kinase activity
+,,Inferred from Physical Interaction,protein binding
+,,Inferred from Electronic Annotation,ATP binding
+,,Inferred from Electronic Annotation,protein amino acid phosphorylation
+,,Inferred from Electronic Annotation,transferase activity
+"aminolevulinate, delta-, dehydratase",Human genome,Inferred from Electronic Annotation,porphobilinogen synthase activity
+,,Inferred from Electronic Annotation,heme biosynthetic process
+,,Inferred from Electronic Annotation,metabolic process
+,,Inferred from Electronic Annotation,zinc ion binding
+,,Inferred from Electronic Annotation,lyase activity
+,,Inferred from Electronic Annotation,metal ion binding
+"aminolevulinate, delta-, synthase 1",Human genome,Inferred from Electronic Annotation,5-aminolevulinate synthase activity
+,,Inferred from Electronic Annotation,mitochondrion
+,,Traceable Author Statement,heme biosynthetic process
+,,Inferred from Electronic Annotation,acyltransferase activity
+,,Inferred from Electronic Annotation,biosynthetic process
+,,Inferred from Electronic Annotation,"transferase activity, transferring nitrogenous groups"
+"aminolevulinate, delta-, synthase 2 (sideroblastic/hypochromic anemia)",Human genome,Inferred from Direct Assay,response to hypoxia
+,,Inferred from Direct Assay,5-aminolevulinate synthase activity
+,,Inferred from Physical Interaction,protein binding
+,,Inferred from Direct Assay,mitochondrion
+,,Inferred from Direct Assay,mitochondrial inner membrane
+,,Inferred from Electronic Annotation,endoplasmic reticulum
+activated leukocyte cell adhesion molecule,Human genome,Traceable Author Statement,receptor binding
+,,Not Recorded,membrane fraction
+,,Not Recorded,integral to plasma membrane
+,,Traceable Author Statement,cell adhesion
+,,Traceable Author Statement,signal transduction
+,,Inferred from Electronic Annotation,membrane
+"ATP-binding cassette, sub-family D (ALD), member 1",Human genome,Inferred from Electronic Annotation,nucleotide binding
+,,Non-traceable Author Statement,transporter activity
+,,Inferred from Electronic Annotation,ATP binding
+,,Inferred from Electronic Annotation,peroxisome
+,,Non-traceable Author Statement,integral to peroxisomal membrane
+,,Inferred from Electronic Annotation,transport
+"aldehyde dehydrogenase 1 family, member A1",Human genome,Inferred from Electronic Annotation,retinal dehydrogenase activity
+,,Traceable Author Statement,aldehyde dehydrogenase (NAD) activity
+,,Traceable Author Statement,Ras GTPase activator activity
+,,Traceable Author Statement,androgen binding
+,,Traceable Author Statement,cytoplasm
+,,Traceable Author Statement,aldehyde metabolic process
+aldehyde dehydrogenase 2 family (mitochondrial),Human genome,Traceable Author Statement,aldehyde dehydrogenase (NAD) activity
+,,Traceable Author Statement,aldehyde dehydrogenase [NAD(P)+] activity
+,,Inferred from Electronic Annotation,mitochondrion
+,,Traceable Author Statement,carbohydrate metabolic process
+,,Traceable Author Statement,alcohol metabolic process
+,,Inferred from Electronic Annotation,metabolic process
+"aldehyde dehydrogenase 3 family, memberA1",Human genome,Inferred from Direct Assay,aldehyde dehydrogenase (NAD) activity
+,,Inferred from Electronic Annotation,aldehyde dehydrogenase [NAD(P)+] activity
+,,Inferred from Direct Assay,endoplasmic reticulum
+,,Inferred from Sequence or Structural Similarity,cytosol
+,,Inferred from Direct Assay,aldehyde metabolic process
+,,Inferred from Direct Assay,electron transport
+"aldehyde dehydrogenase 1 family, member B1",Human genome,Not Recorded,3-chloroallyl aldehyde dehydrogenase activity
+,,Inferred from Electronic Annotation,aldehyde dehydrogenase (NAD) activity
+,,Inferred from Electronic Annotation,mitochondrion
+,,Non-traceable Author Statement,carbohydrate metabolic process
+,,Inferred from Electronic Annotation,metabolic process
+,,Inferred from Electronic Annotation,oxidoreductase activity
+"aldehyde dehydrogenase 1 family, member A3",Human genome,Inferred from Electronic Annotation,optic cup morphogenesis (sensu Mammalia)
+,,Traceable Author Statement,3-chloroallyl aldehyde dehydrogenase activity
+,,Inferred from Electronic Annotation,aldehyde dehydrogenase [NAD(P)+] activity
+,,Traceable Author Statement,alcohol metabolic process
+,,Traceable Author Statement,lipid metabolic process
+,,Inferred from Electronic Annotation,metabolic process
+"aldehyde dehydrogenase 3 family, member B1",Human genome,Traceable Author Statement,3-chloroallyl aldehyde dehydrogenase activity
+,,Inferred from Electronic Annotation,aldehyde dehydrogenase [NAD(P)+] activity
+,,Traceable Author Statement,alcohol metabolic process
+,,Inferred from Electronic Annotation,aldehyde metabolic process
+,,Traceable Author Statement,lipid metabolic process
+,,Inferred from Electronic Annotation,metabolic process
+"aldehyde dehydrogenase 3 family, member B2",Human genome,Traceable Author Statement,3-chloroallyl aldehyde dehydrogenase activity
+,,Inferred from Electronic Annotation,aldehyde dehydrogenase [NAD(P)+] activity
+,,Traceable Author Statement,alcohol metabolic process
+,,Inferred from Electronic Annotation,aldehyde metabolic process
+,,Traceable Author Statement,lipid metabolic process
+,,Inferred from Electronic Annotation,metabolic process
+"aldehyde dehydrogenase 9 family, member A1",Human genome,Inferred from Direct Assay,aldehyde dehydrogenase (NAD) activity
+,,Traceable Author Statement,cytoplasm
+,,Inferred from Electronic Annotation,cytosol
+,,Inferred from Direct Assay,aldehyde metabolic process
+,,Inferred from Direct Assay,electron transport
+,,Inferred from Electronic Annotation,metabolic process
+"aldehyde dehydrogenase 3 family, member A2",Human genome,Traceable Author Statement,3-chloroallyl aldehyde dehydrogenase activity
+,,Inferred from Electronic Annotation,aldehyde dehydrogenase (NAD) activity
+,,Inferred from Electronic Annotation,aldehyde dehydrogenase [NAD(P)+] activity
+,,Inferred from Electronic Annotation,endoplasmic reticulum
+,,Inferred from Electronic Annotation,microsome
+,,Inferred from Electronic Annotation,aldehyde metabolic process
+"ATP-binding cassette, sub-family D (ALD), member 2",Human genome,Inferred from Electronic Annotation,nucleotide binding
+,,Inferred from Physical Interaction,protein binding
+,,Traceable Author Statement,ATP binding
+,,Traceable Author Statement,peroxisome
+,,Traceable Author Statement,integral to plasma membrane
+,,Traceable Author Statement,fatty acid metabolic process
+"aldolase A, fructose-bisphosphate",Human genome,Traceable Author Statement,fructose-bisphosphate aldolase activity
+,,Traceable Author Statement,fructose metabolic process
+,,Traceable Author Statement,glycolysis
+,,Traceable Author Statement,striated muscle contraction
+,,Inferred from Electronic Annotation,metabolic process
+,,Inferred from Electronic Annotation,lyase activity
+"aldolase A, fructose-bisphosphate pseudogene 2",Human genome,,
+"aldolase B, fructose-bisphosphate",Human genome,Traceable Author Statement,fructose-bisphosphate aldolase activity
+,,Traceable Author Statement,cytoplasm
+,,Traceable Author Statement,fructose metabolic process
+,,Traceable Author Statement,glycolysis
+,,Inferred from Electronic Annotation,metabolic process
+,,Inferred from Electronic Annotation,lyase activity
+"aldolase C, fructose-bisphosphate",Human genome,Traceable Author Statement,fructose-bisphosphate aldolase activity
+,,Inferred from Electronic Annotation,protein binding
+,,Inferred from Electronic Annotation,mitochondrion
+,,Traceable Author Statement,fructose metabolic process
+,,Inferred from Electronic Annotation,glycolysis
+,,Inferred from Electronic Annotation,metabolic process
+"aldo-keto reductase family 1, member B1 (aldose reductase)",Human genome,Traceable Author Statement,aldehyde reductase activity
+,,Traceable Author Statement,extracellular space
+,,Traceable Author Statement,carbohydrate metabolic process
+,,Traceable Author Statement,response to stress
+,,Traceable Author Statement,electron carrier activity
+,,Inferred from Electronic Annotation,oxidoreductase activity
+aldehyde reductase (aldose reductase)-like 1,Human genome,,
+aldehyde reductase (aldose reductase)-like 2,Human genome,,
+aldehyde reductase (aldose reductase)-like 3,Human genome,,
+aldehyde reductase (aldose reductase)-like 4,Human genome,,
+aldehyde reductase (aldose reductase) pseudogene,Human genome,,
+anaplastic lymphoma kinase (Ki-1),Human genome,Inferred from Electronic Annotation,nucleotide binding
+,,Inferred from Direct Assay,transmembrane receptor protein tyrosine kinase activity
+,,Traceable Author Statement,receptor signaling protein tyrosine kinase activity
+,,Inferred from Electronic Annotation,receptor activity
+,,Inferred from Electronic Annotation,protein binding
+,,Inferred from Electronic Annotation,ATP binding
+arachidonate 12-lipoxygenase,Human genome,Inferred from Direct Assay,arachidonate 12-lipoxygenase activity
+,,Inferred from Electronic Annotation,iron ion binding
+,,Inferred from Direct Assay,cytosol
+,,Inferred from Electronic Annotation,electron transport
+,,Non-traceable Author Statement,oxygen and reactive oxygen species metabolic process
+,,Inferred from Mutant Phenotype,anti-apoptosis
+arachidonate 5-lipoxygenase,Human genome,Traceable Author Statement,arachidonate 5-lipoxygenase activity
+,,Inferred from Electronic Annotation,iron ion binding
+,,Inferred from Electronic Annotation,calcium ion binding
+,,Inferred from Physical Interaction,protein binding
+,,Inferred from Electronic Annotation,nucleus
+,,Inferred from Electronic Annotation,cytoplasm
+arachidonate 5-lipoxygenase-activating protein,Human genome,Traceable Author Statement,binding
+,,Not Recorded,membrane fraction
+,,Traceable Author Statement,inflammatory response
+,,Traceable Author Statement,enzyme activator activity
+,,Inferred from Electronic Annotation,membrane
+,,Inferred from Electronic Annotation,integral to membrane
+"arachidonate 12-lipoxygenase, 12R type",Human genome,Traceable Author Statement,arachidonate 12-lipoxygenase activity
+,,Inferred from Electronic Annotation,iron ion binding
+,,Inferred from Electronic Annotation,electron transport
+,,Traceable Author Statement,lipid metabolic process
+,,Traceable Author Statement,epidermis development
+,,Inferred from Electronic Annotation,lipoxygenase activity
+arachidonate 12-lipoxygenase pseudogene 1,Human genome,,
+arachidonate 12-lipoxygenase pseudogene 2,Human genome,Inferred from Electronic Annotation,iron ion binding
+,,Inferred from Electronic Annotation,electron transport
+,,Inferred from Electronic Annotation,leukotriene metabolic process
+,,Inferred from Electronic Annotation,lipoxygenase activity
+arachidonate 15-lipoxygenase,Human genome,Inferred from Electronic Annotation,iron ion binding
+,,Not Recorded,plasma membrane
+,,Inferred from Electronic Annotation,electron transport
+,,Non-traceable Author Statement,lipid metabolic process
+,,Inferred from Electronic Annotation,leukotriene metabolic process
+,,Traceable Author Statement,inflammatory response
+"arachidonate 15-lipoxygenase, type B",Human genome,Inferred from Electronic Annotation,iron ion binding
+,,Inferred from Direct Assay,intracellular
+,,Inferred from Electronic Annotation,electron transport
+,,Inferred from Sequence or Structural Similarity,lipid metabolic process
+,,Inferred from Sequence or Structural Similarity,fatty acid metabolic process
+,,Inferred from Sequence or Structural Similarity,induction of apoptosis
+"alkaline phosphatase, intestinal",Human genome,Inferred from Electronic Annotation,magnesium ion binding
+,,Non-traceable Author Statement,alkaline phosphatase activity
+,,Inferred from Electronic Annotation,metabolic process
+,,Inferred from Electronic Annotation,zinc ion binding
+,,Non-traceable Author Statement,membrane
+,,Inferred from Electronic Annotation,integral to membrane
+"alkaline phosphatase, liver/bone/kidney",Human genome,Inferred from Electronic Annotation,magnesium ion binding
+,,Inferred from Electronic Annotation,ossification
+,,Inferred from Electronic Annotation,alkaline phosphatase activity
+,,Inferred from Electronic Annotation,metabolic process
+,,Inferred from Electronic Annotation,zinc ion binding
+,,Inferred from Electronic Annotation,membrane
+"alkaline phosphatase, placental (Regan isozyme)",Human genome,Inferred from Electronic Annotation,magnesium ion binding
+,,Non-traceable Author Statement,alkaline phosphatase activity
+,,Inferred from Electronic Annotation,metabolic process
+,,Inferred from Electronic Annotation,zinc ion binding
+,,Inferred from Expression Pattern,cell surface
+,,Inferred from Electronic Annotation,membrane
+"alkaline phosphatase, placental-like 2",Human genome,Inferred from Electronic Annotation,magnesium ion binding
+,,Non-traceable Author Statement,alkaline phosphatase activity
+,,Inferred from Electronic Annotation,metabolic process
+,,Inferred from Electronic Annotation,zinc ion binding
+,,Non-traceable Author Statement,membrane
+,,Non-traceable Author Statement,phosphorylation
+amyotrophic lateral sclerosis 3 (autosomal dominant),Human genome,,
+amyotrophic lateral sclerosis 5,Human genome,,
+aristaless-like homeobox 3,Human genome,Inferred from Electronic Annotation,transcription factor activity
+,,Inferred from Electronic Annotation,nucleus
+,,Inferred from Electronic Annotation,"regulation of transcription, DNA-dependent"
+,,Inferred from Electronic Annotation,multicellular organismal development
+,,Inferred from Electronic Annotation,sequence-specific DNA binding
+ameloblastin (enamel matrix protein),Human genome,Non-traceable Author Statement,proteinaceous extracellular matrix
+,,Non-traceable Author Statement,bone mineralization
+,,Inferred from Electronic Annotation,structural constituent of tooth enamel
+,,Inferred from Electronic Annotation,odontogenesis (sensu Vertebrata)
+alpha-1-microglobulin/bikunin precursor,Human genome,Inferred from Electronic Annotation,transporter activity
+,,Non-traceable Author Statement,extracellular region
+,,Inferred from Direct Assay,plasma membrane
+,,Inferred from Electronic Annotation,transport
+,,Non-traceable Author Statement,cell adhesion
+,,Non-traceable Author Statement,pregnancy
+"arthrogryposis multiplex congenita, neurogenic",Human genome,,
+adenosylmethionine decarboxylase 1,Human genome,Inferred from Electronic Annotation,adenosylmethionine decarboxylase activity
+,,No biological Data available,cellular_component
+,,Inferred from Electronic Annotation,spermine biosynthetic process
+,,Inferred from Electronic Annotation,spermidine biosynthetic process
+,,Inferred from Electronic Annotation,lyase activity
+S-adenosylmethionine decarboxylase pseudogene 1,Human genome,,
+"amelogenin (amelogenesis imperfecta 1, X-linked)",Human genome,Non-traceable Author Statement,proteinaceous extracellular matrix
+,,Inferred from Electronic Annotation,multicellular organismal development
+,,Non-traceable Author Statement,bone mineralization
+,,Non-traceable Author Statement,structural constituent of tooth enamel
+,,Non-traceable Author Statement,odontogenesis
+"amelogenin, Y-linked",Human genome,Inferred from Electronic Annotation,ossification
+,,Inferred from Electronic Annotation,proteinaceous extracellular matrix
+,,Inferred from Electronic Annotation,multicellular organismal development
+autocrine motility factor receptor,Human genome,Inferred from Direct Assay,ubiquitin-protein ligase activity

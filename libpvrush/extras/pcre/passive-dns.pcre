@@ -1,0 +1,37 @@
+<format name="passive dns dump">
+
+<revision>1</revision>
+
+<regex>(.*):(.*):(.*):.*:(.*)\..*</regex>
+
+<axes>
+
+<axis>
+<name>Match</name>
+<type>enum</type>
+<mapping>default</mapping>
+<plotting>default</plotting>
+</axis>
+
+<axis>
+<name>Domain</name>
+<type>enum</type>
+<mapping>default</mapping>
+<plotting>default</plotting>
+</axis>
+
+<axis>
+<name>First part</name>
+<type>enum</type>
+<mapping>default</mapping>
+<plotting>default</plotting>
+</axis>
+
+<axis>
+<name>Last part</name>
+<type>enum</type>
+<mapping>default</mapping>
+<plotting>default</plotting>
+</axis>
+
+</format>

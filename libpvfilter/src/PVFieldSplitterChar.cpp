@@ -1,0 +1,54 @@
+//! \file PVCore::PVFieldSplitterChar.cpp
+//! $Id: PVFieldSplitterChar.cpp 3090 2011-06-09 04:59:46Z stricaud $
+//! Copyright (C) Sébastien Tricaud 2011-2011
+//! Copyright (C) Philippe Saadé 2011-2011
+//! Copyright (C) Picviz Labs 2011
+
+#include <pvfilter/PVFieldSplitterChar.h>
+#include <pvcore/PVBufferSlice.h>
+
+/******************************************************************************
+ *
+ * PVFilter::PVCore::PVFieldSplitterChar::PVCore::PVFieldSplitterChar
+ *
+ *****************************************************************************/
+PVFilter::PVFieldSplitterChar::PVFieldSplitterChar(PVArgumentList const& args) :
+	PVFieldsFilter<PVFilter::one_to_many>()
+{
+	INIT_FILTER(PVFilter::PVFieldSplitterChar, args);
+}
+
+/******************************************************************************
+ *
+ * DEFAULT_ARGS_FILTER(PVFilter::PVFieldSplitterChar)
+ *
+ *****************************************************************************/
+DEFAULT_ARGS_FILTER(PVFilter::PVFieldSplitterChar)
+{
+	PVArgumentList args;
+	args["c"] = QVariant(' ');
+	return args;
+}
+
+/******************************************************************************
+ *
+ * PVFilter::PVFieldSplitterChar::set_args
+ *
+ *****************************************************************************/
+void PVFilter::PVFieldSplitterChar::set_args(PVArgumentList const& args)
+{
+	FilterT::set_args(args);
+	_c = args["c"].toChar().toAscii();
+}
+
+/******************************************************************************
+ *
+ * PVFilter::PVFieldSplitterChar::one_to_many
+ *
+ *****************************************************************************/
+PVCore::list_fields::size_type PVFilter::PVFieldSplitterChar::one_to_many(PVCore::list_fields &l, PVCore::list_fields::iterator it_ins, PVCore::PVField &field)
+{
+	return field.split<PVCore::list_fields>(l, _c, it_ins);
+}
+
+IMPL_FILTER(PVFilter::PVFieldSplitterChar)

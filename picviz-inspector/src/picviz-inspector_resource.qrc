@@ -1,0 +1,46 @@
+<RCC>
+    <qresource prefix="/">
+	<file alias="window-icon.png">icons/inspector.png</file>
+	<file alias="logo.png">icons/logo.png</file>
+
+        <file>icons/filelink-32.png</file>
+        <file>icons/standardbutton-open-32.png</file>
+        <file alias="save">icons/standardbutton-save-32.png</file>
+        <file>icons/up-32.png</file>
+	<file alias="brush.png">icons/brush.png</file>
+	<file alias="hide.png">icons/hide.png</file>
+	<file alias="less.png">icons/less.png</file>
+	<file alias="lesszoom.png">icons/lesszoom.png</file>
+	<file alias="lock.png">icons/lock.png</file>
+	<file alias="more.png">icons/more.png</file>
+	<file alias="morezoom.png">icons/morezoom.png</file>
+	<file alias="width.png">icons/width.png</file>
+
+	<file alias="pv-eye-20">icons/20x20/stock-eye-20.png</file>
+	<file alias="pv-linked-20">icons/20x20/stock-linked-20.png</file>
+	<file alias="pv-white-20">icons/20x20/pv-white-20.png</file>
+	<file alias="document-new.png">icons/22x22/document-new.png</file>
+	<file alias="document-open.png">icons/22x22/document-open.png</file>
+	<file alias="edit-copy.png">icons/22x22/edit-copy.png</file>
+	<file alias="edit-cut.png">icons/22x22/edit-cut.png</file>
+	<file alias="edit-paste.png">icons/22x22/edit-paste.png</file>
+	<file alias="edit-redo.png">icons/22x22/edit-redo.png</file>
+	<file alias="edit-undo.png">icons/22x22/edit-undo.png</file>
+	<file alias="go-down.png">icons/22x22/go-down.png</file>
+	<file alias="go-up.png">icons/22x22/go-up.png</file>
+	<file alias="red-cross">icons/22x22/red-cross.png</file>
+	<file alias="filter">icons/22x22/filter.png</file>
+	<file alias="add-axis">icons/22x22/add-axis.png</file>
+	<file alias="add-regexp">icons/22x22/add-regexp.png</file>
+	<file alias="add-url">icons/22x22/add-url.png</file>
+	<file alias="help">icons/22x22/help.png</file>
+
+	<file alias="save32-32.png">icons/save32-32.png</file>
+
+	<file alias="preferences-system-windows.png">icons/22x22/preferences-system-windows.png</file>
+	<file alias="user-trash.png">icons/22x22/user-trash.png</file>
+
+	<file alias="gmaps.html">icons/gmaps.html</file>
+
+    </qresource>
+</RCC>

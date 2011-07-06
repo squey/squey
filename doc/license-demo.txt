@@ -1,0 +1,5 @@
+This is Picviz Inspector v 1.0.
+Copyright (C) 2010 Piviz Labs
+
+It is it strictly forbiden to use this software out of the limited time agreed with Picviz Labs. It is strictly forbiden to redistribute this software to third party including: picviz inspector executable, picviz library and its various plugins.
+
