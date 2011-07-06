@@ -82,7 +82,7 @@ void PVGL::PVMap::init(Picviz::PVView_p pv_view_)
 	// Restore a sane state.
 	glUseProgram(0); PRINT_OPENGL_ERROR();
 	glBindVertexArray(0); PRINT_OPENGL_ERROR();
-	visible = true;
+	visible = false;
 }
 
 /******************************************************************************
