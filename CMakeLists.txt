@@ -80,7 +80,7 @@ add_subdirectory(libpvfilter)
 add_subdirectory(libpvrush)
 add_subdirectory(libpicviz)
 add_subdirectory(libpvgl)
-add_subdirectory(picviz-inspector)
+add_subdirectory(gui-qt)
 
 message(STATUS "CUDA found: " ${CUDA_FOUND})
 if(CUDA_FOUND)

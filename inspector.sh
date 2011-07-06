@@ -43,14 +43,14 @@ if [ "$1" == "debug" ]
 then
 export PICVIZ_DEBUG_LEVEL="DEBUG"
 #export PICVIZ_DEBUG_FILE="debug.txt"
-	gdb picviz-inspector/src/picviz-inspector
+	gdb gui-qt/src/picviz-inspector
 	exit 0
 fi
 if [ "$1" == "debug-nogl" ]
 then
 export PICVIZ_DEBUG_LEVEL="DEBUG"
 #export PICVIZ_DEBUG_FILE="debug.txt"
-	gdb picviz-inspector/src/picviz-inspector|egrep -v "PVGL"
+	gdb gui-qt/src/picviz-inspector|egrep -v "PVGL"
 #-e ".*PVGL.*" --invert-match
 	exit 0
 fi
@@ -59,34 +59,34 @@ if [ "$1" == "debug-quiet" ]
 then
 export PICVIZ_DEBUG_LEVEL="NOTICE"
 #export PICVIZ_DEBUG_FILE="debug.txt"
-	gdb picviz-inspector/src/picviz-inspector
+	gdb gui-qt/src/picviz-inspector
 	exit 0
 fi
 
 if [ "$1" == "valgrind" ]
 then
-	valgrind --leak-check=full --track-origins=yes picviz-inspector/src/picviz-inspector
+	valgrind --leak-check=full --track-origins=yes gui-qt/src/picviz-inspector
 	exit 0
 fi
 
 if [ "$1" == "valgrind-leaks" ]
 then
-	valgrind --db-attach=no --log-file=./valgrind.out --leak-check=yes picviz-inspector/src/picviz-inspector
+	valgrind --db-attach=no --log-file=./valgrind.out --leak-check=yes gui-qt/src/picviz-inspector
 	exit 0
 fi
 
 if [ "$1" == "callgrind" ]
 then
 export PICVIZ_DEBUG_LEVEL="NOTICE"
-	#valgrind --tool=callgrind --instr-atstart=no picviz-inspector/src/picviz-inspector
-	valgrind --tool=callgrind picviz-inspector/src/picviz-inspector
+	#valgrind --tool=callgrind --instr-atstart=no gui-qt/src/picviz-inspector
+	valgrind --tool=callgrind gui-qt/src/picviz-inspector
 	exit 0
 fi
 
 
 if [ "$1" == "gldebug" ]
 then
-	/usr/local/bin/gldb-gui picviz-inspector/src/picviz-inspector
+	/usr/local/bin/gldb-gui gui-qt/src/picviz-inspector
 	exit 0
 fi
 
@@ -98,14 +98,14 @@ cd libpicviz/src/
 make
 cd ../..
 	export LD_LIBRARY_PATH=/usr/local/cuda/lib64
-	#/usr/local/cuda/bin/cuda-memcheck --continue picviz-inspector/src/picviz-inspector >/tmp/cuda-test-log.txt 2>&1
-	/usr/local/cuda/bin/cuda-gdb --quiet --nw picviz-inspector/src/picviz-inspector 
-	#picviz-inspector/src/picviz-inspector
+	#/usr/local/cuda/bin/cuda-memcheck --continue gui-qt/src/picviz-inspector >/tmp/cuda-test-log.txt 2>&1
+	/usr/local/cuda/bin/cuda-gdb --quiet --nw gui-qt/src/picviz-inspector 
+	#gui-qt/src/picviz-inspector
 	#gedit /tmp/cuda-test-log.txt
 	exit 0
 fi
 
-picviz-inspector/src/picviz-inspector
+gui-qt/src/picviz-inspector
 
 
 
