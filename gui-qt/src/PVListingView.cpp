@@ -1,5 +1,5 @@
 //! \file PVListingView.cpp
-//! $Id: PVListingView.cpp 3093 2011-06-09 09:07:59Z rpernaudat $
+//! $Id: PVListingView.cpp 3253 2011-07-07 07:37:17Z rpernaudat $
 //! Copyright (C) Sébastien Tricaud 2009-2011
 //! Copyright (C) Philippe Saadé 2009-2011
 //! Copyright (C) Picviz Labs 2011
@@ -130,7 +130,7 @@ void PVInspector::PVListingView::mouseReleaseEvent(QMouseEvent *event)
  *****************************************************************************/
 void PVInspector::PVListingView::slotDoubleClickOnVHead(int idHeader){
 	//PVListingModel* myModel = static_cast<PVListingModel*>(model());
-	PVListingModelBase* myModel = (PVListingModelBase*)model();
+	PVListingModel* myModel = (PVListingModel*)model();
 	if(myModel!=0){
 		myModel->sortByColumn(idHeader);
 	}

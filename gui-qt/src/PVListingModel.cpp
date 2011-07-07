@@ -1,5 +1,5 @@
 //! \file PVListingModel.cpp
-//! $Id: PVListingModel.cpp 3252 2011-07-07 03:41:16Z rpernaudat $
+//! $Id: PVListingModel.cpp 3253 2011-07-07 07:37:17Z rpernaudat $
 //! Copyright (C) Sébastien Tricaud 2009-2011
 //! Copyright (C) Philippe Saadé 2009-2011
 //! Copyright (C) Picviz Labs 2011
@@ -25,22 +25,37 @@
  * PVInspector::PVListingModel::PVListingModel
  *
  *****************************************************************************/
-PVInspector::PVListingModel::PVListingModel(PVMainWindow *mw, PVTabSplitter *parent, Picviz::StateMachine_ListingMode_t state) : PVListingModelBase(mw, parent) {
-    Picviz::PVView_p lib_view;
-
+PVInspector::PVListingModel::PVListingModel(PVMainWindow *mw, PVTabSplitter *parent, Picviz::StateMachine_ListingMode_t state) : QAbstractTableModel(parent) {
     PVLOG_INFO("%s : Creating object\n", __FUNCTION__);
 
+	main_window = mw;
+	parent_widget = parent;
+	select_brush = QBrush(QColor(255,240,200));
+	unselect_brush = QBrush(QColor(180,180,180));
+	select_font = QFont();
+	select_font.setBold(true);
+	unselect_font = QFont();
+    Picviz::PVView_p lib_view;
     not_zombie_font_brush = QBrush(QColor(0, 0, 0));
     zombie_font_brush = QBrush(QColor(200, 200, 200));
-
     lib_view = parent_widget->get_lib_view();
-    //widgetCpyOfData = (const QVector<QStringList>&) lib_view->get_qtnraw_parent();
-
     colSorted = -1;
     state_listing = state;
-
     initCorrespondance();
+}
 
+
+/******************************************************************************
+ *
+ * PVInspector::PVListingModel::columnCount
+ *
+ *****************************************************************************/
+int PVInspector::PVListingModel::columnCount(const QModelIndex &index) const
+{
+	//PVLOG_DEBUG("PVInspector::PVListingModelBase::%s : at row %d and column %d\n", __FUNCTION__, index.row(), index.column());
+	Picviz::PVView_p lib_view = parent_widget->get_lib_view();
+
+	return lib_view->get_axes_count();
 }
 
 
@@ -157,7 +172,26 @@ QVariant PVInspector::PVListingModel::data(const QModelIndex &index, int role) c
     }//**********************************END************************************
     return QVariant();
 }
+/******************************************************************************
+ *
+ * PVInspector::PVListingModel::emitLayoutChanged
+ *
+ *****************************************************************************/
+void PVInspector::PVListingModel::emitLayoutChanged() {
+	emit layoutChanged();
+	PVLOG_DEBUG("PVInspector::PVListingModelBase::emitLayoutChanged\n");
+}
 
+/******************************************************************************
+ *
+ * PVInspector::PVListingModel::flags
+ *
+ *****************************************************************************/
+Qt::ItemFlags PVInspector::PVListingModel::flags(const QModelIndex &/*index*/) const
+{
+	//PVLOG_DEBUG("PVInspector::PVListingModelBase::%s\n", __FUNCTION__);
+	return (Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+}
 
 /******************************************************************************
  *
@@ -431,6 +465,7 @@ int PVInspector::PVListingModel::rowCount(const QModelIndex &/*index*/) const {
  *
  *****************************************************************************/
 int getCorrespondance(int ) {
+    PVLOG_DEBUG("PVInspector::PVListingModel::%s\n", __FUNCTION__);
     return 0;
 }
 
@@ -441,7 +476,8 @@ int getCorrespondance(int ) {
  *
  *****************************************************************************/
 void PVInspector::PVListingModel::reset_model(bool initMatchTable) {
-    PVListingModelBase::reset_model();
+    PVLOG_DEBUG("PVInspector::PVListingModel::%s\n", __FUNCTION__);
+    reset();
     if (initMatchTable) {
         initCorrespondance();
     }

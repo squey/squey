@@ -1,5 +1,5 @@
 //! \file PVTabSplitter.cpp
-//! $Id: PVTabSplitter.cpp 3251 2011-07-06 11:51:57Z rpernaudat $
+//! $Id: PVTabSplitter.cpp 3253 2011-07-07 07:37:17Z rpernaudat $
 //! Copyright (C) Sébastien Tricaud 2009-2011
 //! Copyright (C) Philippe Saadé 2009-2011
 //! Copyright (C) Picviz Labs 2011
@@ -94,8 +94,8 @@ void PVInspector::PVTabSplitter::refresh_listing_Slot()
 		pv_listing_view->verticalHeader()->viewport()->update();
 		//static_cast<PVListingModelBase*>(pv_listing_view->model())->reset_model();
 		//update the size of the corresponding table.
-		static_cast<PVListingModelBase*>(pv_listing_view->model())->initCorrespondance();
-		static_cast<PVListingModelBase*>(pv_listing_view->model())->emitLayoutChanged();
+		static_cast<PVListingModel*>(pv_listing_view->model())->initCorrespondance();
+		static_cast<PVListingModel*>(pv_listing_view->model())->emitLayoutChanged();
 	}
 }
 
