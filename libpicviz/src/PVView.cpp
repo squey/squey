@@ -1,5 +1,5 @@
 //! \file PVView.cpp
-//! $Id: PVView.cpp 3221 2011-06-30 11:45:19Z aguinet $
+//! $Id: PVView.cpp 3251 2011-07-06 11:51:57Z rpernaudat $
 //! Copyright (C) Sébastien Tricaud 2009-2011
 //! Copyright (C) Philippe Saadé 2009-2011
 //! Copyright (C) Picviz Labs 2011
@@ -101,7 +101,7 @@ Picviz::PVView::PVView(PVPlotted_p parent) :
  *****************************************************************************/
 Picviz::PVView::~PVView()
 {
-	PVLOG_INFO("In PVView destructor\n");
+	PVLOG_DEBUG("In PVView destructor\n");
 	delete state_machine;
 }
 
@@ -598,6 +598,7 @@ Picviz::PVSelection &Picviz::PVView::get_real_output_selection()
  *****************************************************************************/
 int Picviz::PVView::get_real_row_index(int index)
 {
+    PVLOG_DEBUG("Picviz::PVView::get_real_row_index\n");
 	if (state_machine->are_listing_unselected_visible()) {
 		if (state_machine->are_listing_zombie_visible()) {
 			return index;
@@ -892,6 +893,7 @@ void Picviz::PVView::process_selection()
  *****************************************************************************/
 void Picviz::PVView::process_visibility()
 {
+    PVLOG_DEBUG("Picviz::PVView::process_visibility\n");
 	/* We First need to check if the UNSELECTED lines are visible */
 	if (state_machine->are_listing_unselected_visible()) {
 		/* The UNSELECTED are visible */

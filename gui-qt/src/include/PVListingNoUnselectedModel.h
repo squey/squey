@@ -1,5 +1,5 @@
 //! \file PVListingNoUnselectedModel.h
-//! $Id: PVListingNoUnselectedModel.h 3240 2011-07-05 05:11:55Z rpernaudat $
+//! $Id: PVListingNoUnselectedModel.h 3251 2011-07-06 11:51:57Z rpernaudat $
 //! Copyright (C) Sébastien Tricaud 2009-2011
 //! Copyright (C) Philippe Saadé 2009-2011
 //! Copyright (C) Picviz Labs 2011
@@ -49,7 +49,7 @@ public:
 	
 private:
 	//sorting data
-	QVector<int> correspondTable;
+	QVector<int> matchingTable;
 	TypeOfSort sortOrder;
 	int colSorted;
 };

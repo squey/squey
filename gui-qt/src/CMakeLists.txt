@@ -1,10 +1,10 @@
 include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/libpicviz/src/include)
 include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/libpvgl/src/include)
 
-include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/picviz-inspector/src/include)
-include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/picviz-inspector/src/widgets/format-builder/include)
-include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/picviz-inspector/src/widgets/remote-log/include)
-include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/picviz-inspector/src/widgets/editors/include)
+include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/gui-qt/src/include)
+include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/gui-qt/src/widgets/format-builder/include)
+include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/gui-qt/src/widgets/remote-log/include)
+include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/gui-qt/src/widgets/editors/include)
 
 include_directories(AFTER ${GLEW_INCLUDE_PATH})
 include_directories(AFTER ${OPENGL_INCLUDE_DIR})

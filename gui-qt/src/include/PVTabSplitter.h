@@ -1,5 +1,5 @@
 //! \file PVTabSplitter.h
-//! $Id: PVTabSplitter.h 3172 2011-06-16 11:10:13Z rpernaudat $
+//! $Id: PVTabSplitter.h 3251 2011-07-06 11:51:57Z rpernaudat $
 //! Copyright (C) Sébastien Tricaud 2009-2011
 //! Copyright (C) Philippe Saadé 2009-2011
 //! Copyright (C) Picviz Labs 2011
@@ -36,12 +36,12 @@ class PVTabSplitter : public QSplitter
 	PVMainWindow     *main_window;   //!< The parent PVMainWindow of this PVTabSplitter
 	Picviz::PVView_p lib_view;      //!< The Picviz::PVView 
 
-	PVListingView                      *pv_listing_view;                          //!< The PVListingView attached with our main application
-	
-	PVListingModel                     *pv_listing_model;                         //!< The classical Listing model (with zombies and unselected)
-	PVListingNoUnselectedModel         *pv_listing_no_unselected_model;           //!< The Listing model with zombies and without unselected
-	PVListingNoZombieModel             *pv_listing_no_zombie_model;               //!< The Listing model without zombies but with unselected
-	PVListingNoZombieNoUnselectedModel *pv_listing_no_zombie_no_unselected_model; //!< The Listing model without both zombies and unselected
+	PVListingView *pv_listing_view; //!< The PVListingView attached with our main application
+
+        PVListingModel *pv_listing_model; //!< The classical Listing model (with zombies and unselected)
+        PVListingModel *pv_listing_no_unselected_model; //!< The Listing model with zombies and without unselected
+        PVListingModel *pv_listing_no_zombie_model; //!< The Listing model without zombies but with unselected
+        PVListingModel *pv_listing_no_zombie_no_unselected_model; //!< The Listing model without both zombies and unselected
 
 	PVLayerStackModel  *pv_layer_stack_model;
 	PVLayerStackWidget *pv_layer_stack_widget;

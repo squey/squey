@@ -1,5 +1,5 @@
 //! \file PVMainWindow.cpp
-//! $Id: PVMainWindow.cpp 3221 2011-06-30 11:45:19Z aguinet $
+//! $Id: PVMainWindow.cpp 3251 2011-07-06 11:51:57Z rpernaudat $
 //! Copyright (C) Sébastien Tricaud 2009-2011
 //! Copyright (C) Philippe Saadé 2009-2011
 //! Copyright (C) Picviz Labs 2011
@@ -851,7 +851,7 @@ void PVInspector::PVMainWindow::lines_display_unselected_Slot()
 
 	state_machine->toggle_unselected_visibility();
 	/* We set the listing to be the same */
-	state_machine->set_listing_unselected_visibility(state_machine->are_unselected_visible());
+	state_machine->set_listing_unselected_visibility(state_machine->are_unselected_visible());//???
 	/* We refresh the view */
 	current_lib_view->process_visibility();
 	update_pvglview(current_lib_view, PVGL_COM_REFRESH_SELECTION);
@@ -970,10 +970,10 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 			break;
 
 		case Qt::Key_D:
-//			picviz_datatreerootitem_t *dtri;
-//			dtri = (picviz_datatreerootitem_t *)import_source->dtri;
-//			dtri->normalize->format->debug();
-			// picviz_format_debug(import_source->format);
+			// current_lib_view->layer_stack.write_file("out.data");
+			break;
+		case Qt::Key_E:
+			// current_lib_view->layer_stack.read_file("out.data");
 			break;
 
 		/* Delete active axis */
@@ -1404,7 +1404,7 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 							/* We toggle the view first */
 							state_machine->toggle_unselected_visibility();
 							/* We set the listing to be the same */
-							state_machine->set_listing_unselected_visibility(state_machine->are_unselected_visible());
+							state_machine->set_listing_unselected_visibility(state_machine->are_unselected_visible());//!???
 							/* We refresh the view */
 							current_lib_view->process_visibility();
 							update_pvglview(current_lib_view, PVGL_COM_REFRESH_SELECTION);

@@ -1,5 +1,5 @@
 //! \file PVTabSplitter.cpp
-//! $Id: PVTabSplitter.cpp 3248 2011-07-05 10:15:19Z rpernaudat $
+//! $Id: PVTabSplitter.cpp 3251 2011-07-06 11:51:57Z rpernaudat $
 //! Copyright (C) Sébastien Tricaud 2009-2011
 //! Copyright (C) Philippe Saadé 2009-2011
 //! Copyright (C) Picviz Labs 2011
@@ -29,10 +29,10 @@ PVInspector::PVTabSplitter::PVTabSplitter(PVMainWindow *mw, Picviz::PVView_p pv_
 	pv_layer_stack_widget = NULL; // Note that this value can be requested during the creating of the PVLayerStackWidget!
 	_tab_name = tab_name;
 
-	pv_listing_model = new PVListingModel(main_window, this);
-	pv_listing_no_unselected_model = new PVListingNoUnselectedModel(main_window, this);
-	pv_listing_no_zombie_model = new PVListingNoZombieModel(main_window, this);
-	pv_listing_no_zombie_no_unselected_model = new PVListingNoZombieNoUnselectedModel(main_window, this);
+	pv_listing_model = new PVListingModel(main_window, this,Picviz::LISTING_ALL);
+	pv_listing_no_unselected_model = new PVListingModel(main_window, this,Picviz::LISTING_NO_UNSEL);
+	pv_listing_no_zombie_model = new PVListingModel(main_window, this,Picviz::LISTING_NO_ZOMBIES);
+	pv_listing_no_zombie_no_unselected_model = new PVListingModel(main_window, this,Picviz::LISTING_NO_UNSEL_NO_ZOMBIES);
 	pv_listing_view = new PVListingView(main_window, lib_view, this);
 	pv_listing_view->setModel(pv_listing_model);
 
@@ -150,6 +150,7 @@ void PVInspector::PVTabSplitter::update_pv_listing_model_Slot()
 		if (state_machine->are_listing_zombie_visible()) {
 			/* The Zombie are visible too */
 			pv_listing_model->reset_model(false); // This is needed, but I don't know why. Maybe only needed once [DDX] XXX ???
+            pv_listing_model->setState(Picviz::LISTING_ALL);
 			next_model = pv_listing_model;
 		} else {
 			/* The Zombie are NOT visible */
@@ -162,6 +163,7 @@ void PVInspector::PVTabSplitter::update_pv_listing_model_Slot()
 		if (state_machine->are_listing_zombie_visible()) {
 			/* The Zombie are visible */
 			pv_listing_no_unselected_model->reset_model(false); // Ditto XXX ???
+            pv_listing_no_unselected_model->setState(Picviz::LISTING_NO_UNSEL);
 			next_model = pv_listing_no_unselected_model;
 		} else {
 			/* The Zombie are NOT visible */

@@ -17,6 +17,11 @@
 
 #define JULY_5 1309856400
 
+// #ifdef USE_UNIKEY
+  // #include <UniKeyFR.h>
+// #endif
+
+
 int main(int argc, char *argv[])
 {
 	QApplication app(argc, argv);
@@ -25,6 +30,26 @@ int main(int argc, char *argv[])
 	
 	// Here, we assume that everyone is coding with an editor using UTF-8
 	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
+
+// #ifdef USE_UNIKEY
+	// DWORD retcode, lp1, lp2;
+	// WORD handle[16], p1, p2;
+
+	// p1=65143;
+	// p2=39181;
+
+	// retcode = UniKey_Find(&handle[0], &lp1, &lp2);
+	// if (retcode) {
+	// 	PVLOG_ERROR("Cannot find Unikey. Error code:%d\n", retcode);
+	// 	exit(1);
+	// }
+
+	// retcode = UniKey_User_Logon(&handle[0], &p1, &p2);
+	// if (retcode) {
+	// 	PVLOG_ERROR("Logon error. Invalid key?. Error code:%d\n", retcode);
+	// 	exit(1);
+	// }
+// #endif
 
 	// time_t t = time(NULL);
  	// PVLOG_INFO("Current time:%d\n", t);

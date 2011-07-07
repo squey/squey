@@ -1,5 +1,5 @@
 //! \file PVFilterWidget.cpp
-//! $Id: PVExtractorWidget.cpp 3187 2011-06-21 11:20:33Z aguinet $
+//! $Id: PVExtractorWidget.cpp 3251 2011-07-06 11:51:57Z rpernaudat $
 //! Copyright (C) Sébastien Tricaud 2009-2011
 //! Copyright (C) Philippe Saadé 2009-2011
 //! Copyright (C) Picviz Labs 2011
@@ -171,14 +171,18 @@ bool PVInspector::PVExtractorWidget::show_job_progress_bar(PVRush::PVControllerJ
 
 void PVInspector::PVExtractorWidget::process_Slot()
 {
+    PVLOG_DEBUG("PVInspector::PVExtractorWidget::process_Slot()\n");
 	// The nraw will be updated, view won't be consistent during this process
 	_view->set_consistent(false);
 
 	size_t index = _slider_index->value();
 	_batch_size = _size_batch_widget->text().toLong();
 
+    PVLOG_DEBUG("PVInspector::PVExtractorWidget::process_Slot() l:%d\n",__LINE__);
 	_ext.save_nraw();
+    PVLOG_DEBUG("PVInspector::PVExtractorWidget::process_Slot() l:%d\n",__LINE__);
 	PVRush::PVControllerJob_p job = _ext.process_from_agg_nlines(index, _batch_size, 0);
+    PVLOG_DEBUG("PVInspector::PVExtractorWidget::process_Slot() l:%d\n",__LINE__);
 
 	// Show a progress box that will finish with "accept" when the job is done
 	if (!show_job_progress_bar(job, _batch_size, this)) {
