@@ -28,13 +28,13 @@
 PVInspector::PVListingModel::PVListingModel(PVMainWindow *mw, PVTabSplitter *parent, Picviz::StateMachine_ListingMode_t state) : QAbstractTableModel(parent) {
     PVLOG_INFO("%s : Creating object\n", __FUNCTION__);
 
-	main_window = mw;
-	parent_widget = parent;
-	select_brush = QBrush(QColor(255,240,200));
-	unselect_brush = QBrush(QColor(180,180,180));
-	select_font = QFont();
-	select_font.setBold(true);
-	unselect_font = QFont();
+    main_window = mw;
+    parent_widget = parent;
+    select_brush = QBrush(QColor(255, 240, 200));
+    unselect_brush = QBrush(QColor(180, 180, 180));
+    select_font = QFont();
+    select_font.setBold(true);
+    unselect_font = QFont();
     Picviz::PVView_p lib_view;
     not_zombie_font_brush = QBrush(QColor(0, 0, 0));
     zombie_font_brush = QBrush(QColor(200, 200, 200));
@@ -50,12 +50,11 @@ PVInspector::PVListingModel::PVListingModel(PVMainWindow *mw, PVTabSplitter *par
  * PVInspector::PVListingModel::columnCount
  *
  *****************************************************************************/
-int PVInspector::PVListingModel::columnCount(const QModelIndex &index) const
-{
-	//PVLOG_DEBUG("PVInspector::PVListingModelBase::%s : at row %d and column %d\n", __FUNCTION__, index.row(), index.column());
-	Picviz::PVView_p lib_view = parent_widget->get_lib_view();
+int PVInspector::PVListingModel::columnCount(const QModelIndex &index) const {
+    //PVLOG_DEBUG("PVInspector::PVListingModelBase::%s : at row %d and column %d\n", __FUNCTION__, index.row(), index.column());
+    Picviz::PVView_p lib_view = parent_widget->get_lib_view();
 
-	return lib_view->get_axes_count();
+    return lib_view->get_axes_count();
 }
 
 
@@ -70,7 +69,7 @@ QVariant PVInspector::PVListingModel::data(const QModelIndex &index, int role) c
     Picviz::PVColor color;
     int i;
     int correspondId;
-    int tmp_count=0;
+    int tmp_count = 0;
     Picviz::PVView_p lib_view;
     int real_row_index;
     Picviz::StateMachine *state_machine;
@@ -83,7 +82,7 @@ QVariant PVInspector::PVListingModel::data(const QModelIndex &index, int role) c
 
     //initializing
     switch (state_listing) {
-        case Picviz::LISTING_ALL :// we list all the lines***********************************************************
+        case Picviz::LISTING_ALL:// we list all the lines***********************************************************
             //nop
             break;
         case Picviz::LISTING_NO_UNSEL:// we don't list the unselected lines.***************************************
@@ -117,8 +116,8 @@ QVariant PVInspector::PVListingModel::data(const QModelIndex &index, int role) c
             PVLOG_DEBUG("       ForegroundRole\n");
             /* We get the current selected axis index */
             i = lib_view->active_axis;
-            
-            
+
+
 
             if ((state_machine->is_axes_mode()) && (i == index.column())) {
                 /* We must provide an evidence of the active_axis ! */
@@ -135,7 +134,7 @@ QVariant PVInspector::PVListingModel::data(const QModelIndex &index, int role) c
                     return unselect_brush;
                 }
             }
-       
+
 
             break;
 
@@ -172,26 +171,29 @@ QVariant PVInspector::PVListingModel::data(const QModelIndex &index, int role) c
     }//**********************************END************************************
     return QVariant();
 }
+
+
 /******************************************************************************
  *
  * PVInspector::PVListingModel::emitLayoutChanged
  *
  *****************************************************************************/
 void PVInspector::PVListingModel::emitLayoutChanged() {
-	emit layoutChanged();
-	PVLOG_DEBUG("PVInspector::PVListingModelBase::emitLayoutChanged\n");
+    emit layoutChanged();
+    PVLOG_DEBUG("PVInspector::PVListingModelBase::emitLayoutChanged\n");
 }
+
 
 /******************************************************************************
  *
  * PVInspector::PVListingModel::flags
  *
  *****************************************************************************/
-Qt::ItemFlags PVInspector::PVListingModel::flags(const QModelIndex &/*index*/) const
-{
-	//PVLOG_DEBUG("PVInspector::PVListingModelBase::%s\n", __FUNCTION__);
-	return (Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+Qt::ItemFlags PVInspector::PVListingModel::flags(const QModelIndex &/*index*/) const {
+    //PVLOG_DEBUG("PVInspector::PVListingModelBase::%s\n", __FUNCTION__);
+    return (Qt::ItemIsEnabled | Qt::ItemIsSelectable);
 }
+
 
 /******************************************************************************
  *
@@ -207,7 +209,7 @@ void PVInspector::PVListingModel::initCorrespondance() {
         for (unsigned int i = 0; i < lib_view->get_qtnraw_parent().size(); i++) {
             matchingTable.insert(i, i);
         }
-    } else if(state_listing == Picviz::LISTING_NO_UNSEL||state_listing == Picviz::LISTING_NO_ZOMBIES||state_listing == Picviz::LISTING_NO_UNSEL_NO_ZOMBIES) {
+    } else if (state_listing == Picviz::LISTING_NO_UNSEL || state_listing == Picviz::LISTING_NO_ZOMBIES || state_listing == Picviz::LISTING_NO_UNSEL_NO_ZOMBIES) {
         for (int i = 0; i < rowCount(QModelIndex()); i++) {//for each line...
             switch (state_listing) {
                 case Picviz::LISTING_NO_UNSEL:// we don't list the unselected lines.
@@ -221,7 +223,7 @@ void PVInspector::PVListingModel::initCorrespondance() {
                     break;
             }
         }
-    }else{
+    } else {
         PVLOG_ERROR("PVInspector::PVListingModel::initCorrespondance : initializing with a bad stat_listing.");
     }
     sortOrder = NoOrder;
@@ -296,7 +298,7 @@ QVariant PVInspector::PVListingModel::headerData(int section, Qt::Orientation or
                     }
                     break;
             }
-            
+
 
             break;
         case (Qt::TextAlignmentRole)://**********************************TextAlignmentRole************************************
@@ -314,13 +316,14 @@ QVariant PVInspector::PVListingModel::headerData(int section, Qt::Orientation or
     return QVariant();
 }
 
+
 /******************************************************************************
  *
  * PVInspector::PVListingModel::setState
  *
  *****************************************************************************/
 void PVInspector::PVListingModel::setState(Picviz::StateMachine_ListingMode_t mode) {
-    PVLOG_INFO("PVInspector::PVListingModel::setState(%d)\n", (int)mode);
+    PVLOG_INFO("PVInspector::PVListingModel::setState(%d)\n", (int) mode);
     state_listing = mode;
     initCorrespondance();
 }
@@ -336,12 +339,12 @@ void PVInspector::PVListingModel::sortByColumn(int idColumn) {
     //variables
     Picviz::PVView_p lib_view;
     QVector<int> matchTableNew;
-    Picviz::PVSortQVectorQStringListThread *sortThread = new Picviz::PVSortQVectorQStringListThread(0);//class whiche can sort.
-    PVProgressBox *dialogBox = new PVProgressBox(tr("Sorting..."));//dialog showing the progress box.
-    connect(sortThread, SIGNAL(finished()), dialogBox, SLOT(accept()), Qt::QueuedConnection);//connection to close the progress box after thread finish.
+    Picviz::PVSortQVectorQStringListThread *sortThread = new Picviz::PVSortQVectorQStringListThread(0); //class whiche can sort.
+    PVProgressBox *dialogBox = new PVProgressBox(tr("Sorting...")); //dialog showing the progress box.
+    connect(sortThread, SIGNAL(finished()), dialogBox, SLOT(accept()), Qt::QueuedConnection); //connection to close the progress box after thread finish.
     PVLOG_DEBUG("   declaration ok\n");
-    
-    
+
+
     if (parent_widget != 0) {//if parent widget is valid...
         lib_view = parent_widget->get_lib_view();
         if (lib_view) {//if lib_view is valid...
@@ -356,7 +359,7 @@ void PVInspector::PVListingModel::sortByColumn(int idColumn) {
                         break;
                     case Picviz::LISTING_NO_UNSEL:// we don't list the unselected lines.
                         for (int i = 0; i < rowCount(QModelIndex()); i++) {
-                             matchTableNew.insert(i, lib_view->get_nu_real_row_index(i));
+                            matchTableNew.insert(i, lib_view->get_nu_real_row_index(i));
                         }
                         sortThread->setList(&data, &matchTableNew);
                         break;
@@ -379,7 +382,7 @@ void PVInspector::PVListingModel::sortByColumn(int idColumn) {
                 }
                 PVLOG_DEBUG("   init sort finished\n");
             }
-            
+
             //find the good order to sort
             if ((colSorted == idColumn) && (sortOrder == AscendingOrder)) {
                 sortOrder = DescendingOrder;
@@ -389,12 +392,12 @@ void PVInspector::PVListingModel::sortByColumn(int idColumn) {
                 sortOrder = AscendingOrder;
                 sortThread->init(idColumn, Qt::AscendingOrder);
             }
-            
+
             //thread sorter start here
             PVLOG_DEBUG("   the sort will start in a thread.\n");
             sortThread->start(QThread::LowPriority);
             PVLOG_INFO("    waitting : sort processing... \n");
-            
+
             //management of the progress box closing condition
             if (dialogBox->exec()) {//show dialog and wait for event
                 //... update table
@@ -405,7 +408,7 @@ void PVInspector::PVListingModel::sortByColumn(int idColumn) {
                 sortThread->exit(0);
             }
             PVLOG_DEBUG("   the sort is finished.\n");
-            
+
             //*********update matching table*********
             PVLOG_DEBUG("   start update match...\n");
             switch (state_listing) {
@@ -421,7 +424,7 @@ void PVInspector::PVListingModel::sortByColumn(int idColumn) {
                     break;
             }
             PVLOG_DEBUG("   ...end update match\n");
-            
+
             emit layoutChanged();
         } else {//if lib_view isn't valid...
             PVLOG_ERROR("   no lib_view : %s : %d", __FILE__, __LINE__);
@@ -464,7 +467,7 @@ int PVInspector::PVListingModel::rowCount(const QModelIndex &/*index*/) const {
  * PVInspector::PVListingModel::getCorrespondance
  *
  *****************************************************************************/
-int getCorrespondance(int ) {
+int getCorrespondance(int) {
     PVLOG_DEBUG("PVInspector::PVListingModel::%s\n", __FUNCTION__);
     return 0;
 }
