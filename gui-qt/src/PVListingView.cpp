@@ -122,18 +122,18 @@ void PVInspector::PVListingView::mouseReleaseEvent(QMouseEvent *event)
 	refresh_listing_Slot();
 }*/
 
-
 /******************************************************************************
  *
  * PVInspector::PVListingView::slotDoubleClickOnVHead
  *
  *****************************************************************************/
-void PVInspector::PVListingView::slotDoubleClickOnVHead(int idHeader){
-	//PVListingModel* myModel = static_cast<PVListingModel*>(model());
-	PVListingModel* myModel = (PVListingModel*)model();
-	if(myModel!=0){
-		myModel->sortByColumn(idHeader);
-	}
+void PVInspector::PVListingView::slotDoubleClickOnVHead(int idHeader) {
+        //PVListingModel* myModel = static_cast<PVListingModel*>(model());
+
+        PVListingModel* myModel = (PVListingModel*) model();
+        if (myModel != 0) {
+                myModel->sortByColumn(idHeader);
+        }
 }
 
 
