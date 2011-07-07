@@ -55,12 +55,8 @@ include/PVLayerStackEventFilter.h
 include/PVLayerStackModel.h
 include/PVLayerStackView.h
 include/PVLayerStackWidget.h
-include/PVListingModelBase.h
 include/PVListingModel.h
 include/PVListingView.h
-include/PVListingNoUnselectedModel.h
-include/PVListingNoZombieModel.h
-include/PVListingNoZombieNoUnselectedModel.h
 include/PVListingsTabWidget.h
 include/PVMainWindow.h
 include/PVMapWidget.h
@@ -126,12 +122,8 @@ PVLayerStackEventFilter.cpp
 PVLayerStackModel.cpp
 PVLayerStackView.cpp
 PVLayerStackWidget.cpp
-PVListingModelBase.cpp
 PVListingModel.cpp
 PVListingView.cpp
-PVListingNoUnselectedModel.cpp
-PVListingNoZombieModel.cpp
-PVListingNoZombieNoUnselectedModel.cpp
 PVListingsTabWidget.cpp
 PVMainWindow.cpp
 PVMainWindowMenusActions.cpp
