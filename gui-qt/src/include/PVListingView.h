@@ -14,9 +14,6 @@
 
 #include <PVListingModel.h>
 #include <PVLayerStackModel.h>
-#include <PVListingNoUnselectedModel.h>
-#include <PVListingNoZombieModel.h>
-#include <PVListingNoZombieNoUnselectedModel.h>
 
 
 namespace PVInspector {

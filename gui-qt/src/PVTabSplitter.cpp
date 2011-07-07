@@ -94,7 +94,7 @@ void PVInspector::PVTabSplitter::refresh_listing_Slot()
 		pv_listing_view->verticalHeader()->viewport()->update();
 		//static_cast<PVListingModelBase*>(pv_listing_view->model())->reset_model();
 		//update the size of the corresponding table.
-		static_cast<PVListingModel*>(pv_listing_view->model())->initCorrespondance();
+		static_cast<PVListingModel*>(pv_listing_view->model())->initMatchingTable();
 		static_cast<PVListingModel*>(pv_listing_view->model())->emitLayoutChanged();
 	}
 }

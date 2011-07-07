@@ -14,9 +14,7 @@
 
 #include <PVListingView.h>
 #include <PVListingModel.h>
-#include <PVListingNoUnselectedModel.h>
-#include <PVListingNoZombieModel.h>
-#include <PVListingNoZombieNoUnselectedModel.h>
+
 
 #include <PVLayerStackModel.h>
 #include <PVLayerStackWidget.h>

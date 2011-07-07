@@ -105,7 +105,7 @@ public:
     /**
      * initialize the matching table for sort.
      */
-    void initCorrespondance();
+    void initMatchingTable();
 
     /**
      * reset the model

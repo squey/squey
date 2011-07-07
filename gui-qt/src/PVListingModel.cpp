@@ -41,7 +41,7 @@ PVInspector::PVListingModel::PVListingModel(PVMainWindow *mw, PVTabSplitter *par
     lib_view = parent_widget->get_lib_view();
     colSorted = -1;
     state_listing = state;
-    initCorrespondance();
+    initMatchingTable();
 }
 
 
@@ -200,7 +200,7 @@ Qt::ItemFlags PVInspector::PVListingModel::flags(const QModelIndex &/*index*/) c
  * PVInspector::PVListingModel::headerData
  *
  *****************************************************************************/
-void PVInspector::PVListingModel::initCorrespondance() {
+void PVInspector::PVListingModel::initMatchingTable() {
     PVLOG_INFO("PVListingModel::initCorrespondance()\n");
     Picviz::PVView_p lib_view = parent_widget->get_lib_view();
     //init the table of corresponding table.
@@ -325,7 +325,7 @@ QVariant PVInspector::PVListingModel::headerData(int section, Qt::Orientation or
 void PVInspector::PVListingModel::setState(Picviz::StateMachine_ListingMode_t mode) {
     PVLOG_INFO("PVInspector::PVListingModel::setState(%d)\n", (int) mode);
     state_listing = mode;
-    initCorrespondance();
+    initMatchingTable();
 }
 
 
@@ -467,7 +467,7 @@ int PVInspector::PVListingModel::rowCount(const QModelIndex &/*index*/) const {
  * PVInspector::PVListingModel::getCorrespondance
  *
  *****************************************************************************/
-int getCorrespondance(int) {
+int getMatch(int) {
     PVLOG_DEBUG("PVInspector::PVListingModel::%s\n", __FUNCTION__);
     return 0;
 }
@@ -482,7 +482,7 @@ void PVInspector::PVListingModel::reset_model(bool initMatchTable) {
     PVLOG_DEBUG("PVInspector::PVListingModel::%s\n", __FUNCTION__);
     reset();
     if (initMatchTable) {
-        initCorrespondance();
+        initMatchingTable();
     }
     //PVLOG_INFO("reset_model() : rowCount=%d, corresp.size=%d\n",rowCount(QModelIndex()),correspondTable.size());
 }
