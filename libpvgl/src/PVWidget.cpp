@@ -61,7 +61,7 @@ void PVGL::PVWidget::move(int x, int y)
  *****************************************************************************/
 void PVGL::PVWidget::allocate_size(const PVAllocation &new_allocation)
 {
-	PVLOG_DEBUG("PVGL::PVWidget::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVWidget::%s\n", __FUNCTION__);
 
 	allocation = new_allocation;
 }
@@ -88,7 +88,7 @@ void PVGL::PVWidget::show()
  *****************************************************************************/
 void PVGL::PVWidget::hide()
 {
-	PVLOG_DEBUG("PVGL::PVWidget::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVWidget::%s\n", __FUNCTION__);
 
 	visible = false;
 	if (parent) {

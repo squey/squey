@@ -81,7 +81,7 @@ void PVGL::PVEventLine::draw(void)
 {
 	vec2 pos;
 
-	PVLOG_DEBUG("PVGL::PVEventLine::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVEventLine::%s\n", __FUNCTION__);
 
 	glDisable(GL_DEPTH_TEST);
 	for (unsigned i = 0; i < 3; i++) {

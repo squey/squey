@@ -57,7 +57,7 @@ PVGL::PVIdleManager idle_manager;
  *****************************************************************************/
 void PVGL::PVMain::idle_callback(void)
 {
-	PVLOG_DEBUG("PVGL::PVMain::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVMain::%s\n", __FUNCTION__);
 
 	idle_manager.callback();
 }
@@ -69,7 +69,7 @@ void PVGL::PVMain::idle_callback(void)
  *****************************************************************************/
 PVGL::PVDrawable *PVGL::PVMain::get_drawable_from_id(int window_id)
 {
-	PVLOG_DEBUG("PVGL::PVMain::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVMain::%s\n", __FUNCTION__);
 
 	for (std::list<PVGL::PVDrawable*>::iterator it = all_drawables.begin(); it != all_drawables.end(); ++it) {
 		if ((*it)->get_window_id() == window_id) {
@@ -91,7 +91,7 @@ void PVGL::PVMain::display_callback()
 {
 	PVGL::PVDrawable *current_drawable;
 
-	PVLOG_DEBUG("PVGL::PVMain::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVMain::%s\n", __FUNCTION__);
 
 	current_drawable = PVGL::PVMain::get_drawable_from_id(glutGetWindow());
 
@@ -468,7 +468,7 @@ void PVGL::PVMain::timer_func(int)
 {
 	PVGL::PVMessage message;
 
-	PVLOG_DEBUG("PVGL::PVMain::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVMain::%s\n", __FUNCTION__);
 
 	if (_should_stop) {
 		PVLOG_ERROR("PVGL::PVMain::%s: we are exiting, don't do too much!\n", __FUNCTION__);

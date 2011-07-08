@@ -589,7 +589,7 @@ void PVGL::PVLines::draw()
 {
 	Picviz::StateMachine *state_machine = picviz_view->state_machine;
 
-	PVLOG_DEBUG("PVGL::PVLines::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVLines::%s\n", __FUNCTION__);
 
 	if (!picviz_view->is_consistent()) {
 		return;

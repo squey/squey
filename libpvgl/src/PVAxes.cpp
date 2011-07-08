@@ -79,7 +79,7 @@ void PVGL::PVAxes::draw(bool axes_mode)
 	GLfloat m[16];
 	Picviz::StateMachine *state_machine = pv_view->state_machine;
 
-	PVLOG_DEBUG("PVGL::PVAxes::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVAxes::%s\n", __FUNCTION__);
 
 	if (!pv_view->is_consistent())
 		return;
@@ -124,7 +124,7 @@ void PVGL::PVAxes::draw_bg(void)
 	GLfloat m[16];
 	Picviz::StateMachine *state_machine = pv_view->state_machine;
 
-	PVLOG_DEBUG("PVGL::PVAxes::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVAxes::%s\n", __FUNCTION__);
 
 	if (!pv_view->is_consistent())
 		return;
@@ -169,7 +169,7 @@ void PVGL::PVAxes::draw_names()
 	float                font_size;
 	Picviz::StateMachine *state_machine;
 
-	PVLOG_DEBUG("PVGL::PVAxes::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVAxes::%s\n", __FUNCTION__);
 
 	if (!pv_view) { // Sanity check
 		return;

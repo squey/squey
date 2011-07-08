@@ -142,7 +142,7 @@ void PVGL::PVView::draw(void)
 	float zoom_y;
 	Picviz::StateMachine *state_machine;
 
-	PVLOG_DEBUG("PVGL::PVView::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVView::%s\n", __FUNCTION__);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -773,22 +773,28 @@ void PVGL::PVView::mouse_wheel(int delta_zoom_level, int x, int y)
  *****************************************************************************/
 void PVGL::PVView::mouse_down(int button, int x, int y, int modifiers)
 {
+                mouseEventLocker.lock();
+                mouseClicking = true;
 	vec2 plotted_mouse;
 	Picviz::StateMachine *state_machine;
 
-	PVLOG_DEBUG("PVGL::PVView::%s\n", __FUNCTION__);
+	PVLOG_INFO("PVGL::PVView::%s\n", __FUNCTION__);
 
 	if (!picviz_view) { // Sanity check
+                                mouseEventLocker.unlock();
 		return;
 	}
 	if (!picviz_view->is_consistent()) {
+                                mouseEventLocker.unlock();
 		return;
 	}
 	state_machine = picviz_view->state_machine;
 	if (map.mouse_down(x, y)) {
+                                mouseEventLocker.unlock();
 		return;
 	}
 	if (top_bar->is_visible() && event_line->mouse_down(button, x, y, modifiers)) {
+                                mouseEventLocker.unlock();
 		return;
 	}
 	/* We test whether AXES_MODE is active or not */
@@ -886,6 +892,7 @@ void PVGL::PVView::mouse_down(int button, int x, int y, int modifiers)
 			}
 		}
 	}
+                mouseEventLocker.unlock();
 }
 
 /******************************************************************************
@@ -895,20 +902,31 @@ void PVGL::PVView::mouse_down(int button, int x, int y, int modifiers)
  *****************************************************************************/
 bool PVGL::PVView::mouse_move(int x, int y, int modifiers)
 {
+                
+                mouseEventLocker.lock();
+                if(!mouseClicking){
+                                mouseEventLocker.unlock();
+		return false;
+                }
+                PVLOG_INFO("PVGL::PVView::%s\n", __FUNCTION__);
 	Picviz::StateMachine   *state_machine;
 	vec2 plotted_mouse;
 
 	if (!picviz_view) { // The view isn't finished to be read and parsed
+                                mouseEventLocker.unlock();
 		return false;
 	}
 	if (!picviz_view->is_consistent()) {
+                                mouseEventLocker.unlock();
 		return false;
 	}
 	state_machine = picviz_view->state_machine;
 	if (map.mouse_move(x, y)) {
+                                mouseEventLocker.unlock();
 		return false;
 	}
 	if (top_bar->is_visible() && event_line->mouse_move(x, y, modifiers)) {
+                                mouseEventLocker.unlock();
 		return false;
 	}
 	/* We test if we are in GRAB mode */
@@ -924,6 +942,7 @@ bool PVGL::PVView::mouse_move(int x, int y, int modifiers)
 			/* the axis really moved... */
 			update_all();
 		}
+                                mouseEventLocker.unlock();
 		return false;
 	} else { // We are in SELECTION mode.
 		// Store the position of this last square_area position in the plotted coordinates system.
@@ -934,8 +953,10 @@ bool PVGL::PVView::mouse_move(int x, int y, int modifiers)
 		picviz_view->square_area.set_dirty();
 		set_update_line_dirty();
 		update_selection_except_listing();
+                                mouseEventLocker.unlock();
 		return true; // Tell all the windows to redraw.
 	}
+                mouseEventLocker.unlock();
 	return false;
 }
 
@@ -947,22 +968,27 @@ bool PVGL::PVView::mouse_move(int x, int y, int modifiers)
 bool PVGL::PVView::mouse_up(int button, int x, int y, int modifiers)
 {
 	Picviz::StateMachine *state_machine;
-
-	PVLOG_DEBUG("PVGL::PVView::%s\n", __FUNCTION__);
+                mouseEventLocker.lock();
+                mouseClicking = false;
+	PVLOG_INFO("PVGL::PVView::%s\n", __FUNCTION__);
 
 	if (!picviz_view) {
+                                mouseEventLocker.unlock();
 		return false;
 	}
 	if (!picviz_view->is_consistent()) {
+                                mouseEventLocker.unlock();
 		return false;
 	}
 	state_machine = picviz_view->state_machine;
 
 	if (map.mouse_up(x, y)) {
+                                mouseEventLocker.unlock();
 		return true;
 	}
 
 	if (top_bar->is_visible() && event_line->mouse_up(button, x, y, modifiers)) {
+                                mouseEventLocker.unlock();
 		return true;
 	}
 	/* We test if we are NOT in GRAB mode */
@@ -983,6 +1009,7 @@ bool PVGL::PVView::mouse_up(int button, int x, int y, int modifiers)
 		get_lines().set_zombie_fbo_dirty();
 		//map.set_zombie_fbo_dirty();
 	}
+                mouseEventLocker.unlock();
 	return true;
 }
 
@@ -1039,7 +1066,7 @@ void PVGL::PVView::update_set_size()
  *****************************************************************************/
 bool PVGL::PVView::is_set_size_dirty() const
 {
-	PVLOG_DEBUG("PVGL::PVView::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVView::%s\n", __FUNCTION__);
 
 	return size_dirty;
 }
@@ -1063,6 +1090,7 @@ void PVGL::PVView::reinit_picviz_view()
  *****************************************************************************/
 void PVGL::PVView::update_listing(void)
 {
+                PVLOG_INFO("PVGL::PVView::update_listing\n");
 	PVGL::PVMessage message;
 
 	message.function = PVGL_COM_FUNCTION_CLEAR_SELECTION;

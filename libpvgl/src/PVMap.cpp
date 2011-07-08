@@ -414,7 +414,7 @@ void PVGL::PVMap::draw()
 {
 	Picviz::StateMachine *state_machine = picviz_view->state_machine;
 
-	PVLOG_DEBUG("PVGL::PVMap::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVMap::%s\n", __FUNCTION__);
 
 	if (!picviz_view->is_consistent()) {
 		return;

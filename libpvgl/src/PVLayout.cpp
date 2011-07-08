@@ -26,7 +26,7 @@ PVGL::PVLayout::PVLayout(PVWidgetManager *widget_manager_) : PVContainer(widget_
  *****************************************************************************/
 void PVGL::PVLayout::draw()
 {
-	PVLOG_DEBUG("PVGL::PVLayout::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVLayout::%s\n", __FUNCTION__);
 
 	if (!visible)
 		return;
@@ -101,7 +101,7 @@ void PVGL::PVLayout::set_size(int width, int height)
  *****************************************************************************/
 void PVGL::PVLayout::allocate_size(const PVAllocation &new_allocation)
 {
-	PVLOG_DEBUG("PVGL::PVLayout::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVLayout::%s\n", __FUNCTION__);
 
 	allocation = new_allocation;
 
@@ -140,7 +140,7 @@ void PVGL::PVLayout::allocate_size(const PVAllocation &new_allocation)
  *****************************************************************************/
 void PVGL::PVLayout::size_adjust()
 {
-	PVLOG_DEBUG("PVGL::PVLayout::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVLayout::%s\n", __FUNCTION__);
 
 	if (parent) {
 		parent->size_adjust();

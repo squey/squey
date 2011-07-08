@@ -66,7 +66,7 @@ PVGL::PVFont::PVFont()
  ******************************************************************************/
 void PVGL::PVFont::draw_text(float x, float y, const char *text, int font_size)
 {
-	PVLOG_DEBUG("PVGL::PVFont::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVFont::%s\n", __FUNCTION__);
 
 	FT_Error    error;
 	FT_GlyphSlot slot = face->glyph;
@@ -162,7 +162,7 @@ void PVGL::PVFont::get_text_size(const std::string &text, int font_height, int &
 	int         ascent, descent;
 	const char *c_text = text.c_str();
 
-	PVLOG_DEBUG("PVGL::PVFont::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVFont::%s\n", __FUNCTION__);
 
 	FT_Set_Char_Size(face, font_height << 6, font_height << 6, 100, 100);
 

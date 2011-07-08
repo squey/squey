@@ -62,7 +62,7 @@ void PVGL::PVSelectionSquare::draw(void)
 	GLfloat m[16];
 	Picviz::StateMachine *state_machine = pv_view->state_machine;
 
-	PVLOG_DEBUG("PVGL::PVSelectionSquare::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVSelectionSquare::%s\n", __FUNCTION__);
 
 	if (!pv_view->is_consistent()) {
 		return;
@@ -109,7 +109,7 @@ void PVGL::PVSelectionSquare::draw(void)
  *****************************************************************************/
 void PVGL::PVSelectionSquare::update_arrays (void)
 {
-	PVLOG_DEBUG("PVGL::PVSelectionSquare::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVSelectionSquare::%s\n", __FUNCTION__);
 
 	if (!pv_view->is_consistent()) {
 		return;
