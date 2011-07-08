@@ -156,6 +156,7 @@ bool PVCore::PVDateTimeParser::TimeFormat::to_datetime(UnicodeString const& valu
 {
 	UErrorCode err = U_ZERO_ERROR;
 	cal->setTime(0, err);
+	cal->setTimeZone(*TimeZone::getGMT());
 	UnicodeString value_(value);
 
 	if (prepend_year_value) {
@@ -191,6 +192,7 @@ bool PVCore::PVDateTimeParser::TimeFormatEpoch::to_datetime(UnicodeString const&
 {
 	UErrorCode err = U_ZERO_ERROR;
 	cal->setTime(0, err);
+	cal->setTimeZone(*TimeZone::getGMT());
 	QString tmp = QString::fromRawData(reinterpret_cast<const QChar *>(value.getBuffer()), value.length());
 	bool ok = false;
 	UDate date = tmp.toLongLong(&ok);

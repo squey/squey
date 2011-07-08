@@ -15,7 +15,7 @@ int main(int argc, char** argv)
 	if (argc < 2) {
 		std::cerr << "Usage: " << argv[0] << " file" << std::endl;
 		std::cerr << "where file is an UTF-8 encoded CSV-like file with :" << std::endl;
-		std::cerr << "time string,time format,epoch in ms" << std::endl << std::endl;
+		std::cerr << "time string,time format,epoch in ms,hour in day,minute in day,seconds in day" << std::endl << std::endl;
 		std::cerr << "For instance:" << std::endl;
 		std::cerr << "01/01/1970 00:00:01,d/M/yyyy h:m:s,1" << std::endl;
 		return 1;
@@ -37,22 +37,50 @@ int main(int argc, char** argv)
 	Calendar* cal = Calendar::createInstance(err_);
 	while (!in.atEnd()) {
 		QString line = in.readLine().trimmed();
-		if (line.size() == 0) {
+		if (line.size() == 0)
 			continue;
-		}
+
 		QStringList params = line.split(QChar(','));
+		if (params.size() < 6)
+			continue;
 		QString const& time_str = params[0];
 		QString const& time_format = params[1];
 		bool ok = false;
 		int64_t res_ref = params[2].toLongLong(&ok);
+		if (!ok)
+			continue;
+		int32_t h_ref = params[3].toLongLong(&ok);
+		if (!ok)
+			continue;
+		int32_t m_ref = params[4].toLongLong(&ok);
+		if (!ok)
+			continue;
+		int32_t s_ref = params[5].toLongLong(&ok);
+		if (!ok)
+			continue;
 
 		PVCore::PVDateTimeParser parser(QStringList() << time_format);
 		parser.mapping_time_to_cal(time_str, cal);
 		UErrorCode err = U_ZERO_ERROR;
 		int64_t res = cal->getTime(err);
-		std::cout << qPrintable(time_str) << "," << qPrintable(time_format) << "," << res;
+		int32_t s = cal->get(UCAL_SECOND, err);
+		int32_t m = cal->get(UCAL_MINUTE, err);
+		int32_t h = cal->get(UCAL_HOUR_OF_DAY, err);
+		std::cout << qPrintable(time_str) << "," << qPrintable(time_format) << "," << res << "," << h_ref << "," << m_ref << "," << s_ref;
 		if (res != res_ref) {
-			std::cout << " failed (!= " << res_ref << ")" << std::endl;
+			std::cout << " failed (res!= " << res_ref << ")" << std::endl;
+			return 1;
+		}
+		if (h != h_ref) {
+			std::cout << " failed (h!=" << h << ")" << std::endl;
+			return 1;
+		}
+		if (m != m_ref) {
+			std::cout << " failed (m!=" << m << ")" << std::endl;
+			return 1;
+		}
+		if (s != s_ref) {
+			std::cout << " failed (s!=" << s << ")" << std::endl;
 			return 1;
 		}
 		std::cout << std::endl;
