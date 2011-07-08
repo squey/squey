@@ -14,6 +14,8 @@
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 
+
+
 #include <picviz/PVView.h>
 
 #include <pvgl/PVConfig.h>
@@ -73,6 +75,10 @@ PVGL::PVView::PVView(int win_id, PVCom *com) : PVGL::PVDrawable(win_id, com),
 	label_lpr = new PVLabel(&widget_manager, "LPR: 25000"); // FIXME this should use a 'const' ?
 	label_lpr->set_color(ubvec4(0, 0, 0, 255));
 	vbox->pack_start(label_lpr);
+        
+                //
+                mouseEventLocker.unlock();
+                mouseClicking = false;
 }
 
 PVGL::PVView::~PVView()

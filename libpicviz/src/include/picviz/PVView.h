@@ -11,6 +11,7 @@
 #include <QStringList>
 #include <QString>
 #include <QVector>
+#include <QMutex>
 
 #include <pvcore/general.h>
 
@@ -46,6 +47,8 @@ namespace Picviz {
  * \class PVView
  */
 class LibExport PVView {
+
+
 public:
 	typedef QHash<QString,PVFilter::PVArgumentList> map_filter_arguments;
 	typedef boost::shared_ptr<PVView> p_type;
