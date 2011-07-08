@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE PVParamXml>
+<param>
+	<csv delimiter=",">
+		<field>
+			<axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="integer" name="Number" plotting="default" color="#ffffff" time-sample=""/>
+		</field>
+		<field>
+			<axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="enum" name="Name" plotting="default" color="#ffffff" time-sample=""/>
+		</field>
+		<field>
+			<axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="enum" name="Something" plotting="default" color="#ffffff" time-sample=""/>
+		</field>
+		<field>
+			<axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="ipv4" name="IP Addr" plotting="default" color="#ffffff" time-sample=""/>
+		</field>
+	</csv>
+</param>
