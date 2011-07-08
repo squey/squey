@@ -1,24 +1,24 @@
-#define SIMULATE_PIPELINE
 #include <pvfilter/PVPluginsLoad.h>
+#include <pvrush/PVInputType.h>
 #include <pvrush/PVPluginsLoad.h>
 #include <pvrush/PVExtractor.h>
 #include <pvrush/PVControllerJob.h>
 #include <pvrush/PVFormat.h>
 #include <pvrush/PVTests.h>
+#include <picviz/PVRoot.h>
+#include <picviz/PVScene.h>
+#include <picviz/PVSource.h>
+#include <picviz/PVMapping.h>
+#include <picviz/PVMapped.h>
 #include <cstdlib>
 #include <iostream>
-#include "helpers.h"
 #include <QCoreApplication>
 #include "test-env.h"
-
-using std::cout;
-using std::cerr;
-using std::endl;
 
 int main(int argc, char** argv)
 {
 	if (argc <= 2) {
-		cerr << "Usage: " << argv[0] << " file format" << endl;
+		std::cerr << "Usage: " << argv[0] << " file format" << std::endl;
 		return 1;
 	}
 
@@ -46,25 +46,19 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	// Process that file with the found source creator thanks to the extractor
-	PVRush::PVSourceCreator::source_p src = sc_file->create_source_from_input(file);
-	if (!src) {
-		std::cerr << "Unable to create PVRush source from file " << argv[1] << std::endl;
-		return 1;
-	}
-
-	// Create the extractor
-	PVRush::PVExtractor ext;
-	ext.start_controller();
-	ext.add_source(src);
-	ext.set_chunk_filter(format.create_tbb_filters());
-
-	// Ask for 1 million lines
-	PVRush::PVControllerJob_p job = ext.process_from_agg_nlines(0, 1000000);
+	// Create the PVSource object
+	Picviz::PVRoot_p root(new Picviz::PVRoot());
+	Picviz::PVScene_p scene(new Picviz::PVScene("scene", root));
+	Picviz::PVSource_p src(new Picviz::PVSource(scene));
+	PVRush::PVControllerJob_p job = src->files_append(format, sc_file, PVRush::PVInputType::list_inputs() << file);
 	job->wait_end();
 
-	// Dump the NRAW to stdout
-	dump_nraw_csv(ext.get_nraw());
+	// Map the nraw
+	Picviz::PVMapping_p mapping(new Picviz::PVMapping(src));
+	Picviz::PVMapped_p mapped(new Picviz::PVMapped(mapping));
+
+	// Dump the mapped table to stdout in a CSV format
+	mapped->to_csv();
 
 	return 0;
 }

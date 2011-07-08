@@ -154,6 +154,8 @@ PVCore::PVDateTimeParser::TimeFormat& PVCore::PVDateTimeParser::TimeFormat::oper
 
 bool PVCore::PVDateTimeParser::TimeFormat::to_datetime(UnicodeString const& value, Calendar* cal)
 {
+	UErrorCode err = U_ZERO_ERROR;
+	cal->setTime(0, err);
 	UnicodeString value_(value);
 
 	if (prepend_year_value) {
@@ -187,12 +189,14 @@ bool PVCore::PVDateTimeParser::TimeFormat::to_datetime(UnicodeString const& valu
 
 bool PVCore::PVDateTimeParser::TimeFormatEpoch::to_datetime(UnicodeString const& value, Calendar* cal)
 {
+	UErrorCode err = U_ZERO_ERROR;
+	cal->setTime(0, err);
 	QString tmp = QString::fromRawData(reinterpret_cast<const QChar *>(value.getBuffer()), value.length());
 	bool ok = false;
 	UDate date = tmp.toLongLong(&ok);
 	if (!ok)
 		return false;
-	UErrorCode err = U_ZERO_ERROR;
+	err = U_ZERO_ERROR;
 	cal->setTime(date, err);
 
 	return U_SUCCESS(err);
