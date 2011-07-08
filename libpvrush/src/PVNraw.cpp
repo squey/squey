@@ -121,6 +121,7 @@ void PVRush::PVNraw::copy(PVNraw &dst, PVNraw const& src)
 		for (it_l = it->begin(); it_l != it->end(); it_l++) {
 			QString const& str = *it_l;
 			dst.set_field(line, i, str.constData(), str.size());
+			i++;
 		}
 	}
 
@@ -136,6 +137,6 @@ void PVRush::PVNraw::move(PVNraw &dst, PVNraw& src)
 	dst.trans_table = src.trans_table;
 	dst.format = src.format;
 
-	dst.table.clear();
-	dst.trans_table.clear();
+	src.table.clear();
+	src.trans_table.clear();
 }

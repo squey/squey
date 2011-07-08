@@ -216,7 +216,7 @@ void PVRush::PVExtractor::debug()
 
 void PVRush::PVExtractor::save_nraw()
 {
-	PVNraw::copy(_saved_nraw, _nraw);
+	PVNraw::move(_saved_nraw, _nraw);
 	_saved_nraw_valid = true;
 }
 
