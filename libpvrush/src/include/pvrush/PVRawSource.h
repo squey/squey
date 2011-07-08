@@ -39,7 +39,7 @@ public:
 	{
 		if (_curc)
 			_curc->free();
-		if (_nextc)
+		if (_nextc && _nextc != _curc)
 			_nextc->free();
 	}
 public:
@@ -55,7 +55,7 @@ public:
 				// Create a final element with what's currently in the chunk and returns it
 				_align_base(*_curc, *_nextc);
 				PVCore::PVChunk* ret = _curc;
-				// _nextc is empty, so the next call to thsi function will return NULL
+				// _nextc is empty, so the next call to this function will return NULL
 				_curc = _nextc;
 				return ret;
 			}
@@ -119,7 +119,7 @@ public:
 		_input.seek_begin();
 		if (_curc)
 			_curc->free();
-		if (_nextc)
+		if (_nextc && _nextc != _curc)
 			_nextc->free();
 		_curc = PVChunkAlloc::allocate(_chunk_size, this, _alloc);
 		_nextc = PVChunkAlloc::allocate(_chunk_size, this, _alloc);
