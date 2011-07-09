@@ -48,6 +48,13 @@ namespace PVRush {
 		void free_trans_nraw();
 		void clear();
 
+		// This is explicit so that we are aware that we are going to allocate
+		// a huge amount of memory !
+		static void copy(PVNraw &dst, PVNraw const& src);
+
+		// Move an nraw data to another PVNraw object. No copy and allocations occurs.
+		static void move(PVNraw &dst, PVNraw& src);
+
 		inline void push_line_chars(size_t nchars) { _mean_line_chars.push(nchars); }
 		inline nraw_table& get_table() { return table; }
 		inline nraw_table const& get_table() const { return table; }
@@ -67,7 +74,7 @@ namespace PVRush {
 			return ret;
 		}
 
-		inline void set_field(nraw_table_line& line, size_t index_field, QChar* buf, size_t nchars)
+		inline void set_field(nraw_table_line& line, size_t index_field, const QChar* buf, size_t nchars)
 		{
 //			if (nchars > _rem_len_buf) {
 //				// Need a reallocation
@@ -107,6 +114,8 @@ namespace PVRush {
 
 	private:
 		PVNraw(const PVNraw& /*nraw*/) {}
+		PVNraw& operator=(PVNraw const& /*nraw*/) {return *this;}
+
 	};
 
 }

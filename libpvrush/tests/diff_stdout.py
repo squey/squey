@@ -14,13 +14,15 @@ prog = sys.argv[3:]
 with open(file_out, "w") as f:
 	p = subprocess.Popen(prog, stdout=f)
 	ret = p.wait()
-	if (ret != 0): sys.exit(ret)
+	if (ret != 0):
+		os.remove(file_out)
+		sys.exit(ret)
 
 with open(file_out_diff, "w") as f:
 	p = subprocess.Popen(["diff", "-u", file_ref, file_out], stdout=f)
 	ret = p.wait()
-	os.unlink(file_out)
+	os.remove(file_out)
 	if (ret != 0): sys.exit(ret)
 
-os.unlink(file_out_diff)
+#os.unlink(file_out_diff)
 sys.exit(0)

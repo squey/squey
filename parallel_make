@@ -3,7 +3,7 @@
 #
 # Based on the order of the "add_subdirectory" in the root CMakeList.txt
 
-LIBS_ORDER="libpvcore libpvfilter libpvrush libpicviz libpvgl picviz-inspector"
+LIBS_ORDER="libpvcore libpvfilter libpvrush libpicviz libpvgl gui-qt"
 TESTS_ORDER="libpvcore libpvfilter libpvrush libpicviz"
 PLUGINS_ORDER="libpvrush libpicviz"
 

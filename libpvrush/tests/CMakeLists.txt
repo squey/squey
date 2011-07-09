@@ -79,6 +79,15 @@ add_executable(Trush_process_file process_file.cpp helpers.cpp)
 target_link_libraries(Trush_process_file ${LINK_LIBRARIES})
 add_test(TestHadIssues ./test_issues.sh)
 
+# Test cases for tickets
+add_executable(Trush_ticket_1 ticket_1.cpp)
+target_link_libraries(Trush_ticket_1 ${LINK_LIBRARIES})
+add_test(TestTicket1 ./Trush_ticket_1)
+
+add_executable(Trush_ticket_2 ticket_2.cpp helpers.cpp)
+target_link_libraries(Trush_ticket_2 ${LINK_LIBRARIES})
+add_test(TestTicket2 ./Trush_ticket_2)
+
 # Benchmark for the whole extractor
 add_executable(Trush_bench bench_extractor.cpp)
 target_link_libraries(Trush_bench ${LINK_LIBRARIES})

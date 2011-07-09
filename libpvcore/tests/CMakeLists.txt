@@ -31,10 +31,12 @@ add_executable(Tcore_logger logger.cpp)
 target_link_libraries(Tcore_logger ${PVCORE_LIBRARY} ${QT_LIBRARIES})
 add_test(TestLogger Tcore_logger)
 
+# Time format parser test
 add_executable(Tcore_timeformat time-format.cpp)
 target_link_libraries(Tcore_timeformat ${PVCORE_LIBRARY} ${QT_LIBRARIES} ${ICU_LIBRARY})
-add_test(TestTimeformat Tcore_timeformat)
+add_test(TestTimeformat Tcore_timeformat test-files/time_format)
 
 add_executable(Tcore_parser parser.cpp)
 target_link_libraries(Tcore_parser ${PVCORE_LIBRARY} ${QT_LIBRARIES})
 add_test(TestParser Tcore_parser)
+

@@ -86,12 +86,6 @@ void PVRush::PVFormat::debug()
 
 	QHashIterator<int, QString> decoder_axis_hash(axis_decoder);
 
-	while (time_hash.hasNext()) {
-		time_hash.next();
-		PVLOG_PLAIN("time format strings[%d]: ", time_hash.key());
-		debug_qstringlist(time_hash.value());
-	}
-
 	while (decoder_axis_hash.hasNext()) {
 		decoder_axis_hash.next();
 		PVLOG_PLAIN("axis_decoder[%d]:'%s'\n", decoder_axis_hash.key(), decoder_axis_hash.value().toUtf8().data());

@@ -32,6 +32,7 @@ PVControllerThread.cpp
 PVExtractor.cpp
 PVPluginsLoad.cpp
 PVSourceCreatorFactory.cpp
+PVTests.cpp
 
 #uchardetect, from Mozilla's nsUniversalDetector
 uchardetect/CharDistribution.cpp
@@ -98,6 +99,7 @@ include/pvrush/PVController.h
 include/pvrush/PVControllerThread.h
 include/pvrush/PVPipelineTask.h
 include/pvrush/PVExtractor.h
+include/pvrush/PVTests.h
 
 #uchardetect, from Mozilla's nsUniversalDetector
 include/pvrush/uchardetect/CharDistribution.h

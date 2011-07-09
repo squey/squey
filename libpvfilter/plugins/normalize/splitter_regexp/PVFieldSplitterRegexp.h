@@ -7,7 +7,7 @@
 #ifndef PVFILTER_PVFIELDSPLITTERREGEXP_H
 #define PVFILTER_PVFIELDSPLITTERREGEXP_H
 
-#define PROCESS_REGEXP_ICU
+//#define PROCESS_REGEXP_ICU
 
 #include <pvcore/general.h>
 #include <pvcore/PVField.h>
@@ -34,10 +34,11 @@ public:
 protected:
 #ifdef PROCESS_REGEXP_ICU
 	boost::shared_ptr<RegexPattern> _regexp;
+	boost::shared_ptr<RegexMatcher> _regexp_matcher;
 	boost::thread_specific_ptr<RegexMatcher> _regexp_thread;
 #else
 	QRegExp _regexp;
-	boost::thread_specific_ptr<QRegExp> _regexp_thread;
+	//boost::thread_specific_ptr<QRegExp> _regexp_thread;
 #endif
 
 	CLASS_FILTER(PVFilter::PVFieldSplitterRegexp)
