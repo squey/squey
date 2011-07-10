@@ -92,7 +92,7 @@ void Picviz::PVStateMachine::set_listing_zombie_visibility(bool state)
 
     switch(listing_mode){
         case LISTING_ALL:
-		if ( ! state) {
+		if (!state) {
 			listing_mode = LISTING_NO_ZOMBIES;
 		}
             break;
@@ -107,7 +107,7 @@ void Picviz::PVStateMachine::set_listing_zombie_visibility(bool state)
 		}
             break;
         case LISTING_NO_UNSEL:
-		if ( ! state) {
+		if (!state) {
 			listing_mode = LISTING_NO_UNSEL_NO_ZOMBIES;
 		}
             break;
@@ -133,22 +133,28 @@ void Picviz::PVStateMachine::set_listing_unselected_visibility(bool state)
     PVLOG_DEBUG("StateMachine set_listing_unselected_visibility\n");
     switch(listing_mode){
         case LISTING_ALL:
-            if(!state)
-                listing_mode=LISTING_NO_UNSEL;
-            break;
+		if(!state) {
+			listing_mode = LISTING_NO_UNSEL;
+		}
+		break;
         case LISTING_NO_ZOMBIES:
-            if(!state)
-                listing_mode = LISTING_NO_UNSEL_NO_ZOMBIES;
-            break;
+		if(!state) {
+			listing_mode = LISTING_NO_UNSEL_NO_ZOMBIES;
+		}
+		break;
         case LISTING_NO_UNSEL_NO_ZOMBIES:
-            if(state)
-                listing_mode = LISTING_NO_ZOMBIES;
-            break;
+		if(state) {
+			listing_mode = LISTING_NO_ZOMBIES;
+		}
+		break;
         case LISTING_NO_UNSEL:
-            if(state)
-                listing_mode=LISTING_ALL;
-            break;
-        default:break;
+		if(state) {
+			listing_mode=LISTING_ALL;
+		}
+		break;
+        default:
+		PVLOG_ERROR("Unknown listing mode!\n");
+		break;
     }
     print_listing_mode(listing_mode);
 }
@@ -176,7 +182,9 @@ void Picviz::PVStateMachine::toggle_listing_unselected_visibility()
         case LISTING_NO_UNSEL:
                 listing_mode = LISTING_ALL;
             break;
-        default:break;
+        default:
+		PVLOG_ERROR("Unknown listing mode!\n");
+		break;
     }
     print_listing_mode(listing_mode);
 }
@@ -204,7 +212,9 @@ void Picviz::PVStateMachine::toggle_listing_zombie_visibility()
         case LISTING_NO_UNSEL:
             listing_mode = LISTING_NO_UNSEL_NO_ZOMBIES;
             break;
-        default:break;
+        default:
+		PVLOG_ERROR("Unknown listing mode!\n");
+		break;
     }
     print_listing_mode(listing_mode);
 }
