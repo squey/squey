@@ -77,7 +77,7 @@ Picviz::PVView::PVView(PVPlotted_p parent) :
 
 	reset_layers();
 
-	state_machine = new Picviz::StateMachine();
+	state_machine = new Picviz::PVStateMachine();
 
 	_is_consistent = true;
 
@@ -839,22 +839,22 @@ void Picviz::PVView::process_selection()
 {
 	/* We treat the selection according to specific SQUARE_AREA_SELECTION mode */
 	switch (state_machine->get_square_area_mode()) {
-		case Picviz::StateMachine::AREA_MODE_SET_WITH_VOLATILE:
+		case Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE:
 			pre_filter_layer.get_selection() = volatile_selection;
 //			volatile_selection.A2B_copy(pre_filter_layer->selection);
 			break;
 
-		case Picviz::StateMachine::AREA_MODE_ADD_VOLATILE:
+		case Picviz::PVStateMachine::AREA_MODE_ADD_VOLATILE:
 			pre_filter_layer.get_selection() = floating_selection | volatile_selection;
 //			floating_selection.AB2C_or(volatile_selection, pre_filter_layer->selection);
 			break;
 
-		case Picviz::StateMachine::AREA_MODE_SUBSTRACT_VOLATILE:
+		case Picviz::PVStateMachine::AREA_MODE_SUBSTRACT_VOLATILE:
 			pre_filter_layer.get_selection() = floating_selection - volatile_selection;
 			//floating_selection.AB2C_substraction(volatile_selection, pre_filter_layer->selection);
 			break;
 
-		case Picviz::StateMachine::AREA_MODE_INTERSECT_VOLATILE:
+		case Picviz::PVStateMachine::AREA_MODE_INTERSECT_VOLATILE:
 			pre_filter_layer.get_selection() = floating_selection & volatile_selection;
 		//	floating_selection.AB2C_and(volatile_selection, pre_filter_layer->selection);
 			break;
@@ -1398,6 +1398,6 @@ void Picviz::PVView::recreate_mapping_plotting()
 	z_level_array.set_row_count(row_count);
 
 	volatile_selection = layer_stack_output_layer.get_selection();
-	state_machine->set_square_area_mode(Picviz::StateMachine::AREA_MODE_OFF);
+	state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_OFF);
 	process_from_layer_stack();
 }

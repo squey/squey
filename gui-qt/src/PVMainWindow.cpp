@@ -49,9 +49,11 @@
 #include <picviz/general.h>
 #include <picviz/arguments.h>
 #include <picviz/PVSelection.h>
-#include <picviz/state-machine.h>
 #include <picviz/PVMapping.h>
 #include <picviz/PVPlotting.h>
+#include <picviz/PVStateMachine.h>
+
+
 #include <PVProgressBox.h>
 
 // Filters
@@ -837,7 +839,7 @@ void PVInspector::PVMainWindow::destroy_pvgl_views(Picviz::PVView_p view)
 void PVInspector::PVMainWindow::lines_display_unselected_Slot()
 {
 	Picviz::PVView_p current_lib_view;
-	Picviz::StateMachine *state_machine = NULL;
+	Picviz::PVStateMachine *state_machine = NULL;
 
 	if (!current_tab) {
 		return;
@@ -918,7 +920,7 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 	/* ... and the current_selected_layer */
 	Picviz::PVLayer *current_selected_layer = NULL;
 	/* We also need an access to the state machine */
-	Picviz::StateMachine *state_machine = NULL;
+	Picviz::PVStateMachine *state_machine = NULL;
 	/* things needed for the screenshot */
 	QString initial_path;
 	QImage screenshot_image;
@@ -950,7 +952,7 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 			}
 
 			/* We deactivate the square area */
-			state_machine->set_square_area_mode(Picviz::StateMachine::AREA_MODE_OFF);
+			state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_OFF);
 			/* We process the view from the selection */
 			current_lib_view->process_from_selection();
 			/* We refresh the view */
@@ -1070,7 +1072,7 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 				break;
 			}
 			/* We turn SQUARE AREA mode OFF */
-			state_machine->set_square_area_mode(Picviz::StateMachine::AREA_MODE_OFF);
+			state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_OFF);
 			/* We need to process the view from the selection */
 			current_lib_view->process_from_selection();
 			/* THEN we can refresh the view */
@@ -1459,7 +1461,7 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 				/* if we enter in AXES_MODE we must disable SQUARE_AREA_MODE */
 				if (state_machine->is_axes_mode()) {
 					/* We turn SQUARE AREA mode OFF */
-					state_machine->set_square_area_mode(Picviz::StateMachine::AREA_MODE_OFF);
+					state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_OFF);
 				}
 
 				update_pvglview(current_lib_view, PVGL_COM_REFRESH_SELECTION);

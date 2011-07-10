@@ -70,7 +70,7 @@ void PVInspector::PVMainWindow::axes_mode_Slot()
 	// if we enter in AXES_MODE we must disable SQUARE_AREA_MODE
 	if (current_lib_view->state_machine->is_axes_mode()) {
 		/* We turn SQUARE AREA mode OFF */
-		current_lib_view->state_machine->set_square_area_mode(Picviz::StateMachine::AREA_MODE_OFF);
+		current_lib_view->state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_OFF);
 		//current_view->update_axes();
 		axes_mode_Action->setText(QString("Leave Axes mode"));
 	} else {
@@ -163,7 +163,7 @@ void PVInspector::PVMainWindow::commit_selection_to_new_layer_Slot()
 void PVInspector::PVMainWindow::lines_display_unselected_listing_Slot()
 {
 	Picviz::PVView_p current_lib_view;
-	Picviz::StateMachine *state_machine = NULL;
+	Picviz::PVStateMachine *state_machine = NULL;
 
 	if (!current_tab) {
 		return;
@@ -194,7 +194,7 @@ void PVInspector::PVMainWindow::lines_display_unselected_listing_Slot()
 void PVInspector::PVMainWindow::lines_display_unselected_GLview_Slot()
 {
 	Picviz::PVView_p current_lib_view;
-	Picviz::StateMachine *state_machine = NULL;
+	Picviz::PVStateMachine *state_machine = NULL;
 
 	if (!current_tab) {
 		return;
@@ -226,7 +226,7 @@ void PVInspector::PVMainWindow::lines_display_unselected_GLview_Slot()
 void PVInspector::PVMainWindow::lines_display_zombies_Slot()
 {
 	Picviz::PVView_p current_lib_view;
-	Picviz::StateMachine *state_machine = NULL;
+	Picviz::PVStateMachine *state_machine = NULL;
 
 	if (!current_tab) {
 		return;
@@ -259,7 +259,7 @@ void PVInspector::PVMainWindow::lines_display_zombies_Slot()
 void PVInspector::PVMainWindow::lines_display_zombies_listing_Slot()
 {
 	Picviz::PVView_p current_lib_view;
-	Picviz::StateMachine *state_machine = NULL;
+	Picviz::PVStateMachine *state_machine = NULL;
 
 	if (!current_tab) {
 		return;
@@ -286,7 +286,7 @@ void PVInspector::PVMainWindow::lines_display_zombies_listing_Slot()
 void PVInspector::PVMainWindow::lines_display_zombies_GLview_Slot()
 {
 	Picviz::PVView_p current_lib_view;
-	Picviz::StateMachine *state_machine = NULL;
+	Picviz::PVStateMachine *state_machine = NULL;
 
 	if (!current_tab) {
 		return;
@@ -408,7 +408,7 @@ void PVInspector::PVMainWindow::filter_Slot(void)
 		if(progressDialog->exec()){//not cancelled...
 			PVLOG_DEBUG("Filtering action performed\n");
 			lib_view->pre_filter_layer = lib_view->post_filter_layer;
-			lib_view->state_machine->set_square_area_mode(Picviz::StateMachine::AREA_MODE_SET_WITH_VOLATILE);
+			lib_view->state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
 
 			// We reprocess the pipeline from the eventline stage
 			lib_view->process_from_eventline();

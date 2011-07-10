@@ -4,19 +4,18 @@
 //! Copyright (C) Philippe Saadé 2009-2011
 //! Copyright (C) Picviz Labs 2011
 
-#ifndef PICVIZ_STATEMACHINE_H
-#define PICVIZ_STATEMACHINE_H
+#ifndef PICVIZ_PVSTATEMACHINE_H
+#define PICVIZ_PVSTATEMACHINE_H
 
 #include <picviz/general.h>
 #include <picviz/square-area.h>
-
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 
-    namespace Picviz {
+namespace Picviz {
 
         typedef enum {
             LISTING_ALL,
@@ -24,9 +23,9 @@ extern "C" {
             LISTING_NO_ZOMBIES,
             LISTING_NO_UNSEL_NO_ZOMBIES,
             LISTING_BAD_LISTING_MODE
-        } StateMachine_ListingMode_t;
+        } PVStateMachineListingMode_t;
 
-        class LibExport StateMachine {
+        class LibExport PVStateMachine {
             bool antialiased; // FIXME remove me!
             bool axes_mode;
             bool sync_all_views;
@@ -36,7 +35,7 @@ extern "C" {
             bool unselected_visible;
             bool zombie_visible;
             bool edit_mode_all;
-            StateMachine_ListingMode_t listing_mode;
+            PVStateMachineListingMode_t listing_mode;
         public:
 
             enum SquareAreaModes {
@@ -54,8 +53,8 @@ extern "C" {
 
 
         public:
-            StateMachine();
-            ~StateMachine();
+            PVStateMachine();
+            ~PVStateMachine();
 
             bool is_antialiased()const {
                 return antialiased;
@@ -77,7 +76,7 @@ extern "C" {
 
             bool are_listing_zombie_visible();
 
-            StateMachine_ListingMode_t are_listing_mode()const {
+            PVStateMachineListingMode_t are_listing_mode()const {
                 return listing_mode;
             }
 
@@ -121,7 +120,7 @@ extern "C" {
 
             void set_listing_zombie_visibility(bool state);
 
-            void set_listing_mode(StateMachine_ListingMode_t state) {
+            void set_listing_mode(PVStateMachineListingMode_t state) {
                 listing_mode = state;
             }
 
@@ -176,10 +175,10 @@ extern "C" {
             //void update_listing_mode();
         };
 
-    }
+}
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* PICVIZ_STATEMACHINE_H */
+#endif /* PICVIZ_PVSTATEMACHINE_H */

@@ -134,7 +134,7 @@ void PVGL::PVView::draw(void)
 {
 	float zoom_x;
 	float zoom_y;
-	Picviz::StateMachine *state_machine;
+	Picviz::PVStateMachine *state_machine;
 
 	PVLOG_DEBUG("PVGL::PVView::%s\n", __FUNCTION__);
 
@@ -348,7 +348,7 @@ void PVGL::PVView::toggle_map()
  *****************************************************************************/
 void PVGL::PVView::keyboard(unsigned char key, int, int)
 {
-	Picviz::StateMachine *state_machine;
+	Picviz::PVStateMachine *state_machine;
 	PVGL::PVMessage       message;
 
 	PVLOG_DEBUG("PVGL::PVView::%s\n", __FUNCTION__);
@@ -379,7 +379,7 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 					//                          picviz_view->volatile_selection);
 				}
 				/* We deactivate the square area */
-				state_machine->set_square_area_mode(Picviz::StateMachine::AREA_MODE_OFF);
+				state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_OFF);
 				/* We process the view from the selection */
 				picviz_view->process_from_selection();
 				/* We refresh the listing */
@@ -468,7 +468,7 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 				// if we enter in AXES_MODE we must disable SQUARE_AREA_MODE
 				if (state_machine->is_axes_mode()) {
 					/* We turn SQUARE AREA mode OFF */
-					state_machine->set_square_area_mode(Picviz::StateMachine::AREA_MODE_OFF);
+					state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_OFF);
 					//current_view->update_axes();
 				}
 				break;
@@ -534,7 +534,7 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
  *****************************************************************************/
 void PVGL::PVView::special_keys(int key, int, int)
 {
-	Picviz::StateMachine *state_machine;
+	Picviz::PVStateMachine *state_machine;
 	PVGL::PVMessage       message;
 
 	if (!picviz_view) { // The view isn't finished to be read and parsed
@@ -768,7 +768,7 @@ void PVGL::PVView::mouse_wheel(int delta_zoom_level, int x, int y)
 void PVGL::PVView::mouse_down(int button, int x, int y, int modifiers)
 {
 	vec2 plotted_mouse;
-	Picviz::StateMachine *state_machine;
+	Picviz::PVStateMachine *state_machine;
 
 	PVLOG_DEBUG("PVGL::PVView::%s\n", __FUNCTION__);
 
@@ -817,27 +817,27 @@ void PVGL::PVView::mouse_down(int button, int x, int y, int modifiers)
 
 			/* We might need to commit volatile_selection with floating_selection, depending on the previous Square_area_mode */
 			switch (state_machine->get_square_area_mode()) {
-				case Picviz::StateMachine::AREA_MODE_ADD_VOLATILE:
+				case Picviz::PVStateMachine::AREA_MODE_ADD_VOLATILE:
 						picviz_view->floating_selection |= picviz_view->volatile_selection;
 //						picviz_view->floating_selection.AB2A_or(picviz_view->volatile_selection);
 						break;
 
-				case Picviz::StateMachine::AREA_MODE_INTERSECT_VOLATILE:
+				case Picviz::PVStateMachine::AREA_MODE_INTERSECT_VOLATILE:
 						picviz_view->floating_selection &= picviz_view->volatile_selection;
 //						picviz_view->floating_selection.AB2A_and(picviz_view->volatile_selection);
 						break;
 
-				case Picviz::StateMachine::AREA_MODE_SET_WITH_VOLATILE:
+				case Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE:
 						picviz_view->floating_selection = picviz_view->volatile_selection;
 //						picviz_view->volatile_selection.A2B_copy(picviz_view->floating_selection);
 						break;
 
-				case Picviz::StateMachine::AREA_MODE_SUBSTRACT_VOLATILE:
+				case Picviz::PVStateMachine::AREA_MODE_SUBSTRACT_VOLATILE:
 						picviz_view->floating_selection -= picviz_view->volatile_selection;
 //						picviz_view->floating_selection.AB2A_substraction(picviz_view->volatile_selection);
 						break;
 
-				case Picviz::StateMachine::AREA_MODE_OFF:
+				case Picviz::PVStateMachine::AREA_MODE_OFF:
 						;
 			}
 
@@ -855,25 +855,25 @@ void PVGL::PVView::mouse_down(int button, int x, int y, int modifiers)
 			switch (modifiers) {
 				/* INTERSECT */
 				case (GLUT_ACTIVE_SHIFT | GLUT_ACTIVE_CTRL):
-						state_machine->set_square_area_mode(Picviz::StateMachine::AREA_MODE_INTERSECT_VOLATILE);
+						state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_INTERSECT_VOLATILE);
 						picviz_view->volatile_selection.select_none();
 						break;
 
 						/* SUBSTRACT */
 				case GLUT_ACTIVE_CTRL:
-						state_machine->set_square_area_mode(Picviz::StateMachine::AREA_MODE_SUBSTRACT_VOLATILE);
+						state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SUBSTRACT_VOLATILE);
 						picviz_view->volatile_selection.select_none();
 						break;
 
 						/* ADD */
 				case GLUT_ACTIVE_SHIFT:
-						state_machine->set_square_area_mode(Picviz::StateMachine::AREA_MODE_ADD_VOLATILE);
+						state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_ADD_VOLATILE);
 						picviz_view->volatile_selection.select_none();
 						break;
 
 						/* SET */
 				default:
-						state_machine->set_square_area_mode(Picviz::StateMachine::AREA_MODE_SET_WITH_VOLATILE);
+						state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
 						picviz_view->volatile_selection.select_none();
 						picviz_view->floating_selection.select_none();
 						break;
@@ -889,7 +889,7 @@ void PVGL::PVView::mouse_down(int button, int x, int y, int modifiers)
  *****************************************************************************/
 bool PVGL::PVView::mouse_move(int x, int y, int modifiers)
 {
-	Picviz::StateMachine   *state_machine;
+	Picviz::PVStateMachine   *state_machine;
 	vec2 plotted_mouse;
 
 	if (!picviz_view) { // The view isn't finished to be read and parsed
@@ -940,7 +940,7 @@ bool PVGL::PVView::mouse_move(int x, int y, int modifiers)
  *****************************************************************************/
 bool PVGL::PVView::mouse_up(int button, int x, int y, int modifiers)
 {
-	Picviz::StateMachine *state_machine;
+	Picviz::PVStateMachine *state_machine;
 
 	PVLOG_DEBUG("PVGL::PVView::%s\n", __FUNCTION__);
 

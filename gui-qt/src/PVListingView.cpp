@@ -8,6 +8,7 @@
 
 
 #include <pvcore/general.h>
+#include <picviz/PVStateMachine.h>
 #include <picviz/PVView.h>
 
 #include <PVMainWindow.h>
@@ -53,7 +54,7 @@ PVInspector::PVListingView::PVListingView(PVMainWindow *mw, Picviz::PVView_p pv_
 void PVInspector::PVListingView::mouseReleaseEvent(QMouseEvent *event)
 {
 	/* VARIABLES */
-	Picviz::StateMachine *state_machine;
+	Picviz::PVStateMachine *state_machine;
 	int i;
 	int number_of_items;
 	int real_row_index;
@@ -65,7 +66,7 @@ void PVInspector::PVListingView::mouseReleaseEvent(QMouseEvent *event)
 	/* We start by turning the square_area_mode OFF */
 
 	/* We set square_area_mode */
-	state_machine->set_square_area_mode(Picviz::StateMachine::AREA_MODE_SET_WITH_VOLATILE);
+	state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
 	/* We define the volatile_selection using selection in the lsiting */
 	lib_view->volatile_selection.select_none();
 	selected_items_list = selectedIndexes();
@@ -76,7 +77,7 @@ void PVInspector::PVListingView::mouseReleaseEvent(QMouseEvent *event)
 	}
 	/* We reprocess the view from the selection */
 	lib_view->process_from_selection();
-	state_machine->set_square_area_mode(Picviz::StateMachine::AREA_MODE_OFF);
+	state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_OFF);
 	/* We refresh the PVGLView */
 	main_window->update_pvglview(lib_view, PVGL_COM_REFRESH_SELECTION);
 	/* We refresh the listing */

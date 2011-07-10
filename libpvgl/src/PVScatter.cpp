@@ -221,7 +221,7 @@ void PVGL::PVScatter::draw(void)
  *****************************************************************************/
 void PVGL::PVScatter::keyboard(unsigned char key, int, int)
 {
-	Picviz::StateMachine *state_machine;
+	Picviz::PVStateMachine *state_machine;
 	PVGL::PVMessage       message;
 
 	if (!picviz_view) { // The view isn't finished to be read and parsed
@@ -247,7 +247,7 @@ void PVGL::PVScatter::keyboard(unsigned char key, int, int)
 					picviz_view->volatile_selection = picviz_view->layer_stack_output_layer.get_selection();
 				}
 				/* We deactivate the square area */
-				state_machine->set_square_area_mode(Picviz::StateMachine::AREA_MODE_OFF);
+				state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_OFF);
 				/* We process the view from the selection */
 				picviz_view->process_from_selection();
 				/* We refresh the listing */
@@ -290,7 +290,7 @@ void PVGL::PVScatter::keyboard(unsigned char key, int, int)
  *****************************************************************************/
 void PVGL::PVScatter::mouse_down(int /*button*/, int x, int y, int /*modifiers*/)
 {
-	Picviz::StateMachine *state_machine;
+	Picviz::PVStateMachine *state_machine;
 	vec2 plotted_mouse;
 
 	PVLOG_DEBUG("PVGL::PVScatter::%s\n", __FUNCTION__);
@@ -309,7 +309,7 @@ void PVGL::PVScatter::mouse_down(int /*button*/, int x, int y, int /*modifiers*/
 	// Store the position of this initial mouse press in the plotted coordinates system.
 	selection_square.set_start_point(plotted_mouse);
 
-	state_machine->set_square_area_mode(Picviz::StateMachine::AREA_MODE_SET_WITH_VOLATILE);
+	state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
 	picviz_view->volatile_selection.select_none();
 	picviz_view->floating_selection.select_none();
 
@@ -322,7 +322,7 @@ void PVGL::PVScatter::mouse_down(int /*button*/, int x, int y, int /*modifiers*/
  *****************************************************************************/
 bool PVGL::PVScatter::mouse_move(int x, int y, int /*modifiers*/)
 {
-	Picviz::StateMachine   *state_machine;
+	Picviz::PVStateMachine   *state_machine;
 //	PVGL::PVMessage         message;
 	vec2                    plotted_mouse;
 
@@ -376,7 +376,7 @@ bool PVGL::PVScatter::mouse_move(int x, int y, int /*modifiers*/)
  *****************************************************************************/
 bool PVGL::PVScatter::mouse_up(int /*button*/, int /*x*/, int /*y*/, int /*modifiers*/)
 {
-	Picviz::StateMachine *state_machine;
+	Picviz::PVStateMachine *state_machine;
 	vec2 plotted_mouse;
 	PVGL::PVMessage message;
 
@@ -482,7 +482,7 @@ void PVGL::PVScatter::set_size(int w, int h)
  *****************************************************************************/
 void PVGL::PVScatter::special_keys(int key, int, int)
 {
-	Picviz::StateMachine *state_machine;
+	Picviz::PVStateMachine *state_machine;
 
 	if (!picviz_view) { // The view isn't finished to be read and parsed
 		return;

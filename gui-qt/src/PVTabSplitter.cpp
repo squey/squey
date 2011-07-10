@@ -29,12 +29,15 @@ PVInspector::PVTabSplitter::PVTabSplitter(PVMainWindow *mw, Picviz::PVView_p pv_
 	pv_layer_stack_widget = NULL; // Note that this value can be requested during the creating of the PVLayerStackWidget!
 	_tab_name = tab_name;
 
-	pv_listing_model = new PVListingModel(main_window, this,Picviz::LISTING_ALL);
-	pv_listing_no_unselected_model = new PVListingModel(main_window, this,Picviz::LISTING_NO_UNSEL);
-	pv_listing_no_zombie_model = new PVListingModel(main_window, this,Picviz::LISTING_NO_ZOMBIES);
-	pv_listing_no_zombie_no_unselected_model = new PVListingModel(main_window, this,Picviz::LISTING_NO_UNSEL_NO_ZOMBIES);
+	Picviz::PVStateMachine *state_machine = lib_view->state_machine;
+	// state_machine->listing_mode = Picviz::LISTING_NO_UNSEL_NO_ZOMBIES;
+
+	pv_listing_model = new PVListingModel(main_window, this, Picviz::LISTING_ALL);
+	pv_listing_no_unselected_model = new PVListingModel(main_window, this, Picviz::LISTING_NO_UNSEL);
+	pv_listing_no_zombie_model = new PVListingModel(main_window, this, Picviz::LISTING_NO_ZOMBIES);
+	pv_listing_no_zombie_no_unselected_model = new PVListingModel(main_window, this, Picviz::LISTING_NO_UNSEL_NO_ZOMBIES);
 	pv_listing_view = new PVListingView(main_window, lib_view, this);
-	pv_listing_view->setModel(pv_listing_model);
+	pv_listing_view->setModel(pv_listing_no_zombie_no_unselected_model);
 
 	addWidget(pv_listing_view);
 	pv_layer_stack_model = new PVLayerStackModel(main_window, this);
@@ -135,10 +138,12 @@ void PVInspector::PVTabSplitter::update_pv_listing_model_Slot()
 	
 	updateFilterMenuEnabling();
 
-	if (!pv_listing_view)
+	if (!pv_listing_view) {
+		PVLOG_INFO("No listing view in %s\n", __FUNCTION__);
 		return;
+	}
 	/* We get an access to the current StateMachine */
-	Picviz::StateMachine *state_machine = lib_view->state_machine;
+	Picviz::PVStateMachine *state_machine = lib_view->state_machine;
 	/* We prepare a pointer of type (QAbstractTableModel *) */
 	QAbstractTableModel *next_model;
 
@@ -150,7 +155,7 @@ void PVInspector::PVTabSplitter::update_pv_listing_model_Slot()
 		if (state_machine->are_listing_zombie_visible()) {
 			/* The Zombie are visible too */
 			pv_listing_model->reset_model(false); // This is needed, but I don't know why. Maybe only needed once [DDX] XXX ???
-            pv_listing_model->setState(Picviz::LISTING_ALL);
+			pv_listing_model->setState(Picviz::LISTING_ALL);
 			next_model = pv_listing_model;
 		} else {
 			/* The Zombie are NOT visible */

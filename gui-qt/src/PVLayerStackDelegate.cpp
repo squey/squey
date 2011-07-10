@@ -15,8 +15,8 @@
 //#include <pvcore/PVAxisIndexEditor.h>
 //#include <pvcore/PVAxisIndexType.h>
 
-#include <picviz/state-machine.h>
 #include <picviz/PVSelection.h>
+#include <picviz/PVStateMachine.h>
 #include <picviz/PVView.h>
 
 #include <PVLayerStackView.h>
@@ -72,7 +72,7 @@ QWidget *PVInspector::PVLayerStackDelegate::createEditor(QWidget *parent, const 
 bool PVInspector::PVLayerStackDelegate::editorEvent(QEvent *event, QAbstractItemModel * /*model*/, const QStyleOptionViewItem &/*option*/, const QModelIndex &index)
 {
 	Picviz::PVView_p      lib_view;
-	Picviz::StateMachine *state_machine;
+	Picviz::PVStateMachine *state_machine;
 	int                   layer_count;
 	int                   lib_index;
 

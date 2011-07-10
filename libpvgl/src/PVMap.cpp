@@ -412,7 +412,7 @@ void PVGL::PVMap::draw_selected_lines(GLfloat modelview[16])
  *****************************************************************************/
 void PVGL::PVMap::draw()
 {
-	Picviz::StateMachine *state_machine = picviz_view->state_machine;
+	Picviz::PVStateMachine *state_machine = picviz_view->state_machine;
 
 	PVLOG_DEBUG("PVGL::PVMap::%s\n", __FUNCTION__);
 

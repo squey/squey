@@ -11,7 +11,7 @@
 #include <QtCore>
 
 //#include <PVListingModelBase.h>
-#include <picviz/state-machine.h>
+#include <picviz/PVStateMachine.h>
 #include <PVProgressBox.h>
 #include <QAbstractTableModel>
 
@@ -50,7 +50,7 @@ private:
     QVector<int> matchingTable; //!<the table sort, modify this array to order the values
     TypeOfSort sortOrder; //!<save the current sorting state (NoOrder, AscendingOrder, DescendingOrder)
     int colSorted; //!<save the last column whiche was used to sort
-    Picviz::StateMachine_ListingMode_t state_listing; //!<this state indicate the mode of listing
+    Picviz::PVStateMachineListingMode_t state_listing; //!<this state indicate the mode of listing
 
 
 public:
@@ -62,7 +62,7 @@ public:
      * @param mw
      * @param parent
      */
-    PVListingModel(PVMainWindow *mw, PVTabSplitter *parent, Picviz::StateMachine_ListingMode_t state = Picviz::LISTING_BAD_LISTING_MODE);
+    PVListingModel(PVMainWindow *mw, PVTabSplitter *parent, Picviz::PVStateMachineListingMode_t state = Picviz::LISTING_BAD_LISTING_MODE);
 
     /**
      * return data requested by the View
@@ -117,7 +117,7 @@ public:
      * @brief set listing mode
      * @param mode
      */
-    void setState(Picviz::StateMachine_ListingMode_t mode);
+    void setState(Picviz::PVStateMachineListingMode_t mode);
 
 
     

@@ -77,7 +77,7 @@ void PVGL::PVAxes::init(Picviz::PVView_p pv_view_)
 void PVGL::PVAxes::draw(bool axes_mode)
 {
 	GLfloat m[16];
-	Picviz::StateMachine *state_machine = pv_view->state_machine;
+	Picviz::PVStateMachine *state_machine = pv_view->state_machine;
 
 	PVLOG_DEBUG("PVGL::PVAxes::%s\n", __FUNCTION__);
 
@@ -122,7 +122,7 @@ void PVGL::PVAxes::draw(bool axes_mode)
 void PVGL::PVAxes::draw_bg(void)
 {
 	GLfloat m[16];
-	Picviz::StateMachine *state_machine = pv_view->state_machine;
+	Picviz::PVStateMachine *state_machine = pv_view->state_machine;
 
 	PVLOG_DEBUG("PVGL::PVAxes::%s\n", __FUNCTION__);
 
@@ -167,7 +167,7 @@ void PVGL::PVAxes::draw_names()
 	int                  nb_axes;
 	const float         *abscissae_list;
 	float                font_size;
-	Picviz::StateMachine *state_machine;
+	Picviz::PVStateMachine *state_machine;
 
 	PVLOG_DEBUG("PVGL::PVAxes::%s\n", __FUNCTION__);
 
@@ -312,7 +312,7 @@ void PVGL::PVAxes::update_arrays (void)
  *****************************************************************************/
 void PVGL::PVAxes::update_arrays_bg (void)
 {
-	Picviz::StateMachine *state_machine = pv_view->state_machine;
+	Picviz::PVStateMachine *state_machine = pv_view->state_machine;
 
 	PVLOG_DEBUG("PVGL::%s\n", __FUNCTION__);
 
