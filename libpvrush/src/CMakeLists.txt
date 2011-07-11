@@ -15,6 +15,7 @@ pvsource.cpp
 pvstream.cpp
 PVChunkAlign.cpp
 PVChunkAlignUTF16Char.cpp
+PVChunkAlignUTF16Newline.cpp
 PVChunkAlignBoundary.cpp
 PVInput.cpp
 PVInputFile.cpp
@@ -77,6 +78,7 @@ include/pvrush/PVCSVSource.h
 include/pvrush/pvstream.h
 include/pvrush/PVChunkAlign.h
 include/pvrush/PVChunkAlignUTF16Char.h
+include/pvrush/PVChunkAlignUTF16Newline.h
 include/pvrush/PVChunkAlignBoundary.h
 include/pvrush/PVInput.h
 include/pvrush/PVInputFile.h

@@ -45,6 +45,29 @@ static void url_decode_add_field(url_decode_buf* buf, QString const& new_field)
 	buf->nelts++;
 }
 
+bool split_ip_port(QString const& str, QString& ip, uint16_t& port)
+{
+	QStringList l = str.trimmed().split(QChar(':'), QString::KeepEmptyParts);
+	if (l.size() > 2) {
+		return false;
+	}
+
+	if (l.size() == 2) {
+		bool conv_ok = false;
+		port = l[1].toUShort(&conv_ok);
+		if (!conv_ok) {
+			return false;
+		}
+	}
+	else {
+		PVLOG_WARN("(splitter_url) unknown port for %s. Port is set to 0.\n", qPrintable(str));
+		port = 0;
+	}
+
+	ip = l[0];
+	return true;
+}
+
 /******************************************************************************
  *
  * PVFilter::PVCore::PVFieldSplitterURL::PVCore::PVFieldSplitterURL
@@ -77,21 +100,31 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterURL::one_to_many(PVCore:
 	buf.nelts = 0;
 
 	// URL splitter
-	QUrl url(field.qstr());
+	QUrl url(field.qstr(), QUrl::TolerantMode);
+	if (!url.isValid()) {
+		QString ip;
+		uint16_t port = 0;
+		if (split_ip_port(field.qstr(), ip, port)) {
+			QString none;
+			url_decode_add_field(&buf, none); // Protocol
+			url_decode_add_field(&buf, ip); // Domain
+			url_decode_add_field(&buf, none); // TLD
+			url_decode_add_field(&buf, QString::number(port)); // Port
+			url_decode_add_field(&buf, none); // URL
+			url_decode_add_field(&buf, none); // Variable
+			return buf.nelts;
+		}
+		PVLOG_WARN("(PVFieldSplitterURL) invalid url '%s', cannot normalize\n", qPrintable(field.qstr()));
+		field.set_invalid();
+		field.elt_parent()->set_invalid();
+		return 0;
+	}
+
 	QString value;
 	QString host(url.host());
 	QString url_path(url.path());
 	QString qitems;
 
-	if (!url.isValid()) {
-		url = QUrl::fromEncoded(field.qstr().toLocal8Bit());
-		if (!url.isValid()) {
-			PVLOG_WARN("(PVFieldSplitterURL) invalid url '%s', cannot normalize\n", qPrintable(field.qstr()));
-			field.set_invalid();
-			field.elt_parent()->set_invalid();
-			return 0;
-		}
-	}
 	url_decode_add_field(&buf, url.scheme());
 	if (host.isEmpty()) {
 		// We cannot decode the host because we have a url like:
