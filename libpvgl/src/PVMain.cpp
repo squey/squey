@@ -191,6 +191,7 @@ void PVGL::PVMain::mouse_release(int button, int x, int y)
 	PVLOG_DEBUG("PVGL::PVMain::%s\n", __FUNCTION__);
         moving_locker_mutex.lock();
         mouse_is_moving = false;
+        
         moving_locker_mutex.unlock();
 	current_drawable = get_drawable_from_id(glutGetWindow());
 	if (current_drawable) {
@@ -709,7 +710,7 @@ void PVGL::PVMain::timer_func(int)
 		}
 	}
 	// Check if we need to reselect
-	if (glutGet(GLUT_ELAPSED_TIME) - last_key_pressed_time > 0/*5*//*100*/) {
+	if (glutGet(GLUT_ELAPSED_TIME) - last_key_pressed_time > 5/*100*/) {
                 //PVLOG_DEBUG("   we need to reselect\n");
 		for (std::list<PVGL::PVDrawable*>::iterator it = all_drawables.begin(); it != all_drawables.end(); ++it) {
 			PVGL::PVView *pv_view = dynamic_cast<PVGL::PVView*>(*it);
