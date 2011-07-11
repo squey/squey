@@ -12,7 +12,7 @@
 
 #include <pvcore/general.h>
 
-#include <boost/pool/singleton_pool.hpp>
+#include <boost/pool/object_pool.hpp>
 #include <boost/shared_ptr.hpp>
 
 namespace PVCore {
@@ -21,6 +21,9 @@ class LibExport PVDateTimeParser {
 public:
 	PVDateTimeParser();
 	PVDateTimeParser(QStringList const& time_format);
+	PVDateTimeParser(const PVDateTimeParser& src);
+
+	PVDateTimeParser& operator=(const PVDateTimeParser& src);
 
 public:
 	bool mapping_time_to_cal(QString const& value_, Calendar* cal);
@@ -35,10 +38,11 @@ protected:
 	};
 
 	class TimeFormat : public TimeFormatInterface {
+		typedef boost::shared_ptr<SimpleDateFormat> SimpleDateFormat_p;
 	private:
 		UErrorCode _err;
-		bool own_parsers;
 		bool is_epoch;
+		QString time_format_;
 	public:
 		TimeFormat(QString const& time_format, bool prepend_year);
 		TimeFormat(const TimeFormat&);
@@ -48,10 +52,18 @@ protected:
 
 		bool prepend_year_value;
 		// One object per locale
-		std::vector<SimpleDateFormat*> parsers;
+		std::vector<SimpleDateFormat_p> parsers;
 		SimpleDateFormat local_parser;
 		SimpleDateFormat* last_good_parser;
 		UnicodeString current_year;
+
+	private:
+		void create_parsers(QString const& time_format);
+		void copy(TimeFormat const& src);
+		void destroy_sdf(SimpleDateFormat* p);
+
+	private:
+		boost::object_pool<SimpleDateFormat> _alloc_df;
 	};
 
 	struct TimeFormatEpoch : public TimeFormatInterface {
@@ -62,11 +74,13 @@ protected:
 	typedef boost::shared_ptr<TimeFormatEpoch> TimeFormatEpoch_p;
 	typedef boost::shared_ptr<TimeFormatInterface> TimeFormatInterface_p;
 
-	typedef boost::singleton_pool<TimeFormat, sizeof(TimeFormat)> alloc_tf_t;
-	typedef boost::singleton_pool<TimeFormatEpoch, sizeof(TimeFormatEpoch)> alloc_tfe_t;
+	boost::object_pool<TimeFormat> _alloc_tf;
+	boost::object_pool<TimeFormatEpoch> _alloc_tfe;
 
 private:
-	static void destroy_tf(TimeFormatInterface* p);
+	void destroy_tf(TimeFormat* p);
+	void destroy_tfe(TimeFormatEpoch* p);
+
 
 protected:
 	typedef std::vector<TimeFormatInterface_p> list_time_format;
@@ -74,7 +88,6 @@ protected:
 
 	UnicodeString _current_year;
 	TimeFormatInterface_p _last_match_time_format;
-	bool own_tfs;
 };
 
 }
