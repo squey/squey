@@ -100,27 +100,24 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterURL::one_to_many(PVCore:
 	buf.nelts = 0;
 
 	// URL splitter
-	QUrl url(field.qstr(), QUrl::StrictMode);
+	QUrl url(field.qstr(), QUrl::TolerantMode);
 	if (!url.isValid()) {
-		url.setUrl(field.qstr(), QUrl::TolerantMode);
-		if (!url.isValid()) {
-			QString ip;
-			uint16_t port = 0;
-			if (split_ip_port(field.qstr(), ip, port)) {
-				QString none;
-				url_decode_add_field(&buf, none); // Protocol
-				url_decode_add_field(&buf, ip); // Domain
-				url_decode_add_field(&buf, none); // TLD
-				url_decode_add_field(&buf, QString::number(port)); // Port
-				url_decode_add_field(&buf, none); // URL
-				url_decode_add_field(&buf, none); // Variable
-				return buf.nelts;
-			}
-			PVLOG_WARN("(PVFieldSplitterURL) invalid url '%s', cannot normalize\n", qPrintable(field.qstr()));
-			field.set_invalid();
-			field.elt_parent()->set_invalid();
-			return 0;
+		QString ip;
+		uint16_t port = 0;
+		if (split_ip_port(field.qstr(), ip, port)) {
+			QString none;
+			url_decode_add_field(&buf, none); // Protocol
+			url_decode_add_field(&buf, ip); // Domain
+			url_decode_add_field(&buf, none); // TLD
+			url_decode_add_field(&buf, QString::number(port)); // Port
+			url_decode_add_field(&buf, none); // URL
+			url_decode_add_field(&buf, none); // Variable
+			return buf.nelts;
 		}
+		PVLOG_WARN("(PVFieldSplitterURL) invalid url '%s', cannot normalize\n", qPrintable(field.qstr()));
+		field.set_invalid();
+		field.elt_parent()->set_invalid();
+		return 0;
 	}
 
 	QString value;
