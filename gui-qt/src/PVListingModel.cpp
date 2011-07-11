@@ -166,8 +166,6 @@ QVariant PVInspector::PVListingModel::data(const QModelIndex &index, int role) c
                                         break;
                                 case Picviz::LISTING_NO_UNSEL_NO_ZOMBIES:// we don't list the zombies lines and the unselected lines.
                                         break;
-			        case Picviz::LISTING_BAD_LISTING_MODE:
-					break;
                         }
 
         }//**********************************END************************************
@@ -224,8 +222,6 @@ void PVInspector::PVListingModel::initMatchingTable() {
                                         matchingTable.insert(i, lib_view->get_nznu_real_row_index(i));
                                         break;
 			        case Picviz::LISTING_ALL:
-					break;
-			        case Picviz::LISTING_BAD_LISTING_MODE:
 					break;
                         }
                 }
@@ -303,8 +299,6 @@ QVariant PVInspector::PVListingModel::headerData(int section, Qt::Orientation or
                                                 return unselect_font;
                                         }
                                         break;
-			        case Picviz::LISTING_BAD_LISTING_MODE:
-					break;
                         }
 
 
@@ -435,8 +429,6 @@ void PVInspector::PVListingModel::sortByColumn(int idColumn) {
                                                 matchingTable.insert(i, matchTableNew.at(i));
                                         }
                                         break;
-			        case Picviz::LISTING_BAD_LISTING_MODE:
-					break;
                         }
                         PVLOG_DEBUG("   ...end update match\n");
 
@@ -473,8 +465,6 @@ int PVInspector::PVListingModel::rowCount(const QModelIndex &/*index*/) const {
                 case Picviz::LISTING_NO_UNSEL_NO_ZOMBIES:// we don't list the zombies lines and the unselected lines.
                         return int(lib_view->get_nznu_index_count());
                         break;
-	         case Picviz::LISTING_BAD_LISTING_MODE:
-			 break;
         }
         PVLOG_ERROR("PVInspector::PVListingModel::rowCount :  bad stat_listing.");
 

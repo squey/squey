@@ -62,7 +62,7 @@ public:
      * @param mw
      * @param parent
      */
-    PVListingModel(PVMainWindow *mw, PVTabSplitter *parent, Picviz::PVStateMachineListingMode_t state = Picviz::LISTING_BAD_LISTING_MODE);
+    PVListingModel(PVMainWindow *mw, PVTabSplitter *parent, Picviz::PVStateMachineListingMode_t state = Picviz::LISTING_ALL);
 
     /**
      * return data requested by the View

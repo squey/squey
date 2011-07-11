@@ -17,7 +17,6 @@ namespace Picviz {
             LISTING_NO_UNSEL,
             LISTING_NO_ZOMBIES,
             LISTING_NO_UNSEL_NO_ZOMBIES,
-            LISTING_BAD_LISTING_MODE
         } PVStateMachineListingMode_t;
 
         class LibExport PVStateMachine {
