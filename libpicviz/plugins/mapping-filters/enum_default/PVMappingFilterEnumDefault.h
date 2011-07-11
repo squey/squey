@@ -11,6 +11,7 @@
 #include <picviz/PVMappingFilter.h>
 #include <tbb/concurrent_unordered_map.h>
 #include <QString>
+#include <stdint.h>
 
 // Used by the concurrennt hash map below
 size_t tbb_hasher(const QString& str);
@@ -20,13 +21,13 @@ namespace Picviz {
 class LibExport PVMappingFilterEnumDefault: public PVMappingFilter
 {
 public:
-	float operator()(QString const& str);
+	float* operator()(PVRush::PVNraw::nraw_table_line const& values);
 	void init_from_first(QString const& value);
 
 protected:
-	typedef tbb::concurrent_unordered_map<QString, int> hash_values;
+	typedef QHash<QString, int> hash_values;
 protected:
-	tbb::atomic<int> _poscount;
+	uint64_t _poscount;
 	hash_values _enum_hash;
 
 	CLASS_FILTER(PVMappingFilterEnumDefault)
