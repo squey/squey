@@ -218,7 +218,7 @@ bool PVGL::PVEventLine::mouse_up(int /*button*/, int /*x*/, int /*y*/, int /*mod
 			glutPostRedisplay();
 			if (picviz_view->eventline.get_row_count() >= 100000) {
 				view->get_lines().update_arrays_selection();
-			}
+			}glutPostRedisplay();
 		}
 
 		return true;

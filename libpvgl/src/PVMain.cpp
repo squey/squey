@@ -188,7 +188,7 @@ void PVGL::PVMain::mouse_release(int button, int x, int y)
 	current_drawable = get_drawable_from_id(glutGetWindow());
 	if (current_drawable) {
 		current_drawable->mouse_up(button, x, y, glutGetModifiers());
-	}
+                }
 }
 
 /******************************************************************************

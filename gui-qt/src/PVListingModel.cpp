@@ -64,7 +64,7 @@ int PVInspector::PVListingModel::columnCount(const QModelIndex &index) const {
  *
  *****************************************************************************/
 QVariant PVInspector::PVListingModel::data(const QModelIndex &index, int role) const {
-        PVLOG_DEBUG("PVInspector::PVListingModel::%s : at row %d and column %d with role %d\n", __FUNCTION__, index.row(), index.column(), role);
+        PVLOG_HEAVYDEBUG("PVInspector::PVListingModel::%s : at row %d and column %d with role %d\n", __FUNCTION__, index.row(), index.column(), role);
 
         Picviz::PVColor color;
         int i;
@@ -99,12 +99,12 @@ QVariant PVInspector::PVListingModel::data(const QModelIndex &index, int role) c
                         break;
         }
         correspondId = matchingTable.at(index.row());
-        PVLOG_DEBUG("           correspondId %d\n", correspondId);
+        //PVLOG_DEBUG("           correspondId %d\n", correspondId);
 
 
         switch (role) {
                 case (Qt::DisplayRole)://***********************************************DISPLAY**********************************************
-                        PVLOG_DEBUG("       DisplayRole\n");
+                        //PVLOG_DEBUG("       DisplayRole\n");
                         return lib_view->get_data(correspondId, index.column());
                         break;
 
@@ -113,7 +113,7 @@ QVariant PVInspector::PVListingModel::data(const QModelIndex &index, int role) c
                         break;
 
                 case (Qt::BackgroundRole)://***********************************************BackgroundRole**********************************************
-                        PVLOG_DEBUG("       ForegroundRole\n");
+                        //PVLOG_DEBUG("       ForegroundRole\n");
                         /* We get the current selected axis index */
                         i = lib_view->active_axis;
 
@@ -139,7 +139,7 @@ QVariant PVInspector::PVListingModel::data(const QModelIndex &index, int role) c
                         break;
 
                 case (Qt::ForegroundRole)://***********************************************ForegroundRole**********************************************
-                        PVLOG_DEBUG("       ForegroundRole\n");
+                        //PVLOG_DEBUG("       ForegroundRole\n");
                         switch (state_listing) {
                                 case Picviz::LISTING_ALL:// we list all the lines
                                         /* We test if the line is a ZOMBIE one */
