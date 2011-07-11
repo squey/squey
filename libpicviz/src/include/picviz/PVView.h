@@ -19,7 +19,7 @@
 //#include <picviz/index-array.h>
 //#include <picviz/layer.h>
 //#include <picviz/layer-stack.h>
-#include <picviz/state-machine.h>
+/* #include <picviz/state-machine.h> */
 //#include <picviz/square-area.h>
 //#include <picviz/tags.h>
 //#include <picviz/z-level-array.h>
@@ -34,7 +34,10 @@
 #include <picviz/PVLayerStack.h>
 #include <picviz/PVIndexArray.h>
 #include <picviz/PVSquareArea.h>
+#include <picviz/PVStateMachine.h>
 #include <picviz/PVZLevelArray.h>
+
+
 #include <pvfilter/PVArgument.h>
 #include <pvrush/PVExtractor.h>
 
@@ -76,7 +79,7 @@ public:
 	PVEventline eventline;
 	PVZLevelArray z_level_array;
 	PVSquareArea square_area;
-	Picviz::StateMachine *state_machine;
+	Picviz::PVStateMachine *state_machine;
 	//PVTags tags;
 	PVSelection volatile_selection;
 	map_filter_arguments filters_args;

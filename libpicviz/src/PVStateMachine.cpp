@@ -5,7 +5,7 @@
 //! Copyright (C) Picviz Labs 2011
 
 #include <picviz/general.h>
-#include <picviz/state-machine.h>
+#include <picviz/PVStateMachine.h>
 
 #define print_listing_mode(mode) {switch(mode){\
 case LISTING_ALL:PVLOG_INFO("StateMachine listing mode is now :LISTING_ALL\n");break;\
@@ -17,11 +17,11 @@ case LISTING_NO_UNSEL:PVLOG_INFO("StateMachine listing mode is now :LISTING_NO_U
 
 /******************************************************************************
  *
- * Picviz::StateMachine::StateMachine
+ * Picviz::PVStateMachine::PVStateMachine
  *
  *****************************************************************************/
-Picviz::StateMachine::StateMachine() {
-    PVLOG_DEBUG("StateMachine created\n");
+Picviz::PVStateMachine::PVStateMachine() 
+{
     antialiased = false;
     axes_mode = false;
     sync_all_views = true;
@@ -33,39 +33,45 @@ Picviz::StateMachine::StateMachine() {
     edit_mode_all = true;
     square_area_mode = AREA_MODE_OFF;
     
-    listing_mode=LISTING_ALL;
+    listing_mode = LISTING_ALL;
+    // listing_mode = LISTING_NO_UNSEL_NO_ZOMBIES;
+
     //update_listing_mode();
 }
 
 
 /******************************************************************************
  *
- * Picviz::StateMachine::~StateMachine
+ * Picviz::PVStateMachine::~PVStateMachine
  *
  *****************************************************************************/
-Picviz::StateMachine::~StateMachine() {
+Picviz::PVStateMachine::~PVStateMachine() 
+{
 }
 
 /******************************************************************************
  *
- * Picviz::StateMachine::
+ * Picviz::PVStateMachine::
  *
  *****************************************************************************/
-bool Picviz::StateMachine::are_listing_unselected_visible() {
-    if(listing_mode==LISTING_ALL||listing_mode==LISTING_NO_ZOMBIES){
-        PVLOG_DEBUG("StateMachine are_listing_unselected_visible yes\n");
-        return true;
-    }
-    PVLOG_DEBUG("StateMachine are_listing_unselected_visible no\n");        
-    return false;
+bool Picviz::PVStateMachine::are_listing_unselected_visible() 
+{
+	if ((listing_mode==LISTING_ALL) || (listing_mode==LISTING_NO_ZOMBIES)){
+		PVLOG_DEBUG("StateMachine are_listing_unselected_visible yes\n");
+		return true;
+	}
+
+	PVLOG_DEBUG("StateMachine are_listing_unselected_visible no\n");        
+	return false;
 }
 
 /******************************************************************************
  *
- * Picviz::StateMachine::
+ * Picviz::PVStateMachine::
  *
  *****************************************************************************/
-bool Picviz::StateMachine::are_listing_zombie_visible() {
+bool Picviz::PVStateMachine::are_listing_zombie_visible() 
+{
     if(listing_mode==LISTING_ALL||listing_mode==LISTING_NO_UNSEL){
         PVLOG_DEBUG("StateMachine are_listing_zombie_visible yes\n"); 
         return true;
@@ -75,42 +81,53 @@ bool Picviz::StateMachine::are_listing_zombie_visible() {
 }
 /******************************************************************************
  *
- * Picviz::StateMachine::
+ * Picviz::PVStateMachine::
  *
  *****************************************************************************/
-void Picviz::StateMachine::set_listing_zombie_visibility(bool state) {
+void Picviz::PVStateMachine::set_listing_zombie_visibility(bool state) 
+{
     //listing_zombie_visible = state;
     //update_listing_mode();
     PVLOG_DEBUG("StateMachine set_listing_zombie_visibility\n");
+
     switch(listing_mode){
         case LISTING_ALL:
-            if(!state)
-                listing_mode=LISTING_NO_ZOMBIES;
+		if ( ! state) {
+			listing_mode = LISTING_NO_ZOMBIES;
+		}
             break;
         case LISTING_NO_ZOMBIES:
-            if(state)
-                listing_mode = LISTING_ALL;
+		if (state) {
+			listing_mode = LISTING_ALL;
+		}
             break;
         case LISTING_NO_UNSEL_NO_ZOMBIES:
-            if(state)
-                listing_mode = LISTING_NO_UNSEL;
+		if (state) {
+			listing_mode = LISTING_NO_UNSEL;
+		}
             break;
         case LISTING_NO_UNSEL:
-            if(!state)
-                listing_mode=LISTING_NO_UNSEL_NO_ZOMBIES;
+		if ( ! state) {
+			listing_mode = LISTING_NO_UNSEL_NO_ZOMBIES;
+		}
             break;
-        default:break;
+        default:
+		PVLOG_ERROR("Unknown listing mode!\n");
+		break;
     }
+
     print_listing_mode(listing_mode);
+
 }
 
 
 /******************************************************************************
  *
- * Picviz::StateMachine::
+ * Picviz::PVStateMachine::
  *
  *****************************************************************************/
-void Picviz::StateMachine::set_listing_unselected_visibility(bool state) {
+void Picviz::PVStateMachine::set_listing_unselected_visibility(bool state) 
+{
     //listing_unselected_visible = state;
     //update_listing_mode();
     PVLOG_DEBUG("StateMachine set_listing_unselected_visibility\n");
@@ -138,10 +155,11 @@ void Picviz::StateMachine::set_listing_unselected_visibility(bool state) {
 
 /******************************************************************************
  *
- * Picviz::StateMachine::
+ * Picviz::PVStateMachine::
  *
  *****************************************************************************/
-void Picviz::StateMachine::toggle_listing_unselected_visibility() {
+void Picviz::PVStateMachine::toggle_listing_unselected_visibility() 
+{
     //listing_unselected_visible = !listing_unselected_visible;
     //update_listing_mode();
     PVLOG_DEBUG("StateMachine toggle_listing_unselected_visibility\n");
@@ -165,10 +183,11 @@ void Picviz::StateMachine::toggle_listing_unselected_visibility() {
 
 /******************************************************************************
  *
- * Picviz::StateMachine::
+ * Picviz::PVStateMachine::
  *
  *****************************************************************************/
-void Picviz::StateMachine::toggle_listing_zombie_visibility() {
+void Picviz::PVStateMachine::toggle_listing_zombie_visibility() 
+{
     //listing_zombie_visible = !listing_zombie_visible;
     //update_listing_mode();
     PVLOG_DEBUG("StateMachine toggle_listing_zombie_visibility\n");

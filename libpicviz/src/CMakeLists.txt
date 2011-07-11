@@ -87,12 +87,12 @@ include/picviz/PVSortQVectorQStringList.h
 include/picviz/PVSortQVectorQStringListThread.h
 include/picviz/PVSource.h
 include/picviz/PVSquareArea.h
+include/picviz/PVStateMachine.h
 include/picviz/PVVector.h
 include/picviz/PVView.h
 include/picviz/PVZLevelArray.h
 
 include/picviz/square-area.h
-include/picviz/state-machine.h
 include/picviz/tags.h
 include/picviz/time.h
 include/picviz/type-discovery.h
@@ -154,6 +154,7 @@ PVSquareArea.cpp
 PVSortQVectorQStringList.cpp
 PVSortQVectorQStringListThread.cpp
 PVSource.cpp
+PVStateMachine.cpp
 PVVector.cpp
 PVView.cpp
 PVZLevelArray.cpp
@@ -161,7 +162,6 @@ PVZLevelArray.cpp
 memory.cpp
 plugins.cpp
 #square-area.cpp
-state-machine.cpp
 type-discovery.cpp 
 update-protocol.cpp 
 #z-level-array.cpp

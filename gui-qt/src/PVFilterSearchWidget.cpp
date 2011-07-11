@@ -28,7 +28,6 @@
 #include <picviz/arguments.h>
 #include <picviz/PVSource.h>
 #include <picviz/PVView.h>
-#include <picviz/state-machine.h>
 
 #include <pvrush/PVFormat.h>
 

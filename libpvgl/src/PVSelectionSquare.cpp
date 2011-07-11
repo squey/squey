@@ -60,7 +60,7 @@ void PVGL::PVSelectionSquare::init(Picviz::PVView_p view)
 void PVGL::PVSelectionSquare::draw(void)
 {
 	GLfloat m[16];
-	Picviz::StateMachine *state_machine = pv_view->state_machine;
+	Picviz::PVStateMachine *state_machine = pv_view->state_machine;
 
 	PVLOG_DEBUG("PVGL::PVSelectionSquare::%s\n", __FUNCTION__);
 
@@ -82,7 +82,7 @@ void PVGL::PVSelectionSquare::draw(void)
 	}
 
 	/* We only draw the square area if the SQUARE_AREA_MODE requires it */
-	if (state_machine->get_square_area_mode () != Picviz::StateMachine::AREA_MODE_OFF) {
+	if (state_machine->get_square_area_mode () != Picviz::PVStateMachine::AREA_MODE_OFF) {
 		// Set the LineWidth.
 		glLineWidth(1.5f); PRINT_OPENGL_ERROR();
 
