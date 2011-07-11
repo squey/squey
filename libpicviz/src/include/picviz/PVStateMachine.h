@@ -10,11 +10,6 @@
 #include <picviz/general.h>
 #include <picviz/square-area.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-
 namespace Picviz {
 
         typedef enum {
@@ -176,9 +171,5 @@ namespace Picviz {
         };
 
 }
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* PICVIZ_PVSTATEMACHINE_H */
