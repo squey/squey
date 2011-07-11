@@ -146,7 +146,8 @@ struct LibExport PVMain {
 };
 #ifndef DEF_passive_motion_locker_mutex
 #define DEF_passive_motion_locker_mutex
-static QMutex passive_motion_locker_mutex;
+static QMutex moving_locker_mutex;//!<
+static bool mouse_is_moving;//!<
 #endif
 }
 extern PVGL::PVIdleManager idle_manager;

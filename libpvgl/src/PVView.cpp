@@ -991,7 +991,7 @@ bool PVGL::PVView::mouse_up(int button, int x, int y, int modifiers)
  *****************************************************************************/
 bool PVGL::PVView::passive_motion(int x, int y, int modifiers)
 {
-	PVLOG_DEBUG("PVGL::PVView::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVView::%s\n", __FUNCTION__);
 
 	if (top_bar->is_visible() && event_line->passive_motion(x, y, modifiers)) {
 		return true;

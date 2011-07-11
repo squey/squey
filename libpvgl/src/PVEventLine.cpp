@@ -233,7 +233,7 @@ bool PVGL::PVEventLine::mouse_up(int /*button*/, int /*x*/, int /*y*/, int /*mod
  *****************************************************************************/
 bool PVGL::PVEventLine::passive_motion(int x, int y, int /*modifiers*/)
 {
-	PVLOG_DEBUG("PVGL::PVEventLine::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVEventLine::%s\n", __FUNCTION__);
 
 	if (!visible) {
 		return false;

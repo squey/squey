@@ -179,6 +179,7 @@ void PVInspector::PVTabSplitter::update_pv_listing_model_Slot()
 
 	/* Now we can set the model ! */
 	pv_listing_view->setModel(next_model);
+        static_cast<PVListingModel*>(next_model)->emitLayoutChanged();
 }
 
 /******************************************************************************

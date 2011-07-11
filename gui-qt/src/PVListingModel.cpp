@@ -233,6 +233,7 @@ void PVInspector::PVListingModel::initMatchingTable() {
                 PVLOG_ERROR("PVInspector::PVListingModel::initCorrespondance : initializing with a bad stat_listing.");
         }
         sortOrder = NoOrder;
+        emitLayoutChanged();
 }
 
 
@@ -507,6 +508,7 @@ void PVInspector::PVListingModel::reset_model(bool initMatchTable) {
         if (initMatchTable) {
                 initMatchingTable();
         }
+        emitLayoutChanged();
         //PVLOG_INFO("reset_model() : rowCount=%d, corresp.size=%d\n",rowCount(QModelIndex()),correspondTable.size());
 }
 
