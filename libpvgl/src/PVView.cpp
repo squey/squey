@@ -76,9 +76,6 @@ PVGL::PVView::PVView(int win_id, PVCom *com) : PVGL::PVDrawable(win_id, com),
 	label_lpr->set_color(ubvec4(0, 0, 0, 255));
 	vbox->pack_start(label_lpr);
         
-                //
-                mouseEventLocker.unlock();
-                mouseClicking = false;
 }
 
 PVGL::PVView::~PVView()
@@ -140,7 +137,7 @@ void PVGL::PVView::draw(void)
 {
 	float zoom_x;
 	float zoom_y;
-	Picviz::StateMachine *state_machine;
+	Picviz::PVStateMachine *state_machine;
 
 	PVLOG_HEAVYDEBUG("PVGL::PVView::%s\n", __FUNCTION__);
 
@@ -354,7 +351,7 @@ void PVGL::PVView::toggle_map()
  *****************************************************************************/
 void PVGL::PVView::keyboard(unsigned char key, int, int)
 {
-	Picviz::StateMachine *state_machine;
+	Picviz::PVStateMachine *state_machine;
 	PVGL::PVMessage       message;
 
 	PVLOG_DEBUG("PVGL::PVView::%s\n", __FUNCTION__);
@@ -385,7 +382,7 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 					//                          picviz_view->volatile_selection);
 				}
 				/* We deactivate the square area */
-				state_machine->set_square_area_mode(Picviz::StateMachine::AREA_MODE_OFF);
+				state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_OFF);
 				/* We process the view from the selection */
 				picviz_view->process_from_selection();
 				/* We refresh the listing */
@@ -474,7 +471,7 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 				// if we enter in AXES_MODE we must disable SQUARE_AREA_MODE
 				if (state_machine->is_axes_mode()) {
 					/* We turn SQUARE AREA mode OFF */
-					state_machine->set_square_area_mode(Picviz::StateMachine::AREA_MODE_OFF);
+					state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_OFF);
 					//current_view->update_axes();
 				}
 				break;
@@ -540,7 +537,7 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
  *****************************************************************************/
 void PVGL::PVView::special_keys(int key, int, int)
 {
-	Picviz::StateMachine *state_machine;
+	Picviz::PVStateMachine *state_machine;
 	PVGL::PVMessage       message;
 
 	if (!picviz_view) { // The view isn't finished to be read and parsed
@@ -773,28 +770,22 @@ void PVGL::PVView::mouse_wheel(int delta_zoom_level, int x, int y)
  *****************************************************************************/
 void PVGL::PVView::mouse_down(int button, int x, int y, int modifiers)
 {
-                mouseEventLocker.lock();
-                mouseClicking = true;
 	vec2 plotted_mouse;
-	Picviz::StateMachine *state_machine;
+	Picviz::PVStateMachine *state_machine;
 
 	PVLOG_INFO("PVGL::PVView::%s\n", __FUNCTION__);
 
 	if (!picviz_view) { // Sanity check
-                                mouseEventLocker.unlock();
 		return;
 	}
 	if (!picviz_view->is_consistent()) {
-                                mouseEventLocker.unlock();
 		return;
 	}
 	state_machine = picviz_view->state_machine;
 	if (map.mouse_down(x, y)) {
-                                mouseEventLocker.unlock();
 		return;
 	}
 	if (top_bar->is_visible() && event_line->mouse_down(button, x, y, modifiers)) {
-                                mouseEventLocker.unlock();
 		return;
 	}
 	/* We test whether AXES_MODE is active or not */
@@ -829,27 +820,27 @@ void PVGL::PVView::mouse_down(int button, int x, int y, int modifiers)
 
 			/* We might need to commit volatile_selection with floating_selection, depending on the previous Square_area_mode */
 			switch (state_machine->get_square_area_mode()) {
-				case Picviz::StateMachine::AREA_MODE_ADD_VOLATILE:
+				case Picviz::PVStateMachine::AREA_MODE_ADD_VOLATILE:
 						picviz_view->floating_selection |= picviz_view->volatile_selection;
 //						picviz_view->floating_selection.AB2A_or(picviz_view->volatile_selection);
 						break;
 
-				case Picviz::StateMachine::AREA_MODE_INTERSECT_VOLATILE:
+				case Picviz::PVStateMachine::AREA_MODE_INTERSECT_VOLATILE:
 						picviz_view->floating_selection &= picviz_view->volatile_selection;
 //						picviz_view->floating_selection.AB2A_and(picviz_view->volatile_selection);
 						break;
 
-				case Picviz::StateMachine::AREA_MODE_SET_WITH_VOLATILE:
+				case Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE:
 						picviz_view->floating_selection = picviz_view->volatile_selection;
 //						picviz_view->volatile_selection.A2B_copy(picviz_view->floating_selection);
 						break;
 
-				case Picviz::StateMachine::AREA_MODE_SUBSTRACT_VOLATILE:
+				case Picviz::PVStateMachine::AREA_MODE_SUBSTRACT_VOLATILE:
 						picviz_view->floating_selection -= picviz_view->volatile_selection;
 //						picviz_view->floating_selection.AB2A_substraction(picviz_view->volatile_selection);
 						break;
 
-				case Picviz::StateMachine::AREA_MODE_OFF:
+				case Picviz::PVStateMachine::AREA_MODE_OFF:
 						;
 			}
 
@@ -867,32 +858,31 @@ void PVGL::PVView::mouse_down(int button, int x, int y, int modifiers)
 			switch (modifiers) {
 				/* INTERSECT */
 				case (GLUT_ACTIVE_SHIFT | GLUT_ACTIVE_CTRL):
-						state_machine->set_square_area_mode(Picviz::StateMachine::AREA_MODE_INTERSECT_VOLATILE);
+						state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_INTERSECT_VOLATILE);
 						picviz_view->volatile_selection.select_none();
 						break;
 
 						/* SUBSTRACT */
 				case GLUT_ACTIVE_CTRL:
-						state_machine->set_square_area_mode(Picviz::StateMachine::AREA_MODE_SUBSTRACT_VOLATILE);
+						state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SUBSTRACT_VOLATILE);
 						picviz_view->volatile_selection.select_none();
 						break;
 
 						/* ADD */
 				case GLUT_ACTIVE_SHIFT:
-						state_machine->set_square_area_mode(Picviz::StateMachine::AREA_MODE_ADD_VOLATILE);
+						state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_ADD_VOLATILE);
 						picviz_view->volatile_selection.select_none();
 						break;
 
 						/* SET */
 				default:
-						state_machine->set_square_area_mode(Picviz::StateMachine::AREA_MODE_SET_WITH_VOLATILE);
+						state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
 						picviz_view->volatile_selection.select_none();
 						picviz_view->floating_selection.select_none();
 						break;
 			}
 		}
 	}
-                mouseEventLocker.unlock();
 }
 
 /******************************************************************************
@@ -902,31 +892,21 @@ void PVGL::PVView::mouse_down(int button, int x, int y, int modifiers)
  *****************************************************************************/
 bool PVGL::PVView::mouse_move(int x, int y, int modifiers)
 {
-                
-                mouseEventLocker.lock();
-                if(!mouseClicking){
-                                mouseEventLocker.unlock();
-		return false;
-                }
-                PVLOG_INFO("PVGL::PVView::%s\n", __FUNCTION__);
-	Picviz::StateMachine   *state_machine;
+	Picviz::PVStateMachine   *state_machine;
+
 	vec2 plotted_mouse;
 
 	if (!picviz_view) { // The view isn't finished to be read and parsed
-                                mouseEventLocker.unlock();
 		return false;
 	}
 	if (!picviz_view->is_consistent()) {
-                                mouseEventLocker.unlock();
 		return false;
 	}
 	state_machine = picviz_view->state_machine;
 	if (map.mouse_move(x, y)) {
-                                mouseEventLocker.unlock();
 		return false;
 	}
 	if (top_bar->is_visible() && event_line->mouse_move(x, y, modifiers)) {
-                                mouseEventLocker.unlock();
 		return false;
 	}
 	/* We test if we are in GRAB mode */
@@ -942,7 +922,6 @@ bool PVGL::PVView::mouse_move(int x, int y, int modifiers)
 			/* the axis really moved... */
 			update_all();
 		}
-                                mouseEventLocker.unlock();
 		return false;
 	} else { // We are in SELECTION mode.
 		// Store the position of this last square_area position in the plotted coordinates system.
@@ -953,10 +932,8 @@ bool PVGL::PVView::mouse_move(int x, int y, int modifiers)
 		picviz_view->square_area.set_dirty();
 		set_update_line_dirty();
 		update_selection_except_listing();
-                                mouseEventLocker.unlock();
 		return true; // Tell all the windows to redraw.
 	}
-                mouseEventLocker.unlock();
 	return false;
 }
 
@@ -967,28 +944,23 @@ bool PVGL::PVView::mouse_move(int x, int y, int modifiers)
  *****************************************************************************/
 bool PVGL::PVView::mouse_up(int button, int x, int y, int modifiers)
 {
-	Picviz::StateMachine *state_machine;
-                mouseEventLocker.lock();
-                mouseClicking = false;
-	PVLOG_INFO("PVGL::PVView::%s\n", __FUNCTION__);
+	Picviz::PVStateMachine *state_machine;
+        
+	PVLOG_DEBUG("PVGL::PVView::%s\n", __FUNCTION__);
 
 	if (!picviz_view) {
-                                mouseEventLocker.unlock();
 		return false;
 	}
 	if (!picviz_view->is_consistent()) {
-                                mouseEventLocker.unlock();
 		return false;
 	}
 	state_machine = picviz_view->state_machine;
 
 	if (map.mouse_up(x, y)) {
-                                mouseEventLocker.unlock();
 		return true;
 	}
 
 	if (top_bar->is_visible() && event_line->mouse_up(button, x, y, modifiers)) {
-                                mouseEventLocker.unlock();
 		return true;
 	}
 	/* We test if we are NOT in GRAB mode */
@@ -1009,7 +981,6 @@ bool PVGL::PVView::mouse_up(int button, int x, int y, int modifiers)
 		get_lines().set_zombie_fbo_dirty();
 		//map.set_zombie_fbo_dirty();
 	}
-                mouseEventLocker.unlock();
 	return true;
 }
 
@@ -1094,7 +1065,7 @@ void PVGL::PVView::update_listing(void)
 	PVGL::PVMessage message;
 
 	message.function = PVGL_COM_FUNCTION_CLEAR_SELECTION;
-	message.pv_view = picviz_view;
+	message.pv_view = get_libview();
 	pv_com->post_message_to_qt(message);
 
 	message.function = PVGL_COM_FUNCTION_SELECTION_CHANGED;

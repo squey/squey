@@ -188,11 +188,13 @@ PVLOG_INFO("(pvmapped::create_table) begin cuda mapping\n");
  * Picviz::PVMapped::to_csv
  *
  *****************************************************************************/
-void Picviz::PVMapped::to_csv(QString /*filename*/)
+void Picviz::PVMapped::to_csv()
 {
-	for (PVRow i = 0; i < table.getHeight(); i++) {
-		for (PVCol j = 0; j < table.getWidth(); j++) {
-			std::cout << table.getValue(i,j);
+	// WARNING: this is all but efficient. Uses this for testing and
+	// debugging purpose only !
+	for (PVRow i = 0; i < trans_table.getWidth(); i++) {
+		for (PVCol j = 0; j < trans_table.getHeight(); j++) {
+			std::cout << trans_table.getValue(j,i);
 			if (j!=table.getWidth()-1) {
 				std::cout << ",";
 			}

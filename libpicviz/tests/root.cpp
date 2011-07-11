@@ -1,4 +1,5 @@
 #include <picviz/PVRoot.h>
+#include "test-env.h"
 
 #include <stdlib.h>
 
@@ -6,9 +7,7 @@ using Picviz::PVRoot;
 
 int main(void)
 {
-
-#include "test-env.h"
-
+	init_env();
 	PVRoot root;
 
 	// ~root();

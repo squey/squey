@@ -10,6 +10,7 @@
 #include <pvcore/general.h>
 
 #include <pvgl/PVIdleManager.h>
+#include <QtCore>
 
 namespace PVGL {
 
@@ -18,6 +19,7 @@ class PVDrawable;
 	*
 	*/
 struct LibExport PVMain {
+
 	/**
 	*
 	*/
@@ -138,8 +140,14 @@ struct LibExport PVMain {
 	*
 	*/
 	static void stop();
+    
+        
 
 };
+#ifndef DEF_passive_motion_locker_mutex
+#define DEF_passive_motion_locker_mutex
+static QMutex passive_motion_locker_mutex;
+#endif
 }
 extern PVGL::PVIdleManager idle_manager;
 #endif

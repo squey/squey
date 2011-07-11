@@ -164,6 +164,7 @@ void PVGL::PVMain::mouse_wheel(int delta_zoom_level, int x, int y)
  *****************************************************************************/
 void PVGL::PVMain::mouse_down(int button, int x, int y)
 {
+        passive_motion_locker_mutex.lock();
 	PVGL::PVDrawable *current_drawable;
 
 	PVLOG_DEBUG("PVGL::PVMain::%s\n", __FUNCTION__);
@@ -189,6 +190,7 @@ void PVGL::PVMain::mouse_release(int button, int x, int y)
 	if (current_drawable) {
 		current_drawable->mouse_up(button, x, y, glutGetModifiers());
                 }
+        passive_motion_locker_mutex.unlock();
 }
 
 /******************************************************************************

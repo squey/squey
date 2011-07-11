@@ -1,0 +1,69 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE PVParamXml>
+<param>
+ <RegEx selectionRegExp-10="(.*)" selectionRegExp-11="(.*)" selectionRegExp-12="(.*)" selectionRegExp-13="(.*)" selectionRegExp-14="(.*)" selectionRegExp-15="(.*)" selectionRegExp-16="(.*)" selectionRegExp-17="(.*)" selectionRegExp-18="(.*)" selectionRegExp-19="(.*)" selectionRegExp-20="(.*)" selectionRegExp-21="(.*)" selectionRegExp-22="" selectionRegExp-23="" selectionRegExp-24="" saveValidator="false" selectionRegExp-25="" selectionRegExp-26="" selectionRegExp-27="" selectionRegExp-28="" selectionRegExp-29="" selectionRegExp-30="" selectionRegExp-31="" selectionRegExp-32="" selectionRegExp-33="" validator="" selectionRegExp-34="" selectionRegExp-35="" selectionRegExp-36="" selectionRegExp-37="" selectionRegExp-1="(\d+)" selectionRegExp-38="" expression="\&quot;(\d+)\&quot; \&quot;(\S+)\&quot; \&quot;(\d+\:\d+\:\d+)\&quot; \&quot;(.*)\&quot; \&quot;(.*)\&quot; \&quot;(.*)\&quot; \&quot;(.*)\&quot; \&quot;(.*)\&quot; \&quot;(.*)\&quot; \&quot;(.*)\&quot; \&quot;(.*)\&quot; \&quot;(.*)\&quot; \&quot;(.*)\&quot; \&quot;(.*)\&quot; \&quot;(.*)\&quot; \&quot;(.*)\&quot; \&quot;(.*)\&quot; \&quot;(.*)\&quot; \&quot;(.*)\&quot; \&quot;(.*)\&quot; \&quot;(.*)\&quot;.*" selectionRegExp-2="(\S+)" selectionRegExp-39="" selectionRegExp-3="(\d+\:\d+\:\d+)" selectionRegExp-4="(.*)" selectionRegExp-5="(.*)" selectionRegExp-6="(.*)" selectionRegExp-7="(.*)" selectionRegExp-8="(.*)" name="" selectionRegExp-9="(.*)">
+  <field>
+   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="integer" name="Line" plotting="minmax" color="#ffffff" time-sample=""/>
+  </field>
+  <field>
+   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="dMMMyyyy" group="none" type="time" name="Date" plotting="default" color="#ffffff" time-sample="12Jan2011"/>
+  </field>
+  <field>
+   <axis titlecolor="#ffffff" key="false" mapping="24h" time-format="H:m:ss" group="none" type="time" name="Time" plotting="default" color="#ffffff" time-sample=""/>
+  </field>
+  <field>
+   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="string" name="Interface" plotting="default" color="#ffffff" time-sample=""/>
+  </field>
+  <field>
+   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="string" name="Origin" plotting="default" color="#ffffff" time-sample=""/>
+  </field>
+  <field>
+   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="string" name="Type" plotting="default" color="#ffffff" time-sample=""/>
+  </field>
+  <field>
+   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="enum" name="Action" plotting="default" color="#ffffff" time-sample=""/>
+  </field>
+  <field>
+   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="enum" name="Service" plotting="default" color="#ffffff" time-sample=""/>
+  </field>
+  <field>
+   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="integer" name="Source Port" plotting="minmax" color="#ffffff" time-sample=""/>
+  </field>
+  <field>
+   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="string" name="Source" plotting="default" color="#ffffff" time-sample=""/>
+  </field>
+  <field>
+   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="string" name="Destination" plotting="default" color="#ffffff" time-sample=""/>
+  </field>
+  <field>
+   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="string" name="Protocol" plotting="default" color="#ffffff" time-sample=""/>
+  </field>
+  <field>
+   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="integer" name="Rule" plotting="minmax" color="#ffffff" time-sample=""/>
+  </field>
+  <field>
+   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="string" name="Rule Name" plotting="default" color="#ffffff" time-sample=""/>
+  </field>
+  <field>
+   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="integer" name="Current Rule Number" plotting="minmax" color="#ffffff" time-sample=""/>
+  </field>
+  <field>
+   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="integer" name="Nat Rule Number" plotting="minmax" color="#ffffff" time-sample=""/>
+  </field>
+  <field>
+   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="integer" name="User" plotting="minmax" color="#ffffff" time-sample=""/>
+  </field>
+  <field>
+   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="string" name="XlateSrc" plotting="default" color="#ffffff" time-sample=""/>
+  </field>
+  <field>
+   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="string" name="XlateDst" plotting="default" color="#ffffff" time-sample=""/>
+  </field>
+  <field>
+   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="string" name="Information" plotting="default" color="#ffffff" time-sample=""/>
+  </field>
+  <field>
+   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="string" name="Product" plotting="default" color="#ffffff" time-sample=""/>
+  </field>
+ </RegEx>
+</param>

@@ -63,7 +63,7 @@ void PVGL::PVScatterPlotSelectionSquare::init(Picviz::PVView_p view)
 void PVGL::PVScatterPlotSelectionSquare::draw(void)
 {
 	GLfloat m[16];
-	Picviz::StateMachine *state_machine = pv_view->state_machine;
+	Picviz::PVStateMachine *state_machine = pv_view->state_machine;
 
 	PVLOG_DEBUG("PVGL::PVScatterPlotSelectionSquare::%s\n", __FUNCTION__);
 

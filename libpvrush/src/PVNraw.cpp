@@ -109,3 +109,34 @@ void PVRush::PVNraw::clear_table()
 	}
 	table.clear();
 }
+
+void PVRush::PVNraw::copy(PVNraw &dst, PVNraw const& src)
+{
+	dst.reserve(src.table.size());
+	nraw_table::const_iterator it;
+	nraw_table_line::const_iterator it_l;
+	for (it = src.table.begin(); it != src.table.end(); it++) {
+		nraw_table_line &line = dst.add_row(it->size());
+		size_t i = 0;
+		for (it_l = it->begin(); it_l != it->end(); it_l++) {
+			QString const& str = *it_l;
+			dst.set_field(line, i, str.constData(), str.size());
+			i++;
+		}
+	}
+
+	if (src.trans_table.size() > 0) {
+		dst.create_trans_nraw();
+	}
+	dst.format = src.format;
+}
+
+void PVRush::PVNraw::move(PVNraw &dst, PVNraw& src)
+{
+	dst.table = src.table;
+	dst.trans_table = src.trans_table;
+	dst.format = src.format;
+
+	src.table.clear();
+	src.trans_table.clear();
+}

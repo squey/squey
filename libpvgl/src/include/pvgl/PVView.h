@@ -41,9 +41,6 @@ class LibExport PVView : public PVDrawable {
 	PVLines lines;                          //!<
 	PVMap   map;
 	PVAxes             axes;                //!<
-    
-        QMutex mouseEventLocker;//!< locker to prevent bad order call of mouse pressed, moving and release.
-        bool mouseClicking;//!< true when the user is clicking on the view.
 
 	bool selection_dirty;          //!< A boolean to ask for a redraw of the selection
 	bool update_line_dirty;

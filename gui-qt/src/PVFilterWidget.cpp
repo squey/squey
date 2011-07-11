@@ -22,8 +22,8 @@
 //FIXME #include <picviz/filters.h>
 #include <picviz/arguments.h>
 #include <picviz/PVSource.h>
+#include <picviz/PVStateMachine.h>
 #include <picviz/PVView.h>
-#include <picviz/state-machine.h>
 
 #include <pvrush/PVFormat.h>
 
@@ -356,7 +356,7 @@ void PVInspector::PVFilterWidget::filter_ok_action_Slot()
 	// Commit if you want to keep this for further use.
 	picviz_layer_A2B_copy(lib_view->post_filter_layer, lib_view->pre_filter_layer);
 	picviz_selection_A2B_copy(lib_view->post_filter_layer->selection, lib_view->volatile_selection);
-	lib_view->state_machine->set_square_area_mode(Picviz::StateMachine::AREA_MODE_SET_WITH_VOLATILE);
+	lib_view->state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
 
 	// We reprocess the pipeline from the eventline stage
 	picviz_view_process_from_eventline(lib_view);

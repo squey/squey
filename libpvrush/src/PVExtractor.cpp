@@ -216,14 +216,14 @@ void PVRush::PVExtractor::debug()
 
 void PVRush::PVExtractor::save_nraw()
 {
-	_saved_nraw = _nraw;
+	PVNraw::move(_saved_nraw, _nraw);
 	_saved_nraw_valid = true;
 }
 
 void PVRush::PVExtractor::restore_nraw()
 {
 	if (_saved_nraw_valid) {
-		_nraw = _saved_nraw;
+		PVNraw::move(_nraw, _saved_nraw);
 		_saved_nraw_valid = false;
 	}
 }

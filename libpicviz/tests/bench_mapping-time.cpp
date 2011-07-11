@@ -3,6 +3,7 @@
 #include <pvrush/PVFormat.h>
 #include <pvfilter/PVFilterLibrary.h>
 #include <tbb/tick_count.h>
+#include "test-env.h"
 
 #include <QVector>
 #include <QString>
@@ -16,6 +17,7 @@ int main(int argc, char** argv)
 	if (size < MIN_SIZE) {
 		size = MIN_SIZE;
 	}
+	init_env();
 
 	Picviz::PVRoot root; // Load plugins
 	Picviz::PVMappingFilter::p_type map_filter = LIB_FILTER(Picviz::PVMappingFilter)::get().get_filter_by_name("time_24h");
@@ -51,7 +53,7 @@ int main(int argc, char** argv)
 	}
 	free(res);
 
-	std::cout << "Time mapping took " << (end-start).seconds() << " seconds.\n" << std::endl;
+	std::cerr << "Time mapping took " << (end-start).seconds() << " seconds.\n" << std::endl;
 
 	return 0;
 }

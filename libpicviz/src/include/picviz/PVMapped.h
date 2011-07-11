@@ -45,7 +45,7 @@ public:
 	PVCore::PVListFloat2D trans_table;
 
 	int create_table();
-	void to_csv(QString filename);
+	void to_csv();
 
 	PVRush::PVFormat *get_format();
 	PVRush::PVNraw::nraw_table& get_qtnraw();

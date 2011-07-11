@@ -11,7 +11,7 @@
 
 #include <picviz/PVView.h>
 #include <picviz/PVColor.h>
-
+#include <picviz/PVStateMachine.h>
 
 #include <PVListingModel.h>
 #include <PVMainWindow.h>
@@ -25,7 +25,7 @@
  * PVInspector::PVListingModel::PVListingModel
  *
  *****************************************************************************/
-PVInspector::PVListingModel::PVListingModel(PVMainWindow *mw, PVTabSplitter *parent, Picviz::StateMachine_ListingMode_t state) : QAbstractTableModel(parent) {
+PVInspector::PVListingModel::PVListingModel(PVMainWindow *mw, PVTabSplitter *parent, Picviz::PVStateMachineListingMode_t state) : QAbstractTableModel(parent) {
         PVLOG_INFO("%s : Creating object\n", __FUNCTION__);
 
         main_window = mw;
@@ -72,7 +72,7 @@ QVariant PVInspector::PVListingModel::data(const QModelIndex &index, int role) c
         int tmp_count = 0;
         Picviz::PVView_p lib_view;
         int real_row_index;
-        Picviz::StateMachine *state_machine;
+        Picviz::PVStateMachine *state_machine;
 
         unsigned char r;
         unsigned char g;
@@ -166,6 +166,8 @@ QVariant PVInspector::PVListingModel::data(const QModelIndex &index, int role) c
                                         break;
                                 case Picviz::LISTING_NO_UNSEL_NO_ZOMBIES:// we don't list the zombies lines and the unselected lines.
                                         break;
+			        case Picviz::LISTING_BAD_LISTING_MODE:
+					break;
                         }
 
         }//**********************************END************************************
@@ -221,6 +223,10 @@ void PVInspector::PVListingModel::initMatchingTable() {
                                 case Picviz::LISTING_NO_UNSEL_NO_ZOMBIES:// we don't list the zombies lines and the unselected lines.
                                         matchingTable.insert(i, lib_view->get_nznu_real_row_index(i));
                                         break;
+			        case Picviz::LISTING_ALL:
+					break;
+			        case Picviz::LISTING_BAD_LISTING_MODE:
+					break;
                         }
                 }
         } else {
@@ -297,6 +303,8 @@ QVariant PVInspector::PVListingModel::headerData(int section, Qt::Orientation or
                                                 return unselect_font;
                                         }
                                         break;
+			        case Picviz::LISTING_BAD_LISTING_MODE:
+					break;
                         }
 
 
@@ -322,7 +330,7 @@ QVariant PVInspector::PVListingModel::headerData(int section, Qt::Orientation or
  * PVInspector::PVListingModel::setState
  *
  *****************************************************************************/
-void PVInspector::PVListingModel::setState(Picviz::StateMachine_ListingMode_t mode) {
+void PVInspector::PVListingModel::setState(Picviz::PVStateMachineListingMode_t mode) {
         PVLOG_INFO("PVInspector::PVListingModel::setState(%d)\n", (int) mode);
         state_listing = mode;
         initMatchingTable();
@@ -427,6 +435,8 @@ void PVInspector::PVListingModel::sortByColumn(int idColumn) {
                                                 matchingTable.insert(i, matchTableNew.at(i));
                                         }
                                         break;
+			        case Picviz::LISTING_BAD_LISTING_MODE:
+					break;
                         }
                         PVLOG_DEBUG("   ...end update match\n");
 
@@ -463,6 +473,8 @@ int PVInspector::PVListingModel::rowCount(const QModelIndex &/*index*/) const {
                 case Picviz::LISTING_NO_UNSEL_NO_ZOMBIES:// we don't list the zombies lines and the unselected lines.
                         return int(lib_view->get_nznu_index_count());
                         break;
+	         case Picviz::LISTING_BAD_LISTING_MODE:
+			 break;
         }
         PVLOG_ERROR("PVInspector::PVListingModel::rowCount :  bad stat_listing.");
 
