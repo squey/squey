@@ -87,6 +87,8 @@ public:
 	PVSelection volatile_selection;
 	map_filter_arguments filters_args;
 	int last_extractor_batch_size;
+    
+    QMutex gl_call_locker;
 
 
 	/* Functions */
@@ -272,6 +274,7 @@ public:
 
 protected:
 	bool _is_consistent;
+    
 
 
 };

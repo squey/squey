@@ -874,7 +874,7 @@ void PVInspector::PVMainWindow::lines_display_unselected_Slot()
  *****************************************************************************/
 bool PVInspector::PVMainWindow::eventFilter(QObject *watched_object, QEvent *event)
 {
-	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
+	//PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
 
 	if (watched_object == pv_ListingsTabWidget->get_tabBar()) {
 		if (event->type() == QEvent::KeyPress) {

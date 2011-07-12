@@ -810,10 +810,12 @@ void Picviz::PVView::process_from_layer_stack()
  *****************************************************************************/
 void Picviz::PVView::process_from_selection()
 {
+        PVLOG_DEBUG("Picviz::PVView::process_from_selection\n");
 	process_selection();
 	process_filter();
 	process_eventline();
 	process_visibility();
+        
 }
 
 /******************************************************************************
@@ -978,6 +980,7 @@ void Picviz::PVView::selection_A2B_select_with_square_area(PVSelection &a, PVSel
 	float y_iamax;
 	float y_iamin;
 	float ymin, ymax;
+        
 
 	/* We set the axes_count for further reference */
 	axes_count = axes_combination.get_axes_count();

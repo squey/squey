@@ -46,6 +46,14 @@ export PICVIZ_DEBUG_LEVEL="DEBUG"
 	gdb gui-qt/src/picviz-inspector
 	exit 0
 fi
+if [ "$1" == "ddd" ]
+then
+export PICVIZ_DEBUG_LEVEL="DEBUG"
+#export PICVIZ_DEBUG_FILE="debug.txt"
+	ddd gui-qt/src/picviz-inspector
+	exit 0
+fi
+
 if [ "$1" == "debug-nogl" ]
 then
 export PICVIZ_DEBUG_LEVEL="DEBUG"

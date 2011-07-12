@@ -189,6 +189,7 @@ void PVInspector::PVTabSplitter::update_pv_listing_model_Slot()
  *****************************************************************************/
 void PVInspector::PVTabSplitter::refresh_layer_stack_view_Slot()
 {
+        PVLOG_DEBUG("PVInspector::PVTabSplitter::refresh_layer_stack_view_Slot()\n");
 	/* this doesn't work !!! */
 	//pv_layer_stack_widget->pv_layer_stack_view->viewport()->update();
 
