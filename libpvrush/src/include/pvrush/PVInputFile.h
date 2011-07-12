@@ -25,7 +25,7 @@ protected:
 	CLASS_INPUT(PVRush::PVInputFile)
 };
 
-class PVInputFileOpenException {
+class PVInputFileOpenException: public PVInputException {
 public:
 	PVInputFileOpenException(const char* path, int err) :
 		_path(path),

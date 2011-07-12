@@ -33,6 +33,8 @@ public:
 	QCheckBox *activate_netflow_checkbox;
 	QLineEdit *from_line_edit;
 	QLineEdit *to_line_edit;
+	bool _check_archives;
+	QCheckBox* _check_archives_checkbox;
 };
 }
 

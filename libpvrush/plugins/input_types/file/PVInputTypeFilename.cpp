@@ -74,10 +74,11 @@ bool PVRush::PVInputTypeFilename::createWidget(hash_formats const& formats, list
 	PVImportFileDialog* dlg = new PVImportFileDialog(formats_name, parent);
 	dlg->setDefaults();
 	QStringList filenames = dlg->getFileNames(format);
+	bool check_archives = dlg->_check_archives_checkbox->checkState() == Qt::Checked;
 	for (int i = 0; i < filenames.size(); i++) {
 		QString const& path = filenames[i];
 		bool add_original = true;
-		if (is_archive(path)) {
+		if (check_archives && is_archive(path)) {
 			PVLOG_DEBUG("(import-files) %s is an archive.\n", qPrintable(path));
 			QStringList extracted;
 			QMessageBox box_ext(QMessageBox::Question,
@@ -131,7 +132,7 @@ bool PVRush::PVInputTypeFilename::createWidget(hash_formats const& formats, list
 			nopen = 1;
 		}
 		QString msg = QObject::tr("You are trying to open %1 files, and your system limits a user to open %2 file descriptor at once.\nConsidering the needs of the application, this value must be set to a higher value. In order to change this limit, edit /etc/security/limits.conf and add the following lines:").arg(inputs.size()).arg(_limit_nfds);
-		msg += "\n\n*\tsoft\t131070\n*\thard\t131070\n\n";
+		msg += "\n\n*\tsoft\tnofile\t131070\n*\thard\tnofile\t131070\n\n";
 		msg += QObject::tr("You can set 131070 to a bigger value if needed. Then, you need to logout and login for this changes to be effectives.");
 		msg += "\n\n";
 		msg += QObject::tr("Only the first %1 file(s) will be opened.").arg(nopen);
