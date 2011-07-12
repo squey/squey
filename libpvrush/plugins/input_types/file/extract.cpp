@@ -100,7 +100,12 @@ bool extract_archive(QString const& path, QString const& dir_dest, QStringList &
 		if (r < ARCHIVE_WARN) {
 			return false;
 		}
-		path_extract = qdir_dest.cleanPath(qdir_dest.absoluteFilePath(archive_entry_pathname(entry)));
+		QString qentry(archive_entry_pathname(entry));
+		qentry = qentry.trimmed();
+		if (qentry.startsWith(QChar('/'))) {
+			qentry = qentry.mid(1,-1);
+		}
+		path_extract = qdir_dest.cleanPath(qdir_dest.absoluteFilePath(qentry));
 		path_extract_local = path_extract.toLocal8Bit();
 		filename_ext = path_extract_local.constData();
 

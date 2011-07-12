@@ -46,16 +46,20 @@ PVRush::PVImportFileDialog::PVImportFileDialog(QStringList pluginslist, QWidget 
 	activate_netflow_checkbox = new QCheckBox("Use Netflow (PCAP only)");
 	activate_netflow_checkbox->setChecked(true);
 
-	options_layout->addWidget(activate_netflow_checkbox, 1, 0);
+	_check_archives_checkbox = new QCheckBox("Automatically decompress detected archive files (warning: this can take a long time for files >1go)");
+	_check_archives_checkbox->setChecked(true);
 
-	QLabel *read_from_label = new QLabel("Read from line:");
-	options_layout->addWidget(read_from_label, 2, 0);
-	from_line_edit = new QLineEdit("0");
-	options_layout->addWidget(from_line_edit, 2, 1);
-	QLabel *read_to_label = new QLabel(" to ");
-	options_layout->addWidget(read_to_label, 2, 2);
-	to_line_edit = new QLineEdit("0");
-	options_layout->addWidget(to_line_edit, 2, 3);
+	options_layout->addWidget(activate_netflow_checkbox, 1, 0);
+	options_layout->addWidget(_check_archives_checkbox, 2, 0);
+
+//	QLabel *read_from_label = new QLabel("Read from line:");
+//	options_layout->addWidget(read_from_label, 2, 0);
+//	from_line_edit = new QLineEdit("0");
+//	options_layout->addWidget(from_line_edit, 2, 1);
+//	QLabel *read_to_label = new QLabel(" to ");
+//	options_layout->addWidget(read_to_label, 2, 2);
+//	to_line_edit = new QLineEdit("0");
+//	options_layout->addWidget(to_line_edit, 2, 3);
 
 	setFileMode(QFileDialog::ExistingFiles);
 
@@ -81,8 +85,6 @@ QStringList PVRush::PVImportFileDialog::getFileNames(QString& treat_as)
 		list = selectedFiles();
 	}
 
-	// TODO: treat the case where a directory is selected (list its files !)
-
 	treat_as = treat_as_combobox->currentText();
 
 	return list;
@@ -96,7 +98,8 @@ QStringList PVRush::PVImportFileDialog::getFileNames(QString& treat_as)
 void PVRush::PVImportFileDialog::setDefaults()
 {
 	treat_as_combobox->setCurrentIndex(0);
-	activate_netflow_checkbox->setChecked(true);
-	from_line_edit->setText(QString("0"));
-	to_line_edit->setText(QString("0"));
+	//activate_netflow_checkbox->setChecked(true);
+	//from_line_edit->setText(QString("0"));
+	//to_line_edit->setText(QString("0"));
+	_check_archives_checkbox->setChecked(true);
 }
