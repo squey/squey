@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE PVParamXml>
+<param>
+ <RegEx validator="" expression="(.*)" name="" saveValidator="false" selectionRegExp-1="(.*)">
+  <field>
+   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="enum" name="test" plotting="default" color="#ffffff" time-sample=""/>
+  </field>
+ </RegEx>
+</param>
