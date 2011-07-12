@@ -53,7 +53,6 @@ PVInspector::PVListingModel::PVListingModel(PVMainWindow *mw, PVTabSplitter *par
 int PVInspector::PVListingModel::columnCount(const QModelIndex &index) const {
         //PVLOG_DEBUG("PVInspector::PVListingModelBase::%s : at row %d and column %d\n", __FUNCTION__, index.row(), index.column());
         Picviz::PVView_p lib_view = parent_widget->get_lib_view();
-
         return lib_view->get_axes_count();
 }
 
