@@ -41,7 +41,7 @@ Picviz::PVMapping::~PVMapping()
 
 }
 
-PVRush::PVFormat *Picviz::PVMapping::get_format() const
+PVRush::PVFormat_p Picviz::PVMapping::get_format() const
 {
 	return source->nraw->format;
 }

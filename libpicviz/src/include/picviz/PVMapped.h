@@ -47,7 +47,7 @@ public:
 	int create_table();
 	void to_csv();
 
-	PVRush::PVFormat *get_format();
+	PVRush::PVFormat_p get_format();
 	PVRush::PVNraw::nraw_table& get_qtnraw();
 	const PVRush::PVNraw::nraw_table& get_qtnraw() const;
 	const PVRush::PVNraw::nraw_trans_table& get_trans_nraw() const;

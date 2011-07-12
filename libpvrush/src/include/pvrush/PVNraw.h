@@ -62,7 +62,7 @@ namespace PVRush {
 		nraw_table table;
 		nraw_trans_table trans_table;
 
-		PVFormat *format;
+		PVFormat_p format;
 
 		QString get_value(PVRow row, PVCol col);
 

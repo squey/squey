@@ -22,7 +22,7 @@ Picviz::PVPlotting::PVPlotting(PVMapped_p parent)
 	mapped = parent;
 	root = parent->root;
 
-	PVRush::PVFormat *format = parent->get_format();
+	PVRush::PVFormat_p format = parent->get_format();
 
 	for (int i=0; i < format->axes.count(); i++) {
 		PVPlottingProperties plotting_axis(root, *format, i);
@@ -46,7 +46,7 @@ Picviz::PVPlotting::~PVPlotting()
  * Picviz::PVPlotting::get_format
  *
  *****************************************************************************/
-PVRush::PVFormat *Picviz::PVPlotting::get_format() const
+PVRush::PVFormat_p Picviz::PVPlotting::get_format() const
 {
 	return mapped->get_format();
 }

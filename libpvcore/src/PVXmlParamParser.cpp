@@ -21,6 +21,7 @@ PVCore::PVXmlParamParser::PVXmlParamParser(QString nameFile) {
     docXml.setContent(tmpTextXml.readAll());
     setDom(docXml.documentElement());
 
+	fichier.close();
 }
 
 PVCore::PVXmlParamParser::~PVXmlParamParser() {
@@ -222,5 +223,4 @@ QString PVCore::PVXmlParamParser::getNodeName(QDomElement node){
 QString PVCore::PVXmlParamParser::getNodeType(QDomElement node){
     return node.tagName();
 }
-
 

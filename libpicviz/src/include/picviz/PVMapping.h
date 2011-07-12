@@ -45,7 +45,7 @@ public:
 	PVRoot_p root;
 	QList<PVMappingProperties> columns;
 
-	PVRush::PVFormat *get_format() const;
+	PVRush::PVFormat_p get_format() const;
 	float get_position(int column, QString const& value);
 	PVRush::PVNraw::nraw_table& get_qtnraw();
 	PVRush::PVNraw::nraw_trans_table const& get_trans_nraw() const;

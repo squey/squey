@@ -89,6 +89,10 @@ add_executable(Trush_ticket_2 ticket_2.cpp helpers.cpp)
 target_link_libraries(Trush_ticket_2 ${LINK_LIBRARIES})
 add_test(TestTicket2 ./Trush_ticket_2)
 
+add_executable(Trush_ticket_28 ticket_28.cpp)
+target_link_libraries(Trush_ticket_28 ${LINK_LIBRARIES})
+add_test(TestTicket28 ./Trush_ticket_28)
+
 # Benchmark for the whole extractor
 add_executable(Trush_bench bench_extractor.cpp)
 target_link_libraries(Trush_bench ${LINK_LIBRARIES})

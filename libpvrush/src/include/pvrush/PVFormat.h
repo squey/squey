@@ -22,6 +22,8 @@
 #include <pvfilter/PVChunkFilter.h>
 #include <pvfilter/PVFieldsFilter.h>
 
+#include <boost/shared_ptr.hpp>
+
 /**
  * \class PVRush::Format
  * \defgroup Format Input Formating
@@ -43,6 +45,7 @@ namespace PVRush {
 	class LibExport PVFormat {
 		public:
 			typedef QList<QHash<QString, QString> > list_axes;
+			typedef boost::shared_ptr<PVFormat> p_type;
 
 		private:
 			QString key_axis;
@@ -106,6 +109,7 @@ namespace PVRush {
 	};
 
 	typedef QHash<QString, PVRush::PVFormat> hash_formats;
+	typedef PVFormat::p_type PVFormat_p;
 
 };
 

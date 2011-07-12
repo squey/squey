@@ -208,7 +208,7 @@ void Picviz::PVMapped::to_csv()
  * Picviz::PVMapped::get_format
  *
  *****************************************************************************/
-PVRush::PVFormat *Picviz::PVMapped::get_format()
+PVRush::PVFormat_p Picviz::PVMapped::get_format()
 {
 	return mapping->source->nraw->format;
 }

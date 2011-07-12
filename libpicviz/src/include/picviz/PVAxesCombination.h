@@ -176,7 +176,7 @@ public:
 	/**
 	*
 	*/
-	void set_from_format(PVRush::PVFormat *format);
+	void set_from_format(PVRush::PVFormat &format);
 
 	/**
 	 * Sets the name of the given axis, according to the current positions of axes
