@@ -151,6 +151,7 @@ void PVInspector::PVTabSplitter::update_pv_listing_model_Slot()
 
 	/* We set the model according to the two listing modes */
 	/* First of all, we check if the Unselected are visible */
+        ///TODO replace the follwing "if" by a switch using "switch(state_machine->getListingMode())"
 	if (state_machine->are_listing_unselected_visible()) {
 		/* The Unselected are visible */
 		/* We then check if the Zombie are visible */
@@ -162,6 +163,7 @@ void PVInspector::PVTabSplitter::update_pv_listing_model_Slot()
 		} else {
 			/* The Zombie are NOT visible */
 			pv_listing_no_zombie_model->reset_model(false); // Ditto XXX ???
+                        pv_listing_no_zombie_model->setState(Picviz::LISTING_NO_ZOMBIES);
 			next_model = pv_listing_no_zombie_model;
 		}
 	} else {
@@ -170,12 +172,13 @@ void PVInspector::PVTabSplitter::update_pv_listing_model_Slot()
 		if (state_machine->are_listing_zombie_visible()) {
 			/* The Zombie are visible */
 			pv_listing_no_unselected_model->reset_model(false); // Ditto XXX ???
-            pv_listing_no_unselected_model->setState(Picviz::LISTING_NO_UNSEL);
+                        pv_listing_no_unselected_model->setState(Picviz::LISTING_NO_UNSEL);
 			next_model = pv_listing_no_unselected_model;
 		} else {
 			/* The Zombie are NOT visible */
 			pv_listing_no_zombie_no_unselected_model->reset_model(false); // Ditto XXX ???
-			next_model = pv_listing_no_zombie_no_unselected_model;
+			pv_listing_no_zombie_no_unselected_model->setState(Picviz::LISTING_NO_UNSEL_NO_ZOMBIES);
+                        next_model = pv_listing_no_zombie_no_unselected_model;
 		}
 	}
 

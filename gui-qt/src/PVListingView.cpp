@@ -15,6 +15,7 @@
 #include <PVTabSplitter.h>
 
 #include <PVListingView.h>
+#include <PVListingModel.h>
 
 /******************************************************************************
  *
@@ -59,6 +60,7 @@ void PVInspector::PVListingView::mouseReleaseEvent(QMouseEvent *event)
 	int number_of_items;
 	int real_row_index;
 	QModelIndexList selected_items_list;
+        PVListingModel *myModel = (PVListingModel *)model();
 
 	/* CODE */
 	state_machine = lib_view->state_machine;
@@ -71,10 +73,18 @@ void PVInspector::PVListingView::mouseReleaseEvent(QMouseEvent *event)
 	lib_view->volatile_selection.select_none();
 	selected_items_list = selectedIndexes();
 	number_of_items = selected_items_list.size();
-	for (i=0; i<number_of_items; i++) {
-		real_row_index = lib_view->get_real_row_index(selected_items_list[i].row());
-		lib_view->volatile_selection.set_line(real_row_index, 1);
-	}
+        if(state_machine->getListingMode()==Picviz::LISTING_ALL||state_machine->getListingMode()==Picviz::LISTING_NO_ZOMBIES){
+                for (i=0; i<number_of_items; i++) {
+                        real_row_index = lib_view->get_real_row_index(selected_items_list[i].row());
+                        lib_view->volatile_selection.set_line(myModel->getMatch(real_row_index), 1);
+                }    
+        }else{
+                for (i=0; i<number_of_items; i++) {
+                        real_row_index = lib_view->get_real_row_index(selected_items_list[i].row());
+                        lib_view->volatile_selection.set_line(real_row_index, 1);
+                }  
+        }
+	
 	/* We reprocess the view from the selection */
 	lib_view->process_from_selection();
 	state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_OFF);
@@ -89,39 +99,6 @@ void PVInspector::PVListingView::mouseReleaseEvent(QMouseEvent *event)
 	QTableView::mouseReleaseEvent(event);
 }
 
-/******************************************************************************
- *
- * PVInspector::PVListingView::refresh_listing_Slot
- *
- *****************************************************************************/
-/*void PVInspector::PVListingView::refresh_listing_Slot()
-{
-  viewport()->update();
-	verticalHeader()->viewport()->update();
-}*/
-
-/******************************************************************************
- *
- * PVInspector::PVListingView::refresh_listing_with_horizontal_header_Slot
- *
- *****************************************************************************/
-/*void PVInspector::PVListingView::refresh_listing_with_horizontal_header_Slot()
-{
-	horizontalHeader()->viewport()->update();
-	viewport()->update();
-}*/
-
-
-
-/******************************************************************************
- *
- * PVInspector::PVListingView::selection_changed_Slot
- *
- *****************************************************************************/
-/*void PVInspector::PVListingView::selection_changed_Slot()
-{
-	refresh_listing_Slot();
-}*/
 
 /******************************************************************************
  *
