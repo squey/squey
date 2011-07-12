@@ -203,7 +203,7 @@ Qt::ItemFlags PVInspector::PVListingModel::flags(const QModelIndex &/*index*/) c
  *
  *****************************************************************************/
 void PVInspector::PVListingModel::initMatchingTable() {
-        PVLOG_INFO("PVListingModel::initCorrespondance()\n");
+        PVLOG_DEBUG("PVListingModel::initCorrespondance()\n");
         Picviz::PVView_p lib_view = parent_widget->get_lib_view();
         //init the table of corresponding table.
         matchingTable.resize(0);
@@ -332,7 +332,7 @@ QVariant PVInspector::PVListingModel::headerData(int section, Qt::Orientation or
  *
  *****************************************************************************/
 void PVInspector::PVListingModel::setState(Picviz::PVStateMachineListingMode_t mode) {
-        PVLOG_INFO("PVInspector::PVListingModel::setState(%d)\n", (int) mode);
+        PVLOG_DEBUG("PVInspector::PVListingModel::setState(%d)\n", (int) mode);
         state_listing = mode;
         initMatchingTable();
 }

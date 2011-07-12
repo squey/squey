@@ -810,7 +810,7 @@ void Picviz::PVView::process_from_layer_stack()
  *****************************************************************************/
 void Picviz::PVView::process_from_selection()
 {
-        PVLOG_DEBUG("Picviz::PVView::process_from_selection\n");
+        PVLOG_DEBUG("Picviz::PVView::%s\n",__FUNCTION__);
 	process_selection();
 	process_filter();
 	process_eventline();

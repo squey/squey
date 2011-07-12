@@ -93,12 +93,14 @@ void PVInspector::PVTabSplitter::increment_screenshot_index()
 void PVInspector::PVTabSplitter::refresh_listing_Slot()
 {	PVLOG_DEBUG("%s \n       %s %d\n",__FILE__,__FUNCTION__,__LINE__);
 	if (pv_listing_view) {
+                lib_view->gl_call_locker.lock();
 		pv_listing_view->viewport()->update();
 		pv_listing_view->verticalHeader()->viewport()->update();
 		//static_cast<PVListingModelBase*>(pv_listing_view->model())->reset_model();
 		//update the size of the corresponding table.
 		static_cast<PVListingModel*>(pv_listing_view->model())->initMatchingTable();
 		static_cast<PVListingModel*>(pv_listing_view->model())->emitLayoutChanged();
+                lib_view->gl_call_locker.unlock();
 	}
 }
 
