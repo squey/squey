@@ -169,9 +169,7 @@ void PVGL::PVMain::mouse_down(int button, int x, int y)
 
 	PVLOG_DEBUG("PVGL::PVMain::%s\n", __FUNCTION__);
 
-        moving_locker_mutex.lock();
-        mouse_is_moving = true;
-        moving_locker_mutex.unlock();
+        
         
 	current_drawable = get_drawable_from_id(glutGetWindow());
 	if (current_drawable) {
@@ -189,14 +187,11 @@ void PVGL::PVMain::mouse_release(int button, int x, int y)
 	PVGL::PVDrawable *current_drawable;
 
 	PVLOG_DEBUG("PVGL::PVMain::%s\n", __FUNCTION__);
-        moving_locker_mutex.lock();
-        mouse_is_moving = false;
-        
-        moving_locker_mutex.unlock();
+
 	current_drawable = get_drawable_from_id(glutGetWindow());
 	if (current_drawable) {
 		current_drawable->mouse_up(button, x, y, glutGetModifiers());
-                }
+         }
 }
 
 /******************************************************************************
@@ -715,7 +710,7 @@ void PVGL::PVMain::timer_func(int)
 		for (std::list<PVGL::PVDrawable*>::iterator it = all_drawables.begin(); it != all_drawables.end(); ++it) {
 			PVGL::PVView *pv_view = dynamic_cast<PVGL::PVView*>(*it);
 			if (pv_view) {
-				if (pv_view->is_update_line_dirty()&&mouse_is_moving) {
+				if (pv_view->is_update_line_dirty()) {
                                         PVLOG_DEBUG("   reselect\n");
 					glutSetWindow(pv_view->get_window_id());
 					Picviz::PVView_p picviz_view = pv_view->get_libview();
