@@ -24,10 +24,11 @@ public:
 	typedef std::map<PVCore::chunk_index,PVInput::input_offset> map_offsets;
 
 public:
-	PVRawSource(PVInput &input,  PVChunkAlign &align, size_t chunk_size, PVChunkTransform &chunk_transform, PVFilter::PVChunkFilter_f src_filter, const alloc_chunk &alloc = alloc_chunk()) :
+	PVRawSource(PVInput_p input,  PVChunkAlign &align, size_t chunk_size, PVChunkTransform &chunk_transform, PVFilter::PVChunkFilter_f src_filter, const alloc_chunk &alloc = alloc_chunk()) :
 		PVRawSourceBase(src_filter), _input(input), _align(align), _chunk_size(chunk_size), _transform(chunk_transform), _alloc(alloc) 
 	{
 		assert(chunk_size > 10);
+		assert(input);
 		_curc = NULL;
 		_nextc = NULL;
 		seek_begin();
@@ -49,7 +50,7 @@ public:
 		
 		// Read data from input
 		char* begin_read = _curc->end();
-		size_t r = _input(begin_read, _transform.next_read_size(_curc->avail()));
+		size_t r = _input->operator()(begin_read, _transform.next_read_size(_curc->avail()));
 		if (r == 0) {
 			if (_curc->size() > 0) {
 				// Create a final element with what's currently in the chunk and returns it
@@ -75,7 +76,7 @@ public:
 			size_t grow_by = _chunk_size/10;
 			_curc = _curc->realloc_grow(grow_by);
 			char* previous_end = _curc->end();
-			r = _input(previous_end, _transform.next_read_size(_curc->avail()));
+			r = _input->operator()(previous_end, _transform.next_read_size(_curc->avail()));
 			if (r == 0) {
 				// Create a final element with what's in the chunk
 				_align_base(*_curc, *_nextc);
@@ -87,7 +88,7 @@ public:
 
 		// Compute the chunk indexes, based on the number of elements found
 		PVCore::chunk_index next_index = _curc->index() + _curc->c_elements().size();
-		_offsets[next_index] =  _input.current_input_offset();
+		_offsets[next_index] =  _input->current_input_offset();
 		_nextc->set_index(next_index);
 		if (next_index-1>_last_elt_index) {
 			_last_elt_index = next_index-1;
@@ -112,11 +113,11 @@ public:
 
 	virtual bool discover() { return false; }
 
-	PVRush::PVInput* get_input() { return &_input; }
+	PVRush::PVInput_p get_input() { return _input; }
 
 	virtual void seek_begin()
 	{
-		_input.seek_begin();
+		_input->seek_begin();
 		if (_curc)
 			_curc->free();
 		if (_nextc && _nextc != _curc)
@@ -124,10 +125,10 @@ public:
 		_curc = PVChunkAlloc::allocate(_chunk_size, this, _alloc);
 		_nextc = PVChunkAlloc::allocate(_chunk_size, this, _alloc);
 	}
-	virtual QString human_name() { return _input.human_name(); }
+	virtual QString human_name() { return _input->human_name(); }
 
 protected:
-	PVInput &_input;
+	PVInput_p _input;
 	PVChunkAlign &_align;
 	PVChunkAlign _align_base;
 	size_t _chunk_size;

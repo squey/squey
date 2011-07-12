@@ -30,6 +30,13 @@ public:
 	virtual QString human_name() = 0;
 };
 
+class LibExport PVInputException {
+public:
+	virtual std::string const& what() const = 0;
+};
+
+typedef PVInput::p_type PVInput_p;
+
 }
 
 #define IMPL_INPUT(T) \

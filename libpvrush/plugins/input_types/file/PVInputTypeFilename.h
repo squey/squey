@@ -12,6 +12,7 @@ namespace PVRush {
 class LibExport PVInputTypeFilename: public PVInputType
 {
 public:
+	PVInputTypeFilename();
 	virtual ~PVInputTypeFilename();
 public:
 	bool createWidget(hash_formats const& formats, list_inputs &inputs, QString& format, QWidget* parent = NULL) const;
@@ -25,6 +26,7 @@ public:
 
 protected:
 	mutable QStringList _tmp_dir_to_delete;
+	int _limit_nfds;
 	
 	CLASS_REGISTRABLE(PVInputTypeFilename)
 };

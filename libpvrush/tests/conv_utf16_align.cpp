@@ -25,7 +25,7 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	PVInputFile ifile(argv[1]);
+	PVInput_p ifile(new PVInputFile(argv[1]));
 	PVFilter::PVChunkFilter null;
 	PVUnicodeSource<> source(ifile, atoi(argv[2]), null);
 

@@ -6,6 +6,7 @@
 #include <pvfilter/PVChunkFilter.h>
 #include <pvfilter/PVFilterFunction.h>
 #include <QString>
+#include <boost/shared_ptr.hpp>
 
 namespace PVRush {
 	class PVInput;
@@ -23,7 +24,7 @@ public:
 //	virtual PVCore::PVChunk* operator()() = 0;
 	PVFilter::PVChunkFilter_f source_filter();
 	// FIXME: PVInput should be in this class (inter-library depedencies problem...) !
-	virtual PVRush::PVInput* get_input() { return NULL; }
+	virtual boost::shared_ptr<PVRush::PVInput> get_input() { return boost::shared_ptr<PVRush::PVInput>(); }
 	PVCore::chunk_index last_elt_index() { return _last_elt_index; }
 	virtual void seek_begin() {};
 	virtual QString human_name() { return QString("undefined"); }

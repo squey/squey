@@ -41,6 +41,7 @@
 #include <pvcore/PVClassLibrary.h>
 #include <pvcore/PVMeanValue.h>
 
+#include <pvrush/PVInput.h>
 #include <pvrush/PVNormalizer.h>
 #include <pvrush/PVSourceCreator.h>
 #include <pvrush/PVSourceCreatorFactory.h>
@@ -622,14 +623,20 @@ void PVInspector::PVMainWindow::import_type_Slot()
 
 			// Try every possible format
 			QHash<QString,PVCore::PVMeanValue<float> > file_types;
-			for (itfc = dis_format_creator.begin(); itfc != dis_format_creator.end(); itfc++) {
-				float success_rate = PVRush::PVSourceCreatorFactory::discover_input(itfc.value(), *itin);
-				PVLOG_INFO("For input %s with format %s, success rate is %0.4f\n", qPrintable(in_str), qPrintable(itfc.key()), success_rate);
-				if (success_rate > 0) {
-					QString const& str_format = itfc.key();
-					file_types[str_format].push(success_rate);
-					discovered_types[str_format].push(success_rate);
+			try {
+				for (itfc = dis_format_creator.begin(); itfc != dis_format_creator.end(); itfc++) {
+					float success_rate = PVRush::PVSourceCreatorFactory::discover_input(itfc.value(), *itin);
+					PVLOG_INFO("For input %s with format %s, success rate is %0.4f\n", qPrintable(in_str), qPrintable(itfc.key()), success_rate);
+					if (success_rate > 0) {
+						QString const& str_format = itfc.key();
+						file_types[str_format].push(success_rate);
+						discovered_types[str_format].push(success_rate);
+					}
 				}
+			}
+			catch (PVRush::PVInputException &e) {
+				PVLOG_ERROR("PVInput error: %s\n", e.what().c_str());
+				continue;
 			}
 
 			if (file_types.count() == 1) {
@@ -750,7 +757,15 @@ void PVInspector::PVMainWindow::import_type_Slot()
 		message.pointer_1 = new QString(tab_name);
 		pvgl_com->post_message_to_gl(message);
 #endif
-		PVRush::PVControllerJob_p job_import = import_source->files_append(fc.first, fc.second, inputs);
+		PVRush::PVControllerJob_p job_import;
+		try {
+			job_import = import_source->files_append(fc.first, fc.second, inputs);
+		}
+		catch (PVRush::PVInputException &e) {
+			PVLOG_ERROR("PVInput error: %s\n", e.what().c_str());
+			continue;
+		}
+
 		if (!PVExtractorWidget::show_job_progress_bar(job_import, PVEXTRACT_NUMBER_LINES_FIRST, this)) {
 			job_import->cancel();
 			message.function = PVGL_COM_FUNCTION_DESTROY_TRANSIENT;

@@ -58,9 +58,9 @@ double bench_utf16_align(QStringList const& paths, PVFilter::PVChunkFilter_f chk
 {
 	PVRush::PVExtractor ext(NCHUNKS);
 	for (int i = 0; i < paths.size(); i++) {
-		PVRush::PVInputFile *ifile = new PVRush::PVInputFile(paths[i].toLocal8Bit().constData());
+		PVRush::PVInput_p ifile(new PVRush::PVInputFile(paths[i].toLocal8Bit().constData()));
 		PVFilter::PVChunkFilter* chk_flt_src = new PVFilter::PVChunkFilter();
-		PVFilter::PVRawSourceBase_p src(new PVRush::PVUnicodeSource<>(*ifile, chunk_size, chk_flt_src->f()));
+		PVFilter::PVRawSourceBase_p src(new PVRush::PVUnicodeSource<>(ifile, chunk_size, chk_flt_src->f()));
 		ext.add_source(src);
 	}
 	ext.set_chunk_filter(chk_flt);
@@ -72,10 +72,10 @@ double bench_utf16(QStringList const& paths, PVFilter::PVChunkFilter_f chk_flt, 
 	PVRush::PVExtractor ext(NCHUNKS);
 	PVRush::PVChunkAlign null_align;
 	for (int i = 0; i < paths.size(); i++) {
-		PVRush::PVInputFile *ifile = new PVRush::PVInputFile(paths[i].toLocal8Bit().constData());
+		PVRush::PVInput_p ifile(new PVRush::PVInputFile(paths[i].toLocal8Bit().constData()));
 		PVFilter::PVChunkFilter* chk_flt_src = new PVFilter::PVChunkFilter();
 		PVRush::PVChunkTransformUTF16* utf16 = new PVRush::PVChunkTransformUTF16();
-		PVFilter::PVRawSourceBase_p src(new PVRush::PVRawSource<>(*ifile, null_align, chunk_size, *utf16, chk_flt_src->f()));
+		PVFilter::PVRawSourceBase_p src(new PVRush::PVRawSource<>(ifile, null_align, chunk_size, *utf16, chk_flt_src->f()));
 		ext.add_source(src);
 	}
 	ext.set_chunk_filter(chk_flt);
@@ -88,9 +88,9 @@ double bench(QStringList const& paths, PVFilter::PVChunkFilter_f chk_flt, size_t
 	PVRush::PVChunkAlign null_align;
 	PVRush::PVChunkTransform null_transform;
 	for (int i = 0; i < paths.size(); i++) {
-		PVRush::PVInputFile *ifile = new PVRush::PVInputFile(paths[i].toLocal8Bit().constData());
+		PVRush::PVInput_p ifile(new PVRush::PVInputFile(paths[i].toLocal8Bit().constData()));
 		PVFilter::PVChunkFilter* chk_flt_src = new PVFilter::PVChunkFilter();
-		PVFilter::PVRawSourceBase_p src(new PVRush::PVRawSource<>(*ifile, null_align, chunk_size, null_transform, chk_flt_src->f()));
+		PVFilter::PVRawSourceBase_p src(new PVRush::PVRawSource<>(ifile, null_align, chunk_size, null_transform, chk_flt_src->f()));
 		ext.add_source(src);
 	}
 	ext.set_chunk_filter(chk_flt);
