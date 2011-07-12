@@ -79,5 +79,9 @@ int main(int argc, char** argv)
 	agg.process_indexes(100,500);
 	dump_agg(agg);
 
+	cout << "Show 1000000 lines..." << endl;
+	agg.process_indexes(0,1000000);
+	dump_agg(agg);
+
 	return 0;
 }

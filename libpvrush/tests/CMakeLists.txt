@@ -35,6 +35,7 @@ add_test(TestConvUtf16Align_smallchunksize diff_stdout.py test-files/conv_utf16_
 add_executable(Trush_agg agg.cpp helpers.cpp)
 target_link_libraries(Trush_agg ${LINK_LIBRARIES})
 add_test(TestAggregator diff_stdout.py test-files/aggregator/set1.out test-files/aggregator/set1.diff ./Trush_agg 6000 test-files/aggregator/set1)
+add_test(TestAggregator diff_stdout.py test-files/aggregator/set2.out test-files/aggregator/set2.diff ./Trush_agg 6000 test-files/aggregator/set2)
 
 # Test the controller
 
