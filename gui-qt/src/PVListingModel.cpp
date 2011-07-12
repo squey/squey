@@ -143,18 +143,9 @@ QVariant PVInspector::PVListingModel::data(const QModelIndex &index, int role) c
                         //PVLOG_DEBUG("       ForegroundRole\n");
                         switch (state_listing) {
                                 case Picviz::LISTING_ALL:// we list all the lines
-                                        /* We test if the line is a ZOMBIE one */
-                                        //correspondId = correspondTable.at(index.row());
-                                        if (lib_view->layer_stack_output_layer.get_selection().get_line(index.row())) {
-                                                /* The line is NOT a ZOMBIE */
-                                                return not_zombie_font_brush;
-                                        } else {
-                                                /* The line is a ZOMBIE */
-                                                return zombie_font_brush;
-                                        }
-                                        break;
                                 case Picviz::LISTING_NO_UNSEL:// we don't list the unselected lines.
-                                        /* We test if the line is a ZOMBIE one */
+                                case Picviz::LISTING_NO_ZOMBIES:// we don't list the zombies lines.
+                                case Picviz::LISTING_NO_UNSEL_NO_ZOMBIES:// we don't list the zombies lines and the unselected lines.
                                         if (lib_view->layer_stack_output_layer.get_selection().get_line(real_row_index)) {
                                                 /* The line is NOT a ZOMBIE */
                                                 return not_zombie_font_brush;
@@ -162,10 +153,6 @@ QVariant PVInspector::PVListingModel::data(const QModelIndex &index, int role) c
                                                 /* The line is a ZOMBIE */
                                                 return zombie_font_brush;
                                         }
-                                        break;
-                                case Picviz::LISTING_NO_ZOMBIES:// we don't list the zombies lines.
-                                        break;
-                                case Picviz::LISTING_NO_UNSEL_NO_ZOMBIES:// we don't list the zombies lines and the unselected lines.
                                         break;
 			        case Picviz::LISTING_BAD_LISTING_MODE:
 					break;
@@ -243,7 +230,7 @@ void PVInspector::PVListingModel::initMatchingTable() {
                 }
                 
         } else {
-                PVLOG_ERROR("PVInspector::PVListingModel::initCorrespondance : initializing with a bad stat_listing.");
+                PVLOG_ERROR("PVInspector::PVListingModel::initCorrespondance : initializing with a bad stat_listing.\n");
         }
         sortOrder = NoOrder;
         emitLayoutChanged();
