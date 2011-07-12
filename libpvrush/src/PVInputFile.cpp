@@ -1,11 +1,17 @@
 #include <pvrush/PVInputFile.h>
 #include <fstream>
+#include <errno.h>
 
 PVRush::PVInputFile::PVInputFile(const char* path) :
 	_path(path)
 {
 	// TODO: check for failure !
 	_file.open(path, std::ifstream::in);
+	if (_file.fail()) {
+		int err = errno;
+		PVLOG_ERROR("Unable to open %s.\n", path);
+		throw PVInputFileOpenException(path, err);
+	}
 }
 
 PVRush::PVInputFile::PVInputFile(const PVInputFile &org)

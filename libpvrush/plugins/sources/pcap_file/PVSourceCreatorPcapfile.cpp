@@ -13,10 +13,10 @@ PVRush::PVSourceCreatorPcapfile::source_p PVRush::PVSourceCreatorPcapfile::creat
 	// input is a QString !
 	PVFilter::PVChunkFilter* chk_flt = new PVFilter::PVChunkFilter();
 	PVRush::PVChunkTransform* transform_null = new PVRush::PVChunkTransform();
-	PVRush::PVInputPcap *ipcap = new PVRush::PVInputPcap(input.toString().toLocal8Bit().constData());
+	PVRush::PVInput_p ipcap(new PVRush::PVInputPcap(input.toString().toLocal8Bit().constData()));
 	PVRush::PVChunkAlign* align_org = new PVRush::PVChunkAlign();
 	// FIXME: chunk size must be computed somewhere once and for all !
-	source_p src = PVFilter::PVRawSourceBase_p(new PVRush::PVRawSource<>(*ipcap, *align_org, 16000, *transform_null, chk_flt->f()));
+	source_p src = PVFilter::PVRawSourceBase_p(new PVRush::PVRawSource<>(ipcap, *align_org, 16000, *transform_null, chk_flt->f()));
 
 	return src;
 }

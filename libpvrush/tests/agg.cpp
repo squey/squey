@@ -56,8 +56,8 @@ int main(int argc, char** argv)
 	const int chunk_size = atoi(argv[1]);
 	PVAggregator agg;
 	for (int i = 0; i < files.size(); i++) {
-		PVInputFile* in = new PVInputFile(qPrintable(dir_files.absoluteFilePath(files[i])));
-		PVFilter::PVRawSourceBase_p source(new PVUnicodeSource<>(*in, chunk_size, null));
+		PVInput_p in(new PVInputFile(qPrintable(dir_files.absoluteFilePath(files[i]))));
+		PVFilter::PVRawSourceBase_p source(new PVUnicodeSource<>(in, chunk_size, null));
 		agg.add_input(source);
 	}
 	

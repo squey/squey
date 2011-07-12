@@ -41,7 +41,7 @@ int main(int argc, char** argv)
 	PVFilter::PVElementFilterByFields* elt_f = new PVFilter::PVElementFilterByFields(sp_lib_p->f());
 	PVFilter::PVChunkFilterByElt* chk_flt = new PVFilter::PVChunkFilterByElt(elt_f->f());
 
-	PVInputPcap ifile(argv[1]);
+	PVInput_p ifile(new PVInputPcap(argv[1]));
 	PVFilter::PVChunkFilter null;
 	PVRush::PVChunkAlign align;
 	PVRush::PVChunkTransform transform;

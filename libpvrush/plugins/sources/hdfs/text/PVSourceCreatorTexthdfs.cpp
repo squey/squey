@@ -6,10 +6,10 @@
 PVRush::PVSourceCreatorTexthdfs::source_p PVRush::PVSourceCreatorTexthdfs::create_source_from_input(PVFilter::PVArgument const& input) const
 {
 	// input is a PVInputHDFSFile !
-	PVRush::PVInputHDFS *ihdfs = new PVRush::PVInputHDFS(input.value<PVInputHDFSFile>());
+	PVRush::PVInput_p ihdfs(new PVRush::PVInputHDFS(input.value<PVInputHDFSFile>()));
 	// FIXME: chunk size must be computed somewhere once and for all !
 	PVFilter::PVChunkFilter* chk_flt = new PVFilter::PVChunkFilter();
-	source_p src = source_p(new PVRush::PVUnicodeSource<>(*ihdfs, 16000, chk_flt->f()));
+	source_p src = source_p(new PVRush::PVUnicodeSource<>(ihdfs, 16000, chk_flt->f()));
 
 	return src;
 }

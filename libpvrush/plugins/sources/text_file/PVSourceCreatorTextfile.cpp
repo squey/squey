@@ -11,10 +11,10 @@
 PVRush::PVSourceCreatorTextfile::source_p PVRush::PVSourceCreatorTextfile::create_source_from_input(PVFilter::PVArgument const& input) const
 {
 	// input is a QString !
-	PVRush::PVInputFile *ifile = new PVRush::PVInputFile(input.toString().toLocal8Bit().constData());
+	PVRush::PVInput_p ifile(new PVRush::PVInputFile(input.toString().toLocal8Bit().constData()));
 	// FIXME: chunk size must be computed somewhere once and for all !
 	PVFilter::PVChunkFilter* chk_flt = new PVFilter::PVChunkFilter();
-	source_p src = source_p(new PVRush::PVUnicodeSource<>(*ifile, 16000, chk_flt->f()));
+	source_p src = source_p(new PVRush::PVUnicodeSource<>(ifile, 16000, chk_flt->f()));
 
 	return src;
 }
