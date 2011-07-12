@@ -599,6 +599,8 @@ Picviz::PVSelection &Picviz::PVView::get_real_output_selection()
 int Picviz::PVView::get_real_row_index(int index)
 {
     PVLOG_DEBUG("Picviz::PVView::get_real_row_index\n");
+    
+    ///TODO usr switch and state_machine->getListingMode()
 	if (state_machine->are_listing_unselected_visible()) {
 		if (state_machine->are_listing_zombie_visible()) {
 			return index;
