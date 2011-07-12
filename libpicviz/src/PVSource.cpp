@@ -47,9 +47,10 @@ PVRush::PVControllerJob_p Picviz::PVSource::files_append(PVRush::PVFormat const&
 {
 	// FIXME: the format should be in the PVNraw
 	PVRush::PVFormat *format_nraw = new PVRush::PVFormat(format);
-	_extractor.get_nraw().format = format_nraw;
+	// This PVFormat object is hold by the NRAW of the extractor
+	_extractor.get_nraw().format.reset(format_nraw);
 	format_nraw->populate();
-	axes_combination.set_from_format(format_nraw);
+	axes_combination.set_from_format(*format_nraw);
 
 	for (int i = 0; i < inputs.count(); i++) {
 		PVRush::PVSourceCreator::source_p src = sc->create_source_from_input(inputs[i]);

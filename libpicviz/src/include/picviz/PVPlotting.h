@@ -56,7 +56,7 @@ public:
 	/**
 	 * Gets the associated format
 	 */
-	PVRush::PVFormat *get_format() const;
+	PVRush::PVFormat_p get_format() const;
 
 	/**
 	 * Gets the NRAW
