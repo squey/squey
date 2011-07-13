@@ -73,15 +73,18 @@ void PVInspector::PVListingView::mouseReleaseEvent(QMouseEvent *event)
 	lib_view->volatile_selection.select_none();
 	selected_items_list = selectedIndexes();
 	number_of_items = selected_items_list.size();
+        PVLOG_INFO("selection of :\n");
         if(state_machine->getListingMode()==Picviz::LISTING_ALL||state_machine->getListingMode()==Picviz::LISTING_NO_ZOMBIES){
                 for (i=0; i<number_of_items; i++) {
                         real_row_index = lib_view->get_real_row_index(selected_items_list[i].row());
+                        PVLOG_INFO("     a%d\n",myModel->getMatch(real_row_index));
                         lib_view->volatile_selection.set_line(myModel->getMatch(real_row_index), 1);
                 }    
         }else{
                 for (i=0; i<number_of_items; i++) {
                         real_row_index = lib_view->get_real_row_index(selected_items_list[i].row());
-                        lib_view->volatile_selection.set_line(real_row_index, 1);
+                        PVLOG_INFO("     b%d\n",(real_row_index));
+                        lib_view->volatile_selection.set_line((real_row_index), 1);
                 }  
         }
 	

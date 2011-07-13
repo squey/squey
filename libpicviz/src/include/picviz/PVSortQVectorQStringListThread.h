@@ -41,7 +41,7 @@ Q_OBJECT
 public:
 	PVSortQVectorQStringListThread(QObject *parent=0);
 	
-	void setList(PVRush::PVNraw::nraw_table *, QVector<int>* );
+	void setList(PVRush::PVNraw::nraw_table *, std::vector<int>* );
 	void sort(int idColumn, Qt::SortOrder order );
 	
 	void swap(int i, int j);
@@ -61,7 +61,7 @@ public:
 //private:
 	//data to sort
 	PVRush::PVNraw::nraw_table *myTable;
-	QVector<int> *correspondTable;
+	std::vector<int> *correspondTable;
 	
 	//sort parameters
 	QVector<QPair<QString*, int> > sortable;
