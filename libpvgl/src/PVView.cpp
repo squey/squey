@@ -452,9 +452,9 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 					pv_com->post_message_to_qt(message);
 				} else	{
 					/* We toggle the unselected listing visibility first */
-					state_machine->toggle_listing_unselected_visibility();
+					state_machine->toggle_gl_unselected_visibility();
 					// We make sure the gl is the same
-					state_machine->set_gl_unselected_visible(state_machine->are_listing_unselected_visible());
+					state_machine->set_listing_unselected_visible(state_machine->are_gl_unselected_visible());
 					/* We refresh the view */
 					//picviz_view_process_visibility(pv_view);
 					get_lines().set_main_fbo_dirty();
@@ -494,9 +494,9 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 					pv_com->post_message_to_qt(message);
 				} else {
 					/* We toggle the zombie listing visilibity first */
-					state_machine->toggle_listing_zombie_visibility();
+					state_machine->toggle_gl_zombie_visibility();
 					// We make sure the gl is the same
-					state_machine->set_gl_zombie_visible(state_machine->are_listing_zombie_visible());
+					state_machine->set_listing_zombie_visible(state_machine->are_gl_zombie_visible());
 					/* We refresh the view */
 					get_lines().set_main_fbo_dirty();
 					map.set_main_fbo_dirty();
