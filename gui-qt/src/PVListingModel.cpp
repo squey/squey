@@ -132,11 +132,9 @@ QVariant PVInspector::PVListingModel::data(const QModelIndex &index, int role) c
 
                 case (Qt::ForegroundRole)://***********************************************ForegroundRole**********************************************
 			if (lib_view->layer_stack_output_layer.get_selection().get_line(real_row_index)) {
-				PVLOG_INFO("NOT A ZOMBIE\n");
 				/* The line is NOT a ZOMBIE */
 				return not_zombie_font_brush;
 			} else {
-				PVLOG_INFO("THIS IS A ZOMBIE\n");
 				/* The line is a ZOMBIE */
 				return zombie_font_brush;
 			}
