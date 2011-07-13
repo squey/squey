@@ -24,8 +24,8 @@ PVInspector::PVLayerFilterProcessWidget::~PVLayerFilterProcessWidget()
 
 void PVInspector::PVLayerFilterProcessWidget::create_btns()
 {
-	_ok_btn = new QPushButton(QIcon(":/save"),"Save");
-	_ok_btn->setEnabled(false);
+	_apply_btn = new QPushButton(QIcon(":/save"),"Apply");
+	_apply_btn->setEnabled(false);
 	_preview_btn = new QPushButton(QIcon(":/filter"),"Preview");
 	_preview_btn->setDefault(true);
 	_cancel_btn = new QPushButton(QIcon(":/red-cross"),"Cancel");
@@ -44,12 +44,12 @@ void PVInspector::PVLayerFilterProcessWidget::set_btns_layout()
 
 	_btn_layout->addWidget(_cancel_btn);
 	_btn_layout->addWidget(_preview_btn);
-	_btn_layout->addWidget(_ok_btn);
+	_btn_layout->addWidget(_apply_btn);
 }
 
 void PVInspector::PVLayerFilterProcessWidget::connect_btns()
 {
-	connect(_ok_btn, SIGNAL(pressed()), this, SLOT(save_Slot()));
+	connect(_apply_btn, SIGNAL(pressed()), this, SLOT(save_Slot()));
 	connect(_preview_btn, SIGNAL(pressed()), this, SLOT(preview_Slot()));
 	connect(_cancel_btn, SIGNAL(pressed()), this, SLOT(cancel_Slot()));
 	if (_help_btn) {
@@ -98,7 +98,7 @@ void PVInspector::PVLayerFilterProcessWidget::preview_Slot()
 		_tab->get_main_window()->update_pvglview(_view, PVGL_COM_REFRESH_SELECTION|PVGL_COM_REFRESH_COLOR);
 		_tab->refresh_listing_Slot();
 		_has_changed = true;
-		_ok_btn->setEnabled(true);
+		_apply_btn->setEnabled(true);
 	}
 	else {
 		// If it has been canceled...

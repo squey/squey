@@ -109,20 +109,20 @@ void PVInspector::PVArgumentListWidget::init()
 
 void PVInspector::PVArgumentListWidget::create_btns()
 {
-	_ok_btn = new QPushButton("Ok");
-	_ok_btn->setDefault(true);
+	_apply_btn = new QPushButton("Apply");
+	_apply_btn->setDefault(true);
 	_cancel_btn = new QPushButton("Cancel");
 }
 
 void PVInspector::PVArgumentListWidget::set_btns_layout()
 {
-	_btn_layout->addWidget(_ok_btn);
+	_btn_layout->addWidget(_apply_btn);
 	_btn_layout->addWidget(_cancel_btn);
 }
 
 void PVInspector::PVArgumentListWidget::connect_btns()
 {
 	// Connectors
-	connect(_ok_btn, SIGNAL(pressed()), this, SLOT(accept()));
+	connect(_apply_btn, SIGNAL(pressed()), this, SLOT(accept()));
 	connect(_cancel_btn, SIGNAL(pressed()), this, SLOT(reject()));
 }

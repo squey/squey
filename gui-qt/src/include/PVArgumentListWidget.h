@@ -54,7 +54,7 @@ protected:
 	Picviz::PVView&           _view;
 
 	// Standard buttons
-	QPushButton*              _ok_btn;
+	QPushButton*              _apply_btn;
 	QPushButton*              _cancel_btn;
 	QHBoxLayout*              _btn_layout;
 };
