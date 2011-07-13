@@ -7,6 +7,7 @@
 #include <PVMainWindow.h>
 #include <PVArgumentListWidget.h>
 #include <PVXmlEditorWidget.h>
+#include "PVLayerFilterProcessWidget.h"
 
 /******************************************************************************
  *
@@ -378,11 +379,16 @@ void PVInspector::PVMainWindow::filter_Slot(void)
 		Picviz::PVLayerFilter::p_type filter_org = LIB_FILTER(Picviz::PVLayerFilter)::get().get_filter_by_name(filter_name);
 		//cpy filter
 		Picviz::PVLayerFilter::p_type fclone = filter_org->clone<Picviz::PVLayerFilter>();
-		PVFilter::PVArgumentList args = lib_view->filters_args[filter_name];
+		PVFilter::PVArgumentList &args = lib_view->filters_args[filter_name];
+		PVLayerFilterProcessWidget* filter_widget = new PVLayerFilterProcessWidget(current_tab, args, fclone);
+		filter_widget->init();
+		filter_widget->show();
+
+#if 0
 		if (args.size() > 0) {
 			//view the widget to param filter
 
-			PVArgumentListWidget* arg_widget = new PVArgumentListWidget(*lib_view, args, fclone->detailed_description(), this);
+			PVArgumentListWidget* arg_widget = new PVArgumentListWidget(*lib_view, args, this);
 			if (!arg_widget->exec())
 				return;
 			lib_view->filters_args[filter_name] = args;
@@ -391,7 +397,6 @@ void PVInspector::PVMainWindow::filter_Slot(void)
 		}
 
 		// Then...
-		// Testing this to make the filter apply only on current selection
 
 		lib_view->process_selection();
 
@@ -426,6 +431,7 @@ void PVInspector::PVMainWindow::filter_Slot(void)
 		/* THEN we can emit the signal */
 		// commit_selection_in_current_layer(current_tab->get_lib_view());
 		emit filter_applied_Signal();
+#endif
 	}
 }
 

@@ -50,14 +50,14 @@ bool PVInspector::PVArgumentListWidget::eventFilter(QObject *obj, QEvent *event)
 	return false;
 }
 
-PVInspector::PVArgumentListWidget::PVArgumentListWidget(Picviz::PVView& view, PVFilter::PVArgumentList &args, QString const& filter_desc, QWidget* parent):
+PVInspector::PVArgumentListWidget::PVArgumentListWidget(Picviz::PVView& view, PVFilter::PVArgumentList &args, QWidget* parent):
 	QDialog(parent),
 	_args(args),
 	_view(view)
 {
 	// Initalise layouts
 	QVBoxLayout *main_layout = new QVBoxLayout();
-	QHBoxLayout *btn_layout = new QHBoxLayout();
+	_btn_layout = new QHBoxLayout();
 
 	_args_view = new QTableView();
 	_args_view->setStyleSheet(QString("QTableView { background: rgba(255, 255, 255, 0) };"));
@@ -85,27 +85,9 @@ PVInspector::PVArgumentListWidget::PVArgumentListWidget(Picviz::PVView& view, PV
 	QSize del_size = _args_del->getSize();
 	resize(del_size.width(), del_size.height());
 
-	// // Buttons and layout
-	if (!filter_desc.isEmpty()) {
-		QPushButton *help_btn = new QPushButton(QIcon(":/help"), "Help");	
-		btn_layout->addWidget(help_btn);
-		QMessageBox *msgBox = new QMessageBox(QMessageBox::Information, "Filter help", filter_desc, QMessageBox::Ok, this);
-		connect(help_btn, SIGNAL(pressed()), msgBox, SLOT(exec()));
-	}
-
-	QPushButton *ok_btn = new QPushButton(QIcon(":/filter"),"Filter");
-	ok_btn->setDefault(true);
-	QPushButton *cancel_btn = new QPushButton(QIcon(":/red-cross"),"Cancel");
-	btn_layout->addWidget(ok_btn);
-	btn_layout->addWidget(cancel_btn);
-
-	// Connectors
-	connect(ok_btn, SIGNAL(pressed()), this, SLOT(accept()));
-	connect(cancel_btn, SIGNAL(pressed()), this, SLOT(reject()));
-
 	// Set the layouts
 	main_layout->addWidget(_args_view);
-	main_layout->addLayout(btn_layout);
+	main_layout->addLayout(_btn_layout);
 
 	setLayout(main_layout);
 }
@@ -116,4 +98,31 @@ PVInspector::PVArgumentListWidget::~PVArgumentListWidget()
 	_args_view->deleteLater();
 	_args_model->deleteLater();
 	_args_del->deleteLater();
+}
+
+void PVInspector::PVArgumentListWidget::init()
+{
+	create_btns();
+	set_btns_layout();
+	connect_btns();
+}
+
+void PVInspector::PVArgumentListWidget::create_btns()
+{
+	_ok_btn = new QPushButton("Ok");
+	_ok_btn->setDefault(true);
+	_cancel_btn = new QPushButton("Cancel");
+}
+
+void PVInspector::PVArgumentListWidget::set_btns_layout()
+{
+	_btn_layout->addWidget(_ok_btn);
+	_btn_layout->addWidget(_cancel_btn);
+}
+
+void PVInspector::PVArgumentListWidget::connect_btns()
+{
+	// Connectors
+	connect(_ok_btn, SIGNAL(pressed()), this, SLOT(accept()));
+	connect(_cancel_btn, SIGNAL(pressed()), this, SLOT(reject()));
 }

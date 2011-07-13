@@ -111,7 +111,7 @@ void Picviz::PVLayerFilterHeatlineBase::operator()(PVLayer& in, PVLayer &out)
 
 	QHash<QString,PVRow> lines_hash;
 
-	out.get_selection().select_all();
+	out.get_selection() = in.get_selection();
 
 	/* 1st round: we calculate all the frequencies */
 	for (counter = 0; counter < nb_lines; counter++) {
@@ -127,22 +127,23 @@ void Picviz::PVLayerFilterHeatlineBase::operator()(PVLayer& in, PVLayer &out)
 
 	/* 2nd round: we get the color from the ratio compared with the key and the frequency */
 	for (counter = 0; counter < nb_lines; counter++) {
-		PVRush::PVNraw::nraw_table_line const& nrawvalues = nraw.at(counter);
-		key = generate_row_key_from_values(axes, nrawvalues);
+		if (_view->get_line_state_in_pre_filter_layer(counter)) {
+			PVRush::PVNraw::nraw_table_line const& nrawvalues = nraw.at(counter);
+			key = generate_row_key_from_values(axes, nrawvalues);
 
-		PVRow count_frequency = lines_hash[key];
+			PVRow count_frequency = lines_hash[key];
 
-		// TOFIX: this can be optimized !
-		if (bLog) {
-			ratio = logf(count_frequency) / logf(highest_frequency);
+			// TOFIX: this can be optimized !
+			if (bLog) {
+				ratio = logf(count_frequency) / logf(highest_frequency);
+			}
+			else {
+				ratio = (float)count_frequency / (float)highest_frequency;
+			}
+
+			this->post(in, out, ratio, counter);
 		}
-		else {
-			ratio = (float)count_frequency / (float)highest_frequency;
-		}
-
-		this->post(in, out, ratio, counter);
 	}
-
 }
 
 void Picviz::PVLayerFilterHeatlineBase::post(PVLayer& /*in*/, PVLayer& /*out*/, float /*ratio*/, PVRow /*line_id*/)

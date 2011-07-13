@@ -297,7 +297,6 @@ void PVInspector::PVMainWindow::commit_selection_in_current_layer(Picviz::PVView
 	Picviz::PVLayer &current_selected_layer = picviz_view->layer_stack.get_selected_layer();
 	/* We fill it's lines_properties */
 	picviz_view->output_layer.get_lines_properties().A2B_copy_restricted_by_selection_and_nelts(current_selected_layer.get_lines_properties(), picviz_view->real_output_selection, picviz_view->row_count);
-	// picviz_lines_properties_A2B_copy_restricted_by_selection_and_nelts(picviz_view->output_layer.get_lines_properties(), current_selected_layer->lines_properties, picviz_view->real_output_selection, picviz_view->row_count);
 	/* We need to process the view from the layer_stack */
 	picviz_view->process_from_layer_stack();
 	/* We refresh the PVView_p */
@@ -394,7 +393,7 @@ void PVInspector::PVMainWindow::connect_actions()
 
 	connect(set_color_Action, SIGNAL(triggered()), this, SLOT(set_color_Slot()));
 
-	connect(commit_selection_in_current_layer_Action, SIGNAL(triggered()), this, SLOT(commit_selection_in_current_layer_Slot()));
+	//connect(commit_selection_in_current_layer_Action, SIGNAL(triggered()), this, SLOT(commit_selection_in_current_layer_Slot()));
 	connect(commit_selection_to_new_layer_Action, SIGNAL(triggered()), this, SLOT(commit_selection_to_new_layer_Slot()));
 
 	connect(axes_editor_Action, SIGNAL(triggered()), this, SLOT(axes_editor_Slot()));//
@@ -866,10 +865,9 @@ void PVInspector::PVMainWindow::lines_display_unselected_Slot()
 		return;
 	}
 
-	state_machine->toggle_listing_unselected_visibility();
-	state_machine->toggle_gl_unselected_visibility();
+	state_machine->toggle_unselected_visibility();
 	/* We set the listing to be the same */
-	// state_machine->set_listing_unselected_visibility(state_machine->are_unselected_visible());//???
+	state_machine->set_listing_unselected_visibility(state_machine->are_unselected_visible());//???
 	/* We refresh the view */
 	current_lib_view->process_visibility();
 	update_pvglview(current_lib_view, PVGL_COM_REFRESH_SELECTION);
@@ -1411,7 +1409,7 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 							/* We only toggle the View */
 					case (Qt::ShiftModifier):
 							/* We toggle*/
-							state_machine->toggle_gl_unselected_visibility();
+							state_machine->toggle_unselected_visibility();
 							/* We refresh the view */
 							current_lib_view->process_visibility();
 							update_pvglview(current_lib_view, PVGL_COM_REFRESH_SELECTION);
@@ -1419,9 +1417,10 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 
 							/* We toggle both the Listing and the View */
 					default:
-							/* We toggle the unselected lines visibility */
-							state_machine->toggle_listing_unselected_visibility();
-							state_machine->toggle_gl_unselected_visibility();
+							/* We toggle the view first */
+							state_machine->toggle_unselected_visibility();
+							/* We set the listing to be the same */
+							state_machine->set_listing_unselected_visibility(state_machine->are_unselected_visible());//!???
 							/* We refresh the view */
 							current_lib_view->process_visibility();
 							update_pvglview(current_lib_view, PVGL_COM_REFRESH_SELECTION);
@@ -1502,7 +1501,7 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 							/* We only toggle the View */
 					case (Qt::ShiftModifier):
 							/* We toggle */
-							state_machine->toggle_gl_zombie_visibility();
+							state_machine->toggle_zombie_visibility();
 							/* We refresh the view */
 							current_lib_view->process_visibility();
 							update_pvglview(current_lib_view, PVGL_COM_REFRESH_SELECTION);
@@ -1511,10 +1510,9 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 							/* We toggle both the Listing and the View */
 					default:
 							/* We toggle the view first */
-							state_machine->toggle_gl_zombie_visibility();
-							state_machine->toggle_listing_zombie_visibility();
+							state_machine->toggle_zombie_visibility();
 							/* We set the listing to be the same */
-							// state_machine->set_listing_zombie_visibility(state_machine->are_zombie_visible());
+							state_machine->set_listing_zombie_visibility(state_machine->are_zombie_visible());
 							/* We refresh the view */
 							current_lib_view->process_visibility();
 							update_pvglview(current_lib_view, PVGL_COM_REFRESH_SELECTION);
@@ -1580,6 +1578,9 @@ void PVInspector::PVMainWindow::set_color(Picviz::PVView_p picviz_view)
 			}
 		}
 	}
+
+	// And we commit to the current layer (cf. ticket #38)
+	commit_selection_in_current_layer(current_tab->get_lib_view());
 }
 
 /******************************************************************************
@@ -1620,5 +1621,3 @@ void PVInspector::PVMainWindow::update_pvglview(Picviz::PVView_p view, int refre
 	message.int_1 = refresh_states;
 	pvgl_com->post_message_to_gl(message);
 }
-
-
