@@ -10,13 +10,13 @@
 #include <QtGui>
 #include <QtCore>
 
-//#include <PVListingModelBase.h>
-#include <picviz/PVStateMachine.h>
-#include <PVProgressBox.h>
-#include <QAbstractTableModel>
-
 #include <pvcore/general.h>
 #include <picviz/PVSortQVectorQStringListThread.h>
+#include <picviz/PVStateMachine.h>
+#include <picviz/PVView.h>
+
+#include <PVProgressBox.h>
+#include <QAbstractTableModel>
 
 namespace PVInspector {
 class PVMainWindow;
@@ -26,12 +26,24 @@ class PVTabSplitter;
  * \class PVListingModel
  */
 class PVListingModel : public QAbstractTableModel {
-    Q_OBJECT
+Q_OBJECT
 
-    QBrush not_zombie_font_brush; //!<
-    QBrush zombie_font_brush; //!<
-    //QVector<QStringList> widgetCpyOfData;
-    //corresponding table between widgetCpyOfData and nrow
+public:
+    enum TypeOfSort {
+        NoOrder, AscendingOrder, DescendingOrder
+    };
+
+private:
+	//sorting data
+	QVector<int> matchingTable; //!<the table sort, modify this array to order the values
+	TypeOfSort sortOrder; //!<save the current sorting state (NoOrder, AscendingOrder, DescendingOrder)
+	int colSorted; //!<save the last column whiche was used to sort
+	
+	QBrush not_zombie_font_brush; //!<
+	QBrush zombie_font_brush; //!<
+
+	Picviz::PVStateMachine *state_machine;
+	Picviz::PVView_p lib_view;
 
 protected:
 	PVMainWindow  *main_window;     //!<
@@ -42,17 +54,7 @@ protected:
 	QBrush unselect_brush;          //!<
 	QFont  unselect_font;           //!<
 
-private:
-    //sorting data
-    QVector<int> matchingTable; //!<the table sort, modify this array to order the values
-    TypeOfSort sortOrder; //!<save the current sorting state (NoOrder, AscendingOrder, DescendingOrder)
-    int colSorted; //!<save the last column whiche was used to sort
-
 public:
-    enum TypeOfSort {
-        NoOrder, AscendingOrder, DescendingOrder
-    };
-
     /**
      * Constructor.
      *

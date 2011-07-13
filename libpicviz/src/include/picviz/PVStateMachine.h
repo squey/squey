@@ -65,13 +65,13 @@ namespace Picviz {
                 return grabbed;
             }
 
-            bool are_gl_unselected_visible()const {
-                return gl_unselected_visible;
-            }
+            bool are_listing_all_visible()const {
+		    return listing_unselected_visible && listing_zombie_visible;
+	    }
 
-            bool are_gl_zombie_visible()const {
-                return gl_zombie_visible;
-            }
+            bool are_listing_none_visible()const {
+		    return !(listing_unselected_visible || listing_zombie_visible);
+	    }
 
             bool are_listing_unselected_visible()const {
                 return listing_unselected_visible;
@@ -79,6 +79,22 @@ namespace Picviz {
 
             bool are_listing_zombie_visible()const {
                 return listing_zombie_visible;
+            }
+
+            bool are_gl_all_visible()const {
+		    return gl_unselected_visible && gl_zombie_visible;
+	    }
+
+            bool are_gl_none_visible()const {
+		    return !(gl_unselected_visible || gl_zombie_visible);
+	    }
+
+            bool are_gl_unselected_visible()const {
+                return gl_unselected_visible;
+            }
+
+            bool are_gl_zombie_visible()const {
+                return gl_zombie_visible;
             }
             
             bool is_edit_mode_all()const {

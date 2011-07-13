@@ -25,14 +25,13 @@
  * PVInspector::PVListingModel::PVListingModel
  *
  *****************************************************************************/
-PVInspector::PVListingModel::PVListingModel(PVMainWindow *mw, PVTabSplitter *parent, Picviz::PVSelectionDisplay::PVSelectionDisplayMode_t state) : QAbstractTableModel(parent) {
+PVInspector::PVListingModel::PVListingModel(PVMainWindow *mw, PVTabSplitter *parent) : QAbstractTableModel(parent) {
         PVLOG_INFO("%s : Creating object\n", __FUNCTION__);
-
-        // Picviz::PVView_p lib_view;
-        // lib_view = parent_widget->get_lib_view();
 
         main_window = mw;
         parent_widget = parent;
+	assert(parent_widget);
+
         select_brush = QBrush(QColor(255, 240, 200));
         unselect_brush = QBrush(QColor(180, 180, 180));
         select_font = QFont();
@@ -41,7 +40,10 @@ PVInspector::PVListingModel::PVListingModel(PVMainWindow *mw, PVTabSplitter *par
         not_zombie_font_brush = QBrush(QColor(0, 0, 0));
         zombie_font_brush = QBrush(QColor(200, 200, 200));
         colSorted = -1;
-        state_listing = state;
+
+        lib_view = parent_widget->get_lib_view();
+	state_machine = lib_view->state_machine;
+
         initMatchingTable();
 }
 
@@ -51,9 +53,8 @@ PVInspector::PVListingModel::PVListingModel(PVMainWindow *mw, PVTabSplitter *par
  * PVInspector::PVListingModel::columnCount
  *
  *****************************************************************************/
-int PVInspector::PVListingModel::columnCount(const QModelIndex &index) const {
-        //PVLOG_DEBUG("PVInspector::PVListingModelBase::%s : at row %d and column %d\n", __FUNCTION__, index.row(), index.column());
-        Picviz::PVView_p lib_view = parent_widget->get_lib_view();
+int PVInspector::PVListingModel::columnCount(const QModelIndex &index) const 
+{
         return lib_view->get_axes_count();
 }
 
@@ -70,35 +71,24 @@ QVariant PVInspector::PVListingModel::data(const QModelIndex &index, int role) c
         int i;
         int correspondId;
         int tmp_count = 0;
-        Picviz::PVView_p lib_view;
         int real_row_index;
-        Picviz::PVStateMachine *state_machine;
 
         unsigned char r;
         unsigned char g;
         unsigned char b;
-        lib_view = parent_widget->get_lib_view();
-        state_machine = lib_view->state_machine;
 
-        //initializing
-        switch (state_listing) {
-<<<<<<< HEAD
-	case Picviz::PVSelectionDisplay::ALL: // we list all the lines***********************************************************
+	if (state_machine->are_listing_all_visible()) {
 		real_row_index = matchingTable.at(index.row());
-		break;
-	case Picviz::PVSelectionDisplay::NO_UNSELECTED:// we don't list the unselected lines.***************************************
-		real_row_index = lib_view->get_nu_real_row_index(matchingTable.at(index.row()));
-		break;
-	case Picviz::PVSelectionDisplay::NO_ZOMBIES:// we don't list the zombies lines.****************************************
-		real_row_index = lib_view->get_nz_real_row_index(matchingTable.at(index.row()));
-		break;
-	case Picviz::PVSelectionDisplay::NO_UNSELECTED | Picviz::PVSelectionDisplay::NO_ZOMBIES: // we don't list the zombies lines and the unselected lines.****
+	}
+	if (state_machine->are_listing_none_visible()) {
 		real_row_index = lib_view->get_nznu_real_row_index(matchingTable.at(index.row()));
-		break;
-	default:
-		PVLOG_ERROR("PVInspector::PVListingModel::data :  bad stat_listing.");
-		break;
-        }
+	}
+	if (!state_machine->are_listing_unselected_visible()) {
+		real_row_index = lib_view->get_nu_real_row_index(matchingTable.at(index.row()));
+	}
+	if (!state_machine->are_listing_zombie_visible()) {
+		real_row_index = lib_view->get_nz_real_row_index(matchingTable.at(index.row()));
+	}
 
         correspondId = matchingTable.at(index.row());
         //PVLOG_DEBUG("           correspondId %d\n", correspondId);
@@ -141,21 +131,15 @@ QVariant PVInspector::PVListingModel::data(const QModelIndex &index, int role) c
                         break;
 
                 case (Qt::ForegroundRole)://***********************************************ForegroundRole**********************************************
-                        //PVLOG_DEBUG("       ForegroundRole\n");
-                        switch (state_listing) {
-			case Picviz::PVSelectionDisplay::ALL:// we list all the lines
-			case Picviz::PVSelectionDisplay::NO_UNSELECTED:// we don't list the unselected lines.
-			case Picviz::PVSelectionDisplay::NO_ZOMBIES:// we don't list the zombies lines.
-                                        if (lib_view->layer_stack_output_layer.get_selection().get_line(real_row_index)) {
-                                                /* The line is NOT a ZOMBIE */
-                                                return not_zombie_font_brush;
-                                        } else {
-                                                /* The line is a ZOMBIE */
-                                                return zombie_font_brush;
-                                        }
-                                        break;
-                        }
-			
+			if (lib_view->layer_stack_output_layer.get_selection().get_line(real_row_index)) {
+				PVLOG_INFO("NOT A ZOMBIE\n");
+				/* The line is NOT a ZOMBIE */
+				return not_zombie_font_brush;
+			} else {
+				PVLOG_INFO("THIS IS A ZOMBIE\n");
+				/* The line is a ZOMBIE */
+				return zombie_font_brush;
+			}
         }//**********************************END************************************
         return QVariant();
 }
@@ -188,47 +172,39 @@ Qt::ItemFlags PVInspector::PVListingModel::flags(const QModelIndex &/*index*/) c
  * PVInspector::PVListingModel::headerData
  *
  *****************************************************************************/
-void PVInspector::PVListingModel::initMatchingTable() {
+void PVInspector::PVListingModel::initMatchingTable() 
+{
         PVLOG_DEBUG("PVListingModel::initCorrespondance()\n");
-        Picviz::PVView_p lib_view = parent_widget->get_lib_view();
 
         //init the table of corresponding table.
         matchingTable.resize(0);
-        if (state_listing == Picviz::PVSelectionDisplay::ALL && matchingTable.size()!=lib_view->get_qtnraw_parent().size()) {
-                matchingTable.resize(0);
+
+        if (state_machine->are_listing_all_visible() && matchingTable.size()!=lib_view->get_qtnraw_parent().size()) {
                 for (unsigned int i = 0; i < lib_view->get_qtnraw_parent().size(); i++) {
                         matchingTable.insert(i, i);
                 }
-        } else if (state_listing == Picviz::PVSelectionDisplay::NO_UNSELECTED || 
-		   state_listing == Picviz::PVSelectionDisplay::NO_ZOMBIES || 
-		{
-			switch (state_listing) {
-			case Picviz::LISTING_NO_UNSEL:// we don't list the unselected lines.
-				matchingTable.resize(0);
+	} else {
+		if (state_machine->are_listing_none_visible()) { // No zombies and no unselected
+			for (int i = 0; i < rowCount(QModelIndex()); i++) {//for each line...
+				matchingTable.insert(i, lib_view->get_nznu_real_row_index(i));
+			}
+		} else {
+			if (!state_machine->are_listing_unselected_visible()) {
 				for (int i = 0; i < rowCount(QModelIndex()); i++) {//for each line...
 					matchingTable.insert(i, lib_view->get_nu_real_row_index(i));
 				}
-				break;
-			case Picviz::LISTING_NO_ZOMBIES:// we don't list the zombies lines.
+			}
+			
+			if (!state_machine->are_listing_zombie_visible()) {
 				if(matchingTable.size()!=lib_view->get_qtnraw_parent().size()){
-					matchingTable.resize(0);
 					for (int i = 0; i < rowCount(QModelIndex()); i++) {//for each line...
 						matchingTable.insert(i, lib_view->get_nz_real_row_index(i));
 					}
 				}
-				break;
-			case Picviz::LISTING_NO_UNSEL_NO_ZOMBIES:// we don't list the zombies lines and the unselected lines.
-				matchingTable.resize(0);
-				for (int i = 0; i < rowCount(QModelIndex()); i++) {//for each line...
-					matchingTable.insert(i, lib_view->get_nznu_real_row_index(i));
-					break;
-				case Picviz::LISTING_ALL:
-					break;
-				}
 			}
-		} else {
-			   PVLOG_ERROR("PVInspector::PVListingModel::initCorrespondance : initializing with a bad stat_listing.\n");
+		} // if (state_machine->are_listing_none_visible())
         }
+
         sortOrder = NoOrder;
         emitLayoutChanged();
 }
@@ -243,25 +219,17 @@ QVariant PVInspector::PVListingModel::headerData(int section, Qt::Orientation or
         PVLOG_HEAVYDEBUG("PVInspector::PVListingModel::%s\n", __FUNCTION__);
 
         int real_row_index;
-        Picviz::PVView_p lib_view = parent_widget->get_lib_view();
 
-        switch (state_listing) {
-                case Picviz::LISTING_ALL:// we list all the lines
-                        break;
-                case Picviz::LISTING_NO_UNSEL:// we don't list the unselected lines.
-                        // We compute the real row index 
-                        real_row_index = lib_view->get_nu_real_row_index(section);
-                        break;
-                case Picviz::LISTING_NO_ZOMBIES:// we don't list the zombies lines.
-                        real_row_index = lib_view->get_nz_real_row_index(section);
-                        break;
-                case Picviz::LISTING_NO_UNSEL_NO_ZOMBIES:// we don't list the zombies lines and the unselected lines.
-                        real_row_index = lib_view->get_nznu_real_row_index(section);
-                        break;
-                default:
-                        PVLOG_ERROR("   bad state_listing");
-                        break;
-        }
+	// We need to get the data index to display vertical values
+	if (!state_machine->are_listing_unselected_visible()) {
+		real_row_index = lib_view->get_nu_real_row_index(section);
+	}
+	if (!state_machine->are_listing_zombie_visible()) {
+		real_row_index = lib_view->get_nz_real_row_index(section);
+	}
+	if (state_machine->are_listing_none_visible()) {
+		real_row_index = lib_view->get_nznu_real_row_index(section);
+	}
 
         switch (role) {
                 case (Qt::DisplayRole)://**********************************DisplayRole************************************
@@ -272,37 +240,34 @@ QVariant PVInspector::PVListingModel::headerData(int section, Qt::Orientation or
                         }
                         break;
                 case (Qt::FontRole)://**********************************FontRole************************************
-                        switch (state_listing) {
-                                case Picviz::LISTING_ALL:// we list all the lines
-                                        if ((lib_view->real_output_selection.get_line(section)) && (orientation == Qt::Vertical)) {
-                                                return select_font;
-                                        } else {
-                                                return unselect_font;
-                                        }
-                                        break;
-                                case Picviz::LISTING_NO_UNSEL:// we don't list the unselected lines.
-                                        if ((lib_view->real_output_selection.get_line(real_row_index)) && (orientation == Qt::Vertical)) {
-                                                return select_font;
-                                        } else {
-                                                return unselect_font;
-                                        }
-                                        break;
-                                case Picviz::LISTING_NO_ZOMBIES:// we don't list the zombies lines.
-                                        if ((lib_view->real_output_selection.get_line(real_row_index)) && (orientation == Qt::Vertical)) {
-                                                return select_font;
-                                        } else {
-                                                return unselect_font;
-                                        }
-                                        break;
-                                case Picviz::LISTING_NO_UNSEL_NO_ZOMBIES:// we don't list the zombies lines and the unselected lines.
-                                        if (orientation == Qt::Vertical) {
-                                                return select_font;
-                                        } else {
-                                                return unselect_font;
-                                        }
-                                        break;
-                        }
-
+			if (state_machine->are_listing_all_visible()) {
+				if ((lib_view->real_output_selection.get_line(section)) && (orientation == Qt::Vertical)) {
+					return select_font;
+				} else {
+					return unselect_font;
+				}
+			}
+			if (state_machine->are_listing_none_visible()) {
+				if (orientation == Qt::Vertical) {
+					return select_font;
+				} else {
+					return unselect_font;
+				}
+			}
+			if (!state_machine->are_listing_unselected_visible()) {
+				if ((lib_view->real_output_selection.get_line(real_row_index)) && (orientation == Qt::Vertical)) {
+					return select_font;
+				} else {
+					return unselect_font;
+				}
+			}
+			if (!state_machine->are_listing_zombie_visible()) {
+				if ((lib_view->real_output_selection.get_line(real_row_index)) && (orientation == Qt::Vertical)) {
+					return select_font;
+				} else {
+					return unselect_font;
+				}
+			}
 
                         break;
                 case (Qt::TextAlignmentRole)://**********************************TextAlignmentRole************************************
@@ -323,126 +288,80 @@ QVariant PVInspector::PVListingModel::headerData(int section, Qt::Orientation or
 
 /******************************************************************************
  *
- * PVInspector::PVListingModel::setState
- *
- *****************************************************************************/
-void PVInspector::PVListingModel::setState(Picviz::PVSelectionDisplay::PVSelectionDisplayMode_t mode) 
-{
-        PVLOG_INFO("PVInspector::PVListingModel::setState(%d)\n", (int) mode);
-	state_listing = mode;
-        initMatchingTable();
-}
-
-
-/******************************************************************************
- *
  * PVInspector::PVListingModel::sortByColumn
  *
  *****************************************************************************/
-void PVInspector::PVListingModel::sortByColumn(int idColumn) {
-        PVLOG_INFO("PVInspector::PVListingModel::sortByColumn(%d)\n", idColumn);
-
+void PVInspector::PVListingModel::sortByColumn(int idColumn) 
+{
         if ((idColumn < 0) || (idColumn >= columnCount(QModelIndex()))) {
-                PVLOG_DEBUG("can't sort the column %d",idColumn);
+                PVLOG_DEBUG("Cannot sort the column %d", idColumn);
                 return;
         }
         //variables
-        Picviz::PVView_p lib_view;
         QVector<int> matchTableNew;
         Picviz::PVSortQVectorQStringListThread *sortThread = new Picviz::PVSortQVectorQStringListThread(0); //class whiche can sort.
         PVProgressBox *dialogBox = new PVProgressBox(tr("Sorting...")); //dialog showing the progress box.
         connect(sortThread, SIGNAL(finished()), dialogBox, SLOT(accept()), Qt::QueuedConnection); //connection to close the progress box after thread finish.
-        PVLOG_DEBUG("   declaration ok\n");
 
+	if (lib_view) {//if lib_view is valid...
+		PVRush::PVNraw::nraw_table &data = lib_view->get_qtnraw_parent();
+		if (state_machine->are_listing_all_visible()) {
+			sortThread->setList(&data, &matchingTable);
+		} else if (state_machine->are_listing_none_visible()) {
+			for (int i = 0; i < rowCount(QModelIndex()); i++) {
+				int real_row_index = lib_view->get_nznu_real_row_index(i);
+				matchTableNew.insert(i, real_row_index);
+			}
+			sortThread->setList(&data, &matchTableNew);
+		} else if (!state_machine->are_listing_unselected_visible()) {
+			for (int i = 0; i < rowCount(QModelIndex()); i++) {
+				matchTableNew.insert(i, lib_view->get_nu_real_row_index(i));
+			}
+			sortThread->setList(&data, &matchTableNew);
+		} else if (!state_machine->are_listing_zombie_visible()) {
+			for (int i = 0; i < rowCount(QModelIndex()); i++) {
+				matchTableNew.insert(i, lib_view->get_nz_real_row_index(i));
+			}
+			sortThread->setList(&data, &matchTableNew);
+		} 
 
-        if (parent_widget != 0) {//if parent widget is valid...
-                lib_view = parent_widget->get_lib_view();
-                if (lib_view) {//if lib_view is valid...
-                        PVRush::PVNraw::nraw_table &data = lib_view->get_qtnraw_parent();
+		
+		//find the good order to sort
+		if ((colSorted == idColumn) && (sortOrder == AscendingOrder)) {
+			sortOrder = DescendingOrder;
+			sortThread->init(idColumn, Qt::DescendingOrder);
+		} else {
+			colSorted = idColumn;
+			sortOrder = AscendingOrder;
+			sortThread->init(idColumn, Qt::AscendingOrder);
+		}
 
-                            //*********init sort**********
-                        {
-                                PVLOG_DEBUG("   init sort\n");
-                                switch (state_listing) {
-                                        case Picviz::LISTING_ALL:// we list all the lines
-                                                sortThread->setList(&data, &matchingTable);
-                                                break;
-                                        case Picviz::LISTING_NO_UNSEL:// we don't list the unselected lines.
-                                                for (int i = 0; i < rowCount(QModelIndex()); i++) {
-                                                        matchTableNew.insert(i, lib_view->get_nu_real_row_index(i));
-                                                }
-                                                sortThread->setList(&data, &matchTableNew);
-                                                break;
-                                        case Picviz::LISTING_NO_ZOMBIES:// we don't list the zombies lines.
-                                                for (int i = 0; i < rowCount(QModelIndex()); i++) {
-                                                        matchTableNew.insert(i, lib_view->get_nz_real_row_index(i));
-                                                }
-                                                sortThread->setList(&data, &matchTableNew);
-                                                break;
-                                        case Picviz::LISTING_NO_UNSEL_NO_ZOMBIES:// we don't list the zombies lines and the unselected lines.
-                                                for (int i = 0; i < rowCount(QModelIndex()); i++) {
-                                                        int real_row_index = lib_view->get_nznu_real_row_index(i);
-                                                            matchTableNew.insert(i, real_row_index);
-                                                }
-                                                sortThread->setList(&data, &matchTableNew);
-                                                break;
-                                        default:
-                                                PVLOG_ERROR("PVInspector::PVListingModel::sortByColumn : bad stat_listing.");
-                                                break;
-                                }
-                                PVLOG_DEBUG("   init sort finished\n");
-                        }
+		sortThread->start(QThread::LowPriority);
+		PVLOG_DEBUG("Waiting : sort processing... \n");
 
-                        //find the good order to sort
-                        if ((colSorted == idColumn) && (sortOrder == AscendingOrder)) {
-                                sortOrder = DescendingOrder;
-                                    sortThread->init(idColumn, Qt::DescendingOrder);
-                        } else {
-                                colSorted = idColumn;
-                                    sortOrder = AscendingOrder;
-                                    sortThread->init(idColumn, Qt::AscendingOrder);
-                        }
+		//management of the progress box closing condition
+		if (dialogBox->exec()) {//show dialog and wait for event
+			//... update table
+			sortThread->update();
+		} else {//if we cancel during the sort...
+			//... no update.
+			//... stop the the thread.
+			sortThread->exit(0);
+		}
+		PVLOG_DEBUG("   the sort is finished.\n");
 
-                        //thread sorter start here
-                        PVLOG_DEBUG("   the sort will start in a thread.\n");
-                            sortThread->start(QThread::LowPriority);
-                            PVLOG_INFO("    waitting : sort processing... \n");
-
-                            //management of the progress box closing condition
-                        if (dialogBox->exec()) {//show dialog and wait for event
-                                //... update table
-                                sortThread->update();
-                        } else {//if we cancel during the sort...
-                                //... no update.
-                                //... stop the the thread.
-                                sortThread->exit(0);
-                        }
-                        PVLOG_DEBUG("   the sort is finished.\n");
-
-                            //*********update matching table*********
-                            PVLOG_DEBUG("   start update match...\n");
-                        switch (state_listing) {
-                                case Picviz::LISTING_ALL:// we list all the lines
-                                        break;
-                                case Picviz::LISTING_NO_UNSEL:// we don't list the unselected lines.
-                                case Picviz::LISTING_NO_ZOMBIES:// we don't list the zombies lines.
-                                case Picviz::LISTING_NO_UNSEL_NO_ZOMBIES:// we don't list the zombies lines and the unselected lines.
-                                        matchingTable.resize(0);
-                                        for (int i = 0; i < rowCount(QModelIndex()); i++) {
-                                                matchingTable.insert(i, matchTableNew.at(i));
-                                        }
-                                        break;
-                        }
-                        PVLOG_DEBUG("   ...end update match\n");
-
-                            emit layoutChanged();
-                } else {//if lib_view isn't valid...
-                        PVLOG_ERROR("   no lib_view : %s : %d", __FILE__, __LINE__);
-                }
-        } else {//if parent widget isn't valid...
-
-
-                PVLOG_ERROR("   no parent widget : %s : %d", __FILE__, __LINE__);
+		//*********update matching table*********
+		PVLOG_DEBUG("   start update match...\n");
+		if (!state_machine->are_listing_all_visible()) {
+			matchingTable.resize(0);
+			for (int i = 0; i < rowCount(QModelIndex()); i++) {
+				matchingTable.insert(i, matchTableNew.at(i));
+			}
+		}
+		
+		PVLOG_DEBUG("   ...end update match\n");
+		
+		emit layoutChanged();
         }
 }
 
@@ -452,26 +371,22 @@ void PVInspector::PVListingModel::sortByColumn(int idColumn) {
  * PVInspector::PVListingModel::rowCount
  *
  *****************************************************************************/
-int PVInspector::PVListingModel::rowCount(const QModelIndex &/*index*/) const {
-        //PVLOG_DEBUG("PVInspector::PVListingModel::%s\n", __FUNCTION__);
-        Picviz::PVView_p lib_view = parent_widget->get_lib_view();
-        switch (state_listing) {
-                case Picviz::LISTING_ALL:// we list all the lines
-                        return int(lib_view->get_row_count());
-                        break;
-                case Picviz::LISTING_NO_UNSEL:// we don't list the unselected lines.
-                        return int(lib_view->get_nu_index_count());
-                        break;
-                case Picviz::LISTING_NO_ZOMBIES:// we don't list the zombies lines.
-                        return int(lib_view->get_nz_index_count());
-                        break;
-                case Picviz::LISTING_NO_UNSEL_NO_ZOMBIES:// we don't list the zombies lines and the unselected lines.
-                        return int(lib_view->get_nznu_index_count());
-                        break;
-        }
-        PVLOG_ERROR("PVInspector::PVListingModel::rowCount :  bad stat_listing.");
+int PVInspector::PVListingModel::rowCount(const QModelIndex &/*index*/) const 
+{
+	if (state_machine->are_listing_all_visible()) {
+		return int(lib_view->get_row_count());
+	}
+	if (state_machine->are_listing_none_visible()) {
+		return int(lib_view->get_nznu_index_count());
+	}
+	if (!state_machine->are_listing_unselected_visible()) {
+		return int(lib_view->get_nu_index_count());
+	}
+	if (!state_machine->are_listing_zombie_visible()) {
+		return int(lib_view->get_nz_index_count());
+	}
 
-
+	PVLOG_ERROR("Unknown listing visibility state!\n");
         return 0;
 }
 

@@ -866,9 +866,10 @@ void PVInspector::PVMainWindow::lines_display_unselected_Slot()
 		return;
 	}
 
-	state_machine->toggle_unselected_visibility();
+	state_machine->toggle_listing_unselected_visibility();
+	state_machine->toggle_gl_unselected_visibility();
 	/* We set the listing to be the same */
-	state_machine->set_listing_unselected_visibility(state_machine->are_unselected_visible());//???
+	// state_machine->set_listing_unselected_visibility(state_machine->are_unselected_visible());//???
 	/* We refresh the view */
 	current_lib_view->process_visibility();
 	update_pvglview(current_lib_view, PVGL_COM_REFRESH_SELECTION);
@@ -1410,7 +1411,7 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 							/* We only toggle the View */
 					case (Qt::ShiftModifier):
 							/* We toggle*/
-							state_machine->toggle_unselected_visibility();
+							state_machine->toggle_gl_unselected_visibility();
 							/* We refresh the view */
 							current_lib_view->process_visibility();
 							update_pvglview(current_lib_view, PVGL_COM_REFRESH_SELECTION);
@@ -1418,10 +1419,9 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 
 							/* We toggle both the Listing and the View */
 					default:
-							/* We toggle the view first */
-							state_machine->toggle_unselected_visibility();
-							/* We set the listing to be the same */
-							state_machine->set_listing_unselected_visibility(state_machine->are_unselected_visible());//!???
+							/* We toggle the unselected lines visibility */
+							state_machine->toggle_listing_unselected_visibility();
+							state_machine->toggle_gl_unselected_visibility();
 							/* We refresh the view */
 							current_lib_view->process_visibility();
 							update_pvglview(current_lib_view, PVGL_COM_REFRESH_SELECTION);
@@ -1502,7 +1502,7 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 							/* We only toggle the View */
 					case (Qt::ShiftModifier):
 							/* We toggle */
-							state_machine->toggle_zombie_visibility();
+							state_machine->toggle_gl_zombie_visibility();
 							/* We refresh the view */
 							current_lib_view->process_visibility();
 							update_pvglview(current_lib_view, PVGL_COM_REFRESH_SELECTION);
@@ -1511,9 +1511,10 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 							/* We toggle both the Listing and the View */
 					default:
 							/* We toggle the view first */
-							state_machine->toggle_zombie_visibility();
+							state_machine->toggle_gl_zombie_visibility();
+							state_machine->toggle_listing_zombie_visibility();
 							/* We set the listing to be the same */
-							state_machine->set_listing_zombie_visibility(state_machine->are_zombie_visible());
+							// state_machine->set_listing_zombie_visibility(state_machine->are_zombie_visible());
 							/* We refresh the view */
 							current_lib_view->process_visibility();
 							update_pvglview(current_lib_view, PVGL_COM_REFRESH_SELECTION);
