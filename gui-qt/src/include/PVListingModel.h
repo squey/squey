@@ -32,11 +32,7 @@ class PVListingModel : public QAbstractTableModel {
     QBrush zombie_font_brush; //!<
     //QVector<QStringList> widgetCpyOfData;
     //corresponding table between widgetCpyOfData and nrow
-public:
 
-    enum TypeOfSort {
-        NoOrder, AscendingOrder, DescendingOrder
-    };
 protected:
 	PVMainWindow  *main_window;     //!<
 	PVTabSplitter *parent_widget;   //!<
@@ -45,16 +41,17 @@ protected:
 	QFont  select_font;             //!<
 	QBrush unselect_brush;          //!<
 	QFont  unselect_font;           //!<
+
 private:
     //sorting data
     QVector<int> matchingTable; //!<the table sort, modify this array to order the values
     TypeOfSort sortOrder; //!<save the current sorting state (NoOrder, AscendingOrder, DescendingOrder)
     int colSorted; //!<save the last column whiche was used to sort
-    Picviz::PVSelectionDisplay::PVSelectionDisplayMode_t state_listing; //!<this state indicate the mode of listing
-
 
 public:
-
+    enum TypeOfSort {
+        NoOrder, AscendingOrder, DescendingOrder
+    };
 
     /**
      * Constructor.
@@ -62,7 +59,7 @@ public:
      * @param mw
      * @param parent
      */
-    PVListingModel(PVMainWindow *mw, PVTabSplitter *parent, Picviz::PVSelectionDisplay::PVSelectionDisplayMode_t state = Picviz::PVSelectionDisplay::ALL);
+    PVListingModel(PVMainWindow *mw, PVTabSplitter *parent);
 
     /**
      * return data requested by the View
@@ -112,12 +109,6 @@ public:
      */
     virtual void reset_model(bool initMatchTable = true);
 
-    /**
-     * @brief set listing mode
-     * @param mode
-     */
-    void setState(Picviz::PVSelectionDisplay::PVSelectionDisplayMode_t mode);
-    
     /**
      *
      * @param index
