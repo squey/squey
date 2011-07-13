@@ -51,7 +51,7 @@ public:
 	PVCol get_column_count() const;
 	PVSource_p get_source_parent();
 	float get_value(PVRow row, PVCol col) const;
-	void to_csv(QString filename);
+	void to_csv();
 };
 
 typedef PVPlotted::p_type PVPlotted_p;

@@ -26,7 +26,12 @@ add_executable(TPVSelection PVSelection.cpp)
 target_link_libraries(TPVSelection ${LINK_LIBRARIES})
 add_test(TestPVSelection TPVSelection)
 
-# Map testing (had_issues/mapping)
+# Mapping testing (had_issues/mapping)
 add_executable(Tpicviz_process_file_mapping process_file_mapping.cpp)
 target_link_libraries(Tpicviz_process_file_mapping ${LINK_LIBRARIES})
 add_test(TestIssuesMapping test_issues.sh mapping)
+
+# Plotting testing (had_issues/plotting)
+add_executable(Tpicviz_process_file_plotting process_file_plotting.cpp)
+target_link_libraries(Tpicviz_process_file_plotting ${LINK_LIBRARIES})
+add_test(TestIssuesPlotting test_issues.sh plotting)

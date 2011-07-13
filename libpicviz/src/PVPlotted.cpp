@@ -227,7 +227,7 @@ float PVPlotted::get_value(PVRow row, PVCol col) const
 	return table[row * get_column_count() + col];
 }
 
-void PVPlotted::to_csv(QString /*filename*/)
+void PVPlotted::to_csv()
 {
 	PVRow row_count;
 	PVCol col_count;
