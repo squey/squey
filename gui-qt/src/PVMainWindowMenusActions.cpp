@@ -99,9 +99,9 @@ void PVInspector::PVMainWindow::create_actions()
 	set_color_Action = new QAction(tr("Set color"), this);
 	set_color_Action->setShortcut(QKeySequence(Qt::Key_C));
 
-	commit_selection_in_current_layer_Action = new QAction(tr("Keep &current layer"), this);
-	commit_selection_in_current_layer_Action->setShortcut(QKeySequence(Qt::Key_K));
-	commit_selection_to_new_layer_Action = new QAction(tr("Keep for &new layer"), this);
+	//commit_selection_in_current_layer_Action = new QAction(tr("Keep &current layer"), this);
+	//commit_selection_in_current_layer_Action->setShortcut(QKeySequence(Qt::Key_K));
+	commit_selection_to_new_layer_Action = new QAction(tr("Create new layer from selection"), this);
 	commit_selection_to_new_layer_Action->setShortcut(QKeySequence(Qt::ALT + Qt::Key_K));
 
 	/************************
@@ -199,7 +199,7 @@ void PVInspector::PVMainWindow::create_menus()
 	selection_Menu->addSeparator();
 	selection_Menu->addAction(set_color_Action);
 	selection_Menu->addSeparator();
-	selection_Menu->addAction(commit_selection_in_current_layer_Action);
+	//selection_Menu->addAction(commit_selection_in_current_layer_Action);
 	selection_Menu->addAction(commit_selection_to_new_layer_Action);
 	selection_Menu->addSeparator();
 

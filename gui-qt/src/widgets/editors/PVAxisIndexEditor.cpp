@@ -38,6 +38,7 @@ PVInspector::PVAxisIndexEditor::~PVAxisIndexEditor()
  *****************************************************************************/
 void PVInspector::PVAxisIndexEditor::set_axis_index(PVCore::PVAxisIndexType axis_index)
 {
+	clear();
 	addItems(_view.get_axes_names_list());
 	setCurrentIndex(axis_index.get_original_index());
 }

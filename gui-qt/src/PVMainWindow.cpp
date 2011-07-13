@@ -297,7 +297,6 @@ void PVInspector::PVMainWindow::commit_selection_in_current_layer(Picviz::PVView
 	Picviz::PVLayer &current_selected_layer = picviz_view->layer_stack.get_selected_layer();
 	/* We fill it's lines_properties */
 	picviz_view->output_layer.get_lines_properties().A2B_copy_restricted_by_selection_and_nelts(current_selected_layer.get_lines_properties(), picviz_view->real_output_selection, picviz_view->row_count);
-	// picviz_lines_properties_A2B_copy_restricted_by_selection_and_nelts(picviz_view->output_layer.get_lines_properties(), current_selected_layer->lines_properties, picviz_view->real_output_selection, picviz_view->row_count);
 	/* We need to process the view from the layer_stack */
 	picviz_view->process_from_layer_stack();
 	/* We refresh the PVView_p */
@@ -394,7 +393,7 @@ void PVInspector::PVMainWindow::connect_actions()
 
 	connect(set_color_Action, SIGNAL(triggered()), this, SLOT(set_color_Slot()));
 
-	connect(commit_selection_in_current_layer_Action, SIGNAL(triggered()), this, SLOT(commit_selection_in_current_layer_Slot()));
+	//connect(commit_selection_in_current_layer_Action, SIGNAL(triggered()), this, SLOT(commit_selection_in_current_layer_Slot()));
 	connect(commit_selection_to_new_layer_Action, SIGNAL(triggered()), this, SLOT(commit_selection_to_new_layer_Slot()));
 
 	connect(axes_editor_Action, SIGNAL(triggered()), this, SLOT(axes_editor_Slot()));//
