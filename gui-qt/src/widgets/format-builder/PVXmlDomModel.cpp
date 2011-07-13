@@ -289,13 +289,22 @@ bool PVInspector::PVXmlDomModel::setData(const QModelIndex & index, const QVaria
  * PVInspector::PVXmlDomModel::saveXml
  *
  *****************************************************************************/
-void PVInspector::PVXmlDomModel::saveXml(QString nomDuFichierXml){
-    QFile fichier(nomDuFichierXml);
-    fichier.open(QIODevice::ReadWrite | QIODevice::Truncate);
+bool PVInspector::PVXmlDomModel::saveXml(QString nomDuFichierXml){
+    QFile file(nomDuFichierXml);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+		QMessageBox msg(QMessageBox::Critical, "Error while saving format", QString("Unable to open %1 for writing: ").arg(nomDuFichierXml) + file.errorString(), QMessageBox::Ok);
+		msg.exec();
+		return false;
+	}
 
-    fichier.write(xmlFile.toString().toUtf8());
+    if (file.write(xmlFile.toString().toUtf8()) == -1) {
+		QMessageBox msg(QMessageBox::Critical, "Error while saving format", QString("An error occured while saving format: ") + file.errorString(), QMessageBox::Ok);
+		msg.exec();
+		return false;
+	}
+    file.close();
 
-    fichier.close();
+	return true;
 }
 
 
@@ -569,7 +578,7 @@ QModelIndex PVInspector::PVXmlDomModel::selectNext(const QModelIndex &index){
  * PVInspector::PVXmlDomModel::openXml
  *
  *****************************************************************************/
-void PVInspector::PVXmlDomModel::openXml(QString url) {
+bool PVInspector::PVXmlDomModel::openXml(QString url) {
     //qDebug() << "PVXmlDomModel::openXml()";
     this->urlXml = url;
     QFile fichier(this->urlXml);
@@ -582,14 +591,16 @@ void PVInspector::PVXmlDomModel::openXml(QString url) {
         s.push_back(" doesn't exists.");
         qb.setText(s);
         qb.exec();
+		return false;
     }
     
     //load XML
-    if (!fichier.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    if (!fichier.open(QIODevice::ReadOnly)) {
         QString s;
         s.push_back("File can't be open");
         s.push_back(this->urlXml);
         message(s);
+		return false;
     }
     QTextStream tmpTextXml(&fichier);
 	tmpTextXml.setCodec("UTF-8"); // AG: as defined in the XML header (and saved, cf. saveXML)
@@ -600,6 +611,7 @@ void PVInspector::PVXmlDomModel::openXml(QString url) {
 	setRoot(m_rootNode);
 
 	emit layoutChanged();//to resfresh screen
+	return true;
 }
 
 
@@ -657,7 +669,7 @@ void PVInspector::PVXmlDomModel::addUrlIn(const QModelIndex &index){
 	protocol.setAttribute("titlecolor", "#ffffff");
 	domain.setAttribute("name", "Domain");
 	domain.setAttribute("type", "enum");
-	domain.setAttribute("mapping", "default");
+	domain.setAttribute("mapping", "host");
 	domain.setAttribute("plotting", "default");
 	domain.setAttribute("time-format", "");
 	domain.setAttribute("key", "true");

@@ -66,7 +66,7 @@ void PVGL::PVLabel::set_color(const ubvec4 &new_color)
  *****************************************************************************/
 void PVGL::PVLabel::set_shadow(bool do_shadow)
 {
-	PVLOG_DEBUG("PVGL::PVLabel::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVLabel::%s\n", __FUNCTION__);
 
 	shadow = do_shadow;
 }
@@ -80,7 +80,7 @@ void PVGL::PVLabel::set_text(const std::string &new_text)
 {
 	int width, height;
 
-	PVLOG_DEBUG("PVGL::PVLabel::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVLabel::%s\n", __FUNCTION__);
 
 	text = new_text;
 	widget_manager->get_text_size(text, font_size, width, height, ascent);
@@ -101,7 +101,7 @@ void PVGL::PVLabel::set_text(const std::string &new_text)
 void PVGL::PVLabel::draw(void)
 {
 	float x, y;
-	PVLOG_DEBUG("PVGL::PVLabel::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVLabel::%s\n", __FUNCTION__);
 
 	if (!visible) {
 		return;
@@ -123,7 +123,7 @@ void PVGL::PVLabel::draw(void)
  *****************************************************************************/
 void PVGL::PVLabel::allocate_size(const PVAllocation &new_allocation)
 {
-	PVLOG_DEBUG("PVGL::PVLabel::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVLabel::%s\n", __FUNCTION__);
 
   allocation = new_allocation;
 }

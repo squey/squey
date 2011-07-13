@@ -35,6 +35,7 @@ int main(int argc, char** argv)
 
 	UErrorCode err_ = U_ZERO_ERROR;
 	Calendar* cal = Calendar::createInstance(err_);
+	Calendar* cal_copy = Calendar::createInstance(err_);
 	while (!in.atEnd()) {
 		QString line = in.readLine().trimmed();
 		if (line.size() == 0)
@@ -60,7 +61,21 @@ int main(int argc, char** argv)
 			continue;
 
 		PVCore::PVDateTimeParser parser(QStringList() << time_format);
-		parser.mapping_time_to_cal(time_str, cal);
+		if (!parser.mapping_time_to_cal(time_str, cal)) {
+			std::cout << "Unable to parse " << qPrintable(time_str) << std::endl;
+			return 1;
+		}
+		// Copy the date time parser and try it !
+		PVCore::PVDateTimeParser parser_copy(parser);
+		if (!parser_copy.mapping_time_to_cal(time_str, cal_copy)) {
+			std::cout << "Unable to parse " << qPrintable(time_str) << " with a copy of the parser object." << std::endl;
+			return 1;
+		}
+		if (!cal->equals(*cal_copy, err_)) {
+			UErrorCode err = U_ZERO_ERROR;
+			std::cout << "A copy of the parser object gave us another value: org " << cal->getTime(err) << " != " << cal_copy->getTime(err) << std::endl;
+			return 1;
+		}
 		UErrorCode err = U_ZERO_ERROR;
 		int64_t res = cal->getTime(err);
 		int32_t s = cal->get(UCAL_SECOND, err);

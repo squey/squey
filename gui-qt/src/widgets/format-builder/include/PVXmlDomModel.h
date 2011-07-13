@@ -72,7 +72,7 @@ public:
     QDomElement *getItem(QModelIndex &index);
     
     
-    void saveXml(QString fichierXml);
+    bool saveXml(QString fichierXml);
     
     
     /*
@@ -100,7 +100,7 @@ public:
     
     
     //open a pcre
-    void openXml(QString);
+    bool openXml(QString);
     
     //identify multi axis or splitter in a field
     bool trustConfictSplitAxes(const QModelIndex &index);

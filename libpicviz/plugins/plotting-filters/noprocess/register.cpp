@@ -10,6 +10,7 @@ LibCPPExport void register_filter()
 	// Register under the name "type_format"
 	// All the plotting types that do not process anyhting are registered here
 	REGISTER_FILTER("enum_default", Picviz::PVPlottingFilterNoprocess);
+	REGISTER_FILTER("host_default", Picviz::PVPlottingFilterNoprocess);
 	REGISTER_FILTER("string_default", Picviz::PVPlottingFilterNoprocess);
 	REGISTER_FILTER("user-defined_default", Picviz::PVPlottingFilterNoprocess);
 }

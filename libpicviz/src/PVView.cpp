@@ -599,6 +599,8 @@ Picviz::PVSelection &Picviz::PVView::get_real_output_selection()
 int Picviz::PVView::get_real_row_index(int index)
 {
     PVLOG_DEBUG("Picviz::PVView::get_real_row_index\n");
+    
+    ///TODO usr switch and state_machine->getListingMode()
 	if (state_machine->are_listing_unselected_visible()) {
 		if (state_machine->are_listing_zombie_visible()) {
 			return index;
@@ -810,10 +812,12 @@ void Picviz::PVView::process_from_layer_stack()
  *****************************************************************************/
 void Picviz::PVView::process_from_selection()
 {
+        PVLOG_DEBUG("Picviz::PVView::%s\n",__FUNCTION__);
 	process_selection();
 	process_filter();
 	process_eventline();
 	process_visibility();
+        
 }
 
 /******************************************************************************
@@ -978,6 +982,7 @@ void Picviz::PVView::selection_A2B_select_with_square_area(PVSelection &a, PVSel
 	float y_iamax;
 	float y_iamin;
 	float ymin, ymax;
+        
 
 	/* We set the axes_count for further reference */
 	axes_count = axes_combination.get_axes_count();

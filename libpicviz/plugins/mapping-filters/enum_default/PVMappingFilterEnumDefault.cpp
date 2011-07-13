@@ -6,11 +6,6 @@
 #include "PVMappingFilterEnumDefault.h"
 
 
-size_t tbb_hasher(QString const& str)
-{
-	return qHash(str);
-}
-
 static float _enum_position_factorize(int enumber)
 {
 	float res = 0;
@@ -44,25 +39,26 @@ void Picviz::PVMappingFilterEnumDefault::init_from_first(QString const& /*value*
 	_poscount = 0;
 }
 
-float Picviz::PVMappingFilterEnumDefault::operator()(QString const& value)
+float* Picviz::PVMappingFilterEnumDefault::operator()(PVRush::PVNraw::nraw_table_line const& values)
 {
 	float retval = 0;
 	int position = 0;
 
-	hash_values::iterator it_v = _enum_hash.find(value);
-	if (it_v != _enum_hash.end()) {
-		position = (*it_v).second;
-		retval = _enum_position_factorize(position);
-	} else {
-		int poscount = _poscount.fetch_and_increment() + 1;
-		std::pair<hash_values::iterator,bool> ret = _enum_hash.insert(hash_values::value_type(value, poscount));
-		if (!ret.second) { // That value has been inserted in the meanwhile by another thread
-			poscount = ret.first->second;
+	for (size_t i = 0; i < values.size(); i++) {
+		QString const& value = values[i];
+		hash_values::iterator it_v = _enum_hash.find(value);
+		if (it_v != _enum_hash.end()) {
+			position = it_v.value();
+			retval = _enum_position_factorize(position);
+		} else {
+			_poscount++;
+			_enum_hash[value] = _poscount;
+			retval = _enum_position_factorize(_poscount);
 		}
-		retval = _enum_position_factorize(poscount);
+		_dest[i] = retval;
 	}
 
-	return retval;
+	return _dest;
 }
 
 IMPL_FILTER_NOPARAM(Picviz::PVMappingFilterEnumDefault)

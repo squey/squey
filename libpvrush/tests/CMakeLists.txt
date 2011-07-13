@@ -35,6 +35,7 @@ add_test(TestConvUtf16Align_smallchunksize diff_stdout.py test-files/conv_utf16_
 add_executable(Trush_agg agg.cpp helpers.cpp)
 target_link_libraries(Trush_agg ${LINK_LIBRARIES})
 add_test(TestAggregator diff_stdout.py test-files/aggregator/set1.out test-files/aggregator/set1.diff ./Trush_agg 6000 test-files/aggregator/set1)
+add_test(TestAggregator diff_stdout.py test-files/aggregator/set2.out test-files/aggregator/set2.diff ./Trush_agg 6000 test-files/aggregator/set2)
 
 # Test the controller
 
@@ -88,6 +89,10 @@ add_executable(Trush_ticket_2 ticket_2.cpp helpers.cpp)
 target_link_libraries(Trush_ticket_2 ${LINK_LIBRARIES})
 add_test(TestTicket2 ./Trush_ticket_2)
 
+add_executable(Trush_ticket_28 ticket_28.cpp)
+target_link_libraries(Trush_ticket_28 ${LINK_LIBRARIES})
+add_test(TestTicket28 ./Trush_ticket_28)
+
 # Benchmark for the whole extractor
 add_executable(Trush_bench bench_extractor.cpp)
 target_link_libraries(Trush_bench ${LINK_LIBRARIES})
@@ -95,3 +100,7 @@ target_link_libraries(Trush_bench ${LINK_LIBRARIES})
 
 add_executable(Trush_input_hdfs input_hdfs.cpp)
 target_link_libraries(Trush_input_hdfs ${LINK_LIBRARIES})
+
+# libarchive auto detect
+add_executable(Trush_archive_detect archive_detect.cpp ../plugins/input_types/file/extract.cpp)
+target_link_libraries(Trush_archive_detect ${LINK_LIBRARIES})

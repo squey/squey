@@ -76,6 +76,10 @@ namespace Picviz {
             bool are_zombie_visible()const {
                 return zombie_visible;
             }
+            
+            PVStateMachineListingMode_t getListingMode(){
+                return listing_mode;
+            }
 
             bool is_edit_mode_all()const {
                 return edit_mode_all;

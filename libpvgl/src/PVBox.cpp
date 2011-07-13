@@ -43,7 +43,7 @@ PVGL::PVBox::~PVBox()
  *****************************************************************************/
 void PVGL::PVBox::draw()
 {
-	PVLOG_DEBUG("PVGL::PVBox::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVBox::%s\n", __FUNCTION__);
 
 	for (std::list<PVBoxChild>::iterator it = start_list.begin(); it != start_list.end(); ++it) {
 		it->child->draw();

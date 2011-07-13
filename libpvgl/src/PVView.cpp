@@ -14,6 +14,8 @@
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 
+
+
 #include <picviz/PVView.h>
 
 #include <pvgl/PVConfig.h>
@@ -73,6 +75,7 @@ PVGL::PVView::PVView(int win_id, PVCom *com) : PVGL::PVDrawable(win_id, com),
 	label_lpr = new PVLabel(&widget_manager, "LPR: 25000"); // FIXME this should use a 'const' ?
 	label_lpr->set_color(ubvec4(0, 0, 0, 255));
 	vbox->pack_start(label_lpr);
+        
 }
 
 PVGL::PVView::~PVView()
@@ -136,7 +139,7 @@ void PVGL::PVView::draw(void)
 	float zoom_y;
 	Picviz::PVStateMachine *state_machine;
 
-	PVLOG_DEBUG("PVGL::PVView::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVView::%s\n", __FUNCTION__);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -770,7 +773,7 @@ void PVGL::PVView::mouse_down(int button, int x, int y, int modifiers)
 	vec2 plotted_mouse;
 	Picviz::PVStateMachine *state_machine;
 
-	PVLOG_DEBUG("PVGL::PVView::%s\n", __FUNCTION__);
+	PVLOG_INFO("PVGL::PVView::%s\n", __FUNCTION__);
 
 	if (!picviz_view) { // Sanity check
 		return;
@@ -890,6 +893,7 @@ void PVGL::PVView::mouse_down(int button, int x, int y, int modifiers)
 bool PVGL::PVView::mouse_move(int x, int y, int modifiers)
 {
 	Picviz::PVStateMachine   *state_machine;
+
 	vec2 plotted_mouse;
 
 	if (!picviz_view) { // The view isn't finished to be read and parsed
@@ -941,7 +945,7 @@ bool PVGL::PVView::mouse_move(int x, int y, int modifiers)
 bool PVGL::PVView::mouse_up(int button, int x, int y, int modifiers)
 {
 	Picviz::PVStateMachine *state_machine;
-
+        
 	PVLOG_DEBUG("PVGL::PVView::%s\n", __FUNCTION__);
 
 	if (!picviz_view) {
@@ -987,7 +991,7 @@ bool PVGL::PVView::mouse_up(int button, int x, int y, int modifiers)
  *****************************************************************************/
 bool PVGL::PVView::passive_motion(int x, int y, int modifiers)
 {
-	PVLOG_DEBUG("PVGL::PVView::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVView::%s\n", __FUNCTION__);
 
 	if (top_bar->is_visible() && event_line->passive_motion(x, y, modifiers)) {
 		return true;
@@ -1033,7 +1037,7 @@ void PVGL::PVView::update_set_size()
  *****************************************************************************/
 bool PVGL::PVView::is_set_size_dirty() const
 {
-	PVLOG_DEBUG("PVGL::PVView::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVView::%s\n", __FUNCTION__);
 
 	return size_dirty;
 }
@@ -1057,10 +1061,11 @@ void PVGL::PVView::reinit_picviz_view()
  *****************************************************************************/
 void PVGL::PVView::update_listing(void)
 {
+                PVLOG_INFO("PVGL::PVView::update_listing\n");
 	PVGL::PVMessage message;
 
 	message.function = PVGL_COM_FUNCTION_CLEAR_SELECTION;
-	message.pv_view = picviz_view;
+	message.pv_view = get_libview();
 	pv_com->post_message_to_qt(message);
 
 	message.function = PVGL_COM_FUNCTION_SELECTION_CHANGED;

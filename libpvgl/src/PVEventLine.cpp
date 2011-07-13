@@ -81,7 +81,7 @@ void PVGL::PVEventLine::draw(void)
 {
 	vec2 pos;
 
-	PVLOG_DEBUG("PVGL::PVEventLine::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVEventLine::%s\n", __FUNCTION__);
 
 	glDisable(GL_DEPTH_TEST);
 	for (unsigned i = 0; i < 3; i++) {
@@ -218,7 +218,7 @@ bool PVGL::PVEventLine::mouse_up(int /*button*/, int /*x*/, int /*y*/, int /*mod
 			glutPostRedisplay();
 			if (picviz_view->eventline.get_row_count() >= 100000) {
 				view->get_lines().update_arrays_selection();
-			}
+			}glutPostRedisplay();
 		}
 
 		return true;
@@ -233,7 +233,7 @@ bool PVGL::PVEventLine::mouse_up(int /*button*/, int /*x*/, int /*y*/, int /*mod
  *****************************************************************************/
 bool PVGL::PVEventLine::passive_motion(int x, int y, int /*modifiers*/)
 {
-	PVLOG_DEBUG("PVGL::PVEventLine::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVEventLine::%s\n", __FUNCTION__);
 
 	if (!visible) {
 		return false;

@@ -82,13 +82,12 @@ void dump_chunk_csv(PVChunk& c)
 		else {
 			list_fields::iterator itf,itfe;
 			itfe = l.end();
-			itfe--; itfe--;
+			itfe--;
 			for (itf = l.begin(); itf != itfe; itf++) {
 				PVField& f = *itf;
 				f.init_qstr();
 				cout << "'" << f.qstr().toUtf8().constData() << "',";
 			}
-			itf++;
 			PVField& f = *itf;
 			f.init_qstr();
 			cout << "'" << f.qstr().toUtf8().constData() << "'";
@@ -161,12 +160,11 @@ void dump_nraw_csv(PVRush::PVNraw& nraw_)
 			continue;
 		}
 		it_nraw_line_end = l.end();
-		it_nraw_line_end--; it_nraw_line_end--;
+		it_nraw_line_end--;
 		for (it_nraw_line = l.begin(); it_nraw_line != it_nraw_line_end; it_nraw_line++) {
 			QString &field = *it_nraw_line;
 			std::cout << "'" << field.toUtf8().constData() << "',";
 		}
-		it_nraw_line_end++;
 		QString &field = *it_nraw_line;
 		std::cout << "'" << field.toUtf8().constData() << "'" << std::endl;
 	}

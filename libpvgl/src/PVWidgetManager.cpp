@@ -99,7 +99,7 @@ PVGL::PVWidgetManager::PVWidgetManager()
  *****************************************************************************/
 void PVGL::PVWidgetManager::draw_icon(int x, int y, PVGLIconNames name)
 {
-	PVLOG_DEBUG("PVGL::PVWidgetManager::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVWidgetManager::%s\n", __FUNCTION__);
 
 	glEnable(GL_BLEND);
 	glEnable(GL_TEXTURE_RECTANGLE);
@@ -122,7 +122,7 @@ void PVGL::PVWidgetManager::draw_icon(int x, int y, PVGLIconNames name)
  *****************************************************************************/
 void PVGL::PVWidgetManager::draw_icon_streched(int x, int y, int width, int height, PVGLIconNames name)
 {
-	PVLOG_DEBUG("PVGL::PVWidgetManager::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVWidgetManager::%s\n", __FUNCTION__);
 
 	glEnable(GL_BLEND);
 	glEnable(GL_TEXTURE_RECTANGLE);
@@ -145,7 +145,7 @@ void PVGL::PVWidgetManager::draw_icon_streched(int x, int y, int width, int heig
  *****************************************************************************/
 void PVGL::PVWidgetManager::draw_text(int x, int y, const std::string &text, float font_size)
 {
-	PVLOG_DEBUG("PVGL::PVWidgetManager::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVWidgetManager::%s\n", __FUNCTION__);
 
 	pvgl_font.draw_text(x, y, text.c_str(), font_size);
 }

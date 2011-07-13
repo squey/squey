@@ -49,7 +49,7 @@ PVInspector::PVLayerStackModel::PVLayerStackModel(PVMainWindow *mw, PVTabSplitte
  *****************************************************************************/
 int PVInspector::PVLayerStackModel::columnCount(const QModelIndex &index) const
 {
-	PVLOG_DEBUG("PVInspector::PVLayerStackModel::%s : at row %d and column %d\n", __FUNCTION__, index.row(), index.column());
+	PVLOG_HEAVYDEBUG("PVInspector::PVLayerStackModel::%s : at row %d and column %d\n", __FUNCTION__, index.row(), index.column());
 
 	return 3;
 	// FIXME PhS : testing purposes !
@@ -63,7 +63,7 @@ int PVInspector::PVLayerStackModel::columnCount(const QModelIndex &index) const
  *****************************************************************************/
 QVariant PVInspector::PVLayerStackModel::data(const QModelIndex &index, int role) const
 {
-	PVLOG_DEBUG("PVInspector::PVLayerStackModel::%s : at row %d and column %d with role %d\n", __FUNCTION__, index.row(), index.column(), role);
+	PVLOG_HEAVYDEBUG("PVInspector::PVLayerStackModel::%s : at row %d and column %d with role %d\n", __FUNCTION__, index.row(), index.column(), role);
 
 	/* We prepare a direct acces to the total number of layers */
 	int layer_count = lib_layer_stack.get_layer_count();
@@ -151,7 +151,7 @@ void PVInspector::PVLayerStackModel::emit_layoutChanged()
  *****************************************************************************/
 Qt::ItemFlags PVInspector::PVLayerStackModel::flags(const QModelIndex &index) const
 {
-	PVLOG_DEBUG("PVInspector::PVLayerStackModel::%s: at row %d and column %d\n", __FUNCTION__, index.row(), index.column());
+	PVLOG_HEAVYDEBUG("PVInspector::PVLayerStackModel::%s: at row %d and column %d\n", __FUNCTION__, index.row(), index.column());
 
 	switch (index.column()) {
 		case 0:
@@ -183,7 +183,7 @@ QVariant PVInspector::PVLayerStackModel::headerData(int /*section*/, Qt::Orienta
  *****************************************************************************/
 int PVInspector::PVLayerStackModel::rowCount(const QModelIndex &/*index*/) const
 {
-	PVLOG_DEBUG("PVInspector::PVLayerStackModel::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVInspector::PVLayerStackModel::%s\n", __FUNCTION__);
 
 	return lib_layer_stack.get_layer_count();
 }

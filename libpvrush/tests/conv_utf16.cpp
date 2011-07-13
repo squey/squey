@@ -23,7 +23,7 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	PVInputFile ifile(argv[1]);
+	PVInput_p ifile(new PVInputFile(argv[1]));
 	PVChunkAlign calign;
 	PVChunkTransformUTF16 transform;
 	PVFilter::PVChunkFilter null;

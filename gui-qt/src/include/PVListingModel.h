@@ -96,11 +96,10 @@ public:
     void sortByColumn(int idColumn);
 
     /**
-     * not implemented
      * @param line
      * @return 
      */
-    int getCorrespondance(int line);
+    int getMatch(int line);
 
     /**
      * initialize the matching table for sort.

@@ -256,18 +256,18 @@ void Picviz::PVAxesCombination::set_axis_name(PVCol index, const QString &name_)
  * Picviz::PVAxesCombination::set_from_format
  *
  *****************************************************************************/
-void Picviz::PVAxesCombination::set_from_format(PVRush::PVFormat *format)
+void Picviz::PVAxesCombination::set_from_format(PVRush::PVFormat &format)
 {
 	float absciss = 0.0f;
 
-	for ( int i = 0; i < format->axes.count(); i++) {
+	for ( int i = 0; i < format.axes.count(); i++) {
 		PVAxis axis;
 		PVColor color;
 		PVColor titlecolor;
 
-		axis.color.fromQColor(QColor(format->axes[i]["color"]));
-		axis.titlecolor.fromQColor(QColor(format->axes[i]["titlecolor"]));
-		axis.name = format->axes[i]["name"];
+		axis.color.fromQColor(QColor(format.axes[i]["color"]));
+		axis.titlecolor.fromQColor(QColor(format.axes[i]["titlecolor"]));
+		axis.name = format.axes[i]["name"];
 		axis.absciss = absciss;
 
 		abscissae_list.push_back(absciss);

@@ -56,8 +56,8 @@ int main(int argc, char** argv)
 	const int chunk_size = atoi(argv[1]);
 	PVAggregator agg;
 	for (int i = 0; i < files.size(); i++) {
-		PVInputFile* in = new PVInputFile(qPrintable(dir_files.absoluteFilePath(files[i])));
-		PVFilter::PVRawSourceBase_p source(new PVUnicodeSource<>(*in, chunk_size, null));
+		PVInput_p in(new PVInputFile(qPrintable(dir_files.absoluteFilePath(files[i]))));
+		PVFilter::PVRawSourceBase_p source(new PVUnicodeSource<>(in, chunk_size, null));
 		agg.add_input(source);
 	}
 	
@@ -77,6 +77,10 @@ int main(int argc, char** argv)
 
 	cout << "Process from 100 to 500..." << endl;
 	agg.process_indexes(100,500);
+	dump_agg(agg);
+
+	cout << "Show 1000000 lines..." << endl;
+	agg.process_indexes(0,1000000);
 	dump_agg(agg);
 
 	return 0;

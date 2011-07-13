@@ -22,7 +22,7 @@ void PVGL::PVIdleManager::callback(void)
 {
 	std::map<IdleTask, IdleValue>::iterator it;
 
-	PVLOG_DEBUG("PVGL::PVIdleManager::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVIdleManager::%s\n", __FUNCTION__);
 
 	for (it = tasks.begin(); it != tasks.end(); ++it) {
 		glutSetWindow(it->first.drawable->get_window_id());

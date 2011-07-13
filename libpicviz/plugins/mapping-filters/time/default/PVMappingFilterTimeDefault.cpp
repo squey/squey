@@ -36,7 +36,7 @@ float* Picviz::PVMappingFilterTimeDefault::operator()(PVRush::PVNraw::nraw_table
 	const int max_threads = omp_get_max_threads();
 #ifdef WIN32
 	Calendar** cals = (Calendar**) malloc(max_threads*sizeof(Calendar*));
-	PVCore::PVDateTimeParser *dtparsers = (PVCore::PVDateTimeParser*) malloc(max_threads*sizeof(PVCore::PVDateTimeParser));
+	PVCore::PVDateTimeParser *dtparsers = new PVCore::PVDateTimeParser[max_threads];
 #else
 	Calendar* cals[max_threads];
 	PVCore::PVDateTimeParser dtparsers[max_threads];
@@ -44,9 +44,6 @@ float* Picviz::PVMappingFilterTimeDefault::operator()(PVRush::PVNraw::nraw_table
 	for (int i = 0; i < max_threads; i++) {
 		UErrorCode err = U_ZERO_ERROR;
 		cals[i] = Calendar::createInstance(err);
-#ifdef WIN32
-		new(&dtparsers[i]) PVCore::PVDateTimeParser();
-#endif
 		dtparsers[i] = dtpars_org;
 	}
 

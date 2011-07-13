@@ -36,7 +36,7 @@ void PVGL::PVVBox::allocate_size(const PVAllocation &new_allocation)
 	int min_extra_amount;
   PVAllocation child_allocation;
 
-	PVLOG_DEBUG("PVGLVbox::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGLVbox::%s\n", __FUNCTION__);
 
 	allocation = new_allocation;
 	for (std::list<PVBoxChild>::iterator it = start_list.begin(); it != start_list.end(); ++it) {
@@ -114,7 +114,7 @@ void PVGL::PVVBox::allocate_size(const PVAllocation &new_allocation)
  *****************************************************************************/
 void PVGL::PVVBox::size_adjust()
 {
-	PVLOG_DEBUG("PVGLVbox::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGLVbox::%s\n", __FUNCTION__);
 
   requisition.width = 2 * border_width;
 	requisition.height= 2 * border_width;

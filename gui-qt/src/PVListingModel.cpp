@@ -54,7 +54,6 @@ PVInspector::PVListingModel::PVListingModel(PVMainWindow *mw, PVTabSplitter *par
 int PVInspector::PVListingModel::columnCount(const QModelIndex &index) const {
         //PVLOG_DEBUG("PVInspector::PVListingModelBase::%s : at row %d and column %d\n", __FUNCTION__, index.row(), index.column());
         Picviz::PVView_p lib_view = parent_widget->get_lib_view();
-
         return lib_view->get_axes_count();
 }
 
@@ -65,7 +64,7 @@ int PVInspector::PVListingModel::columnCount(const QModelIndex &index) const {
  *
  *****************************************************************************/
 QVariant PVInspector::PVListingModel::data(const QModelIndex &index, int role) const {
-        PVLOG_DEBUG("PVInspector::PVListingModel::%s : at row %d and column %d with role %d\n", __FUNCTION__, index.row(), index.column(), role);
+        PVLOG_HEAVYDEBUG("PVInspector::PVListingModel::%s : at row %d and column %d with role %d\n", __FUNCTION__, index.row(), index.column(), role);
 
         Picviz::PVColor color;
         int i;
@@ -83,8 +82,9 @@ QVariant PVInspector::PVListingModel::data(const QModelIndex &index, int role) c
 
         //initializing
         switch (state_listing) {
+<<<<<<< HEAD
 	case Picviz::PVSelectionDisplay::ALL: // we list all the lines***********************************************************
-		//nop
+		real_row_index = matchingTable.at(index.row());
 		break;
 	case Picviz::PVSelectionDisplay::NO_UNSELECTED:// we don't list the unselected lines.***************************************
 		real_row_index = lib_view->get_nu_real_row_index(matchingTable.at(index.row()));
@@ -101,12 +101,12 @@ QVariant PVInspector::PVListingModel::data(const QModelIndex &index, int role) c
         }
 
         correspondId = matchingTable.at(index.row());
-        PVLOG_DEBUG("           correspondId %d\n", correspondId);
+        //PVLOG_DEBUG("           correspondId %d\n", correspondId);
 
 
         switch (role) {
                 case (Qt::DisplayRole)://***********************************************DISPLAY**********************************************
-                        PVLOG_DEBUG("       DisplayRole\n");
+                        //PVLOG_DEBUG("       DisplayRole\n");
                         return lib_view->get_data(correspondId, index.column());
                         break;
 
@@ -115,7 +115,7 @@ QVariant PVInspector::PVListingModel::data(const QModelIndex &index, int role) c
                         break;
 
                 case (Qt::BackgroundRole)://***********************************************BackgroundRole**********************************************
-                        PVLOG_DEBUG("       ForegroundRole\n");
+                        //PVLOG_DEBUG("       ForegroundRole\n");
                         /* We get the current selected axis index */
                         i = lib_view->active_axis;
 
@@ -141,32 +141,19 @@ QVariant PVInspector::PVListingModel::data(const QModelIndex &index, int role) c
                         break;
 
                 case (Qt::ForegroundRole)://***********************************************ForegroundRole**********************************************
-                        PVLOG_DEBUG("       ForegroundRole\n");
+                        //PVLOG_DEBUG("       ForegroundRole\n");
                         switch (state_listing) {
 			case Picviz::PVSelectionDisplay::ALL:// we list all the lines
-				/* We test if the line is a ZOMBIE one */
-				//correspondId = correspondTable.at(index.row());
-				if (lib_view->layer_stack_output_layer.get_selection().get_line(index.row())) {
-					/* The line is NOT a ZOMBIE */
-					return not_zombie_font_brush;
-				} else {
-					/* The line is a ZOMBIE */
-					return zombie_font_brush;
-				}
-				break;
 			case Picviz::PVSelectionDisplay::NO_UNSELECTED:// we don't list the unselected lines.
-				/* We test if the line is a ZOMBIE one */
-				if (lib_view->layer_stack_output_layer.get_selection().get_line(real_row_index)) {
-					/* The line is NOT a ZOMBIE */
-					return not_zombie_font_brush;
-				} else {
-					/* The line is a ZOMBIE */
-					return zombie_font_brush;
-				}
-				break;
 			case Picviz::PVSelectionDisplay::NO_ZOMBIES:// we don't list the zombies lines.
-				break;
-				// We don't need to check for both unselected and zombies
+                                        if (lib_view->layer_stack_output_layer.get_selection().get_line(real_row_index)) {
+                                                /* The line is NOT a ZOMBIE */
+                                                return not_zombie_font_brush;
+                                        } else {
+                                                /* The line is a ZOMBIE */
+                                                return zombie_font_brush;
+                                        }
+                                        break;
                         }
 			
         }//**********************************END************************************
@@ -202,36 +189,70 @@ Qt::ItemFlags PVInspector::PVListingModel::flags(const QModelIndex &/*index*/) c
  *
  *****************************************************************************/
 void PVInspector::PVListingModel::initMatchingTable() {
-        PVLOG_INFO("PVListingModel::initCorrespondance()\n");
+        PVLOG_DEBUG("PVListingModel::initCorrespondance()\n");
         Picviz::PVView_p lib_view = parent_widget->get_lib_view();
         //init the table of corresponding table.
-        matchingTable.resize(0);
-        if (state_listing == Picviz::PVSelectionDisplay::ALL) {
-                for (unsigned int i = 0; i < lib_view->get_qtnraw_parent().size(); i++) {
-                        matchingTable.insert(i, i);
+// <<<<<<< HEAD
+//         matchingTable.resize(0);
+//         if (state_listing == Picviz::PVSelectionDisplay::ALL) {
+//                 for (unsigned int i = 0; i < lib_view->get_qtnraw_parent().size(); i++) {
+//                         matchingTable.insert(i, i);
+//                 }
+//         } else if (state_listing == Picviz::PVSelectionDisplay::NO_UNSELECTED || 
+// 		   state_listing == Picviz::PVSelectionDisplay::NO_ZOMBIES || 
+// 		   state_listing == Picviz::LISTING_NO_UNSEL_NO_ZOMBIES) {
+//                 for (int i = 0; i < rowCount(QModelIndex()); i++) {//for each line...
+//                         switch (state_listing) {
+//                                 case Picviz::LISTING_NO_UNSEL:// we don't list the unselected lines.
+// =======
+        
+//         if (state_listing == Picviz::LISTING_ALL && matchingTable.size()!=lib_view->get_qtnraw_parent().size()) {
+//                 PVLOG_DEBUG("         init LISTING_ALL\n");
+//                 matchingTable.resize(0);
+//                 for (unsigned int i = 0; i < lib_view->get_qtnraw_parent().size(); i++) {
+//                         matchingTable.insert(i, i);
+//                 }
+//         } else if (state_listing == Picviz::LISTING_NO_UNSEL || state_listing == Picviz::LISTING_NO_ZOMBIES || state_listing == Picviz::LISTING_NO_UNSEL_NO_ZOMBIES) {
+//                 switch (state_listing) {
+//                         case Picviz::LISTING_NO_UNSEL:// we don't list the unselected lines.
+//                                 matchingTable.resize(0);
+//                                 for (int i = 0; i < rowCount(QModelIndex()); i++) {//for each line...
+// >>>>>>> 6f4fb2d5851b44e8b2ae35246557d0f4f5aeaa68
+//                                         matchingTable.insert(i, lib_view->get_nu_real_row_index(i));
+//                                 }
+//                                 break;
+//                         case Picviz::LISTING_NO_ZOMBIES:// we don't list the zombies lines.
+//                                 if(matchingTable.size()!=lib_view->get_qtnraw_parent().size()){
+//                                         matchingTable.resize(0);
+//                                         for (int i = 0; i < rowCount(QModelIndex()); i++) {//for each line...
+//                                                 matchingTable.insert(i, lib_view->get_nz_real_row_index(i));
+//                                         }
+//                                 }
+//                                 break;
+//                         case Picviz::LISTING_NO_UNSEL_NO_ZOMBIES:// we don't list the zombies lines and the unselected lines.
+//                                 matchingTable.resize(0);
+//                                 for (int i = 0; i < rowCount(QModelIndex()); i++) {//for each line...
+//                                         matchingTable.insert(i, lib_view->get_nznu_real_row_index(i));
+// <<<<<<< HEAD
+//                                         break;
+// 			        case Picviz::LISTING_ALL:
+// 					break;
+//                         }
+// =======
+//                                 }
+//                                 break;
+//                         case Picviz::LISTING_ALL:
+//                                 break;
+//                         case Picviz::LISTING_BAD_LISTING_MODE:
+//                                 break;
+// >>>>>>> 6f4fb2d5851b44e8b2ae35246557d0f4f5aeaa68
                 }
-        } else if (state_listing == Picviz::PVSelectionDisplay::NO_UNSELECTED || 
-		   state_listing == Picviz::PVSelectionDisplay::NO_ZOMBIES || 
-		   state_listing == Picviz::LISTING_NO_UNSEL_NO_ZOMBIES) {
-                for (int i = 0; i < rowCount(QModelIndex()); i++) {//for each line...
-                        switch (state_listing) {
-                                case Picviz::LISTING_NO_UNSEL:// we don't list the unselected lines.
-                                        matchingTable.insert(i, lib_view->get_nu_real_row_index(i));
-                                        break;
-                                case Picviz::LISTING_NO_ZOMBIES:// we don't list the zombies lines.
-                                        matchingTable.insert(i, lib_view->get_nz_real_row_index(i));
-                                        break;
-                                case Picviz::LISTING_NO_UNSEL_NO_ZOMBIES:// we don't list the zombies lines and the unselected lines.
-                                        matchingTable.insert(i, lib_view->get_nznu_real_row_index(i));
-                                        break;
-			        case Picviz::LISTING_ALL:
-					break;
-                        }
-                }
+                
         } else {
-                PVLOG_ERROR("PVInspector::PVListingModel::initCorrespondance : initializing with a bad stat_listing.");
+                PVLOG_ERROR("PVInspector::PVListingModel::initCorrespondance : initializing with a bad stat_listing.\n");
         }
         sortOrder = NoOrder;
+        emitLayoutChanged();
 }
 
 
@@ -327,9 +348,10 @@ QVariant PVInspector::PVListingModel::headerData(int section, Qt::Orientation or
  * PVInspector::PVListingModel::setState
  *
  *****************************************************************************/
-void PVInspector::PVListingModel::setState(Picviz::PVSelectionDisplay::PVSelectionDisplayMode_t mode) {
+void PVInspector::PVListingModel::setState(Picviz::PVSelectionDisplay::PVSelectionDisplayMode_t mode) 
+{
         PVLOG_INFO("PVInspector::PVListingModel::setState(%d)\n", (int) mode);
-        state_listing = mode;
+	state_listing = mode;
         initMatchingTable();
 }
 
@@ -481,11 +503,9 @@ int PVInspector::PVListingModel::rowCount(const QModelIndex &/*index*/) const {
  * PVInspector::PVListingModel::getCorrespondance
  *
  *****************************************************************************/
-int getMatch(int) {
+int PVInspector::PVListingModel::getMatch(int l) {
         PVLOG_DEBUG("PVInspector::PVListingModel::%s\n", __FUNCTION__);
-
-
-        return 0;
+        return matchingTable.at(l);
 }
 
 
@@ -500,6 +520,7 @@ void PVInspector::PVListingModel::reset_model(bool initMatchTable) {
         if (initMatchTable) {
                 initMatchingTable();
         }
+        emitLayoutChanged();
         //PVLOG_INFO("reset_model() : rowCount=%d, corresp.size=%d\n",rowCount(QModelIndex()),correspondTable.size());
 }
 

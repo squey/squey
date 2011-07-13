@@ -3,7 +3,7 @@
 
 #include <pvrush/PVRawSource.h>
 #include <pvrush/PVChunkTransformUTF16.h>
-#include <pvrush/PVChunkAlignUTF16Char.h>
+#include <pvrush/PVChunkAlignUTF16Newline.h>
 
 #include <QChar>
 
@@ -14,9 +14,8 @@ class LibExport PVUnicodeSource : public PVRawSource<Allocator> {
 public:
 	typedef typename PVRawSource<Allocator>::alloc_chunk alloc_chunk;
 public:
-	PVUnicodeSource(PVInput &input, size_t chunk_size, PVFilter::PVChunkFilter_f src_filter, const alloc_chunk &alloc = alloc_chunk()) :
-		PVRawSource<Allocator>(input, _align, chunk_size, _utf16, src_filter, alloc),
-		_align(QChar('\n'))
+	PVUnicodeSource(PVInput_p input, size_t chunk_size, PVFilter::PVChunkFilter_f src_filter, const alloc_chunk &alloc = alloc_chunk()) :
+		PVRawSource<Allocator>(input, _align, chunk_size, _utf16, src_filter, alloc)
 	{
 		//INIT_FILTER_NOPARAM(PVRush::PVUnicodeSource);
 	}
@@ -27,7 +26,7 @@ public:
 	}
 protected:
 	PVChunkTransformUTF16 _utf16;
-	PVChunkAlignUTF16Char _align;
+	PVChunkAlignUTF16Newline _align;
 
 public:
 //	CLASS_FILTER_NOPARAM_INPLACE(PVRush::PVUnicodeSource)
