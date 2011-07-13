@@ -709,14 +709,14 @@ void PVGL::PVMain::timer_func(int)
 	}
 	// Check if we need to reselect
 	if (glutGet(GLUT_ELAPSED_TIME) - last_key_pressed_time > 5/*100*/) {
-                
-                //PVLOG_DEBUG("   we need to reselect\n");
+
+		//PVLOG_DEBUG("   we need to reselect\n");
 		for (std::list<PVGL::PVDrawable*>::iterator it = all_drawables.begin(); it != all_drawables.end(); ++it) {
 			PVGL::PVView *pv_view = dynamic_cast<PVGL::PVView*>(*it);
 			if (pv_view) {
 				if (pv_view->is_update_line_dirty()) {
-                                        
-                                        PVLOG_DEBUG("   reselect\n");
+
+					PVLOG_DEBUG("   reselect\n");
 					glutSetWindow(pv_view->get_window_id());
 					Picviz::PVView_p picviz_view = pv_view->get_libview();
 					if (!picviz_view)
@@ -733,10 +733,10 @@ void PVGL::PVMain::timer_func(int)
 						pv_view->get_map().update_arrays_selection();
 						pv_view->update_lines();
 					}
-//                                        PVLOG_DEBUG("   pv_view->update_lines\n");
-//					pv_view->get_lines().update_arrays_selection();
-//					pv_view->get_map().update_arrays_selection();
-//					pv_view->update_lines();
+					//                                        PVLOG_DEBUG("   pv_view->update_lines\n");
+					//					pv_view->get_lines().update_arrays_selection();
+					//					pv_view->get_map().update_arrays_selection();
+					//					pv_view->update_lines();
 				}
 			}
 			PVGL::PVScatter *pv_scatter = dynamic_cast<PVGL::PVScatter*>(*it);
@@ -745,7 +745,7 @@ void PVGL::PVMain::timer_func(int)
 				pv_scatter->update_arrays_selection();
 			}
 		}
-                
+
 	}
 	// Check if we need to resize
 	if (glutGet(GLUT_ELAPSED_TIME) - last_reshape_time_time > PVGL_VIEW_RESIZE_UPDATE_TIMER) {

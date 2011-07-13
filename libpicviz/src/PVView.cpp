@@ -854,7 +854,7 @@ void Picviz::PVView::process_selection()
 			break;
 
 		case Picviz::PVStateMachine::AREA_MODE_SUBSTRACT_VOLATILE:
-			pre_filter_layer.get_selection() = floating_selection - volatile_selection;
+			pre_filter_layer.get_selection() = floating_selection - volatile_selection ;
 			//floating_selection.AB2C_substraction(volatile_selection, pre_filter_layer->selection);
 			break;
 
