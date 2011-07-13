@@ -35,6 +35,7 @@ public:
 	bool is_dirty() const;
 	void set_dirty();
 	void set_clean();
+	bool is_empty() const;
 private:
 	float end_x;
 	float end_y;

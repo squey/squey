@@ -164,4 +164,12 @@ void Picviz::PVSquareArea::set_clean()
 	dirty = false;
 }
 
-
+/******************************************************************************
+ *
+ * Picviz::PVSquareArea::is_empty
+ *
+ *****************************************************************************/
+bool Picviz::PVSquareArea::is_empty() const
+{
+	return (start_x == end_x) && (start_y == end_y);
+}

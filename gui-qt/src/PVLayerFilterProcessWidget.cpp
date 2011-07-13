@@ -112,6 +112,7 @@ void PVInspector::PVLayerFilterProcessWidget::preview_Slot()
 void PVInspector::PVLayerFilterProcessWidget::cancel_Slot()
 {
 	if (!_has_changed) {
+		reject();
 		return;
 	}
 

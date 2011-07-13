@@ -377,10 +377,12 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 				if (glutGetModifiers() & GLUT_ACTIVE_SHIFT) {
 					picviz_view->floating_selection.select_all();
 				} else {
-					picviz_view->volatile_selection = picviz_view->layer_stack_output_layer.get_selection();
+					//picviz_view->volatile_selection = picviz_view->layer_stack_output_layer.get_selection();
 					//picviz_view->layer_stack_output_layer->selection.A2B_copy(,
 					//                          picviz_view->volatile_selection);
 				}
+				picviz_view->volatile_selection.select_all();
+				picviz_view->floating_selection.select_all();
 				/* We deactivate the square area */
 				state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_OFF);
 				/* We process the view from the selection */
@@ -965,6 +967,12 @@ bool PVGL::PVView::mouse_up(int button, int x, int y, int modifiers)
 	}
 	/* We test if we are NOT in GRAB mode */
 	if (!state_machine->is_grabbed()) { // We are in SELECTION mode.
+		/* AG: if the square area is empty (that is the user has just click and release the mouse
+		 * with no mouvements), we need to restore the previous selection. */
+		if (picviz_view->square_area.is_empty()) {
+			/* Get the selection back from real_output_selection from the picviz view */
+			picviz_view->volatile_selection = picviz_view->get_real_output_selection();
+		}
 		/* We update the view */
 		glutPostRedisplay ();
 		/* We update the listing */
