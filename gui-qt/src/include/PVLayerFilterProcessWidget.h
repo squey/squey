@@ -17,7 +17,7 @@ public:
 
 public slots:
 	void save_Slot();
-	void apply_Slot();
+	void preview_Slot();
 	void cancel_Slot();
 
 protected:
@@ -33,7 +33,7 @@ protected:
 	Picviz::PVView_p _view;
 	Picviz::PVLayerFilter_p _filter_p;
 	QPushButton* _help_btn;
-	QPushButton* _apply_btn;
+	QPushButton* _preview_btn;
 	Picviz::PVLayer _pre_filter_layer_org;
 	PVFilter::PVArgumentList _args_org;
 

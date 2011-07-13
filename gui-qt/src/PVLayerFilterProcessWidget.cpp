@@ -26,8 +26,8 @@ void PVInspector::PVLayerFilterProcessWidget::create_btns()
 {
 	_ok_btn = new QPushButton(QIcon(":/save"),"Save");
 	_ok_btn->setEnabled(false);
-	_apply_btn = new QPushButton(QIcon(":/filter"),"Apply");
-	_apply_btn->setDefault(true);
+	_preview_btn = new QPushButton(QIcon(":/filter"),"Preview");
+	_preview_btn->setDefault(true);
 	_cancel_btn = new QPushButton(QIcon(":/red-cross"),"Cancel");
 	
 	QString filter_desc = _filter_p->detailed_description();
@@ -38,18 +38,19 @@ void PVInspector::PVLayerFilterProcessWidget::create_btns()
 
 void PVInspector::PVLayerFilterProcessWidget::set_btns_layout()
 {
-	_btn_layout->addWidget(_ok_btn);
-	_btn_layout->addWidget(_apply_btn);
 	if (_help_btn) {
 		_btn_layout->addWidget(_help_btn);
 	}
+
 	_btn_layout->addWidget(_cancel_btn);
+	_btn_layout->addWidget(_preview_btn);
+	_btn_layout->addWidget(_ok_btn);
 }
 
 void PVInspector::PVLayerFilterProcessWidget::connect_btns()
 {
 	connect(_ok_btn, SIGNAL(pressed()), this, SLOT(save_Slot()));
-	connect(_apply_btn, SIGNAL(pressed()), this, SLOT(apply_Slot()));
+	connect(_preview_btn, SIGNAL(pressed()), this, SLOT(preview_Slot()));
 	connect(_cancel_btn, SIGNAL(pressed()), this, SLOT(cancel_Slot()));
 	if (_help_btn) {
 		QMessageBox *msgBox = new QMessageBox(QMessageBox::Information, "Filter help", _filter_p->detailed_description(), QMessageBox::Ok, this);
@@ -72,7 +73,7 @@ void PVInspector::PVLayerFilterProcessWidget::save_Slot()
 	accept();
 }
 
-void PVInspector::PVLayerFilterProcessWidget::apply_Slot()
+void PVInspector::PVLayerFilterProcessWidget::preview_Slot()
 {
 	_view->process_selection();
 
@@ -80,7 +81,7 @@ void PVInspector::PVLayerFilterProcessWidget::apply_Slot()
 	_filter_p->set_view(_view);
 	_filter_p->set_output(&_view->post_filter_layer);
 
-	PVProgressBox *progressDialog = new PVProgressBox(tr("Applying filter..."), this, 0);
+	PVProgressBox *progressDialog = new PVProgressBox(tr("Previewing filter..."), this, 0);
 	QFuture<void> worker = QtConcurrent::run<void>(process_layer_filter, _filter_p.get(), &_view->pre_filter_layer);
 	QFutureWatcher<void> watcher;
 	watcher.setFuture(worker);
