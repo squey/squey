@@ -963,6 +963,13 @@ bool PVGL::PVView::mouse_up(int button, int x, int y, int modifiers)
 	}
 	/* We test if we are NOT in GRAB mode */
 	if (!state_machine->is_grabbed()) { // We are in SELECTION mode.
+		/* AG: if the square area is empty (that is the user has just click and release the mouse
+		 * with no mouvements), we need to restore the previous selection. */
+		if (picviz_view->square_area.is_empty()) {
+			PVLOG_INFO("(mouse_up) square area is empty !\n");
+			/* Get the selection back from real_output_selection from the picviz view */
+			picviz_view->volatile_selection = picviz_view->get_real_output_selection();
+		}
 		/* We update the view */
 		glutPostRedisplay ();
 		/* We update the listing */

@@ -722,16 +722,16 @@ void PVGL::PVMain::timer_func(int)
 					if (!picviz_view)
 						continue;
 					if (picviz_view->square_area.is_dirty()) {
-                                                PVLOG_DEBUG("   picviz_view->process_from_selection\n");
-                                                picviz_view->gl_call_locker.lock();
+						PVLOG_DEBUG("   picviz_view->process_from_selection\n");
+						picviz_view->gl_call_locker.lock();
 						picviz_view->selection_A2B_select_with_square_area(picviz_view->layer_stack_output_layer.get_selection(), picviz_view->volatile_selection);
 						picviz_view->process_from_selection();
 						picviz_view->square_area.set_clean();
-                                                picviz_view->gl_call_locker.unlock();
-                                                PVLOG_DEBUG("   pv_view->update_lines\n");
-                                                pv_view->get_lines().update_arrays_selection();
-                                                pv_view->get_map().update_arrays_selection();
-                                                pv_view->update_lines();
+						picviz_view->gl_call_locker.unlock();
+						PVLOG_DEBUG("   pv_view->update_lines\n");
+						pv_view->get_lines().update_arrays_selection();
+						pv_view->get_map().update_arrays_selection();
+						pv_view->update_lines();
 					}
 //                                        PVLOG_DEBUG("   pv_view->update_lines\n");
 //					pv_view->get_lines().update_arrays_selection();
