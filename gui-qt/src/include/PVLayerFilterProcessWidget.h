@@ -25,6 +25,9 @@ protected:
 	virtual void set_btns_layout();
 	virtual void connect_btns();
 
+private:
+	static void process_layer_filter(Picviz::PVLayerFilter* filter, Picviz::PVLayer* layer);
+
 protected:
 	PVTabSplitter* _tab;
 	Picviz::PVView_p _view;

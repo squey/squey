@@ -64,7 +64,7 @@ void PVInspector::PVLayerFilterProcessWidget::save_Slot()
 	/* We need to process the view from the layer_stack */
 	_view->process_from_layer_stack();
 	/* We refresh the PVView_p */
-	_tab->get_main_window()->update_pvglview(_view, PVGL_COM_REFRESH_SELECTION);
+	_tab->get_main_window()->update_pvglview(_view, PVGL_COM_REFRESH_SELECTION|PVGL_COM_REFRESH_COLOR);
 	_tab->refresh_listing_Slot();
 
 	accept();
@@ -78,14 +78,30 @@ void PVInspector::PVLayerFilterProcessWidget::apply_Slot()
 	_filter_p->set_view(_view);
 	_filter_p->set_output(&_view->post_filter_layer);
 
-	_filter_p->operator()(_view->pre_filter_layer);
+	PVProgressBox *progressDialog = new PVProgressBox(tr("Applying filter..."), this, 0);
+	QFuture<void> worker = QtConcurrent::run<void>(process_layer_filter, _filter_p.get(), &_view->pre_filter_layer);
+	QFutureWatcher<void> watcher;
+	watcher.setFuture(worker);
+	QObject::connect(&watcher, SIGNAL(finished()), progressDialog, SLOT(accept()), Qt::QueuedConnection);
+	
+	if(progressDialog->exec()) {
+		// We made it :) !
+		PVLOG_DEBUG("Filtering action performed\n");
+		_view->pre_filter_layer = _view->post_filter_layer;
+		_view->state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
 
-	_view->state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
-
-	// We reprocess the pipeline from the eventline stage
-	_view->process_from_eventline();
-	_tab->get_main_window()->update_pvglview(_view, PVGL_COM_REFRESH_SELECTION|PVGL_COM_REFRESH_COLOR);
-	_tab->refresh_listing_Slot();
+		// We reprocess the pipeline from the eventline stage
+		_view->process_from_eventline();
+		_tab->get_main_window()->update_pvglview(_view, PVGL_COM_REFRESH_SELECTION|PVGL_COM_REFRESH_COLOR);
+		_tab->refresh_listing_Slot();
+	}
+	else {
+		// If it has been canceled...
+		PVLOG_DEBUG("Filtering action canceled\n");
+		disconnect(&watcher,  SIGNAL(finished()),0,0);
+		worker.cancel();
+		_view->post_filter_layer = _view->pre_filter_layer;
+	}
 }
 
 void PVInspector::PVLayerFilterProcessWidget::cancel_Slot()
@@ -103,3 +119,9 @@ void PVInspector::PVLayerFilterProcessWidget::cancel_Slot()
 
 	reject();
 }
+
+void  PVInspector::PVLayerFilterProcessWidget::process_layer_filter(Picviz::PVLayerFilter* filter, Picviz::PVLayer* layer)
+{
+	filter->operator()(*layer);
+}
+

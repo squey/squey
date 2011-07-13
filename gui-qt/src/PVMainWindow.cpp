@@ -909,16 +909,6 @@ bool PVInspector::PVMainWindow::eventFilter(QObject *watched_object, QEvent *eve
 	}
 }
 
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::process_layer_filter
- *
- *****************************************************************************/
-void  PVInspector::PVMainWindow::process_layer_filter(Picviz::PVLayerFilter* filter, Picviz::PVLayer* layer)
-{
-	filter->operator()(*layer);
-}
-
 
 /******************************************************************************
  *
