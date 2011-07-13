@@ -23,7 +23,7 @@ PVInspector::PVLayerFilterProcessWidget::~PVLayerFilterProcessWidget()
 
 void PVInspector::PVLayerFilterProcessWidget::create_btns()
 {
-	_ok_btn = new QPushButton("Save");
+	_ok_btn = new QPushButton(QIcon(":/save"),"Save");
 	_apply_btn = new QPushButton(QIcon(":/filter"),"Apply");
 	_apply_btn->setDefault(true);
 	_cancel_btn = new QPushButton(QIcon(":/red-cross"),"Cancel");
