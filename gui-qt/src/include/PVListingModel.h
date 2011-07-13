@@ -50,7 +50,7 @@ private:
     QVector<int> matchingTable; //!<the table sort, modify this array to order the values
     TypeOfSort sortOrder; //!<save the current sorting state (NoOrder, AscendingOrder, DescendingOrder)
     int colSorted; //!<save the last column whiche was used to sort
-    Picviz::PVStateMachineListingMode_t state_listing; //!<this state indicate the mode of listing
+    Picviz::PVSelectionDisplay::PVSelectionDisplayMode_t state_listing; //!<this state indicate the mode of listing
 
 
 public:
@@ -62,7 +62,7 @@ public:
      * @param mw
      * @param parent
      */
-    PVListingModel(PVMainWindow *mw, PVTabSplitter *parent, Picviz::PVStateMachineListingMode_t state = Picviz::LISTING_ALL);
+    PVListingModel(PVMainWindow *mw, PVTabSplitter *parent, Picviz::PVSelectionDisplay::PVSelectionDisplayMode_t state = Picviz::PVSelectionDisplay::ALL);
 
     /**
      * return data requested by the View
@@ -117,32 +117,29 @@ public:
      * @brief set listing mode
      * @param mode
      */
-    void setState(Picviz::PVStateMachineListingMode_t mode);
-
-
-    
+    void setState(Picviz::PVSelectionDisplay::PVSelectionDisplayMode_t mode);
     
     /**
-	*
-	* @param index
-	*
-	* @return
-	*/
-	int columnCount(const QModelIndex &index) const;
+     *
+     * @param index
+     *
+     * @return
+     */
+    int columnCount(const QModelIndex &index) const;
 
-	/**
-	*
-	* @param index
-	*
-	* @return
-	*/
-	Qt::ItemFlags flags(const QModelIndex &index) const;
+    /**
+     *
+     * @param index
+     *
+     * @return
+     */
+    Qt::ItemFlags flags(const QModelIndex &index) const;
+	
 
-
-	/**
-	* call update for data
-	*/
-	void emitLayoutChanged(); 
+    /**
+     * call update for data
+     */
+    void emitLayoutChanged(); 
 };
 }
 

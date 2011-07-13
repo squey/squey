@@ -1,5 +1,5 @@
-//! \file state-machine.h
-//! $Id: state-machine.h 3251 2011-07-06 11:51:57Z rpernaudat $
+//! \file PVStateMachine.h
+//! $Id$
 //! Copyright (C) Sébastien Tricaud 2009-2011
 //! Copyright (C) Philippe Saadé 2009-2011
 //! Copyright (C) Picviz Labs 2011
@@ -10,26 +10,21 @@
 #include <picviz/general.h>
 #include <picviz/square-area.h>
 
-namespace Picviz {
+#include <picviz/PVSelectionDisplay.h>
 
-        typedef enum {
-            LISTING_ALL,
-            LISTING_NO_UNSEL,
-            LISTING_NO_ZOMBIES,
-            LISTING_NO_UNSEL_NO_ZOMBIES,
-        } PVStateMachineListingMode_t;
+namespace Picviz {
 
         class LibExport PVStateMachine {
             bool antialiased; // FIXME remove me!
             bool axes_mode;
             bool sync_all_views;
             bool grabbed;
-            //bool listing_unselected_visible; // FIXME: we should have one per view!
-            //bool listing_zombie_visible; // FIXME: we should have one per view!
             bool unselected_visible;
             bool zombie_visible;
             bool edit_mode_all;
-            PVStateMachineListingMode_t listing_mode;
+
+	    PVSelectionDisplay::PVSelectionDisplayMode_t listing_selection_mode;
+            PVSelectionDisplay::PVSelectionDisplayMode_t gl_selection_mode;
         public:
 
             enum SquareAreaModes {
@@ -70,8 +65,8 @@ namespace Picviz {
 
             bool are_listing_zombie_visible();
 
-            PVStateMachineListingMode_t are_listing_mode()const {
-                return listing_mode;
+	    PVSelectionDisplay::PVSelectionDisplayMode_t are_listing_mode()const {
+                return listing_selection_mode;
             }
 
             bool are_unselected_visible()const {
@@ -110,12 +105,12 @@ namespace Picviz {
                 grabbed = state;
             }
 
-            void set_listing_unselected_visibility(bool state);
+            void set_listing_unselected_visible(bool visible);
 
-            void set_listing_zombie_visibility(bool state);
+            void set_listing_zombie_visible(bool visible);
 
-            void set_listing_mode(PVStateMachineListingMode_t state) {
-                listing_mode = state;
+            void set_listing_mode(PVSelectionDisplay::PVSelectionDisplayMode_t state) {
+                listing_selection_mode = state;
             }
 
             void set_unselected_visibility(bool state) {
