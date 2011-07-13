@@ -10,40 +10,44 @@
 #include <picviz/general.h>
 #include <picviz/square-area.h>
 
-#include <picviz/PVSelectionDisplay.h>
-
 namespace Picviz {
 
         class LibExport PVStateMachine {
-            bool antialiased; // FIXME remove me!
+            bool antialiased; // FIXME remove me! [STR: Why?]
             bool axes_mode;
             bool sync_all_views;
             bool grabbed;
-            bool unselected_visible;
-            bool zombie_visible;
             bool edit_mode_all;
 
-	    PVSelectionDisplay::PVSelectionDisplayMode_t listing_selection_mode;
-            PVSelectionDisplay::PVSelectionDisplayMode_t gl_selection_mode;
+	    /* lines states: this must *NOT* be handled by an enumeration
+	     * as it will limits the different possibilities (enum max elements) 
+	     * we have with lines in the future and makes more complex the way 
+	     * we know about the given state we are.
+	     */
+            bool listing_unselected_visible;
+            bool listing_zombie_visible;
+            bool gl_unselected_visible;
+            bool gl_zombie_visible;
         public:
 
+	    /** Square Area Modes
+	     * helps to identify the selection mode
+	     * that is done with the square area
+	     */
             enum SquareAreaModes {
-                AREA_MODE_OFF,
+                AREA_MODE_OFF,	                /**< No selection area */
                 AREA_MODE_SET_WITH_VOLATILE,
                 AREA_MODE_ADD_VOLATILE,
                 AREA_MODE_SUBSTRACT_VOLATILE,
                 AREA_MODE_INTERSECT_VOLATILE
             };
 
-
         private:
             SquareAreaModes square_area_mode;
             picviz_square_area_t *square_area;
 
-
         public:
             PVStateMachine();
-            ~PVStateMachine();
 
             bool is_antialiased()const {
                 return antialiased;
@@ -61,26 +65,22 @@ namespace Picviz {
                 return grabbed;
             }
 
-            bool are_listing_unselected_visible();
-
-            bool are_listing_zombie_visible();
-
-	    PVSelectionDisplay::PVSelectionDisplayMode_t are_listing_mode()const {
-                return listing_selection_mode;
+            bool are_gl_unselected_visible()const {
+                return gl_unselected_visible;
             }
 
-            bool are_unselected_visible()const {
-                return unselected_visible;
+            bool are_gl_zombie_visible()const {
+                return gl_zombie_visible;
             }
 
-            bool are_zombie_visible()const {
-                return zombie_visible;
+            bool are_listing_unselected_visible()const {
+                return listing_unselected_visible;
+            }
+
+            bool are_listing_zombie_visible()const {
+                return listing_zombie_visible;
             }
             
-            PVStateMachineListingMode_t getListingMode(){
-                return listing_mode;
-            }
-
             bool is_edit_mode_all()const {
                 return edit_mode_all;
             }
@@ -109,20 +109,20 @@ namespace Picviz {
                 grabbed = state;
             }
 
-            void set_listing_unselected_visible(bool visible);
-
-            void set_listing_zombie_visible(bool visible);
-
-            void set_listing_mode(PVSelectionDisplay::PVSelectionDisplayMode_t state) {
-                listing_selection_mode = state;
+            void set_listing_unselected_visible(bool visible) {
+		    listing_unselected_visible = visible;
             }
 
-            void set_unselected_visibility(bool state) {
-                unselected_visible = state;
+            void set_listing_zombie_visible(bool visible) {
+		    listing_zombie_visible = visible;
             }
 
-            void set_zombie_visibility(bool state) {
-                zombie_visible = state;
+            void set_gl_unselected_visible(bool visible) {
+		    gl_unselected_visible = visible;
+            }
+
+            void set_gl_zombie_visibile(bool visible) {
+		    gl_zombie_visible = visible;
             }
 
             void set_edit_mode_all(bool state) {
@@ -149,16 +149,20 @@ namespace Picviz {
                 grabbed = !grabbed;
             }
 
-            void toggle_listing_unselected_visibility();
-
-            void toggle_listing_zombie_visibility();
-
-            void toggle_unselected_visibility() {
-                unselected_visible = !unselected_visible;
+            void toggle_listing_unselected_visibility() {
+                listing_unselected_visible = !listing_unselected_visible;
             }
 
-            void toggle_zombie_visibility() {
-                zombie_visible = !zombie_visible;
+            void toggle_listing_zombie_visibility() {
+                listing_zombie_visible = !listing_zombie_visible;
+            }
+
+            void toggle_gl_unselected_visibility() {
+                gl_unselected_visible = !gl_unselected_visible;
+            }
+
+            void toggle_gl_zombie_visibility() {
+                gl_zombie_visible = !gl_zombie_visible;
             }
 
             void toggle_edit_mode() {

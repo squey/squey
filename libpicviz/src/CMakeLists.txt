@@ -81,7 +81,6 @@ include/picviz/PVPlottingProperties.h
 include/picviz/PVRoot.h
 include/picviz/PVScene.h
 include/picviz/PVSelection.h
-include/picviz/PVSelectionDisplay.h
 include/picviz/PVSelectionFilter.h
 include/picviz/PVSelectionFilterScatterPlotSelectionSquare.h
 include/picviz/PVSortQVectorQStringList.h
