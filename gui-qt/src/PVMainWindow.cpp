@@ -1578,6 +1578,9 @@ void PVInspector::PVMainWindow::set_color(Picviz::PVView_p picviz_view)
 			}
 		}
 	}
+
+	// And we commit to the current layer (cf. ticket #38)
+	commit_selection_in_current_layer(current_tab->get_lib_view());
 }
 
 /******************************************************************************
