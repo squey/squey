@@ -36,6 +36,9 @@ protected:
 	QPushButton* _apply_btn;
 	Picviz::PVLayer _pre_filter_layer_org;
 	PVFilter::PVArgumentList _args_org;
+
+private:
+	bool _has_changed;
 };
 
 }

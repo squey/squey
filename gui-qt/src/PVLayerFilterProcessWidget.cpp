@@ -13,7 +13,8 @@ PVInspector::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(PVTabSplitte
 	_filter_p(filter_p),
 	_help_btn(NULL),
 	_pre_filter_layer_org(_view->pre_filter_layer),
-	_args_org(_args)
+	_args_org(_args),
+	_has_changed(false)
 {
 }
 
@@ -94,6 +95,7 @@ void PVInspector::PVLayerFilterProcessWidget::apply_Slot()
 		_view->process_from_eventline();
 		_tab->get_main_window()->update_pvglview(_view, PVGL_COM_REFRESH_SELECTION|PVGL_COM_REFRESH_COLOR);
 		_tab->refresh_listing_Slot();
+		_has_changed = true;
 	}
 	else {
 		// If it has been canceled...
@@ -106,6 +108,10 @@ void PVInspector::PVLayerFilterProcessWidget::apply_Slot()
 
 void PVInspector::PVLayerFilterProcessWidget::cancel_Slot()
 {
+	if (!_has_changed) {
+		return;
+	}
+
 	// Restore original arguments of this layer filter
 	_args = _args_org;
 
@@ -113,7 +119,7 @@ void PVInspector::PVLayerFilterProcessWidget::cancel_Slot()
 	_view->post_filter_layer = _view->pre_filter_layer;
 
 	// Update verything
-	_view->process_from_eventline();
+	_view->process_from_layer_stack();
 	_tab->get_main_window()->update_pvglview(_view, PVGL_COM_REFRESH_SELECTION|PVGL_COM_REFRESH_COLOR);
 	_tab->refresh_listing_Slot();
 

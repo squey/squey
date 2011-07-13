@@ -92,10 +92,10 @@ void Picviz::PVLayerFilterHeatlineBase::operator()(PVLayer& in, PVLayer &out)
 	PVRush::PVNraw::nraw_table const& nraw = _view->get_qtnraw_parent();
 	nb_lines = nraw.size();
 	
-	PVCore::PVAxesIndexType axes = _args["Axes"].value<PVCore::PVAxesIndexType>();
+	PVCore::PVAxesIndexType axes = _args.value("Axes").value<PVCore::PVAxesIndexType>();
 	if (axes.size() == 0) {
 		_args = get_default_args_for_view(*_view);
-		axes = _args["Axes"].value<PVCore::PVAxesIndexType>();
+		axes = _args.value("Axes").value<PVCore::PVAxesIndexType>();
 		if (axes.size() == 0) {
 			PVLOG_ERROR("(PVLayerFilterHeatlineBase) no key axes defined in the format and no axes selected !\n");
 			if (&in != &out) {
@@ -105,7 +105,7 @@ void Picviz::PVLayerFilterHeatlineBase::operator()(PVLayer& in, PVLayer &out)
 		}
 	}
 
-	bool bLog = _args["Scale"].value<PVCore::PVEnumType>().get_sel().compare("Log") == 0;
+	bool bLog = _args.value("Scale").value<PVCore::PVEnumType>().get_sel().compare("Log") == 0;
 
 	highest_frequency = 1;
 
@@ -238,7 +238,7 @@ void Picviz::PVLayerFilterHeatlineSelAndCol::post(PVLayer& /*in*/, PVLayer& out,
 	out.get_lines_properties().line_set_rgb_from_color(line_id, color);
 
 	// Select
-	PVCore::PVColorGradientDualSliderType ratios = _args["Colors"].value<PVCore::PVColorGradientDualSliderType>();
+	PVCore::PVColorGradientDualSliderType ratios = _args.value("Colors").value<PVCore::PVColorGradientDualSliderType>();
 
 	const float *v = ratios.get_positions();
 
