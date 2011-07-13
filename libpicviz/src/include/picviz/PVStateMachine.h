@@ -137,7 +137,7 @@ namespace Picviz {
 		    gl_unselected_visible = visible;
             }
 
-            void set_gl_zombie_visibile(bool visible) {
+            void set_gl_zombie_visible(bool visible) {
 		    gl_zombie_visible = visible;
             }
 
