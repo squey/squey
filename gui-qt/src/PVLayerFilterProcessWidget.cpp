@@ -88,6 +88,8 @@ bool PVInspector::PVLayerFilterProcessWidget::process()
 	_filter_p->set_view(_view);
 	_filter_p->set_output(&_view->post_filter_layer);
 
+	_view->pre_filter_layer.get_selection() &= _view->layer_stack.get_selected_layer().get_selection();
+
 	PVProgressBox *progressDialog = new PVProgressBox(tr("Previewing filter..."), this, 0);
 	progressDialog->set_enable_cancel(false);
 	QFuture<void> worker = QtConcurrent::run<void>(process_layer_filter, _filter_p.get(), &_view->pre_filter_layer);

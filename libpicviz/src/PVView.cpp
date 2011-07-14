@@ -762,11 +762,8 @@ void Picviz::PVView::process_eventline()
  *****************************************************************************/
 void Picviz::PVView::process_filter()
 {
-	// FIXME: This is temporary!!!
-	// AG: I suppose that this is where we launch a filter ?
+	// FIXME: This is temporary!!! -> AG: why ?
 	post_filter_layer = pre_filter_layer;
-
-//	pre_filter_layer.A2B_copy(post_filter_layer);
 }
 
 /******************************************************************************
