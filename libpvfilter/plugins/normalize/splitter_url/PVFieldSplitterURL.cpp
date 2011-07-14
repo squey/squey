@@ -4,6 +4,10 @@
 //! Copyright (C) Philippe Saadé 2011-2011
 //! Copyright (C) Picviz Labs 2011
 
+// Handles urls like this:
+// lintranet.beijaflore.com:443
+// clients1.google.com:443
+
 #include "PVFieldSplitterURL.h"
 #include <pvcore/PVBufferSlice.h>
 
@@ -121,7 +125,7 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterURL::one_to_many(PVCore:
 		return 0;
 	}
 
-	QString value;
+	QString port;
 	QString host(url.host());
 	QString url_path(url.path());
 	QString qitems;
@@ -140,6 +144,20 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterURL::one_to_many(PVCore:
 		url_decode_add_field(&buf, none);
 	}
 
+	if (prepend_protocol) {
+		if (!url.scheme().isEmpty()) {
+			// We must check if host is empty or not: that means that QUrl did put the host into url.scheme()
+			// So we just put the scheme into the host by prepending it.
+			if (!host.isEmpty()) {
+				// Why we prepend ':' here? because it was what we saw when we
+				// had the bug putting a host in the protocol part, as it was splitted
+				// with ':'
+				host.prepend(QString(":"));
+			}
+			host.prepend(url.scheme());
+		} 
+	}
+
 	if (host.isEmpty()) {
 		// We cannot decode the host because we have a url like:
 		// foobar.com/index.html
@@ -148,13 +166,6 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterURL::one_to_many(PVCore:
 
 		host = slashhost[0];
 		url_path.remove(0, host.size());
-	}
-	if ((prepend_protocol) && (!url.scheme().isEmpty())) {
-		// Why we prepend ':' here? because it was what we saw when we
-		// had the bug putting a host in the protocol part, as it was splitted
-		// with ':'
-		host.prepend(QString(":"));
-		host.prepend(url.scheme());
 	}
 	url_decode_add_field(&buf, host);
 
@@ -171,7 +182,39 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterURL::one_to_many(PVCore:
 			url_decode_add_field(&buf, "");
 		}
 	}
-	url_decode_add_field(&buf, value.number(url.port(80)));
+
+	// Port discovery:
+	// Add port with 80 as default is there is no known port
+	port.prepend("80");
+	if (!url_path.startsWith("/")) {
+		// our url path does not starts with a '/'. The QUrl messed up with
+		// the source port
+
+		// it can be 443/foo.html
+		if (url_path.contains("/")) {
+			QStringList slashhost = url_path.split("/");
+			port = slashhost[0];
+			url_path.remove(0, slashhost[0].length());
+		} else {
+			port = url_path;
+			url_path.remove(0, port.length());
+		}
+	} 
+	// url_decode_add_field(&buf, port.number(url.port(80)));
+	url_decode_add_field(&buf, port);
+
+	// PVLOG_INFO("url path (%s)\n", qPrintable(url_path));
+	// int tryport = url.port(0);
+	// if (tryport == 0) {
+	// 	int tryport = url.port(44952);
+	// 	// We cannot guess the source port
+	// 	// Sometime the port information is put in the url_path. 
+	// 	// Since a url must have a / as the first path char, we can
+	// 	// easily check that (and check we have a number ;-)
+	// 	if (url_path.contains("/")) {
+	// 		
+	// 	}
+	// }
 
 	// We get all the query items and build a string from them
 	QList<QPair<QByteArray, QByteArray> > query_items = url.encodedQueryItems();
