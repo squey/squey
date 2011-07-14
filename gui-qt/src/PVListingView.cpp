@@ -74,7 +74,7 @@ void PVInspector::PVListingView::mouseReleaseEvent(QMouseEvent *event)
 	selected_items_list = selectedIndexes();
 	number_of_items = selected_items_list.size();
 
-	if (state_machine->are_listing_all_visible() || (!state_machine->are_listing_zombie_visible())) {
+	if (state_machine->are_listing_all() || (state_machine->are_listing_no_nz())) {
                 for (i=0; i<number_of_items; i++) {
                         real_row_index = lib_view->get_real_row_index(selected_items_list[i].row());
                         PVLOG_INFO("     a%d\n",myModel->getMatch(real_row_index));

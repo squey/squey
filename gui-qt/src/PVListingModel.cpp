@@ -74,7 +74,6 @@ QVariant PVInspector::PVListingModel::data(const QModelIndex &index, int role) c
 
         Picviz::PVColor color;
         int i;
-        int correspondId;
         int real_row_index;
 
         unsigned char r;
@@ -82,20 +81,19 @@ QVariant PVInspector::PVListingModel::data(const QModelIndex &index, int role) c
         unsigned char b;
 
 
-	if (state_machine->are_listing_all_visible()) {//all
+	if (state_machine->are_listing_all()) {//all
 		real_row_index = parent_widget->sortMatchingTable.at(index.row());
-	}
-	if (state_machine->are_listing_none_visible()) {//NU NZ
+	}else
+	if (state_machine->are_listing_no_nu_nz()) {//NU NZ
 		real_row_index = parent_widget->sortMatchingTable_invert.at(lib_view->get_nznu_real_row_index(index.row()));
-	}
-	if (!state_machine->are_listing_unselected_visible()) {//NU
+	}else
+	if (state_machine->are_listing_no_nu()) {//NU
 		real_row_index = parent_widget->sortMatchingTable_invert.at(lib_view->get_nu_real_row_index(index.row()));
-	}
-	if (!state_machine->are_listing_zombie_visible()) {//NZ
+	}else
+	if (state_machine->are_listing_no_nz()) {//NZ
 		real_row_index = parent_widget->sortMatchingTable_invert.at(lib_view->get_nz_real_row_index(index.row()));
 	}
         PVLOG_HEAVYDEBUG("           correspondId %d\n", real_row_index);
-        correspondId = matchingTable.at(index.row());
         //PVLOG_DEBUG("           correspondId %d\n", correspondId);
 
 
@@ -208,15 +206,18 @@ void PVInspector::PVListingModel::initMatchingTable() {
 QVariant PVInspector::PVListingModel::headerData(int section, Qt::Orientation orientation, int role) const {
         PVLOG_HEAVYDEBUG("PVInspector::PVListingModel::%s\n", __FUNCTION__);
 
-        int real_row_index = section;
+        int real_row_index = 0;
 	// We need to get the data index to display vertical values
-	if (!state_machine->are_listing_unselected_visible()) {//NU
+        if(state_machine->are_listing_all()){
+                real_row_index=parent_widget->sortMatchingTable.at(section);
+        }else
+	if (state_machine->are_listing_no_nu()) {//NU
 		real_row_index = parent_widget->sortMatchingTable_invert.at(lib_view->get_nu_real_row_index(section));
-	}
-	if (!state_machine->are_listing_zombie_visible()) {//NZ
+	}else
+	if (state_machine->are_listing_no_nz()) {//NZ
 		real_row_index = parent_widget->sortMatchingTable_invert.at(lib_view->get_nz_real_row_index(section));
-	}
-	if (state_machine->are_listing_none_visible()) {//NU_NZ
+	}else
+	if (state_machine->are_listing_no_nu_nz()) {//NU_NZ
 		real_row_index = parent_widget->sortMatchingTable_invert.at(lib_view->get_nznu_real_row_index(section));
 	}
 
@@ -267,18 +268,17 @@ void PVInspector::PVListingModel::sortByColumn(int idColumn)
         
         
         
-        if (state_machine->are_listing_all_visible()) {//all
-		PVLOG_DEBUG("PVInspector::PVListingModel::sortByColumn   all");
-	}
-	if (state_machine->are_listing_none_visible()) {//NU NZ
-		PVLOG_DEBUG("PVInspector::PVListingModel::sortByColumn   NU NZ");
-	}
-	if (!state_machine->are_listing_unselected_visible()) {//NU
-		PVLOG_DEBUG("PVInspector::PVListingModel::sortByColumn   NU");
-	}
-	if (!state_machine->are_listing_zombie_visible()) {//NZ
-		PVLOG_DEBUG("PVInspector::PVListingModel::sortByColumn   NZ");
-	}
+        if (state_machine->are_listing_all()) {//all
+		PVLOG_DEBUG("PVInspector::PVListingModel::sortByColumn   all(%d)\n",idColumn);
+	}else if (state_machine->are_listing_no_nu_nz()) {//NU NZ
+		PVLOG_DEBUG("PVInspector::PVListingModel::sortByColumn   NU NZ(%d)\n",idColumn);
+	}else if (!state_machine->are_listing_no_nu()) {//NU
+		PVLOG_DEBUG("PVInspector::PVListingModel::sortByColumn   NU(%d)\n",idColumn);
+	}else if (!state_machine->are_listing_no_nz()) {//NZ
+		PVLOG_DEBUG("PVInspector::PVListingModel::sortByColumn   NZ(%d)\n",idColumn);
+	}else{
+                PVLOG_ERROR("PVInspector::PVListingModel::sortByColumn   :  listing mode unknow\n");
+        }
         
       
         
@@ -326,6 +326,7 @@ void PVInspector::PVListingModel::sortByColumn(int idColumn)
         PVLOG_DEBUG("   the sort is finished.\n");
         for (int i = 0; i < parent_widget->sortMatchingTable.size(); i++) {
                 int j = parent_widget->sortMatchingTable.at(i);
+                PVLOG_DEBUG("   %d\n",j);
                 parent_widget->sortMatchingTable_invert.at(j) = i;
         }
 
@@ -340,16 +341,16 @@ void PVInspector::PVListingModel::sortByColumn(int idColumn)
  *****************************************************************************/
 int PVInspector::PVListingModel::rowCount(const QModelIndex &/*index*/) const 
 {
-	if (state_machine->are_listing_all_visible()) {
+	if (state_machine->are_listing_all()) {
 		return int(lib_view->get_row_count());
-	}
-	if (state_machine->are_listing_none_visible()) {
+	}else
+	if (state_machine->are_listing_no_nu_nz()) {
 		return int(lib_view->get_nznu_index_count());
-	}
-	if (!state_machine->are_listing_unselected_visible()) {
+	}else
+	if (state_machine->are_listing_no_nu()) {
 		return int(lib_view->get_nu_index_count());
-	}
-	if (!state_machine->are_listing_zombie_visible()) {
+	}else
+	if (state_machine->are_listing_no_nz()) {
 		return int(lib_view->get_nz_index_count());
 	}
 
