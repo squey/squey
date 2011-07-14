@@ -28,6 +28,7 @@ public:
 	QProgressBar *getProgressBar();
 	void launch_timer_status();
 	void set_status(int status);
+	void set_enable_cancel(bool cancel);
 
 public slots:
 	void update_status_Slot();
@@ -36,6 +37,7 @@ private:
 	QLabel *message;
 	QProgressBar *progress_bar;
 	int _status;
+	QPushButton *_btnCancel;
 };
 }
 #endif /*PVINSPECTOR_PVPROGRESSBOX_H*/

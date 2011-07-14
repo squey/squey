@@ -25,6 +25,8 @@ protected:
 	virtual void set_btns_layout();
 	virtual void connect_btns();
 
+	bool process();
+
 private:
 	static void process_layer_filter(Picviz::PVLayerFilter* filter, Picviz::PVLayer* layer);
 
@@ -38,7 +40,7 @@ protected:
 	PVFilter::PVArgumentList _args_org;
 
 private:
-	bool _has_changed;
+	bool _has_apply;
 };
 
 }
