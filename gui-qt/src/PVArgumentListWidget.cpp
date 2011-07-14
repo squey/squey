@@ -90,6 +90,9 @@ PVInspector::PVArgumentListWidget::PVArgumentListWidget(Picviz::PVView& view, PV
 	main_layout->addLayout(_btn_layout);
 
 	setLayout(main_layout);
+
+	connect(_args_model, SIGNAL(dataChanged(QModelIndex const&, QModelIndex const&)), this, SLOT(args_changed_Slot()));
+	clear_args_state();
 }
 
 PVInspector::PVArgumentListWidget::~PVArgumentListWidget()
@@ -125,4 +128,9 @@ void PVInspector::PVArgumentListWidget::connect_btns()
 	// Connectors
 	connect(_apply_btn, SIGNAL(pressed()), this, SLOT(accept()));
 	connect(_cancel_btn, SIGNAL(pressed()), this, SLOT(reject()));
+}
+
+void PVInspector::PVArgumentListWidget::args_changed_Slot()
+{
+	_args_has_changed = true;
 }

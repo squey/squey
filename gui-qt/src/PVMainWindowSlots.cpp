@@ -579,15 +579,10 @@ void PVInspector::PVMainWindow::selection_all_Slot()
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
 
 	if (current_tab && current_tab->get_lib_view()) {
-// picviz_selection_A2A_inverse(current_tab->get_lib_view()->volatile_selection);
-		//current_tab->get_lib_view()->volatile_selection.select_all();
 		Picviz::PVView_p view = current_tab->get_lib_view();
-		view->floating_selection.select_all();
-		view->volatile_selection.select_all();
-		view->state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_OFF);
-		view->process_from_selection();
-		view->process_from_eventline();
+		view->select_all_nonzb_lines();
 		update_pvglview(view, PVGL_COM_REFRESH_SELECTION);
+		current_tab->refresh_listing_Slot();
 	}
 }
 
@@ -606,6 +601,7 @@ void PVInspector::PVMainWindow::selection_none_Slot()
 		current_tab->get_lib_view()->process_from_selection();
 		current_tab->get_lib_view()->process_from_eventline();
 		update_pvglview(current_tab->get_lib_view(), PVGL_COM_REFRESH_SELECTION);
+		current_tab->refresh_listing_Slot();
 	}
 }
 
@@ -624,6 +620,7 @@ void PVInspector::PVMainWindow::selection_inverse_Slot()
 		current_tab->get_lib_view()->process_from_selection();
 		current_tab->get_lib_view()->process_from_eventline();
 		update_pvglview(current_tab->get_lib_view(), PVGL_COM_REFRESH_SELECTION);
+		current_tab->refresh_listing_Slot();
 	}
 }
 

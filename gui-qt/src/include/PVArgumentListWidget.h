@@ -36,6 +36,11 @@ public:
 	virtual ~PVArgumentListWidget();
 	bool eventFilter(QObject *obj, QEvent *event);
 	void init();
+	inline bool args_changed() { return _args_has_changed; }
+	inline void clear_args_state() { _args_has_changed = false; }
+
+private slots:
+	void args_changed_Slot();
 
 protected:
 	virtual void create_btns();
@@ -57,6 +62,9 @@ protected:
 	QPushButton*              _apply_btn;
 	QPushButton*              _cancel_btn;
 	QHBoxLayout*              _btn_layout;
+
+private:
+	bool _args_has_changed;
 };
 
 

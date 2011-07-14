@@ -374,6 +374,7 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 				set_dirty();
 				break;
 		case 'a': case 'A': // Select all
+#if 0
 				if (glutGetModifiers() & GLUT_ACTIVE_SHIFT) {
 					picviz_view->floating_selection.select_all();
 				} else {
@@ -381,12 +382,8 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 					//picviz_view->layer_stack_output_layer->selection.A2B_copy(,
 					//                          picviz_view->volatile_selection);
 				}
-				picviz_view->volatile_selection.select_all();
-				picviz_view->floating_selection.select_all();
-				/* We deactivate the square area */
-				state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_OFF);
-				/* We process the view from the selection */
-				picviz_view->process_from_selection();
+#endif
+				picviz_view->select_all_nonzb_lines();
 				/* We refresh the listing */
 				message.function = PVGL_COM_FUNCTION_REFRESH_LISTING;
 				message.pv_view = picviz_view;

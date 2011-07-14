@@ -92,6 +92,8 @@ Picviz::PVView::PVView(PVPlotted_p parent) :
 	for (it = lf.begin(); it != lf.end(); it++) {
 		filters_args[it.key()] = it.value()->get_default_args_for_view(*this);
 	}
+
+	select_all_nonzb_lines();
 }
 
 /******************************************************************************
@@ -760,11 +762,8 @@ void Picviz::PVView::process_eventline()
  *****************************************************************************/
 void Picviz::PVView::process_filter()
 {
-	// FIXME: This is temporary!!!
-	// AG: I suppose that this is where we launch a filter ?
+	// FIXME: This is temporary!!! -> AG: why ?
 	post_filter_layer = pre_filter_layer;
-
-//	pre_filter_layer.A2B_copy(post_filter_layer);
 }
 
 /******************************************************************************
@@ -872,13 +871,12 @@ void Picviz::PVView::process_selection()
 	/* We cut the resulting selection with what is available in the layer_stack */
 	/* We test if we are in ALL edit_mode or SOLO edit_mode */
 	if (state_machine->is_edit_mode_all()) {
+		//PVLOG_INFO("(process_selection) we are in edit mode all. Remove me !\n");
 		/* We are in ALL edit_mode */
 		pre_filter_layer.get_selection() &= layer_stack_output_layer.get_selection();
-//		pre_filter_layer->selection.AB2A_and(layer_stack_output_layer->selection);
 	} else {
 		/* We are in SOLO edit_mode */
 		pre_filter_layer.get_selection() &= layer_stack.get_selected_layer().get_selection();
-//		pre_filter_layer->selection.AB2A_and(layer_stack.get_selected_layer()->selection);
 	}
 
 	/* We simply copy the lines_properties */
@@ -1405,4 +1403,14 @@ void Picviz::PVView::recreate_mapping_plotting()
 	volatile_selection = layer_stack_output_layer.get_selection();
 	state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_OFF);
 	process_from_layer_stack();
+}
+
+void Picviz::PVView::select_all_nonzb_lines()
+{
+	volatile_selection.select_all();
+	floating_selection.select_all();
+	/* We deactivate the square area */
+	state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_OFF);
+	/* We process the view from the selection */
+	process_from_selection();
 }
