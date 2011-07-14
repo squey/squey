@@ -183,6 +183,7 @@ public:
 	int toggle_layer_stack_layer_n_locked_state(int n);
 	int toggle_layer_stack_layer_n_visible_state(int n);
 
+	void select_all_nonzb_lines();
 
 
 /******************************************************************************
