@@ -86,13 +86,13 @@ QVariant PVInspector::PVListingModel::data(const QModelIndex &index, int role) c
 		real_row_index = parent_widget->sortMatchingTable.at(index.row());
 	}
 	if (state_machine->are_listing_none_visible()) {//NU NZ
-		real_row_index = lib_view->get_nznu_real_row_index(index.row());
+		real_row_index = parent_widget->sortMatchingTable_invert.at(lib_view->get_nznu_real_row_index(index.row()));
 	}
 	if (!state_machine->are_listing_unselected_visible()) {//NU
-		real_row_index = lib_view->get_nu_real_row_index(index.row());
+		real_row_index = parent_widget->sortMatchingTable_invert.at(lib_view->get_nu_real_row_index(index.row()));
 	}
 	if (!state_machine->are_listing_zombie_visible()) {//NZ
-		real_row_index = lib_view->get_nz_real_row_index(index.row());
+		real_row_index = parent_widget->sortMatchingTable_invert.at(lib_view->get_nz_real_row_index(index.row()));
 	}
         PVLOG_HEAVYDEBUG("           correspondId %d\n", real_row_index);
         correspondId = matchingTable.at(index.row());
@@ -264,6 +264,24 @@ void PVInspector::PVListingModel::sortByColumn(int idColumn)
                 PVLOG_DEBUG("     can't sort the column %d\n",idColumn);
                 return;
         }
+        
+        
+        
+        if (state_machine->are_listing_all_visible()) {//all
+		PVLOG_DEBUG("PVInspector::PVListingModel::sortByColumn   all");
+	}
+	if (state_machine->are_listing_none_visible()) {//NU NZ
+		PVLOG_DEBUG("PVInspector::PVListingModel::sortByColumn   NU NZ");
+	}
+	if (!state_machine->are_listing_unselected_visible()) {//NU
+		PVLOG_DEBUG("PVInspector::PVListingModel::sortByColumn   NU");
+	}
+	if (!state_machine->are_listing_zombie_visible()) {//NZ
+		PVLOG_DEBUG("PVInspector::PVListingModel::sortByColumn   NZ");
+	}
+        
+      
+        
 
        
         //variables init
@@ -294,7 +312,7 @@ void PVInspector::PVListingModel::sortByColumn(int idColumn)
         //thread sorter start here
         PVLOG_DEBUG("   the sort will start in a thread.\n");
         sortThread->start(QThread::LowPriority);
-        PVLOG_INFO("    waitting : sort processing... \n");
+        PVLOG_DEBUG("    waitting : sort processing... \n");
 
         //management of the progress box closing condition
         if (dialogBox->exec()) {//show dialog and wait for event
