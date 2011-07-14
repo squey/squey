@@ -1,0 +1,70 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE PVParamXml>
+<param>
+ <RegEx selectionRegExp-7="(\d+)" selectionRegExp-8="(\d+)" selectionRegExp-9="(\d+)" name="" selectionRegExp-10="(.*)" selectionRegExp-11="(\S+)" selectionRegExp-12="(\S+)" selectionRegExp-13="(\d+)" selectionRegExp-14="(\S+)" selectionRegExp-15="(.*)" saveValidator="false" expression="(\d+\.\d+\.\d+\.\d+) (.*) \[(\d+\/\w+\/\d+:\d+:\d+:\d+ .*)\] (\S+) (.*) (HTTP\/\d+\.\d+) (\d+) (\d+) (\d+) \&quot;(.*)\&quot; (\S+) (\S+) (\d+) (\S+) (.*)" validator="" selectionRegExp-1="(\d+\.\d+\.\d+\.\d+)" selectionRegExp-2="(.*)" selectionRegExp-3="(\d+\/\w+\/\d+:\d+:\d+:\d+ .*)" selectionRegExp-4="(\S+)" selectionRegExp-5="(.*)" selectionRegExp-6="(HTTP\/\d+\.\d+)">
+  <field>
+   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="ipv4" name="Client IP" plotting="default" color="#ffffff" time-sample=""/>
+  </field>
+  <field>
+   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="integer" name="UID" plotting="minmax" color="#ffffff" time-sample=""/>
+  </field>
+  <field>
+   <axis titlecolor="#ffffff" key="false" mapping="24h" time-format="dd/MMM/yyyy:HH:mm:ss Z" group="none" type="time" name="Date" plotting="default" color="#ffffff" time-sample=""/>
+  </field>
+  <field>
+   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="enum" name="Method" plotting="default" color="#ffffff" time-sample=""/>
+  </field>
+  <field>
+   <url>
+    <field>
+     <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" type="enum" name="Protocol" plotting="default" color="#ffffff"/>
+    </field>
+    <field>
+     <axis titlecolor="#ffffff" key="true" mapping="default" time-format="" type="enum" name="Domain" plotting="default" color="#ffffff"/>
+    </field>
+    <field>
+     <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" type="enum" name="TLD" plotting="default" color="#ffffff"/>
+    </field>
+    <field>
+     <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" type="integer" name="Port" plotting="default" color="#ffffff"/>
+    </field>
+    <field>
+     <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" type="string" name="URL" plotting="default" color="#ffffff"/>
+    </field>
+    <field>
+     <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" type="string" name="Variable" plotting="default" color="#ffffff"/>
+    </field>
+   </url>
+  </field>
+  <field>
+   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="enum" name="Protocol" plotting="default" color="#ffffff" time-sample=""/>
+  </field>
+  <field>
+   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="integer" name="Return code" plotting="minmax" color="#ffffff" time-sample=""/>
+  </field>
+  <field>
+   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="integer" name="Req. Size" plotting="minmax" color="#ffffff" time-sample=""/>
+  </field>
+  <field>
+   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="integer" name="Resp. Size" plotting="minmax" color="#ffffff" time-sample=""/>
+  </field>
+  <field>
+   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="enum" name="Category" plotting="default" color="#ffffff" time-sample=""/>
+  </field>
+  <field>
+   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="enum" name="Decision" plotting="default" color="#ffffff" time-sample=""/>
+  </field>
+  <field>
+   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="enum" name="Action" plotting="default" color="#ffffff" time-sample=""/>
+  </field>
+  <field>
+   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="integer" name="Time taken" plotting="minmax" color="#ffffff" time-sample=""/>
+  </field>
+  <field>
+   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="enum" name="Location" plotting="default" color="#ffffff" time-sample=""/>
+  </field>
+  <field>
+   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="ipv4" name="Parent Jump" plotting="default" color="#ffffff" time-sample=""/>
+  </field>
+ </RegEx>
+</param>
