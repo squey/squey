@@ -48,6 +48,7 @@ include/PVDualSlider.h
 include/PVExportSelectionDialog.h
 include/PVFilterWidget.h
 include/PVFilterSearchWidget.h
+include/PVLayerFilterProcessWidget.h
 include/PVImportFileDialog.h
 include/PVInvestigationWizard.h
 include/PVLayerStackDelegate.h
@@ -117,6 +118,7 @@ PVFilterWidget.cpp
 PVFilterSearchWidget.cpp
 PVImportFileDialog.cpp
 PVInvestigationWizard.cpp
+PVLayerFilterProcessWidget.cpp
 PVLayerStackDelegate.cpp
 PVLayerStackEventFilter.cpp
 PVLayerStackModel.cpp

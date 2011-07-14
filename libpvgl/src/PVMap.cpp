@@ -437,7 +437,7 @@ void PVGL::PVMap::draw()
 
 		// Draw the zombie/non-zombie lines into their own FBO
 		if (!state_machine->is_grabbed() && !is_panning()) {
-			if (zombie_fbo_dirty && (state_machine->are_zombie_visible() || state_machine->are_unselected_visible())) {
+			if (zombie_fbo_dirty && (state_machine->are_gl_zombie_visible() || state_machine->are_gl_unselected_visible())) {
 				draw_zombie_lines(modelview_map);
 			}
 			// Draw the selected lines into their own FBO
@@ -460,8 +460,8 @@ void PVGL::PVMap::draw()
 				glUniform2f(get_uni_loc(lines->zombie_fbo_program, "zoom"), 1, 1);
 				glUniform2f(get_uni_loc(lines->zombie_fbo_program, "offset"), 0, 0); PRINT_OPENGL_ERROR();
 				glUniform2f(get_uni_loc(lines->zombie_fbo_program, "size"), allocation.width, allocation.height); PRINT_OPENGL_ERROR();
-				glUniform1i(get_uni_loc(lines->zombie_fbo_program, "draw_zombie"), state_machine->are_zombie_visible()); PRINT_OPENGL_ERROR();
-				glUniform1i(get_uni_loc(lines->zombie_fbo_program, "draw_unselected"), state_machine->are_unselected_visible()); PRINT_OPENGL_ERROR();
+				glUniform1i(get_uni_loc(lines->zombie_fbo_program, "draw_zombie"), state_machine->are_gl_zombie_visible()); PRINT_OPENGL_ERROR();
+				glUniform1i(get_uni_loc(lines->zombie_fbo_program, "draw_unselected"), state_machine->are_gl_unselected_visible()); PRINT_OPENGL_ERROR();
 				glBindVertexArray(lines->fbo_vao); PRINT_OPENGL_ERROR();
 				glDrawArrays(GL_QUADS, 0, 4); PRINT_OPENGL_ERROR();
 			}

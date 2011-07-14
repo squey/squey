@@ -48,8 +48,10 @@ void Picviz::PVLayerFilterSearch::operator()(PVLayer& /*in*/, PVLayer &out)
 	PVRush::PVNraw::nraw_table const& nraw = _view->get_qtnraw_parent();
 	
 	for (PVRow r = 0; r < nb_lines; r++) {
-		PVRush::PVNraw::nraw_table_line const& nraw_r = nraw.at(r);
-		out.get_selection().set_line(r, re.indexIn(nraw_r[axis_id]) != -1);
+		if (_view->get_line_state_in_pre_filter_layer(r)) {
+			PVRush::PVNraw::nraw_table_line const& nraw_r = nraw.at(r);
+			out.get_selection().set_line(r, re.indexIn(nraw_r[axis_id]) != -1);
+		}
 	}
 }
 

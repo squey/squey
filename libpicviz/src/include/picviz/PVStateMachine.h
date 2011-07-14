@@ -1,5 +1,5 @@
-//! \file state-machine.h
-//! $Id: state-machine.h 3251 2011-07-06 11:51:57Z rpernaudat $
+//! \file PVStateMachine.h
+//! $Id$
 //! Copyright (C) Sébastien Tricaud 2009-2011
 //! Copyright (C) Philippe Saadé 2009-2011
 //! Copyright (C) Picviz Labs 2011
@@ -10,51 +10,44 @@
 #include <picviz/general.h>
 #include <picviz/square-area.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-
 namespace Picviz {
 
-        typedef enum {
-            LISTING_ALL,
-            LISTING_NO_UNSEL,
-            LISTING_NO_ZOMBIES,
-            LISTING_NO_UNSEL_NO_ZOMBIES,
-            LISTING_BAD_LISTING_MODE
-        } PVStateMachineListingMode_t;
-
         class LibExport PVStateMachine {
-            bool antialiased; // FIXME remove me!
+            bool antialiased; // FIXME remove me! [STR: Why?]
             bool axes_mode;
             bool sync_all_views;
             bool grabbed;
-            //bool listing_unselected_visible; // FIXME: we should have one per view!
-            //bool listing_zombie_visible; // FIXME: we should have one per view!
-            bool unselected_visible;
-            bool zombie_visible;
             bool edit_mode_all;
-            PVStateMachineListingMode_t listing_mode;
+
+	    /* lines states: this must *NOT* be handled by an enumeration
+	     * as it will limits the different possibilities (enum max elements) 
+	     * we have with lines in the future and makes more complex the way 
+	     * we know about the given state we are.
+	     */
+            bool listing_unselected_visible;
+            bool listing_zombie_visible;
+            bool gl_unselected_visible;
+            bool gl_zombie_visible;
         public:
 
+	    /** Square Area Modes
+	     * helps to identify the selection mode
+	     * that is done with the square area
+	     */
             enum SquareAreaModes {
-                AREA_MODE_OFF,
+                AREA_MODE_OFF,	                /**< No selection area */
                 AREA_MODE_SET_WITH_VOLATILE,
                 AREA_MODE_ADD_VOLATILE,
                 AREA_MODE_SUBSTRACT_VOLATILE,
                 AREA_MODE_INTERSECT_VOLATILE
             };
 
-
         private:
             SquareAreaModes square_area_mode;
             picviz_square_area_t *square_area;
 
-
         public:
             PVStateMachine();
-            ~PVStateMachine();
 
             bool is_antialiased()const {
                 return antialiased;
@@ -72,26 +65,38 @@ namespace Picviz {
                 return grabbed;
             }
 
-            bool are_listing_unselected_visible();
+            bool are_listing_all_visible()const {
+		    return listing_unselected_visible && listing_zombie_visible;
+	    }
 
-            bool are_listing_zombie_visible();
+            bool are_listing_none_visible()const {
+		    return !(listing_unselected_visible || listing_zombie_visible);
+	    }
 
-            PVStateMachineListingMode_t are_listing_mode()const {
-                return listing_mode;
+            bool are_listing_unselected_visible()const {
+                return listing_unselected_visible;
             }
 
-            bool are_unselected_visible()const {
-                return unselected_visible;
+            bool are_listing_zombie_visible()const {
+                return listing_zombie_visible;
             }
 
-            bool are_zombie_visible()const {
-                return zombie_visible;
+            bool are_gl_all_visible()const {
+		    return gl_unselected_visible && gl_zombie_visible;
+	    }
+
+            bool are_gl_none_visible()const {
+		    return !(gl_unselected_visible || gl_zombie_visible);
+	    }
+
+            bool are_gl_unselected_visible()const {
+                return gl_unselected_visible;
+            }
+
+            bool are_gl_zombie_visible()const {
+                return gl_zombie_visible;
             }
             
-            PVStateMachineListingMode_t getListingMode(){
-                return listing_mode;
-            }
-
             bool is_edit_mode_all()const {
                 return edit_mode_all;
             }
@@ -120,20 +125,20 @@ namespace Picviz {
                 grabbed = state;
             }
 
-            void set_listing_unselected_visibility(bool state);
-
-            void set_listing_zombie_visibility(bool state);
-
-            void set_listing_mode(PVStateMachineListingMode_t state) {
-                listing_mode = state;
+            void set_listing_unselected_visible(bool visible) {
+		    listing_unselected_visible = visible;
             }
 
-            void set_unselected_visibility(bool state) {
-                unselected_visible = state;
+            void set_listing_zombie_visible(bool visible) {
+		    listing_zombie_visible = visible;
             }
 
-            void set_zombie_visibility(bool state) {
-                zombie_visible = state;
+            void set_gl_unselected_visible(bool visible) {
+		    gl_unselected_visible = visible;
+            }
+
+            void set_gl_zombie_visible(bool visible) {
+		    gl_zombie_visible = visible;
             }
 
             void set_edit_mode_all(bool state) {
@@ -160,16 +165,20 @@ namespace Picviz {
                 grabbed = !grabbed;
             }
 
-            void toggle_listing_unselected_visibility();
-
-            void toggle_listing_zombie_visibility();
-
-            void toggle_unselected_visibility() {
-                unselected_visible = !unselected_visible;
+            void toggle_listing_unselected_visibility() {
+                listing_unselected_visible = !listing_unselected_visible;
             }
 
-            void toggle_zombie_visibility() {
-                zombie_visible = !zombie_visible;
+            void toggle_listing_zombie_visibility() {
+                listing_zombie_visible = !listing_zombie_visible;
+            }
+
+            void toggle_gl_unselected_visibility() {
+                gl_unselected_visible = !gl_unselected_visible;
+            }
+
+            void toggle_gl_zombie_visibility() {
+                gl_zombie_visible = !gl_zombie_visible;
             }
 
             void toggle_edit_mode() {
@@ -180,9 +189,5 @@ namespace Picviz {
         };
 
 }
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* PICVIZ_PVSTATEMACHINE_H */

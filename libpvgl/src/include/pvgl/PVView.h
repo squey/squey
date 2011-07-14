@@ -141,7 +141,7 @@ public:
 	void update_axes();
 
 	/**
-	 *
+	 * Update lines that are selected
 	 */
 	void update_lines() { lines.update_arrays_selection(); update_line_dirty = false; }
 

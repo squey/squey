@@ -7,6 +7,7 @@
 #include <PVMainWindow.h>
 #include <PVArgumentListWidget.h>
 #include <PVXmlEditorWidget.h>
+#include "PVLayerFilterProcessWidget.h"
 
 /******************************************************************************
  *
@@ -206,7 +207,7 @@ void PVInspector::PVMainWindow::lines_display_unselected_GLview_Slot()
 		return;
 	}
 
-	state_machine->toggle_unselected_visibility();
+	state_machine->toggle_gl_unselected_visibility();
 	/* We refresh the view */
 	current_lib_view->process_visibility();
 	update_pvglview(current_lib_view, PVGL_COM_REFRESH_SELECTION);
@@ -234,9 +235,10 @@ void PVInspector::PVMainWindow::lines_display_zombies_Slot()
 	current_lib_view = current_tab->get_lib_view();
 	state_machine = current_lib_view->state_machine;
 
-	state_machine->toggle_zombie_visibility();
+	state_machine->toggle_listing_zombie_visibility();
+	state_machine->toggle_gl_zombie_visibility();
 	/* We set the listing to be the same */
-	state_machine->set_listing_zombie_visibility(state_machine->are_zombie_visible());
+	// state_machine->set_listing_zombie_visibility(state_machine->are_zombie_visible());
 	/* We refresh the view */
 	current_lib_view->process_visibility();
 	update_pvglview(current_lib_view, PVGL_COM_REFRESH_SELECTION);
@@ -294,7 +296,7 @@ void PVInspector::PVMainWindow::lines_display_zombies_GLview_Slot()
 	current_lib_view = current_tab->get_lib_view();
 	state_machine = current_lib_view->state_machine;
 
-	state_machine->toggle_zombie_visibility();
+	state_machine->toggle_gl_zombie_visibility();
 	/* We refresh the view */
 	current_lib_view->process_visibility();
 	update_pvglview(current_lib_view, PVGL_COM_REFRESH_SELECTION);
@@ -377,11 +379,16 @@ void PVInspector::PVMainWindow::filter_Slot(void)
 		Picviz::PVLayerFilter::p_type filter_org = LIB_FILTER(Picviz::PVLayerFilter)::get().get_filter_by_name(filter_name);
 		//cpy filter
 		Picviz::PVLayerFilter::p_type fclone = filter_org->clone<Picviz::PVLayerFilter>();
-		PVFilter::PVArgumentList args = lib_view->filters_args[filter_name];
+		PVFilter::PVArgumentList &args = lib_view->filters_args[filter_name];
+		PVLayerFilterProcessWidget* filter_widget = new PVLayerFilterProcessWidget(current_tab, args, fclone);
+		filter_widget->init();
+		filter_widget->show();
+
+#if 0
 		if (args.size() > 0) {
 			//view the widget to param filter
 
-			PVArgumentListWidget* arg_widget = new PVArgumentListWidget(*lib_view, args, fclone->detailed_description(), this);
+			PVArgumentListWidget* arg_widget = new PVArgumentListWidget(*lib_view, args, this);
 			if (!arg_widget->exec())
 				return;
 			lib_view->filters_args[filter_name] = args;
@@ -390,7 +397,6 @@ void PVInspector::PVMainWindow::filter_Slot(void)
 		}
 
 		// Then...
-		// Testing this to make the filter apply only on current selection
 
 		lib_view->process_selection();
 
@@ -425,6 +431,7 @@ void PVInspector::PVMainWindow::filter_Slot(void)
 		/* THEN we can emit the signal */
 		// commit_selection_in_current_layer(current_tab->get_lib_view());
 		emit filter_applied_Signal();
+#endif
 	}
 }
 
@@ -573,10 +580,14 @@ void PVInspector::PVMainWindow::selection_all_Slot()
 
 	if (current_tab && current_tab->get_lib_view()) {
 // picviz_selection_A2A_inverse(current_tab->get_lib_view()->volatile_selection);
-		current_tab->get_lib_view()->volatile_selection.select_all();
-		current_tab->get_lib_view()->process_from_selection();
-		current_tab->get_lib_view()->process_from_eventline();
-		update_pvglview(current_tab->get_lib_view(), PVGL_COM_REFRESH_SELECTION);
+		//current_tab->get_lib_view()->volatile_selection.select_all();
+		Picviz::PVView_p view = current_tab->get_lib_view();
+		view->floating_selection.select_all();
+		view->volatile_selection.select_all();
+		view->state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_OFF);
+		view->process_from_selection();
+		view->process_from_eventline();
+		update_pvglview(view, PVGL_COM_REFRESH_SELECTION);
 	}
 }
 

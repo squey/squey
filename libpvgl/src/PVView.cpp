@@ -377,10 +377,12 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 				if (glutGetModifiers() & GLUT_ACTIVE_SHIFT) {
 					picviz_view->floating_selection.select_all();
 				} else {
-					picviz_view->volatile_selection = picviz_view->layer_stack_output_layer.get_selection();
+					//picviz_view->volatile_selection = picviz_view->layer_stack_output_layer.get_selection();
 					//picviz_view->layer_stack_output_layer->selection.A2B_copy(,
 					//                          picviz_view->volatile_selection);
 				}
+				picviz_view->volatile_selection.select_all();
+				picviz_view->floating_selection.select_all();
 				/* We deactivate the square area */
 				state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_OFF);
 				/* We process the view from the selection */
@@ -437,8 +439,8 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 				break;
 		case 'u': case 'U':
 				if (glutGetModifiers() & GLUT_ACTIVE_SHIFT) {
-					/* We toggle*/
-					state_machine->toggle_unselected_visibility();
+					/* We toggle */
+					state_machine->toggle_gl_unselected_visibility();
 					/* We refresh the view */
 					//picviz_view_process_visibility(pv_view);
 					get_lines().set_main_fbo_dirty();
@@ -451,10 +453,10 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 					message.pv_view = picviz_view;
 					pv_com->post_message_to_qt(message);
 				} else	{
-					/* We toggle the view first */
-					state_machine->toggle_unselected_visibility();
-					/* We set the listing to be the same */
-					state_machine->set_listing_unselected_visibility(state_machine->are_unselected_visible());
+					/* We toggle the unselected listing visibility first */
+					state_machine->toggle_gl_unselected_visibility();
+					// We make sure the gl is the same
+					state_machine->set_listing_unselected_visible(state_machine->are_gl_unselected_visible());
 					/* We refresh the view */
 					//picviz_view_process_visibility(pv_view);
 					get_lines().set_main_fbo_dirty();
@@ -481,7 +483,7 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 		case 'z': case 'Z':
 				if (glutGetModifiers() & GLUT_ACTIVE_SHIFT) {
 					/* We toggle*/
-					state_machine->toggle_zombie_visibility();
+					state_machine->toggle_gl_zombie_visibility();
 					/* We refresh the view */
 					get_lines().set_main_fbo_dirty();
 					map.set_main_fbo_dirty();
@@ -493,10 +495,10 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 					message.pv_view = picviz_view;
 					pv_com->post_message_to_qt(message);
 				} else {
-					/* We toggle the view first */
-					state_machine->toggle_zombie_visibility();
-					/* We set the listing to be the same */
-					state_machine->set_listing_zombie_visibility(state_machine->are_zombie_visible());
+					/* We toggle the zombie listing visilibity first */
+					state_machine->toggle_gl_zombie_visibility();
+					// We make sure the gl is the same
+					state_machine->set_listing_zombie_visible(state_machine->are_gl_zombie_visible());
 					/* We refresh the view */
 					get_lines().set_main_fbo_dirty();
 					map.set_main_fbo_dirty();
@@ -965,6 +967,12 @@ bool PVGL::PVView::mouse_up(int button, int x, int y, int modifiers)
 	}
 	/* We test if we are NOT in GRAB mode */
 	if (!state_machine->is_grabbed()) { // We are in SELECTION mode.
+		/* AG: if the square area is empty (that is the user has just click and release the mouse
+		 * with no mouvements), we need to restore the previous selection. */
+		if (picviz_view->square_area.is_empty()) {
+			/* Get the selection back from real_output_selection from the picviz view */
+			picviz_view->volatile_selection = picviz_view->get_real_output_selection();
+		}
 		/* We update the view */
 		glutPostRedisplay ();
 		/* We update the listing */

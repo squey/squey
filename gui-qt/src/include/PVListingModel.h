@@ -12,14 +12,13 @@ typedef std::vector<int> MatchingTable_t;
 #include <QtGui>
 #include <QtCore>
 
-//#include <PVListingModelBase.h>
-#include <picviz/PVStateMachine.h>
-#include <PVProgressBox.h>
-#include <QAbstractTableModel>
-
 #include <pvcore/general.h>
 #include <picviz/PVSortQVectorQStringListThread.h>
+#include <picviz/PVStateMachine.h>
+#include <picviz/PVView.h>
 
+#include <PVProgressBox.h>
+#include <QAbstractTableModel>
 
 
 namespace PVInspector {
@@ -31,18 +30,28 @@ class PVTabSplitter;
 /**
  * \class PVListingModel
  */
-class LibExport PVListingModel : public QAbstractTableModel {
-    Q_OBJECT
 
-    QBrush not_zombie_font_brush; //!<
-    QBrush zombie_font_brush; //!<
-    //QVector<QStringList> widgetCpyOfData;
-    //corresponding table between widgetCpyOfData and nrow
+class PVListingModel : public QAbstractTableModel {
+Q_OBJECT
+
+
 public:
-
     enum TypeOfSort {
         NoOrder, AscendingOrder, DescendingOrder
     };
+
+private:
+	//sorting data
+	QVector<int> matchingTable; //!<the table sort, modify this array to order the values
+	TypeOfSort sortOrder; //!<save the current sorting state (NoOrder, AscendingOrder, DescendingOrder)
+	int colSorted; //!<save the last column whiche was used to sort
+	
+	QBrush not_zombie_font_brush; //!<
+	QBrush zombie_font_brush; //!<
+
+	Picviz::PVStateMachine *state_machine;
+	Picviz::PVView_p lib_view;
+
 protected:
 	PVMainWindow  *main_window;     //!<
 	PVTabSplitter *parent_widget;   //!<
@@ -52,23 +61,15 @@ protected:
 	QFont  select_font;             //!<
 	QBrush unselect_brush;          //!<
 	QFont  unselect_font;           //!<
-private:
-    //sorting data
-    TypeOfSort sortOrder; //!<save the current sorting state (NoOrder, AscendingOrder, DescendingOrder)
-    int colSorted; //!<save the last column whiche was used to sort
-    Picviz::PVStateMachineListingMode_t state_listing; //!<this state indicate the mode of listing
-
 
 public:
-    
-
     /**
      * Constructor.
      *
      * @param mw
      * @param parent
      */
-    PVListingModel(PVMainWindow *mw, PVTabSplitter *parent, Picviz::PVStateMachineListingMode_t state = Picviz::LISTING_BAD_LISTING_MODE);
+    PVListingModel(PVMainWindow *mw, PVTabSplitter *parent);
 
     /**
      * return data requested by the View
@@ -119,40 +120,27 @@ public:
     virtual void reset_model(bool initMatchTable = true);
 
     /**
-     * @brief set listing mode
-     * @param mode
+     *
+     * @param index
+     *
+     * @return
      */
-    void setState(Picviz::PVStateMachineListingMode_t mode);
+    int columnCount(const QModelIndex &index) const;
 
-
-    
-    
     /**
-	*
-	* @param index
-	*
-	* @return
-	*/
-	int columnCount(const QModelIndex &index) const;
+     *
+     * @param index
+     *
+     * @return
+     */
+    Qt::ItemFlags flags(const QModelIndex &index) const;
+	
 
-	/**
-	*
-	* @param index
-	*
-	* @return
-	*/
-	Qt::ItemFlags flags(const QModelIndex &index) const;
-
-
-	/**
-	* call update for data
-	*/
-	void emitLayoutChanged(); 
-    
     /**
-    * @brief return the matching table 
-    */
-    MatchingTable_t* getMatchingTable(){return sortMatchingTable;} 
+     * call update for data
+     */
+    void emitLayoutChanged(); 
+
 };
 //MatchingTable_t PVInspector::PVListingModel::sortMatchingTable; //!<the table sort, modify this array to order the values
     

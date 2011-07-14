@@ -92,10 +92,10 @@ void Picviz::PVLayerFilterHeatlineBase::operator()(PVLayer& in, PVLayer &out)
 	PVRush::PVNraw::nraw_table const& nraw = _view->get_qtnraw_parent();
 	nb_lines = nraw.size();
 	
-	PVCore::PVAxesIndexType axes = _args["Axes"].value<PVCore::PVAxesIndexType>();
+	PVCore::PVAxesIndexType axes = _args.value("Axes").value<PVCore::PVAxesIndexType>();
 	if (axes.size() == 0) {
 		_args = get_default_args_for_view(*_view);
-		axes = _args["Axes"].value<PVCore::PVAxesIndexType>();
+		axes = _args.value("Axes").value<PVCore::PVAxesIndexType>();
 		if (axes.size() == 0) {
 			PVLOG_ERROR("(PVLayerFilterHeatlineBase) no key axes defined in the format and no axes selected !\n");
 			if (&in != &out) {
@@ -105,13 +105,13 @@ void Picviz::PVLayerFilterHeatlineBase::operator()(PVLayer& in, PVLayer &out)
 		}
 	}
 
-	bool bLog = _args["Scale"].value<PVCore::PVEnumType>().get_sel().compare("Log") == 0;
+	bool bLog = _args.value("Scale").value<PVCore::PVEnumType>().get_sel().compare("Log") == 0;
 
 	highest_frequency = 1;
 
 	QHash<QString,PVRow> lines_hash;
 
-	out.get_selection().select_all();
+	out.get_selection() = in.get_selection();
 
 	/* 1st round: we calculate all the frequencies */
 	for (counter = 0; counter < nb_lines; counter++) {
@@ -127,22 +127,23 @@ void Picviz::PVLayerFilterHeatlineBase::operator()(PVLayer& in, PVLayer &out)
 
 	/* 2nd round: we get the color from the ratio compared with the key and the frequency */
 	for (counter = 0; counter < nb_lines; counter++) {
-		PVRush::PVNraw::nraw_table_line const& nrawvalues = nraw.at(counter);
-		key = generate_row_key_from_values(axes, nrawvalues);
+		if (_view->get_line_state_in_pre_filter_layer(counter)) {
+			PVRush::PVNraw::nraw_table_line const& nrawvalues = nraw.at(counter);
+			key = generate_row_key_from_values(axes, nrawvalues);
 
-		PVRow count_frequency = lines_hash[key];
+			PVRow count_frequency = lines_hash[key];
 
-		// TOFIX: this can be optimized !
-		if (bLog) {
-			ratio = logf(count_frequency) / logf(highest_frequency);
+			// TOFIX: this can be optimized !
+			if (bLog) {
+				ratio = logf(count_frequency) / logf(highest_frequency);
+			}
+			else {
+				ratio = (float)count_frequency / (float)highest_frequency;
+			}
+
+			this->post(in, out, ratio, counter);
 		}
-		else {
-			ratio = (float)count_frequency / (float)highest_frequency;
-		}
-
-		this->post(in, out, ratio, counter);
 	}
-
 }
 
 void Picviz::PVLayerFilterHeatlineBase::post(PVLayer& /*in*/, PVLayer& /*out*/, float /*ratio*/, PVRow /*line_id*/)
@@ -237,7 +238,7 @@ void Picviz::PVLayerFilterHeatlineSelAndCol::post(PVLayer& /*in*/, PVLayer& out,
 	out.get_lines_properties().line_set_rgb_from_color(line_id, color);
 
 	// Select
-	PVCore::PVColorGradientDualSliderType ratios = _args["Colors"].value<PVCore::PVColorGradientDualSliderType>();
+	PVCore::PVColorGradientDualSliderType ratios = _args.value("Colors").value<PVCore::PVColorGradientDualSliderType>();
 
 	const float *v = ratios.get_positions();
 

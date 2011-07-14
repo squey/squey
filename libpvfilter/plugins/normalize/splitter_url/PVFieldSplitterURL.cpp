@@ -89,6 +89,8 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterURL::one_to_many(PVCore:
 {
 	field.init_qstr();
 
+	QString none;		// usefull variable to put an empty string in fields
+
 	// URL decoder buffer
 	url_decode_buf buf;
 	buf.l = &l;
@@ -105,7 +107,6 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterURL::one_to_many(PVCore:
 		QString ip;
 		uint16_t port = 0;
 		if (split_ip_port(field.qstr(), ip, port)) {
-			QString none;
 			url_decode_add_field(&buf, none); // Protocol
 			url_decode_add_field(&buf, ip); // Domain
 			url_decode_add_field(&buf, none); // TLD
@@ -125,7 +126,20 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterURL::one_to_many(PVCore:
 	QString url_path(url.path());
 	QString qitems;
 
-	url_decode_add_field(&buf, url.scheme());
+	int prepend_protocol = 0;
+
+	// We test if we have :// in the begining of the url so we can add
+	// the protocol properly instead of having bugs such as a procol named "foo.bar.com"
+	// because the given url was "foo.bar.com:google.com/"
+	int ret = field.qstr().indexOf(QString("://"));
+	if ((ret > 1) && (ret < 15)) {
+		url_decode_add_field(&buf, url.scheme());
+	} else {
+		// We set prepend protocol to 1 since it is actually a host
+		prepend_protocol = 1;
+		url_decode_add_field(&buf, none);
+	}
+
 	if (host.isEmpty()) {
 		// We cannot decode the host because we have a url like:
 		// foobar.com/index.html
@@ -134,6 +148,13 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterURL::one_to_many(PVCore:
 
 		host = slashhost[0];
 		url_path.remove(0, host.size());
+	}
+	if ((prepend_protocol) && (!url.scheme().isEmpty())) {
+		// Why we prepend ':' here? because it was what we saw when we
+		// had the bug putting a host in the protocol part, as it was splitted
+		// with ':'
+		host.prepend(QString(":"));
+		host.prepend(url.scheme());
 	}
 	url_decode_add_field(&buf, host);
 

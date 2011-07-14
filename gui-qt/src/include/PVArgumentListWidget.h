@@ -15,6 +15,7 @@
 #include <QTableView>
 #include <QListWidget>
 #include <QVariant>
+#include <QHBoxLayout>
 
 #include <pvfilter/PVArgument.h>
 #include <picviz/general.h>
@@ -26,24 +27,36 @@
 namespace PVInspector {
 class PVMainWindow;
 
-class LibExport PVArgumentListWidget: public QDialog
+class PVArgumentListWidget: public QDialog
 {
 	Q_OBJECT
 
 public:
-	PVArgumentListWidget(Picviz::PVView& view, PVFilter::PVArgumentList &args, QString const& filter_desc, QWidget* parent);
+	PVArgumentListWidget(Picviz::PVView& view, PVFilter::PVArgumentList &args, QWidget* parent);
 	virtual ~PVArgumentListWidget();
 	bool eventFilter(QObject *obj, QEvent *event);
+	void init();
+
+protected:
+	virtual void create_btns();
+	virtual void set_btns_layout();
+	virtual void connect_btns();
+
 
 /* public slots: */
 /* 	void widget_clicked_Slot(); */
 
-private:
+protected:
 	QTableView*               _args_view;
 	PVArgumentListModel*      _args_model;
 	PVArgumentListDelegate*   _args_del;
 	PVFilter::PVArgumentList& _args;
 	Picviz::PVView&           _view;
+
+	// Standard buttons
+	QPushButton*              _apply_btn;
+	QPushButton*              _cancel_btn;
+	QHBoxLayout*              _btn_layout;
 };
 
 

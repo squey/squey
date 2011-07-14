@@ -101,8 +101,6 @@ public:
 	void set_color(Picviz::PVView_p view);
 	PVGL::PVCom* get_pvcom();
 	
-	static void process_layer_filter(Picviz::PVLayerFilter* filter, Picviz::PVLayer* layer);
-
 public slots:
 	void about_Slot();
 	void axes_editor_Slot();
