@@ -39,6 +39,7 @@ bool is_archive(QString const& path)
 
 	a = archive_read_new();
 	archive_read_support_format_all(a);
+	archive_read_support_format_empty(a);
 	archive_read_support_compression_all(a);
 	ret = archive_read_open_file(a, filename, 1000) == ARCHIVE_OK;
 	if (!ret) {
@@ -83,6 +84,7 @@ bool extract_archive(QString const& path, QString const& dir_dest, QStringList &
 
 	a = archive_read_new();
 	archive_read_support_format_all(a);
+	archive_read_support_format_empty(a);
 	archive_read_support_compression_all(a);
 	ext = archive_write_disk_new();
 	archive_write_disk_set_options(ext, flags);
@@ -102,7 +104,7 @@ bool extract_archive(QString const& path, QString const& dir_dest, QStringList &
 		}
 		QString qentry(archive_entry_pathname(entry));
 		qentry = qentry.trimmed();
-		if (qentry.startsWith(QChar('/'))) {
+		if (qentry.startsWith(QChar('/')) || qentry.startsWith(QChar('\\'))) {
 			qentry = qentry.mid(1,-1);
 		}
 		path_extract = qdir_dest.cleanPath(qdir_dest.absoluteFilePath(qentry));
@@ -136,7 +138,6 @@ bool extract_archive(QString const& path, QString const& dir_dest, QStringList &
 	}
 	archive_read_finish(a);
 	archive_write_finish(ext);
-
 	
 	return true;
 
