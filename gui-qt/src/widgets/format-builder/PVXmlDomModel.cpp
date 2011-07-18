@@ -668,8 +668,8 @@ void PVInspector::PVXmlDomModel::addUrlIn(const QModelIndex &index){
 	protocol.setAttribute("color", "#ffffff");
 	protocol.setAttribute("titlecolor", "#ffffff");
 	domain.setAttribute("name", "Domain");
-	domain.setAttribute("type", "enum");
-	domain.setAttribute("mapping", "host");
+	domain.setAttribute("type", "host");
+	domain.setAttribute("mapping", "default");
 	domain.setAttribute("plotting", "default");
 	domain.setAttribute("time-format", "");
 	domain.setAttribute("key", "true");
