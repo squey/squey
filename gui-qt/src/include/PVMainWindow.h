@@ -98,6 +98,7 @@ public:
 	/* QGridLayout *filter_widgets_layout; */
 	void commit_selection_in_current_layer(Picviz::PVView_p view);
 	void commit_selection_to_new_layer(Picviz::PVView_p view);
+	void refresh_view(Picviz::PVView_p view);
 	void set_color(Picviz::PVView_p view);
 	PVGL::PVCom* get_pvcom();
 	

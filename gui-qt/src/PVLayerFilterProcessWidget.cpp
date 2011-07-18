@@ -77,6 +77,9 @@ void PVInspector::PVLayerFilterProcessWidget::save_Slot()
 	_tab->get_main_window()->update_pvglview(_view, PVGL_COM_REFRESH_SELECTION|PVGL_COM_REFRESH_COLOR);
 	_tab->refresh_listing_Slot();
 
+	// FIXME: I think this refreshes the listing too. We shall remove the refresh listing slot then
+	_tab->get_main_window()->refresh_view(_view);
+
 	accept();
 }
 
