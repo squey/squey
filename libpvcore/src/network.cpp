@@ -5,17 +5,17 @@
  * 
  */
 
-#include <QString>
-
 #include <pvcore/network.h>
+
+#include <QString>
 
 bool PVCore::Network::ipv4_aton(QString const& ip, uint32_t& ip_n)
 {
-	struct in_addr addr;
-	if (inet_aton(ip.toLatin1().constData(), &addr) == 0) {
+	struct addr addr;
+	if (addr_aton(ip.toLatin1().constData(), &addr) == -1) {
 		return false;
 	}
-	ip_n = addr.s_addr;
+	ip_n = addr.addr_ip;
 	return true;
 }
 

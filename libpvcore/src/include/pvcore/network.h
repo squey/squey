@@ -10,15 +10,8 @@
 
 #include <QString>
 
-#include <dnet.h>
-
 #include <pvcore/general.h>
-
-#ifdef WIN32
-#include <Winsock2.h>
-#else
-#include <arpa/inet.h>
-#endif
+#include <dnet.h>
 
 namespace PVCore {
 	struct LibExport Network {

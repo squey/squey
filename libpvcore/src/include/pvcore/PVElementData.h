@@ -10,7 +10,7 @@
 namespace PVCore {
 
 // AG: no need to "LibExport" this
-class PVElementData: QSharedData
+class PVElementData: public QSharedData
 {
 public:
 	bool _valid;
