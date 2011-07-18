@@ -130,21 +130,21 @@ void PVCore::PVDateTimeParser::TimeFormat::create_parsers(QString const& time_fo
 	UnicodeString pattern = icuFromQStringAlias(time_format);
 
 	for (int il = 0; il < nlocales; il++) {
-		const Locale *cur_loc = &list_locales[il];
+		const Locale &cur_loc = list_locales[il];
 		UErrorCode err = U_ZERO_ERROR;
 #ifdef WIN32
 		// MSVC seems not to be able to take the good constructor for SimpleDateFormat...
-		SimpleDateFormat obj(pattern, Locale::createFromName(cur_loc->getName()), err);
-		SimpleDateFormat *psdf = _alloc_df.construct(obj);
+		SimpleDateFormat *psdf = _alloc_df.malloc();
+		new (psdf) SimpleDateFormat(pattern, Locale::createFromName(cur_loc.getName()), err);
 #else
-		SimpleDateFormat *psdf = _alloc_df.construct(pattern, Locale::createFromName(cur_loc->getName()), err);
+		SimpleDateFormat *psdf = _alloc_df.construct(pattern, Locale::createFromName(cur_loc.getName()), err);
 #endif
 		SimpleDateFormat_p sdf(psdf, boost::bind(&TimeFormat::destroy_sdf, this, _1));
 		if (U_SUCCESS(err)) {
 			parsers.push_back(sdf);
 		}
 		else {
-			PVLOG_WARN("Unable to create parser for locale %s.\n", cur_loc->getName());
+			PVLOG_WARN("Unable to create parser for locale %s.\n", cur_loc.getName());
 		}
 	}
 }
