@@ -28,7 +28,7 @@ DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterWebmailFinder)
 {
 	PVFilter::PVArgumentList args;
 	// args["Regular expression"] = QRegExp("(.*)");
-	args["URL Axis"].setValue(PVCore::PVAxisIndexType(0));
+	args["Domain Axis"].setValue(PVCore::PVAxisIndexType(0));
 	return args;
 }
 
@@ -46,11 +46,17 @@ void Picviz::PVLayerFilterWebmailFinder::operator()(PVLayer& /*in*/, PVLayer &ou
 	PVRow nb_lines = _view->get_qtnraw_parent().size();
 
 	PVRush::PVNraw::nraw_table const& nraw = _view->get_qtnraw_parent();
-	
-	// for (PVRow r = 0; r < nb_lines; r++) {
-	// 	QStringList const& nraw_r = nraw.at(r);
-	// 	out.get_selection().set_line(r, re.indexIn(nraw_r[axis_id]) != -1);
-	// }
+
+	// Find for hotmail
+	QRegExp hotmail_re(".*mail.live.com.*");
+	PVSelection hotmail_sel;
+	PVLinesProperties hotmail_lp;
+	for (PVRow r = 0; r < nb_lines; r++) {
+		PVRush::PVNraw::nraw_table_line const& nraw_r = nraw.at(r);
+		hotmail_sel.set_line(r, hotmail_re.indexIn(nraw_r[axis_id]) != -1);
+	}
+	PVLayer hotmail_layer("Hotmail", hotmail_sel, hotmail_lp);
+	_view->layer_stack.append_layer(hotmail_layer);
 }
 
 IMPL_FILTER(Picviz::PVLayerFilterWebmailFinder)

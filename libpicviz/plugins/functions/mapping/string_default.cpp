@@ -1,11 +1,6 @@
 #include <stdio.h>
 
-#ifdef WIN32
-	#include <pvcore/win32-vs2008-stdint.h>
-#else
-	#include <stdint.h>
-#endif
-
+#include <pvcore/stdint.h>
 #include <picviz/general.h>
 #include <picviz/PVMapping.h>
 

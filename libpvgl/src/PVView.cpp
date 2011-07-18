@@ -244,6 +244,86 @@ void PVGL::PVView::update_all(void)
 	selection_square.update_arrays();
 }
 
+#if 0
+void PVGL::PVView::update_axes()
+{
+	if (!picviz_view) { // Sanity check
+		return;
+	}
+	if (!picviz_view->is_consistent()) {
+		return;
+	}
+
+	change_axes_count();
+	update_all();
+}
+#endif
+
+void PVGL::PVView::update_colors()
+{
+	if (!picviz_view) { // Sanity check
+		return;
+	}
+	if (!picviz_view->is_consistent()) {
+		return;
+	}
+
+	get_lines().update_arrays_colors();
+	get_map().update_arrays_colors();
+}
+
+void PVGL::PVView::update_z()
+{
+	if (!picviz_view) { // Sanity check
+		return;
+	}
+	if (!picviz_view->is_consistent()) {
+		return;
+	}
+
+	get_lines().update_arrays_z();
+	get_map().update_arrays_z();
+}
+
+void PVGL::PVView::update_positions()
+{
+	if (!picviz_view) { // Sanity check
+		return;
+	}
+	if (!picviz_view->is_consistent()) {
+		return;
+	}
+
+	get_lines().update_arrays_positions();
+	get_map().update_arrays_positions();
+}
+
+void PVGL::PVView::update_zombies()
+{
+	if (!picviz_view) { // Sanity check
+		return;
+	}
+	if (!picviz_view->is_consistent()) {
+		return;
+	}
+
+	get_lines().update_arrays_zombies();
+	get_map().update_arrays_zombies();
+}
+
+void PVGL::PVView::update_selections()
+{
+	if (!picviz_view) { // Sanity check
+		return;
+	}
+	if (!picviz_view->is_consistent()) {
+		return;
+	}
+
+	get_lines().update_arrays_selection();
+	get_map().update_arrays_selection();
+}
+
 /******************************************************************************
  *
  * PVGL::PVView::update_axes
@@ -374,6 +454,7 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 				set_dirty();
 				break;
 		case 'a': case 'A': // Select all
+#if 0
 				if (glutGetModifiers() & GLUT_ACTIVE_SHIFT) {
 					picviz_view->floating_selection.select_all();
 				} else {
@@ -381,17 +462,14 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 					//picviz_view->layer_stack_output_layer->selection.A2B_copy(,
 					//                          picviz_view->volatile_selection);
 				}
-				picviz_view->volatile_selection.select_all();
-				picviz_view->floating_selection.select_all();
-				/* We deactivate the square area */
-				state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_OFF);
-				/* We process the view from the selection */
-				picviz_view->process_from_selection();
+#endif
+				picviz_view->select_all_nonzb_lines();
 				/* We refresh the listing */
 				message.function = PVGL_COM_FUNCTION_REFRESH_LISTING;
 				message.pv_view = picviz_view;
 				pv_com->post_message_to_qt(message);
-				update_all();
+				update_selections();
+				//update_colors();
 				break;
 		case 'c': case 'C': // Choose a color.
 				message.function = PVGL_COM_FUNCTION_SET_COLOR;

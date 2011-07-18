@@ -14,7 +14,7 @@ PVInspector::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(PVTabSplitte
 	_help_btn(NULL),
 	_pre_filter_layer_org(_view->pre_filter_layer),
 	_args_org(_args),
-	_has_changed(false)
+	_has_apply(false)
 {
 }
 
@@ -25,7 +25,6 @@ PVInspector::PVLayerFilterProcessWidget::~PVLayerFilterProcessWidget()
 void PVInspector::PVLayerFilterProcessWidget::create_btns()
 {
 	_apply_btn = new QPushButton(QIcon(":/save"),"Apply");
-	_apply_btn->setEnabled(false);
 	_preview_btn = new QPushButton(QIcon(":/filter"),"Preview");
 	_preview_btn->setDefault(true);
 	_cancel_btn = new QPushButton(QIcon(":/red-cross"),"Cancel");
@@ -60,6 +59,14 @@ void PVInspector::PVLayerFilterProcessWidget::connect_btns()
 
 void PVInspector::PVLayerFilterProcessWidget::save_Slot()
 {
+	if (!_has_apply || args_changed()) {
+		// If it hasn't changed or if the args has changed, process the filter.
+		if (!process()) {
+			// It has been canceled, so don't close the window !
+			return;
+		}
+	}
+
 	// Save in current layer
 	Picviz::PVLayer &current_selected_layer = _view->layer_stack.get_selected_layer();
 	/* We fill it's lines_properties */
@@ -70,10 +77,13 @@ void PVInspector::PVLayerFilterProcessWidget::save_Slot()
 	_tab->get_main_window()->update_pvglview(_view, PVGL_COM_REFRESH_SELECTION|PVGL_COM_REFRESH_COLOR);
 	_tab->refresh_listing_Slot();
 
+	// FIXME: I think this refreshes the listing too. We shall remove the refresh listing slot then
+	_tab->get_main_window()->refresh_view(_view);
+
 	accept();
 }
 
-void PVInspector::PVLayerFilterProcessWidget::preview_Slot()
+bool PVInspector::PVLayerFilterProcessWidget::process()
 {
 	_view->process_selection();
 
@@ -81,37 +91,47 @@ void PVInspector::PVLayerFilterProcessWidget::preview_Slot()
 	_filter_p->set_view(_view);
 	_filter_p->set_output(&_view->post_filter_layer);
 
+	_view->pre_filter_layer.get_selection() &= _view->layer_stack.get_selected_layer().get_selection();
+
 	PVProgressBox *progressDialog = new PVProgressBox(tr("Previewing filter..."), this, 0);
+	progressDialog->set_enable_cancel(false);
 	QFuture<void> worker = QtConcurrent::run<void>(process_layer_filter, _filter_p.get(), &_view->pre_filter_layer);
 	QFutureWatcher<void> watcher;
 	watcher.setFuture(worker);
 	QObject::connect(&watcher, SIGNAL(finished()), progressDialog, SLOT(accept()), Qt::QueuedConnection);
 	
-	if(progressDialog->exec()) {
-		// We made it :) !
-		PVLOG_DEBUG("Filtering action performed\n");
-		_view->pre_filter_layer = _view->post_filter_layer;
-		_view->state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
-
-		// We reprocess the pipeline from the eventline stage
-		_view->process_from_eventline();
-		_tab->get_main_window()->update_pvglview(_view, PVGL_COM_REFRESH_SELECTION|PVGL_COM_REFRESH_COLOR);
-		_tab->refresh_listing_Slot();
-		_has_changed = true;
-		_apply_btn->setEnabled(true);
-	}
-	else {
+	if(!progressDialog->exec()) {
 		// If it has been canceled...
 		PVLOG_DEBUG("Filtering action canceled\n");
 		disconnect(&watcher,  SIGNAL(finished()),0,0);
 		worker.cancel();
 		_view->post_filter_layer = _view->pre_filter_layer;
+		return false;
 	}
+
+	// We made it ! :)
+	PVLOG_DEBUG("Filtering action performed\n");
+	_view->pre_filter_layer = _view->post_filter_layer;
+	_view->state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
+
+	// We reprocess the pipeline from the eventline stage
+	_view->process_from_eventline();
+	_tab->get_main_window()->update_pvglview(_view, PVGL_COM_REFRESH_SELECTION|PVGL_COM_REFRESH_COLOR);
+	_tab->refresh_listing_Slot();
+	_has_apply = true;
+	clear_args_state();
+
+	return true;
+}
+
+void PVInspector::PVLayerFilterProcessWidget::preview_Slot()
+{
+	process();
 }
 
 void PVInspector::PVLayerFilterProcessWidget::cancel_Slot()
 {
-	if (!_has_changed) {
+	if (!_has_apply) {
 		reject();
 		return;
 	}

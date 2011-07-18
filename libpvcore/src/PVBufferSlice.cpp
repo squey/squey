@@ -3,11 +3,7 @@
 
 #include <tbb/scalable_allocator.h>
 
-#ifdef WIN32
-	#include <pvcore/win32-vs2008-stdint.h>
-#else
-	#include <stdint.h>
-#endif
+#include <pvcore/stdint.h>
 
 #define REALLOC_GROWBY_ADD 20
 PVCore::PVBufferSlice::PVBufferSlice(char* begin, char* end, buf_list_t& buf_list) :

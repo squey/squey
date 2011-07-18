@@ -1,18 +1,13 @@
 #include "PVMappingFilterTimeDefault.h"
 #include <pvrush/PVFormat.h>
 #include <pvcore/PVDateTimeParser.h>
+#include <pvcore/stdint.h>
 
 #include <QStringList>
 #include <omp.h>
 
 #include <unicode/calendar.h>
 #include <unicode/ucal.h>
-
-#ifdef WIN32
-#include <pvcore/win32-vs2008-stdint.h>
-#else
-#include <stdint.h>
-#endif
 
 // Ok, we can't use this with gcc... That's an open bug from 2006 !!
 // See http://gcc.gnu.org/bugzilla/show_bug.cgi?id=27557

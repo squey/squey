@@ -5,6 +5,22 @@
 #include <pvcore/general.h>
 #include <QDir>
 
+static void picviz_archive_read_support(struct archive* a)
+{
+	// Support all formats
+	archive_read_support_format_all(a);
+
+	// Support all compression schemes but UUE
+	// (cf. issue #163 and http://groups.google.com/group/libarchive-discuss/browse_thread/thread/641feadda4ff94b1)
+	archive_read_support_compression_bzip2(a);
+	archive_read_support_compression_compress(a);
+	archive_read_support_compression_gzip(a);
+	archive_read_support_compression_lzma(a);
+	archive_read_support_compression_xz(a);
+	archive_read_support_compression_rpm(a);
+	archive_clear_error(a);
+}
+
 static int copy_data(struct archive *ar, struct archive *aw)
 {
 	int r;
@@ -38,8 +54,7 @@ bool is_archive(QString const& path)
 	const char* filename = path_local.constData();
 
 	a = archive_read_new();
-	archive_read_support_format_all(a);
-	archive_read_support_compression_all(a);
+	picviz_archive_read_support(a);
 	ret = archive_read_open_file(a, filename, 1000) == ARCHIVE_OK;
 	if (!ret) {
 		archive_read_close(a);
@@ -82,8 +97,7 @@ bool extract_archive(QString const& path, QString const& dir_dest, QStringList &
 	flags |= ARCHIVE_EXTRACT_SECURE_NODOTDOT;
 
 	a = archive_read_new();
-	archive_read_support_format_all(a);
-	archive_read_support_compression_all(a);
+	picviz_archive_read_support(a);
 	ext = archive_write_disk_new();
 	archive_write_disk_set_options(ext, flags);
 	archive_write_disk_set_standard_lookup(ext);
@@ -102,7 +116,7 @@ bool extract_archive(QString const& path, QString const& dir_dest, QStringList &
 		}
 		QString qentry(archive_entry_pathname(entry));
 		qentry = qentry.trimmed();
-		if (qentry.startsWith(QChar('/'))) {
+		if (qentry.startsWith(QChar('/')) || qentry.startsWith(QChar('\\'))) {
 			qentry = qentry.mid(1,-1);
 		}
 		path_extract = qdir_dest.cleanPath(qdir_dest.absoluteFilePath(qentry));
@@ -136,7 +150,6 @@ bool extract_archive(QString const& path, QString const& dir_dest, QStringList &
 	}
 	archive_read_finish(a);
 	archive_write_finish(ext);
-
 	
 	return true;
 

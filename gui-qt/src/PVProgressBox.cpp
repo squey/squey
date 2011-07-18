@@ -21,7 +21,6 @@ PVInspector::PVProgressBox::PVProgressBox(QString msg, QWidget *parent, Qt::Wind
 {
 	QVBoxLayout *layout;
 	QHBoxLayout *layoutCancel;
-	QPushButton *btnCancel;
 	QWidget *widgetCancel;
 	
 	//set the dialog during the sort
@@ -42,13 +41,13 @@ PVInspector::PVProgressBox::PVProgressBox(QString msg, QWidget *parent, Qt::Wind
 	widgetCancel = new QWidget(this);
 	layoutCancel = new QHBoxLayout();
 	widgetCancel->setLayout(layoutCancel);
-	btnCancel = new QPushButton(QString(tr("Cancel")));
+	_btnCancel = new QPushButton(QString(tr("Cancel")));
 	layoutCancel->addSpacerItem(new QSpacerItem(1,1,QSizePolicy::Expanding, QSizePolicy::Expanding));
-	layoutCancel->addWidget(btnCancel);
+	layoutCancel->addWidget(_btnCancel);
 		
 	//layout->addItem(layoutCancel);
 	layout->addWidget(widgetCancel);
-	connect(btnCancel,SIGNAL(clicked()),this,SLOT(reject()));
+	connect(_btnCancel,SIGNAL(clicked()),this,SLOT(reject()));
 
 	_status = 0;
 }
@@ -79,3 +78,7 @@ QProgressBar *PVInspector::PVProgressBox::getProgressBar(){
 	return progress_bar;
 }
 
+void PVInspector::PVProgressBox::set_enable_cancel(bool enable)
+{
+	_btnCancel->setEnabled(enable);
+}

@@ -341,22 +341,7 @@ void PVInspector::PVMainWindow::commit_selection_to_new_layer(Picviz::PVView_p p
 	/* We need to reprocess the layer stack */
 	picviz_view->process_from_layer_stack();
 
-	//FIXME! This should be done in a function
-	for (int i = 0; i < pv_ListingsTabWidget->count();i++) {
-		PVTabSplitter *tab = dynamic_cast<PVTabSplitter*>(pv_ListingsTabWidget->widget(i));
-		if (!tab) {
-			PVLOG_ERROR("PVInspector::PVMainWindow::%s: Tab isn't tab!!!\n", __FUNCTION__);
-		} else {
-			if (tab->get_lib_view() == picviz_view) {
-				/* We refresh the layerstack */
-				tab->refresh_layer_stack_view_Slot();
-				/* We refresh the view */
-				update_pvglview(tab->get_lib_view(), PVGL_COM_REFRESH_SELECTION);
-				/* We refresh the listing */
-				tab->refresh_listing_Slot();
-			}
-		}
-	}
+	refresh_view(picviz_view);
 }
 
 /******************************************************************************
@@ -1512,6 +1497,30 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 							break;
 				}
 				break;
+	}
+}
+
+/******************************************************************************
+ *
+ * PVInspector::PVMainWindow::refresh_view()
+ *
+ *****************************************************************************/
+void PVInspector::PVMainWindow::refresh_view(Picviz::PVView_p picviz_view)
+{
+	for (int i = 0; i < pv_ListingsTabWidget->count();i++) {
+		PVTabSplitter *tab = dynamic_cast<PVTabSplitter*>(pv_ListingsTabWidget->widget(i));
+		if (!tab) {
+			PVLOG_ERROR("PVInspector::PVMainWindow::%s: Tab isn't tab!!!\n", __FUNCTION__);
+		} else {
+			if (tab->get_lib_view() == picviz_view) {
+				/* We refresh the layerstack */
+				tab->refresh_layer_stack_view_Slot();
+				/* We refresh the view */
+				update_pvglview(tab->get_lib_view(), PVGL_COM_REFRESH_SELECTION);
+				/* We refresh the listing */
+				tab->refresh_listing_Slot();
+			}
+		}
 	}
 }
 

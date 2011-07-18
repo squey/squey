@@ -154,6 +154,7 @@ public:
 	void reset_to_default_color();
 	void selection_set_rgba(PVSelection const& selection, pvrow nelts, unsigned char r, unsigned char g, unsigned char b, unsigned char a);
 
+	void debug();
 };
 }
 

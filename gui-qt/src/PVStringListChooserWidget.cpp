@@ -36,11 +36,12 @@ PVInspector::PVStringListChooserWidget::PVStringListChooserWidget(QWidget *paren
 	main_layout->addWidget(_list_w);
 	main_layout->addLayout(buttons_layout);
 
+	ok->setDefault(true);
+	buttons_layout->addWidget(ok);
+	connect(ok, SIGNAL(pressed()), this, SLOT(ok_Slot()));
 	buttons_layout->addWidget(cancel);
 	connect(cancel, SIGNAL(pressed()), this, SLOT(reject()));
 
-	buttons_layout->addWidget(ok);
-	connect(ok, SIGNAL(pressed()), this, SLOT(ok_Slot()));
 
 	setLayout(main_layout);
 }

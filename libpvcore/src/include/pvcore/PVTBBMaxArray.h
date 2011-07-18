@@ -4,11 +4,7 @@
 #include <tbb/parallel_reduce.h>
 #include <tbb/blocked_range.h>
 
-#ifdef WIN32
-#include <pvcore/win32-vs2008-stdint.h>
-#else
-#include <stdint.h>
-#endif
+#include <pvcore/stdint.h>
 
 namespace PVCore {
 

@@ -2,12 +2,12 @@
 #define PVINPUTHDFSSERVER_FILE_H
 
 #include <pvcore/general.h>
+#include <pvcore/stdint.h>
 
 #include <boost/shared_ptr.hpp>
 
 #include <hadoop/hdfs.h>
 
-#include <stdint.h>
 
 namespace PVRush {
 

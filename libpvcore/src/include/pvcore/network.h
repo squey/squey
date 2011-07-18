@@ -10,30 +10,13 @@
 
 #include <QString>
 
+#include <pvcore/general.h>
 #include <dnet.h>
 
-#include <pvcore/general.h>
-
-#ifdef WIN32
-#include <Winsock2.h>
-#else
-#include <arpa/inet.h>
-#endif
-
 namespace PVCore {
-        LibExport char *network_ipntoa(const ip_addr_t addr);
-
-	class LibExport Network {
-	private:
-		QString address;
-
-	public:
-		Network();
-		Network(char *addr);
-		Network(QString addr);
-		~Network();
-
-		int is_ip_addr();
+	struct LibExport Network {
+		static bool ipv4_aton(QString const& ip, uint32_t& ip_n);
+		static char* ipv4_ntoa(const ip_addr_t addr);
 	};
 }
 

@@ -1,10 +1,6 @@
 #include <picviz/PVPlottingFilter.h>
 
-#ifdef WIN32
-#include <pvcore/win32-vs2008-stdint.h>
-#else
-#include <stdint.h>
-#endif
+#include <pvcore/stdint.h>
 
 Picviz::PVPlottingFilter::PVPlottingFilter() :
 	PVFilter::PVFilterFunctionRegistrable<float*, float*, PVPlottingFilter>()

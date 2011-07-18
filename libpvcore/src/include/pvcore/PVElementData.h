@@ -10,8 +10,9 @@
 namespace PVCore {
 
 // AG: no need to "LibExport" this
-struct PVElementData: QSharedData
+class PVElementData: public QSharedData
 {
+public:
 	bool _valid;
 	list_fields _fields;
 	PVChunk *_parent;

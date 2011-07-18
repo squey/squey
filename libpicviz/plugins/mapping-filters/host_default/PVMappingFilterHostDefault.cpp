@@ -7,7 +7,10 @@
 #include <algorithm>
 #include <tbb/concurrent_vector.h>
 
-#include "../tools/ip.h"
+#include <pvcore/network.h>
+
+#include <arpa/inet.h>
+
 
 typedef tbb::concurrent_vector< std::pair<QByteArray,uint64_t> > vec_conv_sort_t;
 typedef vec_conv_sort_t::value_type str_local_index;
@@ -29,9 +32,10 @@ float* Picviz::PVMappingFilterHostDefault::operator()(PVRush::PVNraw::nraw_table
 	for (int64_t i = 0; i < ssize; i++) {
 		QString const& v = values[i];
 		uint32_t ipv4_v;
-		if (parse_ipv4(v, ipv4_v)) {
-			// IPv4 are mapped from 0.5 to 1
-			_dest[i] = (float) (((double)ipv4_v/(double)(PICVIZ_IPV4_MAXVAL))/2.0 + 0.5);
+		if (PVCore::Network::ipv4_aton(v, ipv4_v)) {
+			// IPv4 are mapped from 0 to 0.5
+			ipv4_v = ntohl(ipv4_v);
+			_dest[i] = (float) (((double)ipv4_v/(double)(PICVIZ_IPV4_MAXVAL))/((double)2.0));
 		}
 		else {
 			v_local.push_back(str_local_index(v.toLocal8Bit(),i));
@@ -44,7 +48,7 @@ float* Picviz::PVMappingFilterHostDefault::operator()(PVRush::PVNraw::nraw_table
 	// And map them from 0 to 0.5
 	QByteArray prev;
 	uint64_t cur_index = 0;
-	uint64_t size = v_local.size();
+	size_t size = v_local.size();
 	for (size_t i = 0; i < size; i++) {
 		str_local_index const& v = v_local[i];
 		QByteArray const& str_local = v.first;
@@ -53,7 +57,12 @@ float* Picviz::PVMappingFilterHostDefault::operator()(PVRush::PVNraw::nraw_table
 			cur_index++;
 			prev = str_local;
 		}
-		_dest[org_index] = ((float)cur_index/(float)size)/2.0;
+		_dest[org_index] = (float) cur_index;
+	}
+	float div = 2*(cur_index);
+	for (size_t i = 0; i < size; i++) {
+		uint64_t org_index = v_local[i].second;
+		_dest[org_index] = _dest[org_index]/div + 0.5;
 	}
 
 	return _dest;

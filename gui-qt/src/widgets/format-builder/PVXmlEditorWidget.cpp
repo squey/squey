@@ -299,7 +299,9 @@ void PVInspector::PVXmlEditorWidget::slotSave() {
     QFileDialog fd;
      //open file chooser
     QString urlFile = fd.getSaveFileName(0,QString("Select the file."),PVRush::normalize_get_helpers_plugins_dirs(QString("text")).first());
-    myTreeModel->saveXml(urlFile); //save file
+	if (!urlFile.isEmpty()) {
+		myTreeModel->saveXml(urlFile); //save file
+	}
 }
 
 
