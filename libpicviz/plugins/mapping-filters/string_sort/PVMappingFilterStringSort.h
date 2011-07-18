@@ -14,7 +14,7 @@
 
 namespace Picviz {
 
-class LibExport PVMappingFilterStringSort: public PVMappingFilter
+class PVMappingFilterStringSort: public PVMappingFilter
 {
 public:
 	float* operator()(PVRush::PVNraw::nraw_table_line const& values);

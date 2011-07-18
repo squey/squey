@@ -6,7 +6,7 @@
 
 namespace Picviz {
 
-class LibExport PVPlottingFilterAllDivide: public PVPlottingFilter
+class PVPlottingFilterAllDivide: public PVPlottingFilter
 {
 public:
 	PVPlottingFilterAllDivide(const PVFilter::PVArgumentList& args);

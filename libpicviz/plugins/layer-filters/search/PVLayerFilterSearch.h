@@ -18,7 +18,7 @@ namespace Picviz {
 /**
  * \class PVLayerFilterSearch
  */
-class LibExport PVLayerFilterSearch : public PVLayerFilter {
+class PVLayerFilterSearch : public PVLayerFilter {
 public:
 	PVLayerFilterSearch(PVFilter::PVArgumentList const& l = PVLayerFilterSearch::default_args());
 public:

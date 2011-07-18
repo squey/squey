@@ -12,7 +12,7 @@ extern "C" {
 
 namespace PVFilter {
 
-class LibExport PVFieldSplitterCSV : public PVFieldsFilter<one_to_many> {
+class PVFieldSplitterCSV : public PVFieldsFilter<one_to_many> {
 public:
 	PVFieldSplitterCSV(PVArgumentList const& args = PVFieldSplitterCSV::default_args());
 

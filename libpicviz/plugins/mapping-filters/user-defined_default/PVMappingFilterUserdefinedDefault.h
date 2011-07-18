@@ -7,7 +7,7 @@
 
 namespace Picviz {
 
-class LibExport PVMappingFilterUserdefinedDefault: public PVMappingFilter
+class PVMappingFilterUserdefinedDefault: public PVMappingFilter
 {
 public:
 	float operator()(QString const& str);

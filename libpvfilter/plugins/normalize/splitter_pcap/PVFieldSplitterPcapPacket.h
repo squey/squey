@@ -6,7 +6,7 @@
 
 namespace PVFilter {
 
-class LibExport PVFieldSplitterPcapPacket : public PVFieldsFilter<one_to_many> {
+class PVFieldSplitterPcapPacket : public PVFieldsFilter<one_to_many> {
 public:
 	PVFieldSplitterPcapPacket();
 protected:

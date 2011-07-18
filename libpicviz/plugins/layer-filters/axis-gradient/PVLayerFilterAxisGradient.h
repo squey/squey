@@ -18,7 +18,7 @@ namespace Picviz {
 /**
  * \class PVLayerFilterAxisGradient
  */
-class LibExport PVLayerFilterAxisGradient : public PVLayerFilter {
+class PVLayerFilterAxisGradient : public PVLayerFilter {
 public:
 	PVLayerFilterAxisGradient(PVFilter::PVArgumentList const& l = PVLayerFilterAxisGradient::default_args());
 public:

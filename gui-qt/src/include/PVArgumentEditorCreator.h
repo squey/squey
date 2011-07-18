@@ -19,7 +19,7 @@ namespace PVInspector {
 // Inspired by QStandardItemEditorCreator
 // Reuse the Q_PROPERTY macros
 template <class T>
-class LibExport PVArgumentEditorCreator: public QItemEditorCreatorBase
+class PVArgumentEditorCreator: public QItemEditorCreatorBase
 {
 public:
     inline PVArgumentEditorCreator(Picviz::PVView& view)

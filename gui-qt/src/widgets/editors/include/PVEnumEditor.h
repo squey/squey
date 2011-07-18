@@ -21,7 +21,7 @@ namespace PVInspector {
 /**
  * \class PVEnumEditor
  */
-class LibExport PVEnumEditor : public QComboBox
+class PVEnumEditor : public QComboBox
 {
 	Q_OBJECT
 	Q_PROPERTY(PVCore::PVEnumType _enum READ get_enum WRITE set_enum USER true)

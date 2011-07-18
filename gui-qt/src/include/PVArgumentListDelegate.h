@@ -19,7 +19,7 @@
 
 namespace PVInspector {
 
-class LibExport PVArgumentListDelegate : public QStyledItemDelegate {
+class PVArgumentListDelegate : public QStyledItemDelegate {
 public:
 	PVArgumentListDelegate(Picviz::PVView& view, QTableView* parent = 0);
 public:

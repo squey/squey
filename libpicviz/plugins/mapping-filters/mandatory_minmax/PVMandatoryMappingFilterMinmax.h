@@ -18,7 +18,7 @@ size_t tbb_hasher(const QString& str);
 
 namespace Picviz {
 
-class LibExport PVMandatoryMappingFilterMinmax : public PVMandatoryMappingFilter
+class PVMandatoryMappingFilterMinmax : public PVMandatoryMappingFilter
 {
 public:
 	PVMandatoryMappingFilterMinmax();

@@ -6,7 +6,7 @@
 
 namespace Picviz {
 
-class LibExport PVPlottingFilterMinmax: public PVPlottingFilter
+class PVPlottingFilterMinmax: public PVPlottingFilter
 {
 public:
 	float* operator()(float* value);

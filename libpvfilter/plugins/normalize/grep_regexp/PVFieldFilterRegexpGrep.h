@@ -13,7 +13,7 @@
 
 namespace PVFilter {
 
-class LibExport PVFieldFilterRegexpGrep: public PVFieldsFilter<one_to_one> {
+class PVFieldFilterRegexpGrep: public PVFieldsFilter<one_to_one> {
 public:
 	PVFieldFilterRegexpGrep(PVArgumentList const& args = PVFieldFilterRegexpGrep::default_args());
 public:

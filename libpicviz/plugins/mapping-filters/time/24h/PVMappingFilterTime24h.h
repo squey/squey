@@ -13,7 +13,7 @@
 
 namespace Picviz {
 
-class LibExport PVMappingFilterTime24h: public PVMappingFilterTimeDefault
+class PVMappingFilterTime24h: public PVMappingFilterTimeDefault
 {
 protected:
 	float cal_to_float(Calendar* cal, bool& success); 

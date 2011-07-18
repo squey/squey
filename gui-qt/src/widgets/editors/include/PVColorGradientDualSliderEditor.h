@@ -19,7 +19,7 @@ class PVMainWindow;
 /**
  * \class PVColorGradientDualSliderEditor
  */
-class LibExport PVColorGradientDualSliderEditor : public QWidget
+class PVColorGradientDualSliderEditor : public QWidget
 {
 	Q_OBJECT
 	Q_PROPERTY(PVCore::PVColorGradientDualSliderType _color_slider READ get_values WRITE set_values USER true)

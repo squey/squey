@@ -19,7 +19,7 @@ namespace Picviz {
 /**
  * \class PVLayerFilterHeatline
  */
-class LibExport PVLayerFilterHeatlineBase : public PVLayerFilter {
+class PVLayerFilterHeatlineBase : public PVLayerFilter {
 public:
 	PVLayerFilterHeatlineBase(PVFilter::PVArgumentList const& l = PVLayerFilterHeatlineBase::default_args());
 public:
@@ -32,7 +32,7 @@ protected:
 
 };
 
-class LibExport PVLayerFilterHeatlineColor : public PVLayerFilterHeatlineBase {
+class PVLayerFilterHeatlineColor : public PVLayerFilterHeatlineBase {
 public:
 	PVLayerFilterHeatlineColor(PVFilter::PVArgumentList const& l = PVLayerFilterHeatlineColor::default_args());
 protected:
@@ -41,7 +41,7 @@ protected:
 	CLASS_FILTER(Picviz::PVLayerFilterHeatlineColor)
 };
 
-class LibExport PVLayerFilterHeatlineSel : public PVLayerFilterHeatlineBase {
+class PVLayerFilterHeatlineSel : public PVLayerFilterHeatlineBase {
 public:
 	PVLayerFilterHeatlineSel(PVFilter::PVArgumentList const& l = PVLayerFilterHeatlineSel::default_args());
 protected:
@@ -50,7 +50,7 @@ protected:
 	CLASS_FILTER(Picviz::PVLayerFilterHeatlineSel)
 };
 
-class LibExport PVLayerFilterHeatlineSelAndCol : public PVLayerFilterHeatlineBase {
+class PVLayerFilterHeatlineSelAndCol : public PVLayerFilterHeatlineBase {
 public:
 	PVLayerFilterHeatlineSelAndCol(PVFilter::PVArgumentList const& l = PVLayerFilterHeatlineSelAndCol::default_args());
 protected:

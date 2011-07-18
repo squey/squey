@@ -14,7 +14,7 @@
 
 namespace PVFilter {
 
-class LibExport PVFieldSplitterURL : public PVFieldsFilter<one_to_many> {
+class PVFieldSplitterURL : public PVFieldsFilter<one_to_many> {
 public:
 	PVFieldSplitterURL();
 protected:

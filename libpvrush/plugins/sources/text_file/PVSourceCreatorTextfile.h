@@ -8,7 +8,7 @@
 
 namespace PVRush {
 
-class LibExport PVSourceCreatorTextfile: public PVSourceCreator
+class PVSourceCreatorTextfile: public PVSourceCreator
 {
 public:
 	source_p create_source_from_input(PVFilter::PVArgument const& input) const;

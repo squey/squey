@@ -23,7 +23,7 @@
 
 namespace PVFilter {
 
-class LibExport PVFieldSplitterRegexp : public PVFieldsFilter<one_to_many> {
+class PVFieldSplitterRegexp : public PVFieldsFilter<one_to_many> {
 public:
 	PVFieldSplitterRegexp(PVArgumentList const& args = PVFieldSplitterRegexp::default_args());
 	PVFieldSplitterRegexp(const PVFieldSplitterRegexp& src);

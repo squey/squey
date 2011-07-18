@@ -18,7 +18,7 @@ size_t tbb_hasher(const QString& str);
 
 namespace Picviz {
 
-class LibExport PVMappingFilterEnumDefault: public PVMappingFilter
+class PVMappingFilterEnumDefault: public PVMappingFilter
 {
 public:
 	float* operator()(PVRush::PVNraw::nraw_table_line const& values);

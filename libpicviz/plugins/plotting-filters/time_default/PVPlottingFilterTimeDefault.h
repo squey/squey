@@ -6,7 +6,7 @@
 
 namespace Picviz {
 
-class LibExport PVPlottingFilterTimeDefault: public PVPlottingFilter
+class PVPlottingFilterTimeDefault: public PVPlottingFilter
 {
 public:
 	float* operator()(float* value);

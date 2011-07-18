@@ -6,7 +6,7 @@
 
 namespace Picviz {
 
-class LibExport PVPlottingFilterNoprocess: public PVPlottingFilter
+class PVPlottingFilterNoprocess: public PVPlottingFilter
 {
 public:
 	float operator()(float value);

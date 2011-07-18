@@ -21,7 +21,7 @@ namespace PVInspector {
 /**
  * \class PVSpinBoxEditor
  */
-class LibExport PVSpinBoxEditor : public QSpinBox
+class PVSpinBoxEditor : public QSpinBox
 {
 	Q_OBJECT
 	Q_PROPERTY(PVCore::PVSpinBoxType _s READ get_spin WRITE set_spin USER true)

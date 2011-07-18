@@ -21,7 +21,7 @@ namespace PVInspector {
 /**
  * \class PVAxisIndexEditor
  */
-class LibExport PVAxisIndexEditor : public QComboBox
+class PVAxisIndexEditor : public QComboBox
 {
 	Q_OBJECT
 	Q_PROPERTY(PVCore::PVAxisIndexType _axis_index READ get_axis_index WRITE set_axis_index USER true)

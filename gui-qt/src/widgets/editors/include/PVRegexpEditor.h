@@ -19,7 +19,7 @@ namespace PVInspector {
 /**
  * \class PVRegexpEditor
  */
-class LibExport PVRegexpEditor : public QLineEdit
+class PVRegexpEditor : public QLineEdit
 {
 	Q_OBJECT
 	Q_PROPERTY(QRegExp _rx READ get_rx WRITE set_rx USER true)

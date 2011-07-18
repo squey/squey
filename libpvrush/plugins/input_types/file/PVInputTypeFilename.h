@@ -9,7 +9,7 @@
 
 namespace PVRush {
 
-class LibExport PVInputTypeFilename: public PVInputType
+class PVInputTypeFilename: public PVInputType
 {
 public:
 	PVInputTypeFilename();

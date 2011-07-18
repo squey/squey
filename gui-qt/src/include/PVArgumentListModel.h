@@ -17,7 +17,7 @@
 
 namespace PVInspector {
 
-class LibExport PVArgumentListModel : public QAbstractTableModel {
+class PVArgumentListModel : public QAbstractTableModel {
 public:
 	PVArgumentListModel(PVFilter::PVArgumentList& args, QObject* parent = 0);
 public:

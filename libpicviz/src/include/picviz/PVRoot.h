@@ -30,7 +30,7 @@ namespace Picviz {
 /**
  * \class PVRoot
  */
-class LibExport PVRoot {
+class LibPicvizDecl PVRoot {
 public:
 	typedef boost::shared_ptr<PVRoot> p_type;
 public:

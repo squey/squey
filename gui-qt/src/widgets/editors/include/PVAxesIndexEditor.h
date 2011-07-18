@@ -19,7 +19,7 @@ namespace PVInspector {
 /**
  * \class PVAxesIndexEditor
  */
-class LibExport PVAxesIndexEditor : public QListWidget
+class PVAxesIndexEditor : public QListWidget
 {
 	Q_OBJECT
 	Q_PROPERTY(PVCore::PVAxesIndexType _axes_index READ get_axes_index WRITE set_axes_index USER true)

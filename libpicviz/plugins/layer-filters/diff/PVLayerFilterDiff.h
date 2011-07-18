@@ -18,7 +18,7 @@ namespace Picviz {
 /**
  * \class PVLayerFilterDiff
  */
-class LibExport PVLayerFilterDiff : public PVLayerFilter {
+class PVLayerFilterDiff : public PVLayerFilter {
 	private:
 		PVFilter::PVArgumentList get_default_args_for_view(PVView const& view);
 	public:
