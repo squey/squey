@@ -9,6 +9,9 @@
 
 #include <pvcore/network.h>
 
+#include <arpa/inet.h>
+
+
 typedef tbb::concurrent_vector< std::pair<QByteArray,uint64_t> > vec_conv_sort_t;
 typedef vec_conv_sort_t::value_type str_local_index;
 
@@ -31,6 +34,7 @@ float* Picviz::PVMappingFilterHostDefault::operator()(PVRush::PVNraw::nraw_table
 		uint32_t ipv4_v;
 		if (PVCore::Network::ipv4_aton(v, ipv4_v)) {
 			// IPv4 are mapped from 0 to 0.5
+			ipv4_v = ntohl(ipv4_v);
 			_dest[i] = (float) (((double)ipv4_v/(double)(PICVIZ_IPV4_MAXVAL))/((double)2.0));
 		}
 		else {
