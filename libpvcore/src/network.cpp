@@ -8,14 +8,48 @@
 #include <pvcore/network.h>
 
 #include <QString>
+#include <stdlib.h>
 
 bool PVCore::Network::ipv4_aton(QString const& ip, uint32_t& ip_n)
 {
+#if 0 // This is far too slow
 	struct addr addr;
 	if (addr_aton(ip.toLatin1().constData(), &addr) == -1) {
 		return false;
 	}
-	ip_n = addr.addr_ip;
+	ip_n = ntohl(addr.addr_ip);
+#endif
+
+	int count = 2;
+
+	if (ip.isEmpty()) {
+		return false;
+	}
+
+	QByteArray value_ba = ip.toLatin1();
+	char* buffer = (char*) value_ba.constData();
+	char* buffer_org = buffer;
+
+	buffer = strchr(buffer, '.');
+	if (!buffer) {
+		return false;
+	}
+	*buffer = 0;
+	ip_n = ((uint32_t) atol(buffer_org)) << 24;
+	buffer++;
+	char* buffer_prev = buffer;
+	while(count > 0) {
+		buffer = strchr(buffer_prev, '.');
+		if (!buffer) {
+			return false;
+		}
+		*buffer = 0;
+		ip_n |= ((uint32_t)atol(buffer_prev)) << count*8;
+		buffer_prev = buffer+1;
+		count--;
+	}
+	ip_n |= (uint32_t) atol(buffer_prev);
+
 	return true;
 }
 

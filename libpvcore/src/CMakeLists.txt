@@ -28,6 +28,7 @@ include/pvcore/general.h
 include/pvcore/network.h
 include/pvcore/pv_pcre_splitter.h
 include/pvcore/pv_splitter.h
+include/pvcore/string.h
 include/pvcore/sysinfo.h
 include/pvcore/types.h
 

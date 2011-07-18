@@ -20,9 +20,6 @@ class PVMappingFilterStringDefault: public PVMappingFilter
 public:
 	float* operator()(PVRush::PVNraw::nraw_table_line const& values);
 
-protected:
-	static uint64_t compute_str_factor(QString const& str);
-
 	CLASS_FILTER(PVMappingFilterStringDefault)
 };
 
