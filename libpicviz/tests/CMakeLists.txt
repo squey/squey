@@ -39,3 +39,8 @@ add_test(TestIssuesPlotting test_issues.sh plotting)
 # Mapping plugin test
 add_executable(Tpicviz_plugin_mapping plugin-mapping.cpp)
 target_link_libraries(Tpicviz_plugin_mapping ${LINK_LIBRARIES})
+
+
+# IP mapping performance
+add_executable(Tpicviz_ip_mapping ip-mapping.cpp)
+target_link_libraries(Tpicviz_ip_mapping ${LINK_LIBRARIES})
