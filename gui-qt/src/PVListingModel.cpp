@@ -197,7 +197,7 @@ void PVInspector::PVListingModel::initLocalMatchingTable(){
                 myIterator = myMap.begin();
 		for(int i=0;i<lib_view->get_nznu_index_count();i++){
                        localMatchingTable[i] = (*myIterator++).second;
-                       PVLOG_DEBUG("       locale%d\n",localMatchingTable[i]);
+                       PVLOG_HEAVYDEBUG("       locale%d\n",localMatchingTable[i]);
                 }
 	}else
 	if (state_machine->are_listing_no_nu()) {
