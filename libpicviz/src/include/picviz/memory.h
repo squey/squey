@@ -13,9 +13,9 @@
  extern "C" {
 #endif
 
-LibExport void *picviz_malloc(size_t size);
-LibExport void *picviz_realloc(void *ptr, size_t size);
-LibExport void picviz_free(void *ptr);
+LibPicvizDecl void *picviz_malloc(size_t size);
+LibPicvizDecl void *picviz_realloc(void *ptr, size_t size);
+LibPicvizDecl void picviz_free(void *ptr);
 
 #ifdef __cplusplus
  }

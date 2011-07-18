@@ -61,8 +61,8 @@ typedef struct _picviz_layer_index_array_t picviz_layer_index_array_t;
  ******************************************************************************
  *****************************************************************************/
 
-LibExport picviz_layer_index_array_t *picviz_layer_index_array_new(int initial_row_count);
-LibExport void picviz_layer_index_array_destroy(picviz_layer_index_array_t *lia);
+LibPicvizDecl picviz_layer_index_array_t *picviz_layer_index_array_new(int initial_row_count);
+LibPicvizDecl void picviz_layer_index_array_destroy(picviz_layer_index_array_t *lia);
 
 
 
@@ -74,13 +74,13 @@ LibExport void picviz_layer_index_array_destroy(picviz_layer_index_array_t *lia)
  ******************************************************************************
  *****************************************************************************/
 
-LibExport int picviz_layer_index_array_get_row_count(picviz_layer_index_array_t *lia);
-LibExport int picviz_layer_index_array_get_index_count(picviz_layer_index_array_t *lia);
-LibExport int picviz_layer_index_array_get_value(picviz_layer_index_array_t *lia, int row_index);
+LibPicvizDecl int picviz_layer_index_array_get_row_count(picviz_layer_index_array_t *lia);
+LibPicvizDecl int picviz_layer_index_array_get_index_count(picviz_layer_index_array_t *lia);
+LibPicvizDecl int picviz_layer_index_array_get_value(picviz_layer_index_array_t *lia, int row_index);
 
 
 
-LibExport void picviz_layer_index_array_set_row_count(picviz_layer_index_array_t *lia, int new_row_count);
+LibPicvizDecl void picviz_layer_index_array_set_row_count(picviz_layer_index_array_t *lia, int new_row_count);
 
 
 
@@ -94,7 +94,7 @@ LibExport void picviz_layer_index_array_set_row_count(picviz_layer_index_array_t
  *****************************************************************************/
 
 
-LibExport void picviz_layer_index_array_initialize(picviz_layer_index_array_t *layer_index_array);
+LibPicvizDecl void picviz_layer_index_array_initialize(picviz_layer_index_array_t *layer_index_array);
 
 
 #ifdef __cplusplus

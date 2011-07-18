@@ -15,7 +15,7 @@
 
 namespace PVRush {
 
-class LibExport PVInputPcap : public PVInput {
+class LibRushDecl PVInputPcap : public PVInput {
 public:
 	PVInputPcap(pcap_t* pcap);
 	PVInputPcap(const char* path);

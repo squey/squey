@@ -18,7 +18,7 @@ namespace Picviz {
 /**
  * \class PVSelectionFilterScatterPlotSelectionSquare
  */
-class LibExport PVSelectionFilterScatterPlotSelectionSquare : public PVSelectionFilter {
+class LibPicvizDecl PVSelectionFilterScatterPlotSelectionSquare : public PVSelectionFilter {
 public:
 	PVSelectionFilterScatterPlotSelectionSquare(PVFilter::PVArgumentList const& l = PVSelectionFilterScatterPlotSelectionSquare::default_args());
 

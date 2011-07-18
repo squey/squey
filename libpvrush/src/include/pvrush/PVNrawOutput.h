@@ -9,7 +9,7 @@
 
 namespace PVRush {
 
-class LibExport PVNrawOutput : public PVRush::PVOutput {
+class LibRushDecl PVNrawOutput : public PVRush::PVOutput {
 public:
 	typedef std::map<PVRow,PVCore::chunk_index> map_pvrow;
 public:

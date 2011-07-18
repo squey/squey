@@ -21,7 +21,7 @@ namespace Picviz {
 /**
  * \class PVLayerFilter
  */
-class LibExport PVLayerFilter : public PVFilter::PVFilterFunction<PVLayer, PVLayerFilter> {
+class LibPicvizDecl PVLayerFilter : public PVFilter::PVFilterFunction<PVLayer, PVLayerFilter> {
 public:
 	typedef PVFilter::PVFilterFunction<PVLayer, PVLayerFilter>::base_registrable base_registrable;
 public:

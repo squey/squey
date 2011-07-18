@@ -12,7 +12,7 @@ namespace PVRush {
 /*! \brief Alignement class on a given boundary.
  * This class herits from PVChunkAlign and is used to align chunks on a boundary (cf. QTextBoundaryFinder)
  */
-class LibExport PVChunkAlignBoundary : public PVChunkAlign {
+class LibRushDecl PVChunkAlignBoundary : public PVChunkAlign {
 public:
 	PVChunkAlignBoundary(QTextBoundaryFinder::BoundaryType boundary);
 public:

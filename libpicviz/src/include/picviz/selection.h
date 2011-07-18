@@ -68,8 +68,8 @@ struct _picviz_tag_t {
  ******************************************************************************
  *****************************************************************************/
 
-LibExport picviz_selection_t *picviz_selection_new(void);
-LibExport void picviz_selection_destroy(picviz_selection_t *selection);
+LibPicvizDecl picviz_selection_t *picviz_selection_new(void);
+LibPicvizDecl void picviz_selection_destroy(picviz_selection_t *selection);
 
 
 
@@ -82,11 +82,11 @@ LibExport void picviz_selection_destroy(picviz_selection_t *selection);
  ******************************************************************************
  *****************************************************************************/
 
-LibExport int picviz_selection_get_line(picviz_selection_t *ts, pv_row lineid);
-// LibExport pv_row picviz_selection_get_line_index_of_nth_selected_line(picviz_selection_t *selection, pv_row n);
-LibExport int picviz_selection_get_number_of_selected_lines_in_range(picviz_selection_t *selection, pv_row a, pv_row b);
+LibPicvizDecl int picviz_selection_get_line(picviz_selection_t *ts, pv_row lineid);
+// LibPicvizDecl pv_row picviz_selection_get_line_index_of_nth_selected_line(picviz_selection_t *selection, pv_row n);
+LibPicvizDecl int picviz_selection_get_number_of_selected_lines_in_range(picviz_selection_t *selection, pv_row a, pv_row b);
 
-LibExport void picviz_selection_set_line(picviz_selection_t *ts, pv_row lineid, int bool_value);
+LibPicvizDecl void picviz_selection_set_line(picviz_selection_t *ts, pv_row lineid, int bool_value);
 
 
 
@@ -99,9 +99,9 @@ LibExport void picviz_selection_set_line(picviz_selection_t *ts, pv_row lineid, 
  *****************************************************************************
  *****************************************************************************/
 
-// LibExport pv_row picviz_selection_count(picviz_selection_t *selection, pv_row last_line_index);
-/* LibExport void picviz_selection_mapped_foreach(picviz_mapped_t *mapped, picviz_selection_t *selection, picviz_selection_function function, void *userdata); */
-/* LibExport void picviz_selection_nraw_foreach(picviz_source_t *source, picviz_selection_t *selection, picviz_selection_function function, void *userdata); */
+// LibPicvizDecl pv_row picviz_selection_count(picviz_selection_t *selection, pv_row last_line_index);
+/* LibPicvizDecl void picviz_selection_mapped_foreach(picviz_mapped_t *mapped, picviz_selection_t *selection, picviz_selection_function function, void *userdata); */
+/* LibPicvizDecl void picviz_selection_nraw_foreach(picviz_source_t *source, picviz_selection_t *selection, picviz_selection_function function, void *userdata); */
 
 /******************************************************************************
  ******************************************************************************
@@ -111,12 +111,12 @@ LibExport void picviz_selection_set_line(picviz_selection_t *ts, pv_row lineid, 
  ******************************************************************************
  *****************************************************************************/
 
-LibExport void picviz_selection_A2A_inverse(picviz_selection_t *a);
-LibExport void picviz_selection_A2A_select_all(picviz_selection_t *a);
-LibExport void picviz_selection_A2A_select_even(picviz_selection_t *a);
-LibExport void picviz_selection_A2A_select_from_s_to_e(picviz_selection_t *a, int start, int end);
-LibExport void picviz_selection_A2A_select_none(picviz_selection_t *a);
-LibExport void picviz_selection_A2A_select_odd(picviz_selection_t *a);
+LibPicvizDecl void picviz_selection_A2A_inverse(picviz_selection_t *a);
+LibPicvizDecl void picviz_selection_A2A_select_all(picviz_selection_t *a);
+LibPicvizDecl void picviz_selection_A2A_select_even(picviz_selection_t *a);
+LibPicvizDecl void picviz_selection_A2A_select_from_s_to_e(picviz_selection_t *a, int start, int end);
+LibPicvizDecl void picviz_selection_A2A_select_none(picviz_selection_t *a);
+LibPicvizDecl void picviz_selection_A2A_select_odd(picviz_selection_t *a);
 
 
 
@@ -129,8 +129,8 @@ LibExport void picviz_selection_A2A_select_odd(picviz_selection_t *a);
  ******************************************************************************
  *****************************************************************************/
 
-LibExport void picviz_selection_A2B_copy(picviz_selection_t *a, picviz_selection_t *b);
-LibExport void picviz_selection_A2B_inverse(picviz_selection_t *a, picviz_selection_t *b);
+LibPicvizDecl void picviz_selection_A2B_copy(picviz_selection_t *a, picviz_selection_t *b);
+LibPicvizDecl void picviz_selection_A2B_inverse(picviz_selection_t *a, picviz_selection_t *b);
 
 
 
@@ -143,10 +143,10 @@ LibExport void picviz_selection_A2B_inverse(picviz_selection_t *a, picviz_select
  ******************************************************************************
  *****************************************************************************/
 
-LibExport void picviz_selection_AB2A_and(picviz_selection_t *a, picviz_selection_t *b);
-LibExport void picviz_selection_AB2A_or(picviz_selection_t *a, picviz_selection_t *b);
-LibExport void picviz_selection_AB2A_substraction(picviz_selection_t *a, picviz_selection_t *b);
-LibExport void picviz_selection_AB2A_xor(picviz_selection_t *a, picviz_selection_t *b);
+LibPicvizDecl void picviz_selection_AB2A_and(picviz_selection_t *a, picviz_selection_t *b);
+LibPicvizDecl void picviz_selection_AB2A_or(picviz_selection_t *a, picviz_selection_t *b);
+LibPicvizDecl void picviz_selection_AB2A_substraction(picviz_selection_t *a, picviz_selection_t *b);
+LibPicvizDecl void picviz_selection_AB2A_xor(picviz_selection_t *a, picviz_selection_t *b);
 
 
 
@@ -159,10 +159,10 @@ LibExport void picviz_selection_AB2A_xor(picviz_selection_t *a, picviz_selection
  ******************************************************************************
  *****************************************************************************/
 
-LibExport void picviz_selection_AB2C_and(picviz_selection_t *a, picviz_selection_t *b, picviz_selection_t *c);
-LibExport void picviz_selection_AB2C_or(picviz_selection_t *a, picviz_selection_t *b, picviz_selection_t *c);
-LibExport void picviz_selection_AB2C_substraction(picviz_selection_t *a, picviz_selection_t *b, picviz_selection_t *c);
-LibExport void picviz_selection_AB2C_xor(picviz_selection_t *a, picviz_selection_t *b, picviz_selection_t *c);
+LibPicvizDecl void picviz_selection_AB2C_and(picviz_selection_t *a, picviz_selection_t *b, picviz_selection_t *c);
+LibPicvizDecl void picviz_selection_AB2C_or(picviz_selection_t *a, picviz_selection_t *b, picviz_selection_t *c);
+LibPicvizDecl void picviz_selection_AB2C_substraction(picviz_selection_t *a, picviz_selection_t *b, picviz_selection_t *c);
+LibPicvizDecl void picviz_selection_AB2C_xor(picviz_selection_t *a, picviz_selection_t *b, picviz_selection_t *c);
 
 
 

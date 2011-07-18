@@ -15,7 +15,7 @@ namespace PVGL {
 /**
  * \class PVLayout
  */
-class LibExport PVLayout : public PVContainer {
+class LibGLDecl PVLayout : public PVContainer {
 	/**
 	 *
 	 */

@@ -25,7 +25,7 @@
 
 namespace PVCore {
 
-class LibExport PVXmlParamParser {
+class LibCoreDecl PVXmlParamParser {
 public:
 	typedef QList<PVXmlParamParserData> list_params;
 public:

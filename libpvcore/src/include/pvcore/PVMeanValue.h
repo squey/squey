@@ -13,9 +13,11 @@ namespace PVCore {
  * store all the values but only their sum. It could compute the mean value each time and only
  * save this mean value and the number of values, but it would involve a loss of precision.
  * So, Tsum can be different that T because, for instance, T can be int16_t but the sum would be int64_t.
+ *
+ * This a template class and each lib will export its version. There is *no* need for LibCoreDecl
  */
 template<typename T, typename Tsum = T>
-class LibExport PVMeanValue
+class PVMeanValue
 {
 public:
 	PVMeanValue():

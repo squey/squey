@@ -36,7 +36,7 @@ typedef int (*mandatory_mapping_test_func)(void); /* This function is used to pe
 /**
  * \class PVMandatoryMappingFunction
  */
-class LibExport PVMandatoryMappingFunction {
+class LibPicvizDecl PVMandatoryMappingFunction {
 public:
 	PVMandatoryMappingFunction(QString filename);
 	~PVMandatoryMappingFunction();

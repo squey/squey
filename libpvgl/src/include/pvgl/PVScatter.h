@@ -23,7 +23,7 @@ namespace PVGL {
 /**
  *
  */
-class LibExport PVScatter : public PVDrawable {
+class LibGLDecl PVScatter : public PVDrawable {
 	PVWidgetManager widget_manager; //!<
 	GLuint main_vao;                //!<
 	GLuint tbo_selection;           //!<

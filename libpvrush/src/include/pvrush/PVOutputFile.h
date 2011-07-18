@@ -7,7 +7,7 @@
 
 namespace PVRush {
 
-class LibExport PVOutputFile : public PVOutput {
+class LibRushDecl PVOutputFile : public PVOutput {
 public:
 	PVOutputFile(const char* path);
 	~PVOutputFile();

@@ -31,7 +31,7 @@ namespace Picviz {
 /**
  * \class PVMapped
  */
-class LibExport PVMapped {
+class LibPicvizDecl PVMapped {
 public:
 	typedef boost::shared_ptr<PVMapped> p_type;
 public:

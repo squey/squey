@@ -15,7 +15,7 @@
 #include <pvcore/general.h>
 
 namespace PVRush {
-	class LibExport File {
+	class LibRushDecl File {
 	public:
 		File(QString filename);
 		~File();
@@ -30,7 +30,7 @@ namespace PVRush {
 		int is_compressed;
 	};
 
-	LibExport QString file_get_cache_dir();
+	LibRushDecl QString file_get_cache_dir();
 };
 
 #endif	/* PVCORE_FILE_H */

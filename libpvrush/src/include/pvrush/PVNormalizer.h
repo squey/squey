@@ -53,8 +53,8 @@ typedef void (*normalize_terminate_function)(void);
 typedef int (*normalize_discovery_function)(QString filename, QStringList *discovered);
 typedef int (*normalize_list_function)(QStringList *list);
 
-	QStringList LibExport normalize_get_plugins_dirs();
-	QStringList LibExport normalize_get_helpers_plugins_dirs(QString helper);
+	QStringList LibRushDecl normalize_get_plugins_dirs();
+	QStringList LibRushDecl normalize_get_helpers_plugins_dirs(QString helper);
 
 class NormalizeFunctions {
 public:
@@ -95,7 +95,7 @@ public:
  * - normalize_list_function
  *
  */
-class LibExport PVNormalizer {
+class LibRushDecl PVNormalizer {
 public:
 	PVNormalizer();
 	~PVNormalizer();

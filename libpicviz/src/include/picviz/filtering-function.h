@@ -45,12 +45,12 @@ typedef enum _picviz_comparison_t picviz_comparison_t;
 
 
 
-// LibExport picviz_selection_t *picviz_filtering_function_heatline_colorize(picviz_view_t *view, picviz_selection_t *selection);
-LibExport char *picviz_filtering_function_heatline_colorize(picviz_view_t *view, picviz_layer_t *input_layer, picviz_layer_t *output_layer);
-LibExport picviz_selection_t *picviz_filtering_function_less_equal(picviz_plotted_t *plotted, picviz_selection_t *selection, void *args);
-LibExport char *picviz_filtering_function_square_area(picviz_view_t *view, picviz_layer_t *input_layer, picviz_layer_t *output_layer,float xmin, float ymin, float xmax, float ymax);
-LibExport char *picviz_filtering_function_selectall(picviz_view_t *view, picviz_layer_t *input_layer, picviz_layer_t *output_layer);
-LibExport char *picviz_filtering_function_heatline_select(picviz_view_t *view, picviz_layer_t *input_layer, picviz_layer_t *output_layer, float fmin, float fmax);
+// LibPicvizDecl picviz_selection_t *picviz_filtering_function_heatline_colorize(picviz_view_t *view, picviz_selection_t *selection);
+LibPicvizDecl char *picviz_filtering_function_heatline_colorize(picviz_view_t *view, picviz_layer_t *input_layer, picviz_layer_t *output_layer);
+LibPicvizDecl picviz_selection_t *picviz_filtering_function_less_equal(picviz_plotted_t *plotted, picviz_selection_t *selection, void *args);
+LibPicvizDecl char *picviz_filtering_function_square_area(picviz_view_t *view, picviz_layer_t *input_layer, picviz_layer_t *output_layer,float xmin, float ymin, float xmax, float ymax);
+LibPicvizDecl char *picviz_filtering_function_selectall(picviz_view_t *view, picviz_layer_t *input_layer, picviz_layer_t *output_layer);
+LibPicvizDecl char *picviz_filtering_function_heatline_select(picviz_view_t *view, picviz_layer_t *input_layer, picviz_layer_t *output_layer, float fmin, float fmax);
 
 
 

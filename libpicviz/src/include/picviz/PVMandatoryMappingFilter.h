@@ -30,7 +30,7 @@ enum mandatory_mapping_param_type
 
 typedef tbb::concurrent_unordered_map<mandatory_mapping_param_type, mandatory_param_value> mandatory_param_map;
 
-class LibExport PVMandatoryMappingFilter: public PVFilter::PVFilterFunctionRegistrable<int, mandatory_param_list_values const&, PVMandatoryMappingFilter>
+class LibPicvizDecl PVMandatoryMappingFilter: public PVFilter::PVFilterFunctionRegistrable<int, mandatory_param_list_values const&, PVMandatoryMappingFilter>
 {
 public:
 	typedef PVFilter::PVFilterFunctionRegistrable<int, mandatory_param_list_values const&, PVMandatoryMappingFilter>::base_registrable base_registrable;

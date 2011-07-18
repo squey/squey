@@ -25,7 +25,7 @@ namespace Picviz {
 *
 * \brief Stored functions and variables that can to be modified by those functions
 */
-class LibExport PVPlottingProperties {
+class LibPicvizDecl PVPlottingProperties {
 private:
 	PVRush::PVFormat format;
 	PVCol index;

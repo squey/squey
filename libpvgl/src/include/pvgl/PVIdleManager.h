@@ -25,7 +25,7 @@ enum PVIdleTaskKinds {
 /**
  *
  */
-class LibExport PVIdleManager {
+class LibGLDecl PVIdleManager {
 
 	struct IdleTask {
 		PVGL::PVDrawable      *drawable; //!<

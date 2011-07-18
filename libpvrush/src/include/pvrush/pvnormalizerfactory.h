@@ -40,7 +40,7 @@ namespace PVRush {
  * relocatable using the PVRUSH_NORMALIZE_HELPERS_DIR environment variable.
  *
  */
-class LibExport PVNormalizerFactory {
+class LibRushDecl PVNormalizerFactory {
 
 private:
 	QStringList normalizer_dirs;
@@ -81,7 +81,7 @@ public:
 // /**
 //  * This is the Normalize class
 //  */
-// 	class LibExport Normalize {
+// 	class LibRushDecl Normalize {
 // 	public:
 // 		Normalize();
 // 		~Normalize();

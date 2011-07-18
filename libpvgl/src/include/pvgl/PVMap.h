@@ -28,7 +28,7 @@ class PVLines;
  * \class PVMap
  *
  */
-class LibExport PVMap {
+class LibGLDecl PVMap {
 	Picviz::PVView_p  picviz_view;    //!< The Picviz::PVView this PVMap is attached to
 	PVView           *view;           //!< The PVView this PVMap is representing
 	PVWidgetManager  *widget_manager; //!< The PVWidgetManager that manages this PVMap

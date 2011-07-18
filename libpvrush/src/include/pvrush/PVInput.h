@@ -10,7 +10,7 @@
 
 namespace PVRush {
 
-class LibExport PVInput {
+class LibRushDecl PVInput {
 public:
 	typedef boost::shared_ptr<PVInput> p_type;
 	typedef size_t input_offset;
@@ -30,7 +30,7 @@ public:
 	virtual QString human_name() = 0;
 };
 
-class LibExport PVInputException {
+class LibRushDecl PVInputException {
 public:
 	virtual std::string const& what() const = 0;
 };

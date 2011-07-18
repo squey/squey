@@ -9,7 +9,7 @@
 namespace PVCore {
 
 template <typename T>
-class LibExport PVTBBMinMaxArray {
+class PVTBBMinMaxArray {
 protected:
 	const T* _arr;
 	T _max_value;

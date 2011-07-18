@@ -24,7 +24,7 @@ namespace PVRush {
  *
  * \note We could also imagine that a global PVController object would be used for all PVExtractor's, but that's not our choice for now.
  */
-class LibExport PVExtractor {
+class LibRushDecl PVExtractor {
 public:
 	PVExtractor(unsigned int nchunks = 0);
 	~PVExtractor();

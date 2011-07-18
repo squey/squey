@@ -23,7 +23,7 @@
 
 namespace PVRush {
 
-	class LibExport PVNraw {
+	class LibRushDecl PVNraw {
 	public:
 		typedef std::vector<QString, tbb::tbb_allocator<QString> > nraw_table_line;
 		typedef std::vector<nraw_table_line, tbb::tbb_allocator<nraw_table_line> > nraw_table;

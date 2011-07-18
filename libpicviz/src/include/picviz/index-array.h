@@ -42,8 +42,8 @@ typedef struct _picviz_index_array_t picviz_index_array_t;
  ******************************************************************************
  *****************************************************************************/
 
-LibExport picviz_index_array_t *picviz_index_array_new(int initial_row_count);
-LibExport void picviz_index_array_destroy(picviz_index_array_t *ia);
+LibPicvizDecl picviz_index_array_t *picviz_index_array_new(int initial_row_count);
+LibPicvizDecl void picviz_index_array_destroy(picviz_index_array_t *ia);
 
 
 
@@ -55,12 +55,12 @@ LibExport void picviz_index_array_destroy(picviz_index_array_t *ia);
  ******************************************************************************
  *****************************************************************************/
 
-// LibExport int picviz_index_array_get_row_count(picviz_index_array_t *ia);
-LibExport int picviz_index_array_get_index_count(picviz_index_array_t *ia);
+// LibPicvizDecl int picviz_index_array_get_row_count(picviz_index_array_t *ia);
+LibPicvizDecl int picviz_index_array_get_index_count(picviz_index_array_t *ia);
 
 
-// LibExport void picviz_index_array_set_row_count(picviz_index_array_t *ia, int new_row_count);
-LibExport void picviz_index_array_set_from_selection(picviz_index_array_t *ia, picviz_selection_t *selection);
+// LibPicvizDecl void picviz_index_array_set_row_count(picviz_index_array_t *ia, int new_row_count);
+LibPicvizDecl void picviz_index_array_set_from_selection(picviz_index_array_t *ia, picviz_selection_t *selection);
 
 
 
@@ -73,7 +73,7 @@ LibExport void picviz_index_array_set_from_selection(picviz_index_array_t *ia, p
  *****************************************************************************/
 
 
-// LibExport void picviz_index_array_reset_linear(picviz_index_array_t *index_array);
+// LibPicvizDecl void picviz_index_array_reset_linear(picviz_index_array_t *index_array);
 
 
 #ifdef __cplusplus

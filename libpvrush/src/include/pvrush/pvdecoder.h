@@ -26,13 +26,13 @@ typedef int (*pvrush_decoder_run_function)(PVRush::PVFormat *format, QVector<QSt
 
 namespace PVRush {
 
-	class LibExport PVDecoderFunction {
+	class LibRushDecl PVDecoderFunction {
 	public:
 		QLibrary *lib;	/* We need this to destroy it later */
 		pvrush_decoder_run_function function;
 	};
 
-	class LibExport PVDecoder {
+	class LibRushDecl PVDecoder {
   	private:
 		PVDecoderFunction function;
 		PVRush::PVFormat *format;
@@ -45,7 +45,7 @@ namespace PVRush {
   	};
 
 
-	class LibExport PVDecoderFactory {
+	class LibRushDecl PVDecoderFactory {
 	public:
   		PVDecoderFactory();
   		~PVDecoderFactory();
@@ -62,13 +62,13 @@ namespace PVRush {
 
 typedef int (*pvrush_decoder_run_function)(PVRush::PVFormat *format, QVector<QStringList> *normalized_list, QHash<QString, QString> decoderopt);
 
-	class LibExport DecodeFunctions {
+	class LibRushDecl DecodeFunctions {
 	public:
 		QLibrary *lib;	/* We need this to destroy it later */
 		pvrush_decoder_run_function decode_function;
 	};
 
-	class LibExport Decode {
+	class LibRushDecl Decode {
 		public:
 			Decode();
 			~Decode();
@@ -80,7 +80,7 @@ typedef int (*pvrush_decoder_run_function)(PVRush::PVFormat *format, QVector<QSt
 			QHash<QString, PVRush::DecodeFunctions> functions;
 	};
 
-        LibExport QStringList decoders_get_plugins_dirs();
+        LibRushDecl QStringList decoders_get_plugins_dirs();
 };
 
 

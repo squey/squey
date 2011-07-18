@@ -64,8 +64,8 @@ typedef struct _picviz_layer_t picviz_layer_t;
  ******************************************************************************
  *****************************************************************************/
 
-LibExport picviz_layer_t *picviz_layer_new(const char *name);
-LibExport void picviz_layer_destroy(picviz_layer_t *layer);
+LibPicvizDecl picviz_layer_t *picviz_layer_new(const char *name);
+LibPicvizDecl void picviz_layer_destroy(picviz_layer_t *layer);
 
 
 
@@ -78,18 +78,18 @@ LibExport void picviz_layer_destroy(picviz_layer_t *layer);
  ******************************************************************************
  *****************************************************************************/
 
-LibExport int picviz_layer_get_dynamic(picviz_layer_t *layer);
-LibExport int picviz_layer_get_locked(picviz_layer_t *layer);
-LibExport char *picviz_layer_get_name(picviz_layer_t *layer);
-LibExport picviz_selection_t *picviz_layer_get_selection(picviz_layer_t *layer);
-LibExport Picviz::PVLinesProperties *picviz_layer_get_lines_properties(picviz_layer_t *layer);
-LibExport int picviz_layer_get_visible(picviz_layer_t *layer);
+LibPicvizDecl int picviz_layer_get_dynamic(picviz_layer_t *layer);
+LibPicvizDecl int picviz_layer_get_locked(picviz_layer_t *layer);
+LibPicvizDecl char *picviz_layer_get_name(picviz_layer_t *layer);
+LibPicvizDecl picviz_selection_t *picviz_layer_get_selection(picviz_layer_t *layer);
+LibPicvizDecl Picviz::PVLinesProperties *picviz_layer_get_lines_properties(picviz_layer_t *layer);
+LibPicvizDecl int picviz_layer_get_visible(picviz_layer_t *layer);
 
-/* LibExport void picviz_layer_set_lines_properties_by_copy(picviz_layer_t *layer, picviz_lines_properties_t *lp); */
-LibExport void picviz_layer_set_locked(picviz_layer_t *layer, int locked);
-LibExport void picviz_layer_set_name(picviz_layer_t *layer, char *name);
-LibExport void picviz_layer_set_selection_by_copy(picviz_layer_t *layer, picviz_selection_t *selection);
-LibExport void picviz_layer_set_visible(picviz_layer_t *layer, int visible);
+/* LibPicvizDecl void picviz_layer_set_lines_properties_by_copy(picviz_layer_t *layer, picviz_lines_properties_t *lp); */
+LibPicvizDecl void picviz_layer_set_locked(picviz_layer_t *layer, int locked);
+LibPicvizDecl void picviz_layer_set_name(picviz_layer_t *layer, char *name);
+LibPicvizDecl void picviz_layer_set_selection_by_copy(picviz_layer_t *layer, picviz_selection_t *selection);
+LibPicvizDecl void picviz_layer_set_visible(picviz_layer_t *layer, int visible);
 
 
 
@@ -102,7 +102,7 @@ LibExport void picviz_layer_set_visible(picviz_layer_t *layer, int visible);
  ******************************************************************************
  *****************************************************************************/
 
-LibExport void picviz_layer_A2A_reset_to_empty_and_default_color(picviz_layer_t *a);
+LibPicvizDecl void picviz_layer_A2A_reset_to_empty_and_default_color(picviz_layer_t *a);
 
 
 
@@ -114,9 +114,9 @@ LibExport void picviz_layer_A2A_reset_to_empty_and_default_color(picviz_layer_t 
  ******************************************************************************
  *****************************************************************************/
 
-LibExport void picviz_layer_A2B_copy(picviz_layer_t *a, picviz_layer_t *b);
+LibPicvizDecl void picviz_layer_A2B_copy(picviz_layer_t *a, picviz_layer_t *b);
 
-LibExport void picviz_layer_debug(picviz_layer_t *layer);
+LibPicvizDecl void picviz_layer_debug(picviz_layer_t *layer);
 
 
 

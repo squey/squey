@@ -24,7 +24,7 @@ class PVView;
  *
  * \brief Handle the drawing of the axes, unselected and selected (when in axis mode)
  */
-class LibExport PVAxes {
+class LibGLDecl PVAxes {
 	Picviz::PVView_p pv_view;             //!< A pointer to the Picviz::PVView we are handling.
 	PVView          *view;                //!< A pointer to the PVGL::PVView we are drawing to.
 

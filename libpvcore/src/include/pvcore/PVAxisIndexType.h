@@ -15,7 +15,7 @@ namespace PVCore {
 /**
  * \class PVAxisIndexType
  */
-class LibExport PVAxisIndexType
+class LibCoreDecl PVAxisIndexType
 {
 	
 public:

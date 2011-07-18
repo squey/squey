@@ -34,7 +34,7 @@ namespace PVGL {
 /**
  *
  */
-class LibExport PVView : public PVDrawable {
+class LibGLDecl PVView : public PVDrawable {
 	PVSelectionSquare  selection_square;    //!<
 
 	PVWidgetManager  widget_manager;        //!<

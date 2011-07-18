@@ -22,7 +22,7 @@ namespace PVFilter {
 
 /*! \brief Exception class if a filter argument is missing during PVFilterFunction::set_args()
  */
-class LibExport PVFilterArgumentMissing : public std::exception
+class LibFilterDecl PVFilterArgumentMissing : public std::exception
 {
 public:
 	PVFilterArgumentMissing(QString const& arg) throw() :
@@ -108,7 +108,7 @@ protected:
 //! <li>base, that defines the base class (PVFilterFunctionBase<Tout,Tin). This must *never* be overrided.</li>
 //! </ul>
 template <typename Tout, typename Tin>
-class LibExport PVFilterFunctionBase
+class PVFilterFunctionBase
 {
 public:
 	typedef boost::function<Tout(Tin)> func_type;
@@ -151,7 +151,7 @@ protected:
 /*! \brief Special PVFilterFunctionBase function for Tin -> void
  */
 template <typename Tin>
-class LibExport PVFilterFunctionBase<void,Tin>
+class PVFilterFunctionBase<void,Tin>
 {
 public:
 	typedef boost::function<void(Tin)> func_type;
@@ -192,7 +192,7 @@ protected:
 /*! \brief Special PVFilterFunctionBase function for void -> Tin
  */
 template <typename Tout>
-class LibExport PVFilterFunctionBase<Tout,void>
+class PVFilterFunctionBase<Tout,void>
 {
 public:
 	typedef boost::function<Tout()> func_type;
@@ -209,12 +209,12 @@ public:
 	virtual Tout operator()() = 0;
 	/*! \brief Returns a boost::bind object that calls the operator() function of this filter
 	 */
-	func_type f() { return boost::bind<void>(&PVFilterFunctionBase<Tout,void>::_f, this, _1); }
+	func_type f() { return boost::bind<Tout>(&PVFilterFunctionBase<Tout,void>::_f, this); }
 
 	/*! \brief Intermediate function for boost::bind.
 	 * \note This whole process should be optimised because extra-calls are made, and may be a performance bottleneck.
 	 */
-	Tout _f() { this->operator()(); }
+	Tout _f() { return this->operator()(); }
 
 	QString const& get_name() { return _name; }
 
@@ -251,7 +251,7 @@ protected:
  */
 
 template <typename Tout, typename Tin, typename FilterT_ = PVFilterFunctionBase<Tout,Tin> >
-class LibExport PVFilterFunctionRegistrable: public PVFilterFunctionBase<Tout,Tin>
+class PVFilterFunctionRegistrable: public PVFilterFunctionBase<Tout,Tin>
 {
 public:
 	typedef FilterT_ FilterT;
@@ -286,7 +286,7 @@ protected:
  * Used by many filters in libpicviz and others.
  */
 template < typename T, typename FilterT_ = PVFilterFunctionBase<T&,T&> >
-class LibExport PVFilterFunction : public PVFilterFunctionRegistrable<T&,T&,FilterT_> {
+class PVFilterFunction : public PVFilterFunctionRegistrable<T&,T&,FilterT_> {
 public:
 	typedef FilterT_ FilterT;
 	typedef boost::shared_ptr< PVFilterFunction<T,FilterT> > p_type;

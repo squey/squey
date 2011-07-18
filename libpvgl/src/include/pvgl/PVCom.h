@@ -217,7 +217,7 @@ namespace PVGL {
  *
  * The structure describing a message. Fields don't need to always be filled.
  */
-struct LibExport PVMessage
+struct LibGLDecl PVMessage
 {
 	PVGLComFunction  function;  //!< The type of the message (always a function) see #PVGLComFunction.
 	Picviz::PVView_p pv_view;   //!< A pointer to the Picviz::PVView the message is about.
@@ -233,7 +233,7 @@ struct LibExport PVMessage
 /**
  * \class PVCom
  */
-class LibExport PVCom
+class LibGLDecl PVCom
 {
 	QMutex mutex;                     //!< A Mutex protecting the access to all our message queues.
 	std::queue<PVMessage> gl_to_qt; //!< The queue to store all the messages from the PVGL, waiting for the Main Interface to handle them.
@@ -273,7 +273,7 @@ public:
  *
  * The main thread of the PVGL.
  */
-class LibExport PVThread : public QThread
+class LibGLDecl PVThread : public QThread
 {
 	PVGL::PVCom *pvgl_com; //!<
 public:

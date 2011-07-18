@@ -23,7 +23,7 @@ namespace PVGL {
 /**
  *
  */
-class LibExport PVDrawable {
+class LibGLDecl PVDrawable {
 protected:
 	Picviz::PVView_p picviz_view;    //!<
 	PVCom           *pv_com;         //!<

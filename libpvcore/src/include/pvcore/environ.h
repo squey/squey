@@ -12,8 +12,8 @@
 
 namespace PVCore {
 
-	LibExport int mkenv(const char *name, const char *value);
-	LibExport int rmenv(const char *name);
+	LibCoreDecl int mkenv(const char *name, const char *value);
+	LibCoreDecl int rmenv(const char *name);
 
 }
 

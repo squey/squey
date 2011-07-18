@@ -8,11 +8,28 @@
 #ifndef PVCORE_EXPORT_H
 #define PVCORE_EXPORT_H
 
-#ifdef WIN32
+#define LibExportTempl template class __declspec( dllexport )
+#define LibImportTempl template class __declspec( dllimport )
+
+#define win32_FilterLibraryDeclExp LibExportTempl
+#define win32_FilterLibraryDeclImp LibImportTempl
+
 #define LibExport __declspec( dllexport )
+#define LibImport __declspec( dllimport )
+
+#ifdef WIN32
+ #ifdef pvcore_EXPORTS
+  #define pvcore_FilterLibraryDecl win32_FilterLibraryDeclExp
+  #define LibCoreDecl LibExport
+ #else
+  #define pvcore_FilterLibraryDecl win32_FilterLibraryDeclImp
+  #define LibCoreDecl LibImport
+ #endif
 #else
-#define LibExport
+ #define pvcore_FilterLibraryDecl
+ #define LibCoreDecl
 #endif
+
 
 #ifdef WIN32
 #define LibCPPExport extern "C" __declspec( dllexport )
@@ -26,37 +43,10 @@
 #define PluginExport extern "C"
 #endif
 
-#define win32_FilterLibraryDeclExp template class __declspec( dllexport )
-#define win32_FilterLibraryDeclImp extern template class __declspec( dllimport )
-
-#ifdef WIN32
- #ifdef pvfilter_EXPORTS
-  #define pvfilter_FilterLibraryDecl win32_FilterLibraryDeclExp
- #else
-  #define pvfilter_FilterLibraryDecl win32_FilterLibraryDeclImp
- #endif
-#else
- #define pvfilter_FilterLibraryDecl LibExport
-#endif
-
-#ifdef WIN32
- #ifdef pvrush_EXPORTS
-  #define pvrush_FilterLibraryDecl win32_FilterLibraryDeclExp
- #else
-  #define pvrush_FilterLibraryDecl win32_FilterLibraryDeclImp
- #endif
-#else
- #define pvrush_FilterLibraryDecl LibExport
-#endif
-
-#ifdef WIN32
- #ifdef picviz_EXPORTS
-  #define picviz_FilterLibraryDecl win32_FilterLibraryDeclExp
- #else
-  #define picviz_FilterLibraryDecl win32_FilterLibraryDeclImp
- #endif
-#else
- #define picviz_FilterLibraryDecl LibExport
-#endif
+// Decls for other libraries
+#include "../../../../libpvfilter/src/include/pvfilter/export.h"
+#include "../../../../libpvrush/src/include/pvrush/export.h"
+#include "../../../../libpicviz/src/include/picviz/export.h"
+#include "../../../../libpvgl/src/include/pvgl/export.h"
 
 #endif	/* PVCORE_EXPORT_H */

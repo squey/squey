@@ -11,7 +11,7 @@
 
 namespace PVFilter {
 
-class LibExport PVFieldFilterReplace : public PVFieldFilter {
+class LibFilterDecl PVFieldFilterReplace : public PVFieldFilter {
 public:
 	PVCore::PVField
 };

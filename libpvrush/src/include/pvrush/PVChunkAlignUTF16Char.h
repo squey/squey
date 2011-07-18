@@ -15,7 +15,7 @@ namespace PVRush {
  * \todo Currently, this class is used to align text file chunks on '\\n'.
  * It would be better to have a PVChunkAlignBoundary that uses QTextBoundaryFinder.
  */
-class LibExport PVChunkAlignUTF16Char : public PVChunkAlign {
+class LibRushDecl PVChunkAlignUTF16Char : public PVChunkAlign {
 public:
 	PVChunkAlignUTF16Char(QChar c);
 public:

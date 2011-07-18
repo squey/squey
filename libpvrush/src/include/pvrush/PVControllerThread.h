@@ -8,7 +8,7 @@
 
 namespace PVRush {
 
-class LibExport PVControllerThread : public QThread {
+class LibRushDecl PVControllerThread : public QThread {
 public:
 	PVControllerThread(PVController& ctrl);
 public:

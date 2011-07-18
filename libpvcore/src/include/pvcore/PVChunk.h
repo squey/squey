@@ -35,7 +35,7 @@ typedef std::list< PVElement, tbb::tbb_allocator<PVElement> > list_elts;
 
 // Describe chunk interface with no allocator template
 // Useful in order to use chunks as function arguments...
-class LibExport PVChunk {
+class LibCoreDecl PVChunk {
 friend class PVRush::PVAggregator;
 
 public:
@@ -82,7 +82,7 @@ protected:
 };
 
 template < template <class T> class Allocator = std::allocator >
-class LibExport PVChunkMem : public PVChunk {
+class PVChunkMem : public PVChunk {
 public:
 	typedef Allocator<char> alloc_chunk;
 private:

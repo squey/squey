@@ -393,7 +393,7 @@ void PVGL::PVMain::create_view(QString *name)
 			//PRINT_OPENGL_ERROR ();
 			//fixing_glew_bugs ();
 		//}
-	glClearColor(0.2, 0.2, 0.2, 1.0);
+	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 	glEnable(GL_DEPTH_TEST);
 	glClear(GL_COLOR_BUFFER_BIT);
 	glMatrixMode(GL_PROJECTION);
@@ -443,7 +443,7 @@ void PVGL::PVMain::create_scatter(QString *name, Picviz::PVView_p pv_view)
 
 	PRINT_OPENGL_ERROR ();
 	glewInit ();
-	glClearColor(0.2, 0.2, 0.2, 1.0);
+	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 	glEnable(GL_DEPTH_TEST);
 	glClear(GL_COLOR_BUFFER_BIT);
 	glMatrixMode(GL_PROJECTION);

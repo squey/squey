@@ -74,11 +74,11 @@ typedef struct _picviz_filter_t picviz_filter_t;
 
 typedef void (*picviz_filtering_function_foreach_func)(char *name, picviz_filter_t *filter, void *userdata);
 
-LibExport picviz_filter_t *picviz_filter_new(void);
-LibExport picviz_filter_t *picviz_filter_plugin_load(apr_pool_t *pool, char *filepath);
-LibExport int picviz_filters_plugin_register_all(apr_pool_t *pool, apr_hash_t *hash);
-LibExport void picviz_filters_foreach_filter(picviz_datatreerootitem_t *datatree, picviz_filtering_function_foreach_func foreach_func, void *userdata);
-LibExport picviz_filter_t *picviz_filters_get_filter_from_name(picviz_datatreerootitem_t *datatree, char *name);
+LibPicvizDecl picviz_filter_t *picviz_filter_new(void);
+LibPicvizDecl picviz_filter_t *picviz_filter_plugin_load(apr_pool_t *pool, char *filepath);
+LibPicvizDecl int picviz_filters_plugin_register_all(apr_pool_t *pool, apr_hash_t *hash);
+LibPicvizDecl void picviz_filters_foreach_filter(picviz_datatreerootitem_t *datatree, picviz_filtering_function_foreach_func foreach_func, void *userdata);
+LibPicvizDecl picviz_filter_t *picviz_filters_get_filter_from_name(picviz_datatreerootitem_t *datatree, char *name);
 
 #ifdef __cplusplus
  }

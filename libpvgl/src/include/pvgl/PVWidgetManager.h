@@ -45,7 +45,7 @@ enum PVGLIconNames
 
 namespace PVGL {
 	class PVView;
-struct LibExport PVIcon
+struct LibGLDecl PVIcon
 {
 	int x;
 	int y;
@@ -60,7 +60,7 @@ struct LibExport PVIcon
 /**
  * \class PVWidgetManager
  */
-class LibExport PVWidgetManager {
+class LibGLDecl PVWidgetManager {
 	PVFont              pvgl_font;           //!< The PVFont attached to this PVWidgetManager
 	GLuint              icon_texture;        //!< The Texture providing the icons of this PVWidgetManager
 	std::vector<PVIcon> icons;               //!< 

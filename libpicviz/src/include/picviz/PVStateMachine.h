@@ -12,7 +12,7 @@
 
 namespace Picviz {
 
-        class LibExport PVStateMachine {
+        class LibPicvizDecl PVStateMachine {
             bool antialiased; // FIXME remove me! [STR: Why?]
             bool axes_mode;
             bool sync_all_views;

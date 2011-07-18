@@ -27,7 +27,7 @@ namespace Picviz {
 /**
 * \class PVSelection
 */
-class LibExport PVSelection {
+class LibPicvizDecl PVSelection {
 private:
 	std::vector<uint32_t> table;
 

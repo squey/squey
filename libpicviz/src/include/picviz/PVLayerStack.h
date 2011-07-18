@@ -19,7 +19,7 @@ namespace Picviz {
 /**
  * \class PVLayerStack
  */
-class LibExport PVLayerStack {
+class LibPicvizDecl PVLayerStack {
 private:
 	PVLayerIndexArray lia;
 	int               layer_count; // layer_count < 256
@@ -81,18 +81,18 @@ public:
 
 
 
-LibExport picviz_layer_t *picviz_layer_stack_get_layer_n(picviz_layer_stack_t *layer_stack, int n);
-LibExport picviz_layer_t *picviz_layer_stack_get_selected_layer(picviz_layer_stack_t *layer_stack);
+LibPicvizDecl picviz_layer_t *picviz_layer_stack_get_layer_n(picviz_layer_stack_t *layer_stack, int n);
+LibPicvizDecl picviz_layer_t *picviz_layer_stack_get_selected_layer(picviz_layer_stack_t *layer_stack);
 
 
-LibExport void picviz_layer_stack_process(picviz_layer_stack_t *layer_stack, picviz_layer_t *output_layer, PVRow row_count);
+LibPicvizDecl void picviz_layer_stack_process(picviz_layer_stack_t *layer_stack, picviz_layer_t *output_layer, PVRow row_count);
 
 
-LibExport void picviz_layer_stack_append_new_layer_from_selection_and_lines_properties(picviz_layer_stack_t *layer_stack, picviz_selection_t *selection, Picviz::PVLinesProperties *lines_properties);
+LibPicvizDecl void picviz_layer_stack_append_new_layer_from_selection_and_lines_properties(picviz_layer_stack_t *layer_stack, picviz_selection_t *selection, Picviz::PVLinesProperties *lines_properties);
 
-LibExport void picviz_layer_stack_layer_delete_by_index(picviz_layer_stack_t *layer_stack, int index);
-LibExport void picviz_layer_stack_delete_selected_layer(picviz_layer_stack_t *layer_stack);
+LibPicvizDecl void picviz_layer_stack_layer_delete_by_index(picviz_layer_stack_t *layer_stack, int index);
+LibPicvizDecl void picviz_layer_stack_delete_selected_layer(picviz_layer_stack_t *layer_stack);
 
-LibExport picviz_layer_t *picviz_layer_stack_layer_get_by_index(picviz_layer_stack_t *layer_stack, int index);
+LibPicvizDecl picviz_layer_t *picviz_layer_stack_layer_get_by_index(picviz_layer_stack_t *layer_stack, int index);
 
 */

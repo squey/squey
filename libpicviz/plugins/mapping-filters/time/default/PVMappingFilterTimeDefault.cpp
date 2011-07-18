@@ -77,7 +77,7 @@ float* Picviz::PVMappingFilterTimeDefault::operator()(PVRush::PVNraw::nraw_table
 	}
 #ifdef WIN32
 	free(cals);
-	free(dtparsers);
+	delete [] dtparsers;
 #endif
 
 	return _dest;

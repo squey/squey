@@ -8,7 +8,7 @@
 
 namespace PVFilter {
 
-class LibExport PVPluginsLoad
+class LibFilterDecl PVPluginsLoad
 {
 public:
 	static int load_all_plugins();

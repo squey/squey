@@ -18,7 +18,7 @@ class PVDrawable;
 /**
 	*
 	*/
-struct LibExport PVMain {
+struct LibGLDecl PVMain {
 
 	/**
 	*

@@ -10,7 +10,7 @@
 namespace PVRush {
 
 /*template < template <class T> class Allocator = std::allocator >
-class LibExport PVCSVSource : public PVUnicodeSource<Allocator> {
+class LibRushDecl PVCSVSource : public PVUnicodeSource<Allocator> {
 public:
 	typedef typename PVUnicodeSource<Allocator>::alloc_chunk alloc_chunk;
 public:

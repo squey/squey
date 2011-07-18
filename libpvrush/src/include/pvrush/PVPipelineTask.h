@@ -7,7 +7,7 @@
 
 namespace PVRush {
 
-class LibExport PVPipelineTask : public tbb::task {
+class LibRushDecl PVPipelineTask : public tbb::task {
 public:
 	PVPipelineTask();
 	task* execute();

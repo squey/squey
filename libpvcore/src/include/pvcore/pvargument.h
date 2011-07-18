@@ -15,7 +15,7 @@
 
 namespace PVCore {
 
-  class LibExport PVArgument {
+  class LibCoreDecl PVArgument {
   public:
 
     enum pvargument_type {

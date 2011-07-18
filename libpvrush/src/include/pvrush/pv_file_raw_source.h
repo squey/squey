@@ -16,7 +16,7 @@
 
 
 
-class LibExport PVFileRawSource {
+class LibRushDecl PVFileRawSource {
 	private:
 		QString filename;
 

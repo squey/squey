@@ -16,7 +16,7 @@
 #define LINUX_PCI_DEVICES_FILE "/proc/bus/pci/devices"
 
 namespace PVCore {
-	class LibExport SysInfo {
+	class LibCoreDecl SysInfo {
 	public:
 		SysInfo();
 		~SysInfo();

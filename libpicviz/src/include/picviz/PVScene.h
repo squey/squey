@@ -19,7 +19,7 @@ namespace Picviz {
 /**
  * \class PVScene
  */
-class LibExport PVScene {
+class LibPicvizDecl PVScene {
 public:
 	typedef boost::shared_ptr<PVScene> p_type;
 public:

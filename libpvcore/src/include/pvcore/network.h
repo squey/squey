@@ -14,7 +14,7 @@
 #include <dnet.h>
 
 namespace PVCore {
-	struct LibExport Network {
+	struct LibCoreDecl Network {
 		static bool ipv4_aton(QString const& ip, uint32_t& ip_n);
 		static char* ipv4_ntoa(const ip_addr_t addr);
 	};

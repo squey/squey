@@ -20,7 +20,7 @@ namespace Picviz {
 /**
  * \class PVMappingFactory
  */
-class LibExport PVMappingFactory {
+class LibPicvizDecl PVMappingFactory {
 public:
 	PVMappingFactory();
 	~PVMappingFactory();

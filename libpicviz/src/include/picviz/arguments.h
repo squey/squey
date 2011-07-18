@@ -86,22 +86,22 @@ struct _picviz_arguments_t {
 };
 typedef struct _picviz_arguments_t picviz_arguments_t;
 
-LibExport picviz_arguments_t *picviz_arguments_new(void);
-LibExport void picviz_arguments_destroy(picviz_arguments_t *arguments);
-LibExport int picviz_arguments_item_append(picviz_arguments_t *arguments, picviz_argument_item_t item);
-LibExport int picviz_arguments_item_list_append(picviz_arguments_t *arguments, picviz_argument_item_t items[]);
-LibExport void picviz_arguments_item_debug(picviz_argument_item_t item);
-LibExport void picviz_arguments_debug(picviz_arguments_t *arguments);
-LibExport picviz_argument_item_t picviz_arguments_item_new(void);
-LibExport void picviz_arguments_item_destroy(picviz_argument_item_t item);
-LibExport picviz_argument_item_t picviz_arguments_get_item_from_name(picviz_arguments_t *arguments, const char *name);
-LibExport void picviz_arguments_set_item_from_name(picviz_arguments_t *arguments, char *name, picviz_argument_item_t item);
-LibExport picviz_argument_item_t picviz_arguments_get_item_from_group_and_dualslider_position(picviz_arguments_t *arguments, char *group, picviz_argument_slider_position_t position);
-LibExport char *picviz_arguments_item_get_string(picviz_argument_item_t item);
-LibExport picviz_argument_item_t picviz_arguments_item_set_string(picviz_argument_item_t item, char *value);
-LibExport float picviz_arguments_item_get_float(picviz_argument_item_t item);
-LibExport void picviz_arguments_item_set_float(picviz_argument_item_t item, float value);
-LibExport float picviz_arguments_read_item_value_as_float(picviz_argument_item_t item);
+LibPicvizDecl picviz_arguments_t *picviz_arguments_new(void);
+LibPicvizDecl void picviz_arguments_destroy(picviz_arguments_t *arguments);
+LibPicvizDecl int picviz_arguments_item_append(picviz_arguments_t *arguments, picviz_argument_item_t item);
+LibPicvizDecl int picviz_arguments_item_list_append(picviz_arguments_t *arguments, picviz_argument_item_t items[]);
+LibPicvizDecl void picviz_arguments_item_debug(picviz_argument_item_t item);
+LibPicvizDecl void picviz_arguments_debug(picviz_arguments_t *arguments);
+LibPicvizDecl picviz_argument_item_t picviz_arguments_item_new(void);
+LibPicvizDecl void picviz_arguments_item_destroy(picviz_argument_item_t item);
+LibPicvizDecl picviz_argument_item_t picviz_arguments_get_item_from_name(picviz_arguments_t *arguments, const char *name);
+LibPicvizDecl void picviz_arguments_set_item_from_name(picviz_arguments_t *arguments, char *name, picviz_argument_item_t item);
+LibPicvizDecl picviz_argument_item_t picviz_arguments_get_item_from_group_and_dualslider_position(picviz_arguments_t *arguments, char *group, picviz_argument_slider_position_t position);
+LibPicvizDecl char *picviz_arguments_item_get_string(picviz_argument_item_t item);
+LibPicvizDecl picviz_argument_item_t picviz_arguments_item_set_string(picviz_argument_item_t item, char *value);
+LibPicvizDecl float picviz_arguments_item_get_float(picviz_argument_item_t item);
+LibPicvizDecl void picviz_arguments_item_set_float(picviz_argument_item_t item, float value);
+LibPicvizDecl float picviz_arguments_read_item_value_as_float(picviz_argument_item_t item);
 
 
 #ifdef __cplusplus

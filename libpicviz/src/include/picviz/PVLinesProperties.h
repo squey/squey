@@ -23,7 +23,7 @@ namespace Picviz {
 /**
  * \class PVLinesProperties
  */
-class LibExport PVLinesProperties {
+class LibPicvizDecl PVLinesProperties {
 public:
 	pvrow last_index; /*<! FIXME: Do we really need this?  */
 	QVector<PVColor> table;

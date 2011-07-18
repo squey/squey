@@ -25,7 +25,7 @@ enum fields_filter_type {
 
 // Function typedef
 template <fields_filter_type Ttype = many_to_many>
-class LibExport PVFieldsFilter : public PVFilterFunction< PVCore::list_fields, PVFieldsFilter<Ttype> > {
+class PVFieldsFilter : public PVFilterFunction< PVCore::list_fields, PVFieldsFilter<Ttype> > {
 public:
 	typedef PVFieldsFilter<Ttype> FilterT;
 	typedef boost::shared_ptr< PVFieldsFilter<Ttype> > p_type;

@@ -22,7 +22,7 @@ class PVView;
 /**
  *
  */
-class LibExport PVEventLine : public PVWidget {
+class LibGLDecl PVEventLine : public PVWidget {
 	Picviz::PVView_p picviz_view;      //!< A pointer to the Picviz::PVView this eventline should represent.
 	PVGL::PVView    *view;             //!<
 	PVGL::PVCom     *pv_com;           //!<

@@ -42,7 +42,7 @@ namespace PVRush {
 /**
  * This is the Format class
  */
-	class LibExport PVFormat {
+	class LibRushDecl PVFormat {
 		public:
 			typedef QList<QHash<QString, QString> > list_axes;
 			typedef boost::shared_ptr<PVFormat> p_type;

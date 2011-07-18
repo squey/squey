@@ -19,7 +19,7 @@ namespace PVRush {
 
 	class PVNraw;
 
-	class LibExport PVNrawChild {
+	class LibRushDecl PVNrawChild {
 	private:
 		PVNraw *parent;
 		PVRow *parent_line_map;

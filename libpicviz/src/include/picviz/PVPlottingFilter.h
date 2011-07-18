@@ -14,7 +14,7 @@
 
 namespace Picviz {
 
-class LibExport PVPlottingFilter: public PVFilter::PVFilterFunctionRegistrable<float*, float*, PVPlottingFilter>
+class LibPicvizDecl PVPlottingFilter: public PVFilter::PVFilterFunctionRegistrable<float*, float*, PVPlottingFilter>
 {
 public:
 	typedef PVFilter::PVFilterFunctionRegistrable<float*, float*, PVPlottingFilter>::base_registrable base_registrable;

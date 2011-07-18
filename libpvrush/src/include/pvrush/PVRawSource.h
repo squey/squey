@@ -16,7 +16,7 @@
 namespace PVRush {
 
 template < template <class T> class Allocator = tbb::scalable_allocator >
-class LibExport PVRawSource : public PVFilter::PVRawSourceBase {
+class PVRawSource : public PVFilter::PVRawSourceBase {
 public:
 	typedef PVCore::PVChunkMem<Allocator> PVChunkAlloc;
 	typedef Allocator<char> alloc_chunk;

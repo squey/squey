@@ -16,7 +16,7 @@ namespace PVGL {
 /**
  * \class PVLabel
  */
-class LibExport PVLabel : public PVMisc {
+class LibGLDecl PVLabel : public PVMisc {
 
 	std::string text;      //!<
 	bool        shadow;    //!<

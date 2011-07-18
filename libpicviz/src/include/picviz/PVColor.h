@@ -16,7 +16,7 @@ namespace Picviz {
 /**
  * \struct PVColor:ubvec4
  */
-struct LibExport PVColor : ubvec4 {
+struct LibPicvizDecl PVColor : ubvec4 {
 
 	/**
 	 * Constructor

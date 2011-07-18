@@ -21,8 +21,8 @@
  extern "C" {
 #endif
 
-LibExport void picviz_init(int argc, char **argv);
-LibExport void picviz_terminate(void);
+LibPicvizDecl void picviz_init(int argc, char **argv);
+LibPicvizDecl void picviz_terminate(void);
 
 #ifdef __cplusplus
  }

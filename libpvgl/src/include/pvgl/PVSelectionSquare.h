@@ -23,7 +23,7 @@ class PVView;
 /**
  * \class PVSelectionSquare
  */
-class LibExport PVSelectionSquare {
+class LibGLDecl PVSelectionSquare {
 	Picviz::PVView_p pv_view;                //!<
 	PVView      *view;
 

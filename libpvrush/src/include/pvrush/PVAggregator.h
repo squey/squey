@@ -34,7 +34,7 @@ namespace PVRush {
  * \todo Index searching optimisation (see process_indexes and process_from_source), which means do not start from the beggining
  *       each time process_indexes or process_from_source is called. The first thing is to really use the map_source_offsets.
  */
-class LibExport PVAggregator {
+class LibRushDecl PVAggregator {
 public:
 	typedef std::vector<PVFilter::PVRawSourceBase_p> list_inputs;
 
@@ -198,7 +198,7 @@ protected:
 /*! \brief Helper class to use a reference to an aggregator as a TBB filter.
  *  \sa PVAggregator copy constructor.
  */
-class LibExport PVAggregatorTBB {
+class LibRushDecl PVAggregatorTBB {
 public:
 	PVAggregatorTBB(PVAggregator &ref) :
 		_ref(ref)

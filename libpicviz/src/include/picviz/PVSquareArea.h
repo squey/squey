@@ -14,7 +14,7 @@ namespace Picviz {
 /**
  * \class PVSquareArea
  */
-class LibExport PVSquareArea {
+class LibPicvizDecl PVSquareArea {
 public:
 	PVSquareArea();
 

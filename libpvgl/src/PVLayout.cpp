@@ -33,7 +33,7 @@ void PVGL::PVLayout::draw()
 
 	// Draw the layout container itself.
 	glEnable(GL_BLEND);
-	glColor4f(0.6, 0.7, 0.9, 0.8);
+	glColor4f(0.6f, 0.7f, 0.9f, 0.8f);
 	glBegin(GL_QUADS);
 	glVertex2f(allocation.x,                    allocation.y);
 	glVertex2f(allocation.x + allocation.width, allocation.y);

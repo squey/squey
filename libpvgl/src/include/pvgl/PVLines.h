@@ -27,7 +27,7 @@ class PVView;
 /**
  * \class PVLines
  */
-class LibExport PVLines {
+class LibGLDecl PVLines {
 	/**
 	 *
 	 */

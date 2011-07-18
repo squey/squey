@@ -23,7 +23,7 @@ namespace Picviz {
 /**
  * \class PVZLevelArray
  */
-class LibExport PVZLevelArray {
+class LibPicvizDecl PVZLevelArray {
 private:
 	float array [PICVIZ_Z_LEVEL_ARRAY_MAX_SIZE];
 	PVRow row_count;

@@ -8,7 +8,7 @@ namespace PVFilter {
 
 // This class will randomly invalidate elements
 // This is used for the controller's test cases
-class LibExport PVElementFilterRandInvalid : public PVElementFilter {
+class LibFilterDecl PVElementFilterRandInvalid : public PVElementFilter {
 public:
 	PVElementFilterRandInvalid();
 public:

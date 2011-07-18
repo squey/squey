@@ -46,8 +46,8 @@ typedef struct _picviz_layer_stack_t picviz_layer_stack_t;
  ******************************************************************************
  *****************************************************************************/
 
-LibExport picviz_layer_stack_t *picviz_layer_stack_new(PVRow row_count);
-LibExport void picviz_layer_stack_destroy(picviz_layer_stack_t *layer_stack);
+LibPicvizDecl picviz_layer_stack_t *picviz_layer_stack_new(PVRow row_count);
+LibPicvizDecl void picviz_layer_stack_destroy(picviz_layer_stack_t *layer_stack);
 
 
 
@@ -60,12 +60,12 @@ LibExport void picviz_layer_stack_destroy(picviz_layer_stack_t *layer_stack);
  ******************************************************************************
  *****************************************************************************/
 
-LibExport int picviz_layer_stack_get_layer_count(picviz_layer_stack_t *layer_stack);
-LibExport picviz_layer_t *picviz_layer_stack_get_layer_n(picviz_layer_stack_t *layer_stack, int n);
-LibExport picviz_layer_t *picviz_layer_stack_get_selected_layer(picviz_layer_stack_t *layer_stack);
-LibExport int picviz_layer_stack_get_selected_layer_index(picviz_layer_stack_t *layer_stack);
+LibPicvizDecl int picviz_layer_stack_get_layer_count(picviz_layer_stack_t *layer_stack);
+LibPicvizDecl picviz_layer_t *picviz_layer_stack_get_layer_n(picviz_layer_stack_t *layer_stack, int n);
+LibPicvizDecl picviz_layer_t *picviz_layer_stack_get_selected_layer(picviz_layer_stack_t *layer_stack);
+LibPicvizDecl int picviz_layer_stack_get_selected_layer_index(picviz_layer_stack_t *layer_stack);
 
-LibExport void picviz_layer_stack_set_selected_layer_index(picviz_layer_stack_t *layer_stack, int index);
+LibPicvizDecl void picviz_layer_stack_set_selected_layer_index(picviz_layer_stack_t *layer_stack, int index);
 
 
 /******************************************************************************
@@ -77,8 +77,8 @@ LibExport void picviz_layer_stack_set_selected_layer_index(picviz_layer_stack_t 
  *****************************************************************************/
 
 
-LibExport void picviz_layer_stack_process(picviz_layer_stack_t *layer_stack, picviz_layer_t *output_layer, PVRow row_count);
-LibExport void picviz_layer_stack_update_layer_index_array_completely(picviz_layer_stack_t *layer_stack);
+LibPicvizDecl void picviz_layer_stack_process(picviz_layer_stack_t *layer_stack, picviz_layer_t *output_layer, PVRow row_count);
+LibPicvizDecl void picviz_layer_stack_update_layer_index_array_completely(picviz_layer_stack_t *layer_stack);
 
 
 /******************************************************************************
@@ -89,23 +89,23 @@ LibExport void picviz_layer_stack_update_layer_index_array_completely(picviz_lay
  ******************************************************************************
  *****************************************************************************/
 
-LibExport void picviz_layer_stack_append_layer(picviz_layer_stack_t *layer_stack, picviz_layer_t *layer);
-LibExport void picviz_layer_stack_append_new_layer(picviz_layer_stack_t *layer_stack);
-// LibExport void picviz_layer_stack_append_new_layer_from_layer(picviz_layer_stack_t *layer_stack, picviz_layer_t *layer);
-LibExport void picviz_layer_stack_append_new_layer_from_selection_and_lines_properties(picviz_layer_stack_t *layer_stack, picviz_selection_t *selection, Picviz::PVLinesProperties *lines_properties);
+LibPicvizDecl void picviz_layer_stack_append_layer(picviz_layer_stack_t *layer_stack, picviz_layer_t *layer);
+LibPicvizDecl void picviz_layer_stack_append_new_layer(picviz_layer_stack_t *layer_stack);
+// LibPicvizDecl void picviz_layer_stack_append_new_layer_from_layer(picviz_layer_stack_t *layer_stack, picviz_layer_t *layer);
+LibPicvizDecl void picviz_layer_stack_append_new_layer_from_selection_and_lines_properties(picviz_layer_stack_t *layer_stack, picviz_selection_t *selection, Picviz::PVLinesProperties *lines_properties);
 
-LibExport void picviz_layer_stack_layer_delete_by_index(picviz_layer_stack_t *layer_stack, int index);
-LibExport void picviz_layer_stack_delete_selected_layer(picviz_layer_stack_t *layer_stack);
+LibPicvizDecl void picviz_layer_stack_layer_delete_by_index(picviz_layer_stack_t *layer_stack, int index);
+LibPicvizDecl void picviz_layer_stack_delete_selected_layer(picviz_layer_stack_t *layer_stack);
 
-LibExport picviz_layer_t *picviz_layer_stack_layer_get_by_index(picviz_layer_stack_t *layer_stack, int index);
-// LibExport picviz_layer_t *picviz_layer_stack_layer_get_by_name(picviz_layer_stack_t *layer_stack, char *name);
+LibPicvizDecl picviz_layer_t *picviz_layer_stack_layer_get_by_index(picviz_layer_stack_t *layer_stack, int index);
+// LibPicvizDecl picviz_layer_t *picviz_layer_stack_layer_get_by_name(picviz_layer_stack_t *layer_stack, char *name);
 
-LibExport int picviz_layer_stack_move_layer_down(picviz_layer_stack_t *layer_stack, int index);
-LibExport int picviz_layer_stack_move_layer_up(picviz_layer_stack_t *layer_stack, int index);
-LibExport void picviz_layer_stack_move_selected_layer_down(picviz_layer_stack_t *layer_stack);
-LibExport void picviz_layer_stack_move_selected_layer_up(picviz_layer_stack_t *layer_stack);
+LibPicvizDecl int picviz_layer_stack_move_layer_down(picviz_layer_stack_t *layer_stack, int index);
+LibPicvizDecl int picviz_layer_stack_move_layer_up(picviz_layer_stack_t *layer_stack, int index);
+LibPicvizDecl void picviz_layer_stack_move_selected_layer_down(picviz_layer_stack_t *layer_stack);
+LibPicvizDecl void picviz_layer_stack_move_selected_layer_up(picviz_layer_stack_t *layer_stack);
 
-LibExport void picviz_layer_stack_debug(picviz_layer_stack_t *layer_stack);
+LibPicvizDecl void picviz_layer_stack_debug(picviz_layer_stack_t *layer_stack);
 
 
 

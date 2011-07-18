@@ -15,8 +15,9 @@ namespace PVCore {
 
 /**
  * \class PVSpinBoxType
+ * \note This class is fully implemented in its definition, so no LibCoreDecl is needed (each library will have its own version).
  */
-class LibExport PVSpinBoxType
+class PVSpinBoxType
 {
 public:
 	PVSpinBoxType() { _value = 0; };

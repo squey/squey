@@ -7,7 +7,7 @@
 
 namespace PVRush {
 
-class LibExport PVOutput : public PVFilter::PVFilterFunctionBase<void,PVCore::PVChunk*> {
+class LibRushDecl PVOutput : public PVFilter::PVFilterFunctionBase<void,PVCore::PVChunk*> {
 public:
 	// This is the output of a TBB pipeline
 	// It takes a PVCore::PVChunk* as a parameter, and do whatever he wants with it

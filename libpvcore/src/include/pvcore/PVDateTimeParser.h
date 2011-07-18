@@ -17,7 +17,7 @@
 
 namespace PVCore {
 
-class LibExport PVDateTimeParser {
+class LibCoreDecl PVDateTimeParser {
 public:
 	PVDateTimeParser();
 	PVDateTimeParser(QStringList const& time_format);

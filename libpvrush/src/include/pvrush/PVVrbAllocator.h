@@ -13,10 +13,10 @@ extern "C" {
 
 namespace PVRush {
 
-class LibExport unorder_deallocation : public std::exception {};
+class LibRushDecl unorder_deallocation : public std::exception {};
 
 template<typename T>
-class LibExport PVVrbAllocator {
+class LibRushDecl PVVrbAllocator {
 public : 
 	typedef T value_type;
 	typedef value_type* pointer;

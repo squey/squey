@@ -14,7 +14,7 @@
 
 namespace PVFilter {
 
-class LibExport PVFieldSplitterUTF16Char : public PVFieldsFilter<one_to_many> {
+class LibFilterDecl PVFieldSplitterUTF16Char : public PVFieldsFilter<one_to_many> {
 public:
 	PVFieldSplitterUTF16Char(PVArgumentList const& args);
 public:

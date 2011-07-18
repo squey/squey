@@ -30,7 +30,7 @@
  */
 
 
-class LibExport PVAxisFormat {
+class LibRushDecl PVAxisFormat {
 	private:
 		QString color;
 		QString mapping;
@@ -61,7 +61,7 @@ class LibExport PVAxisFormat {
 };
 
 
-class LibExport PVFormat {
+class LibRushDecl PVFormat {
 	private:
 
 

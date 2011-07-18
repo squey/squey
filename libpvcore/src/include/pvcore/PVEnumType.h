@@ -17,8 +17,10 @@ namespace PVCore {
 
 /**
  * \class PVEnumType
+ *
+ * \note This class is fully implemented in its definition, so no LibCoreDecl is needed (each library will have its own version).
  */
-class LibExport PVEnumType
+class PVEnumType
 {
 	
 public:

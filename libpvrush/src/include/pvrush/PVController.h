@@ -24,7 +24,7 @@ namespace PVRush {
  * \note This class should be launched in a separate thread. See PVControllerThread for instance
  * \sa PVControllerThread, PVExtractor
  */
-class LibExport PVController {
+class LibRushDecl PVController {
 protected:
 	typedef std::deque<PVControllerJob_p> list_jobs;
 

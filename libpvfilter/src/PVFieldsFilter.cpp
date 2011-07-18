@@ -11,7 +11,7 @@
 namespace PVFilter {
 
 // Template specialisation for generic L<F>& operator()(L<F>&)
-template<>
+template<> LibFilterDecl
 PVCore::list_fields& PVFieldsFilter<one_to_one>::operator()(PVCore::list_fields& fields)
 {
 	PVCore::list_fields::iterator it,ite;
@@ -27,7 +27,7 @@ PVCore::list_fields& PVFieldsFilter<one_to_one>::operator()(PVCore::list_fields&
 	return fields;
 };
 
-template<>
+template<> LibFilterDecl
 PVCore::list_fields& PVFieldsFilter<one_to_many>::operator()(PVCore::list_fields& fields)
 {
 	PVCore::list_fields::iterator it,ite,it_cur;
@@ -47,7 +47,7 @@ PVCore::list_fields& PVFieldsFilter<one_to_many>::operator()(PVCore::list_fields
 };
 
 
-template<>
+template<> LibFilterDecl
 PVCore::list_fields& PVFieldsFilter<many_to_many>::operator()(PVCore::list_fields& fields)
 {
 	return fields;

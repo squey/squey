@@ -28,7 +28,7 @@ namespace Picviz {
 /**
  * \class PVPlotted
  */
-class LibExport PVPlotted {
+class LibPicvizDecl PVPlotted {
 public:
 	typedef boost::shared_ptr<PVPlotted> p_type;
 public:

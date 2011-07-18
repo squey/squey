@@ -18,7 +18,7 @@
 
 namespace PVGL {
 //! A structure containing all the data allowing to cache a glyph into a texture.
-struct LibExport PVGlyph {
+struct LibGLDecl PVGlyph {
 	GLfloat uv[4][2];  //!< The uv coordinates of the glyph within the textures.
 	int     width;     //!< The width of the glyph in pixels.
 	int     height;    //!< The height of the glyph in pixels.
@@ -33,7 +33,7 @@ struct LibExport PVGlyph {
  *
  * \brief Our font rendering system.
  */
-class LibExport PVFont {
+class LibGLDecl PVFont {
 	struct GlyphIndex {
 		int size;
 		int index;

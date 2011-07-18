@@ -25,17 +25,17 @@
 
 #ifdef WIN32
 #ifdef picviz_EXPORTS
-#define PVLibExport __declspec(dllexport)
+#define PVLibPicvizDecl __declspec(dllexport)
 #else
-#define PVLibExport __declspec(dllimport)
+#define PVLibPicvizDecl __declspec(dllimport)
 #endif
 #else
-#define PVLibExport
+#define PVLibPicvizDecl
 #endif
 
 namespace Picviz {
 
-class PVLibExport PVSortQVectorQStringListThread: public QThread{
+class PVLibPicvizDecl PVSortQVectorQStringListThread: public QThread{
 Q_OBJECT	
 
 public:

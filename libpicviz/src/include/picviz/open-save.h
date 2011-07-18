@@ -14,10 +14,10 @@
  extern "C" {
 #endif
 
-LibExport int picviz_save(picviz_view_t *view, char *filename);
-LibExport int picviz_open_inline(picviz_view_t *view, char *filename);
-LibExport picviz_view_t *picviz_open(char *filename);
-LibExport int picviz_open_is_picviz_type(char *filename);
+LibPicvizDecl int picviz_save(picviz_view_t *view, char *filename);
+LibPicvizDecl int picviz_open_inline(picviz_view_t *view, char *filename);
+LibPicvizDecl picviz_view_t *picviz_open(char *filename);
+LibPicvizDecl int picviz_open_is_picviz_type(char *filename);
 
 #ifdef __cplusplus
  }

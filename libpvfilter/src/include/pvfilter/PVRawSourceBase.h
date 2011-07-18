@@ -14,7 +14,7 @@ namespace PVRush {
 
 namespace PVFilter {
 
-class LibExport PVRawSourceBase : public PVFilter::PVFilterFunctionBase<PVCore::PVChunk*,void> {
+class LibFilterDecl PVRawSourceBase : public PVFilter::PVFilterFunctionBase<PVCore::PVChunk*,void> {
 public:
 	typedef boost::shared_ptr<PVRawSourceBase> p_type;
 public:

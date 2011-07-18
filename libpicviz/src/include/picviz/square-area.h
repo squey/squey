@@ -36,8 +36,8 @@ typedef struct _picviz_square_area_t picviz_square_area_t;
  *
  *****************************************************************************/
 
-LibExport picviz_square_area_t *picviz_square_area_new(void);
-LibExport void picviz_square_area_destroy(picviz_square_area_t *sa);
+LibPicvizDecl picviz_square_area_t *picviz_square_area_new(void);
+LibPicvizDecl void picviz_square_area_destroy(picviz_square_area_t *sa);
 
 
 
@@ -49,18 +49,18 @@ LibExport void picviz_square_area_destroy(picviz_square_area_t *sa);
  ******************************************************************************
  *****************************************************************************/
 
-LibExport float picviz_square_area_get_end_x(picviz_square_area_t *sa);
-LibExport float picviz_square_area_get_end_y(picviz_square_area_t *sa);
-LibExport float picviz_square_area_get_start_x(picviz_square_area_t *sa);
-LibExport float picviz_square_area_get_start_y(picviz_square_area_t *sa);
+LibPicvizDecl float picviz_square_area_get_end_x(picviz_square_area_t *sa);
+LibPicvizDecl float picviz_square_area_get_end_y(picviz_square_area_t *sa);
+LibPicvizDecl float picviz_square_area_get_start_x(picviz_square_area_t *sa);
+LibPicvizDecl float picviz_square_area_get_start_y(picviz_square_area_t *sa);
 
 
-LibExport void picviz_square_area_set_end(picviz_square_area_t *sa, float ex, float ey);
-LibExport void picviz_square_area_set_end_x(picviz_square_area_t *sa, float ex);
-LibExport void picviz_square_area_set_end_y(picviz_square_area_t *sa, float ey);
-LibExport void picviz_square_area_set_start(picviz_square_area_t *sa, float sx, float sy);
-LibExport void picviz_square_area_set_start_x(picviz_square_area_t *sa, float sx);
-LibExport void picviz_square_area_set_start_y(picviz_square_area_t *sa, float sy);
+LibPicvizDecl void picviz_square_area_set_end(picviz_square_area_t *sa, float ex, float ey);
+LibPicvizDecl void picviz_square_area_set_end_x(picviz_square_area_t *sa, float ex);
+LibPicvizDecl void picviz_square_area_set_end_y(picviz_square_area_t *sa, float ey);
+LibPicvizDecl void picviz_square_area_set_start(picviz_square_area_t *sa, float sx, float sy);
+LibPicvizDecl void picviz_square_area_set_start_x(picviz_square_area_t *sa, float sx);
+LibPicvizDecl void picviz_square_area_set_start_y(picviz_square_area_t *sa, float sy);
 
 
 

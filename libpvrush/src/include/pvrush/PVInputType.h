@@ -11,7 +11,7 @@
 
 namespace PVRush {
 
-class LibExport PVInputType: public PVCore::PVRegistrableClass<PVInputType>
+class LibRushDecl PVInputType: public PVCore::PVRegistrableClass<PVInputType>
 {
 public:
 	typedef PVFilter::PVArgument input_type;

@@ -13,7 +13,7 @@ namespace PVRush {
  *
  * The default implementation does nothing but create an element that contains all the chunk's data.
  */
-class LibExport PVChunkAlign {
+class LibRushDecl PVChunkAlign {
 public:
 	/*! \brief Alignement function
 	 *  \param[in,out] cur_chunk Chunk whose data has just been read and that needs to be aligned

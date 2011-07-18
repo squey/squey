@@ -17,6 +17,6 @@
  * This is the main entry point of the PVGL library.
  * @param com The communication link between the Qt interface and the GL one. See #PVCom.
  */
-bool LibExport pvgl_init (PVGL::PVCom *com);
+bool LibGLDecl pvgl_init (PVGL::PVCom *com);
 
 #endif

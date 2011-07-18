@@ -13,7 +13,7 @@
 
 namespace PVFilter {
 
-class LibExport PVElementFilterGrep: public PVElementFilter {
+class LibFilterDecl PVElementFilterGrep: public PVElementFilter {
 public:
 	PVElementFilterGrep(PVArgumentList const& args = PVElementFilterGrep::default_args());
 public:

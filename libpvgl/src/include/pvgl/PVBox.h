@@ -19,7 +19,7 @@ namespace PVGL {
  *
  * Parent of #PVHBox and #PVVBox.
  */
-class LibExport PVBox : public PVContainer {
+class LibGLDecl PVBox : public PVContainer {
 protected:
 	/**
 	* \class PVBoxChild

@@ -27,7 +27,7 @@ class PVField;
 class PVElementData;
 
 typedef std::list<PVField, tbb::tbb_allocator<PVField> > list_fields;
-class LibExport PVElement : public PVBufferSlice {
+class LibCoreDecl PVElement : public PVBufferSlice {
 	friend class PVField;
 public:
 	PVElement(PVChunk* parent, char* begin, char* end);

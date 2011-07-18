@@ -35,7 +35,7 @@ namespace Picviz {
 /**
  * \class PVSource
  */
-class LibExport PVSource {
+class LibPicvizDecl PVSource {
 public:
 	typedef boost::shared_ptr<PVSource> p_type;
 public:

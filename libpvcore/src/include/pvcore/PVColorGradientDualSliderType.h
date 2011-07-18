@@ -14,7 +14,7 @@ namespace PVCore {
 /**
  * \class PVColorGradientDualSliderType
  */
-class LibExport PVColorGradientDualSliderType
+class PVColorGradientDualSliderType
 {
 public:
 	PVColorGradientDualSliderType() { _sliders_positions[0] = 0; _sliders_positions[1] = 1; };

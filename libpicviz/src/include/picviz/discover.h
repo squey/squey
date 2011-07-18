@@ -14,7 +14,7 @@
  extern "C" {
 #endif
 
-LibExport unsigned int picviz_discover_duration_as_second();
+LibPicvizDecl unsigned int picviz_discover_duration_as_second();
 
 #ifdef __cplusplus
  }

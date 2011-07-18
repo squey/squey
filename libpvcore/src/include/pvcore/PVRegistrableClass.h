@@ -7,7 +7,7 @@
 namespace PVCore {
 
 template <typename RegAs_>
-class LibExport PVRegistrableClass
+class PVRegistrableClass
 {
 public:
 	typedef RegAs_ RegAs;

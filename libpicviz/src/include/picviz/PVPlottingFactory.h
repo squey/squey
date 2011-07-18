@@ -20,7 +20,7 @@ namespace Picviz {
 /**
  * \class PVPlottingFactory
  */
-class LibExport PVPlottingFactory {
+class LibPicvizDecl PVPlottingFactory {
 public:
 	PVPlottingFactory();
 	~PVPlottingFactory();

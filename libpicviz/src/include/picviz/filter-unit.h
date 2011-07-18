@@ -57,7 +57,7 @@ typedef struct _picviz_filter_unit_t picviz_filter_unit_t;
  ******************************************************************************
  *****************************************************************************/
 
-LibExport picviz_filter_unit_t *picviz_filter_unit_new(void);
+LibPicvizDecl picviz_filter_unit_t *picviz_filter_unit_new(void);
 
 
 
@@ -69,16 +69,16 @@ LibExport picviz_filter_unit_t *picviz_filter_unit_new(void);
  ******************************************************************************
  *****************************************************************************/
 
-LibExport void picviz_filter_unit_argument_append(picviz_filter_unit_t *filter_unit, picviz_filter_unit_argument_t argument);
-LibExport void picviz_filter_unit_argument_append_char_p(picviz_filter_unit_t *filter_unit, char *arg);
-LibExport void picviz_filter_unit_argument_append_float(picviz_filter_unit_t *filter_unit, float arg);
+LibPicvizDecl void picviz_filter_unit_argument_append(picviz_filter_unit_t *filter_unit, picviz_filter_unit_argument_t argument);
+LibPicvizDecl void picviz_filter_unit_argument_append_char_p(picviz_filter_unit_t *filter_unit, char *arg);
+LibPicvizDecl void picviz_filter_unit_argument_append_float(picviz_filter_unit_t *filter_unit, float arg);
 
-LibExport char picviz_filter_unit_argument_get_char(picviz_filter_unit_t *filter_unit, int position);
-LibExport char *picviz_filter_unit_argument_get_char_p(picviz_filter_unit_t *filter_unit, int position);
-LibExport float picviz_filter_unit_argument_get_float(picviz_filter_unit_t *filter_unit, int position);
-LibExport int picviz_filter_unit_argument_get_int(picviz_filter_unit_t *filter_unit, int position);
-LibExport void *picviz_filter_unit_argument_get_pointer(picviz_filter_unit_t *filter_unit, int position);
-LibExport apr_uint64_t picviz_filter_unit_argument_get_uint64(picviz_filter_unit_t *filter_unit, int position);
+LibPicvizDecl char picviz_filter_unit_argument_get_char(picviz_filter_unit_t *filter_unit, int position);
+LibPicvizDecl char *picviz_filter_unit_argument_get_char_p(picviz_filter_unit_t *filter_unit, int position);
+LibPicvizDecl float picviz_filter_unit_argument_get_float(picviz_filter_unit_t *filter_unit, int position);
+LibPicvizDecl int picviz_filter_unit_argument_get_int(picviz_filter_unit_t *filter_unit, int position);
+LibPicvizDecl void *picviz_filter_unit_argument_get_pointer(picviz_filter_unit_t *filter_unit, int position);
+LibPicvizDecl apr_uint64_t picviz_filter_unit_argument_get_uint64(picviz_filter_unit_t *filter_unit, int position);
 
 
 

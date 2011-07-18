@@ -21,7 +21,7 @@ namespace Picviz {
 /**
  * \class PVIndexArray
  */
-class LibExport PVIndexArray {
+class LibPicvizDecl PVIndexArray {
 private:
 	int array [PICVIZ_INDEX_ARRAY_MAX_SIZE];
 	int index_count;
@@ -56,7 +56,7 @@ public:
 
 // These are still used
 
-// LibExport int picviz_index_array_get_index_count(picviz_index_array_t *ia);
+// LibPicvizDecl int picviz_index_array_get_index_count(picviz_index_array_t *ia);
 //
-// LibExport void picviz_index_array_set_from_selection(picviz_index_array_t *ia, picviz_selection_t *selection);
+// LibPicvizDecl void picviz_index_array_set_from_selection(picviz_index_array_t *ia, picviz_selection_t *selection);
 // 

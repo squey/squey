@@ -15,7 +15,7 @@ namespace PVGL {
 /**
  *
  */
-class LibExport PVVBox : public PVBox {
+class LibGLDecl PVVBox : public PVBox {
 protected:
 public:
 	/**

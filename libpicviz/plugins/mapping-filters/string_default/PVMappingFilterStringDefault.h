@@ -11,11 +11,7 @@
 #include <picviz/PVMappingFilter.h>
 #include <tbb/atomic.h>
 
-#ifdef WIN32
-#include <pvcore/win32-vs2008-stdint.h>
-#else
-#include <stdint.h>
-#endif
+#include <pvcore/stdint.h>
 
 namespace Picviz {
 

@@ -20,17 +20,17 @@ class PVFormat;
 
 #ifdef WIN32
 #ifdef picviz_EXPORTS
-#define PVLibExport __declspec(dllexport)
+#define PVLibPicvizDecl __declspec(dllexport)
 #else
-#define PVLibExport __declspec(dllimport)
+#define PVLibPicvizDecl __declspec(dllimport)
 #endif
 #else
-#define PVLibExport
+#define PVLibPicvizDecl
 #endif
 
 namespace Picviz {
 
-class PVLibExport PVMappingFilter: public PVFilter::PVFilterFunctionRegistrable<float*, PVRush::PVNraw::nraw_table_line const&>
+class PVLibPicvizDecl PVMappingFilter: public PVFilter::PVFilterFunctionRegistrable<float*, PVRush::PVNraw::nraw_table_line const&>
 {
 public:
 	typedef PVFilter::PVFilterFunctionRegistrable<float*, PVRush::PVNraw::nraw_table_line const&>::base_registrable base_registrable;

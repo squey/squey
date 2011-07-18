@@ -8,7 +8,7 @@
 
 namespace PVRush {
 
-class LibExport PVInputFile : public PVInput {
+class LibRushDecl PVInputFile : public PVInput {
 public:
 	PVInputFile(const char* path);
 	PVInputFile(const PVInputFile &org);

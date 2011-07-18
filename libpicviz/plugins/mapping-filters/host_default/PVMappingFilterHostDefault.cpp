@@ -9,7 +9,7 @@
 
 #include <pvcore/network.h>
 
-#include <arpa/inet.h>
+#include <dnet.h>
 
 
 typedef tbb::concurrent_vector< std::pair<QByteArray,uint64_t> > vec_conv_sort_t;

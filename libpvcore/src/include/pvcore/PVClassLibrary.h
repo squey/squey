@@ -15,7 +15,7 @@
 namespace PVCore {
 
 // This is used to register the class T as RegAs 
-// AG: WARNING: there is *no* LibExport and this is *wanted* !
+// AG: WARNING: there is *no* LibCoreDecl and this is *wanted* !
 //              check the wiki for more informations
 template<class RegAs>
 class PVClassLibrary {
@@ -60,7 +60,7 @@ private:
 	list_classes _classes;
 };
 
-class LibExport PVClassLibraryLibLoader {
+class LibCoreDecl PVClassLibraryLibLoader {
 public:
 	static bool load_class(QString const& path);
 	static int load_class_from_dir(QString const& pluginsdir, QString const& prefix);

@@ -35,7 +35,7 @@ class PVMapped;
 /**
  * \class PVPlotting
  */
-class LibExport PVPlotting : public boost::enable_shared_from_this<PVPlotting> {
+class LibPicvizDecl PVPlotting : public boost::enable_shared_from_this<PVPlotting> {
 public:
 	typedef boost::shared_ptr<PVPlotting> p_type;
 public:

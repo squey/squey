@@ -22,7 +22,7 @@ namespace Picviz {
 /**
  * \class PVLayer
  */
-class LibExport PVLayer {
+class LibPicvizDecl PVLayer {
 private:
 	int                index;
 	PVLinesProperties  lines_properties;

@@ -23,7 +23,7 @@ class PVScatter;
 /**
  * \class PVScatterPlotSelectionSquare
  */
-class LibExport PVScatterPlotSelectionSquare {
+class LibGLDecl PVScatterPlotSelectionSquare {
 	Picviz::PVView_p pv_view;                //!<
 	PVScatter      *scatter;
 

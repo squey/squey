@@ -16,7 +16,7 @@
 
 
 
-class LibExport PVSplitter {
+class LibCoreDecl PVSplitter {
 	private:
 		QString name;
 

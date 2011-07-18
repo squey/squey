@@ -54,8 +54,8 @@ typedef struct _picviz_eventline_t picviz_eventline_t;
  *
  * @return the #picviz_event_t object, NULL if error
  */
-LibExport picviz_eventline_t *picviz_eventline_new(PVRow row_count);
-LibExport void picviz_eventline_destroy(picviz_eventline_t *eventline);
+LibPicvizDecl picviz_eventline_t *picviz_eventline_new(PVRow row_count);
+LibPicvizDecl void picviz_eventline_destroy(picviz_eventline_t *eventline);
 
 
 
@@ -67,18 +67,18 @@ LibExport void picviz_eventline_destroy(picviz_eventline_t *eventline);
  ******************************************************************************
  *****************************************************************************/
 
-LibExport int picviz_eventline_get_current_index(picviz_eventline_t *eventline);
-LibExport int picviz_eventline_get_first_index(picviz_eventline_t *eventline);
-LibExport float picviz_eventline_get_kth_slider_position(picviz_eventline_t *eventline, int k);
-LibExport int picviz_eventline_get_last_index(picviz_eventline_t *eventline);
+LibPicvizDecl int picviz_eventline_get_current_index(picviz_eventline_t *eventline);
+LibPicvizDecl int picviz_eventline_get_first_index(picviz_eventline_t *eventline);
+LibPicvizDecl float picviz_eventline_get_kth_slider_position(picviz_eventline_t *eventline, int k);
+LibPicvizDecl int picviz_eventline_get_last_index(picviz_eventline_t *eventline);
 
-LibExport void picviz_eventline_set_current_index(picviz_eventline_t *eventline, int index);
-LibExport void picviz_eventline_set_first_index(picviz_eventline_t *eventline, int index);
-LibExport float picviz_eventline_set_kth_index_and_adjust_slider_position(picviz_eventline_t *eventline, int k, float x);
-LibExport void picviz_eventline_set_last_index(picviz_eventline_t *eventline, int index);
+LibPicvizDecl void picviz_eventline_set_current_index(picviz_eventline_t *eventline, int index);
+LibPicvizDecl void picviz_eventline_set_first_index(picviz_eventline_t *eventline, int index);
+LibPicvizDecl float picviz_eventline_set_kth_index_and_adjust_slider_position(picviz_eventline_t *eventline, int k, float x);
+LibPicvizDecl void picviz_eventline_set_last_index(picviz_eventline_t *eventline, int index);
 
-LibExport void picviz_eventline_selection_A2A_filter(picviz_eventline_t *eventline, picviz_selection_t *selection);
-LibExport void picviz_eventline_selection_A2B_filter(picviz_eventline_t *eventline, picviz_selection_t *a, picviz_selection_t *b);
+LibPicvizDecl void picviz_eventline_selection_A2A_filter(picviz_eventline_t *eventline, picviz_selection_t *selection);
+LibPicvizDecl void picviz_eventline_selection_A2B_filter(picviz_eventline_t *eventline, picviz_selection_t *a, picviz_selection_t *b);
 
 
 #ifdef __cplusplus

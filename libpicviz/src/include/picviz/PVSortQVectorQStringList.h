@@ -30,7 +30,7 @@
 namespace Picviz {
 
 // AG: this class should now be renamed.. (or implemented as a template class)
-class PVLibExport PVSortQVectorQStringList:public QObject/*:public QDialog*/{
+class PVLibPicvizDecl PVSortQVectorQStringList:public QObject/*:public QDialog*/{
 Q_OBJECT
 	
 

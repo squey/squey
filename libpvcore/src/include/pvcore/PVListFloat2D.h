@@ -12,7 +12,7 @@
 #include <pvcore/types.h>
 
 namespace PVCore {
-class LibExport PVListFloat2D {
+class LibCoreDecl PVListFloat2D {
 	public:
 		PVListFloat2D();
 		~PVListFloat2D();

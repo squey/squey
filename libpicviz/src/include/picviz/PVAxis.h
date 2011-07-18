@@ -16,7 +16,7 @@ namespace Picviz {
 /**
  * \class PVAxis
  */
-class LibExport PVAxis {
+class LibPicvizDecl PVAxis {
 public:
 	float absciss;
 	/* PVCol column_index; Needed in PVAxesCombination, we shall remove it */

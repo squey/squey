@@ -13,7 +13,7 @@
 
 namespace PVCore {
 
-class LibExport PVXmlParamParserData {
+class LibCoreDecl PVXmlParamParserData {
 
 public:    
 	enum Type {

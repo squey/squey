@@ -72,7 +72,7 @@ _GLIBCXX_BEGIN_NESTED_NAMESPACE(std, _GLIBCXX_STD_D)
    *
    *  See documentation for bitset.
   */
-  template<size_t _Nw> LibExport
+  template<size_t _Nw> LibPicvizDecl
     struct _Base_bitset
     {
       typedef unsigned long _WordT;
@@ -712,7 +712,7 @@ _GLIBCXX_BEGIN_NESTED_NAMESPACE(std, _GLIBCXX_STD_D)
    *  _Base_bitset @e is a regular array, and is indexed as such.  This is
    *  carefully encapsulated.
   */
-  template<size_t _Nb> LibExport 
+  template<size_t _Nb> LibPicvizDecl 
     class bitset
     : public _Base_bitset<_GLIBCXX_BITSET_WORDS(_Nb)> // AG: the change is here (private by public)
     {

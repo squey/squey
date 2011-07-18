@@ -14,7 +14,7 @@
  extern "C" {
 #endif
 
-LibExport char *picviz_type_discovery_do_one(char *input);
+LibPicvizDecl char *picviz_type_discovery_do_one(char *input);
 
 #ifdef __cplusplus
  }

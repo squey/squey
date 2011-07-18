@@ -42,8 +42,8 @@ typedef struct _picviz_z_level_array_t picviz_z_level_array_t;
  ******************************************************************************
  *****************************************************************************/
 
-LibExport picviz_z_level_array_t *picviz_z_level_array_new(int initial_row_count);
-LibExport void picviz_z_level_array_destroy(picviz_z_level_array_t *zla);
+LibPicvizDecl picviz_z_level_array_t *picviz_z_level_array_new(int initial_row_count);
+LibPicvizDecl void picviz_z_level_array_destroy(picviz_z_level_array_t *zla);
 
 
 
@@ -55,10 +55,10 @@ LibExport void picviz_z_level_array_destroy(picviz_z_level_array_t *zla);
  ******************************************************************************
  *****************************************************************************/
 
-LibExport int picviz_z_level_array_get_row_count(picviz_z_level_array_t *zla);
-LibExport float picviz_z_level_array_get_value(picviz_z_level_array_t *zla, int row_index);
+LibPicvizDecl int picviz_z_level_array_get_row_count(picviz_z_level_array_t *zla);
+LibPicvizDecl float picviz_z_level_array_get_value(picviz_z_level_array_t *zla, int row_index);
 
-LibExport void picviz_z_level_array_set_row_count(picviz_z_level_array_t *zla, int new_row_count);
+LibPicvizDecl void picviz_z_level_array_set_row_count(picviz_z_level_array_t *zla, int new_row_count);
 
 
 /******************************************************************************
@@ -69,7 +69,7 @@ LibExport void picviz_z_level_array_set_row_count(picviz_z_level_array_t *zla, i
  ******************************************************************************
  *****************************************************************************/
 
-// LibExport void picviz_z_level_array_initialize(picviz_z_level_array_t *zla);
+// LibPicvizDecl void picviz_z_level_array_initialize(picviz_z_level_array_t *zla);
 
 
 #ifdef __cplusplus

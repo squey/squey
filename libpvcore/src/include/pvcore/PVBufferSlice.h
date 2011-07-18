@@ -22,7 +22,7 @@ namespace PVCore {
 
 typedef std::list< std::pair<char*,size_t> > buf_list_t;
 
-class LibExport PVBufferSlice {
+class LibCoreDecl PVBufferSlice {
 public:
 	PVBufferSlice(char* begin, char* end, buf_list_t &buf_list);
 	PVBufferSlice(PVBufferSlice const& src): _buf_list(src._buf_list) { copy_from(src); };

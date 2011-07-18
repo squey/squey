@@ -37,7 +37,7 @@ typedef int (*plotting_test_func)(void); /* This function is used to perform all
 /**
  * \class PVPlottingFunction
  */
-class LibExport PVPlottingFunction {
+class LibPicvizDecl PVPlottingFunction {
 public:
 	PVPlottingFunction(QString filename);
 	~PVPlottingFunction();

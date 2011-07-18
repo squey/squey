@@ -13,7 +13,7 @@ namespace PVGL {
 /**
  *
  */
-class LibExport PVContainer : public PVWidget {
+class LibGLDecl PVContainer : public PVWidget {
 protected:
 	int border_width; //!<
 	/**

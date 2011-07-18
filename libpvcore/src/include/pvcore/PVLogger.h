@@ -43,7 +43,7 @@
 
 namespace PVCore {
 
-	class LibExport PVLogger {
+	class LibCoreDecl PVLogger {
 	private:
 		FILE *fp;
 		QByteArray log_filename;

@@ -34,37 +34,37 @@
  *
  * @return
  */
-LibExport bool print_opengl_error(const char *file, int line);
+LibGLDecl bool print_opengl_error(const char *file, int line);
 
 /**
  *
  */
-LibExport void check_framebuffer_status(void);
+LibGLDecl void check_framebuffer_status(void);
 
 /**
  *
  */
-LibExport void get_gl_version(int *major, int *minor);
+LibGLDecl void get_gl_version(int *major, int *minor);
 
 /**
  *
  */
-LibExport void print_shader_info_log(GLuint shader);
+LibGLDecl void print_shader_info_log(GLuint shader);
 
 /**
  *
  */
-LibExport void print_program_info_log(GLuint program);
+LibGLDecl void print_program_info_log(GLuint program);
 
 /**
  *
  */
-LibExport GLint get_uni_loc(GLuint program, const GLchar *name);
+LibGLDecl GLint get_uni_loc(GLuint program, const GLchar *name);
 
 /**
  *
  */
-LibExport GLuint read_shader(const std::string              &vertex_filename,
+LibGLDecl GLuint read_shader(const std::string              &vertex_filename,
                    const std::string              &geometry_filename,
                    const std::string              &fragment_filename,
                    const std::string              &vertex_prefix,
@@ -75,21 +75,21 @@ LibExport GLuint read_shader(const std::string              &vertex_filename,
 /**
  *
  */
-LibExport void fixing_glew_bugs(void);
+LibGLDecl void fixing_glew_bugs(void);
 
 /**
  *
  */
-LibExport std::string pvgl_get_share_path();
+LibGLDecl std::string pvgl_get_share_path();
 
 /**
  * @return true if the pvgl share path is found. False otherwise.
  */
-LibExport bool pvgl_share_path_exists();
+LibGLDecl bool pvgl_share_path_exists();
 
 /**
  * @param text
  */
-LibExport int pvgl_get_next_utf8(const char *&text);
+LibGLDecl int pvgl_get_next_utf8(const char *&text);
 
 #endif

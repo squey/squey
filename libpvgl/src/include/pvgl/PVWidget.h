@@ -11,14 +11,14 @@ namespace PVGL {
 class PVWidgetManager;
 class PVContainer;
 
-struct LibExport PVAllocation {
+struct LibGLDecl PVAllocation {
   int x;
 	int y;
 	int width;
 	int height;
 };
 
-struct LibExport PVRequisition {
+struct LibGLDecl PVRequisition {
 	int width;
 	int height;
 };
@@ -26,7 +26,7 @@ struct LibExport PVRequisition {
 /**
  * \class PVWidget
  */
-class LibExport PVWidget {
+class LibGLDecl PVWidget {
 protected:
 	PVWidgetManager *widget_manager;       //!<
 	PVContainer     *parent;            //!<

@@ -10,7 +10,7 @@
 namespace PVRush {
 
 template < template <class T> class Allocator = tbb::scalable_allocator >
-class LibExport PVUnicodeSource : public PVRawSource<Allocator> {
+class PVUnicodeSource : public PVRawSource<Allocator> {
 public:
 	typedef typename PVRawSource<Allocator>::alloc_chunk alloc_chunk;
 public:

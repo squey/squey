@@ -18,7 +18,7 @@ namespace PVGL {
  *
  * \brief 
  */
-class LibExport PVMisc : public PVWidget {
+class LibGLDecl PVMisc : public PVWidget {
 protected:
 	int padding_x; //!<
 	int padding_y; //!<

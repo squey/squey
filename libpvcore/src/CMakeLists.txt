@@ -44,6 +44,7 @@ include/pvcore/PVElementData.h
 include/pvcore/PVField.h
 include/pvcore/PVListFloat2D.h
 include/pvcore/PVLogger.h
+include/pvcore/PVMeanValue.h
 include/pvcore/PVRegistrableClass.h
 include/pvcore/PVSpinBoxType.h
 include/pvcore/PVTBBMaxArray.h

@@ -43,6 +43,10 @@ else(WIN32)
 find_package(TBB REQUIRED)
 endif(WIN32)
 
+if(CMAKE_BUILD_TYPE MATCHES "Debug")
+	set(TBB_USE_DEBUG "1")
+endif()
+
 #
 # Check for Boost library
 #

@@ -18,7 +18,7 @@ namespace PVFilter {
 // Each filter register to this class thanks to the IMPL_FILTER macro !
 
 // This is used to register the filter T as FilterT
-// AG: WARNING: there is *no* LibExport and this is *wanted* !
+// AG: WARNING: there is *no* LibFilterDecl and this is *wanted* !
 //              check the wiki for more informations
 template<class FilterT>
 class PVFilterLibrary {
@@ -63,7 +63,7 @@ private:
 	list_filters _filters;
 };
 
-class LibExport PVFilterLibraryLibLoader {
+class LibFilterDecl PVFilterLibraryLibLoader {
 public:
 	static bool load_library(QString const& path);
 	static int load_library_from_dir(QString const& pluginsdir, QString const& prefix);

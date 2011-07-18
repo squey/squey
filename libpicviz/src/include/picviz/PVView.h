@@ -49,7 +49,7 @@ namespace Picviz {
 /**
  * \class PVView
  */
-class LibExport PVView {
+class LibPicvizDecl PVView {
 
 
 public:

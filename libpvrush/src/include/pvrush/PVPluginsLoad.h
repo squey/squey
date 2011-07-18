@@ -9,7 +9,7 @@
 
 namespace PVRush {
 
-class LibExport PVPluginsLoad
+class LibRushDecl PVPluginsLoad
 {
 public:
 	static int load_all_plugins();

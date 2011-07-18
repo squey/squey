@@ -40,7 +40,7 @@ namespace Picviz {
 /**
  * \class PVLayerIndexArray
  */
-class LibExport PVLayerIndexArray {
+class LibPicvizDecl PVLayerIndexArray {
 private:
 	int array [PICVIZ_LAYER_INDEX_ARRAY_MAX_SIZE];
 	int row_count;

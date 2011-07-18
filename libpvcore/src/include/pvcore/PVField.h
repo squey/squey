@@ -14,7 +14,7 @@
 
 namespace PVCore {
 
-class LibExport PVField : public PVBufferSlice {
+class LibCoreDecl PVField : public PVBufferSlice {
 public:
 	PVField(PVElement const& parent, char* begin, char* end);
 public:

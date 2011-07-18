@@ -37,7 +37,7 @@ typedef int (*mapping_test_func)(void); /* This function is used to perform all 
 /**
  * \class PVMappingFunction
  */
-class LibExport PVMappingFunction {
+class LibPicvizDecl PVMappingFunction {
 public:
 	PVMappingFunction(QString filename);
 	~PVMappingFunction();

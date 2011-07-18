@@ -9,7 +9,7 @@
 
 namespace PVRush {
 
-class LibExport PVCharsetDetect : public nsUniversalDetector {
+class LibRushDecl PVCharsetDetect : public nsUniversalDetector {
 public:
 	PVCharsetDetect();
 

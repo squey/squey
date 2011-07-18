@@ -10,7 +10,7 @@
 namespace PVRush
 {
 
-struct LibExport PVTests
+struct LibRushDecl PVTests
 {
 	/*! \brief Normalize a file with the given format
 	 */

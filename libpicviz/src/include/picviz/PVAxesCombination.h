@@ -20,7 +20,7 @@ namespace Picviz {
 /**
 * \class PVAxesCombination
 */
-class LibExport PVAxesCombination {
+class LibPicvizDecl PVAxesCombination {
 	QVector<float>  abscissae_list;       //!< Axes positions, such as [0.0, 1.29, 2.5, 4.76]
 	QVector<PVAxis> axes_list;            //!< Contains all the used axes
 	QVector<PVCol>  columns_indexes_list; //!< Contains the indices of the axes to place, such as [0,1,3,0]

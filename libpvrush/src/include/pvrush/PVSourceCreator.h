@@ -13,7 +13,7 @@
 
 namespace PVRush {
 
-class LibExport PVSourceCreator: public PVCore::PVRegistrableClass< PVSourceCreator >
+class LibRushDecl PVSourceCreator: public PVCore::PVRegistrableClass< PVSourceCreator >
 {
 public:
 	typedef PVFilter::PVRawSourceBase source_t;
