@@ -192,8 +192,8 @@ static int pcap_decode_layer3_IP(pcap_decode_buf *buf, struct pcap_pkthdr *phead
 	struct ip_hdr *ip;
 
 	ip = (struct ip_hdr *)packet;
-	QString ipsource(PVCore::network_ipntoa(ip->ip_src));
-	QString ipdest(PVCore::network_ipntoa(ip->ip_dst));
+	QString ipsource(PVCore::Network::ipv4_ntoa(ip->ip_src));
+	QString ipdest(PVCore::Network::ipv4_ntoa(ip->ip_dst));
 
 
 	pcap_decode_add_field(buf, pcap_decode_get_time_as_string(pheader));

@@ -36,7 +36,7 @@ DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterAxisGradient)
  * Picviz::PVLayerFilterAxisGradient::operator()
  *
  *****************************************************************************/
-void Picviz::PVLayerFilterAxisGradient::operator()(PVLayer& /*in*/, PVLayer &out)
+void Picviz::PVLayerFilterAxisGradient::operator()(PVLayer& in, PVLayer &out)
 {	
 	int axis_id;
 	int counter;
@@ -52,6 +52,7 @@ void Picviz::PVLayerFilterAxisGradient::operator()(PVLayer& /*in*/, PVLayer &out
 	axis_id = _view->axes_combination.get_axis_column_index(axis_id);
 	nb_lines = _view->get_qtnraw_parent().size();
 	
+	PVRow size_sel = in.get_selection().get_number_of_selected_lines_in_range(0, plotted->table.size() - 1);
 	for (counter = 0; counter < nb_lines; counter++) {
 		if (_view->get_line_state_in_pre_filter_layer(counter)) {
 			float plotted_value;

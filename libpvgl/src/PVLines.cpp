@@ -747,8 +747,6 @@ void PVGL::PVLines::update_arrays_selection(void)
 		return;
 	}
 	// Update the TBO
-	// FIXME: with the new PVSelection class, std::bitset is used and does not allow
-	// direct access to its internal buffer. So we might need to do our own...
 	PRINT_OPENGL_ERROR();
 	glBindBuffer(GL_TEXTURE_BUFFER, tbo_selection); PRINT_OPENGL_ERROR();
 	glBufferData(GL_TEXTURE_BUFFER, PICVIZ_SELECTION_NUMBER_OF_BYTES,

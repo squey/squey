@@ -526,28 +526,22 @@ void PVGL::PVMain::timer_func(int)
 							if (pv_view->get_libview() == message.pv_view) {
 								glutSetWindow((*it)->get_window_id());
 								if (message.int_1 & PVGL_COM_REFRESH_AXES) {
-									pv_view->change_axes_count();
-									pv_view->update_all();
+									pv_view->update_axes();
 								}
 								if (message.int_1 & PVGL_COM_REFRESH_COLOR) {
-									pv_view->get_lines().update_arrays_colors();
-									pv_view->get_map().update_arrays_colors();
+									pv_view->update_colors();
 								}
 								if (message.int_1 & PVGL_COM_REFRESH_Z) {
-									pv_view->get_lines().update_arrays_z();
-									pv_view->get_map().update_arrays_z();
+									pv_view->update_z();
 								}
 								if (message.int_1 & PVGL_COM_REFRESH_POSITIONS) {
-									pv_view->get_lines().update_arrays_positions();
-									pv_view->get_map().update_arrays_positions();
+									pv_view->update_positions();
 								}
 								if (message.int_1 & PVGL_COM_REFRESH_ZOMBIES) {
-									pv_view->get_lines().update_arrays_zombies();
-									pv_view->get_map().update_arrays_zombies();
+									pv_view->update_zombies();
 								}
 								if (message.int_1 & PVGL_COM_REFRESH_SELECTION) {
-									pv_view->get_lines().update_arrays_selection();
-									pv_view->get_map().update_arrays_selection();
+									pv_view->update_selections();
 								}
 								//(*it)->update_all();
 								glutPostRedisplay();

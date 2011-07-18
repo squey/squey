@@ -244,6 +244,86 @@ void PVGL::PVView::update_all(void)
 	selection_square.update_arrays();
 }
 
+#if 0
+void PVGL::PVView::update_axes()
+{
+	if (!picviz_view) { // Sanity check
+		return;
+	}
+	if (!picviz_view->is_consistent()) {
+		return;
+	}
+
+	change_axes_count();
+	update_all();
+}
+#endif
+
+void PVGL::PVView::update_colors()
+{
+	if (!picviz_view) { // Sanity check
+		return;
+	}
+	if (!picviz_view->is_consistent()) {
+		return;
+	}
+
+	get_lines().update_arrays_colors();
+	get_map().update_arrays_colors();
+}
+
+void PVGL::PVView::update_z()
+{
+	if (!picviz_view) { // Sanity check
+		return;
+	}
+	if (!picviz_view->is_consistent()) {
+		return;
+	}
+
+	get_lines().update_arrays_z();
+	get_map().update_arrays_z();
+}
+
+void PVGL::PVView::update_positions()
+{
+	if (!picviz_view) { // Sanity check
+		return;
+	}
+	if (!picviz_view->is_consistent()) {
+		return;
+	}
+
+	get_lines().update_arrays_positions();
+	get_map().update_arrays_positions();
+}
+
+void PVGL::PVView::update_zombies()
+{
+	if (!picviz_view) { // Sanity check
+		return;
+	}
+	if (!picviz_view->is_consistent()) {
+		return;
+	}
+
+	get_lines().update_arrays_zombies();
+	get_map().update_arrays_zombies();
+}
+
+void PVGL::PVView::update_selections()
+{
+	if (!picviz_view) { // Sanity check
+		return;
+	}
+	if (!picviz_view->is_consistent()) {
+		return;
+	}
+
+	get_lines().update_arrays_selection();
+	get_map().update_arrays_selection();
+}
+
 /******************************************************************************
  *
  * PVGL::PVView::update_axes
@@ -388,7 +468,8 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 				message.function = PVGL_COM_FUNCTION_REFRESH_LISTING;
 				message.pv_view = picviz_view;
 				pv_com->post_message_to_qt(message);
-				update_all();
+				update_selections();
+				//update_colors();
 				break;
 		case 'c': case 'C': // Choose a color.
 				message.function = PVGL_COM_FUNCTION_SET_COLOR;
