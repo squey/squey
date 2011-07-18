@@ -103,6 +103,18 @@ public:
      * @param idColumn the id of the column to sort the table.
      */
     void sortByColumn(int idColumn);
+    
+    /**
+     * @param line
+     * @return 
+     */
+    unsigned int getInvertedMatch(unsigned int line);
+
+    /**
+     * @param line
+     * @return 
+     */
+    unsigned int getLocalMatch(unsigned int line);
 
     /**
      * @param line

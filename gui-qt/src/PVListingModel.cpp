@@ -197,6 +197,7 @@ void PVInspector::PVListingModel::initLocalMatchingTable(){
                 myIterator = myMap.begin();
 		for(int i=0;i<lib_view->get_nznu_index_count();i++){
                        localMatchingTable[i] = (*myIterator++).second;
+                       PVLOG_DEBUG("       locale%d\n",localMatchingTable[i]);
                 }
 	}else
 	if (state_machine->are_listing_no_nu()) {
@@ -267,6 +268,9 @@ void PVInspector::PVListingModel::initMatchingTable() {
  *****************************************************************************/
 QVariant PVInspector::PVListingModel::headerData(int section, Qt::Orientation orientation, int role) const {
         PVLOG_HEAVYDEBUG("PVInspector::PVListingModel::%s\n", __FUNCTION__);
+        if (!(section >= 0 && section < lib_view->get_qtnraw_parent().size())) {
+                return QVariant();
+        }
 
         int real_row_index = 0;
 	// We need to get the data index to display vertical values
@@ -282,6 +286,10 @@ QVariant PVInspector::PVListingModel::headerData(int section, Qt::Orientation or
 	if (state_machine->are_listing_no_nu_nz()) {//NU_NZ
 		real_row_index = localMatchingTable[section];//(lib_view->get_nznu_real_row_index(section));
 	}
+        
+        if (!(real_row_index >= 0 && real_row_index < lib_view->get_qtnraw_parent().size())) {
+                return QVariant();
+        }
 
 
         switch (role) {
@@ -425,7 +433,26 @@ int PVInspector::PVListingModel::rowCount(const QModelIndex &/*index*/) const
 
 /******************************************************************************
  *
- * PVInspector::PVListingModel::getCorrespondance
+ * PVInspector::PVListingModel::getInvertedMatch
+ *
+ *****************************************************************************/
+unsigned int PVInspector::PVListingModel::getInvertedMatch(unsigned int line){
+        return int(parent_widget->sortMatchingTable_invert.at(line));
+}
+
+/******************************************************************************
+ *
+ * PVInspector::PVListingModel::getLocalMatch
+ *
+ *****************************************************************************/
+unsigned int PVInspector::PVListingModel::getLocalMatch(unsigned int line){
+        return int(localMatchingTable.at(line));
+}
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVListingModel::getMatch
  *
  *****************************************************************************/
 unsigned int PVInspector::PVListingModel::getMatch(unsigned int l) {
