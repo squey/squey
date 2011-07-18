@@ -24,5 +24,5 @@ with open(file_out_diff, "w") as f:
 	os.remove(file_out)
 	if (ret != 0): sys.exit(ret)
 
-#os.unlink(file_out_diff)
+os.unlink(file_out_diff)
 sys.exit(0)

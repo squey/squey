@@ -49,8 +49,8 @@ PVRush::PVImportFileDialog::PVImportFileDialog(QStringList pluginslist, QWidget 
 	_check_archives_checkbox = new QCheckBox("Automatically decompress detected archive files (warning: this can take a long time for files >1go)");
 	_check_archives_checkbox->setChecked(true);
 
-	options_layout->addWidget(activate_netflow_checkbox, 1, 0);
-	options_layout->addWidget(_check_archives_checkbox, 2, 0);
+	//options_layout->addWidget(activate_netflow_checkbox, 1, 0);
+	//options_layout->addWidget(_check_archives_checkbox, 2, 0);
 
 //	QLabel *read_from_label = new QLabel("Read from line:");
 //	options_layout->addWidget(read_from_label, 2, 0);

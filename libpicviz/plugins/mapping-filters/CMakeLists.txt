@@ -40,13 +40,13 @@ target_link_libraries(mapping_filter_float_default picviz pvfilter)
 add_library(mapping_filter_integer_default SHARED integer_default/PVMappingFilterIntegerDefault.cpp integer_default/register.cpp)
 target_link_libraries(mapping_filter_integer_default picviz pvfilter)
 
-add_library(mapping_filter_ipv4_default SHARED ipv4_default/PVMappingFilterIPv4Default.cpp tools/ip.cpp ipv4_default/register.cpp)
+add_library(mapping_filter_ipv4_default SHARED ipv4_default/PVMappingFilterIPv4Default.cpp ipv4_default/register.cpp)
 target_link_libraries(mapping_filter_ipv4_default picviz pvfilter)
 
 add_library(mapping_filter_enum_default SHARED enum_default/PVMappingFilterEnumDefault.cpp enum_default/register.cpp)
 target_link_libraries(mapping_filter_enum_default picviz pvfilter)
 
-add_library(mapping_filter_host_default SHARED host_default/PVMappingFilterHostDefault.cpp tools/ip.cpp host_default/register.cpp)
+add_library(mapping_filter_host_default SHARED host_default/PVMappingFilterHostDefault.cpp host_default/register.cpp)
 target_link_libraries(mapping_filter_host_default picviz pvfilter)
 
 add_library(mapping_filter_string_default SHARED string_default/PVMappingFilterStringDefault.cpp string_default/register.cpp)

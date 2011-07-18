@@ -298,3 +298,13 @@ void Picviz::PVLinesProperties::selection_set_rgba(PVSelection const& selection,
 		}
 	}
 }
+
+void Picviz::PVLinesProperties::debug()
+{
+	pvrow row;
+
+	for (row=0; row<table.size(); row++) {
+		PVColor &c = table[row];
+		PVLOG_INFO("%d: %d %d %d\n", row, c.r(), c.g(), c.b());
+	}
+}

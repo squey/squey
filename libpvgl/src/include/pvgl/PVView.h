@@ -166,6 +166,11 @@ public:
 	void update_set_size();
 	//! \}
 
+	void update_colors();
+	void update_z();
+	void update_positions();
+	void update_zombies();
+	void update_selections();
 
 
 

@@ -4,12 +4,12 @@
 
 int main(void)
 {
-  PVCore::Network network("192.168.23.4");
+	uint32_t n;
   
-  if (network.is_ip_addr()){
+  if (PVCore::Network::ipv4_aton("192.168.23.4", n)) {
     printf("IP Addr\n");
+	return 0;
   }
 
-
-  return 0;
+  return 1;
 }
