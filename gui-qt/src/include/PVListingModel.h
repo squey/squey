@@ -42,7 +42,8 @@ public:
 
 private:
 	//sorting data
-	QVector<int> matchingTable; //!<the table sort, modify this array to order the values
+	QVector<int> localMatchingTable; //!<the table sort, modify this array to order the values
+    QMutex localMatchingTable_locker;
 	TypeOfSort sortOrder; //!<save the current sorting state (NoOrder, AscendingOrder, DescendingOrder)
 	int colSorted; //!<save the last column whiche was used to sort
 	
@@ -51,6 +52,7 @@ private:
 
 	Picviz::PVStateMachine *state_machine;
 	Picviz::PVView_p lib_view;
+    
 
 protected:
 	PVMainWindow  *main_window;     //!<
@@ -112,6 +114,11 @@ public:
      * initialize the matching table for sort.
      */
     void initMatchingTable();
+    
+    /**
+     * create a new matching table for nu, nz or nunz situation.
+     */
+    void initLocalMatchingTable();
 
     /**
      * reset the model

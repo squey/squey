@@ -19,6 +19,7 @@
 
 #include <picviz/PVSortQVectorQStringList.h>
 
+#include <map>
 
 
 /******************************************************************************
@@ -48,8 +49,9 @@ PVInspector::PVListingModel::PVListingModel(PVMainWindow *mw, PVTabSplitter *par
         lib_view = parent_widget->get_lib_view();
         assert(lib_view);
 	state_machine = lib_view->state_machine;
-
+        
         initMatchingTable();
+        initLocalMatchingTable();
 }
 
 
@@ -80,18 +82,17 @@ QVariant PVInspector::PVListingModel::data(const QModelIndex &index, int role) c
         unsigned char g;
         unsigned char b;
 
-
 	if (state_machine->are_listing_all()) {//all
 		real_row_index = parent_widget->sortMatchingTable.at(index.row());
 	}else
 	if (state_machine->are_listing_no_nu_nz()) {//NU NZ
-		real_row_index = parent_widget->sortMatchingTable_invert.at(lib_view->get_nznu_real_row_index(index.row()));
+		real_row_index = localMatchingTable[index.row()];//(lib_view->get_nznu_real_row_index(index.row()));//
 	}else
 	if (state_machine->are_listing_no_nu()) {//NU
-		real_row_index = parent_widget->sortMatchingTable_invert.at(lib_view->get_nu_real_row_index(index.row()));
+		real_row_index = localMatchingTable[index.row()];//(lib_view->get_nu_real_row_index(index.row()));
 	}else
 	if (state_machine->are_listing_no_nz()) {//NZ
-		real_row_index = parent_widget->sortMatchingTable_invert.at(lib_view->get_nz_real_row_index(index.row()));
+		real_row_index = localMatchingTable[index.row()];//(lib_view->get_nz_real_row_index(index.row()));
 	}
         PVLOG_HEAVYDEBUG("           correspondId %d\n", real_row_index);
         //PVLOG_DEBUG("           correspondId %d\n", correspondId);
@@ -172,7 +173,66 @@ Qt::ItemFlags PVInspector::PVListingModel::flags(const QModelIndex &/*index*/) c
 
 /******************************************************************************
  *
- * PVInspector::PVListingModel::headerData
+ * PVInspector::PVListingModel::initLocalMatchingTable
+ *
+ *****************************************************************************/
+void PVInspector::PVListingModel::initLocalMatchingTable(){
+        PVLOG_DEBUG("PVListingModel::initLocalMatchingTable()\n");
+        std::map<int,int> myMap;
+        std::map<int,int>::iterator myIterator;
+        
+
+        if (state_machine->are_listing_all()) {
+                PVLOG_DEBUG("       ALL\n");
+	}else
+	if (state_machine->are_listing_no_nu_nz()) {
+		PVLOG_DEBUG("       NZNU\n");
+                localMatchingTable.resize(lib_view->get_nznu_index_count());
+                //init map
+                for(int i=0;i<lib_view->get_nznu_index_count();i++){
+                        int real=lib_view->get_nznu_real_row_index(i);
+                        myMap.insert(std::pair<int,int>(parent_widget->sortMatchingTable_invert.at(real),real));
+                }
+                //write in local matching table
+                myIterator = myMap.begin();
+		for(int i=0;i<lib_view->get_nznu_index_count();i++){
+                       localMatchingTable[i] = (*myIterator++).second;
+                }
+	}else
+	if (state_machine->are_listing_no_nu()) {
+		PVLOG_DEBUG("       NU\n");
+                localMatchingTable.resize(lib_view->get_nu_index_count());
+                //init map
+                for(int i=0;i<lib_view->get_nu_index_count();i++){
+                        int real=lib_view->get_nu_real_row_index(i);
+                        myMap.insert(std::pair<int,int>(parent_widget->sortMatchingTable_invert.at(real),real));
+                }
+                //write in local matching table
+                myIterator = myMap.begin();
+		for(int i=0;i<lib_view->get_nu_index_count();i++){
+                       localMatchingTable[i] = (*myIterator++).second;
+                }
+	}else
+	if (state_machine->are_listing_no_nz()) {
+                PVLOG_DEBUG("       NZ\n");
+                localMatchingTable.resize(lib_view->get_nz_index_count());
+                //init map
+                for(int i=0;i<lib_view->get_nz_index_count();i++){
+                        int real=lib_view->get_nz_real_row_index(i);
+                        myMap.insert(std::pair<int,int>(parent_widget->sortMatchingTable_invert.at(real),real));
+                }
+                //write in local matching table
+                myIterator = myMap.begin();
+		for(int i=0;i<lib_view->get_nz_index_count();i++){
+                       localMatchingTable[i] = (*myIterator++).second;
+                }
+	}
+
+}
+
+/******************************************************************************
+ *
+ * PVInspector::PVListingModel::initMatchingTable
  *
  *****************************************************************************/
 void PVInspector::PVListingModel::initMatchingTable() {
@@ -193,8 +253,10 @@ void PVInspector::PVListingModel::initMatchingTable() {
                 }
 
                 sortOrder = NoOrder; //... reset the last order remember
+                initLocalMatchingTable();
                 emitLayoutChanged(); //... notify to the view that data has changed
         }
+        
 }
 
 
@@ -212,13 +274,13 @@ QVariant PVInspector::PVListingModel::headerData(int section, Qt::Orientation or
                 real_row_index=parent_widget->sortMatchingTable.at(section);
         }else
 	if (state_machine->are_listing_no_nu()) {//NU
-		real_row_index = parent_widget->sortMatchingTable_invert.at(lib_view->get_nu_real_row_index(section));
+		real_row_index = localMatchingTable[section];
 	}else
 	if (state_machine->are_listing_no_nz()) {//NZ
-		real_row_index = parent_widget->sortMatchingTable_invert.at(lib_view->get_nz_real_row_index(section));
+		real_row_index = localMatchingTable[section];
 	}else
 	if (state_machine->are_listing_no_nu_nz()) {//NU_NZ
-		real_row_index = parent_widget->sortMatchingTable_invert.at(lib_view->get_nznu_real_row_index(section));
+		real_row_index = localMatchingTable[section];//(lib_view->get_nznu_real_row_index(section));
 	}
 
 
@@ -260,7 +322,7 @@ QVariant PVInspector::PVListingModel::headerData(int section, Qt::Orientation or
  *
  *****************************************************************************/
 void PVInspector::PVListingModel::sortByColumn(int idColumn) 
-{
+{       
         if ((idColumn < 0) || (idColumn >= columnCount(QModelIndex()))) {
                 PVLOG_DEBUG("     can't sort the column %d\n",idColumn);
                 return;
@@ -329,6 +391,8 @@ void PVInspector::PVListingModel::sortByColumn(int idColumn)
                 PVLOG_DEBUG("   %d\n",j);
                 parent_widget->sortMatchingTable_invert.at(j) = i;
         }
+        
+        initLocalMatchingTable();
 
         emit layoutChanged();
 }
@@ -381,6 +445,7 @@ void PVInspector::PVListingModel::reset_model(bool initMatchTable) {
         if (initMatchTable) {
                 initMatchingTable();
         }
+        initLocalMatchingTable();
         emitLayoutChanged();
         //PVLOG_INFO("reset_model() : rowCount=%d, corresp.size=%d\n",rowCount(QModelIndex()),correspondTable.size());
 }
