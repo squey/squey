@@ -13,11 +13,7 @@
 
 #include <tbb/tbb_allocator.h>
 
-#ifdef WIN32
-	#include <pvcore/win32-vs2008-stdint.h>
-#else
-	#include <stdint.h>
-#endif
+#include <pvcore/stdint.h>
 
 #include <memory>
 #include <cassert>

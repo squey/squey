@@ -16,11 +16,7 @@
 #include <QRegExp>
 #include <boost/shared_array.hpp>
 
-#ifdef WIN32
-	#include <pvcore/win32-vs2008-stdint.h>
-#else
-	#include <stdint.h>
-#endif
+#include <pvcore/stdint.h>
 
 namespace PVCore {
 
