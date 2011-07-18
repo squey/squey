@@ -11,7 +11,7 @@
 #include <picviz/PVMappingFilter.h>
 #include <tbb/concurrent_unordered_map.h>
 #include <QString>
-#include <stdint.h>
+#include <pvcore/stdint.h>
 
 // Used by the concurrennt hash map below
 size_t tbb_hasher(const QString& str);

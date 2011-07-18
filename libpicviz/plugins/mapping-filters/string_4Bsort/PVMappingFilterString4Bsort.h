@@ -8,14 +8,10 @@
 #define PVFILTER_PVMAPPINGFILTERSTRING4BSORT_H
 
 #include <pvcore/general.h>
+#include <pvcore/stdint.h>
 #include <picviz/PVMappingFilter.h>
-#include <tbb/atomic.h>
 
-#ifdef WIN32
-#include <pvcore/win32-vs2008-stdint.h>
-#else
-#include <stdint.h>
-#endif
+#include <tbb/atomic.h>
 
 namespace Picviz {
 
