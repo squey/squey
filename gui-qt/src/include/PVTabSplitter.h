@@ -21,8 +21,13 @@
 
 #include <PVExtractorWidget.h>
 
+
+
+
 namespace PVInspector {
+
 class PVMainWindow;
+class PVListingModel;
 
 /**
  *  \class PVTabSplitter
@@ -30,8 +35,12 @@ class PVMainWindow;
 class PVTabSplitter : public QSplitter
 {
 	Q_OBJECT
-
-	PVMainWindow     *main_window;   //!< The parent PVMainWindow of this PVTabSplitter
+private:
+    
+public:
+	MatchingTable_t sortMatchingTable; //!<the table sort, modify this array to order the values. sortMatchingTable[0] is the position of the line 0 after sort.
+    MatchingTable_t sortMatchingTable_invert; //!<sortMatchingTable_invert[E] (E: a line in sorted table) return the real position in the nraw 
+    PVMainWindow     *main_window;   //!< The parent PVMainWindow of this PVTabSplitter
 	Picviz::PVView_p lib_view;      //!< The Picviz::PVView 
 
 	PVListingView *pv_listing_view; //!< The PVListingView attached with our main application
@@ -122,6 +131,8 @@ public:
 	 * @return the index of the next screenshot
 	 */
 	int get_screenshot_index();
+    
+    MatchingTable_t *getSortMatchingTable(){return &sortMatchingTable;}
 
 	/**
 	 * Increments the index of the next screenshot

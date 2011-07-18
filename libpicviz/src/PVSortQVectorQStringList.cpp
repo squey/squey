@@ -50,7 +50,7 @@ void Picviz::PVSortQVectorQStringList::setDialog(){
  *
  *****************************************************************************/
 void Picviz::PVSortQVectorQStringList::setList(PVRush::PVNraw::nraw_table *dataIn, QVector<int>* correspondingTable){
-	myThread->setList(dataIn,correspondingTable);
+	//myThread->setList(dataIn,correspondingTable);
 }
 
 /******************************************************************************

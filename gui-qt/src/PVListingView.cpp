@@ -74,15 +74,24 @@ void PVInspector::PVListingView::mouseReleaseEvent(QMouseEvent *event)
 	selected_items_list = selectedIndexes();
 	number_of_items = selected_items_list.size();
 
-	if (state_machine->are_listing_all_visible() || (!state_machine->are_listing_zombie_visible())) {
+	if (state_machine->are_listing_all()) {
                 for (i=0; i<number_of_items; i++) {
                         real_row_index = lib_view->get_real_row_index(selected_items_list[i].row());
+                        PVLOG_HEAVYDEBUG("     a%d\n",myModel->getMatch(real_row_index));
                         lib_view->volatile_selection.set_line(myModel->getMatch(real_row_index), 1);
                 }    
-        } else {
+        }else if(state_machine->are_listing_no_nz()){
                 for (i=0; i<number_of_items; i++) {
                         real_row_index = lib_view->get_real_row_index(selected_items_list[i].row());
-                        lib_view->volatile_selection.set_line(real_row_index, 1);
+                        PVLOG_HEAVYDEBUG("     b%d, local%d, real%d, invert%d, selected_items_list[i].row()=%d\n, ",myModel->getMatch(real_row_index),myModel->getLocalMatch(real_row_index),real_row_index,myModel->getInvertedMatch(real_row_index),selected_items_list[i].row());
+                        lib_view->volatile_selection.set_line(myModel->getLocalMatch(real_row_index), 1);
+                }  
+        }else {
+                for (i=0; i<number_of_items; i++) {
+                        //real_row_index = lib_view->get_real_row_index(selected_items_list[i].row());
+                        real_row_index = myModel->getLocalMatch(selected_items_list[i].row());
+                        PVLOG_HEAVYDEBUG("     c%d, local%d, real%d, invert%d\n",myModel->getMatch(real_row_index),myModel->getLocalMatch(real_row_index),real_row_index,myModel->getInvertedMatch(real_row_index));
+                        lib_view->volatile_selection.set_line((real_row_index), 1);
                 }  
         }
 	

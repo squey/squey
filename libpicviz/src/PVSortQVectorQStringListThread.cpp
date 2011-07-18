@@ -71,7 +71,7 @@ void Picviz::PVSortQVectorQStringListThread::setDialog(QDialog *d){
  * Picviz::PVSortQVectorQStringListThread::setList
  *
  *****************************************************************************/
-void Picviz::PVSortQVectorQStringListThread::setList(PVRush::PVNraw::nraw_table *dataIn, QVector<int>* correspondingTable){
+void Picviz::PVSortQVectorQStringListThread::setList(PVRush::PVNraw::nraw_table *dataIn, std::vector<int>* correspondingTable){
 	myTable = dataIn;
 	correspondTable=correspondingTable;
 }
@@ -82,7 +82,7 @@ void Picviz::PVSortQVectorQStringListThread::setList(PVRush::PVNraw::nraw_table 
  * Picviz::PVSortQVectorQStringListThread::sortByColumn
  *
  *****************************************************************************/
-void Picviz::PVSortQVectorQStringListThread::sort(int idColumn, Qt::SortOrder p_order ){
+void Picviz::PVSortQVectorQStringListThread::sort(int , Qt::SortOrder  ){
 	PVLOG_WARN("Picviz::PVSortQVectorQStringListThread::sort(...) is not implemented");
 	/*PVLOG_INFO("start   thread\n");
 	QFuture<void> f = QtConcurrent::run(extrun,this);
@@ -101,12 +101,9 @@ void Picviz::PVSortQVectorQStringListThread::swap(int i, int j){
 	/*********************************
 	**   update corresponding list	**
 	*********************************/
-	int a=correspondTable->at(i);
-	int b=correspondTable->at(j);
-	correspondTable->remove(i);
-	correspondTable->insert(i,b);
-	correspondTable->remove(j);
-	correspondTable->insert(j,a);
+	int old_second=correspondTable->at(j);
+	correspondTable->at(j)=correspondTable->at(i);
+        correspondTable->at(i)=old_second;
 }
 
 /******************************************************************************
@@ -177,7 +174,7 @@ void Picviz::PVSortQVectorQStringListThread::update(){
 	//update the correspond table
 	for (int idx = 0; idx < sizeData; ++idx){
 		int key = sortable.at(idx).second;
-		correspondTable->replace(idx,key);
+		correspondTable->at(idx)=key;
 		//correspondTable->insert(idx,key);
 	}
 	PVLOG_INFO("end   update\n");

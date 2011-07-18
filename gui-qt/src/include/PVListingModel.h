@@ -3,9 +3,11 @@
 //! Copyright (C) Sébastien Tricaud 2009-2011
 //! Copyright (C) Philippe Saadé 2009-2011
 //! Copyright (C) Picviz Labs 2011
-
 #ifndef PVLISTINGMODEL_H
 #define PVLISTINGMODEL_H
+
+#include <vector>
+typedef std::vector<int> MatchingTable_t;
 
 #include <QtGui>
 #include <QtCore>
@@ -18,15 +20,20 @@
 #include <PVProgressBox.h>
 #include <QAbstractTableModel>
 
+
 namespace PVInspector {
+
+
 class PVMainWindow;
 class PVTabSplitter;
 
 /**
  * \class PVListingModel
  */
+
 class PVListingModel : public QAbstractTableModel {
 Q_OBJECT
+
 
 public:
     enum TypeOfSort {
@@ -35,7 +42,8 @@ public:
 
 private:
 	//sorting data
-	QVector<int> matchingTable; //!<the table sort, modify this array to order the values
+	QVector<int> localMatchingTable; //!<the table sort, modify this array to order the values
+    QMutex localMatchingTable_locker;
 	TypeOfSort sortOrder; //!<save the current sorting state (NoOrder, AscendingOrder, DescendingOrder)
 	int colSorted; //!<save the last column whiche was used to sort
 	
@@ -44,10 +52,12 @@ private:
 
 	Picviz::PVStateMachine *state_machine;
 	Picviz::PVView_p lib_view;
+    
 
 protected:
 	PVMainWindow  *main_window;     //!<
 	PVTabSplitter *parent_widget;   //!<
+    MatchingTable_t *sortMatchingTable;
 
 	QBrush select_brush;            //!<
 	QFont  select_font;             //!<
@@ -93,17 +103,34 @@ public:
      * @param idColumn the id of the column to sort the table.
      */
     void sortByColumn(int idColumn);
+    
+    /**
+     * @param line
+     * @return 
+     */
+    unsigned int getInvertedMatch(unsigned int line);
 
     /**
      * @param line
      * @return 
      */
-    int getMatch(int line);
+    unsigned int getLocalMatch(unsigned int line);
+
+    /**
+     * @param line
+     * @return 
+     */
+    unsigned int getMatch(unsigned int line);
 
     /**
      * initialize the matching table for sort.
      */
     void initMatchingTable();
+    
+    /**
+     * create a new matching table for nu, nz or nunz situation.
+     */
+    void initLocalMatchingTable();
 
     /**
      * reset the model
@@ -132,7 +159,11 @@ public:
      * call update for data
      */
     void emitLayoutChanged(); 
+
 };
+//MatchingTable_t PVInspector::PVListingModel::sortMatchingTable; //!<the table sort, modify this array to order the values
+    
+
 }
 
 #endif

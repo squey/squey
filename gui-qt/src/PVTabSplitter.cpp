@@ -100,6 +100,7 @@ void PVInspector::PVTabSplitter::refresh_listing_Slot()
 		//static_cast<PVListingModelBase*>(pv_listing_view->model())->reset_model();
 		//update the size of the corresponding table.
 		static_cast<PVListingModel*>(pv_listing_view->model())->initMatchingTable();
+                static_cast<PVListingModel*>(pv_listing_view->model())->initLocalMatchingTable();
 		static_cast<PVListingModel*>(pv_listing_view->model())->emitLayoutChanged();
 		lib_view->gl_call_locker.unlock();
 	}
@@ -126,6 +127,7 @@ void PVInspector::PVTabSplitter::refresh_listing_with_horizontal_header_Slot()
 void PVInspector::PVTabSplitter::selection_changed_Slot()
 {	
 	//PVLOG_INFO("%s \n       %s %d\n",__FILE__,__FUNCTION__,__LINE__);
+        
 	refresh_listing_Slot();
 }
 

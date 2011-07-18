@@ -64,14 +64,24 @@ namespace Picviz {
             bool is_grabbed()const {
                 return grabbed;
             }
+            
+            //listing state management
+            
+            bool are_listing_all()const {
+                return listing_unselected_visible && listing_zombie_visible;
+            }
 
-            bool are_listing_all_visible()const {
-		    return listing_unselected_visible && listing_zombie_visible;
-	    }
-
-            bool are_listing_none_visible()const {
-		    return !(listing_unselected_visible || listing_zombie_visible);
-	    }
+            bool are_listing_no_nu_nz()const {
+                return !(listing_unselected_visible || listing_zombie_visible);
+            }
+            
+            bool are_listing_no_nz()const {
+                return listing_unselected_visible && !listing_zombie_visible;
+            }
+            
+            bool are_listing_no_nu()const {
+                return !listing_unselected_visible && listing_zombie_visible;
+            }
 
             bool are_listing_unselected_visible()const {
                 return listing_unselected_visible;
@@ -80,14 +90,24 @@ namespace Picviz {
             bool are_listing_zombie_visible()const {
                 return listing_zombie_visible;
             }
+            
+            //gl state management
 
-            bool are_gl_all_visible()const {
-		    return gl_unselected_visible && gl_zombie_visible;
-	    }
+            bool are_gl_all()const {
+                return gl_unselected_visible && gl_zombie_visible;
+            }
 
-            bool are_gl_none_visible()const {
-		    return !(gl_unselected_visible || gl_zombie_visible);
-	    }
+            bool are_gl_no_nu_nz()const {
+                return !(gl_unselected_visible || gl_zombie_visible);
+            }
+            
+            bool are_gl_no_nu()const {
+                return !gl_unselected_visible && gl_zombie_visible;
+            }
+
+            bool are_gl_no_nz()const {
+                return gl_unselected_visible && !gl_zombie_visible;
+            }
 
             bool are_gl_unselected_visible()const {
                 return gl_unselected_visible;
@@ -96,6 +116,8 @@ namespace Picviz {
             bool are_gl_zombie_visible()const {
                 return gl_zombie_visible;
             }
+            
+            
             
             bool is_edit_mode_all()const {
                 return edit_mode_all;
