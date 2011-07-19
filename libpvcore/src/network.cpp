@@ -31,7 +31,7 @@ bool PVCore::Network::ipv4_aton(QString const& ip, uint32_t& ip_n)
 	char* buffer_org = buffer;
 
 	buffer = strchr(buffer, '.');
-	if (!buffer) {
+	if (!buffer || buffer-buffer_org > 2) {
 		return false;
 	}
 	*buffer = 0;
@@ -41,6 +41,9 @@ bool PVCore::Network::ipv4_aton(QString const& ip, uint32_t& ip_n)
 	while(count > 0) {
 		buffer = strchr(buffer_prev, '.');
 		if (!buffer) {
+			return false;
+		}
+		if (buffer-buffer_prev > 2) {
 			return false;
 		}
 		*buffer = 0;
