@@ -23,7 +23,9 @@ PVRush::PVChunkTransformUTF16::PVChunkTransformUTF16()
 
 PVRush::PVChunkTransformUTF16::~PVChunkTransformUTF16()
 {
-#ifndef CHUNKTRANSFORM_USE_QT_UNICODE
+#ifdef CHUNKTRANSFORM_USE_QT_UNICODE
+	delete _decoder;
+#else
 	ucsdet_close(_csd);
 	ucnv_close(_ucnv);
 	if (_tmp_dest) {
@@ -61,7 +63,7 @@ size_t PVRush::PVChunkTransformUTF16::operator()(char* data, size_t len_read, si
 				}
 				else
 				{
-					//delete _decoder;
+					delete _decoder;
 					_decoder = tc->makeDecoder();
 				}
 			}
