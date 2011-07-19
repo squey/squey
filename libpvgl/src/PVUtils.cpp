@@ -99,8 +99,11 @@ bool print_opengl_error(const char *file, int line)
 	error = glGetError();
 	while (error != GL_NO_ERROR)
 		{
-			std::cerr << "glError in file " << file << ", line " << line << ": " <<
-			              gluErrorString (error) << std::endl;
+			const GLubyte* error_str = gluErrorString (error);
+			if (error_str) {
+				std::cerr << "glError in file " << file << ", line " << line << ": " <<
+					         error_str  << std::endl;
+			}
 			ret_code = true;
 			error = glGetError();
 		}
