@@ -23,7 +23,7 @@ set(NORMALIZE_FILTERS_DIST_FILES
 add_library(normalize_filter_splitter_regexp SHARED splitter_regexp/PVFieldSplitterRegexp.cpp splitter_regexp/PVFieldSplitterRegexp.h splitter_regexp/register.cpp)
 target_link_libraries(normalize_filter_splitter_regexp pvfilter pvcore)
 
-add_library(normalize_filter_splitter_csv SHARED splitter_csv/PVFieldSplitterCSV.cpp splitter_csv/PVFieldSplitterCSV.h splitter_csv/libcsv.cpp splitter_csv/register.cpp)
+add_library(normalize_filter_splitter_csv SHARED splitter_csv/PVFieldSplitterCSV.cpp splitter_csv/PVFieldSplitterCSV.h splitter_csv/PVFieldSplitterCSVParamWidget.cpp splitter_csv/PVFieldSplitterCSVParamWidget.cpp splitter_csv/libcsv.cpp splitter_csv/register.cpp)
 target_link_libraries(normalize_filter_splitter_csv pvfilter pvcore)
 
 add_library(normalize_filter_splitter_url SHARED splitter_url/PVFieldSplitterURL.cpp splitter_url/PVFieldSplitterURL.h splitter_url/register.cpp)

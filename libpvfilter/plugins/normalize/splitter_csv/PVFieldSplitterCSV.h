@@ -4,6 +4,7 @@
 #include <pvcore/general.h>
 #include <pvcore/PVField.h>
 #include <pvfilter/PVFieldsFilter.h>
+#include <pvfilter/PVFieldsFilterParamWidget.h>
 #include <QByteArray>
 
 extern "C" {
