@@ -9,12 +9,14 @@
 #define PVCORE_GENERAL_H
 
 #include <QtGlobal>
+#include <QSettings>
 
 #include "types.h"
 #include "export.h"
 #include "PVLogger.h"
 
 extern PVCore::PVLogger pvlog;
+static QSettings pvconfig(QString("pvconfig.ini"), QSettings::IniFormat);
 
 #define PICVIZ_VERSION_STR "2.0.1"
 /*
