@@ -60,7 +60,7 @@ PVInspector::PVListingModel::PVListingModel(PVMainWindow *mw, PVTabSplitter *par
  * PVInspector::PVListingModel::columnCount
  *
  *****************************************************************************/
-int PVInspector::PVListingModel::columnCount(const QModelIndex &index) const 
+int PVInspector::PVListingModel::columnCount(const QModelIndex &) const 
 {
         return lib_view->get_axes_count();
 }
@@ -248,7 +248,7 @@ void PVInspector::PVListingModel::initMatchingTable() {
                         parent_widget->sortMatchingTable.push_back(i);
                 }
                 parent_widget->sortMatchingTable_invert.resize(parent_widget->sortMatchingTable.size());
-                for (int i = 0; i < parent_widget->sortMatchingTable.size(); i++) {
+                for (unsigned int i = 0; i < parent_widget->sortMatchingTable.size(); i++) {
                         int j = parent_widget->sortMatchingTable.at(i);
                         parent_widget->sortMatchingTable_invert.at(j) = i;
                 }
@@ -268,7 +268,7 @@ void PVInspector::PVListingModel::initMatchingTable() {
  *****************************************************************************/
 QVariant PVInspector::PVListingModel::headerData(int section, Qt::Orientation orientation, int role) const {
         PVLOG_HEAVYDEBUG("PVInspector::PVListingModel::%s\n", __FUNCTION__);
-        if (!(section >= 0 && section < lib_view->get_qtnraw_parent().size())) {
+        if (!(section >= 0 && section < (int)lib_view->get_qtnraw_parent().size())) {
                 return QVariant();
         }
 
@@ -287,7 +287,7 @@ QVariant PVInspector::PVListingModel::headerData(int section, Qt::Orientation or
 		real_row_index = localMatchingTable[section];//(lib_view->get_nznu_real_row_index(section));
 	}
         
-        if (!(real_row_index >= 0 && real_row_index < lib_view->get_qtnraw_parent().size())) {
+        if (!(real_row_index >= 0 && real_row_index < (int)lib_view->get_qtnraw_parent().size())) {
                 return QVariant();
         }
 
@@ -394,7 +394,7 @@ void PVInspector::PVListingModel::sortByColumn(int idColumn)
                 sortThread->exit(0);
         }
         PVLOG_DEBUG("   the sort is finished.\n");
-        for (int i = 0; i < parent_widget->sortMatchingTable.size(); i++) {
+        for (unsigned int i = 0; i < parent_widget->sortMatchingTable.size(); i++) {
                 int j = parent_widget->sortMatchingTable.at(i);
                 PVLOG_HEAVYDEBUG("   %d\n",j);
                 parent_widget->sortMatchingTable_invert.at(j) = i;
