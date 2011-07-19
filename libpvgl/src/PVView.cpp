@@ -48,7 +48,7 @@ PVGL::PVView::PVView(int win_id, PVCom *com) : PVGL::PVDrawable(win_id, com),
 	selection_dirty = false;
 	update_line_dirty = false;
 	size_dirty = true;
-	max_lines_per_redraw = MAX_LINES_PER_REDRAW;
+	max_lines_per_redraw = pvconfig.value("pvgl/lpr", MAX_LINES_PER_REDRAW).toInt();
 
 	// Creation of the ui.
 	top_bar = new PVLayout(&widget_manager);
