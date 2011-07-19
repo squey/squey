@@ -162,6 +162,5 @@ size_t PVRush::PVChunkTransformUTF16::operator()(char* data, size_t len_read, si
 
 #endif
 
-	PVLOG_DEBUG("final size: %ld\n", final_size);
 	return final_size;
 }

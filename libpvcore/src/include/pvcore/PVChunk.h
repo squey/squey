@@ -110,7 +110,6 @@ public:
 	}
 	void free()
 	{
-		PVLOG_DEBUG("Deallocate chunk\n");
 		alloc_chunk ap = _alloc;
 		char* pbegin = begin();
 		this->~PVChunkMem<Allocator>();
