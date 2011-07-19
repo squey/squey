@@ -86,6 +86,44 @@ PVInspector::PVXmlEditorWidget::~PVXmlEditorWidget() {
     actionDelete->deleteLater();
     myTreeView->deleteLater();
 }
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVXmlEditorWidget::actionAllocation
+ *
+ *****************************************************************************/
+void PVInspector::PVXmlEditorWidget::actionAllocation(){
+    actionAddAxisIn = new QAction("add an axis",(QObject*)this);
+    actionAddAxisIn->setIcon(QIcon(":/add-axis"));
+    actionAddFilterAfter = new QAction("add a filter",(QObject*)this);
+    actionAddFilterAfter->setIcon(QIcon(":/filter"));
+    actionAddRegExAfter = new QAction("add a RegEx",(QObject*)this);
+    actionAddRegExAfter->setIcon(QIcon(":/add-regexp"));
+    actionAddUrl = new QAction("add an URL",(QObject*)this);
+    actionAddUrl->setIcon(QIcon(":/add-url"));
+
+    actionSave = new QAction("&Save",(QObject*)this);
+    actionSave->setShortcut(QKeySequence(Qt::CTRL+Qt::Key_S));
+    actionSave->setIcon(QIcon(":/save"));
+    actionDelete = new QAction("Delete",(QObject*)this);
+    actionDelete->setShortcut(QKeySequence(Qt::Key_Delete));
+    actionDelete->setIcon(QIcon(":/red-cross"));
+    actionDelete->setEnabled(false);
+    actionMoveDown = new QAction("move down",(QObject*)this);
+    actionMoveDown->setShortcut(QKeySequence(Qt::Key_Down));
+    actionMoveDown->setIcon(QIcon(":/go-down.png"));
+    actionMoveUp = new QAction("move up", (QObject*) this);
+    actionMoveUp->setShortcut(QKeySequence(Qt::Key_Up));
+    actionMoveUp->setIcon(QIcon(":/go-up.png"));
+    actionOpen = new QAction(tr("Open"),(QObject*)this);
+    actionOpen->setShortcut(QKeySequence(Qt::CTRL+Qt::Key_O));
+    actionOpen->setIcon(QIcon(":/document-open.png"));
+    actionOpenLog = new QAction(tr("Open a log"),(QObject*)this);
+    actionOpenLog->setIcon(QIcon(":/log-icon"));
+}
+
+
 /******************************************************************************
  *
  * PVInspector::PVXmlEditorWidget::initConnexions
@@ -126,31 +164,6 @@ void PVInspector::PVXmlEditorWidget::initToolBar(QVBoxLayout *vb){
 
     QToolBar *tools = new QToolBar();
 
-    actionAddAxisIn = new QAction("add an axis",(QObject*)tools);
-    actionAddAxisIn->setIcon(QIcon(":/add-axis"));
-    actionAddFilterAfter = new QAction("add a filter",(QObject*)tools);
-    actionAddFilterAfter->setIcon(QIcon(":/filter"));
-    actionAddRegExAfter = new QAction("add a RegEx",(QObject*)tools);
-    actionAddRegExAfter->setIcon(QIcon(":/add-regexp"));
-    actionAddUrl = new QAction("add an URL",(QObject*)tools);
-    actionAddUrl->setIcon(QIcon(":/add-url"));
-
-    actionSave = new QAction("&Save",(QObject*)tools);
-    actionSave->setShortcut(QKeySequence(Qt::CTRL+Qt::Key_S));
-    actionSave->setIcon(QIcon(":/save"));
-    actionDelete = new QAction("Delete",(QObject*)tools);
-    actionDelete->setShortcut(QKeySequence(Qt::Key_Delete));
-    actionDelete->setIcon(QIcon(":/red-cross"));
-    actionDelete->setEnabled(false);
-    actionMoveDown = new QAction("move down",(QObject*)tools);
-    actionMoveDown->setShortcut(QKeySequence(Qt::Key_Down));
-    actionMoveDown->setIcon(QIcon(":/go-down.png"));
-    actionMoveUp = new QAction("move up", (QObject*) tools);
-    actionMoveUp->setShortcut(QKeySequence(Qt::Key_Up));
-    actionMoveUp->setIcon(QIcon(":/go-up.png"));
-    actionOpen = new QAction("Open",(QObject*)tools);
-    actionOpen->setShortcut(QKeySequence(Qt::CTRL+Qt::Key_O));
-    actionOpen->setIcon(QIcon(":/document-open.png"));
 
     tools->addAction(actionAddFilterAfter);
     tools->addAction(actionAddAxisIn);
@@ -163,6 +176,7 @@ void PVInspector::PVXmlEditorWidget::initToolBar(QVBoxLayout *vb){
     tools->addSeparator();
     tools->addAction(actionDelete);
     tools->addSeparator();
+    //tools->addAction(actionOpenLog);
     tools->addAction(actionOpen);
     tools->addAction(actionSave);
 
@@ -372,6 +386,8 @@ void PVInspector::PVXmlEditorWidget::initMenuBar(){
     QMenu *file = menuBar->addMenu(tr("&File"));
     file->addAction(actionOpen);
     file->addAction(actionSave);
+    file->addSeparator();
+    file->addAction(actionOpenLog);
     QMenu *splitter = menuBar->addMenu(tr("&Splitter"));
     splitter->addAction(actionAddUrl);
     splitter->addAction(actionAddRegExAfter);

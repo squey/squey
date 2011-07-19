@@ -41,6 +41,8 @@ private:
     QVBoxLayout *vbParam;
     QMenuBar *menuBar;
     
+    void actionAllocation();
+    
     /**
      * initialise les connexions dont tout les emitter/reciever sont des attributs
      * de la classe
@@ -66,11 +68,12 @@ private:
     QAction *actionAddUrl;
     QAction *actionAddRegExIn;
     QPushButton *actionApply;
-    QAction *actionSave;
     QAction *actionDelete;
     QAction *actionMoveUp;
     QAction *actionMoveDown;
+    QAction *actionOpenLog;
     QAction *actionOpen;
+    QAction *actionSave;
     
   
     
