@@ -39,7 +39,7 @@ DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterWebmailFinder)
  *****************************************************************************/
 void Picviz::PVLayerFilterWebmailFinder::operator()(PVLayer& /*in*/, PVLayer &out)
 {	
-	int axis_id = _args["URL Axis"].value<PVCore::PVAxisIndexType>().get_original_index();
+	int axis_id = _args["Domain Axis"].value<PVCore::PVAxisIndexType>().get_original_index();
 	// QRegExp re = _args["Regular expression"].toRegExp();
 	// PVLOG_INFO("Apply filter search to axis %d with regexp %s.\n", axis_id, qPrintable(re.pattern()));
 
@@ -57,6 +57,17 @@ void Picviz::PVLayerFilterWebmailFinder::operator()(PVLayer& /*in*/, PVLayer &ou
 	}
 	PVLayer hotmail_layer("Hotmail", hotmail_sel, hotmail_lp);
 	_view->layer_stack.append_layer(hotmail_layer);
+
+	QRegExp yahoo_re(".*mail.yahoo.com.*");
+	PVSelection yahoo_sel;
+	PVLinesProperties yahoo_lp;
+	for (PVRow r = 0; r < nb_lines; r++) {
+		PVRush::PVNraw::nraw_table_line const& nraw_r = nraw.at(r);
+		yahoo_sel.set_line(r, yahoo_re.indexIn(nraw_r[axis_id]) != -1);
+	}
+	PVLayer yahoo_layer("Yahoo", yahoo_sel, yahoo_lp);
+	_view->layer_stack.append_layer(yahoo_layer);
+
 }
 
 IMPL_FILTER(Picviz::PVLayerFilterWebmailFinder)
