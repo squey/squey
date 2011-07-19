@@ -95,6 +95,10 @@ public:
     int getRow();
     
     
+    bool isEditable(){if (type==filter||type==url||type==axis||type==RegEx){return true;}else{return false;}}
+
+    
+    
     /**
      * Add a new filter, after the selected item.
      * @param indexeThisParmisFrere
@@ -215,6 +219,7 @@ private:
      */
     void delField(int n);
     
+
     bool isFieldOfUrl();
     
 };

@@ -34,7 +34,7 @@ PVInspector::PVXmlEditorWidget::PVXmlEditorWidget(QWidget * parent):QWidget(pare
     
     
     //initialisation of the toolbar.
-    actionAllocation()
+    actionAllocation();
     initToolBar(vb);
 
     menuBar =new QMenuBar();

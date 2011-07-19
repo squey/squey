@@ -252,8 +252,14 @@ PVInspector::PVXmlTreeNodeDom* PVInspector::PVXmlDomModel::nodeFromIndex(const Q
  * PVInspector::PVXmlDomModel::flags
  *
  *****************************************************************************/
-Qt::ItemFlags PVInspector::PVXmlDomModel::flags ( const QModelIndex &  ) const{
-    return Qt::ItemIsSelectable|Qt::ItemIsEnabled|Qt::ItemIsEditable;
+Qt::ItemFlags PVInspector::PVXmlDomModel::flags ( const QModelIndex & index ) const{
+    Qt::ItemFlags flags = Qt::ItemIsSelectable|Qt::ItemIsEnabled;
+    if(index.column()==1){
+            if(nodeFromIndex(index)->isEditable()){
+                   flags = flags|Qt::ItemIsEditable; 
+            }
+    }
+    return flags;
 }
 
 
