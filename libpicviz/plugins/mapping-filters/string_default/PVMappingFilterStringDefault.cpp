@@ -37,6 +37,8 @@ float* Picviz::PVMappingFilterStringDefault::operator()(PVRush::PVNraw::nraw_tab
 		_dest[i] = factors[i] / max_factor;
 	}
 
+	free(factors);
+
 	return _dest;
 }
 
