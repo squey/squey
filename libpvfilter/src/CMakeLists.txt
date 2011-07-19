@@ -12,7 +12,7 @@ PVFieldsFilter.cpp
 PVFieldsMappingFilter.cpp
 PVFieldSplitterChar.cpp
 PVFieldSplitterUTF16Char.cpp
-#PVFieldSplitterPcapPacket.cpp
+PVFieldsFilterParamWidget.cpp
 PVPluginsLoad.cpp
 PVRawSourceBase.cpp
 )
@@ -30,14 +30,10 @@ include/pvfilter/PVFilterFunction.h
 include/pvfilter/PVFilterLibrary.h
 include/pvfilter/PVElementFilterGrep.h
 include/pvfilter/PVElementFilterRandInvalid.h
-#include/pvfilter/PVFieldFilterRegexpGrep.h
 include/pvfilter/PVFieldFilterGrep.h
-#include/pvfilter/PVFieldSplitterCSV.h
-#include/pvfilter/PVFieldSplitterURL.h
+include/pvfilter/PVFieldsFilterParamWidget.h
 include/pvfilter/PVFieldSplitterChar.h
 include/pvfilter/PVFieldSplitterUTF16Char.h
-#include/pvfilter/PVFieldSplitterRegexp.h
-#include/pvfilter/PVFieldSplitterPcapPacket.h
 include/pvfilter/PVFieldsMappingFilter.h
 include/pvfilter/PVPluginsLoad.h
 include/pvfilter/PVRawSourceBase.h

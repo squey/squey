@@ -29,8 +29,8 @@ int main()
 	}
 
 	{
-		LIB_FILTER(PVFieldsFilter<one_to_many>)::list_filters const& l1 = LIB_FILTER(PVFieldsFilter<one_to_many>)::get().get_list();
-		LIB_FILTER(PVFieldsFilter<one_to_many>)::list_filters::const_iterator it1,ite1;
+		LIB_FILTER(PVFieldsBaseFilter::list_filters const& l1 = LIB_FILTER(PVFieldsBaseFilter)::get().get_list();
+		LIB_FILTER(PVFieldsBaseFilter)::list_filters::const_iterator it1,ite1;
 		it1 = l1.begin();
 		ite1 = l1.end();
 
