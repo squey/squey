@@ -1,5 +1,7 @@
 #include "PVMappingFilterHostDefault.h"
 #include <picviz/limits.h>
+#include <pvcore/string.h>
+#include <pvcore/network.h>
 
 #include <QVector>
 #include <QByteArray>
@@ -7,13 +9,12 @@
 #include <algorithm>
 #include <tbb/concurrent_vector.h>
 
-#include <pvcore/network.h>
-
 #include <dnet.h>
 
 
 typedef tbb::concurrent_vector< std::pair<QByteArray,uint64_t> > vec_conv_sort_t;
 typedef vec_conv_sort_t::value_type str_local_index;
+typedef tbb::concurrent_vector<uint32_t> list_indexes;
 
 static inline bool compLocal(const str_local_index& s1, const str_local_index& s2)
 {
@@ -26,9 +27,11 @@ float* Picviz::PVMappingFilterHostDefault::operator()(PVRush::PVNraw::nraw_table
 	assert(values.size() >= _dest_size);
 
 	int64_t ssize = values.size();
-	vec_conv_sort_t v_local;
-	v_local.reserve(ssize);
-#pragma omp parallel for
+	//vec_conv_sort_t v_local;
+	//v_local.reserve(ssize);
+	float max_str = STRING_MAX_YVAL;
+	list_indexes str_idxes;
+	str_idxes.reserve(ssize);
 	for (int64_t i = 0; i < ssize; i++) {
 		QString const& v = values[i];
 		uint32_t ipv4_v;
@@ -37,10 +40,23 @@ float* Picviz::PVMappingFilterHostDefault::operator()(PVRush::PVNraw::nraw_table
 			_dest[i] = (float) (((double)ipv4_v/(double)(PICVIZ_IPV4_MAXVAL))/((double)2.0));
 		}
 		else {
-			v_local.push_back(str_local_index(v.toLocal8Bit(),i));
+			float res = PVCore::String::compute_str_factor(values[i]); 
+			if (res > max_str) {
+				max_str = res;
+			}
+			_dest[i] = res;
+			str_idxes.push_back(i);
+			//v_local.push_back(str_local_index(v.toLocal8Bit(),i));
 		}
 	}
 
+	list_indexes::const_iterator it;
+	max_str *= 2.0;
+	for (it = str_idxes.begin(); it != str_idxes.end(); it++) {
+		_dest[*it] = _dest[*it]/max_str + 0.5;
+	}
+
+#if 0 // Too slow for now, need improvements
 	// Sort the strings that represents hosts
 	std::sort(v_local.begin(), v_local.end(), compLocal);
 
@@ -63,6 +79,7 @@ float* Picviz::PVMappingFilterHostDefault::operator()(PVRush::PVNraw::nraw_table
 		uint64_t org_index = v_local[i].second;
 		_dest[org_index] = _dest[org_index]/div + 0.5;
 	}
+#endif
 
 	return _dest;
 }

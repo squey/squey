@@ -7,7 +7,7 @@ if (WIN32)
 	#set(CMAKE_BUILD_TYPE "Release")
 	set(CMAKE_BUILD_TYPE "RelWithDebInfo")
 else(WIN32)
-	set(CMAKE_BUILD_TYPE "RelWithDebInfo")
+	set(CMAKE_BUILD_TYPE "Debug")
 endif(WIN32)
 
 set(PICVIZ_SINGLE_TREE_BUILD true)
@@ -33,7 +33,7 @@ if(WIN32)
 else(WIN32)
 	add_definitions(-DUNIX)
 	add_definitions(-DLINUX=2)
-	add_definitions(-Wall -Wextra -pipe -ggdb3 -O3)
+	add_definitions(-Wall -Wextra -pipe -ggdb3)
 endif(WIN32)
 
 # 

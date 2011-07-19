@@ -10,16 +10,16 @@
 #include <QString>
 #include <stdlib.h>
 
+static inline long _atol(const char* str, bool* success)
+{
+	char* endptr;
+	long ret = strtol(str, &endptr, 10);
+	*success = (endptr == (str + strlen(str)));
+	return ret;
+}
+
 bool PVCore::Network::ipv4_aton(QString const& ip, uint32_t& ip_n)
 {
-#if 0 // This is far too slow
-	struct addr addr;
-	if (addr_aton(ip.toLatin1().constData(), &addr) == -1) {
-		return false;
-	}
-	ip_n = ntohl(addr.addr_ip);
-#endif
-
 	int count = 2;
 
 	if (ip.isEmpty()) {
@@ -29,13 +29,17 @@ bool PVCore::Network::ipv4_aton(QString const& ip, uint32_t& ip_n)
 	QByteArray value_ba = ip.toLatin1();
 	char* buffer = (char*) value_ba.constData();
 	char* buffer_org = buffer;
+	bool success = false;
 
 	buffer = strchr(buffer, '.');
-	if (!buffer || buffer-buffer_org > 2) {
+	if (!buffer || buffer-buffer_org >= 4) {
 		return false;
 	}
 	*buffer = 0;
-	ip_n = ((uint32_t) atol(buffer_org)) << 24;
+	ip_n = ((uint32_t) _atol(buffer_org, &success)) << 24;
+	if (!success) {
+		return false;
+	}
 	buffer++;
 	char* buffer_prev = buffer;
 	while(count > 0) {
@@ -43,17 +47,20 @@ bool PVCore::Network::ipv4_aton(QString const& ip, uint32_t& ip_n)
 		if (!buffer) {
 			return false;
 		}
-		if (buffer-buffer_prev > 2) {
+		if (buffer-buffer_prev >= 4) {
 			return false;
 		}
 		*buffer = 0;
-		ip_n |= ((uint32_t)atol(buffer_prev)) << count*8;
+		ip_n |= ((uint32_t)_atol(buffer_prev, &success)) << count*8;
+		if (!success) {
+			return false;
+		}
 		buffer_prev = buffer+1;
 		count--;
 	}
-	ip_n |= (uint32_t) atol(buffer_prev);
+	ip_n |= (uint32_t) _atol(buffer_prev, &success);
 
-	return true;
+	return success;
 }
 
 char* PVCore::Network::ipv4_ntoa(const ip_addr_t addr)
