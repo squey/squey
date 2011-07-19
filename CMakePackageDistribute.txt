@@ -1,9 +1,12 @@
+install(FILES "pvconfig.ini" DESTINATION .)
+install(FILES "gui-qt/src/icons/icon.png" DESTINATION .)
+
 if(WIN32)
 	set(TBB_DIST_FILES
 	C:\\\\dev\\\\tbb\\\\bin\\\\ia32\\\\vc9\\\\tbb.dll
 	C:\\\\dev\\\\tbb\\\\bin\\\\ia32\\\\vc9\\\\tbbmalloc.dll
 	)
-    install(FILES ${TBB_DIST_FILES} DESTINATION .)
+	install(FILES ${TBB_DIST_FILES} DESTINATION .)
 
 	set(QT4_DIST_FILES
 	C:\\\\Qt\\\\4.7.3\\\\bin\\\\phonon4.dll
