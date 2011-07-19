@@ -34,7 +34,8 @@ PVInspector::PVXmlEditorWidget::PVXmlEditorWidget(QWidget * parent):QWidget(pare
     
     
     //initialisation of the toolbar.
-    this->initToolBar(vb);
+    actionAllocation()
+    initToolBar(vb);
 
     menuBar =new QMenuBar();
     initMenuBar();
@@ -45,21 +46,21 @@ PVInspector::PVXmlEditorWidget::PVXmlEditorWidget(QWidget * parent):QWidget(pare
     
     
     //the view
-    this->myTreeView = new PVXmlTreeView(this);
-    hb->addWidget(this->myTreeView);
+    myTreeView = new PVXmlTreeView(this);
+    hb->addWidget(myTreeView);
 
     
     //the model
-    this->myTreeModel = new PVXmlDomModel(this);
-    this->myTreeView->setModel(this->myTreeModel);
+    myTreeModel = new PVXmlDomModel(this);
+    myTreeView->setModel(myTreeModel);
 
     
     hb->addItem(vbParam);
     //parameter board
-    this->myParamBord = new PVXmlParamWidget();
+    myParamBord = new PVXmlParamWidget();
 
  
-    vbParam->addWidget(this->myParamBord);  
+    vbParam->addWidget(myParamBord);  
 
     
     
