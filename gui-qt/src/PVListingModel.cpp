@@ -396,7 +396,7 @@ void PVInspector::PVListingModel::sortByColumn(int idColumn)
         PVLOG_DEBUG("   the sort is finished.\n");
         for (int i = 0; i < parent_widget->sortMatchingTable.size(); i++) {
                 int j = parent_widget->sortMatchingTable.at(i);
-                PVLOG_DEBUG("   %d\n",j);
+                PVLOG_HEAVYDEBUG("   %d\n",j);
                 parent_widget->sortMatchingTable_invert.at(j) = i;
         }
         
