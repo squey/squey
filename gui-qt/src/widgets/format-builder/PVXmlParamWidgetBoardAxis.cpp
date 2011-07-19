@@ -16,6 +16,7 @@
 PVInspector::PVXmlParamWidgetBoardAxis::PVXmlParamWidgetBoardAxis(PVInspector::PVXmlTreeNodeDom *pNode):QWidget() {
     node = pNode;
     pluginListURL = picviz_plugins_get_functions_dir();
+    setObjectName("PVXmlParamWidgetBoardAxis");
 
     allocBoardFields();
     draw();

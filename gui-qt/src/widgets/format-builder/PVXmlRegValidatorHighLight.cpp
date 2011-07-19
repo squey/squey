@@ -17,7 +17,7 @@
  *
  *****************************************************************************/
 PVInspector::PVXmlRegValidatorHighLight::PVXmlRegValidatorHighLight(QTextEdit* pParent) :
-QSyntaxHighlighter(pParent->document()) {
+    QSyntaxHighlighter(pParent->document()) {
     setDocument(pParent->document());
     aParent = (PVXmlParamTextEdit*) pParent;
     setObjectName("valide");

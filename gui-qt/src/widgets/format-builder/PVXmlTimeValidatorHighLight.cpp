@@ -19,7 +19,7 @@
  *
  *****************************************************************************/
 PVInspector::PVXmlTimeValidatorHighLight::PVXmlTimeValidatorHighLight(PVXmlParamTextEdit* pParent, const QStringList &myDateFormats) :
-QSyntaxHighlighter(pParent->document()) {
+    QSyntaxHighlighter(pParent->document()) {
     //qDebug()<<"PVXmlTimeValidatorHighLight::PVXmlTimeValidatorHighLight("<<pParent->getVal().toString()<<","<<myDateFormats<<")";
     setDocument(pParent->document());
   

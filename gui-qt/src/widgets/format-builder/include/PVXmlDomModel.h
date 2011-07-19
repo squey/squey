@@ -29,14 +29,33 @@ class PVXmlDomModel: public QAbstractItemModel {
     
     Q_OBJECT
 public:
-    PVXmlDomModel();
+    PVXmlDomModel(QWidget * parent = NULL);
     
     /**
      * @param url path of the XML file
      */
     PVXmlDomModel(QString url);
     virtual ~PVXmlDomModel();
+    
+    
+    
+    /*
+     * Méthodes for the toolBar
+     */
+    void addFilterAfter(QModelIndex &index);
+    void addRegExAfter(QModelIndex &index);
+    void applyModification(QModelIndex &index,PVXmlParamWidget *paramBord);
+    
+    /*
+    * Add items
+    */
+    void addAxisIn(const QModelIndex &index);
+    void addFisrtRegEx();
+    void addFirstFilter();
+    void addRegExIn(const QModelIndex &index);
+    void addUrlIn(const QModelIndex &index);
 
+    
     /*
      * virtual method from QAbstractItemModel
      */
@@ -59,37 +78,31 @@ public:
     
     
     /**
-     * initialisation du node root.
+     * initialisation of the root.
      * @param 
      */
     void setRoot(PVXmlTreeNodeDom *);
     
     /**
-     * Récupère l'objet Dom en fonction de l'indexe.
+     * get the Dom with index.
      * @param QModelIndex index
      * @return QDomElement* objetDom
      */
     QDomElement *getItem(QModelIndex &index);
     
+    /**
+     * 
+     * @param section : raw or col index
+     * @param orientation : header vertical or not
+     * @param role : what we are doing
+     * @return something to write on tree header
+     */
+    virtual QVariant headerData ( int section, Qt::Orientation orientation, int role = Qt::DisplayRole ) const;
+    
     
     bool saveXml(QString fichierXml);
     
     
-    /*
-     * Méthodes for the toolBar
-     */
-    void addFilterAfter(QModelIndex &index);
-    void addRegExAfter(QModelIndex &index);
-    void applyModification(QModelIndex &index,PVXmlParamWidget *paramBord);
-    
-    /*
-    * Add items
-    */
-    void addAxisIn(const QModelIndex &index);
-    void addFisrtRegEx();
-    void addFirstFilter();
-    void addRegExIn(const QModelIndex &index);
-    void addUrlIn(const QModelIndex &index);
     
     
     void deleteSelection(QModelIndex &index);

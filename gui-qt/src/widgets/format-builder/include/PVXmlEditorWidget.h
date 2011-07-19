@@ -30,7 +30,7 @@ namespace PVInspector{
 class PVXmlEditorWidget : public QWidget{
     Q_OBJECT
 public:
-    PVXmlEditorWidget();
+    PVXmlEditorWidget(QWidget * parent = NULL);
 
     virtual ~PVXmlEditorWidget();
 private:
