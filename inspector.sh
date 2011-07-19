@@ -73,13 +73,7 @@ fi
 
 if [ "$1" == "valgrind" ]
 then
-	valgrind --leak-check=full --track-origins=yes gui-qt/src/picviz-inspector
-	exit 0
-fi
-
-if [ "$1" == "valgrind-leaks" ]
-then
-	valgrind --db-attach=no --log-file=./valgrind.out --leak-check=yes gui-qt/src/picviz-inspector
+	valgrind --log-file=./valgrind.out --leak-check=full --track-origins=yes gui-qt/src/picviz-inspector
 	exit 0
 fi
 
