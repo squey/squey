@@ -21,11 +21,11 @@
 #include <QHash>
 
 #include <pvcore/general.h>
-#include <pvcore/PVXmlParamParserData.h>
+#include <pvrush/PVXmlParamParserData.h>
 
-namespace PVCore {
+namespace PVRush {
 
-class LibCoreDecl PVXmlParamParser {
+class LibRushDecl PVXmlParamParser {
 public:
 	typedef QList<PVXmlParamParserData> list_params;
 public:
@@ -35,13 +35,13 @@ public:
 	QList<QHash<QString, QString> > const& getAxes()const;
 	QList<PVXmlParamParserData> const& getFields()const;
 	QHash<int, QStringList> const& getTimeFormat()const;
-    QString getVersion(){return format_version;}
+    unsigned int getVersion(){return format_version;}
     
 private:
 	QList<PVXmlParamParserData> fields;
 	QList<QHash<QString, QString> > axes;
 	QHash<int, QStringList> time_format;
-    QString format_version;
+    unsigned int format_version;
 
 	int countChild(QDomElement);
 	QString getNodeName(QDomElement);

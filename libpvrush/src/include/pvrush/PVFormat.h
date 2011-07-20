@@ -17,7 +17,7 @@
 #include <QList>
 
 #include <pvcore/general.h>
-#include <pvcore/PVXmlParamParser.h>
+#include <pvrush/PVXmlParamParser.h>
 #include <pvcore/PVArgument.h>
 #include <pvfilter/PVChunkFilter.h>
 #include <pvfilter/PVFieldsFilter.h>
@@ -103,14 +103,14 @@ namespace PVRush {
 			QList<int> axes_combination;
 			
 			// List of filters to apply
-			PVCore::PVXmlParamParser::list_params filters_params;
+			PVRush::PVXmlParamParser::list_params filters_params;
 
 			unsigned int axes_count;	//!< It is equivalent to the number of axes except we add the decoded axes. This property must be used to know the number of axes, never count using axes.count()
 			
 			int time_format_axis_id;
 
 		protected:
-			PVFilter::PVFieldsBaseFilter_f xmldata_to_filter(PVCore::PVXmlParamParserData const& fdata);
+			PVFilter::PVFieldsBaseFilter_f xmldata_to_filter(PVRush::PVXmlParamParserData const& fdata);
 
 		protected:
 			// "Widget" arguments of the format, like:

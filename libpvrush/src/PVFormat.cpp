@@ -12,8 +12,8 @@
 #include <QDateTime>
 
 #include <pvcore/debug.h>
-#include <pvcore/PVXmlParamParser.h>
 
+#include <pvrush/PVXmlParamParser.h>
 #include <pvrush/PVFormat.h>
 #include <pvrush/PVNormalizer.h>
 
@@ -139,7 +139,7 @@ void PVRush::PVFormat::debug()
 
 bool PVRush::PVFormat::populate_from_xml(QString filename)
 {
-	PVCore::PVXmlParamParser xml_parser(filename);
+	PVRush::PVXmlParamParser xml_parser(filename);
 	filters_params = xml_parser.getFields();
 	axes = xml_parser.getAxes();
 	time_format = xml_parser.getTimeFormat();
@@ -148,7 +148,7 @@ bool PVRush::PVFormat::populate_from_xml(QString filename)
 	//regex = filters_params[0].exp;
 }
 
-PVFilter::PVFieldsBaseFilter_f PVRush::PVFormat::xmldata_to_filter(PVCore::PVXmlParamParserData const& fdata)
+PVFilter::PVFieldsBaseFilter_f PVRush::PVFormat::xmldata_to_filter(PVRush::PVXmlParamParserData const& fdata)
 {
 	PVFilter::PVFieldsBaseFilter_f field_f;
 	PVCore::PVArgumentList args;
@@ -185,10 +185,10 @@ PVFilter::PVChunkFilter_f PVRush::PVFormat::create_tbb_filters()
 
 	// Here we create the pipeline according to the format
 	PVFilter::PVFieldsBaseFilter_f final_filter_f = first_filter;
-	PVCore::PVXmlParamParser::list_params::const_iterator it_filters;
+	PVRush::PVXmlParamParser::list_params::const_iterator it_filters;
 	if (filters_params.count() > 1) {
 		for (it_filters = filters_params.begin()+1; it_filters != filters_params.end(); it_filters++) {
-			PVCore::PVXmlParamParserData const& fdata = *it_filters;
+			PVRush::PVXmlParamParserData const& fdata = *it_filters;
 			PVFilter::PVFieldsBaseFilter_f field_f = xmldata_to_filter(fdata);
 			if (field_f == NULL) {
 				PVLOG_ERROR("Unknown filter for field %d. Ignoring it !\n", fdata.axis_id);

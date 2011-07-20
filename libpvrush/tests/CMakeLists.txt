@@ -104,3 +104,7 @@ target_link_libraries(Trush_input_hdfs ${LINK_LIBRARIES})
 # libarchive auto detect
 add_executable(Trush_archive_detect archive_detect.cpp ../plugins/input_types/file/extract.cpp)
 target_link_libraries(Trush_archive_detect ${LINK_LIBRARIES})
+
+add_executable(Trush_parser parser.cpp)
+target_link_libraries(Trush_parser ${LINK_LIBRARIES})
+add_test(TestParser Trush_parser)

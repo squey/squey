@@ -20,7 +20,7 @@
 
 #include <pvcore/PVXmlTreeNodeDom.h>
 #include <PVXmlParamWidget.h>
-#include <pvcore/PVXmlParamParser.h>
+#include <pvrush/PVXmlParamParser.h>
 
 #define FORMAT_VERSION 1.0
 
