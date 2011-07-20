@@ -36,7 +36,6 @@ public:
 	QList<PVXmlParamParserData> const& getFields()const;
 	QHash<int, QStringList> const& getTimeFormat()const;
     QString getVersion(){return format_version;}
-	QString toString();
     
 private:
 	QList<PVXmlParamParserData> fields;

@@ -38,8 +38,8 @@ public:
 		_type = Ttype;
 	}
 public:
-	fields_filter_type type() { return _type; };
-	QString type_name();
+	static fields_filter_type type() { return Ttype; };
+	static QString type_name();
 
 	// Default interface (many-to-many)
 	virtual PVCore::list_fields& operator()(PVCore::list_fields &fields);

@@ -136,58 +136,19 @@ bool PVRush::PVFormat::populate_from_xml(QString filename)
 
 PVFilter::PVFieldsBaseFilter_f PVRush::PVFormat::xmldata_to_filter(PVCore::PVXmlParamParserData const& fdata)
 {
-	// TODO: this should be more generic than this !!
-	PVFilter::PVFieldsSplitter::p_type regexp_lib_p = LIB_FILTER(PVFilter::PVFieldsSplitter)::get().get_filter_by_name("regexp");
-	PVFilter::PVFieldsSplitter::p_type csv_lib_p = LIB_FILTER(PVFilter::PVFieldsSplitter)::get().get_filter_by_name("csv");
-	PVFilter::PVFieldsSplitter::p_type url_lib_p = LIB_FILTER(PVFilter::PVFieldsSplitter)::get().get_filter_by_name("url");
-	PVFilter::PVFieldsSplitter::p_type pcap_lib_p = LIB_FILTER(PVFilter::PVFieldsSplitter)::get().get_filter_by_name("pcap");
-	PVFilter::PVFieldsFilter<PVFilter::one_to_one>::p_type grep_rx_lib_p = LIB_FILTER(PVFilter::PVFieldsFilter<PVFilter::one_to_one>)::get().get_filter_by_name("grep_regexp");
-
 	PVFilter::PVFieldsBaseFilter_f field_f;
 	PVCore::PVArgumentList args;
 
-	if (fdata.type == PVCore::PVXmlParamParserData::splitter) {
-		PVFilter::PVFieldsBaseFilter_p fre_in = regexp_lib_p->clone<PVFilter::PVFieldsBaseFilter>();
-		_filters_container.push_back(fre_in);
-		QRegExp re;
-		re.setPattern(fdata.exp);
-		args["regexp"] = re;
-		fre_in->set_args(args);
-		field_f = fre_in->f();
+	QString fname = fdata.filter_type + QString("_") + fdata.filter_plugin_name;
+	PVFilter::PVFieldsFilterReg_p filter_lib = LIB_FILTER(PVFilter::PVFieldsFilterReg)::get().get_filter_by_name(fname);
+	if (!filter_lib) {
+		PVLOG_ERROR("Filter %s doesn't exist !\n", qPrintable(fname));
+		return field_f;
+	}
 
-	}
-	else
-	if (fdata.type == PVCore::PVXmlParamParserData::splitter_url) {
-		PVFilter::PVFieldsBaseFilter_p url = url_lib_p->clone<PVFilter::PVFieldsBaseFilter>();
-		_filters_container.push_back(url);
-		field_f = url->f();
-	}
-	else
-	if (fdata.type == PVCore::PVXmlParamParserData::splitter_csv) {
-		PVFilter::PVFieldsBaseFilter_p csv = csv_lib_p->clone<PVFilter::PVFieldsBaseFilter>();
-		_filters_container.push_back(csv);
-		args["sep"] = fdata.csv_delimiter;
-		csv->set_args(args);
-		field_f = csv->f();
-	}
-	else
-	if (fdata.type == PVCore::PVXmlParamParserData::splitter_pcap) {
-		PVLOG_INFO("pcap splitter found !\n");
-		PVFilter::PVFieldsBaseFilter_p pcap = pcap_lib_p->clone<PVFilter::PVFieldsBaseFilter>();
-		_filters_container.push_back(pcap);
-		field_f = pcap->f();
-	}
-	else
-	if (fdata.type == PVCore::PVXmlParamParserData::filter) {
-		PVFilter::PVFieldsBaseFilter_p grep_rx = grep_rx_lib_p->clone< PVFilter::PVFieldsBaseFilter>();
-		_filters_container.push_back(grep_rx);
-		QRegExp re;
-		re.setPattern(fdata.exp);
-		args["regexp"] = re;
-		args["reverse"] = !fdata.grep_include;
-		grep_rx->set_args(args);
-		field_f = grep_rx->f();
-	}
+	PVFilter::PVFieldsBaseFilter_p filter_clone = filter_lib->clone<PVFilter::PVFieldsBaseFilter>();
+	_filters_container.push_back(filter_clone);
+	field_f = filter_clone->f();
 
 	return field_f;
 
@@ -215,13 +176,13 @@ PVFilter::PVChunkFilter_f PVRush::PVFormat::create_tbb_filters()
 			PVCore::PVXmlParamParserData const& fdata = *it_filters;
 			PVFilter::PVFieldsBaseFilter_f field_f = xmldata_to_filter(fdata);
 			if (field_f == NULL) {
-				PVLOG_ERROR("Unknown filter for field %d. Ignoring it !\n", fdata.id);
+				PVLOG_ERROR("Unknown filter for field %d. Ignoring it !\n", fdata.axis_id);
 				continue;
 			}
 			// Create the mapping (field_id)->field_filter
 			PVFilter::PVFieldsMappingFilter::list_indexes indx;
 			PVFilter::PVFieldsMappingFilter::map_filters mf;
-			indx.push_back(fdata.id);
+			indx.push_back(fdata.axis_id);
 			mf[indx] = field_f;
 			PVFilter::PVFieldsBaseFilter_p mapping(new PVFilter::PVFieldsMappingFilter(mf));
 			_filters_container.push_back(mapping);

@@ -10,20 +10,17 @@
 #include <QString>
 
 #include <pvcore/general.h>
+#include <pvcore/PVArgument.h>
 
 namespace PVCore {
 
 class LibCoreDecl PVXmlParamParserData {
 
 public:    
-	enum Type {
-		filter,splitter,splitter_url,splitter_pcap,splitter_csv
-	};
-	int id;
-	QString exp;
-	Type type;
-	bool grep_include;
-	QChar csv_delimiter;
+	int axis_id;
+	QString filter_type; // "splitter/filter"
+	QString filter_plugin_name; // "regexp,etc.."
+	PVArgumentList filter_args;
 };
 }
 #endif	/* PVXMLPARAMPARSERDATA_H */

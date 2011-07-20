@@ -589,7 +589,7 @@ QString PVCore::PVXmlTreeNodeDom::getAttribute(QString name, bool flagReadInXml)
 	return otherData[name];
     }
     
-    return QString("");
+    return QString();
 }
 
 
@@ -616,6 +616,15 @@ void PVCore::PVXmlTreeNodeDom::toArgumentList(PVArgumentList const& default_args
 {
 	PVArgumentList::const_iterator it;
 	for (it = default_args.begin(); it != default_args.end(); it++) {
-		args[it.key()] = PVCore::QString_to_PVArgument(it.value());
+		QString const& key = it.key();
+		QString v = getAttribute(key, true);
+		QVariant vset;
+		if (v.isNull()) {
+			vset = it.value();
+		}
+		else {
+			vset.setValue(v);
+		}
+		args[key] = vset;
 	}
 }

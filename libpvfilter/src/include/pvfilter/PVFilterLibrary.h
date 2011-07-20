@@ -44,7 +44,7 @@ public:
 	template<class T>
 	void register_filter(QString const& name, T const& f)
 	{
-		PF pf = f.template clone<T>();
+		PF pf = f.template clone<FilterT>();
 		_filters.insert(name, pf);
 	}
 

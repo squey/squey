@@ -7,5 +7,6 @@
 // This method will be called by libpicviz
 LibCPPExport void register_filter()
 {
-	REGISTER_FILTER("grep_regexp", PVFilter::PVFieldFilterRegexpGrep);
+	REGISTER_FILTER("regexp", PVFilter::PVFieldFilterRegexpGrep);
+	//REGISTER_FILTER("filter_regexp", PVFilter::PVFieldFilterRegexpGrep);
 }

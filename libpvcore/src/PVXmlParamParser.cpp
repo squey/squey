@@ -8,29 +8,29 @@
 #include "pvcore/PVXmlParamParser.h"
 
 PVCore::PVXmlParamParser::PVXmlParamParser(QString nameFile) {
-    QFile fichier(nameFile);
-    if(!fichier.exists()) {
-                //le fichier n'existe pas.
-                PVLOG_ERROR("File to parse unfound!\n");
-                return;
-    }
-    if (!fichier.open(QIODevice::ReadOnly | QIODevice::Text)) {
-                PVLOG_ERROR("Can't open file to parse.\n");
-                return;
-    }
-    QTextStream tmpTextXml(&fichier);//creation of the file stream
-    QDomDocument docXml;
-    docXml.setContent(tmpTextXml.readAll());
-    format_version = docXml.documentElement().attribute("version","0");
-    setDom(docXml.documentElement());
-    
-    fichier.close();
+	QFile fichier(nameFile);
+	if(!fichier.exists()) {
+		//le fichier n'existe pas.
+		PVLOG_ERROR("File to parse unfound!\n");
+		return;
+	}
+	if (!fichier.open(QIODevice::ReadOnly | QIODevice::Text)) {
+		PVLOG_ERROR("Can't open file to parse.\n");
+		return;
+	}
+	QTextStream tmpTextXml(&fichier);//creation of the file stream
+	QDomDocument docXml;
+	docXml.setContent(tmpTextXml.readAll());
+	format_version = docXml.documentElement().attribute("version","0");
+	setDom(docXml.documentElement());
+
+	fichier.close();
 }
 
 PVCore::PVXmlParamParser::~PVXmlParamParser() {
 }
 QHash<int, QStringList> const& PVCore::PVXmlParamParser::getTimeFormat()const{
-    return time_format;
+	return time_format;
 }
 int PVCore::PVXmlParamParser::setDom(QDomElement node, int id) {
 	//qDebug()<<"in "<<id<<"  "<<getNodeType(node)<<" "<<getNodeName(node);
@@ -45,34 +45,35 @@ int PVCore::PVXmlParamParser::setDom(QDomElement node, int id) {
 
 			setDom(node, 0);
 			//add splitter regx
-//			PVCore::PVXmlParamParserData data;
-//			data.id = newId;
-//			data.exp = getNodeRegExp(node.firstChild().toElement());
-//			data.type = PVCore::PVXmlParamParserData::splitter;
-//			fields.push_back(data);
-//			qDebug() << "add : " << newId << "  " << getNodeName(node.firstChild().toElement());
-//
-//			//recursive field
-//			for (int i = 0; i < countChild(node.firstChild().toElement()); i++) {
-//				//newId=setDom(node.firstChild().toElement().childNodes().at(i).toElement(),++newId);
-//				newId = setDom(node.firstChild().toElement().childNodes().at(i).toElement(), newId);
-//			}
+			//			PVCore::PVXmlParamParserData data;
+			//			data.id = newId;
+			//			data.exp = getNodeRegExp(node.firstChild().toElement());
+			//			data.type = PVCore::PVXmlParamParserData::splitter;
+			//			fields.push_back(data);
+			//			qDebug() << "add : " << newId << "  " << getNodeName(node.firstChild().toElement());
+			//
+			//			//recursive field
+			//			for (int i = 0; i < countChild(node.firstChild().toElement()); i++) {
+			//				//newId=setDom(node.firstChild().toElement().childNodes().at(i).toElement(),++newId);
+			//				newId = setDom(node.firstChild().toElement().childNodes().at(i).toElement(), newId);
+			//			}
 		}
 
 
 
 	}else if(format_version==QString("0")){
+
 		//add all filtersint defaultFormat;
 		for(int i=0;i<countChild(node.toElement());i++){
 			QDomElement child(node.childNodes().at(i).toElement());
 			if(getNodeType(child)=="filter"){
 				PVCore::PVXmlParamParserData data;
-				data.id = newId;
-				data.exp = getNodeRegExp(child.toElement());
-				data.type = PVCore::PVXmlParamParserData::filter;
-				data.grep_include = getNodeTypeGrep(child.toElement()).compare("include") == 0;
+				data.axis_id = newId;
+				data.filter_type = "filter";
+				data.filter_plugin_name = "regexp";
+				data.filter_args["regexp"] = getNodeRegExp(child.toElement());
+				data.filter_args["reverse"] = getNodeTypeGrep(child.toElement()).compare("include") == 0;
 				fields.push_back(data);
-				qDebug() << "add : " << newId << "  " << getNodeName(child.toElement());
 			}
 		}
 
@@ -84,11 +85,11 @@ int PVCore::PVXmlParamParser::setDom(QDomElement node, int id) {
 				defaultFormat++;
 
 				PVCore::PVXmlParamParserData data;
-				data.id = newId;
-				data.exp = getNodeRegExp(child.toElement());
-				data.type = PVCore::PVXmlParamParserData::splitter;
+				data.axis_id = newId;
+				data.filter_type = "splitter";
+				data.filter_plugin_name = "regexp";
+				data.filter_args["regexp"] = getNodeRegExp(child.toElement());
 				fields.push_back(data);
-				qDebug() << "add : " << newId << "  " << getNodeName(child.toElement());
 				//recursive field
 				for (int iF = 0; iF < countChild(child.toElement()); iF++) {
 					//qDebug() <<"name "<<getNodeName(child.childNodes().at(iF).toElement());
@@ -131,12 +132,10 @@ int PVCore::PVXmlParamParser::setDom(QDomElement node, int id) {
 			if (getNodeType(child) == "url") {
 				defaultFormat++;
 				PVCore::PVXmlParamParserData data;
-				data.id = newId;
-				data.exp = "";
-				data.type = PVCore::PVXmlParamParserData::splitter_url;
+				data.axis_id = newId;
+				data.filter_type = "splitter";
+				data.filter_plugin_name = "url";
 				fields.push_back(data);
-				qDebug() << "add : " << newId << "  url ";
-				PVLOG_WARN("FIXME: fixed size value for URL splitter\n");
 				for (int iF = 0; iF < PVFORMAT_NUMBER_FIELD_URL; iF++) {
 					newId = setDom(child.childNodes().at(iF).toElement(), newId);
 				}
@@ -149,11 +148,10 @@ int PVCore::PVXmlParamParser::setDom(QDomElement node, int id) {
 			if (getNodeType(child) == "pcap") {
 				defaultFormat++;
 				PVCore::PVXmlParamParserData data;
-				data.id = newId;
-				data.exp = "";
-				data.type = PVCore::PVXmlParamParserData::splitter_pcap;
+				data.axis_id = newId;
+				data.filter_type = "splitter";
+				data.filter_plugin_name = "pcap";
 				fields.push_back(data);
-				qDebug() << "add : " << newId << "  pcap ";
 				//process each field
 				for (int iF = 0; iF < countChild(child.toElement()); iF++) {
 					newId = setDom(child.childNodes().at(iF).toElement(), newId);
@@ -166,11 +164,11 @@ int PVCore::PVXmlParamParser::setDom(QDomElement node, int id) {
 			if (getNodeType(child) == "csv") {
 				defaultFormat++;
 				PVCore::PVXmlParamParserData data;
-				data.id = newId;
-				data.csv_delimiter = child.attribute("delimiter","").at(0);
-				data.type = PVCore::PVXmlParamParserData::splitter_csv;
+				data.axis_id = newId;
+				data.filter_type = "splitter";
+				data.filter_plugin_name = "csv";
+				data.filter_args["sep"] = child.attribute("delimiter","").at(0);
 				fields.push_back(data);
-				qDebug() << "add : " << newId << "  csv ";
 				//process each field
 				for (int iF = 0; iF < countChild(child.toElement()); iF++) {
 					newId = setDom(child.childNodes().at(iF).toElement(), newId);
@@ -182,50 +180,38 @@ int PVCore::PVXmlParamParser::setDom(QDomElement node, int id) {
 			//qDebug()<<"default : to much axis or RegEx on a field.  " << QString(defaultFormat);
 		}
 	}else{
-                PVLOG_ERROR("TODO : format parsing (new version) \n");
-        }
+		PVLOG_ERROR("TODO : format parsing (new version) \n");
+	}
 
-    return newId;
-}
-
-QString PVCore::PVXmlParamParser::toString(){
-    QString s;
-    for (int i = 0; i < fields.count(); i++) {
-        s.push_back(fields.at(i).id);
-        s.push_back("   ");
-        s.push_back(fields.at(i).exp);
-        s.push_back("   ");
-        s.push_back(fields.at(i).type);
-    }
-    return s;
+	return newId;
 }
 
 QList<QHash<QString, QString> > const& PVCore::PVXmlParamParser::getAxes()const{
-    return this->axes;
+	return this->axes;
 }
 
 
 /******************************* private *************************************/
 int PVCore::PVXmlParamParser::countChild(QDomElement node){
-    //if(getNodeType(node)=="RegEx"){
-        return node.childNodes().count();
-    //}
-    return 0;
+	//if(getNodeType(node)=="RegEx"){
+	return node.childNodes().count();
+	//}
+	return 0;
 }
 
 QList<PVCore::PVXmlParamParserData> const& PVCore::PVXmlParamParser::getFields() const {
-    return fields;
+	return fields;
 }
 QString PVCore::PVXmlParamParser::getNodeRegExp(QDomElement node){
-    return node.attribute("expression","");
+	return node.attribute("expression","");
 }
 QString PVCore::PVXmlParamParser::getNodeTypeGrep(QDomElement node){
-    return node.attribute("type","");
+	return node.attribute("type","");
 }
 QString PVCore::PVXmlParamParser::getNodeName(QDomElement node){
-    return node.attribute("name","");
+	return node.attribute("name","");
 }
 QString PVCore::PVXmlParamParser::getNodeType(QDomElement node){
-    return node.tagName();
+	return node.tagName();
 }
 

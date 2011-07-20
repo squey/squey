@@ -18,6 +18,8 @@
 #include<iostream>
 
 #include <pvcore/general.h>
+#include <pvcore/PVArgument.h>
+
 #define trace_2(texte,texte2) { std::cout<<texte<<" "<<texte2<<std::endl; }
 
 
@@ -94,8 +96,8 @@ public:
      */
     int getRow();
 
-	void setFromArgumentList(PVArgumentList const& args);
-	void toArgumentList(PVArgumentList const& default_args, PVArgumentList& args);
+	void setFromArgumentList(PVCore::PVArgumentList const& args);
+	void toArgumentList(PVCore::PVArgumentList const& default_args, PVArgumentList& args);
     
     
     bool isEditable(){if (type==filter||type==url||type==axis||type==RegEx){return true;}else{return false;}}
