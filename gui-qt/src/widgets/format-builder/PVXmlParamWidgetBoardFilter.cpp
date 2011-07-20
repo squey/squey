@@ -41,10 +41,10 @@ void PVInspector::PVXmlParamWidgetBoardFilter::allocBoardFields() {
     name = new PVXmlParamWidgetEditorBox(QString("name"), new QVariant(node->getAttribute("name")));
     exp = new PVXmlParamWidgetEditorBox(QString("expression"), new QVariant(node->getDom().attribute("expression",".*")));
     validWidget = new PVXmlParamTextEdit(QString("validator"), QVariant(node->getAttribute("validator")));
-    typeOfFilter = new PVXmlParamComboBox("type");
+    typeOfFilter = new PVXmlParamComboBox("type-of-filter");
     typeOfFilter->addItem("include");
     typeOfFilter->addItem("exclude");
-    typeOfFilter->select(node->getAttribute("type"));
+    typeOfFilter->select(node->getAttribute("type-of-filter"));
     buttonNext = new QPushButton("Next");
     buttonNext->setShortcut(QKeySequence(Qt::Key_Return));
 }
@@ -147,7 +147,7 @@ void PVInspector::PVXmlParamWidgetBoardFilter::slotSetValues(){//called when we 
     node->setAttribute(QString("name"),name->text());
     node->setAttribute(QString("expression"),exp->text());
     node->setAttribute(QString("validator"),validWidget->getVal().toString());
-    node->setAttribute(QString("type"),typeOfFilter->val().toString());
+    node->setAttribute(QString("type-of-filter"),typeOfFilter->val().toString());
 
     emit signalRefreshView();
 }

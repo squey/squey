@@ -13,7 +13,6 @@
 
 
 
-
 /******************************************************************************
  *
  * PVInspector::PVXmlEditorWidget::PVXmlEditorWidget
@@ -37,6 +36,9 @@ PVInspector::PVXmlEditorWidget::PVXmlEditorWidget(QWidget * parent):QWidget(pare
     //initialisation of the toolbar.
     actionAllocation();
     initToolBar(vb);
+    
+    //initialisation of the splitters list
+    initSplitters();
 
     menuBar =new QMenuBar();
     initMenuBar();
@@ -83,10 +85,10 @@ PVInspector::PVXmlEditorWidget::PVXmlEditorWidget(QWidget * parent):QWidget(pare
  *
  *****************************************************************************/
 PVInspector::PVXmlEditorWidget::~PVXmlEditorWidget() {
-    actionAddFilterAfter->deleteLater();
+    /*actionAddFilterAfter->deleteLater();
     actionAddRegExAfter->deleteLater();
     actionDelete->deleteLater();
-    myTreeView->deleteLater();
+    myTreeView->deleteLater();*/
 }
 
 
@@ -151,7 +153,7 @@ void PVInspector::PVXmlEditorWidget::initConnexions() {
     connect(actionMoveDown,SIGNAL(triggered()),this,SLOT(slotMoveDown()));
     connect(actionMoveUp,SIGNAL(triggered()),this,SLOT(slotMoveUp()));
     connect(actionOpen,SIGNAL(triggered()),this,SLOT(slotOpen()));
-    //connect(,SIGNAL(()),this,SLOT(()));
+    connect(actionOpenLog,SIGNAL(triggered()),this,SLOT(slotOpenLog()));
     connect(actionSave, SIGNAL(triggered()), this, SLOT(slotSave()));
     connect(actionAddUrl, SIGNAL(triggered()), this, SLOT(slotAddUrl()));
     connect(myParamBord,SIGNAL(signalNeedApply()),this,SLOT(slotNeedApply()));
@@ -170,20 +172,37 @@ void PVInspector::PVXmlEditorWidget::initToolBar(QVBoxLayout *vb){
 
     tools->addAction(actionAddFilterAfter);
     tools->addAction(actionAddAxisIn);
-    tools->addSeparator();
-    tools->addAction(actionAddRegExAfter);
-    tools->addAction(actionAddUrl);
+
     tools->addSeparator();
     tools->addAction(actionMoveDown);
     tools->addAction(actionMoveUp);
     tools->addSeparator();
     tools->addAction(actionDelete);
     tools->addSeparator();
-    //tools->addAction(actionOpenLog);
+    tools->addAction(actionOpenLog);
     tools->addAction(actionOpen);
     tools->addAction(actionSave);
 
     vb->addWidget(tools);
+}
+/******************************************************************************
+ *
+ * PVInspector::PVXmlEditorWidget::initSplitters
+ *
+ *****************************************************************************/
+void PVInspector::PVXmlEditorWidget::initSplitters() {
+        LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::list_classes splitters = LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::get().get_list();
+        LIB_CLASS(PVFilter::PVFieldsFilterParamWidget<PVFilter::one_to_one>)::list_classes filters = LIB_CLASS(PVFilter::PVFieldsFilterParamWidget<PVFilter::one_to_one>)::get().get_list();
+
+        // _list_* is a QHash. Its keys are a QString with the registered name of the class (in our case, "csv", "regexp", etc...).
+        // Its values are a boost::shared_ptr<PVFieldsSplitterParamWidget> or boost::shared_ptr<PVFieldsFilterParamWidget<one_to_one> > object.
+        // For instance :
+        LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::list_classes::const_iterator it;
+        
+        for (it = splitters.begin(); it != splitters.end(); it++) {
+                PVLOG_INFO("name: %s\n", qPrintable(it.key()));
+                _list_splitters.push_back(it.value()->clone());
+        }
 }
 
 

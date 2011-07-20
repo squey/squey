@@ -438,6 +438,7 @@ void PVInspector::PVXmlDomModel::addFilterAfter(QModelIndex &index) {
     }else if(childPrecedent->typeToString()=="field"){
         //dom
         QDomElement newDom = xmlFile.createElement("filter");
+        newDom.setAttribute(QString("type"),QString("regexp"));
         childPrecedent->getDom().appendChild(newDom);
         
         //tree

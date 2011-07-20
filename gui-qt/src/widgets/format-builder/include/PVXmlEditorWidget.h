@@ -25,8 +25,15 @@
 #include <PVXmlTreeView.h>
 #include <PVXmlParamWidget.h>
 #include <pvrush/PVNormalizer.h>
+#include <pvcore/PVRegistrableClass.h>
+#include <pvcore/PVClassLibrary.h>
+#include <pvfilter/PVFieldsFilterParamWidget.h>
 
 namespace PVInspector{
+
+typedef QList<PVFilter::PVFieldsSplitterParamWidget_p> list_splitters_t;
+typedef QList<PVFilter::PVFieldsFilterParamWidget<PVFilter::one_to_one> > list_filters_t;
+
 class PVXmlEditorWidget : public QWidget{
     Q_OBJECT
 public:
@@ -42,7 +49,7 @@ private:
     QVBoxLayout *vbParam;
     QMenuBar *menuBar;
     //
-    QFile logFile;
+    QFile logFile;///!< file we open to edit the format
     
     
     void actionAllocation();
@@ -79,8 +86,13 @@ private:
     QAction *actionOpen;
     QAction *actionSave;
     
-  
-    
+    /**
+     * init the splitters list, by listing the plugins found
+     */
+    void initSplitters();    
+	list_splitters_t _list_splitters;///!<list of the plugins splitters
+	list_filters_t _list_filters;///!<list of the plugins filters
+
     
 
 public slots:
@@ -96,6 +108,9 @@ public slots:
     void slotMoveDown();
     void slotNeedApply();
     void slotOpen();
+    void slotOpenLog(){
+        PVLOG_ERROR("slotOpenLog()\n");
+    }
     void slotSave();
     void slotUpdateToolDesabled(const QModelIndex &);
 };
