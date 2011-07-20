@@ -14,7 +14,7 @@
 
 #include <pvfilter/PVFilterFunction.h>
 #include <pvfilter/PVFilterLibrary.h>
-#include <pvfilter/PVArgument.h>
+#include <pvcore/PVArgument.h>
 
 namespace Picviz {
 
@@ -28,12 +28,12 @@ public:
 	/**
 	 * Constructor
 	 */
-	PVLayerFilter(PVFilter::PVArgumentList const& l = PVLayerFilter::default_args());//
+	PVLayerFilter(PVCore::PVArgumentList const& l = PVLayerFilter::default_args());//
 
 public:
 	void set_output(PVLayer* out);
 	void set_view(PVView_p view);
-	virtual PVFilter::PVArgumentList get_default_args_for_view(PVView const& view);
+	virtual PVCore::PVArgumentList get_default_args_for_view(PVView const& view);
 
 public:
 	virtual QString status_bar_description();

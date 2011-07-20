@@ -50,7 +50,7 @@ bool PVInspector::PVArgumentListWidget::eventFilter(QObject *obj, QEvent *event)
 	return false;
 }
 
-PVInspector::PVArgumentListWidget::PVArgumentListWidget(Picviz::PVView& view, PVFilter::PVArgumentList &args, QWidget* parent):
+PVInspector::PVArgumentListWidget::PVArgumentListWidget(Picviz::PVView& view, PVCore::PVArgumentList &args, QWidget* parent):
 	QDialog(parent),
 	_args(args),
 	_view(view)

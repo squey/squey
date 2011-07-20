@@ -12,7 +12,7 @@
  * PVFilter::PVFieldSplitterRegexp::PVFieldSplitterRegexp
  *
  *****************************************************************************/
-PVFilter::PVFieldSplitterRegexp::PVFieldSplitterRegexp(PVArgumentList const& args) :
+PVFilter::PVFieldSplitterRegexp::PVFieldSplitterRegexp(PVCore::PVArgumentList const& args) :
 	PVFieldsFilter<PVFilter::one_to_many>()
 {
 	INIT_FILTER(PVFilter::PVFieldSplitterRegexp, args);
@@ -31,8 +31,8 @@ PVFilter::PVFieldSplitterRegexp::PVFieldSplitterRegexp(const PVFieldSplitterRege
  *****************************************************************************/
 DEFAULT_ARGS_FILTER(PVFilter::PVFieldSplitterRegexp)
 {
-	PVArgumentList args;
-	args["regexp"] = PVArgument(QRegExp("^(.*)$"));
+	PVCore::PVArgumentList args;
+	args["regexp"] = PVCore::PVArgument(QRegExp("^(.*)$"));
 	return args;
 }
 
@@ -41,7 +41,7 @@ DEFAULT_ARGS_FILTER(PVFilter::PVFieldSplitterRegexp)
  * PVFilter::PVFieldSplitterRegexp::set_args
  *
  *****************************************************************************/
-void PVFilter::PVFieldSplitterRegexp::set_args(PVArgumentList const& args)
+void PVFilter::PVFieldSplitterRegexp::set_args(PVCore::PVArgumentList const& args)
 {
 	FilterT::set_args(args);
 #ifdef PROCESS_REGEXP_ICU

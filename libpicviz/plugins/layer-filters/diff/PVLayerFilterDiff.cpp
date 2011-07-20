@@ -27,7 +27,7 @@ static QString generate_row_key_from_values(PVCore::PVAxesIndexType const& axes,
  * Picviz::PVLayerFilterDiff::PVLayerFilterDiff
  *
  *****************************************************************************/
-Picviz::PVLayerFilterDiff::PVLayerFilterDiff(PVFilter::PVArgumentList const& l)
+Picviz::PVLayerFilterDiff::PVLayerFilterDiff(PVCore::PVArgumentList const& l)
 	: PVLayerFilter(l)
 {
 	INIT_FILTER(PVLayerFilterDiff, l);
@@ -40,7 +40,7 @@ Picviz::PVLayerFilterDiff::PVLayerFilterDiff(PVFilter::PVArgumentList const& l)
  *****************************************************************************/
 DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterDiff)
 {
-	PVFilter::PVArgumentList args;
+	PVCore::PVArgumentList args;
 	args["Axes"].setValue(PVCore::PVAxesIndexType());
 	args["From line"].setValue(PVCore::PVSpinBoxType());
 	args["To line"].setValue(PVCore::PVSpinBoxType());
@@ -53,10 +53,10 @@ DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterDiff)
  * Picviz::PVLayerFilterDiff::get_default_args_for_view
  *
  *****************************************************************************/
-PVFilter::PVArgumentList Picviz::PVLayerFilterDiff::get_default_args_for_view(PVView const& view)
+PVCore::PVArgumentList Picviz::PVLayerFilterDiff::get_default_args_for_view(PVView const& view)
 {
 	// Retrieve the key axes of the PVFormat of that PVView
-	PVFilter::PVArgumentList args = get_args();
+	PVCore::PVArgumentList args = get_args();
 	PVCore::PVAxesIndexType key_axes;
 	PVRush::PVFormat::list_axes const& axes = view.get_source_parent()->nraw->format->axes;
 	PVRush::PVFormat::list_axes::const_iterator it;

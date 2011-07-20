@@ -39,7 +39,7 @@
 #include <picviz/PVZLevelArray.h>
 
 
-#include <pvfilter/PVArgument.h>
+#include <pvcore/PVArgument.h>
 #include <pvrush/PVExtractor.h>
 
 #include <boost/shared_ptr.hpp>
@@ -53,7 +53,7 @@ class LibPicvizDecl PVView {
 
 
 public:
-	typedef QHash<QString,PVFilter::PVArgumentList> map_filter_arguments;
+	typedef QHash<QString,PVCore::PVArgumentList> map_filter_arguments;
 	typedef boost::shared_ptr<PVView> p_type;
 public:
 	PVView(PVPlotted_p parent);
@@ -218,7 +218,7 @@ public:
 ******************************************************************************
 *****************************************************************************/
 
-	QString apply_filter_from_name(char *name, PVFilter::PVArgumentList &arguments);
+	QString apply_filter_from_name(char *name, PVCore::PVArgumentList &arguments);
 	void apply_filter_named_select_all();
 
 	/**

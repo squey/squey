@@ -13,7 +13,7 @@
 #include <pvrush/PVPluginsLoad.h>
 
 #include <pvfilter/PVPluginsLoad.h>
-#include <pvfilter/PVArgument.h>
+#include <pvcore/PVArgument.h>
 
 #include <QCoreApplication>
 #include <QDir>
@@ -61,7 +61,7 @@ int main(int argc, char** argv)
 			QString fpath = dir_files.absoluteFilePath(formatpath);
 			PVRush::PVFormat format("format", fpath);
 
-			float sr = PVRush::PVSourceCreatorFactory::discover_input(PVRush::pair_format_creator(format, text_file_lib), PVFilter::PVArgument(file_load));
+			float sr = PVRush::PVSourceCreatorFactory::discover_input(PVRush::pair_format_creator(format, text_file_lib), PVCore::PVArgument(file_load));
 			if (sr > 0.8 && files[j] == files[i]) {
 				ok = true;
 			}

@@ -20,7 +20,7 @@ namespace Picviz {
  */
 class LibPicvizDecl PVSelectionFilterScatterPlotSelectionSquare : public PVSelectionFilter {
 public:
-	PVSelectionFilterScatterPlotSelectionSquare(PVFilter::PVArgumentList const& l = PVSelectionFilterScatterPlotSelectionSquare::default_args());
+	PVSelectionFilterScatterPlotSelectionSquare(PVCore::PVArgumentList const& l = PVSelectionFilterScatterPlotSelectionSquare::default_args());
 
 public:
 	virtual void operator()(PVSelection& in, PVSelection &out);

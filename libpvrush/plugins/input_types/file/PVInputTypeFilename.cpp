@@ -169,7 +169,7 @@ QString PVRush::PVInputTypeFilename::human_name() const
 	return QString("File import plugin");
 }
 
-QString PVRush::PVInputTypeFilename::human_name_of_input(PVFilter::PVArgument const& in) const
+QString PVRush::PVInputTypeFilename::human_name_of_input(PVCore::PVArgument const& in) const
 {
 	return in.toString();
 }
@@ -192,7 +192,7 @@ QString PVRush::PVInputTypeFilename::tab_name_of_inputs(list_inputs const& in) c
 	return tab_name;
 }
 
-bool PVRush::PVInputTypeFilename::get_custom_formats(PVFilter::PVArgument const& in, hash_formats &formats) const
+bool PVRush::PVInputTypeFilename::get_custom_formats(PVCore::PVArgument const& in, hash_formats &formats) const
 {
 	// Two types of custom format: picviz.format exist in the directory of the file,
 	// or file + ".format" exists

@@ -15,7 +15,7 @@
  * Picviz::PVSelectionFilter::PVSelectionFilter
  *
  *****************************************************************************/
-Picviz::PVSelectionFilter::PVSelectionFilter(PVFilter::PVArgumentList const& args)
+Picviz::PVSelectionFilter::PVSelectionFilter(PVCore::PVArgumentList const& args)
 {
 	INIT_FILTER(Picviz::PVSelectionFilter, args);
 	set_output(NULL);
@@ -29,7 +29,7 @@ Picviz::PVSelectionFilter::PVSelectionFilter(PVFilter::PVArgumentList const& arg
  *****************************************************************************/
 DEFAULT_ARGS_FILTER(Picviz::PVSelectionFilter)
 {
-	return PVFilter::PVArgumentList();
+	return PVCore::PVArgumentList();
 }
 
 /******************************************************************************

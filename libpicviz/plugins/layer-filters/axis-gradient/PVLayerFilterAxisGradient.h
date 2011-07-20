@@ -20,7 +20,7 @@ namespace Picviz {
  */
 class PVLayerFilterAxisGradient : public PVLayerFilter {
 public:
-	PVLayerFilterAxisGradient(PVFilter::PVArgumentList const& l = PVLayerFilterAxisGradient::default_args());
+	PVLayerFilterAxisGradient(PVCore::PVArgumentList const& l = PVLayerFilterAxisGradient::default_args());
 public:
 	virtual void operator()(PVLayer& in, PVLayer &out);
 	virtual QString status_bar_description();

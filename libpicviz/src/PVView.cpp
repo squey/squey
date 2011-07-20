@@ -81,7 +81,7 @@ Picviz::PVView::PVView(PVPlotted_p parent) :
 
 	_is_consistent = true;
 
-	last_extractor_batch_size = PVEXTRACT_NUMBER_LINES_NEXT_DEFAULT;
+	last_extractor_batch_size = pvconfig.value("pvrush/extract_next", PVEXTRACT_NUMBER_LINES_NEXT_DEFAULT).toInt();
 
 	// Create layer filter arguments for that view
 	LIB_FILTER(Picviz::PVLayerFilter) &filters_layer = 	LIB_FILTER(Picviz::PVLayerFilter)::get();
@@ -145,7 +145,7 @@ int Picviz::PVView::add_new_layer()
  * Picviz::PVView::apply_filter_from_name
  *
  *****************************************************************************/
-QString Picviz::PVView::apply_filter_from_name(char * /*name*/, PVFilter::PVArgumentList &/*arguments*/)
+QString Picviz::PVView::apply_filter_from_name(char * /*name*/, PVCore::PVArgumentList &/*arguments*/)
 {
 	// FIXME: Make PVRoot handle the filters
 

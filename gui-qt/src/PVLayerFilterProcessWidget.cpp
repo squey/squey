@@ -6,7 +6,7 @@
 #include "PVMainWindow.h"
 #include "PVLayerFilterProcessWidget.h"
 
-PVInspector::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(PVTabSplitter* tab, PVFilter::PVArgumentList& args, Picviz::PVLayerFilter_p filter_p) :
+PVInspector::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(PVTabSplitter* tab, PVCore::PVArgumentList& args, Picviz::PVLayerFilter_p filter_p) :
 	PVArgumentListWidget(*tab->get_lib_view(), args, tab),
 	_tab(tab),
 	_view(tab->get_lib_view()),

@@ -750,7 +750,7 @@ void PVInspector::PVMainWindow::import_type_Slot()
 			continue;
 		}
 
-		if (!PVExtractorWidget::show_job_progress_bar(job_import, PVEXTRACT_NUMBER_LINES_FIRST, this)) {
+		if (!PVExtractorWidget::show_job_progress_bar(job_import, job_import->nb_elts_max(), this)) {
 			job_import->cancel();
 			message.function = PVGL_COM_FUNCTION_DESTROY_TRANSIENT;
 			pvgl_com->post_message_to_gl(message);

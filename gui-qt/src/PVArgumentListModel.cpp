@@ -8,7 +8,7 @@
 
 #include <QStandardItemModel>
 
-PVInspector::PVArgumentListModel::PVArgumentListModel(PVFilter::PVArgumentList &args, QObject* parent):
+PVInspector::PVArgumentListModel::PVArgumentListModel(PVCore::PVArgumentList &args, QObject* parent):
 	QAbstractTableModel(parent),
 	_args(args)
 {
@@ -39,7 +39,7 @@ QVariant PVInspector::PVArgumentListModel::data(const QModelIndex& index, int ro
 	if (role != Qt::DisplayRole && role != Qt::EditRole)
 		return QVariant();
 
-	PVFilter::PVArgumentList::iterator it = _args.begin();
+	PVCore::PVArgumentList::iterator it = _args.begin();
 	std::advance(it, index.row());
 	if (index.column() == 0)
 		return it.key();
@@ -55,7 +55,7 @@ bool PVInspector::PVArgumentListModel::setData(const QModelIndex& index, const Q
 	if (index.column() != 1 || role != Qt::EditRole)
 		return false; // Argument name are not editable !
 
-	PVFilter::PVArgumentList::iterator it = _args.begin();
+	PVCore::PVArgumentList::iterator it = _args.begin();
 	std::advance(it, index.row());
 	if (it == _args.end())
 		return false; // Should never happen !

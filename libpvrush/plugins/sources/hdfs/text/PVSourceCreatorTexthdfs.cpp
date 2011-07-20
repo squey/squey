@@ -3,7 +3,7 @@
 
 #include <pvfilter/PVChunkFilter.h>
 
-PVRush::PVSourceCreatorTexthdfs::source_p PVRush::PVSourceCreatorTexthdfs::create_source_from_input(PVFilter::PVArgument const& input) const
+PVRush::PVSourceCreatorTexthdfs::source_p PVRush::PVSourceCreatorTexthdfs::create_source_from_input(PVCore::PVArgument const& input) const
 {
 	// input is a PVInputHDFSFile !
 	PVRush::PVInput_p ihdfs(new PVRush::PVInputHDFS(input.value<PVInputHDFSFile>()));
@@ -24,7 +24,7 @@ QString PVRush::PVSourceCreatorTexthdfs::supported_type() const
 	return QString("hdfs");
 }
 
-bool PVRush::PVSourceCreatorTexthdfs::pre_discovery(PVFilter::PVArgument const& /*input*/) const
+bool PVRush::PVSourceCreatorTexthdfs::pre_discovery(PVCore::PVArgument const& /*input*/) const
 {
 	// AG: I don't know a magic method for being sure that a file is a text-file
 	// We'll let the TBB filters work for the moment...

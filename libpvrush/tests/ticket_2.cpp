@@ -24,7 +24,7 @@ int main(int argc, char** argv)
 
 	// Input file
 	QString path_file("test-files/tickets/2/apache.access");
-	PVFilter::PVArgument file(path_file);
+	PVCore::PVArgument file(path_file);
 
 	// Load the given format file
 	QString path_format("test-files/tickets/2/apache.access.format");

@@ -60,7 +60,7 @@ PVRush::PVControllerJob_p Picviz::PVSource::files_append(PVRush::PVFormat const&
 	PVFilter::PVChunkFilter_f chk_flt = format_nraw->create_tbb_filters();
 	_extractor.set_chunk_filter(chk_flt);
 
-	PVRush::PVControllerJob_p job = _extractor.process_from_agg_nlines(0, PVEXTRACT_NUMBER_LINES_FIRST);
+	PVRush::PVControllerJob_p job = _extractor.process_from_agg_nlines(0, pvconfig.value("pvrush/extract_first", PVEXTRACT_NUMBER_LINES_FIRST_DEFAULT).toInt());
 
 	return job;
 }

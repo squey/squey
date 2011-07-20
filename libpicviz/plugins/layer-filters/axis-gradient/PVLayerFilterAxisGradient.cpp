@@ -13,7 +13,7 @@
  * Picviz::PVLayerFilterAxisGradient::PVLayerFilterAxisGradient
  *
  *****************************************************************************/
-Picviz::PVLayerFilterAxisGradient::PVLayerFilterAxisGradient(PVFilter::PVArgumentList const& l)
+Picviz::PVLayerFilterAxisGradient::PVLayerFilterAxisGradient(PVCore::PVArgumentList const& l)
 	: PVLayerFilter(l)
 {
 	INIT_FILTER(PVLayerFilterAxisGradient, l);
@@ -26,7 +26,7 @@ Picviz::PVLayerFilterAxisGradient::PVLayerFilterAxisGradient(PVFilter::PVArgumen
  *****************************************************************************/
 DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterAxisGradient)
 {
-	PVFilter::PVArgumentList args;
+	PVCore::PVArgumentList args;
 	args["Axis"].setValue(PVCore::PVAxisIndexType(0));
 	return args;
 }

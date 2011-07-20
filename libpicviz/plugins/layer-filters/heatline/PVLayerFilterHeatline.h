@@ -21,10 +21,10 @@ namespace Picviz {
  */
 class PVLayerFilterHeatlineBase : public PVLayerFilter {
 public:
-	PVLayerFilterHeatlineBase(PVFilter::PVArgumentList const& l = PVLayerFilterHeatlineBase::default_args());
+	PVLayerFilterHeatlineBase(PVCore::PVArgumentList const& l = PVLayerFilterHeatlineBase::default_args());
 public:
 	void operator()(PVLayer& in, PVLayer &out);
-	PVFilter::PVArgumentList get_default_args_for_view(PVView const& view);
+	PVCore::PVArgumentList get_default_args_for_view(PVView const& view);
 protected:
 	virtual void post(PVLayer &in, PVLayer &out, float ratio, PVRow line_id);
 
@@ -34,7 +34,7 @@ protected:
 
 class PVLayerFilterHeatlineColor : public PVLayerFilterHeatlineBase {
 public:
-	PVLayerFilterHeatlineColor(PVFilter::PVArgumentList const& l = PVLayerFilterHeatlineColor::default_args());
+	PVLayerFilterHeatlineColor(PVCore::PVArgumentList const& l = PVLayerFilterHeatlineColor::default_args());
 protected:
 	virtual void post(PVLayer &in, PVLayer &out, float ratio, PVRow line_id);
 
@@ -43,7 +43,7 @@ protected:
 
 class PVLayerFilterHeatlineSel : public PVLayerFilterHeatlineBase {
 public:
-	PVLayerFilterHeatlineSel(PVFilter::PVArgumentList const& l = PVLayerFilterHeatlineSel::default_args());
+	PVLayerFilterHeatlineSel(PVCore::PVArgumentList const& l = PVLayerFilterHeatlineSel::default_args());
 protected:
 	virtual void post(PVLayer &in, PVLayer &out, float ratio, PVRow line_id);
 
@@ -52,7 +52,7 @@ protected:
 
 class PVLayerFilterHeatlineSelAndCol : public PVLayerFilterHeatlineBase {
 public:
-	PVLayerFilterHeatlineSelAndCol(PVFilter::PVArgumentList const& l = PVLayerFilterHeatlineSelAndCol::default_args());
+	PVLayerFilterHeatlineSelAndCol(PVCore::PVArgumentList const& l = PVLayerFilterHeatlineSelAndCol::default_args());
 protected:
 	virtual void post(PVLayer &in, PVLayer &out, float ratio, PVRow line_id);
 

@@ -78,6 +78,7 @@ public:
 	bool running() const;
 	bool cancel();
 	PVCore::chunk_index status() const;
+	PVCore::chunk_index nb_elts_max() const;
 	virtual void wait_end(); // wait the end of this job
 	tbb::tick_count::interval_t duration() const;
 	
@@ -121,6 +122,7 @@ private:
 	tbb::tick_count _tc_start;
 	tbb::tick_count _tc_end;
 	PVController* _ctrl_parent;
+	PVCore::chunk_index _max_n_elts;
 
 signals:
 	void job_done_signal();

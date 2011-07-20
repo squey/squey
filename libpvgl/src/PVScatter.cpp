@@ -19,7 +19,7 @@
 
 // Filters
 #include <pvfilter/PVFilterLibrary.h>
-#include <pvfilter/PVArgument.h>
+#include <pvcore/PVArgument.h>
 #include <picviz/PVSelectionFilterScatterPlotSelectionSquare.h>
 
 #include <pvgl/PVConfig.h>
@@ -343,7 +343,7 @@ bool PVGL::PVScatter::mouse_move(int x, int y, int /*modifiers*/)
 	Picviz::PVSelectionFilter::p_type fclone = filter_org->clone();
 	Picviz::PVSelectionFilter* filter = (Picviz::PVSelectionFilter*) fclone.get();
 
-	PVFilter::PVArgumentList arguments = filter->get_args();
+	PVCore::PVArgumentList arguments = filter->get_args();
 	arguments["x1_min"] = selection_square.x1_min;
 	arguments["x1_max"] = selection_square.x1_max;
 	arguments["x2_min"] = selection_square.x2_min;
@@ -391,7 +391,7 @@ bool PVGL::PVScatter::mouse_up(int /*button*/, int /*x*/, int /*y*/, int /*modif
 	state_machine = picviz_view->state_machine;
 
 
-	PVFilter::PVArgumentList arguments;
+	PVCore::PVArgumentList arguments;
 	arguments["x1_min"] = selection_square.get_bottom_left_point().x;
 	arguments["x1_max"] = selection_square.get_top_right_point().x;
 	arguments["x2_min"] = selection_square.get_bottom_left_point().y;

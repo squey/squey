@@ -14,7 +14,7 @@
 
 #include <pvfilter/PVFilterFunction.h>
 #include <pvfilter/PVFilterLibrary.h>
-#include <pvfilter/PVArgument.h>
+#include <pvcore/PVArgument.h>
 
 namespace Picviz {
 
@@ -28,7 +28,7 @@ public:
 	/**
 	 * Constructor
 	 */
-	PVSelectionFilter(PVFilter::PVArgumentList const& l = PVSelectionFilter::default_args());
+	PVSelectionFilter(PVCore::PVArgumentList const& l = PVSelectionFilter::default_args());
 
 public:
 	void set_output(PVSelection* out);

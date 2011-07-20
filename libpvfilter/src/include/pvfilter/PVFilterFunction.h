@@ -10,7 +10,7 @@
 
 #include <pvcore/general.h>
 
-#include <pvfilter/PVArgument.h>
+#include <pvcore/PVArgument.h>
 
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
@@ -67,7 +67,7 @@ protected:
 //! 
 //! class PVFilterQString: public PVFilterFunctionRegistrable<const char*, QString const&> {
 //! public:
-//! 	PVFilterQString(PVFilter::PVArgumentList const& args = PVFilterQString::default_args());
+//! 	PVFilterQString(PVCore::PVArgumentList const& args = PVFilterQString::default_args());
 //! 	virtual const char* operator()(QString const& str) { return str.toLocal8Bit().constData(); }
 //!
 //! CLASS_FILTER(PVFilterQString); 
@@ -76,14 +76,14 @@ protected:
 //! }
 //! 
 //! // In the implementation file
-//! Picviz::PVFilterQString::PVFilterQString(PVFilter::PVArgumentList const& args)
+//! Picviz::PVFilterQString::PVFilterQString(PVCore::PVArgumentList const& args)
 //! {
 //! 	INIT_FILTER(PVFilterQString, args);
 //! }
 //! 
 //! DEFAULT_ARGS_FILTER(Picviz::PVFilterQString)
 //! {
-//! 	PVFilter::PVArgumentList args;
+//! 	PVCore::PVArgumentList args;
 //! 	args["arg1"] = true; // This is a QVariant !
 //! }
 //! 
@@ -115,21 +115,21 @@ public:
 	typedef boost::shared_ptr< PVFilterFunctionBase<Tout,Tin> > p_type;
 	typedef PVFilterFunctionBase<Tout,Tin> base;
 public:
-	PVFilterFunctionBase(PVArgumentList const& args = PVFilterFunctionBase<Tout,Tin>::default_args()) :
+	PVFilterFunctionBase(PVCore::PVArgumentList const& args = PVFilterFunctionBase<Tout,Tin>::default_args()) :
 		_args(args), _def_args(args)
 	{
 	}
 public:
-	static PVArgumentList default_args() { return PVArgumentList(); }
+	static PVCore::PVArgumentList default_args() { return PVCore::PVArgumentList(); }
 public:
 
 	virtual Tout operator()(Tin obj) = 0;
 	func_type f() { return boost::bind<Tout>(&PVFilterFunctionBase<Tout,Tin>::_f, this, _1); }
 	Tout _f(Tin obj) { return this->operator()(obj); }
-	virtual const PVArgumentList& get_args() const { return _args; }
-	virtual void set_args(PVArgumentList const& args)
+	virtual const PVCore::PVArgumentList& get_args() const { return _args; }
+	virtual void set_args(PVCore::PVArgumentList const& args)
 	{
-		PVArgumentList::const_iterator it,ite;
+		PVCore::PVArgumentList::const_iterator it,ite;
 		it = _def_args.begin();
 		ite = _def_args.end();
 		for (; it != ite; it++) {
@@ -143,8 +143,8 @@ public:
 	}
 	QString const& get_name() { return _name; }
 protected:
-	PVArgumentList _args;
-	PVArgumentList _def_args;
+	PVCore::PVArgumentList _args;
+	PVCore::PVArgumentList _def_args;
 	QString _name;
 };
 
@@ -158,20 +158,20 @@ public:
 	typedef boost::shared_ptr< PVFilterFunctionBase<void,Tin> > p_type;
 	typedef PVFilterFunctionBase<void,Tin> base;
 public:
-	PVFilterFunctionBase(PVArgumentList const& args = PVFilterFunctionBase<void,Tin>::default_args()) :
+	PVFilterFunctionBase(PVCore::PVArgumentList const& args = PVFilterFunctionBase<void,Tin>::default_args()) :
 		_args(args)
 	{
 	}
 public:
-	static PVArgumentList default_args() { return PVArgumentList(); }
+	static PVCore::PVArgumentList default_args() { return PVCore::PVArgumentList(); }
 public:
 	virtual void operator()(Tin /*obj*/ ) = 0;
 	func_type f() { return boost::bind<void>(&PVFilterFunctionBase<void,Tin>::_f, this, _1); }
 	void _f(Tin obj) { this->operator()(obj); }
 	QString const& get_name() { return _name; }
-	virtual void set_args(PVArgumentList const& args)
+	virtual void set_args(PVCore::PVArgumentList const& args)
 	{
-		PVArgumentList::const_iterator it,ite;
+		PVCore::PVArgumentList::const_iterator it,ite;
 		it = _def_args.begin();
 		ite = _def_args.end();
 		for (; it != ite; it++) {
@@ -184,8 +184,8 @@ public:
 	   _args = args;
 	}
 protected:
-	PVArgumentList _args;
-	PVArgumentList _def_args;
+	PVCore::PVArgumentList _args;
+	PVCore::PVArgumentList _def_args;
 	QString _name;
 };
 
@@ -199,12 +199,12 @@ public:
 	typedef boost::shared_ptr< PVFilterFunctionBase<Tout,void> > p_type;
 	typedef PVFilterFunctionBase<Tout,void> base;
 public:
-	PVFilterFunctionBase(PVArgumentList const& args = PVFilterFunctionBase<Tout,void>::default_args()) :
+	PVFilterFunctionBase(PVCore::PVArgumentList const& args = PVFilterFunctionBase<Tout,void>::default_args()) :
 		_args(args)
 	{
 	}
 public:
-	static PVArgumentList default_args() { return PVArgumentList(); }
+	static PVCore::PVArgumentList default_args() { return PVCore::PVArgumentList(); }
 public:
 	virtual Tout operator()() = 0;
 	/*! \brief Returns a boost::bind object that calls the operator() function of this filter
@@ -222,9 +222,9 @@ public:
 	 * Set the argument of the filter object, and compares its keys against the default ones to see if none are missing.
 	 * If it is the case, a PVFilterAgumentMissing exception is thrown.
 	 */
-	virtual void set_args(PVArgumentList const& args)
+	virtual void set_args(PVCore::PVArgumentList const& args)
 	{
-		PVArgumentList::const_iterator it,ite;
+		PVCore::PVArgumentList::const_iterator it,ite;
 		it = _def_args.begin();
 		ite = _def_args.end();
 		for (; it != ite; it++) {
@@ -237,8 +237,8 @@ public:
 	   _args = args;
 	}
 protected:
-	PVArgumentList _args;
-	PVArgumentList _def_args;
+	PVCore::PVArgumentList _args;
+	PVCore::PVArgumentList _def_args;
 	QString _name;
 };
 
@@ -258,7 +258,7 @@ public:
 	typedef boost::shared_ptr< PVFilterFunctionRegistrable<Tout,Tin,FilterT_> > p_type;
 	typedef PVFilterFunctionRegistrable<Tout,Tin,FilterT_> base_registrable;
 public:
-	PVFilterFunctionRegistrable(PVArgumentList const& args = PVFilterFunctionBase<Tout,void>::default_args()) :
+	PVFilterFunctionRegistrable(PVCore::PVArgumentList const& args = PVFilterFunctionBase<Tout,void>::default_args()) :
 		PVFilterFunctionBase<Tout,Tin>(args)	
 	{
 	}
@@ -292,12 +292,12 @@ public:
 	typedef boost::shared_ptr< PVFilterFunction<T,FilterT> > p_type;
 	typedef PVFilterFunctionRegistrable<T&,T&,FilterT_> base_registrable;
 public:
-	PVFilterFunction(PVArgumentList const& args = PVFilterFunction::default_args()) :
+	PVFilterFunction(PVCore::PVArgumentList const& args = PVFilterFunction::default_args()) :
 		PVFilterFunctionRegistrable<T&,T&,FilterT_>(args)
 	{
 	}
 public:
-	static PVArgumentList default_args() { return PVArgumentList(); }
+	static PVCore::PVArgumentList default_args() { return PVCore::PVArgumentList(); }
 public:
 	virtual T& operator()(T& obj) = 0;
 };
@@ -308,7 +308,7 @@ public:
 		typedef boost::shared_ptr<T> p_type;\
 	public:\
 		virtual FilterT::base_registrable::p_type clone_basep() const;\
-		static PVFilter::PVArgumentList default_args();\
+		static PVCore::PVArgumentList default_args();\
 	protected:\
 		virtual void* _clone_me() const { return new T(*this); }\
 
@@ -325,7 +325,7 @@ public:
 		typedef boost::shared_ptr<T> p_type;\
 	public:\
 		virtual FilterT::base_registrable::p_type clone_basep() const { return FilterT::base_registrable::p_type(new T(*this)); }\
-		static PVFilter::PVArgumentList default_args() { return PVFilter::PVArgumentList(); }\
+		static PVCore::PVArgumentList default_args() { return PVCore::PVArgumentList(); }\
 	protected:\
 		virtual void* _clone_me() const { return new T(*this); }\
 
@@ -337,9 +337,9 @@ public:
 
 
 #define IMPL_FILTER_NOPARAM(T)\
-	PVFilter::PVArgumentList T::default_args()\
+	PVCore::PVArgumentList T::default_args()\
 	{\
-		return PVFilter::PVArgumentList();\
+		return PVCore::PVArgumentList();\
 	}\
 	T::FilterT::base_registrable::p_type T::clone_basep() const\
 	{\
@@ -359,10 +359,10 @@ public:
 	} while(0)
 
 #define DEFAULT_ARGS_FILTER(T)\
-	PVFilter::PVArgumentList T::default_args()
+	PVCore::PVArgumentList T::default_args()
 
 #define DEFAULT_ARGS_FILTER_INPLACE(T)\
-	PVFilter::PVArgumentList default_args()
+	PVCore::PVArgumentList default_args()
 
 }
 
