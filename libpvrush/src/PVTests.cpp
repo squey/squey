@@ -5,7 +5,7 @@
 #include <iostream>
 
 
-bool PVRush::PVTests::get_file_sc(PVFilter::PVArgument const& file, PVRush::PVFormat const& format, PVSourceCreator_p &sc)
+bool PVRush::PVTests::get_file_sc(PVCore::PVArgument const& file, PVRush::PVFormat const& format, PVSourceCreator_p &sc)
 {
 	// Load source plugins that take a file as input
 	PVRush::PVInputType_p in_t = LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name("file");

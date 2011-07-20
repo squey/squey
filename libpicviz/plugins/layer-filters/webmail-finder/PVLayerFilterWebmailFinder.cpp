@@ -13,7 +13,7 @@
  * Picviz::PVLayerFilterWebmailFinder::PVLayerFilterWebmailFinder
  *
  *****************************************************************************/
-Picviz::PVLayerFilterWebmailFinder::PVLayerFilterWebmailFinder(PVFilter::PVArgumentList const& l)
+Picviz::PVLayerFilterWebmailFinder::PVLayerFilterWebmailFinder(PVCore::PVArgumentList const& l)
 	: PVLayerFilter(l)
 {
 	INIT_FILTER(PVLayerFilterWebmailFinder, l);
@@ -26,7 +26,7 @@ Picviz::PVLayerFilterWebmailFinder::PVLayerFilterWebmailFinder(PVFilter::PVArgum
  *****************************************************************************/
 DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterWebmailFinder)
 {
-	PVFilter::PVArgumentList args;
+	PVCore::PVArgumentList args;
 	// args["Regular expression"] = QRegExp("(.*)");
 	args["Domain Axis"].setValue(PVCore::PVAxisIndexType(0));
 	return args;

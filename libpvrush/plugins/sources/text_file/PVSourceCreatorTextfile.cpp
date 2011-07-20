@@ -8,7 +8,7 @@
 #include <QStringList>
 #include <QFileInfo>
 
-PVRush::PVSourceCreatorTextfile::source_p PVRush::PVSourceCreatorTextfile::create_source_from_input(PVFilter::PVArgument const& input) const
+PVRush::PVSourceCreatorTextfile::source_p PVRush::PVSourceCreatorTextfile::create_source_from_input(PVCore::PVArgument const& input) const
 {
 	// input is a QString !
 	PVRush::PVInput_p ifile(new PVRush::PVInputFile(input.toString().toLocal8Bit().constData()));
@@ -29,7 +29,7 @@ QString PVRush::PVSourceCreatorTextfile::supported_type() const
 	return QString("file");
 }
 
-bool PVRush::PVSourceCreatorTextfile::pre_discovery(PVFilter::PVArgument const& input) const
+bool PVRush::PVSourceCreatorTextfile::pre_discovery(PVCore::PVArgument const& input) const
 {
 	// AG: I don't know a magic method for being sure that a file is a text-file
 	// We'll let the TBB filters work for the moment...

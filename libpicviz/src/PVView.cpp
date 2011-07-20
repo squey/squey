@@ -145,7 +145,7 @@ int Picviz::PVView::add_new_layer()
  * Picviz::PVView::apply_filter_from_name
  *
  *****************************************************************************/
-QString Picviz::PVView::apply_filter_from_name(char * /*name*/, PVFilter::PVArgumentList &/*arguments*/)
+QString Picviz::PVView::apply_filter_from_name(char * /*name*/, PVCore::PVArgumentList &/*arguments*/)
 {
 	// FIXME: Make PVRoot handle the filters
 

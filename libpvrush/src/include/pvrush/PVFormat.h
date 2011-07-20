@@ -18,7 +18,7 @@
 
 #include <pvcore/general.h>
 #include <pvcore/PVXmlParamParser.h>
-#include <pvfilter/PVArgument.h>
+#include <pvcore/PVArgument.h>
 #include <pvfilter/PVChunkFilter.h>
 #include <pvfilter/PVFieldsFilter.h>
 
@@ -102,7 +102,7 @@ namespace PVRush {
 			// "Widget" arguments of the format, like:
 			//  * use netflow (for PCAP)
 			// They are editable by the user at the opening of a file/whatever
-			PVFilter::PVArgumentList _widget_args;
+			PVCore::PVArgumentList _widget_args;
 
 		private:
 			std::list<PVFilter::PVFieldsBaseFilter_p> _filters_container;

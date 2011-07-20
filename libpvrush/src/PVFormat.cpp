@@ -144,7 +144,7 @@ PVFilter::PVFieldsBaseFilter_f PVRush::PVFormat::xmldata_to_filter(PVCore::PVXml
 	PVFilter::PVFieldsFilter<PVFilter::one_to_one>::p_type grep_rx_lib_p = LIB_FILTER(PVFilter::PVFieldsFilter<PVFilter::one_to_one>)::get().get_filter_by_name("grep_regexp");
 
 	PVFilter::PVFieldsBaseFilter_f field_f;
-	PVFilter::PVArgumentList args;
+	PVCore::PVArgumentList args;
 
 	if (fdata.type == PVCore::PVXmlParamParserData::splitter) {
 		PVFilter::PVFieldsBaseFilter_p fre_in = regexp_lib_p->clone<PVFilter::PVFieldsBaseFilter>();

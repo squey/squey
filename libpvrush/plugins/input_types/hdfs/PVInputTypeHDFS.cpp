@@ -39,7 +39,7 @@ QString PVRush::PVInputTypeHDFS::human_name() const
 	return QString("HDFS import plugin");
 }
 
-QString PVRush::PVInputTypeHDFS::human_name_of_input(PVFilter::PVArgument const& in) const
+QString PVRush::PVInputTypeHDFS::human_name_of_input(PVCore::PVArgument const& in) const
 {
 	return in.value<PVInputHDFSFile>().get_human_name();
 }
@@ -55,7 +55,7 @@ QString PVRush::PVInputTypeHDFS::tab_name_of_inputs(list_inputs const& in) const
 	return QString("TODO: tab name for hdfs");
 }
 
-bool PVRush::PVInputTypeHDFS::get_custom_formats(PVFilter::PVArgument const& in, hash_formats &formats) const
+bool PVRush::PVInputTypeHDFS::get_custom_formats(PVCore::PVArgument const& in, hash_formats &formats) const
 {
 	// TODO: find custom format in the hdfs system
 	return false;

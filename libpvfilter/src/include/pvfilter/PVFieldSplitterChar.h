@@ -15,9 +15,9 @@ namespace PVFilter {
 
 class LibFilterDecl PVFieldSplitterChar : public PVFieldsFilter<one_to_many> {
 public:
-	PVFieldSplitterChar(PVArgumentList const& args = PVFieldSplitterChar::default_args());
+	PVFieldSplitterChar(PVCore::PVArgumentList const& args = PVFieldSplitterChar::default_args());
 public:
-	virtual void set_args(PVArgumentList const& args);
+	virtual void set_args(PVCore::PVArgumentList const& args);
 protected:
 	PVCore::list_fields::size_type one_to_many(PVCore::list_fields &l, PVCore::list_fields::iterator it_ins, PVCore::PVField &field);
 protected:

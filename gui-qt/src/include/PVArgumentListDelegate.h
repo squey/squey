@@ -14,7 +14,7 @@
 #include <QTableView>
 
 #include <pvcore/general.h>
-#include <pvfilter/PVArgument.h>
+#include <pvcore/PVArgument.h>
 #include <picviz/PVView.h>
 
 namespace PVInspector {

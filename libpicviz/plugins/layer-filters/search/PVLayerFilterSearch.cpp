@@ -13,7 +13,7 @@
  * Picviz::PVLayerFilterSearch::PVLayerFilterSearch
  *
  *****************************************************************************/
-Picviz::PVLayerFilterSearch::PVLayerFilterSearch(PVFilter::PVArgumentList const& l)
+Picviz::PVLayerFilterSearch::PVLayerFilterSearch(PVCore::PVArgumentList const& l)
 	: PVLayerFilter(l)
 {
 	INIT_FILTER(PVLayerFilterSearch, l);
@@ -26,7 +26,7 @@ Picviz::PVLayerFilterSearch::PVLayerFilterSearch(PVFilter::PVArgumentList const&
  *****************************************************************************/
 DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterSearch)
 {
-	PVFilter::PVArgumentList args;
+	PVCore::PVArgumentList args;
 	args["Regular expression"] = QRegExp("(.*)");
 	args["Axis"].setValue(PVCore::PVAxisIndexType(0));
 	return args;

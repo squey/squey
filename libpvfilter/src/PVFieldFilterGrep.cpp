@@ -13,7 +13,7 @@
  * PVFilter::PVFieldFilterGrep::PVFieldFilterGrep
  *
  *****************************************************************************/
-PVFilter::PVFieldFilterGrep::PVFieldFilterGrep(PVArgumentList const& args) :
+PVFilter::PVFieldFilterGrep::PVFieldFilterGrep(PVCore::PVArgumentList const& args) :
 	PVFilter::PVFieldsFilter<PVFilter::one_to_one>()
 {
 	INIT_FILTER(PVFilter::PVFieldFilterGrep, args);
@@ -26,7 +26,7 @@ PVFilter::PVFieldFilterGrep::PVFieldFilterGrep(PVArgumentList const& args) :
  *****************************************************************************/
 DEFAULT_ARGS_FILTER(PVFilter::PVFieldFilterGrep)
 {
-	PVArgumentList args;
+	PVCore::PVArgumentList args;
 	args["str"] = QString();
 	args["reverse"] = false;
 	return args;
@@ -37,7 +37,7 @@ DEFAULT_ARGS_FILTER(PVFilter::PVFieldFilterGrep)
  * PVFilter::PVFieldFilterGrep::set_args
  *
  *****************************************************************************/
-void PVFilter::PVFieldFilterGrep::set_args(PVArgumentList const& args)
+void PVFilter::PVFieldFilterGrep::set_args(PVCore::PVArgumentList const& args)
 {
 	FilterT::set_args(args);
 	_str = _args["str"].toString();

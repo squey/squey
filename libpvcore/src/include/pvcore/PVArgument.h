@@ -4,18 +4,21 @@
 //! Copyright (C) Philippe Saadé 2011-2011
 //! Copyright (C) Picviz Labs 2011
 
-#ifndef PVFILTER_PVARGUMENT_H
-#define PVFILTER_PVARGUMENT_H
+#ifndef PVCORE_PVARGUMENT_H
+#define PVCORE_PVARGUMENT_H
 
 #include <pvcore/general.h>
 #include <QHash>
 #include <QString>
 #include <QVariant>
 
-namespace PVFilter {
+namespace PVCore {
 
 typedef QVariant                     PVArgument;
 typedef QHash<QString,PVArgument>    PVArgumentList;
+
+QString PVArgument_to_QString(PVArgument const& v);
+PVArgument QString_to_PVArgument(QString const& v);
 
 }
 

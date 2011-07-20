@@ -40,7 +40,7 @@ int main(int argc, char** argv)
 		cerr << "Unable to load one of the filters" << endl;
 		return 1;
 	}
-	PVFilter::PVArgumentList args;
+	PVCore::PVArgumentList args;
 	args["regexp"] = QRegExp("([0-9]+)[0-9.]*\\s+[0-9]+\\s+[0-9]+\\s+[A-Z/_-]+([0-9]+)\\s+[0-9]+\\s+(GET|POST|PUT|OPTIONS)\\s+(\\S+)\\s+(\\S+)\\s+([^/]+)/(\\d+.\\d+.\\d+.\\d+)");
 	regexp_lib_p->set_args(args);
 	args["regexp"] = QRegExp("(yahoo|lnc)");

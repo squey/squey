@@ -8,7 +8,7 @@
 #include <QStringList>
 #include <QFileInfo>
 
-PVRush::PVSourceCreatorPcapfile::source_p PVRush::PVSourceCreatorPcapfile::create_source_from_input(PVFilter::PVArgument const& input) const
+PVRush::PVSourceCreatorPcapfile::source_p PVRush::PVSourceCreatorPcapfile::create_source_from_input(PVCore::PVArgument const& input) const
 {
 	// input is a QString !
 	PVFilter::PVChunkFilter* chk_flt = new PVFilter::PVChunkFilter();
@@ -31,7 +31,7 @@ QString PVRush::PVSourceCreatorPcapfile::supported_type() const
 	return QString("file");
 }
 
-bool PVRush::PVSourceCreatorPcapfile::pre_discovery(PVFilter::PVArgument const& input) const
+bool PVRush::PVSourceCreatorPcapfile::pre_discovery(PVCore::PVArgument const& input) const
 {
 	pcap_t *pcaph;
 	char errbuf[PCAP_ERRBUF_SIZE];

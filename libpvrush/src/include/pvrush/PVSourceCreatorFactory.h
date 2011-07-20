@@ -4,7 +4,7 @@
 #include <pvcore/general.h>
 #include <pvrush/PVSourceCreator.h>
 #include <pvrush/PVInputType.h>
-#include <pvfilter/PVArgument.h>
+#include <pvcore/PVArgument.h>
 #include <list>
 #include <QHash>
 #include <QString>
@@ -20,7 +20,7 @@ class LibRushDecl PVSourceCreatorFactory
 public:
 	static list_creators get_by_input_type(PVInputType_p in_t);
 	static hash_format_creator get_supported_formats(list_creators const& lcr);
-	static float discover_input(pair_format_creator format, PVFilter::PVArgument const& input);
+	static float discover_input(pair_format_creator format, PVCore::PVArgument const& input);
 };
 
 }

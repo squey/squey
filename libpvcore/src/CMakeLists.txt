@@ -7,6 +7,7 @@ environ.cpp
 network.cpp
 sysinfo.cpp
 
+PVArgument.cpp
 PVAxisIndexType.cpp
 PVBufferSlice.cpp
 PVClassLibrary.cpp
@@ -32,6 +33,7 @@ include/pvcore/string.h
 include/pvcore/sysinfo.h
 include/pvcore/types.h
 
+include/pvcore/PVArgument.h
 include/pvcore/PVAxisIndexType.h
 include/pvcore/PVAxesIndexType.h
 include/pvcore/PVClassLibrary.h

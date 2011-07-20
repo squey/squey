@@ -48,7 +48,7 @@ PVRush::hash_format_creator PVRush::PVSourceCreatorFactory::get_supported_format
 	return ret;
 }
 
-float PVRush::PVSourceCreatorFactory::discover_input(pair_format_creator format_, PVFilter::PVArgument const& input)
+float PVRush::PVSourceCreatorFactory::discover_input(pair_format_creator format_, PVCore::PVArgument const& input)
 {
 	PVFormat format = format_.first;
 	if (!format.populate()) {

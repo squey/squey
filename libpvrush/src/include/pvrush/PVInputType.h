@@ -4,7 +4,7 @@
 #include <pvcore/general.h>
 #include <pvcore/PVRegistrableClass.h>
 #include <pvcore/PVClassLibrary.h>
-#include <pvfilter/PVArgument.h>
+#include <pvcore/PVArgument.h>
 #include <pvrush/PVFormat.h>
 #include <QList>
 #include <QKeySequence>
@@ -14,7 +14,7 @@ namespace PVRush {
 class LibRushDecl PVInputType: public PVCore::PVRegistrableClass<PVInputType>
 {
 public:
-	typedef PVFilter::PVArgument input_type;
+	typedef PVCore::PVArgument input_type;
 	typedef QList<input_type> list_inputs;
 	typedef boost::shared_ptr<PVInputType> p_type;
 public:

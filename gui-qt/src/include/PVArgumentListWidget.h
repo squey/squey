@@ -17,7 +17,7 @@
 #include <QVariant>
 #include <QHBoxLayout>
 
-#include <pvfilter/PVArgument.h>
+#include <pvcore/PVArgument.h>
 #include <picviz/general.h>
 #include <picviz/PVView.h>
 
@@ -32,7 +32,7 @@ class PVArgumentListWidget: public QDialog
 	Q_OBJECT
 
 public:
-	PVArgumentListWidget(Picviz::PVView& view, PVFilter::PVArgumentList &args, QWidget* parent);
+	PVArgumentListWidget(Picviz::PVView& view, PVCore::PVArgumentList &args, QWidget* parent);
 	virtual ~PVArgumentListWidget();
 	bool eventFilter(QObject *obj, QEvent *event);
 	void init();
@@ -55,7 +55,7 @@ protected:
 	QTableView*               _args_view;
 	PVArgumentListModel*      _args_model;
 	PVArgumentListDelegate*   _args_del;
-	PVFilter::PVArgumentList& _args;
+	PVCore::PVArgumentList& _args;
 	Picviz::PVView&           _view;
 
 	// Standard buttons

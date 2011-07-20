@@ -3,14 +3,14 @@
 
 #include <omp.h>
 
-Picviz::PVPlottingFilterAllDivide::PVPlottingFilterAllDivide(const PVFilter::PVArgumentList& args)
+Picviz::PVPlottingFilterAllDivide::PVPlottingFilterAllDivide(const PVCore::PVArgumentList& args)
 {
 	INIT_FILTER(PVPlottingFilterAllDivide, args);
 }
 
 DEFAULT_ARGS_FILTER(Picviz::PVPlottingFilterAllDivide)
 {
-	PVFilter::PVArgumentList args;
+	PVCore::PVArgumentList args;
 	args["factor"] = QVariant((float)1.0);
 	return args;
 }
