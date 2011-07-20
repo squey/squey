@@ -80,8 +80,17 @@ public:
       virtual void mousePressEvent ( QMouseEvent * event );
          
       PVXmlDomModel * getModel();
-      
-      
+
+    QModelIndex getSelectedIndex() {
+        QModelIndex index;
+
+        int numberOfSelectedIndexes = selectedIndexes().count(); //get the number of selected indexes.
+
+        if (numberOfSelectedIndexes > 0) {
+            index = selectedIndexes().at(0); //get the selected index.
+        }
+        return index;
+    }
       
     /**
      * Move down the selected element.

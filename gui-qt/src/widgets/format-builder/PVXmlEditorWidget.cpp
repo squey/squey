@@ -253,7 +253,7 @@ void PVInspector::PVXmlEditorWidget::slotAddSplitter() {
         PVLOG_DEBUG("sender():%s\n",action_src->iconText().toStdString().c_str());
         PVFilter::PVFieldsSplitterParamWidget_p in_t = LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::get().get_class_by_name(itype);
         PVFilter::PVFieldsSplitterParamWidget_p in_t_cpy = in_t.get()->clone<PVFilter::PVFieldsSplitterParamWidget>();
-        
+        myTreeView->addSplitter(in_t_cpy);
 }
 
 

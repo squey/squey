@@ -452,6 +452,15 @@ void PVInspector::PVXmlDomModel::addFilterAfter(QModelIndex &index) {
 }
 
 
+/******************************************************************************
+ *
+ *  PVInspector::PVXmlDomModel::addSplitter
+ *
+ *****************************************************************************/
+void PVInspector::PVXmlDomModel::addSplitter(const QModelIndex &index, PVFilter::PVFieldsSplitterParamWidget_p splitterPlugin){
+        PVLOG_DEBUG("PVInspector::PVXmlDomModel::addSplitter\n");
+}
+
 
 
 /******************************************************************************

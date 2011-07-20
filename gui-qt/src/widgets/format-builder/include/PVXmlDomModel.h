@@ -21,6 +21,7 @@
 #include <pvcore/PVXmlTreeNodeDom.h>
 #include <PVXmlParamWidget.h>
 #include <pvcore/PVXmlParamParser.h>
+#include <pvfilter/PVFieldsFilterParamWidget.h>
 
 #define FORMAT_VERSION 1.0
 
@@ -54,8 +55,10 @@ public:
     void addAxisIn(const QModelIndex &index);
     void addFisrtRegEx();
     void addFirstFilter();
+    void addSplitter(const QModelIndex &index, PVFilter::PVFieldsSplitterParamWidget_p splitterPlugin);
     void addRegExIn(const QModelIndex &index);
     void addUrlIn(const QModelIndex &index);
+    
 
     
     /*
