@@ -39,6 +39,20 @@
 
 namespace PVRush {
 
+	class PVFormatException
+	{
+		public:
+			virtual QString what() = 0;
+	};
+	
+	class LibRushDecl PVFormatExceptionPluginNotFound: public PVFormatException
+	{
+		public:
+			PVFormatExceptionPluginNotFound(QString type, QString plugin_name);
+			QString what();
+		protected:
+			QString _what;
+	};
 /**
  * This is the Format class
  */

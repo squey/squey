@@ -609,12 +609,18 @@ void PVInspector::PVMainWindow::import_type_Slot()
 			QHash<QString,PVCore::PVMeanValue<float> > file_types;
 			try {
 				for (itfc = dis_format_creator.begin(); itfc != dis_format_creator.end(); itfc++) {
-					float success_rate = PVRush::PVSourceCreatorFactory::discover_input(itfc.value(), *itin);
-					PVLOG_INFO("For input %s with format %s, success rate is %0.4f\n", qPrintable(in_str), qPrintable(itfc.key()), success_rate);
-					if (success_rate > 0) {
-						QString const& str_format = itfc.key();
-						file_types[str_format].push(success_rate);
-						discovered_types[str_format].push(success_rate);
+					try {
+						float success_rate = PVRush::PVSourceCreatorFactory::discover_input(itfc.value(), *itin);
+						PVLOG_INFO("For input %s with format %s, success rate is %0.4f\n", qPrintable(in_str), qPrintable(itfc.key()), success_rate);
+						if (success_rate > 0) {
+							QString const& str_format = itfc.key();
+							file_types[str_format].push(success_rate);
+							discovered_types[str_format].push(success_rate);
+						}
+					}
+					catch (PVRush::PVFormatException &e) {
+						PVLOG_ERROR("PVFormat error: %s\n", qPrintable(e.what()));
+						continue;
 					}
 				}
 			}

@@ -179,8 +179,7 @@ int PVCore::PVXmlParamParser::setDom(QDomElement node, int id) {
 		if (defaultFormat >1 ) {
 			//qDebug()<<"default : to much axis or RegEx on a field.  " << QString(defaultFormat);
 		}
-	}else{
-		PVLOG_ERROR("TODO : format parsing (new version) \n");
+	} else {
 	}
 
 	return newId;
