@@ -18,7 +18,7 @@
 //#include <pvcore/PVXmlTreeNodeDom.h>
 #include <PVXmlParamWidget.h>
 #include <PVXmlDomModel.h>
-
+#include <pvfilter/PVFieldsFilterParamWidget.h>
 
 
 //QTreeView
@@ -47,9 +47,10 @@ public:
     void addFilterAfter();
     
     /**
-     * 
+     * add a new splitter in DOM refering to the splitter plugin
+     * @param splitterPlugin : new instance of the plugin requesting the new splitter
      */
-    void addSplitter();
+    void addSplitter(PVFilter::PVFieldsSplitterParamWidget_p splitterPlugin);
     
     /**
      * Add a new RegEx after the selected element.
@@ -79,6 +80,8 @@ public:
       virtual void mousePressEvent ( QMouseEvent * event );
          
       PVXmlDomModel * getModel();
+      
+      
       
     /**
      * Move down the selected element.

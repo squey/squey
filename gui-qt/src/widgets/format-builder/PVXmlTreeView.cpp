@@ -77,6 +77,16 @@ void PVInspector::PVXmlTreeView::addFilterAfter() {
 
 /******************************************************************************
  *
+ * PVInspector::PVXmlTreeView::addSplitter
+ *
+ *****************************************************************************/
+void PVInspector::PVXmlTreeView::addSplitter(PVFilter::PVFieldsSplitterParamWidget_p splitterPlugin){
+        
+}
+
+
+/******************************************************************************
+ *
  * PVInspector::PVXmlTreeView::addRegExIn
  *
  *****************************************************************************/
