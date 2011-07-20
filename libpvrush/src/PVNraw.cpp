@@ -15,7 +15,7 @@ PVRush::PVNraw::PVNraw() :
 
 PVRush::PVNraw::~PVNraw()
 {
-	clear_table();
+	clear();
 	//delete_buffers();
 }
 
