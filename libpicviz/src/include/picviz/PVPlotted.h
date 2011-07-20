@@ -10,6 +10,8 @@
 #include <QList>
 #include <QStringList>
 #include <QVector>
+#include <vector>
+#include <utility>
 
 #include <pvcore/general.h>
 #include <pvcore/PVListFloat2D.h>
@@ -25,12 +27,17 @@
 
 namespace Picviz {
 
+// Forward declaration
+class PVSelection;
+
 /**
  * \class PVPlotted
  */
 class LibPicvizDecl PVPlotted {
 public:
 	typedef boost::shared_ptr<PVPlotted> p_type;
+	typedef QVector<float> plotted_table_t;
+	typedef std::vector< std::pair<PVCol,float> > plotted_sub_col_t;
 public:
 	PVPlotted(PVPlotting_p parent);
 	~PVPlotted();
@@ -39,7 +46,7 @@ public:
 	PVRoot_p root;
 
 	// TODO: use PVListFloat2D here !
-	QVector<float> table; /* Unidimensionnal. It must be contiguous in memory */
+	plotted_table_t table; /* Unidimensionnal. It must be contiguous in memory */
 	#ifndef CUDA
 	int create_table();
 	#else //CUDA
@@ -51,7 +58,10 @@ public:
 	PVCol get_column_count() const;
 	PVSource_p get_source_parent();
 	float get_value(PVRow row, PVCol col) const;
+	void get_sub_col_minmax(plotted_sub_col_t& ret, float& min, float& max, PVSelection const& sel, PVCol col) const;
 	void to_csv();
+
+
 };
 
 typedef PVPlotted::p_type PVPlotted_p;

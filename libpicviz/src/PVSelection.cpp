@@ -8,7 +8,7 @@
 
 #include <picviz/PVSelection.h>
 
-static inline uint32_t count_bits(size_t n, uint32_t* data)
+static inline uint32_t count_bits(size_t n, const uint32_t* data)
 {
 	uint32_t ret = 0;
 	for (size_t i = 0; i < n; i++) {
@@ -20,7 +20,7 @@ static inline uint32_t count_bits(size_t n, uint32_t* data)
 
 // a and b are positions in bits and are inclusive (which means that b-a+1 bits are checked)
 // No boundary checks are done, so be carefull !!
-static uint32_t count_bits_between(size_t a, size_t b, uint32_t* data)
+static uint32_t count_bits_between(size_t a, size_t b, const uint32_t* data)
 {
 	size_t a_byte = a >> 5; // = a/32
 	size_t b_byte = b >> 5;
@@ -102,7 +102,7 @@ bool Picviz::PVSelection::get_line(pv_row line_index) const
  * Picviz::PVSelection::get_number_of_selected_lines_in_range
  *
  *****************************************************************************/
-int Picviz::PVSelection::get_number_of_selected_lines_in_range(pv_row a, pv_row b)
+int Picviz::PVSelection::get_number_of_selected_lines_in_range(pv_row a, pv_row b) const
 {
 	
 //	pv_row line_index;

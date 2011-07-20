@@ -69,7 +69,7 @@ public:
 	 *
 	 * @return The number of selected line in that range
 	 */
-	int get_number_of_selected_lines_in_range(pv_row a, pv_row b);
+	int get_number_of_selected_lines_in_range(pv_row a, pv_row b) const;
 
 	/**
 	 * This is the copy operator
@@ -188,7 +188,7 @@ public:
 	/**
 	 * Get the float table from PVSelection.
 	 */
-         std::vector<PVRow> get_rows_table();
+	std::vector<PVRow> get_rows_table();
 
 
 };

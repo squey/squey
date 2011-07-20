@@ -10,12 +10,14 @@
 #include <QVector>
 
 #include <stdlib.h>
+#include <float.h>
 
 #include <picviz/PVMapped.h>
 #include <picviz/PVMapping.h>
 #include <picviz/PVPlotting.h>
 #include <picviz/PVPlotted.h>
 #include <picviz/PVSource.h>
+#include <picviz/PVSelection.h>
 
 #include <tbb/tick_count.h>
 
@@ -245,6 +247,26 @@ void PVPlotted::to_csv()
 		std::cout << "\n";
 	}
 
+}
+
+void Picviz::PVPlotted::get_sub_col_minmax(plotted_sub_col_t& ret, float& min, float& max, PVSelection const& sel, PVCol col) const
+{
+	min = FLT_MAX;
+	max = 0;
+	PVRow size = get_qtnraw().size();
+	ret.reserve(sel.get_number_of_selected_lines_in_range(0, size-1));
+	for (PVRow i = 0; i < size; i++) {
+		if (sel.get_line(i)) {
+			float v = get_value(i, col);
+			if (v > max) {
+			   max = v;
+			}
+	 		if (v < min) {
+				min = v;
+			}		
+			ret.push_back(plotted_sub_col_t::value_type(i, v));
+		}
+	}
 }
 
 }

@@ -39,8 +39,6 @@ DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterAxisGradient)
 void Picviz::PVLayerFilterAxisGradient::operator()(PVLayer& in, PVLayer &out)
 {	
 	int axis_id;
-	int counter;
-	int nb_lines;
 
 	PVColor color;
 	QColor qcolor;	
@@ -50,20 +48,19 @@ void Picviz::PVLayerFilterAxisGradient::operator()(PVLayer& in, PVLayer &out)
 	
 	axis_id = _args["Axis"].value<PVCore::PVAxisIndexType>().get_original_index();
 	axis_id = _view->axes_combination.get_axis_column_index(axis_id);
-	nb_lines = _view->get_qtnraw_parent().size();
 	
-	//PVRow size_sel = in.get_selection().get_number_of_selected_lines_in_range(0, plotted->table.size() - 1);
-	for (counter = 0; counter < nb_lines; counter++) {
-		if (_view->get_line_state_in_pre_filter_layer(counter)) {
-			float plotted_value;
 
-			//plotted_value = picviz_plotting_get_position(view->parent->parent, counter, axis_id);
-			plotted_value = plotted->get_value(counter, axis_id);
+	PVPlotted::plotted_sub_col_t values_sel;
+	float max_plotted,min_plotted;
+	plotted->get_sub_col_minmax(values_sel, min_plotted, max_plotted, in.get_selection(), axis_id);
+	PVPlotted::plotted_sub_col_t::const_iterator it;
+	for (it = values_sel.begin(); it != values_sel.end(); it++) {
+		float plotted_value = it->second;
+		PVRow line = it->first;
 
-			qcolor.setHsvF((1.0f - plotted_value) / 3.0f, 1.0f, 1.0f);
-			color.fromQColor(qcolor);
-			out.get_lines_properties().line_set_rgb_from_color(counter, color);
-		}
+		qcolor.setHsvF((max_plotted-plotted_value)/(max_plotted-min_plotted) / 3.0f, 1.0f, 1.0f);
+		color.fromQColor(qcolor);
+		out.get_lines_properties().line_set_rgb_from_color(line, color);
 	}
 }
 
