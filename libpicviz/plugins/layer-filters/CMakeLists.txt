@@ -20,6 +20,7 @@ layer_filter_diff
 layer_filter_heatline
 layer_filter_search
 layer_filter_webmail
+layer_filter_attacks
 )
 
 set(FILTERS_DIST_FILES
@@ -39,6 +40,9 @@ target_link_libraries(layer_filter_search picviz pvfilter)
 
 add_library(layer_filter_webmail SHARED webmail-finder/PVLayerFilterWebmailFinder.cpp webmail-finder/register.cpp)
 target_link_libraries(layer_filter_webmail picviz pvfilter)
+
+add_library(layer_filter_attacks SHARED find-attacks/PVLayerFilterFindAttacks.cpp find-attacks/register.cpp)
+target_link_libraries(layer_filter_attacks picviz pvfilter)
 
 INSTALL(TARGETS ${FILTERS_DIST_LIST} DESTINATION layer-filters)
 INSTALL(FILES ${FILTERS_DIST_FILES} DESTINATION layer-filters)
