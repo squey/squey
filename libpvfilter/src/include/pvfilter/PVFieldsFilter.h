@@ -14,6 +14,7 @@
 #include <pvfilter/PVFilterFunction.h>
 #include <pvfilter/PVFilterLibrary.h>
 #include <map>
+#include <QString>
 
 namespace PVFilter {
 
@@ -38,6 +39,7 @@ public:
 	}
 public:
 	fields_filter_type type() { return _type; };
+	QString type_name();
 
 	// Default interface (many-to-many)
 	virtual PVCore::list_fields& operator()(PVCore::list_fields &fields);

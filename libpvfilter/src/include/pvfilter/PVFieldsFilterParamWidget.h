@@ -35,6 +35,9 @@ public:
 	PVFieldsBaseFilter_p get_filter() { return _filter; }
 	QWidget* get_param_widget() { return NULL; }
 
+	fields_filter_type type() { return _filter->type(); }
+	QString type_name() { return _filter->type_name(); }
+
 protected:
 	QString _name_filter;
 	PVFilter::fields_filter_type _type;
