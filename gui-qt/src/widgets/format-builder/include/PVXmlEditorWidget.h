@@ -110,9 +110,7 @@ public slots:
     void slotMoveDown();
     void slotNeedApply();
     void slotOpen();
-    void slotOpenLog(){
-        PVLOG_ERROR("slotOpenLog()\n");
-    }
+    void slotOpenLog();
     void slotSave();
     void slotUpdateToolDesabled(const QModelIndex &);
 };

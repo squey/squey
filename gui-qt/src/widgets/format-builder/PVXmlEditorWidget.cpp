@@ -448,3 +448,8 @@ void PVInspector::PVXmlEditorWidget::initMenuBar() {
         }
 }
 
+void PVInspector::PVXmlEditorWidget::slotOpenLog()
+{
+	PVRush::PVInputType_p in_t = PVInputTypeMenuEntries::input_type_from_action((QAction*) sender());
+	// AG: TODO !
+}
