@@ -9,19 +9,22 @@
 
 PVCore::PVXmlParamParser::PVXmlParamParser(QString nameFile) {
     QFile fichier(nameFile);
-    if(!fichier.exists()){
-        //le fichier n'existe pas.
-		return;
+    if(!fichier.exists()) {
+                //le fichier n'existe pas.
+                PVLOG_ERROR("File to parse unfound!\n");
+                return;
     }
     if (!fichier.open(QIODevice::ReadOnly | QIODevice::Text)) {
-		return;
+                PVLOG_ERROR("Can't open file to parse.\n");
+                return;
     }
     QTextStream tmpTextXml(&fichier);//creation of the file stream
     QDomDocument docXml;
     docXml.setContent(tmpTextXml.readAll());
+    format_version = docXml.documentElement().attribute("version","0");
     setDom(docXml.documentElement());
-
-	fichier.close();
+    
+    fichier.close();
 }
 
 PVCore::PVXmlParamParser::~PVXmlParamParser() {
@@ -58,7 +61,7 @@ int PVCore::PVXmlParamParser::setDom(QDomElement node, int id) {
 
 
 
-	}else{
+	}else if(format_version==QString("0")){
 		//add all filtersint defaultFormat;
 		for(int i=0;i<countChild(node.toElement());i++){
 			QDomElement child(node.childNodes().at(i).toElement());
@@ -178,7 +181,9 @@ int PVCore::PVXmlParamParser::setDom(QDomElement node, int id) {
 		if (defaultFormat >1 ) {
 			//qDebug()<<"default : to much axis or RegEx on a field.  " << QString(defaultFormat);
 		}
-	}
+	}else{
+                PVLOG_ERROR("TODO : format parsing (new version) \n");
+        }
 
     return newId;
 }
