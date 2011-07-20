@@ -18,7 +18,7 @@ void PVRush::PVAggregator::init()
 	_eoi = false;
 	_nstart = 0;
 	_nlast = 0;
-	_nend = pvconfig.value("pvrush/extract_first", PVEXTRACT_NUMBER_LINES_FIRST).toInt();
+	_nend = pvconfig.value("pvrush/extract_first", PVEXTRACT_NUMBER_LINES_FIRST_DEFAULT).toInt();
 	__stop_cond_false = false;
 	_stop_cond = &__stop_cond_false;
 	_last_elt_agg_index = 0;

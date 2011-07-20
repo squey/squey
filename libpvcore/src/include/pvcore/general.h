@@ -44,7 +44,7 @@ static QSettings pvconfig(QString("pvconfig.ini"), QSettings::IniFormat);
 #define PICVIZ_AXES_MAX 8096 // Max number of axes
 #define PICVIZ_FIELD_MAX 8096 // Max value a string can receive as a field
 
-#define PVEXTRACT_NUMBER_LINES_FIRST 1000000
+#define PVEXTRACT_NUMBER_LINES_FIRST_DEFAULT 1000000
 #define PVEXTRACT_NUMBER_LINES_NEXT_DEFAULT 1000000
 
 #define PVFORMAT_NUMBER_FIELD_URL 6
