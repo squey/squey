@@ -12,7 +12,6 @@
 
 
 
-
 /******************************************************************************
  *
  * PVInspector::PVXmlEditorWidget::PVXmlEditorWidget
@@ -62,7 +61,17 @@ PVInspector::PVXmlEditorWidget::PVXmlEditorWidget(QWidget * parent):QWidget(pare
  
     vbParam->addWidget(myParamBord);  
 
-    
+    _list_splitters = LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::get().get_list();
+    _list_filters = LIB_CLASS(PVFilter::PVFieldsFilterParamWidget<PVFilter::one_to_one>)::get().get_list();
+
+	// _list_* is a QHash. Its keys are a QString with the registered name of the class (in our case, "csv", "regexp", etc...).
+	// Its values are a boost::shared_ptr<PVFieldsSplitterParamWidget> or boost::shared_ptr<PVFieldsFilterParamWidget<one_to_one> > object.
+	// For instance :
+	list_splitters_t::const_iterator it;
+	for (it = _list_splitters.begin(); it != _list_splitters.end(); it++) {
+		PVLOG_INFO("name: %s\n", qPrintable(it.key()));
+		PVFilter::PVFieldsSplitterParamWidget_p splitter_lib = it.value();
+	}
     
     setLayout(vb);
     

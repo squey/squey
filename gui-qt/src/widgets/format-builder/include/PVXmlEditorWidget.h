@@ -25,8 +25,15 @@
 #include <PVXmlTreeView.h>
 #include <PVXmlParamWidget.h>
 #include <pvrush/PVNormalizer.h>
+#include <pvcore/PVRegistrableClass.h>
+#include <pvcore/PVClassLibrary.h>
+#include <pvfilter/PVFieldsFilterParamWidget.h>
 
 namespace PVInspector{
+
+typedef LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::list_classes list_splitters_t;
+typedef LIB_CLASS(PVFilter::PVFieldsFilterParamWidget<PVFilter::one_to_one>)::list_classes list_filters_t;
+
 class PVXmlEditorWidget : public QWidget{
     Q_OBJECT
 public:
@@ -75,7 +82,8 @@ private:
     QAction *actionOpen;
     QAction *actionSave;
     
-  
+	list_splitters_t _list_splitters;
+	list_filters_t _list_filters;
     
     
 
