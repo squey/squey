@@ -37,7 +37,6 @@ PVRush::PVFormat::PVFormat(QString const& format_name_, QString const& full_path
 
 PVRush::PVFormat::~PVFormat()
 {
-  // PVCORE_DEBUG("Destructor %s...", __FUNCTION__);;
 }
 
 

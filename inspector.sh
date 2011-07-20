@@ -77,6 +77,12 @@ then
 	exit 0
 fi
 
+if [ "$1" == "massif" ]
+then
+	valgrind --depth=60 --tool=massif --heap=yes  gui-qt/src/picviz-inspector
+	exit 0
+fi
+
 if [ "$1" == "callgrind" ]
 then
 export PICVIZ_DEBUG_LEVEL="NOTICE"
