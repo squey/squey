@@ -93,6 +93,9 @@ public:
      * @return 
      */
     int getRow();
+
+	void setFromArgumentList(PVArgumentList const& args);
+	void toArgumentList(PVArgumentList const& default_args, PVArgumentList& args);
     
     
     bool isEditable(){if (type==filter||type==url||type==axis||type==RegEx){return true;}else{return false;}}

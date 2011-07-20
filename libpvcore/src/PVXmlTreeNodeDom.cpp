@@ -603,3 +603,19 @@ bool PVCore::PVXmlTreeNodeDom::isFieldOfUrl(){
     if(getParent()->xmlDomElement.tagName()=="url")return true;
     return false;
 }
+
+void PVCore::PVXmlTreeNodeDom::setFromArgumentList(PVArgumentList const& args)
+{
+	PVArgumentList::const_iterator it;
+	for (it = args.begin(); it != args.end(); it++) {
+		setAttribute(it.key(), PVCore::PVArgument_to_QString(it.value()), true);
+	}
+}
+
+void PVCore::PVXmlTreeNodeDom::toArgumentList(PVArgumentList const& default_args, PVArgumentList& args)
+{
+	PVArgumentList::const_iterator it;
+	for (it = default_args.begin(); it != default_args.end(); it++) {
+		args[it.key()] = PVCore::QString_to_PVArgument(it.value());
+	}
+}
