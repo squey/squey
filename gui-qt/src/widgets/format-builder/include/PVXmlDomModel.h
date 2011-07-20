@@ -46,7 +46,6 @@ public:
      * Méthodes for the toolBar
      */
     void addFilterAfter(QModelIndex &index);
-    void addRegExAfter(QModelIndex &index);
     void applyModification(QModelIndex &index,PVXmlParamWidget *paramBord);
     
     /*

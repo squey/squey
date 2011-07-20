@@ -7,6 +7,7 @@
 #include <pvfilter/PVFieldsFilter.h>
 
 #include <QWidget>
+#include <QString>
 
 namespace PVFilter {
 
@@ -21,6 +22,7 @@ public:
 	virtual QWidget* get_param_widget() = 0;
     virtual QAction* get_action_menu() = 0;
     virtual void set_id(int id) = 0;
+    virtual QString get_xml_tag() = 0;
 };
 
 typedef boost::shared_ptr<PVFieldsFilterParamWidgetBase> PVFieldsFilterParamWidgetBase_p;
@@ -41,6 +43,7 @@ public:
 	PVFieldsBaseFilter_p get_filter() { return _filter; }
 	QWidget* get_param_widget() { return NULL; }
     QAction* get_action_menu() { return NULL; }
+    QString get_xml_tag() { return QString(""); }
     
     void set_id(int /*id*/) {}
     

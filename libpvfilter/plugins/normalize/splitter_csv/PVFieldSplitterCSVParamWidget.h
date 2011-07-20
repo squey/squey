@@ -24,6 +24,7 @@ private:
 public:
     QWidget* get_param_widget();
     QAction* get_action_menu();
+    QString get_xml_tag() { return QString("splitter"); }
 
     void set_id(int id_param) {
         id = id_param;
