@@ -8,4 +8,5 @@
 LibCPPExport void register_filter()
 {
 	REGISTER_FILTER("url", PVFilter::PVFieldSplitterURL);
+	REGISTER_FILTER_AS("splitter_url", PVFilter::PVFieldSplitterURL, PVFilter::PVFieldsFilterReg);
 }

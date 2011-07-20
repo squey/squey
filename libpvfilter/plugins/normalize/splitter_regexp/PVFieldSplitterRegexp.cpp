@@ -32,7 +32,7 @@ PVFilter::PVFieldSplitterRegexp::PVFieldSplitterRegexp(const PVFieldSplitterRege
 DEFAULT_ARGS_FILTER(PVFilter::PVFieldSplitterRegexp)
 {
 	PVCore::PVArgumentList args;
-	args["regexp"] = PVCore::PVArgument(QRegExp("^(.*)$"));
+	args["regexp"] = PVCore::PVArgument(QString("^(.*)$"));
 	return args;
 }
 
@@ -45,7 +45,7 @@ void PVFilter::PVFieldSplitterRegexp::set_args(PVCore::PVArgumentList const& arg
 {
 	FilterT::set_args(args);
 #ifdef PROCESS_REGEXP_ICU
-	QString pattern = args["regexp"].toRegExp().pattern();
+	QString pattern = args["regexp"].toString();
 	UnicodeString icu_pat;
 	icu_pat.setTo(false, (const UChar *)(pattern.constData()), pattern.size());
 	UErrorCode err = U_ZERO_ERROR;
@@ -56,7 +56,7 @@ void PVFilter::PVFieldSplitterRegexp::set_args(PVCore::PVArgumentList const& arg
 		PVLOG_WARN("Unable to compile pattern '%s' with ICU !\n", qPrintable(pattern));
 	}
 #else
-	_regexp = args["regexp"].toRegExp();
+	_regexp.setPattern(args["regexp"].toString());
 #endif
 }
 
