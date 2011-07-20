@@ -34,12 +34,16 @@ public:
 
     virtual ~PVXmlEditorWidget();
 private:
+    //
     PVXmlTreeView *myTreeView;
     PVXmlDomModel *myTreeModel;
     PVXmlParamWidget *myParamBord;
-    
+    //
     QVBoxLayout *vbParam;
     QMenuBar *menuBar;
+    //
+    QFile logFile;
+    
     
     void actionAllocation();
     

@@ -23,6 +23,7 @@ PVInspector::PVXmlDomModel::PVXmlDomModel(QWidget * parent): QAbstractItemModel(
     
     xmlFile.setContent(header,true,&err);
     xmlRootDom = xmlFile.documentElement();
+    xmlRootDom.setAttribute("version",FORMAT_VERSION);
 
     //creating the root node.
     PVXmlTreeNodeDom *m_rootNode = new PVXmlTreeNodeDom(PVXmlTreeNodeDom::field, "root", xmlRootDom,this->xmlFile);
@@ -69,6 +70,7 @@ PVInspector::PVXmlDomModel::PVXmlDomModel(QString url): QAbstractItemModel(){
     QTextStream tmpTextXml(&file);
     this->xmlFile.setContent(tmpTextXml.readAll());
     this->xmlRootDom = this->xmlFile.documentElement();
+    xmlRootDom.setAttribute("version",FORMAT_VERSION);
 
 
     //création du node root à partir duquel se construit l'arbre.
@@ -639,6 +641,9 @@ bool PVInspector::PVXmlDomModel::openXml(QString url) {
 	tmpTextXml.setCodec("UTF-8"); // AG: as defined in the XML header (and saved, cf. saveXML)
 	this->xmlFile.setContent(tmpTextXml.readAll());
 	this->xmlRootDom = this->xmlFile.documentElement();
+        
+        PVLOG_INFO("format opened version : %s\n",getVersion().toStdString().c_str());
+
 
 	PVXmlTreeNodeDom *m_rootNode = new PVXmlTreeNodeDom(PVXmlTreeNodeDom::field, "root", xmlRootDom,this->xmlFile);
 	setRoot(m_rootNode);

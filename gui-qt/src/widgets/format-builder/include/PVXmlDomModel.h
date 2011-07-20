@@ -22,6 +22,8 @@
 #include <PVXmlParamWidget.h>
 #include <pvcore/PVXmlParamParser.h>
 
+#define FORMAT_VERSION 1.0
+
 #define message(string){QMessageBox qb;   qb.setText(string);    qb.exec();} 
 //#define dbg {qDebug()<<__FILE__<<__LINE__;}
 namespace PVInspector{
@@ -89,6 +91,12 @@ public:
      * @return QDomElement* objetDom
      */
     QDomElement *getItem(QModelIndex &index);
+    
+    /**
+     * get the version of the format
+     * @return 
+     */
+    QString getVersion(){return xmlRootDom.attribute("version","0");}
     
     /**
      * 

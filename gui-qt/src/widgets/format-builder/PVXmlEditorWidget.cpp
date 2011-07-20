@@ -13,6 +13,7 @@
 
 
 
+
 /******************************************************************************
  *
  * PVInspector::PVXmlEditorWidget::PVXmlEditorWidget
@@ -150,6 +151,7 @@ void PVInspector::PVXmlEditorWidget::initConnexions() {
     connect(actionMoveDown,SIGNAL(triggered()),this,SLOT(slotMoveDown()));
     connect(actionMoveUp,SIGNAL(triggered()),this,SLOT(slotMoveUp()));
     connect(actionOpen,SIGNAL(triggered()),this,SLOT(slotOpen()));
+    //connect(,SIGNAL(()),this,SLOT(()));
     connect(actionSave, SIGNAL(triggered()), this, SLOT(slotSave()));
     connect(actionAddUrl, SIGNAL(triggered()), this, SLOT(slotAddUrl()));
     connect(myParamBord,SIGNAL(signalNeedApply()),this,SLOT(slotNeedApply()));
