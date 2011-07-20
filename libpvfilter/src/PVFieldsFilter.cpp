@@ -53,4 +53,22 @@ PVCore::list_fields& PVFieldsFilter<many_to_many>::operator()(PVCore::list_field
 	return fields;
 };
 
+template <> LibFilterDecl
+QString PVFieldsFilter<one_to_one>::type_name()
+{
+	return QString("filter");
+}
+
+template <> LibFilterDecl
+QString PVFieldsFilter<one_to_many>::type_name()
+{
+	return QString("splitter");
+}
+
+template <> LibFilterDecl
+QString PVFieldsFilter<many_to_many>::type_name()
+{
+	return QString("generic");
+}
+
 }
