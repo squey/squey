@@ -27,7 +27,7 @@ static QString generate_row_key_from_values(PVCore::PVAxesIndexType const& axes,
  * Picviz::PVLayerFilterHeatlineBase::PVLayerFilterHeatlineBase
  *
  *****************************************************************************/
-Picviz::PVLayerFilterHeatlineBase::PVLayerFilterHeatlineBase(PVFilter::PVArgumentList const& l)
+Picviz::PVLayerFilterHeatlineBase::PVLayerFilterHeatlineBase(PVCore::PVArgumentList const& l)
 	: PVLayerFilter(l)
 {
 	INIT_FILTER(PVLayerFilterHeatlineBase, l);
@@ -40,7 +40,7 @@ Picviz::PVLayerFilterHeatlineBase::PVLayerFilterHeatlineBase(PVFilter::PVArgumen
  *****************************************************************************/
 DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterHeatlineBase)
 {
-	PVFilter::PVArgumentList args;
+	PVCore::PVArgumentList args;
 	args["Axes"].setValue(PVCore::PVAxesIndexType());
 
 	PVCore::PVEnumType scale(QStringList() << "Linear" << "Log", 0);
@@ -54,10 +54,10 @@ DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterHeatlineBase)
  * Picviz::PVLayerFilterHeatlineBase::get_default_args_for_view
  *
  *****************************************************************************/
-PVFilter::PVArgumentList Picviz::PVLayerFilterHeatlineBase::get_default_args_for_view(PVView const& view)
+PVCore::PVArgumentList Picviz::PVLayerFilterHeatlineBase::get_default_args_for_view(PVView const& view)
 {
 	// Retrieve the key axes of the PVFormat of that PVView
-	PVFilter::PVArgumentList args = get_args();
+	PVCore::PVArgumentList args = get_args();
 	PVCore::PVAxesIndexType key_axes;
 	PVRush::PVFormat::list_axes const& axes = view.get_source_parent()->nraw->format->axes;
 	PVRush::PVFormat::list_axes::const_iterator it;
@@ -156,7 +156,7 @@ IMPL_FILTER(Picviz::PVLayerFilterHeatlineBase)
 
 // "Colorize mode" filter
 
-Picviz::PVLayerFilterHeatlineColor::PVLayerFilterHeatlineColor(PVFilter::PVArgumentList const& l)
+Picviz::PVLayerFilterHeatlineColor::PVLayerFilterHeatlineColor(PVCore::PVArgumentList const& l)
 	: PVLayerFilterHeatlineBase(l)
 {
 	INIT_FILTER(PVLayerFilterHeatlineColor, l);
@@ -183,7 +183,7 @@ IMPL_FILTER(Picviz::PVLayerFilterHeatlineColor)
 
 // "Selection mode" filter
 
-Picviz::PVLayerFilterHeatlineSel::PVLayerFilterHeatlineSel(PVFilter::PVArgumentList const& l)
+Picviz::PVLayerFilterHeatlineSel::PVLayerFilterHeatlineSel(PVCore::PVArgumentList const& l)
 	: PVLayerFilterHeatlineBase(l)
 {
 	INIT_FILTER(PVLayerFilterHeatlineSel, l);
@@ -191,7 +191,7 @@ Picviz::PVLayerFilterHeatlineSel::PVLayerFilterHeatlineSel(PVFilter::PVArgumentL
 
 DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterHeatlineSel)
 {
-	PVFilter::PVArgumentList args = Picviz::PVLayerFilterHeatlineBase::default_args();
+	PVCore::PVArgumentList args = Picviz::PVLayerFilterHeatlineBase::default_args();
 	args["Colors"].setValue(PVCore::PVColorGradientDualSliderType());
 	return args;
 }
@@ -213,7 +213,7 @@ void Picviz::PVLayerFilterHeatlineSel::post(PVLayer& /*in*/, PVLayer& out, float
 IMPL_FILTER(Picviz::PVLayerFilterHeatlineSel)
 
 // "Select and colorize" mode
-Picviz::PVLayerFilterHeatlineSelAndCol::PVLayerFilterHeatlineSelAndCol(PVFilter::PVArgumentList const& l)
+Picviz::PVLayerFilterHeatlineSelAndCol::PVLayerFilterHeatlineSelAndCol(PVCore::PVArgumentList const& l)
 	: PVLayerFilterHeatlineBase(l)
 {
 	INIT_FILTER(PVLayerFilterHeatlineSelAndCol, l);
@@ -221,7 +221,7 @@ Picviz::PVLayerFilterHeatlineSelAndCol::PVLayerFilterHeatlineSelAndCol(PVFilter:
 
 DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterHeatlineSelAndCol)
 {
-	PVFilter::PVArgumentList args = Picviz::PVLayerFilterHeatlineBase::default_args();
+	PVCore::PVArgumentList args = Picviz::PVLayerFilterHeatlineBase::default_args();
 	args["Colors"].setValue(PVCore::PVColorGradientDualSliderType());
 	return args;
 }

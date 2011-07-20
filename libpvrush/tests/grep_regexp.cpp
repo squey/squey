@@ -38,8 +38,8 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	PVFilter::PVArgumentList args;
-	args["regexp"] = PVFilter::PVArgument(QRegExp(QString(argv[3])));
+	PVCore::PVArgumentList args;
+	args["regexp"] = PVCore::PVArgument(QRegExp(QString(argv[3])));
 	args["reverse"] = reverse;
 	sp_lib_p->set_args(args);
 

@@ -15,9 +15,9 @@ namespace PVFilter {
 
 class LibFilterDecl PVElementFilterGrep: public PVElementFilter {
 public:
-	PVElementFilterGrep(PVArgumentList const& args = PVElementFilterGrep::default_args());
+	PVElementFilterGrep(PVCore::PVArgumentList const& args = PVElementFilterGrep::default_args());
 public:
-	virtual void set_args(PVArgumentList const& args);
+	virtual void set_args(PVCore::PVArgumentList const& args);
 public:
 	virtual PVCore::PVElement& operator()(PVCore::PVElement& obj);
 protected:

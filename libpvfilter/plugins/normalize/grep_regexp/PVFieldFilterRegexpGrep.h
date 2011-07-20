@@ -15,9 +15,9 @@ namespace PVFilter {
 
 class PVFieldFilterRegexpGrep: public PVFieldsFilter<one_to_one> {
 public:
-	PVFieldFilterRegexpGrep(PVArgumentList const& args = PVFieldFilterRegexpGrep::default_args());
+	PVFieldFilterRegexpGrep(PVCore::PVArgumentList const& args = PVFieldFilterRegexpGrep::default_args());
 public:
-	virtual void set_args(PVArgumentList const& args);
+	virtual void set_args(PVCore::PVArgumentList const& args);
 public:
 	virtual PVCore::PVField& one_to_one(PVCore::PVField& obj);
 protected:

@@ -12,7 +12,7 @@ class PVLayerFilterProcessWidget: public PVArgumentListWidget
 	Q_OBJECT
 
 public:
-	PVLayerFilterProcessWidget(PVTabSplitter* tab, PVFilter::PVArgumentList& args, Picviz::PVLayerFilter_p filter_p);
+	PVLayerFilterProcessWidget(PVTabSplitter* tab, PVCore::PVArgumentList& args, Picviz::PVLayerFilter_p filter_p);
 	virtual ~PVLayerFilterProcessWidget();
 
 public slots:
@@ -37,7 +37,7 @@ protected:
 	QPushButton* _help_btn;
 	QPushButton* _preview_btn;
 	Picviz::PVLayer _pre_filter_layer_org;
-	PVFilter::PVArgumentList _args_org;
+	PVCore::PVArgumentList _args_org;
 
 private:
 	bool _has_apply;

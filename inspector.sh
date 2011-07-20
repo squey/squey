@@ -73,13 +73,13 @@ fi
 
 if [ "$1" == "valgrind" ]
 then
-	valgrind --leak-check=full --track-origins=yes gui-qt/src/picviz-inspector
+	valgrind --log-file=./valgrind.out --leak-check=full --track-origins=yes gui-qt/src/picviz-inspector
 	exit 0
 fi
 
-if [ "$1" == "valgrind-leaks" ]
+if [ "$1" == "massif" ]
 then
-	valgrind --db-attach=no --log-file=./valgrind.out --leak-check=yes gui-qt/src/picviz-inspector
+	valgrind --depth=60 --tool=massif --heap=yes  gui-qt/src/picviz-inspector
 	exit 0
 fi
 

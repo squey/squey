@@ -20,9 +20,9 @@ namespace Picviz {
  */
 class PVLayerFilterDiff : public PVLayerFilter {
 	private:
-		PVFilter::PVArgumentList get_default_args_for_view(PVView const& view);
+		PVCore::PVArgumentList get_default_args_for_view(PVView const& view);
 	public:
-		PVLayerFilterDiff(PVFilter::PVArgumentList const& l = PVLayerFilterDiff::default_args());	
+		PVLayerFilterDiff(PVCore::PVArgumentList const& l = PVLayerFilterDiff::default_args());	
 
 		virtual void operator()(PVLayer& in, PVLayer &out);
 

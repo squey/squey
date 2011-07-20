@@ -9,7 +9,7 @@ namespace Picviz {
 class PVPlottingFilterAllDivide: public PVPlottingFilter
 {
 public:
-	PVPlottingFilterAllDivide(const PVFilter::PVArgumentList& args);
+	PVPlottingFilterAllDivide(const PVCore::PVArgumentList& args);
 	float* operator()(float* value);
 
 	CLASS_FILTER(PVPlottingFilterAllDivide)

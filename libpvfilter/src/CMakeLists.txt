@@ -18,7 +18,6 @@ PVRawSourceBase.cpp
 )
 
 SET(HEADER_FILES
-include/pvfilter/PVArgument.h
 include/pvfilter/PVChunkFilter.h
 include/pvfilter/PVChunkFilterByElt.h
 include/pvfilter/PVChunkFilterSource.h

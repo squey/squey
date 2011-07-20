@@ -23,7 +23,7 @@ public:
 typedef boost::shared_ptr<PVFieldsFilterParamWidgetBase> PVFieldsFilterParamWidgetBase_p;
 
 template <PVFilter::fields_filter_type Ttype>
-class LibFilterDecl PVFieldsFilterParamWidget: public PVFieldsFilterParamWidgetBase
+class PVFieldsFilterParamWidget: public PVFieldsFilterParamWidgetBase
 {
 public:
 	typedef PVFieldsFilterParamWidget<Ttype> RegAs;

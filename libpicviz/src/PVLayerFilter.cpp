@@ -13,7 +13,7 @@
  * Picviz::PVLayerFilter::PVLayerFilter
  *
  *****************************************************************************/
-Picviz::PVLayerFilter::PVLayerFilter(PVFilter::PVArgumentList const& args)
+Picviz::PVLayerFilter::PVLayerFilter(PVCore::PVArgumentList const& args)
 {
 	INIT_FILTER(Picviz::PVLayerFilter, args);
 	set_output(NULL);
@@ -26,7 +26,7 @@ Picviz::PVLayerFilter::PVLayerFilter(PVFilter::PVArgumentList const& args)
  *****************************************************************************/
 DEFAULT_ARGS_FILTER(Picviz::PVLayerFilter)
 {
-	return PVFilter::PVArgumentList();
+	return PVCore::PVArgumentList();
 }
 
 /******************************************************************************
@@ -107,7 +107,7 @@ void Picviz::PVLayerFilter::set_view(PVView_p view)
  * Picviz::PVLayerFilter::get_default_args_for_view
  *
  *****************************************************************************/
-PVFilter::PVArgumentList Picviz::PVLayerFilter::get_default_args_for_view(PVView const& /*view*/)
+PVCore::PVArgumentList Picviz::PVLayerFilter::get_default_args_for_view(PVView const& /*view*/)
 {
 	return get_args();
 }

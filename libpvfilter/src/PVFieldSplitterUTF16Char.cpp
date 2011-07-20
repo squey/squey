@@ -12,7 +12,7 @@
  * PVFilter::PVCore::PVFieldSplitterUTF16Char::PVCore::PVFieldSplitterUTF16Char
  *
  *****************************************************************************/
-PVFilter::PVFieldSplitterUTF16Char::PVFieldSplitterUTF16Char(PVArgumentList const& args) :
+PVFilter::PVFieldSplitterUTF16Char::PVFieldSplitterUTF16Char(PVCore::PVArgumentList const& args) :
 	PVFieldsFilter<PVFilter::one_to_many>()
 {
 	INIT_FILTER(PVFilter::PVFieldSplitterUTF16Char, args);
@@ -25,7 +25,7 @@ PVFilter::PVFieldSplitterUTF16Char::PVFieldSplitterUTF16Char(PVArgumentList cons
  *****************************************************************************/
 DEFAULT_ARGS_FILTER(PVFilter::PVFieldSplitterUTF16Char)
 {
-	PVArgumentList args;
+	PVCore::PVArgumentList args;
 	args["c"] = QVariant(QChar(' '));
 	return args;
 }
@@ -35,7 +35,7 @@ DEFAULT_ARGS_FILTER(PVFilter::PVFieldSplitterUTF16Char)
  * PVFilter::PVFieldSplitterUTF16Char::set_args
  *
  *****************************************************************************/
-void PVFilter::PVFieldSplitterUTF16Char::set_args(PVArgumentList const& args)
+void PVFilter::PVFieldSplitterUTF16Char::set_args(PVCore::PVArgumentList const& args)
 {
 	FilterT::set_args(args);
 	_c = args["c"].toChar();

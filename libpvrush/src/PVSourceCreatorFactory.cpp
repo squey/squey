@@ -48,7 +48,7 @@ PVRush::hash_format_creator PVRush::PVSourceCreatorFactory::get_supported_format
 	return ret;
 }
 
-float PVRush::PVSourceCreatorFactory::discover_input(pair_format_creator format_, PVFilter::PVArgument const& input)
+float PVRush::PVSourceCreatorFactory::discover_input(pair_format_creator format_, PVCore::PVArgument const& input)
 {
 	PVFormat format = format_.first;
 	if (!format.populate()) {
@@ -83,6 +83,7 @@ float PVRush::PVSourceCreatorFactory::discover_input(pair_format_creator format_
 		PVCol format_nfields = format.axes.count();
 		if (chunk_nfields != format_nfields) {
 		   PVLOG_INFO("For format %s, the number of fields after the normalization is %d, different of the number of axes of the format (%d).\n",	qPrintable(format.get_format_name()), chunk_nfields, format_nfields);
+		   chunk->free();
 		   return 0;
 		}
 
@@ -92,6 +93,7 @@ float PVRush::PVSourceCreatorFactory::discover_input(pair_format_creator format_
 		chunk->get_elts_stat(chunk_nelts, chunk_nelts_valid);
 		nelts += chunk_nelts;
 		nelts_valid += chunk_nelts_valid;
+		chunk->free();
 	}
 
 	if (nelts == 0) {

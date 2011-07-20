@@ -12,7 +12,7 @@
  * PVFilter::PVFieldFilterRegexpGrepg::PVFieldFilterGrep
  *
  *****************************************************************************/
-PVFilter::PVFieldFilterRegexpGrep::PVFieldFilterRegexpGrep(PVArgumentList const& args) :
+PVFilter::PVFieldFilterRegexpGrep::PVFieldFilterRegexpGrep(PVCore::PVArgumentList const& args) :
 	PVFilter::PVFieldsFilter<PVFilter::one_to_one>()
 {
 	INIT_FILTER(PVFilter::PVFieldFilterRegexpGrep, args);
@@ -25,7 +25,7 @@ PVFilter::PVFieldFilterRegexpGrep::PVFieldFilterRegexpGrep(PVArgumentList const&
  *****************************************************************************/
 DEFAULT_ARGS_FILTER(PVFilter::PVFieldFilterRegexpGrep)
 {
-	PVArgumentList args;
+	PVCore::PVArgumentList args;
 	args["regexp"] = QRegExp("");
 	args["reverse"] = false;
 	return args;
@@ -36,7 +36,7 @@ DEFAULT_ARGS_FILTER(PVFilter::PVFieldFilterRegexpGrep)
  * PVFilter::PVFieldFilterRegexpGrep::set_args
  *
  *****************************************************************************/
-void PVFilter::PVFieldFilterRegexpGrep::set_args(PVArgumentList const& args)
+void PVFilter::PVFieldFilterRegexpGrep::set_args(PVCore::PVArgumentList const& args)
 {
 	FilterT::set_args(args);
 	_rx = _args["regexp"].toRegExp();

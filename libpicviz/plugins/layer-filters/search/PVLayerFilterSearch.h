@@ -20,7 +20,7 @@ namespace Picviz {
  */
 class PVLayerFilterSearch : public PVLayerFilter {
 public:
-	PVLayerFilterSearch(PVFilter::PVArgumentList const& l = PVLayerFilterSearch::default_args());
+	PVLayerFilterSearch(PVCore::PVArgumentList const& l = PVLayerFilterSearch::default_args());
 public:
 	virtual void operator()(PVLayer& in, PVLayer &out);
 

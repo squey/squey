@@ -11,7 +11,7 @@
 LibCPPExport void register_filter()
 {
 	// Register under the name "type_format"
-	PVFilter::PVArgumentList args;
+	PVCore::PVArgumentList args;
 
 	args["factor"] = QVariant((float)65535);
 	REGISTER_FILTER_WITH_ARGS("integer_default", Picviz::PVPlottingFilterAllDivide, args);

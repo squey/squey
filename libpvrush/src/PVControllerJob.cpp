@@ -40,10 +40,14 @@ void PVRush::PVControllerJob::set_params(PVCore::chunk_index begin, PVCore::chun
 	_out_filter = &out_filter;
 	_n_elts = n_elts;
 
-	if (sc == sc_n_elts)
+	if (sc == sc_n_elts) {
+		_max_n_elts = n_elts;
 		_idx_end = PV_MAX_INDEX;
-	else
+	}
+	else {
+		_max_n_elts = end - begin;
 		_n_elts = PV_MAX_NELTS;
+	}
 }
 
 tbb::filter_t<void,void> PVRush::PVControllerJob::create_tbb_filter()
@@ -151,4 +155,9 @@ tbb::tick_count::interval_t PVRush::PVControllerJob::duration() const
 PVCore::chunk_index PVRush::PVControllerJob::status() const
 {
 	return _f_nelts.n_elts_done();
+}
+
+PVCore::chunk_index PVRush::PVControllerJob::nb_elts_max() const
+{
+	return _max_n_elts;
 }

@@ -12,7 +12,7 @@
  * Picviz::PVSelectionFilterScatterPlotSelectionSquare::PVSelectionFilterScatterPlotSelectionSquare
  *
  *****************************************************************************/
-Picviz::PVSelectionFilterScatterPlotSelectionSquare::PVSelectionFilterScatterPlotSelectionSquare(PVFilter::PVArgumentList const& l)
+Picviz::PVSelectionFilterScatterPlotSelectionSquare::PVSelectionFilterScatterPlotSelectionSquare(PVCore::PVArgumentList const& l)
 	: PVSelectionFilter(l)
 {
 	INIT_FILTER(PVSelectionFilterScatterPlotSelectionSquare, l);
@@ -25,7 +25,7 @@ Picviz::PVSelectionFilterScatterPlotSelectionSquare::PVSelectionFilterScatterPlo
  *****************************************************************************/
 DEFAULT_ARGS_FILTER(Picviz::PVSelectionFilterScatterPlotSelectionSquare)
 {
-	PVFilter::PVArgumentList args;
+	PVCore::PVArgumentList args;
 	args["x1_axis_index"] = 0;
 	args["x2_axis_index"] = 1;
 	args["x1_min"] = 0.0f;

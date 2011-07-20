@@ -31,7 +31,7 @@ int main(int argc, char** argv)
 
 	// Input file
 	QString path_file(argv[1]);
-	PVFilter::PVArgument file(path_file);
+	PVCore::PVArgument file(path_file);
 
 	// Load the given format file
 	QString path_format(argv[2]);

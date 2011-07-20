@@ -12,14 +12,14 @@
 #include <QAbstractTableModel>
 #include <QVariant>
 
-#include <pvfilter/PVArgument.h>
+#include <pvcore/PVArgument.h>
 #include <picviz/general.h>
 
 namespace PVInspector {
 
 class PVArgumentListModel : public QAbstractTableModel {
 public:
-	PVArgumentListModel(PVFilter::PVArgumentList& args, QObject* parent = 0);
+	PVArgumentListModel(PVCore::PVArgumentList& args, QObject* parent = 0);
 public:
 	int rowCount(const QModelIndex &parent) const;
 	int columnCount(const QModelIndex &parent) const;
@@ -29,7 +29,7 @@ public:
 	QVariant headerData(int section, Qt::Orientation orientation, int role) const; 
 protected:
 	QString                    _header_name[2];
-	PVFilter::PVArgumentList&  _args;
+	PVCore::PVArgumentList&  _args;
 };
 
 

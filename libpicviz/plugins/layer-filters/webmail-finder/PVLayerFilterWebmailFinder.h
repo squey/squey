@@ -19,7 +19,7 @@ namespace Picviz {
  */
 class PVLayerFilterWebmailFinder : public PVLayerFilter {
 public:
-	PVLayerFilterWebmailFinder(PVFilter::PVArgumentList const& l = PVLayerFilterWebmailFinder::default_args());
+	PVLayerFilterWebmailFinder(PVCore::PVArgumentList const& l = PVLayerFilterWebmailFinder::default_args());
 public:
 	virtual void operator()(PVLayer& in, PVLayer &out);
 

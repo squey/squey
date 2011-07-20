@@ -1,13 +1,13 @@
 #include "PVFieldSplitterCSV.h"
 
 
-PVFilter::PVFieldSplitterCSV::PVFieldSplitterCSV(PVArgumentList const& args)
+PVFilter::PVFieldSplitterCSV::PVFieldSplitterCSV(PVCore::PVArgumentList const& args)
 {
 	INIT_FILTER(PVFilter::PVFieldSplitterCSV, args);
 
 }
 
-void PVFilter::PVFieldSplitterCSV::set_args(PVArgumentList const& args)
+void PVFilter::PVFieldSplitterCSV::set_args(PVCore::PVArgumentList const& args)
 {
 	FilterT::set_args(args);
 	_sep = args["sep"].toChar().toAscii();
@@ -15,7 +15,7 @@ void PVFilter::PVFieldSplitterCSV::set_args(PVArgumentList const& args)
 
 DEFAULT_ARGS_FILTER(PVFilter::PVFieldSplitterCSV)
 {
-	PVArgumentList args;
+	PVCore::PVArgumentList args;
 	args["sep"] = QVariant(',');
 	return args;
 }
