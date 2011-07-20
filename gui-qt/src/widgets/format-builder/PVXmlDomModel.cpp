@@ -4,7 +4,7 @@
 //! Copyright (C) Philippe Saadé 2011-2011
 //! Copyright (C) Picviz Labs 2011
 #include <PVXmlDomModel.h>
-#include <PVXmlTreeNodeDom.h>
+#include <pvcore/PVXmlTreeNodeDom.h>
 
 #define dbg()  {qDebug()<<__FILE__<<__LINE__;}
 
@@ -26,7 +26,7 @@ PVInspector::PVXmlDomModel::PVXmlDomModel(QWidget * parent): QAbstractItemModel(
     xmlRootDom.setAttribute("version",FORMAT_VERSION);
 
     //creating the root node.
-    PVXmlTreeNodeDom *m_rootNode = new PVXmlTreeNodeDom(PVXmlTreeNodeDom::field, "root", xmlRootDom,this->xmlFile);
+    PVCore::PVXmlTreeNodeDom *m_rootNode = new PVCore::PVXmlTreeNodeDom(PVCore::PVXmlTreeNodeDom::field, "root", xmlRootDom,this->xmlFile);
     setRoot(m_rootNode);
     setObjectName("PVXmlDomModel");
 }
@@ -74,7 +74,7 @@ PVInspector::PVXmlDomModel::PVXmlDomModel(QString url): QAbstractItemModel(){
 
 
     //création du node root à partir duquel se construit l'arbre.
-    PVXmlTreeNodeDom *m_rootNode = new PVXmlTreeNodeDom(PVXmlTreeNodeDom::Root, "tree", xmlRootDom,this->xmlFile);
+    PVCore::PVXmlTreeNodeDom *m_rootNode = new PVCore::PVXmlTreeNodeDom(PVCore::PVXmlTreeNodeDom::Root, "tree", xmlRootDom,this->xmlFile);
     setRoot(m_rootNode);
 }
 
@@ -100,8 +100,8 @@ QModelIndex PVInspector::PVXmlDomModel::index(int r, int c, const QModelIndex& p
 
     if(!rootNode||r<0||c<0)return QModelIndex();
 
-    PVXmlTreeNodeDom *parentNode = nodeFromIndex(parent);
-    PVXmlTreeNodeDom *childNode = parentNode->getChildren().value(r);
+    PVCore::PVXmlTreeNodeDom *parentNode = nodeFromIndex(parent);
+    PVCore::PVXmlTreeNodeDom *childNode = parentNode->getChildren().value(r);
 
     if(!childNode)return QModelIndex();
 
@@ -123,13 +123,13 @@ QModelIndex PVInspector::PVXmlDomModel::index(int r, int c, const QModelIndex& p
 */
 QModelIndex PVInspector::PVXmlDomModel::parent(const QModelIndex& child)const {
 
-    PVXmlTreeNodeDom *node=nodeFromIndex(child);
+    PVCore::PVXmlTreeNodeDom *node=nodeFromIndex(child);
     if(!node)return QModelIndex();
 
-    PVXmlTreeNodeDom *parentNode = node->getParent();
+    PVCore::PVXmlTreeNodeDom *parentNode = node->getParent();
     if(!parentNode)return QModelIndex();
 
-    PVXmlTreeNodeDom *grandParentNode = parentNode->getParent();
+    PVCore::PVXmlTreeNodeDom *grandParentNode = parentNode->getParent();
     if(!grandParentNode)return QModelIndex();
 
     int row = grandParentNode->getChildren().indexOf(parentNode);
@@ -149,7 +149,7 @@ int PVInspector::PVXmlDomModel::rowCount(const QModelIndex& parent)const {
 
     if( parent.column()>0)return 0;
 
-    PVXmlTreeNodeDom *parentNode=nodeFromIndex(parent);
+    PVCore::PVXmlTreeNodeDom *parentNode=nodeFromIndex(parent);
     if(!parentNode)return 0;
 
     return parentNode->countChildren();
@@ -194,7 +194,7 @@ QVariant PVInspector::PVXmlDomModel::data(const QModelIndex &index, int role)con
     if (index.isValid()) {
         if (role == Qt::DisplayRole || role == Qt::EditRole) {
 
-            PVXmlTreeNodeDom *node = nodeFromIndex(index);
+            PVCore::PVXmlTreeNodeDom *node = nodeFromIndex(index);
             if (index.column() == 0) {
                 if(node->typeToString()=="RegEx")return "Splitter (RegEx)";
                 if(node->typeToString()=="url")return "Splitter (URL)";
@@ -222,7 +222,7 @@ QVariant PVInspector::PVXmlDomModel::data(const QModelIndex &index, int role)con
 /**
 * Setup the root.
 */
-void PVInspector::PVXmlDomModel::setRoot(PVXmlTreeNodeDom *node){
+void PVInspector::PVXmlDomModel::setRoot(PVCore::PVXmlTreeNodeDom *node){
     this->rootNode = node;
     reset();
 }
@@ -237,10 +237,10 @@ void PVInspector::PVXmlDomModel::setRoot(PVXmlTreeNodeDom *node){
 * Return the node from the index.
 * @param index
 */
-PVInspector::PVXmlTreeNodeDom* PVInspector::PVXmlDomModel::nodeFromIndex(const QModelIndex &index)const
+PVCore::PVXmlTreeNodeDom* PVInspector::PVXmlDomModel::nodeFromIndex(const QModelIndex &index)const
 {
     if(index.isValid()){
-        return static_cast<PVXmlTreeNodeDom *>(index.internalPointer());
+        return static_cast<PVCore::PVXmlTreeNodeDom *>(index.internalPointer());
     }else{
         return rootNode;
     }
@@ -373,7 +373,7 @@ void PVInspector::PVXmlDomModel::saveDefault(){
  *****************************************************************************/
 void PVInspector::PVXmlDomModel::deleteSelection(QModelIndex &index) {
     if (index.isValid()) {
-        PVXmlTreeNodeDom *nodeASupprimer = nodeFromIndex(index);
+        PVCore::PVXmlTreeNodeDom *nodeASupprimer = nodeFromIndex(index);
         if (nodeASupprimer != rootNode) {
             nodeASupprimer->deleteFromTree();
             emit layoutChanged();
@@ -391,7 +391,7 @@ void PVInspector::PVXmlDomModel::deleteSelection(QModelIndex &index) {
  *****************************************************************************/
 void PVInspector::PVXmlDomModel::addAxisIn(const QModelIndex &index) {
     if (index.isValid()) {//if index valid, add axis in field... 
-        PVXmlTreeNodeDom *field = nodeFromIndex(index);
+        PVCore::PVXmlTreeNodeDom *field = nodeFromIndex(index);
 
         //make sure that there not already axis or regexp.
         if (!trustConfictSplitAxes(index))return;
@@ -400,7 +400,7 @@ void PVInspector::PVXmlDomModel::addAxisIn(const QModelIndex &index) {
         if (field->typeToString() == "field") {
             QDomElement newAxis = xmlFile.createElement("axis");
             field->getDom().appendChild(newAxis);
-            PVXmlTreeNodeDom* child = new PVXmlTreeNodeDom(newAxis);
+            PVCore::PVXmlTreeNodeDom* child = new PVCore::PVXmlTreeNodeDom(newAxis);
 	    child->isOnRoot=false;
             child->setParent(field);
             field->addChild(child);
@@ -412,7 +412,7 @@ void PVInspector::PVXmlDomModel::addAxisIn(const QModelIndex &index) {
 
         QDomElement newAxis = xmlFile.createElement("axis");
         rootNode->getDom().appendChild(newAxis);
-        PVXmlTreeNodeDom* child = new PVXmlTreeNodeDom(newAxis);
+        PVCore::PVXmlTreeNodeDom* child = new PVCore::PVXmlTreeNodeDom(newAxis);
 	child->isOnRoot=true;
         child->setParent(rootNode);
         rootNode->addChild(child);
@@ -432,7 +432,7 @@ void PVInspector::PVXmlDomModel::addAxisIn(const QModelIndex &index) {
  *
  *****************************************************************************/ 
 void PVInspector::PVXmlDomModel::addFilterAfter(QModelIndex &index) {
-    PVXmlTreeNodeDom *childPrecedent = nodeFromIndex(index); //node sélectionné
+    PVCore::PVXmlTreeNodeDom *childPrecedent = nodeFromIndex(index); //node sélectionné
     if(childPrecedent->typeToString()!="field"){
         message("You must select a field first.")
     }else if(childPrecedent->typeToString()=="field"){
@@ -442,7 +442,7 @@ void PVInspector::PVXmlDomModel::addFilterAfter(QModelIndex &index) {
         childPrecedent->getDom().appendChild(newDom);
         
         //tree
-        PVXmlTreeNodeDom* child = new PVXmlTreeNodeDom(newDom);
+        PVCore::PVXmlTreeNodeDom* child = new PVCore::PVXmlTreeNodeDom(newDom);
         child->setParent(childPrecedent);
         childPrecedent->addChild(child);
     }
@@ -460,7 +460,7 @@ void PVInspector::PVXmlDomModel::addFilterAfter(QModelIndex &index) {
  *
  *****************************************************************************/
 void PVInspector::PVXmlDomModel::addRegExAfter(QModelIndex &index) {
-    PVXmlTreeNodeDom *childPrecedent = nodeFromIndex(index); //node sélectionné      
+    PVCore::PVXmlTreeNodeDom *childPrecedent = nodeFromIndex(index); //node sélectionné      
     if(childPrecedent->typeToString()!="field"){
         //childPrecedent->newSplitterAfter(index.row()); //ajout du filtre
     }
@@ -476,7 +476,7 @@ void PVInspector::PVXmlDomModel::addRegExAfter(QModelIndex &index) {
 void PVInspector::PVXmlDomModel::addRegExIn(const QModelIndex &index) {
     //if it's a "field"
     if (index.isValid()) {
-        PVXmlTreeNodeDom *field = nodeFromIndex(index);
+        PVCore::PVXmlTreeNodeDom *field = nodeFromIndex(index);
         if (field->typeToString() == "field") {
             if (!trustConfictSplitAxes(index))return;
             //dom
@@ -484,7 +484,7 @@ void PVInspector::PVXmlDomModel::addRegExIn(const QModelIndex &index) {
             field->getDom().appendChild(newDom);
 
             //tree
-            PVXmlTreeNodeDom* child = new PVXmlTreeNodeDom(newDom);
+            PVCore::PVXmlTreeNodeDom* child = new PVCore::PVXmlTreeNodeDom(newDom);
             child->setParent(field);
             field->addChild(child);
         } else {
@@ -499,7 +499,7 @@ void PVInspector::PVXmlDomModel::addRegExIn(const QModelIndex &index) {
         rootNode->getDom().appendChild(newDom);
 //
 //        //tree
-        PVXmlTreeNodeDom* child = new PVXmlTreeNodeDom(newDom);
+        PVCore::PVXmlTreeNodeDom* child = new PVCore::PVXmlTreeNodeDom(newDom);
         child->setParent(rootNode);
         rootNode->addChild(child);
     }
@@ -539,9 +539,9 @@ void PVInspector::PVXmlDomModel::addFirstFilter() {
 void PVInspector::PVXmlDomModel::moveDown(const QModelIndex &index) {
     //qDebug() << "model MoveDown";
 
-    PVXmlTreeNodeDom *child = nodeFromIndex(index);
-    PVXmlTreeNodeDom *parent = child->getParent();
-    PVXmlTreeNodeDom *fllower;
+    PVCore::PVXmlTreeNodeDom *child = nodeFromIndex(index);
+    PVCore::PVXmlTreeNodeDom *parent = child->getParent();
+    PVCore::PVXmlTreeNodeDom *fllower;
     if (child->getRow() + 1 < parent->getChildren().count()) {
         fllower = parent->getChild(index.row() + 1);
         //dom effect
@@ -563,9 +563,9 @@ void PVInspector::PVXmlDomModel::moveDown(const QModelIndex &index) {
 void PVInspector::PVXmlDomModel::moveUp(const QModelIndex &index) {
     //qDebug() << "model MoveUp";
     
-    PVXmlTreeNodeDom *follower = nodeFromIndex(index);
-    PVXmlTreeNodeDom *parent = follower->getParent();
-    PVXmlTreeNodeDom *child;
+    PVCore::PVXmlTreeNodeDom *follower = nodeFromIndex(index);
+    PVCore::PVXmlTreeNodeDom *parent = follower->getParent();
+    PVCore::PVXmlTreeNodeDom *child;
     if (follower->getRow() >0) {
         child = parent->getChild(index.row() -1);
         //node in dom 
@@ -646,7 +646,7 @@ bool PVInspector::PVXmlDomModel::openXml(QString url) {
         PVLOG_INFO("format opened version : %s\n",getVersion().toStdString().c_str());
 
 
-	PVXmlTreeNodeDom *m_rootNode = new PVXmlTreeNodeDom(PVXmlTreeNodeDom::field, "root", xmlRootDom,this->xmlFile);
+	PVCore::PVXmlTreeNodeDom *m_rootNode = new PVCore::PVXmlTreeNodeDom(PVCore::PVXmlTreeNodeDom::field, "root", xmlRootDom,this->xmlFile);
 	setRoot(m_rootNode);
 
 	emit layoutChanged();//to resfresh screen
@@ -663,8 +663,8 @@ bool PVInspector::PVXmlDomModel::openXml(QString url) {
  *****************************************************************************/
 void PVInspector::PVXmlDomModel::addUrlIn(const QModelIndex &index){
 
-	PVXmlTreeNodeDom* child;
-	PVXmlTreeNodeDom *field;
+	PVCore::PVXmlTreeNodeDom* child;
+	PVCore::PVXmlTreeNodeDom *field;
 	if(index.isValid()){//if a item is selected...
 		field = nodeFromIndex(index);
 		if(field->typeToString() != "field"){// and if it's not a field
@@ -766,7 +766,7 @@ void PVInspector::PVXmlDomModel::addUrlIn(const QModelIndex &index){
 
 
 	//tree
-	child = new PVXmlTreeNodeDom(newDom);
+	child = new PVCore::PVXmlTreeNodeDom(newDom);
 	child->setParent(field);
 	field->addChild(child);
 

@@ -18,7 +18,7 @@
 #include <QDebug>
 #include <QString>
 
-#include <PVXmlTreeNodeDom.h>
+#include <pvcore/PVXmlTreeNodeDom.h>
 #include <PVXmlParamWidget.h>
 #include <pvcore/PVXmlParamParser.h>
 
@@ -83,7 +83,7 @@ public:
      * initialisation of the root.
      * @param 
      */
-    void setRoot(PVXmlTreeNodeDom *);
+    void setRoot(PVCore::PVXmlTreeNodeDom *);
     
     /**
      * get the Dom with index.
@@ -129,10 +129,10 @@ public:
     //find level count form index to parent
     int countParent(const QModelIndex &index);
     
-    PVXmlTreeNodeDom *nodeFromIndex(const QModelIndex &index)const;
+    PVCore::PVXmlTreeNodeDom *nodeFromIndex(const QModelIndex &index)const;
     
 private:
-    PVXmlTreeNodeDom *rootNode;
+    PVCore::PVXmlTreeNodeDom *rootNode;
     
     QString urlXml;
     QDomDocument xmlFile;

@@ -17,6 +17,7 @@ public:
 public:
 	virtual PVFilter::PVFieldsBaseFilter_p get_filter() = 0;
 	virtual QWidget* get_param_widget() = 0;
+    virtual QAction* get_action_menu() = 0;
 };
 
 typedef boost::shared_ptr<PVFieldsFilterParamWidgetBase> PVFieldsFilterParamWidgetBase_p;
@@ -36,9 +37,12 @@ public:
 
 	PVFieldsBaseFilter_p get_filter() { return _filter; }
 	QWidget* get_param_widget() { return NULL; }
+    QAction* get_action_menu() { return NULL; };
+    
 
 	fields_filter_type type() { return _filter->type(); }
 	QString type_name() { return _filter->type_name(); }
+    
 
 protected:
 	QString _name_filter;

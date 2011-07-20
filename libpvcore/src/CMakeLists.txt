@@ -18,6 +18,7 @@ PVLogger.cpp
 PVPCRESplitter.cpp
 PVSplitter.cpp
 PVXmlParamParser.cpp
+PVXmlTreeNodeDom.cpp
 )
 
 set(HEADER_FILES
@@ -52,6 +53,7 @@ include/pvcore/PVTBBMaxArray.h
 include/pvcore/PVTBBMinMaxArray.h
 include/pvcore/PVXmlParamParser.h
 include/pvcore/PVXmlParamParserData.h
+include/pvcore/PVXmlTreeNodeDom.h 
 )
 
 SET(MOC_HEADERS

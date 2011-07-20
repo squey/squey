@@ -101,6 +101,7 @@ public slots:
     void slotAddAxisIn();
     void slotAddFilterAfter();
     void slotAddRegExAfter();
+    void slotAddSplitter(int);
     void slotAddUrl();
     void slotApplyModification();
     void slotDelete();

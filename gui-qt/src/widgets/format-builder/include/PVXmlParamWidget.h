@@ -22,7 +22,7 @@
 #include <QString>
 
 
-#include <PVXmlTreeNodeDom.h>
+#include <pvcore/PVXmlTreeNodeDom.h>
 #include <PVXmlParamTextEdit.h>
 #include <picviz/plugins.h>
 #include <PVXmlParamColorDialog.h>
@@ -50,7 +50,7 @@ public:
      * draw the filter parameter box.
      * @param nodeFilter
      */
-    void drawForFilter(PVXmlTreeNodeDom  *nodeFilter);
+    void drawForFilter(PVCore::PVXmlTreeNodeDom  *nodeFilter);
     /**
      * clear the parameter box.
      * @param index
@@ -60,12 +60,12 @@ public:
      * Draw the regexp parameter box.
      * @param nodeSplitter
      */
-    void drawForRegEx(PVXmlTreeNodeDom  *nodeSplitter);
+    void drawForRegEx(PVCore::PVXmlTreeNodeDom  *nodeSplitter);
     /**
      * Dras the axis parameter box.
      * @param nodeOnClick
      */
-    void drawForAxis(PVXmlTreeNodeDom  *nodeOnClick);
+    void drawForAxis(PVCore::PVXmlTreeNodeDom  *nodeOnClick);
     
     /**
      * this is used to update parameter board
@@ -106,7 +106,7 @@ private:
     QPushButton *btnApply;
     QString pluginListURL;
     //bool confirmApply;
-    PVXmlTreeNodeDom  *nodeConfirmApply;
+    PVCore::PVXmlTreeNodeDom  *nodeConfirmApply;
     QModelIndex editingIndex;
     
     QStringList listType(const QStringList&)const;

@@ -13,7 +13,7 @@
  * PVInspector::PVXmlParamWidgetBoardAxis::PVXmlParamWidgetBoardAxis
  *
  *****************************************************************************/
-PVInspector::PVXmlParamWidgetBoardAxis::PVXmlParamWidgetBoardAxis(PVInspector::PVXmlTreeNodeDom *pNode):QWidget() {
+PVInspector::PVXmlParamWidgetBoardAxis::PVXmlParamWidgetBoardAxis( PVCore::PVXmlTreeNodeDom *pNode):QWidget() {
     node = pNode;
     pluginListURL = picviz_plugins_get_functions_dir();
     setObjectName("PVXmlParamWidgetBoardAxis");
@@ -411,10 +411,10 @@ void PVInspector::PVXmlParamWidgetBoardAxis::refreshTableValuesParent(){
     if(node->getParent()->getParent()==0){//grand parent is null
 	return;
     }
-    PVXmlTreeNodeDom *parent = node->getParent();
-    PVXmlTreeNodeDom *grandParent = parent->getParent();
+    PVCore::PVXmlTreeNodeDom *parent = node->getParent();
+    PVCore::PVXmlTreeNodeDom *grandParent = parent->getParent();
     switch(grandParent->type){
-      case PVXmlTreeNodeDom::RegEx:{//case if grand parent is a regexp...
+      case PVCore::PVXmlTreeNodeDom::RegEx:{//case if grand parent is a regexp...
 	      QString text;
 	      //number of the selection on regexp
 	      int idSel = parent->getRow();

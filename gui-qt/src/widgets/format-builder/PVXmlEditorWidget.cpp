@@ -7,7 +7,7 @@
 
 #include <PVXmlEditorWidget.h>
 #include <PVXmlTreeItemDelegate.h>
-#include <PVXmlTreeNodeDom.h>
+#include <pvcore/PVXmlTreeNodeDom.h>
 #include <PVXmlParamWidget.h>
 
 
@@ -158,6 +158,12 @@ void PVInspector::PVXmlEditorWidget::initConnexions() {
     connect(actionAddUrl, SIGNAL(triggered()), this, SLOT(slotAddUrl()));
     connect(myParamBord,SIGNAL(signalNeedApply()),this,SLOT(slotNeedApply()));
     connect(myParamBord,SIGNAL(signalSelectNext()),myTreeView,SLOT(slotSelectNext()));
+    
+    
+    //splitters plugins action connexion 
+    for(int i=0;i<_list_splitters.size();i++){
+            connect(_list_splitters.at(i).get()->get_action_menu(), SIGNAL(triggered()),this,SLOT(slotAddSplitter()));
+    }
 }
 
 /******************************************************************************
@@ -201,7 +207,7 @@ void PVInspector::PVXmlEditorWidget::initSplitters() {
         
         for (it = splitters.begin(); it != splitters.end(); it++) {
                 PVLOG_INFO("name: %s\n", qPrintable(it.key()));
-                _list_splitters.push_back(it.value()->clone());
+                _list_splitters.push_back(it.value()->clone<PVFilter::PVFieldsSplitterParamWidget>());
         }
 }
 
@@ -231,6 +237,15 @@ void PVInspector::PVXmlEditorWidget::slotAddFilterAfter() {
  *****************************************************************************/
 void PVInspector::PVXmlEditorWidget::slotAddRegExAfter() {
     myTreeView->addRegExIn();
+}
+
+/******************************************************************************
+ *
+ * PVInspector::PVXmlEditorWidget::slotAddSplitter
+ *
+ *****************************************************************************/
+void PVInspector::PVXmlEditorWidget::slotAddSplitter(int id){
+        PVLOG_ERROR("PVInspector::PVXmlEditorWidget::slotAddSplitter(%d) empty\n",id);
 }
 
 
@@ -354,7 +369,7 @@ void PVInspector::PVXmlEditorWidget::slotSave() {
  *
  *****************************************************************************/
 void PVInspector::PVXmlEditorWidget::slotUpdateToolDesabled(const QModelIndex &index){
-    PVXmlTreeNodeDom *node = myTreeModel->nodeFromIndex(index);
+    PVCore::PVXmlTreeNodeDom *node = myTreeModel->nodeFromIndex(index);
     
     if (node->getDom().tagName() == "field") {
         myTreeView->expandRecursive(index);
@@ -404,14 +419,25 @@ void PVInspector::PVXmlEditorWidget::slotUpdateToolDesabled(const QModelIndex &i
  * PVInspector::PVXmlEditorWidget::initMenuBar
  *
  *****************************************************************************/
-void PVInspector::PVXmlEditorWidget::initMenuBar(){
-    QMenu *file = menuBar->addMenu(tr("&File"));
-    file->addAction(actionOpen);
-    file->addAction(actionSave);
-    file->addSeparator();
-    file->addAction(actionOpenLog);
-    QMenu *splitter = menuBar->addMenu(tr("&Splitter"));
-    splitter->addAction(actionAddUrl);
-    splitter->addAction(actionAddRegExAfter);
+void PVInspector::PVXmlEditorWidget::initMenuBar() {
+        QMenu *file = menuBar->addMenu(tr("&File"));
+        file->addAction(actionOpen);
+        file->addAction(actionSave);
+        file->addSeparator();
+        file->addSeparator();
+
+
+        file->addAction(actionOpenLog);
+        QMenu *splitter = menuBar->addMenu(tr("&Splitter"));
+        splitter->addAction(actionAddUrl);
+        splitter->addAction(actionAddRegExAfter);    
+        splitter->addSeparator();
+        //add all plugins splitters
+        for (int i = 0; i < _list_splitters.size(); i++) {
+                QAction *action = _list_splitters.at(i)->get_action_menu();
+                if (action) {
+                        splitter->addAction(action);
+                }
+        }
 }
 

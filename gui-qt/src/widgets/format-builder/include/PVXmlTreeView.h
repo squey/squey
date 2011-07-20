@@ -15,7 +15,7 @@
 
 
 #include <iostream>
-#include <PVXmlTreeNodeDom.h>
+//#include <pvcore/PVXmlTreeNodeDom.h>
 #include <PVXmlParamWidget.h>
 #include <PVXmlDomModel.h>
 
