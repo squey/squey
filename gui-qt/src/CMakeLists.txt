@@ -61,6 +61,7 @@ include/PVListingView.h
 include/PVListingsTabWidget.h
 include/PVMainWindow.h
 include/PVMapWidget.h
+include/PVInputTypeMenuEntries.h
 include/PVOpenFileDialog.h
 include/PVProgressBox.h
 include/PVSaveFileDialog.h
@@ -130,6 +131,7 @@ PVMainWindow.cpp
 PVMainWindowMenusActions.cpp
 PVMainWindowSlots.cpp
 PVMapWidget.cpp
+PVInputTypeMenuEntries.cpp
 PVOpenFileDialog.cpp
 PVProgressBox.cpp
 PVSaveFileDialog.cpp
