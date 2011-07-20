@@ -25,6 +25,21 @@
 
 namespace PVRush {
 
+class LibRushDecl PVXmlParamParserException
+{
+public:
+	virtual QString what() = 0;
+};
+
+class LibRushDecl PVXmlParamParserExceptionPluginNotFound: public PVXmlParamParserException
+{
+	public:
+		PVXmlParamParserExceptionPluginNotFound(QString type, QString plugin_name);
+		QString what();
+	protected:
+		QString _what;
+};
+
 class LibRushDecl PVXmlParamParser {
 public:
 	typedef QList<PVXmlParamParserData> list_params;

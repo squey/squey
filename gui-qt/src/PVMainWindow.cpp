@@ -618,8 +618,8 @@ void PVInspector::PVMainWindow::import_type_Slot()
 							discovered_types[str_format].push(success_rate);
 						}
 					}
-					catch (PVRush::PVFormatException &e) {
-						PVLOG_ERROR("PVFormat error: %s\n", qPrintable(e.what()));
+					catch (PVRush::PVXmlParamParserException &e) {
+						PVLOG_ERROR("Format XML parser error: %s\n", qPrintable(e.what()));
 						continue;
 					}
 				}

@@ -11,6 +11,7 @@
 
 #include <pvcore/general.h>
 #include <pvcore/PVArgument.h>
+#include <pvfilter/PVFieldsFilter.h>
 
 namespace PVRush {
 
@@ -18,8 +19,7 @@ class LibCoreDecl PVXmlParamParserData {
 
 public:    
 	int axis_id;
-	QString filter_type; // "splitter/filter"
-	QString filter_plugin_name; // "regexp,etc.."
+	PVFilter::PVFieldsFilterReg_p filter_lib;
 	PVCore::PVArgumentList filter_args;
 };
 }

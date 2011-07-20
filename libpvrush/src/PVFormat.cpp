@@ -22,20 +22,6 @@
 #include <pvfilter/PVFieldSplitterUTF16Char.h>
 #include <pvfilter/PVFieldsMappingFilter.h>
 
-// Exceptions 
-
-PVRush::PVFormatExceptionPluginNotFound::PVFormatExceptionPluginNotFound(QString type, QString plugin_name)
-{
-	_what = "Plugin '" + plugin_name + "' of type '" + type + "' isn't available.";
-}
-
-QString PVRush::PVFormatExceptionPluginNotFound::what()
-{
-	return _what;
-}
-
-// PVFormat class
-
 PVRush::PVFormat::PVFormat()
 {
 	axes_count = 0;
@@ -153,12 +139,8 @@ PVFilter::PVFieldsBaseFilter_f PVRush::PVFormat::xmldata_to_filter(PVRush::PVXml
 	PVFilter::PVFieldsBaseFilter_f field_f;
 	PVCore::PVArgumentList args;
 
-	QString fname = fdata.filter_type + QString("_") + fdata.filter_plugin_name;
-	PVFilter::PVFieldsFilterReg_p filter_lib = PVFilter::PVFilterLibrary<PVFilter::PVFieldsFilterReg>::get().get_filter_by_name(fname);
-	if (!filter_lib) {
-		PVLOG_ERROR("Filter %s doesn't exist !\n", qPrintable(fname));
-		throw PVFormatExceptionPluginNotFound(fdata.filter_type, fdata.filter_plugin_name);
-	}
+	PVFilter::PVFieldsFilterReg_p filter_lib = fdata.filter_lib;
+	assert(filter_lib);
 
 	PVFilter::PVFieldsBaseFilter_p filter_clone = filter_lib->clone<PVFilter::PVFieldsBaseFilter>();
 	filter_clone->set_args(fdata.filter_args);
@@ -166,7 +148,6 @@ PVFilter::PVFieldsBaseFilter_f PVRush::PVFormat::xmldata_to_filter(PVRush::PVXml
 	field_f = filter_clone->f();
 
 	return field_f;
-
 }
 
 PVFilter::PVChunkFilter_f PVRush::PVFormat::create_tbb_filters()

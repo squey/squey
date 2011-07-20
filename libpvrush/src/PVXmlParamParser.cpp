@@ -5,7 +5,22 @@
  * Created on 12 mai 2011, 11:27
  */
 
-#include "pvrush/PVXmlParamParser.h"
+#include <pvcore/PVXmlTreeNodeDom.h>
+#include <pvrush/PVXmlParamParser.h>
+
+// Exceptions 
+
+PVRush::PVXmlParamParserExceptionPluginNotFound::PVXmlParamParserExceptionPluginNotFound(QString type, QString plugin_name)
+{
+	_what = QString("Plugin '") + plugin_name + QString("' of type '") + type + QString("' isn't available.");
+}
+
+QString PVRush::PVXmlParamParserExceptionPluginNotFound::what()
+{
+	return _what;
+}
+
+// PVXmlParamParser class
 
 PVRush::PVXmlParamParser::PVXmlParamParser(QString nameFile)
 {
@@ -39,6 +54,8 @@ QHash<int, QStringList> const& PVRush::PVXmlParamParser::getTimeFormat() const
 
 int PVRush::PVXmlParamParser::setDom(QDomElement node, int id)
 {
+	PVFilter::PVFilterLibrary<PVFilter::PVFieldsFilterReg> const& filters_lib = PVFilter::PVFilterLibrary<PVFilter::PVFieldsFilterReg>::get();
+
 	int newId = id;
 	if (id == -1) {
 		newId = 0;
@@ -60,8 +77,10 @@ int PVRush::PVXmlParamParser::setDom(QDomElement node, int id)
 				if(getNodeType(child)=="filter"){
 					PVRush::PVXmlParamParserData data;
 					data.axis_id = newId;
-					data.filter_type = "filter";
-					data.filter_plugin_name = "regexp";
+					data.filter_lib = filters_lib.get_filter_by_name("filter_regexp");
+					if (!data.filter_lib) {
+						throw PVXmlParamParserExceptionPluginNotFound("filter", "regexp");
+					}
 					data.filter_args["regexp"] = getNodeRegExp(child.toElement());
 					data.filter_args["reverse"] = getNodeTypeGrep(child.toElement()).compare("include") == 0;
 					fields.push_back(data);
@@ -70,8 +89,10 @@ int PVRush::PVXmlParamParser::setDom(QDomElement node, int id)
 				if (getNodeType(child) == "RegEx") {
 					PVRush::PVXmlParamParserData data;
 					data.axis_id = newId;
-					data.filter_type = "splitter";
-					data.filter_plugin_name = "regexp";
+					data.filter_lib = filters_lib.get_filter_by_name("splitter_regexp");
+					if (!data.filter_lib) {
+						throw PVXmlParamParserExceptionPluginNotFound("splitter", "regexp");
+					}
 					data.filter_args["regexp"] = getNodeRegExp(child.toElement());
 					fields.push_back(data);
 
@@ -79,7 +100,7 @@ int PVRush::PVXmlParamParser::setDom(QDomElement node, int id)
 				}
 				else
 				if (getNodeType(child) == "axis") {
-					QHash<QString,QString> hash;//=new QHash<QString,QString>();
+					QHash<QString,QString> hash;
 					hash.insert("name",child.attribute("name",""));
 					hash.insert("type",child.attribute("type",""));
 					hash.insert("mapping",child.attribute("mapping",""));
@@ -100,8 +121,10 @@ int PVRush::PVXmlParamParser::setDom(QDomElement node, int id)
 				if (getNodeType(child) == "url") {
 					PVRush::PVXmlParamParserData data;
 					data.axis_id = newId;
-					data.filter_type = "splitter";
-					data.filter_plugin_name = "url";
+					data.filter_lib = filters_lib.get_filter_by_name("splitter_url");
+					if (!data.filter_lib) {
+						throw PVXmlParamParserExceptionPluginNotFound("splitter", "url");
+					}
 					fields.push_back(data);
 					process_childs = true;
 				}
@@ -109,8 +132,10 @@ int PVRush::PVXmlParamParser::setDom(QDomElement node, int id)
 				if (getNodeType(child) == "pcap") {
 					PVRush::PVXmlParamParserData data;
 					data.axis_id = newId;
-					data.filter_type = "splitter";
-					data.filter_plugin_name = "pcap";
+					data.filter_lib = filters_lib.get_filter_by_name("splitter_pcap");
+					if (!data.filter_lib) {
+						throw PVXmlParamParserExceptionPluginNotFound("splitter", "pcap");
+					}
 					fields.push_back(data);
 					process_childs = true;
 				}
@@ -118,8 +143,10 @@ int PVRush::PVXmlParamParser::setDom(QDomElement node, int id)
 				if (getNodeType(child) == "csv") {
 					PVRush::PVXmlParamParserData data;
 					data.axis_id = newId;
-					data.filter_type = "splitter";
-					data.filter_plugin_name = "csv";
+					data.filter_lib = filters_lib.get_filter_by_name("splitter_csv");
+					if (!data.filter_lib) {
+						throw PVXmlParamParserExceptionPluginNotFound("splitter", "csv");
+					}
 					data.filter_args["sep"] = child.attribute("delimiter","").at(0);
 					fields.push_back(data);
 					process_childs = true;
@@ -135,27 +162,53 @@ int PVRush::PVXmlParamParser::setDom(QDomElement node, int id)
 		}
 		case 1:
 		{
-//			bool process_childs = false;
-//
-//			for(int i=0; i< countChild(node.toElement()); i++) {
-//				QDomElement child(node.childNodes().at(i).toElement());
-//				QString node_type = getNodeType(child);
-//
-//				if (node_type == "splitter") {
-//					PVArgumentList args;
-//					PVRush::PVXmlParamParserData data;
-//					data.axis_id = newId;
-//					data.filter_type = "splitter";
-//					data.filter_plugin_name = child.attribute("type","").at(0);
-//					toArgumentList(data.filter_args
-//					process_childs = true;
-//				}
-//				else
-//				if (node_type == "filter") {
-//				}
-//				else
-//				if (node_type == "axis") {
-//				}
+			bool process_childs = false;
+
+			for(int i=0; i< countChild(node.toElement()); i++) {
+				QDomElement child(node.childNodes().at(i).toElement());
+				QString node_type = getNodeType(child);
+
+				if (node_type == "axis") {
+					QHash<QString,QString> hash;
+					hash.insert("name",child.attribute("name",""));
+					hash.insert("type",child.attribute("type",""));
+					hash.insert("mapping",child.attribute("mapping",""));
+					hash.insert("plotting",child.attribute("plotting",""));
+					hash.insert("key",child.attribute("key",""));
+					hash.insert("group",child.attribute("group",""));
+					hash.insert("color",child.attribute("color",""));
+					hash.insert("titlecolor",child.attribute("titlecolor",""));
+					axes.push_back(hash);
+					if(child.attribute("type","")=="time"){
+						time_format[newId+1]  = child.attribute("time-format","").split("\n");
+					}
+
+					newId++;
+				}
+				else {
+					QString filter_plugin_name = child.attribute("type","");
+					PVCore::PVArgumentList args;
+					PVRush::PVXmlParamParserData data;
+					data.axis_id = newId;
+					data.filter_lib = filters_lib.get_filter_by_name(node_type + QString("_") + filter_plugin_name);
+					if (!data.filter_lib) {
+						throw PVXmlParamParserExceptionPluginNotFound(node_type, filter_plugin_name);
+					}
+					PVCore::PVXmlTreeNodeDom tnd(child);
+					tnd.toArgumentList(data.filter_lib->get_args(), data.filter_args);
+					fields.push_back(data);
+
+					process_childs = true;
+				}
+
+				if (process_childs) {
+					for (int iF = 0; iF < countChild(child.toElement()); iF++) {
+						newId = setDom(child.childNodes().at(iF).toElement(), newId);
+					}
+				}
+			}
+
+			break;
 		}
 		default:
 		{
