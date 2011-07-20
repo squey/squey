@@ -8,4 +8,5 @@
 LibCPPExport void register_filter()
 {
 	REGISTER_FILTER("pcap", PVFilter::PVFieldSplitterPcapPacket);
+	REGISTER_FILTER_AS("splitter_pcap", PVFilter::PVFieldSplitterPcapPacket, PVFilter::PVFieldsFilterReg);
 }

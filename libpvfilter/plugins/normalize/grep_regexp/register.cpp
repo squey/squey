@@ -8,5 +8,5 @@
 LibCPPExport void register_filter()
 {
 	REGISTER_FILTER("regexp", PVFilter::PVFieldFilterRegexpGrep);
-	//REGISTER_FILTER("filter_regexp", PVFilter::PVFieldFilterRegexpGrep);
+	REGISTER_FILTER_AS("filter_regexp", PVFilter::PVFieldFilterRegexpGrep, PVFilter::PVFieldsFilterReg);
 }
