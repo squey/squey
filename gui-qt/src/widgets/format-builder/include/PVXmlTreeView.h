@@ -47,6 +47,11 @@ public:
     void addFilterAfter();
     
     /**
+     * 
+     */
+    void addSplitter();
+    
+    /**
      * Add a new RegEx after the selected element.
      */
     void addRegExIn();

@@ -10,14 +10,17 @@
 
 namespace PVFilter {
 
-class LibFilterDecl PVFieldsFilterParamWidgetBase: public PVCore::PVRegistrableClass<PVFieldsFilterParamWidgetBase>
+class PVFieldsFilterParamWidgetBase: public PVCore::PVRegistrableClass<PVFieldsFilterParamWidgetBase>
 {
 public:
 	typedef boost::shared_ptr< PVFieldsFilterParamWidgetBase > p_type;
 public:
+    virtual ~PVFieldsFilterParamWidgetBase() {}
+public:
 	virtual PVFilter::PVFieldsBaseFilter_p get_filter() = 0;
 	virtual QWidget* get_param_widget() = 0;
     virtual QAction* get_action_menu() = 0;
+    virtual void set_id(int id) = 0;
 };
 
 typedef boost::shared_ptr<PVFieldsFilterParamWidgetBase> PVFieldsFilterParamWidgetBase_p;
@@ -37,7 +40,9 @@ public:
 
 	PVFieldsBaseFilter_p get_filter() { return _filter; }
 	QWidget* get_param_widget() { return NULL; }
-    QAction* get_action_menu() { return NULL; };
+    QAction* get_action_menu() { return NULL; }
+    
+    void set_id(int /*id*/) {}
     
 
 	fields_filter_type type() { return _filter->type(); }

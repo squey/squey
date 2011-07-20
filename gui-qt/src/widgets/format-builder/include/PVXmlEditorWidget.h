@@ -50,6 +50,7 @@ private:
     QMenuBar *menuBar;
     //
     QFile logFile;///!< file we open to edit the format
+    int lastSplitterPluginAdding;
     
     
     void actionAllocation();
@@ -101,7 +102,7 @@ public slots:
     void slotAddAxisIn();
     void slotAddFilterAfter();
     void slotAddRegExAfter();
-    void slotAddSplitter(int);
+    void slotAddSplitter();
     void slotAddUrl();
     void slotApplyModification();
     void slotDelete();

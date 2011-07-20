@@ -5,26 +5,34 @@
 #include <pvfilter/PVFieldsFilterParamWidget.h>
 #include <boost/shared_ptr.hpp>
 
+#include <QObject>
 #include <QAction>
 
 namespace PVFilter {
 
-class PVFieldSplitterCSVParamWidget: public PVFieldsSplitterParamWidget
-{
+class PVFieldSplitterCSVParamWidget: public QObject, public PVFieldsSplitterParamWidget {
+    Q_OBJECT;
 public:
-	PVFieldSplitterCSVParamWidget();
-    
+    PVFieldSplitterCSVParamWidget();
+    PVFieldSplitterCSVParamWidget(const PVFieldSplitterCSVParamWidget& src);
+
 private:
     QAction* action_menu;
     QWidget* param_widget;
-    
+    int id;
+
 public:
-	QWidget* get_param_widget();
+    QWidget* get_param_widget();
     QAction* get_action_menu();
 
-
-	CLASS_REGISTRABLE(PVFieldSplitterCSVParamWidget)
-            
+    void set_id(int id_param) {
+        id = id_param;
+    }
+private:
+    void init();
+    
+    CLASS_REGISTRABLE(PVFieldSplitterCSVParamWidget)
+    
 
 };
 

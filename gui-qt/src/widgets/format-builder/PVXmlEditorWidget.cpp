@@ -76,6 +76,7 @@ PVInspector::PVXmlEditorWidget::PVXmlEditorWidget(QWidget * parent):QWidget(pare
      * Initialisation de toutes les connexions.
      * ****************************************************************************
      */
+    lastSplitterPluginAdding = -1;
     initConnexions();
     
 }
@@ -162,6 +163,7 @@ void PVInspector::PVXmlEditorWidget::initConnexions() {
     
     //splitters plugins action connexion 
     for(int i=0;i<_list_splitters.size();i++){
+
             connect(_list_splitters.at(i).get()->get_action_menu(), SIGNAL(triggered()),this,SLOT(slotAddSplitter()));
     }
 }
@@ -204,11 +206,15 @@ void PVInspector::PVXmlEditorWidget::initSplitters() {
         // Its values are a boost::shared_ptr<PVFieldsSplitterParamWidget> or boost::shared_ptr<PVFieldsFilterParamWidget<one_to_one> > object.
         // For instance :
         LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::list_classes::const_iterator it;
-        
+        int cpt=0;
         for (it = splitters.begin(); it != splitters.end(); it++) {
                 PVLOG_INFO("name: %s\n", qPrintable(it.key()));
-                _list_splitters.push_back(it.value()->clone<PVFilter::PVFieldsSplitterParamWidget>());
+                PVFilter::PVFieldsSplitterParamWidget_p pluginsSplitter = it.value()/*->clone<PVFilter::PVFieldsSplitterParamWidget>()*/;
+                assert(pluginsSplitter);
+                pluginsSplitter->set_id(cpt);
+                _list_splitters.insert(cpt++,pluginsSplitter);
         }
+
 }
 
 
@@ -244,8 +250,8 @@ void PVInspector::PVXmlEditorWidget::slotAddRegExAfter() {
  * PVInspector::PVXmlEditorWidget::slotAddSplitter
  *
  *****************************************************************************/
-void PVInspector::PVXmlEditorWidget::slotAddSplitter(int id){
-        PVLOG_ERROR("PVInspector::PVXmlEditorWidget::slotAddSplitter(%d) empty\n",id);
+void PVInspector::PVXmlEditorWidget::slotAddSplitter(){
+        PVLOG_ERROR("PVInspector::PVXmlEditorWidget::slotAddSplitter() empty\n");
 }
 
 
@@ -435,6 +441,7 @@ void PVInspector::PVXmlEditorWidget::initMenuBar() {
         //add all plugins splitters
         for (int i = 0; i < _list_splitters.size(); i++) {
                 QAction *action = _list_splitters.at(i)->get_action_menu();
+                assert(action);
                 if (action) {
                         splitter->addAction(action);
                 }
