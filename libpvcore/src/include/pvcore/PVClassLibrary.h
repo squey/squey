@@ -42,6 +42,7 @@ public:
 	void register_class(QString const& name, T const& f)
 	{
 		PF pf = f.template clone<T>();
+		pf->__registered_class_name = name;
 		_classes.insert(name, pf);
 	}
 
