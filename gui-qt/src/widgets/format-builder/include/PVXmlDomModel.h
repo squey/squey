@@ -21,6 +21,8 @@
 #include <pvcore/PVXmlTreeNodeDom.h>
 #include <PVXmlParamWidget.h>
 #include <pvrush/PVXmlParamParser.h>
+#include <pvcore/PVXmlParamParser.h>
+#include <pvfilter/PVFieldsFilterParamWidget.h>
 
 #define FORMAT_VERSION 1.0
 
@@ -45,7 +47,6 @@ public:
      * Méthodes for the toolBar
      */
     void addFilterAfter(QModelIndex &index);
-    void addRegExAfter(QModelIndex &index);
     void applyModification(QModelIndex &index,PVXmlParamWidget *paramBord);
     
     /*
@@ -54,8 +55,10 @@ public:
     void addAxisIn(const QModelIndex &index);
     void addFisrtRegEx();
     void addFirstFilter();
+    void addSplitter(const QModelIndex &index, PVFilter::PVFieldsSplitterParamWidget_p splitterPlugin);
     void addRegExIn(const QModelIndex &index);
     void addUrlIn(const QModelIndex &index);
+    
 
     
     /*

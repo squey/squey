@@ -161,11 +161,7 @@ void PVInspector::PVXmlEditorWidget::initConnexions() {
     connect(myParamBord,SIGNAL(signalSelectNext()),myTreeView,SLOT(slotSelectNext()));
     
     
-    //splitters plugins action connexion 
-    for(int i=0;i<_list_splitters.size();i++){
 
-            connect(_list_splitters.at(i).get()->get_action_menu(), SIGNAL(triggered()),this,SLOT(slotAddSplitter()));
-    }
 }
 
 /******************************************************************************
@@ -212,9 +208,10 @@ void PVInspector::PVXmlEditorWidget::initSplitters() {
                 PVFilter::PVFieldsSplitterParamWidget_p pluginsSplitter = it.value()/*->clone<PVFilter::PVFieldsSplitterParamWidget>()*/;
                 assert(pluginsSplitter);
                 pluginsSplitter->set_id(cpt);
+                pluginsSplitter->get_action_menu()->setData(QVariant(it.key()));
                 _list_splitters.insert(cpt++,pluginsSplitter);
+                connect(pluginsSplitter->get_action_menu(), SIGNAL(triggered()), this, SLOT(slotAddSplitter()));
         }
-
 }
 
 
@@ -244,14 +241,19 @@ void PVInspector::PVXmlEditorWidget::slotAddFilterAfter() {
 void PVInspector::PVXmlEditorWidget::slotAddRegExAfter() {
     myTreeView->addRegExIn();
 }
-
 /******************************************************************************
  *
  * PVInspector::PVXmlEditorWidget::slotAddSplitter
  *
  *****************************************************************************/
-void PVInspector::PVXmlEditorWidget::slotAddSplitter(){
-        PVLOG_ERROR("PVInspector::PVXmlEditorWidget::slotAddSplitter() empty\n");
+void PVInspector::PVXmlEditorWidget::slotAddSplitter() {
+        PVLOG_DEBUG("PVInspector::PVXmlEditorWidget::slotAddSplitter() \n");
+        QAction* action_src = (QAction*) sender();
+        QString const& itype = action_src->data().toString();
+        PVLOG_DEBUG("sender():%s\n",action_src->iconText().toStdString().c_str());
+        PVFilter::PVFieldsSplitterParamWidget_p in_t = LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::get().get_class_by_name(itype);
+        PVFilter::PVFieldsSplitterParamWidget_p in_t_cpy = in_t.get()->clone<PVFilter::PVFieldsSplitterParamWidget>();
+        myTreeView->addSplitter(in_t_cpy);
 }
 
 
