@@ -20,7 +20,7 @@ public:
 };
 
 template <PVFilter::fields_filter_type Ttype>
-class LibFilterDecl PVFieldsFilterParamWidget: public PVFieldsFilterParamWidgetBase
+class PVFieldsFilterParamWidget: public PVFieldsFilterParamWidgetBase
 {
 public:
 	typedef boost::shared_ptr< PVFieldsFilterParamWidget<Ttype> > p_type;
