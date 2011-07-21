@@ -1,0 +1,46 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE PVParamXml>
+<param version="1">
+ <splitter type="regexp" selectionRegExp-2="(\d+\/\w+\/\d+:\d+:\d+:\d+)" selectionRegExp-3="(\w+)" selectionRegExp-4="(.*)" selectionRegExp-5="(\S+)" selectionRegExp-6="(\d+)" validator="" selectionRegExp-7="(.*)" regexp="(\d+.\d+.\d+.\d+) \- \S+ \[(\d+\/\w+\/\d+:\d+:\d+:\d+).*\] \&quot;(\w+) (.*) (\S+)\&quot; (\d+).*\&quot; \&quot;(.*)\&quot;" name="RegEx root" saveValidator="false" selectionRegExp-1="(\d+.\d+.\d+.\d+)">
+  <field>
+   <axis titlecolor="#ffffff" key="true" mapping="default" time-format="" group="none" type="ipv4" name="Source ip" plotting="default" color="#ffffff" time-sample=""/>
+  </field>
+  <field>
+   <axis titlecolor="#ffffff" key="false" mapping="24h" time-format="dd/MMM/yyyy:HH:mm:ss" group="" type="time" name="Time" plotting="default" color="#ffffff"/>
+  </field>
+  <field>
+   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="" type="enum" name="Request" plotting="default" color="#ffffff"/>
+  </field>
+  <field>
+   <splitter type="url">
+     <field>
+      <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" type="enum" name="Protocol" plotting="default" color="#ffffff"/>
+     </field>
+     <field>
+      <axis titlecolor="#ffffff" key="true" mapping="default" time-format="" type="enum" name="Domain" plotting="default" color="#ffffff"/>
+     </field>
+     <field>
+      <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" type="enum" name="TLD" plotting="default" color="#ffffff"/>
+     </field>
+     <field>
+      <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" type="integer" name="Port" plotting="default" color="#ffffff"/>
+     </field>
+     <field>
+      <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" type="string" name="URL" plotting="default" color="#ffffff"/>
+     </field>
+     <field>
+      <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" type="string" name="Variable" plotting="default" color="#ffffff"/>
+     </field>
+   </splitter>
+  </field>
+  <field>
+   <axis titlecolor="#ffffff" key="true" mapping="default" time-format="" group="none" type="enum" name="Protocol" plotting="default" color="#ffffff"/>
+  </field>
+  <field>
+   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="integer" name="Response code" plotting="minmax" color="#ffffff" time-sample=""/>
+  </field>
+  <field>
+   <axis titlecolor="#ffffff" key="false" mapping="4Bsort" time-format="" group="none" type="string" name="User Agent" plotting="minmax" color="#ffffff" time-sample=""/>
+  </field>
+ </splitter>
+</param>

@@ -12,8 +12,8 @@
 #include <QDateTime>
 
 #include <pvcore/debug.h>
-#include <pvcore/PVXmlParamParser.h>
 
+#include <pvrush/PVXmlParamParser.h>
 #include <pvrush/PVFormat.h>
 #include <pvrush/PVNormalizer.h>
 
@@ -21,20 +21,6 @@
 #include <pvfilter/PVElementFilterByFields.h>
 #include <pvfilter/PVFieldSplitterUTF16Char.h>
 #include <pvfilter/PVFieldsMappingFilter.h>
-
-// Exceptions 
-
-PVRush::PVFormatExceptionPluginNotFound::PVFormatExceptionPluginNotFound(QString type, QString plugin_name)
-{
-	_what = "Plugin '" + plugin_name + "' of type '" + type + "' isn't available.";
-}
-
-QString PVRush::PVFormatExceptionPluginNotFound::what()
-{
-	return _what;
-}
-
-// PVFormat class
 
 PVRush::PVFormat::PVFormat()
 {
@@ -139,7 +125,7 @@ void PVRush::PVFormat::debug()
 
 bool PVRush::PVFormat::populate_from_xml(QString filename)
 {
-	PVCore::PVXmlParamParser xml_parser(filename);
+	PVRush::PVXmlParamParser xml_parser(filename);
 	filters_params = xml_parser.getFields();
 	axes = xml_parser.getAxes();
 	time_format = xml_parser.getTimeFormat();
@@ -148,17 +134,13 @@ bool PVRush::PVFormat::populate_from_xml(QString filename)
 	//regex = filters_params[0].exp;
 }
 
-PVFilter::PVFieldsBaseFilter_f PVRush::PVFormat::xmldata_to_filter(PVCore::PVXmlParamParserData const& fdata)
+PVFilter::PVFieldsBaseFilter_f PVRush::PVFormat::xmldata_to_filter(PVRush::PVXmlParamParserData const& fdata)
 {
 	PVFilter::PVFieldsBaseFilter_f field_f;
 	PVCore::PVArgumentList args;
 
-	QString fname = fdata.filter_type + QString("_") + fdata.filter_plugin_name;
-	PVFilter::PVFieldsFilterReg_p filter_lib = PVFilter::PVFilterLibrary<PVFilter::PVFieldsFilterReg>::get().get_filter_by_name(fname);
-	if (!filter_lib) {
-		PVLOG_ERROR("Filter %s doesn't exist !\n", qPrintable(fname));
-		throw PVFormatExceptionPluginNotFound(fdata.filter_type, fdata.filter_plugin_name);
-	}
+	PVFilter::PVFieldsFilterReg_p filter_lib = fdata.filter_lib;
+	assert(filter_lib);
 
 	PVFilter::PVFieldsBaseFilter_p filter_clone = filter_lib->clone<PVFilter::PVFieldsBaseFilter>();
 	filter_clone->set_args(fdata.filter_args);
@@ -166,7 +148,6 @@ PVFilter::PVFieldsBaseFilter_f PVRush::PVFormat::xmldata_to_filter(PVCore::PVXml
 	field_f = filter_clone->f();
 
 	return field_f;
-
 }
 
 PVFilter::PVChunkFilter_f PVRush::PVFormat::create_tbb_filters()
@@ -185,10 +166,10 @@ PVFilter::PVChunkFilter_f PVRush::PVFormat::create_tbb_filters()
 
 	// Here we create the pipeline according to the format
 	PVFilter::PVFieldsBaseFilter_f final_filter_f = first_filter;
-	PVCore::PVXmlParamParser::list_params::const_iterator it_filters;
+	PVRush::PVXmlParamParser::list_params::const_iterator it_filters;
 	if (filters_params.count() > 1) {
 		for (it_filters = filters_params.begin()+1; it_filters != filters_params.end(); it_filters++) {
-			PVCore::PVXmlParamParserData const& fdata = *it_filters;
+			PVRush::PVXmlParamParserData const& fdata = *it_filters;
 			PVFilter::PVFieldsBaseFilter_f field_f = xmldata_to_filter(fdata);
 			if (field_f == NULL) {
 				PVLOG_ERROR("Unknown filter for field %d. Ignoring it !\n", fdata.axis_id);

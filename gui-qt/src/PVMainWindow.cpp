@@ -27,6 +27,7 @@
 #include <PVFilesTypesSelWidget.h>
 #include <PVStringListChooserWidget.h>
 #include <PVArgumentListWidget.h>
+#include <PVInputTypeMenuEntries.h>
 //#include <geo/GKMapView.h>
 
 #ifdef CUSTOMER_RELEASE
@@ -537,9 +538,7 @@ void PVInspector::PVMainWindow::create_filters_menu_and_actions()
 
 void PVInspector::PVMainWindow::import_type_Slot()
 {
-	QAction* action_src = (QAction*) sender();
-	QString const& itype = action_src->data().toString();
-	PVRush::PVInputType_p in_t = LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name(itype);
+	PVRush::PVInputType_p in_t = PVInputTypeMenuEntries::input_type_from_action((QAction*) sender());
 	PVRush::list_creators lcr = PVRush::PVSourceCreatorFactory::get_by_input_type(in_t);
 	PVRush::hash_format_creator format_creator = PVRush::PVSourceCreatorFactory::get_supported_formats(lcr);
 
@@ -618,8 +617,8 @@ void PVInspector::PVMainWindow::import_type_Slot()
 							discovered_types[str_format].push(success_rate);
 						}
 					}
-					catch (PVRush::PVFormatException &e) {
-						PVLOG_ERROR("PVFormat error: %s\n", qPrintable(e.what()));
+					catch (PVRush::PVXmlParamParserException &e) {
+						PVLOG_ERROR("Format XML parser error: %s\n", qPrintable(e.what()));
 						continue;
 					}
 				}

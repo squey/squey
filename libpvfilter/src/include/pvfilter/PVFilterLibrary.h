@@ -52,7 +52,7 @@ public:
 
 	// A shared pointer is returned, which means that parameters can be saved accross this
 	// saved pointer. If this is not wanted, a clone can be made thanks to the clone() method
-	PF get_filter_by_name(QString const& name)
+	PF get_filter_by_name(QString const& name) const
 	{
 		if (!_filters.contains(name))
 			return PF();

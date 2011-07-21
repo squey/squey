@@ -11,6 +11,7 @@ pvnormalizerfactory.cpp
 PVNraw.cpp
 PVNrawChild.cpp
 PVNrawOutput.cpp
+PVXmlParamParser.cpp
 pvsource.cpp
 pvstream.cpp
 PVChunkAlign.cpp
@@ -102,6 +103,8 @@ include/pvrush/PVControllerThread.h
 include/pvrush/PVPipelineTask.h
 include/pvrush/PVExtractor.h
 include/pvrush/PVTests.h
+include/pvrush/PVXmlParamParser.h
+include/pvrush/PVXmlParamParserData.h
 
 #uchardetect, from Mozilla's nsUniversalDetector
 include/pvrush/uchardetect/CharDistribution.h

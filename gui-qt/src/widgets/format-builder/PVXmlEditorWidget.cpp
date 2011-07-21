@@ -9,7 +9,7 @@
 #include <PVXmlTreeItemDelegate.h>
 #include <pvcore/PVXmlTreeNodeDom.h>
 #include <PVXmlParamWidget.h>
-
+#include <PVInputTypeMenuEntries.h>
 
 
 
@@ -124,8 +124,7 @@ void PVInspector::PVXmlEditorWidget::actionAllocation(){
     actionOpen = new QAction(tr("Open"),(QObject*)this);
     actionOpen->setShortcut(QKeySequence(Qt::CTRL+Qt::Key_O));
     actionOpen->setIcon(QIcon(":/document-open.png"));
-    actionOpenLog = new QAction(tr("Open a log"),(QObject*)this);
-    actionOpenLog->setIcon(QIcon(":/log-icon"));
+
 }
 
 
@@ -154,7 +153,6 @@ void PVInspector::PVXmlEditorWidget::initConnexions() {
     connect(actionMoveDown,SIGNAL(triggered()),this,SLOT(slotMoveDown()));
     connect(actionMoveUp,SIGNAL(triggered()),this,SLOT(slotMoveUp()));
     connect(actionOpen,SIGNAL(triggered()),this,SLOT(slotOpen()));
-    connect(actionOpenLog,SIGNAL(triggered()),this,SLOT(slotOpenLog()));
     connect(actionSave, SIGNAL(triggered()), this, SLOT(slotSave()));
     connect(actionAddUrl, SIGNAL(triggered()), this, SLOT(slotAddUrl()));
     connect(myParamBord,SIGNAL(signalNeedApply()),this,SLOT(slotNeedApply()));
@@ -435,10 +433,10 @@ void PVInspector::PVXmlEditorWidget::initMenuBar() {
         file->addAction(actionOpen);
         file->addAction(actionSave);
         file->addSeparator();
+		PVInputTypeMenuEntries::add_inputs_to_menu(file, this, SLOT(slotOpenLog()));
         file->addSeparator();
 
 
-        file->addAction(actionOpenLog);
         QMenu *splitter = menuBar->addMenu(tr("&Splitter"));
         splitter->addAction(actionAddUrl);
         splitter->addAction(actionAddRegExAfter);    
@@ -453,3 +451,8 @@ void PVInspector::PVXmlEditorWidget::initMenuBar() {
         }
 }
 
+void PVInspector::PVXmlEditorWidget::slotOpenLog()
+{
+	PVRush::PVInputType_p in_t = PVInputTypeMenuEntries::input_type_from_action((QAction*) sender());
+	// AG: TODO !
+}
