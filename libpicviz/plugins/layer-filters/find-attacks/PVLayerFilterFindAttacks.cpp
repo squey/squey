@@ -7,7 +7,7 @@
 #include "PVLayerFilterFindAttacks.h"
 
 #include <picviz/PVColor.h>
-#include <pvcore/PVAxisIndexType.h>
+#include <pvcore/PVAxisIndexCheckBoxType.h>
 
 #include <QDir>
 #include <QString>
@@ -105,10 +105,10 @@ DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterFindAttacks)
 {
 	PVCore::PVArgumentList args;
 
-	args["Domain Axis"].setValue(PVCore::PVAxisIndexType(0));
-	args["URL Axis"].setValue(PVCore::PVAxisIndexType(0));
-	args["Variable Axis"].setValue(PVCore::PVAxisIndexType(0));
-	args["User Agent Axis"].setValue(PVCore::PVAxisIndexType(0));
+	args["Domain Axis"].setValue(PVCore::PVAxisIndexCheckBoxType(0, true));
+	args["URL Axis"].setValue(PVCore::PVAxisIndexCheckBoxType(0, true));
+	args["Variable Axis"].setValue(PVCore::PVAxisIndexCheckBoxType(0, true));
+	args["User Agent Axis"].setValue(PVCore::PVAxisIndexCheckBoxType(0, true));
 
 	return args;
 }
@@ -120,30 +120,31 @@ DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterFindAttacks)
  *****************************************************************************/
 void Picviz::PVLayerFilterFindAttacks::operator()(PVLayer& /*in*/, PVLayer &out)
 {	
-	int ua_axis_id = _args["User Agent Axis"].value<PVCore::PVAxisIndexType>().get_original_index();
+	int ua_axis_id = _args["User Agent Axis"].value<PVCore::PVAxisIndexCheckBoxType>().get_original_index();
 	PVRow nb_lines = _view->get_qtnraw_parent().size();
 
 	PVRush::PVNraw::nraw_table const& nraw = _view->get_qtnraw_parent();
 
-	out.get_selection().select_none();
 
-		QStringList snort_ua = signatures["Snort User Agents"];
-		for (PVRow r = 0; r < nb_lines; r++) {
-			PVRush::PVNraw::nraw_table_line const& nraw_r = nraw.at(r);
+	// out.get_selection().select_none();
+
+	// 	QStringList snort_ua = signatures["Snort User Agents"];
+	// 	for (PVRow r = 0; r < nb_lines; r++) {
+	// 		PVRush::PVNraw::nraw_table_line const& nraw_r = nraw.at(r);
 			
-			// We search for user agents
-			for (int i=0; i < snort_ua.size(); i++) {
-				if (snort_ua[i].length() == nraw_r[ua_axis_id].length()) {
-					// PVLOG_INFO("find string '%s' in '%s'\n", qPrintable(snort_ua[i]), qPrintable(nraw_r[ua_axis_id]));
-					QStringMatcher matcher(snort_ua[i]);
-					int retval = matcher.indexIn(nraw_r[ua_axis_id]);
-					if (retval >= 0) {
-						out.get_selection().set_line(r, 1);
-						break;
-					}
-				}
-			}
-		}
+	// 		// We search for user agents
+	// 		for (int i=0; i < snort_ua.size(); i++) {
+	// 			if (snort_ua[i].length() == nraw_r[ua_axis_id].length()) {
+	// 				// PVLOG_INFO("find string '%s' in '%s'\n", qPrintable(snort_ua[i]), qPrintable(nraw_r[ua_axis_id]));
+	// 				QStringMatcher matcher(snort_ua[i]);
+	// 				int retval = matcher.indexIn(nraw_r[ua_axis_id]);
+	// 				if (retval >= 0) {
+	// 					out.get_selection().set_line(r, 1);
+	// 					break;
+	// 				}
+	// 			}
+	// 		}
+	// 	}
 
 }
 
