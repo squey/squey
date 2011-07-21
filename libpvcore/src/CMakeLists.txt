@@ -9,6 +9,7 @@ sysinfo.cpp
 
 PVArgument.cpp
 PVAxisIndexType.cpp
+PVAxisIndexCheckBoxType.cpp
 PVBufferSlice.cpp
 PVClassLibrary.cpp
 PVDateTimeParser.cpp
