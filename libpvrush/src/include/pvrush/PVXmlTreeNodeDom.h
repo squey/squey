@@ -145,7 +145,7 @@ public:
 
     void setSplitterPlugin(PVFilter::PVFieldsSplitterParamWidget_p plugin) {
         splitterPlugin = plugin;
-        QObject::connect(splitterPlugin->get_as_qobject(),SIGNAL(data_changed()),this,SLOT(update()));
+        QObject::connect(splitterPlugin->get_as_qobject(),SIGNAL(data_changed()),this,SLOT(slot_update()));
     }
 
     PVFilter::PVFieldsSplitterParamWidget_p getSplitterPlugin() {
@@ -258,10 +258,13 @@ private:
     bool isFieldOfUrl();
     
 public slots:
-    void update(){
-        PVLOG_DEBUG("PVXmlTreeNodeDom slot update()\n");
+    void slot_update(){
+        PVLOG_DEBUG("PVXmlTreeNodeDom slot slot_update()\n");
         setFromArgumentList(getSplitterPlugin()->get_filter()->get_args());
+        PVLOG_DEBUG("      %d\n",getSplitterPlugin()->get_child_new_num());
+        setNbr(getSplitterPlugin()->get_child_new_num());
     }
+
     
 };
 }

@@ -5,8 +5,9 @@
 
 #include <QLabel>
 #include <QVBoxLayout>
-#include <QLineEdit>
+
 #include <QSpacerItem>
+#include <QPushButton>
 
 /******************************************************************************
  *
@@ -83,15 +84,20 @@ QWidget* PVFilter::PVFieldSplitterCSVParamWidget::get_param_widget()
         col_label->setAlignment(Qt::AlignLeft);
         layout->addWidget(col_label);
         PVLOG_DEBUG("there is %d child(ren)\n",child_count);
-        QLineEdit* col_text = new QLineEdit(QString("%1").arg(child_count));
-        col_text->setAlignment(Qt::AlignHCenter);
-        layout->addWidget(col_text);
+        child_number_edit = new QLineEdit(QString("%1").arg(child_count));
+        child_number_edit->setAlignment(Qt::AlignHCenter);
+        layout->addWidget(child_number_edit);
+        //apply buttom
+        QPushButton *btn = new QPushButton(tr("Apply"));
+        btn->setShortcut(Qt::Key_Return);
+        layout->addWidget(btn);
         
         layout->addSpacerItem(new QSpacerItem(1,1,QSizePolicy::Expanding, QSizePolicy::Expanding));
         
         
         connect(separator_text,SIGNAL(textChanged(const QString &)),this,SLOT(updateSeparator(const QString &)));
-        
+        connect(btn,SIGNAL(clicked()),this,SLOT(updateChildCount()));
+
         
         PVLOG_DEBUG("PVFilter::PVFieldSplitterCSVParamWidget::get_param_widget()     end\n");
         
