@@ -5,6 +5,8 @@
 #include <pvfilter/PVFieldsFilterParamWidget.h>
 #include <boost/shared_ptr.hpp>
 
+#include <QBoxLayout>
+#include <QLabel>
 #include <QObject>
 #include <QAction>
 
