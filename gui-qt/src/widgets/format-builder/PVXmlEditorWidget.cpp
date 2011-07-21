@@ -181,7 +181,6 @@ void PVInspector::PVXmlEditorWidget::initToolBar(QVBoxLayout *vb){
     tools->addSeparator();
     tools->addAction(actionDelete);
     tools->addSeparator();
-    tools->addAction(actionOpenLog);
     tools->addAction(actionOpen);
     tools->addAction(actionSave);
 
