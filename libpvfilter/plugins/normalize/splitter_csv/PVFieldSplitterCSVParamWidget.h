@@ -22,7 +22,7 @@ public:
 private:
     QAction* action_menu;
     QWidget* param_widget;
-    int id;
+    int id,child_count;
 
 public:
     PVCore::PVArgumentList get_default_argument(){
@@ -36,6 +36,9 @@ public:
 
     void set_id(int id_param) {
         id = id_param;
+    }
+    void set_child_count(int count){
+        child_count = count;
     }
     
     QObject* get_as_qobject(){return this;}

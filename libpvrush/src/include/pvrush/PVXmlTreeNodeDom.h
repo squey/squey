@@ -151,6 +151,7 @@ public:
     PVFilter::PVFieldsSplitterParamWidget_p getSplitterPlugin() {
         if(!splitterPlugin){
             createSplitterPlugin(xmlDomElement);
+            getSplitterPlugin()->set_child_count(countChildren());
         }
         return splitterPlugin;
     }
@@ -173,10 +174,12 @@ public:
     QString getAttribute(QString name, bool flagReadInXml=true);
     
     QWidget* getParamWidget(){
+        int children_count = getChildren().size();
         PVCore::PVArgumentList args,args_default;
         args_default = getSplitterPlugin()->get_default_argument();
         toArgumentList(args_default,args);
         getSplitterPlugin()->get_filter()->set_args(args);
+        getSplitterPlugin()->set_child_count(children_count);
         return getSplitterPlugin()->get_param_widget();
     }
     

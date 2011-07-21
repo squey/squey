@@ -27,6 +27,7 @@ public:
     virtual QString get_xml_tag() = 0;
     virtual QObject* get_as_qobject() = 0;
     virtual PVCore::PVArgumentList get_default_argument() = 0;
+    virtual void set_child_count(int count) = 0;
 };
 
 typedef boost::shared_ptr<PVFieldsFilterParamWidgetBase> PVFieldsFilterParamWidgetBase_p;
@@ -77,6 +78,8 @@ public:
 
     void set_id(int /*id*/) {
     }
+    
+    void set_child_count(int count) {}
 
     fields_filter_type type() {
         return _filter->type();

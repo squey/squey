@@ -42,6 +42,7 @@ void PVFilter::PVFieldSplitterCSVParamWidget::init()
          */
         action_menu = new QAction(QString("add CSV Splitter"),NULL);
         
+        child_count = 0;
         
 }
 /******************************************************************************
@@ -81,7 +82,8 @@ QWidget* PVFilter::PVFieldSplitterCSVParamWidget::get_param_widget()
         QLabel* col_label = new QLabel(tr("column number"),NULL);
         col_label->setAlignment(Qt::AlignLeft);
         layout->addWidget(col_label);
-        QLineEdit* col_text = new QLineEdit("");
+        PVLOG_DEBUG("there is %d child(ren)\n",child_count);
+        QLineEdit* col_text = new QLineEdit(QString("%1").arg(child_count));
         col_text->setAlignment(Qt::AlignHCenter);
         layout->addWidget(col_text);
         
