@@ -19,12 +19,16 @@ private:
 	QLabel    *label;
 
 public:
-	PVCheckableComboBox(QString name, QWidget *parent = 0);
+	PVCheckableComboBox(QWidget *parent = 0);
 
 	/* functions */
+	void addItems(QStringList items);
+	void clear();
+	int currentIndex() const { return combobox->currentIndex(); }
 	bool is_checked() const { return _checked; }
 	void setChecked(bool checked);
-	void addItems(QStringList items);
+	void setCurrentIndex(int index) {combobox->setCurrentIndex(index);}
+	void setText(QString text);
 
 public slots:
 	void checkStateChanged_Slot(int state);

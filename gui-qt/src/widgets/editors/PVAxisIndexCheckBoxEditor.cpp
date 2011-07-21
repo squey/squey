@@ -11,13 +11,14 @@
 
 #include <PVAxisIndexCheckBoxEditor.h>
 
+
 /******************************************************************************
  *
  * PVCore::PVAxisIndexCheckBoxEditor::PVAxisIndexCheckBoxEditor
  *
  *****************************************************************************/
 PVInspector::PVAxisIndexCheckBoxEditor::PVAxisIndexCheckBoxEditor(Picviz::PVView& view, QWidget *parent):
-	QComboBox(parent),
+	PVCheckableComboBox(parent),
 	_view(view)
 {
 }
@@ -47,3 +48,4 @@ PVCore::PVAxisIndexCheckBoxType PVInspector::PVAxisIndexCheckBoxEditor::get_axis
 	// 1 should be replace by the check to know if it is checked
 	return PVCore::PVAxisIndexCheckBoxType(currentIndex(), 1);
 }
+

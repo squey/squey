@@ -2,7 +2,8 @@
 
 #include <QHBoxLayout>
 
-PVInspector::PVCheckableComboBox::PVCheckableComboBox(QString name, QWidget *parent): QWidget(parent)
+
+PVInspector::PVCheckableComboBox::PVCheckableComboBox(QWidget *parent): QWidget(parent)
 {
 	_checked = true;	// Default is checked
 
@@ -10,7 +11,7 @@ PVInspector::PVCheckableComboBox::PVCheckableComboBox(QString name, QWidget *par
 	checkbox = new QCheckBox;
 	checkbox->setCheckState(Qt::Checked);
 	layout->addWidget(checkbox);
-	label = new QLabel(name);
+	label = new QLabel;
 	layout->addWidget(label);
 	combobox = new QComboBox;
 	layout->addWidget(combobox);
@@ -18,17 +19,6 @@ PVInspector::PVCheckableComboBox::PVCheckableComboBox(QString name, QWidget *par
 	setLayout(layout);
 
 	connect(checkbox, SIGNAL(stateChanged(int)), this, SLOT(checkStateChanged_Slot(int)));
-}
-
-void PVInspector::PVCheckableComboBox::setChecked(bool checked)
-{
-	_checked = checked;
-
-	if (checked) {
-		checkbox->setCheckState(Qt::Checked);
-	} else {
-		checkbox->setCheckState(Qt::Unchecked);
-	}
 }
 
 void PVInspector::PVCheckableComboBox::addItems(QStringList items)
@@ -49,4 +39,26 @@ void PVInspector::PVCheckableComboBox::checkStateChanged_Slot(int state)
 	combobox->setEnabled(state);
 	label->setEnabled(state);
 }
+
+void PVInspector::PVCheckableComboBox::clear()
+{
+	combobox->clear();
+}
+
+void PVInspector::PVCheckableComboBox::setChecked(bool checked)
+{
+	_checked = checked;
+
+	if (checked) {
+		checkbox->setCheckState(Qt::Checked);
+	} else {
+		checkbox->setCheckState(Qt::Unchecked);
+	}
+}
+
+void PVInspector::PVCheckableComboBox::setText(QString text)
+{
+	label->setText(text);
+}
+
 

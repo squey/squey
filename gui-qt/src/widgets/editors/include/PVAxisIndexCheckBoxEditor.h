@@ -16,12 +16,14 @@
 
 #include <picviz/PVView.h>
 
+#include <PVCheckableComboBox.h>
+
 namespace PVInspector {
 
 /**
  * \class PVAxisIndexCheckBoxEditor
  */
-class PVAxisIndexCheckBoxEditor : public QComboBox
+class PVAxisIndexCheckBoxEditor : public PVCheckableComboBox
 {
 	Q_OBJECT
 	Q_PROPERTY(PVCore::PVAxisIndexCheckBoxType _axis_index READ get_axis_index WRITE set_axis_index USER true)

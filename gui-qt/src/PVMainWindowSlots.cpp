@@ -38,9 +38,6 @@ void PVInspector::PVMainWindow::about_Slot()
 		main_layout->addWidget(text, 0, 1);
 		main_layout->addWidget(ok, 2, 1);
 
-		PVCheckableComboBox *ccbx = new PVCheckableComboBox("Coucou");
-		main_layout->addWidget(ccbx, 3, 0);
-
 		about_dialog->setLayout(main_layout);
 
 		about_dialog->setWindowTitle("About Picviz Inspector");
