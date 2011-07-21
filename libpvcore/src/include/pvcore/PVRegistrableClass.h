@@ -20,9 +20,12 @@ public:
 public:
 	template <typename Tc>
 	boost::shared_ptr<Tc> clone() const { return boost::shared_ptr<Tc>((Tc*) _clone_me()); }
+    template <typename Tc>
+	boost::shared_ptr<Tc> new_object() const { return boost::shared_ptr<Tc>((Tc*) _new_object()); }
 	QString const& registered_name() { return __registered_class_name; }
 protected:
 	virtual void* _clone_me() const = 0;
+    virtual void* _new_object() const = 0;
 protected:
 	QString __registered_class_name;
 };
@@ -33,6 +36,7 @@ protected:
 	public:\
 		typedef boost::shared_ptr<T> p_type;\
 	protected:\
-		virtual void* _clone_me() const { return new T(*this); }\
+		virtual void* _clone_me() const { T* ret = new T(*this); return ret; }\
+        virtual void* _new_object() const { T* ret = new T(); ret->__registered_class_name = __registered_class_name; return ret; }\
 
 #endif

@@ -88,6 +88,8 @@ public:
 
         if (numberOfSelectedIndexes > 0) {
             index = selectedIndexes().at(0); //get the selected index.
+        }else{
+            return QModelIndex();
         }
         return index;
     }

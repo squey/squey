@@ -41,9 +41,20 @@ public:
 	}
 
 	PVFieldsBaseFilter_p get_filter() { return _filter; }
+    /**
+     * @brief get the widget whiche is on the right of the GUI. It used to param the node.
+     * @return widget ref
+     */
 	QWidget* get_param_widget() { return NULL; }
+    /**
+     * @brief get the action to push in menu
+     * @return menu action
+     */
     QAction* get_action_menu() { return NULL; }
     QString get_xml_tag() { return QString(""); }
+    
+    void set_plugin_name(QString const& name) { _name_filter = name; }
+    QString get_plugin_name() { return _name_filter; }
     
     void set_id(int /*id*/) {}
     

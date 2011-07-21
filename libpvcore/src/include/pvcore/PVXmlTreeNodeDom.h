@@ -30,7 +30,7 @@ class PVXmlTreeNodeDom:public QObject {
     
 public:
     enum Type {
-        Root, field, RegEx, filter, axis, url
+        Root, field, RegEx, filter, axis, url, splitter
     };
     
     
@@ -210,7 +210,7 @@ private:
      * setup the type
      * @param nom
      */
-    void setTypeFromString(QString nom);
+    void setTypeFromString(const QString &nom);
 
     /**
      * add 'n' field.

@@ -6,6 +6,8 @@
 #include <PVXmlDomModel.h>
 #include <pvcore/PVXmlTreeNodeDom.h>
 
+#include <QString>
+
 #define dbg()  {qDebug()<<__FILE__<<__LINE__;}
 
 
@@ -459,6 +461,7 @@ void PVInspector::PVXmlDomModel::addFilterAfter(QModelIndex &index) {
  *****************************************************************************/
 void PVInspector::PVXmlDomModel::addSplitter(const QModelIndex &index, PVFilter::PVFieldsSplitterParamWidget_p splitterPlugin){
         assert(splitterPlugin);
+        assert(splitterPlugin.get());
         PVLOG_DEBUG("PVInspector::PVXmlDomModel::addSplitter\n");
         if(index.isValid()){//add as child
                 PVCore::PVXmlTreeNodeDom *field = nodeFromIndex(index);
@@ -468,6 +471,23 @@ void PVInspector::PVXmlDomModel::addSplitter(const QModelIndex &index, PVFilter:
         }else{//add on the root
                 if (!trustConfictSplitAxes(index))return;//we can't add more than one splitter in a field
                 PVLOG_DEBUG("     adding splitter on root node\n");
+                //add node in dom
+                QDomElement newDom = xmlFile.createElement("splitter");
+                PVLOG_DEBUG("          set tag %s \n",splitterPlugin->type_name().toStdString().c_str());
+                newDom.setTagName(splitterPlugin->get_xml_tag());
+                QString test = splitterPlugin->get_plugin_name();
+                PVLOG_DEBUG("          set type %s\n",qPrintable(test));
+                newDom.setAttribute("type",test);
+                PVLOG_DEBUG("          add child\n");
+                rootNode->getDom().appendChild(newDom);
+                PVLOG_DEBUG("          added in dom\n");
+                //
+                //add node in tree
+                PVCore::PVXmlTreeNodeDom* child = new PVCore::PVXmlTreeNodeDom(newDom);
+                PVLOG_DEBUG("          child created\n");
+                child->setParent(rootNode);
+                rootNode->addChild(child);
+                PVLOG_DEBUG("          added in PVXmlTreeNodeDom\n");
         }
 }
 

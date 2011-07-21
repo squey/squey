@@ -15,6 +15,7 @@
 #include <QStyleOptionViewItem>
 #include <QItemSelectionModel>
 #include <QAbstractItemModel>
+#include <QString>
 #include<QRect>
 #include<QScrollBar>
 #include<qglobal.h>
