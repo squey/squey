@@ -468,6 +468,15 @@ void PVInspector::PVXmlDomModel::addSplitter(const QModelIndex &index, PVFilter:
         }else{//add on the root
                 if (!trustConfictSplitAxes(index))return;//we can't add more than one splitter in a field
                 PVLOG_DEBUG("     adding splitter on root node\n");
+                //add node in dom
+                QDomElement newDom = xmlFile.createElement(splitterPlugin.get()->get_xml_tag());
+                newDom.setAttribute("type",splitterPlugin.get()->type_name());
+                rootNode->getDom().appendChild(newDom);
+                //
+                //add node in tree
+                PVCore::PVXmlTreeNodeDom* child = new PVCore::PVXmlTreeNodeDom(newDom);
+                child->setParent(rootNode);
+                rootNode->addChild(child);
         }
 }
 
