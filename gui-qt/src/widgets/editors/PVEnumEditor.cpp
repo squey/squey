@@ -33,7 +33,7 @@ PVInspector::PVEnumEditor::~PVEnumEditor()
 
 /******************************************************************************
  *
- * PVInspector::PVEnumEditor::set_axis_index
+ * PVInspector::PVEnumEditor::set_enum
  *
  *****************************************************************************/
 void PVInspector::PVEnumEditor::set_enum(PVCore::PVEnumType e)
