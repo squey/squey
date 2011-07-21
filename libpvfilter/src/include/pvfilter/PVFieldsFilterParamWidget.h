@@ -8,61 +8,90 @@
 
 #include <QWidget>
 #include <QString>
+#include <QObject>
 
 namespace PVFilter {
 
-class PVFieldsFilterParamWidgetBase: public PVCore::PVRegistrableClass<PVFieldsFilterParamWidgetBase>
-{
+class PVFieldsFilterParamWidgetBase : public PVCore::PVRegistrableClass<PVFieldsFilterParamWidgetBase> {
 public:
-	typedef boost::shared_ptr< PVFieldsFilterParamWidgetBase > p_type;
+    typedef boost::shared_ptr< PVFieldsFilterParamWidgetBase > p_type;
 public:
-    virtual ~PVFieldsFilterParamWidgetBase() {}
+
+    virtual ~PVFieldsFilterParamWidgetBase() {
+    }
 public:
-	virtual PVFilter::PVFieldsBaseFilter_p get_filter() = 0;
-	virtual QWidget* get_param_widget() = 0;
+    virtual PVFilter::PVFieldsBaseFilter_p get_filter() = 0;
+    virtual QWidget* get_param_widget() = 0;
     virtual QAction* get_action_menu() = 0;
     virtual void set_id(int id) = 0;
     virtual QString get_xml_tag() = 0;
+    virtual QObject* get_as_qobject() = 0;
+    virtual PVCore::PVArgumentList get_default_argument() = 0;
 };
 
 typedef boost::shared_ptr<PVFieldsFilterParamWidgetBase> PVFieldsFilterParamWidgetBase_p;
 
 template <PVFilter::fields_filter_type Ttype>
-class PVFieldsFilterParamWidget: public PVFieldsFilterParamWidgetBase
-{
+class PVFieldsFilterParamWidget : public PVFieldsFilterParamWidgetBase {
 public:
-	typedef PVFieldsFilterParamWidget<Ttype> RegAs;
-	typedef boost::shared_ptr< PVFieldsFilterParamWidget<Ttype> > p_type;
+    typedef PVFieldsFilterParamWidget<Ttype> RegAs;
+    typedef boost::shared_ptr< PVFieldsFilterParamWidget<Ttype> > p_type;
 public:
-	PVFieldsFilterParamWidget(typename PVFilter::PVFieldsFilter<Ttype>::p_type filter)
-	{
-		assert(filter);
-		_filter = filter->clone< PVFieldsFilter<Ttype> >();
-	}
 
-	PVFieldsBaseFilter_p get_filter() { return _filter; }
+    PVFieldsFilterParamWidget(typename PVFilter::PVFieldsFilter<Ttype>::p_type filter) {
+        assert(filter);
+        _filter = filter->clone< PVFieldsFilter<Ttype> >();
+    }
+    PVCore::PVArgumentList get_default_argument(){
+        PVCore::PVArgumentList args;
+        return args;
+    }
+
+    PVFieldsBaseFilter_p get_filter() {
+        return _filter;
+    }
+
     /**
      * @brief get the widget whiche is on the right of the GUI. It used to param the node.
      * @return widget ref
      */
-	QWidget* get_param_widget() { return NULL; }
+    QWidget* get_param_widget() {
+        return NULL;
+    }
+
+    QObject* get_as_qobject() {
+        return NULL;
+    }
+
     /**
      * @brief get the action to push in menu
      * @return menu action
      */
-    QAction* get_action_menu() { return NULL; }
-    QString get_xml_tag() { return QString(""); }
-    
-    void set_id(int /*id*/) {}
-    
+    QAction* get_action_menu() {
+        return NULL;
+    }
 
-	fields_filter_type type() { return _filter->type(); }
-	QString type_name() { return _filter->type_name(); }
-    
+    QString get_xml_tag() {
+        return QString("");
+    }
+
+    void set_id(int /*id*/) {
+    }
+
+    fields_filter_type type() {
+        return _filter->type();
+    }
+
+    QString type_name() {
+        return _filter->type_name();
+    }
+
+
+
 
 protected:
-	PVFilter::fields_filter_type _type;
-	typename PVFilter::PVFieldsFilter<Ttype>::p_type _filter;
+    PVFilter::fields_filter_type _type;
+    typename PVFilter::PVFieldsFilter<Ttype>::p_type _filter;
 };
 
 typedef PVFieldsFilterParamWidget<PVFilter::one_to_many> PVFieldsSplitterParamWidget;

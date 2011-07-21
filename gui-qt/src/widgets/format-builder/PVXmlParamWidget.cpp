@@ -56,7 +56,7 @@ PVInspector::PVXmlParamWidget::~PVXmlParamWidget() {
 void PVInspector::PVXmlParamWidget::drawForNo(QModelIndex) {
 
     //confirmApply = false;
-  emit signalQuittingAParamBoard();
+    emit signalQuittingAParamBoard();
     removeListWidget();
     type = no;
 }
@@ -115,6 +115,22 @@ void PVInspector::PVXmlParamWidget::drawForRegEx(PVRush::PVXmlTreeNodeDom *nodeS
     //focus on regexp
     regExpBoard->getWidgetToFocus()->setFocus();
 }
+/******************************************************************************
+ *
+ * PVInspector::PVXmlParamWidget::drawForSplitter
+ *
+ *****************************************************************************/
+void PVInspector::PVXmlParamWidget::drawForSplitter(PVRush::PVXmlTreeNodeDom *nodeSplitter) {
+        assert(nodeSplitter);
+        assert(nodeSplitter->getSplitterPlugin());
+        QWidget *w = nodeSplitter->getParamWidget();
+        lesWidgetDuLayout.push_back(w);
+        layout->addWidget(w);
+        addListWidget();
+        type = splitterParam;
+        //focus on regexp
+        //w->getWidgetToFocus()->setFocus();
+}
 
 
 /******************************************************************************
@@ -133,31 +149,31 @@ void PVInspector::PVXmlParamWidget::addListWidget() {
     layout->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding));
 }
 
-
 /******************************************************************************
  *
  * PVInspector::PVXmlParamWidget::removeListWidget
  *
  *****************************************************************************/
 void PVInspector::PVXmlParamWidget::removeListWidget() {
-    /*
-     * Suppression de tous les widgets (textes, btn, editBox...).
-     */
-    while (!lesWidgetDuLayout.isEmpty()) {
-        QWidget *tmp = lesWidgetDuLayout.front();
-	tmp->hide();
-        tmp->close();
-        layout->removeWidget(tmp);
-        lesWidgetDuLayout.removeFirst();
-        layout->update();
-    }
+        /*
+         * Suppression de tous les widgets (textes, btn, editBox...).
+         */
+        while (!lesWidgetDuLayout.isEmpty()) {
+                QWidget *tmp = lesWidgetDuLayout.front();
 
-    /* 
-     *  Suppression des items (commes les spacers).
-     */
-    for (int i = 0; i < 10; i++){
-      layout->removeItem(layout->itemAt(0));
-    }
+                tmp->hide();
+                tmp->close();
+                layout->removeWidget(tmp);
+                lesWidgetDuLayout.removeFirst();
+                layout->update();
+        }
+
+        /* 
+         *  Suppression des items (commes les spacers).
+         */
+        for (int i = 0; i < 10; i++) {
+                layout->removeItem(layout->itemAt(0));
+        }
 }
 
 
@@ -327,7 +343,7 @@ void PVInspector::PVXmlParamWidget::edit(QModelIndex const& index) {
 	  drawForAxis(nodeOnClick);
 	}else
         if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::splitter){
-	  //nop
+	  drawForSplitter(nodeOnClick);
 	}
     }
 

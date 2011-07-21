@@ -200,7 +200,10 @@ QVariant PVInspector::PVXmlDomModel::data(const QModelIndex &index, int role)con
             if (index.column() == 0) {
                 if(node->typeToString()=="RegEx")return "Splitter (RegEx)";
                 if(node->typeToString()=="url")return "Splitter (URL)";
-                if(node->typeToString()=="splitter")return "Splitter";
+                if(node->typeToString()=="splitter"){
+                        QString s = QString("splitter : %1").arg(node->getAttribute("type","-"));
+                        return s;
+                }
                 return node->typeToString();
                
             } else if(index.column() == 1){
@@ -815,7 +818,7 @@ bool PVInspector::PVXmlDomModel::trustConfictSplitAxes(const QModelIndex &index)
 	if (index.isValid()) {
 		for (int i = 0; i < nodeFromIndex(index)->getChildren().count(); i++) {
 			QDomElement child = nodeFromIndex(index)->getChildren().at(i)->getDom();
-			if (child.tagName() == "axis" || child.tagName() == "RegEx" || child.tagName() == "url") {
+			if (child.tagName() == "axis" || child.tagName() == "RegEx" || child.tagName() == "url" || child.tagName() == "splitter") {
 				message("There is just one axis or Splitter in a field. Delete this one to add a newer.");
 				return false;
 			}
@@ -824,7 +827,7 @@ bool PVInspector::PVXmlDomModel::trustConfictSplitAxes(const QModelIndex &index)
 
 		for (int i = 0; i < rootNode->getChildren().count(); i++) {
 			QDomElement child = nodeFromIndex(index)->getChildren().at(i)->getDom();
-			if (child.tagName() == "axis" || child.tagName() == "RegEx" || child.tagName() == "url") {
+			if (child.tagName() == "axis" || child.tagName() == "RegEx" || child.tagName() == "url" || child.tagName() == "splitter") {
 				message("There is just one axis or Splitter in a field. Delete this one to add a newer.");
 				return false;
 			}

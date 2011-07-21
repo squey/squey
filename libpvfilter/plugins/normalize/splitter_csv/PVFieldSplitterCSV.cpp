@@ -34,7 +34,7 @@ void PVFilter::PVFieldSplitterCSV::_csv_new_field(void* s, size_t len, void* p)
 	QString str_field(ba); // convert to unicode
 
 	size_t len_qs = str_field.size() * sizeof(QChar);
-	size_t nchars = str_field.size(); 
+	size_t nchars = str_field.size();
 	if (len_qs > sp->_len_buf) {
 		PVLOG_WARN("(PVFieldSplitterCSV) chunk is not large enough to hold CSV datas !\n");
 		return;

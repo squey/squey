@@ -139,6 +139,7 @@ include/pvrush/uchardetect/JISFreq.tab
 
 set(MOC_HEADERS
 include/pvrush/PVControllerJob.h
+include/pvrush/PVXmlTreeNodeDom.h
 )
 QT4_WRAP_CPP(MOC_SRC ${MOC_HEADERS})
 
