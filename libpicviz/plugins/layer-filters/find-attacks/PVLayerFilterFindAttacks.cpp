@@ -76,9 +76,7 @@ Picviz::PVLayerFilterFindAttacks::PVLayerFilterFindAttacks(PVCore::PVArgumentLis
 				rxlist.removeFirst();
 				if (snort_useragent_rx.exactMatch(data)) {
 					if (!rxlist[0].isEmpty()) {
-						if (rxlist[0].length() > 3) { // 3 is prone to false positives
-							signatures["Snort User Agents"] << rxlist[0];
-						}
+						signatures["Snort User Agents"] << rxlist[0];
 						// PVLOG_INFO("MATCH '%s'\n", qPrintable(rxlist[0]));
 					}
 				}
@@ -127,6 +125,8 @@ void Picviz::PVLayerFilterFindAttacks::operator()(PVLayer& /*in*/, PVLayer &out)
 
 	PVRush::PVNraw::nraw_table const& nraw = _view->get_qtnraw_parent();
 
+	out.get_selection().select_none();
+
 	QStringList snort_ua = signatures["Snort User Agents"];
 	for (PVRow r = 0; r < nb_lines; r++) {
 		PVRush::PVNraw::nraw_table_line const& nraw_r = nraw.at(r);
@@ -134,16 +134,15 @@ void Picviz::PVLayerFilterFindAttacks::operator()(PVLayer& /*in*/, PVLayer &out)
 		// We search for user agents
 		for (int i=0; i < snort_ua.size(); i++) {
 			if (snort_ua[i].length() == nraw_r[ua_axis_id].length()) {
+				// PVLOG_INFO("find string '%s' in '%s'\n", qPrintable(snort_ua[i]), qPrintable(nraw_r[ua_axis_id]));
 				QStringMatcher matcher(snort_ua[i]);
 				int retval = matcher.indexIn(nraw_r[ua_axis_id]);
 				if (retval >= 0) {
-					PVLOG_INFO("find string '%s' in '%s'\n", qPrintable(snort_ua[i]), qPrintable(nraw_r[ua_axis_id]));
+					out.get_selection().set_line(r, 1);
+					break;
 				}
-				PVLOG_INFO("we set the line %d to %d\n", r, retval < 0 ? 0 : 1);
-				out.get_selection().set_line(r, retval < 0 ? 0 : 1);			
 			}
 		}
-
 	}
 
 }
