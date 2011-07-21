@@ -3,7 +3,8 @@
 #include <pvfilter/PVFieldsFilter.h>
 
 
-
+#include <QLabel>
+#include <QVBoxLayout>
 
 /******************************************************************************
  *
