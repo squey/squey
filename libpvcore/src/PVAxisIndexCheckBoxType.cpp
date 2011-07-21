@@ -27,3 +27,8 @@ bool PVCore::PVAxisIndexCheckBoxType::is_checked()
 {
 	return _is_checked;
 }
+
+void PVCore::PVAxisIndexCheckBoxType::set_checked(bool checked)
+{
+	_is_checked = checked;
+}

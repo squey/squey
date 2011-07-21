@@ -27,6 +27,7 @@ public:
 
 	int get_original_index();
 	bool is_checked();
+	void set_checked(bool checked);
 
 protected:
 	// The original axis index will never change. PVAxisCombination takes care of any
