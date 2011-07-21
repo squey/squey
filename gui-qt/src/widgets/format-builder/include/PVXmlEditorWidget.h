@@ -24,6 +24,8 @@
 #include <PVXmlDomModel.h>
 #include <PVXmlTreeView.h>
 #include <PVXmlParamWidget.h>
+#include <PVNrawListingWidget.h>
+#include <PVNrawListingModel.h>
 #include <pvrush/PVNormalizer.h>
 #include <pvcore/PVRegistrableClass.h>
 #include <pvcore/PVClassLibrary.h>
@@ -102,7 +104,7 @@ private:
 // Log input management
 
 protected:
-	void update_table();
+	void update_table(PVRow start, PVRow end);
 	void set_format_from_dom();
 	void create_extractor();
 
@@ -111,6 +113,10 @@ protected:
 	PVRush::PVInputType_p _log_input_type;
 	PVRush::PVSourceCreator_p _log_sc;
 	boost::shared_ptr<PVRush::PVExtractor> _log_extract; 
+
+	// Model and widget for the NRAW
+	PVNrawListingModel* _nraw_model;
+	PVNrawListingWidget* _nraw_widget;
     
 
 public slots:
@@ -130,7 +136,9 @@ public slots:
     void slotOpenLog();
     void slotSave();
     void slotUpdateToolDesabled(const QModelIndex &);
+	void slotExtractorPreview();
 };
+
 }
 #endif	/* FEN2_H */
 

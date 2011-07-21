@@ -75,6 +75,8 @@ widgets/editors/include/PVEnumEditor.h
 widgets/editors/include/PVRegexpEditor.h
 widgets/editors/include/PVSpinBoxEditor.h
 
+widgets/format-builder/include/PVNrawListingModel.h
+widgets/format-builder/include/PVNrawListingWidget.h
 widgets/format-builder/include/PVXmlTreeView.h 
 widgets/format-builder/include/PVXmlDomModel.h
 widgets/format-builder/include/PVXmlEditorWidget.h
@@ -145,6 +147,8 @@ widgets/editors/PVEnumEditor.cpp
 widgets/editors/PVRegexpEditor.cpp
 widgets/editors/PVSpinBoxEditor.cpp
 
+widgets/format-builder/PVNrawListingModel.cpp
+widgets/format-builder/PVNrawListingWidget.cpp
 widgets/format-builder/PVXmlDomModel.cpp
 widgets/format-builder/PVXmlEditorWidget.cpp
 widgets/format-builder/PVXmlParamColorDialog.cpp
