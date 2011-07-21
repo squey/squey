@@ -401,7 +401,7 @@ void PVInspector::PVXmlEditorWidget::slotUpdateToolDesabled(const QModelIndex &i
         actionDelete->setEnabled(true);
     } else if (node->getDom().tagName() == "splitter") {
         myTreeView->expandRecursive(index);
-        myParamBord = node->getSplitterPlugin()->get_param_widget();
+        //myParamBord = node->getSplitterPlugin()->get_param_widget();
         actionAddFilterAfter->setEnabled(false);
         actionAddAxisIn->setEnabled(false);
         actionAddRegExAfter->setEnabled(false);
@@ -523,7 +523,7 @@ void PVInspector::PVXmlEditorWidget::update_table()
 {
 	set_format_from_dom();
 	// Create the nraw thanks to the extractor
-	PVRush::PVControllerJob_p job = _log_extract->process_from_agg_nlines(0, 10000);
+	PVRush::PVControllerJob_p job = _log_extract->process_from_agg_idxes(0, 100);
 	job->wait_end();
 	_log_extract->dump_nraw();
 }
