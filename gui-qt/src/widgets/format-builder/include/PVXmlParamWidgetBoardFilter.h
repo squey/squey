@@ -15,7 +15,7 @@
 #include <QVariant>
 #include <QDebug>
 
-#include <pvcore/PVXmlTreeNodeDom.h>
+#include <pvrush/PVXmlTreeNodeDom.h>
 #include <PVXmlParamWidgetEditorBox.h>
 #include <PVXmlParamTextEdit.h>
 #include <PVXmlParamComboBox.h>
@@ -25,7 +25,7 @@ namespace PVInspector{
 class PVXmlParamWidgetBoardFilter : public QWidget {
     Q_OBJECT
 public:
-    PVXmlParamWidgetBoardFilter(PVCore::PVXmlTreeNodeDom *node);
+    PVXmlParamWidgetBoardFilter(PVRush::PVXmlTreeNodeDom *node);
     virtual ~PVXmlParamWidgetBoardFilter();
     QWidget *getWidgetToFocus();
     
@@ -48,7 +48,7 @@ private:
 
 
     //editing node
-    PVCore::PVXmlTreeNodeDom *node;
+    PVRush::PVXmlTreeNodeDom *node;
 
 public slots:
     void slotSetValues();

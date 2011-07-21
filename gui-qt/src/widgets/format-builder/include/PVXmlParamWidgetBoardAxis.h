@@ -25,7 +25,7 @@
 #include <QTabWidget>
 #include <QCheckBox>
 
-#include <pvcore/PVXmlTreeNodeDom.h>
+#include <pvrush/PVXmlTreeNodeDom.h>
 #include <PVXmlParamWidgetEditorBox.h>
 #include <PVXmlParamTextEdit.h>
 #include <PVXmlParamComboBox.h>
@@ -35,7 +35,7 @@ namespace PVInspector{
 class PVXmlParamWidgetBoardAxis : public QWidget {
     Q_OBJECT
 public:
-    PVXmlParamWidgetBoardAxis(PVCore::PVXmlTreeNodeDom *pNode);
+    PVXmlParamWidgetBoardAxis(PVRush::PVXmlTreeNodeDom *pNode);
     virtual ~PVXmlParamWidgetBoardAxis();
     QWidget *getWidgetToFocus();
     
@@ -95,7 +95,7 @@ public:
     
     
     //editing node
-    PVCore::PVXmlTreeNodeDom *node;
+    PVRush::PVXmlTreeNodeDom *node;
     QString pluginListURL;
     
 public slots:

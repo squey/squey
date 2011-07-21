@@ -12,7 +12,7 @@
  * PVInspector::PVXmlParamWidgetBoardFilter::PVXmlParamWidgetBoardFilter
  *
  *****************************************************************************/
-PVInspector::PVXmlParamWidgetBoardFilter::PVXmlParamWidgetBoardFilter(PVCore::PVXmlTreeNodeDom *pNode) : QWidget() {
+PVInspector::PVXmlParamWidgetBoardFilter::PVXmlParamWidgetBoardFilter(PVRush::PVXmlTreeNodeDom *pNode) : QWidget() {
     setObjectName("PVXmlParamWidgetBoardFilter");
     node = pNode;
     allocBoardFields();

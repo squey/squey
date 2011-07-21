@@ -5,7 +5,7 @@
  * Created on 12 mai 2011, 11:27
  */
 
-#include <pvcore/PVXmlTreeNodeDom.h>
+#include <pvrush/PVXmlTreeNodeDom.h>
 #include <pvrush/PVXmlParamParser.h>
 
 // Exceptions 
@@ -199,7 +199,7 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id)
 					if (!data.filter_lib) {
 						throw PVXmlParamParserExceptionPluginNotFound(node_type, filter_plugin_name);
 					}
-					PVCore::PVXmlTreeNodeDom tnd(child);
+					PVRush::PVXmlTreeNodeDom tnd(child);
 					tnd.toArgumentList(data.filter_lib->get_args(), data.filter_args);
 					fields.push_back(data);
 

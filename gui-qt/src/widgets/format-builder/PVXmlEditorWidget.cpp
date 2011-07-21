@@ -7,7 +7,7 @@
 
 #include <PVXmlEditorWidget.h>
 #include <PVXmlTreeItemDelegate.h>
-#include <pvcore/PVXmlTreeNodeDom.h>
+#include <pvrush/PVXmlTreeNodeDom.h>
 #include <PVXmlParamWidget.h>
 #include <PVInputTypeMenuEntries.h>
 
@@ -377,7 +377,7 @@ void PVInspector::PVXmlEditorWidget::slotSave() {
  *****************************************************************************/
 void PVInspector::PVXmlEditorWidget::slotUpdateToolDesabled(const QModelIndex &index){
         PVLOG_DEBUG("PVInspector::PVXmlEditorWidget::slotUpdateToolDesabled\n");
-    PVCore::PVXmlTreeNodeDom *node = myTreeModel->nodeFromIndex(index);
+    PVRush::PVXmlTreeNodeDom *node = myTreeModel->nodeFromIndex(index);
     myParamBord = &emptyParamBoard;
     
     if (node->getDom().tagName() == "field") {
@@ -401,7 +401,7 @@ void PVInspector::PVXmlEditorWidget::slotUpdateToolDesabled(const QModelIndex &i
         actionDelete->setEnabled(true);
     } else if (node->getDom().tagName() == "splitter") {
         myTreeView->expandRecursive(index);
-        myParamBord = 
+        //myParamBord = 
         actionAddFilterAfter->setEnabled(false);
         actionAddAxisIn->setEnabled(false);
         actionAddRegExAfter->setEnabled(false);
