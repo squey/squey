@@ -97,6 +97,10 @@ public:
 	 */
 	PVNraw& get_nraw();
 
+	/*! \brief Get a reference to the internal PVFormat of the internal NRaw
+	 */
+	PVFormat& get_format();
+
 	/*! \brief Set the format of the NRaw
 	 */
 	void set_format(PVFormat const& format);

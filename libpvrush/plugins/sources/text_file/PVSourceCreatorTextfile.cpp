@@ -10,6 +10,7 @@
 
 PVRush::PVSourceCreatorTextfile::source_p PVRush::PVSourceCreatorTextfile::create_source_from_input(PVCore::PVArgument const& input) const
 {
+	PVLOG_DEBUG("(text_file plugin) create source for %s\n", qPrintable(input.toString()));
 	// input is a QString !
 	PVRush::PVInput_p ifile(new PVRush::PVInputFile(input.toString().toLocal8Bit().constData()));
 	// FIXME: chunk size must be computed somewhere once and for all !

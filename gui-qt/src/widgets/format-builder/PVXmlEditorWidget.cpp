@@ -462,7 +462,8 @@ void PVInspector::PVXmlEditorWidget::slotOpenLog()
 		return; // This means that the user pressed the "cancel" button
 
 	// Get the first input selected
-	_log_input = inputs.begin()->toString();
+	_log_input = inputs.front();
+	PVLOG_DEBUG("Input: %s\n", qPrintable(in_t->human_name_of_input(_log_input)));
 
 	// Pre discover the input w/ the source creators
 	PVRush::list_creators::const_iterator itcr;
@@ -491,7 +492,11 @@ void PVInspector::PVXmlEditorWidget::slotOpenLog()
 
 void PVInspector::PVXmlEditorWidget::create_extractor()
 {
+	if (_log_extract) {
+		_log_extract->force_stop_controller();
+	}
 	_log_extract.reset(new PVRush::PVExtractor());
+	_log_extract->start_controller();
 	_log_extract->add_source(_log_sc->create_source_from_input(_log_input));
 }
 
@@ -499,14 +504,16 @@ void PVInspector::PVXmlEditorWidget::set_format_from_dom()
 {
 	QDomElement const& rootDom = myTreeModel->getRootDom();
 	PVRush::PVFormat format;
-	format.populate_from_xml(rootDom);
+	format.populate_from_xml(rootDom, true);
 	_log_extract->set_format(format);
+	_log_extract->set_chunk_filter(_log_extract->get_format().create_tbb_filters());
 }
 
 void PVInspector::PVXmlEditorWidget::update_table()
 {
 	set_format_from_dom();
 	// Create the nraw thanks to the extractor
-	PVRush::PVControllerJob_p job = _log_extract->process_from_agg_idxes(0, 100);
+	PVRush::PVControllerJob_p job = _log_extract->process_from_agg_nlines(0, 10000);
 	job->wait_end();
+	_log_extract->dump_nraw();
 }

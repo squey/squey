@@ -46,9 +46,9 @@ void PVRush::PVFormat::clear()
 
 }
 
-bool PVRush::PVFormat::populate()
+bool PVRush::PVFormat::populate(bool allowNoFilters)
 {
-	return populate_from_xml(full_path);
+	return populate_from_xml(full_path, allowNoFilters);
 }
 
 QString const& PVRush::PVFormat::get_format_name() const
@@ -63,20 +63,20 @@ QString const& PVRush::PVFormat::get_full_path() const
 
 char *fill_spaces(QString str, int max_spaces)
 {
-  char *retbuf;
+	char *retbuf;
 
-  retbuf = (char *)malloc(max_spaces + 1);
+	retbuf = (char *)malloc(max_spaces + 1);
 
-  int until = max_spaces - str.length();
+	int until = max_spaces - str.length();
 
-  for (int i=0; i < until; i++) {
-    retbuf[i] = ' ';
-    // retstr += " ";
-  }
+	for (int i=0; i < until; i++) {
+		retbuf[i] = ' ';
+		// retstr += " ";
+	}
 
-  retbuf[until] = '\0';
+	retbuf[until] = '\0';
 
-  return retbuf;
+	return retbuf;
 }
 
 void PVRush::PVFormat::debug()
@@ -94,55 +94,54 @@ void PVRush::PVFormat::debug()
 	PVLOG_PLAIN( "-------+----------------+------------------+------------------+-----------+-------------+---------+------...\n");
 
 	for (int i = 0; i < this->axes.size(); ++i) {
-	  char *fill;
+		char *fill;
 
-	  fill = fill_spaces(QString::number(i+1, 10), 7);
-	  PVLOG_PLAIN( "%d%s", i+1, fill);
-	  free(fill);
-	  fill = fill_spaces(this->axes[i]["type"], 15);
-	  PVLOG_PLAIN( "| %s%s", qPrintable(this->axes[i]["type"]), fill);
-	  free(fill);
-	  fill = fill_spaces(this->axes[i]["mapping"], 17);
-	  PVLOG_PLAIN( "| %s%s", qPrintable(this->axes[i]["mapping"]), fill);
-	  free(fill);
-	  fill = fill_spaces(this->axes[i]["plotting"], 17);
-	  PVLOG_PLAIN( "| %s%s", qPrintable(this->axes[i]["plotting"]), fill);
-	  free(fill);
-	  fill = fill_spaces(this->axes[i]["key"], 10);
-	  PVLOG_PLAIN( "| %s%s", qPrintable(this->axes[i]["key"]), fill);
-	  free(fill);
-	  fill = fill_spaces(this->axes[i]["group"], 12);
-	  PVLOG_PLAIN( "| %s%s", qPrintable(this->axes[i]["group"]), fill);
-	  free(fill);
-	  fill = fill_spaces(this->axes[i]["color"], 8);
-	  PVLOG_PLAIN( "| %s%s", qPrintable(this->axes[i]["color"]), fill);
-	  free(fill);
-	  PVLOG_PLAIN( "| %s\n", qPrintable(this->axes[i]["name"]));
+		fill = fill_spaces(QString::number(i+1, 10), 7);
+		PVLOG_PLAIN( "%d%s", i+1, fill);
+		free(fill);
+		fill = fill_spaces(this->axes[i]["type"], 15);
+		PVLOG_PLAIN( "| %s%s", qPrintable(this->axes[i]["type"]), fill);
+		free(fill);
+		fill = fill_spaces(this->axes[i]["mapping"], 17);
+		PVLOG_PLAIN( "| %s%s", qPrintable(this->axes[i]["mapping"]), fill);
+		free(fill);
+		fill = fill_spaces(this->axes[i]["plotting"], 17);
+		PVLOG_PLAIN( "| %s%s", qPrintable(this->axes[i]["plotting"]), fill);
+		free(fill);
+		fill = fill_spaces(this->axes[i]["key"], 10);
+		PVLOG_PLAIN( "| %s%s", qPrintable(this->axes[i]["key"]), fill);
+		free(fill);
+		fill = fill_spaces(this->axes[i]["group"], 12);
+		PVLOG_PLAIN( "| %s%s", qPrintable(this->axes[i]["group"]), fill);
+		free(fill);
+		fill = fill_spaces(this->axes[i]["color"], 8);
+		PVLOG_PLAIN( "| %s%s", qPrintable(this->axes[i]["color"]), fill);
+		free(fill);
+		PVLOG_PLAIN( "| %s\n", qPrintable(this->axes[i]["name"]));
 
 	}
 
 }
 
-bool PVRush::PVFormat::populate_from_xml(QDomElement const& rootNode)
+bool PVRush::PVFormat::populate_from_xml(QDomElement const& rootNode, bool allowNoFilters)
 {
 	PVRush::PVXmlParamParser xml_parser(rootNode);
-	return populate_from_parser(xml_parser);
+	return populate_from_parser(xml_parser, allowNoFilters);
 }
 
-bool PVRush::PVFormat::populate_from_xml(QString filename)
+bool PVRush::PVFormat::populate_from_xml(QString filename, bool allowNoFilters)
 {
 	PVRush::PVXmlParamParser xml_parser(filename);
-	return populate_from_parser(xml_parser);
+	return populate_from_parser(xml_parser, allowNoFilters);
 }
 
-bool PVRush::PVFormat::populate_from_parser(PVXmlParamParser& xml_parser)
+bool PVRush::PVFormat::populate_from_parser(PVXmlParamParser& xml_parser, bool allowNoFilters)
 {
 	filters_params = xml_parser.getFields();
 	axes = xml_parser.getAxes();
 	time_format = xml_parser.getTimeFormat();
 
-	return filters_params.size() > 0;
-	//regex = filters_params[0].exp;
+	return allowNoFilters | filters_params.size() > 0;
 }
 
 PVFilter::PVFieldsBaseFilter_f PVRush::PVFormat::xmldata_to_filter(PVRush::PVXmlParamParserData const& fdata)
@@ -171,8 +170,8 @@ PVFilter::PVChunkFilter_f PVRush::PVFormat::create_tbb_filters()
 
 	PVFilter::PVFieldsBaseFilter_f first_filter = xmldata_to_filter(filters_params[0]);
 	if (first_filter == NULL) {
-			PVLOG_ERROR("Unknown first filter. Ignoring it !\n");
-			return PVFilter::PVChunkFilter_f();
+		PVLOG_ERROR("Unknown first filter. Ignoring it !\n");
+		return PVFilter::PVChunkFilter_f();
 	}
 
 	// Here we create the pipeline according to the format
