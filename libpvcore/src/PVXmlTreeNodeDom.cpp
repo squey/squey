@@ -228,16 +228,17 @@ void PVCore::PVXmlTreeNodeDom::explore() {
  * PVCore::PVXmlTreeNodeDom::setTypeFromString
  *
  *****************************************************************************/
-void PVCore::PVXmlTreeNodeDom::setTypeFromString(QString nom){
+void PVCore::PVXmlTreeNodeDom::setTypeFromString(const QString &nom){
     if(nom==QString("RegEx"))type = RegEx;
     else if(nom==QString("filter"))type = filter;
     else if(nom==QString("field"))type = field;
     else if(nom==QString("axis"))type = axis;
     else if(nom==QString("url"))type = url;
+    else if(nom==QString("splitter"))type = splitter;
     
     
     //else if(nom==QString("root"))type = Root;
-    else std::cerr<<"le type '"<<nom.toStdString()<<"' n'existe pas."<<std::endl;
+    else PVLOG_ERROR("in PVCore::PVXmlTreeNodeDom::setTypeFromString : type unknow\n");
 }
 
 

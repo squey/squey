@@ -13,6 +13,7 @@ namespace PVFilter {
 class PVFieldSplitterCSVParamWidget: public QObject, public PVFieldsSplitterParamWidget {
     Q_OBJECT;
 public:
+    
     PVFieldSplitterCSVParamWidget();
     PVFieldSplitterCSVParamWidget(const PVFieldSplitterCSVParamWidget& src);
 
