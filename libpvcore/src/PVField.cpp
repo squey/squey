@@ -27,3 +27,8 @@ void PVCore::PVField::set_parent(PVCore::PVElement const& parent)
 {
 	_parent = parent.d.data();
 }
+
+void PVCore::PVField::deep_copy()
+{
+	_realloc_data();
+}

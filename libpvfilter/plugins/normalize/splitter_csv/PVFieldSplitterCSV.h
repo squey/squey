@@ -20,6 +20,7 @@ public:
 public:
 	PVCore::list_fields::size_type one_to_many(PVCore::list_fields &l, PVCore::list_fields::iterator it_ins, PVCore::PVField &field);
 	void set_args(PVCore::PVArgumentList const& args);
+	bool guess(list_guess_result_t& res, PVCore::PVField const& in_field);
 
 public:
 	static void _csv_new_field(void* s, size_t len, void* p);

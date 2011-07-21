@@ -31,17 +31,17 @@ void PVFilter::PVFieldSplitterCSVParamWidget::init()
         /*
          * action menu init
          */
-        action_menu = new QAction(QString("add CSV Splitter"),NULL);
-        
-        /*
-         * creating the widget param
-         */
-        param_widget = new QWidget();
-        //init layout
-        QVBoxLayout* layout = new QVBoxLayout(param_widget);
-        param_widget->setLayout(layout);
-        QLabel* label = new QLabel(tr("name"),NULL);
-        layout->addWidget(label);
+//        action_menu = new QAction(QString("add CSV Splitter"),NULL);
+//        
+//        /*
+//         * creating the widget param
+//         */
+//        param_widget = new QWidget();
+//        //init layout
+//        QVBoxLayout* layout = new QVBoxLayout(param_widget);
+//        param_widget->setLayout(layout);
+//        QLabel* label = new QLabel(tr("name"),NULL);
+//        layout->addWidget(label);
 }
 /******************************************************************************
  *

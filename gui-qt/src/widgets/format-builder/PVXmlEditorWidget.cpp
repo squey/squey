@@ -507,6 +507,9 @@ void PVInspector::PVXmlEditorWidget::slotOpenLog()
 
 	// First extraction
 	create_extractor();
+	QDomElement const& rootDom = myTreeModel->getRootDom();
+	PVLOG_INFO("rootDom: %d\n", rootDom.hasChildNodes());
+
 	update_table(FORMATBUILDER_EXTRACT_START_DEFAULT, FORMATBUILDER_EXTRACT_END_DEFAULT);
 }
 
