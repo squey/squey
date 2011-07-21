@@ -7,7 +7,6 @@
 #ifndef PVCORE_PVAXISINDEXCHECKBOXEDITOR_H
 #define PVCORE_PVAXISINDEXBHECKBOXEDITOR_H
 
-#include <QComboBox>
 #include <QString>
 #include <QWidget>
 

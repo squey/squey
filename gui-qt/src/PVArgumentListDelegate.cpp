@@ -13,6 +13,7 @@
 #include <PVEnumEditor.h>
 #include <PVColorGradientDualSliderEditor.h>
 #include <PVSpinBoxEditor.h>
+#include <PVAxisIndexCheckBoxEditor.h>
 
 PVInspector::PVArgumentListDelegate::PVArgumentListDelegate(Picviz::PVView& view, QTableView* parent) :
 	QStyledItemDelegate(parent)
@@ -31,9 +32,12 @@ PVInspector::PVArgumentListDelegate::PVArgumentListDelegate(Picviz::PVView& view
 	QItemEditorCreatorBase *regexp_creator = new PVArgumentEditorCreator<PVRegexpEditor>(view);
 	QItemEditorCreatorBase *dualslider_creator = new PVArgumentEditorCreator<PVColorGradientDualSliderEditor>(view);
 	QItemEditorCreatorBase *spinbox_creator = new PVArgumentEditorCreator<PVSpinBoxEditor>(view);
+	QItemEditorCreatorBase *pv_axis_index_checkbox_creator = new PVArgumentEditorCreator<PVAxisIndexCheckBoxEditor>(view);
 
+	
 	// And register them into the factory
 	factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVAxisIndexType>(), pv_axis_index_creator);
+	factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVAxisIndexCheckBoxType>(), pv_axis_index_checkbox_creator);
 	factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVAxesIndexType>(), pv_axes_index_creator);
 	factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVEnumType>(), pv_enum_creator);
 	factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVColorGradientDualSliderType>(), dualslider_creator);

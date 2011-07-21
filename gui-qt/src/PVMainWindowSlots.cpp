@@ -9,8 +9,6 @@
 #include <PVXmlEditorWidget.h>
 #include "PVLayerFilterProcessWidget.h"
 
-#include <PVCheckableComboBox.h>
-
 /******************************************************************************
  *
  * PVInspector::PVMainWindow::about_Slot()
