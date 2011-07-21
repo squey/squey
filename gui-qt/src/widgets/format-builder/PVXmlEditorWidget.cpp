@@ -249,10 +249,9 @@ void PVInspector::PVXmlEditorWidget::slotAddSplitter() {
         QString const& itype = action_src->data().toString();
         PVLOG_DEBUG("sender():%s\n",action_src->iconText().toStdString().c_str());
         PVFilter::PVFieldsSplitterParamWidget_p in_t = LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::get().get_class_by_name(itype);
-        QString name = in_t->registered_name();
-        PVFilter::PVFieldsSplitterParamWidget_p in_t_cpy = in_t->new_object<PVFilter::PVFieldsSplitterParamWidget>();
-        in_t_cpy->set_plugin_name(name);
-        PVLOG_DEBUG(" type_name %s, %s\n", qPrintable(in_t_cpy->type_name()), qPrintable(in_t_cpy->get_plugin_name()));
+        PVFilter::PVFieldsSplitterParamWidget_p in_t_cpy = in_t->clone<PVFilter::PVFieldsSplitterParamWidget>();
+		QString registered_name = in_t_cpy->registered_name();
+        PVLOG_DEBUG(" type_name %s, %s\n", qPrintable(in_t_cpy->type_name()), qPrintable(registered_name));
         myTreeView->addSplitter(in_t_cpy);
 }
 

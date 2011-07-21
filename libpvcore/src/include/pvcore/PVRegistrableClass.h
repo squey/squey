@@ -19,13 +19,18 @@ public:
 	typedef boost::shared_ptr< PVRegistrableClass<RegAs_> > p_type;
 public:
 	template <typename Tc>
-	boost::shared_ptr<Tc> clone() const { return boost::shared_ptr<Tc>((Tc*) _clone_me()); }
-    template <typename Tc>
-	boost::shared_ptr<Tc> new_object() const { return boost::shared_ptr<Tc>((Tc*) _new_object()); }
+	boost::shared_ptr<Tc> clone() const
+	{
+		PVRegistrableClass* rc = _clone_me();
+		assert(rc);
+		rc->__registered_class_name = __registered_class_name;
+		Tc* ret = dynamic_cast<Tc*>(rc);
+		assert(ret);
+		return boost::shared_ptr<Tc>(ret);
+	}
 	QString const& registered_name() { return __registered_class_name; }
 protected:
-	virtual void* _clone_me() const = 0;
-    virtual void* _new_object() const = 0;
+	virtual PVRegistrableClass* _clone_me() const = 0;
 protected:
 	QString __registered_class_name;
 };
@@ -36,7 +41,12 @@ protected:
 	public:\
 		typedef boost::shared_ptr<T> p_type;\
 	protected:\
-		virtual void* _clone_me() const { T* ret = new T(*this); return ret; }\
-        virtual void* _new_object() const { T* ret = new T(); ret->__registered_class_name = __registered_class_name; return ret; }\
+		virtual PVRegistrableClass* _clone_me() const { T* ret = new T(*this); return ret; }\
+
+#define CLASS_REGISTRABLE_NOCOPY(T) \
+	public:\
+		typedef boost::shared_ptr<T> p_type;\
+	protected:\
+		virtual PVRegistrableClass* _clone_me() const { T* ret = new T(); return ret; }\
 
 #endif
