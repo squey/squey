@@ -41,12 +41,12 @@ protected:
 	public:\
 		typedef boost::shared_ptr<T> p_type;\
 	protected:\
-		virtual PVRegistrableClass* _clone_me() const { T* ret = new T(*this); return ret; }\
+		virtual PVCore::PVRegistrableClass* _clone_me() const { T* ret = new T(*this); return ret; }\
 
 #define CLASS_REGISTRABLE_NOCOPY(T) \
 	public:\
 		typedef boost::shared_ptr<T> p_type;\
 	protected:\
-		virtual PVRegistrableClass* _clone_me() const { T* ret = new T(); return ret; }\
+		virtual PVCore::PVRegistrableClass* _clone_me() const { T* ret = new T(); return ret; }\
 
 #endif
