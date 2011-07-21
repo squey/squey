@@ -18,7 +18,6 @@ PVListFloat2D.cpp
 PVLogger.cpp
 PVPCRESplitter.cpp
 PVSplitter.cpp
-PVXmlTreeNodeDom.cpp
 )
 
 set(HEADER_FILES
@@ -52,7 +51,6 @@ include/pvcore/PVRegistrableClass.h
 include/pvcore/PVSpinBoxType.h
 include/pvcore/PVTBBMaxArray.h
 include/pvcore/PVTBBMinMaxArray.h
-include/pvcore/PVXmlTreeNodeDom.h 
 )
 
 SET(MOC_HEADERS

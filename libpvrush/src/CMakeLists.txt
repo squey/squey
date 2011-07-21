@@ -35,6 +35,7 @@ PVExtractor.cpp
 PVPluginsLoad.cpp
 PVSourceCreatorFactory.cpp
 PVTests.cpp
+PVXmlTreeNodeDom.cpp
 
 #uchardetect, from Mozilla's nsUniversalDetector
 uchardetect/CharDistribution.cpp

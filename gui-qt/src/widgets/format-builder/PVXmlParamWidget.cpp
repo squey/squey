@@ -67,7 +67,7 @@ void PVInspector::PVXmlParamWidget::drawForNo(QModelIndex) {
  * PVInspector::PVXmlParamWidget::drawForAxis
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidget::drawForAxis(PVCore::PVXmlTreeNodeDom *nodeOnClick) {
+void PVInspector::PVXmlParamWidget::drawForAxis(PVRush::PVXmlTreeNodeDom *nodeOnClick) {
     PVXmlParamWidgetBoardAxis *axisboard = new PVXmlParamWidgetBoardAxis(nodeOnClick);
     lesWidgetDuLayout.push_back(axisboard);
     layout->addWidget(axisboard);
@@ -84,7 +84,7 @@ void PVInspector::PVXmlParamWidget::drawForAxis(PVCore::PVXmlTreeNodeDom *nodeOn
  * PVInspector::PVXmlParamWidget::drawForFilter
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidget::drawForFilter(PVCore::PVXmlTreeNodeDom *nodeFilter) {
+void PVInspector::PVXmlParamWidget::drawForFilter(PVRush::PVXmlTreeNodeDom *nodeFilter) {
   
     PVXmlParamWidgetBoardFilter *filterboard = new PVXmlParamWidgetBoardFilter(nodeFilter);
     lesWidgetDuLayout.push_back(filterboard);
@@ -103,7 +103,7 @@ void PVInspector::PVXmlParamWidget::drawForFilter(PVCore::PVXmlTreeNodeDom *node
  * PVInspector::PVXmlParamWidget::drawForRegEx
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidget::drawForRegEx(PVCore::PVXmlTreeNodeDom *nodeSplitter) {
+void PVInspector::PVXmlParamWidget::drawForRegEx(PVRush::PVXmlTreeNodeDom *nodeSplitter) {
     PVXmlParamWidgetBoardSplitterRegEx *regExpBoard = new PVXmlParamWidgetBoardSplitterRegEx(nodeSplitter);
     lesWidgetDuLayout.push_back(regExpBoard);
     layout->addWidget(regExpBoard);
@@ -312,21 +312,21 @@ void PVInspector::PVXmlParamWidget::edit(QModelIndex const& index) {
         //}
         //confirmApply = false;
         editingIndex = index;
-        PVCore::PVXmlTreeNodeDom *nodeOnClick = (PVCore::PVXmlTreeNodeDom *) index.internalPointer();
+        PVRush::PVXmlTreeNodeDom *nodeOnClick = (PVRush::PVXmlTreeNodeDom *) index.internalPointer();
         
      
         
-        if (nodeOnClick->type == PVCore::PVXmlTreeNodeDom::filter) {
+        if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::filter) {
 	  drawForFilter(nodeOnClick);
 	}else
-        if (nodeOnClick->type == PVCore::PVXmlTreeNodeDom::RegEx) {
+        if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::RegEx) {
             drawForRegEx(nodeOnClick);
             //confirmApply = false;
         }else
-        if (nodeOnClick->type == PVCore::PVXmlTreeNodeDom::axis){
+        if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::axis){
 	  drawForAxis(nodeOnClick);
 	}else
-        if (nodeOnClick->type == PVCore::PVXmlTreeNodeDom::splitter){
+        if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::splitter){
 	  //nop
 	}
     }

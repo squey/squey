@@ -59,6 +59,11 @@ PVRush::PVNraw& PVRush::PVExtractor::get_nraw()
 	return _nraw;
 }
 
+PVRush::PVFormat& PVRush::PVExtractor::get_format()
+{
+	return *_nraw.format;
+}
+
 PVCore::chunk_index PVRush::PVExtractor::pvrow_to_agg_index(PVRow start, bool& found)
 {
 	PVCore::chunk_index ret = 0;
@@ -184,11 +189,11 @@ void PVRush::PVExtractor::dump_nraw()
 //		debug_qstringlist(_nraw.table[i]);
 //	}
 
-	PVLOG_INFO("Trans nraw:\n");
-	for (int i = 0; i < picviz_min(10,_nraw.trans_table.size()); i++) {
+	PVLOG_INFO("Nraw:\n");
+	for (int i = 0; i < picviz_min(10,_nraw.table.size()); i++) {
 		PVLOG_INFO("Line %d: ", i);
-		for (int j = 0; j < picviz_min(10,_nraw.table.size()); j++) {
-			std::cout << qPrintable(_nraw.trans_table[i][j]) << ",";
+		for (int j = 0; j < _nraw.table[i].size(); j++) {
+			std::cout << qPrintable(_nraw.table[i][j]) << ",";
 		}
 		std::cout << std::endl;
 	}

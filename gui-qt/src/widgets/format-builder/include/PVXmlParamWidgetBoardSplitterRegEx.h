@@ -25,7 +25,7 @@
 #include <QAbstractItemModel>
 
 
-#include <pvcore/PVXmlTreeNodeDom.h>
+#include <pvrush/PVXmlTreeNodeDom.h>
 #include <PVXmlParamWidgetEditorBox.h>
 #include <PVXmlParamTextEdit.h>
 #include <PVXmlParamComboBox.h>
@@ -34,7 +34,7 @@ namespace PVInspector{
 class PVXmlParamWidgetBoardSplitterRegEx : public QWidget {
     Q_OBJECT
 public:
-    PVXmlParamWidgetBoardSplitterRegEx(PVCore::PVXmlTreeNodeDom *pNode);
+    PVXmlParamWidgetBoardSplitterRegEx(PVRush::PVXmlTreeNodeDom *pNode);
     virtual ~PVXmlParamWidgetBoardSplitterRegEx();
     
     bool confirmAndSave();
@@ -66,7 +66,7 @@ private:
     bool useTableVerifie();
 
     //editing node
-    PVCore::PVXmlTreeNodeDom *node;
+    PVRush::PVXmlTreeNodeDom *node;
     bool flagNeedConfirmAndSave;
     bool flagAskConfirmActivated;
     bool flagSaveRegExpValidator;

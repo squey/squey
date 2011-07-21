@@ -26,7 +26,7 @@
 
 #define PVXmlTreeNodeDom_initXml "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<!DOCTYPE PVParamXml>\n<param></param>\n"
     
-namespace PVCore{
+namespace PVRush {
 class PVXmlTreeNodeDom:public QObject {
     
 public:
@@ -98,7 +98,7 @@ public:
     int getRow();
 
 	void setFromArgumentList(PVCore::PVArgumentList const& args);
-	void toArgumentList(PVCore::PVArgumentList const& default_args, PVArgumentList& args);
+	void toArgumentList(PVCore::PVArgumentList const& default_args, PVCore::PVArgumentList& args);
     bool isEditable() {
         if (type == splitter || type == filter || type == url || type == axis || type == RegEx) {
             return true;

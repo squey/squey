@@ -77,9 +77,9 @@ namespace PVRush {
 			/* Methods */
 			void clear();
 			void debug();
-			bool populate_from_xml(QString filename);
-			bool populate_from_xml(QDomElement const& rootNode);
-			bool populate();
+			bool populate_from_xml(QString filename, bool allowNoFilters = false);
+			bool populate_from_xml(QDomElement const& rootNode, bool allowNoFilters = false);
+			bool populate(bool allowNoFilters = false);
 			PVFilter::PVChunkFilter_f create_tbb_filters();
 			static QHash<QString, PVRush::PVFormat> list_formats_in_dir(QString const& format_name_prefix, QString const& dir);
 
@@ -105,7 +105,7 @@ namespace PVRush {
 
 		protected:
 			PVFilter::PVFieldsBaseFilter_f xmldata_to_filter(PVRush::PVXmlParamParserData const& fdata);
-			bool populate_from_parser(PVXmlParamParser& xml_parser);
+			bool populate_from_parser(PVXmlParamParser& xml_parser, bool allowNoFilters = false);
 
 		protected:
 			// "Widget" arguments of the format, like:

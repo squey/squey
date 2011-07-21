@@ -3,7 +3,7 @@
 //! Copyright (C) Sébastien Tricaud 2011-2011
 //! Copyright (C) Philippe Saadé 2011-2011
 //! Copyright (C) Picviz Labs 2011
-#include <pvcore/PVXmlTreeNodeDom.h>
+#include <pvrush/PVXmlTreeNodeDom.h>
 
 #define dbg {qDebug()<<__FILE__<<":"<<__LINE__;}
 
@@ -12,10 +12,10 @@
 
 /******************************************************************************
  *
- * PVCore::PVXmlTreeNodeDom::PVXmlTreeNodeDom
+ * PVRush::PVXmlTreeNodeDom::PVXmlTreeNodeDom
  *
  *****************************************************************************/
-PVCore::PVXmlTreeNodeDom::PVXmlTreeNodeDom() {
+PVRush::PVXmlTreeNodeDom::PVXmlTreeNodeDom() {
         setObjectName("PVXmlTreeNodeDom");
 }
 
@@ -24,10 +24,10 @@ PVCore::PVXmlTreeNodeDom::PVXmlTreeNodeDom() {
 
 /******************************************************************************
  *
- * PVCore::PVXmlTreeNodeDom::PVXmlTreeNodeDom
+ * PVRush::PVXmlTreeNodeDom::PVXmlTreeNodeDom
  *
  *****************************************************************************/
-PVCore::PVXmlTreeNodeDom::PVXmlTreeNodeDom(Type _type, const QString &_str,  QDomElement &dom, QDomDocument &xmlFile_) {
+PVRush::PVXmlTreeNodeDom::PVXmlTreeNodeDom(Type _type, const QString &_str,  QDomElement &dom, QDomDocument &xmlFile_) {
     this->type = _type;
     this->str=_str;
     this->xmlDomElement=dom;
@@ -41,10 +41,10 @@ PVCore::PVXmlTreeNodeDom::PVXmlTreeNodeDom(Type _type, const QString &_str,  QDo
 
 /******************************************************************************
  *
- * PVCore::PVXmlTreeNodeDom::PVXmlTreeNodeDom
+ * PVRush::PVXmlTreeNodeDom::PVXmlTreeNodeDom
  *
  *****************************************************************************/
-PVCore::PVXmlTreeNodeDom::PVXmlTreeNodeDom(QDomElement const& dom) {
+PVRush::PVXmlTreeNodeDom::PVXmlTreeNodeDom(QDomElement const& dom) {
     setTypeFromString(dom.tagName());
     this->xmlDomElement = dom;
     parent = 0;
@@ -58,10 +58,10 @@ PVCore::PVXmlTreeNodeDom::PVXmlTreeNodeDom(QDomElement const& dom) {
 
 /******************************************************************************
  *
- * PVCore::PVXmlTreeNodeDom::~PVXmlTreeNodeDom
+ * PVRush::PVXmlTreeNodeDom::~PVXmlTreeNodeDom
  *
  *****************************************************************************/
-PVCore::PVXmlTreeNodeDom::~PVXmlTreeNodeDom() {
+PVRush::PVXmlTreeNodeDom::~PVXmlTreeNodeDom() {
     qDeleteAll(children);
 }
 
@@ -69,10 +69,10 @@ PVCore::PVXmlTreeNodeDom::~PVXmlTreeNodeDom() {
 
 /******************************************************************************
  *
- * PVCore::PVXmlTreeNodeDom::addChild
+ * PVRush::PVXmlTreeNodeDom::addChild
  *
  *****************************************************************************/
-void PVCore::PVXmlTreeNodeDom::addChild(PVCore::PVXmlTreeNodeDom *child) {
+void PVRush::PVXmlTreeNodeDom::addChild(PVRush::PVXmlTreeNodeDom *child) {
     child->setParent(this);//set his parent
     child->setDoc(xmlFile);//set the dom node
     if (child->xmlDomElement.tagName() == "axis" || child->xmlDomElement.tagName() == "RegEx"|| child->xmlDomElement.tagName() == "url"|| child->xmlDomElement.tagName() =="field"){
@@ -84,10 +84,10 @@ void PVCore::PVXmlTreeNodeDom::addChild(PVCore::PVXmlTreeNodeDom *child) {
 
 /******************************************************************************
  *
- * PVCore::PVXmlTreeNodeDom::addChildAt
+ * PVRush::PVXmlTreeNodeDom::addChildAt
  *
  *****************************************************************************/
-void PVCore::PVXmlTreeNodeDom::addChildAt(PVCore::PVXmlTreeNodeDom *child, int row){
+void PVRush::PVXmlTreeNodeDom::addChildAt(PVRush::PVXmlTreeNodeDom *child, int row){
     this->children.insert(row,child);
 }
 
@@ -95,11 +95,11 @@ void PVCore::PVXmlTreeNodeDom::addChildAt(PVCore::PVXmlTreeNodeDom *child, int r
 
 /******************************************************************************
  *
- * PVCore::PVXmlTreeNodeDom::getChild
+ * PVRush::PVXmlTreeNodeDom::getChild
  *
  *****************************************************************************/
 
-PVCore::PVXmlTreeNodeDom* PVCore::PVXmlTreeNodeDom::getChild(int i){
+PVRush::PVXmlTreeNodeDom* PVRush::PVXmlTreeNodeDom::getChild(int i){
     return this->getChildren().takeAt(i);
 }
 
@@ -107,10 +107,10 @@ PVCore::PVXmlTreeNodeDom* PVCore::PVXmlTreeNodeDom::getChild(int i){
 
 /******************************************************************************
  *
- * PVCore::PVXmlTreeNodeDom::getChildren()
+ * PVRush::PVXmlTreeNodeDom::getChildren()
  *
  *****************************************************************************/
-QList<PVCore::PVXmlTreeNodeDom*> PVCore::PVXmlTreeNodeDom::getChildren(){
+QList<PVRush::PVXmlTreeNodeDom*> PVRush::PVXmlTreeNodeDom::getChildren(){
     if(this->isAlreadyExplored) return this->children;
     else{explore();}//explore the tree structure.
     return this->children;
@@ -120,10 +120,10 @@ QList<PVCore::PVXmlTreeNodeDom*> PVCore::PVXmlTreeNodeDom::getChildren(){
 
 /******************************************************************************
  *
- * PVCore::PVXmlTreeNodeDom::countChildren
+ * PVRush::PVXmlTreeNodeDom::countChildren
  *
  *****************************************************************************/
-int PVCore::PVXmlTreeNodeDom::countChildren(){
+int PVRush::PVXmlTreeNodeDom::countChildren(){
     return this->getChildren().count();
 }
 
@@ -131,10 +131,10 @@ int PVCore::PVXmlTreeNodeDom::countChildren(){
 
 /******************************************************************************
  *
- * PVCore::PVXmlTreeNodeDom::getParent
+ * PVRush::PVXmlTreeNodeDom::getParent
  *
  *****************************************************************************/
-PVCore::PVXmlTreeNodeDom * PVCore::PVXmlTreeNodeDom::getParent(){
+PVRush::PVXmlTreeNodeDom * PVRush::PVXmlTreeNodeDom::getParent(){
     return this->parent;
 }
 
@@ -142,10 +142,10 @@ PVCore::PVXmlTreeNodeDom * PVCore::PVXmlTreeNodeDom::getParent(){
 
 /******************************************************************************
  *
- *  PVCore::PVXmlTreeNodeDom::setParent
+ *  PVRush::PVXmlTreeNodeDom::setParent
  *
  *****************************************************************************/
-void PVCore::PVXmlTreeNodeDom::setParent(PVCore::PVXmlTreeNodeDom *p_parent){
+void PVRush::PVXmlTreeNodeDom::setParent(PVRush::PVXmlTreeNodeDom *p_parent){
     this->parent = p_parent;
 }
 
@@ -156,7 +156,7 @@ void PVCore::PVXmlTreeNodeDom::setParent(PVCore::PVXmlTreeNodeDom *p_parent){
  * PVInspector::PVXmlTreeNodeDom::getName
  *
  *****************************************************************************/
-QString PVCore::PVXmlTreeNodeDom::getName() {
+QString PVRush::PVXmlTreeNodeDom::getName() {
     //if(this->type==Root)return "root";
     switch (this->type){
         case RegEx:;
@@ -189,10 +189,10 @@ QString PVCore::PVXmlTreeNodeDom::getName() {
 
 /******************************************************************************
  *
- * PVCore::PVXmlTreeNodeDom::setName
+ * PVRush::PVXmlTreeNodeDom::setName
  *
  *****************************************************************************/
-void PVCore::PVXmlTreeNodeDom::setName(QString nom) {
+void PVRush::PVXmlTreeNodeDom::setName(QString nom) {
     switch (this->type){
         case RegEx:;// // set the attribute name
         case axis:;// // set the attribute name
@@ -206,10 +206,10 @@ void PVCore::PVXmlTreeNodeDom::setName(QString nom) {
 
 /******************************************************************************
  *
- * PVCore::PVXmlTreeNodeDom::explore
+ * PVRush::PVXmlTreeNodeDom::explore
  *
  *****************************************************************************/
-void PVCore::PVXmlTreeNodeDom::explore() {
+void PVRush::PVXmlTreeNodeDom::explore() {
     this->isAlreadyExplored = true;
 
     /* search for child in the dom.*/
@@ -225,10 +225,10 @@ void PVCore::PVXmlTreeNodeDom::explore() {
 
 /******************************************************************************
  *
- * PVCore::PVXmlTreeNodeDom::setTypeFromString
+ * PVRush::PVXmlTreeNodeDom::setTypeFromString
  *
  *****************************************************************************/
-void PVCore::PVXmlTreeNodeDom::setTypeFromString(const QString &nom){
+void PVRush::PVXmlTreeNodeDom::setTypeFromString(const QString &nom){
     if(nom==QString("RegEx"))type = RegEx;
     else if(nom==QString("filter"))type = filter;
     else if(nom==QString("field"))type = field;
@@ -238,17 +238,17 @@ void PVCore::PVXmlTreeNodeDom::setTypeFromString(const QString &nom){
     
     
     //else if(nom==QString("root"))type = Root;
-    else PVLOG_ERROR("in PVCore::PVXmlTreeNodeDom::setTypeFromString : type unknow\n");
+    else PVLOG_ERROR("in PVRush::PVXmlTreeNodeDom::setTypeFromString : type unknow\n");
 }
 
 
 
 /******************************************************************************
  *
- * PVCore::PVXmlTreeNodeDom::deleteFromTree
+ * PVRush::PVXmlTreeNodeDom::deleteFromTree
  *
  *****************************************************************************/
-void PVCore::PVXmlTreeNodeDom::deleteFromTree() {
+void PVRush::PVXmlTreeNodeDom::deleteFromTree() {
     if (this->getParent()->getDom().tagName() != "param") {
         this->xmlDomElement.parentNode().removeChild(this->xmlDomElement);
         this->getParent()->removeChild(this);
@@ -262,10 +262,10 @@ void PVCore::PVXmlTreeNodeDom::deleteFromTree() {
 
 /******************************************************************************
  *
- * PVCore::PVXmlTreeNodeDom::removeChild
+ * PVRush::PVXmlTreeNodeDom::removeChild
  *
  *****************************************************************************/
-void PVCore::PVXmlTreeNodeDom::removeChild(PVXmlTreeNodeDom *child){
+void PVRush::PVXmlTreeNodeDom::removeChild(PVXmlTreeNodeDom *child){
     this->children.removeOne(child);
 }
 
@@ -273,10 +273,10 @@ void PVCore::PVXmlTreeNodeDom::removeChild(PVXmlTreeNodeDom *child){
 
 /******************************************************************************
  *
- * PVCore::PVXmlTreeNodeDom::getRow
+ * PVRush::PVXmlTreeNodeDom::getRow
  *
  *****************************************************************************/
-int PVCore::PVXmlTreeNodeDom::getRow(){
+int PVRush::PVXmlTreeNodeDom::getRow(){
     return parent->children.indexOf(this,0);
 }
 
@@ -285,11 +285,11 @@ int PVCore::PVXmlTreeNodeDom::getRow(){
 
 /******************************************************************************
  *
- * PVCore::PVXmlTreeNodeDom::newFilterAfter
+ * PVRush::PVXmlTreeNodeDom::newFilterAfter
  *
  *****************************************************************************/
 
-void PVCore::PVXmlTreeNodeDom::newFilterAfter(int indexeThisParmisFrere){
+void PVRush::PVXmlTreeNodeDom::newFilterAfter(int indexeThisParmisFrere){
     //create the new dom element
     QDomElement domEltNewFilter=this->xmlFile.createElement("filter");//create the dom
     domEltNewFilter.setAttribute("name","new filter");//set the name
@@ -306,10 +306,10 @@ void PVCore::PVXmlTreeNodeDom::newFilterAfter(int indexeThisParmisFrere){
 
 /******************************************************************************
  *
- * PVCore::PVXmlTreeNodeDom::newSplitterAfter
+ * PVRush::PVXmlTreeNodeDom::newSplitterAfter
  *
  *****************************************************************************/
-void PVCore::PVXmlTreeNodeDom::newSplitterAfter(int indexeThisParmisFrere, QString tag){
+void PVRush::PVXmlTreeNodeDom::newSplitterAfter(int indexeThisParmisFrere, QString tag){
 
     //create the new dom element
     QDomElement domEltNewSplit=this->xmlFile.createElement(tag);//create the dom
@@ -327,10 +327,10 @@ void PVCore::PVXmlTreeNodeDom::newSplitterAfter(int indexeThisParmisFrere, QStri
 
 /******************************************************************************
  *
- * PVCore::PVXmlTreeNodeDom::setDoc
+ * PVRush::PVXmlTreeNodeDom::setDoc
  *
  *****************************************************************************/
-void PVCore::PVXmlTreeNodeDom::setDoc(QDomDocument &file){
+void PVRush::PVXmlTreeNodeDom::setDoc(QDomDocument &file){
     this->xmlFile = file;
 }
 
@@ -338,10 +338,10 @@ void PVCore::PVXmlTreeNodeDom::setDoc(QDomDocument &file){
 
 /******************************************************************************
  *
- * PVCore::PVXmlTreeNodeDom::getExpression
+ * PVRush::PVXmlTreeNodeDom::getExpression
  *
  *****************************************************************************/
-QString PVCore::PVXmlTreeNodeDom::getExpression() {
+QString PVRush::PVXmlTreeNodeDom::getExpression() {
     switch (this->type){
         case RegEx:;
         case filter:return this->xmlDomElement.attribute("expression", ".*");break;
@@ -354,10 +354,10 @@ QString PVCore::PVXmlTreeNodeDom::getExpression() {
 
 /******************************************************************************
  *
- * PVCore::PVXmlTreeNodeDom::setExpression
+ * PVRush::PVXmlTreeNodeDom::setExpression
  *
  *****************************************************************************/
-void PVCore::PVXmlTreeNodeDom::setExpression(QString exp) {
+void PVRush::PVXmlTreeNodeDom::setExpression(QString exp) {
     switch (this->type) {
         case RegEx:this->xmlDomElement.setAttribute("expression", exp);
             break;
@@ -371,10 +371,10 @@ void PVCore::PVXmlTreeNodeDom::setExpression(QString exp) {
 
 /******************************************************************************
  *
- * PVCore::PVXmlTreeNodeDom::getNbr
+ * PVRush::PVXmlTreeNodeDom::getNbr
  *
  *****************************************************************************/
-int PVCore::PVXmlTreeNodeDom::getNbr() {
+int PVRush::PVXmlTreeNodeDom::getNbr() {
     switch (this->type) {
         case RegEx:return this->xmlDomElement.childNodes().count();break;
         default:break;
@@ -384,10 +384,10 @@ int PVCore::PVXmlTreeNodeDom::getNbr() {
 
 /******************************************************************************
  *
- * PVCore::PVXmlTreeNodeDom::getOutName
+ * PVRush::PVXmlTreeNodeDom::getOutName
  *
  *****************************************************************************/
-QString PVCore::PVXmlTreeNodeDom::getOutName() {
+QString PVRush::PVXmlTreeNodeDom::getOutName() {
     QString l;
     if (this->type == field) {// its a field whiche is selected...
         for(int i=0;i<children.count();i++){
@@ -401,10 +401,10 @@ QString PVCore::PVXmlTreeNodeDom::getOutName() {
 
 /******************************************************************************
  *
- * PVCore::PVXmlTreeNodeDom::getOutWidget
+ * PVRush::PVXmlTreeNodeDom::getOutWidget
  *
  *****************************************************************************/
-PVCore::PVXmlTreeNodeDom* PVCore::PVXmlTreeNodeDom::getOutWidget(){
+PVRush::PVXmlTreeNodeDom* PVRush::PVXmlTreeNodeDom::getOutWidget(){
   PVXmlTreeNodeDom *l;
     if (this->type == field) {// its a field whiche is selected...
         for(int i=0;i<children.count();i++){
@@ -422,10 +422,10 @@ PVCore::PVXmlTreeNodeDom* PVCore::PVXmlTreeNodeDom::getOutWidget(){
 
 /******************************************************************************
  *
- * PVCore::PVXmlTreeNodeDom::setNbr
+ * PVRush::PVXmlTreeNodeDom::setNbr
  *
  *****************************************************************************/
-void PVCore::PVXmlTreeNodeDom::setNbr(int nbr) {
+void PVRush::PVXmlTreeNodeDom::setNbr(int nbr) {
   //this function update the number of field in the regexp
     switch (this->type) {
         case RegEx:
@@ -444,10 +444,10 @@ void PVCore::PVXmlTreeNodeDom::setNbr(int nbr) {
 
 /******************************************************************************
  *
- * PVCore::PVXmlTreeNodeDom::getDom
+ * PVRush::PVXmlTreeNodeDom::getDom
  *
  *****************************************************************************/
-QDomElement PVCore::PVXmlTreeNodeDom::getDom(){
+QDomElement PVRush::PVXmlTreeNodeDom::getDom(){
     return xmlDomElement;
 }
 
@@ -455,10 +455,10 @@ QDomElement PVCore::PVXmlTreeNodeDom::getDom(){
 
 /******************************************************************************
  *
- * PVCore::PVXmlTreeNodeDom::addField
+ * PVRush::PVXmlTreeNodeDom::addField
  *
  *****************************************************************************/
-void PVCore::PVXmlTreeNodeDom::addField(int nbr) {
+void PVRush::PVXmlTreeNodeDom::addField(int nbr) {
    
     if (this->type == RegEx && nbr > 0) {
         for (int i = 0; i < nbr; i++) {
@@ -489,14 +489,14 @@ void PVCore::PVXmlTreeNodeDom::addField(int nbr) {
 
 /******************************************************************************
  *
- * PVCore::PVXmlTreeNodeDom::delField
+ * PVRush::PVXmlTreeNodeDom::delField
  *
  *****************************************************************************/
 /**
 * delete the n last field.
 * @param n
 */
-void PVCore::PVXmlTreeNodeDom::delField(int n) {
+void PVRush::PVXmlTreeNodeDom::delField(int n) {
     for (int i = 0; i < n; i++) {
         PVXmlTreeNodeDom *lastChild=children.at(children.count()-1);
         removeChild(lastChild);
@@ -508,10 +508,10 @@ void PVCore::PVXmlTreeNodeDom::delField(int n) {
 
 /******************************************************************************
  *
- * PVCore::PVXmlTreeNodeDom::addRegExRacine
+ * PVRush::PVXmlTreeNodeDom::addRegExRacine
  *
  *****************************************************************************/
-void PVCore::PVXmlTreeNodeDom::addRegExRacine(){
+void PVRush::PVXmlTreeNodeDom::addRegExRacine(){
     QDomElement elt = this->xmlFile.createElement("RegEx");//create the dom element
     PVXmlTreeNodeDom* child = new PVXmlTreeNodeDom(elt);//create the node 
     child->setParent(this);//place the node
@@ -522,10 +522,10 @@ void PVCore::PVXmlTreeNodeDom::addRegExRacine(){
 
 /******************************************************************************
  *
- * PVCore::PVXmlTreeNodeDom::addFilterRacine
+ * PVRush::PVXmlTreeNodeDom::addFilterRacine
  *
  *****************************************************************************/
-void PVCore::PVXmlTreeNodeDom::addFilterRacine(){
+void PVRush::PVXmlTreeNodeDom::addFilterRacine(){
     QDomElement elt = this->xmlFile.createElement("filter");//create the dom element
     PVXmlTreeNodeDom* child = new PVXmlTreeNodeDom(elt);//create the node
     child->isOnRoot=true;
@@ -537,10 +537,10 @@ void PVCore::PVXmlTreeNodeDom::addFilterRacine(){
 
 /******************************************************************************
  *
- * PVCore::PVXmlTreeNodeDom::typeToString
+ * PVRush::PVXmlTreeNodeDom::typeToString
  *
  *****************************************************************************/
-QString PVCore::PVXmlTreeNodeDom::typeToString() {
+QString PVRush::PVXmlTreeNodeDom::typeToString() {
   //return the type as a QString
     if (type == RegEx)return "RegEx";
     if (type == filter)return "filter";
@@ -556,10 +556,10 @@ QString PVCore::PVXmlTreeNodeDom::typeToString() {
 
 /******************************************************************************
  *
- * PVCore::PVXmlTreeNodeDom::setAttribute
+ * PVRush::PVXmlTreeNodeDom::setAttribute
  *
  *****************************************************************************/
-void PVCore::PVXmlTreeNodeDom::setAttribute(QString name, QString value, bool flagSaveInXml) {
+void PVRush::PVXmlTreeNodeDom::setAttribute(QString name, QString value, bool flagSaveInXml) {
   //PVLOG_INFO("PVXmlTreeNodeDom::setAttribute('%s','%s')\n",name.toUtf8().constData(),value.toUtf8().constData());
       if(flagSaveInXml){
 	  xmlDomElement.setAttribute(name, value);
@@ -573,10 +573,10 @@ void PVCore::PVXmlTreeNodeDom::setAttribute(QString name, QString value, bool fl
 
 /******************************************************************************
  *
- * PVCore::PVXmlTreeNodeDom::getAttribute
+ * PVRush::PVXmlTreeNodeDom::getAttribute
  *
  *****************************************************************************/
-QString PVCore::PVXmlTreeNodeDom::getAttribute(QString name, bool flagReadInXml) {
+QString PVRush::PVXmlTreeNodeDom::getAttribute(QString name, bool flagReadInXml) {
   //PVLOG_INFO("PVXmlTreeNodeDom::getAttribute( %s )\n",name.toUtf8().constData());
     if(flagReadInXml){
 	//update the savedvalue
@@ -598,25 +598,25 @@ QString PVCore::PVXmlTreeNodeDom::getAttribute(QString name, bool flagReadInXml)
 
 /******************************************************************************
  *
- * PVCore::PVXmlTreeNodeDom::isFieldOfUrl
+ * PVRush::PVXmlTreeNodeDom::isFieldOfUrl
  *
  *****************************************************************************/
-bool PVCore::PVXmlTreeNodeDom::isFieldOfUrl(){
+bool PVRush::PVXmlTreeNodeDom::isFieldOfUrl(){
     if(getParent()->xmlDomElement.tagName()=="url")return true;
     return false;
 }
 
-void PVCore::PVXmlTreeNodeDom::setFromArgumentList(PVArgumentList const& args)
+void PVRush::PVXmlTreeNodeDom::setFromArgumentList(PVCore::PVArgumentList const& args)
 {
-	PVArgumentList::const_iterator it;
+	PVCore::PVArgumentList::const_iterator it;
 	for (it = args.begin(); it != args.end(); it++) {
 		setAttribute(it.key(), PVCore::PVArgument_to_QString(it.value()), true);
 	}
 }
 
-void PVCore::PVXmlTreeNodeDom::toArgumentList(PVArgumentList const& default_args, PVArgumentList& args)
+void PVRush::PVXmlTreeNodeDom::toArgumentList(PVCore::PVArgumentList const& default_args, PVCore::PVArgumentList& args)
 {
-	PVArgumentList::const_iterator it;
+	PVCore::PVArgumentList::const_iterator it;
 	for (it = default_args.begin(); it != default_args.end(); it++) {
 		QString const& key = it.key();
 		QString v = getAttribute(key, true);
