@@ -44,13 +44,16 @@ class LibRushDecl PVXmlParamParser {
 public:
 	typedef QList<PVXmlParamParserData> list_params;
 public:
-	PVXmlParamParser(QString nameFile);
+	PVXmlParamParser(QString const& nameFile);
+	PVXmlParamParser(QDomElement const& rootNode);
 	virtual ~PVXmlParamParser();
-	int setDom(QDomElement, int l=-1);
+
+public:
+	int setDom(QDomElement const& node, int id = -1);
 	QList<QHash<QString, QString> > const& getAxes()const;
 	QList<PVXmlParamParserData> const& getFields()const;
 	QHash<int, QStringList> const& getTimeFormat()const;
-    unsigned int getVersion(){return format_version;}
+    unsigned int getVersion() { return format_version; }
     
 private:
 	QList<PVXmlParamParserData> fields;

@@ -235,3 +235,9 @@ void PVRush::PVExtractor::clear_saved_nraw()
 		_saved_nraw_valid = false;
 	}
 }
+
+void PVRush::PVExtractor::set_format(PVFormat const& format)
+{
+	PVFormat* nraw_format = new PVFormat(format);
+	_nraw.format.reset(nraw_format);
+}

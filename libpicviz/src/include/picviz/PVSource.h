@@ -67,7 +67,10 @@ public:
 	QString get_value(PVRow row, PVCol col);
 	void set_limits(PVRow min, PVRow max);
 
+	void set_format(PVRush::PVFormat const& format);
+
 	PVRush::PVControllerJob_p files_append(PVRush::PVFormat const& format, PVRush::PVSourceCreator_p sc, PVRush::PVInputType::list_inputs inputs);
+	void files_append_noextract(PVRush::PVFormat const& format, PVRush::PVSourceCreator_p sc, PVRush::PVInputType::list_inputs inputs);
 	PVRush::PVExtractor& get_extractor();
 
 protected:

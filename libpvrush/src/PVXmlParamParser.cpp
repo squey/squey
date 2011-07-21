@@ -22,7 +22,7 @@ QString PVRush::PVXmlParamParserExceptionPluginNotFound::what()
 
 // PVXmlParamParser class
 
-PVRush::PVXmlParamParser::PVXmlParamParser(QString nameFile)
+PVRush::PVXmlParamParser::PVXmlParamParser(QString const& nameFile)
 {
 	QFile fichier(nameFile);
 	if(!fichier.exists()) {
@@ -43,6 +43,11 @@ PVRush::PVXmlParamParser::PVXmlParamParser(QString nameFile)
 	fichier.close();
 }
 
+PVRush::PVXmlParamParser::PVXmlParamParser(QDomElement const& rootNode)
+{
+	setDom(rootNode);
+}
+
 PVRush::PVXmlParamParser::~PVXmlParamParser()
 {
 }
@@ -52,7 +57,7 @@ QHash<int, QStringList> const& PVRush::PVXmlParamParser::getTimeFormat() const
 	return time_format;
 }
 
-int PVRush::PVXmlParamParser::setDom(QDomElement node, int id)
+int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id)
 {
 	PVFilter::PVFilterLibrary<PVFilter::PVFieldsFilterReg> const& filters_lib = PVFilter::PVFilterLibrary<PVFilter::PVFieldsFilterReg>::get();
 

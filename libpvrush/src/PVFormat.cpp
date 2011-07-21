@@ -123,9 +123,20 @@ void PVRush::PVFormat::debug()
 
 }
 
+bool PVRush::PVFormat::populate_from_xml(QDomElement const& rootNode)
+{
+	PVRush::PVXmlParamParser xml_parser(rootNode);
+	return populate_from_parser(xml_parser);
+}
+
 bool PVRush::PVFormat::populate_from_xml(QString filename)
 {
 	PVRush::PVXmlParamParser xml_parser(filename);
+	return populate_from_parser(xml_parser);
+}
+
+bool PVRush::PVFormat::populate_from_parser(PVXmlParamParser& xml_parser)
+{
 	filters_params = xml_parser.getFields();
 	axes = xml_parser.getAxes();
 	time_format = xml_parser.getTimeFormat();
@@ -153,9 +164,9 @@ PVFilter::PVFieldsBaseFilter_f PVRush::PVFormat::xmldata_to_filter(PVRush::PVXml
 PVFilter::PVChunkFilter_f PVRush::PVFormat::create_tbb_filters()
 {
 	PVLOG_INFO("Create filters for format %s\n", qPrintable(format_name));
-	if (filters_params.size() == 0) {
-		PVLOG_ERROR("Invalid format: no filters !\n");
-		return PVFilter::PVChunkFilter_f();
+	if (filters_params.size() == 0) { // No filters, set an empty filter
+		PVFilter::PVChunkFilter* null_filter = new PVFilter::PVChunkFilter();
+		return null_filter->f();
 	}
 
 	PVFilter::PVFieldsBaseFilter_f first_filter = xmldata_to_filter(filters_params[0]);
@@ -217,3 +228,4 @@ QHash<QString, PVRush::PVFormat> PVRush::PVFormat::list_formats_in_dir(QString c
 
 	return ret;
 }
+

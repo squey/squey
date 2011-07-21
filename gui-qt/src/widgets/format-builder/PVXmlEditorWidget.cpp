@@ -11,7 +11,7 @@
 #include <PVXmlParamWidget.h>
 #include <PVInputTypeMenuEntries.h>
 
-
+#include <pvrush/PVSourceCreatorFactory.h>
 
 /******************************************************************************
  *
@@ -451,5 +451,61 @@ void PVInspector::PVXmlEditorWidget::initMenuBar() {
 void PVInspector::PVXmlEditorWidget::slotOpenLog()
 {
 	PVRush::PVInputType_p in_t = PVInputTypeMenuEntries::input_type_from_action((QAction*) sender());
-	// AG: TODO !
+	PVRush::list_creators lcr = PVRush::PVSourceCreatorFactory::get_by_input_type(in_t);
+
+	QString choosenFormat;
+	PVRush::PVInputType::list_inputs inputs;
+	PVRush::hash_formats formats;
+
+	if (!in_t->createWidget(formats, inputs, choosenFormat, this))
+		return; // This means that the user pressed the "cancel" button
+
+	// Get the first input selected
+	_log_input = inputs.begin()->toString();
+
+	// Pre discover the input w/ the source creators
+	PVRush::list_creators::const_iterator itcr;
+	_log_sc.reset();
+	_log_input_type.reset();
+	for (itcr = lcr.begin(); itcr != lcr.end(); itcr++) {
+		PVRush::PVSourceCreator_p sc = *itcr;
+		if (sc->pre_discovery(_log_input)) {
+			_log_sc = sc;
+			break;
+		}
+	}
+
+	if (!_log_sc) {
+		QMessageBox box(QMessageBox::Critical, tr("Error"), tr("No input plugins can manage the source file '%1'. Aborting...").arg(in_t->human_name_of_input(_log_input)));
+		_log_input = PVCore::PVArgument(); // No log input
+		return;
+	}
+
+	_log_input_type = in_t;
+
+	// First extraction
+	create_extractor();
+	update_table();
+}
+
+void PVInspector::PVXmlEditorWidget::create_extractor()
+{
+	_log_extract.reset(new PVRush::PVExtractor());
+	_log_extract->add_source(_log_sc->create_source_from_input(_log_input));
+}
+
+void PVInspector::PVXmlEditorWidget::set_format_from_dom()
+{
+	QDomElement const& rootDom = myTreeModel->getRootDom();
+	PVRush::PVFormat format;
+	format.populate_from_xml(rootDom);
+	_log_extract->set_format(format);
+}
+
+void PVInspector::PVXmlEditorWidget::update_table()
+{
+	set_format_from_dom();
+	// Create the nraw thanks to the extractor
+	PVRush::PVControllerJob_p job = _log_extract->process_from_agg_idxes(0, 100);
+	job->wait_end();
 }

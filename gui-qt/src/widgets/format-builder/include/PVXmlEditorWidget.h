@@ -27,7 +27,11 @@
 #include <pvrush/PVNormalizer.h>
 #include <pvcore/PVRegistrableClass.h>
 #include <pvcore/PVClassLibrary.h>
+#include <pvcore/PVArgument.h>
 #include <pvfilter/PVFieldsFilterParamWidget.h>
+#include <pvrush/PVSourceCreator.h>
+#include <pvrush/PVExtractor.h>
+#include <pvrush/PVInputType.h>
 
 namespace PVInspector{
 
@@ -94,6 +98,18 @@ private:
 	list_splitters_t _list_splitters;///!<list of the plugins splitters
 	list_filters_t _list_filters;///!<list of the plugins filters
 
+// Log input management
+
+protected:
+	void update_table();
+	void set_format_from_dom();
+	void create_extractor();
+
+protected:
+	PVCore::PVArgument _log_input;
+	PVRush::PVInputType_p _log_input_type;
+	PVRush::PVSourceCreator_p _log_sc;
+	boost::shared_ptr<PVRush::PVExtractor> _log_extract; 
     
 
 public slots:

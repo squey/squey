@@ -97,6 +97,10 @@ public:
 	 */
 	PVNraw& get_nraw();
 
+	/*! \brief Set the format of the NRaw
+	 */
+	void set_format(PVFormat const& format);
+
 	/*! \brief Save a copy of the current NRaw
 	 *
 	 * Save a copy of the current NRaw. If a copy has already been saved, it is ereased by this one.

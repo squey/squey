@@ -133,6 +133,8 @@ public:
     int countParent(const QModelIndex &index);
     
     PVCore::PVXmlTreeNodeDom *nodeFromIndex(const QModelIndex &index)const;
+
+	QDomElement const& getRootDom() const { return xmlRootDom; }
     
 private:
     PVCore::PVXmlTreeNodeDom *rootNode;
