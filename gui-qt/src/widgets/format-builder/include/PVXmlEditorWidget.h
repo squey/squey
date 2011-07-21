@@ -63,6 +63,8 @@ private:
     
     void actionAllocation();
     
+    void hideParamBoard();
+    
     /**
      * initialise les connexions dont tout les emitter/reciever sont des attributs
      * de la classe
@@ -100,6 +102,8 @@ private:
     void initSplitters();    
 	list_splitters_t _list_splitters;///!<list of the plugins splitters
 	list_filters_t _list_filters;///!<list of the plugins filters
+    
+    void showParamBoard(PVRush::PVXmlTreeNodeDom *node);
 
 // Log input management
 

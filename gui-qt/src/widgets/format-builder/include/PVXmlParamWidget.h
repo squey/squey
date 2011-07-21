@@ -54,13 +54,20 @@ public:
     /**
      * clear the parameter box.
      * @param index
+     * @todo will be delete when all splitter will be plugins
      */
     void drawForNo(QModelIndex index);
     /**
      * Draw the regexp parameter box.
      * @param nodeSplitter
+     * @todo will be delete when all splitter will be plugins
      */
     void drawForRegEx(PVRush::PVXmlTreeNodeDom  *nodeSplitter);
+    /**
+     * Draw the regexp parameter box.
+     * @param nodeSplitter
+     */
+    void drawForSplitter(PVRush::PVXmlTreeNodeDom  *nodeSplitter);
     /**
      * Dras the axis parameter box.
      * @param nodeOnClick

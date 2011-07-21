@@ -98,7 +98,6 @@ void PVRush::PVXmlTreeNodeDom::addChildAt(PVRush::PVXmlTreeNodeDom *child, int r
  * PVRush::PVXmlTreeNodeDom::getChild
  *
  *****************************************************************************/
-
 PVRush::PVXmlTreeNodeDom* PVRush::PVXmlTreeNodeDom::getChild(int i){
     return this->getChildren().takeAt(i);
 }
@@ -128,6 +127,21 @@ int PVRush::PVXmlTreeNodeDom::countChildren(){
 }
 
 
+
+/******************************************************************************
+ *
+ * PVRush::PVXmlTreeNodeDom::createSplitterPlugin
+ *
+ *****************************************************************************/
+void PVRush::PVXmlTreeNodeDom::createSplitterPlugin(const QDomElement &domElt){
+        QString plugName = domElt.attribute("type","-");
+        PVLOG_DEBUG("sender():%s\n",qPrintable(plugName));
+        PVFilter::PVFieldsSplitterParamWidget_p in_t = LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::get().get_class_by_name(plugName);
+        PVFilter::PVFieldsSplitterParamWidget_p in_t_cpy = in_t->clone<PVFilter::PVFieldsSplitterParamWidget>();
+		QString registered_name = in_t_cpy->registered_name();
+        PVLOG_DEBUG(" type_name %s, %s\n", qPrintable(in_t_cpy->type_name()), qPrintable(registered_name));
+        setSplitterPlugin(in_t_cpy);
+}
 
 /******************************************************************************
  *
@@ -180,6 +194,9 @@ QString PVRush::PVXmlTreeNodeDom::getName() {
 	      QString selectionRegExp = getParent()->getAttribute(selectionRegExpName, "");
 	      return selectionRegExp;
 	    }
+        case splitter:
+            return this->xmlDomElement.attribute("name", "");
+            break;
         default:return this->str;
     }
     return this->str;
@@ -197,6 +214,9 @@ void PVRush::PVXmlTreeNodeDom::setName(QString nom) {
         case RegEx:;// // set the attribute name
         case axis:;// // set the attribute name
         case filter:this->xmlDomElement.setAttribute("name",nom);break;// set the attribute name
+        case splitter:
+                this->xmlDomElement.setAttribute("name",nom);
+                break;
         case field: ;
         default:this->str = nom;
     }

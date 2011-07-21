@@ -359,6 +359,7 @@ void PVInspector::PVXmlEditorWidget::slotOpen(){
     if(f.exists()){//if the file exists...
       myTreeModel->openXml(urlFile);//open it
     }
+    //
 }
 
 
@@ -386,9 +387,8 @@ void PVInspector::PVXmlEditorWidget::slotSave() {
  *
  *****************************************************************************/
 void PVInspector::PVXmlEditorWidget::slotUpdateToolDesabled(const QModelIndex &index){
-        PVLOG_DEBUG("PVInspector::PVXmlEditorWidget::slotUpdateToolDesabled\n");
     PVRush::PVXmlTreeNodeDom *node = myTreeModel->nodeFromIndex(index);
-    myParamBord = &emptyParamBoard;
+    hideParamBoard();
     
     if (node->getDom().tagName() == "field") {
         myTreeView->expandRecursive(index);
@@ -411,7 +411,7 @@ void PVInspector::PVXmlEditorWidget::slotUpdateToolDesabled(const QModelIndex &i
         actionDelete->setEnabled(true);
     } else if (node->getDom().tagName() == "splitter") {
         myTreeView->expandRecursive(index);
-        myParamBord = node->getSplitterPlugin()->get_param_widget();
+        //showParamBoard(node);
         actionAddFilterAfter->setEnabled(false);
         actionAddAxisIn->setEnabled(false);
         actionAddRegExAfter->setEnabled(false);
@@ -469,6 +469,12 @@ void PVInspector::PVXmlEditorWidget::initMenuBar() {
         }
 }
 
+
+/******************************************************************************
+ *
+ * PVInspector::PVXmlEditorWidget::slotOpenLog
+ *
+ *****************************************************************************/
 void PVInspector::PVXmlEditorWidget::slotOpenLog()
 {
 	PVRush::PVInputType_p in_t = PVInputTypeMenuEntries::input_type_from_action((QAction*) sender());
@@ -522,6 +528,14 @@ void PVInspector::PVXmlEditorWidget::create_extractor()
 	_log_extract->start_controller();
 	_log_extract->add_source(_log_sc->create_source_from_input(_log_input));
 }
+/******************************************************************************
+ *
+ * PVInspector::PVXmlEditorWidget::hideParamBoard
+ *
+ *****************************************************************************/
+void PVInspector::PVXmlEditorWidget::hideParamBoard(){
+        PVLOG_DEBUG("PVFilter::PVFieldSplitterCSVParamWidget::hideParamBoard()\n");
+}
 
 void PVInspector::PVXmlEditorWidget::set_format_from_dom()
 {
@@ -532,7 +546,22 @@ void PVInspector::PVXmlEditorWidget::set_format_from_dom()
 	_log_extract->set_chunk_filter(_log_extract->get_format().create_tbb_filters());
 }
 
+
+/******************************************************************************
+ *
+ * PVInspector::PVXmlEditorWidget::showParamBoard
+ *
+ *****************************************************************************/
+void PVInspector::PVXmlEditorWidget::showParamBoard(PVRush::PVXmlTreeNodeDom *node){
+        assert(node);
+        PVLOG_DEBUG("PVInspector::PVXmlEditorWidget::showParamBoard()\n");
+        
+        //myParamBord=node->getSplitterPlugin()->get_param_widget();
+
+}
+
 void PVInspector::PVXmlEditorWidget::update_table(PVRow start, PVRow end)
+
 {
 	assert(end > start);
 	_nraw_model->set_consistent(false);

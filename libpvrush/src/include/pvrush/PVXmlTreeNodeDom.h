@@ -28,7 +28,7 @@
     
 namespace PVRush {
 class PVXmlTreeNodeDom:public QObject {
-    
+    Q_OBJECT
 public:
     enum Type {
         Root, field, RegEx, filter, axis, url, splitter
@@ -142,9 +142,21 @@ public:
 
     int getNbr();
     void setNbr(int nbr);
+
+    void setSplitterPlugin(PVFilter::PVFieldsSplitterParamWidget_p plugin) {
+        splitterPlugin = plugin;
+        QObject::connect(splitterPlugin->get_as_qobject(),SIGNAL(data_changed()),this,SLOT(slot_update()));
+    }
+
+    PVFilter::PVFieldsSplitterParamWidget_p getSplitterPlugin() {
+        if(!splitterPlugin){
+            createSplitterPlugin(xmlDomElement);
+            getSplitterPlugin()->set_child_count(countChildren());
+        }
+        return splitterPlugin;
+    }
     
-    void setSplitterPlugin(PVFilter::PVFieldsSplitterParamWidget_p plugin){ splitterPlugin = plugin;}
-    PVFilter::PVFieldsSplitterParamWidget_p getSplitterPlugin(){return splitterPlugin;}
+    void createSplitterPlugin(const QDomElement &);
     
     QDomElement getDom();
     
@@ -160,6 +172,16 @@ public:
      * @return 
      */
     QString getAttribute(QString name, bool flagReadInXml=true);
+    
+    QWidget* getParamWidget(){
+        int children_count = getChildren().size();
+        PVCore::PVArgumentList args,args_default;
+        args_default = getSplitterPlugin()->get_default_argument();
+        toArgumentList(args_default,args);
+        getSplitterPlugin()->get_filter()->set_args(args);
+        getSplitterPlugin()->set_child_count(children_count);
+        return getSplitterPlugin()->get_param_widget();
+    }
     
     
     
@@ -234,6 +256,15 @@ private:
     
 
     bool isFieldOfUrl();
+    
+public slots:
+    void slot_update(){
+        PVLOG_DEBUG("PVXmlTreeNodeDom slot slot_update()\n");
+        setFromArgumentList(getSplitterPlugin()->get_filter()->get_args());
+        PVLOG_DEBUG("      %d\n",getSplitterPlugin()->get_child_new_num());
+        setNbr(getSplitterPlugin()->get_child_new_num());
+    }
+
     
 };
 }
