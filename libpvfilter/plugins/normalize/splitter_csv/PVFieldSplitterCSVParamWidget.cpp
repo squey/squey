@@ -34,7 +34,8 @@ void PVFilter::PVFieldSplitterCSVParamWidget::init()
  *****************************************************************************/
 QWidget* PVFilter::PVFieldSplitterCSVParamWidget::get_param_widget()
 {
-	return NULL;
+        QWidget* w = new QWidget();
+	return w;
 }
 
 

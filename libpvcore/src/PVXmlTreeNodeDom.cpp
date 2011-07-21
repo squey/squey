@@ -548,6 +548,7 @@ QString PVCore::PVXmlTreeNodeDom::typeToString() {
     if (type == axis)return "axis";
     if (type == Root)return "Root";
     if(type == url)return "url";
+    if(type == splitter)return "splitter";
     return "";
 }
 

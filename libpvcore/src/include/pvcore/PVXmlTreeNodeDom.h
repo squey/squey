@@ -19,6 +19,7 @@
 
 #include <pvcore/general.h>
 #include <pvcore/PVArgument.h>
+#include <pvfilter/PVFieldsFilterParamWidget.h>
 
 #define trace_2(texte,texte2) { std::cout<<texte<<" "<<texte2<<std::endl; }
 
@@ -98,9 +99,13 @@ public:
 
 	void setFromArgumentList(PVCore::PVArgumentList const& args);
 	void toArgumentList(PVCore::PVArgumentList const& default_args, PVArgumentList& args);
-    
-    
-    bool isEditable(){if (type==filter||type==url||type==axis||type==RegEx){return true;}else{return false;}}
+    bool isEditable() {
+        if (type == splitter || type == filter || type == url || type == axis || type == RegEx) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     
     
@@ -137,6 +142,9 @@ public:
 
     int getNbr();
     void setNbr(int nbr);
+    
+    void setSplitterPlugin(PVFilter::PVFieldsSplitterParamWidget_p plugin){ splitterPlugin = plugin;}
+    PVFilter::PVFieldsSplitterParamWidget_p getSplitterPlugin(){return splitterPlugin;}
     
     QDomElement getDom();
     
@@ -195,7 +203,7 @@ private:
     QString str;
     
     QHash<QString,QString> otherData;
-    
+    PVFilter::PVFieldsSplitterParamWidget_p splitterPlugin;
     
     
     

@@ -48,7 +48,9 @@ private:
     //
     PVXmlTreeView *myTreeView;
     PVXmlDomModel *myTreeModel;
+    PVXmlParamWidget *myParamBord_old_model;
     PVXmlParamWidget *myParamBord;
+    PVXmlParamWidget emptyParamBoard;
     //
     QVBoxLayout *vbParam;
     QMenuBar *menuBar;
