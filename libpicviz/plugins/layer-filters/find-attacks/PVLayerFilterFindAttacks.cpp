@@ -5,8 +5,16 @@
 //! Copyright (C) Picviz Labs 2011
 
 #include "PVLayerFilterFindAttacks.h"
+
 #include <picviz/PVColor.h>
 #include <pvcore/PVAxisIndexType.h>
+
+#include <QDir>
+#include <QString>
+
+static QString snort_sigs_path;
+static QString nessus_sigs_path;
+static QHash<QString, QStringList> signatures;
 
 /******************************************************************************
  *
@@ -17,6 +25,77 @@ Picviz::PVLayerFilterFindAttacks::PVLayerFilterFindAttacks(PVCore::PVArgumentLis
 	: PVLayerFilter(l)
 {
 	INIT_FILTER(PVLayerFilterFindAttacks, l);
+
+	PVLOG_INFO("[%s] Initializing...\n", __FUNCTION__);
+	snort_sigs_path = pvconfig.value("layer-filter-attack-finder/snort_sigs_path").toString();
+	PVLOG_INFO("[%s] Snort plugins path: '%s'\n", __FUNCTION__, qPrintable(snort_sigs_path));
+	nessus_sigs_path = pvconfig.value("layer-filter-attack-finder/nessus_sigs_path").toString();
+	PVLOG_INFO("[%s] Nessus plugins path: '%s'\n", __FUNCTION__, qPrintable(nessus_sigs_path));
+
+
+	PVLOG_INFO("[%s] Indexing Snort data...\n", __FUNCTION__);
+	QDir snort_dir(snort_sigs_path);
+	snort_dir.setFilter(QDir::Files | QDir::NoSymLinks);
+	QStringList filters;
+	filters << "*.rules";
+	snort_dir.setNameFilters(filters);
+	if (!snort_dir.exists()) {
+		PVLOG_ERROR("[%s] Cannot find the snort directory: '%s'\n", __FUNCTION__, qPrintable(snort_sigs_path));
+	} else {
+		QFileInfoList files_list = snort_dir.entryInfoList();
+
+		QRegExp snort_useragent_rx(".*User-Agent\\|3a\\| ([^\";\\|]*)\"; .*");
+
+		for (int i = 0; i < files_list.size(); ++i) {
+			QFileInfo fileInfo = files_list.at(i);
+			QString rule_path = snort_sigs_path + PICVIZ_PATH_SEPARATOR + fileInfo.fileName();
+			PVLOG_INFO("[%s] indexing %s\n", __FUNCTION__, qPrintable(rule_path));
+			QFile snort_rule(rule_path);
+			QByteArray data;
+
+			if (!snort_rule.open(QIODevice::ReadOnly | QIODevice::Text)) {
+				PVLOG_INFO("Cannot open %s\n", qPrintable(rule_path));
+				continue;
+			}
+			
+			data = snort_rule.readLine();
+			while (!data.isEmpty()) {
+				data.chop(1);
+				if (data.isEmpty()) {
+					data = snort_rule.readLine();
+					continue;
+				}
+
+				if (data.at(0) == '#') {
+					// We have a comment, we ignore
+					continue;
+				}
+				// PVLOG_INFO("data=%s\n", data.data());
+				int unused_pos = snort_useragent_rx.indexIn(data);
+				QStringList rxlist = snort_useragent_rx.capturedTexts();
+				rxlist.removeFirst();
+				if (snort_useragent_rx.exactMatch(data)) {
+					if (!rxlist[0].isEmpty()) {
+						if (rxlist[0].length() > 3) { // 3 is prone to false positives
+							signatures["Snort User Agents"] << rxlist[0];
+						}
+						// PVLOG_INFO("MATCH '%s'\n", qPrintable(rxlist[0]));
+					}
+				}
+
+				data = snort_rule.readLine();
+			}
+			snort_rule.close();
+		}
+	}
+
+	// QDir nessus_dir(nessus_sigs_path);
+	// if (!nessus_dir.exists()) {
+	// 	PVLOG_ERROR("Cannot find the nessus directory: '%s'\n", qPrintable(nessus_sigs_path));
+	// } else {
+	// 	// Nessus code
+	// }
+
 }
 
 /******************************************************************************
@@ -27,8 +106,12 @@ Picviz::PVLayerFilterFindAttacks::PVLayerFilterFindAttacks(PVCore::PVArgumentLis
 DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterFindAttacks)
 {
 	PVCore::PVArgumentList args;
-	// args["Regular expression"] = QRegExp("(.*)");
+
 	args["Domain Axis"].setValue(PVCore::PVAxisIndexType(0));
+	args["URL Axis"].setValue(PVCore::PVAxisIndexType(0));
+	args["Variable Axis"].setValue(PVCore::PVAxisIndexType(0));
+	args["User Agent Axis"].setValue(PVCore::PVAxisIndexType(0));
+
 	return args;
 }
 
@@ -39,34 +122,29 @@ DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterFindAttacks)
  *****************************************************************************/
 void Picviz::PVLayerFilterFindAttacks::operator()(PVLayer& /*in*/, PVLayer &out)
 {	
-	int axis_id = _args["Domain Axis"].value<PVCore::PVAxisIndexType>().get_original_index();
-	// QRegExp re = _args["Regular expression"].toRegExp();
-	// PVLOG_INFO("Apply filter search to axis %d with regexp %s.\n", axis_id, qPrintable(re.pattern()));
-
+	int ua_axis_id = _args["User Agent Axis"].value<PVCore::PVAxisIndexType>().get_original_index();
 	PVRow nb_lines = _view->get_qtnraw_parent().size();
 
 	PVRush::PVNraw::nraw_table const& nraw = _view->get_qtnraw_parent();
 
-	// Find for hotmail
-	QRegExp hotmail_re(".*mail.live.com.*");
-	PVSelection hotmail_sel;
-	PVLinesProperties hotmail_lp;
+	QStringList snort_ua = signatures["Snort User Agents"];
 	for (PVRow r = 0; r < nb_lines; r++) {
 		PVRush::PVNraw::nraw_table_line const& nraw_r = nraw.at(r);
-		hotmail_sel.set_line(r, hotmail_re.indexIn(nraw_r[axis_id]) != -1);
-	}
-	PVLayer hotmail_layer("Hotmail", hotmail_sel, hotmail_lp);
-	_view->layer_stack.append_layer(hotmail_layer);
 
-	QRegExp yahoo_re(".*mail.yahoo.com.*");
-	PVSelection yahoo_sel;
-	PVLinesProperties yahoo_lp;
-	for (PVRow r = 0; r < nb_lines; r++) {
-		PVRush::PVNraw::nraw_table_line const& nraw_r = nraw.at(r);
-		yahoo_sel.set_line(r, yahoo_re.indexIn(nraw_r[axis_id]) != -1);
+		// We search for user agents
+		for (int i=0; i < snort_ua.size(); i++) {
+			if (snort_ua[i].length() == nraw_r[ua_axis_id].length()) {
+				QStringMatcher matcher(snort_ua[i]);
+				int retval = matcher.indexIn(nraw_r[ua_axis_id]);
+				if (retval >= 0) {
+					PVLOG_INFO("find string '%s' in '%s'\n", qPrintable(snort_ua[i]), qPrintable(nraw_r[ua_axis_id]));
+				}
+				PVLOG_INFO("we set the line %d to %d\n", r, retval < 0 ? 0 : 1);
+				out.get_selection().set_line(r, retval < 0 ? 0 : 1);			
+			}
+		}
+
 	}
-	PVLayer yahoo_layer("Yahoo", yahoo_sel, yahoo_lp);
-	_view->layer_stack.append_layer(yahoo_layer);
 
 }
 
