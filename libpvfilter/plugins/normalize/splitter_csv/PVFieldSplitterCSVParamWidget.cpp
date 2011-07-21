@@ -16,11 +16,13 @@ PVFilter::PVFieldSplitterCSVParamWidget::PVFieldSplitterCSVParamWidget() :
         init();
 }
 
+#if 0
 PVFilter::PVFieldSplitterCSVParamWidget::PVFieldSplitterCSVParamWidget(const PVFieldSplitterCSVParamWidget& /*src*/) :
         QObject(), PVFieldsSplitterParamWidget(PVFilter::PVFieldsSplitter_p(new PVFieldSplitterCSV()))
 {
         init();
 }
+#endif
 
 void PVFilter::PVFieldSplitterCSVParamWidget::init()
 {

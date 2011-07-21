@@ -15,7 +15,7 @@ class PVFieldSplitterCSVParamWidget: public QObject, public PVFieldsSplitterPara
 public:
     
     PVFieldSplitterCSVParamWidget();
-    PVFieldSplitterCSVParamWidget(const PVFieldSplitterCSVParamWidget& src);
+    //PVFieldSplitterCSVParamWidget(const PVFieldSplitterCSVParamWidget& src);
 
 private:
     QAction* action_menu;
@@ -33,7 +33,7 @@ public:
 private:
     void init();
     
-    CLASS_REGISTRABLE(PVFieldSplitterCSVParamWidget)
+    CLASS_REGISTRABLE_NOCOPY(PVFieldSplitterCSVParamWidget)
     
 
 };

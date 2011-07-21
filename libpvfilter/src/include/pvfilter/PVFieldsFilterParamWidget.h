@@ -53,9 +53,6 @@ public:
     QAction* get_action_menu() { return NULL; }
     QString get_xml_tag() { return QString(""); }
     
-    void set_plugin_name(QString const& name) { _name_filter = name; }
-    QString get_plugin_name() { return _name_filter; }
-    
     void set_id(int /*id*/) {}
     
 
@@ -64,7 +61,6 @@ public:
     
 
 protected:
-	QString _name_filter;
 	PVFilter::fields_filter_type _type;
 	typename PVFilter::PVFieldsFilter<Ttype>::p_type _filter;
 };

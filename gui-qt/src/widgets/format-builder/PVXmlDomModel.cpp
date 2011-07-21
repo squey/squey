@@ -475,9 +475,9 @@ void PVInspector::PVXmlDomModel::addSplitter(const QModelIndex &index, PVFilter:
                 QDomElement newDom = xmlFile.createElement("splitter");
                 PVLOG_DEBUG("          set tag %s \n",qPrintable(splitterPlugin->type_name()));
                 newDom.setTagName(splitterPlugin->type_name());
-                QString test = splitterPlugin->get_plugin_name();
-                PVLOG_DEBUG("          set type %s\n",qPrintable(test));
-                newDom.setAttribute("type",test);
+                QString registered_name = splitterPlugin->registered_name();
+                PVLOG_DEBUG("          set type %s\n",qPrintable(registered_name));
+                newDom.setAttribute("type",registered_name);
                 PVLOG_DEBUG("          add child\n");
                 rootNode->getDom().appendChild(newDom);
                 PVLOG_DEBUG("          added in dom\n");
