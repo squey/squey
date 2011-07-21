@@ -733,14 +733,6 @@ void PVInspector::PVMainWindow::import_type_Slot()
 		QString tab_name = in_t->tab_name_of_inputs(inputs);
 		tab_name += QString(" / ")+type;
 
-#ifndef CUDA
-		// Transient view. This need to be created before posting the "PVGL_COM_FUNCTION_CREATE_VIEW" message,
-		// because the actual GL view is created by this message. Cf. libpvgl/src/PVMain.cpp::timer_func
-		// for more informations.
-		message.function = PVGL_COM_FUNCTION_PLEASE_WAIT;
-		message.pointer_1 = new QString(tab_name);
-		pvgl_com->post_message_to_gl(message);
-#endif
 		PVRush::PVControllerJob_p job_import;
 		try {
 			job_import = import_source->files_append(fc.first, fc.second, inputs);
@@ -768,6 +760,16 @@ void PVInspector::PVMainWindow::import_type_Slot()
 		}
 		import_source->set_limits(pv_ImportFileDialog->from_line_edit->text().toUInt(), pv_ImportFileDialog->to_line_edit->text().toUInt());
 		import_source->get_extractor().dump_nraw();
+
+#ifndef CUDA
+		// Transient view. This need to be created before posting the "PVGL_COM_FUNCTION_CREATE_VIEW" message,
+		// because the actual GL view is created by this message. Cf. libpvgl/src/PVMain.cpp::timer_func
+		// for more informations.
+		message.function = PVGL_COM_FUNCTION_PLEASE_WAIT;
+		message.pointer_1 = new QString(tab_name);
+		pvgl_com->post_message_to_gl(message);
+#endif
+
 		import_mapping = Picviz::PVMapping_p(new Picviz::PVMapping(import_source));
 		import_mapped = Picviz::PVMapped_p(new Picviz::PVMapped(import_mapping));
 		import_plotting = Picviz::PVPlotting_p(new Picviz::PVPlotting(import_mapped));
