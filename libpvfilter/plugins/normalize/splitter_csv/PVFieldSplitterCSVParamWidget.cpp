@@ -27,7 +27,20 @@ PVFilter::PVFieldSplitterCSVParamWidget::PVFieldSplitterCSVParamWidget(const PVF
 void PVFilter::PVFieldSplitterCSVParamWidget::init()
 {
         PVLOG_DEBUG("init PVFieldSplitterCSVParamWidget\n");
+        /*
+         * action menu init
+         */
         action_menu = new QAction(QString("add CSV Splitter"),NULL);
+        
+        /*
+         * creating the widget param
+         */
+        param_widget = new QWidget();
+        //init layout
+        QBoxLayout* layout = new QBoxLayout(param_widget);
+        param_widget->setLayout(layout);
+        QLabel* label = new QLabel(tr("name"),layout);
+        layout->addWidget(label);
 }
 /******************************************************************************
  *
@@ -36,8 +49,7 @@ void PVFilter::PVFieldSplitterCSVParamWidget::init()
  *****************************************************************************/
 QWidget* PVFilter::PVFieldSplitterCSVParamWidget::get_param_widget()
 {
-        QWidget* w = new QWidget();
-	return w;
+        return param_widget;
 }
 
 
