@@ -2,6 +2,7 @@ include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/libpicviz/src/include)
 include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/libpvgl/src/include)
 
 include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/gui-qt/src/include)
+include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/gui-qt/src/widgets/)
 include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/gui-qt/src/widgets/format-builder/include)
 include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/gui-qt/src/widgets/remote-log/include)
 include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/gui-qt/src/widgets/editors/include)
@@ -67,6 +68,8 @@ include/PVSaveFileDialog.h
 include/PVStringListChooserWidget.h
 include/PVTabSplitter.h
 
+widgets/PVCheckableComboBox.h
+
 widgets/editors/include/PVAxisIndexEditor.h
 widgets/editors/include/PVAxesIndexEditor.h
 widgets/editors/include/PVColorGradientDualSliderEditor.h
@@ -89,8 +92,6 @@ widgets/format-builder/include/PVXmlParamWidgetEditorBox.h
 widgets/format-builder/include/PVXmlRegValidatorHighLight.h
 widgets/format-builder/include/PVXmlTreeItemDelegate.h
 widgets/format-builder/include/PVXmlTimeValidatorHighLight.h
-
-
 
 # include/logviewer/addmachinedialog.h
 # include/logviewer/fileconnectiondialog.h
@@ -136,6 +137,8 @@ PVProgressBox.cpp
 PVSaveFileDialog.cpp
 PVStringListChooserWidget.cpp
 PVTabSplitter.cpp
+
+widgets/PVCheckableComboBox.cpp
 
 widgets/editors/PVAxisIndexEditor.cpp
 widgets/editors/PVAxesIndexEditor.cpp

@@ -23,7 +23,7 @@ public:
 	 * Constructor
 	 */
 	PVAxisIndexCheckBoxType();
-	PVAxisIndexCheckBoxType(int origin_axis_index);
+	PVAxisIndexCheckBoxType(int origin_axis_index, bool is_checked);
 
 	int get_original_index();
 	bool is_checked();

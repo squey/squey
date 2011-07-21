@@ -23,7 +23,7 @@ int PVCore::PVAxisIndexCheckBoxType::get_original_index()
 	return _origin_axis_index;
 }
 
-bool PVCore::PVAxisIndexCheckBoxType::get_checked()
+bool PVCore::PVAxisIndexCheckBoxType::is_checked()
 {
 	return _is_checked;
 }
