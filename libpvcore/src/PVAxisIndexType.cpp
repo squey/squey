@@ -7,17 +7,24 @@
 #include <pvcore/general.h>
 #include <pvcore/PVAxisIndexType.h>
 
-PVCore::PVAxisIndexType::PVAxisIndexType()
+PVCore::PVAxisIndexType::PVAxisIndexType(bool append_none_axis)
 {
 	_origin_axis_index = -1;
+	_append_none_axis = append_none_axis;
 }
 
-PVCore::PVAxisIndexType::PVAxisIndexType(int origin_axis_index)
+PVCore::PVAxisIndexType::PVAxisIndexType(int origin_axis_index, bool append_none_axis)
 {
 	_origin_axis_index = origin_axis_index;
+	_append_none_axis = append_none_axis;
 }
 
 int PVCore::PVAxisIndexType::get_original_index()
 {
 	return _origin_axis_index;
+}
+
+bool PVCore::PVAxisIndexType::get_append_none_axis()
+{
+	return _append_none_axis;
 }

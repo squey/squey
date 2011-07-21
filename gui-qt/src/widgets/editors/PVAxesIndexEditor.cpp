@@ -46,7 +46,7 @@ void PVInspector::PVAxesIndexEditor::set_axes_index(PVCore::PVAxesIndexType axes
 			
 	QStringList const& axes = _view.get_axes_names_list();
 	QListWidgetItem* item;
-	
+
 	for (int i = 0; i < axes.count(); i++) {
 		item = new QListWidgetItem(axes[i]);
 		addItem(item);
