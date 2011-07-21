@@ -54,7 +54,7 @@ public:
     void addAxisIn(const QModelIndex &index);
     void addFisrtRegEx();
     void addFirstFilter();
-    void addSplitter(const QModelIndex &index, PVFilter::PVFieldsSplitterParamWidget_p splitterPlugin);
+	PVRush::PVXmlTreeNodeDom* addSplitter(const QModelIndex &index, PVFilter::PVFieldsSplitterParamWidget_p splitterPlugin);
     void addRegExIn(const QModelIndex &index);
     void addUrlIn(const QModelIndex &index);
     

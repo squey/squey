@@ -12,6 +12,7 @@
 #include <PVInputTypeMenuEntries.h>
 
 #include <pvrush/PVSourceCreatorFactory.h>
+#include <pvfilter/PVFieldSplitterChunkMatch.h>
 
 /******************************************************************************
  *
@@ -513,8 +514,9 @@ void PVInspector::PVXmlEditorWidget::slotOpenLog()
 
 	// First extraction
 	create_extractor();
-	QDomElement const& rootDom = myTreeModel->getRootDom();
-	PVLOG_INFO("rootDom: %d\n", rootDom.hasChildNodes());
+	if (is_dom_empty()) {
+		guess_first_splitter();
+	}
 
 	update_table(FORMATBUILDER_EXTRACT_START_DEFAULT, FORMATBUILDER_EXTRACT_END_DEFAULT);
 }
@@ -526,8 +528,32 @@ void PVInspector::PVXmlEditorWidget::create_extractor()
 	}
 	_log_extract.reset(new PVRush::PVExtractor());
 	_log_extract->start_controller();
-	_log_extract->add_source(_log_sc->create_source_from_input(_log_input));
+	_log_source = _log_sc->create_source_from_input(_log_input);
+	_log_extract->add_source(_log_source);
 }
+
+void PVInspector::PVXmlEditorWidget::guess_first_splitter()
+{
+	// Guess first splitter and add it to the dom before parsing it !
+	// The dom is the reference in here.
+
+	PVFilter::PVFieldsSplitter_p sp = PVFilter::PVFieldSplitterChunkMatch::get_match_on_input(_log_source);
+	if (!sp) {
+		// No splitter matches, just do nothing
+		return;
+	}
+
+	// Ok, we got a match, add it to the dom.
+	//PVLOG_INFO("(format_builder) For input '%s', found a splitter that creates %d columns.", qPrintable(_log_input_type->human_name_of_input(_log_input)), nfields);
+
+	// TODO: QMessageBox ask;
+	
+	// Get the widget that comes with the splitter. TODO: do better than that
+	PVFilter::PVFieldsSplitterParamWidget_p sp_widget = LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::get().get_class_by_name(sp->type_name() + QString("_") + sp->registered_name());
+	PVRush::PVXmlTreeNodeDom* node = myTreeView->addSplitter(sp_widget);	
+	node->setFromArgumentList(sp->get_args());
+}
+
 /******************************************************************************
  *
  * PVInspector::PVXmlEditorWidget::hideParamBoard
@@ -579,4 +605,10 @@ void PVInspector::PVXmlEditorWidget::slotExtractorPreview()
 	PVRow start,end;
 	_nraw_widget->get_ext_args(start,end);
 	update_table(start,end);
+}
+
+bool PVInspector::PVXmlEditorWidget::is_dom_empty()
+{
+	QDomElement const& rootDom = myTreeModel->getRootDom();
+	return rootDom.hasChildNodes();
 }

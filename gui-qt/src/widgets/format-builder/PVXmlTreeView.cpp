@@ -81,10 +81,10 @@ void PVInspector::PVXmlTreeView::addFilterAfter() {
  * PVInspector::PVXmlTreeView::addSplitter
  *
  *****************************************************************************/
-void PVInspector::PVXmlTreeView::addSplitter(PVFilter::PVFieldsSplitterParamWidget_p splitterPlugin){
+PVRush::PVXmlTreeNodeDom* PVInspector::PVXmlTreeView::addSplitter(PVFilter::PVFieldsSplitterParamWidget_p splitterPlugin){
         PVLOG_DEBUG("PVInspector::PVXmlTreeView::addSplitter \n");
         QModelIndex index = getSelectedIndex();
-        getModel()->addSplitter(index,splitterPlugin);
+        return getModel()->addSplitter(index,splitterPlugin);
 }
 
 

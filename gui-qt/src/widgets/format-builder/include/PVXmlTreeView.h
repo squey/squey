@@ -15,7 +15,6 @@
 
 
 #include <iostream>
-//#include <pvrush/PVXmlTreeNodeDom.h>
 #include <PVXmlParamWidget.h>
 #include <PVXmlDomModel.h>
 #include <pvfilter/PVFieldsFilterParamWidget.h>
@@ -24,6 +23,10 @@
 //QTreeView
 
 const int ExtraHeight = 3;
+
+namespace PVRush {
+class PVXmlTreeNodeDom;
+}
 
 namespace PVInspector {
   
@@ -50,7 +53,7 @@ public:
      * add a new splitter in DOM refering to the splitter plugin
      * @param splitterPlugin : new instance of the plugin requesting the new splitter
      */
-    void addSplitter(PVFilter::PVFieldsSplitterParamWidget_p splitterPlugin);
+	PVRush::PVXmlTreeNodeDom* addSplitter(PVFilter::PVFieldsSplitterParamWidget_p splitterPlugin);
     
     /**
      * Add a new RegEx after the selected element.

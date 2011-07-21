@@ -31,6 +31,7 @@
 #include <pvcore/PVClassLibrary.h>
 #include <pvcore/PVArgument.h>
 #include <pvfilter/PVFieldsFilterParamWidget.h>
+#include <pvfilter/PVRawSourceBase.h>
 #include <pvrush/PVSourceCreator.h>
 #include <pvrush/PVExtractor.h>
 #include <pvrush/PVInputType.h>
@@ -111,11 +112,14 @@ protected:
 	void update_table(PVRow start, PVRow end);
 	void set_format_from_dom();
 	void create_extractor();
+	void guess_first_splitter();
+	bool is_dom_empty();
 
 protected:
 	PVCore::PVArgument _log_input;
 	PVRush::PVInputType_p _log_input_type;
 	PVRush::PVSourceCreator_p _log_sc;
+	PVFilter::PVRawSourceBase_p _log_source;
 	boost::shared_ptr<PVRush::PVExtractor> _log_extract; 
 
 	// Model and widget for the NRAW

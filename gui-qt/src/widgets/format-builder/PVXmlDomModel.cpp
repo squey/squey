@@ -463,9 +463,10 @@ void PVInspector::PVXmlDomModel::addFilterAfter(QModelIndex &index) {
  *  PVInspector::PVXmlDomModel::addSplitter
  *
  *****************************************************************************/
-void PVInspector::PVXmlDomModel::addSplitter(const QModelIndex &index, PVFilter::PVFieldsSplitterParamWidget_p splitterPlugin){
+PVRush::PVXmlTreeNodeDom* PVInspector::PVXmlDomModel::addSplitter(const QModelIndex &index, PVFilter::PVFieldsSplitterParamWidget_p splitterPlugin){
         assert(splitterPlugin);
         assert(splitterPlugin.get());
+		PVRush::PVXmlTreeNodeDom* child;
         PVLOG_DEBUG("PVInspector::PVXmlDomModel::addSplitter\n");
         if(index.isValid()){//add as child
                 PVRush::PVXmlTreeNodeDom *field = nodeFromIndex(index);
@@ -473,7 +474,7 @@ void PVInspector::PVXmlDomModel::addSplitter(const QModelIndex &index, PVFilter:
                         PVLOG_DEBUG("     adding splitter in a field\n");
                 }
         }else{//add on the root
-                if (!trustConfictSplitAxes(index))return;//we can't add more than one splitter in a field
+                if (!trustConfictSplitAxes(index))return NULL;//we can't add more than one splitter in a field
                 PVLOG_DEBUG("     adding splitter on root node\n");
                 //add node in dom
                 QDomElement newDom = xmlFile.createElement(splitterPlugin->type_name());
@@ -487,7 +488,7 @@ void PVInspector::PVXmlDomModel::addSplitter(const QModelIndex &index, PVFilter:
                 PVLOG_DEBUG("          added in dom\n");
                 //
                 //add node in tree
-                PVRush::PVXmlTreeNodeDom* child = new PVRush::PVXmlTreeNodeDom(newDom);
+                child = new PVRush::PVXmlTreeNodeDom(newDom);
                 PVLOG_DEBUG("          child created\n");
                 child->setParent(rootNode);
                 rootNode->addChild(child);
@@ -497,6 +498,7 @@ void PVInspector::PVXmlDomModel::addSplitter(const QModelIndex &index, PVFilter:
                 child->setSplitterPlugin(splitterPlugin);
         }
         emit layoutChanged();
+		return child;
 }
 
 
