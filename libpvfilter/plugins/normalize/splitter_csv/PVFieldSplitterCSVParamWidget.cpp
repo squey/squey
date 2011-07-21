@@ -3,7 +3,8 @@
 #include <pvfilter/PVFieldsFilter.h>
 
 
-
+#include <QLabel>
+#include <QVBoxLayout>
 
 /******************************************************************************
  *
@@ -37,9 +38,9 @@ void PVFilter::PVFieldSplitterCSVParamWidget::init()
          */
         param_widget = new QWidget();
         //init layout
-        QBoxLayout* layout = new QBoxLayout(param_widget);
+        QVBoxLayout* layout = new QVBoxLayout(param_widget);
         param_widget->setLayout(layout);
-        QLabel* label = new QLabel(tr("name"),layout);
+        QLabel* label = new QLabel(tr("name"),NULL);
         layout->addWidget(label);
 }
 /******************************************************************************

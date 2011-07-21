@@ -401,7 +401,7 @@ void PVInspector::PVXmlEditorWidget::slotUpdateToolDesabled(const QModelIndex &i
         actionDelete->setEnabled(true);
     } else if (node->getDom().tagName() == "splitter") {
         myTreeView->expandRecursive(index);
-        //myParamBord = node->getSplitterPlugin()->get_param_widget();
+        myParamBord = node->getSplitterPlugin()->get_param_widget();
         actionAddFilterAfter->setEnabled(false);
         actionAddAxisIn->setEnabled(false);
         actionAddRegExAfter->setEnabled(false);
