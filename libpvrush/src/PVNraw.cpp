@@ -19,11 +19,6 @@ PVRush::PVNraw::~PVNraw()
 	//delete_buffers();
 }
 
-QString PVRush::PVNraw::get_value(PVRow row, PVCol col)
-{
-	return table.at(row)[col];
-}
-
 void PVRush::PVNraw::allocate_buf(size_t nchars)
 {
 	// Reserve the "big buffer" that will hold our strings

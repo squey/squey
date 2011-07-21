@@ -141,7 +141,23 @@ bool PVRush::PVFormat::populate_from_parser(PVXmlParamParser& xml_parser, bool a
 	axes = xml_parser.getAxes();
 	time_format = xml_parser.getTimeFormat();
 
-	return allowNoFilters | filters_params.size() > 0;
+	if (allowNoFilters && filters_params.size() == 0) {
+		// Only have one axis, a fake one
+		QHash<QString, QString> fake_ax;
+		fake_ax["name"] = "Line";
+		fake_ax["type"] = "string";
+		fake_ax["mapping"] = "default";
+		fake_ax["plotting"] = "default";
+		fake_ax["type"] = "string";
+		fake_ax["group"] = "";
+		fake_ax["color"] = "";
+		fake_ax["key"] = "";
+		axes.clear();
+		axes.push_back(fake_ax);
+		return true;
+	}
+
+	return filters_params.size() > 0;
 }
 
 PVFilter::PVFieldsBaseFilter_f PVRush::PVFormat::xmldata_to_filter(PVRush::PVXmlParamParserData const& fdata)

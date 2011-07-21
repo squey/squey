@@ -67,6 +67,16 @@ PVInspector::PVXmlEditorWidget::PVXmlEditorWidget(QWidget * parent):QWidget(pare
     myParamBord = &emptyParamBoard;
     vbParam->addWidget(myParamBord);
     
+	// Create a table for the preview of the NRAW
+	_nraw_model = new PVNrawListingModel();
+	_nraw_widget = new PVNrawListingWidget(_nraw_model);
+	_nraw_widget->connect_preview(this, SLOT(slotExtractorPreview()));
+
+	// Tab widget for the NRAW
+	QTabWidget* nraw_tab = new QTabWidget();
+	nraw_tab->addTab(_nraw_widget, tr("Normalisation preview"));
+	vb->addWidget(nraw_tab);
+
     setLayout(vb);
     
     //setWindowModality(Qt::ApplicationModal);
@@ -503,7 +513,7 @@ void PVInspector::PVXmlEditorWidget::slotOpenLog()
 
 	// First extraction
 	create_extractor();
-	update_table();
+	update_table(FORMATBUILDER_EXTRACT_START_DEFAULT, FORMATBUILDER_EXTRACT_END_DEFAULT);
 }
 
 void PVInspector::PVXmlEditorWidget::create_extractor()
@@ -533,6 +543,7 @@ void PVInspector::PVXmlEditorWidget::set_format_from_dom()
 	_log_extract->set_chunk_filter(_log_extract->get_format().create_tbb_filters());
 }
 
+
 /******************************************************************************
  *
  * PVInspector::PVXmlEditorWidget::showParamBoard
@@ -546,11 +557,23 @@ void PVInspector::PVXmlEditorWidget::showParamBoard(PVRush::PVXmlTreeNodeDom *no
 
 }
 
-void PVInspector::PVXmlEditorWidget::update_table()
+void PVInspector::PVXmlEditorWidget::update_table(PVRow start, PVRow end)
+
 {
+	assert(end > start);
+	_nraw_model->set_consistent(false);
 	set_format_from_dom();
 	// Create the nraw thanks to the extractor
-	PVRush::PVControllerJob_p job = _log_extract->process_from_agg_idxes(0, 100);
+	PVRush::PVControllerJob_p job = _log_extract->process_from_agg_idxes(start, end);
 	job->wait_end();
 	_log_extract->dump_nraw();
+	_nraw_model->set_nraw(_log_extract->get_nraw());
+	_nraw_model->set_consistent(true);
+}
+
+void PVInspector::PVXmlEditorWidget::slotExtractorPreview()
+{
+	PVRow start,end;
+	_nraw_widget->get_ext_args(start,end);
+	update_table(start,end);
 }
