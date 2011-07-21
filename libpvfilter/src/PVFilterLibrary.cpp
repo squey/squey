@@ -56,9 +56,12 @@ int PVFilter::PVFilterLibraryLibLoader::load_library_from_dir(QString const& plu
 	int count = 0;
 	while (filesIterator.hasNext()) {
 		QString curfile = filesIterator.next();
-		if (load_library(dir.absoluteFilePath(curfile))) {
-			PVLOG_INFO("Successfully loaded plugin '%s'\n", qPrintable(curfile));
-			count++;
+		QString configpath = curfile + QString("/activated");
+		if (pvconfig.value(configpath, 1).toInt()) {
+			if (load_library(dir.absoluteFilePath(curfile))) {
+				PVLOG_INFO("Successfully loaded plugin '%s'\n", qPrintable(curfile));
+				count++;
+			}
 		}
 	}
 	return count;
