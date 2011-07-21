@@ -60,12 +60,12 @@ PVInspector::PVXmlEditorWidget::PVXmlEditorWidget(QWidget * parent):QWidget(pare
     
     hb->addItem(vbParam);
     //parameter board
-    myParamBord = new PVXmlParamWidget();
+    myParamBord_old_model = new PVXmlParamWidget();
+    vbParam->addWidget(myParamBord_old_model);  
 
- 
-    vbParam->addWidget(myParamBord);  
-
-    
+    //param board plugin splitter
+    myParamBord = &emptyParamBoard;
+    vbParam->addWidget(myParamBord);
     
     setLayout(vb);
     
@@ -135,7 +135,7 @@ void PVInspector::PVXmlEditorWidget::actionAllocation(){
  *****************************************************************************/
 void PVInspector::PVXmlEditorWidget::initConnexions() {
     //connexion to update the parameter board
-    connect(myTreeView, SIGNAL(clicked(const QModelIndex &)), myParamBord, SLOT(edit(const QModelIndex &)));
+    connect(myTreeView, SIGNAL(clicked(const QModelIndex &)), myParamBord_old_model, SLOT(edit(const QModelIndex &)));
     //connexion to endable/desable items in toolsbar menu.
     connect(myTreeView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(slotUpdateToolDesabled(const QModelIndex &)));
     
@@ -155,8 +155,8 @@ void PVInspector::PVXmlEditorWidget::initConnexions() {
     connect(actionOpen,SIGNAL(triggered()),this,SLOT(slotOpen()));
     connect(actionSave, SIGNAL(triggered()), this, SLOT(slotSave()));
     connect(actionAddUrl, SIGNAL(triggered()), this, SLOT(slotAddUrl()));
-    connect(myParamBord,SIGNAL(signalNeedApply()),this,SLOT(slotNeedApply()));
-    connect(myParamBord,SIGNAL(signalSelectNext()),myTreeView,SLOT(slotSelectNext()));
+    connect(myParamBord_old_model,SIGNAL(signalNeedApply()),this,SLOT(slotNeedApply()));
+    connect(myParamBord_old_model,SIGNAL(signalSelectNext()),myTreeView,SLOT(slotSelectNext()));
     
     
 
@@ -273,7 +273,7 @@ void PVInspector::PVXmlEditorWidget::slotAddUrl(){
  *****************************************************************************/
 void PVInspector::PVXmlEditorWidget::slotApplyModification() {
   QModelIndex index;
-    myTreeView->applyModification(myParamBord,index);
+    myTreeView->applyModification(myParamBord_old_model,index);
 }
 
 
@@ -301,7 +301,7 @@ void PVInspector::PVXmlEditorWidget::slotDelete() {
     if(confirm.exec()){
         myTreeView->deleteSelection();
         QModelIndex ind;
-        myParamBord->drawForNo(ind);
+        myParamBord_old_model->drawForNo(ind);
     }
 }
 
@@ -332,7 +332,7 @@ void PVInspector::PVXmlEditorWidget::slotMoveDown() {
  *****************************************************************************/
 void PVInspector::PVXmlEditorWidget::slotNeedApply(){
   QModelIndex index;
-    myTreeView->applyModification(myParamBord,index);
+    myTreeView->applyModification(myParamBord_old_model,index);
 }
 
 
@@ -359,7 +359,7 @@ void PVInspector::PVXmlEditorWidget::slotOpen(){
  *****************************************************************************/
 void PVInspector::PVXmlEditorWidget::slotSave() {
     QModelIndex index;
-    myTreeView->applyModification(myParamBord,index);
+    myTreeView->applyModification(myParamBord_old_model,index);
     QFileDialog fd;
      //open file chooser
     QString urlFile = fd.getSaveFileName(0,QString("Select the file."),PVRush::normalize_get_helpers_plugins_dirs(QString("text")).first());
@@ -376,7 +376,9 @@ void PVInspector::PVXmlEditorWidget::slotSave() {
  *
  *****************************************************************************/
 void PVInspector::PVXmlEditorWidget::slotUpdateToolDesabled(const QModelIndex &index){
+        PVLOG_DEBUG("PVInspector::PVXmlEditorWidget::slotUpdateToolDesabled\n");
     PVCore::PVXmlTreeNodeDom *node = myTreeModel->nodeFromIndex(index);
+    myParamBord = &emptyParamBoard;
     
     if (node->getDom().tagName() == "field") {
         myTreeView->expandRecursive(index);
@@ -392,6 +394,14 @@ void PVInspector::PVXmlEditorWidget::slotUpdateToolDesabled(const QModelIndex &i
         actionAddUrl->setEnabled(false);
         actionDelete->setEnabled(true);
     } else if (node->getDom().tagName() == "filter") {
+        actionAddFilterAfter->setEnabled(false);
+        actionAddAxisIn->setEnabled(false);
+        actionAddRegExAfter->setEnabled(false);
+        actionAddUrl->setEnabled(false);
+        actionDelete->setEnabled(true);
+    } else if (node->getDom().tagName() == "splitter") {
+        myTreeView->expandRecursive(index);
+        myParamBord = 
         actionAddFilterAfter->setEnabled(false);
         actionAddAxisIn->setEnabled(false);
         actionAddRegExAfter->setEnabled(false);

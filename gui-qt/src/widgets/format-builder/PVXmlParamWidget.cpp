@@ -318,13 +318,16 @@ void PVInspector::PVXmlParamWidget::edit(QModelIndex const& index) {
         
         if (nodeOnClick->type == PVCore::PVXmlTreeNodeDom::filter) {
 	  drawForFilter(nodeOnClick);
-	}
+	}else
         if (nodeOnClick->type == PVCore::PVXmlTreeNodeDom::RegEx) {
             drawForRegEx(nodeOnClick);
             //confirmApply = false;
-        }
+        }else
         if (nodeOnClick->type == PVCore::PVXmlTreeNodeDom::axis){
 	  drawForAxis(nodeOnClick);
+	}else
+        if (nodeOnClick->type == PVCore::PVXmlTreeNodeDom::splitter){
+	  //nop
 	}
     }
 

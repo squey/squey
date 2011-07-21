@@ -81,7 +81,7 @@ public:
          
       PVXmlDomModel * getModel();
 
-    QModelIndex getSelectedIndex() {
+        QModelIndex getSelectedIndex() {
         QModelIndex index;
 
         int numberOfSelectedIndexes = selectedIndexes().count(); //get the number of selected indexes.
