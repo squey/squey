@@ -38,7 +38,7 @@ static QSettings pvconfig(QString("pvconfig.ini"), QSettings::IniFormat);
 #define picviz_max(x,y) ((x)>(y)?(x):(y))
 #define picviz_min(x,y) ((x)<(y)?(x):(y))
 
-#define PICVIZ_LINES_MAX   1000000
+#define PICVIZ_LINES_MAX 1048576
 
 #define PICVIZ_EVENTLINE_LINES_MAX PICVIZ_LINES_MAX
 #define PICVIZ_AXES_MAX 8096 // Max number of axes
