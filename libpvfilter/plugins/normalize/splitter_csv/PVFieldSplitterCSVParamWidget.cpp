@@ -40,7 +40,7 @@ void PVFilter::PVFieldSplitterCSVParamWidget::init()
         //init layout
         QVBoxLayout* layout = new QVBoxLayout(param_widget);
         param_widget->setLayout(layout);
-        QLabel* label = new QLabel(tr("name"),layout);
+        QLabel* label = new QLabel(tr("name"),NULL);
         layout->addWidget(label);
 }
 /******************************************************************************
