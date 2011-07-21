@@ -87,7 +87,6 @@ private:
     QAction *actionDelete;
     QAction *actionMoveUp;
     QAction *actionMoveDown;
-    QAction *actionOpenLog;
     QAction *actionOpen;
     QAction *actionSave;
     
