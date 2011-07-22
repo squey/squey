@@ -640,3 +640,86 @@ void PVRush::PVXmlTreeNodeDom::toArgumentList(PVCore::PVArgumentList const& defa
     }
 }
 
+
+void PVRush::PVXmlTreeNodeDom::getChildrenFromField(PVCore::PVField const& field_)
+{
+	if (getDom().tagName() != "splitter") {
+		// This is not a splitter, so pass this through our children.
+        for (int i = 0; i < getChildren().size(); i++) {
+            getChild(i)->getChildrenFromField(field_);
+        }
+		return;
+	}
+	
+	PVCore::PVField field(field_);
+	field.deep_copy();
+	field.init_qstr();
+
+	QString plugin_name = attribute("type", "");
+	PVLOG_INFO("(getChildrenFromField) splitter %s got field %s.\n", qPrintable(plugin_name), qPrintable(field.qstr()));
+
+	// Get the filter from the lib (because not everything is under plugins... :/)
+	PVFilter::PVFieldsSplitter_p filter_lib = LIB_FILTER(PVFilter::PVFieldsSplitter)::get().get_filter_by_name(plugin_name);
+	PVFilter::PVFieldsSplitter_p filter_clone = filter_lib->clone<PVFilter::PVFieldsSplitter>();
+
+	// Get the args and set them
+	PVCore::PVArgumentList args;
+	toArgumentList(filter_lib->get_default_args(), args);
+	filter_clone->set_args(args);
+
+
+	// Ok, we are a splitter. Process this through our filter.
+	PVCore::list_fields lf;
+	lf.push_back(field);
+	PVCore::list_fields &lf_res = filter_clone->operator()(lf);
+
+	PVLOG_INFO("(getChildrenFromField) for splitter %s, we have %d fields.\n", qPrintable(plugin_name), lf_res.size());
+
+	// We got our number of children !
+	setNbr(lf_res.size());
+
+	// Check if a number of children is forced
+	size_t force_nchild = 0;
+	// TODO: this should be all in plugins !
+	if (plugin_name == "regexp") {
+		QString exp = attribute("regexp", "");
+		QRegExp rx(exp);
+		force_nchild = rx.captureCount();
+
+		// TODO FIXME pour lundi
+		// Si on récupère le widget RegExp et que l'on lui passe (avec une fonction quelconque, genre setData)
+		// field.qstr(), alors il récupère la chaîne qu'il est censé parser
+	}
+	else
+	if (splitterPlugin) {
+		force_nchild = splitterPlugin->force_number_children();
+	}
+
+	PVLOG_INFO("(getChildrenFromField) for this splitter, force nchild = %d\n", force_nchild);
+	// If force_nchild > 0, set this number of child
+	if (force_nchild > 0) {
+		setNbr(force_nchild);
+	}
+	else {
+		setNbr(lf_res.size());
+	}
+
+	// If number of childs has been forced and the number of fields at the output of the filter
+	// aren't the same, we just return ! (the filter failed)
+	if (force_nchild > 0 && force_nchild != lf_res.size()) {
+		return;
+	}
+
+	// Pass the resulting fields to the children
+	// TODO: AG: ugly, I know that
+	PVCore::list_fields::iterator it_f = lf_res.begin();
+	for (size_t ichild = 0; ichild < lf_res.size(); ichild++) {
+		it_f->init_qstr();
+		PVLOG_INFO("(getChildrenFromField) pass field %s to child %d\n", qPrintable(it_f->qstr()), ichild);
+		getChild(ichild)->getChildrenFromField(*it_f);
+		it_f++;
+		if (it_f == lf_res.end()) {
+			break;
+		}
+	}
+}

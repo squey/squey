@@ -893,3 +893,9 @@ bool PVInspector::PVXmlDomModel::trustConfictSplitAxes(const QModelIndex &index)
 	}
 	return true;
 }
+
+void PVInspector::PVXmlDomModel::processChildrenWithField(PVCore::PVField const& field)
+{
+	getRoot()->getChildrenFromField(field);
+	emit layoutChanged();
+}

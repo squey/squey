@@ -133,6 +133,10 @@ public:
     PVRush::PVXmlTreeNodeDom *nodeFromIndex(const QModelIndex &index)const;
 
 	QDomElement const& getRootDom() const { return xmlRootDom; }
+
+	PVRush::PVXmlTreeNodeDom* getRoot() { return rootNode; }
+
+	void processChildrenWithField(PVCore::PVField const& field);
     
 private:
 	static void setDefaultAttributesForAxis(QDomElement& elt);

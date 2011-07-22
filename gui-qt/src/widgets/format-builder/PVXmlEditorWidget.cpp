@@ -549,7 +549,6 @@ void PVInspector::PVXmlEditorWidget::guess_first_splitter()
 	PVLOG_INFO("(format_builder) For input '%s', found a splitter that creates %d axes. Arguments:\n", qPrintable(first_input_name), naxes);
 	PVCore::dump_argument_list(sp->get_args());
 
-	// TODO: QMessageBox ask;
 	QString msg = tr("It appears that the %1 splitter can process '%2' and create %3 fields.\n").arg(sp->registered_name()).arg(first_input_name).arg(naxes);
 	msg += tr("Do you want to automatically add that splitter to the format ?");
 	QMessageBox ask_auto(QMessageBox::Question, tr("Filter automatically found"), msg, QMessageBox::Yes | QMessageBox::No, this);
@@ -610,6 +609,21 @@ void PVInspector::PVXmlEditorWidget::showParamBoard(PVRush::PVXmlTreeNodeDom *no
 
 void PVInspector::PVXmlEditorWidget::update_table(PVRow start, PVRow end)
 {
+	// Process children
+	PVCore::PVChunk* chunk = (*_log_source)();
+	if (chunk == NULL) {
+		// Unable to read a chunk. Seek from beginning and try again
+		_log_source->seek_begin();
+		chunk = (*_log_source)();
+		if (chunk == NULL) {
+			// TODO: show an error box (unable to read from input !)
+			return;
+		}
+	}
+	PVCore::PVField const& f = chunk->c_elements().back().c_fields().front();
+	myTreeModel->processChildrenWithField(f);
+	chunk->free();
+
 	assert(end > start);
 	_nraw_model->set_consistent(false);
 	set_format_from_dom();
@@ -619,6 +633,7 @@ void PVInspector::PVXmlEditorWidget::update_table(PVRow start, PVRow end)
 	_log_extract->dump_nraw();
 	_nraw_model->set_nraw(_log_extract->get_nraw());
 	_nraw_model->set_consistent(true);
+
 }
 
 void PVInspector::PVXmlEditorWidget::slotExtractorPreview()
