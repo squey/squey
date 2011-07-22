@@ -476,11 +476,11 @@ PVRush::PVXmlTreeNodeDom* PVInspector::PVXmlDomModel::addSplitter(const QModelIn
                 } else {
                         //message(QString(field->getDom().tagName()));
                         message("You must select a field first.");
-                        return;
+                        return NULL;
                 }
         }else{//add on the root
 
-                if (!trustConfictSplitAxes(index))return;//we can't add more than one splitter in a field
+                if (!trustConfictSplitAxes(index))return NULL;//we can't add more than one splitter in a field
                 field = rootNode;
 
         }
@@ -493,7 +493,7 @@ PVRush::PVXmlTreeNodeDom* PVInspector::PVXmlDomModel::addSplitter(const QModelIn
         field->getDom().appendChild(newDom);
         //
         //add node in tree
-        PVRush::PVXmlTreeNodeDom* child = new PVRush::PVXmlTreeNodeDom(newDom);
+        child = new PVRush::PVXmlTreeNodeDom(newDom);
         child->setParent(field);
         field->addChild(child);
 
