@@ -173,6 +173,7 @@ public:
         return getSplitterPlugin()->get_param_widget();
     }
     
+	void getChildrenFromField(PVCore::PVField const& field);
     
     
     /**

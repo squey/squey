@@ -29,6 +29,7 @@ public:
     virtual PVCore::PVArgumentList get_default_argument() = 0;
     virtual void set_child_count(int count) = 0;
     virtual int get_child_new_num() = 0;
+	virtual size_t force_number_children() = 0;
 };
 
 typedef boost::shared_ptr<PVFieldsFilterParamWidgetBase> PVFieldsFilterParamWidgetBase_p;
@@ -38,9 +39,10 @@ class PVFieldsFilterParamWidget : public PVFieldsFilterParamWidgetBase {
 public:
     typedef PVFieldsFilterParamWidget<Ttype> RegAs;
     typedef boost::shared_ptr< PVFieldsFilterParamWidget<Ttype> > p_type;
+	typedef typename PVFilter::PVFieldsFilter<Ttype>::p_type filter_p;
 public:
 
-    PVFieldsFilterParamWidget(typename PVFilter::PVFieldsFilter<Ttype>::p_type filter) {
+    PVFieldsFilterParamWidget(filter_p filter) {
         assert(filter);
         _filter = filter->clone< PVFieldsFilter<Ttype> >();
     }
@@ -64,6 +66,13 @@ public:
     QObject* get_as_qobject() {
         return NULL;
     }
+
+	// Force the number of children. Returns 0 if no forcing is done.
+	// TODO: this should only exist when Ttype == one_to_many, and should not be in the base interface
+	// (but that's for the "purity" of C++, and, well, don't have the time for this right now)
+	size_t force_number_children() {
+		return 0;
+	}
 
     /**
      * @brief get the action to push in menu
@@ -94,7 +103,7 @@ public:
 
 protected:
     PVFilter::fields_filter_type _type;
-    typename PVFilter::PVFieldsFilter<Ttype>::p_type _filter;
+    filter_p _filter;
 };
 
 typedef PVFieldsFilterParamWidget<PVFilter::one_to_many> PVFieldsSplitterParamWidget;

@@ -54,6 +54,8 @@ public:
      * @param splitterPlugin : new instance of the plugin requesting the new splitter
      */
 	PVRush::PVXmlTreeNodeDom* addSplitter(PVFilter::PVFieldsSplitterParamWidget_p splitterPlugin);
+	
+	PVRush::PVXmlTreeNodeDom* processChildrenWithField();
     
     /**
      * Add a new RegEx after the selected element.
@@ -65,8 +67,7 @@ public:
     void addNode(AddType type);
     
     void applyModification(PVXmlParamWidget *paramBord,QModelIndex& index);
-  
-    
+	
 
     /**
      * Delete the selected Item
