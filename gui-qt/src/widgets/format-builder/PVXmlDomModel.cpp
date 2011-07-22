@@ -485,7 +485,7 @@ PVRush::PVXmlTreeNodeDom* PVInspector::PVXmlDomModel::addSplitter(const QModelIn
                 field = nodeFromIndex(index);
                 if (field->typeToString() == "field") {//a splitter can be add only in field...
                         if (!trustConfictSplitAxes(index)){
-                                message("You must select a field with axis or splitter inside.");
+                                //message("You must select a field with axis or splitter inside.");
                                 return NULL;//we can't add more than one splitter in a field
                         }
                         PVLOG_DEBUG("     adding splitter in a field\n");
