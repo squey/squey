@@ -870,7 +870,6 @@ bool PVInspector::PVXmlDomModel::trustConfictSplitAxes(const QModelIndex &index)
 			}
 		}
 	} else {
-
 		for (int i = 0; i < rootNode->getChildren().count(); i++) {
 			QDomElement child = nodeFromIndex(index)->getChildren().at(i)->getDom();
 			if (child.tagName() == "axis" || child.tagName() == "RegEx" || child.tagName() == "url" || child.tagName() == "splitter") {
