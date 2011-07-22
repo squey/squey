@@ -586,7 +586,46 @@ QString PVRush::PVXmlTreeNodeDom::getAttribute(QString name, bool flagReadInXml)
     return QString();
 }
 
-
+/******************************************************************************
+ *
+ * PVRush::PVXmlTreeNodeDom::version0to1
+ *
+ *****************************************************************************/
+void PVRush::PVXmlTreeNodeDom::version0to1(){
+        PVLOG_DEBUG("PVRush::PVXmlTreeNodeDom::version0to1()\n");
+        if(getDom().tagName()=="RegEx"){
+                getDom().setTagName("splitter");
+                getDom().setAttribute("type","regexp");
+                getDom().setAttribute("regexp",getDom().attribute("expression"));
+                getDom().removeAttribute("expression");
+        }else if(getDom().tagName()=="url"){
+                getDom().setTagName("splitter");
+                getDom().setAttribute("type","url");
+        }else if(getDom().tagName()=="pcap"){
+                getDom().setTagName("splitter");
+                getDom().setAttribute("type","pcap");
+        }else if(getDom().tagName()=="csv"){
+                getDom().setTagName("splitter");
+                getDom().setAttribute("type","csv");
+                getDom().setAttribute("sep",getDom().attribute("delimiter"));
+        }if(getDom().tagName()=="filter"){
+                if(getDom().attribute("type")=="include"){
+                        getDom().setAttribute("reverse","0");
+                }else{
+                        getDom().setAttribute("reverse","1");
+                }
+                getDom().setAttribute("type","regexp");
+                getDom().setAttribute("regexp",getDom().attribute("expression"));
+                getDom().removeAttribute("expression");
+                //<filter validator="" expression="192.168" type="include" name="local"/>
+        }else 
+        
+        
+        //recurcive loop
+        for(int i=0;i<getChildren().size();i++){
+                getChild(i)->version0to1();
+        }
+}
 
 /******************************************************************************
  *

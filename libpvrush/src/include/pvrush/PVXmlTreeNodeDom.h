@@ -211,6 +211,8 @@ public:
      */
     PVXmlTreeNodeDom *getOutWidget();
     
+    void version0to1();
+    
     bool isOnRoot;
     
 private:

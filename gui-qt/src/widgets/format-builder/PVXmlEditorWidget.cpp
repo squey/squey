@@ -359,8 +359,10 @@ void PVInspector::PVXmlEditorWidget::slotOpen(){
     if(f.exists()){//if the file exists...
       myTreeModel->openXml(urlFile);//open it
     }
-    //
+
 }
+
+
 
 
 /******************************************************************************
