@@ -564,7 +564,8 @@ void PVInspector::PVXmlDomModel::addRegExIn(const QModelIndex &index) {
         if (field->typeToString() == "field") {
             if (!trustConfictSplitAxes(index))return;
             //dom
-            QDomElement newDom = xmlFile.createElement("RegEx");
+            QDomElement newDom = xmlFile.createElement("splitter");
+			newDom.setAttribute("type", "regexp");
             field->getDom().appendChild(newDom);
 
             //tree
@@ -579,7 +580,8 @@ void PVInspector::PVXmlDomModel::addRegExIn(const QModelIndex &index) {
         if (!trustConfictSplitAxes(index))return;
         //rootNode->addRegExRacine();
         //dom
-        QDomElement newDom = xmlFile.createElement("RegEx");
+		QDomElement newDom = xmlFile.createElement("splitter");
+		newDom.setAttribute("type", "regexp");
         rootNode->getDom().appendChild(newDom);
 //
 //        //tree
@@ -705,7 +707,7 @@ bool PVInspector::PVXmlDomModel::openXml(QString url) {
 	this->xmlFile.setContent(tmpTextXml.readAll());
 	this->xmlRootDom = this->xmlFile.documentElement();
         
-        PVLOG_INFO("format opened version : %s\n",getVersion().toStdString().c_str());
+	PVLOG_INFO("format opened version : %s\n",getVersion().toStdString().c_str());
 
 
 	PVRush::PVXmlTreeNodeDom *m_rootNode = new PVRush::PVXmlTreeNodeDom(PVRush::PVXmlTreeNodeDom::field, "root", xmlRootDom,this->xmlFile);
@@ -741,7 +743,8 @@ void PVInspector::PVXmlDomModel::addUrlIn(const QModelIndex &index){
 	if (!trustConfictSplitAxes(index))return;
 
 	//dom
-	QDomElement newDom = xmlFile.createElement("url");
+	QDomElement newDom = xmlFile.createElement("splitter");
+	newDom.setAttribute("type", "url");
 	QDomElement f1 = xmlFile.createElement("field");
 	QDomElement f2 = xmlFile.createElement("field");
 	QDomElement f3 = xmlFile.createElement("field");
