@@ -64,6 +64,7 @@ public slots:
     
     signals:
     void data_changed();
+    void signalRefreshView();
 };
 
 }

@@ -128,6 +128,9 @@ void PVInspector::PVXmlParamWidget::drawForSplitter(PVRush::PVXmlTreeNodeDom *no
         layout->addWidget(w);
         addListWidget();
         type = splitterParam;
+        
+        connect(nodeSplitter, SIGNAL(data_changed()), this, SLOT(slotEmitNeedApply()));
+        //slotEmitNeedApply();
         //focus on regexp
         //w->getWidgetToFocus()->setFocus();
 }
