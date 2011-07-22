@@ -98,7 +98,11 @@ public:
     int getRow();
 
 	void setFromArgumentList(PVCore::PVArgumentList const& args);
+	
 	void toArgumentList(PVCore::PVArgumentList const& default_args, PVCore::PVArgumentList& args);
+
+	void setDefaultAttributesForAxis();
+
     bool isEditable() {
         if (type == splitter || type == filter || type == url || type == axis || type == RegEx) {
             return true;
@@ -197,6 +201,13 @@ public:
     
     void deleteFromTree();
     
+
+    /**
+     * add one field.
+	 * @return the axis node that corresponds to that field
+     */
+	PVRush::PVXmlTreeNodeDom* addOneField(QString const& name);
+
     /**
      * Return the type of node in a QString.
      * @return type

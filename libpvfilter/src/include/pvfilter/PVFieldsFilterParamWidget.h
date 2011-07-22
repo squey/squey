@@ -44,9 +44,9 @@ public:
         assert(filter);
         _filter = filter->clone< PVFieldsFilter<Ttype> >();
     }
+
     PVCore::PVArgumentList get_default_argument(){
-        PVCore::PVArgumentList args;
-        return args;
+		return _filter->get_default_args();
     }
 
     PVFieldsBaseFilter_p get_filter() {
@@ -74,7 +74,7 @@ public:
     }
 
     QString get_xml_tag() {
-        return QString("");
+		return type_name();
     }
 
     void set_id(int /*id*/) {
@@ -91,9 +91,6 @@ public:
     QString type_name() {
         return _filter->type_name();
     }
-
-
-
 
 protected:
     PVFilter::fields_filter_type _type;

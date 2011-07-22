@@ -20,14 +20,6 @@
 #include <QCoreApplication>
 #include <QString>
 
-void dump_args(PVCore::PVArgumentList const& args)
-{
-	PVCore::PVArgumentList::const_iterator it;
-	for (it = args.begin(); it != args.end(); it++) {
-		std::cout << qPrintable(it.key()) << " = " << qPrintable(it.value().toString()) << std::endl;
-	}
-}
-
 int main(int argc, char** argv)
 {
 	if (argc <= 1) {
@@ -75,7 +67,7 @@ int main(int argc, char** argv)
 
 		if (match.get_match(args, nfields)) {
 			std::cout << "Filter " << qPrintable(it.key()) << " matches with " << nfields << " fields and arguments:" << std::endl;
-			dump_args(args);
+			PVCore::dump_argument_list(args);
 		}
 	}
 

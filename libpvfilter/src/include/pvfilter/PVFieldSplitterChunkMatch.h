@@ -18,7 +18,7 @@ public:
 	void push_chunk(PVCore::PVChunk* chunk);
 	bool get_match(PVCore::PVArgumentList& args, size_t& nfields);
 
-	static PVFilter::PVFieldsSplitter_p get_match_on_input(PVFilter::PVRawSourceBase_p src);
+	static PVFilter::PVFieldsSplitter_p get_match_on_input(PVFilter::PVRawSourceBase_p src, PVCol &naxes);
 
 protected:
 	PVFilter::list_guess_result_t _guess_res;

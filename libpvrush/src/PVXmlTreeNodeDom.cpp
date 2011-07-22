@@ -482,30 +482,33 @@ void PVRush::PVXmlTreeNodeDom::addField(int nbr) {
    
     if (this->type == RegEx && nbr > 0) {
         for (int i = 0; i < nbr; i++) {
-            //dom field
-            QDomElement newField = this->xmlFile.createElement("field");
-            xmlDomElement.appendChild(newField); //placement dans le Dom
-            //dom axis
-            QDomElement newAxisDom = this->xmlFile.createElement("axis");
-            newField.appendChild(newAxisDom); //placement dans le Dom
-            
-            
-            
-            //node field
-            PVXmlTreeNodeDom *newNodeField = new PVXmlTreeNodeDom(newField); //création
-            newNodeField->setParent(this); //modif du parent
-            //node axis (we add an axis in each field)
-            PVXmlTreeNodeDom *newAxis = new PVXmlTreeNodeDom(newAxisDom);
-            newAxis->setParent(newNodeField);
-            newAxis->setName("");
-
-            this->children.push_back(newNodeField); //placement dans l'arbre du View
-            //newNodeField->children.push_back(newAxis);
+			addOneField("");
         }
     }
 }
 
 
+PVRush::PVXmlTreeNodeDom* PVRush::PVXmlTreeNodeDom::addOneField(QString const& name)
+{
+	//dom field
+	QDomElement newField = this->xmlFile.createElement("field");
+	xmlDomElement.appendChild(newField); // Set its parent
+	//dom axis
+	QDomElement newAxisDom = this->xmlFile.createElement("axis");
+	newField.appendChild(newAxisDom); // set its parent as the field
+
+	//node field
+	PVXmlTreeNodeDom *newNodeField = new PVXmlTreeNodeDom(newField); //création
+	newNodeField->setParent(this); //modif du parent
+	//node axis (we add an axis in each field)
+	PVXmlTreeNodeDom *newAxis = new PVXmlTreeNodeDom(newAxisDom);
+	newAxis->setParent(newNodeField);
+	newAxis->setName(name);
+
+	this->children.push_back(newNodeField); // Put it in the view
+
+	return newAxis;
+}
 
 /******************************************************************************
  *
@@ -640,13 +643,26 @@ void PVRush::PVXmlTreeNodeDom::toArgumentList(PVCore::PVArgumentList const& defa
 	for (it = default_args.begin(); it != default_args.end(); it++) {
 		QString const& key = it.key();
 		QString v = getAttribute(key, true);
-		QVariant vset;
+		PVCore::PVArgument vset;
 		if (v.isNull()) {
 			vset = it.value();
 		}
 		else {
-			vset.setValue(v);
+			vset = PVCore::QString_to_PVArgument(v);
 		}
 		args[key] = vset;
 	}
+}
+
+void PVRush::PVXmlTreeNodeDom::setDefaultAttributesForAxis()
+{
+	assert(typeToString() == "axis");
+	setAttribute("titlecolor", "#ffffff", true);
+	setAttribute("color", "#ffffff", true);
+	setAttribute("key", "false", true);
+	setAttribute("mapping", "default", true);
+	setAttribute("plotting", "default", true);
+	setAttribute("type", "enum", true);
+	setAttribute("time-format", "", true);
+	setAttribute("group", "none", true);
 }

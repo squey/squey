@@ -396,41 +396,53 @@ void PVInspector::PVXmlDomModel::deleteSelection(QModelIndex &index) {
  *
  *****************************************************************************/
 void PVInspector::PVXmlDomModel::addAxisIn(const QModelIndex &index) {
-    if (index.isValid()) {//if index valid, add axis in field... 
-        PVRush::PVXmlTreeNodeDom *field = nodeFromIndex(index);
+	if (index.isValid()) {//if index valid, add axis in field... 
+		PVRush::PVXmlTreeNodeDom *field = nodeFromIndex(index);
 
-        //make sure that there not already axis or regexp.
-        if (!trustConfictSplitAxes(index))return;
+		//make sure that there not already axis or regexp.
+		if (!trustConfictSplitAxes(index))return;
 
-        //axis adding
-        if (field->typeToString() == "field") {
-            QDomElement newAxis = xmlFile.createElement("axis");
-            field->getDom().appendChild(newAxis);
-            PVRush::PVXmlTreeNodeDom* child = new PVRush::PVXmlTreeNodeDom(newAxis);
-	    child->isOnRoot=false;
-            child->setParent(field);
-            field->addChild(child);
-        } else {
-            message("You must select a field first.")
-        }
-    } else {//else add on root node...
-        if (!trustConfictSplitAxes(index))return;
+		//axis adding
+		if (field->typeToString() != "field") {
+			message("You must select a field first.");
+			return;
+		}
 
-        QDomElement newAxis = xmlFile.createElement("axis");
-        rootNode->getDom().appendChild(newAxis);
-        PVRush::PVXmlTreeNodeDom* child = new PVRush::PVXmlTreeNodeDom(newAxis);
-	child->isOnRoot=true;
-        child->setParent(rootNode);
-        rootNode->addChild(child);
-    }
-    emit layoutChanged();
+		addAxisIn(field);
+
+	} else {//else add on root node...
+		if (!trustConfictSplitAxes(index))return;
+		addAxisIn(NULL);
+	}
+	emit layoutChanged();
 }
 
 
+/******************************************************************************
+ *
+ * PVInspector::PVXmlDomModel::addAxisIn
+ *
+ *****************************************************************************/
+PVRush::PVXmlTreeNodeDom* PVInspector::PVXmlDomModel::addAxisIn(PVRush::PVXmlTreeNodeDom* parentNode)
+{
+	PVRush::PVXmlTreeNodeDom* child;
+	QDomElement newAxis = xmlFile.createElement("axis");
+	child = new PVRush::PVXmlTreeNodeDom(newAxis);
+	if (parentNode != NULL) {
+		assert(parentNode->typeToString() == "field");
+		child->isOnRoot = false;
+	}
+	else {
+		child->isOnRoot=true;
+		parentNode = rootNode;
+	}
+	child->setParent(parentNode);
+	parentNode->addChild(child);
+	parentNode->getDom().appendChild(newAxis);
 
+	return child;
+}
 
-
-   
 
 /******************************************************************************
  *
@@ -837,5 +849,3 @@ bool PVInspector::PVXmlDomModel::trustConfictSplitAxes(const QModelIndex &index)
 	}
 	return true;
 }
-
-

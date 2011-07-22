@@ -59,22 +59,26 @@ bool PVFilter::PVFieldSplitterChunkMatch::get_match(PVCore::PVArgumentList& args
 	return true;
 }
 
-PVFilter::PVFieldsSplitter_p PVFilter::PVFieldSplitterChunkMatch::get_match_on_input(PVFilter::PVRawSourceBase_p src)
+PVFilter::PVFieldsSplitter_p PVFilter::PVFieldSplitterChunkMatch::get_match_on_input(PVFilter::PVRawSourceBase_p src, PVCol &naxes)
 {
 	PVCore::PVChunk* chunk = (*src)();
 	PVFieldsSplitter_p ret;
-	LIB_FILTER(PVFilter::PVFieldsFilter<PVFilter::one_to_many>)::list_filters const& lf = LIB_FILTER(PVFilter::PVFieldsFilter<PVFilter::one_to_many>)::get().get_list();
-	LIB_FILTER(PVFilter::PVFieldsFilter<PVFilter::one_to_many>)::list_filters::const_iterator it;
+	LIB_FILTER(PVFilter::PVFieldsSplitter)::list_filters const& lf = LIB_FILTER(PVFilter::PVFieldsSplitter)::get().get_list();
+	LIB_FILTER(PVFilter::PVFieldsSplitter)::list_filters::const_iterator it;
 	for (it = lf.begin(); it != lf.end(); it++) {
-		PVFilter::PVFieldSplitterChunkMatch match(*it);
+		PVFilter::PVFieldsSplitter_p sp = (*it)->clone<PVFilter::PVFieldsSplitter>();
+		PVFilter::PVFieldSplitterChunkMatch match(sp);
 		match.push_chunk(chunk);
 
 		PVCore::PVArgumentList args;
 		size_t nfields;
 
 		if (match.get_match(args, nfields)) {
-			PVLOG_DEBUG("(PVFieldSplitterChunkMatch) filter %s matches with %d fields.", qPrintable(it.key()), nfields);
-			ret = *it;
+			PVLOG_DEBUG("(PVFieldSplitterChunkMatch) filter %s matches with %d fields\n with arguments:\n", qPrintable(it.key()), nfields);
+			PVCore::dump_argument_list(args);
+			ret = sp;
+			ret->set_args(args);
+			naxes = nfields;
 			break;
 		}
 	}

@@ -537,21 +537,37 @@ void PVInspector::PVXmlEditorWidget::guess_first_splitter()
 	// Guess first splitter and add it to the dom before parsing it !
 	// The dom is the reference in here.
 
-	PVFilter::PVFieldsSplitter_p sp = PVFilter::PVFieldSplitterChunkMatch::get_match_on_input(_log_source);
+	PVLOG_DEBUG("(format_builder) trying to guess first splitter...");
+	PVCol naxes;
+	PVFilter::PVFieldsSplitter_p sp = PVFilter::PVFieldSplitterChunkMatch::get_match_on_input(_log_source, naxes);
 	if (!sp) {
 		// No splitter matches, just do nothing
 		return;
 	}
 
 	// Ok, we got a match, add it to the dom.
-	//PVLOG_INFO("(format_builder) For input '%s', found a splitter that creates %d columns.", qPrintable(_log_input_type->human_name_of_input(_log_input)), nfields);
+	PVLOG_INFO("(format_builder) For input '%s', found a splitter that creates %d axes. Arguments:\n", qPrintable(_log_input_type->human_name_of_input(_log_input)), naxes);
+	PVCore::dump_argument_list(sp->get_args());
 
 	// TODO: QMessageBox ask;
 	
 	// Get the widget that comes with the splitter. TODO: do better than that
-	PVFilter::PVFieldsSplitterParamWidget_p sp_widget = LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::get().get_class_by_name(sp->type_name() + QString("_") + sp->registered_name());
-	PVRush::PVXmlTreeNodeDom* node = myTreeView->addSplitter(sp_widget);	
+	QString type_name = sp->type_name();
+	QString filter_name = sp->registered_name();
+	PVFilter::PVFieldsSplitterParamWidget_p sp_widget = LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::get().get_class_by_name(filter_name);
+	if (!sp_widget) {
+		PVLOG_WARN("Filter '%s' of type '%s' has no associated widget !\n", qPrintable(type_name), qPrintable(filter_name));
+		return;
+	}
+	PVRush::PVXmlTreeNodeDom* node = myTreeView->addSplitter(sp_widget);
 	node->setFromArgumentList(sp->get_args());
+
+
+	// Then we need to create 'naxes' children
+	for (PVCol i = 0; i < naxes; i++) {
+		PVRush::PVXmlTreeNodeDom* axis_node = node->addOneField(QString("Axis %1").arg(i+1));
+		//axis_node->setDefaultAttributesForAxis();
+	}
 }
 
 /******************************************************************************
@@ -610,5 +626,5 @@ void PVInspector::PVXmlEditorWidget::slotExtractorPreview()
 bool PVInspector::PVXmlEditorWidget::is_dom_empty()
 {
 	QDomElement const& rootDom = myTreeModel->getRootDom();
-	return rootDom.hasChildNodes();
+	return !rootDom.hasChildNodes();
 }

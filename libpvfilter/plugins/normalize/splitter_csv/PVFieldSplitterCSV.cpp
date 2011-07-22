@@ -57,8 +57,7 @@ void PVFilter::PVFieldSplitterCSV::_csv_new_field(void* s, size_t len, void* p)
 
 void PVFilter::PVFieldSplitterCSV::_csv_new_row(int /*c*/, void* /*p*/)
 {
-	// Should only happen once at most !		
-	PVLOG_DEBUG("(PVCore::PVFieldSplitterCSV) in csv_new_row\n");
+	PVLOG_HEAVYDEBUG("(PVFieldSplitterCSV) in csv_new_row\n");
 }
 
 PVCore::list_fields::size_type PVFilter::PVFieldSplitterCSV::one_to_many(PVCore::list_fields &l, PVCore::list_fields::iterator it_ins, PVCore::PVField &field)

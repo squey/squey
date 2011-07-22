@@ -27,14 +27,8 @@ private:
     QLineEdit *child_number_edit;
 
 public:
-    PVCore::PVArgumentList get_default_argument(){
-        PVCore::PVArgumentList args;
-        args["sep"]=QVariant(";");
-        return args;
-    }
     QWidget* get_param_widget();
     QAction* get_action_menu();
-    QString get_xml_tag() { return QString("splitter"); }
 
     void set_id(int id_param) {
         id = id_param;
