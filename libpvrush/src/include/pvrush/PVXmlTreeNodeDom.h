@@ -263,7 +263,10 @@ public slots:
         setFromArgumentList(getSplitterPlugin()->get_filter()->get_args());
         PVLOG_DEBUG("      %d\n",getSplitterPlugin()->get_child_new_num());
         setNbr(getSplitterPlugin()->get_child_new_num());
+        emit data_changed();
     }
+    signals:
+    void data_changed();
 
     
 };

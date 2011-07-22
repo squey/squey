@@ -41,6 +41,7 @@ PVInspector::PVNrawListingWidget::PVNrawListingWidget(PVNrawListingModel* nraw_m
 
 	_btn_preview = new QPushButton("Preview");
 	ext_layout->addWidget(_btn_preview);
+        _btn_preview->setAutoDefault ( false );
 
 	main_layout->addWidget(nraw_table);
 	main_layout->addItem(ext_layout);

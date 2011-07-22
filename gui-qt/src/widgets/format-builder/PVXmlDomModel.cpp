@@ -467,35 +467,37 @@ void PVInspector::PVXmlDomModel::addSplitter(const QModelIndex &index, PVFilter:
         assert(splitterPlugin);
         assert(splitterPlugin.get());
         PVLOG_DEBUG("PVInspector::PVXmlDomModel::addSplitter\n");
+        PVRush::PVXmlTreeNodeDom *field;
         if(index.isValid()){//add as child
-                PVRush::PVXmlTreeNodeDom *field = nodeFromIndex(index);
+                field = nodeFromIndex(index);
                 if (field->typeToString() == "field") {//a splitter can be add only in field...
                         PVLOG_DEBUG("     adding splitter in a field\n");
+                } else {
+                        //message(QString(field->getDom().tagName()));
+                        message("You must select a field first.");
+                        return;
                 }
         }else{//add on the root
                 if (!trustConfictSplitAxes(index))return;//we can't add more than one splitter in a field
-                PVLOG_DEBUG("     adding splitter on root node\n");
-                //add node in dom
-                QDomElement newDom = xmlFile.createElement(splitterPlugin->type_name());
-                PVLOG_DEBUG("          set tag %s \n",qPrintable(splitterPlugin->type_name()));
-                newDom.setTagName(splitterPlugin->type_name());
-                QString registered_name = splitterPlugin->registered_name();
-                PVLOG_DEBUG("          set type %s\n",qPrintable(registered_name));
-                newDom.setAttribute("type",registered_name);
-                PVLOG_DEBUG("          add child\n");
-                rootNode->getDom().appendChild(newDom);
-                PVLOG_DEBUG("          added in dom\n");
-                //
-                //add node in tree
-                PVRush::PVXmlTreeNodeDom* child = new PVRush::PVXmlTreeNodeDom(newDom);
-                PVLOG_DEBUG("          child created\n");
-                child->setParent(rootNode);
-                rootNode->addChild(child);
-                PVLOG_DEBUG("          added in PVXmlTreeNodeDom\n");
-                
-                //save the splitter plugin referance
-                child->setSplitterPlugin(splitterPlugin);
+                field = rootNode;
+
         }
+        PVLOG_DEBUG("     adding splitter on root node\n");
+        //add node in dom
+        QDomElement newDom = xmlFile.createElement(splitterPlugin->type_name());
+        QString registered_name = splitterPlugin->registered_name();
+        PVLOG_DEBUG("          set tag %s, type %s\n", qPrintable(splitterPlugin->type_name()), qPrintable(registered_name));
+        newDom.setAttribute("type", registered_name);
+        field->getDom().appendChild(newDom);
+        //
+        //add node in tree
+        PVRush::PVXmlTreeNodeDom* child = new PVRush::PVXmlTreeNodeDom(newDom);
+        child->setParent(field);
+        field->addChild(child);
+
+        //save the splitter plugin referance
+        child->setSplitterPlugin(splitterPlugin);
+        
         emit layoutChanged();
 }
 

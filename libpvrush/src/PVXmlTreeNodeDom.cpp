@@ -73,9 +73,10 @@ PVRush::PVXmlTreeNodeDom::~PVXmlTreeNodeDom() {
  *
  *****************************************************************************/
 void PVRush::PVXmlTreeNodeDom::addChild(PVRush::PVXmlTreeNodeDom *child) {
+        PVLOG_DEBUG("PVRush::PVXmlTreeNodeDom::addChild");
     child->setParent(this);//set his parent
     child->setDoc(xmlFile);//set the dom node
-    if (child->xmlDomElement.tagName() == "axis" || child->xmlDomElement.tagName() == "RegEx"|| child->xmlDomElement.tagName() == "url"|| child->xmlDomElement.tagName() =="field"){
+    if (child->xmlDomElement.tagName() == "axis" || child->xmlDomElement.tagName() == "RegEx"||child->xmlDomElement.tagName() == "splitter"|| child->xmlDomElement.tagName() == "url"|| child->xmlDomElement.tagName() =="field"){
       this->children.push_back(child);//child adding (in last position for axis, regex and url
     }
     else this->children.push_front(child);//child adding (in first for filter)
@@ -230,6 +231,7 @@ void PVRush::PVXmlTreeNodeDom::setName(QString nom) {
  *
  *****************************************************************************/
 void PVRush::PVXmlTreeNodeDom::explore() {
+        PVLOG_DEBUG("PVRush::PVXmlTreeNodeDom::explore");
     this->isAlreadyExplored = true;
 
     /* search for child in the dom.*/
@@ -397,6 +399,7 @@ void PVRush::PVXmlTreeNodeDom::setExpression(QString exp) {
 int PVRush::PVXmlTreeNodeDom::getNbr() {
     switch (this->type) {
         case RegEx:return this->xmlDomElement.childNodes().count();break;
+        case splitter:return this->xmlDomElement.childNodes().count();break;
         default:break;
     }
     return 0;
@@ -455,6 +458,14 @@ void PVRush::PVXmlTreeNodeDom::setNbr(int nbr) {
                 delField(this->getNbr()-nbr);//delete some fiels
             }
             break;
+       case splitter:
+               PVLOG_DEBUG("PVRush::PVXmlTreeNodeDom::setNbr(%d)\n",nbr);
+            if (nbr > this->getNbr()) {
+                addField(nbr - this->getNbr());//add some fields
+            }else if(nbr < this->getNbr()){
+                delField(this->getNbr()-nbr);//delete some fiels
+            }
+            break;
         default:break;
     }
 }
@@ -479,8 +490,8 @@ QDomElement PVRush::PVXmlTreeNodeDom::getDom(){
  *
  *****************************************************************************/
 void PVRush::PVXmlTreeNodeDom::addField(int nbr) {
-   
-    if (this->type == RegEx && nbr > 0) {
+   PVLOG_DEBUG("PVRush::PVXmlTreeNodeDom::addField(%d)\n",nbr);
+    if ((this->type == RegEx ||this->type == splitter ) && nbr > 0) {
         for (int i = 0; i < nbr; i++) {
             //dom field
             QDomElement newField = this->xmlFile.createElement("field");
@@ -517,6 +528,7 @@ void PVRush::PVXmlTreeNodeDom::addField(int nbr) {
 * @param n
 */
 void PVRush::PVXmlTreeNodeDom::delField(int n) {
+        PVLOG_DEBUG("PVRush::PVXmlTreeNodeDom::delField(%d)\n",n);
     for (int i = 0; i < n; i++) {
         PVXmlTreeNodeDom *lastChild=children.at(children.count()-1);
         removeChild(lastChild);
