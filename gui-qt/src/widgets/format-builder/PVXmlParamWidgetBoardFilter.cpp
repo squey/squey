@@ -38,13 +38,13 @@ PVInspector::PVXmlParamWidgetBoardFilter::~PVXmlParamWidgetBoardFilter() {
  *****************************************************************************/
 void PVInspector::PVXmlParamWidgetBoardFilter::allocBoardFields() {
   //allocate each field and init them with the saved value
-    name = new PVXmlParamWidgetEditorBox(QString("name"), new QVariant(node->getAttribute("name")));
+    name = new PVXmlParamWidgetEditorBox(QString("name"), new QVariant(node->attribute("name")));
     exp = new PVXmlParamWidgetEditorBox(QString("expression"), new QVariant(node->getDom().attribute("expression",".*")));
-    validWidget = new PVXmlParamTextEdit(QString("validator"), QVariant(node->getAttribute("validator")));
+    validWidget = new PVXmlParamTextEdit(QString("validator"), QVariant(node->attribute("validator")));
     typeOfFilter = new PVXmlParamComboBox("type-of-filter");
     typeOfFilter->addItem("include");
     typeOfFilter->addItem("exclude");
-    typeOfFilter->select(node->getAttribute("type-of-filter"));
+    typeOfFilter->select(node->attribute("type-of-filter"));
     buttonNext = new QPushButton("Next");
     buttonNext->setShortcut(QKeySequence(Qt::Key_Return));
 }

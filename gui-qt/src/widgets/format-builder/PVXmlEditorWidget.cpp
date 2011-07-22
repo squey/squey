@@ -345,21 +345,19 @@ void PVInspector::PVXmlEditorWidget::slotNeedApply(){
     myTreeView->applyModification(myParamBord_old_model,index);
 }
 
-
 /******************************************************************************
  *
  * PVInspector::PVXmlEditorWidget::slotOpen
  *
  *****************************************************************************/
-void PVInspector::PVXmlEditorWidget::slotOpen(){
+void PVInspector::PVXmlEditorWidget::slotOpen() {
     QFileDialog fd;
     //open file chooser
-    QString urlFile = fd.getOpenFileName(0,QString("Select the file."),PVRush::normalize_get_helpers_plugins_dirs(QString("text")).first());
+    QString urlFile = fd.getOpenFileName(0, QString("Select the file."), PVRush::normalize_get_helpers_plugins_dirs(QString("text")).first());
     QFile f(urlFile);
-    if(f.exists()){//if the file exists...
-      myTreeModel->openXml(urlFile);//open it
+    if (f.exists()) {//if the file exists...
+        myTreeModel->openXml(urlFile); //open it
     }
-
 }
 
 
@@ -390,6 +388,7 @@ void PVInspector::PVXmlEditorWidget::slotSave() {
  *****************************************************************************/
 void PVInspector::PVXmlEditorWidget::slotUpdateToolDesabled(const QModelIndex &index){
     PVRush::PVXmlTreeNodeDom *node = myTreeModel->nodeFromIndex(index);
+    
     hideParamBoard();
     
     if (node->getDom().tagName() == "field") {
@@ -413,7 +412,6 @@ void PVInspector::PVXmlEditorWidget::slotUpdateToolDesabled(const QModelIndex &i
         actionDelete->setEnabled(true);
     } else if (node->getDom().tagName() == "splitter") {
         myTreeView->expandRecursive(index);
-        //showParamBoard(node);
         actionAddFilterAfter->setEnabled(false);
         actionAddAxisIn->setEnabled(false);
         actionAddRegExAfter->setEnabled(false);

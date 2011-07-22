@@ -161,7 +161,7 @@ public:
      * @param name
      * @return 
      */
-    QString getAttribute(QString name, bool flagReadInXml=true);
+    QString attribute(QString name, bool flagReadInXml=true);
     
     QWidget* getParamWidget(){
         int children_count = getChildren().size();

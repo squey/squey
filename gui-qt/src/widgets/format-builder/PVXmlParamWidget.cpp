@@ -54,7 +54,7 @@ PVInspector::PVXmlParamWidget::~PVXmlParamWidget() {
  *
  *****************************************************************************/
 void PVInspector::PVXmlParamWidget::drawForNo(QModelIndex) {
-
+    PVLOG_DEBUG("PVInspector::PVXmlParamWidget::drawForNo\n");
     //confirmApply = false;
     emit signalQuittingAParamBoard();
     removeListWidget();
@@ -121,6 +121,7 @@ void PVInspector::PVXmlParamWidget::drawForRegEx(PVRush::PVXmlTreeNodeDom *nodeS
  *
  *****************************************************************************/
 void PVInspector::PVXmlParamWidget::drawForSplitter(PVRush::PVXmlTreeNodeDom *nodeSplitter) {
+        PVLOG_DEBUG("PVInspector::PVXmlParamWidget::drawForSplitter\n");
         assert(nodeSplitter);
         assert(nodeSplitter->getSplitterPlugin());
         QWidget *w = nodeSplitter->getParamWidget();
@@ -337,7 +338,7 @@ void PVInspector::PVXmlParamWidget::edit(QModelIndex const& index) {
 
 		if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::filter) {
 			drawForFilter(nodeOnClick);
-		} else if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::RegEx || (splitter && ((nodeOnClick->getAttribute("type","") == "regexp") || nodeOnClick->getAttribute("type","") == "url"))) {
+		} else if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::RegEx || (splitter && ((nodeOnClick->attribute("type","") == "regexp") || nodeOnClick->attribute("type","") == "url"))) {
 			drawForRegEx(nodeOnClick);
 			//confirmApply = false;
 		}else if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::axis){

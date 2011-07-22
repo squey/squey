@@ -193,20 +193,35 @@ int PVInspector::PVXmlDomModel::countParent(const QModelIndex &index) {
  *
  *****************************************************************************/
 QVariant PVInspector::PVXmlDomModel::data(const QModelIndex &index, int role)const {
+
     if (index.isValid()) {
         if (role == Qt::DisplayRole || role == Qt::EditRole) {
-
+            PVLOG_DEBUG("PVInspector::PVXmlDomModel::data display\n");
             PVRush::PVXmlTreeNodeDom *node = nodeFromIndex(index);
+            assert(node);
             if (index.column() == 0) {
-                if(node->typeToString()=="RegEx")return "Splitter (RegEx)";
-                if(node->typeToString()=="url")return "Splitter (URL)";
-                if(node->typeToString()=="splitter"){
-                        QString s = QString("splitter : %1").arg(node->getAttribute("type","-"));
-                        return s;
+                PVLOG_DEBUG("           display 0 a %s\n",qPrintable(node->typeToString()));
+                if (node->typeToString() == "RegEx") {
+                    PVLOG_DEBUG("PVInspector::PVXmlDomModel::data end RegEx\n");
+                    return "Splitter (RegEx)";
+                } else if (node->typeToString() == "url") {
+                    PVLOG_DEBUG("PVInspector::PVXmlDomModel::data end url\n");
+                    return "Splitter (URL)";
+                } else if (node->typeToString() == "splitter") {
+                    QString s = QString("splitter : %1").arg(node->attribute("type", ""));
+                    PVLOG_DEBUG("PVInspector::PVXmlDomModel::data end splitter\n");
+                    return s;
+                }else{
+                    PVLOG_ERROR("PVInspector::PVXmlDomModel::data error\n");
                 }
                 return node->typeToString();
                
             } else if(index.column() == 1){
+                PVLOG_DEBUG("           display 1 %s\n",qPrintable(node->typeToString()));
+                PVLOG_DEBUG("                     %s\n",qPrintable(node->getName()));
+                if (node->typeToString() == "field") {
+                    return QString("");
+                }
 		//if(node->typeToString()=="RegEx")return node->getAttribute(QString("expression"));
                 return node->getName();
             }else {
@@ -245,7 +260,11 @@ void PVInspector::PVXmlDomModel::setRoot(PVRush::PVXmlTreeNodeDom *node){
 */
 PVRush::PVXmlTreeNodeDom* PVInspector::PVXmlDomModel::nodeFromIndex(const QModelIndex &index)const
 {
+    PVLOG_DEBUG("PVInspector::PVXmlDomModel::nodeFromIndex                    \n");
     if(index.isValid()){
+        assert(index.internalPointer());
+        //PVLOG_DEBUG("                    nodeFromIndex            %s        \n",qPrintable(static_cast<PVRush::PVXmlTreeNodeDom *>(index.internalPointer())->getName()));
+        //PVLOG_DEBUG("              ---      \n");
         return static_cast<PVRush::PVXmlTreeNodeDom *>(index.internalPointer());
     }else{
         return rootNode;
@@ -261,12 +280,14 @@ PVRush::PVXmlTreeNodeDom* PVInspector::PVXmlDomModel::nodeFromIndex(const QModel
  *
  *****************************************************************************/
 Qt::ItemFlags PVInspector::PVXmlDomModel::flags ( const QModelIndex & index ) const{
+    PVLOG_DEBUG("PVInspector::PVXmlDomModel::flags                    \n");
     Qt::ItemFlags flags = Qt::ItemIsSelectable|Qt::ItemIsEnabled;
     if(index.column()==1){
             if(nodeFromIndex(index)->isEditable()){
                    flags = flags|Qt::ItemIsEditable; 
             }
     }
+    PVLOG_DEBUG("PVInspector::PVXmlDomModel::flags           end         \n");
     return flags;
 }
 
@@ -337,7 +358,8 @@ bool PVInspector::PVXmlDomModel::saveXml(QString nomDuFichierXml){
 		msg.exec();
 		return false;
 	}
-
+    QString version = QString("%1").arg(FORMAT_VERSION);
+    xmlRootDom.setAttribute("version",version);
     if (file.write(xmlFile.toString().toUtf8()) == -1) {
 		QMessageBox msg(QMessageBox::Critical, "Error while saving format", QString("An error occured while saving format: ") + file.errorString(), QMessageBox::Ok);
 		msg.exec();
@@ -710,13 +732,12 @@ bool PVInspector::PVXmlDomModel::openXml(QString url) {
 	PVLOG_INFO("format opened version : %s\n",getVersion().toStdString().c_str());
 
 
-	PVRush::PVXmlTreeNodeDom *m_rootNode = new PVRush::PVXmlTreeNodeDom(PVRush::PVXmlTreeNodeDom::field, "root", xmlRootDom,this->xmlFile);
-	/*if(getVersion()=="0"){
-                m_rootNode->version0to1();
-                setVersion("1");
-        }*/
-        setRoot(m_rootNode);
-        
+    PVRush::PVXmlTreeNodeDom *m_rootNode = new PVRush::PVXmlTreeNodeDom(PVRush::PVXmlTreeNodeDom::field, "root", xmlRootDom, this->xmlFile);
+    if (getVersion() == "0") {
+        m_rootNode->version0to1();
+    }
+    setRoot(m_rootNode);
+    
         
 
 	emit layoutChanged();//to resfresh screen
