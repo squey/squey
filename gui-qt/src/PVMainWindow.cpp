@@ -73,14 +73,16 @@
  *****************************************************************************/
 PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 {
+	QSplashScreen splash(QPixmap(":/splash-screen"));
+
+	splash.show();
+
 	PVLOG_DEBUG("%s: Creating object\n", __FUNCTION__);
 
 	about_dialog = 0;
 	// picviz_datatreerootitem_t *datatree;
 
 	setGeometry(20,10,800,600);
-
-	picviz_init(0, NULL);
 //	datatree = picviz_datatreerootitem_new();
 
 	/* This does not exist yet :-) */
@@ -98,7 +100,6 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 
 	pv_ExportSelectionDialog = new PVExportSelectionDialog(this);
 	pv_ExportSelectionDialog->hide();
-
 	root = Picviz::PVRoot_p(new Picviz::PVRoot());
 	pv_FilterWidget = new PVFilterWidget(this);
 	pv_FilterWidget->hide();
@@ -170,6 +171,7 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 	create_pvgl_thread ();
 
 	statusBar();
+	splash.finish(pv_ImportFileButton);
 }
 
 void PVInspector::PVMainWindow::closeEvent(QCloseEvent* event)
