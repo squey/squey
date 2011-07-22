@@ -196,29 +196,20 @@ QVariant PVInspector::PVXmlDomModel::data(const QModelIndex &index, int role)con
 
     if (index.isValid()) {
         if (role == Qt::DisplayRole || role == Qt::EditRole) {
-            PVLOG_DEBUG("PVInspector::PVXmlDomModel::data display\n");
             PVRush::PVXmlTreeNodeDom *node = nodeFromIndex(index);
             assert(node);
             if (index.column() == 0) {
-                PVLOG_DEBUG("           display 0 a %s\n",qPrintable(node->typeToString()));
                 if (node->typeToString() == "RegEx") {
-                    PVLOG_DEBUG("PVInspector::PVXmlDomModel::data end RegEx\n");
                     return "Splitter (RegEx)";
                 } else if (node->typeToString() == "url") {
-                    PVLOG_DEBUG("PVInspector::PVXmlDomModel::data end url\n");
                     return "Splitter (URL)";
                 } else if (node->typeToString() == "splitter") {
                     QString s = QString("splitter : %1").arg(node->attribute("type", ""));
-                    PVLOG_DEBUG("PVInspector::PVXmlDomModel::data end splitter\n");
                     return s;
-                }else{
-                    PVLOG_ERROR("PVInspector::PVXmlDomModel::data error\n");
                 }
                 return node->typeToString();
                
             } else if(index.column() == 1){
-                PVLOG_DEBUG("           display 1 %s\n",qPrintable(node->typeToString()));
-                PVLOG_DEBUG("                     %s\n",qPrintable(node->getName()));
                 if (node->typeToString() == "field") {
                     return QString("");
                 }
@@ -260,7 +251,6 @@ void PVInspector::PVXmlDomModel::setRoot(PVRush::PVXmlTreeNodeDom *node){
 */
 PVRush::PVXmlTreeNodeDom* PVInspector::PVXmlDomModel::nodeFromIndex(const QModelIndex &index)const
 {
-    PVLOG_DEBUG("PVInspector::PVXmlDomModel::nodeFromIndex                    \n");
     if(index.isValid()){
         assert(index.internalPointer());
         //PVLOG_DEBUG("                    nodeFromIndex            %s        \n",qPrintable(static_cast<PVRush::PVXmlTreeNodeDom *>(index.internalPointer())->getName()));
@@ -280,14 +270,12 @@ PVRush::PVXmlTreeNodeDom* PVInspector::PVXmlDomModel::nodeFromIndex(const QModel
  *
  *****************************************************************************/
 Qt::ItemFlags PVInspector::PVXmlDomModel::flags ( const QModelIndex & index ) const{
-    PVLOG_DEBUG("PVInspector::PVXmlDomModel::flags                    \n");
     Qt::ItemFlags flags = Qt::ItemIsSelectable|Qt::ItemIsEnabled;
     if(index.column()==1){
             if(nodeFromIndex(index)->isEditable()){
                    flags = flags|Qt::ItemIsEditable; 
             }
     }
-    PVLOG_DEBUG("PVInspector::PVXmlDomModel::flags           end         \n");
     return flags;
 }
 
