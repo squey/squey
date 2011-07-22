@@ -26,7 +26,7 @@ PVFilter::PVFieldFilterRegexpGrep::PVFieldFilterRegexpGrep(PVCore::PVArgumentLis
 DEFAULT_ARGS_FILTER(PVFilter::PVFieldFilterRegexpGrep)
 {
 	PVCore::PVArgumentList args;
-	args["regexp"] = QRegExp("");
+	args["regexp"] = QString("");
 	args["reverse"] = false;
 	return args;
 }
@@ -39,7 +39,7 @@ DEFAULT_ARGS_FILTER(PVFilter::PVFieldFilterRegexpGrep)
 void PVFilter::PVFieldFilterRegexpGrep::set_args(PVCore::PVArgumentList const& args)
 {
 	FilterT::set_args(args);
-	_rx = _args["regexp"].toRegExp();
+	_rx = QRegExp(_args["regexp"].toString());
 	_inverse = args["reverse"].toBool();
 }
 
