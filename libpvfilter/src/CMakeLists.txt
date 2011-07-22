@@ -11,6 +11,7 @@ PVFieldFilterGrep.cpp
 PVFieldsFilter.cpp
 PVFieldsMappingFilter.cpp
 PVFieldSplitterChar.cpp
+PVFieldSplitterChunkMatch.cpp
 PVFieldSplitterUTF16Char.cpp
 PVFieldsFilterParamWidget.cpp
 PVPluginsLoad.cpp
@@ -32,6 +33,7 @@ include/pvfilter/PVElementFilterRandInvalid.h
 include/pvfilter/PVFieldFilterGrep.h
 include/pvfilter/PVFieldsFilterParamWidget.h
 include/pvfilter/PVFieldSplitterChar.h
+include/pvfilter/PVFieldSplitterChunkMatch.h
 include/pvfilter/PVFieldSplitterUTF16Char.h
 include/pvfilter/PVFieldsMappingFilter.h
 include/pvfilter/PVPluginsLoad.h

@@ -66,6 +66,11 @@ public:
 		init_qstr();
 		init_icustr();
 	}
+
+protected:
+	// Perform a deep copy of current data in a new buffer
+	void _realloc_data();
+
 private:
 	inline void copy_from(PVBufferSlice const& src)
 	{

@@ -38,9 +38,6 @@ void PVFilter::PVFieldSplitterCSVParamWidget::init()
 {
         PVLOG_DEBUG("init PVFieldSplitterCSVParamWidget\n");
         
-        /*
-         * action menu init
-         */
         action_menu = new QAction(QString("add CSV Splitter"),NULL);
         
         child_count = 0;

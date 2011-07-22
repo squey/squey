@@ -142,6 +142,7 @@ public:
 	   _args = args;
 	}
 	QString const& get_name() { return _name; }
+	PVCore::PVArgumentList const& get_default_args() { return _def_args; }
 protected:
 	PVCore::PVArgumentList _args;
 	PVCore::PVArgumentList _def_args;
@@ -250,9 +251,15 @@ protected:
  * The "FilterT" member type defines the filter type of the filter. As instance, PVElementFilterByGrep is registrable with PVElementFilter (as FilterT).
  */
 
+// Forward declaration
+template <class FilterT>
+class PVFilterLibrary;
+
 template <typename Tout, typename Tin, typename FilterT_ = PVFilterFunctionBase<Tout,Tin> >
 class PVFilterFunctionRegistrable: public PVFilterFunctionBase<Tout,Tin>
 {
+	template <class FilterT>
+	friend class PVFilterLibrary;
 public:
 	typedef FilterT_ FilterT;
 	typedef boost::shared_ptr< PVFilterFunctionRegistrable<Tout,Tin,FilterT_> > p_type;
@@ -272,12 +279,15 @@ public:
 	 */
 	template <typename Tc>
 	boost::shared_ptr<Tc> clone() const { return boost::shared_ptr<Tc>((Tc*) _clone_me()); }
+
+	QString registered_name() const { return __registered_name; }
 protected:
 	/*! \brief virtual method that is implemented by the IMPL_FILTER macro. This is used for polymorphic cloning.
 	 *  \return A pointer to a new object of this class, heap-allocated (with the new operator) and using the copy constructor with *this as parameter.
 	 *  \sa IMPL_FILTER, clone
 	 */
 	virtual void* _clone_me() const = 0;
+	QString __registered_name;
 };
 
 /*! \brief Define a filter function that takes the same type as reference in input and output (Tout = T&, Tin = T&)

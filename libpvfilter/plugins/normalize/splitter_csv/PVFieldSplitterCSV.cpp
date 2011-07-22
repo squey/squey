@@ -1,6 +1,9 @@
 #include "PVFieldSplitterCSV.h"
 
 
+// CSV classic delimiters
+static char g_delimiters[] = {',',' ','\t',';','|'};
+
 PVFilter::PVFieldSplitterCSV::PVFieldSplitterCSV(PVCore::PVArgumentList const& args)
 {
 	INIT_FILTER(PVFilter::PVFieldSplitterCSV, args);
@@ -85,6 +88,28 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterCSV::one_to_many(PVCore:
 	csv_free(&inf._p);
 
 	return inf._nelts;
+}
+
+
+bool PVFilter::PVFieldSplitterCSV::guess(list_guess_result_t& res, PVCore::PVField const& in_field)
+{
+	PVCore::PVArgumentList test_args;
+	bool ok = false;
+
+	for (size_t i = 0; i < sizeof(g_delimiters)/sizeof(char); i++) {
+		PVCore::PVField own_field(in_field);
+		own_field.deep_copy();
+		PVCore::list_fields lf;
+		test_args["sep"] = QVariant(QChar(g_delimiters[i]));
+		set_args(test_args);
+		if (one_to_many(lf, lf.begin(), own_field) > 1) {
+			// We have a match
+			res.push_back(list_guess_result_t::value_type(test_args, lf));
+			ok = true;
+		}
+	}
+
+	return ok;
 }
 
 IMPL_FILTER(PVFilter::PVFieldSplitterCSV)
