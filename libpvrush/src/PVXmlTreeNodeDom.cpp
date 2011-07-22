@@ -595,27 +595,27 @@ void PVRush::PVXmlTreeNodeDom::version0to1(){
         PVLOG_DEBUG("PVRush::PVXmlTreeNodeDom::version0to1()\n");
         if(getDom().tagName()=="RegEx"){
                 getDom().setTagName("splitter");
-                setAttribute("type","regexp");
-                setAttribute("regexp",getAttribute("expression"));
+                getDom().setAttribute("type","regexp");
+                getDom().setAttribute("regexp",getDom().attribute("expression"));
                 getDom().removeAttribute("expression");
         }else if(getDom().tagName()=="url"){
                 getDom().setTagName("splitter");
-                setAttribute("type","url");
+                getDom().setAttribute("type","url");
         }else if(getDom().tagName()=="pcap"){
                 getDom().setTagName("splitter");
-                setAttribute("type","pcap");
+                getDom().setAttribute("type","pcap");
         }else if(getDom().tagName()=="csv"){
                 getDom().setTagName("splitter");
-                setAttribute("type","csv");
-                setAttribute("sep",getAttribute("delimiter"));
+                getDom().setAttribute("type","csv");
+                getDom().setAttribute("sep",getDom().attribute("delimiter"));
         }if(getDom().tagName()=="filter"){
-                if(getAttribute("type")=="include"){
-                        setAttribute("reverse","0");
+                if(getDom().attribute("type")=="include"){
+                        getDom().setAttribute("reverse","0");
                 }else{
-                        setAttribute("reverse","1");
+                        getDom().setAttribute("reverse","1");
                 }
-                setAttribute("type","regexp");
-                setAttribute("regexp",getAttribute("expression"));
+                getDom().setAttribute("type","regexp");
+                getDom().setAttribute("regexp",getDom().attribute("expression"));
                 getDom().removeAttribute("expression");
                 //<filter validator="" expression="192.168" type="include" name="local"/>
         }else 

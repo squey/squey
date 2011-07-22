@@ -711,10 +711,10 @@ bool PVInspector::PVXmlDomModel::openXml(QString url) {
 
 
 	PVRush::PVXmlTreeNodeDom *m_rootNode = new PVRush::PVXmlTreeNodeDom(PVRush::PVXmlTreeNodeDom::field, "root", xmlRootDom,this->xmlFile);
-	if(getVersion()=="0"){
+	/*if(getVersion()=="0"){
                 m_rootNode->version0to1();
                 setVersion("1");
-        }
+        }*/
         setRoot(m_rootNode);
         
         
