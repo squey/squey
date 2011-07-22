@@ -686,6 +686,9 @@ void PVRush::PVXmlTreeNodeDom::getChildrenFromField(PVCore::PVField const& field
 		QRegExp rx(exp);
 		force_nchild = rx.captureCount();
 
+        PVLOG_DEBUG("(field)\n%s\n",qPrintable(field.qstr()));
+        setAttribute("validator",field.qstr());
+        //field.qstr()
 		// TODO FIXME pour lundi
 		// Si on récupère le widget RegExp et que l'on lui passe (avec une fonction quelconque, genre setData)
 		// field.qstr(), alors il récupère la chaîne qu'il est censé parser
