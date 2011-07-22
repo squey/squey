@@ -73,7 +73,7 @@ PVRush::PVXmlTreeNodeDom::~PVXmlTreeNodeDom() {
  *
  *****************************************************************************/
 void PVRush::PVXmlTreeNodeDom::addChild(PVRush::PVXmlTreeNodeDom *child) {
-        PVLOG_DEBUG("PVRush::PVXmlTreeNodeDom::addChild");
+        PVLOG_DEBUG("PVRush::PVXmlTreeNodeDom::addChild\n");
     child->setParent(this);//set his parent
     child->setDoc(xmlFile);//set the dom node
     if (child->xmlDomElement.tagName() == "axis" || child->xmlDomElement.tagName() == "RegEx"||child->xmlDomElement.tagName() == "splitter"|| child->xmlDomElement.tagName() == "url"|| child->xmlDomElement.tagName() =="field"){
@@ -231,7 +231,7 @@ void PVRush::PVXmlTreeNodeDom::setName(QString nom) {
  *
  *****************************************************************************/
 void PVRush::PVXmlTreeNodeDom::explore() {
-        PVLOG_DEBUG("PVRush::PVXmlTreeNodeDom::explore");
+        PVLOG_DEBUG("PVRush::PVXmlTreeNodeDom::explore\n");
     this->isAlreadyExplored = true;
 
     /* search for child in the dom.*/
@@ -305,44 +305,6 @@ int PVRush::PVXmlTreeNodeDom::getRow(){
 
 
 
-/******************************************************************************
- *
- * PVRush::PVXmlTreeNodeDom::newFilterAfter
- *
- *****************************************************************************/
-
-void PVRush::PVXmlTreeNodeDom::newFilterAfter(int indexeThisParmisFrere){
-    //create the new dom element
-    QDomElement domEltNewFilter=this->xmlFile.createElement("filter");//create the dom
-    domEltNewFilter.setAttribute("name","new filter");//set the name
-    this->xmlDomElement.parentNode().insertAfter(domEltNewFilter,this->xmlDomElement);//push new dom in dom tree 
-    
-    //add the new 
-    PVXmlTreeNodeDom *newNodeFilter = new PVXmlTreeNodeDom(domEltNewFilter);//create the node
-    newNodeFilter->setParent(this->parent);//set the parent
-    this->parent->children.insert(indexeThisParmisFrere+1,newNodeFilter);//push node in tree
-}
-
-
-
-
-/******************************************************************************
- *
- * PVRush::PVXmlTreeNodeDom::newSplitterAfter
- *
- *****************************************************************************/
-void PVRush::PVXmlTreeNodeDom::newSplitterAfter(int indexeThisParmisFrere, QString tag){
-
-    //create the new dom element
-    QDomElement domEltNewSplit=this->xmlFile.createElement(tag);//create the dom
-    domEltNewSplit.setAttribute("name","new Splitter");//set the name
-    this->xmlDomElement.parentNode().insertAfter(domEltNewSplit,this->xmlDomElement);//push new dom in dom tree 
-    
-    //add the new 
-    PVXmlTreeNodeDom *newNodeSplitter = new PVXmlTreeNodeDom(domEltNewSplit);//create the node
-    newNodeSplitter->setParent(this->parent);//set the parent
-    this->parent->children.insert(indexeThisParmisFrere+1,newNodeSplitter);//push node in tree
-}
 
 
 
@@ -452,13 +414,7 @@ void PVRush::PVXmlTreeNodeDom::setNbr(int nbr) {
   //this function update the number of field in the regexp
     switch (this->type) {
         case RegEx:
-            if (nbr > this->getNbr()) {
-                addField(nbr - this->getNbr());//add some fields
-            }else if(nbr < this->getNbr()){
-                delField(this->getNbr()-nbr);//delete some fiels
-            }
-            break;
-       case splitter:
+        case splitter:
                PVLOG_DEBUG("PVRush::PVXmlTreeNodeDom::setNbr(%d)\n",nbr);
             if (nbr > this->getNbr()) {
                 addField(nbr - this->getNbr());//add some fields
