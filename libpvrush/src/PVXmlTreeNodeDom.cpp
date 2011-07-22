@@ -586,7 +586,46 @@ QString PVRush::PVXmlTreeNodeDom::getAttribute(QString name, bool flagReadInXml)
     return QString();
 }
 
-
+/******************************************************************************
+ *
+ * PVRush::PVXmlTreeNodeDom::version0to1
+ *
+ *****************************************************************************/
+void PVRush::PVXmlTreeNodeDom::version0to1(){
+        PVLOG_DEBUG("PVRush::PVXmlTreeNodeDom::version0to1()\n");
+        if(getDom().tagName()=="RegEx"){
+                getDom().setTagName("splitter");
+                setAttribute("type","regexp");
+                setAttribute("regexp",getAttribute("expression"));
+                getDom().removeAttribute("expression");
+        }else if(getDom().tagName()=="url"){
+                getDom().setTagName("splitter");
+                setAttribute("type","url");
+        }else if(getDom().tagName()=="pcap"){
+                getDom().setTagName("splitter");
+                setAttribute("type","pcap");
+        }else if(getDom().tagName()=="csv"){
+                getDom().setTagName("splitter");
+                setAttribute("type","csv");
+                setAttribute("sep",getAttribute("delimiter"));
+        }if(getDom().tagName()=="filter"){
+                if(getAttribute("type")=="include"){
+                        setAttribute("reverse","0");
+                }else{
+                        setAttribute("reverse","1");
+                }
+                setAttribute("type","regexp");
+                setAttribute("regexp",getAttribute("expression"));
+                getDom().removeAttribute("expression");
+                //<filter validator="" expression="192.168" type="include" name="local"/>
+        }else 
+        
+        
+        //recurcive loop
+        for(int i=0;i<getChildren().size();i++){
+                getChild(i)->version0to1();
+        }
+}
 
 /******************************************************************************
  *

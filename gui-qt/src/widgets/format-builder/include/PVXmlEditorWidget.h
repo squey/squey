@@ -20,6 +20,8 @@
 #include <QMenuBar>
 #include <QAbstractItemModel>
 #include <QMainWindow>
+#include <QDomElement>
+#include <QDomDocument>
 
 #include <PVXmlDomModel.h>
 #include <PVXmlTreeView.h>
@@ -105,6 +107,7 @@ private:
 	list_filters_t _list_filters;///!<list of the plugins filters
     
     void showParamBoard(PVRush::PVXmlTreeNodeDom *node);
+    
 
 // Log input management
 

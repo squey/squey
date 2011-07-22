@@ -100,6 +100,7 @@ public:
      * @return 
      */
     QString getVersion(){return xmlRootDom.attribute("version","0");}
+    QString setVersion(QString v){ xmlRootDom.setAttribute("version",v);}
     
     /**
      * 
