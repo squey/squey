@@ -322,33 +322,30 @@ QStringList PVInspector::PVXmlParamWidget::getListTypePlotting(const QString& mT
  *****************************************************************************/
 void PVInspector::PVXmlParamWidget::edit(QModelIndex const& index) {
 
-    drawForNo(index);
-    if (index.isValid()) {
-        //emit signalQuittingAParamBoard();
-        //if (confirmApply == true) {
-//            //emit the signal to require confirmation.
-        //    emit signalNeedConfirmApply(editingIndex);
-        //}
-        //confirmApply = false;
-        editingIndex = index;
-        PVRush::PVXmlTreeNodeDom *nodeOnClick = (PVRush::PVXmlTreeNodeDom *) index.internalPointer();
-        
-     
-        
-        if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::filter) {
-	  drawForFilter(nodeOnClick);
-	}else
-        if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::RegEx) {
-            drawForRegEx(nodeOnClick);
-            //confirmApply = false;
-        }else
-        if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::axis){
-	  drawForAxis(nodeOnClick);
-	}else
-        if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::splitter){
-	  drawForSplitter(nodeOnClick);
+	drawForNo(index);
+	if (index.isValid()) {
+		//emit signalQuittingAParamBoard();
+		//if (confirmApply == true) {
+		//            //emit the signal to require confirmation.
+		//    emit signalNeedConfirmApply(editingIndex);
+		//}
+		//confirmApply = false;
+		editingIndex = index;
+		PVRush::PVXmlTreeNodeDom *nodeOnClick = (PVRush::PVXmlTreeNodeDom *) index.internalPointer();
+
+		bool splitter = nodeOnClick->type == PVRush::PVXmlTreeNodeDom::splitter;
+
+		if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::filter) {
+			drawForFilter(nodeOnClick);
+		} else if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::RegEx || (splitter && ((nodeOnClick->getAttribute("type","") == "regexp") || nodeOnClick->getAttribute("type","") == "url"))) {
+			drawForRegEx(nodeOnClick);
+			//confirmApply = false;
+		}else if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::axis){
+				drawForAxis(nodeOnClick);
+		}else if (splitter){
+			drawForSplitter(nodeOnClick);
+		}
 	}
-    }
 
 }
 

@@ -162,6 +162,10 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id)
 					fields.push_back(data);
 					process_childs = true;
 				}
+				else
+				if (getNodeType(child) == "field") {
+					process_childs = true;
+				}
 
 				if (process_childs) {
 					for (int iF = 0; iF < countChild(child.toElement()); iF++) {

@@ -212,7 +212,6 @@ void PVInspector::PVXmlEditorWidget::initSplitters() {
         LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::list_classes::const_iterator it;
         int cpt=0;
         for (it = splitters.begin(); it != splitters.end(); it++) {
-                PVLOG_INFO("name: %s\n", qPrintable(it.key()));
                 PVFilter::PVFieldsSplitterParamWidget_p pluginsSplitter = it.value();
                 assert(pluginsSplitter);
                 pluginsSplitter->set_id(cpt);
