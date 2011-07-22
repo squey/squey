@@ -109,18 +109,7 @@ public:
         }
     }
     
-    
-    /**
-     * Add a new filter, after the selected item.
-     * @param indexeThisParmisFrere
-     */
-    void newFilterAfter(int indexeThisParmisFrere);
-    
-    /**
-     * Add a new RegEx after the selected item.
-     * @param indexeThisParmisFrere
-     */
-    void newSplitterAfter(int indexeThisParmisFrere, QString type="RegEx");
+
 
     /**
      * Setup the DomDocument reference.
