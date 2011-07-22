@@ -7,12 +7,12 @@
 
 namespace PVFilter {
 
-class PVFieldSplitterCSVParamWidget: public PVFieldsFilterParamWidget<one_to_many>
+class PVFieldSplitterCSVParamWidget: public PVFieldsSplitterParamWidget
 {
 public:
 	PVFieldSplitterCSVParamWidget();
 public:
-	QWidget* get_widget();
+	QWidget* get_param_widget();
 
 	CLASS_REGISTRABLE(PVFieldSplitterCSVParamWidget)
 };

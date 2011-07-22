@@ -18,7 +18,9 @@
  * PVInspector::PVXmlEditorWidget::PVXmlEditorWidget
  *
  *****************************************************************************/
-PVInspector::PVXmlEditorWidget::PVXmlEditorWidget():QWidget() {
+PVInspector::PVXmlEditorWidget::PVXmlEditorWidget(QWidget * parent):QWidget(parent) {
+        
+    setObjectName("PVXmlEditorWidget");
     
     /*
      * ****************************************************************************
@@ -43,12 +45,12 @@ PVInspector::PVXmlEditorWidget::PVXmlEditorWidget():QWidget() {
     
     
     //the view
-    this->myTreeView = new PVXmlTreeView();
+    this->myTreeView = new PVXmlTreeView(this);
     hb->addWidget(this->myTreeView);
 
     
     //the model
-    this->myTreeModel = new PVXmlDomModel();
+    this->myTreeModel = new PVXmlDomModel(this);
     this->myTreeView->setModel(this->myTreeModel);
 
     
@@ -94,6 +96,10 @@ void PVInspector::PVXmlEditorWidget::initConnexions() {
     connect(myTreeView, SIGNAL(clicked(const QModelIndex &)), myParamBord, SLOT(edit(const QModelIndex &)));
     //connexion to endable/desable items in toolsbar menu.
     connect(myTreeView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(slotUpdateToolDesabled(const QModelIndex &)));
+    
+    //data has changed from tree 
+    connect(myTreeModel, SIGNAL(dataChanged(const QModelIndex &, const QModelIndex& )), myTreeView, SLOT(slotDataHasChanged(const QModelIndex & , const QModelIndex & )));
+    
 
     /*
      * Connexions for the toolBar.

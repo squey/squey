@@ -13,6 +13,7 @@
  *
  *****************************************************************************/
 PVInspector::PVXmlParamWidgetEditorBox::PVXmlParamWidgetEditorBox(QString pName,QVariant *var):QLineEdit() {
+    setObjectName("PVXmlParamWidgetEditorBox");    
     variable = var;
     setObjectName(pName);
     setText(variable->toString());

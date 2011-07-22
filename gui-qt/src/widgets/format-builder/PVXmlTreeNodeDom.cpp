@@ -16,7 +16,7 @@
  *
  *****************************************************************************/
 PVInspector::PVXmlTreeNodeDom::PVXmlTreeNodeDom() {
-
+        setObjectName("PVXmlTreeNodeDom");
 }
 
 

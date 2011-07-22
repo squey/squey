@@ -24,7 +24,7 @@ PVInspector::PVXmlParamWidgetBoardSplitterRegEx::PVXmlParamWidgetBoardSplitterRe
     validWidget->setRegEx(exp->text());
     flagNeedConfirmAndSave = false;
     flagAskConfirmActivated = true;
-    
+    setObjectName("PVXmlParamWidgetBoardSplitterRegEx");
 }
 
 

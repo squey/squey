@@ -17,6 +17,7 @@
 PVInspector::PVXmlTreeItemDelegate::PVXmlTreeItemDelegate() :
         QAbstractItemDelegate()
 {
+        setObjectName("PVXmlTreeItemDelegate");
     
 }
 

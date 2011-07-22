@@ -7,6 +7,18 @@
 
 #include <PVXmlTreeView.h>
 #include <PVXmlDomModel.h>
+#include<QMouseEvent>
+#include<QTreeView>
+#include<QTreeWidgetItem>
+#include<QRectF>
+#include <QAbstractItemView>
+#include <QStyleOptionViewItem>
+#include <QItemSelectionModel>
+#include <QAbstractItemModel>
+#include<QRect>
+#include<QScrollBar>
+#include<qglobal.h>
+#include<QDragMoveEvent>
 
 #define dbg()  {qDebug()<<__FILE__<<__LINE__;}
 
@@ -17,13 +29,14 @@
  * PVInspector::PVXmlTreeView::PVXmlTreeView
  *
  *****************************************************************************/
-PVInspector::PVXmlTreeView::PVXmlTreeView() :QTreeView() //
+PVInspector::PVXmlTreeView::PVXmlTreeView(QWidget * parent ) :QTreeView(parent) //
 {
-    this->setDragEnabled(TRUE);
-    this->setAcceptDrops(TRUE);
-    this->setDropIndicatorShown(TRUE);
-    this->isDraging = FALSE;
-    //connect(this,SIGNAL(clicked(const QModelIndex &)),this, SLOT(slotUnSelect(const QModelIndex &)));
+    setDragEnabled(TRUE);
+    setAcceptDrops(TRUE);
+    setDropIndicatorShown(TRUE);
+    isDraging = FALSE;
+    isEditing = false;
+    setObjectName("PVXmlTreeView");
 }
 
 
@@ -155,7 +168,7 @@ void PVInspector::PVXmlTreeView::addNode(AddType type){
  * PVInspector::PVXmlTreeView::applyModification
  *
  *****************************************************************************/
-void PVInspector::PVXmlTreeView::applyModification(PVXmlParamWidget *paramBord,QModelIndex& index){
+void PVInspector::PVXmlTreeView::applyModification(PVXmlParamWidget *paramBord,QModelIndex& ){
   //if(selectedIndexes())PVLOG_ERROR("selectedIndexes() is null in PVInspector::PVXmlTreeView::applyModification(PVXmlParamWidget *paramBord)\n");
 	if (paramBord==NULL) {
 		PVLOG_ERROR("paramBord is null in PVInspector::PVXmlTreeView::applyModification(PVXmlParamWidget *paramBord)\n");
@@ -252,6 +265,17 @@ PVInspector::PVXmlDomModel* PVInspector::PVXmlTreeView::getModel(){
 
 
 
+/******************************************************************************
+ *
+ * PVInspector::PVXmlTreeView::mouseDoubleClickEvent
+ *
+ *****************************************************************************/
+void PVInspector::PVXmlTreeView::mouseDoubleClickEvent ( QMouseEvent * event ){
+        QTreeView::mouseDoubleClickEvent(event);
+        isEditing = true;
+}
+
+
 
 /******************************************************************************
  *
@@ -259,18 +283,19 @@ PVInspector::PVXmlDomModel* PVInspector::PVXmlTreeView::getModel(){
  *
  *****************************************************************************/
 void PVInspector::PVXmlTreeView::mousePressEvent(QMouseEvent * event) {
-    for(int i=0;i<selectedIndexes().count();i++){
-        if(selectedIndexes().at(i).isValid())
-	  selectionModel()->select(selectedIndexes().at(i), QItemSelectionModel::Clear);//valid index...
-    }
- 
-    QTreeView::mousePressEvent ( event );  
-    //QTreeView::
-    QModelIndex index;
-    if(index.isValid()){
-      PVLOG_INFO("emit clicked() on an invalid index in PVInspector::PVXmlTreeView::mousePressEvent()\n");
-    }
-    emit clicked(index);//keep it anyway, if the index is not valid, it update toolsbar enabled tools.
+        for (int i = 0; i < selectedIndexes().count(); i++) {
+                if (selectedIndexes().at(i).isValid()){
+                        selectionModel()->select(selectedIndexes().at(i), QItemSelectionModel::Clear); //valid index...
+                }
+        }
+
+        QTreeView::mousePressEvent(event);
+        //QTreeView::
+        QModelIndex index;
+        if (index.isValid()) {
+                PVLOG_DEBUG("emit clicked() on an invalid index in PVInspector::PVXmlTreeView::mousePressEvent()\n");
+        }
+        emit clicked(index); //keep it anyway, if the index is not valid, it update toolsbar enabled tools.
 }
 
 
@@ -314,6 +339,16 @@ void PVInspector::PVXmlTreeView::moveUp() {
 
 /******************************************************************************
  *
+ * PVInspector::PVXmlTreeView::slotDataHasChanged
+ *
+ *****************************************************************************/
+void PVInspector::PVXmlTreeView::slotDataHasChanged(const QModelIndex & index, const QModelIndex & ){
+        PVLOG_DEBUG("PVInspector::PVXmlTreeView::slotDataHasChanged\n");
+        emit clicked(index);
+}
+
+/******************************************************************************
+ *
  * PVInspector::PVXmlTreeView::slotSelectNext
  *
  *****************************************************************************/
@@ -324,8 +359,17 @@ void PVInspector::PVXmlTreeView::slotSelectNext(){
       if(index.parent().isValid()){
 	QModelIndex selectIndex =getModel()->selectNext(index);
 	if(selectIndex.isValid()){//if the new index is valid
-	    selectionModel()->select(selectIndex, QItemSelectionModel::ClearAndSelect);
-	    emit clicked(selectIndex);
+	    
+            if(isEditing){
+                    PVLOG_DEBUG("has EditFocus\n");
+                    isEditing = false;
+                    selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
+                    emit clicked(index);
+            }else{
+                    PVLOG_DEBUG("hasn't EditFocus\n");
+                    selectionModel()->select(selectIndex, QItemSelectionModel::ClearAndSelect);
+                    emit clicked(selectIndex);
+            }
 	}
       }
     }

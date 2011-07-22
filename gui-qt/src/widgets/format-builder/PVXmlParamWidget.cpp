@@ -26,6 +26,7 @@
  *****************************************************************************/
 PVInspector::PVXmlParamWidget::PVXmlParamWidget() : QWidget() {
     layout = new QVBoxLayout();
+    setObjectName("PVXmlParamWidget");
 
     //confirmApply = false;
     //listeDeParam = new QList<QVariant*>();

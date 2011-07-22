@@ -6,18 +6,11 @@
 
 #ifndef MYTREEVIEW_H
 #define	MYTREEVIEW_H
+
+
 #include<QTreeView>
 #include<QTreeWidgetItem>
-#include<QRectF>
-#include<QRect>
-#include<QScrollBar>
-#include<qglobal.h>
-#include<QDragMoveEvent>
-#include<QMouseEvent>
-#include <QAbstractItemView>
-#include <QStyleOptionViewItem>
-#include <QItemSelectionModel>
-#include <QAbstractItemModel>
+
 #include <QMouseEvent>
 
 
@@ -42,7 +35,7 @@ public:
   enum AddType {
         addRegEx, addFilter, addAxis, addUrl
     };
-    PVXmlTreeView();
+    PVXmlTreeView(QWidget * parent = NULL);
     virtual ~PVXmlTreeView();
     
 
@@ -76,6 +69,8 @@ public:
      * @param index
      */
       void expandRecursive(const QModelIndex &index);
+      
+      virtual void mouseDoubleClickEvent ( QMouseEvent * event );
       virtual void mousePressEvent ( QMouseEvent * event );
          
       PVXmlDomModel * getModel();
@@ -99,7 +94,9 @@ protected:
 
 private:
     bool isDraging;
+    bool isEditing;
 public slots:
+    void slotDataHasChanged(const QModelIndex & , const QModelIndex & );
     void slotSelectNext();
     signals:
     void refresh();

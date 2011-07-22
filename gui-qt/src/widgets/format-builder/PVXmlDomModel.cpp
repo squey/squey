@@ -14,7 +14,7 @@
  * PVInspector::PVXmlDomModel::PVXmlDomModel
  *
  *****************************************************************************/
-PVInspector::PVXmlDomModel::PVXmlDomModel(): QAbstractItemModel() {
+PVInspector::PVXmlDomModel::PVXmlDomModel(QWidget * parent): QAbstractItemModel(parent) {
 
     //init the DOM agent
     xmlFile.createProcessingInstruction("xml", "version=\"1.0\" encoding=\"utf-8\"");
@@ -27,6 +27,7 @@ PVInspector::PVXmlDomModel::PVXmlDomModel(): QAbstractItemModel() {
     //creating the root node.
     PVXmlTreeNodeDom *m_rootNode = new PVXmlTreeNodeDom(PVXmlTreeNodeDom::field, "root", xmlRootDom,this->xmlFile);
     setRoot(m_rootNode);
+    setObjectName("PVXmlDomModel");
 }
 
 
@@ -252,7 +253,32 @@ PVInspector::PVXmlTreeNodeDom* PVInspector::PVXmlDomModel::nodeFromIndex(const Q
  *
  *****************************************************************************/
 Qt::ItemFlags PVInspector::PVXmlDomModel::flags ( const QModelIndex &  ) const{
-    return Qt::ItemIsSelectable|Qt::ItemIsEnabled;
+    return Qt::ItemIsSelectable|Qt::ItemIsEnabled|Qt::ItemIsEditable;
+}
+
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVXmlDomModel::headerData
+ *
+ *****************************************************************************/
+QVariant PVInspector::PVXmlDomModel::headerData ( int section, Qt::Orientation orientation, int role ) const{
+        //If it's view is displaying
+        if(role == Qt::DisplayRole){
+                //if the orientation is horizontal
+                if(orientation == Qt::Horizontal){
+                        switch(section){
+                                case 0://edit first column
+                                        return QVariant("Type");
+                                        break;
+                                case 1://edit second column
+                                        return QVariant("Name");
+                                        break;
+                        }
+                }
+        }
+        return QVariant();
 }
 
 
@@ -274,8 +300,9 @@ Qt::DropActions PVInspector::PVXmlDomModel::supportedDropActions() const{
  *****************************************************************************/
 bool PVInspector::PVXmlDomModel::setData(const QModelIndex & index, const QVariant & value, int role){
     if(role==Qt::EditRole){
-        if(index.column()==0){
+        if(index.column()==1){//just choose the second column
             nodeFromIndex(index)->setName(value.toString());
+            emit dataChanged(index ,index );
             return true;
         }
     }
@@ -314,7 +341,7 @@ bool PVInspector::PVXmlDomModel::saveXml(QString nomDuFichierXml){
  * PVInspector::PVXmlDomModel::applyModification
  *
  *****************************************************************************/
-void PVInspector::PVXmlDomModel::applyModification(QModelIndex &index,PVXmlParamWidget *){
+void PVInspector::PVXmlDomModel::applyModification(QModelIndex &,PVXmlParamWidget *){
     emit layoutChanged();
 }
 

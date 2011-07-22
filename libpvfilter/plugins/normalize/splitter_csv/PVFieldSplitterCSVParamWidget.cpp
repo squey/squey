@@ -3,11 +3,11 @@
 #include <pvfilter/PVFieldsFilter.h>
 
 PVFilter::PVFieldSplitterCSVParamWidget::PVFieldSplitterCSVParamWidget() :
-	PVFieldsFilterParamWidget(PVFilter::PVFieldsSplitter_p(new PVFieldSplitterCSV()))
+	PVFieldsSplitterParamWidget(PVFilter::PVFieldsSplitter_p(new PVFieldSplitterCSV()))
 {
 }
 
-QWidget* PVFilter::PVFieldSplitterCSVParamWidget::get_widget()
+QWidget* PVFilter::PVFieldSplitterCSVParamWidget::get_param_widget()
 {
 	return NULL;
 }

@@ -7,6 +7,7 @@
 #ifndef NODEDOM_H
 #define	NODEDOM_H
 
+#include <QObject>
 #include<QString>
 #include<QStringList>
 #include<QList>
@@ -23,7 +24,8 @@
 #define PVXmlTreeNodeDom_initXml "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<!DOCTYPE PVParamXml>\n<param></param>\n"
     
 namespace PVInspector{
-class PVXmlTreeNodeDom {
+class PVXmlTreeNodeDom:public QObject {
+    Q_OBJECT;
 public:
     enum Type {
         Root, field, RegEx, filter, axis, url
