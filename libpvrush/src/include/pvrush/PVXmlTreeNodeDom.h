@@ -101,8 +101,6 @@ public:
 	
 	void toArgumentList(PVCore::PVArgumentList const& default_args, PVCore::PVArgumentList& args);
 
-	void setDefaultAttributesForAxis();
-
     bool isEditable() {
         if (type == splitter || type == filter || type == url || type == axis || type == RegEx) {
             return true;
@@ -110,7 +108,6 @@ public:
             return false;
         }
     }
-
     
     
     /**

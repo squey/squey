@@ -54,6 +54,9 @@ public:
 	QList<PVXmlParamParserData> const& getFields()const;
 	QHash<int, QStringList> const& getTimeFormat()const;
     unsigned int getVersion() { return format_version; }
+
+private:
+	void setVersionFromRootNode(QDomElement const& node);
     
 private:
 	QList<PVXmlParamParserData> fields;

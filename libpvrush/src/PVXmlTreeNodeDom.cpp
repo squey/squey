@@ -73,13 +73,13 @@ PVRush::PVXmlTreeNodeDom::~PVXmlTreeNodeDom() {
  *
  *****************************************************************************/
 void PVRush::PVXmlTreeNodeDom::addChild(PVRush::PVXmlTreeNodeDom *child) {
-        PVLOG_DEBUG("PVRush::PVXmlTreeNodeDom::addChild");
-    child->setParent(this);//set his parent
-    child->setDoc(xmlFile);//set the dom node
-    if (child->xmlDomElement.tagName() == "axis" || child->xmlDomElement.tagName() == "RegEx"||child->xmlDomElement.tagName() == "splitter"|| child->xmlDomElement.tagName() == "url"|| child->xmlDomElement.tagName() =="field"){
-      this->children.push_back(child);//child adding (in last position for axis, regex and url
-    }
-    else this->children.push_front(child);//child adding (in first for filter)
+	PVLOG_DEBUG("PVRush::PVXmlTreeNodeDom::addChild\n");
+	child->setParent(this);//set his parent
+	child->setDoc(xmlFile);//set the dom node
+	if (child->xmlDomElement.tagName() == "axis" || child->xmlDomElement.tagName() == "RegEx"||child->xmlDomElement.tagName() == "splitter"|| child->xmlDomElement.tagName() == "url"|| child->xmlDomElement.tagName() =="field"){
+		this->children.push_back(child);//child adding (in last position for axis, regex and url
+	}
+	else this->children.push_front(child);//child adding (in first for filter)
 }
 
 
@@ -231,15 +231,16 @@ void PVRush::PVXmlTreeNodeDom::setName(QString nom) {
  *
  *****************************************************************************/
 void PVRush::PVXmlTreeNodeDom::explore() {
-        PVLOG_DEBUG("PVRush::PVXmlTreeNodeDom::explore");
+	PVLOG_DEBUG("PVRush::PVXmlTreeNodeDom::explore\n");
     this->isAlreadyExplored = true;
 
     /* search for child in the dom.*/
     QDomElement childItem = this->xmlDomElement.firstChildElement();
-    while (!childItem.isNull()) {
-        addChild(new PVXmlTreeNodeDom(childItem));
-        childItem = childItem.nextSiblingElement();
-    }
+
+	while (!childItem.isNull()) {
+		addChild(new PVXmlTreeNodeDom(childItem));
+		childItem = childItem.nextSiblingElement();
+	}
 }
 
 
@@ -666,15 +667,3 @@ void PVRush::PVXmlTreeNodeDom::toArgumentList(PVCore::PVArgumentList const& defa
 	}
 }
 
-void PVRush::PVXmlTreeNodeDom::setDefaultAttributesForAxis()
-{
-	assert(typeToString() == "axis");
-	setAttribute("titlecolor", "#ffffff", true);
-	setAttribute("color", "#ffffff", true);
-	setAttribute("key", "false", true);
-	setAttribute("mapping", "default", true);
-	setAttribute("plotting", "default", true);
-	setAttribute("type", "enum", true);
-	setAttribute("time-format", "", true);
-	setAttribute("group", "none", true);
-}

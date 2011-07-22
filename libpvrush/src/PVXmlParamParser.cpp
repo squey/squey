@@ -37,7 +37,7 @@ PVRush::PVXmlParamParser::PVXmlParamParser(QString const& nameFile)
 	QTextStream tmpTextXml(&fichier);//creation of the file stream
 	QDomDocument docXml;
 	docXml.setContent(tmpTextXml.readAll());
-	format_version = docXml.documentElement().attribute("version","0").toInt();
+	setVersionFromRootNode(docXml.documentElement());
 	setDom(docXml.documentElement());
 
 	fichier.close();
@@ -45,7 +45,13 @@ PVRush::PVXmlParamParser::PVXmlParamParser(QString const& nameFile)
 
 PVRush::PVXmlParamParser::PVXmlParamParser(QDomElement const& rootNode)
 {
+	setVersionFromRootNode(rootNode);
 	setDom(rootNode);
+}
+
+void PVRush::PVXmlParamParser::setVersionFromRootNode(QDomElement const& node)
+{
+	format_version = node.attribute("version","0").toInt();
 }
 
 PVRush::PVXmlParamParser::~PVXmlParamParser()

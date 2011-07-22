@@ -559,15 +559,15 @@ void PVInspector::PVXmlEditorWidget::guess_first_splitter()
 		PVLOG_WARN("Filter '%s' of type '%s' has no associated widget !\n", qPrintable(type_name), qPrintable(filter_name));
 		return;
 	}
-	PVRush::PVXmlTreeNodeDom* node = myTreeView->addSplitter(sp_widget);
-	node->setFromArgumentList(sp->get_args());
-
 
 	// Then we need to create 'naxes' children
+	QStringList axes_name;
 	for (PVCol i = 0; i < naxes; i++) {
-		PVRush::PVXmlTreeNodeDom* axis_node = node->addOneField(QString("Axis %1").arg(i+1));
-		//axis_node->setDefaultAttributesForAxis();
+		axes_name << QString("Axis %1").arg(i+1);
 	}
+
+	PVRush::PVXmlTreeNodeDom* node = myTreeModel->addSplitterWithAxes(myTreeModel->index(0,0,QModelIndex()), sp_widget, axes_name);
+	node->setFromArgumentList(sp->get_args());
 }
 
 /******************************************************************************
@@ -603,7 +603,6 @@ void PVInspector::PVXmlEditorWidget::showParamBoard(PVRush::PVXmlTreeNodeDom *no
 }
 
 void PVInspector::PVXmlEditorWidget::update_table(PVRow start, PVRow end)
-
 {
 	assert(end > start);
 	_nraw_model->set_consistent(false);

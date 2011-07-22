@@ -54,15 +54,14 @@ public:
     void addAxisIn(const QModelIndex &index);
 	PVRush::PVXmlTreeNodeDom* addAxisIn(PVRush::PVXmlTreeNodeDom* parentNode);
 
-	PVRush::PVXmlTreeNodeDom* addFieldIn(PVRush::PVXmlTreeNodeDom* parentNode);
-
     void addFisrtRegEx();
     void addFirstFilter();
 
 	PVRush::PVXmlTreeNodeDom* addSplitter(const QModelIndex &index, PVFilter::PVFieldsSplitterParamWidget_p splitterPlugin);
     void addRegExIn(const QModelIndex &index);
     void addUrlIn(const QModelIndex &index);
-    
+
+	PVRush::PVXmlTreeNodeDom* addSplitterWithAxes(const QModelIndex& index, PVFilter::PVFieldsSplitterParamWidget_p splitterPlugin, QStringList axesName);
 
     
     /*
@@ -117,9 +116,6 @@ public:
     
     bool saveXml(QString fichierXml);
     
-    
-    
-    
     void deleteSelection(QModelIndex &index);
     
     void moveDown(const QModelIndex &index);
@@ -140,6 +136,9 @@ public:
 
 	QDomElement const& getRootDom() const { return xmlRootDom; }
     
+private:
+	static void setDefaultAttributesForAxis(QDomElement& elt);
+
 private:
     PVRush::PVXmlTreeNodeDom *rootNode;
     
