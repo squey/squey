@@ -124,6 +124,37 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 
 	pv_ListingsTabWidget = new PVListingsTabWidget(this, this);
 
+
+	// We display the PV Icon together with a button to import files
+	pv_centralWidget = new QWidget(this);
+
+	pv_mainLayout = new QVBoxLayout(this);
+	pv_mainLayout->setAlignment(Qt::AlignCenter);
+	pv_mainLayout->setContentsMargins(0,0,0,0);
+
+	pv_welcomeIcon = new QPixmap(":/logo.png");
+	pv_labelWelcomeIcon = new QLabel(this);
+	pv_labelWelcomeIcon->setPixmap(*pv_welcomeIcon);
+	pv_labelWelcomeIcon->resize(pv_welcomeIcon->width(), pv_welcomeIcon->height());
+
+	pv_ImportFileButton = new QPushButton("Import files...", this);
+	pv_ImportFileButton->setIcon(QIcon(":/document-new.png"));
+
+
+	connect(pv_ImportFileButton, SIGNAL(clicked()), this, SLOT(import_type_default_Slot()));
+	connect(pv_ListingsTabWidget, SIGNAL(is_empty()), this, SLOT(display_icon_Slot()) );
+
+	pv_mainLayout->addWidget(pv_labelWelcomeIcon);
+	pv_mainLayout->addWidget(pv_ImportFileButton);
+	pv_mainLayout->addWidget(pv_ListingsTabWidget);
+	
+	pv_ListingsTabWidget->hide();
+	pv_centralWidget->setLayout(pv_mainLayout);
+	setCentralWidget(pv_centralWidget);
+
+	pv_ListingsTabWidget->setFocus(Qt::OtherFocusReason);
+
+
 	// RemoteLogDialog = new QMainWindow(this, Qt::Dialog);
 	// QObject::connect(RemoteLogDialog, SIGNAL(destroyed()), this, SLOT(hide()));
 
@@ -133,12 +164,7 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 	connect_actions();
 	connect_widgets();
 	menu_activate_is_file_opened(false);
-
-	// We fix an initial placement of all Windows
-	setCentralWidget(pv_ListingsTabWidget);
-
-	pv_ListingsTabWidget->setFocus(Qt::OtherFocusReason);
-
+	
 	update_check();
 
 	create_pvgl_thread ();
@@ -535,11 +561,8 @@ void PVInspector::PVMainWindow::create_filters_menu_and_actions()
 	}
 }
 
-void PVInspector::PVMainWindow::import_type_Slot()
+void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 {
-	QAction* action_src = (QAction*) sender();
-	QString const& itype = action_src->data().toString();
-	PVRush::PVInputType_p in_t = LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name(itype);
 	PVRush::list_creators lcr = PVRush::PVSourceCreatorFactory::get_by_input_type(in_t);
 	PVRush::hash_format_creator format_creator = PVRush::PVSourceCreatorFactory::get_supported_formats(lcr);
 
@@ -801,6 +824,31 @@ void PVInspector::PVMainWindow::import_type_Slot()
 	if (discovered.size() > 0) {
 		menu_activate_is_file_opened(true);
 	}
+
+	
+	pv_labelWelcomeIcon->hide();
+	pv_ImportFileButton->hide();
+	pv_ListingsTabWidget->setVisible(true);
+}
+
+void PVInspector::PVMainWindow::display_icon_Slot()
+{
+	pv_labelWelcomeIcon->setVisible(true);
+	pv_ImportFileButton->setVisible(true);
+}
+
+void PVInspector::PVMainWindow::import_type_default_Slot()
+{
+	import_type(LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name("file"));
+}
+
+
+void PVInspector::PVMainWindow::import_type_Slot()
+{
+	QAction* action_src = (QAction*) sender();
+	QString const& itype = action_src->data().toString();
+	PVRush::PVInputType_p in_t = LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name(itype);
+	import_type(in_t);	
 }
 
 /******************************************************************************

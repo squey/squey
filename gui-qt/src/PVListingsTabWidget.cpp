@@ -76,5 +76,11 @@ void PVInspector::PVListingsTabWidget::tabCloseRequested_Slot(int index)
 
 	main_window->destroy_pvgl_views(current_tab->get_lib_view());
 	current_tab->deleteLater();
+
+	if(currentIndex() == -1)
+	{
+		emit is_empty();
+		hide();
+	}
 }
 

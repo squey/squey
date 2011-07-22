@@ -101,6 +101,8 @@ public:
 	void refresh_view(Picviz::PVView_p view);
 	void set_color(Picviz::PVView_p view);
 	PVGL::PVCom* get_pvcom();
+
+	void import_type(PVRush::PVInputType_p in_t);
 	
 public slots:
 	void about_Slot();
@@ -117,6 +119,7 @@ public slots:
 	void filter_select_all_Slot();
 	void filter_Slot();
 	void file_format_builder_Slot();
+	void import_type_default_Slot();
 	void import_type_Slot();
 	void lines_display_unselected_Slot();
 	void lines_display_unselected_listing_Slot();
@@ -146,6 +149,8 @@ public slots:
 	void check_messages();	/* SLOT? NOT SLOT? */
 	void update_reply_finished_Slot(QNetworkReply *reply);
 	void whats_this_Slot();
+
+	void display_icon_Slot();
 
 protected:
 	void closeEvent(QCloseEvent* event);
@@ -210,6 +215,14 @@ private:
 	QAction *view_show_new_Action;
 	QAction *view_new_scatter_Action;
 	QAction *whats_this_Action;
+
+	QWidget *pv_centralWidget;
+	QVBoxLayout *pv_mainLayout;
+	QLabel *pv_labelWelcomeIcon;
+	QPixmap  *pv_welcomeIcon;
+
+	QPushButton *pv_ImportFileButton;
+	QVBoxLayout *pv_ImportFileButtonInnerLayout;
 
 protected:
 	bool eventFilter(QObject *watched_object, QEvent *event);

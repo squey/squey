@@ -34,6 +34,7 @@
 	<file alias="add-regexp">icons/22x22/add-regexp.png</file>
 	<file alias="add-url">icons/22x22/add-url.png</file>
 	<file alias="help">icons/22x22/help.png</file>
+	<file alias="picvizlabs-logo">icons/logo.png</file>
 
 	<file alias="save32-32.png">icons/save32-32.png</file>
 

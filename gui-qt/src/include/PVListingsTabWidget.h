@@ -26,6 +26,7 @@ public:
 
 signals:
 	void tabCloseRequested(int);
+	void is_empty(); 
 
 	public slots:
 			QTabBar *get_tabBar();
