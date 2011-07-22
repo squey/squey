@@ -546,28 +546,6 @@ void PVInspector::PVXmlDomModel::addRegExIn(const QModelIndex &index) {
 }
 
 
-/******************************************************************************
- *
- * PVInspector::PVXmlDomModel::addFisrtRegEx
- *
- *****************************************************************************/
-void PVInspector::PVXmlDomModel::addFisrtRegEx() {
-    rootNode->addRegExRacine();
-    
-    emit layoutChanged();
-}
-
-
-/******************************************************************************
- *
- * PVInspector::PVXmlDomModel::addFirstFilter
- *
- *****************************************************************************/
-void PVInspector::PVXmlDomModel::addFirstFilter() {
-        rootNode->addFilterRacine();
-    
-    emit layoutChanged();
-}
 
 
 /******************************************************************************
