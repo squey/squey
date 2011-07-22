@@ -231,11 +231,7 @@ void PVRush::PVXmlTreeNodeDom::setName(QString nom) {
  *
  *****************************************************************************/
 void PVRush::PVXmlTreeNodeDom::explore() {
-<<<<<<< HEAD
 	PVLOG_DEBUG("PVRush::PVXmlTreeNodeDom::explore\n");
-=======
-        PVLOG_DEBUG("PVRush::PVXmlTreeNodeDom::explore\n");
->>>>>>> 8d2e05718c6f56cf3cd2da3b7bf640e2233cf023
     this->isAlreadyExplored = true;
 
     /* search for child in the dom.*/
