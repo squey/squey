@@ -32,14 +32,14 @@ int main(int argc, char** argv)
 	QCoreApplication app(argc, argv);
 
 	PVFilter::PVPluginsLoad::load_all_plugins();
-	PVFilter::PVFieldsFilter<PVFilter::one_to_one>::p_type sp_lib_p = LIB_FILTER(PVFilter::PVFieldsFilter<PVFilter::one_to_one>)::get().get_filter_by_name("grep_regexp");
+	PVFilter::PVFieldsFilter<PVFilter::one_to_one>::p_type sp_lib_p = LIB_FILTER(PVFilter::PVFieldsFilter<PVFilter::one_to_one>)::get().get_filter_by_name("regexp");
 	if (!sp_lib_p) {
 		cerr << "Unable to load filter regexp" << endl;
 		return 1;
 	}
 
 	PVCore::PVArgumentList args;
-	args["regexp"] = PVCore::PVArgument(QRegExp(QString(argv[3])));
+	args["regexp"] = PVCore::PVArgument(QString(argv[3]));
 	args["reverse"] = reverse;
 	sp_lib_p->set_args(args);
 
