@@ -160,7 +160,7 @@ public:
 	typedef PVFilterFunctionBase<void,Tin> base;
 public:
 	PVFilterFunctionBase(PVCore::PVArgumentList const& args = PVFilterFunctionBase<void,Tin>::default_args()) :
-		_args(args)
+		_args(args), _def_args(args)
 	{
 	}
 public:
@@ -170,6 +170,7 @@ public:
 	func_type f() { return boost::bind<void>(&PVFilterFunctionBase<void,Tin>::_f, this, _1); }
 	void _f(Tin obj) { this->operator()(obj); }
 	QString const& get_name() { return _name; }
+	PVCore::PVArgumentList const& get_default_args() { return _def_args; }
 	virtual void set_args(PVCore::PVArgumentList const& args)
 	{
 		PVCore::PVArgumentList::const_iterator it,ite;
@@ -201,7 +202,7 @@ public:
 	typedef PVFilterFunctionBase<Tout,void> base;
 public:
 	PVFilterFunctionBase(PVCore::PVArgumentList const& args = PVFilterFunctionBase<Tout,void>::default_args()) :
-		_args(args)
+		_args(args), _def_args(args)
 	{
 	}
 public:
@@ -218,6 +219,7 @@ public:
 	Tout _f() { return this->operator()(); }
 
 	QString const& get_name() { return _name; }
+	PVCore::PVArgumentList const& get_default_args() { return _def_args; }
 
 	/*! \brief Set the argument of the filter object.
 	 * Set the argument of the filter object, and compares its keys against the default ones to see if none are missing.
