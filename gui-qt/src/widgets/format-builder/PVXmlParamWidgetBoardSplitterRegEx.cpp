@@ -46,14 +46,14 @@ void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::allocBoardFields() {
     tabParam = new QTabWidget(this);
     
     //tab 
-    name = new PVXmlParamWidgetEditorBox(QString("name"), new QVariant(node->getAttribute("name")));
+    name = new PVXmlParamWidgetEditorBox(QString("name"), new QVariant(node->attribute("name")));
     
     //tab regexp
     exp = new PVXmlParamWidgetEditorBox(QString("expression"), new QVariant(node->getDom().attribute("expression", ".*")));
     labelNbr = new QLabel("");
     openLog = new QPushButton("Open a log");
     checkSaveValidLog = new QCheckBox("Save log sample in format file",this);
-    validWidget = new PVXmlParamTextEdit(QString("validator"), QVariant(node->getAttribute("validator",false)));
+    validWidget = new PVXmlParamTextEdit(QString("validator"), QVariant(node->attribute("validator",false)));
     table = new QTableWidget();
     btnApply = new QPushButton("Apply");
 
@@ -230,14 +230,14 @@ void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::initValue() {
     //init the number of field detected with the regexp
     regExCount(exp->val().toString());
     //check or not the check box
-    if(node->getAttribute("saveValidator","").compare(QString("true"))==0){
+    if(node->attribute("saveValidator","").compare(QString("true"))==0){
 	flagSaveRegExpValidator=true;
 	checkSaveValidLog->setCheckState(Qt::Checked);
-	validWidget->setVal(node->getAttribute("validator",true));
+	validWidget->setVal(node->attribute("validator",true));
     }else{
 	flagSaveRegExpValidator=false;
 	checkSaveValidLog->setCheckState(Qt::Unchecked);
-	validWidget->setVal(node->getAttribute("validator",false));
+	validWidget->setVal(node->attribute("validator",false));
     }
 }
 

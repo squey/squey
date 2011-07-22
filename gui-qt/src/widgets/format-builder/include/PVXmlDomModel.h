@@ -23,7 +23,7 @@
 #include <pvrush/PVXmlParamParser.h>
 #include <pvfilter/PVFieldsFilterParamWidget.h>
 
-#define FORMAT_VERSION 1.0
+#define FORMAT_VERSION 1
 
 #define message(string){QMessageBox qb;   qb.setText(string);    qb.exec();} 
 //#define dbg {qDebug()<<__FILE__<<__LINE__;}
