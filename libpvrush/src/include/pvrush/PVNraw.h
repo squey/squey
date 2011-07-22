@@ -90,8 +90,10 @@ namespace PVRush {
 
 		inline QString get_axis_name(PVCol format_axis_id) const
 		{
-			assert(format_axis_id < format->axes.size());
-			return format->axes.at(format_axis_id).value("name");
+			if(format_axis_id < format->axes.size()) {
+                return format->axes.at(format_axis_id).value("name");
+            }
+            return QString("");
 		}
 
 		inline void set_field(nraw_table_line& line, size_t index_field, const QChar* buf, size_t nchars)
