@@ -7,6 +7,8 @@
 #ifndef PVCORE_PVAXISINDEXCHECKBOXEDITOR_H
 #define PVCORE_PVAXISINDEXBHECKBOXEDITOR_H
 
+#include <QComboBox>
+#include <QCheckBox>
 #include <QString>
 #include <QWidget>
 
@@ -15,23 +17,30 @@
 
 #include <picviz/PVView.h>
 
-#include <PVCheckableComboBox.h>
+/* #include <PVCheckableComboBox.h> */
 
 namespace PVInspector {
 
 /**
  * \class PVAxisIndexCheckBoxEditor
  */
-class PVAxisIndexCheckBoxEditor : public PVCheckableComboBox
+/* class PVAxisIndexCheckBoxEditor : public PVCheckableComboBox */
+/* class PVAxisIndexCheckBoxEditor : public QComboBox */
+class PVAxisIndexCheckBoxEditor : public QWidget
 {
 	Q_OBJECT
 	Q_PROPERTY(PVCore::PVAxisIndexCheckBoxType _axis_index READ get_axis_index WRITE set_axis_index USER true)
+
+private:
+	QComboBox *combobox;
+	QCheckBox *checkbox;
+	bool _checked;
+	int _current_index;
 
 public:
 	PVAxisIndexCheckBoxEditor(Picviz::PVView& view, QWidget *parent = 0);
 	virtual ~PVAxisIndexCheckBoxEditor();
 
-public:
 	PVCore::PVAxisIndexCheckBoxType get_axis_index() const;
 	void set_axis_index(PVCore::PVAxisIndexCheckBoxType axis_index);
 

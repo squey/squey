@@ -32,6 +32,8 @@ Picviz::PVLayerFilterFindAttacks::PVLayerFilterFindAttacks(PVCore::PVArgumentLis
 	nessus_sigs_path = pvconfig.value("layer-filter-attack-finder/nessus_sigs_path").toString();
 	PVLOG_INFO("[%s] Nessus plugins path: '%s'\n", __FUNCTION__, qPrintable(nessus_sigs_path));
 
+	return;
+
 
 	PVLOG_INFO("[%s] Indexing Snort data...\n", __FUNCTION__);
 	QDir snort_dir(snort_sigs_path);
@@ -121,10 +123,12 @@ DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterFindAttacks)
 void Picviz::PVLayerFilterFindAttacks::operator()(PVLayer& /*in*/, PVLayer &out)
 {	
 	int ua_axis_id = _args["User Agent Axis"].value<PVCore::PVAxisIndexCheckBoxType>().get_original_index();
+	bool ua_checked = _args["User Agent Axis"].value<PVCore::PVAxisIndexCheckBoxType>().get_checked();
 	PVRow nb_lines = _view->get_qtnraw_parent().size();
 
 	PVRush::PVNraw::nraw_table const& nraw = _view->get_qtnraw_parent();
 
+	PVLOG_INFO("UA AXIS ID=%d CHECKED=%d\n", ua_axis_id, ua_checked);
 
 	// out.get_selection().select_none();
 

@@ -39,14 +39,12 @@ PVInspector::PVAxisIndexEditor::~PVAxisIndexEditor()
 void PVInspector::PVAxisIndexEditor::set_axis_index(PVCore::PVAxisIndexType axis_index)
 {
 	clear();
-	if (axis_index.get_append_none_axis()) {
-		addItem("None");
-		// addItem("None", Qt::UserRole);
-	}
 	addItems(_view.get_axes_names_list());
+	setCurrentIndex(axis_index.get_original_index());
 }
 
 PVCore::PVAxisIndexType PVInspector::PVAxisIndexEditor::get_axis_index() const
 {
+	// PVLOG_INFO("THIS IS ME, WEIRD!\n");
 	return PVCore::PVAxisIndexType(currentIndex());
 }
