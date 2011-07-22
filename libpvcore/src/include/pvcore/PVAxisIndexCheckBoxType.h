@@ -25,8 +25,10 @@ public:
 	PVAxisIndexCheckBoxType();
 	PVAxisIndexCheckBoxType(int origin_axis_index, bool is_checked);
 
-	int get_original_index();
-	bool is_checked();
+	inline int get_original_index() { return _origin_axis_index; }
+
+	inline bool get_checked() { return _is_checked; }
+	inline void set_checked(const bool checked) { _is_checked = checked; }
 
 protected:
 	// The original axis index will never change. PVAxisCombination takes care of any

@@ -18,12 +18,3 @@ PVCore::PVAxisIndexCheckBoxType::PVAxisIndexCheckBoxType(int origin_axis_index, 
 	_is_checked = is_checked;
 }
 
-int PVCore::PVAxisIndexCheckBoxType::get_original_index()
-{
-	return _origin_axis_index;
-}
-
-bool PVCore::PVAxisIndexCheckBoxType::is_checked()
-{
-	return _is_checked;
-}
