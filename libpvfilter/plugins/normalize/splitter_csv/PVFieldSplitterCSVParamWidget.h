@@ -50,7 +50,7 @@ private:
 public slots:
     void updateSeparator(const QString &sep){
         PVCore::PVArgumentList args;
-        args["sep"]=QVariant(sep);
+        args["sep"]=QVariant(sep.at(0));
         this->get_filter()->set_args(args);
         
         emit data_changed();

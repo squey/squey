@@ -547,10 +547,17 @@ void PVInspector::PVXmlEditorWidget::guess_first_splitter()
 	}
 
 	// Ok, we got a match, add it to the dom.
-	PVLOG_INFO("(format_builder) For input '%s', found a splitter that creates %d axes. Arguments:\n", qPrintable(_log_input_type->human_name_of_input(_log_input)), naxes);
+	QString first_input_name = _log_input_type->human_name_of_input(_log_input);
+	PVLOG_INFO("(format_builder) For input '%s', found a splitter that creates %d axes. Arguments:\n", qPrintable(first_input_name), naxes);
 	PVCore::dump_argument_list(sp->get_args());
 
 	// TODO: QMessageBox ask;
+	QString msg = tr("It appears that the %1 splitter can process '%2' and create %3 fields.\n").arg(sp->registered_name()).arg(first_input_name).arg(naxes);
+	msg += tr("Do you want to automatically add that splitter to the format ?");
+	QMessageBox ask_auto(QMessageBox::Question, tr("Filter automatically found"), msg, QMessageBox::Yes | QMessageBox::No, this);
+	if (ask_auto.exec() == QMessageBox::No) {
+		return;
+	}
 	
 	// Get the widget that comes with the splitter. TODO: do better than that
 	QString type_name = sp->type_name();

@@ -39,12 +39,12 @@ PVInspector::PVXmlParamWidgetBoardFilter::~PVXmlParamWidgetBoardFilter() {
 void PVInspector::PVXmlParamWidgetBoardFilter::allocBoardFields() {
   //allocate each field and init them with the saved value
     name = new PVXmlParamWidgetEditorBox(QString("name"), new QVariant(node->getAttribute("name")));
-    exp = new PVXmlParamWidgetEditorBox(QString("expression"), new QVariant(node->getDom().attribute("expression",".*")));
+    exp = new PVXmlParamWidgetEditorBox(QString("regexp"), new QVariant(node->getDom().attribute("regexp",".*")));
     validWidget = new PVXmlParamTextEdit(QString("validator"), QVariant(node->getAttribute("validator")));
-    typeOfFilter = new PVXmlParamComboBox("type-of-filter");
+    typeOfFilter = new PVXmlParamComboBox("reverse");
     typeOfFilter->addItem("include");
     typeOfFilter->addItem("exclude");
-    typeOfFilter->select(node->getAttribute("type-of-filter"));
+    typeOfFilter->select((node->getAttribute("reverse").toInt() == 1) ? "exclude":"include");
     buttonNext = new QPushButton("Next");
     buttonNext->setShortcut(QKeySequence(Qt::Key_Return));
 }
@@ -145,9 +145,9 @@ void PVInspector::PVXmlParamWidgetBoardFilter::slotEmitNext(){
  *****************************************************************************/
 void PVInspector::PVXmlParamWidgetBoardFilter::slotSetValues(){//called when we modifi something.
     node->setAttribute(QString("name"),name->text());
-    node->setAttribute(QString("expression"),exp->text());
+    node->setAttribute(QString("regexp"),exp->text());
     node->setAttribute(QString("validator"),validWidget->getVal().toString());
-    node->setAttribute(QString("type-of-filter"),typeOfFilter->val().toString());
+    node->setAttribute(QString("reverse"),QString::number((typeOfFilter->val().toString() == "exclude")));
 
     emit signalRefreshView();
 }
