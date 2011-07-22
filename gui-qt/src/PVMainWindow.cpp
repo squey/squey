@@ -129,8 +129,9 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 	// We display the PV Icon together with a button to import files
 	pv_centralWidget = new QWidget(this);
 
-	pv_mainLayout = new QVBoxLayout(this);
+	pv_mainLayout = new QVBoxLayout();
 	pv_mainLayout->setAlignment(Qt::AlignCenter);
+	pv_mainLayout->setSpacing(40);
 	pv_mainLayout->setContentsMargins(0,0,0,0);
 
 	pv_welcomeIcon = new QPixmap(":/logo.png");
