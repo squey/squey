@@ -2,8 +2,10 @@ SET(SRC_FILES
 PVFilterLibrary.cpp
 PVChunkFilter.cpp
 PVChunkFilterByElt.cpp
+PVChunkFilterByEltSaveInvalid.cpp
 PVChunkFilterSource.cpp
 PVChunkFilterCountElts.cpp
+PVChunkFilterDumpElts.cpp
 PVElementFilterByFields.cpp
 PVElementFilterGrep.cpp
 PVElementFilterRandInvalid.cpp
@@ -11,6 +13,7 @@ PVFieldFilterGrep.cpp
 PVFieldsFilter.cpp
 PVFieldsMappingFilter.cpp
 PVFieldSplitterChar.cpp
+PVFieldSplitterChunkMatch.cpp
 PVFieldSplitterUTF16Char.cpp
 PVFieldsFilterParamWidget.cpp
 PVPluginsLoad.cpp
@@ -20,8 +23,10 @@ PVRawSourceBase.cpp
 SET(HEADER_FILES
 include/pvfilter/PVChunkFilter.h
 include/pvfilter/PVChunkFilterByElt.h
+include/pvfilter/PVChunkFilterByEltSaveInvalid.h
 include/pvfilter/PVChunkFilterSource.h
 include/pvfilter/PVChunkFilterCountElts.h
+include/pvfilter/PVChunkFilterDumpElts.h
 include/pvfilter/PVElementFilterByFields.h
 include/pvfilter/PVElementFilter.h
 include/pvfilter/PVFieldsFilter.h
@@ -32,6 +37,7 @@ include/pvfilter/PVElementFilterRandInvalid.h
 include/pvfilter/PVFieldFilterGrep.h
 include/pvfilter/PVFieldsFilterParamWidget.h
 include/pvfilter/PVFieldSplitterChar.h
+include/pvfilter/PVFieldSplitterChunkMatch.h
 include/pvfilter/PVFieldSplitterUTF16Char.h
 include/pvfilter/PVFieldsMappingFilter.h
 include/pvfilter/PVPluginsLoad.h

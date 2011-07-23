@@ -25,7 +25,7 @@
 #include <QAbstractItemModel>
 
 
-#include <PVXmlTreeNodeDom.h>
+#include <pvrush/PVXmlTreeNodeDom.h>
 #include <PVXmlParamWidgetEditorBox.h>
 #include <PVXmlParamTextEdit.h>
 #include <PVXmlParamComboBox.h>
@@ -34,11 +34,27 @@ namespace PVInspector{
 class PVXmlParamWidgetBoardSplitterRegEx : public QWidget {
     Q_OBJECT
 public:
-    PVXmlParamWidgetBoardSplitterRegEx(PVXmlTreeNodeDom *pNode);
+    PVXmlParamWidgetBoardSplitterRegEx(PVRush::PVXmlTreeNodeDom *pNode);
     virtual ~PVXmlParamWidgetBoardSplitterRegEx();
     
     bool confirmAndSave();
     QWidget *getWidgetToFocus();
+    
+	void setData(QStringList const& data)
+	{
+		for (int i = 0; i < data.size(); i++) {
+			PVLOG_INFO("(regexp board widget) get data %s\n", qPrintable(data[i]));
+		}
+		_data = data;
+
+		QString textVal;
+		for (int i = 0; i < _data.size(); i++) {
+			textVal += _data[i];
+			textVal += QChar('\n');
+		}
+
+		validWidget->setVal(textVal);
+	}
     
 
 private:
@@ -66,11 +82,11 @@ private:
     bool useTableVerifie();
 
     //editing node
-    PVXmlTreeNodeDom *node;
+    PVRush::PVXmlTreeNodeDom *node;
     bool flagNeedConfirmAndSave;
     bool flagAskConfirmActivated;
     bool flagSaveRegExpValidator;
-    
+
 public slots:
     void slotNoteConfirmationNeeded();
     void slotOpenLogValid();
@@ -94,6 +110,9 @@ public slots:
 signals:
     void signalRefreshView();
     void signalNeedConfirmAndSave();
+
+protected:
+	QStringList _data;
 };
 }
 #endif	/* PVXMLPARAMWIDGETBOARDSPLITTERREGEX_H */

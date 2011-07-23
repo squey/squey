@@ -15,6 +15,7 @@ PVRush::PVExtractor::PVExtractor(unsigned int chunks) :
 	else
 		_chunks = chunks;
 	_saved_nraw_valid = false;
+	_dump_elts = false;
 }
 
 PVRush::PVExtractor::~PVExtractor()
@@ -57,6 +58,11 @@ void PVRush::PVExtractor::set_chunk_filter(PVFilter::PVChunkFilter_f chk_flt)
 PVRush::PVNraw& PVRush::PVExtractor::get_nraw()
 {
 	return _nraw;
+}
+
+PVRush::PVFormat& PVRush::PVExtractor::get_format()
+{
+	return *_nraw.format;
 }
 
 PVCore::chunk_index PVRush::PVExtractor::pvrow_to_agg_index(PVRow start, bool& found)
@@ -133,7 +139,7 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(PVCore::c
 	// PVControllerJob_p is a boost shared pointer, that will automatically take care of the deletion of this
 	// object when it is not needed anymore !
 	PVControllerJob_p job = PVControllerJob_p(new PVControllerJob(PVControllerJob::start, priority));
-	job->set_params(start, 0, nlines, PVControllerJob::sc_n_elts, _agg, _chk_flt, _out_nraw, _chunks);
+	job->set_params(start, 0, nlines, PVControllerJob::sc_n_elts, _agg, _chk_flt, _out_nraw, _chunks, _dump_elts);
 	
 	// The job is submitted to the controller and the pointer returned, so that the caller can wait for its end
 	_ctrl.submit_job(job);
@@ -151,7 +157,7 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_idxes(PVCore::ch
 	// PVControllerJob_p is a boost shared pointer, that will automatically take care of the deletion of this
 	// object when it is not needed anymore !
 	PVControllerJob_p job = PVControllerJob_p(new PVControllerJob(PVControllerJob::start, priority));
-	job->set_params(start, end, 0, PVControllerJob::sc_idx_end, _agg, _chk_flt, _out_nraw, _chunks);
+	job->set_params(start, end, 0, PVControllerJob::sc_idx_end, _agg, _chk_flt, _out_nraw, _chunks, _dump_elts);
 	
 	// The job is submitted to the controller and the pointer returned, so that the caller can wait for its end
 	_ctrl.submit_job(job);
@@ -162,7 +168,7 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_idxes(PVCore::ch
 PVRush::PVControllerJob_p PVRush::PVExtractor::read_everything(int priority)
 {
 	PVControllerJob_p job = PVControllerJob_p(new PVControllerJob(PVControllerJob::read_everything, priority));
-	job->set_params(0, 0, 0, PVControllerJob::sc_idx_end, _agg, _chk_flt, _out_nraw, _chunks);
+	job->set_params(0, 0, 0, PVControllerJob::sc_idx_end, _agg, _chk_flt, _out_nraw, _chunks, _dump_elts);
 
 	_ctrl.submit_job(job);
 	return job;
@@ -184,11 +190,11 @@ void PVRush::PVExtractor::dump_nraw()
 //		debug_qstringlist(_nraw.table[i]);
 //	}
 
-	PVLOG_INFO("Trans nraw:\n");
-	for (int i = 0; i < picviz_min(10,_nraw.trans_table.size()); i++) {
+	PVLOG_INFO("Nraw:\n");
+	for (int i = 0; i < picviz_min(10,_nraw.table.size()); i++) {
 		PVLOG_INFO("Line %d: ", i);
-		for (int j = 0; j < picviz_min(10,_nraw.table.size()); j++) {
-			std::cout << qPrintable(_nraw.trans_table[i][j]) << ",";
+		for (int j = 0; j < _nraw.table[i].size(); j++) {
+			std::cout << qPrintable(_nraw.table[i][j]) << ",";
 		}
 		std::cout << std::endl;
 	}
@@ -234,4 +240,10 @@ void PVRush::PVExtractor::clear_saved_nraw()
 		_saved_nraw.clear();
 		_saved_nraw_valid = false;
 	}
+}
+
+void PVRush::PVExtractor::set_format(PVFormat const& format)
+{
+	PVFormat* nraw_format = new PVFormat(format);
+	_nraw.format.reset(nraw_format);
 }

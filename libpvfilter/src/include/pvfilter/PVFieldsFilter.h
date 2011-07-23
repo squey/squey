@@ -14,6 +14,9 @@
 #include <pvfilter/PVFilterFunction.h>
 #include <pvfilter/PVFilterLibrary.h>
 #include <map>
+#include <list>
+#include <utility>
+#include <QString>
 
 namespace PVFilter {
 
@@ -23,6 +26,7 @@ enum fields_filter_type {
 	many_to_many
 };
 
+typedef std::list< std::pair<PVCore::PVArgumentList, PVCore::list_fields> > list_guess_result_t;
 // Function typedef
 template <fields_filter_type Ttype = many_to_many>
 class PVFieldsFilter : public PVFilterFunction< PVCore::list_fields, PVFieldsFilter<Ttype> > {
@@ -37,7 +41,12 @@ public:
 		_type = Ttype;
 	}
 public:
-	fields_filter_type type() { return _type; };
+	static fields_filter_type type() { return Ttype; };
+	static QString type_name();
+
+	// Argument guessing interface. Used by the format builder in order
+	// to guess the first filter that could be applied to an input
+	virtual bool guess(list_guess_result_t& /*res*/, PVCore::PVField const& /*in_field*/) { return false; } 
 
 	// Default interface (many-to-many)
 	virtual PVCore::list_fields& operator()(PVCore::list_fields &fields);
@@ -81,6 +90,7 @@ typedef PVFieldsSplitter::p_type PVFieldsSplitter_p;
 pvfilter_FilterLibraryDecl PVFilter::PVFilterLibrary<PVFilter::PVFieldsFilter<PVFilter::one_to_many>::FilterT>;
 pvfilter_FilterLibraryDecl PVFilter::PVFilterLibrary<PVFilter::PVFieldsFilter<PVFilter::one_to_one>::FilterT>;
 pvfilter_FilterLibraryDecl PVFilter::PVFilterLibrary<PVFilter::PVFieldsFilter<PVFilter::many_to_many>::FilterT>;
+pvfilter_FilterLibraryDecl PVFilter::PVFilterLibrary<PVFilter::PVFieldsFilterReg::FilterT>;
 #endif
 
 }

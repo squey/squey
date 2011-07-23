@@ -59,12 +59,26 @@ namespace PVRush {
 		inline nraw_table& get_table() { return table; }
 		inline nraw_table const& get_table() const { return table; }
 
+		inline PVRow get_number_rows() const { return table.size(); }
+		inline PVCol get_number_cols() const
+		{
+			if (table.size() == 0) {
+				return 0;
+			}
+
+			return table[0].size();
+		}
+
 		nraw_table table;
 		nraw_trans_table trans_table;
 
 		PVFormat_p format;
 
-		QString get_value(PVRow row, PVCol col);
+		inline QString const& get_value(PVRow row, PVCol col) const
+		{
+			assert(row < table.size());
+			return table.at(row)[col];
+		}
 
 		inline nraw_table_line& add_row(size_t nfields)
 		{
@@ -72,6 +86,14 @@ namespace PVRush {
 			nraw_table_line& ret  = *(table.end()-1);
 			ret.resize(nfields);
 			return ret;
+		}
+
+		inline QString get_axis_name(PVCol format_axis_id) const
+		{
+			if(format_axis_id < format->axes.size()) {
+                return format->axes.at(format_axis_id).value("name");
+            }
+            return QString("");
 		}
 
 		inline void set_field(nraw_table_line& line, size_t index_field, const QChar* buf, size_t nchars)

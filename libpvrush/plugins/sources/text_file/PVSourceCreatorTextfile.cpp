@@ -1,6 +1,7 @@
 #include "PVSourceCreatorTextfile.h"
 #include <pvrush/PVInputFile.h>
 #include <pvrush/PVNormalizer.h>
+#include <pvrush/PVInputPcap.h>
 
 #include <pvfilter/PVChunkFilter.h>
 
@@ -10,6 +11,7 @@
 
 PVRush::PVSourceCreatorTextfile::source_p PVRush::PVSourceCreatorTextfile::create_source_from_input(PVCore::PVArgument const& input) const
 {
+	PVLOG_DEBUG("(text_file plugin) create source for %s\n", qPrintable(input.toString()));
 	// input is a QString !
 	PVRush::PVInput_p ifile(new PVRush::PVInputFile(input.toString().toLocal8Bit().constData()));
 	// FIXME: chunk size must be computed somewhere once and for all !
@@ -34,7 +36,16 @@ bool PVRush::PVSourceCreatorTextfile::pre_discovery(PVCore::PVArgument const& in
 	// AG: I don't know a magic method for being sure that a file is a text-file
 	// We'll let the TBB filters work for the moment...
 	
-	// So, it always returns true.
+	// Just a special case: if this is a pcap, return false
+	pcap_t *pcaph;
+	char errbuf[PCAP_ERRBUF_SIZE];
+
+	pcaph = pcap_open_offline(input.toString().toLocal8Bit().constData(), errbuf);
+	if (pcaph) {
+		pcap_close(pcaph);
+		return false;
+	}
+
 	return true;
 }
 

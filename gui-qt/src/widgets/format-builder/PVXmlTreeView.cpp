@@ -15,6 +15,7 @@
 #include <QStyleOptionViewItem>
 #include <QItemSelectionModel>
 #include <QAbstractItemModel>
+#include <QString>
 #include<QRect>
 #include<QScrollBar>
 #include<qglobal.h>
@@ -77,6 +78,18 @@ void PVInspector::PVXmlTreeView::addFilterAfter() {
 
 /******************************************************************************
  *
+ * PVInspector::PVXmlTreeView::addSplitter
+ *
+ *****************************************************************************/
+PVRush::PVXmlTreeNodeDom* PVInspector::PVXmlTreeView::addSplitter(PVFilter::PVFieldsSplitterParamWidget_p splitterPlugin){
+        PVLOG_DEBUG("PVInspector::PVXmlTreeView::addSplitter \n");
+        QModelIndex index = getSelectedIndex();
+        return getModel()->addSplitter(index,splitterPlugin);
+}
+
+
+/******************************************************************************
+ *
  * PVInspector::PVXmlTreeView::addRegExIn
  *
  *****************************************************************************/
@@ -108,14 +121,10 @@ void PVInspector::PVXmlTreeView::addUrlIn() {
 */
 void PVInspector::PVXmlTreeView::addNode(AddType type){
 
-	QModelIndex index;
+	QModelIndex index = getSelectedIndex();
 	QModelIndex indexToSelect;
 	
-	int numberOfSelectedIndexes = selectedIndexes().count();//get the number of selected indexes.
-	
-	if (numberOfSelectedIndexes>0) {
-		index = selectedIndexes().at(0);//get the selected index.
-	}
+        int numberOfSelectedIndexes = selectedIndexes().count();
 	
 	switch (type) {
 		//if we want to add a regexp

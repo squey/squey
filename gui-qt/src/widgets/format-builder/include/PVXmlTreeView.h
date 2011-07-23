@@ -15,15 +15,18 @@
 
 
 #include <iostream>
-#include <PVXmlTreeNodeDom.h>
 #include <PVXmlParamWidget.h>
 #include <PVXmlDomModel.h>
-
+#include <pvfilter/PVFieldsFilterParamWidget.h>
 
 
 //QTreeView
 
 const int ExtraHeight = 3;
+
+namespace PVRush {
+class PVXmlTreeNodeDom;
+}
 
 namespace PVInspector {
   
@@ -47,6 +50,14 @@ public:
     void addFilterAfter();
     
     /**
+     * add a new splitter in DOM refering to the splitter plugin
+     * @param splitterPlugin : new instance of the plugin requesting the new splitter
+     */
+	PVRush::PVXmlTreeNodeDom* addSplitter(PVFilter::PVFieldsSplitterParamWidget_p splitterPlugin);
+	
+	PVRush::PVXmlTreeNodeDom* processChildrenWithField();
+    
+    /**
      * Add a new RegEx after the selected element.
      */
     void addRegExIn();
@@ -56,8 +67,7 @@ public:
     void addNode(AddType type);
     
     void applyModification(PVXmlParamWidget *paramBord,QModelIndex& index);
-  
-    
+	
 
     /**
      * Delete the selected Item
@@ -74,6 +84,19 @@ public:
       virtual void mousePressEvent ( QMouseEvent * event );
          
       PVXmlDomModel * getModel();
+
+        QModelIndex getSelectedIndex() {
+        QModelIndex index;
+
+        int numberOfSelectedIndexes = selectedIndexes().count(); //get the number of selected indexes.
+
+        if (numberOfSelectedIndexes > 0) {
+            index = selectedIndexes().at(0); //get the selected index.
+        }else{
+            return QModelIndex();
+        }
+        return index;
+    }
       
     /**
      * Move down the selected element.

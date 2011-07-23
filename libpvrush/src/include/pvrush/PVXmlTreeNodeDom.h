@@ -18,17 +18,20 @@
 #include<iostream>
 
 #include <pvcore/general.h>
+#include <pvcore/PVArgument.h>
+#include <pvfilter/PVFieldsFilterParamWidget.h>
+
 #define trace_2(texte,texte2) { std::cout<<texte<<" "<<texte2<<std::endl; }
 
 
 #define PVXmlTreeNodeDom_initXml "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<!DOCTYPE PVParamXml>\n<param></param>\n"
     
-namespace PVInspector{
+namespace PVRush {
 class PVXmlTreeNodeDom:public QObject {
-    Q_OBJECT;
+    Q_OBJECT
 public:
     enum Type {
-        Root, field, RegEx, filter, axis, url
+        Root, field, RegEx, filter, axis, url, splitter
     };
     
     
@@ -93,19 +96,20 @@ public:
      * @return 
      */
     int getRow();
+
+	void setFromArgumentList(PVCore::PVArgumentList const& args);
+	
+	void toArgumentList(PVCore::PVArgumentList const& default_args, PVCore::PVArgumentList& args);
+
+    bool isEditable() {
+        if (type == splitter || type == filter || type == url || type == axis || type == RegEx) {
+            return true;
+        } else {
+            return false;
+        }
+    }
     
-    
-    /**
-     * Add a new filter, after the selected item.
-     * @param indexeThisParmisFrere
-     */
-    void newFilterAfter(int indexeThisParmisFrere);
-    
-    /**
-     * Add a new RegEx after the selected item.
-     * @param indexeThisParmisFrere
-     */
-    void newSplitterAfter(int indexeThisParmisFrere, QString type="RegEx");
+
 
     /**
      * Setup the DomDocument reference.
@@ -128,9 +132,26 @@ public:
 
     int getNbr();
     void setNbr(int nbr);
+
+    void setSplitterPlugin(PVFilter::PVFieldsSplitterParamWidget_p plugin) {
+        splitterPlugin = plugin;
+        QObject::connect(splitterPlugin->get_as_qobject(),SIGNAL(data_changed()),this,SLOT(slot_update()));
+    }
+
+    PVFilter::PVFieldsSplitterParamWidget_p getSplitterPlugin() {
+        if(!splitterPlugin){
+            createSplitterPlugin(xmlDomElement);
+            getSplitterPlugin()->set_child_count(countChildren());
+        }
+        return splitterPlugin;
+    }
+    
+    void createSplitterPlugin(const QDomElement &);
     
     QDomElement getDom();
     
+	void updateFiltersDataDisplay();
+
     /**
      * General attribute setter.
      * @param name
@@ -142,8 +163,20 @@ public:
      * @param name
      * @return 
      */
-    QString getAttribute(QString name, bool flagReadInXml=true);
+    QString attribute(QString name, bool flagReadInXml=true);
     
+    QWidget* getParamWidget(){
+        int children_count = getChildren().size();
+        PVCore::PVArgumentList args,args_default;
+        args_default = getSplitterPlugin()->get_default_argument();
+        toArgumentList(args_default,args);
+        getSplitterPlugin()->get_filter()->set_args(args);
+        getSplitterPlugin()->set_child_count(children_count);
+        return getSplitterPlugin()->get_param_widget();
+    }
+    
+	void getChildrenFromField(PVCore::PVField const& field);
+	void clearFiltersData();
     
     
     /**
@@ -158,6 +191,13 @@ public:
     
     void deleteFromTree();
     
+
+    /**
+     * add one field.
+	 * @return the axis node that corresponds to that field
+     */
+	PVRush::PVXmlTreeNodeDom* addOneField(QString const& name);
+
     /**
      * Return the type of node in a QString.
      * @return type
@@ -175,7 +215,11 @@ public:
      */
     PVXmlTreeNodeDom *getOutWidget();
     
+    void version0to1();
+    
     bool isOnRoot;
+
+	QStringList getDataForRegexp() { return _data_for_regexp; }
     
 private:
     QDomDocument xmlFile;
@@ -187,7 +231,7 @@ private:
     
     QHash<QString,QString> otherData;
     
-    
+    PVFilter::PVFieldsSplitterParamWidget_p splitterPlugin;
     
     
     bool isAlreadyExplored;
@@ -201,7 +245,7 @@ private:
      * setup the type
      * @param nom
      */
-    void setTypeFromString(QString nom);
+    void setTypeFromString(const QString &nom);
 
     /**
      * add 'n' field.
@@ -215,7 +259,23 @@ private:
      */
     void delField(int n);
     
+
     bool isFieldOfUrl();
+
+	// AG: still the same saturday morning hack
+	QStringList _data_for_regexp;
+    
+public slots:
+    void slot_update(){
+        PVLOG_DEBUG("PVXmlTreeNodeDom slot slot_update()\n");
+        setFromArgumentList(getSplitterPlugin()->get_filter()->get_args());
+        PVLOG_DEBUG("      %d\n",getSplitterPlugin()->get_child_new_num());
+        setNbr(getSplitterPlugin()->get_child_new_num());
+        emit data_changed();
+    }
+    signals:
+    void data_changed();
+
     
 };
 }

@@ -18,9 +18,12 @@
 #include <QDebug>
 #include <QString>
 
-#include <PVXmlTreeNodeDom.h>
+#include <pvrush/PVXmlTreeNodeDom.h>
 #include <PVXmlParamWidget.h>
-#include <pvcore/PVXmlParamParser.h>
+#include <pvrush/PVXmlParamParser.h>
+#include <pvfilter/PVFieldsFilterParamWidget.h>
+
+#define FORMAT_VERSION 1
 
 #define message(string){QMessageBox qb;   qb.setText(string);    qb.exec();} 
 //#define dbg {qDebug()<<__FILE__<<__LINE__;}
@@ -43,17 +46,19 @@ public:
      * Méthodes for the toolBar
      */
     void addFilterAfter(QModelIndex &index);
-    void addRegExAfter(QModelIndex &index);
     void applyModification(QModelIndex &index,PVXmlParamWidget *paramBord);
     
     /*
     * Add items
     */
     void addAxisIn(const QModelIndex &index);
-    void addFisrtRegEx();
-    void addFirstFilter();
+	PVRush::PVXmlTreeNodeDom* addAxisIn(PVRush::PVXmlTreeNodeDom* parentNode);
+
+	PVRush::PVXmlTreeNodeDom* addSplitter(const QModelIndex &index, PVFilter::PVFieldsSplitterParamWidget_p splitterPlugin);
     void addRegExIn(const QModelIndex &index);
     void addUrlIn(const QModelIndex &index);
+
+	PVRush::PVXmlTreeNodeDom* addSplitterWithAxes(const QModelIndex& index, PVFilter::PVFieldsSplitterParamWidget_p splitterPlugin, QStringList axesName);
 
     
     /*
@@ -81,7 +86,7 @@ public:
      * initialisation of the root.
      * @param 
      */
-    void setRoot(PVXmlTreeNodeDom *);
+    void setRoot(PVRush::PVXmlTreeNodeDom *);
     
     /**
      * get the Dom with index.
@@ -89,6 +94,13 @@ public:
      * @return QDomElement* objetDom
      */
     QDomElement *getItem(QModelIndex &index);
+    
+    /**
+     * get the version of the format
+     * @return 
+     */
+    QString getVersion(){return xmlRootDom.attribute("version","0");}
+    void setVersion(QString v){ xmlRootDom.setAttribute("version",v);}
     
     /**
      * 
@@ -101,9 +113,6 @@ public:
     
     
     bool saveXml(QString fichierXml);
-    
-    
-    
     
     void deleteSelection(QModelIndex &index);
     
@@ -121,10 +130,20 @@ public:
     //find level count form index to parent
     int countParent(const QModelIndex &index);
     
-    PVXmlTreeNodeDom *nodeFromIndex(const QModelIndex &index)const;
+    PVRush::PVXmlTreeNodeDom *nodeFromIndex(const QModelIndex &index)const;
+
+	QDomElement const& getRootDom() const { return xmlRootDom; }
+
+	PVRush::PVXmlTreeNodeDom* getRoot() { return rootNode; }
+
+	void processChildrenWithField(PVCore::PVField const& field);
+	void clearFiltersData();
     
 private:
-    PVXmlTreeNodeDom *rootNode;
+	static void setDefaultAttributesForAxis(QDomElement& elt);
+
+private:
+    PVRush::PVXmlTreeNodeDom *rootNode;
     
     QString urlXml;
     QDomDocument xmlFile;

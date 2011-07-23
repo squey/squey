@@ -22,7 +22,7 @@
 #include <QString>
 
 
-#include <PVXmlTreeNodeDom.h>
+#include <pvrush/PVXmlTreeNodeDom.h>
 #include <PVXmlParamTextEdit.h>
 #include <picviz/plugins.h>
 #include <PVXmlParamColorDialog.h>
@@ -50,22 +50,29 @@ public:
      * draw the filter parameter box.
      * @param nodeFilter
      */
-    void drawForFilter(PVXmlTreeNodeDom  *nodeFilter);
+    void drawForFilter(PVRush::PVXmlTreeNodeDom  *nodeFilter);
     /**
      * clear the parameter box.
      * @param index
+     * @todo will be delete when all splitter will be plugins
      */
     void drawForNo(QModelIndex index);
     /**
      * Draw the regexp parameter box.
      * @param nodeSplitter
+     * @todo will be delete when all splitter will be plugins
      */
-    void drawForRegEx(PVXmlTreeNodeDom  *nodeSplitter);
+    void drawForRegEx(PVRush::PVXmlTreeNodeDom  *nodeSplitter);
+    /**
+     * Draw the regexp parameter box.
+     * @param nodeSplitter
+     */
+    void drawForSplitter(PVRush::PVXmlTreeNodeDom  *nodeSplitter);
     /**
      * Dras the axis parameter box.
      * @param nodeOnClick
      */
-    void drawForAxis(PVXmlTreeNodeDom  *nodeOnClick);
+    void drawForAxis(PVRush::PVXmlTreeNodeDom  *nodeOnClick);
     
     /**
      * this is used to update parameter board
@@ -106,7 +113,7 @@ private:
     QPushButton *btnApply;
     QString pluginListURL;
     //bool confirmApply;
-    PVXmlTreeNodeDom  *nodeConfirmApply;
+    PVRush::PVXmlTreeNodeDom  *nodeConfirmApply;
     QModelIndex editingIndex;
     
     QStringList listType(const QStringList&)const;

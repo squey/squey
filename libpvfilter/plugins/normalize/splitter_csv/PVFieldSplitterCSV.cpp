@@ -1,6 +1,9 @@
 #include "PVFieldSplitterCSV.h"
 
 
+// CSV classic delimiters
+static char g_delimiters[] = {',',' ','\t',';','|'};
+
 PVFilter::PVFieldSplitterCSV::PVFieldSplitterCSV(PVCore::PVArgumentList const& args)
 {
 	INIT_FILTER(PVFilter::PVFieldSplitterCSV, args);
@@ -34,7 +37,7 @@ void PVFilter::PVFieldSplitterCSV::_csv_new_field(void* s, size_t len, void* p)
 	QString str_field(ba); // convert to unicode
 
 	size_t len_qs = str_field.size() * sizeof(QChar);
-	size_t nchars = str_field.size(); 
+	size_t nchars = str_field.size();
 	if (len_qs > sp->_len_buf) {
 		PVLOG_WARN("(PVFieldSplitterCSV) chunk is not large enough to hold CSV datas !\n");
 		return;
@@ -54,8 +57,7 @@ void PVFilter::PVFieldSplitterCSV::_csv_new_field(void* s, size_t len, void* p)
 
 void PVFilter::PVFieldSplitterCSV::_csv_new_row(int /*c*/, void* /*p*/)
 {
-	// Should only happen once at most !		
-	PVLOG_DEBUG("(PVCore::PVFieldSplitterCSV) in csv_new_row\n");
+	PVLOG_HEAVYDEBUG("(PVFieldSplitterCSV) in csv_new_row\n");
 }
 
 PVCore::list_fields::size_type PVFilter::PVFieldSplitterCSV::one_to_many(PVCore::list_fields &l, PVCore::list_fields::iterator it_ins, PVCore::PVField &field)
@@ -85,6 +87,28 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterCSV::one_to_many(PVCore:
 	csv_free(&inf._p);
 
 	return inf._nelts;
+}
+
+
+bool PVFilter::PVFieldSplitterCSV::guess(list_guess_result_t& res, PVCore::PVField const& in_field)
+{
+	PVCore::PVArgumentList test_args;
+	bool ok = false;
+
+	for (size_t i = 0; i < sizeof(g_delimiters)/sizeof(char); i++) {
+		PVCore::PVField own_field(in_field);
+		own_field.deep_copy();
+		PVCore::list_fields lf;
+		test_args["sep"] = QVariant(QChar(g_delimiters[i]));
+		set_args(test_args);
+		if (one_to_many(lf, lf.begin(), own_field) > 1) {
+			// We have a match
+			res.push_back(list_guess_result_t::value_type(test_args, lf));
+			ok = true;
+		}
+	}
+
+	return ok;
 }
 
 IMPL_FILTER(PVFilter::PVFieldSplitterCSV)

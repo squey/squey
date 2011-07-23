@@ -103,6 +103,7 @@ public:
 	PVGL::PVCom* get_pvcom();
 
 	void import_type(PVRush::PVInputType_p in_t);
+	/* void import_type(); */
 	
 public slots:
 	void about_Slot();

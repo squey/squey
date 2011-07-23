@@ -9,6 +9,7 @@
 #define PVCORE_FORMAT_H
 
 #include <QDateTime>
+#include <QDomElement>
 #include <QString>
 #include <QStringList>
 #include <QByteArray>
@@ -17,7 +18,7 @@
 #include <QList>
 
 #include <pvcore/general.h>
-#include <pvcore/PVXmlParamParser.h>
+#include <pvrush/PVXmlParamParser.h>
 #include <pvcore/PVArgument.h>
 #include <pvfilter/PVChunkFilter.h>
 #include <pvfilter/PVFieldsFilter.h>
@@ -39,6 +40,12 @@
 
 namespace PVRush {
 
+	class PVFormatException
+	{
+		public:
+			virtual QString what() = 0;
+	};
+	
 /**
  * This is the Format class
  */
@@ -70,13 +77,16 @@ namespace PVRush {
 			/* Methods */
 			void clear();
 			void debug();
-			bool populate_from_xml(QString filename);
-			bool populate();
+			bool populate_from_xml(QString filename, bool allowNoFilters = false);
+			bool populate_from_xml(QDomElement const& rootNode, bool allowNoFilters = false);
+			bool populate(bool allowNoFilters = false);
 			PVFilter::PVChunkFilter_f create_tbb_filters();
 			static QHash<QString, PVRush::PVFormat> list_formats_in_dir(QString const& format_name_prefix, QString const& dir);
 
 			QString const& get_format_name() const;
 			QString const& get_full_path() const;
+
+			void dump_elts(bool dump) { _dump_elts = dump; }
 
 			/* Attributes */
 
@@ -89,14 +99,15 @@ namespace PVRush {
 			QList<int> axes_combination;
 			
 			// List of filters to apply
-			PVCore::PVXmlParamParser::list_params filters_params;
+			PVRush::PVXmlParamParser::list_params filters_params;
 
 			unsigned int axes_count;	//!< It is equivalent to the number of axes except we add the decoded axes. This property must be used to know the number of axes, never count using axes.count()
 			
 			int time_format_axis_id;
 
 		protected:
-			PVFilter::PVFieldsBaseFilter_f xmldata_to_filter(PVCore::PVXmlParamParserData const& fdata);
+			PVFilter::PVFieldsBaseFilter_f xmldata_to_filter(PVRush::PVXmlParamParserData const& fdata);
+			bool populate_from_parser(PVXmlParamParser& xml_parser, bool allowNoFilters = false);
 
 		protected:
 			// "Widget" arguments of the format, like:
@@ -106,6 +117,7 @@ namespace PVRush {
 
 		private:
 			std::list<PVFilter::PVFieldsBaseFilter_p> _filters_container;
+			bool _dump_elts;
 	};
 
 	typedef QHash<QString, PVRush::PVFormat> hash_formats;

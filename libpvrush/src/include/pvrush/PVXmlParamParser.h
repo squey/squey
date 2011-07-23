@@ -21,26 +21,51 @@
 #include <QHash>
 
 #include <pvcore/general.h>
-#include <pvcore/PVXmlParamParserData.h>
+#include <pvrush/PVXmlParamParserData.h>
 
-namespace PVCore {
+namespace PVRush {
 
-class LibCoreDecl PVXmlParamParser {
+class LibRushDecl PVXmlParamParserException
+{
+public:
+	virtual QString what() = 0;
+};
+
+class LibRushDecl PVXmlParamParserExceptionPluginNotFound: public PVXmlParamParserException
+{
+	public:
+		PVXmlParamParserExceptionPluginNotFound(QString type, QString plugin_name);
+		QString what();
+	protected:
+		QString _what;
+};
+
+class LibRushDecl PVXmlParamParser {
 public:
 	typedef QList<PVXmlParamParserData> list_params;
 public:
-	PVXmlParamParser(QString nameFile);
+	PVXmlParamParser(QString const& nameFile);
+	PVXmlParamParser(QDomElement const& rootNode);
 	virtual ~PVXmlParamParser();
-	int setDom(QDomElement, int l=-1);
+
+public:
+	int setDom(QDomElement const& node, int id = -1);
 	QList<QHash<QString, QString> > const& getAxes()const;
 	QList<PVXmlParamParserData> const& getFields()const;
 	QHash<int, QStringList> const& getTimeFormat()const;
-	QString toString();
+    unsigned int getVersion() { return format_version; }
+	void dump_filters();
+	void clearFiltersData();
+
+private:
+	void setVersionFromRootNode(QDomElement const& node);
+	void pushFilter(const QDomElement& elt, int newId);
     
 private:
 	QList<PVXmlParamParserData> fields;
 	QList<QHash<QString, QString> > axes;
 	QHash<int, QStringList> time_format;
+    unsigned int format_version;
 
 	int countChild(QDomElement);
 	QString getNodeName(QDomElement);

@@ -5,6 +5,7 @@
 //! Copyright (C) Picviz Labs 2011
 
 #include <PVMainWindow.h>
+#include <PVInputTypeMenuEntries.h>
 
 /******************************************************************************
  *
@@ -252,19 +253,7 @@ void PVInspector::PVMainWindow::create_menus()
  *****************************************************************************/
 void PVInspector::PVMainWindow::create_actions_import_types(QMenu* menu)
 {
-	LIB_CLASS(PVRush::PVInputType) &input_types = LIB_CLASS(PVRush::PVInputType)::get();
-	LIB_CLASS(PVRush::PVInputType)::list_classes const& lf = input_types.get_list();
-	
-	LIB_CLASS(PVRush::PVInputType)::list_classes::const_iterator it;
-
-	for (it = lf.begin(); it != lf.end(); it++) {
-		PVRush::PVInputType_p in = it.value();
-		QAction* action = new QAction(in->menu_input_name(), this);
-		action->setData(QVariant(it.key()));
-		action->setShortcut(in->menu_shortcut());
-		connect(action, SIGNAL(triggered()), this, SLOT(import_type_Slot()));
-		menu->addAction(action);
-	}
+	PVInputTypeMenuEntries::add_inputs_to_menu(menu, this, SLOT(import_type_Slot()));
 }
 
 /******************************************************************************

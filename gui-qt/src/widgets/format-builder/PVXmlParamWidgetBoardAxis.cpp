@@ -13,7 +13,7 @@
  * PVInspector::PVXmlParamWidgetBoardAxis::PVXmlParamWidgetBoardAxis
  *
  *****************************************************************************/
-PVInspector::PVXmlParamWidgetBoardAxis::PVXmlParamWidgetBoardAxis(PVInspector::PVXmlTreeNodeDom *pNode):QWidget() {
+PVInspector::PVXmlParamWidgetBoardAxis::PVXmlParamWidgetBoardAxis( PVRush::PVXmlTreeNodeDom *pNode):QWidget() {
     node = pNode;
     pluginListURL = picviz_plugins_get_functions_dir();
     setObjectName("PVXmlParamWidgetBoardAxis");
@@ -50,19 +50,19 @@ void PVInspector::PVXmlParamWidgetBoardAxis::allocBoardFields(){
   
     //tab general
     //name
-    textName = new PVXmlParamWidgetEditorBox(QString("name"), new QVariant(node->getAttribute("name")));
+    textName = new PVXmlParamWidgetEditorBox(QString("name"), new QVariant(node->attribute("name")));
     //type
     mapPlotType = new PVXmlParamComboBox("type");
     timeFormatLabel = new QLabel("time format");
-    timeFormat = new PVXmlParamTextEdit(QString("time-format"), QVariant(node->getAttribute("time-format")));    
-    timeFormatStr = node->getAttribute("time-format");
+    timeFormat = new PVXmlParamTextEdit(QString("time-format"), QVariant(node->attribute("time-format")));    
+    timeFormatStr = node->attribute("time-format");
     comboMapping = new PVXmlParamComboBox("mapping");
     comboPlotting = new PVXmlParamComboBox("plotting");
     
     //tab time format
-    timeFormatInTab = new PVXmlParamTextEdit(QString("time-format"), QVariant(node->getAttribute("time-format")));  
+    timeFormatInTab = new PVXmlParamTextEdit(QString("time-format"), QVariant(node->attribute("time-format")));  
     //validator
-    timeSample = new PVXmlParamTextEdit(QString("time-sample"), QVariant(node->getAttribute("time-sample")));
+    timeSample = new PVXmlParamTextEdit(QString("time-sample"), QVariant(node->attribute("time-sample")));
     //html content for help
     helpTimeFormat = new QTextEdit();
     setHelp();
@@ -71,7 +71,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::allocBoardFields(){
     //tab parameter
     comboKey = new PVXmlParamComboBox("key");
     keyLabel = new QLabel("key");
-    group = new PVXmlParamWidgetEditorBox(QString("group"), new QVariant(node->getAttribute("group")));
+    group = new PVXmlParamWidgetEditorBox(QString("group"), new QVariant(node->attribute("group")));
     groupLabel = new QLabel("group");
     buttonColor = new PVXmlParamColorDialog("color", "#ffffff", this);
     colorLabel = new QLabel("color");
@@ -306,26 +306,26 @@ void PVInspector::PVXmlParamWidgetBoardAxis::initValue(){
     
     
     //type ...  auto select and default value
-    if (node->getAttribute("type").length() > 1) {
-        mapPlotType->select(node->getAttribute("type"));
-        updatePlotMapping(node->getAttribute("type"));
+    if (node->attribute("type").length() > 1) {
+        mapPlotType->select(node->attribute("type"));
+        updatePlotMapping(node->attribute("type"));
     } else {
         mapPlotType->select("enum");
         updatePlotMapping("enum");
 	slotSetVisibleTimeValid(false);
     }
-    if (node->getAttribute("mapping").length() > 1)comboMapping->select(node->getAttribute("mapping"));
+    if (node->attribute("mapping").length() > 1)comboMapping->select(node->attribute("mapping"));
     else comboMapping->select("default");
-    if (node->getAttribute("plotting").length() > 1)comboPlotting->select(node->getAttribute("plotting"));
+    if (node->attribute("plotting").length() > 1)comboPlotting->select(node->attribute("plotting"));
     else comboPlotting->select("default");
     
     
     //extra
-    if (node->getAttribute("key").length() > 1)comboKey->select(node->getAttribute("key"));
+    if (node->attribute("key").length() > 1)comboKey->select(node->attribute("key"));
     else comboKey->select("false");
-    if (node->getAttribute("color").length() > 1)buttonColor->setColor(node->getAttribute("color"));
-    if (node->getAttribute("titlecolor").length() > 1)buttonTitleColor->setColor(node->getAttribute("titlecolor"));
-    if (node->getAttribute("group").length() <= 1)group->setText("none");
+    if (node->attribute("color").length() > 1)buttonColor->setColor(node->attribute("color"));
+    if (node->attribute("titlecolor").length() > 1)buttonTitleColor->setColor(node->attribute("titlecolor"));
+    if (node->attribute("group").length() <= 1)group->setText("none");
     
 
 }
@@ -411,18 +411,18 @@ void PVInspector::PVXmlParamWidgetBoardAxis::refreshTableValuesParent(){
     if(node->getParent()->getParent()==0){//grand parent is null
 	return;
     }
-    PVXmlTreeNodeDom *parent = node->getParent();
-    PVXmlTreeNodeDom *grandParent = parent->getParent();
+    PVRush::PVXmlTreeNodeDom *parent = node->getParent();
+    PVRush::PVXmlTreeNodeDom *grandParent = parent->getParent();
     switch(grandParent->type){
-      case PVXmlTreeNodeDom::RegEx:{//case if grand parent is a regexp...
+      case PVRush::PVXmlTreeNodeDom::RegEx:{//case if grand parent is a regexp...
 	      QString text;
 	      //number of the selection on regexp
 	      int idSel = parent->getRow();
 	      //get the regexp applied
-	      PVLOG_INFO("PVXmlParamWidgetBoardAxis::refreshTableValuesParent() regexp :\n%s\n", qPrintable(grandParent->getAttribute("expression",true)));
-	      QRegExp regexp = QRegExp(grandParent->getAttribute("expression",true));
+	      PVLOG_INFO("PVXmlParamWidgetBoardAxis::refreshTableValuesParent() regexp :\n%s\n", qPrintable(grandParent->attribute("expression",true)));
+	      QRegExp regexp = QRegExp(grandParent->attribute("expression",true));
 	      //get the validator
-	      QStringList myText = grandParent->getAttribute("validator",false).split("\n");
+	      QStringList myText = grandParent->attribute("validator",false).split("\n");
 	      text+="<body>\n<table>\n";
 	      for (int line = 0; line < myText.size(); line++) {//for each line...
 		  QString myLine = myText.at(line);
@@ -602,8 +602,8 @@ void PVInspector::PVXmlParamWidgetBoardAxis::updatePlotMapping(const QString& t)
 	    //default selection
             comboMapping->select("24h");
 	    //set the name with "Time" by default
-	    if(node->getAttribute("name","Time").count()>1){
-		textName->setText(node->getAttribute("name","Time"));
+	    if(node->attribute("name","Time").count()>1){
+		textName->setText(node->attribute("name","Time"));
 	    }else{
 	        textName->setText("Time");
 	    }

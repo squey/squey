@@ -20,6 +20,8 @@ typedef QHash<QString,PVArgument>    PVArgumentList;
 QString PVArgument_to_QString(PVArgument const& v);
 PVArgument QString_to_PVArgument(QString const& v);
 
+void dump_argument_list(PVArgumentList const& l);
+
 }
 
 #endif

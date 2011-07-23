@@ -10,6 +10,7 @@
 #include <QTabWidget>
 
 namespace PVInspector {
+
 class PVMainWindow;
 
 /**
@@ -19,7 +20,7 @@ class PVListingsTabWidget : public QTabWidget
 {
 	Q_OBJECT
 
-			PVMainWindow *main_window;
+	PVMainWindow *main_window;
 
 public:
 	PVListingsTabWidget(PVMainWindow *mw, QWidget *parent = 0);
@@ -28,11 +29,12 @@ signals:
 	void tabCloseRequested(int);
 	void is_empty(); 
 
-	public slots:
-			QTabBar *get_tabBar();
+public slots:
+	QTabBar *get_tabBar();
 	void show_hide_views_tab_widget_Slot(bool visible);
 	void tabCloseRequested_Slot(int index);
 };
+
 }
 
 #endif // PV_LISTINGS_TAB_WIDGET_H

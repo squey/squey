@@ -84,6 +84,24 @@ void PVCore::PVBufferSlice::grow_by_reallocate(size_t n)
 	//init_qstr();
 }
 
+void PVCore::PVBufferSlice::_realloc_data()
+{
+	static tbb::scalable_allocator<char> alloc;
+	size_t s = (uintptr_t)_physical_end - (uintptr_t)_begin;
+	size_t old_size = size();
+
+	_realloc_buf = alloc.allocate(s);
+	_buf_list.push_back(buf_list_t::value_type(_realloc_buf, s));
+
+	char* new_buf;
+	new_buf = _realloc_buf;
+	memcpy(new_buf, _begin, s);
+
+	_begin = new_buf;
+	_end = new_buf+old_size;
+	_physical_end = new_buf+s;
+}
+
 size_t PVCore::PVBufferSlice::size() const
 {
 	return (size_t) ((uintptr_t)_end - (uintptr_t)_begin);

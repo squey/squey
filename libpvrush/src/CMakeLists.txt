@@ -11,6 +11,7 @@ pvnormalizerfactory.cpp
 PVNraw.cpp
 PVNrawChild.cpp
 PVNrawOutput.cpp
+PVXmlParamParser.cpp
 pvsource.cpp
 pvstream.cpp
 PVChunkAlign.cpp
@@ -34,6 +35,7 @@ PVExtractor.cpp
 PVPluginsLoad.cpp
 PVSourceCreatorFactory.cpp
 PVTests.cpp
+PVXmlTreeNodeDom.cpp
 
 #uchardetect, from Mozilla's nsUniversalDetector
 uchardetect/CharDistribution.cpp
@@ -102,6 +104,8 @@ include/pvrush/PVControllerThread.h
 include/pvrush/PVPipelineTask.h
 include/pvrush/PVExtractor.h
 include/pvrush/PVTests.h
+include/pvrush/PVXmlParamParser.h
+include/pvrush/PVXmlParamParserData.h
 
 #uchardetect, from Mozilla's nsUniversalDetector
 include/pvrush/uchardetect/CharDistribution.h
@@ -135,6 +139,7 @@ include/pvrush/uchardetect/JISFreq.tab
 
 set(MOC_HEADERS
 include/pvrush/PVControllerJob.h
+include/pvrush/PVXmlTreeNodeDom.h
 )
 QT4_WRAP_CPP(MOC_SRC ${MOC_HEADERS})
 

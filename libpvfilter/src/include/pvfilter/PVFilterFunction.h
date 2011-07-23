@@ -142,6 +142,7 @@ public:
 	   _args = args;
 	}
 	QString const& get_name() { return _name; }
+	PVCore::PVArgumentList const& get_default_args() { return _def_args; }
 protected:
 	PVCore::PVArgumentList _args;
 	PVCore::PVArgumentList _def_args;
@@ -159,7 +160,7 @@ public:
 	typedef PVFilterFunctionBase<void,Tin> base;
 public:
 	PVFilterFunctionBase(PVCore::PVArgumentList const& args = PVFilterFunctionBase<void,Tin>::default_args()) :
-		_args(args)
+		_args(args), _def_args(args)
 	{
 	}
 public:
@@ -169,6 +170,7 @@ public:
 	func_type f() { return boost::bind<void>(&PVFilterFunctionBase<void,Tin>::_f, this, _1); }
 	void _f(Tin obj) { this->operator()(obj); }
 	QString const& get_name() { return _name; }
+	PVCore::PVArgumentList const& get_default_args() { return _def_args; }
 	virtual void set_args(PVCore::PVArgumentList const& args)
 	{
 		PVCore::PVArgumentList::const_iterator it,ite;
@@ -200,7 +202,7 @@ public:
 	typedef PVFilterFunctionBase<Tout,void> base;
 public:
 	PVFilterFunctionBase(PVCore::PVArgumentList const& args = PVFilterFunctionBase<Tout,void>::default_args()) :
-		_args(args)
+		_args(args), _def_args(args)
 	{
 	}
 public:
@@ -217,6 +219,7 @@ public:
 	Tout _f() { return this->operator()(); }
 
 	QString const& get_name() { return _name; }
+	PVCore::PVArgumentList const& get_default_args() { return _def_args; }
 
 	/*! \brief Set the argument of the filter object.
 	 * Set the argument of the filter object, and compares its keys against the default ones to see if none are missing.
@@ -250,9 +253,15 @@ protected:
  * The "FilterT" member type defines the filter type of the filter. As instance, PVElementFilterByGrep is registrable with PVElementFilter (as FilterT).
  */
 
+// Forward declaration
+template <class FilterT>
+class PVFilterLibrary;
+
 template <typename Tout, typename Tin, typename FilterT_ = PVFilterFunctionBase<Tout,Tin> >
 class PVFilterFunctionRegistrable: public PVFilterFunctionBase<Tout,Tin>
 {
+	template <class FilterT>
+	friend class PVFilterLibrary;
 public:
 	typedef FilterT_ FilterT;
 	typedef boost::shared_ptr< PVFilterFunctionRegistrable<Tout,Tin,FilterT_> > p_type;
@@ -272,12 +281,15 @@ public:
 	 */
 	template <typename Tc>
 	boost::shared_ptr<Tc> clone() const { return boost::shared_ptr<Tc>((Tc*) _clone_me()); }
+
+	QString registered_name() const { return __registered_name; }
 protected:
 	/*! \brief virtual method that is implemented by the IMPL_FILTER macro. This is used for polymorphic cloning.
 	 *  \return A pointer to a new object of this class, heap-allocated (with the new operator) and using the copy constructor with *this as parameter.
 	 *  \sa IMPL_FILTER, clone
 	 */
 	virtual void* _clone_me() const = 0;
+	QString __registered_name;
 };
 
 /*! \brief Define a filter function that takes the same type as reference in input and output (Tout = T&, Tin = T&)

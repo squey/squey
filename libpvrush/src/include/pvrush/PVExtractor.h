@@ -97,6 +97,14 @@ public:
 	 */
 	PVNraw& get_nraw();
 
+	/*! \brief Get a reference to the internal PVFormat of the internal NRaw
+	 */
+	PVFormat& get_format();
+
+	/*! \brief Set the format of the NRaw
+	 */
+	void set_format(PVFormat const& format);
+
 	/*! \brief Save a copy of the current NRaw
 	 *
 	 * Save a copy of the current NRaw. If a copy has already been saved, it is ereased by this one.
@@ -118,6 +126,8 @@ public:
 	 */
 	void clear_saved_nraw();
 
+	void dump_elts(bool dump) { _dump_elts = dump; }
+
 	void dump_mapnraw();
 	void dump_nraw();
 	void debug();
@@ -137,6 +147,7 @@ protected:
 	PVNrawOutput _out_nraw; // Linked to _nraw
 	PVFilter::PVChunkFilter_f _chk_flt;
 	unsigned int _chunks;
+	bool _dump_elts;
 };
 
 }

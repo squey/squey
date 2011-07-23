@@ -6,8 +6,8 @@
    <axis titlecolor="#ffffff" key="false" mapping="24h" time-format="dd-MM-yyyy hh:mm:ss" group="none" type="time" name="Time" plotting="default" color="#ffffff" time-sample=""/>
   </field>
   <field>
+	  <filter expression="192.168" type="include" />
    <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="ipv4" name="Source IP" plotting="default" color="#ffffff" time-sample=""/>
-    <filter validator="" expression="192.168" type="include" name="local"/>
   </field>
   <field>
    <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="ipv4" name="Destination IP" plotting="default" color="#ffffff" time-sample=""/>

@@ -62,6 +62,7 @@ include/PVListingView.h
 include/PVListingsTabWidget.h
 include/PVMainWindow.h
 include/PVMapWidget.h
+include/PVInputTypeMenuEntries.h
 include/PVOpenFileDialog.h
 include/PVProgressBox.h
 include/PVSaveFileDialog.h
@@ -78,8 +79,9 @@ widgets/editors/include/PVEnumEditor.h
 widgets/editors/include/PVRegexpEditor.h
 widgets/editors/include/PVSpinBoxEditor.h
 
+widgets/format-builder/include/PVNrawListingModel.h
+widgets/format-builder/include/PVNrawListingWidget.h
 widgets/format-builder/include/PVXmlTreeView.h 
-widgets/format-builder/include/PVXmlTreeNodeDom.h 
 widgets/format-builder/include/PVXmlDomModel.h
 widgets/format-builder/include/PVXmlEditorWidget.h
 widgets/format-builder/include/PVXmlParamColorDialog.h
@@ -133,6 +135,7 @@ PVMainWindow.cpp
 PVMainWindowMenusActions.cpp
 PVMainWindowSlots.cpp
 PVMapWidget.cpp
+PVInputTypeMenuEntries.cpp
 PVOpenFileDialog.cpp
 PVProgressBox.cpp
 PVSaveFileDialog.cpp
@@ -149,6 +152,8 @@ widgets/editors/PVEnumEditor.cpp
 widgets/editors/PVRegexpEditor.cpp
 widgets/editors/PVSpinBoxEditor.cpp
 
+widgets/format-builder/PVNrawListingModel.cpp
+widgets/format-builder/PVNrawListingWidget.cpp
 widgets/format-builder/PVXmlDomModel.cpp
 widgets/format-builder/PVXmlEditorWidget.cpp
 widgets/format-builder/PVXmlParamColorDialog.cpp
@@ -161,7 +166,6 @@ widgets/format-builder/PVXmlParamWidgetBoardSplitterRegEx.cpp
 widgets/format-builder/PVXmlParamWidgetEditorBox.cpp
 widgets/format-builder/PVXmlRegValidatorHighLight.cpp
 widgets/format-builder/PVXmlTreeItemDelegate.cpp
-widgets/format-builder/PVXmlTreeNodeDom.cpp
 widgets/format-builder/PVXmlTreeView.cpp
 widgets/format-builder/PVXmlTimeValidatorHighLight.cpp
 

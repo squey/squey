@@ -1,8 +1,7 @@
 <RCC>
     <qresource prefix="/">
-	<file alias="window-icon.png">icons/inspector.png</file>
-	<file alias="logo.png">icons/logo.png</file>
-
+        <file alias="window-icon.png">icons/inspector.png</file>
+        <file alias="logo.png">icons/logo.png</file>
         <file>icons/filelink-32.png</file>
         <file>icons/standardbutton-open-32.png</file>
         <file alias="save">icons/standardbutton-save-32.png</file>
@@ -43,6 +42,6 @@
 	<file alias="user-trash.png">icons/22x22/user-trash.png</file>
 
 	<file alias="gmaps.html">icons/gmaps.html</file>
-
+        <file alias="log-icon">icons/log-icon.png</file>
     </qresource>
 </RCC>

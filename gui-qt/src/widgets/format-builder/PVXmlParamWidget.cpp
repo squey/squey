@@ -54,9 +54,9 @@ PVInspector::PVXmlParamWidget::~PVXmlParamWidget() {
  *
  *****************************************************************************/
 void PVInspector::PVXmlParamWidget::drawForNo(QModelIndex) {
-
+    PVLOG_DEBUG("PVInspector::PVXmlParamWidget::drawForNo\n");
     //confirmApply = false;
-  emit signalQuittingAParamBoard();
+    emit signalQuittingAParamBoard();
     removeListWidget();
     type = no;
 }
@@ -67,7 +67,7 @@ void PVInspector::PVXmlParamWidget::drawForNo(QModelIndex) {
  * PVInspector::PVXmlParamWidget::drawForAxis
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidget::drawForAxis(PVXmlTreeNodeDom *nodeOnClick) {
+void PVInspector::PVXmlParamWidget::drawForAxis(PVRush::PVXmlTreeNodeDom *nodeOnClick) {
     PVXmlParamWidgetBoardAxis *axisboard = new PVXmlParamWidgetBoardAxis(nodeOnClick);
     lesWidgetDuLayout.push_back(axisboard);
     layout->addWidget(axisboard);
@@ -84,7 +84,7 @@ void PVInspector::PVXmlParamWidget::drawForAxis(PVXmlTreeNodeDom *nodeOnClick) {
  * PVInspector::PVXmlParamWidget::drawForFilter
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidget::drawForFilter(PVXmlTreeNodeDom *nodeFilter) {
+void PVInspector::PVXmlParamWidget::drawForFilter(PVRush::PVXmlTreeNodeDom *nodeFilter) {
   
     PVXmlParamWidgetBoardFilter *filterboard = new PVXmlParamWidgetBoardFilter(nodeFilter);
     lesWidgetDuLayout.push_back(filterboard);
@@ -103,8 +103,10 @@ void PVInspector::PVXmlParamWidget::drawForFilter(PVXmlTreeNodeDom *nodeFilter) 
  * PVInspector::PVXmlParamWidget::drawForRegEx
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidget::drawForRegEx(PVXmlTreeNodeDom *nodeSplitter) {
+void PVInspector::PVXmlParamWidget::drawForRegEx(PVRush::PVXmlTreeNodeDom *nodeSplitter) {
     PVXmlParamWidgetBoardSplitterRegEx *regExpBoard = new PVXmlParamWidgetBoardSplitterRegEx(nodeSplitter);
+	// AG: yes, that's a saturday morning hack
+	regExpBoard->setData(nodeSplitter->getDataForRegexp());
     lesWidgetDuLayout.push_back(regExpBoard);
     layout->addWidget(regExpBoard);
     connect(regExpBoard, SIGNAL(signalRefreshView()), this, SLOT(slotEmitNeedApply()));
@@ -114,6 +116,26 @@ void PVInspector::PVXmlParamWidget::drawForRegEx(PVXmlTreeNodeDom *nodeSplitter)
     type = filterParam;
     //focus on regexp
     regExpBoard->getWidgetToFocus()->setFocus();
+}
+/******************************************************************************
+ *
+ * PVInspector::PVXmlParamWidget::drawForSplitter
+ *
+ *****************************************************************************/
+void PVInspector::PVXmlParamWidget::drawForSplitter(PVRush::PVXmlTreeNodeDom *nodeSplitter) {
+        PVLOG_DEBUG("PVInspector::PVXmlParamWidget::drawForSplitter\n");
+        assert(nodeSplitter);
+        assert(nodeSplitter->getSplitterPlugin());
+        QWidget *w = nodeSplitter->getParamWidget();
+        lesWidgetDuLayout.push_back(w);
+        layout->addWidget(w);
+        addListWidget();
+        type = splitterParam;
+        
+        connect(nodeSplitter, SIGNAL(data_changed()), this, SLOT(slotEmitNeedApply()));
+        //slotEmitNeedApply();
+        //focus on regexp
+        //w->getWidgetToFocus()->setFocus();
 }
 
 
@@ -133,31 +155,31 @@ void PVInspector::PVXmlParamWidget::addListWidget() {
     layout->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding));
 }
 
-
 /******************************************************************************
  *
  * PVInspector::PVXmlParamWidget::removeListWidget
  *
  *****************************************************************************/
 void PVInspector::PVXmlParamWidget::removeListWidget() {
-    /*
-     * Suppression de tous les widgets (textes, btn, editBox...).
-     */
-    while (!lesWidgetDuLayout.isEmpty()) {
-        QWidget *tmp = lesWidgetDuLayout.front();
-	tmp->hide();
-        tmp->close();
-        layout->removeWidget(tmp);
-        lesWidgetDuLayout.removeFirst();
-        layout->update();
-    }
+        /*
+         * Suppression de tous les widgets (textes, btn, editBox...).
+         */
+        while (!lesWidgetDuLayout.isEmpty()) {
+                QWidget *tmp = lesWidgetDuLayout.front();
 
-    /* 
-     *  Suppression des items (commes les spacers).
-     */
-    for (int i = 0; i < 10; i++){
-      layout->removeItem(layout->itemAt(0));
-    }
+                tmp->hide();
+                tmp->close();
+                layout->removeWidget(tmp);
+                lesWidgetDuLayout.removeFirst();
+                layout->update();
+        }
+
+        /* 
+         *  Suppression des items (commes les spacers).
+         */
+        for (int i = 0; i < 10; i++) {
+                layout->removeItem(layout->itemAt(0));
+        }
 }
 
 
@@ -303,30 +325,30 @@ QStringList PVInspector::PVXmlParamWidget::getListTypePlotting(const QString& mT
  *****************************************************************************/
 void PVInspector::PVXmlParamWidget::edit(QModelIndex const& index) {
 
-    drawForNo(index);
-    if (index.isValid()) {
-        //emit signalQuittingAParamBoard();
-        //if (confirmApply == true) {
-//            //emit the signal to require confirmation.
-        //    emit signalNeedConfirmApply(editingIndex);
-        //}
-        //confirmApply = false;
-        editingIndex = index;
-        PVXmlTreeNodeDom *nodeOnClick = (PVXmlTreeNodeDom *) index.internalPointer();
-        
-     
-        
-        if (nodeOnClick->type == PVXmlTreeNodeDom::filter) {
-	  drawForFilter(nodeOnClick);
+	drawForNo(index);
+	if (index.isValid()) {
+		//emit signalQuittingAParamBoard();
+		//if (confirmApply == true) {
+		//            //emit the signal to require confirmation.
+		//    emit signalNeedConfirmApply(editingIndex);
+		//}
+		//confirmApply = false;
+		editingIndex = index;
+		PVRush::PVXmlTreeNodeDom *nodeOnClick = (PVRush::PVXmlTreeNodeDom *) index.internalPointer();
+
+		bool splitter = nodeOnClick->type == PVRush::PVXmlTreeNodeDom::splitter;
+
+		if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::filter) {
+			drawForFilter(nodeOnClick);
+		} else if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::RegEx || (splitter && ((nodeOnClick->attribute("type","") == "regexp") || nodeOnClick->attribute("type","") == "url"))) {
+			drawForRegEx(nodeOnClick);
+			//confirmApply = false;
+		}else if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::axis){
+				drawForAxis(nodeOnClick);
+		}else if (splitter){
+			drawForSplitter(nodeOnClick);
+		}
 	}
-        if (nodeOnClick->type == PVXmlTreeNodeDom::RegEx) {
-            drawForRegEx(nodeOnClick);
-            //confirmApply = false;
-        }
-        if (nodeOnClick->type == PVXmlTreeNodeDom::axis){
-	  drawForAxis(nodeOnClick);
-	}
-    }
 
 }
 

@@ -34,16 +34,16 @@ int main(int argc, char** argv)
 	PVFilter::PVPluginsLoad::load_all_plugins();
 	PVFilter::PVFieldsSplitter::p_type url_lib_p = LIB_FILTER(PVFilter::PVFieldsSplitter)::get().get_filter_by_name("url");
 	PVFilter::PVFieldsSplitter::p_type regexp_lib_p = LIB_FILTER(PVFilter::PVFieldsSplitter)::get().get_filter_by_name("regexp");
-	PVFilter::PVFieldsFilter<PVFilter::one_to_one>::p_type grep_lib_p = LIB_FILTER(PVFilter::PVFieldsFilter<PVFilter::one_to_one>)::get().get_filter_by_name("grep_regexp");
+	PVFilter::PVFieldsFilter<PVFilter::one_to_one>::p_type grep_lib_p = LIB_FILTER(PVFilter::PVFieldsFilter<PVFilter::one_to_one>)::get().get_filter_by_name("regexp");
 
 	if (!url_lib_p || !regexp_lib_p || !grep_lib_p) {
 		cerr << "Unable to load one of the filters" << endl;
 		return 1;
 	}
 	PVCore::PVArgumentList args;
-	args["regexp"] = QRegExp("([0-9]+)[0-9.]*\\s+[0-9]+\\s+[0-9]+\\s+[A-Z/_-]+([0-9]+)\\s+[0-9]+\\s+(GET|POST|PUT|OPTIONS)\\s+(\\S+)\\s+(\\S+)\\s+([^/]+)/(\\d+.\\d+.\\d+.\\d+)");
+	args["regexp"] = QString("([0-9]+)[0-9.]*\\s+[0-9]+\\s+[0-9]+\\s+[A-Z/_-]+([0-9]+)\\s+[0-9]+\\s+(GET|POST|PUT|OPTIONS)\\s+(\\S+)\\s+(\\S+)\\s+([^/]+)/(\\d+.\\d+.\\d+.\\d+)");
 	regexp_lib_p->set_args(args);
-	args["regexp"] = QRegExp("(yahoo|lnc)");
+	args["regexp"] = QString("(yahoo|lnc)");
 	grep_lib_p->set_args(args);
 
 	// Mapping filters

@@ -27,6 +27,7 @@
 #include <PVFilesTypesSelWidget.h>
 #include <PVStringListChooserWidget.h>
 #include <PVArgumentListWidget.h>
+#include <PVInputTypeMenuEntries.h>
 //#include <geo/GKMapView.h>
 
 #ifdef CUSTOMER_RELEASE
@@ -565,6 +566,8 @@ void PVInspector::PVMainWindow::create_filters_menu_and_actions()
 
 void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 {
+	// PVRush::PVInputType_p in_t = PVInputTypeMenuEntries::input_type_from_action((QAction*) sender());
+	// PVRush::PVInputType_p in_t = LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name("file");
 	PVRush::list_creators lcr = PVRush::PVSourceCreatorFactory::get_by_input_type(in_t);
 	PVRush::hash_format_creator format_creator = PVRush::PVSourceCreatorFactory::get_supported_formats(lcr);
 
@@ -634,12 +637,18 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 			QHash<QString,PVCore::PVMeanValue<float> > file_types;
 			try {
 				for (itfc = dis_format_creator.begin(); itfc != dis_format_creator.end(); itfc++) {
-					float success_rate = PVRush::PVSourceCreatorFactory::discover_input(itfc.value(), *itin);
-					PVLOG_INFO("For input %s with format %s, success rate is %0.4f\n", qPrintable(in_str), qPrintable(itfc.key()), success_rate);
-					if (success_rate > 0) {
-						QString const& str_format = itfc.key();
-						file_types[str_format].push(success_rate);
-						discovered_types[str_format].push(success_rate);
+					try {
+						float success_rate = PVRush::PVSourceCreatorFactory::discover_input(itfc.value(), *itin);
+						PVLOG_INFO("For input %s with format %s, success rate is %0.4f\n", qPrintable(in_str), qPrintable(itfc.key()), success_rate);
+						if (success_rate > 0) {
+							QString const& str_format = itfc.key();
+							file_types[str_format].push(success_rate);
+							discovered_types[str_format].push(success_rate);
+						}
+					}
+					catch (PVRush::PVXmlParamParserException &e) {
+						PVLOG_ERROR("Format XML parser error: %s\n", qPrintable(e.what()));
+						continue;
 					}
 				}
 			}

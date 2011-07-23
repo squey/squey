@@ -43,23 +43,29 @@ Picviz::PVSource::~PVSource()
 	_extractor.force_stop_controller();
 }
 
-PVRush::PVControllerJob_p Picviz::PVSource::files_append(PVRush::PVFormat const& format, PVRush::PVSourceCreator_p sc, PVRush::PVInputType::list_inputs inputs)
+void Picviz::PVSource::files_append_noextract(PVRush::PVFormat const& format, PVRush::PVSourceCreator_p sc, PVRush::PVInputType::list_inputs inputs)
 {
-	// FIXME: the format should be in the PVNraw
-	PVRush::PVFormat *format_nraw = new PVRush::PVFormat(format);
-	// This PVFormat object is hold by the NRAW of the extractor
-	_extractor.get_nraw().format.reset(format_nraw);
-	format_nraw->populate();
-	axes_combination.set_from_format(*format_nraw);
-
+	set_format(format);
 	for (int i = 0; i < inputs.count(); i++) {
 		PVRush::PVSourceCreator::source_p src = sc->create_source_from_input(inputs[i]);
 		_extractor.add_source(src);
 	}
+}
+
+void Picviz::PVSource::set_format(PVRush::PVFormat const& format)
+{
+	PVRush::PVFormat *format_nraw = new PVRush::PVFormat(format);
+	_extractor.get_nraw().format.reset(format_nraw);
+	format_nraw->populate();
+	axes_combination.set_from_format(*format_nraw);
 
 	PVFilter::PVChunkFilter_f chk_flt = format_nraw->create_tbb_filters();
 	_extractor.set_chunk_filter(chk_flt);
+}
 
+PVRush::PVControllerJob_p Picviz::PVSource::files_append(PVRush::PVFormat const& format, PVRush::PVSourceCreator_p sc, PVRush::PVInputType::list_inputs inputs)
+{
+	files_append_noextract(format, sc, inputs);
 	PVRush::PVControllerJob_p job = _extractor.process_from_agg_nlines(0, pvconfig.value("pvrush/extract_first", PVEXTRACT_NUMBER_LINES_FIRST_DEFAULT).toInt());
 
 	return job;

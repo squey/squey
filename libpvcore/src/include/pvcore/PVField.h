@@ -22,6 +22,7 @@ public:
 	void set_invalid();
 	PVElement* elt_parent();
 	void set_parent(PVElement const& parent);
+	void deep_copy();
 protected:
 	bool _valid;
 	PVElementData* _parent;
