@@ -75,7 +75,7 @@ PVInspector::PVXmlEditorWidget::PVXmlEditorWidget(QWidget * parent):QWidget(pare
 
 	// Tab widget for the NRAW
 	QTabWidget* nraw_tab = new QTabWidget();
-	nraw_tab->addTab(_nraw_widget, tr("Normalisation preview"));
+	nraw_tab->addTab(_nraw_widget, tr("Normalization preview"));
 	vb->addWidget(nraw_tab);
 
 	_inv_lines_widget = new QListWidget();
