@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE PVParamXml>
-<param>
+<param version="1">
  <field>
   <RegEx validator="" expression="(\w+\s+\d+\s+\d+:\d+:\d+).*SRC=(\d+\.\d+\.\d+\.\d+).*DST=(\d+\.\d+\.\d+\.\d+).*LEN=(\d+).*TTL=(\d+).*ID=(\d+).*PROTO=(\S+).*SPT=(\d+).*DPT=(\d+).*" name="">
    <field>

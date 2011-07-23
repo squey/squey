@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE PVParamXml>
-<param>
+<param version="1">
  <field>
   <RegEx validator="" expression="(\w+\s+\d+\s+\d+:\d+:\d+) (\d+\.\d+\.\d+\.\d+) (\S+): (.*) (\d+) for (\S+):(\d+.\d+.\d+.\d+)\/(\d+).*to inside:(\d+\.\d+\.\d+\.\d+)\/(\d+).*" name="">
    <field>

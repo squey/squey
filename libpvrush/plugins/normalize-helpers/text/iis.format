@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE PVParamXml>
-<param>
+<param version="1">
 <field>
  <RegEx validator="myregex" expression="(\d+\-\d+\-\d+ \d+:\d+:\d+) (\S+) (\S+) (\d+\.\d+\.\d+\.\d+) (\S+) (\S+) (\S+) (\d+) (\S+) (\d+\.\d+\.\d+\.\d+) (\S+) (\S+) (\S+) (\S+) (\S+) (\d+) (\d+) (\d+) (\d+) (\d+) (\d+)" name="RegEx root">
   <field>

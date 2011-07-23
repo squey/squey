@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE PVParamXml>
-<param>
+<param version="1">
  <RegEx validator="" expression="(\d+-\S+-\d+ \d+:\d+:\d+\.\d+) (\S+)(?: |)/(\d+\.\d+\.\d+\.\d+)/(\S+)/(A|A6|AAAA|CNAME|MX|NS|PTR|SOA|SPF|SRV|TXT|ANY)/(\S+)" name="">
   <field>
    <axis titlecolor="#ffffff" key="false" mapping="24h" time-format="d-MMM-yyyy H:m:s.S" group="none" type="time" name="Time" plotting="default" color="#ffffff" time-sample=""/>
