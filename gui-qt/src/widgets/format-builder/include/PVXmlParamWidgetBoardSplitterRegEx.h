@@ -46,6 +46,14 @@ public:
 			PVLOG_INFO("(regexp board widget) get data %s\n", qPrintable(data[i]));
 		}
 		_data = data;
+
+		QString textVal;
+		for (int i = 0; i < _data.size(); i++) {
+			textVal += _data[i];
+			textVal += QChar('\n');
+		}
+
+		validWidget->setVal(textVal);
 	}
     
 

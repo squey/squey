@@ -53,7 +53,14 @@ void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::allocBoardFields() {
     labelNbr = new QLabel("");
     openLog = new QPushButton("Open a log");
     checkSaveValidLog = new QCheckBox("Save log sample in format file",this);
-    validWidget = new PVXmlParamTextEdit(QString("validator"), QVariant(node->attribute("validator",false)));
+
+	QString textVal;
+	for (int i = 0; i < _data.size(); i++) {
+		textVal += _data[i];
+		textVal += QChar('\n');
+	}
+
+    validWidget = new PVXmlParamTextEdit(QString("validator"), QVariant(textVal));
     table = new QTableWidget();
     btnApply = new QPushButton("Apply");
 
@@ -412,7 +419,7 @@ void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::slotUpdateTable() {
     updateHeaderTable();
     for (int line = 0; line < myText.count(); line++) {//for each line...
         QString myLine = myText.at(line);
-        if (reg.exactMatch(myLine)) {
+        if (reg.indexIn(myLine, 0)) {
             for (int cap = 0; cap < reg.captureCount(); cap++) {//for each column (regexp selection)...
                 reg.indexIn(myLine, 0);
                 table->setItem(line, cap, new QTableWidgetItem(reg.cap(cap + 1)));

@@ -34,6 +34,7 @@ public:
 	virtual void clear_filter_data() = 0;
 	virtual void push_data(QString const& data) = 0;
 	virtual QStringList const& get_data() const = 0;
+	virtual void update_data_display() = 0;
 };
 
 typedef boost::shared_ptr<PVFieldsFilterParamWidgetBase> PVFieldsFilterParamWidgetBase_p;
@@ -70,6 +71,8 @@ public:
     QObject* get_as_qobject() {
         return NULL;
     }
+
+	void update_data_display() { }
 
 	// Force the number of children. Returns 0 if no forcing is done.
 	// TODO: this should only exist when Ttype == one_to_many, and should not be in the base interface

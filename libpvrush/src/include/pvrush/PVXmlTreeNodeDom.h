@@ -150,6 +150,8 @@ public:
     
     QDomElement getDom();
     
+	void updateFiltersDataDisplay();
+
     /**
      * General attribute setter.
      * @param name
