@@ -7,6 +7,7 @@
 #include <pvfilter/PVChunkFilter.h>
 #include <pvfilter/PVChunkFilterSource.h>
 #include <pvfilter/PVChunkFilterCountElts.h>
+#include <pvfilter/PVChunkFilterDumpElts.h>
 #include <pvrush/PVOutput.h>
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/condition_variable.hpp>
@@ -17,6 +18,7 @@
 #include <tbb/tick_count.h>
 
 #include <QObject>
+#include <QStringList>
 
 namespace PVRush {
 
@@ -73,7 +75,7 @@ public:
 	 */
 	PVControllerJob(job_action a, int priority);
 	virtual ~PVControllerJob();
-	void set_params(PVCore::chunk_index begin, PVCore::chunk_index end, PVCore::chunk_index n_elts, stop_cdtion sc, PVAggregator &agg, PVFilter::PVChunkFilter_f filter, PVOutput& out_filter, size_t nchunks);
+	void set_params(PVCore::chunk_index begin, PVCore::chunk_index end, PVCore::chunk_index n_elts, stop_cdtion sc, PVAggregator &agg, PVFilter::PVChunkFilter_f filter, PVOutput& out_filter, size_t nchunks, bool dump_elts = false);
 	bool done() const;
 	bool running() const;
 	bool cancel();
@@ -81,6 +83,10 @@ public:
 	PVCore::chunk_index nb_elts_max() const;
 	virtual void wait_end(); // wait the end of this job
 	tbb::tick_count::interval_t duration() const;
+
+public:
+	QStringList& get_all_elts() { return _all_elts; }
+	QStringList& get_invalids_elts() { return _inv_elts; }
 	
 protected:
 	tbb::filter_t<void,void> create_tbb_filter();
@@ -93,6 +99,18 @@ protected:
 	PVCore::chunk_index idx_end() const;
 	size_t nchunks() const;
 	job_action action() const;
+
+protected:
+	// For elements dumping
+	bool _dump_elts;
+	
+	// Filters
+	PVFilter::PVChunkFilterDumpElts _elt_valid_filter;
+	PVFilter::PVChunkFilterDumpElts _elt_invalid_filter;
+
+	// Lists
+	QStringList _all_elts;
+	QStringList _inv_elts;
 
 protected:
 	bool _job_done;

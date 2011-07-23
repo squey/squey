@@ -8,6 +8,7 @@
 
 #include <QWidget>
 #include <QString>
+#include <QStringList>
 #include <QObject>
 
 namespace PVFilter {
@@ -30,6 +31,9 @@ public:
     virtual void set_child_count(int count) = 0;
     virtual int get_child_new_num() = 0;
 	virtual size_t force_number_children() = 0;
+	virtual void clear_filter_data() = 0;
+	virtual void push_data(QString const& data) = 0;
+	virtual QStringList const& get_data() const = 0;
 };
 
 typedef boost::shared_ptr<PVFieldsFilterParamWidgetBase> PVFieldsFilterParamWidgetBase_p;
@@ -93,6 +97,14 @@ public:
     
     int get_child_new_num() {return 0;}
 
+	virtual void clear_filter_data() { _filter_data.clear(); }
+	virtual void push_data(QString const& data)
+	{
+		PVLOG_INFO("Filter received data %s\n", qPrintable(data));
+		_filter_data << data;
+	}
+	virtual QStringList const& get_data() const { return _filter_data; }
+
     fields_filter_type type() {
         return _filter->type();
     }
@@ -104,6 +116,7 @@ public:
 protected:
     PVFilter::fields_filter_type _type;
     filter_p _filter;
+	QStringList _filter_data;
 };
 
 typedef PVFieldsFilterParamWidget<PVFilter::one_to_many> PVFieldsSplitterParamWidget;

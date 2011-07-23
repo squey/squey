@@ -26,6 +26,11 @@ PVCore::PVElement::~PVElement()
 {
 }
 
+void PVCore::PVElement::deep_copy()
+{
+	_realloc_data();
+}
+
 PVCore::PVElement& PVCore::PVElement::operator=(PVElement const& src)
 {
 	d = src.d;

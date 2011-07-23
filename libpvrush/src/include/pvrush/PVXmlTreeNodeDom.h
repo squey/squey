@@ -174,6 +174,7 @@ public:
     }
     
 	void getChildrenFromField(PVCore::PVField const& field);
+	void clearFiltersData();
     
     
     /**
@@ -215,6 +216,8 @@ public:
     void version0to1();
     
     bool isOnRoot;
+
+	QStringList getDataForRegexp() { return _data_for_regexp; }
     
 private:
     QDomDocument xmlFile;
@@ -225,8 +228,8 @@ private:
     QString str;
     
     QHash<QString,QString> otherData;
-    PVFilter::PVFieldsSplitterParamWidget_p splitterPlugin;
     
+    PVFilter::PVFieldsSplitterParamWidget_p splitterPlugin;
     
     
     bool isAlreadyExplored;
@@ -256,6 +259,9 @@ private:
     
 
     bool isFieldOfUrl();
+
+	// AG: still the same saturday morning hack
+	QStringList _data_for_regexp;
     
 public slots:
     void slot_update(){

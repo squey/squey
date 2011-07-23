@@ -49,7 +49,7 @@ void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::allocBoardFields() {
     name = new PVXmlParamWidgetEditorBox(QString("name"), new QVariant(node->attribute("name")));
     
     //tab regexp
-    exp = new PVXmlParamWidgetEditorBox(QString("expression"), new QVariant(node->getDom().attribute("expression", ".*")));
+    exp = new PVXmlParamWidgetEditorBox(QString("regexp"), new QVariant(node->getDom().attribute("regexp", ".*")));
     labelNbr = new QLabel("");
     openLog = new QPushButton("Open a log");
     checkSaveValidLog = new QCheckBox("Save log sample in format file",this);
@@ -325,7 +325,7 @@ void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::slotSaveValidator(bool sta
  *****************************************************************************/
 void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::slotSetConfirmedValues() {
     slotSetValues();//save various value
-    node->setAttribute(QString("expression"), exp->text());//save expression
+    node->setAttribute(QString("regexp"), exp->text());//save expression
     node->setAttribute(QString("validator"), validWidget->getVal().toString(),flagSaveRegExpValidator);//save the text in validator
 
     regExCount(exp->text());

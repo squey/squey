@@ -18,6 +18,7 @@
 #include <pvrush/PVNormalizer.h>
 
 #include <pvfilter/PVChunkFilterByElt.h>
+#include <pvfilter/PVChunkFilterByEltSaveInvalid.h>
 #include <pvfilter/PVElementFilterByFields.h>
 #include <pvfilter/PVFieldSplitterUTF16Char.h>
 #include <pvfilter/PVFieldsMappingFilter.h>
@@ -25,6 +26,7 @@
 PVRush::PVFormat::PVFormat()
 {
 	axes_count = 0;
+	_dump_elts = false;
 }
 
 PVRush::PVFormat::PVFormat(QString const& format_name_, QString const& full_path_)
@@ -32,6 +34,7 @@ PVRush::PVFormat::PVFormat(QString const& format_name_, QString const& full_path
 	full_path = full_path_;
 	format_name = format_name_;
 	axes_count = 0;
+	_dump_elts = false;
 }
 
 
@@ -216,8 +219,13 @@ PVFilter::PVChunkFilter_f PVRush::PVFormat::create_tbb_filters()
 
 	// Finalise the pipeline
 	PVFilter::PVElementFilterByFields* elt_f = new PVFilter::PVElementFilterByFields(final_filter_f);
-	PVFilter::PVChunkFilterByElt* chk_flt = new PVFilter::PVChunkFilterByElt(elt_f->f());
-
+	PVFilter::PVChunkFilter* chk_flt;
+	if (_dump_elts) {
+		chk_flt = new PVFilter::PVChunkFilterByElt(elt_f->f());
+	}
+	else {
+		chk_flt = new PVFilter::PVChunkFilterByEltSaveInvalid(elt_f->f());
+	}
 	return chk_flt->f();
 }
 

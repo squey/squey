@@ -22,6 +22,7 @@
 #include <QMainWindow>
 #include <QDomElement>
 #include <QDomDocument>
+#include <QListWidget>
 
 #include <PVXmlDomModel.h>
 #include <PVXmlTreeView.h>
@@ -128,6 +129,9 @@ protected:
 	// Model and widget for the NRAW
 	PVNrawListingModel* _nraw_model;
 	PVNrawListingWidget* _nraw_widget;
+
+	// Invalid lines
+	QListWidget* _inv_lines_widget;
     
 
 public slots:

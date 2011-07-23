@@ -137,6 +137,7 @@ public:
 	PVRush::PVXmlTreeNodeDom* getRoot() { return rootNode; }
 
 	void processChildrenWithField(PVCore::PVField const& field);
+	void clearFiltersData();
     
 private:
 	static void setDefaultAttributesForAxis(QDomElement& elt);

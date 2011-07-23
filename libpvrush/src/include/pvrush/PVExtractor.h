@@ -126,6 +126,8 @@ public:
 	 */
 	void clear_saved_nraw();
 
+	void dump_elts(bool dump) { _dump_elts = dump; }
+
 	void dump_mapnraw();
 	void dump_nraw();
 	void debug();
@@ -145,6 +147,7 @@ protected:
 	PVNrawOutput _out_nraw; // Linked to _nraw
 	PVFilter::PVChunkFilter_f _chk_flt;
 	unsigned int _chunks;
+	bool _dump_elts;
 };
 
 }

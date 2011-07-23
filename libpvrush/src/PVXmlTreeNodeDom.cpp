@@ -643,7 +643,9 @@ void PVRush::PVXmlTreeNodeDom::toArgumentList(PVCore::PVArgumentList const& defa
 
 void PVRush::PVXmlTreeNodeDom::getChildrenFromField(PVCore::PVField const& field_)
 {
-	if (getDom().tagName() != "splitter") {
+	QString plugin_type = getDom().tagName();
+	// TODO: filters (like filter_regexp) should also be ok
+	if (plugin_type != "splitter") {
 		// This is not a splitter, so pass this through our children.
         for (int i = 0; i < getChildren().size(); i++) {
             getChild(i)->getChildrenFromField(field_);
@@ -654,49 +656,62 @@ void PVRush::PVXmlTreeNodeDom::getChildrenFromField(PVCore::PVField const& field
 	PVCore::PVField field(field_);
 	field.deep_copy();
 	field.init_qstr();
+	QString str_copy(field.qstr().unicode(), field.qstr().size());
 
 	QString plugin_name = attribute("type", "");
 	PVLOG_INFO("(getChildrenFromField) splitter %s got field %s.\n", qPrintable(plugin_name), qPrintable(field.qstr()));
 
 	// Get the filter from the lib (because not everything is under plugins... :/)
 	PVFilter::PVFieldsSplitter_p filter_lib = LIB_FILTER(PVFilter::PVFieldsSplitter)::get().get_filter_by_name(plugin_name);
-	PVFilter::PVFieldsSplitter_p filter_clone = filter_lib->clone<PVFilter::PVFieldsSplitter>();
+	if (!filter_lib) {
+		PVLOG_ERROR("Unable to load splitter plugin '%s' !!!!!!\n", qPrintable(plugin_name));
+		return;
+	}
+	PVFilter::PVFieldsSplitter_p filter_clone;
+	filter_clone = filter_lib->clone<PVFilter::PVFieldsSplitter>();
 
 	// Get the args and set them
 	PVCore::PVArgumentList args;
 	toArgumentList(filter_lib->get_default_args(), args);
 	filter_clone->set_args(args);
 
+	// Check if a number of children is forced
+	size_t force_nchild = 0;
+	// TODO: this should be all in plugins !
+	if (splitterPlugin) {
+		force_nchild = splitterPlugin->force_number_children();
+		splitterPlugin->push_data(str_copy);
+	}
+	else
+	if (plugin_name == "regexp") {
+		QString exp = attribute("regexp", "");
+		QRegExp rx(exp);
+		force_nchild = rx.captureCount();
+		_data_for_regexp << str_copy;
+	}
+	else
+	if (plugin_name == "url") {
+		force_nchild = 6;
+	}
+
 
 	// Ok, we are a splitter. Process this through our filter.
 	PVCore::list_fields lf;
 	lf.push_back(field);
 	PVCore::list_fields &lf_res = filter_clone->operator()(lf);
+	if (!field.valid()) {
+		// The filter failed, we can't do much from now.
+		PVLOG_INFO("(getChildrenFromField) splitter returns an invalid field.\n", qPrintable(plugin_name), lf_res.size());
+		if (force_nchild > 0) {
+			setNbr(force_nchild);
+		}
+		return;
+	}
 
 	PVLOG_INFO("(getChildrenFromField) for splitter %s, we have %d fields.\n", qPrintable(plugin_name), lf_res.size());
 
 	// We got our number of children !
 	setNbr(lf_res.size());
-
-	// Check if a number of children is forced
-	size_t force_nchild = 0;
-	// TODO: this should be all in plugins !
-	if (plugin_name == "regexp") {
-		QString exp = attribute("regexp", "");
-		QRegExp rx(exp);
-		force_nchild = rx.captureCount();
-
-        PVLOG_DEBUG("(field)\n%s\n",qPrintable(field.qstr()));
-        setAttribute("validator",field.qstr());
-        //field.qstr()
-		// TODO FIXME pour lundi
-		// Si on récupère le widget RegExp et que l'on lui passe (avec une fonction quelconque, genre setData)
-		// field.qstr(), alors il récupère la chaîne qu'il est censé parser
-	}
-	else
-	if (splitterPlugin) {
-		force_nchild = splitterPlugin->force_number_children();
-	}
 
 	PVLOG_INFO("(getChildrenFromField) for this splitter, force nchild = %d\n", force_nchild);
 	// If force_nchild > 0, set this number of child
@@ -724,5 +739,19 @@ void PVRush::PVXmlTreeNodeDom::getChildrenFromField(PVCore::PVField const& field
 		if (it_f == lf_res.end()) {
 			break;
 		}
+	}
+}
+
+void PVRush::PVXmlTreeNodeDom::clearFiltersData()
+{
+	if (splitterPlugin) {
+		splitterPlugin->clear_filter_data();
+	}
+	if (getDom().tagName() == "splitter" && attribute("type", "") == "regexp") {
+		_data_for_regexp.clear();
+	}
+
+	for (size_t ichild = 0; ichild < getChildren().size(); ichild++) {
+		getChild(ichild)->clearFiltersData();
 	}
 }

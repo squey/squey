@@ -9,7 +9,9 @@
 #define PV_MAX_NELTS PICVIZ_LINES_MAX
 
 PVRush::PVControllerJob::PVControllerJob(job_action a, int priority) :
-	 _f_nelts(&_job_done)
+	_elt_valid_filter(true, _all_elts),
+	_elt_invalid_filter(true, _inv_elts),
+	_f_nelts(&_job_done)
 {
 	_a = a;
 	_priority = priority;
@@ -18,6 +20,7 @@ PVRush::PVControllerJob::PVControllerJob(job_action a, int priority) :
 	_out_filter = NULL;
 	_job_finished_run = false;
 	_ctrl_parent = NULL;
+	_dump_elts = false;
 }
 
 PVRush::PVControllerJob::~PVControllerJob()
@@ -30,7 +33,7 @@ PVRush::PVControllerJob::~PVControllerJob()
 	_job_finished.notify_all(); 
 }
 
-void PVRush::PVControllerJob::set_params(PVCore::chunk_index begin, PVCore::chunk_index end, PVCore::chunk_index n_elts, stop_cdtion sc, PVAggregator &agg, PVFilter::PVChunkFilter_f filter, PVOutput& out_filter, size_t nchunks)
+void PVRush::PVControllerJob::set_params(PVCore::chunk_index begin, PVCore::chunk_index end, PVCore::chunk_index n_elts, stop_cdtion sc, PVAggregator &agg, PVFilter::PVChunkFilter_f filter, PVOutput& out_filter, size_t nchunks, bool dump_elts)
 {
 	_idx_begin = begin;
 	_idx_end = end;
@@ -48,6 +51,7 @@ void PVRush::PVControllerJob::set_params(PVCore::chunk_index begin, PVCore::chun
 		_max_n_elts = end - begin;
 		_n_elts = PV_MAX_NELTS;
 	}
+	_dump_elts = dump_elts;
 }
 
 tbb::filter_t<void,void> PVRush::PVControllerJob::create_tbb_filter()
@@ -64,7 +68,7 @@ tbb::filter_t<void,void> PVRush::PVControllerJob::create_tbb_filter()
 
 	// The "job" filter
 	tbb::filter_t<PVCore::PVChunk*, PVCore::PVChunk*> transform_filter(tbb::filter::parallel, _filter);
-
+	
 	// Elements count filter
 	_f_nelts.done_when(_n_elts);
 	tbb::filter_t<PVCore::PVChunk*, PVCore::PVChunk*> count_filter(tbb::filter::serial_in_order, _f_nelts.f());
@@ -72,7 +76,20 @@ tbb::filter_t<void,void> PVRush::PVControllerJob::create_tbb_filter()
 	// Final output filter
 	tbb::filter_t<PVCore::PVChunk*,void> out_filter(tbb::filter::serial_in_order, _out_filter->f());
 
-	return input_filter & source_transform_filter & transform_filter & count_filter & out_filter;
+	if (_dump_elts) {
+		// The first dump filter, that dumps all the elements
+		_all_elts.clear();
+		tbb::filter_t<PVCore::PVChunk*, PVCore::PVChunk*> dump_all_elts_filter(tbb::filter::serial_in_order, _elt_valid_filter.f());
+
+		// The next dump filter, that dumps all the invalid elements
+		_inv_elts.clear();
+		tbb::filter_t<PVCore::PVChunk*, PVCore::PVChunk*> dump_inv_elts_filter(tbb::filter::serial_in_order, _elt_invalid_filter.f());
+
+		return input_filter & dump_all_elts_filter & source_transform_filter & transform_filter & dump_inv_elts_filter & count_filter & out_filter;
+	}
+	else {
+		return input_filter & source_transform_filter & transform_filter & count_filter & out_filter;
+	}
 }
 
 void PVRush::PVControllerJob::job_goingto_start(PVController& ctrl)

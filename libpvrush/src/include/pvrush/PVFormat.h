@@ -86,6 +86,8 @@ namespace PVRush {
 			QString const& get_format_name() const;
 			QString const& get_full_path() const;
 
+			void dump_elts(bool dump) { _dump_elts = dump; }
+
 			/* Attributes */
 
 			QHash<int, QStringList> time_format;
@@ -115,6 +117,7 @@ namespace PVRush {
 
 		private:
 			std::list<PVFilter::PVFieldsBaseFilter_p> _filters_container;
+			bool _dump_elts;
 	};
 
 	typedef QHash<QString, PVRush::PVFormat> hash_formats;

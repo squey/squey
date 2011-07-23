@@ -40,6 +40,14 @@ public:
     bool confirmAndSave();
     QWidget *getWidgetToFocus();
     
+	void setData(QStringList const& data)
+	{
+		for (int i = 0; i < data.size(); i++) {
+			PVLOG_INFO("(regexp board widget) get data %s\n", qPrintable(data[i]));
+		}
+		_data = data;
+	}
+    
 
 private:
     void allocBoardFields();
@@ -70,7 +78,7 @@ private:
     bool flagNeedConfirmAndSave;
     bool flagAskConfirmActivated;
     bool flagSaveRegExpValidator;
-    
+
 public slots:
     void slotNoteConfirmationNeeded();
     void slotOpenLogValid();
@@ -94,6 +102,9 @@ public slots:
 signals:
     void signalRefreshView();
     void signalNeedConfirmAndSave();
+
+protected:
+	QStringList _data;
 };
 }
 #endif	/* PVXMLPARAMWIDGETBOARDSPLITTERREGEX_H */

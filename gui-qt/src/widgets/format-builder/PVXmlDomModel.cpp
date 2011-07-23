@@ -5,6 +5,7 @@
 //! Copyright (C) Picviz Labs 2011
 #include <PVXmlDomModel.h>
 #include <pvrush/PVXmlTreeNodeDom.h>
+#include <pvfilter/PVFieldsFilterParamWidget.h>
 
 #include <QString>
 
@@ -580,6 +581,7 @@ void PVInspector::PVXmlDomModel::addRegExIn(const QModelIndex &index) {
 
             //tree
             PVRush::PVXmlTreeNodeDom* child = new PVRush::PVXmlTreeNodeDom(newDom);
+
             child->setParent(field);
             field->addChild(child);
         } else {
@@ -885,4 +887,9 @@ void PVInspector::PVXmlDomModel::processChildrenWithField(PVCore::PVField const&
 {
 	getRoot()->getChildrenFromField(field);
 	emit layoutChanged();
+}
+
+void PVInspector::PVXmlDomModel::clearFiltersData()
+{
+	getRoot()->clearFiltersData();
 }

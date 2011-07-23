@@ -37,6 +37,7 @@ public:
 	bool valid() const;
 	void set_invalid();
 	void set_parent(PVChunk* parent);
+	void deep_copy();
 	PVChunk* chunk_parent();
 
 	list_fields& fields();

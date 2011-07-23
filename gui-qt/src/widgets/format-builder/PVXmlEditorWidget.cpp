@@ -78,6 +78,9 @@ PVInspector::PVXmlEditorWidget::PVXmlEditorWidget(QWidget * parent):QWidget(pare
 	nraw_tab->addTab(_nraw_widget, tr("Normalisation preview"));
 	vb->addWidget(nraw_tab);
 
+	_inv_lines_widget = new QListWidget();
+	nraw_tab->addTab(_inv_lines_widget, tr("Unmatched lines"));
+
     setLayout(vb);
     
     //setWindowModality(Qt::ApplicationModal);
@@ -526,6 +529,7 @@ void PVInspector::PVXmlEditorWidget::create_extractor()
 		_log_extract->force_stop_controller();
 	}
 	_log_extract.reset(new PVRush::PVExtractor());
+	_log_extract->dump_elts(true);
 	_log_extract->start_controller();
 	_log_source = _log_sc->create_source_from_input(_log_input);
 	_log_extract->add_source(_log_source);
@@ -588,6 +592,7 @@ void PVInspector::PVXmlEditorWidget::set_format_from_dom()
 {
 	QDomElement const& rootDom = myTreeModel->getRootDom();
 	PVRush::PVFormat format;
+	format.dump_elts(true);
 	format.populate_from_xml(rootDom, true);
 	_log_extract->set_format(format);
 	_log_extract->set_chunk_filter(_log_extract->get_format().create_tbb_filters());
@@ -609,31 +614,62 @@ void PVInspector::PVXmlEditorWidget::showParamBoard(PVRush::PVXmlTreeNodeDom *no
 
 void PVInspector::PVXmlEditorWidget::update_table(PVRow start, PVRow end)
 {
-	// Process children
-	PVCore::PVChunk* chunk = (*_log_source)();
-	if (chunk == NULL) {
-		// Unable to read a chunk. Seek from beginning and try again
-		_log_source->seek_begin();
-		chunk = (*_log_source)();
-		if (chunk == NULL) {
-			// TODO: show an error box (unable to read from input !)
-			return;
-		}
+	if (!_log_extract) {
+		return;
 	}
-	PVCore::PVField const& f = chunk->c_elements().back().c_fields().front();
-	myTreeModel->processChildrenWithField(f);
-	chunk->free();
 
 	assert(end > start);
 	_nraw_model->set_consistent(false);
+
+	// Here, two extractions are made.
+	// The first one use the aggregator of the extract to get the data through
+	// the filters of the widget (so that they can populate themselves).
+	// Then, the format is created according to the DOM, the real extraction is
+	// made and we get back the invalid elements.
+	// AG: this is clearly subefficient but this is what I can do w/ the time I have.
+	
+	// First extraction
+	
+	// Clear the filter previous data
+	myTreeModel->clearFiltersData();
+
+	// Get the aggregator
+	PVRush::PVAggregator& agg = _log_extract->get_agg();
+	agg.process_indexes(start, end);
+	// And push the output through our filter tree
+	PVCore::PVChunk* ck = agg();
+	size_t nelts = 0;
+	while (ck) {
+		PVCore::list_elts::const_iterator it_elt;
+		for (it_elt = ck->c_elements().begin(); it_elt != ck->c_elements().end(); it_elt++) {
+			// The first field of a freshly created element is the whole element itself
+			myTreeModel->processChildrenWithField(it_elt->c_fields().front());
+			nelts++;
+		}
+		if (nelts > 10) {
+			break;
+		}
+		ck = agg();
+	}
+
+	// Do the real extraction using the DOM we just updated
 	set_format_from_dom();
 	// Create the nraw thanks to the extractor
 	PVRush::PVControllerJob_p job = _log_extract->process_from_agg_idxes(start, end);
 	job->wait_end();
 	_log_extract->dump_nraw();
 	_nraw_model->set_nraw(_log_extract->get_nraw());
+
 	_nraw_model->set_consistent(true);
 
+	// Set the update lines widget
+	_inv_lines_widget->clear();
+	QStringList& elts_invalid = job->get_invalids_elts();
+	QStringList::iterator it_ie;
+	for (it_ie = elts_invalid.begin(); it_ie != elts_invalid.end(); it_ie++) {
+		QString const& line = *it_ie;
+		_inv_lines_widget->addItem(line);
+	}
 }
 
 void PVInspector::PVXmlEditorWidget::slotExtractorPreview()

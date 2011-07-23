@@ -2,7 +2,6 @@
 //
 
 #include <pvfilter/PVFilterLibrary.h>
-#include <pvfilter/PVFilterFunction.h>
 #include "PVFieldSplitterCSV.h"
 #include "PVFieldSplitterCSVParamWidget.h"
 

@@ -2,8 +2,10 @@ SET(SRC_FILES
 PVFilterLibrary.cpp
 PVChunkFilter.cpp
 PVChunkFilterByElt.cpp
+PVChunkFilterByEltSaveInvalid.cpp
 PVChunkFilterSource.cpp
 PVChunkFilterCountElts.cpp
+PVChunkFilterDumpElts.cpp
 PVElementFilterByFields.cpp
 PVElementFilterGrep.cpp
 PVElementFilterRandInvalid.cpp
@@ -21,8 +23,10 @@ PVRawSourceBase.cpp
 SET(HEADER_FILES
 include/pvfilter/PVChunkFilter.h
 include/pvfilter/PVChunkFilterByElt.h
+include/pvfilter/PVChunkFilterByEltSaveInvalid.h
 include/pvfilter/PVChunkFilterSource.h
 include/pvfilter/PVChunkFilterCountElts.h
+include/pvfilter/PVChunkFilterDumpElts.h
 include/pvfilter/PVElementFilterByFields.h
 include/pvfilter/PVElementFilter.h
 include/pvfilter/PVFieldsFilter.h

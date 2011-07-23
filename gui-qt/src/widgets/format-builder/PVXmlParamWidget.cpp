@@ -105,6 +105,8 @@ void PVInspector::PVXmlParamWidget::drawForFilter(PVRush::PVXmlTreeNodeDom *node
  *****************************************************************************/
 void PVInspector::PVXmlParamWidget::drawForRegEx(PVRush::PVXmlTreeNodeDom *nodeSplitter) {
     PVXmlParamWidgetBoardSplitterRegEx *regExpBoard = new PVXmlParamWidgetBoardSplitterRegEx(nodeSplitter);
+	// AG: yes, that's a saturday morning hack
+	regExpBoard->setData(nodeSplitter->getDataForRegexp());
     lesWidgetDuLayout.push_back(regExpBoard);
     layout->addWidget(regExpBoard);
     connect(regExpBoard, SIGNAL(signalRefreshView()), this, SLOT(slotEmitNeedApply()));

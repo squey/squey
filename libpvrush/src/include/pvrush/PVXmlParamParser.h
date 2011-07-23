@@ -55,6 +55,7 @@ public:
 	QHash<int, QStringList> const& getTimeFormat()const;
     unsigned int getVersion() { return format_version; }
 	void dump_filters();
+	void clearFiltersData();
 
 private:
 	void setVersionFromRootNode(QDomElement const& node);
