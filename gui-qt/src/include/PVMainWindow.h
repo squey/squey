@@ -222,7 +222,6 @@ private:
 	QPixmap  *pv_welcomeIcon;
 
 	QPushButton *pv_ImportFileButton;
-	QVBoxLayout *pv_ImportFileButtonInnerLayout;
 
 protected:
 	bool eventFilter(QObject *watched_object, QEvent *event);
