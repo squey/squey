@@ -221,10 +221,10 @@ PVFilter::PVChunkFilter_f PVRush::PVFormat::create_tbb_filters()
 	PVFilter::PVElementFilterByFields* elt_f = new PVFilter::PVElementFilterByFields(final_filter_f);
 	PVFilter::PVChunkFilter* chk_flt;
 	if (_dump_elts) {
-		chk_flt = new PVFilter::PVChunkFilterByElt(elt_f->f());
+		chk_flt = new PVFilter::PVChunkFilterByEltSaveInvalid(elt_f->f());
 	}
 	else {
-		chk_flt = new PVFilter::PVChunkFilterByEltSaveInvalid(elt_f->f());
+		chk_flt = new PVFilter::PVChunkFilterByElt(elt_f->f());
 	}
 	return chk_flt->f();
 }
