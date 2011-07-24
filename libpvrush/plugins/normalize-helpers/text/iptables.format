@@ -2,7 +2,7 @@
 <!DOCTYPE PVParamXml>
 <param version="1">
  <field>
-  <RegEx validator="" expression="(\w+\s+\d+\s+\d+:\d+:\d+).*SRC=(\d+\.\d+\.\d+\.\d+).*DST=(\d+\.\d+\.\d+\.\d+).*LEN=(\d+).*TTL=(\d+).*ID=(\d+).*PROTO=(\S+).*SPT=(\d+).*DPT=(\d+).*" name="">
+  <splitter validator="" expression="(\w+\s+\d+\s+\d+:\d+:\d+).*SRC=(\d+\.\d+\.\d+\.\d+).*DST=(\d+\.\d+\.\d+\.\d+).*LEN=(\d+).*TTL=(\d+).*ID=(\d+).*PROTO=(\S+).*SPT=(\d+).*DPT=(\d+).*" type="regexp" regexp="(\w+\s+\d+\s+\d+:\d+:\d+).*SRC=(\d+\.\d+\.\d+\.\d+).*DST=(\d+\.\d+\.\d+\.\d+).*LEN=(\d+).*TTL=(\d+).*ID=(\d+).*PROTO=(\S+).*SPT=(\d+).*DPT=(\d+).*" name="">
    <field>
     <axis titlecolor="#ffffff" key="false" mapping="24h" time-format="MMM d hh:mm:ss&#xa;MMM  d hh:mm:ss" group="none" type="time" name="Time" plotting="default" color="#ffffff"/>
    </field>
@@ -30,6 +30,6 @@
    <field>
     <axis titlecolor="#ffffff" key="true" mapping="default" time-format="" group="none" type="integer" name="Destination Port" plotting="port" color="#ffffff"/>
    </field>
-  </RegEx>
+  </splitter>
  </field>
 </param>

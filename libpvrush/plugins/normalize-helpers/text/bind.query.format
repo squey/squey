@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE PVParamXml>
 <param version="1">
- <RegEx validator="" expression="(\d+-\S+-\d+ \d+:\d+:\d+\.\d+) (\S+)(?: |)/(\d+\.\d+\.\d+\.\d+)/(\S+)/(A|A6|AAAA|CNAME|MX|NS|PTR|SOA|SPF|SRV|TXT|ANY)/(\S+)" name="">
+ <splitter selectionRegExp-2="(\S+)" selectionRegExp-3="(?: |)" selectionRegExp-4="(\d+\.\d+\.\d+\.\d+)" selectionRegExp-5="(\S+)" selectionRegExp-6="(A|A6|AAAA|CNAME|MX|NS|PTR|SOA|SPF|SRV|TXT|ANY)" validator="" expression="(\d+-\S+-\d+ \d+:\d+:\d+\.\d+) (\S+)(?: |)/(\d+\.\d+\.\d+\.\d+)/(\S+)/(A|A6|AAAA|CNAME|MX|NS|PTR|SOA|SPF|SRV|TXT|ANY)/(\S+)" type="regexp" regexp="(\d+-\S+-\d+ \d+:\d+:\d+\.\d+) (\S+)(?: |)/(\d+\.\d+\.\d+\.\d+)/(\S+)/(A|A6|AAAA|CNAME|MX|NS|PTR|SOA|SPF|SRV|TXT|ANY)/(\S+)" name="" selectionRegExp-1="(\d+-\S+-\d+ \d+:\d+:\d+\.\d+)">
   <field>
    <axis titlecolor="#ffffff" key="false" mapping="24h" time-format="d-MMM-yyyy H:m:s.S" group="none" type="time" name="Time" plotting="default" color="#ffffff" time-sample=""/>
   </field>
@@ -12,7 +12,7 @@
    <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="ipv4" name="IP Address" plotting="default" color="#ffffff" time-sample=""/>
   </field>
   <field>
-   <url>
+   <splitter type="url">
     <field>
      <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" type="enum" name="Protocol" plotting="default" color="#ffffff"/>
     </field>
@@ -31,7 +31,7 @@
     <field>
      <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" type="string" name="Variable" plotting="default" color="#ffffff"/>
     </field>
-   </url>
+   </splitter>
   </field>
   <field>
    <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="enum" name="DNS Record" plotting="default" color="#ffffff" time-sample=""/>
@@ -39,5 +39,5 @@
   <field>
    <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="enum" name="DNS Class" plotting="default" color="#ffffff" time-sample=""/>
   </field>
- </RegEx>
+ </splitter>
 </param>

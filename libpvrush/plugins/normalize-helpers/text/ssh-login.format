@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE PVParamXml>
 <param version="1">
- <RegEx selectionRegExp-2="([Aa]uthentication failure|Failed [-/\w]+|Accepted publickey|Accepted password|keyboard-interactive/pam)" selectionRegExp-3="(?:[Ii]nvalid user )" selectionRegExp-4="(.*?)" validator="" expression="(\w+\s+\d+\s+\d+:\d+:\d+).*?([Aa]uthentication failure|Failed [-/\w]+|Accepted publickey|Accepted password|keyboard-interactive/pam) for (?:[Ii]nvalid user )?(.*?)(?: from|FROM) (?:..ffff.)?([^ ]*).*" name="" saveValidator="false" selectionRegExp-1="(\w+\s+\d+\s+\d+:\d+:\d+)">
+ <splitter selectionRegExp-2="([Aa]uthentication failure|Failed [-/\w]+|Accepted publickey|Accepted password|keyboard-interactive/pam)" selectionRegExp-3="(?:[Ii]nvalid user )" selectionRegExp-4="(.*?)" validator="" expression="(\w+\s+\d+\s+\d+:\d+:\d+).*?([Aa]uthentication failure|Failed [-/\w]+|Accepted publickey|Accepted password|keyboard-interactive/pam) for (?:[Ii]nvalid user )?(.*?)(?: from|FROM) (?:..ffff.)?([^ ]*).*" type="regexp" regexp="(\w+\s+\d+\s+\d+:\d+:\d+).*?([Aa]uthentication failure|Failed [-/\w]+|Accepted publickey|Accepted password|keyboard-interactive/pam) for (?:[Ii]nvalid user )?(.*?)(?: from|FROM) (?:..ffff.)?([^ ]*).*" name="" saveValidator="false" selectionRegExp-1="(\w+\s+\d+\s+\d+:\d+:\d+)">
   <field>
    <axis titlecolor="#ffffff" key="false" mapping="24h" time-format="MMM d hh:mm:ss" group="none" type="time" name="Time" plotting="default" color="#ffffff" time-sample="May  2 23:10:45"/>
   </field>
@@ -14,5 +14,5 @@
   <field>
    <axis titlecolor="#ffffff" key="true" mapping="default" time-format="" group="none" type="ipv4" name="IP Source" plotting="default" color="#ffffff" time-sample=""/>
   </field>
- </RegEx>
+ </splitter>
 </param>

@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE PVParamXml>
 <param version="1">
- <RegEx selectionRegExp-7="(\d+)" selectionRegExp-8="(\d+)" selectionRegExp-9="(\d+)" name="" selectionRegExp-10="(.*)" selectionRegExp-11="(\S+)" selectionRegExp-12="(\S+)" selectionRegExp-13="(\d+)" selectionRegExp-14="(\S+)" selectionRegExp-15="(.*)" saveValidator="false" expression="(\d+\.\d+\.\d+\.\d+) (.*) \[(\d+\/\w+\/\d+:\d+:\d+:\d+ .*)\] (\S+) (.*) (HTTP\/\d+\.\d+) (\d+) (\d+) (\d+) \&quot;(.*)\&quot; (\S+) (\S+) (\d+) (\S+) (.*)" validator="" selectionRegExp-1="(\d+\.\d+\.\d+\.\d+)" selectionRegExp-2="(.*)" selectionRegExp-3="(\d+\/\w+\/\d+:\d+:\d+:\d+ .*)" selectionRegExp-4="(\S+)" selectionRegExp-5="(.*)" selectionRegExp-6="(HTTP\/\d+\.\d+)">
+ <splitter selectionRegExp-7="(\d+)" selectionRegExp-8="(\d+)" selectionRegExp-9="(\d+)" name="" selectionRegExp-10="(.*)" regexp="(\d+\.\d+\.\d+\.\d+) (.*) \[(\d+\/\w+\/\d+:\d+:\d+:\d+ .*)\] (\S+) (.*) (HTTP\/\d+\.\d+) (\d+) (\d+) (\d+) \&quot;(.*)\&quot; (\S+) (\S+) (\d+) (\S+) (.*)" selectionRegExp-11="(\S+)" selectionRegExp-12="(\S+)" selectionRegExp-13="(\d+)" selectionRegExp-14="(\S+)" selectionRegExp-15="(.*)" saveValidator="false" expression="(\d+\.\d+\.\d+\.\d+) (.*) \[(\d+\/\w+\/\d+:\d+:\d+:\d+ .*)\] (\S+) (.*) (HTTP\/\d+\.\d+) (\d+) (\d+) (\d+) \&quot;(.*)\&quot; (\S+) (\S+) (\d+) (\S+) (.*)" validator="" selectionRegExp-1="(\d+\.\d+\.\d+\.\d+)" selectionRegExp-2="(.*)" type="regexp" selectionRegExp-3="(\d+\/\w+\/\d+:\d+:\d+:\d+ .*)" selectionRegExp-4="(\S+)" selectionRegExp-5="(.*)" selectionRegExp-6="(HTTP\/\d+\.\d+)">
   <field>
    <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="ipv4" name="Client IP" plotting="default" color="#ffffff" time-sample=""/>
   </field>
@@ -15,7 +15,7 @@
    <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="enum" name="Method" plotting="default" color="#ffffff" time-sample=""/>
   </field>
   <field>
-   <url>
+   <splitter type="url">
     <field>
      <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" type="enum" name="Protocol" plotting="default" color="#ffffff"/>
     </field>
@@ -34,7 +34,7 @@
     <field>
      <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" type="string" name="Variable" plotting="default" color="#ffffff"/>
     </field>
-   </url>
+   </splitter>
   </field>
   <field>
    <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="enum" name="Protocol" plotting="default" color="#ffffff" time-sample=""/>
@@ -66,5 +66,5 @@
   <field>
    <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="enum" name="Parent Jump" plotting="default" color="#ffffff" time-sample=""/>
   </field>
- </RegEx>
+ </splitter>
 </param>
