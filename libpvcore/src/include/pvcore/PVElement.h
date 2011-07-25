@@ -37,7 +37,8 @@ public:
 	bool valid() const;
 	void set_invalid();
 	void set_parent(PVChunk* parent);
-	void deep_copy();
+	void save_elt_buffer();
+	char* get_saved_elt_buffer(size_t& n);
 	PVChunk* chunk_parent();
 
 	list_fields& fields();
@@ -46,6 +47,8 @@ public:
 	buf_list_t& realloc_bufs() const;
 public:
 	PVElement& operator=(PVElement const& src);
+private:
+	void clear_saved_buf();
 protected:
 	QExplicitlySharedDataPointer<PVElementData> d;
 };
