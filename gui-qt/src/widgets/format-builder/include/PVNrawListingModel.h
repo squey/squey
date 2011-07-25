@@ -29,6 +29,7 @@ public:
 
 public:
 	void set_consistent(bool c);
+	bool is_consistent();
 	void set_nraw(PVRush::PVNraw const& nraw);
 
 protected:
