@@ -292,6 +292,7 @@ void PVInspector::PVXmlTreeView::mouseDoubleClickEvent ( QMouseEvent * event ){
  *
  *****************************************************************************/
 void PVInspector::PVXmlTreeView::mousePressEvent(QMouseEvent * event) {
+    PVLOG_DEBUG("PVInspector::PVXmlTreeView::mousePressEvent\n");
         for (int i = 0; i < selectedIndexes().count(); i++) {
                 if (selectedIndexes().at(i).isValid()){
                         selectionModel()->select(selectedIndexes().at(i), QItemSelectionModel::Clear); //valid index...
@@ -315,6 +316,7 @@ void PVInspector::PVXmlTreeView::mousePressEvent(QMouseEvent * event) {
  *
  *****************************************************************************/
 void PVInspector::PVXmlTreeView::moveDown() {
+    PVLOG_DEBUG("PVInspector::PVXmlTreeView::moveDown\n");
     if (selectedIndexes().count() > 0) {//if an item is selected
         QModelIndex index = selectedIndexes().at(0);
         getModel()->moveDown(index);

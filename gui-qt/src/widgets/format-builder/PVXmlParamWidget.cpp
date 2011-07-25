@@ -56,9 +56,12 @@ PVInspector::PVXmlParamWidget::~PVXmlParamWidget() {
 void PVInspector::PVXmlParamWidget::drawForNo(QModelIndex) {
     PVLOG_DEBUG("PVInspector::PVXmlParamWidget::drawForNo\n");
     //confirmApply = false;
-    emit signalQuittingAParamBoard();
-    removeListWidget();
-    type = no;
+    if(type!=no){
+        emit signalQuittingAParamBoard();
+        removeListWidget();
+        type = no;
+    }
+    
 }
 
 
@@ -324,7 +327,7 @@ QStringList PVInspector::PVXmlParamWidget::getListTypePlotting(const QString& mT
  *
  *****************************************************************************/
 void PVInspector::PVXmlParamWidget::edit(QModelIndex const& index) {
-
+    PVLOG_DEBUG("PVInspector::PVXmlParamWidget::edit\n");
 	drawForNo(index);
 	if (index.isValid()) {
 		//emit signalQuittingAParamBoard();
@@ -339,13 +342,17 @@ void PVInspector::PVXmlParamWidget::edit(QModelIndex const& index) {
 		bool splitter = nodeOnClick->type == PVRush::PVXmlTreeNodeDom::splitter;
 
 		if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::filter) {
+            PVLOG_DEBUG("PVInspector::PVXmlParamWidget::edit -> filter\n");
 			drawForFilter(nodeOnClick);
 		} else if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::RegEx || (splitter && ((nodeOnClick->attribute("type","") == "regexp") || nodeOnClick->attribute("type","") == "url"))) {
+            PVLOG_DEBUG("PVInspector::PVXmlParamWidget::edit -> regex\n");
 			drawForRegEx(nodeOnClick);
 			//confirmApply = false;
 		}else if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::axis){
+            PVLOG_DEBUG("PVInspector::PVXmlParamWidget::edit -> axis\n");
 				drawForAxis(nodeOnClick);
 		}else if (splitter){
+            PVLOG_DEBUG("PVInspector::PVXmlParamWidget::edit -> splitter\n");
 			drawForSplitter(nodeOnClick);
 		}
 	}
@@ -427,7 +434,7 @@ void PVInspector::PVXmlParamWidget::slotConfirmRegExpInName(const QString &name)
         QDialog confirm(this);
         QVBoxLayout vb;
         confirm.setLayout(&vb);
-        vb.addWidget(new QLabel("Are you writing a regular expression into the wrong field?"));
+        vb.addWidget(new QLabel("Are you writing a regular expression into the wrong field ?"));
         QHBoxLayout bas;
         vb.addLayout(&bas);
         QPushButton no("No");

@@ -94,6 +94,7 @@ PVInspector::PVXmlEditorWidget::PVXmlEditorWidget(QWidget * parent):QWidget(pare
     lastSplitterPluginAdding = -1;
     initConnexions();
     
+
 }
 /******************************************************************************
  *
@@ -396,7 +397,7 @@ void PVInspector::PVXmlEditorWidget::slotSave() {
 void PVInspector::PVXmlEditorWidget::slotUpdateToolDesabled(const QModelIndex &index){
     PVRush::PVXmlTreeNodeDom *node = myTreeModel->nodeFromIndex(index);
     
-    hideParamBoard();
+    //hideParamBoard();
     
     if (node->getDom().tagName() == "field") {
         myTreeView->expandRecursive(index);
@@ -608,7 +609,7 @@ void PVInspector::PVXmlEditorWidget::guess_first_splitter()
  *
  *****************************************************************************/
 void PVInspector::PVXmlEditorWidget::hideParamBoard(){
-        PVLOG_DEBUG("PVFilter::PVFieldSplitterCSVParamWidget::hideParamBoard()\n");
+        PVLOG_DEBUG("PVInspector::PVXmlEditorWidget::hideParamBoard\n");
 }
 
 void PVInspector::PVXmlEditorWidget::set_format_from_dom()

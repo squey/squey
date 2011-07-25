@@ -23,7 +23,6 @@ PVInspector::PVXmlParamWidgetBoardAxis::PVXmlParamWidgetBoardAxis( PVRush::PVXml
     initValue();
     //updatePlotMapping(mapPlotType->val().toString());
 
-    refreshTableValuesParent();
     
     initConnexion();
 }
@@ -78,9 +77,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::allocBoardFields(){
     buttonTitleColor = new PVXmlParamColorDialog("titlecolor", "#ffffff", this);
     titleColorLabel = new QLabel("titlecolor");
     //slotSetVisibleExtra(false);
-    
-    //view values from parent regexp
-    tableValueFromParentRegExp = new QTextEdit(this);
+
     
     //button next
     buttonNextAxis = new QPushButton("Next");
@@ -184,12 +181,12 @@ void PVInspector::PVXmlParamWidgetBoardAxis::draw(){
     
     //alloc
     QVBoxLayout *layoutParam=new QVBoxLayout();
-    QVBoxLayout *layoutValues=new QVBoxLayout();
+    //QVBoxLayout *layoutValues=new QVBoxLayout();
     QVBoxLayout *tabGeneral = createTab("General",tabParam);
     QVBoxLayout *tabParameter = createTab("Parameter",tabParam);
     QVBoxLayout *tabTimeFormat = createTab("Time Format",tabParam);
     QWidget *widgetTabAndNext = new QWidget(this);
-    QWidget *widgetValues = new QWidget(this);
+    //QWidget *widgetValues = new QWidget(this);
     QHBoxLayout *layoutRoot = new QHBoxLayout(this);
     
     //QVBoxLayout *tabValuesApplied = createTab("Values applied",tabParam);
@@ -202,9 +199,9 @@ void PVInspector::PVXmlParamWidgetBoardAxis::draw(){
     layoutRoot->addWidget(widgetTabAndNext);
     layoutParam->setContentsMargins(0,0,0,0);
     widgetTabAndNext->setLayout(layoutParam);
-    layoutRoot->addWidget(widgetValues);
-    layoutValues->setContentsMargins(0,0,0,0);
-    widgetValues->setLayout(layoutValues);
+//    layoutRoot->addWidget(widgetValues);
+//    layoutValues->setContentsMargins(0,0,0,0);
+//    widgetValues->setLayout(layoutValues);
     
     layoutParam->addWidget(tabParam);
     
@@ -247,8 +244,8 @@ void PVInspector::PVXmlParamWidgetBoardAxis::draw(){
     tabParameter->addSpacerItem(new QSpacerItem(1,1,QSizePolicy::Expanding, QSizePolicy::Expanding));
     
     //***** view values from parent regexp *****
-    layoutValues->addWidget(new QLabel("Values form parent regexp.\n(click on RegExp if it's empty\nand be sure that there is\na text validator for the regexp.)"));
-    layoutValues->addWidget(tableValueFromParentRegExp);
+//    layoutValues->addWidget(new QLabel("Values form parent regexp.\n(click on RegExp if it's empty\nand be sure that there is\na text validator for the regexp.)"));
+//    layoutValues->addWidget(tableValueFromParentRegExp);
 
     //button next
     layoutParam->addWidget(buttonNextAxis);
@@ -398,58 +395,6 @@ QStringList PVInspector::PVXmlParamWidgetBoardAxis::getListTypePlotting(const QS
     return ret;
 }
 
-/******************************************************************************
- *
- * PVInspector::PVXmlParamWidgetBoardAxis::refreshTableValuesParent
- *
- *****************************************************************************/
-void PVInspector::PVXmlParamWidgetBoardAxis::refreshTableValuesParent(){
-    
-    if(node->getParent()==0){//parent is null
-        return;
-    }
-    if(node->getParent()->getParent()==0){//grand parent is null
-	return;
-    }
-    PVRush::PVXmlTreeNodeDom *parent = node->getParent();
-    PVRush::PVXmlTreeNodeDom *grandParent = parent->getParent();
-    switch(grandParent->type){
-      case PVRush::PVXmlTreeNodeDom::RegEx:{//case if grand parent is a regexp...
-	      QString text;
-	      //number of the selection on regexp
-	      int idSel = parent->getRow();
-	      //get the regexp applied
-	      PVLOG_INFO("PVXmlParamWidgetBoardAxis::refreshTableValuesParent() regexp :\n%s\n", qPrintable(grandParent->attribute("expression",true)));
-	      QRegExp regexp = QRegExp(grandParent->attribute("expression",true));
-	      //get the validator
-	      QStringList myText = grandParent->attribute("validator",false).split("\n");
-	      text+="<body>\n<table>\n";
-	      for (int line = 0; line < myText.size(); line++) {//for each line...
-		  QString myLine = myText.at(line);
-		  if (regexp.exactMatch(myLine)) {
-		      //process the regexp to get the good values
-		      regexp.indexIn(myLine, 0);
-		      //update update an item of the table of values from parent regexp.
-		      text+="	<tr><td>";
-		      if(regexp.cap(idSel+1).count()>=1){//if cap is not empty...
-			  text+=regexp.cap(idSel+1);
-		      }else{//if cap is empty...
-			  text+="&nbsp;";//write sapce char
-		      }
-		      text+="</td></tr>\n";
-		  }else{
-		      PVLOG_INFO("no matched (%d,%d): %s\n",line, idSel,qPrintable(myLine));
-		  }
-	      }
-	      text+="</table>\n</body>\n";
-	      //set color
-	      tableValueFromParentRegExp->document()->setDefaultStyleSheet("td {\nbackground-color:#d0e0ea;border: 1;\n}\nbody{\nbackground-color:#e6e8e9;\n}\n");
-	      //push the text in the edit text
-	      tableValueFromParentRegExp->setHtml(text);
-	  }break;//...end case if grand parent is a regexp
-      default :break;
-    }
-}
 
 /******************************************************************************
  *
