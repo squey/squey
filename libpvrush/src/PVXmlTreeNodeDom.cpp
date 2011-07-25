@@ -761,11 +761,8 @@ void PVRush::PVXmlTreeNodeDom::updateFiltersDataDisplay()
 	if (splitterPlugin) {
 		splitterPlugin->update_data_display();
 	}
-	if (getDom().tagName() == "splitter" && attribute("type", "") == "regexp") {
-		_data_for_regexp.clear();
-	}
 
 	for (size_t ichild = 0; ichild < getChildren().size(); ichild++) {
-		getChild(ichild)->clearFiltersData();
+		getChild(ichild)->updateFiltersDataDisplay();
 	}
 }
