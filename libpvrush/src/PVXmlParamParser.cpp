@@ -113,9 +113,10 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id)
 
 				for (size_t i = 0; i < nchilds; i++) {
 					QDomElement child(node.childNodes().at(i).toElement());
+					PVRush::PVXmlParamParserData data;
+					data.nchildren = nchilds;
 
 					if (getNodeType(child) == "RegEx") {
-						PVRush::PVXmlParamParserData data;
 						data.axis_id = newId;
 						data.filter_lib = filters_lib.get_filter_by_name("splitter_regexp");
 						if (!data.filter_lib) {
@@ -126,7 +127,6 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id)
 					}
 					else
 					if (getNodeType(child) == "url") {
-						PVRush::PVXmlParamParserData data;
 						data.axis_id = newId;
 						data.filter_lib = filters_lib.get_filter_by_name("splitter_url");
 						if (!data.filter_lib) {
@@ -136,7 +136,6 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id)
 					}
 					else
 					if (getNodeType(child) == "pcap") {
-						PVRush::PVXmlParamParserData data;
 						data.axis_id = newId;
 						data.filter_lib = filters_lib.get_filter_by_name("splitter_pcap");
 						if (!data.filter_lib) {
@@ -146,7 +145,6 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id)
 					}
 					else
 					if (getNodeType(child) == "csv") {
-						PVRush::PVXmlParamParserData data;
 						data.axis_id = newId;
 						data.filter_lib = filters_lib.get_filter_by_name("splitter_csv");
 						if (!data.filter_lib) {
@@ -236,6 +234,7 @@ void PVRush::PVXmlParamParser::pushFilter(QDomElement const& elt, int newId)
 	if (!data.filter_lib) {
 		throw PVXmlParamParserExceptionPluginNotFound(node_type, filter_plugin_name);
 	}
+	data.nchildren = elt.childNodes().size();
 	PVRush::PVXmlTreeNodeDom tnd(elt);
 	tnd.toArgumentList(data.filter_lib->get_default_args(), data.filter_args);
 	fields.push_back(data);

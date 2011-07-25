@@ -24,6 +24,8 @@
 #include <QDomDocument>
 #include <QListWidget>
 
+
+
 #include <PVXmlDomModel.h>
 #include <PVXmlTreeView.h>
 #include <PVXmlParamWidget.h>
@@ -60,6 +62,7 @@ private:
     //
     QVBoxLayout *vbParam;
     QMenuBar *menuBar;
+
     //
     QFile logFile;///!< file we open to edit the format
     int lastSplitterPluginAdding;
@@ -152,6 +155,7 @@ public slots:
     void slotSave();
     void slotUpdateToolDesabled(const QModelIndex &);
 	void slotExtractorPreview();
+	void slotItemClickedInView(const QModelIndex &index);
 };
 
 }

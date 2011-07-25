@@ -18,6 +18,8 @@ public:
 	PVChunk *_parent;
 	PVElement *_elt;
 	buf_list_t _reallocated_buffers; // buf_list_t defined in PVBufferSlice.h
+	char* _org_buf;
+	size_t _org_buf_size;
 
 	~PVElementData()
 	{

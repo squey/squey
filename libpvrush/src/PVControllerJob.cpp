@@ -10,7 +10,7 @@
 
 PVRush::PVControllerJob::PVControllerJob(job_action a, int priority) :
 	_elt_valid_filter(true, _all_elts),
-	_elt_invalid_filter(true, _inv_elts),
+	_elt_invalid_filter(false, _inv_elts),
 	_f_nelts(&_job_done)
 {
 	_a = a;

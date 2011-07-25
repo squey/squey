@@ -31,6 +31,7 @@ PVRush::PVXmlTreeNodeDom::PVXmlTreeNodeDom(Type _type, const QString &_str, QDom
     parent = 0;
     isAlreadyExplored = false;
     isOnRoot = false;
+	_field_linear_id = -1;
 }
 
 
@@ -659,7 +660,6 @@ void PVRush::PVXmlTreeNodeDom::getChildrenFromField(PVCore::PVField const& field
 	QString str_copy(field.qstr().unicode(), field.qstr().size());
 
 	QString plugin_name = attribute("type", "");
-	PVLOG_INFO("(getChildrenFromField) splitter %s got field %s.\n", qPrintable(plugin_name), qPrintable(field.qstr()));
 
 	// Get the filter from the lib (because not everything is under plugins... :/)
 	PVFilter::PVFieldsSplitter_p filter_lib = LIB_FILTER(PVFilter::PVFieldsSplitter)::get().get_filter_by_name(plugin_name);
@@ -674,6 +674,9 @@ void PVRush::PVXmlTreeNodeDom::getChildrenFromField(PVCore::PVField const& field
 	PVCore::PVArgumentList args;
 	toArgumentList(filter_lib->get_default_args(), args);
 	filter_clone->set_args(args);
+
+	// Set the number of expected children
+	filter_clone->set_number_expected_fields(countChildren());
 
 	// Check if a number of children is forced
 	size_t force_nchild = 0;
@@ -699,7 +702,7 @@ void PVRush::PVXmlTreeNodeDom::getChildrenFromField(PVCore::PVField const& field
 	PVCore::list_fields lf;
 	lf.push_back(field);
 	PVCore::list_fields &lf_res = filter_clone->operator()(lf);
-	if (!field.valid()) {
+	if (!field.elt_parent()->valid()) {
 		// The filter failed, we can't do much from now.
 		PVLOG_INFO("(getChildrenFromField) splitter returns an invalid field.\n", qPrintable(plugin_name), lf_res.size());
 		if (force_nchild > 0) {
@@ -708,12 +711,9 @@ void PVRush::PVXmlTreeNodeDom::getChildrenFromField(PVCore::PVField const& field
 		return;
 	}
 
-	PVLOG_INFO("(getChildrenFromField) for splitter %s, we have %d fields.\n", qPrintable(plugin_name), lf_res.size());
-
 	// We got our number of children !
 	setNbr(lf_res.size());
 
-	PVLOG_INFO("(getChildrenFromField) for this splitter, force nchild = %d\n", force_nchild);
 	// If force_nchild > 0, set this number of child
 	if (force_nchild > 0) {
 		setNbr(force_nchild);
@@ -733,7 +733,6 @@ void PVRush::PVXmlTreeNodeDom::getChildrenFromField(PVCore::PVField const& field
 	PVCore::list_fields::iterator it_f = lf_res.begin();
 	for (size_t ichild = 0; ichild < lf_res.size(); ichild++) {
 		it_f->init_qstr();
-		PVLOG_INFO("(getChildrenFromField) pass field %s to child %d\n", qPrintable(it_f->qstr()), ichild);
 		getChild(ichild)->getChildrenFromField(*it_f);
 		it_f++;
 		if (it_f == lf_res.end()) {
@@ -761,11 +760,58 @@ void PVRush::PVXmlTreeNodeDom::updateFiltersDataDisplay()
 	if (splitterPlugin) {
 		splitterPlugin->update_data_display();
 	}
-	if (getDom().tagName() == "splitter" && attribute("type", "") == "regexp") {
-		_data_for_regexp.clear();
-	}
 
 	for (size_t ichild = 0; ichild < getChildren().size(); ichild++) {
-		getChild(ichild)->clearFiltersData();
+		getChild(ichild)->updateFiltersDataDisplay();
 	}
 }
+
+PVCol PVRush::PVXmlTreeNodeDom::updateFieldLinearId(PVCol id)
+{
+	size_t nchilds = getChildren().size();
+	if (getDom().tagName() == "field") {
+		if (nchilds == 0 || !hasSplitterAsChild()) {
+			_field_linear_id = id;
+			id++;
+		}
+		else {
+			_field_linear_id = -1;
+		}
+	}
+
+	for (size_t ichild = 0; ichild < nchilds; ichild++) {
+		id = getChild(ichild)->updateFieldLinearId(id);
+	}
+
+	// Return the id of the next field
+	return id;
+}
+
+bool PVRush::PVXmlTreeNodeDom::hasSplitterAsChild()
+{
+	for (size_t ichild = 0; ichild < getChildren().size(); ichild++) {
+		QString type = getChild(ichild)->typeToString();
+		if (type == "splitter" || type == "regexp" || type == "url") {
+			return true;
+		}
+	}
+	return false;
+}
+
+PVRush::PVXmlTreeNodeDom* PVRush::PVXmlTreeNodeDom::getFirstFieldParent()
+{
+	PVXmlTreeNodeDom* parent = getParent();
+	if (parent == NULL) {
+		// No more parent, so we can't find any parent field. Returns NULL
+		return NULL;
+	}
+
+	if (parent->typeToString() == "field" && parent->_field_linear_id != -1) {
+		// We got it !
+		return parent;
+	}
+
+	// Go & see what our parent has to say about this !
+	return parent->getFirstFieldParent();
+}
+

@@ -51,7 +51,7 @@ void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::allocBoardFields() {
     //tab regexp
     exp = new PVXmlParamWidgetEditorBox(QString("regexp"), new QVariant(node->getDom().attribute("regexp", ".*")));
     labelNbr = new QLabel("");
-    openLog = new QPushButton("Open a log");
+
     checkSaveValidLog = new QCheckBox("Save log sample in format file",this);
 
 	QString textVal;
@@ -168,7 +168,6 @@ void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::draw() {
     tabReg->addWidget(exp);
     //exp->setFocus();
     tabReg->addWidget(labelNbr);
-    tabReg->addWidget(openLog);
     tabReg->addWidget(checkSaveValidLog);
     tabReg->addWidget(validWidget);
     tabReg->addWidget(new QLabel("view of selection"));
@@ -191,14 +190,14 @@ void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::draw() {
  *
  *****************************************************************************/
 void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::exit() {
-  
+    PVLOG_DEBUG("slot PVInspector::PVXmlParamWidgetBoardSplitterRegEx::exit()\n");
   //open the confirmbox if we quit a regexp
     if (flagNeedConfirmAndSave && flagAskConfirmActivated) {
         if (confirmAndSave()) {
             slotSetConfirmedValues();
         }
         flagNeedConfirmAndSave = false;
-	flagAskConfirmActivated = false;
+        flagAskConfirmActivated = false;
     }
     
     disableConnexion();
@@ -218,11 +217,10 @@ void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::initConnexion() {
     connect(exp, SIGNAL(textChanged(const QString&)), validWidget, SLOT(setRegEx(const QString &)));//to update regexp
     connect(exp, SIGNAL(textChanged(const QString&)), this, SLOT(slotNoteConfirmationNeeded()));//to note that we need to confirm change
     connect(exp, SIGNAL(textChanged(const QString&)), this, SLOT(regExCount(const QString&)));//to update the numbre of field which are detected
-    connect(validWidget, SIGNAL(textChanged()), this, SLOT(slotNoteConfirmationNeeded()));//to note that we need to confirm change
+    //connect(validWidget, SIGNAL(textChanged()), this, SLOT(slotNoteConfirmationNeeded()));//to note that we need to confirm change
     connect(validWidget, SIGNAL(textChanged()), this, SLOT(slotUpdateTable()));//to update the text validator
     connect(checkSaveValidLog,SIGNAL(clicked(bool)),this,SLOT(slotSaveValidator(bool)));
     connect(checkSaveValidLog,SIGNAL(clicked(bool)),this,SLOT(slotSetConfirmedValues()));
-    connect(openLog, SIGNAL(clicked()), this, SLOT(slotOpenLogValid()));//to choose a log for the validator
     connect(btnApply, SIGNAL(clicked()), this, SLOT(slotSetConfirmedValues()));//to apply modification.
 }
 
@@ -237,14 +235,14 @@ void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::initValue() {
     //init the number of field detected with the regexp
     regExCount(exp->val().toString());
     //check or not the check box
-    if(node->attribute("saveValidator","").compare(QString("true"))==0){
-	flagSaveRegExpValidator=true;
-	checkSaveValidLog->setCheckState(Qt::Checked);
-	validWidget->setVal(node->attribute("validator",true));
-    }else{
-	flagSaveRegExpValidator=false;
-	checkSaveValidLog->setCheckState(Qt::Unchecked);
-	validWidget->setVal(node->attribute("validator",false));
+    if (node->attribute("saveValidator", "").compare(QString("true")) == 0) {
+        flagSaveRegExpValidator = true;
+        checkSaveValidLog->setCheckState(Qt::Checked);
+        validWidget->setVal(node->attribute("validator", true));
+    } else {
+        flagSaveRegExpValidator = false;
+        checkSaveValidLog->setCheckState(Qt::Unchecked);
+        validWidget->setVal(node->attribute("validator", false));
     }
 }
 
@@ -294,6 +292,7 @@ void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::regExCount(const QString &
  *
  *****************************************************************************/
 void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::slotNoteConfirmationNeeded() {
+    PVLOG_DEBUG("slot PVInspector::PVXmlParamWidgetBoardSplitterRegEx::slotNoteConfirmationNeeded()\n");
     flagNeedConfirmAndSave = true;//note that we need confirmation
 }
 
@@ -372,6 +371,7 @@ void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::slotShowTable(bool isVisib
  *
  *****************************************************************************/
 void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::slotVerifRegExpInName() {
+    PVLOG_DEBUG("PVInspector::PVXmlParamWidgetBoardSplitterRegEx::slotVerifRegExpInName\n");
   //char we want to detecte in the name
     QRegExp reg(".*(\\*|\\[|\\{|\\]|\\}).*");
     if (reg.exactMatch(name->text())) {//if there is

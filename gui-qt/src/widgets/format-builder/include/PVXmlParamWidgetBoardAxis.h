@@ -47,7 +47,6 @@ public:
     void draw();
     void initConnexion();
     void initValue();
-    void refreshTableValuesParent();
     void setHelp();
     
     

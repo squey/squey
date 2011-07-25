@@ -172,6 +172,12 @@ PVFilter::PVFieldsBaseFilter_f PVRush::PVFormat::xmldata_to_filter(PVRush::PVXml
 	assert(filter_lib);
 
 	PVFilter::PVFieldsBaseFilter_p filter_clone = filter_lib->clone<PVFilter::PVFieldsBaseFilter>();
+	// Check if this is a "one_to_many" filter, and, in such case, set the number of
+	// expected fields.
+	PVFilter::PVFieldsFilter<PVFilter::one_to_many>* sp_p = dynamic_cast<PVFilter::PVFieldsFilter<PVFilter::one_to_many>*>(filter_clone.get());
+	if (sp_p) {
+		sp_p->set_number_expected_fields(fdata.nchildren);
+	}
 	filter_clone->set_args(fdata.filter_args);
 	_filters_container.push_back(filter_clone);
 	field_f = filter_clone->f();

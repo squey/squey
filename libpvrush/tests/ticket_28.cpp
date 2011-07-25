@@ -1,4 +1,6 @@
 #include <pvrush/PVFormat.h>
+#include <pvfilter/PVPluginsLoad.h>
+#include <pvrush/PVPluginsLoad.h>
 #include <iostream>
 
 #include <sys/types.h>
@@ -6,10 +8,16 @@
 #include <fcntl.h>
 #include <errno.h>
 
+#include "test-env.h"
+
 #define FILES_DIR "test-files/tickets/28/"
 
 int main()
 {
+	init_env();
+	PVFilter::PVPluginsLoad::load_all_plugins();
+	PVRush::PVPluginsLoad::load_all_plugins();
+
 	PVRush::PVFormat format("org", FILES_DIR "field_enum.format");
 	format.populate();
 

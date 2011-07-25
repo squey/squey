@@ -893,3 +893,8 @@ void PVInspector::PVXmlDomModel::clearFiltersData()
 {
 	getRoot()->clearFiltersData();
 }
+
+void PVInspector::PVXmlDomModel::updateFieldsLinearId()
+{
+	getRoot()->updateFieldLinearId(0);
+}

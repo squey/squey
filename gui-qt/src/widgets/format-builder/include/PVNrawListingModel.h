@@ -26,14 +26,19 @@ public:
     int rowCount(const QModelIndex &index) const;
     int columnCount(const QModelIndex &index) const;
     Qt::ItemFlags flags(const QModelIndex &index) const;
+	void sel_visible(bool visible);
+	void set_selected_column(PVCol col);
 
 public:
 	void set_consistent(bool c);
+	bool is_consistent();
 	void set_nraw(PVRush::PVNraw const& nraw);
 
 protected:
 	const PVRush::PVNraw* _nraw;
 	bool _is_consistent;
+	PVCol _col_tosel;
+	bool _show_sel;
 };
 
 }
