@@ -103,9 +103,9 @@ public:
 	virtual void clear_filter_data() { _filter_data.clear(); }
 	virtual void push_data(QString const& data)
 	{
-		PVLOG_INFO("Filter received data %s\n", qPrintable(data));
 		_filter_data << data;
 	}
+
 	virtual QStringList const& get_data() const { return _filter_data; }
 
     fields_filter_type type() {

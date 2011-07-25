@@ -39,6 +39,7 @@ public:
 		PVFilterFunction<PVCore::list_fields, PVFieldsFilter<Ttype> >()
 	{
 		_type = Ttype;
+		_fields_expected = 0;
 	}
 public:
 	static fields_filter_type type() { return Ttype; };
@@ -50,6 +51,12 @@ public:
 
 	// Default interface (many-to-many)
 	virtual PVCore::list_fields& operator()(PVCore::list_fields &fields);
+
+	void set_number_expected_fields(size_t n)
+	{
+		PVLOG_DEBUG("(PVFieldsFilter) %d (0x%x): expected %d fields\n", Ttype, this, n);
+		_fields_expected = n;
+	}
 
 protected:
 	// Defines field interfaces
@@ -73,6 +80,8 @@ protected:
 
 protected:
 	fields_filter_type _type;
+	// Defines the number of expected children. 0 means that this information is unavailable.
+	size_t _fields_expected;
 };
 
 typedef PVFieldsFilter<>::base PVFieldsBaseFilter;

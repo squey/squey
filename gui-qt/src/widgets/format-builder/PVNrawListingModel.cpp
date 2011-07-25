@@ -62,3 +62,8 @@ void PVInspector::PVNrawListingModel::set_consistent(bool c)
 		emit layoutChanged();
 	}
 }
+
+bool PVInspector::PVNrawListingModel::is_consistent()
+{
+	return _is_consistent;
+}

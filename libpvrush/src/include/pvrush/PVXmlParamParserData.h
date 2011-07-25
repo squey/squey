@@ -18,9 +18,15 @@ namespace PVRush {
 class LibCoreDecl PVXmlParamParserData {
 
 public:    
+	PVXmlParamParserData()
+	{
+		// By default, the number of children is unknown.
+		nchildren = 0;
+	}
 	int axis_id;
 	PVFilter::PVFieldsFilterReg_p filter_lib;
 	PVCore::PVArgumentList filter_args;
+	size_t nchildren;
 };
 }
 #endif	/* PVXMLPARAMPARSERDATA_H */

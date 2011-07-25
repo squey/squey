@@ -12,6 +12,7 @@
 #include <PVInputTypeMenuEntries.h>
 
 #include <pvrush/PVSourceCreatorFactory.h>
+#include <pvrush/PVInput.h>
 #include <pvfilter/PVFieldSplitterChunkMatch.h>
 
 /******************************************************************************
@@ -491,37 +492,56 @@ void PVInspector::PVXmlEditorWidget::slotOpenLog()
 	if (!in_t->createWidget(formats, inputs, choosenFormat, this))
 		return; // This means that the user pressed the "cancel" button
 
-	// Get the first input selected
-	_log_input = inputs.front();
-	PVLOG_DEBUG("Input: %s\n", qPrintable(in_t->human_name_of_input(_log_input)));
+	_nraw_model->set_consistent(false);
+	try {
+		// Get the first input selected
+		_log_input = inputs.front();
+		PVLOG_DEBUG("Input: %s\n", qPrintable(in_t->human_name_of_input(_log_input)));
 
-	// Pre discover the input w/ the source creators
-	PVRush::list_creators::const_iterator itcr;
-	_log_sc.reset();
-	_log_input_type.reset();
-	for (itcr = lcr.begin(); itcr != lcr.end(); itcr++) {
-		PVRush::PVSourceCreator_p sc = *itcr;
-		if (sc->pre_discovery(_log_input)) {
-			_log_sc = sc;
-			break;
+		// Pre discover the input w/ the source creators
+		PVRush::list_creators::const_iterator itcr;
+		_log_sc.reset();
+		_log_input_type.reset();
+		for (itcr = lcr.begin(); itcr != lcr.end(); itcr++) {
+			PVRush::PVSourceCreator_p sc = *itcr;
+			if (sc->pre_discovery(_log_input)) {
+				_log_sc = sc;
+				break;
+			}
 		}
-	}
 
-	if (!_log_sc) {
-		QMessageBox box(QMessageBox::Critical, tr("Error"), tr("No input plugins can manage the source file '%1'. Aborting...").arg(in_t->human_name_of_input(_log_input)));
+		if (!_log_sc) {
+			_log_input = PVCore::PVArgument(); // No log input
+			QMessageBox box(QMessageBox::Critical, tr("Error"), tr("No input plugins can manage the source file '%1'. Aborting...").arg(in_t->human_name_of_input(_log_input)));
+			box.show();
+			return;
+		}
+
+		_log_input_type = in_t;
+
+		// First extraction
+		create_extractor();
+		if (is_dom_empty()) {
+			guess_first_splitter();
+		}
+
+		update_table(FORMATBUILDER_EXTRACT_START_DEFAULT, FORMATBUILDER_EXTRACT_END_DEFAULT);
+
+	}
+	catch (PVRush::PVInputException &e) {
 		_log_input = PVCore::PVArgument(); // No log input
+		QMessageBox err(QMessageBox::Critical, tr("Error"), tr("Error while importing a source: %1").arg(QString(e.what().c_str())));
+		err.show();
 		return;
 	}
 
-	_log_input_type = in_t;
-
-	// First extraction
-	create_extractor();
-	if (is_dom_empty()) {
-		guess_first_splitter();
+	if (!_nraw_model->is_consistent()) {
+		_nraw_model->set_consistent(true);
 	}
 
-	update_table(FORMATBUILDER_EXTRACT_START_DEFAULT, FORMATBUILDER_EXTRACT_END_DEFAULT);
+	// Tell the NRAW widget that the input has changed
+	_nraw_widget->set_last_input(_log_input_type, _log_input);
+	_nraw_widget->resize_columns_content();
 }
 
 void PVInspector::PVXmlEditorWidget::create_extractor()
@@ -620,7 +640,9 @@ void PVInspector::PVXmlEditorWidget::update_table(PVRow start, PVRow end)
 	}
 
 	assert(end > start);
-	_nraw_model->set_consistent(false);
+	if (_nraw_model->is_consistent()) {
+		_nraw_model->set_consistent(false);
+	}
 
 	// Here, two extractions are made.
 	// The first one use the aggregator of the extract to get the data through

@@ -77,6 +77,7 @@ PVFilter::PVFieldsSplitter_p PVFilter::PVFieldSplitterChunkMatch::get_match_on_i
 			PVLOG_DEBUG("(PVFieldSplitterChunkMatch) filter %s matches with %d fields\n with arguments:\n", qPrintable(it.key()), nfields);
 			PVCore::dump_argument_list(args);
 			ret = sp;
+			ret->set_number_expected_fields(nfields);
 			ret->set_args(args);
 			naxes = nfields;
 			break;
