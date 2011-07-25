@@ -152,6 +152,7 @@ public slots:
     void slotSave();
     void slotUpdateToolDesabled(const QModelIndex &);
 	void slotExtractorPreview();
+	void slotItemClickedInView(const QModelIndex &index);
 };
 
 }

@@ -91,3 +91,16 @@ void PVInspector::PVNrawListingWidget::resize_columns_content()
 {
 	_nraw_table->resizeColumnsToContents();
 }
+
+void PVInspector::PVNrawListingWidget::select_column(PVCol col)
+{
+	PVLOG_DEBUG("(PVNrawListingWidget) select column %d\n", col);
+	_nraw_model->set_selected_column(col);
+	_nraw_model->sel_visible(true);
+}
+
+void PVInspector::PVNrawListingWidget::unselect_column()
+{
+	PVLOG_DEBUG("(PVNrawListingWidget) select no column\n");
+	_nraw_model->sel_visible(false);
+}

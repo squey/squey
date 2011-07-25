@@ -157,6 +157,9 @@ void PVInspector::PVXmlEditorWidget::initConnexions() {
     //data has changed from tree 
     connect(myTreeModel, SIGNAL(dataChanged(const QModelIndex &, const QModelIndex& )), myTreeView, SLOT(slotDataHasChanged(const QModelIndex & , const QModelIndex & )));
     
+	// When an item is clicked in the tree view, auto-select the good axis in the mini-extractor
+	connect(myTreeView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(slotItemClickedInView(const QModelIndex &)));
+	
 
     /*
      * Connexions for the toolBar.
@@ -684,7 +687,7 @@ void PVInspector::PVXmlEditorWidget::update_table(PVRow start, PVRow end)
 
 	_nraw_model->set_consistent(true);
 
-	// Set the update lines widget
+	// Set the invalid lines widget
 	_inv_lines_widget->clear();
 	QStringList& elts_invalid = job->get_invalids_elts();
 	QStringList::iterator it_ie;
@@ -705,4 +708,38 @@ bool PVInspector::PVXmlEditorWidget::is_dom_empty()
 {
 	QDomElement const& rootDom = myTreeModel->getRootDom();
 	return !rootDom.hasChildNodes();
+}
+
+void PVInspector::PVXmlEditorWidget::slotItemClickedInView(const QModelIndex &index)
+{
+	// Automatically set the good columns in the mini-extractor
+	
+	// Get the PVXmlTreeNodeDom object that comes with that index
+    PVRush::PVXmlTreeNodeDom *node = myTreeModel->nodeFromIndex(index);
+
+	// If this is the root item, do nothing.
+	if (!node || node == myTreeModel->getRoot()) {
+		_nraw_widget->unselect_column();
+		return;
+	}
+	
+	// Then, update the linear fields id in PVXmlTreeNode's tree.
+	myTreeModel->updateFieldsLinearId();
+	
+	// If this is not a field, get the parent field
+	if (node->typeToString() != "field") {
+		node = node->getFirstFieldParent();
+		// If it can't find any field parent, just return.
+		// (but this is weird, that should not happen)
+		if (!node) {
+			_nraw_widget->unselect_column();
+			return;
+		}
+	}
+	
+	// Then get that field's linear id
+	PVCol field_id = node->getFieldLinearId();
+	
+	// And tell that to the mini-extractor widget
+	_nraw_widget->select_column(field_id);
 }

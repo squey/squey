@@ -31,6 +31,7 @@ PVRush::PVXmlTreeNodeDom::PVXmlTreeNodeDom(Type _type, const QString &_str, QDom
     parent = 0;
     isAlreadyExplored = false;
     isOnRoot = false;
+	_field_linear_id = 0;
 }
 
 
@@ -764,3 +765,36 @@ void PVRush::PVXmlTreeNodeDom::updateFiltersDataDisplay()
 		getChild(ichild)->updateFiltersDataDisplay();
 	}
 }
+
+PVCol PVRush::PVXmlTreeNodeDom::updateFieldLinearId(PVCol id)
+{
+	if (getDom().tagName() == "field") {
+		_field_linear_id = id;
+		id++;
+	}
+
+	for (size_t ichild = 0; ichild < getChildren().size(); ichild++) {
+		id = getChild(ichild)->updateFieldLinearId(id);
+	}
+
+	// Return the id of the next field
+	return id;
+}
+
+PVRush::PVXmlTreeNodeDom* PVRush::PVXmlTreeNodeDom::getFirstFieldParent()
+{
+	PVXmlTreeNodeDom* parent = getParent();
+	if (parent == NULL) {
+		// No more parent, so we can't find any parent field. Returns NULL
+		return NULL;
+	}
+
+	if (parent->typeToString() == "field") {
+		// We got it !
+		return parent;
+	}
+
+	// Go & see what our parent has to say about this !
+	return parent->getFirstFieldParent();
+}
+

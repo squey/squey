@@ -138,6 +138,7 @@ public:
 
 	void processChildrenWithField(PVCore::PVField const& field);
 	void clearFiltersData();
+	void updateFieldsLinearId();
     
 private:
 	static void setDefaultAttributesForAxis(QDomElement& elt);

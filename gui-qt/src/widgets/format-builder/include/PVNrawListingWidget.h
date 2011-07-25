@@ -25,6 +25,8 @@ public:
 	void get_ext_args(PVRow& start, PVRow& end);
 	void set_last_input(PVRush::PVInputType_p in_t = PVRush::PVInputType_p(), PVCore::PVArgument input = PVCore::PVArgument());
 	void resize_columns_content();
+	void unselect_column();
+	void select_column(PVCol col);
 
 protected:
 	PVNrawListingModel* _nraw_model;

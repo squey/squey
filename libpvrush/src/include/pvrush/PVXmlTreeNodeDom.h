@@ -220,6 +220,12 @@ public:
     bool isOnRoot;
 
 	QStringList getDataForRegexp() { return _data_for_regexp; }
+
+	PVCol updateFieldLinearId(PVCol id);
+
+	PVCol getFieldLinearId() const { return _field_linear_id; }
+
+	PVXmlTreeNodeDom* getFirstFieldParent();
     
 private:
     QDomDocument xmlFile;
@@ -264,6 +270,9 @@ private:
 
 	// AG: still the same saturday morning hack
 	QStringList _data_for_regexp;
+
+	// Id of a field, when the pipeline of filter is linearised
+	PVCol _field_linear_id;
     
 public slots:
     void slot_update(){
