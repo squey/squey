@@ -538,7 +538,9 @@ void PVInspector::PVXmlEditorWidget::slotOpenLog()
 		_nraw_model->set_consistent(true);
 	}
 
+	// Tell the NRAW widget that the input has changed
 	_nraw_widget->set_last_input(_log_input_type, _log_input);
+	_nraw_widget->resize_columns_content();
 }
 
 void PVInspector::PVXmlEditorWidget::create_extractor()

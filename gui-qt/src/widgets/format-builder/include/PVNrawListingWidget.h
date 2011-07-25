@@ -8,6 +8,7 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QLabel>
+#include <QTableView>
 
 namespace PVInspector {
 
@@ -23,6 +24,7 @@ public:
 	void connect_preview(QObject* receiver, const char* slot);
 	void get_ext_args(PVRow& start, PVRow& end);
 	void set_last_input(PVRush::PVInputType_p in_t = PVRush::PVInputType_p(), PVCore::PVArgument input = PVCore::PVArgument());
+	void resize_columns_content();
 
 protected:
 	PVNrawListingModel* _nraw_model;
@@ -30,6 +32,7 @@ protected:
 	QLineEdit* _ext_end;
 	QPushButton* _btn_preview;
 	QLabel* _src_label; 
+	QTableView* _nraw_table;
 };
 
 }
