@@ -59,6 +59,17 @@ Picviz::PVLayer & Picviz::PVLayer::operator=(const PVLayer & rhs)
 
 /******************************************************************************
  *
+ * Picviz::PVLayer::A2B_copy_restricted_by_selection_and_nelts
+ *
+ *****************************************************************************/
+void Picviz::PVLayer::A2B_copy_restricted_by_selection_and_nelts(PVLayer &b, PVSelection const& selection, pvrow nelts)
+{
+	get_lines_properties().A2B_copy_restricted_by_selection_and_nelts(b.get_lines_properties(), selection, nelts);
+	b.get_selection() &= get_selection();
+}
+
+/******************************************************************************
+ *
  * Picviz::PVLayer::reset_to_empty_and_default_color
  *
  *****************************************************************************/
