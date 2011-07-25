@@ -3,6 +3,8 @@
 #include <QPushButton>
 #include <QMessageBox>
 
+#include <picviz/PVStateMachine.h>
+
 #include "PVMainWindow.h"
 #include "PVLayerFilterProcessWidget.h"
 
@@ -58,21 +60,39 @@ void PVInspector::PVLayerFilterProcessWidget::connect_btns()
 }
 
 void PVInspector::PVLayerFilterProcessWidget::save_Slot()
-{
-	if (!_has_apply || args_changed()) {
-		// If it hasn't changed or if the args has changed, process the filter.
-		if (!process()) {
-			// It has been canceled, so don't close the window !
-			return;
-		}
+{	
+
+	if (_has_apply) {
+		// We test if we haven't made a selection different from the one we previewed
+		if ((_view->state_machine->get_square_area_mode() != Picviz::PVStateMachine::AREA_MODE_OFF) || args_changed()) {
+			if (!process()) {
+				// It has been canceled, so don't close the window !
+				return;
+			}
+		}		
 	}
 
 	// Save in current layer
 	Picviz::PVLayer &current_selected_layer = _view->layer_stack.get_selected_layer();
 	/* We fill it's lines_properties */
+	// _view->post_filter_layer.A2B_copy_restricted_by_selection_and_nelts(current_selected_layer, _view->real_output_selection, _view->row_count);
+
+	// we change current layer's lines properties with post filter layer's lines properties
 	_view->output_layer.get_lines_properties().A2B_copy_restricted_by_selection_and_nelts(current_selected_layer.get_lines_properties(), _view->real_output_selection, _view->row_count);
+	// we just process the layer stack
+	_view->process_layer_stack();
+	// we deactivate the square area
+	_view->state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_OFF);
+	// we apply the selection
+	_view->process_selection();
+	// we use the selection of post filter layer
+	_view->pre_filter_layer.get_selection() = _view->post_filter_layer.get_selection();
+	_view->process_from_filter();
+
+	// We select lines
+	// _view->output_layer.get_lines_properties().A2B_copy_restricted_by_selection_and_nelts(current_selected_layer.get_lines_properties(), _view->real_output_selection, _view->row_count);
 	/* We need to process the view from the layer_stack */
-	_view->process_from_layer_stack();
+	// _view->process_from_layer_stack();
 	/* We refresh the PVView_p */
 	_tab->get_main_window()->update_pvglview(_view, PVGL_COM_REFRESH_SELECTION|PVGL_COM_REFRESH_COLOR);
 	_tab->refresh_listing_Slot();
@@ -111,8 +131,9 @@ bool PVInspector::PVLayerFilterProcessWidget::process()
 
 	// We made it ! :)
 	PVLOG_DEBUG("Filtering action performed\n");
-	_view->pre_filter_layer = _view->post_filter_layer;
-	_view->state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
+	// _view->pre_filter_layer = _view->post_filter_layer;
+	// _view->state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
+	_view->state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_OFF);
 
 	// We reprocess the pipeline from the eventline stage
 	_view->process_from_eventline();

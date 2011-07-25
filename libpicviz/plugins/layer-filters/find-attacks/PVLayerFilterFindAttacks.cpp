@@ -32,9 +32,6 @@ Picviz::PVLayerFilterFindAttacks::PVLayerFilterFindAttacks(PVCore::PVArgumentLis
 	nessus_sigs_path = pvconfig.value("layer-filter-attack-finder/nessus_sigs_path").toString();
 	PVLOG_INFO("[%s] Nessus plugins path: '%s'\n", __FUNCTION__, qPrintable(nessus_sigs_path));
 
-	return;
-
-
 	PVLOG_INFO("[%s] Indexing Snort data...\n", __FUNCTION__);
 	QDir snort_dir(snort_sigs_path);
 	snort_dir.setFilter(QDir::Files | QDir::NoSymLinks);
