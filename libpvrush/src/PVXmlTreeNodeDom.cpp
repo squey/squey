@@ -31,7 +31,7 @@ PVRush::PVXmlTreeNodeDom::PVXmlTreeNodeDom(Type _type, const QString &_str, QDom
     parent = 0;
     isAlreadyExplored = false;
     isOnRoot = false;
-	_field_linear_id = 0;
+	_field_linear_id = -1;
 }
 
 
@@ -768,17 +768,34 @@ void PVRush::PVXmlTreeNodeDom::updateFiltersDataDisplay()
 
 PVCol PVRush::PVXmlTreeNodeDom::updateFieldLinearId(PVCol id)
 {
+	size_t nchilds = getChildren().size();
 	if (getDom().tagName() == "field") {
-		_field_linear_id = id;
-		id++;
+		if (nchilds == 0 || !hasSplitterAsChild()) {
+			_field_linear_id = id;
+			id++;
+		}
+		else {
+			_field_linear_id = -1;
+		}
 	}
 
-	for (size_t ichild = 0; ichild < getChildren().size(); ichild++) {
+	for (size_t ichild = 0; ichild < nchilds; ichild++) {
 		id = getChild(ichild)->updateFieldLinearId(id);
 	}
 
 	// Return the id of the next field
 	return id;
+}
+
+bool PVRush::PVXmlTreeNodeDom::hasSplitterAsChild()
+{
+	for (size_t ichild = 0; ichild < getChildren().size(); ichild++) {
+		QString type = getChild(ichild)->typeToString();
+		if (type == "splitter" || type == "regexp" || type == "url") {
+			return true;
+		}
+	}
+	return false;
 }
 
 PVRush::PVXmlTreeNodeDom* PVRush::PVXmlTreeNodeDom::getFirstFieldParent()
@@ -789,7 +806,7 @@ PVRush::PVXmlTreeNodeDom* PVRush::PVXmlTreeNodeDom::getFirstFieldParent()
 		return NULL;
 	}
 
-	if (parent->typeToString() == "field") {
+	if (parent->typeToString() == "field" && parent->_field_linear_id != -1) {
 		// We got it !
 		return parent;
 	}

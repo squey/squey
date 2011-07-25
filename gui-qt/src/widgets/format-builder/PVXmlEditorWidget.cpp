@@ -719,7 +719,7 @@ void PVInspector::PVXmlEditorWidget::slotItemClickedInView(const QModelIndex &in
     PVRush::PVXmlTreeNodeDom *node = myTreeModel->nodeFromIndex(index);
 
 	// If this is the root item, do nothing.
-	if (!node || node == myTreeModel->getRoot()) {
+	if (!node || node->getParent() == NULL) {
 		_nraw_widget->unselect_column();
 		return;
 	}
@@ -728,7 +728,7 @@ void PVInspector::PVXmlEditorWidget::slotItemClickedInView(const QModelIndex &in
 	myTreeModel->updateFieldsLinearId();
 	
 	// If this is not a field, get the parent field
-	if (node->typeToString() != "field") {
+	if (node->typeToString() != "field" || node->getFieldLinearId() == -1) {
 		node = node->getFirstFieldParent();
 		// If it can't find any field parent, just return.
 		// (but this is weird, that should not happen)

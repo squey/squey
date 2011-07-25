@@ -226,6 +226,8 @@ public:
 	PVCol getFieldLinearId() const { return _field_linear_id; }
 
 	PVXmlTreeNodeDom* getFirstFieldParent();
+	
+	bool hasSplitterAsChild();
     
 private:
     QDomDocument xmlFile;
@@ -271,8 +273,10 @@ private:
 	// AG: still the same saturday morning hack
 	QStringList _data_for_regexp;
 
-	// Id of a field, when the pipeline of filter is linearised
-	PVCol _field_linear_id;
+	// Id of a field, when the pipeline of filter is linearised. If this id equals to -1
+	// it means that it has children !
+	// TODO: list the ids of the children, so that they will be selected !
+	ssize_t _field_linear_id;
     
 public slots:
     void slot_update(){

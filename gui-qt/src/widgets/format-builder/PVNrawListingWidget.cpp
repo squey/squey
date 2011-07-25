@@ -3,6 +3,7 @@
 
 #include <QLabel>
 #include <QVBoxLayout>
+#include <QPoint>
 
 #include <pvcore/general.h>
 
@@ -97,6 +98,11 @@ void PVInspector::PVNrawListingWidget::select_column(PVCol col)
 	PVLOG_DEBUG("(PVNrawListingWidget) select column %d\n", col);
 	_nraw_model->set_selected_column(col);
 	_nraw_model->sel_visible(true);
+
+	// Scroll to that column, but keep the current row
+	QModelIndex first_visible_idx = _nraw_table->indexAt(QPoint(0,0));
+	QModelIndex col_idx = _nraw_model->index(first_visible_idx.row(), col);
+	_nraw_table->scrollTo(col_idx, QAbstractItemView::PositionAtTop);
 }
 
 void PVInspector::PVNrawListingWidget::unselect_column()
