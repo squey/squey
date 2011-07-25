@@ -13,6 +13,11 @@ PVInspector::PVNrawListingWidget::PVNrawListingWidget(PVNrawListingModel* nraw_m
 {
 	QVBoxLayout* main_layout = new QVBoxLayout();
 
+	// Current source display
+	QHBoxLayout* src_layout = new QHBoxLayout();
+	_src_label = new QLabel();
+	src_layout->addWidget(_src_label);
+
 	// NRAW table view
 	QTableView* nraw_table = new QTableView();
 	nraw_table->setModel(_nraw_model);
@@ -41,10 +46,13 @@ PVInspector::PVNrawListingWidget::PVNrawListingWidget(PVNrawListingModel* nraw_m
 
 	_btn_preview = new QPushButton("Preview");
 	ext_layout->addWidget(_btn_preview);
-        _btn_preview->setAutoDefault ( false );
+	_btn_preview->setAutoDefault(false);
 
+	main_layout->addItem(src_layout);	
 	main_layout->addWidget(nraw_table);
 	main_layout->addItem(ext_layout);
+
+	set_last_input();
 
 	setLayout(main_layout);
 }
@@ -64,4 +72,18 @@ void PVInspector::PVNrawListingWidget::get_ext_args(PVRow& start, PVRow& end)
 	if (end <= start) {
 		start = 0;
 	}
+}
+
+void PVInspector::PVNrawListingWidget::set_last_input(PVRush::PVInputType_p in_t, PVCore::PVArgument input)
+{
+	if (!in_t) {
+		_src_label->hide();
+		_btn_preview->setEnabled(false);
+		return;
+	}
+	QString txt = tr("This is a preview of the normalisation process for the input ");
+	txt += in_t->human_name_of_input(input);
+	_src_label->setText(txt);
+	_src_label->show();
+	_btn_preview->setEnabled(true);
 }

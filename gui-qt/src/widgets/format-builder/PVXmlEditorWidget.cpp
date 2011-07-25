@@ -537,6 +537,8 @@ void PVInspector::PVXmlEditorWidget::slotOpenLog()
 	if (!_nraw_model->is_consistent()) {
 		_nraw_model->set_consistent(true);
 	}
+
+	_nraw_widget->set_last_input(_log_input_type, _log_input);
 }
 
 void PVInspector::PVXmlEditorWidget::create_extractor()
