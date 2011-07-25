@@ -70,6 +70,10 @@ void PVInspector::PVLayerFilterProcessWidget::save_Slot()
 				return;
 			}
 		}		
+	} else {
+		if (!process()) {
+			return;
+		}
 	}
 
 	// Save in current layer
