@@ -24,6 +24,8 @@
 #include <QDomDocument>
 #include <QListWidget>
 
+
+
 #include <PVXmlDomModel.h>
 #include <PVXmlTreeView.h>
 #include <PVXmlParamWidget.h>
@@ -60,6 +62,7 @@ private:
     //
     QVBoxLayout *vbParam;
     QMenuBar *menuBar;
+
     //
     QFile logFile;///!< file we open to edit the format
     int lastSplitterPluginAdding;
