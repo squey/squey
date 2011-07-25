@@ -37,9 +37,9 @@ PVCore::PVChunk* PVFilter::PVChunkFilterByEltSaveInvalid::operator()(PVCore::PVC
 	{
 		PVCore::PVElement &elt = _elt_filter(*it);
 		if (elt.valid()) {
-			it++;
 			nelts_valid++;
 		}
+		it++;
 	}
 	chunk->set_elts_stat(nelts, nelts_valid);
 	return chunk;
