@@ -7,13 +7,16 @@
 #include <pvfilter/PVFieldsFilter.h>
 
 #include <QWidget>
+#include <QObject>
 #include <QString>
 #include <QStringList>
 #include <QObject>
 
 namespace PVFilter {
 
-class PVFieldsFilterParamWidgetBase : public PVCore::PVRegistrableClass<PVFieldsFilterParamWidgetBase> {
+class PVFieldsFilterParamWidgetBase : public QObject, public PVCore::PVRegistrableClass<PVFieldsFilterParamWidgetBase> {
+	Q_OBJECT
+
 public:
     typedef boost::shared_ptr< PVFieldsFilterParamWidgetBase > p_type;
 public:
@@ -26,15 +29,29 @@ public:
     virtual QAction* get_action_menu() = 0;
     virtual void set_id(int id) = 0;
     virtual QString get_xml_tag() = 0;
-    virtual QObject* get_as_qobject() = 0;
     virtual PVCore::PVArgumentList get_default_argument() = 0;
-    virtual void set_child_count(int count) = 0;
-    virtual int get_child_new_num() = 0;
 	virtual size_t force_number_children() = 0;
+	virtual void set_child_count(size_t count) = 0;
+	virtual size_t get_child_count() = 0;
 	virtual void clear_filter_data() = 0;
 	virtual void push_data(QString const& data) = 0;
 	virtual QStringList const& get_data() const = 0;
 	virtual void update_data_display() = 0;
+
+public:
+	void connect_to_args_changed(QObject* dst, const char* slot)
+	{
+		connect(this, SIGNAL(args_changed_Signal()), dst, slot);
+	}
+	
+	void connect_to_nchilds_changed(QObject* dst, const char* slot)
+	{
+		connect(this, SIGNAL(nchilds_changed_Signal()), dst, slot);
+	}
+
+signals:
+	void args_changed_Signal();
+	void nchilds_changed_Signal();
 };
 
 typedef boost::shared_ptr<PVFieldsFilterParamWidgetBase> PVFieldsFilterParamWidgetBase_p;
@@ -68,10 +85,6 @@ public:
         return NULL;
     }
 
-    QObject* get_as_qobject() {
-        return NULL;
-    }
-
 	void update_data_display() { }
 
 	// Force the number of children. Returns 0 if no forcing is done.
@@ -95,10 +108,6 @@ public:
 
     void set_id(int /*id*/) {
     }
-    
-    void set_child_count(int ) {}
-    
-    int get_child_new_num() {return 0;}
 
 	virtual void clear_filter_data() { _filter_data.clear(); }
 	virtual void push_data(QString const& data)
@@ -116,10 +125,15 @@ public:
         return _filter->type_name();
     }
 
+	virtual void set_child_count(size_t count) { _nchilds = count; }
+	// That should be "type-specific" and returns 0 for a field filter !
+	virtual size_t get_child_count() { return _nchilds; }
+
 protected:
     PVFilter::fields_filter_type _type;
     filter_p _filter;
 	QStringList _filter_data;
+	size_t _nchilds;
 };
 
 typedef PVFieldsFilterParamWidget<PVFilter::one_to_many> PVFieldsSplitterParamWidget;

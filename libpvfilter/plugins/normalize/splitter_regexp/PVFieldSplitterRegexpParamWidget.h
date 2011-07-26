@@ -13,8 +13,8 @@
 
 namespace PVFilter {
 
-class PVFieldSplitterRegexpParamWidget: public QObject, public PVFieldsSplitterParamWidget {
-    Q_OBJECT;
+class PVFieldSplitterRegexpParamWidget: public PVFieldsSplitterParamWidget {
+    Q_OBJECT
 public:
     PVFieldSplitterRegexpParamWidget();
 

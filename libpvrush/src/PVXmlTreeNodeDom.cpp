@@ -814,4 +814,3 @@ PVRush::PVXmlTreeNodeDom* PVRush::PVXmlTreeNodeDom::getFirstFieldParent()
 	// Go & see what our parent has to say about this !
 	return parent->getFirstFieldParent();
 }
-
