@@ -678,6 +678,9 @@ void PVInspector::PVXmlEditorWidget::update_table(PVRow start, PVRow end)
 		ck = agg();
 	}
 
+	// Update the data displaying of the filter param widgers
+	myTreeModel->updateFiltersDataDisplay();
+
 	// Do the real extraction using the DOM we just updated
 	set_format_from_dom();
 	// Create the nraw thanks to the extractor
