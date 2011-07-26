@@ -130,6 +130,7 @@ void PVInspector::PVXmlParamWidget::drawForSplitter(PVRush::PVXmlTreeNodeDom *no
         assert(nodeSplitter);
         assert(nodeSplitter->getSplitterPlugin());
         QWidget *w = nodeSplitter->getParamWidget();
+        PVLOG_DEBUG("PVInspector::PVXmlParamWidget->objectName() =%s\n",qPrintable(w->objectName()));
         lesWidgetDuLayout.push_back(w);
         layout->addWidget(w);
         addListWidget();
@@ -344,7 +345,7 @@ void PVInspector::PVXmlParamWidget::edit(QModelIndex const& index) {
 		if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::filter) {
             PVLOG_DEBUG("PVInspector::PVXmlParamWidget::edit -> filter\n");
 			drawForFilter(nodeOnClick);
-		} else if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::RegEx || (splitter && ((nodeOnClick->attribute("type","") == "regexp") || nodeOnClick->attribute("type","") == "url"))) {
+		} else if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::RegEx ) {//|| (splitter && (nodeOnClick->attribute("type","") == "regexp"))
             PVLOG_DEBUG("PVInspector::PVXmlParamWidget::edit -> regex\n");
 			drawForRegEx(nodeOnClick);
 			//confirmApply = false;
