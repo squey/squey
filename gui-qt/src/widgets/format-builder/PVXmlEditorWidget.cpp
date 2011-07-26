@@ -16,6 +16,7 @@
 #include <pvrush/PVInput.h>
 #include <pvfilter/PVFieldSplitterChunkMatch.h>
 
+#define FORMAT_BUILDER_TITLE (QObject::tr("Format builder"))
 /******************************************************************************
  *
  * PVInspector::PVXmlEditorWidget::PVXmlEditorWidget
@@ -24,7 +25,7 @@
 PVInspector::PVXmlEditorWidget::PVXmlEditorWidget(QWidget * parent):
 	QDialog(parent)
 {
-	setWindowTitle("Format builder");
+	setWindowTitle(FORMAT_BUILDER_TITLE);
     
 	QSplitter* main_splitter = new QSplitter(Qt::Vertical);
     /*
@@ -148,6 +149,7 @@ void PVInspector::PVXmlEditorWidget::actionAllocation(){
     actionSave = new QAction("&Save",(QObject*)this);
     actionSave->setShortcut(QKeySequence(Qt::CTRL+Qt::Key_S));
     actionSave->setIcon(QIcon(":/save"));
+    actionSaveAs = new QAction("Save as...",(QObject*)this);
     actionDelete = new QAction("Delete",(QObject*)this);
     actionDelete->setShortcut(QKeySequence(Qt::Key_Delete));
     actionDelete->setIcon(QIcon(":/red-cross"));
@@ -161,7 +163,6 @@ void PVInspector::PVXmlEditorWidget::actionAllocation(){
     actionOpen = new QAction(tr("Open"),(QObject*)this);
     actionOpen->setShortcut(QKeySequence(Qt::CTRL+Qt::Key_O));
     actionOpen->setIcon(QIcon(":/document-open.png"));
-
 }
 
 
@@ -194,6 +195,7 @@ void PVInspector::PVXmlEditorWidget::initConnexions() {
     connect(actionMoveUp,SIGNAL(triggered()),this,SLOT(slotMoveUp()));
     connect(actionOpen,SIGNAL(triggered()),this,SLOT(slotOpen()));
     connect(actionSave, SIGNAL(triggered()), this, SLOT(slotSave()));
+    connect(actionSaveAs, SIGNAL(triggered()), this, SLOT(slotSaveAs()));
     connect(actionAddUrl, SIGNAL(triggered()), this, SLOT(slotAddUrl()));
     connect(myParamBord_old_model,SIGNAL(signalNeedApply()),this,SLOT(slotNeedApply()));
     connect(myParamBord_old_model,SIGNAL(signalSelectNext()),myTreeView,SLOT(slotSelectNext()));
@@ -385,11 +387,12 @@ void PVInspector::PVXmlEditorWidget::slotOpen() {
     QString urlFile = fd.getOpenFileName(0, QString("Select the file."), PVRush::normalize_get_helpers_plugins_dirs(QString("text")).first());
     QFile f(urlFile);
     if (f.exists()) {//if the file exists...
-        myTreeModel->openXml(urlFile); //open it
+        if (myTreeModel->openXml(urlFile)) {
+			_cur_file = urlFile;
+			setWindowTitleForFile(urlFile);
+		}
     }
 }
-
-
 
 
 /******************************************************************************
@@ -398,16 +401,49 @@ void PVInspector::PVXmlEditorWidget::slotOpen() {
  *
  *****************************************************************************/
 void PVInspector::PVXmlEditorWidget::slotSave() {
+	if (_cur_file.isEmpty()) {
+		slotSaveAs();
+		return;
+	}	
+
+	if (myTreeModel->saveXml(_cur_file)) {
+		return;
+	}
+
+	QMessageBox err(QMessageBox::Question, tr("Error while saving format"), tr("Unable to save the changes to %1. Do you want to save this format to another location ?").arg(_cur_file), QMessageBox::Yes | QMessageBox::No);
+	if (err.exec() == QMessageBox::No) {
+		return;
+	}
+
+	slotSaveAs();
+}
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVXmlEditorWidget::slotSaveAs
+ *
+ *****************************************************************************/
+void PVInspector::PVXmlEditorWidget::slotSaveAs() {
     QModelIndex index;
     myTreeView->applyModification(myParamBord_old_model,index);
     QFileDialog fd;
      //open file chooser
     QString urlFile = fd.getSaveFileName(0,QString("Select the file."),PVRush::normalize_get_helpers_plugins_dirs(QString("text")).first());
 	if (!urlFile.isEmpty()) {
-		myTreeModel->saveXml(urlFile); //save file
+		if (myTreeModel->saveXml(urlFile)) {
+			_cur_file = urlFile;
+			setWindowTitleForFile(urlFile);
+		}
 	}
 }
 
+void PVInspector::PVXmlEditorWidget::setWindowTitleForFile(QString const& path)
+{
+	// Change the window title with the filename of the format
+	QFileInfo fi(path);
+	setWindowTitle(FORMAT_BUILDER_TITLE + QString(" - ") + fi.fileName());
+}
 
 
 /******************************************************************************
@@ -479,6 +515,7 @@ void PVInspector::PVXmlEditorWidget::initMenuBar() {
         QMenu *file = menuBar->addMenu(tr("&File"));
         file->addAction(actionOpen);
         file->addAction(actionSave);
+        file->addAction(actionSaveAs);
         file->addSeparator();
 		PVInputTypeMenuEntries::add_inputs_to_menu(file, this, SLOT(slotOpenLog()));
         file->addSeparator();

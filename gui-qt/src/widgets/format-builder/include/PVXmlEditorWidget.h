@@ -83,7 +83,8 @@ private:
      */
     void initMenuBar();
     
-    
+	void setWindowTitleForFile(QString const& path);
+
     /**
      * init the toolsbar
      * @param vb
@@ -102,6 +103,7 @@ private:
     QAction *actionMoveDown;
     QAction *actionOpen;
     QAction *actionSave;
+    QAction *actionSaveAs;
     
     /**
      * init the splitters list, by listing the plugins found
@@ -136,6 +138,8 @@ protected:
 	// Invalid lines
 	QListWidget* _inv_lines_widget;
     
+protected:
+	QString _cur_file;
 
 public slots:
 
@@ -153,6 +157,7 @@ public slots:
     void slotOpen();
     void slotOpenLog();
     void slotSave();
+    void slotSaveAs();
     void slotUpdateToolDesabled(const QModelIndex &);
 	void slotExtractorPreview();
 	void slotItemClickedInView(const QModelIndex &index);
