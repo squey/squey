@@ -464,8 +464,7 @@ void PVInspector::PVXmlEditorWidget::initMenuBar() {
 
 
         QMenu *splitter = menuBar->addMenu(tr("&Splitter"));
-        splitter->addAction(actionAddUrl);
-        splitter->addAction(actionAddRegExAfter);    
+        splitter->addAction(actionAddUrl);  
         splitter->addSeparator();
         //add all plugins splitters
         for (int i = 0; i < _list_splitters.size(); i++) {

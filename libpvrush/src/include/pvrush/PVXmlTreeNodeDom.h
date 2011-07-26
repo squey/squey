@@ -288,6 +288,7 @@ public slots:
 	void slot_update_number_childs()
 	{
 		assert(splitterPlugin);
+        PVLOG_DEBUG("slot_update_number_childs with plugin %x\n", splitterPlugin.get());
 		setNbr(splitterPlugin->get_child_count());
 		emit data_changed();
 	}

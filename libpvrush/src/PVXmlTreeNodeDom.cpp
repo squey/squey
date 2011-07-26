@@ -686,13 +686,6 @@ void PVRush::PVXmlTreeNodeDom::getChildrenFromField(PVCore::PVField const& field
 		splitterPlugin->push_data(str_copy);
 	}
 	else
-	if (plugin_name == "regexp") {
-		QString exp = attribute("regexp", "");
-		QRegExp rx(exp);
-		force_nchild = rx.captureCount();
-		_data_for_regexp << str_copy;
-	}
-	else
 	if (plugin_name == "url") {
 		force_nchild = 6;
 	}
@@ -746,9 +739,7 @@ void PVRush::PVXmlTreeNodeDom::clearFiltersData()
 	if (splitterPlugin) {
 		splitterPlugin->clear_filter_data();
 	}
-	if (getDom().tagName() == "splitter" && attribute("type", "") == "regexp") {
-		_data_for_regexp.clear();
-	}
+
 
 	for (size_t ichild = 0; ichild < getChildren().size(); ichild++) {
 		getChild(ichild)->clearFiltersData();
@@ -791,7 +782,7 @@ bool PVRush::PVXmlTreeNodeDom::hasSplitterAsChild()
 {
 	for (size_t ichild = 0; ichild < getChildren().size(); ichild++) {
 		QString type = getChild(ichild)->typeToString();
-		if (type == "splitter" || type == "regexp" || type == "url") {
+		if (type == "splitter" || type == "url") {
 			return true;
 		}
 	}

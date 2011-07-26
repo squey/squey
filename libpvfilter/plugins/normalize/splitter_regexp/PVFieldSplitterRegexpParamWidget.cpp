@@ -19,7 +19,8 @@ PVFilter::PVFieldSplitterRegexpParamWidget::PVFieldSplitterRegexpParamWidget() :
 {
     PVLOG_DEBUG("constructor PVFieldSplitterRegexpParamWidget\n");
     action_menu = new QAction(QString("add RegExp Splitter"),NULL);
-    child_count = 0;
+ 
+    expressionChanged = false;
 }
 
 
@@ -29,7 +30,8 @@ PVFilter::PVFieldSplitterRegexpParamWidget::PVFieldSplitterRegexpParamWidget() :
  *
  *****************************************************************************/
 void PVFilter::PVFieldSplitterRegexpParamWidget::initWidget(){
-    expression_lineEdit = new QLineEdit();
+    PVCore::PVArgumentList l =  get_filter()->get_args();
+    expression_lineEdit = new QLineEdit(l["regexp"].toString());
     child_count_text = new QLabel("child count");
     validator_textEdit = new QTextEdit(get_data().join("\n"));
     table_validator_TableWidget = new QTableWidget();
@@ -78,16 +80,39 @@ QWidget* PVFilter::PVFieldSplitterRegexpParamWidget::get_param_widget()
     layout->addWidget(btn_apply);
     
     
-    connect(expression_lineEdit,SIGNAL(textChanged(QString)),this,SLOT(slotUpdateTableValidator()));
+    connect(expression_lineEdit,SIGNAL(textChanged(QString)),this,SLOT(slotExpressionChanged()));
     connect(validator_textEdit,SIGNAL(textChanged()),this,SLOT(slotUpdateTableValidator()));
 
-    
+    update_data_display();
+    slotUpdateTableValidator();
     return param_widget;
+}
+/******************************************************************************
+ *
+ * PVFilter::PVFieldSplitterRegexpParamWidget::slotExpressionChanged
+ *
+ *****************************************************************************/
+void PVFilter::PVFieldSplitterRegexpParamWidget::slotExpressionChanged(){
+    PVLOG_DEBUG("slotExpressionChanged() : PVFieldSplitterRegexpParamWidget: %x\n", this);
+    expressionChanged = true;
+    //child count
+    QRegExp reg = QRegExp(expression_lineEdit->text());
+    PVLOG_DEBUG("set_child_count(reg.captureCount()); %d\n",reg.captureCount());
+    set_child_count(reg.captureCount());
+    
+    PVCore::PVArgumentList l;
+    l["regexp"] = PVCore::PVArgument(expression_lineEdit->text());
+    get_filter()->set_args(l);
+    
+    emit args_changed_Signal();
+    emit nchilds_changed_Signal();
+    
+    slotUpdateTableValidator();
 }
 
 /******************************************************************************
  *
- * PVFilter::PVFieldSplitterRegexpParamWidget::get_param_widget
+ * PVFilter::PVFieldSplitterRegexpParamWidget::slotUpdateTableValidator
  *
  *****************************************************************************/
 void PVFilter::PVFieldSplitterRegexpParamWidget::slotUpdateTableValidator(){
@@ -126,7 +151,7 @@ void PVFilter::PVFieldSplitterRegexpParamWidget::slotUpdateTableValidator(){
 
 /******************************************************************************
  *
- * PVFilter::PVFieldSplitterRegexpParamWidget::get_param_widget
+ * PVFilter::PVFieldSplitterRegexpParamWidget::update_data_display
  *
  *****************************************************************************/
 void PVFilter::PVFieldSplitterRegexpParamWidget::update_data_display(){
