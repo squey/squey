@@ -46,7 +46,7 @@ namespace PVInspector{
 typedef QList<PVFilter::PVFieldsSplitterParamWidget_p> list_splitters_t;
 typedef QList<PVFilter::PVFieldsFilterParamWidget<PVFilter::one_to_one> > list_filters_t;
 
-class PVXmlEditorWidget : public QWidget{
+class PVXmlEditorWidget : public QDialog {
     Q_OBJECT
 public:
     PVXmlEditorWidget(QWidget * parent = NULL);

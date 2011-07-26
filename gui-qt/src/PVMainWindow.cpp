@@ -173,6 +173,12 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 
 	statusBar();
 	splash.finish(pv_ImportFileButton);
+
+
+	// Center the main window
+	QRect r = geometry();
+	r.moveCenter(QApplication::desktop()->screenGeometry(this).center());
+	setGeometry(r);
 }
 
 void PVInspector::PVMainWindow::closeEvent(QCloseEvent* event)

@@ -821,16 +821,8 @@ void PVInspector::PVMainWindow::whats_this_Slot()
  *
  *****************************************************************************/
 void PVInspector::PVMainWindow::file_format_builder_Slot() {
-    QDialog *editorWin=new QDialog();
-
     PVXmlEditorWidget *editorWidget = new PVXmlEditorWidget(this);
-    QVBoxLayout *layout = new QVBoxLayout();
-    layout->setMargin(0);
-    editorWin->setLayout(layout);
-    editorWin->layout()->addWidget(editorWidget);
-    editorWin->resize(700,500);
-    editorWin->move(50,50);
-    editorWin->exec();
+    editorWidget->show();
 }
 
 PVGL::PVCom* PVInspector::PVMainWindow::get_pvcom()

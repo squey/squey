@@ -4,6 +4,7 @@
 //! Copyright (C) Philippe Saadé 2011-2011
 //! Copyright (C) Picviz Labs 2011
 
+#include <QSplitter>
 
 #include <PVXmlEditorWidget.h>
 #include <PVXmlTreeItemDelegate.h>
@@ -20,10 +21,12 @@
  * PVInspector::PVXmlEditorWidget::PVXmlEditorWidget
  *
  *****************************************************************************/
-PVInspector::PVXmlEditorWidget::PVXmlEditorWidget(QWidget * parent):QWidget(parent) {
-        
-    setObjectName("PVXmlEditorWidget");
+PVInspector::PVXmlEditorWidget::PVXmlEditorWidget(QWidget * parent):
+	QDialog(parent)
+{
+	setWindowTitle("Format builder");
     
+	QSplitter* main_splitter = new QSplitter(Qt::Vertical);
     /*
      * ****************************************************************************
      * Création of graphics elements.
@@ -74,15 +77,22 @@ PVInspector::PVXmlEditorWidget::PVXmlEditorWidget(QWidget * parent):QWidget(pare
 	_nraw_widget = new PVNrawListingWidget(_nraw_model);
 	_nraw_widget->connect_preview(this, SLOT(slotExtractorPreview()));
 
+	// Put the vb layout into a widget and add it to the splitter
+	QWidget* vb_widget = new QWidget();
+	vb_widget->setLayout(vb);
+	main_splitter->addWidget(vb_widget);
+
 	// Tab widget for the NRAW
 	QTabWidget* nraw_tab = new QTabWidget();
 	nraw_tab->addTab(_nraw_widget, tr("Normalization preview"));
-	vb->addWidget(nraw_tab);
+	main_splitter->addWidget(nraw_tab);
 
 	_inv_lines_widget = new QListWidget();
 	nraw_tab->addTab(_inv_lines_widget, tr("Unmatched lines"));
 
-    setLayout(vb);
+	QVBoxLayout* main_layout = new QVBoxLayout();
+	main_layout->addWidget(main_splitter);
+    setLayout(main_layout);
     
     //setWindowModality(Qt::ApplicationModal);
     
@@ -94,7 +104,18 @@ PVInspector::PVXmlEditorWidget::PVXmlEditorWidget(QWidget * parent):QWidget(pare
     lastSplitterPluginAdding = -1;
     initConnexions();
     
-
+	// AG: here, that's a bit tricky. We want our widget to have a maximize button,
+	// but the only way to do that with Qt is to use setWindowFlag(Qt::Window).
+	// According to Qt's documentation (and source code), as we are originally a widget,
+	// this will set the pos of this window to absolute (0,0). That's not what we want,
+	// because we want it centered, according to the main window's position (our parent).
+	// So set the window flag and set the center os our gemotry to the center of our parent.
+	// Another issue is that we have no parent left, so we need to compute this with positions
+	// related to the desktop !
+	QRect geom = QRect(0,0,700,500);
+	setWindowFlags(Qt::Window);
+	geom.moveCenter(parent->geometry().center());
+	setGeometry(geom);
 }
 /******************************************************************************
  *
