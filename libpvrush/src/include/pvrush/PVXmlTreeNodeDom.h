@@ -135,13 +135,14 @@ public:
 
     void setSplitterPlugin(PVFilter::PVFieldsSplitterParamWidget_p plugin) {
         splitterPlugin = plugin;
-        QObject::connect(splitterPlugin->get_as_qobject(),SIGNAL(data_changed()),this,SLOT(slot_update()));
+		splitterPlugin->connect_to_args_changed(this, SLOT(slot_update()));
+		splitterPlugin->connect_to_nchilds_changed(this, SLOT(slot_update_number_childs()));
     }
 
     PVFilter::PVFieldsSplitterParamWidget_p getSplitterPlugin() {
         if(!splitterPlugin){
             createSplitterPlugin(xmlDomElement);
-            getSplitterPlugin()->set_child_count(countChildren());
+			splitterPlugin->set_child_count(countChildren());
         }
         return splitterPlugin;
     }
@@ -166,12 +167,10 @@ public:
     QString attribute(QString name, bool flagReadInXml=true);
     
     QWidget* getParamWidget(){
-        int children_count = getChildren().size();
         PVCore::PVArgumentList args,args_default;
         args_default = getSplitterPlugin()->get_default_argument();
         toArgumentList(args_default,args);
         getSplitterPlugin()->get_filter()->set_args(args);
-        getSplitterPlugin()->set_child_count(children_count);
         return getSplitterPlugin()->get_param_widget();
     }
     
@@ -279,13 +278,20 @@ private:
 	ssize_t _field_linear_id;
     
 public slots:
-    void slot_update(){
+    void slot_update()
+	{
         PVLOG_DEBUG("PVXmlTreeNodeDom slot slot_update()\n");
         setFromArgumentList(getSplitterPlugin()->get_filter()->get_args());
-        PVLOG_DEBUG("      %d\n",getSplitterPlugin()->get_child_new_num());
-        setNbr(getSplitterPlugin()->get_child_new_num());
         emit data_changed();
     }
+
+	void slot_update_number_childs()
+	{
+		assert(splitterPlugin);
+		setNbr(splitterPlugin->get_child_count());
+		emit data_changed();
+	}
+
     signals:
     void data_changed();
 

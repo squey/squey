@@ -35,7 +35,6 @@ include/pvfilter/PVFilterLibrary.h
 include/pvfilter/PVElementFilterGrep.h
 include/pvfilter/PVElementFilterRandInvalid.h
 include/pvfilter/PVFieldFilterGrep.h
-include/pvfilter/PVFieldsFilterParamWidget.h
 include/pvfilter/PVFieldSplitterChar.h
 include/pvfilter/PVFieldSplitterChunkMatch.h
 include/pvfilter/PVFieldSplitterUTF16Char.h
@@ -44,7 +43,12 @@ include/pvfilter/PVPluginsLoad.h
 include/pvfilter/PVRawSourceBase.h
 )
 
-add_library(pvfilter SHARED ${SRC_FILES} ${HEADER_FILES})
+SET(MOC_HEADERS
+include/pvfilter/PVFieldsFilterParamWidget.h
+)
+QT4_WRAP_CPP(MOC_SRC ${MOC_HEADERS})
+
+add_library(pvfilter SHARED ${SRC_FILES} ${HEADER_FILES} ${MOC_SRC} ${MOC_HEADERS})
 set_target_properties(pvfilter PROPERTIES SOVERSION 1)
 
 target_link_libraries(pvfilter ${QT_LIBRARIES} ${PVCORE_LIBRARIES} ${TBB_LIBRARIES} ${TBB_MALLOC_LIBRARY} ${Boost_LIBRARIES}  ${ICU_LIBRARY})

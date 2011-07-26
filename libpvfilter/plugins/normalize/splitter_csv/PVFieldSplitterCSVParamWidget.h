@@ -13,58 +13,42 @@
 
 namespace PVFilter {
 
-class PVFieldSplitterCSVParamWidget: public QObject, public PVFieldsSplitterParamWidget {
-    Q_OBJECT;
-public:
-    
-    PVFieldSplitterCSVParamWidget();
-    //PVFieldSplitterCSVParamWidget(const PVFieldSplitterCSVParamWidget& src);
-
-private:
-    QAction* action_menu;
-    QWidget* param_widget;
-    int id,child_count;
-    QLineEdit *child_number_edit;
+class PVFieldSplitterCSVParamWidget: public PVFieldsSplitterParamWidget {
+	Q_OBJECT
 
 public:
-    QWidget* get_param_widget();
-    QAction* get_action_menu();
 
-    void set_id(int id_param) {
-        id = id_param;
-    }
-    void set_child_count(int count){
-        child_count = count;
-    }
-    int get_child_new_num() {
-        return child_count;
-    }
-    
-    QObject* get_as_qobject(){return this;}
+	PVFieldSplitterCSVParamWidget();
+	//PVFieldSplitterCSVParamWidget(const PVFieldSplitterCSVParamWidget& src);
+
 private:
-    void init();
+	QAction* action_menu;
+	QWidget* param_widget;
+	QLineEdit *child_number_edit;
+	QPalette child_number_org_palette;
+	QLineEdit* separator_text;
+	int id;
 
-    
-    CLASS_REGISTRABLE_NOCOPY(PVFieldSplitterCSVParamWidget)
-    
+public:
+	QWidget* get_param_widget();
+	QAction* get_action_menu();
+
+	void set_id(int id_param) {
+		id = id_param;
+	}
+
+private:
+	void init();
+
+	CLASS_REGISTRABLE_NOCOPY(PVFieldSplitterCSVParamWidget)
+
 public slots:
-    void updateSeparator(const QString &sep){
-        PVCore::PVArgumentList args;
-        args["sep"]=QVariant(sep.at(0));
-        this->get_filter()->set_args(args);
-        
-        emit data_changed();
-    }
-    void updateChildCount(){
-        assert(child_number_edit);
-        set_child_count(child_number_edit->text().toInt());
-        emit data_changed();
-    }
+	void updateSeparator(const QString &sep);
+	void updateNChilds();
+	
 
-    
-    signals:
-    void data_changed();
-    void signalRefreshView();
+signals:
+	void signalRefreshView();
 };
 
 }

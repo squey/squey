@@ -18,6 +18,7 @@
 
 namespace PVFilter {
 
+
 class PVFieldSplitterRegexpParamWidget: public QObject, public PVFieldsSplitterParamWidget {
     Q_OBJECT;
 private:
@@ -36,6 +37,7 @@ private:
     void initWidget();
     
     
+
 public:
     PVFieldSplitterRegexpParamWidget();
     QAction* get_action_menu();
