@@ -19,7 +19,7 @@
 namespace PVFilter {
 
 
-class PVFieldSplitterRegexpParamWidget: public QObject, public PVFieldsSplitterParamWidget {
+class PVFieldSplitterRegexpParamWidget: public PVFieldsSplitterParamWidget {
     Q_OBJECT;
 private:
     QAction* action_menu;
