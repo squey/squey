@@ -352,6 +352,8 @@ void PVInspector::PVXmlParamWidget::edit(QModelIndex const& index) {
 		}else if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::axis){
             PVLOG_DEBUG("PVInspector::PVXmlParamWidget::edit -> axis\n");
 				drawForAxis(nodeOnClick);
+		} else if (nodeOnClick->attribute("type", "") == "url") {
+			return;
 		}else if (splitter){
             PVLOG_DEBUG("PVInspector::PVXmlParamWidget::edit -> splitter\n");
 			drawForSplitter(nodeOnClick);
