@@ -20,8 +20,8 @@ set(NORMALIZE_FILTERS_DIST_FILES
 
 # Splitters
 
-add_library(normalize_filter_splitter_regexp SHARED splitter_regexp/PVFieldSplitterRegexp.cpp splitter_regexp/PVFieldSplitterRegexp.h splitter_regexp/register.cpp)
-target_link_libraries(normalize_filter_splitter_regexp pvfilter pvcore)
+#add_library(normalize_filter_splitter_regexp SHARED splitter_regexp/PVFieldSplitterRegexp.cpp splitter_regexp/PVFieldSplitterRegexp.h splitter_regexp/register.cpp)
+#target_link_libraries(normalize_filter_splitter_regexp pvfilter pvcore)
 
 
 SET(CSV_MOC_HEADERS
@@ -30,6 +30,13 @@ splitter_csv/PVFieldSplitterCSVParamWidget.h
 QT4_WRAP_CPP(CSV_MOC_SRCS ${CSV_MOC_HEADERS})
 add_library(normalize_filter_splitter_csv SHARED splitter_csv/PVFieldSplitterCSV.cpp splitter_csv/PVFieldSplitterCSV.h splitter_csv/PVFieldSplitterCSVParamWidget.cpp ${CSV_MOC_SRCS} splitter_csv/libcsv.cpp splitter_csv/register.cpp)
 target_link_libraries(normalize_filter_splitter_csv pvfilter pvcore ${QT_LIBRARIES})
+
+SET(REGEXP_MOC_HEADERS
+splitter_regexp/PVFieldSplitterRegexpParamWidget.h
+)
+QT4_WRAP_CPP(REGEXP_MOC_SRCS ${REGEXP_MOC_HEADERS})
+add_library(normalize_filter_splitter_regexp SHARED splitter_regexp/PVFieldSplitterRegexp.cpp splitter_regexp/PVFieldSplitterRegexp.h splitter_regexp/PVFieldSplitterRegexpParamWidget.cpp ${REGEXP_MOC_SRCS} splitter_regexp/register.cpp)
+target_link_libraries(normalize_filter_splitter_regexp pvfilter pvcore ${QT_LIBRARIES})
 
 
 add_library(normalize_filter_splitter_url SHARED splitter_url/PVFieldSplitterURL.cpp splitter_url/PVFieldSplitterURL.h splitter_url/register.cpp)
