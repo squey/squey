@@ -33,6 +33,7 @@ private:
     QTableWidget *table_validator_TableWidget;
     QPushButton *btn_apply;
     
+    bool expressionChanged;
     
     void initWidget();
     
@@ -63,6 +64,7 @@ public:
     CLASS_REGISTRABLE_NOCOPY(PVFieldSplitterRegexpParamWidget)
 public slots:
     void slotUpdateTableValidator();
+    void slotSaveExpression();
 
 signals:
     void data_changed();

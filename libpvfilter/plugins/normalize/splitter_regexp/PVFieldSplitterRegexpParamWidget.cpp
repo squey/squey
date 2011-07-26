@@ -46,6 +46,7 @@ QAction* PVFilter::PVFieldSplitterRegexpParamWidget::get_action_menu() {
     PVLOG_DEBUG("get action PVFieldSplitterRegexpParamWidget\n");
     assert(action_menu);
     return action_menu;
+    expressionChanged = false;
 }
 
 
@@ -77,8 +78,8 @@ QWidget* PVFilter::PVFieldSplitterRegexpParamWidget::get_param_widget()
     layout->addWidget(btn_apply);
     
     
-    QObject::connect(expression_lineEdit,SIGNAL(textChanged(QString)),this,SLOT(slotUpdateTableValidator()));
-    QObject::connect(validator_textEdit,SIGNAL(textChanged()),this,SLOT(slotUpdateTableValidator()));
+    connect(expression_lineEdit,SIGNAL(textChanged(QString)),this,SLOT(slotUpdateTableValidator()));
+    connect(validator_textEdit,SIGNAL(textChanged()),this,SLOT(slotUpdateTableValidator()));
 
     
     return param_widget;

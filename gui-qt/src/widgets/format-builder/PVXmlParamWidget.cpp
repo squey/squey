@@ -345,7 +345,7 @@ void PVInspector::PVXmlParamWidget::edit(QModelIndex const& index) {
 		if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::filter) {
             PVLOG_DEBUG("PVInspector::PVXmlParamWidget::edit -> filter\n");
 			drawForFilter(nodeOnClick);
-		} else if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::RegEx ) {//|| (splitter && (nodeOnClick->attribute("type","") == "regexp"))
+		} else if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::RegEx || (splitter && (nodeOnClick->attribute("type","") == "regexp"))) {//
             PVLOG_DEBUG("PVInspector::PVXmlParamWidget::edit -> regex\n");
 			drawForRegEx(nodeOnClick);
 			//confirmApply = false;
