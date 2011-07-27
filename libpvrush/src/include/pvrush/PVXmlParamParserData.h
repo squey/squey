@@ -15,7 +15,7 @@
 
 namespace PVRush {
 
-class LibCoreDecl PVXmlParamParserData {
+class LibRushDecl PVXmlParamParserData {
 
 public:    
 	PVXmlParamParserData()

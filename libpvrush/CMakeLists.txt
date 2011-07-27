@@ -52,9 +52,9 @@ add_definitions(-DPVRUSH_CACHE_DIR="${PVRUSH_CACHE_DIR}")
 
 # Set PVRUSH_INPUTTYPE_DIR
 if(WIN32)
-	set(PVRUSH_INPUTTYPE_DIR "input_type")
+	set(PVRUSH_INPUTTYPE_DIR "input-types")
 else(WIN32)
-	set(PVRUSH_INPUTTYPE_DIR "${CMAKE_INSTALL_PREFIX}/share/picviz/input_type/")
+	set(PVRUSH_INPUTTYPE_DIR "${CMAKE_INSTALL_PREFIX}/share/picviz/input-types/")
 endif(WIN32)
 add_definitions(-DPVRUSH_INPUTTYPE_DIR="${PVRUSH_INPUTTYPE_DIR}")
 
