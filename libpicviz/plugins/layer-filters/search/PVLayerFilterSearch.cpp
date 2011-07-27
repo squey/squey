@@ -64,7 +64,7 @@ void Picviz::PVLayerFilterSearch::operator()(PVLayer& /*in*/, PVLayer &out)
 PVCore::PVArgumentList Picviz::PVLayerFilterSearch::search_value_menu(PVRow row, PVCol col, QString const& v)
 {
 	PVCore::PVArgumentList args;
-	args["Regular expression"] = QRegExp(v);
+	args["Regular expression"] = QRegExp(QRegExp::escape(v));
 	args["Axis"].setValue(PVCore::PVAxisIndexType(col));
 	return args;
 }
