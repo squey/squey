@@ -12,7 +12,7 @@
 
 namespace PVRush {
 
-class LibExport PVInputHDFSFile {
+class PVInputHDFSFile {
 public:
 	PVInputHDFSFile();
 	PVInputHDFSFile(PVInputHDFSServer_p serv, QString const& path);

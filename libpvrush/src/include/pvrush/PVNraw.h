@@ -129,6 +129,8 @@ namespace PVRush {
 			line[index_field].setRawData(copy, nchars);
 		}
 
+		QString nraw_line_to_csv(size_t idx) const;
+
 	private:
 		void allocate_buf(size_t nchars);
 		void delete_buffers();

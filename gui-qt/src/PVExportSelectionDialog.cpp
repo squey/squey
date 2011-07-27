@@ -11,7 +11,8 @@
  * PVInspector::PVExportSelectionDialog::PVExportSelectionDialog
  *
  *****************************************************************************/
-PVInspector::PVExportSelectionDialog::PVExportSelectionDialog(QWidget *parent) : QFileDialog(parent)
+PVInspector::PVExportSelectionDialog::PVExportSelectionDialog(QWidget *parent) :
+	QFileDialog(parent, tr("Export selection as..."))
 {
 	setAcceptMode(QFileDialog::AcceptSave);
 }

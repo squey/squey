@@ -339,3 +339,18 @@ void* Picviz::PVSelection::get_buffer()
 	return &table[0];
 }
 
+void Picviz::PVSelection::write_selected_lines_nraw(QTextStream& stream, PVRush::PVNraw const& nraw)
+{
+	PVRow nrows = nraw.table.size();
+	assert(nrows > 0);
+	PVCol ncols = nraw.table[0].size();
+	assert(ncols > 0);
+	for (int line_index = 0; line_index < nraw.table.size(); line_index++) {
+		if (!get_line(line_index)) {
+			continue;
+		}
+
+		QString line = nraw.nraw_line_to_csv(line_index);
+		stream << line << QString("\n");
+	}
+}

@@ -13,7 +13,7 @@
 namespace PVRush {
 
 
-class LibExport PVInputHDFS : public PVInput {
+class PVInputHDFS : public PVInput {
 public:
 	PVInputHDFS(PVInputHDFSFile const& in);
 public:

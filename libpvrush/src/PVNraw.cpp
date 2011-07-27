@@ -135,3 +135,26 @@ void PVRush::PVNraw::move(PVNraw &dst, PVNraw& src)
 	src.table.clear();
 	src.trans_table.clear();
 }
+
+QString PVRush::PVNraw::nraw_line_to_csv(size_t idx) const
+{
+	assert(idx < table.size());
+	QString ret;
+	PVRush::PVNraw::nraw_table_line const& line = table[idx];
+	PVRush::PVNraw::nraw_table_line::const_iterator it,ite,itlast;
+	ite = itlast = line.end();
+	itlast--;
+	for (it = line.begin(); it != ite; it++) {
+		QString field = *it;
+		if (field.indexOf(QChar(',')) >= 0) {
+			field.replace(QChar('"'), QString("\\\""));
+			ret += "\"" + field + "\"";
+		}
+		else 
+			ret += field;
+		if (it != itlast) {
+			ret += QString(",");
+		}
+	}
+	return ret;
+}

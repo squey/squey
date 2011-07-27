@@ -76,6 +76,16 @@ PVRush::PVNraw::nraw_table& Picviz::PVSource::get_qtnraw()
 	return nraw->table;
 }
 
+PVRush::PVNraw& Picviz::PVSource::get_rushnraw()
+{
+	return *nraw;
+}
+
+const PVRush::PVNraw& Picviz::PVSource::get_rushnraw() const
+{
+	return *nraw;
+}
+
 PVRush::PVNraw::nraw_trans_table const& Picviz::PVSource::get_trans_nraw() const
 {
 	return nraw->trans_table;

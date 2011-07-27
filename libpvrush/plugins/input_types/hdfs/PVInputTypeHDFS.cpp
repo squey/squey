@@ -1,7 +1,15 @@
 #include "PVInputTypeHDFS.h"
 #include "../../common/hdfs/PVInputHDFSFile.h"
+#include "setenv.h"
 
 #include <QMessageBox>
+
+PVRush::PVInputTypeHDFS::PVInputTypeHDFS()
+{
+	if (!init_env_hadoop()) {
+		PVLOG_ERROR("Unable to initialize hadoop environnement. Hadoop support won't work.\n");
+	}
+}
 
 bool PVRush::PVInputTypeHDFS::createWidget(hash_formats const& formats, list_inputs &inputs, QString& format, QWidget* parent) const
 {

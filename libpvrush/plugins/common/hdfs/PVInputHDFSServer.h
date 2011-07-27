@@ -11,7 +11,7 @@
 
 namespace PVRush {
 
-class LibExport PVInputHDFSServer {
+class PVInputHDFSServer {
 public:
 	typedef boost::shared_ptr<PVInputHDFSServer> p_type;
 public:

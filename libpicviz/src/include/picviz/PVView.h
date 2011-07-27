@@ -259,6 +259,9 @@ public:
 	
 	PVRush::PVNraw::nraw_table& get_qtnraw_parent();
 	const PVRush::PVNraw::nraw_table& get_qtnraw_parent() const;
+
+	PVRush::PVNraw& get_rushnraw_parent();
+	PVRush::PVNraw const& get_rushnraw_parent() const;
 	
 	PVPlotted_p get_plotted_parent();
 	const PVPlotted_p get_plotted_parent() const;

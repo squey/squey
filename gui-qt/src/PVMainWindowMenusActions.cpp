@@ -16,8 +16,8 @@ void PVInspector::PVMainWindow::create_actions()
 {
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
 	/************************
-	* For the "File" menu entry
-	************************/
+	 * For the "File" menu entry
+	 ************************/
 
 	// The new_file Action
 	new_file_Action = new QAction(tr("&New"), this);
@@ -27,39 +27,39 @@ void PVInspector::PVMainWindow::create_actions()
 	new_file_Action->setWhatsThis(tr("Use this to create a new file."));
 
 	// The importFile Action
-//	import_file_Action = new QAction(tr("&Import"), this);
-//	import_file_Action->setToolTip(tr("Import a file."));
-//	import_file_Action->setShortcut(QKeySequence::Italic);
+	//	import_file_Action = new QAction(tr("&Import"), this);
+	//	import_file_Action->setToolTip(tr("Import a file."));
+	//	import_file_Action->setShortcut(QKeySequence::Italic);
 
 	// Export our selection Action
-	export_selection_Action = new QAction(tr("Export &Selection"), this);
+	export_selection_Action = new QAction(tr("Export &selection..."), this);
 	export_selection_Action->setToolTip(tr("Export our current selection"));
 
 	// The extractorFile Action
 	extractor_file_Action = new QAction(tr("&Extractor..."), this);
 	extractor_file_Action->setToolTip(tr("Launch the Picviz Extractor"));
 
-        file_format_builder_Action = new QAction(tr("Format Builder..."), this);
+	file_format_builder_Action = new QAction(tr("Format Builder..."), this);
 
 
-//	remote_log_Action = new QAction(tr("Import a &remote file"), this);
-//	remote_log_Action->setToolTip(tr("Import a remote file."));
-//	remote_log_Action->setShortcut(Qt::ControlModifier + Qt::Key_R);
+	//	remote_log_Action = new QAction(tr("Import a &remote file"), this);
+	//	remote_log_Action->setToolTip(tr("Import a remote file."));
+	//	remote_log_Action->setShortcut(Qt::ControlModifier + Qt::Key_R);
 
-// #ifdef CUSTOMER_RELEASE
-// 	// The openFile Action
-// 	open_file_Action = new QAction(tr("&Open"), this);
-// 	open_file_Action->setIcon(QIcon(":/document-open.png"));
-// 	open_file_Action->setShortcut(QKeySequence::Open);
-// 	open_file_Action->setStatusTip(tr("Open a file."));
-// 	open_file_Action->setToolTip(tr("Open a file."));
-// 	open_file_Action->setWhatsThis(tr("Use this to open a file."));
+	// #ifdef CUSTOMER_RELEASE
+	// 	// The openFile Action
+	// 	open_file_Action = new QAction(tr("&Open"), this);
+	// 	open_file_Action->setIcon(QIcon(":/document-open.png"));
+	// 	open_file_Action->setShortcut(QKeySequence::Open);
+	// 	open_file_Action->setStatusTip(tr("Open a file."));
+	// 	open_file_Action->setToolTip(tr("Open a file."));
+	// 	open_file_Action->setWhatsThis(tr("Use this to open a file."));
 
-// 	// The saveFile Action
-// 	save_file_Action = new QAction(tr("&Save"), this);
-// 	save_file_Action->setToolTip(tr("Export a file"));
-// 	save_file_Action->setShortcut(QKeySequence::Save);
-// #endif	// CUSTOMER_RELEASE
+	// 	// The saveFile Action
+	// 	save_file_Action = new QAction(tr("&Save"), this);
+	// 	save_file_Action->setToolTip(tr("Export a file"));
+	// 	save_file_Action->setShortcut(QKeySequence::Save);
+	// #endif	// CUSTOMER_RELEASE
 
 	export_file_Action = new QAction(tr("&Export"), this);
 
@@ -69,8 +69,8 @@ void PVInspector::PVMainWindow::create_actions()
 
 
 	/************************
-	* For the "Edit" menu entry
-	************************/
+	 * For the "Edit" menu entry
+	 ************************/
 
 	undo_Action = new QAction(tr("Undo"), this);
 	undo_Action->setIcon(QIcon(":/edit-undo.png"));
@@ -91,8 +91,8 @@ void PVInspector::PVMainWindow::create_actions()
 
 
 	/************************
-	* For the "Selection" menu entry
-	************************/
+	 * For the "Selection" menu entry
+	 ************************/
 	selection_all_Action = new QAction(tr("All"), this);
 	selection_all_Action->setShortcut(QKeySequence(Qt::Key_A));
 	selection_none_Action = new QAction(tr("None"), this);
@@ -106,31 +106,31 @@ void PVInspector::PVMainWindow::create_actions()
 	commit_selection_to_new_layer_Action->setShortcut(QKeySequence(Qt::ALT + Qt::Key_K));
 
 	/************************
-	* For the "Scene" menu entry
-	************************/
+	 * For the "Scene" menu entry
+	 ************************/
 	new_scene_Action = new QAction(tr("&New Scene"), this);
 	select_scene_Action = new QAction(tr("&Select Scene"), this);
 
 	/************************
-	* For the "View" menu entry
-	************************/
+	 * For the "View" menu entry
+	 ************************/
 	view_open_Action = new QAction(tr("&Open"), this);
 	view_save_Action = new QAction(tr("&Save"), this);
 	view_show_new_Action = new QAction(tr("New Parallel view"), this);
 	view_new_scatter_Action = new QAction(tr("New Scatter view"), this);
 
-        /***************************
-         * For the "Axes" menu entry
-         ***************************/
-        axes_editor_Action = new QAction(tr("Edit Axes"), this);
-        axes_mode_Action = new QAction(tr("Enter Axes mode"), this);
+	/***************************
+	 * For the "Axes" menu entry
+	 ***************************/
+	axes_editor_Action = new QAction(tr("Edit Axes"), this);
+	axes_mode_Action = new QAction(tr("Enter Axes mode"), this);
 	axes_mode_Action->setShortcut(QKeySequence(Qt::Key_X));
-        axes_display_edges_Action = new QAction(tr("Display Edges"), this);
+	axes_display_edges_Action = new QAction(tr("Display Edges"), this);
 	axes_display_edges_Action->setShortcut(QKeySequence(Qt::Key_Y));
 
-        /***************************
-         * For the "Lines" menu entry
-         ***************************/
+	/***************************
+	 * For the "Lines" menu entry
+	 ***************************/
 	lines_display_unselected_Action = new QAction(tr("Hide unselected lines"), this);
 	lines_display_unselected_Action->setShortcut(QKeySequence(Qt::Key_U));
 	lines_display_unselected_listing_Action = new QAction(tr("Hide unselected lines in listing"), this);
@@ -143,10 +143,10 @@ void PVInspector::PVMainWindow::create_actions()
 	lines_display_zombies_listing_Action->setShortcut(QKeySequence(Qt::ALT + Qt::Key_Z));
 	lines_display_zombies_GLview_Action = new QAction(tr("Hide zombies lines in view"), this);
 	lines_display_zombies_GLview_Action->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_Z));
-        
+
 	/**************************
-	* For the "Help" menu entry
-	**************************/
+	 * For the "Help" menu entry
+	 **************************/
 	about_Action = new QAction(tr("&About"), this);
 	//whats_this_Action = new QAction(tr("&What's this?"), this);
 }
@@ -167,17 +167,17 @@ void PVInspector::PVMainWindow::create_menus()
 	create_actions_import_types(file_Menu);
 	file_Menu->addSeparator();
 	file_Menu->addAction(export_selection_Action);
-//	file_Menu->addAction(remote_log_Action);
-	file_Menu->addAction(file_format_builder_Action);
 	file_Menu->addAction(extractor_file_Action);
 	file_Menu->addSeparator();
+	file_Menu->addAction(file_format_builder_Action);
+	file_Menu->addSeparator();
 
-// #ifdef CUSTOMER_RELEASE
-// 	file_Menu->addAction(open_file_Action);
-// 	file_Menu->addAction(save_file_Action);
-// #endif
+	// #ifdef CUSTOMER_RELEASE
+	// 	file_Menu->addAction(open_file_Action);
+	// 	file_Menu->addAction(save_file_Action);
+	// #endif
 
-// 	file_Menu->addSeparator();
+	// 	file_Menu->addSeparator();
 	//file_Menu->addAction(export_file_Action);
 	//file_Menu->addSeparator();
 	file_Menu->addAction(quit_Action);
@@ -224,13 +224,13 @@ void PVInspector::PVMainWindow::create_menus()
 	view_Menu->addAction(view_new_scatter_Action);
 #endif
 
-        axes_Menu = menubar->addMenu(tr("Axes"));
-        axes_Menu->addAction(axes_editor_Action);
+	axes_Menu = menubar->addMenu(tr("Axes"));
+	axes_Menu->addAction(axes_editor_Action);
 	axes_Menu->addSeparator();
-        axes_Menu->addAction(axes_mode_Action);
-        axes_Menu->addAction(axes_display_edges_Action);
+	axes_Menu->addAction(axes_mode_Action);
+	axes_Menu->addAction(axes_display_edges_Action);
 
-        lines_Menu = menubar->addMenu(tr("Lines"));
+	lines_Menu = menubar->addMenu(tr("Lines"));
 	lines_Menu->addAction(lines_display_unselected_Action);
 	lines_Menu->addAction(lines_display_unselected_listing_Action);
 	lines_Menu->addAction(lines_display_unselected_GLview_Action);
@@ -264,6 +264,7 @@ void PVInspector::PVMainWindow::create_actions_import_types(QMenu* menu)
 void PVInspector::PVMainWindow::menu_activate_is_file_opened(bool cond)
 {
 	extractor_file_Action->setEnabled(cond);
+	export_selection_Action->setEnabled(cond);
 
 	axes_Menu->setEnabled(cond);
 	filter_Menu->setEnabled(cond);

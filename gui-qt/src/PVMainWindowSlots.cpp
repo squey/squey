@@ -326,19 +326,39 @@ void PVInspector::PVMainWindow::export_file_Slot()
 void PVInspector::PVMainWindow::export_selection_Slot()
 {
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
+	
+	QFile file;
+	while (true) {
+		QString filename = pv_ExportSelectionDialog->getSaveFileName();
+		if (filename.isEmpty()) {
+			return;
+		}
 
-	int result;
+		file.setFileName(filename);
+		if (!file.open(QIODevice::WriteOnly)) {
+			QMessageBox err(QMessageBox::Critical, tr("Error while writing the selection"), tr("Unable to write the selection to %1").arg(filename));
+			err.exec();
+		}
+		else {
+			break;
+		}
+	}
 
-	result = pv_ExportSelectionDialog->exec();
+	setCursor(Qt::WaitCursor);
 
-	// if (result) {
-	// 	QString filename = 
-	// }
-	// QString filename = pv_ExportSelectionDialog->getSaveFileName();
-	// if (!filename.isEmpty()) {
-	// 	PVLOG_INFO("The user pressed OK and choosed the file %s\n", qPrintable(filename));
-	// }
+	// TODO: put an option in the widget for the file locale
+	// Open a text stream with the current locale (by default in QTextStream)
+	QTextStream stream(&file);
 
+	// For now, save the NRAW !
+	Picviz::PVView_p view = current_tab->get_lib_view();
+	PVRush::PVNraw const& nraw = view->get_rushnraw_parent();
+	view->get_real_output_selection().write_selected_lines_nraw(stream, nraw);
+
+	setCursor(Qt::ArrowCursor);
+
+	QMessageBox end(QMessageBox::Information, tr("Export selection"), tr("The selection has been successfully written."));
+	end.exec();
 }
 
 

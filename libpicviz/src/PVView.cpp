@@ -585,6 +585,23 @@ const PVRush::PVNraw::nraw_table& Picviz::PVView::get_qtnraw_parent() const
 
 /******************************************************************************
  *
+ * Picviz::PVView::get_rushnraw_parent
+ *
+ *****************************************************************************/
+PVRush::PVNraw& Picviz::PVView::get_rushnraw_parent()
+{
+	// AG: should be plotted->get_rushnraw() but don't have the time for that
+	return plotted->plotting->mapped->mapping->source->get_rushnraw();
+}
+
+const PVRush::PVNraw& Picviz::PVView::get_rushnraw_parent() const
+{
+	// AG: should be plotted->get_rushnraw() but don't have the time for that
+	return plotted->plotting->mapped->mapping->source->get_rushnraw();
+}
+
+/******************************************************************************
+ *
  * Picviz::PVView::get_real_output_selection
  *
  *****************************************************************************/

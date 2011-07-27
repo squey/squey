@@ -59,8 +59,13 @@ public:
 
 	/* Functions */
 	PVCol get_column_count();
+
 	PVRush::PVNraw::nraw_table& get_qtnraw();
 	const PVRush::PVNraw::nraw_table& get_qtnraw() const;
+
+	PVRush::PVNraw& get_rushnraw();
+	const PVRush::PVNraw& get_rushnraw() const;
+
 	const PVRush::PVNraw::nraw_trans_table& get_trans_nraw() const;
 	void clear_trans_nraw();
 	PVRow get_row_count();

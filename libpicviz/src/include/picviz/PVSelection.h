@@ -8,7 +8,10 @@
 #define PICVIZ_PVSELECTION_H
 
 #include <pvcore/stdint.h>
+#include <pvrush/PVNraw.h>
 #include <picviz/general.h>
+
+#include <QTextStream>
 
 #include <vector>
 
@@ -190,8 +193,9 @@ public:
 	 */
 	std::vector<PVRow> get_rows_table();
 
-
+	void write_selected_lines_nraw(QTextStream& stream, PVRush::PVNraw const& nraw);
 };
+
 }
 
 #endif /* PICVIZ_PVSELECTION_H */

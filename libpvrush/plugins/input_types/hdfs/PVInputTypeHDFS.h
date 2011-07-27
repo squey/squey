@@ -9,9 +9,10 @@
 
 namespace PVRush {
 
-class LibExport PVInputTypeHDFS: public PVInputType
+class PVInputTypeHDFS: public PVInputType
 {
 public:
+	PVInputTypeHDFS();
 	virtual ~PVInputTypeHDFS();
 public:
 	bool createWidget(hash_formats const& formats, list_inputs &inputs, QString& format, QWidget* parent = NULL) const;

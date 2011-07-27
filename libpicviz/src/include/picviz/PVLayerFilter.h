@@ -16,6 +16,10 @@
 #include <pvfilter/PVFilterLibrary.h>
 #include <pvcore/PVArgument.h>
 
+#include <boost/function.hpp>
+
+#include <QHash>
+
 namespace Picviz {
 
 /**
@@ -24,6 +28,13 @@ namespace Picviz {
 class LibPicvizDecl PVLayerFilter : public PVFilter::PVFilterFunction<PVLayer, PVLayerFilter> {
 public:
 	typedef PVFilter::PVFilterFunction<PVLayer, PVLayerFilter>::base_registrable base_registrable;
+	
+public:
+	// This is used for context menu integration (in the NRAW listing)
+	typedef boost::function<PVCore::PVArgumentList(PVRow, PVCol, QString const&)> ctxt_menu_f;
+	// This QHash will be used for specifying a list of couple (name, function) that will be used in the context menu
+	typedef QHash<QString, ctxt_menu_f> hash_menu_function_t;
+
 public:
 	/**
 	 * Constructor
@@ -52,6 +63,7 @@ protected:
 
 private:
 	PVLayer *_out_p;
+	hash_menu_function_t _menu_entries;
 
 	CLASS_FILTER(PVLayerFilter)
 };
