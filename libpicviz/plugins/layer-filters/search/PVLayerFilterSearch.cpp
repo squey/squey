@@ -17,6 +17,7 @@ Picviz::PVLayerFilterSearch::PVLayerFilterSearch(PVCore::PVArgumentList const& l
 	: PVLayerFilter(l)
 {
 	INIT_FILTER(PVLayerFilterSearch, l);
+	add_ctxt_menu_entry("Search for this value", &PVLayerFilterSearch::search_value_menu);
 }
 
 /******************************************************************************
@@ -53,6 +54,19 @@ void Picviz::PVLayerFilterSearch::operator()(PVLayer& /*in*/, PVLayer &out)
 			out.get_selection().set_line(r, re.indexIn(nraw_r[axis_id]) != -1);
 		}
 	}
+}
+
+/******************************************************************************
+ *
+ * Picviz::PVLayerFilterSearch::search_value_menu
+ *
+ *****************************************************************************/
+PVCore::PVArgumentList Picviz::PVLayerFilterSearch::search_value_menu(PVRow row, PVCol col, QString const& v)
+{
+	PVCore::PVArgumentList args;
+	args["Regular expression"] = QRegExp(v);
+	args["Axis"].setValue(PVCore::PVAxisIndexType(col));
+	return args;
 }
 
 IMPL_FILTER(Picviz::PVLayerFilterSearch)

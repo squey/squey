@@ -40,11 +40,10 @@ void PVInspector::PVAxisIndexEditor::set_axis_index(PVCore::PVAxisIndexType axis
 {
 	clear();
 	addItems(_view.get_axes_names_list());
-	setCurrentIndex(axis_index.get_original_index());
+	setCurrentIndex(_view.axes_combination.get_combined_axis_column_index(axis_index.get_original_index()));
 }
 
 PVCore::PVAxisIndexType PVInspector::PVAxisIndexEditor::get_axis_index() const
 {
-	// PVLOG_INFO("THIS IS ME, WEIRD!\n");
-	return PVCore::PVAxisIndexType(currentIndex());
+	return PVCore::PVAxisIndexType(_view.get_real_axis_index(currentIndex()));
 }

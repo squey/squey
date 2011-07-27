@@ -97,6 +97,7 @@ public:
      */
     int rowCount(const QModelIndex &index) const;
 
+	PVRow getRealRowIndex(PVRow model_row) const;
 
     /**
      * Order to PVView to sort table

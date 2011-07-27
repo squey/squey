@@ -276,6 +276,8 @@ public:
 
 	void recreate_mapping_plotting();
 
+	PVCol get_real_axis_index(PVCol col);
+
 protected:
 	bool _is_consistent;
     

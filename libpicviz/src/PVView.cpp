@@ -279,6 +279,16 @@ QString Picviz::PVView::get_data(PVRow row, PVCol column)
 
 /******************************************************************************
  *
+ * Picviz::PVView::get_real_axis_index
+ *
+ *****************************************************************************/
+PVCol Picviz::PVView::get_real_axis_index(PVCol col)
+{
+	return axes_combination.get_axis_column_index(col);
+}
+
+/******************************************************************************
+ *
  * Picviz::PVView::get_data
  *
  *****************************************************************************/

@@ -24,6 +24,9 @@ public:
 public:
 	virtual void operator()(PVLayer& in, PVLayer &out);
 
+public:
+	static PVCore::PVArgumentList search_value_menu(PVRow row, PVCol col, QString const& v);
+
 	CLASS_FILTER(Picviz::PVLayerFilterSearch)
 
 };

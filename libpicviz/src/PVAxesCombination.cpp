@@ -87,6 +87,30 @@ PVCol Picviz::PVAxesCombination::get_axis_column_index(PVCol index) const
 
 /******************************************************************************
  *
+ * Picviz::PVAxesCombination::get_combined_axis_column_index
+ *
+ *****************************************************************************/
+PVCol Picviz::PVAxesCombination::get_combined_axis_column_index(PVCol index) const
+{
+	assert(!axes_list.empty());
+
+	/* We check that the given axis' index is not out of range */
+	if (index >= original_axes_list.size()) {
+		PVLOG_ERROR("%s: Index out of range in %d >= %d\n", __FUNCTION__, index, original_axes_list.size());
+		return columns_indexes_list.last();
+	}
+
+	for (PVCol i = 0; i < columns_indexes_list.size(); i++) {
+		if (columns_indexes_list[i] == index) {
+			return i;
+		}
+	}
+	// Return the last used axis
+	return columns_indexes_list.size() - 1;
+}
+
+/******************************************************************************
+ *
  * Picviz::PVAxesCombination::get_original_axes_count
  *
  *****************************************************************************/

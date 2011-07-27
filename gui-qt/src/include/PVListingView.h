@@ -36,8 +36,11 @@ class PVListingView : public QTableView
 	PVListingNoZombieNoUnselectedModel *pv_listing_no_zombie_no_unselected_model; //!<
 	int screenshot_index;*/
 
-	public slots:
-		void slotDoubleClickOnVHead(int);
+public slots:
+	void slotDoubleClickOnVHead(int);
+	void show_ctxt_menu(const QPoint& pos);
+	void process_ctxt_menu_action(QAction* act);
+
 // FIXME!			void update_row_count_in_all_dynamic_listing_model_Slot();
 			/* void update_to_current_selection_Slot();*/
 
@@ -78,7 +81,14 @@ public:
 private:
 	void mouseReleaseEvent(QMouseEvent *event);
 
+private:
+	QMenu* _ctxt_menu;
+	bool _show_ctxt_menu;
+	PVRow _ctxt_row;
+	PVCol _ctxt_col;
+	QString _ctxt_v;
 };
+
 }
 
 #endif // PVLISTINGVIEW_H

@@ -115,6 +115,17 @@ public:
 	PVCol get_axis_column_index_fast(PVCol index) const { return columns_indexes_list[index]; }
 
 	/**
+	* Get the current column index of an original axis.
+	*
+	* @param index The index of the axis in the list of the currently used axes.
+	*
+	* @return The original column index for this axis.
+	*
+	* @note This function is the inverse of #get_axis_column_index.
+	*/
+	PVCol get_combined_axis_column_index(PVCol index) const;
+
+	/**
 	* Get the number of original axes.
 	*
 	* @return The number of original axes.

@@ -6,6 +6,9 @@
 
 
 #include <picviz/PVLayerFilter.h>
+
+#include <boost/bind.hpp>
+
 #include <assert.h>
 
 /******************************************************************************
@@ -130,6 +133,16 @@ QString Picviz::PVLayerFilter::status_bar_description()
 QString Picviz::PVLayerFilter::detailed_description()
 {
 	return QString();
+}
+
+Picviz::PVLayerFilter::hash_menu_function_t const& Picviz::PVLayerFilter::get_menu_entries() const
+{
+	return _menu_entries;
+}
+
+void Picviz::PVLayerFilter::add_ctxt_menu_entry(QString menu_entry, ctxt_menu_f f)
+{
+	_menu_entries[menu_entry] = f;
 }
 
 IMPL_FILTER(Picviz::PVLayerFilter)

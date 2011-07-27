@@ -5,7 +5,7 @@
 //! Copyright (C) Picviz Labs 2011
 
 #include <QtGui>
-
+#include <QCursor>
 
 #include <pvcore/general.h>
 #include <picviz/PVStateMachine.h>
@@ -16,6 +16,10 @@
 
 #include <PVListingView.h>
 #include <PVListingModel.h>
+#include <PVLayerFilterProcessWidget.h>
+
+#include <pvfilter/PVFilterLibrary.h>
+#include <picviz/PVLayerFilter.h>
 
 /******************************************************************************
  *
@@ -43,7 +47,33 @@ PVInspector::PVListingView::PVListingView(PVMainWindow *mw, Picviz::PVView_p pv_
 	setSizePolicy(QSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding));
 	setFocusPolicy(Qt::NoFocus);
 	
-	//ini the double click action
+	// Custom context menu.
+	// It is created based on what layer filter plugins tell us.
+	_ctxt_menu = new QMenu(this);
+	_show_ctxt_menu = false;
+	LIB_FILTER(Picviz::PVLayerFilter)::list_filters const& lf = LIB_FILTER(Picviz::PVLayerFilter)::get().get_list();
+	LIB_FILTER(Picviz::PVLayerFilter)::list_filters::const_iterator it,itlast;
+	itlast = lf.end(); itlast--;
+	for (it = lf.begin(); it != lf.end(); it++) {
+		Picviz::PVLayerFilter::hash_menu_function_t const& entries = it.value()->get_menu_entries();
+		Picviz::PVLayerFilter::hash_menu_function_t::const_iterator it_ent;
+		PVLOG_DEBUG("(listing context-menu) for filter '%s', there are %d entries\n", qPrintable(it.key()), entries.size());
+		for (it_ent = entries.begin(); it_ent != entries.end(); it_ent++) {
+			PVLOG_DEBUG("(listing context-menu) add action '%s' for filter '%s'\n", qPrintable(it_ent.key()), qPrintable(it.key()));
+			_show_ctxt_menu = true;
+			QAction* act = new QAction(it_ent.key(), _ctxt_menu);
+			act->setData(QVariant(it.key())); // Save the name of the layer filter associated to this action
+			_ctxt_menu->addAction(act);
+		}
+		if (it != itlast) {
+			_ctxt_menu->addSeparator();
+		}
+	}
+
+	connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_ctxt_menu(const QPoint&)));
+	setContextMenuPolicy(Qt::CustomContextMenu);
+
+	// Init the double click action
 	connect(this->horizontalHeader(),SIGNAL(sectionDoubleClicked (int)),this,SLOT(slotDoubleClickOnVHead(int)));
 }
 
@@ -121,6 +151,65 @@ void PVInspector::PVListingView::slotDoubleClickOnVHead(int idHeader)
 	static_cast<PVListingModel *>(model())->sortByColumn(idHeader);
 }
 
+void PVInspector::PVListingView::show_ctxt_menu(const QPoint& pos)
+{
+	if (!_show_ctxt_menu) {
+		return;
+	}
 
+	QModelIndex idx_click = indexAt(pos);
+	if (!idx_click.isValid()) {
+		return;
+	}
 
+	// Get the string associated (that is, taken from the NRAW)
+	QString v = idx_click.data().toString();
 
+	// Get the real axis index
+	PVCol col = lib_view->get_real_axis_index(idx_click.column());
+
+	// Get the real row index
+	assert(model());
+	PVRow row = static_cast<PVListingModel*>(model())->getRealRowIndex(idx_click.row());
+
+	// Set these informations in our object, so that they will be retrieved by the slot connected
+	// to the menu's actions.
+	_ctxt_v = v;
+	_ctxt_row = row;
+	_ctxt_col = col;
+
+	// Show the menu at the given pos
+	QAction* act_sel = _ctxt_menu->exec(QCursor::pos());
+	if (act_sel) {
+		process_ctxt_menu_action(act_sel);
+	}
+}
+
+void PVInspector::PVListingView::process_ctxt_menu_action(QAction* act)
+{
+	assert(act);
+	// Get the filter associated with that menu entry
+	QString filter_name = act->data().toString();
+	Picviz::PVLayerFilter_p lib_filter = LIB_FILTER(Picviz::PVLayerFilter)::get().get_filter_by_name(filter_name);
+	if (!lib_filter) {
+		PVLOG_ERROR("(listing context-menu) filter '%s' does not exist !\n", qPrintable(filter_name));
+		return;
+	}
+
+	Picviz::PVLayerFilter::hash_menu_function_t entries = lib_filter->get_menu_entries();
+	QString act_name = act->text();
+	if (entries.find(act_name) == entries.end()) {
+		PVLOG_ERROR("(listing context-menu) unable to find action '%s' in filter '%s'.\n", qPrintable(act_name), qPrintable(filter_name));
+		return;
+	}
+	Picviz::PVLayerFilter::ctxt_menu_f args_f = entries[act_name];
+
+	// Get the arguments
+	PVCore::PVArgumentList args = args_f(_ctxt_row, _ctxt_col, _ctxt_v);
+
+	// Show the layout filter widget
+	Picviz::PVLayerFilter_p fclone = lib_filter->clone<Picviz::PVLayerFilter>();
+	PVLayerFilterProcessWidget* filter_widget = new PVLayerFilterProcessWidget(main_window->current_tab, args, fclone);
+	filter_widget->init();
+	filter_widget->exec();
+}

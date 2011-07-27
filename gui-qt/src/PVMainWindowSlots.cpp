@@ -403,55 +403,6 @@ void PVInspector::PVMainWindow::filter_Slot(void)
 		PVLayerFilterProcessWidget* filter_widget = new PVLayerFilterProcessWidget(current_tab, args, fclone);
 		filter_widget->init();
 		filter_widget->show();
-
-#if 0
-		if (args.size() > 0) {
-			//view the widget to param filter
-
-			PVArgumentListWidget* arg_widget = new PVArgumentListWidget(*lib_view, args, this);
-			if (!arg_widget->exec())
-				return;
-			lib_view->filters_args[filter_name] = args;
-			fclone->set_args(args);
-
-		}
-
-		// Then...
-
-		lib_view->process_selection();
-
-		fclone->set_view(lib_view);
-		fclone->set_output(&lib_view->post_filter_layer);
-		PVLOG_INFO("in    %s l:%d\n",__FUNCTION__,__LINE__);
-		
-		//call filter in a thread and view the progress dialog
-		PVProgressBox *progressDialog = new PVProgressBox(tr("Applying filter..."), this, 0);
-		QFuture<void> worker = QtConcurrent::run<void>(process_layer_filter, fclone.get(), &lib_view->pre_filter_layer);
-		QFutureWatcher<void> watcher;
-		watcher.setFuture(worker);
-		QObject::connect(&watcher, SIGNAL(finished()), progressDialog, SLOT(accept()), Qt::QueuedConnection);
-		
-		if(progressDialog->exec()){//not cancelled...
-			PVLOG_DEBUG("Filtering action performed\n");
-			lib_view->pre_filter_layer = lib_view->post_filter_layer;
-			lib_view->state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
-
-			// We reprocess the pipeline from the eventline stage
-			lib_view->process_from_eventline();
-			update_pvglview(current_tab->get_lib_view(), PVGL_COM_REFRESH_SELECTION|PVGL_COM_REFRESH_COLOR);
-			current_tab->refresh_listing_Slot();
-		}else{//if it's cancelled...
-			PVLOG_DEBUG("Filtering action canceled\n");
-			disconnect(&watcher,  SIGNAL(finished()),0,0);
-			worker.cancel();
-			lib_view->post_filter_layer = lib_view->pre_filter_layer;
-		}
-
-		
-		/* THEN we can emit the signal */
-		// commit_selection_in_current_layer(current_tab->get_lib_view());
-		emit filter_applied_Signal();
-#endif
 	}
 }
 
