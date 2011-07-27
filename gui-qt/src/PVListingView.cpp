@@ -31,6 +31,7 @@ PVInspector::PVListingView::PVListingView(PVMainWindow *mw, Picviz::PVView_p pv_
 	PVLOG_DEBUG("PVInspector::PVListingView::%s\n", __FUNCTION__);
 
 	lib_view = pv_view;
+	_ctxt_process = NULL;
 
 // DDX: remove since it is now in PVTabSplitter! pv_layer_stack_model = new PVLayerStackModel(main_window, this); 
 
@@ -53,7 +54,6 @@ PVInspector::PVListingView::PVListingView(PVMainWindow *mw, Picviz::PVView_p pv_
 	_show_ctxt_menu = false;
 	LIB_FILTER(Picviz::PVLayerFilter)::list_filters const& lf = LIB_FILTER(Picviz::PVLayerFilter)::get().get_list();
 	LIB_FILTER(Picviz::PVLayerFilter)::list_filters::const_iterator it,itlast;
-	itlast = lf.end(); itlast--;
 	for (it = lf.begin(); it != lf.end(); it++) {
 		Picviz::PVLayerFilter::hash_menu_function_t const& entries = it.value()->get_menu_entries();
 		Picviz::PVLayerFilter::hash_menu_function_t::const_iterator it_ent;
@@ -65,10 +65,10 @@ PVInspector::PVListingView::PVListingView(PVMainWindow *mw, Picviz::PVView_p pv_
 			act->setData(QVariant(it.key())); // Save the name of the layer filter associated to this action
 			_ctxt_menu->addAction(act);
 		}
-		if (it != itlast) {
-			_ctxt_menu->addSeparator();
-		}
+		_ctxt_menu->addSeparator();
 	}
+	_act_copy = new QAction(tr("Copy this value to the clipboard"), _ctxt_menu);
+	_ctxt_menu->addAction(_act_copy);
 
 	connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_ctxt_menu(const QPoint&)));
 	setContextMenuPolicy(Qt::CustomContextMenu);
@@ -181,8 +181,20 @@ void PVInspector::PVListingView::show_ctxt_menu(const QPoint& pos)
 	// Show the menu at the given pos
 	QAction* act_sel = _ctxt_menu->exec(QCursor::pos());
 	if (act_sel) {
-		process_ctxt_menu_action(act_sel);
+		if (act_sel == _act_copy) {
+			process_ctxt_menu_copy();
+		}
+		else {
+			process_ctxt_menu_action(act_sel);
+		}
 	}
+}
+
+void PVInspector::PVListingView::process_ctxt_menu_copy()
+{
+	// The value to copy is in _ctxt_v
+	QClipboard* cb = QApplication::clipboard();
+	cb->setText(_ctxt_v);
 }
 
 void PVInspector::PVListingView::process_ctxt_menu_action(QAction* act)
@@ -205,11 +217,14 @@ void PVInspector::PVListingView::process_ctxt_menu_action(QAction* act)
 	Picviz::PVLayerFilter::ctxt_menu_f args_f = entries[act_name];
 
 	// Get the arguments
-	PVCore::PVArgumentList args = args_f(_ctxt_row, _ctxt_col, _ctxt_v);
+	_ctxt_args = args_f(_ctxt_row, _ctxt_col, _ctxt_v);
 
 	// Show the layout filter widget
 	Picviz::PVLayerFilter_p fclone = lib_filter->clone<Picviz::PVLayerFilter>();
-	PVLayerFilterProcessWidget* filter_widget = new PVLayerFilterProcessWidget(main_window->current_tab, args, fclone);
-	filter_widget->init();
-	filter_widget->exec();
+	if (_ctxt_process) {
+		_ctxt_process->deleteLater();
+	}
+	_ctxt_process = new PVLayerFilterProcessWidget(main_window->current_tab, _ctxt_args, fclone);
+	_ctxt_process->init();
+	_ctxt_process->show();
 }

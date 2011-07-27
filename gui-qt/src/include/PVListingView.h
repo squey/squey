@@ -19,6 +19,7 @@
 namespace PVInspector {
 class PVMainWindow;
 class PVTabSplitter;
+class PVLayerFilterProcessWidget;
 
 /**
  * \class PVListingView
@@ -39,7 +40,6 @@ class PVListingView : public QTableView
 public slots:
 	void slotDoubleClickOnVHead(int);
 	void show_ctxt_menu(const QPoint& pos);
-	void process_ctxt_menu_action(QAction* act);
 
 // FIXME!			void update_row_count_in_all_dynamic_listing_model_Slot();
 			/* void update_to_current_selection_Slot();*/
@@ -82,11 +82,18 @@ private:
 	void mouseReleaseEvent(QMouseEvent *event);
 
 private:
+	void process_ctxt_menu_action(QAction* act);
+	void process_ctxt_menu_copy();
+
+private:
 	QMenu* _ctxt_menu;
 	bool _show_ctxt_menu;
 	PVRow _ctxt_row;
 	PVCol _ctxt_col;
 	QString _ctxt_v;
+	PVCore::PVArgumentList _ctxt_args;
+	PVLayerFilterProcessWidget* _ctxt_process;
+	QAction* _act_copy;
 };
 
 }
