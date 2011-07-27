@@ -17,6 +17,7 @@ Picviz::PVLayerFilterAxisGradient::PVLayerFilterAxisGradient(PVCore::PVArgumentL
 	: PVLayerFilter(l)
 {
 	INIT_FILTER(PVLayerFilterAxisGradient, l);
+	add_ctxt_menu_entry("Gradient on this axis", &PVLayerFilterAxisGradient::gradient_menu);
 }
 
 /******************************************************************************
@@ -72,6 +73,14 @@ QString Picviz::PVLayerFilterAxisGradient::status_bar_description()
 QString Picviz::PVLayerFilterAxisGradient::detailed_description()
 {
 	return QString("<b>Purpose</b><br/>This filter applies a color gradient on a wanted axis<hr><b>Behavior</b><br/>It will colorize with a gradient from green to red from the lowest axis value to the highest.");
+}
+
+PVCore::PVArgumentList Picviz::PVLayerFilterAxisGradient::gradient_menu(PVRow row, PVCol col, QString const& v)
+{
+	PVCore::PVArgumentList args;
+	args["Axis"].setValue(PVCore::PVAxisIndexType(col));
+	return args;
+
 }
 
 IMPL_FILTER(Picviz::PVLayerFilterAxisGradient)

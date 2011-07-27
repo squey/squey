@@ -26,6 +26,9 @@ public:
 	virtual QString status_bar_description();
 	virtual QString detailed_description();
 
+public:
+	static PVCore::PVArgumentList gradient_menu(PVRow row, PVCol col, QString const& v);
+
 	CLASS_FILTER(Picviz::PVLayerFilterAxisGradient)
 
 };
