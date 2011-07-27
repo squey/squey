@@ -100,6 +100,9 @@ pvfilter_FilterLibraryDecl PVFilter::PVFilterLibrary<PVFilter::PVFieldsFilter<PV
 pvfilter_FilterLibraryDecl PVFilter::PVFilterLibrary<PVFilter::PVFieldsFilter<PVFilter::one_to_one>::FilterT>;
 pvfilter_FilterLibraryDecl PVFilter::PVFilterLibrary<PVFilter::PVFieldsFilter<PVFilter::many_to_many>::FilterT>;
 pvfilter_FilterLibraryDecl PVFilter::PVFilterLibrary<PVFilter::PVFieldsFilterReg::FilterT>;
+pvfilter_FilterLibraryDecl PVFilter::PVFieldsFilter<PVFilter::one_to_many>;
+pvfilter_FilterLibraryDecl PVFilter::PVFieldsFilter<PVFilter::one_to_one>;
+pvfilter_FilterLibraryDecl PVFilter::PVFieldsFilter<PVFilter::many_to_many>;
 #endif
 
 }

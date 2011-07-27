@@ -17,10 +17,10 @@ namespace PVCore {
 typedef QVariant                     PVArgument;
 typedef QHash<QString,PVArgument>    PVArgumentList;
 
-QString PVArgument_to_QString(PVArgument const& v);
-PVArgument QString_to_PVArgument(QString const& v);
+LibCoreDecl QString PVArgument_to_QString(PVArgument const& v);
+LibCoreDecl PVArgument QString_to_PVArgument(QString const& v);
 
-void dump_argument_list(PVArgumentList const& l);
+LibCoreDecl void dump_argument_list(PVArgumentList const& l);
 
 }
 
