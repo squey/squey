@@ -63,6 +63,13 @@ PVFilter::PVFieldsSplitter_p PVFilter::PVFieldSplitterChunkMatch::get_match_on_i
 {
 	PVCore::PVChunk* chunk = (*src)();
 	PVFieldsSplitter_p ret;
+	if (!chunk) {
+		src->seek_begin();
+		chunk = (*src)();
+		if (!chunk) {
+			return ret;
+		}
+	}
 	LIB_FILTER(PVFilter::PVFieldsSplitter)::list_filters const& lf = LIB_FILTER(PVFilter::PVFieldsSplitter)::get().get_list();
 	LIB_FILTER(PVFilter::PVFieldsSplitter)::list_filters::const_iterator it;
 	for (it = lf.begin(); it != lf.end(); it++) {
