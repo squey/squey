@@ -114,6 +114,14 @@ if (NOT WIN32)
 else (NOT WIN32)
 endif (NOT WIN32)
 
+#
+# Check for libhdfs (needed for Hadoop support).
+#
+if (WIN32)
+else (WIN32)
+	find_package(HDFS)
+endif(WIN32)
+
 ######################
 # Needed for libpvgl #
 ######################

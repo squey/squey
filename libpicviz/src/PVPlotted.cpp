@@ -239,7 +239,7 @@ void PVPlotted::to_csv()
 
 	for (PVRow r = 0; r < row_count; r++) {
 		for (PVCol c = 0; c < col_count; c++) {
-			std::cout << get_value(r, c);
+			printf("%.6f", get_value(r,c));
 			if (c!=col_count-1) {
 				std::cout << ",";
 			}
