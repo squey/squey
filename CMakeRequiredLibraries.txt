@@ -115,6 +115,11 @@ else (NOT WIN32)
 endif (NOT WIN32)
 
 #
+# Check for Java (Hadoop is in the place :))
+#
+find_package(Java)
+
+#
 # Check for libhdfs (needed for Hadoop support).
 #
 if (WIN32)

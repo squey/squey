@@ -1,0 +1,6 @@
+if (JAVA_FOUND)
+	add_subdirectory(jni)
+	add_subdirectory(hadoop)
+else(JAVA_FOUND)
+	MESSAGE("Java hasn't been found. Java bindings for libpvrush won't be available !")
+endif(JAVA_FOUND)

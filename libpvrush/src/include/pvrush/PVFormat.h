@@ -21,6 +21,7 @@
 #include <pvrush/PVXmlParamParser.h>
 #include <pvcore/PVArgument.h>
 #include <pvfilter/PVChunkFilter.h>
+#include <pvfilter/PVElementFilter.h>
 #include <pvfilter/PVFieldsFilter.h>
 
 #include <boost/shared_ptr.hpp>
@@ -80,7 +81,10 @@ namespace PVRush {
 			bool populate_from_xml(QString filename, bool allowNoFilters = false);
 			bool populate_from_xml(QDomElement const& rootNode, bool allowNoFilters = false);
 			bool populate(bool allowNoFilters = false);
+			
 			PVFilter::PVChunkFilter_f create_tbb_filters();
+			PVFilter::PVElementFilter_f create_tbb_filters_elt();
+
 			static QHash<QString, PVRush::PVFormat> list_formats_in_dir(QString const& format_name_prefix, QString const& dir);
 
 			QString const& get_format_name() const;
@@ -108,6 +112,8 @@ namespace PVRush {
 		protected:
 			PVFilter::PVFieldsBaseFilter_f xmldata_to_filter(PVRush::PVXmlParamParserData const& fdata);
 			bool populate_from_parser(PVXmlParamParser& xml_parser, bool allowNoFilters = false);
+
+		protected:
 
 		protected:
 			// "Widget" arguments of the format, like:
