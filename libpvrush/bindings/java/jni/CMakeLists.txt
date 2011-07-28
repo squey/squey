@@ -5,7 +5,7 @@ add_subdirectory(java)
 include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/libpvcore/src/include)
 include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/libpvfilter/src/include)
 include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/libpvrush/src/include)
-include_directories(AFTER ${JNI_INCLUDE_DIRECTORIES})
+include_directories(AFTER ${JNI_INCLUDE_DIRS})
 
 link_directories(${Picviz_Inspector_SOURCE_DIR}/libpvrush/src/ ${Picviz_Inspector_SOURCE_DIR}/libpvfilter/src/ ${Picviz_Inspector_SOURCE_DIR}/libpvcore/src/)
 
