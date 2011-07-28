@@ -20,6 +20,7 @@ typedef std::vector<int> MatchingTable_t;
 #include <PVProgressBox.h>
 #include <QAbstractTableModel>
 
+#include <tbb/scalable_allocator.h>
 
 namespace PVInspector {
 
@@ -42,7 +43,7 @@ public:
 
 private:
 	//sorting data
-	QVector<int> localMatchingTable; //!<the table sort, modify this array to order the values
+	std::vector<int, tbb::scalable_allocator<int> > localMatchingTable; //!<the table sort, modify this array to order the values
     QMutex localMatchingTable_locker;
 	TypeOfSort sortOrder; //!<save the current sorting state (NoOrder, AscendingOrder, DescendingOrder)
 	int colSorted; //!<save the last column whiche was used to sort
