@@ -18,12 +18,12 @@
 extern PVCore::PVLogger pvlog;
 static QSettings pvconfig(QString("pvconfig.ini"), QSettings::IniFormat);
 
-#define PICVIZ_VERSION_STR "2.0.1"
+#define PICVIZ_VERSION_STR "2.1.0"
 /*
  * PVCORE_VERSION is (major << 16) + (minor << 8) + patch.
  */
-/* #define PVCORE_VERSION 0x010102 */
-#define PVCORE_VERSION 0x020001
+/* #define PVCORE_VERSION 0x010102 for 1.1.2 */
+#define PVCORE_VERSION 0x020100
 
 /*
  * Use it like this: if (PVCORE_VERSION >= PVCORE_VERSION_CHECK(1, 1, 2))
