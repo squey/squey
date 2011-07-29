@@ -19,8 +19,6 @@
 #include <QLine>
 #include <QDialogButtonBox>
 
-#include <QtCore>
-
 #include <PVMainWindow.h>
 #include <PVExtractorWidget.h>
 #include <PVFilterSearchWidget.h>
