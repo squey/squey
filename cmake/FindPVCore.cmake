@@ -20,7 +20,7 @@ if(PICVIZ_SINGLE_TREE_BUILD)
 	else(WIN32)
 		set(PVCORE_FOUND true)
 		set(PVCORE_INCLUDE_DIR "${Picviz_Inspector_SOURCE_DIR}/libpvcore/src/include")
-		set(PVCORE_LIBRARY "${Picviz_Inspector_SOURCE_DIR}/libpvcore/src/libpvcore.so" -lgomp)
+		set(PVCORE_LIBRARY "${Picviz_Inspector_SOURCE_DIR}/libpvcore/src/libpvcore.so")
 	endif(WIN32)
 else(PICVIZ_SINGLE_TREE_BUILD)
 	find_path(PVCORE_INCLUDE_DIR pvcore/general.h

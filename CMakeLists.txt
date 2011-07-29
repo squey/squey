@@ -36,16 +36,6 @@ else(WIN32)
 	add_definitions(-Wall -Wextra -pipe -ggdb3)
 endif(WIN32)
 
-# 
-# OpenMP for everyone
-#
-
-if (WIN32)
-	add_definitions(/openmp)
-else (WIN32)
-	add_definitions(-fopenmp)
-endif (WIN32)
-
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${Picviz_Inspector_SOURCE_DIR}/cmake)
 
 #########################################

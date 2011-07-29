@@ -9,6 +9,14 @@ extern "C" {
 #endif
 /*
  * Class:     PVRushJNI
+ * Method:    init
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_PVRushJNI_init
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     PVRushJNI
  * Method:    init_with_format
  * Signature: (Ljava/lang/String;)V
  */

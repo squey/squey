@@ -11,5 +11,7 @@ else(WIN32)
 endif(WIN32)
 add_definitions(-DPVCORE_SHARE_DIR="${PVCORE_SHARE_DIR}")
 
+add_definitions(${OpenMP_CXX_FLAGS})
+
 add_subdirectory(src)
 add_subdirectory(tests)
