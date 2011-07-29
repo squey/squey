@@ -78,5 +78,7 @@ add_subdirectory(src)
 add_subdirectory(plugins)
 add_subdirectory(utils)
 
+add_subdirectory(bindings)
+
 add_subdirectory(tests)
 
