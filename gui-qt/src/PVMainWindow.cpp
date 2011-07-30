@@ -1,7 +1,7 @@
 //! \file PVMainWindow.cpp
 //! $Id: PVMainWindow.cpp 3251 2011-07-06 11:51:57Z rpernaudat $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
+//! Copyright (C) SÃ©bastien Tricaud 2009-2011
+//! Copyright (C) Philippe SaadÃ© 2009-2011
 //! Copyright (C) Picviz Labs 2011
 
 

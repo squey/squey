@@ -1,6 +1,6 @@
 //! \file PVView.cpp
 //! $Id: PVView.cpp 3139 2011-06-14 17:55:24Z stricaud $
-//! Copyright (C) Sébastien Tricaud 2009, 2010
+//! Copyright (C) SÃÂ©bastien Tricaud 2009, 2010
 //! Copyright (C) Philippe Saade 2009,2010
 //! Copyright (C) Picviz Labs 2011
 
@@ -643,10 +643,11 @@ void PVGL::PVView::special_keys(int key, int, int)
 						if (glutGetModifiers() & GLUT_ACTIVE_SHIFT) {
 							picviz_view->axes_combination.move_axis_left_one_position(picviz_view->active_axis);
 							picviz_view->active_axis -= 1;
-							update_all();
 						} else {
 							picviz_view->active_axis -= 1;
 						}
+						update_all();
+						update_listing();
 					} else { // Move/zoom the selection square
 						float x_start, x_end, x_range, x_middle;
 						x_start = picviz_view->square_area.get_start_x();
@@ -680,10 +681,11 @@ void PVGL::PVView::special_keys(int key, int, int)
 						if (glutGetModifiers() & GLUT_ACTIVE_SHIFT) { // Move axis.
 							picviz_view->axes_combination.move_axis_right_one_position(picviz_view->active_axis);
 							picviz_view->active_axis += 1;
-							update_all();
 						} else {
 							picviz_view->active_axis += 1;
 						}
+						update_all();
+						update_listing();
 					} else {
 						float x_start, x_end, x_range, x_middle;
 						x_start = picviz_view->square_area.get_start_x();
