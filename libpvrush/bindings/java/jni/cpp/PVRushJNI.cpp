@@ -1,4 +1,7 @@
-#include <jni.h>
+// AG: WARNING:
+// Before dealing with JNI and object references (and a headacke), please consider
+// reading http://java.sun.com/docs/books/jni/html/refs.html.
+
 #include "PVRushJNI.h"
 
 #include <pvcore/PVElement.h>
@@ -29,13 +32,14 @@ static void free_j2qstring(JNIEnv* env, jstring str, QString const& qstr)
 }
 
 // JNI interface
-JNIEXPORT void JNICALL Java_PVRushJNI_init_1with_1format(JNIEnv * env, jobject /*obj*/, jstring str)
+JNIEXPORT void JNICALL Java_PVRushJNI_init(JNIEnv *, jclass)
 {
-	std::cout << std::endl;
-	std::cerr << "hello\nhi\n";
 	PVRush::PVPluginsLoad::load_all_plugins();
 	PVFilter::PVPluginsLoad::load_all_plugins();
+}
 
+JNIEXPORT void JNICALL Java_PVRushJNI_init_1with_1format(JNIEnv * env, jobject /*obj*/, jstring str)
+{
 	QString file_path = jstring_to_qstring(env, str);
 	std::cout << "Path to format: " << qPrintable(file_path) << std::endl;
 	_format.populate_from_xml(file_path);

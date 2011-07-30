@@ -69,6 +69,7 @@ add_definitions(-DPVRUSH_SOURCE_DIR="${PVRUSH_SOURCE_DIR}")
 ########################################
 # END: SET VARIOUS PLUGINS DIRECTORIES #
 ########################################
+add_definitions(${OpenMP_CXX_FLAGS})
 
 if(NOT WIN32)
 	add_definitions(-DLIBPVRUSH -Wall -Wextra -DDEBUG)

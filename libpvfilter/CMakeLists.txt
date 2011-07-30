@@ -12,6 +12,8 @@ else(WIN32)
 endif(WIN32)
 add_definitions(-DPVFILTER_NORMALIZE_DIR="${PVRUSH_NORMALIZE_DIR}")
 
+add_definitions(${OpenMP_CXX_FLAGS})
+
 add_subdirectory(src)
 add_subdirectory(plugins)
 

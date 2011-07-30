@@ -22,4 +22,6 @@ if (WIN32)
     source_group( "Resources" FILES Resources/icon.rc )
 endif(WIN32)
 
+add_definitions(${OpenMP_CXX_FLAGS})
+
 add_subdirectory(src)

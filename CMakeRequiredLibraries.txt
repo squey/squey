@@ -68,6 +68,23 @@ else(WIN32)
 	set(BOOST_INCLUDEDIR "/usr/include")
 endif(WIN32)
 
+#
+# Check for OpenMP
+#
+if (USE_OPENMP)
+	find_package(OpenMP REQUIRED)
+	# This package does not declare the library used by GCC
+	if (WIN32)
+		set(OpenMP_LIBRARIES "")
+	else (WIN32)
+		set(OpenMP_LIBRARIES "-lgomp")
+	endif(WIN32)
+else (USE_OPENMP)
+	set(OpenMP_LIBRARIES "")
+	set(OpenMP_C_FLAGS "")
+	set(OpenMP_CXX_FLAGS "")
+endif (USE_OPENMP)
+
 ########################
 # Needed for libpvrush #
 ########################
