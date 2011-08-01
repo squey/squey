@@ -7,14 +7,14 @@
 
 #ifdef WIN32
  #ifdef pvrush_EXPORTS
-  #define pvrush_FilterLibraryDecl win32_FilterLibraryDeclExp
+  #define LibRushDeclExplicitTempl LibExportTempl
   #define LibRushDecl LibExport
  #else
-  #define pvrush_FilterLibraryDecl win32_FilterLibraryDeclImp
+  #define LibRushDeclExplicitTempl LibImportTempl
   #define LibRushDecl LibImport
  #endif
 #else
- #define pvrush_FilterLibraryDecl
+ #define LibRushDeclExplicitTempl
  #define LibRushDecl
 #endif
 

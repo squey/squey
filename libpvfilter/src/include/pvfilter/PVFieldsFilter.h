@@ -96,13 +96,13 @@ typedef PVFieldsSplitter::p_type PVFieldsSplitter_p;
 
 // WARNING: all the different PVFilterLibrary's must be defined here, so that they will be exported by the DLL and imported by the others
 #ifdef WIN32
-pvfilter_FilterLibraryDecl PVFilter::PVFilterLibrary<PVFilter::PVFieldsFilter<PVFilter::one_to_many>::FilterT>;
-pvfilter_FilterLibraryDecl PVFilter::PVFilterLibrary<PVFilter::PVFieldsFilter<PVFilter::one_to_one>::FilterT>;
-pvfilter_FilterLibraryDecl PVFilter::PVFilterLibrary<PVFilter::PVFieldsFilter<PVFilter::many_to_many>::FilterT>;
-pvfilter_FilterLibraryDecl PVFilter::PVFilterLibrary<PVFilter::PVFieldsFilterReg::FilterT>;
-pvfilter_FilterLibraryDecl PVFilter::PVFieldsFilter<PVFilter::one_to_many>;
-pvfilter_FilterLibraryDecl PVFilter::PVFieldsFilter<PVFilter::one_to_one>;
-pvfilter_FilterLibraryDecl PVFilter::PVFieldsFilter<PVFilter::many_to_many>;
+LibFilterDeclExplicitTempl PVFilter::PVFilterLibrary<PVFilter::PVFieldsFilter<PVFilter::one_to_many>::FilterT>;
+LibFilterDeclExplicitTempl PVFilter::PVFilterLibrary<PVFilter::PVFieldsFilter<PVFilter::one_to_one>::FilterT>;
+LibFilterDeclExplicitTempl PVFilter::PVFilterLibrary<PVFilter::PVFieldsFilter<PVFilter::many_to_many>::FilterT>;
+LibFilterDeclExplicitTempl PVFilter::PVFilterLibrary<PVFilter::PVFieldsFilterReg>;
+LibFilterDeclExplicitTempl PVFilter::PVFieldsFilter<PVFilter::one_to_many>;
+LibFilterDeclExplicitTempl PVFilter::PVFieldsFilter<PVFilter::one_to_one>;
+LibFilterDeclExplicitTempl PVFilter::PVFieldsFilter<PVFilter::many_to_many>;
 #endif
 
 }

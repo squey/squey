@@ -203,7 +203,7 @@ void PVGL::PVMain::mouse_release(int button, int x, int y)
 void PVGL::PVMain::button_callback(int button, int state, int x, int y)
 {
 	PVLOG_DEBUG("PVGL::PVMain::%s\n", __FUNCTION__);
-        moving_locker_mutex.lock();
+        //moving_locker_mutex.lock();
 	switch (state) {
 		case GLUT_DOWN:
 					{
@@ -230,7 +230,7 @@ void PVGL::PVMain::button_callback(int button, int state, int x, int y)
 				}
 				break;
 	}
-        moving_locker_mutex.unlock();
+        //moving_locker_mutex.unlock();
 	glutPostRedisplay ();
 }
 
@@ -717,11 +717,11 @@ void PVGL::PVMain::timer_func(int)
 						continue;
 					if (picviz_view->square_area.is_dirty()) {
 						PVLOG_DEBUG("   picviz_view->process_from_selection\n");
-						picviz_view->gl_call_locker.lock();
+						//picviz_view->gl_call_locker.lock();
 						picviz_view->selection_A2B_select_with_square_area(picviz_view->layer_stack_output_layer.get_selection(), picviz_view->volatile_selection);
 						picviz_view->process_from_selection();
 						picviz_view->square_area.set_clean();
-						picviz_view->gl_call_locker.unlock();
+						//picviz_view->gl_call_locker.unlock();
 						PVLOG_DEBUG("   pv_view->update_lines\n");
 						pv_view->get_lines().update_arrays_selection();
 						pv_view->get_map().update_arrays_selection();

@@ -7,7 +7,7 @@ SET BUILD_MODE=RelWithDebInfo
 :SET PICVIZ_LOG_FILE="debug.txt"
 SET PICVIZ_DEBUG_LEVEL=INFO
 :SET PICVIZ_DEBUG_FILE="debug.txt"
-SET CACTUSLABS_TRUNK_DIR=E:\GIT\picviz-inspector
+SET CACTUSLABS_TRUNK_DIR=c:\dev\picviz-inspector
 
 SET PICVIZ_LAYER_FILTERS_DIR=libpicviz\plugins\layer-filters\%BUILD_MODE%\
 SET PICVIZ_PLOTTING_FILTERS_DIR=libpicviz\plugins\plotting-filters\%BUILD_MODE%\

@@ -11,22 +11,19 @@
 #define LibExportTempl template class __declspec( dllexport )
 #define LibImportTempl template class __declspec( dllimport )
 
-#define win32_FilterLibraryDeclExp LibExportTempl
-#define win32_FilterLibraryDeclImp LibImportTempl
-
 #define LibExport __declspec( dllexport )
 #define LibImport __declspec( dllimport )
 
 #ifdef WIN32
  #ifdef pvcore_EXPORTS
-  #define pvcore_FilterLibraryDecl win32_FilterLibraryDeclExp
+  #define LibCoreDeclExplicitTempl LibExportTempl
   #define LibCoreDecl LibExport
  #else
-  #define pvcore_FilterLibraryDecl win32_FilterLibraryDeclImp
+  #define LibCoreDeclExplicitTempl LibImportTempl
   #define LibCoreDecl LibImport
  #endif
 #else
- #define pvcore_FilterLibraryDecl
+ #define LibCoreDeclExplicitTempl
  #define LibCoreDecl
 #endif
 

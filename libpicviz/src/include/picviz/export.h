@@ -7,14 +7,14 @@
 
 #ifdef WIN32
  #ifdef picviz_EXPORTS
-  #define picviz_FilterLibraryDecl win32_FilterLibraryDeclExp
+  #define LibPicvizDeclExplicitTempl LibExportTempl
   #define LibPicvizDecl LibExport
  #else
-  #define picviz_FilterLibraryDecl win32_FilterLibraryDeclImp
+  #define LibPicvizDeclExplicitTempl LibImportTempl
   #define LibPicvizDecl LibImport
  #endif
 #else
- #define picviz_PicvizLibraryDecl
+ #define LibPicvizDeclExplicitTempl
  #define LibPicvizDecl
 #endif
 

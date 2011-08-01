@@ -55,7 +55,7 @@ typedef boost::shared_ptr<PVSelectionFilter> PVSelectionFilter_p;
 
 // For this wto work under windows, wez need to export here the PVFilterLibrary for PVLayerFilter
 #ifdef WIN32
-picviz_FilterLibraryDecl PVFilter::PVFilterLibrary<Picviz::PVSelectionFilter>;
+LibPicvizDeclExplicitTempl PVFilter::PVFilterLibrary<Picviz::PVSelectionFilter>;
 #endif
 
 }

@@ -143,7 +143,7 @@ typedef PVFieldsSplitterParamWidget::p_type PVFieldsSplitterParamWidget_p;
 }
 
 #ifdef WIN32
-pvfilter_FilterLibraryDecl PVCore::PVClassLibrary<PVFilter::PVFieldsSplitterParamWidget>;
+LibFilterDeclExplicitTempl PVCore::PVClassLibrary<PVFilter::PVFieldsSplitterParamWidget>;
 #endif
 
 #endif
