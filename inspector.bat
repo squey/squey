@@ -1,7 +1,7 @@
 @echo off
 
-:SET BUILD_MODE=Debug
-SET BUILD_MODE=RelWithDebInfo
+SET BUILD_MODE=Debug
+:SET BUILD_MODE=RelWithDebInfo
 :SET BUILD_MODE=Release
 
 :SET PICVIZ_LOG_FILE="debug.txt"
