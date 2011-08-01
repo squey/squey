@@ -83,6 +83,7 @@ public:
 
 private:
 	void mouseDoubleClickEvent(QMouseEvent* event);
+	void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
 
 private:
 	void process_ctxt_menu_action(QAction* act);

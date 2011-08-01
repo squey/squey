@@ -137,6 +137,8 @@ void PVInspector::PVListingView::update_view_selection_from_listing_selection()
 	main_window->current_tab->refresh_listing_with_horizontal_header_Slot();
 	main_window->current_tab->update_pv_listing_model_Slot();
 	main_window->current_tab->refresh_layer_stack_view_Slot();
+
+	main_window->statusBar()->clearMessage();
 }
 
 void PVInspector::PVListingView::mouseDoubleClickEvent(QMouseEvent* event)
@@ -146,6 +148,21 @@ void PVInspector::PVListingView::mouseDoubleClickEvent(QMouseEvent* event)
 	if (selectedIndexes().size() > 0) {
 		update_view_selection_from_listing_selection();
 	}
+	else {
+		QTableView::mouseDoubleClickEvent(event);
+	}
+}
+
+void PVInspector::PVListingView::selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
+{
+	bool has_sel = selected.indexes().size() > 0;
+	QStatusBar* sb = main_window->statusBar();
+	if (has_sel) {
+		sb->showMessage(tr("Press enter to select these lines."));
+	}
+	else {
+		sb->clearMessage();
+	}	
 }
 
 /******************************************************************************
