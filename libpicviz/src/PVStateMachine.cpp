@@ -53,4 +53,5 @@ QString Picviz::PVStateMachine::get_string()
 		str.append("NZ");
 	}
 
+	return str;
 }
