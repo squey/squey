@@ -20,6 +20,7 @@ public:
 	buf_list_t _reallocated_buffers; // buf_list_t defined in PVBufferSlice.h
 	char* _org_buf;
 	size_t _org_buf_size;
+	size_t _chunk_index;
 
 	~PVElementData()
 	{

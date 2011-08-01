@@ -1,7 +1,7 @@
 if (JAVA_FOUND)
 	if (JNI_FOUND)
 		add_subdirectory(jni)
-		add_subdirectory(hadoop)
+		#add_subdirectory(hadoop)
 	else (JNI_FOUND)
 		MESSAGE(WARNING "JNI hasn't been found. Java bindings for libpvrush won't be available !")
 	endif (JNI_FOUND)
