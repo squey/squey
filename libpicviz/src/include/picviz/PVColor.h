@@ -7,7 +7,7 @@
 #ifndef PICVIZ_PVCOLOR_H
 #define PICVIZ_PVCOLOR_H
 
-#include <Qt/qcolor.h>
+#include <QColor>
 
 #include <pvcore/general.h>
 
