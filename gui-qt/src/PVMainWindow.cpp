@@ -170,8 +170,11 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 	create_pvgl_thread ();
 
 	statusBar();
-	splash.finish(pv_ImportFileButton);
+	statemachine_label = new QLabel("");
+	statusBar()->insertPermanentWidget(0, statemachine_label);
 
+
+	splash.finish(pv_ImportFileButton);
 
 	// Center the main window
 	QRect r = geometry();
@@ -1685,4 +1688,9 @@ void PVInspector::PVMainWindow::update_pvglview(Picviz::PVView_p view, int refre
 	message.pv_view = view;
 	message.int_1 = refresh_states;
 	pvgl_com->post_message_to_gl(message);
+}
+
+void PVInspector::PVMainWindow::update_statemachine_label(Picviz::PVView_p view)
+{
+	statemachine_label->setText(view->state_machine->get_string());
 }
