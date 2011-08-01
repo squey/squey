@@ -38,6 +38,8 @@ endif(WIN32)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${Picviz_Inspector_SOURCE_DIR}/cmake)
 
+
+set(USE_OPENMP true)
 #########################################
 # BEGIN: SET VARIOUS REQUIRED LIBRARIES #
 #########################################
