@@ -53,7 +53,7 @@
 #include <picviz/PVPlotting.h>
 #include <picviz/PVStateMachine.h>
 
-
+#include <PVListingView.h>
 #include <PVProgressBox.h>
 
 // Filters
@@ -947,7 +947,8 @@ bool PVInspector::PVMainWindow::eventFilter(QObject *watched_object, QEvent *eve
 	if (watched_object == pv_ListingsTabWidget->get_tabBar()) {
 		if (event->type() == QEvent::KeyPress) {
 			QKeyEvent *temp_keyEvent = static_cast<QKeyEvent*>(event);
-			if ((temp_keyEvent->key() == Qt::Key_Left) || (temp_keyEvent->key() == Qt::Key_Right)) {
+			int key = temp_keyEvent->key();
+			if ((key == Qt::Key_Left) || (key == Qt::Key_Right) || (key == Qt::Key_Enter)) {
 				keyPressEvent(temp_keyEvent);
 				return true;
 			} else {
@@ -1257,6 +1258,13 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 			}
 
 			break;
+
+		case Qt::Key_Enter: {
+			if (current_tab) {
+				current_tab->pv_listing_view->keyEnterPressed();
+			}
+			break;
+		}
 
 				/* Toggle antialiasing */
 		case Qt::Key_NumberSign:

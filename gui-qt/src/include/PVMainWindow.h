@@ -36,7 +36,6 @@
 //#include <PVMapWidget.h>
 #include <PVOpenFileDialog.h>
 #include <PVSaveFileDialog.h>
-#include <PVListingView.h>
 #include <PVListingsTabWidget.h>
 #include <PVFilterSearchWidget.h>
 
