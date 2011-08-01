@@ -5,7 +5,6 @@
 //! Copyright (C) Picviz Labs 2011
 
 #include <picviz/general.h>
-
 #include <picviz/PVStateMachine.h>
 
 /******************************************************************************
@@ -28,4 +27,30 @@ Picviz::PVStateMachine::PVStateMachine()
     gl_zombie_visible = true;
 }
 
+QString Picviz::PVStateMachine::get_string()
+{
+	QString str("");
 
+	if (listing_unselected_visible) {
+		str.append("U");
+	} else {
+		str.append("NU");
+	}
+	if (listing_zombie_visible) {
+		str.append("Z");
+	} else {
+		str.append("NZ");
+	}
+	str.append("|");
+	if (gl_unselected_visible) {
+		str.append("U");
+	} else {
+		str.append("NU");
+	}
+	if (gl_zombie_visible) {
+		str.append("Z");
+	} else {
+		str.append("NZ");
+	}
+
+}
