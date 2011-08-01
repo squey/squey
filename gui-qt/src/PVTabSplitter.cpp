@@ -1,7 +1,7 @@
 //! \file PVTabSplitter.cpp
 //! $Id: PVTabSplitter.cpp 3253 2011-07-07 07:37:17Z rpernaudat $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
+//! Copyright (C) SÃ©bastien Tricaud 2009-2011
+//! Copyright (C) Philippe SaadÃ© 2009-2011
 //! Copyright (C) Picviz Labs 2011
 
 #include <QtGui>
@@ -103,6 +103,7 @@ void PVInspector::PVTabSplitter::refresh_listing_Slot()
                 static_cast<PVListingModel*>(pv_listing_view->model())->initLocalMatchingTable();
 		static_cast<PVListingModel*>(pv_listing_view->model())->emitLayoutChanged();
 		lib_view->gl_call_locker.unlock();
+		main_window->update_statemachine_label(lib_view);
 	}
 }
 
