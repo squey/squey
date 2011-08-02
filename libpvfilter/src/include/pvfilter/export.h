@@ -1,8 +1,8 @@
 #ifndef PVFILTER_EXPORT_H
 #define PVFILTER_EXPORT_H
 
-#ifndef PVCORE_EXPORT_H
-#error This file must not be included directly. Use pvcore/export.h instead.
+#ifndef PVBASE_EXPORT_H
+#error This file must not be included directly. Use pvbase/export.h instead.
 #endif
 
 #ifdef WIN32

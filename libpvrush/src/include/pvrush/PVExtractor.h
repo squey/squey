@@ -3,7 +3,7 @@
 
 #include <pvbase/general.h>
 
-#include <pvcore/types.h>
+#include <pvbase/types.h>
 #include <pvrush/PVAggregator.h>
 #include <pvrush/PVController.h>
 #include <pvrush/PVControllerThread.h>

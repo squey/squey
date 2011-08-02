@@ -10,7 +10,7 @@
 #include <cuda_gl_interop.h>
 
 #include <pvcore/general.h>
-#include <pvcore/types.h>
+#include <pvbase/types.h>
 #include <picviz/limits.h>
 
 

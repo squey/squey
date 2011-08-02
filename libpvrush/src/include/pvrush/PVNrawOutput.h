@@ -2,7 +2,7 @@
 #define PVNRAWOUTPUT_FILE_H
 
 #include <pvcore/general.h>
-#include <pvcore/types.h>
+#include <pvbase/types.h>
 #include <pvcore/PVChunk.h>
 #include <pvrush/PVOutput.h>
 #include <pvrush/PVNraw.h>

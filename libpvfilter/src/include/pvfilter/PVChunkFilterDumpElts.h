@@ -8,7 +8,7 @@
 #define PVFILTER_PVCHUNKFILTERDUMPELTS_H
 
 #include <pvcore/general.h>
-#include <pvcore/types.h>
+#include <pvbase/types.h>
 #include <pvfilter/PVChunkFilter.h>
 
 #include <QStringList>

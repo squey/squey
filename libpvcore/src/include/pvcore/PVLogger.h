@@ -13,7 +13,7 @@
 #include <QMutex>
 #include <QString>
 
-#include "export.h"
+#include <pvbase/export.h>
 
 
 #ifdef WIN32_DISABLE__

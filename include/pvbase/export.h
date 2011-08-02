@@ -5,8 +5,8 @@
  * 
  */
 
-#ifndef PVCORE_EXPORT_H
-#define PVCORE_EXPORT_H
+#ifndef PVBASE_EXPORT_H
+#define PVBASE_EXPORT_H
 
 #define LibExportTempl template class __declspec( dllexport )
 #define LibImportTempl template class __declspec( dllimport )
@@ -46,4 +46,4 @@
 #include "../../../libpicviz/src/include/picviz/export.h"
 #include "../../../libpvgl/src/include/pvgl/export.h"
 
-#endif	/* PVCORE_EXPORT_H */
+#endif	/* PVBASE_EXPORT_H */

@@ -9,7 +9,6 @@
 #define PVCORE_PVLISTFLOAT2D_H
 
 #include <pvcore/general.h>
-#include <pvcore/types.h>
 
 namespace PVCore {
 class LibCoreDecl PVListFloat2D {

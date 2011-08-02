@@ -9,7 +9,7 @@
 
 
 #include <pvcore/general.h>
-#include <pvcore/types.h>
+#include <pvbase/types.h>
 
 #include <picviz/PVLayer.h>
 #include <picviz/PVLayerFilter.h>
