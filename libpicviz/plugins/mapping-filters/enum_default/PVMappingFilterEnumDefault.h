@@ -22,7 +22,6 @@ class PVMappingFilterEnumDefault: public PVMappingFilter
 {
 public:
 	float* operator()(PVRush::PVNraw::nraw_table_line const& values);
-	void init_from_first(QString const& value);
 
 protected:
 	typedef QHash<QString, int> hash_values;

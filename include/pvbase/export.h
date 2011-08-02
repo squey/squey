@@ -14,19 +14,6 @@
 #define LibExport __declspec( dllexport )
 #define LibImport __declspec( dllimport )
 
-#ifdef WIN32
- #ifdef pvcore_EXPORTS
-  #define LibKernelDeclExplicitTempl LibExportTempl
-  #define LibKernelDecl LibExport
- #else
-  #define LibKernelDeclExplicitTempl LibImportTempl
-  #define LibKernelDecl LibImport
- #endif
-#else
- #define LibKernelDeclExplicitTempl
- #define LibKernelDecl
-#endif
-
 
 #ifdef WIN32
 #define LibCPPExport extern "C" __declspec( dllexport )

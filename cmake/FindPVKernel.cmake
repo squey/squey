@@ -32,14 +32,14 @@ else(PICVIZ_SINGLE_TREE_BUILD)
 		     PATH_SUFFIXES libpvkernel/src/ )
 endif(PICVIZ_SINGLE_TREE_BUILD)
 
-set(PVKERNEL_LIBRARIES ${PVKERNEL_LIBRARY})
+set(PVKERNEL_LIBRARIES ${PVKERNEL_LIBRARY} ${TBB_LIBRARY} ${TBB_MALLOC_LIBRARY})
 set(PVKERNEL_INCLUDE_DIRS ${PVKERNEL_INCLUDE_DIR})
 
 include(FindPackageHandleStandardArgs)
 # handle the QUIETLY and REQUIRED arguments and set LIBXML2_FOUND to TRUE
 # if all listed variables are TRUE
 find_package_handle_standard_args(PVKERNEL  DEFAULT_MSG
-                                  PVKERNEL_LIBRARY PVKERNEL_INCLUDE_DIR)
+                                  PVKERNEL_LIBRARIES PVKERNEL_INCLUDE_DIR)
 
 mark_as_advanced(PVKERNEL_INCLUDE_DIRS PVKERNEL_LIBRARIES)
 

@@ -8,10 +8,10 @@ set(SOURCES_DIST_FILES
 )
 
 add_library(source_text_file SHARED text_file/PVSourceCreatorTextfile.cpp text_file/PVSourceCreatorTextfile.h text_file/register.cpp)
-target_link_libraries(source_text_file ${PVKERNEL_LIBRARIES})
+target_link_libraries(source_text_file ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES} ${PCAP_LIBRARIES})
 
 add_library(source_pcap_file SHARED pcap_file/PVSourceCreatorPcapfile.cpp pcap_file/PVSourceCreatorPcapfile.h pcap_file/register.cpp)
-target_link_libraries(source_pcap_file ${PVKERNEL_LIBRARIES})
+target_link_libraries(source_pcap_file ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES} ${PCAP_LIBRARIES})
 
 if(HDFS_FOUND)
 	include_directories(AFTER ${HDFS_INCLUDE_DIRS})

@@ -12,7 +12,7 @@ SET(FILE_MOC_HEADERS file/PVImportFileDialog.h)
 QT4_WRAP_CPP(FILE_MOC_SRC ${FILE_MOC_HEADERS})
 
 add_library(input_type_file SHARED file/PVInputTypeFilename.cpp file/PVImportFileDialog.cpp file/extract.cpp file/register.cpp ${FILE_MOC_SRC})
-target_link_libraries(input_type_file ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
+target_link_libraries(input_type_file ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES} ${ARCHIVE_LIBRARY})
 
 if(HDFS_FOUND)
 	set(INPUTS_DIST_LIST ${INPUTS_DIST_LIST} input_type_hdfs)

@@ -22,7 +22,7 @@ mapping_filter_mandatory_minmax
 set(FILTERS_DIST_FILES
 )
 
-set(LINK_LIBRARIES ${PICVIZ_LIBRARY} ${PVKERNEL_LIBRARY})
+set(LINK_LIBRARIES ${PICVIZ_LIBRARY} ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
 
 add_library(mapping_filter_float_default SHARED float_default/PVMappingFilterFloatDefault.cpp float_default/register.cpp)
 target_link_libraries(mapping_filter_float_default ${LINK_LIBRARIES})

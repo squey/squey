@@ -44,6 +44,8 @@ typedef unsigned char pv_uint8_t;
 typedef signed short pv_int16_6;
 typedef unsigned short pv_uint16_t;
 
+typedef quint64 chunk_index;
+
 #ifdef __cplusplus		/* FIXME: We need this since we still have C code somewhere. That should all be C++ */
 
 

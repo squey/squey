@@ -22,7 +22,7 @@ layer_filter_attacks
 set(FILTERS_DIST_FILES
 )
 
-set(LINK_LIBRARIES ${PICVIZ_LIBRARY} ${PVKERNEL_LIBRARY})
+set(LINK_LIBRARIES ${PICVIZ_LIBRARY} ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
 
 add_library(layer_filter_axis_gradient SHARED axis-gradient/PVLayerFilterAxisGradient.cpp axis-gradient/register.cpp)
 target_link_libraries(layer_filter_axis_gradient ${LINK_LIBRARIES})
