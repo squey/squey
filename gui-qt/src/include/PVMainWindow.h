@@ -9,6 +9,7 @@
 
 #include <QMainWindow>
 
+#include <QLabel>
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
 #include <QNetworkReply>
@@ -35,7 +36,6 @@
 //#include <PVMapWidget.h>
 #include <PVOpenFileDialog.h>
 #include <PVSaveFileDialog.h>
-#include <PVListingView.h>
 #include <PVListingsTabWidget.h>
 #include <PVFilterSearchWidget.h>
 
@@ -88,6 +88,7 @@ public:
 
 	QMenuBar *menubar;
 	QMenu *filter_Menu;
+	QLabel *statemachine_label;
 
 	char *last_sendername;
 	Picviz::PVLayerFilter *filter;
@@ -104,7 +105,9 @@ public:
 
 	void import_type(PVRush::PVInputType_p in_t);
 	/* void import_type(); */
-	
+	void update_statemachine_label(Picviz::PVView_p view);
+
+
 public slots:
 	void about_Slot();
 	void axes_editor_Slot();

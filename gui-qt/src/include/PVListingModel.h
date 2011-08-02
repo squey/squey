@@ -162,6 +162,8 @@ public:
      */
     void emitLayoutChanged(); 
 
+protected:
+	mutable QReadWriteLock _local_table_mutex;
 };
 //MatchingTable_t PVInspector::PVListingModel::sortMatchingTable; //!<the table sort, modify this array to order the values
     

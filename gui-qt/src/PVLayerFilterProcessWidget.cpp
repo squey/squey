@@ -5,8 +5,9 @@
 
 #include <picviz/PVStateMachine.h>
 
-#include "PVMainWindow.h"
-#include "PVLayerFilterProcessWidget.h"
+#include <PVMainWindow.h>
+#include <PVLayerFilterProcessWidget.h>
+#include <PVProgressBox.h>
 
 PVInspector::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(PVTabSplitter* tab, PVCore::PVArgumentList& args, Picviz::PVLayerFilter_p filter_p) :
 	PVArgumentListWidget(*tab->get_lib_view(), args, tab),

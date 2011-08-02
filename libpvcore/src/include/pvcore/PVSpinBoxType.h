@@ -8,7 +8,7 @@
 #define PVCORE_PVSPINBOXTYPE_H
 
 #include <pvcore/general.h>
-#include <pvcore/types.h>
+#include <pvbase/types.h>
 #include <QMetaType>
 
 namespace PVCore {

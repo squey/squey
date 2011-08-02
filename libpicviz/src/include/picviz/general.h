@@ -8,7 +8,7 @@
 //AUTO_CUSTOMER_RELEASE #include <picviz/api-obfuscate.h> 
 /* #endif */
 
-#include <pvcore/types.h>
+#include <pvbase/types.h>
 
 #include <pvcore/general.h>
 

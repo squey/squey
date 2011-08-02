@@ -155,6 +155,10 @@ Qt::ItemFlags PVInspector::PVListingModel::flags(const QModelIndex &/*index*/) c
  *****************************************************************************/
 void PVInspector::PVListingModel::initLocalMatchingTable(){
 	PVLOG_DEBUG("PVListingModel::initLocalMatchingTable()\n");
+
+	// Put a mutex for the local mathing table, because a thread can create it while being read by another one (like the model's thread) !
+	QWriteLocker locker(&_local_table_mutex);
+
 	std::map<int,int> myMap;
 	std::map<int,int>::iterator myIterator;
 
@@ -251,40 +255,16 @@ QVariant PVInspector::PVListingModel::headerData(int section, Qt::Orientation or
 		return QVariant();
 	}
 
-	int real_row_index = 0;
-	// We need to get the data index to display vertical values
-	if(state_machine->are_listing_all()){
-		real_row_index=parent_widget->sortMatchingTable.at(section);
-	}
-	else
-	if (state_machine->are_listing_no_nu()) {//NU
-			real_row_index = localMatchingTable[section];
-	}
-	else
-	if (state_machine->are_listing_no_nz()) {//NZ
-		real_row_index = localMatchingTable[section];
-	}
-	else
-	if (state_machine->are_listing_no_nu_nz()) {//NU_NZ
-		real_row_index = localMatchingTable[section];//(lib_view->get_nznu_real_row_index(section));
-	}
-
-	if (!(real_row_index >= 0 && real_row_index < (int)lib_view->get_qtnraw_parent().size())) {
-		return QVariant();
-	}
-
-
 	switch (role) {
 		case (Qt::DisplayRole):
 			if (orientation == Qt::Horizontal) {
 				return QVariant(lib_view->get_axis_name(section));
 			} else {
-				//return real_row_index + 1;
-				return real_row_index ;///TODO replace by prev after debug
+				return getRealRowIndex(section);
 			}
 			break;
 		case (Qt::FontRole):
-			if ((lib_view->real_output_selection.get_line(real_row_index)) && (orientation == Qt::Vertical)) {
+			if ((orientation == Qt::Vertical) && (lib_view->real_output_selection.get_line(getRealRowIndex(section)))) {
 				return select_font;
 			} else {
 				return unselect_font;
@@ -422,6 +402,9 @@ int PVInspector::PVListingModel::rowCount(const QModelIndex &/*index*/) const
  *****************************************************************************/
 PVRow PVInspector::PVListingModel::getRealRowIndex(PVRow model_row) const
 {
+	// Be sure that no thread are actually creating this table
+	QReadLocker locker(&_local_table_mutex);
+
 	PVCol real_row_index = 0;
 	if (state_machine->are_listing_all()) {
 		real_row_index = parent_widget->sortMatchingTable.at(model_row);

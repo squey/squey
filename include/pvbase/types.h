@@ -4,10 +4,10 @@
 //! Copyright (C) Philippe Saade 2009-2011
 //! Copyright (C) Picviz Labs 2011
 
-#ifndef PVCORE_TYPES_H
-#define PVCORE_TYPES_H
+#ifndef PVBASE_TYPES_H
+#define PVBASE_TYPES_H
 
-#include <QtCore/qglobal.h>
+#include <QtGlobal>
 
 typedef int pv_column;
 typedef int pv_row;
@@ -97,4 +97,4 @@ struct ubvec4
 
 #endif // __cplusplus
 
-#endif	/* PVCORE_TYPES_H */
+#endif	/* PVBASE_TYPES_H */

@@ -8,7 +8,6 @@
 #define PVFILTER_PVCHUNKFILTERCOUNTELTS_H
 
 #include <pvcore/general.h>
-#include <pvcore/types.h>
 #include <pvfilter/PVChunkFilter.h>
 
 #include <map>

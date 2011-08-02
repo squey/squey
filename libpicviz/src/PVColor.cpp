@@ -4,7 +4,7 @@
 //! Copyright (C) Philippe Saadé 2009-2011
 //! Copyright (C) Picviz Labs 2011
 
-#include <Qt/qrgb.h>
+#include <QRgb>
 
 #include <picviz/PVColor.h>
 

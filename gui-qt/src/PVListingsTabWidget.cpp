@@ -25,8 +25,6 @@ PVInspector::PVListingsTabWidget::PVListingsTabWidget(PVMainWindow *mw, QWidget 
 
 	tabBar()->installEventFilter(main_window);
 
-	setCursor(Qt::CrossCursor);
-
 #ifdef CUSTOMER_RELEASE
 	setTabsClosable(true);
 	connect(tabBar(), SIGNAL(tabCloseRequested(int)), this, SLOT(tabCloseRequested_Slot(int)));

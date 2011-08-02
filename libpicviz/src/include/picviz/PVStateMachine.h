@@ -7,6 +7,8 @@
 #ifndef PICVIZ_PVSTATEMACHINE_H
 #define PICVIZ_PVSTATEMACHINE_H
 
+#include <QString>
+
 #include <picviz/general.h>
 #include <picviz/square-area.h>
 
@@ -117,18 +119,18 @@ namespace Picviz {
                 return gl_zombie_visible;
             }
             
+	    QString get_string();
             
-            
-            bool is_edit_mode_all()const {
-                return edit_mode_all;
-            }
-
             picviz_square_area_t *get_square_area()const {
                 return square_area;
             }
 
             SquareAreaModes get_square_area_mode()const {
                 return square_area_mode;
+            }
+            
+            bool is_edit_mode_all()const {
+                return edit_mode_all;
             }
 
             void set_antialiased(bool state) {
@@ -206,7 +208,7 @@ namespace Picviz {
             void toggle_edit_mode() {
                 edit_mode_all = !edit_mode_all;
             }
-            
+
             //void update_listing_mode();
         };
 

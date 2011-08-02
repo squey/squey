@@ -5,28 +5,25 @@
  * 
  */
 
-#ifndef PVCORE_EXPORT_H
-#define PVCORE_EXPORT_H
+#ifndef PVBASE_EXPORT_H
+#define PVBASE_EXPORT_H
 
 #define LibExportTempl template class __declspec( dllexport )
 #define LibImportTempl template class __declspec( dllimport )
-
-#define win32_FilterLibraryDeclExp LibExportTempl
-#define win32_FilterLibraryDeclImp LibImportTempl
 
 #define LibExport __declspec( dllexport )
 #define LibImport __declspec( dllimport )
 
 #ifdef WIN32
  #ifdef pvcore_EXPORTS
-  #define pvcore_FilterLibraryDecl win32_FilterLibraryDeclExp
+  #define LibCoreDeclExplicitTempl LibExportTempl
   #define LibCoreDecl LibExport
  #else
-  #define pvcore_FilterLibraryDecl win32_FilterLibraryDeclImp
+  #define LibCoreDeclExplicitTempl LibImportTempl
   #define LibCoreDecl LibImport
  #endif
 #else
- #define pvcore_FilterLibraryDecl
+ #define LibCoreDeclExplicitTempl
  #define LibCoreDecl
 #endif
 
@@ -44,9 +41,9 @@
 #endif
 
 // Decls for other libraries
-#include "../../../../libpvfilter/src/include/pvfilter/export.h"
-#include "../../../../libpvrush/src/include/pvrush/export.h"
-#include "../../../../libpicviz/src/include/picviz/export.h"
-#include "../../../../libpvgl/src/include/pvgl/export.h"
+#include "../../../libpvfilter/src/include/pvfilter/export.h"
+#include "../../../libpvrush/src/include/pvrush/export.h"
+#include "../../../libpicviz/src/include/picviz/export.h"
+#include "../../../libpvgl/src/include/pvgl/export.h"
 
-#endif	/* PVCORE_EXPORT_H */
+#endif	/* PVBASE_EXPORT_H */

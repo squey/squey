@@ -27,7 +27,7 @@
 #define PVXmlTreeNodeDom_initXml "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<!DOCTYPE PVParamXml>\n<param></param>\n"
     
 namespace PVRush {
-class PVXmlTreeNodeDom:public QObject {
+class LibRushDecl PVXmlTreeNodeDom:public QObject {
     Q_OBJECT
 public:
     enum Type {

@@ -4,8 +4,8 @@ project(Picviz_Inspector)
 
 if (WIN32)
 	#set(CMAKE_BUILD_TYPE "Debug")
-	set(CMAKE_BUILD_TYPE "Release")
-#	set(CMAKE_BUILD_TYPE "RelWithDebInfo")
+	#set(CMAKE_BUILD_TYPE "Release")
+	set(CMAKE_BUILD_TYPE "Debug")
 else(WIN32)
 	set(CMAKE_BUILD_TYPE "Debug")
 endif(WIN32)
@@ -62,6 +62,9 @@ message(STATUS "Boost include dirs: " ${BOOST_INCLUDEDIR})
 include_directories(AFTER ${BOOST_INCLUDEDIR})
 message(STATUS "TBB include dirs: " ${TBB_INCLUDE_DIRS})
 include_directories(AFTER ${TBB_INCLUDE_DIRS})
+
+# PVBase
+include_directories(AFTER "${Picviz_Inspector_SOURCE_DIR}/include")
 ###########################################
 # END: ADD INCLUDE DIRS NEEDED EVERYWHERE #
 ###########################################

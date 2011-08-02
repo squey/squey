@@ -77,7 +77,7 @@ typedef PVLayerFilter::func_type PVLayerFilter_f;
 
 // For this wto work under windows, wez need to export here the PVFilterLibrary for PVLayerFilter
 #ifdef WIN32
-picviz_FilterLibraryDecl PVFilter::PVFilterLibrary<Picviz::PVLayerFilter>;
+LibPicvizDeclExplicitTempl PVFilter::PVFilterLibrary<Picviz::PVLayerFilter>;
 #endif
 
 }
