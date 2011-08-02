@@ -86,6 +86,9 @@ public:
 			_curc->set_end(previous_end+size_read_processed);
 		}
 
+		// Set the index of the elements inside the chunk
+		_curc->set_elements_index();
+
 		// Compute the chunk indexes, based on the number of elements found
 		PVCore::chunk_index next_index = _curc->index() + _curc->c_elements().size();
 		_offsets[next_index] =  _input->current_input_offset();

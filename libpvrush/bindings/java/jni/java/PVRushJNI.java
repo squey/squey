@@ -1,3 +1,5 @@
+package org.picviz.jni.PVRush;
+
 public class PVRushJNI {
 	static {
 		System.loadLibrary("pvrush_jni");
@@ -5,8 +7,8 @@ public class PVRushJNI {
 	}
 	
 	native static void init();
-	native void init_with_format(String path_format);
-	native String[] process_elt(String elt);
+	native public void init_with_format(String path_format);
+	native public String[] process_elt(String elt);
 	
 	public static void main(String[] args) {
 		PVRushJNI rush = new PVRushJNI();

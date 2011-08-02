@@ -32,3 +32,13 @@ void PVCore::PVField::deep_copy()
 {
 	_realloc_data();
 }
+
+size_t PVCore::PVField::get_index_of_parent_element()
+{
+	return _parent->_elt->get_elt_index();
+}
+
+size_t PVCore::PVField::get_agg_index_of_parent_element()
+{
+	return _parent->_elt->get_elt_agg_index();
+}

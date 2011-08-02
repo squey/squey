@@ -64,8 +64,8 @@ bool split_ip_port(QString const& str, QString& ip, uint16_t& port)
 		}
 	}
 	else {
-		PVLOG_WARN("(splitter_url) unknown port for %s. Port is set to 0.\n", qPrintable(str));
-		port = 0;
+		PVLOG_WARN("(PVFieldSplitterURL) unknown port for %s.\n", qPrintable(str));
+		return false;
 	}
 
 	ip = l[0];
@@ -119,7 +119,7 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterURL::one_to_many(PVCore:
 			url_decode_add_field(&buf, none); // Variable
 			return buf.nelts;
 		}
-		PVLOG_WARN("(PVFieldSplitterURL) invalid url '%s', cannot normalize\n", qPrintable(field.qstr()));
+		PVLOG_WARN("(PVFieldSplitterURL) in global index %d, invalid url '%s', cannot normalize\n", field.get_agg_index_of_parent_element(), qPrintable(field.qstr()));
 		field.set_invalid();
 		field.elt_parent()->set_invalid();
 		return 0;

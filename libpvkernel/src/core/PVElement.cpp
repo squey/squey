@@ -97,3 +97,15 @@ char* PVCore::PVElement::get_saved_elt_buffer(size_t& n)
 	n = d->_org_buf_size;
 	return d->_org_buf;
 }
+
+PVCore::chunk_index PVCore::PVElement::get_elt_index()
+{
+	PVChunk* parent = chunk_parent();
+	return parent->get_index_of_element(*this);
+}
+
+PVCore::chunk_index PVCore::PVElement::get_elt_agg_index()
+{
+	PVChunk* parent = chunk_parent();
+	return parent->get_agg_index_of_element(*this);
+}

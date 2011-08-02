@@ -29,6 +29,7 @@ class PVElementData;
 typedef std::list<PVField, tbb::tbb_allocator<PVField> > list_fields;
 class LibCoreDecl PVElement : public PVBufferSlice {
 	friend class PVField;
+	friend class PVChunk;
 public:
 	PVElement(PVChunk* parent, char* begin, char* end);
 	PVElement(PVElement const& src);
@@ -40,6 +41,10 @@ public:
 	void save_elt_buffer();
 	char* get_saved_elt_buffer(size_t& n);
 	PVChunk* chunk_parent();
+	size_t get_elt_index();
+	size_t get_elt_agg_index();
+	bool same_data_as(PVElement const& elt) const { return d == elt.d; }
+	size_t get_chunk_index() const { return _chunk_index; }
 
 	list_fields& fields();
 	list_fields const& c_fields() const;
@@ -47,10 +52,15 @@ public:
 	buf_list_t& realloc_bufs() const;
 public:
 	PVElement& operator=(PVElement const& src);
+protected:
+	// Set by the parent PVChunk
+	void set_chunk_index(size_t i) { _chunk_index = i; }
 private:
 	void clear_saved_buf();
 protected:
 	QExplicitlySharedDataPointer<PVElementData> d;
+private:
+	size_t _chunk_index;
 };
 
 }

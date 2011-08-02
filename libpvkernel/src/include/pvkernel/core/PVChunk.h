@@ -64,10 +64,29 @@ public:
 	virtual void free() = 0;
 	virtual PVChunk* realloc_grow(size_t n) = 0;
 
+	chunk_index get_index_of_element(PVElement const& elt) { return _get_idx_elt(elt) + _index; }
+	chunk_index get_agg_index_of_element(PVElement const& elt) { return _get_idx_elt(elt) + _agg_index; }
+
 	list_elts& elements() {return _elts;};
 	list_elts const& c_elements() const {return _elts;}; 
 
 	PVFilter::PVRawSourceBase* source() const { return _source; };
+
+public:
+	void set_elements_index()
+	{
+		size_t i = 0;
+		list_elts::iterator it;
+		for (it = _elts.begin(); it != _elts.end(); it++) {
+			it->set_chunk_index(i);
+			i++;
+		}
+	}
+private:
+	chunk_index _get_idx_elt(PVElement const& elt)
+	{
+		return elt.get_chunk_index();
+	}
 protected:
 	// Useful datas
 	char* _logical_end;

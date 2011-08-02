@@ -136,7 +136,7 @@ else (NOT WIN32)
 endif (NOT WIN32)
 
 #
-# Check for Java and JNI (Hadoop is in the place :))
+# Check for Java and JNI
 #
 find_package(Java)
 find_package(JNI)
