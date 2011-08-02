@@ -22,7 +22,7 @@ PVFilter::PVChunkFilterCountElts::PVChunkFilterCountElts(bool* done_ptr) :
  * PVFilter::PVChunkFilterCountElts::done_when
  *
  *****************************************************************************/
-void PVFilter::PVChunkFilterCountElts::done_when(PVCore::chunk_index n)
+void PVFilter::PVChunkFilterCountElts::done_when(chunk_index n)
 {
 	assert(n > 0);
 	_done_when = n;

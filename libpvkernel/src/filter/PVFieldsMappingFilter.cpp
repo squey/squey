@@ -51,7 +51,7 @@ PVCore::list_fields& PVFilter::PVFieldsMappingFilter::operator()(PVCore::list_fi
 		}
 
 		PVCore::list_fields &final_fields = f(tmp_fields);
-		PVCore::chunk_index ins_index = *(std::min_element(indx.begin(), indx.end()));
+		chunk_index ins_index = *(std::min_element(indx.begin(), indx.end()));
 		PVCore::list_fields::iterator itins = fields.begin();
 		std::advance(itins, ins_index);
 		fields.splice(itins, final_fields);
