@@ -24,14 +24,12 @@ PVSplitter.cpp
 set(HEADER_FILES
 include/pvcore/debug.h
 include/pvcore/environ.h
-include/pvcore/export.h
 include/pvcore/general.h
 include/pvcore/network.h
 include/pvcore/pv_pcre_splitter.h
 include/pvcore/pv_splitter.h
 include/pvcore/string.h
 include/pvcore/sysinfo.h
-include/pvcore/types.h
 
 include/pvcore/PVArgument.h
 include/pvcore/PVAxisIndexType.h
