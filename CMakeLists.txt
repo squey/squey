@@ -70,7 +70,7 @@ include_directories(AFTER "${Picviz_Inspector_SOURCE_DIR}/include")
 
 
 add_subdirectory(scripts)
-add_subdirectory(libpvcore)
+add_subdirectory(libpvkernel)
 add_subdirectory(libpvfilter)
 add_subdirectory(libpvrush)
 add_subdirectory(libpicviz)
