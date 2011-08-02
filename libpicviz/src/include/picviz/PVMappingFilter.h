@@ -35,6 +35,7 @@ class PVLibPicvizDecl PVMappingFilter: public PVFilter::PVFilterFunctionBase<flo
 {
 public:
 	typedef boost::shared_ptr<PVMappingFilter> p_type;
+	typedef PVMappingFilter FilterT;
 
 public:
 	PVMappingFilter();

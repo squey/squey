@@ -19,6 +19,7 @@ class LibPicvizDecl PVPlottingFilter: public PVFilter::PVFilterFunctionBase<floa
 {
 public:
 	typedef boost::shared_ptr<PVPlottingFilter> p_type;
+	typedef PVPlottingFilter FilterT;
 
 public:
 	PVPlottingFilter();
@@ -42,7 +43,7 @@ typedef PVPlottingFilter::func_type PVPlottingFilter_f;
 }
 
 #ifdef WIN32
-LibPicvizDeclExplicitTempl PVFilter::PVFilterLibrary<Picviz::PVPlottingFilter::FilterT>;
+LibPicvizDeclExplicitTempl PVCore::PVClassLibrary<Picviz::PVPlottingFilter::FilterT>;
 #endif
 
 #endif

@@ -35,6 +35,7 @@ class LibPicvizDecl PVMandatoryMappingFilter: public PVFilter::PVFilterFunctionB
 {
 public:
 	typedef boost::shared_ptr<PVMandatoryMappingFilter> p_type;
+	typedef PVMandatoryMappingFilter FilterT;
 
 public:
 	PVMandatoryMappingFilter();
