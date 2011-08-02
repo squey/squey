@@ -66,9 +66,9 @@ PVRush::PVFormat& PVRush::PVExtractor::get_format()
 	return *_nraw.format;
 }
 
-PVCore::chunk_index PVRush::PVExtractor::pvrow_to_agg_index(PVRow start, bool& found)
+chunk_index PVRush::PVExtractor::pvrow_to_agg_index(PVRow start, bool& found)
 {
-	PVCore::chunk_index ret = 0;
+	chunk_index ret = 0;
 	found = false;
 	PVNrawOutput::map_pvrow const& mapnrow = _out_nraw.get_pvrow_index_map();
 	PVNrawOutput::map_pvrow::const_iterator it_map;
@@ -92,7 +92,7 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_pvrow(PVRow start, P
 	
 	// Find the aggregator chunk index corresponding to start
 	bool idx_found;
-	PVCore::chunk_index idx_start = pvrow_to_agg_index(start, idx_found);
+	chunk_index idx_start = pvrow_to_agg_index(start, idx_found);
 	
 	// If it can't be found...
 	if (!idx_found) {
@@ -131,7 +131,7 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_pvrow(PVRow start, P
 }
 
 
-PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(PVCore::chunk_index start, PVCore::chunk_index nlines, int priority)
+PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_index start, chunk_index nlines, int priority)
 {
 	_nraw.reserve(nlines);
 
@@ -149,7 +149,7 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(PVCore::c
 }
 
 
-PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_idxes(PVCore::chunk_index start, PVCore::chunk_index end, int priority)
+PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_idxes(chunk_index start, chunk_index end, int priority)
 {
 	_nraw.reserve(end-start);
 

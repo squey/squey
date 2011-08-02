@@ -33,7 +33,7 @@ PVRush::PVControllerJob::~PVControllerJob()
 	_job_finished.notify_all(); 
 }
 
-void PVRush::PVControllerJob::set_params(PVCore::chunk_index begin, PVCore::chunk_index end, PVCore::chunk_index n_elts, stop_cdtion sc, PVAggregator &agg, PVFilter::PVChunkFilter_f filter, PVOutput& out_filter, size_t nchunks, bool dump_elts)
+void PVRush::PVControllerJob::set_params(chunk_index begin, chunk_index end, chunk_index n_elts, stop_cdtion sc, PVAggregator &agg, PVFilter::PVChunkFilter_f filter, PVOutput& out_filter, size_t nchunks, bool dump_elts)
 {
 	_idx_begin = begin;
 	_idx_end = end;
@@ -144,12 +144,12 @@ int PVRush::PVControllerJob::priority() const
 	return _priority;
 }
 
-PVCore::chunk_index PVRush::PVControllerJob::idx_begin() const
+chunk_index PVRush::PVControllerJob::idx_begin() const
 {
 	return _idx_begin;
 }
 
-PVCore::chunk_index PVRush::PVControllerJob::idx_end() const
+chunk_index PVRush::PVControllerJob::idx_end() const
 {
 	return _idx_end;
 }
@@ -169,12 +169,12 @@ tbb::tick_count::interval_t PVRush::PVControllerJob::duration() const
 	return _tc_end-_tc_start;
 }
 
-PVCore::chunk_index PVRush::PVControllerJob::status() const
+chunk_index PVRush::PVControllerJob::status() const
 {
 	return _f_nelts.n_elts_done();
 }
 
-PVCore::chunk_index PVRush::PVControllerJob::nb_elts_max() const
+chunk_index PVRush::PVControllerJob::nb_elts_max() const
 {
 	return _max_n_elts;
 }

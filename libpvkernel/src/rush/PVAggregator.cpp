@@ -64,7 +64,7 @@ void PVRush::PVAggregator::set_stop_condition(bool *cond)
 	_stop_cond = cond;
 }
 
-void PVRush::PVAggregator::process_from_source(list_inputs::iterator input_start, PVCore::chunk_index nstart, PVCore::chunk_index nend)
+void PVRush::PVAggregator::process_from_source(list_inputs::iterator input_start, chunk_index nstart, chunk_index nend)
 {
 	// FIXME: as process_indexes isn't efficient, this method could read *twice* the files...
 	
@@ -82,7 +82,7 @@ void PVRush::PVAggregator::process_from_source(list_inputs::iterator input_start
 			return;
 		}
 	}
-	PVCore::chunk_index offset = _cur_src_index;
+	chunk_index offset = _cur_src_index;
 
 	// Then compute the new nstart and nend value
 	_nstart = nstart + offset;
@@ -92,7 +92,7 @@ void PVRush::PVAggregator::process_from_source(list_inputs::iterator input_start
 	process_indexes(_nstart, _nend);
 }
 
-void PVRush::PVAggregator::process_indexes(PVCore::chunk_index nstart, PVCore::chunk_index nend)
+void PVRush::PVAggregator::process_indexes(chunk_index nstart, chunk_index nend)
 {
 	_nstart = nstart;
 	_nend = nend;
@@ -121,7 +121,7 @@ bool PVRush::PVAggregator::read_until_source(list_inputs::iterator input_start)
 	return true;
 }
 
-PVCore::PVChunk* PVRush::PVAggregator::read_until_index(PVCore::chunk_index idx) const
+PVCore::PVChunk* PVRush::PVAggregator::read_until_index(chunk_index idx) const
 {
 	PVCore::PVChunk* ret = NULL;
 	while (_nlast < idx) {
@@ -239,12 +239,12 @@ void PVRush::PVAggregator::add_input(PVRush::PVRawSourceBase_p in)
 	_inputs.push_back(in);
 }
 
-PVCore::chunk_index PVRush::PVAggregator::last_elt_agg_index()
+chunk_index PVRush::PVAggregator::last_elt_agg_index()
 {
 	return _last_elt_agg_index;
 }
 
-PVRush::PVRawSourceBase_p PVRush::PVAggregator::agg_index_to_source(PVCore::chunk_index idx, size_t* offset)
+PVRush::PVRawSourceBase_p PVRush::PVAggregator::agg_index_to_source(chunk_index idx, size_t* offset)
 {
 	map_source_offsets::reverse_iterator it;
 	for (it = _src_offsets.rbegin(); it != _src_offsets.rend(); it++) {
