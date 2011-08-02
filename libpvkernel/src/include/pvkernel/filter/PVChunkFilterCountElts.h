@@ -18,15 +18,15 @@ class LibKernelDecl PVChunkFilterCountElts : public PVChunkFilter {
 
 public:
 	PVChunkFilterCountElts(bool* done_ptr);
-	void done_when(PVCore::chunk_index n);
+	void done_when(chunk_index n);
 
 public:
 	virtual PVCore::PVChunk* operator()(PVCore::PVChunk* chunk);
-	inline PVCore::chunk_index n_elts_done() const { return _n_elts; }
+	inline chunk_index n_elts_done() const { return _n_elts; }
 
 protected:
-	mutable PVCore::chunk_index _n_elts;
-	PVCore::chunk_index _done_when;
+	mutable chunk_index _n_elts;
+	chunk_index _done_when;
 	bool* _done_ptr;
 };
 

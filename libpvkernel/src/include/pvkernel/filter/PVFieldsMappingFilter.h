@@ -17,7 +17,7 @@ namespace PVFilter {
 
 class LibKernelDecl PVFieldsMappingFilter : public PVFieldsFilter<many_to_many> {
 public:
-	typedef std::vector<PVCore::chunk_index> list_indexes;
+	typedef std::vector<chunk_index> list_indexes;
 	typedef std::map<list_indexes, PVFieldsBaseFilter_f> map_filters;
 public:
 	PVFieldsMappingFilter(map_filters const& mfilters);
