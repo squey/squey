@@ -7,7 +7,7 @@
 #ifndef PVCORE_TYPES_H
 #define PVCORE_TYPES_H
 
-#include <QtGlobal.h>
+#include <QtGlobal>
 
 typedef int pv_column;
 typedef int pv_row;

@@ -51,8 +51,6 @@ include(CMakeRequiredLibraries.txt)
 #############################################
 # BEGIN: ADD INCLUDE DIRS NEEDED EVERYWHERE #
 #############################################
-include_directories(AFTER "${Picviz_Inspector_SOURCE_DIR}/include")
-
 message(STATUS "QtCore include dirs: " ${QT_QTCORE_INCLUDE_DIR})
 include_directories(AFTER ${QT_QTCORE_INCLUDE_DIR})
 message(STATUS "Qt include dirs: " ${QT_INCLUDE_DIR})
@@ -63,6 +61,9 @@ message(STATUS "Boost include dirs: " ${BOOST_INCLUDEDIR})
 include_directories(AFTER ${BOOST_INCLUDEDIR})
 message(STATUS "TBB include dirs: " ${TBB_INCLUDE_DIRS})
 include_directories(AFTER ${TBB_INCLUDE_DIRS})
+
+# PVBase
+include_directories(AFTER "${Picviz_Inspector_SOURCE_DIR}/include")
 ###########################################
 # END: ADD INCLUDE DIRS NEEDED EVERYWHERE #
 ###########################################

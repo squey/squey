@@ -41,9 +41,9 @@
 #endif
 
 // Decls for other libraries
-#include "../../../../libpvfilter/src/include/pvfilter/export.h"
-#include "../../../../libpvrush/src/include/pvrush/export.h"
-#include "../../../../libpicviz/src/include/picviz/export.h"
-#include "../../../../libpvgl/src/include/pvgl/export.h"
+#include "../../../libpvfilter/src/include/pvfilter/export.h"
+#include "../../../libpvrush/src/include/pvrush/export.h"
+#include "../../../libpicviz/src/include/picviz/export.h"
+#include "../../../libpvgl/src/include/pvgl/export.h"
 
 #endif	/* PVCORE_EXPORT_H */
