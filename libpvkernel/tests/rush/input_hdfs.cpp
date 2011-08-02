@@ -2,7 +2,7 @@
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/rush/PVInputType.h>
 #include <pvkernel/rush/PVSourceCreator.h>
-#include <pvkernel/filter/PVRawSourceBase.h>
+#include <pvkernel/rush/PVRawSourceBase.h>
 
 #include <QString>
 #include <iostream>
@@ -22,7 +22,7 @@ int main()
 	PVRush::PVInputType::list_inputs inputs;
 	assert(in_t->createWidget(formats, inputs, choseFormat, NULL));
 
-	PVFilter::PVRawSourceBase::p_type src = cr_text->create_source_from_input(inputs[0]);
+	PVRush::PVRawSourceBase::p_type src = cr_text->create_source_from_input(inputs[0]);
 	assert(src);
 
 	// Read a chunk !

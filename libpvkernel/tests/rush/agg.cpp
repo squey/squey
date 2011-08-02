@@ -32,7 +32,7 @@ void dump_agg(PVAggregator& agg)
 void show_src_index(PVAggregator& agg, size_t index)
 {
 	size_t offset = 0;
-	PVFilter::PVRawSourceBase_p src = agg.agg_index_to_source(index, &offset);
+	PVRush::PVRawSourceBase_p src = agg.agg_index_to_source(index, &offset);
 	QFileInfo fi(src->human_name());
 	// Output in UTF8 !
 	cout << "Index " << index << " for source " << fi.fileName().toUtf8().constData() << " at offset " << offset << endl;
@@ -57,7 +57,7 @@ int main(int argc, char** argv)
 	PVAggregator agg;
 	for (int i = 0; i < files.size(); i++) {
 		PVInput_p in(new PVInputFile(qPrintable(dir_files.absoluteFilePath(files[i]))));
-		PVFilter::PVRawSourceBase_p source(new PVUnicodeSource<>(in, chunk_size, null));
+		PVRush::PVRawSourceBase_p source(new PVUnicodeSource<>(in, chunk_size, null));
 		agg.add_input(source);
 	}
 	

@@ -36,7 +36,7 @@
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/filter/PVFieldsFilterParamWidget.h>
-#include <pvkernel/filter/PVRawSourceBase.h>
+#include <pvkernel/rush/PVRawSourceBase_types.h>
 #include <pvkernel/rush/PVSourceCreator.h>
 #include <pvkernel/rush/PVExtractor.h>
 #include <pvkernel/rush/PVInputType.h>
@@ -128,7 +128,7 @@ protected:
 	PVCore::PVArgument _log_input;
 	PVRush::PVInputType_p _log_input_type;
 	PVRush::PVSourceCreator_p _log_sc;
-	PVFilter::PVRawSourceBase_p _log_source;
+	PVRush::PVRawSourceBase_p _log_source;
 	boost::shared_ptr<PVRush::PVExtractor> _log_extract; 
 
 	// Model and widget for the NRAW

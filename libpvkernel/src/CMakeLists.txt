@@ -71,7 +71,6 @@ filter/PVFieldSplitterChunkMatch.cpp
 filter/PVFieldSplitterUTF16Char.cpp
 filter/PVFieldsFilterParamWidget.cpp
 filter/PVPluginsLoad.cpp
-filter/PVRawSourceBase.cpp
 )
 
 SET(FILTER_HEADER_FILES
@@ -94,7 +93,6 @@ include/pvkernel/filter/PVFieldSplitterChunkMatch.h
 include/pvkernel/filter/PVFieldSplitterUTF16Char.h
 include/pvkernel/filter/PVFieldsMappingFilter.h
 include/pvkernel/filter/PVPluginsLoad.h
-include/pvkernel/filter/PVRawSourceBase.h
 )
 
 SET(FILTER_MOC_HEADERS
@@ -137,6 +135,7 @@ rush/PVPluginsLoad.cpp
 rush/PVSourceCreatorFactory.cpp
 rush/PVTests.cpp
 rush/PVXmlTreeNodeDom.cpp
+rush/PVRawSourceBase.cpp
 
 #uchardetect, from Mozilla's nsUniversalDetector
 rush/uchardetect/CharDistribution.cpp
@@ -195,6 +194,7 @@ include/pvkernel/rush/PVOutput.h
 include/pvkernel/rush/PVPluginsLoad.h
 include/pvkernel/rush/PVVrbAllocator.h
 include/pvkernel/rush/PVRawSource.h
+include/pvkernel/rush/PVRawSourceBase.h
 include/pvkernel/rush/PVSourceCreator.h
 include/pvkernel/rush/PVCharsetDetect.h
 include/pvkernel/rush/PVChunkTransform.h

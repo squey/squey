@@ -5,7 +5,7 @@
 #include <pvkernel/core/PVRegistrableClass.h>
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/PVArgument.h>
-#include <pvkernel/filter/PVRawSourceBase.h>
+#include <pvkernel/rush/PVRawSourceBase_types.h>
 #include <pvkernel/rush/PVFormat.h>
 
 #include <boost/shared_ptr.hpp>
@@ -16,7 +16,7 @@ namespace PVRush {
 class LibKernelDecl PVSourceCreator: public PVCore::PVRegistrableClass< PVSourceCreator >
 {
 public:
-	typedef PVFilter::PVRawSourceBase source_t;
+	typedef PVRush::PVRawSourceBase source_t;
 	typedef boost::shared_ptr<source_t> source_p;
 	typedef boost::shared_ptr<PVSourceCreator> p_type;
 public:

@@ -4,7 +4,7 @@
 #include <pvkernel/core/PVChunk.h>
 #include <pvkernel/core/PVField.h>
 #include <pvkernel/core/PVElement.h>
-#include <pvkernel/filter/PVRawSourceBase.h>
+#include <pvkernel/rush/PVRawSourceBase.h>
 #include <pvkernel/filter/PVChunkFilter.h>
 #include <pvkernel/rush/PVNraw.h>
 
@@ -14,7 +14,7 @@ void dump_chunk_raw(PVCore::PVChunk&c);
 void dump_elt(PVCore::PVElement const& elt);
 void dump_field(PVCore::PVField const& f);
 void dump_buffer(char* start, char* end);
-bool process_filter(PVFilter::PVRawSourceBase& source, PVFilter::PVChunkFilter_f flt_f);
+bool process_filter(PVRush::PVRawSourceBase& source, PVFilter::PVChunkFilter_f flt_f);
 void dump_nraw_csv(PVRush::PVNraw& nraw_);
 
 #endif

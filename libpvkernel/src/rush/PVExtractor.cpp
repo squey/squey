@@ -1,5 +1,6 @@
 #include <pvkernel/rush/PVExtractor.h>
 #include <pvkernel/rush/PVControllerJob.h>
+#include <pvkernel/rush/PVRawSourceBase.h>
 
 #include <pvkernel/core/debug.h>
 #include <iostream>
@@ -44,7 +45,7 @@ void PVRush::PVExtractor::force_stop_controller()
 	_ctrl_th.wait();
 }
 
-void PVRush::PVExtractor::add_source(PVFilter::PVRawSourceBase_p src)
+void PVRush::PVExtractor::add_source(PVRush::PVRawSourceBase_p src)
 {
 	//TODO: check if controller is running a job
 	_agg.add_input(src);

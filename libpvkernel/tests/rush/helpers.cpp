@@ -121,7 +121,7 @@ void dump_chunk_raw(PVChunk& c)
 	}
 }
 
-bool process_filter(PVFilter::PVRawSourceBase& source, PVFilter::PVChunkFilter_f flt_f)
+bool process_filter(PVRush::PVRawSourceBase& source, PVFilter::PVChunkFilter_f flt_f)
 {
 	PVChunk* pc = source();
 	if (!pc) {

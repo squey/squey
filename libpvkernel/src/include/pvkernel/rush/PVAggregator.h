@@ -9,8 +9,8 @@
 #define PVRUSHAGGREGATOR_FILE_H
 
 #include <pvkernel/core/general.h>
-#include <pvkernel/filter/PVRawSourceBase.h>
 #include <pvkernel/core/PVChunk.h>
+#include <pvkernel/rush/PVRawSourceBase_types.h>
 
 #include <tbb/pipeline.h>
 #include <vector>
@@ -36,9 +36,9 @@ namespace PVRush {
  */
 class LibKernelDecl PVAggregator {
 public:
-	typedef std::vector<PVFilter::PVRawSourceBase_p> list_inputs;
+	typedef std::vector<PVRush::PVRawSourceBase_p> list_inputs;
 
-	typedef std::map<PVCore::chunk_index, PVFilter::PVRawSourceBase_p> map_source_offsets;
+	typedef std::map<PVCore::chunk_index, PVRush::PVRawSourceBase_p> map_source_offsets;
 
 public:
 	/*! \brief Copy constructor of an aggregator.
@@ -64,7 +64,7 @@ public:
 	 *
 	 * \todo Add a function to compute the number of element of one source.
 	 */
-	void add_input(PVFilter::PVRawSourceBase_p in);
+	void add_input(PVRush::PVRawSourceBase_p in);
 
 public:
 	/*! \brief Read a chunk from the aggregator.
@@ -148,13 +148,13 @@ public:
 	 *  \return A shared pointer to the source that contains the given global index if found, or an invalid shared
 	 *          pointer otherwise.
 	 */
-	PVFilter::PVRawSourceBase_p agg_index_to_source(PVCore::chunk_index idx, size_t* offset);
+	PVRush::PVRawSourceBase_p agg_index_to_source(PVCore::chunk_index idx, size_t* offset);
 	void debug();
 
 public:
 	/*! \brief Helper static function to create a PVAggregator object from a unique source.
 	 */
-	static PVAggregator from_unique_source(PVFilter::PVRawSourceBase_p source);
+	static PVAggregator from_unique_source(PVRush::PVRawSourceBase_p source);
 
 protected:
 	PVCore::PVChunk* read_until_index(PVCore::chunk_index idx) const;

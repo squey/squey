@@ -79,7 +79,7 @@ public:
 	PVRush::PVExtractor& get_extractor();
 
 protected:
-	PVFilter::PVRawSourceBase_p create_extractor_source(QString type, QString filename, PVRush::PVFormat const& format);
+	PVRush::PVRawSourceBase_p create_extractor_source(QString type, QString filename, PVRush::PVFormat const& format);
 	PVRush::PVExtractor _extractor;
 
 private:

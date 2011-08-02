@@ -1,5 +1,6 @@
 #include <pvkernel/rush/PVSourceCreatorFactory.h>
 #include <pvkernel/core/PVClassLibrary.h>
+#include <pvkernel/rush/PVRawSourceBase.h>
 
 #define PICVIZ_DISCOVERY_NCHUNKS 10
 

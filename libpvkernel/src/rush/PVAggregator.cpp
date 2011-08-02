@@ -1,4 +1,5 @@
 #include <pvkernel/rush/PVAggregator.h>
+#include <pvkernel/rush/PVRawSourceBase.h>
 
 
 PVRush::PVAggregator::PVAggregator(list_inputs const& inputs)
@@ -223,7 +224,7 @@ PVRush::PVAggregator::list_inputs const& PVRush::PVAggregator::get_inputs() cons
 }
 
 // Helper function
-PVRush::PVAggregator PVRush::PVAggregator::from_unique_source(PVFilter::PVRawSourceBase_p source)
+PVRush::PVAggregator PVRush::PVAggregator::from_unique_source(PVRush::PVRawSourceBase_p source)
 {
 	list_inputs inputs;
 	inputs.push_back(source);
@@ -231,7 +232,7 @@ PVRush::PVAggregator PVRush::PVAggregator::from_unique_source(PVFilter::PVRawSou
 	return PVAggregator(inputs);
 }
 
-void PVRush::PVAggregator::add_input(PVFilter::PVRawSourceBase_p in)
+void PVRush::PVAggregator::add_input(PVRush::PVRawSourceBase_p in)
 {
 	if (!_src_offsets[0])
 		_src_offsets[0] = in;
@@ -243,7 +244,7 @@ PVCore::chunk_index PVRush::PVAggregator::last_elt_agg_index()
 	return _last_elt_agg_index;
 }
 
-PVFilter::PVRawSourceBase_p PVRush::PVAggregator::agg_index_to_source(PVCore::chunk_index idx, size_t* offset)
+PVRush::PVRawSourceBase_p PVRush::PVAggregator::agg_index_to_source(PVCore::chunk_index idx, size_t* offset)
 {
 	map_source_offsets::reverse_iterator it;
 	for (it = _src_offsets.rbegin(); it != _src_offsets.rend(); it++) {
@@ -253,7 +254,7 @@ PVFilter::PVRawSourceBase_p PVRush::PVAggregator::agg_index_to_source(PVCore::ch
 			return (*it).second;
 		}
 	}
-	return PVFilter::PVRawSourceBase_p();
+	return PVRush::PVRawSourceBase_p();
 }
 
 void PVRush::PVAggregator::debug()

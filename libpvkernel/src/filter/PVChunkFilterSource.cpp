@@ -7,7 +7,7 @@
 #include <boost/function.hpp>
 
 #include <pvkernel/filter/PVChunkFilterSource.h>
-#include <pvkernel/filter/PVRawSourceBase.h>
+#include <pvkernel/rush/PVRawSourceBase.h>
 #include <pvkernel/core/PVChunk.h>
 
 

@@ -9,8 +9,8 @@
 #include <pvkernel/rush/PVControllerThread.h>
 #include <pvkernel/rush/PVControllerJob.h>
 #include <pvkernel/rush/PVNrawOutput.h>
-#include <pvkernel/filter/PVRawSourceBase.h>
 #include <pvkernel/filter/PVChunkFilter.h>
+#include <pvkernel/rush/PVRawSourceBase_types.h>
 
 namespace PVRush {
 
@@ -47,7 +47,7 @@ public:
 	/*! \brief Add a PVRawSourceBase to the internal aggregator
 	 * This function adds a source to the internal aggregator.
 	 */
-	void add_source(PVFilter::PVRawSourceBase_p src);
+	void add_source(PVRush::PVRawSourceBase_p src);
 
 	/*! \brief Set the chunk filter used during the extraction
 	 * \param[in] chk_flt A boost::function object of the corresponding PVChunkFilter (can be easily obtained via the PVChunkFilter::f() method)

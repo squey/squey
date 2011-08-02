@@ -1,5 +1,6 @@
 #include <pvkernel/filter/PVFieldSplitterChunkMatch.h>
 #include <pvkernel/filter/PVFilterLibrary.h>
+#include <pvkernel/rush/PVRawSourceBase.h>
 
 #include <list>
 #include <utility>
@@ -59,7 +60,7 @@ bool PVFilter::PVFieldSplitterChunkMatch::get_match(PVCore::PVArgumentList& args
 	return true;
 }
 
-PVFilter::PVFieldsSplitter_p PVFilter::PVFieldSplitterChunkMatch::get_match_on_input(PVFilter::PVRawSourceBase_p src, PVCol &naxes)
+PVFilter::PVFieldsSplitter_p PVFilter::PVFieldSplitterChunkMatch::get_match_on_input(PVRush::PVRawSourceBase_p src, PVCol &naxes)
 {
 	PVCore::PVChunk* chunk = (*src)();
 	PVFieldsSplitter_p ret;

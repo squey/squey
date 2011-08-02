@@ -15,14 +15,11 @@
 
 #include <pvkernel/core/stdint.h>
 
+#include <pvkernel/rush/PVRawSourceBase_types.h>
+
 #include <memory>
 #include <cassert>
 #include <list>
-
-namespace PVFilter
-{
-	class PVRawSourceBase;
-};
 
 namespace PVRush {
 	class PVAggregator;
@@ -70,7 +67,7 @@ public:
 	list_elts& elements() {return _elts;};
 	list_elts const& c_elements() const {return _elts;}; 
 
-	PVFilter::PVRawSourceBase* source() const { return _source; };
+	PVRush::PVRawSourceBase* source() const { return _source; };
 
 public:
 	void set_elements_index()
@@ -94,7 +91,7 @@ protected:
 	list_elts _elts;
 	chunk_index _index;
 	chunk_index _agg_index;
-	PVFilter::PVRawSourceBase *_source;
+	PVRush::PVRawSourceBase *_source;
 	PVRow _n_elts_invalid;
 	size_t _nelts_org;
 	size_t _nelts_valid;
@@ -113,7 +110,7 @@ private:
 	virtual ~PVChunkMem() {}
 public:
     char* begin() const { return (char*)(this+1); };
-	static PVChunkMem* allocate(size_t size, PVFilter::PVRawSourceBase* parent, alloc_chunk a = alloc_chunk())
+	static PVChunkMem* allocate(size_t size, PVRush::PVRawSourceBase* parent, alloc_chunk a = alloc_chunk())
 	{
 		size_t size_alloc = sizeof(PVChunkMem<Allocator>)+size+1;
 		PVChunkMem<Allocator>* p = (PVChunkMem<Allocator>*)(a.allocate(size_alloc));

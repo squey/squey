@@ -8,11 +8,13 @@
 #include <boost/shared_ptr.hpp>
 #include <QString>
 
+#include <pvkernel/rush/PVInput_types.h>
+
 namespace PVRush {
 
 class LibKernelDecl PVInput {
 public:
-	typedef boost::shared_ptr<PVInput> p_type;
+	typedef PVInput_p p_type;
 	typedef size_t input_offset;
 public:
 	PVInput();
@@ -34,8 +36,6 @@ class LibKernelDecl PVInputException {
 public:
 	virtual std::string const& what() const = 0;
 };
-
-typedef PVInput::p_type PVInput_p;
 
 }
 
