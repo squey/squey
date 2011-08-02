@@ -12,7 +12,7 @@
 #include <QString>
 #include <QVector>
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 #include <picviz/PVMandatoryMappingFunction.h>
 
 namespace Picviz {

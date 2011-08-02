@@ -12,11 +12,11 @@
 #include <QStringList>
 
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 
 
 
-class LibCoreDecl PVSplitter {
+class LibKernelDecl PVSplitter {
 	private:
 		QString name;
 

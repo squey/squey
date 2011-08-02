@@ -17,7 +17,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include <pvcore/debug.h>
+#include <pvkernel/core/debug.h>
 
 /**
  * \ingroup PicvizMain

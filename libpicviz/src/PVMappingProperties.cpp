@@ -5,7 +5,7 @@
 //! Copyright (C) Picviz Labs 2011
 
 #include <picviz/PVMappingProperties.h>
-#include <pvfilter/PVFilterLibrary.h>
+#include <pvkernel/filter/PVFilterLibrary.h>
 #include <picviz/PVRoot.h>
 
 Picviz::PVMappingProperties::PVMappingProperties(PVRoot_p root, PVRush::PVFormat fmt, int idx)

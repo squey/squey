@@ -7,7 +7,7 @@
 #ifndef PICVIZ_PVLAYERSTACK_H
 #define PICVIZ_PVLAYERSTACK_H
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 
 #include <picviz/PVLayer.h>
 #include <picviz/PVLayerIndexArray.h>

@@ -1,6 +1,6 @@
 #include <PVInputTypeMenuEntries.h>
-#include <pvrush/PVInputType.h>
-#include <pvcore/PVClassLibrary.h>
+#include <pvkernel/rush/PVInputType.h>
+#include <pvkernel/core/PVClassLibrary.h>
 
 void PVInspector::PVInputTypeMenuEntries::add_inputs_to_menu(QMenu* menu, QObject* parent, const char* slot)
 {

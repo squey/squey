@@ -1,4 +1,4 @@
-#include <pvcore/PVDateTimeParser.h>
+#include <pvkernel/core/PVDateTimeParser.h>
 #include <QDate>
 
 #include <boost/bind.hpp>

@@ -5,7 +5,7 @@
  * 
  */
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 
 #include <QDate>
 #include <QDateTime>

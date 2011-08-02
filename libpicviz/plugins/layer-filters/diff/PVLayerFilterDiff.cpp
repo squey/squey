@@ -9,8 +9,8 @@
 #include "PVLayerFilterDiff.h"
 #include <picviz/PVColor.h>
 #include <picviz/PVView.h>
-#include <pvcore/PVAxesIndexType.h>
-#include <pvcore/PVSpinBoxType.h>
+#include <pvkernel/core/PVAxesIndexType.h>
+#include <pvkernel/core/PVSpinBoxType.h>
 
 static QString generate_row_key_from_values(PVCore::PVAxesIndexType const& axes, PVRush::PVNraw::nraw_table_line const& values)
 {

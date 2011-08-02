@@ -21,11 +21,11 @@
 #include <QPushButton>
 #include <QObject>
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 #include <picviz/PVSortQVectorQStringListThread.h>
 //#include <PVProgressBox.h>
 
-#include <pvrush/PVNraw.h>
+#include <pvkernel/rush/PVNraw.h>
 
 namespace Picviz {
 

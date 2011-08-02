@@ -6,7 +6,7 @@
 
 #include "PVLayerFilterWebmailFinder.h"
 #include <picviz/PVColor.h>
-#include <pvcore/PVAxisIndexType.h>
+#include <pvkernel/core/PVAxisIndexType.h>
 
 /******************************************************************************
  *

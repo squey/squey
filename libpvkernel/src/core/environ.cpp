@@ -9,7 +9,7 @@
 
 #include <stdlib.h>
 
-#include <pvcore/environ.h>
+#include <pvkernel/core/environ.h>
 
 int PVCore::mkenv(const char *name, const char *value)
 {

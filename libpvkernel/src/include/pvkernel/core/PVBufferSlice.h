@@ -8,7 +8,7 @@
 #ifndef PVBUFFERSLICE_FILE_H
 #define PVBUFFERSLICE_FILE_H
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 #include <QString>
 #include <unicode/unistr.h>
 #include <QStringList>
@@ -16,13 +16,13 @@
 #include <QRegExp>
 #include <boost/shared_array.hpp>
 
-#include <pvcore/stdint.h>
+#include <pvkernel/core/stdint.h>
 
 namespace PVCore {
 
 typedef std::list< std::pair<char*,size_t> > buf_list_t;
 
-class LibCoreDecl PVBufferSlice {
+class LibKernelDecl PVBufferSlice {
 public:
 	PVBufferSlice(char* begin, char* end, buf_list_t &buf_list);
 	PVBufferSlice(PVBufferSlice const& src): _buf_list(src._buf_list) { copy_from(src); };

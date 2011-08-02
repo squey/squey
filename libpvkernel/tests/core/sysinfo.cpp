@@ -2,7 +2,7 @@
 
 #include <stdlib.h>
 
-#include <pvcore/sysinfo.h>
+#include <pvkernel/core/sysinfo.h>
 
 int main(void)
 {

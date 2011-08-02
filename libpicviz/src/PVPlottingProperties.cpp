@@ -8,7 +8,7 @@
 #include <picviz/PVRoot.h>
 #include <picviz/PVPlottingFilter.h>
 
-#include <pvfilter/PVFilterLibrary.h>
+#include <pvkernel/filter/PVFilterLibrary.h>
 
 /******************************************************************************
  *

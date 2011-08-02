@@ -7,7 +7,7 @@
 #ifndef PVCORE_PVARGUMENT_H
 #define PVCORE_PVARGUMENT_H
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 #include <QHash>
 #include <QString>
 #include <QVariant>
@@ -17,10 +17,10 @@ namespace PVCore {
 typedef QVariant                     PVArgument;
 typedef QHash<QString,PVArgument>    PVArgumentList;
 
-LibCoreDecl QString PVArgument_to_QString(PVArgument const& v);
-LibCoreDecl PVArgument QString_to_PVArgument(QString const& v);
+LibKernelDecl QString PVArgument_to_QString(PVArgument const& v);
+LibKernelDecl PVArgument QString_to_PVArgument(QString const& v);
 
-LibCoreDecl void dump_argument_list(PVArgumentList const& l);
+LibKernelDecl void dump_argument_list(PVArgumentList const& l);
 
 }
 

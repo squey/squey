@@ -12,7 +12,7 @@
 #include <QLibrary>
 #include <QVector>
 
-#include <pvrush/PVFormat.h>
+#include <pvkernel/rush/PVFormat.h>
 
 #include <picviz/general.h>
 #include <picviz/PVPlottingProperties.h>

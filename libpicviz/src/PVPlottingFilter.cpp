@@ -1,6 +1,6 @@
 #include <picviz/PVPlottingFilter.h>
 
-#include <pvcore/stdint.h>
+#include <pvkernel/core/stdint.h>
 
 Picviz::PVPlottingFilter::PVPlottingFilter() :
 	PVFilter::PVFilterFunctionRegistrable<float*, float*, PVPlottingFilter>()

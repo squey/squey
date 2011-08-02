@@ -7,11 +7,11 @@
 #ifndef PVFILTER_PVMAPPINGFILTERENUMDEFAULT_H
 #define PVFILTER_PVMAPPINGFILTERENUMDEFAULT_H
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 #include <picviz/PVMappingFilter.h>
 #include <tbb/concurrent_unordered_map.h>
 #include <QString>
-#include <pvcore/stdint.h>
+#include <pvkernel/core/stdint.h>
 
 // Used by the concurrennt hash map below
 size_t tbb_hasher(const QString& str);

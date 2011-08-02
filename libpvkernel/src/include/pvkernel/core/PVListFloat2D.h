@@ -8,10 +8,10 @@
 #ifndef PVCORE_PVLISTFLOAT2D_H
 #define PVCORE_PVLISTFLOAT2D_H
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 
 namespace PVCore {
-class LibCoreDecl PVListFloat2D {
+class LibKernelDecl PVListFloat2D {
 	public:
 		PVListFloat2D();
 		~PVListFloat2D();

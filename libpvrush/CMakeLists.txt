@@ -9,8 +9,6 @@ include(${QT_USE_FILE})
 include_directories(AFTER ${PVRUSH_INCLUDE_DIRS})
 include_directories(AFTER ${PVCORE_INCLUDE_DIRS})
 include_directories(AFTER ${PVFILTER_INCLUDE_DIRS})
-include_directories(AFTER ${ARCHIVE_INCLUDE_DIRS})
-include_directories(AFTER ${PCAP_INCLUDE_DIRS})
 include_directories(AFTER ${ICU_INCLUDE})
 
 set(QT_DONT_USE_QTGUI true)

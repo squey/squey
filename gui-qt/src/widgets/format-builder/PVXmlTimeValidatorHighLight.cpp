@@ -8,7 +8,7 @@
 #include <PVXmlTimeValidatorHighLight.h>
 #include <PVXmlParamTextEdit.h>
 
-#include <pvcore/PVDateTimeParser.h>
+#include <pvkernel/core/PVDateTimeParser.h>
 #include <unicode/calendar.h>
 #include <unicode/unistr.h>
 

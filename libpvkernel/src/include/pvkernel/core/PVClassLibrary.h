@@ -7,7 +7,7 @@
 #ifndef PVCORE_PVCLASSLIBRARY_H
 #define PVCORE_PVCLASSLIBRARY_H
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 
 #include <QHash>
 #include <QString>
@@ -15,7 +15,7 @@
 namespace PVCore {
 
 // This is used to register the class T as RegAs 
-// AG: WARNING: there is *no* LibCoreDecl and this is *wanted* !
+// AG: WARNING: there is *no* LibKernelDecl and this is *wanted* !
 //              check the wiki for more informations
 template<class RegAs>
 class PVClassLibrary {
@@ -61,7 +61,7 @@ private:
 	list_classes _classes;
 };
 
-class LibCoreDecl PVClassLibraryLibLoader {
+class LibKernelDecl PVClassLibraryLibLoader {
 public:
 	static bool load_class(QString const& path);
 	static int load_class_from_dir(QString const& pluginsdir, QString const& prefix);

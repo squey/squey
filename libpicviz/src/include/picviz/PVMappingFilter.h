@@ -7,10 +7,10 @@
 #ifndef PVFILTER_PVMAPPINGFILTER_H
 #define PVFILTER_PVMAPPINGFILTER_H
 
-#include <pvcore/general.h>
-#include <pvfilter/PVFilterFunction.h>
-#include <pvfilter/PVFilterLibrary.h>
-#include <pvrush/PVNraw.h>
+#include <pvkernel/core/general.h>
+#include <pvkernel/filter/PVFilterFunction.h>
+#include <pvkernel/filter/PVFilterLibrary.h>
+#include <pvkernel/rush/PVNraw.h>
 #include <QString>
 #include <QVector>
 

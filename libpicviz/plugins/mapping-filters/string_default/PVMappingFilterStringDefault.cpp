@@ -1,6 +1,6 @@
 #include "PVMappingFilterStringDefault.h"
-#include <pvcore/PVTBBMaxArray.h>
-#include <pvcore/string.h>
+#include <pvkernel/core/PVTBBMaxArray.h>
+#include <pvkernel/core/string.h>
 
 #include <tbb/parallel_reduce.h>
 

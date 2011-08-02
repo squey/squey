@@ -15,7 +15,7 @@
 #include <QVariant>
 #include <QDebug>
 
-#include <pvrush/PVXmlTreeNodeDom.h>
+#include <pvkernel/rush/PVXmlTreeNodeDom.h>
 #include <PVXmlParamWidgetEditorBox.h>
 #include <PVXmlParamTextEdit.h>
 #include <PVXmlParamComboBox.h>

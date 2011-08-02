@@ -4,8 +4,8 @@
 //! Copyright (C) Philippe Saadé 2009-2011
 //! Copyright (C) Picviz Labs 2011
 
-#include <pvcore/general.h>
-#include <pvcore/PVAxisIndexCheckBoxType.h>
+#include <pvkernel/core/general.h>
+#include <pvkernel/core/PVAxisIndexCheckBoxType.h>
 
 PVCore::PVAxisIndexCheckBoxType::PVAxisIndexCheckBoxType()
 {

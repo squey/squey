@@ -1,7 +1,7 @@
 #ifndef PVCORE_PVREGISTRABLE_CLASS
 #define PVCORE_PVREGISTRABLE_CLASS
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 #include <boost/shared_ptr.hpp>
 
 namespace PVCore {

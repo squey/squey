@@ -8,22 +8,22 @@
 #include <picviz/PVScene.h>
 #include <picviz/PVSource.h>
 
-#include <pvfilter/PVChunkFilterByElt.h>
-#include <pvfilter/PVElementFilterByFields.h>
-#include <pvfilter/PVFieldSplitterUTF16Char.h>
-#include <pvfilter/PVFieldsMappingFilter.h>
+#include <pvkernel/filter/PVChunkFilterByElt.h>
+#include <pvkernel/filter/PVElementFilterByFields.h>
+#include <pvkernel/filter/PVFieldSplitterUTF16Char.h>
+#include <pvkernel/filter/PVFieldsMappingFilter.h>
 
-#include <pvrush/PVInputFile.h>
-#include <pvrush/PVInputPcap.h>
-#include <pvrush/PVChunkAlignUTF16Char.h>
-#include <pvrush/PVChunkTransformUTF16.h>
-#include <pvrush/PVRawSource.h>
-#include <pvrush/PVUnicodeSource.h>
-#include <pvrush/PVNrawOutput.h>
-#include <pvrush/PVControllerJob.h>
+#include <pvkernel/rush/PVInputFile.h>
+#include <pvkernel/rush/PVInputPcap.h>
+#include <pvkernel/rush/PVChunkAlignUTF16Char.h>
+#include <pvkernel/rush/PVChunkTransformUTF16.h>
+#include <pvkernel/rush/PVRawSource.h>
+#include <pvkernel/rush/PVUnicodeSource.h>
+#include <pvkernel/rush/PVNrawOutput.h>
+#include <pvkernel/rush/PVControllerJob.h>
 
 #include <picviz/general.h>
-#include <pvcore/debug.h>
+#include <pvkernel/core/debug.h>
 
 #include <QRegExp>
 
@@ -66,7 +66,7 @@ void Picviz::PVSource::set_format(PVRush::PVFormat const& format)
 PVRush::PVControllerJob_p Picviz::PVSource::files_append(PVRush::PVFormat const& format, PVRush::PVSourceCreator_p sc, PVRush::PVInputType::list_inputs inputs)
 {
 	files_append_noextract(format, sc, inputs);
-	PVRush::PVControllerJob_p job = _extractor.process_from_agg_nlines(0, pvconfig.value("pvrush/extract_first", PVEXTRACT_NUMBER_LINES_FIRST_DEFAULT).toInt());
+	PVRush::PVControllerJob_p job = _extractor.process_from_agg_nlines(0, pvconfig.value("pvkernel/rush/extract_first", PVEXTRACT_NUMBER_LINES_FIRST_DEFAULT).toInt());
 
 	return job;
 }

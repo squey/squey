@@ -7,11 +7,11 @@
 #ifndef PVFILTER_PVMAPPINGFILTERSTRINGDEFAULT_H
 #define PVFILTER_PVMAPPINGFILTERSTRINGDEFAULT_H
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 #include <picviz/PVMappingFilter.h>
 #include <tbb/atomic.h>
 
-#include <pvcore/stdint.h>
+#include <pvkernel/core/stdint.h>
 
 namespace Picviz {
 

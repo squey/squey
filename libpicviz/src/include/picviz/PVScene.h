@@ -9,7 +9,7 @@
 
 #include <QString>
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 #include <picviz/PVPtrObjects.h>
 
 #include <boost/shared_ptr.hpp>

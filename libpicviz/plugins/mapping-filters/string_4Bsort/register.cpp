@@ -1,7 +1,7 @@
 // Register the plugin in PVFilterLibrary
 //
 
-#include <pvfilter/PVFilterLibrary.h>
+#include <pvkernel/filter/PVFilterLibrary.h>
 #include "PVMappingFilterString4Bsort.h"
 
 // This method will be called by libpicviz

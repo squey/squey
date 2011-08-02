@@ -1,8 +1,8 @@
 // #include <QStringList>
 #include <stdlib.h>
 
-// #include <pvcore/debug.h>
-//#include <pvcore/PVAxisIndexEditor.h>
+// #include <pvkernel/core/debug.h>
+//#include <pvkernel/core/PVAxisIndexEditor.h>
 
 int main(void)
 {

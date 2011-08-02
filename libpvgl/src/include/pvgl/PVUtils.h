@@ -16,7 +16,7 @@
 #include <GL/glew.h>
 #include <GL/gl.h>
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 
 //!
 #define BUFFER_OFFSET(bytes) ((GLubyte*) NULL + (bytes))

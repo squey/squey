@@ -9,7 +9,7 @@
 #include <cuda_runtime_api.h>
 #include <cuda_gl_interop.h>
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 #include <pvbase/types.h>
 #include <picviz/limits.h>
 

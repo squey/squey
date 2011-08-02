@@ -8,13 +8,13 @@
 
 #include <PVXmlEditorWidget.h>
 #include <PVXmlTreeItemDelegate.h>
-#include <pvrush/PVXmlTreeNodeDom.h>
+#include <pvkernel/rush/PVXmlTreeNodeDom.h>
 #include <PVXmlParamWidget.h>
 #include <PVInputTypeMenuEntries.h>
 
-#include <pvrush/PVSourceCreatorFactory.h>
-#include <pvrush/PVInput.h>
-#include <pvfilter/PVFieldSplitterChunkMatch.h>
+#include <pvkernel/rush/PVSourceCreatorFactory.h>
+#include <pvkernel/rush/PVInput.h>
+#include <pvkernel/filter/PVFieldSplitterChunkMatch.h>
 
 #define FORMAT_BUILDER_TITLE (QObject::tr("Format builder"))
 /******************************************************************************

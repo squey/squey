@@ -7,7 +7,7 @@
 #ifndef PICVIZ_PVEVENTLINE_H
 #define PICVIZ_PVEVENTLINE_H
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 #include <picviz/PVSelection.h>
 
 namespace Picviz {

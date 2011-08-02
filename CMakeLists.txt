@@ -65,6 +65,7 @@ include_directories(AFTER ${TBB_INCLUDE_DIRS})
 
 # PVBase
 include_directories(AFTER "${Picviz_Inspector_SOURCE_DIR}/include")
+
 ###########################################
 # END: ADD INCLUDE DIRS NEEDED EVERYWHERE #
 ###########################################
@@ -72,8 +73,6 @@ include_directories(AFTER "${Picviz_Inspector_SOURCE_DIR}/include")
 
 add_subdirectory(scripts)
 add_subdirectory(libpvkernel)
-add_subdirectory(libpvfilter)
-add_subdirectory(libpvrush)
 add_subdirectory(libpicviz)
 add_subdirectory(libpvgl)
 add_subdirectory(gui-qt)

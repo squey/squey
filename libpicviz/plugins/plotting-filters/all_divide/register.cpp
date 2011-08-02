@@ -1,7 +1,7 @@
 // Register the plugin in PVFilterLibrary
 //
 
-#include <pvfilter/PVFilterLibrary.h>
+#include <pvkernel/filter/PVFilterLibrary.h>
 #include "PVPlottingFilterAllDivide.h"
 
 #include <QVariant>

@@ -7,8 +7,8 @@
 #ifndef PICVIZ_PVSELECTION_H
 #define PICVIZ_PVSELECTION_H
 
-#include <pvcore/stdint.h>
-#include <pvrush/PVNraw.h>
+#include <pvkernel/core/stdint.h>
+#include <pvkernel/rush/PVNraw.h>
 #include <picviz/general.h>
 
 #include <QTextStream>

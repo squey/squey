@@ -8,12 +8,12 @@
 #ifndef PVCHUNK_FILE_H
 #define PVCHUNK_FILE_H
 
-#include <pvcore/general.h>
-#include <pvcore/PVElement.h>
+#include <pvkernel/core/general.h>
+#include <pvkernel/core/PVElement.h>
 
 #include <tbb/tbb_allocator.h>
 
-#include <pvcore/stdint.h>
+#include <pvkernel/core/stdint.h>
 
 #include <memory>
 #include <cassert>
@@ -35,7 +35,7 @@ typedef std::list< PVElement, tbb::tbb_allocator<PVElement> > list_elts;
 
 // Describe chunk interface with no allocator template
 // Useful in order to use chunks as function arguments...
-class LibCoreDecl PVChunk {
+class LibKernelDecl PVChunk {
 friend class PVRush::PVAggregator;
 
 public:

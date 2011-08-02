@@ -10,8 +10,8 @@
 #include <QStringList>
 #include <QVector>
 
-#include <pvcore/general.h>
-#include <pvrush/PVFormat.h>
+#include <pvkernel/core/general.h>
+#include <pvkernel/rush/PVFormat.h>
 
 #include <picviz/PVAxis.h>
 

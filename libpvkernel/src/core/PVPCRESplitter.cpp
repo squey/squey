@@ -10,9 +10,9 @@
 #include <QStringList>
 
 
-#include <pvcore/debug.h>
+#include <pvkernel/core/debug.h>
 
-#include <pvcore/pv_pcre_splitter.h>
+#include <pvkernel/core/pv_pcre_splitter.h>
 
 
 PVPCRESplitter::PVPCRESplitter(const QString &name_str, const QString &regex_string) :

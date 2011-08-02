@@ -9,7 +9,7 @@
 
 namespace PVCore {
 
-// AG: no need to "LibCoreDecl" this
+// AG: no need to "LibKernelDecl" this
 class PVElementData: public QSharedData
 {
 public:

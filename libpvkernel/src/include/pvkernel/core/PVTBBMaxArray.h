@@ -4,7 +4,7 @@
 #include <tbb/parallel_reduce.h>
 #include <tbb/blocked_range.h>
 
-#include <pvcore/stdint.h>
+#include <pvkernel/core/stdint.h>
 
 namespace PVCore {
 

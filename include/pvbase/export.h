@@ -16,15 +16,15 @@
 
 #ifdef WIN32
  #ifdef pvcore_EXPORTS
-  #define LibCoreDeclExplicitTempl LibExportTempl
-  #define LibCoreDecl LibExport
+  #define LibKernelDeclExplicitTempl LibExportTempl
+  #define LibKernelDecl LibExport
  #else
-  #define LibCoreDeclExplicitTempl LibImportTempl
-  #define LibCoreDecl LibImport
+  #define LibKernelDeclExplicitTempl LibImportTempl
+  #define LibKernelDecl LibImport
  #endif
 #else
- #define LibCoreDeclExplicitTempl
- #define LibCoreDecl
+ #define LibKernelDeclExplicitTempl
+ #define LibKernelDecl
 #endif
 
 
@@ -41,9 +41,8 @@
 #endif
 
 // Decls for other libraries
-#include "../../../libpvfilter/src/include/pvfilter/export.h"
-#include "../../../libpvrush/src/include/pvrush/export.h"
-#include "../../../libpicviz/src/include/picviz/export.h"
-#include "../../../libpvgl/src/include/pvgl/export.h"
+#include "../../libpvkernel/src/include/pvkernel/export.h"
+#include "../../libpicviz/src/include/picviz/export.h"
+#include "../../libpvgl/src/include/pvgl/export.h"
 
 #endif	/* PVBASE_EXPORT_H */

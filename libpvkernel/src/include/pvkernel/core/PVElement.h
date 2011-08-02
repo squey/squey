@@ -8,8 +8,8 @@
 #ifndef PVELEMENT_FILE_H
 #define PVELEMENT_FILE_H
 
-#include <pvcore/general.h>
-#include <pvcore/PVBufferSlice.h>
+#include <pvkernel/core/general.h>
+#include <pvkernel/core/PVBufferSlice.h>
 
 #include <list>
 
@@ -27,7 +27,7 @@ class PVField;
 class PVElementData;
 
 typedef std::list<PVField, tbb::tbb_allocator<PVField> > list_fields;
-class LibCoreDecl PVElement : public PVBufferSlice {
+class LibKernelDecl PVElement : public PVBufferSlice {
 	friend class PVField;
 	friend class PVChunk;
 public:

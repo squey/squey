@@ -1,5 +1,5 @@
 #include "PVMandatoryMappingFilterMinmax.h"
-#include <pvcore/PVTBBMinMaxArray.h>
+#include <pvkernel/core/PVTBBMinMaxArray.h>
 
 #include <QVector>
 #include <QString>

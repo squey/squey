@@ -13,8 +13,8 @@
 #include <QStyledItemDelegate>
 #include <QTableView>
 
-#include <pvcore/general.h>
-#include <pvcore/PVArgument.h>
+#include <pvkernel/core/general.h>
+#include <pvkernel/core/PVArgument.h>
 #include <picviz/PVView.h>
 
 namespace PVInspector {

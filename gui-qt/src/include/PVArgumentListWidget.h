@@ -17,7 +17,7 @@
 #include <QVariant>
 #include <QHBoxLayout>
 
-#include <pvcore/PVArgument.h>
+#include <pvkernel/core/PVArgument.h>
 #include <picviz/general.h>
 #include <picviz/PVView.h>
 

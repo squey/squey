@@ -8,13 +8,13 @@
 #ifndef PVFIELD_FILE_H
 #define PVFIELD_FILE_H
 
-#include <pvcore/general.h>
-#include <pvcore/PVBufferSlice.h>
-#include <pvcore/PVElement.h>
+#include <pvkernel/core/general.h>
+#include <pvkernel/core/PVBufferSlice.h>
+#include <pvkernel/core/PVElement.h>
 
 namespace PVCore {
 
-class LibCoreDecl PVField : public PVBufferSlice {
+class LibKernelDecl PVField : public PVBufferSlice {
 public:
 	PVField(PVElement const& parent, char* begin, char* end);
 public:

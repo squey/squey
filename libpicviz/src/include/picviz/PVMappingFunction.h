@@ -10,7 +10,7 @@
 #include <QLibrary>
 #include <QString>
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 #include <picviz/PVPtrObjects.h>
 
 #ifndef picviz_mapping_init_func_string

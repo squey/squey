@@ -11,8 +11,8 @@
 #include <QString>
 #include <QWidget>
 
-#include <pvcore/general.h>
-#include <pvcore/PVAxisIndexType.h>
+#include <pvkernel/core/general.h>
+#include <pvkernel/core/PVAxisIndexType.h>
 
 #include <picviz/PVView.h>
 

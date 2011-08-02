@@ -4,7 +4,7 @@
 //! Copyright (C) Philippe Saadé 2011-2011
 //! Copyright (C) Picviz Labs 2011
 
-#include <pvcore/PVListFloat2D.h>
+#include <pvkernel/core/PVListFloat2D.h>
 #include <stdlib.h>
 #include <assert.h>
 

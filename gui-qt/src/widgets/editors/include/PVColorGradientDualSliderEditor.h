@@ -9,8 +9,8 @@
 
 #include <QWidget>
 #include <picviz/PVView.h>
-#include <pvcore/general.h>
-#include <pvcore/PVColorGradientDualSliderType.h>
+#include <pvkernel/core/general.h>
+#include <pvkernel/core/PVColorGradientDualSliderType.h>
 
 
 namespace PVInspector {

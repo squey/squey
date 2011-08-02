@@ -22,7 +22,7 @@
 #include <QString>
 
 
-#include <pvrush/PVXmlTreeNodeDom.h>
+#include <pvkernel/rush/PVXmlTreeNodeDom.h>
 #include <PVXmlParamTextEdit.h>
 #include <picviz/plugins.h>
 #include <PVXmlParamColorDialog.h>

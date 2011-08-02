@@ -6,7 +6,7 @@
 
 #include <QtGui>
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 
 #include <PVMainWindow.h>
 

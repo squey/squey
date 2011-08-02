@@ -19,8 +19,8 @@
 
 #include <picviz/filtering-function.h>
 
-#include <pvcore/general.h>
-#include <pvrush/pvformat.h>
+#include <pvkernel/core/general.h>
+#include <pvkernel/rush/pvformat.h>
 
 
 /******************************************************************************

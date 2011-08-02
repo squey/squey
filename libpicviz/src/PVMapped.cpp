@@ -8,7 +8,7 @@
 #include <QStringList>
 #include <QString>
 
-#include <pvrush/PVFormat.h>
+#include <pvkernel/rush/PVFormat.h>
 
 #include <picviz/PVMandatoryMappingFunction.h>
 #include <picviz/PVMandatoryMappingFilter.h>

@@ -17,10 +17,10 @@
 #include <QDateTime>
 #include <QString>
 
-#include <pvcore/debug.h>
-#include <pvcore/environ.h>
+#include <pvkernel/core/debug.h>
+#include <pvkernel/core/environ.h>
 
-#include <pvrush/PVFormat.h>
+#include <pvkernel/rush/PVFormat.h>
 
 #include <picviz/general.h>
 

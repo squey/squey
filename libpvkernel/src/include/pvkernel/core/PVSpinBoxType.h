@@ -7,7 +7,7 @@
 #ifndef PVCORE_PVSPINBOXTYPE_H
 #define PVCORE_PVSPINBOXTYPE_H
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 #include <pvbase/types.h>
 #include <QMetaType>
 
@@ -15,7 +15,7 @@ namespace PVCore {
 
 /**
  * \class PVSpinBoxType
- * \note This class is fully implemented in its definition, so no LibCoreDecl is needed (each library will have its own version).
+ * \note This class is fully implemented in its definition, so no LibKernelDecl is needed (each library will have its own version).
  */
 class PVSpinBoxType
 {

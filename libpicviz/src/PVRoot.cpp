@@ -7,10 +7,10 @@
 #include <picviz/PVRoot.h>
 #include <picviz/plugins.h>
 
-#include <pvfilter/PVFilterLibrary.h>
+#include <pvkernel/filter/PVFilterLibrary.h>
 
-#include <pvfilter/PVPluginsLoad.h>
-#include <pvrush/PVPluginsLoad.h>
+#include <pvkernel/filter/PVPluginsLoad.h>
+#include <pvkernel/rush/PVPluginsLoad.h>
 
 /******************************************************************************
  *

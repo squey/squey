@@ -7,7 +7,7 @@
 #ifndef PVFILTER_PVMAPPINGFILTERTIMEDEFAULT_H
 #define PVFILTER_PVMAPPINGFILTERTIMEDEFAULT_H
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 #include <picviz/PVMappingFilter.h>
 
 #include <unicode/calendar.h>

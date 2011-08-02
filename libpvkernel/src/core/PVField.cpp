@@ -1,5 +1,5 @@
-#include <pvcore/PVField.h>
-#include <pvcore/PVElementData.h>
+#include <pvkernel/core/PVField.h>
+#include <pvkernel/core/PVElementData.h>
 
 PVCore::PVField::PVField(PVCore::PVElement const& parent, char* begin, char* end) :
 	PVBufferSlice(begin, end, parent.realloc_bufs())

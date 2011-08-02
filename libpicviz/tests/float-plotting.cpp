@@ -1,9 +1,9 @@
-#include <pvcore/debug.h>
-#include <pvrush/pvnormalizer.h>
+#include <pvkernel/core/debug.h>
+#include <pvkernel/rush/pvnormalizer.h>
 
 #include <picviz/general.h>
 #include <picviz/init.h>
-#include <pvcore/debug.h>
+#include <pvkernel/core/debug.h>
 
 #include <picviz/datatreerootitem.h>
 #include <picviz/scene.h>

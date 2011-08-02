@@ -1,7 +1,7 @@
 #include <picviz/PVMappingFilter.h>
 #include <picviz/PVRoot.h>
-#include <pvrush/PVFormat.h>
-#include <pvfilter/PVFilterLibrary.h>
+#include <pvkernel/rush/PVFormat.h>
+#include <pvkernel/filter/PVFilterLibrary.h>
 #include <tbb/tick_count.h>
 #include "test-env.h"
 

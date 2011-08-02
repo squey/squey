@@ -1,4 +1,4 @@
-#include <pvcore/PVClassLibrary.h>
+#include <pvkernel/core/PVClassLibrary.h>
 
 #include <QLibrary>
 #include <QDir>

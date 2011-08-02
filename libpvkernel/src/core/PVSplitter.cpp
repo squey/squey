@@ -10,9 +10,9 @@
 #include <QString>
 #include <QStringList>
 
-#include <pvcore/debug.h>
+#include <pvkernel/core/debug.h>
 
-#include <pvcore/pv_splitter.h>
+#include <pvkernel/core/pv_splitter.h>
 
 
 PVSplitter::PVSplitter(const QString &name_str)

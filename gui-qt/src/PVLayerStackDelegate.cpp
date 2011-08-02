@@ -11,9 +11,9 @@
 #include <QMetaType>
 #include <QVariant>
 
-#include <pvcore/general.h>
-//#include <pvcore/PVAxisIndexEditor.h>
-//#include <pvcore/PVAxisIndexType.h>
+#include <pvkernel/core/general.h>
+//#include <pvkernel/core/PVAxisIndexEditor.h>
+//#include <pvkernel/core/PVAxisIndexType.h>
 
 #include <picviz/PVSelection.h>
 #include <picviz/PVStateMachine.h>

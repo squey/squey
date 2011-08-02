@@ -1,5 +1,5 @@
-#include <pvcore/PVDateTimeParser.h>
-#include <pvcore/stdint.h>
+#include <pvkernel/core/PVDateTimeParser.h>
+#include <pvkernel/core/stdint.h>
 
 #include <QCoreApplication>
 #include <QString>

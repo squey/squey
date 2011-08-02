@@ -7,7 +7,7 @@
 #include <QDateTime>
 #include <QString>
 
-#include <pvcore/PVLogger.h>
+#include <pvkernel/core/PVLogger.h>
 
 #include <iostream>
 

@@ -14,7 +14,7 @@
 #include <QLabel>
 #include <QStringList>
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 #include <PVExtractorWidget.h>
 #include <PVMainWindow.h>
 #include <PVTabSplitter.h>

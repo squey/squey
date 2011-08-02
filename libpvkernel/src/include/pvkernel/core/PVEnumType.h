@@ -7,7 +7,7 @@
 #ifndef PVCORE_PVENUMTYPE_H
 #define PVCORE_PVENUMTYPE_H
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 #include <QMetaType>
 #include <QString>
 #include <QStringList>
@@ -18,7 +18,7 @@ namespace PVCore {
 /**
  * \class PVEnumType
  *
- * \note This class is fully implemented in its definition, so no LibCoreDecl is needed (each library will have its own version).
+ * \note This class is fully implemented in its definition, so no LibKernelDecl is needed (each library will have its own version).
  */
 class PVEnumType
 {

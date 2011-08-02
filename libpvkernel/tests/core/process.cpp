@@ -1,7 +1,7 @@
 #include <pthread.h>
 
-#include <pvcore/pvbuffer.h>
-#include <pvcore/pvprocess.h>
+#include <pvkernel/core/pvbuffer.h>
+#include <pvkernel/core/pvprocess.h>
 
 #include <iostream>
 #include <unistd.h>

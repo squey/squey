@@ -9,7 +9,7 @@
 #include <errno.h>
 #include <string.h>
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 
 #include <picviz/arguments.h>
 

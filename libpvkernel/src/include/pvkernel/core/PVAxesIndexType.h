@@ -7,7 +7,7 @@
 #ifndef PVCORE_PVAXESINDEXTYPE_H
 #define PVCORE_PVAXESINDEXTYPE_H
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 #include <pvbase/types.h>
 
 #include <vector>

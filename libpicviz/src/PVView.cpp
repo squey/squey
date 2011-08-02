@@ -11,7 +11,7 @@
 #include <picviz/PVSource.h>
 #include <picviz/PVView.h>
 #include <picviz/PVLayerFilter.h>
-#include <pvfilter/PVFilterLibrary.h>
+#include <pvkernel/filter/PVFilterLibrary.h>
 #include <picviz/PVMapped.h>
 #include <picviz/PVMapping.h>
 #include <picviz/PVPlotted.h>
@@ -81,7 +81,7 @@ Picviz::PVView::PVView(PVPlotted_p parent) :
 
 	_is_consistent = true;
 
-	last_extractor_batch_size = pvconfig.value("pvrush/extract_next", PVEXTRACT_NUMBER_LINES_NEXT_DEFAULT).toInt();
+	last_extractor_batch_size = pvconfig.value("pvkernel/rush/extract_next", PVEXTRACT_NUMBER_LINES_NEXT_DEFAULT).toInt();
 
 	// Create layer filter arguments for that view
 	LIB_FILTER(Picviz::PVLayerFilter) &filters_layer = 	LIB_FILTER(Picviz::PVLayerFilter)::get();

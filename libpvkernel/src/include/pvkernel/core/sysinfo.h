@@ -11,12 +11,12 @@
 #include <QStringList>
 #include <QString>
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 
 #define LINUX_PCI_DEVICES_FILE "/proc/bus/pci/devices"
 
 namespace PVCore {
-	class LibCoreDecl SysInfo {
+	class LibKernelDecl SysInfo {
 	public:
 		SysInfo();
 		~SysInfo();

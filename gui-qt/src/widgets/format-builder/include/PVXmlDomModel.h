@@ -18,10 +18,10 @@
 #include <QDebug>
 #include <QString>
 
-#include <pvrush/PVXmlTreeNodeDom.h>
+#include <pvkernel/rush/PVXmlTreeNodeDom.h>
 #include <PVXmlParamWidget.h>
-#include <pvrush/PVXmlParamParser.h>
-#include <pvfilter/PVFieldsFilterParamWidget.h>
+#include <pvkernel/rush/PVXmlParamParser.h>
+#include <pvkernel/filter/PVFieldsFilterParamWidget.h>
 
 #define FORMAT_VERSION 1
 

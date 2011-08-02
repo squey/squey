@@ -8,15 +8,6 @@ include_directories(AFTER ${CURL_INCLUDE_DIR})
 
 include_directories(AFTER ${GLUT_INCLUDE_DIR})
 
-# APR
-add_definitions(${APR_FLAGS})
-include_directories(AFTER ${APR_INCLUDES})
-# PCRE
-include_directories(AFTER ${PCRE_INCLUDE_DIR})
-# PCAP
-include_directories(AFTER ${PCAP_INCLUDE_DIRS})
-# DUMBNET
-include_directories(AFTER ${DUMBNET_INCLUDE_DIRS})
 # Qt
 include(${QT_USE_FILE})
 
@@ -80,6 +71,6 @@ include/pvgl/PVConfig.h
 add_library(pvgl SHARED ${SRC_FILES} ${HEADER_FILES})
 set_target_properties(pvgl PROPERTIES SOVERSION 1)
 
-target_link_libraries(pvgl ${PICVIZ_LIBRARY} ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${GLEW_LIBRARY} ${GLUT_glut_LIBRARY} ${OPENGL_LIBRARIES} ${FREETYPE_LIBRARY} ${PVCORE_LIBRARIES} ${PVRUSH_LIBRARIES} ${PVFILTER_LIBRARIES} ${TBB_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(pvgl ${PICVIZ_LIBRARY} ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${GLEW_LIBRARY} ${GLUT_glut_LIBRARY} ${OPENGL_LIBRARIES} ${FREETYPE_LIBRARY} ${PVKERNEL_LIBRARIES} ${TBB_LIBRARIES} ${Boost_LIBRARIES})
 
 INSTALL(TARGETS pvgl DESTINATION .)

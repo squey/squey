@@ -1,7 +1,7 @@
-#include <pvcore/PVElement.h>
-#include <pvcore/PVElementData.h>
-#include <pvcore/PVField.h>
-#include <pvcore/PVChunk.h>
+#include <pvkernel/core/PVElement.h>
+#include <pvkernel/core/PVElementData.h>
+#include <pvkernel/core/PVField.h>
+#include <pvkernel/core/PVChunk.h>
 
 PVCore::PVElement::PVElement(PVChunk* parent, char* begin, char* end) :
 	d(new PVElementData()),

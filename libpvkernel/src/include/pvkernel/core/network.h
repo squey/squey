@@ -10,11 +10,11 @@
 
 #include <QString>
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 #include <dnet.h>
 
 namespace PVCore {
-	struct LibCoreDecl Network {
+	struct LibKernelDecl Network {
 		static bool ipv4_aton(QString const& ip, uint32_t& ip_n);
 		static char* ipv4_ntoa(const ip_addr_t addr);
 	};

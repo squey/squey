@@ -12,8 +12,8 @@
 #include <QString>
 #include <QWidget>
 
-#include <pvcore/general.h>
-#include <pvcore/PVAxisIndexCheckBoxType.h>
+#include <pvkernel/core/general.h>
+#include <pvkernel/core/PVAxisIndexCheckBoxType.h>
 
 #include <picviz/PVView.h>
 

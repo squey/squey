@@ -12,8 +12,8 @@
 
 #include <iostream>
 
-#include <pvcore/debug.h>
-#include <pvcore/sysinfo.h>
+#include <pvkernel/core/debug.h>
+#include <pvkernel/core/sysinfo.h>
 
 #include <stdlib.h>
 
@@ -28,11 +28,12 @@ PVCore::SysInfo::~SysInfo()
 
 QStringList PVCore::SysInfo::get_card_from_id(QString id)
 {
+	QStringList list;
+#if 0
 	QString pcifile_str;
 	QByteArray data;
 	QString sharedir;
 	QDir dir;
-	QStringList list;
 
 	bool read_current_vendor = 0;
 
@@ -91,7 +92,7 @@ QStringList PVCore::SysInfo::get_card_from_id(QString id)
 	}
 
 	pcifile.close();
-
+#endif
   return list;		
 
 }

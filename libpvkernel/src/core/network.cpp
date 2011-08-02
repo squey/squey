@@ -5,7 +5,7 @@
  * 
  */
 
-#include <pvcore/network.h>
+#include <pvkernel/core/network.h>
 
 #include <QString>
 #include <stdlib.h>

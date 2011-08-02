@@ -11,7 +11,7 @@
 # endif
 #endif
 
-#include <pvrush/PVFormat.h>
+#include <pvkernel/rush/PVFormat.h>
 
 #include <picviz/general.h>
 

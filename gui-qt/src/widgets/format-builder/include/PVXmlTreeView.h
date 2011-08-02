@@ -17,7 +17,7 @@
 #include <iostream>
 #include <PVXmlParamWidget.h>
 #include <PVXmlDomModel.h>
-#include <pvfilter/PVFieldsFilterParamWidget.h>
+#include <pvkernel/filter/PVFieldsFilterParamWidget.h>
 
 
 //QTreeView

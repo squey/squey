@@ -31,15 +31,15 @@
 #include <PVXmlParamWidget.h>
 #include <PVNrawListingWidget.h>
 #include <PVNrawListingModel.h>
-#include <pvrush/PVNormalizer.h>
-#include <pvcore/PVRegistrableClass.h>
-#include <pvcore/PVClassLibrary.h>
-#include <pvcore/PVArgument.h>
-#include <pvfilter/PVFieldsFilterParamWidget.h>
-#include <pvfilter/PVRawSourceBase.h>
-#include <pvrush/PVSourceCreator.h>
-#include <pvrush/PVExtractor.h>
-#include <pvrush/PVInputType.h>
+#include <pvkernel/rush/PVNormalizer.h>
+#include <pvkernel/core/PVRegistrableClass.h>
+#include <pvkernel/core/PVClassLibrary.h>
+#include <pvkernel/core/PVArgument.h>
+#include <pvkernel/filter/PVFieldsFilterParamWidget.h>
+#include <pvkernel/filter/PVRawSourceBase.h>
+#include <pvkernel/rush/PVSourceCreator.h>
+#include <pvkernel/rush/PVExtractor.h>
+#include <pvkernel/rush/PVInputType.h>
 
 namespace PVInspector{
 

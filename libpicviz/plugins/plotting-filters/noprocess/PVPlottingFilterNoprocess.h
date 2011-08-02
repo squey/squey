@@ -1,7 +1,7 @@
 #ifndef PVFILTER_PVPLOTTINGFILTERNOPROCESS_H
 #define PVFILTER_PVPLOTTINGFILTERNOPROCESS_H
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 #include <picviz/PVPlottingFilter.h>
 
 namespace Picviz {

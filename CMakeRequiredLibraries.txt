@@ -12,9 +12,7 @@ include(${QT_USE_FILE})
 # since we've defined the variable PICVIZ_SINGLE_TREE_BUILD 
 # it just returns PATHS and avoid adding multiple search of the
 # same package in the different sub directories.
-find_package(PVCore REQUIRED)
-find_package(PVFilter REQUIRED)
-find_package(PVRush REQUIRED)
+find_package(PVKernel REQUIRED)
 find_package(Picviz REQUIRED)
 find_package(PVGL REQUIRED)
 

@@ -7,7 +7,7 @@
 #ifndef PVFILTER_PVMAPPINGFILTERENUMDEFAULT_H
 #define PVFILTER_PVMAPPINGFILTERENUMDEFAULT_H
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 #include <picviz/PVMandatoryMappingFilter.h>
 #include <tbb/concurrent_unordered_map.h>
 

@@ -8,7 +8,7 @@
 #define PICVIZ_PVLAYERFILTERSearch_H
 
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 
 #include <picviz/PVLayer.h>
 #include <picviz/PVLayerFilter.h>

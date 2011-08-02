@@ -10,14 +10,14 @@
 
 #include <vector>
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 
 #include <boost/pool/object_pool.hpp>
 #include <boost/shared_ptr.hpp>
 
 namespace PVCore {
 
-class LibCoreDecl PVDateTimeParser {
+class LibKernelDecl PVDateTimeParser {
 public:
 	PVDateTimeParser();
 	PVDateTimeParser(QStringList const& time_format);

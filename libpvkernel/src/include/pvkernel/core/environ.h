@@ -8,12 +8,12 @@
 #ifndef PVCORE_ENVIRON_H
 #define PVCORE_ENVIRON_H
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 
 namespace PVCore {
 
-	LibCoreDecl int mkenv(const char *name, const char *value);
-	LibCoreDecl int rmenv(const char *name);
+	LibKernelDecl int mkenv(const char *name, const char *value);
+	LibKernelDecl int rmenv(const char *name);
 
 }
 

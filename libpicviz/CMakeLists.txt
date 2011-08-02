@@ -1,9 +1,7 @@
 ##########################################
 # BEGIN: SET VARIOUS PLUGINS DIRECTORIES #
 ##########################################
-include_directories(AFTER ${PVCORE_INCLUDE_DIRS})
-include_directories(AFTER ${PVRUSH_INCLUDE_DIRS})
-include_directories(AFTER ${PVFILTER_INCLUDE_DIRS})
+include_directories(AFTER ${PVKERNEL_INCLUDE_DIRS})
 include_directories(AFTER ${ICU_INCLUDE})
 
 # Set PICVIZ_FUNCTIONS_DIR

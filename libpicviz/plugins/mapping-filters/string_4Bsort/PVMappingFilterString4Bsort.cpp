@@ -1,5 +1,5 @@
 #include "PVMappingFilterString4Bsort.h"
-#include <pvcore/PVTBBMaxArray.h>
+#include <pvkernel/core/PVTBBMaxArray.h>
 
 #include <tbb/parallel_reduce.h>
 

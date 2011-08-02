@@ -8,13 +8,13 @@
 #define PICVIZ_PVSELECTIONFILTER_H
 
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 #include <picviz/PVSelection.h>
 #include <picviz/PVView.h>
 
-#include <pvfilter/PVFilterFunction.h>
-#include <pvfilter/PVFilterLibrary.h>
-#include <pvcore/PVArgument.h>
+#include <pvkernel/filter/PVFilterFunction.h>
+#include <pvkernel/filter/PVFilterLibrary.h>
+#include <pvkernel/core/PVArgument.h>
 
 namespace Picviz {
 

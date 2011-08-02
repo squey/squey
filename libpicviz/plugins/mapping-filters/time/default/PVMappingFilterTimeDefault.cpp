@@ -1,7 +1,7 @@
 #include "PVMappingFilterTimeDefault.h"
-#include <pvrush/PVFormat.h>
-#include <pvcore/PVDateTimeParser.h>
-#include <pvcore/stdint.h>
+#include <pvkernel/rush/PVFormat.h>
+#include <pvkernel/core/PVDateTimeParser.h>
+#include <pvkernel/core/stdint.h>
 
 #include <QStringList>
 #include <omp.h>

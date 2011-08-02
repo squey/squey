@@ -11,8 +11,8 @@
 #include <QString>
 #include <QWidget>
 
-#include <pvcore/general.h>
-#include <pvcore/PVSpinBoxType.h>
+#include <pvkernel/core/general.h>
+#include <pvkernel/core/PVSpinBoxType.h>
 
 #include <picviz/PVView.h>
 

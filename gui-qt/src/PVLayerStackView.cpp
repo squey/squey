@@ -7,7 +7,7 @@
 #include <QtGui>
 #include <QEvent>
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 //#include <picviz/PVView.h>
 
 #include <PVMainWindow.h>

@@ -7,7 +7,7 @@
 #ifndef LIBPVGL_GENERAL_H
 #define LIBPVGL_GENERAL_H
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 #include <picviz/PVView.h>
 
 #include <pvgl/PVCom.h>

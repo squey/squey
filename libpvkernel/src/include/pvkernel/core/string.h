@@ -24,7 +24,7 @@ public:
 		// This is a reduction. Do this with a for loop, so that we have more chance that the compiler
 		// optimize this with vectorized operations.
 		// Hmm.. spoken too fast... even with -ffast-math:
-		// $ g++ -ffast-math -ftree-vectorizer-verbose=8 -march=native -O3 -I/home/aguinet/pv/libpicviz/src/include -I/home/aguinet/pv/libpvcore/src/include -I/usr/include/qt4/QtCore -I/usr/include/qt4/ -I/home/aguinet/pv/libpvrush/src/include -I/usr/include/qt4/QtXml string_default.cpp 
+		// $ g++ -ffast-math -ftree-vectorizer-verbose=8 -march=native -O3 -I/home/aguinet/pv/libpicviz/src/include -I/home/aguinet/pv/libpvkernel/core/src/include -I/usr/include/qt4/QtCore -I/usr/include/qt4/ -I/home/aguinet/pv/libpvkernel/rush/src/include -I/usr/include/qt4/QtXml string_default.cpp 
 		//
 		// string_default.cpp:31: note: === vect_analyze_slp ===
 		// string_default.cpp:31: note: === vect_make_slp_decision ===
@@ -37,7 +37,7 @@ public:
 		// string_default.cpp:8: note: vectorized 0 loops in function.
 		//
 		// It looks like gcc can't handle the conversion from 8-bit char to 32-bit float when loading vector registers, because with 'factor' defined as an uint64_t :
-		// $ g++ -fassociative-math -ffast-math -ftree-vectorizer-verbose=2 -O3 -I/home/aguinet/pv/libpicviz/src/include -I/home/aguinet/pv/libpvcore/src/include -I/usr/include/qt4/QtCore -I/usr/include/qt4/ -I/home/aguinet/pv/libpvrush/src/include -I/usr/include/qt4/QtXml string_default.cpp 
+		// $ g++ -fassociative-math -ffast-math -ftree-vectorizer-verbose=2 -O3 -I/home/aguinet/pv/libpicviz/src/include -I/home/aguinet/pv/libpvkernel/core/src/include -I/usr/include/qt4/QtCore -I/usr/include/qt4/ -I/home/aguinet/pv/libpvkernel/rush/src/include -I/usr/include/qt4/QtXml string_default.cpp 
 		//
 		// string_default.cpp:46: note: LOOP VECTORIZED.
 		// string_default.cpp:8: note: vectorized 1 loops in function.

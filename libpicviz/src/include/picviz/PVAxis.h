@@ -7,7 +7,7 @@
 #ifndef PICVIZ_PVAXIS_H
 #define PICVIZ_PVAXIS_H
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 
 #include <picviz/PVColor.h>
 

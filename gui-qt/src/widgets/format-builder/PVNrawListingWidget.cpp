@@ -5,7 +5,7 @@
 #include <QVBoxLayout>
 #include <QPoint>
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 
 PVInspector::PVNrawListingWidget::PVNrawListingWidget(PVNrawListingModel* nraw_model, QWidget* parent) :
 	QWidget(parent),

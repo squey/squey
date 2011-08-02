@@ -20,8 +20,8 @@
 #include <QLabel>
 #include <QPushButton>
 
-#include <pvcore/general.h>
-#include <pvrush/PVNraw.h>
+#include <pvkernel/core/general.h>
+#include <pvkernel/rush/PVNraw.h>
 
 #ifdef WIN32
 #ifdef picviz_EXPORTS

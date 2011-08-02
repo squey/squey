@@ -9,8 +9,8 @@
 
 #include <QListWidget>
 
-#include <pvcore/general.h>
-#include <pvcore/PVAxesIndexType.h>
+#include <pvkernel/core/general.h>
+#include <pvkernel/core/PVAxesIndexType.h>
 
 #include <picviz/PVView.h>
 

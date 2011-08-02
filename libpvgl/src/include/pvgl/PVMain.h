@@ -7,7 +7,7 @@
 #ifndef LIBPVGL_PVMAIN_H
 #define LIBPVGL_PVMAIN_H
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 
 #include <pvgl/PVIdleManager.h>
 #include <QtCore>

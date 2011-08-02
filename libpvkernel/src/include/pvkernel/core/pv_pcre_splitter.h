@@ -13,12 +13,12 @@
 #include <QStringList>
 
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 
-#include <pvcore/pv_splitter.h>
+#include <pvkernel/core/pv_splitter.h>
 
 
-class LibCoreDecl PVPCRESplitter : public PVSplitter {
+class LibKernelDecl PVPCRESplitter : public PVSplitter {
 	private:
 		QRegExp q_regex;
 		QString regex;

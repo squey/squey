@@ -18,18 +18,18 @@
 #include <PVMainWindow.h>
 #include <PVDualSlider.h>
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 
-#include <pvcore/debug.h>
+#include <pvkernel/core/debug.h>
 //FIXME #include <picviz/filters.h>
 
-#include <pvrush/PVFormat.h>
+#include <pvkernel/rush/PVFormat.h>
 
 #include <picviz/arguments.h>
 #include <picviz/PVSource.h>
 #include <picviz/PVView.h>
 
-#include <pvrush/PVFormat.h>
+#include <pvkernel/rush/PVFormat.h>
 
 #include <PVFilterSearchWidget.h>
 

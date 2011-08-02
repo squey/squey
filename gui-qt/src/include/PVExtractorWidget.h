@@ -21,9 +21,9 @@
 
 #include <picviz/general.h>
 #include <picviz/PVView.h>
-#include <pvrush/PVExtractor.h>
+#include <pvkernel/rush/PVExtractor.h>
 
-#include <pvfilter/PVRawSourceBase.h>
+#include <pvkernel/filter/PVRawSourceBase.h>
 
 namespace PVInspector {
 

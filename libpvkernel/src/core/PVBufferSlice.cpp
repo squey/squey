@@ -1,9 +1,9 @@
-#include <pvcore/PVBufferSlice.h>
+#include <pvkernel/core/PVBufferSlice.h>
 #include <cassert>
 
 #include <tbb/scalable_allocator.h>
 
-#include <pvcore/stdint.h>
+#include <pvkernel/core/stdint.h>
 
 #define REALLOC_GROWBY_ADD 20
 PVCore::PVBufferSlice::PVBufferSlice(char* begin, char* end, buf_list_t& buf_list) :

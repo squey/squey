@@ -1,7 +1,7 @@
 #ifndef PVCORE_PVMEANVALUE_H
 #define PVCORE_PVMEANVALUE_H
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 
 namespace PVCore {
 
@@ -14,7 +14,7 @@ namespace PVCore {
  * save this mean value and the number of values, but it would involve a loss of precision.
  * So, Tsum can be different that T because, for instance, T can be int16_t but the sum would be int64_t.
  *
- * This a template class and each lib will export its version. There is *no* need for LibCoreDecl
+ * This a template class and each lib will export its version. There is *no* need for LibKernelDecl
  */
 template<typename T, typename Tsum = T>
 class PVMeanValue

@@ -25,7 +25,7 @@
 #include <QAbstractItemModel>
 
 
-#include <pvrush/PVXmlTreeNodeDom.h>
+#include <pvkernel/rush/PVXmlTreeNodeDom.h>
 #include <PVXmlParamWidgetEditorBox.h>
 #include <PVXmlParamTextEdit.h>
 #include <PVXmlParamComboBox.h>

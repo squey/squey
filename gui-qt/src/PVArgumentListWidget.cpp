@@ -15,11 +15,11 @@
 #include <QFrame>
 #include <QMouseEvent>
 
-#include <pvcore/general.h>
-#include <pvcore/PVAxisIndexType.h>
-#include <pvcore/PVAxesIndexType.h>
-#include <pvcore/PVEnumType.h>
-#include <pvcore/PVColorGradientDualSliderType.h>
+#include <pvkernel/core/general.h>
+#include <pvkernel/core/PVAxisIndexType.h>
+#include <pvkernel/core/PVAxesIndexType.h>
+#include <pvkernel/core/PVEnumType.h>
+#include <pvkernel/core/PVColorGradientDualSliderType.h>
 
 #include <PVArgumentListDelegate.h>
 #include <PVArgumentListModel.h>

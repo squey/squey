@@ -1,6 +1,6 @@
 #include <picviz/PVRoot.h>
 #include <picviz/PVMappingFilter.h>
-#include <pvrush/PVNraw.h>
+#include <pvkernel/rush/PVNraw.h>
 
 #include <iostream>
 #include <QCoreApplication>

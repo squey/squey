@@ -7,7 +7,7 @@
 #ifndef PVCORE_PVCOLORGRADIENTDUALSLIDERTYPE_H
 #define PVCORE_PVCOLORGRADIENTDUALSLIDERTYPE_H
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 
 namespace PVCore {
 

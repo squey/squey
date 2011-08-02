@@ -7,7 +7,7 @@
 #ifndef LIBPVGL_HBOX_H
 #define LIBPVGL_HBOX_H
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 
 #include <pvgl/PVBox.h>
 

@@ -1,7 +1,7 @@
 #include "PVMappingFilterHostDefault.h"
 #include <picviz/limits.h>
-#include <pvcore/string.h>
-#include <pvcore/network.h>
+#include <pvkernel/core/string.h>
+#include <pvkernel/core/network.h>
 
 #include <QVector>
 #include <QByteArray>

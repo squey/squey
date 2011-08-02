@@ -9,8 +9,8 @@
 
 #include <QList>
 
-#include <pvcore/general.h>
-#include <pvrush/PVNormalizer.h>
+#include <pvkernel/core/general.h>
+#include <pvkernel/rush/PVNormalizer.h>
 
 #include <picviz/PVMandatoryMappingFactory.h>
 #include <picviz/PVMappingFactory.h>

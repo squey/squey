@@ -7,7 +7,7 @@
 #include <QtGui>
 #include <QCursor>
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 #include <picviz/PVStateMachine.h>
 #include <picviz/PVView.h>
 
@@ -18,7 +18,7 @@
 #include <PVListingModel.h>
 #include <PVLayerFilterProcessWidget.h>
 
-#include <pvfilter/PVFilterLibrary.h>
+#include <pvkernel/filter/PVFilterLibrary.h>
 #include <picviz/PVLayerFilter.h>
 
 /******************************************************************************

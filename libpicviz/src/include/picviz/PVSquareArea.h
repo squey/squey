@@ -7,7 +7,7 @@
 #ifndef PICVIZ_PVSQUAREAREA_H
 #define PICVIZ_PVSQUAREAREA_H
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 
 namespace Picviz {
 

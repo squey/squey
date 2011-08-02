@@ -1,7 +1,7 @@
 #include <QStringList>
 #include <stdlib.h>
 
-#include <pvcore/PVLogger.h>
+#include <pvkernel/core/PVLogger.h>
 
 int main(void)
 {

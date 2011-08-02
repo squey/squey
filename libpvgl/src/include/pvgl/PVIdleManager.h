@@ -7,7 +7,7 @@
 #ifndef LIBPVGL_PVIDLE_MANAGER_H
 #define LIBPVGL_PVIDLE_MANAGER_H
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 
 namespace PVGL {
 class PVDrawable;

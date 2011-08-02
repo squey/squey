@@ -18,8 +18,8 @@
 #include <picviz/PVView.h>
 
 // Filters
-#include <pvfilter/PVFilterLibrary.h>
-#include <pvcore/PVArgument.h>
+#include <pvkernel/filter/PVFilterLibrary.h>
+#include <pvkernel/core/PVArgument.h>
 #include <picviz/PVSelectionFilterScatterPlotSelectionSquare.h>
 
 #include <pvgl/PVConfig.h>

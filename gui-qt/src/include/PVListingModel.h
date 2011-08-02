@@ -12,7 +12,7 @@ typedef std::vector<int> MatchingTable_t;
 #include <QtGui>
 #include <QtCore>
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 #include <picviz/PVSortQVectorQStringListThread.h>
 #include <picviz/PVStateMachine.h>
 #include <picviz/PVView.h>
