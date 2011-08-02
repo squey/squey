@@ -68,7 +68,7 @@ public:
 	 *  \return A PVControllerJob object that represent the job that has been pushed to the internal job controller. It can be used by the caller to wait for the end of the job (see PVControllerJob::wait_end).
 	 *  \sa PVAggregator
 	 */
-	PVControllerJob_p process_from_agg_nlines(PVCore::chunk_index start, PVCore::chunk_index nlines, int priority = 0);
+	PVControllerJob_p process_from_agg_nlines(chunk_index start, chunk_index nlines, int priority = 0);
 
 	/*! \brief Process param[in]s between indexes "start" and "end"
 	 *  \param[in] start Index to start the extraction from (an index is typically a line number).
@@ -77,7 +77,7 @@ public:
 	 *  \return A PVControllerJob object that represent the job that has been pushed to the internal job controller. It can be used by the caller to wait for the end of the job (see PVControllerJob::wait_end).
 	 *  \sa PVAggregator
 	 */
-	PVControllerJob_p process_from_agg_idxes(PVCore::chunk_index start, PVCore::chunk_index end, int priority = 0);
+	PVControllerJob_p process_from_agg_idxes(chunk_index start, chunk_index end, int priority = 0);
 
 	/*! \brief 
 	 *  \param[in] priority Priority of the job
@@ -136,7 +136,7 @@ public:
 protected:
 	/*! \brief Find the aggregator index of a line present in the internal nraw
 	 */
-	PVCore::chunk_index pvrow_to_agg_index(PVRow start, bool& found);
+	chunk_index pvrow_to_agg_index(PVRow start, bool& found);
 
 protected:
 	PVAggregator _agg;

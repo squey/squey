@@ -38,7 +38,7 @@ class LibKernelDecl PVAggregator {
 public:
 	typedef std::vector<PVRush::PVRawSourceBase_p> list_inputs;
 
-	typedef std::map<PVCore::chunk_index, PVRush::PVRawSourceBase_p> map_source_offsets;
+	typedef std::map<chunk_index, PVRush::PVRawSourceBase_p> map_source_offsets;
 
 public:
 	/*! \brief Copy constructor of an aggregator.
@@ -94,7 +94,7 @@ public:
 	 *
 	 *  \todo Use _src_offsets to be more efficient !
 	 */
-	void process_indexes(PVCore::chunk_index nstart, PVCore::chunk_index nend);
+	void process_indexes(chunk_index nstart, chunk_index nend);
 
 	/*! \brief Tell the aggregator to return chunk starting from a given param[in] and a given local index range.
 	 * \param[in] input_start Source to start from
@@ -110,7 +110,7 @@ public:
 	 *
 	 * \todo This is all but efficient, because process_indexes do not use _src_offsets.
 	 */
-	void process_from_source(list_inputs::iterator input_start, PVCore::chunk_index nstart, PVCore::chunk_index nend);
+	void process_from_source(list_inputs::iterator input_start, chunk_index nstart, chunk_index nend);
 
 	/*! \brief Returns true if the end of param[in]s has been reached. It is set by operator(). Returns false otherwise.
 	 */
@@ -127,7 +127,7 @@ public:
 
 	/*! \brief Returns the global index of the last element of the last read chunk.
 	 */
-	PVCore::chunk_index last_elt_agg_index();
+	chunk_index last_elt_agg_index();
 
 	/*! \brief Reads all the aggregator's sources. 
 	 * This will set the number of element of each sources (see PVRawSource::operator()) and updates
@@ -148,7 +148,7 @@ public:
 	 *  \return A shared pointer to the source that contains the given global index if found, or an invalid shared
 	 *          pointer otherwise.
 	 */
-	PVRush::PVRawSourceBase_p agg_index_to_source(PVCore::chunk_index idx, size_t* offset);
+	PVRush::PVRawSourceBase_p agg_index_to_source(chunk_index idx, size_t* offset);
 	void debug();
 
 public:
@@ -157,7 +157,7 @@ public:
 	static PVAggregator from_unique_source(PVRush::PVRawSourceBase_p source);
 
 protected:
-	PVCore::PVChunk* read_until_index(PVCore::chunk_index idx) const;
+	PVCore::PVChunk* read_until_index(chunk_index idx) const;
 	bool read_until_source(list_inputs::iterator input_start);
 	PVCore::PVChunk* next_chunk() const;
 
@@ -168,16 +168,16 @@ protected:
 	/*! \brief Indicates the end of param[in]s. Set by operator().
 	 */
 	mutable bool _eoi;
-	mutable PVCore::chunk_index _nstart;
+	mutable chunk_index _nstart;
 
 	/*! \brief Stores the global index of the last element of the last read chunk
 	 */
-	mutable PVCore::chunk_index _nlast;
-	mutable PVCore::chunk_index _nend;
-	mutable PVCore::chunk_index _cur_src_index;
+	mutable chunk_index _nlast;
+	mutable chunk_index _nend;
+	mutable chunk_index _cur_src_index;
 	bool *_stop_cond;
 	bool __stop_cond_false;
-	mutable PVCore::chunk_index _last_elt_agg_index;
+	mutable chunk_index _last_elt_agg_index;
 
 	/*! \brief Map global start indexes to source.
 	 * The key of this std::map object represent the global start index of the associated source.

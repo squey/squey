@@ -22,13 +22,13 @@ public:
 public:
 	PVFilter::PVChunkFilter_f source_filter();
 	PVInput_p get_input() { return _input; }
-	PVCore::chunk_index last_elt_index() { return _last_elt_index; }
+	chunk_index last_elt_index() { return _last_elt_index; }
 	virtual QString human_name();
 	virtual void seek_begin();
 
 protected:
 	PVFilter::PVChunkFilter_f _src_filter;
-	mutable PVCore::chunk_index _last_elt_index; // Local file index of the last element of that source. Can correspond to a number of lines
+	mutable chunk_index _last_elt_index; // Local file index of the last element of that source. Can correspond to a number of lines
 	PVInput_p _input;
 };
 

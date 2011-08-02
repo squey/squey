@@ -75,12 +75,12 @@ public:
 	 */
 	PVControllerJob(job_action a, int priority);
 	virtual ~PVControllerJob();
-	void set_params(PVCore::chunk_index begin, PVCore::chunk_index end, PVCore::chunk_index n_elts, stop_cdtion sc, PVAggregator &agg, PVFilter::PVChunkFilter_f filter, PVOutput& out_filter, size_t nchunks, bool dump_elts = false);
+	void set_params(chunk_index begin, chunk_index end, chunk_index n_elts, stop_cdtion sc, PVAggregator &agg, PVFilter::PVChunkFilter_f filter, PVOutput& out_filter, size_t nchunks, bool dump_elts = false);
 	bool done() const;
 	bool running() const;
 	bool cancel();
-	PVCore::chunk_index status() const;
-	PVCore::chunk_index nb_elts_max() const;
+	chunk_index status() const;
+	chunk_index nb_elts_max() const;
 	virtual void wait_end(); // wait the end of this job
 	tbb::tick_count::interval_t duration() const;
 
@@ -95,8 +95,8 @@ protected:
 
 protected:
 	int priority() const;
-	PVCore::chunk_index idx_begin() const;
-	PVCore::chunk_index idx_end() const;
+	chunk_index idx_begin() const;
+	chunk_index idx_end() const;
 	size_t nchunks() const;
 	job_action action() const;
 
@@ -127,10 +127,10 @@ private:
 	job_action _a;
 	int _priority;
 	// Indexes are aggregator indexes !
-	PVCore::chunk_index _idx_begin;
-	PVCore::chunk_index _idx_end;
+	chunk_index _idx_begin;
+	chunk_index _idx_end;
 	// Number of elements to read
-	PVCore::chunk_index _n_elts;
+	chunk_index _n_elts;
 	// Stop condition (end index reached or number of elements reached)
 	stop_cdtion _sc;
 	size_t _nchunks;
@@ -140,7 +140,7 @@ private:
 	tbb::tick_count _tc_start;
 	tbb::tick_count _tc_end;
 	PVController* _ctrl_parent;
-	PVCore::chunk_index _max_n_elts;
+	chunk_index _max_n_elts;
 
 signals:
 	void job_done_signal();

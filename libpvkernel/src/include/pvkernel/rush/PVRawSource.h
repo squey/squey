@@ -21,7 +21,7 @@ public:
 	typedef PVCore::PVChunkMem<Allocator> PVChunkAlloc;
 	typedef Allocator<char> alloc_chunk;
 
-	typedef std::map<PVCore::chunk_index,PVInput::input_offset> map_offsets;
+	typedef std::map<chunk_index,PVInput::input_offset> map_offsets;
 
 public:
 	PVRawSource(PVInput_p input,  PVChunkAlign &align, size_t chunk_size, PVChunkTransform &chunk_transform, PVFilter::PVChunkFilter_f src_filter, const alloc_chunk &alloc = alloc_chunk()) :
@@ -90,7 +90,7 @@ public:
 		_curc->set_elements_index();
 
 		// Compute the chunk indexes, based on the number of elements found
-		PVCore::chunk_index next_index = _curc->index() + _curc->c_elements().size();
+		chunk_index next_index = _curc->index() + _curc->c_elements().size();
 		_offsets[next_index] =  _input->current_input_offset();
 		_nextc->set_index(next_index);
 		if (next_index-1>_last_elt_index) {
