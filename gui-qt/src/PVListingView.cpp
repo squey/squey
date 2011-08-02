@@ -47,6 +47,7 @@ PVInspector::PVListingView::PVListingView(PVMainWindow *mw, Picviz::PVView_p pv_
 	setMinimumSize(0,0);
 	setSizePolicy(QSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding));
 	setFocusPolicy(Qt::NoFocus);
+	setSelectionBehavior(QAbstractItemView::SelectRows);
 	
 	// Custom context menu.
 	// It is created based on what layer filter plugins tell us.
@@ -74,15 +75,18 @@ PVInspector::PVListingView::PVListingView(PVMainWindow *mw, Picviz::PVView_p pv_
 	setContextMenuPolicy(Qt::CustomContextMenu);
 
 	// Init the double click action
-	connect(this->horizontalHeader(),SIGNAL(sectionDoubleClicked (int)),this,SLOT(slotDoubleClickOnVHead(int)));
+	connect(horizontalHeader(), SIGNAL(sectionDoubleClicked(int)), this, SLOT(slotDoubleClickOnHHead(int)));
+
+	// A double click on the vertical header select the line in the lib view
+	connect(verticalHeader(), SIGNAL(sectionDoubleClicked(int)), this, SLOT(slotDoubleClickOnVHead(int)));
 }
 
 /******************************************************************************
  *
- * PVInspector::PVListingView::mouseReleaseEvent
+ * PVInspector::PVListingView::update_view_selection_from_listing_selection
  *
  *****************************************************************************/
-void PVInspector::PVListingView::mouseReleaseEvent(QMouseEvent *event)
+void PVInspector::PVListingView::update_view_selection_from_listing_selection()
 {
 	/* VARIABLES */
 	Picviz::PVStateMachine *state_machine;
@@ -90,7 +94,7 @@ void PVInspector::PVListingView::mouseReleaseEvent(QMouseEvent *event)
 	int number_of_items;
 	int real_row_index;
 	QModelIndexList selected_items_list;
-        PVListingModel *myModel = (PVListingModel *)model();
+	PVListingModel *myModel = (PVListingModel *)model();
 
 	/* CODE */
 	state_machine = lib_view->state_machine;
@@ -105,25 +109,24 @@ void PVInspector::PVListingView::mouseReleaseEvent(QMouseEvent *event)
 	number_of_items = selected_items_list.size();
 
 	if (state_machine->are_listing_all()) {
-                for (i=0; i<number_of_items; i++) {
-                        real_row_index = lib_view->get_real_row_index(selected_items_list[i].row());
-                        PVLOG_HEAVYDEBUG("     a%d\n",myModel->getMatch(real_row_index));
-                        lib_view->volatile_selection.set_line(myModel->getMatch(real_row_index), 1);
-                }    
-        }else if(state_machine->are_listing_no_nz()){
-                for (i=0; i<number_of_items; i++) {
-                        real_row_index = lib_view->get_real_row_index(selected_items_list[i].row());
-                        PVLOG_HEAVYDEBUG("     b%d, local%d, real%d, invert%d, selected_items_list[i].row()=%d\n, ",myModel->getMatch(real_row_index),myModel->getLocalMatch(real_row_index),real_row_index,myModel->getInvertedMatch(real_row_index),selected_items_list[i].row());
-                        lib_view->volatile_selection.set_line(myModel->getLocalMatch(real_row_index), 1);
-                }  
-        }else {
-                for (i=0; i<number_of_items; i++) {
-                        //real_row_index = lib_view->get_real_row_index(selected_items_list[i].row());
-                        real_row_index = myModel->getLocalMatch(selected_items_list[i].row());
-                        PVLOG_HEAVYDEBUG("     c%d, local%d, real%d, invert%d\n",myModel->getMatch(real_row_index),myModel->getLocalMatch(real_row_index),real_row_index,myModel->getInvertedMatch(real_row_index));
-                        lib_view->volatile_selection.set_line((real_row_index), 1);
-                }  
-        }
+		for (i=0; i<number_of_items; i++) {
+			real_row_index = lib_view->get_real_row_index(selected_items_list[i].row());
+			lib_view->volatile_selection.set_line(myModel->getMatch(real_row_index), 1);
+		}    
+	}
+	else
+	if(state_machine->are_listing_no_nz()) {
+		for (i=0; i<number_of_items; i++) {
+			real_row_index = lib_view->get_real_row_index(selected_items_list[i].row());
+			lib_view->volatile_selection.set_line(myModel->getLocalMatch(real_row_index), 1);
+		}  
+	}
+	else {
+		for (i=0; i<number_of_items; i++) {
+			real_row_index = lib_view->get_real_row_index(selected_items_list[i].row());
+			lib_view->volatile_selection.set_line((real_row_index), 1);
+		}  
+	}
 	
 	/* We reprocess the view from the selection */
 	lib_view->process_from_selection();
@@ -135,20 +138,61 @@ void PVInspector::PVListingView::mouseReleaseEvent(QMouseEvent *event)
 	main_window->current_tab->update_pv_listing_model_Slot();
 	main_window->current_tab->refresh_layer_stack_view_Slot();
 
-	/* we leave the ongoing job to the parent's method */
-	QTableView::mouseReleaseEvent(event);
+	main_window->statusBar()->clearMessage();
 }
 
+void PVInspector::PVListingView::mouseDoubleClickEvent(QMouseEvent* event)
+{
+	// Here is the reference:
+	// * if a double click is made on a line, then this line is selected in the table view *and* in the lib view
+	if (selectedIndexes().size() > 0) {
+		update_view_selection_from_listing_selection();
+	}
+	else {
+		QTableView::mouseDoubleClickEvent(event);
+	}
+}
+
+void PVInspector::PVListingView::selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
+{
+	bool has_sel = selected.indexes().size() > 0;
+	QStatusBar* sb = main_window->statusBar();
+	if (has_sel) {
+		sb->showMessage(tr("Press enter to select these lines."));
+	}
+	else {
+		sb->clearMessage();
+	}	
+}
 
 /******************************************************************************
  *
  * PVInspector::PVListingView::slotDoubleClickOnVHead
  *
  *****************************************************************************/
-void PVInspector::PVListingView::slotDoubleClickOnVHead(int idHeader) 
+void PVInspector::PVListingView::slotDoubleClickOnVHead(int /*idHeader*/)
+{
+	// The double click automatically select the line, so just call our global
+	// selection function.
+	update_view_selection_from_listing_selection();
+}
+
+/******************************************************************************
+ *
+ * PVInspector::PVListingView::slotDoubleClickOnHHead
+ *
+ *****************************************************************************/
+void PVInspector::PVListingView::slotDoubleClickOnHHead(int idHeader) 
 {
 	assert(model());
 	static_cast<PVListingModel *>(model())->sortByColumn(idHeader);
+}
+
+void PVInspector::PVListingView::keyEnterPressed()
+{
+	if (selectedIndexes().size() > 0) {
+		update_view_selection_from_listing_selection();
+	}
 }
 
 void PVInspector::PVListingView::show_ctxt_menu(const QPoint& pos)

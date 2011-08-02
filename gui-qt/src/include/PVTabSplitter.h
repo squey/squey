@@ -12,22 +12,21 @@
 
 #include <picviz/PVView.h>
 
-#include <PVListingView.h>
-#include <PVListingModel.h>
-
-
 #include <PVLayerStackModel.h>
 #include <PVLayerStackWidget.h>
 
 #include <PVExtractorWidget.h>
 
+#include <vector>
 
+typedef std::vector<int> MatchingTable_t;
 
 
 namespace PVInspector {
 
 class PVMainWindow;
 class PVListingModel;
+class PVListingView;
 
 /**
  *  \class PVTabSplitter

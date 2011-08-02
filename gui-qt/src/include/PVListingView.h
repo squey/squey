@@ -39,6 +39,7 @@ class PVListingView : public QTableView
 
 public slots:
 	void slotDoubleClickOnVHead(int);
+	void slotDoubleClickOnHHead(int idHeader);
 	void show_ctxt_menu(const QPoint& pos);
 
 // FIXME!			void update_row_count_in_all_dynamic_listing_model_Slot();
@@ -78,12 +79,18 @@ public:
 	 */
 //	void increment_screenshot_index();
 
+	void keyEnterPressed();
+
 private:
-	void mouseReleaseEvent(QMouseEvent *event);
+	void mouseDoubleClickEvent(QMouseEvent* event);
+	void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
 
 private:
 	void process_ctxt_menu_action(QAction* act);
 	void process_ctxt_menu_copy();
+
+private:
+	void update_view_selection_from_listing_selection();
 
 private:
 	QMenu* _ctxt_menu;
