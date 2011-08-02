@@ -1,9 +1,9 @@
 #include <picviz/PVPlottingFilter.h>
-
 #include <pvkernel/core/stdint.h>
 
 Picviz::PVPlottingFilter::PVPlottingFilter() :
-	PVFilter::PVFilterFunctionRegistrable<float*, float*, PVPlottingFilter>()
+	PVFilter::PVFilterFunctionBase<float*, float*>(),
+	PVCore::PVRegistrableClass<Picviz::PVPlottingFilter>()
 {
 	_dest = NULL;
 	_dest_size = 0;

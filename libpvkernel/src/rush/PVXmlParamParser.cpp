@@ -5,6 +5,7 @@
  * Created on 12 mai 2011, 11:27
  */
 
+#include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/rush/PVXmlTreeNodeDom.h>
 #include <pvkernel/rush/PVXmlParamParser.h>
 
@@ -75,7 +76,7 @@ QHash<int, QStringList> const& PVRush::PVXmlParamParser::getTimeFormat() const
 
 int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id)
 {
-	static PVFilter::PVFilterLibrary<PVFilter::PVFieldsFilterReg> const& filters_lib = PVFilter::PVFilterLibrary<PVFilter::PVFieldsFilterReg>::get();
+	static PVCore::PVClassLibrary<PVFilter::PVFieldsFilterReg> const& filters_lib = PVCore::PVClassLibrary<PVFilter::PVFieldsFilterReg>::get();
 
 	int newId = id;
 	if (id == -1) {
@@ -101,7 +102,7 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id)
 					if(getNodeType(child)=="filter"){
 						PVRush::PVXmlParamParserData data;
 						data.axis_id = newId;
-						data.filter_lib = filters_lib.get_filter_by_name("filter_regexp");
+						data.filter_lib = filters_lib.get_class_by_name("filter_regexp");
 						if (!data.filter_lib) {
 							throw PVXmlParamParserExceptionPluginNotFound("filter", "regexp");
 						}
@@ -118,7 +119,7 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id)
 
 					if (getNodeType(child) == "RegEx") {
 						data.axis_id = newId;
-						data.filter_lib = filters_lib.get_filter_by_name("splitter_regexp");
+						data.filter_lib = filters_lib.get_class_by_name("splitter_regexp");
 						if (!data.filter_lib) {
 							throw PVXmlParamParserExceptionPluginNotFound("splitter", "regexp");
 						}
@@ -128,7 +129,7 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id)
 					else
 					if (getNodeType(child) == "url") {
 						data.axis_id = newId;
-						data.filter_lib = filters_lib.get_filter_by_name("splitter_url");
+						data.filter_lib = filters_lib.get_class_by_name("splitter_url");
 						if (!data.filter_lib) {
 							throw PVXmlParamParserExceptionPluginNotFound("splitter", "url");
 						}
@@ -137,7 +138,7 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id)
 					else
 					if (getNodeType(child) == "pcap") {
 						data.axis_id = newId;
-						data.filter_lib = filters_lib.get_filter_by_name("splitter_pcap");
+						data.filter_lib = filters_lib.get_class_by_name("splitter_pcap");
 						if (!data.filter_lib) {
 							throw PVXmlParamParserExceptionPluginNotFound("splitter", "pcap");
 						}
@@ -147,7 +148,7 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id)
 					else
 					if (getNodeType(child) == "csv") {
 						data.axis_id = newId;
-						data.filter_lib = filters_lib.get_filter_by_name("splitter_csv");
+						data.filter_lib = filters_lib.get_class_by_name("splitter_csv");
 						if (!data.filter_lib) {
 							throw PVXmlParamParserExceptionPluginNotFound("splitter", "csv");
 						}
@@ -225,13 +226,13 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id)
 
 void PVRush::PVXmlParamParser::pushFilter(QDomElement const& elt, int newId)
 {
-	static PVFilter::PVFilterLibrary<PVFilter::PVFieldsFilterReg> const& filters_lib = PVFilter::PVFilterLibrary<PVFilter::PVFieldsFilterReg>::get();
+	static PVCore::PVClassLibrary<PVFilter::PVFieldsFilterReg> const& filters_lib = PVCore::PVClassLibrary<PVFilter::PVFieldsFilterReg>::get();
 	QString node_type = getNodeType(elt);
 	QString filter_plugin_name = elt.attribute("type","");
 	PVCore::PVArgumentList args;
 	PVRush::PVXmlParamParserData data;
 	data.axis_id = newId;
-	data.filter_lib = filters_lib.get_filter_by_name(node_type + QString("_") + filter_plugin_name);
+	data.filter_lib = filters_lib.get_class_by_name(node_type + QString("_") + filter_plugin_name);
 	if (!data.filter_lib) {
 		throw PVXmlParamParserExceptionPluginNotFound(node_type, filter_plugin_name);
 	}

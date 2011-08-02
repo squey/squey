@@ -12,7 +12,6 @@
 #include <pvkernel/core/PVChunk.h>
 #include <pvkernel/core/PVField.h>
 #include <pvkernel/filter/PVFilterFunction.h>
-#include <pvkernel/filter/PVFilterLibrary.h>
 #include <map>
 #include <list>
 #include <utility>
@@ -27,16 +26,30 @@ enum fields_filter_type {
 };
 
 typedef std::list< std::pair<PVCore::PVArgumentList, PVCore::list_fields> > list_guess_result_t;
-// Function typedef
+
+class PVFieldsBaseFilter: public PVFilterFunction< PVCore::list_fields, PVFieldsBaseFilter >
+{
+public:
+	typedef boost::shared_ptr<PVFieldsBaseFilter> p_type;
+	typedef PVFilterFunction< PVCore::list_fields, PVFieldsBaseFilter >::func_type func_type;
+public:
+	PVFieldsBaseFilter() :
+		PVFilterFunction< PVCore::list_fields, PVFieldsBaseFilter>()
+	{
+	}
+};
+
 template <fields_filter_type Ttype = many_to_many>
-class PVFieldsFilter : public PVFilterFunction< PVCore::list_fields, PVFieldsFilter<Ttype> > {
+class PVFieldsFilter : public PVFieldsBaseFilter {
 public:
 	typedef PVFieldsFilter<Ttype> FilterT;
 	typedef boost::shared_ptr< PVFieldsFilter<Ttype> > p_type;
+	typedef PVFieldsBaseFilter base_registrable;
+	typedef PVFieldsFilter<Ttype> RegAs;
 
 public:
 	PVFieldsFilter() :
-		PVFilterFunction<PVCore::list_fields, PVFieldsFilter<Ttype> >()
+		PVFieldsBaseFilter()
 	{
 		_type = Ttype;
 		_fields_expected = 0;
@@ -84,12 +97,11 @@ protected:
 	size_t _fields_expected;
 };
 
-typedef PVFieldsFilter<>::base PVFieldsBaseFilter;
 typedef PVFieldsBaseFilter::func_type PVFieldsBaseFilter_f;
 typedef PVFieldsBaseFilter::p_type PVFieldsBaseFilter_p;
 
-typedef PVFieldsFilter<>::base_registrable PVFieldsFilterReg;
-typedef PVFieldsFilter<>::base_registrable::p_type PVFieldsFilterReg_p;
+typedef PVFieldsBaseFilter PVFieldsFilterReg;
+typedef PVFieldsFilterReg::p_type PVFieldsFilterReg_p;
 
 typedef PVFilter::PVFieldsFilter<PVFilter::one_to_many> PVFieldsSplitter;
 typedef PVFieldsSplitter::p_type PVFieldsSplitter_p;

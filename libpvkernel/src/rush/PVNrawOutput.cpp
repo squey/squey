@@ -30,13 +30,11 @@ void PVRush::PVNrawOutput::operator()(PVCore::PVChunk* out)
 
 		size_t nchars_line = 0;
 		PVRush::PVNraw::nraw_table_line &sl = _nraw_dest.add_row(fields.size());
-		bool no_field = true;
 		size_t index_f = 0;
 		for (it_field = fields.begin(); it_field != fields.end(); it_field++) {
 			PVCore::PVField const& f = *it_field;
 			if (!f.valid())
 				continue;
-			no_field = false;
 			nchars_line += f.size();
 			//sl[index_f].setUnicode((QChar*) f.begin(), f.size()/(sizeof(QChar)));
 			_nraw_dest.set_field(sl, index_f, (QChar*) f.begin(), f.size()/(sizeof(QChar)));

@@ -1,12 +1,12 @@
 // Register the plugin in PVFilterLibrary
 //
 
-#include <pvkernel/filter/PVFilterLibrary.h>
+#include <pvkernel/core/PVClassLibrary.h>
 #include "PVPlottingFilterIntegerPort.h"
 
 // This method will be called by libpicviz
-LibCPPExport void register_filter()
+LibCPPExport void register_class()
 {
 	// Register under the name "type_format"
-	REGISTER_FILTER("integer_port", Picviz::PVPlottingFilterIntegerPort);
+	REGISTER_CLASS("integer_port", Picviz::PVPlottingFilterIntegerPort);
 }

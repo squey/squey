@@ -1,7 +1,7 @@
 #include <picviz/PVMappingFilter.h>
 #include <picviz/PVRoot.h>
 #include <pvkernel/rush/PVFormat.h>
-#include <pvkernel/filter/PVFilterLibrary.h>
+#include <pvkernel/core/PVClassLibrary.h>
 #include <tbb/tick_count.h>
 #include "test-env.h"
 
@@ -20,7 +20,7 @@ int main(int argc, char** argv)
 	init_env();
 
 	Picviz::PVRoot root; // Load plugins
-	Picviz::PVMappingFilter::p_type map_filter = LIB_FILTER(Picviz::PVMappingFilter)::get().get_filter_by_name("time_24h");
+	Picviz::PVMappingFilter::p_type map_filter = LIB_CLASS(Picviz::PVMappingFilter)::get().get_class_by_name("time_24h");
 	if (!map_filter) {
 		std::cerr << "Unable to load the time_24h plugin !" << std::endl;
 		return 1;

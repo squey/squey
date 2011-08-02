@@ -9,7 +9,8 @@
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/filter/PVFilterFunction.h>
-#include <pvkernel/filter/PVFilterLibrary.h>
+#include <pvkernel/core/PVClassLibrary.h>
+#include <pvkernel/core/PVRegistrableClass.h>
 #include <pvkernel/rush/PVNraw.h>
 #include <QString>
 #include <QVector>
@@ -30,14 +31,11 @@ class PVFormat;
 
 namespace Picviz {
 
-class PVLibPicvizDecl PVMappingFilter: public PVFilter::PVFilterFunctionRegistrable<float*, PVRush::PVNraw::nraw_table_line const&>
+class PVLibPicvizDecl PVMappingFilter: public PVFilter::PVFilterFunctionBase<float*, PVRush::PVNraw::nraw_table_line const&>, public PVCore::PVRegistrableClass<PVMappingFilter>
 {
 public:
-	typedef PVFilter::PVFilterFunctionRegistrable<float*, PVRush::PVNraw::nraw_table_line const&>::base_registrable base_registrable;
-
-public:
-	typedef PVMappingFilter FilterT;
 	typedef boost::shared_ptr<PVMappingFilter> p_type;
+
 public:
 	PVMappingFilter();
 public:
@@ -62,7 +60,7 @@ typedef PVMappingFilter::func_type PVMappingFilter_f;
 }
 
 #ifdef WIN32
-LibPicvizDeclExplicitTempl PVFilter::PVFilterLibrary<Picviz::PVMappingFilter::FilterT>;
+LibPicvizDeclExplicitTempl PVCore::PVClassLibrary<Picviz::PVMappingFilter::FilterT>;
 #endif
 
 #endif

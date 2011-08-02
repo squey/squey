@@ -9,8 +9,8 @@
 #define PVFILTER_PVFILTERFUNCTION_H
 
 #include <pvkernel/core/general.h>
-
 #include <pvkernel/core/PVArgument.h>
+#include <pvkernel/core/PVRegistrableClass.h>
 
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
@@ -253,6 +253,7 @@ protected:
  * The "FilterT" member type defines the filter type of the filter. As instance, PVElementFilterByGrep is registrable with PVElementFilter (as FilterT).
  */
 
+#if 0
 // Forward declaration
 template <class FilterT>
 class PVFilterLibrary;
@@ -274,11 +275,6 @@ public:
 public:
 	virtual boost::shared_ptr<base_registrable> clone_basep() const = 0;
 
-	/*! \brief Polymorphically clone this object.
-	 * \tparam Tc the type of shared_pointer that will be returned. Tc must be at least a parent of this class (or this class itself).
-	 * \return a shared pointer to a Tc object
-	 * \sa _clone_me
-	 */
 	template <typename Tc>
 	boost::shared_ptr<Tc> clone() const { return boost::shared_ptr<Tc>((Tc*) _clone_me()); }
 
@@ -291,6 +287,7 @@ protected:
 	virtual void* _clone_me() const = 0;
 	QString __registered_name;
 };
+#endif
 
 /*! \brief Define a filter function that takes the same type as reference in input and output (Tout = T&, Tin = T&)
  *
@@ -298,14 +295,16 @@ protected:
  * Used by many filters in libpicviz and others.
  */
 template < typename T, typename FilterT_ = PVFilterFunctionBase<T&,T&> >
-class PVFilterFunction : public PVFilterFunctionRegistrable<T&,T&,FilterT_> {
+class PVFilterFunction : public PVFilterFunctionBase<T&,T&>, public PVCore::PVRegistrableClass< FilterT_ > {
 public:
 	typedef FilterT_ FilterT;
+	typedef FilterT RegAs;
 	typedef boost::shared_ptr< PVFilterFunction<T,FilterT> > p_type;
-	typedef PVFilterFunctionRegistrable<T&,T&,FilterT_> base_registrable;
+	typedef PVFilterFunction<T,FilterT_> base_registrable;
 public:
 	PVFilterFunction(PVCore::PVArgumentList const& args = PVFilterFunction::default_args()) :
-		PVFilterFunctionRegistrable<T&,T&,FilterT_>(args)
+		PVFilterFunctionBase<T&,T&>(args),
+		PVCore::PVRegistrableClass<RegAs>()
 	{
 	}
 public:
@@ -314,48 +313,29 @@ public:
 	virtual T& operator()(T& obj) = 0;
 };
 
+}
+
 // Macros for filter class construction help
 #define CLASS_FILTER(T) \
 	public:\
-		typedef boost::shared_ptr<T> p_type;\
-	public:\
-		virtual FilterT::base_registrable::p_type clone_basep() const;\
 		static PVCore::PVArgumentList default_args();\
-	protected:\
-		virtual void* _clone_me() const { return new T(*this); }\
+	CLASS_REGISTRABLE(T)
 
 #define CLASS_FILTER_INPLACE(T) \
-	public:\
-		typedef boost::shared_ptr<T> p_type;\
-	public:\
-		virtual FilterT::base_registrable::p_type clone_basep() const { return FilterT::base_registrable::p_type(new T(*this)); }\
-	protected:\
-		virtual void* _clone_me() const { return new T(*this); }\
+	CLASS_REGISTRABLE(T)
 
 #define CLASS_FILTER_NOPARAM_INPLACE(T) \
 	public:\
-		typedef boost::shared_ptr<T> p_type;\
-	public:\
-		virtual FilterT::base_registrable::p_type clone_basep() const { return FilterT::base_registrable::p_type(new T(*this)); }\
 		static PVCore::PVArgumentList default_args() { return PVCore::PVArgumentList(); }\
-	protected:\
-		virtual void* _clone_me() const { return new T(*this); }\
+	CLASS_REGISTRABLE(T)
 
-#define IMPL_FILTER(T) \
-	T::FilterT::base_registrable::p_type T::clone_basep() const\
-	{\
-		return T::FilterT::base_registrable::p_type(new T(*this));\
-	}\
+#define IMPL_FILTER(T)
 
 
 #define IMPL_FILTER_NOPARAM(T)\
 	PVCore::PVArgumentList T::default_args()\
 	{\
 		return PVCore::PVArgumentList();\
-	}\
-	T::FilterT::base_registrable::p_type T::clone_basep() const\
-	{\
-		return T::FilterT::base_registrable::p_type(new T(*this));\
 	}\
 
 #define INIT_FILTER(T,aparams)\
@@ -375,7 +355,5 @@ public:
 
 #define DEFAULT_ARGS_FILTER_INPLACE(T)\
 	PVCore::PVArgumentList default_args()
-
-}
 
 #endif

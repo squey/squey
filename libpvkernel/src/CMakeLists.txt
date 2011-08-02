@@ -53,7 +53,6 @@ include/pvkernel/core/PVTBBMinMaxArray.h
 
 
 SET(FILTER_SRC_FILES
-filter/PVFilterLibrary.cpp
 filter/PVChunkFilter.cpp
 filter/PVChunkFilterByElt.cpp
 filter/PVChunkFilterByEltSaveInvalid.cpp
@@ -84,7 +83,6 @@ include/pvkernel/filter/PVElementFilterByFields.h
 include/pvkernel/filter/PVElementFilter.h
 include/pvkernel/filter/PVFieldsFilter.h
 include/pvkernel/filter/PVFilterFunction.h
-include/pvkernel/filter/PVFilterLibrary.h
 include/pvkernel/filter/PVElementFilterGrep.h
 include/pvkernel/filter/PVElementFilterRandInvalid.h
 include/pvkernel/filter/PVFieldFilterGrep.h

@@ -41,7 +41,7 @@ public:
 	template<class T>
 	void register_class(QString const& name, T const& f)
 	{
-		PF pf = f.template clone<T>();
+		PF pf = f.template clone<RegAs>();
 		pf->__registered_class_name = name;
 		_classes.insert(name, pf);
 	}
@@ -50,7 +50,7 @@ public:
 
 	// A shared pointer is returned, which means that parameters can be saved accross this
 	// saved pointer. If this is not wanted, a clone can be made thanks to the clone() method
-	PF get_class_by_name(QString const& name)
+	PF get_class_by_name(QString const& name) const
 	{
 		if (!_classes.contains(name))
 			return PF();
@@ -72,6 +72,10 @@ public:
 	PVCore::PVClassLibrary<RegAs>::get().register_class<T>(name, T());
 #define REGISTER_CLASS(name, T) REGISTER_CLASS_AS(name, T, T::RegAs)
 	
+#define REGISTER_CLASS_AS_WITH_ARGS(name, T, RegAs, args...) \
+	PVCore::PVClassLibrary<RegAs>::get().register_class<T>(name, T(args));
+#define REGISTER_CLASS_WITH_ARGS(name, T, args...) REGISTER_CLASS_AS_WITH_ARGS(name, T, T::RegAs, args)
+
 #define LIB_CLASS(T) \
 	PVCore::PVClassLibrary<T::RegAs>
 }

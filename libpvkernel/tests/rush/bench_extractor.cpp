@@ -1,3 +1,4 @@
+#include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/rush/PVExtractor.h>
 #include <pvkernel/rush/PVInputFile.h>
 #include <pvkernel/rush/PVUnicodeSource.h>
@@ -182,7 +183,7 @@ int main(int argc, char** argv)
 	
 	// Parallel regexp splitter only
 	printf("Parallel regexp splitter only");
-	PVFilter::PVFieldsSplitter::p_type regexp_lib_p = LIB_FILTER(PVFilter::PVFieldsSplitter)::get().get_filter_by_name("regexp");
+	PVFilter::PVFieldsSplitter::p_type regexp_lib_p = LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("regexp");
 	PVFilter::PVFieldsBaseFilter_p fre_in = regexp_lib_p->clone<PVFilter::PVFieldsBaseFilter>();
 	PVCore::PVArgumentList args;
 	args["regexp"] = PVCore::PVArgument(QRegExp("^a$"));

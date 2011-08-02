@@ -12,9 +12,9 @@ int main()
 
 	PVFilter::PVPluginsLoad::load_all_plugins();
 
-	LIB_FILTER(PVFilter::PVFieldsFilter<PVFilter::one_to_many>)::list_filters const& lf = LIB_FILTER(PVFilter::PVFieldsFilter<PVFilter::one_to_many>)::get().get_list();
-	LIB_FILTER(PVFilter::PVFieldsFilter<PVFilter::one_to_many>)::list_filters::const_iterator it;
-	PVFilter::PVFieldsSplitter_p regexp = LIB_FILTER(PVFilter::PVFieldsFilter<PVFilter::one_to_many>)::get().get_filter_by_name("regexp");
+	LIB_CLASS(PVFilter::PVFieldsFilter<PVFilter::one_to_many>)::list_filters const& lf = LIB_CLASS(PVFilter::PVFieldsFilter<PVFilter::one_to_many>)::get().get_list();
+	LIB_CLASS(PVFilter::PVFieldsFilter<PVFilter::one_to_many>)::list_filters::const_iterator it;
+	PVFilter::PVFieldsSplitter_p regexp = LIB_CLASS(PVFilter::PVFieldsFilter<PVFilter::one_to_many>)::get().get_filter_by_name("regexp");
 	assert(regexp);
 	{
 		std::cout << "Splitters:" << std::endl;

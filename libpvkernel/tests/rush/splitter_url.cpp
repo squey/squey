@@ -1,4 +1,5 @@
 #define SIMULATE_PIPELINE
+#include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/filter/PVChunkFilter.h>
 #include <pvkernel/filter/PVChunkFilterByElt.h>
 #include <pvkernel/filter/PVElementFilterByFields.h>
@@ -30,7 +31,7 @@ int main(int argc, char** argv)
 	QCoreApplication app(argc, argv);
 
 	PVFilter::PVPluginsLoad::load_all_plugins();
-	PVFilter::PVFieldsSplitter::p_type sp_lib_p = LIB_FILTER(PVFilter::PVFieldsSplitter)::get().get_filter_by_name("url");
+	PVFilter::PVFieldsSplitter::p_type sp_lib_p = LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("url");
 	if (!sp_lib_p) {
 		cerr << "Unable to load splitter URL" << endl;
 		return 1;

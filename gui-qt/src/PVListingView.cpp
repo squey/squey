@@ -18,7 +18,7 @@
 #include <PVListingModel.h>
 #include <PVLayerFilterProcessWidget.h>
 
-#include <pvkernel/filter/PVFilterLibrary.h>
+#include <pvkernel/core/PVClassLibrary.h>
 #include <picviz/PVLayerFilter.h>
 
 /******************************************************************************
@@ -53,8 +53,8 @@ PVInspector::PVListingView::PVListingView(PVMainWindow *mw, Picviz::PVView_p pv_
 	// It is created based on what layer filter plugins tell us.
 	_ctxt_menu = new QMenu(this);
 	_show_ctxt_menu = false;
-	LIB_FILTER(Picviz::PVLayerFilter)::list_filters const& lf = LIB_FILTER(Picviz::PVLayerFilter)::get().get_list();
-	LIB_FILTER(Picviz::PVLayerFilter)::list_filters::const_iterator it,itlast;
+	LIB_CLASS(Picviz::PVLayerFilter)::list_classes const& lf = LIB_CLASS(Picviz::PVLayerFilter)::get().get_list();
+	LIB_CLASS(Picviz::PVLayerFilter)::list_classes::const_iterator it,itlast;
 	for (it = lf.begin(); it != lf.end(); it++) {
 		Picviz::PVLayerFilter::hash_menu_function_t const& entries = it.value()->get_menu_entries();
 		Picviz::PVLayerFilter::hash_menu_function_t::const_iterator it_ent;
@@ -246,7 +246,7 @@ void PVInspector::PVListingView::process_ctxt_menu_action(QAction* act)
 	assert(act);
 	// Get the filter associated with that menu entry
 	QString filter_name = act->data().toString();
-	Picviz::PVLayerFilter_p lib_filter = LIB_FILTER(Picviz::PVLayerFilter)::get().get_filter_by_name(filter_name);
+	Picviz::PVLayerFilter_p lib_filter = LIB_CLASS(Picviz::PVLayerFilter)::get().get_class_by_name(filter_name);
 	if (!lib_filter) {
 		PVLOG_ERROR("(listing context-menu) filter '%s' does not exist !\n", qPrintable(filter_name));
 		return;

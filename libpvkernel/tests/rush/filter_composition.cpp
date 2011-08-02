@@ -1,4 +1,4 @@
-#define SIMULATE_PIPELINE
+#include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/filter/PVChunkFilter.h>
 #include <pvkernel/filter/PVChunkFilterByElt.h>
 #include <pvkernel/filter/PVElementFilterByFields.h>
@@ -32,9 +32,9 @@ int main(int argc, char** argv)
 	QCoreApplication app(argc, argv);
 
 	PVFilter::PVPluginsLoad::load_all_plugins();
-	PVFilter::PVFieldsSplitter::p_type url_lib_p = LIB_FILTER(PVFilter::PVFieldsSplitter)::get().get_filter_by_name("url");
-	PVFilter::PVFieldsSplitter::p_type regexp_lib_p = LIB_FILTER(PVFilter::PVFieldsSplitter)::get().get_filter_by_name("regexp");
-	PVFilter::PVFieldsFilter<PVFilter::one_to_one>::p_type grep_lib_p = LIB_FILTER(PVFilter::PVFieldsFilter<PVFilter::one_to_one>)::get().get_filter_by_name("regexp");
+	PVFilter::PVFieldsSplitter::p_type url_lib_p = LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("url");
+	PVFilter::PVFieldsSplitter::p_type regexp_lib_p = LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("regexp");
+	PVFilter::PVFieldsFilter<PVFilter::one_to_one>::p_type grep_lib_p = LIB_CLASS(PVFilter::PVFieldsFilter<PVFilter::one_to_one>)::get().get_class_by_name("regexp");
 
 	if (!url_lib_p || !regexp_lib_p || !grep_lib_p) {
 		cerr << "Unable to load one of the filters" << endl;

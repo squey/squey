@@ -1,5 +1,5 @@
+#include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/filter/PVPluginsLoad.h>
-#include <pvkernel/filter/PVFilterLibrary.h>
 
 #include <QStringList>
 #include <stdlib.h>
@@ -14,7 +14,7 @@ int PVFilter::PVPluginsLoad::load_all_plugins()
 
 int PVFilter::PVPluginsLoad::load_normalize_plugins()
 {
-	int ret = PVFilter::PVFilterLibraryLibLoader::load_library_from_dirs(get_normalize_dir().split(PVCORE_DIRECTORY_SEP), NORMALIZE_FILTER_PREFIX);
+	int ret = PVCore::PVClassLibraryLibLoader::load_class_from_dirs(get_normalize_dir().split(PVCORE_DIRECTORY_SEP), NORMALIZE_FILTER_PREFIX);
 	if (ret == 0) {
 		PVLOG_WARN("No normalization plugin have been loaded !\n");
 	}

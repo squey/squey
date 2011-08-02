@@ -8,20 +8,18 @@
 #define PVFILTER_PVPLOTTINGFILTER_H
 
 #include <pvkernel/core/general.h>
+#include <pvkernel/core/PVClassLibrary.h>
+#include <pvkernel/core/PVRegistrableClass.h>
 #include <pvkernel/filter/PVFilterFunction.h>
-#include <pvkernel/filter/PVFilterLibrary.h>
 #include <picviz/PVMandatoryMappingFilter.h>
 
 namespace Picviz {
 
-class LibPicvizDecl PVPlottingFilter: public PVFilter::PVFilterFunctionRegistrable<float*, float*, PVPlottingFilter>
+class LibPicvizDecl PVPlottingFilter: public PVFilter::PVFilterFunctionBase<float*, float*>, public PVCore::PVRegistrableClass<PVPlottingFilter>
 {
 public:
-	typedef PVFilter::PVFilterFunctionRegistrable<float*, float*, PVPlottingFilter>::base_registrable base_registrable;
-
-public:
-	typedef PVPlottingFilter FilterT;
 	typedef boost::shared_ptr<PVPlottingFilter> p_type;
+
 public:
 	PVPlottingFilter();
 

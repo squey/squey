@@ -15,12 +15,12 @@ using namespace std;
 
 int main()
 {
-	REGISTER_FILTER(QString("PVFieldSplitterRegexp"), PVFilter::PVFieldSplitterRegexp);
-	REGISTER_FILTER(QString("PVElementFilterGrep"), PVFilter::PVElementFilterGrep);
+	REGISTER_CLASS(QString("PVFieldSplitterRegexp"), PVFilter::PVFieldSplitterRegexp);
+	REGISTER_CLASS(QString("PVElementFilterGrep"), PVFilter::PVElementFilterGrep);
 
 	{
-		LIB_FILTER(PVElementFilter)::list_filters const& l = LIB_FILTER(PVElementFilter)::get().get_list();
-		LIB_FILTER(PVElementFilter)::list_filters::const_iterator it,ite;
+		LIB_CLASS(PVElementFilter)::list_filters const& l = LIB_CLASS(PVElementFilter)::get().get_list();
+		LIB_CLASS(PVElementFilter)::list_filters::const_iterator it,ite;
 		it = l.begin();
 		ite = l.end();
 
@@ -29,8 +29,8 @@ int main()
 	}
 
 	{
-		LIB_FILTER(PVFieldsBaseFilter::list_filters const& l1 = LIB_FILTER(PVFieldsBaseFilter)::get().get_list();
-		LIB_FILTER(PVFieldsBaseFilter)::list_filters::const_iterator it1,ite1;
+		LIB_CLASS(PVFieldsBaseFilter::list_filters const& l1 = LIB_CLASS(PVFieldsBaseFilter)::get().get_list();
+		LIB_CLASS(PVFieldsBaseFilter)::list_filters::const_iterator it1,ite1;
 		it1 = l1.begin();
 		ite1 = l1.end();
 

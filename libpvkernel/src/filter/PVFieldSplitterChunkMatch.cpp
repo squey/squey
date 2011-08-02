@@ -1,5 +1,5 @@
+#include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/filter/PVFieldSplitterChunkMatch.h>
-#include <pvkernel/filter/PVFilterLibrary.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
 
 #include <list>
@@ -71,8 +71,8 @@ PVFilter::PVFieldsSplitter_p PVFilter::PVFieldSplitterChunkMatch::get_match_on_i
 			return ret;
 		}
 	}
-	LIB_FILTER(PVFilter::PVFieldsSplitter)::list_filters const& lf = LIB_FILTER(PVFilter::PVFieldsSplitter)::get().get_list();
-	LIB_FILTER(PVFilter::PVFieldsSplitter)::list_filters::const_iterator it;
+	LIB_CLASS(PVFilter::PVFieldsSplitter)::list_classes const& lf = LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_list();
+	LIB_CLASS(PVFilter::PVFieldsSplitter)::list_classes::const_iterator it;
 	for (it = lf.begin(); it != lf.end(); it++) {
 		PVFilter::PVFieldsSplitter_p sp = (*it)->clone<PVFilter::PVFieldsSplitter>();
 		PVFilter::PVFieldSplitterChunkMatch match(sp);

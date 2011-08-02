@@ -1,4 +1,4 @@
-#include <pvkernel/filter/PVFilterLibrary.h>
+#include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/filter/PVPluginsLoad.h>
 #include <pvkernel/filter/PVFieldsFilter.h>
 #include <pvkernel/rush/PVPluginsLoad.h>
@@ -56,8 +56,8 @@ int main(int argc, char** argv)
 
 	// Guess the first splitter
 	
-	LIB_FILTER(PVFilter::PVFieldsFilter<PVFilter::one_to_many>)::list_filters const& lf = LIB_FILTER(PVFilter::PVFieldsFilter<PVFilter::one_to_many>)::get().get_list();
-	LIB_FILTER(PVFilter::PVFieldsFilter<PVFilter::one_to_many>)::list_filters::const_iterator it;
+	LIB_CLASS(PVFilter::PVFieldsFilter<PVFilter::one_to_many>)::list_classes const& lf = LIB_CLASS(PVFilter::PVFieldsFilter<PVFilter::one_to_many>)::get().get_list();
+	LIB_CLASS(PVFilter::PVFieldsFilter<PVFilter::one_to_many>)::list_classes::const_iterator it;
 	for (it = lf.begin(); it != lf.end(); it++) {
 		PVFilter::PVFieldSplitterChunkMatch match(*it);
 		match.push_chunk(chunk);

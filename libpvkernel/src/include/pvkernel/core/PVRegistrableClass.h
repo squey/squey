@@ -19,6 +19,11 @@ public:
 	typedef boost::shared_ptr< PVRegistrableClass<RegAs_> > p_type;
 	typedef PVRegistrableClass<RegAs_> base_registrable;
 public:
+	/*! \brief Polymorphically clone this object.
+	 * \tparam Tc the type of shared_pointer that will be returned. Tc must be at least a parent of this class (or this class itself).
+	 * \return a shared pointer to a Tc object
+	 * \sa _clone_me
+	 */
 	template <typename Tc>
 	boost::shared_ptr<Tc> clone() const
 	{

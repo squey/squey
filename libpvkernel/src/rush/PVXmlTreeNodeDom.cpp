@@ -662,7 +662,7 @@ void PVRush::PVXmlTreeNodeDom::getChildrenFromField(PVCore::PVField const& field
 	QString plugin_name = attribute("type", "");
 
 	// Get the filter from the lib (because not everything is under plugins... :/)
-	PVFilter::PVFieldsSplitter_p filter_lib = LIB_FILTER(PVFilter::PVFieldsSplitter)::get().get_filter_by_name(plugin_name);
+	PVFilter::PVFieldsSplitter_p filter_lib = LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name(plugin_name);
 	if (!filter_lib) {
 		PVLOG_ERROR("Unable to load splitter plugin '%s' !!!!!!\n", qPrintable(plugin_name));
 		return;

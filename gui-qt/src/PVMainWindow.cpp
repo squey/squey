@@ -57,7 +57,7 @@
 #include <PVProgressBox.h>
 
 // Filters
-#include <pvkernel/filter/PVFilterLibrary.h>
+#include <pvkernel/core/PVClassLibrary.h>
 
 #include <pvgl/general.h>
 #include <pvgl/PVCom.h>
@@ -511,10 +511,10 @@ void PVInspector::PVMainWindow::create_filters_menu_and_actions()
 	QMenu *menu = filter_Menu;
 	QHash<QMenu *, int> actions_list; // key = action name; value = menu level; Foo/Bar/Camp makes Foo at level 0, Bar at level 1, etc.
 
-	LIB_FILTER(Picviz::PVLayerFilter) &filters_layer = 	LIB_FILTER(Picviz::PVLayerFilter)::get();
-	LIB_FILTER(Picviz::PVLayerFilter)::list_filters const& lf = filters_layer.get_list();
+	LIB_CLASS(Picviz::PVLayerFilter) &filters_layer = 	LIB_CLASS(Picviz::PVLayerFilter)::get();
+	LIB_CLASS(Picviz::PVLayerFilter)::list_classes const& lf = filters_layer.get_list();
 	
-	LIB_FILTER(Picviz::PVLayerFilter)::list_filters::const_iterator it;
+	LIB_CLASS(Picviz::PVLayerFilter)::list_classes::const_iterator it;
 
 	for (it = lf.begin(); it != lf.end(); it++) {
 		//(*it).get_args()["Menu_name"]

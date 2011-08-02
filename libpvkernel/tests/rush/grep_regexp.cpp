@@ -1,4 +1,4 @@
-#define SIMULATE_PIPELINE
+#include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/filter/PVChunkFilter.h>
 #include <pvkernel/filter/PVChunkFilterByElt.h>
 #include <pvkernel/filter/PVElementFilterByFields.h>
@@ -32,7 +32,7 @@ int main(int argc, char** argv)
 	QCoreApplication app(argc, argv);
 
 	PVFilter::PVPluginsLoad::load_all_plugins();
-	PVFilter::PVFieldsFilter<PVFilter::one_to_one>::p_type sp_lib_p = LIB_FILTER(PVFilter::PVFieldsFilter<PVFilter::one_to_one>)::get().get_filter_by_name("regexp");
+	PVFilter::PVFieldsFilter<PVFilter::one_to_one>::p_type sp_lib_p = LIB_CLASS(PVFilter::PVFieldsFilter<PVFilter::one_to_one>)::get().get_class_by_name("regexp");
 	if (!sp_lib_p) {
 		cerr << "Unable to load filter regexp" << endl;
 		return 1;

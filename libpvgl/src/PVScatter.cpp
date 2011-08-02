@@ -18,7 +18,7 @@
 #include <picviz/PVView.h>
 
 // Filters
-#include <pvkernel/filter/PVFilterLibrary.h>
+#include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/PVArgument.h>
 #include <picviz/PVSelectionFilterScatterPlotSelectionSquare.h>
 
@@ -42,7 +42,7 @@ PVGL::PVScatter::PVScatter(int win_id, PVCom *com) : PVGL::PVDrawable(win_id, co
 	PVLOG_DEBUG("PVGL::PVScatter::%s\n", __FUNCTION__);
 
 	// Register selection filters
-	REGISTER_FILTER(QString("Scatter Plot Selection Square"), Picviz::PVSelectionFilterScatterPlotSelectionSquare);
+	REGISTER_CLASS(QString("Scatter Plot Selection Square"), Picviz::PVSelectionFilterScatterPlotSelectionSquare);
 
 	translation = vec2(0.0f, 0.0f);
 	zoom_level_x = 0;
@@ -339,7 +339,7 @@ bool PVGL::PVScatter::mouse_move(int x, int y, int /*modifiers*/)
 	selection_square.set_end_point(plotted_mouse);
 
 #if 0
-	Picviz::PVSelectionFilter::p_type filter_org = LIB_FILTER(Picviz::PVSelectionFilter)::get().get_filter_by_name("Scatter Plot Selection Square");
+	Picviz::PVSelectionFilter::p_type filter_org = LIB_CLASS(Picviz::PVSelectionFilter)::get().get_filter_by_name("Scatter Plot Selection Square");
 	Picviz::PVSelectionFilter::p_type fclone = filter_org->clone();
 	Picviz::PVSelectionFilter* filter = (Picviz::PVSelectionFilter*) fclone.get();
 
