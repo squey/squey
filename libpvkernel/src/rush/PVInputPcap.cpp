@@ -4,6 +4,7 @@ PVRush::PVInputPcap::PVInputPcap(pcap_t* pcap):
 	PVInput(),
 	_pcap(pcap)
 {
+	_datalink = -1;
 	post_init();
 }
 
@@ -29,6 +30,7 @@ PVRush::PVInputPcap::PVInputPcap(const char* path)
 void PVRush::PVInputPcap::post_init()
 {
 	_datalink = pcap_datalink(_pcap);
+	PVLOG_DEBUG("(PVInputPcap) datalink is %d.\n", _datalink);
 	_next_packet = 0;
 }
 
@@ -42,15 +44,12 @@ size_t PVRush::PVInputPcap::operator()(char* buffer, size_t n)
 	packet = (u_char*) pcap_next(_pcap, &pheader);
 	if (packet == NULL)
 		return 0;
-	size_t ret = sizeof(int)+sizeof(struct pcap_pkthdr)+pheader.caplen;
+	size_t ret = sizeof(struct pcap_pkthdr)+pheader.caplen;
 	if (ret > n) {
 		PVLOG_WARN("(PVInputPcap) Packet discared because do not fit in %d bytes !\n", n);
 		return 0;
 	}
 
-	// TOFIX: we should be able to recover datalink from a field !
-	*((int*) buffer) = _datalink;
-	buffer += sizeof(int);
 	memcpy(buffer, &pheader, sizeof(struct pcap_pkthdr));
 	memcpy(buffer+sizeof(struct pcap_pkthdr), packet, pheader.caplen);
 

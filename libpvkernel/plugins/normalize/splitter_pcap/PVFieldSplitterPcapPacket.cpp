@@ -1,5 +1,7 @@
 #include "PVFieldSplitterPcapPacket.h"
 #include <pvkernel/core/network.h>
+#include <pvkernel/rush/PVRawSourceBase.h>
+#include <pvkernel/rush/PVInputPcap.h>
 
 #include <QStringList>
 #include <QHash>
@@ -17,6 +19,8 @@
 #endif
 
 #include <dnet.h>
+
+#include <tbb/scalable_allocator.h>
 
 #define TCP_SESSIONS_MAX 4096
 #define TCP_DATA_KEEP_MAX 524288	// 512k should be enough to keep for modern internet :)
@@ -40,9 +44,25 @@ static int pcap_decode_layer4_UDP(pcap_decode_buf *buf, struct pcap_pkthdr *phea
 static int pcap_decode_layer4_ICMP(pcap_decode_buf *buf, struct pcap_pkthdr *pheader, u_char *packet, uint32_t len);
 
 
-PVFilter::PVFieldSplitterPcapPacket::PVFieldSplitterPcapPacket()
+PVFilter::PVFieldSplitterPcapPacket::PVFieldSplitterPcapPacket(PVCore::PVArgumentList const& args)
 {
-	INIT_FILTER_NOPARAM(PVFieldSplitterPcapPacket);
+	_datalink_type = -1;
+	INIT_FILTER(PVFilter::PVFieldSplitterPcapPacket, args);
+}
+
+DEFAULT_ARGS_FILTER(PVFilter::PVFieldSplitterPcapPacket)
+{
+	PVCore::PVArgumentList args;
+	args["datalink"] = QVariant((int) -1);
+	PVLOG_DEBUG("test: %d\n", args["datalink"].toInt());
+	return args;
+}
+
+void PVFilter::PVFieldSplitterPcapPacket::set_args(PVCore::PVArgumentList const& args)
+{
+	FilterT::set_args(args);
+	_datalink_type = args["datalink"].toInt();
+	PVLOG_DEBUG("(PVFieldSplitterPcapPacket) datalink set to %d\n", _datalink_type);
 }
 
 PVCore::list_fields::size_type PVFilter::PVFieldSplitterPcapPacket::one_to_many(PVCore::list_fields &l, PVCore::list_fields::iterator it_ins, PVCore::PVField &field)
@@ -52,9 +72,19 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterPcapPacket::one_to_many(
 		return 0;
 	}
 
-	// Into the field, the packet has first a datalink_type, then a pcap_pkthdr struct, and then the payload
-	int *datalink_type = (int*) field.begin();
-	struct pcap_pkthdr* pheader = (struct pcap_pkthdr*) (field.begin() + sizeof(int));
+	if (_datalink_type == -1) {
+		PVRush::PVInputPcap* pcap = dynamic_cast<PVRush::PVInputPcap*>(field.elt_parent()->chunk_parent()->source()->get_input().get());
+		if (pcap) {
+			_datalink_type = pcap->datalink();
+		}
+		else {
+			PVLOG_WARN("(PVFieldSplitterPcapPacket) datalink hasn't been set and the input source isn't supported by libpcap. Datalink is set to Ethernet by default !\n");
+			_datalink_type = DLT_EN10MB;
+		}
+	}
+
+	// Into the field, the packet has first a pcap_pkthdr struct, and then the payload
+	struct pcap_pkthdr* pheader = (struct pcap_pkthdr*) (field.begin());
 	size_t len_packet = pheader->caplen;
 
 	if (field.size() < sizeof(struct pcap_pkthdr) + len_packet) {
@@ -65,11 +95,10 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterPcapPacket::one_to_many(
 
 	// Copy everything has this is going to be erased !
 	u_char* payload = (u_char*) (pheader + 1);
-#ifdef WIN32
-	u_char payload_copy[1600];
-#else
-	u_char payload_copy[len_packet];
-#endif // WIN32
+
+	static tbb::scalable_allocator<u_char> alloc;
+	u_char* payload_copy = alloc.allocate(len_packet);
+
 	struct pcap_pkthdr header = *pheader;
 	memcpy(payload_copy, payload, len_packet);
 
@@ -85,7 +114,7 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterPcapPacket::one_to_many(
 	buf.nelts = 0;
 
 	packet_decoder_function packet_decode;
-	switch(*datalink_type) {
+	switch (_datalink_type) {
 		case DLT_LINUX_SLL:
 			packet_decode = pcap_decode_layer2_sll;
 			break;
@@ -95,8 +124,9 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterPcapPacket::one_to_many(
 			// FIXME: We still need to handle other datalinks, should figure it out when we cannot get an IP packet that exists :)
 		default:
 			{
-				PVLOG_ERROR("Unsupported datalink: %s\n", pcap_datalink_val_to_name(*datalink_type));
+				PVLOG_ERROR("Unsupported datalink: %s (%d)\n", pcap_datalink_val_to_name(_datalink_type), _datalink_type);
 				field.set_invalid();
+				alloc.deallocate(payload_copy, len_packet);
 				return 0;
 			}
 	}
@@ -107,6 +137,8 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterPcapPacket::one_to_many(
 		field.set_invalid();
 		field.elt_parent()->set_invalid();
 	}
+
+	alloc.deallocate(payload_copy, len_packet);
 	return buf.nelts;
 }
 
@@ -256,4 +288,4 @@ static int pcap_decode_layer4_ICMP(pcap_decode_buf* /*buf*/, struct pcap_pkthdr*
 	return 0;
 }
 
-IMPL_FILTER_NOPARAM(PVFilter::PVFieldSplitterPcapPacket)
+IMPL_FILTER(PVFilter::PVFieldSplitterPcapPacket)

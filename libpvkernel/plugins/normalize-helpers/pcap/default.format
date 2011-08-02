@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE PVParamXml>
-<param>
- <pcap>
+<param version="1">
+ <splitter type="pcap" datalink="-1">
   <field>
    <axis titlecolor="#ffffff" key="false" mapping="24h" time-format="d-M-yyyy h:m:s" group="none" type="time" name="Time" plotting="default" color="#ffffff" time-sample=""/>
   </field>
@@ -26,5 +26,5 @@
   <field>
    <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="integer" name="Destination port" plotting="port" color="#ffffff" time-sample=""/>
   </field>
- </pcap>
+ </splitter>
 </param>

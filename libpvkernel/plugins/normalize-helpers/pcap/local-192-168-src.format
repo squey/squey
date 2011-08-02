@@ -1,12 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE PVParamXml>
-<param>
- <pcap>
+<param version="1">
+ <splitter type="pcap" datalink="-1">
   <field>
    <axis titlecolor="#ffffff" key="false" mapping="24h" time-format="dd-MM-yyyy hh:mm:ss" group="none" type="time" name="Time" plotting="default" color="#ffffff" time-sample=""/>
   </field>
   <field>
-	  <filter expression="192.168" type="include" />
+	  <filter type="regexp" regexp="192.168" reverse="0" name="" />
    <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="ipv4" name="Source IP" plotting="default" color="#ffffff" time-sample=""/>
   </field>
   <field>
@@ -27,5 +27,5 @@
   <field>
    <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="integer" name="Destination port" plotting="port" color="#ffffff" time-sample=""/>
   </field>
- </pcap>
+ </splitter>
 </param>

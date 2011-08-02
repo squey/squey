@@ -141,6 +141,7 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id)
 						if (!data.filter_lib) {
 							throw PVXmlParamParserExceptionPluginNotFound("splitter", "pcap");
 						}
+						data.filter_args["datalink"] = QVariant((int) -1);
 						fields.push_back(data);
 					}
 					else
