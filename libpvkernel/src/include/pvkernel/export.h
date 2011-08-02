@@ -1,0 +1,22 @@
+#ifndef PVKERNEL_EXPORT_H
+#define PVKERNEL_EXPORT_H
+
+#ifndef PVBASE_EXPORT_H
+#error This file must not be included directly. Use pvbase/export.h instead.
+#endif
+
+#ifdef WIN32
+ #ifdef pvkernel_EXPORTS
+  #define LibKernelDeclExplicitTempl LibExportTempl
+  #define LibKernelDecl LibExport
+ #else
+  #define LibKernelDeclExplicitTempl LibImportTempl
+  #define LibKernelDecl LibImport
+ #endif
+#else
+ #define LibKernelDeclExplicitTempl
+ #define LibKernelDecl
+#endif
+
+
+#endif
