@@ -51,6 +51,8 @@ include(CMakeRequiredLibraries.txt)
 #############################################
 # BEGIN: ADD INCLUDE DIRS NEEDED EVERYWHERE #
 #############################################
+include_directories(AFTER "${Picviz_Inspector_SOURCE_DIR}/include")
+
 message(STATUS "QtCore include dirs: " ${QT_QTCORE_INCLUDE_DIR})
 include_directories(AFTER ${QT_QTCORE_INCLUDE_DIR})
 message(STATUS "Qt include dirs: " ${QT_INCLUDE_DIR})

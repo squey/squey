@@ -1,7 +1,8 @@
 #ifndef PVRUSH_PVEXTRACTOR_FILE_H
 #define PVRUSH_PVEXTRACTOR_FILE_H
 
-#include <pvcore/general.h>
+#include <pvbase/general.h>
+
 #include <pvcore/types.h>
 #include <pvrush/PVAggregator.h>
 #include <pvrush/PVController.h>
