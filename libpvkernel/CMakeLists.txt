@@ -77,6 +77,6 @@ add_definitions(${OpenMP_CXX_FLAGS})
 
 add_subdirectory(src)
 add_subdirectory(plugins)
-#add_subdirectory(bindings)
+add_subdirectory(bindings)
 #add_subdirectory(utils)
 add_subdirectory(tests)
