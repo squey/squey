@@ -41,8 +41,8 @@ public:
 	void save_elt_buffer();
 	char* get_saved_elt_buffer(size_t& n);
 	PVChunk* chunk_parent();
-	size_t get_elt_index();
-	size_t get_elt_agg_index();
+	chunk_index get_elt_index();
+	chunk_index get_elt_agg_index();
 	bool same_data_as(PVElement const& elt) const { return d == elt.d; }
 	size_t get_chunk_index() const { return _chunk_index; }
 

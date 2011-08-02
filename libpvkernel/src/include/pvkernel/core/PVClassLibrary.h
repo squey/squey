@@ -72,9 +72,9 @@ public:
 	PVCore::PVClassLibrary<RegAs>::get().register_class<T>(name, T());
 #define REGISTER_CLASS(name, T) REGISTER_CLASS_AS(name, T, T::RegAs)
 	
-#define REGISTER_CLASS_AS_WITH_ARGS(name, T, RegAs, args...) \
-	PVCore::PVClassLibrary<RegAs>::get().register_class<T>(name, T(args));
-#define REGISTER_CLASS_WITH_ARGS(name, T, args...) REGISTER_CLASS_AS_WITH_ARGS(name, T, T::RegAs, args)
+#define REGISTER_CLASS_AS_WITH_ARGS(name, T, RegAs, ...) \
+	PVCore::PVClassLibrary<RegAs>::get().register_class<T>(name, T(__VA_ARGS__));
+#define REGISTER_CLASS_WITH_ARGS(name, T, ...) REGISTER_CLASS_AS_WITH_ARGS(name, T, T::RegAs, __VA_ARGS__)
 
 #define LIB_CLASS(T) \
 	PVCore::PVClassLibrary<T::RegAs>

@@ -27,7 +27,6 @@ namespace PVRush {
 
 namespace PVCore {
 
-typedef uint64_t chunk_index;
 typedef std::list< PVElement, tbb::tbb_allocator<PVElement> > list_elts;
 
 // Describe chunk interface with no allocator template
