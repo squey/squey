@@ -14,6 +14,7 @@ static float _enum_position_factorize(int enumber)
 #else
 	int N = ilogb(enumber);
 #endif
+
 	int i;
 	int x = enumber;
 
@@ -33,16 +34,12 @@ static float _enum_position_factorize(int enumber)
 	return res;
 }
 
-void Picviz::PVMappingFilterEnumDefault::init_from_first(QString const& /*value*/)
-{
-	_enum_hash.clear();
-	_poscount = 0;
-}
-
 float* Picviz::PVMappingFilterEnumDefault::operator()(PVRush::PVNraw::nraw_table_line const& values)
 {
 	float retval = 0;
 	int position = 0;
+	_enum_hash.clear();
+	_poscount = 0;
 
 	for (size_t i = 0; i < values.size(); i++) {
 		QString const& value = values[i];

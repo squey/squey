@@ -7,7 +7,7 @@
 #include <QWidget>
 #include <QTabBar>
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 
 #include <PVMainWindow.h>
 #include <PVTabSplitter.h>

@@ -19,7 +19,7 @@
 #include <picviz/arguments.h>
 #include <picviz/filters.h>
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 
 /*
  * we need to specify the vector length for our pcre_exec call.  we only care

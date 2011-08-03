@@ -1,13 +1,13 @@
 // Register the plugin in PVFilterLibrary
 //
 
-#include <pvfilter/PVFilterLibrary.h>
+#include <pvkernel/core/PVClassLibrary.h>
 #include "PVLayerFilterHeatline.h"
 
 // This method will be called by libpicviz
-LibCPPExport void register_filter()
+LibCPPExport void register_class()
 {
-	//REGISTER_FILTER("Heatline/Colorize", Picviz::PVLayerFilterHeatlineColor);
-	//REGISTER_FILTER("Heatline/Select", Picviz::PVLayerFilterHeatlineSel);
-	REGISTER_FILTER("Frequency gradient", Picviz::PVLayerFilterHeatlineSelAndCol);
+	//REGISTER_CLASS("Heatline/Colorize", Picviz::PVLayerFilterHeatlineColor);
+	//REGISTER_CLASS("Heatline/Select", Picviz::PVLayerFilterHeatlineSel);
+	REGISTER_CLASS("Frequency gradient", Picviz::PVLayerFilterHeatlineSelAndCol);
 }

@@ -34,16 +34,16 @@
   #endif
 #endif	// CUSTOMER_RELEASE
 
-#include <pvcore/general.h>
-#include <pvcore/debug.h>
-#include <pvcore/PVAxisIndexType.h>
-#include <pvcore/PVClassLibrary.h>
-#include <pvcore/PVMeanValue.h>
+#include <pvkernel/core/general.h>
+#include <pvkernel/core/debug.h>
+#include <pvkernel/core/PVAxisIndexType.h>
+#include <pvkernel/core/PVClassLibrary.h>
+#include <pvkernel/core/PVMeanValue.h>
 
-#include <pvrush/PVInput.h>
-#include <pvrush/PVNormalizer.h>
-#include <pvrush/PVSourceCreator.h>
-#include <pvrush/PVSourceCreatorFactory.h>
+#include <pvkernel/rush/PVInput.h>
+#include <pvkernel/rush/PVNormalizer.h>
+#include <pvkernel/rush/PVSourceCreator.h>
+#include <pvkernel/rush/PVSourceCreatorFactory.h>
 
 
 #include <picviz/general.h>
@@ -57,7 +57,7 @@
 #include <PVProgressBox.h>
 
 // Filters
-#include <pvfilter/PVFilterLibrary.h>
+#include <pvkernel/core/PVClassLibrary.h>
 
 #include <pvgl/general.h>
 #include <pvgl/PVCom.h>
@@ -511,10 +511,10 @@ void PVInspector::PVMainWindow::create_filters_menu_and_actions()
 	QMenu *menu = filter_Menu;
 	QHash<QMenu *, int> actions_list; // key = action name; value = menu level; Foo/Bar/Camp makes Foo at level 0, Bar at level 1, etc.
 
-	LIB_FILTER(Picviz::PVLayerFilter) &filters_layer = 	LIB_FILTER(Picviz::PVLayerFilter)::get();
-	LIB_FILTER(Picviz::PVLayerFilter)::list_filters const& lf = filters_layer.get_list();
+	LIB_CLASS(Picviz::PVLayerFilter) &filters_layer = 	LIB_CLASS(Picviz::PVLayerFilter)::get();
+	LIB_CLASS(Picviz::PVLayerFilter)::list_classes const& lf = filters_layer.get_list();
 	
-	LIB_FILTER(Picviz::PVLayerFilter)::list_filters::const_iterator it;
+	LIB_CLASS(Picviz::PVLayerFilter)::list_classes::const_iterator it;
 
 	for (it = lf.begin(); it != lf.end(); it++) {
 		//(*it).get_args()["Menu_name"]

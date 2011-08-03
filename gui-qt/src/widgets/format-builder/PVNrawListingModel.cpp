@@ -1,5 +1,5 @@
 #include <PVNrawListingModel.h>
-#include <pvrush/PVNraw.h>
+#include <pvkernel/rush/PVNraw.h>
 
 #include <QBrush>
 

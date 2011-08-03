@@ -1,10 +1,10 @@
-#include <pvfilter/PVPluginsLoad.h>
-#include <pvrush/PVInputType.h>
-#include <pvrush/PVPluginsLoad.h>
-#include <pvrush/PVExtractor.h>
-#include <pvrush/PVControllerJob.h>
-#include <pvrush/PVFormat.h>
-#include <pvrush/PVTests.h>
+#include <pvkernel/filter/PVPluginsLoad.h>
+#include <pvkernel/rush/PVInputType.h>
+#include <pvkernel/rush/PVPluginsLoad.h>
+#include <pvkernel/rush/PVExtractor.h>
+#include <pvkernel/rush/PVControllerJob.h>
+#include <pvkernel/rush/PVFormat.h>
+#include <pvkernel/rush/PVTests.h>
 #include <picviz/PVRoot.h>
 #include <picviz/PVScene.h>
 #include <picviz/PVSource.h>

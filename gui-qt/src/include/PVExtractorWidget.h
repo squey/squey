@@ -21,9 +21,9 @@
 
 #include <picviz/general.h>
 #include <picviz/PVView.h>
-#include <pvrush/PVExtractor.h>
+#include <pvkernel/rush/PVExtractor.h>
 
-#include <pvfilter/PVRawSourceBase.h>
+#include <pvkernel/rush/PVRawSourceBase_types.h>
 
 namespace PVInspector {
 
@@ -57,7 +57,7 @@ private:
 	QLabel* _source_starts_directory;
 	QComboBox *_source_starts_sel;
 	QLineEdit *_source_starts_line;
-	PVFilter::PVRawSourceBase_p _cur_src;
+	PVRush::PVRawSourceBase_p _cur_src;
 
 public slots:
 	void exit_Slot();

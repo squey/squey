@@ -8,7 +8,7 @@
 #include <QStringList>
 #include <QString>
 
-#include <pvrush/PVFormat.h>
+#include <pvkernel/rush/PVFormat.h>
 
 #include <picviz/PVMandatoryMappingFunction.h>
 #include <picviz/PVMandatoryMappingFilter.h>
@@ -132,8 +132,8 @@ PVLOG_INFO("(pvmapped::create_table) begin cuda mapping\n");
 
 	// Do the same for the mandatory mappings
 	std::vector<PVMandatoryMappingFilter::p_type> mand_mapping_filters;
-	LIB_FILTER(Picviz::PVMandatoryMappingFilter)::list_filters const& lfmf = LIB_FILTER(Picviz::PVMandatoryMappingFilter)::get().get_list();
-	LIB_FILTER(Picviz::PVMandatoryMappingFilter)::list_filters::const_iterator it_lfmf;
+	LIB_CLASS(Picviz::PVMandatoryMappingFilter)::list_classes const& lfmf = LIB_CLASS(Picviz::PVMandatoryMappingFilter)::get().get_list();
+	LIB_CLASS(Picviz::PVMandatoryMappingFilter)::list_classes::const_iterator it_lfmf;
 	mand_mapping_filters.reserve(lfmf.size());
 	for (it_lfmf = lfmf.begin(); it_lfmf != lfmf.end(); it_lfmf++) {
 		PVMandatoryMappingFilter::p_type mf = (*it_lfmf)->clone<PVMandatoryMappingFilter>();

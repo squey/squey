@@ -7,7 +7,7 @@
 #ifndef PVINSPECTOR_GENERAL_H
 #define PVINSPECTOR_GENERAL_H
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 
 
 #endif

@@ -1,8 +1,8 @@
 #ifndef PVNRAWLISTINGWIDGET_H
 #define PVNRAWLISTINGWIDGET_H
 
-#include <pvcore/general.h>
-#include <pvrush/PVInputType.h>
+#include <pvkernel/core/general.h>
+#include <pvkernel/rush/PVInputType.h>
 
 #include <QWidget>
 #include <QLineEdit>

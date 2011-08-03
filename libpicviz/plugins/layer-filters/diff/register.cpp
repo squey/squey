@@ -1,11 +1,11 @@
 // Register the plugin in PVFilterLibrary
 //
 
-#include <pvfilter/PVFilterLibrary.h>
+#include <pvkernel/core/PVClassLibrary.h>
 #include "PVLayerFilterDiff.h"
 
 // This method will be called by libpicviz
-LibCPPExport void register_filter()
+LibCPPExport void register_class()
 {
-	REGISTER_FILTER("Diff", Picviz::PVLayerFilterDiff);
+	REGISTER_CLASS("Diff", Picviz::PVLayerFilterDiff);
 }

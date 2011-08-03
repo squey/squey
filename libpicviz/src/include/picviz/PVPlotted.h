@@ -13,9 +13,9 @@
 #include <vector>
 #include <utility>
 
-#include <pvcore/general.h>
-#include <pvcore/PVListFloat2D.h>
-#include <pvrush/PVNraw.h>
+#include <pvkernel/core/general.h>
+#include <pvkernel/core/PVListFloat2D.h>
+#include <pvkernel/rush/PVNraw.h>
 #include <picviz/PVPtrObjects.h>
 #include <boost/shared_ptr.hpp>
 

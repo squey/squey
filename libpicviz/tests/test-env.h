@@ -9,13 +9,13 @@
 
 void init_env()
 {
-	pv_setenv("PVRUSH_NORMALIZE_DIR","../../libpvrush/plugins/normalize",0);
-	pv_setenv("PVFILTER_NORMALIZE_DIR","../../libpvfilter/plugins/normalize",0);
-	pv_setenv("PVRUSH_NORMALIZE_HELPERS_DIR","../../libpvrush/plugins/normalize-helpers:./test-formats",0);
+	pv_setenv("PVRUSH_NORMALIZE_DIR","../../libpvkernel/rush/plugins/normalize",0);
+	pv_setenv("PVFILTER_NORMALIZE_DIR","../../libpvkernel/filter/plugins/normalize",0);
+	pv_setenv("PVRUSH_NORMALIZE_HELPERS_DIR","../../libpvkernel/rush/plugins/normalize-helpers:./test-formats",0);
 	//pv_setenv("PICVIZ_DEBUG_LEVEL","DEBUG",0);
 	pv_setenv("PICVIZ_CACHE_DIR","./cache",0);
-	pv_setenv("PVRUSH_INPUTTYPE_DIR","../../libpvrush/plugins/input_types",0);
-	pv_setenv("PVRUSH_SOURCE_DIR","../../libpvrush/plugins/sources",0);
+	pv_setenv("PVRUSH_INPUTTYPE_DIR","../../libpvkernel/rush/plugins/input_types",0);
+	pv_setenv("PVRUSH_SOURCE_DIR","../../libpvkernel/rush/plugins/sources",0);
 	pv_setenv("PICVIZ_MAPPING_FILTERS_DIR","../plugins/mapping-filters",0);
 	pv_setenv("PICVIZ_PLOTTING_FILTERS_DIR","../plugins/plotting-filters",0);
 }

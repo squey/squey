@@ -10,7 +10,7 @@
 #ifdef CUDA
 
 //#include <cuda.h>
-#include <pvcore/PVLogger.h>
+#include <pvkernel/core/PVLogger.h>
 
 ///TODO declare it to accessible everywhere in libpicviz
 enum TypeOfPlotting{time_default, time_24h, time_week, time_month, ipv4_default, integer_minmax, integer_default, enum_default, integer_port, string_default};

@@ -7,7 +7,7 @@
 #ifndef PVFILTER_PVMAPPINGFILTERFLOAT_H
 #define PVFILTER_PVMAPPINGFILTERFLOAT_H
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 #include <picviz/PVMappingFilter.h>
 
 namespace Picviz {

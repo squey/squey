@@ -5,7 +5,7 @@
 //! Copyright (C) Picviz Labs 2011
 
 #include <picviz/PVMappingProperties.h>
-#include <pvfilter/PVFilterLibrary.h>
+#include <pvkernel/core/PVClassLibrary.h>
 #include <picviz/PVRoot.h>
 
 Picviz::PVMappingProperties::PVMappingProperties(PVRoot_p root, PVRush::PVFormat fmt, int idx)
@@ -16,7 +16,7 @@ Picviz::PVMappingProperties::PVMappingProperties(PVRoot_p root, PVRush::PVFormat
 	QString type = format.axes[idx]["type"];
 	QString mode = format.axes[idx]["mapping"];
 
-	mapping_filter = LIB_FILTER(Picviz::PVMappingFilter)::get().get_filter_by_name(type + "_" + mode);
+	mapping_filter = LIB_CLASS(Picviz::PVMappingFilter)::get().get_class_by_name(type + "_" + mode);
 	if (!mapping_filter) {
 		PVLOG_ERROR("Mapping '%s' for type '%s' does not exist !\n", qPrintable(mode), qPrintable(type));
 	}

@@ -1,7 +1,7 @@
 #include <picviz/PVMappingFilter.h>
-#include <pvrush/PVFormat.h>
+#include <pvkernel/rush/PVFormat.h>
 
-#include <pvcore/stdint.h>
+#include <pvkernel/core/stdint.h>
 
 Picviz::PVMappingFilter::PVMappingFilter()
 {

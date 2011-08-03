@@ -7,7 +7,7 @@
 #ifndef PICVIZ_PVLAYERFILTERFindAttacks_H
 #define PICVIZ_PVLAYERFILTERFindAttacks_H
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 
 #include <picviz/PVLayer.h>
 #include <picviz/PVLayerFilter.h>

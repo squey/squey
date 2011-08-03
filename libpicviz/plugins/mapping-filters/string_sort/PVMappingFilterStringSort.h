@@ -7,10 +7,10 @@
 #ifndef PVFILTER_PVMAPPINGFILTERSTRINGSORT_H
 #define PVFILTER_PVMAPPINGFILTERSTRINGSORT_H
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 #include <picviz/PVMappingFilter.h>
 
-#include <pvcore/stdint.h>
+#include <pvkernel/core/stdint.h>
 
 namespace Picviz {
 

@@ -7,7 +7,7 @@
 #ifndef PVFILTER_PVMAPPINGFILTERTIME24H_H
 #define PVFILTER_PVMAPPINGFILTERTIME24H_H
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 #include <picviz/PVMappingFilter.h>
 #include "../default/PVMappingFilterTimeDefault.h"
 

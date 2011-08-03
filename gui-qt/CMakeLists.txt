@@ -6,11 +6,9 @@ option(USE_OWN_LIBCURL "We have problems with quite some distributions with libc
 #########################################
 # BEGIN: SET VARIOUS REQUIRED LIBRARIES #
 #########################################
-include_directories(AFTER ${PVCORE_INCLUDE_DIRS})
-include_directories(AFTER ${PVRUSH_INCLUDE_DIRS})
+include_directories(AFTER ${PVKERNEL_INCLUDE_DIRS})
 include_directories(AFTER ${PVGL_INCLUDE_DIRS})
 include_directories(AFTER ${PICVIZ_INCLUDE_DIRS})
-include_directories(AFTER ${PVFILTER_INCLUDE_DIRS})
 include_directories(AFTER ${ICU_INCLUDE})
 
 #######################################

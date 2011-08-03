@@ -1,11 +1,11 @@
 // Register the plugin in PVFilterLibrary
 //
 
-#include <pvfilter/PVFilterLibrary.h>
+#include <pvkernel/core/PVClassLibrary.h>
 #include "PVLayerFilterWebmailFinder.h"
 
 // This method will be called by libpicviz
-LibCPPExport void register_filter()
+LibCPPExport void register_class()
 {
-	REGISTER_FILTER("Find/Webmails", Picviz::PVLayerFilterWebmailFinder);
+	REGISTER_CLASS("Find/Webmails", Picviz::PVLayerFilterWebmailFinder);
 }

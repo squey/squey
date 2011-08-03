@@ -8,9 +8,9 @@
 //AUTO_CUSTOMER_RELEASE #include <picviz/api-obfuscate.h> 
 /* #endif */
 
-#include <pvcore/types.h>
+#include <pvbase/types.h>
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 
 /* #define PICVIZ_BEGIN_NAMESPACE namespace Picviz { */
 /* #define PICVIZ_CLOSE_NAMESPACE } */

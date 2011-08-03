@@ -8,13 +8,13 @@
 #define PICVIZ_PVLAYERFILTER_H
 
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 #include <picviz/PVLayer.h>
 #include <picviz/PVView.h>
 
-#include <pvfilter/PVFilterFunction.h>
-#include <pvfilter/PVFilterLibrary.h>
-#include <pvcore/PVArgument.h>
+#include <pvkernel/core/PVArgument.h>
+#include <pvkernel/core/PVClassLibrary.h>
+#include <pvkernel/filter/PVFilterFunction.h>
 
 #include <boost/function.hpp>
 
@@ -77,7 +77,7 @@ typedef PVLayerFilter::func_type PVLayerFilter_f;
 
 // For this wto work under windows, wez need to export here the PVFilterLibrary for PVLayerFilter
 #ifdef WIN32
-LibPicvizDeclExplicitTempl PVFilter::PVFilterLibrary<Picviz::PVLayerFilter>;
+LibPicvizDeclExplicitTempl PVCore::PVClassLibrary<Picviz::PVLayerFilter>;
 #endif
 
 }

@@ -8,7 +8,7 @@
 #define PICVIZ_PVSELECTIONFILTERSCATTERPLOTSELECTIONSQUARE_H
 
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 
 #include <picviz/PVSelection.h>
 #include <picviz/PVSelectionFilter.h>

@@ -14,7 +14,7 @@
 #include <QProgressBar>
 
 //picviz
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 
 namespace PVInspector {
 class PVProgressBox: public QDialog {

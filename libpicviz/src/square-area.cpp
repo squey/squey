@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 
 #include <picviz/general.h>
 #include <picviz/square-area.h>

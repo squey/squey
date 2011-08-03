@@ -10,8 +10,8 @@
 #ifdef CUDA
 
 //#include <cuda.h>
-#include <pvcore/PVLogger.h>
-#include <pvcore/PVListFloat2D.h>
+#include <pvkernel/core/PVLogger.h>
+#include <pvkernel/core/PVListFloat2D.h>
 
 
 /**

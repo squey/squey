@@ -11,33 +11,25 @@ ISRD=$INSPECTOR_SOURCE_ROOT_DIR
 #LANG=C
 #export LC_ALL=C
 
-PVCORE_PATH=$ISRC/libpvcore
-PVRUSH_PATH=$ISRC/libpvrush
+PVKERNEL_PATH=$ISRC/libpvkernel
 PVGL_DIR=$ISRC/libpvgl
 PICVIZ_PATH=$ISRD/libpicviz
 
 #export PICVIZ_LOG_FILE="log.txt"
 export PVGL_SHARE_DIR=$ISRD/libpvgl/data/
 export PICVIZ_DEBUG_LEVEL="INFO"
-export PICVIZ_FILTERS_DIR=$PICVIZ_PATH/plugins/filters/
 export PICVIZ_LAYER_FILTERS_DIR=$PICVIZ_PATH/plugins/layer-filters/
 export PICVIZ_MAPPING_FILTERS_DIR=$PICVIZ_PATH/plugins/mapping-filters/
 export PICVIZ_PLOTTING_FILTERS_DIR=$PICVIZ_PATH/plugins/plotting-filters/
-export PICVIZ_FUNCTIONS_DIR=$PICVIZ_PATH/plugins/functions
-# export PVRUSH_NORMALIZE_DIR=$PVRUSH_PATH/plugins/normalize 
-# export PVRUSH_NORMALIZE_HELPERS_DIR=$PVRUSH_PATH/plugins/normalize-helpers 
 
-export PVRUSH_NORMALIZE_DIR=libpvrush/plugins/normalize
-export PVRUSH_NORMALIZE_HELPERS_DIR="libpvrush/plugins/normalize-helpers;/home/stricaud/pvrush-formats-extra/"
+export PVRUSH_NORMALIZE_HELPERS_DIR="libpvkernel/plugins/normalize-helpers;/home/stricaud/pvrush-formats-extra/"
 
-export PVRUSH_INPUTTYPE_DIR=libpvrush/plugins/input_types
-export PVRUSH_SOURCE_DIR=libpvrush/plugins/sources
+export PVRUSH_INPUTTYPE_DIR=libpvkernel/plugins/input_types
+export PVRUSH_SOURCE_DIR=libpvkernel/plugins/sources
 
-export PVFILTER_NORMALIZE_DIR=libpvfilter/plugins/normalize
+export PVFILTER_NORMALIZE_DIR=libpvkernel/plugins/normalize
 
-# export PICVIZ_NORMALIZE_DIR=$PICVIZ_PATH/plugins/normalize 
-# export PICVIZ_NORMALIZE_HELPERS_DIR=$PICVIZ_PATH/plugins/normalize-helpers 
-export LD_LIBRARY_PATH=$PICVIZ_PATH/src/:$PVGL_PATH/src
+export LD_LIBRARY_PATH=$PVKERNEL_PATH/src/:$PICVIZ_PATH/src/:$PVGL_PATH/src
 
 if [ "$1" == "debug" ]
 then

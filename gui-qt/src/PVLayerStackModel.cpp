@@ -8,7 +8,7 @@
 #include <QtGui>
 
 // FIXME PhS : suppress that one
-#include <pvcore/PVAxisIndexType.h>
+#include <pvkernel/core/PVAxisIndexType.h>
 
 
 
@@ -17,7 +17,7 @@
 #include <PVTabSplitter.h>
 
 #include <picviz/PVColor.h>
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 #include <picviz/PVView.h>
 
 /******************************************************************************

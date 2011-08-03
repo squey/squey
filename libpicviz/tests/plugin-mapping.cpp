@@ -1,6 +1,6 @@
 #include <picviz/PVRoot.h>
 #include <picviz/PVMappingFilter.h>
-#include <pvrush/PVNraw.h>
+#include <pvkernel/rush/PVNraw.h>
 
 #include <iostream>
 #include <QCoreApplication>
@@ -19,7 +19,7 @@ int main(int argc, char** argv)
 
 	Picviz::PVRoot root;
 
-	Picviz::PVMappingFilter::p_type mapping_filter = LIB_FILTER(Picviz::PVMappingFilter)::get().get_filter_by_name(argv[1]);
+	Picviz::PVMappingFilter::p_type mapping_filter = LIB_CLASS(Picviz::PVMappingFilter)::get().get_filter_by_name(argv[1]);
 	if (!mapping_filter) {
 		std::cerr << "Filter " << argv[1] << " does not exist." << std::endl;
 		return 1;

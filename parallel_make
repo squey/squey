@@ -3,9 +3,9 @@
 #
 # Based on the order of the "add_subdirectory" in the root CMakeList.txt
 
-LIBS_ORDER="libpvcore libpvfilter libpvrush libpicviz libpvgl gui-qt"
-TESTS_ORDER="libpvcore libpvfilter libpvrush libpicviz"
-PLUGINS_ORDER="libpvrush libpicviz"
+LIBS_ORDER="libpvkernel libpicviz libpvgl gui-qt"
+TESTS_ORDER="libpvkernel libpicviz"
+PLUGINS_ORDER="libpvkernel libpicviz"
 
 # compile sources
 for l in $LIBS_ORDER; do
@@ -14,21 +14,5 @@ for l in $LIBS_ORDER; do
 	make -j $1 || exit 1
 	cd ../..
 done
-
-## compile sources
-#for l in $PLUGINS_ORDER; do
-#	echo "Compiling plugins of $l..."
-#	cd $l/plugins || exit 1
-#	make -j $1 || exit 1
-#	cd ../..
-#done
-#
-## compile tests
-#for l in $TESTS_ORDER; do
-#	echo "Compiling tests of $l..."
-#	cd $l/tests || exit 1
-#	make -j $1 || exit 1
-#	cd ../..
-#done
 
 make -j $1

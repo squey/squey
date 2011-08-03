@@ -1,12 +1,12 @@
 // Register the plugin in PVFilterLibrary
 //
 
-#include <pvfilter/PVFilterLibrary.h>
+#include <pvkernel/core/PVClassLibrary.h>
 #include "PVMappingFilterEnumDefault.h"
 
 // This method will be called by libpicviz
-LibCPPExport void register_filter()
+LibCPPExport void register_class()
 {
 	// Register under the name "type_format"
-	REGISTER_FILTER("enum_default", Picviz::PVMappingFilterEnumDefault);
+	REGISTER_CLASS("enum_default", Picviz::PVMappingFilterEnumDefault);
 }

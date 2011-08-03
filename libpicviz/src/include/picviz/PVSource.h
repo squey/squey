@@ -12,18 +12,18 @@
 #include <QStringList>
 #include <QVector>
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 
-#include <pvrush/PVFormat.h>
-#include <pvrush/PVFile.h>
-#include <pvrush/PVNraw.h>
+#include <pvkernel/rush/PVFormat.h>
+#include <pvkernel/rush/PVFile.h>
+#include <pvkernel/rush/PVNraw.h>
 
 #include <picviz/PVAxesCombination.h>
 
-#include <pvrush/PVExtractor.h> 
-#include <pvrush/PVFormat.h>
-#include <pvrush/PVInputType.h>
-#include <pvrush/PVSourceCreator.h>
+#include <pvkernel/rush/PVExtractor.h> 
+#include <pvkernel/rush/PVFormat.h>
+#include <pvkernel/rush/PVInputType.h>
+#include <pvkernel/rush/PVSourceCreator.h>
 
 #include <picviz/PVScene.h>
 #include <picviz/PVRoot.h>
@@ -79,7 +79,7 @@ public:
 	PVRush::PVExtractor& get_extractor();
 
 protected:
-	PVFilter::PVRawSourceBase_p create_extractor_source(QString type, QString filename, PVRush::PVFormat const& format);
+	PVRush::PVRawSourceBase_p create_extractor_source(QString type, QString filename, PVRush::PVFormat const& format);
 	PVRush::PVExtractor _extractor;
 
 private:

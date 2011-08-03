@@ -11,8 +11,8 @@
 #include <QLibrary>
 #include <QVector>
 
-#include <pvrush/PVFormat.h>
-#include <pvrush/PVNraw.h>
+#include <pvkernel/rush/PVFormat.h>
+#include <pvkernel/rush/PVNraw.h>
 
 #include <picviz/general.h>
 #include <picviz/PVMappingProperties.h>

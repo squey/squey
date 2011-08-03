@@ -6,9 +6,9 @@
 
 #include "PVLayerFilterHeatline.h"
 #include <picviz/PVColor.h>
-#include <pvcore/PVAxesIndexType.h>
-#include <pvcore/PVColorGradientDualSliderType.h>
-#include <pvcore/PVEnumType.h>
+#include <pvkernel/core/PVAxesIndexType.h>
+#include <pvkernel/core/PVColorGradientDualSliderType.h>
+#include <pvkernel/core/PVEnumType.h>
 
 #include <math.h>
 

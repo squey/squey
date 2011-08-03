@@ -40,6 +40,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${Picviz_Inspector_SOURCE_DIR}/cmake)
 
 
 set(USE_OPENMP true)
+
 #########################################
 # BEGIN: SET VARIOUS REQUIRED LIBRARIES #
 #########################################
@@ -61,15 +62,17 @@ message(STATUS "Boost include dirs: " ${BOOST_INCLUDEDIR})
 include_directories(AFTER ${BOOST_INCLUDEDIR})
 message(STATUS "TBB include dirs: " ${TBB_INCLUDE_DIRS})
 include_directories(AFTER ${TBB_INCLUDE_DIRS})
+
+# PVBase
+include_directories(AFTER "${Picviz_Inspector_SOURCE_DIR}/include")
+
 ###########################################
 # END: ADD INCLUDE DIRS NEEDED EVERYWHERE #
 ###########################################
 
 
 add_subdirectory(scripts)
-add_subdirectory(libpvcore)
-add_subdirectory(libpvfilter)
-add_subdirectory(libpvrush)
+add_subdirectory(libpvkernel)
 add_subdirectory(libpicviz)
 add_subdirectory(libpvgl)
 add_subdirectory(gui-qt)

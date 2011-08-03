@@ -1,4 +1,4 @@
-#include <pvrush/Normalize>
+#include <pvkernel/rush/Normalize>
 
 #include <picviz/nraw.h>
 #include <picviz/init.h>

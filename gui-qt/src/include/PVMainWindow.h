@@ -22,7 +22,7 @@
 #include <picviz/PVView.h>
 #include <picviz/PVLayerFilter.h>
 #include <picviz/PVSelection.h>
-#include <pvcore/PVArgument.h>
+#include <pvkernel/core/PVArgument.h>
 
 #include <pvgl/general.h>
 #include <pvgl/PVCom.h>

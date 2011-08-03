@@ -1,5 +1,5 @@
 #include "PVMappingFilterIPv4Default.h"
-#include <pvcore/network.h>
+#include <pvkernel/core/network.h>
 #include <dnet.h>
 
 float Picviz::PVMappingFilterIPv4Default::operator()(QString const& value)

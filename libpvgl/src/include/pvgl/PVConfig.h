@@ -7,7 +7,7 @@
 #ifndef LIBPVGL_CONFIG_H
 #define LIBPVGL_CONFIG_H
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 
 // View configuration
 //! The default width of a newly create pvgl_view.

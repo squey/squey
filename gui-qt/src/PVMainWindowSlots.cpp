@@ -396,7 +396,7 @@ void PVInspector::PVMainWindow::filter_Slot(void)
 		QString filter_name = s->objectName();
 
 		//get filter
-		Picviz::PVLayerFilter::p_type filter_org = LIB_FILTER(Picviz::PVLayerFilter)::get().get_filter_by_name(filter_name);
+		Picviz::PVLayerFilter::p_type filter_org = LIB_CLASS(Picviz::PVLayerFilter)::get().get_class_by_name(filter_name);
 		//cpy filter
 		Picviz::PVLayerFilter::p_type fclone = filter_org->clone<Picviz::PVLayerFilter>();
 		PVCore::PVArgumentList &args = lib_view->filters_args[filter_name];

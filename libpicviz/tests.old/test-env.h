@@ -5,8 +5,8 @@
 	putenv("PICVIZ_FILTERS_DIR=..\\..\\plugins\\filters\\RelWithDebInfo");
 	putenv("PICVIZ_DEBUG_LEVEL=DEBUG");
 #else
-	setenv("PVRUSH_NORMALIZE_DIR","../../libpvrush/plugins/normalize",0);
-	setenv("PVRUSH_NORMALIZE_HELPERS_DIR","../../libpvrush/plugins/normalize-helpers",0);
+	setenv("PVRUSH_NORMALIZE_DIR","../../libpvkernel/rush/plugins/normalize",0);
+	setenv("PVRUSH_NORMALIZE_HELPERS_DIR","../../libpvkernel/rush/plugins/normalize-helpers",0);
 
 	setenv("PICVIZ_PARSERS_DIR","../plugins/parsers",0);
 	setenv("PICVIZ_NORMALIZE_DIR","../plugins/normalize",0);

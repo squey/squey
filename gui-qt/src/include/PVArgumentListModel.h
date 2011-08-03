@@ -12,7 +12,7 @@
 #include <QAbstractTableModel>
 #include <QVariant>
 
-#include <pvcore/PVArgument.h>
+#include <pvkernel/core/PVArgument.h>
 #include <picviz/general.h>
 
 namespace PVInspector {

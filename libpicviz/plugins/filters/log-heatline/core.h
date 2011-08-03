@@ -1,4 +1,4 @@
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 
 #include <picviz/view.h>
 #include <picviz/layer.h>

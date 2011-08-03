@@ -7,10 +7,9 @@
 #include <picviz/PVRoot.h>
 #include <picviz/plugins.h>
 
-#include <pvfilter/PVFilterLibrary.h>
-
-#include <pvfilter/PVPluginsLoad.h>
-#include <pvrush/PVPluginsLoad.h>
+#include <pvkernel/core/PVClassLibrary.h>
+#include <pvkernel/filter/PVPluginsLoad.h>
+#include <pvkernel/rush/PVPluginsLoad.h>
 
 /******************************************************************************
  *
@@ -62,7 +61,7 @@ int Picviz::PVRoot::scene_append(PVScene_p scene)
  *****************************************************************************/
 int Picviz::PVRoot::load_layer_filters()
 {
-	int ret = PVFilter::PVFilterLibraryLibLoader::load_library_from_dirs(split_plugin_dirs(QString(picviz_plugins_get_layer_filters_dir())), LAYER_FILTER_PREFIX);
+	int ret = PVCore::PVClassLibraryLibLoader::load_class_from_dirs(split_plugin_dirs(QString(picviz_plugins_get_layer_filters_dir())), LAYER_FILTER_PREFIX);
 	if (ret == 0) {
 		PVLOG_WARN("No layer filters have been loaded !\n");
 	}
@@ -81,7 +80,7 @@ int Picviz::PVRoot::load_layer_filters()
  *****************************************************************************/
 int Picviz::PVRoot::load_mapping_filters()
 {
-	int ret = PVFilter::PVFilterLibraryLibLoader::load_library_from_dirs(split_plugin_dirs(QString(picviz_plugins_get_mapping_filters_dir())), MAPPING_FILTER_PREFIX);
+	int ret = PVCore::PVClassLibraryLibLoader::load_class_from_dirs(split_plugin_dirs(QString(picviz_plugins_get_mapping_filters_dir())), MAPPING_FILTER_PREFIX);
 	if (ret == 0) {
 		PVLOG_WARN("No mapping filters have been loaded !\n");
 	}
@@ -100,7 +99,7 @@ int Picviz::PVRoot::load_mapping_filters()
  *****************************************************************************/
 int Picviz::PVRoot::load_plotting_filters()
 {
-	int ret = PVFilter::PVFilterLibraryLibLoader::load_library_from_dirs(split_plugin_dirs(QString(picviz_plugins_get_plotting_filters_dir())), PLOTTING_FILTER_PREFIX);
+	int ret = PVCore::PVClassLibraryLibLoader::load_class_from_dirs(split_plugin_dirs(QString(picviz_plugins_get_plotting_filters_dir())), PLOTTING_FILTER_PREFIX);
 	if (ret == 0) {
 		PVLOG_WARN("No plotting filters have been loaded !\n");
 	}

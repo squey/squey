@@ -8,7 +8,7 @@
 #include <QStringList>
 #include <QString>
 
-#include <pvcore/debug.h>
+#include <pvkernel/core/debug.h>
 
 #include <picviz/PVPlottingFactory.h>
 #include <picviz/plugins.h>

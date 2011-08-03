@@ -7,7 +7,7 @@
 #ifndef PVFILTER_PVMAPPINGFILTERIPV4DEFAULT_H
 #define PVFILTER_PVMAPPINGFILTERIPV4DEFAULT_H
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 #include <picviz/PVMappingFilter.h>
 
 namespace Picviz {

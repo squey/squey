@@ -9,7 +9,7 @@
 
 #include <QColor>
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 
 namespace Picviz {
 

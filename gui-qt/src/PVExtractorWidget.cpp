@@ -14,12 +14,13 @@
 #include <QLabel>
 #include <QStringList>
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 #include <PVExtractorWidget.h>
 #include <PVMainWindow.h>
 #include <PVTabSplitter.h>
 #include <PVProgressBox.h>
 
+#include <pvkernel/rush/PVRawSourceBase.h>
 #include <pvgl/PVCom.h>
 
 #include <tbb/compat/thread>
@@ -269,7 +270,7 @@ void PVInspector::PVExtractorWidget::update_infos()
 {
 	size_t index = _slider_index->value();
 	size_t offset = 0;
-	PVFilter::PVRawSourceBase_p src = _ext.get_agg().agg_index_to_source(index, &offset);
+	PVRush::PVRawSourceBase_p src = _ext.get_agg().agg_index_to_source(index, &offset);
 	_cur_src = src;
 	_cur_src_offset = offset;
 	QString file;

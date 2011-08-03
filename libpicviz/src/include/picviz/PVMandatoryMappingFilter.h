@@ -7,10 +7,11 @@
 #ifndef PVFILTER_PVMANDATORYMAPPINGFILTER_H
 #define PVFILTER_PVMANDATORYMAPPINGFILTER_H
 
-#include <pvcore/general.h>
-#include <pvfilter/PVFilterFunction.h>
-#include <pvfilter/PVFilterLibrary.h>
-#include <pvrush/PVNraw.h>
+#include <pvkernel/core/general.h>
+#include <pvkernel/core/PVClassLibrary.h>
+#include <pvkernel/core/PVRegistrableClass.h>
+#include <pvkernel/filter/PVFilterFunction.h>
+#include <pvkernel/rush/PVNraw.h>
 
 #include <tbb/concurrent_unordered_map.h>
 #include <utility>
@@ -30,14 +31,11 @@ enum mandatory_mapping_param_type
 
 typedef tbb::concurrent_unordered_map<mandatory_mapping_param_type, mandatory_param_value> mandatory_param_map;
 
-class LibPicvizDecl PVMandatoryMappingFilter: public PVFilter::PVFilterFunctionRegistrable<int, mandatory_param_list_values const&, PVMandatoryMappingFilter>
+class LibPicvizDecl PVMandatoryMappingFilter: public PVFilter::PVFilterFunctionBase<int, mandatory_param_list_values const&>, public PVCore::PVRegistrableClass<PVMandatoryMappingFilter>
 {
 public:
-	typedef PVFilter::PVFilterFunctionRegistrable<int, mandatory_param_list_values const&, PVMandatoryMappingFilter>::base_registrable base_registrable;
-
-public:
-	typedef PVMandatoryMappingFilter FilterT;
 	typedef boost::shared_ptr<PVMandatoryMappingFilter> p_type;
+	typedef PVMandatoryMappingFilter FilterT;
 
 public:
 	PVMandatoryMappingFilter();
@@ -58,7 +56,7 @@ typedef PVMandatoryMappingFilter::func_type PVMandatoryMappingFilter_f;
 }
 
 #ifdef WIN32
-LibPicvizDeclExplicitTempl PVFilter::PVFilterLibrary<Picviz::PVMandatoryMappingFilter::FilterT>;
+LibPicvizDeclExplicitTempl PVCore::PVClassLibrary<Picviz::PVMandatoryMappingFilter::FilterT>;
 #endif
 
 #endif

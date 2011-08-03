@@ -8,7 +8,7 @@
 #include <picviz/PVRoot.h>
 #include <picviz/PVPlottingFilter.h>
 
-#include <pvfilter/PVFilterLibrary.h>
+#include <pvkernel/core/PVClassLibrary.h>
 
 /******************************************************************************
  *
@@ -23,7 +23,7 @@ Picviz::PVPlottingProperties::PVPlottingProperties(PVRoot_p root, PVRush::PVForm
 	QString type = format.axes[idx]["type"];
 	QString mode = format.axes[idx]["plotting"];
 
-	plotting_filter = LIB_FILTER(PVPlottingFilter)::get().get_filter_by_name(type + "_" + mode);
+	plotting_filter = LIB_CLASS(PVPlottingFilter)::get().get_class_by_name(type + "_" + mode);
 	if (!plotting_filter) {
 		PVLOG_ERROR("Plotting mode '%s' for type '%s' does not exist !\n", qPrintable(mode), qPrintable(type));
 	}

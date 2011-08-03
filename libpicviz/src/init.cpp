@@ -9,7 +9,7 @@
 
 // #include <apr_general.h>
 
-#include <pvcore/environ.h>
+#include <pvkernel/core/environ.h>
 
 #include <stdio.h>
 #include <stdlib.h>

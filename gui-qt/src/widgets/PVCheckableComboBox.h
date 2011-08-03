@@ -8,7 +8,7 @@
 
 #include <QMouseEvent>
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 
 namespace PVInspector {
 

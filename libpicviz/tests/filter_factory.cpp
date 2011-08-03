@@ -10,8 +10,8 @@ int main()
 {
 	REGISTER_FILTER(QString("Test"), Picviz::PVLayerFilterAxisGradient);
 
-	LIB_FILTER(Picviz::PVLayerFilter)::list_filters const& l = LIB_FILTER(Picviz::PVLayerFilter)::get().get_list();
-	LIB_FILTER(Picviz::PVLayerFilter)::list_filters::const_iterator it,ite;
+	LIB_CLASS(Picviz::PVLayerFilter)::list_filters const& l = LIB_CLASS(Picviz::PVLayerFilter)::get().get_list();
+	LIB_CLASS(Picviz::PVLayerFilter)::list_filters::const_iterator it,ite;
 	it = l.begin();
 	ite = l.end();
 

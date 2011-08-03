@@ -4,7 +4,7 @@
 #include <QMenu>
 #include <QObject>
 
-#include <pvrush/PVInputType.h>
+#include <pvkernel/rush/PVInputType.h>
 
 namespace PVInspector {
 

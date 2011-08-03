@@ -13,7 +13,7 @@
 #include <QVector>
 #include <QMutex>
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 
 #include <picviz/arguments.h>
 //#include <picviz/eventline.h>
@@ -39,8 +39,8 @@
 #include <picviz/PVZLevelArray.h>
 
 
-#include <pvcore/PVArgument.h>
-#include <pvrush/PVExtractor.h>
+#include <pvkernel/core/PVArgument.h>
+#include <pvkernel/rush/PVExtractor.h>
 
 #include <boost/shared_ptr.hpp>
 

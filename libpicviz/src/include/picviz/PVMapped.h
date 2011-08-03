@@ -13,11 +13,11 @@
 #include <QHash>
 #include <QVector>
 
-#include <pvcore/general.h>
-#include <pvcore/PVListFloat2D.h>
+#include <pvkernel/core/general.h>
+#include <pvkernel/core/PVListFloat2D.h>
 
-#include <pvrush/PVFormat.h>
-#include <pvrush/PVNraw.h>
+#include <pvkernel/rush/PVFormat.h>
+#include <pvkernel/rush/PVNraw.h>
 
 #include <picviz/PVPtrObjects.h>
 #ifdef CUDA

@@ -8,13 +8,13 @@
 #define PICVIZ_PVSELECTIONFILTER_H
 
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 #include <picviz/PVSelection.h>
 #include <picviz/PVView.h>
 
-#include <pvfilter/PVFilterFunction.h>
-#include <pvfilter/PVFilterLibrary.h>
-#include <pvcore/PVArgument.h>
+#include <pvkernel/filter/PVFilterFunction.h>
+#include <pvkernel/core/PVClassLibrary.h>
+#include <pvkernel/core/PVArgument.h>
 
 namespace Picviz {
 
@@ -55,7 +55,7 @@ typedef boost::shared_ptr<PVSelectionFilter> PVSelectionFilter_p;
 
 // For this wto work under windows, wez need to export here the PVFilterLibrary for PVLayerFilter
 #ifdef WIN32
-LibPicvizDeclExplicitTempl PVFilter::PVFilterLibrary<Picviz::PVSelectionFilter>;
+LibPicvizDeclExplicitTempl PVCore::PVClassLibrary<Picviz::PVSelectionFilter>;
 #endif
 
 }

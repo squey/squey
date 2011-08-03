@@ -4,9 +4,9 @@
 //! Copyright (C) Philippe Saadé 2009-2011
 //! Copyright (C) Picviz Labs 2011
 
-#include <pvcore/debug.h>
+#include <pvkernel/core/debug.h>
 
-#include <pvrush/PVFormat.h>
+#include <pvkernel/rush/PVFormat.h>
 #include <picviz/PVMapping.h>
 #include <picviz/PVSource.h>
 

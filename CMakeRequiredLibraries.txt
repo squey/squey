@@ -8,13 +8,34 @@ find_package(Qt4 REQUIRED)
 set(QT_USE_QTXML TRUE)
 include(${QT_USE_FILE})
 
+#
+# Check for Intel TBB library
+#
+
+if(WIN32)
+	set(TBB_FOUND "true")
+	set(TBB_INCLUDE_DIRS "C:\\dev\\tbb\\include\\")
+	if(CMAKE_BUILD_TYPE MATCHES "Debug")	
+		set(TBB_LIBRARY "C:\\dev\\tbb\\lib\\ia32\\vc9\\tbb_debug.lib")
+		set(TBB_MALLOC_LIBRARY "C:\\dev\\tbb\\lib\\ia32\\vc9\\tbbmalloc_debug.lib")
+	else()
+		set(TBB_LIBRARY "C:\\dev\\tbb\\lib\\ia32\\vc9\\tbb.lib")
+		set(TBB_MALLOC_LIBRARY "C:\\dev\\tbb\\lib\\ia32\\vc9\\tbbmalloc.lib")
+	endif()
+	set(TBB_LIBRARIES ${TBB_LIBRARY} ${TBB_MALLOC_LIBRARY})
+else(WIN32)
+find_package(TBB REQUIRED)
+endif(WIN32)
+
+if(CMAKE_BUILD_TYPE MATCHES "Debug")
+	set(TBB_USE_DEBUG "1")
+endif()
+
 # It is OK to find those package even if they are not compiled
 # since we've defined the variable PICVIZ_SINGLE_TREE_BUILD 
 # it just returns PATHS and avoid adding multiple search of the
 # same package in the different sub directories.
-find_package(PVCore REQUIRED)
-find_package(PVFilter REQUIRED)
-find_package(PVRush REQUIRED)
+find_package(PVKernel REQUIRED)
 find_package(Picviz REQUIRED)
 find_package(PVGL REQUIRED)
 
@@ -26,26 +47,6 @@ endif(CUDA_SDK_ROOT_DIR MATCHES "CUDA_SDK_ROOT_DIR-NOTFOUND")
 if(CUDA_FOUND)
   add_definitions(-DCUDA)
 endif(CUDA_FOUND)
-
-#
-# Check for Intel TBB library
-#
-
-if(WIN32)
-	set(TBB_FOUND "true")
-	set(TBB_INCLUDE_DIRS "C:\\dev\\tbb\\include\\")
-	if(CMAKE_BUILD_TYPE MATCHES "Debug")	
-		set(TBB_LIBRARIES "C:\\dev\\tbb\\lib\\ia32\\vc9\\tbb_debug.lib" "C:\\dev\\tbb\\lib\\ia32\\vc9\\tbbmalloc_debug.lib")
-	else()
-		set(TBB_LIBRARIES "C:\\dev\\tbb\\lib\\ia32\\vc9\\tbb.lib" "C:\\dev\\tbb\\lib\\ia32\\vc9\\tbbmalloc.lib")
-	endif()
-else(WIN32)
-find_package(TBB REQUIRED)
-endif(WIN32)
-
-if(CMAKE_BUILD_TYPE MATCHES "Debug")
-	set(TBB_USE_DEBUG "1")
-endif()
 
 #
 # Check for Boost library
@@ -136,10 +137,14 @@ else (NOT WIN32)
 endif (NOT WIN32)
 
 #
-# Check for Java and JNI (Hadoop is in the place :))
+# Check for Java and JNI
 #
 find_package(Java)
 find_package(JNI)
+
+if(JAVA_FOUND)
+	include(UseJava)
+endif(JAVA_FOUND)
 
 
 #

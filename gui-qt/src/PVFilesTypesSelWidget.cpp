@@ -9,7 +9,7 @@
 
 #include <PVMainWindow.h>
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 
 #include <PVFilesTypesSelWidget.h>
 

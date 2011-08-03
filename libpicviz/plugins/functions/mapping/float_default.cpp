@@ -1,6 +1,6 @@
 #include <stdlib.h>
 
-#include <pvcore/debug.h>
+#include <pvkernel/core/debug.h>
 
 #include <picviz/general.h>
 

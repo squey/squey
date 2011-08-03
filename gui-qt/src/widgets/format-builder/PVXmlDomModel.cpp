@@ -4,8 +4,8 @@
 //! Copyright (C) Philippe Saadé 2011-2011
 //! Copyright (C) Picviz Labs 2011
 #include <PVXmlDomModel.h>
-#include <pvrush/PVXmlTreeNodeDom.h>
-#include <pvfilter/PVFieldsFilterParamWidget.h>
+#include <pvkernel/rush/PVXmlTreeNodeDom.h>
+#include <pvkernel/filter/PVFieldsFilterParamWidget.h>
 
 #include <QString>
 

@@ -8,8 +8,8 @@
 #define PICVIZ_PVLAYERFILTERHeatline_H
 
 
-#include <pvcore/general.h>
-#include <pvcore/types.h>
+#include <pvkernel/core/general.h>
+#include <pvbase/types.h>
 
 #include <picviz/PVLayer.h>
 #include <picviz/PVLayerFilter.h>

@@ -11,8 +11,8 @@
 #include <QString>
 #include <QWidget>
 
-#include <pvcore/general.h>
-#include <pvcore/PVEnumType.h>
+#include <pvkernel/core/general.h>
+#include <pvkernel/core/PVEnumType.h>
 
 #include <picviz/PVView.h>
 

@@ -10,7 +10,7 @@
 #include <QLineEdit>
 #include <QRegExp>
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 
 #include <picviz/PVView.h>
 

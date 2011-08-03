@@ -9,7 +9,7 @@
 
 #include <QtCore>
 
-#include <pvcore/general.h>
+#include <pvkernel/core/general.h>
 
 #include <picviz/PVSelection.h>
 #include <assert.h>

@@ -6,7 +6,7 @@
 
 #include <assert.h>
 
-#include <pvrush/PVFormat.h>
+#include <pvkernel/rush/PVFormat.h>
 
 #include <picviz/PVAxesCombination.h>
 #include <picviz/PVAxis.h>
