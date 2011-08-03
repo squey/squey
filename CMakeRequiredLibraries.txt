@@ -142,6 +142,10 @@ endif (NOT WIN32)
 find_package(Java)
 find_package(JNI)
 
+if(JAVA_FOUND)
+	include(UseJava)
+endif(JAVA_FOUND)
+
 
 #
 # Check for libhdfs (needed for Hadoop support).

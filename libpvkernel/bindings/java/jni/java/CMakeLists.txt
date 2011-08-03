@@ -1,9 +1,13 @@
-project(libpvrush_bindings_java_jni Java)
+# Compile the Java class that binds PVRush, and include our library
+# This libpvrush_jni.so is a symlink to the real one. That's the only trick
+# I've found to have it at to the root of our JAR archive.
 
-# FIXME: that should not be necessary
-remove_definitions(-Wall -Wextra -pipe -ggdb3)
-remove_definitions(${OpenMP_CXX_FLAGS})
-add_library(PVRushJNI PVRushJNI.java)
+# This is for debugging purpose
+set(CMAKE_JAR_MAIN_CLASS "org.picviz.jni.PVRush.PVRushJNI")
+add_jar(PVRushJNI PVRushJNI.java libpvrush_jni.so)
 
-# FIXME: should we execute javah to create the JNI C interface automatically ?
 
+# Launch javah on our class
+add_custom_command(TARGET PVRushJNI
+                   PRE_BUILD
+                   COMMAND javah -jni -o ../cpp/PVRushJNI.h -classpath ${PVRushJNI_CLASS_DIR} org.picviz.jni.PVRush.PVRushJNI)

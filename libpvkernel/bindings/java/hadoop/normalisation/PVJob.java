@@ -8,13 +8,16 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.util.ToolRunner;
+import org.apache.hadoop.util.Tool;
 
-public class PVJob {
-	public static void main(String[] args) throws Exception {
-		Configuration cfg = new Configuration();
-		cfg.set("mapreduce.pvjob.format_path", args[2]);
+public class PVJob extends Configured implements Tool {
 
-		Job job = new Job(cfg);
+	public int run(String[] args) throws Exception {
+		Job job = new Job(getConf());
+		job.getConfiguration().set("mapreduce.pvjob.format_path", args[2]);
+
 		job.setJarByClass(PVJob.class); 
 		
 		job.setJobName("pvjob_normalisation");
@@ -29,6 +32,12 @@ public class PVJob {
 		job.setOutputValueClass(Text.class);
 
 		job.waitForCompletion(true);
+		return 0;
+	}
+
+	public static int main(String[] args) throws Exception {
+		int ret = ToolRunner.run(new Configuration(), new PVJob(), args);
+		return ret;
 	}
 }
 

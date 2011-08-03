@@ -1,9 +1,40 @@
 package org.picviz.jni.PVRush;
+import java.io.FileOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.BufferedOutputStream;
 
 public class PVRushJNI {
+	
+	public static String ExtractFromJar(String name) throws IOException {
+		File directory = new File(System.getProperty("java.io.tmpdir"));
+		if(!directory.exists())
+			directory.mkdirs();
+		File libFile = new File(directory, name);
+		if(libFile.exists())
+			libFile.delete();
+		InputStream in = PVRushJNI.class.getResourceAsStream("/" + name);
+		BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(libFile));
+		byte buffer[] = new byte[1024];
+		int len;
+		for(int sum = 0; (len = in.read(buffer)) > 0; sum += len)
+			out.write(buffer, 0, len);
+		in.close();
+		out.close();
+		return libFile.getAbsolutePath();
+	}
+
 	static {
-		System.loadLibrary("pvrush_jni");
-		init();
+		// Auto-extract the library from the JAR archive
+		try {
+			String lib = ExtractFromJar("libpvrush_jni.so");
+			System.load(lib);
+			init();
+		}
+		catch (IOException e) {
+			System.out.println("Unable to load the JNI library !");
+		}
 	}
 	
 	native static void init();

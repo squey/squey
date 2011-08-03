@@ -32,13 +32,14 @@ static void free_j2qstring(JNIEnv* env, jstring str, QString const& qstr)
 }
 
 // JNI interface
-JNIEXPORT void JNICALL Java_PVRushJNI_init(JNIEnv *, jclass)
+JNIEXPORT void JNICALL Java_org_picviz_jni_PVRush_PVRushJNI_init(JNIEnv *, jclass)
 {
+	std::cout << "Init !" << std::endl;
 	PVRush::PVPluginsLoad::load_all_plugins();
 	PVFilter::PVPluginsLoad::load_all_plugins();
 }
 
-JNIEXPORT void JNICALL Java_PVRushJNI_init_1with_1format(JNIEnv * env, jobject /*obj*/, jstring str)
+JNIEXPORT void JNICALL Java_org_picviz_jni_PVRush_PVRushJNI_init_1with_1format(JNIEnv * env, jobject /*obj*/, jstring str)
 {
 	QString file_path = jstring_to_qstring(env, str);
 	std::cout << "Path to format: " << qPrintable(file_path) << std::endl;
@@ -48,7 +49,7 @@ JNIEXPORT void JNICALL Java_PVRushJNI_init_1with_1format(JNIEnv * env, jobject /
 	free_j2qstring(env, str, file_path);
 }
 
-JNIEXPORT jobjectArray JNICALL Java_PVRushJNI_process_1elt(JNIEnv *env, jobject /*obj*/, jstring elt)
+JNIEXPORT jobjectArray JNICALL Java_org_picviz_jni_PVRush_PVRushJNI_process_1elt(JNIEnv *env, jobject /*obj*/, jstring elt)
 {
 	jclass str_class = env->FindClass("java/lang/String");
 	QString qelt = jstring_to_qstring(env, elt);
