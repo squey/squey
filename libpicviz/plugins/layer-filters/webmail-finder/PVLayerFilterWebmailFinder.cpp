@@ -52,8 +52,10 @@ void Picviz::PVLayerFilterWebmailFinder::operator()(PVLayer& /*in*/, PVLayer &ou
 	PVSelection hotmail_sel;
 	PVLinesProperties hotmail_lp;
 	for (PVRow r = 0; r < nb_lines; r++) {
-		PVRush::PVNraw::nraw_table_line const& nraw_r = nraw.at(r);
-		hotmail_sel.set_line(r, hotmail_re.indexIn(nraw_r[axis_id]) != -1);
+		if (_view->get_line_state_in_pre_filter_layer(r)) {
+			PVRush::PVNraw::nraw_table_line const& nraw_r = nraw.at(r);
+			hotmail_sel.set_line(r, hotmail_re.indexIn(nraw_r[axis_id]) != -1);
+		}
 	}
 	PVLayer hotmail_layer("Hotmail", hotmail_sel, hotmail_lp);
 	_view->layer_stack.append_layer(hotmail_layer);
@@ -62,8 +64,10 @@ void Picviz::PVLayerFilterWebmailFinder::operator()(PVLayer& /*in*/, PVLayer &ou
 	PVSelection yahoo_sel;
 	PVLinesProperties yahoo_lp;
 	for (PVRow r = 0; r < nb_lines; r++) {
-		PVRush::PVNraw::nraw_table_line const& nraw_r = nraw.at(r);
-		yahoo_sel.set_line(r, yahoo_re.indexIn(nraw_r[axis_id]) != -1);
+		if (_view->get_line_state_in_pre_filter_layer(r)) {
+			PVRush::PVNraw::nraw_table_line const& nraw_r = nraw.at(r);
+			yahoo_sel.set_line(r, yahoo_re.indexIn(nraw_r[axis_id]) != -1);
+		}
 	}
 	PVLayer yahoo_layer("Yahoo", yahoo_sel, yahoo_lp);
 	_view->layer_stack.append_layer(yahoo_layer);
