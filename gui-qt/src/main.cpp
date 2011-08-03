@@ -17,6 +17,9 @@
 
 #define JULY_5 1309856400
 
+// Laposte
+#define SEPT_20 1316520000
+
 // #ifdef USE_UNIKEY
   // #include <UniKeyFR.h>
 // #endif
@@ -51,11 +54,11 @@ int main(int argc, char *argv[])
 	// }
 // #endif
 
-	// time_t t = time(NULL);
+	time_t t = time(NULL);
  	// PVLOG_INFO("Current time:%d\n", t);
-	// if (t>JULY_5) {
-	// 	exit(42);
-	// }
+	if (t > SEPT_20) {
+		exit(42);
+	}
 
 	QString locale = QLocale::system().name();
 	PVLOG_INFO("System locale: %s\n", qPrintable(locale));
