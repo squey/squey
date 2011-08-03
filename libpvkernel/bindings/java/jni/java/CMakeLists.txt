@@ -9,5 +9,5 @@ add_jar(PVRushJNI PVRushJNI.java libpvrush_jni.so)
 
 # Launch javah on our class
 add_custom_command(TARGET PVRushJNI
-                   PRE_BUILD
+                   POST_BUILD
                    COMMAND javah -jni -o ../cpp/PVRushJNI.h -classpath ${PVRushJNI_CLASS_DIR} org.picviz.jni.PVRush.PVRushJNI)
