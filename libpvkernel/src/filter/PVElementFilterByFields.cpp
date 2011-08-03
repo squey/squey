@@ -30,5 +30,3 @@ PVCore::PVElement& PVFilter::PVElementFilterByFields::operator()(PVCore::PVEleme
 	elt.fields() = _ff(elt.fields());
 	return elt;
 }
-
-IMPL_FILTER_NOPARAM(PVFilter::PVElementFilterByFields)

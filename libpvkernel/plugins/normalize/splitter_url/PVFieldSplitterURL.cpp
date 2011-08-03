@@ -10,6 +10,7 @@
 
 #include "PVFieldSplitterURL.h"
 #include <pvkernel/core/PVBufferSlice.h>
+#include <pvkernel/rush/PVRawSourceBase.h>
 
 #include <QUrl>
 
@@ -119,7 +120,7 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterURL::one_to_many(PVCore:
 			url_decode_add_field(&buf, none); // Variable
 			return buf.nelts;
 		}
-		PVLOG_WARN("(PVFieldSplitterURL) in global index %d, invalid url '%s', cannot normalize\n", field.get_agg_index_of_parent_element(), qPrintable(field.qstr()));
+		PVLOG_WARN("(PVFieldSplitterURL) in index %d of source %s, invalid url '%s', cannot normalize\n", field.get_agg_index_of_parent_element(), qPrintable(field.elt_parent()->chunk_parent()->source()->human_name()), qPrintable(field.qstr()));
 		field.set_invalid();
 		field.elt_parent()->set_invalid();
 		return 0;

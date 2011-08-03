@@ -188,9 +188,7 @@ PVFilter::PVFieldsBaseFilter_f PVRush::PVFormat::xmldata_to_filter(PVRush::PVXml
 PVFilter::PVChunkFilter_f PVRush::PVFormat::create_tbb_filters()
 {
 	PVFilter::PVElementFilter_f elt_f = create_tbb_filters_elt();
-	if (!elt_f) {
-		return PVFilter::PVChunkFilter_f();
-	}
+	assert(elt_f);
 	PVFilter::PVChunkFilter* chk_flt;
 	if (_dump_elts) {
 		chk_flt = new PVFilter::PVChunkFilterByEltSaveInvalid(elt_f);
@@ -203,15 +201,19 @@ PVFilter::PVChunkFilter_f PVRush::PVFormat::create_tbb_filters()
 
 PVFilter::PVElementFilter_f PVRush::PVFormat::create_tbb_filters_elt()
 {
+	// We have to always return a valid filter function (even if this is
+	// for a null processing filter).
 	PVLOG_INFO("Create filters for format %s\n", qPrintable(format_name));
 	if (filters_params.size() == 0) { // No filters, set an empty filter
-		return PVFilter::PVElementFilter_f();
+		PVFilter::PVElementFilter* efnull = new PVFilter::PVElementFilter();
+		return efnull->f();
 	}
 
 	PVFilter::PVFieldsBaseFilter_f first_filter = xmldata_to_filter(filters_params[0]);
 	if (first_filter == NULL) {
 		PVLOG_ERROR("Unknown first filter. Ignoring it !\n");
-		return PVFilter::PVElementFilter_f();
+		PVFilter::PVElementFilter* efnull = new PVFilter::PVElementFilter();
+		return efnull->f();
 	}
 
 	// Here we create the pipeline according to the format

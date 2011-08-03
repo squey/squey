@@ -13,14 +13,14 @@
 
 namespace PVFilter {
 
-class PVElementFilter: public PVFilterFunction<PVCore::PVElement, PVElementFilter>
+class PVElementFilter: public PVFilterFunctionBase<PVCore::PVElement&, PVCore::PVElement&>
 {
 public:
 	typedef PVElementFilter FilterT;
 	typedef boost::shared_ptr<PVElementFilter> p_type;
 
 public:
-	virtual PVCore::PVElement& operator()(PVCore::PVElement& in) = 0;
+	virtual PVCore::PVElement& operator()(PVCore::PVElement& in) { return in; }
 };
 
 typedef PVElementFilter::func_type PVElementFilter_f;

@@ -13,8 +13,6 @@ public:
 	PVElementFilterRandInvalid();
 public:
 	virtual PVCore::PVElement& operator()(PVCore::PVElement& elt);
-
-	CLASS_FILTER(PVFilter::PVElementFilterRandInvalid)
 };
 
 }

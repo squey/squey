@@ -17,5 +17,10 @@ normalize-helpers/text/squid.format
 normalize-helpers/text/syslog.format
 )
 
+SET(PLUGINS_LIST
+${NORMALIZE_FILTERS_LIB_LIST}
+PARENT_SCOPE
+)
+
 INSTALL(FILES ${NORMALIZE_TEXT_FORMAT_FILES} DESTINATION normalize-helpers/text)
 INSTALL(FILES ${NORMALIZE_PCAP_FORMAT_FILES} DESTINATION normalize-helpers/pcap)

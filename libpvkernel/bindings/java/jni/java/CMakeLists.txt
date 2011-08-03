@@ -2,9 +2,20 @@
 # This libpvrush_jni.so is a symlink to the real one. That's the only trick
 # I've found to have it at to the root of our JAR archive.
 
+# Set the libraries that need to be redistribute with our JAR archive
+set(JAR_LIBS libpvrush_jni.so ${PVKERNEL_LIBRARY} ${PVKERNEL_PLUGINS_LIST})
+
+# We create an archive that will be put into the final JAR. At the initialisation
+# of PVRushJNI, that archive will be extracted into a temporary directory, and then
+# the libs will be used for PVKernel !
+set(ARCHIVE_LIBS "pvkernel_libs.tar")
+add_custom_target(libpvkernel_libs_archive "tar" "--transform" "'s,\\(.*\\)/,,'" "-hcf" "${ARCHIVE_LIBS}" ${JAR_LIBS}
+				  DEPENDS ${JAR_LIBS})
+
 # This is for debugging purpose
 set(CMAKE_JAR_MAIN_CLASS "org.picviz.jni.PVRush.PVRushJNI")
-add_jar(PVRushJNI PVRushJNI.java libpvrush_jni.so)
+add_jar(PVRushJNI PVRushJNI.java ${ARCHIVE_LIBS})
+add_dependencies(PVRushJNI libpvkernel_libs_archive)
 
 
 # Launch javah on our class

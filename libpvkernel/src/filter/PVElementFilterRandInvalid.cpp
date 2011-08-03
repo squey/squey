@@ -5,7 +5,6 @@
 PVFilter::PVElementFilterRandInvalid::PVElementFilterRandInvalid() :
 	PVElementFilter()
 {
-	INIT_FILTER_NOPARAM(PVElementFilterRandInvalid);
 #ifdef WIN32
 	std::srand(0); // Not a big deal, just for testing anyway
 #else
@@ -20,5 +19,3 @@ PVCore::PVElement& PVFilter::PVElementFilterRandInvalid::operator()(PVCore::PVEl
 		elt.set_invalid();
 	return elt;
 }
-
-IMPL_FILTER_NOPARAM(PVFilter::PVElementFilterRandInvalid)

@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.BufferedOutputStream;
 
+//import org.apache.commons.vfs.*;
+
 public class PVRushJNI {
 	
 	public static String ExtractFromJar(String name) throws IOException {
@@ -27,14 +29,21 @@ public class PVRushJNI {
 
 	static {
 		// Auto-extract the library from the JAR archive
-		try {
-			String lib = ExtractFromJar("libpvrush_jni.so");
+		/*try {
+			String libs_path_tar = ExtractFromJar("pvkernel_libs.tar");
+			// Extract all the libs and load pvkernel
+			String tmp_dir_path = System.getProperty("java.io.tmpdir") + "/pvkernel-jni-libs/";
+			FileSystemManager fsManager = VFS.getManager();
+			FileObject lib_tar = fsManager.resolveFile("tar:" + libs_path_tar);
+			FileObject[] libs = lib_tar.getChildren();
+			for (int i = 0; i < libs.length; i++) {
+
 			System.load(lib);
 			init();
 		}
 		catch (IOException e) {
 			System.out.println("Unable to load the JNI library !");
-		}
+		}*/
 	}
 	
 	native static void init();

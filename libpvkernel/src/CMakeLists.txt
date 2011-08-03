@@ -60,7 +60,6 @@ filter/PVChunkFilterSource.cpp
 filter/PVChunkFilterCountElts.cpp
 filter/PVChunkFilterDumpElts.cpp
 filter/PVElementFilterByFields.cpp
-filter/PVElementFilterGrep.cpp
 filter/PVElementFilterRandInvalid.cpp
 filter/PVFieldFilterGrep.cpp
 filter/PVFieldsFilter.cpp
@@ -83,7 +82,6 @@ include/pvkernel/filter/PVElementFilterByFields.h
 include/pvkernel/filter/PVElementFilter.h
 include/pvkernel/filter/PVFieldsFilter.h
 include/pvkernel/filter/PVFilterFunction.h
-include/pvkernel/filter/PVElementFilterGrep.h
 include/pvkernel/filter/PVElementFilterRandInvalid.h
 include/pvkernel/filter/PVFieldFilterGrep.h
 include/pvkernel/filter/PVFieldSplitterChar.h

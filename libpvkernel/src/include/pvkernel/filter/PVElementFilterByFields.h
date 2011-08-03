@@ -22,8 +22,6 @@ public:
 	PVCore::PVElement& operator()(PVCore::PVElement& elt);
 protected:
 	PVFieldsBaseFilter_f _ff;
-
-	CLASS_FILTER(PVFilter::PVElementFilterByFields)
 };
 
 }
