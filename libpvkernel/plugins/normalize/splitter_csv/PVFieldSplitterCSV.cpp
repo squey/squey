@@ -89,7 +89,6 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterCSV::one_to_many(PVCore:
 	// Check that, if wanted to, the number of fields is the expected one.
 	// If not, the element is invalid.
 	
-	PVLOG_HEAVYDEBUG("(PVFieldsSplitterCSV) 0x%x: number expected fields: %d\n", this, _fields_expected);
 	if (_fields_expected > 0 && _fields_expected != inf._nelts) {
 		field.set_invalid();
 		field.elt_parent()->set_invalid();

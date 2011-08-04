@@ -7,6 +7,8 @@ import java.io.BufferedOutputStream;
 
 import org.apache.commons.vfs.*;
 
+import org.picviz.common.POSIX;
+
 public class PVRushJNI {
 	
 	public static String ExtractFromJar(String name) throws IOException {
@@ -52,6 +54,10 @@ public class PVRushJNI {
 				lib_content.close();
 				out.close();
 			}
+
+			// Set LD_LIBRARY_PATH to tmp_dir_path
+			System.out.println("Setting LD_LIBRARY_PATH...");
+			POSIX.libc.setenv("LD_LIBRARY_PATH", tmp_dir_path, 0);
 
 			System.load(tmp_dir_path + "libpvrush_jni.so");
 			init(tmp_dir_path);
