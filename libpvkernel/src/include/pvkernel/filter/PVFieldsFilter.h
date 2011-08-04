@@ -97,6 +97,9 @@ protected:
 	size_t _fields_expected;
 };
 
+// Macro for reporting invalid fields
+#define PVLOG_WARN_FIELD(field, str, ...) PVLOG_WARN(str " ; in index (1-based) %d in source %s \n", __VA_ARGS__, field.get_index_of_parent_element()+1, qPrintable(field.elt_parent()->chunk_parent()->source()->human_name()))
+
 typedef PVFieldsBaseFilter::func_type PVFieldsBaseFilter_f;
 typedef PVFieldsBaseFilter::p_type PVFieldsBaseFilter_p;
 
