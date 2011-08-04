@@ -2,8 +2,8 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include <dnet/os.h>
-#include <dnet/ip.h>
+#include <pvkernel/core/dumbnet/os.h>
+#include <pvkernel/core/dumbnet/ip.h>
 
 #include <picviz/general.h>
 

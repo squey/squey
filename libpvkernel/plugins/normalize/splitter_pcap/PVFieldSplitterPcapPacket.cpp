@@ -18,7 +18,7 @@
 #include <arpa/inet.h>
 #endif
 
-#include <dnet.h>
+#include <pvkernel/core/dumbnet.h>
 
 #include <tbb/scalable_allocator.h>
 

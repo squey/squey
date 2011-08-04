@@ -3,16 +3,6 @@
 #
 include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/libpicviz/src/include)
 
-# APR
-add_definitions(${APR_FLAGS})
-include_directories(AFTER ${APR_INCLUDES})
-# PCRE
-include_directories(AFTER ${PCRE_INCLUDE_DIR})
-# PCAP
-include_directories(AFTER ${PCAP_INCLUDE_DIRS})
-# DUMBNET
-include_directories(AFTER ${DUMBNET_INCLUDE_DIRS})
-
 link_directories(${Picviz_Inspector_SOURCE_DIR}/libpicviz/src/)
 
 set(FILTERS_DIST_LIST
