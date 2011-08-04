@@ -99,7 +99,7 @@ void PVGL::PVFont::draw_text(float x, float y, const char *text, int font_size)
 					PVLOG_ERROR("Font cache is bigger than the texture. Increase the texture size or handle multiple textures.\n");
 					PVLOG_ERROR("%d glyphes rendered.\n", glyph_cache.size());
 					for (std::map<GlyphIndex,PVGlyph>::iterator it = glyph_cache.begin(); it != glyph_cache.end(); ++it) {
-						PVLOG_ERROR("Glyph: %d\n", it->first);
+						PVLOG_ERROR("Glyph: %d\n", it->first.index);
 					}
 				}
 				x_off = 0;
