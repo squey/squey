@@ -56,6 +56,7 @@ public class PVRushJNI {
 			}
 
 			// Set LD_LIBRARY_PATH to tmp_dir_path
+			System.out.println("Setting LD_LIBRARY_PATH...");
 			POSIX.libc.setenv("LD_LIBRARY_PATH", tmp_dir_path, 0);
 
 			System.load(tmp_dir_path + "libpvrush_jni.so");
