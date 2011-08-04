@@ -163,7 +163,8 @@ void PVInspector::PVListingView::selectionChanged(const QItemSelection &selected
 	}
 	else {
 		sb->clearMessage();
-	}	
+	}
+	QTableView::selectionChanged(selected, deselected);
 }
 
 /******************************************************************************
