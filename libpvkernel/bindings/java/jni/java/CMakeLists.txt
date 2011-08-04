@@ -3,7 +3,7 @@
 # I've found to have it at to the root of our JAR archive.
 
 # Set the libraries that need to be redistribute with our JAR archive
-set(JAR_LIBS libpvrush_jni.so ${PVKERNEL_LIBRARY} ${PVKERNEL_PLUGINS_LIST})
+set(JAR_LIBS libpvrush_jni.so ${PVKERNEL_LIBRARY}.1 ${PVKERNEL_PLUGINS_LIST})
 
 # We create an archive that will be put into the final JAR. At the initialisation
 # of PVRushJNI, that archive will be extracted into a temporary directory, and then
