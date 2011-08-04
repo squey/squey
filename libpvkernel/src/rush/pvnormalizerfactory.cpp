@@ -18,7 +18,6 @@
 #include <stdlib.h>
 
 #include <pvkernel/core/General>
-#include <pvkernel/core/Debug>
 
 #include <pvkernel/rush/pvnormalizerfactory.h>
 

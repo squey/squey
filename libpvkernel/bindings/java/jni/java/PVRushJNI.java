@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.BufferedOutputStream;
 
-//import org.apache.commons.vfs.*;
+import org.apache.commons.vfs.*;
 
 public class PVRushJNI {
 	
@@ -28,25 +28,40 @@ public class PVRushJNI {
 	}
 
 	static {
-		// Auto-extract the library from the JAR archive
-		/*try {
+		// Auto-extract the libraries from the JAR archive
+		try {
 			String libs_path_tar = ExtractFromJar("pvkernel_libs.tar");
 			// Extract all the libs and load pvkernel
 			String tmp_dir_path = System.getProperty("java.io.tmpdir") + "/pvkernel-jni-libs/";
+			File tmp_dir = new File(tmp_dir_path);
+			tmp_dir.mkdirs();
 			FileSystemManager fsManager = VFS.getManager();
 			FileObject lib_tar = fsManager.resolveFile("tar:" + libs_path_tar);
 			FileObject[] libs = lib_tar.getChildren();
 			for (int i = 0; i < libs.length; i++) {
+				FileObject lfo = libs[i];
+				InputStream lib_content = lfo.getContent().getInputStream();
+				String lib_name = lfo.getName().getBaseName();
+				File libFile = new File(tmp_dir_path, lib_name);
+				BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(libFile));
+				byte[] buffer = new byte[1024];
+				int len;
+				for (int sum = 0; (len = lib_content.read(buffer)) > 0; sum += len) {
+					out.write(buffer, 0, len);
+				}
+				lib_content.close();
+				out.close();
+			}
 
-			System.load(lib);
-			init();
+			System.load(tmp_dir_path + "libpvrush_jni.so");
+			init(tmp_dir_path);
 		}
 		catch (IOException e) {
 			System.out.println("Unable to load the JNI library !");
-		}*/
+		}
 	}
 	
-	native static void init();
+	native private static void init(String libs_dir);
 	native public void init_with_format(String path_format);
 	native public String[] process_elt(String elt);
 	

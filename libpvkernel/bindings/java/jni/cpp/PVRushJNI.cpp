@@ -11,11 +11,16 @@
 #include <pvkernel/rush/PVPluginsLoad.h>
 
 #include <QString>
+#include <QCoreApplication>
 
 #include <iostream>
 
+#include <stdlib.h>
+
 PVRush::PVFormat _format;
 PVFilter::PVElementFilter_f _elt_f;
+const char* _app_name ="pvrush_jni";
+int _argc = 1;
 
 // Helper functions
 static QString jstring_to_qstring(JNIEnv* env, jstring str)
@@ -32,9 +37,15 @@ static void free_j2qstring(JNIEnv* env, jstring str, QString const& qstr)
 }
 
 // JNI interface
-JNIEXPORT void JNICALL Java_org_picviz_jni_PVRush_PVRushJNI_init(JNIEnv *, jclass)
+JNIEXPORT void JNICALL Java_org_picviz_jni_PVRush_PVRushJNI_init(JNIEnv *env, jclass, jstring lib_dir)
 {
-	std::cout << "Init !" << std::endl;
+	// Setup environnement variables according to lib_dir
+	static QCoreApplication app(_argc, (char**) &_app_name);
+	
+	QString lib_dir_qstr = jstring_to_qstring(env, lib_dir);
+	setenv("PVFILTER_NORMALIZE_DIR", qPrintable(lib_dir_qstr), 0);
+	free_j2qstring(env, lib_dir, lib_dir_qstr);
+
 	PVRush::PVPluginsLoad::load_all_plugins();
 	PVFilter::PVPluginsLoad::load_all_plugins();
 }

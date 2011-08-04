@@ -14,6 +14,7 @@ add_custom_target(libpvkernel_libs_archive "tar" "--transform" "'s,\\(.*\\)/,,'"
 
 # This is for debugging purpose
 set(CMAKE_JAR_MAIN_CLASS "org.picviz.jni.PVRush.PVRushJNI")
+set(CMAKE_JAVA_INCLUDE_PATH ${CMAKE_JAVA_INCLUDE_PATH} /usr/share/java/commons-vfs.jar)
 add_jar(PVRushJNI PVRushJNI.java ${ARCHIVE_LIBS})
 add_dependencies(PVRushJNI libpvkernel_libs_archive)
 
