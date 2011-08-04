@@ -3,6 +3,17 @@
  * The PVKernel library handles all the transformation of data (binary, text, etc.) into a normalized table (called nraw). 
  * It is based in three modules. 
  * 
+ \dot
+digraph G {
+compound=true;
+   subgraph cluster1 {
+   label="PVKernel";
+      node4 [label="filter"];
+      node3 [label="core"];
+      node2 [label="rush"];
+   }
+}
+ \enddot
  * \section rushlib PVRush library
  * \subsection rushintro Introduction
  *
