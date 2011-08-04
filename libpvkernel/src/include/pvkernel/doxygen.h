@@ -1,6 +1,10 @@
-/*! \mainpage PVRush library
+/*! \mainpage PVKernel library
  *
- * \section intro Introduction
+ * The PVKernel library handles all the transformation of data (binary, text, etc.) into a normalized table (called nraw). 
+ * It is based in three modules. 
+ * 
+ * \section rushlib PVRush library
+ * \subsection rushintro Introduction
  *
  * PVRush has the single task to take any type of file (that is stored in a given place)
  * and create a CSV-like version of it that is stored in memory. It also manages the
@@ -8,18 +12,18 @@
  * 
  * This memory CSV-like is called a \b NRAW (for Normalized Raw). 
  *
- * \section How it works
+ * \subsection rushhowto How it works
  *
  * TODO: write this section :)
  *
  * 
- * \section Sources in PVRush
+ * \subsection rushsources Sources in PVRush
  *
  * The interface of a source is defined by \ref PVRawSource. The responsability of a source
  * is to create chunks that are then processed by a TBB pipeline.
  * involved in the creation of a source.
  *
- * \subection Input connectors
+ * \subection rushinput Input connectors
  *
  * The input are segmented with two main properties :
  * <ul>
@@ -27,19 +31,19 @@
  * <li>the contained data (PCAP packets, text data, SQL result, etc...). It is handled by the" 
  * </ul>
  *
- * \subsection Aggregator
+ * \subsubsection rushagg Aggregator
  *
- * \section Working pipeline
+ * \subsection rushpipeline Working pipeline
  *
- * \subsection Definition of a filter function
+ * \subsubsection rushfilterfunc Definition of a filter function
  *
- * \subsection Combining filter functions
+ * \subsubsection rushfiltercombine Combining filter functions
  *
- * \subsection Stop conditions of a pipeline
+ * \subsubsection rushpipelinestop Stop conditions of a pipeline
  *
- * \section Memory allocations
+ * \subsection rushmemalloc Memory allocations
  *
- * \section Improvements
+ * \subsection rushimprove Improvements
  *
  \dot
   digraph picvizarch {
