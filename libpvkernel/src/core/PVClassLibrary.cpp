@@ -47,9 +47,12 @@ int PVCore::PVClassLibraryLibLoader::load_class_from_dir(QString const& pluginsd
 	int count = 0;
 	while (filesIterator.hasNext()) {
 		QString curfile = filesIterator.next();
-		if (load_class(dir.absoluteFilePath(curfile))) {
-			PVLOG_INFO("Successfully loaded plugin '%s'\n", qPrintable(curfile));
-			count++;
+		int activated = pvconfig.value(curfile, 1).toInt();
+		if (activated) {
+			if (load_class(dir.absoluteFilePath(curfile))) {
+				PVLOG_INFO("Successfully loaded plugin '%s'\n", qPrintable(curfile));
+				count++;
+			}
 		}
 	}
 	return count;
