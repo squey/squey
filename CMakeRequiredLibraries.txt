@@ -108,12 +108,12 @@ endif(NOT WIN32)
 # Check for DUMBNET library
 #
 
-if(WIN32)
-	set(DUMBNET_LIBRARIES "C:\\dev\\libdnet\\lib\\dnet.lib" "ws2_32.lib")
-	set(DUMBNET_INCLUDE_DIRS "C:\\dev\\libdnet\\include")
-else(WIN32)
-	find_package(DUMBNET REQUIRED)
-endif(WIN32)
+#if(WIN32)
+#	set(DUMBNET_LIBRARIES "C:\\dev\\libdnet\\lib\\dnet.lib" "ws2_32.lib")
+#	set(DUMBNET_INCLUDE_DIRS "C:\\dev\\libdnet\\include")
+#else(WIN32)
+#	find_package(DUMBNET REQUIRED)
+#endif(WIN32)
 
 #
 # Check for Archive library

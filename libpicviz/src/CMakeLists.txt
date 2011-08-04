@@ -3,20 +3,6 @@ include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/libpicviz/src/include)
 add_definitions(${PICVIZ_DEFINITIONS})
 include_directories(AFTER ${PICVIZ_INCLUDE_DIRS})
 
-# # APR
-# add_definitions(${APR_FLAGS})
-# include_directories(AFTER ${APR_INCLUDES})
-# # PCRE
-# include_directories(AFTER ${PCRE_INCLUDE_DIR})
-# # PCAP
-# include_directories(AFTER ${PCAP_INCLUDE_DIRS})
-# # DUMBNET
-# include_directories(AFTER ${DUMBNET_INCLUDE_DIRS})
-# # ZLIB
-#include_directories(AFTER ${ZLIB_INCLUDE_DIRS})
-# Archive
-#include_directories(AFTER ${ARCHIVE_CFLAGS})
-
 if (NOT WIN32)
 set(MATHS_LIBRARY "-lm")
 endif(NOT WIN32)

@@ -5,8 +5,6 @@ include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/libpicviz/src/include)
 
 # PCAP
 include_directories(AFTER ${PCAP_INCLUDE_DIRS})
-# DUMBNET
-include_directories(AFTER ${DUMBNET_INCLUDE_DIRS})
 
 link_directories(${Picviz_Inspector_SOURCE_DIR}/libpicviz/src/ ${Picviz_Inspector_SOURCE_DIR}/libpvfilter/src/)
 
