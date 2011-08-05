@@ -573,8 +573,6 @@ void PVInspector::PVMainWindow::create_filters_menu_and_actions()
 
 void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 {
-	// PVRush::PVInputType_p in_t = PVInputTypeMenuEntries::input_type_from_action((QAction*) sender());
-	// PVRush::PVInputType_p in_t = LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name("file");
 	PVRush::list_creators lcr = PVRush::PVSourceCreatorFactory::get_by_input_type(in_t);
 	PVRush::hash_format_creator format_creator = PVRush::PVSourceCreatorFactory::get_supported_formats(lcr);
 
@@ -757,6 +755,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 	Picviz::PVView_p import_view;
 	PVGL::PVMessage message;
 
+	bool one_extraction_successful = false;
 	// Load a type of file per view
 	QHash< QString, PVRush::PVInputType::list_inputs >::const_iterator it = discovered.constBegin();
 	for (; it != discovered.constEnd(); it++) {
@@ -775,16 +774,16 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 		tab_name += QString(" / ")+type;
 
 		PVRush::PVControllerJob_p job_import;
+		PVRush::PVFormat const& cur_format = fc.first;
 		try {
-			job_import = import_source->files_append(fc.first, fc.second, inputs);
+			job_import = import_source->files_append(cur_format, fc.second, inputs);
 		}
 		catch (PVRush::PVInputException &e) {
 			PVLOG_ERROR("PVInput error: %s\n", e.what().c_str());
 			continue;
 		}
 
-		if (!PVExtractorWidget::show_job_progress_bar(job_import, job_import->nb_elts_max(), this)) {
-			job_import->cancel();
+		if (!PVExtractorWidget::show_job_progress_bar(job_import, cur_format.get_format_name(), job_import->nb_elts_max(), this)) {
 			message.function = PVGL_COM_FUNCTION_DESTROY_TRANSIENT;
 			pvgl_com->post_message_to_gl(message);
 			continue;
@@ -837,13 +836,15 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 		int new_tab_index = pv_ListingsTabWidget->addTab(current_tab, tab_name);
 		/* Set the new tab as the active tab */
 		pv_ListingsTabWidget->setCurrentIndex(new_tab_index);
+		
+		one_extraction_successful = true;
 	}
 
-	if (discovered.size() > 0) {
-		menu_activate_is_file_opened(true);
+	if (!one_extraction_successful) {
+		return;
 	}
 
-	
+	menu_activate_is_file_opened(true);
 	pv_labelWelcomeIcon->hide();
 	pv_ImportFileButton->hide();
 	pv_ListingsTabWidget->setVisible(true);
