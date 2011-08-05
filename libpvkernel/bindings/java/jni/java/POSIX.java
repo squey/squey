@@ -11,6 +11,7 @@ public class POSIX {
 	public interface LibC extends Library {
 		public int setenv(String name, String value, int overwrite);
 		public int unsetenv(String name);
+		public String getenv(String name);
 	}
 	static public LibC libc = (LibC) Native.loadLibrary("c", LibC.class);
 };
