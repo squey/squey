@@ -37,4 +37,3 @@ bool PVRush::PVTag::has_tag(QString tag)
 {
 	return 0;
 }
-
