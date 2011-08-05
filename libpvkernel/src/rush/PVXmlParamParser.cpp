@@ -25,23 +25,23 @@ QString PVRush::PVXmlParamParserExceptionPluginNotFound::what()
 
 PVRush::PVXmlParamParser::PVXmlParamParser(QString const& nameFile)
 {
-	QFile fichier(nameFile);
-	if(!fichier.exists()) {
-		//le fichier n'existe pas.
-		PVLOG_ERROR("File to parse unfound!\n");
+	QFile xmlfile(nameFile);
+
+	if(!xmlfile.exists()) {
+		PVLOG_ERROR("File to parse not found!\n");
 		return;
 	}
-	if (!fichier.open(QIODevice::ReadOnly | QIODevice::Text)) {
+	if (!xmlfile.open(QIODevice::ReadOnly | QIODevice::Text)) {
 		PVLOG_ERROR("Can't open file to parse.\n");
 		return;
 	}
-	QTextStream tmpTextXml(&fichier);//creation of the file stream
+	QTextStream tmpTextXml(&xmlfile); // file stream creation
 	QDomDocument docXml;
 	docXml.setContent(tmpTextXml.readAll());
 	setVersionFromRootNode(docXml.documentElement());
 	setDom(docXml.documentElement());
 
-	fichier.close();
+	xmlfile.close();
 
 	dump_filters();
 }
