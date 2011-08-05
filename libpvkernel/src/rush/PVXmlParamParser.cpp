@@ -25,23 +25,23 @@ QString PVRush::PVXmlParamParserExceptionPluginNotFound::what()
 
 PVRush::PVXmlParamParser::PVXmlParamParser(QString const& nameFile)
 {
-	QFile fichier(nameFile);
-	if(!fichier.exists()) {
-		//le fichier n'existe pas.
-		PVLOG_ERROR("File to parse unfound!\n");
+	QFile xmlfile(nameFile);
+
+	if(!xmlfile.exists()) {
+		PVLOG_ERROR("File to parse not found!\n");
 		return;
 	}
-	if (!fichier.open(QIODevice::ReadOnly | QIODevice::Text)) {
+	if (!xmlfile.open(QIODevice::ReadOnly | QIODevice::Text)) {
 		PVLOG_ERROR("Can't open file to parse.\n");
 		return;
 	}
-	QTextStream tmpTextXml(&fichier);//creation of the file stream
+	QTextStream tmpTextXml(&xmlfile); // file stream creation
 	QDomDocument docXml;
 	docXml.setContent(tmpTextXml.readAll());
 	setVersionFromRootNode(docXml.documentElement());
 	setDom(docXml.documentElement());
 
-	fichier.close();
+	xmlfile.close();
 
 	dump_filters();
 }
@@ -235,6 +235,37 @@ void PVRush::PVXmlParamParser::pushFilter(QDomElement const& elt, int newId)
 	data.filter_lib = filters_lib.get_class_by_name(node_type + QString("_") + filter_plugin_name);
 	if (!data.filter_lib) {
 		throw PVXmlParamParserExceptionPluginNotFound(node_type, filter_plugin_name);
+	}
+	// Get the list of the filter axes' tags and pass this to the filter
+	QDomNodeList children = elt.childNodes();
+	PVFilter::filter_child_axes_tag_t& axes(data.children_axes_tag);
+	axes.reserve(children.size());
+	for (int i = 0; i < children.size(); i++) {
+		QDomElement elt_child = children.at(i).toElement();
+		if (elt_child.tagName() != "field") {
+			continue;
+		}
+
+		// The axis is one of its children
+		QDomNodeList field_children = elt_child.childNodes();
+		QDomElement axis_child;
+		bool found = false;
+		for (int i = 0; i < field_children.size(); i++) {
+			axis_child = field_children.at(i).toElement();
+			if (axis_child.tagName() == "axis") {
+				found = true;
+				break;
+			}
+		}
+		if (!found) {
+			continue;
+		}
+
+		// TODO: change "name" by "tag" when that will be done !
+		QString tag = axis_child.attribute("name", "");
+		if (!tag.isEmpty()) {
+			axes.push_back(tag);
+		}
 	}
 	data.nchildren = elt.childNodes().size();
 	PVRush::PVXmlTreeNodeDom tnd(elt);

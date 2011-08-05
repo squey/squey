@@ -63,6 +63,7 @@ public class PVRushJNI {
 			POSIX.libc.setenv("LD_LIBRARY_PATH", ldlibp, 1);
 			System.out.println("LD_LIBRARY_PATH is now " + POSIX.libc.getenv("LD_LIBRARY_PATH"));
 
+			System.load(tmp_dir_path + "libpvkernel.so.1");
 			System.load(tmp_dir_path + "libpvrush_jni.so");
 			init(tmp_dir_path);
 		}

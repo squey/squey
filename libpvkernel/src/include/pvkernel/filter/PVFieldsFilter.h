@@ -14,6 +14,7 @@
 #include <pvkernel/filter/PVFilterFunction.h>
 #include <map>
 #include <list>
+#include <vector>
 #include <utility>
 #include <QString>
 
@@ -26,6 +27,7 @@ enum fields_filter_type {
 };
 
 typedef std::list< std::pair<PVCore::PVArgumentList, PVCore::list_fields> > list_guess_result_t;
+typedef std::vector<QString> filter_child_axes_tag_t;
 
 class PVFieldsBaseFilter: public PVFilterFunction< PVCore::list_fields, PVFieldsBaseFilter >
 {
@@ -37,6 +39,24 @@ public:
 		PVFilterFunction< PVCore::list_fields, PVFieldsBaseFilter>()
 	{
 	}
+
+	void set_children_axes_tag(filter_child_axes_tag_t const& axes)
+	{
+		filter_child_axes_tag_t::const_iterator it;
+		for (it = axes.begin(); it != axes.end(); it++) {
+			PVLOG_DEBUG("(PVFieldsFilter) axis tag %s set.\n", qPrintable(*it));
+		}
+		_axes_tag = axes;
+	}
+
+protected:
+	bool is_tag_present(QString const& tag)
+	{
+		return std::find(_axes_tag.begin(), _axes_tag.end(), tag) != _axes_tag.end();
+	}
+
+protected:
+	filter_child_axes_tag_t _axes_tag;
 };
 
 template <fields_filter_type Ttype = many_to_many>
