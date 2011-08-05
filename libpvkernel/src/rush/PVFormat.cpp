@@ -66,6 +66,7 @@ QString const& PVRush::PVFormat::get_full_path() const
 
 char *fill_spaces(QString str, int max_spaces)
 {
+	// Use for debug so we display the different elements
 	char *retbuf;
 
 	retbuf = (char *)malloc(max_spaces + 1);
