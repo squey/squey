@@ -45,6 +45,7 @@ endif(WIN32)
 add_definitions(-DPICVIZ_PLOTTING_FILTERS_DIR="${PICVIZ_PLOTTING_FILTERS_DIR}")
 
 add_definitions(${OpenMP_CXX_FLAGS})
+add_definitions(${COMPILER_OPTIMIZE_FLAGS})
 
 
 # #

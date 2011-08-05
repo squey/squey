@@ -68,10 +68,3 @@ void PVAxisFormat::set_type(QString str)
 {
 	type = str;
 }
-
-
-
-
-
-
-

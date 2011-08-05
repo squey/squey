@@ -21,6 +21,12 @@ include(CheckLibraryExists)
 
 include(FindPkgConfig)
 
+if(WIN32)
+    set(COMPILER_OPTIMIZE_FLAGS "")
+else(WIN32)
+  set(COMPILER_OPTIMIZE_FLAGS "-O3 -march=native")
+endif(WIN32)
+
 #
 # Application specific definitions
 #

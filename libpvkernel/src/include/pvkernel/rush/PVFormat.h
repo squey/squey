@@ -56,16 +56,16 @@ namespace PVRush {
 			typedef boost::shared_ptr<PVFormat> p_type;
 
 		private:
-			QString key_axis;
-			QString axis_color;
-			QString axis_titlecolor;
-			QString axis_group;
-			QString axis_name;
-			QString axis_type;
-			QString axis_mapping;
-			QString axis_plotting;
-			QString time_format_string;
-			QString decode_type;
+			/* QString key_axis; */
+			/* QString axis_color; */
+			/* QString axis_titlecolor; */
+			/* QString axis_group; */
+			/* QString axis_name; */
+			/* QString axis_type; */
+			/* QString axis_mapping; */
+			/* QString axis_plotting; */
+			/* QString time_format_string; */
+			/* QString decode_type; */
 
 			QString format_name; // human readable name, displayed in a widget for instance
 			QString full_path;

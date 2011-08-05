@@ -32,12 +32,15 @@
 
 class LibKernelDecl PVAxisFormat {
 	private:
-		QString color;
-		QString mapping;
-		QString name;
-		QString plotting;
 		QString title_color;
+		QString color;
+		QString name;
 		QString type;
+		QString group;
+		QString mapping;
+		QString plotting;
+		bool is_key;
+		QString time_format;
 
 	public:
 		PVAxisFormat();
