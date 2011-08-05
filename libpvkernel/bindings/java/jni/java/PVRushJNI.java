@@ -56,14 +56,20 @@ public class PVRushJNI {
 			}
 
 			// Set LD_LIBRARY_PATH to tmp_dir_path
+			// This does *not* work, even if setting LD_LIBRARY_PATH by hand
+			// before launching java *does* work...
+			// We load pvkernel by hand waiting for better :s
+			/* ...design dead with no option...
 			String ldlibp = POSIX.libc.getenv("LD_LIBRARY_PATH");
 			System.out.println("LD_LIBRARY_PATH was " + ldlibp);
 			ldlibp += ":" + tmp_dir_path;
 			System.out.println("Setting LD_LIBRARY_PATH to " + ldlibp + "...");
 			POSIX.libc.setenv("LD_LIBRARY_PATH", ldlibp, 1);
 			System.out.println("LD_LIBRARY_PATH is now " + POSIX.libc.getenv("LD_LIBRARY_PATH"));
+			*/
 
 			System.load(tmp_dir_path + "libpvkernel.so.1");
+			System.out.println("pvkernel loaded");
 			System.load(tmp_dir_path + "libpvrush_jni.so");
 			init(tmp_dir_path);
 		}
