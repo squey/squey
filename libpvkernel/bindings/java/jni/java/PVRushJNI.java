@@ -7,7 +7,7 @@ import java.io.BufferedOutputStream;
 
 import org.apache.commons.vfs.*;
 
-import org.picviz.common.POSIX;
+//import org.picviz.common.POSIX;
 
 public class PVRushJNI {
 	
