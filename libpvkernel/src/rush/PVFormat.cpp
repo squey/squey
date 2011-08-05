@@ -179,6 +179,7 @@ PVFilter::PVFieldsBaseFilter_f PVRush::PVFormat::xmldata_to_filter(PVRush::PVXml
 	if (sp_p) {
 		sp_p->set_number_expected_fields(fdata.nchildren);
 	}
+	filter_clone->set_children_axes_tag(fdata.children_axes_tag);
 	filter_clone->set_args(fdata.filter_args);
 	_filters_container.push_back(filter_clone);
 	field_f = filter_clone->f();
