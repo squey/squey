@@ -50,7 +50,7 @@ public:
 	}
 
 protected:
-	void is_tag_present(QString const& tag)
+	bool is_tag_present(QString const& tag)
 	{
 		return std::find(_axes_tag.begin(), _axes_tag.end(), tag) != _axes_tag.end();
 	}
