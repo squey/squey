@@ -48,6 +48,13 @@ public:
 		}
 		_axes_tag = axes;
 	}
+
+protected:
+	void is_tag_present(QString const& tag)
+	{
+		return std::find(_axes_tag.begin(), _axes_tag.end(), tag) != _axes_tag.end();
+	}
+
 protected:
 	filter_child_axes_tag_t _axes_tag;
 };
