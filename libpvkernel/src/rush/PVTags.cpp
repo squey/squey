@@ -5,7 +5,7 @@
  *
  */
 
-#include <pvkernel/rush/PVTag.h>
+#include <pvkernel/rush/PVTags.h>
 
 /******************************************************************************
  *
