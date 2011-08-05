@@ -129,7 +129,7 @@ rush/PVControllerThread.cpp
 rush/PVExtractor.cpp
 rush/PVPluginsLoad.cpp
 rush/PVSourceCreatorFactory.cpp
-rush/PVTag.cpp
+rush/PVTags.cpp
 rush/PVTests.cpp
 rush/PVXmlTreeNodeDom.cpp
 rush/PVRawSourceBase.cpp
@@ -164,6 +164,9 @@ rush/uchardetect/nsUTF8Prober.cpp
 
 set(RUSH_HEADER_FILES
 include/pvkernel/rush/PVAxisFormat.h
+include/pvkernel/rush/PVAggregator.h
+include/pvkernel/rush/PVController.h
+include/pvkernel/rush/PVControllerThread.h
 include/pvkernel/rush/pvdecoder.h
 include/pvkernel/rush/PVFile.h
 include/pvkernel/rush/pv_file_raw_source.h
@@ -197,11 +200,8 @@ include/pvkernel/rush/PVVrbAllocator.h
 include/pvkernel/rush/PVRawSource.h
 include/pvkernel/rush/PVRawSourceBase.h
 include/pvkernel/rush/PVSourceCreator.h
-include/pvkernel/rush/PVAggregator.h
-include/pvkernel/rush/PVController.h
-include/pvkernel/rush/PVControllerThread.h
 include/pvkernel/rush/PVPipelineTask.h
-include/pvkernel/rush/PVTag.h
+include/pvkernel/rush/PVTags.h
 include/pvkernel/rush/PVTests.h
 include/pvkernel/rush/PVXmlParamParser.h
 include/pvkernel/rush/PVXmlParamParserData.h

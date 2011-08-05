@@ -5,7 +5,7 @@
  *
  */
 
-#include <pvkernel/rush/PVTag.h>
+#include <pvkernel/rush/PVTags.h>
 
 /******************************************************************************
  *
@@ -37,4 +37,3 @@ bool PVRush::PVTag::has_tag(QString tag)
 {
 	return 0;
 }
-

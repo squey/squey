@@ -27,16 +27,21 @@
 
 namespace PVRush {
 class LibKernelDecl PVTag{
-	private:
-		std::vector<QString> _tags;
 
-	public:
-		PVTag();
-		~PVTag();
+ private:
+	std::vector<QString> _tags;
+	static std::vector<QString> _default_tags;
+	
+ /* protected: */
+	
 
-		bool add_tag(QString tag);
-		bool del_tag(QString tag);
-		bool has_tag(QString tag);
+ public:
+	PVTag();
+	~PVTag();
+	
+	bool add_tag(QString tag);
+	bool del_tag(QString tag);
+	bool has_tag(QString tag);
 };
 }
 
