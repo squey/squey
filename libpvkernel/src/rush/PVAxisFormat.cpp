@@ -10,7 +10,7 @@
 #include <QHashIterator>
 #include <QDateTime>
 
-#include <pvkernel/rush/pv_axis_format.h>
+#include <pvkernel/rush/PVAxisFormat.h>
 
 
 
