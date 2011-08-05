@@ -201,16 +201,16 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id)
 			QDomElement child(node.childNodes().at(i).toElement());
 
 			if (getNodeType(child) == "axis") {
-				QHash<QString,QString> hash;
-				hash.insert("name",child.attribute("name",""));
-				hash.insert("type",child.attribute("type",""));
-				hash.insert("mapping",child.attribute("mapping",""));
-				hash.insert("plotting",child.attribute("plotting",""));
-				hash.insert("key",child.attribute("key",""));
-				hash.insert("group",child.attribute("group",""));
-				hash.insert("color",child.attribute("color",""));
-				hash.insert("titlecolor",child.attribute("titlecolor",""));
-				axes.push_back(hash);
+				PVAxisFormat axis;
+				axis.set_name(child.attribute("name",""));
+				axis.set_type(child.attribute("type",""));
+				axis.set_mapping(child.attribute("mapping",""));
+				axis.set_plotting(child.attribute("plotting",""));
+				axis.set_key(child.attribute("key",""));
+				axis.set_group(child.attribute("group",""));
+				axis.set_color(child.attribute("color",""));
+				axis.set_titlecolor(child.attribute("titlecolor",""));
+				_axes.push_back(axis);
 				if(child.attribute("type","")=="time"){
 					PVLOG_DEBUG("Time format for axis %d\n", newId);
 					time_format[newId+1]  = child.attribute("time-format","").split("\n");
@@ -273,9 +273,9 @@ void PVRush::PVXmlParamParser::pushFilter(QDomElement const& elt, int newId)
 	fields.push_back(data);
 }
 
-QList<QHash<QString, QString> > const& PVRush::PVXmlParamParser::getAxes() const
+PVRush::list_axes_t const& PVRush::PVXmlParamParser::getAxes() const
 {
-	return this->axes;
+	return _axes;
 }
 
 

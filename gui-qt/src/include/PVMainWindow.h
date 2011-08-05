@@ -37,7 +37,6 @@
 #include <PVOpenFileDialog.h>
 #include <PVSaveFileDialog.h>
 #include <PVListingsTabWidget.h>
-#include <PVFilterSearchWidget.h>
 
 //#include <>
 
@@ -82,7 +81,6 @@ public:
 	PVTabSplitter       *current_tab;
 	PVListingsTabWidget *pv_ListingsTabWidget;
 
-	PVFilterSearchWidget *pv_FilterSearchWidget;
 
 	QMainWindow *RemoteLogDialog;
 

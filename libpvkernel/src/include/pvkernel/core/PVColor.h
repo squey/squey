@@ -4,19 +4,20 @@
 //! Copyright (C) Philippe Saadé 2009-2011
 //! Copyright (C) Picviz Labs 2011
 
-#ifndef PICVIZ_PVCOLOR_H
-#define PICVIZ_PVCOLOR_H
+#ifndef PVCORE_PVCOLOR_H
+#define PVCORE_PVCOLOR_H
 
 #include <QColor>
 
-#include <pvkernel/core/general.h>
+#include <pvbase/general.h>
+#include <pvbase/types.h>
 
-namespace Picviz {
+namespace PVCore {
 
 /**
  * \struct PVColor:ubvec4
  */
-struct LibPicvizDecl PVColor : ubvec4 {
+struct LibKernelDecl PVColor: ubvec4 {
 
 	/**
 	 * Constructor
@@ -33,7 +34,7 @@ struct LibPicvizDecl PVColor : ubvec4 {
 	 */
 	PVColor(unsigned char r, unsigned char g, unsigned char b, unsigned char a);
 	
-	QColor toQColor();
+	QColor toQColor() const;
 	void fromQColor(QColor qcolor);
 
 	unsigned char &r();

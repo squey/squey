@@ -6,26 +6,26 @@
 
 #include <QRgb>
 
-#include <picviz/PVColor.h>
+#include <pvkernel/core/PVColor.h>
 
 
 
 /******************************************************************************
  *
- * Picviz::PVColor::PVColor
+ * PVCore::PVColor::PVColor
  *
  *****************************************************************************/
-Picviz::PVColor::PVColor()
+PVCore::PVColor::PVColor()
 {
 
 }
 
 /******************************************************************************
  *
- * Picviz::PVColor::PVColor
+ * PVCore::PVColor::PVColor
  *
  *****************************************************************************/
-Picviz::PVColor::PVColor(unsigned char r, unsigned char g, unsigned char b)
+PVCore::PVColor::PVColor(unsigned char r, unsigned char g, unsigned char b)
 {
 	x = r;
 	y = g;
@@ -34,10 +34,10 @@ Picviz::PVColor::PVColor(unsigned char r, unsigned char g, unsigned char b)
 
 /******************************************************************************
  *
- * Picviz::PVColor::PVColor
+ * PVCore::PVColor::PVColor
  *
  *****************************************************************************/
-Picviz::PVColor::PVColor(unsigned char r, unsigned char g, unsigned char b, unsigned char a)
+PVCore::PVColor::PVColor(unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
 	x = r;
 	y = g;
@@ -47,20 +47,20 @@ Picviz::PVColor::PVColor(unsigned char r, unsigned char g, unsigned char b, unsi
 
 /******************************************************************************
  *
- * Picviz::PVColor::toQColor
+ * PVCore::PVColor::toQColor
  *
  *****************************************************************************/
-QColor Picviz::PVColor::toQColor()
+QColor PVCore::PVColor::toQColor() const
 {
 	return QColor(qRgba(x, y, z, w));
 }
 
 /******************************************************************************
  *
- * Picviz::PVColor::fromQColor
+ * PVCore::PVColor::fromQColor
  *
  *****************************************************************************/
-void Picviz::PVColor::fromQColor(QColor color)
+void PVCore::PVColor::fromQColor(QColor color)
 {
 	x = color.red();
 	y = color.green();
@@ -70,40 +70,40 @@ void Picviz::PVColor::fromQColor(QColor color)
 
 /******************************************************************************
  *
- * Picviz::PVColor::r
+ * PVCore::PVColor::r
  *
  *****************************************************************************/
-unsigned char &Picviz::PVColor::r()
+unsigned char &PVCore::PVColor::r()
 {
 	return x;
 }
 
 /******************************************************************************
  *
- * Picviz::PVColor::g
+ * PVCore::PVColor::g
  *
  *****************************************************************************/
-unsigned char &Picviz::PVColor::g()
+unsigned char &PVCore::PVColor::g()
 {
 	return y;
 }
 
 /******************************************************************************
  *
- * Picviz::PVColor::b
+ * PVCore::PVColor::b
  *
  *****************************************************************************/
-unsigned char &Picviz::PVColor::b()
+unsigned char &PVCore::PVColor::b()
 {
 	return z;
 }
 
 /******************************************************************************
  *
- * Picviz::PVColor::a
+ * PVCore::PVColor::a
  *
  *****************************************************************************/
-unsigned char &Picviz::PVColor::a()
+unsigned char &PVCore::PVColor::a()
 {
 	return w;
 }

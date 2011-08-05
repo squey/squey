@@ -5,7 +5,7 @@
 //! Copyright (C) Picviz Labs 2011
 
 #include "PVLayerFilterHeatline.h"
-#include <picviz/PVColor.h>
+#include <pvkernel/core/PVColor.h>
 #include <pvkernel/core/PVAxesIndexType.h>
 #include <pvkernel/core/PVColorGradientDualSliderType.h>
 #include <pvkernel/core/PVEnumType.h>
@@ -59,15 +59,15 @@ PVCore::PVArgumentList Picviz::PVLayerFilterHeatlineBase::get_default_args_for_v
 	// Retrieve the key axes of the PVFormat of that PVView
 	PVCore::PVArgumentList args = get_args();
 	PVCore::PVAxesIndexType key_axes;
-	PVRush::PVFormat::list_axes const& axes = view.get_source_parent()->nraw->format->axes;
-	PVRush::PVFormat::list_axes::const_iterator it;
+	PVRush::list_axes_t const& axes = view.get_source_parent()->nraw->format->get_axes();
+	PVRush::list_axes_t::const_iterator it;
 	int axis_id = 0;
 	// FIXME:
 	// In PVAxesCombination::set_from_format, the id are computed like that
 	// It might be safer to use PVAxesCombination to get this information
 	for (it = axes.begin(); it != axes.end(); it++) {
-		QHash<QString,QString> const& params = *it;
-		if (params["key"].compare("true", Qt::CaseInsensitive) == 0) {
+		PVRush::PVAxisFormat const& params = *it;
+		if (params.is_key()) {
 			key_axes.push_back(axis_id);
 		}
 		axis_id++;
@@ -169,7 +169,7 @@ DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterHeatlineColor)
 
 void Picviz::PVLayerFilterHeatlineColor::post(PVLayer& /*in*/, PVLayer& out, float ratio, PVRow line_id)
 {
-	Picviz::PVColor color;
+	PVCore::PVColor color;
 	QColor qcolor;
 
 	qcolor.setHsvF((1.0 - ratio)/3.0, 1.0, 1.0);
@@ -229,7 +229,7 @@ DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterHeatlineSelAndCol)
 void Picviz::PVLayerFilterHeatlineSelAndCol::post(PVLayer& /*in*/, PVLayer& out, float ratio, PVRow line_id)
 {
 	// Colorize
-	Picviz::PVColor color;
+	PVCore::PVColor color;
 	QColor qcolor;
 
 	qcolor.setHsvF((1.0 - ratio)/3.0, 1.0, 1.0);

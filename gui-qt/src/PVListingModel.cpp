@@ -10,7 +10,7 @@
 #include <pvkernel/core/general.h>
 
 #include <picviz/PVView.h>
-#include <picviz/PVColor.h>
+#include <pvkernel/core/PVColor.h>
 #include <picviz/PVStateMachine.h>
 
 #include <PVListingModel.h>
@@ -74,7 +74,7 @@ int PVInspector::PVListingModel::columnCount(const QModelIndex &) const
 QVariant PVInspector::PVListingModel::data(const QModelIndex &index, int role) const {
 	PVLOG_HEAVYDEBUG("PVInspector::PVListingModel::%s : at row %d and column %d with role %d\n", __FUNCTION__, index.row(), index.column(), role);
 
-	Picviz::PVColor color;
+	PVCore::PVColor color;
 	int i;
 	int real_row_index;
 

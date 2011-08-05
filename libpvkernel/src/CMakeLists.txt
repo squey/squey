@@ -10,6 +10,7 @@ core/PVArgument.cpp
 core/PVAxisIndexType.cpp
 core/PVAxisIndexCheckBoxType.cpp
 core/PVBufferSlice.cpp
+core/PVColor.cpp
 core/PVClassLibrary.cpp
 core/PVDateTimeParser.cpp
 core/PVElement.cpp
@@ -33,6 +34,7 @@ include/pvkernel/core/sysinfo.h
 include/pvkernel/core/PVArgument.h
 include/pvkernel/core/PVAxisIndexType.h
 include/pvkernel/core/PVAxesIndexType.h
+include/pvkernel/core/PVColor.h
 include/pvkernel/core/PVClassLibrary.h
 include/pvkernel/core/PVDateTimeParser.h
 include/pvkernel/core/PVEnumType.h

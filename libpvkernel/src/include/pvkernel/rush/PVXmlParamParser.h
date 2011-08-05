@@ -22,6 +22,7 @@
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/rush/PVXmlParamParserData.h>
+#include <pvkernel/rush/PVFormat_types.h>
 
 namespace PVRush {
 
@@ -50,7 +51,7 @@ public:
 
 public:
 	int setDom(QDomElement const& node, int id = -1);
-	QList<QHash<QString, QString> > const& getAxes()const;
+	list_axes_t const& getAxes()const;
 	QList<PVXmlParamParserData> const& getFields()const;
 	QHash<int, QStringList> const& getTimeFormat()const;
     unsigned int getVersion() { return format_version; }
@@ -63,7 +64,7 @@ private:
     
 private:
 	QList<PVXmlParamParserData> fields;
-	QList<QHash<QString, QString> > axes;
+	list_axes_t _axes;
 	QHash<int, QStringList> time_format;
     unsigned int format_version;
 

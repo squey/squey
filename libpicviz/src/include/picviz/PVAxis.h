@@ -8,33 +8,26 @@
 #define PICVIZ_PVAXIS_H
 
 #include <pvkernel/core/general.h>
+#include <pvkernel/rush/PVAxisFormat.h>
 
-#include <picviz/PVColor.h>
 
 namespace Picviz {
 
 /**
  * \class PVAxis
  */
-class LibPicvizDecl PVAxis {
+class LibPicvizDecl PVAxis: public PVRush::PVAxisFormat {
 public:
 	float absciss;
-	/* PVCol column_index; Needed in PVAxesCombination, we shall remove it */
-	Picviz::PVColor titlecolor;
-	Picviz::PVColor color;
 	bool is_expandable;
 	bool is_expanded;
-	bool is_key;
-	QString name;
-	QString type;
-	QString modemapping;
-	QString modeplotting;
 	float thickness;
 
 	/**
 	 * Constructor
 	 */
 	PVAxis();
+	PVAxis(PVRush::PVAxisFormat const& axis_format, float absciss);
 
 	/**
 	 * Destructor
@@ -57,6 +50,8 @@ public:
 	 */
 	void set_name(const QString &name_);
 	
+private:
+	void init();
 
 };
 }

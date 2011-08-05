@@ -26,7 +26,7 @@
 Picviz::PVLinesProperties::PVLinesProperties()
 {
 	// We initialize a default color as white and fully opaque
-	Picviz::PVColor color = Picviz::PVColor(255, 255, 255, 255);
+	PVCore::PVColor color = PVCore::PVColor(255, 255, 255, 255);
 	
 	table.reserve(PICVIZ_LINESPROPS_NUMBER_OF_CHUNKS);
 
@@ -48,7 +48,7 @@ Picviz::PVLinesProperties::~PVLinesProperties()
  * Picviz::PVLinesProperties::A2A_set_to_line_properties_restricted_by_selection_and_nelts
  *
  *****************************************************************************/
-void Picviz::PVLinesProperties::A2A_set_to_line_properties_restricted_by_selection_and_nelts(Picviz::PVColor line_properties,  PVSelection const& selection, pvrow nelts)
+void Picviz::PVLinesProperties::A2A_set_to_line_properties_restricted_by_selection_and_nelts(PVCore::PVColor line_properties,  PVSelection const& selection, pvrow nelts)
 {
 	pvrow row;
 
@@ -111,12 +111,12 @@ void Picviz::PVLinesProperties::A2B_copy_zombie_on_restricted_by_selection_and_n
  * Picviz::PVLinesProperties::get_line_properties
  *
  *****************************************************************************/
-Picviz::PVColor& Picviz::PVLinesProperties::get_line_properties(pvrow line)
+PVCore::PVColor& Picviz::PVLinesProperties::get_line_properties(pvrow line)
 {
 	return table[line];
 }
 
-const Picviz::PVColor& Picviz::PVLinesProperties::get_line_properties(pvrow line) const
+const PVCore::PVColor& Picviz::PVLinesProperties::get_line_properties(pvrow line) const
 {
 	return table[line];
 }
@@ -231,7 +231,7 @@ void Picviz::PVLinesProperties::line_set_rgba(pvrow line, unsigned char r, unsig
  * Picviz::PVLinesProperties::line_set_rgb_from_color
  *
  *****************************************************************************/
-void Picviz::PVLinesProperties::line_set_rgb_from_color(pvrow line, Picviz::PVColor color)
+void Picviz::PVLinesProperties::line_set_rgb_from_color(pvrow line, PVCore::PVColor color)
 {
 	unsigned char a;
 	a = line_get_a(line);
@@ -244,7 +244,7 @@ void Picviz::PVLinesProperties::line_set_rgb_from_color(pvrow line, Picviz::PVCo
  * Picviz::PVLinesProperties::line_set_rgba_from_color
  *
  *****************************************************************************/
-void Picviz::PVLinesProperties::line_set_rgba_from_color(pvrow line, const Picviz::PVColor &color)
+void Picviz::PVLinesProperties::line_set_rgba_from_color(pvrow line, const PVCore::PVColor &color)
 {
 	table[line] = color;
 }
@@ -273,7 +273,7 @@ Picviz::PVLinesProperties & Picviz::PVLinesProperties::operator=(const PVLinesPr
  *****************************************************************************/
 void Picviz::PVLinesProperties::reset_to_default_color()
 {
-	PVColor color;
+	PVCore::PVColor color;
 
 	color.r() = 255;
 	color.g() = 255;
@@ -304,7 +304,7 @@ void Picviz::PVLinesProperties::debug()
 	pvrow row;
 
 	for (row=0; row<table.size(); row++) {
-		PVColor &c = table[row];
+		PVCore::PVColor &c = table[row];
 		PVLOG_INFO("%d: %d %d %d\n", row, c.r(), c.g(), c.b());
 	}
 }

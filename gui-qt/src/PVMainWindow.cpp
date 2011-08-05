@@ -21,7 +21,6 @@
 
 #include <PVMainWindow.h>
 #include <PVExtractorWidget.h>
-#include <PVFilterSearchWidget.h>
 #include <PVFilesTypesSelWidget.h>
 #include <PVStringListChooserWidget.h>
 #include <PVArgumentListWidget.h>
@@ -1314,7 +1313,7 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 							/* We add the actuel selected lines in the selected layer */
 					case (Qt::NoModifier):
 							Picviz::PVSelection temp_selection;
-							Picviz::PVColor line_properties;
+							PVCore::PVColor line_properties;
 							// line_properties = picviz_line_properties_new();
 							/* We get the current selected layer */
 							current_selected_layer = &(current_lib_view->layer_stack.get_selected_layer());

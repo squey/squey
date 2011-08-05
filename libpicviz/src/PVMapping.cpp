@@ -17,14 +17,15 @@ Picviz::PVMapping::PVMapping(PVSource_p parent)
 	source = parent;
 	root = parent->root;
 
-	if (parent->nraw->format->axes.count() == 0) {
+	PVCol naxes = parent->nraw->format->get_axes().size();
+	if (naxes == 0) {
 		PVLOG_ERROR("In PVMapping constructor, no axis have been defined in the format !!!!\n");
 		assert(false);
 	}
 
 	PVLOG_DEBUG("In PVMapping::PVMapping(), debug PVFormat\n");
 	parent->nraw->format->debug();
-	for (int i=0; i < parent->nraw->format->axes.count(); i++) {
+	for (int i=0; i < naxes; i++) {
 		PVMappingProperties mapping_axis(root, *parent->nraw->format, i);
 		columns << mapping_axis;
 		PVLOG_HEAVYDEBUG("%s: Add a column\n", __FUNCTION__);

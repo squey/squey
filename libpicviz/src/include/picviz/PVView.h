@@ -25,7 +25,7 @@
 //#include <picviz/tags.h>
 //#include <picviz/z-level-array.h>
 
-#include <picviz/PVColor.h>
+#include <pvkernel/core/PVColor.h>
 #include <picviz/PVLinesProperties.h>
 #include <picviz/PVMapped.h>
 #include <picviz/PVPlotted.h>
@@ -65,7 +65,7 @@ public:
 	int active_axis;
 	PVAxesCombination axes_combination;
 	/* picviz_line_properties_t default_zombie_line_properties; */
-	PVColor default_zombie_line_properties;
+	PVCore::PVColor default_zombie_line_properties;
 	PVSelection floating_selection;
 	PVLayer pre_filter_layer;
 	PVLayer post_filter_layer;
@@ -112,7 +112,7 @@ public:
 	 */
 	QString get_axis_name(PVCol index);
 
-	Picviz::PVColor get_color_in_output_layer(PVRow index);
+	PVCore::PVColor get_color_in_output_layer(PVRow index);
 	PVCol get_column_count();
 	float get_column_count_as_float();
 	PVRoot_p get_root();

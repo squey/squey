@@ -5,7 +5,7 @@
 //! Copyright (C) Picviz Labs 2011
 
 #include <picviz/PVSelectionFilterScatterPlotSelectionSquare.h>
-#include <picviz/PVColor.h>
+#include <pvkernel/core/PVColor.h>
 
 /******************************************************************************
  *
@@ -48,7 +48,7 @@ void Picviz::PVSelectionFilterScatterPlotSelectionSquare::operator()(PVSelection
 	int counter;
 	int nb_lines;
 
-	PVColor color;
+	PVCore::PVColor color;
 	QColor qcolor;
 
 	//const PVSource* source = _view.get_source_parent();

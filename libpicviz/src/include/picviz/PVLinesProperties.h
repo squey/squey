@@ -11,10 +11,10 @@
 
 #include <picviz/general.h>
 
-#include <picviz/PVColor.h>
+#include <pvkernel/core/PVColor.h>
 #include <picviz/PVSelection.h>
 
-#define PICVIZ_LINESPROPS_CHUNK_SIZE sizeof(Picviz::PVColor)
+#define PICVIZ_LINESPROPS_CHUNK_SIZE sizeof(PVCore::PVColor)
 #define PICVIZ_LINESPROPS_NUMBER_OF_CHUNKS PICVIZ_LINES_MAX
 #define PICVIZ_LINESPROPS_NUMBER_OF_BYTES  PICVIZ_LINESPROPS_NUMBER_OF_CHUNKS * PICVIZ_LINESPROPS_CHUNK_SIZE
 
@@ -26,7 +26,7 @@ namespace Picviz {
 class LibPicvizDecl PVLinesProperties {
 public:
 	pvrow last_index; /*<! FIXME: Do we really need this?  */
-	QVector<PVColor> table;
+	QVector<PVCore::PVColor> table;
 
 	/**
 	 * Constructor
@@ -43,8 +43,8 @@ public:
 	 *
 	 * @param line The index of the line (its row number)
 	 */
-	PVColor& get_line_properties(pvrow line);
-	const PVColor& get_line_properties(pvrow line) const;
+	PVCore::PVColor& get_line_properties(pvrow line);
+	const PVCore::PVColor& get_line_properties(pvrow line) const;
 
 	/**
 	 * Gets the A value of the color of the specified line
@@ -128,24 +128,24 @@ public:
 	void line_set_rgba(pvrow line, unsigned char r, unsigned char g, unsigned char b, unsigned char a);
 
 	/**
-	 * Sets the R,G,B values of the specified line from a Picviz::PVColor
+	 * Sets the R,G,B values of the specified line from a PVCore::PVColor
 	 *
 	 * @param line  The index of the line (its row number)
-	 * @param color The Picviz::PVColor used to set R,G,B
+	 * @param color The PVCore::PVColor used to set R,G,B
 	 */
-	void line_set_rgb_from_color(pvrow line, Picviz::PVColor color);
+	void line_set_rgb_from_color(pvrow line, PVCore::PVColor color);
 
 	/**
-	 * Sets the R,G,B,A values of the specified line from a Picviz::PVColor
+	 * Sets the R,G,B,A values of the specified line from a PVCore::PVColor
 	 *
 	 * @param line  The index of the line (its row number)
-	 * @param color The Picviz::PVColor used to set R,G,B,A
+	 * @param color The PVCore::PVColor used to set R,G,B,A
 	 */
-	void line_set_rgba_from_color(pvrow line, const Picviz::PVColor &color);
+	void line_set_rgba_from_color(pvrow line, const PVCore::PVColor &color);
 
 	PVLinesProperties & operator=(const PVLinesProperties & rhs);
 
-	void A2A_set_to_line_properties_restricted_by_selection_and_nelts(PVColor color, PVSelection const& selection, pvrow nelts);
+	void A2A_set_to_line_properties_restricted_by_selection_and_nelts(PVCore::PVColor color, PVSelection const& selection, pvrow nelts);
 
 	/* void picviz_lines_properties_A2B_copy(picviz_lines_properties_t *b); */ //* It is replaced by =
 	void A2B_copy_restricted_by_selection_and_nelts(PVLinesProperties &b, PVSelection const& selection, pvrow nelts);

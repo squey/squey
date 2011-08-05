@@ -85,6 +85,8 @@ char *fill_spaces(QString str, int max_spaces)
 
 void PVRush::PVFormat::debug()
 {
+#if 0
+	// AG: sebastien, you took lot of time to get this working, so I'll let you fix it :p
 	QHashIterator<int, QStringList> time_hash(time_format);
 
 	QHashIterator<int, QString> decoder_axis_hash(axis_decoder);
@@ -124,7 +126,7 @@ void PVRush::PVFormat::debug()
 		PVLOG_PLAIN( "| %s\n", qPrintable(this->axes[i]["name"]));
 
 	}
-
+#endif
 }
 
 bool PVRush::PVFormat::populate_from_xml(QDomElement const& rootNode, bool allowNoFilters)
@@ -142,22 +144,21 @@ bool PVRush::PVFormat::populate_from_xml(QString filename, bool allowNoFilters)
 bool PVRush::PVFormat::populate_from_parser(PVXmlParamParser& xml_parser, bool allowNoFilters)
 {
 	filters_params = xml_parser.getFields();
-	axes = xml_parser.getAxes();
+	_axes = xml_parser.getAxes();
 	time_format = xml_parser.getTimeFormat();
 
 	if (allowNoFilters && filters_params.size() == 0) {
 		// Only have one axis, a fake one
-		QHash<QString, QString> fake_ax;
-		fake_ax["name"] = "Line";
-		fake_ax["type"] = "string";
-		fake_ax["mapping"] = "default";
-		fake_ax["plotting"] = "default";
-		fake_ax["type"] = "string";
-		fake_ax["group"] = "";
-		fake_ax["color"] = "";
-		fake_ax["key"] = "";
-		axes.clear();
-		axes.push_back(fake_ax);
+		PVAxisFormat fake_ax;
+		fake_ax.set_name("Line");
+		fake_ax.set_type("string");
+		fake_ax.set_mapping("default");
+		fake_ax.set_plotting("default");
+		fake_ax.set_group("");
+		fake_ax.set_color("");
+		fake_ax.set_key("");
+		_axes.clear();
+		_axes.push_back(fake_ax);
 		return true;
 	}
 

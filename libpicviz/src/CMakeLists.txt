@@ -41,7 +41,6 @@ include/picviz/plugins.h
 include/picviz/PVAxesCombination.h
 include/picviz/PVAxis.h
 include/picviz/PVBitset.h
-include/picviz/PVColor.h
 include/picviz/PVEventline.h
 include/picviz/PVIndexArray.h
 include/picviz/PVLayer.h
@@ -107,7 +106,6 @@ init.cpp
 
 PVAxesCombination.cpp
 PVAxis.cpp
-PVColor.cpp
 PVEventline.cpp
 PVIndexArray.cpp
 PVLayer.cpp

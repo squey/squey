@@ -208,7 +208,7 @@ void PVGL::PVAxes::draw_names()
 	if (state_machine->is_axes_mode() && i == abscissae_list[pv_view->active_axis]) {
 			glColor4ub(255, 0, 255, 255);
 		} else {
-			glColor4ubv(&pv_view->axes_combination.get_axis(i).titlecolor.x);
+			glColor4ubv(&pv_view->axes_combination.get_axis(i).get_titlecolor().x);
 		}
 		view->get_widget_manager().draw_text(viewport_coord_x, viewport_coord_y, qPrintable(pv_view->get_axis_name(i)), font_size);
 		glPopMatrix();
@@ -241,7 +241,7 @@ void PVGL::PVAxes::draw_names()
 			viewport_coord_x = MX*(0.5 + pow(1.2, view->zoom_level_x)/(view->xmax-view->xmin)*(gl_coord_x + view->translation.x - 0.5*(view->xmin+view->xmax))) + 3;
 			viewport_coord_y_min = MY*(0.5 + pow(1.2, view->zoom_level_y)/(view->ymin-view->ymax)*(gl_coord_y_min + view->translation.y - 0.5*(view->ymin+view->ymax)));
 			viewport_coord_y_max = MY*(0.5 + pow(1.2, view->zoom_level_y)/(view->ymin-view->ymax)*(gl_coord_y_max + view->translation.y - 0.5*(view->ymin+view->ymax)));
-			glColor4ubv(&pv_view->axes_combination.get_axis(i).titlecolor.x);
+			glColor4ubv(&pv_view->axes_combination.get_axis(i).get_titlecolor().x);
 			glPushMatrix();
 			glTranslatef (viewport_coord_x, viewport_coord_y_min, 0);
 			glRotatef (45, 0, 0, 1);
@@ -278,8 +278,8 @@ void PVGL::PVAxes::update_arrays (void)
 	for (int i = 0; i < nb_axes; i++) {
 		position_array.push_back(vec3(abscissae_list[i], 0.0, 300.0));
 		position_array.push_back(vec3(abscissae_list[i], 1.0, 300.0));
-		color_array.push_back(ubvec4(&pv_view->axes_combination.get_axis(i).color.x));
-		color_array.push_back(ubvec4(&pv_view->axes_combination.get_axis(i).color.x));
+		color_array.push_back(ubvec4(&pv_view->axes_combination.get_axis(i).get_color().x));
+		color_array.push_back(ubvec4(&pv_view->axes_combination.get_axis(i).get_color().x));
 
 /*		std::cout << "---------------------" << std::endl;
 		std::cout << "id: "           << axes_list[j]->id << std::endl;

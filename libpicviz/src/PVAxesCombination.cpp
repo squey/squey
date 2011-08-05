@@ -10,7 +10,7 @@
 
 #include <picviz/PVAxesCombination.h>
 #include <picviz/PVAxis.h>
-#include <picviz/PVColor.h>
+#include <pvkernel/core/PVColor.h>
 
 /******************************************************************************
  *
@@ -283,16 +283,13 @@ void Picviz::PVAxesCombination::set_axis_name(PVCol index, const QString &name_)
 void Picviz::PVAxesCombination::set_from_format(PVRush::PVFormat &format)
 {
 	float absciss = 0.0f;
+	PVCol i = 0;
+	PVRush::list_axes_t const& axes = format.get_axes();
+	PVRush::list_axes_t::const_iterator it;
 
-	for ( int i = 0; i < format.axes.count(); i++) {
-		PVAxis axis;
-		PVColor color;
-		PVColor titlecolor;
-
-		axis.color.fromQColor(QColor(format.axes[i]["color"]));
-		axis.titlecolor.fromQColor(QColor(format.axes[i]["titlecolor"]));
-		axis.name = format.axes[i]["name"];
-		axis.absciss = absciss;
+	for (it = axes.begin(); it != axes.end(); it++) {
+		PVRush::PVAxisFormat const& axis_format = *it;
+		PVAxis axis(axis_format, absciss);
 
 		abscissae_list.push_back(absciss);
 		axes_list.push_back(axis);
@@ -300,5 +297,6 @@ void Picviz::PVAxesCombination::set_from_format(PVRush::PVFormat &format)
 		columns_indexes_list.push_back(i);
 
 		absciss += 1.0f;
+		i++;
 	}
 }
