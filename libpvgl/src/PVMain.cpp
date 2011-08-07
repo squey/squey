@@ -103,7 +103,7 @@ void PVGL::PVMain::display_callback()
 
 	if (current_drawable) {
 		current_drawable->draw();
-		glutSwapBuffers ();
+		PVGL::wtk_buffers_swap();
 	}
 }
 
@@ -414,7 +414,7 @@ void PVGL::PVMain::create_view(QString *name)
 	glClear(GL_COLOR_BUFFER_BIT);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glutSwapBuffers();
+	PVGL::wtk_buffers_swap();
 
 	glutDisplayFunc(PVGL::PVMain::display_callback);
 	glutKeyboardFunc(PVGL::PVMain::keyboard_callback);
@@ -474,7 +474,7 @@ void PVGL::PVMain::create_scatter(QString *name, Picviz::PVView_p pv_view)
 	glClear(GL_COLOR_BUFFER_BIT);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glutSwapBuffers();
+	PVGL::wtk_buffers_swap();
 	new_scatter->init(pv_view);
 
 	glutDisplayFunc(PVGL::PVMain::display_callback);

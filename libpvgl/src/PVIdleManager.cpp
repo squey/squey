@@ -9,8 +9,9 @@
 #include <GL/freeglut.h>
 
 #include <pvgl/views/PVParallel.h>
-
 #include <pvgl/PVMain.h>
+#include <pvgl/PVWTK.h>
+
 #include <pvgl/PVIdleManager.h>
 
 /******************************************************************************
@@ -27,7 +28,7 @@ void PVGL::PVIdleManager::callback(void)
 	for (it = tasks.begin(); it != tasks.end(); ++it) {
 		glutSetWindow(it->first.drawable->get_window_id());
 		it->first.drawable->draw();
-		glutSwapBuffers();
+		PVGL::wtk_buffers_swap();
 	}
 	it = tasks.begin();
 	while (it != tasks.end()) {
