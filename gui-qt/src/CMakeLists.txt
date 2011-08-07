@@ -31,7 +31,7 @@ endif(WIN32)
 include_directories(AFTER ${PICVIZ_INCLUDE_DIRS})
 add_definitions(${PICVIZ_FLAGS})
 
-set(INSPECTOR_ICON "icons////inspector.ico")
+set(INSPECTOR_ICON "resources////inspector.ico")
 include_directories(AFTER ${PVGL_INCLUDE_DIRS})
 add_definitions(${PVGL_FLAGS})
 

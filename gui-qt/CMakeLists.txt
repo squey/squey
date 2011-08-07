@@ -16,7 +16,7 @@ include_directories(AFTER ${ICU_INCLUDE})
 #######################################
 
 if (WIN32)
-    list( APPEND ALL_SOURCES src/icons/winicon.rc )
+    list( APPEND ALL_SOURCES src/resources/winicon.rc )
     source_group( "Resources" FILES Resources/icon.rc )
 endif(WIN32)
 
