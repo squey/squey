@@ -44,7 +44,7 @@ PVWidget(widget_manager), view(pvgl_view), pv_com(com)
 	grabbed_slider = -1;
 	grabbing = false;
 
-	max_lines_interactivity = pvconfig.value("pvgl/max_interactivity", MAX_LINES_FOR_INTERACTIVITY).toInt();
+	max_lines_interactivity = pvconfig.value("pvgl/max_lines_for_interactivity", MAX_LINES_FOR_INTERACTIVITY).toInt();
 
 }
 
