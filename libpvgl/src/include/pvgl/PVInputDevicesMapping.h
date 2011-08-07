@@ -73,9 +73,9 @@ namespace Keyboard {
 		Any = Space,
 		Exclam = 0x21,
 		QuoteDbl = 0x22,
-		NumberSign = 0x23,
-		Dollar = 0x24,
-		Percent = 0x25,
+		NumberSign = 0x23, // '#'
+		Dollar = 0x24,     // '$'
+		Percent = 0x25,    // '%'
 		Ampersand = 0x26,
 		Apostrophe = 0x27,
 		ParenLeft = 0x28,
