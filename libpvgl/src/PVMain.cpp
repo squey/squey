@@ -118,7 +118,7 @@ void PVGL::PVMain::keyboard_callback(unsigned char key, int x, int y)
 
 	PVLOG_DEBUG("PVGL::PVMain::%s\n", __FUNCTION__);
 
-	last_key_pressed_time = glutGet(GLUT_ELAPSED_TIME);
+	last_key_pressed_time = PVGL::wtk_time_ms_elapsed_since_init();
 	current_drawable = get_drawable_from_id(glutGetWindow());
 
 	if (current_drawable) {
@@ -138,7 +138,7 @@ void PVGL::PVMain::special_callback(int key, int x, int y)
 
 	PVLOG_DEBUG("PVGL::PVMain::%s\n", __FUNCTION__);
 
-	last_key_pressed_time = glutGet(GLUT_ELAPSED_TIME);
+	last_key_pressed_time = PVGL::wtk_time_ms_elapsed_since_init();
 	current_drawable = get_drawable_from_id(glutGetWindow());
 	if (current_drawable) {
 		current_drawable->special_keys(key, x, y);
@@ -251,7 +251,7 @@ void PVGL::PVMain::motion_callback(int x, int y)
 
 	PVLOG_HEAVYDEBUG("PVGL::PVMain::%s\n", __FUNCTION__);
 
-	last_key_pressed_time = glutGet(GLUT_ELAPSED_TIME);
+	last_key_pressed_time = PVGL::wtk_time_ms_elapsed_since_init();
 
 	current_drawable = get_drawable_from_id(glutGetWindow());
 	if (current_drawable) {
@@ -283,7 +283,7 @@ void PVGL::PVMain::reshape_callback(int width, int height)
 
 	PVLOG_DEBUG("PVGL::PVMain::%s\n", __FUNCTION__);
 
-	last_reshape_time_time = glutGet(GLUT_ELAPSED_TIME);
+	last_reshape_time_time = PVGL::wtk_time_ms_elapsed_since_init();
 
 	if (current_drawable) {
 		current_drawable->set_size(width, height);
@@ -728,7 +728,7 @@ void PVGL::PVMain::timer_func(int)
 		}
 	}
 	// Check if we need to reselect
-	if (glutGet(GLUT_ELAPSED_TIME) - last_key_pressed_time > 5/*100*/) {
+	if (PVGL::wtk_time_ms_elapsed_since_init() - last_key_pressed_time > 5/*100*/) {
 
 		//PVLOG_DEBUG("   we need to reselect\n");
 		for (std::list<PVGL::PVDrawable*>::iterator it = all_drawables.begin(); it != all_drawables.end(); ++it) {
@@ -768,7 +768,7 @@ void PVGL::PVMain::timer_func(int)
 
 	}
 	// Check if we need to resize
-	if (glutGet(GLUT_ELAPSED_TIME) - last_reshape_time_time > PVGL_VIEW_RESIZE_UPDATE_TIMER) {
+	if (PVGL::wtk_time_ms_elapsed_since_init() - last_reshape_time_time > PVGL_VIEW_RESIZE_UPDATE_TIMER) {
 		for (std::list<PVGL::PVDrawable*>::iterator it = all_drawables.begin(); it != all_drawables.end(); ++it) {
 			PVGL::PVView *pv_view = dynamic_cast<PVGL::PVView*>(*it);
 			if (pv_view) {
