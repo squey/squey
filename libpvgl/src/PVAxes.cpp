@@ -17,7 +17,7 @@
 #include <picviz/PVMapping.h>
 
 #include <pvgl/PVUtils.h>
-#include <pvgl/PVView.h>
+#include <pvgl/views/PVParallel.h>
 #include <pvgl/PVConfig.h>
 
 #include <pvgl/PVAxes.h>

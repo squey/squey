@@ -29,11 +29,11 @@ PVLines.cpp
 PVMain.cpp
 PVMap.cpp
 PVMisc.cpp
-PVScatter.cpp
-PVScatterPlotSelectionSquare.cpp
+views/PVParallel.cpp
+views/PVScatter.cpp
+views/PVScatterPlotSelectionSquare.cpp
 PVSelectionSquare.cpp
 PVUtils.cpp
-PVView.cpp
 PVVBox.cpp
 PVWidget.cpp
 PVWidgetManager.cpp
@@ -56,12 +56,12 @@ include/pvgl/PVLines.h
 include/pvgl/PVMain.h
 include/pvgl/PVMap.h
 include/pvgl/PVMisc.h
-include/pvgl/PVScatter.h
-include/pvgl/PVScatterPlotSelectionSquare.h
+include/pvgl/views/PVParallel.h
+include/pvgl/views/PVScatter.h
+include/pvgl/views/PVScatterPlotSelectionSquare.h
 include/pvgl/PVSelectionSquare.h
 include/pvgl/PVUtils.h
 include/pvgl/PVVBox.h
-include/pvgl/PVView.h
 include/pvgl/PVWidget.h
 include/pvgl/PVWidgetManager.h
 

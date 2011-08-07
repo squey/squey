@@ -1,6 +1,6 @@
 //! \file PVView.cpp
 //! $Id: PVView.cpp 3139 2011-06-14 17:55:24Z stricaud $
-//! Copyright (C) SÃÂ©bastien Tricaud 2009, 2010
+//! Copyright (C) Sebastien Tricaud 2009, 2010
 //! Copyright (C) Philippe Saade 2009,2010
 //! Copyright (C) Picviz Labs 2011
 
@@ -26,7 +26,7 @@
 #include <pvgl/PVVBox.h>
 #include <pvgl/PVEventLine.h>
 
-#include <pvgl/PVView.h>
+#include <pvgl/views/PVParallel.h>
 
 /******************************************************************************
  *

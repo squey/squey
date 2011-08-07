@@ -1,6 +1,6 @@
 //! \file PVScatter.h
 //! $Id: PVScatter.h 2875 2011-05-19 04:18:05Z aguinet $
-//! Copyright (C) Sébastien Tricaud 2009, 2010
+//! Copyright (C) SÃ©bastien Tricaud 2009, 2010
 //! Copyright (C) Philippe Saade 2009, 2010
 //! Copyright (C) Picviz Labs 2011
 
@@ -13,7 +13,7 @@
 
 #include <pvgl/PVUtils.h>
 #include <pvgl/PVFonts.h>
-#include <pvgl/PVScatterPlotSelectionSquare.h>
+#include <pvgl/views/PVScatterPlotSelectionSquare.h>
 #include <pvgl/PVWidgetManager.h>
 #include <pvgl/PVLayout.h>
 

@@ -1,6 +1,6 @@
 //! \file PVLines.cpp
 //! $Id: PVLines.cpp 2977 2011-05-26 04:39:06Z dindinx $
-//! Copyright (C) Sébastien Tricaud 2009, 2010
+//! Copyright (C) SÃ©bastien Tricaud 2009, 2010
 //! Copyright (C) Philippe Saade 2009,2010
 //! Copyright (C) Picviz Labs 2011
 
@@ -16,7 +16,7 @@
 #include <picviz/PVSelection.h>
 
 #include <pvgl/PVUtils.h>
-#include <pvgl/PVView.h>
+#include <pvgl/views/PVParallel.h>
 #include <pvgl/PVWidgetManager.h>
 #include <pvgl/PVConfig.h>
 #include <pvgl/PVMain.h>

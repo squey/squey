@@ -1,6 +1,6 @@
 //! \file PVMain.cpp
 //! $Id: PVMain.cpp 3191 2011-06-23 13:47:36Z stricaud $
-//! Copyright (C) Sébastien Tricaud 2009, 2010
+//! Copyright (C) SÃÂÃÂ©bastien Tricaud 2009, 2010
 //! Copyright (C) Philippe Saade 2009,2010
 //! Copyright (C) Picviz Labs 2011
 
@@ -26,14 +26,16 @@
 #include <GL/freeglut.h>
 
 #include <picviz/general.h>
-#include <picviz/PVView.h>
-#include <picviz/PVSelection.h>
-
 #include <pvgl/general.h>
+
+#include <picviz/PVSelection.h>
+#include <picviz/PVView.h>
+
+#include <pvgl/views/PVScatter.h>
+
 #include <pvgl/PVFonts.h>
 #include <pvgl/PVUtils.h>
-#include <pvgl/PVView.h>
-#include <pvgl/PVScatter.h>
+#include <pvgl/views/PVParallel.h>
 #include <pvgl/PVCom.h>
 #include <pvgl/PVConfig.h>
 

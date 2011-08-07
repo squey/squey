@@ -1,6 +1,6 @@
 //! \file PVWidgetManager.cpp
 //! $Id: PVWidgetManager.cpp 2520 2011-04-30 12:26:48Z stricaud $
-//! Copyright (C) Sébastien Tricaud 2009, 2010
+//! Copyright (C) SÃ©bastien Tricaud 2009, 2010
 //! Copyright (C) Philippe Saade 2009,2010
 //! Copyright (C) Picviz Labs 2011
 
@@ -20,7 +20,7 @@
 #include <pvgl/PVLayout.h>
 #include <pvgl/PVHBox.h>
 #include <pvgl/PVVBox.h>
-#include <pvgl/PVView.h>
+#include <pvgl/views/PVParallel.h>
 
 #include <pvgl/PVWidgetManager.h>
 

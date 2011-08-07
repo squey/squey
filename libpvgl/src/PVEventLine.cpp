@@ -1,6 +1,6 @@
 //! \file PVEventLine.cpp
 //! $Id: PVEventLine.cpp 2875 2011-05-19 04:18:05Z aguinet $
-//! Copyright (C) Sébastien Tricaud 2009, 2010
+//! Copyright (C) SÃ©bastien Tricaud 2009, 2010
 //! Copyright (C) Philippe Saade 2009,2010
 //! Copyright (C) Picviz Labs 2011
 
@@ -19,7 +19,7 @@
 #include <pvgl/PVConfig.h>
 #include <pvgl/PVUtils.h>
 #include <pvgl/PVCom.h>
-#include <pvgl/PVView.h>
+#include <pvgl/views/PVParallel.h>
 
 #include <pvgl/PVEventLine.h>
 
