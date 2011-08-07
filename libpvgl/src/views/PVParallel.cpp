@@ -434,15 +434,6 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 				set_dirty();
 				break;
 		case 'a': case 'A': // Select all
-#if 0
-				if (glutGetModifiers() & GLUT_ACTIVE_SHIFT) {
-					picviz_view->floating_selection.select_all();
-				} else {
-					//picviz_view->volatile_selection = picviz_view->layer_stack_output_layer.get_selection();
-					//picviz_view->layer_stack_output_layer->selection.A2B_copy(,
-					//                          picviz_view->volatile_selection);
-				}
-#endif
 				picviz_view->select_all_nonzb_lines();
 				/* We refresh the listing */
 				message.function = PVGL_COM_FUNCTION_REFRESH_LISTING;
