@@ -449,12 +449,12 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 				break;
 		case 'f': case 'F':
 				if (is_fullscreen()) {
-					glutReshapeWindow(old_width, old_height);
+					PVGL::wtk_window_resize(old_width, old_height);
 					toggle_fullscreen(false);
 				} else {
 					old_width = get_width();
 					old_height= get_height();
-					glutFullScreen();
+					PVGL::wtk_window_fullscreen();
 					toggle_fullscreen(true);
 				}
 				break;

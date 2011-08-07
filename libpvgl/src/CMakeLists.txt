@@ -40,6 +40,7 @@ PVWidgetManager.cpp
 
 windowtoolkits/freeglut3/Init.cpp
 windowtoolkits/freeglut3/LoadingFunction.cpp
+windowtoolkits/freeglut3/Window.cpp
 )
 
 SET(HEADER_FILES
@@ -73,6 +74,7 @@ include/pvgl/PVConfig.h
 
 windowtoolkits/freeglut3/include/Init.h
 windowtoolkits/freeglut3/include/LoadingFunction.h
+windowtoolkits/freeglut3/include/Window.h
 )
 
 add_library(pvgl SHARED ${SRC_FILES} ${HEADER_FILES})
