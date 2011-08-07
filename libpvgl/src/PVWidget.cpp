@@ -1,7 +1,7 @@
 //! \file PVWidget.cpp
 //! $Id: PVWidget.cpp 2520 2011-04-30 12:26:48Z stricaud $
-//! Copyright (C) Sébastien Tricaud 2009, 2010
-//! Copyright (C) Philippe Saade 2009,2010
+//! Copyright (C) Sébastien Tricaud 2009-2011
+//! Copyright (C) Philippe Saade 2009-2011
 //! Copyright (C) Picviz Labs 2011
 
 #include <pvgl/PVWidgetManager.h>

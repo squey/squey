@@ -1,7 +1,7 @@
 //! \file PVKeysMapping.h
 //! $Id$
-//! Copyright (C) Sébastien Tricaud 2009, 2010
-//! Copyright (C) Philippe Saade 2009, 2010
+//! Copyright (C) Sébastien Tricaud 2009-2011
+//! Copyright (C) Philippe Saade 2009-2011
 //! Copyright (C) Picviz Labs 2011
 
 #ifndef LIBPVGL_INPUTDEVICESMAPPING_H

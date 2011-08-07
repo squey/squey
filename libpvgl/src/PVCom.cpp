@@ -1,7 +1,7 @@
 //! \file PVCom.cpp
 //! $Id: PVCom.cpp 2998 2011-05-29 11:15:58Z stricaud $
-//! Copyright (C) Sébastien Tricaud 2009, 2010
-//! Copyright (C) Philippe Saade 2009,2010
+//! Copyright (C) Sébastien Tricaud 2009-2011
+//! Copyright (C) Philippe Saade 2009-2011
 //! Copyright (C) Picviz Labs 2011
 
 #include <pvgl/PVUtils.h>

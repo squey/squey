@@ -1,7 +1,7 @@
 //! \file PVScatterPlotSelectionSquare.h
 //! $Id: PVScatterPlotSelectionSquare.h 3090 2011-06-09 04:59:46Z stricaud $
-//! Copyright (C) Sébastien Tricaud 2009, 2010
-//! Copyright (C) Philippe Saade 2009, 2010
+//! Copyright (C) Sébastien Tricaud 2009-2011
+//! Copyright (C) Philippe Saade 2009-2011
 //! Copyright (C) Picviz Labs 2011
 
 #ifndef LIBPVGL_PVSCATTER_PLOT_SELECTION_SQUARE_H

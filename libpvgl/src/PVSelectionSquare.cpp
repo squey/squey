@@ -1,7 +1,7 @@
 //! \file PVSelectionSquare.cpp
 //! $Id: PVSelectionSquare.cpp 2875 2011-05-19 04:18:05Z aguinet $
-//! Copyright (C) SÃ©bastien Tricaud 2009, 2010
-//! Copyright (C) Philippe Saade 2009,2010
+//! Copyright (C) SÃ©bastien Tricaud 2009-2011
+//! Copyright (C) Philippe Saade 2009-2011
 //! Copyright (C) Picviz Labs 2011
 
 #define GLEW_STATIC 1

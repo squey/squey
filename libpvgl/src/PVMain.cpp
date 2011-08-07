@@ -1,7 +1,7 @@
 //! \file PVMain.cpp
 //! $Id: PVMain.cpp 3191 2011-06-23 13:47:36Z stricaud $
-//! Copyright (C) SÃÂÃÂ©bastien Tricaud 2009, 2010
-//! Copyright (C) Philippe Saade 2009,2010
+//! Copyright (C) SÃÂÃÂ©bastien Tricaud 2009-2011
+//! Copyright (C) Philippe Saade 2009-2011
 //! Copyright (C) Picviz Labs 2011
 
 #include <iostream>

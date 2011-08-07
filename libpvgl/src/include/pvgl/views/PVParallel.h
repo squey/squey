@@ -1,7 +1,7 @@
 //! \file PVView.h
 //! $Id: PVView.h 2982 2011-05-26 06:58:33Z dindinx $
-//! Copyright (C) Sébastien Tricaud 2009, 2010
-//! Copyright (C) Philippe Saade 2009, 2010
+//! Copyright (C) Sébastien Tricaud 2009-2011
+//! Copyright (C) Philippe Saade 2009-2011
 //! Copyright (C) Picviz Labs 2011
 
 #ifndef LIBPVGL_VIEW_H

@@ -1,7 +1,7 @@
 //! \file PVMap.cpp
 //! $Id: PVMap.cpp 2985 2011-05-26 09:01:11Z dindinx $
-//! Copyright (C) SÃ©bastien Tricaud 2009, 2010
-//! Copyright (C) Philippe Saade 2009,2010
+//! Copyright (C) SÃ©bastien Tricaud 2009-2011
+//! Copyright (C) Philippe Saade 2009-2011
 //! Copyright (C) Picviz Labs 2011
 
 #include <iostream>

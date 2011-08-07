@@ -1,7 +1,7 @@
 //! \file PVUtils.cpp
 //! $Id: PVUtils.cpp 2872 2011-05-19 03:30:31Z stricaud $
-//! Copyright (C) Sébastien Tricaud 2009, 2010
-//! Copyright (C) Philippe Saade 2009, 2010
+//! Copyright (C) Sébastien Tricaud 2009-2011
+//! Copyright (C) Philippe Saade 2009-2011
 //! Copyright (C) Picviz Labs 2011
 
 #include <iostream>

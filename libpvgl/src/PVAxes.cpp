@@ -1,7 +1,7 @@
 //! \file PVAxes.cpp
 //! $Id: PVAxes.cpp 3082 2011-06-08 07:57:47Z aguinet $
-//! Copyright (C) Sebastien Tricaud 2009, 2010
-//! Copyright (C) Philippe Saade 2009,2010
+//! Copyright (C) Sebastien Tricaud 2009-2011
+//! Copyright (C) Philippe Saade 2009-2011
 //! Copyright (C) Picviz Labs 2011
 
 #include <iostream>
