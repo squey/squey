@@ -10,6 +10,14 @@
 
 namespace PVGL {
 
+	/* How do we access our window? a pointer (QT) or an int (Freeglut)? */
+	enum WTK_WINTYPE {
+		WINTYPE_INT,
+		WINTYPE_POINTER,
+	};
+
+	WTK_WINTYPE wtk_window_get_type(void);
+	int wtk_window_int_create(const char *name, int width, int height);
 	void wtk_window_resize(int width, int height);
 	void wtk_window_fullscreen(void);
 	void wtk_window_need_redisplay(void);

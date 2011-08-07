@@ -375,6 +375,8 @@ void PVGL::PVMain::create_view(QString *name)
 	int       window_id;
 	int       index = 0;
 	QString   base_name (*name);
+	int default_width = pvconfig.value("pvgl/parallel_view_width", PVGL_VIEW_DEFAULT_WIDTH).toInt();
+	int default_height = pvconfig.value("pvgl/parallel_view_height", PVGL_VIEW_DEFAULT_HEIGHT).toInt();
 
 	PVLOG_DEBUG("PVGL::PVMain::%s\n", __FUNCTION__);
 
@@ -384,8 +386,16 @@ void PVGL::PVMain::create_view(QString *name)
 		}
 	}
 	name->append(QString(":%1 (parallel view)").arg(index));
-	glutInitWindowSize(PVGL_VIEW_DEFAULT_WIDTH, PVGL_VIEW_DEFAULT_HEIGHT);
-	window_id = glutCreateWindow(qPrintable(*name));
+	switch(PVGL::wtk_window_get_type()) {
+	case WINTYPE_INT:
+		window_id = PVGL::wtk_window_int_create(qPrintable(*name), default_width, default_height);
+		break;
+	case WINTYPE_POINTER:
+		// NOT HANDLED YET
+		// break;
+	default:
+		PVLOG_FATAL("The window type get from wtk_window_get_type() is not handled by any known toolkit!\n");
+	}
 	current_view = new PVGL::PVView(window_id, pvgl_com);
 	current_view->set_index(index);
 	current_view->set_base_name(base_name);

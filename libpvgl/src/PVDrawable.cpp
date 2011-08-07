@@ -87,7 +87,8 @@ int PVGL::PVDrawable::small_files_scheduler(PVGL::PVIdleTaskKinds kind)
  *****************************************************************************/
 PVGL::PVDrawable::PVDrawable(int win_id, PVCom *com) :
 		pv_com(com),
-		width(PVGL_VIEW_DEFAULT_WIDTH), height(PVGL_VIEW_DEFAULT_HEIGHT),
+		// width(PVGL_VIEW_DEFAULT_WIDTH), height(PVGL_VIEW_DEFAULT_HEIGHT),
+		// FIXME: ^^ it seems it is not used
 		widget_manager(0), index(0),
 		window_id(win_id)
 {

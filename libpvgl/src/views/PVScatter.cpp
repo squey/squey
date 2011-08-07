@@ -26,6 +26,7 @@
 #include <pvgl/PVUtils.h>
 #include <pvgl/PVCom.h>
 #include <pvgl/PVLabel.h>
+#include <pvgl/PVWTK.h>
 
 #include <pvgl/views/PVScatter.h>
 

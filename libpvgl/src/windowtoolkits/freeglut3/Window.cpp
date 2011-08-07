@@ -10,7 +10,21 @@
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 
+#include <QtGlobal>
+
 #include "include/Window.h"
+
+PVGL::WTK_WINTYPE PVGL::wtk_window_get_type(void)
+{
+	// We are freeglut, so our window is an int
+	return WINTYPE_INT;
+}
+
+int PVGL::wtk_window_int_create(const char *name, int width, int height)
+{
+	glutInitWindowSize(width, height);
+	return glutCreateWindow(name);
+}
 
 void PVGL::wtk_window_resize(int width, int height)
 {
