@@ -18,6 +18,7 @@
 
 #include <picviz/PVView.h>
 
+#include <pvgl/general.h>
 #include <pvgl/PVConfig.h>
 #include <pvgl/PVUtils.h>
 #include <pvgl/PVCom.h>
@@ -26,8 +27,6 @@
 #include <pvgl/PVEventLine.h>
 
 #include <pvgl/PVView.h>
-
-const int MAX_LINES_PER_REDRAW = 75000;
 
 /******************************************************************************
  *

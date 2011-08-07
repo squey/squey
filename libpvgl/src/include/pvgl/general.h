@@ -12,6 +12,8 @@
 
 #include <pvgl/PVCom.h>
 
+#define MAX_LINES_PER_REDRAW 75000
+
 /** Init the GL subsystem, and wait for the creation of a view.
  *
  * This is the main entry point of the PVGL library.
