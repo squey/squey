@@ -123,7 +123,7 @@ void PVGL::PVMain::keyboard_callback(unsigned char key, int x, int y)
 
 	if (current_drawable) {
 		current_drawable->keyboard(key, x, y);
-		glutPostRedisplay();
+		PVGL::wtk_window_need_redisplay();
 	}
 }
 
@@ -142,7 +142,7 @@ void PVGL::PVMain::special_callback(int key, int x, int y)
 	current_drawable = get_drawable_from_id(glutGetWindow());
 	if (current_drawable) {
 		current_drawable->special_keys(key, x, y);
-		glutPostRedisplay();
+		PVGL::wtk_window_need_redisplay();
 	}
 }
 
@@ -237,7 +237,7 @@ void PVGL::PVMain::button_callback(int button, int state, int x, int y)
 				break;
 	}
         //moving_locker_mutex.unlock();
-	glutPostRedisplay ();
+	PVGL::wtk_window_need_redisplay();
 }
 
 /******************************************************************************
@@ -257,7 +257,7 @@ void PVGL::PVMain::motion_callback(int x, int y)
 	if (current_drawable) {
 		if (current_drawable->mouse_move(x, y, glutGetModifiers())) {
 		}
-		glutPostRedisplay();
+		PVGL::wtk_window_need_redisplay();
 	}
 	/*FIXME: sync code, ugly!			if (1) {
 		for (std::list<PVGL::PVDrawable*>::iterator it = all_views.begin(); it != all_views.end(); ++it) {
@@ -266,7 +266,7 @@ void PVGL::PVMain::motion_callback(int x, int y)
 		(*it)->get_lines().update_arrays_selection();
 		(*it)->set_update_line_dirty();
 		glutSetWindow((*it)->get_window_id());
-		glutPostRedisplay();
+		PVGL::wtk_window_need_redisplay();
 		}
 		}
 		}*/
@@ -289,7 +289,7 @@ void PVGL::PVMain::reshape_callback(int width, int height)
 		current_drawable->set_size(width, height);
 	}
 	glViewport(0, 0, width, height);
-	glutPostRedisplay();
+	PVGL::wtk_window_need_redisplay();
 }
 
 /******************************************************************************
@@ -550,7 +550,7 @@ void PVGL::PVMain::timer_func(int)
 									pv_view->update_selections();
 								}
 								//(*it)->update_all();
-								glutPostRedisplay();
+								PVGL::wtk_window_need_redisplay();
 							}
 						}
 						PVGL::PVScatter *pv_scatter = dynamic_cast<PVGL::PVScatter*>(*it);
@@ -577,7 +577,7 @@ void PVGL::PVMain::timer_func(int)
 									pv_scatter->update_arrays_positions();
 									pv_scatter->update_arrays_zombies();
 									pv_scatter->update_arrays_selection();
-								glutPostRedisplay();
+								PVGL::wtk_window_need_redisplay();
 							}
 						}
 					}
@@ -670,7 +670,7 @@ void PVGL::PVMain::timer_func(int)
 								pv_view->get_lines().update_arrays_selection();
 								pv_view->get_map().update_arrays_selection();
 								pv_view->set_update_line_dirty();
-								glutPostRedisplay();
+								PVGL::wtk_window_need_redisplay();
 							}
 						}
 					}
@@ -680,7 +680,7 @@ void PVGL::PVMain::timer_func(int)
 						if ((*it)->get_libview() == message.pv_view) {
 							glutSetWindow((*it)->get_window_id());
 							(*it)->reinit_picviz_view();
-							glutPostRedisplay();
+							PVGL::wtk_window_need_redisplay();
 						}
 					}
 					break;
@@ -756,7 +756,7 @@ void PVGL::PVMain::timer_func(int)
 					glutSetWindow(pv_view->get_window_id());
 					pv_view->update_set_size();
 					glViewport(0, 0, pv_view->get_width(), pv_view->get_height());
-					glutPostRedisplay();
+					PVGL::wtk_window_need_redisplay();
 				}
 			}
 		}
@@ -764,11 +764,11 @@ void PVGL::PVMain::timer_func(int)
 	// Refresh every window every 20 ms
 	for (std::list<PVGL::PVDrawable*>::iterator it = all_drawables.begin(); it != all_drawables.end(); ++it) {
 		glutSetWindow((*it)->get_window_id());
-		glutPostRedisplay();
+		PVGL::wtk_window_need_redisplay();
 	}
 	if (transient_view) {
 		glutSetWindow(transient_view->get_window_id());
-		glutPostRedisplay();
+		PVGL::wtk_window_need_redisplay();
 	}
         
 	glutTimerFunc(20, timer_func, 0);

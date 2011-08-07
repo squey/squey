@@ -1025,7 +1025,7 @@ bool PVGL::PVView::mouse_up(int button, int x, int y, int modifiers)
 			picviz_view->volatile_selection = picviz_view->get_real_output_selection();
 		}
 		/* We update the view */
-		glutPostRedisplay ();
+		PVGL::wtk_window_need_redisplay();
 		/* We update the listing */
 		update_listing();
 	}

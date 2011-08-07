@@ -37,6 +37,8 @@ class LibGLDecl PVEventLine : public PVWidget {
 	int  grabbed_slider;               //!<
 	int  mouse_diff;                  //!<
 
+	int max_lines_interactivity;
+
 public:
 	/**
 	 * Constructor.

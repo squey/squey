@@ -12,6 +12,8 @@ namespace PVGL {
 
 	void wtk_window_resize(int width, int height);
 	void wtk_window_fullscreen(void);
+	void wtk_window_need_redisplay(void);
+
 }
 
 #endif	/* LIBPVGL_WTK_FREEGLUT3_WINDOW_H */

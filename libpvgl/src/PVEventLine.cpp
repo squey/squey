@@ -23,6 +23,8 @@
 
 #include <pvgl/PVEventLine.h>
 
+#include <pvgl/PVWTK.h>
+
 /******************************************************************************
  *
  * PVGL::PVEventLine::PVEventLine
@@ -41,6 +43,9 @@ PVWidget(widget_manager), view(pvgl_view), pv_com(com)
 
 	grabbed_slider = -1;
 	grabbing = false;
+
+	max_lines_interactivity = pvconfig.value("pvgl/max_interactivity", MAX_LINES_FOR_INTERACTIVITY).toInt();
+
 }
 
 /******************************************************************************
@@ -183,8 +188,8 @@ bool PVGL::PVEventLine::mouse_move(int x, int /*y*/, int /*modifiers*/)
 			}
 			//sliders_positions[grabbed_slider] = picviz_eventline_set_kth_index_and_adjust_slider_position (picviz_view->eventline, grabbed_slider, pos_x);
 			sliders_positions[grabbed_slider] = picviz_view->eventline.set_kth_index_and_adjust_slider_position(grabbed_slider, pos_x);
-			glutPostRedisplay();
-			if (picviz_view->eventline.get_row_count() < 100000) {
+			PVGL::wtk_window_need_redisplay();
+			if (picviz_view->eventline.get_row_count() < max_lines_interactivity) {
 				view->get_lines().update_arrays_selection();
 			}
 		}
@@ -215,10 +220,11 @@ bool PVGL::PVEventLine::mouse_up(int /*button*/, int /*x*/, int /*y*/, int /*mod
 			pv_com->post_message_to_qt(message);
 			message.function = PVGL_COM_FUNCTION_SELECTION_CHANGED;
 			message.function = PVGL_COM_FUNCTION_REFRESH_LISTING;
-			glutPostRedisplay();
-			if (picviz_view->eventline.get_row_count() >= 100000) {
+			
+			if (picviz_view->eventline.get_row_count() >= max_lines_interactivity) {
 				view->get_lines().update_arrays_selection();
-			}glutPostRedisplay();
+			}
+			PVGL::wtk_window_need_redisplay();
 		}
 
 		return true;
@@ -253,7 +259,7 @@ bool PVGL::PVEventLine::passive_motion(int x, int y, int /*modifiers*/)
 		} else if (x > pos_x[2] && x < pos_x[2] + 17) {
 			prelight[2] = true;
 		}
-		glutPostRedisplay();
+		PVGL::wtk_window_need_redisplay();
 		return true;
 	}
 

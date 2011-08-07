@@ -13,6 +13,7 @@
 #include <pvgl/PVCom.h>
 
 #define MAX_LINES_PER_REDRAW 75000
+#define MAX_LINES_FOR_INTERACTIVITY 10000 /* Used to decide whether we can interactively do things or not, such as the behavior of the event line */
 
 /** Init the GL subsystem, and wait for the creation of a view.
  *

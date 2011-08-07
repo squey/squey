@@ -22,4 +22,9 @@ void PVGL::wtk_window_fullscreen()
 	glutFullScreen();
 }
 
+void PVGL::wtk_window_need_redisplay()
+{
+	glutPostRedisplay();
+}
+
 #endif	// USE_WTK_FREEGLUT3

@@ -413,7 +413,7 @@ bool PVGL::PVScatter::mouse_up(int /*button*/, int /*x*/, int /*y*/, int /*modif
 
 
 	/* We update the view */
-	glutPostRedisplay ();
+	PVGL::wtk_window_need_redisplay();
 	/* We update the listing */
 	message.function = PVGL_COM_FUNCTION_REFRESH_LISTING;
 	message.pv_view = picviz_view;
