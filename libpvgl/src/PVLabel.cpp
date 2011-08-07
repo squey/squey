@@ -6,7 +6,6 @@
 
 #define GLEW_STATIC 1
 #include <GL/glew.h>
-#include <GL/freeglut.h>
 
 #include <pvgl/PVConfig.h>
 #include <pvgl/PVUtils.h>

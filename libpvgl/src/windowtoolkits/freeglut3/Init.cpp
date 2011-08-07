@@ -5,7 +5,6 @@
 
 #ifdef USE_WTK_FREEGLUT3
 
-#define GLEW_STATIC 1
 #include <GL/freeglut.h>
 
 #include <pvkernel/core/general.h>
