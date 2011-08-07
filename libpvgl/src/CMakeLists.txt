@@ -38,6 +38,7 @@ PVVBox.cpp
 PVWidget.cpp
 PVWidgetManager.cpp
 
+windowtoolkits/freeglut3/Init.cpp
 windowtoolkits/freeglut3/LoadingFunction.cpp
 )
 
@@ -70,6 +71,7 @@ include/pvgl/PVWidgetManager.h
 
 include/pvgl/PVConfig.h
 
+windowtoolkits/freeglut3/include/Init.h
 windowtoolkits/freeglut3/include/LoadingFunction.h
 )
 

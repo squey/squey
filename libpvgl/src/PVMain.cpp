@@ -41,6 +41,10 @@
 
 #include <pvgl/PVMain.h>
 
+#include <pvgl/PVWTK.h>
+
+
+
 static std::list<PVGL::PVDrawable*> all_drawables;
 static PVGL::PVCom *pvgl_com = 0;
 
@@ -800,14 +804,7 @@ bool pvgl_init(PVGL::PVCom *com)
 		PVLOG_INFO("Using PVGL share directory %s\n", pvgl_get_share_path().c_str());
 	}
 
-	glutInitContextVersion(3, 3);
-	glutInitContextFlags(GLUT_FORWARD_COMPATIBLE | GLUT_DEBUG);
-	glutInitContextProfile(GLUT_COMPATIBILITY_PROFILE);
-	//  glutInitContextProfile (GLUT_CORE_PROFILE);
-	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_STENCIL);
-	glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION);
-	PVLOG_INFO("PVGL::%s glut version: %d\n", __FUNCTION__, glutGet(GLUT_VERSION));
+	PVGL::wtk_init(argc, argv);
 
 	// Wait for the first message
 	PVLOG_DEBUG("PVGL::%s Everything created, waiting for message.\n", __FUNCTION__);
@@ -823,13 +820,8 @@ bool pvgl_init(PVGL::PVCom *com)
 								//pvgl_com->post_message_to_qt(message);
 								glutTimerFunc(5/*20*/, PVGL::PVMain::timer_func, 0);
 								glutMainLoop();
-								glutInitContextVersion(3, 3);
-								glutInitContextFlags(GLUT_FORWARD_COMPATIBLE | GLUT_DEBUG);
-								glutInitContextProfile(GLUT_COMPATIBILITY_PROFILE);
-								//  glutInitContextProfile (GLUT_CORE_PROFILE);
-								glutInit(&argc, argv);
-								glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_STENCIL);
-								glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION);
+
+								PVGL::wtk_init(argc, argv);
 							}
 						break;
 				case PVGL_COM_FUNCTION_DESTROY_TRANSIENT:
@@ -852,13 +844,8 @@ bool pvgl_init(PVGL::PVCom *com)
 								pvgl_com->post_message_to_qt(message);
 								glutTimerFunc(5/*20*/, PVGL::PVMain::timer_func, 0);
 								glutMainLoop();
-								glutInitContextVersion(3, 3);
-								glutInitContextFlags(GLUT_FORWARD_COMPATIBLE | GLUT_DEBUG);
-								glutInitContextProfile(GLUT_COMPATIBILITY_PROFILE);
-								//  glutInitContextProfile (GLUT_CORE_PROFILE);
-								glutInit(&argc, argv);
-								glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_STENCIL);
-								glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION);
+
+								PVGL::wtk_init(argc, argv);
 							}
 						break;
 				case PVGL_COM_FUNCTION_CREATE_SCATTER_VIEW:
