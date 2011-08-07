@@ -10,7 +10,6 @@
 
 #define GLEW_STATIC 1
 #include <GL/glew.h>
-#include <GL/freeglut.h>
 
 #include <picviz/general.h>
 #include <picviz/PVView.h>
@@ -100,7 +99,7 @@ void PVGL::PVAxes::draw(bool axes_mode)
 
 	//  We setup the vao.
 	glUseProgram(program);
-	glUniform1f(get_uni_loc(program, "time"), glutGet(GLUT_ELAPSED_TIME));
+	glUniform1f(get_uni_loc(program, "time"), PVGL::wtk_time_ms_elapsed_since_init());
 	if (axes_mode) {
 		glUniform1i(get_uni_loc(program, "axis_mode"), 1);
 	} else {
