@@ -37,6 +37,8 @@ PVUtils.cpp
 PVVBox.cpp
 PVWidget.cpp
 PVWidgetManager.cpp
+
+windowtoolkits/freeglut3/LoadingFunction.cpp
 )
 
 SET(HEADER_FILES
@@ -50,6 +52,7 @@ include/pvgl/PVEventLine.h
 include/pvgl/PVFonts.h
 include/pvgl/PVHBox.h
 include/pvgl/PVIdleManager.h
+include/pvgl/PVInputDevicesMapping.h
 include/pvgl/PVLabel.h
 include/pvgl/PVLayout.h
 include/pvgl/PVLines.h
@@ -66,6 +69,8 @@ include/pvgl/PVWidget.h
 include/pvgl/PVWidgetManager.h
 
 include/pvgl/PVConfig.h
+
+windowtoolkits/freeglut3/include/LoadingFunction.h
 )
 
 add_library(pvgl SHARED ${SRC_FILES} ${HEADER_FILES})
