@@ -337,6 +337,7 @@ void PVGL::PVMain::close_callback(void)
  *****************************************************************************/
 void PVGL::PVMain::entry_callback(int state)
 {
+#if 0
 	PVLOG_DEBUG("PVGL::PVMain::%s\n", __FUNCTION__);
 
 	if (state == GLUT_ENTERED) {
@@ -344,6 +345,7 @@ void PVGL::PVMain::entry_callback(int state)
 	} else { // GLUT_LEFT
 		//std::cerr << "Got out!" << std::endl;
 	}
+#endif
 }
 
 /******************************************************************************
@@ -423,7 +425,7 @@ void PVGL::PVMain::create_view(QString *name)
 	glutMotionFunc(PVGL::PVMain::motion_callback);
 	glutReshapeFunc(PVGL::PVMain::reshape_callback);
 	glutCloseFunc(PVGL::PVMain::close_callback);
-	glutEntryFunc(PVGL::PVMain::entry_callback);
+	// glutEntryFunc(PVGL::PVMain::entry_callback);
 	glutPassiveMotionFunc(PVGL::PVMain::passive_motion_callback);
 
 	transient_view = current_view;
