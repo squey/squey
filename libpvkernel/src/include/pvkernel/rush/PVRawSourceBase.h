@@ -25,6 +25,7 @@ public:
 	chunk_index last_elt_index() { return _last_elt_index; }
 	virtual QString human_name();
 	virtual void seek_begin();
+	virtual PVCore::PVChunk* operator()() = 0;
 
 protected:
 	PVFilter::PVChunkFilter_f _src_filter;

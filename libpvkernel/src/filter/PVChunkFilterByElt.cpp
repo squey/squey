@@ -50,4 +50,3 @@ PVCore::PVChunk* PVFilter::PVChunkFilterByElt::operator()(PVCore::PVChunk* chunk
 	chunk->set_elts_stat(nelts, nelts_valid);
 	return chunk;
 }
-

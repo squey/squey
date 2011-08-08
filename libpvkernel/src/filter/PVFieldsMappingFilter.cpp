@@ -16,7 +16,6 @@
 PVFilter::PVFieldsMappingFilter::PVFieldsMappingFilter(map_filters const& mfilters) :
 	_mfilters(mfilters)
 {
-	INIT_FILTER_NOPARAM(PVFilter::PVFieldsMappingFilter);
 }
 
 /******************************************************************************
@@ -24,7 +23,7 @@ PVFilter::PVFieldsMappingFilter::PVFieldsMappingFilter(map_filters const& mfilte
  * PVFilter::PVFieldsMappingFilter::operator
  *
  *****************************************************************************/
-PVCore::list_fields& PVFilter::PVFieldsMappingFilter::operator()(PVCore::list_fields &fields)
+PVCore::list_fields& PVFilter::PVFieldsMappingFilter::many_to_many(PVCore::list_fields &fields)
 {
 	//TODO: this *can* be optimised !
 	if (fields.size() == 0)
@@ -58,6 +57,3 @@ PVCore::list_fields& PVFilter::PVFieldsMappingFilter::operator()(PVCore::list_fi
 	}
 	return fields;
 }
-
-
-IMPL_FILTER_NOPARAM(PVFilter::PVFieldsMappingFilter)

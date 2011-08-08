@@ -12,7 +12,9 @@ class LibKernelDecl PVElementFilterRandInvalid : public PVElementFilter {
 public:
 	PVElementFilterRandInvalid();
 public:
-	virtual PVCore::PVElement& operator()(PVCore::PVElement& elt);
+	PVCore::PVElement& operator()(PVCore::PVElement& elt);
+
+	CLASS_FILTER_NONREG_NOPARAM(PVElementFilterRandInvalid)
 };
 
 }

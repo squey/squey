@@ -107,10 +107,12 @@ protected:
 //! <li>p_type, that *must* defines a shared pointer to the current class (which means that is overrided by the CLASS_FILTER macro to match the corresponding type)</li>
 //! <li>base, that defines the base class (PVFilterFunctionBase<Tout,Tin). This must *never* be overrided.</li>
 //! </ul>
-template <typename Tout, typename Tin>
+template <typename Tout_, typename Tin_>
 class PVFilterFunctionBase
 {
 public:
+	typedef Tout_ Tout;
+	typedef Tin_ Tin;
 	typedef boost::function<Tout(Tin)> func_type;
 	typedef boost::shared_ptr< PVFilterFunctionBase<Tout,Tin> > p_type;
 	typedef PVFilterFunctionBase<Tout,Tin> base;
@@ -123,9 +125,11 @@ public:
 	static PVCore::PVArgumentList default_args() { return PVCore::PVArgumentList(); }
 public:
 
-	virtual Tout operator()(Tin obj) = 0;
-	func_type f() { return boost::bind<Tout>(&PVFilterFunctionBase<Tout,Tin>::_f, this, _1); }
-	Tout _f(Tin obj) { return this->operator()(obj); }
+	//Tout operator()(Tin obj) = 0;
+	//func_type f() { return boost::bind<Tout>(&PVFilterFunctionBase<Tout,Tin>::_f, this, _1); }
+	//Tout _f(Tin obj) { return this->operator()(obj); }
+	//virtual func_type f() { assert(false); return func_type(); }
+	virtual func_type f() = 0;
 	virtual const PVCore::PVArgumentList& get_args() const { return _args; }
 	virtual void set_args(PVCore::PVArgumentList const& args)
 	{
@@ -151,10 +155,12 @@ protected:
 
 /*! \brief Special PVFilterFunctionBase function for Tin -> void
  */
-template <typename Tin>
-class PVFilterFunctionBase<void,Tin>
+template <typename Tin_>
+class PVFilterFunctionBase<void,Tin_>
 {
 public:
+	typedef void Tout;
+	typedef Tin_ Tin;
 	typedef boost::function<void(Tin)> func_type;
 	typedef boost::shared_ptr< PVFilterFunctionBase<void,Tin> > p_type;
 	typedef PVFilterFunctionBase<void,Tin> base;
@@ -166,9 +172,10 @@ public:
 public:
 	static PVCore::PVArgumentList default_args() { return PVCore::PVArgumentList(); }
 public:
-	virtual void operator()(Tin /*obj*/ ) = 0;
-	func_type f() { return boost::bind<void>(&PVFilterFunctionBase<void,Tin>::_f, this, _1); }
-	void _f(Tin obj) { this->operator()(obj); }
+	//void operator()(Tin /*obj*/ ) = 0;
+	//virtual func_type f() { assert(false); return func_type(); }
+	virtual func_type f() = 0;
+	//void _f(Tin obj) { this->operator()(obj); }
 	QString const& get_name() { return _name; }
 	PVCore::PVArgumentList const& get_default_args() { return _def_args; }
 	virtual void set_args(PVCore::PVArgumentList const& args)
@@ -193,10 +200,12 @@ protected:
 
 /*! \brief Special PVFilterFunctionBase function for void -> Tin
  */
-template <typename Tout>
-class PVFilterFunctionBase<Tout,void>
+template <typename Tout_>
+class PVFilterFunctionBase<Tout_,void>
 {
 public:
+	typedef Tout_ Tout;
+	typedef void Tin;
 	typedef boost::function<Tout()> func_type;
 	typedef boost::shared_ptr< PVFilterFunctionBase<Tout,void> > p_type;
 	typedef PVFilterFunctionBase<Tout,void> base;
@@ -208,15 +217,16 @@ public:
 public:
 	static PVCore::PVArgumentList default_args() { return PVCore::PVArgumentList(); }
 public:
-	virtual Tout operator()() = 0;
+	//Tout operator()() = 0;
 	/*! \brief Returns a boost::bind object that calls the operator() function of this filter
 	 */
-	func_type f() { return boost::bind<Tout>(&PVFilterFunctionBase<Tout,void>::_f, this); }
+	//virtual func_type f() { assert(false); return func_type(); }
+	virtual func_type f() = 0;
 
 	/*! \brief Intermediate function for boost::bind.
 	 * \note This whole process should be optimised because extra-calls are made, and may be a performance bottleneck.
 	 */
-	Tout _f() { return this->operator()(); }
+	//Tout _f() { return this->operator()(); }
 
 	QString const& get_name() { return _name; }
 	PVCore::PVArgumentList const& get_default_args() { return _def_args; }
@@ -301,6 +311,7 @@ public:
 	typedef FilterT RegAs;
 	typedef boost::shared_ptr< PVFilterFunction<T,FilterT> > p_type;
 	typedef PVFilterFunction<T,FilterT_> base_registrable;
+	typedef typename PVFilterFunctionBase<T&,T&>::func_type func_type;
 public:
 	PVFilterFunction(PVCore::PVArgumentList const& args = PVFilterFunction::default_args()) :
 		PVFilterFunctionBase<T&,T&>(args),
@@ -310,33 +321,34 @@ public:
 public:
 	static PVCore::PVArgumentList default_args() { return PVCore::PVArgumentList(); }
 public:
-	virtual T& operator()(T& obj) = 0;
+	T& operator()(T& obj) { return obj; }
+	virtual func_type f() { return boost::bind<T&>(&PVFilterFunction<T, FilterT_>::operator(), this, _1); }
 };
 
 }
 
 // Macros for filter class construction help
 #define CLASS_FILTER(T) \
+	CLASS_FILTER_NONREG(T) \
+	CLASS_REGISTRABLE(T)
+
+#define CLASS_FILTER_NOPARAM(T) \
+	CLASS_FILTER_NONREG_NOPARAM(T)\
+	CLASS_REGISTRABLE(T)
+
+#define CLASS_FILTER_NONREG(T) \
 	public:\
+		virtual func_type f() { return boost::bind<Tout>((Tout(T::*)(Tin))(&T::operator()), this, _1); }\
 		static PVCore::PVArgumentList default_args();\
-	CLASS_REGISTRABLE(T)
 
-#define CLASS_FILTER_INPLACE(T) \
-	CLASS_REGISTRABLE(T)
-
-#define CLASS_FILTER_NOPARAM_INPLACE(T) \
+#define CLASS_FILTER_NONREG_NOPARAM(T) \
 	public:\
-		static PVCore::PVArgumentList default_args() { return PVCore::PVArgumentList(); }\
-	CLASS_REGISTRABLE(T)
+		virtual func_type f() { return boost::bind<Tout>((Tout(T::*)(Tin))(&T::operator()), this, _1); }\
+		static PVCore::PVArgumentList default_args() { return PVCore::PVArgumentList(); }
 
 #define IMPL_FILTER(T)
 
-
-#define IMPL_FILTER_NOPARAM(T)\
-	PVCore::PVArgumentList T::default_args()\
-	{\
-		return PVCore::PVArgumentList();\
-	}\
+#define IMPL_FILTER_NOPARAM(T)
 
 #define INIT_FILTER(T,aparams)\
 	do {\
@@ -346,14 +358,11 @@ public:
 
 #define INIT_FILTER_NOPARAM(T)\
 	do {\
-		_def_args = T::default_args();\
+		_def_args = PVCore::PVArgumentList();\
 		_args = _def_args;\
 	} while(0)
 
 #define DEFAULT_ARGS_FILTER(T)\
 	PVCore::PVArgumentList T::default_args()
-
-#define DEFAULT_ARGS_FILTER_INPLACE(T)\
-	PVCore::PVArgumentList default_args()
 
 #endif

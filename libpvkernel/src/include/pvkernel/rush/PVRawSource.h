@@ -20,6 +20,7 @@ class PVRawSource : public PVRush::PVRawSourceBase {
 public:
 	typedef PVCore::PVChunkMem<Allocator> PVChunkAlloc;
 	typedef Allocator<char> alloc_chunk;
+	typedef PVRawSource<Allocator> PVRawSource_t;
 
 	typedef std::map<chunk_index,PVInput::input_offset> map_offsets;
 
@@ -126,6 +127,8 @@ public:
 		_curc = PVChunkAlloc::allocate(_chunk_size, this, _alloc);
 		_nextc = PVChunkAlloc::allocate(_chunk_size, this, _alloc);
 	}
+
+	virtual func_type f() { return boost::bind<PVCore::PVChunk*>(&PVRawSource<Allocator>::operator(), this); }
 
 protected:
 	PVChunkAlign &_align;

@@ -16,10 +16,12 @@ namespace PVFilter {
 class LibKernelDecl PVChunkFilterByEltSaveInvalid: public PVChunkFilter {
 public:
 	PVChunkFilterByEltSaveInvalid(PVElementFilter_f elt_filter);
-	virtual PVCore::PVChunk* operator()(PVCore::PVChunk* chunk);
+	PVCore::PVChunk* operator()(PVCore::PVChunk* chunk);
 protected:
 	mutable PVElementFilter_f _elt_filter;
 	mutable PVRow _n_elts_invalid;
+
+	CLASS_FILTER_NONREG_NOPARAM(PVChunkFilterByEltSaveInvalid)
 };
 
 }
