@@ -18,6 +18,7 @@
 #include <pvgl/PVUtils.h>
 #include <pvgl/views/PVParallel.h>
 #include <pvgl/PVConfig.h>
+#include <pvgl/PVWTK.h>
 
 #include <pvgl/PVAxes.h>
 
