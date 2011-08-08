@@ -86,11 +86,14 @@ int PVGL::PVDrawable::small_files_scheduler(PVGL::PVIdleTaskKinds kind)
  *****************************************************************************/
 PVGL::PVDrawable::PVDrawable(int win_id, PVCom *com) :
 		pv_com(com),
-		// width(PVGL_VIEW_DEFAULT_WIDTH), height(PVGL_VIEW_DEFAULT_HEIGHT),
-		// FIXME: ^^ it seems it is not used
 		widget_manager(0), index(0),
 		window_id(win_id)
 {
+	// Default width and height needs to be set, or we will use an undefined value
+	// when resizing our layouts
+	width = pvconfig.value("pvgl/parallel_view_width", PVGL_VIEW_DEFAULT_WIDTH).toInt();
+	height = pvconfig.value("pvgl/parallel_view_height", PVGL_VIEW_DEFAULT_HEIGHT).toInt();
+
 	PVLOG_DEBUG("PVGL::PVDrawable::%s\n", __FUNCTION__);
 	fullscreen = false;
 }

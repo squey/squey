@@ -17,7 +17,9 @@ class LibKernelDecl PVChunkFilter : public PVFilterFunctionBase<PVCore::PVChunk*
 public:
 	PVChunkFilter();
 public:
-	virtual PVCore::PVChunk* operator()(PVCore::PVChunk* chunk);
+	PVCore::PVChunk* operator()(PVCore::PVChunk* chunk);
+
+	CLASS_FILTER_NONREG(PVChunkFilter)
 };
 
 typedef PVChunkFilter::func_type PVChunkFilter_f;

@@ -12,7 +12,7 @@ class PVWidgetManager;
 class PVContainer;
 
 struct LibGLDecl PVAllocation {
-  int x;
+	int x;
 	int y;
 	int width;
 	int height;

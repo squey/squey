@@ -20,7 +20,9 @@ public:
 	typedef boost::shared_ptr<PVElementFilter> p_type;
 
 public:
-	virtual PVCore::PVElement& operator()(PVCore::PVElement& in) { return in; }
+	PVCore::PVElement& operator()(PVCore::PVElement& in) { return in; }
+
+	CLASS_FILTER_NONREG_NOPARAM(PVElementFilter)
 };
 
 typedef PVElementFilter::func_type PVElementFilter_f;

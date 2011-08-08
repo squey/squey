@@ -63,7 +63,7 @@ template <fields_filter_type Ttype = many_to_many>
 class PVFieldsFilter : public PVFieldsBaseFilter {
 public:
 	typedef PVFieldsFilter<Ttype> FilterT;
-	typedef boost::shared_ptr< PVFieldsFilter<Ttype> > p_type;
+	//typedef boost::shared_ptr< PVFieldsFilter<Ttype> > p_type;
 	typedef PVFieldsBaseFilter base_registrable;
 	typedef PVFieldsFilter<Ttype> RegAs;
 
@@ -82,8 +82,8 @@ public:
 	// to guess the first filter that could be applied to an input
 	virtual bool guess(list_guess_result_t& /*res*/, PVCore::PVField const& /*in_field*/) { return false; } 
 
-	// Default interface (many-to-many)
-	virtual PVCore::list_fields& operator()(PVCore::list_fields &fields);
+	// Filter interface (many-to-many)
+	PVCore::list_fields& operator()(PVCore::list_fields &fields);
 
 	void set_number_expected_fields(size_t n)
 	{
@@ -111,10 +111,19 @@ protected:
 		return 1;
 	}
 
+	// many-to-many interface
+	virtual PVCore::list_fields& many_to_many(PVCore::list_fields& fields)
+	{
+		PVLOG_WARN("(PVFieldsFilter) default many_to_many function called !\n");
+		return fields;
+	}
+
 protected:
 	fields_filter_type _type;
 	// Defines the number of expected children. 0 means that this information is unavailable.
 	size_t _fields_expected;
+
+	CLASS_FILTER_NOPARAM(PVFieldsFilter<Ttype>)
 };
 
 // Macro for reporting invalid fields

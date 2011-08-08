@@ -22,11 +22,9 @@ public:
 public:
 	PVFieldsMappingFilter(map_filters const& mfilters);
 public:
-	PVCore::list_fields& operator()(PVCore::list_fields& fields);
+	PVCore::list_fields& many_to_many(PVCore::list_fields& fields);
 protected:
 	map_filters _mfilters;
-
-	CLASS_FILTER(PVFilter::PVFieldsMappingFilter)
 };
 
 }
