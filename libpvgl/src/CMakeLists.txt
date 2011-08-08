@@ -41,6 +41,7 @@ PVWidgetManager.cpp
 
 SET(WTK_SRC_FILES
 windowtoolkits/core/WtkWindow.cpp
+windowtoolkits/core/WtkWindowsList.cpp
 
 windowtoolkits/freeglut3/Buffers.cpp
 windowtoolkits/freeglut3/Init.cpp
@@ -81,6 +82,7 @@ include/pvgl/PVConfig.h
 
 SET(WTK_HEADER_FILES
 windowtoolkits/core/include/WtkWindow.h
+windowtoolkits/core/include/WtkWindowsList.h
 
 windowtoolkits/freeglut3/include/Buffers.h
 windowtoolkits/freeglut3/include/Init.h

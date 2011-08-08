@@ -9,9 +9,11 @@
 PVGL::WTK::WtkWindow::WtkWindow(int win_id) 
 {
 	_win_id = win_id;
+	_win_type = WTK_WINDOWTYPE_INT;
 }
 
 PVGL::WTK::WtkWindow::WtkWindow(void *win_ptr) 
 {
 	_win_ptr = win_ptr;
+	_win_type = WTK_WINDOWTYPE_POINTER;
 }

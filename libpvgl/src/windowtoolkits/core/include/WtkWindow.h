@@ -11,16 +11,18 @@ namespace PVGL {
 
 	class WtkWindow {
 	private:
+		enum WTK_WINDOWTYPE {
+			WTK_WINDOWTYPE_INT,
+			WTK_WINDOWTYPE_POINTER,
+		};
+
 		int   _win_id;
 		void *_win_ptr;
+
+		WTK_WINDOWTYPE _win_type;
 	public:
 		WtkWindow(int win_id);
 		WtkWindow(void *win_ptr);
-		enum WTK_WINDOWTYPE {
-			WINDOWTYPE_INT,
-			WINDOWTYPE_POINTER,
-		};
-
 	};
 
 	}
