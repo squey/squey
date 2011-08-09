@@ -8,15 +8,13 @@ digraph G {
 compound=true;
    subgraph cluster1 {
    label="PVGL";
-     subgraph cluster1 {
+     subgraph cluster2 {
      label="WTK";
 
       node1 [label="freeglut3"];
       node2 [label="QT"];
       node3 [label="..."];
      }
-     node4 [label="PVAxes"];
-     node4 [label="PVWidgetManager"];
    }
 }
  \enddot

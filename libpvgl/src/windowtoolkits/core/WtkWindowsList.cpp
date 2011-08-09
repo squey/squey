@@ -8,5 +8,6 @@
 
 PVGL::WTK::WtkWindowsList::WtkWindowsList() 
 {
+
 }
 
