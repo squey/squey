@@ -25,7 +25,8 @@ public:
 
 	PVTBBMaxArray(PVTBBMaxArray& x, tbb::split):
 		_arr(x._arr),
-		_max_value(x._min_value)
+		_max_value(x._min_value),
+		_min_value(x._min_value)
 	{
 	}
 public:

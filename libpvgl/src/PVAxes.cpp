@@ -32,6 +32,32 @@ PVGL::PVAxes::PVAxes(PVView *view_): view(view_)
 	PVLOG_DEBUG("PVGL::PVAxes::%s\n", __FUNCTION__);
 
 	show_limits = false;
+	vbo_position = 0;
+	vbo_color = 0;
+	vao = 0;
+	vao_bg = 0;
+	vbo_bg_position = 0;
+}
+
+PVGL::PVAxes::~PVAxes()
+{
+	PVLOG_INFO("In PVAxes destructor\n");
+
+	if (vao != 0) {
+		glDeleteVertexArrays(1, &vao);
+	}
+	if (vbo_position != 0) {
+		glDeleteBuffers(1, &vbo_position);
+	}
+	if (vbo_color != 0) {
+		glDeleteBuffers(1, &vbo_color);
+	}
+	if (vao_bg != 0) {
+		glDeleteVertexArrays(1, &vao_bg);
+	}
+	if (vbo_bg_position != 0) {
+		glDeleteBuffers(1, &vbo_bg_position);
+	}
 }
 
 /******************************************************************************
