@@ -17,6 +17,7 @@ public:
 	size_t operator()(char* buffer, size_t n);
 	virtual input_offset current_input_offset();
 	virtual void seek_begin();
+	virtual bool seek(input_offset off);
 	virtual QString human_name();
 protected:
 	std::ifstream _file;

@@ -17,7 +17,8 @@ public:
 	PVUnicodeSource(PVInput_p input, size_t chunk_size, PVFilter::PVChunkFilter_f src_filter, const alloc_chunk &alloc = alloc_chunk()) :
 		PVRawSource<Allocator>(input, _align, chunk_size, _utf16, src_filter, alloc)
 	{
-		//INIT_FILTER_NOPARAM(PVRush::PVUnicodeSource);
+		//PVLOG_DEBUG("In PVUnicodeSource constructor (%x)\n", this);
+		PVLOG_DEBUG("In PVUnicodeSource constructor (%x), sizeof offsets: %d\n", this, this->_offsets.size());
 	}
 public:
 	bool discover()
@@ -29,7 +30,6 @@ protected:
 	PVChunkAlignUTF16Newline _align;
 
 public:
-//	CLASS_FILTER_NOPARAM_INPLACE(PVRush::PVUnicodeSource)
 };
 
 }

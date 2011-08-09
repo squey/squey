@@ -271,7 +271,7 @@ void PVInspector::PVExtractorWidget::update_scroll()
 void PVInspector::PVExtractorWidget::update_infos()
 {
 	size_t index = _slider_index->value();
-	size_t offset = 0;
+	chunk_index offset = 0;
 	PVRush::PVRawSourceBase_p src = _ext.get_agg().agg_index_to_source(index, &offset);
 	_cur_src = src;
 	_cur_src_offset = offset;

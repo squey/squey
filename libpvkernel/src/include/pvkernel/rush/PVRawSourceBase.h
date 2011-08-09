@@ -19,13 +19,22 @@ public:
 public:
 	PVRawSourceBase(PVInput_p input, PVFilter::PVChunkFilter_f src_filter);
 	virtual ~PVRawSourceBase();
+private:
+	PVRawSourceBase(const PVRawSourceBase& src) :
+		PVFilter::PVFilterFunctionBase<PVCore::PVChunk*,void>(src)
+	{
+		assert(false);
+	}
+
 public:
 	PVFilter::PVChunkFilter_f source_filter();
 	PVInput_p get_input() { return _input; }
 	chunk_index last_elt_index() { return _last_elt_index; }
 	virtual QString human_name();
 	virtual void seek_begin();
+	virtual bool seek(input_offset off);
 	virtual PVCore::PVChunk* operator()() = 0;
+	virtual input_offset get_input_offset_from_index(chunk_index idx, chunk_index& known_idx) = 0;
 
 protected:
 	PVFilter::PVChunkFilter_f _src_filter;

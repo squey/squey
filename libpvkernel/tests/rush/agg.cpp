@@ -1,4 +1,3 @@
-#define SIMULATE_PIPELINE
 #include <pvkernel/rush/PVInputFile.h>
 #include <pvkernel/rush/PVChunkAlignUTF16Char.h>
 #include <pvkernel/filter/PVChunkFilter.h>
@@ -31,7 +30,7 @@ void dump_agg(PVAggregator& agg)
 
 void show_src_index(PVAggregator& agg, size_t index)
 {
-	size_t offset = 0;
+	chunk_index offset = 0;
 	PVRush::PVRawSourceBase_p src = agg.agg_index_to_source(index, &offset);
 	QFileInfo fi(src->human_name());
 	// Output in UTF8 !

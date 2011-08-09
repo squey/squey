@@ -222,7 +222,11 @@ PVInspector::PVFilesTypesSelWidget::PVFilesTypesSelWidget(PVInspector::PVMainWin
 			if (!types.contains(*it_t)) {
 				QStringList::iterator it_rem = it_t;
 				it_t++;
+				bool was_last = it_t == types_intersec.end();
 				types_intersec.erase(it_rem);
+				if (was_last) {
+					break;
+				}
 			}
 			else {
 				it_t++;

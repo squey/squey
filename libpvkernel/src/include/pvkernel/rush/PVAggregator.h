@@ -15,6 +15,7 @@
 #include <tbb/pipeline.h>
 #include <vector>
 #include <map>
+#include <boost/shared_ptr.hpp>
 
 #define DEFAULT_NUMBER_LINES 1000000
 
@@ -31,25 +32,14 @@ namespace PVRush {
  *
  * \note AG: still lots of improvements are possible in this class. See the different TODO's !
  *
- * \todo Index searching optimisation (see process_indexes and process_from_source), which means do not start from the beggining
- *       each time process_indexes or process_from_source is called. The first thing is to really use the map_source_offsets.
  */
 class LibKernelDecl PVAggregator {
 public:
-	typedef std::vector<PVRush::PVRawSourceBase_p> list_inputs;
-
-	typedef std::map<chunk_index, PVRush::PVRawSourceBase_p> map_source_offsets;
+	typedef std::list<PVRush::PVRawSourceBase_p> list_inputs;
+	typedef boost::shared_ptr<PVAggregator> p_type;
+	typedef std::map<chunk_index, list_inputs::iterator> map_source_offsets;
 
 public:
-	/*! \brief Copy constructor of an aggregator.
-	 * It reimplements the default behavior so that the current source iterator and stop condition pointer are valid.
-	 * 
-	 * \todo Use shared pointers for aggregator arguments, so that only one heap-allocated object will be used
-	 * by the other classes ! Moreover, using copies of aggregator object can be a problem, since member
-	 * variables like _src_offsets won't be synchronized. In the future, this method should be declared as private !
-	 */
-	PVAggregator(const PVAggregator& org);
-
 	/*! \brief Create an aggregator from a list of PVRawSourceBase objects stored as shared pointers.
 	 */
 	PVAggregator(list_inputs const& inputs);
@@ -57,6 +47,14 @@ public:
 	/*! \brief Create an aggregator with no source.
 	 */
 	PVAggregator();
+
+private:
+	/*! \brief Copy constructor of an aggregator.
+	 * It is a private constructor as PVAggregator must be used as shared objects.
+	 */
+	PVAggregator(const PVAggregator& org);
+
+public:
 
 	/*! \brief Add a source to the aggregator.
 	 *  \note The number of elements of that source is not computed when it is added. See read_all_chunks_from_beggining
@@ -91,8 +89,6 @@ public:
 	 *
 	 *  \todo Add a mode where elements of the first and final chunk that whose global index is not in the given range
 	 *        are invalidated by the aggregator.
-	 *
-	 *  \todo Use _src_offsets to be more efficient !
 	 */
 	void process_indexes(chunk_index nstart, chunk_index nend);
 
@@ -107,8 +103,6 @@ public:
 	 * \sa process_indexes
 	 * \note Because process_indexes is used, if nstart is greater than then umber of elements of param[in]_start, then the following
 	 *       source will be used.
-	 *
-	 * \todo This is all but efficient, because process_indexes do not use _src_offsets.
 	 */
 	void process_from_source(list_inputs::iterator input_start, chunk_index nstart, chunk_index nend);
 
@@ -144,27 +138,29 @@ public:
 
 	/*! \brief Find the source that contains the given global index.
 	 *  \param[in] idx Global index to search
-	 *  \param[out] offset If not NULL, the global index of the first element of the found input source.
+	 *  \param[out] index If not NULL, the global index of the first element of the found input source.
 	 *  \return A shared pointer to the source that contains the given global index if found, or an invalid shared
 	 *          pointer otherwise.
 	 */
-	PVRush::PVRawSourceBase_p agg_index_to_source(chunk_index idx, size_t* offset);
+	PVRush::PVRawSourceBase_p agg_index_to_source(chunk_index idx, chunk_index* global_index);
 	void debug();
 
 public:
 	/*! \brief Helper static function to create a PVAggregator object from a unique source.
 	 */
-	static PVAggregator from_unique_source(PVRush::PVRawSourceBase_p source);
+	static p_type from_unique_source(PVRush::PVRawSourceBase_p source);
 
 protected:
 	PVCore::PVChunk* read_until_index(chunk_index idx) const;
 	bool read_until_source(list_inputs::iterator input_start);
 	PVCore::PVChunk* next_chunk() const;
+	list_inputs::iterator agg_index_to_source_iterator(chunk_index idx, chunk_index* global_index);
+
 
 	void init();
 protected:
 	list_inputs _inputs;
-	mutable list_inputs::const_iterator _cur_input;
+	mutable list_inputs::iterator _cur_input;
 	/*! \brief Indicates the end of param[in]s. Set by operator().
 	 */
 	mutable bool _eoi;
@@ -213,6 +209,8 @@ public:
 protected:
 	PVAggregator &_ref;
 };
+
+typedef PVAggregator::p_type PVAggregator_p;
 
 }
 

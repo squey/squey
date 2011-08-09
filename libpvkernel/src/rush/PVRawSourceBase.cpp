@@ -6,6 +6,7 @@ PVRush::PVRawSourceBase::PVRawSourceBase(PVInput_p input, PVFilter::PVChunkFilte
 	_input(input)
 {
 	_last_elt_index = 0;
+	PVLOG_DEBUG("In PVRawSourceBase constructor (%x)\n", this);
 }
 
 PVRush::PVRawSourceBase::~PVRawSourceBase()
@@ -22,7 +23,13 @@ void PVRush::PVRawSourceBase::seek_begin()
 	_input->seek_begin();
 }
 
+bool PVRush::PVRawSourceBase::seek(input_offset off)
+{
+	return _input->seek(off);
+}
+
 QString PVRush::PVRawSourceBase::human_name()
 {
 	return _input->human_name();
 }
+

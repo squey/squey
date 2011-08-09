@@ -63,7 +63,7 @@ int PVRush::PVInputPcap::datalink() const
 	return _datalink;
 }
 
-PVRush::PVInputPcap::input_offset PVRush::PVInputPcap::current_input_offset()
+PVRush::input_offset PVRush::PVInputPcap::current_input_offset()
 {
 	return _next_packet;
 }
@@ -86,6 +86,12 @@ void PVRush::PVInputPcap::seek_begin()
 		return;
 	}
 	post_init();
+}
+
+bool PVRush::PVInputPcap::seek(input_offset /*off*/)
+{
+	// TODO: find a way to do this !
+	return false;
 }
 
 QString PVRush::PVInputPcap::human_name()
