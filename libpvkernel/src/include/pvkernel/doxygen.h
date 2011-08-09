@@ -34,7 +34,7 @@ compound=true;
  * is to create chunks that are then processed by a TBB pipeline.
  * involved in the creation of a source.
  *
- * \subection rushinput Input connectors
+ * \subsection rushinput Input connectors
  *
  * The input are segmented with two main properties :
  * <ul>
