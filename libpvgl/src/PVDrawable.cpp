@@ -1,6 +1,6 @@
 //! \file PVDrawable.cpp
-//! $Id: PVDrawable.cpp 2985 2011-05-26 09:01:11Z dindinx $
-//! Copyright (C) SÃÂ©bastien Tricaud 2009-2011
+//! $Id$
+//! Copyright (C) Sebastien Tricaud 2009-2011
 //! Copyright (C) Philippe Saade 2009-2011
 //! Copyright (C) Picviz Labs 2011
 
@@ -112,7 +112,9 @@ void PVGL::PVDrawable::init(Picviz::PVView_p view)
 	PVLOG_DEBUG("PVGL::PVDrawable::%s\n", __FUNCTION__);
 	picviz_view = view;
 
-	if (picviz_view->get_row_count() < 80000) {
+	int max_lines_for_scheduler_small = pvconfig.value("pvgl/max_lines_for_scheduler_small", 80000).toInt();
+
+	if (picviz_view->get_row_count() < max_lines_for_scheduler_small) {
 		current_scheduler = &PVGL::PVDrawable::small_files_scheduler;
 	} else {
 		current_scheduler = &PVGL::PVDrawable::dumb_scheduler;
