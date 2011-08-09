@@ -33,7 +33,6 @@ public:
 		_nextc = NULL;
 		seek_begin();
 		_offsets[0] = 0;
-		PVLOG_DEBUG("In PVRawSource constructor (%x), sizeof offsets %d\n", this, _offsets.size());
 	}
 
 	virtual ~PVRawSource()
@@ -143,8 +142,6 @@ public:
 	input_offset get_input_offset_from_index(chunk_index idx, chunk_index& known_idx)
 	{
 		map_offsets::iterator it;
-		PVLOG_DEBUG("(RawSource %x)\n", this);
-		PVLOG_DEBUG("(RawSource %x) map_offsets: %d\n", this, _offsets.size());
 		for (it = _offsets.begin(); it != _offsets.end(); it++) {
 			chunk_index src_index = it->first;
 			if (idx >= src_index) {
