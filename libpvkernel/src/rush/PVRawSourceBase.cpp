@@ -22,7 +22,13 @@ void PVRush::PVRawSourceBase::seek_begin()
 	_input->seek_begin();
 }
 
+bool PVRush::PVRawSourceBase::seek(input_offset off)
+{
+	return _input->seek(off);
+}
+
 QString PVRush::PVRawSourceBase::human_name()
 {
 	return _input->human_name();
 }
+

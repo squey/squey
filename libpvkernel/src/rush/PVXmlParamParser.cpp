@@ -38,12 +38,18 @@ PVRush::PVXmlParamParser::PVXmlParamParser(QString const& nameFile)
 	QTextStream tmpTextXml(&xmlfile); // file stream creation
 	QDomDocument docXml;
 	docXml.setContent(tmpTextXml.readAll());
-	setVersionFromRootNode(docXml.documentElement());
-	setDom(docXml.documentElement());
+	parseFromRootNode(docXml.documentElement());
 
 	xmlfile.close();
+}
 
-	dump_filters();
+PVRush::PVXmlParamParser::PVXmlParamParser(QDomElement const& rootNode)
+{
+	parseFromRootNode(rootNode);
+}
+
+PVRush::PVXmlParamParser::~PVXmlParamParser()
+{
 }
 
 void PVRush::PVXmlParamParser::dump_filters()
@@ -54,10 +60,12 @@ void PVRush::PVXmlParamParser::dump_filters()
 	}
 }
 
-PVRush::PVXmlParamParser::PVXmlParamParser(QDomElement const& rootNode)
+void PVRush::PVXmlParamParser::parseFromRootNode(QDomElement const& rootNode)
 {
 	setVersionFromRootNode(rootNode);
 	setDom(rootNode);
+	setAxesCombinationFromRootNode(rootNode);
+	dump_filters();
 }
 
 void PVRush::PVXmlParamParser::setVersionFromRootNode(QDomElement const& node)
@@ -65,8 +73,44 @@ void PVRush::PVXmlParamParser::setVersionFromRootNode(QDomElement const& node)
 	format_version = node.attribute("version","0").toInt();
 }
 
-PVRush::PVXmlParamParser::~PVXmlParamParser()
+void PVRush::PVXmlParamParser::setAxesCombinationFromRootNode(QDomElement const& node)
 {
+	QDomNodeList childs = node.childNodes();
+	for (int i = 0; i < childs.size(); i++) {
+		QDomNode child_node = childs.at(i);
+		if (!child_node.isElement()) {
+			continue;
+		}
+		
+		QDomElement elt = child_node.toElement();
+		if (elt.tagName() != PVFORMAT_AXES_COMBINATION) {
+			continue;
+		}
+
+		setAxesCombinationFromString(node.text());
+		return;
+	}
+	setAxesCombinationFromString(QString());
+}
+
+void PVRush::PVXmlParamParser::setAxesCombinationFromString(QString const& str)
+{
+	_axes_combination.clear();
+	if (str.isEmpty()) {
+		return; // The default combination will be used
+	}
+
+	QStringList axes_list = str.split(',');
+	PVCol naxes = _axes.size();
+	_axes_combination.resize(axes_list.size());
+	for (int i = 0; i < axes_list.size(); i++) {
+		bool ok = false;
+		PVCol ax_id = axes_list[i].toLongLong(&ok);
+		if (!ok || ax_id >= naxes || std::find(_axes_combination.begin(), _axes_combination.end(), ax_id) != _axes_combination.end()) {
+			continue;
+		}
+		_axes_combination.push_back(ax_id);
+	}
 }
 
 QHash<int, QStringList> const& PVRush::PVXmlParamParser::getTimeFormat() const
@@ -218,7 +262,7 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id)
 
 				newId++;
 			}
-		}	
+		}
 	}
 
 	return newId;

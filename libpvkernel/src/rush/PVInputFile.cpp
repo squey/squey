@@ -32,7 +32,7 @@ size_t PVRush::PVInputFile::operator()(char* buffer, size_t n)
 	return ret;
 }
 
-PVRush::PVInputFile::input_offset PVRush::PVInputFile::current_input_offset()
+PVRush::input_offset PVRush::PVInputFile::current_input_offset()
 {
 	return _file.tellg();
 }
@@ -41,6 +41,13 @@ void PVRush::PVInputFile::seek_begin()
 {
 	_file.clear();
 	_file.seekg(0);
+}
+
+bool PVRush::PVInputFile::seek(input_offset off)
+{
+	_file.clear();
+	_file.seekg(off);
+	return _file.good();
 }
 
 QString PVRush::PVInputFile::human_name()

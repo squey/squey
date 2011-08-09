@@ -27,7 +27,6 @@ static QString jstring_to_qstring(JNIEnv* env, jstring str)
 {
 	const jchar* buf_utf16 = env->GetStringChars(str, NULL);
 	int n = env->GetStringLength(str);
-	std::cout << "Size of string: " << n << std::endl;
 	return QString::fromRawData((const QChar*) buf_utf16, n);
 }
 
@@ -53,9 +52,7 @@ JNIEXPORT void JNICALL Java_org_picviz_jni_PVRush_PVRushJNI_init(JNIEnv *env, jc
 JNIEXPORT void JNICALL Java_org_picviz_jni_PVRush_PVRushJNI_init_1with_1format(JNIEnv * env, jobject /*obj*/, jstring str)
 {
 	QString file_path = jstring_to_qstring(env, str);
-	std::cout << "Path to format: " << qPrintable(file_path) << std::endl;
 	_format.populate_from_xml(file_path);
-	std::cout << "Populate done" << std::endl;
 	_elt_f = _format.create_tbb_filters_elt();
 	free_j2qstring(env, str, file_path);
 }

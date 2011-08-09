@@ -50,6 +50,8 @@ public:
 	 */
 	PVAxes(PVView *view);
 
+	~PVAxes();
+
 	/**
 	 * Initialize everything we need to setup the rendering of the axes.
 	 *

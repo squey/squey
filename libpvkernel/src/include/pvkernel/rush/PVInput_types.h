@@ -11,6 +11,9 @@ class LibKernelDecl PVInput;
 // Pointer type to a PVInput
 typedef boost::shared_ptr<PVInput> PVInput_p;
 
+// Input offset
+typedef uint64_t input_offset;
+
 }
 
 #endif
