@@ -1,6 +1,6 @@
 #include "PVFieldSplitterPcapPacket.h"
 #include <pvkernel/core/network.h>
-#include <pvkernel/rush/PVRawSourceBase.h>
+#include <pvkernel/rush/PVRawSource.h>
 #include <pvkernel/rush/PVInputPcap.h>
 
 #include <QStringList>
@@ -73,11 +73,14 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterPcapPacket::one_to_many(
 	}
 
 	if (_datalink_type == -1) {
-		PVRush::PVInputPcap* pcap = dynamic_cast<PVRush::PVInputPcap*>(field.elt_parent()->chunk_parent()->source()->get_input().get());
-		if (pcap) {
-			_datalink_type = pcap->datalink();
+		PVRush::PVRawSource<>* src = dynamic_cast<PVRush::PVRawSource<>*>(field.elt_parent()->chunk_parent()->source());
+		if (src) {
+			PVRush::PVInputPcap* pcap = dynamic_cast<PVRush::PVInputPcap*>(src->get_input().get());
+			if (pcap) {
+				_datalink_type = pcap->datalink();
+			}
 		}
-		else {
+		if (_datalink_type == -1) {
 			PVLOG_WARN("(PVFieldSplitterPcapPacket) datalink hasn't been set and the input source isn't supported by libpcap. Datalink is set to Ethernet by default !\n");
 			_datalink_type = DLT_EN10MB;
 		}

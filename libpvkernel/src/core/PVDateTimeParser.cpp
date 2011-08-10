@@ -94,6 +94,7 @@ bool PVCore::PVDateTimeParser::mapping_time_to_cal(QString const& value, Calenda
 			return true;
 	}
 
+	PVLOG_DEBUG("(PVDateTimeParser::mapping_time_to_cal) last known time format didn't match. Trying the other ones...\n");
 	list_time_format::iterator it;
 	for (it = _time_format.begin(); it != _time_format.end(); it++) {
 		TimeFormatInterface_p cur_tf = *it;
@@ -202,6 +203,8 @@ bool PVCore::PVDateTimeParser::TimeFormat::to_datetime(UnicodeString const& valu
 	if (pos.getErrorIndex() == -1) {
 		return true;
 	}
+
+	PVLOG_DEBUG("(PVDateTimeParser::TimeFormat::to_datetime) last known parser for current time format wasn't successful. Searching for a good one...\n");
 
 	std::vector<SimpleDateFormat_p>::iterator it;
 	for (it = parsers.begin(); it != parsers.end(); it++) {

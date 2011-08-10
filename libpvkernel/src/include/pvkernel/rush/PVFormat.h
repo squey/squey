@@ -80,9 +80,9 @@ public:
 	/* Methods */
 	void clear();
 	void debug();
-	bool populate_from_xml(QString filename, bool allowNoFilters = false);
-	bool populate_from_xml(QDomElement const& rootNode, bool allowNoFilters = false);
-	bool populate(bool allowNoFilters = false);
+	bool populate_from_xml(QString filename, bool forceOneAxis = false);
+	bool populate_from_xml(QDomElement const& rootNode, bool forceOneAxis = false);
+	bool populate(bool forceOneAxis = false);
 	
 	PVFilter::PVChunkFilter_f create_tbb_filters();
 	PVFilter::PVElementFilter_f create_tbb_filters_elt();
@@ -111,7 +111,7 @@ public:
 
 protected:
 	PVFilter::PVFieldsBaseFilter_f xmldata_to_filter(PVRush::PVXmlParamParserData const& fdata);
-	bool populate_from_parser(PVXmlParamParser& xml_parser, bool allowNoFilters = false);
+	bool populate_from_parser(PVXmlParamParser& xml_parser, bool forceOneAxis = false);
 
 protected:
 	list_axes_t _axes;

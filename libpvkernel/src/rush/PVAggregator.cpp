@@ -40,8 +40,6 @@ void PVRush::PVAggregator::set_stop_condition(bool *cond)
 
 void PVRush::PVAggregator::process_from_source(list_inputs::iterator input_start, chunk_index nstart, chunk_index nend)
 {
-	// FIXME: as process_indexes isn't efficient, this method could read *twice* the files...
-	
 	// Process from nstart to nend, starting by input_start
 	
 	// Find, compute offset for input_start
@@ -103,6 +101,8 @@ void PVRush::PVAggregator::process_indexes(chunk_index nstart, chunk_index nend)
 			// Reset all inputs position pointer
 			(*it)->seek_begin();
 		}
+
+		(*_cur_input)->prepare_for_nelts(nend-nstart);
 		return;
 	}
 
@@ -129,6 +129,8 @@ void PVRush::PVAggregator::process_indexes(chunk_index nstart, chunk_index nend)
 	for (; it_src != _inputs.end(); it_src++) {
 		(*it_src)->seek_begin();
 	}
+
+	(*_cur_input)->prepare_for_nelts(nend-nstart);
 }
 
 bool PVRush::PVAggregator::read_until_source(list_inputs::iterator input_start)
@@ -174,6 +176,7 @@ PVCore::PVChunk* PVRush::PVAggregator::next_chunk() const
 		}
 		_cur_src_index = _nlast;
 		_src_offsets[_cur_src_index] = _cur_input;
+		(*_cur_input)->prepare_for_nelts(_nend-_nlast);
 		ret = (*_cur_input)->operator()();
 	}
 

@@ -14,7 +14,6 @@
 #include <list>
 
 #include <tbb/scalable_allocator.h>
-#include <tbb/tbb_allocator.h>
 
 #include <QList>
 #include <QExplicitlySharedDataPointer>
@@ -26,12 +25,13 @@ class PVChunk;
 class PVField;
 class PVElementData;
 
-typedef std::list<PVField, tbb::tbb_allocator<PVField> > list_fields;
+typedef std::list<PVField, tbb::scalable_allocator<PVField> > list_fields;
 class LibKernelDecl PVElement : public PVBufferSlice {
 	friend class PVField;
 	friend class PVChunk;
 public:
 	PVElement(PVChunk* parent, char* begin, char* end);
+	PVElement(PVChunk* parent);
 	PVElement(PVElement const& src);
 	virtual ~PVElement();
 public:
@@ -57,6 +57,7 @@ protected:
 	void set_chunk_index(size_t i) { _chunk_index = i; }
 private:
 	void clear_saved_buf();
+	void init(PVChunk* parent);
 protected:
 	QExplicitlySharedDataPointer<PVElementData> d;
 private:

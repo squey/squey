@@ -35,4 +35,6 @@ add_executable(Tcore_timeformat time-format.cpp)
 target_link_libraries(Tcore_timeformat ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES} ${ICU_LIBRARY})
 add_test(TestTimeformat Tcore_timeformat test-files/time_format)
 
-
+# Time format performance
+add_executable(Tcore_timeformat_perf time-format-perf.cpp)
+target_link_libraries(Tcore_timeformat_perf ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES} ${ICU_LIBRARY})

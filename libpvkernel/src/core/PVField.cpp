@@ -1,8 +1,20 @@
 #include <pvkernel/core/PVField.h>
 #include <pvkernel/core/PVElementData.h>
 
-PVCore::PVField::PVField(PVCore::PVElement const& parent, char* begin, char* end) :
+
+PVCore::PVField::PVField(PVCore::PVElement const& parent):
+	PVBufferSlice(parent.realloc_bufs())
+{
+	init(parent);
+}
+
+PVCore::PVField::PVField(PVCore::PVElement const& parent, char* begin, char* end):
 	PVBufferSlice(begin, end, parent.realloc_bufs())
+{
+	init(parent);
+}
+
+void PVCore::PVField::init(PVElement const& parent)
 {
 	_valid = true;
 	_parent = parent.d.data();
