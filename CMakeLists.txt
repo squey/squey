@@ -7,7 +7,7 @@ if (WIN32)
 	#set(CMAKE_BUILD_TYPE "Release")
 	set(CMAKE_BUILD_TYPE "Debug")
 else(WIN32)
-	set(CMAKE_BUILD_TYPE "Release")
+	set(CMAKE_BUILD_TYPE "Debug")
 endif(WIN32)
 
 set(PICVIZ_SINGLE_TREE_BUILD true)
