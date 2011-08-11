@@ -7,7 +7,7 @@
 PVRush::PVSourceCreatorDatabase::source_p PVRush::PVSourceCreatorDatabase::create_source_from_input(PVCore::PVArgument const& input) const
 {
 	PVFilter::PVChunkFilter* chk_flt = new PVFilter::PVChunkFilter();
-	source_p src = source_p(new PVRush::PVDBSource(input.value<PVDBQuery>(), 10000, chk_flt->f()));
+	source_p src = source_p(new PVRush::PVDBSource(input.value<PVDBQuery>(), 100, chk_flt->f()));
 
 	return src;
 }

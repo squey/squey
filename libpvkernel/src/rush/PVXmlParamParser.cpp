@@ -229,11 +229,11 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id)
 				QString node_type = getNodeType(child);
 				if (node_type == "splitter") {
 					pushFilter(child, newId);
-					setDom(child, newId);
+					newId = setDom(child, newId);
 				}
 				else
 				if (node_type == "field") {
-					setDom(child, newId);
+					newId = setDom(child, newId);
 				}
 			}
 

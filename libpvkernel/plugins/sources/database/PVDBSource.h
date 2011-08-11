@@ -35,6 +35,7 @@ protected:
 	input_offset _start;
 	chunk_index _min_nelts;
 	chunk_index _nelts_chunk;
+	chunk_index _next_index;
 	QSqlQuery _sql_query;
 };
 

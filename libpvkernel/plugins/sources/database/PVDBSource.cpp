@@ -18,6 +18,7 @@ PVRush::PVDBSource::PVDBSource(PVDBQuery const& query, chunk_index nelts_chunk, 
 		PVLOG_WARN("Unable to connect to database: %s\n", qPrintable(_query.last_error_serv()));
 	}
 	prepare_for_nelts(nelts_chunk*NCHUNKS);
+	_last_elt_index = 0;
 }
 
 PVRush::PVDBSource::~PVDBSource()
@@ -37,6 +38,7 @@ void PVRush::PVDBSource::seek_begin()
 bool PVRush::PVDBSource::seek(input_offset off)
 {
 	_start = off;
+	_next_index = off;
 	return true;
 }
 
@@ -58,12 +60,16 @@ PVCore::PVChunk* PVRush::PVDBSource::operator()()
 	}
 	// Create a chunk w/ no memory for its internal buffer
 	PVCore::PVChunk* chunk = PVCore::PVChunkMem<>::allocate(0, this);
+	chunk->set_index(_next_index);
 	for (chunk_index n = 0; n < _nelts_chunk; n++) {
 		if (!_sql_query.next()) {
 			// Try to get the next batch, and if empty, well, that's the end.
 			query_next_batch();
 			if (_sql_query.size() == 0) {
-				return (n == 0) ? NULL : chunk;
+				if (n == 0) {
+					return NULL;
+				}
+				break;
 			}
 		}
 		PVCore::PVElement elt(chunk);
@@ -79,6 +85,13 @@ PVCore::PVChunk* PVRush::PVDBSource::operator()()
 		}
 		chunk->elements().push_back(elt);
 	}
+
+	// Set the index of the elements inside the chunk
+	chunk->set_elements_index();
+
+	// Compute the next chunk's index
+	_next_index += chunk->c_elements().size();
+
 	return chunk;
 }
 
