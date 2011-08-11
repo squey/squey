@@ -122,13 +122,13 @@ void PVGL::PVLayout::allocate_size(const PVAllocation &new_allocation)
 		} else {
 			child_allocation.width = allocation.x + allocation.width + it->x2 - child_allocation.x;
 		}
-		child_allocation.width = std::max(1, child_allocation.width);
+		child_allocation.width = picviz_max(1, child_allocation.width);
 		if (it->y2 >= 0) {
 			child_allocation.height = it->y2 - child_allocation.y;
 		} else {
 			child_allocation.height = allocation.y + allocation.height + it->y2 - child_allocation.y;
 		}
-		child_allocation.height = std::max(1, child_allocation.height);
+		child_allocation.height = picviz_max(1, child_allocation.height);
 		it->widget->allocate_size(child_allocation);
 	}
 }

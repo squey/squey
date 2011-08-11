@@ -92,7 +92,7 @@ void PVGL::PVFont::draw_text(float x, float y, const char *text, int font_size)
 			glyph.width  = slot->bitmap.width;
 			glyph.height = slot->bitmap.rows;
 			//
-			y_max = std::max(y_max, glyph.height);
+			y_max = picviz_max(y_max, glyph.height);
 			if (x_off + glyph.width > TEXTURE_FONT_SIZE) {
 				y_off += y_max + TEXTURE_FONT_PADDING;
 				if (y_off > TEXTURE_FONT_SIZE) {
@@ -179,8 +179,8 @@ void PVGL::PVFont::get_text_size(const std::string &text, int font_height, int &
 		if (face->glyph->format != FT_GLYPH_FORMAT_BITMAP) {
 			error = FT_Render_Glyph(face->glyph, FT_RENDER_MODE_NORMAL);
 		}
-		ascent = std::max(ascent, face->glyph->bitmap_top);
-		descent= std::max(descent,face->glyph->bitmap.rows - face->glyph->bitmap_top);
+		ascent = picviz_max(ascent, face->glyph->bitmap_top);
+		descent= picviz_max(descent,face->glyph->bitmap.rows - face->glyph->bitmap_top);
 		pen.x += face->glyph->advance.x;
 		pen.y += face->glyph->advance.y;
 

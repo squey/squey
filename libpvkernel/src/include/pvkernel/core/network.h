@@ -11,13 +11,15 @@
 #include <QString>
 
 #include <pvkernel/core/general.h>
-#include <dnet.h>
+#include <pvkernel/core/dumbnet.h>
 
 namespace PVCore {
-	struct LibKernelDecl Network {
-		static bool ipv4_aton(QString const& ip, uint32_t& ip_n);
-		static char* ipv4_ntoa(const ip_addr_t addr);
-	};
+
+struct LibKernelDecl Network {
+	static bool ipv4_aton(QString const& ip, uint32_t& ip_n);
+	static char* ipv4_ntoa(const ip_addr_t addr);
+};
+
 }
 
 #endif	/* PVCORE_NETWORK_H */

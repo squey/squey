@@ -310,7 +310,7 @@ public:
 	typedef FilterT_ FilterT;
 	typedef FilterT RegAs;
 	typedef boost::shared_ptr< PVFilterFunction<T,FilterT> > p_type;
-	typedef PVFilterFunction<T,FilterT_> base_registrable;
+	//typedef PVFilterFunction<T,FilterT_> base_registrable;
 	typedef typename PVFilterFunctionBase<T&,T&>::func_type func_type;
 public:
 	PVFilterFunction(PVCore::PVArgumentList const& args = PVFilterFunction::default_args()) :

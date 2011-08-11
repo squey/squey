@@ -176,13 +176,13 @@ bool PVGL::PVEventLine::mouse_move(int x, int /*y*/, int /*modifiers*/)
 			float pos_x = (x - mouse_diff - (allocation.x + 10 + 10)) / float (allocation.width - 40);
 			switch (grabbed_slider) {
 				case 0:
-						pos_x = std::max(0.0f, std::min(sliders_positions[1], pos_x));
+						pos_x = picviz_max(0.0f, picviz_min(sliders_positions[1], pos_x));
 						break;
 				case 1:
-						pos_x = std::max(sliders_positions[0], std::min(sliders_positions[2], pos_x));
+						pos_x = picviz_max(sliders_positions[0], picviz_min(sliders_positions[2], pos_x));
 						break;
 				case 2:
-						pos_x = std::max(sliders_positions[1], std::min(1.0f, pos_x));
+						pos_x = picviz_max(sliders_positions[1], picviz_min(1.0f, pos_x));
 						break;
 			}
 			//sliders_positions[grabbed_slider] = picviz_eventline_set_kth_index_and_adjust_slider_position (picviz_view->eventline, grabbed_slider, pos_x);

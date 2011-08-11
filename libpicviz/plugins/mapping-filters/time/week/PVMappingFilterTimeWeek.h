@@ -18,7 +18,7 @@ class PVMappingFilterTimeWeek: public PVMappingFilterTimeDefault
 protected:
 	float cal_to_float(Calendar* cal, bool& success); 
 
-	CLASS_FILTER(PVMappingFilterTimeWeek)
+	CLASS_REGISTRABLE(PVMappingFilterTimeWeek)
 };
 
 }

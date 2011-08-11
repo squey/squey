@@ -15,16 +15,6 @@
 
 #include <pvkernel/core/general.h>
 
-#include <picviz/arguments.h>
-//#include <picviz/eventline.h>
-//#include <picviz/index-array.h>
-//#include <picviz/layer.h>
-//#include <picviz/layer-stack.h>
-/* #include <picviz/state-machine.h> */
-//#include <picviz/square-area.h>
-//#include <picviz/tags.h>
-//#include <picviz/z-level-array.h>
-
 #include <pvkernel/core/PVColor.h>
 #include <picviz/PVLinesProperties.h>
 #include <picviz/PVMapped.h>

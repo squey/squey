@@ -63,8 +63,7 @@ template <fields_filter_type Ttype = many_to_many>
 class PVFieldsFilter : public PVFieldsBaseFilter {
 public:
 	typedef PVFieldsFilter<Ttype> FilterT;
-	//typedef boost::shared_ptr< PVFieldsFilter<Ttype> > p_type;
-	typedef PVFieldsBaseFilter base_registrable;
+	//typedef PVFieldsBaseFilter base_registrable;
 	typedef PVFieldsFilter<Ttype> RegAs;
 
 public:
@@ -123,7 +122,13 @@ protected:
 	// Defines the number of expected children. 0 means that this information is unavailable.
 	size_t _fields_expected;
 
-	CLASS_FILTER_NOPARAM(PVFieldsFilter<Ttype>)
+	CLASS_FILTER_NONREG_NOPARAM(FilterT)
+
+	// Custom registration functions (CLASS_REGISTRABLE should be used here, but we have issues under Windows)
+public:
+	typedef boost::shared_ptr<FilterT> p_type;
+protected:
+	virtual base_registrable* _clone_me() const { FilterT* ret = new FilterT(*this); return ret; }
 };
 
 // Macro for reporting invalid fields

@@ -776,8 +776,8 @@ void PVGL::PVView::mouse_wheel(int delta_zoom_level, int x, int y)
 	int old_zoom_level_x, old_zoom_level_y;
 
 	/* We need to refresh the pixel dimension of the view */
-	int MX = std::max(1, width);
-	int MY = std::max(1, height);
+	int MX = picviz_max(1, width);
+	int MY = picviz_max(1, height);
 
 	if (!picviz_view) { // Sanity check
 		return;

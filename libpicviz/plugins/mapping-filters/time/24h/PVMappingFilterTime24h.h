@@ -18,7 +18,7 @@ class PVMappingFilterTime24h: public PVMappingFilterTimeDefault
 protected:
 	float cal_to_float(Calendar* cal, bool& success); 
 
-	CLASS_FILTER(PVMappingFilterTime24h)
+	CLASS_REGISTRABLE(PVMappingFilterTime24h)
 };
 
 }

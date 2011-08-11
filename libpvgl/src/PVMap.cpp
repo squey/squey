@@ -7,6 +7,7 @@
 #include <iostream>
 #include <sstream>
 #include <cmath>
+#include <algorithm>
 
 #include <picviz/PVView.h>
 
@@ -18,6 +19,7 @@
 #include <pvgl/PVWTK.h>
 
 #include <pvgl/PVMap.h>
+
 
 const int MAP_FBO_MAX_WIDTH = 2048;
 const int MAP_FBO_MAX_HEIGHT= 1024;
@@ -341,8 +343,8 @@ void PVGL::PVMap::draw_zombie_lines(GLfloat modelview[16])
 		glActiveTexture(GL_TEXTURE2); PRINT_OPENGL_ERROR();
 		glBindTexture(GL_TEXTURE_BUFFER, lines->tbo_zombie_texture); PRINT_OPENGL_ERROR();
 		glTexBuffer(GL_TEXTURE_BUFFER, GL_R32UI, lines->tbo_zombie); PRINT_OPENGL_ERROR();
-
-		glDrawArrays(GL_POINTS, drawn_zombie_lines, std::min(nb_lines_to_draw, int(picviz_view->get_row_count() - drawn_zombie_lines)));
+		
+		glDrawArrays(GL_POINTS, drawn_zombie_lines, picviz_min(nb_lines_to_draw, int(picviz_view->get_row_count() - drawn_zombie_lines)));
 	}
 	glBlendEquation(GL_FUNC_ADD);
 	glDisable(GL_BLEND);
@@ -392,7 +394,7 @@ void PVGL::PVMap::draw_selected_lines(GLfloat modelview[16])
 		glBindTexture(GL_TEXTURE_BUFFER, lines->tbo_selection_texture); PRINT_OPENGL_ERROR();
 		glTexBuffer(GL_TEXTURE_BUFFER, GL_R32UI, lines->tbo_selection); PRINT_OPENGL_ERROR();
 
-		glDrawArrays(GL_POINTS, drawn_lines, std::min(nb_lines_to_draw, int( picviz_view->get_row_count() - drawn_lines)));
+		glDrawArrays(GL_POINTS, drawn_lines, picviz_min(nb_lines_to_draw, int( picviz_view->get_row_count() - drawn_lines)));
 	}
 	drawn_lines += nb_lines_to_draw;
 	if (drawn_lines >= int(picviz_view->get_row_count())) {
