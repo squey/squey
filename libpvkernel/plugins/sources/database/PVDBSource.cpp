@@ -91,6 +91,9 @@ PVCore::PVChunk* PVRush::PVDBSource::operator()()
 
 	// Compute the next chunk's index
 	_next_index += chunk->c_elements().size();
+	if (_next_index-1>_last_elt_index) {
+		_last_elt_index = _next_index-1;
+	}
 
 	return chunk;
 }
