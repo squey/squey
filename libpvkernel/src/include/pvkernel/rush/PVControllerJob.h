@@ -97,6 +97,7 @@ protected:
 	int priority() const;
 	chunk_index idx_begin() const;
 	chunk_index idx_end() const;
+	chunk_index expected_nelts() const;
 	size_t nchunks() const;
 	job_action action() const;
 

@@ -44,7 +44,7 @@ bool PVRush::PVDBSource::seek(input_offset off)
 
 void PVRush::PVDBSource::prepare_for_nelts(chunk_index nelts)
 {
-	PVLOG_DEBUG("Prepare for %d elts\n", nelts);
+	PVLOG_DEBUG("(PVDBSource::prepare_for_nelts) prepare for %d elts\n", nelts);
 	_min_nelts = nelts;
 	_sql_query = _query.to_query(_start, _min_nelts);
 }
@@ -52,11 +52,11 @@ void PVRush::PVDBSource::prepare_for_nelts(chunk_index nelts)
 PVCore::PVChunk* PVRush::PVDBSource::operator()()
 {
 	if (!_sql_query.isActive()) {
-		PVLOG_DEBUG("(PVDBSource) query executed.\n");
 		if (!_sql_query.exec()) {
-			PVLOG_WARN("(PVDBSource) unable to exec SQL query '%s': %s.\n", qPrintable(_sql_query.lastQuery()), qPrintable(_sql_query.lastError().text()));
+			PVLOG_WARN("(PVDBSource::operator()) unable to exec SQL query '%s': %s.\n", qPrintable(_sql_query.lastQuery()), qPrintable(_sql_query.lastError().text()));
 			return NULL;
 		}
+		PVLOG_DEBUG("(PVDBSource::operator()) executed query '%s'.\n", qPrintable(_sql_query.lastQuery()));
 	}
 	// Create a chunk w/ no memory for its internal buffer
 	PVCore::PVChunk* chunk = PVCore::PVChunkMem<>::allocate(0, this);
@@ -102,7 +102,7 @@ void PVRush::PVDBSource::query_next_batch()
 	seek(_start + _min_nelts + 1);
 	prepare_for_nelts(_nelts_chunk);
 	_sql_query.exec();
-	PVLOG_DEBUG("(PVDBSource) query executed.\n");
+	PVLOG_DEBUG("(PVDBSource::query_next_batch) executed query '%s'.\n", qPrintable(_sql_query.lastQuery()));
 }
 
 PVRush::input_offset PVRush::PVDBSource::get_input_offset_from_index(chunk_index idx, chunk_index& known_idx)

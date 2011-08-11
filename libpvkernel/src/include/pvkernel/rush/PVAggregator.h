@@ -79,6 +79,7 @@ public:
 	/*! \brief Tell the aggregator to return chunks whose global indexes are between a given range.
 	 *  \param[in] nstart Global start index
 	 *  \param[in] nend Global end index
+	 *  \param[in] expected_nelts Defines the amount of expected elements at the end. If 0, this will not be taken into account.
 	 *
 	 *  After this method has been called, the next call to operator() will return a chunk which contains the element
 	 *  whose global index is nstart.
@@ -86,11 +87,14 @@ public:
 	 *  than nend.
 	 *
 	 *  \note The first and last chunk can contains elements that are not in the given range.
+	 *  \note expected_elts is used to tell the aggregator's sources the amount of expected elements that they would
+	 *  have to produce. Note that they can in the end process more than this number, as some elements may have been discarded
+	 *  in the middle of the process. See also PVRawSourceBase::prepare_for_nelts.
 	 *
 	 *  \todo Add a mode where elements of the first and final chunk that whose global index is not in the given range
 	 *        are invalidated by the aggregator.
 	 */
-	void process_indexes(chunk_index nstart, chunk_index nend);
+	void process_indexes(chunk_index nstart, chunk_index nend, chunk_index expected_nelts = 0);
 
 	/*! \brief Tell the aggregator to return chunk starting from a given param[in] and a given local index range.
 	 * \param[in] input_start Source to start from

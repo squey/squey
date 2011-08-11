@@ -66,7 +66,7 @@ void PVRush::PVAggregator::process_from_source(list_inputs::iterator input_start
 	process_indexes(_nstart, _nend);
 }
 
-void PVRush::PVAggregator::process_indexes(chunk_index nstart, chunk_index nend)
+void PVRush::PVAggregator::process_indexes(chunk_index nstart, chunk_index nend, chunk_index expected_nelts)
 {
 	_nstart = nstart;
 	_nend = nend;
@@ -86,6 +86,10 @@ void PVRush::PVAggregator::process_indexes(chunk_index nstart, chunk_index nend)
 		(*it)->seek_begin();
 	}*/
 
+	if (expected_nelts == 0) {
+		expected_nelts = nend-nstart;
+	}
+
 	// Find out the source that contains nstart
 	
 	chunk_index src_global_index = 0;
@@ -102,7 +106,7 @@ void PVRush::PVAggregator::process_indexes(chunk_index nstart, chunk_index nend)
 			(*it)->seek_begin();
 		}
 
-		(*_cur_input)->prepare_for_nelts(nend-nstart);
+		(*_cur_input)->prepare_for_nelts(expected_nelts);
 		return;
 	}
 
@@ -130,7 +134,7 @@ void PVRush::PVAggregator::process_indexes(chunk_index nstart, chunk_index nend)
 		(*it_src)->seek_begin();
 	}
 
-	(*_cur_input)->prepare_for_nelts(nend-nstart);
+	(*_cur_input)->prepare_for_nelts(expected_nelts);
 }
 
 bool PVRush::PVAggregator::read_until_source(list_inputs::iterator input_start)

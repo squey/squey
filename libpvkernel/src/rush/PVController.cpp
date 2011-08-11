@@ -36,7 +36,7 @@ void PVRush::PVController::operator()()
 
 				// Configure the aggregator
 				assert(_cur_job->_agg);
-				_cur_job->_agg->process_indexes(_cur_job->idx_begin(), _cur_job->idx_end());
+				_cur_job->_agg->process_indexes(_cur_job->idx_begin(), _cur_job->idx_end(), _cur_job->expected_nelts());
 				_cur_job->_agg->set_stop_condition(&(_cur_job->_job_done));
 
 				// Debug

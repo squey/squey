@@ -42,6 +42,7 @@ void PVRush::PVControllerJob::set_params(chunk_index begin, chunk_index end, chu
 	_filter = filter;
 	_out_filter = &out_filter;
 	_n_elts = n_elts;
+	_sc = sc;
 
 	if (sc == sc_n_elts) {
 		_max_n_elts = n_elts;
@@ -152,6 +153,14 @@ chunk_index PVRush::PVControllerJob::idx_begin() const
 chunk_index PVRush::PVControllerJob::idx_end() const
 {
 	return _idx_end;
+}
+
+chunk_index PVRush::PVControllerJob::expected_nelts() const
+{
+	// If we need to stop according to a number of final elements,
+	// then return that number of elements. Otherwise, just returns
+	// and this will be based on the start and final index of the job.
+	return (_sc == sc_n_elts) ? _n_elts : 0;
 }
 
 size_t PVRush::PVControllerJob::nchunks() const
