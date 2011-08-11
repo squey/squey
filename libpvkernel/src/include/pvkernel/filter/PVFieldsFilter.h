@@ -14,6 +14,7 @@
 #include <pvkernel/filter/PVFilterFunction.h>
 #include <map>
 #include <list>
+#include <vector>
 #include <utility>
 #include <QString>
 
@@ -26,6 +27,7 @@ enum fields_filter_type {
 };
 
 typedef std::list< std::pair<PVCore::PVArgumentList, PVCore::list_fields> > list_guess_result_t;
+typedef std::vector<QString> filter_child_axes_tag_t;
 
 class PVFieldsBaseFilter: public PVFilterFunction< PVCore::list_fields, PVFieldsBaseFilter >
 {
@@ -37,13 +39,31 @@ public:
 		PVFilterFunction< PVCore::list_fields, PVFieldsBaseFilter>()
 	{
 	}
+
+	void set_children_axes_tag(filter_child_axes_tag_t const& axes)
+	{
+		filter_child_axes_tag_t::const_iterator it;
+		for (it = axes.begin(); it != axes.end(); it++) {
+			PVLOG_DEBUG("(PVFieldsFilter) axis tag %s set.\n", qPrintable(*it));
+		}
+		_axes_tag = axes;
+	}
+
+protected:
+	bool is_tag_present(QString const& tag)
+	{
+		return std::find(_axes_tag.begin(), _axes_tag.end(), tag) != _axes_tag.end();
+	}
+
+protected:
+	filter_child_axes_tag_t _axes_tag;
 };
 
 template <fields_filter_type Ttype = many_to_many>
 class PVFieldsFilter : public PVFieldsBaseFilter {
 public:
 	typedef PVFieldsFilter<Ttype> FilterT;
-	typedef boost::shared_ptr< PVFieldsFilter<Ttype> > p_type;
+	//typedef boost::shared_ptr< PVFieldsFilter<Ttype> > p_type;
 	typedef PVFieldsBaseFilter base_registrable;
 	typedef PVFieldsFilter<Ttype> RegAs;
 
@@ -62,8 +82,8 @@ public:
 	// to guess the first filter that could be applied to an input
 	virtual bool guess(list_guess_result_t& /*res*/, PVCore::PVField const& /*in_field*/) { return false; } 
 
-	// Default interface (many-to-many)
-	virtual PVCore::list_fields& operator()(PVCore::list_fields &fields);
+	// Filter interface (many-to-many)
+	PVCore::list_fields& operator()(PVCore::list_fields &fields);
 
 	void set_number_expected_fields(size_t n)
 	{
@@ -91,11 +111,23 @@ protected:
 		return 1;
 	}
 
+	// many-to-many interface
+	virtual PVCore::list_fields& many_to_many(PVCore::list_fields& fields)
+	{
+		PVLOG_WARN("(PVFieldsFilter) default many_to_many function called !\n");
+		return fields;
+	}
+
 protected:
 	fields_filter_type _type;
 	// Defines the number of expected children. 0 means that this information is unavailable.
 	size_t _fields_expected;
+
+	CLASS_FILTER_NOPARAM(PVFieldsFilter<Ttype>)
 };
+
+// Macro for reporting invalid fields
+#define PVLOG_WARN_FIELD(field, str, ...) PVLOG_WARN(str " ; in index (1-based) %d in source %s \n", __VA_ARGS__, field.get_index_of_parent_element()+1, qPrintable(field.elt_parent()->chunk_parent()->source()->human_name()))
 
 typedef PVFieldsBaseFilter::func_type PVFieldsBaseFilter_f;
 typedef PVFieldsBaseFilter::p_type PVFieldsBaseFilter_p;

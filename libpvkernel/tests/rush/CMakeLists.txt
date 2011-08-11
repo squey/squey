@@ -63,6 +63,9 @@ add_executable(Trush_format format.cpp)
 target_link_libraries(Trush_format ${LINK_LIBRARIES})
 add_test(TestFormats Trush_format test-files/formats)
 
+add_executable(Trush_format_dump format_dump.cpp)
+target_link_libraries(Trush_format_dump ${LINK_LIBRARIES})
+
 # For disk file, using source plugins and process through the extractor
 # Show the output NRAW as a CSV file
 # Used to test the whole PVRush processing w/ files that had some issues with their processing ("had_issues" directory)

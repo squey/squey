@@ -20,8 +20,8 @@ Picviz::PVPlottingProperties::PVPlottingProperties(PVRoot_p root, PVRush::PVForm
 	format = fmt;
 	index = idx;
 
-	QString type = format.axes[idx]["type"];
-	QString mode = format.axes[idx]["plotting"];
+	QString type = format.get_axes().at(idx).get_type();
+	QString mode = format.get_axes().at(idx).get_plotting();
 
 	plotting_filter = LIB_CLASS(PVPlottingFilter)::get().get_class_by_name(type + "_" + mode);
 	if (!plotting_filter) {

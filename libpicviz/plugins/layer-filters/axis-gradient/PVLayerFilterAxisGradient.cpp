@@ -5,7 +5,7 @@
 //! Copyright (C) Picviz Labs 2011
 
 #include "PVLayerFilterAxisGradient.h"
-#include <picviz/PVColor.h>
+#include <pvkernel/core/PVColor.h>
 #include <pvkernel/core/PVAxisIndexType.h>
 
 /******************************************************************************
@@ -41,7 +41,7 @@ void Picviz::PVLayerFilterAxisGradient::operator()(PVLayer& in, PVLayer &out)
 {	
 	int axis_id;
 
-	PVColor color;
+	PVCore::PVColor color;
 	QColor qcolor;	
 
 	//const PVSource* source = _view.get_source_parent();

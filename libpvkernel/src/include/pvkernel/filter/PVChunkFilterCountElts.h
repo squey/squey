@@ -21,13 +21,15 @@ public:
 	void done_when(chunk_index n);
 
 public:
-	virtual PVCore::PVChunk* operator()(PVCore::PVChunk* chunk);
+	PVCore::PVChunk* operator()(PVCore::PVChunk* chunk);
 	inline chunk_index n_elts_done() const { return _n_elts; }
 
 protected:
 	mutable chunk_index _n_elts;
 	chunk_index _done_when;
 	bool* _done_ptr;
+
+	CLASS_FILTER_NONREG_NOPARAM(PVChunkFilterCountElts)
 };
 
 }

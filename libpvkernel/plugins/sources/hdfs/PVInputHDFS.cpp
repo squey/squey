@@ -22,7 +22,7 @@ size_t PVRush::PVInputHDFS::operator()(char* buffer, size_t n)
 	return ret;
 }
 
-PVRush::PVInputHDFS::input_offset PVRush::PVInputHDFS::current_input_offset()
+PVRush::input_offset PVRush::PVInputHDFS::current_input_offset()
 {
 	// TODO: check for error !
 	return hdfsTell(_fs, _file);
@@ -32,6 +32,11 @@ void PVRush::PVInputHDFS::seek_begin()
 {
 	// TODO: check for error !
 	hdfsSeek(_fs, _file, 0);
+}
+
+bool PVRush::PVInputHDFS::seek(input_offset off)
+{
+	return hdfsSeek(_fs, _file, off) == 0;
 }
 
 QString PVRush::PVInputHDFS::human_name()

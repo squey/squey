@@ -21,6 +21,12 @@ include(CheckLibraryExists)
 
 include(FindPkgConfig)
 
+if(WIN32)
+    set(COMPILER_OPTIMIZE_FLAGS "")
+else(WIN32)
+	#set(COMPILER_OPTIMIZE_FLAGS "-O3 -march=native")
+endif(WIN32)
+
 #
 # Application specific definitions
 #
@@ -33,7 +39,7 @@ if(WIN32)
 else(WIN32)
 	add_definitions(-DUNIX)
 	add_definitions(-DLINUX=2)
-	add_definitions(-Wall -Wextra -pipe -ggdb3)
+	add_definitions(-Wall -Wextra -pipe -ggdb3) 
 endif(WIN32)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${Picviz_Inspector_SOURCE_DIR}/cmake)
@@ -56,8 +62,8 @@ message(STATUS "QtCore include dirs: " ${QT_QTCORE_INCLUDE_DIR})
 include_directories(AFTER ${QT_QTCORE_INCLUDE_DIR})
 message(STATUS "Qt include dirs: " ${QT_INCLUDE_DIR})
 include_directories(AFTER ${QT_INCLUDE_DIR})
-message(STATUS "Dumbnet include dirs: " ${DUMBNET_INCLUDE_DIRS})
-include_directories(AFTER ${DUMBNET_INCLUDE_DIRS})
+#message(STATUS "Dumbnet include dirs: " ${DUMBNET_INCLUDE_DIRS})
+#include_directories(AFTER ${DUMBNET_INCLUDE_DIRS})
 message(STATUS "Boost include dirs: " ${BOOST_INCLUDEDIR})
 include_directories(AFTER ${BOOST_INCLUDEDIR})
 message(STATUS "TBB include dirs: " ${TBB_INCLUDE_DIRS})

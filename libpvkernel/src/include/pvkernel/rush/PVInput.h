@@ -15,7 +15,6 @@ namespace PVRush {
 class LibKernelDecl PVInput {
 public:
 	typedef PVInput_p p_type;
-	typedef size_t input_offset;
 public:
 	PVInput();
 	virtual ~PVInput();
@@ -30,6 +29,7 @@ public:
 	// Seek to the beggining of the input
 	virtual void seek_begin() = 0;
 	virtual QString human_name() = 0;
+	virtual bool seek(input_offset off) = 0;
 };
 
 class LibKernelDecl PVInputException {

@@ -22,6 +22,7 @@
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/rush/PVXmlParamParserData.h>
+#include <pvkernel/rush/PVFormat_types.h>
 
 namespace PVRush {
 
@@ -33,16 +34,17 @@ public:
 
 class LibKernelDecl PVXmlParamParserExceptionPluginNotFound: public PVXmlParamParserException
 {
-	public:
-		PVXmlParamParserExceptionPluginNotFound(QString type, QString plugin_name);
-		QString what();
-	protected:
-		QString _what;
+public:
+	PVXmlParamParserExceptionPluginNotFound(QString type, QString plugin_name);
+	QString what();
+protected:
+	QString _what;
 };
 
 class LibKernelDecl PVXmlParamParser {
 public:
 	typedef QList<PVXmlParamParserData> list_params;
+	typedef std::vector<PVCol> axes_comb_t;
 public:
 	PVXmlParamParser(QString const& nameFile);
 	PVXmlParamParser(QDomElement const& rootNode);
@@ -50,22 +52,27 @@ public:
 
 public:
 	int setDom(QDomElement const& node, int id = -1);
-	QList<QHash<QString, QString> > const& getAxes()const;
+	list_axes_t const& getAxes()const;
 	QList<PVXmlParamParserData> const& getFields()const;
 	QHash<int, QStringList> const& getTimeFormat()const;
     unsigned int getVersion() { return format_version; }
 	void dump_filters();
 	void clearFiltersData();
+	axes_comb_t const& getAxesCombination() const { return _axes_combination; }
 
 private:
 	void setVersionFromRootNode(QDomElement const& node);
 	void pushFilter(const QDomElement& elt, int newId);
+	void parseFromRootNode(QDomElement const& node);
+	void setAxesCombinationFromRootNode(QDomElement const& node);
+	void setAxesCombinationFromString(QString const& str);
     
 private:
 	QList<PVXmlParamParserData> fields;
-	QList<QHash<QString, QString> > axes;
+	list_axes_t _axes;
 	QHash<int, QStringList> time_format;
     unsigned int format_version;
+	axes_comb_t _axes_combination;
 
 	int countChild(QDomElement);
 	QString getNodeName(QDomElement);

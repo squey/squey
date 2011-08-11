@@ -5,8 +5,8 @@
  * 
  */
 
-#ifndef PVCORE_FORMAT_H
-#define PVCORE_FORMAT_H
+#ifndef PVRUSH_FORMAT_H
+#define PVRUSH_FORMAT_H
 
 #include <QDateTime>
 #include <QDomElement>
@@ -18,11 +18,14 @@
 #include <QList>
 
 #include <pvkernel/core/general.h>
-#include <pvkernel/rush/PVXmlParamParser.h>
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/filter/PVChunkFilter.h>
 #include <pvkernel/filter/PVElementFilter.h>
 #include <pvkernel/filter/PVFieldsFilter.h>
+#include <pvkernel/rush/PVXmlParamParser.h>
+#include <pvkernel/rush/PVAxisFormat.h>
+
+#include <pvkernel/rush/PVFormat_types.h>
 
 #include <boost/shared_ptr.hpp>
 
@@ -41,93 +44,88 @@
 
 namespace PVRush {
 
-	class PVFormatException
-	{
-		public:
-			virtual QString what() = 0;
-	};
-	
+class PVFormatException
+{
+	public:
+		virtual QString what() = 0;
+};
+
 /**
- * This is the Format class
- */
-	class LibKernelDecl PVFormat {
-		public:
-			typedef QList<QHash<QString, QString> > list_axes;
-			typedef boost::shared_ptr<PVFormat> p_type;
+* This is the Format class
+*/
+class LibKernelDecl PVFormat {
+public:
+	typedef PVFormat_p p_type;
 
-		private:
-			QString key_axis;
-			QString axis_color;
-			QString axis_titlecolor;
-			QString axis_group;
-			QString axis_name;
-			QString axis_type;
-			QString axis_mapping;
-			QString axis_plotting;
-			QString time_format_string;
-			QString decode_type;
+private:
+	/* QString key_axis; */
+	/* QString axis_color; */
+	/* QString axis_titlecolor; */
+	/* QString axis_group; */
+	/* QString axis_name; */
+	/* QString axis_type; */
+	/* QString axis_mapping; */
+	/* QString axis_plotting; */
+	/* QString time_format_string; */
+	/* QString decode_type; */
 
-			QString format_name; // human readable name, displayed in a widget for instance
-			QString full_path;
+	QString format_name; // human readable name, displayed in a widget for instance
+	QString full_path;
 
-		public:
-			PVFormat();
-			PVFormat(QString const& format_name_, QString const& full_path_);
-			~PVFormat();
+public:
+	PVFormat();
+	PVFormat(QString const& format_name_, QString const& full_path_);
+	~PVFormat();
 
-			/* Methods */
-			void clear();
-			void debug();
-			bool populate_from_xml(QString filename, bool allowNoFilters = false);
-			bool populate_from_xml(QDomElement const& rootNode, bool allowNoFilters = false);
-			bool populate(bool allowNoFilters = false);
-			
-			PVFilter::PVChunkFilter_f create_tbb_filters();
-			PVFilter::PVElementFilter_f create_tbb_filters_elt();
+	/* Methods */
+	void clear();
+	void debug();
+	bool populate_from_xml(QString filename, bool forceOneAxis = false);
+	bool populate_from_xml(QDomElement const& rootNode, bool forceOneAxis = false);
+	bool populate(bool forceOneAxis = false);
+	
+	PVFilter::PVChunkFilter_f create_tbb_filters();
+	PVFilter::PVElementFilter_f create_tbb_filters_elt();
 
-			static QHash<QString, PVRush::PVFormat> list_formats_in_dir(QString const& format_name_prefix, QString const& dir);
+	static QHash<QString, PVRush::PVFormat> list_formats_in_dir(QString const& format_name_prefix, QString const& dir);
 
-			QString const& get_format_name() const;
-			QString const& get_full_path() const;
+	QString const& get_format_name() const;
+	QString const& get_full_path() const;
 
-			void dump_elts(bool dump) { _dump_elts = dump; }
+	void dump_elts(bool dump) { _dump_elts = dump; }
 
-			/* Attributes */
+	list_axes_t const& get_axes() { return _axes; }
 
-			QHash<int, QStringList> time_format;
 
-			QList<QHash<QString, QString> > axes;
-			/* QHash<int, QList<QHash<QString, QString> > > decode_axes;	//!< Store the decode axis position in the key and the value containes the list which contains the differents hashes to set the axes properties once decoded. This works *exactly* like the axes member, except we have an ID that is a virtual axes which is going to be replaced afterwards. It updates the property axes_count. */
-			QHash<int, QString> axis_decoder;	//!< Which decoder should we use for the wanted position
+public:
+	/* Attributes */
 
-			QList<int> axes_combination;
-			
-			// List of filters to apply
-			PVRush::PVXmlParamParser::list_params filters_params;
+	QHash<int, QStringList> time_format;
 
-			unsigned int axes_count;	//!< It is equivalent to the number of axes except we add the decoded axes. This property must be used to know the number of axes, never count using axes.count()
-			
-			int time_format_axis_id;
+	// List of filters to apply
+	PVRush::PVXmlParamParser::list_params filters_params;
 
-		protected:
-			PVFilter::PVFieldsBaseFilter_f xmldata_to_filter(PVRush::PVXmlParamParserData const& fdata);
-			bool populate_from_parser(PVXmlParamParser& xml_parser, bool allowNoFilters = false);
+	unsigned int axes_count;	//!< It is equivalent to the number of axes except we add the decoded axes. This property must be used to know the number of axes, never count using axes.count()
+	
+	int time_format_axis_id;
 
-		protected:
+protected:
+	PVFilter::PVFieldsBaseFilter_f xmldata_to_filter(PVRush::PVXmlParamParserData const& fdata);
+	bool populate_from_parser(PVXmlParamParser& xml_parser, bool forceOneAxis = false);
 
-		protected:
-			// "Widget" arguments of the format, like:
-			//  * use netflow (for PCAP)
-			// They are editable by the user at the opening of a file/whatever
-			PVCore::PVArgumentList _widget_args;
+protected:
+	list_axes_t _axes;
 
-		private:
-			std::list<PVFilter::PVFieldsBaseFilter_p> _filters_container;
-			bool _dump_elts;
-	};
+protected:
+	// "Widget" arguments of the format, like:
+	//  * use netflow (for PCAP)
+	// They are editable by the user at the opening of a file/whatever
+	PVCore::PVArgumentList _widget_args;
 
-	typedef QHash<QString, PVRush::PVFormat> hash_formats;
-	typedef PVFormat::p_type PVFormat_p;
+private:
+	std::list<PVFilter::PVFieldsBaseFilter_p> _filters_container;
+	bool _dump_elts;
+};
 
 };
 

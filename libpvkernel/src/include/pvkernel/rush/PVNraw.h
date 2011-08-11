@@ -90,8 +90,8 @@ namespace PVRush {
 
 		inline QString get_axis_name(PVCol format_axis_id) const
 		{
-			if(format_axis_id < format->axes.size()) {
-                return format->axes.at(format_axis_id).value("name");
+			if(format_axis_id < format->get_axes().size()) {
+                return format->get_axes().at(format_axis_id).get_name();
             }
             return QString("");
 		}

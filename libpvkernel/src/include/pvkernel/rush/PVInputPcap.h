@@ -25,6 +25,7 @@ public:
 	int datalink() const;
 	virtual input_offset current_input_offset();
 	virtual void seek_begin();
+	bool seek(input_offset off);
 	virtual QString human_name();
 private:
 	void post_init();

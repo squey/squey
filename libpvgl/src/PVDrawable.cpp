@@ -1,7 +1,7 @@
 //! \file PVDrawable.cpp
-//! $Id: PVDrawable.cpp 2985 2011-05-26 09:01:11Z dindinx $
-//! Copyright (C) Sébastien Tricaud 2009, 2010
-//! Copyright (C) Philippe Saade 2009,2010
+//! $Id$
+//! Copyright (C) Sebastien Tricaud 2009-2011
+//! Copyright (C) Philippe Saade 2009-2011
 //! Copyright (C) Picviz Labs 2011
 
 #include <iostream>
@@ -12,7 +12,6 @@
 
 #define GLEW_STATIC 1
 #include <GL/glew.h>
-#include <GL/freeglut.h>
 
 #include <picviz/PVView.h>
 
@@ -87,10 +86,14 @@ int PVGL::PVDrawable::small_files_scheduler(PVGL::PVIdleTaskKinds kind)
  *****************************************************************************/
 PVGL::PVDrawable::PVDrawable(int win_id, PVCom *com) :
 		pv_com(com),
-		width(PVGL_VIEW_DEFAULT_WIDTH), height(PVGL_VIEW_DEFAULT_HEIGHT),
 		widget_manager(0), index(0),
 		window_id(win_id)
 {
+	// Default width and height needs to be set, or we will use an undefined value
+	// when resizing our layouts
+	width = pvconfig.value("pvgl/parallel_view_width", PVGL_VIEW_DEFAULT_WIDTH).toInt();
+	height = pvconfig.value("pvgl/parallel_view_height", PVGL_VIEW_DEFAULT_HEIGHT).toInt();
+
 	PVLOG_DEBUG("PVGL::PVDrawable::%s\n", __FUNCTION__);
 	fullscreen = false;
 }
@@ -109,7 +112,9 @@ void PVGL::PVDrawable::init(Picviz::PVView_p view)
 	PVLOG_DEBUG("PVGL::PVDrawable::%s\n", __FUNCTION__);
 	picviz_view = view;
 
-	if (picviz_view->get_row_count() < 80000) {
+	int max_lines_for_scheduler_small = pvconfig.value("pvgl/max_lines_for_scheduler_small", 80000).toInt();
+
+	if (picviz_view->get_row_count() < max_lines_for_scheduler_small) {
 		current_scheduler = &PVGL::PVDrawable::small_files_scheduler;
 	} else {
 		current_scheduler = &PVGL::PVDrawable::dumb_scheduler;

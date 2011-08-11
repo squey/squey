@@ -4,7 +4,7 @@ add_definitions(${PICVIZ_DEFINITIONS})
 include_directories(AFTER ${PICVIZ_INCLUDE_DIRS})
 
 
-set(LINK_LIBRARIES ${PICVIZ_LIBRARY} ${DUMBNET_LIBRARIES} ${PVKERNEL_LIBRARY} ${QT_LIBRARIES} ${TBB_LIBRARY} ${TBB_MALLOC_LIBRARY})
+set(LINK_LIBRARIES ${PICVIZ_LIBRARY} ${PVKERNEL_LIBRARY} ${QT_LIBRARIES} ${TBB_LIBRARY} ${TBB_MALLOC_LIBRARY})
 
 enable_testing()
 
@@ -36,5 +36,5 @@ add_test(TestIssuesPlotting test_issues.sh plotting)
 
 
 # IP mapping performance
-add_executable(Tpicviz_ip_mapping ip-mapping.cpp)
-target_link_libraries(Tpicviz_ip_mapping ${LINK_LIBRARIES})
+#add_executable(Tpicviz_ip_mapping ip-mapping.cpp)
+#target_link_libraries(Tpicviz_ip_mapping ${LINK_LIBRARIES})

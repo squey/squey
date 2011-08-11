@@ -8,6 +8,7 @@
 #include <QApplication>
 #include <QLocale>
 #include <QTextCodec>
+#include <QResource>
 
 #include <PVMainWindow.h>
 
@@ -66,6 +67,9 @@ int main(int argc, char *argv[])
 	app.setOrganizationName("PICVIZ Labs");
 	app.setApplicationName("Picviz Inspector");
 	app.setWindowIcon(QIcon(":/window-icon.png"));
+
+	QResource res_css(":/gui.css");
+	app.setStyleSheet(QString((const char *)res_css.data()));
 
 	wintitle = QString("Picviz Inspector ") + QString(PICVIZ_VERSION_STR);
 	pv_main_window.setWindowTitle(wintitle);

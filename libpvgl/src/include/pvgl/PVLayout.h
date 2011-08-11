@@ -1,7 +1,7 @@
 //! \file PVLayout.h
 //! $Id: PVLayout.h 2488 2011-04-24 17:40:43Z psaade $
-//! Copyright (C) Sébastien Tricaud 2009, 2010
-//! Copyright (C) Philippe Saade 2009, 2010
+//! Copyright (C) Sébastien Tricaud 2009-2011
+//! Copyright (C) Philippe Saade 2009-2011
 //! Copyright (C) Picviz Labs 2011
 
 #ifndef LIBPVGL_LAYOUT_H

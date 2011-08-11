@@ -152,8 +152,8 @@ void PVInspector::PVAxisPropertiesWidget::refresh_widget(int index)
 /* For information :
 	float absciss;
 	 VCol column_index; Needed in PVAxesCombination, we shall remove it 
-	Picviz::PVColor titlecolor;
-	Picviz::PVColor color;
+	PVCore::PVColor titlecolor;
+	PVCore::PVColor color;
 	bool is_expandable;
 	bool is_expanded;
 	bool is_key;

@@ -6,6 +6,22 @@
 #include <pvkernel/core/stdint.h>
 
 #define REALLOC_GROWBY_ADD 20
+
+// No buffer simulation
+static uint32_t g_null_buf_data = 0;
+static char* g_null_buf = (char*) &g_null_buf_data;
+static char* g_null_buf_end = ((char*) &g_null_buf_data)+sizeof(uint32_t);
+
+
+PVCore::PVBufferSlice::PVBufferSlice(buf_list_t& buf_list) :
+	_buf_list(buf_list)
+{
+	_begin = g_null_buf;
+	_end = g_null_buf_end;
+	_physical_end = g_null_buf_end;
+	_realloc_buf = NULL;
+}
+
 PVCore::PVBufferSlice::PVBufferSlice(char* begin, char* end, buf_list_t& buf_list) :
 	_buf_list(buf_list)
 {
@@ -14,7 +30,6 @@ PVCore::PVBufferSlice::PVBufferSlice(char* begin, char* end, buf_list_t& buf_lis
 	_end = end;
 	_physical_end = end;
 	_realloc_buf = NULL;
-	//init_qstr();
 }
 
 PVCore::PVBufferSlice::~PVBufferSlice()
@@ -48,7 +63,6 @@ bool PVCore::PVBufferSlice::grow_by(size_t n)
 		return false;
 	}
 	set_end(_end + n);
-	//init_qstr();
 	return true;
 }
 
@@ -82,6 +96,19 @@ void PVCore::PVBufferSlice::grow_by_reallocate(size_t n)
 	_end = new_buf+s+n;
 	_physical_end = _end + REALLOC_GROWBY_ADD;
 	//init_qstr();
+}
+
+void PVCore::PVBufferSlice::allocate_new(size_t n)
+{
+	// Reallocate new buffer with size 'n', and discards the old content
+	static tbb::scalable_allocator<char> alloc;
+	if (_realloc_buf) {
+		_buf_list.remove(buf_list_t::value_type(_realloc_buf, _physical_end - _begin));
+	}
+	_begin = alloc.allocate(n);
+	_end = _begin+n;
+	_physical_end = _end;
+	_buf_list.push_back(buf_list_t::value_type(_begin, n));
 }
 
 void PVCore::PVBufferSlice::_realloc_data()

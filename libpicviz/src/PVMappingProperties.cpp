@@ -13,8 +13,8 @@ Picviz::PVMappingProperties::PVMappingProperties(PVRoot_p root, PVRush::PVFormat
 	format = fmt;
 	index = idx;
 
-	QString type = format.axes[idx]["type"];
-	QString mode = format.axes[idx]["mapping"];
+	QString type = format.get_axes().at(idx).get_type();
+	QString mode = format.get_axes().at(idx).get_mapping();
 
 	mapping_filter = LIB_CLASS(Picviz::PVMappingFilter)::get().get_class_by_name(type + "_" + mode);
 	if (!mapping_filter) {

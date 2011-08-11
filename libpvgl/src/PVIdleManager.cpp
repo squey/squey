@@ -1,16 +1,17 @@
 //! \file PVIdleManager.cpp
 //! $Id: PVIdleManager.cpp 2975 2011-05-26 03:54:42Z aguinet $
-//! Copyright (C) Sébastien Tricaud 2009, 2010
-//! Copyright (C) Philippe Saade 2009,2010
+//! Copyright (C) SÃ©bastien Tricaud 2009-2011
+//! Copyright (C) Philippe Saade 2009-2011
 //! Copyright (C) Picviz Labs 2011
 
 #define GLEW_STATIC 1
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 
-#include <pvgl/PVView.h>
-
+#include <pvgl/views/PVParallel.h>
 #include <pvgl/PVMain.h>
+#include <pvgl/PVWTK.h>
+
 #include <pvgl/PVIdleManager.h>
 
 /******************************************************************************
@@ -27,7 +28,7 @@ void PVGL::PVIdleManager::callback(void)
 	for (it = tasks.begin(); it != tasks.end(); ++it) {
 		glutSetWindow(it->first.drawable->get_window_id());
 		it->first.drawable->draw();
-		glutSwapBuffers();
+		PVGL::wtk_buffers_swap();
 	}
 	it = tasks.begin();
 	while (it != tasks.end()) {

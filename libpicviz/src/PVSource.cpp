@@ -18,7 +18,6 @@
 #include <pvkernel/rush/PVChunkAlignUTF16Char.h>
 #include <pvkernel/rush/PVChunkTransformUTF16.h>
 #include <pvkernel/rush/PVRawSource.h>
-#include <pvkernel/rush/PVUnicodeSource.h>
 #include <pvkernel/rush/PVNrawOutput.h>
 #include <pvkernel/rush/PVControllerJob.h>
 
@@ -66,7 +65,7 @@ void Picviz::PVSource::set_format(PVRush::PVFormat const& format)
 PVRush::PVControllerJob_p Picviz::PVSource::files_append(PVRush::PVFormat const& format, PVRush::PVSourceCreator_p sc, PVRush::PVInputType::list_inputs inputs)
 {
 	files_append_noextract(format, sc, inputs);
-	PVRush::PVControllerJob_p job = _extractor.process_from_agg_nlines(0, pvconfig.value("pvkernel/rush/extract_first", PVEXTRACT_NUMBER_LINES_FIRST_DEFAULT).toInt());
+	PVRush::PVControllerJob_p job = _extractor.process_from_agg_nlines(0, pvconfig.value("pvkernel/extract_first", PVEXTRACT_NUMBER_LINES_FIRST_DEFAULT).toInt());
 
 	return job;
 }

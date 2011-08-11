@@ -2,6 +2,7 @@
 #include <pvkernel/filter/PVPluginsLoad.h>
 #include <pvkernel/filter/PVChunkFilter.h>
 #include <pvkernel/filter/PVFieldsFilter.h>
+#include "test-env.h"
 
 using namespace PVFilter;
 
@@ -16,13 +17,10 @@ PVFieldsBaseFilter_f get_f()
 
 int main()
 {
+	init_env();
 	PVFilter::PVPluginsLoad::load_all_plugins();
 	PVFieldsBaseFilter_f f = get_f();
 	char* test = "salut";
-	PVCore::PVField field(PVCore::PVElement(NULL, test, test+4), test, test+4);
-	PVCore::list_fields lf;
-	lf.push_back(field);
-	f(lf);
 
 	return 0;
 }

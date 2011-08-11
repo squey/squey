@@ -20,20 +20,19 @@ class PVRawSource : public PVRush::PVRawSourceBase {
 public:
 	typedef PVCore::PVChunkMem<Allocator> PVChunkAlloc;
 	typedef Allocator<char> alloc_chunk;
-
-	typedef std::map<chunk_index,PVInput::input_offset> map_offsets;
+	typedef PVRawSource<Allocator> PVRawSource_t;
+	typedef std::map<chunk_index,input_offset> map_offsets;
 
 public:
 	PVRawSource(PVInput_p input,  PVChunkAlign &align, size_t chunk_size, PVChunkTransform &chunk_transform, PVFilter::PVChunkFilter_f src_filter, const alloc_chunk &alloc = alloc_chunk()) :
-		PVRawSourceBase(input, src_filter), _align(align), _chunk_size(chunk_size), _transform(chunk_transform), _alloc(alloc) 
+		PVRawSourceBase(src_filter), _align(align), _chunk_size(chunk_size), _transform(chunk_transform), _alloc(alloc), _input(input)
 	{
 		assert(chunk_size > 10);
 		assert(input);
+		_offsets[0] = 0;
 		_curc = NULL;
 		_nextc = NULL;
 		seek_begin();
-		// The original offset
-		_offsets[0] = 0;
 	}
 
 	virtual ~PVRawSource()
@@ -118,7 +117,7 @@ public:
 
 	virtual void seek_begin()
 	{
-		PVRawSourceBase::seek_begin();
+		_input->seek_begin();
 		if (_curc)
 			_curc->free();
 		if (_nextc && _nextc != _curc)
@@ -127,16 +126,57 @@ public:
 		_nextc = PVChunkAlloc::allocate(_chunk_size, this, _alloc);
 	}
 
+	virtual bool seek(input_offset off)
+	{
+		if (!_input->seek(off)) {
+			return false;
+		}
+		if (_curc)
+			_curc->free();
+		if (_nextc && _nextc != _curc)
+			_nextc->free();
+		_curc = PVChunkAlloc::allocate(_chunk_size, this, _alloc);
+		_nextc = PVChunkAlloc::allocate(_chunk_size, this, _alloc);
+		return true;
+	}
+
+	virtual QString human_name()
+	{
+		return _input->human_name();
+	}
+	
+	input_offset get_input_offset_from_index(chunk_index idx, chunk_index& known_idx)
+	{
+		map_offsets::iterator it;
+		for (it = _offsets.begin(); it != _offsets.end(); it++) {
+			chunk_index src_index = it->first;
+			if (idx >= src_index) {
+				known_idx = src_index;
+				return it->second;
+			}
+		}
+		it = _offsets.end(); it--;
+		known_idx = it->first;
+		return it->second; // We don't know that index yet, start from the last known input offset
+	}
+
+	virtual void prepare_for_nelts(chunk_index /*nelts*/) { }
+
+	PVInput_p get_input() { return _input; }
+
+	virtual func_type f() { return boost::bind<PVCore::PVChunk*>(&PVRawSource<Allocator>::operator(), this); }
+
 protected:
 	PVChunkAlign &_align;
 	PVChunkAlign _align_base;
 	size_t _chunk_size;
 	PVChunkTransform &_transform;
-	mutable map_offsets _offsets;
+	PVInput_p _input;
 protected:
 	mutable PVCore::PVChunk* _curc;
 	mutable PVCore::PVChunk* _nextc;
 	alloc_chunk _alloc;
+	mutable map_offsets _offsets; // Map indexes to input offsets
 };
 
 }

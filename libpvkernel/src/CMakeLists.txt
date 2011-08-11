@@ -10,6 +10,7 @@ core/PVArgument.cpp
 core/PVAxisIndexType.cpp
 core/PVAxisIndexCheckBoxType.cpp
 core/PVBufferSlice.cpp
+core/PVColor.cpp
 core/PVClassLibrary.cpp
 core/PVDateTimeParser.cpp
 core/PVElement.cpp
@@ -33,6 +34,7 @@ include/pvkernel/core/sysinfo.h
 include/pvkernel/core/PVArgument.h
 include/pvkernel/core/PVAxisIndexType.h
 include/pvkernel/core/PVAxesIndexType.h
+include/pvkernel/core/PVColor.h
 include/pvkernel/core/PVClassLibrary.h
 include/pvkernel/core/PVDateTimeParser.h
 include/pvkernel/core/PVEnumType.h
@@ -129,6 +131,7 @@ rush/PVControllerThread.cpp
 rush/PVExtractor.cpp
 rush/PVPluginsLoad.cpp
 rush/PVSourceCreatorFactory.cpp
+rush/PVTags.cpp
 rush/PVTests.cpp
 rush/PVXmlTreeNodeDom.cpp
 rush/PVRawSourceBase.cpp
@@ -162,7 +165,10 @@ rush/uchardetect/nsUTF8Prober.cpp
 )
 
 set(RUSH_HEADER_FILES
-include/pvkernel/rush/pv_axis_format.h
+include/pvkernel/rush/PVAxisFormat.h
+include/pvkernel/rush/PVAggregator.h
+include/pvkernel/rush/PVController.h
+include/pvkernel/rush/PVControllerThread.h
 include/pvkernel/rush/pvdecoder.h
 include/pvkernel/rush/PVFile.h
 include/pvkernel/rush/pv_file_raw_source.h
@@ -178,6 +184,10 @@ include/pvkernel/rush/PVChunkAlign.h
 include/pvkernel/rush/PVChunkAlignUTF16Char.h
 include/pvkernel/rush/PVChunkAlignUTF16Newline.h
 include/pvkernel/rush/PVChunkAlignBoundary.h
+include/pvkernel/rush/PVCharsetDetect.h
+include/pvkernel/rush/PVChunkTransform.h
+include/pvkernel/rush/PVChunkTransformUTF16.h
+include/pvkernel/rush/PVExtractor.h
 include/pvkernel/rush/PVInput.h
 include/pvkernel/rush/PVInputFile.h
 include/pvkernel/rush/PVInputPcap.h
@@ -192,14 +202,8 @@ include/pvkernel/rush/PVVrbAllocator.h
 include/pvkernel/rush/PVRawSource.h
 include/pvkernel/rush/PVRawSourceBase.h
 include/pvkernel/rush/PVSourceCreator.h
-include/pvkernel/rush/PVCharsetDetect.h
-include/pvkernel/rush/PVChunkTransform.h
-include/pvkernel/rush/PVChunkTransformUTF16.h
-include/pvkernel/rush/PVAggregator.h
-include/pvkernel/rush/PVController.h
-include/pvkernel/rush/PVControllerThread.h
 include/pvkernel/rush/PVPipelineTask.h
-include/pvkernel/rush/PVExtractor.h
+include/pvkernel/rush/PVTags.h
 include/pvkernel/rush/PVTests.h
 include/pvkernel/rush/PVXmlParamParser.h
 include/pvkernel/rush/PVXmlParamParserData.h
@@ -248,6 +252,6 @@ add_library(pvkernel SHARED ${SRC_FILES} ${HEADER_FILES} ${MOC_SRC} ${MOC_HEADER
 
 set_target_properties(pvkernel PROPERTIES SOVERSION 1)
 
-target_link_libraries(pvkernel ${QT_LIBRARIES} ${DUMBNET_LIBRARIES} ${ICU_LIBRARY} ${TBB_LIBRARIES} ${TBB_MALLOC_LIBRARY} ${OpenMP_LIBRARIES} ${Boost_LIBRARIES} ${ARCHIVE_LIBRARY} ${PCAP_LIBRARIES})
+target_link_libraries(pvkernel ${QT_LIBRARIES} ${ICU_LIBRARY} ${TBB_LIBRARIES} ${TBB_MALLOC_LIBRARY} ${OpenMP_LIBRARIES} ${Boost_LIBRARIES} ${ARCHIVE_LIBRARY} ${PCAP_LIBRARIES})
 
 INSTALL(TARGETS pvkernel DESTINATION .)

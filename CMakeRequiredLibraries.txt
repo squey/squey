@@ -31,14 +31,6 @@ if(CMAKE_BUILD_TYPE MATCHES "Debug")
 	set(TBB_USE_DEBUG "1")
 endif()
 
-# It is OK to find those package even if they are not compiled
-# since we've defined the variable PICVIZ_SINGLE_TREE_BUILD 
-# it just returns PATHS and avoid adding multiple search of the
-# same package in the different sub directories.
-find_package(PVKernel REQUIRED)
-find_package(Picviz REQUIRED)
-find_package(PVGL REQUIRED)
-
 #find_package(CUDA)
 if(CUDA_SDK_ROOT_DIR MATCHES "CUDA_SDK_ROOT_DIR-NOTFOUND")
   set(CUDA_SDK_ROOT_DIR "/opt/cuda_sdk/")
@@ -78,7 +70,7 @@ if (USE_OPENMP)
 	if (WIN32)
 		set(OpenMP_LIBRARIES "")
 	else (WIN32)
-		set(OpenMP_LIBRARIES "-lgomp")
+		set(OpenMP_LIBRARIES ${OpenMP_CXX_FLAGS})
 	endif(WIN32)
 else (USE_OPENMP)
 	set(OpenMP_LIBRARIES "")
@@ -108,12 +100,12 @@ endif(NOT WIN32)
 # Check for DUMBNET library
 #
 
-if(WIN32)
-	set(DUMBNET_LIBRARIES "C:\\dev\\libdnet\\lib\\dnet.lib" "ws2_32.lib")
-	set(DUMBNET_INCLUDE_DIRS "C:\\dev\\libdnet\\include")
-else(WIN32)
-	find_package(DUMBNET REQUIRED)
-endif(WIN32)
+#if(WIN32)
+#	set(DUMBNET_LIBRARIES "C:\\dev\\libdnet\\lib\\dnet.lib" "ws2_32.lib")
+#	set(DUMBNET_INCLUDE_DIRS "C:\\dev\\libdnet\\include")
+#else(WIN32)
+#	find_package(DUMBNET REQUIRED)
+#endif(WIN32)
 
 #
 # Check for Archive library
@@ -202,6 +194,14 @@ if (WIN32)
 else(WIN32)
 	find_package(ICU REQUIRED) 
 endif(WIN32)
+
+# It is OK to find those package even if they are not compiled
+# since we've defined the variable PICVIZ_SINGLE_TREE_BUILD 
+# it just returns PATHS and avoid adding multiple search of the
+# same package in the different sub directories.
+find_package(PVKernel REQUIRED)
+find_package(Picviz REQUIRED)
+find_package(PVGL REQUIRED)
 
 ###############################
 # Needed for picviz-inspector #

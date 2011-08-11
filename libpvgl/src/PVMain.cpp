@@ -1,7 +1,7 @@
 //! \file PVMain.cpp
 //! $Id: PVMain.cpp 3191 2011-06-23 13:47:36Z stricaud $
-//! Copyright (C) Sébastien Tricaud 2009, 2010
-//! Copyright (C) Philippe Saade 2009,2010
+//! Copyright (C) SÃÂÃÂ©bastien Tricaud 2009-2011
+//! Copyright (C) Philippe Saade 2009-2011
 //! Copyright (C) Picviz Labs 2011
 
 #include <iostream>
@@ -26,18 +26,24 @@
 #include <GL/freeglut.h>
 
 #include <picviz/general.h>
-#include <picviz/PVView.h>
-#include <picviz/PVSelection.h>
-
 #include <pvgl/general.h>
+
+#include <picviz/PVSelection.h>
+#include <picviz/PVView.h>
+
+#include <pvgl/views/PVScatter.h>
+
 #include <pvgl/PVFonts.h>
 #include <pvgl/PVUtils.h>
-#include <pvgl/PVView.h>
-#include <pvgl/PVScatter.h>
+#include <pvgl/views/PVParallel.h>
 #include <pvgl/PVCom.h>
 #include <pvgl/PVConfig.h>
 
 #include <pvgl/PVMain.h>
+
+#include <pvgl/PVWTK.h>
+
+
 
 static std::list<PVGL::PVDrawable*> all_drawables;
 static PVGL::PVCom *pvgl_com = 0;
@@ -97,7 +103,7 @@ void PVGL::PVMain::display_callback()
 
 	if (current_drawable) {
 		current_drawable->draw();
-		glutSwapBuffers ();
+		PVGL::wtk_buffers_swap();
 	}
 }
 
@@ -112,12 +118,12 @@ void PVGL::PVMain::keyboard_callback(unsigned char key, int x, int y)
 
 	PVLOG_DEBUG("PVGL::PVMain::%s\n", __FUNCTION__);
 
-	last_key_pressed_time = glutGet(GLUT_ELAPSED_TIME);
+	last_key_pressed_time = PVGL::wtk_time_ms_elapsed_since_init();
 	current_drawable = get_drawable_from_id(glutGetWindow());
 
 	if (current_drawable) {
 		current_drawable->keyboard(key, x, y);
-		glutPostRedisplay();
+		PVGL::wtk_window_need_redisplay();
 	}
 }
 
@@ -132,11 +138,11 @@ void PVGL::PVMain::special_callback(int key, int x, int y)
 
 	PVLOG_DEBUG("PVGL::PVMain::%s\n", __FUNCTION__);
 
-	last_key_pressed_time = glutGet(GLUT_ELAPSED_TIME);
+	last_key_pressed_time = PVGL::wtk_time_ms_elapsed_since_init();
 	current_drawable = get_drawable_from_id(glutGetWindow());
 	if (current_drawable) {
 		current_drawable->special_keys(key, x, y);
-		glutPostRedisplay();
+		PVGL::wtk_window_need_redisplay();
 	}
 }
 
@@ -231,7 +237,7 @@ void PVGL::PVMain::button_callback(int button, int state, int x, int y)
 				break;
 	}
         //moving_locker_mutex.unlock();
-	glutPostRedisplay ();
+	PVGL::wtk_window_need_redisplay();
 }
 
 /******************************************************************************
@@ -245,13 +251,13 @@ void PVGL::PVMain::motion_callback(int x, int y)
 
 	PVLOG_HEAVYDEBUG("PVGL::PVMain::%s\n", __FUNCTION__);
 
-	last_key_pressed_time = glutGet(GLUT_ELAPSED_TIME);
+	last_key_pressed_time = PVGL::wtk_time_ms_elapsed_since_init();
 
 	current_drawable = get_drawable_from_id(glutGetWindow());
 	if (current_drawable) {
 		if (current_drawable->mouse_move(x, y, glutGetModifiers())) {
 		}
-		glutPostRedisplay();
+		PVGL::wtk_window_need_redisplay();
 	}
 	/*FIXME: sync code, ugly!			if (1) {
 		for (std::list<PVGL::PVDrawable*>::iterator it = all_views.begin(); it != all_views.end(); ++it) {
@@ -260,7 +266,7 @@ void PVGL::PVMain::motion_callback(int x, int y)
 		(*it)->get_lines().update_arrays_selection();
 		(*it)->set_update_line_dirty();
 		glutSetWindow((*it)->get_window_id());
-		glutPostRedisplay();
+		PVGL::wtk_window_need_redisplay();
 		}
 		}
 		}*/
@@ -277,13 +283,13 @@ void PVGL::PVMain::reshape_callback(int width, int height)
 
 	PVLOG_DEBUG("PVGL::PVMain::%s\n", __FUNCTION__);
 
-	last_reshape_time_time = glutGet(GLUT_ELAPSED_TIME);
+	last_reshape_time_time = PVGL::wtk_time_ms_elapsed_since_init();
 
 	if (current_drawable) {
 		current_drawable->set_size(width, height);
 	}
 	glViewport(0, 0, width, height);
-	glutPostRedisplay();
+	PVGL::wtk_window_need_redisplay();
 }
 
 /******************************************************************************
@@ -331,6 +337,7 @@ void PVGL::PVMain::close_callback(void)
  *****************************************************************************/
 void PVGL::PVMain::entry_callback(int state)
 {
+#if 0
 	PVLOG_DEBUG("PVGL::PVMain::%s\n", __FUNCTION__);
 
 	if (state == GLUT_ENTERED) {
@@ -338,6 +345,7 @@ void PVGL::PVMain::entry_callback(int state)
 	} else { // GLUT_LEFT
 		//std::cerr << "Got out!" << std::endl;
 	}
+#endif
 }
 
 /******************************************************************************
@@ -369,6 +377,8 @@ void PVGL::PVMain::create_view(QString *name)
 	int       window_id;
 	int       index = 0;
 	QString   base_name (*name);
+	int default_width = pvconfig.value("pvgl/parallel_view_width", PVGL_VIEW_DEFAULT_WIDTH).toInt();
+	int default_height = pvconfig.value("pvgl/parallel_view_height", PVGL_VIEW_DEFAULT_HEIGHT).toInt();
 
 	PVLOG_DEBUG("PVGL::PVMain::%s\n", __FUNCTION__);
 
@@ -378,8 +388,16 @@ void PVGL::PVMain::create_view(QString *name)
 		}
 	}
 	name->append(QString(":%1 (parallel view)").arg(index));
-	glutInitWindowSize(PVGL_VIEW_DEFAULT_WIDTH, PVGL_VIEW_DEFAULT_HEIGHT);
-	window_id = glutCreateWindow(qPrintable(*name));
+	switch(PVGL::wtk_window_get_type()) {
+	case WINTYPE_INT:
+		window_id = PVGL::wtk_window_int_create(qPrintable(*name), default_width, default_height);
+		break;
+	case WINTYPE_POINTER:
+		// NOT HANDLED YET
+		// break;
+	default:
+		PVLOG_FATAL("The window type get from wtk_window_get_type() is not handled by any known toolkit!\n");
+	}
 	current_view = new PVGL::PVView(window_id, pvgl_com);
 	current_view->set_index(index);
 	current_view->set_base_name(base_name);
@@ -398,7 +416,7 @@ void PVGL::PVMain::create_view(QString *name)
 	glClear(GL_COLOR_BUFFER_BIT);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glutSwapBuffers();
+	PVGL::wtk_buffers_swap();
 
 	glutDisplayFunc(PVGL::PVMain::display_callback);
 	glutKeyboardFunc(PVGL::PVMain::keyboard_callback);
@@ -407,7 +425,7 @@ void PVGL::PVMain::create_view(QString *name)
 	glutMotionFunc(PVGL::PVMain::motion_callback);
 	glutReshapeFunc(PVGL::PVMain::reshape_callback);
 	glutCloseFunc(PVGL::PVMain::close_callback);
-	glutEntryFunc(PVGL::PVMain::entry_callback);
+	// glutEntryFunc(PVGL::PVMain::entry_callback);
 	glutPassiveMotionFunc(PVGL::PVMain::passive_motion_callback);
 
 	transient_view = current_view;
@@ -424,6 +442,8 @@ void PVGL::PVMain::create_scatter(QString *name, Picviz::PVView_p pv_view)
 	int       window_id;
 	int       index = 0;
 	QString   base_name (*name);
+	int default_width = pvconfig.value("pvgl/scatter_view_width", PVGL_VIEW_DEFAULT_WIDTH).toInt();
+	int default_height = pvconfig.value("pvgl/scatter_view_height", PVGL_VIEW_DEFAULT_HEIGHT).toInt();
 
 	PVLOG_DEBUG("PVGL::PVMain::%s\n", __FUNCTION__);
 
@@ -433,8 +453,16 @@ void PVGL::PVMain::create_scatter(QString *name, Picviz::PVView_p pv_view)
 		}
 	}
 	name->append(QString(":%1 (scatter view)").arg(index));
-	glutInitWindowSize(PVGL_VIEW_DEFAULT_WIDTH, PVGL_VIEW_DEFAULT_HEIGHT);
-	window_id = glutCreateWindow(qPrintable(*name));
+	switch(PVGL::wtk_window_get_type()) {
+	case WINTYPE_INT:
+		window_id = PVGL::wtk_window_int_create(qPrintable(*name), default_width, default_height);
+		break;
+	case WINTYPE_POINTER:
+		// NOT HANDLED YET
+		// break;
+	default:
+		PVLOG_FATAL("The window type get from wtk_window_get_type() is not handled by any known toolkit!\n");
+	}
 	new_scatter = new PVGL::PVScatter(window_id, pvgl_com);
 	new_scatter->set_index(index);
 	new_scatter->set_base_name(base_name);
@@ -448,7 +476,7 @@ void PVGL::PVMain::create_scatter(QString *name, Picviz::PVView_p pv_view)
 	glClear(GL_COLOR_BUFFER_BIT);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glutSwapBuffers();
+	PVGL::wtk_buffers_swap();
 	new_scatter->init(pv_view);
 
 	glutDisplayFunc(PVGL::PVMain::display_callback);
@@ -544,7 +572,7 @@ void PVGL::PVMain::timer_func(int)
 									pv_view->update_selections();
 								}
 								//(*it)->update_all();
-								glutPostRedisplay();
+								PVGL::wtk_window_need_redisplay();
 							}
 						}
 						PVGL::PVScatter *pv_scatter = dynamic_cast<PVGL::PVScatter*>(*it);
@@ -571,7 +599,7 @@ void PVGL::PVMain::timer_func(int)
 									pv_scatter->update_arrays_positions();
 									pv_scatter->update_arrays_zombies();
 									pv_scatter->update_arrays_selection();
-								glutPostRedisplay();
+								PVGL::wtk_window_need_redisplay();
 							}
 						}
 					}
@@ -664,7 +692,7 @@ void PVGL::PVMain::timer_func(int)
 								pv_view->get_lines().update_arrays_selection();
 								pv_view->get_map().update_arrays_selection();
 								pv_view->set_update_line_dirty();
-								glutPostRedisplay();
+								PVGL::wtk_window_need_redisplay();
 							}
 						}
 					}
@@ -674,7 +702,7 @@ void PVGL::PVMain::timer_func(int)
 						if ((*it)->get_libview() == message.pv_view) {
 							glutSetWindow((*it)->get_window_id());
 							(*it)->reinit_picviz_view();
-							glutPostRedisplay();
+							PVGL::wtk_window_need_redisplay();
 						}
 					}
 					break;
@@ -702,7 +730,7 @@ void PVGL::PVMain::timer_func(int)
 		}
 	}
 	// Check if we need to reselect
-	if (glutGet(GLUT_ELAPSED_TIME) - last_key_pressed_time > 5/*100*/) {
+	if (PVGL::wtk_time_ms_elapsed_since_init() - last_key_pressed_time > 5/*100*/) {
 
 		//PVLOG_DEBUG("   we need to reselect\n");
 		for (std::list<PVGL::PVDrawable*>::iterator it = all_drawables.begin(); it != all_drawables.end(); ++it) {
@@ -742,7 +770,7 @@ void PVGL::PVMain::timer_func(int)
 
 	}
 	// Check if we need to resize
-	if (glutGet(GLUT_ELAPSED_TIME) - last_reshape_time_time > PVGL_VIEW_RESIZE_UPDATE_TIMER) {
+	if (PVGL::wtk_time_ms_elapsed_since_init() - last_reshape_time_time > PVGL_VIEW_RESIZE_UPDATE_TIMER) {
 		for (std::list<PVGL::PVDrawable*>::iterator it = all_drawables.begin(); it != all_drawables.end(); ++it) {
 			PVGL::PVView *pv_view = dynamic_cast<PVGL::PVView*>(*it);
 			if (pv_view) {
@@ -750,7 +778,7 @@ void PVGL::PVMain::timer_func(int)
 					glutSetWindow(pv_view->get_window_id());
 					pv_view->update_set_size();
 					glViewport(0, 0, pv_view->get_width(), pv_view->get_height());
-					glutPostRedisplay();
+					PVGL::wtk_window_need_redisplay();
 				}
 			}
 		}
@@ -758,11 +786,11 @@ void PVGL::PVMain::timer_func(int)
 	// Refresh every window every 20 ms
 	for (std::list<PVGL::PVDrawable*>::iterator it = all_drawables.begin(); it != all_drawables.end(); ++it) {
 		glutSetWindow((*it)->get_window_id());
-		glutPostRedisplay();
+		PVGL::wtk_window_need_redisplay();
 	}
 	if (transient_view) {
 		glutSetWindow(transient_view->get_window_id());
-		glutPostRedisplay();
+		PVGL::wtk_window_need_redisplay();
 	}
         
 	glutTimerFunc(20, timer_func, 0);
@@ -798,14 +826,7 @@ bool pvgl_init(PVGL::PVCom *com)
 		PVLOG_INFO("Using PVGL share directory %s\n", pvgl_get_share_path().c_str());
 	}
 
-	glutInitContextVersion(3, 3);
-	glutInitContextFlags(GLUT_FORWARD_COMPATIBLE | GLUT_DEBUG);
-	glutInitContextProfile(GLUT_COMPATIBILITY_PROFILE);
-	//  glutInitContextProfile (GLUT_CORE_PROFILE);
-	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_STENCIL);
-	glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION);
-	PVLOG_INFO("PVGL::%s glut version: %d\n", __FUNCTION__, glutGet(GLUT_VERSION));
+	PVGL::wtk_init(argc, argv);
 
 	// Wait for the first message
 	PVLOG_DEBUG("PVGL::%s Everything created, waiting for message.\n", __FUNCTION__);
@@ -821,13 +842,8 @@ bool pvgl_init(PVGL::PVCom *com)
 								//pvgl_com->post_message_to_qt(message);
 								glutTimerFunc(5/*20*/, PVGL::PVMain::timer_func, 0);
 								glutMainLoop();
-								glutInitContextVersion(3, 3);
-								glutInitContextFlags(GLUT_FORWARD_COMPATIBLE | GLUT_DEBUG);
-								glutInitContextProfile(GLUT_COMPATIBILITY_PROFILE);
-								//  glutInitContextProfile (GLUT_CORE_PROFILE);
-								glutInit(&argc, argv);
-								glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_STENCIL);
-								glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION);
+
+								PVGL::wtk_init(argc, argv);
 							}
 						break;
 				case PVGL_COM_FUNCTION_DESTROY_TRANSIENT:
@@ -850,13 +866,8 @@ bool pvgl_init(PVGL::PVCom *com)
 								pvgl_com->post_message_to_qt(message);
 								glutTimerFunc(5/*20*/, PVGL::PVMain::timer_func, 0);
 								glutMainLoop();
-								glutInitContextVersion(3, 3);
-								glutInitContextFlags(GLUT_FORWARD_COMPATIBLE | GLUT_DEBUG);
-								glutInitContextProfile(GLUT_COMPATIBILITY_PROFILE);
-								//  glutInitContextProfile (GLUT_CORE_PROFILE);
-								glutInit(&argc, argv);
-								glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_STENCIL);
-								glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION);
+
+								PVGL::wtk_init(argc, argv);
 							}
 						break;
 				case PVGL_COM_FUNCTION_CREATE_SCATTER_VIEW:
@@ -869,13 +880,8 @@ bool pvgl_init(PVGL::PVCom *com)
 								pvgl_com->post_message_to_qt(message);
 								glutTimerFunc(5/*20*/, PVGL::PVMain::timer_func, 0);
 								glutMainLoop();
-								glutInitContextVersion(3, 3);
-								glutInitContextFlags(GLUT_FORWARD_COMPATIBLE | GLUT_DEBUG);
-								glutInitContextProfile(GLUT_COMPATIBILITY_PROFILE);
-								//  glutInitContextProfile (GLUT_CORE_PROFILE);
-								glutInit(&argc, argv);
-								glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_STENCIL);
-								glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION);
+
+								PVGL::wtk_init(argc, argv);
 							}
 						break;
 				default:

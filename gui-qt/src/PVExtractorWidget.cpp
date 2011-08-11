@@ -156,18 +156,26 @@ void PVInspector::PVExtractorWidget::update_status_ext(PVProgressBox* pbox, PVRu
 	}
 }
 
-bool PVInspector::PVExtractorWidget::show_job_progress_bar(PVRush::PVControllerJob_p job, int nlines, QWidget* parent = NULL)
+bool PVInspector::PVExtractorWidget::show_job_progress_bar(PVRush::PVControllerJob_p job, QString const& desc, int nlines, QWidget* parent = NULL)
 {
-	PVProgressBox *pbox = new PVProgressBox(tr("Extracting..."), parent, 0);
+	PVProgressBox *pbox = new PVProgressBox(tr("Extracting %1...").arg(desc), parent, 0);
 	QProgressBar *pbar = pbox->getProgressBar();
 	pbar->setValue(0);
 	pbar->setMaximum(nlines);
 	pbar->setMinimum(0);
 	connect(job.get(), SIGNAL(job_done_signal()), pbox, SLOT(accept()));
-	// launch a thread in roder to update the status of the progress bar
+	// launch a thread in order to update the status of the progress bar
 	std::thread th_status(boost::bind(update_status_ext, pbox, job));	
 	pbox->launch_timer_status();
-	return pbox->exec() == QDialog::Accepted;
+	if (pbox->exec() == QDialog::Accepted) {
+		return true;
+	}
+
+	// Cancel this job and ask the user if he wants to keep the extracted data.
+	job->cancel();
+	PVLOG_DEBUG("extractor: job canceled !\n");
+	QMessageBox msgbox(QMessageBox::Question, tr("Extraction of %1 canceled").arg(desc), tr("Extraction has been canceled. Do you want to proceed with the %1 lines that have been processed ?").arg(job->status()), QMessageBox::Yes | QMessageBox::No, parent);
+	return msgbox.exec() == QMessageBox::Yes;
 }
 
 void PVInspector::PVExtractorWidget::process_Slot()
@@ -186,20 +194,14 @@ void PVInspector::PVExtractorWidget::process_Slot()
     PVLOG_DEBUG("PVInspector::PVExtractorWidget::process_Slot() l:%d\n",__LINE__);
 
 	// Show a progress box that will finish with "accept" when the job is done
-	if (!show_job_progress_bar(job, _batch_size, this)) {
-		// Cancel this job ! This function returns when the job is canceled.
-		job->cancel();
-		PVLOG_INFO("extractor: job canceled !\n");
-		QMessageBox msgbox(QMessageBox::Question, tr("Extraction canceled"), tr("Extraction has been canceled. Do you want to proceed with the %1 lines that have been processed ?").arg(job->status()), QMessageBox::Yes | QMessageBox::No, this);
-		if (msgbox.exec() == QMessageBox::No) {
-			_ext.restore_nraw();
-			_view->set_consistent(true);
-			PVGL::PVMessage message;
-			message.function = PVGL_COM_FUNCTION_REINIT_PVVIEW;
-			message.pv_view = _view;
-			main_window->get_pvcom()->post_message_to_gl(message);
-			return;
-		}
+	if (!show_job_progress_bar(job, _ext.get_format().get_format_name(), _batch_size, this)) {
+		_ext.restore_nraw();
+		_view->set_consistent(true);
+		PVGL::PVMessage message;
+		message.function = PVGL_COM_FUNCTION_REINIT_PVVIEW;
+		message.pv_view = _view;
+		main_window->get_pvcom()->post_message_to_gl(message);
+		return;
 	}
 	_ext.clear_saved_nraw();
 
@@ -269,7 +271,7 @@ void PVInspector::PVExtractorWidget::update_scroll()
 void PVInspector::PVExtractorWidget::update_infos()
 {
 	size_t index = _slider_index->value();
-	size_t offset = 0;
+	chunk_index offset = 0;
 	PVRush::PVRawSourceBase_p src = _ext.get_agg().agg_index_to_source(index, &offset);
 	_cur_src = src;
 	_cur_src_offset = offset;

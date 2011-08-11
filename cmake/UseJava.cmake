@@ -187,6 +187,12 @@
 # (To distributed this file outside of CMake, substitute the full
 #  License text for the above reference.)
 
+# AG: Ok, I don't have time to figure out why this isn't set (and FindJava.cmake is
+# called before)
+
+set(CMAKE_Java_ARCHIVE "jar")
+set(CMAKE_Java_COMPILER "javac")
+
 function (__java_copy_file src dest comment)
     add_custom_command(
         OUTPUT  ${dest}

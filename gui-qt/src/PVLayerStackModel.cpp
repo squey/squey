@@ -16,7 +16,7 @@
 #include <PVMainWindow.h>
 #include <PVTabSplitter.h>
 
-#include <picviz/PVColor.h>
+#include <pvkernel/core/PVColor.h>
 #include <pvkernel/core/general.h>
 #include <picviz/PVView.h>
 

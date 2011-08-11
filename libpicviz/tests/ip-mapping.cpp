@@ -5,7 +5,7 @@
 #include <QString>
 #include <vector>
 #include <tbb/tick_count.h>
-#include <dnet.h>
+#include <pvkernel/core/dumbnet.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>

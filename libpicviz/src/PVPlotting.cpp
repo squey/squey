@@ -24,7 +24,7 @@ Picviz::PVPlotting::PVPlotting(PVMapped_p parent)
 
 	PVRush::PVFormat_p format = parent->get_format();
 
-	for (int i=0; i < format->axes.count(); i++) {
+	for (int i=0; i < format->get_axes().size(); i++) {
 		PVPlottingProperties plotting_axis(root, *format, i);
 		columns << plotting_axis;
 		PVLOG_HEAVYDEBUG("%s: Add a column\n", __FUNCTION__);

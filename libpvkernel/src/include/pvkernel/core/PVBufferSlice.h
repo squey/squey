@@ -25,6 +25,7 @@ typedef std::list< std::pair<char*,size_t> > buf_list_t;
 class LibKernelDecl PVBufferSlice {
 public:
 	PVBufferSlice(char* begin, char* end, buf_list_t &buf_list);
+	PVBufferSlice(buf_list_t &buf_list);
 	PVBufferSlice(PVBufferSlice const& src): _buf_list(src._buf_list) { copy_from(src); };
 	virtual ~PVBufferSlice();
 public:
@@ -40,6 +41,7 @@ public:
 
 	bool grow_by(size_t n);
 	void grow_by_reallocate(size_t n);
+	void allocate_new(size_t n);
 
 	inline QString const& qstr() const { return _qstr; }
 	inline UnicodeString const& icustr() const { return _icustr; }

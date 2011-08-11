@@ -3,18 +3,18 @@
 #include <pvkernel/core/PVField.h>
 #include <pvkernel/core/PVChunk.h>
 
+PVCore::PVElement::PVElement(PVChunk* parent) :
+	d(new PVElementData()),
+	PVBufferSlice(d->_reallocated_buffers)
+{
+	init(parent);
+}
+
 PVCore::PVElement::PVElement(PVChunk* parent, char* begin, char* end) :
 	d(new PVElementData()),
 	PVBufferSlice(begin, end, d->_reallocated_buffers)
 {
-	d->_valid = true;
-	d->_parent = parent;
-	d->_elt = this;
-	// In the beggining, it only has a big field
-	PVField f(*this, begin, end);
-	d->_fields.push_back(f);
-	d->_org_buf = NULL;
-	d->_org_buf_size = 0;
+	init(parent);
 }
 
 PVCore::PVElement::PVElement(PVElement const& src) :
@@ -27,6 +27,18 @@ PVCore::PVElement::PVElement(PVElement const& src) :
 PVCore::PVElement::~PVElement()
 {
 	clear_saved_buf();
+}
+
+void PVCore::PVElement::init(PVChunk* parent)
+{
+	d->_valid = true;
+	d->_parent = parent;
+	d->_elt = this;
+	// In the beggining, it only has a big field
+	PVField f(*this, begin(), end());
+	d->_fields.push_back(f);
+	d->_org_buf = NULL;
+	d->_org_buf_size = 0;
 }
 
 PVCore::PVElement& PVCore::PVElement::operator=(PVElement const& src)

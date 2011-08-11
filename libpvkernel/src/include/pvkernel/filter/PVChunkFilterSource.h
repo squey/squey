@@ -16,7 +16,9 @@ class LibKernelDecl PVChunkFilterSource : public PVChunkFilter {
 public:
 	PVChunkFilterSource();
 public:
-	virtual PVCore::PVChunk* operator()(PVCore::PVChunk* chunk); 
+	PVCore::PVChunk* operator()(PVCore::PVChunk* chunk); 
+
+	CLASS_FILTER_NONREG_NOPARAM(PVChunkFilterSource)
 };
 
 }

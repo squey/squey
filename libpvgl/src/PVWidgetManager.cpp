@@ -1,7 +1,7 @@
 //! \file PVWidgetManager.cpp
 //! $Id: PVWidgetManager.cpp 2520 2011-04-30 12:26:48Z stricaud $
-//! Copyright (C) Sébastien Tricaud 2009, 2010
-//! Copyright (C) Philippe Saade 2009,2010
+//! Copyright (C) SÃ©bastien Tricaud 2009-2011
+//! Copyright (C) Philippe Saade 2009-2011
 //! Copyright (C) Picviz Labs 2011
 
 #include <sstream>
@@ -10,7 +10,6 @@
 
 #define GLEW_STATIC 1
 #include <GL/glew.h>
-#include <GL/freeglut.h>
 
 #include <picviz/PVView.h>
 
@@ -20,7 +19,7 @@
 #include <pvgl/PVLayout.h>
 #include <pvgl/PVHBox.h>
 #include <pvgl/PVVBox.h>
-#include <pvgl/PVView.h>
+#include <pvgl/views/PVParallel.h>
 
 #include <pvgl/PVWidgetManager.h>
 

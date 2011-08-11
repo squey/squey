@@ -11,7 +11,7 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVElement.h>
 
-#include <tbb/tbb_allocator.h>
+#include <tbb/scalable_allocator.h>
 
 #include <pvkernel/core/stdint.h>
 
@@ -27,7 +27,7 @@ namespace PVRush {
 
 namespace PVCore {
 
-typedef std::list< PVElement, tbb::tbb_allocator<PVElement> > list_elts;
+typedef std::list< PVElement, tbb::scalable_allocator<PVElement> > list_elts;
 
 // Describe chunk interface with no allocator template
 // Useful in order to use chunks as function arguments...
@@ -96,7 +96,7 @@ protected:
 	size_t _nelts_valid;
 };
 
-template < template <class T> class Allocator = std::allocator >
+template < template <class T> class Allocator = tbb::scalable_allocator >
 class PVChunkMem : public PVChunk {
 public:
 	typedef Allocator<char> alloc_chunk;
@@ -104,8 +104,7 @@ private:
 	PVChunkMem(alloc_chunk const& a) :
 		PVChunk(), _alloc(a)
 	{
-	};
-
+	}
 	virtual ~PVChunkMem() {}
 public:
     char* begin() const { return (char*)(this+1); };

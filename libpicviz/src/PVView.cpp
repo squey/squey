@@ -227,7 +227,7 @@ QString Picviz::PVView::get_axis_name(PVCol index)
 
 	axis = axes_combination.get_axis(index);
 
-	return axis.name;
+	return axis.get_name();
 }
 
 // FIXME: This function should be removed
@@ -236,7 +236,7 @@ QString Picviz::PVView::get_axis_name(PVCol index)
  * Picviz::PVView::get_color_in_output_layer
  *
  *****************************************************************************/
-Picviz::PVColor Picviz::PVView::get_color_in_output_layer(PVRow index)
+PVCore::PVColor Picviz::PVView::get_color_in_output_layer(PVRow index)
 {
 	return output_layer.get_lines_properties().get_line_properties(index);
 }

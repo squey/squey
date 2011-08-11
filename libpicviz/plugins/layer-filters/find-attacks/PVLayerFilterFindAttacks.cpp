@@ -6,7 +6,7 @@
 
 #include "PVLayerFilterFindAttacks.h"
 
-#include <picviz/PVColor.h>
+#include <pvkernel/core/PVColor.h>
 #include <pvkernel/core/PVAxisIndexType.h>
 
 #include <QDir>

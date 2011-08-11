@@ -22,11 +22,13 @@ public:
 	PVChunkFilterDumpElts(bool dump_valid, QStringList& l);
 
 public:
-	virtual PVCore::PVChunk* operator()(PVCore::PVChunk* chunk);
+	PVCore::PVChunk* operator()(PVCore::PVChunk* chunk);
 
 protected:
 	bool _dump_valid;
 	QStringList& _l;
+
+	CLASS_FILTER_NONREG_NOPARAM(PVChunkFilterDumpElts)
 };
 
 }

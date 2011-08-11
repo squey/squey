@@ -10,10 +10,10 @@ extern "C" {
 /*
  * Class:     org_picviz_jni_PVRush_PVRushJNI
  * Method:    init
- * Signature: ()V
+ * Signature: (Ljava/lang/String;)V
  */
 JNIEXPORT void JNICALL Java_org_picviz_jni_PVRush_PVRushJNI_init
-  (JNIEnv *, jclass);
+  (JNIEnv *, jclass, jstring);
 
 /*
  * Class:     org_picviz_jni_PVRush_PVRushJNI

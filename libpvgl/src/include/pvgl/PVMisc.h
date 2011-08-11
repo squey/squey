@@ -1,7 +1,7 @@
 //! \file PVMisc.h
 //! $Id: PVMisc.h 2476 2011-04-23 16:31:25Z psaade $
-//! Copyright (C) Sébastien Tricaud 2009, 2010
-//! Copyright (C) Philippe Saade 2009, 2010
+//! Copyright (C) Sébastien Tricaud 2009-2011
+//! Copyright (C) Philippe Saade 2009-2011
 //! Copyright (C) Picviz Labs 2011
 
 #ifndef LIBPVGL_MISC_H

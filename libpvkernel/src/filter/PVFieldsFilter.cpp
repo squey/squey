@@ -50,7 +50,7 @@ PVCore::list_fields& PVFieldsFilter<one_to_many>::operator()(PVCore::list_fields
 template<> LibKernelDecl
 PVCore::list_fields& PVFieldsFilter<many_to_many>::operator()(PVCore::list_fields& fields)
 {
-	return fields;
+	return many_to_many(fields);
 };
 
 template <> LibKernelDecl

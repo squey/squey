@@ -7,7 +7,7 @@
 #include <QSpinBox>
 
 #include "PVLayerFilterDiff.h"
-#include <picviz/PVColor.h>
+#include <pvkernel/core/PVColor.h>
 #include <picviz/PVView.h>
 #include <pvkernel/core/PVAxesIndexType.h>
 #include <pvkernel/core/PVSpinBoxType.h>
@@ -58,15 +58,15 @@ PVCore::PVArgumentList Picviz::PVLayerFilterDiff::get_default_args_for_view(PVVi
 	// Retrieve the key axes of the PVFormat of that PVView
 	PVCore::PVArgumentList args = get_args();
 	PVCore::PVAxesIndexType key_axes;
-	PVRush::PVFormat::list_axes const& axes = view.get_source_parent()->nraw->format->axes;
-	PVRush::PVFormat::list_axes::const_iterator it;
+	PVRush::list_axes_t const& axes = view.get_source_parent()->nraw->format->get_axes();
+	PVRush::list_axes_t::const_iterator it;
 	int axis_id = 0;
 	// FIXME:
 	// In PVAxesCombination::set_from_format, the id are computed like that
 	// It might be safer to use PVAxesCombination to get this information
 	for (it = axes.begin(); it != axes.end(); it++) {
-		QHash<QString,QString> const& params = *it;
-		if (params["key"].compare("true", Qt::CaseInsensitive) == 0) {
+		PVRush::PVAxisFormat const& params = *it;
+		if (params.is_key()) {
 			key_axes.push_back(axis_id);
 		}
 		axis_id++;

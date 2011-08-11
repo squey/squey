@@ -4,7 +4,8 @@
 
 #include <QMessageBox>
 
-PVRush::PVInputTypeHDFS::PVInputTypeHDFS()
+PVRush::PVInputTypeHDFS::PVInputTypeHDFS():
+	PVInputType()
 {
 	if (!init_env_hadoop()) {
 		PVLOG_ERROR("Unable to initialize hadoop environnement. Hadoop support won't work.\n");

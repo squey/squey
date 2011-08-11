@@ -47,6 +47,7 @@ PVInspector::PVListingView::PVListingView(PVMainWindow *mw, Picviz::PVView_p pv_
 	setMinimumSize(0,0);
 	setSizePolicy(QSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding));
 	setFocusPolicy(Qt::NoFocus);
+	setSelectionMode(QAbstractItemView::ExtendedSelection);
 	setSelectionBehavior(QAbstractItemView::SelectRows);
 	
 	// Custom context menu.
@@ -162,7 +163,8 @@ void PVInspector::PVListingView::selectionChanged(const QItemSelection &selected
 	}
 	else {
 		sb->clearMessage();
-	}	
+	}
+	QTableView::selectionChanged(selected, deselected);
 }
 
 /******************************************************************************

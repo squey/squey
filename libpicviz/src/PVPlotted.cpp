@@ -82,7 +82,7 @@ int PVPlotted::create_table()
 			continue;
 		}
 
-		plotting_filter->set_mapping_mode(plotting->get_format()->axes[j]["mapping"]);
+		plotting_filter->set_mapping_mode(plotting->get_format()->get_axes().at(j).get_mapping());
 		plotting_filter->set_mandatory_params(plotting->mapped->mapping->get_mandatory_params_for_col(j));
 		plotting_filter->set_dest_array(nrows, trans_table.getRowData(j));
 		tbb::tick_count plstart = tbb::tick_count::now();

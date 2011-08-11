@@ -9,7 +9,7 @@
 #include <algorithm>
 #include <tbb/concurrent_vector.h>
 
-#include <dnet.h>
+#include <pvkernel/core/dumbnet.h>
 
 
 typedef tbb::concurrent_vector< std::pair<QByteArray,uint64_t> > vec_conv_sort_t;

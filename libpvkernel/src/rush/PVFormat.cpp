@@ -49,9 +49,9 @@ void PVRush::PVFormat::clear()
 
 }
 
-bool PVRush::PVFormat::populate(bool allowNoFilters)
+bool PVRush::PVFormat::populate(bool forceOneAxis)
 {
-	return populate_from_xml(full_path, allowNoFilters);
+	return populate_from_xml(full_path, forceOneAxis);
 }
 
 QString const& PVRush::PVFormat::get_format_name() const
@@ -66,6 +66,7 @@ QString const& PVRush::PVFormat::get_full_path() const
 
 char *fill_spaces(QString str, int max_spaces)
 {
+	// Use for debug so we display the different elements
 	char *retbuf;
 
 	retbuf = (char *)malloc(max_spaces + 1);
@@ -86,81 +87,88 @@ void PVRush::PVFormat::debug()
 {
 	QHashIterator<int, QStringList> time_hash(time_format);
 
-	QHashIterator<int, QString> decoder_axis_hash(axis_decoder);
-
-	while (decoder_axis_hash.hasNext()) {
-		decoder_axis_hash.next();
-		PVLOG_PLAIN("axis_decoder[%d]:'%s'\n", decoder_axis_hash.key(), decoder_axis_hash.value().toUtf8().data());
-	}
-
 	PVLOG_PLAIN( "\nid     |      type      |      mapping     |     plotting     |    key    |    group    |  color  |name \n");
 	PVLOG_PLAIN( "-------+----------------+------------------+------------------+-----------+-------------+---------+------...\n");
 
-	for (int i = 0; i < this->axes.size(); ++i) {
+	list_axes_t::const_iterator it;
+	unsigned int i = 0;
+	for (it = _axes.begin(); it != _axes.end(); it++) {
 		char *fill;
+		PVAxisFormat const& axis = *it;
 
 		fill = fill_spaces(QString::number(i+1, 10), 7);
 		PVLOG_PLAIN( "%d%s", i+1, fill);
 		free(fill);
-		fill = fill_spaces(this->axes[i]["type"], 15);
-		PVLOG_PLAIN( "| %s%s", qPrintable(this->axes[i]["type"]), fill);
+		fill = fill_spaces(axis.get_type(), 15);
+		PVLOG_PLAIN( "| %s%s", qPrintable(axis.get_type()), fill);
 		free(fill);
-		fill = fill_spaces(this->axes[i]["mapping"], 17);
-		PVLOG_PLAIN( "| %s%s", qPrintable(this->axes[i]["mapping"]), fill);
+		fill = fill_spaces(axis.get_mapping(), 17);
+		PVLOG_PLAIN( "| %s%s", qPrintable(axis.get_mapping()), fill);
 		free(fill);
-		fill = fill_spaces(this->axes[i]["plotting"], 17);
-		PVLOG_PLAIN( "| %s%s", qPrintable(this->axes[i]["plotting"]), fill);
+		fill = fill_spaces(axis.get_plotting(), 17);
+		PVLOG_PLAIN( "| %s%s", qPrintable(axis.get_plotting()), fill);
 		free(fill);
-		fill = fill_spaces(this->axes[i]["key"], 10);
-		PVLOG_PLAIN( "| %s%s", qPrintable(this->axes[i]["key"]), fill);
+		fill = fill_spaces(axis.get_key_str(), 10);
+		PVLOG_PLAIN( "| %s%s", qPrintable(axis.get_key_str()), fill);
 		free(fill);
-		fill = fill_spaces(this->axes[i]["group"], 12);
-		PVLOG_PLAIN( "| %s%s", qPrintable(this->axes[i]["group"]), fill);
+		fill = fill_spaces(axis.get_group(), 12);
+		PVLOG_PLAIN( "| %s%s", qPrintable(axis.get_group()), fill);
 		free(fill);
-		fill = fill_spaces(this->axes[i]["color"], 8);
-		PVLOG_PLAIN( "| %s%s", qPrintable(this->axes[i]["color"]), fill);
+		fill = fill_spaces(axis.get_color_str(), 8);
+		PVLOG_PLAIN( "| %s%s", qPrintable(axis.get_color_str()), fill);
 		free(fill);
-		PVLOG_PLAIN( "| %s\n", qPrintable(this->axes[i]["name"]));
-
+		PVLOG_PLAIN( "| %s\n", qPrintable(axis.get_name()));
+		i++;
 	}
 
+	// Dump filters
+	if (filters_params.size() == 0) {
+		PVLOG_PLAIN("No filters\n");
+	}
+	else {
+		PVLOG_PLAIN("Filters:\n");
+		PVLOG_PLAIN("--------\n");
+		PVXmlParamParser::list_params::const_iterator it_filters;
+		for (it_filters = filters_params.begin(); it_filters != filters_params.end(); it_filters++) {
+			PVXmlParamParserData const& fdata = *it_filters;
+			PVLOG_PLAIN("%d -> %s\n", fdata.axis_id, qPrintable(fdata.filter_lib->registered_name()));
+		}
+	}
 }
 
-bool PVRush::PVFormat::populate_from_xml(QDomElement const& rootNode, bool allowNoFilters)
+bool PVRush::PVFormat::populate_from_xml(QDomElement const& rootNode, bool forceOneAxis)
 {
 	PVRush::PVXmlParamParser xml_parser(rootNode);
-	return populate_from_parser(xml_parser, allowNoFilters);
+	return populate_from_parser(xml_parser, forceOneAxis);
 }
 
-bool PVRush::PVFormat::populate_from_xml(QString filename, bool allowNoFilters)
+bool PVRush::PVFormat::populate_from_xml(QString filename, bool forceOneAxis)
 {
 	PVRush::PVXmlParamParser xml_parser(filename);
-	return populate_from_parser(xml_parser, allowNoFilters);
+	return populate_from_parser(xml_parser, forceOneAxis);
 }
 
-bool PVRush::PVFormat::populate_from_parser(PVXmlParamParser& xml_parser, bool allowNoFilters)
+bool PVRush::PVFormat::populate_from_parser(PVXmlParamParser& xml_parser, bool forceOneAxis)
 {
 	filters_params = xml_parser.getFields();
-	axes = xml_parser.getAxes();
+	_axes = xml_parser.getAxes();
 	time_format = xml_parser.getTimeFormat();
 
-	if (allowNoFilters && filters_params.size() == 0) {
+	if (_axes.size() == 0 && forceOneAxis) {
 		// Only have one axis, a fake one
-		QHash<QString, QString> fake_ax;
-		fake_ax["name"] = "Line";
-		fake_ax["type"] = "string";
-		fake_ax["mapping"] = "default";
-		fake_ax["plotting"] = "default";
-		fake_ax["type"] = "string";
-		fake_ax["group"] = "";
-		fake_ax["color"] = "";
-		fake_ax["key"] = "";
-		axes.clear();
-		axes.push_back(fake_ax);
-		return true;
+		PVAxisFormat fake_ax;
+		fake_ax.set_name("Line");
+		fake_ax.set_type("string");
+		fake_ax.set_mapping("default");
+		fake_ax.set_plotting("default");
+		fake_ax.set_group("");
+		fake_ax.set_color("");
+		fake_ax.set_key("");
+		_axes.clear();
+		_axes.push_back(fake_ax);
 	}
 
-	return filters_params.size() > 0;
+	return _axes.size() > 0;
 }
 
 PVFilter::PVFieldsBaseFilter_f PVRush::PVFormat::xmldata_to_filter(PVRush::PVXmlParamParserData const& fdata)
@@ -178,6 +186,7 @@ PVFilter::PVFieldsBaseFilter_f PVRush::PVFormat::xmldata_to_filter(PVRush::PVXml
 	if (sp_p) {
 		sp_p->set_number_expected_fields(fdata.nchildren);
 	}
+	filter_clone->set_children_axes_tag(fdata.children_axes_tag);
 	filter_clone->set_args(fdata.filter_args);
 	_filters_container.push_back(filter_clone);
 	field_f = filter_clone->f();

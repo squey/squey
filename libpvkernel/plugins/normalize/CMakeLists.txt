@@ -42,7 +42,7 @@ target_link_libraries(normalize_filter_splitter_url ${PVKERNEL_LIBRARIES} ${QT_L
 declare_library(normalize_filter_splitter_url)
 
 add_library(normalize_filter_splitter_pcap SHARED splitter_pcap/PVFieldSplitterPcapPacket.cpp splitter_pcap/PVFieldSplitterPcapPacket.h splitter_pcap/register.cpp)
-target_link_libraries(normalize_filter_splitter_pcap ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES} ${PCAP_LIBRARIES} ${DUMBNET_LIBRARIES})
+target_link_libraries(normalize_filter_splitter_pcap ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES} ${PCAP_LIBRARIES})
 declare_library(normalize_filter_splitter_pcap)
 
 # "grep"
