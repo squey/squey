@@ -12,12 +12,14 @@
 #include <tbb/tick_count.h>
 #include <tbb/task_scheduler_init.h>
 
+#include <QCoreApplication>
 #include <QString>
 #include <QStringList>
 
 #include <iostream>
 
 #include <stdlib.h>
+#include "test-env.h"
 
 #define NLINES 10000000
 #define NCHUNKS 100
@@ -52,6 +54,7 @@ double bench(PVRush::PVExtractor &ext, size_t nlines)
 		dur += (end-start).seconds();
 	}
 	ext.force_stop_controller();
+	printf("NRAW: %u lines, %u fields.\n", ext.get_nraw().table.size(), ext.get_nraw().table[0].size());
 	return dur/NTRIES;
 }
 
@@ -130,6 +133,8 @@ int main(int argc, char** argv)
 		std::cerr << "Usage: " << argv[0] << " chunk_size file [file] [file ...]" << std::endl;
 		return 1;
 	}
+	QCoreApplication(argc, argv);
+	init_env();
 
 	int nfiles = argc-2;
 	char** files = &argv[2];
@@ -164,12 +169,12 @@ int main(int argc, char** argv)
 
 	double dur;	
 	// Serial reading performance with no transformation ("architecture" overhead)
-//	printf("Serial reading performance with no transformation (\"architecture\" overhead)");
-//	dur = bench(lfiles, chk_flt_null.f(), chunk_size, NLINES);
-//	print_perf(dur, total_read);
-//	clear_disk_cache();
+	printf("Serial reading performance with no transformation (\"architecture\" overhead)");
+	dur = bench(lfiles, chk_flt_null.f(), chunk_size, NLINES);
+	print_perf(dur, total_read);
+	clear_disk_cache();
 
-//	// Serial reading with UTF16 transformation
+	// Serial reading with UTF16 transformation
 	printf("Serial reading with UTF16 transformation");
 	dur = bench_utf16(lfiles, chk_flt_null.f(), chunk_size, NLINES);
 	print_perf(dur, total_read);
@@ -186,7 +191,7 @@ int main(int argc, char** argv)
 	PVFilter::PVFieldsSplitter::p_type regexp_lib_p = LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("regexp");
 	PVFilter::PVFieldsBaseFilter_p fre_in = regexp_lib_p->clone<PVFilter::PVFieldsBaseFilter>();
 	PVCore::PVArgumentList args;
-	args["regexp"] = PVCore::PVArgument(QRegExp("^a$"));
+	args["regexp"] = PVCore::PVArgument(QRegExp("^(.*)$"));
 	fre_in->set_args(args);
 	PVFilter::PVElementFilterByFields felt(fre_in->f());
 	PVFilter::PVChunkFilterByElt fchunk(felt.f());

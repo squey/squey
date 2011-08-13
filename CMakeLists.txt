@@ -7,7 +7,7 @@ if (WIN32)
 	set(CMAKE_BUILD_TYPE "Release")
 	#set(CMAKE_BUILD_TYPE "Debug")
 else(WIN32)
-	set(CMAKE_BUILD_TYPE "Debug")
+	set(CMAKE_BUILD_TYPE "Release")
 endif(WIN32)
 
 set(PICVIZ_SINGLE_TREE_BUILD true)
@@ -24,7 +24,7 @@ include(FindPkgConfig)
 if(WIN32)
     set(COMPILER_OPTIMIZE_FLAGS "")
 else(WIN32)
-	#set(COMPILER_OPTIMIZE_FLAGS "-O3 -march=native")
+	set(COMPILER_OPTIMIZE_FLAGS "-O3 -march=native")
 endif(WIN32)
 
 #

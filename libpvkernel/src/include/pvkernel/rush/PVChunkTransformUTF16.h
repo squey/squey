@@ -12,7 +12,7 @@ extern "C" {
 #include <unicode/ucnv.h>
 }
 
-#define CHUNKTRANSFORM_USE_QT_UNICODE
+//#define CHUNKTRANSFORM_USE_QT_UNICODE
 
 namespace PVRush {
 
