@@ -22,7 +22,7 @@ PVRush::PVNraw::~PVNraw()
 void PVRush::PVNraw::allocate_buf(size_t nchars)
 {
 	// Reserve the "big buffer" that will hold our strings
-	static tbb::tbb_allocator<QChar> alloc;
+	static tbb::scalable_allocator<QChar> alloc;
 	_buf_strings = alloc.allocate(nchars);
 	_len_buf = _rem_len_buf = nchars;
 	_cur_buf = _buf_strings;
@@ -83,7 +83,7 @@ void PVRush::PVNraw::create_trans_nraw()
 
 void PVRush::PVNraw::delete_buffers()
 {
-	static tbb::tbb_allocator<QChar> alloc;
+	static tbb::scalable_allocator<QChar> alloc;
 	std::list<std::pair<QChar*, size_t> >::iterator it;
 	for (it = _buf_todel.begin(); it != _buf_todel.end(); it++) {
 		alloc.deallocate(it->first, it->second);
@@ -97,7 +97,7 @@ void PVRush::PVNraw::clear_table()
 	nraw_table_line::const_iterator it_l;
 	for (it = table.begin(); it != table.end(); it++) {
 		for (it_l = it->begin(); it_l != it->end(); it_l++) {
-			static tbb::tbb_allocator<QChar> alloc;
+			static tbb::scalable_allocator<QChar> alloc;
 			QString const& str = *it_l;
 			alloc.deallocate((QChar*) str.constData(), str.size());
 		}

@@ -19,15 +19,15 @@
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVNrawChild.h>
 
-#include <tbb/tbb_allocator.h>
+#include <tbb/scalable_allocator.h>
 
 namespace PVRush {
 
 	class LibKernelDecl PVNraw {
 	public:
-		typedef std::vector<QString, tbb::tbb_allocator<QString> > nraw_table_line;
-		typedef std::vector<nraw_table_line, tbb::tbb_allocator<nraw_table_line> > nraw_table;
-		typedef std::vector<nraw_table_line, tbb::tbb_allocator<nraw_table_line> > nraw_trans_table;
+		typedef std::vector<QString, tbb::scalable_allocator<QString> > nraw_table_line;
+		typedef std::vector<nraw_table_line, tbb::scalable_allocator<nraw_table_line> > nraw_table;
+		typedef std::vector<nraw_table_line, tbb::scalable_allocator<nraw_table_line> > nraw_trans_table;
 	private:
 		QVector<PVNrawChild> children;
 		PVCore::PVMeanValue<size_t> _mean_line_chars;
@@ -96,7 +96,7 @@ namespace PVRush {
             return QString("");
 		}
 
-		inline void set_field(nraw_table_line& line, size_t index_field, const QChar* buf, size_t nchars)
+		inline static void set_field(nraw_table_line& line, size_t index_field, const QChar* buf, size_t nchars)
 		{
 //			if (nchars > _rem_len_buf) {
 //				// Need a reallocation
@@ -122,7 +122,7 @@ namespace PVRush {
 //			_cur_buf += nchars + 1;
 //			_rem_len_buf -= nchars;
 			
-			static tbb::tbb_allocator<QChar> alloc;
+			static tbb::scalable_allocator<QChar> alloc;
 			QChar* copy = alloc.allocate(nchars);
 			memcpy(copy, buf, nchars*sizeof(QChar));
 

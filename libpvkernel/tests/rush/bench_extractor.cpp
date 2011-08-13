@@ -191,7 +191,7 @@ int main(int argc, char** argv)
 	PVFilter::PVFieldsSplitter::p_type regexp_lib_p = LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("regexp");
 	PVFilter::PVFieldsBaseFilter_p fre_in = regexp_lib_p->clone<PVFilter::PVFieldsBaseFilter>();
 	PVCore::PVArgumentList args;
-	args["regexp"] = PVCore::PVArgument(QRegExp("^(.*)$"));
+	args["regexp"] = PVCore::PVArgument(QRegExp("(.*)"));
 	fre_in->set_args(args);
 	PVFilter::PVElementFilterByFields felt(fre_in->f());
 	PVFilter::PVChunkFilterByElt fchunk(felt.f());
