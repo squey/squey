@@ -107,6 +107,11 @@ public:
 	 */
 	PVMap(PVView *view, PVWidgetManager *widget_manager, PVLines *lines, int width, int height);
 
+	/**
+	 * Destructor.
+	 */
+	~PVMap();
+
 	bool is_panning()const{return move_view_mode;}
 	/**
 	 *

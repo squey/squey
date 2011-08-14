@@ -21,7 +21,7 @@ PVGL::PVFont::PVFont()
 	FT_Library  library;
 	GLubyte    *empty_data;
 
-	PVLOG_INFO("PVGL::PVFont::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVFont::%s\n", __FUNCTION__);
 
 	error = FT_Init_FreeType(&library);
 	if (error) {
@@ -58,6 +58,13 @@ PVGL::PVFont::PVFont()
 	x_off = y_off = y_max = 0;
 	delete[] empty_data;
 }
+
+PVGL::PVFont::~PVFont()
+{
+	PVLOG_DEBUG("PVGL::PVFont::%s\n", __FUNCTION__);
+	glDeleteTextures(1, &texture);
+}
+
 
 /******************************************************************************
  *

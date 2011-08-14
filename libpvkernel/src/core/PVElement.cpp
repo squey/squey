@@ -2,6 +2,8 @@
 #include <pvkernel/core/PVField.h>
 #include <pvkernel/core/PVChunk.h>
 
+tbb::scalable_allocator<PVCore::PVElement> PVCore::PVElement::_alloc;
+
 PVCore::PVElement::PVElement(PVChunk* parent) :
 	PVBufferSlice(_reallocated_buffers)
 {

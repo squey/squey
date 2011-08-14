@@ -41,6 +41,47 @@ view(view_), widget_manager(widget_manager_), lines(lines_)
 	grabbing = false;
 	dragging = false;
 	move_view_mode = false;
+	main_fbo = 0;
+	main_fbo_vao = 0;
+	main_fbo_vbo = 0;
+	main_fbo_tex = 0;
+	lines_fbo = 0;
+	lines_fbo_tex = 0;
+	zombie_fbo = 0;
+	zombie_fbo_tex = 0;
+}
+
+/******************************************************************************
+ *
+ * PVGL::PVMap::~PVMap
+ *
+ *****************************************************************************/
+PVGL::PVMap::~PVMap()
+{
+	if (main_fbo) {
+		glDeleteFramebuffers(1, &main_fbo);
+	}
+	if (main_fbo_tex) {
+		glDeleteTextures(1, &main_fbo_tex);
+	}
+	if (main_fbo_vao) {
+		glDeleteVertexArrays(1, &main_fbo_vao);
+	}
+	if (main_fbo_vbo) {
+		glDeleteBuffers(1, &main_fbo_vbo);
+	}
+	if (lines_fbo) {
+		glDeleteFramebuffers(1, &lines_fbo);
+	}
+	if (lines_fbo_tex) {
+		glDeleteTextures(1, &lines_fbo_tex);
+	}
+	if (zombie_fbo) {
+		glDeleteFramebuffers(1, &zombie_fbo);
+	}
+	if (zombie_fbo_tex) {
+		glDeleteTextures(1, &zombie_fbo_tex);
+	}
 }
 
 /******************************************************************************
