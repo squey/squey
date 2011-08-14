@@ -1,23 +1,22 @@
 #include <pvkernel/core/PVField.h>
-#include <pvkernel/core/PVElementData.h>
 
 
-PVCore::PVField::PVField(PVCore::PVElement const& parent):
+PVCore::PVField::PVField(PVCore::PVElement& parent):
 	PVBufferSlice(parent.realloc_bufs())
 {
 	init(parent);
 }
 
-PVCore::PVField::PVField(PVCore::PVElement const& parent, char* begin, char* end):
+PVCore::PVField::PVField(PVCore::PVElement& parent, char* begin, char* end):
 	PVBufferSlice(begin, end, parent.realloc_bufs())
 {
 	init(parent);
 }
 
-void PVCore::PVField::init(PVElement const& parent)
+void PVCore::PVField::init(PVElement& parent)
 {
 	_valid = true;
-	_parent = parent.d.data();
+	_parent = &parent;
 }
 
 bool PVCore::PVField::valid() const
@@ -32,12 +31,13 @@ void PVCore::PVField::set_invalid()
 
 PVCore::PVElement* PVCore::PVField::elt_parent()
 {
-	return _parent->_elt;
+	return _parent;
 }
 
-void PVCore::PVField::set_parent(PVCore::PVElement const& parent)
+void PVCore::PVField::set_parent(PVCore::PVElement& parent)
 {
-	_parent = parent.d.data();
+	_parent = &parent;
+	set_buflist(parent.realloc_bufs());
 }
 
 void PVCore::PVField::deep_copy()
@@ -47,10 +47,10 @@ void PVCore::PVField::deep_copy()
 
 size_t PVCore::PVField::get_index_of_parent_element()
 {
-	return _parent->_elt->get_elt_index();
+	return _parent->get_elt_index();
 }
 
 size_t PVCore::PVField::get_agg_index_of_parent_element()
 {
-	return _parent->_elt->get_elt_agg_index();
+	return _parent->get_elt_agg_index();
 }

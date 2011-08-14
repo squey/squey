@@ -26,7 +26,7 @@ void PVRush::PVOutputFile::operator()(PVCore::PVChunk* out)
 	PVCore::list_elts::const_iterator it,ite;
 	ite = le.end();
 	for (it = le.begin(); it != ite; it++) {
-		PVCore::PVElement const& elt = *it;
+		PVCore::PVElement const& elt = *(*it);
 		if (!elt.valid())
 			continue;
 		PVCore::list_fields const& lf = elt.c_fields();

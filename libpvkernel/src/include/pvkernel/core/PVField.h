@@ -16,21 +16,21 @@ namespace PVCore {
 
 class LibKernelDecl PVField : public PVBufferSlice {
 public:
-	PVField(PVElement const& parent, char* begin, char* end);
-	PVField(PVElement const& parent);
+	PVField(PVElement& parent, char* begin, char* end);
+	PVField(PVElement& parent);
 public:
 	bool valid() const;
 	void set_invalid();
 	PVElement* elt_parent();
-	void set_parent(PVElement const& parent);
+	void set_parent(PVElement& parent);
 	void deep_copy();
 	size_t get_index_of_parent_element();
 	size_t get_agg_index_of_parent_element();
 private:
-	void init(PVElement const& parent);
+	void init(PVElement& parent);
 protected:
 	bool _valid;
-	PVElementData* _parent;
+	PVElement* _parent;
 };
 
 }

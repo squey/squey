@@ -35,7 +35,7 @@ PVCore::PVChunk* PVFilter::PVChunkFilterByElt::operator()(PVCore::PVChunk* chunk
 	size_t nelts_valid = 0;
 	while (it != ite)
 	{
-		PVCore::PVElement &elt = _elt_filter(*it);
+		PVCore::PVElement &elt = _elt_filter(*(*it));
 		if (!elt.valid())
 		{
 			PVCore::list_elts::iterator it_rem = it;

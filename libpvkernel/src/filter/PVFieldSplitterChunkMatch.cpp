@@ -15,7 +15,7 @@ void PVFilter::PVFieldSplitterChunkMatch::push_chunk(PVCore::PVChunk* chunk)
 	PVCore::list_elts const& le = chunk->c_elements();
 	PVCore::list_elts::const_iterator it_elt;
 	for (it_elt = le.begin(); it_elt != le.end(); it_elt++) {
-		PVCore::PVField const& first_f = it_elt->c_fields().front();
+		PVCore::PVField const& first_f = (*it_elt)->c_fields().front();
 		sp->guess(_guess_res, first_f);
 	}
 }

@@ -20,7 +20,7 @@ void PVRush::PVNrawOutput::operator()(PVCore::PVChunk* out)
 
 	//std::list<QString, tbb::tbb_allocator<QString> > sl;
 	for (it_elt = elts.begin(); it_elt != elts.end(); it_elt++) {
-		PVCore::PVElement const& e = *it_elt;
+		PVCore::PVElement const& e = *(*it_elt);
 		if (!e.valid())
 			continue;
 		PVCore::list_fields const& fields = e.c_fields();

@@ -23,16 +23,16 @@ namespace PVCore {
 class PVChunk;
 
 class PVField;
-class PVElementData;
 
 typedef std::list<PVField, tbb::scalable_allocator<PVField> > list_fields;
 class LibKernelDecl PVElement : public PVBufferSlice {
 	friend class PVField;
 	friend class PVChunk;
-public:
+private:
 	PVElement(PVChunk* parent, char* begin, char* end);
 	PVElement(PVChunk* parent);
 	PVElement(PVElement const& src);
+public:
 	virtual ~PVElement();
 public:
 	bool valid() const;
@@ -43,15 +43,34 @@ public:
 	PVChunk* chunk_parent();
 	chunk_index get_elt_index();
 	chunk_index get_elt_agg_index();
-	bool same_data_as(PVElement const& elt) const { return d == elt.d; }
 	size_t get_chunk_index() const { return _chunk_index; }
 
 	list_fields& fields();
 	list_fields const& c_fields() const;
 
-	buf_list_t& realloc_bufs() const;
+	buf_list_t& realloc_bufs();
+
 public:
-	PVElement& operator=(PVElement const& src);
+	// Element allocation and deallocation
+	static inline PVElement* construct(PVChunk* parent, char* begin, char* end)
+	{
+		PVElement* ret = _alloc.allocate(1);
+		new (ret) PVElement(parent, begin, end);
+		return ret;
+	}
+
+	static inline PVElement* construct(PVChunk* parent)
+	{
+		PVElement* ret = _alloc.allocate(1);
+		new (ret) PVElement(parent);
+		return ret;
+	}
+
+	inline void free()
+	{
+		this->~PVElement();
+		_alloc.deallocate(this, 1);
+	}
 protected:
 	// Set by the parent PVChunk
 	void set_chunk_index(size_t i) { _chunk_index = i; }
@@ -59,9 +78,16 @@ private:
 	void clear_saved_buf();
 	void init(PVChunk* parent);
 protected:
-	QExplicitlySharedDataPointer<PVElementData> d;
-private:
+	bool _valid;
+	list_fields _fields;
+	PVChunk *_parent;
+	buf_list_t _reallocated_buffers; // buf_list_t defined in PVBufferSlice.h
+	char* _org_buf;
+	size_t _org_buf_size;
 	size_t _chunk_index;
+
+private:
+	static tbb::scalable_allocator<PVElement> _alloc;
 };
 
 }

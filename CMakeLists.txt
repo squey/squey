@@ -41,7 +41,7 @@ if(WIN32)
 else(WIN32)
 	add_definitions(-DUNIX)
 	add_definitions(-DLINUX=2)
-	add_definitions(-Wall -Wextra -pipe -ggdb3) 
+	add_definitions(-Wall -Wextra -pipe -ggdb3)
 endif(WIN32)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${Picviz_Inspector_SOURCE_DIR}/cmake)

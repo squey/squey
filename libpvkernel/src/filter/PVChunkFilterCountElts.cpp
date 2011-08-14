@@ -42,7 +42,7 @@ PVCore::PVChunk* PVFilter::PVChunkFilterCountElts::operator()(PVCore::PVChunk* c
 	PVCore::list_elts const& elts = chunk->c_elements();
 	ite = elts.end();
 	for (it = elts.begin(); it != ite; it++) {
-		if ((*it).valid()) {
+		if ((*it)->valid()) {
 			_n_elts++;
 		}
 	}

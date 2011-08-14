@@ -72,18 +72,17 @@ PVCore::PVChunk* PVRush::PVDBSource::operator()()
 				break;
 			}
 		}
-		PVCore::PVElement elt(chunk);
-		elt.fields().clear();
+		PVCore::PVElement* elt = chunk->add_element();
+		elt->fields().clear();
 		QSqlRecord rec = _sql_query.record();
 		for (int i = 0; i < rec.count(); i++) {
 			QString value = rec.value(i).toString();
-			PVCore::PVField f(elt);
+			PVCore::PVField f(*elt);
 			size_t size_buf = value.size() * sizeof(QChar);
 			f.allocate_new(size_buf);
 			memcpy(f.begin(), value.constData(), size_buf);
-			elt.fields().push_back(f);
+			elt->fields().push_back(f);
 		}
-		chunk->elements().push_back(elt);
 	}
 
 	// Set the index of the elements inside the chunk

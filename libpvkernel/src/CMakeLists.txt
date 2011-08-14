@@ -42,7 +42,6 @@ include/pvkernel/core/PVColorGradientDualSliderType.h
 include/pvkernel/core/PVBufferSlice.h
 include/pvkernel/core/PVChunk.h
 include/pvkernel/core/PVElement.h
-include/pvkernel/core/PVElementData.h
 include/pvkernel/core/PVField.h
 include/pvkernel/core/PVListFloat2D.h
 include/pvkernel/core/PVLogger.h

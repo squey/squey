@@ -19,13 +19,12 @@ bool PVRush::PVChunkAlignBoundary::operator()(PVCore::PVChunk &cur_chunk, PVCore
 	}
 
 	unsigned int nelts = 0;
-	PVCore::list_elts &elts = cur_chunk.elements();
 	QChar* str_start = (QChar*) cur_chunk.begin();
 	while (next != -1) {
 		QChar* start = str_start + previous;
 		QChar* end = str_start + next;
 
-		elts.push_back(PVCore::PVElement(&cur_chunk, (char*)start, (char*)end));
+		cur_chunk.add_element((char*) start, (char*) end);
 		nelts++;
 
 		previous = next + 1;

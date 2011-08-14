@@ -15,7 +15,7 @@ bool PVRush::PVChunkAlignUTF16Newline::operator()(PVCore::PVChunk &cur_chunk, PV
 
 	PVCore::list_elts::iterator it;
 	for (it = cur_chunk.elements().begin(); it != cur_chunk.elements().end(); it++) {
-		PVCore::PVElement &elt = *it;
+		PVCore::PVElement &elt = *(*it);
 		if(elt.size() > sizeof(QChar)) {
 			char* last_char = elt.end()-sizeof(QChar);
 			// Check if the last character is '\r'

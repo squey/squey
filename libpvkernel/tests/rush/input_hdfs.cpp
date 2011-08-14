@@ -32,7 +32,7 @@ int main()
 	PVCore::list_elts const& l = read->c_elements();
 	PVCore::list_elts::const_iterator it;
 	for (it = l.begin(); it != l.end(); it++) {
-		std::cout << qPrintable(it->qstr()) << std::endl;
+		std::cout << qPrintable((*it)->qstr()) << std::endl;
 	}
 
 	read->free();

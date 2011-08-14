@@ -23,7 +23,7 @@ void dump_chunk(PVChunk const& c)
 	list_elts::const_iterator it,ite;
 	ite = l.end();
 	for (it = l.begin(); it != ite; it++) {
-		dump_elt(*it);
+		dump_elt(*(*it));
 		cerr << endl;
 	}
 }
@@ -73,7 +73,7 @@ void dump_chunk_csv(PVChunk& c)
 	list_elts::iterator it,ite;
 	ite = l.end();
 	for (it = l.begin(); it != ite; it++) {
-		PVElement& elt = *it;
+		PVElement& elt = *(*it);
 		list_fields& l = elt.fields();
 		if (l.size() == 1) {
 			l.begin()->init_qstr();
@@ -105,7 +105,7 @@ void dump_chunk_raw(PVChunk& c)
 	list_elts::iterator it,ite;
 	ite = l.end();
 	for (it = l.begin(); it != ite; it++) {
-		PVElement& elt = *it;
+		PVElement& elt = *(*it);
 		list_fields& l = elt.fields();
 		list_fields::iterator itf;
 		for (itf = l.begin(); itf != l.end(); itf++) {

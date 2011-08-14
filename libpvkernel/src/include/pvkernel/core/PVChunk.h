@@ -27,7 +27,7 @@ namespace PVRush {
 
 namespace PVCore {
 
-typedef std::list< PVElement, tbb::scalable_allocator<PVElement> > list_elts;
+typedef std::list< PVElement*, tbb::scalable_allocator<PVElement*> > list_elts;
 
 // Describe chunk interface with no allocator template
 // Useful in order to use chunks as function arguments...
@@ -36,7 +36,14 @@ friend class PVRush::PVAggregator;
 
 public:
 	PVChunk() : _index(0), _n_elts_invalid(0) {};
-	virtual ~PVChunk() {};
+	virtual ~PVChunk()
+	{
+		// Free elements
+		list_elts::iterator it;
+		for (it = _elts.begin(); it != _elts.end(); it++) {
+			(*it)->free();
+		}
+	}
 public:
 	virtual char* begin() const = 0;
 	char* end() const { return _logical_end; };
@@ -65,6 +72,19 @@ public:
 
 	list_elts& elements() {return _elts;};
 	list_elts const& c_elements() const {return _elts;}; 
+	PVElement* add_element(char* start, char* end)
+	{
+		PVElement* new_elt = PVElement::construct(this, start, end);
+		_elts.push_back(new_elt);
+		return new_elt;
+	}
+	PVElement* add_element()
+	{
+		PVElement* new_elt = PVElement::construct(this);
+		_elts.push_back(new_elt);
+		return new_elt;
+	}
+
 
 	PVRush::PVRawSourceBase* source() const { return _source; };
 
@@ -74,7 +94,7 @@ public:
 		size_t i = 0;
 		list_elts::iterator it;
 		for (it = _elts.begin(); it != _elts.end(); it++) {
-			it->set_chunk_index(i);
+			(*it)->set_chunk_index(i);
 			i++;
 		}
 	}

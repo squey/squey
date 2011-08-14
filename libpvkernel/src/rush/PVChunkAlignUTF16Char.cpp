@@ -103,7 +103,7 @@ bool PVRush::PVChunkAlignUTF16Char::operator()(PVCore::PVChunk &cur_chunk, PVCor
 		UChar* start = str_cur;
 		UChar* end = str_found;
 		
-		elts.push_back(PVCore::PVElement(&cur_chunk, (char*)start, (char*)end));
+		cur_chunk.add_element((char*) start, (char*) end);
 		nelts++;
 
 		str_cur = str_found+1;
