@@ -21,11 +21,13 @@ include(CheckLibraryExists)
 
 include(FindPkgConfig)
 
-if(WIN32)
-    set(COMPILER_OPTIMIZE_FLAGS "")
-else(WIN32)
-	set(COMPILER_OPTIMIZE_FLAGS "-O3 -march=native")
-endif(WIN32)
+if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+	if(WIN32)
+		set(COMPILER_OPTIMIZE_FLAGS "")
+	else(WIN32)
+		set(COMPILER_OPTIMIZE_FLAGS "-O3 -march=native")
+	endif(WIN32)
+endif()
 
 #
 # Application specific definitions

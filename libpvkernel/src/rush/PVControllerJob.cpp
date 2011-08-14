@@ -120,6 +120,7 @@ bool PVRush::PVControllerJob::cancel()
 void PVRush::PVControllerJob::job_has_run()
 {
 	_tc_end = tbb::tick_count::now();
+	_out_filter->job_has_finished();
 	PVLOG_DEBUG("PVControllerJob: job has finish to run.\n");
 	{
 		boost::lock_guard<boost::mutex> lock(_job_finished_mut);

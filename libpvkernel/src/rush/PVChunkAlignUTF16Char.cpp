@@ -3,7 +3,15 @@
 
 #include <immintrin.h>
 
-UChar* u_memchr_nosurr(UChar* s, UChar c, int32_t count)
+// Depends on whether SSE4.2 is enabled or not, select
+// the good version of u_memechr
+#ifdef __SSE4_2__
+#define u_memchr_nosurr _sse_u_memchr_nosurr
+#else
+#define u_memchr_nosurr _u_memchr_nosurr
+#endif
+
+UChar* _u_memchr_nosurr(UChar* s, UChar c, int32_t count)
 {
 	if (count <= 0) {
 		return NULL;
@@ -17,7 +25,8 @@ UChar* u_memchr_nosurr(UChar* s, UChar c, int32_t count)
 	return NULL;
 } 
 
-UChar* sse_u_memchr_nosurr(UChar* s, UChar c, int32_t count)
+#ifdef __SSE4_2__
+UChar* _sse_u_memchr_nosurr(UChar* s, UChar c, int32_t count)
 {
 	// AG: this is an SSE optimised version of u_memchr, that
 	// assume that 'c' isn't part of a surrogate pair !
@@ -25,9 +34,11 @@ UChar* sse_u_memchr_nosurr(UChar* s, UChar c, int32_t count)
 	// with vectorization. This is the output of GCC on the
 	// original version (w/ -O3) :
 	// 'note: not vectorized: control flow in loop.'
-	int32_t nsse = count/8; // number of packets of 8 UTF-16 characters
+	
+	// Number of packets of 8 UTF-16 characters
+	int32_t nsse = count>>3; // >>3 <=> /8
 	if (nsse <= 0) {
-		return u_memchr_nosurr(s, c, count);
+		return _u_memchr_nosurr(s, c, count);
 	}
 
 	__m128i sse_str,sse_cmp;
@@ -44,19 +55,23 @@ UChar* sse_u_memchr_nosurr(UChar* s, UChar c, int32_t count)
 			continue;
 		}
 		_mm_store_si128((__m128i*)final_cmp, sse_cmp);
+		// Pseudo binary-tree based search of 0xFFFF in sse_cmp
+		// "Pseudo" because no if statements is used.
+
 		// If final_cmp[0]==0, it means that we need to search
 		// in 2nd 64-bit part of our register, and that the final
 		// index starts at 4.
 		uint8_t reg_pos = (final_cmp[0] == 0);
-		// Same with the last 
+		// Same with the last 2x32-bits and then 2x16-bits
 		uint32_t* preg_pos_last4 = (uint32_t*) &final_cmp[reg_pos];
 		uint8_t reg_pos_last4 = (preg_pos_last4[0] == 0);
 		uint16_t* preg_pos_last2 = (uint16_t*) &preg_pos_last4[reg_pos_last4];
-		uint8_t final_reg_pos = reg_pos*4 + reg_pos_last4*2 + (preg_pos_last2[0] == 0);
+		uint8_t final_reg_pos = (reg_pos<<2) + (reg_pos_last4<<1) + (preg_pos_last2[0] == 0);
 		return s+final_reg_pos;
 	}
-	return u_memchr_nosurr(s, c, count-nsse*8);
+	return _u_memchr_nosurr(s, c, count-nsse*8);
 }
+#endif
 
 PVRush::PVChunkAlignUTF16Char::PVChunkAlignUTF16Char(QChar c) :
 	_c(c),
@@ -84,7 +99,7 @@ bool PVRush::PVChunkAlignUTF16Char::operator()(PVCore::PVChunk &cur_chunk, PVCor
 	UChar* str_found;
 	unsigned int nelts = 0;
 	PVCore::list_elts &elts = cur_chunk.elements();
-	while ((str_found = sse_u_memchr_nosurr(str_cur, _cu, sstr_remains)) != NULL) {
+	while ((str_found = u_memchr_nosurr(str_cur, _cu, sstr_remains)) != NULL) {
 		UChar* start = str_cur;
 		UChar* end = str_found;
 		

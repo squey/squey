@@ -133,7 +133,7 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_pvrow(PVRow start, P
 
 PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_index start, chunk_index nlines, int priority)
 {
-	_nraw.reserve(nlines);
+	_nraw.reserve(nlines, get_number_axes());
 
 	_out_nraw.clear_pvrow_index_map();
 
@@ -151,7 +151,7 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_ind
 
 PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_idxes(chunk_index start, chunk_index end, int priority)
 {
-	_nraw.reserve(end-start);
+	_nraw.reserve(end-start, get_number_axes());
 
 	_out_nraw.clear_pvrow_index_map();
 
@@ -247,4 +247,15 @@ void PVRush::PVExtractor::set_format(PVFormat const& format)
 {
 	PVFormat* nraw_format = new PVFormat(format);
 	_nraw.format.reset(nraw_format);
+}
+
+PVCol PVRush::PVExtractor::get_number_axes()
+{
+	if (_nraw.format) {
+		return _nraw.format->get_axes().size();
+	}
+	
+	// The number of axes is unknown, the NRAW will be resized
+	// when the first line is created (see PVNraw::add_row)
+	return 0;
 }

@@ -53,12 +53,11 @@ void Picviz::PVSource::files_append_noextract(PVRush::PVFormat const& format, PV
 
 void Picviz::PVSource::set_format(PVRush::PVFormat const& format)
 {
-	PVRush::PVFormat *format_nraw = new PVRush::PVFormat(format);
-	_extractor.get_nraw().format.reset(format_nraw);
-	format_nraw->populate();
-	axes_combination.set_from_format(*format_nraw);
+	_extractor.set_format(format);
+	_extractor.get_format().populate();
+	axes_combination.set_from_format(_extractor.get_format());
 
-	PVFilter::PVChunkFilter_f chk_flt = format_nraw->create_tbb_filters();
+	PVFilter::PVChunkFilter_f chk_flt = _extractor.get_format().create_tbb_filters();
 	_extractor.set_chunk_filter(chk_flt);
 }
 

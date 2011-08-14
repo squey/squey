@@ -21,6 +21,8 @@
 #include <stdlib.h>
 #include "test-env.h"
 
+#include <valgrind/callgrind.h>
+
 #define NLINES 10000000
 #define NCHUNKS 100
 
@@ -172,11 +174,12 @@ int main(int argc, char** argv)
 	printf("Serial reading performance with no transformation (\"architecture\" overhead)");
 	dur = bench(lfiles, chk_flt_null.f(), chunk_size, NLINES);
 	print_perf(dur, total_read);
-	clear_disk_cache();
 
 	// Serial reading with UTF16 transformation
 	printf("Serial reading with UTF16 transformation");
+	CALLGRIND_START_INSTRUMENTATION
 	dur = bench_utf16(lfiles, chk_flt_null.f(), chunk_size, NLINES);
+	CALLGRIND_STOP_INSTRUMENTATION
 	print_perf(dur, total_read);
 	
 	// Serial reading with UTF16 transformation and alignement
