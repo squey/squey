@@ -207,6 +207,9 @@ void PVGL::PVMap::set_main_fbo_dirty()
 void PVGL::PVMap::set_lines_fbo_dirty()
 {
 	PVLOG_DEBUG("PVGL::PVMap::%s\n", __FUNCTION__);
+	if (!visible) {
+		return;
+	}
 
 	lines_fbo_dirty = true;
 	drawn_lines = 0;
@@ -222,6 +225,9 @@ void PVGL::PVMap::set_lines_fbo_dirty()
 void PVGL::PVMap::set_zombie_fbo_dirty()
 {
 	PVLOG_DEBUG("PVGL::PVMap::%s\n", __FUNCTION__);
+	if (!visible) {
+		return;
+	}
 
 	zombie_fbo_dirty = true;
 	drawn_zombie_lines = 0;
@@ -587,7 +593,16 @@ void PVGL::PVMap::toggle_map()
 {
 	PVLOG_DEBUG("PVGL::PVMap::%s\n", __FUNCTION__);
 
-	visible = !visible;
+	if (!visible) {
+		visible = true;
+		// Set fbos dirty because these informations have been discarded if the map
+		// wasn't visible. See ticket # for more information
+		set_lines_fbo_dirty();
+		set_zombie_fbo_dirty();
+	}
+	else {
+		visible = false;
+	}
 }
 
 /******************************************************************************
