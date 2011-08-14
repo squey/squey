@@ -726,7 +726,7 @@ void PVInspector::PVXmlEditorWidget::update_table(PVRow start, PVRow end)
 		PVCore::list_elts::const_iterator it_elt;
 		for (it_elt = ck->c_elements().begin(); it_elt != ck->c_elements().end(); it_elt++) {
 			// The first field of a freshly created element is the whole element itself
-			myTreeModel->processChildrenWithField(it_elt->c_fields().front());
+			myTreeModel->processChildrenWithField((*it_elt)->c_fields().front());
 			nelts++;
 		}
 		if (nelts > 10) {

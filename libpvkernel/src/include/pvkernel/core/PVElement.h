@@ -10,6 +10,7 @@
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVBufferSlice.h>
+#include <pvkernel/core/PVField.h>
 
 #include <list>
 
@@ -22,9 +23,8 @@ namespace PVCore {
 
 class PVChunk;
 
-class PVField;
-
 typedef std::list<PVField, tbb::scalable_allocator<PVField> > list_fields;
+
 class LibKernelDecl PVElement : public PVBufferSlice {
 	friend class PVField;
 	friend class PVChunk;

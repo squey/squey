@@ -25,7 +25,7 @@ public:
 
 public:
 	PVRawSource(PVInput_p input,  PVChunkAlign &align, size_t chunk_size, PVChunkTransform &chunk_transform, PVFilter::PVChunkFilter_f src_filter, const alloc_chunk &alloc = alloc_chunk()) :
-		PVRawSourceBase(src_filter), _align(align), _chunk_size(chunk_size), _transform(chunk_transform), _alloc(alloc), _input(input)
+		PVRawSourceBase(src_filter), _align(align), _chunk_size(chunk_size), _transform(chunk_transform), _input(input), _alloc(alloc)
 	{
 		assert(chunk_size > 10);
 		assert(input);

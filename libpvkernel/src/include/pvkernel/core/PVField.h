@@ -10,9 +10,10 @@
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVBufferSlice.h>
-#include <pvkernel/core/PVElement.h>
 
 namespace PVCore {
+
+class PVElement;
 
 class LibKernelDecl PVField : public PVBufferSlice {
 public:
