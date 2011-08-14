@@ -3,6 +3,10 @@
 
 #include <boost/bind.hpp>
 
+boost::object_pool<PVCore::PVDateTimeParser::TimeFormat> PVCore::PVDateTimeParser::_alloc_tf;
+boost::object_pool<PVCore::PVDateTimeParser::TimeFormatEpoch> PVCore::PVDateTimeParser::_alloc_tfe;
+boost::object_pool<SimpleDateFormat> PVCore::PVDateTimeParser::TimeFormat::_alloc_df;
+
 // No copy is made. The QString must remain valid as long as the UnicodeString object is !
 static UnicodeString icuFromQStringAlias(const QString& src)
 {
@@ -28,12 +32,12 @@ PVCore::PVDateTimeParser& PVCore::PVDateTimeParser::operator=(const PVDateTimePa
 
 void PVCore::PVDateTimeParser::destroy_tf(TimeFormat* p)
 {
-	_alloc_tf.free((TimeFormat*) p);
+	_alloc_tf.destroy(p);
 }
 
 void PVCore::PVDateTimeParser::destroy_tfe(TimeFormatEpoch* p)
 {
-	_alloc_tfe.free(p);
+	_alloc_tfe.destroy(p);
 }
 
 PVCore::PVDateTimeParser::PVDateTimeParser(QStringList const& time_format)
@@ -49,7 +53,7 @@ PVCore::PVDateTimeParser::PVDateTimeParser(QStringList const& time_format)
 		QString format_str(*it);
 		bool is_epoch = (format_str.compare("epoch") == 0);
 		if (is_epoch) {
-			TimeFormatEpoch_p tf(_alloc_tfe.construct(), boost::bind(&PVDateTimeParser::destroy_tfe, this, _1));
+			TimeFormatEpoch_p tf(_alloc_tfe.construct(), boost::bind(&PVDateTimeParser::destroy_tfe, _1));
 			_time_format.push_back(tf);
 		}
 		else {
@@ -58,7 +62,7 @@ PVCore::PVDateTimeParser::PVDateTimeParser(QStringList const& time_format)
 				PVLOG_DEBUG("This string does not contain a year, adding one\n");
 				format_str.prepend("yyyy ");
 			}
-			TimeFormat_p tf(_alloc_tf.construct(format_str, prepend_year_to_value), boost::bind(&PVDateTimeParser::destroy_tf, this, _1));
+			TimeFormat_p tf(_alloc_tf.construct(format_str, prepend_year_to_value), boost::bind(&PVDateTimeParser::destroy_tf, _1));
 			tf->current_year = _current_year;
 			_time_format.push_back(tf);
 		}
@@ -73,11 +77,11 @@ void PVCore::PVDateTimeParser::copy(const PVDateTimeParser& src)
 		TimeFormatInterface* tfi = it->get();
 		TimeFormat* tf = dynamic_cast<TimeFormat*>(tfi);
 		if (tf == NULL) {
-			TimeFormatEpoch_p ptfe(_alloc_tfe.construct(), boost::bind(&PVDateTimeParser::destroy_tfe, this, _1));
+			TimeFormatEpoch_p ptfe(_alloc_tfe.construct(), boost::bind(&PVDateTimeParser::destroy_tfe, _1));
 			_time_format.push_back(ptfe);
 		}
 		else {
-			TimeFormat_p ptf(_alloc_tf.construct(*tf), boost::bind(&PVDateTimeParser::destroy_tf, this, _1));
+			TimeFormat_p ptf(_alloc_tf.construct(*tf), boost::bind(&PVDateTimeParser::destroy_tf, _1));
 			_time_format.push_back(ptf);
 		}
 	}
@@ -133,14 +137,10 @@ void PVCore::PVDateTimeParser::TimeFormat::create_parsers(QString const& time_fo
 	for (int il = 0; il < nlocales; il++) {
 		const Locale &cur_loc = list_locales[il];
 		UErrorCode err = U_ZERO_ERROR;
-#ifdef WIN32
 		// MSVC seems not to be able to take the good constructor for SimpleDateFormat...
 		SimpleDateFormat *psdf = _alloc_df.malloc();
 		new (psdf) SimpleDateFormat(pattern, Locale::createFromName(cur_loc.getName()), err);
-#else
-		SimpleDateFormat *psdf = _alloc_df.construct(pattern, Locale::createFromName(cur_loc.getName()), err);
-#endif
-		SimpleDateFormat_p sdf(psdf, boost::bind(&TimeFormat::destroy_sdf, this, _1));
+		SimpleDateFormat_p sdf(psdf, boost::bind(&TimeFormat::destroy_sdf, _1));
 		if (U_SUCCESS(err)) {
 			parsers.push_back(sdf);
 		}
@@ -170,7 +170,8 @@ PVCore::PVDateTimeParser::TimeFormat& PVCore::PVDateTimeParser::TimeFormat::oper
 
 void PVCore::PVDateTimeParser::TimeFormat::destroy_sdf(SimpleDateFormat* p)
 {
-	_alloc_df.destroy(p);
+	p->~SimpleDateFormat();
+	_alloc_df.free(p);
 }
 
 void PVCore::PVDateTimeParser::TimeFormat::copy(TimeFormat const& src)
@@ -198,13 +199,13 @@ bool PVCore::PVDateTimeParser::TimeFormat::to_datetime(UnicodeString const& valu
 	}
 
 	ParsePosition pos(0);
-	last_good_parser->parse(value, *cal, pos);
+	last_good_parser->parse(value_, *cal, pos);
 
 	if (pos.getErrorIndex() == -1) {
 		return true;
 	}
 
-	PVLOG_DEBUG("(PVDateTimeParser::TimeFormat::to_datetime) last known parser for current time format wasn't successful. Searching for a good one...\n");
+	PVLOG_DEBUG("(PVDateTimeParser::TimeFormat::to_datetime) last known parser (locale: %s) for current time format wasn't successful. Searching for a good one...\n", last_good_parser->getSmpFmtLocale().getName());
 
 	std::vector<SimpleDateFormat_p>::iterator it;
 	for (it = parsers.begin(); it != parsers.end(); it++) {
@@ -215,6 +216,7 @@ bool PVCore::PVDateTimeParser::TimeFormat::to_datetime(UnicodeString const& valu
 		ParsePosition pos_(0);
 		cur_parser->parse(value_, *cal, pos_);
 		if (pos_.getErrorIndex() == -1) {
+			PVLOG_DEBUG("(PVDateTimeParser::TimeFormat::to_datetime) locale found: %s. This will be the next parser.\n", cur_parser->getSmpFmtLocale().getName());
 			last_good_parser = cur_parser;
 			return true;
 		}

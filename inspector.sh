@@ -65,7 +65,7 @@ fi
 
 if [ "$1" == "valgrind" ]
 then
-	valgrind --log-file=./valgrind.out --leak-check=full --track-origins=yes gui-qt/src/picviz-inspector
+	valgrind --log-file=./valgrind.out --leak-check=full --track-origins=yes --show-reachable=yes gui-qt/src/picviz-inspector
 	exit 0
 fi
 
