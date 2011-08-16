@@ -161,9 +161,10 @@ bool PVRush::PVFormat::populate_from_parser(PVXmlParamParser& xml_parser, bool f
 		fake_ax.set_type("string");
 		fake_ax.set_mapping("default");
 		fake_ax.set_plotting("default");
-		fake_ax.set_group("");
-		fake_ax.set_color("");
-		fake_ax.set_key("");
+		fake_ax.set_group(PVFORMAT_AXIS_GROUP_DEFAULT);
+		fake_ax.set_color(PVFORMAT_AXIS_COLOR_DEFAULT);
+		fake_ax.set_titlecolor(PVFORMAT_AXIS_TITLECOLOR_DEFAULT);
+		fake_ax.set_key(PVFORMAT_AXIS_KEY_DEFAULT);
 		_axes.clear();
 		_axes.push_back(fake_ax);
 	}

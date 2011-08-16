@@ -538,9 +538,9 @@ PVRush::PVXmlTreeNodeDom* PVInspector::PVXmlDomModel::addSplitterWithAxes(const 
 
 	for (int i = 0; i < axesName.size(); i++) {
 		// TODO: we should be able to create a field and/or an axis from separate functions !!!!!
-		QDomElement newField = xmlFile.createElement("field");
-		QDomElement newAxis = xmlFile.createElement("axis");
-		newAxis.setAttribute("name", axesName[i]);
+		QDomElement newField = xmlFile.createElement(PVFORMAT_XML_TAG_FIELD_STR);
+		QDomElement newAxis = xmlFile.createElement(PVFORMAT_XML_TAG_AXIS_STR);
+		newAxis.setAttribute(PVFORMAT_AXIS_NAME_STR, axesName[i]);
 		setDefaultAttributesForAxis(newAxis);
 
 		newField.appendChild(newAxis);
@@ -551,15 +551,14 @@ PVRush::PVXmlTreeNodeDom* PVInspector::PVXmlDomModel::addSplitterWithAxes(const 
 
 void PVInspector::PVXmlDomModel::setDefaultAttributesForAxis(QDomElement& elt)
 {
-	assert(elt.tagName() == "axis");
-	elt.setAttribute("titlecolor", "#ffffff");
-	elt.setAttribute("color", "#ffffff");
-	elt.setAttribute("key", "false");
-	elt.setAttribute("mapping", "default");
-	elt.setAttribute("plotting", "default");
-	elt.setAttribute("type", "enum");
-	elt.setAttribute("time-format", "");
-	elt.setAttribute("group", "none");
+	assert(elt.tagName() == PVFORMAT_XML_TAG_AXIS_STR);
+	elt.setAttribute(PVFORMAT_AXIS_TITLECOLOR_STR, PVFORMAT_AXIS_TITLECOLOR_DEFAULT);
+	elt.setAttribute(PVFORMAT_AXIS_COLOR_STR, PVFORMAT_AXIS_COLOR_DEFAULT);
+	elt.setAttribute(PVFORMAT_AXIS_KEY_STR, PVFORMAT_AXIS_KEY_DEFAULT);
+	elt.setAttribute(PVFORMAT_AXIS_MAPPING_STR, PVFORMAT_AXIS_MAPPING_DEFAULT);
+	elt.setAttribute(PVFORMAT_AXIS_PLOTTING_STR, PVFORMAT_AXIS_PLOTTING_DEFAULT);
+	elt.setAttribute(PVFORMAT_AXIS_TYPE_STR, PVFORMAT_AXIS_TYPE_DEFAULT);
+	elt.setAttribute(PVFORMAT_AXIS_GROUP_STR, PVFORMAT_AXIS_GROUP_DEFAULT);
 }
 
 

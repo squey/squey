@@ -54,12 +54,12 @@ void PVInspector::PVXmlParamWidgetBoardAxis::allocBoardFields(){
     mapPlotType = new PVXmlParamComboBox("type");
     timeFormatLabel = new QLabel("time format");
     timeFormat = new PVXmlParamTextEdit(QString("time-format"), QVariant(node->attribute("time-format")));    
-    timeFormatStr = node->attribute("time-format");
+    timeFormatStr = node->attribute(PVFORMAT_AXIS_TIMEFORMAT_STR);
     comboMapping = new PVXmlParamComboBox("mapping");
     comboPlotting = new PVXmlParamComboBox("plotting");
     
     //tab time format
-    timeFormatInTab = new PVXmlParamTextEdit(QString("time-format"), QVariant(node->attribute("time-format")));  
+    timeFormatInTab = new PVXmlParamTextEdit(QString("time-format"), QVariant(timeFormatStr));  
     //validator
     timeSample = new PVXmlParamTextEdit(QString("time-sample"), QVariant(node->attribute("time-sample")));
     //html content for help
@@ -70,11 +70,11 @@ void PVInspector::PVXmlParamWidgetBoardAxis::allocBoardFields(){
     //tab parameter
     comboKey = new PVXmlParamComboBox("key");
     keyLabel = new QLabel("key");
-    group = new PVXmlParamWidgetEditorBox(QString("group"), new QVariant(node->attribute("group")));
+    group = new PVXmlParamWidgetEditorBox(QString("group"), new QVariant(node->attribute(PVFORMAT_AXIS_GROUP_STR)));
     groupLabel = new QLabel("group");
-    buttonColor = new PVXmlParamColorDialog("color", "#ffffff", this);
+    buttonColor = new PVXmlParamColorDialog("color", PVFORMAT_AXIS_COLOR_DEFAULT, this);
     colorLabel = new QLabel("color");
-    buttonTitleColor = new PVXmlParamColorDialog("titlecolor", "#ffffff", this);
+    buttonTitleColor = new PVXmlParamColorDialog("titlecolor", PVFORMAT_AXIS_TITLECOLOR_DEFAULT, this);
     titleColorLabel = new QLabel("titlecolor");
     //slotSetVisibleExtra(false);
 
@@ -292,8 +292,9 @@ void PVInspector::PVXmlParamWidgetBoardAxis::initConnexion() {
  * PVInspector::PVXmlParamWidgetBoardAxis::initValue
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidgetBoardAxis::initValue(){
-        QDir dir(pluginListURL);
+void PVInspector::PVXmlParamWidgetBoardAxis::initValue()
+{
+	QDir dir(pluginListURL);
     //init of combos
     QStringList typeL = QStringList(listType(dir.entryList()));
     mapPlotType->addItem("");
@@ -303,26 +304,51 @@ void PVInspector::PVXmlParamWidgetBoardAxis::initValue(){
     
     
     //type ...  auto select and default value
-    if (node->attribute("type").length() > 1) {
-        mapPlotType->select(node->attribute("type"));
-        updatePlotMapping(node->attribute("type"));
-    } else {
-        mapPlotType->select("enum");
-        updatePlotMapping("enum");
-	slotSetVisibleTimeValid(false);
+	QString node_type = node->attribute(PVFORMAT_AXIS_TYPE_STR);
+    if (node_type.isEmpty()) {
+		node_type = PVFORMAT_AXIS_TYPE_DEFAULT;
+		slotSetVisibleTimeValid(false);
     }
-    if (node->attribute("mapping").length() > 1)comboMapping->select(node->attribute("mapping"));
-    else comboMapping->select("default");
-    if (node->attribute("plotting").length() > 1)comboPlotting->select(node->attribute("plotting"));
-    else comboPlotting->select("default");
+	mapPlotType->select(node_type);
+	updatePlotMapping(node_type);
+
+	QString node_mapping = node->attribute(PVFORMAT_AXIS_MAPPING_STR);
+    if (node_mapping.isEmpty()) {
+		node_mapping = PVFORMAT_AXIS_MAPPING_DEFAULT;
+	}
+	comboMapping->select(PVFORMAT_AXIS_MAPPING_DEFAULT);
+
+	QString node_plotting = node->attribute(PVFORMAT_AXIS_PLOTTING_STR);
+    if (node_plotting.isEmpty()) {
+		node_plotting = PVFORMAT_AXIS_PLOTTING_DEFAULT;
+	}
+	comboPlotting->select(PVFORMAT_AXIS_PLOTTING_DEFAULT);
     
     
     //extra
-    if (node->attribute("key").length() > 1)comboKey->select(node->attribute("key"));
-    else comboKey->select("false");
-    if (node->attribute("color").length() > 1)buttonColor->setColor(node->attribute("color"));
-    if (node->attribute("titlecolor").length() > 1)buttonTitleColor->setColor(node->attribute("titlecolor"));
-    if (node->attribute("group").length() <= 1)group->setText("none");
+	QString node_key = node->attribute(PVFORMAT_AXIS_KEY_STR);
+    if (node_key.isEmpty()) {
+		node_key = PVFORMAT_AXIS_KEY_DEFAULT;
+	}
+	comboKey->select(PVFORMAT_AXIS_KEY_DEFAULT);
+
+	QString node_color = node->attribute(PVFORMAT_AXIS_COLOR_STR);
+    if (node_color.isEmpty()) {
+		node_color = PVFORMAT_AXIS_COLOR_DEFAULT;
+	}
+	buttonColor->setColor(node_color);
+
+	QString node_tc = node->attribute(PVFORMAT_AXIS_TITLECOLOR_STR);
+    if (node_tc.isEmpty()) {
+		node_tc = PVFORMAT_AXIS_TITLECOLOR_DEFAULT;
+	}
+	buttonTitleColor->setColor(node_tc);
+
+	QString node_group = node->attribute(PVFORMAT_AXIS_GROUP_STR);
+    if (node_group.isEmpty()) {
+		node_group = PVFORMAT_AXIS_GROUP_DEFAULT;
+	}
+	group->setText(node_group);
     
 
 }
@@ -465,16 +491,16 @@ void PVInspector::PVXmlParamWidgetBoardAxis::slotGoNextAxis(){
 void PVInspector::PVXmlParamWidgetBoardAxis::slotSetValues(){
 
   //apply modification
-    node->setAttribute(QString("name"),textName->text());
-    node->setAttribute(QString("type"),mapPlotType->val().toString());
-    node->setAttribute(QString("mapping"),comboMapping->val().toString());
-    node->setAttribute(QString("plotting"),comboPlotting->val().toString());
-    node->setAttribute(QString("time-format"),timeFormat->getVal().toString());
-    node->setAttribute(QString("time-sample"),timeSample->getVal().toString());
-    node->setAttribute(QString("key"),comboKey->val().toString());
-    node->setAttribute(QString("group"),group->val().toString());
-    node->setAttribute(QString("color"),buttonColor->getColor());
-    node->setAttribute(QString("titlecolor"),buttonTitleColor->getColor());
+    node->setAttribute(QString(PVFORMAT_AXIS_NAME_STR),textName->text());
+    node->setAttribute(QString(PVFORMAT_AXIS_TYPE_STR),mapPlotType->val().toString());
+    node->setAttribute(QString(PVFORMAT_AXIS_MAPPING_STR),comboMapping->val().toString());
+    node->setAttribute(QString(PVFORMAT_AXIS_PLOTTING_STR),comboPlotting->val().toString());
+    node->setAttribute(QString(PVFORMAT_AXIS_TIMEFORMAT_STR),timeFormat->getVal().toString());
+    node->setAttribute(QString(PVFORMAT_AXIS_TIMESAMPLE_STR),timeSample->getVal().toString());
+    node->setAttribute(QString(PVFORMAT_AXIS_KEY_STR),comboKey->val().toString());
+    node->setAttribute(QString(PVFORMAT_AXIS_GROUP_STR),group->val().toString());
+    node->setAttribute(QString(PVFORMAT_AXIS_COLOR_STR),buttonColor->getColor());
+    node->setAttribute(QString(PVFORMAT_AXIS_TITLECOLOR_STR),buttonTitleColor->getColor());
    
     emit signalRefreshView();
 }
