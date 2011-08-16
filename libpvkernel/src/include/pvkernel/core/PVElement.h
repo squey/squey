@@ -17,7 +17,6 @@
 #include <tbb/scalable_allocator.h>
 
 #include <QList>
-#include <QExplicitlySharedDataPointer>
 
 namespace PVCore {
 
@@ -66,10 +65,10 @@ public:
 		return ret;
 	}
 
-	inline void free()
+	static inline void free(PVElement* elt)
 	{
-		this->~PVElement();
-		_alloc.deallocate(this, 1);
+		elt->~PVElement();
+		_alloc.deallocate(elt, 1);
 	}
 protected:
 	// Set by the parent PVChunk

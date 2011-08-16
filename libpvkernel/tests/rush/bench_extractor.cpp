@@ -177,9 +177,9 @@ int main(int argc, char** argv)
 
 	// Serial reading with UTF16 transformation
 	printf("Serial reading with UTF16 transformation");
-	CALLGRIND_START_INSTRUMENTATION
+	//CALLGRIND_START_INSTRUMENTATION
 	dur = bench_utf16(lfiles, chk_flt_null.f(), chunk_size, NLINES);
-	CALLGRIND_STOP_INSTRUMENTATION
+	//CALLGRIND_STOP_INSTRUMENTATION
 	print_perf(dur, total_read);
 	
 	// Serial reading with UTF16 transformation and alignement

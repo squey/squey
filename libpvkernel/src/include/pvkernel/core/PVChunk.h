@@ -9,13 +9,11 @@
 #define PVCHUNK_FILE_H
 
 #include <pvkernel/core/general.h>
+#include <pvkernel/core/stdint.h>
 #include <pvkernel/core/PVElement.h>
+#include <pvkernel/rush/PVRawSourceBase_types.h>
 
 #include <tbb/scalable_allocator.h>
-
-#include <pvkernel/core/stdint.h>
-
-#include <pvkernel/rush/PVRawSourceBase_types.h>
 
 #include <memory>
 #include <cassert>
@@ -41,7 +39,7 @@ public:
 		// Free elements
 		list_elts::iterator it;
 		for (it = _elts.begin(); it != _elts.end(); it++) {
-			(*it)->free();
+			PVElement::free(*it);
 		}
 	}
 public:
