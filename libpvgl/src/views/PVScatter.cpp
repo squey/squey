@@ -68,7 +68,7 @@ PVGL::PVScatter::PVScatter(int win_id, PVCom *com) : PVGL::PVDrawable(win_id, co
 void PVGL::PVScatter::init(Picviz::PVView_p view)
 {
 	size_t temp_row_count = view->get_row_count();
-	size_t max_number_of_lines_in_view = temp_row_count;//std::min(temp_row_count, size_t(PICVIZ_EVENTLINE_LINES_MAX));
+	size_t max_number_of_lines_in_view = temp_row_count;//picviz_min(temp_row_count, size_t(PICVIZ_EVENTLINE_LINES_MAX));
 	std::vector<std::string> attributes;
 
 	PVLOG_DEBUG("PVGL::PVScatter::%s\n", __FUNCTION__);

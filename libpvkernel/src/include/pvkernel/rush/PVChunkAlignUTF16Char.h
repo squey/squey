@@ -22,6 +22,7 @@ public:
 	virtual bool operator()(PVCore::PVChunk &cur_chunk, PVCore::PVChunk &next_chunk);
 protected:
 	QChar _c;
+	UChar _cu;
 };
 
 }

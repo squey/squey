@@ -32,8 +32,8 @@ void PVGL::PVMisc::set_alignment(float x, float y)
 {
 	PVLOG_DEBUG("PVGL::PVMisc::%s\n", __FUNCTION__);
 
-	align_x = std::min(std::max(x, 0.0f), 1.0f);
-	align_y = std::min(std::max(y, 0.0f), 1.0f);
+	align_x = picviz_min(picviz_max(x, 0.0f), 1.0f);
+	align_y = picviz_min(picviz_max(y, 0.0f), 1.0f);
 }
 
 /******************************************************************************
@@ -45,8 +45,8 @@ void PVGL::PVMisc::set_padding(int x, int y)
 {
 	PVLOG_DEBUG("PVGL::PVMisc::%s\n", __FUNCTION__);
 
-  x = std::max(x, 0);
-	y = std::max(y, 0);
+  x = picviz_max(x, 0);
+	y = picviz_max(y, 0);
 
 	if (x != padding_x || y != padding_y) {
 		requisition.width -= 2 * padding_x;

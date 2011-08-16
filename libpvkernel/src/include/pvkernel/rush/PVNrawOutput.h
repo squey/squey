@@ -22,6 +22,8 @@ public:
 	map_pvrow const& get_pvrow_index_map() const;
 	void clear_pvrow_index_map();
 protected:
+	void job_has_finished();
+protected:
 	PVNraw &_nraw_dest;
 	map_pvrow _pvrow_chunk_idx;
 

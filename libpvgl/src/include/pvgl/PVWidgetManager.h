@@ -72,6 +72,11 @@ public:
 	PVWidgetManager();
 
 	/**
+	 * Destructor.
+	 */
+	~PVWidgetManager();
+
+	/**
 	 *
 	 * @param x
 	 * @param y
@@ -101,6 +106,11 @@ public:
 	 * @param name
 	 */
 	void draw_icon_streched(int x, int y, int width, int height, PVGLIconNames name);
+private:
+	// AG: private copy constructor, because the widget manager must *not* be copied !
+	PVWidgetManager(const PVWidgetManager& /*src*/) { assert(false); }
+	PVWidgetManager& operator=(const PVWidgetManager& /*src*/) { assert(false); return *this; }
+
 };
 }
 #endif

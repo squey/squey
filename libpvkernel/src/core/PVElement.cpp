@@ -1,113 +1,110 @@
 #include <pvkernel/core/PVElement.h>
-#include <pvkernel/core/PVElementData.h>
 #include <pvkernel/core/PVField.h>
 #include <pvkernel/core/PVChunk.h>
 
+tbb::scalable_allocator<PVCore::PVElement> PVCore::PVElement::_alloc;
+
 PVCore::PVElement::PVElement(PVChunk* parent) :
-	d(new PVElementData()),
-	PVBufferSlice(d->_reallocated_buffers)
+	PVBufferSlice(_reallocated_buffers)
 {
 	init(parent);
 }
 
 PVCore::PVElement::PVElement(PVChunk* parent, char* begin, char* end) :
-	d(new PVElementData()),
-	PVBufferSlice(begin, end, d->_reallocated_buffers)
+	PVBufferSlice(begin, end, _reallocated_buffers)
 {
 	init(parent);
 }
 
 PVCore::PVElement::PVElement(PVElement const& src) :
-	PVBufferSlice(src),
-	d(src.d)
+	PVBufferSlice(src)
 {
-	d->_elt = this;
+	// No copy must occur !
+	assert(false);
 }
 
 PVCore::PVElement::~PVElement()
 {
 	clear_saved_buf();
+
+	static tbb::scalable_allocator<char> alloc;
+	buf_list_t::const_iterator it;
+	for (it = _reallocated_buffers.begin(); it != _reallocated_buffers.end(); it++) {
+		alloc.deallocate(it->first, it->second);
+	}
 }
 
 void PVCore::PVElement::init(PVChunk* parent)
 {
-	d->_valid = true;
-	d->_parent = parent;
-	d->_elt = this;
+	_valid = true;
+	_parent = parent;
 	// In the beggining, it only has a big field
 	PVField f(*this, begin(), end());
-	d->_fields.push_back(f);
-	d->_org_buf = NULL;
-	d->_org_buf_size = 0;
-}
-
-PVCore::PVElement& PVCore::PVElement::operator=(PVElement const& src)
-{
-	d = src.d;
-	d->_elt = this;
-	return *this;
+	_fields.push_back(f);
+	_org_buf = NULL;
+	_org_buf_size = 0;
 }
 
 bool PVCore::PVElement::valid() const
 {
-	return d->_valid;
+	return _valid;
 }
 
 void PVCore::PVElement::set_invalid()
 {
-	d->_valid = false;
+	_valid = false;
 }
 
 PVCore::list_fields& PVCore::PVElement::fields()
 {
-	return d->_fields;
+	return _fields;
 }
 
 PVCore::list_fields const& PVCore::PVElement::c_fields() const
 {
-	return d->_fields;
+	return _fields;
 }
 
 void PVCore::PVElement::set_parent(PVChunk* parent)
 {
-	d->_parent = parent;
+	_parent = parent;
 }
 
 PVCore::PVChunk* PVCore::PVElement::chunk_parent()
 {
-	return d->_parent;
+	return _parent;
 }
 
-PVCore::buf_list_t& PVCore::PVElement::realloc_bufs() const
+PVCore::buf_list_t& PVCore::PVElement::realloc_bufs()
 {
-	return d->_reallocated_buffers;
+	return _reallocated_buffers;
 }
 
 void PVCore::PVElement::save_elt_buffer()
 {
 	clear_saved_buf();
 	static tbb::scalable_allocator<char> alloc;
-	d->_org_buf = alloc.allocate(size());
-	d->_org_buf_size = size();
-	memcpy(d->_org_buf, begin(), size());
+	_org_buf = alloc.allocate(size());
+	_org_buf_size = size();
+	memcpy(_org_buf, begin(), size());
 }
 
 void PVCore::PVElement::clear_saved_buf()
 {
-	if (!d->_org_buf) {
+	if (!_org_buf) {
 		return;
 	}
 
 	static tbb::scalable_allocator<char> alloc;
-	alloc.deallocate(d->_org_buf, d->_org_buf_size);
-	d->_org_buf = NULL;
-	d->_org_buf_size = 0;
+	alloc.deallocate(_org_buf, _org_buf_size);
+	_org_buf = NULL;
+	_org_buf_size = 0;
 }
 
 char* PVCore::PVElement::get_saved_elt_buffer(size_t& n)
 {
-	n = d->_org_buf_size;
-	return d->_org_buf;
+	n = _org_buf_size;
+	return _org_buf;
 }
 
 chunk_index PVCore::PVElement::get_elt_index()

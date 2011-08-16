@@ -14,7 +14,7 @@
 
 #include "include/LoadingFunction.h"
 
-int PVGL::wtk_loading_function(PVWidgetManager widget_manager, int width, int height)
+int PVGL::wtk_loading_function(PVWidgetManager &widget_manager, int width, int height)
 {
 	int current_time = (glutGet(GLUT_ELAPSED_TIME) / 250) % 4;
 	const char *text = "";

@@ -28,24 +28,25 @@ PVCore::PVChunk* PVFilter::PVChunkFilterDumpElts::operator()(PVCore::PVChunk* ch
 	PVCore::list_elts& elts = chunk->elements();
 	ite = elts.end();
 	for (it = elts.begin(); it != ite; it++) {
-		bool bValid = it->valid();
+		PVCore::PVElement* elt = *it;
+		bool bValid = elt->valid();
 		if (bValid && _dump_valid) {
-			it->init_qstr();
-			QString deep_copy(it->qstr().unicode(), it->qstr().size());
+			elt->init_qstr();
+			QString deep_copy(elt->qstr().unicode(), elt->qstr().size());
 			_l << deep_copy;
 		}
 		else
 		if (!bValid && !_dump_valid) {
 			size_t saved_buf_size = 0;
-			char* saved_buf = it->get_saved_elt_buffer(saved_buf_size);
+			char* saved_buf = elt->get_saved_elt_buffer(saved_buf_size);
 			if (saved_buf) {
 				QString str_elt((QChar*) saved_buf, saved_buf_size/sizeof(QChar));
 				_l << str_elt;
 			}
 			else {
 				PVLOG_WARN("(PVChunkFilterDumpElts) WARNING: no copy of the original element exists. The value saved for an invalid element might be completely changed by previous filters... Remember to use  PVChunkFilterByEltSaveInvalid to avoid this issue !\n");
-				it->init_qstr();
-				QString deep_copy(it->qstr().unicode(), it->qstr().size());
+				elt->init_qstr();
+				QString deep_copy(elt->qstr().unicode(), elt->qstr().size());
 				_l << deep_copy;
 			}
 		}

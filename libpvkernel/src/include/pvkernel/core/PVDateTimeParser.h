@@ -60,10 +60,10 @@ protected:
 	private:
 		void create_parsers(QString const& time_format);
 		void copy(TimeFormat const& src);
-		void destroy_sdf(SimpleDateFormat* p);
+		static void destroy_sdf(SimpleDateFormat* p);
 
 	private:
-		boost::object_pool<SimpleDateFormat> _alloc_df;
+		static boost::object_pool<SimpleDateFormat> _alloc_df;
 	};
 
 	struct TimeFormatEpoch : public TimeFormatInterface {
@@ -74,12 +74,12 @@ protected:
 	typedef boost::shared_ptr<TimeFormatEpoch> TimeFormatEpoch_p;
 	typedef boost::shared_ptr<TimeFormatInterface> TimeFormatInterface_p;
 
-	boost::object_pool<TimeFormat> _alloc_tf;
-	boost::object_pool<TimeFormatEpoch> _alloc_tfe;
+	static boost::object_pool<TimeFormat> _alloc_tf;
+	static boost::object_pool<TimeFormatEpoch> _alloc_tfe;
 
 private:
-	void destroy_tf(TimeFormat* p);
-	void destroy_tfe(TimeFormatEpoch* p);
+	static void destroy_tf(TimeFormat* p);
+	static void destroy_tfe(TimeFormatEpoch* p);
 
 
 protected:

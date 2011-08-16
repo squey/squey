@@ -46,8 +46,10 @@ void PVInspector::PVXmlParamColorDialog::chooseColor() {
     QColorDialog cd(parent);
     QColor initialColor(color);
     QColor colorChoosed = cd.getColor(initialColor,parent);
-    setColor(colorChoosed.name());
-    emit changed();
+	if (colorChoosed.isValid()) {
+		setColor(colorChoosed.name());
+		emit changed();
+	}
 }
 
 

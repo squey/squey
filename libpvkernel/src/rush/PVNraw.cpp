@@ -8,35 +8,27 @@
 
 #define DEFAULT_LINE_SIZE 100
 
-PVRush::PVNraw::PVNraw() :
-	_buf_strings(NULL)
+PVRush::PVNraw::PVNraw()
 {
+	_real_nrows = 0;
 }
 
 PVRush::PVNraw::~PVNraw()
 {
 	clear();
-	//delete_buffers();
 }
 
-void PVRush::PVNraw::allocate_buf(size_t nchars)
-{
-	// Reserve the "big buffer" that will hold our strings
-	static tbb::tbb_allocator<QChar> alloc;
-	_buf_strings = alloc.allocate(nchars);
-	_len_buf = _rem_len_buf = nchars;
-	_cur_buf = _buf_strings;
-	_buf_todel.push_back(std::pair<QChar*, size_t>(_buf_strings, _len_buf));
-}
-
-void PVRush::PVNraw::reserve(PVRow row)
+void PVRush::PVNraw::reserve(PVRow row, PVCol col)
 {
 	// Reserve memory for the table of the nraw
 	clear_table();
-	//delete_buffers();
-	_reserved_lines = row;
 	table.reserve(row);
-	//allocate_buf(row*DEFAULT_LINE_SIZE);
+	/*if (col > 0) {
+		nraw_table::iterator it;
+		for (it = table.begin(); it != table.end(); it++) {
+			it->resize(col);
+		}
+	}*/
 }
 
 void PVRush::PVNraw::free_trans_nraw()
@@ -81,33 +73,29 @@ void PVRush::PVNraw::create_trans_nraw()
 	}
 }
 
-void PVRush::PVNraw::delete_buffers()
-{
-	static tbb::tbb_allocator<QChar> alloc;
-	std::list<std::pair<QChar*, size_t> >::iterator it;
-	for (it = _buf_todel.begin(); it != _buf_todel.end(); it++) {
-		alloc.deallocate(it->first, it->second);
-	}
-	_buf_todel.clear();
-}
-
 void PVRush::PVNraw::clear_table()
 {
 	nraw_table::const_iterator it;
 	nraw_table_line::const_iterator it_l;
 	for (it = table.begin(); it != table.end(); it++) {
 		for (it_l = it->begin(); it_l != it->end(); it_l++) {
-			static tbb::tbb_allocator<QChar> alloc;
+			static tbb::scalable_allocator<QChar> alloc;
 			QString const& str = *it_l;
 			alloc.deallocate((QChar*) str.constData(), str.size());
 		}
 	}
 	table.clear();
+	_real_nrows = 0;
 }
 
 void PVRush::PVNraw::copy(PVNraw &dst, PVNraw const& src)
 {
-	dst.reserve(src.table.size());
+	PVCol ncols = 0;
+	PVCol nrows = src.table.size();
+	if (nrows > 0) {
+		ncols = src.table[0].size();
+	}
+	dst.reserve(nrows, ncols);
 	nraw_table::const_iterator it;
 	nraw_table_line::const_iterator it_l;
 	for (it = src.table.begin(); it != src.table.end(); it++) {
@@ -136,7 +124,7 @@ void PVRush::PVNraw::move(PVNraw &dst, PVNraw& src)
 	src.trans_table.clear();
 }
 
-QString PVRush::PVNraw::nraw_line_to_csv(size_t idx) const
+QString PVRush::PVNraw::nraw_line_to_csv(PVRow idx) const
 {
 	assert(idx < table.size());
 	QString ret;
@@ -157,4 +145,10 @@ QString PVRush::PVNraw::nraw_line_to_csv(size_t idx) const
 		}
 	}
 	return ret;
+}
+
+void PVRush::PVNraw::fit_to_content()
+{
+	table.resize(_real_nrows);
+	PVLOG_DEBUG("(PVNraw::fit_to_content) fit to content: size=%d.\n", table.size());
 }

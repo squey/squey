@@ -12,7 +12,7 @@
 
 namespace PVGL {
 
-	int wtk_loading_function(PVWidgetManager widget_manager, int width, int height);
+	int wtk_loading_function(PVWidgetManager &widget_manager, int width, int height);
 
 }
 

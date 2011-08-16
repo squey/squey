@@ -147,6 +147,13 @@ else (WIN32)
 	find_package(HDFS)
 endif(WIN32)
 
+#
+# Under Win32, check for Winsocks
+
+if (WIN32)
+	FIND_LIBRARY( WINSOCK_LIB ws2_32 )
+endif (WIN32)
+
 ######################
 # Needed for libpvgl #
 ######################

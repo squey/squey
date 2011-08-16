@@ -19,31 +19,20 @@
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVNrawChild.h>
 
-#include <tbb/tbb_allocator.h>
+#include <tbb/scalable_allocator.h>
 
 namespace PVRush {
 
 	class LibKernelDecl PVNraw {
 	public:
-		typedef std::vector<QString, tbb::tbb_allocator<QString> > nraw_table_line;
-		typedef std::vector<nraw_table_line, tbb::tbb_allocator<nraw_table_line> > nraw_table;
-		typedef std::vector<nraw_table_line, tbb::tbb_allocator<nraw_table_line> > nraw_trans_table;
-	private:
-		QVector<PVNrawChild> children;
-		PVCore::PVMeanValue<size_t> _mean_line_chars;
-		PVRow _reserved_lines;
-
-		// Buffer management
-		QChar* _buf_strings;
-		QChar* _cur_buf;
-		size_t _rem_len_buf;
-		size_t _len_buf;
-		std::list<std::pair<QChar*, size_t> > _buf_todel;
+		typedef std::vector<QString, tbb::scalable_allocator<QString> > nraw_table_line;
+		typedef std::vector<nraw_table_line, tbb::scalable_allocator<nraw_table_line> > nraw_table;
+		typedef std::vector<nraw_table_line, tbb::scalable_allocator<nraw_table_line> > nraw_trans_table;
 	public:
 		PVNraw();
 		~PVNraw();
 
-		void reserve(PVRow row);
+		void reserve(PVRow row, PVCol col);
 		void create_trans_nraw();
 		void free_trans_nraw();
 		void clear();
@@ -85,7 +74,39 @@ namespace PVRush {
 			table.push_back(nraw_table_line());
 			nraw_table_line& ret  = *(table.end()-1);
 			ret.resize(nfields);
+			_real_nrows++;
 			return ret;
+#if 0
+			nraw_table_line* ret;
+			if (_real_nrows >= table.size()) {
+				// We always go a bit behind what's asked, so let's grow a bit our table
+				PVRow prev_size = table.size();
+				PVRow new_size = picviz_max(_real_nrows+1, prev_size+1000);
+				table.resize(new_size);
+				for (PVRow i = prev_size; i < new_size; i++) {
+					table[i].resize(nfields);
+				}
+				ret = &table[_real_nrows];
+			}
+			else {
+				ret = &table[_real_nrows];
+				if (ret->size() == 0) {
+					PVLOG_DEBUG("(PVNraw::add_row) the number of field was unknown. Resizing the nraw with %d fields...\n", nfields);
+					// The number of field was unknown at the begging, so let's resize everything
+					nraw_table::iterator it;
+					for (it = table.begin(); it != table.end(); it++) {
+						it->resize(nfields);
+					}
+				}
+				else
+				if (ret->size() != nfields) {
+					PVLOG_ERROR("The number of fields asked (%d) is different from the one is the NRAW (%d) !! Resizing... (but clearly subefficient, and the NRAW won't be consistant (lines with a different number of fields)\n");
+					ret->resize(nfields);
+				}
+			}
+			_real_nrows++;
+			return *ret;
+#endif
 		}
 
 		inline QString get_axis_name(PVCol format_axis_id) const
@@ -96,40 +117,18 @@ namespace PVRush {
             return QString("");
 		}
 
-		inline void set_field(nraw_table_line& line, size_t index_field, const QChar* buf, size_t nchars)
+		inline static void set_field(nraw_table_line& line, size_t index_field, const QChar* buf, size_t nchars)
 		{
-//			if (nchars > _rem_len_buf) {
-//				// Need a reallocation
-//				PVLOG_INFO("(PVRush::PVNraw) NRAW buffer is too small. Allocate a new one.\n");
-//				
-//				// Try to predicte the global buffer size
-//				ssize_t nlines = _reserved_lines - table.size();
-//				if (nlines <= 0) {
-//					nlines = 10024; // Reserve for 10024 lines
-//				}
-//
-//				size_t new_size = nlines * _mean_line_chars.compute_mean();
-//				while  (new_size <= nchars) {
-//					// Grow up by 5M of characters
-//					new_size += 5*1024*1024;
-//				}
-//
-//				allocate_buf(new_size);
-//			}
-//
-//			QChar* copy = _cur_buf;
-//			memcpy(copy, buf, nchars*sizeof(QChar));
-//			_cur_buf += nchars + 1;
-//			_rem_len_buf -= nchars;
-			
-			static tbb::tbb_allocator<QChar> alloc;
+			static tbb::scalable_allocator<QChar> alloc;
 			QChar* copy = alloc.allocate(nchars);
 			memcpy(copy, buf, nchars*sizeof(QChar));
 
 			line[index_field].setRawData(copy, nchars);
 		}
 
-		QString nraw_line_to_csv(size_t idx) const;
+		QString nraw_line_to_csv(PVRow idx) const;
+
+		void fit_to_content();
 
 	private:
 		void allocate_buf(size_t nchars);
@@ -140,6 +139,10 @@ namespace PVRush {
 		PVNraw(const PVNraw& /*nraw*/) {}
 		PVNraw& operator=(PVNraw const& /*nraw*/) {return *this;}
 
+	private:
+		QVector<PVNrawChild> children;
+		PVCore::PVMeanValue<size_t> _mean_line_chars;
+		PVRow _real_nrows;
 	};
 
 }

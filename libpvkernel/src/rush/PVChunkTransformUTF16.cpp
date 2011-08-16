@@ -1,6 +1,8 @@
 #include <pvkernel/rush/PVChunkTransformUTF16.h>
 #include <string>
 
+#include <tbb/scalable_allocator.h>
+
 PVRush::PVChunkTransformUTF16::PVChunkTransformUTF16()
 {
 	_mul_rs = 0.5; // By default, divide by 2
@@ -29,7 +31,8 @@ PVRush::PVChunkTransformUTF16::~PVChunkTransformUTF16()
 	ucsdet_close(_csd);
 	ucnv_close(_ucnv);
 	if (_tmp_dest) {
-		delete [] _tmp_dest;
+		static tbb::scalable_allocator<UChar> alloc;
+		alloc.deallocate(_tmp_dest, _tmp_dest_size);
 	}
 #endif
 }
@@ -83,7 +86,7 @@ size_t PVRush::PVChunkTransformUTF16::operator()(char* data, size_t len_read, si
 	memcpy(data, tmp_data, final_size);
 #else // Use ICU
 	char* data_org = data;
-	if (!_cd_found) {
+	/*if (!_cd_found) {
 		UErrorCode status = U_ZERO_ERROR;
 		ucsdet_setText(_csd, data, len_read, &status);
 		if (U_SUCCESS(status)) {
@@ -139,23 +142,81 @@ size_t PVRush::PVChunkTransformUTF16::operator()(char* data, size_t len_read, si
 				}
 			}
 		}
+	}*/
+
+	if (!_cd.found()) {
+		if (_cd.HandleData(data, len_read) == NS_OK) {
+			_cd.DataEnd();
+			if (_cd.found()) {
+				std::string cs(_cd.GetCharset());
+				PVLOG_DEBUG("Encoding found : %s\n", cs.c_str());
+				bool remove_bom = true;
+				if (cs.find("UTF-16") != cs.npos)
+					_mul_rs = 1;
+				else
+				if (cs.find("UTF-32") != cs.npos)
+					_mul_rs = 1;
+				else
+				if (cs.find("UTF-8") == cs.npos)
+					remove_bom = false;
+
+				// Create ICU converter
+				UErrorCode status = U_ZERO_ERROR;
+				ucnv_close(_ucnv);
+				_ucnv = ucnv_open(cs.c_str(), &status);
+				if (U_FAILURE(status)) {
+					PVLOG_ERROR("Encoding %s not supported by ICU ! Fall back to default decoder...\n", cs.c_str());
+					status = U_ZERO_ERROR;
+					_ucnv = ucnv_open(NULL, &status);
+				}
+				ucnv_resetToUnicode(_ucnv);
+				_cd_found = true;
+
+				if (remove_bom) {
+					// Check first four bytes
+					if (len_read >= 4) {
+						uint32_t bom = *((uint32_t*)data);
+						if (bom == 0xFFFE0000 || bom == 0x0000FEFF) {
+							data += 4;
+							len_read -= 4;
+						}
+					}
+					if (len_read >= 3) {
+						unsigned char* data_u = (unsigned char*) data;
+						if (data_u[0] == 0xEF && data_u[1] == 0xBB && data_u[2] == 0xBF) {
+							data += 3;
+							len_read -= 3;
+						}
+					}
+					if (len_read >= 2) {
+						uint16_t& bom = *((uint16_t*)data);
+						if (bom == 0xFFFE || bom == 0xFEFF) {
+							data += 2;
+							len_read -= 2;
+						}
+					}
+				}
+			}
+		}
 	}
 
-	if (_tmp_dest_size < len_avail) {
+	if (_tmp_dest_size < len_avail/sizeof(UChar)) {
+		static tbb::scalable_allocator<UChar> alloc;
 		if (_tmp_dest) {
-			delete [] _tmp_dest;
+			alloc.deallocate(_tmp_dest, _tmp_dest_size);
 		}
-		_tmp_dest = new UChar[len_avail/2];
+		_tmp_dest_size = len_avail/sizeof(UChar);
+		_tmp_dest = alloc.allocate(_tmp_dest_size);
 	}
 
 	// Convert the chunk to UTF-16 thanks to ICU
 	UChar* target = _tmp_dest;
-	const UChar* target_end = target + (len_avail/2);
+	const UChar* target_end = target + (len_avail/sizeof(UChar));
 	const char* data_conv = data;
 	const char* data_conv_end = data+len_read;
 	UErrorCode status = U_ZERO_ERROR;
 	ucnv_toUnicode(_ucnv, &target, target_end, &data_conv, data_conv_end, NULL, true, &status);
-	const size_t final_size = (uintptr_t)target_end - (uintptr_t)_tmp_dest;
+	const size_t final_size = (uintptr_t)target - (uintptr_t)_tmp_dest;
 	if (status == U_BUFFER_OVERFLOW_ERROR) {
 		PVLOG_ERROR("Size of chunk too small to get UTF16 datas ! (converted size: %d, available size: %ld)\n", final_size, len_avail);
 		return len_read;

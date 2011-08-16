@@ -7,6 +7,7 @@
 #include <iostream>
 #include <sstream>
 #include <cmath>
+#include <algorithm>
 
 #include <picviz/PVView.h>
 
@@ -18,6 +19,7 @@
 #include <pvgl/PVWTK.h>
 
 #include <pvgl/PVMap.h>
+
 
 const int MAP_FBO_MAX_WIDTH = 2048;
 const int MAP_FBO_MAX_HEIGHT= 1024;
@@ -39,6 +41,47 @@ view(view_), widget_manager(widget_manager_), lines(lines_)
 	grabbing = false;
 	dragging = false;
 	move_view_mode = false;
+	main_fbo = 0;
+	main_fbo_vao = 0;
+	main_fbo_vbo = 0;
+	main_fbo_tex = 0;
+	lines_fbo = 0;
+	lines_fbo_tex = 0;
+	zombie_fbo = 0;
+	zombie_fbo_tex = 0;
+}
+
+/******************************************************************************
+ *
+ * PVGL::PVMap::~PVMap
+ *
+ *****************************************************************************/
+PVGL::PVMap::~PVMap()
+{
+	if (main_fbo) {
+		glDeleteFramebuffers(1, &main_fbo);
+	}
+	if (main_fbo_tex) {
+		glDeleteTextures(1, &main_fbo_tex);
+	}
+	if (main_fbo_vao) {
+		glDeleteVertexArrays(1, &main_fbo_vao);
+	}
+	if (main_fbo_vbo) {
+		glDeleteBuffers(1, &main_fbo_vbo);
+	}
+	if (lines_fbo) {
+		glDeleteFramebuffers(1, &lines_fbo);
+	}
+	if (lines_fbo_tex) {
+		glDeleteTextures(1, &lines_fbo_tex);
+	}
+	if (zombie_fbo) {
+		glDeleteFramebuffers(1, &zombie_fbo);
+	}
+	if (zombie_fbo_tex) {
+		glDeleteTextures(1, &zombie_fbo_tex);
+	}
 }
 
 /******************************************************************************
@@ -205,6 +248,9 @@ void PVGL::PVMap::set_main_fbo_dirty()
 void PVGL::PVMap::set_lines_fbo_dirty()
 {
 	PVLOG_DEBUG("PVGL::PVMap::%s\n", __FUNCTION__);
+	if (!visible) {
+		return;
+	}
 
 	lines_fbo_dirty = true;
 	drawn_lines = 0;
@@ -220,6 +266,9 @@ void PVGL::PVMap::set_lines_fbo_dirty()
 void PVGL::PVMap::set_zombie_fbo_dirty()
 {
 	PVLOG_DEBUG("PVGL::PVMap::%s\n", __FUNCTION__);
+	if (!visible) {
+		return;
+	}
 
 	zombie_fbo_dirty = true;
 	drawn_zombie_lines = 0;
@@ -341,8 +390,8 @@ void PVGL::PVMap::draw_zombie_lines(GLfloat modelview[16])
 		glActiveTexture(GL_TEXTURE2); PRINT_OPENGL_ERROR();
 		glBindTexture(GL_TEXTURE_BUFFER, lines->tbo_zombie_texture); PRINT_OPENGL_ERROR();
 		glTexBuffer(GL_TEXTURE_BUFFER, GL_R32UI, lines->tbo_zombie); PRINT_OPENGL_ERROR();
-
-		glDrawArrays(GL_POINTS, drawn_zombie_lines, std::min(nb_lines_to_draw, int(picviz_view->get_row_count() - drawn_zombie_lines)));
+		
+		glDrawArrays(GL_POINTS, drawn_zombie_lines, picviz_min(nb_lines_to_draw, int(picviz_view->get_row_count() - drawn_zombie_lines)));
 	}
 	glBlendEquation(GL_FUNC_ADD);
 	glDisable(GL_BLEND);
@@ -392,7 +441,7 @@ void PVGL::PVMap::draw_selected_lines(GLfloat modelview[16])
 		glBindTexture(GL_TEXTURE_BUFFER, lines->tbo_selection_texture); PRINT_OPENGL_ERROR();
 		glTexBuffer(GL_TEXTURE_BUFFER, GL_R32UI, lines->tbo_selection); PRINT_OPENGL_ERROR();
 
-		glDrawArrays(GL_POINTS, drawn_lines, std::min(nb_lines_to_draw, int( picviz_view->get_row_count() - drawn_lines)));
+		glDrawArrays(GL_POINTS, drawn_lines, picviz_min(nb_lines_to_draw, int( picviz_view->get_row_count() - drawn_lines)));
 	}
 	drawn_lines += nb_lines_to_draw;
 	if (drawn_lines >= int(picviz_view->get_row_count())) {
@@ -585,7 +634,16 @@ void PVGL::PVMap::toggle_map()
 {
 	PVLOG_DEBUG("PVGL::PVMap::%s\n", __FUNCTION__);
 
-	visible = !visible;
+	if (!visible) {
+		visible = true;
+		// Set fbos dirty because these informations have been discarded if the map
+		// wasn't visible. See ticket # for more information
+		set_lines_fbo_dirty();
+		set_zombie_fbo_dirty();
+	}
+	else {
+		visible = false;
+	}
 }
 
 /******************************************************************************

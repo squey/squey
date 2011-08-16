@@ -80,7 +80,7 @@ float PVRush::PVSourceCreatorFactory::discover_input(pair_format_creator format_
 
 		// Check the number of fields of the first element, and compare to the one
 		// of the given format
-		PVCol chunk_nfields = chunk->c_elements().begin()->c_fields().size();
+		PVCol chunk_nfields = (*(chunk->c_elements().begin()))->c_fields().size();
 		PVCol format_nfields = format.get_axes().size();
 		if (chunk_nfields != format_nfields) {
 		   PVLOG_INFO("For format %s, the number of fields after the normalization is %d, different of the number of axes of the format (%d).\n",	qPrintable(format.get_format_name()), chunk_nfields, format_nfields);

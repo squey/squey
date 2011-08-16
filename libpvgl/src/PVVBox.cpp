@@ -122,7 +122,7 @@ void PVGL::PVVBox::size_adjust()
 	for (std::list<PVBoxChild>::iterator it = start_list.begin(); it != start_list.end(); ++it) {
 		if (it->child->is_visible()) {
 			requisition.height += it->child->get_requisition().height;
-			requisition.width = std::max(requisition.width, 2 * border_width + it->child->get_requisition().width);
+			requisition.width = picviz_max(requisition.width, 2 * border_width + it->child->get_requisition().width);
 		}
 	}
 	if (parent) {
@@ -149,7 +149,7 @@ void PVGL::PVVBox::pack_start(PVWidget *child, bool expand)
 	if (child->is_visible()) {
 		if (!start_list.empty()) {
 			requisition.height += child->get_requisition().height;
-			requisition.width = std::max(requisition.width, 2 * border_width + child->get_requisition().width);
+			requisition.width = picviz_max(requisition.width, 2 * border_width + child->get_requisition().width);
 		} else {
 			requisition.width = 2 *border_width + child->get_requisition().width;
 			requisition.height= 2 *border_width + child->get_requisition().height;

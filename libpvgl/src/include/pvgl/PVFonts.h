@@ -54,6 +54,11 @@ public:
 	PVFont ();
 
 	/**
+	 * Destructor.
+	 */
+	~PVFont ();
+
+	/**
 	 * \brief Draw a text at the given position on screen.
 	 *
 	 * @param x          The x position of the base of the first character (in pixels)

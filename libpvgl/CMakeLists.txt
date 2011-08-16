@@ -54,8 +54,8 @@ data/shaders/scatter/selection.vert
 )
 
 SET(PVGL_DATA_FILES
-data/FreeSerif.ttf
-data/gui.png
+	data/FreeSans.ttf
+	data/gui.png
 )
 
 INSTALL(FILES ${PVGL_DATA_SHADERS_PARALLEL_FILES} DESTINATION ${PVGL_SHARE_DIR}/shaders/parallel/)

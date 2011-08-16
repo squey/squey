@@ -127,6 +127,10 @@ public:
 	 */
 	void clear_saved_nraw();
 
+	/*! \brief Get the number of axes expected by the internal format.
+	 */
+	PVCol get_number_axes();
+
 	void dump_elts(bool dump) { _dump_elts = dump; }
 
 	void dump_mapnraw();

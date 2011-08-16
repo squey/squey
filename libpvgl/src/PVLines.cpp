@@ -162,7 +162,7 @@ void PVGL::PVLines::init(Picviz::PVView_p pv_view_)
 	picviz_view = pv_view_;
 	std::vector<std::string> attributes;
 	size_t temp_row_count = picviz_view->get_row_count();
-	size_t max_number_of_lines_in_view = temp_row_count;//std::min(temp_row_count, size_t(PICVIZ_EVENTLINE_LINES_MAX));
+	size_t max_number_of_lines_in_view = temp_row_count;//picviz_min(temp_row_count, size_t(PICVIZ_EVENTLINE_LINES_MAX));
 	size_t nb_axes = picviz_view->get_axes_count();
 	int max_texture_buffer;
 
@@ -189,7 +189,7 @@ void PVGL::PVLines::init(Picviz::PVView_p pv_view_)
 	glTexBuffer(GL_TEXTURE_BUFFER, GL_R32UI, tbo_zombie); PRINT_OPENGL_ERROR();
 	glActiveTexture(GL_TEXTURE0); PRINT_OPENGL_ERROR();
 
-	nb_batches = std::max(size_t(0), 1 + (nb_axes - 2) / (NB_AXES_PER_BATCH - 1));
+	nb_batches = picviz_max(size_t(0), 1 + (nb_axes - 2) / (NB_AXES_PER_BATCH - 1));
 
 	PVLOG_DEBUG("PVGL::PVLines::%s, nb_axes: %d\n", __FUNCTION__, nb_axes);
 	PVLOG_DEBUG("PVGL::PVLines::%s, nb_batches: %d\n", __FUNCTION__, nb_batches);
@@ -283,7 +283,7 @@ void PVGL::PVLines::change_axes_count()
 	if (!picviz_view->is_consistent()) {
 		return;
 	}
-	nb_batches = std::max(size_t(0), 1 + (nb_axes - 2) / (14 * 4 - 1));
+	nb_batches = picviz_max(size_t(0), 1 + (nb_axes - 2) / (14 * 4 - 1));
 
 	for (unsigned k = 0; k < nb_batches; k++) {
 		int nb_vec4;
@@ -519,7 +519,7 @@ void PVGL::PVLines::draw_zombie_lines(GLfloat modelview[16])
 		glBindTexture(GL_TEXTURE_BUFFER, tbo_zombie_texture); PRINT_OPENGL_ERROR();
 		glTexBuffer(GL_TEXTURE_BUFFER, GL_R32UI, tbo_zombie); PRINT_OPENGL_ERROR();
 
-		glDrawArrays(GL_POINTS, drawn_zombie_lines, std::min(nb_lines_to_draw, int(picviz_view->get_row_count() - drawn_zombie_lines)));
+		glDrawArrays(GL_POINTS, drawn_zombie_lines, picviz_min(nb_lines_to_draw, int(picviz_view->get_row_count() - drawn_zombie_lines)));
 	}
 	glBlendEquation(GL_FUNC_ADD);
 	glDisable(GL_BLEND);
@@ -571,7 +571,7 @@ void PVGL::PVLines::draw_selected_lines(GLfloat modelview[16])
 		glBindTexture(GL_TEXTURE_BUFFER, tbo_selection_texture); PRINT_OPENGL_ERROR();
 		glTexBuffer(GL_TEXTURE_BUFFER, GL_R32UI, tbo_selection); PRINT_OPENGL_ERROR();
 
-		glDrawArrays(GL_POINTS, drawn_lines, std::min(nb_lines_to_draw, int(picviz_view->get_row_count() - drawn_lines)));
+		glDrawArrays(GL_POINTS, drawn_lines, picviz_min(nb_lines_to_draw, int(picviz_view->get_row_count() - drawn_lines)));
 	}
 	drawn_lines += nb_lines_to_draw;
 	if (drawn_lines >= int(picviz_view->get_row_count())) {

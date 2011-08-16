@@ -42,7 +42,6 @@ include/pvkernel/core/PVColorGradientDualSliderType.h
 include/pvkernel/core/PVBufferSlice.h
 include/pvkernel/core/PVChunk.h
 include/pvkernel/core/PVElement.h
-include/pvkernel/core/PVElementData.h
 include/pvkernel/core/PVField.h
 include/pvkernel/core/PVListFloat2D.h
 include/pvkernel/core/PVLogger.h
@@ -252,6 +251,6 @@ add_library(pvkernel SHARED ${SRC_FILES} ${HEADER_FILES} ${MOC_SRC} ${MOC_HEADER
 
 set_target_properties(pvkernel PROPERTIES SOVERSION 1)
 
-target_link_libraries(pvkernel ${QT_LIBRARIES} ${ICU_LIBRARY} ${TBB_LIBRARIES} ${TBB_MALLOC_LIBRARY} ${OpenMP_LIBRARIES} ${Boost_LIBRARIES} ${ARCHIVE_LIBRARY} ${PCAP_LIBRARIES})
+target_link_libraries(pvkernel ${QT_LIBRARIES} ${ICU_LIBRARY} ${TBB_LIBRARIES} ${TBB_MALLOC_LIBRARY} ${OpenMP_LIBRARIES} ${Boost_LIBRARIES} ${ARCHIVE_LIBRARY} ${PCAP_LIBRARIES} ${WINSOCK_LIB})
 
 INSTALL(TARGETS pvkernel DESTINATION .)

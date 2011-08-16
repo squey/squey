@@ -14,6 +14,7 @@
 int PVGL::wtk_buffers_swap()
 {
 	glutSwapBuffers();
+	return 0;
 }
 
 #endif	// USE_WTK_FREEGLUT3

@@ -20,7 +20,7 @@ void PVRush::PVNrawOutput::operator()(PVCore::PVChunk* out)
 
 	//std::list<QString, tbb::tbb_allocator<QString> > sl;
 	for (it_elt = elts.begin(); it_elt != elts.end(); it_elt++) {
-		PVCore::PVElement const& e = *it_elt;
+		PVCore::PVElement const& e = *(*it_elt);
 		if (!e.valid())
 			continue;
 		PVCore::list_fields const& fields = e.c_fields();
@@ -28,6 +28,8 @@ void PVRush::PVNrawOutput::operator()(PVCore::PVChunk* out)
 		if (fields.size() == 0)
 			continue;
 
+		//PVLOG_DEBUG("(PVNrawOutput) add element\n");
+		
 		size_t nchars_line = 0;
 		PVRush::PVNraw::nraw_table_line &sl = _nraw_dest.add_row(fields.size());
 		size_t index_f = 0;
@@ -35,6 +37,7 @@ void PVRush::PVNrawOutput::operator()(PVCore::PVChunk* out)
 			PVCore::PVField const& f = *it_field;
 			if (!f.valid())
 				continue;
+			//PVLOG_DEBUG("(PVNrawOutput) add field\n");
 			nchars_line += f.size();
 			//sl[index_f].setUnicode((QChar*) f.begin(), f.size()/(sizeof(QChar)));
 			_nraw_dest.set_field(sl, index_f, (QChar*) f.begin(), f.size()/(sizeof(QChar)));
@@ -45,7 +48,7 @@ void PVRush::PVNrawOutput::operator()(PVCore::PVChunk* out)
 	
 	// Save the chunk corresponding index
 	_pvrow_chunk_idx[nraw_index] = out->agg_index();
-
+	
 	// Free the chunk
 	out->free();
 }
@@ -58,4 +61,12 @@ PVRush::PVNrawOutput::map_pvrow const& PVRush::PVNrawOutput::get_pvrow_index_map
 void PVRush::PVNrawOutput::clear_pvrow_index_map()
 {
 	_pvrow_chunk_idx.clear();
+}
+
+void PVRush::PVNrawOutput::job_has_finished()
+{
+	// Tell the destination NRAW to resize its content
+	// to what it actually has, in case too much
+	// elements have been pre-allocated.
+	_nraw_dest.fit_to_content();
 }

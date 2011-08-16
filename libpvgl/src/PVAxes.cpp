@@ -22,6 +22,8 @@
 
 #include <pvgl/PVAxes.h>
 
+#include <algorithm>
+
 /******************************************************************************
  *
  * PVGL::PVAxes::PVAxes
@@ -209,13 +211,13 @@ void PVGL::PVAxes::draw_names()
 	glLoadIdentity();
 	glOrtho(0,view->get_width(), view->get_height(),0, -1,1);
 
-	int MX = std::max (1, view->get_width());
-	int MY = std::max (1, view->get_height());
+	int MX = picviz_max (1, view->get_width());
+	int MY = picviz_max (1, view->get_height());
 
 #ifdef SCREENSHOT
-	font_size = 1.8 * std::min(22, std::max(10, int(MX / 500.0 * 12 * pow(1.2, view->zoom_level_x))));
+	font_size = 1.8 * picviz_min(22, picviz_max(10, int(MX / 500.0 * 12 * pow(1.2, view->zoom_level_x))));
 #else
-	font_size = std::min(22, std::max(10, int(MX / 500.0 * 12 * pow(1.2, view->zoom_level_x))));
+	font_size = picviz_min(22, picviz_max(10, int(MX / 500.0 * 12 * pow(1.2, view->zoom_level_x))));
 #endif
 
 	for (int i = 0; i < nb_axes; i++) {

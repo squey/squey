@@ -21,15 +21,15 @@ PVGL::PVFont::PVFont()
 	FT_Library  library;
 	GLubyte    *empty_data;
 
-	PVLOG_INFO("PVGL::PVFont::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVFont::%s\n", __FUNCTION__);
 
 	error = FT_Init_FreeType(&library);
 	if (error) {
 		PVLOG_INFO("PVGL::PVFont::%s: Cannot open the freetype library\n", __FUNCTION__);
 	}
-	error = FT_New_Face(library, (pvgl_get_share_path() + "FreeSerif.ttf").c_str(), 0, &face);
+	error = FT_New_Face(library, (pvgl_get_share_path() + "FreeSans.ttf").c_str(), 0, &face);
 	if (error) {
-		PVLOG_INFO("PVGL::PVFont::%s: Cannot load the %s font file.\n", "FreeSerif.ttf");
+		PVLOG_INFO("PVGL::PVFont::%s: Cannot load the %s font file.\n", "FreeSans.ttf");
 	}
 	error = FT_Select_Charmap(face, FT_ENCODING_UNICODE);
 	if (error) {
@@ -58,6 +58,13 @@ PVGL::PVFont::PVFont()
 	x_off = y_off = y_max = 0;
 	delete[] empty_data;
 }
+
+PVGL::PVFont::~PVFont()
+{
+	PVLOG_DEBUG("PVGL::PVFont::%s\n", __FUNCTION__);
+	glDeleteTextures(1, &texture);
+}
+
 
 /******************************************************************************
  *
@@ -92,7 +99,7 @@ void PVGL::PVFont::draw_text(float x, float y, const char *text, int font_size)
 			glyph.width  = slot->bitmap.width;
 			glyph.height = slot->bitmap.rows;
 			//
-			y_max = std::max(y_max, glyph.height);
+			y_max = picviz_max(y_max, glyph.height);
 			if (x_off + glyph.width > TEXTURE_FONT_SIZE) {
 				y_off += y_max + TEXTURE_FONT_PADDING;
 				if (y_off > TEXTURE_FONT_SIZE) {
@@ -179,8 +186,8 @@ void PVGL::PVFont::get_text_size(const std::string &text, int font_height, int &
 		if (face->glyph->format != FT_GLYPH_FORMAT_BITMAP) {
 			error = FT_Render_Glyph(face->glyph, FT_RENDER_MODE_NORMAL);
 		}
-		ascent = std::max(ascent, face->glyph->bitmap_top);
-		descent= std::max(descent,face->glyph->bitmap.rows - face->glyph->bitmap_top);
+		ascent = picviz_max(ascent, face->glyph->bitmap_top);
+		descent= picviz_max(descent,face->glyph->bitmap.rows - face->glyph->bitmap_top);
 		pen.x += face->glyph->advance.x;
 		pen.y += face->glyph->advance.y;
 
