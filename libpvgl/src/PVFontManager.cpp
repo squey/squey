@@ -27,9 +27,9 @@ PVGL::PVFont::PVFont()
 	if (error) {
 		PVLOG_INFO("PVGL::PVFont::%s: Cannot open the freetype library\n", __FUNCTION__);
 	}
-	error = FT_New_Face(library, (pvgl_get_share_path() + "FreeSerif.ttf").c_str(), 0, &face);
+	error = FT_New_Face(library, (pvgl_get_share_path() + "FreeSans.ttf").c_str(), 0, &face);
 	if (error) {
-		PVLOG_INFO("PVGL::PVFont::%s: Cannot load the %s font file.\n", "FreeSerif.ttf");
+		PVLOG_INFO("PVGL::PVFont::%s: Cannot load the %s font file.\n", "FreeSans.ttf");
 	}
 	error = FT_Select_Charmap(face, FT_ENCODING_UNICODE);
 	if (error) {
