@@ -1,7 +1,7 @@
 #include <pvkernel/rush/PVChunkAlignUTF16Char.h>
 #include <unicode/ustring.h>
 
-#include <smmintrin.h>
+#include <pvkernel/core/picviz_intrin.h>
 
 // Depends on whether SSE4.2 is enabled or not, select
 // the good version of u_memechr

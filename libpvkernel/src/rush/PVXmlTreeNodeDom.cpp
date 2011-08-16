@@ -4,6 +4,7 @@
 //! Copyright (C) Philippe Saadé 2011-2011
 //! Copyright (C) Picviz Labs 2011
 #include <pvkernel/rush/PVXmlTreeNodeDom.h>
+#include <pvkernel/rush/PVFormat_types.h>
 
 #define dbg {qDebug()<<__FILE__<<":"<<__LINE__;}
 
@@ -165,7 +166,7 @@ QString PVRush::PVXmlTreeNodeDom::getName() {
         case RegEx:;
         case axis:;
         case url:;
-        case filter:return this->xmlDomElement.attribute("name", "");
+        case filter:return this->xmlDomElement.attribute(PVFORMAT_FILTER_NAME_STR, PVFORMAT_FILTER_NAME_DEFAULT);
             break; //get the attribute name in the DOM
         case field:
             if (isFieldOfUrl()) {//if node is an url...
@@ -184,7 +185,7 @@ QString PVRush::PVXmlTreeNodeDom::getName() {
                 return selectionRegExp;
             }
         case splitter:
-            return this->xmlDomElement.attribute("name", "");
+            return this->xmlDomElement.attribute(PVFORMAT_FILTER_NAME_STR, PVFORMAT_FILTER_NAME_DEFAULT);
             break;
         default:return this->str;
     }
@@ -201,10 +202,10 @@ void PVRush::PVXmlTreeNodeDom::setName(QString nom) {
     switch (this->type) {
         case RegEx:; // // set the attribute name
         case axis:; // // set the attribute name
-        case filter:this->xmlDomElement.setAttribute("name", nom);
+        case filter:this->xmlDomElement.setAttribute(PVFORMAT_FILTER_NAME_STR, nom);
             break; // set the attribute name
         case splitter:
-            this->xmlDomElement.setAttribute("name", nom);
+            this->xmlDomElement.setAttribute(PVFORMAT_FILTER_NAME_STR, nom);
             break;
         case field:;
         default:this->str = nom;
@@ -356,7 +357,7 @@ QString PVRush::PVXmlTreeNodeDom::getOutName() {
     QString l;
     if (this->type == field) {// its a field whiche is selected...
         for (int i = 0; i < children.count(); i++) {
-            if (children.at(i)->getDom().tagName() == "axis")return children.at(i)->getDom().attribute("name", " "); //return the attribute name.
+            if (children.at(i)->getDom().tagName() == PVFORMAT_XML_TAG_AXIS_STR)return children.at(i)->getDom().attribute(PVFORMAT_AXIS_NAME_STR, PVFORMAT_AXIS_NAME_DEFAULT); //return the attribute name.
             if (children.at(i)->getDom().tagName() == "url")return "URL";
             if (children.at(i)->getDom().tagName() == "RegEx")return children.at(i)->getDom().attribute("name", " ");
         }
@@ -374,7 +375,7 @@ PVRush::PVXmlTreeNodeDom* PVRush::PVXmlTreeNodeDom::getOutWidget() {
     PVXmlTreeNodeDom *l;
     if (this->type == field) {// its a field whiche is selected...
         for (int i = 0; i < children.count(); i++) {
-            if ((children.at(i)->getDom().tagName() == "axis") || //if it's an axis
+            if ((children.at(i)->getDom().tagName() == PVFORMAT_XML_TAG_AXIS_STR) || //if it's an axis
                 (children.at(i)->getDom().tagName() == "url") || //if it's an url
                 (children.at(i)->getDom().tagName() == "RegEx")) {//if it's a regexp
                 return children.at(i); //return the node
