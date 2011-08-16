@@ -1,5 +1,5 @@
 install(FILES "pvconfig.ini" DESTINATION .)
-install(FILES "gui-qt/src/icons/icon.png" DESTINATION .)
+install(FILES "gui-qt/src/resources/icon.png" DESTINATION .)
 
 if(WIN32)
 	set(TBB_DIST_FILES
