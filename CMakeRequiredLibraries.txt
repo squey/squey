@@ -150,9 +150,10 @@ endif(WIN32)
 #
 # Under Win32, check for Winsocks
 
-if (WIN32)
-	FIND_LIBRARY( WINSOCK_LIB ws2_32 )
-endif (WIN32)
+if(WIN32)
+	#FIND_LIBRARY(WINSOCK_LIB NAMES ws2_32)
+	set(WINSOCK_LIB ws2_32)
+endif(WIN32)
 
 ######################
 # Needed for libpvgl #
