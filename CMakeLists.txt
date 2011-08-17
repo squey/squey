@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 
 project(Picviz_Inspector)
 
-#set(USE_PVGL2 true)
+set(USE_PVGL2 true)
 if(USE_PVGL2)
   add_definitions(-DUSE_PVGL2)
 endif(USE_PVGL2)
