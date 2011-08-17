@@ -149,6 +149,9 @@ QString PVRush::PVNraw::nraw_line_to_csv(PVRow idx) const
 
 void PVRush::PVNraw::fit_to_content()
 {
+	if (_real_nrows > PICVIZ_LINES_MAX) {
+		_real_nrows = PICVIZ_LINES_MAX;
+	}
 	table.resize(_real_nrows);
 	PVLOG_DEBUG("(PVNraw::fit_to_content) fit to content: size=%d.\n", table.size());
 }

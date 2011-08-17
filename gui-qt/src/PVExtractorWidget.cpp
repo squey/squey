@@ -56,7 +56,6 @@ PVInspector::PVExtractorWidget::PVExtractorWidget(PVTabSplitter* parent_tab) :
 	_size_batch_widget = new QLineEdit(this);
 	_source_starts_filename = new QLabel();
 	_source_starts_directory = new QLabel();
-	//_source_starts_line = new QLabel();
 	_source_starts_line = new QLineEdit();
 
 	// Set the grid layout
@@ -97,11 +96,11 @@ PVInspector::PVExtractorWidget::PVExtractorWidget(PVTabSplitter* parent_tab) :
 	_slider_index->setTickPosition(QSlider::TicksBelow);
 	QIntValidator *iv = new QIntValidator();
 	iv->setBottom(10);
+	iv->setTop(PICVIZ_LINES_MAX);
 	_size_batch_widget->setValidator(iv);
 	_size_batch_widget->setText(QString("%1").arg(_batch_size));
 	QIntValidator *iv_line = new QIntValidator();
 	iv_line->setBottom(0);
-	iv_line->setTop(PICVIZ_LINES_MAX);
 	_source_starts_line->setValidator(iv_line);
 
 	connect(exit, SIGNAL(pressed()), this, SLOT(exit_Slot()));
