@@ -1,5 +1,10 @@
 include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/libpicviz/src/include)
-include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/libpvgl/src/include)
+
+if(USE_PVGL2)
+  include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/libpvgl2/src/include)
+else(USE_PVGL2)
+  include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/libpvgl/src/include)
+endif(USE_PVGL2)
 
 include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/gui-qt/src/include)
 include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/gui-qt/src/widgets/)

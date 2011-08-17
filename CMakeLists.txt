@@ -2,6 +2,11 @@ cmake_minimum_required(VERSION 2.8)
 
 project(Picviz_Inspector)
 
+#set(USE_PVGL2 true)
+if(USE_PVGL2)
+  add_definitions(-DUSE_PVGL2)
+endif(USE_PVGL2)
+
 if (WIN32)
 	#set(CMAKE_BUILD_TYPE "Debug")
 	set(CMAKE_BUILD_TYPE "Release")
@@ -82,8 +87,13 @@ include_directories(AFTER "${Picviz_Inspector_SOURCE_DIR}/include")
 add_subdirectory(scripts)
 add_subdirectory(libpvkernel)
 add_subdirectory(libpicviz)
-#add_subdirectory(libpvgl)
-add_subdirectory(libpvgl2)
+
+if(USE_PVGL2)
+  add_subdirectory(libpvgl2)
+else(USE_PVGL2)
+  add_subdirectory(libpvgl)
+endif(USE_PVGL2)
+
 add_subdirectory(gui-qt)
 
 message(STATUS "CUDA found: " ${CUDA_FOUND})
