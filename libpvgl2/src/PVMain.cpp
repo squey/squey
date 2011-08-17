@@ -21,6 +21,76 @@ bool pvgl_init(PVGL::PVCom *com)
 		PVLOG_INFO("Using PVGL share directory %s\n", pvgl_get_share_path().c_str());
 	}
 
+	PVGL::wtk_init(argc, argv);
+
+	// Wait for the first message
+	PVLOG_DEBUG("PVGL::%s Everything created, waiting for message.\n", __FUNCTION__);
+	for(;;) { // FIXME! Dont eat all my cpu!
+		PVGL::PVMessage message;
+		if (com->get_message_for_gl(message)) {
+			switch (message.function) {
+				case PVGL_COM_FUNCTION_PLEASE_WAIT:
+							{
+								QString *name = reinterpret_cast<QString *>(message.pointer_1);
+								PVGL::PVMain::create_view(name);
+								//message.function = PVGL_COM_FUNCTION_VIEW_CREATED;
+								//pvgl_com->post_message_to_qt(message);
+								glutTimerFunc(5/*20*/, PVGL::PVMain::timer_func, 0);
+								glutMainLoop();
+
+								PVGL::wtk_init(argc, argv);
+							}
+						break;
+				case PVGL_COM_FUNCTION_DESTROY_TRANSIENT:
+							{
+								if (transient_view) {
+									glutDestroyWindow(transient_view->get_window_id());
+									delete transient_view;
+									transient_view = 0;
+								}
+							}
+						break;
+				case PVGL_COM_FUNCTION_CREATE_VIEW:
+							{
+								all_drawables.push_back(transient_view);
+								glutSetWindow(transient_view->get_window_id());
+								transient_view->init(message.pv_view);
+								message.pointer_1 = new QString(transient_view->get_name());
+								transient_view = 0;
+								message.function = PVGL_COM_FUNCTION_VIEW_CREATED;
+								pvgl_com->post_message_to_qt(message);
+								glutTimerFunc(5/*20*/, PVGL::PVMain::timer_func, 0);
+								glutMainLoop();
+
+								PVGL::wtk_init(argc, argv);
+							}
+						break;
+				case PVGL_COM_FUNCTION_CREATE_SCATTER_VIEW:
+							{
+								QString *name = reinterpret_cast<QString *>(message.pointer_1);
+								PVGL::PVMain::create_scatter(name, message.pv_view);
+								PVLOG_INFO("PVGL::%s scatter view created\n", __FUNCTION__);
+								message.function = PVGL_COM_FUNCTION_VIEW_CREATED;
+								message.pointer_1 = new QString(*name);
+								pvgl_com->post_message_to_qt(message);
+								glutTimerFunc(5/*20*/, PVGL::PVMain::timer_func, 0);
+								glutMainLoop();
+
+								PVGL::wtk_init(argc, argv);
+							}
+						break;
+				default:
+						PVLOG_ERROR("PVGL::%s unknown function in a message: %d\n", __FUNCTION__, message.function);
+			}
+		} else {
+#ifdef WIN32
+			Sleep(1000);
+#else
+			sleep(1);
+#endif
+		}
+	}
+
 	return true;
 }
 
@@ -40,7 +110,7 @@ void PVGL::PVMain::timer_func(int)
 		case PVGL_COM_FUNCTION_PLEASE_WAIT:
 			{
 			QString *name = reinterpret_cast<QString *>(message.pointer_1);
-			PVLOG_INFO("We shall create our parallel view now!\n");
+			PVLOG_ERROR("We shall create our parallel view now!\n");
 			// we create our view here
 			}
 			break;
