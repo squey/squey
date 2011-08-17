@@ -83,6 +83,7 @@ add_subdirectory(scripts)
 add_subdirectory(libpvkernel)
 add_subdirectory(libpicviz)
 add_subdirectory(libpvgl)
+#add_subdirectory(libpvgl2)
 add_subdirectory(gui-qt)
 
 message(STATUS "CUDA found: " ${CUDA_FOUND})

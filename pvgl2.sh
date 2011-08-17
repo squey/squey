@@ -12,7 +12,7 @@ ISRD=$INSPECTOR_SOURCE_ROOT_DIR
 #export LC_ALL=C
 
 PVKERNEL_PATH=$ISRC/libpvkernel
-PVGL_DIR=$ISRC/libpvgl
+PVGL_DIR=$ISRC/libpvgl2
 PICVIZ_PATH=$ISRD/libpicviz
 
 #export PICVIZ_LOG_FILE="log.txt"
