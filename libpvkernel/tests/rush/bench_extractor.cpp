@@ -45,7 +45,7 @@ double bench(PVRush::PVExtractor &ext, size_t nlines)
 	ext.start_controller();
 	double dur = 0;
 	for (int i = 0; i < NTRIES; i++) {
-		//clear_disk_cache();
+		clear_disk_cache();
 		tbb::tick_count start = tbb::tick_count::now();
 		PVRush::PVControllerJob_p job = ext.process_from_agg_nlines(0, nlines);
 		job->wait_end();
