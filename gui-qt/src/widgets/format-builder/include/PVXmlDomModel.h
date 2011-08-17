@@ -140,6 +140,7 @@ public:
 	void clearFiltersData();
 	void updateFieldsLinearId();
 	void updateFiltersDataDisplay();
+	void setAxesNames(QStringList const& names);
     
 private:
 	static void setDefaultAttributesForAxis(QDomElement& elt);

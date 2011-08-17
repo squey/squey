@@ -77,6 +77,7 @@ PVInspector::PVXmlEditorWidget::PVXmlEditorWidget(QWidget * parent):
 	_nraw_model = new PVNrawListingModel();
 	_nraw_widget = new PVNrawListingWidget(_nraw_model);
 	_nraw_widget->connect_preview(this, SLOT(slotExtractorPreview()));
+	_nraw_widget->connect_axes_name(this, SLOT(set_axes_name_selected_row_Slot(int)));
 
 	// Put the vb layout into a widget and add it to the splitter
 	QWidget* vb_widget = new QWidget();
@@ -803,4 +804,25 @@ void PVInspector::PVXmlEditorWidget::slotItemClickedInView(const QModelIndex &in
 	
 	// And tell that to the mini-extractor widget
 	_nraw_widget->select_column(field_id);
+}
+
+void PVInspector::PVXmlEditorWidget::set_axes_name_selected_row_Slot(int row)
+{
+	PVRush::PVNraw const& nraw = _log_extract->get_nraw();
+	// We could use QList::fromVector(QVector::fromStdVector(nraw_table_line)), but that's not really efficient...
+	if (row >= nraw.get_table().size()) {
+		PVLOG_WARN("(PVXmlEditorWidget::set_axes_name_selected_row_Slot) row index '%d' does not exist in the current NRAW (size '%d').\n", row, nraw.get_table().size());
+		return;
+	}
+	QStringList names;
+	PVRush::PVNraw::nraw_table_line const& line = nraw.get_table().at(row);
+	PVRush::PVNraw::nraw_table_line::const_iterator it;
+	for (it = line.begin(); it != line.end(); it++) {
+		names << *it;
+	}
+	myTreeModel->setAxesNames(names);
+}
+
+void PVInspector::PVXmlEditorWidget::set_axes_type_selected_row_Slot(int row)
+{
 }

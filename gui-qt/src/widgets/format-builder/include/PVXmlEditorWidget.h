@@ -161,6 +161,10 @@ public slots:
     void slotUpdateToolDesabled(const QModelIndex &);
 	void slotExtractorPreview();
 	void slotItemClickedInView(const QModelIndex &index);
+
+	// Slot for the NRAW listing
+	void set_axes_name_selected_row_Slot(int row);
+	void set_axes_type_selected_row_Slot(int row);
 };
 
 }

@@ -806,3 +806,22 @@ PVRush::PVXmlTreeNodeDom* PVRush::PVXmlTreeNodeDom::getFirstFieldParent()
 	// Go & see what our parent has to say about this !
 	return parent->getFirstFieldParent();
 }
+
+int PVRush::PVXmlTreeNodeDom::setAxesNames(QStringList const& names, int id)
+{
+	if (type == axis) {
+		// Set its name
+		if (id < names.size()) {
+			setName(names[id]);
+			id++;
+		}
+		else {
+			PVLOG_WARN("(PVXmlTreeNodeDom::setAxesNames) not enough names given (axis id = %d, size of list = %d).\n", id, names.size());
+			return id;
+		}
+	}
+	for (size_t ichild = 0; ichild < getChildren().size(); ichild++) {
+		id = getChild(ichild)->setAxesNames(names, id);
+	}
+	return id;
+}

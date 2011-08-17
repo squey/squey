@@ -4,6 +4,8 @@
 #include <QLabel>
 #include <QVBoxLayout>
 #include <QPoint>
+#include <QMenu>
+#include <QAction>
 
 #include <pvkernel/core/general.h>
 
@@ -21,6 +23,18 @@ PVInspector::PVNrawListingWidget::PVNrawListingWidget(PVNrawListingModel* nraw_m
 	// NRAW table view
 	_nraw_table = new QTableView();
 	_nraw_table->setModel(_nraw_model);
+
+	// Context menu for the NRAW table
+	_ctxt_menu = new QMenu(this);
+	QAction* act_set_axis_name = new QAction(tr("Set axes' name based on this row"), _ctxt_menu);
+	connect(act_set_axis_name, SIGNAL(triggered()), this, SLOT(set_axes_name_selected_row_Slot()));
+	_ctxt_menu->addAction(act_set_axis_name);
+	QAction *act_detect_type = new QAction(tr("Automatically detect axes' type based on this row"), _ctxt_menu);
+	connect(act_detect_type, SIGNAL(triggered()), this, SLOT(set_axes_type_selected_row_Slot()));
+	_ctxt_menu->addAction(act_detect_type);
+	
+	connect(_nraw_table, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(nraw_custom_menu_Slot(const QPoint&)));
+	_nraw_table->setContextMenuPolicy(Qt::CustomContextMenu);
 
 	// "Mini-extractor" for this NRAW
 	QHBoxLayout* ext_layout = new QHBoxLayout();
@@ -60,6 +74,16 @@ PVInspector::PVNrawListingWidget::PVNrawListingWidget(PVNrawListingModel* nraw_m
 void PVInspector::PVNrawListingWidget::connect_preview(QObject* receiver, const char* slot)
 {
 	connect(_btn_preview, SIGNAL(clicked()), receiver, slot);
+}
+
+void PVInspector::PVNrawListingWidget::connect_axes_name(QObject* receiver, const char* slot)
+{
+	connect(this, SIGNAL(set_axes_name_from_nraw(int)), receiver, slot);
+}
+
+void PVInspector::PVNrawListingWidget::connect_axes_type(QObject* receiver, const char* slot)
+{
+	connect(this, SIGNAL(set_axes_type_from_nraw(int)), receiver, slot);
 }
 
 void PVInspector::PVNrawListingWidget::get_ext_args(PVRow& start, PVRow& end)
@@ -109,4 +133,26 @@ void PVInspector::PVNrawListingWidget::unselect_column()
 {
 	PVLOG_DEBUG("(PVNrawListingWidget) select no column\n");
 	_nraw_model->sel_visible(false);
+}
+
+void PVInspector::PVNrawListingWidget::set_axes_name_selected_row_Slot()
+{
+	int row = get_selected_row();
+	emit set_axes_name_from_nraw(row);
+}
+
+void PVInspector::PVNrawListingWidget::set_axes_type_selected_row_Slot()
+{
+	int row = get_selected_row();
+	emit set_axes_type_from_nraw(row);
+}
+
+int PVInspector::PVNrawListingWidget::get_selected_row()
+{
+	return _nraw_table->currentIndex().row();
+}
+
+void PVInspector::PVNrawListingWidget::nraw_custom_menu_Slot(const QPoint& pt)
+{
+	_ctxt_menu->exec(QCursor::pos());
 }

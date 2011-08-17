@@ -902,3 +902,8 @@ void PVInspector::PVXmlDomModel::updateFieldsLinearId()
 {
 	getRoot()->updateFieldLinearId(0);
 }
+
+void PVInspector::PVXmlDomModel::setAxesNames(QStringList const& names)
+{
+	getRoot()->setAxesNames(names, 0);
+}

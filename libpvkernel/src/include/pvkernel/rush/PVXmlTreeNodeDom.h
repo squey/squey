@@ -227,6 +227,8 @@ public:
 	PVXmlTreeNodeDom* getFirstFieldParent();
 	
 	bool hasSplitterAsChild();
+
+	PVCol setAxesNames(QStringList const& names, PVCol id);
     
 private:
     QDomDocument xmlFile;
