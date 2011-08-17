@@ -31,7 +31,7 @@ PVInspector::PVNrawListingWidget::PVNrawListingWidget(PVNrawListingModel* nraw_m
 	_ctxt_menu->addAction(act_set_axis_name);
 	QAction *act_detect_type = new QAction(tr("Automatically detect axes' type based on this row"), _ctxt_menu);
 	connect(act_detect_type, SIGNAL(triggered()), this, SLOT(set_axes_type_selected_row_Slot()));
-	_ctxt_menu->addAction(act_detect_type);
+	//_ctxt_menu->addAction(act_detect_type);
 	
 	connect(_nraw_table, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(nraw_custom_menu_Slot(const QPoint&)));
 	_nraw_table->setContextMenuPolicy(Qt::CustomContextMenu);
