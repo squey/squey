@@ -101,6 +101,7 @@ nsUniversalDetector::Reset()
 #define SHORTCUT_THRESHOLD      (float)0.95
 #define MINIMUM_THRESHOLD      (float)0.20
 
+#ifdef __SSE4_2__
 nsresult nsUniversalDetector::HandleData(const char* aBuf, PRUint32 aLen)
 {
 	if(mDone) 
@@ -177,7 +178,6 @@ nsresult nsUniversalDetector::HandleData(const char* aBuf, PRUint32 aLen)
 			mask_a0 = _mm_cmpeq_epi8(sse_str, sse_a0);
 			// _mm_testc will return 1 if and only if all bits set in mask_nonascii are set in mask_a0 (which means that, if a[i] >= 0x80, a[i] == 0x80)
 			if (_mm_testc_si128(mask_a0, mask_nonascii) == 0)
-			//if (aBuf[i] & '\x80' && aBuf[i] != '\xA0')  //Since many Ascii only page contains NBSP 
 			{
 				//we got a non-ascii byte (high-byte)
 				//adjust state
@@ -202,7 +202,7 @@ nsresult nsUniversalDetector::HandleData(const char* aBuf, PRUint32 aLen)
 			}
 		}*/
 		
-		mLastChar = aBufSSE[15];
+		//mLastChar = aBufSSE[15];
 		aBufSSE += 16;
 	}
 	if (ePureAscii == mInputState) // Prologue
@@ -219,7 +219,7 @@ nsresult nsUniversalDetector::HandleData(const char* aBuf, PRUint32 aLen)
 			/*if (c == '\033' || (c == '{' && mLastChar == '~')) {
 				mInputState = eEscAscii;
 			}*/
-			mLastChar = c;
+			//mLastChar = c;
 			aBufSSE++;
 		}
 	}
@@ -278,6 +278,142 @@ nsresult nsUniversalDetector::HandleData(const char* aBuf, PRUint32 aLen)
 	}
 	return NS_OK;
 }
+
+#else
+#warning nsUniversalDetector: SSE4.2 not enabled, nsUniversalDetector::HandleData will use the sequential version.
+nsresult nsUniversalDetector::HandleData(const char* aBuf, PRUint32 aLen)
+{
+  if(mDone) 
+    return NS_OK;
+
+  if (aLen > 0)
+    mGotData = PR_TRUE;
+
+  //If the data starts with BOM, we know it is UTF
+  if (mStart)
+  {
+    mStart = PR_FALSE;
+    if (aLen > 3)
+      switch (aBuf[0])
+        {
+        case '\xEF':
+          if (('\xBB' == aBuf[1]) && ('\xBF' == aBuf[2]))
+            // EF BB BF  UTF-8 encoded BOM
+            mDetectedCharset = CHARDET_ENCODING_UTF_8;
+        break;
+        case '\xFE':
+          if (('\xFF' == aBuf[1]) && ('\x00' == aBuf[2]) && ('\x00' == aBuf[3]))
+            // FE FF 00 00  UCS-4, unusual octet order BOM (3412)
+            mDetectedCharset = CHARDET_ENCODING_X_ISO_10646_UCS_4_3412;
+          else if ('\xFF' == aBuf[1])
+            // FE FF  UTF-16, big endian BOM
+            mDetectedCharset = CHARDET_ENCODING_UTF_16BE;
+        break;
+        case '\x00':
+          if (('\x00' == aBuf[1]) && ('\xFE' == aBuf[2]) && ('\xFF' == aBuf[3]))
+            // 00 00 FE FF  UTF-32, big-endian BOM
+            mDetectedCharset = CHARDET_ENCODING_UTF_32BE;
+          else if (('\x00' == aBuf[1]) && ('\xFF' == aBuf[2]) && ('\xFE' == aBuf[3]))
+            // 00 00 FF FE  UCS-4, unusual octet order BOM (2143)
+            mDetectedCharset = CHARDET_ENCODING_X_ISO_10646_UCS_4_2143;
+        break;
+        case '\xFF':
+          if (('\xFE' == aBuf[1]) && ('\x00' == aBuf[2]) && ('\x00' == aBuf[3]))
+            // FF FE 00 00  UTF-32, little-endian BOM
+            mDetectedCharset = CHARDET_ENCODING_UTF_32LE;
+          else if ('\xFE' == aBuf[1])
+            // FF FE  UTF-16, little endian BOM
+            mDetectedCharset = CHARDET_ENCODING_UTF_16LE;
+        break;
+      }  // switch
+
+      if (mDetectedCharset)
+      {
+        mDone = PR_TRUE;
+        return NS_OK;
+      }
+  }
+  
+  PRUint32 i;
+  for (i = 0; i < aLen; i++)
+  {
+    //other than 0xa0, if every othe character is ascii, the page is ascii
+    if (aBuf[i] & '\x80' && aBuf[i] != '\xA0')  //Since many Ascii only page contains NBSP 
+    {
+      //we got a non-ascii byte (high-byte)
+      if (mInputState != eHighbyte)
+      {
+        //adjust state
+        mInputState = eHighbyte;
+
+        //kill mEscCharSetProber if it is active
+        if (mEscCharSetProber) {
+          delete mEscCharSetProber;
+          mEscCharSetProber = nsnull;
+        }
+
+        //start multibyte and singlebyte charset prober
+        if (nsnull == mCharSetProbers[0])
+          mCharSetProbers[0] = new nsMBCSGroupProber;
+        if (nsnull == mCharSetProbers[1])
+          mCharSetProbers[1] = new nsSBCSGroupProber;
+        if (nsnull == mCharSetProbers[2])
+          mCharSetProbers[2] = new nsLatin1Prober; 
+
+        if ((nsnull == mCharSetProbers[0]) ||
+            (nsnull == mCharSetProbers[1]) ||
+            (nsnull == mCharSetProbers[2]))
+            return NS_ERROR_OUT_OF_MEMORY;
+      }
+    }
+    else
+    {
+      //ok, just pure ascii so far
+      if ( ePureAscii == mInputState &&
+        (aBuf[i] == '\033' || (aBuf[i] == '{' && mLastChar == '~')) )
+      {
+        //found escape character or HZ "~{"
+        mInputState = eEscAscii;
+      }
+      mLastChar = aBuf[i];
+    }
+  }
+
+  nsProbingState st;
+  switch (mInputState)
+  {
+  case eEscAscii:
+    if (nsnull == mEscCharSetProber) {
+      mEscCharSetProber = new nsEscCharSetProber;
+      if (nsnull == mEscCharSetProber)
+        return NS_ERROR_OUT_OF_MEMORY;
+    }
+    st = mEscCharSetProber->HandleData(aBuf, aLen);
+    if (st == eFoundIt)
+    {
+      mDone = PR_TRUE;
+      mDetectedCharset = mEscCharSetProber->GetCharSetName();
+    }
+    break;
+  case eHighbyte:
+    for (i = 0; i < NUM_OF_CHARSET_PROBERS; i++)
+    {
+      st = mCharSetProbers[i]->HandleData(aBuf, aLen);
+      if (st == eFoundIt) 
+      {
+        mDone = PR_TRUE;
+        mDetectedCharset = mCharSetProbers[i]->GetCharSetName();
+        return NS_OK;
+      } 
+    }
+    break;
+
+  default:  //pure ascii
+    ;//do nothing here
+  }
+  return NS_OK;
+}
+#endif
 
 
 //---------------------------------------------------------------------
