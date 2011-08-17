@@ -15,6 +15,7 @@ add_definitions(${PICVIZ_DEFINITIONS})
 
 SET(SRC_FILES
 PVCom.cpp
+PVMain.cpp
 )
 
 SET(WTK_SRC_FILES
@@ -23,6 +24,7 @@ SET(WTK_SRC_FILES
 SET(HEADER_FILES
 include/pvgl/general.h
 include/pvgl/PVCom.h
+include/pvgl/PVMain.h
 include/pvgl/PVUtils.h
 )
 

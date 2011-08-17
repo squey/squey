@@ -16,7 +16,7 @@ PVGL_DIR=$ISRC/libpvgl2
 PICVIZ_PATH=$ISRD/libpicviz
 
 #export PICVIZ_LOG_FILE="log.txt"
-export PVGL_SHARE_DIR=$PVGL_DIR/data/
+export PVGL_SHARE_DIR=./libpvgl2/data/
 export PICVIZ_DEBUG_LEVEL="INFO"
 export PICVIZ_LAYER_FILTERS_DIR=$PICVIZ_PATH/plugins/layer-filters/
 export PICVIZ_MAPPING_FILTERS_DIR=$PICVIZ_PATH/plugins/mapping-filters/
