@@ -12,11 +12,11 @@ ISRD=$INSPECTOR_SOURCE_ROOT_DIR
 #export LC_ALL=C
 
 PVKERNEL_PATH=$ISRC/libpvkernel
-PVGL_DIR=$ISRC/libpvgl
+PVGL_DIR=./libpvgl2
 PICVIZ_PATH=$ISRD/libpicviz
 
 #export PICVIZ_LOG_FILE="log.txt"
-export PVGL_SHARE_DIR=./libpvgl/data/
+export PVGL_SHARE_DIR=./libpvgl2/data/
 export PICVIZ_DEBUG_LEVEL="INFO"
 export PICVIZ_LAYER_FILTERS_DIR=$PICVIZ_PATH/plugins/layer-filters/
 export PICVIZ_MAPPING_FILTERS_DIR=$PICVIZ_PATH/plugins/mapping-filters/
@@ -29,7 +29,9 @@ export PVRUSH_SOURCE_DIR=libpvkernel/plugins/sources
 
 export PVFILTER_NORMALIZE_DIR=libpvkernel/plugins/normalize
 
-export LD_LIBRARY_PATH=$PVKERNEL_PATH/src/:$PICVIZ_PATH/src/:$PVGL_PATH/src
+export LD_LIBRARY_PATH=$PVKERNEL_PATH/src/:$PICVIZ_PATH/src/:./libpvgl2/src
+
+echo "Library path: $LD_LIBRARY_PATH" 
 
 if [ "$1" == "debug" ]
 then
