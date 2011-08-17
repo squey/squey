@@ -1,12 +1,28 @@
 #include <QString>
 
 #include <pvgl/PVCom.h>
+#include <pvgl/PVUtils.h>
 
 #include <pvgl/PVMain.h>
 
 static PVGL::PVCom *pvgl_com = 0;
 static bool _should_stop = false;
 
+bool pvgl_init(PVGL::PVCom *com)
+{
+	int argc = 1;
+	char *argv[] = { const_cast<char*>("PVGL"), NULL };
+	pvgl_com = com;
+
+	if (pvgl_share_path_exists() == false) {
+		PVLOG_FATAL("Cannot open PVGL share directory %s!\n", pvgl_get_share_path().c_str());
+		return false;
+	} else {
+		PVLOG_INFO("Using PVGL share directory %s\n", pvgl_get_share_path().c_str());
+	}
+
+	return true;
+}
 
 void PVGL::PVMain::timer_func(int)
 {
@@ -55,4 +71,10 @@ void PVGL::PVMain::timer_func(int)
 		}
 	}
 
+}
+
+void PVGL::PVMain::stop()
+{
+	PVLOG_INFO("PVGL::%s: stopping\n", __FUNCTION__);
+	_should_stop = true;
 }

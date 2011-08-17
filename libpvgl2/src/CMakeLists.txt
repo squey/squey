@@ -16,6 +16,7 @@ add_definitions(${PICVIZ_DEFINITIONS})
 SET(SRC_FILES
 PVCom.cpp
 PVMain.cpp
+PVUtils.cpp
 )
 
 SET(WTK_SRC_FILES

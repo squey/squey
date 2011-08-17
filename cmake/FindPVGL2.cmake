@@ -19,8 +19,8 @@ if(PICVIZ_SINGLE_TREE_BUILD)
 		set(PVGL_LIBRARY "${Picviz_Inspector_SOURCE_DIR}\\libpvgl2\\src\\${CMAKE_BUILD_TYPE}\\pvgl.lib")
 	else(WIN32)
 		set(PVGL_FOUND true)
-		set(PVGL_INCLUDE_DIR "${Picviz_Inspector_SOURCE_DIR}/libpvgl/src/include")
-		set(PVGL_LIBRARY "${Picviz_Inspector_SOURCE_DIR}/libpvgl/src/libpvgl.so")
+		set(PVGL_INCLUDE_DIR "${Picviz_Inspector_SOURCE_DIR}/libpvgl2/src/include")
+		set(PVGL_LIBRARY "${Picviz_Inspector_SOURCE_DIR}/libpvgl2/src/libpvgl.so")
 	endif(WIN32)
 else(PICVIZ_SINGLE_TREE_BUILD)
 if (WIN32)
@@ -33,11 +33,11 @@ if (WIN32)
 		     PATH_SUFFIXES "libpvgl2\\src\\Release" "libpvgl2\\src\\RelWithDebInfo" )
 else (WIN32)
 	find_path(PVGL_INCLUDE_DIR pvgl/general.h
-	          HINTS "../libpvgl/src/include" ${PVGL_INCLUDEDIR}
+	          HINTS "../libpvgl2/src/include" ${PVGL_INCLUDEDIR}
 	          PATH_SUFFIXES pvgl )
 
 	find_library(PVGL_LIBRARY NAMES pvgl
-	             HINTS "../libpvgl/src/" ${PVGL_LIBDIR} 
+	             HINTS "../libpvgl2/src/" ${PVGL_LIBDIR} 
 		     PATH_SUFFIXES libpvgl/src/ )
 endif(WIN32)
 endif(PICVIZ_SINGLE_TREE_BUILD)

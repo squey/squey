@@ -18,6 +18,10 @@ struct LibGLDecl PVMain {
 	*/
 	static void timer_func(int);
 
+	/**
+	*
+	*/
+	static void stop();
 };
 
 } /* namespace PVGL */
