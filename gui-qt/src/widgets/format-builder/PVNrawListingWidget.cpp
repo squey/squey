@@ -154,5 +154,9 @@ int PVInspector::PVNrawListingWidget::get_selected_row()
 
 void PVInspector::PVNrawListingWidget::nraw_custom_menu_Slot(const QPoint& pt)
 {
+	if (_nraw_table->model()->rowCount() == 0) {
+		return;
+	}
+
 	_ctxt_menu->exec(QCursor::pos());
 }
