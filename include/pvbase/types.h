@@ -96,7 +96,12 @@ struct ubvec4
 	ubvec4(unsigned char x_ = 0, unsigned char y_ = 0, unsigned char z_ = 0, unsigned char w_ = 255):x(x_),y(y_),z(z_),w(w_){}
 	ubvec4(const unsigned char *v):x(v[0]),y(v[1]),z(v[2]),w(v[3]){}
 };
-
 #endif // __cplusplus
+
+#ifdef WIN32
+#define DECLARE_ALIGN(n) __declspec(align(n))
+#else
+#define DECLARE_ALIGN(n) __attribute__((aligned(n)))
+#endif
 
 #endif	/* PVBASE_TYPES_H */
