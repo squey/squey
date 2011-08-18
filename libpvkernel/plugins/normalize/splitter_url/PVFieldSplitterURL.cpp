@@ -36,13 +36,7 @@ static void url_decode_add_field(url_decode_buf* buf, QString const& new_field)
 		buf->data = buf->field->begin() + cur_index;
 	}
 	memcpy(buf->data, new_field.constData(), bufsize);
-	// Make a copy of the old field, in case a reallocation has been done (so that our field hold a ref
-	// on the shared buffer, and that one won't be deleted on the original field delete)
-	PVCore::PVField f(*buf->field);
-	f.set_begin(buf->data);
-	f.set_end(buf->data+bufsize);
-	f.set_physical_end(f.end());
-	f.init_qstr();
+	PVCore::PVField f(*buf->parent, buf->data, buf->data+bufsize);
 
 	buf->data += bufsize;
 	buf->rem_len -= bufsize;

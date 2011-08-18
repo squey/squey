@@ -1,6 +1,7 @@
 #include <pvkernel/rush/PVPipelineTask.h>
 #include <tbb/task.h>
 #include <tbb/pipeline.h>
+#include <tbb/tbb_exception.h>
 #include <assert.h>
 
 PVRush::PVPipelineTask::PVPipelineTask() :
@@ -25,11 +26,16 @@ tbb::task* PVRush::PVPipelineTask::execute()
 {
 	assert(_nchunks > 0);
 	_running = true;
+	try {
 #if (TBB_INTERFACE_VERSION >= 5006)
-	tbb::parallel_pipeline(_nchunks, _f, *group());
+		tbb::parallel_pipeline(_nchunks, _f, *group());
 #else
-	tbb::parallel_pipeline(_nchunks, _f);
+		tbb::parallel_pipeline(_nchunks, _f);
 #endif
+	}
+	catch (tbb::captured_exception& e) {
+		PVLOG_ERROR("Uncatched exception in TBB pipeline of type '%s': %s.\n", e.name(), e.what());
+	}
 	_running = false;
 	return NULL;
 }

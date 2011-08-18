@@ -28,6 +28,7 @@
 
 // AG: add a function for SSE4.1 detection only
 
+#include <pvkernel/core/stdint.h>
 #include <pvkernel/core/sse4detector.h>
 #ifdef WIN32
 #include <intrin.h>
@@ -100,7 +101,7 @@ int isGenuineIntel (void)
 	CPUIDinfo Info; 
 	int rVal = 0; 
 	char procString[] = "GenuineIntel"; 
-	uint32_t* psint = (uint32_t*) procString;
+	unsigned int* psint = (unsigned int*) procString;
 	get_cpuid_infos(&Info, 0x0);
 
 	// execute CPUID with eax = 0, subleaf doesn't matter so set it to zero 

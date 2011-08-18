@@ -39,6 +39,7 @@
 #define nsUniversalDetector_h__
 
 #include <pvkernel/core/general.h>
+#include <pvkernel/core/picviz_intrin.h>
 
 class nsCharSetProber;
 

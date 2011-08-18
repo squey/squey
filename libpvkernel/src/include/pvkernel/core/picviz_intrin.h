@@ -8,9 +8,24 @@
 #include <immintrin.h>
 #endif
 
-bool has_sse41();
-bool has_sse42();
-void init_cpuid();
+#include <pvkernel/core/general.h>
+
+namespace PVCore {
+
+class LibKernelDecl PVIntrinsics
+{
+public:
+	static bool has_sse41();
+	static bool has_sse42();
+	static void init_cpuid();
+
+private:
+	static bool _has_sse41;
+	static bool _has_sse42;
+	static bool _init_done;
+};
+
+}
 
 
 #endif

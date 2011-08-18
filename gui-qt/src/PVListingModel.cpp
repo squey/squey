@@ -21,6 +21,8 @@
 
 #include <tbb/parallel_sort.h>
 
+#include <omp.h>
+
 #include <map>
 
 
@@ -167,7 +169,7 @@ void PVInspector::PVListingModel::initLocalMatchingTable(){
 	// Put a mutex for the local mathing table, because a thread can create it while being read by another one (like the model's thread) !
 	QWriteLocker locker(&_local_table_mutex);
 
-	PVRow size_table;
+	int32_t size_table,i;
 
 	if (state_machine->are_listing_all()) {
 		PVLOG_DEBUG("       ALL\n");
@@ -180,7 +182,7 @@ void PVInspector::PVListingModel::initLocalMatchingTable(){
 		_map_sort.resize(size_table);
 		//init map
 #pragma omp parallel for
-		for(PVRow i=0; i < size_table; i++) {
+		for(i=0; i < size_table; i++) {
 			PVRow real = lib_view->get_nznu_real_row_index(i);
 			_map_sort[i] = std::pair<PVRow,PVRow>(parent_widget->sortMatchingTable_invert.at(real),real);
 		}
@@ -192,7 +194,7 @@ void PVInspector::PVListingModel::initLocalMatchingTable(){
 		_map_sort.resize(size_table);
 		//init map
 #pragma omp parallel for
-		for(PVRow i=0; i < size_table; i++) {
+		for(i=0; i < size_table; i++) {
 			PVRow real=lib_view->get_nu_real_row_index(i);
 			_map_sort[i] = std::pair<PVRow,PVRow>(parent_widget->sortMatchingTable_invert.at(real),real);
 		}
@@ -204,7 +206,7 @@ void PVInspector::PVListingModel::initLocalMatchingTable(){
 		_map_sort.resize(size_table);
 		//init map
 #pragma omp parallel for
-		for(PVRow i=0; i < size_table; i++) {
+		for(i=0; i < size_table; i++) {
 			PVRow real=lib_view->get_nz_real_row_index(i);
 			_map_sort[i] = std::pair<PVRow,PVRow>(parent_widget->sortMatchingTable_invert.at(real),real);
 		}
@@ -216,7 +218,7 @@ void PVInspector::PVListingModel::initLocalMatchingTable(){
 	localMatchingTable.reserve(size_table);
 	localMatchingTable.clear();
 	map_sort_t::iterator _map_sort_it = _map_sort.begin();
-	for(PVRow i=0; i < size_table; i++) {
+	for(i=0; i < size_table; i++) {
 		localMatchingTable.push_back(_map_sort_it->second);
 		_map_sort_it++;
 	}
@@ -386,6 +388,9 @@ void PVInspector::PVListingModel::sortByColumn(int idColumn)
  *****************************************************************************/
 int PVInspector::PVListingModel::rowCount(const QModelIndex &/*index*/) const 
 {
+	// We can't return a value if we are creating the localMatchingTable, because we could
+	// try to ask a still udnefined value !
+	QReadLocker locker(&_local_table_mutex);
 	if (state_machine->are_listing_all()) {
 		return int(lib_view->get_row_count());
 	}

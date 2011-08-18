@@ -3,11 +3,11 @@
 
 #include <assert.h>
 
-static bool _has_sse41 = false;
-static bool _has_sse42 = false;
-static bool _init_done = false;
+bool PVCore::PVIntrinsics::_has_sse41 = false;
+bool PVCore::PVIntrinsics::_has_sse42 = false;
+bool PVCore::PVIntrinsics::_init_done = false;
 
-void init_cpuid()
+void PVCore::PVIntrinsics::init_cpuid()
 {
 	_has_sse41 = isSSE41Supported();
 	_has_sse42 = isSSE41andSSE42supported();
@@ -15,13 +15,13 @@ void init_cpuid()
 }
 
 
-bool has_sse41()
+bool PVCore::PVIntrinsics::has_sse41()
 {
 	assert(_init_done);
 	return _has_sse41;
 }
 
-bool has_sse42()
+bool PVCore::PVIntrinsics::has_sse42()
 {
 	assert(_init_done);
 	return _has_sse42;

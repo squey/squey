@@ -28,7 +28,7 @@ UChar* _u_memchr_nosurr(UChar* s, UChar c, int32_t count)
 #ifdef __SSE4_1__
 UChar* _sse_u_memchr_nosurr(UChar* s, UChar c, int32_t count)
 {
-	if (!has_sse41()) {
+	if (!PVCore::PVIntrinsics::has_sse41()) {
 		return _u_memchr_nosurr(s, c, count);
 	}
 	// AG: this is an SSE optimised version of u_memchr, that
@@ -47,7 +47,8 @@ UChar* _sse_u_memchr_nosurr(UChar* s, UChar c, int32_t count)
 	__m128i sse_str,sse_cmp;
 	const __m128i sse_c = _mm_set1_epi16(c);
 	const __m128i sse_ff = _mm_set1_epi32(0xffffffff);
-	uint64_t final_cmp[2];
+	//uint64_t __attribute__((aligned(16))) final_cmp[2];
+	uint64_t __declspec(align(16)) final_cmp[2];
 	for (int32_t i = 0; i < nsse; i++) {
 		// Load 8 UTF16 chars in an SSE register, and
 		// search for 'c'

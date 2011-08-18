@@ -5,7 +5,7 @@
 
 struct CPUIDinfo
 { 
-	uint32_t EAX,EBX,ECX,EDX; 
+	unsigned int EAX,EBX,ECX,EDX; 
 };
 
 int isSSE41Supported(void);

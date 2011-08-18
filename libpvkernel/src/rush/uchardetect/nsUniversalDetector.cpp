@@ -104,7 +104,7 @@ nsUniversalDetector::Reset()
 #ifdef __SSE4_1__
 nsresult nsUniversalDetector::HandleData(const char* aBuf, PRUint32 aLen)
 {
-	if (!has_sse41()) {
+	if (!PVCore::PVIntrinsics::has_sse41()) {
 		return HandleData_nosse(aBuf, aLen);
 	}
 	if(mDone) 
