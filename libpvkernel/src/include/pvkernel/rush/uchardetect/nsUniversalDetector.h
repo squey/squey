@@ -58,6 +58,9 @@ public:
    virtual void DataEnd(void);
 
 protected:
+#ifdef __SSE4_1__
+   nsresult HandleData_nosse(const char* aBuf, PRUint32 aLen);
+#endif
    virtual void Report(const char* aCharset) = 0;
    virtual void Reset();
    nsInputState  mInputState;

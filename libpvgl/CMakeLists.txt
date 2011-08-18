@@ -15,6 +15,7 @@ else(WIN32)
 #        set(PVGL_SHARE_DIR "${CMAKE_INSTALL_PREFIX}/share/picviz/")
 endif(WIN32)
 add_definitions(-DPVGL_SHARE_DIR="${PVGL_SHARE_DIR}")
+add_definitions(${COMPILER_OPTIMIZE_FLAGS})
 
 add_subdirectory(src)
 

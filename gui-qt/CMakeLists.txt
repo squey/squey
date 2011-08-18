@@ -21,5 +21,6 @@ if (WIN32)
 endif(WIN32)
 
 add_definitions(${OpenMP_CXX_FLAGS})
+add_definitions(${COMPILER_OPTIMIZE_FLAGS})
 
 add_subdirectory(src)

@@ -101,9 +101,12 @@ nsUniversalDetector::Reset()
 #define SHORTCUT_THRESHOLD      (float)0.95
 #define MINIMUM_THRESHOLD      (float)0.20
 
-#ifdef __SSE4_2__
+#ifdef __SSE4_1__
 nsresult nsUniversalDetector::HandleData(const char* aBuf, PRUint32 aLen)
 {
+	if (!has_sse41()) {
+		return HandleData_nosse(aBuf, aLen);
+	}
 	if(mDone) 
 		return NS_OK;
 
@@ -278,10 +281,13 @@ nsresult nsUniversalDetector::HandleData(const char* aBuf, PRUint32 aLen)
 	}
 	return NS_OK;
 }
+#endif
 
+#ifdef __SSE4_1__
+nsresult nsUniversalDetector::HandleData_nosse(const char* aBuf, PRUint32 aLen)
 #else
-#warning nsUniversalDetector: SSE4.2 not enabled, nsUniversalDetector::HandleData will use the sequential version.
 nsresult nsUniversalDetector::HandleData(const char* aBuf, PRUint32 aLen)
+#endif
 {
   if(mDone) 
     return NS_OK;
@@ -413,7 +419,6 @@ nsresult nsUniversalDetector::HandleData(const char* aBuf, PRUint32 aLen)
   }
   return NS_OK;
 }
-#endif
 
 
 //---------------------------------------------------------------------

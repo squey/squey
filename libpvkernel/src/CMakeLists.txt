@@ -4,6 +4,8 @@ set(CORE_SRC_FILES
 core/debug.cpp
 core/environ.cpp
 core/network.cpp
+core/picviz_intrin.cpp
+core/sse4detector.cpp
 core/sysinfo.cpp
 
 core/PVArgument.cpp
@@ -26,6 +28,8 @@ include/pvkernel/core/debug.h
 include/pvkernel/core/environ.h
 include/pvkernel/core/general.h
 include/pvkernel/core/network.h
+include/pvkernel/core/picviz_intrin.h
+include/pvkernel/core/sse4detector.h
 include/pvkernel/core/pv_pcre_splitter.h
 include/pvkernel/core/pv_splitter.h
 include/pvkernel/core/string.h

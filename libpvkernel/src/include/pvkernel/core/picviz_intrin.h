@@ -7,5 +7,9 @@
 #include <immintrin.h>
 #endif
 
+bool has_sse41();
+bool has_sse42();
+void init_cpuid();
+
 
 #endif

@@ -5,7 +5,7 @@
 
 // Depends on whether SSE4.2 is enabled or not, select
 // the good version of u_memechr
-#ifdef __SSE4_2__
+#ifdef __SSE4_1__
 #define u_memchr_nosurr _sse_u_memchr_nosurr
 #else
 #define u_memchr_nosurr _u_memchr_nosurr
@@ -25,9 +25,12 @@ UChar* _u_memchr_nosurr(UChar* s, UChar c, int32_t count)
 	return NULL;
 } 
 
-#ifdef __SSE4_2__
+#ifdef __SSE4_1__
 UChar* _sse_u_memchr_nosurr(UChar* s, UChar c, int32_t count)
 {
+	if (!has_sse41()) {
+		return _u_memchr_nosurr(s, c, count);
+	}
 	// AG: this is an SSE optimised version of u_memchr, that
 	// assume that 'c' isn't part of a surrogate pair !
 	// GCC doesn't support control flow in loops when dealing

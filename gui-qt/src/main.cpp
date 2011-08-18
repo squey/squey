@@ -15,6 +15,7 @@
 #include <stdio.h>
 
 #include <time.h>
+#include <pvkernel/core/picviz_intrin.h>
 
 #define JULY_5 1309856400
 
@@ -63,6 +64,17 @@ int main(int argc, char *argv[])
 
 	QString locale = QLocale::system().name();
 	PVLOG_INFO("System locale: %s\n", qPrintable(locale));
+
+	init_cpuid();
+#ifdef __SSE4_1__
+	PVLOG_INFO("Compiled with SSE 4.1 instructions\n");
+	if (has_sse41()) {
+		PVLOG_INFO("SSE4.1 is supported by this CPU.\n");
+	}
+	else {
+		PVLOG_INFO("SSE4.1 is not supported by this CPU.\n");
+	}
+#endif
 
 	app.setOrganizationName("PICVIZ Labs");
 	app.setApplicationName("Picviz Inspector");
