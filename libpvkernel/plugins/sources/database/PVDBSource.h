@@ -37,6 +37,9 @@ protected:
 	chunk_index _nelts_chunk;
 	chunk_index _next_index;
 	QSqlQuery _sql_query;
+private:
+	//typedef std::vector< PVCore::PVField, tbb::cache_aligned_allocator<PVCore::PVField> > vec_fields_t;
+	//vec_fields_t _vec_fields;
 };
 
 }

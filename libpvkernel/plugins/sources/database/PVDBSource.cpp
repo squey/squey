@@ -13,7 +13,7 @@ PVRush::PVDBSource::PVDBSource(PVDBQuery const& query, chunk_index nelts_chunk, 
 	_query(query),
 	_nelts_chunk(nelts_chunk)
 {
-	seek(0);
+	seek_begin();
 	if (!_query.connect_serv()) {
 		PVLOG_WARN("Unable to connect to database: %s\n", qPrintable(_query.last_error_serv()));
 	}
@@ -72,9 +72,9 @@ PVCore::PVChunk* PVRush::PVDBSource::operator()()
 				break;
 			}
 		}
+		QSqlRecord rec = _sql_query.record();
 		PVCore::PVElement* elt = chunk->add_element();
 		elt->fields().clear();
-		QSqlRecord rec = _sql_query.record();
 		for (int i = 0; i < rec.count(); i++) {
 			QString value = rec.value(i).toString();
 			PVCore::PVField f(*elt);

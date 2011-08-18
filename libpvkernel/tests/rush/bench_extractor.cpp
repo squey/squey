@@ -45,7 +45,7 @@ double bench(PVRush::PVExtractor &ext, size_t nlines)
 	ext.start_controller();
 	double dur = 0;
 	for (int i = 0; i < NTRIES; i++) {
-		//clear_disk_cache();
+		clear_disk_cache();
 		tbb::tick_count start = tbb::tick_count::now();
 		PVRush::PVControllerJob_p job = ext.process_from_agg_nlines(0, nlines);
 		job->wait_end();
@@ -172,15 +172,15 @@ int main(int argc, char** argv)
 	double dur;	
 	// Serial reading performance with no transformation ("architecture" overhead)
 	printf("Serial reading performance with no transformation (\"architecture\" overhead)");
-	//dur = bench(lfiles, chk_flt_null.f(), chunk_size, NLINES);
-	//print_perf(dur, total_read);
+	dur = bench(lfiles, chk_flt_null.f(), chunk_size, NLINES);
+	print_perf(dur, total_read);
 
 	// Serial reading with UTF16 transformation
 	printf("Serial reading with UTF16 transformation");
 	//CALLGRIND_START_INSTRUMENTATION
-	//dur = bench_utf16(lfiles, chk_flt_null.f(), chunk_size, NLINES);
+	dur = bench_utf16(lfiles, chk_flt_null.f(), chunk_size, NLINES);
 	//CALLGRIND_STOP_INSTRUMENTATION
-	//print_perf(dur, total_read);
+	print_perf(dur, total_read);
 	
 	// Serial reading with UTF16 transformation and alignement
 	printf("Serial reading with UTF16 transformation and alignement");
@@ -194,16 +194,14 @@ int main(int argc, char** argv)
 	PVFilter::PVFieldsSplitter::p_type regexp_lib_p = LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("regexp");
 	PVFilter::PVFieldsBaseFilter_p fre_in = regexp_lib_p->clone<PVFilter::PVFieldsBaseFilter>();
 	PVCore::PVArgumentList args;
-	args["regexp"] = PVCore::PVArgument(QRegExp("(.*)"));
+	args["regexp"] = PVCore::PVArgument(QString("(.*)"));
 	fre_in->set_args(args);
 	PVFilter::PVElementFilterByFields felt(fre_in->f());
 	PVFilter::PVChunkFilterByElt fchunk(felt.f());
 
-	//dur = bench_utf16_align(lfiles, fchunk.f(), chunk_size, NLINES);
-	//print_perf(dur, total_read);
+	dur = bench_utf16_align(lfiles, fchunk.f(), chunk_size, NLINES);
+	print_perf(dur, total_read);
 
-
-	
 	// Parallel regexp grep only
 	
 

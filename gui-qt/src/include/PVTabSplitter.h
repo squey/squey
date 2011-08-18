@@ -19,10 +19,9 @@
 
 #include <vector>
 
-typedef std::vector<int> MatchingTable_t;
-
-
 namespace PVInspector {
+
+typedef std::vector<int> MatchingTable_t;
 
 class PVMainWindow;
 class PVListingModel;

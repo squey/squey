@@ -7,10 +7,13 @@
 #define PVLISTINGMODEL_H
 
 #include <vector>
-typedef std::vector<int> MatchingTable_t;
+#include <utility>
 
-#include <QtGui>
-#include <QtCore>
+#include <QAbstractTableModel>
+#include <QBrush>
+#include <QFont>
+#include <QModelIndex>
+#include <QReadWriteLock>
 
 #include <pvkernel/core/general.h>
 #include <picviz/PVSortQVectorQStringListThread.h>
@@ -21,9 +24,11 @@ typedef std::vector<int> MatchingTable_t;
 #include <QAbstractTableModel>
 
 #include <tbb/scalable_allocator.h>
+#include <tbb/cache_aligned_allocator.h>
 
 namespace PVInspector {
 
+typedef std::vector<int> MatchingTable_t;
 
 class PVMainWindow;
 class PVTabSplitter;
@@ -164,6 +169,9 @@ public:
 
 protected:
 	mutable QReadWriteLock _local_table_mutex;
+	typedef std::vector<std::pair<PVRow, PVRow>, tbb::cache_aligned_allocator<std::pair<PVRow,PVRow> > > map_sort_t;
+	map_sort_t _map_sort;
+	
 };
 //MatchingTable_t PVInspector::PVListingModel::sortMatchingTable; //!<the table sort, modify this array to order the values
     

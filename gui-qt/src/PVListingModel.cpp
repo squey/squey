@@ -19,6 +19,8 @@
 
 #include <picviz/PVSortQVectorQStringList.h>
 
+#include <tbb/parallel_sort.h>
+
 #include <map>
 
 
@@ -153,64 +155,70 @@ Qt::ItemFlags PVInspector::PVListingModel::flags(const QModelIndex &/*index*/) c
  * PVInspector::PVListingModel::initLocalMatchingTable
  *
  *****************************************************************************/
+
+static inline bool comp_map_sort(const std::pair<PVRow, PVRow>& a, const std::pair<PVRow, PVRow>& b)
+{
+	return a.first < b.first;
+}
+
 void PVInspector::PVListingModel::initLocalMatchingTable(){
 	PVLOG_DEBUG("PVListingModel::initLocalMatchingTable()\n");
 
 	// Put a mutex for the local mathing table, because a thread can create it while being read by another one (like the model's thread) !
 	QWriteLocker locker(&_local_table_mutex);
 
-	std::map<int,int> myMap;
-	std::map<int,int>::iterator myIterator;
-
+	PVRow size_table;
 
 	if (state_machine->are_listing_all()) {
 		PVLOG_DEBUG("       ALL\n");
+		return;
 	}
-	else
+	_map_sort.clear();
 	if (state_machine->are_listing_no_nu_nz()) {
 		PVLOG_DEBUG("       NZNU\n");
-		localMatchingTable.resize(lib_view->get_nznu_index_count());
+		size_table = lib_view->get_nznu_index_count();
+		_map_sort.resize(size_table);
 		//init map
-		for(int i=0;i<lib_view->get_nznu_index_count();i++){
-			int real=lib_view->get_nznu_real_row_index(i);
-			myMap.insert(std::pair<int,int>(parent_widget->sortMatchingTable_invert.at(real),real));
-		}
-		//write in local matching table
-		myIterator = myMap.begin();
-		for(int i=0;i<lib_view->get_nznu_index_count();i++){
-			localMatchingTable[i] = (*myIterator++).second;
-			PVLOG_HEAVYDEBUG("       locale%d\n",localMatchingTable[i]);
+#pragma omp parallel for
+		for(PVRow i=0; i < size_table; i++) {
+			PVRow real = lib_view->get_nznu_real_row_index(i);
+			_map_sort[i] = std::pair<PVRow,PVRow>(parent_widget->sortMatchingTable_invert.at(real),real);
 		}
 	}
 	else
 	if (state_machine->are_listing_no_nu()) {
 		PVLOG_DEBUG("       NU\n");
-		localMatchingTable.resize(lib_view->get_nu_index_count());
+		size_table = lib_view->get_nu_index_count();
+		_map_sort.resize(size_table);
 		//init map
-		for(int i=0;i<lib_view->get_nu_index_count();i++){
-			int real=lib_view->get_nu_real_row_index(i);
-			myMap.insert(std::pair<int,int>(parent_widget->sortMatchingTable_invert.at(real),real));
-		}
-		//write in local matching table
-		myIterator = myMap.begin();
-		for(int i=0;i<lib_view->get_nu_index_count();i++){
-			localMatchingTable[i] = (*myIterator++).second;
+#pragma omp parallel for
+		for(PVRow i=0; i < size_table; i++) {
+			PVRow real=lib_view->get_nu_real_row_index(i);
+			_map_sort[i] = std::pair<PVRow,PVRow>(parent_widget->sortMatchingTable_invert.at(real),real);
 		}
 	}
 	else 
 	if (state_machine->are_listing_no_nz()) {
 		PVLOG_DEBUG("       NZ\n");
-		localMatchingTable.resize(lib_view->get_nz_index_count());
+		size_table = lib_view->get_nz_index_count();
+		_map_sort.resize(size_table);
 		//init map
-		for(int i=0;i<lib_view->get_nz_index_count();i++){
-			int real=lib_view->get_nz_real_row_index(i);
-			myMap.insert(std::pair<int,int>(parent_widget->sortMatchingTable_invert.at(real),real));
+#pragma omp parallel for
+		for(PVRow i=0; i < size_table; i++) {
+			PVRow real=lib_view->get_nz_real_row_index(i);
+			_map_sort[i] = std::pair<PVRow,PVRow>(parent_widget->sortMatchingTable_invert.at(real),real);
 		}
-		//write in local matching table
-		myIterator = myMap.begin();
-		for(int i=0;i<lib_view->get_nz_index_count();i++){
-			localMatchingTable[i] = (*myIterator++).second;
-		}
+	}
+
+	// Sort in parallel _map_sort
+	tbb::parallel_sort(_map_sort.begin(), _map_sort.end(), comp_map_sort);
+
+	localMatchingTable.reserve(size_table);
+	localMatchingTable.clear();
+	map_sort_t::iterator _map_sort_it = _map_sort.begin();
+	for(PVRow i=0; i < size_table; i++) {
+		localMatchingTable.push_back(_map_sort_it->second);
+		_map_sort_it++;
 	}
 }
 
@@ -226,14 +234,17 @@ void PVInspector::PVListingModel::initMatchingTable() {
 	if (lib_view->get_qtnraw_parent().size() != parent_widget->sortMatchingTable.size()) {
 		PVLOG_DEBUG("         init LISTING_ALL\n");
 		//...reinit the matching table.
-		parent_widget->sortMatchingTable.resize(0);
-		for (unsigned int i = 0; i < lib_view->get_qtnraw_parent().size(); i++) {
-			parent_widget->sortMatchingTable.push_back(i);
-		}
-		parent_widget->sortMatchingTable_invert.resize(parent_widget->sortMatchingTable.size());
-		for (unsigned int i = 0; i < parent_widget->sortMatchingTable.size(); i++) {
-			int j = parent_widget->sortMatchingTable.at(i);
-			parent_widget->sortMatchingTable_invert.at(j) = i;
+		MatchingTable_t& matchTable = parent_widget->sortMatchingTable;
+		MatchingTable_t& invMatchTable = parent_widget->sortMatchingTable_invert;
+
+		PVRow nraw_size = lib_view->get_qtnraw_parent().size();
+		matchTable.reserve(nraw_size);
+		invMatchTable.reserve(nraw_size);
+		matchTable.clear(); // clear remove the object from the std::vector object, but the vector's capacity isn't changed !
+		invMatchTable.clear();
+		for (PVRow i = 0; i < nraw_size; i++) {
+			matchTable.push_back(i);
+			invMatchTable.push_back(i);
 		}
 
 		sortOrder = NoOrder; //... reset the last order remember
