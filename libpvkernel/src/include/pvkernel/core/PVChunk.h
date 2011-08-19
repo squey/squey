@@ -25,7 +25,11 @@ namespace PVRush {
 
 namespace PVCore {
 
+#ifdef WIN32
+typedef std::list< PVElement* > list_elts;
+#else
 typedef std::list< PVElement*, tbb::scalable_allocator<PVElement*> > list_elts;
+#endif
 
 // Describe chunk interface with no allocator template
 // Useful in order to use chunks as function arguments...
@@ -114,7 +118,11 @@ protected:
 	size_t _nelts_valid;
 };
 
+#ifdef WIN32
 template < template <class T> class Allocator = tbb::scalable_allocator >
+#else
+template < template <class T> class Allocator = std::allocator >
+#endif
 class PVChunkMem : public PVChunk {
 public:
 	typedef Allocator<char> alloc_chunk;

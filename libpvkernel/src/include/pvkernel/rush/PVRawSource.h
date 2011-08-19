@@ -15,7 +15,11 @@
 
 namespace PVRush {
 
+#ifdef WIN32
+	template < template <class T> class Allocator = std::allocator >
+#else
 template < template <class T> class Allocator = tbb::scalable_allocator >
+#endif
 class PVRawSource : public PVRush::PVRawSourceBase {
 public:
 	typedef PVCore::PVChunkMem<Allocator> PVChunkAlloc;

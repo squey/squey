@@ -22,7 +22,11 @@ namespace PVCore {
 
 class PVChunk;
 
+#ifdef WIN32
+typedef std::list<PVField> list_fields;
+#else
 typedef std::list<PVField, tbb::scalable_allocator<PVField> > list_fields;
+#endif
 
 class LibKernelDecl PVElement : public PVBufferSlice {
 	friend class PVField;

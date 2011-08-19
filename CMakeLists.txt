@@ -33,10 +33,16 @@ include(FindPkgConfig)
 
 if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
 	if(WIN32)
-		set(COMPILER_OPTIMIZE_FLAGS "/Ox /Ob2 /Oi")
+		# /Ox: "full-optimisation" mode
+		# /Ob2: inline everything that is possible
+		# /Oi: use intrinsics functions
+		# /Ot: favorize fast over small code
+		# /GL: intra-procedural optimisations by MSVC !
+		set(COMPILER_OPTIMIZE_FLAGS "/Ox /Ob2 /Oi /Ot /GL")
 	else(WIN32)
 		set(COMPILER_OPTIMIZE_FLAGS "-O3 -march=native")
 	endif(WIN32)
+	add_definitions(-DNDEBUG) # so that 'assert' will generate no code
 endif()
 
 #
@@ -48,9 +54,14 @@ if(WIN32)
 	add_definitions(-DWIN32)
 	add_definitions(-D_WIN32)
 	add_definitions(-D_WINSOCKAPI_)
-	set(CMAKE_EXE_LINKER_FLAGS /LARGEADDRESSAWARE)
-	set(CMAKE_SHARED_LINKER_FLAGS /LARGEADDRESSAWARE)
-	set(CMAKE_MODULE_LINKER_FLAGS /LARGEADDRESSAWARE)
+	set(MSVC_LINKER_FLAGS "/LARGEADDRESSAWARE")
+	if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+		# Intraprocedural optimisations
+		set(MSVC_LINKER_FLAGS "${MSVC_LINKER_FLAGS} /ltcg")
+	endif()
+	set(CMAKE_EXE_LINKER_FLAGS ${MSVC_LINKER_FLAGS})
+	set(CMAKE_SHARED_LINKER_FLAGS ${MSVC_LINKER_FLAGS})
+	set(CMAKE_MODULE_LINKER_FLAGS ${MSVC_LINKER_FLAGS})
 
 else(WIN32)
 	add_definitions(-DUNIX)
