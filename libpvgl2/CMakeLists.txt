@@ -5,8 +5,9 @@ include_directories(AFTER ${ICU_INCLUDE})
 add_definitions(-DLIBPVGL -DDEBUG)
 
 # Choose the wanted Window Toolkit
-# available: FREEGLUT3 only for the moment
+# available: QT or FREEGLUT3 only for the moment
 add_definitions(-DUSE_WTK_FREEGLUT3)
+#add_definitions(-DUSE_WTK_QT4)
 
 if(WIN32)
         set(PVGL_SHARE_DIR "share/")
