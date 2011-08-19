@@ -43,11 +43,6 @@ endif(WIN32)
 endif(PICVIZ_SINGLE_TREE_BUILD)
 
 #
-# PVCore
-#
-find_package(PVCore REQUIRED)
-
-#
 # OpenGL
 #
 find_package(OpenGL REQUIRED)

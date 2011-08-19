@@ -1,4 +1,5 @@
 include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/libpvgl2/src/include)
+include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/libpvgl2/src/wtk/include)
 include_directories(AFTER ${GLEW_INCLUDE_PATH})
 include_directories(AFTER ${OPENGL_INCLUDE_DIR})
 include_directories(AFTER ${FREETYPE_INCLUDE_DIRS})
@@ -20,6 +21,7 @@ PVUtils.cpp
 )
 
 SET(WTK_SRC_FILES
+wtk/WtkInit.cpp
 )
 
 SET(HEADER_FILES
@@ -30,6 +32,7 @@ include/pvgl/PVUtils.h
 )
 
 SET(WTK_HEADER_FILES
+wtk/include/WtkInit.h
 )
 
 add_library(pvgl SHARED ${SRC_FILES} ${HEADER_FILES} ${WTK_SRC_FILES} ${WTK_HEADER_FILES})

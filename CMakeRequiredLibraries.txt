@@ -123,10 +123,10 @@ endif(WIN32)
 #
 # Check for libpcre++
 #
-if (NOT WIN32)
-	find_package(PCRE REQUIRED)
-else (NOT WIN32)
-endif (NOT WIN32)
+#if (NOT WIN32)
+#	find_package(PCRE REQUIRED)
+#else (NOT WIN32)
+#endif (NOT WIN32)
 
 #
 # Check for Java and JNI
