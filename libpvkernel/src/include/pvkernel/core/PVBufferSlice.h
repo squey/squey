@@ -237,8 +237,6 @@ typename L::size_type PVCore::PVBufferSlice::split_regexp(L& container, QRegExp&
 		bstart += fsize + 1;
 		elt._end = bstart-1;
 		elt._physical_end = elt._end;
-		elt.init_qstr();
-		QString deep_copy(elt.qstr().data(), elt.qstr().size());
 		container.insert(it_ins, elt);
 		it++;
 		n++;
