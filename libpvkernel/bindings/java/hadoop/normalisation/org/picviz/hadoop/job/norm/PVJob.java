@@ -10,6 +10,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.conf.Configured;
 
+import org.picviz.mapreduce.output.NRAWNetworkOutputFormat;
 import org.picviz.mapreduce.output.TCPNetworkOutputFormat;
 
 public class PVJob extends Configured implements Tool {
@@ -32,7 +33,7 @@ public class PVJob extends Configured implements Tool {
 		
 		job.setOutputKeyClass(LongWritable.class);
 		job.setOutputValueClass(String[].class);
-		job.setOutputFormatClass(TCPNetworkOutputFormat.class);
+		job.setOutputFormatClass(NRAWNetworkOutputFormat.class);
 
 		job.waitForCompletion(true);
 		

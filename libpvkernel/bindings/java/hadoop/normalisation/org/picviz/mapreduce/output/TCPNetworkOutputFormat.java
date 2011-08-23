@@ -24,7 +24,7 @@ public class TCPNetworkOutputFormat<K, V> extends NetworkOutputFormat<K, V> {
 			socket = new Socket(host, port);
 			stream = new BufferedOutputStream(socket.getOutputStream());
 			// The first thing to write is the task ID
-			stream.write(new Integer(id).toString().getBytes("UTF-8"));
+			stream.write((new Integer(id).toString() + "\n").getBytes("UTF-8"));
 		}
 
 		protected void writeObject(Object o) throws IOException {
