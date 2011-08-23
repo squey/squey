@@ -10,6 +10,7 @@ import org.apache.hadoop.mapred.InvalidJobConfException;
 import org.apache.hadoop.mapreduce.JobContext;
 import org.apache.hadoop.mapreduce.RecordWriter;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
+import org.apache.hadoop.mapreduce.TaskAttemptID;
 
 public class TCPNetworkOutputFormat<K, V> extends NetworkOutputFormat<K, V> {
 
@@ -19,9 +20,11 @@ public class TCPNetworkOutputFormat<K, V> extends NetworkOutputFormat<K, V> {
 		protected Socket socket;
 		protected BufferedOutputStream stream;
 
-		public TCPRecordWriter(String host, int port) throws UnknownHostException, IOException {
+		public TCPRecordWriter(String host, int port, int id) throws UnknownHostException, IOException {
 			socket = new Socket(host, port);
 			stream = new BufferedOutputStream(socket.getOutputStream());
+			// The first thing to write is the task ID
+			stream.write(new Integer(id).toString().getBytes("UTF-8"));
 		}
 
 		protected void writeObject(Object o) throws IOException {
@@ -48,7 +51,8 @@ public class TCPNetworkOutputFormat<K, V> extends NetworkOutputFormat<K, V> {
 	}
 
 	public RecordWriter<K, V> getRecordWriter(TaskAttemptContext job) throws IOException, InterruptedException {
-		return new TCPRecordWriter(getDestHost(job), getDestPort(job));
+		int id = job.getTaskAttemptID().getTaskID().getId();
+		return new TCPRecordWriter(getDestHost(job), getDestPort(job), id);
 	}
 
 	public void checkOutputSpecs(JobContext job) throws UnknownHostException, InvalidJobConfException {
