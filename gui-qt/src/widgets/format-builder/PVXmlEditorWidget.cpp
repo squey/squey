@@ -613,7 +613,8 @@ void PVInspector::PVXmlEditorWidget::create_extractor()
 	_log_extract.reset(new PVRush::PVExtractor());
 	_log_extract->dump_elts(true);
 	_log_extract->start_controller();
-	_log_source = _log_sc->create_source_from_input(_log_input);
+	// The moni-extractor use the discovery source, as not that much processing is done (it can be handle locally for instance !)
+	_log_source = _log_sc->create_discovery_source_from_input(_log_input);
 	_log_extract->add_source(_log_source);
 }
 

@@ -24,7 +24,7 @@ if(HDFS_FOUND)
 	include_directories(AFTER ${HDFS_INCLUDE_DIRS})
 	set(SOURCES_DIST_LIST ${SOURCES_DIST_LIST} source_text_hdfs)
 
-	add_library(source_text_hdfs SHARED hdfs/text/PVSourceCreatorTexthdfs.cpp hdfs/text/PVSourceCreatorTexthdfs.h ../common/hdfs/PVInputHDFSFile.cpp ../common/hdfs/PVInputHDFSServer.cpp hdfs/PVInputHDFS.cpp hdfs/text/register.cpp)
+	add_library(source_text_hdfs SHARED hdfs/text/PVSourceCreatorTexthdfs.cpp hdfs/text/PVSourceCreatorTexthdfs.h ../common/hdfs/PVInputHDFSFile.cpp ../common/hdfs/PVInputHDFSServer.cpp hdfs/PVInputHDFS.cpp hdfs/PVChunkAlignHadoop.cpp hdfs/PVHadoopResultServer.cpp hdfs/PVHadoopTaskResult.cpp hdfs/PVInputHadoop.cpp hdfs/PVInputHDFS.cpp hdfs/text/register.cpp)
 	target_link_libraries(source_text_hdfs ${PVKERNEL_LIBRARIES} ${HDFS_LIBRARIES})
 endif(HDFS_FOUND)
 

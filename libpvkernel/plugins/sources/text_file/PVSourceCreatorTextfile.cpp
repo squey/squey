@@ -9,7 +9,7 @@
 #include <QStringList>
 #include <QFileInfo>
 
-PVRush::PVSourceCreatorTextfile::source_p PVRush::PVSourceCreatorTextfile::create_source_from_input(PVCore::PVArgument const& input) const
+PVRush::PVSourceCreatorTextfile::source_p PVRush::PVSourceCreatorTextfile::create_discovery_source_from_input(PVCore::PVArgument const& input) const
 {
 	PVLOG_DEBUG("(text_file plugin) create source for %s\n", qPrintable(input.toString()));
 	// input is a QString !

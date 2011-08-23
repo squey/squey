@@ -4,6 +4,7 @@
 PVRush::PVInputHDFS::PVInputHDFS(PVInputHDFSFile const& in)
 {
 	_file_param = in;
+	_process_in_hadoop = false;
 
 	if (!_file_param.open()) {
 		PVLOG_ERROR("Unable to open hdfs file %s.\n", qPrintable(_file_param.get_human_name()));

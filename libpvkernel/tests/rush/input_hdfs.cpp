@@ -22,7 +22,7 @@ int main()
 	PVRush::PVInputType::list_inputs inputs;
 	assert(in_t->createWidget(formats, inputs, choseFormat, NULL));
 
-	PVRush::PVRawSourceBase::p_type src = cr_text->create_source_from_input(inputs[0]);
+	PVRush::PVRawSourceBase::p_type src = cr_text->create_discovery_source_from_input(inputs[0]);
 	assert(src);
 
 	// Read a chunk !

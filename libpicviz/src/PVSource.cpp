@@ -44,11 +44,13 @@ Picviz::PVSource::~PVSource()
 
 void Picviz::PVSource::files_append_noextract(PVRush::PVFormat const& format, PVRush::PVSourceCreator_p sc, PVRush::PVInputType::list_inputs inputs)
 {
-	set_format(format);
+	//set_format(format);
+	PVRush::PVFormat format_ = format;
 	for (int i = 0; i < inputs.count(); i++) {
-		PVRush::PVSourceCreator::source_p src = sc->create_source_from_input(inputs[i]);
+		PVRush::PVSourceCreator::source_p src = sc->create_source_from_input(inputs[i], format_);
 		_extractor.add_source(src);
 	}
+	set_format(format_);
 }
 
 void Picviz::PVSource::set_format(PVRush::PVFormat const& format)

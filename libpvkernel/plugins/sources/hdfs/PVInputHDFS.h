@@ -22,10 +22,13 @@ public:
 	virtual void seek_begin();
 	virtual bool seek(input_offset off);
 	virtual QString human_name();
+	void set_should_process_in_hadoop(bool b) { _process_in_hadoop = b; }
+	bool should_process_in_hadoop(bool b) const { return _process_in_hadoop; }
 protected:
 	PVInputHDFSFile _file_param;
 	hdfsFS _fs;
 	hdfsFile _file;
+	bool _process_in_hadoop;
 
 	CLASS_INPUT(PVRush::PVInputHDFS)
 };

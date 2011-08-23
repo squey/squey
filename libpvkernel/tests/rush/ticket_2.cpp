@@ -42,7 +42,7 @@ int main(int argc, char** argv)
 	}
 
 	// Process that file with the found source creator thanks to the extractor
-	PVRush::PVSourceCreator::source_p src = sc_file->create_source_from_input(file);
+	PVRush::PVSourceCreator::source_p src = sc_file->create_source_from_input(file, format);
 	if (!src) {
 		return 1;
 	}
