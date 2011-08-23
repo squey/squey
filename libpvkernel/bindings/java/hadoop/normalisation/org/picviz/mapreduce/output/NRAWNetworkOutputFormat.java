@@ -1,15 +1,12 @@
 package org.picviz.mapreduce.output;
 
-import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.net.Socket;
 import java.net.UnknownHostException;
 
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.RecordWriter;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
-import org.picviz.mapreduce.output.TCPNetworkOutputFormat.TCPRecordWriter;
 
 public class NRAWNetworkOutputFormat<K, V> extends TCPNetworkOutputFormat<K, V> {
 	protected class NRAWRecordWriter extends TCPRecordWriter {
@@ -32,6 +29,17 @@ public class NRAWNetworkOutputFormat<K, V> extends TCPNetworkOutputFormat<K, V> 
 
 		    return writeBuffer;
 		}
+		
+		public byte[] intToBytes(long v) {
+		    byte[] writeBuffer = new byte[ 4 ];
+
+		    writeBuffer[0] = (byte)(v >>> 24);
+		    writeBuffer[1] = (byte)(v >>> 16);
+		    writeBuffer[2] = (byte)(v >>>  8);
+		    writeBuffer[3] = (byte)(v >>>  0);
+
+		    return writeBuffer;
+		}
 
 		public void writeLong(LongWritable l) throws IOException
 		{
@@ -40,7 +48,7 @@ public class NRAWNetworkOutputFormat<K, V> extends TCPNetworkOutputFormat<K, V> 
 		
 		public void writeInt(int l) throws IOException
 		{
-			stream.write(l);
+			stream.write(intToBytes(l));
 		}
 		
 		public void writeString(String s) throws IOException
@@ -53,6 +61,7 @@ public class NRAWNetworkOutputFormat<K, V> extends TCPNetworkOutputFormat<K, V> 
 		
 		public synchronized void write(K key, V value) throws IOException
 		{
+			stream.write(new String("hi").getBytes());
 			if (value instanceof String[] && key instanceof LongWritable) {
 				String[] fields = (String[]) value;
 				writeLong((LongWritable) key);

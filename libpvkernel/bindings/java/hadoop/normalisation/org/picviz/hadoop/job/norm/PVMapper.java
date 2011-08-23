@@ -9,7 +9,7 @@ import org.apache.commons.lang.StringUtils;
 
 import org.picviz.jni.PVRush.PVRushJNI;
 
-public class PVMapper extends Mapper<LongWritable, String[], LongWritable, String[]> {
+public class PVMapper extends Mapper<LongWritable, Text, LongWritable, String[]> {
 	private PVRushJNI jni;
 
 	public void map(LongWritable key, Text v, Context context) throws IOException, InterruptedException {

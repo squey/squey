@@ -31,6 +31,8 @@ public class PVJob extends Configured implements Tool {
 		job.setMapperClass(PVMapper.class);
 		job.setNumReduceTasks(0);
 		
+		job.setMapOutputKeyClass(LongWritable.class);
+		job.setMapOutputValueClass(String[].class);
 		job.setOutputKeyClass(LongWritable.class);
 		job.setOutputValueClass(String[].class);
 		job.setOutputFormatClass(NRAWNetworkOutputFormat.class);
