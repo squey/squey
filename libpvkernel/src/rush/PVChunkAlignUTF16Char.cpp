@@ -90,7 +90,7 @@ bool PVRush::PVChunkAlignUTF16Char::operator()(PVCore::PVChunk &cur_chunk, PVCor
 	// Special case when _c is at the beggining of the chunk
 	UChar* str_start = (UChar*) cur_chunk.begin();
 	UChar* str_cur = str_start;
-	ssize_t sstr = cur_chunk.size()/sizeof(UChar);
+	ssize_t sstr = (ssize_t) cur_chunk.size()/sizeof(UChar);
 	ssize_t sstr_remains = sstr;
 
 	if (*str_start == _c) {

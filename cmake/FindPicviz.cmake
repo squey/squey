@@ -43,27 +43,6 @@ endif(WIN32)
 endif(PICVIZ_SINGLE_TREE_BUILD)
 
 #
-# Check for PCAP library
-#
-if(NOT WIN32)
-	find_package(PCAP REQUIRED)
-else(NOT WIN32)
-	set(PCAP_LIBRARIES "C:\\dev\\winpcap\\Lib\\wpcap.lib")
-	set(PCAP_INCLUDE_DIRS "C:\\dev\\winpcap\\Include")
-endif(NOT WIN32)
-
-#
-# PCRE
-#
-# if(WIN32)
-# 	set(PCRE_INCLUDE_DIR "C:\\dev\\GnuWin32\\include")
-#         set(PCRE_PCREPOSIX_LIBRARY "C:\\dev\\GnuWin32\\lib\\pcreposix.lib")
-#         set(PCRE_PCRE_LIBRARY "C:\\dev\\GnuWin32\\lib\\pcre.lib")
-# else(WIN32)
-# 	FIND_PACKAGE(PCRE REQUIRED)
-# endif(WIN32)
-
-#
 # WinLicense
 # 
 #if(WIN32)

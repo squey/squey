@@ -54,14 +54,14 @@ public:
 	inline void init_qstr()
 	{
 		size_t nc = (_end-_begin)/sizeof(QChar);
-		_qstr.setRawData((QChar*) _begin, nc);
+		_qstr.setRawData((QChar*) _begin, (int) nc);
 	}
 	inline void init_icustr()
 	{
 		size_t nc = (_end-_begin)/sizeof(QChar);
 		// We must use the "setTo" method instead of using this UnicodeString constructor, as this method
 		// it sets the UnicodeString as a "read-only" alias (and not the constructor). Cf. ICU's sources...
-		_icustr.setTo(false, (const UChar *)(_begin), nc);
+		_icustr.setTo(false, (const UChar *)(_begin), (int32_t) nc);
 	}
 	inline void init_allstr()
 	{

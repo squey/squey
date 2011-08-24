@@ -9,11 +9,7 @@
 
 namespace PVRush {
 
-#ifdef WIN32
-	template < template <class T> class Allocator = std::allocator >
-#else
 template < template <class T> class Allocator = tbb::scalable_allocator >
-#endif
 class PVUnicodeSource : public PVRawSource<Allocator> {
 public:
 	typedef typename PVRawSource<Allocator>::alloc_chunk alloc_chunk;

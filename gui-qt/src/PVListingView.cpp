@@ -111,21 +111,21 @@ void PVInspector::PVListingView::update_view_selection_from_listing_selection()
 
 	if (state_machine->are_listing_all()) {
 		for (i=0; i<number_of_items; i++) {
-			real_row_index = lib_view->get_real_row_index(selected_items_list[i].row());
-			lib_view->volatile_selection.set_line(myModel->getMatch(real_row_index), 1);
+			//real_row_index = lib_view->get_real_row_index(selected_items_list[i].row());
+			lib_view->volatile_selection.set_line(myModel->getMatch(selected_items_list[i].row()), 1);
 		}    
 	}
 	else
 	if(state_machine->are_listing_no_nz()) {
 		for (i=0; i<number_of_items; i++) {
-			real_row_index = lib_view->get_real_row_index(selected_items_list[i].row());
-			lib_view->volatile_selection.set_line(myModel->getLocalMatch(real_row_index), 1);
+			//real_row_index = lib_view->get_real_row_index(selected_items_list[i].row());
+			lib_view->volatile_selection.set_line(myModel->getLocalMatch(selected_items_list[i].row()), 1);
 		}  
 	}
 	else {
 		for (i=0; i<number_of_items; i++) {
-			real_row_index = lib_view->get_real_row_index(selected_items_list[i].row());
-			lib_view->volatile_selection.set_line((real_row_index), 1);
+			//real_row_index = lib_view->get_real_row_index(selected_items_list[i].row());
+			lib_view->volatile_selection.set_line((selected_items_list[i].row()), 1);
 		}  
 	}
 	
