@@ -109,25 +109,9 @@ void PVInspector::PVListingView::update_view_selection_from_listing_selection()
 	selected_items_list = selectedIndexes();
 	number_of_items = selected_items_list.size();
 
-	if (state_machine->are_listing_all()) {
-		for (i=0; i<number_of_items; i++) {
-			//real_row_index = lib_view->get_real_row_index(selected_items_list[i].row());
-			lib_view->volatile_selection.set_line(myModel->getMatch(selected_items_list[i].row()), 1);
-		}    
-	}
-	else
-	if(state_machine->are_listing_no_nz()) {
-		for (i=0; i<number_of_items; i++) {
-			//real_row_index = lib_view->get_real_row_index(selected_items_list[i].row());
-			lib_view->volatile_selection.set_line(myModel->getLocalMatch(selected_items_list[i].row()), 1);
-		}  
-	}
-	else {
-		for (i=0; i<number_of_items; i++) {
-			//real_row_index = lib_view->get_real_row_index(selected_items_list[i].row());
-			lib_view->volatile_selection.set_line((selected_items_list[i].row()), 1);
-		}  
-	}
+	for (i=0; i<number_of_items; i++) {
+		lib_view->volatile_selection.set_line(myModel->getRealRowIndex(selected_items_list[i].row()), 1);
+	}    
 	
 	/* We reprocess the view from the selection */
 	lib_view->process_from_selection();
