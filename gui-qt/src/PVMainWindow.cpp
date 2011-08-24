@@ -948,7 +948,7 @@ bool PVInspector::PVMainWindow::eventFilter(QObject *watched_object, QEvent *eve
 		if (event->type() == QEvent::KeyPress) {
 			QKeyEvent *temp_keyEvent = static_cast<QKeyEvent*>(event);
 			int key = temp_keyEvent->key();
-			if ((key == Qt::Key_Left) || (key == Qt::Key_Right) || (key == Qt::Key_Enter)) {
+			if ((key == Qt::Key_Left) || (key == Qt::Key_Right) || (key == Qt::Key_Enter) || (key == Qt::Key_Return)) {
 				keyPressEvent(temp_keyEvent);
 				return true;
 			} else {
@@ -1259,7 +1259,8 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 
 			break;
 
-		case Qt::Key_Enter: {
+		case Qt::Key_Enter:
+		case Qt::Key_Return: {
 			if (current_tab) {
 				current_tab->pv_listing_view->keyEnterPressed();
 			}
