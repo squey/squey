@@ -23,7 +23,6 @@ bool pvgl_init(PVGL::PVCom *com)
 		PVLOG_INFO("Using PVGL share directory %s\n", pvgl_get_share_path().c_str());
 	}
 
-	// PVGL::wtk_init(argc, argv);
 	PVGL::WTK::init(argc, argv);
 
 	// Wait for the first message

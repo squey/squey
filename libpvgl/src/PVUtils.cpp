@@ -245,6 +245,35 @@ std::string get_file_content (const std::string &filename)
 			ret += std::string(buf, buf + len);
 		fclose(fp);
 	}
+
+	// Get values from pvconfig.ini
+	size_t pos_window_r = ret.find("{{{window_r}}}");
+	if (pos_window_r != std::string::npos) {
+		std::string window_r = pvconfig.value("pvgl/window_r", "0.2").toString().toUtf8().data();
+		ret.replace(pos_window_r, 14, window_r);
+		// std::cout << ret;
+	}
+	size_t pos_window_g = ret.find("{{{window_g}}}");
+	if (pos_window_g != std::string::npos) {
+		std::string window_g = pvconfig.value("pvgl/window_g", "0.2").toString().toUtf8().data();
+		ret.replace(pos_window_g, 14, window_g);
+		// std::cout << ret;
+	}
+	size_t pos_window_b = ret.find("{{{window_b}}}");
+	if (pos_window_b != std::string::npos) {
+		std::string window_b = pvconfig.value("pvgl/window_b", "0.2").toString().toUtf8().data();
+		ret.replace(pos_window_b, 14, window_b);
+		// std::cout << ret;
+	}
+	size_t pos_window_a = ret.find("{{{window_a}}}");
+	if (pos_window_a != std::string::npos) {
+		std::string window_a = pvconfig.value("pvgl/window_a", "1.0").toString().toUtf8().data();
+		ret.replace(pos_window_a, 14, window_a);
+		// std::cout << ret;
+	}
+
+
+
 	return ret;
 }
 

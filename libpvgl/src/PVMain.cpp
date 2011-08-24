@@ -411,8 +411,11 @@ void PVGL::PVMain::create_view(QString *name)
 			//PRINT_OPENGL_ERROR ();
 			//fixing_glew_bugs ();
 		//}
-	// glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
-	glClearColor(0.8f, 0.2f, 0.9f, 1.0f);
+	float win_r = pvconfig.value("pvgl/window_r", 0.2f).toFloat();
+	float win_g = pvconfig.value("pvgl/window_g", 0.2f).toFloat();
+	float win_b = pvconfig.value("pvgl/window_b", 0.2f).toFloat();
+	float win_a = pvconfig.value("pvgl/window_a", 1.0f).toFloat();
+	glClearColor(win_r, win_g, win_b, win_a);
 	glEnable(GL_DEPTH_TEST);
 	glClear(GL_COLOR_BUFFER_BIT);
 	glMatrixMode(GL_PROJECTION);
@@ -472,7 +475,11 @@ void PVGL::PVMain::create_scatter(QString *name, Picviz::PVView_p pv_view)
 
 	PRINT_OPENGL_ERROR ();
 	glewInit ();
-	glClearColor(0.8f, 0.2f, 0.9f, 1.0f);
+	float win_r = pvconfig.value("pvgl/window_r", 0.2f).toFloat();
+	float win_g = pvconfig.value("pvgl/window_g", 0.2f).toFloat();
+	float win_b = pvconfig.value("pvgl/window_b", 0.2f).toFloat();
+	float win_a = pvconfig.value("pvgl/window_a", 1.0f).toFloat();
+	glClearColor(win_r, win_g, win_b, win_a);
 	// glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 	glEnable(GL_DEPTH_TEST);
 	glClear(GL_COLOR_BUFFER_BIT);
