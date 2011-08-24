@@ -24,6 +24,10 @@ PVRush::PVSourceCreatorTexthdfs::source_p PVRush::PVSourceCreatorTexthdfs::creat
 	PVFilter::PVChunkFilter* chk_flt = new PVFilter::PVChunkFilter();
 	PVChunkTransform* trans = (PVChunkTransform*) new PVChunkTransformHadoop();
 	source_p src = source_p(new PVRush::PVRawSource<>(phadoop, ihadoop->get_align(), 200000, *trans, chk_flt->f()));
+
+	// Only keep the axes in the format
+	used_format.only_keep_axes();
+
 	return src;
 }
 

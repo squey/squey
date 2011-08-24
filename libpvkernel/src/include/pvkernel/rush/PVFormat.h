@@ -96,6 +96,10 @@ public:
 
 	list_axes_t const& get_axes() const { return _axes; }
 
+	// Remove any fields from the IR of the format and only
+	// keeps fields.
+	void only_keep_axes();
+
 
 public:
 	/* Attributes */

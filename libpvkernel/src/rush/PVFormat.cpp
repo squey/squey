@@ -278,3 +278,9 @@ QHash<QString, PVRush::PVFormat> PVRush::PVFormat::list_formats_in_dir(QString c
 	return ret;
 }
 
+void PVRush::PVFormat::only_keep_axes()
+{
+	// Remove the list of filters to apply, and only
+	// keeps the fields !
+	filters_params.clear();
+}
