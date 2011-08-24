@@ -14,8 +14,9 @@ if(USE_PVGL2)
 endif(USE_PVGL2)
 
 if (WIN32)
-	set(CMAKE_BUILD_TYPE "Debug")
+	#set(CMAKE_BUILD_TYPE "Debug")
 	#set(CMAKE_BUILD_TYPE "RelWithDebInfo")
+	set(CMAKE_BUILD_TYPE "Release")
 else(WIN32)
 	set(CMAKE_BUILD_TYPE "Debug")
 endif(WIN32)
@@ -54,7 +55,12 @@ if(WIN32)
 	add_definitions(-DWIN32)
 	add_definitions(-D_WIN32)
 	add_definitions(-D_WINSOCKAPI_)
-	add_definitions(/MP)
+	add_definitions(/MP) # parallel compilation
+	# Visual 2008 and OpenMP with 64 bits is a huge mess.
+	# First, you've got to install Visual 2008 SP1, then install
+	# OpenMP dll in "winsxs" and then set this flag so that we link
+	# with the good version...... !!
+	add_definitions(-D__OPENMP_ASSEMBLY_VERSION="9.0.30729.1")
 	set(MSVC_LINKER_FLAGS "/LARGEADDRESSAWARE")
 	if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
 		# Intraprocedural optimisations

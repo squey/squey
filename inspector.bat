@@ -1,11 +1,11 @@
 @echo off
 
-:SET BUILD_MODE=Debug
+SET BUILD_MODE=Debug
 :SET BUILD_MODE=RelWithDebInfo
-SET BUILD_MODE=Release
+:SET BUILD_MODE=Release
 
 :SET PICVIZ_LOG_FILE="debug.txt"
-SET PICVIZ_DEBUG_LEVEL=DEBUG
+:SET PICVIZ_DEBUG_LEVEL=DEBUG
 :SET PICVIZ_DEBUG_FILE="debug.txt"
 SET CACTUSLABS_TRUNK_DIR=c:\dev\picviz-inspector
 
@@ -20,7 +20,7 @@ SET PVRUSH_SOURCE_DIR=libpvkernel\plugins\sources\%BUILD_MODE%\
 SET PVRUSH_NORMALIZE_HELPERS_DIR=libpvkernel\plugins\normalize-helpers\
 SET PVFILTER_NORMALIZE_DIR=libpvkernel\plugins\normalize\%BUILD_MODE%\
 
-PATH=%PATH%;%CACTUSLABS_TRUNK_DIR%\libpvkernel\src\%BUILD_MODE%;%CACTUSLABS_TRUNK_DIR%\libpicviz\src\%BUILD_MODE%;%cactuslabs_trunk_dir%\libpvgl\src\%build_mode%;C:\dev\tbb\bin\ia32\vc9;
+PATH=%PATH%;%CACTUSLABS_TRUNK_DIR%\libpvkernel\src\%BUILD_MODE%;%CACTUSLABS_TRUNK_DIR%\libpicviz\src\%BUILD_MODE%;%cactuslabs_trunk_dir%\libpvgl\src\%build_mode%
 
 
 echo Trunk directory is: %CACTUSLABS_TRUNK_DIR%

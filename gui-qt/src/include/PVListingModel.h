@@ -48,11 +48,7 @@ public:
 
 private:
 	//sorting data
-#ifdef WIN32
-	std::vector<int> localMatchingTable; //!<the table sort, modify this array to order the values
-#else
 	std::vector<int, tbb::scalable_allocator<int> > localMatchingTable; //!<the table sort, modify this array to order the values
-#endif
     QMutex localMatchingTable_locker;
 	TypeOfSort sortOrder; //!<save the current sorting state (NoOrder, AscendingOrder, DescendingOrder)
 	int colSorted; //!<save the last column whiche was used to sort

@@ -42,42 +42,6 @@ else (WIN32)
 endif(WIN32)
 endif(PICVIZ_SINGLE_TREE_BUILD)
 
-#
-# OpenGL
-#
-find_package(OpenGL REQUIRED)
-
-#
-# GLEW
-#
-if (WIN32)
-	set(GLEW_INCLUDE_PATH "C:\\dev\\glew\\include")
-	set(GLEW_LIBRARY "C:\\dev\\glew\\lib\\glew32s.lib")
-else(WIN32)
-	find_package(GLEW REQUIRED)
-endif(WIN32)
-
-#
-# GLUT
-#
-if (WIN32)
-	set(GLUT_INCLUDE_DIR "C:\\dev\\freeglut\\include\\")
-	set(GLUT_glut_LIBRARY "C:\\dev\\freeglut\\freeglut.lib")
-else(WIN32)
-  find_package(GLUT REQUIRED)
-endif(WIN32)
-	
-#
-# Freetype
-#
-if (WIN32)
-	set(FREETYPE_LIBRARY "C:\\dev\\GnuWin32\\lib\\freetype.lib")
-	set(FREETYPE_INCLUDE_DIRS "C:\\dev\\GnuWin32\\include\\freetype2")
-else(WIN32)
-	find_package(Freetype REQUIRED)
-endif(WIN32)
-
-
 set(PVGL_INCLUDE_DIRS ${PVGL_INCLUDE_DIR} ${GLEW_INCLUDE_PATH} ${GLUT_INCLUDE_DIR} ${FREETYPE_INCLUDE_DIRS})
 set(PVGL_LIBRARIES ${PVGL_LIBRARY} ${GLEW_LIBRARY} ${GLUT_glut_LIBRARY} ${OPENGL_LIBRARIES} ${FREETYPE_LIBRARIES})
 

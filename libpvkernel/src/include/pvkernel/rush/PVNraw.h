@@ -25,15 +25,9 @@ namespace PVRush {
 
 	class LibKernelDecl PVNraw {
 	public:
-#ifdef WIN32
-		typedef std::vector<QString> nraw_table_line;
-		typedef std::vector<nraw_table_line> nraw_table;
-		typedef std::vector<nraw_table_line> nraw_trans_table;
-#else
 		typedef std::vector<QString, tbb::scalable_allocator<QString> > nraw_table_line;
 		typedef std::vector<nraw_table_line, tbb::scalable_allocator<nraw_table_line> > nraw_table;
 		typedef std::vector<nraw_table_line, tbb::scalable_allocator<nraw_table_line> > nraw_trans_table;
-#endif
 	public:
 		PVNraw();
 		~PVNraw();
@@ -61,7 +55,7 @@ namespace PVRush {
 				return 0;
 			}
 
-			return table[0].size();
+			return (PVCol) table[0].size();
 		}
 
 		nraw_table table;
@@ -129,7 +123,7 @@ namespace PVRush {
 			QChar* copy = alloc.allocate(nchars);
 			memcpy(copy, buf, nchars*sizeof(QChar));
 
-			line[index_field].setRawData(copy, nchars);
+			line[index_field].setRawData(copy, (int) nchars);
 		}
 
 		QString nraw_line_to_csv(PVRow idx) const;
