@@ -16,7 +16,7 @@ void main(void)
     } else if (color.a > 0.5 && draw_zombie) { // this fragment is zombie
       frag_color = vec4(0.0, 0.0, 0.0, 1.0);
     } else {
-      frag_color = vec4(0.2, 0.2, 0.2, 1.0);
+      frag_color = vec4({{{window_r}}}, {{{window_g}}}, {{{window_b}}}, {{{window_a}}});
     }
 }
 
