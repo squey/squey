@@ -37,19 +37,6 @@ public abstract class NetworkOutputFormat<K, V> extends OutputFormat<K, V> {
 	}
 	
 	@Override
-	public OutputCommitter getOutputCommitter(TaskAttemptContext arg0)
-			throws IOException, InterruptedException {
-		
-		return new OutputCommitter() {
-				public void abortTask(TaskAttemptContext taskContext) { } 
-				public void cleanupJob(JobContext jobContext) { } 
-				public void commitTask(TaskAttemptContext taskContext) { } 
-				public boolean needsTaskCommit(TaskAttemptContext taskContext) {
-					return false;
-				}
-				public void setupJob(JobContext jobContext) { } 
-				public void setupTask(TaskAttemptContext taskContext) { } 
-		};
-	}
+	public abstract OutputCommitter getOutputCommitter(TaskAttemptContext arg0) throws IOException, InterruptedException ;
 }
 

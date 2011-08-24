@@ -9,10 +9,12 @@
 #include "test-env.h"
 
 #include <QString>
+#include <QCoreApplication>
 #include <iostream>
 
-int main()
+int main(int argc, char** argv)
 {
+	QCoreApplication app(argc, argv);
 	init_env();
 	PVRush::PVPluginsLoad::load_all_plugins();
 
@@ -41,6 +43,7 @@ int main()
 	while ((read = (*src)()) != NULL) {
 		// And print them
 		fwrite(read->begin(), read->size(), 1, stdout);
+		fflush(stdout);
 		printf("\n");
 
 		read->free();

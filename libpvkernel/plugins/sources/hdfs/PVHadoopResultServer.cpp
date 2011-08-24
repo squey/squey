@@ -23,7 +23,7 @@ void PVRush::PVHadoopResultServer::init()
 void PVRush::PVHadoopResultServer::start(uint16_t port)
 {
 	PVLOG_DEBUG("(PVRush::PVHadoopResultServer) start server on port %d.\n", port);
-	_expected_next_task = 0;
+	init();
 	_tcp_acceptor = new boost::asio::ip::tcp::acceptor(_io_service, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port));
 	start_accept();
 	// Run the I/O service in a separate thread
@@ -53,13 +53,15 @@ void PVRush::PVHadoopResultServer::start_accept()
 
 void PVRush::PVHadoopResultServer::handle_accept(boost::asio::ip::tcp::socket* sock, const boost::system::error_code& error)
 {
-	if (error) {
+	if (error.value() == 0) {
+		PVLOG_DEBUG("(PVRush::PVHadoopResultServer::handle_accept) accepting new connection...\n");
 		PVHadoopTaskResult_p task(new PVHadoopTaskResult(socket_ptr(sock)));
 		if (task->valid()) {
 			add_task(task);
 		}
 	}
 	else {
+		PVLOG_WARN("(PVRush::PVHadoopResultServer::handle_accept) error while accepting connection: %s.\n", error.message().c_str());
 		delete sock;
 	}
 
@@ -68,22 +70,27 @@ void PVRush::PVHadoopResultServer::handle_accept(boost::asio::ip::tcp::socket* s
 
 size_t PVRush::PVHadoopResultServer::read(void* buf, size_t n)
 {
+	PVLOG_DEBUG("(PVRush::PVHadoopResultServer::read) trying to read '%d' bytes...\n", n);
 	if (!_cur_task) {
 		wait_for_next_task();
-		if (_cur_task->job_finished()) {
-			return 0;
-		}
 	}
 
+	if (_cur_task->job_finished()) {
+		return 0;
+	}
+
+	PVLOG_DEBUG("(PVRush::PVHadoopResultServer::read) trying to read '%d' bytes from task '%d'...\n", n, _cur_task->id());
 	size_t ret = _cur_task->read_sock(buf, n);
 	while (ret == 0) {
 		// This task is over, so wait for the next one and reset
 		// the current task pointer
 		_expected_next_task++;
+		PVLOG_DEBUG("(PVRush::PVHadoopResultServer::read) task '%d' returned 0 bytes, so is over. Switching to task '%d'...\n", _cur_task->id(), _expected_next_task);
 		_cur_task.reset();
 		wait_for_next_task();
 		if (_cur_task->job_finished()) {
 			// The final task told us that the job is finished !
+			PVLOG_DEBUG("(PVRush::PVHadoopResultServer::read) task '%d' says it is the final one.\n", _cur_task->id());
 			return 0;
 		}
 		ret = _cur_task->read_sock(buf, n);
@@ -95,7 +102,8 @@ size_t PVRush::PVHadoopResultServer::read(void* buf, size_t n)
 void PVRush::PVHadoopResultServer::add_task(PVHadoopTaskResult_p task)
 {
 	PVHadoopTaskResult::id_type id = task->id();
-	if (!_cur_task && _expected_next_task == id) {
+	PVLOG_DEBUG("(PVRush::PVHadoopResultServer::add_task) add task with id '%d'. Expected task is '%d'.\n", id, _expected_next_task);
+	if (!_cur_task && (_expected_next_task == id || id == -1)) {
 		{
 			boost::lock_guard<boost::mutex> lock(_got_next_task_mutex);
 			_cur_task = task;
@@ -109,6 +117,7 @@ void PVRush::PVHadoopResultServer::wait_for_next_task()
 {
 	map_tasks::iterator it_next = _tasks.find(_expected_next_task);
 	if (it_next == _tasks.end()) {
+		PVLOG_DEBUG("(PVRush::PVHadoopResultServer::wait_for_next_task) task '%d' does not exist yet. Waiting for it...\n", _expected_next_task);
 		boost::unique_lock<boost::mutex> lock(_got_next_task_mutex);
 		while (!_cur_task) {
 			_got_next_task.wait(lock);
@@ -117,4 +126,5 @@ void PVRush::PVHadoopResultServer::wait_for_next_task()
 	else {
 		_cur_task = it_next->second;
 	}
+	PVLOG_DEBUG("(PVRush::PVHadoopResultServer::wait_for_next_task) task '%d' found !\n", _expected_next_task);
 }

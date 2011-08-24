@@ -17,11 +17,13 @@ bool PVRush::PVInputTypeHDFS::createWidget(hash_formats const& /*formats*/, list
 	// TODO: ask for a namenode, list the files of that namenode and chose one or more files !
 	
 	PVInputHDFSServer_p serv(new PVInputHDFSServer("namenode.hadoop.cluster.picviz", 8020, "hadoop"));
+	/*
 	if (!serv->connect()) {
 		QMessageBox err(QMessageBox::Critical, QObject::tr("HDFS server error"), QObject::tr("Unable to connection to HDFS server %1").arg(serv->get_human_name()), QMessageBox::Ok, parent);
 		err.exec();
 		return false;
 	}
+	*/
 	PVInputHDFSFile f(serv, "/data/squid.log");
 
 	QVariant in;

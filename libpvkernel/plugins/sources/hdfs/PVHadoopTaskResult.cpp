@@ -6,19 +6,26 @@ PVRush::PVHadoopTaskResult::PVHadoopTaskResult(socket_ptr sock):
 {
 	boost::asio::ip::tcp::socket::endpoint_type ep_remote = sock->remote_endpoint();
 	std::string address = ep_remote.address().to_string();
-	PVLOG_DEBUG("(PVHadoopServer) connection from node %s:%d\n", address.c_str(), ep_remote.port());
+	PVLOG_DEBUG("(PVHadoopTaskResult) connection from node %s:%d\n", address.c_str(), ep_remote.port());
 	read_task_id();
+}
+
+
+PVRush::PVHadoopTaskResult::~PVHadoopTaskResult()
+{
 }
 
 size_t PVRush::PVHadoopTaskResult::read_sock(void* buf, size_t n)
 {
 	boost::system::error_code error;
 	size_t length = _sock->read_some(boost::asio::buffer(buf, n), error);
-	if (error == boost::asio::error::eof) {
-		return 0; // Connection closed cleanly by peer.
-	}
-	else {
-		throw boost::system::system_error(error); // Some other error.
+	if (error.value() != 0) {
+		if (error == boost::asio::error::eof) {
+			return 0; // Connection closed cleanly by peer.
+		}
+		else {
+			throw boost::system::system_error(error); // Some other error.
+		}
 	}
 	return length;
 }
@@ -41,7 +48,7 @@ ssize_t PVRush::PVHadoopTaskResult::read_line(char* buf, ssize_t size_buf)
 void PVRush::PVHadoopTaskResult::read_task_id()
 {
 	id_type id;
-	// +2 for trailing '\n'
+	// +2 for trailing '\n\0'
 	char id_str[MAX_TASK_ID_STR_LENGTH+1];
 	if (read_line(id_str, MAX_TASK_ID_STR_LENGTH+1) <= 0) {
 		PVLOG_WARN("(PVRush::PVHadoopTaskResult::read_task_id) unable to read the task id.\n");
@@ -49,7 +56,7 @@ void PVRush::PVHadoopTaskResult::read_task_id()
 		return;
 	}
 	int iid = atoi(id_str);
-	if (iid < 0) {
+	if ((iid < 0) && (iid != -1)) {
 		PVLOG_WARN("(PVRush::PVHadoopTaskResult::read_task_id) task id '%d' is < 0.\n", iid);
 		_valid = false;
 		return;
@@ -61,6 +68,7 @@ void PVRush::PVHadoopTaskResult::read_task_id()
 		_valid = false;
 		return;
 	}
+	_id = id;
 
 	_valid = true;
 	// Is it the "job finished" task ?
@@ -68,4 +76,6 @@ void PVRush::PVHadoopTaskResult::read_task_id()
 	if (read_line(is_end, 2) == 1 && *is_end == '1') {
 		_job_finished = true;
 	}
+
+	PVLOG_DEBUG("(PVRush::PVHadoopTaskResult::read_task_id) new task has id '%d' and final value '%d'\n", id, _job_finished);
 }

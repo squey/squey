@@ -17,7 +17,7 @@ class PVHadoopTaskResult {
 		MAX_TASK_ID = 1048576
 	};
 public:
-	typedef uint32_t id_type;
+	typedef int32_t id_type;
 	typedef boost::shared_ptr<PVHadoopTaskResult> p_type;
 
 public:

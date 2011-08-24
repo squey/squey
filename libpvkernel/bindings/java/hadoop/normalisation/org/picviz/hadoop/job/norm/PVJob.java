@@ -3,6 +3,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Cluster;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
@@ -16,7 +17,7 @@ import org.picviz.mapreduce.output.TCPNetworkOutputFormat;
 public class PVJob extends Configured implements Tool {
 
 	public int run(String[] args) throws Exception {
-		Job job = new Job(getConf());
+		Job job = Job.getInstance(new Cluster(getConf()), getConf());
 		job.getConfiguration().set("mapreduce.pvjob.format_path", args[2]);
 
 		job.setJarByClass(PVJob.class); 
@@ -36,8 +37,11 @@ public class PVJob extends Configured implements Tool {
 		job.setOutputKeyClass(LongWritable.class);
 		job.setOutputValueClass(String[].class);
 		job.setOutputFormatClass(NRAWNetworkOutputFormat.class);
-
+		
 		job.waitForCompletion(true);
+		
+		// OutputCommitter.commitJob is never called, so that's a hack !
+		TCPNetworkOutputFormat.sendLastFinishedTask("172.16.0.250", 1245);
 		
 		return 0;
 	}

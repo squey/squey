@@ -4,6 +4,7 @@
 PVRush::PVInputHDFSFile::PVInputHDFSFile() :
 	_file(NULL)
 {
+	_process_in_hadoop = false;
 }
 
 PVRush::PVInputHDFSFile::PVInputHDFSFile(PVInputHDFSServer_p serv, QString const& path) :

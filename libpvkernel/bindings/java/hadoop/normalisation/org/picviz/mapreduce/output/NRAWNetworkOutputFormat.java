@@ -61,10 +61,14 @@ public class NRAWNetworkOutputFormat<K, V> extends TCPNetworkOutputFormat<K, V> 
 		
 		public synchronized void write(K key, V value) throws IOException
 		{
-			stream.write(new String("hi").getBytes());
 			if (value instanceof String[] && key instanceof LongWritable) {
 				String[] fields = (String[]) value;
 				writeLong((LongWritable) key);
+				int lengthElt = 4;
+				for (int i = 0; i < fields.length; i++) {
+					lengthElt += fields[i].length();
+				}
+				writeInt(lengthElt);
 				for (int i = 0; i < fields.length; i++) {
 					writeString(fields[i]);
 				}

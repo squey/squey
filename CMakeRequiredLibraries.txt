@@ -58,9 +58,10 @@ else(WIN32)
 	set(Boost_USE_STATIC_LIBS       OFF)
 	set(Boost_USE_MULTITHREADED      ON)
 	set(Boost_USE_STATIC_RUNTIME    OFF)
-	find_package(Boost REQUIRED)
-	set(Boost_LIBRARIES ${Boost_LIBRARIES} "-lboost_thread")
-	set(BOOST_INCLUDEDIR "/usr/include")
+	find_package(Boost REQUIRED COMPONENTS date_time system thread)
+	#find_package(Boost REQUIRED)
+	#set(Boost_LIBRARIES ${Boost_LIBRARIES} "-lboost_thread")
+	#set(BOOST_INCLUDEDIR "/usr/include")
 endif(WIN32)
 
 #
