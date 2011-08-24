@@ -24,15 +24,15 @@ void PVRush::PVHadoopResultServer::start(uint16_t port)
 {
 	PVLOG_DEBUG("(PVRush::PVHadoopResultServer) start server on port %d.\n", port);
 	_expected_next_task = 0;
-	_tcp_acceptor = new boost::asio::ip::tcp::acceptor(_io_service, tcp::endpoint(tcp::v4(), port));
+	_tcp_acceptor = new boost::asio::ip::tcp::acceptor(_io_service, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port));
 	start_accept();
 	// Run the I/O service in a separate thread
 	_thread_server = boost::thread(boost::bind(&boost::asio::io_service::run, &_io_service));
 }
 
-PVRush::PVHadoopResultServer::stop()
+void PVRush::PVHadoopResultServer::stop()
 {
-	if (thread_server) {
+	if (_thread_server.get_id() != boost::thread::id()) {
 		PVLOG_DEBUG("(PVRush::PVHadoopResultServer) ask the server to stop.\n");
 		_io_service.stop();
 		// Wait the thread to stop
@@ -45,18 +45,16 @@ PVRush::PVHadoopResultServer::stop()
 	init();
 }
 
-void PVRush::PVHadoopResultServer::start_accept();
+void PVRush::PVHadoopResultServer::start_accept()
 {
 	boost::asio::ip::tcp::socket* sock = new boost::asio::ip::tcp::socket(_io_service);
-	_tcp_acceptor->async_accept(sock,
-			boost::bind(&PVHadoopResultServer::handle_accept, this, sock,
-			boost::asio::placeholders::error));
+	_tcp_acceptor->async_accept(*sock, boost::bind(&PVHadoopResultServer::handle_accept, this, sock, boost::asio::placeholders::error));
 }
 
 void PVRush::PVHadoopResultServer::handle_accept(boost::asio::ip::tcp::socket* sock, const boost::system::error_code& error)
 {
 	if (error) {
-		PVHadoopTaskResult_p task(new PVHadoopTaskResult(_elt_ctn, sock, _chunk_size));
+		PVHadoopTaskResult_p task(new PVHadoopTaskResult(socket_ptr(sock)));
 		if (task->valid()) {
 			add_task(task);
 		}
@@ -102,21 +100,21 @@ void PVRush::PVHadoopResultServer::add_task(PVHadoopTaskResult_p task)
 			boost::lock_guard<boost::mutex> lock(_got_next_task_mutex);
 			_cur_task = task;
 		}
-		_got_next_task_mutex.notify_all();
+		_got_next_task.notify_all();
 	}
 	_tasks[id] = task;
 }
 
-void PVCore::PVHadoopResultServer::wait_for_next_task()
+void PVRush::PVHadoopResultServer::wait_for_next_task()
 {
 	map_tasks::iterator it_next = _tasks.find(_expected_next_task);
 	if (it_next == _tasks.end()) {
 		boost::unique_lock<boost::mutex> lock(_got_next_task_mutex);
 		while (!_cur_task) {
-			_got_next_task.wait();
+			_got_next_task.wait(lock);
 		}
 	}
 	else {
-		_cur_task = *it_next;
+		_cur_task = it_next->second;
 	}
 }

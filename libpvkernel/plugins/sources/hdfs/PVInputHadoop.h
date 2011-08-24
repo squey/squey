@@ -14,7 +14,7 @@
 
 namespace PVRush {
 
-class PVInputHadoop {
+class PVInputHadoop: public PVInput {
 	friend class PVChunkAlignHadoop;
 public:
 	PVInputHadoop(PVInputHDFSFile const& file);
@@ -36,7 +36,7 @@ protected:
 	PVHadoopResultServer _recv_serv;
 	QString _name;
 
-	CLASS_INPUT(T)
+	CLASS_INPUT(PVInputHadoop)
 };
 
 }

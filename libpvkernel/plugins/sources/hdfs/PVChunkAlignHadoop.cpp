@@ -19,7 +19,7 @@ bool PVRush::PVChunkAlignHadoop::operator()(PVCore::PVChunk &cur_chunk, PVCore::
 	char* end = cur_chunk.end();
 
 	while (cur < end) {
-		if (end-cur < sizeof(offset_type)+sizeof(element_length_type)) {
+		if ((uintptr_t)(end)-(uintptr_t)cur < sizeof(offset_type)+sizeof(element_length_type)) {
 			break;
 		}
 
@@ -28,17 +28,17 @@ bool PVRush::PVChunkAlignHadoop::operator()(PVCore::PVChunk &cur_chunk, PVCore::
 		cur += sizeof(offset_type);
 		element_length_type* elt_length = (element_length_type*) cur;
 		cur += sizeof(element_length_type);
-		if (end-cur < *elt_length) {
+		if ((uintptr_t)(end)-(uintptr_t)(cur) < *elt_length) {
 			break;
 		}
 		last_elt = off;
 		char* end_elt = cur+*elt_length;
 		cur_chunk.add_element(cur, end_elt);
 		cur = end_elt;
-		last_elt_end = end_elt;
+		last_elt_end = (offset_type*) end_elt;
 	}
 
-	if (last_elt == NULL) {
+	if (last_elt == NULL) {
 		// Chunk is too small, we couldn't get an element !
 		return false;
 	}

@@ -14,8 +14,8 @@ class PVInputHadoop;
 class PVChunkAlignHadoop: public PVChunkAlign {
 	friend class PVInputHadoop;
 	enum {
-		MAX_ELEMENT_LENGTH = 1024*1024;
-	}
+		MAX_ELEMENT_LENGTH = 1024*1024
+	};
 public:
 	typedef uint64_t offset_type;
 	typedef uint32_t element_length_type;

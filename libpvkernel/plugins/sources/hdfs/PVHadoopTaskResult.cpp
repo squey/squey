@@ -1,10 +1,10 @@
+#include <pvkernel/core/general.h>
 #include "PVHadoopTaskResult.h"
 
-
-PVRush::PVHadoopTaskResult::PVHadoopTaskResult(PVElementContainer& elt_ctn, socket_ptr sock, size_t size_chunk):
-	_elt_ctn(&elt_ctn), _size_chunk(size_chunk), _sock(sock), _valid(false), _job_finished(false), _curc(NULL), _nextc(NULL)
+PVRush::PVHadoopTaskResult::PVHadoopTaskResult(socket_ptr sock):
+	_sock(sock), _valid(false), _job_finished(false)
 {
-	tcp::socket::endpoint_type ep_remote = sock->remote_endpoint();
+	boost::asio::ip::tcp::socket::endpoint_type ep_remote = sock->remote_endpoint();
 	std::string address = ep_remote.address().to_string();
 	PVLOG_DEBUG("(PVHadoopServer) connection from node %s:%d\n", address.c_str(), ep_remote.port());
 	read_task_id();
@@ -13,7 +13,7 @@ PVRush::PVHadoopTaskResult::PVHadoopTaskResult(PVElementContainer& elt_ctn, sock
 size_t PVRush::PVHadoopTaskResult::read_sock(void* buf, size_t n)
 {
 	boost::system::error_code error;
-	size_t length = sock->read_some(boost::asio::buffer(buf, n), error);
+	size_t length = _sock->read_some(boost::asio::buffer(buf, n), error);
 	if (error == boost::asio::error::eof) {
 		return 0; // Connection closed cleanly by peer.
 	}
@@ -43,12 +43,12 @@ void PVRush::PVHadoopTaskResult::read_task_id()
 	id_type id;
 	// +2 for trailing '\n'
 	char id_str[MAX_TASK_ID_STR_LENGTH+1];
-	if (read_line(&id, MAX_TASK_ID_STR_LENGTH+1) <= 0) {
+	if (read_line(id_str, MAX_TASK_ID_STR_LENGTH+1) <= 0) {
 		PVLOG_WARN("(PVRush::PVHadoopTaskResult::read_task_id) unable to read the task id.\n");
 		_valid = false;
 		return;
 	}
-	int iid = atoi(id);
+	int iid = atoi(id_str);
 	if (iid < 0) {
 		PVLOG_WARN("(PVRush::PVHadoopTaskResult::read_task_id) task id '%d' is < 0.\n", iid);
 		_valid = false;

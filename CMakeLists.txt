@@ -17,7 +17,7 @@ if (WIN32)
 	set(CMAKE_BUILD_TYPE "Debug")
 	#set(CMAKE_BUILD_TYPE "RelWithDebInfo")
 else(WIN32)
-	set(CMAKE_BUILD_TYPE "Debug")
+	set(CMAKE_BUILD_TYPE "Release")
 endif(WIN32)
 
 set(PICVIZ_SINGLE_TREE_BUILD true)

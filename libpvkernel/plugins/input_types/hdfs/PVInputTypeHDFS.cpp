@@ -12,7 +12,7 @@ PVRush::PVInputTypeHDFS::PVInputTypeHDFS():
 	}
 }
 
-bool PVRush::PVInputTypeHDFS::createWidget(hash_formats const& formats, list_inputs &inputs, QString& format, QWidget* parent) const
+bool PVRush::PVInputTypeHDFS::createWidget(hash_formats const& /*formats*/, list_inputs &inputs, QString& format, QWidget* parent) const
 {
 	// TODO: ask for a namenode, list the files of that namenode and chose one or more files !
 	
