@@ -36,7 +36,7 @@ protected:
 	PVHadoopResultServer _recv_serv;
 	QString _name;
 
-	CLASS_INPUT(PVInputHadoop)
+	CLASS_INPUT(PVRush::PVInputHadoop)
 };
 
 }

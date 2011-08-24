@@ -38,3 +38,5 @@ QString PVRush::PVInputHadoop::human_name()
 {
 	return _name;
 }
+
+IMPL_INPUT(PVRush::PVInputHadoop)

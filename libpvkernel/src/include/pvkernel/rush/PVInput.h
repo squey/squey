@@ -39,6 +39,7 @@ public:
 
 }
 
+/*
 #define IMPL_INPUT(T) \
 	T::p_type T::clone() const\
 	{\
@@ -48,5 +49,9 @@ public:
 #define CLASS_INPUT(T) \
 	public:\
 		virtual p_type clone() const;\
+*/
+
+#define IMPL_INPUT(T)
+#define CLASS_INPUT(T)
 
 #endif
