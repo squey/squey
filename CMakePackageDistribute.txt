@@ -3,8 +3,8 @@ install(FILES "gui-qt/src/resources/icon.png" DESTINATION .)
 
 if(WIN32)
 	set(TBB_DIST_FILES
-	C:\\\\dev\\\\tbb\\\\bin\\\\ia32\\\\vc9\\\\tbb.dll
-	C:\\\\dev\\\\tbb\\\\bin\\\\ia32\\\\vc9\\\\tbbmalloc.dll
+	C:\\\\dev\\\\tbb\\\\bin\\\\intel64\\\\vc9\\\\tbb.dll
+	C:\\\\dev\\\\tbb\\\\bin\\\\intel64\\\\vc9\\\\tbbmalloc.dll
 	)
 	install(FILES ${TBB_DIST_FILES} DESTINATION .)
 
@@ -37,30 +37,37 @@ if(WIN32)
 	install(FILES ${FREEGLUT_DIST_FILES} DESTINATION .)
 
 	set(FREETYPE_DIST_FILES
-	C:\\\\dev\\\\GnuWin32\\\\bin\\\\freetype6.dll
+	C:\\\\dev\\\\freetype-amd64\\\\lib\\\\freetype.dll
 	)
 	install(FILES ${FREETYPE_DIST_FILES} DESTINATION .)	
 
-	set(PCRE_DIST_FILES
-	C:\\\\dev\\\\GnuWin32\\\\bin\\\\pcre3.dll
-	C:\\\\dev\\\\GnuWin32\\\\bin\\\\pcreposix3.dll
-	)
-	install(FILES ${PCRE_DIST_FILES} DESTINATION .)		
+	#set(PCRE_DIST_FILES
+	#C:\\\\dev\\\\GnuWin32\\\\bin\\\\pcre3.dll
+	#C:\\\\dev\\\\GnuWin32\\\\bin\\\\pcreposix3.dll
+	#)
+	#install(FILES ${PCRE_DIST_FILES} DESTINATION .)		
 
 	set(ZLIB_DIST_FILES
-	C:\\\\dev\\\\GnuWin32\\\\bin\\\\zlib1.dll
+	C:\\\\dev\\\\zlib-amd64\\\\bin\\\\zlib1.dll
 	)
 	install(FILES ${ZLIB_DIST_FILES} DESTINATION .)	
 
 	set(ICU_DIST_FILES
-	c:\\\\dev\\\\icu\\\\bin\\\\icudt48.dll
-	c:\\\\dev\\\\icu\\\\bin\\\\icuio48.dll
-	c:\\\\dev\\\\icu\\\\bin\\\\iculx48.dll
-	c:\\\\dev\\\\icu\\\\bin\\\\icule48.dll
-	c:\\\\dev\\\\icu\\\\bin\\\\icutu48.dll
-	c:\\\\dev\\\\icu\\\\bin\\\\icuin48.dll
-	c:\\\\dev\\\\icu\\\\bin\\\\icuuc48.dll
+	c:\\\\dev\\\\icu-amd64\\\\bin64\\\\icudt44.dll
+	c:\\\\dev\\\\icu-amd64\\\\bin64\\\\icuio44.dll
+	c:\\\\dev\\\\icu-amd64\\\\bin64\\\\iculx44.dll
+	c:\\\\dev\\\\icu-amd64\\\\bin64\\\\icule44.dll
+	c:\\\\dev\\\\icu-amd64\\\\bin64\\\\icutu44.dll
+	c:\\\\dev\\\\icu-amd64\\\\bin64\\\\icuin44.dll
+	c:\\\\dev\\\\icu-amd64\\\\bin64\\\\icuuc44.dll
 	)
 	install(FILES ${ICU_DIST_FILES} DESTINATION .)
+	
+	set(BOOST_DIST_FILES
+	c:\\\\dev\\\\boost\\\\stage\\\\lib\\\\boost_thread-vc90-mt-1_46_1.dll
+	c:\\\\dev\\\\boost\\\\stage\\\\lib\\\\boost_system-vc90-mt-1_46_1.dll
+	c:\\\\dev\\\\boost\\\\stage\\\\lib\\\\boost_date_time-vc90-mt-1_46_1.dll
+	)
+	install(FILES ${BOOST_DIST_FILES} DESTINATION .)
 	
 endif(WIN32)
