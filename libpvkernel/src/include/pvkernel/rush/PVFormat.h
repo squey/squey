@@ -94,7 +94,7 @@ public:
 
 	void dump_elts(bool dump) { _dump_elts = dump; }
 
-	list_axes_t const& get_axes() { return _axes; }
+	list_axes_t const& get_axes() const { return _axes; }
 
 
 public:

@@ -7,11 +7,24 @@
 #include <string.h>
 #include <unistd.h>
 
+#include <pvkernel/filter/PVPluginsLoad.h>
+#include <pvkernel/rush/PVPluginsLoad.h>
+#include <pvkernel/rush/PVExtractor.h>
+#include <pvkernel/rush/PVControllerJob.h>
+#include <pvkernel/rush/PVFormat.h>
+#include <pvkernel/rush/PVTests.h>
+
+#include <QCoreApplication>
+#include <QString>
+
+#include "test-env.h"
+#include "helpers.h"
+
 #define MAX_LINE 1024*1024
 
 void usage(char* path)
 {
-	std::cerr << "Usage: " << path << " host port task_nb final file" << std::endl;
+	std::cerr << "Usage: " << path << " host port task_nb final file format" << std::endl;
 }
 
 int main(int argc, char** argv)
@@ -20,25 +33,43 @@ int main(int argc, char** argv)
 		usage(argv[0]);
 		return 1;
 	}
-
 	char* host = argv[1];
 	uint16_t port = atoi(argv[2]);
 	char* task_id = argv[3];
 	bool final = (argv[4][0] == '1');
-	if (!final && argc < 6) {
+	if (!final && argc < 7) {
 		usage(argv[0]);
 		return 1;
 	}
-	char* file;
+	
+	init_env();
+	QCoreApplication app(argc, argv);
+	PVFilter::PVPluginsLoad::load_all_plugins();
+	PVRush::PVPluginsLoad::load_all_plugins();
+	PVRush::PVSourceCreator::source_p src;
+	PVFilter::PVChunkFilter_f chk_flt;
+	PVRush::PVFormat format;
 	if (!final) {
-		file = argv[5];
-	}
+		// Input file
+		PVCore::PVArgument file;
+		file = QString(argv[5]);
+		QString path_format(argv[6]);
+		format = PVRush::PVFormat("format", path_format);
+		if (!format.populate(true)) {
+			std::cerr << "Can't read format file " << qPrintable(path_format) << std::endl;
+			return 1;
+		}
+		chk_flt = format.create_tbb_filters();
 
-	FILE* f;
-	if (!final) {
-		f = fopen(file, "r");
-		if (f == NULL) {
-			std::cerr << "Unable to open file " << file << std::endl;
+		PVRush::PVSourceCreator_p sc_file;
+		if (!PVRush::PVTests::get_file_sc(file, format, sc_file)) {
+			return 1;
+		}
+
+		// Process that file with the found source creator thanks to the extractor
+		src = sc_file->create_source_from_input(file, format);
+		if (!src) {
+			std::cerr << "Unable to create PVRush source from file " << argv[1] << std::endl;
 			return 1;
 		}
 	}
@@ -76,20 +107,36 @@ int main(int argc, char** argv)
 	write(s, final ? "1":"0", 1);
 	write(s, "\n", 1);
 
+	uint64_t off = 0;
 	if (!final) {
-		// Write down the data, one element per line, and one field per element
-		char buf[MAX_LINE+1];
-		uint64_t off = 0;
-		while ((fgets(buf, MAX_LINE, f)) != NULL) {
-			uint32_t sline = strlen(buf);
-			uint32_t selt = sline+4;
-			write(s, &off, sizeof(uint64_t));
-			write(s, &selt, sizeof(uint32_t));
-			write(s, &sline, sizeof(uint32_t));
-			write(s, buf, sline);
-			off = ftell(f);
+		// Get chunks, filter them and write them down.
+		PVCore::PVChunk* chunk;
+		while ((chunk = (*src)()) != NULL) {
+			chk_flt(chunk);
+			PVCore::list_elts& elts = chunk->elements();
+			PVCore::list_elts::iterator it;
+			for (it = elts.begin(); it != elts.end(); it++) {
+				// Write offset (0 for now)
+				write(s, &off, sizeof(uint64_t));
+				PVCore::list_fields& fields = (*it)->fields();
+				// Compute the whole element size
+				PVCore::list_fields::iterator it_f;
+				uint32_t selt = 0;
+				for (it_f = fields.begin(); it_f != fields.end(); it_f++) {
+					it_f->init_qstr();
+					selt += 4 + it_f->qstr().toUtf8().size();
+				}
+				write(s, &selt, sizeof(uint32_t));
+				for (it_f = fields.begin(); it_f != fields.end(); it_f++) {
+					QByteArray fba = it_f->qstr().toUtf8();
+					//std::cout << fba.constData() << std::endl;
+					uint32_t sfield = (uint32_t) fba.size();
+					write(s, &sfield, sizeof(uint32_t));
+					write(s, fba.constData(), sfield);
+				}
+			}
+			chunk->free();
 		}
-		fclose(f);
 	}
 
 	close(s);

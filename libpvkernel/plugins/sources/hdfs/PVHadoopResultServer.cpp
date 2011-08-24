@@ -81,6 +81,7 @@ size_t PVRush::PVHadoopResultServer::read(void* buf, size_t n)
 
 	PVLOG_DEBUG("(PVRush::PVHadoopResultServer::read) trying to read '%d' bytes from task '%d'...\n", n, _cur_task->id());
 	size_t ret = _cur_task->read_sock(buf, n);
+	PVLOG_DEBUG("(PVRush::PVHadoopResultServer::read) read '%d' bytes from task '%d'.\n", n, _cur_task->id());
 	while (ret == 0) {
 		// This task is over, so wait for the next one and reset
 		// the current task pointer
@@ -93,7 +94,9 @@ size_t PVRush::PVHadoopResultServer::read(void* buf, size_t n)
 			PVLOG_DEBUG("(PVRush::PVHadoopResultServer::read) task '%d' says it is the final one.\n", _cur_task->id());
 			return 0;
 		}
+		PVLOG_DEBUG("(PVRush::PVHadoopResultServer::read) trying to read '%d' bytes from task '%d'...\n", n, _cur_task->id());
 		ret = _cur_task->read_sock(buf, n);
+		PVLOG_DEBUG("(PVRush::PVHadoopResultServer::read) read '%d' bytes from task '%d'.\n", n, _cur_task->id());
 	}
 
 	return ret;

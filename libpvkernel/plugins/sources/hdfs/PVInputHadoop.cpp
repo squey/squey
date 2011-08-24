@@ -1,8 +1,8 @@
 #include "PVInputHadoop.h"
 
 
-PVRush::PVInputHadoop::PVInputHadoop(PVInputHDFSFile const& file):
-	_align(*this)
+PVRush::PVInputHadoop::PVInputHadoop(PVInputHDFSFile const& file, PVCol nfields):
+	_align(*this, nfields)
 {
 	_name = file.get_human_name();
 	_recv_serv.start(1245);

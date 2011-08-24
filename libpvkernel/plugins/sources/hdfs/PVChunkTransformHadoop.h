@@ -11,7 +11,7 @@ class PVChunkTransformHadoop
 {
 public:
 	virtual size_t next_read_size(size_t org_size) const { return org_size/2 ; }
-	virtual size_t operator()(char* data, size_t len_read, size_t len_avail) const { return len_read; }
+	virtual size_t operator()(char* /*data*/, size_t len_read, size_t /*len_avail*/) const { return len_read; }
 };
 
 }

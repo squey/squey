@@ -1,12 +1,15 @@
 #include <pvkernel/rush/PVPluginsLoad.h>
+#include <pvkernel/filter/PVPluginsLoad.h>
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/rush/PVInputType.h>
 #include <pvkernel/rush/PVSourceCreator.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
+#include <pvkernel/rush/PVFormat.h>
 
 #include "../../plugins/common/hdfs/PVInputHDFSFile.h"
 
 #include "test-env.h"
+#include "helpers.h"
 
 #include <QString>
 #include <QCoreApplication>
@@ -14,9 +17,21 @@
 
 int main(int argc, char** argv)
 {
+	if (argc < 2) {
+		std::cerr << "Usage: " << argv[0] << " format" << std::endl;
+		return 1;
+	}
+
 	QCoreApplication app(argc, argv);
 	init_env();
 	PVRush::PVPluginsLoad::load_all_plugins();
+	PVFilter::PVPluginsLoad::load_all_plugins();
+
+	PVRush::PVFormat format("format", argv[1]);
+	if (!format.populate(true)) {
+		std::cerr << "Unable to populate format." << std::endl;
+		return 1;
+	}
 
 	PVRush::PVInputType_p in_t = LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name("hdfs");
 	PVRush::PVSourceCreator_p cr_text = LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name("text_hdfs");
@@ -34,7 +49,6 @@ int main(int argc, char** argv)
 	PVCore::PVArgument arg;
 	arg.setValue<PVRush::PVInputHDFSFile>(ihdfs);
 
-	PVRush::PVFormat format;
 	PVRush::PVRawSourceBase::p_type src = cr_text->create_source_from_input(arg, format);
 	assert(src);
 
@@ -42,10 +56,7 @@ int main(int argc, char** argv)
 	PVCore::PVChunk* read;
 	while ((read = (*src)()) != NULL) {
 		// And print them
-		fwrite(read->begin(), read->size(), 1, stdout);
-		fflush(stdout);
-		printf("\n");
-
+		dump_chunk_csv(*read);
 		read->free();
 	}
 

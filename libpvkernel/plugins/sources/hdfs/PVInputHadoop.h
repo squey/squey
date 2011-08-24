@@ -17,7 +17,7 @@ namespace PVRush {
 class PVInputHadoop: public PVInput {
 	friend class PVChunkAlignHadoop;
 public:
-	PVInputHadoop(PVInputHDFSFile const& file);
+	PVInputHadoop(PVInputHDFSFile const& file, PVCol nfields);
 	~PVInputHadoop();
 public:
 	virtual size_t operator()(char* buffer, size_t n);

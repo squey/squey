@@ -5,8 +5,9 @@
 #include "../PVChunkTransformHadoop.h"
 
 #include <pvkernel/filter/PVChunkFilter.h>
+#include <pvkernel/rush/PVChunkTransform.h>
 
-PVRush::PVSourceCreatorTexthdfs::source_p PVRush::PVSourceCreatorTexthdfs::create_source_from_input(PVCore::PVArgument const& input, PVRush::PVFormat& /*used_format*/) const
+PVRush::PVSourceCreatorTexthdfs::source_p PVRush::PVSourceCreatorTexthdfs::create_source_from_input(PVCore::PVArgument const& input, PVRush::PVFormat& used_format) const
 {
 	PVRush::PVInputHDFSFile ihdfs = input.value<PVInputHDFSFile>();
 	if (!ihdfs.should_process_in_hadoop()) {
@@ -17,7 +18,7 @@ PVRush::PVSourceCreatorTexthdfs::source_p PVRush::PVSourceCreatorTexthdfs::creat
 	// Use hadoop to create the NRAW
 	// The format needs to be changed to only include fields w/ no further processing, as Hadoop will do it !
 	// Then, return a PVHadoopSource for that input.
-	PVInputHadoop* ihadoop = new PVInputHadoop(ihdfs);
+	PVInputHadoop* ihadoop = new PVInputHadoop(ihdfs, used_format.get_axes().size());
 	PVInput_p phadoop(ihadoop);
 	// TODO: hadoop chunk filter to create fields in //
 	PVFilter::PVChunkFilter* chk_flt = new PVFilter::PVChunkFilter();

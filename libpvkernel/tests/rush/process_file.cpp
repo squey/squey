@@ -36,7 +36,7 @@ int main(int argc, char** argv)
 	PVRush::PVFormat format("format", path_format);
 	if (!format.populate(true)) {
 		std::cerr << "Can't read format file " << qPrintable(path_format) << std::endl;
-		return false;
+		return 1;
 	}
 
 	// Get the source creator
