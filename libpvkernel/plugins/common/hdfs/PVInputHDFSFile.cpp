@@ -11,6 +11,7 @@ PVRush::PVInputHDFSFile::PVInputHDFSFile(PVInputHDFSServer_p serv, QString const
 	_path(path),
 	_file(NULL)
 {
+	_process_in_hadoop = false;
 	_human_name = _serv->get_human_name() + path;
 }
 

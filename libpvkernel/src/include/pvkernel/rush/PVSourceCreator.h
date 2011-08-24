@@ -22,7 +22,8 @@ public:
 public:
 	virtual ~PVSourceCreator() {}
 public:
-	virtual source_p create_source_from_input(PVCore::PVArgument const& input) const = 0;
+	virtual source_p create_source_from_input(PVCore::PVArgument const& input, PVFormat& /*used_format*/) const { return create_discovery_source_from_input(input); }
+	virtual source_p create_discovery_source_from_input(PVCore::PVArgument const& input) const = 0;
 	virtual QString supported_type() const = 0;
 	virtual QString name() const = 0;
 	virtual hash_formats get_supported_formats() const = 0;

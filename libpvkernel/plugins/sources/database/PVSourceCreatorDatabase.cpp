@@ -4,7 +4,7 @@
 
 #include <pvkernel/filter/PVChunkFilter.h>
 
-PVRush::PVSourceCreatorDatabase::source_p PVRush::PVSourceCreatorDatabase::create_source_from_input(PVCore::PVArgument const& input) const
+PVRush::PVSourceCreatorDatabase::source_p PVRush::PVSourceCreatorDatabase::create_discovery_source_from_input(PVCore::PVArgument const& input) const
 {
 	PVFilter::PVChunkFilter* chk_flt = new PVFilter::PVChunkFilter();
 	source_p src = source_p(new PVRush::PVDBSource(input.value<PVDBQuery>(), 100, chk_flt->f()));

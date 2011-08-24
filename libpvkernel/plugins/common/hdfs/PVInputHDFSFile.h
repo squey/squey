@@ -27,6 +27,9 @@ public:
 	inline hdfsFile get_file() const { assert(_file); return _file; }
 
 	inline QString const& get_human_name() const { return _human_name; }
+
+	inline bool should_process_in_hadoop() const { return _process_in_hadoop; }
+	inline void set_process_in_hadoop(bool b) { _process_in_hadoop = b; }
 protected:
 	PVInputHDFSServer_p _serv;
 	QString _path;
@@ -34,6 +37,8 @@ protected:
 	QString _human_name;
 
 	hdfsFile _file;
+
+	bool _process_in_hadoop;
 };
 
 }

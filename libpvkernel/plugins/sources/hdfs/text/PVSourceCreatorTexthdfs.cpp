@@ -1,9 +1,31 @@
 #include "PVSourceCreatorTexthdfs.h"
 #include "../PVInputHDFS.h"
+#include "../PVInputHadoop.h"
+#include "../PVChunkAlignHadoop.h"
 
 #include <pvkernel/filter/PVChunkFilter.h>
+#include <pvkernel/rush/PVChunkTransform.h>
 
-PVRush::PVSourceCreatorTexthdfs::source_p PVRush::PVSourceCreatorTexthdfs::create_source_from_input(PVCore::PVArgument const& input) const
+PVRush::PVSourceCreatorTexthdfs::source_p PVRush::PVSourceCreatorTexthdfs::create_source_from_input(PVCore::PVArgument const& input, PVRush::PVFormat& /*used_format*/) const
+{
+	PVRush::PVInputHDFSFile ihdfs = input.value<PVInputHDFSFile>();
+	if (!ihdfs.should_process_in_hadoop()) {
+		return create_discovery_source_from_input(input);
+	}
+
+	// Use hadoop to create the NRAW
+	// The format needs to be changed to only include fields w/ no further processing, as Hadoop will do it !
+	// Then, return a PVHadoopSource for that input.
+	PVInputHadoop* ihadoop = new PVInputHadoop(ihdfs);
+	PVInput_p phadoop(ihadoop);
+	// TODO: hadoop chunk filter to create fields in //
+	PVFilter::PVChunkFilter* chk_flt = new PVFilter::PVChunkFilter();
+	PVChunkTransform* trans = new PVChunkTransform();
+	source_p src = source_p(new PVRush::PVRawSource<>(phadoop, ihadoop->get_align(), 200000, *trans, chk_flt->f()));
+	return src;
+}
+
+PVRush::PVSourceCreatorTexthdfs::source_p PVRush::PVSourceCreatorTexthdfs::create_discovery_source_from_input(PVCore::PVArgument const& input) const
 {
 	// input is a PVInputHDFSFile !
 	PVRush::PVInput_p ihdfs(new PVRush::PVInputHDFS(input.value<PVInputHDFSFile>()));
