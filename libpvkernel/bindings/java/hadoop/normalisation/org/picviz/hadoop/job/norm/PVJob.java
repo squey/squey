@@ -1,6 +1,7 @@
 package org.picviz.hadoop.job.norm;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.ArrayWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Cluster;
@@ -33,9 +34,9 @@ public class PVJob extends Configured implements Tool {
 		job.setNumReduceTasks(0);
 		
 		job.setMapOutputKeyClass(LongWritable.class);
-		job.setMapOutputValueClass(String[].class);
+		job.setMapOutputValueClass(ArrayWritable.class);
 		job.setOutputKeyClass(LongWritable.class);
-		job.setOutputValueClass(String[].class);
+		job.setOutputValueClass(ArrayWritable.class);
 		job.setOutputFormatClass(NRAWNetworkOutputFormat.class);
 		
 		job.waitForCompletion(true);

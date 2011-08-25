@@ -48,8 +48,8 @@ bool PVRush::PVChunkAlignHadoop::operator()(PVCore::PVChunk &cur_chunk, PVCore::
 	char* end_utf16 = cur_utf16 + cur_chunk.size() + cur_chunk.avail();
 	UErrorCode status = U_ZERO_ERROR;
 	while (cur < end) {
-		if ((uintptr_t)(end)-(uintptr_t)cur < sizeof(offset_type)+sizeof(element_length_type)) {
-			PVLOG_DEBUG("(PVChunkAlignHadoop::operator()) cur is '%x', end is '%x', diff is %u < %u\n", cur, end, (uintptr_t)(end)-(uintptr_t)cur, sizeof(offset_type)+sizeof(element_length_type));
+		if ((uintptr_t)(end)-(uintptr_t)cur < sizeof(offset_type)+sizeof(element_length_type)+sizeof(nfields_type)) {
+			PVLOG_DEBUG("(PVChunkAlignHadoop::operator()) cur is '%x', end is '%x', diff is %u < %u\n", cur, end, (uintptr_t)(end)-(uintptr_t)cur, sizeof(offset_type)+sizeof(element_length_type)+sizeof(nfields_type));
 			break;
 		}
 
@@ -58,7 +58,12 @@ bool PVRush::PVChunkAlignHadoop::operator()(PVCore::PVChunk &cur_chunk, PVCore::
 		cur += sizeof(offset_type);
 		element_length_type elt_length = *((element_length_type*) cur);
 		cur += sizeof(element_length_type);
+		nfields_type nfields = *((nfields_type*) cur);
+		cur += sizeof(nfields_type);
 		last_elt = off;
+		if (nfields != (nfields_type) _nfields) {
+			PVLOG_WARN("(PVChunkAlignHadoop::operator()) hadoop task returned '%d' fields, and the format claims '%d' fields !\n", nfields, _nfields);
+		}
 		if ((uintptr_t)(end)-(uintptr_t)(cur) < elt_length) {
 			PVLOG_DEBUG("(PVChunkAlignHadoop::operator()) cur is '%x', end is '%x', diff is %u < found element size = %u\n", cur, end, (uintptr_t)(end)-(uintptr_t)cur, elt_length);
 			break;
@@ -69,7 +74,7 @@ bool PVRush::PVChunkAlignHadoop::operator()(PVCore::PVChunk &cur_chunk, PVCore::
 		PVCore::PVElement* elt = cur_chunk.add_element(cur_utf16, cur_utf16);
 		elt->fields().clear();
 		char* cur_field = cur;
-		for (PVCol j = 0; j < _nfields; j++) {
+		for (nfields_type j = 0; j < nfields; j++) {
 			field_length_type field_length = *((field_length_type*) cur_field);
 			cur_field += sizeof(field_length_type);
 
@@ -104,8 +109,10 @@ bool PVRush::PVChunkAlignHadoop::operator()(PVCore::PVChunk &cur_chunk, PVCore::
 		cur = end_elt;
 	}
 
-	// Tell the "last seen offset" to the input source
-	_input.set_last_seen_offset(*last_elt);
+	if (last_elt) {
+		// Tell the "last seen offset" to the input source
+		_input.set_last_seen_offset(*last_elt);
+	}
 
 	if (cur_chunk.c_elements().size() == 0) {
 		// Chunk is too small, we couldn't get an element !

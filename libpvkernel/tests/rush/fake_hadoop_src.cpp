@@ -127,6 +127,8 @@ int main(int argc, char** argv)
 					selt += 4 + it_f->qstr().toUtf8().size();
 				}
 				write(s, &selt, sizeof(uint32_t));
+				uint32_t nfields = fields.size();
+				write(s, &nfields, sizeof(uint32_t));
 				for (it_f = fields.begin(); it_f != fields.end(); it_f++) {
 					QByteArray fba = it_f->qstr().toUtf8();
 					//std::cout << fba.constData() << std::endl;

@@ -26,6 +26,7 @@ public:
 	typedef uint64_t offset_type;
 	typedef uint32_t element_length_type;
 	typedef uint32_t field_length_type;
+	typedef uint32_t nfields_type;
 protected:
 	PVChunkAlignHadoop(PVInputHadoop& input, PVCol nfields);
 	~PVChunkAlignHadoop();

@@ -3,6 +3,7 @@ package org.picviz.mapreduce.output;
 import java.io.IOException;
 import java.net.UnknownHostException;
 
+import org.apache.hadoop.io.ArrayWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.RecordWriter;
@@ -61,14 +62,16 @@ public class NRAWNetworkOutputFormat<K, V> extends TCPNetworkOutputFormat<K, V> 
 		
 		public synchronized void write(K key, V value) throws IOException
 		{
-			if (value instanceof String[] && key instanceof LongWritable) {
-				String[] fields = (String[]) value;
+			if (value instanceof ArrayWritable && key instanceof LongWritable) {
+				String[] fields = ((ArrayWritable) value).toStrings();
 				writeLong((LongWritable) key);
 				int lengthElt = 0;
+				// TODO: make the UTF8 conv just once !
 				for (int i = 0; i < fields.length; i++) {
 					lengthElt += 4 + fields[i].getBytes("UTF-8").length;
 				}
 				writeInt(lengthElt);
+				writeInt(fields.length);
 				for (int i = 0; i < fields.length; i++) {
 					writeString(fields[i]);
 				}

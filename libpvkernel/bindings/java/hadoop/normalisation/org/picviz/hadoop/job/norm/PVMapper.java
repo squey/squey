@@ -1,15 +1,15 @@
 package org.picviz.hadoop.job.norm;
 
 import java.io.IOException;
+
+import org.apache.hadoop.io.ArrayWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
-import org.apache.commons.lang.StringUtils;
-
 import org.picviz.jni.PVRush.PVRushJNI;
 
-public class PVMapper extends Mapper<LongWritable, Text, LongWritable, String[]> {
+public class PVMapper extends Mapper<LongWritable, Text, LongWritable, ArrayWritable> {
 	private PVRushJNI jni;
 
 	public void map(LongWritable key, Text v, Context context) throws IOException, InterruptedException {
@@ -19,7 +19,7 @@ public class PVMapper extends Mapper<LongWritable, Text, LongWritable, String[]>
 			return;
 		}
 
-		context.write(key, arr);
+		context.write(key, new ArrayWritable(arr));
 	}
 
 	public void setup(Context context) {
