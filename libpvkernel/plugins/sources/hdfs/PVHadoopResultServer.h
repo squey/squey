@@ -12,36 +12,39 @@
 #include <string>
 #include <map>
 
-#include "PVHadoopTaskResult.h"
+#include "PVHadoopTaskSource.h"
 
 namespace PVRush {
 
 class PVHadoopResultServer
 {
-	typedef std::map<PVHadoopTaskResult::id_type, PVHadoopTaskResult_p> map_tasks;
+	typedef std::map<PVHadoopTaskResult::id_type, PVHadoopTaskSource_p> map_tasks;
 
 public:
-	PVHadoopResultServer();
+	PVHadoopResultServer(PVCol nfields, size_t chunk_size);
 	~PVHadoopResultServer();
 
 public:
 	void start(uint16_t port);
 	void stop();
-	size_t read(void* buf, size_t n);
+
+	PVCore::PVChunk* operator()();
 
 private:
 	void init();
 	void start_accept();
-	void add_task(PVHadoopTaskResult_p task);
+	void add_task(PVHadoopTaskSource_p task);
 	void wait_for_next_task();
 	void handle_accept(boost::asio::ip::tcp::socket* sock, const boost::system::error_code& error);
 
 protected:
 	map_tasks _tasks;
-	PVHadoopTaskResult_p _cur_task;
+	PVHadoopTaskSource_p _cur_task;
 	PVHadoopTaskResult::id_type _expected_next_task;
 	boost::condition_variable _got_next_task;
 	boost::mutex _got_next_task_mutex;
+	PVCol _nfields;
+	size_t _chunk_size;
 
 protected:
 	// ASIO
@@ -49,6 +52,7 @@ protected:
 	boost::asio::ip::tcp::acceptor* _tcp_acceptor;
 
 	boost::thread _thread_server;
+
 };
 
 }

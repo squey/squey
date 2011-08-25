@@ -1,6 +1,6 @@
 #include "PVSourceCreatorTexthdfs.h"
 #include "../PVInputHDFS.h"
-#include "../PVInputHadoop.h"
+#include "../PVHadoopResultSource.h"
 #include "../PVChunkAlignHadoop.h"
 #include "../PVChunkTransformHadoop.h"
 
@@ -17,13 +17,7 @@ PVRush::PVSourceCreatorTexthdfs::source_p PVRush::PVSourceCreatorTexthdfs::creat
 	PVLOG_DEBUG("(PVSourceCreatorTexthdfs::create_source_from_input) process source thanksto hadoop.\n");
 	// Use hadoop to create the NRAW
 	// The format needs to be changed to only include fields w/ no further processing, as Hadoop will do it !
-	// Then, return a PVHadoopSource for that input.
-	PVInputHadoop* ihadoop = new PVInputHadoop(ihdfs, used_format.get_axes().size());
-	PVInput_p phadoop(ihadoop);
-	// TODO: hadoop chunk filter to create fields in //
-	PVFilter::PVChunkFilter* chk_flt = new PVFilter::PVChunkFilter();
-	PVChunkTransform* trans = (PVChunkTransform*) new PVChunkTransformHadoop();
-	source_p src = source_p(new PVRush::PVRawSource<>(phadoop, ihadoop->get_align(), 200000, *trans, chk_flt->f()));
+	source_p src = source_p(new PVRush::PVHadoopResultSource(ihdfs, used_format.get_axes().size(), 200000));
 
 	// Only keep the axes in the format
 	used_format.only_keep_axes();

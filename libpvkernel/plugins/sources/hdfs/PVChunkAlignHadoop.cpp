@@ -1,6 +1,5 @@
+#include "PVInputHadoopTaskResult.h"
 #include "PVChunkAlignHadoop.h"
-#include "PVInputHadoop.h"
-
 #include <arpa/inet.h>
 
 
@@ -11,7 +10,7 @@ unsigned long long ntohll(unsigned long long v)
 	return ((unsigned long long)ntohl(u.lv[0]) << 32) | (unsigned long long)ntohl(u.lv[1]);
 }
 
-PVRush::PVChunkAlignHadoop::PVChunkAlignHadoop(PVInputHadoop& input, PVCol nfields):
+PVRush::PVChunkAlignHadoop::PVChunkAlignHadoop(PVInputHadoopTaskResult& input, PVCol nfields):
 	_input(input), _conv_buf(NULL)
 {
 	// Hadoop gives us UTF8 data

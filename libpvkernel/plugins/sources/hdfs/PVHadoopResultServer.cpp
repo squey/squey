@@ -2,8 +2,8 @@
 #include <boost/bind.hpp>
 #include <boost/thread/thread.hpp>
 
-PVRush::PVHadoopResultServer::PVHadoopResultServer():
-	_tcp_acceptor(NULL)
+PVRush::PVHadoopResultServer::PVHadoopResultServer(PVCol nfields, size_t chunk_size):
+	_nfields(nfields), _chunk_size(chunk_size), _tcp_acceptor(NULL)
 {
 	init();
 }
@@ -57,7 +57,7 @@ void PVRush::PVHadoopResultServer::handle_accept(boost::asio::ip::tcp::socket* s
 		PVLOG_DEBUG("(PVRush::PVHadoopResultServer::handle_accept) accepting new connection...\n");
 		PVHadoopTaskResult_p task(new PVHadoopTaskResult(socket_ptr(sock)));
 		if (task->valid()) {
-			add_task(task);
+			add_task(PVHadoopTaskSource::create_from_task(task, _nfields, _chunk_size));
 		}
 	}
 	else {
@@ -68,9 +68,8 @@ void PVRush::PVHadoopResultServer::handle_accept(boost::asio::ip::tcp::socket* s
 	start_accept();
 }
 
-size_t PVRush::PVHadoopResultServer::read(void* buf, size_t n)
+PVCore::PVChunk* PVRush::PVHadoopResultServer::operator()()
 {
-	PVLOG_DEBUG("(PVRush::PVHadoopResultServer::read) trying to read '%d' bytes...\n", n);
 	if (!_cur_task) {
 		wait_for_next_task();
 	}
@@ -79,14 +78,13 @@ size_t PVRush::PVHadoopResultServer::read(void* buf, size_t n)
 		return 0;
 	}
 
-	PVLOG_DEBUG("(PVRush::PVHadoopResultServer::read) trying to read '%d' bytes from task '%d'...\n", n, _cur_task->id());
-	size_t ret = _cur_task->read_sock(buf, n);
-	PVLOG_DEBUG("(PVRush::PVHadoopResultServer::read) read '%d' bytes from task '%d'.\n", n, _cur_task->id());
-	while (ret == 0) {
+	PVLOG_DEBUG("(PVRush::PVHadoopResultServer::read) get a chunk from task '%d'...\n", _cur_task->id());
+	PVCore::PVChunk* chunk = _cur_task->operator()();
+	while (chunk == NULL) {
 		// This task is over, so wait for the next one and reset
 		// the current task pointer
 		_expected_next_task++;
-		PVLOG_DEBUG("(PVRush::PVHadoopResultServer::read) task '%d' returned 0 bytes, so is over. Switching to task '%d'...\n", _cur_task->id(), _expected_next_task);
+		PVLOG_DEBUG("(PVRush::PVHadoopResultServer::read) task '%d' returned a null chunk, so is over. Switching to task '%d'...\n", _cur_task->id(), _expected_next_task);
 		_cur_task.reset();
 		wait_for_next_task();
 		if (_cur_task->job_finished()) {
@@ -94,15 +92,14 @@ size_t PVRush::PVHadoopResultServer::read(void* buf, size_t n)
 			PVLOG_DEBUG("(PVRush::PVHadoopResultServer::read) task '%d' says it is the final one.\n", _cur_task->id());
 			return 0;
 		}
-		PVLOG_DEBUG("(PVRush::PVHadoopResultServer::read) trying to read '%d' bytes from task '%d'...\n", n, _cur_task->id());
-		ret = _cur_task->read_sock(buf, n);
-		PVLOG_DEBUG("(PVRush::PVHadoopResultServer::read) read '%d' bytes from task '%d'.\n", n, _cur_task->id());
+		PVLOG_DEBUG("(PVRush::PVHadoopResultServer::read) get a chunk from task '%d'...\n", _cur_task->id());
+		chunk = _cur_task->operator()();
 	}
 
-	return ret;
+	return chunk;
 }
 
-void PVRush::PVHadoopResultServer::add_task(PVHadoopTaskResult_p task)
+void PVRush::PVHadoopResultServer::add_task(PVHadoopTaskSource_p task)
 {
 	PVHadoopTaskResult::id_type id = task->id();
 	PVLOG_DEBUG("(PVRush::PVHadoopResultServer::add_task) add task with id '%d'. Expected task is '%d'.\n", id, _expected_next_task);

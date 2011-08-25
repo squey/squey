@@ -14,10 +14,10 @@ extern "C" {
 
 namespace PVRush {
 
-class PVInputHadoop;
+class PVInputHadoopTaskResult;
 
 class PVChunkAlignHadoop: public PVChunkAlign {
-	friend class PVInputHadoop;
+	friend class PVInputHadoopTaskResult;
 	enum {
 		MAX_ELEMENT_LENGTH = 1024*1024+4,
 		MAX_FIELD_LENGTH=1024*1024
@@ -28,13 +28,13 @@ public:
 	typedef uint32_t field_length_type;
 	typedef uint32_t nfields_type;
 protected:
-	PVChunkAlignHadoop(PVInputHadoop& input, PVCol nfields);
+	PVChunkAlignHadoop(PVInputHadoopTaskResult& input, PVCol nfields);
 	~PVChunkAlignHadoop();
 public:
 	virtual bool operator()(PVCore::PVChunk &cur_chunk, PVCore::PVChunk &next_chunk);
 protected:
 	// Used to set the last offset seen (for PVInputHadoop::current_offset)
-	PVInputHadoop& _input;
+	PVInputHadoopTaskResult& _input;
 	char* _conv_buf;
 	UConverter* _ucnv;
 	PVCol _nfields;
