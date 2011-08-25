@@ -28,11 +28,11 @@ PVRush::PVXmlParamParser::PVXmlParamParser(QString const& nameFile)
 	QFile xmlfile(nameFile);
 
 	if(!xmlfile.exists()) {
-		PVLOG_ERROR("File to parse not found!\n");
+		PVLOG_ERROR("(PVRush::PVXmlParamparser::PVXmlParamParser) file to parse not found!\n");
 		return;
 	}
 	if (!xmlfile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-		PVLOG_ERROR("Can't open file to parse.\n");
+		PVLOG_ERROR("(PVRush::PVXmlParamparser::PVXmlParamParser) can't open file to parse.\n");
 		return;
 	}
 	QTextStream tmpTextXml(&xmlfile); // file stream creation
