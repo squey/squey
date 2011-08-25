@@ -1,6 +1,15 @@
 #include "PVChunkAlignHadoop.h"
 #include "PVInputHadoop.h"
 
+#include <arpa/inet.h>
+
+
+unsigned long long ntohll(unsigned long long v)
+{
+	union { unsigned long lv[2]; unsigned long long llv; } u;
+	u.llv = v;
+	return ((unsigned long long)ntohl(u.lv[0]) << 32) | (unsigned long long)ntohl(u.lv[1]);
+}
 
 PVRush::PVChunkAlignHadoop::PVChunkAlignHadoop(PVInputHadoop& input, PVCol nfields):
 	_input(input), _conv_buf(NULL)
@@ -40,6 +49,7 @@ bool PVRush::PVChunkAlignHadoop::operator()(PVCore::PVChunk &cur_chunk, PVCore::
 	UErrorCode status = U_ZERO_ERROR;
 	while (cur < end) {
 		if ((uintptr_t)(end)-(uintptr_t)cur < sizeof(offset_type)+sizeof(element_length_type)) {
+			PVLOG_DEBUG("(PVChunkAlignHadoop::operator()) cur is '%x', end is '%x', diff is %u < %u\n", cur, end, (uintptr_t)(end)-(uintptr_t)cur, sizeof(offset_type)+sizeof(element_length_type));
 			break;
 		}
 
@@ -50,6 +60,7 @@ bool PVRush::PVChunkAlignHadoop::operator()(PVCore::PVChunk &cur_chunk, PVCore::
 		cur += sizeof(element_length_type);
 		last_elt = off;
 		if ((uintptr_t)(end)-(uintptr_t)(cur) < elt_length) {
+			PVLOG_DEBUG("(PVChunkAlignHadoop::operator()) cur is '%x', end is '%x', diff is %u < found element size = %u\n", cur, end, (uintptr_t)(end)-(uintptr_t)cur, elt_length);
 			break;
 		}
 		char* end_elt = cur+elt_length;
@@ -93,13 +104,15 @@ bool PVRush::PVChunkAlignHadoop::operator()(PVCore::PVChunk &cur_chunk, PVCore::
 		cur = end_elt;
 	}
 
+	// Tell the "last seen offset" to the input source
+	_input.set_last_seen_offset(*last_elt);
+
 	if (cur_chunk.c_elements().size() == 0) {
 		// Chunk is too small, we couldn't get an element !
+		PVLOG_DEBUG("(PVChunkAlignHadoop::operator()) chunk is too small, no elements have been found.\n");
 		return false;
 	}
 
-	// Tell the "last seen offset" to the input source
-	_input.set_last_seen_offset(*last_elt);
 
 	// Move what's remaining to the next chunk
 	uintptr_t sremains = (uintptr_t)end-(uintptr_t)last_elt_end;

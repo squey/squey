@@ -74,6 +74,9 @@ void dump_chunk_csv(PVChunk& c)
 	ite = l.end();
 	for (it = l.begin(); it != ite; it++) {
 		PVElement& elt = *(*it);
+		if (!elt.valid()) {
+			continue;
+		}
 		list_fields& l = elt.fields();
 		if (l.size() == 1) {
 			l.begin()->init_qstr();

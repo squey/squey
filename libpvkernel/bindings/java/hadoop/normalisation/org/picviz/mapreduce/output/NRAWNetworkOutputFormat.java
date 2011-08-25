@@ -18,14 +18,14 @@ public class NRAWNetworkOutputFormat<K, V> extends TCPNetworkOutputFormat<K, V> 
 		public byte[] longToBytes(long v) {
 		    byte[] writeBuffer = new byte[ 8 ];
 
-		    writeBuffer[0] = (byte)(v >>> 56);
-		    writeBuffer[1] = (byte)(v >>> 48);
-		    writeBuffer[2] = (byte)(v >>> 40);
-		    writeBuffer[3] = (byte)(v >>> 32);
-		    writeBuffer[4] = (byte)(v >>> 24);
-		    writeBuffer[5] = (byte)(v >>> 16);
-		    writeBuffer[6] = (byte)(v >>>  8);
-		    writeBuffer[7] = (byte)(v >>>  0);
+		    writeBuffer[7] = (byte)(v >>> 56);
+		    writeBuffer[6] = (byte)(v >>> 48);
+		    writeBuffer[5] = (byte)(v >>> 40);
+		    writeBuffer[4] = (byte)(v >>> 32);
+		    writeBuffer[3] = (byte)(v >>> 24);
+		    writeBuffer[2] = (byte)(v >>> 16);
+		    writeBuffer[1] = (byte)(v >>>  8);
+		    writeBuffer[0] = (byte)(v >>>  0);
 
 		    return writeBuffer;
 		}
@@ -33,10 +33,10 @@ public class NRAWNetworkOutputFormat<K, V> extends TCPNetworkOutputFormat<K, V> 
 		public byte[] intToBytes(long v) {
 		    byte[] writeBuffer = new byte[ 4 ];
 
-		    writeBuffer[0] = (byte)(v >>> 24);
-		    writeBuffer[1] = (byte)(v >>> 16);
-		    writeBuffer[2] = (byte)(v >>>  8);
-		    writeBuffer[3] = (byte)(v >>>  0);
+		    writeBuffer[3] = (byte)(v >>> 24);
+		    writeBuffer[2] = (byte)(v >>> 16);
+		    writeBuffer[1] = (byte)(v >>>  8);
+		    writeBuffer[0] = (byte)(v >>>  0);
 
 		    return writeBuffer;
 		}
@@ -64,9 +64,9 @@ public class NRAWNetworkOutputFormat<K, V> extends TCPNetworkOutputFormat<K, V> 
 			if (value instanceof String[] && key instanceof LongWritable) {
 				String[] fields = (String[]) value;
 				writeLong((LongWritable) key);
-				int lengthElt = 4;
+				int lengthElt = 0;
 				for (int i = 0; i < fields.length; i++) {
-					lengthElt += fields[i].length();
+					lengthElt += 4 + fields[i].getBytes("UTF-8").length;
 				}
 				writeInt(lengthElt);
 				for (int i = 0; i < fields.length; i++) {
