@@ -24,7 +24,7 @@ bool PVRush::PVInputTypeHDFS::createWidget(hash_formats const& /*formats*/, list
 		return false;
 	}
 	*/
-	PVInputHDFSFile f(serv, "/data/squid.log");
+	PVInputHDFSFile f(serv, "/data/squid.log.1B");
 
 	QVariant in;
 	in.setValue(f);
