@@ -283,4 +283,5 @@ void PVRush::PVFormat::only_keep_axes()
 	// Remove the list of filters to apply, and only
 	// keeps the fields !
 	filters_params.clear();
+	PVLOG_DEBUG("(PVRush::PVFormat) removing filters, we have '%d' fields.\n", _axes.size());
 }

@@ -10,9 +10,9 @@
 PVRush::PVSourceCreatorTexthdfs::source_p PVRush::PVSourceCreatorTexthdfs::create_source_from_input(PVCore::PVArgument const& input, PVRush::PVFormat& used_format) const
 {
 	PVRush::PVInputHDFSFile ihdfs = input.value<PVInputHDFSFile>();
-	if (!ihdfs.should_process_in_hadoop()) {
+	/*if (!ihdfs.should_process_in_hadoop()) {
 		return create_discovery_source_from_input(input);
-	}
+	}*/
 
 	PVLOG_DEBUG("(PVSourceCreatorTexthdfs::create_source_from_input) process source thanksto hadoop.\n");
 	// Use hadoop to create the NRAW

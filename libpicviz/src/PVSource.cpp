@@ -46,6 +46,7 @@ void Picviz::PVSource::files_append_noextract(PVRush::PVFormat const& format, PV
 {
 	//set_format(format);
 	PVRush::PVFormat format_ = format;
+	format_.populate();
 	for (int i = 0; i < inputs.count(); i++) {
 		PVRush::PVSourceCreator::source_p src = sc->create_source_from_input(inputs[i], format_);
 		_extractor.add_source(src);
