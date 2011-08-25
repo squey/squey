@@ -75,6 +75,8 @@ public class PVRushJNI {
 		}
 		catch (IOException e) {
 			System.out.println("Unable to load the JNI library !");
+			System.out.println(e.toString());
+			e.printStackTrace();
 		}
 	}
 	
