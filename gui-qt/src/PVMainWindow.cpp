@@ -1618,7 +1618,7 @@ void PVInspector::PVMainWindow::set_color(Picviz::PVView_p picviz_view)
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
 
 	/* We let the user select a color */
-	color = pv_ColorDialog->getColor(Qt::white, NULL, "test", QColorDialog::ShowAlphaChannel);
+	color = pv_ColorDialog->getColor(Qt::white, NULL, "Select a color...", QColorDialog::ShowAlphaChannel);
 	/* We test if the user canceled the dialog */
 	if ( ! color.isValid() ) {
 		return;

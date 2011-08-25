@@ -27,5 +27,4 @@ PVInspector::PVColorDialog::PVColorDialog(PVMainWindow *mw, QWidget *parent) : Q
 	main_window = mw;
 
 	setWindowTitle("Color dialog"); // XXX this should probably be marked for translation.
-
 }
