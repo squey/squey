@@ -57,7 +57,6 @@ void Picviz::PVSource::files_append_noextract(PVRush::PVFormat const& format, PV
 void Picviz::PVSource::set_format(PVRush::PVFormat const& format)
 {
 	_extractor.set_format(format);
-	_extractor.get_format().populate();
 	axes_combination.set_from_format(_extractor.get_format());
 
 	PVFilter::PVChunkFilter_f chk_flt = _extractor.get_format().create_tbb_filters();
