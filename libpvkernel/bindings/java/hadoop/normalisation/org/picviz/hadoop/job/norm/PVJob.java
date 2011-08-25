@@ -26,6 +26,7 @@ public class PVJob extends Configured implements Tool {
 		job.setJobName("pvjob_normalisation");
 
 		FileInputFormat.addInputPath(job, new Path(args[0]));
+		FileInputFormat.setMaxInputSplitSize(job, 29*1024*1024);
 		//FileOutputFormat.setOutputPath(job, new Path(args[1]));
 		TCPNetworkOutputFormat.setDestPort(job, 1245);
 		TCPNetworkOutputFormat.setDestHost(job, "172.16.0.250");
