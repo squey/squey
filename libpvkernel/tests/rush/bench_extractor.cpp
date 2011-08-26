@@ -24,9 +24,8 @@
 #include <valgrind/callgrind.h>
 
 #define NLINES 10000000
-#define NCHUNKS 100
 
-#define NTRIES 4
+#define NTRIES 1
 
 void clear_disk_cache()
 {
@@ -60,9 +59,9 @@ double bench(PVRush::PVExtractor &ext, size_t nlines)
 	return dur/NTRIES;
 }
 
-double bench_utf16_align(QStringList const& paths, PVFilter::PVChunkFilter_f chk_flt, size_t chunk_size, size_t nlines)
+double bench_utf16_align(QStringList const& paths, PVFilter::PVChunkFilter_f chk_flt, size_t chunk_size, size_t nlines, size_t nchunks)
 {
-	PVRush::PVExtractor ext(NCHUNKS);
+	PVRush::PVExtractor ext(nchunks);
 	for (int i = 0; i < paths.size(); i++) {
 		PVRush::PVInput_p ifile(new PVRush::PVInputFile(paths[i].toLocal8Bit().constData()));
 		PVFilter::PVChunkFilter* chk_flt_src = new PVFilter::PVChunkFilter();
@@ -73,9 +72,9 @@ double bench_utf16_align(QStringList const& paths, PVFilter::PVChunkFilter_f chk
 	return bench(ext, nlines);
 }
 
-double bench_utf16(QStringList const& paths, PVFilter::PVChunkFilter_f chk_flt, size_t chunk_size, size_t nlines)
+double bench_utf16(QStringList const& paths, PVFilter::PVChunkFilter_f chk_flt, size_t chunk_size, size_t nlines, size_t nchunks)
 {
-	PVRush::PVExtractor ext(NCHUNKS);
+	PVRush::PVExtractor ext(nchunks);
 	PVRush::PVChunkAlign null_align;
 	for (int i = 0; i < paths.size(); i++) {
 		PVRush::PVInput_p ifile(new PVRush::PVInputFile(paths[i].toLocal8Bit().constData()));
@@ -88,9 +87,9 @@ double bench_utf16(QStringList const& paths, PVFilter::PVChunkFilter_f chk_flt, 
 	return bench(ext, nlines);
 }
 
-double bench(QStringList const& paths, PVFilter::PVChunkFilter_f chk_flt, size_t chunk_size, size_t nlines)
+double bench(QStringList const& paths, PVFilter::PVChunkFilter_f chk_flt, size_t chunk_size, size_t nlines, size_t nchunks)
 {
-	PVRush::PVExtractor ext(NCHUNKS);
+	PVRush::PVExtractor ext(nchunks);
 	PVRush::PVChunkAlign null_align;
 	PVRush::PVChunkTransform null_transform;
 	for (int i = 0; i < paths.size(); i++) {
