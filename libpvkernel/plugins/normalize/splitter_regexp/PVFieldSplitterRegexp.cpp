@@ -13,8 +13,7 @@
  *
  *****************************************************************************/
 PVFilter::PVFieldSplitterRegexp::PVFieldSplitterRegexp(PVCore::PVArgumentList const& args) :
-	PVFieldsFilter<PVFilter::one_to_many>(),
-	_regexp_pattern_thread(&PVFieldSplitterRegexp::no_cleanup)
+	PVFieldsFilter<PVFilter::one_to_many>()
 {
 	INIT_FILTER(PVFilter::PVFieldSplitterRegexp, args);
 }
@@ -69,12 +68,12 @@ void PVFilter::PVFieldSplitterRegexp::set_args(PVCore::PVArgumentList const& arg
 PVCore::list_fields::size_type PVFilter::PVFieldSplitterRegexp::one_to_many(PVCore::list_fields &l, PVCore::list_fields::iterator it_ins, PVCore::PVField &field)
 {
 #ifdef PROCESS_REGEXP_ICU
-	if (_regexp_matcher_thread.get() == NULL || _regexp_pattern_thread.get() !=  _regexp.get()) {
+	if (_regexp_matcher_thread.get() == NULL || _regexp_pattern_thread.get() == NULL || *(_regexp_pattern_thread.get()) !=  _regexp.get()) {
 		UErrorCode err = U_ZERO_ERROR;
-		_regexp_pattern_thread.reset(_regexp.get());
-		_regexp_matcher_thread.reset(_regexp->matcher(err));
+		_regexp_pattern_thread.reset(new RegexPattern*(_regexp.get()));
+		_regexp_matcher_thread.reset(new RegexMatcher*(_regexp->matcher(err)));
 	}
-	PVCore::list_fields::size_type n = field.split_regexp<PVCore::list_fields>(l, *_regexp_matcher_thread, it_ins);
+	PVCore::list_fields::size_type n = field.split_regexp<PVCore::list_fields>(l, *(*_regexp_matcher_thread), it_ins);
 #else
 	QRegExp regexp(_regexp);
 	PVCore::list_fields::size_type n = field.split_regexp<PVCore::list_fields>(l, regexp, it_ins);
