@@ -132,23 +132,30 @@ inline void print_perf(double dur, size_t size)
 int main(int argc, char** argv)
 {
 	if (argc <= 2) {
-		std::cerr << "Usage: " << argv[0] << " chunk_size file [file] [file ...]" << std::endl;
+		std::cerr << "Usage: " << argv[0] << " nchunks chunk_size only_rx file [file] [file ...]" << std::endl;
 		return 1;
 	}
 	QCoreApplication(argc, argv);
 	init_env();
 
-	int nfiles = argc-2;
-	char** files = &argv[2];
+	int nfiles = argc-4;
+	char** files = &argv[4];
 	QStringList lfiles;
 	for (int i = 0; i < nfiles; i++) {
 		lfiles << QString(files[i]);
 	}
 
-	int chunk_size = atoi(argv[1]);
+	int chunk_size = atoi(argv[2]);
 	if (chunk_size < 1024) {
 		chunk_size = 1024;
 	}
+
+	int nchunks = atoi(argv[1]);
+	if (nchunks < 24) {
+		nchunks = 24;
+	}
+
+	bool only_rx = atoi(argv[3]) == 1;
 
 	PVFilter::PVChunkFilter chk_flt_null;
 	tbb::tick_count::interval_t durd;
@@ -170,27 +177,8 @@ int main(int argc, char** argv)
 	print_perf(durd.seconds(), total_read);
 
 	double dur;	
-	// Serial reading performance with no transformation ("architecture" overhead)
-	printf("Serial reading performance with no transformation (\"architecture\" overhead)");
-	dur = bench(lfiles, chk_flt_null.f(), chunk_size, NLINES);
-	print_perf(dur, total_read);
 
-	// Serial reading with UTF16 transformation
-	printf("Serial reading with UTF16 transformation");
-	//CALLGRIND_START_INSTRUMENTATION
-	dur = bench_utf16(lfiles, chk_flt_null.f(), chunk_size, NLINES);
-	//CALLGRIND_STOP_INSTRUMENTATION
-	print_perf(dur, total_read);
-	
-	// Serial reading with UTF16 transformation and alignement
-	printf("Serial reading with UTF16 transformation and alignement");
-	dur = bench_utf16_align(lfiles, chk_flt_null.f(), chunk_size, NLINES);
-	print_perf(dur, total_read);
-	
-	// Parallel URL splitter only
-	
-	// Parallel regexp splitter only
-	printf("Parallel regexp splitter only");
+	// Regexp setup
 	PVFilter::PVFieldsSplitter::p_type regexp_lib_p = LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("regexp");
 	PVFilter::PVFieldsBaseFilter_p fre_in = regexp_lib_p->clone<PVFilter::PVFieldsBaseFilter>();
 	PVCore::PVArgumentList args;
@@ -199,6 +187,36 @@ int main(int argc, char** argv)
 	PVFilter::PVElementFilterByFields felt(fre_in->f());
 	PVFilter::PVChunkFilterByElt fchunk(felt.f());
 
+	if (!only_rx) {
+		// Serial reading performance with no transformation ("architecture" overhead)
+		printf("Serial reading performance with no transformation (\"architecture\" overhead)");
+		dur = bench(lfiles, chk_flt_null.f(), chunk_size, NLINES);
+		print_perf(dur, total_read);
+
+		// Serial reading with UTF16 transformation
+		printf("Serial reading with UTF16 transformation");
+		//CALLGRIND_START_INSTRUMENTATION
+		dur = bench_utf16(lfiles, chk_flt_null.f(), chunk_size, NLINES);
+		//CALLGRIND_STOP_INSTRUMENTATION
+		print_perf(dur, total_read);
+		
+		// Serial reading with UTF16 transformation and alignement
+		printf("Serial reading with UTF16 transformation and alignement");
+		dur = bench_utf16_align(lfiles, chk_flt_null.f(), chunk_size, NLINES);
+		print_perf(dur, total_read);
+		
+		// Parallel URL splitter only
+		
+		// Parallel regexp splitter only
+		printf("Parallel regexp splitter only");
+
+		dur = bench_utf16_align(lfiles, fchunk.f(), chunk_size, NLINES);
+		print_perf(dur, total_read);
+	}
+
+	printf("Parallel squid regexp splitter only");
+	args["regexp"] = PVCore::PVArgument(QString("([0-9]+)[0-9.]*\\s+[0-9]+\\s+[0-9]+\\s+[A-Z/_-]+([0-9]+)\\s+[0-9]+\\s+(GET|POST|PUT|OPTIONS)\\s+(\\S+)\\s+(\\S+)\\s+([^/]+)/(\\d+.\\d+.\\d+.\\d+)"));
+	fre_in->set_args(args);
 	dur = bench_utf16_align(lfiles, fchunk.f(), chunk_size, NLINES);
 	print_perf(dur, total_read);
 
