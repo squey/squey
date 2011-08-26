@@ -182,7 +182,7 @@ typename L::size_type PVCore::PVBufferSlice::split_regexp(L& container, RegexMat
 	init_icustr();
 	UErrorCode err = U_ZERO_ERROR;
 	re_.reset(_icustr);
-	if (!re_.matches(err)) {
+	if (!re_.find()) {
 		return 0;
 	}
 

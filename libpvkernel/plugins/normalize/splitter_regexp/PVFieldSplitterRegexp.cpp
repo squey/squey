@@ -13,7 +13,8 @@
  *
  *****************************************************************************/
 PVFilter::PVFieldSplitterRegexp::PVFieldSplitterRegexp(PVCore::PVArgumentList const& args) :
-	PVFieldsFilter<PVFilter::one_to_many>()
+	PVFieldsFilter<PVFilter::one_to_many>(),
+	_regexp_pattern_thread(&PVFieldSplitterRegexp::no_cleanup)
 {
 	INIT_FILTER(PVFilter::PVFieldSplitterRegexp, args);
 }
@@ -51,7 +52,6 @@ void PVFilter::PVFieldSplitterRegexp::set_args(PVCore::PVArgumentList const& arg
 	UErrorCode err = U_ZERO_ERROR;
 	UErrorCode pe = U_ZERO_ERROR;
 	_regexp.reset(RegexPattern::compile(icu_pat, pe, err));
-	_regexp_matcher.reset(_regexp->matcher(err));
 	if (U_FAILURE(err)) {
 		PVLOG_WARN("Unable to compile pattern '%s' with ICU !\n", qPrintable(pattern));
 	}
@@ -68,21 +68,17 @@ void PVFilter::PVFieldSplitterRegexp::set_args(PVCore::PVArgumentList const& arg
 
 PVCore::list_fields::size_type PVFilter::PVFieldSplitterRegexp::one_to_many(PVCore::list_fields &l, PVCore::list_fields::iterator it_ins, PVCore::PVField &field)
 {
-/*	if (_regexp_thread.get() == NULL) {
 #ifdef PROCESS_REGEXP_ICU
+	if (_regexp_matcher_thread.get() == NULL || _regexp_pattern_thread.get() !=  _regexp.get()) {
 		UErrorCode err = U_ZERO_ERROR;
-		_regexp_thread.reset(_regexp->matcher(err));
-#else
-		_regexp_thread.reset(new QRegExp(_regexp));
-#endif
-	}*/
-#ifdef PROCESS_REGEXP_ICU
-	// AG: Disable ICU for now...
-	// See ticket 1
+		_regexp_pattern_thread.reset(_regexp.get());
+		_regexp_matcher_thread.reset(_regexp->matcher(err));
+	}
+	PVCore::list_fields::size_type n = field.split_regexp<PVCore::list_fields>(l, *_regexp_matcher_thread, it_ins);
 #else
 	QRegExp regexp(_regexp);
-#endif
 	PVCore::list_fields::size_type n = field.split_regexp<PVCore::list_fields>(l, regexp, it_ins);
+#endif
 	if (n == 0) {
 		field.set_invalid();
 	}
