@@ -182,7 +182,8 @@ typename L::size_type PVCore::PVBufferSlice::split_regexp(L& container, RegexMat
 	init_icustr();
 	UErrorCode err = U_ZERO_ERROR;
 	re_.reset(_icustr);
-	if (!re_.find()) {
+	//if (!re_.matches(err)) {
+	if (!re_.find(err)) {
 		return 0;
 	}
 
@@ -199,7 +200,6 @@ typename L::size_type PVCore::PVBufferSlice::split_regexp(L& container, RegexMat
 		elt._begin = (char*) (bstart+start);
 		elt._end = (char*) (bstart+end);
 		elt._physical_end = elt._end;
-		elt.init_qstr();
 		container.insert(it_ins,elt);
 		n++;
 	}
