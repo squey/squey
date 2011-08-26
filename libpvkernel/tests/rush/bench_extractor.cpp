@@ -189,19 +189,19 @@ int main(int argc, char** argv)
 	if (!only_rx) {
 		// Serial reading performance with no transformation ("architecture" overhead)
 		printf("Serial reading performance with no transformation (\"architecture\" overhead)");
-		dur = bench(lfiles, chk_flt_null.f(), chunk_size, NLINES);
+		dur = bench(lfiles, chk_flt_null.f(), chunk_size, NLINES, nchunks);
 		print_perf(dur, total_read);
 
 		// Serial reading with UTF16 transformation
 		printf("Serial reading with UTF16 transformation");
 		//CALLGRIND_START_INSTRUMENTATION
-		dur = bench_utf16(lfiles, chk_flt_null.f(), chunk_size, NLINES);
+		dur = bench_utf16(lfiles, chk_flt_null.f(), chunk_size, NLINES, nchunks);
 		//CALLGRIND_STOP_INSTRUMENTATION
 		print_perf(dur, total_read);
 		
 		// Serial reading with UTF16 transformation and alignement
 		printf("Serial reading with UTF16 transformation and alignement");
-		dur = bench_utf16_align(lfiles, chk_flt_null.f(), chunk_size, NLINES);
+		dur = bench_utf16_align(lfiles, chk_flt_null.f(), chunk_size, NLINES, nchunks);
 		print_perf(dur, total_read);
 		
 		// Parallel URL splitter only
@@ -209,14 +209,14 @@ int main(int argc, char** argv)
 		// Parallel regexp splitter only
 		printf("Parallel regexp splitter only");
 
-		dur = bench_utf16_align(lfiles, fchunk.f(), chunk_size, NLINES);
+		dur = bench_utf16_align(lfiles, fchunk.f(), chunk_size, NLINES, nchunks);
 		print_perf(dur, total_read);
 	}
 
 	printf("Parallel squid regexp splitter only");
 	args["regexp"] = PVCore::PVArgument(QString("([0-9]+)[0-9.]*\\s+[0-9]+\\s+[0-9]+\\s+[A-Z/_-]+([0-9]+)\\s+[0-9]+\\s+(GET|POST|PUT|OPTIONS)\\s+(\\S+)\\s+(\\S+)\\s+([^/]+)/(\\d+.\\d+.\\d+.\\d+)"));
 	fre_in->set_args(args);
-	dur = bench_utf16_align(lfiles, fchunk.f(), chunk_size, NLINES);
+	dur = bench_utf16_align(lfiles, fchunk.f(), chunk_size, NLINES, nchunks);
 	print_perf(dur, total_read);
 
 	// Parallel regexp grep only
