@@ -264,15 +264,21 @@ void PVInspector::PVListingModel::initMatchingTable() {
  *****************************************************************************/
 QVariant PVInspector::PVListingModel::headerData(int section, Qt::Orientation orientation, int role) const {
 	PVLOG_HEAVYDEBUG("PVInspector::PVListingModel::%s\n", __FUNCTION__);
-	if (!(section >= 0 && section < (int)lib_view->get_qtnraw_parent().size())) {
-		return QVariant();
-	}
 
 	switch (role) {
 		case (Qt::DisplayRole):
 			if (orientation == Qt::Horizontal) {
-				return QVariant(lib_view->get_axis_name(section));
+				if (section < 0 || section >= lib_view->get_axes_count()) {
+					// That should never happen !
+					return QVariant();
+				}
+				QString axis_name = lib_view->get_axis_name(section);
+				return QVariant(axis_name);
 			} else {
+				if (section < 0) {
+					// That should never happen !
+					return QVariant();
+				}
 				return getRealRowIndex(section);
 			}
 			break;
