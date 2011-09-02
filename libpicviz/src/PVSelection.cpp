@@ -105,19 +105,19 @@ bool Picviz::PVSelection::get_line(pv_row line_index) const
 int Picviz::PVSelection::get_number_of_selected_lines_in_range(pv_row a, pv_row b) const
 {
 	
-//	pv_row line_index;
-//	int count = 0; 
-//
-//	for (line_index = a; line_index<b; line_index++) { 
-//		if (get_line(line_index)) { 
-//			count++;
-//		}
-//	}
-//
-//	return count;
+	pv_row line_index;
+	int count = 0; 
+
+	for (line_index = a; line_index<b; line_index++) { 
+		if (get_line(line_index)) { 
+			count++;
+		}
+	}
+
+	return count;
 	
 
-	return count_bits_between(a, b-1, &table[0]);
+	// return count_bits_between(a, b-1, &table[0]);
 }
 
 std::vector<PVRow> Picviz::PVSelection::get_rows_table()
