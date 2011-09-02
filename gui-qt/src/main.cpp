@@ -11,6 +11,7 @@
 #include <QResource>
 
 #include <PVMainWindow.h>
+#include <PVCustomStyle.h>
 
 #include <stdio.h>
 
@@ -30,6 +31,7 @@
 int main(int argc, char *argv[])
 {
 	QApplication app(argc, argv);
+	//app.setStyle(new PVInspector::PVCustomStyle());
 	PVInspector::PVMainWindow pv_main_window;
 	QString wintitle;
 	

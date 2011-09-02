@@ -47,6 +47,8 @@ include/PVArgumentListDelegate.h
 include/PVArgumentListModel.h
 include/PVArgumentListWidget.h
 include/PVAxisPropertiesWidget.h
+include/PVCustomStyle.h
+include/PVCustomTitleDialog.h
 include/PVFilesTypesSelWidget.h
 include/PVExtractorWidget.h
 include/PVColorDialog.h
@@ -117,6 +119,8 @@ PVArgumentListDelegate.cpp
 PVArgumentListModel.cpp
 PVArgumentListWidget.cpp
 PVAxisPropertiesWidget.cpp
+PVCustomStyle.cpp
+PVCustomTitleDialog.cpp
 PVFilesTypesSelWidget.cpp
 PVExtractorWidget.cpp
 PVColorDialog.cpp

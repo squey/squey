@@ -75,6 +75,8 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 
 	splash.show();
 
+	//setWindowFlags(Qt::FramelessWindowHint);
+
 	PVLOG_DEBUG("%s: Creating object\n", __FUNCTION__);
 
 	about_dialog = 0;
@@ -1703,3 +1705,4 @@ void PVInspector::PVMainWindow::update_statemachine_label(Picviz::PVView_p view)
 {
 	statemachine_label->setText(view->state_machine->get_string());
 }
+

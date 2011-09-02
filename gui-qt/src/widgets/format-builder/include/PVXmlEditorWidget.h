@@ -113,7 +113,7 @@ private:
 	list_filters_t _list_filters;///!<list of the plugins filters
     
     void showParamBoard(PVRush::PVXmlTreeNodeDom *node);
-    
+
 
 // Log input management
 
