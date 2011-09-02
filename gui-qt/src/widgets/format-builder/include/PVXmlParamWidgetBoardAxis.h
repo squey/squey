@@ -48,10 +48,11 @@ public:
     void initConnexion();
     void initValue();
     void setHelp();
+	void checkMappingTimeFormat();
     
     
     
-    QStringList listType(const QStringList &listEntry)const;
+    QStringList listType() const;
     QStringList getListTypeMapping(const QString& mType);
     QStringList getListTypePlotting(const QString& mType);
     

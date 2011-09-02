@@ -52,7 +52,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::allocBoardFields(){
     textName = new PVXmlParamWidgetEditorBox(QString("name"), new QVariant(node->attribute("name")));
     //type
     mapPlotType = new PVXmlParamComboBox("type");
-    timeFormatLabel = new QLabel("time format");
+    timeFormatLabel = new QLabel("Format of the time strings");
     timeFormat = new PVXmlParamTextEdit(QString("time-format"), QVariant(node->attribute("time-format")));    
     timeFormatStr = node->attribute(PVFORMAT_AXIS_TIMEFORMAT_STR);
     comboMapping = new PVXmlParamComboBox("mapping");
@@ -69,13 +69,13 @@ void PVInspector::PVXmlParamWidgetBoardAxis::allocBoardFields(){
     
     //tab parameter
     comboKey = new PVXmlParamComboBox("key");
-    keyLabel = new QLabel("key");
+    keyLabel = new QLabel("Key");
     group = new PVXmlParamWidgetEditorBox(QString("group"), new QVariant(node->attribute(PVFORMAT_AXIS_GROUP_STR)));
-    groupLabel = new QLabel("group");
+    groupLabel = new QLabel("Goup");
     buttonColor = new PVXmlParamColorDialog("color", PVFORMAT_AXIS_COLOR_DEFAULT, this);
-    colorLabel = new QLabel("color");
+    colorLabel = new QLabel("Color of the axis line");
     buttonTitleColor = new PVXmlParamColorDialog("titlecolor", PVFORMAT_AXIS_TITLECOLOR_DEFAULT, this);
-    titleColorLabel = new QLabel("titlecolor");
+    titleColorLabel = new QLabel("Color of the axis title");
     //slotSetVisibleExtra(false);
 
     
@@ -184,7 +184,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::draw(){
     //QVBoxLayout *layoutValues=new QVBoxLayout();
     QVBoxLayout *tabGeneral = createTab("General",tabParam);
     QVBoxLayout *tabParameter = createTab("Parameter",tabParam);
-    QVBoxLayout *tabTimeFormat = createTab("Time Format",tabParam);
+    QVBoxLayout *tabTimeFormat = createTab("Time format",tabParam);
     QWidget *widgetTabAndNext = new QWidget(this);
     //QWidget *widgetValues = new QWidget(this);
     QHBoxLayout *layoutRoot = new QHBoxLayout(this);
@@ -211,26 +211,25 @@ void PVInspector::PVXmlParamWidgetBoardAxis::draw(){
     tabGeneral->addWidget(new QLabel("Axis name"));
     tabGeneral->addWidget(textName);
     //type
-    tabGeneral->addWidget(new QLabel("type"));
+    tabGeneral->addWidget(new QLabel("Type"));
     tabGeneral->addWidget(mapPlotType);
     //time edition
     tabGeneral->addWidget(timeFormatLabel);
     tabGeneral->addWidget(timeFormat);
     // Mapping/Plotting
-    tabGeneral->addWidget(new QLabel("mapping"));
+    tabGeneral->addWidget(new QLabel("Mapping"));
     tabGeneral->addWidget(comboMapping);
-    tabGeneral->addWidget(new QLabel("plotting"));
+    tabGeneral->addWidget(new QLabel("Plotting"));
     tabGeneral->addWidget(comboPlotting);
     tabGeneral->addSpacerItem(new QSpacerItem(1,1,QSizePolicy::Expanding, QSizePolicy::Expanding));
     
     //***** tab Time Format *****
     //time edition
-    tabTimeFormat->addWidget(new QLabel("time format"));
+    tabTimeFormat->addWidget(new QLabel("Format of the time strings"));
     tabTimeFormat->addWidget(timeFormatInTab);
     tabTimeFormat->addWidget(helpTimeFormat);
-    tabTimeFormat->addWidget(new QLabel("validator"));
+    tabTimeFormat->addWidget(new QLabel("Put time strings in this text field to validate your time format"));
     tabTimeFormat->addWidget(timeSample);
-    
     
     //***** tab parameter *****
     tabParameter->addWidget(keyLabel);
@@ -251,6 +250,8 @@ void PVInspector::PVXmlParamWidgetBoardAxis::draw(){
     layoutParam->addWidget(buttonNextAxis);
     //buttonNextAxis->setShortcut(QKeySequence(Qt::Key_Enter));
     buttonNextAxis->setShortcut(QKeySequence(Qt::Key_Return));
+	
+	checkMappingTimeFormat();
 }
 
 /******************************************************************************
@@ -296,8 +297,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::initValue()
 {
 	QDir dir(pluginListURL);
     //init of combos
-    QStringList typeL = QStringList(listType(dir.entryList()));
-    mapPlotType->addItem("");
+    QStringList typeL = listType();
     mapPlotType->addItems(typeL);
     comboKey->addItem("true");
     comboKey->addItem("false");
@@ -367,7 +367,7 @@ QWidget *PVInspector::PVXmlParamWidgetBoardAxis::getWidgetToFocus(){
  * PVInspector::PVXmlParamWidgetBoardAxis::listType
  *
  *****************************************************************************/
-QStringList PVInspector::PVXmlParamWidgetBoardAxis::listType(const QStringList &listEntry)const {
+QStringList PVInspector::PVXmlParamWidgetBoardAxis::listType() const {
 	LIB_CLASS(Picviz::PVMappingFilter)::list_classes const& map_filters = LIB_CLASS(Picviz::PVMappingFilter)::get().get_list();
 	LIB_CLASS(Picviz::PVMappingFilter)::list_classes::const_iterator it;
 	QStringList ret;
@@ -427,11 +427,12 @@ QStringList PVInspector::PVXmlParamWidgetBoardAxis::getListTypePlotting(const QS
  * PVInspector::PVXmlParamWidgetBoardAxis::setHelp
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidgetBoardAxis::setHelp(){
+void PVInspector::PVXmlParamWidgetBoardAxis::setHelp()
+{
   helpTimeFormat->setReadOnly(true);
   helpTimeFormat->document()->setDefaultStyleSheet("td {\nbackground-color:#ffe6bb;\n}\nbody{\nbackground-color:#fcffc4;\n}\n");
   QString html=QString("<body>\
-  <big><b>HELP</b></big><br/>\
+  <big><b>Help for the time format</b></big><br/>\
   sample :<br/>\
   MMM/d/yyyy H:m:s<br/>date\
   <table>\
@@ -467,7 +468,6 @@ void PVInspector::PVXmlParamWidgetBoardAxis::setHelp(){
   <br /><strong>Note:</strong>&nbsp;Any text that should be in the time format but not treated as special characters must be inside quotes (e.g. m'mn' s's')\
   </body>");
   
-  //helpTimeFormat->setMi
   helpTimeFormat->setHtml(html);
 }
 
@@ -511,28 +511,58 @@ void PVInspector::PVXmlParamWidgetBoardAxis::slotSetValues(){
  * PVInspector::PVXmlParamWidgetBoardAxis::updateDateValidation
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidgetBoardAxis::updateDateValidation(){
-  if(timeSample->typeOfTextEdit==PVXmlParamTextEdit::dateValid){
-    QString newText;//just declare
-    if(timeFormatStr!=timeFormat->getVal().toString()){//timeFormat has changed...
-      //get the new text
-      newText = timeFormat->getVal().toString();
-      timeFormatStr = newText;//memorise current value
-      //modify timeFormatInTab
-      timeFormatInTab->setVal(newText);//copy  current value in
-    }else if(timeFormatStr!=timeFormatInTab->getVal().toString()){//timeFormat has changed...
-      //get the new text
-      newText = timeFormatInTab->getVal().toString();
-      timeFormatStr = newText;
-      //modify timeFormat
-      timeFormat->setVal(timeFormatInTab->getVal().toString());
-    }else{//no change
-      return; 
-    }
-    //apply format
-    timeSample->validDateFormat(newText.split("\n"));
-    slotSetValues();
-  }
+void PVInspector::PVXmlParamWidgetBoardAxis::updateDateValidation()
+{
+	if(timeSample->typeOfTextEdit==PVXmlParamTextEdit::dateValid) {
+		QString newTf; // just declare
+
+		if(timeFormatStr!=timeFormat->getVal().toString()) { // timeFormat has changed...
+			// get the new text
+			newTf = timeFormat->getVal().toString();
+			timeFormatStr = newTf; // memorise current value
+
+			// modify timeFormatInTab
+			timeFormatInTab->setVal(newTf); //copy  current value in
+		} else if(timeFormatStr!=timeFormatInTab->getVal().toString()) { // timeFormat has changed...
+			// get the new text
+			newTf = timeFormatInTab->getVal().toString();
+			timeFormatStr = newTf; // memorise current value
+
+			// modify timeFormat
+			timeFormat->setVal(newTf);
+		} else { // no change
+			return; 
+		}
+
+		checkMappingTimeFormat();
+
+		//apply format
+		timeSample->validDateFormat(newTf.split("\n"));
+		slotSetValues();
+	}
+}
+
+void PVInspector::PVXmlParamWidgetBoardAxis::checkMappingTimeFormat()
+{
+	// AG: this is a hack. Check that, if type is "time", that, if a "week" or
+	// "24h" mapping has been set, the good time-format comes with it.
+	QString time_mapping = comboMapping->currentText();
+	comboMapping->clear_disabled_strings();
+
+	// 24h mapping:  check that 'h' or 'H' are present
+	bool reset_mapping = false;
+	if (timeFormatStr.indexOf(QChar('h'), 0, Qt::CaseInsensitive) == -1) {
+		comboMapping->add_disabled_string("24h");
+		reset_mapping = (time_mapping == "24h");
+	}
+	if (timeFormatStr.indexOf(QChar('d'), 0, Qt::CaseInsensitive) == -1 &&
+			timeFormatStr.indexOf(QChar('e'), 0, Qt::CaseInsensitive) == -1) {
+		comboMapping->add_disabled_string("week");
+		reset_mapping = (time_mapping == "week");
+	}
+	if (reset_mapping) {
+		comboMapping->select("default");
+	}
 }
 
 /******************************************************************************
@@ -554,40 +584,36 @@ void PVInspector::PVXmlParamWidgetBoardAxis::slotSetVisibleTimeValid(bool flag){
  * PVInspector::PVXmlParamWidgetBoardAxis::updatePlotMapping
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidgetBoardAxis::updatePlotMapping(const QString& t) {
-    //qDebug() << "updatePlotMapping(" << t << ")";
-    if (t.length() > 1) {
-        comboMapping->clear();
-        comboMapping->addItem("");
-        comboMapping->addItems(getListTypeMapping(mapPlotType->currentText()));
-        comboMapping->select("default");
+void PVInspector::PVXmlParamWidgetBoardAxis::updatePlotMapping(const QString& t)
+{
+	if (t.length() > 1) {
+		comboMapping->clear();
+		comboMapping->addItems(getListTypeMapping(mapPlotType->currentText()));
+		comboMapping->select("default");
 
-        comboPlotting->clear();
-        comboPlotting->addItem("");
-        comboPlotting->addItems(getListTypePlotting(mapPlotType->currentText()));
-        comboPlotting->select("default");
+		comboPlotting->clear();
+		comboPlotting->addItems(getListTypePlotting(mapPlotType->currentText()));
+		comboPlotting->select("default");
 
-        if (mapPlotType->currentText() == "time") {//if the type is a Time
-	  //don't show time format editor
-	    slotSetVisibleTimeValid(true);
-	    //default selection
-            comboMapping->select("24h");
-	    //set the name with "Time" by default
-	    if(node->attribute("name","Time").count()>1){
-		textName->setText(node->attribute("name","Time"));
-	    }else{
-	        textName->setText("Time");
-	    }
-	    timeSample->validDateFormat(timeFormat->getVal().toString().split("\n"));
-        } else if (mapPlotType->currentText() == "integer") {//if the type is an integer
-            comboPlotting->select("minmax");
-	    //don't show time format editor
-	    slotSetVisibleTimeValid(false);
-        } else {//if the type is not Time and not integer
-	  //don't show time format editor
-	    slotSetVisibleTimeValid(false);
-        }
-    }
+		if (mapPlotType->currentText() == "time") {//if the type is a Time
+			//don't show time format editor
+			slotSetVisibleTimeValid(true);
+			//set the name with "Time" by default
+			if(node->attribute("name","Time").count()>1){
+				textName->setText(node->attribute("name","Time"));
+			}else{
+				textName->setText("Time");
+			}
+			timeSample->validDateFormat(timeFormat->getVal().toString().split("\n"));
+		} else if (mapPlotType->currentText() == "integer") {//if the type is an integer
+			comboPlotting->select("minmax");
+			//don't show time format editor
+			slotSetVisibleTimeValid(false);
+		} else {//if the type is not Time and not integer
+			//don't show time format editor
+			slotSetVisibleTimeValid(false);
+		}
+	}
 }
 
 
