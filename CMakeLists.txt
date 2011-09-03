@@ -123,6 +123,8 @@ else(USE_PVGL2)
   add_subdirectory(libpvgl)
 endif(USE_PVGL2)
 
+add_subdirectory(libpvsdk)
+
 add_subdirectory(gui-qt)
 
 message(STATUS "CUDA found: " ${CUDA_FOUND})
