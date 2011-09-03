@@ -20,11 +20,11 @@ class PVMessenger;
 #include <pvsdk/general.h>
 
 /**
- * \enum PVGLComFunction. All the message functions we're able to handle.
+ * \enum PVSDKMessengerFunction. All the message functions we're able to handle.
  */
 enum PVSDKMessengerFunction
 {
-	// First the fonctions asked by the PVGL view to the Qt interface.
+	// First the fonctions asked by the PVMessenger view to the Qt interface.
 	PVSDK_MESSENGER_FUNCTION_SELECTION_CHANGED = 601,           //!< The selection has changed, the Qt interface should update the listing and other stuff.
 	PVSDK_MESSENGER_FUNCTION_REFRESH_LISTING = 602,             //!< The Qt interface should refresh the listing view.
 	PVSDK_MESSENGER_FUNCTION_CLEAR_SELECTION = 603,             //!< The selection has been cleared.
@@ -55,12 +55,12 @@ enum PVSDKMessengerFunction
 
 
 /**
- * \enum PVGLComRefreshStates. Which parts should be refreshed.
+ * \enum PVSDKMessengerRefreshStates. Which parts should be refreshed.
  */
-enum PVGLComRefreshStates
+enum PVSDKMessengerRefreshStates
 {
-  PVSDK_MESSENGER_REFRESH_POSITIONS =  1,
-  PVSDK_MESSENGER_REFRESH_Z         =  2,
+	PVSDK_MESSENGER_REFRESH_POSITIONS =  1,
+	PVSDK_MESSENGER_REFRESH_Z         =  2,
 	PVSDK_MESSENGER_REFRESH_COLOR     =  4,
 	PVSDK_MESSENGER_REFRESH_ZOMBIES   =  8,
 	PVSDK_MESSENGER_REFRESH_SELECTION = 16,
@@ -73,7 +73,7 @@ enum PVGLComRefreshStates
  *
  *  The Currently supported messages are:
  *  <ul>
- *    <li>From the PVGL to the Main Interface (Qt)
+ *    <li>From the PVMessenger to the Main Interface (Qt)
  *      <ul>
  *        <li>#PVSDK_MESSENGER_FUNCTION_SELECTION_CHANGED<br />
  *            Parameters:
@@ -142,7 +142,7 @@ enum PVGLComRefreshStates
  *        </li>
  *      </ul>
  *    </li>
- *    <li>From the Main Interface to the PVGL
+ *    <li>From the Main Interface to the PVMessenger
  *      <ul>
  *        <li>#PVSDK_MESSENGER_FUNCTION_PLEASE_WAIT<br />
  *            Parameters:
@@ -161,7 +161,7 @@ enum PVGLComRefreshStates
  *            Parameters:
  *            <ul>
  *              <li>pv_view</li>
- *              <li>int_1: bitfield telling which part should be refreshed, see #PVGLComRefreshStates.</li>
+ *              <li>int_1: bitfield telling which part should be refreshed, see #PVSDKMessengerRefreshStates.</li>
  *            </ul>
  *        </li>
  *        <li>#PVSDK_MESSENGER_FUNCTION_TAKE_SCREENSHOT<br />
@@ -196,7 +196,7 @@ enum PVGLComRefreshStates
  *        </li>
  *      </ul>
  *    </li>
- *    <li>From the PVGL to itself.
+ *    <li>From PVSDK to itself.
  *      <ul>
  *        <li>#PVSDK_MESSENGER_FUNCTION_UPDATE_OTHER_SELECTIONS<br />
  *            Parameters:
@@ -217,9 +217,9 @@ namespace PVSDK {
  *
  * The structure describing a message. Fields don't need to always be filled.
  */
-struct LibGLDecl PVMessage
+struct LibSDKDecl PVMessage
 {
-	PVSDKMessengerFunction  function;  //!< The type of the message (always a function) see #PVGLComFunction.
+	PVSDKMessengerFunction  function;  //!< The type of the message (always a function) see #PVMessengerFunction.
 	/* Picviz::PVView_p pv_view;   //!< A pointer to the Picviz::PVView the message is about. */
 
 	int    int_1;               //!< First integer parameter for the message, if needed.
@@ -268,30 +268,5 @@ public:
 	void post_message_to_qt(const struct PVMessage &message);
 };
 
-/* /\** */
-/*  * \class PVThread */
-/*  * */
-/*  * The main thread of the PVGL. */
-/*  *\/ */
-/* class LibGLDecl PVThread : public QThread */
-/* { */
-/* 	PVSDK::PVMessenger *pvgl_com; //!< */
-/* public: */
-/* 	/\** */
-/* 	 *  Constructor. */
-/* 	 *\/ */
-/* 	PVThread () {pvgl_com = new PVSDK::PVMessenger;} */
-
-/* 	/\** */
-/* 	 * @return */
-/* 	 *\/ */
-/* 	PVSDK::PVMessenger *get_com(){return pvgl_com;} */
-
-/* 	/\** */
-/* 	 * */
-/* 	 *\/ */
-/* 	void run(); */
-
-/* }; */
 }
 #endif
