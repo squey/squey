@@ -27,12 +27,14 @@ bool pvgl_init(PVGL::PVCom *com)
 
 	// Wait for the first message
 	PVLOG_DEBUG("PVGL::%s Everything created, waiting for message.\n", __FUNCTION__);
-	for(;;) { // FIXME! Dont eat all my cpu!
+	for(;;) {
 		PVGL::PVMessage message;
 		if (com->get_message_for_gl(message)) {
 			switch (message.function) {
 				case PVGL_COM_FUNCTION_PLEASE_WAIT:
-							{
+				{
+					PVLOG_INFO("PVGL_COM_FUNCTION_PLEASE_WAIT:\n");
+			
 								// QString *name = reinterpret_cast<QString *>(message.pointer_1);
 								// PVGL::PVMain::create_view(name);
 								// //message.function = PVGL_COM_FUNCTION_VIEW_CREATED;
@@ -41,19 +43,22 @@ bool pvgl_init(PVGL::PVCom *com)
 								// glutMainLoop();
 
 								// PVGL::wtk_init(argc, argv);
-							}
-						break;
+				}
+				break;
 				case PVGL_COM_FUNCTION_DESTROY_TRANSIENT:
-							{
+				{
+					PVLOG_INFO("PVGL_COM_FUNCTION_DESTROY_TRANSIENT:\n");
 								// if (transient_view) {
 								// 	glutDestroyWindow(transient_view->get_window_id());
 								// 	delete transient_view;
 								// 	transient_view = 0;
 								// }
-							}
-						break;
+				}
+				break;
 				case PVGL_COM_FUNCTION_CREATE_VIEW:
-							{
+				{
+					PVLOG_INFO("PVGL_COM_FUNCTION_CREATE_VIEW:\n");
+					
 								// all_drawables.push_back(transient_view);
 								// glutSetWindow(transient_view->get_window_id());
 								// transient_view->init(message.pv_view);
@@ -65,10 +70,11 @@ bool pvgl_init(PVGL::PVCom *com)
 								// glutMainLoop();
 
 								// PVGL::wtk_init(argc, argv);
-							}
-						break;
+				}
+				break;
 				case PVGL_COM_FUNCTION_CREATE_SCATTER_VIEW:
-							{
+				{
+					PVLOG_INFO("PVGL_COM_FUNCTION_CREATE_SCATTER_VIEW:\n");
 								// QString *name = reinterpret_cast<QString *>(message.pointer_1);
 								// PVGL::PVMain::create_scatter(name, message.pv_view);
 								// PVLOG_INFO("PVGL::%s scatter view created\n", __FUNCTION__);
@@ -79,12 +85,14 @@ bool pvgl_init(PVGL::PVCom *com)
 								// glutMainLoop();
 
 								// PVGL::wtk_init(argc, argv);
-							}
-						break;
+				}
+				break;
 				default:
 						PVLOG_ERROR("PVGL::%s unknown function in a message: %d\n", __FUNCTION__, message.function);
 			}
 		} else {
+
+// Avoids CPU eating
 #ifdef WIN32
 			Sleep(1000);
 #else
