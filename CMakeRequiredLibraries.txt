@@ -220,6 +220,7 @@ endif(WIN32)
 # same package in the different sub directories.
 find_package(PVKernel REQUIRED)
 find_package(Picviz REQUIRED)
+find_package(PVSDK REQUIRED)
 
 if(USE_PVGL2)
 	find_package(PVGL2 REQUIRED)

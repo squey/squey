@@ -116,15 +116,13 @@ include_directories(AFTER "${Picviz_Inspector_SOURCE_DIR}/include")
 add_subdirectory(scripts)
 add_subdirectory(libpvkernel)
 add_subdirectory(libpicviz)
+add_subdirectory(libpvsdk)
 
 if(USE_PVGL2)
   add_subdirectory(libpvgl2)
 else(USE_PVGL2)
   add_subdirectory(libpvgl)
 endif(USE_PVGL2)
-
-add_subdirectory(libpvsdk)
-
 add_subdirectory(gui-qt)
 
 message(STATUS "CUDA found: " ${CUDA_FOUND})
