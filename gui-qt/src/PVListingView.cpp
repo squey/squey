@@ -117,7 +117,7 @@ void PVInspector::PVListingView::update_view_selection_from_listing_selection()
 	lib_view->process_from_selection();
 	state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_OFF);
 	/* We refresh the PVGLView */
-	main_window->update_pvglview(lib_view, PVGL_COM_REFRESH_SELECTION);
+	main_window->update_pvglview(lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
 	/* We refresh the listing */
 	main_window->current_tab->refresh_listing_with_horizontal_header_Slot();
 	main_window->current_tab->update_pv_listing_model_Slot();

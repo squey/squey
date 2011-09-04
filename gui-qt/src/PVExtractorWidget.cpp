@@ -21,7 +21,8 @@
 #include <PVProgressBox.h>
 
 #include <pvkernel/rush/PVRawSourceBase.h>
-#include <pvgl/PVCom.h>
+
+#include <pvsdk/PVMessenger.h>
 
 #include <tbb/compat/thread>
 
@@ -196,10 +197,10 @@ void PVInspector::PVExtractorWidget::process_Slot()
 	if (!show_job_progress_bar(job, _ext.get_format().get_format_name(), _batch_size, this)) {
 		_ext.restore_nraw();
 		_view->set_consistent(true);
-		PVGL::PVMessage message;
-		message.function = PVGL_COM_FUNCTION_REINIT_PVVIEW;
+		PVSDK::PVMessage message;
+		message.function = PVSDK_MESSENGER_FUNCTION_REINIT_PVVIEW;
 		message.pv_view = _view;
-		main_window->get_pvcom()->post_message_to_gl(message);
+		main_window->get_pvmessenger()->post_message_to_gl(message);
 		return;
 	}
 	_ext.clear_saved_nraw();
@@ -223,10 +224,10 @@ void PVInspector::PVExtractorWidget::process_Slot()
 	_view->last_extractor_batch_size = _batch_size;
 		
 	// Send a message to PVGL
-	PVGL::PVMessage message;
-	message.function = PVGL_COM_FUNCTION_REINIT_PVVIEW;
+	PVSDK::PVMessage message;
+	message.function = PVSDK_MESSENGER_FUNCTION_REINIT_PVVIEW;
 	message.pv_view = _view;
-	main_window->get_pvcom()->post_message_to_gl(message);
+	main_window->get_pvmessenger()->post_message_to_gl(message);
 }
 
 void PVInspector::PVExtractorWidget::exit_Slot()

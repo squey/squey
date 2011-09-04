@@ -1,10 +1,10 @@
-include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/libpicviz/src/include)
+# include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/libpicviz/src/include)
 
-if(USE_PVGL2)
-  include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/libpvgl2/src/include)
-else(USE_PVGL2)
-  include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/libpvgl/src/include)
-endif(USE_PVGL2)
+# if(USE_PVGL2)
+#   include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/libpvgl2/src/include)
+# else(USE_PVGL2)
+#   include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/libpvgl/src/include)
+# endif(USE_PVGL2)
 
 include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/gui-qt/src/include)
 include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/gui-qt/src/widgets/)
@@ -12,14 +12,14 @@ include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/gui-qt/src/widgets/form
 include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/gui-qt/src/widgets/remote-log/include)
 include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/gui-qt/src/widgets/editors/include)
 
-include_directories(AFTER ${GLEW_INCLUDE_PATH})
-include_directories(AFTER ${OPENGL_INCLUDE_DIR})
+# include_directories(AFTER ${GLEW_INCLUDE_PATH})
+# include_directories(AFTER ${OPENGL_INCLUDE_DIR})
 include_directories(AFTER ${CURL_INCLUDE_DIR})
 include_directories(AFTER ${ICU_INCLUDE})
 
 # PICVIZ
 add_definitions(${PICVIZ_DEFINES})
-include_directories(AFTER ${PICVIZ_INCLUDE_DIRS})
+# include_directories(AFTER ${PICVIZ_INCLUDE_DIRS})
 
 set(QT_USE_QTNETWORK TRUE)
 set(QT_USE_QTOPENGL TRUE)
@@ -198,7 +198,7 @@ else (WIN32)
 add_executable(picviz-inspector ${SRC_FILES} ${MOC_SRC} ${MOC_HEADERS} ${QRC_FILES_SRCS})
 endif(WIN32)
 
-target_link_libraries(picviz-inspector ${QT_LIBRARIES} ${PICVIZ_LIBRARY} ${PVKERNEL_LIBRARY} ${CURL_LIBRARY} ${PVGL_LIBRARY} ${WIN32_EXTRA_LIBS} ${TBB_LIBRARIES} ${TBB_MALLOC_LIBRARY} ${Boost_LIBRARIES} ${ICU_LIBRARY})
+target_link_libraries(picviz-inspector ${QT_LIBRARIES} ${PVSDK_LIBRARY} ${PICVIZ_LIBRARY} ${PVKERNEL_LIBRARY} ${CURL_LIBRARY} ${PVGL_LIBRARY} ${WIN32_EXTRA_LIBS} ${TBB_LIBRARIES} ${TBB_MALLOC_LIBRARY} ${Boost_LIBRARIES} ${ICU_LIBRARY})
 
 INSTALL(TARGETS picviz-inspector DESTINATION .)
 

@@ -117,7 +117,7 @@ void PVInspector::PVLayerStackWidget::delete_layer_Slot()
 	layer_stack_model->get_layer_stack_lib().delete_selected_layer();
 	parent_tab->get_lib_view()->process_from_layer_stack();
 	parent_tab->refresh_layer_stack_view_Slot();
-	main_window->update_pvglview(parent_tab->get_lib_view(), PVGL_COM_REFRESH_Z|PVGL_COM_REFRESH_COLOR|PVGL_COM_REFRESH_ZOMBIES|PVGL_COM_REFRESH_SELECTION);
+	main_window->update_pvglview(parent_tab->get_lib_view(), PVSDK_MESSENGER_REFRESH_Z|PVSDK_MESSENGER_REFRESH_COLOR|PVSDK_MESSENGER_REFRESH_ZOMBIES|PVSDK_MESSENGER_REFRESH_SELECTION);
 }
 
 /******************************************************************************
@@ -142,7 +142,7 @@ void PVInspector::PVLayerStackWidget::move_down_Slot()
 	layer_stack_model->get_layer_stack_lib().move_selected_layer_down();
 	parent_tab->get_lib_view()->process_from_layer_stack();
 	parent_tab->refresh_layer_stack_view_Slot();
-	main_window->update_pvglview(parent_tab->get_lib_view(), PVGL_COM_REFRESH_Z|PVGL_COM_REFRESH_COLOR|PVGL_COM_REFRESH_ZOMBIES|PVGL_COM_REFRESH_SELECTION);
+	main_window->update_pvglview(parent_tab->get_lib_view(), PVSDK_MESSENGER_REFRESH_Z|PVSDK_MESSENGER_REFRESH_COLOR|PVSDK_MESSENGER_REFRESH_ZOMBIES|PVSDK_MESSENGER_REFRESH_SELECTION);
 }
 
 /******************************************************************************
@@ -157,7 +157,7 @@ void PVInspector::PVLayerStackWidget::move_up_Slot()
 	layer_stack_model->get_layer_stack_lib().move_selected_layer_up();
 	parent_tab->get_lib_view()->process_from_layer_stack();
 	parent_tab->refresh_layer_stack_view_Slot();
-	main_window->update_pvglview(parent_tab->get_lib_view(), PVGL_COM_REFRESH_Z|PVGL_COM_REFRESH_COLOR|PVGL_COM_REFRESH_ZOMBIES|PVGL_COM_REFRESH_SELECTION);
+	main_window->update_pvglview(parent_tab->get_lib_view(), PVSDK_MESSENGER_REFRESH_Z|PVSDK_MESSENGER_REFRESH_COLOR|PVSDK_MESSENGER_REFRESH_ZOMBIES|PVSDK_MESSENGER_REFRESH_SELECTION);
 }
 
 /******************************************************************************
@@ -172,6 +172,6 @@ void PVInspector::PVLayerStackWidget::new_layer_Slot()
 	layer_stack_model->get_layer_stack_lib().append_new_layer();
 	parent_tab->get_lib_view()->process_from_layer_stack();
 	parent_tab->refresh_layer_stack_view_Slot();
-	main_window->update_pvglview(parent_tab->get_lib_view(), PVGL_COM_REFRESH_Z|PVGL_COM_REFRESH_COLOR|PVGL_COM_REFRESH_ZOMBIES|PVGL_COM_REFRESH_SELECTION);
+	main_window->update_pvglview(parent_tab->get_lib_view(), PVSDK_MESSENGER_REFRESH_Z|PVSDK_MESSENGER_REFRESH_COLOR|PVSDK_MESSENGER_REFRESH_ZOMBIES|PVSDK_MESSENGER_REFRESH_SELECTION);
 }
 

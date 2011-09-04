@@ -176,7 +176,7 @@ void PVInspector::PVFilterWidget::create(QString filter_name_, picviz_filter_t *
 		filter_error = picviz_view_apply_filter_from_name(current_tab->get_lib_view(), filter_name, filter->get_arguments_func());
 		if (!filter_error) {
 			picviz_view_process_from_eventline(current_tab->get_lib_view());
-			main_window->update_pvglview(current_tab->get_lib_view(), PVGL_COM_REFRESH_COLOR|PVGL_COM_REFRESH_SELECTION);
+			main_window->update_pvglview(current_tab->get_lib_view(), PVSDK_MESSENGER_REFRESH_COLOR|PVSDK_MESSENGER_REFRESH_SELECTION);
 		} else {
 			QMessageBox msgBox;
 			msgBox.setIcon(QMessageBox::Critical);
@@ -305,7 +305,7 @@ void PVInspector::PVFilterWidget::filter_cancel_action_Slot()
 
 	hide();
 
-	main_window->update_pvglview(current_tab->get_lib_view(), PVGL_COM_REFRESH_COLOR|PVGL_COM_REFRESH_SELECTION);
+	main_window->update_pvglview(current_tab->get_lib_view(), PVSDK_MESSENGER_REFRESH_COLOR|PVSDK_MESSENGER_REFRESH_SELECTION);
 
 	emit filter_applied_Signal();
 #endif
@@ -326,7 +326,7 @@ void PVInspector::PVFilterWidget::filter_apply_action_Slot()
 	picviz_view_apply_filter_from_name(current_tab->get_lib_view(), filter_name, arguments);
 	picviz_view_process_from_eventline(current_tab->get_lib_view());
 
-	main_window->update_pvglview(current_tab->get_lib_view(), PVGL_COM_REFRESH_COLOR|PVGL_COM_REFRESH_SELECTION);
+	main_window->update_pvglview(current_tab->get_lib_view(), PVSDK_MESSENGER_REFRESH_COLOR|PVSDK_MESSENGER_REFRESH_SELECTION);
 
 	emit filter_applied_Signal();
 #endif
@@ -374,7 +374,7 @@ void PVInspector::PVFilterWidget::filter_ok_action_Slot()
 
 	hide();
 
-	main_window->update_pvglview(current_tab->get_lib_view(), PVGL_COM_REFRESH_COLOR|PVGL_COM_REFRESH_SELECTION);
+	main_window->update_pvglview(current_tab->get_lib_view(), PVSDK_MESSENGER_REFRESH_COLOR|PVSDK_MESSENGER_REFRESH_SELECTION);
 
 	emit filter_applied_Signal();
 #endif

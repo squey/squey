@@ -14,6 +14,7 @@ ISRD=$INSPECTOR_SOURCE_ROOT_DIR
 PVKERNEL_PATH=$ISRC/libpvkernel
 PVGL_DIR=./libpvgl2
 PICVIZ_PATH=$ISRD/libpicviz
+PVSDK_PATH=./libpvsdk
 
 #export PICVIZ_LOG_FILE="log.txt"
 export PVGL_SHARE_DIR=./libpvgl2/data/
@@ -29,7 +30,7 @@ export PVRUSH_SOURCE_DIR=libpvkernel/plugins/sources
 
 export PVFILTER_NORMALIZE_DIR=libpvkernel/plugins/normalize
 
-export LD_LIBRARY_PATH=$PVKERNEL_PATH/src/:$PICVIZ_PATH/src/:./libpvgl2/src
+export LD_LIBRARY_PATH=$PVKERNEL_PATH/src/:$PICVIZ_PATH/src/:./libpvgl2/src:$PVSDK_PATH/src/
 
 echo "Library path: $LD_LIBRARY_PATH" 
 

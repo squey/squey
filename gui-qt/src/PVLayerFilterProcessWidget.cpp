@@ -99,7 +99,7 @@ void PVInspector::PVLayerFilterProcessWidget::save_Slot()
 	/* We need to process the view from the layer_stack */
 	// _view->process_from_layer_stack();
 	/* We refresh the PVView_p */
-	_tab->get_main_window()->update_pvglview(_view, PVGL_COM_REFRESH_SELECTION|PVGL_COM_REFRESH_COLOR);
+	_tab->get_main_window()->update_pvglview(_view, PVSDK_MESSENGER_REFRESH_SELECTION|PVSDK_MESSENGER_REFRESH_COLOR);
 	_tab->refresh_listing_Slot();
 
 	// FIXME: I think this refreshes the listing too. We shall remove the refresh listing slot then
@@ -142,7 +142,7 @@ bool PVInspector::PVLayerFilterProcessWidget::process()
 
 	// We reprocess the pipeline from the eventline stage
 	_view->process_from_eventline();
-	_tab->get_main_window()->update_pvglview(_view, PVGL_COM_REFRESH_SELECTION|PVGL_COM_REFRESH_COLOR);
+	_tab->get_main_window()->update_pvglview(_view, PVSDK_MESSENGER_REFRESH_SELECTION|PVSDK_MESSENGER_REFRESH_COLOR);
 	_tab->refresh_listing_Slot();
 	_has_apply = true;
 	clear_args_state();
@@ -170,7 +170,7 @@ void PVInspector::PVLayerFilterProcessWidget::cancel_Slot()
 
 	// Update verything
 	_view->process_from_layer_stack();
-	_tab->get_main_window()->update_pvglview(_view, PVGL_COM_REFRESH_SELECTION|PVGL_COM_REFRESH_COLOR);
+	_tab->get_main_window()->update_pvglview(_view, PVSDK_MESSENGER_REFRESH_SELECTION|PVSDK_MESSENGER_REFRESH_COLOR);
 	_tab->refresh_listing_Slot();
 
 	reject();

@@ -10,7 +10,7 @@
 #include <pvkernel/core/general.h>
 #include <picviz/PVView.h>
 
-#include <pvgl/PVCom.h>
+#include <pvsdk/PVMessenger.h>
 
 #define MAX_LINES_PER_REDRAW 75000
 #define MAX_LINES_FOR_INTERACTIVITY 10000 /* Used to decide whether we can interactively do things or not, such as the behavior of the event line */
@@ -20,6 +20,6 @@
  * This is the main entry point of the PVGL library.
  * @param com The communication link between the Qt interface and the GL one. See #PVCom.
  */
-bool LibGLDecl pvgl_init (PVGL::PVCom *com);
+bool LibGLDecl pvgl_init (PVSDK::PVMessenger *messenger);
 
 #endif

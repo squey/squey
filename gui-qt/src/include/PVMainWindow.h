@@ -24,8 +24,10 @@
 #include <picviz/PVSelection.h>
 #include <pvkernel/core/PVArgument.h>
 
+#include <pvsdk/PVMessenger.h>
+
 #include <pvgl/general.h>
-#include <pvgl/PVCom.h>
+#include <pvgl/PVGLThread.h>
 
 #include <PVAxisPropertiesWidget.h>
 #include <PVColorDialog.h>
@@ -99,7 +101,7 @@ public:
 	void commit_selection_to_new_layer(Picviz::PVView_p view);
 	void refresh_view(Picviz::PVView_p view);
 	void set_color(Picviz::PVView_p view);
-	PVGL::PVCom* get_pvcom();
+	PVSDK::PVMessenger* get_pvmessenger();
 
 	void import_type(PVRush::PVInputType_p in_t);
 	/* void import_type(); */
@@ -144,9 +146,9 @@ public slots:
 	void enable_menu_filter_Slot(bool);
 	void set_color_Slot();
 	void textedit_text_changed_Slot();
-	void view_open_Slot();
-	void view_save_Slot();
-	void view_show_new_Slot();
+	/* void view_open_Slot(); */
+	/* void view_save_Slot(); */
+	/* void view_show_new_Slot(); */
 	void view_new_scatter_Slot();
 	void check_messages();	/* SLOT? NOT SLOT? */
 	void update_reply_finished_Slot(QNetworkReply *reply);
@@ -240,8 +242,8 @@ signals:
 
 	// Communication with PVGL.
 private:
-	PVGL::PVThread *pvgl_thread;
-	PVGL::PVCom    *pvgl_com;
+	PVGL::PVGLThread *pvgl_thread;
+	PVSDK::PVMessenger  *pvsdk_messenger;
 	QTimer     *timer;
 
 	void create_pvgl_thread();

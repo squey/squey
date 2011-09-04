@@ -106,7 +106,7 @@ bool PVInspector::PVLayerStackDelegate::editorEvent(QEvent *event, QAbstractItem
 				/* now we reprocess from the selection */
 				lib_view->process_from_selection();
 				// We refresh the PVGLView
-				main_window->update_pvglview(lib_view, PVGL_COM_REFRESH_Z|PVGL_COM_REFRESH_COLOR|PVGL_COM_REFRESH_ZOMBIES|PVGL_COM_REFRESH_SELECTION);
+				main_window->update_pvglview(lib_view, PVSDK_MESSENGER_REFRESH_Z|PVSDK_MESSENGER_REFRESH_COLOR|PVSDK_MESSENGER_REFRESH_ZOMBIES|PVSDK_MESSENGER_REFRESH_SELECTION);
 				/* We must update all dynamic listing model... */
 				//temp->current_pv_view->update_row_count_in_all_dynamic_listing_model_Slot();
 				// FIXME: we should send ... well we should do something, probably!

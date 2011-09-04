@@ -58,8 +58,9 @@
 // Filters
 #include <pvkernel/core/PVClassLibrary.h>
 
+#include <pvsdk/PVMessenger.h>
+
 #include <pvgl/general.h>
-#include <pvgl/PVCom.h>
 #include <pvgl/PVMain.h>
 
 #include <PVXmlEditorWidget.h>
@@ -201,23 +202,23 @@ void PVInspector::PVMainWindow::closeEvent(QCloseEvent* event)
 void PVInspector::PVMainWindow::check_messages()
 { // FIXME: here we use the current tab. We should really use a tab calculated for the pv_view of the message.
 	
-	PVGL::PVMessage message;
-	if (pvgl_com->get_message_for_qt(message)) {
+	PVSDK::PVMessage message;
+	if (pvsdk_messenger->get_message_for_qt(message)) {
 		//PVLOG_INFO("PVInspector::PVMainWindow::check_messages()\n");
 		switch (message.function) {
-			case PVGL_COM_FUNCTION_CLEAR_SELECTION:
+			case PVSDK_MESSENGER_FUNCTION_CLEAR_SELECTION:
 				{
 					/* FIXME !!!! We've killed the Listing window! pv_ListingWindow->pv_listing_view->clearSelection();*/
 					if (!current_tab)
 						break;
-					//PVLOG_INFO("PVInspector::PVMainWindow::check_messages : PVGL_COM_FUNCTION_CLEAR_SELECTION\n");
+					//PVLOG_INFO("PVInspector::PVMainWindow::check_messages : PVSDK_MESSENGER_FUNCTION_CLEAR_SELECTION\n");
 					current_tab->refresh_listing_Slot();
 					current_tab->repaint(0,0,-1,-1);
 					break;
 				}
-			case PVGL_COM_FUNCTION_REFRESH_LISTING:
+			case PVSDK_MESSENGER_FUNCTION_REFRESH_LISTING:
 				{
-					//PVLOG_INFO("PVInspector::PVMainWindow::check_messages : PVGL_COM_FUNCTION_REFRESH_LISTING\n");
+					//PVLOG_INFO("PVInspector::PVMainWindow::check_messages : PVSDK_MESSENGER_FUNCTION_REFRESH_LISTING\n");
 					message.pv_view->process_visibility();
 					if (!current_tab)
 						break;
@@ -226,10 +227,10 @@ void PVInspector::PVMainWindow::check_messages()
 					current_tab->refresh_listing_Slot();
 					break;
 				}
-			case PVGL_COM_FUNCTION_SELECTION_CHANGED:
+			case PVSDK_MESSENGER_FUNCTION_SELECTION_CHANGED:
 				{
 					// FIXME DDX! update_row_count_in_all_dynamic_listing_model_Slot();
-					//PVLOG_INFO("PVInspector::PVMainWindow::check_messages : PVGL_COM_FUNCTION_SELECTION_CHANGED\n");
+					//PVLOG_INFO("PVInspector::PVMainWindow::check_messages : PVSDK_MESSENGER_FUNCTION_SELECTION_CHANGED\n");
 					if (!current_tab)
 						break;
 					current_tab->selection_changed_Slot();
@@ -238,7 +239,7 @@ void PVInspector::PVMainWindow::check_messages()
 					current_tab->refresh_listing_Slot();
 					break;
 				}
-			case PVGL_COM_FUNCTION_SCREENSHOT_CHOOSE_FILENAME:
+			case PVSDK_MESSENGER_FUNCTION_SCREENSHOT_CHOOSE_FILENAME:
 						{
 							QString initial_path = QDir::currentPath();
 
@@ -251,20 +252,20 @@ void PVInspector::PVMainWindow::check_messages()
 
 							QString *filename = new QString (QFileDialog::getSaveFileName(this, tr("Save Screenshot As"), initial_path, tr("PNG Files (*.png);;All Files (*)")));
 							if (!filename->isEmpty()) {
-								message.function = PVGL_COM_FUNCTION_TAKE_SCREENSHOT;
+								message.function = PVSDK_MESSENGER_FUNCTION_TAKE_SCREENSHOT;
 								message.pointer_1 = filename;
-								pvgl_com->post_message_to_gl(message);
+								pvsdk_messenger->post_message_to_gl(message);
 							}
 						}
 					break;
-			case PVGL_COM_FUNCTION_SCREENSHOT_TAKEN:
+			case PVSDK_MESSENGER_FUNCTION_SCREENSHOT_TAKEN:
 						{
 							QString *filename = reinterpret_cast<QString *>(message.pointer_1);
 							PVLOG_INFO("%s: destroying the screenshot filename: %s\n", __FUNCTION__, filename->toStdString().c_str());
 							delete filename;
 						}
 					break;
-			case PVGL_COM_FUNCTION_ONE_VIEW_DESTROYED:
+			case PVSDK_MESSENGER_FUNCTION_ONE_VIEW_DESTROYED:
 						{
 							QString *name = reinterpret_cast<QString *>(message.pointer_1);
 							PVLOG_DEBUG("%s: Should remove the window menu entry named: >%s<\n", __FUNCTION__, qPrintable(*name));
@@ -278,22 +279,22 @@ void PVInspector::PVMainWindow::check_messages()
 							delete name;
 						}
 					break;
-			case PVGL_COM_FUNCTION_VIEWS_DESTROYED:
+			case PVSDK_MESSENGER_FUNCTION_VIEWS_DESTROYED:
 					// Check that everyone has released its objects, and that the smart pointer will be deleted !!
 					if (message.pv_view.use_count() != 1) {
-						PVLOG_WARN("PVGL_COM_FUNCTION_VIEWS_DESTROYED: in PVMainWindow, after views destroyed, PVView has a use count of %d (should be 1)\n", message.pv_view.use_count());
+						PVLOG_WARN("PVSDK_MESSENGER_FUNCTION_VIEWS_DESTROYED: in PVMainWindow, after views destroyed, PVView has a use count of %d (should be 1)\n", message.pv_view.use_count());
 					}
 					if (message.pv_view->get_mapped_parent().use_count() != 2) {
-						PVLOG_WARN("PVGL_COM_FUNCTION_VIEWS_DESTROYED: in PVMainWindow, after views destroyed, PVMapped has a use count of %d (should be 2)\n", message.pv_view->get_mapped_parent().use_count());
+						PVLOG_WARN("PVSDK_MESSENGER_FUNCTION_VIEWS_DESTROYED: in PVMainWindow, after views destroyed, PVMapped has a use count of %d (should be 2)\n", message.pv_view->get_mapped_parent().use_count());
 					}
 					if (message.pv_view->get_plotted_parent().use_count() != 2) {
-						PVLOG_WARN("PVGL_COM_FUNCTION_VIEWS_DESTROYED: in PVMainWindow, after views destroyed, PVPlotted has a use count of %d (should be 2)\n", message.pv_view->get_plotted_parent().use_count());
+						PVLOG_WARN("PVSDK_MESSENGER_FUNCTION_VIEWS_DESTROYED: in PVMainWindow, after views destroyed, PVPlotted has a use count of %d (should be 2)\n", message.pv_view->get_plotted_parent().use_count());
 					}
 					if (message.pv_view->get_plotted_parent()->get_source_parent().use_count() != 2) {
-						PVLOG_WARN("PVGL_COM_FUNCTION_VIEWS_DESTROYED: in PVMainWindow, after views destroyed, PVSource has a use count of %d (should be 2)\n", message.pv_view->get_plotted_parent()->get_source_parent().use_count());
+						PVLOG_WARN("PVSDK_MESSENGER_FUNCTION_VIEWS_DESTROYED: in PVMainWindow, after views destroyed, PVSource has a use count of %d (should be 2)\n", message.pv_view->get_plotted_parent()->get_source_parent().use_count());
 					}
 					break;
-			case PVGL_COM_FUNCTION_VIEW_CREATED:
+			case PVSDK_MESSENGER_FUNCTION_VIEW_CREATED:
 						{
 							QString *name = reinterpret_cast<QString *>(message.pointer_1);
 
@@ -302,13 +303,13 @@ void PVInspector::PVMainWindow::check_messages()
 							delete name;
 						}
 					break;
-			case PVGL_COM_FUNCTION_COMMIT_SELECTION_IN_CURRENT_LAYER:
+			case PVSDK_MESSENGER_FUNCTION_COMMIT_SELECTION_IN_CURRENT_LAYER:
 					commit_selection_in_current_layer(message.pv_view);
 					break;
-			case PVGL_COM_FUNCTION_COMMIT_SELECTION_IN_NEW_LAYER:
+			case PVSDK_MESSENGER_FUNCTION_COMMIT_SELECTION_IN_NEW_LAYER:
 					commit_selection_to_new_layer(message.pv_view);
 					break;
-			case PVGL_COM_FUNCTION_SET_COLOR:
+			case PVSDK_MESSENGER_FUNCTION_SET_COLOR:
 					set_color(message.pv_view);
 					break;
 			default:
@@ -337,7 +338,7 @@ void PVInspector::PVMainWindow::commit_selection_in_current_layer(Picviz::PVView
 	/* We need to process the view from the layer_stack */
 	picviz_view->process_from_layer_stack();
 	/* We refresh the PVView_p */
-	update_pvglview(picviz_view, PVGL_COM_REFRESH_SELECTION);
+	update_pvglview(picviz_view, PVSDK_MESSENGER_REFRESH_SELECTION);
 	/* We refresh the listing */
 	//FIXME! This should be done in a function
 	for (int i = 0; i < pv_ListingsTabWidget->count();i++) {
@@ -404,9 +405,9 @@ void PVInspector::PVMainWindow::connect_actions()
 	connect(quit_Action, SIGNAL(triggered()), this, SLOT(quit_Slot()));
 	connect(select_scene_Action, SIGNAL(triggered()), this, SLOT(select_scene_Slot()));
 
-	connect(view_open_Action, SIGNAL(triggered()), this, SLOT(view_open_Slot()));
-	connect(view_save_Action, SIGNAL(triggered()), this, SLOT(view_save_Slot()));
-	connect(view_show_new_Action, SIGNAL(triggered()), this, SLOT(view_show_new_Slot()));
+	// connect(view_open_Action, SIGNAL(triggered()), this, SLOT(view_open_Slot()));
+	// connect(view_save_Action, SIGNAL(triggered()), this, SLOT(view_save_Slot()));
+	// connect(view_show_new_Action, SIGNAL(triggered()), this, SLOT(view_show_new_Slot()));
 	connect(view_new_scatter_Action, SIGNAL(triggered()), this, SLOT(view_new_scatter_Slot()));
 
 	connect(selection_all_Action, SIGNAL(triggered()), this, SLOT(selection_all_Slot()));
@@ -754,7 +755,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 	Picviz::PVPlotting_p import_plotting;
 	Picviz::PVPlotted_p import_plotted;
 	Picviz::PVView_p import_view;
-	PVGL::PVMessage message;
+	PVSDK::PVMessage message;
 
 	bool one_extraction_successful = false;
 	// Load a type of file per view
@@ -785,8 +786,8 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 		}
 
 		if (!PVExtractorWidget::show_job_progress_bar(job_import, cur_format.get_format_name(), job_import->nb_elts_max(), this)) {
-			message.function = PVGL_COM_FUNCTION_DESTROY_TRANSIENT;
-			pvgl_com->post_message_to_gl(message);
+			message.function = PVSDK_MESSENGER_FUNCTION_DESTROY_TRANSIENT;
+			pvsdk_messenger->post_message_to_gl(message);
 			continue;
 		}
 		job_import->wait_end();
@@ -795,20 +796,20 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 			PVLOG_ERROR("Cannot append source!\n");
 			QMessageBox msgBox;
 			msgBox.critical(this, "Cannot import file type", QString("The files %1 cannot be opened. It looks like the format is invalid (invalid regular expressions or filters).").arg(tab_name));
-			message.function = PVGL_COM_FUNCTION_DESTROY_TRANSIENT;
-			pvgl_com->post_message_to_gl(message);
+			message.function = PVSDK_MESSENGER_FUNCTION_DESTROY_TRANSIENT;
+			pvsdk_messenger->post_message_to_gl(message);
 			continue;
 		}
 		import_source->set_limits(pv_ImportFileDialog->from_line_edit->text().toUInt(), pv_ImportFileDialog->to_line_edit->text().toUInt());
 		import_source->get_extractor().dump_nraw();
 
 #ifndef CUDA
-		// Transient view. This need to be created before posting the "PVGL_COM_FUNCTION_CREATE_VIEW" message,
+		// Transient view. This need to be created before posting the "PVSDK_MESSENGER_FUNCTION_CREATE_VIEW" message,
 		// because the actual GL view is created by this message. Cf. libpvgl/src/PVMain.cpp::timer_func
 		// for more informations.
-		message.function = PVGL_COM_FUNCTION_PLEASE_WAIT;
+		message.function = PVSDK_MESSENGER_FUNCTION_PLEASE_WAIT;
 		message.pointer_1 = new QString(tab_name);
-		pvgl_com->post_message_to_gl(message);
+		pvsdk_messenger->post_message_to_gl(message);
 #endif
 
 		import_mapping = Picviz::PVMapping_p(new Picviz::PVMapping(import_source));
@@ -822,18 +823,18 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 		if(current_tab!=0)
                     connect(current_tab,SIGNAL(selection_changed_signal(bool)),this,SLOT(enable_menu_filter_Slot(bool)));
 #ifdef CUDA
-		// Transient view. This need to be created before posting the "PVGL_COM_FUNCTION_CREATE_VIEW" message,
+		// Transient view. This need to be created before posting the "PVSDK_MESSENGER_FUNCTION_CREATE_VIEW" message,
 		// because the actual GL view is created by this message. Cf. libpvgl/src/PVMain.cpp::timer_func
 		// for more informations.
-		message.function = PVGL_COM_FUNCTION_PLEASE_WAIT;
+		message.function = PVSDK_MESSENGER_FUNCTION_PLEASE_WAIT;
 		message.pointer_1 = new QString(tab_name);
-		pvgl_com->post_message_to_gl(message);
+		pvsdk_messenger->post_message_to_gl(message);
 #endif
 		
 		// Ask the PVGL to create a GL-View from the previous transient view
-		message.function = PVGL_COM_FUNCTION_CREATE_VIEW;
+		message.function = PVSDK_MESSENGER_FUNCTION_CREATE_VIEW;
 		message.pv_view = import_view;
-		pvgl_com->post_message_to_gl(message);
+		pvsdk_messenger->post_message_to_gl(message);
 		int new_tab_index = pv_ListingsTabWidget->addTab(current_tab, tab_name);
 		/* Set the new tab as the active tab */
 		pv_ListingsTabWidget->setCurrentIndex(new_tab_index);
@@ -878,8 +879,8 @@ void PVInspector::PVMainWindow::import_type_Slot()
  *****************************************************************************/
 void PVInspector::PVMainWindow::create_pvgl_thread ()
 {
-	pvgl_thread = new PVGL::PVThread ();
-	pvgl_com = pvgl_thread->get_com();
+	pvgl_thread = new PVGL::PVGLThread ();
+	pvsdk_messenger = pvgl_thread->get_messenger();
 	pvgl_thread->start ();
 	timer = new QTimer(this);
 	connect(timer, SIGNAL(timeout()), this, SLOT(check_messages()));
@@ -893,11 +894,11 @@ void PVInspector::PVMainWindow::create_pvgl_thread ()
  *****************************************************************************/
 void PVInspector::PVMainWindow::destroy_pvgl_views(Picviz::PVView_p view)
 {
-	PVGL::PVMessage message;
+	PVSDK::PVMessage message;
 
-	message.function = PVGL_COM_FUNCTION_DESTROY_VIEWS;
+	message.function = PVSDK_MESSENGER_FUNCTION_DESTROY_VIEWS;
 	message.pv_view = view;
-	pvgl_com->post_message_to_gl(message);
+	pvsdk_messenger->post_message_to_gl(message);
 }
 
 /******************************************************************************
@@ -926,7 +927,7 @@ void PVInspector::PVMainWindow::lines_display_unselected_Slot()
 	// state_machine->set_listing_unselected_visibility(state_machine->are_unselected_visible());//???
 	/* We refresh the view */
 	current_lib_view->process_visibility();
-	update_pvglview(current_lib_view, PVGL_COM_REFRESH_SELECTION);
+	update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
 	/* We refresh the listing */
 	current_tab->update_pv_listing_model_Slot();
 
@@ -1017,7 +1018,7 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 			/* We process the view from the selection */
 			current_lib_view->process_from_selection();
 			/* We refresh the view */
-			update_pvglview(current_lib_view, PVGL_COM_REFRESH_SELECTION);
+			update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
 			/* We refresh the listing */
 			current_tab->refresh_listing_with_horizontal_header_Slot();
 			current_tab->update_pv_listing_model_Slot();
@@ -1077,7 +1078,7 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 					break;
 			}
 
-			update_pvglview(current_lib_view, PVGL_COM_REFRESH_POSITIONS|PVGL_COM_REFRESH_AXES);
+			update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_POSITIONS|PVSDK_MESSENGER_REFRESH_AXES);
 			current_tab->refresh_listing_with_horizontal_header_Slot();
 			current_tab->update_pv_listing_model_Slot();
 			current_tab->refresh_listing_Slot();
@@ -1122,7 +1123,7 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 						break;
 			}
 
-			update_pvglview(current_lib_view, PVGL_COM_REFRESH_POSITIONS);
+			update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_POSITIONS);
 			current_tab->refresh_listing_with_horizontal_header_Slot();
 			break;
 
@@ -1137,7 +1138,7 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 			/* We need to process the view from the selection */
 			current_lib_view->process_from_selection();
 			/* THEN we can refresh the view */
-			update_pvglview(current_tab->get_lib_view(), PVGL_COM_REFRESH_SELECTION);
+			update_pvglview(current_tab->get_lib_view(), PVSDK_MESSENGER_REFRESH_SELECTION);
 			//refresh_current_view_Slot();
 			current_tab->refresh_listing_Slot();
 			break;
@@ -1163,7 +1164,7 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 						/* We need to process the view from the layer_stack */
 						current_lib_view->process_from_layer_stack();
 						/* THEN we can refresh the view */
-						update_pvglview(current_tab->get_lib_view(), PVGL_COM_REFRESH_SELECTION);
+						update_pvglview(current_tab->get_lib_view(), PVSDK_MESSENGER_REFRESH_SELECTION);
 						current_tab->refresh_listing_Slot();
 						PVLOG_INFO("%s: MetaModifier!\n", __FUNCTION__);
 						break;
@@ -1217,7 +1218,7 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 						break;
 			}
 
-			update_pvglview(current_lib_view, PVGL_COM_REFRESH_POSITIONS);
+			update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_POSITIONS);
 			current_tab->refresh_listing_with_horizontal_header_Slot();
 			break;
 
@@ -1254,7 +1255,7 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 					current_lib_view->process_from_layer_stack();
 					/* THEN we can emit the signal */
 					//refresh_current_view_Slot();
-					update_pvglview(current_tab->get_lib_view(), PVGL_COM_REFRESH_COLOR|PVGL_COM_REFRESH_ZOMBIES|PVGL_COM_REFRESH_SELECTION);
+					update_pvglview(current_tab->get_lib_view(), PVSDK_MESSENGER_REFRESH_COLOR|PVSDK_MESSENGER_REFRESH_ZOMBIES|PVSDK_MESSENGER_REFRESH_SELECTION);
 					current_tab->refresh_listing_Slot();
 					break;
 			}
@@ -1278,7 +1279,7 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 				/* We toggle the ANTIALIASING mode */
 				state_machine->toggle_antialiased();
 				/* We refresh the view */
-				update_pvglview(current_lib_view, PVGL_COM_REFRESH_SELECTION|PVGL_COM_REFRESH_ZOMBIES);
+				update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION|PVSDK_MESSENGER_REFRESH_ZOMBIES);
 				break;
 
 		// This is only for testing purposes !
@@ -1333,7 +1334,7 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 							current_lib_view->process_from_layer_stack();
 							/* THEN we can emit the signal */
 
-							update_pvglview(current_tab->get_lib_view(), PVGL_COM_REFRESH_SELECTION);
+							update_pvglview(current_tab->get_lib_view(), PVSDK_MESSENGER_REFRESH_SELECTION);
 							current_tab->refresh_listing_Slot();
 
 							break;
@@ -1372,7 +1373,7 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 							break;
 				}
 
-				update_pvglview(current_lib_view, PVGL_COM_REFRESH_SELECTION);
+				update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
 				current_tab->refresh_listing_with_horizontal_header_Slot();
 				break;
 
@@ -1428,12 +1429,12 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 
 									filename = new QString(QFileDialog::getSaveFileName(this, tr("Save Screenshot As"), initial_path, tr("PNG Files (*.png);;All Files (*)")));
 									if (!filename->isEmpty()) {
-										PVGL::PVMessage message;
-										message.function = PVGL_COM_FUNCTION_TAKE_SCREENSHOT;
+										PVSDK::PVMessage message;
+										message.function = PVSDK_MESSENGER_FUNCTION_TAKE_SCREENSHOT;
 										message.pv_view = current_lib_view;
 										message.int_1 = -1;
 										message.pointer_1 = filename;
-										pvgl_com->post_message_to_gl(message);
+										pvsdk_messenger->post_message_to_gl(message);
 									}
 								}
 							break;
@@ -1467,7 +1468,7 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 							state_machine->toggle_gl_unselected_visibility();
 							/* We refresh the view */
 							current_lib_view->process_visibility();
-							update_pvglview(current_lib_view, PVGL_COM_REFRESH_SELECTION);
+							update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
 							break;
 
 							/* We toggle both the Listing and the View */
@@ -1478,7 +1479,7 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 							state_machine->set_listing_unselected_visible(state_machine->are_gl_unselected_visible());
 							/* We refresh the view */
 							current_lib_view->process_visibility();
-							update_pvglview(current_lib_view, PVGL_COM_REFRESH_SELECTION);
+							update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
 							/* We refresh the listing */
 							current_tab->update_pv_listing_model_Slot();
 							break;
@@ -1514,7 +1515,7 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 						break;
 				}
 
-				update_pvglview(current_lib_view, PVGL_COM_REFRESH_POSITIONS);
+				update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_POSITIONS);
 				current_tab->refresh_listing_with_horizontal_header_Slot();
 				break;
 
@@ -1533,7 +1534,7 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 					state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_OFF);
 				}
 
-				update_pvglview(current_lib_view, PVGL_COM_REFRESH_SELECTION);
+				update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
 				current_tab->refresh_listing_Slot();
 				break;
 
@@ -1559,7 +1560,7 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 							state_machine->toggle_gl_zombie_visibility();
 							/* We refresh the view */
 							current_lib_view->process_visibility();
-							update_pvglview(current_lib_view, PVGL_COM_REFRESH_SELECTION);
+							update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
 							break;
 
 							/* We toggle both the Listing and the View */
@@ -1570,7 +1571,7 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 							state_machine->set_listing_zombie_visible(state_machine->are_gl_zombie_visible());
 							/* We refresh the view */
 							current_lib_view->process_visibility();
-							update_pvglview(current_lib_view, PVGL_COM_REFRESH_SELECTION);
+							update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
 							/* We refresh the listing */
 							current_tab->update_pv_listing_model_Slot();
 							break;
@@ -1595,7 +1596,7 @@ void PVInspector::PVMainWindow::refresh_view(Picviz::PVView_p picviz_view)
 				/* We refresh the layerstack */
 				tab->refresh_layer_stack_view_Slot();
 				/* We refresh the view */
-				update_pvglview(tab->get_lib_view(), PVGL_COM_REFRESH_SELECTION);
+				update_pvglview(tab->get_lib_view(), PVSDK_MESSENGER_REFRESH_SELECTION);
 				/* We refresh the listing */
 				tab->refresh_listing_Slot();
 			}
@@ -1644,7 +1645,7 @@ void PVInspector::PVMainWindow::set_color(Picviz::PVView_p picviz_view)
 	picviz_view->process_from_eventline();
 
 	/* We refresh the view */
-	update_pvglview(picviz_view, PVGL_COM_REFRESH_COLOR);
+	update_pvglview(picviz_view, PVSDK_MESSENGER_REFRESH_COLOR);
 	//FIXME! This should be done in a function
 	for (int i = 0; i < pv_ListingsTabWidget->count();i++) {
 		PVTabSplitter *tab = dynamic_cast<PVTabSplitter*>(pv_ListingsTabWidget->widget(i));
@@ -1693,12 +1694,12 @@ int PVInspector::PVMainWindow::update_check()
  *****************************************************************************/
 void PVInspector::PVMainWindow::update_pvglview(Picviz::PVView_p view, int refresh_states)
 {
-	PVGL::PVMessage message;
+	PVSDK::PVMessage message;
 
-	message.function = PVGL_COM_FUNCTION_REFRESH_VIEW;
+	message.function = PVSDK_MESSENGER_FUNCTION_REFRESH_VIEW;
 	message.pv_view = view;
 	message.int_1 = refresh_states;
-	pvgl_com->post_message_to_gl(message);
+	pvsdk_messenger->post_message_to_gl(message);
 }
 
 void PVInspector::PVMainWindow::update_statemachine_label(Picviz::PVView_p view)

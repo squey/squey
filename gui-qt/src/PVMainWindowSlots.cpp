@@ -89,10 +89,10 @@ void PVInspector::PVMainWindow::axes_display_edges_Slot()
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
 
 	// FIXME!!! Why is this broadcasted to every PVGL::PVView for every Picviz::PVView? Shouldn't it be reserved to the _current_ Picviz::PVView ?
-	PVGL::PVMessage message;
+	PVSDK::PVMessage message;
 
-	message.function = PVGL_COM_FUNCTION_TOGGLE_DISPLAY_EDGES;
-	pvgl_com->post_message_to_gl(message);
+	message.function = PVSDK_MESSENGER_FUNCTION_TOGGLE_DISPLAY_EDGES;
+	pvsdk_messenger->post_message_to_gl(message);
 }
 
 /******************************************************************************
@@ -210,7 +210,7 @@ void PVInspector::PVMainWindow::lines_display_unselected_GLview_Slot()
 	state_machine->toggle_gl_unselected_visibility();
 	/* We refresh the view */
 	current_lib_view->process_visibility();
-	update_pvglview(current_lib_view, PVGL_COM_REFRESH_SELECTION);
+	update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
 
 	if (!lines_display_unselected_GLview_Action->text().compare(QString(tr("Hide unselected lines in view")))) {
 		lines_display_unselected_GLview_Action->setText(QString(tr("Display unselected lines in view")));
@@ -241,7 +241,7 @@ void PVInspector::PVMainWindow::lines_display_zombies_Slot()
 	// state_machine->set_listing_zombie_visibility(state_machine->are_zombie_visible());
 	/* We refresh the view */
 	current_lib_view->process_visibility();
-	update_pvglview(current_lib_view, PVGL_COM_REFRESH_SELECTION);
+	update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
 	/* We refresh the listing */
 	current_tab->update_pv_listing_model_Slot();
 
@@ -299,7 +299,7 @@ void PVInspector::PVMainWindow::lines_display_zombies_GLview_Slot()
 	state_machine->toggle_gl_zombie_visibility();
 	/* We refresh the view */
 	current_lib_view->process_visibility();
-	update_pvglview(current_lib_view, PVGL_COM_REFRESH_SELECTION);
+	update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
 
 	if (!lines_display_zombies_GLview_Action->text().compare(QString(tr("Hide zombies lines in view")))) {
 		lines_display_zombies_GLview_Action->setText(QString(tr("Display zombies lines in view")));
@@ -552,7 +552,7 @@ void PVInspector::PVMainWindow::selection_all_Slot()
 	if (current_tab && current_tab->get_lib_view()) {
 		Picviz::PVView_p view = current_tab->get_lib_view();
 		view->select_all_nonzb_lines();
-		update_pvglview(view, PVGL_COM_REFRESH_SELECTION);
+		update_pvglview(view, PVSDK_MESSENGER_REFRESH_SELECTION);
 		current_tab->refresh_listing_Slot();
 	}
 }
@@ -571,7 +571,7 @@ void PVInspector::PVMainWindow::selection_none_Slot()
 		current_tab->get_lib_view()->volatile_selection.select_none();
 		current_tab->get_lib_view()->process_from_selection();
 		current_tab->get_lib_view()->process_from_eventline();
-		update_pvglview(current_tab->get_lib_view(), PVGL_COM_REFRESH_SELECTION);
+		update_pvglview(current_tab->get_lib_view(), PVSDK_MESSENGER_REFRESH_SELECTION);
 		current_tab->refresh_listing_Slot();
 	}
 }
@@ -590,7 +590,7 @@ void PVInspector::PVMainWindow::selection_inverse_Slot()
 		current_tab->get_lib_view()->volatile_selection = ~(current_tab->get_lib_view()->volatile_selection);
 		current_tab->get_lib_view()->process_from_selection();
 		current_tab->get_lib_view()->process_from_eventline();
-		update_pvglview(current_tab->get_lib_view(), PVGL_COM_REFRESH_SELECTION);
+		update_pvglview(current_tab->get_lib_view(), PVSDK_MESSENGER_REFRESH_SELECTION);
 		current_tab->refresh_listing_Slot();
 	}
 }
@@ -685,92 +685,12 @@ void PVInspector::PVMainWindow::view_new_scatter_Slot()
 	PVLOG_INFO("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
 	// Ask the PVGL to create a GL-View of the currently selected view.
 	if (current_tab && current_tab->get_lib_view()) {
-		PVGL::PVMessage message;
+		PVSDK::PVMessage message;
 
-		message.function = PVGL_COM_FUNCTION_CREATE_SCATTER_VIEW;
+		message.function = PVSDK_MESSENGER_FUNCTION_CREATE_SCATTER_VIEW;
 		message.pv_view = current_tab->get_lib_view();
 		message.pointer_1 = new QString(pv_ListingsTabWidget->tabText(pv_ListingsTabWidget->currentIndex()));
-		pvgl_com->post_message_to_gl(message);
-	}
-}
-
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::view_open_Slot
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::view_open_Slot()
-{
-	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
-	QStringList file_type_and_file_name;
-	QString file_name, file_type, file_absolute_path;
-	QMessageBox msgBox;
-
-	if (current_tab && current_tab->get_lib_view()) {
-		file_type_and_file_name = pv_OpenFileDialog->getFileName();
-		file_absolute_path = file_type_and_file_name[0];
-
-		if ( ! file_absolute_path.isEmpty() ) {
-			file_name = file_absolute_path.split("/").takeLast();
-		} else {
-			return;
-		}
-
-/* FIXME		if (!picviz_open_is_picviz_type(file_absolute_path.toUtf8().data())) {
-			msgBox.critical(this, "Not a Picviz file", "This file is not a Picviz file. Cannot open it!");
-			return;
-		}
-
-		picviz_open_inline(current_tab->get_lib_view(), file_absolute_path.toUtf8().data());
-*/
-		update_pvglview(current_tab->get_lib_view(), PVGL_COM_REFRESH_POSITIONS|PVGL_COM_REFRESH_Z|PVGL_COM_REFRESH_COLOR|PVGL_COM_REFRESH_ZOMBIES|PVGL_COM_REFRESH_SELECTION);
-		current_tab->refresh();
-	}
-}
-
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::view_save_Slot
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::view_save_Slot()
-{
-	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
-	QStringList file_type_and_file_name;
-	QString file_name, file_type, file_absolute_path;
-
-	if (current_tab && current_tab->get_lib_view()) {
-		file_type_and_file_name = pv_SaveFileDialog->getFileName();
-		file_absolute_path = file_type_and_file_name[0];
-
-		if ( ! file_absolute_path.isEmpty() ) {
-			file_name = file_absolute_path.split("/").takeLast();
-		} else {
-			return;
-		}
-
-// FIXME		picviz_save(current_tab->get_lib_view(), file_absolute_path.toUtf8().data());
-	}
-}
-
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::view_show_new_Slot
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::view_show_new_Slot()
-{
-	// Ask the PVGL to create a GL-View of the currently selected view.
-	if (current_tab && current_tab->get_lib_view()) {
-		PVGL::PVMessage message;
-		message.function = PVGL_COM_FUNCTION_PLEASE_WAIT;
-		message.pointer_1 = new QString(pv_ListingsTabWidget->tabText(pv_ListingsTabWidget->currentIndex()));
-		pvgl_com->post_message_to_gl(message);
-
-		message.function = PVGL_COM_FUNCTION_CREATE_VIEW;
-		message.pv_view = current_tab->get_lib_view();
-		message.pointer_1 = new QString(pv_ListingsTabWidget->tabText(pv_ListingsTabWidget->currentIndex()));
-		pvgl_com->post_message_to_gl(message);
+		pvsdk_messenger->post_message_to_gl(message);
 	}
 }
 
@@ -796,9 +716,9 @@ void PVInspector::PVMainWindow::file_format_builder_Slot() {
     editorWidget->show();
 }
 
-PVGL::PVCom* PVInspector::PVMainWindow::get_pvcom()
+PVSDK::PVMessenger* PVInspector::PVMainWindow::get_pvmessenger()
 {
-	return pvgl_com;
+	return pvsdk_messenger;
 }
 
 /******************************************************************************
