@@ -3,13 +3,13 @@
 <param version="1">
  <splitter type="regexp" regexp=".*\&quot;\[(\d+/\w+/\d+:[\d:]+ [^\]]+)\]\&quot; ([^ ]+) (GET|POST|PUT|OPTIONS|DELETE|TRACE|HEAD|PROPFIND) (.*) [^ ]+ (\d+) (\d+) \d+ \d+ ([\w_]+) \d+ (\d+).* ">
   <field>
-   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="d/MMM/yyy:H:m:ss Z" group="none" type="time" name="Date" plotting="default" color="#ffffff" time-sample="27/Feb/2011:23:56:16 +0100"/>
+   <axis titlecolor="#ffffff" key="false" mapping="24h" time-format="d/MMM/yyy:H:m:ss Z" group="none" type="time" name="Date" plotting="minmax" color="#ffffff" time-sample="27/Feb/2011:23:56:16 +0100"/>
   </field>
   <field>
    <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="string" name="user" plotting="default" color="#ffffff" time-sample=""/>
   </field>
   <field>
-   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="string" name="Methode" plotting="default" color="#ffffff" time-sample=""/>
+   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="enum" name="Methode" plotting="default" color="#ffffff" time-sample=""/>
   </field>
   <field>
    <splitter type="url">
