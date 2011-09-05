@@ -3,12 +3,11 @@
 #include <pvkernel/filter/PVFieldsFilter.h>
 #include <pvkernel/filter/PVElementFilterByFields.h>
 
-
 #include <QLabel>
 #include <QVBoxLayout>
-
 #include <QSpacerItem>
 #include <QPushButton>
+
 
 /******************************************************************************
  *
@@ -131,9 +130,17 @@ void PVFilter::PVFieldSplitterRegexpParamWidget::slotUpdateTableValidator(){
     table_validator_TableWidget->setRowCount(myText.count());
 
 	PVFilter::PVElementFilterByFields elt_f(_filter->f());
+
+	// Text selections list
+	QList<QTextEdit::ExtraSelection>  rx_sels;
+	QTextEdit::ExtraSelection txt_sel;
+	txt_sel.format.setBackground(QBrush(QColor(Qt::gray).lighter(100)));
+	txt_sel.cursor = validator_textEdit->textCursor();
+	uint64_t line_index = 0;
     for (PVRow line = 0; line < (PVRow) myText.count(); line++) {//for each line...
         QString myLine = myText.at(line);
-		PVCore::PVElement elt(NULL, (char*) myLine.constData(), (char*) (myLine.constData() + myLine.size()));
+		const QChar* start = myLine.constData();
+		PVCore::PVElement elt(NULL, (char*) start, (char*) (start + myLine.size()));
 		// Filter this element
 		elt_f(elt);
 		if (!elt.valid()) {
@@ -147,13 +154,26 @@ void PVFilter::PVFieldSplitterRegexpParamWidget::slotUpdateTableValidator(){
 			PVCore::PVField& out_f = *it;
 			// Create a deep copy of that field
 			QString deep_copy((const QChar*) out_f.begin(), out_f.size()/sizeof(QChar));
+
+			// Compute indexes for text selection
+			uintptr_t index_start = ((uintptr_t)out_f.begin() - (uintptr_t)start)/sizeof(QChar);
+			uintptr_t index_end = ((uintptr_t)out_f.end() - (uintptr_t)start)/sizeof(QChar);
+
+			// Set the item in the "validation table"
 			table_validator_TableWidget->setItem(line, col, new QTableWidgetItem(deep_copy));
+
+			// Colorize the field in the original text
+			txt_sel.cursor.setPosition(line_index + index_start);
+			txt_sel.cursor.setPosition(line_index + index_end, QTextCursor::KeepAnchor);
+			rx_sels << txt_sel;
+
 			col++;
 		}
+		line_index += myLine.size() + 1;
     }
     table_validator_TableWidget->setContentsMargins(3, 0, 3, 0);
+	validator_textEdit->setExtraSelections(rx_sels);
 }
-
 
 /******************************************************************************
  *
