@@ -10,6 +10,7 @@ mapping_filter_float_default
 mapping_filter_integer_default
 mapping_filter_ipv4_default
 mapping_filter_enum_default
+mapping_filter_host_default
 mapping_filter_string_default
 mapping_filter_string_4Bsort
 mapping_filter_string_sort
