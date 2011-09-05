@@ -31,5 +31,5 @@ target_link_libraries(plotting_filter_integer_port ${LINK_LIBRARIES})
 add_library(plotting_filter_time_default SHARED time_default/PVPlottingFilterTimeDefault.cpp time_default/register.cpp)
 target_link_libraries(plotting_filter_time_default ${LINK_LIBRARIES})
 
-INSTALL(TARGETS ${FILTERS_DIST_LIST} DESTINATION plotting-filters)
+INSTALL(TARGETS ${FILTERS_DIST_LIST} RUNTIME DESTINATION plotting-filters)
 INSTALL(FILES ${FILTERS_DIST_FILES} DESTINATION plotting-filters)
