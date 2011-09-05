@@ -9,6 +9,7 @@ normalize-helpers/pcap/local-192-168-src.format
 
 SET(NORMALIZE_TEXT_FORMAT_FILES
 normalize-helpers/text/apache.access.format
+normalize-helpers/text/bluecoat.format
 normalize-helpers/text/bind.query.format
 normalize-helpers/text/iis.format
 normalize-helpers/text/iptables.format
