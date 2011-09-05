@@ -53,9 +53,14 @@ void PVFilter::PVFieldSplitterRegexp::set_args(PVCore::PVArgumentList const& arg
 	_regexp.reset(RegexPattern::compile(icu_pat, pe, err));
 	if (U_FAILURE(err)) {
 		PVLOG_WARN("Unable to compile pattern '%s' with ICU !\n", qPrintable(pattern));
+		_valid_rx = false;
+	}
+	else {
+		_valid_rx = true;
 	}
 #else
 	_regexp.setPattern(args["regexp"].toString());
+	_valid_rx = true;
 #endif
 }
 
@@ -67,6 +72,10 @@ void PVFilter::PVFieldSplitterRegexp::set_args(PVCore::PVArgumentList const& arg
 
 PVCore::list_fields::size_type PVFilter::PVFieldSplitterRegexp::one_to_many(PVCore::list_fields &l, PVCore::list_fields::iterator it_ins, PVCore::PVField &field)
 {
+	if (!_valid_rx) {
+		field.set_invalid();
+		return 0;
+	}
 #ifdef PROCESS_REGEXP_ICU
 	if (_regexp_matcher_thread.get() == NULL || _regexp_pattern_thread.get() == NULL || *(_regexp_pattern_thread.get()) !=  _regexp.get()) {
 		UErrorCode err = U_ZERO_ERROR;
