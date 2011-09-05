@@ -1,49 +1,49 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE PVParamXml>
 <param version="1">
- <splitter type="regexp" regexp=".*\&quot;\[(\d+/\w+/\d+:[\d:]+ [^\]]+)\]\&quot; ([^ ]+) (GET|POST|PUT|OPTIONS|DELETE|TRACE|HEAD|PROPFIND) (.*) [^ ]+ (\d+) (\d+) \d+ \d+ ([\w_]+) \d+ (\d+).* ">
-  <field>
-   <axis titlecolor="#ffffff" key="false" mapping="24h" time-format="d/MMM/yyy:H:m:ss Z" group="none" type="time" name="Date" plotting="minmax" color="#ffffff" time-sample="27/Feb/2011:23:56:16 +0100"/>
-  </field>
-  <field>
-   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="string" name="user" plotting="default" color="#ffffff" time-sample=""/>
-  </field>
-  <field>
-   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="enum" name="Methode" plotting="default" color="#ffffff" time-sample=""/>
-  </field>
-  <field>
-   <splitter type="url">
-    <field>
-     <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" type="enum" name="Protocol" plotting="default" color="#ffffff"/>
-    </field>
-    <field>
-     <axis titlecolor="#ffffff" key="true" mapping="default" time-format="" type="host" name="Domain" plotting="default" color="#ffffff"/>
-    </field>
-    <field>
-     <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" type="enum" name="TLD" plotting="default" color="#ffffff"/>
-    </field>
-    <field>
-     <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" type="integer" name="Port" plotting="default" color="#ffffff"/>
-    </field>
-    <field>
-     <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" type="string" name="URL" plotting="default" color="#ffffff"/>
-    </field>
-    <field>
-     <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" type="string" name="Variable" plotting="default" color="#ffffff"/>
-    </field>
-   </splitter>
-  </field>
-  <field>
-   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="enum" name="RetCode" plotting="default" color="#ffffff" time-sample=""/>
-  </field>
-  <field>
-   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="enum" name="Taille" plotting="default" color="#ffffff" time-sample=""/>
-  </field>
-  <field>
-   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="string" name="Code TCP" plotting="default" color="#ffffff" time-sample=""/>
-  </field>
-  <field>
-   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="enum" name="Durée" plotting="default" color="#ffffff" time-sample=""/>
-  </field>
- </splitter>
+	<splitter type="regexp" regexp=".*\&quot;\[(\d+/\w+/\d+:[\d:]+ [^\]]+)\]\&quot; ([^ ]+) (GET|POST|PUT|OPTIONS|DELETE|TRACE|HEAD|PROPFIND) (.*) [^ ]+ (\d+) (\d+) \d+ \d+ ([\w_]+) \d+ (\d+).* ">
+		<field>
+			<axis titlecolor="#ffffff" key="false" mapping="24h" time-format="d/MMM/yyy:H:m:ss Z" group="none" type="time" name="Date" plotting="minmax" color="#ffffff" time-sample="27/Feb/2011:23:56:16 +0100"/>
+		</field>
+		<field>
+			<axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="string" name="user" plotting="default" color="#ffffff" time-sample=""/>
+		</field>
+		<field>
+			<axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="enum" name="Methode" plotting="default" color="#ffffff" time-sample=""/>
+		</field>
+		<field>
+			<splitter type="url">
+				<field>
+					<axis titlecolor="#ffffff" key="false" mapping="default" time-format="" type="enum" name="Protocol" plotting="default" color="#ffffff"/>
+				</field>
+				<field>
+					<axis titlecolor="#ffffff" key="true" mapping="default" time-format="" type="host" name="Domain" plotting="default" color="#ffffff"/>
+				</field>
+				<field>
+					<axis titlecolor="#ffffff" key="false" mapping="default" time-format="" type="enum" name="TLD" plotting="default" color="#ffffff"/>
+				</field>
+				<field>
+					<axis titlecolor="#ffffff" key="false" mapping="default" time-format="" type="integer" name="Port" plotting="default" color="#ffffff"/>
+				</field>
+				<field>
+					<axis titlecolor="#ffffff" key="false" mapping="default" time-format="" type="string" name="URL" plotting="default" color="#ffffff"/>
+				</field>
+				<field>
+					<axis titlecolor="#ffffff" key="false" mapping="default" time-format="" type="string" name="Variable" plotting="default" color="#ffffff"/>
+				</field>
+			</splitter>
+		</field>
+		<field>
+			<axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="enum" name="RetCode" plotting="default" color="#ffffff" time-sample=""/>
+		</field>
+		<field>
+			<axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="enum" name="Taille" plotting="default" color="#ffffff" time-sample=""/>
+		</field>
+		<field>
+			<axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="string" name="Code TCP" plotting="default" color="#ffffff" time-sample=""/>
+		</field>
+		<field>
+			<axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="enum" name="Durée" plotting="default" color="#ffffff" time-sample=""/>
+		</field>
+	</splitter>
 </param>

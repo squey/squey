@@ -143,31 +143,29 @@ void PVFilter::PVFieldSplitterRegexpParamWidget::slotUpdateTableValidator(){
 		PVCore::PVElement elt(NULL, (char*) start, (char*) (start + myLine.size()));
 		// Filter this element
 		elt_f(elt);
-		if (!elt.valid()) {
-			continue;
-		}
+		if (elt.valid()) {
+			PVCore::list_fields& lf = elt.fields();
+			PVCore::list_fields::iterator it;
+			PVCol col = 0;
+			for (it = lf.begin(); it != lf.end(); it++) {
+				PVCore::PVField& out_f = *it;
+				// Create a deep copy of that field
+				QString deep_copy((const QChar*) out_f.begin(), out_f.size()/sizeof(QChar));
 
-		PVCore::list_fields& lf = elt.fields();
-		PVCore::list_fields::iterator it;
-		PVCol col = 0;
-		for (it = lf.begin(); it != lf.end(); it++) {
-			PVCore::PVField& out_f = *it;
-			// Create a deep copy of that field
-			QString deep_copy((const QChar*) out_f.begin(), out_f.size()/sizeof(QChar));
+				// Compute indexes for text selection
+				uintptr_t index_start = ((uintptr_t)out_f.begin() - (uintptr_t)start)/sizeof(QChar);
+				uintptr_t index_end = ((uintptr_t)out_f.end() - (uintptr_t)start)/sizeof(QChar);
 
-			// Compute indexes for text selection
-			uintptr_t index_start = ((uintptr_t)out_f.begin() - (uintptr_t)start)/sizeof(QChar);
-			uintptr_t index_end = ((uintptr_t)out_f.end() - (uintptr_t)start)/sizeof(QChar);
+				// Set the item in the "validation table"
+				table_validator_TableWidget->setItem(line, col, new QTableWidgetItem(deep_copy));
 
-			// Set the item in the "validation table"
-			table_validator_TableWidget->setItem(line, col, new QTableWidgetItem(deep_copy));
+				// Colorize the field in the original text
+				txt_sel.cursor.setPosition(line_index + index_start);
+				txt_sel.cursor.setPosition(line_index + index_end, QTextCursor::KeepAnchor);
+				rx_sels << txt_sel;
 
-			// Colorize the field in the original text
-			txt_sel.cursor.setPosition(line_index + index_start);
-			txt_sel.cursor.setPosition(line_index + index_end, QTextCursor::KeepAnchor);
-			rx_sels << txt_sel;
-
-			col++;
+				col++;
+			}
 		}
 		line_index += myLine.size() + 1;
     }
