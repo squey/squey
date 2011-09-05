@@ -316,13 +316,13 @@ void PVInspector::PVXmlParamWidgetBoardAxis::initValue()
     if (node_mapping.isEmpty()) {
 		node_mapping = PVFORMAT_AXIS_MAPPING_DEFAULT;
 	}
-	comboMapping->select(PVFORMAT_AXIS_MAPPING_DEFAULT);
+	comboMapping->select(node_mapping);
 
 	QString node_plotting = node->attribute(PVFORMAT_AXIS_PLOTTING_STR);
     if (node_plotting.isEmpty()) {
 		node_plotting = PVFORMAT_AXIS_PLOTTING_DEFAULT;
 	}
-	comboPlotting->select(PVFORMAT_AXIS_PLOTTING_DEFAULT);
+	comboPlotting->select(node_plotting);
     
     
     //extra
@@ -330,7 +330,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::initValue()
     if (node_key.isEmpty()) {
 		node_key = PVFORMAT_AXIS_KEY_DEFAULT;
 	}
-	comboKey->select(PVFORMAT_AXIS_KEY_DEFAULT);
+	comboKey->select(node_key);
 
 	QString node_color = node->attribute(PVFORMAT_AXIS_COLOR_STR);
     if (node_color.isEmpty()) {
