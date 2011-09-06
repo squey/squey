@@ -30,6 +30,7 @@ DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterSearch)
 	PVCore::PVArgumentList args;
 	args["Regular expression"] = QRegExp("(.*)");
 	args["Axis"].setValue(PVCore::PVAxisIndexType(0));
+	args["Include or exclude pattern"].setValue(PVCore::PVAxisIndexType(0));
 	return args;
 }
 

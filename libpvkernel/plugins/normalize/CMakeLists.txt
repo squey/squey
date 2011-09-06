@@ -51,7 +51,7 @@ add_library(normalize_filter_grep_regexp SHARED grep_regexp/PVFieldFilterRegexpG
 target_link_libraries(normalize_filter_grep_regexp ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
 declare_library(normalize_filter_grep_regexp)
 
-INSTALL(TARGETS ${NORMALIZE_FILTERS_DIST_LIST} RUNTIME DESTINATION normalize-filters)
+INSTALL(TARGETS ${NORMALIZE_FILTERS_DIST_LIST} LIBRARY DESTINATION normalize-filters)
 INSTALL(FILES ${NORMALIZE_FILTERS_DIST_FILES} DESTINATION normalize-filters)
 
 SET(NORMALIZE_FILTERS_LIB_LIST ${_NORMALIZE_FILTERS_LIB_LIST} PARENT_SCOPE)
