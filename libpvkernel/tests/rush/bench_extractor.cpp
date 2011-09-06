@@ -25,7 +25,7 @@
 
 #define NLINES 10000000
 
-#define NTRIES 1
+#define NTRIES 2
 
 void clear_disk_cache()
 {
@@ -44,7 +44,7 @@ double bench(PVRush::PVExtractor &ext, size_t nlines)
 	ext.start_controller();
 	double dur = 0;
 	for (int i = 0; i < NTRIES; i++) {
-		clear_disk_cache();
+		//clear_disk_cache();
 		tbb::tick_count start = tbb::tick_count::now();
 		PVRush::PVControllerJob_p job = ext.process_from_agg_nlines(0, nlines);
 		job->wait_end();
@@ -194,9 +194,7 @@ int main(int argc, char** argv)
 
 		// Serial reading with UTF16 transformation
 		printf("Serial reading with UTF16 transformation");
-		//CALLGRIND_START_INSTRUMENTATION
 		dur = bench_utf16(lfiles, chk_flt_null.f(), chunk_size, NLINES, nchunks);
-		//CALLGRIND_STOP_INSTRUMENTATION
 		print_perf(dur, total_read);
 		
 		// Serial reading with UTF16 transformation and alignement
@@ -204,6 +202,7 @@ int main(int argc, char** argv)
 		dur = bench_utf16_align(lfiles, chk_flt_null.f(), chunk_size, NLINES, nchunks);
 		print_perf(dur, total_read);
 		
+#if 0
 		// Parallel URL splitter only
 		
 		// Parallel regexp splitter only
@@ -211,13 +210,25 @@ int main(int argc, char** argv)
 
 		dur = bench_utf16_align(lfiles, fchunk.f(), chunk_size, NLINES, nchunks);
 		print_perf(dur, total_read);
+#endif
 	}
+	
+	printf("Parallel CSV splitter");
+	PVFilter::PVFieldsSplitter::p_type csv_lib_p = LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("csv");
+	PVFilter::PVFieldsBaseFilter_p fcsv_in = csv_lib_p->clone<PVFilter::PVFieldsBaseFilter>();
+	args.clear();
+	args["sep"] = QChar('|');
+	fcsv_in->set_args(args);
+	dur = bench_utf16_align(lfiles, fchunk.f(), chunk_size, NLINES, nchunks);
+	print_perf(dur, total_read);
 
+#if 0
 	printf("Parallel squid regexp splitter only");
 	args["regexp"] = PVCore::PVArgument(QString("([0-9]+)[0-9.]*\\s+[0-9]+\\s+[0-9]+\\s+[A-Z/_-]+([0-9]+)\\s+[0-9]+\\s+(GET|POST|PUT|OPTIONS)\\s+(\\S+)\\s+(\\S+)\\s+([^/]+)/(\\d+.\\d+.\\d+.\\d+)"));
 	fre_in->set_args(args);
 	dur = bench_utf16_align(lfiles, fchunk.f(), chunk_size, NLINES, nchunks);
 	print_perf(dur, total_read);
+#endif
 
 	// Parallel regexp grep only
 	
