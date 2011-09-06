@@ -39,6 +39,7 @@ PVInspector::PVEnumEditor::~PVEnumEditor()
 void PVInspector::PVEnumEditor::set_enum(PVCore::PVEnumType e)
 {
 	_e = e;
+	clear();
 	addItems(e.get_list());
 	setCurrentIndex(e.get_sel_index());
 }
