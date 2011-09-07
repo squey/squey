@@ -27,7 +27,8 @@ public:
 	PVBufferSlice(char* begin, char* end, buf_list_t &buf_list);
 	PVBufferSlice(buf_list_t &buf_list);
 	PVBufferSlice(PVBufferSlice const& src): _buf_list(src._buf_list) { copy_from(src); };
-	virtual ~PVBufferSlice();
+	// Destructor "inline" for performance reasons
+	virtual ~PVBufferSlice() {}
 public:
 	inline PVBufferSlice& operator=(PVBufferSlice const& src) { copy_from(src); return *this; };
 public:

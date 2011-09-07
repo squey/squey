@@ -137,6 +137,13 @@ int main(int argc, char** argv)
 	QCoreApplication(argc, argv);
 	init_env();
 
+#ifdef __SSE4_1__
+	std::cout << "Tests compiled w/ SSE4.1." << std::endl;
+	if (PVCore::PVIntrinsics::has_sse41()) {
+		std::cout << "SSE4.1 enabled." << std::endl;
+	}
+#endif
+
 	int nfiles = argc-4;
 	char** files = &argv[4];
 	QStringList lfiles;
@@ -219,7 +226,9 @@ int main(int argc, char** argv)
 	args.clear();
 	args["sep"] = QChar('|');
 	fcsv_in->set_args(args);
-	dur = bench_utf16_align(lfiles, fchunk.f(), chunk_size, NLINES, nchunks);
+	PVFilter::PVElementFilterByFields felt_csv(fcsv_in->f());
+	PVFilter::PVChunkFilterByElt fchunk_csv(felt_csv.f());
+	dur = bench_utf16_align(lfiles, fchunk_csv.f(), chunk_size, NLINES, nchunks);
 	print_perf(dur, total_read);
 
 #if 0
