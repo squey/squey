@@ -10,6 +10,7 @@ mapping_filter_float_default
 mapping_filter_integer_default
 mapping_filter_ipv4_default
 mapping_filter_enum_default
+mapping_filter_host_default
 mapping_filter_string_default
 mapping_filter_string_4Bsort
 mapping_filter_string_sort
@@ -64,5 +65,5 @@ add_library(mapping_filter_mandatory_minmax SHARED mandatory_minmax/PVMandatoryM
 target_link_libraries(mapping_filter_mandatory_minmax ${LINK_LIBRARIES})
 
 
-INSTALL(TARGETS ${FILTERS_DIST_LIST} DESTINATION mapping-filters)
+INSTALL(TARGETS ${FILTERS_DIST_LIST} LIBRARY DESTINATION mapping-filters)
 INSTALL(FILES ${FILTERS_DIST_FILES} DESTINATION mapping-filters)

@@ -32,10 +32,6 @@ PVCore::PVBufferSlice::PVBufferSlice(char* begin, char* end, buf_list_t& buf_lis
 	_realloc_buf = NULL;
 }
 
-PVCore::PVBufferSlice::~PVBufferSlice()
-{
-}
-
 void PVCore::PVBufferSlice::set_begin(char* p)
 {
 	_begin = p;

@@ -35,8 +35,14 @@
 #define PVLOG_CUDA_ERROR(fmt, ...) PVCore::PVLogger::getInstance()->cudaError(fmt, ##__VA_ARGS__) 
 #define PVLOG_WARN(fmt, ...) PVCore::PVLogger::getInstance()->warn(fmt, ##__VA_ARGS__) 
 #define PVLOG_INFO(fmt, ...) PVCore::PVLogger::getInstance()->info(fmt, ##__VA_ARGS__) 
+#ifdef NDEBUG
+// If we are in release mode, PVLOG_DEBUG and PVLOG_HEAVYDEBUG must not produce any code !
+#define PVLOG_DEBUG(fmt, ...)
+#define PVLOG_HEAVYDEBUG(fmt, ...)
+#else
 #define PVLOG_DEBUG(fmt, ...) PVCore::PVLogger::getInstance()->debug(fmt, ##__VA_ARGS__) 
 #define PVLOG_HEAVYDEBUG(fmt, ...) PVCore::PVLogger::getInstance()->heavydebug(fmt, ##__VA_ARGS__)
+#endif
 // The next MACRO outputs the given message without prefixing it with the usual stuff (works as a printf)
 #define PVLOG_PLAIN(fmt, ...) PVCore::PVLogger::getInstance()->plain(fmt, ##__VA_ARGS__) 
 #endif

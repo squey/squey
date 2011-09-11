@@ -40,5 +40,5 @@ target_link_libraries(layer_filter_webmail ${LINK_LIBRARIES})
 add_library(layer_filter_attacks SHARED find-attacks/PVLayerFilterFindAttacks.cpp find-attacks/register.cpp)
 target_link_libraries(layer_filter_attacks ${LINK_LIBRARIES})
 
-INSTALL(TARGETS ${FILTERS_DIST_LIST} DESTINATION layer-filters)
+INSTALL(TARGETS ${FILTERS_DIST_LIST} LIBRARY DESTINATION layer-filters)
 INSTALL(FILES ${FILTERS_DIST_FILES} DESTINATION layer-filters)

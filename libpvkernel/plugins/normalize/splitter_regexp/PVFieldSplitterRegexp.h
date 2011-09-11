@@ -46,6 +46,8 @@ protected:
 	//boost::thread_specific_ptr<QRegExp> _regexp_thread;
 #endif
 
+	bool _valid_rx;
+
 	CLASS_FILTER(PVFilter::PVFieldSplitterRegexp)
 };
 

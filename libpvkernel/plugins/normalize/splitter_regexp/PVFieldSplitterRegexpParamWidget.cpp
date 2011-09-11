@@ -1,13 +1,13 @@
 #include "PVFieldSplitterRegexpParamWidget.h"
 #include "PVFieldSplitterRegexp.h"
 #include <pvkernel/filter/PVFieldsFilter.h>
-
+#include <pvkernel/filter/PVElementFilterByFields.h>
 
 #include <QLabel>
 #include <QVBoxLayout>
-
 #include <QSpacerItem>
 #include <QPushButton>
+
 
 /******************************************************************************
  *
@@ -32,7 +32,7 @@ PVFilter::PVFieldSplitterRegexpParamWidget::PVFieldSplitterRegexpParamWidget() :
 void PVFilter::PVFieldSplitterRegexpParamWidget::initWidget(){
     PVCore::PVArgumentList l =  get_filter()->get_args();
     expression_lineEdit = new QLineEdit(l["regexp"].toString());
-    child_count_text = new QLabel("child count");
+    child_count_text = new QLabel("Expression validator");
     validator_textEdit = new QTextEdit(get_data().join("\n"));
     table_validator_TableWidget = new QTableWidget();
     btn_apply = new QPushButton(tr("Apply"));
@@ -117,37 +117,61 @@ void PVFilter::PVFieldSplitterRegexpParamWidget::slotExpressionChanged(){
  *****************************************************************************/
 void PVFilter::PVFieldSplitterRegexpParamWidget::slotUpdateTableValidator(){
     PVLOG_DEBUG("slotUpdateTableValidator() : PVFieldSplitterRegexpParamWidget\n");
-    QRegExp reg = QRegExp(expression_lineEdit->text());
-    //update the number of column
-    reg.indexIn(validator_textEdit->toPlainText(), 0);
-    table_validator_TableWidget->setColumnCount(reg.captureCount());
+	PVCol nfields;
+	{
+		QRegExp reg(expression_lineEdit->text());
+		nfields = reg.captureCount();
+		//update the number of column
+		table_validator_TableWidget->setColumnCount(nfields);
+	}
     
-
-
     //feed each line with the matching in text zone.
     QStringList myText = validator_textEdit->toPlainText().split("\n");
-    PVLOG_DEBUG("child count :\n%d\n",myText.count());
     table_validator_TableWidget->setRowCount(myText.count());
-    //updateHeaderTable();//can't access to the node ...
-    for (int line = 0; line < myText.count(); line++) {//for each line...
+
+	PVFilter::PVElementFilterByFields elt_f(_filter->f());
+
+	// Text selections list
+	QList<QTextEdit::ExtraSelection>  rx_sels;
+	QTextEdit::ExtraSelection txt_sel;
+	txt_sel.format.setBackground(QBrush(QColor(Qt::gray).lighter(100)));
+	txt_sel.cursor = validator_textEdit->textCursor();
+	uint64_t line_index = 0;
+    for (PVRow line = 0; line < (PVRow) myText.count(); line++) {//for each line...
         QString myLine = myText.at(line);
-        //if (reg.indexIn(myLine, 0)) {
-            for (int cap = 0; cap < reg.captureCount(); cap++) {//for each column (regexp selection)...
-                reg.indexIn(myLine, 0);
-                table_validator_TableWidget->setItem(line, cap, new QTableWidgetItem(reg.cap(cap + 1)));
-                int width = 12 + (8 * reg.cap(cap + 1).length());
-                if (width > table_validator_TableWidget->columnWidth(cap)) {
-                    table_validator_TableWidget->setColumnWidth(cap, width); //update the size
-                }
-            }
-        //}
+		const QChar* start = myLine.constData();
+		PVCore::PVElement elt(NULL, (char*) start, (char*) (start + myLine.size()));
+		// Filter this element
+		elt_f(elt);
+		if (elt.valid()) {
+			PVCore::list_fields& lf = elt.fields();
+			PVCore::list_fields::iterator it;
+			PVCol col = 0;
+			for (it = lf.begin(); it != lf.end(); it++) {
+				PVCore::PVField& out_f = *it;
+				// Create a deep copy of that field
+				QString deep_copy((const QChar*) out_f.begin(), out_f.size()/sizeof(QChar));
+
+				// Compute indexes for text selection
+				uintptr_t index_start = ((uintptr_t)out_f.begin() - (uintptr_t)start)/sizeof(QChar);
+				uintptr_t index_end = ((uintptr_t)out_f.end() - (uintptr_t)start)/sizeof(QChar);
+
+				// Set the item in the "validation table"
+				table_validator_TableWidget->setItem(line, col, new QTableWidgetItem(deep_copy));
+
+				// Colorize the field in the original text
+				txt_sel.cursor.setPosition(line_index + index_start);
+				txt_sel.cursor.setPosition(line_index + index_end, QTextCursor::KeepAnchor);
+				rx_sels << txt_sel;
+
+				col++;
+			}
+		}
+		line_index += myLine.size() + 1;
     }
     table_validator_TableWidget->setContentsMargins(3, 0, 3, 0);
+	validator_textEdit->setExtraSelections(rx_sels);
 }
-
-
-
-
 
 /******************************************************************************
  *

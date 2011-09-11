@@ -34,7 +34,7 @@ splitter_regexp/PVFieldSplitterRegexpParamWidget.h
 )
 QT4_WRAP_CPP(REGEXP_MOC_SRCS ${REGEXP_MOC_HEADERS})
 add_library(normalize_filter_splitter_regexp SHARED splitter_regexp/PVFieldSplitterRegexp.cpp splitter_regexp/PVFieldSplitterRegexp.h splitter_regexp/PVFieldSplitterRegexpParamWidget.cpp ${REGEXP_MOC_SRCS} splitter_regexp/register.cpp)
-target_link_libraries(normalize_filter_splitter_regexp ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
+target_link_libraries(normalize_filter_splitter_regexp ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES} ${Boost_LIBRARIES} ${ICU_LIBRARY})
 declare_library(normalize_filter_splitter_regexp)
 
 add_library(normalize_filter_splitter_url SHARED splitter_url/PVFieldSplitterURL.cpp splitter_url/PVFieldSplitterURL.h splitter_url/register.cpp)
@@ -51,7 +51,7 @@ add_library(normalize_filter_grep_regexp SHARED grep_regexp/PVFieldFilterRegexpG
 target_link_libraries(normalize_filter_grep_regexp ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
 declare_library(normalize_filter_grep_regexp)
 
-INSTALL(TARGETS ${NORMALIZE_FILTERS_DIST_LIST} DESTINATION normalize-filters)
+INSTALL(TARGETS ${NORMALIZE_FILTERS_DIST_LIST} LIBRARY DESTINATION normalize-filters)
 INSTALL(FILES ${NORMALIZE_FILTERS_DIST_FILES} DESTINATION normalize-filters)
 
 SET(NORMALIZE_FILTERS_LIB_LIST ${_NORMALIZE_FILTERS_LIB_LIST} PARENT_SCOPE)
