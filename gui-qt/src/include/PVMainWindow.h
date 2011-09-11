@@ -9,6 +9,7 @@
 
 #include <QMainWindow>
 
+#include <QFile>
 #include <QLabel>
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
@@ -90,6 +91,11 @@ public:
 
 	char *last_sendername;
 	Picviz::PVLayerFilter *filter;
+
+
+	bool report_started;
+	int report_image_index;
+	QString *report_filename;
 
 	//Picviz::PVSource *import_source;
 	Picviz::PVRoot_p root;

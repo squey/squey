@@ -479,6 +479,13 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 		case 'm':
 				toggle_map();
 				break;
+		case 'r':
+				message.function = PVGL_COM_FUNCTION_REPORT_CHOOSE_FILENAME;
+				message.pv_view = picviz_view;
+				message.int_1 = glutGetWindow();
+				message.int_2 = glutGetModifiers();
+				pv_com->post_message_to_qt(message);
+				break;
 		case 's':
 				message.function = PVGL_COM_FUNCTION_SCREENSHOT_CHOOSE_FILENAME;
 				message.pv_view = picviz_view;
