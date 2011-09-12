@@ -64,6 +64,8 @@
 
 #include <PVXmlEditorWidget.h>
 
+FILE *report_fp = NULL;
+
 /******************************************************************************
  *
  * PVInspector::PVMainWindow::PVMainWindow
@@ -89,6 +91,9 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 	current_tab = NULL;
 
 	//import_source = NULL;
+	report_started = false;
+	report_image_index = 0;
+	report_filename = NULL;
 
 	//We activate all available Windows
 	pv_AxisProperties = new PVAxisPropertiesWidget(this);
@@ -238,6 +243,61 @@ void PVInspector::PVMainWindow::check_messages()
 					current_tab->refresh_listing_Slot();
 					break;
 				}
+			case PVGL_COM_FUNCTION_REPORT_CHOOSE_FILENAME:
+						{
+								QString initial_path = QDir::currentPath();
+								QString filename = QString("image%1.png").arg(report_image_index);
+								QString *filename_p = new QString(filename);
+								report_image_index++;
+								initial_path += "/report.html";
+
+
+									bool ok;
+									QString text = QInputDialog::getText(this, tr("Type your description"),
+													     tr("Description:"), QLineEdit::Normal,
+													     "", &ok);
+									char *description = "";
+									if (ok && !text.isEmpty()) {
+										description = text.toUtf8().data();
+									}
+
+
+							if (!report_started) {
+								report_started = true;
+
+								report_filename = new QString (QFileDialog::getSaveFileName(this, tr("Save Report As"), initial_path, tr("HTML Files (*.html);;All Files (*)")));
+								if (!report_filename->isEmpty()) {
+									report_fp = fopen(report_filename->toUtf8().data(), "w");
+									fprintf(report_fp, "<html>\n");
+									fprintf(report_fp,"<html>\n");
+									fprintf(report_fp,"<body>\n");
+									fprintf(report_fp,"<table border=\"1\">\n");
+									fprintf(report_fp,"<tr>\n");
+ 								        fprintf(report_fp,"<td>%s</td>\n", description);
+									fprintf(report_fp,"<td><img src=\"");
+									fprintf(report_fp, filename.toUtf8().data());
+									fprintf(report_fp,"\" width=\"600px\"/></td>\n");
+									fprintf(report_fp,"</tr>\n");
+
+									message.function = PVGL_COM_FUNCTION_TAKE_SCREENSHOT;
+									message.pointer_1 = filename_p;
+									pvgl_com->post_message_to_gl(message);
+								}
+							} else { // if (!report_started) {
+									fprintf(report_fp,"<tr>\n");
+ 								        fprintf(report_fp,"<td>%s</td>\n", description);
+									fprintf(report_fp,"<td><img src=\"");
+									fprintf(report_fp, filename.toUtf8().data());
+									fprintf(report_fp,"\" width=\"600px\"/></td>\n");
+									fprintf(report_fp,"</tr>\n");
+
+									message.function = PVGL_COM_FUNCTION_TAKE_SCREENSHOT;
+									message.pointer_1 = filename_p;
+									pvgl_com->post_message_to_gl(message);
+
+							}
+						}
+					break;
 			case PVGL_COM_FUNCTION_SCREENSHOT_CHOOSE_FILENAME:
 						{
 							QString initial_path = QDir::currentPath();

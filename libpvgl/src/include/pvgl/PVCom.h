@@ -50,7 +50,11 @@ enum PVGLComFunction
 	PVGL_COM_FUNCTION_SET_VIEW_WINDOWTITLE = 710, //!< We update the title of the view window
 
 	// Then functions asked by PVGL for PVGL
-	PVGL_COM_FUNCTION_UPDATE_OTHER_SELECTIONS = 801 //!< The PVGL should update the selection in other views
+	PVGL_COM_FUNCTION_UPDATE_OTHER_SELECTIONS = 801, //!< The PVGL should update the selection in other views
+
+	/* Quick and dirty way to create a report: modeled after screenshot */
+	PVGL_COM_FUNCTION_REPORT_CHOOSE_FILENAME = 901, 
+
 };
 
 
