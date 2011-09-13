@@ -64,7 +64,7 @@
 
 #include <PVXmlEditorWidget.h>
 
-FILE *report_fp = NULL;
+QFile *report_file;
 
 /******************************************************************************
  *
@@ -245,56 +245,61 @@ void PVInspector::PVMainWindow::check_messages()
 				}
 			case PVGL_COM_FUNCTION_REPORT_CHOOSE_FILENAME:
 						{
-								QString initial_path = QDir::currentPath();
-								QString filename = QString("image%1.png").arg(report_image_index);
-								QString *filename_p = new QString(filename);
-								report_image_index++;
-								initial_path += "/report.html";
+							QString initial_path = QDir::currentPath();
+							QString filename = QString("image%1.png").arg(report_image_index);
+							QString *filename_p = new QString(filename);
+							report_image_index++;
+							initial_path += "/report.html";
+
+							FILE *report_fp = NULL;
 
 
-									bool ok;
-									QString text = QInputDialog::getText(this, tr("Type your description"),
-													     tr("Description:"), QLineEdit::Normal,
-													     "", &ok);
-									char *description = "";
-									if (ok && !text.isEmpty()) {
-										description = text.toUtf8().data();
-									}
-
+							bool ok;
+							QString description = QInputDialog::getText(this, tr("Type your description"),
+												     tr("Description:"), QLineEdit::Normal,
+												     "", &ok);
 
 							if (!report_started) {
 								report_started = true;
 
-								report_filename = new QString (QFileDialog::getSaveFileName(this, tr("Save Report As"), initial_path, tr("HTML Files (*.html);;All Files (*)")));
-								if (!report_filename->isEmpty()) {
-									report_fp = fopen(report_filename->toUtf8().data(), "w");
-									fprintf(report_fp, "<html>\n");
-									fprintf(report_fp,"<html>\n");
-									fprintf(report_fp,"<body>\n");
-									fprintf(report_fp,"<table border=\"1\">\n");
-									fprintf(report_fp,"<tr>\n");
- 								        fprintf(report_fp,"<td>%s</td>\n", description);
-									fprintf(report_fp,"<td><img src=\"");
-									fprintf(report_fp, filename.toUtf8().data());
-									fprintf(report_fp,"\" width=\"600px\"/></td>\n");
-									fprintf(report_fp,"</tr>\n");
-
-									message.function = PVGL_COM_FUNCTION_TAKE_SCREENSHOT;
-									message.pointer_1 = filename_p;
-									pvgl_com->post_message_to_gl(message);
+								report_filename = new QString (QFileDialog::getSaveFileName(this, tr("Save Report As"), initial_path, tr("HTML Files (*.html);All Files (*)")));
+								report_file = new QFile(*report_filename);
+								if (!report_file->open(QIODevice::WriteOnly | QIODevice::Text)) {
+									report_started = false;
+									PVLOG_ERROR("Cannot open report file %s\n", report_filename->toUtf8().data());
+									return;
 								}
+								QTextStream report_out(report_file);
+
+								report_out << "<html>\n";
+								report_out << "<head>\n";
+       								report_out << "		<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n";
+								report_out << "</head>\n";
+								report_out << "<body>\n";
+								report_out << "<table border=\"1\">\n";
+								report_out << "<tr>\n";
+							        report_out << "<td>" << description << "</td>\n";
+								report_out << "<td><img src=\"";
+								report_out <<  filename;
+								report_out << "\" width=\"600px\"/></td>\n";
+								report_out << "</tr>\n";
+
+								message.function = PVGL_COM_FUNCTION_TAKE_SCREENSHOT;
+								message.pointer_1 = filename_p;
+								pvgl_com->post_message_to_gl(message);
 							} else { // if (!report_started) {
-									fprintf(report_fp,"<tr>\n");
- 								        fprintf(report_fp,"<td>%s</td>\n", description);
-									fprintf(report_fp,"<td><img src=\"");
-									fprintf(report_fp, filename.toUtf8().data());
-									fprintf(report_fp,"\" width=\"600px\"/></td>\n");
-									fprintf(report_fp,"</tr>\n");
+								QTextStream report_out(report_file);
 
-									message.function = PVGL_COM_FUNCTION_TAKE_SCREENSHOT;
-									message.pointer_1 = filename_p;
-									pvgl_com->post_message_to_gl(message);
+								report_out << "<tr>\n";
+								report_out << "<td>" << description << "</td>\n";
+								report_out << "<td><img src=\"";
+								report_out <<  filename;
+								report_out << "\" width=\"600px\"/></td>\n";
+								report_out << "</tr>\n";
 
+								message.function = PVGL_COM_FUNCTION_TAKE_SCREENSHOT;
+								message.pointer_1 = filename_p;
+								pvgl_com->post_message_to_gl(message);
 							}
 						}
 					break;
