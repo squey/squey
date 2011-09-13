@@ -56,6 +56,12 @@ void Picviz::PVLayerFilterAxisGradient::operator()(PVLayer& in, PVLayer &out)
 	plotted->get_sub_col_minmax(values_sel, min_plotted, max_plotted, in.get_selection(), axis_id);
 	PVPlotted::plotted_sub_col_t::const_iterator it;
 	for (it = values_sel.begin(); it != values_sel.end(); it++) {
+		if (should_cancel()) {
+			if (&in != &out) {
+				out = in;
+			}
+			return;
+		}
 		float plotted_value = it->second;
 		PVRow line = it->first;
 

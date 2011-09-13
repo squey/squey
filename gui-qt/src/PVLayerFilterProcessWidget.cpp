@@ -112,15 +112,16 @@ bool PVInspector::PVLayerFilterProcessWidget::process()
 {
 	_view->process_selection();
 
-	_filter_p->set_args(_args);
-	_filter_p->set_view(_view);
-	_filter_p->set_output(&_view->post_filter_layer);
+	Picviz::PVLayerFilter_p filter_p = _filter_p->clone<Picviz::PVLayerFilter>();
+	filter_p->set_args(_args);
+	filter_p->set_view(_view);
+	filter_p->set_output(&_view->post_filter_layer);
 
 	_view->pre_filter_layer.get_selection() &= _view->layer_stack.get_selected_layer().get_selection();
 
 	PVProgressBox *progressDialog = new PVProgressBox(tr("Previewing filter..."), this, 0);
-	progressDialog->set_enable_cancel(false);
-	QFuture<void> worker = QtConcurrent::run<void>(process_layer_filter, _filter_p.get(), &_view->pre_filter_layer);
+	//progressDialog->set_enable_cancel(false);
+	QFuture<void> worker = QtConcurrent::run<void>(process_layer_filter, filter_p.get(), &_view->pre_filter_layer);
 	QFutureWatcher<void> watcher;
 	watcher.setFuture(worker);
 	QObject::connect(&watcher, SIGNAL(finished()), progressDialog, SLOT(accept()), Qt::QueuedConnection);
@@ -128,8 +129,14 @@ bool PVInspector::PVLayerFilterProcessWidget::process()
 	if(!progressDialog->exec()) {
 		// If it has been canceled...
 		PVLOG_DEBUG("Filtering action canceled\n");
-		disconnect(&watcher,  SIGNAL(finished()),0,0);
-		worker.cancel();
+		disconnect(&watcher, SIGNAL(finished()), 0, 0);
+
+		// Tell the filter that it should stop its processing
+		filter_p->cancel();
+
+		// Wait for the filter to finish
+		watcher.waitForFinished();
+
 		_view->post_filter_layer = _view->pre_filter_layer;
 		return false;
 	}

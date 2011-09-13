@@ -37,7 +37,7 @@ DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterWebmailFinder)
  * Picviz::PVLayerFilterWebmailFinder::operator()
  *
  *****************************************************************************/
-void Picviz::PVLayerFilterWebmailFinder::operator()(PVLayer& /*in*/, PVLayer &out)
+void Picviz::PVLayerFilterWebmailFinder::operator()(PVLayer& in, PVLayer &out)
 {	
 	int axis_id = _args["Domain Axis"].value<PVCore::PVAxisIndexType>().get_original_index();
 	// QRegExp re = _args["Regular expression"].toRegExp();
@@ -52,6 +52,12 @@ void Picviz::PVLayerFilterWebmailFinder::operator()(PVLayer& /*in*/, PVLayer &ou
 	PVSelection hotmail_sel;
 	PVLinesProperties hotmail_lp;
 	for (PVRow r = 0; r < nb_lines; r++) {
+		if (should_cancel()) {
+			if (&in != &out) {
+				out = in;
+			}
+			return;
+		}
 		if (_view->get_line_state_in_pre_filter_layer(r)) {
 			PVRush::PVNraw::nraw_table_line const& nraw_r = nraw.at(r);
 			hotmail_sel.set_line(r, hotmail_re.indexIn(nraw_r[axis_id]) != -1);
@@ -64,6 +70,12 @@ void Picviz::PVLayerFilterWebmailFinder::operator()(PVLayer& /*in*/, PVLayer &ou
 	PVSelection yahoo_sel;
 	PVLinesProperties yahoo_lp;
 	for (PVRow r = 0; r < nb_lines; r++) {
+		if (should_cancel()) {
+			if (&in != &out) {
+				out = in;
+			}
+			return;
+		}
 		if (_view->get_line_state_in_pre_filter_layer(r)) {
 			PVRush::PVNraw::nraw_table_line const& nraw_r = nraw.at(r);
 			yahoo_sel.set_line(r, yahoo_re.indexIn(nraw_r[axis_id]) != -1);

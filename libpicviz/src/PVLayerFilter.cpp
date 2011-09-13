@@ -8,6 +8,7 @@
 #include <picviz/PVLayerFilter.h>
 
 #include <boost/bind.hpp>
+#include <boost/thread.hpp>
 
 #include <assert.h>
 
@@ -20,6 +21,7 @@ Picviz::PVLayerFilter::PVLayerFilter(PVCore::PVArgumentList const& args)
 {
 	INIT_FILTER(Picviz::PVLayerFilter, args);
 	set_output(NULL);
+	_should_cancel = false;
 }
 
 /******************************************************************************
@@ -143,6 +145,21 @@ Picviz::PVLayerFilter::hash_menu_function_t const& Picviz::PVLayerFilter::get_me
 void Picviz::PVLayerFilter::add_ctxt_menu_entry(QString menu_entry, ctxt_menu_f f)
 {
 	_menu_entries[menu_entry] = f;
+}
+
+boost::thread Picviz::PVLayerFilter::launch_in_thread(PVLayer& layer)
+{
+	return boost::thread(boost::bind(&PVLayerFilter::operator(), this, layer));
+}
+
+void Picviz::PVLayerFilter::cancel()
+{
+	_should_cancel = true;
+}
+
+bool Picviz::PVLayerFilter::should_cancel()
+{
+	return _should_cancel;
 }
 
 IMPL_FILTER(Picviz::PVLayerFilter)
