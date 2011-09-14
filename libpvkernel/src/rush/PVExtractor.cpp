@@ -5,16 +5,20 @@
 #include <pvkernel/core/debug.h>
 #include <iostream>
 
+#include <tbb/task_scheduler_init.h>
+
 PVRush::PVExtractor::PVExtractor(unsigned int chunks) :
 	_ctrl_th(_ctrl),
 	_out_nraw(_nraw)
 {
 	if (chunks == 0) {
-		//TODO: automatically find a good value.
-		_chunks = 40;
+		// Compute a value as 5 times the number of tbb's processors
+		 _chunks = tbb::task_scheduler_init::default_num_threads() * 5;
+		 PVLOG_DEBUG("(PVExtractor::PVExtractor) using %d chunks\n", _chunks);
 	}
-	else
+	else {
 		_chunks = chunks;
+	}
 	_saved_nraw_valid = false;
 	_dump_elts = false;
 }
