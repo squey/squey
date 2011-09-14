@@ -715,7 +715,15 @@ bool PVInspector::PVXmlDomModel::openXml(QString url) {
     }
     QTextStream tmpTextXml(&fichier);
 	tmpTextXml.setCodec("UTF-8"); // AG: as defined in the XML header (and saved, cf. saveXML)
-	this->xmlFile.setContent(tmpTextXml.readAll());
+	QString err_msg;
+	int err_line, err_col;
+	if (!this->xmlFile.setContent(tmpTextXml.readAll(), false, &err_msg, &err_line, &err_col)) {
+		QMessageBox msg(QMessageBox::Critical, tr("Unable to open format"), tr("Unable to open format '%1'").arg(url), QMessageBox::Ok);
+		msg.setInformativeText(QString("XML parsing error at line %1 and column %2: ").arg(err_line).arg(err_col) + err_msg);
+		msg.exec();
+		return false;
+	}
+
 	this->xmlRootDom = this->xmlFile.documentElement();
         
 	PVLOG_INFO("format opened version : %s\n",getVersion().toStdString().c_str());
