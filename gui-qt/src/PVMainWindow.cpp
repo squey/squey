@@ -662,6 +662,8 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 	QHash< QString,PVRush::PVInputType::list_inputs > discovered;
 	QHash<QString,PVCore::PVMeanValue<float> > discovered_types; // format->mean_success_rate
 
+	QHash<QString, std::pair<QString,QString> > formats_error; // Errors w/ some formats
+
 	bool file_type_found = false;
 
 	if (choosenFormat.compare(PICVIZ_AUTOMATIC_FORMAT_STR) == 0) {
@@ -708,8 +710,9 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 			QHash<QString,PVCore::PVMeanValue<float> > file_types;
 			try {
 				for (itfc = dis_format_creator.begin(); itfc != dis_format_creator.end(); itfc++) {
+					PVRush::pair_format_creator const& pfc = itfc.value();
 					try {
-						float success_rate = PVRush::PVSourceCreatorFactory::discover_input(itfc.value(), *itin);
+						float success_rate = PVRush::PVSourceCreatorFactory::discover_input(pfc, *itin);
 						PVLOG_INFO("For input %s with format %s, success rate is %0.4f\n", qPrintable(in_str), qPrintable(itfc.key()), success_rate);
 						if (success_rate > 0) {
 							QString const& str_format = itfc.key();
@@ -718,7 +721,11 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 						}
 					}
 					catch (PVRush::PVXmlParamParserException &e) {
-						PVLOG_ERROR("Format XML parser error: %s\n", qPrintable(e.what()));
+						formats_error[pfc.first.get_full_path()] = std::pair<QString,QString>(pfc.first.get_format_name(), tr("XML parser error: ") + e.what());
+						continue;
+					}
+					catch (PVRush::PVFormatInvalid &e) {
+						formats_error[pfc.first.get_full_path()] = std::pair<QString,QString>(pfc.first.get_format_name(), e.what());
 						continue;
 					}
 				}
@@ -729,7 +736,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 			}
 
 			if (file_types.count() == 1) {
-				// We got the formats that match this input
+				// We got the formats that matches this input
 				discovered[file_types.keys()[0]].push_back(*itin);
 			}
 			else
@@ -746,6 +753,8 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 		discovered[choosenFormat] = inputs;
 	}
 
+	treat_invalid_formats(formats_error);
+	
 	if (!file_type_found) {
 		QMessageBox msgBox;
 		msgBox.critical(this, "Cannot import file", "The file cannot be opened: invalid file or type!\nReasons can be:\n  * PCAP with no IP packets\n  * PCAP with Netflow without SYN packets (uncheck default Netflow in options)\n  * Invalid parser providing no results\n");
@@ -915,6 +924,64 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 	pv_ImportFileButton->hide();
 	pv_ListingsTabWidget->setVisible(true);
 }
+
+void PVInspector::PVMainWindow::treat_invalid_formats(QHash<QString, std::pair<QString, QString> > const& errors)
+{
+	if (errors.size() == 0) {
+		return;
+	}
+
+	if (!pvconfig.value(PVCONFIG_FORMATS_SHOW_INVALID, PVCONFIG_FORMATS_SHOW_INVALID_DEFAULT).toBool()) {
+	   return;
+	}
+
+	// Get the current ignore list
+	QStringList formats_ignored = pvconfig.value(PVCONFIG_FORMATS_INVALID_IGNORED, QStringList()).toStringList();
+
+	// And remove them from the error list
+	QHash<QString, std::pair<QString, QString> > errors_ = errors;
+	for (int i = 0; i < formats_ignored.size(); i++) {
+		errors_.remove(formats_ignored[i]);
+	}
+
+	if (errors_.size() == 0) {
+		return;
+	}
+
+	QMessageBox msg(QMessageBox::Warning, tr("Invalid formats"), tr("Some formats were invalid."));
+   	msg.setInformativeText(tr("You can simply ignore this message, choose not to display it again (for every format), or remove this warning only for these formats."));
+	QPushButton* ignore = msg.addButton(QMessageBox::Ignore);
+	msg.setDefaultButton(ignore);
+	QPushButton* always_ignore = msg.addButton(tr("Always ignore these formats"), QMessageBox::AcceptRole);
+	QPushButton* never_again = msg.addButton(tr("Never display this message again"), QMessageBox::RejectRole);
+
+	QString detailed_txt;
+	QHash<QString, std::pair<QString,QString> >::const_iterator it;
+	for (it = errors_.begin(); it != errors_.end(); it++) {
+		detailed_txt += it.value().first + QString(" (") + it.key() + QString("): ") + it.value().second + QString("\n");
+	}
+	msg.setDetailedText(detailed_txt);
+
+	msg.exec();
+
+	QPushButton* clicked_btn = (QPushButton*) msg.clickedButton();
+
+	if (clicked_btn == ignore) {
+		return;
+	}
+
+	if (clicked_btn == never_again) {
+		pvconfig.setValue(PVCONFIG_FORMATS_SHOW_INVALID, QVariant(false));
+		return;
+	}
+
+	if (clicked_btn == always_ignore) {
+		// Append these formats to the ignore list
+		formats_ignored.append(errors_.keys());
+		pvconfig.setValue(PVCONFIG_FORMATS_INVALID_IGNORED, formats_ignored);
+	}
+}
+
 
 void PVInspector::PVMainWindow::display_icon_Slot()
 {

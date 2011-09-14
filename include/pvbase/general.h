@@ -55,6 +55,10 @@ static QSettings pvconfig(QString("pvconfig.ini"), QSettings::IniFormat);
 
 #define PVCORE_DIRECTORY_SEP ';'
 
+#define PVCONFIG_FORMATS_INVALID_IGNORED "formats/invalid/ignored"
+#define PVCONFIG_FORMATS_SHOW_INVALID "formats/invalid/warning"
+#define PVCONFIG_FORMATS_SHOW_INVALID_DEFAULT (QVariant(true))
+
 #ifdef WIN32
 #define PICVIZ_PATH_SEPARATOR "\\"
 #define PICVIZ_PATH_SEPARATOR_CHAR '\\'

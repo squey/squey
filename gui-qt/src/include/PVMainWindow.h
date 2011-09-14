@@ -235,6 +235,7 @@ protected:
 	bool eventFilter(QObject *watched_object, QEvent *event);
 	void keyPressEvent(QKeyEvent *event);
 	int update_check();
+	void treat_invalid_formats(QHash<QString, std::pair<QString,QString> > const& errors);
 
 signals:
 	void change_of_current_view_Signal();
