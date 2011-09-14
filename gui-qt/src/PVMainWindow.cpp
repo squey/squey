@@ -305,10 +305,13 @@ void PVInspector::PVMainWindow::check_messages()
 					break;
 			case PVGL_COM_FUNCTION_SCREENSHOT_CHOOSE_FILENAME:
 						{
+							if (!current_tab)
+								break;
+
 							QString initial_path = QDir::currentPath();
 
 							QString screenshot_filename;
-							screenshot_filename = pv_ListingsTabWidget->tabText(pv_ListingsTabWidget->currentIndex());
+							screenshot_filename = current_tab->get_src_name() + QString("_") + current_tab->get_src_type();
 							screenshot_filename.append("_%1.png");
 							screenshot_filename = screenshot_filename.arg(current_tab->get_screenshot_index(), 3, 10, QString("0")[0]);
 							current_tab->increment_screenshot_index();
@@ -845,8 +848,8 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 
 		// AG: the tab index is a mix of the directory and type
 		// If there is only one file, its filename is used instead of the directory
-		QString tab_name = in_t->tab_name_of_inputs(inputs);
-		tab_name += QString(" / ")+type;
+		// This is now supported by the "input_type/file" plugin
+		QString src_name = in_t->tab_name_of_inputs(inputs);
 
 		PVRush::PVControllerJob_p job_import;
 		PVRush::PVFormat const& cur_format = fc.first;
@@ -868,7 +871,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 		if (import_source->nraw->table.size() == 0) {
 			PVLOG_ERROR("Cannot append source!\n");
 			QMessageBox msgBox;
-			msgBox.critical(this, "Cannot import file type", QString("The files %1 cannot be opened. It looks like the format is invalid (invalid regular expressions or filters).").arg(tab_name));
+			msgBox.critical(this, "Cannot import file type", QString("The files %1/%2 cannot be opened. It looks like the format is invalid (invalid regular expressions or filters).").arg(src_name).arg(type));
 			message.function = PVGL_COM_FUNCTION_DESTROY_TRANSIENT;
 			pvgl_com->post_message_to_gl(message);
 			continue;
@@ -881,7 +884,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 		// because the actual GL view is created by this message. Cf. libpvgl/src/PVMain.cpp::timer_func
 		// for more informations.
 		message.function = PVGL_COM_FUNCTION_PLEASE_WAIT;
-		message.pointer_1 = new QString(tab_name);
+		message.pointer_1 = new QString(PVTabSplitter::get_tab_name(src_name, type));
 		pvgl_com->post_message_to_gl(message);
 #endif
 
@@ -892,9 +895,8 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 		import_view = Picviz::PVView_p(new Picviz::PVView(import_plotted));
 		import_view->process_from_layer_stack();
 
-		current_tab = new PVTabSplitter(this, import_view, tab_name, pv_ListingsTabWidget);
-		if(current_tab!=0)
-                    connect(current_tab,SIGNAL(selection_changed_signal(bool)),this,SLOT(enable_menu_filter_Slot(bool)));
+		current_tab = new PVTabSplitter(this, import_view, src_name, type, pv_ListingsTabWidget);
+		connect(current_tab,SIGNAL(selection_changed_signal(bool)),this,SLOT(enable_menu_filter_Slot(bool)));
 #ifdef CUDA
 		// Transient view. This need to be created before posting the "PVGL_COM_FUNCTION_CREATE_VIEW" message,
 		// because the actual GL view is created by this message. Cf. libpvgl/src/PVMain.cpp::timer_func
@@ -908,7 +910,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 		message.function = PVGL_COM_FUNCTION_CREATE_VIEW;
 		message.pv_view = import_view;
 		pvgl_com->post_message_to_gl(message);
-		int new_tab_index = pv_ListingsTabWidget->addTab(current_tab, tab_name);
+		int new_tab_index = pv_ListingsTabWidget->addTab(current_tab, current_tab->get_tab_name());
 		/* Set the new tab as the active tab */
 		pv_ListingsTabWidget->setCurrentIndex(new_tab_index);
 		

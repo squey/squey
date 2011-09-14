@@ -33,20 +33,21 @@ class PVListingView;
 class PVTabSplitter : public QSplitter
 {
 	Q_OBJECT
+
 private:
-    
+
 public:
 	MatchingTable_t sortMatchingTable; //!<the table sort, modify this array to order the values. sortMatchingTable[0] is the position of the line 0 after sort.
-    MatchingTable_t sortMatchingTable_invert; //!<sortMatchingTable_invert[E] (E: a line in sorted table) return the real position in the nraw 
-    PVMainWindow     *main_window;   //!< The parent PVMainWindow of this PVTabSplitter
+	MatchingTable_t sortMatchingTable_invert; //!<sortMatchingTable_invert[E] (E: a line in sorted table) return the real position in the nraw 
+	PVMainWindow     *main_window;   //!< The parent PVMainWindow of this PVTabSplitter
 	Picviz::PVView_p lib_view;      //!< The Picviz::PVView 
 
 	PVListingView *pv_listing_view; //!< The PVListingView attached with our main application
 
-        PVListingModel *pv_listing_model; //!< The classical Listing model (with zombies and unselected)
-        PVListingModel *pv_listing_no_unselected_model; //!< The Listing model with zombies and without unselected
-        PVListingModel *pv_listing_no_zombie_model; //!< The Listing model without zombies but with unselected
-        PVListingModel *pv_listing_no_zombie_no_unselected_model; //!< The Listing model without both zombies and unselected
+	PVListingModel *pv_listing_model; //!< The classical Listing model (with zombies and unselected)
+	PVListingModel *pv_listing_no_unselected_model; //!< The Listing model with zombies and without unselected
+	PVListingModel *pv_listing_no_zombie_model; //!< The Listing model without zombies but with unselected
+	PVListingModel *pv_listing_no_zombie_no_unselected_model; //!< The Listing model without both zombies and unselected
 
 	PVLayerStackModel  *pv_layer_stack_model;
 	PVLayerStackWidget *pv_layer_stack_widget;
@@ -54,27 +55,28 @@ public:
 	PVExtractorWidget *_pv_extractor; //!< The extractor widget of this view
 
 	int screenshot_index;
-	QString _tab_name;
+	QString _src_name;
+	QString _src_type;
 
 public slots:
-// FIXME!			void update_row_count_in_all_dynamic_listing_model_Slot();
-			/* void update_to_current_selection_Slot();*/
+	// FIXME!			void update_row_count_in_all_dynamic_listing_model_Slot();
+	/* void update_to_current_selection_Slot();*/
 
 	/**
 	 * The Slot that will refresh the content of the PVListingView
 	 */
 	void refresh_listing_Slot();
-	
+
 	/**
 	 * The Slot that will refresh the PVListingView with it's horizontal header
 	 */
 	void refresh_listing_with_horizontal_header_Slot();
-	
+
 	/**
 	 *
 	 */
 	void selection_changed_Slot();
-	
+
 	/**
 	 *
 	 */
@@ -88,7 +90,7 @@ public:
 	 * @param lib_view
 	 * @param parent
 	 */
-	PVTabSplitter(PVMainWindow *mw, Picviz::PVView_p lib_view, QString const& tab_name, QWidget *parent);
+	PVTabSplitter(PVMainWindow *mw, Picviz::PVView_p lib_view, QString const& src_name, QString const& src_type, QWidget *parent);
 
 	virtual ~PVTabSplitter();
 
@@ -103,57 +105,61 @@ public:
 	 * @return a pointer to the PVLayerStackWidget attached to this PVMainSplitter
 	 */
 	PVLayerStackWidget *get_layer_stack_widget()const{return pv_layer_stack_widget;}
-	
+
 	/**
 	 *
 	 * @return a pointer to the Picviz::PVView attached to this PVMainSplitter
 	 */
 	Picviz::PVView_p get_lib_view()const{return lib_view;}
-	
+
 	/**
 	 *
 	 * @return a pointer to the Picviz::PVMainWindow attached to this PVMainSplitter
 	 */
 	PVMainWindow* get_main_window() const { return main_window; }
- 	
+
 	/**
 	 *
 	 * @return a pointer to the PVInspector::PVExtractorWidget attached to this PVMainSplitter
 	 */
 	PVExtractorWidget* get_extractor_widget() const {return _pv_extractor;}
 
-	QString get_tab_name() const { return _tab_name; }
+	QString get_tab_name() { return get_tab_name(_src_name, _src_type); }
+	static QString get_tab_name(QString const& src, QString const& type) { return src + QString(" / ") + type; }
+	QString get_src_name() { return _src_name; }
+	QString get_src_type() { return _src_type; }
 
 	/**
 	 *
 	 * @return the index of the next screenshot
 	 */
 	int get_screenshot_index();
-    
-    MatchingTable_t *getSortMatchingTable(){return &sortMatchingTable;}
+
+	MatchingTable_t *getSortMatchingTable(){return &sortMatchingTable;}
 
 	/**
 	 * Increments the index of the next screenshot
 	 */
 	void increment_screenshot_index();
-	
+
 	/**
-	* Update filter menu enabling
-	*/
+	 * Update filter menu enabling
+	 */
 	void updateFilterMenuEnabling();
-	
+
 public slots:
 	/**
 	 * The Slot that will refresh the PVLayerStackWidget
 	 */
 	void refresh_layer_stack_view_Slot(); // From PVLayerStackWindow
-//		void refresh();
-//		void update_pv_layer_stack_model_Slot();
+
 signals:
 	/**
-	* The selection has changed
-	*/
+	 * The selection has changed
+	 */
 	void selection_changed_signal(bool);
+
+public:
 };
 }
 
