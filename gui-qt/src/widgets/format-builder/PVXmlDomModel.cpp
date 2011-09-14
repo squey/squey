@@ -349,7 +349,10 @@ bool PVInspector::PVXmlDomModel::saveXml(QString nomDuFichierXml){
 	}
     QString version = QString("%1").arg(FORMAT_VERSION);
     xmlRootDom.setAttribute("version",version);
-    if (file.write(xmlFile.toString().toUtf8()) == -1) {
+	QByteArray data(xmlFile.toString().toUtf8());
+	int size_written = file.write(data);
+	int data_size = data.size();
+    if (size_written != data_size || !file.flush()) {
 		QMessageBox msg(QMessageBox::Critical, "Error while saving format", QString("An error occured while saving format: ") + file.errorString(), QMessageBox::Ok);
 		msg.exec();
 		return false;
