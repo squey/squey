@@ -52,6 +52,13 @@ public:
 	virtual QString detailed_description();
 
 public:
+	boost::thread launch_in_thread(PVLayer& layer);
+	void cancel();
+
+protected:
+	bool should_cancel();
+
+public:
 	PVLayer& operator()(PVLayer& layer);
 	PVLayer& operator_sameout(PVLayer &in);
 	PVLayer& operator_differentout(PVLayer &in);
@@ -68,6 +75,7 @@ protected:
 private:
 	PVLayer *_out_p;
 	hash_menu_function_t _menu_entries;
+	bool _should_cancel;
 
 	CLASS_FILTER(PVLayerFilter)
 };

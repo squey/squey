@@ -1,4 +1,6 @@
 #include "PVInputTypeDatabase.h"
+#include "PVDatabaseParamsWidget.h"
+
 #include "../../common/database/PVDBQuery.h"
 #include "../../common/database/PVDBInfos.h"
 
@@ -9,8 +11,11 @@ PVRush::PVInputTypeDatabase::PVInputTypeDatabase() :
 
 bool PVRush::PVInputTypeDatabase::createWidget(hash_formats const& formats, list_inputs &inputs, QString& format, QWidget* parent) const
 {
-	PVDBInfos_p infos(new PVDBInfos("QMYSQL3", "127.0.0.1", 3306, "picviz", "picviz", "bigdata"));
-	PVDBQuery query(infos, "select * from squid");
+	PVDatabaseParamsWidget* params = new PVDatabaseParamsWidget(parent);
+	params->exec();
+
+	PVDBServ_p serv(new PVDBServ(PVDBInfos("QMYSQL3", "127.0.0.1", 3306, "picviz", "picviz", "bigdata")));
+	PVDBQuery query(serv, "select * from squid");
 
 	QVariant in;
 	in.setValue(query);

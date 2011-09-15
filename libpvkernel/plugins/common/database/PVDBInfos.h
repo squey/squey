@@ -9,18 +9,16 @@
 #include <QSqlDatabase>
 #include <QString>
 
-#include "PVDBInfos_types.h"
+#include "PVDBServ_types.h"
 
 namespace PVRush {
 
 class PVDBQuery;
+class PVDBServ;
 
 class PVDBInfos
 {
-	friend class PVDBQuery;
-public:
-	typedef PVDBInfos_p p_type;
-
+	friend class PVDBServ;
 public:
 	PVDBInfos();
 	PVDBInfos(QString const& type, QString const& host, uint16_t port, QString const& username, QString const& password, QString const& dbname, QString const& options = QString(""));
@@ -46,11 +44,6 @@ public:
 	QString database_name() const;
 
 protected:
-	bool connect();
-	QString last_error() const;
-	QSqlDatabase to_database();
-
-private:
 	QString _host;
 	QString _username;
 	QString _password;
@@ -58,7 +51,22 @@ private:
 	QString _type;
 	QString _dbname;
 	uint16_t _port;
+};
 
+class PVDBServ: public PVDBInfos
+{
+	friend class PVDBQuery;
+public:
+	typedef PVDBServ_p p_type;
+public:
+	PVDBServ(PVDBInfos const& infos);
+
+protected:
+	bool connect();
+	QString last_error() const;
+	QSqlDatabase to_database();
+
+private:
 	QSqlDatabase _db;
 };
 

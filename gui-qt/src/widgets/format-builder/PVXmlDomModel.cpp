@@ -349,7 +349,10 @@ bool PVInspector::PVXmlDomModel::saveXml(QString nomDuFichierXml){
 	}
     QString version = QString("%1").arg(FORMAT_VERSION);
     xmlRootDom.setAttribute("version",version);
-    if (file.write(xmlFile.toString().toUtf8()) == -1) {
+	QByteArray data(xmlFile.toString().toUtf8());
+	int size_written = file.write(data);
+	int data_size = data.size();
+    if (size_written != data_size || !file.flush()) {
 		QMessageBox msg(QMessageBox::Critical, "Error while saving format", QString("An error occured while saving format: ") + file.errorString(), QMessageBox::Ok);
 		msg.exec();
 		return false;
@@ -715,7 +718,15 @@ bool PVInspector::PVXmlDomModel::openXml(QString url) {
     }
     QTextStream tmpTextXml(&fichier);
 	tmpTextXml.setCodec("UTF-8"); // AG: as defined in the XML header (and saved, cf. saveXML)
-	this->xmlFile.setContent(tmpTextXml.readAll());
+	QString err_msg;
+	int err_line, err_col;
+	if (!this->xmlFile.setContent(tmpTextXml.readAll(), false, &err_msg, &err_line, &err_col)) {
+		QMessageBox msg(QMessageBox::Critical, tr("Unable to open format"), tr("Unable to open format '%1'").arg(url), QMessageBox::Ok);
+		msg.setInformativeText(QString("XML parsing error at line %1 and column %2: ").arg(err_line).arg(err_col) + err_msg);
+		msg.exec();
+		return false;
+	}
+
 	this->xmlRootDom = this->xmlFile.documentElement();
         
 	PVLOG_INFO("format opened version : %s\n",getVersion().toStdString().c_str());

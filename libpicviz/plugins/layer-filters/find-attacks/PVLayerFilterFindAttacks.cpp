@@ -131,7 +131,7 @@ DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterFindAttacks)
  * Picviz::PVLayerFilterFindAttacks::operator()
  *
  *****************************************************************************/
-void Picviz::PVLayerFilterFindAttacks::operator()(PVLayer& /*in*/, PVLayer &out)
+void Picviz::PVLayerFilterFindAttacks::operator()(PVLayer& in, PVLayer &out)
 {	
 	int ua_axis_id = _args["User Agent Axis"].value<PVCore::PVAxisIndexType>().get_original_index();
 	int url_axis_id = _args["URL Axis"].value<PVCore::PVAxisIndexType>().get_original_index();
@@ -151,6 +151,13 @@ void Picviz::PVLayerFilterFindAttacks::operator()(PVLayer& /*in*/, PVLayer &out)
 	QStringList snort_ua = signatures["Snort User Agents"];
 	QStringList snort_httpuri = signatures["Snort URI"];
 	for (PVRow r = 0; r < nb_lines; r++) {
+		if (should_cancel()) {
+			if (&in != &out) {
+				out = in;
+			}
+			return;
+		}
+
 		PVRush::PVNraw::nraw_table_line const& nraw_r = nraw.at(r);
 		
 		// We search for user agents
@@ -168,6 +175,13 @@ void Picviz::PVLayerFilterFindAttacks::operator()(PVLayer& /*in*/, PVLayer &out)
 
 		// We search for URI
 		for (int i=0; i < snort_httpuri.size(); i++) {
+			if (should_cancel()) {
+				if (&in != &out) {
+					out = in;
+				}
+				return;
+			}
+
 			if (snort_httpuri[i].length() > 10) {
 				QStringMatcher matcher_uri(snort_httpuri[i]);
 				retval = matcher_uri.indexIn(nraw_r[url_axis_id]);

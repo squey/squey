@@ -41,7 +41,7 @@ DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterSearch)
  * Picviz::PVLayerFilterSearch::operator()
  *
  *****************************************************************************/
-void Picviz::PVLayerFilterSearch::operator()(PVLayer& /*in*/, PVLayer &out)
+void Picviz::PVLayerFilterSearch::operator()(PVLayer& in, PVLayer &out)
 {	
 	int axis_id = _args["Axis"].value<PVCore::PVAxisIndexType>().get_original_index();
 	QRegExp re = _args["Regular expression"].toRegExp();
@@ -53,6 +53,13 @@ void Picviz::PVLayerFilterSearch::operator()(PVLayer& /*in*/, PVLayer &out)
 	PVRush::PVNraw::nraw_table const& nraw = _view->get_qtnraw_parent();
 	
 	for (PVRow r = 0; r < nb_lines; r++) {
+		if (should_cancel()) {
+			if (&in != &out) {
+				out = in;
+			}
+			return;
+		}
+
 		if (_view->get_line_state_in_pre_filter_layer(r)) {
 			PVRush::PVNraw::nraw_table_line const& nraw_r = nraw.at(r);
 			bool sel = !((re.indexIn(nraw_r[axis_id]) != -1) ^ include);

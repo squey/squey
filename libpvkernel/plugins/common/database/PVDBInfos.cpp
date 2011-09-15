@@ -22,7 +22,18 @@ QString PVRush::PVDBInfos::database_name() const
 	return _type + QString("://") + _username + QString("@") + _host + QString(":") + QString::number(_port);
 }
 
-bool PVRush::PVDBInfos::connect()
+PVRush::PVDBServ::PVDBServ(PVDBInfos const& infos)
+{
+	_host = infos._host;
+	_username = infos._username;
+	_password = infos._password;
+	_options = infos._options;
+	_type = infos._type;
+	_dbname = infos._dbname;
+	_port = infos._port;
+}
+
+bool PVRush::PVDBServ::connect()
 {
 	if (_db.isOpen()) {
 		// Already connected;
@@ -47,12 +58,12 @@ bool PVRush::PVDBInfos::connect()
 	return ret;
 }
 
-QString PVRush::PVDBInfos::last_error() const
+QString PVRush::PVDBServ::last_error() const
 {
 	return _db.lastError().text();
 }
 
-QSqlDatabase PVRush::PVDBInfos::to_database()
+QSqlDatabase PVRush::PVDBServ::to_database()
 {
 	return _db;
 }

@@ -25,6 +25,7 @@ void PVRush::PVAggregator::init()
 	_last_elt_agg_index = 0;
 	_cur_input = _inputs.begin();
 	_cur_src_index = 0;
+	_strict_mode = false;
 }
 
 
@@ -207,6 +208,22 @@ PVCore::PVChunk* PVRush::PVAggregator::operator()() const
 	}
 	else {
 		ret = next_chunk();
+		if (_strict_mode) {
+			if (ret->_agg_index < _nstart) {
+				chunk_index nelts = ret->c_elements().size();
+				assert(ret->_agg_index + nelts - 1 >= _nstart);
+				chunk_index nelts_remove = _nstart - ret->_agg_index;
+				PVCore::list_elts& elts = ret->elements();
+				PVCore::list_elts::iterator it_elt = elts.begin();
+				for (chunk_index i = 0; i < nelts_remove; i++) {
+					PVCore::list_elts::iterator it_er = it_elt;
+					it_elt++;
+					elts.erase(it_er);
+				}
+				ret->_agg_index += nelts_remove;
+				ret->_index += nelts_remove;
+			}
+		}
 	}
 
 	if (ret == NULL) {

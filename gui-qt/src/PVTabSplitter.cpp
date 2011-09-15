@@ -19,15 +19,16 @@
  * PVInspector::PVTabSplitter::PVTabSplitter
  *
  *****************************************************************************/
-PVInspector::PVTabSplitter::PVTabSplitter(PVMainWindow *mw, Picviz::PVView_p pv_view, QString const& tab_name, QWidget *parent) :
-	QSplitter(parent)
+PVInspector::PVTabSplitter::PVTabSplitter(PVMainWindow *mw, Picviz::PVView_p pv_view, QString const& src_name, QString const& src_type, QWidget *parent) :
+	QSplitter(parent),
+	_src_name(src_name),
+	_src_type(src_type)
 {
 	PVLOG_DEBUG("PVInspector::PVTabSplitter::%s\n", __FUNCTION__);
 
 	main_window = mw;
 	lib_view = pv_view;
 	pv_layer_stack_widget = NULL; // Note that this value can be requested during the creating of the PVLayerStackWidget!
-	_tab_name = tab_name;
 
 	Picviz::PVStateMachine *state_machine = lib_view->state_machine;
 	// state_machine->listing_mode = Picviz::LISTING_NO_UNSEL_NO_ZOMBIES;

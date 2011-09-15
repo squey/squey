@@ -65,6 +65,8 @@
 
 #include <PVXmlEditorWidget.h>
 
+QFile *report_file;
+
 /******************************************************************************
  *
  * PVInspector::PVMainWindow::PVMainWindow
@@ -90,6 +92,9 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 	current_tab = NULL;
 
 	//import_source = NULL;
+	report_started = false;
+	report_image_index = 0;
+	report_filename = NULL;
 
 	//We activate all available Windows
 	pv_AxisProperties = new PVAxisPropertiesWidget(this);
@@ -239,12 +244,75 @@ void PVInspector::PVMainWindow::check_messages()
 					current_tab->refresh_listing_Slot();
 					break;
 				}
+			case PVSDK_MESSENGER_FUNCTION_REPORT_CHOOSE_FILENAME:
+						{
+							QString initial_path = QDir::currentPath();
+							QString filename = QString("image%1.png").arg(report_image_index);
+							QString *filename_p = new QString(filename);
+							report_image_index++;
+							initial_path += "/report.html";
+
+							FILE *report_fp = NULL;
+
+
+							bool ok;
+							QString description = QInputDialog::getText(this, tr("Type your description"),
+												     tr("Description:"), QLineEdit::Normal,
+												     "", &ok);
+
+							if (!report_started) {
+								report_started = true;
+
+								report_filename = new QString (QFileDialog::getSaveFileName(this, tr("Save Report As"), initial_path, tr("HTML Files (*.html);All Files (*)")));
+								report_file = new QFile(*report_filename);
+								if (!report_file->open(QIODevice::WriteOnly | QIODevice::Text)) {
+									report_started = false;
+									PVLOG_ERROR("Cannot open report file %s\n", report_filename->toUtf8().data());
+									return;
+								}
+								QTextStream report_out(report_file);
+
+								report_out << "<html>\n";
+								report_out << "<head>\n";
+       								report_out << "		<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n";
+								report_out << "</head>\n";
+								report_out << "<body>\n";
+								report_out << "<table border=\"1\">\n";
+								report_out << "<tr>\n";
+							        report_out << "<td>" << description << "</td>\n";
+								report_out << "<td><img src=\"";
+								report_out <<  filename;
+								report_out << "\" width=\"600px\"/></td>\n";
+								report_out << "</tr>\n";
+
+								message.function = PVGL_COM_FUNCTION_TAKE_SCREENSHOT;
+								message.pointer_1 = filename_p;
+								pvgl_com->post_message_to_gl(message);
+							} else { // if (!report_started) {
+								QTextStream report_out(report_file);
+
+								report_out << "<tr>\n";
+								report_out << "<td>" << description << "</td>\n";
+								report_out << "<td><img src=\"";
+								report_out <<  filename;
+								report_out << "\" width=\"600px\"/></td>\n";
+								report_out << "</tr>\n";
+
+								message.function = PVGL_COM_FUNCTION_TAKE_SCREENSHOT;
+								message.pointer_1 = filename_p;
+								pvgl_com->post_message_to_gl(message);
+							}
+						}
+					break;
 			case PVSDK_MESSENGER_FUNCTION_SCREENSHOT_CHOOSE_FILENAME:
 						{
+							if (!current_tab)
+								break;
+
 							QString initial_path = QDir::currentPath();
 
 							QString screenshot_filename;
-							screenshot_filename = pv_ListingsTabWidget->tabText(pv_ListingsTabWidget->currentIndex());
+							screenshot_filename = current_tab->get_src_name() + QString("_") + current_tab->get_src_type();
 							screenshot_filename.append("_%1.png");
 							screenshot_filename = screenshot_filename.arg(current_tab->get_screenshot_index(), 3, 10, QString("0")[0]);
 							current_tab->increment_screenshot_index();
@@ -598,6 +666,8 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 	QHash< QString,PVRush::PVInputType::list_inputs > discovered;
 	QHash<QString,PVCore::PVMeanValue<float> > discovered_types; // format->mean_success_rate
 
+	QHash<QString, std::pair<QString,QString> > formats_error; // Errors w/ some formats
+
 	bool file_type_found = false;
 
 	if (choosenFormat.compare(PICVIZ_AUTOMATIC_FORMAT_STR) == 0) {
@@ -644,8 +714,9 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 			QHash<QString,PVCore::PVMeanValue<float> > file_types;
 			try {
 				for (itfc = dis_format_creator.begin(); itfc != dis_format_creator.end(); itfc++) {
+					PVRush::pair_format_creator const& pfc = itfc.value();
 					try {
-						float success_rate = PVRush::PVSourceCreatorFactory::discover_input(itfc.value(), *itin);
+						float success_rate = PVRush::PVSourceCreatorFactory::discover_input(pfc, *itin);
 						PVLOG_INFO("For input %s with format %s, success rate is %0.4f\n", qPrintable(in_str), qPrintable(itfc.key()), success_rate);
 						if (success_rate > 0) {
 							QString const& str_format = itfc.key();
@@ -654,7 +725,11 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 						}
 					}
 					catch (PVRush::PVXmlParamParserException &e) {
-						PVLOG_ERROR("Format XML parser error: %s\n", qPrintable(e.what()));
+						formats_error[pfc.first.get_full_path()] = std::pair<QString,QString>(pfc.first.get_format_name(), tr("XML parser error: ") + e.what());
+						continue;
+					}
+					catch (PVRush::PVFormatInvalid &e) {
+						formats_error[pfc.first.get_full_path()] = std::pair<QString,QString>(pfc.first.get_format_name(), e.what());
 						continue;
 					}
 				}
@@ -665,7 +740,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 			}
 
 			if (file_types.count() == 1) {
-				// We got the formats that match this input
+				// We got the formats that matches this input
 				discovered[file_types.keys()[0]].push_back(*itin);
 			}
 			else
@@ -682,6 +757,8 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 		discovered[choosenFormat] = inputs;
 	}
 
+	treat_invalid_formats(formats_error);
+	
 	if (!file_type_found) {
 		QMessageBox msgBox;
 		msgBox.critical(this, "Cannot import file", "The file cannot be opened: invalid file or type!\nReasons can be:\n  * PCAP with no IP packets\n  * PCAP with Netflow without SYN packets (uncheck default Netflow in options)\n  * Invalid parser providing no results\n");
@@ -772,8 +849,8 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 
 		// AG: the tab index is a mix of the directory and type
 		// If there is only one file, its filename is used instead of the directory
-		QString tab_name = in_t->tab_name_of_inputs(inputs);
-		tab_name += QString(" / ")+type;
+		// This is now supported by the "input_type/file" plugin
+		QString src_name = in_t->tab_name_of_inputs(inputs);
 
 		PVRush::PVControllerJob_p job_import;
 		PVRush::PVFormat const& cur_format = fc.first;
@@ -795,9 +872,9 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 		if (import_source->nraw->table.size() == 0) {
 			PVLOG_ERROR("Cannot append source!\n");
 			QMessageBox msgBox;
-			msgBox.critical(this, "Cannot import file type", QString("The files %1 cannot be opened. It looks like the format is invalid (invalid regular expressions or filters).").arg(tab_name));
+			msgBox.critical(this, "Cannot import file type", QString("The files %1/%2 cannot be opened. It looks like the format is invalid (invalid regular expressions or filters).").arg(src_name).arg(type));
 			message.function = PVSDK_MESSENGER_FUNCTION_DESTROY_TRANSIENT;
-			pvsdk_messenger->post_message_to_gl(message);
+			pvgl_com->post_message_to_gl(message);
 			continue;
 		}
 		import_source->set_limits(pv_ImportFileDialog->from_line_edit->text().toUInt(), pv_ImportFileDialog->to_line_edit->text().toUInt());
@@ -808,8 +885,8 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 		// because the actual GL view is created by this message. Cf. libpvgl/src/PVMain.cpp::timer_func
 		// for more informations.
 		message.function = PVSDK_MESSENGER_FUNCTION_PLEASE_WAIT;
-		message.pointer_1 = new QString(tab_name);
-		pvsdk_messenger->post_message_to_gl(message);
+		message.pointer_1 = new QString(PVTabSplitter::get_tab_name(src_name, type));
+		pvgl_com->post_message_to_gl(message);
 #endif
 
 		import_mapping = Picviz::PVMapping_p(new Picviz::PVMapping(import_source));
@@ -819,9 +896,8 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 		import_view = Picviz::PVView_p(new Picviz::PVView(import_plotted));
 		import_view->process_from_layer_stack();
 
-		current_tab = new PVTabSplitter(this, import_view, tab_name, pv_ListingsTabWidget);
-		if(current_tab!=0)
-                    connect(current_tab,SIGNAL(selection_changed_signal(bool)),this,SLOT(enable_menu_filter_Slot(bool)));
+		current_tab = new PVTabSplitter(this, import_view, src_name, type, pv_ListingsTabWidget);
+		connect(current_tab,SIGNAL(selection_changed_signal(bool)),this,SLOT(enable_menu_filter_Slot(bool)));
 #ifdef CUDA
 		// Transient view. This need to be created before posting the "PVSDK_MESSENGER_FUNCTION_CREATE_VIEW" message,
 		// because the actual GL view is created by this message. Cf. libpvgl/src/PVMain.cpp::timer_func
@@ -834,8 +910,8 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 		// Ask the PVGL to create a GL-View from the previous transient view
 		message.function = PVSDK_MESSENGER_FUNCTION_CREATE_VIEW;
 		message.pv_view = import_view;
-		pvsdk_messenger->post_message_to_gl(message);
-		int new_tab_index = pv_ListingsTabWidget->addTab(current_tab, tab_name);
+		pvgl_com->post_message_to_gl(message);
+		int new_tab_index = pv_ListingsTabWidget->addTab(current_tab, current_tab->get_tab_name());
 		/* Set the new tab as the active tab */
 		pv_ListingsTabWidget->setCurrentIndex(new_tab_index);
 		
@@ -851,6 +927,64 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 	pv_ImportFileButton->hide();
 	pv_ListingsTabWidget->setVisible(true);
 }
+
+void PVInspector::PVMainWindow::treat_invalid_formats(QHash<QString, std::pair<QString, QString> > const& errors)
+{
+	if (errors.size() == 0) {
+		return;
+	}
+
+	if (!pvconfig.value(PVCONFIG_FORMATS_SHOW_INVALID, PVCONFIG_FORMATS_SHOW_INVALID_DEFAULT).toBool()) {
+	   return;
+	}
+
+	// Get the current ignore list
+	QStringList formats_ignored = pvconfig.value(PVCONFIG_FORMATS_INVALID_IGNORED, QStringList()).toStringList();
+
+	// And remove them from the error list
+	QHash<QString, std::pair<QString, QString> > errors_ = errors;
+	for (int i = 0; i < formats_ignored.size(); i++) {
+		errors_.remove(formats_ignored[i]);
+	}
+
+	if (errors_.size() == 0) {
+		return;
+	}
+
+	QMessageBox msg(QMessageBox::Warning, tr("Invalid formats"), tr("Some formats were invalid."));
+   	msg.setInformativeText(tr("You can simply ignore this message, choose not to display it again (for every format), or remove this warning only for these formats."));
+	QPushButton* ignore = msg.addButton(QMessageBox::Ignore);
+	msg.setDefaultButton(ignore);
+	QPushButton* always_ignore = msg.addButton(tr("Always ignore these formats"), QMessageBox::AcceptRole);
+	QPushButton* never_again = msg.addButton(tr("Never display this message again"), QMessageBox::RejectRole);
+
+	QString detailed_txt;
+	QHash<QString, std::pair<QString,QString> >::const_iterator it;
+	for (it = errors_.begin(); it != errors_.end(); it++) {
+		detailed_txt += it.value().first + QString(" (") + it.key() + QString("): ") + it.value().second + QString("\n");
+	}
+	msg.setDetailedText(detailed_txt);
+
+	msg.exec();
+
+	QPushButton* clicked_btn = (QPushButton*) msg.clickedButton();
+
+	if (clicked_btn == ignore) {
+		return;
+	}
+
+	if (clicked_btn == never_again) {
+		pvconfig.setValue(PVCONFIG_FORMATS_SHOW_INVALID, QVariant(false));
+		return;
+	}
+
+	if (clicked_btn == always_ignore) {
+		// Append these formats to the ignore list
+		formats_ignored.append(errors_.keys());
+		pvconfig.setValue(PVCONFIG_FORMATS_INVALID_IGNORED, formats_ignored);
+	}
+}
+
 
 void PVInspector::PVMainWindow::display_icon_Slot()
 {

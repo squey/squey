@@ -112,8 +112,6 @@ PVInspector::PVXmlEditorWidget::PVXmlEditorWidget(QWidget * parent):
 	// this will set the pos of this window to absolute (0,0). That's not what we want,
 	// because we want it centered, according to the main window's position (our parent).
 	// So set the window flag and set the center os our gemotry to the center of our parent.
-	// Another issue is that we have no parent left, so we need to compute this with positions
-	// related to the desktop !
 	QRect geom = QRect(0,0,700,500);
 	setWindowFlags(Qt::Window);
 	geom.moveCenter(parent->geometry().center());
@@ -720,6 +718,7 @@ void PVInspector::PVXmlEditorWidget::update_table(PVRow start, PVRow end)
 
 	// Get the aggregator
 	PVRush::PVAggregator& agg = _log_extract->get_agg();
+	agg.set_strict_mode(true);
 	agg.process_indexes(start, end);
 	// And push the output through our filter tree
 	PVCore::PVChunk* ck = agg();

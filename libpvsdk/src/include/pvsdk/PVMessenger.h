@@ -50,7 +50,9 @@ enum PVSDKMessengerFunction
 	PVSDK_MESSENGER_FUNCTION_SET_VIEW_WINDOWTITLE = 710, //!< We update the title of the view window
 
 	// Then functions asked by PVGL for PVGL
-	PVSDK_MESSENGER_FUNCTION_UPDATE_OTHER_SELECTIONS = 801 //!< The PVGL should update the selection in other views
+	PVSDK_MESSENGER_FUNCTION_UPDATE_OTHER_SELECTIONS = 801, //!< The PVGL should update the selection in other views
+
+	PVSDK_MESSENGER_FUNCTION_REPORT_CHOOSE_FILENAME = 901,
 };
 
 

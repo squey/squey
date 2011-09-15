@@ -554,6 +554,7 @@ void PVInspector::PVMainWindow::selection_all_Slot()
 		view->select_all_nonzb_lines();
 		update_pvglview(view, PVSDK_MESSENGER_REFRESH_SELECTION);
 		current_tab->refresh_listing_Slot();
+		current_tab->updateFilterMenuEnabling();
 	}
 }
 
@@ -573,6 +574,7 @@ void PVInspector::PVMainWindow::selection_none_Slot()
 		current_tab->get_lib_view()->process_from_eventline();
 		update_pvglview(current_tab->get_lib_view(), PVSDK_MESSENGER_REFRESH_SELECTION);
 		current_tab->refresh_listing_Slot();
+		current_tab->updateFilterMenuEnabling();
 	}
 }
 
@@ -592,6 +594,7 @@ void PVInspector::PVMainWindow::selection_inverse_Slot()
 		current_tab->get_lib_view()->process_from_eventline();
 		update_pvglview(current_tab->get_lib_view(), PVSDK_MESSENGER_REFRESH_SELECTION);
 		current_tab->refresh_listing_Slot();
+		current_tab->updateFilterMenuEnabling();
 	}
 }
 

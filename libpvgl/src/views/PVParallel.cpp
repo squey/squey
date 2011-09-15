@@ -339,7 +339,7 @@ void PVGL::PVView::reset_to_home(void)
 	}
 	xmin = -0.5f;
 	ymin = -0.1f;
-	xmax = picviz_view->get_column_count_as_float() - 0.5f;
+	xmax = (float)picviz_view->get_axes_count() - 0.5f;
 	ymax = 1.3f;
 	last_mouse_press_position_x = last_mouse_press_position_y = 0;
 	translation = vec2 (0.0f, 0.0f);
@@ -478,6 +478,13 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 				break;
 		case 'm':
 				toggle_map();
+				break;
+		case 'r':
+				message.function = PVGL_COM_FUNCTION_REPORT_CHOOSE_FILENAME;
+				message.pv_view = picviz_view;
+				message.int_1 = glutGetWindow();
+				message.int_2 = glutGetModifiers();
+				pv_com->post_message_to_qt(message);
 				break;
 		case 's':
 				message.function = PVGL_COM_FUNCTION_SCREENSHOT_CHOOSE_FILENAME;

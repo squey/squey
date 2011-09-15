@@ -2,7 +2,7 @@
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
 
-#define PICVIZ_DISCOVERY_NCHUNKS 10
+#define PICVIZ_DISCOVERY_NCHUNKS 5
 
 PVRush::list_creators PVRush::PVSourceCreatorFactory::get_by_input_type(PVInputType_p in_t)
 {
@@ -53,8 +53,7 @@ float PVRush::PVSourceCreatorFactory::discover_input(pair_format_creator format_
 {
 	PVFormat format = format_.first;
 	if (!format.populate()) {
-		PVLOG_WARN("Format %s (%s) is invalid. Ignoring it...\n", qPrintable(format.get_format_name()), qPrintable(format.get_full_path()));
-		return 0;
+		throw PVRush::PVFormatInvalid();
 	}
 	PVSourceCreator_p sc = format_.second;
 

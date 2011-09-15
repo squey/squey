@@ -9,6 +9,7 @@
 
 #include <QMainWindow>
 
+#include <QFile>
 #include <QLabel>
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
@@ -92,6 +93,11 @@ public:
 
 	char *last_sendername;
 	Picviz::PVLayerFilter *filter;
+
+
+	bool report_started;
+	int report_image_index;
+	QString *report_filename;
 
 	//Picviz::PVSource *import_source;
 	Picviz::PVRoot_p root;
@@ -231,6 +237,7 @@ protected:
 	bool eventFilter(QObject *watched_object, QEvent *event);
 	void keyPressEvent(QKeyEvent *event);
 	int update_check();
+	void treat_invalid_formats(QHash<QString, std::pair<QString,QString> > const& errors);
 
 signals:
 	void change_of_current_view_Signal();
