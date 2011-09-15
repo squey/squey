@@ -285,9 +285,9 @@ void PVInspector::PVMainWindow::check_messages()
 								report_out << "\" width=\"600px\"/></td>\n";
 								report_out << "</tr>\n";
 
-								message.function = PVGL_COM_FUNCTION_TAKE_SCREENSHOT;
+								message.function = PVSDK_MESSENGER_FUNCTION_TAKE_SCREENSHOT;
 								message.pointer_1 = filename_p;
-								pvgl_com->post_message_to_gl(message);
+								pvsdk_messenger->post_message_to_gl(message);
 							} else { // if (!report_started) {
 								QTextStream report_out(report_file);
 
@@ -298,9 +298,9 @@ void PVInspector::PVMainWindow::check_messages()
 								report_out << "\" width=\"600px\"/></td>\n";
 								report_out << "</tr>\n";
 
-								message.function = PVGL_COM_FUNCTION_TAKE_SCREENSHOT;
+								message.function = PVSDK_MESSENGER_FUNCTION_TAKE_SCREENSHOT;
 								message.pointer_1 = filename_p;
-								pvgl_com->post_message_to_gl(message);
+								pvsdk_messenger->post_message_to_gl(message);
 							}
 						}
 					break;
@@ -874,7 +874,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 			QMessageBox msgBox;
 			msgBox.critical(this, "Cannot import file type", QString("The files %1/%2 cannot be opened. It looks like the format is invalid (invalid regular expressions or filters).").arg(src_name).arg(type));
 			message.function = PVSDK_MESSENGER_FUNCTION_DESTROY_TRANSIENT;
-			pvgl_com->post_message_to_gl(message);
+			pvsdk_messenger->post_message_to_gl(message);
 			continue;
 		}
 		import_source->set_limits(pv_ImportFileDialog->from_line_edit->text().toUInt(), pv_ImportFileDialog->to_line_edit->text().toUInt());
@@ -886,7 +886,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 		// for more informations.
 		message.function = PVSDK_MESSENGER_FUNCTION_PLEASE_WAIT;
 		message.pointer_1 = new QString(PVTabSplitter::get_tab_name(src_name, type));
-		pvgl_com->post_message_to_gl(message);
+		pvsdk_messenger->post_message_to_gl(message);
 #endif
 
 		import_mapping = Picviz::PVMapping_p(new Picviz::PVMapping(import_source));
@@ -910,7 +910,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 		// Ask the PVGL to create a GL-View from the previous transient view
 		message.function = PVSDK_MESSENGER_FUNCTION_CREATE_VIEW;
 		message.pv_view = import_view;
-		pvgl_com->post_message_to_gl(message);
+		pvsdk_messenger->post_message_to_gl(message);
 		int new_tab_index = pv_ListingsTabWidget->addTab(current_tab, current_tab->get_tab_name());
 		/* Set the new tab as the active tab */
 		pv_ListingsTabWidget->setCurrentIndex(new_tab_index);
