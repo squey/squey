@@ -718,6 +718,7 @@ void PVInspector::PVXmlEditorWidget::update_table(PVRow start, PVRow end)
 
 	// Get the aggregator
 	PVRush::PVAggregator& agg = _log_extract->get_agg();
+	agg.set_strict_mode(true);
 	agg.process_indexes(start, end);
 	// And push the output through our filter tree
 	PVCore::PVChunk* ck = agg();

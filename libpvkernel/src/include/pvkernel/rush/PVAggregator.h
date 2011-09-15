@@ -147,6 +147,15 @@ public:
 	 *          pointer otherwise.
 	 */
 	PVRush::PVRawSourceBase_p agg_index_to_source(chunk_index idx, chunk_index* global_index);
+
+	/*! \brief Set strict mode on or off.
+	 *  \param[in] sm Set to true to enable strict mode.
+	 *
+	 *  "Strict mode" tells the aggregator not to have elments whose global index
+	 *  is above what has been asked.
+	 */
+	void set_strict_mode(bool sm) { _strict_mode = sm; }
+
 	void debug();
 
 public:
@@ -193,6 +202,12 @@ protected:
 	 * \note Global indexes start at 0.
 	 */
 	mutable map_source_offsets _src_offsets;
+
+	/*! \brief Strict mode
+	 * An aggregator in strict mode will strictely respect the start and end indexes that are
+	 * given to process_indexes. This is used for instance in the format builder.
+	 */
+	bool _strict_mode;
 };
 
 /*! \brief Helper class to use a reference to an aggregator as a TBB filter.

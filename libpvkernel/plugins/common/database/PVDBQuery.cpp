@@ -5,12 +5,12 @@ PVRush::PVDBQuery::PVDBQuery()
 {
 }
 
-PVRush::PVDBQuery::PVDBQuery(PVDBInfos_p infos):
+PVRush::PVDBQuery::PVDBQuery(PVDBServ_p infos):
 	_infos(infos)
 {
 }
 
-PVRush::PVDBQuery::PVDBQuery(PVDBInfos_p infos, QString const& query):
+PVRush::PVDBQuery::PVDBQuery(PVDBServ_p infos, QString const& query):
 	_infos(infos)
 {
 	set_query(query);

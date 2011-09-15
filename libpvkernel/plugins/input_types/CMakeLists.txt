@@ -17,7 +17,15 @@ QT4_WRAP_CPP(FILE_MOC_SRC ${FILE_MOC_HEADERS})
 add_library(input_type_file SHARED file/PVInputTypeFilename.cpp file/PVImportFileDialog.cpp file/extract.cpp file/register.cpp ${FILE_MOC_SRC})
 target_link_libraries(input_type_file ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES} ${ARCHIVE_LIBRARY})
 
-add_library(input_type_database SHARED database/PVInputTypeDatabase.cpp ../common/database/PVDBInfos.cpp ../common/database/PVDBQuery.cpp database/register.cpp)
+#
+# Database input plugin
+#
+SET(DB_MOC_HEADERS database/PVDatabaseParamsWidget.h)
+QT4_WRAP_CPP(DB_MOC_SRCS ${DB_MOC_HEADERS})
+set(DB_UI database/db_params.ui)
+QT4_WRAP_UI(DB_UI_SRCS ${DB_UI})
+
+add_library(input_type_database SHARED ${DB_UI_SRCS} ${DB_MOC_SRCS} database/PVDatabaseParamsWidget.cpp database/PVInputTypeDatabase.cpp ../common/database/PVDBInfos.cpp ../common/database/PVDBQuery.cpp database/register.cpp)
 target_link_libraries(input_type_database ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
 
 if(HDFS_FOUND)
