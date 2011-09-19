@@ -17,7 +17,7 @@
 static QSettings pvconfig(QString("pvconfig.ini"), QSettings::IniFormat);
 
 #define PICVIZ_ORGANISATION "Picviz Labs"
-#define PICVIZ_APPLICATIONAME "Picviz Inspector"
+#define PICVIZ_APPLICATIONNAME "Picviz Inspector"
 
 #define PICVIZ_VERSION_STR "2.1.0"
 /*

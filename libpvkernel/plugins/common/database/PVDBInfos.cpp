@@ -33,6 +33,13 @@ PVRush::PVDBServ::PVDBServ(PVDBInfos const& infos)
 	_port = infos._port;
 }
 
+PVRush::PVDBServ::~PVDBServ()
+{
+	if (_db.isOpen()) {
+		_db.close();
+	}
+}
+
 bool PVRush::PVDBServ::connect()
 {
 	if (_db.isOpen()) {
@@ -60,7 +67,7 @@ bool PVRush::PVDBServ::connect()
 
 QString PVRush::PVDBServ::last_error() const
 {
-	return _db.lastError().text();
+	return _db.lastError().driverText();
 }
 
 QSqlDatabase PVRush::PVDBServ::to_database()

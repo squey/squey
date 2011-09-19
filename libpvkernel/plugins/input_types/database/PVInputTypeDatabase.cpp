@@ -12,10 +12,14 @@ PVRush::PVInputTypeDatabase::PVInputTypeDatabase() :
 bool PVRush::PVInputTypeDatabase::createWidget(hash_formats const& formats, list_inputs &inputs, QString& format, QWidget* parent) const
 {
 	PVDatabaseParamsWidget* params = new PVDatabaseParamsWidget(parent);
-	params->exec();
+	if (params->exec() == QDialog::Rejected) {
+		return false;
+	}
 
-	PVDBServ_p serv(new PVDBServ(PVDBInfos("QMYSQL3", "127.0.0.1", 3306, "picviz", "picviz", "bigdata")));
-	PVDBQuery query(serv, "select * from squid");
+	PVDBInfos infos;
+	params->get_dbinfos(infos);
+	PVDBServ_p serv(new PVDBServ(infos));
+	PVDBQuery query(serv, params->get_query());
 
 	QVariant in;
 	in.setValue(query);
@@ -23,7 +27,7 @@ bool PVRush::PVInputTypeDatabase::createWidget(hash_formats const& formats, list
 
 	format = QString(PICVIZ_AUTOMATIC_FORMAT_STR);
 
-	return inputs.size() > 0;
+	return true;
 }
 
 PVRush::PVInputTypeDatabase::~PVInputTypeDatabase()

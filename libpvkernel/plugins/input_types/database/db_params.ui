@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>782</width>
-    <height>675</height>
+    <height>733</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -74,6 +74,13 @@
          </widget>
         </item>
         <item>
+         <widget class="QPushButton" name="_btn_load">
+          <property name="text">
+           <string>Load</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QPushButton" name="_btn_save">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -83,6 +90,13 @@
           </property>
           <property name="text">
            <string>Save</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="_btn_remove">
+          <property name="text">
+           <string>Remove</string>
           </property>
          </widget>
         </item>
@@ -235,7 +249,28 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="_txt_pwd"/>
+         <widget class="QLineEdit" name="_txt_pwd">
+          <property name="echoMode">
+           <enum>QLineEdit::Password</enum>
+          </property>
+          <property name="placeholderText">
+           <string notr="true"/>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_6">
+        <item>
+         <widget class="QLabel" name="label_10">
+          <property name="text">
+           <string>Database :</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="_txt_dbname"/>
         </item>
        </layout>
       </item>
@@ -293,7 +328,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="_twt_nrows">
+         <widget class="QLineEdit" name="_txt_nrows">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
             <horstretch>0</horstretch>

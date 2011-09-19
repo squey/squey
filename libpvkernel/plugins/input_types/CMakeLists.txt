@@ -22,10 +22,10 @@ target_link_libraries(input_type_file ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES} ${AR
 #
 SET(DB_MOC_HEADERS database/PVDatabaseParamsWidget.h)
 QT4_WRAP_CPP(DB_MOC_SRCS ${DB_MOC_HEADERS})
-set(DB_UI database/db_params.ui)
+set(DB_UI database/db_params.ui database/db_preview.ui)
 QT4_WRAP_UI(DB_UI_SRCS ${DB_UI})
 
-add_library(input_type_database SHARED ${DB_UI_SRCS} ${DB_MOC_SRCS} database/PVDatabaseParamsWidget.cpp database/PVInputTypeDatabase.cpp ../common/database/PVDBInfos.cpp ../common/database/PVDBQuery.cpp database/register.cpp)
+add_library(input_type_database SHARED ${DB_UI_SRCS} ${DB_MOC_SRCS} database/PVDatabaseParamsWidget.cpp database/PVDBPreviewWidget.cpp database/PVInputTypeDatabase.cpp database/PVDBPresets.cpp ../common/database/PVDBInfos.cpp ../common/database/PVDBQuery.cpp database/register.cpp)
 target_link_libraries(input_type_database ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
 
 if(HDFS_FOUND)

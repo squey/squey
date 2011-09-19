@@ -1,12 +1,13 @@
-#include <pvcore/general.h>
-#include "PVDBInfos.h"
+#include <pvkernel/core/general.h>
+#include "PVDBPresets.h"
 
 #include <QSettings>
+#include <QStringList>
 
 PVRush::PVDBPresets::PVDBPresets():
 	_settings(QSettings::UserScope, PICVIZ_ORGANISATION, PICVIZ_APPLICATIONNAME)
 {
-	_settings.beginGroup("plugins/input_type/database/presets");
+	_settings.beginGroup(PV_SETTINGS_INPUT_DB "presets");
 }
 
 PVRush::PVDBPresets::~PVDBPresets()
@@ -21,9 +22,9 @@ PVRush::PVDBPresets& PVRush::PVDBPresets::get()
 }
 
 
-void PVRush::PVDBPresets::add(QString const& name, PVDBInfos const& infos, QString const& query)
+PVRush::PVDBPresets::id_t PVRush::PVDBPresets::add(QString const& name, PVDBInfos const& infos, QString const& query)
 {
-	QStringList grps = childGroups();
+	QStringList grps = _settings.childGroups();
 	id_t max = 0;
 	for (int i = 0; i < grps.size(); i++) {
 		id_t id = grps[i].toUInt();
@@ -33,14 +34,17 @@ void PVRush::PVDBPresets::add(QString const& name, PVDBInfos const& infos, QStri
 	}
 
 	id_t new_id = max+1;
-	set(new_id, infos, query);
+	set(new_id, infos, query, name);
+	return new_id;
 }
 
-void PVRush::PVDBPresets::set(id_t id, PVDBInfos const& infos, QString const& query)
+void PVRush::PVDBPresets::set(id_t id, PVDBInfos const& infos, QString const& query, QString const& name)
 {
 	QString grp = QString::number(id);
 	_settings.beginGroup(grp);
-	_settings.setValue("name", name);
+	if (!name.isNull()) {
+		_settings.setValue("name", name);
+	}
 	_settings.setValue("host", infos.get_host());
 	_settings.setValue("username", infos.get_username());
 	_settings.setValue("password", infos.get_password());
@@ -51,25 +55,30 @@ void PVRush::PVDBPresets::set(id_t id, PVDBInfos const& infos, QString const& qu
 	_settings.endGroup();
 }
 
-void PVRush::PVDBPresets::get(id_t id, PVDBInfos& infos, QString& query)
+bool PVRush::PVDBPresets::get(id_t id, PVDBInfos& infos, QString& query)
 {
 	QString grp = QString::number(id);
 	_settings.beginGroup(grp);
-	infos.set_host(_settings.value("host", "").toString());
-	infos.set_dbname(_settings.value("dbname", "").toString());
-	infos.set_port(_settings.value("port", "").toString());
-	infos.set_username(_settings.value("username", "").toString());
-	infos.set_password(_settings.value("password", "").toString());
-	infos.set_port((uint16_t) _settings.value("port", 0).toUInt());
-	infos.set_type(_settings.value("type", "").toString());
-	_query = _settings.value("query", "").toString();
+	bool ret = false;
+	if (_settings.contains("name")) {
+		infos.set_host(_settings.value("host", "").toString());
+		infos.set_dbname(_settings.value("dbname", "").toString());
+		infos.set_port(_settings.value("port", "").toUInt());
+		infos.set_username(_settings.value("username", "").toString());
+		infos.set_password(_settings.value("password", "").toString());
+		infos.set_port((uint16_t) _settings.value("port", 0).toUInt());
+		infos.set_type(_settings.value("type", "").toString());
+		query = _settings.value("query", "").toString();
+		ret = true;
+	}
 	_settings.endGroup();
+	return ret;
 }
 
 PVRush::PVDBPresets::list_id_names_t PVRush::PVDBPresets::list_id_names()
 {
 	list_id_names_t ret;
-	QStringList grps = childGroups();
+	QStringList grps = _settings.childGroups();
 	for (int i = 0; i < grps.size(); i++) {
 		id_t id = grps[i].toUInt();
 		QString name = _settings.value(grps[i] + "/name", "").toString();
@@ -79,4 +88,11 @@ PVRush::PVDBPresets::list_id_names_t PVRush::PVDBPresets::list_id_names()
 		ret[id] = name;
 	}
 	return ret;
+}
+
+void PVRush::PVDBPresets::rm(id_t id)
+{
+	_settings.beginGroup(QString::number(id));
+	_settings.remove("");
+	_settings.endGroup();
 }
