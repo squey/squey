@@ -60,9 +60,11 @@ int main(int argc, char *argv[])
 
 	time_t t = time(NULL);
  	// PVLOG_INFO("Current time:%d\n", t);
+#if 0
 	if (t > SEPT_20) {
 		exit(42);
 	}
+#endif
 
 	QString locale = QLocale::system().name();
 	PVLOG_INFO("System locale: %s\n", qPrintable(locale));
