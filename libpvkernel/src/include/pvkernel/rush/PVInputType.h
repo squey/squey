@@ -8,8 +8,8 @@
 #include <pvkernel/rush/PVFormat.h>
 #include <QList>
 #include <QKeySequence>
-
 #include <QObject>
+#include <QDomDocument>
 
 namespace PVRush {
 
@@ -46,12 +46,19 @@ public:
 		emit edit_format_signal(path, parent);
 	}
 
+	void edit_format(QDomDocument& doc, QWidget* parent) const
+	{
+		emit edit_format_signal(doc, parent);
+	}
+
 	void connect_parent(QObject const* parent) const
 	{
 		connect((QObject*) this, SIGNAL(edit_format_signal(QString const&, QWidget*)), parent, SLOT(edit_format_Slot(QString const&, QWidget*)));
+		connect((QObject*) this, SIGNAL(edit_format_signal(QDomDocument&, QWidget*)), parent, SLOT(edit_format_Slot(QDomDocument&, QWidget*)));
 	}
 signals:
 	void edit_format_signal(QString const& path, QWidget* parent) const;
+	void edit_format_signal(QDomDocument& doc, QWidget* parent) const;
 
 };
 

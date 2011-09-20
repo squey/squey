@@ -160,6 +160,7 @@ public slots:
 	// Called by input_type plugins to edit a format.
 	// Not an elegant solution, must find better.
 	void edit_format_Slot(QString const& path, QWidget* parent);
+	void edit_format_Slot(QDomDocument& doc, QWidget* parent);
 
 	void display_icon_Slot();
 

@@ -55,6 +55,7 @@ public:
 
 public:
 	void openFormat(QString const& path);
+	void openFormat(QDomDocument& doc);
 
 private:
     //

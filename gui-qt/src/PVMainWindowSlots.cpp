@@ -820,3 +820,10 @@ void PVInspector::PVMainWindow::edit_format_Slot(QString const& path, QWidget* p
     editorWidget->show();
 	editorWidget->openFormat(path);
 }
+
+void PVInspector::PVMainWindow::edit_format_Slot(QDomDocument& doc, QWidget* parent)
+{
+    PVXmlEditorWidget *editorWidget = new PVXmlEditorWidget(parent);
+    editorWidget->show();
+	editorWidget->openFormat(doc);
+}

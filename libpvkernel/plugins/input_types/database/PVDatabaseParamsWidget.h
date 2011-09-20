@@ -6,6 +6,9 @@
 #include "../../common/database/PVDBInfos.h"
 
 #include <pvkernel/rush/PVFormat.h>
+#include <pvkernel/rush/PVXmlTreeNodeDom.h>
+
+#include <QDomDocument>
 
 #include "PVDBPresets.h"
 
@@ -40,6 +43,7 @@ public slots:
 	void query_preview_Slot();
 	void update_fields_Slot();
 	void edit_existing_format_Slot();
+	void edit_new_format_Slot();
 	void use_existing_format_toggle_Slot(bool toggle);
 
 protected:
@@ -55,6 +59,10 @@ protected:
 	QSettings _settings;
 	int64_t _last_load_preset;
 	PVInputTypeDatabase const* _in_t;
+
+protected:
+	// New XML format created from the database fields
+	QDomDocument _new_format_doc;
 };
 
 }

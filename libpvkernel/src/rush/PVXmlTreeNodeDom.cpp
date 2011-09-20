@@ -35,6 +35,20 @@ PVRush::PVXmlTreeNodeDom::PVXmlTreeNodeDom(Type _type, const QString &_str, QDom
 	_field_linear_id = -1;
 }
 
+PVRush::PVXmlTreeNodeDom* PVRush::PVXmlTreeNodeDom::new_format(QDomDocument& file)
+{
+	file.createProcessingInstruction("xml", "version=\"1.0\" encoding=\"utf-8\"");
+	QString header(PVXmlTreeNodeDom_initXml);
+	QString err;
+
+	file.setContent(header,true,&err);
+	QDomElement xmlRootDom = file.documentElement();
+	xmlRootDom.setAttribute("version", PVFORMAT_CURRENT_VERSION);
+
+	//creating the root node.
+	PVRush::PVXmlTreeNodeDom *rootNode = new PVRush::PVXmlTreeNodeDom(PVRush::PVXmlTreeNodeDom::field, "root", xmlRootDom, file);
+	return rootNode;
+}
 
 /******************************************************************************
  *
@@ -452,6 +466,13 @@ PVRush::PVXmlTreeNodeDom* PVRush::PVXmlTreeNodeDom::addOneField(QString const& n
     this->children.push_back(newNodeField); // Put it in the view
 
     return newAxis;
+}
+
+PVRush::PVXmlTreeNodeDom* PVRush::PVXmlTreeNodeDom::addOneField(QString const& name, QString const& axis_type)
+{
+	PVXmlTreeNodeDom* axis = addOneField(name);
+	axis->setAttribute("type", axis_type);
+	return axis;
 }
 
 /******************************************************************************

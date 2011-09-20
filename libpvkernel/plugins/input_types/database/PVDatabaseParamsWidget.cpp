@@ -78,6 +78,7 @@ PVRush::PVDatabaseParamsWidget::PVDatabaseParamsWidget(PVInputTypeDatabase const
 	connect(_btn_query_preview, SIGNAL(clicked()), this, SLOT(query_preview_Slot()));
 	connect(_btn_update_fields, SIGNAL(clicked()), this, SLOT(update_fields_Slot()));
 	connect(_btn_edit_existing, SIGNAL(clicked()), this, SLOT(edit_existing_format_Slot()));
+	connect(_btn_edit_new, SIGNAL(clicked()), this, SLOT(edit_new_format_Slot()));
 	connect(_radio_use_existing, SIGNAL(toggled(bool)), this, SLOT(use_existing_format_toggle_Slot(bool)));
 	
 	_last_load_preset = -1;
@@ -322,17 +323,26 @@ void PVRush::PVDatabaseParamsWidget::update_fields_Slot()
 	query.exec();
 	QSqlRecord record = query.record();
 
+	// Create an XML dom representation that corresponds to a format
+	// that goes w/ these fields
+	_new_format_doc.clear();
+	PVXmlTreeNodeDom* new_format_root = PVRush::PVXmlTreeNodeDom::new_format(_new_format_doc);
+
 	PVSQLTypeMap_p type_map = PVSQLTypeMap::get_map(get_current_driver());
 	// Go through that record
 	int nfields = record.count();
 	_table_fields->setRowCount(nfields);
 	for (int i = 0; i < nfields; i++) {
 		QSqlField field = record.field(i);
-		_table_fields->setItem(i, 0, new QTableWidgetItem(field.name()));
+		QString name = field.name();
+		_table_fields->setItem(i, 0, new QTableWidgetItem(name));
 		// typeID isn't documented ! (well its name is in the detailed description of QSqlField, but that's it !)
 		int type_id = field.typeID();
 		_table_fields->setItem(i, 1, new QTableWidgetItem(type_map->map(type_id)));
-		_table_fields->setItem(i, 2, new QTableWidgetItem(type_map->map_picviz(type_id)));
+
+		QString pv_type = type_map->map_picviz(type_id);
+		_table_fields->setItem(i, 2, new QTableWidgetItem(pv_type));
+		new_format_root->addOneField(name, pv_type);
 	}
 }
 
@@ -340,6 +350,11 @@ void PVRush::PVDatabaseParamsWidget::edit_existing_format_Slot()
 {
 	QString path = _combo_formats->itemData(_combo_formats->currentIndex()).toString();
 	_in_t->edit_format(path, this);
+}
+
+void PVRush::PVDatabaseParamsWidget::edit_new_format_Slot()
+{
+	_in_t->edit_format(_new_format_doc, this);
 }
 
 void PVRush::PVDatabaseParamsWidget::use_existing_format_toggle_Slot(bool toggle)
@@ -357,3 +372,4 @@ void PVRush::PVDatabaseParamsWidget::enable_used_format(bool is_existing)
 	_table_fields->setEnabled(!is_existing);
 	_btn_saveas->setEnabled(!is_existing);
 }
+

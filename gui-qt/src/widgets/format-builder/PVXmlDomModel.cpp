@@ -19,17 +19,8 @@
  *****************************************************************************/
 PVInspector::PVXmlDomModel::PVXmlDomModel(QWidget * parent): QAbstractItemModel(parent) {
 
-    //init the DOM agent
-    xmlFile.createProcessingInstruction("xml", "version=\"1.0\" encoding=\"utf-8\"");
-    QString header= QString(PVXmlTreeNodeDom_initXml);
-    QString err("");
-    
-    xmlFile.setContent(header,true,&err);
-    xmlRootDom = xmlFile.documentElement();
-    xmlRootDom.setAttribute("version",FORMAT_VERSION);
-
-    //creating the root node.
-    PVRush::PVXmlTreeNodeDom *m_rootNode = new PVRush::PVXmlTreeNodeDom(PVRush::PVXmlTreeNodeDom::field, "root", xmlRootDom,this->xmlFile);
+	PVRush::PVXmlTreeNodeDom* m_rootNode = PVRush::PVXmlTreeNodeDom::new_format(xmlFile);
+	xmlRootDom = xmlFile.documentElement();
     setRoot(m_rootNode);
     setObjectName("PVXmlDomModel");
 }
@@ -37,51 +28,9 @@ PVInspector::PVXmlDomModel::PVXmlDomModel(QWidget * parent): QAbstractItemModel(
 
 /******************************************************************************
  *
- * PVInspector::PVXmlDomModel::PVXmlDomModel
+ * PVInspector::PVXmlDomModel::~PVXmlDomModel
  *
  *****************************************************************************/
-/**
-* Cnonstruction for fixed file.
-*/
-PVInspector::PVXmlDomModel::PVXmlDomModel(QString url): QAbstractItemModel(){
-    //qDebug()<<"PVXmlDomModel::PVXmlDomModel(QString url)";
-    this->urlXml = url;
-
-    //chargement du fichier XML
-    QFile file(this->urlXml);
-    if(!file.exists()){
-        //le fichier n'existe pas.
-        QMessageBox qb;
-        QString s;
-        s.push_back("The file ");
-        s.push_back(this->urlXml);
-        s.push_back(" doesn't exists.");
-        qb.setText(s);
-        qb.exec();
-    }
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        //fichier impossible à ouvrir.
-        QMessageBox qb;
-        QString s;
-        s.push_back("Unable to open file.");
-        s.push_back(this->urlXml);
-        qb.setText(s);
-        qb.exec();
-    }
-
-    // initialisation de l'agent DOM root
-    QTextStream tmpTextXml(&file);
-    this->xmlFile.setContent(tmpTextXml.readAll());
-    this->xmlRootDom = this->xmlFile.documentElement();
-    xmlRootDom.setAttribute("version",FORMAT_VERSION);
-
-
-    //création du node root à partir duquel se construit l'arbre.
-    PVRush::PVXmlTreeNodeDom *m_rootNode = new PVRush::PVXmlTreeNodeDom(PVRush::PVXmlTreeNodeDom::Root, "tree", xmlRootDom,this->xmlFile);
-    setRoot(m_rootNode);
-}
-
-
 PVInspector::PVXmlDomModel::~PVXmlDomModel() {
 }
 
@@ -347,7 +296,7 @@ bool PVInspector::PVXmlDomModel::saveXml(QString nomDuFichierXml){
 		msg.exec();
 		return false;
 	}
-    QString version = QString("%1").arg(FORMAT_VERSION);
+    QString version = QString("%1").arg(PVFORMAT_CURRENT_VERSION);
     xmlRootDom.setAttribute("version",version);
 	QByteArray data(xmlFile.toString().toUtf8());
 	int size_written = file.write(data);
@@ -727,21 +676,20 @@ bool PVInspector::PVXmlDomModel::openXml(QString url) {
 		return false;
 	}
 
-	this->xmlRootDom = this->xmlFile.documentElement();
-        
-	PVLOG_INFO("format opened version : %s\n",getVersion().toStdString().c_str());
-
-
-    PVRush::PVXmlTreeNodeDom *m_rootNode = new PVRush::PVXmlTreeNodeDom(PVRush::PVXmlTreeNodeDom::field, "root", xmlRootDom, this->xmlFile);
-    if (getVersion() == "0") {
-        m_rootNode->version0to1();
-    }
-    setRoot(m_rootNode);
-    
-        
-
-	emit layoutChanged();//to resfresh screen
+	openXml(this->xmlFile);
 	return true;
+}
+
+void PVInspector::PVXmlDomModel::openXml(QDomDocument& doc)
+{
+	xmlRootDom = doc.documentElement();
+	PVRush::PVXmlTreeNodeDom *m_rootNode = new PVRush::PVXmlTreeNodeDom(PVRush::PVXmlTreeNodeDom::field, "root", xmlRootDom, this->xmlFile);
+	if (getVersion() == "0") {
+		m_rootNode->version0to1();
+	}
+	setRoot(m_rootNode);
+
+	emit layoutChanged(); // to resfresh screen
 }
 
 

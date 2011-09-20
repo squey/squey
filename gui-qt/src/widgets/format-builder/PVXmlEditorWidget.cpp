@@ -831,3 +831,8 @@ void PVInspector::PVXmlEditorWidget::openFormat(QString const& path)
 		}
     }
 }
+
+void PVInspector::PVXmlEditorWidget::openFormat(QDomDocument& doc)
+{
+	myTreeModel->openXml(doc);
+}
