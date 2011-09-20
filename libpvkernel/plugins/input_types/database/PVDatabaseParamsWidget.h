@@ -5,16 +5,20 @@
 #include "../ui_db_params.h"
 #include "../../common/database/PVDBInfos.h"
 
+#include <pvkernel/rush/PVFormat.h>
+
 #include "PVDBPresets.h"
 
 namespace PVRush {
+
+class PVInputTypeDatabase;
 
 class PVDatabaseParamsWidget: public QDialog, private Ui::DbParams
 {
 	Q_OBJECT
 
 public:
-	PVDatabaseParamsWidget(QWidget* parent);
+	PVDatabaseParamsWidget(PVInputTypeDatabase const* in_t, PVRush::hash_formats const& formats, QWidget* parent);
 	~PVDatabaseParamsWidget();
 
 public:
@@ -35,6 +39,7 @@ public slots:
 	void sql_type_changed_Slot(int idx);
 	void query_preview_Slot();
 	void update_fields_Slot();
+	void edit_existing_format_Slot();
 
 protected:
 	bool set_dbinfos(PVDBInfos const& infos);
@@ -42,10 +47,12 @@ protected:
 	bool select_type(QString const& qt_type);
 	void load_preset(PVDBPresets::id_t id);
 	void add_preset(QString const& name, PVDBPresets::id_t id);
+	QString get_current_driver();
 
 protected:
 	QSettings _settings;
 	int64_t _last_load_preset;
+	PVInputTypeDatabase const* _in_t;
 };
 
 }

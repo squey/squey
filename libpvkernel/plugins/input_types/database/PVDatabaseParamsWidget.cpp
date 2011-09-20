@@ -1,5 +1,7 @@
 #include "PVDatabaseParamsWidget.h"
 #include "PVDBPreviewWidget.h"
+#include "PVSQLTypeMap.h"
+#include "PVInputTypeDatabase.h"
 
 #include <QSqlDatabase>
 #include <QSqlQuery>
@@ -46,12 +48,16 @@ private:
 };
 static HashDriversName g_drivers_name;
 
-PVRush::PVDatabaseParamsWidget::PVDatabaseParamsWidget(QWidget* parent):
+PVRush::PVDatabaseParamsWidget::PVDatabaseParamsWidget(PVInputTypeDatabase const* in_t, PVRush::hash_formats const& formats, QWidget* parent):
 	QDialog(parent),
-	_settings(QSettings::UserScope, PICVIZ_ORGANISATION, PICVIZ_APPLICATIONNAME)
+	_settings(QSettings::UserScope, PICVIZ_ORGANISATION, PICVIZ_APPLICATIONNAME),
+	_in_t(in_t)
 {
 	// Create the UI
 	setupUi(this);
+
+	// Set the dialog title
+	setWindowTitle(tr("Import from a database..."));
 
 	// List the supported QtSql drivers
 	QStringList drivers = QSqlDatabase::drivers();
@@ -71,6 +77,7 @@ PVRush::PVDatabaseParamsWidget::PVDatabaseParamsWidget(QWidget* parent):
 	connect(_combo_type, SIGNAL(currentIndexChanged(int)), this, SLOT(sql_type_changed_Slot(int)));
 	connect(_btn_query_preview, SIGNAL(clicked()), this, SLOT(query_preview_Slot()));
 	connect(_btn_update_fields, SIGNAL(clicked()), this, SLOT(update_fields_Slot()));
+	connect(_btn_edit_existing, SIGNAL(clicked()), this, SLOT(edit_existing_format_Slot()));
 	
 	_last_load_preset = -1;
 
@@ -94,6 +101,13 @@ PVRush::PVDatabaseParamsWidget::PVDatabaseParamsWidget(QWidget* parent):
 	nrows = _settings.value("preview_nrows", 10).toUInt();
 	_txt_nrows->setText(QString::number(nrows));
 	preset_text_changed_Slot(_combo_preset->lineEdit()->text());
+
+	// Set the existing formats
+	PVRush::hash_formats::const_iterator it;
+	for (it = formats.begin(); it != formats.end(); it++) {
+		_combo_formats->addItem(it.key(), it.value().get_full_path());
+	}
+	_btn_edit_existing->setEnabled(_combo_formats->count() > 0);
 
 	// Set SQL field columns
 	_table_fields->setColumnCount(3);
@@ -220,12 +234,17 @@ void PVRush::PVDatabaseParamsWidget::preset_text_changed_Slot(const QString& tex
 
 void PVRush::PVDatabaseParamsWidget::get_dbinfos(PVDBInfos& infos)
 {
-	infos.set_type(_combo_type->itemData(_combo_type->currentIndex()).toString());
+	infos.set_type(get_current_driver());
 	infos.set_host(_txt_host->text());
 	infos.set_username(_txt_user->text());
 	infos.set_password(_txt_user->text());
 	infos.set_port(_txt_port->text().toUInt());
 	infos.set_dbname(_txt_dbname->text());
+}
+
+QString PVRush::PVDatabaseParamsWidget::get_current_driver()
+{
+	return _combo_type->itemData(_combo_type->currentIndex()).toString();
 }
 
 QString PVRush::PVDatabaseParamsWidget::get_query()
@@ -300,6 +319,7 @@ void PVRush::PVDatabaseParamsWidget::update_fields_Slot()
 	query.exec();
 	QSqlRecord record = query.record();
 
+	PVSQLTypeMap_p type_map = PVSQLTypeMap::get_map(get_current_driver());
 	// Go through that record
 	int nfields = record.count();
 	_table_fields->setRowCount(nfields);
@@ -307,6 +327,14 @@ void PVRush::PVDatabaseParamsWidget::update_fields_Slot()
 		QSqlField field = record.field(i);
 		_table_fields->setItem(i, 0, new QTableWidgetItem(field.name()));
 		// typeID isn't documented ! (well its name is in the detailed description of QSqlField, but that's it !)
-		_table_fields->setItem(i, 1, new QTableWidgetItem(QString::number(field.typeID())));
+		int type_id = field.typeID();
+		_table_fields->setItem(i, 1, new QTableWidgetItem(type_map->map(type_id)));
+		_table_fields->setItem(i, 2, new QTableWidgetItem(type_map->map_picviz(type_id)));
 	}
+}
+
+void PVRush::PVDatabaseParamsWidget::edit_existing_format_Slot()
+{
+	QString path = _combo_formats->itemData(_combo_formats->currentIndex()).toString();
+	_in_t->edit_format(path, this);
 }

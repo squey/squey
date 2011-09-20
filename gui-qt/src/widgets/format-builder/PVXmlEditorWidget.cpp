@@ -384,13 +384,7 @@ void PVInspector::PVXmlEditorWidget::slotOpen() {
     QFileDialog fd;
     //open file chooser
     QString urlFile = fd.getOpenFileName(0, QString("Select the file."), PVRush::normalize_get_helpers_plugins_dirs(QString("text")).first());
-    QFile f(urlFile);
-    if (f.exists()) {//if the file exists...
-        if (myTreeModel->openXml(urlFile)) {
-			_cur_file = urlFile;
-			setWindowTitleForFile(urlFile);
-		}
-    }
+	openFormat(urlFile);
 }
 
 
@@ -825,4 +819,15 @@ void PVInspector::PVXmlEditorWidget::set_axes_name_selected_row_Slot(int row)
 
 void PVInspector::PVXmlEditorWidget::set_axes_type_selected_row_Slot(int row)
 {
+}
+
+void PVInspector::PVXmlEditorWidget::openFormat(QString const& path)
+{
+    QFile f(path);
+    if (f.exists()) {//if the file exists...
+        if (myTreeModel->openXml(path)) {
+			_cur_file = path;
+			setWindowTitleForFile(path);
+		}
+    }
 }

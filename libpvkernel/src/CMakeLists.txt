@@ -194,7 +194,6 @@ include/pvkernel/rush/PVExtractor.h
 include/pvkernel/rush/PVInput.h
 include/pvkernel/rush/PVInputFile.h
 include/pvkernel/rush/PVInputPcap.h
-include/pvkernel/rush/PVInputType.h
 include/pvkernel/rush/PVNraw.h
 include/pvkernel/rush/PVNrawChild.h
 include/pvkernel/rush/PVNrawOutput.h
@@ -244,6 +243,7 @@ include/pvkernel/rush/uchardetect/JISFreq.tab
 set(RUSH_MOC_HEADERS
 include/pvkernel/rush/PVControllerJob.h
 include/pvkernel/rush/PVXmlTreeNodeDom.h
+include/pvkernel/rush/PVInputType.h
 )
 
 SET(SRC_FILES ${CORE_SRC_FILES} ${FILTER_SRC_FILES} ${RUSH_SRC_FILES})

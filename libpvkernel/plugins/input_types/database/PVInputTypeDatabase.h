@@ -24,9 +24,7 @@ public:
 	QKeySequence menu_shortcut() const;
 	bool get_custom_formats(PVCore::PVArgument const& in, hash_formats &formats) const;
 
-protected:
-	
-	CLASS_REGISTRABLE(PVInputTypeDatabase)
+	CLASS_REGISTRABLE_NOCOPY(PVInputTypeDatabase)
 };
 
 }

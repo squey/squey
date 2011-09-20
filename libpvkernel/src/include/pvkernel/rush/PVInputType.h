@@ -9,10 +9,13 @@
 #include <QList>
 #include <QKeySequence>
 
+#include <QObject>
+
 namespace PVRush {
 
-class LibKernelDecl PVInputType: public PVCore::PVRegistrableClass<PVInputType>
+class LibKernelDecl PVInputType: public QObject, public PVCore::PVRegistrableClass<PVInputType>
 {
+	Q_OBJECT
 public:
 	typedef PVCore::PVArgument input_type;
 	typedef QList<input_type> list_inputs;
@@ -37,6 +40,19 @@ public:
 		}
 		return ret;
 	}
+public:
+	void edit_format(QString const& path, QWidget* parent) const
+	{
+		emit edit_format_signal(path, parent);
+	}
+
+	void connect_parent(QObject const* parent) const
+	{
+		connect((QObject*) this, SIGNAL(edit_format_signal(QString const&, QWidget*)), parent, SLOT(edit_format_Slot(QString const&, QWidget*)));
+	}
+signals:
+	void edit_format_signal(QString const& path, QWidget* parent) const;
+
 };
 
 typedef PVInputType::p_type PVInputType_p;

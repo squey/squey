@@ -157,6 +157,9 @@ public slots:
 	void check_messages();	/* SLOT? NOT SLOT? */
 	void update_reply_finished_Slot(QNetworkReply *reply);
 	void whats_this_Slot();
+	// Called by input_type plugins to edit a format.
+	// Not an elegant solution, must find better.
+	void edit_format_Slot(QString const& path, QWidget* parent);
 
 	void display_icon_Slot();
 

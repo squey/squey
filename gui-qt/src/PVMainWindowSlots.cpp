@@ -813,3 +813,10 @@ void PVInspector::PVMainWindow::enable_menu_filter_Slot(bool f){
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
 	filter_Menu->setEnabled(f);
 }
+
+void PVInspector::PVMainWindow::edit_format_Slot(QString const& path, QWidget* parent)
+{
+    PVXmlEditorWidget *editorWidget = new PVXmlEditorWidget(parent);
+    editorWidget->show();
+	editorWidget->openFormat(path);
+}

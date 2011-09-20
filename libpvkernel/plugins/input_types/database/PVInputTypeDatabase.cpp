@@ -11,7 +11,8 @@ PVRush::PVInputTypeDatabase::PVInputTypeDatabase() :
 
 bool PVRush::PVInputTypeDatabase::createWidget(hash_formats const& formats, list_inputs &inputs, QString& format, QWidget* parent) const
 {
-	PVDatabaseParamsWidget* params = new PVDatabaseParamsWidget(parent);
+	connect_parent(parent);
+	PVDatabaseParamsWidget* params = new PVDatabaseParamsWidget(this, formats, parent);
 	if (params->exec() == QDialog::Rejected) {
 		return false;
 	}
