@@ -40,6 +40,7 @@ public slots:
 	void query_preview_Slot();
 	void update_fields_Slot();
 	void edit_existing_format_Slot();
+	void use_existing_format_toggle_Slot(bool toggle);
 
 protected:
 	bool set_dbinfos(PVDBInfos const& infos);
@@ -48,6 +49,7 @@ protected:
 	void load_preset(PVDBPresets::id_t id);
 	void add_preset(QString const& name, PVDBPresets::id_t id);
 	QString get_current_driver();
+	void enable_used_format(bool is_existing);
 
 protected:
 	QSettings _settings;

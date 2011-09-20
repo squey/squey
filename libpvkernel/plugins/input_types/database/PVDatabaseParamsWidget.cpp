@@ -78,6 +78,7 @@ PVRush::PVDatabaseParamsWidget::PVDatabaseParamsWidget(PVInputTypeDatabase const
 	connect(_btn_query_preview, SIGNAL(clicked()), this, SLOT(query_preview_Slot()));
 	connect(_btn_update_fields, SIGNAL(clicked()), this, SLOT(update_fields_Slot()));
 	connect(_btn_edit_existing, SIGNAL(clicked()), this, SLOT(edit_existing_format_Slot()));
+	connect(_radio_use_existing, SIGNAL(toggled(bool)), this, SLOT(use_existing_format_toggle_Slot(bool)));
 	
 	_last_load_preset = -1;
 
@@ -112,6 +113,8 @@ PVRush::PVDatabaseParamsWidget::PVDatabaseParamsWidget(PVInputTypeDatabase const
 	// Set SQL field columns
 	_table_fields->setColumnCount(3);
 	_table_fields->setHorizontalHeaderLabels(QStringList() << "Field name" << "SQL type" << "Picviz type");
+
+	enable_used_format(true);
 }
 
 PVRush::PVDatabaseParamsWidget::~PVDatabaseParamsWidget()
@@ -337,4 +340,20 @@ void PVRush::PVDatabaseParamsWidget::edit_existing_format_Slot()
 {
 	QString path = _combo_formats->itemData(_combo_formats->currentIndex()).toString();
 	_in_t->edit_format(path, this);
+}
+
+void PVRush::PVDatabaseParamsWidget::use_existing_format_toggle_Slot(bool toggle)
+{
+	enable_used_format(toggle);
+}
+
+void PVRush::PVDatabaseParamsWidget::enable_used_format(bool is_existing)
+{
+	_combo_formats->setEnabled(is_existing);
+	_btn_edit_existing->setEnabled(is_existing);
+
+	_btn_update_fields->setEnabled(!is_existing);
+	_btn_edit_new->setEnabled(!is_existing);
+	_table_fields->setEnabled(!is_existing);
+	_btn_saveas->setEnabled(!is_existing);
 }
