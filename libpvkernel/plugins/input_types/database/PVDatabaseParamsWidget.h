@@ -27,6 +27,9 @@ public:
 public:
 	void get_dbinfos(PVDBInfos& infos);
 	QString get_query();
+	bool is_format_custom() { return _radio_new_format->isChecked(); };
+	QString get_existing_format();
+	QDomDocument get_custom_format() { return _new_format_doc; };
 
 protected:
 	void populate_presets();

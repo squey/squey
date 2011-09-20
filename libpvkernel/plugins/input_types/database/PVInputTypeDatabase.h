@@ -24,6 +24,10 @@ public:
 	QKeySequence menu_shortcut() const;
 	bool get_custom_formats(PVCore::PVArgument const& in, hash_formats &formats) const;
 
+protected:
+	mutable bool _is_custom_format;
+	mutable PVFormat _custom_format;
+
 	CLASS_REGISTRABLE_NOCOPY(PVInputTypeDatabase)
 };
 

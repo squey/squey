@@ -373,3 +373,7 @@ void PVRush::PVDatabaseParamsWidget::enable_used_format(bool is_existing)
 	_btn_saveas->setEnabled(!is_existing);
 }
 
+QString PVRush::PVDatabaseParamsWidget::get_existing_format()
+{
+	return _combo_formats->currentText();
+}

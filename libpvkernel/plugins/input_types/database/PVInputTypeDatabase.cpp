@@ -5,7 +5,8 @@
 #include "../../common/database/PVDBInfos.h"
 
 PVRush::PVInputTypeDatabase::PVInputTypeDatabase() :
-	PVInputType()
+	PVInputType(),
+	_is_custom_format(false)
 {
 }
 
@@ -26,7 +27,15 @@ bool PVRush::PVInputTypeDatabase::createWidget(hash_formats const& formats, list
 	in.setValue(query);
 	inputs.push_back(in);
 
-	format = QString(PICVIZ_AUTOMATIC_FORMAT_STR);
+	if (params->is_format_custom()) {
+		format = "custom";
+		_is_custom_format = true;
+		_custom_format.populate_from_xml(params->get_custom_format().documentElement());
+	}
+	else {
+		_is_custom_format = false;
+		format = params->get_existing_format();
+	}
 
 	return true;
 }
@@ -63,7 +72,12 @@ QString PVRush::PVInputTypeDatabase::tab_name_of_inputs(list_inputs const& in) c
 
 bool PVRush::PVInputTypeDatabase::get_custom_formats(PVCore::PVArgument const& in, hash_formats &formats) const
 {
-	return false;
+	if (!_is_custom_format) {
+		return false;
+	}
+
+	formats["custom"] = _custom_format;
+	return true;
 }
 
 QKeySequence PVRush::PVInputTypeDatabase::menu_shortcut() const
