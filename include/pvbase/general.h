@@ -17,7 +17,7 @@
 static QSettings pvconfig(QString("pvconfig.ini"), QSettings::IniFormat);
 
 #define PICVIZ_ORGANISATION "Picviz Labs"
-#define PICVIZ_APPLICATIONAME "Picviz Inspector"
+#define PICVIZ_APPLICATIONNAME "Picviz Inspector"
 
 #define PICVIZ_VERSION_STR "2.1.0"
 /*
@@ -51,6 +51,7 @@ static QSettings pvconfig(QString("pvconfig.ini"), QSettings::IniFormat);
 #define FORMATBUILDER_EXTRACT_START_DEFAULT 0
 #define FORMATBUILDER_EXTRACT_END_DEFAULT 100
 
+#define PVFORMAT_CURRENT_VERSION "1"
 #define PVFORMAT_NUMBER_FIELD_URL 6
 #define PVFORMAT_NUMBER_FIELD_PCAP 8
 

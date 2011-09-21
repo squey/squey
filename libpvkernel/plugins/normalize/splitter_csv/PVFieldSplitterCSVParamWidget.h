@@ -27,6 +27,7 @@ private:
 	QLineEdit *child_number_edit;
 	QPalette child_number_org_palette;
 	QLineEdit* separator_text;
+	QLabel* _recommands_label;
 	int id;
 
 public:
@@ -36,9 +37,12 @@ public:
 	void set_id(int id_param) {
 		id = id_param;
 	}
+	void update_data_display();
 
 private:
 	void init();
+	void update_recommanded_nfields();
+
 
 	CLASS_REGISTRABLE_NOCOPY(PVFieldSplitterCSVParamWidget)
 

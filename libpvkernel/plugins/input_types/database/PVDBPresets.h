@@ -8,6 +8,8 @@
 
 #include <map>
 
+#define PV_SETTINGS_INPUT_DB "plugins/input_type/database/"
+
 namespace PVRush {
 
 class PVDBPresets
@@ -25,13 +27,10 @@ public:
 
 public:
 	id_t add(QString const& name, PVDBInfos const& infos, QString const& query);
-	void set(id_t id, PVDBInfos const& infos, QString const& query);
+	void set(id_t id, PVDBInfos const& infos, QString const& query, QString const& name = QString());
 	list_id_names_t list_id_names();
 	bool get(id_t id, PVDBInfos& infos, QString& query);
-
-public:
-	PVDBInfos get_dbinfos();
-	QString get_query();
+	void rm(id_t id);
 
 protected:
 	QSettings _settings;

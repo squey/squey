@@ -19,17 +19,8 @@
  *****************************************************************************/
 PVInspector::PVXmlDomModel::PVXmlDomModel(QWidget * parent): QAbstractItemModel(parent) {
 
-    //init the DOM agent
-    xmlFile.createProcessingInstruction("xml", "version=\"1.0\" encoding=\"utf-8\"");
-    QString header= QString(PVXmlTreeNodeDom_initXml);
-    QString err("");
-    
-    xmlFile.setContent(header,true,&err);
-    xmlRootDom = xmlFile.documentElement();
-    xmlRootDom.setAttribute("version",FORMAT_VERSION);
-
-    //creating the root node.
-    PVRush::PVXmlTreeNodeDom *m_rootNode = new PVRush::PVXmlTreeNodeDom(PVRush::PVXmlTreeNodeDom::field, "root", xmlRootDom,this->xmlFile);
+	PVRush::PVXmlTreeNodeDom* m_rootNode = PVRush::PVXmlTreeNodeDom::new_format(xmlFile);
+	xmlRootDom = xmlFile.documentElement();
     setRoot(m_rootNode);
     setObjectName("PVXmlDomModel");
 }
@@ -37,51 +28,9 @@ PVInspector::PVXmlDomModel::PVXmlDomModel(QWidget * parent): QAbstractItemModel(
 
 /******************************************************************************
  *
- * PVInspector::PVXmlDomModel::PVXmlDomModel
+ * PVInspector::PVXmlDomModel::~PVXmlDomModel
  *
  *****************************************************************************/
-/**
-* Cnonstruction for fixed file.
-*/
-PVInspector::PVXmlDomModel::PVXmlDomModel(QString url): QAbstractItemModel(){
-    //qDebug()<<"PVXmlDomModel::PVXmlDomModel(QString url)";
-    this->urlXml = url;
-
-    //chargement du fichier XML
-    QFile file(this->urlXml);
-    if(!file.exists()){
-        //le fichier n'existe pas.
-        QMessageBox qb;
-        QString s;
-        s.push_back("The file ");
-        s.push_back(this->urlXml);
-        s.push_back(" doesn't exists.");
-        qb.setText(s);
-        qb.exec();
-    }
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        //fichier impossible à ouvrir.
-        QMessageBox qb;
-        QString s;
-        s.push_back("Unable to open file.");
-        s.push_back(this->urlXml);
-        qb.setText(s);
-        qb.exec();
-    }
-
-    // initialisation de l'agent DOM root
-    QTextStream tmpTextXml(&file);
-    this->xmlFile.setContent(tmpTextXml.readAll());
-    this->xmlRootDom = this->xmlFile.documentElement();
-    xmlRootDom.setAttribute("version",FORMAT_VERSION);
-
-
-    //création du node root à partir duquel se construit l'arbre.
-    PVRush::PVXmlTreeNodeDom *m_rootNode = new PVRush::PVXmlTreeNodeDom(PVRush::PVXmlTreeNodeDom::Root, "tree", xmlRootDom,this->xmlFile);
-    setRoot(m_rootNode);
-}
-
-
 PVInspector::PVXmlDomModel::~PVXmlDomModel() {
 }
 
@@ -347,7 +296,7 @@ bool PVInspector::PVXmlDomModel::saveXml(QString nomDuFichierXml){
 		msg.exec();
 		return false;
 	}
-    QString version = QString("%1").arg(FORMAT_VERSION);
+    QString version = QString("%1").arg(PVFORMAT_CURRENT_VERSION);
     xmlRootDom.setAttribute("version",version);
 	QByteArray data(xmlFile.toString().toUtf8());
 	int size_written = file.write(data);
@@ -489,49 +438,50 @@ void PVInspector::PVXmlDomModel::addFilterAfter(QModelIndex &index) {
  *  PVInspector::PVXmlDomModel::addSplitter
  *
  *****************************************************************************/
-PVRush::PVXmlTreeNodeDom* PVInspector::PVXmlDomModel::addSplitter(const QModelIndex &index, PVFilter::PVFieldsSplitterParamWidget_p splitterPlugin){
-        assert(splitterPlugin);
-        assert(splitterPlugin.get());
-		PVRush::PVXmlTreeNodeDom* child;
-        PVLOG_DEBUG("PVInspector::PVXmlDomModel::addSplitter\n");
-        PVRush::PVXmlTreeNodeDom *field;
-        if(index.isValid()){//add as child
-                field = nodeFromIndex(index);
-                if (field->typeToString() == "field") {//a splitter can be add only in field...
-                        if (!trustConfictSplitAxes(index)){
-                                //message("You must select a field with axis or splitter inside.");
-                                return NULL;//we can't add more than one splitter in a field
-                        }
-                        PVLOG_DEBUG("     adding splitter in a field\n");
-                } else {
-                        //message(QString(field->getDom().tagName()));
-                        message("You must select a field first.");
-                        return NULL;
-                }
-        }else{//add on the root
+PVRush::PVXmlTreeNodeDom* PVInspector::PVXmlDomModel::addSplitter(const QModelIndex &index, PVFilter::PVFieldsSplitterParamWidget_p splitterPlugin)
+{
+	assert(splitterPlugin);
 
-                if (!trustConfictSplitAxes(index))return NULL;//we can't add more than one splitter in a field
-                field = rootNode;
+	PVRush::PVXmlTreeNodeDom* child;
+	PVLOG_DEBUG("PVInspector::PVXmlDomModel::addSplitter\n");
+	PVRush::PVXmlTreeNodeDom *field;
+	if(index.isValid()){//add as child
+		field = nodeFromIndex(index);
+		if (field->typeToString() == "field") {//a splitter can be add only in field...
+			if (!trustConfictSplitAxes(index)){
+				//message("You must select a field with axis or splitter inside.");
+				return NULL;//we can't add more than one splitter in a field
+			}
+			PVLOG_DEBUG("     adding splitter in a field\n");
+		} else {
+			//message(QString(field->getDom().tagName()));
+			message("You must select a field first.");
+			return NULL;
+		}
+	}else{//add on the root
 
-        }
-        PVLOG_DEBUG("     adding splitter on root node\n");
-        //add node in dom
-        QDomElement newDom = xmlFile.createElement(splitterPlugin->type_name());
-        QString registered_name = splitterPlugin->registered_name();
-        PVLOG_DEBUG("          set tag %s, type %s\n", qPrintable(splitterPlugin->type_name()), qPrintable(registered_name));
-        newDom.setAttribute("type", registered_name);
-        field->getDom().appendChild(newDom);
-        //
-        //add node in tree
-        child = new PVRush::PVXmlTreeNodeDom(newDom);
-        child->setParent(field);
-        field->addChild(child);
+		if (!trustConfictSplitAxes(index))return NULL;//we can't add more than one splitter in a field
+		field = rootNode;
 
-        //save the splitter plugin referance
-        child->setSplitterPlugin(splitterPlugin);
-        
-        emit layoutChanged();
-		return child;
+	}
+	PVLOG_DEBUG("     adding splitter on root node\n");
+	//add node in dom
+	QDomElement newDom = xmlFile.createElement(splitterPlugin->type_name());
+	QString registered_name = splitterPlugin->registered_name();
+	PVLOG_DEBUG("          set tag %s, type %s\n", qPrintable(splitterPlugin->type_name()), qPrintable(registered_name));
+	newDom.setAttribute("type", registered_name);
+	field->getDom().appendChild(newDom);
+	//
+	//add node in tree
+	child = new PVRush::PVXmlTreeNodeDom(newDom);
+	child->setParent(field);
+	field->addChild(child);
+
+	//save the splitter plugin referance
+	child->setSplitterPlugin(splitterPlugin);
+
+	emit layoutChanged();
+	return child;
 }
 
 
@@ -727,21 +677,20 @@ bool PVInspector::PVXmlDomModel::openXml(QString url) {
 		return false;
 	}
 
-	this->xmlRootDom = this->xmlFile.documentElement();
-        
-	PVLOG_INFO("format opened version : %s\n",getVersion().toStdString().c_str());
-
-
-    PVRush::PVXmlTreeNodeDom *m_rootNode = new PVRush::PVXmlTreeNodeDom(PVRush::PVXmlTreeNodeDom::field, "root", xmlRootDom, this->xmlFile);
-    if (getVersion() == "0") {
-        m_rootNode->version0to1();
-    }
-    setRoot(m_rootNode);
-    
-        
-
-	emit layoutChanged();//to resfresh screen
+	openXml(this->xmlFile);
 	return true;
+}
+
+void PVInspector::PVXmlDomModel::openXml(QDomDocument& doc)
+{
+	xmlRootDom = doc.documentElement();
+	PVRush::PVXmlTreeNodeDom *m_rootNode = new PVRush::PVXmlTreeNodeDom(PVRush::PVXmlTreeNodeDom::field, "root", xmlRootDom, this->xmlFile);
+	if (getVersion() == "0") {
+		m_rootNode->version0to1();
+	}
+	setRoot(m_rootNode);
+
+	emit layoutChanged(); // to resfresh screen
 }
 
 
@@ -872,24 +821,24 @@ void PVInspector::PVXmlDomModel::addUrlIn(const QModelIndex &index){
  * PVInspector::PVXmlDomModel::trustConfictSplitAxes
  *
  *****************************************************************************/
-bool PVInspector::PVXmlDomModel::trustConfictSplitAxes(const QModelIndex &index) {
+bool PVInspector::PVXmlDomModel::trustConfictSplitAxes(const QModelIndex &index)
+{
+	PVRush::PVXmlTreeNodeDom* node;
 	if (index.isValid()) {
-		for (int i = 0; i < nodeFromIndex(index)->getChildren().count(); i++) {
-			QDomElement child = nodeFromIndex(index)->getChildren().at(i)->getDom();
-			if (child.tagName() == "axis" || child.tagName() == "RegEx" || child.tagName() == "url" || child.tagName() == "splitter") {
-				message("There is just one axis or Splitter in a field. Delete this one to add a newer.");
-				return false;
-			}
-		}
-	} else {
-		for (int i = 0; i < rootNode->getChildren().count(); i++) {
-			QDomElement child = nodeFromIndex(index)->getChildren().at(i)->getDom();
-			if (child.tagName() == "axis" || child.tagName() == "RegEx" || child.tagName() == "url" || child.tagName() == "splitter") {
-				message("There is just one axis or Splitter in a field. Delete this one to add a newer.");
-				return false;
-			}
+		node = nodeFromIndex(index);
+	}
+	else {
+		node = rootNode;
+	}
+
+	for (int i = 0; i < node->getChildren().count(); i++) {
+		QDomElement child = node->getChildren().at(i)->getDom();
+		if (child.tagName() == "axis" || child.tagName() == "RegEx" || child.tagName() == "url" || child.tagName() == "splitter") {
+			message("There is just one axis or splitter in a field. Delete this one to add a newer.");
+			return false;
 		}
 	}
+	
 	return true;
 }
 

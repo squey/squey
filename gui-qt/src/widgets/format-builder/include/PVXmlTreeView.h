@@ -85,18 +85,16 @@ public:
          
       PVXmlDomModel * getModel();
 
-        QModelIndex getSelectedIndex() {
-        QModelIndex index;
+	  QModelIndex getSelectedIndex() {
+		  QModelIndexList lsel = selectedIndexes();
+		  int numberOfSelectedIndexes = lsel.count();
+		  for (int i = 0; i < numberOfSelectedIndexes; i++) {
+			  QModelIndex tmp = lsel[i];
+			  PVLOG_DEBUG("selected index: %d %d\n", tmp.row(), tmp.column());
+		  }
 
-        int numberOfSelectedIndexes = selectedIndexes().count(); //get the number of selected indexes.
-
-        if (numberOfSelectedIndexes > 0) {
-            index = selectedIndexes().at(0); //get the selected index.
-        }else{
-            return QModelIndex();
-        }
-        return index;
-    }
+		  return (numberOfSelectedIndexes > 0) ? lsel[0] : QModelIndex();
+	  }
       
     /**
      * Move down the selected element.

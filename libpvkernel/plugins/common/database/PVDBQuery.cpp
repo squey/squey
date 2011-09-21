@@ -16,6 +16,11 @@ PVRush::PVDBQuery::PVDBQuery(PVDBServ_p infos, QString const& query):
 	set_query(query);
 }
 
+PVRush::PVDBQuery::~PVDBQuery()
+{
+}
+
+
 QSqlQuery PVRush::PVDBQuery::to_query(chunk_index start, chunk_index nelts) const
 {
 	QString querystr = _query + QString(" LIMIT %1 OFFSET %2").arg(nelts).arg(start);

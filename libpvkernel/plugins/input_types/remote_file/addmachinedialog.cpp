@@ -1,4 +1,4 @@
-#include <logviewer/addmachinedialog.h>
+#include "include/addmachinedialog.h"
 
 #include <QFormLayout>
 #include <QVBoxLayout>

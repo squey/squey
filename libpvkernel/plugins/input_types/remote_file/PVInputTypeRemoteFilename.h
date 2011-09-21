@@ -1,19 +1,18 @@
-#ifndef PICVIZ_PVINPUTTYPEFILENAME_H
-#define PICVIZ_PVINPUTTYPEFILENAME_H
+#ifndef PICVIZ_PVINPUTTYPEREMOTEFILENAME_H
+#define PICVIZ_PVINPUTTYPEREMOTEFILENAME_H
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/rush/PVInputType.h>
 
 #include <QString>
-#include <QStringList>
 
 namespace PVRush {
 
-class PVInputTypeFilename: public PVInputType
+class PVInputTypeRemoteFilename: public PVInputType
 {
 public:
-	PVInputTypeFilename();
-	virtual ~PVInputTypeFilename();
+	PVInputTypeRemoteFilename();
+	virtual ~PVInputTypeRemoteFilename();
 public:
 	bool createWidget(hash_formats const& formats, list_inputs &inputs, QString& format, QWidget* parent = NULL) const;
 	QString name() const;
@@ -25,10 +24,8 @@ public:
 	bool get_custom_formats(PVCore::PVArgument const& in, hash_formats &formats) const;
 
 protected:
-	mutable QStringList _tmp_dir_to_delete;
-	int _limit_nfds;
 	
-	CLASS_REGISTRABLE_NOCOPY(PVInputTypeFilename)
+	CLASS_REGISTRABLE_NOCOPY(PVInputTypeRemoteFilename)
 };
 
 }

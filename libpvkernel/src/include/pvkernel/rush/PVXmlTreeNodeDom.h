@@ -46,6 +46,9 @@ public:
      */
     PVXmlTreeNodeDom(Type _type, const QString &_str,  QDomElement &dom, QDomDocument &file);
     virtual ~PVXmlTreeNodeDom();
+
+
+	static PVRush::PVXmlTreeNodeDom* new_format(QDomDocument& file);
     
     /**
      * Add a child.
@@ -196,6 +199,7 @@ public:
 	 * @return the axis node that corresponds to that field
      */
 	PVRush::PVXmlTreeNodeDom* addOneField(QString const& name);
+	PVRush::PVXmlTreeNodeDom* addOneField(QString const& name, QString const& axis_type);
 
     /**
      * Return the type of node in a QString.

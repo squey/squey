@@ -35,6 +35,20 @@ PVRush::PVXmlTreeNodeDom::PVXmlTreeNodeDom(Type _type, const QString &_str, QDom
 	_field_linear_id = -1;
 }
 
+PVRush::PVXmlTreeNodeDom* PVRush::PVXmlTreeNodeDom::new_format(QDomDocument& file)
+{
+	file.createProcessingInstruction("xml", "version=\"1.0\" encoding=\"utf-8\"");
+	QString header(PVXmlTreeNodeDom_initXml);
+	QString err;
+
+	file.setContent(header,true,&err);
+	QDomElement xmlRootDom = file.documentElement();
+	xmlRootDom.setAttribute("version", PVFORMAT_CURRENT_VERSION);
+
+	//creating the root node.
+	PVRush::PVXmlTreeNodeDom *rootNode = new PVRush::PVXmlTreeNodeDom(PVRush::PVXmlTreeNodeDom::field, "root", xmlRootDom, file);
+	return rootNode;
+}
 
 /******************************************************************************
  *
@@ -126,11 +140,10 @@ int PVRush::PVXmlTreeNodeDom::countChildren() {
  *****************************************************************************/
 void PVRush::PVXmlTreeNodeDom::createSplitterPlugin(const QDomElement &domElt) {
     QString plugName = domElt.attribute("type", "-");
-    PVLOG_DEBUG("sender():%s\n", qPrintable(plugName));
+	PVLOG_INFO("Create splitter plugin for %s\n", qPrintable(plugName));
     PVFilter::PVFieldsSplitterParamWidget_p in_t = LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::get().get_class_by_name(plugName);
     PVFilter::PVFieldsSplitterParamWidget_p in_t_cpy = in_t->clone<PVFilter::PVFieldsSplitterParamWidget > ();
     QString registered_name = in_t_cpy->registered_name();
-    PVLOG_DEBUG(" type_name %s, %s\n", qPrintable(in_t_cpy->type_name()), qPrintable(registered_name));
     setSplitterPlugin(in_t_cpy);
 }
 
@@ -454,6 +467,13 @@ PVRush::PVXmlTreeNodeDom* PVRush::PVXmlTreeNodeDom::addOneField(QString const& n
     return newAxis;
 }
 
+PVRush::PVXmlTreeNodeDom* PVRush::PVXmlTreeNodeDom::addOneField(QString const& name, QString const& axis_type)
+{
+	PVXmlTreeNodeDom* axis = addOneField(name);
+	axis->setAttribute("type", axis_type);
+	return axis;
+}
+
 /******************************************************************************
  *
  * PVRush::PVXmlTreeNodeDom::delField
@@ -682,6 +702,7 @@ void PVRush::PVXmlTreeNodeDom::getChildrenFromField(PVCore::PVField const& field
 	// Check if a number of children is forced
 	size_t force_nchild = 0;
 	// TODO: this should be all in plugins !
+	getSplitterPlugin();
 	if (splitterPlugin) {
 		force_nchild = splitterPlugin->force_number_children();
 		splitterPlugin->push_data(str_copy);

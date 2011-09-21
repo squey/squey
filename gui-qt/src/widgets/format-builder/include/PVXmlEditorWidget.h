@@ -52,6 +52,11 @@ public:
     PVXmlEditorWidget(QWidget * parent = NULL);
 
     virtual ~PVXmlEditorWidget();
+
+public:
+	void openFormat(QString const& path);
+	void openFormat(QDomDocument& doc);
+
 private:
     //
     PVXmlTreeView *myTreeView;
@@ -113,6 +118,7 @@ private:
 	list_filters_t _list_filters;///!<list of the plugins filters
     
     void showParamBoard(PVRush::PVXmlTreeNodeDom *node);
+
 
 
 // Log input management

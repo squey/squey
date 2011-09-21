@@ -26,7 +26,7 @@
  */
 
 namespace PVRush {
-class LibKernelDecl PVTag{
+class LibKernelDecl PVTags {
 
  private:
 	std::vector<QString> _tags;
@@ -36,8 +36,8 @@ class LibKernelDecl PVTag{
 	
 
  public:
-	PVTag();
-	~PVTag();
+	PVTags();
+	~PVTags();
 	
 	bool add_tag(QString tag);
 	bool del_tag(QString tag);

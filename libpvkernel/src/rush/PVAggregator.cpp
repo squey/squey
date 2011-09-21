@@ -120,7 +120,7 @@ void PVRush::PVAggregator::process_indexes(chunk_index nstart, chunk_index nend,
 	// Set our aggregator accordingly
 	_cur_input = it_src;
 	if ((*_cur_input)->seek(src_offset)) {
-		_cur_src_index = src_found_index;
+		_cur_src_index = src_global_index;
 		_nlast = src_global_index + src_found_index;
 	}
 	else {
@@ -205,11 +205,9 @@ PVCore::PVChunk* PVRush::PVAggregator::operator()() const
 	if (_nlast < _nstart) {
 		// We have to read until _nstart indexes
 		ret = read_until_index(_nstart);
-	}
-	else {
-		ret = next_chunk();
 		if (_strict_mode) {
-			if (ret->_agg_index < _nstart) {
+			PVLOG_INFO("(PVAggregator::operator()) chunk agg index: %d\n", ret->_agg_index);
+			if (ret != NULL && ret->_agg_index < _nstart) {
 				chunk_index nelts = ret->c_elements().size();
 				assert(ret->_agg_index + nelts - 1 >= _nstart);
 				chunk_index nelts_remove = _nstart - ret->_agg_index;
@@ -225,10 +223,38 @@ PVCore::PVChunk* PVRush::PVAggregator::operator()() const
 			}
 		}
 	}
+	else {
+		ret = next_chunk();
+	}
 
 	if (ret == NULL) {
 		_eoi = true;
 		PVLOG_DEBUG("Aggregator: end of inputs\n");
+		return NULL;
+	}
+
+	if (_strict_mode) {
+		chunk_index nelts = ret->c_elements().size();
+		if (ret->_agg_index + nelts > _nend) {
+			// We need to shrink that last chunk
+			// As we use std::list for elements, this will not be
+			// really efficient.
+			// TODO: profile this.
+			chunk_index nstart_rem = _nend+1-ret->_agg_index;
+			PVCore::list_elts& elts = ret->elements();
+			PVCore::list_elts::iterator it_elt = elts.begin();
+			// Go to the nstart_rem ith element
+			for (chunk_index i = 0; i < nstart_rem; i++) {
+				it_elt++;
+			}
+
+			// And remove them all till the end
+			while (it_elt != elts.end()) {
+				PVCore::list_elts::iterator it_er = it_elt;
+				it_elt++;
+				elts.erase(it_er);
+			}
+		}
 	}
 
 	return ret;

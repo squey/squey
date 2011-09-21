@@ -60,10 +60,13 @@ public:
 	typedef PVDBServ_p p_type;
 public:
 	PVDBServ(PVDBInfos const& infos);
+	~PVDBServ();
 
-protected:
+public:
 	bool connect();
 	QString last_error() const;
+
+protected:
 	QSqlDatabase to_database();
 
 private:
