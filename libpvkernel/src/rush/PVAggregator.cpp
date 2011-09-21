@@ -209,7 +209,7 @@ PVCore::PVChunk* PVRush::PVAggregator::operator()() const
 	else {
 		ret = next_chunk();
 		if (_strict_mode) {
-			if (ret->_agg_index < _nstart) {
+			if (ret != NULL && ret->_agg_index < _nstart) {
 				chunk_index nelts = ret->c_elements().size();
 				assert(ret->_agg_index + nelts - 1 >= _nstart);
 				chunk_index nelts_remove = _nstart - ret->_agg_index;

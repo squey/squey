@@ -724,9 +724,6 @@ void PVInspector::PVXmlEditorWidget::update_table(PVRow start, PVRow end)
 			myTreeModel->processChildrenWithField((*it_elt)->c_fields().front());
 			nelts++;
 		}
-		if (nelts > 10) {
-			break;
-		}
 		ck = agg();
 	}
 
