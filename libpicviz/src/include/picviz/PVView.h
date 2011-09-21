@@ -82,7 +82,7 @@ public:
 
 
 	/* Functions */
-	int get_axes_count();
+	PVCol get_axes_count();
 
 	/**
 	 * Gets the QStringList of all Axes names according to the current PVAxesCombination

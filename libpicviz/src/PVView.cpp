@@ -201,7 +201,7 @@ void Picviz::PVView::debug()
  * Picviz::PVView::get_axes_count
  *
  *****************************************************************************/
-int Picviz::PVView::get_axes_count()
+PVCol Picviz::PVView::get_axes_count()
 {
 	return axes_combination.get_axes_count();
 }
@@ -258,6 +258,7 @@ PVCol Picviz::PVView::get_column_count()
  *****************************************************************************/
 float Picviz::PVView::get_column_count_as_float()
 {
+	// AG: why?
 	return (float)get_column_count();
 }
 
