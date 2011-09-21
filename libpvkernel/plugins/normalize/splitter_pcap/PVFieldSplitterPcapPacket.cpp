@@ -54,7 +54,6 @@ DEFAULT_ARGS_FILTER(PVFilter::PVFieldSplitterPcapPacket)
 {
 	PVCore::PVArgumentList args;
 	args["datalink"] = QVariant((int) -1);
-	PVLOG_DEBUG("test: %d\n", args["datalink"].toInt());
 	return args;
 }
 
@@ -62,7 +61,6 @@ void PVFilter::PVFieldSplitterPcapPacket::set_args(PVCore::PVArgumentList const&
 {
 	FilterT::set_args(args);
 	_datalink_type = args["datalink"].toInt();
-	PVLOG_DEBUG("(PVFieldSplitterPcapPacket) datalink set to %d\n", _datalink_type);
 }
 
 PVCore::list_fields::size_type PVFilter::PVFieldSplitterPcapPacket::one_to_many(PVCore::list_fields &l, PVCore::list_fields::iterator it_ins, PVCore::PVField &field)

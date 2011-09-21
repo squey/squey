@@ -29,7 +29,6 @@
 #include <pvgl/PVCom.h>
 
 #include <PVAxisPropertiesWidget.h>
-#include <PVColorDialog.h>
 #include <PVDualSlider.h>
 #include <PVExportSelectionDialog.h>
 #include <PVFilterWidget.h>
@@ -68,7 +67,7 @@ public:
 // XXX		picviz_datatreerootitem_t *datatree;
 
 	PVAxisPropertiesWidget *pv_AxisProperties;
-	PVColorDialog *pv_ColorDialog;
+	//PVColorDialog *pv_ColorDialog;
 
 	PVFilterWidget *pv_FilterWidget;
 
@@ -161,6 +160,7 @@ public slots:
 	// Not an elegant solution, must find better.
 	void edit_format_Slot(QString const& path, QWidget* parent);
 	void edit_format_Slot(QDomDocument& doc, QWidget* parent);
+	void set_color_selected(QColor const& color);
 
 	void display_icon_Slot();
 
@@ -240,6 +240,7 @@ protected:
 	void keyPressEvent(QKeyEvent *event);
 	int update_check();
 	void treat_invalid_formats(QHash<QString, std::pair<QString,QString> > const& errors);
+	PVTabSplitter* get_tab_from_view(Picviz::PVView_p picviz_view);
 
 signals:
 	void change_of_current_view_Signal();

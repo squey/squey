@@ -4,15 +4,8 @@
 //! Copyright (C) Philippe Saadé 2009-2011
 //! Copyright (C) Picviz Labs 2011
 
-#include <QtGui>
-
 #include <pvkernel/core/general.h>
-
-#include <PVMainWindow.h>
-
 #include <PVColorDialog.h>
-
-// FIXME! Is this even used?
 
 
 /******************************************************************************
@@ -20,11 +13,13 @@
  * PVInspector::PVColorDialog::PVColorDialog
  *
  *****************************************************************************/
-PVInspector::PVColorDialog::PVColorDialog(PVMainWindow *mw, QWidget *parent) : QColorDialog(parent)
+PVInspector::PVColorDialog::PVColorDialog(Picviz::PVView_p picviz_view, QWidget* parent):
+	QColorDialog(Qt::white, parent),
+	_picviz_view(picviz_view)
 {
 	PVLOG_DEBUG("PVColorDialog::%s\n", __FUNCTION__);
 
-	main_window = mw;
-
-	setWindowTitle("Color dialog"); // XXX this should probably be marked for translation.
+	setOption(QColorDialog::ShowAlphaChannel, true);
+	//setWindowFlags(Qt::WindowStaysOnTopHint);
+	setWindowTitle("Select a color...");
 }

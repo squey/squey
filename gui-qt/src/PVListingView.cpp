@@ -111,7 +111,7 @@ void PVInspector::PVListingView::update_view_selection_from_listing_selection()
 
 	for (i=0; i<number_of_items; i++) {
 		lib_view->volatile_selection.set_line(myModel->getRealRowIndex(selected_items_list[i].row()), 1);
-	}    
+	}
 	
 	/* We reprocess the view from the selection */
 	lib_view->process_from_selection();
