@@ -78,7 +78,15 @@ int main(int argc, char** argv)
 	dump_agg(agg);
 
 	cout << "Process from 127 to 140..." << endl;
-	agg.process_indexes(10, 20);
+	agg.process_indexes(127, 140);
+	dump_agg(agg);
+
+	cout << "Process from 0 to 4..." << endl;
+	agg.process_indexes(0, 4);
+	dump_agg(agg);
+
+	cout << "Process from 1 to 701..." << endl;
+	agg.process_indexes(1, 701);
 	dump_agg(agg);
 
 	return 0;
