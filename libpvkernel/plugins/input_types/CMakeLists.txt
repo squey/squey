@@ -28,12 +28,24 @@ QT4_WRAP_UI(DB_UI_SRCS ${DB_UI})
 add_library(input_type_database SHARED ${DB_UI_SRCS} ${DB_MOC_SRCS} database/PVDatabaseParamsWidget.cpp database/PVSQLTypeMap.cpp database/PVDBPreviewWidget.cpp database/PVInputTypeDatabase.cpp database/PVDBPresets.cpp ../common/database/PVDBInfos.cpp ../common/database/PVDBQuery.cpp database/register.cpp)
 target_link_libraries(input_type_database ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
 
+#
+# HDFS input plugin
+#
 if(HDFS_FOUND)
 	set(INPUTS_DIST_LIST ${INPUTS_DIST_LIST} input_type_hdfs)
 	include_directories(AFTER ${HDFS_INCLUDE_DIRS})
 	add_library(input_type_hdfs SHARED hdfs/PVInputTypeHDFS.cpp ../common/hdfs/PVInputHDFSFile.cpp ../common/hdfs/PVInputHDFSServer.cpp hdfs/setenv.cpp hdfs/register.cpp)
 	target_link_libraries(input_type_hdfs ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES} ${HDFS_LIBRARIES})
 endif(HDFS_FOUND)
+
+#
+# Remote file input plugin
+#
+set(REMOTEFILE_MOC_HEADERS remote_file/include/addmachinedialog.h remote_file/include/connectionsettings.h remote_file/include/fileconnectiondialog.h remote_file/include/filedownloader.h remote_file/include/logviewer_config.h remote_file/include/logviewer_export.h remote_file/include/logviewerwidget.h remote_file/include/logviewerwidget_p.h)
+QT4_WRAP_CPP(REMOTEFILE_MOC_SRCS ${REMOTEFILE_MOC_HEADERS})
+include_directories(AFTER ${CURL_INCLUDE_DIR})
+add_library(input_type_remotefile SHARED remote_file/addmachinedialog.cpp remote_file/fileconnectiondialog.cpp remote_file/filedownloader.cpp remote_file/logviewerwidget.cpp remote_file/PVInputTypeRemoteFilename.cpp remote_file/register.cpp ${REMOTEFILE_MOC_SRCS})
+target_link_libraries(input_type_remotefile ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
 
 
 INSTALL(TARGETS ${INPUTS_DIST_LIST} LIBRARY DESTINATION input-types)
