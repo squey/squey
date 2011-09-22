@@ -21,6 +21,7 @@ core/PVListFloat2D.cpp
 core/PVLogger.cpp
 core/PVPCRESplitter.cpp
 core/PVSplitter.cpp
+core/PVVersion.cpp
 )
 
 set(CORE_HEADER_FILES
@@ -54,6 +55,7 @@ include/pvkernel/core/PVRegistrableClass.h
 include/pvkernel/core/PVSpinBoxType.h
 include/pvkernel/core/PVTBBMaxArray.h
 include/pvkernel/core/PVTBBMinMaxArray.h
+include/pvkernel/core/PVVersion.h
 )
 
 
