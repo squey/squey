@@ -550,11 +550,17 @@ void PVInspector::PVMainWindow::select_scene_Slot()
 void PVInspector::PVMainWindow::selection_all_Slot()
 {
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
+	if (!current_tab) {
+		return;
+	}
 
-	if (current_tab && current_tab->get_lib_view()) {
-		Picviz::PVView_p view = current_tab->get_lib_view();
-		view->select_all_nonzb_lines();
-		update_pvglview(view, PVGL_COM_REFRESH_SELECTION);
+	Picviz::PVView_p lib_view = current_tab->get_lib_view();
+	if (lib_view) {
+		// Set square area mode w/ volatile
+		lib_view->state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
+		lib_view->volatile_selection.select_all();
+		lib_view->process_from_selection();
+		update_pvglview(lib_view, PVGL_COM_REFRESH_SELECTION);
 		current_tab->refresh_listing_Slot();
 		current_tab->updateFilterMenuEnabling();
 	}
@@ -568,13 +574,17 @@ void PVInspector::PVMainWindow::selection_all_Slot()
 void PVInspector::PVMainWindow::selection_none_Slot()
 {
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
+	if (!current_tab) {
+		return;
+	}
 
-	if (current_tab && current_tab->get_lib_view()) {
-// picviz_selection_A2A_inverse(current_tab->get_lib_view()->volatile_selection);
-		current_tab->get_lib_view()->volatile_selection.select_none();
-		current_tab->get_lib_view()->process_from_selection();
-		current_tab->get_lib_view()->process_from_eventline();
-		update_pvglview(current_tab->get_lib_view(), PVGL_COM_REFRESH_SELECTION);
+	Picviz::PVView_p lib_view = current_tab->get_lib_view();
+	if (lib_view) {
+		// Set square area mode w/ volatile
+		lib_view->state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
+		lib_view->volatile_selection.select_none();
+		lib_view->process_from_selection();
+		update_pvglview(lib_view, PVGL_COM_REFRESH_SELECTION);
 		current_tab->refresh_listing_Slot();
 		current_tab->updateFilterMenuEnabling();
 	}
@@ -588,13 +598,19 @@ void PVInspector::PVMainWindow::selection_none_Slot()
 void PVInspector::PVMainWindow::selection_inverse_Slot()
 {
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
+	if (!current_tab) {
+		return;
+	}
 
-	if (current_tab && current_tab->get_lib_view()) {
-// picviz_selection_A2A_inverse(current_tab->get_lib_view()->volatile_selection);
-		current_tab->get_lib_view()->volatile_selection = ~(current_tab->get_lib_view()->volatile_selection);
-		current_tab->get_lib_view()->process_from_selection();
-		current_tab->get_lib_view()->process_from_eventline();
-		update_pvglview(current_tab->get_lib_view(), PVGL_COM_REFRESH_SELECTION);
+	Picviz::PVView_p lib_view = current_tab->get_lib_view();
+	if (lib_view) {
+		// Commit current volatile selection
+		lib_view->commit_volatile_in_floating_selection();
+		// Set square area mode w/ volatile
+		lib_view->state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
+		lib_view->volatile_selection = ~(lib_view->floating_selection);
+		lib_view->process_from_selection();
+		update_pvglview(lib_view, PVGL_COM_REFRESH_SELECTION);
 		current_tab->refresh_listing_Slot();
 		current_tab->updateFilterMenuEnabling();
 	}
@@ -667,6 +683,7 @@ void PVInspector::PVMainWindow::update_reply_finished_Slot(QNetworkReply *reply)
 		// There was an error retrieving the current version.
 		// Maybe picviz has no internet access !
 		PVLOG_DEBUG("(PVMainWindow::update_reply_finished_Slot) network error\n");
+		set_version_informations();
 		return;
 	}
 
@@ -688,12 +705,11 @@ void PVInspector::PVMainWindow::update_reply_finished_Slot(QNetworkReply *reply)
 
 	if (current_v == _last_known_cur_release && last_v == _last_known_maj_release) {
 		// We already informed the user once.
-		_last_known_cur_release = current_v;
-		_last_known_maj_release = last_v;
 		// Display version informations
 		set_version_informations();
 		return;
 	}
+
 	_last_known_cur_release = current_v;
 	_last_known_maj_release = last_v;
 
