@@ -64,5 +64,5 @@ QString PVCore::PVVersion::to_str(version_t v)
 
 QString PVCore::PVVersion::update_url()
 {
-	return QString("http://files.geekou.info/pv-test/update-%1.%2").arg(PICVIZ_CURRENT_VERSION_MAJOR).arg(PICVIZ_CURRENT_VERSION_MINOR);
+	return QString("http://www.picviz.com/update-%1.%2").arg(PICVIZ_CURRENT_VERSION_MAJOR).arg(PICVIZ_CURRENT_VERSION_MINOR);
 }
