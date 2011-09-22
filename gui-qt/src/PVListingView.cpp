@@ -93,29 +93,48 @@ void PVInspector::PVListingView::update_view_selection_from_listing_selection()
 	Picviz::PVStateMachine *state_machine;
 	int i;
 	int number_of_items;
-	int real_row_index;
 	QModelIndexList selected_items_list;
 	PVListingModel *myModel = (PVListingModel *)model();
+	unsigned int modifiers;
 
 	/* CODE */
 	state_machine = lib_view->state_machine;
 
-	/* We start by turning the square_area_mode OFF */
+	/* Commit the previous volatile selection */
+	lib_view->commit_volatile_in_floating_selection();
 
-	/* We set square_area_mode */
-	state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
-	/* We define the volatile_selection using selection in the lsiting */
+	/* Modify the state of the state machine according to the modifiers */
+	modifiers = (unsigned int) QApplication::keyboardModifiers();
+	/* We don't care about a keypad button being pressed */
+	modifiers &= ~Qt::KeypadModifier;
+	/* Can't use a switch case here as Qt::ShiftModifier and Qt::ControlModifier aren't really
+	 * constants */
+	if (modifiers == (Qt::ShiftModifier | Qt::ControlModifier)) {
+		state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_INTERSECT_VOLATILE);
+	}
+	else
+	if (modifiers == Qt::ControlModifier) {	
+		state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SUBSTRACT_VOLATILE);
+	}
+	else
+	if (modifiers == Qt::ShiftModifier) {
+		state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_ADD_VOLATILE);
+	}
+	else {
+		state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
+		lib_view->floating_selection.select_none();
+	}
+
+	/* We define the volatile_selection using selection in the listing */
 	lib_view->volatile_selection.select_none();
 	selected_items_list = selectedIndexes();
 	number_of_items = selected_items_list.size();
-
 	for (i=0; i<number_of_items; i++) {
 		lib_view->volatile_selection.set_line(myModel->getRealRowIndex(selected_items_list[i].row()), 1);
 	}
 	
 	/* We reprocess the view from the selection */
 	lib_view->process_from_selection();
-	state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_OFF);
 	/* We refresh the PVGLView */
 	main_window->update_pvglview(lib_view, PVGL_COM_REFRESH_SELECTION);
 	/* We refresh the listing */
@@ -143,7 +162,7 @@ void PVInspector::PVListingView::selectionChanged(const QItemSelection &selected
 	bool has_sel = selected.indexes().size() > 0;
 	QStatusBar* sb = main_window->statusBar();
 	if (has_sel) {
-		sb->showMessage(tr("Press enter to select these lines."));
+		sb->showMessage(tr("Press Enter to select these lines, Shift+Enter to add these lines, Ctrl+Enter to remove these lines and Shift+Ctrl+Enter to have the intersection between these lines and the current selection."));
 	}
 	else {
 		sb->clearMessage();

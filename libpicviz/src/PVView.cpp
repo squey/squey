@@ -186,6 +186,30 @@ void Picviz::PVView::commit_to_new_layer()
 	layer_stack.append_new_layer_from_selection_and_lines_properties(sel, lp);
 }
 
+void Picviz::PVView::commit_volatile_in_floating_selection()
+{
+	switch (state_machine->get_square_area_mode()) {
+		case Picviz::PVStateMachine::AREA_MODE_ADD_VOLATILE:
+			floating_selection |= volatile_selection;
+			break;
+
+		case Picviz::PVStateMachine::AREA_MODE_INTERSECT_VOLATILE:
+			floating_selection &= volatile_selection;
+			break;
+
+		case Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE:
+			floating_selection = volatile_selection;
+			break;
+
+		case Picviz::PVStateMachine::AREA_MODE_SUBSTRACT_VOLATILE:
+			floating_selection -= volatile_selection;
+			break;
+
+		case Picviz::PVStateMachine::AREA_MODE_OFF:
+			;
+	}
+}
+
 /******************************************************************************
  *
  * Picviz::PVView::debug
@@ -839,7 +863,7 @@ void Picviz::PVView::process_from_layer_stack()
  *****************************************************************************/
 void Picviz::PVView::process_from_selection()
 {
-        PVLOG_DEBUG("Picviz::PVView::%s\n",__FUNCTION__);
+	PVLOG_DEBUG("Picviz::PVView::%s\n",__FUNCTION__);
 	process_selection();
 	process_filter();
 	process_eventline();
