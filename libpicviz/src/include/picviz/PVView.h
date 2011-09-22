@@ -174,6 +174,8 @@ public:
 	int toggle_layer_stack_layer_n_visible_state(int n);
 
 	void select_all_nonzb_lines();
+	void select_no_line();
+	void select_inv_lines();
 
 
 /******************************************************************************

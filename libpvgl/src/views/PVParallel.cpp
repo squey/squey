@@ -440,7 +440,6 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 				message.pv_view = picviz_view;
 				pv_com->post_message_to_qt(message);
 				update_selections();
-				//update_colors();
 				break;
 		case 'c': case 'C': // Choose a color.
 				message.function = PVGL_COM_FUNCTION_SET_COLOR;
@@ -475,6 +474,14 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 					message.pv_view = picviz_view;
 					pv_com->post_message_to_qt(message);
 				}
+				break;
+		case 'i': case 'I': // Select all
+				picviz_view->select_inv_lines();
+				/* We refresh the listing */
+				message.function = PVGL_COM_FUNCTION_REFRESH_LISTING;
+				message.pv_view = picviz_view;
+				pv_com->post_message_to_qt(message);
+				update_selections();
 				break;
 		case 'm':
 				toggle_map();

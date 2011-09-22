@@ -1459,10 +1459,25 @@ void Picviz::PVView::recreate_mapping_plotting()
 
 void Picviz::PVView::select_all_nonzb_lines()
 {
+	state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
 	volatile_selection.select_all();
-	floating_selection.select_all();
-	/* We deactivate the square area */
-	state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_OFF);
-	/* We process the view from the selection */
+	process_from_selection();
+}
+
+void Picviz::PVView::select_no_line()
+{
+	// Set square area mode w/ volatile
+	state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
+	volatile_selection.select_none();
+	process_from_selection();
+}
+
+void Picviz::PVView::select_inv_lines()
+{
+	// Commit current volatile selection
+	commit_volatile_in_floating_selection();
+	// Set square area mode w/ volatile
+	state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
+	volatile_selection = ~floating_selection;
 	process_from_selection();
 }

@@ -556,10 +556,8 @@ void PVInspector::PVMainWindow::selection_all_Slot()
 
 	Picviz::PVView_p lib_view = current_tab->get_lib_view();
 	if (lib_view) {
+		lib_view->select_all_nonzb_lines();
 		// Set square area mode w/ volatile
-		lib_view->state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
-		lib_view->volatile_selection.select_all();
-		lib_view->process_from_selection();
 		update_pvglview(lib_view, PVGL_COM_REFRESH_SELECTION);
 		current_tab->refresh_listing_Slot();
 		current_tab->updateFilterMenuEnabling();
@@ -580,10 +578,7 @@ void PVInspector::PVMainWindow::selection_none_Slot()
 
 	Picviz::PVView_p lib_view = current_tab->get_lib_view();
 	if (lib_view) {
-		// Set square area mode w/ volatile
-		lib_view->state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
-		lib_view->volatile_selection.select_none();
-		lib_view->process_from_selection();
+		lib_view->select_no_line();
 		update_pvglview(lib_view, PVGL_COM_REFRESH_SELECTION);
 		current_tab->refresh_listing_Slot();
 		current_tab->updateFilterMenuEnabling();
@@ -604,12 +599,7 @@ void PVInspector::PVMainWindow::selection_inverse_Slot()
 
 	Picviz::PVView_p lib_view = current_tab->get_lib_view();
 	if (lib_view) {
-		// Commit current volatile selection
-		lib_view->commit_volatile_in_floating_selection();
-		// Set square area mode w/ volatile
-		lib_view->state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
-		lib_view->volatile_selection = ~(lib_view->floating_selection);
-		lib_view->process_from_selection();
+		lib_view->select_inv_lines();
 		update_pvglview(lib_view, PVGL_COM_REFRESH_SELECTION);
 		current_tab->refresh_listing_Slot();
 		current_tab->updateFilterMenuEnabling();
