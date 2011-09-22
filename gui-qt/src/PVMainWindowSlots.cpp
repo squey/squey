@@ -686,16 +686,19 @@ void PVInspector::PVMainWindow::update_reply_finished_Slot(QNetworkReply *reply)
 		return;
 	}
 
+	if (current_v == _last_known_cur_release && last_v == _last_known_maj_release) {
+		// We already informed the user once.
+		_last_known_cur_release = current_v;
+		_last_known_maj_release = last_v;
+		// Display version informations
+		set_version_informations();
+		return;
+	}
 	_last_known_cur_release = current_v;
 	_last_known_maj_release = last_v;
 
 	// Display version informations
 	set_version_informations();
-
-	if (current_v == _last_known_cur_release && last_v == _last_known_maj_release) {
-		// We already informed the user once.
-		return;
-	}
 
 	// Update PVCONFIG settings
 	pvconfig.setValue(PVCONFIG_LAST_KNOWN_CUR_RELEASE, current_v);
