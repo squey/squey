@@ -68,6 +68,7 @@ int Picviz::PVRoot::load_layer_filters()
 	else {
 		PVLOG_INFO("%d layer filters have been loaded.\n", ret);
 	}
+
 	return ret;
 }
 

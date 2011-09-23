@@ -604,7 +604,6 @@ void PVInspector::PVMainWindow::create_filters_menu_and_actions()
 
 	LIB_CLASS(Picviz::PVLayerFilter) &filters_layer = 	LIB_CLASS(Picviz::PVLayerFilter)::get();
 	LIB_CLASS(Picviz::PVLayerFilter)::list_classes const& lf = filters_layer.get_list();
-	
 	LIB_CLASS(Picviz::PVLayerFilter)::list_classes::const_iterator it;
 
 	for (it = lf.begin(); it != lf.end(); it++) {

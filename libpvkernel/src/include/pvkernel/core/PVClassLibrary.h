@@ -8,9 +8,12 @@
 #define PVCORE_PVCLASSLIBRARY_H
 
 #include <pvkernel/core/general.h>
+#include <pvkernel/core/PVTag.h>
 
 #include <QHash>
 #include <QString>
+
+#include <algorithm>
 
 namespace PVCore {
 
@@ -24,6 +27,8 @@ public:
 	typedef typename RegAs::p_type PF;
 	typedef QHash<QString,PF> list_classes;
 	typedef PVClassLibrary<RegAs> C;
+	typedef PVTag<RegAs> tag;
+	typedef QList<tag> list_tags;
 
 private:
 	PVClassLibrary()
@@ -46,7 +51,34 @@ public:
 		_classes.insert(name, pf);
 	}
 
+	template<class T>
+	void declare_tag(QString const& name, T const& f)
+	{
+		PF pf = f.template clone<RegAs>();
+		typename list_tags::iterator it = std::find(_tags.begin(), _tags.end(), tag(name));
+		if (it == _tags.end()) {
+			tag new_tag(name);
+			new_tag.add_class(pf);
+			_tags.push_back(new_tag);
+		}
+		else {
+			tag& cur_tag = *it;
+			cur_tag.add_class(pf);
+		}
+	}
+
 	list_classes const& get_list() const { return _classes; }
+
+	list_tags const& get_tags() const { return _tags; }
+	tag const& get_tag(QString name)
+	{
+		typename list_tags::const_iterator it = std::find(_tags.begin(), _tags.end(), tag(name));
+		if (it == _tags.end()) {
+			throw PVTagUndefinedException(name);
+		}
+
+		return *it;
+	}
 
 	// A shared pointer is returned, which means that parameters can be saved accross this
 	// saved pointer. If this is not wanted, a clone can be made thanks to the clone() method
@@ -59,6 +91,7 @@ public:
 
 private:
 	list_classes _classes;
+	list_tags _tags;
 };
 
 class LibKernelDecl PVClassLibraryLibLoader {
@@ -75,6 +108,10 @@ public:
 #define REGISTER_CLASS_AS_WITH_ARGS(name, T, RegAs, ...) \
 	PVCore::PVClassLibrary<RegAs>::get().register_class<T>(name, T(__VA_ARGS__));
 #define REGISTER_CLASS_WITH_ARGS(name, T, ...) REGISTER_CLASS_AS_WITH_ARGS(name, T, T::RegAs, __VA_ARGS__)
+
+#define DECLARE_TAG_AS(name, T, RegAs) \
+	PVCore::PVClassLibrary<RegAs>::get().declare_tag<T>(name, T());
+#define DECLARE_TAG(name, T) DECLARE_TAG_AS(name, T, T::RegAs)
 
 #define LIB_CLASS(T) \
 	PVCore::PVClassLibrary<T::RegAs>
