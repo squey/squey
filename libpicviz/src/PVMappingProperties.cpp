@@ -15,9 +15,13 @@ Picviz::PVMappingProperties::PVMappingProperties(PVRoot_p root, PVRush::PVFormat
 
 	QString type = format.get_axes().at(idx).get_type();
 	QString mode = format.get_axes().at(idx).get_mapping();
+	QString group = format.get_axes().at(idx).get_group();
 
 	mapping_filter = LIB_CLASS(Picviz::PVMappingFilter)::get().get_class_by_name(type + "_" + mode);
 	if (!mapping_filter) {
 		PVLOG_ERROR("Mapping '%s' for type '%s' does not exist !\n", qPrintable(mode), qPrintable(type));
+	}
+	if (!group.isEmpty()) {
+		group_key = group + "_" + type;
 	}
 }

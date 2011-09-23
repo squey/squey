@@ -110,15 +110,6 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 	pv_ImportFileDialog = new PVImportFileDialog(this);
 	pv_ImportFileDialog->hide();
 
-	// pv_FilterSearchWidget = new PVInspector::PVFilterSearchWidget(this);
-	// pv_FilterSearchWidget->hide();
-				// pv_RemoteLog = new LogViewerWidget(this);
-	// pv_RemoteLog->resize(500,60);
-	// // pv_RemoteLog->hide();
-
-//	pv_MapWidget = new PVMapWidget(this);
-	//pv_MapWidget->hide();
-
 	pv_OpenFileDialog = new PVOpenFileDialog(this);
 	pv_OpenFileDialog->hide();
 

@@ -66,7 +66,7 @@ PVInspector::PVXmlEditorWidget::PVXmlEditorWidget(QWidget * parent):
     
     hb->addItem(vbParam);
     //parameter board
-    myParamBord_old_model = new PVXmlParamWidget();
+    myParamBord_old_model = new PVXmlParamWidget(this);
     vbParam->addWidget(myParamBord_old_model);  
 
     //param board plugin splitter

@@ -690,6 +690,19 @@ void PVInspector::PVXmlDomModel::openXml(QDomDocument& doc)
 	}
 	setRoot(m_rootNode);
 
+	// Go through the DOM to get all the different groups
+	m_rootNode->getGroupsByType(_groups);
+	PVRush::types_groups_t::const_iterator it;
+	for (it = _groups.begin(); it != _groups.end(); it++) {
+		PVLOG_INFO("type: %s, groups: ", qPrintable(it.key()));
+		QSet<QString> const& grps = it.value();
+		QSet<QString>::const_iterator it_g;
+		for (it_g = grps.begin(); it_g != grps.end(); it_g++) {
+			PVLOG_PLAIN("%s ", qPrintable(*it_g));
+		}
+		PVLOG_PLAIN("\n");
+	}
+
 	emit layoutChanged(); // to resfresh screen
 }
 

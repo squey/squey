@@ -33,17 +33,6 @@ PVInspector::PVListingView::PVListingView(PVMainWindow *mw, Picviz::PVView_p pv_
 	lib_view = pv_view;
 	_ctxt_process = NULL;
 
-// DDX: remove since it is now in PVTabSplitter! pv_layer_stack_model = new PVLayerStackModel(main_window, this); 
-
-/*	pv_listing_model = new PVListingModel(main_window, this);
-	pv_listing_no_unselected_model = new PVListingNoUnselectedModel(main_window, this);
-	pv_listing_no_zombie_model = new PVListingNoZombieModel(main_window, this);
-	pv_listing_no_zombie_no_unselected_model = new PVListingNoZombieNoUnselectedModel(main_window, this);
-
-	setModel(pv_listing_model);
-
-	screenshot_index = 0;*/
-
 	setMinimumSize(0,0);
 	setSizePolicy(QSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding));
 	setFocusPolicy(Qt::NoFocus);

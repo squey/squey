@@ -56,6 +56,7 @@ public:
 public:
 	void openFormat(QString const& path);
 	void openFormat(QDomDocument& doc);
+	PVRush::types_groups_t& getGroups() { return myTreeModel->getGroups(); }
 
 private:
     //

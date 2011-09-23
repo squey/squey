@@ -38,21 +38,29 @@ float* Picviz::PVMappingFilterEnumDefault::operator()(PVRush::PVNraw::nraw_table
 {
 	float retval = 0;
 	int position = 0;
-	_enum_hash.clear();
+	hash_values enum_hash;
+	if (_grp_value && _grp_value->isValid()) {
+		PVLOG_DEBUG("(mapping-enum) using previous values for enumeration\n");
+		enum_hash = _grp_value->toHash();
+	}
 	_poscount = 0;
 
 	for (size_t i = 0; i < values.size(); i++) {
 		QString const& value = values[i];
-		hash_values::iterator it_v = _enum_hash.find(value);
-		if (it_v != _enum_hash.end()) {
-			position = it_v.value();
+		hash_values::iterator it_v = enum_hash.find(value);
+		if (it_v != enum_hash.end()) {
+			position = it_v.value().toInt();
 			retval = _enum_position_factorize(position);
 		} else {
 			_poscount++;
-			_enum_hash[value] = _poscount;
+			enum_hash[value] = QVariant((qlonglong)_poscount);
 			retval = _enum_position_factorize(_poscount);
 		}
 		_dest[i] = retval;
+	}
+
+	if (_grp_value) {
+		*_grp_value = enum_hash;
 	}
 
 	return _dest;

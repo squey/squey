@@ -846,3 +846,23 @@ int PVRush::PVXmlTreeNodeDom::setAxesNames(QStringList const& names, int id)
 	}
 	return id;
 }
+
+void PVRush::PVXmlTreeNodeDom::getGroupsByType(types_groups_t& grps)
+{
+	if (type == axis) {
+		QString grp = attribute("group", true);
+		if (grp == "none") {
+			setAttribute("group", "");
+		}
+		else
+		if (!grp.isEmpty()) {
+			QString axis_type = attribute("type", true);
+			grps[axis_type] << grp;
+		}
+	}
+
+	for (size_t ichild = 0; ichild < getChildren().size(); ichild++) {
+		getChild(ichild)->getGroupsByType(grps);
+	}
+}
+

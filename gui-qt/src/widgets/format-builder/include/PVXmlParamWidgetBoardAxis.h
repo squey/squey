@@ -32,12 +32,16 @@
 #include <PVXmlParamColorDialog.h>
 #include <picviz/plugins.h>
 namespace PVInspector{
+
+class PVXmlParamWidget;
+
 class PVXmlParamWidgetBoardAxis : public QWidget {
     Q_OBJECT
 public:
-    PVXmlParamWidgetBoardAxis(PVRush::PVXmlTreeNodeDom *pNode);
+    PVXmlParamWidgetBoardAxis(PVRush::PVXmlTreeNodeDom *pNode, PVXmlParamWidget* parent);
     virtual ~PVXmlParamWidgetBoardAxis();
     QWidget *getWidgetToFocus();
+	PVXmlParamWidget* parent() { return _parent; }
     
   private:
     void allocBoardFields();
@@ -49,6 +53,7 @@ public:
     void initValue();
     void setHelp();
 	void checkMappingTimeFormat();
+	void setComboGroup();
     
     
     
@@ -66,6 +71,7 @@ public:
     PVXmlParamComboBox * mapPlotType;
     PVXmlParamComboBox * comboMapping;
     PVXmlParamComboBox * comboPlotting;
+	PVXmlParamComboBox * comboGroup;
     
     //***** tab time format ***** 
     QLabel *timeFormatLabel;
@@ -76,6 +82,7 @@ public:
     QTextEdit *helpTimeFormat;
     PVXmlParamTextEdit *timeSample;
     QCheckBox *useParentRegExpValue;
+	QPushButton* btnGroupAdd;
     
     //***** tab param ***** 
     PVXmlParamComboBox * comboKey;
@@ -97,6 +104,8 @@ public:
     //editing node
     PVRush::PVXmlTreeNodeDom *node;
     QString pluginListURL;
+
+	PVXmlParamWidget* _parent;
     
 public slots:
     void slotGoNextAxis();
@@ -105,6 +114,7 @@ public slots:
     void updateDateValidation();
     //void slotSetVisibleExtra(bool flag);
     void slotSetVisibleTimeValid(bool flag);
+	void slotAddGroup();
     
     signals:
     void signalRefreshView();

@@ -21,10 +21,10 @@
    <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="integer" name="Window" plotting="minmax" color="#ffffff" time-sample=""/>
   </field>
   <field>
-   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="integer" name="Source port" plotting="port" color="#ffffff" time-sample=""/>
+   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="enum" group="port" name="Source port" plotting="default" color="#ffffff" time-sample=""/>
   </field>
   <field>
-   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="integer" name="Destination port" plotting="port" color="#ffffff" time-sample=""/>
+   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="none" type="enum" group="port" name="Destination port" plotting="default" color="#ffffff" time-sample=""/>
   </field>
  </splitter>
 </param>

@@ -31,10 +31,13 @@
 #include <PVXmlParamComboBox.h>
 #include <PVXmlParamColorDialog.h>
 namespace PVInspector{
+
+class PVXmlParamWidget;
+
 class PVXmlParamWidgetBoardSplitterRegEx : public QWidget {
     Q_OBJECT
 public:
-    PVXmlParamWidgetBoardSplitterRegEx(PVRush::PVXmlTreeNodeDom *pNode);
+    PVXmlParamWidgetBoardSplitterRegEx(PVRush::PVXmlTreeNodeDom *pNode, PVXmlParamWidget* parent);
     virtual ~PVXmlParamWidgetBoardSplitterRegEx();
     
     bool confirmAndSave();
@@ -80,6 +83,7 @@ private:
     int nbr;
     QPushButton *btnApply;
     bool useTableVerifie();
+	PVXmlParamWidget* _parent;
 
     //editing node
     PVRush::PVXmlTreeNodeDom *node;

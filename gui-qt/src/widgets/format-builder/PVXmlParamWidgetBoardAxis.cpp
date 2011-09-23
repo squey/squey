@@ -6,14 +6,19 @@
 #include <PVXmlParamWidgetBoardAxis.h>
 #include <picviz/PVMappingFilter.h>
 #include <picviz/PVPlottingFilter.h>
+#include <PVXmlEditorWidget.h>
 
+#include <QDialogButtonBox>
 
 /******************************************************************************
  *
  * PVInspector::PVXmlParamWidgetBoardAxis::PVXmlParamWidgetBoardAxis
  *
  *****************************************************************************/
-PVInspector::PVXmlParamWidgetBoardAxis::PVXmlParamWidgetBoardAxis( PVRush::PVXmlTreeNodeDom *pNode):QWidget() {
+PVInspector::PVXmlParamWidgetBoardAxis::PVXmlParamWidgetBoardAxis(PVRush::PVXmlTreeNodeDom *pNode, PVXmlParamWidget* parent):
+	QWidget(),
+	_parent(parent)
+{
     node = pNode;
     pluginListURL = picviz_plugins_get_functions_dir();
     setObjectName("PVXmlParamWidgetBoardAxis");
@@ -72,6 +77,8 @@ void PVInspector::PVXmlParamWidgetBoardAxis::allocBoardFields(){
     keyLabel = new QLabel("Key");
     group = new PVXmlParamWidgetEditorBox(QString("group"), new QVariant(node->attribute(PVFORMAT_AXIS_GROUP_STR)));
     groupLabel = new QLabel("Goup");
+	comboGroup = new PVXmlParamComboBox("group");
+	btnGroupAdd = new QPushButton(tr("Add a group..."));
     buttonColor = new PVXmlParamColorDialog("color", PVFORMAT_AXIS_COLOR_DEFAULT, this);
     colorLabel = new QLabel("Color of the axis line");
     buttonTitleColor = new PVXmlParamColorDialog("titlecolor", PVFORMAT_AXIS_TITLECOLOR_DEFAULT, this);
@@ -146,6 +153,8 @@ void PVInspector::PVXmlParamWidgetBoardAxis::disAllocBoardFields(){
     comboKey->deleteLater();
     comboKey->hide();
     group->deleteLater();
+	comboGroup->deleteLater();
+	btnGroupAdd->deleteLater();
     buttonColor->hide();
     buttonColor->deleteLater();
     buttonTitleColor->hide();
@@ -167,6 +176,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::disableConnexion(){
     disconnect(timeSample, SIGNAL(textChanged()), this, SLOT(slotSetValues()));
     disconnect(comboKey, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
     disconnect(group, SIGNAL(textChanged(const QString&)), this, SLOT(slotSetValues()));
+	disconnect(btnGroupAdd, SIGNAL(clicked()), this, SLOT(slotAddGroup()));
     disconnect(buttonColor, SIGNAL(changed()), this, SLOT(slotSetValues()));
     disconnect(buttonTitleColor, SIGNAL(changed()), this, SLOT(slotSetValues()));
     disconnect(buttonNextAxis,SIGNAL(clicked()), this, SLOT( slotGoNextAxis()));
@@ -235,7 +245,8 @@ void PVInspector::PVXmlParamWidgetBoardAxis::draw(){
     tabParameter->addWidget(keyLabel);
     tabParameter->addWidget(comboKey);
     tabParameter->addWidget(groupLabel);
-    tabParameter->addWidget(group);
+	tabParameter->addWidget(comboGroup);
+	tabParameter->addWidget(btnGroupAdd);
     tabParameter->addWidget(colorLabel);
     tabParameter->addWidget(buttonColor);
     tabParameter->addWidget(titleColorLabel);
@@ -278,6 +289,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::initConnexion() {
     //extra
     connect(comboKey, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
     connect(group, SIGNAL(textChanged(const QString&)), this, SLOT(slotSetValues()));
+	connect(btnGroupAdd, SIGNAL(clicked()), this, SLOT(slotAddGroup()));
     connect(buttonColor, SIGNAL(changed()), this, SLOT(slotSetValues()));
     connect(buttonTitleColor, SIGNAL(changed()), this, SLOT(slotSetValues()));
     
@@ -344,13 +356,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::initValue()
 	}
 	buttonTitleColor->setColor(node_tc);
 
-	QString node_group = node->attribute(PVFORMAT_AXIS_GROUP_STR);
-    if (node_group.isEmpty()) {
-		node_group = PVFORMAT_AXIS_GROUP_DEFAULT;
-	}
-	group->setText(node_group);
-    
-
+	setComboGroup();
 }
 
 /******************************************************************************
@@ -616,7 +622,56 @@ void PVInspector::PVXmlParamWidgetBoardAxis::updatePlotMapping(const QString& t)
 	}
 }
 
+void PVInspector::PVXmlParamWidgetBoardAxis::setComboGroup()
+{
+	QString type = mapPlotType->val().toString();
+	PVXmlEditorWidget* editor = parent()->parent();
+	PVRush::types_groups_t const& types_grps = editor->getGroups();
+	if (!types_grps.contains(type)) {
+		return;
+	}
 
+	comboGroup->clear();
+	comboGroup->addItem(PVFORMAT_AXIS_GROUP_DEFAULT);
+	QStringList grps = types_grps[type].toList();
+	for (int i = 0; i < grps.size(); i++) {
+		comboGroup->addItem(grps[i]);
+	}
 
+	QString node_group = node->attribute(PVFORMAT_AXIS_GROUP_STR);
+    if (node_group.isEmpty()) {
+		node_group = PVFORMAT_AXIS_GROUP_DEFAULT;
+	}
+	comboGroup->select(node_group);
+}
 
+void PVInspector::PVXmlParamWidgetBoardAxis::slotAddGroup()
+{
+	QString type = mapPlotType->val().toString();
+	QDialog* add_dlg = new QDialog(parent()->parent());
+	add_dlg->setWindowTitle(tr("Add a group..."));
 
+	QVBoxLayout* mainLayout = new QVBoxLayout();
+	QHBoxLayout* nameLayout = new QHBoxLayout();
+	nameLayout->addWidget(new QLabel(tr("Group name") + QString(" :")));
+	QLineEdit* group_name = new QLineEdit();
+	nameLayout->addWidget(group_name);
+	mainLayout->addLayout(nameLayout);
+	mainLayout->addWidget(new QLabel(tr("That group will be added for the type %1.").arg(type)));
+	QDialogButtonBox* btns = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+	connect(btns, SIGNAL(accepted()), add_dlg, SLOT(accept()));
+	connect(btns, SIGNAL(rejected()), add_dlg, SLOT(reject()));
+	mainLayout->addWidget(btns);
+	add_dlg->setLayout(mainLayout);
+
+	if (add_dlg->exec() == QDialog::Rejected) {
+		return;
+	}
+
+	QString new_grp = group_name->text();
+	PVRush::types_groups_t& types_grps = parent()->parent()->getGroups();
+	types_grps[type] << new_grp;
+
+	node->setAttribute(PVFORMAT_AXIS_GROUP_STR, new_grp);
+	setComboGroup();
+}

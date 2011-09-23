@@ -13,10 +13,10 @@
 #include <QFile>
 #include <QMessageBox>
 #include <QTextStream>
-#include <Qt>
 #include <iostream>
 #include <QDebug>
 #include <QString>
+#include <QSet>
 
 #include <pvkernel/rush/PVXmlTreeNodeDom.h>
 #include <PVXmlParamWidget.h>
@@ -136,6 +136,8 @@ public:
 	void updateFieldsLinearId();
 	void updateFiltersDataDisplay();
 	void setAxesNames(QStringList const& names);
+
+	PVRush::types_groups_t& getGroups() { return _groups; }
     
 private:
 	static void setDefaultAttributesForAxis(QDomElement& elt);
@@ -146,6 +148,9 @@ private:
     QString urlXml;
     QDomDocument xmlFile;
     QDomElement xmlRootDom;
+
+	// types_groups_t defined in pvkernel/rush/PVXmlTreeNodeDom.h
+	PVRush::types_groups_t _groups;
     
     
 public slots:

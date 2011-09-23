@@ -27,7 +27,6 @@ bool PVRush::PVInputTypeRemoteFilename::createWidget(hash_formats const& formats
 	QMainWindow *RemoteLogDialog = new QMainWindow(parent);
 	QMenuBar *rl_menuBar = new QMenuBar(0);
 	QMenu *rl_fileMenu = rl_menuBar->addMenu( tr( "Machine" ) );
-	// QDialogButtonBox *buttons = new QDialogButtonBox(Qt::Vertical);
 
 	QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
 					 | QDialogButtonBox::Cancel);
@@ -46,7 +45,7 @@ bool PVRush::PVInputTypeRemoteFilename::createWidget(hash_formats const& formats
 	rl_layout->addWidget(pv_RemoteLog);
 	rl_layout->addWidget(buttonBox);
 
-	// connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+	connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
 	connect(buttonBox, SIGNAL(rejected()), RemoteLogDialog, SLOT(hide()));
 
 	RemoteLogDialog->setWindowTitle(tr("Import remote file"));

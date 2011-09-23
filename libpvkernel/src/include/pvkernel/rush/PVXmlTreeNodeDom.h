@@ -14,6 +14,8 @@
 #include<QDomElement>
 #include<QDomDocument>
 #include<QDebug>
+#include <QSet>
+#include <QHash>
 
 #include<iostream>
 
@@ -27,6 +29,9 @@
 #define PVXmlTreeNodeDom_initXml "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<!DOCTYPE PVParamXml>\n<param></param>\n"
     
 namespace PVRush {
+
+typedef QHash<QString, QSet<QString> > types_groups_t;
+
 class LibKernelDecl PVXmlTreeNodeDom:public QObject {
     Q_OBJECT
 public:
@@ -233,6 +238,8 @@ public:
 	bool hasSplitterAsChild();
 
 	PVCol setAxesNames(QStringList const& names, PVCol id);
+
+	void getGroupsByType(types_groups_t& grps);
     
 private:
     QDomDocument xmlFile;
