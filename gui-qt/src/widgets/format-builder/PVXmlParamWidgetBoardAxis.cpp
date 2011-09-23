@@ -755,18 +755,13 @@ QSet<QString> PVInspector::PVXmlParamWidgetBoardAxis::getListParentSplitterTag()
 	return ret;
 }
 
-Picviz::PVLayerFilterTag PVInspector::PVXmlParamWidgetBoardAxis::get_current_tag()
+QString PVInspector::PVXmlParamWidgetBoardAxis::get_current_tag()
 {
-	QString tag_name = comboTag->val().toString();
-	if (tag_name.isEmpty()) {
-		return Picviz::PVLayerFilterTag();
-	}
-	return Picviz::PVLayerFilter::get_tag(tag_name);
+	return comboTag->val().toString();
 }
 
 void PVInspector::PVXmlParamWidgetBoardAxis::slotShowTagHelp()
 {
-	Picviz::PVLayerFilterTag cur_tag = get_current_tag();
-	PVAxisTagHelp* dlg = new PVAxisTagHelp(cur_tag, parent()->parent());
+	PVAxisTagHelp* dlg = new PVAxisTagHelp(get_current_tag(), parent()->parent());
 	dlg->exec();
 }

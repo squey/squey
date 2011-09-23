@@ -64,7 +64,7 @@ public:
 	QSet<QString> getListTags();
 	QSet<QString> getListParentSplitterTag();
     
-	Picviz::PVLayerFilterTag get_current_tag();
+	QString get_current_tag();
     /***************************  board items **********************/
     //***** tab general ***** 
     QTabWidget *tabParam;
