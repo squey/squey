@@ -25,6 +25,7 @@
  *
  *****************************************************************************/
 Picviz::PVView::PVView(PVPlotted_p parent) :
+	axes_combination(parent->get_source_parent()->axes_combination),
 	pre_filter_layer("pre_filter_layer"),
 	post_filter_layer("post_filter_layer"),
 	layer_stack_output_layer("view_layer_stack_output_layer"),
@@ -44,8 +45,6 @@ Picviz::PVView::PVView(PVPlotted_p parent) :
 	name = "";
 
 	source = get_source_parent();
-
-	axes_combination = source->axes_combination;
 
 	active_axis = 0;
 
@@ -1480,4 +1479,9 @@ void Picviz::PVView::select_inv_lines()
 	state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
 	volatile_selection = ~floating_selection;
 	process_from_selection();
+}
+
+QList<PVCol> Picviz::PVView::get_original_axes_index_with_tag(PVLayerFilterTag const& tag) const
+{
+	return axes_combination.get_original_axes_index_with_tag(tag);
 }

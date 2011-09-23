@@ -136,6 +136,9 @@ public:
 	PVCol get_original_axes_count() const;
 	/** @} */
 
+
+	QList<PVCol> get_original_axes_index_with_tag(PVLayerFilterTag const& tag);
+
 	/**
 	* Increment the column index of an axis.
 	*

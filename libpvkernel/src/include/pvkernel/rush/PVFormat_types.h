@@ -23,8 +23,7 @@ typedef QHash<QString, PVRush::PVFormat> hash_formats;
 #define PVFORMAT_AXIS_TITLECOLOR_STR "titlecolor"
 #define PVFORMAT_AXIS_TIMEFORMAT_STR "time-format"
 #define PVFORMAT_AXIS_TIMESAMPLE_STR "time-sample"
-// TODO: change by "tag" when that will be done
-#define PVFORMAT_AXIS_TAG_STR "name"
+#define PVFORMAT_AXIS_TAG_STR "tag"
 
 // Axes properties' default value
 #define PVFORMAT_AXIS_NAME_DEFAULT ""

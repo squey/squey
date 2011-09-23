@@ -6,6 +6,7 @@
 
 
 #include <picviz/PVLayerFilter.h>
+#include <picviz/PVLayer.h>
 
 #include <boost/bind.hpp>
 #include <boost/thread.hpp>
@@ -160,6 +161,11 @@ void Picviz::PVLayerFilter::cancel()
 bool Picviz::PVLayerFilter::should_cancel()
 {
 	return _should_cancel;
+}
+
+PVCore::PVTag<Picviz::PVLayerFilter> Picviz::PVLayerFilter::get_tag(QString const& name)
+{
+	return LIB_CLASS(PVLayerFilter)::get().get_tag(name);
 }
 
 IMPL_FILTER(Picviz::PVLayerFilter)

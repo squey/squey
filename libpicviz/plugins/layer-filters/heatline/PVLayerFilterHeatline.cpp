@@ -9,6 +9,7 @@
 #include <pvkernel/core/PVAxesIndexType.h>
 #include <pvkernel/core/PVColorGradientDualSliderType.h>
 #include <pvkernel/core/PVEnumType.h>
+#include <picviz/PVView.h>
 
 #include <math.h>
 

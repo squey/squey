@@ -8,6 +8,8 @@
 #include <pvkernel/core/PVColor.h>
 #include <pvkernel/core/PVAxisIndexType.h>
 #include <pvkernel/core/PVEnumType.h>
+#include <picviz/PVView.h>
+
 
 #define INVLUDE_EXCLUDE_STR "Include or exclude pattern"
 /******************************************************************************

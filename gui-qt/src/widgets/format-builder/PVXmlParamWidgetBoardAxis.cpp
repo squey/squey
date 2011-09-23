@@ -6,6 +6,7 @@
 #include <PVXmlParamWidgetBoardAxis.h>
 #include <picviz/PVMappingFilter.h>
 #include <picviz/PVPlottingFilter.h>
+#include <picviz/PVLayerFilter.h>
 #include <PVXmlEditorWidget.h>
 
 #include <QDialogButtonBox>
@@ -79,6 +80,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::allocBoardFields(){
     groupLabel = new QLabel(tr("Goup :"));
 	comboGroup = new PVXmlParamComboBox("group");
 	btnGroupAdd = new QPushButton(tr("Add a group..."));
+	comboTag = new PVXmlParamComboBox("tag");
     buttonColor = new PVXmlParamColorDialog("color", PVFORMAT_AXIS_COLOR_DEFAULT, this);
     colorLabel = new QLabel(tr("Color of the axis line :"));
     buttonTitleColor = new PVXmlParamColorDialog("titlecolor", PVFORMAT_AXIS_TITLECOLOR_DEFAULT, this);
@@ -172,6 +174,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::disableConnexion(){
     disconnect(mapPlotType, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
     disconnect(comboMapping, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
     disconnect(comboPlotting, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
+    disconnect(comboTag, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
     disconnect(timeFormat, SIGNAL(textChanged()), this, SLOT(slotSetValues()));
     disconnect(timeSample, SIGNAL(textChanged()), this, SLOT(slotSetValues()));
     disconnect(comboKey, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
@@ -218,20 +221,29 @@ void PVInspector::PVXmlParamWidgetBoardAxis::draw(){
     
     //***** tab general *****
 	QGridLayout* gridLayout = new QGridLayout();
+	int i = 0;
     //name
-    gridLayout->addWidget(new QLabel(tr("Axis name :")), 0, 0);
-    gridLayout->addWidget(textName, 0, 2);
+    gridLayout->addWidget(new QLabel(tr("Axis name :")), i, 0);
+    gridLayout->addWidget(textName, i, 2);
+	i += 2;
+	// tag
+	gridLayout->addWidget(new QLabel(tr("Tag :")), i, 0);
+	gridLayout->addWidget(comboTag, i, 2);
+	i += 2;
     //type
-    gridLayout->addWidget(new QLabel(tr("Type :")), 2, 0);
-    gridLayout->addWidget(mapPlotType, 2, 2);
+    gridLayout->addWidget(new QLabel(tr("Type :")), i, 0);
+    gridLayout->addWidget(mapPlotType, i, 2);
+	i += 2;
     //time edition
-    gridLayout->addWidget(timeFormatLabel, 4, 0);
-    gridLayout->addWidget(timeFormat, 4, 2);
+    gridLayout->addWidget(timeFormatLabel, i, 0);
+    gridLayout->addWidget(timeFormat, i, 2);
+	i += 2;
     // Mapping/Plotting
-    gridLayout->addWidget(new QLabel(tr("Mapping :")), 6, 0);
-    gridLayout->addWidget(comboMapping, 6, 2);
-    gridLayout->addWidget(new QLabel(tr("Plotting :")), 8, 0);
-    gridLayout->addWidget(comboPlotting, 8, 2);
+    gridLayout->addWidget(new QLabel(tr("Mapping :")), i, 0);
+    gridLayout->addWidget(comboMapping, i, 2);
+	i += 2;
+    gridLayout->addWidget(new QLabel(tr("Plotting :")), i, 0);
+    gridLayout->addWidget(comboPlotting, i, 2);
 	tabGeneral->addLayout(gridLayout);
     tabGeneral->addSpacerItem(new QSpacerItem(1,1,QSizePolicy::Expanding, QSizePolicy::Expanding));
     
@@ -281,6 +293,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::initConnexion() {
     connect(mapPlotType, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
     connect(comboMapping, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
     connect(comboPlotting, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
+    connect(comboTag, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
     
     //time format
     //connect(timeFormat, SIGNAL(textChanged()), this, SLOT(slotSetValues()));
@@ -361,6 +374,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::initValue()
 	buttonTitleColor->setColor(node_tc);
 
 	setComboGroup();
+	setComboTag();
 }
 
 /******************************************************************************
@@ -511,6 +525,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::slotSetValues(){
     node->setAttribute(QString(PVFORMAT_AXIS_GROUP_STR),group->val().toString());
     node->setAttribute(QString(PVFORMAT_AXIS_COLOR_STR),buttonColor->getColor());
     node->setAttribute(QString(PVFORMAT_AXIS_TITLECOLOR_STR),buttonTitleColor->getColor());
+    node->setAttribute(QString(PVFORMAT_AXIS_TAG_STR),comboTag->val().toString());
    
     emit signalRefreshView();
 }
@@ -649,6 +664,19 @@ void PVInspector::PVXmlParamWidgetBoardAxis::setComboGroup()
 	comboGroup->select(node_group);
 }
 
+void PVInspector::PVXmlParamWidgetBoardAxis::setComboTag()
+{
+	comboTag->clear();
+	comboTag->addItem(PVFORMAT_AXIS_TAG_DEFAULT);
+	comboTag->addItems(getListTags());
+
+	QString node_tag = node->attribute(PVFORMAT_AXIS_TAG_STR);
+	if (node_tag.isEmpty()) {
+		node_tag = PVFORMAT_AXIS_TAG_DEFAULT;
+	}
+	comboTag->select(node_tag);
+}
+
 void PVInspector::PVXmlParamWidgetBoardAxis::slotAddGroup()
 {
 	QString type = mapPlotType->val().toString();
@@ -678,4 +706,16 @@ void PVInspector::PVXmlParamWidgetBoardAxis::slotAddGroup()
 
 	node->setAttribute(PVFORMAT_AXIS_GROUP_STR, new_grp);
 	setComboGroup();
+}
+
+QStringList PVInspector::PVXmlParamWidgetBoardAxis::getListTags()
+{
+	QStringList ret;
+	Picviz::PVLayerFilterListTags const& lt = LIB_CLASS(Picviz::PVLayerFilter)::get().get_tags();
+	Picviz::PVLayerFilterListTags::const_iterator it;
+	for (it = lt.begin(); it != lt.end(); it++) {
+		Picviz::PVLayerFilterTag const& tag = *it;
+		ret << (QString) tag;
+	}
+	return ret;
 }

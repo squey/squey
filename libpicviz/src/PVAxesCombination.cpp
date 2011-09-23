@@ -87,6 +87,25 @@ PVCol Picviz::PVAxesCombination::get_axis_column_index(PVCol index) const
 
 /******************************************************************************
  *
+ * Picviz::PVAxesCombination::get_axis_column_index
+ *
+ *****************************************************************************/
+QList<PVCol> Picviz::PVAxesCombination::get_original_axes_index_with_tag(PVLayerFilterTag const& tag)
+{
+	QList<PVCol> ret;
+	QVector<PVAxis>::const_iterator it;
+	PVCol idx = 0;
+	for (it = original_axes_list.begin(); it != original_axes_list.end(); it++) {
+		if (it->has_tag(tag)) {
+			ret.push_back(idx);
+		}
+		idx++;
+	}
+	return ret;
+}
+
+/******************************************************************************
+ *
  * Picviz::PVAxesCombination::get_combined_axis_column_index
  *
  *****************************************************************************/

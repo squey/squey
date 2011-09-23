@@ -30,6 +30,19 @@ void Picviz::PVAxis::init()
 	is_expandable = true;
 	is_expanded = false;
 	thickness = 1.0;
+
+	// Get tags from the list read in the format
+	QSet<QString>::const_iterator it;
+	for (it = get_tags().list().begin(); it != get_tags().list().end(); it++) {
+		try {
+			QString const& tag_name = *it;
+			PVLayerFilterTag const& tag = LIB_CLASS(PVLayerFilter)::get().get_tag(tag_name);
+			_tags.push_back(tag);
+		}
+		catch (PVCore::PVTagUndefinedException &e) {
+			PVLOG_ERROR("(Picviz::PVAxis::init) %s\n", qPrintable(e.what()));
+		}
+	}
 }
 
 /******************************************************************************

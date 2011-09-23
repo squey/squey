@@ -54,12 +54,12 @@ public:
     void setHelp();
 	void checkMappingTimeFormat();
 	void setComboGroup();
-    
-    
+	void setComboTag();
     
     QStringList listType() const;
     QStringList getListTypeMapping(const QString& mType);
     QStringList getListTypePlotting(const QString& mType);
+	QStringList getListTags();
     
     
     
@@ -72,6 +72,7 @@ public:
     PVXmlParamComboBox * comboMapping;
     PVXmlParamComboBox * comboPlotting;
 	PVXmlParamComboBox * comboGroup;
+	PVXmlParamComboBox * comboTag;
     
     //***** tab time format ***** 
     QLabel *timeFormatLabel;

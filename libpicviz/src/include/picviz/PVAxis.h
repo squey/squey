@@ -9,7 +9,7 @@
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/rush/PVAxisFormat.h>
-
+#include <picviz/PVLayerFilter.h>
 
 namespace Picviz {
 
@@ -53,6 +53,8 @@ public:
 private:
 	void init();
 
+private:
+	PVLayerFilterListTags _tags;
 };
 }
 

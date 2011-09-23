@@ -257,6 +257,10 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id)
 			axis.set_group(child.attribute(PVFORMAT_AXIS_GROUP_STR, PVFORMAT_AXIS_GROUP_DEFAULT));
 			axis.set_color(child.attribute(PVFORMAT_AXIS_COLOR_STR, PVFORMAT_AXIS_COLOR_DEFAULT));
 			axis.set_titlecolor(child.attribute(PVFORMAT_AXIS_TITLECOLOR_STR, PVFORMAT_AXIS_TITLECOLOR_DEFAULT));
+			QString tag = child.attribute(PVFORMAT_AXIS_TAG_STR, QString());
+			if (!tag.isEmpty()) {
+				axis.add_tag(tag);
+			}
 			_axes.push_back(axis);
 			if(child.attribute(PVFORMAT_AXIS_TYPE_STR, PVFORMAT_AXIS_TYPE_DEFAULT)=="time"){
 				time_format[newId+1]  = child.attribute(PVFORMAT_AXIS_TIMEFORMAT_STR, PVFORMAT_AXIS_TIMEFORMAT_DEFAULT).split("\n");

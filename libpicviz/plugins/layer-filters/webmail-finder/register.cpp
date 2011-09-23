@@ -8,4 +8,5 @@
 LibCPPExport void register_class()
 {
 	REGISTER_CLASS("Find/Webmails", Picviz::PVLayerFilterWebmailFinder);
+	DECLARE_TAG("domain", Picviz::PVLayerFilterWebmailFinder);
 }
