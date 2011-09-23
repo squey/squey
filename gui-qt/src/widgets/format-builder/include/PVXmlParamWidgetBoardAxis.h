@@ -31,6 +31,8 @@
 #include <PVXmlParamComboBox.h>
 #include <PVXmlParamColorDialog.h>
 #include <picviz/plugins.h>
+#include <picviz/PVLayerFilter.h>
+
 namespace PVInspector{
 
 class PVXmlParamWidget;
@@ -61,8 +63,7 @@ public:
     QStringList getListTypePlotting(const QString& mType);
 	QStringList getListTags();
     
-    
-    
+	Picviz::PVLayerFilterTag get_current_tag();
     /***************************  board items **********************/
     //***** tab general ***** 
     QTabWidget *tabParam;
@@ -84,6 +85,7 @@ public:
     PVXmlParamTextEdit *timeSample;
     QCheckBox *useParentRegExpValue;
 	QPushButton* btnGroupAdd;
+	QPushButton* btnTagHelp;
     
     //***** tab param ***** 
     PVXmlParamComboBox * comboKey;
@@ -116,6 +118,7 @@ public slots:
     //void slotSetVisibleExtra(bool flag);
     void slotSetVisibleTimeValid(bool flag);
 	void slotAddGroup();
+	void slotShowTagHelp();
     
     signals:
     void signalRefreshView();

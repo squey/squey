@@ -13,6 +13,7 @@
 
 #include <QList>
 #include <QAbstractItemView>
+#include <QSizePolicy>
 
 /******************************************************************************
  *
@@ -24,6 +25,11 @@ PVInspector::PVAxesIndexEditor::PVAxesIndexEditor(Picviz::PVView& view, QWidget 
 	_view(view)
 {
 	setSelectionMode(QAbstractItemView::ExtendedSelection);
+
+	QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Minimum);
+	sp.setHeightForWidth(sizePolicy().hasHeightForWidth());
+	setSizePolicy(sp);
+	setMinimumHeight(70);
 }
 
 /******************************************************************************

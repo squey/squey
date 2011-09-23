@@ -3,11 +3,12 @@
 //! Copyright (C) Sébastien Tricaud 2011-2011
 //! Copyright (C) Philippe Saadé 2011-2011
 //! Copyright (C) Picviz Labs 2011
-#include <PVXmlParamWidgetBoardAxis.h>
 #include <picviz/PVMappingFilter.h>
 #include <picviz/PVPlottingFilter.h>
-#include <picviz/PVLayerFilter.h>
+
+#include <PVXmlParamWidgetBoardAxis.h>
 #include <PVXmlEditorWidget.h>
+#include <PVAxisTagHelp.h>
 
 #include <QDialogButtonBox>
 
@@ -81,6 +82,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::allocBoardFields(){
 	comboGroup = new PVXmlParamComboBox("group");
 	btnGroupAdd = new QPushButton(tr("Add a group..."));
 	comboTag = new PVXmlParamComboBox("tag");
+	btnTagHelp = new QPushButton(QIcon(":/help"), "Help");
     buttonColor = new PVXmlParamColorDialog("color", PVFORMAT_AXIS_COLOR_DEFAULT, this);
     colorLabel = new QLabel(tr("Color of the axis line :"));
     buttonTitleColor = new PVXmlParamColorDialog("titlecolor", PVFORMAT_AXIS_TITLECOLOR_DEFAULT, this);
@@ -183,6 +185,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::disableConnexion(){
     disconnect(buttonColor, SIGNAL(changed()), this, SLOT(slotSetValues()));
     disconnect(buttonTitleColor, SIGNAL(changed()), this, SLOT(slotSetValues()));
     disconnect(buttonNextAxis,SIGNAL(clicked()), this, SLOT( slotGoNextAxis()));
+	disconnect(btnTagHelp, SIGNAL(clicked()), this, SLOT(slotShowTagHelp()));
 }
 
 /******************************************************************************
@@ -224,26 +227,27 @@ void PVInspector::PVXmlParamWidgetBoardAxis::draw(){
 	int i = 0;
     //name
     gridLayout->addWidget(new QLabel(tr("Axis name :")), i, 0);
-    gridLayout->addWidget(textName, i, 2);
+    gridLayout->addWidget(textName, i, 2, 1, -1);
 	i += 2;
 	// tag
 	gridLayout->addWidget(new QLabel(tr("Tag :")), i, 0);
 	gridLayout->addWidget(comboTag, i, 2);
+	gridLayout->addWidget(btnTagHelp, i, 4);
 	i += 2;
     //type
     gridLayout->addWidget(new QLabel(tr("Type :")), i, 0);
-    gridLayout->addWidget(mapPlotType, i, 2);
+    gridLayout->addWidget(mapPlotType, i, 2, 1, -1);
 	i += 2;
     //time edition
     gridLayout->addWidget(timeFormatLabel, i, 0);
-    gridLayout->addWidget(timeFormat, i, 2);
+    gridLayout->addWidget(timeFormat, i, 2, 1, -1);
 	i += 2;
     // Mapping/Plotting
     gridLayout->addWidget(new QLabel(tr("Mapping :")), i, 0);
-    gridLayout->addWidget(comboMapping, i, 2);
+    gridLayout->addWidget(comboMapping, i, 2, 1, -1);
 	i += 2;
     gridLayout->addWidget(new QLabel(tr("Plotting :")), i, 0);
-    gridLayout->addWidget(comboPlotting, i, 2);
+    gridLayout->addWidget(comboPlotting, i, 2, 1, -1);
 	tabGeneral->addLayout(gridLayout);
     tabGeneral->addSpacerItem(new QSpacerItem(1,1,QSizePolicy::Expanding, QSizePolicy::Expanding));
     
@@ -294,6 +298,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::initConnexion() {
     connect(comboMapping, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
     connect(comboPlotting, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
     connect(comboTag, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
+	connect(btnTagHelp, SIGNAL(clicked()), this, SLOT(slotShowTagHelp()));
     
     //time format
     //connect(timeFormat, SIGNAL(textChanged()), this, SLOT(slotSetValues()));
@@ -718,4 +723,20 @@ QStringList PVInspector::PVXmlParamWidgetBoardAxis::getListTags()
 		ret << (QString) tag;
 	}
 	return ret;
+}
+
+Picviz::PVLayerFilterTag PVInspector::PVXmlParamWidgetBoardAxis::get_current_tag()
+{
+	QString tag_name = comboTag->val().toString();
+	if (tag_name.isEmpty()) {
+		return Picviz::PVLayerFilterTag();
+	}
+	return Picviz::PVLayerFilter::get_tag(tag_name);
+}
+
+void PVInspector::PVXmlParamWidgetBoardAxis::slotShowTagHelp()
+{
+	Picviz::PVLayerFilterTag cur_tag = get_current_tag();
+	PVAxisTagHelp* dlg = new PVAxisTagHelp(cur_tag, parent()->parent());
+	dlg->exec();
 }

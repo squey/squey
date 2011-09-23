@@ -7,7 +7,7 @@
     <axis titlecolor="#ffffff" key="false" mapping="default" time-format="epoch" group="" type="time" name="Time" plotting="default" color="#ffffff" time-sample=""/>
    </field>
    <field>
-    <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="" type="enum" name="Response Code" plotting="default" color="#ffffff"/>
+    <axis titlecolor="#ffffff" tag="key" key="false" mapping="default" time-format="" group="" type="enum" name="Response Code" plotting="default" color="#ffffff" time-sample=""/>
    </field>
    <field>
     <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="" type="enum" name="Request" plotting="default" color="#ffffff"/>
@@ -36,13 +36,13 @@
     <axis titlecolor="#ffffff" tag="domain" key="false" mapping="default" time-format="" group="" type="string" name="URL" plotting="default" color="#ffffff" time-sample=""/>
    </field>
    <field>
-    <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="" type="enum" name="User" plotting="default" color="#ffffff"/>
+    <axis titlecolor="#ffffff" tag="key" key="false" mapping="default" time-format="" group="" type="enum" name="User" plotting="default" color="#ffffff" time-sample=""/>
    </field>
    <field>
-    <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="" type="enum" name="Method" plotting="default" color="#ffffff"/>
+    <axis titlecolor="#ffffff" tag="" key="false" mapping="default" time-format="" group="" type="enum" name="Method" plotting="default" color="#ffffff" time-sample=""/>
    </field>
    <field>
-    <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="" type="ipv4" name="Source IP" plotting="default" color="#ffffff"/>
+    <axis titlecolor="#ffffff" tag="key" key="false" mapping="default" time-format="" group="" type="ipv4" name="Source IP" plotting="default" color="#ffffff" time-sample=""/>
    </field>
   </splitter>
  </field>

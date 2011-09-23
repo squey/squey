@@ -6,7 +6,7 @@
 
 #include "PVLayerFilterWebmailFinder.h"
 #include <pvkernel/core/PVColor.h>
-#include <pvkernel/core/PVAxisIndexType.h>
+#include <pvkernel/core/PVAxesIndexType.h>
 #include <picviz/PVView.h>
 
 /******************************************************************************
@@ -29,7 +29,19 @@ DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterWebmailFinder)
 {
 	PVCore::PVArgumentList args;
 	// args["Regular expression"] = QRegExp("(.*)");
-	args["Domain Axis"].setValue(PVCore::PVAxisIndexType(0));
+	args["Domain axes"].setValue(PVCore::PVAxesIndexType());
+	return args;
+}
+
+/******************************************************************************
+ *
+ * Picviz::PVLayerFilterWebmailFinder::get_default_args_for_view
+ *
+ *****************************************************************************/
+PVCore::PVArgumentList Picviz::PVLayerFilterWebmailFinder::get_default_args_for_view(PVView const& view)
+{
+	PVCore::PVArgumentList args;
+	args["Domain axes"].setValue(PVCore::PVAxesIndexType(view.get_original_axes_index_with_tag(get_tag("domain"))));
 	return args;
 }
 
@@ -40,8 +52,7 @@ DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterWebmailFinder)
  *****************************************************************************/
 void Picviz::PVLayerFilterWebmailFinder::operator()(PVLayer& in, PVLayer &out)
 {	
-	//int axis_id = _args["Domain Axis"].value<PVCore::PVAxisIndexType>().get_original_index();
-	QList<PVCol> axes_id = _view->get_original_axes_index_with_tag(get_tag("domain"));
+	PVCore::PVAxesIndexType axes_id = _args["Domain axis"].value<PVCore::PVAxesIndexType>();
 
 	PVRow nb_lines = _view->get_qtnraw_parent().size();
 
@@ -55,11 +66,8 @@ void Picviz::PVLayerFilterWebmailFinder::operator()(PVLayer& in, PVLayer &out)
 	PVSelection yahoo_sel;
 	PVLinesProperties yahoo_lp;
 
-	PVLOG_DEBUG("(Picviz::PVLayerFilterWebmailFinder) %d axes with the tag domain.\n", axes_id.size());
-	for (int i = 0; i < axes_id.size(); i++) {
+	for (unsigned int i = 0; i < axes_id.size(); i++) {
 		int axis_id = axes_id[i];
-		PVLOG_DEBUG("(Picviz::PVLayerFilterWebmailFinder) process with axis '%d'.\n", axis_id);
-		
 		for (PVRow r = 0; r < nb_lines; r++) {
 			if (should_cancel()) {
 				if (&in != &out) {

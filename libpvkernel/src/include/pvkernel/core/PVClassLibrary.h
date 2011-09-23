@@ -14,6 +14,7 @@
 #include <QString>
 
 #include <algorithm>
+#include <typeinfo>
 
 namespace PVCore {
 
@@ -52,12 +53,23 @@ public:
 	}
 
 	template<class T>
-	void declare_tag(QString const& name, T const& f)
+	void declare_tag(QString const& name, QString const& desc, T const& f)
 	{
-		PF pf = f.template clone<RegAs>();
-		typename list_tags::iterator it = std::find(_tags.begin(), _tags.end(), tag(name));
+		// Looks for a registered version of 'T', and take it if it exists
+		typename list_classes::iterator it_c;
+		PF pf;
+		for (it_c = _classes.begin(); it_c != _classes.end(); it_c++) {
+			if (typeid(*(it_c.value())) == typeid(f)) {
+				pf = it_c.value();
+				break;
+			}
+		}
+		if (!pf) {
+			pf = f.template clone<RegAs>();
+		}
+		typename list_tags::iterator it = std::find(_tags.begin(), _tags.end(), tag(name, ""));
 		if (it == _tags.end()) {
-			tag new_tag(name);
+			tag new_tag(name, desc);
 			new_tag.add_class(pf);
 			_tags.push_back(new_tag);
 		}
@@ -72,7 +84,7 @@ public:
 	list_tags const& get_tags() const { return _tags; }
 	tag const& get_tag(QString name)
 	{
-		typename list_tags::const_iterator it = std::find(_tags.begin(), _tags.end(), tag(name));
+		typename list_tags::const_iterator it = std::find(_tags.begin(), _tags.end(), tag(name, ""));
 		if (it == _tags.end()) {
 			throw PVTagUndefinedException(name);
 		}
@@ -109,9 +121,9 @@ public:
 	PVCore::PVClassLibrary<RegAs>::get().register_class<T>(name, T(__VA_ARGS__));
 #define REGISTER_CLASS_WITH_ARGS(name, T, ...) REGISTER_CLASS_AS_WITH_ARGS(name, T, T::RegAs, __VA_ARGS__)
 
-#define DECLARE_TAG_AS(name, T, RegAs) \
-	PVCore::PVClassLibrary<RegAs>::get().declare_tag<T>(name, T());
-#define DECLARE_TAG(name, T) DECLARE_TAG_AS(name, T, T::RegAs)
+#define DECLARE_TAG_AS(name, desc, T, RegAs) \
+	PVCore::PVClassLibrary<RegAs>::get().declare_tag<T>(name, desc, T());
+#define DECLARE_TAG(name, desc, T) DECLARE_TAG_AS(name, desc, T, T::RegAs)
 
 #define LIB_CLASS(T) \
 	PVCore::PVClassLibrary<T::RegAs>

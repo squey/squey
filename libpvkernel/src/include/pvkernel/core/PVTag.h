@@ -33,25 +33,41 @@ public:
 	typedef typename TReg::p_type PF;
 	typedef QList<PF> list_classes;
 
+public:
+	// Creates an invalid tag
+	PVTag() { _valid = false; }
+
 protected:
-	PVTag(QString const& name):
-		_name(name)
-	{ }
+	// Only PVClassLibrary can create tags, that are thus always valid
+	PVTag(QString const& name, QString const& desc):
+		_name(name),
+		_desc(desc)
+	{ _valid = true; }
 
 public:
 	QString const& name() const { return _name; }
-	list_classes const& associated_classes() { return _associated_classes; }
+	QString const& desc() const { return _desc; }
+	list_classes const& associated_classes() const { return _associated_classes; }
+	bool valid() const { return _valid; }
 
 public:
 	operator QString() const { return _name; }
-	bool operator==(PVTag const& tag) const { return _name == tag._name; }
+	bool operator==(PVTag const& tag) const
+	{
+		if (!_valid) {
+			return !tag._valid;
+		}
+		return _name == tag._name;
+	}
 
 protected:
 	void add_class(PF p) { _associated_classes.push_back(p); }
 
 protected:
 	QString _name;
+	QString _desc;
 	list_classes _associated_classes;
+	bool _valid;
 };
 
 }
