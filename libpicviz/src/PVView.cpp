@@ -1480,8 +1480,3 @@ void Picviz::PVView::select_inv_lines()
 	volatile_selection = ~floating_selection;
 	process_from_selection();
 }
-
-QList<PVCol> Picviz::PVView::get_original_axes_index_with_tag(PVLayerFilterTag const& tag) const
-{
-	return axes_combination.get_original_axes_index_with_tag(tag);
-}

@@ -8,8 +8,6 @@
 #define LIBPVGL_GENERAL_H
 
 #include <pvkernel/core/general.h>
-#include <picviz/PVView.h>
-
 #include <pvgl/PVCom.h>
 
 #define MAX_LINES_PER_REDRAW 75000

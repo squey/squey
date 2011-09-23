@@ -14,7 +14,7 @@
 #include <GL/freeglut.h>
 
 #include <pvkernel/core/general.h>
-#include <picviz/PVView.h>
+#include <picviz/PVView_types.h>
 
 namespace PVGL {
 class PVView;

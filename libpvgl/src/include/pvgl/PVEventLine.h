@@ -9,7 +9,7 @@
 
 #include <vector>
 
-#include <picviz/PVView.h>
+#include <picviz/PVView_types.h>
 
 #include <pvgl/PVUtils.h>
 #include <pvgl/PVCom.h>

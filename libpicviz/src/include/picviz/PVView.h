@@ -82,7 +82,11 @@ public:
 	/* Functions */
 	PVCol get_axes_count();
 
-	QList<PVCol> get_original_axes_index_with_tag(PVLayerFilterTag const& tag) const;
+	template <class T>
+	QList<PVCol> get_original_axes_index_with_tag(T const& tag) const
+	{
+		return axes_combination.get_original_axes_index_with_tag<T>(tag);
+	}
 
 	/**
 	 * Gets the QStringList of all Axes names according to the current PVAxesCombination

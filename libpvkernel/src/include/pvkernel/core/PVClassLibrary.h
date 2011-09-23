@@ -13,6 +13,7 @@
 #include <QHash>
 #include <QString>
 
+#include <cassert>
 #include <algorithm>
 #include <typeinfo>
 
@@ -64,9 +65,8 @@ public:
 				break;
 			}
 		}
-		if (!pf) {
-			pf = f.template clone<RegAs>();
-		}
+		// If this assert fails, it means that 'T' hasn't been previously registered as 'RegAs' (see REGISTER_CLASS)
+		assert(pf);
 		typename list_tags::iterator it = std::find(_tags.begin(), _tags.end(), tag(name, ""));
 		if (it == _tags.end()) {
 			tag new_tag(name, desc);
@@ -82,6 +82,31 @@ public:
 	list_classes const& get_list() const { return _classes; }
 
 	list_tags const& get_tags() const { return _tags; }
+
+	template <class T>
+	list_tags get_tags_for_class(T const& f) const
+	{
+		list_tags ret;
+		typename list_tags::const_iterator it;
+		for (it = _tags.begin(); it != _tags.end(); it++) {
+			tag const& t = *it;
+			typename tag::list_classes const& lc = t.associated_classes();
+			typename tag::list_classes::const_iterator it_c;
+			bool found = false;
+			for (it_c = lc.begin(); it_c != lc.end(); it_c++) {
+				if (typeid(*(*it_c)) == typeid(f)) {
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				continue;
+			}
+			ret.push_back(t);
+		}
+		return ret;
+	}
+
 	tag const& get_tag(QString name)
 	{
 		typename list_tags::const_iterator it = std::find(_tags.begin(), _tags.end(), tag(name, ""));

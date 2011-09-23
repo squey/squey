@@ -673,7 +673,11 @@ void PVInspector::PVXmlParamWidgetBoardAxis::setComboTag()
 {
 	comboTag->clear();
 	comboTag->addItem(PVFORMAT_AXIS_TAG_DEFAULT);
-	comboTag->addItems(getListTags());
+
+	QSet<QString> list_tags = getListTags();
+	QSet<QString> list_splitter_tags = getListParentSplitterTag();
+
+	comboTag->addItems(list_tags.unite(list_splitter_tags).toList());
 
 	QString node_tag = node->attribute(PVFORMAT_AXIS_TAG_STR);
 	if (node_tag.isEmpty()) {
@@ -713,15 +717,41 @@ void PVInspector::PVXmlParamWidgetBoardAxis::slotAddGroup()
 	setComboGroup();
 }
 
-QStringList PVInspector::PVXmlParamWidgetBoardAxis::getListTags()
+QSet<QString> PVInspector::PVXmlParamWidgetBoardAxis::getListTags()
 {
-	QStringList ret;
+	QSet<QString> ret;
 	Picviz::PVLayerFilterListTags const& lt = LIB_CLASS(Picviz::PVLayerFilter)::get().get_tags();
 	Picviz::PVLayerFilterListTags::const_iterator it;
 	for (it = lt.begin(); it != lt.end(); it++) {
 		Picviz::PVLayerFilterTag const& tag = *it;
 		ret << (QString) tag;
 	}
+	return ret;
+}
+
+QSet<QString> PVInspector::PVXmlParamWidgetBoardAxis::getListParentSplitterTag()
+{
+	QSet<QString> ret;
+	PVRush::PVXmlTreeNodeDom* parent = node->getParent();
+	if (!parent) {
+		return ret;
+	}
+	parent = parent->getParent();
+	if (!parent || parent->type != PVRush::PVXmlTreeNodeDom::splitter) {
+		return ret;
+	}
+
+	// Ok, we have a splitter has parent. Let's get its provided tags.
+	PVFilter::PVFieldsSplitter_p filter_p = LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name(parent->attribute("type", ""));
+	assert(filter_p);
+
+	// Ok, get the tags !
+	PVFilter::PVFieldsSplitterListTags const& tags = LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_tags_for_class(*filter_p);
+	for (int i = 0; i < tags.size(); i++) {
+		PVFilter::PVFieldsSplitterTag const& tag = tags.at(i);
+		ret << (QString) tag;
+	}
+
 	return ret;
 }
 

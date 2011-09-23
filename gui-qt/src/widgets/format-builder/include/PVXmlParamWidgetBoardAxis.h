@@ -61,7 +61,8 @@ public:
     QStringList listType() const;
     QStringList getListTypeMapping(const QString& mType);
     QStringList getListTypePlotting(const QString& mType);
-	QStringList getListTags();
+	QSet<QString> getListTags();
+	QSet<QString> getListParentSplitterTag();
     
 	Picviz::PVLayerFilterTag get_current_tag();
     /***************************  board items **********************/

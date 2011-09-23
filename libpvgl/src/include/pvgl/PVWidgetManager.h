@@ -11,8 +11,6 @@
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 
-#include <picviz/PVView.h>
-
 #include <pvgl/PVFonts.h>
 #include <pvgl/PVCom.h>
 

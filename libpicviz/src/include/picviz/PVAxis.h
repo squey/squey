@@ -52,9 +52,6 @@ public:
 	
 private:
 	void init();
-
-private:
-	PVLayerFilterListTags _tags;
 };
 }
 

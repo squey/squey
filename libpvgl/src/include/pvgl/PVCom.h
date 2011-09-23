@@ -12,7 +12,7 @@
 
 #include <QtCore>
 
-#include <picviz/PVView.h>
+#include <picviz/PVView_types.h>
 
 namespace PVGL {
 class PVCom;

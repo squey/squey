@@ -11,6 +11,7 @@
 #include <pvkernel/core/PVElement.h>
 #include <pvkernel/core/PVChunk.h>
 #include <pvkernel/core/PVField.h>
+#include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/filter/PVFilterFunction.h>
 #include <map>
 #include <list>
@@ -153,6 +154,9 @@ LibKernelDeclExplicitTempl PVFilter::PVFieldsFilter<PVFilter::one_to_many>;
 LibKernelDeclExplicitTempl PVFilter::PVFieldsFilter<PVFilter::one_to_one>;
 LibKernelDeclExplicitTempl PVFilter::PVFieldsFilter<PVFilter::many_to_many>;
 #endif
+
+typedef PVCore::PVClassLibrary<PVFieldsSplitter>::tag PVFieldsSplitterTag;
+typedef PVCore::PVClassLibrary<PVFieldsSplitter>::list_tags PVFieldsSplitterListTags;
 
 }
 
