@@ -57,7 +57,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::allocBoardFields(){
     textName = new PVXmlParamWidgetEditorBox(QString("name"), new QVariant(node->attribute("name")));
     //type
     mapPlotType = new PVXmlParamComboBox("type");
-    timeFormatLabel = new QLabel("Format of the time strings");
+    timeFormatLabel = new QLabel(tr("Format of the time strings") + QString(" :"));
     timeFormat = new PVXmlParamTextEdit(QString("time-format"), QVariant(node->attribute("time-format")));    
     timeFormatStr = node->attribute(PVFORMAT_AXIS_TIMEFORMAT_STR);
     comboMapping = new PVXmlParamComboBox("mapping");
@@ -74,20 +74,20 @@ void PVInspector::PVXmlParamWidgetBoardAxis::allocBoardFields(){
     
     //tab parameter
     comboKey = new PVXmlParamComboBox("key");
-    keyLabel = new QLabel("Key");
+    keyLabel = new QLabel(tr("Key :"));
     group = new PVXmlParamWidgetEditorBox(QString("group"), new QVariant(node->attribute(PVFORMAT_AXIS_GROUP_STR)));
-    groupLabel = new QLabel("Goup");
+    groupLabel = new QLabel(tr("Goup :"));
 	comboGroup = new PVXmlParamComboBox("group");
 	btnGroupAdd = new QPushButton(tr("Add a group..."));
     buttonColor = new PVXmlParamColorDialog("color", PVFORMAT_AXIS_COLOR_DEFAULT, this);
-    colorLabel = new QLabel("Color of the axis line");
+    colorLabel = new QLabel(tr("Color of the axis line :"));
     buttonTitleColor = new PVXmlParamColorDialog("titlecolor", PVFORMAT_AXIS_TITLECOLOR_DEFAULT, this);
-    titleColorLabel = new QLabel("Color of the axis title");
+    titleColorLabel = new QLabel(tr("Color of the axis title :"));
     //slotSetVisibleExtra(false);
 
     
     //button next
-    buttonNextAxis = new QPushButton("Next");
+    buttonNextAxis = new QPushButton(tr("Next"));
 }
 
 
@@ -217,40 +217,44 @@ void PVInspector::PVXmlParamWidgetBoardAxis::draw(){
     
     
     //***** tab general *****
+	QGridLayout* gridLayout = new QGridLayout();
     //name
-    tabGeneral->addWidget(new QLabel("Axis name"));
-    tabGeneral->addWidget(textName);
+    gridLayout->addWidget(new QLabel(tr("Axis name :")), 0, 0);
+    gridLayout->addWidget(textName, 0, 2);
     //type
-    tabGeneral->addWidget(new QLabel("Type"));
-    tabGeneral->addWidget(mapPlotType);
+    gridLayout->addWidget(new QLabel(tr("Type :")), 2, 0);
+    gridLayout->addWidget(mapPlotType, 2, 2);
     //time edition
-    tabGeneral->addWidget(timeFormatLabel);
-    tabGeneral->addWidget(timeFormat);
+    gridLayout->addWidget(timeFormatLabel, 4, 0);
+    gridLayout->addWidget(timeFormat, 4, 2);
     // Mapping/Plotting
-    tabGeneral->addWidget(new QLabel("Mapping"));
-    tabGeneral->addWidget(comboMapping);
-    tabGeneral->addWidget(new QLabel("Plotting"));
-    tabGeneral->addWidget(comboPlotting);
+    gridLayout->addWidget(new QLabel(tr("Mapping :")), 6, 0);
+    gridLayout->addWidget(comboMapping, 6, 2);
+    gridLayout->addWidget(new QLabel(tr("Plotting :")), 8, 0);
+    gridLayout->addWidget(comboPlotting, 8, 2);
+	tabGeneral->addLayout(gridLayout);
     tabGeneral->addSpacerItem(new QSpacerItem(1,1,QSizePolicy::Expanding, QSizePolicy::Expanding));
     
     //***** tab Time Format *****
     //time edition
-    tabTimeFormat->addWidget(new QLabel("Format of the time strings"));
+    tabTimeFormat->addWidget(new QLabel(tr("Format of the time strings :")));
     tabTimeFormat->addWidget(timeFormatInTab);
     tabTimeFormat->addWidget(helpTimeFormat);
-    tabTimeFormat->addWidget(new QLabel("Put time strings in this text field to validate your time format"));
+    tabTimeFormat->addWidget(new QLabel(tr("Put time strings in this text field to validate your time format :")));
     tabTimeFormat->addWidget(timeSample);
     
     //***** tab parameter *****
-    tabParameter->addWidget(keyLabel);
-    tabParameter->addWidget(comboKey);
-    tabParameter->addWidget(groupLabel);
-	tabParameter->addWidget(comboGroup);
-	tabParameter->addWidget(btnGroupAdd);
-    tabParameter->addWidget(colorLabel);
-    tabParameter->addWidget(buttonColor);
-    tabParameter->addWidget(titleColorLabel);
-    tabParameter->addWidget(buttonTitleColor);
+	gridLayout = new QGridLayout();
+    gridLayout->addWidget(keyLabel, 0, 0);
+    gridLayout->addWidget(comboKey, 0, 2, 1, -1);
+    gridLayout->addWidget(groupLabel, 2, 0);
+	gridLayout->addWidget(comboGroup, 2, 2);
+	gridLayout->addWidget(btnGroupAdd, 2, 4);
+    gridLayout->addWidget(colorLabel, 4, 0);
+    gridLayout->addWidget(buttonColor, 4, 2, 1, -1);
+    gridLayout->addWidget(titleColorLabel, 6, 0);
+    gridLayout->addWidget(buttonTitleColor, 6, 2, 1, -1);
+	tabParameter->addLayout(gridLayout);
     tabParameter->addSpacerItem(new QSpacerItem(1,1,QSizePolicy::Expanding, QSizePolicy::Expanding));
     
     //***** view values from parent regexp *****
