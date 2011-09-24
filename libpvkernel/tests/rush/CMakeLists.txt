@@ -119,3 +119,7 @@ target_link_libraries(Trush_filter_guess ${LINK_LIBRARIES})
 add_executable(Trush_parser parser.cpp)
 target_link_libraries(Trush_parser ${LINK_LIBRARIES})
 add_test(TestParser Trush_parser)
+
+# Format conversion
+add_executable(Trush_format_conv format_conv.cpp)
+target_link_libraries(Trush_format_conv ${LINK_LIBRARIES})

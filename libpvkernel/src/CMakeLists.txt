@@ -120,6 +120,7 @@ rush/PVChunkAlign.cpp
 rush/PVChunkAlignUTF16Char.cpp
 rush/PVChunkAlignUTF16Newline.cpp
 rush/PVChunkAlignBoundary.cpp
+rush/PVFormatVersion.cpp
 rush/PVInput.cpp
 rush/PVInputFile.cpp
 rush/PVInputPcap.cpp
@@ -192,6 +193,7 @@ include/pvkernel/rush/PVChunkAlignBoundary.h
 include/pvkernel/rush/PVCharsetDetect.h
 include/pvkernel/rush/PVChunkTransform.h
 include/pvkernel/rush/PVChunkTransformUTF16.h
+include/pvkernel/rush/PVFormatVersion.h
 include/pvkernel/rush/PVExtractor.h
 include/pvkernel/rush/PVInput.h
 include/pvkernel/rush/PVInputFile.h

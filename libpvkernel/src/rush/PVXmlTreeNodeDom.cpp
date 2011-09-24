@@ -586,7 +586,7 @@ QString PVRush::PVXmlTreeNodeDom::attribute(QString name, bool flagReadInXml) {
  *
  *****************************************************************************/
 void PVRush::PVXmlTreeNodeDom::version0to1() {
-    PVLOG_DEBUG("PVRush::PVXmlTreeNodeDom::version0to1():      %s\n",qPrintable(getDom().tagName()));
+    PVLOG_DEBUG("PVRush::PVXmlTreeNodeDom::version-1to1():      %s\n",qPrintable(getDom().tagName()));
     if (getDom().tagName() == "RegEx") {
         type=splitter;
         getDom().setTagName("splitter");

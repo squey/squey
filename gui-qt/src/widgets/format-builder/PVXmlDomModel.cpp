@@ -692,6 +692,7 @@ void PVInspector::PVXmlDomModel::openXml(QDomDocument& doc)
 
 	// Go through the DOM to get all the different groups
 	m_rootNode->getGroupsByType(_groups);
+#if 0
 	PVRush::types_groups_t::const_iterator it;
 	for (it = _groups.begin(); it != _groups.end(); it++) {
 		PVLOG_INFO("type: %s, groups: ", qPrintable(it.key()));
@@ -702,6 +703,7 @@ void PVInspector::PVXmlDomModel::openXml(QDomDocument& doc)
 		}
 		PVLOG_PLAIN("\n");
 	}
+#endif
 
 	emit layoutChanged(); // to resfresh screen
 }
