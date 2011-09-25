@@ -227,11 +227,18 @@ private:
 	QAction *view_show_new_Action;
 	QAction *view_new_scatter_Action;
 	QAction *whats_this_Action;
-
-	QWidget *pv_centralWidget;
+	
+	QSpacerItem* pv_mainSpacerTop;
+	QSpacerItem* pv_mainSpacerBottom;
+	QWidget *pv_centralStartWidget;
+	QWidget *pv_centralMainWidget;
+	QStackedWidget* pv_centralWidget;
 	QVBoxLayout *pv_mainLayout;
+	QVBoxLayout *pv_startLayout;
 	QLabel *pv_labelWelcomeIcon;
 	QPixmap  *pv_welcomeIcon;
+	QLabel* pv_lastCurVersion; 
+	QLabel* pv_lastMajVersion; 
 
 	QPushButton *pv_ImportFileButton;
 
@@ -241,6 +248,8 @@ protected:
 	int update_check();
 	void treat_invalid_formats(QHash<QString, std::pair<QString,QString> > const& errors);
 	PVTabSplitter* get_tab_from_view(Picviz::PVView_p picviz_view);
+	void show_start_page(bool visible);
+	void set_version_informations();
 
 signals:
 	void change_of_current_view_Signal();
@@ -267,6 +276,10 @@ public:
 
 private:
 	tbb::task_scheduler_init init_parallel;
+
+private:
+	version_t _last_known_cur_release;
+	version_t _last_known_maj_release;
 };
 }
 

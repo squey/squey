@@ -120,7 +120,7 @@ void PVRush::PVAggregator::process_indexes(chunk_index nstart, chunk_index nend,
 	// Set our aggregator accordingly
 	_cur_input = it_src;
 	if ((*_cur_input)->seek(src_offset)) {
-		_cur_src_index = src_found_index;
+		_cur_src_index = src_global_index;
 		_nlast = src_global_index + src_found_index;
 	}
 	else {

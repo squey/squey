@@ -14,7 +14,10 @@
  * PVInspector::PVXmlParamWidgetBoardSplitterRegEx::PVXmlParamWidgetBoardSplitterRegEx
  *
  *****************************************************************************/
-PVInspector::PVXmlParamWidgetBoardSplitterRegEx::PVXmlParamWidgetBoardSplitterRegEx(PVRush::PVXmlTreeNodeDom *pNode) : QWidget() {
+PVInspector::PVXmlParamWidgetBoardSplitterRegEx::PVXmlParamWidgetBoardSplitterRegEx(PVRush::PVXmlTreeNodeDom *pNode, PVXmlParamWidget* parent):
+	QWidget(),
+	_parent(parent)
+{
     node = pNode;
     allocBoardFields();
     draw();

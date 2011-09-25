@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
 	QResource res_css(":/gui.css");
 	app.setStyleSheet(QString((const char *)res_css.data()));
 
-	wintitle = QString("Picviz Inspector ") + QString(PICVIZ_VERSION_STR);
+	wintitle = QString("Picviz Inspector ") + QString(PICVIZ_CURRENT_VERSION_STR);
 	pv_main_window.setWindowTitle(wintitle);
 
 	pv_main_window.show();

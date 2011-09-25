@@ -4,6 +4,7 @@
 //! Copyright (C) Philippe Saade 2009-2011
 //! Copyright (C) Picviz Labs 2011
 
+#include <picviz/PVView.h>
 #include <pvgl/PVUtils.h>
 #include <pvgl/PVCom.h>
 #include <pvgl/general.h>

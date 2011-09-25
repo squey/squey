@@ -8,6 +8,7 @@
 #define PVFILTER_PVMAPPINGFILTER_H
 
 #include <pvkernel/core/general.h>
+#include <pvkernel/core/PVArgument.h>
 #include <pvkernel/filter/PVFilterFunction.h>
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/PVRegistrableClass.h>
@@ -49,11 +50,14 @@ public:
 
 	void set_dest_array(PVRow size, float *ptr);
 	void set_format(PVCol current_col, PVRush::PVFormat& format);
+
+	void set_group_value(PVCore::PVArgument& group) { _grp_value = &group; }
 protected:
 	PVRow _dest_size;
 	float* _dest;
 	PVRush::PVFormat* _format;
 	PVCol _cur_col;
+	PVCore::PVArgument* _grp_value;
 };
 
 typedef PVMappingFilter::func_type PVMappingFilter_f;

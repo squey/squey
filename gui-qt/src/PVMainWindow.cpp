@@ -39,6 +39,7 @@
 #include <pvkernel/core/PVAxisIndexType.h>
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/PVMeanValue.h>
+#include <pvkernel/core/PVVersion.h>
 
 #include <pvkernel/rush/PVInput.h>
 #include <pvkernel/rush/PVNormalizer.h>
@@ -109,15 +110,6 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 	pv_ImportFileDialog = new PVImportFileDialog(this);
 	pv_ImportFileDialog->hide();
 
-	// pv_FilterSearchWidget = new PVInspector::PVFilterSearchWidget(this);
-	// pv_FilterSearchWidget->hide();
-				// pv_RemoteLog = new LogViewerWidget(this);
-	// pv_RemoteLog->resize(500,60);
-	// // pv_RemoteLog->hide();
-
-//	pv_MapWidget = new PVMapWidget(this);
-	//pv_MapWidget->hide();
-
 	pv_OpenFileDialog = new PVOpenFileDialog(this);
 	pv_OpenFileDialog->hide();
 
@@ -125,14 +117,14 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 	pv_SaveFileDialog->hide();
 
 
-	pv_ListingsTabWidget = new PVListingsTabWidget(this, this);
+	pv_ListingsTabWidget = new PVListingsTabWidget(this);
 
 
 	// We display the PV Icon together with a button to import files
-	pv_centralWidget = new QWidget(this);
+	pv_centralStartWidget = new QWidget();
+	pv_centralMainWidget = new QWidget();
 
 	pv_mainLayout = new QVBoxLayout();
-	pv_mainLayout->setAlignment(Qt::AlignCenter);
 	pv_mainLayout->setSpacing(40);
 	pv_mainLayout->setContentsMargins(0,0,0,0);
 
@@ -147,12 +139,51 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 	connect(pv_ImportFileButton, SIGNAL(clicked()), this, SLOT(import_type_default_Slot()));
 	connect(pv_ListingsTabWidget, SIGNAL(is_empty()), this, SLOT(display_icon_Slot()) );
 
-	pv_mainLayout->addWidget(pv_labelWelcomeIcon);
-	pv_mainLayout->addWidget(pv_ImportFileButton);
 	pv_mainLayout->addWidget(pv_ListingsTabWidget);
+
+	pv_startLayout = new QVBoxLayout();
+	pv_startLayout->addItem(new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding));
+	QVBoxLayout* centerLayout = new QVBoxLayout();
+	centerLayout->setAlignment(Qt::AlignHCenter);
+	centerLayout->addWidget(pv_labelWelcomeIcon);
+	centerLayout->addWidget(pv_ImportFileButton);
+	pv_startLayout->addLayout(centerLayout);
+	pv_startLayout->addItem(new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding));
+
+	QGridLayout* versionLayout = new QGridLayout();
+	QLabel* label = new QLabel(tr("Current version") + QString(" :"));
+	label->setAlignment(Qt::AlignRight);
+	versionLayout->addWidget(label, 0, 0);
+	label = new QLabel(QString(PICVIZ_CURRENT_VERSION_STR));
+	label->setAlignment(Qt::AlignRight);
+	versionLayout->addWidget(label, 0, 2);
+	label = new QLabel(tr("Last version of the %1.%2 branch").arg(PICVIZ_CURRENT_VERSION_MAJOR).arg(PICVIZ_CURRENT_VERSION_MINOR) + QString(" :"));
+	label->setAlignment(Qt::AlignRight);
+	versionLayout->addWidget(label, 2, 0);
+	pv_lastCurVersion = new QLabel("N/A");
+	pv_lastCurVersion->setAlignment(Qt::AlignRight);
+	versionLayout->addWidget(pv_lastCurVersion, 2, 2);
+	label = new QLabel(tr("Last major version") + QString(" :"));
+	label->setAlignment(Qt::AlignRight);
+	versionLayout->addWidget(label, 4, 0);
+	pv_lastMajVersion = new QLabel("N/A");
+	pv_lastMajVersion->setAlignment(Qt::AlignRight);
+	versionLayout->addWidget(pv_lastMajVersion, 4, 2);
+
+	QHBoxLayout* hboxVersionLayout = new QHBoxLayout();
+	hboxVersionLayout->addItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Minimum));
+	hboxVersionLayout->addLayout(versionLayout);
+
+	pv_startLayout->addLayout(hboxVersionLayout);
 	
-	pv_ListingsTabWidget->hide();
-	pv_centralWidget->setLayout(pv_mainLayout);
+	pv_centralStartWidget->setLayout(pv_startLayout);
+	pv_centralMainWidget->setLayout(pv_mainLayout);
+
+	pv_centralWidget = new QStackedWidget();
+	pv_centralWidget->addWidget(pv_centralStartWidget);
+	pv_centralWidget->addWidget(pv_centralMainWidget);
+	pv_centralWidget->setCurrentWidget(pv_centralStartWidget);
+
 	setCentralWidget(pv_centralWidget);
 
 	pv_ListingsTabWidget->setFocus(Qt::OtherFocusReason);
@@ -168,8 +199,6 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 	connect_widgets();
 	menu_activate_is_file_opened(false);
 	
-	update_check();
-
 	create_pvgl_thread ();
 
 	statusBar();
@@ -183,6 +212,12 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 	QRect r = geometry();
 	r.moveCenter(QApplication::desktop()->screenGeometry(this).center());
 	setGeometry(r);
+
+	// Load version informations
+	_last_known_cur_release = pvconfig.value(PVCONFIG_LAST_KNOWN_CUR_RELEASE, PICVIZ_VERSION_INVALID).toUInt();
+	_last_known_maj_release = pvconfig.value(PVCONFIG_LAST_KNOWN_MAJ_RELEASE, PICVIZ_VERSION_INVALID).toUInt();
+
+	update_check();
 }
 
 void PVInspector::PVMainWindow::closeEvent(QCloseEvent* event)
@@ -569,7 +604,6 @@ void PVInspector::PVMainWindow::create_filters_menu_and_actions()
 
 	LIB_CLASS(Picviz::PVLayerFilter) &filters_layer = 	LIB_CLASS(Picviz::PVLayerFilter)::get();
 	LIB_CLASS(Picviz::PVLayerFilter)::list_classes const& lf = filters_layer.get_list();
-	
 	LIB_CLASS(Picviz::PVLayerFilter)::list_classes::const_iterator it;
 
 	for (it = lf.begin(); it != lf.end(); it++) {
@@ -909,12 +943,21 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 	}
 
 	menu_activate_is_file_opened(true);
-	pv_labelWelcomeIcon->hide();
-	pv_ImportFileButton->hide();
+	show_start_page(false);
 	pv_ListingsTabWidget->setVisible(true);
 }
 
-void PVInspector::PVMainWindow::treat_invalid_formats(QHash<QString, std::pair<QString, QString> > const& errors)
+void PVInspector::PVMainWindow::show_start_page(bool visible)
+{
+	if (visible) {
+		pv_centralWidget->setCurrentWidget(pv_centralStartWidget);
+	}
+	else {
+		pv_centralWidget->setCurrentWidget(pv_centralMainWidget);
+	}
+}
+
+void PVInspector::PVMainWindow::treat_invalid_formats(QHash<QString, std::pair<QString,QString> > const& errors)
 {
 	if (errors.size() == 0) {
 		return;
@@ -974,8 +1017,7 @@ void PVInspector::PVMainWindow::treat_invalid_formats(QHash<QString, std::pair<Q
 
 void PVInspector::PVMainWindow::display_icon_Slot()
 {
-	pv_labelWelcomeIcon->setVisible(true);
-	pv_ImportFileButton->setVisible(true);
+	show_start_page(true);
 }
 
 void PVInspector::PVMainWindow::import_type_default_Slot()
@@ -1820,14 +1862,23 @@ PVInspector::PVTabSplitter* PVInspector::PVMainWindow::get_tab_from_view(Picviz:
 int PVInspector::PVMainWindow::update_check()
 {
 #ifdef CUSTOMER_RELEASE
+#ifndef CUSTOMER_NAME
+#error CUSTOMER_RELEASE is defined. You must set CUSTOMER_NAME.
+#endif
+	// If the user does not want us to check for new versions, just don't do it.
+	if (!pvconfig.value("check_new_versions", true).toBool()) {
+		return 1;
+	}
+
 	QNetworkAccessManager *manager = new QNetworkAccessManager(this);
 	QNetworkRequest request;
 
 	connect(manager, SIGNAL(finished(QNetworkReply*)),
 		this, SLOT(update_reply_finished_Slot(QNetworkReply*)));
 
-	request.setUrl(QUrl("http://www.picviz.com/update.html"));
-	request.setRawHeader("User-Agent", "Mozilla/5.0.1.15");
+	//request.setUrl(QUrl("http://www.picviz.com/update.html"));
+	request.setUrl(QUrl(PVCore::PVVersion::update_url()));
+	request.setRawHeader("User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:5.0) Gecko/20100101 Firefox/5.0 " CUSTOMER_NAME " PV/" PICVIZ_CURRENT_VERSION_STR);
 
 	manager->get(request);
 
@@ -1856,3 +1907,12 @@ void PVInspector::PVMainWindow::update_statemachine_label(Picviz::PVView_p view)
 	statemachine_label->setText(view->state_machine->get_string());
 }
 
+void PVInspector::PVMainWindow::set_version_informations()
+{
+	if (_last_known_cur_release != PICVIZ_VERSION_INVALID) {
+		pv_lastCurVersion->setText(PVCore::PVVersion::to_str(_last_known_cur_release));
+	}
+	if (_last_known_maj_release != PICVIZ_VERSION_INVALID) {
+		pv_lastMajVersion->setText(PVCore::PVVersion::to_str(_last_known_maj_release));
+	}
+}

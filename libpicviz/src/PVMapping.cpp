@@ -88,3 +88,8 @@ Picviz::mandatory_param_map& Picviz::PVMapping::get_mandatory_params_for_col(PVC
 	assert(col < _mandatory_filters_values.size());
 	return _mandatory_filters_values[col];
 }
+
+QString Picviz::PVMapping::get_group_key_for_col(PVCol col) const
+{
+	return columns[col].get_group_key();
+}

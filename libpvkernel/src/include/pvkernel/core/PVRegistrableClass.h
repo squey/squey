@@ -34,7 +34,7 @@ public:
 		assert(ret);
 		return boost::shared_ptr<Tc>(ret);
 	}
-	QString const& registered_name() { return __registered_class_name; }
+	QString const& registered_name() const { return __registered_class_name; }
 protected:
 	virtual base_registrable* _clone_me() const = 0;
 protected:

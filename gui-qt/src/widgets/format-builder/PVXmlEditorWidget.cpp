@@ -66,7 +66,7 @@ PVInspector::PVXmlEditorWidget::PVXmlEditorWidget(QWidget * parent):
     
     hb->addItem(vbParam);
     //parameter board
-    myParamBord_old_model = new PVXmlParamWidget();
+    myParamBord_old_model = new PVXmlParamWidget(this);
     vbParam->addWidget(myParamBord_old_model);  
 
     //param board plugin splitter
@@ -240,13 +240,11 @@ void PVInspector::PVXmlEditorWidget::initSplitters() {
         // Its values are a boost::shared_ptr<PVFieldsSplitterParamWidget> or boost::shared_ptr<PVFieldsFilterParamWidget<one_to_one> > object.
         // For instance :
         LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::list_classes::const_iterator it;
-        int cpt=0;
         for (it = splitters.begin(); it != splitters.end(); it++) {
                 PVFilter::PVFieldsSplitterParamWidget_p pluginsSplitter = it.value();
                 assert(pluginsSplitter);
-                pluginsSplitter->set_id(cpt);
-                pluginsSplitter->get_action_menu()->setData(QVariant(it.key()));
-                _list_splitters.insert(cpt++,pluginsSplitter);
+                _list_splitters.push_back(pluginsSplitter);
+				pluginsSplitter->get_action_menu()->setData(it.key());
                 connect(pluginsSplitter->get_action_menu(), SIGNAL(triggered()), this, SLOT(slotAddSplitter()));
         }
 }
@@ -283,15 +281,14 @@ void PVInspector::PVXmlEditorWidget::slotAddRegExAfter() {
  * PVInspector::PVXmlEditorWidget::slotAddSplitter
  *
  *****************************************************************************/
-void PVInspector::PVXmlEditorWidget::slotAddSplitter() {
-        PVLOG_DEBUG("PVInspector::PVXmlEditorWidget::slotAddSplitter() \n");
+void PVInspector::PVXmlEditorWidget::slotAddSplitter()
+{
         QAction* action_src = (QAction*) sender();
         QString const& itype = action_src->data().toString();
-        PVLOG_DEBUG("sender():%s\n",action_src->iconText().toStdString().c_str());
         PVFilter::PVFieldsSplitterParamWidget_p in_t = LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::get().get_class_by_name(itype);
         PVFilter::PVFieldsSplitterParamWidget_p in_t_cpy = in_t->clone<PVFilter::PVFieldsSplitterParamWidget>();
 		QString registered_name = in_t_cpy->registered_name();
-        PVLOG_DEBUG(" type_name %s, %s\n", qPrintable(in_t_cpy->type_name()), qPrintable(registered_name));
+        PVLOG_DEBUG("(PVInspector::PVXmlEditorWidget::slotAddSplitter) type_name %s, %s\n", qPrintable(in_t_cpy->type_name()), qPrintable(registered_name));
         myTreeView->addSplitter(in_t_cpy);
 }
 
@@ -712,7 +709,7 @@ void PVInspector::PVXmlEditorWidget::update_table(PVRow start, PVRow end)
 
 	// Get the aggregator
 	PVRush::PVAggregator& agg = _log_extract->get_agg();
-	//agg.set_strict_mode(true);
+	agg.set_strict_mode(true);
 	agg.process_indexes(start, end);
 	// And push the output through our filter tree
 	PVCore::PVChunk* ck = agg();

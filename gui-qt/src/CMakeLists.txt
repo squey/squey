@@ -85,6 +85,7 @@ widgets/editors/include/PVEnumEditor.h
 widgets/editors/include/PVRegexpEditor.h
 widgets/editors/include/PVSpinBoxEditor.h
 
+widgets/format-builder/include/PVAxisTagHelp.h
 widgets/format-builder/include/PVNrawListingModel.h
 widgets/format-builder/include/PVNrawListingWidget.h
 widgets/format-builder/include/PVXmlTreeView.h 
@@ -159,6 +160,7 @@ widgets/editors/PVEnumEditor.cpp
 widgets/editors/PVRegexpEditor.cpp
 widgets/editors/PVSpinBoxEditor.cpp
 
+widgets/format-builder/PVAxisTagHelp.cpp
 widgets/format-builder/PVNrawListingModel.cpp
 widgets/format-builder/PVNrawListingWidget.cpp
 widgets/format-builder/PVXmlDomModel.cpp
@@ -187,15 +189,20 @@ SET(QRC_FILES
 picviz-inspector_resource.qrc
 )
 
+SET(UI_FILES
+widgets/format-builder/PVAxisTagHelp.ui
+)
+
 QT4_WRAP_CPP(MOC_SRC ${MOC_HEADERS})
+QT4_WRAP_UI(UI_SRC ${UI_FILES})
 QT4_ADD_RESOURCES(QRC_FILES_SRCS ${QRC_FILES})
 
 add_definitions(-DUSE_NEW_INPUT_SYSTEM)
 
 if (WIN32)
-add_executable(picviz-inspector WIN32 ${SRC_FILES} ${MOC_SRC} ${MOC_HEADERS} ${QRC_FILES_SRCS})
+	add_executable(picviz-inspector WIN32 ${SRC_FILES} ${MOC_SRC} ${UI_SRC} ${MOC_HEADERS} ${QRC_FILES_SRCS})
 else (WIN32)
-add_executable(picviz-inspector ${SRC_FILES} ${MOC_SRC} ${MOC_HEADERS} ${QRC_FILES_SRCS})
+	add_executable(picviz-inspector ${SRC_FILES} ${MOC_SRC} ${UI_SRC} ${MOC_HEADERS} ${QRC_FILES_SRCS})
 endif(WIN32)
 
 target_link_libraries(picviz-inspector ${QT_LIBRARIES} ${PICVIZ_LIBRARY} ${PVKERNEL_LIBRARY} ${CURL_LIBRARY} ${PVGL_LIBRARY} ${WIN32_EXTRA_LIBS} ${TBB_LIBRARIES} ${TBB_MALLOC_LIBRARY} ${Boost_LIBRARIES} ${ICU_LIBRARY})

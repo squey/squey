@@ -9,14 +9,16 @@
 
 
 #include <pvkernel/core/general.h>
-#include <picviz/PVLayer.h>
-#include <picviz/PVView.h>
+#include <picviz/PVLayer_types.h>
+#include <picviz/PVView_types.h>
 
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/core/PVClassLibrary.h>
+#include <pvkernel/core/PVTag.h>
 #include <pvkernel/filter/PVFilterFunction.h>
 
 #include <boost/function.hpp>
+#include <boost/thread.hpp>
 
 #include <QHash>
 
@@ -39,7 +41,7 @@ public:
 	/**
 	 * Constructor
 	 */
-	PVLayerFilter(PVCore::PVArgumentList const& l = PVLayerFilter::default_args());//
+	PVLayerFilter(PVCore::PVArgumentList const& l = PVLayerFilter::default_args());
 
 public:
 	void set_output(PVLayer* out);
@@ -52,6 +54,9 @@ public:
 	virtual QString detailed_description();
 
 public:
+	// Helper function for tags
+
+public:
 	boost::thread launch_in_thread(PVLayer& layer);
 	void cancel();
 
@@ -62,6 +67,9 @@ public:
 	PVLayer& operator()(PVLayer& layer);
 	PVLayer& operator_sameout(PVLayer &in);
 	PVLayer& operator_differentout(PVLayer &in);
+
+public:
+	static PVCore::PVTag<PVLayerFilter> get_tag(QString const& name);
 
 protected:
 	virtual void operator()(PVLayer &in, PVLayer &out);
@@ -83,12 +91,14 @@ private:
 typedef PVLayerFilter::p_type PVLayerFilter_p;
 typedef PVLayerFilter::func_type PVLayerFilter_f;
 
-// For this wto work under windows, wez need to export here the PVFilterLibrary for PVLayerFilter
+// For this to work under windows, we need to export here the PVFilterLibrary for PVLayerFilter
 #ifdef WIN32
 LibPicvizDeclExplicitTempl PVCore::PVClassLibrary<Picviz::PVLayerFilter>;
 #endif
 
+typedef PVCore::PVClassLibrary<Picviz::PVLayerFilter>::tag PVLayerFilterTag;
+typedef PVCore::PVClassLibrary<Picviz::PVLayerFilter>::list_tags PVLayerFilterListTags;
+
 }
 
 #endif /* PICVIZ_PVLAYERFILTER_H */
-

@@ -15,9 +15,11 @@
 #include <QMap>
 #include <QHash>
 #include <QList>
+#include <QSet>
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVColor.h>
+#include <pvkernel/rush/PVTags.h>
 
 /**
  * \class PVRush::Format
@@ -42,6 +44,7 @@ class LibKernelDecl PVAxisFormat {
 		QString plotting;
 		bool _is_key;
 		QString time_format;
+		PVTags tags;
 
 	public:
 		PVAxisFormat();
@@ -58,7 +61,8 @@ class LibKernelDecl PVAxisFormat {
 		QString get_group() const { return group; }
 		QString get_key_str() const { return _is_key ? "true" : "false"; }
 		bool is_key() const { return _is_key; }
-
+		PVTags const& get_tags() const { return tags; }
+		bool has_tag(QString const& tag) const { return tags.has_tag(tag); }
 
 		void set_color(QString str);
 		void set_color(PVCore::PVColor color_);
@@ -70,6 +74,7 @@ class LibKernelDecl PVAxisFormat {
 		void set_type(QString str);
 		void set_group(QString str);
 		void set_key(QString str);
+		void add_tag(QString const& tag) { tags.add_tag(tag); }
 };
 
 }

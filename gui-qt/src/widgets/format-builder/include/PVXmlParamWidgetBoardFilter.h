@@ -22,10 +22,13 @@
 #include <PVXmlParamColorDialog.h>
 
 namespace PVInspector{
+
+class PVXmlParamWidget;
+
 class PVXmlParamWidgetBoardFilter : public QWidget {
     Q_OBJECT
 public:
-    PVXmlParamWidgetBoardFilter(PVRush::PVXmlTreeNodeDom *node);
+    PVXmlParamWidgetBoardFilter(PVRush::PVXmlTreeNodeDom *node, PVXmlParamWidget* parent);
     virtual ~PVXmlParamWidgetBoardFilter();
     QWidget *getWidgetToFocus();
     
@@ -49,6 +52,8 @@ private:
 
     //editing node
     PVRush::PVXmlTreeNodeDom *node;
+
+	PVXmlParamWidget* _parent;
 
 public slots:
     void slotSetValues();

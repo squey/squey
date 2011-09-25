@@ -9,6 +9,7 @@
 #include <pvkernel/core/PVAxesIndexType.h>
 #include <pvkernel/core/PVColorGradientDualSliderType.h>
 #include <pvkernel/core/PVEnumType.h>
+#include <picviz/PVView.h>
 
 #include <math.h>
 
@@ -56,23 +57,9 @@ DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterHeatlineBase)
  *****************************************************************************/
 PVCore::PVArgumentList Picviz::PVLayerFilterHeatlineBase::get_default_args_for_view(PVView const& view)
 {
-	// Retrieve the key axes of the PVFormat of that PVView
-	PVCore::PVArgumentList args = get_args();
-	PVCore::PVAxesIndexType key_axes;
-	PVRush::list_axes_t const& axes = view.get_source_parent()->nraw->format->get_axes();
-	PVRush::list_axes_t::const_iterator it;
-	int axis_id = 0;
-	// FIXME:
-	// In PVAxesCombination::set_from_format, the id are computed like that
-	// It might be safer to use PVAxesCombination to get this information
-	for (it = axes.begin(); it != axes.end(); it++) {
-		PVRush::PVAxisFormat const& params = *it;
-		if (params.is_key()) {
-			key_axes.push_back(axis_id);
-		}
-		axis_id++;
-	}
-	args["Axes"].setValue(key_axes);
+	PVCore::PVArgumentList args = get_default_args();
+	// Default args with the "key" tag
+	args["Axes"].setValue(PVCore::PVAxesIndexType(view.get_original_axes_index_with_tag(get_tag("key"))));
 	return args;
 }
 

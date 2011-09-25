@@ -31,8 +31,7 @@
 
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/rush/PVExtractor.h>
-
-#include <boost/shared_ptr.hpp>
+#include <picviz/PVView_types.h>
 
 namespace Picviz {
 
@@ -43,8 +42,8 @@ class LibPicvizDecl PVView {
 
 
 public:
+	typedef PVView_p p_type;
 	typedef QHash<QString,PVCore::PVArgumentList> map_filter_arguments;
-	typedef boost::shared_ptr<PVView> p_type;
 public:
 	PVView(PVPlotted_p parent);
 	~PVView();
@@ -53,7 +52,7 @@ public:
 	PVRoot_p   root;
 	QString    name;
 	int active_axis;
-	PVAxesCombination axes_combination;
+	PVAxesCombination &axes_combination;
 	/* picviz_line_properties_t default_zombie_line_properties; */
 	PVCore::PVColor default_zombie_line_properties;
 	PVSelection floating_selection;
@@ -73,7 +72,6 @@ public:
 	PVZLevelArray z_level_array;
 	PVSquareArea square_area;
 	Picviz::PVStateMachine *state_machine;
-	//PVTags tags;
 	PVSelection volatile_selection;
 	map_filter_arguments filters_args;
 	int last_extractor_batch_size;
@@ -82,7 +80,13 @@ public:
 
 
 	/* Functions */
-	int get_axes_count();
+	PVCol get_axes_count();
+
+	template <class T>
+	QList<PVCol> get_original_axes_index_with_tag(T const& tag) const
+	{
+		return axes_combination.get_original_axes_index_with_tag<T>(tag);
+	}
 
 	/**
 	 * Gets the QStringList of all Axes names according to the current PVAxesCombination
@@ -174,6 +178,8 @@ public:
 	int toggle_layer_stack_layer_n_visible_state(int n);
 
 	void select_all_nonzb_lines();
+	void select_no_line();
+	void select_inv_lines();
 
 
 /******************************************************************************
@@ -234,6 +240,8 @@ public:
 	QString get_data_raw(PVRow row, PVCol column);
 
 	void selection_A2B_select_with_square_area(PVSelection &a, PVSelection &b);
+
+	void commit_volatile_in_floating_selection();
 	
 
 /******************************************************************************
@@ -274,8 +282,6 @@ protected:
 
 
 };
-
-typedef PVView::p_type PVView_p;
 
 }
 

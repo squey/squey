@@ -8,6 +8,7 @@
 
 #include <pvkernel/core/PVColor.h>
 #include <pvkernel/core/PVAxisIndexType.h>
+#include <picviz/PVView.h>
 
 #include <QDir>
 #include <QString>

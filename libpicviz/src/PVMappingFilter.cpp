@@ -8,6 +8,7 @@ Picviz::PVMappingFilter::PVMappingFilter()
 	_dest = NULL;
 	_format = NULL;
 	_cur_col = 0;
+	_grp_value = NULL;
 }
 
 float* Picviz::PVMappingFilter::operator()(PVRush::PVNraw::nraw_table_line const& values)

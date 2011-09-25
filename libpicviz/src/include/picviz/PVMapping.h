@@ -54,6 +54,7 @@ public:
 	PVSource_p get_source_parent();
 
 	PVMappingFilter::p_type get_filter_for_col(PVCol col);
+	QString get_group_key_for_col(PVCol col) const;
 
 	mandatory_param_map const& get_mandatory_params_for_col(PVCol col) const;
 	mandatory_param_map& get_mandatory_params_for_col(PVCol col);

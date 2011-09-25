@@ -176,6 +176,7 @@ public:
 	void select_even();
 	void select_none();
 	void select_odd();
+	void select_inverse();
 
 	/**
 	 * Sets the state of line N in the PVSelection
