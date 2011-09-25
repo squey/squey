@@ -18,11 +18,14 @@ int main(int argc, char** argv)
 	// Read a format, convert it to the last vversion and dump its XML content + its internal representation
 	
 	QFile f(argv[1]);
+	if (!f.open(QIODevice::ReadOnly)) {
+		std::cerr << "Unable to open " << argv[1] << std::endl;
+		return 1;
+	}
 	QTextStream ft(&f);
 	ft.setCodec("UTF-8");
 	QDomDocument doc;
 	doc.setContent(ft.readAll(), false);
-
 	PVRush::PVFormatVersion::to_current(doc);
 
 	std::cout << doc.toString().toUtf8().constData() << std::endl;

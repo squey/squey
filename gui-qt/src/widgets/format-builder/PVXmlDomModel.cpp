@@ -4,8 +4,9 @@
 //! Copyright (C) Philippe Saadé 2011-2011
 //! Copyright (C) Picviz Labs 2011
 #include <PVXmlDomModel.h>
-#include <pvkernel/rush/PVXmlTreeNodeDom.h>
 #include <pvkernel/filter/PVFieldsFilterParamWidget.h>
+#include <pvkernel/rush/PVFormatVersion.h>
+#include <pvkernel/rush/PVXmlTreeNodeDom.h>
 
 #include <QString>
 
@@ -683,11 +684,12 @@ bool PVInspector::PVXmlDomModel::openXml(QString url) {
 
 void PVInspector::PVXmlDomModel::openXml(QDomDocument& doc)
 {
+	PVRush::PVFormatVersion::to_current(doc);
 	xmlRootDom = doc.documentElement();
 	PVRush::PVXmlTreeNodeDom *m_rootNode = new PVRush::PVXmlTreeNodeDom(PVRush::PVXmlTreeNodeDom::field, "root", xmlRootDom, this->xmlFile);
-	if (getVersion() == "0") {
-		m_rootNode->version0to1();
-	}
+//	if (getVersion() == "0") {
+//		m_rootNode->version0to1();
+//	}
 	setRoot(m_rootNode);
 
 	// Go through the DOM to get all the different groups
@@ -762,6 +764,7 @@ void PVInspector::PVXmlDomModel::addUrlIn(const QModelIndex &index){
 	protocol.setAttribute("key", "false");
 	protocol.setAttribute("color", "#ffffff");
 	protocol.setAttribute("titlecolor", "#ffffff");
+	protocol.setAttribute("tag", "protocol");
 	domain.setAttribute("name", "Domain");
 	domain.setAttribute("type", "host");
 	domain.setAttribute("mapping", "default");
@@ -770,6 +773,7 @@ void PVInspector::PVXmlDomModel::addUrlIn(const QModelIndex &index){
 	domain.setAttribute("key", "true");
 	domain.setAttribute("color", "#ffffff");
 	domain.setAttribute("titlecolor", "#ffffff");
+	domain.setAttribute("tag", "domain");
 	tld.setAttribute("name", "TLD");
 	tld.setAttribute("type", "enum");
 	tld.setAttribute("mapping", "default");
@@ -778,6 +782,7 @@ void PVInspector::PVXmlDomModel::addUrlIn(const QModelIndex &index){
 	tld.setAttribute("key", "false");
 	tld.setAttribute("color", "#ffffff");
 	tld.setAttribute("titlecolor", "#ffffff");
+	tld.setAttribute("tag", "tld");
 	port.setAttribute("name", "Port");
 	port.setAttribute("type", "integer");
 	port.setAttribute("mapping", "default");
@@ -786,6 +791,7 @@ void PVInspector::PVXmlDomModel::addUrlIn(const QModelIndex &index){
 	port.setAttribute("key", "false");
 	port.setAttribute("color", "#ffffff");
 	port.setAttribute("titlecolor", "#ffffff");
+	port.setAttribute("tag", "port");
 	url.setAttribute("name", "URL");
 	url.setAttribute("type", "string");
 	url.setAttribute("mapping", "default");
@@ -794,6 +800,7 @@ void PVInspector::PVXmlDomModel::addUrlIn(const QModelIndex &index){
 	url.setAttribute("key", "false");
 	url.setAttribute("color", "#ffffff");
 	url.setAttribute("titlecolor", "#ffffff");
+	url.setAttribute("tag", "url");
 	variable.setAttribute("name", "Variable");
 	variable.setAttribute("type", "string");
 	variable.setAttribute("mapping", "default");
@@ -802,6 +809,7 @@ void PVInspector::PVXmlDomModel::addUrlIn(const QModelIndex &index){
 	variable.setAttribute("key", "false");
 	variable.setAttribute("color", "#ffffff");
 	variable.setAttribute("titlecolor", "#ffffff");
+	variable.setAttribute("tag", "url-variables");
 
 	//add all axis
 	f1.appendChild(protocol);

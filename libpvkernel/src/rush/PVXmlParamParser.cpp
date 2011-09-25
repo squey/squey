@@ -6,6 +6,7 @@
  */
 
 #include <pvkernel/core/PVClassLibrary.h>
+#include <pvkernel/rush/PVFormatVersion.h>
 #include <pvkernel/rush/PVXmlTreeNodeDom.h>
 #include <pvkernel/rush/PVXmlParamParser.h>
 
@@ -38,6 +39,7 @@ PVRush::PVXmlParamParser::PVXmlParamParser(QString const& nameFile)
 	QTextStream tmpTextXml(&xmlfile); // file stream creation
 	QDomDocument docXml;
 	docXml.setContent(tmpTextXml.readAll());
+	PVRush::PVFormatVersion::to_current(docXml);
 	parseFromRootNode(docXml.documentElement());
 
 	xmlfile.close();
@@ -62,7 +64,6 @@ void PVRush::PVXmlParamParser::dump_filters()
 
 void PVRush::PVXmlParamParser::parseFromRootNode(QDomElement const& rootNode)
 {
-	setVersionFromRootNode(rootNode);
 	setDom(rootNode);
 	setAxesCombinationFromRootNode(rootNode);
 	dump_filters();
@@ -70,7 +71,6 @@ void PVRush::PVXmlParamParser::parseFromRootNode(QDomElement const& rootNode)
 
 void PVRush::PVXmlParamParser::setVersionFromRootNode(QDomElement const& node)
 {
-	format_version = node.attribute("version","0").toInt();
 }
 
 void PVRush::PVXmlParamParser::setAxesCombinationFromRootNode(QDomElement const& node)
@@ -135,113 +135,29 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id)
 	QDomNodeList childs = node.childNodes();
 	int nchilds = childs.size();
 
-	switch (format_version) {
-		case 0:
-		{
-			// For a given axis, we need to first create the corresponding one_to_one field filters
-			// because we have the good id. Then we process the axes and the splitters that will change the next field's id !
-			// The order of the different for loops is *important* here. Change it if you know what you're doing !
-			for(size_t i = 0; i < nchilds; i++){
-				QDomElement child = childs.at(i).toElement();
+	// For a given axis, we need to first create the corresponding one_to_one field filters
+	// because we have the good id. Then we process the axes and the splitters that will change the next field's id !
+	// The order of the different for loops is *important* here. Change it if you know what you're doing !
+	for(int i=0; i< nchilds; i++) {
+		QDomElement child = childs.at(i).toElement();
+		QString node_type = getNodeType(child);
 
-				if(getNodeType(child)=="filter"){
-					PVRush::PVXmlParamParserData data;
-					data.axis_id = newId;
-					data.filter_lib = filters_lib.get_class_by_name("filter_regexp");
-					if (!data.filter_lib) {
-						throw PVXmlParamParserExceptionPluginNotFound("filter", "regexp");
-					}
-					data.filter_args["regexp"] = getNodeRegExp(child.toElement());
-					data.filter_args["reverse"] = getNodeTypeGrep(child.toElement()).compare("include") != 0;
-					fields.push_back(data);
-				}
-			}
-
-			for (size_t i = 0; i < nchilds; i++) {
-				QDomElement child = childs.at(i).toElement();
-				PVRush::PVXmlParamParserData data;
-				data.nchildren = nchilds;
-
-				if (getNodeType(child) == "RegEx") {
-					data.axis_id = newId;
-					data.filter_lib = filters_lib.get_class_by_name("splitter_regexp");
-					if (!data.filter_lib) {
-						throw PVXmlParamParserExceptionPluginNotFound("splitter", "regexp");
-					}
-					data.filter_args["regexp"] = getNodeRegExp(child.toElement());
-					fields.push_back(data);
-				}
-				else
-				if (getNodeType(child) == "url") {
-					data.axis_id = newId;
-					data.filter_lib = filters_lib.get_class_by_name("splitter_url");
-					if (!data.filter_lib) {
-						throw PVXmlParamParserExceptionPluginNotFound("splitter", "url");
-					}
-					fields.push_back(data);
-				}
-				else
-				if (getNodeType(child) == "pcap") {
-					data.axis_id = newId;
-					data.filter_lib = filters_lib.get_class_by_name("splitter_pcap");
-					if (!data.filter_lib) {
-						throw PVXmlParamParserExceptionPluginNotFound("splitter", "pcap");
-					}
-					data.filter_args["datalink"] = QVariant((int) -1);
-					fields.push_back(data);
-				}
-				else
-				if (getNodeType(child) == "csv") {
-					data.axis_id = newId;
-					data.filter_lib = filters_lib.get_class_by_name("splitter_csv");
-					if (!data.filter_lib) {
-						throw PVXmlParamParserExceptionPluginNotFound("splitter", "csv");
-					}
-					data.filter_args["sep"] = child.attribute("delimiter","").at(0);
-					fields.push_back(data);
-				}
-
-				// Process children of this child
-				QDomNodeList node_childs = child.childNodes();
-				int node_nchilds = node_childs.size();
-				for (int iF = 0; iF < node_nchilds; iF++) {
-					newId = setDom(node_childs.at(iF).toElement(), newId);
-				}
-			}
-
-			break;
+		if (node_type == PVFORMAT_XML_TAG_FILTER_STR) {
+			pushFilter(child, newId);
 		}
-		case 1:
-		{
-			// Same as above, two separate for loops because the order of processing is important !
-			// Change this if you know what you're doing !!
-			for(int i=0; i< nchilds; i++) {
-				QDomElement child = childs.at(i).toElement();
-				QString node_type = getNodeType(child);
+	}
 
-				if (node_type == PVFORMAT_XML_TAG_FILTER_STR) {
-					pushFilter(child, newId);
-				}
-			}
-
-			for(int i=0; i< nchilds; i++) {
-				QDomElement child = childs.at(i).toElement();
-				QString node_type = getNodeType(child);
-				if (node_type == PVFORMAT_XML_TAG_SPLITTER_STR) {
-					pushFilter(child, newId);
-					newId = setDom(child, newId);
-				}
-				else
-				if (node_type == PVFORMAT_XML_TAG_FIELD_STR) {
-					newId = setDom(child, newId);
-				}
-			}
-
-			break;
+	for(int i=0; i< nchilds; i++) {
+		QDomElement child = childs.at(i).toElement();
+		QString node_type = getNodeType(child);
+		if (node_type == PVFORMAT_XML_TAG_SPLITTER_STR) {
+			pushFilter(child, newId);
+			newId = setDom(child, newId);
 		}
-		default:
-		{
-		}
+		else
+			if (node_type == PVFORMAT_XML_TAG_FIELD_STR) {
+				newId = setDom(child, newId);
+			}
 	}
 
 	for(size_t i = 0; i < nchilds; i++){

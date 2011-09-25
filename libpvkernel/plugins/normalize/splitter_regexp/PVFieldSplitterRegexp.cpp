@@ -22,6 +22,7 @@ PVFilter::PVFieldSplitterRegexp::PVFieldSplitterRegexp(const PVFieldSplitterRege
 	PVFieldsFilter<PVFilter::one_to_many>(src)
 {
 	_regexp = src._regexp;
+	_full_line = src._full_line;
 }
 
 /******************************************************************************
@@ -32,7 +33,8 @@ PVFilter::PVFieldSplitterRegexp::PVFieldSplitterRegexp(const PVFieldSplitterRege
 DEFAULT_ARGS_FILTER(PVFilter::PVFieldSplitterRegexp)
 {
 	PVCore::PVArgumentList args;
-	args["regexp"] = PVCore::PVArgument(QString("^(.*)$"));
+	args["regexp"] = PVCore::PVArgument(QString(""));
+	args["full-line"] = PVCore::PVArgument(true);
 	return args;
 }
 
@@ -62,6 +64,7 @@ void PVFilter::PVFieldSplitterRegexp::set_args(PVCore::PVArgumentList const& arg
 	_regexp.setPattern(args["regexp"].toString());
 	_valid_rx = true;
 #endif
+	_full_line = args["full-line"].toBool();
 }
 
 /******************************************************************************
