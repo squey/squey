@@ -205,6 +205,7 @@ void PVRush::PVXmlParamParser::pushFilter(QDomElement const& elt, int newId)
 	QDomNodeList children = elt.childNodes();
 	PVFilter::filter_child_axes_tag_t& axes(data.children_axes_tag);
 	axes.reserve(children.size());
+	PVCol axis_id = 0;
 	for (int i = 0; i < children.size(); i++) {
 		QDomElement elt_child = children.at(i).toElement();
 		if (elt_child.tagName() != PVFORMAT_XML_TAG_FIELD_STR) {
@@ -222,14 +223,13 @@ void PVRush::PVXmlParamParser::pushFilter(QDomElement const& elt, int newId)
 				break;
 			}
 		}
-		if (!found) {
-			continue;
+		if (found) {
+			QString tag = axis_child.attribute(PVFORMAT_AXIS_TAG_STR, PVFORMAT_AXIS_TAG_DEFAULT);
+			if (!tag.isEmpty()) {
+				axes[tag] = axis_id;
+			}
 		}
-
-		QString tag = axis_child.attribute(PVFORMAT_AXIS_TAG_STR, PVFORMAT_AXIS_TAG_DEFAULT);
-		if (!tag.isEmpty()) {
-			axes.push_back(tag);
-		}
+		axis_id++;
 	}
 	data.nchildren = elt.childNodes().size();
 	PVRush::PVXmlTreeNodeDom tnd(elt);

@@ -85,10 +85,10 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterRegexp::one_to_many(PVCo
 		_regexp_pattern_thread.reset(new RegexPattern*(_regexp.get()));
 		_regexp_matcher_thread.reset(new RegexMatcher*(_regexp->matcher(err)));
 	}
-	PVCore::list_fields::size_type n = field.split_regexp<PVCore::list_fields>(l, *(*_regexp_matcher_thread), it_ins);
+	PVCore::list_fields::size_type n = field.split_regexp<PVCore::list_fields>(l, *(*_regexp_matcher_thread), it_ins, _full_line);
 #else
 	QRegExp regexp(_regexp);
-	PVCore::list_fields::size_type n = field.split_regexp<PVCore::list_fields>(l, regexp, it_ins);
+	PVCore::list_fields::size_type n = field.split_regexp<PVCore::list_fields>(l, regexp, it_ins, _full_line);
 #endif
 	if (n == 0) {
 		field.set_invalid();
