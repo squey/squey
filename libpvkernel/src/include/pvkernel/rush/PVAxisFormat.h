@@ -42,7 +42,6 @@ class LibKernelDecl PVAxisFormat {
 		QString group;
 		QString mapping;
 		QString plotting;
-		bool _is_key;
 		QString time_format;
 		PVTags tags;
 
@@ -59,8 +58,6 @@ class LibKernelDecl PVAxisFormat {
 		PVCore::PVColor const& get_titlecolor() const { return titlecolor; }
 		QString get_type() const { return type; }
 		QString get_group() const { return group; }
-		QString get_key_str() const { return _is_key ? "true" : "false"; }
-		bool is_key() const { return _is_key; }
 		PVTags const& get_tags() const { return tags; }
 		bool has_tag(QString const& tag) const { return tags.has_tag(tag); }
 
@@ -73,7 +70,6 @@ class LibKernelDecl PVAxisFormat {
 		void set_titlecolor(PVCore::PVColor color_);
 		void set_type(QString str);
 		void set_group(QString str);
-		void set_key(QString str);
 		void add_tag(QString const& tag) { tags.add_tag(tag); }
 };
 

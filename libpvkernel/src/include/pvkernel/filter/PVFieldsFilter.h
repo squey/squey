@@ -47,7 +47,7 @@ public:
 	{
 		filter_child_axes_tag_t::const_iterator it;
 		for (it = axes.begin(); it != axes.end(); it++) {
-			PVLOG_DEBUG("(PVFieldsFilter) axis tag %s set for col .\n", qPrintable(it.key()), it.value());
+			PVLOG_DEBUG("(PVFieldsFilter) axis tag %s set for col %d.\n", qPrintable(it.key()), it.value());
 		}
 		_axes_tag = axes;
 	}

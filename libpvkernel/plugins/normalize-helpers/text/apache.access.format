@@ -3,25 +3,25 @@
 <param version="2">
  <splitter selectionRegExp-2="(\d+\/\w+\/\d+:\d+:\d+:\d+)" selectionRegExp-3="(\w+)" selectionRegExp-4="(.*)" selectionRegExp-5="(\S+)" selectionRegExp-6="(\d+)" selectionRegExp-7="(.*)" validator="" full-line="false" type="regexp" regexp="(\d+.\d+.\d+.\d+) \- \S+ \[(\d+\/\w+\/\d+:\d+:\d+:\d+).*\] \&quot;(\w+) (.*) (\S+)\&quot; (\d+).*\&quot; \&quot;(.*)\&quot;" name="" saveValidator="false" selectionRegExp-1="(\d+.\d+.\d+.\d+)">
   <field>
-   <axis titlecolor="#ff921d" tag="key" key="false" mapping="default" time-format="" group="" type="ipv4" name="Source IP" plotting="default" color="#ffffff" time-sample=""/>
+   <axis titlecolor="#ff921d" tag="key" mapping="default" time-format="" group="" type="ipv4" name="Source IP" plotting="default" color="#ffffff" time-sample=""/>
   </field>
   <field>
-   <axis titlecolor="#ffffff" key="false" mapping="24h" time-format="dd/MMM/yyyy:HH:mm:ss" group="" type="time" name="Time" plotting="default" color="#ffffff" time-sample=""/>
+   <axis titlecolor="#ffffff" mapping="24h" time-format="dd/MMM/yyyy:HH:mm:ss" group="" type="time" name="Time" plotting="default" color="#ffffff" time-sample=""/>
   </field>
   <field>
-   <axis titlecolor="#ffffff" tag="key" key="false" mapping="default" time-format="" group="" type="enum" name="Request" plotting="default" color="#ffffff" time-sample=""/>
+   <axis titlecolor="#ffffff" tag="key" mapping="default" time-format="" group="" type="enum" name="Request" plotting="default" color="#ffffff" time-sample=""/>
   </field>
   <field>
-   <axis titlecolor="#ffffff" tag="domain:key" key="false" mapping="default" time-format="" group="" type="string" name="URL" plotting="default" color="#ffffff" time-sample=""/>
+   <axis titlecolor="#ffffff" tag="domain:key" mapping="default" time-format="" group="" type="string" name="URL" plotting="default" color="#ffffff" time-sample=""/>
   </field>
   <field>
-   <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" group="" type="enum" name="Protocol" plotting="default" color="#ffffff" time-sample=""/>
+   <axis titlecolor="#ffffff" mapping="default" time-format="" group="" type="enum" name="Protocol" plotting="default" color="#ffffff" time-sample=""/>
   </field>
   <field>
-   <axis titlecolor="#ffffff" tag="key" key="false" mapping="default" time-format="" group="" type="integer" name="Response Code" plotting="minmax" color="#ffffff" time-sample=""/>
+   <axis titlecolor="#ffffff" tag="key" mapping="default" time-format="" group="" type="integer" name="Response Code" plotting="minmax" color="#ffffff" time-sample=""/>
   </field>
   <field>
-   <axis titlecolor="#ffffff" key="false" mapping="4Bsort" time-format="" group="" type="string" name="User Agent" plotting="default" color="#ffffff" time-sample=""/>
+   <axis titlecolor="#ffffff" mapping="4Bsort" time-format="" group="" type="string" name="User Agent" plotting="default" color="#ffffff" time-sample=""/>
   </field>
  </splitter>
 </param>

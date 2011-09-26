@@ -29,7 +29,6 @@ private:
 	int _col_port;
 	int _col_url;
 	int _col_variable;
-	PVCore::PVField* _fields[6];
 	PVCol _ncols;
 
 	CLASS_FILTER(PVFilter::PVFieldSplitterURL)
