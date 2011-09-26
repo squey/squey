@@ -18,7 +18,7 @@ PVLogViewerDialog::PVLogViewerDialog(QWidget* parent):
 
 	QVBoxLayout *rl_layout = new QVBoxLayout;
 
-	pv_RemoteLog = new LogViewerWidget();
+	pv_RemoteLog = new LogViewerWidget(this);
 	rl_fileMenu->addAction(pv_RemoteLog->addMachineAction());
 	rl_fileMenu->addAction(pv_RemoteLog->removeMachineAction());
 

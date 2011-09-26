@@ -84,7 +84,8 @@ void LogViewerWidget::LogViewerWidgetPrivate::initWidget()
     headerLabel<<tr( "Path" )<<tr( "Protocol" )<<tr( "Port" );
     filesTableWidget->setHorizontalHeaderLabels( headerLabel );
 
-    connect( filesTableWidget, SIGNAL( itemDoubleClicked ( QTableWidgetItem *) ), qq, SLOT( slotGetRemoteFile( QTableWidgetItem * ) ) );
+    //connect( filesTableWidget, SIGNAL( itemDoubleClicked ( QTableWidgetItem *) ), qq, SLOT( slotGetRemoteFile( QTableWidgetItem * ) ) );
+    connect( filesTableWidget, SIGNAL( itemDoubleClicked ( QTableWidgetItem *) ), qq->parent(), SLOT( slotDownloadFiles() ) );
     connect( filesTableWidget, SIGNAL( itemClicked ( QTableWidgetItem * ) ), qq, SLOT( slotUpdateButtons() ) );
     fileLayout->addWidget( filesTableWidget );
 
