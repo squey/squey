@@ -27,7 +27,8 @@ bool PVRush::PVInputTypeRemoteFilename::createWidget(hash_formats const& formats
 	RemoteLogDialog->deleteLater();
 
 	format = PICVIZ_AUTOMATIC_FORMAT_STR;
-	QStringList const& files = RemoteLogDialog->getDlFiles();
+	_hash_real_filenames = RemoteLogDialog->getDlFiles();
+	QStringList const& files = _hash_real_filenames.keys();
 	for (int i = 0; i < files.size(); i++) {
 		PVLOG_INFO("%s\n", qPrintable(files[i]));
 	}
@@ -51,7 +52,34 @@ QString PVRush::PVInputTypeRemoteFilename::human_name() const
 
 QString PVRush::PVInputTypeRemoteFilename::human_name_of_input(PVCore::PVArgument const& in) const
 {
-	return in.toString();
+	QString fn = in.toString();
+	if (_hash_real_filenames.contains(fn)) {
+		return _hash_real_filenames.value(fn).toString();
+	}
+	return fn;
+}
+
+QString PVRush::PVInputTypeRemoteFilename::tab_name_of_inputs(list_inputs const& in) const
+{
+	if (in.size() == 1) {
+		return human_name_of_input(in[0]);
+	}
+
+	bool found_url = false;
+	QUrl url;
+	for (int i = 0; i < in.size(); i++) {
+		QString tmp_name = in[i].toString();
+		if (_hash_real_filenames.contains(tmp_name)) {
+			found_url = true;
+			url = _hash_real_filenames[tmp_name];
+			break;
+		}
+	}
+	if (!found_url) {
+		return PVInputTypeFilename::tab_name_of_inputs(in);
+	}
+
+	return url.toString(QUrl::RemovePassword | QUrl::RemovePath | QUrl::RemoveQuery | QUrl::StripTrailingSlash);
 }
 
 QString PVRush::PVInputTypeRemoteFilename::menu_input_name() const

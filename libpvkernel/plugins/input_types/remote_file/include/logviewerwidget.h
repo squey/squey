@@ -3,6 +3,7 @@
 
 #include "logviewer_export.h"
 #include <QWidget>
+#include <QUrl>
 
 class QAction;
 class QListWidgetItem;
@@ -92,9 +93,10 @@ public:
 
 	/**
 	 * Download the selected files and store their temporary location
+	 * @params[out] dl_files A hash whose keys are the temporary files and values a displayable name of the original one
 	 * @return true if the download has been successful
 	 */
-	bool downloadSelectedFiles(QStringList& dl_files);
+	bool downloadSelectedFiles(QHash<QString, QUrl>& dl_files);
 
 
 Q_SIGNALS:

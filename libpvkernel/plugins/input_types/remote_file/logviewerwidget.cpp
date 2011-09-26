@@ -42,6 +42,7 @@ public:
 
     void initWidget();
     void fillList();
+	void selectFirstMachine();
     void fillTableFile( const RegisteredFile& viewer );
     MachineConfig machineConfigFromItem( QListWidgetItem *item );
 
@@ -70,7 +71,7 @@ void LogViewerWidget::LogViewerWidgetPrivate::initWidget()
     layout->setMargin( 0 );
     machineListWidget = new QListWidget;
     layout->addWidget( machineListWidget );
-    connect( machineListWidget, SIGNAL( itemClicked ( QListWidgetItem * ) ), qq, SLOT( slotFillFilesList( QListWidgetItem * ) ) );
+    connect( machineListWidget, SIGNAL( currentItemChanged( QListWidgetItem *, QListWidgetItem * ) ), qq, SLOT( slotFillFilesList( QListWidgetItem * ) ) );
 
     QVBoxLayout *fileLayout = new QVBoxLayout;
     layout->addLayout( fileLayout );
@@ -141,6 +142,16 @@ void LogViewerWidget::LogViewerWidgetPrivate::fillList()
     }
 }
 
+void LogViewerWidget::LogViewerWidgetPrivate::selectFirstMachine()
+{
+	if (machineListWidget->count() <= 0) {
+		return;
+	}
+
+	QListWidgetItem* first = machineListWidget->item(0);
+	machineListWidget->setCurrentItem(first);
+}
+
 MachineConfig LogViewerWidget::LogViewerWidgetPrivate::machineConfigFromItem( QListWidgetItem *item )
 {
     if ( item )
@@ -162,6 +173,7 @@ LogViewerWidget::LogViewerWidget( QWidget * _parent )
     loadSettings();
 
     d->fillList();
+	d->selectFirstMachine();
 
     slotUpdateButtons();
 }
@@ -343,7 +355,8 @@ void LogViewerWidget::slotGetRemoteFile( QTableWidgetItem *item)
 
     QString temporaryFilePath;
     QString errorMessage;
-    const bool res = d->fileDownLoader->download( registered.remoteFile, temporaryFilePath, registered.settings, machineConfig.hostname, errorMessage );
+	QUrl url;
+    const bool res = d->fileDownLoader->download( registered.remoteFile, temporaryFilePath, registered.settings, machineConfig.hostname, errorMessage, url );
     if ( res ) {
         registered.localFile = temporaryFilePath;
         //qDebug()<<" temporaryFilePath :"<<temporaryFilePath;
@@ -353,7 +366,7 @@ void LogViewerWidget::slotGetRemoteFile( QTableWidgetItem *item)
     }
 }
 
-bool LogViewerWidget::downloadSelectedFiles(QStringList& dl_files)
+bool LogViewerWidget::downloadSelectedFiles(QHash<QString, QUrl>& dl_files)
 {
     MachineConfig machineConfig = d->machineConfigFromItem( d->machineListWidget->currentItem() );
 
@@ -372,12 +385,13 @@ bool LogViewerWidget::downloadSelectedFiles(QStringList& dl_files)
 
 		QString temporaryFilePath;
 		QString errorMessage;
-		const bool res = d->fileDownLoader->download( registered.remoteFile, temporaryFilePath, registered.settings, machineConfig.hostname, errorMessage );
+		QUrl url;
+		const bool res = d->fileDownLoader->download( registered.remoteFile, temporaryFilePath, registered.settings, machineConfig.hostname, errorMessage, url );
 		if ( res ) {
 			registered.localFile = temporaryFilePath;
 			//qDebug()<<" temporaryFilePath :"<<temporaryFilePath;
 			emit newFile( machineConfig.name, registered.remoteFile, temporaryFilePath);
-			dl_files.push_back(temporaryFilePath);
+			dl_files[temporaryFilePath] = url;
 			ret = true;
 		} else {
 			QMessageBox::critical( this, tr( "Error" ), errorMessage.isEmpty() ? tr( "Can not initialize download from libcurl" ) : errorMessage );
