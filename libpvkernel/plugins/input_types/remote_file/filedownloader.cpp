@@ -257,8 +257,9 @@ FileDownLoader::~FileDownLoader()
     delete d;
 }
 
-bool FileDownLoader::download( const QString &remoteFile, QString&tempFile, const ConnectionSettings& settings, const QString& hostName, QString&errorMessage, QUrl& url )
+bool FileDownLoader::download( const QString &remoteFile, QString&tempFile, const ConnectionSettings& settings, const QString& hostName, QString&errorMessage, QUrl& url, bool& cancel )
 {
+	cancel = false;
     d->curl = curl_easy_init();
     if ( d->curl )
     {
@@ -273,6 +274,7 @@ bool FileDownLoader::download( const QString &remoteFile, QString&tempFile, cons
 		QObject::connect(&watcher, SIGNAL(finished()), progressDialog, SLOT(accept()), Qt::QueuedConnection);
 
 		if(!progressDialog->exec()) {
+			cancel = true;
 			FileDownLoaderPrivate::_cancel_dl = true;
 			return false;
 		}
