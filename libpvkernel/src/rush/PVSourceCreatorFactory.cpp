@@ -2,7 +2,7 @@
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
 
-#define PICVIZ_DISCOVERY_NCHUNKS 5
+#define PICVIZ_DISCOVERY_NCHUNKS 1
 
 PVRush::list_creators PVRush::PVSourceCreatorFactory::get_by_input_type(PVInputType_p in_t)
 {

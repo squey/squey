@@ -440,7 +440,6 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 				message.pv_view = picviz_view;
 				pv_com->post_message_to_qt(message);
 				update_selections();
-				//update_colors();
 				break;
 		case 'c': case 'C': // Choose a color.
 				message.function = PVGL_COM_FUNCTION_SET_COLOR;
@@ -475,6 +474,14 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 					message.pv_view = picviz_view;
 					pv_com->post_message_to_qt(message);
 				}
+				break;
+		case 'i': case 'I': // Select all
+				picviz_view->select_inv_lines();
+				/* We refresh the listing */
+				message.function = PVGL_COM_FUNCTION_REFRESH_LISTING;
+				message.pv_view = picviz_view;
+				pv_com->post_message_to_qt(message);
+				update_selections();
 				break;
 		case 'm':
 				toggle_map();
@@ -879,30 +886,7 @@ void PVGL::PVView::mouse_down(int button, int x, int y, int modifiers)
 			pv_com->post_message_to_qt(message);
 
 			/* We might need to commit volatile_selection with floating_selection, depending on the previous Square_area_mode */
-			switch (state_machine->get_square_area_mode()) {
-				case Picviz::PVStateMachine::AREA_MODE_ADD_VOLATILE:
-						picviz_view->floating_selection |= picviz_view->volatile_selection;
-//						picviz_view->floating_selection.AB2A_or(picviz_view->volatile_selection);
-						break;
-
-				case Picviz::PVStateMachine::AREA_MODE_INTERSECT_VOLATILE:
-						picviz_view->floating_selection &= picviz_view->volatile_selection;
-//						picviz_view->floating_selection.AB2A_and(picviz_view->volatile_selection);
-						break;
-
-				case Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE:
-						picviz_view->floating_selection = picviz_view->volatile_selection;
-//						picviz_view->volatile_selection.A2B_copy(picviz_view->floating_selection);
-						break;
-
-				case Picviz::PVStateMachine::AREA_MODE_SUBSTRACT_VOLATILE:
-						picviz_view->floating_selection -= picviz_view->volatile_selection;
-//						picviz_view->floating_selection.AB2A_substraction(picviz_view->volatile_selection);
-						break;
-
-				case Picviz::PVStateMachine::AREA_MODE_OFF:
-						;
-			}
+			picviz_view->commit_volatile_in_floating_selection();
 
 			// Compute the x and y position of the mouse click in the plotted coordinates.
 			plotted_mouse = screen_to_plotted(vec2(x, y));

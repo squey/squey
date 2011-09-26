@@ -4,12 +4,11 @@
 //! Copyright (C) Philippe Saadé 2011-2011
 //! Copyright (C) Picviz Labs 2011
 
-
 #include <PVXmlParamTextEdit.h>
 #include <PVXmlRegValidatorHighLight.h>
 #include <PVXmlTimeValidatorHighLight.h>
 
-
+#include <QSizePolicy>
 
 
 /******************************************************************************
@@ -17,18 +16,20 @@
  * PVInspector::PVXmlParamTextEdit::PVXmlParamTextEdit
  *
  *****************************************************************************/
-PVInspector::PVXmlParamTextEdit::PVXmlParamTextEdit(QString pName,QVariant var):QTextEdit() {
-  
-    //highlight =new PVXmlRegValidatorHighLight((PVXmlParamTextEdit*)this);
-    //timeValid = new PVXmlTimeValidatorHighLight(this,format);
-    
+PVInspector::PVXmlParamTextEdit::PVXmlParamTextEdit(QString pName,QVariant var):
+	QTextEdit()
+{
     setObjectName(pName);
     variable = var.toString();
     setText(variable);
     
-    
     typeOfTextEdit = text;
     editing = true;
+
+	QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Maximum);
+	sp.setHeightForWidth(sizePolicy().hasHeightForWidth());
+	setSizePolicy(sp);
+	setMaximumHeight(70);
 
     connect(this,SIGNAL(textChanged()),this,SLOT(slotHighLight()));
 }

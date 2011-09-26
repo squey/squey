@@ -25,8 +25,10 @@ public:
 	bool get_custom_formats(PVCore::PVArgument const& in, hash_formats &formats) const;
 
 protected:
-	
-	CLASS_REGISTRABLE(PVInputTypeDatabase)
+	mutable bool _is_custom_format;
+	mutable PVFormat _custom_format;
+
+	CLASS_REGISTRABLE_NOCOPY(PVInputTypeDatabase)
 };
 
 }

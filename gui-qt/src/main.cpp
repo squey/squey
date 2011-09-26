@@ -60,9 +60,11 @@ int main(int argc, char *argv[])
 
 	time_t t = time(NULL);
  	// PVLOG_INFO("Current time:%d\n", t);
+#if 0
 	if (t > SEPT_20) {
 		exit(42);
 	}
+#endif
 
 	QString locale = QLocale::system().name();
 	PVLOG_INFO("System locale: %s\n", qPrintable(locale));
@@ -85,7 +87,7 @@ int main(int argc, char *argv[])
 	QResource res_css(":/gui.css");
 	app.setStyleSheet(QString((const char *)res_css.data()));
 
-	wintitle = QString("Picviz Inspector ") + QString(PICVIZ_VERSION_STR);
+	wintitle = QString("Picviz Inspector ") + QString(PICVIZ_CURRENT_VERSION_STR);
 	pv_main_window.setWindowTitle(wintitle);
 
 	pv_main_window.show();

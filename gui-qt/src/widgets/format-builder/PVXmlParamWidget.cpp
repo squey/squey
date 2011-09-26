@@ -24,7 +24,10 @@
  * PVInspector::PVXmlParamWidget::PVXmlParamWidget
  *
  *****************************************************************************/
-PVInspector::PVXmlParamWidget::PVXmlParamWidget() : QWidget() {
+PVInspector::PVXmlParamWidget::PVXmlParamWidget(PVXmlEditorWidget* parent) :
+	QWidget(),
+	_parent(parent)
+{
     layout = new QVBoxLayout();
     setObjectName("PVXmlParamWidget");
 
@@ -71,7 +74,7 @@ void PVInspector::PVXmlParamWidget::drawForNo(QModelIndex) {
  *
  *****************************************************************************/
 void PVInspector::PVXmlParamWidget::drawForAxis(PVRush::PVXmlTreeNodeDom *nodeOnClick) {
-    PVXmlParamWidgetBoardAxis *axisboard = new PVXmlParamWidgetBoardAxis(nodeOnClick);
+    PVXmlParamWidgetBoardAxis *axisboard = new PVXmlParamWidgetBoardAxis(nodeOnClick, this);
     lesWidgetDuLayout.push_back(axisboard);
     layout->addWidget(axisboard);
     connect(axisboard, SIGNAL(signalRefreshView()), this, SLOT(slotEmitNeedApply()));
@@ -89,7 +92,7 @@ void PVInspector::PVXmlParamWidget::drawForAxis(PVRush::PVXmlTreeNodeDom *nodeOn
  *****************************************************************************/
 void PVInspector::PVXmlParamWidget::drawForFilter(PVRush::PVXmlTreeNodeDom *nodeFilter) {
   
-    PVXmlParamWidgetBoardFilter *filterboard = new PVXmlParamWidgetBoardFilter(nodeFilter);
+    PVXmlParamWidgetBoardFilter *filterboard = new PVXmlParamWidgetBoardFilter(nodeFilter, this);
     lesWidgetDuLayout.push_back(filterboard);
     layout->addWidget(filterboard);
     connect(filterboard, SIGNAL(signalRefreshView()), this, SLOT(slotEmitNeedApply()));
@@ -107,7 +110,7 @@ void PVInspector::PVXmlParamWidget::drawForFilter(PVRush::PVXmlTreeNodeDom *node
  *
  *****************************************************************************/
 void PVInspector::PVXmlParamWidget::drawForRegEx(PVRush::PVXmlTreeNodeDom *nodeSplitter) {
-    PVXmlParamWidgetBoardSplitterRegEx *regExpBoard = new PVXmlParamWidgetBoardSplitterRegEx(nodeSplitter);
+    PVXmlParamWidgetBoardSplitterRegEx *regExpBoard = new PVXmlParamWidgetBoardSplitterRegEx(nodeSplitter, this);
 	// AG: yes, that's a saturday morning hack
 	regExpBoard->setData(nodeSplitter->getDataForRegexp());
     lesWidgetDuLayout.push_back(regExpBoard);

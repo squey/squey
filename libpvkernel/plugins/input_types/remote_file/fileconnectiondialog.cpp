@@ -1,6 +1,6 @@
-#include <logviewer/fileconnectiondialog.h>
-#include <logviewer/logviewerwidget.h>
-#include <logviewer/logviewerwidget_p.h>
+#include "include/fileconnectiondialog.h"
+#include "include/logviewerwidget.h"
+#include "include/logviewerwidget_p.h"
 
 #include <QVBoxLayout>
 #include <QDialogButtonBox>

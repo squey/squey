@@ -13,23 +13,12 @@
 
 #include "types.h"
 #include "export.h"
+#include "version.h"
 
 static QSettings pvconfig(QString("pvconfig.ini"), QSettings::IniFormat);
 
 #define PICVIZ_ORGANISATION "Picviz Labs"
-#define PICVIZ_APPLICATIONAME "Picviz Inspector"
-
-#define PICVIZ_VERSION_STR "2.1.0"
-/*
- * PVCORE_VERSION is (major << 16) + (minor << 8) + patch.
- */
-/* #define PVCORE_VERSION 0x010102 for 1.1.2 */
-#define PVCORE_VERSION 0x020100
-
-/*
- * Use it like this: if (PVCORE_VERSION >= PVCORE_VERSION_CHECK(1, 1, 2))
- */
-#define PVCORE_VERSION_CHECK(major, minor, patch) ((major<<16)|(minor<<8)|(patch))
+#define PICVIZ_APPLICATIONNAME "Picviz Inspector"
 
 
 #define PVCORE_QVARIANT_METATYPE_HEIGHT 30
@@ -50,9 +39,6 @@ static QSettings pvconfig(QString("pvconfig.ini"), QSettings::IniFormat);
 
 #define FORMATBUILDER_EXTRACT_START_DEFAULT 0
 #define FORMATBUILDER_EXTRACT_END_DEFAULT 100
-
-#define PVFORMAT_NUMBER_FIELD_URL 6
-#define PVFORMAT_NUMBER_FIELD_PCAP 8
 
 #define PICVIZ_AUTOMATIC_FORMAT_STR "automatic"
 

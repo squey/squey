@@ -24,10 +24,9 @@ public:
 	float* operator()(PVRush::PVNraw::nraw_table_line const& values);
 
 protected:
-	typedef QHash<QString, int> hash_values;
+	typedef QHash<QString, QVariant> hash_values;
 protected:
 	uint64_t _poscount;
-	hash_values _enum_hash;
 
 	CLASS_FILTER(PVMappingFilterEnumDefault)
 };

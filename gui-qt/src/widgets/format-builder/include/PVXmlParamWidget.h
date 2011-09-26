@@ -34,6 +34,8 @@
 //#include "include/NodeDom.h"
 
 namespace PVInspector{
+class PVXmlEditorWidget;
+
 class PVXmlParamWidget: public QWidget {
     Q_OBJECT
    
@@ -42,7 +44,7 @@ public:
         filterParam, splitterParam, no
     };
     
-    PVXmlParamWidget();
+    PVXmlParamWidget(PVXmlEditorWidget* parent);
 
     virtual ~PVXmlParamWidget();
 
@@ -103,6 +105,8 @@ public:
      * @return 
      */
     QWidget *getParamWidgetByName(QString nameParam);
+
+	PVXmlEditorWidget* parent() { return _parent; }
     
     
 private:
@@ -111,6 +115,7 @@ private:
     QList<QVariant*> listOfParam;
     QList<QWidget *> lesWidgetDuLayout;
     QPushButton *btnApply;
+	PVXmlEditorWidget* _parent;
     QString pluginListURL;
     //bool confirmApply;
     PVRush::PVXmlTreeNodeDom  *nodeConfirmApply;

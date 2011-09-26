@@ -6,6 +6,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include <QBoxLayout>
+#include <QCheckBox>
 #include <QLabel>
 #include <QObject>
 #include <QAction>
@@ -32,6 +33,7 @@ private:
     QTextEdit *validator_textEdit;
     QTableWidget *table_validator_TableWidget;
     QPushButton *btn_apply;
+	QCheckBox* fullline_checkBox;
     
     bool expressionChanged;
     
@@ -57,6 +59,7 @@ public:
 public slots:
     void slotUpdateTableValidator();
     void slotExpressionChanged();
+	void slotFullineChanged(int state);
 
 signals:
     void data_changed();

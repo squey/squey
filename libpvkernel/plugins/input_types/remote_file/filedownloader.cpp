@@ -1,5 +1,5 @@
-#include <logviewer/filedownloader.h>
-#include <logviewer/logviewer_config.h>
+#include "include/filedownloader.h"
+#include "include/logviewer_config.h"
 #include <curl/curl.h>
 
 #include <QTemporaryFile>

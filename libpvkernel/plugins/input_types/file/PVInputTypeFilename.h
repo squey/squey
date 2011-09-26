@@ -28,7 +28,7 @@ protected:
 	mutable QStringList _tmp_dir_to_delete;
 	int _limit_nfds;
 	
-	CLASS_REGISTRABLE(PVInputTypeFilename)
+	CLASS_REGISTRABLE_NOCOPY(PVInputTypeFilename)
 };
 
 }

@@ -51,6 +51,7 @@ endif()
 # Application specific definitions
 #
 add_definitions(-DCUSTOMER_RELEASE)
+add_definitions(-DCUSTOMER_NAME="dev")
 
 if(WIN32)
 	add_definitions(-DWIN32)

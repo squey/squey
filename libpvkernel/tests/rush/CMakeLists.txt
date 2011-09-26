@@ -30,6 +30,8 @@ add_test(TestAggregator diff_stdout.py test-files/aggregator/set2.out test-files
 # Test the aggregator in strict mode
 add_executable(Trush_agg_strict agg_strict.cpp helpers.cpp)
 target_link_libraries(Trush_agg_strict ${LINK_LIBRARIES})
+add_test(TestAggregatorStrict diff_stdout.py test-files/aggregator/set1.strict.out test-files/aggregator/set1.strict.diff ./Trush_agg_strict 6000 test-files/aggregator/set1)
+add_test(TestAggregatorStrict diff_stdout.py test-files/aggregator/set2.strict.out test-files/aggregator/set2.strict.diff ./Trush_agg_strict 6000 test-files/aggregator/set2)
 
 # Test the controller
 
@@ -117,3 +119,7 @@ target_link_libraries(Trush_filter_guess ${LINK_LIBRARIES})
 add_executable(Trush_parser parser.cpp)
 target_link_libraries(Trush_parser ${LINK_LIBRARIES})
 add_test(TestParser Trush_parser)
+
+# Format conversion
+add_executable(Trush_format_conv format_conv.cpp)
+target_link_libraries(Trush_format_conv ${LINK_LIBRARIES})

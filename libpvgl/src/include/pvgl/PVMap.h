@@ -13,7 +13,7 @@
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 
-#include <picviz/PVView.h>
+#include <picviz/PVView_types.h>
 
 #include <pvgl/PVWidget.h>
 #include <pvgl/PVUtils.h>

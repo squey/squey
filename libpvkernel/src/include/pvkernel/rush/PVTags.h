@@ -8,8 +8,7 @@
 #ifndef PVCORE_PVTAG_H
 #define PVCORE_PVTAG_H
 
-#include <vector>
-
+#include <QSet>
 #include <QString>
 
 #include <pvkernel/core/general.h>
@@ -26,22 +25,19 @@
  */
 
 namespace PVRush {
-class LibKernelDecl PVTag{
+class LibKernelDecl PVTags {
 
  private:
-	std::vector<QString> _tags;
-	static std::vector<QString> _default_tags;
-	
- /* protected: */
-	
+	QSet<QString> _tags;
 
  public:
-	PVTag();
-	~PVTag();
+	PVTags();
+	~PVTags();
 	
-	bool add_tag(QString tag);
+	void add_tag(QString tag);
 	bool del_tag(QString tag);
-	bool has_tag(QString tag);
+	bool has_tag(QString tag) const;
+	QSet<QString> const& list() const { return _tags; }
 };
 }
 

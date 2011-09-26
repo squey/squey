@@ -31,13 +31,19 @@
 #include <PVXmlParamComboBox.h>
 #include <PVXmlParamColorDialog.h>
 #include <picviz/plugins.h>
+#include <picviz/PVLayerFilter.h>
+
 namespace PVInspector{
+
+class PVXmlParamWidget;
+
 class PVXmlParamWidgetBoardAxis : public QWidget {
     Q_OBJECT
 public:
-    PVXmlParamWidgetBoardAxis(PVRush::PVXmlTreeNodeDom *pNode);
+    PVXmlParamWidgetBoardAxis(PVRush::PVXmlTreeNodeDom *pNode, PVXmlParamWidget* parent);
     virtual ~PVXmlParamWidgetBoardAxis();
     QWidget *getWidgetToFocus();
+	PVXmlParamWidget* parent() { return _parent; }
     
   private:
     void allocBoardFields();
@@ -49,15 +55,16 @@ public:
     void initValue();
     void setHelp();
 	void checkMappingTimeFormat();
-    
-    
+	void setComboGroup();
+	void setComboTag();
     
     QStringList listType() const;
     QStringList getListTypeMapping(const QString& mType);
     QStringList getListTypePlotting(const QString& mType);
+	QSet<QString> getListTags();
+	QSet<QString> getListParentSplitterTag();
     
-    
-    
+	QString get_current_tag();
     /***************************  board items **********************/
     //***** tab general ***** 
     QTabWidget *tabParam;
@@ -66,6 +73,8 @@ public:
     PVXmlParamComboBox * mapPlotType;
     PVXmlParamComboBox * comboMapping;
     PVXmlParamComboBox * comboPlotting;
+	PVXmlParamComboBox * comboGroup;
+	PVXmlParamComboBox * comboTag;
     
     //***** tab time format ***** 
     QLabel *timeFormatLabel;
@@ -76,6 +85,8 @@ public:
     QTextEdit *helpTimeFormat;
     PVXmlParamTextEdit *timeSample;
     QCheckBox *useParentRegExpValue;
+	QPushButton* btnGroupAdd;
+	QPushButton* btnTagHelp;
     
     //***** tab param ***** 
     PVXmlParamComboBox * comboKey;
@@ -97,6 +108,8 @@ public:
     //editing node
     PVRush::PVXmlTreeNodeDom *node;
     QString pluginListURL;
+
+	PVXmlParamWidget* _parent;
     
 public slots:
     void slotGoNextAxis();
@@ -105,6 +118,8 @@ public slots:
     void updateDateValidation();
     //void slotSetVisibleExtra(bool flag);
     void slotSetVisibleTimeValid(bool flag);
+	void slotAddGroup();
+	void slotShowTagHelp();
     
     signals:
     void signalRefreshView();

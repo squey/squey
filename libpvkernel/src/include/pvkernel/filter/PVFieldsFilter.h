@@ -11,12 +11,14 @@
 #include <pvkernel/core/PVElement.h>
 #include <pvkernel/core/PVChunk.h>
 #include <pvkernel/core/PVField.h>
+#include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/filter/PVFilterFunction.h>
 #include <map>
 #include <list>
 #include <vector>
 #include <utility>
 #include <QString>
+#include <QHash>
 
 namespace PVFilter {
 
@@ -27,7 +29,8 @@ enum fields_filter_type {
 };
 
 typedef std::list< std::pair<PVCore::PVArgumentList, PVCore::list_fields> > list_guess_result_t;
-typedef std::vector<QString> filter_child_axes_tag_t;
+// Associate the tags to their columns
+typedef QHash<QString, PVCol> filter_child_axes_tag_t;
 
 class PVFieldsBaseFilter: public PVFilterFunction< PVCore::list_fields, PVFieldsBaseFilter >
 {
@@ -40,11 +43,11 @@ public:
 	{
 	}
 
-	void set_children_axes_tag(filter_child_axes_tag_t const& axes)
+	virtual void set_children_axes_tag(filter_child_axes_tag_t const& axes)
 	{
 		filter_child_axes_tag_t::const_iterator it;
 		for (it = axes.begin(); it != axes.end(); it++) {
-			PVLOG_DEBUG("(PVFieldsFilter) axis tag %s set.\n", qPrintable(*it));
+			PVLOG_DEBUG("(PVFieldsFilter) axis tag %s set for col .\n", qPrintable(it.key()), it.value());
 		}
 		_axes_tag = axes;
 	}
@@ -52,7 +55,13 @@ public:
 protected:
 	bool is_tag_present(QString const& tag)
 	{
-		return std::find(_axes_tag.begin(), _axes_tag.end(), tag) != _axes_tag.end();
+		return _axes_tag.contains(tag);
+	}
+
+	PVCol get_col_for_tag(QString const& tag)
+	{
+		assert(_axes_tag.contains(tag));
+		return _axes_tag[tag];
 	}
 
 protected:
@@ -153,6 +162,9 @@ LibKernelDeclExplicitTempl PVFilter::PVFieldsFilter<PVFilter::one_to_many>;
 LibKernelDeclExplicitTempl PVFilter::PVFieldsFilter<PVFilter::one_to_one>;
 LibKernelDeclExplicitTempl PVFilter::PVFieldsFilter<PVFilter::many_to_many>;
 #endif
+
+typedef PVCore::PVClassLibrary<PVFieldsSplitter>::tag PVFieldsSplitterTag;
+typedef PVCore::PVClassLibrary<PVFieldsSplitter>::list_tags PVFieldsSplitterListTags;
 
 }
 

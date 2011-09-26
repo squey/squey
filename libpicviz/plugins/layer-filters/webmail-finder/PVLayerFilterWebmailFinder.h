@@ -22,6 +22,7 @@ public:
 	PVLayerFilterWebmailFinder(PVCore::PVArgumentList const& l = PVLayerFilterWebmailFinder::default_args());
 public:
 	virtual void operator()(PVLayer& in, PVLayer &out);
+	PVCore::PVArgumentList get_default_args_for_view(PVView const& view);
 
 	CLASS_FILTER(Picviz::PVLayerFilterWebmailFinder)
 

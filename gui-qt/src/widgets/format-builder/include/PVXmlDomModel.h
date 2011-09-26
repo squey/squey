@@ -13,17 +13,16 @@
 #include <QFile>
 #include <QMessageBox>
 #include <QTextStream>
-#include <Qt>
 #include <iostream>
 #include <QDebug>
 #include <QString>
+#include <QSet>
 
 #include <pvkernel/rush/PVXmlTreeNodeDom.h>
 #include <PVXmlParamWidget.h>
 #include <pvkernel/rush/PVXmlParamParser.h>
 #include <pvkernel/filter/PVFieldsFilterParamWidget.h>
 
-#define FORMAT_VERSION 1
 
 #define message(string){QMessageBox qb;   qb.setText(string);    qb.exec();} 
 //#define dbg {qDebug()<<__FILE__<<__LINE__;}
@@ -33,11 +32,6 @@ class PVXmlDomModel: public QAbstractItemModel {
     Q_OBJECT
 public:
     PVXmlDomModel(QWidget * parent = NULL);
-    
-    /**
-     * @param url path of the XML file
-     */
-    PVXmlDomModel(QString url);
     virtual ~PVXmlDomModel();
     
     
@@ -122,7 +116,8 @@ public:
     
     
     //open a pcre
-    bool openXml(QString);
+    bool openXml(QString file);
+	void openXml(QDomDocument& doc);
     
     //identify multi axis or splitter in a field
     bool trustConfictSplitAxes(const QModelIndex &index);
@@ -141,6 +136,8 @@ public:
 	void updateFieldsLinearId();
 	void updateFiltersDataDisplay();
 	void setAxesNames(QStringList const& names);
+
+	PVRush::types_groups_t& getGroups() { return _groups; }
     
 private:
 	static void setDefaultAttributesForAxis(QDomElement& elt);
@@ -151,6 +148,9 @@ private:
     QString urlXml;
     QDomDocument xmlFile;
     QDomElement xmlRootDom;
+
+	// types_groups_t defined in pvkernel/rush/PVXmlTreeNodeDom.h
+	PVRush::types_groups_t _groups;
     
     
 public slots:

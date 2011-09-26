@@ -25,6 +25,7 @@
  *
  *****************************************************************************/
 Picviz::PVView::PVView(PVPlotted_p parent) :
+	axes_combination(parent->get_source_parent()->axes_combination),
 	pre_filter_layer("pre_filter_layer"),
 	post_filter_layer("post_filter_layer"),
 	layer_stack_output_layer("view_layer_stack_output_layer"),
@@ -44,8 +45,6 @@ Picviz::PVView::PVView(PVPlotted_p parent) :
 	name = "";
 
 	source = get_source_parent();
-
-	axes_combination = source->axes_combination;
 
 	active_axis = 0;
 
@@ -186,6 +185,30 @@ void Picviz::PVView::commit_to_new_layer()
 	layer_stack.append_new_layer_from_selection_and_lines_properties(sel, lp);
 }
 
+void Picviz::PVView::commit_volatile_in_floating_selection()
+{
+	switch (state_machine->get_square_area_mode()) {
+		case Picviz::PVStateMachine::AREA_MODE_ADD_VOLATILE:
+			floating_selection |= volatile_selection;
+			break;
+
+		case Picviz::PVStateMachine::AREA_MODE_INTERSECT_VOLATILE:
+			floating_selection &= volatile_selection;
+			break;
+
+		case Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE:
+			floating_selection = volatile_selection;
+			break;
+
+		case Picviz::PVStateMachine::AREA_MODE_SUBSTRACT_VOLATILE:
+			floating_selection -= volatile_selection;
+			break;
+
+		case Picviz::PVStateMachine::AREA_MODE_OFF:
+			;
+	}
+}
+
 /******************************************************************************
  *
  * Picviz::PVView::debug
@@ -201,7 +224,7 @@ void Picviz::PVView::debug()
  * Picviz::PVView::get_axes_count
  *
  *****************************************************************************/
-int Picviz::PVView::get_axes_count()
+PVCol Picviz::PVView::get_axes_count()
 {
 	return axes_combination.get_axes_count();
 }
@@ -258,6 +281,7 @@ PVCol Picviz::PVView::get_column_count()
  *****************************************************************************/
 float Picviz::PVView::get_column_count_as_float()
 {
+	// AG: why?
 	return (float)get_column_count();
 }
 
@@ -838,7 +862,7 @@ void Picviz::PVView::process_from_layer_stack()
  *****************************************************************************/
 void Picviz::PVView::process_from_selection()
 {
-        PVLOG_DEBUG("Picviz::PVView::%s\n",__FUNCTION__);
+	PVLOG_DEBUG("Picviz::PVView::%s\n",__FUNCTION__);
 	process_selection();
 	process_filter();
 	process_eventline();
@@ -1434,10 +1458,25 @@ void Picviz::PVView::recreate_mapping_plotting()
 
 void Picviz::PVView::select_all_nonzb_lines()
 {
+	state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
 	volatile_selection.select_all();
-	floating_selection.select_all();
-	/* We deactivate the square area */
-	state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_OFF);
-	/* We process the view from the selection */
+	process_from_selection();
+}
+
+void Picviz::PVView::select_no_line()
+{
+	// Set square area mode w/ volatile
+	state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
+	volatile_selection.select_none();
+	process_from_selection();
+}
+
+void Picviz::PVView::select_inv_lines()
+{
+	// Commit current volatile selection
+	commit_volatile_in_floating_selection();
+	// Set square area mode w/ volatile
+	state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
+	volatile_selection = ~floating_selection;
 	process_from_selection();
 }

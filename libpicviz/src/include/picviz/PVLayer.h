@@ -13,7 +13,7 @@
 
 #include <picviz/PVLinesProperties.h>
 #include <picviz/PVSelection.h>
-
+#include <picviz/PVLayer_types.h>
 
 #define PICVIZ_LAYER_NAME_MAXLEN 1000
 
@@ -63,22 +63,7 @@ public:
 	void set_visible(bool visible_) {visible = visible_;}
 
 };
+
 }
 
 #endif /* PICVIZ_PVLAYER_H */
-
-
-
-/*
-
-
-
-enum _picviz_layer_mode_t {
-	PICVIZ_LAYER_NORMAL,
-	PICVIZ_LAYER_DIFFERENCE,
-	PICVIZ_LAYER_ADDITION,
-	PICVIZ_LAYER_SUBSTRACT,
-};
-typedef enum _picviz_layer_mode_t picviz_layer_mode_t;
-
-*/

@@ -31,7 +31,6 @@
 #include <pvgl/PVGLThread.h>
 
 #include <PVAxisPropertiesWidget.h>
-#include <PVColorDialog.h>
 #include <PVDualSlider.h>
 #include <PVExportSelectionDialog.h>
 #include <PVFilterWidget.h>
@@ -70,7 +69,7 @@ public:
 // XXX		picviz_datatreerootitem_t *datatree;
 
 	PVAxisPropertiesWidget *pv_AxisProperties;
-	PVColorDialog *pv_ColorDialog;
+	//PVColorDialog *pv_ColorDialog;
 
 	PVFilterWidget *pv_FilterWidget;
 
@@ -159,6 +158,11 @@ public slots:
 	void check_messages();	/* SLOT? NOT SLOT? */
 	void update_reply_finished_Slot(QNetworkReply *reply);
 	void whats_this_Slot();
+	// Called by input_type plugins to edit a format.
+	// Not an elegant solution, must find better.
+	void edit_format_Slot(QString const& path, QWidget* parent);
+	void edit_format_Slot(QDomDocument& doc, QWidget* parent);
+	void set_color_selected(QColor const& color);
 
 	void display_icon_Slot();
 
@@ -225,11 +229,18 @@ private:
 	QAction *view_show_new_Action;
 	QAction *view_new_scatter_Action;
 	QAction *whats_this_Action;
-
-	QWidget *pv_centralWidget;
+	
+	QSpacerItem* pv_mainSpacerTop;
+	QSpacerItem* pv_mainSpacerBottom;
+	QWidget *pv_centralStartWidget;
+	QWidget *pv_centralMainWidget;
+	QStackedWidget* pv_centralWidget;
 	QVBoxLayout *pv_mainLayout;
+	QVBoxLayout *pv_startLayout;
 	QLabel *pv_labelWelcomeIcon;
 	QPixmap  *pv_welcomeIcon;
+	QLabel* pv_lastCurVersion; 
+	QLabel* pv_lastMajVersion; 
 
 	QPushButton *pv_ImportFileButton;
 
@@ -238,6 +249,9 @@ protected:
 	void keyPressEvent(QKeyEvent *event);
 	int update_check();
 	void treat_invalid_formats(QHash<QString, std::pair<QString,QString> > const& errors);
+	PVTabSplitter* get_tab_from_view(Picviz::PVView_p picviz_view);
+	void show_start_page(bool visible);
+	void set_version_informations();
 
 signals:
 	void change_of_current_view_Signal();
@@ -264,6 +278,10 @@ public:
 
 private:
 	tbb::task_scheduler_init init_parallel;
+
+private:
+	version_t _last_known_cur_release;
+	version_t _last_known_maj_release;
 };
 }
 

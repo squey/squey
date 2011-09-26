@@ -30,6 +30,7 @@ void Picviz::PVAxis::init()
 	is_expandable = true;
 	is_expanded = false;
 	thickness = 1.0;
+
 }
 
 /******************************************************************************

@@ -25,6 +25,7 @@
 #include <PVStringListChooserWidget.h>
 #include <PVArgumentListWidget.h>
 #include <PVInputTypeMenuEntries.h>
+#include <PVColorDialog.h>
 //#include <geo/GKMapView.h>
 
 #ifdef CUSTOMER_RELEASE
@@ -38,6 +39,7 @@
 #include <pvkernel/core/PVAxisIndexType.h>
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/PVMeanValue.h>
+#include <pvkernel/core/PVVersion.h>
 
 #include <pvkernel/rush/PVInput.h>
 #include <pvkernel/rush/PVNormalizer.h>
@@ -100,10 +102,6 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 	pv_AxisProperties = new PVAxisPropertiesWidget(this);
 	pv_AxisProperties->hide();
 
-	pv_ColorDialog = new PVColorDialog(this);
-	pv_ColorDialog->setOption(QColorDialog::ShowAlphaChannel, true);
-	pv_ColorDialog->hide();
-
 	pv_ExportSelectionDialog = new PVExportSelectionDialog(this);
 	pv_ExportSelectionDialog->hide();
 	root = Picviz::PVRoot_p(new Picviz::PVRoot());
@@ -113,15 +111,6 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 	pv_ImportFileDialog = new PVImportFileDialog(this);
 	pv_ImportFileDialog->hide();
 
-	// pv_FilterSearchWidget = new PVInspector::PVFilterSearchWidget(this);
-	// pv_FilterSearchWidget->hide();
-				// pv_RemoteLog = new LogViewerWidget(this);
-	// pv_RemoteLog->resize(500,60);
-	// // pv_RemoteLog->hide();
-
-//	pv_MapWidget = new PVMapWidget(this);
-	//pv_MapWidget->hide();
-
 	pv_OpenFileDialog = new PVOpenFileDialog(this);
 	pv_OpenFileDialog->hide();
 
@@ -129,14 +118,14 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 	pv_SaveFileDialog->hide();
 
 
-	pv_ListingsTabWidget = new PVListingsTabWidget(this, this);
+	pv_ListingsTabWidget = new PVListingsTabWidget(this);
 
 
 	// We display the PV Icon together with a button to import files
-	pv_centralWidget = new QWidget(this);
+	pv_centralStartWidget = new QWidget();
+	pv_centralMainWidget = new QWidget();
 
 	pv_mainLayout = new QVBoxLayout();
-	pv_mainLayout->setAlignment(Qt::AlignCenter);
 	pv_mainLayout->setSpacing(40);
 	pv_mainLayout->setContentsMargins(0,0,0,0);
 
@@ -151,12 +140,51 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 	connect(pv_ImportFileButton, SIGNAL(clicked()), this, SLOT(import_type_default_Slot()));
 	connect(pv_ListingsTabWidget, SIGNAL(is_empty()), this, SLOT(display_icon_Slot()) );
 
-	pv_mainLayout->addWidget(pv_labelWelcomeIcon);
-	pv_mainLayout->addWidget(pv_ImportFileButton);
 	pv_mainLayout->addWidget(pv_ListingsTabWidget);
+
+	pv_startLayout = new QVBoxLayout();
+	pv_startLayout->addItem(new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding));
+	QVBoxLayout* centerLayout = new QVBoxLayout();
+	centerLayout->setAlignment(Qt::AlignHCenter);
+	centerLayout->addWidget(pv_labelWelcomeIcon);
+	centerLayout->addWidget(pv_ImportFileButton);
+	pv_startLayout->addLayout(centerLayout);
+	pv_startLayout->addItem(new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding));
+
+	QGridLayout* versionLayout = new QGridLayout();
+	QLabel* label = new QLabel(tr("Current version") + QString(" :"));
+	label->setAlignment(Qt::AlignRight);
+	versionLayout->addWidget(label, 0, 0);
+	label = new QLabel(QString(PICVIZ_CURRENT_VERSION_STR));
+	label->setAlignment(Qt::AlignRight);
+	versionLayout->addWidget(label, 0, 2);
+	label = new QLabel(tr("Last version of the %1.%2 branch").arg(PICVIZ_CURRENT_VERSION_MAJOR).arg(PICVIZ_CURRENT_VERSION_MINOR) + QString(" :"));
+	label->setAlignment(Qt::AlignRight);
+	versionLayout->addWidget(label, 2, 0);
+	pv_lastCurVersion = new QLabel("N/A");
+	pv_lastCurVersion->setAlignment(Qt::AlignRight);
+	versionLayout->addWidget(pv_lastCurVersion, 2, 2);
+	label = new QLabel(tr("Last major version") + QString(" :"));
+	label->setAlignment(Qt::AlignRight);
+	versionLayout->addWidget(label, 4, 0);
+	pv_lastMajVersion = new QLabel("N/A");
+	pv_lastMajVersion->setAlignment(Qt::AlignRight);
+	versionLayout->addWidget(pv_lastMajVersion, 4, 2);
+
+	QHBoxLayout* hboxVersionLayout = new QHBoxLayout();
+	hboxVersionLayout->addItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Minimum));
+	hboxVersionLayout->addLayout(versionLayout);
+
+	pv_startLayout->addLayout(hboxVersionLayout);
 	
-	pv_ListingsTabWidget->hide();
-	pv_centralWidget->setLayout(pv_mainLayout);
+	pv_centralStartWidget->setLayout(pv_startLayout);
+	pv_centralMainWidget->setLayout(pv_mainLayout);
+
+	pv_centralWidget = new QStackedWidget();
+	pv_centralWidget->addWidget(pv_centralStartWidget);
+	pv_centralWidget->addWidget(pv_centralMainWidget);
+	pv_centralWidget->setCurrentWidget(pv_centralStartWidget);
+
 	setCentralWidget(pv_centralWidget);
 
 	pv_ListingsTabWidget->setFocus(Qt::OtherFocusReason);
@@ -172,8 +200,6 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 	connect_widgets();
 	menu_activate_is_file_opened(false);
 	
-	update_check();
-
 	create_pvgl_thread ();
 
 	statusBar();
@@ -187,6 +213,12 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 	QRect r = geometry();
 	r.moveCenter(QApplication::desktop()->screenGeometry(this).center());
 	setGeometry(r);
+
+	// Load version informations
+	_last_known_cur_release = pvconfig.value(PVCONFIG_LAST_KNOWN_CUR_RELEASE, PICVIZ_VERSION_INVALID).toUInt();
+	_last_known_maj_release = pvconfig.value(PVCONFIG_LAST_KNOWN_MAJ_RELEASE, PICVIZ_VERSION_INVALID).toUInt();
+
+	update_check();
 }
 
 void PVInspector::PVMainWindow::closeEvent(QCloseEvent* event)
@@ -209,39 +241,43 @@ void PVInspector::PVMainWindow::check_messages()
 	
 	PVSDK::PVMessage message;
 	if (pvsdk_messenger->get_message_for_qt(message)) {
+		PVTabSplitter* tab_view = get_tab_from_view(message.pv_view);
 		//PVLOG_INFO("PVInspector::PVMainWindow::check_messages()\n");
 		switch (message.function) {
 			case PVSDK_MESSENGER_FUNCTION_CLEAR_SELECTION:
 				{
 					/* FIXME !!!! We've killed the Listing window! pv_ListingWindow->pv_listing_view->clearSelection();*/
-					if (!current_tab)
+					if (!tab_view) {
 						break;
-					//PVLOG_INFO("PVInspector::PVMainWindow::check_messages : PVSDK_MESSENGER_FUNCTION_CLEAR_SELECTION\n");
-					current_tab->refresh_listing_Slot();
-					current_tab->repaint(0,0,-1,-1);
+					}
+					//PVLOG_INFO("PVInspector::PVMainWindow::check_messages : PVGL_COM_FUNCTION_CLEAR_SELECTION\n");
+					tab_view->refresh_listing_Slot();
+					tab_view->repaint(0,0,-1,-1);
 					break;
 				}
 			case PVSDK_MESSENGER_FUNCTION_REFRESH_LISTING:
 				{
 					//PVLOG_INFO("PVInspector::PVMainWindow::check_messages : PVSDK_MESSENGER_FUNCTION_REFRESH_LISTING\n");
 					message.pv_view->process_visibility();
-					if (!current_tab)
+					if (!tab_view) {
 						break;
-					current_tab->refresh_listing_with_horizontal_header_Slot();
-					current_tab->update_pv_listing_model_Slot();
-					current_tab->refresh_listing_Slot();
+					}
+					tab_view->refresh_listing_with_horizontal_header_Slot();
+					tab_view->update_pv_listing_model_Slot();
+					tab_view->refresh_listing_Slot();
 					break;
 				}
 			case PVSDK_MESSENGER_FUNCTION_SELECTION_CHANGED:
 				{
 					// FIXME DDX! update_row_count_in_all_dynamic_listing_model_Slot();
-					//PVLOG_INFO("PVInspector::PVMainWindow::check_messages : PVSDK_MESSENGER_FUNCTION_SELECTION_CHANGED\n");
-					if (!current_tab)
+					//PVLOG_INFO("PVInspector::PVMainWindow::check_messages : PVGL_COM_FUNCTION_SELECTION_CHANGED\n");
+					if (!tab_view) {
 						break;
-					current_tab->selection_changed_Slot();
-					current_tab->refresh_listing_with_horizontal_header_Slot();
-					current_tab->update_pv_listing_model_Slot();
-					current_tab->refresh_listing_Slot();
+					}
+					tab_view->selection_changed_Slot();
+					tab_view->refresh_listing_with_horizontal_header_Slot();
+					tab_view->update_pv_listing_model_Slot();
+					tab_view->refresh_listing_Slot();
 					break;
 				}
 			case PVSDK_MESSENGER_FUNCTION_REPORT_CHOOSE_FILENAME:
@@ -306,16 +342,16 @@ void PVInspector::PVMainWindow::check_messages()
 					break;
 			case PVSDK_MESSENGER_FUNCTION_SCREENSHOT_CHOOSE_FILENAME:
 						{
-							if (!current_tab)
+							if (!tab_view)
 								break;
 
 							QString initial_path = QDir::currentPath();
 
 							QString screenshot_filename;
-							screenshot_filename = current_tab->get_src_name() + QString("_") + current_tab->get_src_type();
+							screenshot_filename = tab_view->get_src_name() + QString("_") + current_tab->get_src_type();
 							screenshot_filename.append("_%1.png");
-							screenshot_filename = screenshot_filename.arg(current_tab->get_screenshot_index(), 3, 10, QString("0")[0]);
-							current_tab->increment_screenshot_index();
+							screenshot_filename = screenshot_filename.arg(tab_view->get_screenshot_index(), 3, 10, QString("0")[0]);
+							tab_view->increment_screenshot_index();
 							initial_path += "/" + screenshot_filename;
 
 							QString *filename = new QString (QFileDialog::getSaveFileName(this, tr("Save Screenshot As"), initial_path, tr("PNG Files (*.png);;All Files (*)")));
@@ -382,6 +418,7 @@ void PVInspector::PVMainWindow::check_messages()
 					break;
 			default:
 					PVLOG_ERROR("%s: Unknow function in message: %d\n", __FUNCTION__, message.function);
+					break;
 		}
 	}
 }
@@ -405,20 +442,8 @@ void PVInspector::PVMainWindow::commit_selection_in_current_layer(Picviz::PVView
 	picviz_view->output_layer.get_lines_properties().A2B_copy_restricted_by_selection_and_nelts(current_selected_layer.get_lines_properties(), picviz_view->real_output_selection, picviz_view->row_count);
 	/* We need to process the view from the layer_stack */
 	picviz_view->process_from_layer_stack();
-	/* We refresh the PVView_p */
-	update_pvglview(picviz_view, PVSDK_MESSENGER_REFRESH_SELECTION);
-	/* We refresh the listing */
-	//FIXME! This should be done in a function
-	for (int i = 0; i < pv_ListingsTabWidget->count();i++) {
-		PVTabSplitter *tab = dynamic_cast<PVTabSplitter*>(pv_ListingsTabWidget->widget(i));
-		if (!tab) {
-			PVLOG_ERROR("PVInspector::PVMainWindow::%s: Tab isn't tab!!!\n", __FUNCTION__);
-		} else {
-			if (tab->get_lib_view() == picviz_view) {
-				tab->refresh_listing_Slot();
-			}
-		}
-	}
+
+	refresh_view(picviz_view);
 }
 
 /******************************************************************************
@@ -583,7 +608,6 @@ void PVInspector::PVMainWindow::create_filters_menu_and_actions()
 
 	LIB_CLASS(Picviz::PVLayerFilter) &filters_layer = 	LIB_CLASS(Picviz::PVLayerFilter)::get();
 	LIB_CLASS(Picviz::PVLayerFilter)::list_classes const& lf = filters_layer.get_list();
-	
 	LIB_CLASS(Picviz::PVLayerFilter)::list_classes::const_iterator it;
 
 	for (it = lf.begin(); it != lf.end(); it++) {
@@ -923,12 +947,21 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 	}
 
 	menu_activate_is_file_opened(true);
-	pv_labelWelcomeIcon->hide();
-	pv_ImportFileButton->hide();
+	show_start_page(false);
 	pv_ListingsTabWidget->setVisible(true);
 }
 
-void PVInspector::PVMainWindow::treat_invalid_formats(QHash<QString, std::pair<QString, QString> > const& errors)
+void PVInspector::PVMainWindow::show_start_page(bool visible)
+{
+	if (visible) {
+		pv_centralWidget->setCurrentWidget(pv_centralStartWidget);
+	}
+	else {
+		pv_centralWidget->setCurrentWidget(pv_centralMainWidget);
+	}
+}
+
+void PVInspector::PVMainWindow::treat_invalid_formats(QHash<QString, std::pair<QString,QString> > const& errors)
 {
 	if (errors.size() == 0) {
 		return;
@@ -988,8 +1021,7 @@ void PVInspector::PVMainWindow::treat_invalid_formats(QHash<QString, std::pair<Q
 
 void PVInspector::PVMainWindow::display_icon_Slot()
 {
-	pv_labelWelcomeIcon->setVisible(true);
-	pv_ImportFileButton->setVisible(true);
+	show_start_page(true);
 }
 
 void PVInspector::PVMainWindow::import_type_default_Slot()
@@ -1721,21 +1753,16 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
  *****************************************************************************/
 void PVInspector::PVMainWindow::refresh_view(Picviz::PVView_p picviz_view)
 {
-	for (int i = 0; i < pv_ListingsTabWidget->count();i++) {
-		PVTabSplitter *tab = dynamic_cast<PVTabSplitter*>(pv_ListingsTabWidget->widget(i));
-		if (!tab) {
-			PVLOG_ERROR("PVInspector::PVMainWindow::%s: Tab isn't tab!!!\n", __FUNCTION__);
-		} else {
-			if (tab->get_lib_view() == picviz_view) {
-				/* We refresh the layerstack */
-				tab->refresh_layer_stack_view_Slot();
-				/* We refresh the view */
-				update_pvglview(tab->get_lib_view(), PVSDK_MESSENGER_REFRESH_SELECTION);
-				/* We refresh the listing */
-				tab->refresh_listing_Slot();
-			}
-		}
+	PVTabSplitter* tab = get_tab_from_view(picviz_view);
+	if (!tab) {
+		return;
 	}
+	/* We refresh the layerstack */
+	tab->refresh_layer_stack_view_Slot();
+	/* We refresh the view */
+	update_pvglview(tab->get_lib_view(), PVSDK_MESSENGER_REFRESH_SELECTION);
+	/* We refresh the listing */
+	tab->refresh_listing_Slot();
 }
 
 /******************************************************************************
@@ -1745,21 +1772,49 @@ void PVInspector::PVMainWindow::refresh_view(Picviz::PVView_p picviz_view)
  *****************************************************************************/
 void PVInspector::PVMainWindow::set_color(Picviz::PVView_p picviz_view)
 {
-	/* VARIABLES */
+	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
+
+	PVTabSplitter* tab = get_tab_from_view(picviz_view);
+	if (!tab) {
+		PVLOG_ERROR("(PVMainWindow::set_color) Unable to find a tab that goes w/ the view %x.\n", picviz_view.get());
+		return;
+	}
+
+	/* We let the user select a color */
+	PVColorDialog* pv_ColorDialog = new PVColorDialog(picviz_view, this);
+	connect(pv_ColorDialog, SIGNAL(colorSelected(const QColor&)), this, SLOT(set_color_selected(const QColor&)));
+
+	pv_ColorDialog->show();
+	pv_ColorDialog->setFocus(Qt::PopupFocusReason);
+	pv_ColorDialog->raise();
+	pv_ColorDialog->activateWindow();
+}
+
+void PVInspector::PVMainWindow::set_color_selected(const QColor& color)
+{
+	if (!color.isValid()) {
+		return;
+	}
+
+	// Get the view associated w/ this color dialog
+	PVColorDialog* dlg = dynamic_cast<PVColorDialog*>(sender());
+	if (!dlg) {
+		PVLOG_ERROR("(PVMainWindow::set_color_selected) this slot has been called from an object different from PVColorDialog !\n");
+		return;
+	}
+	Picviz::PVView_p picviz_view = dlg->get_lib_view();
+
+	// Get the tab associated w/ this view
+	PVTabSplitter* tab = get_tab_from_view(picviz_view);
+	if (!tab) {
+		return;
+	}
+
+
 	unsigned char r;
 	unsigned char g;
 	unsigned char b;
 	unsigned char a;
-	QColor color;
-
-	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
-
-	/* We let the user select a color */
-	color = pv_ColorDialog->getColor(Qt::white, NULL, "Select a color...", QColorDialog::ShowAlphaChannel);
-	/* We test if the user canceled the dialog */
-	if ( ! color.isValid() ) {
-		return;
-	}
 
 	/* The user DID select a color... */
 	/* We get the color value */
@@ -1780,21 +1835,27 @@ void PVInspector::PVMainWindow::set_color(Picviz::PVView_p picviz_view)
 
 	/* We refresh the view */
 	update_pvglview(picviz_view, PVSDK_MESSENGER_REFRESH_COLOR);
-	//FIXME! This should be done in a function
+	tab->refresh_listing_Slot();
+
+	// And we commit to the current layer (cf. ticket #38)
+	commit_selection_in_current_layer(current_tab->get_lib_view());
+}
+
+PVInspector::PVTabSplitter* PVInspector::PVMainWindow::get_tab_from_view(Picviz::PVView_p picviz_view)
+{
+	// This returns the tab associated to a picviz view
 	for (int i = 0; i < pv_ListingsTabWidget->count();i++) {
 		PVTabSplitter *tab = dynamic_cast<PVTabSplitter*>(pv_ListingsTabWidget->widget(i));
 		if (!tab) {
 			PVLOG_ERROR("PVInspector::PVMainWindow::%s: Tab isn't tab!!!\n", __FUNCTION__);
 		} else {
 			if (tab->get_lib_view() == picviz_view) {
+				return tab;
 				/* We refresh the listing */
-				tab->refresh_listing_Slot();
 			}
 		}
 	}
-
-	// And we commit to the current layer (cf. ticket #38)
-	commit_selection_in_current_layer(current_tab->get_lib_view());
+	return NULL;
 }
 
 /******************************************************************************
@@ -1805,14 +1866,23 @@ void PVInspector::PVMainWindow::set_color(Picviz::PVView_p picviz_view)
 int PVInspector::PVMainWindow::update_check()
 {
 #ifdef CUSTOMER_RELEASE
+#ifndef CUSTOMER_NAME
+#error CUSTOMER_RELEASE is defined. You must set CUSTOMER_NAME.
+#endif
+	// If the user does not want us to check for new versions, just don't do it.
+	if (!pvconfig.value("check_new_versions", true).toBool()) {
+		return 1;
+	}
+
 	QNetworkAccessManager *manager = new QNetworkAccessManager(this);
 	QNetworkRequest request;
 
 	connect(manager, SIGNAL(finished(QNetworkReply*)),
 		this, SLOT(update_reply_finished_Slot(QNetworkReply*)));
 
-	request.setUrl(QUrl("http://www.picviz.com/update.html"));
-	request.setRawHeader("User-Agent", "Mozilla/5.0.1.15");
+	//request.setUrl(QUrl("http://www.picviz.com/update.html"));
+	request.setUrl(QUrl(PVCore::PVVersion::update_url()));
+	request.setRawHeader("User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:5.0) Gecko/20100101 Firefox/5.0 " CUSTOMER_NAME " PV/" PICVIZ_CURRENT_VERSION_STR);
 
 	manager->get(request);
 
@@ -1841,3 +1911,12 @@ void PVInspector::PVMainWindow::update_statemachine_label(Picviz::PVView_p view)
 	statemachine_label->setText(view->state_machine->get_string());
 }
 
+void PVInspector::PVMainWindow::set_version_informations()
+{
+	if (_last_known_cur_release != PICVIZ_VERSION_INVALID) {
+		pv_lastCurVersion->setText(PVCore::PVVersion::to_str(_last_known_cur_release));
+	}
+	if (_last_known_maj_release != PICVIZ_VERSION_INVALID) {
+		pv_lastMajVersion->setText(PVCore::PVVersion::to_str(_last_known_maj_release));
+	}
+}

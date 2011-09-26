@@ -5,25 +5,39 @@
 #include "../../common/database/PVDBInfos.h"
 
 PVRush::PVInputTypeDatabase::PVInputTypeDatabase() :
-	PVInputType()
+	PVInputType(),
+	_is_custom_format(false)
 {
 }
 
 bool PVRush::PVInputTypeDatabase::createWidget(hash_formats const& formats, list_inputs &inputs, QString& format, QWidget* parent) const
 {
-	PVDatabaseParamsWidget* params = new PVDatabaseParamsWidget(parent);
-	params->exec();
+	connect_parent(parent);
+	PVDatabaseParamsWidget* params = new PVDatabaseParamsWidget(this, formats, parent);
+	if (params->exec() == QDialog::Rejected) {
+		return false;
+	}
 
-	PVDBServ_p serv(new PVDBServ(PVDBInfos("QMYSQL3", "127.0.0.1", 3306, "picviz", "picviz", "bigdata")));
-	PVDBQuery query(serv, "select * from squid");
+	PVDBInfos infos;
+	params->get_dbinfos(infos);
+	PVDBServ_p serv(new PVDBServ(infos));
+	PVDBQuery query(serv, params->get_query());
 
 	QVariant in;
 	in.setValue(query);
 	inputs.push_back(in);
 
-	format = QString(PICVIZ_AUTOMATIC_FORMAT_STR);
+	if (params->is_format_custom()) {
+		format = "custom";
+		_is_custom_format = true;
+		_custom_format.populate_from_xml(params->get_custom_format().documentElement());
+	}
+	else {
+		_is_custom_format = false;
+		format = params->get_existing_format();
+	}
 
-	return inputs.size() > 0;
+	return true;
 }
 
 PVRush::PVInputTypeDatabase::~PVInputTypeDatabase()
@@ -58,7 +72,12 @@ QString PVRush::PVInputTypeDatabase::tab_name_of_inputs(list_inputs const& in) c
 
 bool PVRush::PVInputTypeDatabase::get_custom_formats(PVCore::PVArgument const& in, hash_formats &formats) const
 {
-	return false;
+	if (!_is_custom_format) {
+		return false;
+	}
+
+	formats["custom"] = _custom_format;
+	return true;
 }
 
 QKeySequence PVRush::PVInputTypeDatabase::menu_shortcut() const

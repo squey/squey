@@ -27,7 +27,7 @@ public:
 protected:
 	mutable QStringList _tmp_dir_to_delete;
 	
-	CLASS_REGISTRABLE(PVInputTypeHDFS)
+	CLASS_REGISTRABLE_NOCOPY(PVInputTypeHDFS)
 };
 
 }

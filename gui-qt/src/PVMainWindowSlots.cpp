@@ -4,6 +4,8 @@
 //! Copyright (C) Philippe Saadé 2009-2011
 //! Copyright (C) Picviz Labs 2011
 
+#include <pvkernel/core/PVVersion.h>
+
 #include <PVMainWindow.h>
 #include <PVArgumentListWidget.h>
 #include <PVXmlEditorWidget.h>
@@ -23,9 +25,9 @@ void PVInspector::PVMainWindow::about_Slot()
 
 		QLabel *logo = new QLabel;
 #ifdef CUDA
-		QString content = "Picviz Inspector v." + QString(PICVIZ_VERSION_STR) + "\n(c) 2010-2011 Picviz Labs SAS\ncontact@picviz.com\nhttp://www.picviz.com\n\nWith CUDA support\nQT version " + QString(QT_VERSION_STR);
+		QString content = "Picviz Inspector v." + QString(PICVIZ_CURRENT_VERSION_STR) + "\n(c) 2010-2011 Picviz Labs SAS\ncontact@picviz.com\nhttp://www.picviz.com\n\nWith CUDA support\nQT version " + QString(QT_VERSION_STR);
 #else
-		QString content = "Picviz Inspector v." + QString(PICVIZ_VERSION_STR) + "\n(c) 2010-2011 Picviz Labs SAS\ncontact@picviz.com\nhttp://www.picviz.com\n\nQT version " + QString(QT_VERSION_STR);
+		QString content = "Picviz Inspector v." + QString(PICVIZ_CURRENT_VERSION_STR) + "\n(c) 2010-2011 Picviz Labs SAS\ncontact@picviz.com\nhttp://www.picviz.com\n\nQT version " + QString(QT_VERSION_STR);
 #endif
 		QLabel *text = new QLabel(content);
 		QPushButton *ok = new QPushButton("OK");
@@ -548,10 +550,14 @@ void PVInspector::PVMainWindow::select_scene_Slot()
 void PVInspector::PVMainWindow::selection_all_Slot()
 {
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
+	if (!current_tab) {
+		return;
+	}
 
-	if (current_tab && current_tab->get_lib_view()) {
-		Picviz::PVView_p view = current_tab->get_lib_view();
-		view->select_all_nonzb_lines();
+	Picviz::PVView_p lib_view = current_tab->get_lib_view();
+	if (lib_view) {
+		lib_view->select_all_nonzb_lines();
+		// Set square area mode w/ volatile
 		update_pvglview(view, PVSDK_MESSENGER_REFRESH_SELECTION);
 		current_tab->refresh_listing_Slot();
 		current_tab->updateFilterMenuEnabling();
@@ -566,13 +572,14 @@ void PVInspector::PVMainWindow::selection_all_Slot()
 void PVInspector::PVMainWindow::selection_none_Slot()
 {
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
+	if (!current_tab) {
+		return;
+	}
 
-	if (current_tab && current_tab->get_lib_view()) {
-// picviz_selection_A2A_inverse(current_tab->get_lib_view()->volatile_selection);
-		current_tab->get_lib_view()->volatile_selection.select_none();
-		current_tab->get_lib_view()->process_from_selection();
-		current_tab->get_lib_view()->process_from_eventline();
-		update_pvglview(current_tab->get_lib_view(), PVSDK_MESSENGER_REFRESH_SELECTION);
+	Picviz::PVView_p lib_view = current_tab->get_lib_view();
+	if (lib_view) {
+		lib_view->select_no_line();
+		update_pvglview(lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
 		current_tab->refresh_listing_Slot();
 		current_tab->updateFilterMenuEnabling();
 	}
@@ -586,13 +593,14 @@ void PVInspector::PVMainWindow::selection_none_Slot()
 void PVInspector::PVMainWindow::selection_inverse_Slot()
 {
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
+	if (!current_tab) {
+		return;
+	}
 
-	if (current_tab && current_tab->get_lib_view()) {
-// picviz_selection_A2A_inverse(current_tab->get_lib_view()->volatile_selection);
-		current_tab->get_lib_view()->volatile_selection = ~(current_tab->get_lib_view()->volatile_selection);
-		current_tab->get_lib_view()->process_from_selection();
-		current_tab->get_lib_view()->process_from_eventline();
-		update_pvglview(current_tab->get_lib_view(), PVSDK_MESSENGER_REFRESH_SELECTION);
+	Picviz::PVView_p lib_view = current_tab->get_lib_view();
+	if (lib_view) {
+		lib_view->select_inv_lines();
+		update_pvglview(lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
 		current_tab->refresh_listing_Slot();
 		current_tab->updateFilterMenuEnabling();
 	}
@@ -661,19 +669,65 @@ void PVInspector::PVMainWindow::textedit_text_changed_Slot()
  *****************************************************************************/
 void PVInspector::PVMainWindow::update_reply_finished_Slot(QNetworkReply *reply)
 {
-	float lib_ver;
+	if (reply->error() != QNetworkReply::NoError) {
+		// There was an error retrieving the current version.
+		// Maybe picviz has no internet access !
+		PVLOG_DEBUG("(PVMainWindow::update_reply_finished_Slot) network error\n");
+		set_version_informations();
+		return;
+	}
 
-	QMessageBox msgBox;
+	QByteArray data = reply->readAll();
+	version_t current_v, last_v;
+	if (!PVCore::PVVersion::from_network_reply(data, current_v, last_v)) {
+		PVLOG_DEBUG("(PVMainWindow::update_reply_finished_Slot) invalid server reply:\n%s\n", qPrintable(QString::fromUtf8(data.constData(), data.size())));
+		return;
+	}
 
-	QByteArray data=reply->readAll();
-	QString str(data);
-	float http_ver = str.toFloat();
+	if (PICVIZ_MAJOR_VERSION(current_v) != PICVIZ_CURRENT_VERSION_MAJOR ||
+		PICVIZ_MINOR_VERSION(current_v) != PICVIZ_CURRENT_VERSION_MINOR ||
+		last_v < PICVIZ_CURRENT_VERSION) {
+		// Invalid answer from the server
+		PVLOG_DEBUG("(PVMainWindow::update_reply_finished_Slot) invalid server reply: version mismatch:\ncurrent version: %s / last current major/minor version: %s\nlast available version: %s.",
+				PICVIZ_CURRENT_VERSION_STR, qPrintable(PVCore::PVVersion::to_str(current_v)), qPrintable(PVCore::PVVersion::to_str(last_v)));
+		return;
+	}
 
-	lib_ver = atof(PICVIZ_VERSION_STR);
+	if (current_v == _last_known_cur_release && last_v == _last_known_maj_release) {
+		// We already informed the user once.
+		// Display version informations
+		set_version_informations();
+		return;
+	}
 
-	if (http_ver > lib_ver) {
-		PVLOG_INFO("You are running version %s, there is a new version available: %s\n", PICVIZ_VERSION_STR, qPrintable(str));
-		msgBox.information(this, "New version available", "There is a new version available.\n Please contact Picviz Labs (contact@picviz.com) to get an update");
+	_last_known_cur_release = current_v;
+	_last_known_maj_release = last_v;
+
+	// Display version informations
+	set_version_informations();
+
+	// Update PVCONFIG settings
+	pvconfig.setValue(PVCONFIG_LAST_KNOWN_CUR_RELEASE, current_v);
+	pvconfig.setValue(PVCONFIG_LAST_KNOWN_MAJ_RELEASE, last_v);
+
+	QString desc = tr("Your current version is %1.\n").arg(PICVIZ_CURRENT_VERSION_STR);
+	bool show_msg;
+	if (current_v > PICVIZ_CURRENT_VERSION) {
+		// A patch is available
+		desc += tr("A new version (%1) is available for free for the %2.%3 branch.").arg(PVCore::PVVersion::to_str(current_v)).arg(PICVIZ_CURRENT_VERSION_MAJOR).arg(PICVIZ_CURRENT_VERSION_MINOR);
+		desc += "\n";
+		show_msg = true;
+	}
+	if (last_v != current_v && last_v > PICVIZ_CURRENT_VERSION) {
+		// A new major release is available
+		desc += tr("A new major release (%1) is available.").arg(PVCore::PVVersion::to_str(last_v));
+		show_msg = true;
+	}
+
+	if (show_msg) {
+		PVLOG_INFO(qPrintable(desc));
+		QMessageBox msgBox(QMessageBox::Information, tr("New version available"), tr("A new version is available.\n\n") + desc, QMessageBox::Ok, this);
+		msgBox.exec();
 	}
 
 }
@@ -732,4 +786,18 @@ PVSDK::PVMessenger* PVInspector::PVMainWindow::get_pvmessenger()
 void PVInspector::PVMainWindow::enable_menu_filter_Slot(bool f){
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
 	filter_Menu->setEnabled(f);
+}
+
+void PVInspector::PVMainWindow::edit_format_Slot(QString const& path, QWidget* parent)
+{
+    PVXmlEditorWidget *editorWidget = new PVXmlEditorWidget(parent);
+    editorWidget->show();
+	editorWidget->openFormat(path);
+}
+
+void PVInspector::PVMainWindow::edit_format_Slot(QDomDocument& doc, QWidget* parent)
+{
+    PVXmlEditorWidget *editorWidget = new PVXmlEditorWidget(parent);
+    editorWidget->show();
+	editorWidget->openFormat(doc);
 }

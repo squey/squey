@@ -21,6 +21,7 @@ core/PVListFloat2D.cpp
 core/PVLogger.cpp
 core/PVPCRESplitter.cpp
 core/PVSplitter.cpp
+core/PVVersion.cpp
 )
 
 set(CORE_HEADER_FILES
@@ -54,6 +55,7 @@ include/pvkernel/core/PVRegistrableClass.h
 include/pvkernel/core/PVSpinBoxType.h
 include/pvkernel/core/PVTBBMaxArray.h
 include/pvkernel/core/PVTBBMinMaxArray.h
+include/pvkernel/core/PVVersion.h
 )
 
 
@@ -118,6 +120,7 @@ rush/PVChunkAlign.cpp
 rush/PVChunkAlignUTF16Char.cpp
 rush/PVChunkAlignUTF16Newline.cpp
 rush/PVChunkAlignBoundary.cpp
+rush/PVFormatVersion.cpp
 rush/PVInput.cpp
 rush/PVInputFile.cpp
 rush/PVInputPcap.cpp
@@ -190,11 +193,11 @@ include/pvkernel/rush/PVChunkAlignBoundary.h
 include/pvkernel/rush/PVCharsetDetect.h
 include/pvkernel/rush/PVChunkTransform.h
 include/pvkernel/rush/PVChunkTransformUTF16.h
+include/pvkernel/rush/PVFormatVersion.h
 include/pvkernel/rush/PVExtractor.h
 include/pvkernel/rush/PVInput.h
 include/pvkernel/rush/PVInputFile.h
 include/pvkernel/rush/PVInputPcap.h
-include/pvkernel/rush/PVInputType.h
 include/pvkernel/rush/PVNraw.h
 include/pvkernel/rush/PVNrawChild.h
 include/pvkernel/rush/PVNrawOutput.h
@@ -244,6 +247,7 @@ include/pvkernel/rush/uchardetect/JISFreq.tab
 set(RUSH_MOC_HEADERS
 include/pvkernel/rush/PVControllerJob.h
 include/pvkernel/rush/PVXmlTreeNodeDom.h
+include/pvkernel/rush/PVInputType.h
 )
 
 SET(SRC_FILES ${CORE_SRC_FILES} ${FILTER_SRC_FILES} ${RUSH_SRC_FILES})

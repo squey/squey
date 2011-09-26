@@ -1,9 +1,9 @@
-#include <logviewer/logviewerwidget.h>
-#include <logviewer/logviewerwidget_p.h>
-#include <logviewer/fileconnectiondialog.h>
-#include <logviewer/connectionsettings.h>
-#include <logviewer/filedownloader.h>
-#include <logviewer/addmachinedialog.h>
+#include "include/logviewerwidget.h"
+#include "include/logviewerwidget_p.h"
+#include "include/fileconnectiondialog.h"
+#include "include/connectionsettings.h"
+#include "include/filedownloader.h"
+#include "include/addmachinedialog.h"
 
 #include <QSettings>
 #include <QListWidget>

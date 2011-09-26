@@ -19,6 +19,7 @@ public:
 	PVDBQuery();
 	PVDBQuery(PVDBServ_p db);
 	PVDBQuery(PVDBServ_p db, QString const& query);
+	~PVDBQuery();
 
 	void set_query(QString const& query) { _query = query; }
 	QString const& get_query() const { return _query; }

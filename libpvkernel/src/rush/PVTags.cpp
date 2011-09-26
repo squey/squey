@@ -9,31 +9,31 @@
 
 /******************************************************************************
  *
- * PVTag
+ * PVTags
  *
  *****************************************************************************/
-PVRush::PVTag::PVTag()
+PVRush::PVTags::PVTags()
 {
 
 }
 
 
-PVRush::PVTag::~PVTag()
+PVRush::PVTags::~PVTags()
 {
 
 }
 
-bool PVRush::PVTag::add_tag(QString tag)
+void PVRush::PVTags::add_tag(QString tag)
 {
-	return 0;
+	_tags << tag;
 }
 
-bool PVRush::PVTag::del_tag(QString tag)
+bool PVRush::PVTags::del_tag(QString tag)
 {
-	return 0;
+	return _tags.remove(tag);
 }
 
-bool PVRush::PVTag::has_tag(QString tag)
+bool PVRush::PVTags::has_tag(QString tag) const
 {
-	return 0;
+	return _tags.contains(tag);
 }

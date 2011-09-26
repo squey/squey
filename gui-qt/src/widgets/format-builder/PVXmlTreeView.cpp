@@ -291,21 +291,28 @@ void PVInspector::PVXmlTreeView::mouseDoubleClickEvent ( QMouseEvent * event ){
  * PVInspector::PVXmlTreeView::mousePressEvent
  *
  *****************************************************************************/
-void PVInspector::PVXmlTreeView::mousePressEvent(QMouseEvent * event) {
-    PVLOG_DEBUG("PVInspector::PVXmlTreeView::mousePressEvent\n");
-        for (int i = 0; i < selectedIndexes().count(); i++) {
-                if (selectedIndexes().at(i).isValid()){
-                        selectionModel()->select(selectedIndexes().at(i), QItemSelectionModel::Clear); //valid index...
-                }
-        }
+void PVInspector::PVXmlTreeView::mousePressEvent(QMouseEvent * event)
+{
+	QTreeView::mousePressEvent(event);
+	
+	// AG: i just can't figure out the interest of this...
+	// It seemed to be the cause of bug #119
+#if 0
+	PVLOG_DEBUG("PVInspector::PVXmlTreeView::mousePressEvent\n");
+	for (int i = 0; i < selectedIndexes().count(); i++) {
+		if (selectedIndexes().at(i).isValid()){
+			selectionModel()->select(selectedIndexes().at(i), QItemSelectionModel::Clear); //valid index...
+		}
+	}
 
-        QTreeView::mousePressEvent(event);
-        //QTreeView::
-        QModelIndex index;
-        if (index.isValid()) {
-                PVLOG_DEBUG("emit clicked() on an invalid index in PVInspector::PVXmlTreeView::mousePressEvent()\n");
-        }
-        emit clicked(index); //keep it anyway, if the index is not valid, it update toolsbar enabled tools.
+	QTreeView::mousePressEvent(event);
+	//QTreeView::
+	QModelIndex index;
+	if (index.isValid()) {
+		PVLOG_DEBUG("emit clicked() on an invalid index in PVInspector::PVXmlTreeView::mousePressEvent()\n");
+	}
+	emit clicked(index); //keep it anyway, if the index is not valid, it update toolsbar enabled tools.
+#endif
 }
 
 
