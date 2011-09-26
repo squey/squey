@@ -4,11 +4,13 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/rush/PVInputType.h>
 
+#include "../file/PVInputTypeFilename.h"
+
 #include <QString>
 
 namespace PVRush {
 
-class PVInputTypeRemoteFilename: public PVInputType
+class PVInputTypeRemoteFilename: public PVInputTypeFilename
 {
 public:
 	PVInputTypeRemoteFilename();
@@ -24,6 +26,7 @@ public:
 	bool get_custom_formats(PVCore::PVArgument const& in, hash_formats &formats) const;
 
 protected:
+	mutable QHash<QString, QUrl> _hash_real_filenames;
 	
 	CLASS_REGISTRABLE_NOCOPY(PVInputTypeRemoteFilename)
 };

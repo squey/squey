@@ -17,7 +17,8 @@
 #include <QFile>
 #include <QDebug>
 
-QStringList LogViewerPrivate::defaultStringI18nProtocol = QStringList() << QObject::tr( "Local" )<<QObject::tr( "Http" )<<QObject::tr( "Https" )<<QObject::tr( "Ftp" )<<QObject::tr( "Ftps" )<<QObject::tr( "Scp" )<<QObject::tr( "SFtp" );
+//QStringList LogViewerPrivate::defaultStringI18nProtocol = QStringList() << QObject::tr( "Local" )<<QObject::tr( "HTTP" )<<QObject::tr( "HTTPS" )<<QObject::tr( "FTP" )<<QObject::tr( "FTP over SSL" )<<QObject::tr( "SCP" )<<QObject::tr( "SFTP" );
+QStringList LogViewerPrivate::defaultStringI18nProtocol = QStringList() << QObject::tr( "HTTP" )<<QObject::tr( "HTTPS" )<<QObject::tr( "FTP" )<<QObject::tr( "FTP over SSL" )<<QObject::tr( "SCP" )<<QObject::tr( "SFTP" );
 
 class LogViewerWidget::LogViewerWidgetPrivate
 {
@@ -41,6 +42,7 @@ public:
 
     void initWidget();
     void fillList();
+	void selectFirstMachine();
     void fillTableFile( const RegisteredFile& viewer );
     MachineConfig machineConfigFromItem( QListWidgetItem *item );
 
@@ -69,7 +71,7 @@ void LogViewerWidget::LogViewerWidgetPrivate::initWidget()
     layout->setMargin( 0 );
     machineListWidget = new QListWidget;
     layout->addWidget( machineListWidget );
-    connect( machineListWidget, SIGNAL( itemClicked ( QListWidgetItem * ) ), qq, SLOT( slotFillFilesList( QListWidgetItem * ) ) );
+    connect( machineListWidget, SIGNAL( currentItemChanged( QListWidgetItem *, QListWidgetItem * ) ), qq, SLOT( slotFillFilesList( QListWidgetItem * ) ) );
 
     QVBoxLayout *fileLayout = new QVBoxLayout;
     layout->addLayout( fileLayout );
@@ -140,6 +142,16 @@ void LogViewerWidget::LogViewerWidgetPrivate::fillList()
     }
 }
 
+void LogViewerWidget::LogViewerWidgetPrivate::selectFirstMachine()
+{
+	if (machineListWidget->count() <= 0) {
+		return;
+	}
+
+	QListWidgetItem* first = machineListWidget->item(0);
+	machineListWidget->setCurrentItem(first);
+}
+
 MachineConfig LogViewerWidget::LogViewerWidgetPrivate::machineConfigFromItem( QListWidgetItem *item )
 {
     if ( item )
@@ -161,6 +173,7 @@ LogViewerWidget::LogViewerWidget( QWidget * _parent )
     loadSettings();
 
     d->fillList();
+	d->selectFirstMachine();
 
     slotUpdateButtons();
 }
@@ -342,7 +355,8 @@ void LogViewerWidget::slotGetRemoteFile( QTableWidgetItem *item)
 
     QString temporaryFilePath;
     QString errorMessage;
-    const bool res = d->fileDownLoader->download( registered.remoteFile, temporaryFilePath, registered.settings, machineConfig.hostname, errorMessage );
+	QUrl url;
+    const bool res = d->fileDownLoader->download( registered.remoteFile, temporaryFilePath, registered.settings, machineConfig.hostname, errorMessage, url );
     if ( res ) {
         registered.localFile = temporaryFilePath;
         //qDebug()<<" temporaryFilePath :"<<temporaryFilePath;
@@ -350,6 +364,41 @@ void LogViewerWidget::slotGetRemoteFile( QTableWidgetItem *item)
     } else {
         QMessageBox::critical( this, tr( "Error" ), errorMessage.isEmpty() ? tr( "Can not initialize download from libcurl" ) : errorMessage );
     }
+}
+
+bool LogViewerWidget::downloadSelectedFiles(QHash<QString, QUrl>& dl_files)
+{
+    MachineConfig machineConfig = d->machineConfigFromItem( d->machineListWidget->currentItem() );
+
+    QList<RegisteredFile>& lstRegistered = d->listOfMachine[ machineConfig ];
+
+	// Get the indexes of the selected files
+	QList<QTableWidgetItem*> sel_files = d->filesTableWidget->selectedItems();
+	// And download them one by one
+	bool ret = false;
+	for (int i = 0; i < sel_files.size(); i++) {
+		QTableWidgetItem* item = sel_files[i];
+		if (item->column() != 0) {
+			continue;
+		}
+		RegisteredFile& registered = lstRegistered[item->row()];
+
+		QString temporaryFilePath;
+		QString errorMessage;
+		QUrl url;
+		const bool res = d->fileDownLoader->download( registered.remoteFile, temporaryFilePath, registered.settings, machineConfig.hostname, errorMessage, url );
+		if ( res ) {
+			registered.localFile = temporaryFilePath;
+			//qDebug()<<" temporaryFilePath :"<<temporaryFilePath;
+			emit newFile( machineConfig.name, registered.remoteFile, temporaryFilePath);
+			dl_files[temporaryFilePath] = url;
+			ret = true;
+		} else {
+			QMessageBox::critical( this, tr( "Error" ), errorMessage.isEmpty() ? tr( "Can not initialize download from libcurl" ) : errorMessage );
+			continue;
+		}
+	}
+	return ret;
 }
 
 void LogViewerWidget::slotUpdateButtons()
@@ -468,7 +517,7 @@ QString LogViewerWidget::authentication( const QString& machineName, const QStri
                         }
                         else if ( !registered.settings.sshKeyFile.isEmpty() )
                         {
-                            return tr( "Authentication by ssh key" );
+                            return tr( "Authentication by SSH key" );
                         }
                     }
                 }

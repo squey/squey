@@ -49,7 +49,7 @@ void FileNameSelectorWidget::setText(const QString&text)
 
 void FileNameSelectorWidget::slotPathChanged()
 {
-    const QString fileName = QFileDialog::getOpenFileName(this, tr("Ssh key file") );
+    const QString fileName = QFileDialog::getOpenFileName(this, tr("SSH key file") );
     if ( !fileName.isEmpty() )
         m_path->setText( fileName );
 
@@ -124,7 +124,7 @@ void FileConnectionDialog::FileConnectionDialogPrivate::initWidget()
     formLayout->addRow( tr( "Password:" ), password );
 
     sshkey = new FileNameSelectorWidget;
-    formLayout->addRow( tr( "Ssh key File:" ), sshkey );
+    formLayout->addRow( tr( "SSH key File:" ), sshkey );
 
     certificate = new FileNameSelectorWidget;
     formLayout->addRow( tr( "Certificate File:" ), certificate );

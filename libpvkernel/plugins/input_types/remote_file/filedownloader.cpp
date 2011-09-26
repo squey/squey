@@ -21,7 +21,7 @@ public:
     }
     void initialize();
     void cleanup();
-    void initializeDownload( const QString &remoteFile, const ConnectionSettings& settings, const QString& hostName );
+    void initializeDownload( const QString &remoteFile, const ConnectionSettings& settings, const QString& hostName, QUrl& url );
     void initializeEncrypted( const ConnectionSettings& settings );
     void initializeSsl( const ConnectionSettings& settings );
     static size_t writeData(void *buffer, size_t size, size_t nmemb, void *stream);
@@ -60,16 +60,17 @@ void FileDownLoader::FileDownLoaderPrivate::cleanup()
 }
 
 
-void FileDownLoader::FileDownLoaderPrivate::initializeDownload( const QString &remoteFile, const ConnectionSettings& settings, const QString& hostName )
+void FileDownLoader::FileDownLoaderPrivate::initializeDownload( const QString &remoteFile, const ConnectionSettings& settings, const QString& hostName, QUrl& url)
 {
-    static const char* s_schemes[] = { "file", "http", "https", "ftp", "ftps","scp", "sftp" };
-    QUrl url;
+    //static const char* s_schemes[] = { "file", "http", "https", "ftp", "ftps","scp", "sftp" };
+    static const char* s_schemes[] = { "http", "https", "ftp", "ftps","scp", "sftp", "file" };
     if( settings.protocol == Local )
     {
         url= QUrl::fromLocalFile( remoteFile );
     }
     else
     {
+		url.clear();
         const QString scheme = QString::fromLatin1(s_schemes[settings.protocol]);
         url.setScheme(scheme);
         url.setHost(hostName);
@@ -207,13 +208,13 @@ FileDownLoader::~FileDownLoader()
     delete d;
 }
 
-bool FileDownLoader::download( const QString &remoteFile, QString&tempFile, const ConnectionSettings& settings, const QString& hostName, QString&errorMessage )
+bool FileDownLoader::download( const QString &remoteFile, QString&tempFile, const ConnectionSettings& settings, const QString& hostName, QString&errorMessage, QUrl& url )
 {
     bool res = false;
     d->curl = curl_easy_init();
     if ( d->curl )
     {
-        d->initializeDownload( remoteFile, settings, hostName );
+        d->initializeDownload( remoteFile, settings, hostName, url );
         /* Define our callback to get called when there's data to be written */
         curl_easy_setopt(d->curl, CURLOPT_WRITEFUNCTION, d->writeData);
 
@@ -240,8 +241,6 @@ bool FileDownLoader::download( const QString &remoteFile, QString&tempFile, cons
         d->debugTempFile = new QTemporaryFile();
         d->debugTempFile->setAutoRemove( false );
         d->debugTempFile->open();
-
-        qDebug()<<" DEBUG_FILE_NAME "<<d->debugTempFile->fileName();
 
         curl_easy_setopt(d->curl, CURLOPT_DEBUGFUNCTION, d->writeDebugToFile);
         curl_easy_setopt(d->curl, CURLOPT_DEBUGDATA, d->debugTempFile);

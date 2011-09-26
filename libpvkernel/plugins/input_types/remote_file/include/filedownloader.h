@@ -5,6 +5,7 @@
 #include "connectionsettings.h"
 
 #include <QObject>
+#include <QUrl>
 
 class LOGVIEWER_EXPORT FileDownLoader : public QObject
 {
@@ -12,7 +13,7 @@ class LOGVIEWER_EXPORT FileDownLoader : public QObject
 public:
     explicit FileDownLoader(QObject * parent = 0);
     ~FileDownLoader();
-    bool download( const QString &remoteFile, QString &tempFile, const ConnectionSettings& settings, const QString& hostName, QString& errorMessage );
+    bool download( const QString &remoteFile, QString &tempFile, const ConnectionSettings& settings, const QString& hostName, QString& errorMessage, QUrl& url );
 
 signals:
     void downloadError( const QString&, int errorCode );
