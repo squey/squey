@@ -558,7 +558,7 @@ void PVInspector::PVMainWindow::selection_all_Slot()
 	if (lib_view) {
 		lib_view->select_all_nonzb_lines();
 		// Set square area mode w/ volatile
-		update_pvglview(view, PVSDK_MESSENGER_REFRESH_SELECTION);
+		update_pvglview(lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
 		current_tab->refresh_listing_Slot();
 		current_tab->updateFilterMenuEnabling();
 	}
