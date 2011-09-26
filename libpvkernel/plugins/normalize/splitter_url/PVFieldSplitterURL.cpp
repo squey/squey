@@ -11,6 +11,7 @@
 #include "PVFieldSplitterURL.h"
 #include <pvkernel/core/PVBufferSlice.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
+#include <pvkernel/rush/PVAxisTagsDec.h>
 
 #include <QUrl>
 
@@ -91,6 +92,23 @@ PVFilter::PVFieldSplitterURL::PVFieldSplitterURL() :
 	_ncols = 6;
 }
 
+void PVFilter::PVFieldSplitterURL::set_children_axes_tag(filter_child_axes_tag_t const& axes)
+{
+	PVFieldsBaseFilter::set_children_axes_tag(axes);
+#define GET_TAG_COL(tag, var) var = axes.contains(tag) ? axes[tag]:-1
+	_col_proto = axes.value(PVAXIS_TAG_PROTOCOL, -1);
+	_col_domain = axes.value(PVAXIS_TAG_DOMAIN, -1);
+	_col_tld = axes.value(PVAXIS_TAG_TLD, -1);
+	_col_port = axes.value(PVAXIS_TAG_PORT, -1);
+	_col_url = axes.value(PVAXIS_TAG_URL, -1);
+	_col_variable = axes.value(PVAXIS_TAG_URL_VARIABLES, -1);
+	PVCol nmiss = (_col_proto == -1) + (_col_domain == -1) + (_col_tld == -1) + (_col_port == -1) + \
+				(_col_url == -1) + (_col_variable == -1);
+	_ncols = 6-nmiss;
+	if (_ncols == 0) {
+		PVLOG_WARN("(PVFieldSplitterURL::set_children_axes_tag) warning: URL splitter set but no tags have been found !\n");
+	}
+}
 
 /******************************************************************************
  *
@@ -246,9 +264,5 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterURL::one_to_many(PVCore:
 	return buf.nelts;
 }
 
-void PVFilter::PVFieldSplitterURL::set_children_axes_tag(filter_child_axes_tag_t const& axes)
-{
-	PVFieldsBaseFilter::set_children_axes_tag(axes);
-}
 
 IMPL_FILTER_NOPARAM(PVFilter::PVFieldSplitterURL)
