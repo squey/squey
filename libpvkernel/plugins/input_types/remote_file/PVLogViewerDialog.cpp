@@ -1,13 +1,15 @@
 #include "include/PVLogViewerDialog.h"
 
 
+#include <QLabel>
 #include <QMenu>
 #include <QMenuBar>
 #include <QDialogButtonBox>
 #include <QWidget>
 #include <QVBoxLayout>
+#include <QSpacerItem>
 
-PVLogViewerDialog::PVLogViewerDialog(QWidget* parent):
+PVLogViewerDialog::PVLogViewerDialog(QStringList const& formats, QWidget* parent):
 	QDialog(parent)
 {
 	QMenuBar *rl_menuBar = new QMenuBar(0);
@@ -26,6 +28,15 @@ PVLogViewerDialog::PVLogViewerDialog(QWidget* parent):
 	rl_menuBar->show();
 
 	rl_layout->addWidget(pv_RemoteLog);
+	
+	QHBoxLayout* formatLayout = new QHBoxLayout();
+	formatLayout->addWidget(new QLabel(tr("Format:")));
+	_combo_format = new QComboBox();
+	_combo_format->addItems(formats);
+	formatLayout->addWidget(_combo_format);
+	formatLayout->addItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Minimum));
+
+	rl_layout->addLayout(formatLayout);
 	rl_layout->addWidget(buttonBox);
 
 	connect(buttonBox, SIGNAL(accepted()), this, SLOT(slotDownloadFiles()));
@@ -48,5 +59,11 @@ void PVLogViewerDialog::slotDownloadFiles()
 	}
 
 	_dl_files = tmp_files;
+	_format = _combo_format->currentText();
 	accept();
+}
+
+QString PVLogViewerDialog::getSelFormat()
+{
+	return _format;
 }
