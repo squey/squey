@@ -17,7 +17,7 @@
 #include <QFile>
 #include <QDebug>
 
-QStringList LogViewerPrivate::defaultStringI18nProtocol = QStringList() << QObject::tr( "Local" )<<QObject::tr( "Http" )<<QObject::tr( "Https" )<<QObject::tr( "Ftp" )<<QObject::tr( "Ftps" )<<QObject::tr( "Scp" )<<QObject::tr( "SFtp" );
+QStringList LogViewerPrivate::defaultStringI18nProtocol = QStringList() << QObject::tr( "Local" )<<QObject::tr( "HTTP" )<<QObject::tr( "HTTPS" )<<QObject::tr( "FTP" )<<QObject::tr( "FTP over SSL" )<<QObject::tr( "SCP" )<<QObject::tr( "SFTP" );
 
 class LogViewerWidget::LogViewerWidgetPrivate
 {
