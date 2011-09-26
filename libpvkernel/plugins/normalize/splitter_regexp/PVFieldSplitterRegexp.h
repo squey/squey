@@ -47,6 +47,7 @@ protected:
 #endif
 
 	bool _valid_rx;
+	bool _full_line;
 
 	CLASS_FILTER(PVFilter::PVFieldSplitterRegexp)
 };

@@ -37,6 +37,10 @@ void PVFilter::PVFieldSplitterRegexpParamWidget::initWidget(){
     validator_textEdit = new QTextEdit(get_data().join("\n"));
     table_validator_TableWidget = new QTableWidget();
     btn_apply = new QPushButton(tr("Apply"));
+	fullline_checkBox = new QCheckBox(tr("Match the regular expression on the whole line\n(warning: disabling this can cause severe performance loss !)"));
+	bool fullline = l["full-line"].toBool();
+	PVLOG_INFO("full-line: %d\n", fullline);
+	fullline_checkBox->setChecked(fullline);
 }
 
 
@@ -68,20 +72,24 @@ QWidget* PVFilter::PVFieldSplitterRegexpParamWidget::get_param_widget()
     param_widget->setLayout(layout);
     param_widget->setObjectName("splitter");
     
-    //expression
+    // Expression
     layout->addWidget(new QLabel("Expression"));
     layout->addWidget(expression_lineEdit);
+
+	// Full line match
+	layout->addWidget(fullline_checkBox);
     
-    //child count
+    // Child count
     layout->addWidget(child_count_text);
     
-    //validator zone
+    // Validator zone
     layout->addWidget(validator_textEdit);
     layout->addWidget(table_validator_TableWidget);
     layout->addWidget(btn_apply);
     
     
     connect(expression_lineEdit,SIGNAL(textChanged(QString)),this,SLOT(slotExpressionChanged()));
+    connect(fullline_checkBox,SIGNAL(stateChanged(int)),this,SLOT(slotFullineChanged(int)));
     connect(validator_textEdit,SIGNAL(textChanged()),this,SLOT(slotUpdateTableValidator()));
 
     update_data_display();
@@ -94,20 +102,29 @@ QWidget* PVFilter::PVFieldSplitterRegexpParamWidget::get_param_widget()
  *
  *****************************************************************************/
 void PVFilter::PVFieldSplitterRegexpParamWidget::slotExpressionChanged(){
-    PVLOG_DEBUG("slotExpressionChanged() : PVFieldSplitterRegexpParamWidget: %x\n", this);
     expressionChanged = true;
     //child count
     QRegExp reg = QRegExp(expression_lineEdit->text());
-    PVLOG_DEBUG("set_child_count(reg.captureCount()); %d\n",reg.captureCount());
     set_child_count(reg.captureCount());
     
-    PVCore::PVArgumentList l;
+    PVCore::PVArgumentList l = get_filter()->get_args();
     l["regexp"] = PVCore::PVArgument(expression_lineEdit->text());
     get_filter()->set_args(l);
     
     emit args_changed_Signal();
     emit nchilds_changed_Signal();
     
+    slotUpdateTableValidator();
+}
+
+void PVFilter::PVFieldSplitterRegexpParamWidget::slotFullineChanged(int state)
+{
+	expressionChanged = true;
+	PVCore::PVArgumentList l = get_filter()->get_args();
+	l["full-line"] = PVCore::PVArgument(state == Qt::Checked);
+	get_filter()->set_args(l);
+
+	emit args_changed_Signal();
     slotUpdateTableValidator();
 }
 

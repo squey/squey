@@ -49,8 +49,8 @@ public:
 public:
 	template<class L> typename L::size_type split(L &container, char c, typename L::iterator it_ins);
 	template<class L> typename L::size_type split_qchar(L &container, QChar c, typename L::iterator it_ins);
-	template<class L> typename L::size_type split_regexp(L &container, QRegExp& re, typename L::iterator it_ins);
-	template<class L> typename L::size_type split_regexp(L &container, RegexMatcher& re, typename L::iterator it_ins);
+	template<class L> typename L::size_type split_regexp(L &container, QRegExp& re, typename L::iterator it_ins, bool bFullLine);
+	template<class L> typename L::size_type split_regexp(L &container, RegexMatcher& re, typename L::iterator it_ins, bool bFullLine);
 public:
 	inline void init_qstr()
 	{
@@ -178,14 +178,20 @@ typename L::size_type PVCore::PVBufferSlice::split_qchar(L& container, QChar c, 
 }
 
 template <class L>
-typename L::size_type PVCore::PVBufferSlice::split_regexp(L& container, RegexMatcher& re_, typename L::iterator it_ins)
+typename L::size_type PVCore::PVBufferSlice::split_regexp(L& container, RegexMatcher& re_, typename L::iterator it_ins, bool bFullLine)
 {
 	init_icustr();
 	UErrorCode err = U_ZERO_ERROR;
 	re_.reset(_icustr);
-	//if (!re_.matches(err)) {
-	if (!re_.find()) {
-		return 0;
+	if (bFullLine) {
+		if (!re_.matches(err)) {
+			return 0;
+		}
+	}
+	else {
+		if (!re_.find()) {
+			return 0;
+		}
 	}
 
 	UChar* bstart = (UChar*) begin();
@@ -209,13 +215,19 @@ typename L::size_type PVCore::PVBufferSlice::split_regexp(L& container, RegexMat
 }
 
 template <class L>
-typename L::size_type PVCore::PVBufferSlice::split_regexp(L& container, QRegExp& re_, typename L::iterator it_ins)
+typename L::size_type PVCore::PVBufferSlice::split_regexp(L& container, QRegExp& re_, typename L::iterator it_ins, bool bFullLine)
 {
 	init_qstr();
 	QStringList rx_fields;
-	if (re_.indexIn(_qstr) == -1)
-	{
-		return 0;
+	if (bFullLine) {
+		if (re_.exactMatch(_qstr) == -1) {
+			return 0;
+		}
+	}
+	else {
+		if (re_.indexIn(_qstr) == -1) {
+			return 0;
+		}
 	}
 
 	rx_fields = re_.capturedTexts();

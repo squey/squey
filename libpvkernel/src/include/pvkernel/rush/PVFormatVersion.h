@@ -1,0 +1,24 @@
+#ifndef PVFORMAT_VERSION_H
+#define PVFORMAT_VERSION_H
+
+#include <QDomDocument>
+
+namespace PVRush {
+
+class PVFormatVersion
+{
+public:
+	static bool to_current(QDomDocument& doc);
+private:
+	static bool from0to1(QDomDocument& doc);
+	static bool from1to2(QDomDocument& doc);
+private:
+	static bool _rec_0to1(QDomElement doc);
+	static bool _rec_1to2(QDomElement doc);
+	static QString get_version(QDomDocument const& doc);
+};
+
+}
+
+#endif
+
