@@ -108,7 +108,7 @@ PVInspector::PVExtractorWidget::PVExtractorWidget(PVTabSplitter* parent_tab) :
 	connect(process, SIGNAL(pressed()), this, SLOT(process_Slot()));
 	connect(_slider_index, SIGNAL(valueChanged(int)), this, SLOT(slider_change_Slot(int)));
 	connect(_slider_index, SIGNAL(sliderPressed()), this, SLOT(slider_pressed_Slot()));
-	connect(_slider_index, SIGNAL(sliderReleased()), this, SLOT(slider_released_Slot()));
+	//connect(_slider_index, SIGNAL(sliderReleased()), this, SLOT(slider_released_Slot()));
 	connect(_size_batch_widget, SIGNAL(textEdited(QString const&)), this, SLOT(size_batch_edited_Slot(QString const&)));
 	connect(_source_starts_line, SIGNAL(textEdited(QString const&)), this, SLOT(line_start_edited_Slot(QString const&)));
 

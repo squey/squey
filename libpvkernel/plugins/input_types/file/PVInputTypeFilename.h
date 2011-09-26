@@ -25,6 +25,9 @@ public:
 	bool get_custom_formats(PVCore::PVArgument const& in, hash_formats &formats) const;
 
 protected:
+	bool load_files(QStringList const& filenames, bool check_archives, list_inputs& inputs, QWidget* parent) const;
+
+protected:
 	mutable QStringList _tmp_dir_to_delete;
 	int _limit_nfds;
 	

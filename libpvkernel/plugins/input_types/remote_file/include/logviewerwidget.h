@@ -90,6 +90,12 @@ public:
      */
     QString authentication( const QString& machineName, const QString& filename );
 
+	/**
+	 * Download the selected files and store their temporary location
+	 * @return true if the download has been successful
+	 */
+	bool downloadSelectedFiles(QStringList& dl_files);
+
 
 Q_SIGNALS:
     /**

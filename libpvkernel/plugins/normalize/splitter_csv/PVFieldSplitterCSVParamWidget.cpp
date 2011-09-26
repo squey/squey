@@ -54,6 +54,7 @@ QWidget* PVFilter::PVFieldSplitterCSVParamWidget::get_param_widget()
 
 	//init layout
 	QVBoxLayout* layout = new QVBoxLayout(param_widget);
+	QGridLayout* gridLayout = new QGridLayout();
 	param_widget->setLayout(layout);
 	param_widget->setObjectName("splitter");
 
@@ -63,25 +64,26 @@ QWidget* PVFilter::PVFieldSplitterCSVParamWidget::get_param_widget()
 	layout->addWidget(label);
 
 	//field separator
-	QLabel* separator_label = new QLabel(tr("Field separator"),NULL);
+	QLabel* separator_label = new QLabel(tr("Field separator:"));
 	separator_label->setAlignment(Qt::AlignLeft);
-	layout->addWidget(separator_label);
+	gridLayout->addWidget(separator_label, 0, 0);
 	separator_text = new QLineEdit(l["sep"].toString());
 	separator_text->setAlignment(Qt::AlignHCenter);
 	separator_text->setMaxLength(1);
-	layout->addWidget(separator_text);
+	gridLayout->addWidget(separator_text, 0, 2);
 
 	//field number of col
-	QLabel* col_label = new QLabel(tr("Number of columns"),NULL);
+	QLabel* col_label = new QLabel(tr("Number of columns:"));
 	col_label->setAlignment(Qt::AlignLeft);
-	layout->addWidget(col_label);
+	gridLayout->addWidget(col_label, 2, 0);
 	child_number_edit = new QLineEdit(QString::number(get_child_count()));
 	child_number_org_palette = child_number_edit->palette();
-	layout->addWidget(child_number_edit);
+	gridLayout->addWidget(child_number_edit, 2, 2);
+	layout->addLayout(gridLayout);
 	_recommands_label = new QLabel();
 	layout->addWidget(_recommands_label);
 
-	// "set number of childs" button
+	// "set number of children" button
 	QPushButton* set_nchilds_btn = new QPushButton(tr("Set number of columns"));
 	layout->addWidget(set_nchilds_btn);
 

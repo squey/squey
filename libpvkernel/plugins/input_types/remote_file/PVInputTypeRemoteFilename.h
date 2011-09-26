@@ -4,11 +4,13 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/rush/PVInputType.h>
 
+#include "../file/PVInputTypeFilename.h"
+
 #include <QString>
 
 namespace PVRush {
 
-class PVInputTypeRemoteFilename: public PVInputType
+class PVInputTypeRemoteFilename: public PVInputTypeFilename
 {
 public:
 	PVInputTypeRemoteFilename();
@@ -19,7 +21,6 @@ public:
 	QString human_name() const;
 	QString human_name_of_input(PVCore::PVArgument const& in) const;
 	QString menu_input_name() const;
-	QString tab_name_of_inputs(list_inputs const& in) const;
 	QKeySequence menu_shortcut() const;
 	bool get_custom_formats(PVCore::PVArgument const& in, hash_formats &formats) const;
 

@@ -17,7 +17,7 @@
 #include <QFile>
 #include <QDebug>
 
-QStringList LogViewerPrivate::defaultStringI18nProtocol = QStringList() << QObject::tr( "Local" )<<QObject::tr( "Http" )<<QObject::tr( "Https" )<<QObject::tr( "Ftp" )<<QObject::tr( "Ftps" )<<QObject::tr( "Scp" )<<QObject::tr( "SFtp" );
+QStringList LogViewerPrivate::defaultStringI18nProtocol = QStringList() << QObject::tr( "Local" )<<QObject::tr( "HTTP" )<<QObject::tr( "HTTPS" )<<QObject::tr( "FTP" )<<QObject::tr( "FTP over SSL" )<<QObject::tr( "SCP" )<<QObject::tr( "SFTP" );
 
 class LogViewerWidget::LogViewerWidgetPrivate
 {
@@ -352,6 +352,40 @@ void LogViewerWidget::slotGetRemoteFile( QTableWidgetItem *item)
     }
 }
 
+bool LogViewerWidget::downloadSelectedFiles(QStringList& dl_files)
+{
+    MachineConfig machineConfig = d->machineConfigFromItem( d->machineListWidget->currentItem() );
+
+    QList<RegisteredFile>& lstRegistered = d->listOfMachine[ machineConfig ];
+
+	// Get the indexes of the selected files
+	QList<QTableWidgetItem*> sel_files = d->filesTableWidget->selectedItems();
+	// And download them one by one
+	bool ret = false;
+	for (int i = 0; i < sel_files.size(); i++) {
+		QTableWidgetItem* item = sel_files[i];
+		if (item->column() != 0) {
+			continue;
+		}
+		RegisteredFile& registered = lstRegistered[item->row()];
+
+		QString temporaryFilePath;
+		QString errorMessage;
+		const bool res = d->fileDownLoader->download( registered.remoteFile, temporaryFilePath, registered.settings, machineConfig.hostname, errorMessage );
+		if ( res ) {
+			registered.localFile = temporaryFilePath;
+			//qDebug()<<" temporaryFilePath :"<<temporaryFilePath;
+			emit newFile( machineConfig.name, registered.remoteFile, temporaryFilePath);
+			dl_files.push_back(temporaryFilePath);
+			ret = true;
+		} else {
+			QMessageBox::critical( this, tr( "Error" ), errorMessage.isEmpty() ? tr( "Can not initialize download from libcurl" ) : errorMessage );
+			continue;
+		}
+	}
+	return ret;
+}
+
 void LogViewerWidget::slotUpdateButtons()
 {
     const bool itemSelected = ( d->filesTableWidget->currentItem() != 0 );
@@ -468,7 +502,7 @@ QString LogViewerWidget::authentication( const QString& machineName, const QStri
                         }
                         else if ( !registered.settings.sshKeyFile.isEmpty() )
                         {
-                            return tr( "Authentication by ssh key" );
+                            return tr( "Authentication by SSH key" );
                         }
                     }
                 }
