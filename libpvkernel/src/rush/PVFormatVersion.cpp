@@ -118,6 +118,21 @@ bool PVRush::PVFormatVersion::_rec_1to2(QDomElement elt)
 			elt.setAttribute("full-line", "false");
 		}
 	}
+	else
+	if (tag_name == "axis") {
+		bool is_key = elt.attribute("key", "false") == "true";
+		if (is_key) {
+			QString cur_tag = elt.attribute(PVFORMAT_AXIS_TAG_STR);
+			if (!cur_tag.isEmpty()) {
+				cur_tag += QString(QChar(PVFORMAT_TAGS_SEP)) + "key";
+			}
+			else {
+				cur_tag = "key";
+			}
+			elt.setAttribute(PVFORMAT_AXIS_TAG_STR, cur_tag);
+		}
+		elt.removeAttribute("key");
+	}
 
 	QDomNodeList children = elt.childNodes();
 	for (int i = 0; i < children.size(); i++) {

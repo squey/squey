@@ -25,11 +25,14 @@
 
 #include <pvkernel/rush/PVRawSourceBase_types.h>
 
+namespace PVCore {
+class PVProgressBox;
+}
+
 namespace PVInspector {
 
 class PVMainWindow;
 class PVTabSplitter;
-class PVProgressBox;
 
 /**
  * \class PVExtractorWidget
@@ -45,7 +48,7 @@ public:
 	PVExtractorWidget(PVTabSplitter* parent);
 
 	void refresh_and_show();
-	static void update_status_ext(PVProgressBox* pbox, PVRush::PVControllerJob_p job);
+	static void update_status_ext(PVCore::PVProgressBox* pbox, PVRush::PVControllerJob_p job);
 	static bool show_job_progress_bar(PVRush::PVControllerJob_p job, QString const& desc, int nlines, QWidget* parent);
 
 private:

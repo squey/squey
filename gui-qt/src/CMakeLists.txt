@@ -70,7 +70,6 @@ include/PVMainWindow.h
 include/PVMapWidget.h
 include/PVInputTypeMenuEntries.h
 include/PVOpenFileDialog.h
-include/PVProgressBox.h
 include/PVSaveFileDialog.h
 include/PVStringListChooserWidget.h
 include/PVTabSplitter.h
@@ -93,6 +92,7 @@ widgets/format-builder/include/PVXmlDomModel.h
 widgets/format-builder/include/PVXmlEditorWidget.h
 widgets/format-builder/include/PVXmlParamColorDialog.h
 widgets/format-builder/include/PVXmlParamComboBox.h
+widgets/format-builder/include/PVXmlParamList.h
 widgets/format-builder/include/PVXmlParamTextEdit.h
 widgets/format-builder/include/PVXmlParamWidget.h
 widgets/format-builder/include/PVXmlParamWidgetBoardAxis.h
@@ -145,7 +145,6 @@ PVMainWindowSlots.cpp
 PVMapWidget.cpp
 PVInputTypeMenuEntries.cpp
 PVOpenFileDialog.cpp
-PVProgressBox.cpp
 PVSaveFileDialog.cpp
 PVStringListChooserWidget.cpp
 PVTabSplitter.cpp
@@ -167,6 +166,7 @@ widgets/format-builder/PVXmlDomModel.cpp
 widgets/format-builder/PVXmlEditorWidget.cpp
 widgets/format-builder/PVXmlParamColorDialog.cpp
 widgets/format-builder/PVXmlParamComboBox.cpp
+widgets/format-builder/PVXmlParamList.cpp
 widgets/format-builder/PVXmlParamTextEdit.cpp
 widgets/format-builder/PVXmlParamWidget.cpp
 widgets/format-builder/PVXmlParamWidgetBoardAxis.cpp

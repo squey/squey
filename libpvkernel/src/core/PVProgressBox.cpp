@@ -4,7 +4,7 @@
 //! Copyright (C) Philippe Saadé 2009-2011
 //! Copyright (C) Picviz Labs 2011
 
-#include <PVProgressBox.h>
+#include <pvkernel/core/PVProgressBox.h>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QPushButton>
@@ -14,10 +14,10 @@
 
 /******************************************************************************
  *
- * PVInspector::PVProgressBox::PVProgressBox
+ * PVCore::PVProgressBox::PVProgressBox
  *
  *****************************************************************************/
-PVInspector::PVProgressBox::PVProgressBox(QString msg, QWidget *parent, Qt::WindowFlags flags): QDialog(parent,flags) 
+PVCore::PVProgressBox::PVProgressBox(QString msg, QWidget *parent, Qt::WindowFlags flags): QDialog(parent,flags) 
 {
 	QVBoxLayout *layout;
 	QHBoxLayout *layoutCancel;
@@ -52,33 +52,33 @@ PVInspector::PVProgressBox::PVProgressBox(QString msg, QWidget *parent, Qt::Wind
 	_status = 0;
 }
 
-void PVInspector::PVProgressBox::launch_timer_status()
+void PVCore::PVProgressBox::launch_timer_status()
 {
 	QTimer* timer = new QTimer(this);
 	connect(timer, SIGNAL(timeout()), this, SLOT(update_status_Slot()));
 	timer->start(10);
 }
 
-void PVInspector::PVProgressBox::set_status(int status)
+void PVCore::PVProgressBox::set_status(int status)
 {
 	_status = status;
 }
 
-void PVInspector::PVProgressBox::update_status_Slot()
+void PVCore::PVProgressBox::update_status_Slot()
 {
 	progress_bar->setValue(_status);
 }
 
 /******************************************************************************
  *
- * PVInspector::PVProgressBox::getProgressBar
+ * PVCore::PVProgressBox::getProgressBar
  *
  *****************************************************************************/
-QProgressBar *PVInspector::PVProgressBox::getProgressBar(){
+QProgressBar *PVCore::PVProgressBox::getProgressBar(){
 	return progress_bar;
 }
 
-void PVInspector::PVProgressBox::set_enable_cancel(bool enable)
+void PVCore::PVProgressBox::set_enable_cancel(bool enable)
 {
 	_btnCancel->setEnabled(enable);
 }

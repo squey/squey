@@ -4,20 +4,19 @@
 //! Copyright (C) Philippe Saadé 2009-2011
 //! Copyright (C) Picviz Labs 2011
 
-#ifndef INSPECTOR_PVPROGRESSBOX_H
-#define	INSPECTOR_PVPROGRESSBOX_H
+#ifndef PVCORE_PVPROGRESSBOX_H
+#define	PVCORE_PVPROGRESSBOX_H
 
-//qt
 #include <QDialog>
 #include <QString>
 #include <QLabel>
 #include <QProgressBar>
 
-//picviz
 #include <pvkernel/core/general.h>
 
-namespace PVInspector {
-class PVProgressBox: public QDialog {
+namespace PVCore {
+class LibKernelDecl PVProgressBox: public QDialog
+{
 	Q_OBJECT
 
 public:
@@ -39,5 +38,7 @@ private:
 	int _status;
 	QPushButton *_btnCancel;
 };
+
 }
-#endif /*PVINSPECTOR_PVPROGRESSBOX_H*/
+
+#endif

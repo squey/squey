@@ -20,8 +20,13 @@ core/PVField.cpp
 core/PVListFloat2D.cpp
 core/PVLogger.cpp
 core/PVPCRESplitter.cpp
+core/PVProgressBox.cpp
 core/PVSplitter.cpp
 core/PVVersion.cpp
+)
+
+SET(CORE_MOC_HEADERS
+include/pvkernel/core/PVProgressBox.h
 )
 
 set(CORE_HEADER_FILES
@@ -252,7 +257,7 @@ include/pvkernel/rush/PVInputType.h
 
 SET(SRC_FILES ${CORE_SRC_FILES} ${FILTER_SRC_FILES} ${RUSH_SRC_FILES})
 SET(HEADER_FILES ${CORE_HEADER_FILES} ${FILTER_HEADER_FILES} ${RUSH_HEADER_FILES})
-SET(MOC_HEADERS ${FILTER_MOC_HEADERS} ${RUSH_MOC_HEADERS})
+SET(MOC_HEADERS ${CORE_MOC_HEADERS} ${FILTER_MOC_HEADERS} ${RUSH_MOC_HEADERS})
 QT4_WRAP_CPP(MOC_SRC ${MOC_HEADERS})
 
 add_library(pvkernel SHARED ${SRC_FILES} ${HEADER_FILES} ${MOC_SRC} ${MOC_HEADERS})

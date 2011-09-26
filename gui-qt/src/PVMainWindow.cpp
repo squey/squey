@@ -55,10 +55,7 @@
 #include <picviz/PVStateMachine.h>
 
 #include <PVListingView.h>
-#include <PVProgressBox.h>
 
-// Filters
-#include <pvkernel/core/PVClassLibrary.h>
 
 #include <pvgl/general.h>
 #include <pvgl/PVCom.h>

@@ -20,7 +20,7 @@
 #include <picviz/PVStateMachine.h>
 #include <picviz/PVView.h>
 
-#include <PVProgressBox.h>
+#include <pvkernel/core/PVProgressBox.h>
 #include <QAbstractTableModel>
 
 #include <tbb/scalable_allocator.h>
