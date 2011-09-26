@@ -1,6 +1,6 @@
 #include "PVSourceCreatorRemoteTextfile.h"
 
-QString PVRush::PVSourceCreatorTextfile::supported_type() const
+QString PVRush::PVSourceCreatorRemoteTextfile::supported_type() const
 {
 	return QString("remote_file");
 }

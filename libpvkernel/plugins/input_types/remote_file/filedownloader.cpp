@@ -62,7 +62,8 @@ void FileDownLoader::FileDownLoaderPrivate::cleanup()
 
 void FileDownLoader::FileDownLoaderPrivate::initializeDownload( const QString &remoteFile, const ConnectionSettings& settings, const QString& hostName )
 {
-    static const char* s_schemes[] = { "file", "http", "https", "ftp", "ftps","scp", "sftp" };
+    //static const char* s_schemes[] = { "file", "http", "https", "ftp", "ftps","scp", "sftp" };
+    static const char* s_schemes[] = { "http", "https", "ftp", "ftps","scp", "sftp", "file" };
     QUrl url;
     if( settings.protocol == Local )
     {
@@ -240,8 +241,6 @@ bool FileDownLoader::download( const QString &remoteFile, QString&tempFile, cons
         d->debugTempFile = new QTemporaryFile();
         d->debugTempFile->setAutoRemove( false );
         d->debugTempFile->open();
-
-        qDebug()<<" DEBUG_FILE_NAME "<<d->debugTempFile->fileName();
 
         curl_easy_setopt(d->curl, CURLOPT_DEBUGFUNCTION, d->writeDebugToFile);
         curl_easy_setopt(d->curl, CURLOPT_DEBUGDATA, d->debugTempFile);

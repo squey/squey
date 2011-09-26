@@ -20,8 +20,11 @@ bool PVRush::PVInputTypeRemoteFilename::createWidget(hash_formats const& formats
 {
 	PVLogViewerDialog *RemoteLogDialog = new PVLogViewerDialog(parent);
 	if (RemoteLogDialog->exec() == QDialog::Rejected) {
+		RemoteLogDialog->deleteLater();
 		return false;
 	}
+	// Force deletion so that settings are saved
+	RemoteLogDialog->deleteLater();
 
 	format = PICVIZ_AUTOMATIC_FORMAT_STR;
 	QStringList const& files = RemoteLogDialog->getDlFiles();

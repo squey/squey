@@ -4,13 +4,13 @@
 #include <QString>
 
 enum Protocol {
-    Local = 0,
-    Http,
+    Http = 0,
     Https,
     Ftp,
     Ftps,
     Scp,
-    SFtp
+    SFtp,
+    Local
 };
 
 struct ConnectionSettings

@@ -1,7 +1,7 @@
 #ifndef PICVIZ_PVSOURCECREATORREMOTETEXTFILE_H
 #define PICVIZ_PVSOURCECREATORTEMOTETEXTFILE_H
 
-#include "PVSourceCreatorTextfile.h""
+#include "PVSourceCreatorTextfile.h"
 
 namespace PVRush {
 
