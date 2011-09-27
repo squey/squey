@@ -131,6 +131,8 @@ public:
 	virtual size_t get_child_count() { return _nchilds; }
 
 protected:
+	virtual base_registrable* _clone_me() const { return NULL; }
+protected:
     PVFilter::fields_filter_type _type;
     filter_p _filter;
 	QStringList _filter_data;
@@ -145,6 +147,9 @@ typedef PVFieldsSplitterParamWidget::p_type PVFieldsSplitterParamWidget_p;
 #ifdef WIN32
 LibKernelDeclExplicitTempl PVCore::PVClassLibrary<PVFilter::PVFieldsSplitterParamWidget>;
 LibKernelDeclExplicitTempl PVCore::PVTag<PVFilter::PVFieldsSplitterParamWidget>;
+LibKernelDeclExplicitTempl PVCore::PVTag<PVFilter::PVFieldsFilterParamWidget<PVFilter::one_to_one> >;
+LibKernelDeclExplicitTempl PVCore::PVTag<PVFilter::PVFieldsFilterParamWidget<PVFilter::many_to_many> >;
+
 #endif
 
 #endif
