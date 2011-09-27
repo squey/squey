@@ -43,7 +43,8 @@ typedef PVPlottingFilter::func_type PVPlottingFilter_f;
 }
 
 #ifdef WIN32
-LibPicvizDeclExplicitTempl PVCore::PVClassLibrary<Picviz::PVPlottingFilter::FilterT>;
+LibPicvizDeclExplicitTempl PVCore::PVClassLibrary<Picviz::PVPlottingFilter>;
+LibPicvizDeclExplicitTempl PVCore::PVTag<Picviz::PVPlottingFilter>;
 #endif
 
 #endif

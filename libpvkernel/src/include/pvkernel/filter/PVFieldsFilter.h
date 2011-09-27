@@ -161,6 +161,9 @@ LibKernelDeclExplicitTempl PVCore::PVClassLibrary<PVFilter::PVFieldsFilterReg>;
 LibKernelDeclExplicitTempl PVFilter::PVFieldsFilter<PVFilter::one_to_many>;
 LibKernelDeclExplicitTempl PVFilter::PVFieldsFilter<PVFilter::one_to_one>;
 LibKernelDeclExplicitTempl PVFilter::PVFieldsFilter<PVFilter::many_to_many>;
+LibKernelDeclExplicitTempl PVCore::PVTag<PVFieldsFilter<PVFilter::one_to_many> >;
+LibKernelDeclExplicitTempl PVCore::PVTag<PVFieldsFilter<PVFilter::one_to_one> >;
+LibKernelDeclExplicitTempl PVCore::PVTag<PVFieldsFilter<PVFilter::many_to_many> >;
 #endif
 
 typedef PVCore::PVClassLibrary<PVFieldsSplitter>::tag PVFieldsSplitterTag;

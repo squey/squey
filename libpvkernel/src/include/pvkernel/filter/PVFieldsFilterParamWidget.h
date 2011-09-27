@@ -144,6 +144,7 @@ typedef PVFieldsSplitterParamWidget::p_type PVFieldsSplitterParamWidget_p;
 
 #ifdef WIN32
 LibKernelDeclExplicitTempl PVCore::PVClassLibrary<PVFilter::PVFieldsSplitterParamWidget>;
+LibKernelDeclExplicitTempl PVCore::PVTag<PVFilter::PVFieldsSplitterParamWidget>;
 #endif
 
 #endif

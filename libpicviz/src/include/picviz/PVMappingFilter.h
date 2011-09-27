@@ -65,7 +65,8 @@ typedef PVMappingFilter::func_type PVMappingFilter_f;
 }
 
 #ifdef WIN32
-LibPicvizDeclExplicitTempl PVCore::PVClassLibrary<Picviz::PVMappingFilter::FilterT>;
+LibPicvizDeclExplicitTempl PVCore::PVClassLibrary<Picviz::PVMappingFilter>;
+LibPicvizDeclExplicitTempl PVCore::PVTag<Picviz::PVMappingFilter>;
 #endif
 
 #endif
