@@ -65,5 +65,6 @@ add_library(mapping_filter_mandatory_minmax SHARED mandatory_minmax/PVMandatoryM
 target_link_libraries(mapping_filter_mandatory_minmax ${LINK_LIBRARIES})
 
 
-INSTALL(TARGETS ${FILTERS_DIST_LIST} LIBRARY DESTINATION mapping-filters)
+INSTALL(TARGETS ${FILTERS_DIST_LIST} LIBRARY DESTINATION mapping-filters
+                                     RUNTIME DESTINATION mapping-filters)
 INSTALL(FILES ${FILTERS_DIST_FILES} DESTINATION mapping-filters)

@@ -48,5 +48,6 @@ add_library(input_type_remotefile SHARED remote_file/addmachinedialog.cpp remote
 target_link_libraries(input_type_remotefile ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES} ${ARCHIVE_LIBRARY})
 
 
-INSTALL(TARGETS ${INPUTS_DIST_LIST} LIBRARY DESTINATION input-types)
+INSTALL(TARGETS ${INPUTS_DIST_LIST} LIBRARY DESTINATION input-types
+                                    RUNTIME DESTINATION input-types)
 INSTALL(FILES ${INPUTS_DIST_FILES} DESTINATION input-types)
