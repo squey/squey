@@ -70,7 +70,7 @@ void PVInspector::PVXmlTimeValidatorHighLight::highlightBlock(const QString &tex
     formatMacthLine.setForeground(Qt::black);
     formatMacthLineSelection.setForeground(Qt::black);
     formatMacthLineSelection.setBackground(QColor("#c0c0c0"));
-    formatNoMatch.setForeground(QColor("#707070"));
+    formatNoMatch.setForeground(QColor("#FF0000"));
     
     //default color
     setFormat(0, text.count(), formatNoMatch);
