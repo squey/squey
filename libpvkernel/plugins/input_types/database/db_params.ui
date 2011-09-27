@@ -123,6 +123,12 @@
      <property name="title">
       <string>Database connection parameters</string>
      </property>
+     <property name="flat">
+      <bool>false</bool>
+     </property>
+     <property name="checkable">
+      <bool>false</bool>
+     </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_11">
@@ -165,7 +171,7 @@
        </layout>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <layout class="QHBoxLayout" name="_layout_host">
         <item>
          <widget class="QLabel" name="label_2">
           <property name="sizePolicy">
@@ -214,7 +220,7 @@
        </layout>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_4">
+       <layout class="QHBoxLayout" name="_layout_username">
         <item>
          <widget class="QLabel" name="label_4">
           <property name="sizePolicy">
@@ -234,7 +240,7 @@
        </layout>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_5">
+       <layout class="QHBoxLayout" name="_layout_password">
         <item>
          <widget class="QLabel" name="label_5">
           <property name="sizePolicy">
@@ -261,7 +267,7 @@
        </layout>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_6">
+       <layout class="QHBoxLayout" name="_layout_db">
         <item>
          <widget class="QLabel" name="label_10">
           <property name="text">

@@ -9,7 +9,8 @@
 #include <QSqlField>
 #include <QHash>
 #include <QMessageBox>
-
+#include <QPushButton>
+#include <QFileDialog>
 
 // Hash table used to have 'human-readable' name of Qt's SQL dirvers
 class HashDriversName
@@ -18,14 +19,14 @@ public:
 	HashDriversName()
 	{
 		_hash["QMYSQL"] = "MySQL";
-		_hash["QMYSQL3"] = "MySQL 3.x";
+		_hash["QMYSQL3"] = QString(); // We do not want to use the old drivers from Qt3
 		_hash["QSQLITE"] = "SQLite";
-		_hash["ODBC"] = "ODBC";
+		_hash["QODBC"] = "ODBC";
+		_hash["QODBC3"] = QString(); // We do not want to use the old drivers from Qt3
 
 		_port["QMYSQL"] = 3306;
-		_port["QMYSQL3"] = 3306;
 		_port["QSQLITE"] = 0;
-		_port["ODBC"] = 0;
+		_port["QODBC"] = 0;
 	}
 	QString name(QString const& driver)
 	{ 
@@ -42,9 +43,12 @@ public:
 		}
 		return 0;
 	}
+
 private:
 	QHash<QString,QString> _hash;
 	QHash<QString,uint16_t> _port;
+
+	QHBoxLayout* _sqlite_layout;
 };
 static HashDriversName g_drivers_name;
 
@@ -56,6 +60,10 @@ PVRush::PVDatabaseParamsWidget::PVDatabaseParamsWidget(PVInputTypeDatabase const
 	// Create the UI
 	setupUi(this);
 
+	// Browse button for SQLite
+	_btn_sqlite_browse = new QPushButton(tr("Browse..."));
+	_layout_db->addWidget(_btn_sqlite_browse);
+
 	// Set the dialog title
 	setWindowTitle(tr("Import from a database..."));
 
@@ -63,7 +71,10 @@ PVRush::PVDatabaseParamsWidget::PVDatabaseParamsWidget(PVInputTypeDatabase const
 	QStringList drivers = QSqlDatabase::drivers();
 	for (int i = 0; i < drivers.size(); i++) {
 		QString d = drivers[i];
-		_combo_type->addItem(g_drivers_name.name(d), d);
+		QString name = g_drivers_name.name(d);
+		if (!name.isEmpty()) {
+			_combo_type->addItem(name, d);
+		}
 	}
 	
 	populate_presets();
@@ -80,7 +91,10 @@ PVRush::PVDatabaseParamsWidget::PVDatabaseParamsWidget(PVInputTypeDatabase const
 	connect(_btn_edit_existing, SIGNAL(clicked()), this, SLOT(edit_existing_format_Slot()));
 	connect(_btn_edit_new, SIGNAL(clicked()), this, SLOT(edit_new_format_Slot()));
 	connect(_radio_use_existing, SIGNAL(toggled(bool)), this, SLOT(use_existing_format_toggle_Slot(bool)));
+	connect(_btn_sqlite_browse, SIGNAL(clicked()), this, SLOT(browse_sqlite_Slot()));
 	
+	_combo_type->setCurrentIndex(0);
+	sql_type_changed_Slot(0);
 	_last_load_preset = -1;
 
 	// Get the last preset ID loaded
@@ -289,6 +303,57 @@ bool PVRush::PVDatabaseParamsWidget::select_type(QString const& qt_type)
 void PVRush::PVDatabaseParamsWidget::sql_type_changed_Slot(int idx)
 {
 	_txt_port->setText(QString::number(g_drivers_name.port(_combo_type->itemData(idx).toString())));
+	show_def_params();
+
+	// If SQLite, hide some parameters
+	QString driver = _combo_type->itemData(idx).toString();
+	if (driver == "QSQLITE") {
+		show_sqlite();
+	}
+	else
+	if (driver == "QODBC") {
+		show_odbc();
+	}
+}
+
+void PVRush::PVDatabaseParamsWidget::show_def_params()
+{
+	show_layout_children(_layout_host, true);
+	show_layout_children(_layout_username, true);
+	show_layout_children(_layout_password, true);
+	_btn_sqlite_browse->setVisible(false);
+}
+
+void PVRush::PVDatabaseParamsWidget::show_sqlite()
+{
+	show_layout_children(_layout_host, false);
+	show_layout_children(_layout_username, false);
+	show_layout_children(_layout_password, false);
+	_btn_sqlite_browse->setVisible(true);
+}
+
+void PVRush::PVDatabaseParamsWidget::show_odbc()
+{
+	show_layout_children(_layout_host, false);
+	show_layout_children(_layout_username, false);
+	show_layout_children(_layout_password, false);
+}
+
+void PVRush::PVDatabaseParamsWidget::show_layout_children(const QLayout* layout, bool show)
+{
+	QLayoutItem *item = 0;
+	QWidget *widget = 0;
+
+	for(int i = 0; i < layout->count(); ++i)
+	{
+		item = layout->itemAt(i);
+		if (item) {
+			widget = item->widget();
+			if (widget) {
+				widget->setVisible(show);
+			}
+		}
+	}
 }
 
 void PVRush::PVDatabaseParamsWidget::query_preview_Slot()
@@ -376,4 +441,13 @@ void PVRush::PVDatabaseParamsWidget::enable_used_format(bool is_existing)
 QString PVRush::PVDatabaseParamsWidget::get_existing_format()
 {
 	return _combo_formats->currentText();
+}
+
+void PVRush::PVDatabaseParamsWidget::browse_sqlite_Slot()
+{
+	QString file = QFileDialog::getOpenFileName(this, tr("Choose an SQLite database..."));
+	if (file.isEmpty()) {
+		return;
+	}
+	_txt_dbname->setText(file);
 }

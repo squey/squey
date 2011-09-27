@@ -786,7 +786,7 @@ void PVInspector::PVXmlDomModel::addUrlIn(const QModelIndex &index){
 	port.setAttribute("name", "Port");
 	port.setAttribute("type", "integer");
 	port.setAttribute("mapping", "default");
-	port.setAttribute("plotting", "default");
+	port.setAttribute("plotting", "port");
 	port.setAttribute("time-format", "");
 	port.setAttribute("key", "false");
 	port.setAttribute("color", "#ffffff");
@@ -795,7 +795,7 @@ void PVInspector::PVXmlDomModel::addUrlIn(const QModelIndex &index){
 	url.setAttribute("name", "URL");
 	url.setAttribute("type", "string");
 	url.setAttribute("mapping", "default");
-	url.setAttribute("plotting", "default");
+	url.setAttribute("plotting", "minmax");
 	url.setAttribute("time-format", "");
 	url.setAttribute("key", "false");
 	url.setAttribute("color", "#ffffff");
@@ -804,7 +804,7 @@ void PVInspector::PVXmlDomModel::addUrlIn(const QModelIndex &index){
 	variable.setAttribute("name", "Variable");
 	variable.setAttribute("type", "string");
 	variable.setAttribute("mapping", "default");
-	variable.setAttribute("plotting", "default");
+	variable.setAttribute("plotting", "minmax");
 	variable.setAttribute("time-format", "");
 	variable.setAttribute("key", "false");
 	variable.setAttribute("color", "#ffffff");

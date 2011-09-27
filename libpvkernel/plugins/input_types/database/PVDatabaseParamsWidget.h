@@ -48,6 +48,7 @@ public slots:
 	void edit_existing_format_Slot();
 	void edit_new_format_Slot();
 	void use_existing_format_toggle_Slot(bool toggle);
+	void browse_sqlite_Slot();
 
 protected:
 	bool set_dbinfos(PVDBInfos const& infos);
@@ -57,11 +58,18 @@ protected:
 	void add_preset(QString const& name, PVDBPresets::id_t id);
 	QString get_current_driver();
 	void enable_used_format(bool is_existing);
+	void show_def_params();
+	void show_sqlite();
+	void show_odbc();
+	static void show_layout_children(const QLayout* layout, bool show);
 
 protected:
 	QSettings _settings;
 	int64_t _last_load_preset;
 	PVInputTypeDatabase const* _in_t;
+
+protected:
+	QPushButton* _btn_sqlite_browse;
 
 protected:
 	// New XML format created from the database fields

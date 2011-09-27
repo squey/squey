@@ -97,10 +97,11 @@ bool PVRush::PVFormatVersion::_rec_1to2(QDomElement elt)
 {
 	QString const& tag_name = elt.tagName();
 	static QStringList tags = QStringList() << "protocol" << "domain" << "tld" << "port" << "url" << "url-variables";
+	static QStringList plottings = QStringList() << "default" << "default" << "default" << "port" << "minmax" << "minmax";
 	if (tag_name == "splitter") {
 		QString type = elt.attribute("type", "");
 		if (type == "url") {
-			// Set default axes tags
+			// Set default axes tags and plottings
 			QDomNodeList children = elt.childNodes();
 			for (unsigned int i = 0; i < 6; i++) {
 				QDomElement c_elt = children.at(i).toElement();
@@ -109,6 +110,7 @@ bool PVRush::PVFormatVersion::_rec_1to2(QDomElement elt)
 					QDomElement axis = c_elt.firstChildElement("axis");
 					// and set the default tag
 					axis.setAttribute(PVFORMAT_AXIS_TAG_STR, tags[i]);
+					axis.setAttribute(PVFORMAT_AXIS_PLOTTING_STR, plottings[i]);
 				}
 			}
 		}
