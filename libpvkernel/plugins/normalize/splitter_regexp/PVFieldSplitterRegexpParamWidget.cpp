@@ -39,7 +39,6 @@ void PVFilter::PVFieldSplitterRegexpParamWidget::initWidget(){
     btn_apply = new QPushButton(tr("Apply"));
 	fullline_checkBox = new QCheckBox(tr("Match the regular expression on the whole line\n(warning: disabling this can cause severe performance loss !)"));
 	bool fullline = l["full-line"].toBool();
-	PVLOG_INFO("full-line: %d\n", fullline);
 	fullline_checkBox->setChecked(fullline);
 }
 
