@@ -157,7 +157,7 @@ void PVInspector::PVExtractorWidget::update_status_ext(PVCore::PVProgressBox* pb
 
 bool PVInspector::PVExtractorWidget::show_job_progress_bar(PVRush::PVControllerJob_p job, QString const& desc, int nlines, QWidget* parent = NULL)
 {
-	PVCore::PVProgressBox *pbox = new PVCore::PVProgressBox(tr("Extracting %1...").arg(desc), parent, 0);
+	PVCore::PVProgressBox *pbox = new PVCore::PVProgressBox(tr("Extracting %1...").arg(desc), parent, 0, QString("Number of elements processed: %1/%2"));
 	QProgressBar *pbar = pbox->getProgressBar();
 	pbar->setValue(0);
 	pbar->setMaximum(nlines);

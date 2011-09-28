@@ -663,7 +663,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 	PVRush::list_creators lcr = PVRush::PVSourceCreatorFactory::get_by_input_type(in_t);
 	PVRush::hash_format_creator format_creator = PVRush::PVSourceCreatorFactory::get_supported_formats(lcr);
 
-	PVRush::hash_formats formats;
+	PVRush::hash_formats formats, new_formats;
 
 	PVRush::hash_format_creator::const_iterator itfc;
 	for (itfc = format_creator.begin(); itfc != format_creator.end(); itfc++) {
@@ -677,9 +677,22 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 	map_files_types files_multi_formats;
 	QHash<QString,PVRush::PVInputType::input_type> hash_input_name;
 
-	if (!in_t->createWidget(formats, inputs, choosenFormat, this))
+	if (!in_t->createWidget(formats, new_formats, inputs, choosenFormat, this))
 		return; // This means that the user pressed the "cancel" button
-	
+
+	// Add the new formats to the formats
+	{
+		PVRush::hash_formats::iterator it;
+		for (it = new_formats.begin(); it != new_formats.end(); it++) {
+			formats[it.key()] = it.value();
+			PVRush::list_creators::const_iterator it_lc;
+			for (it_lc = lcr.begin(); it_lc != lcr.end(); it_lc++) {
+				PVRush::hash_format_creator::mapped_type v(it.value(), *it_lc);
+				// Save this format/creator pair to the "format_creator" object
+				format_creator[it.key()] = v;
+			}
+		}
+	}
 	QHash< QString,PVRush::PVInputType::list_inputs > discovered;
 	QHash<QString,PVCore::PVMeanValue<float> > discovered_types; // format->mean_success_rate
 

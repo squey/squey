@@ -10,7 +10,7 @@ PVRush::PVInputTypeDatabase::PVInputTypeDatabase() :
 {
 }
 
-bool PVRush::PVInputTypeDatabase::createWidget(hash_formats const& formats, list_inputs &inputs, QString& format, QWidget* parent) const
+bool PVRush::PVInputTypeDatabase::createWidget(hash_formats const& formats, hash_formats& new_formats, list_inputs &inputs, QString& format, QWidget* parent) const
 {
 	connect_parent(parent);
 	PVDatabaseParamsWidget* params = new PVDatabaseParamsWidget(this, formats, parent);
@@ -28,12 +28,12 @@ bool PVRush::PVInputTypeDatabase::createWidget(hash_formats const& formats, list
 	inputs.push_back(in);
 
 	if (params->is_format_custom()) {
+		PVRush::PVFormat custom_format;
+		custom_format.populate_from_xml(params->get_custom_format().documentElement());
+		new_formats["custom"] = custom_format;
 		format = "custom";
-		_is_custom_format = true;
-		_custom_format.populate_from_xml(params->get_custom_format().documentElement());
 	}
 	else {
-		_is_custom_format = false;
 		format = params->get_existing_format();
 	}
 
@@ -67,17 +67,21 @@ QString PVRush::PVInputTypeDatabase::menu_input_name() const
 
 QString PVRush::PVInputTypeDatabase::tab_name_of_inputs(list_inputs const& in) const
 {
-	return QString("TODO: database tab name");
+	PVDBQuery const& query = in[0].value<PVDBQuery>();
+	return query.human_name();
 }
 
 bool PVRush::PVInputTypeDatabase::get_custom_formats(PVCore::PVArgument const& in, hash_formats &formats) const
 {
+	return false;
+#if 0
 	if (!_is_custom_format) {
 		return false;
 	}
 
 	formats["custom"] = _custom_format;
 	return true;
+#endif
 }
 
 QKeySequence PVRush::PVInputTypeDatabase::menu_shortcut() const

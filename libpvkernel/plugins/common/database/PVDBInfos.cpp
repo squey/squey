@@ -67,7 +67,7 @@ bool PVRush::PVDBServ::connect()
 
 QString PVRush::PVDBServ::last_error() const
 {
-	return _db.lastError().driverText();
+	return _db.lastError().databaseText() + " " + _db.lastError().driverText() + " " + QString::number(_db.lastError().number());
 }
 
 QSqlDatabase PVRush::PVDBServ::to_database()

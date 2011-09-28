@@ -136,6 +136,7 @@ protected:
 private:
 	std::list<PVFilter::PVFieldsBaseFilter_p> _filters_container;
 	bool _dump_elts;
+	bool _already_pop;
 };
 
 };

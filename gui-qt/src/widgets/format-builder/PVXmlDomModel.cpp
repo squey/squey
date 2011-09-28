@@ -291,6 +291,11 @@ bool PVInspector::PVXmlDomModel::setData(const QModelIndex & index, const QVaria
  *
  *****************************************************************************/
 bool PVInspector::PVXmlDomModel::saveXml(QString nomDuFichierXml){
+
+	if (!nomDuFichierXml.endsWith(".format")) {
+		nomDuFichierXml.append(".format");
+	}
+
     QFile file(nomDuFichierXml);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
 		QMessageBox msg(QMessageBox::Critical, "Error while saving format", QString("Unable to open %1 for writing: ").arg(nomDuFichierXml) + file.errorString(), QMessageBox::Ok);
@@ -685,6 +690,7 @@ bool PVInspector::PVXmlDomModel::openXml(QString url) {
 void PVInspector::PVXmlDomModel::openXml(QDomDocument& doc)
 {
 	PVRush::PVFormatVersion::to_current(doc);
+	xmlFile = doc;
 	xmlRootDom = doc.documentElement();
 	PVRush::PVXmlTreeNodeDom *m_rootNode = new PVRush::PVXmlTreeNodeDom(PVRush::PVXmlTreeNodeDom::field, "root", xmlRootDom, this->xmlFile);
 //	if (getVersion() == "0") {
