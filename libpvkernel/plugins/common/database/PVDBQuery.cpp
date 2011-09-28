@@ -23,7 +23,7 @@ PVRush::PVDBQuery::~PVDBQuery()
 
 QSqlQuery PVRush::PVDBQuery::to_query(chunk_index start, chunk_index nelts) const
 {
-	QString querystr = _query + QString(" LIMIT %1 OFFSET %2").arg(nelts).arg(start);
+	QString querystr = _query/* + QString(" LIMIT %1 OFFSET %2").arg(nelts).arg(start)*/;
 	QSqlQuery query(_infos->to_database());
 	query.prepare(querystr);
 	return query;

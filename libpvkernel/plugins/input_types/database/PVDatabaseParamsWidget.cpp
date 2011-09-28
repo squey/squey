@@ -255,7 +255,7 @@ void PVRush::PVDatabaseParamsWidget::get_dbinfos(PVDBInfos& infos)
 	infos.set_type(get_current_driver());
 	infos.set_host(_txt_host->text());
 	infos.set_username(_txt_user->text());
-	infos.set_password(_txt_user->text());
+	infos.set_password(_txt_pwd->text());
 	infos.set_port(_txt_port->text().toUInt());
 	infos.set_dbname(_txt_dbname->text());
 }
@@ -335,8 +335,6 @@ void PVRush::PVDatabaseParamsWidget::show_sqlite()
 void PVRush::PVDatabaseParamsWidget::show_odbc()
 {
 	show_layout_children(_layout_host, false);
-	show_layout_children(_layout_username, false);
-	show_layout_children(_layout_password, false);
 }
 
 void PVRush::PVDatabaseParamsWidget::show_layout_children(const QLayout* layout, bool show)

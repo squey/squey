@@ -23,6 +23,9 @@
 // Laposte
 #define SEPT_20 1316520000
 
+// Schneider
+#define DEC_1 1322719200
+
 // #ifdef USE_UNIKEY
   // #include <UniKeyFR.h>
 // #endif
@@ -60,8 +63,8 @@ int main(int argc, char *argv[])
 
 	time_t t = time(NULL);
  	// PVLOG_INFO("Current time:%d\n", t);
-#if 0
-	if (t > SEPT_20) {
+#if 1
+	if (t > DEC_1) {
 		exit(42);
 	}
 #endif

@@ -67,7 +67,8 @@ QString PVRush::PVInputTypeDatabase::menu_input_name() const
 
 QString PVRush::PVInputTypeDatabase::tab_name_of_inputs(list_inputs const& in) const
 {
-	return QString("TODO: database tab name");
+	PVDBQuery const& query = in[0].value<PVDBQuery>();
+	return query.human_name();
 }
 
 bool PVRush::PVInputTypeDatabase::get_custom_formats(PVCore::PVArgument const& in, hash_formats &formats) const

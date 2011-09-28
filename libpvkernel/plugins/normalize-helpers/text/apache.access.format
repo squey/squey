@@ -12,7 +12,26 @@
    <axis titlecolor="#ffffff" tag="key" mapping="default" time-format="" group="" type="enum" name="Request" plotting="default" color="#ffffff" time-sample=""/>
   </field>
   <field>
-   <axis titlecolor="#ffffff" tag="domain:key" mapping="default" time-format="" group="" type="string" name="URL" plotting="default" color="#ffffff" time-sample=""/>
+   <splitter type="url">
+    <field>
+     <axis titlecolor="#ffffff" tag="protocol" key="false" mapping="default" time-format="" type="enum" name="Protocol" plotting="default" color="#ffffff"/>
+    </field>
+    <field>
+     <axis titlecolor="#ffffff" tag="domain" key="true" mapping="default" time-format="" type="host" name="Domain" plotting="default" color="#ffffff"/>
+    </field>
+    <field>
+     <axis titlecolor="#ffffff" tag="tld" key="false" mapping="default" time-format="" type="enum" name="TLD" plotting="default" color="#ffffff"/>
+    </field>
+    <field>
+     <axis titlecolor="#ffffff" tag="port" key="false" mapping="default" time-format="" type="integer" name="Port" plotting="port" color="#ffffff"/>
+    </field>
+    <field>
+     <axis titlecolor="#ffffff" tag="url" key="false" mapping="default" time-format="" type="string" name="URL" plotting="minmax" color="#ffffff"/>
+    </field>
+    <field>
+     <axis titlecolor="#ffffff" tag="url-variables" key="false" mapping="default" time-format="" type="string" name="Variable" plotting="minmax" color="#ffffff"/>
+    </field>
+   </splitter>
   </field>
   <field>
    <axis titlecolor="#ffffff" mapping="default" time-format="" group="" type="enum" name="Protocol" plotting="default" color="#ffffff" time-sample=""/>

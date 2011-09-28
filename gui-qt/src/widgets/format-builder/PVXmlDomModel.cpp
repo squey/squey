@@ -685,6 +685,7 @@ bool PVInspector::PVXmlDomModel::openXml(QString url) {
 void PVInspector::PVXmlDomModel::openXml(QDomDocument& doc)
 {
 	PVRush::PVFormatVersion::to_current(doc);
+	xmlFile = doc;
 	xmlRootDom = doc.documentElement();
 	PVRush::PVXmlTreeNodeDom *m_rootNode = new PVRush::PVXmlTreeNodeDom(PVRush::PVXmlTreeNodeDom::field, "root", xmlRootDom, this->xmlFile);
 //	if (getVersion() == "0") {

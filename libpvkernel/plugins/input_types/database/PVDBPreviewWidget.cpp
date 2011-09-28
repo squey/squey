@@ -12,6 +12,7 @@ PVRush::PVDBPreviewWidget::PVDBPreviewWidget(PVDBInfos const& infos, QString con
 	setupUi(this);
 	_table_model = new QSqlQueryModel();
 	_table_query->setModel(_table_model);
+	setWindowTitle("SQL query preview");
 }
 
 bool PVRush::PVDBPreviewWidget::init()
