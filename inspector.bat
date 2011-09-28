@@ -17,7 +17,7 @@ SET PVGL_SHARE_DIR=libpvgl\data\
 SET PVRUSH_NORMALIZE_DIR=libpvkernel\plugins\normalize\%BUILD_MODE%\
 SET PVRUSH_INPUTTYPE_DIR=libpvkernel\plugins\input_types\%BUILD_MODE%\
 SET PVRUSH_SOURCE_DIR=libpvkernel\plugins\sources\%BUILD_MODE%\
-SET PVRUSH_NORMALIZE_HELPERS_DIR=libpvkernel\plugins\normalize-helpers\
+SET PVRUSH_NORMALIZE_HELPERS_DIR=picviz-inspector\libpvkernel\plugins\normalize-helpers\
 SET PVFILTER_NORMALIZE_DIR=libpvkernel\plugins\normalize\%BUILD_MODE%\
 
 PATH=%PATH%;%CACTUSLABS_TRUNK_DIR%\libpvkernel\src\%BUILD_MODE%;%CACTUSLABS_TRUNK_DIR%\libpicviz\src\%BUILD_MODE%;%cactuslabs_trunk_dir%\libpvgl\src\%build_mode%
