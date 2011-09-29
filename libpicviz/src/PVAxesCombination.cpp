@@ -100,6 +100,7 @@ PVCol Picviz::PVAxesCombination::get_combined_axis_column_index(PVCol index) con
 		return columns_indexes_list.last();
 	}
 
+	
 	for (PVCol i = 0; i < columns_indexes_list.size(); i++) {
 		if (columns_indexes_list[i] == index) {
 			return i;
