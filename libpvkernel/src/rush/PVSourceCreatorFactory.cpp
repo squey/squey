@@ -2,6 +2,8 @@
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
 
+#include <tbb/tick_count.h>
+
 #define PICVIZ_DISCOVERY_NCHUNKS 1
 
 PVRush::list_creators PVRush::PVSourceCreatorFactory::get_by_input_type(PVInputType_p in_t)
@@ -52,9 +54,13 @@ PVRush::hash_format_creator PVRush::PVSourceCreatorFactory::get_supported_format
 float PVRush::PVSourceCreatorFactory::discover_input(pair_format_creator format_, PVCore::PVArgument const& input)
 {
 	PVFormat format = format_.first;
+	tbb::tick_count start,end;
+	start = tbb::tick_count::now();
 	if (!format.populate()) {
 		throw PVRush::PVFormatInvalid();
 	}
+	end = tbb::tick_count::now();
+	PVLOG_INFO("(PVSourceCreatorFactory::discover_input) format population took %0.4f.\n", (end-start).seconds());
 	PVSourceCreator_p sc = format_.second;
 
 	PVFilter::PVChunkFilter_f chk_flt = format.create_tbb_filters();
@@ -63,12 +69,21 @@ float PVRush::PVSourceCreatorFactory::discover_input(pair_format_creator format_
 	size_t nelts = 0;
 	size_t nelts_valid = 0;
 
-	// No parallelism for now
+	static size_t nelts_max = pvconfig.value("pvkernel/auto_discovery_number_elts", 500).toInt();
+
 	for (int i = 0; i < PICVIZ_DISCOVERY_NCHUNKS; i++) {
 		// Create a chunk
 		PVCore::PVChunk* chunk = (*src)();
 		if (chunk == NULL) { // No more chunks !
 			break;
+		}
+
+		// Limit the number of elements filtered
+		if (chunk->c_elements().size() + nelts > nelts_max) {
+			PVCore::list_elts& l = chunk->elements();
+			size_t new_size = nelts_max-nelts;
+			PVLOG_INFO("(PVSourceCreatorFactory::discover_input) new chunk size %d.\n", new_size);
+			l.resize(new_size);
 		}
 
 		// Apply the filter
@@ -94,11 +109,17 @@ float PVRush::PVSourceCreatorFactory::discover_input(pair_format_creator format_
 		nelts += chunk_nelts;
 		nelts_valid += chunk_nelts_valid;
 		chunk->free();
+		if (nelts >= nelts_max) {
+			break;
+		}
 	}
 
 	if (nelts == 0) {
 		return 0;
 	}
+
+	end = tbb::tick_count::now();
+	PVLOG_INFO("(PVSourceCreatorFactory::discover_input) format discovery took %0.4f.\n", (end-start).seconds());
 
 	PVLOG_INFO("Number of elts valid/total: %d/%d\n", nelts_valid, nelts);
 
