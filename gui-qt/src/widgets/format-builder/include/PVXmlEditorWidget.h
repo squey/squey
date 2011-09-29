@@ -31,7 +31,6 @@
 #include <PVXmlParamWidget.h>
 #include <PVNrawListingWidget.h>
 #include <PVNrawListingModel.h>
-#include <pvkernel/rush/PVNormalizer.h>
 #include <pvkernel/core/PVRegistrableClass.h>
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/PVArgument.h>

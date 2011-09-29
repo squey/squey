@@ -42,7 +42,6 @@
 #include <pvkernel/core/PVVersion.h>
 
 #include <pvkernel/rush/PVInput.h>
-#include <pvkernel/rush/PVNormalizer.h>
 #include <pvkernel/rush/PVSourceCreator.h>
 #include <pvkernel/rush/PVSourceCreatorFactory.h>
 
@@ -103,9 +102,6 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 	root = Picviz::PVRoot_p(new Picviz::PVRoot());
 	pv_FilterWidget = new PVFilterWidget(this);
 	pv_FilterWidget->hide();
-
-	pv_ImportFileDialog = new PVImportFileDialog(this);
-	pv_ImportFileDialog->hide();
 
 	pv_OpenFileDialog = new PVOpenFileDialog(this);
 	pv_OpenFileDialog->hide();
@@ -907,7 +903,6 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 			pvgl_com->post_message_to_gl(message);
 			continue;
 		}
-		import_source->set_limits(pv_ImportFileDialog->from_line_edit->text().toUInt(), pv_ImportFileDialog->to_line_edit->text().toUInt());
 		import_source->get_extractor().dump_nraw();
 
 #ifndef CUDA

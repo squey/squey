@@ -32,7 +32,6 @@
 #include <PVDualSlider.h>
 #include <PVExportSelectionDialog.h>
 #include <PVFilterWidget.h>
-#include <PVImportFileDialog.h>
 //#include <PVMapWidget.h>
 #include <PVOpenFileDialog.h>
 #include <PVSaveFileDialog.h>
@@ -72,7 +71,6 @@ public:
 	PVFilterWidget *pv_FilterWidget;
 
 	PVExportSelectionDialog *pv_ExportSelectionDialog;
-	PVImportFileDialog *pv_ImportFileDialog;
 
 //		PVMapWidget *pv_MapWidget;
 	PVOpenFileDialog    *pv_OpenFileDialog;

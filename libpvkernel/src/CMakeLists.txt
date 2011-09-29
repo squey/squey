@@ -112,11 +112,10 @@ rush/PVAxisFormat.cpp
 rush/pvdecoder.cpp
 rush/PVFileRawSource.cpp
 rush/PVFormat.cpp
-rush/PVNormalizer.cpp
-rush/pvnormalizerfactory.cpp
 rush/PVNraw.cpp
 rush/PVNrawChild.cpp
 rush/PVNrawOutput.cpp
+rush/PVNormalizer.cpp
 rush/PVXmlParamParser.cpp
 rush/pvsource.cpp
 rush/pvstream.cpp
@@ -184,8 +183,6 @@ include/pvkernel/rush/PVFile.h
 include/pvkernel/rush/pv_file_raw_source.h
 include/pvkernel/rush/pv_format.h
 include/pvkernel/rush/PVFormat.h
-include/pvkernel/rush/PVNormalizer.h
-include/pvkernel/rush/pvnormalizerfactory.h
 include/pvkernel/rush/PVSource.h
 include/pvkernel/rush/PVUnicodeSource.h
 include/pvkernel/rush/PVCSVSource.h
@@ -209,6 +206,7 @@ include/pvkernel/rush/PVOutputFile.h
 include/pvkernel/rush/PVOutput.h
 include/pvkernel/rush/PVPluginsLoad.h
 include/pvkernel/rush/PVVrbAllocator.h
+include/pvkernel/rush/PVNormalizer.h
 include/pvkernel/rush/PVRawSource.h
 include/pvkernel/rush/PVRawSourceBase.h
 include/pvkernel/rush/PVSourceCreator.h

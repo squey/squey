@@ -8,10 +8,11 @@
 
 #include <PVXmlEditorWidget.h>
 #include <PVXmlTreeItemDelegate.h>
-#include <pvkernel/rush/PVXmlTreeNodeDom.h>
 #include <PVXmlParamWidget.h>
 #include <PVInputTypeMenuEntries.h>
 
+#include <pvkernel/rush/PVNormalizer.h>
+#include <pvkernel/rush/PVXmlTreeNodeDom.h>
 #include <pvkernel/rush/PVSourceCreatorFactory.h>
 #include <pvkernel/rush/PVInput.h>
 #include <pvkernel/filter/PVFieldSplitterChunkMatch.h>
