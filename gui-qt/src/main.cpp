@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
 
 	time_t t = time(NULL);
  	// PVLOG_INFO("Current time:%d\n", t);
-#if 1
+#if 0
 	if (t > DEC_1) {
 		exit(42);
 	}
