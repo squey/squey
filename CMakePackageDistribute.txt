@@ -21,6 +21,8 @@ if(WIN32)
 	C:\\\\Qt\\\\4.7.3\\\\bin\\\\QtWebKit4.dll
 	C:\\\\Qt\\\\4.7.3\\\\bin\\\\QtXml4.dll
 	C:\\\\Qt\\\\4.7.3\\\\bin\\\\QtXmlPatterns4.dll
+	C:\\\\Qt\\\\4.7.3\\\\plugins\\\\sqldrivers\\\\qsqlite4.dll
+	C:\\\\Qt\\\\4.7.3\\\\plugins\\\\sqldrivers\\\\qsqlodbc4.dll
 	)
 	install(FILES ${QT4_DIST_FILES} ${INSPECTOR_ICON} DESTINATION .)
 

@@ -6,11 +6,11 @@ PVRush::PVSQLTypeMap_p PVRush::PVSQLTypeMap::get_map(QString const& driver)
 	if (driver == "QMYSQL") {
 		return p_type(new PVSQLTypeMapMysql());
 	}
-	if (driver == "QODBC") {
-		return p_type(new PVSQLTypeMapODBC());
-	}
 	if (driver == "QSQLITE") {
 		return p_type(new PVSQLTypeMapSQLite());
+	}
+	if (driver == "QODBC") {
+		return p_type(new PVSQLTypeMapODBC());
 	}
 	return p_type();
 }

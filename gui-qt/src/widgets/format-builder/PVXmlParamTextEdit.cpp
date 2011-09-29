@@ -42,8 +42,6 @@ PVInspector::PVXmlParamTextEdit::PVXmlParamTextEdit(QString pName,QVariant var):
  *
  *****************************************************************************/
 PVInspector::PVXmlParamTextEdit::~PVXmlParamTextEdit() {
-    
-    highlight->deleteLater();
 }
 
 

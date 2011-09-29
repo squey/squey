@@ -39,8 +39,3 @@ echo PVFILTER_NORMALIZE_DIR=%PVFILTER_NORMALIZE_DIR%
 echo PATH=%PATH%
 
 %CACTUSLABS_TRUNK_DIR%\gui-qt\src\%BUILD_MODE%\picviz-inspector.exe
-
-
-
-
-
