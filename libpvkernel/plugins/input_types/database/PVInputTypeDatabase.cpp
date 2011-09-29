@@ -10,7 +10,7 @@ PVRush::PVInputTypeDatabase::PVInputTypeDatabase() :
 {
 }
 
-bool PVRush::PVInputTypeDatabase::createWidget(hash_formats const& formats, list_inputs &inputs, QString& format, QWidget* parent) const
+bool PVRush::PVInputTypeDatabase::createWidget(hash_formats const& formats, hash_formats& new_formats, list_inputs &inputs, QString& format, QWidget* parent) const
 {
 	connect_parent(parent);
 	PVDatabaseParamsWidget* params = new PVDatabaseParamsWidget(this, formats, parent);
@@ -28,12 +28,12 @@ bool PVRush::PVInputTypeDatabase::createWidget(hash_formats const& formats, list
 	inputs.push_back(in);
 
 	if (params->is_format_custom()) {
+		PVRush::PVFormat custom_format;
+		custom_format.populate_from_xml(params->get_custom_format().documentElement());
+		new_formats["custom"] = custom_format;
 		format = "custom";
-		_is_custom_format = true;
-		_custom_format.populate_from_xml(params->get_custom_format().documentElement());
 	}
 	else {
-		_is_custom_format = false;
 		format = params->get_existing_format();
 	}
 

@@ -537,9 +537,9 @@ void PVInspector::PVXmlEditorWidget::slotOpenLog()
 
 	QString choosenFormat;
 	PVRush::PVInputType::list_inputs inputs;
-	PVRush::hash_formats formats;
+	PVRush::hash_formats formats, new_formats;
 
-	if (!in_t->createWidget(formats, inputs, choosenFormat, this))
+	if (!in_t->createWidget(formats, new_formats, inputs, choosenFormat, this))
 		return; // This means that the user pressed the "cancel" button
 
 	_nraw_model->set_consistent(false);

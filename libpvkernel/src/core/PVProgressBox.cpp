@@ -17,7 +17,9 @@
  * PVCore::PVProgressBox::PVProgressBox
  *
  *****************************************************************************/
-PVCore::PVProgressBox::PVProgressBox(QString msg, QWidget *parent, Qt::WindowFlags flags): QDialog(parent,flags) 
+PVCore::PVProgressBox::PVProgressBox(QString msg, QWidget *parent, Qt::WindowFlags flags, QString const& format_detail):
+	QDialog(parent,flags),
+	_format_detail(format_detail)
 {
 	QVBoxLayout *layout;
 	QHBoxLayout *layoutCancel;
@@ -37,6 +39,11 @@ PVCore::PVProgressBox::PVProgressBox(QString msg, QWidget *parent, Qt::WindowFla
 	//by default we don't know the progress
 	progress_bar->setMaximum(0);
 	progress_bar->setMinimum(0);
+
+	if (!format_detail.isEmpty()) {
+		_detail_label = new QLabel();
+		layout->addWidget(_detail_label);
+	}
 	
 	widgetCancel = new QWidget(this);
 	layoutCancel = new QHBoxLayout();
@@ -67,6 +74,9 @@ void PVCore::PVProgressBox::set_status(int status)
 void PVCore::PVProgressBox::update_status_Slot()
 {
 	progress_bar->setValue(_status);
+	if (!_format_detail.isEmpty()) {
+		_detail_label->setText(_format_detail.arg(_status).arg(progress_bar->maximum()));
+	}
 }
 
 /******************************************************************************

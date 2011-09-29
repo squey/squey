@@ -21,7 +21,7 @@ public:
 	typedef QList<input_type> list_inputs;
 	typedef boost::shared_ptr<PVInputType> p_type;
 public:
-	virtual bool createWidget(hash_formats const& formats, list_inputs &inputs, QString& format, QWidget* parent = NULL) const = 0;
+	virtual bool createWidget(hash_formats const& formats, hash_formats& new_formats, list_inputs &inputs, QString& format, QWidget* parent = NULL) const = 0;
 	virtual QString name() const = 0;
 	virtual QString human_name() const = 0;
 	// Warning: the "human name" of an input must be *unique* accross all the possible inputs

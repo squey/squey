@@ -27,6 +27,7 @@ PVRush::PVFormat::PVFormat()
 {
 	axes_count = 0;
 	_dump_elts = false;
+	_already_pop = false;
 }
 
 PVRush::PVFormat::PVFormat(QString const& format_name_, QString const& full_path_)
@@ -35,6 +36,7 @@ PVRush::PVFormat::PVFormat(QString const& format_name_, QString const& full_path
 	format_name = format_name_;
 	axes_count = 0;
 	_dump_elts = false;
+	_already_pop = false;
 }
 
 
@@ -51,7 +53,11 @@ void PVRush::PVFormat::clear()
 
 bool PVRush::PVFormat::populate(bool forceOneAxis)
 {
-	return populate_from_xml(full_path, forceOneAxis);
+	if (!full_path.isEmpty()) {
+		return populate_from_xml(full_path, forceOneAxis);
+	}
+
+	return _already_pop;
 }
 
 QString const& PVRush::PVFormat::get_format_name() const
@@ -165,7 +171,8 @@ bool PVRush::PVFormat::populate_from_parser(PVXmlParamParser& xml_parser, bool f
 		_axes.push_back(fake_ax);
 	}
 
-	return _axes.size() > 0;
+	_already_pop = _axes.size() > 0;
+	return _already_pop;
 }
 
 PVFilter::PVFieldsBaseFilter_f PVRush::PVFormat::xmldata_to_filter(PVRush::PVXmlParamParserData const& fdata)

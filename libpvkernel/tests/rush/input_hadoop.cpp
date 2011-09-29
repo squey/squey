@@ -39,10 +39,10 @@ int main(int argc, char** argv)
 	assert(in_t);
 	assert(cr_text);
 
-	PVRush::hash_formats formats;
+	PVRush::hash_formats formats, new_formats;
 	QString choseFormat;
 	PVRush::PVInputType::list_inputs inputs;
-	assert(in_t->createWidget(formats, inputs, choseFormat, NULL));
+	assert(in_t->createWidget(formats, new_formats, inputs, choseFormat, NULL));
 
 	PVRush::PVInputHDFSFile ihdfs = inputs[0].value<PVRush::PVInputHDFSFile>();
 	ihdfs.set_process_in_hadoop(true);

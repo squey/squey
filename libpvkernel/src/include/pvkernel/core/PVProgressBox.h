@@ -20,7 +20,7 @@ class LibKernelDecl PVProgressBox: public QDialog
 	Q_OBJECT
 
 public:
-	PVProgressBox (QString msg, QWidget * parent = 0, Qt::WindowFlags f = 0);
+	PVProgressBox (QString msg, QWidget * parent = 0, Qt::WindowFlags f = 0, QString const& format_detail = QString());
 	/**
 	* Return the progress bar. It possible to modify Min, Max and progress.
 	*/
@@ -37,6 +37,8 @@ private:
 	QProgressBar *progress_bar;
 	int _status;
 	QPushButton *_btnCancel;
+	QString _format_detail;
+	QLabel* _detail_label;
 };
 
 }
