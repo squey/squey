@@ -14,9 +14,9 @@ if(USE_PVGL2)
 endif(USE_PVGL2)
 
 if (WIN32)
-	set(CMAKE_BUILD_TYPE "Debug")
+	#set(CMAKE_BUILD_TYPE "Debug")
 	#set(CMAKE_BUILD_TYPE "RelWithDebInfo")
-	#set(CMAKE_BUILD_TYPE "Release")
+	set(CMAKE_BUILD_TYPE "Release")
 else(WIN32)
 	set(CMAKE_BUILD_TYPE "Release")
 endif(WIN32)
@@ -51,7 +51,6 @@ endif()
 # Application specific definitions
 #
 add_definitions(-DCUSTOMER_RELEASE)
-add_definitions(-DCUSTOMER_NAME="dev")
 
 if(WIN32)
 	add_definitions(-DWIN32)

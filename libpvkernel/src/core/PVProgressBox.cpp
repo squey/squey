@@ -56,6 +56,8 @@ PVCore::PVProgressBox::PVProgressBox(QString msg, QWidget *parent, Qt::WindowFla
 	layout->addWidget(widgetCancel);
 	connect(_btnCancel,SIGNAL(clicked()),this,SLOT(reject()));
 
+	setWindowTitle(msg);
+
 	_status = 0;
 }
 

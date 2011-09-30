@@ -34,6 +34,8 @@
   #endif
 #endif	// CUSTOMER_RELEASE
 
+#include <pvbase/customer.h>
+
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/debug.h>
 #include <pvkernel/core/PVAxisIndexType.h>
