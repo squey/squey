@@ -19,6 +19,7 @@ PVInspector::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(PVTabSplitte
 	_args_org(_args),
 	_has_apply(false)
 {
+	setWindowTitle("Filter properties...");
 }
 
 PVInspector::PVLayerFilterProcessWidget::~PVLayerFilterProcessWidget()

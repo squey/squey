@@ -843,7 +843,7 @@ void PVGL::PVView::mouse_down(int button, int x, int y, int modifiers)
 	vec2 plotted_mouse;
 	Picviz::PVStateMachine *state_machine;
 
-	PVLOG_INFO("PVGL::PVView::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVView::%s\n", __FUNCTION__);
 
 	if (!picviz_view) { // Sanity check
 		return;
@@ -1114,7 +1114,7 @@ void PVGL::PVView::reinit_picviz_view()
  *****************************************************************************/
 void PVGL::PVView::update_listing(void)
 {
-                PVLOG_INFO("PVGL::PVView::update_listing\n");
+	PVLOG_HEAVYDEBUG("PVGL::PVView::update_listing\n");
 	PVGL::PVMessage message;
 
 	message.function = PVGL_COM_FUNCTION_CLEAR_SELECTION;
