@@ -3,7 +3,7 @@
 
 /* Customer name for releases */
 #ifdef CUSTOMER_RELEASE
-#define CUSTOMER_RELEASE "bnp-01"
+#define CUSTOMER_NAME "bnp-01"
 #endif
 
 #endif
