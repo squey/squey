@@ -149,13 +149,14 @@ public:
 
     PVFilter::PVFieldsSplitterParamWidget_p getSplitterPlugin() {
         if(!splitterPlugin){
-            createSplitterPlugin(xmlDomElement);
-			splitterPlugin->set_child_count(countChildren());
+            if (createSplitterPlugin(xmlDomElement)) {
+				splitterPlugin->set_child_count(countChildren());
+			}
         }
         return splitterPlugin;
     }
     
-    void createSplitterPlugin(const QDomElement &);
+    bool createSplitterPlugin(const QDomElement &);
     
     QDomElement getDom();
     
