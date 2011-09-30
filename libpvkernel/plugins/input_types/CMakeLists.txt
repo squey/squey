@@ -1,6 +1,5 @@
 set(INPUTS_DIST_LIST
 input_type_file
-input_type_database
 )
 
 set(INPUTS_DIST_FILES

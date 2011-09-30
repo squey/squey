@@ -17,13 +17,6 @@ if (WIN32)
 	set(CMAKE_BUILD_TYPE "Debug")
 	#set(CMAKE_BUILD_TYPE "RelWithDebInfo")
 	#set(CMAKE_BUILD_TYPE "Release")
-	set(REDIST_FILES
-	${Picviz_Inspector_SOURCE_DIR}/third-party/vcredist_x64.exe
-	${Picviz_Inspector_SOURCE_DIR}/third-party/openmp_release.msi
-	${Picviz_Inspector_SOURCE_DIR}/third-party/WinPcap_4_1_2.exe
-	)
-	install(FILES ${REDIST_FILES} DESTINATION redist)
-	SET(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "ExecWait 'c:\\\\windows\\\\notepad.exe'")
 else(WIN32)
 	set(CMAKE_BUILD_TYPE "Release")
 endif(WIN32)

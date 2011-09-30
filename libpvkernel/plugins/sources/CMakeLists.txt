@@ -1,7 +1,6 @@
 set(SOURCES_DIST_LIST
 source_text_file
 source_pcap_file
-source_database
 )
 
 
