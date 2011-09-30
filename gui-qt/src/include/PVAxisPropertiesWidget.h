@@ -14,11 +14,12 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QStringList>
-
+#include <QDialogButtonBox>
 
 
 namespace PVInspector {
 class PVMainWindow;
+class PVTabSplitter;
 
 /**
  * \class PVAxisPropertiesWidget
@@ -28,29 +29,28 @@ class PVAxisPropertiesWidget : public QDialog
 Q_OBJECT
 
 private:
-	PVMainWindow *main_window;
-
-	QPushButton *apply_button;
-	QComboBox   *axes_list;
-	QStringList  axes_names_list;
-	QLineEdit   *axis_name;
-	QLabel      *axis_name_label;
-	QPushButton *cancel_button;
-	QPushButton *done_button;
-	QGridLayout *main_layout;
-	
+	QComboBox        *axes_list;
+	QStringList       axes_names_list;
+	QLineEdit        *axis_name;
+	QLabel           *axis_name_label;
+	QGridLayout      *grid_layout;
+	QVBoxLayout      *main_layout;
+	QDialogButtonBox *box_buttons;
+	PVTabSplitter    *tab;
+	PVMainWindow* main_window;
 
 public:
 	/**
 	 * Constructor
 	 */
-	PVAxisPropertiesWidget(PVMainWindow *mw);
+	PVAxisPropertiesWidget(PVTabSplitter* tab_, PVMainWindow *mw);
 
 	/**
 	 * Destructor
 	 */
 	~PVAxisPropertiesWidget();
 
+protected:
 	void create();
 
 public slots:
@@ -71,6 +71,7 @@ public slots:
 	 */
 	void refresh_widget();
 	void refresh_widget(int index);
+	
 };
 }
 

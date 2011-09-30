@@ -9,7 +9,9 @@
 #include <PVMainWindow.h>
 #include <PVArgumentListWidget.h>
 #include <PVXmlEditorWidget.h>
-#include "PVLayerFilterProcessWidget.h"
+#include <PVLayerFilterProcessWidget.h>
+#include <PVAxesCombinationDialog.h>
+#include <PVExtractorWidget.h>
 
 /******************************************************************************
  *
@@ -49,8 +51,27 @@ void PVInspector::PVMainWindow::about_Slot()
 
 void PVInspector::PVMainWindow::axes_editor_Slot()
 {
-	pv_AxisProperties->create();
+	if (!current_tab) {
+		return;
+	}
+	pv_AxisProperties = new PVAxisPropertiesWidget(current_tab, this);
 	pv_AxisProperties->show();
+}
+
+void PVInspector::PVMainWindow::axes_combination_editor_Slot()
+{
+	if (!current_tab) {
+		return;
+	}
+
+	PVAxesCombinationDialog* dlg = current_tab->get_axes_combination_editor();
+	if (dlg->isVisible()) {
+		return;
+	}
+
+	dlg->save_current_combination();
+	dlg->update_used_axes();
+	dlg->show();
 }
 
 /******************************************************************************

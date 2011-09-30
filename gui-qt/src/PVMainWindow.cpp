@@ -94,9 +94,6 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 	report_filename = NULL;
 
 	//We activate all available Windows
-	pv_AxisProperties = new PVAxisPropertiesWidget(this);
-	pv_AxisProperties->hide();
-
 	pv_ExportSelectionDialog = new PVExportSelectionDialog(this);
 	pv_ExportSelectionDialog->hide();
 	root = Picviz::PVRoot_p(new Picviz::PVRoot());
@@ -239,8 +236,9 @@ void PVInspector::PVMainWindow::check_messages()
 			case PVGL_COM_FUNCTION_CLEAR_SELECTION:
 				{
 					/* FIXME !!!! We've killed the Listing window! pv_ListingWindow->pv_listing_view->clearSelection();*/
-					if (!tab_view)
+					if (!tab_view) {
 						break;
+					}
 					//PVLOG_INFO("PVInspector::PVMainWindow::check_messages : PVGL_COM_FUNCTION_CLEAR_SELECTION\n");
 					tab_view->refresh_listing_Slot();
 					tab_view->repaint(0,0,-1,-1);
@@ -250,19 +248,29 @@ void PVInspector::PVMainWindow::check_messages()
 				{
 					//PVLOG_INFO("PVInspector::PVMainWindow::check_messages : PVGL_COM_FUNCTION_REFRESH_LISTING\n");
 					message.pv_view->process_visibility();
-					if (!tab_view)
+					if (!tab_view) {
 						break;
+					}
 					tab_view->refresh_listing_with_horizontal_header_Slot();
 					tab_view->update_pv_listing_model_Slot();
 					tab_view->refresh_listing_Slot();
+					tab_view->refresh_axes_combination_Slot();
+					break;
+				}
+			case PVGL_COM_FUNCTION_UPDATE_AXES_COMBINATION:
+				{
+					if (tab_view) {
+						tab_view->refresh_axes_combination_Slot();
+					}
 					break;
 				}
 			case PVGL_COM_FUNCTION_SELECTION_CHANGED:
 				{
 					// FIXME DDX! update_row_count_in_all_dynamic_listing_model_Slot();
 					//PVLOG_INFO("PVInspector::PVMainWindow::check_messages : PVGL_COM_FUNCTION_SELECTION_CHANGED\n");
-					if (!tab_view)
+					if (!tab_view) {
 						break;
+					}
 					tab_view->selection_changed_Slot();
 					tab_view->refresh_listing_with_horizontal_header_Slot();
 					tab_view->update_pv_listing_model_Slot();
@@ -502,6 +510,7 @@ void PVInspector::PVMainWindow::connect_actions()
 	connect(commit_selection_to_new_layer_Action, SIGNAL(triggered()), this, SLOT(commit_selection_to_new_layer_Slot()));
 
 	connect(axes_editor_Action, SIGNAL(triggered()), this, SLOT(axes_editor_Slot()));//
+	connect(axes_combination_editor_Action, SIGNAL(triggered()), this, SLOT(axes_combination_editor_Slot()));//
 	connect(axes_mode_Action, SIGNAL(triggered()), this, SLOT(axes_mode_Slot()));
 	connect(axes_display_edges_Action, SIGNAL(triggered()), this, SLOT(axes_display_edges_Slot()));
 

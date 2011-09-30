@@ -15,7 +15,6 @@
 #include <PVLayerStackModel.h>
 #include <PVLayerStackWidget.h>
 
-#include <PVExtractorWidget.h>
 
 #include <vector>
 
@@ -26,6 +25,8 @@ typedef std::vector<int> MatchingTable_t;
 class PVMainWindow;
 class PVListingModel;
 class PVListingView;
+class PVAxesCombinationDialog;
+class PVExtractorWidget;
 
 /**
  *  \class PVTabSplitter
@@ -53,6 +54,7 @@ public:
 	PVLayerStackWidget *pv_layer_stack_widget;
 
 	PVExtractorWidget *_pv_extractor; //!< The extractor widget of this view
+	PVAxesCombinationDialog *pv_axes_combination_editor;
 
 	int screenshot_index;
 	QString _src_name;
@@ -124,6 +126,9 @@ public:
 	 */
 	PVExtractorWidget* get_extractor_widget() const {return _pv_extractor;}
 
+	PVAxesCombinationDialog* get_axes_combination_editor() const { return pv_axes_combination_editor; }
+
+
 	QString get_tab_name() { return get_tab_name(_src_name, _src_type); }
 	static QString get_tab_name(QString const& src, QString const& type) { return src + QString(" / ") + type; }
 	QString get_src_name() { return _src_name; }
@@ -152,6 +157,8 @@ public slots:
 	 * The Slot that will refresh the PVLayerStackWidget
 	 */
 	void refresh_layer_stack_view_Slot(); // From PVLayerStackWindow
+
+	void refresh_axes_combination_Slot();
 
 signals:
 	/**

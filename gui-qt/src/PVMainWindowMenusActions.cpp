@@ -123,8 +123,9 @@ void PVInspector::PVMainWindow::create_actions()
 	/***************************
 	 * For the "Axes" menu entry
 	 ***************************/
-	axes_editor_Action = new QAction(tr("Edit Axes"), this);
-	axes_mode_Action = new QAction(tr("Enter Axes mode"), this);
+	axes_editor_Action = new QAction(tr("Edit axes..."), this);
+	axes_combination_editor_Action = new QAction(tr("Edit axes combination..."), this);
+	axes_mode_Action = new QAction(tr("Enter axes mode"), this);
 	axes_mode_Action->setShortcut(QKeySequence(Qt::Key_X));
 	axes_display_edges_Action = new QAction(tr("Display Edges"), this);
 	axes_display_edges_Action->setShortcut(QKeySequence(Qt::Key_Y));
@@ -227,6 +228,7 @@ void PVInspector::PVMainWindow::create_menus()
 
 	axes_Menu = menubar->addMenu(tr("Axes"));
 	axes_Menu->addAction(axes_editor_Action);
+	axes_Menu->addAction(axes_combination_editor_Action);
 	axes_Menu->addSeparator();
 	axes_Menu->addAction(axes_mode_Action);
 	axes_Menu->addAction(axes_display_edges_Action);

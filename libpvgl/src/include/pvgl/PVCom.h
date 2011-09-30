@@ -43,17 +43,19 @@ enum PVGLComFunction
 	PVGL_COM_FUNCTION_REFRESH_VIEW = 703,         //!< The PVGL should refresh the view, the lines may have different properties.
 	PVGL_COM_FUNCTION_TAKE_SCREENSHOT = 704,      //!< The PVGL should capture the current view and save it in the provided filename.
 	PVGL_COM_FUNCTION_DESTROY_VIEWS = 705,        //!< The Main Interface (Qt) has destroyed a Picviz::PVView, let's destroy all the associated views.
-	PVGL_COM_FUNCTION_CREATE_SCATTER_VIEW = 706,  //!< The PVGL should create a new, scattered view.
-	PVGL_COM_FUNCTION_DESTROY_TRANSIENT = 707,    //!< The PVGL destroy the current transient view.
-	PVGL_COM_FUNCTION_REINIT_PVVIEW = 708,        //!< The Picviz view has changed, everything should be recreated.
-	PVGL_COM_FUNCTION_TOGGLE_DISPLAY_EDGES = 709, //!< We click on the menu Axes/Display/Hide Edges
-	PVGL_COM_FUNCTION_SET_VIEW_WINDOWTITLE = 710, //!< We update the title of the view window
+	PVGL_COM_FUNCTION_CREATE_SCATTER_VIEW = 706,       //!< The PVGL should create a new, scattered view.
+	PVGL_COM_FUNCTION_DESTROY_TRANSIENT = 707,         //!< The PVGL destroy the current transient view.
+	PVGL_COM_FUNCTION_REINIT_PVVIEW = 708,             //!< The Picviz view has changed, everything should be recreated.
+	PVGL_COM_FUNCTION_TOGGLE_DISPLAY_EDGES = 709,      //!< We click on the menu Axes/Display/Hide Edges
+	PVGL_COM_FUNCTION_SET_VIEW_WINDOWTITLE = 710,      //!< We update the title of the view window
+	PVGL_COM_FUNCTION_UPDATE_AXES_COMBINATION = 711,   //!< Axes combination have changed
 
 	// Then functions asked by PVGL for PVGL
 	PVGL_COM_FUNCTION_UPDATE_OTHER_SELECTIONS = 801, //!< The PVGL should update the selection in other views
 
 	/* Quick and dirty way to create a report: modeled after screenshot */
 	PVGL_COM_FUNCTION_REPORT_CHOOSE_FILENAME = 901, 
+
 
 };
 
@@ -63,12 +65,13 @@ enum PVGLComFunction
  */
 enum PVGLComRefreshStates
 {
-  PVGL_COM_REFRESH_POSITIONS =  1,
-  PVGL_COM_REFRESH_Z         =  2,
-	PVGL_COM_REFRESH_COLOR     =  4,
-	PVGL_COM_REFRESH_ZOMBIES   =  8,
-	PVGL_COM_REFRESH_SELECTION = 16,
-	PVGL_COM_REFRESH_AXES      = 32
+	PVGL_COM_REFRESH_POSITIONS  =  1,
+	PVGL_COM_REFRESH_Z          =  2,
+	PVGL_COM_REFRESH_COLOR      =  4,
+	PVGL_COM_REFRESH_ZOMBIES    =  8,
+	PVGL_COM_REFRESH_SELECTION  = 16,
+	PVGL_COM_REFRESH_AXES       = 32,
+	PVGL_COM_REFRESH_AXES_COUNT = 64
 };
 
 

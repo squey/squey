@@ -633,6 +633,7 @@ void PVGL::PVView::special_keys(int key, int, int)
 						}
 						update_all();
 						update_listing();
+						update_axes_combination();
 					} else { // Move/zoom the selection square
 						float x_start, x_end, x_range, x_middle;
 						x_start = picviz_view->square_area.get_start_x();
@@ -671,6 +672,7 @@ void PVGL::PVView::special_keys(int key, int, int)
 						}
 						update_all();
 						update_listing();
+						update_axes_combination();
 					} else {
 						float x_start, x_end, x_range, x_middle;
 						x_start = picviz_view->square_area.get_start_x();
@@ -765,6 +767,7 @@ void PVGL::PVView::special_keys(int key, int, int)
 					message.function = PVGL_COM_FUNCTION_REFRESH_LISTING; // WITH_HORIZONTAL_HEADER?
 					message.pv_view = picviz_view;
 					pv_com->post_message_to_qt(message);
+					update_axes_combination();
 					break;
 			case GLUT_KEY_F1:
 					if (glutGetModifiers() & GLUT_ACTIVE_SHIFT) {
@@ -1137,4 +1140,18 @@ void PVGL::PVView::update_selection(void)
 {
 	update_listing();
 	selection_square.update_arrays();
+}
+
+/******************************************************************************
+ *
+ * PVGL::PVView::update_axes_combination
+ *
+ *****************************************************************************/
+void PVGL::PVView::update_axes_combination(void)
+{
+	PVGL::PVMessage message;
+	message.function = PVGL_COM_FUNCTION_UPDATE_AXES_COMBINATION;
+	message.pv_view = get_libview();
+	message.int_1 = get_window_id();
+	pv_com->post_message_to_qt(message);
 }

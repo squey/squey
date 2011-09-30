@@ -11,6 +11,8 @@
 
 #include <PVMainWindow.h>
 #include <PVListingView.h>
+#include <PVExtractorWidget.h>
+#include <PVAxesCombinationDialog.h>
 
 #include <PVTabSplitter.h>
 
@@ -46,6 +48,7 @@ PVInspector::PVTabSplitter::PVTabSplitter(PVMainWindow *mw, Picviz::PVView_p pv_
 	addWidget(pv_layer_stack_widget);
 
 	_pv_extractor = new PVExtractorWidget(this);
+	pv_axes_combination_editor = new PVAxesCombinationDialog(this, mw);
 
 	screenshot_index = 0;
 
@@ -216,3 +219,9 @@ void PVInspector::PVTabSplitter::updateFilterMenuEnabling(){
 	}
 }
 
+void PVInspector::PVTabSplitter::refresh_axes_combination_Slot()
+{
+	if (pv_axes_combination_editor->isVisible()) {
+		pv_axes_combination_editor->update_used_axes();
+	}
+}

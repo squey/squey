@@ -12,6 +12,8 @@
 #include <picviz/PVAxis.h>
 #include <pvkernel/core/PVColor.h>
 
+#define ABSCISSAE_DIFF 1.0f
+
 /******************************************************************************
  *
  * Picviz::PVAxesCombination::axis_append
@@ -20,6 +22,19 @@
 void Picviz::PVAxesCombination::axis_append(const PVAxis &axis)
 {
 	axes_list.push_back(axis);
+}
+
+/******************************************************************************
+ *
+ * Picviz::PVAxesCombination::axis_append
+ *
+ *****************************************************************************/
+void Picviz::PVAxesCombination::axis_append(PVCol org_axis_id)
+{
+	assert(org_axis_id < original_axes_list.size());
+	columns_indexes_list.push_back(org_axis_id);
+	axes_list.push_back(original_axes_list.at(org_axis_id));
+	abscissae_list.push_back(abscissae_list.back() + ABSCISSAE_DIFF);
 }
 
 /******************************************************************************
@@ -120,6 +135,22 @@ PVCol Picviz::PVAxesCombination::get_original_axes_count() const
 	return original_axes_list.size();
 }
 
+/******************************************************************************
+ *
+ * Picviz::PVAxesCombination::get_original_axes_names_list
+ *
+ *****************************************************************************/
+QStringList Picviz::PVAxesCombination::get_original_axes_names_list()
+{
+	int         i;
+	QStringList output_list;
+
+	for (i=0; i< original_axes_list.size(); i++) {
+		output_list << original_axes_list[i].get_name();
+	}
+
+	return output_list;
+}
 /******************************************************************************
  *
  * Picviz::PVAxesCombination::decrease_axis_column_index
@@ -297,7 +328,7 @@ void Picviz::PVAxesCombination::set_from_format(PVRush::PVFormat &format)
 		original_axes_list.push_back(axis);
 		columns_indexes_list.push_back(i);
 
-		absciss += 1.0f;
+		absciss += ABSCISSAE_DIFF;
 		i++;
 	}
 }

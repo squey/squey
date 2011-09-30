@@ -47,6 +47,8 @@ include/PVArgumentListDelegate.h
 include/PVArgumentListModel.h
 include/PVArgumentListWidget.h
 include/PVAxisPropertiesWidget.h
+include/PVAxesCombinationWidget.h
+include/PVAxesCombinationDialog.h
 include/PVCustomStyle.h
 include/PVCustomTitleDialog.h
 include/PVFilesTypesSelWidget.h
@@ -119,6 +121,8 @@ PVArgumentListDelegate.cpp
 PVArgumentListModel.cpp
 PVArgumentListWidget.cpp
 PVAxisPropertiesWidget.cpp
+PVAxesCombinationWidget.cpp
+PVAxesCombinationDialog.cpp
 PVCustomStyle.cpp
 PVCustomTitleDialog.cpp
 PVFilesTypesSelWidget.cpp
@@ -188,6 +192,7 @@ picviz-inspector_resource.qrc
 )
 
 SET(UI_FILES
+PVAxesCombinationWidget.ui
 widgets/format-builder/PVAxisTagHelp.ui
 )
 

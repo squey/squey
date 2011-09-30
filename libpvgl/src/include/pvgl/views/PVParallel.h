@@ -303,6 +303,8 @@ public:
 	 *
 	 */
 	void change_axes_count();
+
+	void update_axes_combination();
   void reinit_picviz_view();
 	void axes_toggle_show_limits() { axes.toggle_show_limits(); }
 };

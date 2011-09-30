@@ -565,6 +565,10 @@ void PVGL::PVMain::timer_func(int)
 								if (message.int_1 & PVGL_COM_REFRESH_AXES) {
 									pv_view->update_axes();
 								}
+								if (message.int_1 & PVGL_COM_REFRESH_AXES_COUNT) {
+									pv_view->change_axes_count();
+									pv_view->update_axes();
+								}
 								if (message.int_1 & PVGL_COM_REFRESH_COLOR) {
 									pv_view->update_colors();
 								}
