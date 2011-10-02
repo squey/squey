@@ -35,7 +35,7 @@
  * PVGL::PVScatter::PVScatter
  *
  *****************************************************************************/
-PVGL::PVScatter::PVScatter(int win_id, PVCom *com) : PVGL::PVDrawable(win_id, com),
+PVGL::PVScatter::PVScatter(int win_id, PVSDK::PVMessenger *message) : PVGL::PVDrawable(win_id, message),
 		selection_square(this)
 {
 	PVLabel *title;
@@ -223,7 +223,7 @@ void PVGL::PVScatter::draw(void)
 void PVGL::PVScatter::keyboard(unsigned char key, int, int)
 {
 	Picviz::PVStateMachine *state_machine;
-	PVGL::PVMessage       message;
+	PVSDK::PVMessage       message;
 
 	if (!picviz_view) { // The view isn't finished to be read and parsed
 		return;
@@ -252,9 +252,9 @@ void PVGL::PVScatter::keyboard(unsigned char key, int, int)
 				/* We process the view from the selection */
 				picviz_view->process_from_selection();
 				/* We refresh the listing */
-				message.function = PVGL_COM_FUNCTION_REFRESH_LISTING;
+				message.function = PVSDK_MESSENGER_FUNCTION_REFRESH_LISTING;
 				message.pv_view = picviz_view;
-				pv_com->post_message_to_qt(message);
+				pv_message->post_message_to_qt(message);
 				break;
 		case 'f': case 'F': // Toggle fullscreen
 				if (is_fullscreen()) {
@@ -362,7 +362,7 @@ bool PVGL::PVScatter::mouse_move(int x, int y, int /*modifiers*/)
 //	picviz_view->process_from_selection();
 #endif
 	/* We refresh the listing */
-// 	message.function = PVGL_COM_FUNCTION_REFRESH_LISTING;
+// 	message.function = PVSDK_MESSENGER_REFRESH_LISTING;
 // 	message.pv_view = picviz_view;
 // 	pv_com->post_message_to_qt(message);
 
@@ -379,7 +379,7 @@ bool PVGL::PVScatter::mouse_up(int /*button*/, int /*x*/, int /*y*/, int /*modif
 {
 	Picviz::PVStateMachine *state_machine;
 	vec2 plotted_mouse;
-	PVGL::PVMessage message;
+	PVSDK::PVMessage message;
 
 	PVLOG_DEBUG("PVGL::PVScatter::%s\n", __FUNCTION__);
 
@@ -407,20 +407,20 @@ bool PVGL::PVScatter::mouse_up(int /*button*/, int /*x*/, int /*y*/, int /*modif
 	/* We process the view from the selection */
 	picviz_view->process_from_selection();
 
-	message.function = PVGL_COM_FUNCTION_UPDATE_OTHER_SELECTIONS;
+	message.function = PVSDK_MESSENGER_FUNCTION_UPDATE_OTHER_SELECTIONS;
 	message.pv_view = get_libview();
 	message.int_1 = get_window_id();
-	pv_com->post_message_to_gl(message);
+	pv_message->post_message_to_gl(message);
 
 
 	/* We update the view */
 	PVGL::wtk_window_need_redisplay();
 	/* We update the listing */
-	message.function = PVGL_COM_FUNCTION_REFRESH_LISTING;
+	message.function = PVSDK_MESSENGER_FUNCTION_REFRESH_LISTING;
 	message.pv_view = picviz_view;
-	pv_com->post_message_to_qt(message);
+	pv_message->post_message_to_qt(message);
 
-// 	message.function = PVGL_COM_FUNCTION_SELECTION_CHANGED;
+// 	message.function = PVSDK_MESSENGER_SELECTION_CHANGED;
 // 	message.pv_view = picviz_view;
 // 	pv_com->post_message_to_qt(message);
 

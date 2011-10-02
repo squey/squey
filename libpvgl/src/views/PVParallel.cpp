@@ -17,10 +17,11 @@
 
 #include <picviz/PVView.h>
 
+#include <pvsdk/PVMessenger.h>
+
 #include <pvgl/general.h>
 #include <pvgl/PVConfig.h>
 #include <pvgl/PVUtils.h>
-#include <pvgl/PVCom.h>
 #include <pvgl/PVHBox.h>
 #include <pvgl/PVVBox.h>
 #include <pvgl/PVEventLine.h>
@@ -33,7 +34,7 @@
  * PVGL::PVView::PVView
  *
  *****************************************************************************/
-PVGL::PVView::PVView(int win_id, PVCom *com) : PVGL::PVDrawable(win_id, com),
+PVGL::PVView::PVView(int win_id, PVSDK::PVMessenger *message) : PVGL::PVDrawable(win_id, message),
 		selection_square(this),
 		widget_manager(),
 		lines(this),
@@ -68,7 +69,7 @@ PVGL::PVView::PVView(int win_id, PVCom *com) : PVGL::PVDrawable(win_id, com),
 	hbox->pack_start(vbox);
 	vbox->pack_start(label_axis_mode);
 	vbox->pack_start(label_nb_lines);
-	event_line = new PVEventLine(&widget_manager, this, com);
+	event_line = new PVEventLine(&widget_manager, this, message);
 	hbox->pack_start(event_line, false);
 
 	label_lpr = new PVLabel(&widget_manager, "LPR: 25000"); // FIXME this should use a 'const' ?
@@ -412,7 +413,7 @@ void PVGL::PVView::toggle_map()
 void PVGL::PVView::keyboard(unsigned char key, int, int)
 {
 	Picviz::PVStateMachine *state_machine;
-	PVGL::PVMessage       message;
+	PVSDK::PVMessage       message;
 
 	PVLOG_DEBUG("PVGL::PVView::%s\n", __FUNCTION__);
 
@@ -436,15 +437,15 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 		case 'a': case 'A': // Select all
 				picviz_view->select_all_nonzb_lines();
 				/* We refresh the listing */
-				message.function = PVGL_COM_FUNCTION_REFRESH_LISTING;
+				message.function = PVSDK_MESSENGER_FUNCTION_REFRESH_LISTING;
 				message.pv_view = picviz_view;
-				pv_com->post_message_to_qt(message);
+				pv_message->post_message_to_qt(message);
 				update_selections();
 				break;
 		case 'c': case 'C': // Choose a color.
-				message.function = PVGL_COM_FUNCTION_SET_COLOR;
+				message.function = PVSDK_MESSENGER_FUNCTION_SET_COLOR;
 				message.pv_view = picviz_view;
-				pv_com->post_message_to_qt(message);
+				pv_message->post_message_to_qt(message);
 				break;
 		case 'f': case 'F':
 				if (is_fullscreen()) {
@@ -466,39 +467,39 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 				break;
 		case 'k': // Commit the selection.
 				if (glutGetModifiers() & GLUT_ACTIVE_ALT) {
-					message.function = PVGL_COM_FUNCTION_COMMIT_SELECTION_IN_NEW_LAYER;
+					message.function = PVSDK_MESSENGER_FUNCTION_COMMIT_SELECTION_IN_NEW_LAYER;
 					message.pv_view = picviz_view;
-					pv_com->post_message_to_qt(message);
+					pv_message->post_message_to_qt(message);
 				} else {
-					message.function = PVGL_COM_FUNCTION_COMMIT_SELECTION_IN_CURRENT_LAYER;
+					message.function = PVSDK_MESSENGER_FUNCTION_COMMIT_SELECTION_IN_CURRENT_LAYER;
 					message.pv_view = picviz_view;
-					pv_com->post_message_to_qt(message);
+					pv_message->post_message_to_qt(message);
 				}
 				break;
 		case 'i': case 'I': // Select all
 				picviz_view->select_inv_lines();
 				/* We refresh the listing */
-				message.function = PVGL_COM_FUNCTION_REFRESH_LISTING;
+				message.function = PVSDK_MESSENGER_FUNCTION_REFRESH_LISTING;
 				message.pv_view = picviz_view;
-				pv_com->post_message_to_qt(message);
+				pv_message->post_message_to_qt(message);
 				update_selections();
 				break;
 		case 'm':
 				toggle_map();
 				break;
 		case 'r':
-				message.function = PVGL_COM_FUNCTION_REPORT_CHOOSE_FILENAME;
+				message.function = PVSDK_MESSENGER_FUNCTION_REPORT_CHOOSE_FILENAME;
 				message.pv_view = picviz_view;
 				message.int_1 = glutGetWindow();
 				message.int_2 = glutGetModifiers();
-				pv_com->post_message_to_qt(message);
+				pv_message->post_message_to_qt(message);
 				break;
 		case 's':
-				message.function = PVGL_COM_FUNCTION_SCREENSHOT_CHOOSE_FILENAME;
+				message.function = PVSDK_MESSENGER_FUNCTION_SCREENSHOT_CHOOSE_FILENAME;
 				message.pv_view = picviz_view;
 				message.int_1 = glutGetWindow();
 				message.int_2 = glutGetModifiers();
-				pv_com->post_message_to_qt(message);
+				pv_message->post_message_to_qt(message);
 				break;
 		case 'u': case 'U':
 				if (glutGetModifiers() & GLUT_ACTIVE_SHIFT) {
@@ -512,9 +513,9 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 					/* We toggle*/
 					state_machine->toggle_listing_unselected_visibility();
 					/* We refresh the listing */
-					message.function = PVGL_COM_FUNCTION_REFRESH_LISTING;
+					message.function = PVSDK_MESSENGER_FUNCTION_REFRESH_LISTING;
 					message.pv_view = picviz_view;
-					pv_com->post_message_to_qt(message);
+					pv_message->post_message_to_qt(message);
 				} else	{
 					/* We toggle the unselected listing visibility first */
 					state_machine->toggle_gl_unselected_visibility();
@@ -525,9 +526,9 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 					get_lines().set_main_fbo_dirty();
 					map.set_main_fbo_dirty();
 					/* We refresh the listing */
-					message.function = PVGL_COM_FUNCTION_REFRESH_LISTING;
+					message.function = PVSDK_MESSENGER_FUNCTION_REFRESH_LISTING;
 					message.pv_view = picviz_view;
-					pv_com->post_message_to_qt(message);
+					pv_message->post_message_to_qt(message);
 				}
 				break;
 		case 'x': case 'X':
@@ -554,9 +555,9 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 					/* We toggle*/
 					state_machine->toggle_listing_zombie_visibility();
 					/* We refresh the listing */
-					message.function = PVGL_COM_FUNCTION_REFRESH_LISTING;
+					message.function = PVSDK_MESSENGER_FUNCTION_REFRESH_LISTING;
 					message.pv_view = picviz_view;
-					pv_com->post_message_to_qt(message);
+					pv_message->post_message_to_qt(message);
 				} else {
 					/* We toggle the zombie listing visilibity first */
 					state_machine->toggle_gl_zombie_visibility();
@@ -566,9 +567,9 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 					get_lines().set_main_fbo_dirty();
 					map.set_main_fbo_dirty();
 					/* We refresh the listing */
-					message.function = PVGL_COM_FUNCTION_REFRESH_LISTING;
+					message.function = PVSDK_MESSENGER_FUNCTION_REFRESH_LISTING;
 					message.pv_view = picviz_view;
-					pv_com->post_message_to_qt(message);
+					pv_message->post_message_to_qt(message);
 				}
 				break;
 			case 127: // Delete key from the main keyboard. In axes mode, delete the selected axis.
@@ -588,9 +589,9 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 
 					change_axes_count();
 					update_all();
-					message.function = PVGL_COM_FUNCTION_REFRESH_LISTING; // WITH_HORIZONTAL_HEADER?
+					message.function = PVSDK_MESSENGER_FUNCTION_REFRESH_LISTING; // WITH_HORIZONTAL_HEADER?
 					message.pv_view = picviz_view;
-					pv_com->post_message_to_qt(message);
+					pv_message->post_message_to_qt(message);
 					break;
 	}
 }
@@ -603,7 +604,7 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 void PVGL::PVView::special_keys(int key, int, int)
 {
 	Picviz::PVStateMachine *state_machine;
-	PVGL::PVMessage       message;
+	PVSDK::PVMessage       message;
 
 	if (!picviz_view) { // The view isn't finished to be read and parsed
 		return;
@@ -764,9 +765,9 @@ void PVGL::PVView::special_keys(int key, int, int)
 
 					change_axes_count();
 					update_all();
-					message.function = PVGL_COM_FUNCTION_REFRESH_LISTING; // WITH_HORIZONTAL_HEADER?
+					message.function = PVSDK_MESSENGER_FUNCTION_REFRESH_LISTING; // WITH_HORIZONTAL_HEADER?
 					message.pv_view = picviz_view;
-					pv_com->post_message_to_qt(message);
+					pv_message->post_message_to_qt(message);
 					update_axes_combination();
 					break;
 			case GLUT_KEY_F1:
@@ -883,10 +884,10 @@ void PVGL::PVView::mouse_down(int button, int x, int y, int modifiers)
 			/* We are in SELECTION mode */
 		} else {
 			/* We start by clearing the selection in the listing */
-			PVGL::PVMessage message;
-			message.function = PVGL_COM_FUNCTION_CLEAR_SELECTION;
+			PVSDK::PVMessage message;
+			message.function = PVSDK_MESSENGER_FUNCTION_CLEAR_SELECTION;
 			message.pv_view = picviz_view;
-			pv_com->post_message_to_qt(message);
+			pv_message->post_message_to_qt(message);
 
 			/* We might need to commit volatile_selection with floating_selection, depending on the previous Square_area_mode */
 			picviz_view->commit_volatile_in_floating_selection();
@@ -1115,20 +1116,20 @@ void PVGL::PVView::reinit_picviz_view()
 void PVGL::PVView::update_listing(void)
 {
 	PVLOG_HEAVYDEBUG("PVGL::PVView::update_listing\n");
-	PVGL::PVMessage message;
+	PVSDK::PVMessage message;
 
-	message.function = PVGL_COM_FUNCTION_CLEAR_SELECTION;
+	message.function = PVSDK_MESSENGER_FUNCTION_CLEAR_SELECTION;
 	message.pv_view = get_libview();
-	pv_com->post_message_to_qt(message);
+	pv_message->post_message_to_qt(message);
 
-	message.function = PVGL_COM_FUNCTION_SELECTION_CHANGED;
+	message.function = PVSDK_MESSENGER_FUNCTION_SELECTION_CHANGED;
 	message.pv_view = get_libview();
-	pv_com->post_message_to_qt(message);
+	pv_message->post_message_to_qt(message);
 
-	message.function = PVGL_COM_FUNCTION_UPDATE_OTHER_SELECTIONS;
+	message.function = PVSDK_MESSENGER_FUNCTION_UPDATE_OTHER_SELECTIONS;
 	message.pv_view = get_libview();
 	message.int_1 = get_window_id();
-	pv_com->post_message_to_gl(message);
+	pv_message->post_message_to_gl(message);
 }
 
 /******************************************************************************
@@ -1149,9 +1150,9 @@ void PVGL::PVView::update_selection(void)
  *****************************************************************************/
 void PVGL::PVView::update_axes_combination(void)
 {
-	PVGL::PVMessage message;
-	message.function = PVGL_COM_FUNCTION_UPDATE_AXES_COMBINATION;
+	PVSDK::PVMessage message;
+	message.function = PVSDK_MESSENGER_FUNCTION_UPDATE_AXES_COMBINATION;
 	message.pv_view = get_libview();
 	message.int_1 = get_window_id();
-	pv_com->post_message_to_qt(message);
+	pv_message->post_message_to_qt(message);
 }

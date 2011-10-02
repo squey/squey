@@ -16,13 +16,14 @@ namespace PVGL {
 class PVView;
 }
 
+#include <pvsdk/PVMessenger.h>
+
 #include <pvgl/PVFonts.h>
 #include <pvgl/PVUtils.h>
 #include <pvgl/PVAxes.h>
 #include <pvgl/PVSelectionSquare.h>
 #include <pvgl/PVLines.h>
 #include <pvgl/PVMap.h>
-#include <pvgl/PVCom.h>
 #include <pvgl/PVWidgetManager.h>
 #include <pvgl/PVEventLine.h>
 #include <pvgl/PVLabel.h>
@@ -77,9 +78,9 @@ public:
 	 * Constructor.
 	 *
 	 * @param window_id
-	 * @param com
+	 * @param message
 	 */
-	PVView(int window_id, PVCom *com);
+	PVView(int window_id, PVSDK::PVMessenger *message);
 
 	virtual ~PVView();
 

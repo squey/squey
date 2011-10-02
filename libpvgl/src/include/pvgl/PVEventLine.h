@@ -12,7 +12,6 @@
 #include <picviz/PVView_types.h>
 
 #include <pvgl/PVUtils.h>
-#include <pvgl/PVCom.h>
 #include <pvgl/PVWidget.h>
 
 namespace PVGL {
@@ -25,7 +24,7 @@ class PVView;
 class LibGLDecl PVEventLine : public PVWidget {
 	Picviz::PVView_p picviz_view;      //!< A pointer to the Picviz::PVView this eventline should represent.
 	PVGL::PVView    *view;             //!<
-	PVGL::PVCom     *pv_com;           //!<
+	PVSDK::PVMessenger *pv_message;
 
 	int last_mouse_press_position_x;  //!<
 	int last_mouse_press_position_y;  //!<
@@ -44,10 +43,10 @@ public:
 	 * Constructor.
 	 *
 	 * @param widget_manager
-	 * @param com
+	 * @param message
 	 * @param pvgl_view
 	 */
-	PVEventLine(PVWidgetManager *widget_manager, PVView *pvgl_view, PVCom *com);
+	PVEventLine(PVWidgetManager *widget_manager, PVView *pvgl_view, PVSDK::PVMessenger *message);
 
 	/**
 	 * @param picviz_view

@@ -15,9 +15,10 @@
 
 #include <picviz/PVView.h>
 
+#include <pvsdk/PVMessenger.h>
+
 #include <pvgl/PVConfig.h>
 #include <pvgl/PVUtils.h>
-#include <pvgl/PVCom.h>
 #include <pvgl/PVIdleManager.h>
 #include <pvgl/PVMain.h>
 
@@ -84,8 +85,8 @@ int PVGL::PVDrawable::small_files_scheduler(PVGL::PVIdleTaskKinds kind)
  * PVGL::PVDrawable::PVDrawable
  *
  *****************************************************************************/
-PVGL::PVDrawable::PVDrawable(int win_id, PVCom *com) :
-		pv_com(com),
+PVGL::PVDrawable::PVDrawable(int win_id, PVSDK::PVMessenger *message) :
+		pv_message(message),
 		widget_manager(0), index(0),
 		window_id(win_id)
 {

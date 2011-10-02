@@ -33,12 +33,12 @@ void PVInspector::PVAxesCombinationDialog::refresh_axes_slot()
 	tab->refresh_listing_with_horizontal_header_Slot();
 	tab->update_pv_listing_model_Slot();
 	tab->refresh_listing_Slot();
-	main_window->update_pvglview(tab->get_lib_view(), PVGL_COM_REFRESH_POSITIONS);
+	main_window->update_pvglview(tab->get_lib_view(), PVSDK_MESSENGER_REFRESH_POSITIONS);
 }
 
 void PVInspector::PVAxesCombinationDialog::axes_count_changed_slot()
 {
-	main_window->update_pvglview(tab->get_lib_view(), PVGL_COM_REFRESH_AXES_COUNT);
+	main_window->update_pvglview(tab->get_lib_view(), PVSDK_MESSENGER_REFRESH_AXES_COUNT);
 }
 
 void PVInspector::PVAxesCombinationDialog::cancel_slot()

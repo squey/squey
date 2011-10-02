@@ -260,7 +260,7 @@ void PVInspector::PVMainWindow::check_messages()
 					tab_view->refresh_axes_combination_Slot();
 					break;
 				}
-			case PVGL_COM_FUNCTION_UPDATE_AXES_COMBINATION:
+			case PVSDK_MESSENGER_FUNCTION_UPDATE_AXES_COMBINATION:
 				{
 					if (tab_view) {
 						tab_view->refresh_axes_combination_Slot();

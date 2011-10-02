@@ -15,7 +15,7 @@
 
 #include <pvgl/PVConfig.h>
 #include <pvgl/PVUtils.h>
-#include <pvgl/PVCom.h>
+#include <pvsdk/PVMessenger.h>
 #include <pvgl/PVLayout.h>
 #include <pvgl/PVHBox.h>
 #include <pvgl/PVVBox.h>

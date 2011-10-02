@@ -15,7 +15,8 @@ namespace PVGL {
 class PVView;
 }
 
-#include <pvgl/PVCom.h>
+#include <pvsdk/PVMessenger.h>
+
 #include <pvgl/PVWidgetManager.h>
 #include <pvgl/PVIdleManager.h>
 
@@ -26,7 +27,8 @@ namespace PVGL {
 class LibGLDecl PVDrawable {
 protected:
 	Picviz::PVView_p picviz_view;    //!<
-	PVCom           *pv_com;         //!<
+	PVSDK::PVMessenger *pv_message;
+
 
 	int              width;          //!< The width of the drawable window.
 	int              height;         //!< The height of the drawable window.
@@ -45,9 +47,9 @@ public:
 	 * Constructor.
 	 *
 	 * @param window_id
-	 * @param com
+	 * @param message
 	 */
-	PVDrawable(int window_id, PVCom *com);
+	PVDrawable(int window_id, PVSDK::PVMessenger *message);
 
 	virtual ~PVDrawable();
 

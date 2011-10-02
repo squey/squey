@@ -15,9 +15,11 @@
 
 #include <picviz/PVView.h>
 
+#include <pvsdk/PVMessenger.h>
+
+#include <pvgl/general.h>
 #include <pvgl/PVConfig.h>
 #include <pvgl/PVUtils.h>
-#include <pvgl/PVCom.h>
 #include <pvgl/views/PVParallel.h>
 
 #include <pvgl/PVEventLine.h>
@@ -29,8 +31,8 @@
  * PVGL::PVEventLine::PVEventLine
  *
  *****************************************************************************/
-PVGL::PVEventLine::PVEventLine(PVWidgetManager *widget_manager, PVView *pvgl_view, PVCom *com) :
-PVWidget(widget_manager), view(pvgl_view), pv_com(com)
+PVGL::PVEventLine::PVEventLine(PVWidgetManager *widget_manager, PVView *pvgl_view, PVSDK::PVMessenger *message) :
+PVWidget(widget_manager), view(pvgl_view), pv_message(message)
 {
 	PVLOG_DEBUG("PVGL::PVEventLine::%s\n", __FUNCTION__);
 
@@ -212,13 +214,13 @@ bool PVGL::PVEventLine::mouse_up(int /*button*/, int /*x*/, int /*y*/, int /*mod
 	if (grabbing) {
 		grabbing = false;
 		if (grabbed_slider != -1) {
-			PVGL::PVMessage message;
+			PVSDK::PVMessage message;
 
-			message.function = PVGL_COM_FUNCTION_REFRESH_LISTING;
+			message.function = PVSDK_MESSENGER_FUNCTION_REFRESH_LISTING;
 			message.pv_view = picviz_view;
-			pv_com->post_message_to_qt(message);
-			message.function = PVGL_COM_FUNCTION_SELECTION_CHANGED;
-			message.function = PVGL_COM_FUNCTION_REFRESH_LISTING;
+			pv_message->post_message_to_qt(message);
+			message.function = PVSDK_MESSENGER_FUNCTION_SELECTION_CHANGED;
+			message.function = PVSDK_MESSENGER_FUNCTION_REFRESH_LISTING;
 			
 			if (picviz_view->eventline.get_row_count() >= max_lines_interactivity) {
 				view->get_lines().update_arrays_selection();

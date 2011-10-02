@@ -11,8 +11,9 @@
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 
+#include <pvsdk/PVMessenger.h>
+
 #include <pvgl/PVFonts.h>
-#include <pvgl/PVCom.h>
 
 
 /**

@@ -62,9 +62,9 @@ public:
 	 * Constructor.
 	 *
 	 * @param window_id
-	 * @param com
+	 * @param message
 	 */
-	PVScatter(int window_id, PVCom *com);
+	PVScatter(int window_id, PVSDK::PVMessenger *message);
 	/**
 	 *
 	 */
