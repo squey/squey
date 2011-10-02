@@ -339,7 +339,7 @@ void PVInspector::PVListingModel::sortByColumn(int idColumn)
 
 	//variables init
 	Picviz::PVSortQVectorQStringListThread *sortThread = new Picviz::PVSortQVectorQStringListThread(0); //class whiche can sort.
-	PVProgressBox *dialogBox = new PVProgressBox(tr("Sorting...")); //dialog showing the progress box.
+	PVCore::PVProgressBox *dialogBox = new PVCore::PVProgressBox(tr("Sorting...")); //dialog showing the progress box.
 	connect(sortThread, SIGNAL(finished()), dialogBox, SLOT(accept()), Qt::QueuedConnection); //connection to close the progress box after thread finish.
 	PVLOG_DEBUG("   declaration ok\n");
 

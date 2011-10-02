@@ -94,6 +94,7 @@ typedef PVLayerFilter::func_type PVLayerFilter_f;
 // For this to work under windows, we need to export here the PVFilterLibrary for PVLayerFilter
 #ifdef WIN32
 LibPicvizDeclExplicitTempl PVCore::PVClassLibrary<Picviz::PVLayerFilter>;
+LibPicvizDeclExplicitTempl PVCore::PVTag<Picviz::PVLayerFilter>;
 #endif
 
 typedef PVCore::PVClassLibrary<Picviz::PVLayerFilter>::tag PVLayerFilterTag;

@@ -34,6 +34,8 @@
   #endif
 #endif	// CUSTOMER_RELEASE
 
+#include <pvbase/customer.h>
+
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/debug.h>
 #include <pvkernel/core/PVAxisIndexType.h>
@@ -42,7 +44,6 @@
 #include <pvkernel/core/PVVersion.h>
 
 #include <pvkernel/rush/PVInput.h>
-#include <pvkernel/rush/PVNormalizer.h>
 #include <pvkernel/rush/PVSourceCreator.h>
 #include <pvkernel/rush/PVSourceCreatorFactory.h>
 
@@ -55,10 +56,7 @@
 #include <picviz/PVStateMachine.h>
 
 #include <PVListingView.h>
-#include <PVProgressBox.h>
 
-// Filters
-#include <pvkernel/core/PVClassLibrary.h>
 
 #include <pvsdk/PVMessenger.h>
 
@@ -99,17 +97,11 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 	report_filename = NULL;
 
 	//We activate all available Windows
-	pv_AxisProperties = new PVAxisPropertiesWidget(this);
-	pv_AxisProperties->hide();
-
 	pv_ExportSelectionDialog = new PVExportSelectionDialog(this);
 	pv_ExportSelectionDialog->hide();
 	root = Picviz::PVRoot_p(new Picviz::PVRoot());
 	pv_FilterWidget = new PVFilterWidget(this);
 	pv_FilterWidget->hide();
-
-	pv_ImportFileDialog = new PVImportFileDialog(this);
-	pv_ImportFileDialog->hide();
 
 	pv_OpenFileDialog = new PVOpenFileDialog(this);
 	pv_OpenFileDialog->hide();
@@ -265,6 +257,14 @@ void PVInspector::PVMainWindow::check_messages()
 					tab_view->refresh_listing_with_horizontal_header_Slot();
 					tab_view->update_pv_listing_model_Slot();
 					tab_view->refresh_listing_Slot();
+					tab_view->refresh_axes_combination_Slot();
+					break;
+				}
+			case PVGL_COM_FUNCTION_UPDATE_AXES_COMBINATION:
+				{
+					if (tab_view) {
+						tab_view->refresh_axes_combination_Slot();
+					}
 					break;
 				}
 			case PVSDK_MESSENGER_FUNCTION_SELECTION_CHANGED:
@@ -513,6 +513,7 @@ void PVInspector::PVMainWindow::connect_actions()
 	connect(commit_selection_to_new_layer_Action, SIGNAL(triggered()), this, SLOT(commit_selection_to_new_layer_Slot()));
 
 	connect(axes_editor_Action, SIGNAL(triggered()), this, SLOT(axes_editor_Slot()));//
+	connect(axes_combination_editor_Action, SIGNAL(triggered()), this, SLOT(axes_combination_editor_Slot()));//
 	connect(axes_mode_Action, SIGNAL(triggered()), this, SLOT(axes_mode_Slot()));
 	connect(axes_display_edges_Action, SIGNAL(triggered()), this, SLOT(axes_display_edges_Slot()));
 
@@ -670,7 +671,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 	PVRush::list_creators lcr = PVRush::PVSourceCreatorFactory::get_by_input_type(in_t);
 	PVRush::hash_format_creator format_creator = PVRush::PVSourceCreatorFactory::get_supported_formats(lcr);
 
-	PVRush::hash_formats formats;
+	PVRush::hash_formats formats, new_formats;
 
 	PVRush::hash_format_creator::const_iterator itfc;
 	for (itfc = format_creator.begin(); itfc != format_creator.end(); itfc++) {
@@ -684,9 +685,22 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 	map_files_types files_multi_formats;
 	QHash<QString,PVRush::PVInputType::input_type> hash_input_name;
 
-	if (!in_t->createWidget(formats, inputs, choosenFormat, this))
+	if (!in_t->createWidget(formats, new_formats, inputs, choosenFormat, this))
 		return; // This means that the user pressed the "cancel" button
-	
+
+	// Add the new formats to the formats
+	{
+		PVRush::hash_formats::iterator it;
+		for (it = new_formats.begin(); it != new_formats.end(); it++) {
+			formats[it.key()] = it.value();
+			PVRush::list_creators::const_iterator it_lc;
+			for (it_lc = lcr.begin(); it_lc != lcr.end(); it_lc++) {
+				PVRush::hash_format_creator::mapped_type v(it.value(), *it_lc);
+				// Save this format/creator pair to the "format_creator" object
+				format_creator[it.key()] = v;
+			}
+		}
+	}
 	QHash< QString,PVRush::PVInputType::list_inputs > discovered;
 	QHash<QString,PVCore::PVMeanValue<float> > discovered_types; // format->mean_success_rate
 
@@ -736,24 +750,41 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 
 			// Try every possible format
 			QHash<QString,PVCore::PVMeanValue<float> > file_types;
+			tbb::tick_count dis_start = tbb::tick_count::now();
 			try {
-				for (itfc = dis_format_creator.begin(); itfc != dis_format_creator.end(); itfc++) {
-					PVRush::pair_format_creator const& pfc = itfc.value();
+				//for (itfc = dis_format_creator.begin(); itfc != dis_format_creator.end(); itfc++) {
+				QList<PVRush::hash_format_creator::key_type> dis_formats = dis_format_creator.keys();
+				QList<PVRush::hash_format_creator::mapped_type> dis_v = dis_format_creator.values();
+			#pragma omp parallel for
+				for (int i = 0; i < dis_format_creator.size(); i++) {
+					//PVRush::pair_format_creator const& pfc = itfc.value();
+					PVRush::pair_format_creator const& pfc = dis_v.at(i);
+					//QString const& str_format = itfc.key();
+					QString const& str_format = dis_formats.at(i);
 					try {
 						float success_rate = PVRush::PVSourceCreatorFactory::discover_input(pfc, *itin);
-						PVLOG_INFO("For input %s with format %s, success rate is %0.4f\n", qPrintable(in_str), qPrintable(itfc.key()), success_rate);
+						PVLOG_INFO("For input %s with format %s, success rate is %0.4f\n", qPrintable(in_str), qPrintable(str_format), success_rate);
+
 						if (success_rate > 0) {
-							QString const& str_format = itfc.key();
-							file_types[str_format].push(success_rate);
-							discovered_types[str_format].push(success_rate);
+						#pragma omp critical
+							{
+								file_types[str_format].push(success_rate);
+								discovered_types[str_format].push(success_rate);
+							}
 						}
 					}
 					catch (PVRush::PVXmlParamParserException &e) {
-						formats_error[pfc.first.get_full_path()] = std::pair<QString,QString>(pfc.first.get_format_name(), tr("XML parser error: ") + e.what());
+					#pragma omp critical
+						{
+							formats_error[pfc.first.get_full_path()] = std::pair<QString,QString>(pfc.first.get_format_name(), tr("XML parser error: ") + e.what());
+						}
 						continue;
 					}
 					catch (PVRush::PVFormatInvalid &e) {
-						formats_error[pfc.first.get_full_path()] = std::pair<QString,QString>(pfc.first.get_format_name(), e.what());
+					#pragma omp critical
+						{
+							formats_error[pfc.first.get_full_path()] = std::pair<QString,QString>(pfc.first.get_format_name(), e.what());
+						}
 						continue;
 					}
 				}
@@ -762,6 +793,8 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 				PVLOG_ERROR("PVInput error: %s\n", e.what().c_str());
 				continue;
 			}
+			tbb::tick_count dis_end = tbb::tick_count::now();
+			PVLOG_INFO("Automatic format discovery took %0.4f seconds.\n", (dis_end-dis_start).seconds());
 
 			if (file_types.count() == 1) {
 				// We got the formats that matches this input
@@ -901,7 +934,6 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 			pvsdk_messenger->post_message_to_gl(message);
 			continue;
 		}
-		import_source->set_limits(pv_ImportFileDialog->from_line_edit->text().toUInt(), pv_ImportFileDialog->to_line_edit->text().toUInt());
 		import_source->get_extractor().dump_nraw();
 
 #ifndef CUDA

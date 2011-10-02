@@ -13,7 +13,7 @@ class LOGVIEWER_EXPORT FileDownLoader : public QObject
 public:
     explicit FileDownLoader(QObject * parent = 0);
     ~FileDownLoader();
-    bool download( const QString &remoteFile, QString &tempFile, const ConnectionSettings& settings, const QString& hostName, QString& errorMessage, QUrl& url );
+    bool download( const QString &remoteFile, QString &tempFile, const ConnectionSettings& settings, const QString& hostName, QString& errorMessage, QUrl& url, bool& cancel );
 
 signals:
     void downloadError( const QString&, int errorCode );

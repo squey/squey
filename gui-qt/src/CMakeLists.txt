@@ -47,6 +47,8 @@ include/PVArgumentListDelegate.h
 include/PVArgumentListModel.h
 include/PVArgumentListWidget.h
 include/PVAxisPropertiesWidget.h
+include/PVAxesCombinationWidget.h
+include/PVAxesCombinationDialog.h
 include/PVCustomStyle.h
 include/PVCustomTitleDialog.h
 include/PVFilesTypesSelWidget.h
@@ -56,7 +58,6 @@ include/PVDualSlider.h
 include/PVExportSelectionDialog.h
 include/PVFilterWidget.h
 include/PVLayerFilterProcessWidget.h
-include/PVImportFileDialog.h
 include/PVInvestigationWizard.h
 include/PVLayerStackDelegate.h
 include/PVLayerStackEventFilter.h
@@ -70,7 +71,6 @@ include/PVMainWindow.h
 include/PVMapWidget.h
 include/PVInputTypeMenuEntries.h
 include/PVOpenFileDialog.h
-include/PVProgressBox.h
 include/PVSaveFileDialog.h
 include/PVStringListChooserWidget.h
 include/PVTabSplitter.h
@@ -93,6 +93,7 @@ widgets/format-builder/include/PVXmlDomModel.h
 widgets/format-builder/include/PVXmlEditorWidget.h
 widgets/format-builder/include/PVXmlParamColorDialog.h
 widgets/format-builder/include/PVXmlParamComboBox.h
+widgets/format-builder/include/PVXmlParamList.h
 widgets/format-builder/include/PVXmlParamTextEdit.h
 widgets/format-builder/include/PVXmlParamWidget.h
 widgets/format-builder/include/PVXmlParamWidgetBoardAxis.h
@@ -120,6 +121,8 @@ PVArgumentListDelegate.cpp
 PVArgumentListModel.cpp
 PVArgumentListWidget.cpp
 PVAxisPropertiesWidget.cpp
+PVAxesCombinationWidget.cpp
+PVAxesCombinationDialog.cpp
 PVCustomStyle.cpp
 PVCustomTitleDialog.cpp
 PVFilesTypesSelWidget.cpp
@@ -128,7 +131,6 @@ PVColorDialog.cpp
 PVDualSlider.cpp
 PVExportSelectionDialog.cpp
 PVFilterWidget.cpp
-PVImportFileDialog.cpp
 PVInvestigationWizard.cpp
 PVLayerFilterProcessWidget.cpp
 PVLayerStackDelegate.cpp
@@ -145,7 +147,6 @@ PVMainWindowSlots.cpp
 PVMapWidget.cpp
 PVInputTypeMenuEntries.cpp
 PVOpenFileDialog.cpp
-PVProgressBox.cpp
 PVSaveFileDialog.cpp
 PVStringListChooserWidget.cpp
 PVTabSplitter.cpp
@@ -167,6 +168,7 @@ widgets/format-builder/PVXmlDomModel.cpp
 widgets/format-builder/PVXmlEditorWidget.cpp
 widgets/format-builder/PVXmlParamColorDialog.cpp
 widgets/format-builder/PVXmlParamComboBox.cpp
+widgets/format-builder/PVXmlParamList.cpp
 widgets/format-builder/PVXmlParamTextEdit.cpp
 widgets/format-builder/PVXmlParamWidget.cpp
 widgets/format-builder/PVXmlParamWidgetBoardAxis.cpp
@@ -190,6 +192,7 @@ picviz-inspector_resource.qrc
 )
 
 SET(UI_FILES
+PVAxesCombinationWidget.ui
 widgets/format-builder/PVAxisTagHelp.ui
 )
 

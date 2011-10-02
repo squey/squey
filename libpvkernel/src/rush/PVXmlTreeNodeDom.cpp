@@ -138,13 +138,17 @@ int PVRush::PVXmlTreeNodeDom::countChildren() {
  * PVRush::PVXmlTreeNodeDom::createSplitterPlugin
  *
  *****************************************************************************/
-void PVRush::PVXmlTreeNodeDom::createSplitterPlugin(const QDomElement &domElt) {
+bool PVRush::PVXmlTreeNodeDom::createSplitterPlugin(const QDomElement &domElt)
+{
     QString plugName = domElt.attribute("type", "-");
-	PVLOG_INFO("Create splitter plugin for %s\n", qPrintable(plugName));
     PVFilter::PVFieldsSplitterParamWidget_p in_t = LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::get().get_class_by_name(plugName);
+	if (!in_t) {
+		return false;
+	}
     PVFilter::PVFieldsSplitterParamWidget_p in_t_cpy = in_t->clone<PVFilter::PVFieldsSplitterParamWidget > ();
     QString registered_name = in_t_cpy->registered_name();
     setSplitterPlugin(in_t_cpy);
+	return true;
 }
 
 

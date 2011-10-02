@@ -18,7 +18,7 @@ if (WIN32)
 	#set(CMAKE_BUILD_TYPE "RelWithDebInfo")
 	set(CMAKE_BUILD_TYPE "Release")
 else(WIN32)
-	set(CMAKE_BUILD_TYPE "Debug")
+	set(CMAKE_BUILD_TYPE "Release")
 endif(WIN32)
 
 set(PICVIZ_SINGLE_TREE_BUILD true)
@@ -51,7 +51,6 @@ endif()
 # Application specific definitions
 #
 add_definitions(-DCUSTOMER_RELEASE)
-add_definitions(-DCUSTOMER_NAME="dev")
 
 if(WIN32)
 	add_definitions(-DWIN32)

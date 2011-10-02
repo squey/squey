@@ -291,6 +291,11 @@ bool PVInspector::PVXmlDomModel::setData(const QModelIndex & index, const QVaria
  *
  *****************************************************************************/
 bool PVInspector::PVXmlDomModel::saveXml(QString nomDuFichierXml){
+
+	if (!nomDuFichierXml.endsWith(".format")) {
+		nomDuFichierXml.append(".format");
+	}
+
     QFile file(nomDuFichierXml);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
 		QMessageBox msg(QMessageBox::Critical, "Error while saving format", QString("Unable to open %1 for writing: ").arg(nomDuFichierXml) + file.errorString(), QMessageBox::Ok);
@@ -685,6 +690,7 @@ bool PVInspector::PVXmlDomModel::openXml(QString url) {
 void PVInspector::PVXmlDomModel::openXml(QDomDocument& doc)
 {
 	PVRush::PVFormatVersion::to_current(doc);
+	xmlFile = doc;
 	xmlRootDom = doc.documentElement();
 	PVRush::PVXmlTreeNodeDom *m_rootNode = new PVRush::PVXmlTreeNodeDom(PVRush::PVXmlTreeNodeDom::field, "root", xmlRootDom, this->xmlFile);
 //	if (getVersion() == "0") {
@@ -786,7 +792,7 @@ void PVInspector::PVXmlDomModel::addUrlIn(const QModelIndex &index){
 	port.setAttribute("name", "Port");
 	port.setAttribute("type", "integer");
 	port.setAttribute("mapping", "default");
-	port.setAttribute("plotting", "default");
+	port.setAttribute("plotting", "port");
 	port.setAttribute("time-format", "");
 	port.setAttribute("key", "false");
 	port.setAttribute("color", "#ffffff");
@@ -795,7 +801,7 @@ void PVInspector::PVXmlDomModel::addUrlIn(const QModelIndex &index){
 	url.setAttribute("name", "URL");
 	url.setAttribute("type", "string");
 	url.setAttribute("mapping", "default");
-	url.setAttribute("plotting", "default");
+	url.setAttribute("plotting", "minmax");
 	url.setAttribute("time-format", "");
 	url.setAttribute("key", "false");
 	url.setAttribute("color", "#ffffff");
@@ -804,7 +810,7 @@ void PVInspector::PVXmlDomModel::addUrlIn(const QModelIndex &index){
 	variable.setAttribute("name", "Variable");
 	variable.setAttribute("type", "string");
 	variable.setAttribute("mapping", "default");
-	variable.setAttribute("plotting", "default");
+	variable.setAttribute("plotting", "minmax");
 	variable.setAttribute("time-format", "");
 	variable.setAttribute("key", "false");
 	variable.setAttribute("color", "#ffffff");

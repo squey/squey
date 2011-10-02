@@ -8,10 +8,11 @@
 
 #include <PVXmlEditorWidget.h>
 #include <PVXmlTreeItemDelegate.h>
-#include <pvkernel/rush/PVXmlTreeNodeDom.h>
 #include <PVXmlParamWidget.h>
 #include <PVInputTypeMenuEntries.h>
 
+#include <pvkernel/rush/PVNormalizer.h>
+#include <pvkernel/rush/PVXmlTreeNodeDom.h>
 #include <pvkernel/rush/PVSourceCreatorFactory.h>
 #include <pvkernel/rush/PVInput.h>
 #include <pvkernel/filter/PVFieldSplitterChunkMatch.h>
@@ -537,9 +538,9 @@ void PVInspector::PVXmlEditorWidget::slotOpenLog()
 
 	QString choosenFormat;
 	PVRush::PVInputType::list_inputs inputs;
-	PVRush::hash_formats formats;
+	PVRush::hash_formats formats, new_formats;
 
-	if (!in_t->createWidget(formats, inputs, choosenFormat, this))
+	if (!in_t->createWidget(formats, new_formats, inputs, choosenFormat, this))
 		return; // This means that the user pressed the "cancel" button
 
 	_nraw_model->set_consistent(false);
@@ -806,7 +807,9 @@ void PVInspector::PVXmlEditorWidget::set_axes_name_selected_row_Slot(int row)
 	PVRush::PVNraw::nraw_table_line const& line = nraw.get_table().at(row);
 	PVRush::PVNraw::nraw_table_line::const_iterator it;
 	for (it = line.begin(); it != line.end(); it++) {
-		names << *it;
+		// We need to do a deep copy of this
+		QString deep_copy((const QChar*) it->constData(), it->size());
+		names << deep_copy;
 	}
 	myTreeModel->setAxesNames(names);
 }

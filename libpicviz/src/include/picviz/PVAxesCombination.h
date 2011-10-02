@@ -14,6 +14,7 @@
 #include <pvkernel/rush/PVFormat.h>
 
 #include <picviz/PVAxis.h>
+#include <picviz/PVAxesCombination_types.h>
 
 namespace Picviz {
 
@@ -29,9 +30,17 @@ public:
 	/**
 	* Add an axis to the list of used axes.
 	*
+	* @todo do not work as it does not update columns_indexes_list !
 	* @param axis The axis to add.
 	*/
 	void axis_append(const PVAxis &axis);
+
+	/**
+	* Add an axis to the list of used axes by index in the original list
+	*
+	* @param axis The axis to add.
+	*/
+	void axis_append(PVCol org_axis_id);
 
 	/**
 	* Decrement the column index of an axis.
@@ -102,6 +111,14 @@ public:
 	*
 	*/
 	PVCol get_original_axis_index_from_name(QString const& name) const;
+
+	/**
+	 * Gets the QStringList of all Axes names according to their original combination
+	 *
+	 * @return The list of all names of all current axes
+	 *
+	 */
+	QStringList get_original_axes_names_list();
 
 	/**
 	* Get the current column index of a currently used axes, from its index.

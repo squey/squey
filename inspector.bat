@@ -1,8 +1,8 @@
 @echo off
 
-:SET BUILD_MODE=Debug
+SET BUILD_MODE=Debug
 :SET BUILD_MODE=RelWithDebInfo
-SET BUILD_MODE=Release
+:SET BUILD_MODE=Release
 
 :SET PICVIZ_LOG_FILE="debug.txt"
 :SET PICVIZ_DEBUG_LEVEL=DEBUG
@@ -39,8 +39,3 @@ echo PVFILTER_NORMALIZE_DIR=%PVFILTER_NORMALIZE_DIR%
 echo PATH=%PATH%
 
 %CACTUSLABS_TRUNK_DIR%\gui-qt\src\%BUILD_MODE%\picviz-inspector.exe
-
-
-
-
-

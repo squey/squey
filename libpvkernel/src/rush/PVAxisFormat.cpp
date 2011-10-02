@@ -82,8 +82,3 @@ void PVRush::PVAxisFormat::set_group(QString str)
 {
 	group = str;
 }
-
-void PVRush::PVAxisFormat::set_key(QString str)
-{
-	_is_key = str.compare("true", Qt::CaseInsensitive);
-}

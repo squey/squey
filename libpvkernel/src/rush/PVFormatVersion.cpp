@@ -97,10 +97,11 @@ bool PVRush::PVFormatVersion::_rec_1to2(QDomElement elt)
 {
 	QString const& tag_name = elt.tagName();
 	static QStringList tags = QStringList() << "protocol" << "domain" << "tld" << "port" << "url" << "url-variables";
+	static QStringList plottings = QStringList() << "default" << "default" << "default" << "port" << "minmax" << "minmax";
 	if (tag_name == "splitter") {
 		QString type = elt.attribute("type", "");
 		if (type == "url") {
-			// Set default axes tags
+			// Set default axes tags and plottings
 			QDomNodeList children = elt.childNodes();
 			for (unsigned int i = 0; i < 6; i++) {
 				QDomElement c_elt = children.at(i).toElement();
@@ -109,6 +110,7 @@ bool PVRush::PVFormatVersion::_rec_1to2(QDomElement elt)
 					QDomElement axis = c_elt.firstChildElement("axis");
 					// and set the default tag
 					axis.setAttribute(PVFORMAT_AXIS_TAG_STR, tags[i]);
+					axis.setAttribute(PVFORMAT_AXIS_PLOTTING_STR, plottings[i]);
 				}
 			}
 		}
@@ -117,6 +119,21 @@ bool PVRush::PVFormatVersion::_rec_1to2(QDomElement elt)
 			// Default dehavioru was to match the regular expression somewhere in the line
 			elt.setAttribute("full-line", "false");
 		}
+	}
+	else
+	if (tag_name == "axis") {
+		bool is_key = elt.attribute("key", "false") == "true";
+		if (is_key) {
+			QString cur_tag = elt.attribute(PVFORMAT_AXIS_TAG_STR);
+			if (!cur_tag.isEmpty()) {
+				cur_tag += QString(QChar(PVFORMAT_TAGS_SEP)) + "key";
+			}
+			else {
+				cur_tag = "key";
+			}
+			elt.setAttribute(PVFORMAT_AXIS_TAG_STR, cur_tag);
+		}
+		elt.removeAttribute("key");
 	}
 
 	QDomNodeList children = elt.childNodes();

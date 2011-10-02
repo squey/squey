@@ -16,9 +16,11 @@ PVRush::PVInputTypeRemoteFilename::PVInputTypeRemoteFilename() :
 {
 }
 
-bool PVRush::PVInputTypeRemoteFilename::createWidget(hash_formats const& formats, list_inputs &inputs, QString& format, QWidget* parent) const
+bool PVRush::PVInputTypeRemoteFilename::createWidget(hash_formats const& formats, hash_formats& /*new_formats*/, list_inputs &inputs, QString& format, QWidget* parent) const
 {
-	PVLogViewerDialog *RemoteLogDialog = new PVLogViewerDialog(parent);
+	QStringList formats_str = formats.keys();
+	formats_str.push_front(PICVIZ_AUTOMATIC_FORMAT_STR);
+	PVLogViewerDialog *RemoteLogDialog = new PVLogViewerDialog(formats_str, parent);
 	if (RemoteLogDialog->exec() == QDialog::Rejected) {
 		RemoteLogDialog->deleteLater();
 		return false;
@@ -26,12 +28,12 @@ bool PVRush::PVInputTypeRemoteFilename::createWidget(hash_formats const& formats
 	// Force deletion so that settings are saved
 	RemoteLogDialog->deleteLater();
 
-	format = PICVIZ_AUTOMATIC_FORMAT_STR;
 	_hash_real_filenames = RemoteLogDialog->getDlFiles();
 	QStringList const& files = _hash_real_filenames.keys();
 	for (int i = 0; i < files.size(); i++) {
 		PVLOG_INFO("%s\n", qPrintable(files[i]));
 	}
+	format = RemoteLogDialog->getSelFormat();
 	return load_files(files, true, inputs, parent);
 }
 

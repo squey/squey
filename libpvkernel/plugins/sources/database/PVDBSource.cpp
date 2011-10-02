@@ -56,21 +56,24 @@ PVCore::PVChunk* PVRush::PVDBSource::operator()()
 			PVLOG_WARN("(PVDBSource::operator()) unable to exec SQL query '%s': %s.\n", qPrintable(_sql_query.lastQuery()), qPrintable(_sql_query.lastError().text()));
 			return NULL;
 		}
+
+		_sql_query.seek(_start);
 		PVLOG_DEBUG("(PVDBSource::operator()) executed query '%s'.\n", qPrintable(_sql_query.lastQuery()));
 	}
 	// Create a chunk w/ no memory for its internal buffer
 	PVCore::PVChunk* chunk = PVCore::PVChunkMem<>::allocate(0, this);
 	chunk->set_index(_next_index);
+	PVLOG_INFO("_nelts_chunk=%d; _next_index=%d\n", _nelts_chunk, _next_index);
 	for (chunk_index n = 0; n < _nelts_chunk; n++) {
 		if (!_sql_query.next()) {
-			// Try to get the next batch, and if empty, well, that's the end.
-			query_next_batch();
-			if (_sql_query.size() == 0) {
+		//	// Try to get the next batch, and if empty, well, that's the end.
+		//	//query_next_batch();
+		//	if (_sql_query.size() == 0) {
 				if (n == 0) {
 					return NULL;
 				}
 				break;
-			}
+		//	}
 		}
 		QSqlRecord rec = _sql_query.record();
 		PVCore::PVElement* elt = chunk->add_element();

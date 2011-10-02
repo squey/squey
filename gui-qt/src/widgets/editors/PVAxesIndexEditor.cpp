@@ -56,7 +56,7 @@ void PVInspector::PVAxesIndexEditor::set_axes_index(PVCore::PVAxesIndexType axes
 	for (int i = 0; i < axes.count(); i++) {
 		item = new QListWidgetItem(axes[i]);
 		addItem(item);
-		if (std::find(axes_index.begin(), axes_index.end(), i) != axes_index.end()) {
+		if (std::find(axes_index.begin(), axes_index.end(), _view.axes_combination.get_axis_column_index(i)) != axes_index.end()) {
 			item->setSelected(true);
 		}
 	}
@@ -68,7 +68,7 @@ PVCore::PVAxesIndexType PVInspector::PVAxesIndexEditor::get_axes_index() const
 	QModelIndexList::iterator it;
 	PVCore::PVAxesIndexType ret;
 	for (it = selitems.begin(); it != selitems.end(); it++) {
-		ret.push_back((*it).row());
+		ret.push_back(_view.axes_combination.get_axis_column_index((*it).row()));
 	}
 
 	return ret;

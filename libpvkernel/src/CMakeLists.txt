@@ -20,8 +20,13 @@ core/PVField.cpp
 core/PVListFloat2D.cpp
 core/PVLogger.cpp
 core/PVPCRESplitter.cpp
+core/PVProgressBox.cpp
 core/PVSplitter.cpp
 core/PVVersion.cpp
+)
+
+SET(CORE_MOC_HEADERS
+include/pvkernel/core/PVProgressBox.h
 )
 
 set(CORE_HEADER_FILES
@@ -105,14 +110,12 @@ include/pvkernel/filter/PVFieldsFilterParamWidget.h
 set(RUSH_SRC_FILES
 rush/PVAxisFormat.cpp
 rush/pvdecoder.cpp
-rush/pvfile.cpp
 rush/PVFileRawSource.cpp
 rush/PVFormat.cpp
-rush/PVNormalizer.cpp
-rush/pvnormalizerfactory.cpp
 rush/PVNraw.cpp
 rush/PVNrawChild.cpp
 rush/PVNrawOutput.cpp
+rush/PVNormalizer.cpp
 rush/PVXmlParamParser.cpp
 rush/pvsource.cpp
 rush/pvstream.cpp
@@ -180,8 +183,6 @@ include/pvkernel/rush/PVFile.h
 include/pvkernel/rush/pv_file_raw_source.h
 include/pvkernel/rush/pv_format.h
 include/pvkernel/rush/PVFormat.h
-include/pvkernel/rush/PVNormalizer.h
-include/pvkernel/rush/pvnormalizerfactory.h
 include/pvkernel/rush/PVSource.h
 include/pvkernel/rush/PVUnicodeSource.h
 include/pvkernel/rush/PVCSVSource.h
@@ -205,6 +206,7 @@ include/pvkernel/rush/PVOutputFile.h
 include/pvkernel/rush/PVOutput.h
 include/pvkernel/rush/PVPluginsLoad.h
 include/pvkernel/rush/PVVrbAllocator.h
+include/pvkernel/rush/PVNormalizer.h
 include/pvkernel/rush/PVRawSource.h
 include/pvkernel/rush/PVRawSourceBase.h
 include/pvkernel/rush/PVSourceCreator.h
@@ -252,7 +254,7 @@ include/pvkernel/rush/PVInputType.h
 
 SET(SRC_FILES ${CORE_SRC_FILES} ${FILTER_SRC_FILES} ${RUSH_SRC_FILES})
 SET(HEADER_FILES ${CORE_HEADER_FILES} ${FILTER_HEADER_FILES} ${RUSH_HEADER_FILES})
-SET(MOC_HEADERS ${FILTER_MOC_HEADERS} ${RUSH_MOC_HEADERS})
+SET(MOC_HEADERS ${CORE_MOC_HEADERS} ${FILTER_MOC_HEADERS} ${RUSH_MOC_HEADERS})
 QT4_WRAP_CPP(MOC_SRC ${MOC_HEADERS})
 
 add_library(pvkernel SHARED ${SRC_FILES} ${HEADER_FILES} ${MOC_SRC} ${MOC_HEADERS})
@@ -261,4 +263,5 @@ set_target_properties(pvkernel PROPERTIES SOVERSION 1)
 
 target_link_libraries(pvkernel ${QT_LIBRARIES} ${ICU_LIBRARY} ${TBB_LIBRARIES} ${TBB_MALLOC_LIBRARY} ${OpenMP_LIBRARIES} ${Boost_LIBRARIES} ${ARCHIVE_LIBRARY} ${PCAP_LIBRARIES} ${WINSOCK_LIB})
 
-INSTALL(TARGETS pvkernel LIBRARY DESTINATION .)
+INSTALL(TARGETS pvkernel LIBRARY DESTINATION .
+			 RUNTIME DESTINATION .)

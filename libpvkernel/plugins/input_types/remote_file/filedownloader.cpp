@@ -6,7 +6,11 @@
 #include <QDir>
 #include <QUrl>
 #include <QDebug>
+#include <QFuture>
+#include <QFutureWatcher>
+#include <QtCore>
 
+#include <pvkernel/core/PVProgressBox.h>
 
 class FileDownLoader::FileDownLoaderPrivate
 {
@@ -15,7 +19,7 @@ public:
         : curl( 0 ),
           tempFile( 0 )
 #ifdef ADD_DEBUG_TO_FILE
-        , debugTempFile( 0 )
+		  ,debugTempFile( 0 )
 #endif
     {
     }
@@ -28,12 +32,16 @@ public:
 #ifdef ADD_DEBUG_TO_FILE
     static int writeDebugToFile(CURL *, curl_infotype, char *, size_t, void *);
 #endif
+	static void download_thread(FileDownLoaderPrivate* d, QString* tempFile, CURLcode* curlResult);
     CURL *curl;
     QTemporaryFile *tempFile;
 #ifdef ADD_DEBUG_TO_FILE
     QTemporaryFile *debugTempFile;
 #endif
+	static bool _cancel_dl;
 };
+
+bool FileDownLoader::FileDownLoaderPrivate::_cancel_dl = false;
 
 void FileDownLoader::FileDownLoaderPrivate::initialize()
 {
@@ -62,6 +70,7 @@ void FileDownLoader::FileDownLoaderPrivate::cleanup()
 
 void FileDownLoader::FileDownLoaderPrivate::initializeDownload( const QString &remoteFile, const ConnectionSettings& settings, const QString& hostName, QUrl& url)
 {
+	_cancel_dl = false;
     //static const char* s_schemes[] = { "file", "http", "https", "ftp", "ftps","scp", "sftp" };
     static const char* s_schemes[] = { "http", "https", "ftp", "ftps","scp", "sftp", "file" };
     if( settings.protocol == Local )
@@ -149,6 +158,9 @@ void FileDownLoader::FileDownLoaderPrivate::initializeEncrypted( const Connectio
 
 size_t FileDownLoader::FileDownLoaderPrivate::writeData(void *buffer, size_t /*size*/, size_t nmemb, void *stream)
 {
+	if (_cancel_dl) {
+		return -1;
+	}
     QTemporaryFile *downloadFile = static_cast<QTemporaryFile*>( stream );
     if ( !downloadFile )
     {
@@ -195,6 +207,43 @@ int FileDownLoader::FileDownLoaderPrivate::writeDebugToFile(CURL *, curl_infotyp
 }
 #endif
 
+void FileDownLoader::FileDownLoaderPrivate::download_thread(FileDownLoaderPrivate* d, QString* tempFile, CURLcode* curlResult)
+{
+	/* Define our callback to get called when there's data to be written */
+	curl_easy_setopt(d->curl, CURLOPT_WRITEFUNCTION, d->writeData);
+
+	/* Set a pointer to our struct to pass to the callback */
+	d->tempFile = new QTemporaryFile();
+	d->tempFile->setAutoRemove( false );
+	d->tempFile->setFileTemplate( TEMPORARYFILENAME_TEMPLATE );
+	bool res = d->tempFile->open();
+	if ( !res ) {
+		d->cleanup();
+		return;
+	}
+	const QString tempFileName = d->tempFile->fileName();
+	qDebug()<<" d->tempFile->filename();"<<d->tempFile->fileName();
+
+	curl_easy_setopt(d->curl, CURLOPT_WRITEDATA, d->tempFile);
+
+#ifdef ADD_CURL_DEBUG
+	/* Switch on full protocol/debug output */
+	curl_easy_setopt(d->curl, CURLOPT_VERBOSE, 1L);
+#ifdef ADD_DEBUG_TO_FILE
+	d->debugTempFile = new QTemporaryFile();
+	d->debugTempFile->setAutoRemove( false );
+	d->debugTempFile->open();
+
+	curl_easy_setopt(d->curl, CURLOPT_DEBUGFUNCTION, d->writeDebugToFile);
+	curl_easy_setopt(d->curl, CURLOPT_DEBUGDATA, d->debugTempFile);
+#endif
+
+#endif
+	*curlResult = curl_easy_perform(d->curl);
+	*tempFile = tempFileName;
+	d->cleanup();
+}
+
 
 FileDownLoader::FileDownLoader(QObject *_parent)
     :QObject( _parent ), d( new FileDownLoaderPrivate() )
@@ -208,59 +257,37 @@ FileDownLoader::~FileDownLoader()
     delete d;
 }
 
-bool FileDownLoader::download( const QString &remoteFile, QString&tempFile, const ConnectionSettings& settings, const QString& hostName, QString&errorMessage, QUrl& url )
+bool FileDownLoader::download( const QString &remoteFile, QString&tempFile, const ConnectionSettings& settings, const QString& hostName, QString&errorMessage, QUrl& url, bool& cancel )
 {
-    bool res = false;
+	cancel = false;
     d->curl = curl_easy_init();
     if ( d->curl )
     {
         d->initializeDownload( remoteFile, settings, hostName, url );
-        /* Define our callback to get called when there's data to be written */
-        curl_easy_setopt(d->curl, CURLOPT_WRITEFUNCTION, d->writeData);
 
-        /* Set a pointer to our struct to pass to the callback */
-        d->tempFile = new QTemporaryFile();
-        d->tempFile->setAutoRemove( false );
-        d->tempFile->setFileTemplate( TEMPORARYFILENAME_TEMPLATE );
-        res = d->tempFile->open();
-        if ( !res ) {
-            errorMessage = tr( "Can not open temporary file" );
-            d->cleanup();
-            return false;
+		PVCore::PVProgressBox *progressDialog = new PVCore::PVProgressBox(tr("Downloading %1...").arg(url.toString()), NULL, 0);
 
-        }
-        const QString tempFileName = d->tempFile->fileName();
-        qDebug()<<" d->tempFile->filename();"<<d->tempFile->fileName();
+		CURLcode curlResult;
+		QFuture<void> worker = QtConcurrent::run<void>(&FileDownLoaderPrivate::download_thread, d, &tempFile, &curlResult);
+		QFutureWatcher<void> watcher;
+		watcher.setFuture(worker);
+		QObject::connect(&watcher, SIGNAL(finished()), progressDialog, SLOT(accept()), Qt::QueuedConnection);
 
-        curl_easy_setopt(d->curl, CURLOPT_WRITEDATA, d->tempFile);
+		if(!progressDialog->exec()) {
+			cancel = true;
+			FileDownLoaderPrivate::_cancel_dl = true;
+			return false;
+		}
 
-#ifdef ADD_CURL_DEBUG
-        /* Switch on full protocol/debug output */
-        curl_easy_setopt(d->curl, CURLOPT_VERBOSE, 1L);
-#ifdef ADD_DEBUG_TO_FILE
-        d->debugTempFile = new QTemporaryFile();
-        d->debugTempFile->setAutoRemove( false );
-        d->debugTempFile->open();
+		if(CURLE_OK != curlResult) {
+			/* we failed */
+			QFile tempFile_( tempFile );
+			tempFile_.remove();
+			errorMessage = QString::fromUtf8( curl_easy_strerror( curlResult ) );
+		}
 
-        curl_easy_setopt(d->curl, CURLOPT_DEBUGFUNCTION, d->writeDebugToFile);
-        curl_easy_setopt(d->curl, CURLOPT_DEBUGDATA, d->debugTempFile);
-#endif
-
-#endif
-        const CURLcode result = curl_easy_perform(d->curl);
-        if(CURLE_OK != result) {
-            /* we failed */
-            res = false;
-            QFile tempFile( tempFileName );
-            tempFile.remove();
-            errorMessage = QString::fromUtf8( curl_easy_strerror( result ) );
-            emit downloadError( errorMessage, result );
-        } else {
-            tempFile = tempFileName;
-            res = true;
-        }
-        d->cleanup();
+		return true;
     }
-    return res;
+    return false;
 }
 

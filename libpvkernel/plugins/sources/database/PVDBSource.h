@@ -15,7 +15,7 @@
 
 namespace PVRush {
 
-class LibKernelDecl PVDBSource: public PVRawSourceBase {
+class PVDBSource: public PVRawSourceBase {
 public:
 	PVDBSource(PVDBQuery const& query, chunk_index nelts_chunk, PVFilter::PVChunkFilter_f src_filter);
 	virtual ~PVDBSource();

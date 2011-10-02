@@ -8,9 +8,9 @@
 #define PICVIZ_PVROOT_H
 
 #include <QList>
+#include <QStringList>
 
 #include <pvkernel/core/general.h>
-#include <pvkernel/rush/PVNormalizer.h>
 
 #include <picviz/PVMandatoryMappingFactory.h>
 #include <picviz/PVMappingFactory.h>
@@ -39,8 +39,6 @@ public:
 
 	/* Properties */
 	QList<PVScene_p> scenes;
-
-	PVRush::PVNormalizer      normalize;
 
 	/* Functions */
 	int scene_append(PVScene_p scene);

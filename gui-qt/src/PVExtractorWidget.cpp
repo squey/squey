@@ -18,8 +18,8 @@
 #include <PVExtractorWidget.h>
 #include <PVMainWindow.h>
 #include <PVTabSplitter.h>
-#include <PVProgressBox.h>
 
+#include <pvkernel/core/PVProgressBox.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
 
 #include <pvsdk/PVMessenger.h>
@@ -148,7 +148,7 @@ void PVInspector::PVExtractorWidget::fill_source_list()
 	_slider_index->setMaximum(_total_nlines-1);
 }
 
-void PVInspector::PVExtractorWidget::update_status_ext(PVProgressBox* pbox, PVRush::PVControllerJob_p job)
+void PVInspector::PVExtractorWidget::update_status_ext(PVCore::PVProgressBox* pbox, PVRush::PVControllerJob_p job)
 {
 	while (job->running()) {
 		pbox->set_status(job->status());
@@ -158,7 +158,7 @@ void PVInspector::PVExtractorWidget::update_status_ext(PVProgressBox* pbox, PVRu
 
 bool PVInspector::PVExtractorWidget::show_job_progress_bar(PVRush::PVControllerJob_p job, QString const& desc, int nlines, QWidget* parent = NULL)
 {
-	PVProgressBox *pbox = new PVProgressBox(tr("Extracting %1...").arg(desc), parent, 0);
+	PVCore::PVProgressBox *pbox = new PVCore::PVProgressBox(tr("Extracting %1...").arg(desc), parent, 0, QString("Number of elements processed: %1/%2"));
 	QProgressBar *pbar = pbox->getProgressBar();
 	pbar->setValue(0);
 	pbar->setMaximum(nlines);

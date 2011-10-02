@@ -30,6 +30,7 @@
 #include <PVXmlParamTextEdit.h>
 #include <PVXmlParamComboBox.h>
 #include <PVXmlParamColorDialog.h>
+#include <PVXmlParamList.h>
 #include <picviz/plugins.h>
 #include <picviz/PVLayerFilter.h>
 
@@ -56,7 +57,7 @@ public:
     void setHelp();
 	void checkMappingTimeFormat();
 	void setComboGroup();
-	void setComboTag();
+	void setListTags();
     
     QStringList listType() const;
     QStringList getListTypeMapping(const QString& mType);
@@ -64,7 +65,7 @@ public:
 	QSet<QString> getListTags();
 	QSet<QString> getListParentSplitterTag();
     
-	QString get_current_tag();
+	QStringList get_current_tags();
     /***************************  board items **********************/
     //***** tab general ***** 
     QTabWidget *tabParam;
@@ -74,7 +75,7 @@ public:
     PVXmlParamComboBox * comboMapping;
     PVXmlParamComboBox * comboPlotting;
 	PVXmlParamComboBox * comboGroup;
-	PVXmlParamComboBox * comboTag;
+	PVXmlParamList* listTags;
     
     //***** tab time format ***** 
     QLabel *timeFormatLabel;
@@ -89,8 +90,6 @@ public:
 	QPushButton* btnTagHelp;
     
     //***** tab param ***** 
-    PVXmlParamComboBox * comboKey;
-    QLabel *keyLabel;
     PVXmlParamWidgetEditorBox *group;
     QLabel *groupLabel;
     PVXmlParamColorDialog *buttonColor;

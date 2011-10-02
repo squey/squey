@@ -34,7 +34,6 @@
 #include <PVDualSlider.h>
 #include <PVExportSelectionDialog.h>
 #include <PVFilterWidget.h>
-#include <PVImportFileDialog.h>
 //#include <PVMapWidget.h>
 #include <PVOpenFileDialog.h>
 #include <PVSaveFileDialog.h>
@@ -74,7 +73,6 @@ public:
 	PVFilterWidget *pv_FilterWidget;
 
 	PVExportSelectionDialog *pv_ExportSelectionDialog;
-	PVImportFileDialog *pv_ImportFileDialog;
 
 //		PVMapWidget *pv_MapWidget;
 	PVOpenFileDialog    *pv_OpenFileDialog;
@@ -163,6 +161,7 @@ public slots:
 	void edit_format_Slot(QString const& path, QWidget* parent);
 	void edit_format_Slot(QDomDocument& doc, QWidget* parent);
 	void set_color_selected(QColor const& color);
+	void axes_combination_editor_Slot();
 
 	void display_icon_Slot();
 
@@ -192,6 +191,7 @@ private:
 
 	QAction *about_Action;
 	QAction *axes_editor_Action;
+	QAction *axes_combination_editor_Action;
 	QAction *axes_mode_Action;
 	QAction *axes_display_edges_Action;
 	QAction *lines_display_unselected_Action;

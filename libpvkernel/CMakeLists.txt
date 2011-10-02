@@ -81,7 +81,7 @@ add_subdirectory(plugins)
 
 set(PVKERNEL_PLUGINS_LIST ${PLUGINS_LIST})
 
-add_subdirectory(bindings)
+#add_subdirectory(bindings)
 add_subdirectory(utils)
 
 add_subdirectory(tests)

@@ -4,39 +4,36 @@
 //! Copyright (C) Philippe Saadé 2009-2011
 //! Copyright (C) Picviz Labs 2011
 
-#include <QtGui>
-
 #include <pvkernel/core/general.h>
 
-#include <PVMainWindow.h>
-
 #include <PVAxisPropertiesWidget.h>
+#include <PVMainWindow.h>
+#include <PVTabSplitter.h>
 
 /******************************************************************************
  *
  * PVInspector::PVAxisPropertiesWidget::PVAxisPropertiesWidget
  *
  *****************************************************************************/
-PVInspector::PVAxisPropertiesWidget::PVAxisPropertiesWidget(PVMainWindow *mw) : QDialog(mw)
+PVInspector::PVAxisPropertiesWidget::PVAxisPropertiesWidget(PVTabSplitter* tab_, PVMainWindow *mw):
+	QDialog(mw)
 {
-
+	main_window = mw;
 
 	PVLOG_DEBUG("PVInspector::PVAxisPropertiesWidget::%s\n", __FUNCTION__);
 
 	// Setting the direct link to PVMainWindow
-	main_window = mw;
+	tab = tab_;
 
-	apply_button = new QPushButton("Apply");
 	axes_list = new QComboBox();
 	axes_names_list = QStringList();
 	axis_name = new QLineEdit();
 	axis_name_label = new QLabel("Axis name");
-	cancel_button = new QPushButton("Cancel");
-	done_button = new QPushButton("Done");
-	main_layout = new QGridLayout();
+	box_buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel | QDialogButtonBox::Apply);
+	grid_layout = new QGridLayout();
+	main_layout = new QVBoxLayout();
 
-	done_button->setDefault(true);
-
+	create();
 }
 
 /******************************************************************************
@@ -46,13 +43,6 @@ PVInspector::PVAxisPropertiesWidget::PVAxisPropertiesWidget(PVMainWindow *mw) : 
  *****************************************************************************/
 PVInspector::PVAxisPropertiesWidget::~PVAxisPropertiesWidget()
 {
-	apply_button->deleteLater();
-	axes_list->deleteLater();
-	axis_name->deleteLater();
-	axis_name_label->deleteLater();
-	cancel_button->deleteLater();
-	done_button->deleteLater();
-	main_layout->deleteLater();
 }
 
 /******************************************************************************
@@ -64,7 +54,7 @@ void PVInspector::PVAxisPropertiesWidget::apply_slot()
 {
 	PVLOG_INFO("%s \n       %s\n",__FILE__,__FUNCTION__);
 
-	main_window->current_tab->get_lib_view()->set_axis_name(axes_list->currentIndex(), axis_name->text());
+	tab->get_lib_view()->set_axis_name(axes_list->currentIndex(), axis_name->text());
 
 	refresh_widget(axes_list->currentIndex());
 }
@@ -74,12 +64,9 @@ void PVInspector::PVAxisPropertiesWidget::apply_slot()
  * PVInspector::PVAxisPropertiesWidget::cancel_slot
  *
  *****************************************************************************/
-void PVInspector::PVAxisPropertiesWidget::cancel_slot(){
-	PVLOG_INFO("%s \n       %s\n",__FILE__,__FUNCTION__);
-	//get current list index
-	int idx = axes_list->currentIndex();
-	//reload
-	refresh_widget(idx);
+void PVInspector::PVAxisPropertiesWidget::cancel_slot()
+{
+	reject();
 }
 
 /******************************************************************************
@@ -89,35 +76,31 @@ void PVInspector::PVAxisPropertiesWidget::cancel_slot(){
  *****************************************************************************/
 void PVInspector::PVAxisPropertiesWidget::create()
 {
-	PVLOG_INFO("%s \n       %s\n",__FILE__,__FUNCTION__);
-
 	axes_list->clear();
-	axes_names_list = main_window->current_tab->get_lib_view()->get_axes_names_list();
+	axes_names_list = tab->get_lib_view()->get_axes_names_list();
 	axes_list->addItems(axes_names_list);
 
 	axis_name->setText(axes_names_list[0]);
 
-	main_layout->addWidget(axes_list, 0, 0, 1, 2);
+	grid_layout->addWidget(axes_list, 0, 0, 1, 2);
 	
-	main_layout->addWidget(axis_name_label, 1, 0);
-	main_layout->addWidget(axis_name, 1, 1);
+	grid_layout->addWidget(axis_name_label, 1, 0);
+	grid_layout->addWidget(axis_name, 1, 1);
 
-	main_layout->addWidget(apply_button, 2, 0);
-	main_layout->addWidget(cancel_button, 2, 1);
-	main_layout->addWidget(done_button, 2, 2);
+	main_layout->addLayout(grid_layout);
+	main_layout->addWidget(box_buttons);
 
-	this->setLayout(main_layout);
+	setLayout(main_layout);
 
 	//buttons
-	connect(apply_button, 	SIGNAL(clicked()), 	this, 	SLOT(apply_slot())	);
-	connect(cancel_button, 	SIGNAL(clicked()), 	this, 	SLOT(cancel_slot())	);
-	connect(done_button, 	SIGNAL(clicked()), 	this, 	SLOT(apply_slot())	);
-	connect(done_button, 	SIGNAL(clicked()), 	this, 	SLOT(accept())		);
+	connect(box_buttons,    SIGNAL(accepted()),   this,   SLOT(apply_slot())  );
+	connect(box_buttons,    SIGNAL(accepted()),   this,   SLOT(accept())      );
+	connect(box_buttons,    SIGNAL(rejected()), this,   SLOT(cancel_slot())   );
+	connect(box_buttons->button(QDialogButtonBox::Apply), SIGNAL(clicked()), this, SLOT(apply_slot()));
 	
 	//combobox list 
 // 	connect(axes_list, 	SIGNAL(currentIndexChanged(int)), this, SLOT(refresh_widget(int)));
 	connect(axes_list, 	SIGNAL(activated(int)), this, 	SLOT(refresh_widget(int)));
-
 }
 
 /******************************************************************************
@@ -127,7 +110,6 @@ void PVInspector::PVAxisPropertiesWidget::create()
  *****************************************************************************/
 void PVInspector::PVAxisPropertiesWidget::refresh_widget()
 {	
-	PVLOG_INFO("%s \n       %s\n",__FILE__,__FUNCTION__);
 	refresh_widget(0);
 }
 
@@ -138,15 +120,13 @@ void PVInspector::PVAxisPropertiesWidget::refresh_widget()
  *****************************************************************************/
 void PVInspector::PVAxisPropertiesWidget::refresh_widget(int index)
 {
-	PVLOG_INFO("%s \n       %s\n",__FILE__,__FUNCTION__);
 	axes_list->clear();
-	axes_names_list = main_window->current_tab->get_lib_view()->get_axes_names_list();
+	axes_names_list = tab->get_lib_view()->get_axes_names_list();
 	axes_list->addItems(axes_names_list);
 	axes_list->setCurrentIndex(index);
 
 	axis_name->setText(axes_list->currentText());
 }
-
 
 
 /* For information :

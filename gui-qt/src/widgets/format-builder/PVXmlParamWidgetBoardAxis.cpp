@@ -75,13 +75,11 @@ void PVInspector::PVXmlParamWidgetBoardAxis::allocBoardFields(){
     //useParentRegExpValue = new QCheckBox("Do you want to use the value,\n from the parent regexp validator ?",this);
     
     //tab parameter
-    comboKey = new PVXmlParamComboBox("key");
-    keyLabel = new QLabel(tr("Key :"));
     group = new PVXmlParamWidgetEditorBox(QString("group"), new QVariant(node->attribute(PVFORMAT_AXIS_GROUP_STR)));
     groupLabel = new QLabel(tr("Goup :"));
 	comboGroup = new PVXmlParamComboBox("group");
 	btnGroupAdd = new QPushButton(tr("Add a group..."));
-	comboTag = new PVXmlParamComboBox("tag");
+	listTags = new PVXmlParamList("tag");
 	btnTagHelp = new QPushButton(QIcon(":/help"), "Help");
     buttonColor = new PVXmlParamColorDialog("color", PVFORMAT_AXIS_COLOR_DEFAULT, this);
     colorLabel = new QLabel(tr("Color of the axis line :"));
@@ -153,9 +151,6 @@ void PVInspector::PVXmlParamWidgetBoardAxis::disAllocBoardFields(){
     helpTimeFormat->deleteLater();
 
     //extra group
-    comboKey->hide();
-    comboKey->deleteLater();
-    comboKey->hide();
     group->deleteLater();
 	comboGroup->deleteLater();
 	btnGroupAdd->deleteLater();
@@ -176,10 +171,9 @@ void PVInspector::PVXmlParamWidgetBoardAxis::disableConnexion(){
     disconnect(mapPlotType, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
     disconnect(comboMapping, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
     disconnect(comboPlotting, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
-    disconnect(comboTag, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
+    disconnect(listTags, SIGNAL(itemSelectionChanged()), this, SLOT(slotSetValues()));
     disconnect(timeFormat, SIGNAL(textChanged()), this, SLOT(slotSetValues()));
     disconnect(timeSample, SIGNAL(textChanged()), this, SLOT(slotSetValues()));
-    disconnect(comboKey, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
     disconnect(group, SIGNAL(textChanged(const QString&)), this, SLOT(slotSetValues()));
 	disconnect(btnGroupAdd, SIGNAL(clicked()), this, SLOT(slotAddGroup()));
     disconnect(buttonColor, SIGNAL(changed()), this, SLOT(slotSetValues()));
@@ -231,7 +225,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::draw(){
 	i += 2;
 	// tag
 	gridLayout->addWidget(new QLabel(tr("Tag :")), i, 0);
-	gridLayout->addWidget(comboTag, i, 2);
+	gridLayout->addWidget(listTags, i, 2);
 	gridLayout->addWidget(btnTagHelp, i, 4);
 	i += 2;
     //type
@@ -261,15 +255,16 @@ void PVInspector::PVXmlParamWidgetBoardAxis::draw(){
     
     //***** tab parameter *****
 	gridLayout = new QGridLayout();
-    gridLayout->addWidget(keyLabel, 0, 0);
-    gridLayout->addWidget(comboKey, 0, 2, 1, -1);
-    gridLayout->addWidget(groupLabel, 2, 0);
-	gridLayout->addWidget(comboGroup, 2, 2);
-	gridLayout->addWidget(btnGroupAdd, 2, 4);
-    gridLayout->addWidget(colorLabel, 4, 0);
-    gridLayout->addWidget(buttonColor, 4, 2, 1, -1);
-    gridLayout->addWidget(titleColorLabel, 6, 0);
-    gridLayout->addWidget(buttonTitleColor, 6, 2, 1, -1);
+	i = 0;
+    gridLayout->addWidget(groupLabel, i, 0);
+	gridLayout->addWidget(comboGroup, i, 2);
+	gridLayout->addWidget(btnGroupAdd, i, 4);
+	i += 2;
+    gridLayout->addWidget(colorLabel, i, 0);
+    gridLayout->addWidget(buttonColor, i, 2, 1, -1);
+	i += 2;
+    gridLayout->addWidget(titleColorLabel, i, 0);
+    gridLayout->addWidget(buttonTitleColor, i, 2, 1, -1);
 	tabParameter->addLayout(gridLayout);
     tabParameter->addSpacerItem(new QSpacerItem(1,1,QSizePolicy::Expanding, QSizePolicy::Expanding));
     
@@ -297,7 +292,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::initConnexion() {
     connect(mapPlotType, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
     connect(comboMapping, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
     connect(comboPlotting, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
-    connect(comboTag, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
+    connect(listTags, SIGNAL(itemSelectionChanged()), this, SLOT(slotSetValues()));
 	connect(btnTagHelp, SIGNAL(clicked()), this, SLOT(slotShowTagHelp()));
     
     //time format
@@ -309,7 +304,6 @@ void PVInspector::PVXmlParamWidgetBoardAxis::initConnexion() {
     
     
     //extra
-    connect(comboKey, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
     connect(group, SIGNAL(textChanged(const QString&)), this, SLOT(slotSetValues()));
 	connect(btnGroupAdd, SIGNAL(clicked()), this, SLOT(slotAddGroup()));
     connect(buttonColor, SIGNAL(changed()), this, SLOT(slotSetValues()));
@@ -333,9 +327,6 @@ void PVInspector::PVXmlParamWidgetBoardAxis::initValue()
     //init of combos
     QStringList typeL = listType();
     mapPlotType->addItems(typeL);
-    comboKey->addItem("true");
-    comboKey->addItem("false");
-    
     
     //type ...  auto select and default value
 	QString node_type = node->attribute(PVFORMAT_AXIS_TYPE_STR);
@@ -360,12 +351,6 @@ void PVInspector::PVXmlParamWidgetBoardAxis::initValue()
     
     
     //extra
-	QString node_key = node->attribute(PVFORMAT_AXIS_KEY_STR);
-    if (node_key.isEmpty()) {
-		node_key = PVFORMAT_AXIS_KEY_DEFAULT;
-	}
-	comboKey->select(node_key);
-
 	QString node_color = node->attribute(PVFORMAT_AXIS_COLOR_STR);
     if (node_color.isEmpty()) {
 		node_color = PVFORMAT_AXIS_COLOR_DEFAULT;
@@ -379,7 +364,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::initValue()
 	buttonTitleColor->setColor(node_tc);
 
 	setComboGroup();
-	setComboTag();
+	setListTags();
 }
 
 /******************************************************************************
@@ -526,11 +511,10 @@ void PVInspector::PVXmlParamWidgetBoardAxis::slotSetValues(){
     node->setAttribute(QString(PVFORMAT_AXIS_PLOTTING_STR),comboPlotting->val().toString());
     node->setAttribute(QString(PVFORMAT_AXIS_TIMEFORMAT_STR),timeFormat->getVal().toString());
     node->setAttribute(QString(PVFORMAT_AXIS_TIMESAMPLE_STR),timeSample->getVal().toString());
-    node->setAttribute(QString(PVFORMAT_AXIS_KEY_STR),comboKey->val().toString());
     node->setAttribute(QString(PVFORMAT_AXIS_GROUP_STR),group->val().toString());
     node->setAttribute(QString(PVFORMAT_AXIS_COLOR_STR),buttonColor->getColor());
     node->setAttribute(QString(PVFORMAT_AXIS_TITLECOLOR_STR),buttonTitleColor->getColor());
-    node->setAttribute(QString(PVFORMAT_AXIS_TAG_STR),comboTag->val().toString());
+    node->setAttribute(QString(PVFORMAT_AXIS_TAG_STR),listTags->selectedList().join(QString(QChar(PVFORMAT_TAGS_SEP))));
    
     emit signalRefreshView();
 }
@@ -669,21 +653,21 @@ void PVInspector::PVXmlParamWidgetBoardAxis::setComboGroup()
 	comboGroup->select(node_group);
 }
 
-void PVInspector::PVXmlParamWidgetBoardAxis::setComboTag()
+void PVInspector::PVXmlParamWidgetBoardAxis::setListTags()
 {
-	comboTag->clear();
-	comboTag->addItem(PVFORMAT_AXIS_TAG_DEFAULT);
+	listTags->clear();
+	listTags->addItem(PVFORMAT_AXIS_TAG_DEFAULT);
 
 	QSet<QString> list_tags = getListTags();
 	QSet<QString> list_splitter_tags = getListParentSplitterTag();
 
-	comboTag->addItems(list_tags.unite(list_splitter_tags).toList());
+	listTags->setItems(list_tags.unite(list_splitter_tags).toList());
 
 	QString node_tag = node->attribute(PVFORMAT_AXIS_TAG_STR);
 	if (node_tag.isEmpty()) {
 		node_tag = PVFORMAT_AXIS_TAG_DEFAULT;
 	}
-	comboTag->select(node_tag);
+	listTags->select(node_tag.split(PVFORMAT_TAGS_SEP));
 }
 
 void PVInspector::PVXmlParamWidgetBoardAxis::slotAddGroup()
@@ -755,13 +739,13 @@ QSet<QString> PVInspector::PVXmlParamWidgetBoardAxis::getListParentSplitterTag()
 	return ret;
 }
 
-QString PVInspector::PVXmlParamWidgetBoardAxis::get_current_tag()
+QStringList PVInspector::PVXmlParamWidgetBoardAxis::get_current_tags()
 {
-	return comboTag->val().toString();
+	return listTags->selectedList();
 }
 
 void PVInspector::PVXmlParamWidgetBoardAxis::slotShowTagHelp()
 {
-	PVAxisTagHelp* dlg = new PVAxisTagHelp(get_current_tag(), parent()->parent());
+	PVAxisTagHelp* dlg = new PVAxisTagHelp(get_current_tags(), parent()->parent());
 	dlg->exec();
 }

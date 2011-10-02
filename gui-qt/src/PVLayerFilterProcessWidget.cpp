@@ -7,7 +7,7 @@
 
 #include <PVMainWindow.h>
 #include <PVLayerFilterProcessWidget.h>
-#include <PVProgressBox.h>
+#include <pvkernel/core/PVProgressBox.h>
 
 PVInspector::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(PVTabSplitter* tab, PVCore::PVArgumentList& args, Picviz::PVLayerFilter_p filter_p) :
 	PVArgumentListWidget(*tab->get_lib_view(), args, tab),
@@ -19,6 +19,7 @@ PVInspector::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(PVTabSplitte
 	_args_org(_args),
 	_has_apply(false)
 {
+	setWindowTitle("Filter properties...");
 }
 
 PVInspector::PVLayerFilterProcessWidget::~PVLayerFilterProcessWidget()
@@ -119,8 +120,7 @@ bool PVInspector::PVLayerFilterProcessWidget::process()
 
 	_view->pre_filter_layer.get_selection() &= _view->layer_stack.get_selected_layer().get_selection();
 
-	PVProgressBox *progressDialog = new PVProgressBox(tr("Previewing filter..."), this, 0);
-	//progressDialog->set_enable_cancel(false);
+	PVCore::PVProgressBox *progressDialog = new PVCore::PVProgressBox(tr("Previewing filter..."), this, 0);
 	QFuture<void> worker = QtConcurrent::run<void>(process_layer_filter, filter_p.get(), &_view->pre_filter_layer);
 	QFutureWatcher<void> watcher;
 	watcher.setFuture(worker);

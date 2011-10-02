@@ -16,7 +16,7 @@
 #include <QUrl>
 
 struct url_decode_buf {
-	PVCore::PVField **pf;
+	PVCore::PVField *pf[6];
 	PVCore::PVField* field;
 	char* data;
 	size_t rem_len;
@@ -41,7 +41,7 @@ static void url_decode_add_field(url_decode_buf* buf, QString const& new_field, 
 	PVCore::PVField *pf = buf->pf[pos];
 	pf->set_begin(buf->data);
 	pf->set_end(buf->data+bufsize);
-	pf->set_physical_end(pf->end());
+	pf->set_physical_end(buf->data+bufsize);
 	//PVCore::PVField f(*buf->parent, buf->data, buf->data+bufsize);
 
 	buf->data += bufsize;
@@ -95,7 +95,6 @@ PVFilter::PVFieldSplitterURL::PVFieldSplitterURL() :
 void PVFilter::PVFieldSplitterURL::set_children_axes_tag(filter_child_axes_tag_t const& axes)
 {
 	PVFieldsBaseFilter::set_children_axes_tag(axes);
-#define GET_TAG_COL(tag, var) var = axes.contains(tag) ? axes[tag]:-1
 	_col_proto = axes.value(PVAXIS_TAG_PROTOCOL, -1);
 	_col_domain = axes.value(PVAXIS_TAG_DOMAIN, -1);
 	_col_tld = axes.value(PVAXIS_TAG_TLD, -1);
@@ -121,19 +120,19 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterURL::one_to_many(PVCore:
 
 	QString none;		// usefull variable to put an empty string in fields
 
-	// Add the number of final fields and save their pointers
-	PVCore::PVField ftmp(*field.elt_parent());
-	for (PVCol i = 0; i < _ncols; i++) {
-		PVCore::list_fields::iterator it_new = l.insert(it_ins, ftmp);
-		_fields[i] = &(*it_new);
-	}
 	// URL decoder buffer
 	url_decode_buf buf;
-	buf.pf = _fields;
 	buf.data = field.begin();
 	buf.rem_len = field.size();
 	buf.field = &field;
 	buf.nelts = 0;
+
+	// Add the number of final fields and save their pointers
+	PVCore::PVField ftmp(*field.elt_parent());
+	for (PVCol i = 0; i < _ncols; i++) {
+		PVCore::list_fields::iterator it_new = l.insert(it_ins, ftmp);
+		buf.pf[i] = &(*it_new);
+	}
 
 	// URL splitter
 	QUrl url(field.qstr(), QUrl::TolerantMode);

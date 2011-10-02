@@ -17,10 +17,10 @@ int main()
 	assert(in_t);
 	assert(cr_text);
 
-	PVRush::hash_formats formats;
+	PVRush::hash_formats formats, new_formats;
 	QString choseFormat;
 	PVRush::PVInputType::list_inputs inputs;
-	assert(in_t->createWidget(formats, inputs, choseFormat, NULL));
+	assert(in_t->createWidget(formats, new_formats, inputs, choseFormat, NULL));
 
 	PVRush::PVRawSourceBase::p_type src = cr_text->create_discovery_source_from_input(inputs[0]);
 	assert(src);

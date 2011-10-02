@@ -12,8 +12,6 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/rush/PVFormat.h>
 
-//#include <picviz/function.h>
-
 #include <picviz/PVMappingFunction.h>
 #include <picviz/PVRoot.h>
 

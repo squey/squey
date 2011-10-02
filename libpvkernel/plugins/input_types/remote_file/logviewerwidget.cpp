@@ -84,7 +84,7 @@ void LogViewerWidget::LogViewerWidgetPrivate::initWidget()
     headerLabel<<tr( "Path" )<<tr( "Protocol" )<<tr( "Port" );
     filesTableWidget->setHorizontalHeaderLabels( headerLabel );
 
-    connect( filesTableWidget, SIGNAL( itemDoubleClicked ( QTableWidgetItem *) ), qq, SLOT( slotGetRemoteFile( QTableWidgetItem * ) ) );
+    connect( filesTableWidget, SIGNAL( itemDoubleClicked ( QTableWidgetItem *) ), qq->parent(), SLOT( slotDownloadFiles() ) );
     connect( filesTableWidget, SIGNAL( itemClicked ( QTableWidgetItem * ) ), qq, SLOT( slotUpdateButtons() ) );
     fileLayout->addWidget( filesTableWidget );
 
@@ -343,29 +343,6 @@ void LogViewerWidget::slotFillFilesList( QListWidgetItem *item )
     slotUpdateButtons();
 }
 
-void LogViewerWidget::slotGetRemoteFile( QTableWidgetItem *item)
-{
-    if ( !item )
-        return;
-    const int row = d->filesTableWidget->currentRow();
-    MachineConfig machineConfig = d->machineConfigFromItem( d->machineListWidget->currentItem() );
-
-    QList<RegisteredFile>& lstRegistered = d->listOfMachine[ machineConfig ];
-    RegisteredFile& registered = lstRegistered[row];
-
-    QString temporaryFilePath;
-    QString errorMessage;
-	QUrl url;
-    const bool res = d->fileDownLoader->download( registered.remoteFile, temporaryFilePath, registered.settings, machineConfig.hostname, errorMessage, url );
-    if ( res ) {
-        registered.localFile = temporaryFilePath;
-        //qDebug()<<" temporaryFilePath :"<<temporaryFilePath;
-        emit newFile( machineConfig.name, registered.remoteFile, temporaryFilePath);
-    } else {
-        QMessageBox::critical( this, tr( "Error" ), errorMessage.isEmpty() ? tr( "Can not initialize download from libcurl" ) : errorMessage );
-    }
-}
-
 bool LogViewerWidget::downloadSelectedFiles(QHash<QString, QUrl>& dl_files)
 {
     MachineConfig machineConfig = d->machineConfigFromItem( d->machineListWidget->currentItem() );
@@ -386,7 +363,8 @@ bool LogViewerWidget::downloadSelectedFiles(QHash<QString, QUrl>& dl_files)
 		QString temporaryFilePath;
 		QString errorMessage;
 		QUrl url;
-		const bool res = d->fileDownLoader->download( registered.remoteFile, temporaryFilePath, registered.settings, machineConfig.hostname, errorMessage, url );
+		bool cancel = false;
+		const bool res = d->fileDownLoader->download( registered.remoteFile, temporaryFilePath, registered.settings, machineConfig.hostname, errorMessage, url, cancel );
 		if ( res ) {
 			registered.localFile = temporaryFilePath;
 			//qDebug()<<" temporaryFilePath :"<<temporaryFilePath;
@@ -394,7 +372,9 @@ bool LogViewerWidget::downloadSelectedFiles(QHash<QString, QUrl>& dl_files)
 			dl_files[temporaryFilePath] = url;
 			ret = true;
 		} else {
-			QMessageBox::critical( this, tr( "Error" ), errorMessage.isEmpty() ? tr( "Can not initialize download from libcurl" ) : errorMessage );
+			if (!cancel) {
+				QMessageBox::critical( this, tr( "Error" ), errorMessage.isEmpty() ? tr( "Can not initialize download from libcurl" ) : errorMessage );
+			}
 			continue;
 		}
 	}

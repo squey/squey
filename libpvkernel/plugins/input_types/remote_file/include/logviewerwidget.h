@@ -142,7 +142,6 @@ private Q_SLOTS:
 
 private Q_SLOTS:
     void slotFillFilesList( QListWidgetItem *);
-    void slotGetRemoteFile( QTableWidgetItem *);
     void slotUpdateButtons();
 
 private:

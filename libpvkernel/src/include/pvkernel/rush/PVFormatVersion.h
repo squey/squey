@@ -1,11 +1,12 @@
 #ifndef PVFORMAT_VERSION_H
 #define PVFORMAT_VERSION_H
 
+#include <pvkernel/core/general.h>
 #include <QDomDocument>
 
 namespace PVRush {
 
-class PVFormatVersion
+class LibKernelDecl PVFormatVersion
 {
 public:
 	static bool to_current(QDomDocument& doc);

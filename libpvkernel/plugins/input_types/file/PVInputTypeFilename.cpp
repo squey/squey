@@ -67,7 +67,7 @@ PVRush::PVInputTypeFilename::PVInputTypeFilename() :
 #endif
 }
 
-bool PVRush::PVInputTypeFilename::createWidget(hash_formats const& formats, list_inputs &inputs, QString& format, QWidget* parent) const
+bool PVRush::PVInputTypeFilename::createWidget(hash_formats const& formats, hash_formats& /*new_formats*/, list_inputs &inputs, QString& format, QWidget* parent) const
 {
 	QStringList formats_name = formats.keys();
 	formats_name.prepend(QString(PICVIZ_AUTOMATIC_FORMAT_STR));

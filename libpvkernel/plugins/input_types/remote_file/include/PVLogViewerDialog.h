@@ -5,16 +5,18 @@
 #include <QDialog>
 #include <QHash>
 #include <QUrl>
+#include <QComboBox>
 
 class PVLogViewerDialog: public QDialog
 {
 	Q_OBJECT
 public:
-	PVLogViewerDialog(QWidget* parent);
+	PVLogViewerDialog(QStringList const& formats, QWidget* parent);
 	virtual ~PVLogViewerDialog();
 
 public:
 	QHash<QString, QUrl> const& getDlFiles() { return _dl_files; }
+	QString getSelFormat();
 
 public slots:
 	void slotDownloadFiles();
@@ -22,6 +24,8 @@ public slots:
 protected:
 	LogViewerWidget* pv_RemoteLog;
 	QHash<QString, QUrl> _dl_files;
+	QComboBox* _combo_format;
+	QString _format;
 };
 
 #endif

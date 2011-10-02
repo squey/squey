@@ -169,13 +169,15 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id)
 			axis.set_type(child.attribute(PVFORMAT_AXIS_TYPE_STR, PVFORMAT_AXIS_TYPE_DEFAULT));
 			axis.set_mapping(child.attribute(PVFORMAT_AXIS_MAPPING_STR, PVFORMAT_AXIS_MAPPING_DEFAULT));
 			axis.set_plotting(child.attribute(PVFORMAT_AXIS_PLOTTING_STR, PVFORMAT_AXIS_PLOTTING_DEFAULT));
-			axis.set_key(child.attribute(PVFORMAT_AXIS_KEY_STR, PVFORMAT_AXIS_KEY_DEFAULT));
 			axis.set_group(child.attribute(PVFORMAT_AXIS_GROUP_STR, PVFORMAT_AXIS_GROUP_DEFAULT));
 			axis.set_color(child.attribute(PVFORMAT_AXIS_COLOR_STR, PVFORMAT_AXIS_COLOR_DEFAULT));
 			axis.set_titlecolor(child.attribute(PVFORMAT_AXIS_TITLECOLOR_STR, PVFORMAT_AXIS_TITLECOLOR_DEFAULT));
 			QString tag = child.attribute(PVFORMAT_AXIS_TAG_STR, QString());
 			if (!tag.isEmpty()) {
-				axis.add_tag(tag);
+				QStringList tags = tag.split(PVFORMAT_TAGS_SEP);
+				for (int j = 0; j < tags.size(); j++) {
+					axis.add_tag(tags[j]);
+				}
 			}
 			_axes.push_back(axis);
 			if(child.attribute(PVFORMAT_AXIS_TYPE_STR, PVFORMAT_AXIS_TYPE_DEFAULT)=="time"){
@@ -226,7 +228,10 @@ void PVRush::PVXmlParamParser::pushFilter(QDomElement const& elt, int newId)
 		if (found) {
 			QString tag = axis_child.attribute(PVFORMAT_AXIS_TAG_STR, PVFORMAT_AXIS_TAG_DEFAULT);
 			if (!tag.isEmpty()) {
-				axes[tag] = axis_id;
+				QStringList tags = tag.split(PVFORMAT_TAGS_SEP);
+				for (int i = 0; i < tags.size(); i++) {
+					axes[tags[i]] = axis_id;
+				}
 			}
 		}
 		axis_id++;

@@ -47,7 +47,7 @@ public:
 	{
 		filter_child_axes_tag_t::const_iterator it;
 		for (it = axes.begin(); it != axes.end(); it++) {
-			PVLOG_DEBUG("(PVFieldsFilter) axis tag %s set for col .\n", qPrintable(it.key()), it.value());
+			PVLOG_DEBUG("(PVFieldsFilter) axis tag %s set for col %d.\n", qPrintable(it.key()), it.value());
 		}
 		_axes_tag = axes;
 	}
@@ -161,6 +161,9 @@ LibKernelDeclExplicitTempl PVCore::PVClassLibrary<PVFilter::PVFieldsFilterReg>;
 LibKernelDeclExplicitTempl PVFilter::PVFieldsFilter<PVFilter::one_to_many>;
 LibKernelDeclExplicitTempl PVFilter::PVFieldsFilter<PVFilter::one_to_one>;
 LibKernelDeclExplicitTempl PVFilter::PVFieldsFilter<PVFilter::many_to_many>;
+LibKernelDeclExplicitTempl PVCore::PVTag<PVFieldsFilter<PVFilter::one_to_many> >;
+LibKernelDeclExplicitTempl PVCore::PVTag<PVFieldsFilter<PVFilter::one_to_one> >;
+LibKernelDeclExplicitTempl PVCore::PVTag<PVFieldsFilter<PVFilter::many_to_many> >;
 #endif
 
 typedef PVCore::PVClassLibrary<PVFieldsSplitter>::tag PVFieldsSplitterTag;
