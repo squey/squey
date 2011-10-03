@@ -6,6 +6,7 @@
 
 #include <QSplitter>
 
+#include <PVAxesCombinationWidget.h>
 #include <PVXmlEditorWidget.h>
 #include <PVXmlTreeItemDelegate.h>
 #include <PVXmlParamWidget.h>
@@ -42,18 +43,15 @@ PVInspector::PVXmlEditorWidget::PVXmlEditorWidget(QWidget * parent):
     
     //initialisation of the toolbar.
     actionAllocation();
-    initToolBar(vb);
     
     //initialisation of the splitters list
     initSplitters();
 
     menuBar =new QMenuBar();
     initMenuBar();
-    vb->setMenuBar(menuBar);
     //layout()->setMenuBar(menuBar);
     
     vb->addItem(hb);
-    
     
     //the view
     myTreeView = new PVXmlTreeView(this);
@@ -81,9 +79,15 @@ PVInspector::PVXmlEditorWidget::PVXmlEditorWidget(QWidget * parent):
 	_nraw_widget->connect_axes_name(this, SLOT(set_axes_name_selected_row_Slot(int)));
 
 	// Put the vb layout into a widget and add it to the splitter
+	QTabWidget* main_tab = new QTabWidget();
 	QWidget* vb_widget = new QWidget();
 	vb_widget->setLayout(vb);
-	main_splitter->addWidget(vb_widget);
+	main_tab->addTab(vb_widget, tr("Filters"));
+
+	_axes_comb_widget = new PVAxesCombinationWidget(myTreeModel->get_axes_combination());
+	main_tab->addTab(_axes_comb_widget, tr("Axes combination"));
+
+	main_splitter->addWidget(main_tab);
 
 	// Tab widget for the NRAW
 	QTabWidget* nraw_tab = new QTabWidget();
@@ -94,8 +98,10 @@ PVInspector::PVXmlEditorWidget::PVXmlEditorWidget(QWidget * parent):
 	nraw_tab->addTab(_inv_lines_widget, tr("Unmatched lines"));
 
 	QVBoxLayout* main_layout = new QVBoxLayout();
+	initToolBar(main_layout);
 	main_layout->addWidget(main_splitter);
-    setLayout(main_layout);
+	main_layout->setMenuBar(menuBar);
+	setLayout(main_layout);
     
     //setWindowModality(Qt::ApplicationModal);
     

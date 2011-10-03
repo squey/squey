@@ -22,7 +22,7 @@
 #include <PVXmlParamWidget.h>
 #include <pvkernel/rush/PVXmlParamParser.h>
 #include <pvkernel/filter/PVFieldsFilterParamWidget.h>
-
+#include <picviz/PVAxesCombination.h>
 
 #define message(string){QMessageBox qb;   qb.setText(string);    qb.exec();} 
 //#define dbg {qDebug()<<__FILE__<<__LINE__;}
@@ -138,6 +138,8 @@ public:
 	void setAxesNames(QStringList const& names);
 
 	PVRush::types_groups_t& getGroups() { return _groups; }
+
+	Picviz::PVAxesCombination& get_axes_combination() { return _axes_combination; }
     
 private:
 	static void setDefaultAttributesForAxis(QDomElement& elt);
@@ -152,6 +154,7 @@ private:
 	// types_groups_t defined in pvkernel/rush/PVXmlTreeNodeDom.h
 	PVRush::types_groups_t _groups;
     
+	Picviz::PVAxesCombination _axes_combination;
     
 public slots:
     void saveDefault();

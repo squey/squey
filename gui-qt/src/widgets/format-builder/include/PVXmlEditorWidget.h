@@ -24,8 +24,6 @@
 #include <QDomDocument>
 #include <QListWidget>
 
-
-
 #include <PVXmlDomModel.h>
 #include <PVXmlTreeView.h>
 #include <PVXmlParamWidget.h>
@@ -44,6 +42,8 @@ namespace PVInspector{
 
 typedef QList<PVFilter::PVFieldsSplitterParamWidget_p> list_splitters_t;
 typedef QList<PVFilter::PVFieldsFilterParamWidget<PVFilter::one_to_one> > list_filters_t;
+
+class PVAxesCombinationWidget;
 
 class PVXmlEditorWidget : public QDialog {
     Q_OBJECT
@@ -136,6 +136,7 @@ protected:
 	PVRush::PVSourceCreator_p _log_sc;
 	PVRush::PVRawSourceBase_p _log_source;
 	boost::shared_ptr<PVRush::PVExtractor> _log_extract; 
+	PVAxesCombinationWidget* _axes_comb_widget;
 
 	// Model and widget for the NRAW
 	PVNrawListingModel* _nraw_model;
