@@ -22,6 +22,7 @@ protected:
 	QString get_original_axis_selected_name();
 	PVCol get_used_axis_selected();
 	bool is_used_axis_selected();
+	bool is_original_axis_selected();
 
 protected slots:
 	void axis_add_Slot();

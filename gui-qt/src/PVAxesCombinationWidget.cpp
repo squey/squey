@@ -18,6 +18,10 @@ PVInspector::PVAxesCombinationWidget::PVAxesCombinationWidget(Picviz::PVAxesComb
 
 void PVInspector::PVAxesCombinationWidget::axis_add_Slot()
 {
+	if (!is_original_axis_selected()) {
+		return;
+	}
+
 	PVCol axis_id = get_original_axis_selected();
 	QString axis_name = get_original_axis_selected_name();
 
@@ -110,6 +114,11 @@ void PVInspector::PVAxesCombinationWidget::update_used_axes()
 bool PVInspector::PVAxesCombinationWidget::is_used_axis_selected()
 {
 	return _list_used->selectedItems().size() > 0;
+}
+
+bool PVInspector::PVAxesCombinationWidget::is_original_axis_selected()
+{
+	return _list_org->selectedItems().size() > 0;
 }
 
 void PVInspector::PVAxesCombinationWidget::save_current_combination()
