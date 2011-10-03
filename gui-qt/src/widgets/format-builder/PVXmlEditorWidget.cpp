@@ -49,7 +49,6 @@ PVInspector::PVXmlEditorWidget::PVXmlEditorWidget(QWidget * parent):
 
     menuBar =new QMenuBar();
     initMenuBar();
-    vb->setMenuBar(menuBar);
     //layout()->setMenuBar(menuBar);
     
     vb->addItem(hb);
@@ -95,6 +94,7 @@ PVInspector::PVXmlEditorWidget::PVXmlEditorWidget(QWidget * parent):
 
 	QVBoxLayout* main_layout = new QVBoxLayout();
 	main_layout->addWidget(main_splitter);
+	main_layout->setMenuBar(menuBar);
     setLayout(main_layout);
     
     //setWindowModality(Qt::ApplicationModal);
