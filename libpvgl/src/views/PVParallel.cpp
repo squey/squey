@@ -101,7 +101,7 @@ void PVGL::PVView::init(Picviz::PVView_p view)
 	// We fix the initial mathematical extent of the PVGL::PVView
 	xmin = -0.5f;
 	ymin = -0.1f;
-	xmax = picviz_view->get_column_count_as_float () - 0.5f;
+	xmax = ((float) picviz_view->get_axes_count()) - 0.5f;
 	ymax = 1.3f;
 
 	// We initialize the 5 fundamental objects of the PVView
