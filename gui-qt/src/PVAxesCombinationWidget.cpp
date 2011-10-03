@@ -72,6 +72,11 @@ void PVInspector::PVAxesCombinationWidget::axis_remove_Slot()
 		return;
 	}
 
+	// We need a minimum of 2 axes !
+	if (_list_used->count() <= 2) {
+		return;
+	}
+
 	PVCol axis_id = get_used_axis_selected();	
 	_axes_combination.remove_axis(axis_id);
 	update_used_axes();
