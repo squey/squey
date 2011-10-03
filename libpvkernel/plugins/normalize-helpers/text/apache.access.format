@@ -43,5 +43,4 @@
    <axis titlecolor="#ffffff" mapping="4Bsort" time-format="" group="" type="string" name="User Agent" plotting="default" color="#ffffff" time-sample=""/>
   </field>
  </splitter>
- <axes-combination>0,1,2,3,4</axes-combination>
 </param>
