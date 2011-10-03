@@ -146,10 +146,10 @@ void PVInspector::PVXmlEditorWidget::actionAllocation(){
     actionAddUrl = new QAction("add an URL",(QObject*)this);
     actionAddUrl->setIcon(QIcon(":/add-url"));
 
-    actionSave = new QAction("&Save",(QObject*)this);
+    actionSave = new QAction("&Save format",(QObject*)this);
     actionSave->setShortcut(QKeySequence(Qt::CTRL+Qt::Key_S));
     actionSave->setIcon(QIcon(":/save"));
-    actionSaveAs = new QAction("Save as...",(QObject*)this);
+    actionSaveAs = new QAction("Save format as...",(QObject*)this);
     actionDelete = new QAction("Delete",(QObject*)this);
     actionDelete->setShortcut(QKeySequence(Qt::Key_Delete));
     actionDelete->setIcon(QIcon(":/red-cross"));
@@ -160,7 +160,7 @@ void PVInspector::PVXmlEditorWidget::actionAllocation(){
     actionMoveUp = new QAction("move up", (QObject*) this);
     actionMoveUp->setShortcut(QKeySequence(Qt::Key_Up));
     actionMoveUp->setIcon(QIcon(":/go-up.png"));
-    actionOpen = new QAction(tr("Open"),(QObject*)this);
+    actionOpen = new QAction(tr("Open a format..."),(QObject*)this);
     actionOpen->setShortcut(QKeySequence(Qt::CTRL+Qt::Key_O));
     actionOpen->setIcon(QIcon(":/document-open.png"));
 }
