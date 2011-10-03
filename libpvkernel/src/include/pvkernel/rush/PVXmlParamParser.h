@@ -51,7 +51,7 @@ public:
 	virtual ~PVXmlParamParser();
 
 public:
-	int setDom(QDomElement const& node, int id = -1);
+	int setDom(QDomElement const& node, int id = -1, QList<uint32_t> tree_ids = QList<uint32_t>());
 	list_axes_t const& getAxes()const;
 	QList<PVXmlParamParserData> const& getFields()const;
 	QHash<int, QStringList> const& getTimeFormat()const;

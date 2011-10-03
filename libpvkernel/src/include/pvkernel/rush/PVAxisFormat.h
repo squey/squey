@@ -17,7 +17,10 @@
 #include <QList>
 #include <QSet>
 
+#include <cassert>
+
 #include <pvkernel/core/general.h>
+#include <pvkernel/core/stdint.h>
 #include <pvkernel/core/PVColor.h>
 #include <pvkernel/rush/PVTags.h>
 
@@ -33,7 +36,11 @@
  */
 namespace PVRush {
 
+class PVXmlParamParser;
+
 class LibKernelDecl PVAxisFormat {
+	friend class PVXmlParamParser;
+
 	protected:
 		PVCore::PVColor titlecolor;
 		PVCore::PVColor color;
@@ -44,6 +51,8 @@ class LibKernelDecl PVAxisFormat {
 		QString plotting;
 		QString time_format;
 		PVTags tags;
+		uint32_t unique_id;
+		bool unique_id_computed;
 
 	public:
 		PVAxisFormat();
@@ -58,6 +67,7 @@ class LibKernelDecl PVAxisFormat {
 		PVCore::PVColor const& get_titlecolor() const { return titlecolor; }
 		QString get_type() const { return type; }
 		QString get_group() const { return group; }
+		uint32_t get_unique_id() const { return unique_id; }
 		PVTags const& get_tags() const { return tags; }
 		bool has_tag(QString const& tag) const { return tags.has_tag(tag); }
 
@@ -71,6 +81,16 @@ class LibKernelDecl PVAxisFormat {
 		void set_type(QString str);
 		void set_group(QString str);
 		void add_tag(QString const& tag) { tags.add_tag(tag); }
+
+	public:
+		bool operator==(const PVAxisFormat& other)
+		{
+			assert(unique_id_computed);
+			return unique_id == other.unique_id;
+		}
+
+	protected:
+		void compute_unique_id(QList<uint32_t> const& tree_ids);
 };
 
 }

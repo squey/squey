@@ -155,6 +155,7 @@ bool PVRush::PVFormat::populate_from_parser(PVXmlParamParser& xml_parser, bool f
 {
 	filters_params = xml_parser.getFields();
 	_axes = xml_parser.getAxes();
+	_axes_comb = xml_parser.getAxesCombination();
 	time_format = xml_parser.getTimeFormat();
 
 	if (_axes.size() == 0 && forceOneAxis) {

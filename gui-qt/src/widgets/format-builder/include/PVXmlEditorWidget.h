@@ -64,6 +64,7 @@ private:
     PVXmlParamWidget *myParamBord_old_model;
     QWidget *myParamBord;
     QWidget emptyParamBoard;
+	QTabWidget* _main_tab;
     //
     QVBoxLayout *vbParam;
     QMenuBar *menuBar;
@@ -168,6 +169,7 @@ public slots:
     void slotUpdateToolDesabled(const QModelIndex &);
 	void slotExtractorPreview();
 	void slotItemClickedInView(const QModelIndex &index);
+	void slotMainTabChanged(int idx);
 
 	// Slot for the NRAW listing
 	void set_axes_name_selected_row_Slot(int row);

@@ -136,6 +136,7 @@ public:
 	void updateFieldsLinearId();
 	void updateFiltersDataDisplay();
 	void setAxesNames(QStringList const& names);
+	void updateAxesCombination();
 
 	PVRush::types_groups_t& getGroups() { return _groups; }
 

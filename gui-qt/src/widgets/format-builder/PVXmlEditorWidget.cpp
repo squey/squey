@@ -79,15 +79,15 @@ PVInspector::PVXmlEditorWidget::PVXmlEditorWidget(QWidget * parent):
 	_nraw_widget->connect_axes_name(this, SLOT(set_axes_name_selected_row_Slot(int)));
 
 	// Put the vb layout into a widget and add it to the splitter
-	QTabWidget* main_tab = new QTabWidget();
+	_main_tab = new QTabWidget();
 	QWidget* vb_widget = new QWidget();
 	vb_widget->setLayout(vb);
-	main_tab->addTab(vb_widget, tr("Filters"));
+	_main_tab->addTab(vb_widget, tr("Filters"));
 
 	_axes_comb_widget = new PVAxesCombinationWidget(myTreeModel->get_axes_combination());
-	main_tab->addTab(_axes_comb_widget, tr("Axes combination"));
+	_main_tab->addTab(_axes_comb_widget, tr("Axes combination"));
 
-	main_splitter->addWidget(main_tab);
+	main_splitter->addWidget(_main_tab);
 
 	// Tab widget for the NRAW
 	QTabWidget* nraw_tab = new QTabWidget();
@@ -152,10 +152,10 @@ void PVInspector::PVXmlEditorWidget::actionAllocation(){
     actionAddUrl = new QAction("add an URL",(QObject*)this);
     actionAddUrl->setIcon(QIcon(":/add-url"));
 
-    actionSave = new QAction("&Save",(QObject*)this);
+    actionSave = new QAction("&Save format",(QObject*)this);
     actionSave->setShortcut(QKeySequence(Qt::CTRL+Qt::Key_S));
     actionSave->setIcon(QIcon(":/save"));
-    actionSaveAs = new QAction("Save as...",(QObject*)this);
+    actionSaveAs = new QAction("Save format as...",(QObject*)this);
     actionDelete = new QAction("Delete",(QObject*)this);
     actionDelete->setShortcut(QKeySequence(Qt::Key_Delete));
     actionDelete->setIcon(QIcon(":/red-cross"));
@@ -166,7 +166,7 @@ void PVInspector::PVXmlEditorWidget::actionAllocation(){
     actionMoveUp = new QAction("move up", (QObject*) this);
     actionMoveUp->setShortcut(QKeySequence(Qt::Key_Up));
     actionMoveUp->setIcon(QIcon(":/go-up.png"));
-    actionOpen = new QAction(tr("Open"),(QObject*)this);
+    actionOpen = new QAction(tr("Open format..."),(QObject*)this);
     actionOpen->setShortcut(QKeySequence(Qt::CTRL+Qt::Key_O));
     actionOpen->setIcon(QIcon(":/document-open.png"));
 }
@@ -206,7 +206,8 @@ void PVInspector::PVXmlEditorWidget::initConnexions() {
     connect(myParamBord_old_model,SIGNAL(signalNeedApply()),this,SLOT(slotNeedApply()));
     connect(myParamBord_old_model,SIGNAL(signalSelectNext()),myTreeView,SLOT(slotSelectNext()));
     
-    
+    // Connections for the axes combination editor
+	connect(_main_tab, SIGNAL(currentChanged(int)), this, SLOT(slotMainTabChanged(int)));
 
 }
 
@@ -838,4 +839,15 @@ void PVInspector::PVXmlEditorWidget::openFormat(QString const& path)
 void PVInspector::PVXmlEditorWidget::openFormat(QDomDocument& doc)
 {
 	myTreeModel->openXml(doc);
+}
+
+void PVInspector::PVXmlEditorWidget::slotMainTabChanged(int idx)
+{
+	if (idx == 1) {
+		// This is the axes combination editor.
+
+		// Get the list of axes and update the axis combination
+		myTreeModel->updateAxesCombination();
+		_axes_comb_widget->update_all();
+	}
 }

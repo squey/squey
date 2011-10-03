@@ -34,7 +34,24 @@ void Picviz::PVAxesCombination::axis_append(PVCol org_axis_id)
 	assert(org_axis_id < original_axes_list.size());
 	columns_indexes_list.push_back(org_axis_id);
 	axes_list.push_back(original_axes_list.at(org_axis_id));
-	abscissae_list.push_back(abscissae_list.back() + ABSCISSAE_DIFF);
+	float absciss = 0.0f;
+	if (abscissae_list.size() > 0) {
+		absciss = abscissae_list.back()+ ABSCISSAE_DIFF;
+	}
+	abscissae_list.push_back(absciss);
+}
+
+/******************************************************************************
+ *
+ * Picviz::PVAxesCombination::clear
+ *
+ *****************************************************************************/
+void Picviz::PVAxesCombination::clear()
+{
+	axes_list.clear();
+	abscissae_list.clear();
+	columns_indexes_list.clear();
+	original_axes_list.clear();
 }
 
 /******************************************************************************
@@ -195,6 +212,36 @@ bool Picviz::PVAxesCombination::increase_axis_column_index(PVCol index)
 
 /******************************************************************************
  *
+ * Picviz::PVAxesCombination::is_default
+ *
+ *****************************************************************************/
+bool Picviz::PVAxesCombination::is_default() const
+{
+	if (columns_indexes_list.size() != original_axes_list.size()) {
+		return false;
+	}
+
+	for (PVCol i = 0; i < columns_indexes_list.size(); i++) {
+		if (columns_indexes_list[i] != i) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+/******************************************************************************
+ *
+ * Picviz::PVAxesCombination::is_empty
+ *
+ *****************************************************************************/
+bool Picviz::PVAxesCombination::is_empty() const
+{
+	return axes_list.size() == 0;
+}
+
+/******************************************************************************
+ *
  * Picviz::PVAxesCombination::move_axis_left_one_position
  *
  *****************************************************************************/
@@ -291,6 +338,23 @@ bool Picviz::PVAxesCombination::remove_axis(PVCol index)
 
 /******************************************************************************
  *
+ * Picviz::PVAxesCombination::reset_to_default
+ *
+ *****************************************************************************/
+void Picviz::PVAxesCombination::reset_to_default()
+{
+
+	columns_indexes_list.clear();
+	axes_list.clear();
+	abscissae_list.clear();
+
+	for (PVCol i = 0; i < original_axes_list.size(); i++) {
+		axis_append(i);
+	}
+}
+
+/******************************************************************************
+ *
  * Picviz::PVAxesCombination::set_axis_name
  *
  *****************************************************************************/
@@ -314,21 +378,65 @@ void Picviz::PVAxesCombination::set_axis_name(PVCol index, const QString &name_)
  *****************************************************************************/
 void Picviz::PVAxesCombination::set_from_format(PVRush::PVFormat &format)
 {
-	float absciss = 0.0f;
-	PVCol i = 0;
 	PVRush::list_axes_t const& axes = format.get_axes();
 	PVRush::list_axes_t::const_iterator it;
 
+	std::vector<PVCol> axes_comb = format.get_axes_comb();
+	// Default axes combination
+	if (axes_comb.size() == 0) {
+		axes_comb.reserve(axes.size());
+		for (PVCol i = 0; i < axes.size(); i++) {
+			axes_comb.push_back(i);
+		}
+	}
+
+	clear();
 	for (it = axes.begin(); it != axes.end(); it++) {
 		PVRush::PVAxisFormat const& axis_format = *it;
-		PVAxis axis(axis_format, absciss);
-
-		abscissae_list.push_back(absciss);
-		axes_list.push_back(axis);
+		PVAxis axis(axis_format);
 		original_axes_list.push_back(axis);
-		columns_indexes_list.push_back(i);
-
-		absciss += ABSCISSAE_DIFF;
-		i++;
 	}
+
+	std::vector<PVCol>::iterator it_comb;
+	for (it_comb = axes_comb.begin(); it_comb != axes_comb.end(); it_comb++) {
+		axis_append(*it_comb);
+	}
+}
+
+void Picviz::PVAxesCombination::set_original_axes(PVRush::list_axes_t const& axes)
+{
+	QVector<PVAxis> old_axes_list = axes_list;
+	clear();
+	PVRush::list_axes_t::const_iterator it;
+	for (it = axes.begin(); it != axes.end(); it++) {
+		PVRush::PVAxisFormat const& axis_format = *it;
+		PVAxis axis(axis_format);
+		original_axes_list.push_back(axis);
+	}
+
+	for (int id = 0; id < old_axes_list.size(); id++) {
+		PVAxis const& axis = old_axes_list.at(id);
+		PVLOG_DEBUG("(Picviz::PVAxesCombination::set_original_axes) axis '%s' has unique id '%d'\n", qPrintable(axis.get_name()), axis.get_unique_id());
+		int id_org = original_axes_list.indexOf(axis);
+		if (id_org != -1) {
+			PVLOG_DEBUG("(Picviz::PVAxesCombination::set_original_axes) id_org: %d, axis '%s', unique id: %d \n", id_org, qPrintable(original_axes_list.at(id_org).get_name()), original_axes_list.at(id_org).get_unique_id());
+			// We found it. Set the new id.
+			axis_append(id_org);
+		}
+	}
+}
+
+QString Picviz::PVAxesCombination::to_string() const
+{
+	if (columns_indexes_list.size() == 0) {
+		return QString();
+	}
+
+	QString ret;
+	for (int i = 0; i < columns_indexes_list.size()-1; i++) {
+		ret += QString::number(columns_indexes_list[i]) + ",";
+	}
+	ret += QString::number(columns_indexes_list[columns_indexes_list.size()-1]);
+	PVLOG_DEBUG("(Picviz::PVAxesCombination::to_string) string: %s\n", qPrintable(ret));
+	return ret;
 }

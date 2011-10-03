@@ -17,16 +17,14 @@ Picviz::PVAxis::PVAxis()
 	init();
 }
 
-Picviz::PVAxis::PVAxis(PVRush::PVAxisFormat const& axis_format, float absciss_) :
+Picviz::PVAxis::PVAxis(PVRush::PVAxisFormat const& axis_format) :
 	PVRush::PVAxisFormat(axis_format)
 {
 	init();
-	absciss = absciss_;
 }
 
 void Picviz::PVAxis::init()
 {
-	absciss = 0;
 	is_expandable = true;
 	is_expanded = false;
 	thickness = 1.0;
@@ -42,24 +40,3 @@ Picviz::PVAxis::~PVAxis()
 {
 
 }
-
-/******************************************************************************
- *
- * Picviz::PVAxis::get_name
- *
- *****************************************************************************/
-QString Picviz::PVAxis::get_name()
-{
-	return name;
-}
-
-/******************************************************************************
- *
- * Picviz::PVAxis::set_name
- *
- *****************************************************************************/
-void Picviz::PVAxis::set_name(const QString &name_)
-{
-	name = name_;
-}
-

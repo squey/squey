@@ -304,6 +304,14 @@ bool PVInspector::PVXmlDomModel::saveXml(QString nomDuFichierXml){
 	}
     QString version = QString("%1").arg(PVFORMAT_CURRENT_VERSION);
     xmlRootDom.setAttribute("version",version);
+
+	// Add the axes-combination
+	if (!_axes_combination.is_empty() && !_axes_combination.is_default()) {
+		QDomElement axis_comb_elt = xmlFile.createElement(PVFORMAT_XML_TAG_AXES_COMBINATION_STR);
+		QDomText axis_comb_txt = xmlFile.createTextNode(_axes_combination.to_string());
+		axis_comb_elt.appendChild(axis_comb_txt);
+		xmlRootDom.appendChild(axis_comb_elt);
+	}
 	QByteArray data(xmlFile.toString().toUtf8());
 	int size_written = file.write(data);
 	int data_size = data.size();
@@ -313,6 +321,12 @@ bool PVInspector::PVXmlDomModel::saveXml(QString nomDuFichierXml){
 		return false;
 	}
     file.close();
+
+	// Remove the axis-combination tag
+	QDomElement axes_cb_elt = xmlRootDom.firstChildElement(PVFORMAT_XML_TAG_AXES_COMBINATION_STR);
+	if (!axes_cb_elt.isNull()) {
+		xmlRootDom.removeChild(axes_cb_elt);
+	}
 
 	return true;
 }
@@ -692,26 +706,23 @@ void PVInspector::PVXmlDomModel::openXml(QDomDocument& doc)
 	PVRush::PVFormatVersion::to_current(doc);
 	xmlFile = doc;
 	xmlRootDom = doc.documentElement();
+
+	// Get axes combination and remove it from the DOM
+	PVRush::PVFormat format;
+	format.populate_from_xml(xmlRootDom, false);
+	_axes_combination.clear();
+	_axes_combination.set_from_format(format);
+	QDomElement axes_cb_elt = xmlRootDom.firstChildElement(PVFORMAT_XML_TAG_AXES_COMBINATION_STR);
+	if (!axes_cb_elt.isNull()) {
+		xmlRootDom.removeChild(axes_cb_elt);
+	}
+
 	PVRush::PVXmlTreeNodeDom *m_rootNode = new PVRush::PVXmlTreeNodeDom(PVRush::PVXmlTreeNodeDom::field, "root", xmlRootDom, this->xmlFile);
-//	if (getVersion() == "0") {
-//		m_rootNode->version0to1();
-//	}
 	setRoot(m_rootNode);
 
 	// Go through the DOM to get all the different groups
 	m_rootNode->getGroupsByType(_groups);
-#if 0
-	PVRush::types_groups_t::const_iterator it;
-	for (it = _groups.begin(); it != _groups.end(); it++) {
-		PVLOG_INFO("type: %s, groups: ", qPrintable(it.key()));
-		QSet<QString> const& grps = it.value();
-		QSet<QString>::const_iterator it_g;
-		for (it_g = grps.begin(); it_g != grps.end(); it_g++) {
-			PVLOG_PLAIN("%s ", qPrintable(*it_g));
-		}
-		PVLOG_PLAIN("\n");
-	}
-#endif
+
 
 	emit layoutChanged(); // to resfresh screen
 }
@@ -895,4 +906,16 @@ void PVInspector::PVXmlDomModel::updateFieldsLinearId()
 void PVInspector::PVXmlDomModel::setAxesNames(QStringList const& names)
 {
 	getRoot()->setAxesNames(names, 0);
+}
+
+void PVInspector::PVXmlDomModel::updateAxesCombination()
+{
+	bool was_default = _axes_combination.is_default();
+	PVLOG_DEBUG("(PVInspector::PVXmlDomModel::updateAxesCombination) was_default: %d\n", was_default);
+	PVRush::PVFormat format;
+	format.populate_from_xml(getRootDom());
+	_axes_combination.set_original_axes(format.get_axes());
+	if (was_default) {
+		_axes_combination.reset_to_default();
+	}
 }

@@ -18,7 +18,6 @@ namespace Picviz {
  */
 class LibPicvizDecl PVAxis: public PVRush::PVAxisFormat {
 public:
-	float absciss;
 	bool is_expandable;
 	bool is_expanded;
 	float thickness;
@@ -27,28 +26,12 @@ public:
 	 * Constructor
 	 */
 	PVAxis();
-	PVAxis(PVRush::PVAxisFormat const& axis_format, float absciss);
+	PVAxis(PVRush::PVAxisFormat const& axis_format);
 
 	/**
 	 * Destructor
 	 */
 	~PVAxis();
-	
-	/**
-	 * Gets the name of the axis
-	 *
-	 * @return The name of the axis.
-	 */
-	QString get_name();
-
-
-	/**
-	 * Sets the name of the axis
-	 *
-	 * @param name_ The new name to be set
-	 *
-	 */
-	void set_name(const QString &name_);
 	
 private:
 	void init();

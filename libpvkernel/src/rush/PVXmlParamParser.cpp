@@ -95,6 +95,7 @@ void PVRush::PVXmlParamParser::setAxesCombinationFromRootNode(QDomElement const&
 
 void PVRush::PVXmlParamParser::setAxesCombinationFromString(QString const& str)
 {
+	PVLOG_DEBUG("(PVXmlParamParser::setAxesCombinationFromString) string: %s\n", qPrintable(str));
 	_axes_combination.clear();
 	if (str.isEmpty()) {
 		return; // The default combination will be used
@@ -102,11 +103,11 @@ void PVRush::PVXmlParamParser::setAxesCombinationFromString(QString const& str)
 
 	QStringList axes_list = str.split(',');
 	PVCol naxes = _axes.size();
-	_axes_combination.resize(axes_list.size());
+	_axes_combination.reserve(axes_list.size());
 	for (int i = 0; i < axes_list.size(); i++) {
 		bool ok = false;
 		PVCol ax_id = axes_list[i].toLongLong(&ok);
-		if (!ok || ax_id >= naxes || std::find(_axes_combination.begin(), _axes_combination.end(), ax_id) != _axes_combination.end()) {
+		if (!ok || ax_id >= naxes) {
 			continue;
 		}
 		_axes_combination.push_back(ax_id);
@@ -118,18 +119,13 @@ QHash<int, QStringList> const& PVRush::PVXmlParamParser::getTimeFormat() const
 	return time_format;
 }
 
-int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id)
+int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id, QList<uint32_t> tree_ids)
 {
 	static PVCore::PVClassLibrary<PVFilter::PVFieldsFilterReg> const& filters_lib = PVCore::PVClassLibrary<PVFilter::PVFieldsFilterReg>::get();
 
 	int newId = id;
 	if (id == -1) {
-		/*if (node.firstChild().toElement().tagName() == "field") {
-			newId = setDom(node.firstChild().toElement(), 0);
-		} else {
-			setDom(node, 0);
-		}*/
-		return setDom(node, 0);
+		return setDom(node, 0, tree_ids);
 	}
 
 	QDomNodeList childs = node.childNodes();
@@ -152,12 +148,14 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id)
 		QString node_type = getNodeType(child);
 		if (node_type == PVFORMAT_XML_TAG_SPLITTER_STR) {
 			pushFilter(child, newId);
-			newId = setDom(child, newId);
+			tree_ids << i;
+			newId = setDom(child, newId, tree_ids);
 		}
 		else
-			if (node_type == PVFORMAT_XML_TAG_FIELD_STR) {
-				newId = setDom(child, newId);
-			}
+		if (node_type == PVFORMAT_XML_TAG_FIELD_STR) {
+			tree_ids << i;
+			newId = setDom(child, newId, tree_ids);
+		}
 	}
 
 	for(size_t i = 0; i < nchilds; i++){
@@ -172,6 +170,7 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id)
 			axis.set_group(child.attribute(PVFORMAT_AXIS_GROUP_STR, PVFORMAT_AXIS_GROUP_DEFAULT));
 			axis.set_color(child.attribute(PVFORMAT_AXIS_COLOR_STR, PVFORMAT_AXIS_COLOR_DEFAULT));
 			axis.set_titlecolor(child.attribute(PVFORMAT_AXIS_TITLECOLOR_STR, PVFORMAT_AXIS_TITLECOLOR_DEFAULT));
+			axis.compute_unique_id(tree_ids);
 			QString tag = child.attribute(PVFORMAT_AXIS_TAG_STR, QString());
 			if (!tag.isEmpty()) {
 				QStringList tags = tag.split(PVFORMAT_TAGS_SEP);

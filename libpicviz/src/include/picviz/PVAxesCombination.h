@@ -43,6 +43,11 @@ public:
 	void axis_append(PVCol org_axis_id);
 
 	/**
+	 * Get the object back to its initial state.
+	 */
+	void clear();
+
+	/**
 	* Decrement the column index of an axis.
 	*
 	* @param index The current index of the axis to change.
@@ -179,6 +184,13 @@ public:
 	bool increase_axis_column_index(PVCol index);
 
 	/**
+	 * Returns true if the current axes combination is the default one.
+	 */
+	bool is_default() const;
+
+	bool is_empty() const;
+
+	/**
 	* Move one of the used axes to the left.
 	*
 	* @param index The current index of the axis to move.
@@ -217,6 +229,11 @@ public:
 	bool remove_axis(PVCol index);
 
 	/**
+	 * Reset the axis combination to the default one.
+	 */
+	void reset_to_default();
+
+	/**
 	*
 	*/
 	void set_from_format(PVRush::PVFormat &format);
@@ -229,6 +246,15 @@ public:
 	 *
 	 */
 	void set_axis_name(PVCol index, const QString &name_);
+
+	/**
+	 * @brief Replace original axes.
+	 * It will try to keep the existing combination if the axes contained in
+	 * `axes' are in `used_axes'.
+	 */
+	void set_original_axes(PVRush::list_axes_t const& axes);
+
+	QString to_string() const;
 
 	QVector<PVAxis> const& get_original_axes_list() const { return original_axes_list; }
 };

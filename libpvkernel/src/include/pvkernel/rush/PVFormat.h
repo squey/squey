@@ -102,6 +102,7 @@ public:
 	void dump_elts(bool dump) { _dump_elts = dump; }
 
 	list_axes_t const& get_axes() const { return _axes; }
+	std::vector<PVCol> const& get_axes_comb() const { return _axes_comb; }
 
 	// Remove any fields from the IR of the format and only
 	// keeps fields.
@@ -126,6 +127,7 @@ protected:
 
 protected:
 	list_axes_t _axes;
+	std::vector<PVCol> _axes_comb;
 
 protected:
 	// "Widget" arguments of the format, like:

@@ -15,7 +15,10 @@ public:
 public:
 	void save_current_combination();
 	void restore_saved_combination();
+public slots:
+	void update_orig_axes();
 	void update_used_axes();
+	void update_all();
 
 protected:
 	PVCol get_original_axis_selected();
@@ -29,6 +32,7 @@ protected slots:
 	void axis_up_Slot();
 	void axis_down_Slot();
 	void axis_remove_Slot();
+	void reset_comb_Slot();
 
 signals:
 	void axes_combination_changed();

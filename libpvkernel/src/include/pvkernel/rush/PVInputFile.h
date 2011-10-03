@@ -17,7 +17,7 @@ public:
 	PVInputFile(const char* path);
 	~PVInputFile();
 private:
-	PVInputFile(const PVInputFile &org) { assert(false); }
+	PVInputFile(const PVInputFile& /*org*/) { assert(false); }
 public:
 	size_t operator()(char* buffer, size_t n);
 	virtual input_offset current_input_offset();
