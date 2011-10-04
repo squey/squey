@@ -15,12 +15,15 @@ core/PVBufferSlice.cpp
 core/PVColor.cpp
 core/PVClassLibrary.cpp
 core/PVDateTimeParser.cpp
+core/PVDirectory.cpp
 core/PVElement.cpp
 core/PVField.cpp
 core/PVListFloat2D.cpp
 core/PVLogger.cpp
 core/PVPCRESplitter.cpp
 core/PVProgressBox.cpp
+core/PVSerializeArchive.cpp
+core/PVSerializeObject.cpp
 core/PVSplitter.cpp
 core/PVVersion.cpp
 )
@@ -47,6 +50,7 @@ include/pvkernel/core/PVAxesIndexType.h
 include/pvkernel/core/PVColor.h
 include/pvkernel/core/PVClassLibrary.h
 include/pvkernel/core/PVDateTimeParser.h
+include/pvkernel/core/PVDirectory.h
 include/pvkernel/core/PVEnumType.h
 include/pvkernel/core/PVColorGradientDualSliderType.h
 include/pvkernel/core/PVBufferSlice.h
@@ -57,6 +61,8 @@ include/pvkernel/core/PVListFloat2D.h
 include/pvkernel/core/PVLogger.h
 include/pvkernel/core/PVMeanValue.h
 include/pvkernel/core/PVRegistrableClass.h
+include/pvkernel/core/PVSerializeArchive.h
+include/pvkernel/core/PVSerializeObject.h
 include/pvkernel/core/PVSpinBoxType.h
 include/pvkernel/core/PVTBBMaxArray.h
 include/pvkernel/core/PVTBBMinMaxArray.h

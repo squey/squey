@@ -1,6 +1,8 @@
 #include "PVInputTypeFilename.h"
 #include "PVImportFileDialog.h"
 
+#include <pvkernel/core/PVDirectory.h>
+
 #include "extract.h"
 
 #include <QMessageBox>
@@ -26,31 +28,6 @@ static char* mkdtemp(char* pattern)
 	return NULL;
 }
 #endif
-
-// Taken from http://john.nachtimwald.com/2010/06/08/qt-remove-directory-and-its-contents/
-static bool removeDir(const QString &dirName)
-{
-	bool result = true;
-	QDir dir(dirName);
-
-	if (dir.exists(dirName)) {
-		Q_FOREACH(QFileInfo info, dir.entryInfoList(QDir::NoDotAndDotDot | QDir::System | QDir::Hidden  | QDir::AllDirs | QDir::Files, QDir::DirsFirst)) {
-			if (info.isDir()) {
-				result = removeDir(info.absoluteFilePath());
-			}
-			else {
-				result = QFile::remove(info.absoluteFilePath());
-			}
-
-			if (!result) {
-				return result;
-			}
-		}
-		result = dir.rmdir(dirName);
-	}
-
-	return result;
-}
 
 PVRush::PVInputTypeFilename::PVInputTypeFilename() :
 	PVInputType()
@@ -159,7 +136,7 @@ PVRush::PVInputTypeFilename::~PVInputTypeFilename()
 {
 	for (int i = 0; i < _tmp_dir_to_delete.size(); i++) {
 		PVLOG_INFO("Delete temporary directory %s...\n", qPrintable(_tmp_dir_to_delete[i]));
-		removeDir(_tmp_dir_to_delete[i]);
+		PVCore::PVDirectory::remove_rec(_tmp_dir_to_delete[i]);
 	}
 }
 
