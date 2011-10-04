@@ -48,6 +48,8 @@ static QSettings pvconfig(QString("pvconfig.ini"), QSettings::IniFormat);
 #define PVCONFIG_FORMATS_SHOW_INVALID "formats/invalid/warning"
 #define PVCONFIG_FORMATS_SHOW_INVALID_DEFAULT (QVariant(true))
 
+#define PICVIZ_ARCHIVES_VERSION 1
+
 #ifdef WIN32
 #define PICVIZ_PATH_SEPARATOR "\\"
 #define PICVIZ_PATH_SEPARATOR_CHAR '\\'

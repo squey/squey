@@ -12,6 +12,7 @@
 #include <picviz/general.h>
 
 #include <pvkernel/core/PVColor.h>
+#include <pvkernel/core/PVSerializeArchive.h>
 #include <picviz/PVSelection.h>
 
 #define PICVIZ_LINESPROPS_CHUNK_SIZE sizeof(PVCore::PVColor)
@@ -24,6 +25,7 @@ namespace Picviz {
  * \class PVLinesProperties
  */
 class LibPicvizDecl PVLinesProperties {
+	friend class PVCore::PVSerializeObject;
 public:
 	pvrow last_index; /*<! FIXME: Do we really need this?  */
 	QVector<PVCore::PVColor> table;
@@ -155,7 +157,11 @@ public:
 	void selection_set_rgba(PVSelection const& selection, pvrow nelts, unsigned char r, unsigned char g, unsigned char b, unsigned char a);
 
 	void debug();
+
+protected:
+	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 };
+
 }
 
 #endif /* PICVIZ_PVLINESPROPERTIES_H */

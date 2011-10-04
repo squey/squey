@@ -10,6 +10,7 @@ class LibKernelDecl PVDirectory
 {
 public:
 	static bool remove_rec(QString const& dirName);
+	static QString temp_dir(QString const& pattern);
 };
 
 }

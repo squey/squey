@@ -8,6 +8,7 @@
 #define PICVIZ_PVLAYERSTACK_H
 
 #include <pvkernel/core/general.h>
+#include <pvkernel/core/PVSerializeArchive.h>
 
 #include <picviz/PVLayer.h>
 #include <picviz/PVLayerIndexArray.h>
@@ -20,6 +21,7 @@ namespace Picviz {
  * \class PVLayerStack
  */
 class LibPicvizDecl PVLayerStack {
+	friend class PVCore::PVSerializeObject;
 private:
 	PVLayerIndexArray lia;
 	int               layer_count; // layer_count < 256
@@ -66,6 +68,9 @@ public:
 	const PVLayerIndexArray& get_lia() const {return lia;}
 
 	void set_row_count(PVRow row_count) { lia.set_row_count(row_count); };
+
+protected:
+	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 
 
 // 	void debug();

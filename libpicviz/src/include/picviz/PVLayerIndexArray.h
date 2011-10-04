@@ -9,6 +9,7 @@
 
 #include <QtCore>
 
+#include <pvkernel/core/PVSerializeArchive.h>
 #include <picviz/general.h>
 
 #define PICVIZ_LAYER_INDEX_ARRAY_MAX_SIZE PICVIZ_LINES_MAX
@@ -41,6 +42,7 @@ namespace Picviz {
  * \class PVLayerIndexArray
  */
 class LibPicvizDecl PVLayerIndexArray {
+	friend class PVCore::PVSerializeObject;
 private:
 	int array [PICVIZ_LAYER_INDEX_ARRAY_MAX_SIZE];
 	int row_count;
@@ -59,6 +61,9 @@ public:
 
 	void set_row_count(int new_row_count);
 	void set_value(int row_index, int value);
+
+protected:
+	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 };
 }
 

@@ -366,3 +366,8 @@ void Picviz::PVSelection::write_selected_lines_nraw(QTextStream& stream, PVRush:
 		stream << line << QString("\n");
 	}
 }
+
+void Picviz::PVSelection::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
+{
+	so.buffer("selection_data", &table.at(0), PICVIZ_SELECTION_NUMBER_OF_BYTES);
+}

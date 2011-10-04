@@ -307,4 +307,10 @@ void Picviz::PVLayerStack::update_layer_index_array_completely()
 }
 
 
-
+void Picviz::PVLayerStack::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
+{
+	so.list("layers", table);
+	so.attribute("layer_count", layer_count);
+	so.attribute("selected_layer_index", selected_layer_index);
+	so.object("lia", lia);
+}

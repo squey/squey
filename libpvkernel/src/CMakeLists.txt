@@ -8,6 +8,7 @@ core/picviz_intrin.cpp
 core/sse4detector.cpp
 core/sysinfo.cpp
 
+core/PVArchive.cpp
 core/PVArgument.cpp
 core/PVAxisIndexType.cpp
 core/PVAxisIndexCheckBoxType.cpp
@@ -23,6 +24,7 @@ core/PVLogger.cpp
 core/PVPCRESplitter.cpp
 core/PVProgressBox.cpp
 core/PVSerializeArchive.cpp
+core/PVSerializeArchiveZip.cpp
 core/PVSerializeObject.cpp
 core/PVSplitter.cpp
 core/PVVersion.cpp
@@ -44,6 +46,7 @@ include/pvkernel/core/pv_splitter.h
 include/pvkernel/core/string.h
 include/pvkernel/core/sysinfo.h
 
+include/pvkernel/core/PVArchive.h
 include/pvkernel/core/PVArgument.h
 include/pvkernel/core/PVAxisIndexType.h
 include/pvkernel/core/PVAxesIndexType.h
@@ -62,6 +65,7 @@ include/pvkernel/core/PVLogger.h
 include/pvkernel/core/PVMeanValue.h
 include/pvkernel/core/PVRegistrableClass.h
 include/pvkernel/core/PVSerializeArchive.h
+include/pvkernel/core/PVSerializeArchiveZip.h
 include/pvkernel/core/PVSerializeObject.h
 include/pvkernel/core/PVSpinBoxType.h
 include/pvkernel/core/PVTBBMaxArray.h

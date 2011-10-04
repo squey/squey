@@ -70,4 +70,8 @@ void Picviz::PVLayerIndexArray::set_value(int row_index, int value)
 	}
 }
 
-
+void Picviz::PVLayerIndexArray::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
+{
+	so.buffer("array", &array, sizeof(int)*PICVIZ_LAYER_INDEX_ARRAY_MAX_SIZE);
+	so.attribute("row_count", row_count);
+}

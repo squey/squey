@@ -1,9 +1,10 @@
-#include "extract.h"
 #include <archive.h>
 #include <archive_entry.h>
 
-#include <pvkernel/core/general.h>
+#include <pvkernel/core/PVArchive.h>
+
 #include <QDir>
+#include <QDirIterator>
 
 static void picviz_archive_read_support(struct archive* a)
 {
@@ -44,7 +45,7 @@ static int copy_data(struct archive *ar, struct archive *aw)
 	}
 }
 
-bool is_archive(QString const& path)
+bool PVCore::PVArchive::is_archive(QString const& path)
 {
 	bool ret;
 	struct archive* a;
@@ -66,7 +67,7 @@ bool is_archive(QString const& path)
 	return ret;
 }
 
-bool extract_archive(QString const& path, QString const& dir_dest, QStringList &extracted_files)
+bool PVCore::PVArchive::extract(QString const& path, QString const& dir_dest, QStringList &extracted_files)
 {
 	struct archive* a;
 	struct archive* ext;
@@ -153,4 +154,64 @@ bool extract_archive(QString const& path, QString const& dir_dest, QStringList &
 	
 	return true;
 
+}
+
+bool PVCore::PVArchive::create_tarbz2(QString const& ar_path, QString const& dir_path)
+{
+	struct archive *a;
+	struct archive_entry *entry;
+	struct stat st;
+	char buff[8192];
+	int len;
+
+	QDir dir(dir_path);
+	QString dir_path_abs = dir.canonicalPath();
+
+	a = archive_write_new();
+	archive_write_set_format_ustar(a);
+	if (archive_write_set_compression_bzip2(a) != ARCHIVE_OK) {
+		PVLOG_ERROR("Unable to use BZIP2 compression\n");
+		return false;
+	}
+	QByteArray ar_path_ba = ar_path.toLocal8Bit();
+	if (archive_write_open_filename(a, ar_path_ba.constData()) != ARCHIVE_OK) {
+		PVLOG_ERROR("Unable to open file %s: %s.\n", ar_path_ba.constData(), archive_error_string(a));
+		return false;
+	}
+
+	QDirIterator it(dir_path_abs, QDir::Files | QDir::NoSymLinks | QDir::NoDotAndDotDot | QDir::Hidden, QDirIterator::Subdirectories);
+	while (it.hasNext()) {
+		it.next();
+		QString path = it.fileInfo().canonicalFilePath();
+		stat(qPrintable(path), &st);
+		QString ar_en_path = path.mid(dir_path_abs.size());
+		while (ar_en_path.at(0) == PICVIZ_PATH_SEPARATOR_CHAR) {
+			ar_en_path = ar_en_path.mid(1);
+		}
+		QByteArray ar_en_path_ba = ar_en_path.toLocal8Bit();
+		entry = archive_entry_new();
+		archive_entry_set_pathname(entry, ar_en_path_ba.constData());
+		archive_entry_set_size(entry, st.st_size);
+		archive_entry_set_filetype(entry, AE_IFREG);
+		archive_entry_set_perm(entry, 0644);
+		archive_entry_set_mtime(entry, st.st_mtime, 0);
+		archive_entry_set_atime(entry, st.st_atime, 0);
+		archive_write_header(a, entry);
+
+		QFile f(path);
+		if (!f.open(QIODevice::ReadOnly)) {
+			return false;
+		}
+		len = f.read(buff, sizeof(buff));
+		while ( len > 0 ) {
+			archive_write_data(a, buff, len);
+			len = f.read(buff, sizeof(buff));
+		}
+		f.close();
+		archive_entry_free(entry);
+	}
+	archive_write_close(a);
+	archive_write_finish(a);
+
+	return true;
 }

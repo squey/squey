@@ -308,3 +308,8 @@ void Picviz::PVLinesProperties::debug()
 		PVLOG_INFO("%d: %d %d %d\n", row, c.r(), c.g(), c.b());
 	}
 }
+
+void Picviz::PVLinesProperties::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
+{
+	so.buffer("lp_data", &table[0], PICVIZ_LINESPROPS_NUMBER_OF_BYTES);
+}

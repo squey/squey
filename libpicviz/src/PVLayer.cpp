@@ -4,7 +4,7 @@
 //! Copyright (C) Philippe Saadé 2009-2011
 //! Copyright (C) Picviz Labs 2011
 
-
+#include <pvkernel/core/PVSerializeArchiveZip.h>
 #include <picviz/PVLayer.h>
 
 
@@ -90,29 +90,27 @@ void Picviz::PVLayer::reset_to_full_and_default_color()
 	selection.select_all();
 }
 
-/******************************************************************************
- *
- * Picviz::PVLayer::set_lines_properties
- *
- *****************************************************************************/
-void Picviz::PVLayer::set_lines_properties(const PVLinesProperties & lines_properties_)
+void Picviz::PVLayer::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 {
-	
+	so.object("selection", selection);
+	so.object("lp", lines_properties);
+	so.attribute("name", name);
+	so.attribute("visible", visible);
+	so.attribute("index", index);
+	so.attribute("locked", locked);
 }
 
 
-/******************************************************************************
- *
- * Picviz::PVLayer::set_selection
- *
- *****************************************************************************/
-void Picviz::PVLayer::set_selection(const PVSelection & selection_)
+void Picviz::PVLayer::load_from_file(QString const& path)
 {
-
+	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchiveZip(path, PVCore::PVSerializeArchive::read, PICVIZ_ARCHIVES_VERSION));
+	ar->get_root()->object("layer", *this);
+	ar->finish();
 }
 
-
-
-
-
-
+void Picviz::PVLayer::save_to_file(QString const& path)
+{
+	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchiveZip(path, PVCore::PVSerializeArchive::write, PICVIZ_ARCHIVES_VERSION));
+	ar->get_root()->object("layer", *this);
+	ar->finish();
+}

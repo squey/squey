@@ -2,11 +2,25 @@
 #include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/core/PVSerializeObject.h>
 
-PVCore::PVSerializeArchive::PVSerializeArchive(QString const& dir, archive_mode mode, version_t version):
-	_mode(mode),
-	_root_dir(dir),
-	_version(version)
+PVCore::PVSerializeArchive::PVSerializeArchive(version_t version):
+	_version(version),
+	_is_opened(false)
 {
+}
+
+
+PVCore::PVSerializeArchive::PVSerializeArchive(QString const& dir, archive_mode mode, version_t version):
+	_version(version),
+	_is_opened(false)
+{
+	open(dir, mode);
+}
+
+void PVCore::PVSerializeArchive::open(QString const& dir, archive_mode mode)
+{
+	_mode = mode;
+	_root_dir = dir;
+
 	QDir dir_(dir);
 	if (mode == write) {
 		if (dir_.exists()) {
@@ -22,6 +36,15 @@ PVCore::PVSerializeArchive::PVSerializeArchive(QString const& dir, archive_mode 
 		if (!dir_.exists()) {
 				throw PVSerializeArchiveError(QString("Unable to find directory '%1'.").arg(dir));
 		}
+	}
+
+	_is_opened = true;
+}
+
+PVCore::PVSerializeArchive::~PVSerializeArchive()
+{
+	if (_is_opened) {
+		finish();
 	}
 }
 
@@ -59,4 +82,10 @@ PVCore::PVSerializeObject_p PVCore::PVSerializeArchive::get_root()
 PVCore::PVSerializeArchive::version_t PVCore::PVSerializeArchive::get_version()
 {
 	return _version;
+}
+
+void PVCore::PVSerializeArchive::finish()
+{
+	_root_obj.reset();
+	_is_opened = false;
 }

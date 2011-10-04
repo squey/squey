@@ -10,6 +10,7 @@
 
 #include <QTableView>
 #include <QEvent>
+#include <QPoint>
 
 #include <PVLayerStackDelegate.h>
 #include <PVLayerStackEventFilter.h>
@@ -38,6 +39,19 @@ class PVLayerStackView : public QTableView
 
 		void leaveEvent(QEvent *event);
 //		void set_model(PVLayerStackModel *pv_listing_model);
+
+	protected:
+		void save_layer(int idx);
+		void import_layer();
+
+	protected slots:
+		void show_ctxt_menu(QPoint const& pt);
+
+	protected:
+		// Context menu
+		QMenu* _ctxt_menu;
+		QAction* _ctxt_menu_save_act;
+		QAction* _ctxt_menu_load_act;
 };
 }
 

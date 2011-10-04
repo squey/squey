@@ -10,6 +10,7 @@
 #include <QtCore>
 
 #include <pvkernel/core/general.h>
+#include <pvkernel/core/PVSerializeArchive.h>
 
 #include <picviz/PVLinesProperties.h>
 #include <picviz/PVSelection.h>
@@ -17,12 +18,15 @@
 
 #define PICVIZ_LAYER_NAME_MAXLEN 1000
 
+#define PICVIZ_LAYER_ARCHIVE_EXT "pvl"
+
 namespace Picviz {
 
 /**
  * \class PVLayer
  */
 class LibPicvizDecl PVLayer {
+	friend class PVCore::PVSerializeObject;
 private:
 	int                index;
 	PVLinesProperties  lines_properties;
@@ -36,7 +40,6 @@ public:
 	/**
 	 * Constructor
 	 */
-// 	PVLayer(const QString & name_);
 	PVLayer(const QString & name_, const PVSelection & sel_ = PVSelection(), const PVLinesProperties & lp_ = PVLinesProperties());
 
 	void A2B_copy_restricted_by_selection_and_nelts(PVLayer &b, PVSelection const& selection, pvrow nelts);
@@ -56,12 +59,19 @@ public:
 	void reset_to_full_and_default_color();
 
 	void set_index(int index_) {index = index_;}
-	void set_lines_properties(const PVLinesProperties & lines_properties_);
 	void set_locked(bool locked_) {locked = locked_;}
 	void set_name(const QString & name_) {name = name_; name.truncate(PICVIZ_LAYER_NAME_MAXLEN);}
-	void set_selection(const PVSelection & selection_);
 	void set_visible(bool visible_) {visible = visible_;}
 
+public:
+	void load_from_file(QString const& path);
+	void save_to_file(QString const& path);
+
+protected:
+	// Default constructor is needed when recreating the object
+	PVLayer() { PVLayer(""); }
+
+	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 };
 
 }

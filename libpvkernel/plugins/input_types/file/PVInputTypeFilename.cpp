@@ -1,32 +1,15 @@
 #include "PVInputTypeFilename.h"
 #include "PVImportFileDialog.h"
 
+#include <pvkernel/core/PVArchive.h>
 #include <pvkernel/core/PVDirectory.h>
-
-#include "extract.h"
 
 #include <QMessageBox>
 #include <QFileInfo>
 
-#include <stdlib.h>
-
 #ifndef WIN32
 #include <sys/time.h>
 #include <sys/resource.h>
-#endif
-
-#ifdef WIN32
-#include <io.h>
-#include <string.h>
-static char* mkdtemp(char* pattern)
-{
-	errno_t res = _mktemp_s(pattern, strlen(pattern)+1);
-	if (res == 0) {
-		return pattern;
-	}
-
-	return NULL;
-}
 #endif
 
 PVRush::PVInputTypeFilename::PVInputTypeFilename() :
@@ -60,11 +43,11 @@ bool PVRush::PVInputTypeFilename::load_files(QStringList const& filenames, bool 
 	for (int i = 0; i < filenames.size(); i++) {
 		QString const& path = filenames[i];
 		bool add_original = true;
-		if (check_archives && is_archive(path)) {
+		if (check_archives && PVCore::PVArchive::is_archive(path)) {
 			PVLOG_DEBUG("(import-files) %s is an archive.\n", qPrintable(path));
 			QStringList extracted;
 			QMessageBox box_ext(QMessageBox::Question,
-					            "Import files : archive detected", QString("'%1' has been detected as an archive. Do you want to extract it to a temporary directory and import its content ?").arg(path),
+					            "Import files: archive detected", QString("'%1' has been detected as an archive. Do you want to extract it to a temporary directory and import its content ?").arg(path),
 								QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
 								parent);
 			int ret = box_ext.exec();
@@ -73,17 +56,14 @@ bool PVRush::PVInputTypeFilename::load_files(QStringList const& filenames, bool 
 				{
 					// Create a temporary directory of name "/tmp/picviz-archivename-XXXXXX"
 					QFileInfo fi(path);
-					QString tmp_dir_pattern = QDir::temp().absoluteFilePath(QString("picviz-") + fi.fileName() + QString("-XXXXXXXX"));
-					QByteArray tmp_dir_ba = tmp_dir_pattern.toLocal8Bit();
-					char* tmp_dir_p = mkdtemp(tmp_dir_ba.data());
-					if (tmp_dir_p == NULL) {
+					QString tmp_dir = PVCore::PVDirectory::temp_dir(QString("picviz-") + fi.fileName() + QString("-XXXXXXXX"));
+					if (tmp_dir.isEmpty()) {
 						PVLOG_WARN("Extraction of %s: unable to create a temporary directory !\n", qPrintable(path));
 						break;
 					}
-					QString tmp_dir = tmp_dir_p;
 					_tmp_dir_to_delete.push_back(tmp_dir);
-					PVLOG_INFO("Extract archive %s to %s...\n", qPrintable(path), tmp_dir_p);
-					if (extract_archive(filenames[i], tmp_dir, extracted)) {
+					PVLOG_INFO("Extract archive %s to %s...\n", qPrintable(path), qPrintable(tmp_dir));
+					if (PVCore::PVArchive::extract(filenames[i], tmp_dir, extracted)) {
 						add_original = false;
 						for (int j = 0; j < extracted.count(); j++) {
 							inputs.push_back(QVariant(extracted[j]));

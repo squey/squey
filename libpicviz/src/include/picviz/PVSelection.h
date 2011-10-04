@@ -8,6 +8,7 @@
 #define PICVIZ_PVSELECTION_H
 
 #include <pvkernel/core/stdint.h>
+#include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/rush/PVNraw.h>
 #include <picviz/general.h>
 
@@ -34,6 +35,8 @@ namespace Picviz {
 * \class PVSelection
 */
 class LibPicvizDecl PVSelection {
+	friend class PVCore::PVSerializeObject;
+
 private:
 	std::vector<uint32_t> table;
 
@@ -198,6 +201,9 @@ public:
 	std::vector<PVRow> get_rows_table();
 
 	void write_selected_lines_nraw(QTextStream& stream, PVRush::PVNraw const& nraw);
+
+protected:
+	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/);
 };
 
 }
