@@ -33,7 +33,6 @@ target_link_libraries(input_type_database ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
 # HDFS input plugin
 #
 if(HDFS_FOUND)
-	set(INPUTS_DIST_LIST ${INPUTS_DIST_LIST} input_type_hdfs)
 	include_directories(AFTER ${HDFS_INCLUDE_DIRS})
 	add_library(input_type_hdfs SHARED hdfs/PVInputTypeHDFS.cpp ../common/hdfs/PVInputHDFSFile.cpp ../common/hdfs/PVInputHDFSServer.cpp hdfs/setenv.cpp hdfs/register.cpp)
 	target_link_libraries(input_type_hdfs ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES} ${HDFS_LIBRARIES})

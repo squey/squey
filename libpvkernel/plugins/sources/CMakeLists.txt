@@ -21,7 +21,6 @@ add_library(source_database SHARED database/PVSourceCreatorDatabase.cpp database
 target_link_libraries(source_database ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
 
 if(HDFS_FOUND)
-	include_directories(AFTER ${HDFS_INCLUDE_DIRS})
 	set(SOURCES_DIST_LIST ${SOURCES_DIST_LIST} source_text_hdfs)
 
 	add_library(source_text_hdfs SHARED hdfs/text/PVSourceCreatorTexthdfs.cpp hdfs/text/PVSourceCreatorTexthdfs.h ../common/hdfs/PVInputHDFSFile.cpp ../common/hdfs/PVInputHDFSServer.cpp hdfs/PVInputHDFS.cpp hdfs/PVChunkAlignHadoop.cpp  hdfs/PVHadoopResultServer.cpp  hdfs/PVHadoopTaskResult.cpp  hdfs/PVInputHDFS.cpp hdfs/text/register.cpp)
