@@ -19,6 +19,7 @@
 #define PICVIZ_LAYER_NAME_MAXLEN 1000
 
 #define PICVIZ_LAYER_ARCHIVE_EXT "pvl"
+#define PICVIZ_LAYER_ARCHIVE_FILTER "Picviz layer-stack files (*." PICVIZ_LAYER_ARCHIVE_EXT ")"
 
 namespace Picviz {
 

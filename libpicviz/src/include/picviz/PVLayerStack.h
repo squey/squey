@@ -14,6 +14,8 @@
 #include <picviz/PVLayerIndexArray.h>
 
 #define PICVIZ_LAYER_STACK_MAX_DEPTH 256
+#define PICVIZ_LAYERSTACK_ARCHIVE_EXT "pvls"
+#define PICVIZ_LAYERSTACK_ARCHIVE_FILTER "Picviz layer-stack files (*." PICVIZ_LAYERSTACK_ARCHIVE_EXT ")"
 
 namespace Picviz {
 
@@ -68,6 +70,10 @@ public:
 	const PVLayerIndexArray& get_lia() const {return lia;}
 
 	void set_row_count(PVRow row_count) { lia.set_row_count(row_count); };
+
+public:
+	void load_from_file(QString const& path);
+	void save_to_file(QString const& path);
 
 protected:
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);

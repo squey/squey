@@ -48,6 +48,9 @@ class PVLayerStackWidget : public QWidget
 		void move_up_Slot();
 		void new_layer_Slot();
 //		void show_hide_layer_stack_Slot(bool visible);
+
+	public:
+		void refresh();
 };
 }
 

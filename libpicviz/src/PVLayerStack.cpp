@@ -5,6 +5,7 @@
 //! Copyright (C) Picviz Labs 2011
 
 
+#include <pvkernel/core/PVSerializeArchiveZip.h>
 #include <picviz/PVLayer.h>
 #include <picviz/PVLayerStack.h>
 #include <picviz/PVSelection.h>
@@ -313,4 +314,18 @@ void Picviz::PVLayerStack::serialize(PVCore::PVSerializeObject& so, PVCore::PVSe
 	so.attribute("layer_count", layer_count);
 	so.attribute("selected_layer_index", selected_layer_index);
 	so.object("lia", lia);
+}
+
+void Picviz::PVLayerStack::load_from_file(QString const& path)
+{
+	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchiveZip(path, PVCore::PVSerializeArchive::read, PICVIZ_ARCHIVES_VERSION));
+	ar->get_root()->object("layer-stack", *this);
+	ar->finish();
+}
+
+void Picviz::PVLayerStack::save_to_file(QString const& path)
+{
+	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchiveZip(path, PVCore::PVSerializeArchive::write, PICVIZ_ARCHIVES_VERSION));
+	ar->get_root()->object("layer-stack", *this);
+	ar->finish();
 }

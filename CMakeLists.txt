@@ -32,7 +32,11 @@ include(CheckLibraryExists)
 
 include(FindPkgConfig)
 
-if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+	if (NOT WIN32)
+		add_definitions(-ggdb3)
+	endif()
+else()
 	if(WIN32)
 		# /Ox: "full-optimisation" mode
 		# /Ob2: inline everything that is possible
@@ -41,9 +45,12 @@ if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
 		# /GL: intra-procedural optimisations by MSVC !
 		set(COMPILER_OPTIMIZE_FLAGS "/Ox /Ob2 /Oi /Ot /GL")
 	else(WIN32)
-		set(COMPILER_OPTIMIZE_FLAGS "-O3 -march=native")
-		#set(COMPILER_OPTIMIZE_FLAGS "-O3")
+		#set(COMPILER_OPTIMIZE_FLAGS "-O3 -march=native")
+		set(COMPILER_OPTIMIZE_FLAGS "-O3")
 		add_definitions(-DNDEBUG) # so that 'assert' will generate no code
+		if (CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+			add_definitions(-ggdb3)
+		endif()
 	endif(WIN32)
 endif()
 
@@ -74,7 +81,7 @@ if(WIN32)
 else(WIN32)
 	add_definitions(-DUNIX)
 	add_definitions(-DLINUX=2)
-	add_definitions(-Wall -Wextra -pipe -ggdb3)
+	add_definitions(-Wall -Wextra -pipe)
 	# add_definitions(-Wall -Wextra -pipe -ggdb3 -msse4.1)
 endif(WIN32)
 

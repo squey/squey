@@ -14,12 +14,15 @@
 
 #include <PVLayerStackView.h>
 
+#define ALL_FILES_FILTER "All files (*.*)"
 /******************************************************************************
  *
  * PVInspector::PVLayerStackView::PVLayerStackView
  *
  *****************************************************************************/
-PVInspector::PVLayerStackView::PVLayerStackView(PVMainWindow *mw, PVLayerStackModel *model, PVLayerStackWidget *parent) : QTableView(parent)
+PVInspector::PVLayerStackView::PVLayerStackView(PVMainWindow *mw, PVLayerStackModel *model, PVLayerStackWidget *parent):
+	QTableView(parent),
+	_parent(parent)
 {
 	PVLOG_DEBUG("PVInspector::PVLayerStackView::%s\n", __FUNCTION__);
 
@@ -47,10 +50,16 @@ PVInspector::PVLayerStackView::PVLayerStackView(PVMainWindow *mw, PVLayerStackMo
 	setContextMenuPolicy(Qt::CustomContextMenu);
 
 	_ctxt_menu = new QMenu(this);
-	_ctxt_menu_save_act = new QAction(tr("Save this layer..."), NULL);
+	_ctxt_menu_save_act = new QAction(tr("Export this layer..."), NULL);
 	_ctxt_menu_load_act = new QAction(tr("Import a layer..."), NULL);
 	_ctxt_menu->addAction(_ctxt_menu_save_act);
 	_ctxt_menu->addAction(_ctxt_menu_load_act);
+
+	_ctxt_menu->addSeparator();
+	_ctxt_menu_save_ls_act = new QAction(tr("Save the layer stack..."), NULL);
+	_ctxt_menu_load_ls_act = new QAction(tr("Load a layer stack..."), NULL);
+	_ctxt_menu->addAction(_ctxt_menu_save_ls_act);
+	_ctxt_menu->addAction(_ctxt_menu_load_ls_act);
 
 	setModel(model);
 	resizeColumnsToContents();
@@ -84,6 +93,14 @@ void PVInspector::PVLayerStackView::show_ctxt_menu(const QPoint& pt)
 	if (act == _ctxt_menu_load_act) {
 		import_layer();
 	}
+	else
+	if (act == _ctxt_menu_save_ls_act) {
+		save_layer_stack();
+	}
+	else
+	if (act == _ctxt_menu_load_ls_act) {
+		load_layer_stack();
+	}
 }
 
 void PVInspector::PVLayerStackView::save_layer(int /*idx*/)
@@ -92,20 +109,26 @@ void PVInspector::PVLayerStackView::save_layer(int /*idx*/)
 	Picviz::PVLayer& layer = ((PVLayerStackModel*) model())->get_layer_stack_lib().get_selected_layer();
 
 	// Ask for a filename
-	QString file = QFileDialog::getSaveFileName(this, tr("Choose a file..."), QString(), "Picviz layer files (*." PICVIZ_LAYER_ARCHIVE_EXT ");;All files (*.*)");
-	if (file.isEmpty()) {
+	QFileDialog* dlg = new QFileDialog(this, tr("Choose a file..."), QString(), PICVIZ_LAYER_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
+	dlg->setAcceptMode(QFileDialog::AcceptSave);
+	dlg->setDefaultSuffix(PICVIZ_LAYER_ARCHIVE_EXT);
+	if (dlg->exec() != QDialog::Accepted) {
 		return;
 	}
+	QString file = dlg->selectedFiles().at(0);
 
 	layer.save_to_file(file);
 }
 
 void PVInspector::PVLayerStackView::import_layer()
 {
-	QString file = QFileDialog::getOpenFileName(this, tr("Import a layer..."), QString(), "Picviz layer files (*." PICVIZ_LAYER_ARCHIVE_EXT ");;All files (*.*)");
-	if (file.isEmpty()) {
+	QFileDialog* dlg = new QFileDialog(this, tr("Import a layer..."), QString(), PICVIZ_LAYER_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
+	dlg->setFileMode(QFileDialog::ExistingFile);
+	dlg->setAcceptMode(QFileDialog::AcceptOpen);
+	if (dlg->exec() != QDialog::Accepted) {
 		return;
 	}
+	QString file = dlg->selectedFiles().at(0);
 
 	// Create a new layer
 	PVLayerStackModel* model_ = (PVLayerStackModel*) model();
@@ -114,5 +137,35 @@ void PVInspector::PVLayerStackView::import_layer()
 	// And load it
 	layer->load_from_file(file);
 
-	model_->emit_layoutChanged();
+	_parent->refresh();
+}
+
+void PVInspector::PVLayerStackView::save_layer_stack()
+{
+	// Ask for a filename
+	QFileDialog* dlg = new QFileDialog(this, tr("Choose a file..."), QString(), PICVIZ_LAYERSTACK_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
+	dlg->setAcceptMode(QFileDialog::AcceptSave);
+	dlg->setDefaultSuffix(PICVIZ_LAYERSTACK_ARCHIVE_EXT);
+	if (dlg->exec() != QDialog::Accepted) {
+		return;
+	}
+	QString file = dlg->selectedFiles().at(0);
+
+	((PVLayerStackModel*) model())->get_layer_stack_lib().save_to_file(file);
+}
+
+void PVInspector::PVLayerStackView::load_layer_stack()
+{
+	QFileDialog* dlg = new QFileDialog(this, tr("Import a layer stack..."), QString(), PICVIZ_LAYERSTACK_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
+	dlg->setFileMode(QFileDialog::ExistingFile);
+	dlg->setAcceptMode(QFileDialog::AcceptOpen);
+	if (dlg->exec() != QDialog::Accepted) {
+		return;
+	}
+	QString file = dlg->selectedFiles().at(0);
+
+	PVLayerStackModel* model_ = (PVLayerStackModel*) model();
+	model_->get_layer_stack_lib().load_from_file(file);
+
+	_parent->refresh();
 }

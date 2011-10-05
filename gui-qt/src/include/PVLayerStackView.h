@@ -43,6 +43,8 @@ class PVLayerStackView : public QTableView
 	protected:
 		void save_layer(int idx);
 		void import_layer();
+		void save_layer_stack();
+		void load_layer_stack();
 
 	protected slots:
 		void show_ctxt_menu(QPoint const& pt);
@@ -52,6 +54,9 @@ class PVLayerStackView : public QTableView
 		QMenu* _ctxt_menu;
 		QAction* _ctxt_menu_save_act;
 		QAction* _ctxt_menu_load_act;
+		QAction* _ctxt_menu_save_ls_act;
+		QAction* _ctxt_menu_load_ls_act;
+		PVLayerStackWidget* _parent;
 };
 }
 
