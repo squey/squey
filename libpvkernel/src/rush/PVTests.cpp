@@ -5,7 +5,7 @@
 #include <iostream>
 
 
-bool PVRush::PVTests::get_file_sc(PVCore::PVArgument const& file, PVRush::PVFormat const& format, PVSourceCreator_p &sc)
+bool PVRush::PVTests::get_file_sc(input_type file, PVRush::PVFormat const& format, PVSourceCreator_p &sc)
 {
 	// Load source plugins that take a file as input
 	PVRush::PVInputType_p in_t = LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name("file");
@@ -27,7 +27,7 @@ bool PVRush::PVTests::get_file_sc(PVCore::PVArgument const& file, PVRush::PVForm
 
 	PVRush::PVSourceCreator_p sc_file;
 	if (pre_discovered_c.size() == 0) {
-		std::cerr << "No source plugins can open the file " << qPrintable(file.toString()) << std::endl;
+		std::cerr << "No source plugins can open the file " << qPrintable(file->human_name()) << std::endl;
 		return false;
 	}
 	if (pre_discovered_c.size() == 1) {

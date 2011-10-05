@@ -14,7 +14,7 @@ struct LibKernelDecl PVTests
 {
 	/*! \brief Normalize a file with the given format
 	 */
-	static bool get_file_sc(PVCore::PVArgument const& file, PVRush::PVFormat const& format, PVSourceCreator_p &sc);
+	static bool get_file_sc(input_type file, PVRush::PVFormat const& format, PVSourceCreator_p &sc);
 };
 
 }

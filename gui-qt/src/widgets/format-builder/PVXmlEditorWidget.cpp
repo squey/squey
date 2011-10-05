@@ -569,7 +569,7 @@ void PVInspector::PVXmlEditorWidget::slotOpenLog()
 		}
 
 		if (!_log_sc) {
-			_log_input = PVCore::PVArgument(); // No log input
+			_log_input = PVRush::input_type();
 			QMessageBox box(QMessageBox::Critical, tr("Error"), tr("No input plugins can manage the source file '%1'. Aborting...").arg(in_t->human_name_of_input(_log_input)));
 			box.show();
 			return;
@@ -587,7 +587,7 @@ void PVInspector::PVXmlEditorWidget::slotOpenLog()
 
 	}
 	catch (PVRush::PVInputException &e) {
-		_log_input = PVCore::PVArgument(); // No log input
+		_log_input = PVRush::input_type();
 		QMessageBox err(QMessageBox::Critical, tr("Error"), tr("Error while importing a source: %1").arg(QString(e.what().c_str())));
 		err.show();
 		return;

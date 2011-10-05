@@ -3,6 +3,7 @@
 
 #include <pvkernel/core/PVArchive.h>
 #include <pvkernel/core/PVDirectory.h>
+#include <pvkernel/rush/PVFileDescription.h>
 
 #include <QMessageBox>
 #include <QFileInfo>
@@ -66,7 +67,7 @@ bool PVRush::PVInputTypeFilename::load_files(QStringList const& filenames, bool 
 					if (PVCore::PVArchive::extract(filenames[i], tmp_dir, extracted)) {
 						add_original = false;
 						for (int j = 0; j < extracted.count(); j++) {
-							inputs.push_back(QVariant(extracted[j]));
+							inputs.push_back(PVInputDescription_p(new PVFileDescription(extracted[j])));
 						}
 					}
 					else {
@@ -83,7 +84,7 @@ bool PVRush::PVInputTypeFilename::load_files(QStringList const& filenames, bool 
 		}
 
 		if (add_original) {
-			inputs.push_back(QVariant(path));
+			inputs.push_back(PVInputDescription_p(new PVFileDescription(path)));
 		}
 	}
 
@@ -131,11 +132,6 @@ QString PVRush::PVInputTypeFilename::human_name() const
 	return QString("File import plugin");
 }
 
-QString PVRush::PVInputTypeFilename::human_name_of_input(PVCore::PVArgument const& in) const
-{
-	return in.toString();
-}
-
 QString PVRush::PVInputTypeFilename::menu_input_name() const
 {
 	return QString("Import files...");
@@ -144,7 +140,9 @@ QString PVRush::PVInputTypeFilename::menu_input_name() const
 QString PVRush::PVInputTypeFilename::tab_name_of_inputs(list_inputs const& in) const
 {
 	QString tab_name;
-	QFileInfo fi(in[0].toString());
+	PVFileDescription* f = dynamic_cast<PVFileDescription*>(in[0].get());
+	assert(f);
+	QFileInfo fi(f->path());
 	if (in.count() == 1) {
 		tab_name = fi.fileName();
 	}
@@ -154,12 +152,14 @@ QString PVRush::PVInputTypeFilename::tab_name_of_inputs(list_inputs const& in) c
 	return tab_name;
 }
 
-bool PVRush::PVInputTypeFilename::get_custom_formats(PVCore::PVArgument const& in, hash_formats &formats) const
+bool PVRush::PVInputTypeFilename::get_custom_formats(input_type in, hash_formats &formats) const
 {
 	// Two types of custom format: picviz.format exist in the directory of the file,
 	// or file + ".format" exists
 	bool res = false;
-	QString path_custom_format = in.toString() + QString(".format");
+	PVFileDescription* f = dynamic_cast<PVFileDescription*>(in.get());
+	assert(f);
+	QString path_custom_format = f->path() + QString(".format");
 	QFileInfo fi(path_custom_format);
 	QString format_custom_name = "custom:" + fi.fileName();
 

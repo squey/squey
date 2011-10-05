@@ -1,4 +1,6 @@
 #include "PVSourceCreatorPcapfile.h"
+
+#include <pvkernel/rush/PVFileDescription.h>
 #include <pvkernel/rush/PVInputPcap.h>
 #include <pvkernel/rush/PVNormalizer.h>
 
@@ -8,12 +10,14 @@
 #include <QStringList>
 #include <QFileInfo>
 
-PVRush::PVSourceCreatorPcapfile::source_p PVRush::PVSourceCreatorPcapfile::create_discovery_source_from_input(PVCore::PVArgument const& input) const
+PVRush::PVSourceCreatorPcapfile::source_p PVRush::PVSourceCreatorPcapfile::create_discovery_source_from_input(input_type input) const
 {
 	// input is a QString !
 	PVFilter::PVChunkFilter* chk_flt = new PVFilter::PVChunkFilter();
 	PVRush::PVChunkTransform* transform_null = new PVRush::PVChunkTransform();
-	PVRush::PVInput_p ipcap(new PVRush::PVInputPcap(input.toString().toLocal8Bit().constData()));
+	PVFileDescription* file = dynamic_cast<PVFileDescription*>(input.get());
+	assert(file);
+	PVRush::PVInput_p ipcap(new PVRush::PVInputPcap(file->path().toLocal8Bit().constData()));
 	PVRush::PVChunkAlign* align_org = new PVRush::PVChunkAlign();
 	// FIXME: chunk size must be computed somewhere once and for all !
 	source_p src = PVRush::PVRawSourceBase_p(new PVRush::PVRawSource<>(ipcap, *align_org, 16000, *transform_null, chk_flt->f()));
@@ -31,12 +35,14 @@ QString PVRush::PVSourceCreatorPcapfile::supported_type() const
 	return QString("file");
 }
 
-bool PVRush::PVSourceCreatorPcapfile::pre_discovery(PVCore::PVArgument const& input) const
+bool PVRush::PVSourceCreatorPcapfile::pre_discovery(input_type input) const
 {
 	pcap_t *pcaph;
 	char errbuf[PCAP_ERRBUF_SIZE];
 
-	pcaph = pcap_open_offline(input.toString().toLocal8Bit().constData(), errbuf);
+	PVFileDescription* file = dynamic_cast<PVFileDescription*>(input.get());
+	assert(file);
+	pcaph = pcap_open_offline(file->path().toLocal8Bit().constData(), errbuf);
 	if (!pcaph) {
 		return false;
 	}

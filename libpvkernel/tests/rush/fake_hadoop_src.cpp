@@ -10,6 +10,7 @@
 #include <pvkernel/filter/PVPluginsLoad.h>
 #include <pvkernel/rush/PVPluginsLoad.h>
 #include <pvkernel/rush/PVExtractor.h>
+#include <pvkernel/rush/PVFileDescription.h>
 #include <pvkernel/rush/PVControllerJob.h>
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVTests.h>
@@ -51,8 +52,7 @@ int main(int argc, char** argv)
 	PVRush::PVFormat format;
 	if (!final) {
 		// Input file
-		PVCore::PVArgument file;
-		file = QString(argv[5]);
+		PVRush::PVInputDescription_p file(new PVRush::PVFileDescription(argv[5]));
 		QString path_format(argv[6]);
 		format = PVRush::PVFormat("format", path_format);
 		if (!format.populate(true)) {

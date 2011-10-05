@@ -7,6 +7,7 @@
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/rush/PVRawSourceBase_types.h>
 #include <pvkernel/rush/PVFormat.h>
+#include <pvkernel/rush/PVInputDescription.h>
 
 #include <boost/shared_ptr.hpp>
 #include <list>
@@ -22,8 +23,8 @@ public:
 public:
 	virtual ~PVSourceCreator() {}
 public:
-	virtual source_p create_source_from_input(PVCore::PVArgument const& input, PVFormat& /*used_format*/) const { return create_discovery_source_from_input(input); }
-	virtual source_p create_discovery_source_from_input(PVCore::PVArgument const& input) const = 0;
+	virtual source_p create_source_from_input(input_type input, PVFormat& /*used_format*/) const { return create_discovery_source_from_input(input); }
+	virtual source_p create_discovery_source_from_input(input_type input) const = 0;
 	virtual QString supported_type() const = 0;
 	virtual QString name() const = 0;
 	virtual hash_formats get_supported_formats() const = 0;
@@ -32,7 +33,7 @@ public:
 	// by its PVFormat objects. If this function returns false, this PVSourceCreator is automatically
 	// discared (for *all* its formats) for this input.
 	// FIXME: cool, but not used yet in PVMainWindow
-	virtual bool pre_discovery(PVCore::PVArgument const& input) const = 0;
+	virtual bool pre_discovery(input_type input) const = 0;
 };
 
 typedef PVSourceCreator::p_type PVSourceCreator_p;

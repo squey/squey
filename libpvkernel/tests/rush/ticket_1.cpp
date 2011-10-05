@@ -11,6 +11,7 @@
 #include <pvkernel/rush/PVInputFile.h>
 #include <pvkernel/rush/PVSourceCreatorFactory.h>
 #include <pvkernel/rush/PVPluginsLoad.h>
+#include <pvkernel/rush/PVFileDescription.h>
 
 #include <pvkernel/filter/PVPluginsLoad.h>
 #include <pvkernel/core/PVArgument.h>
@@ -61,7 +62,8 @@ int main(int argc, char** argv)
 			QString fpath = dir_files.absoluteFilePath(formatpath);
 			PVRush::PVFormat format("format", fpath);
 
-			float sr = PVRush::PVSourceCreatorFactory::discover_input(PVRush::pair_format_creator(format, text_file_lib), PVCore::PVArgument(file_load));
+			PVRush::PVInputDescription_p file_arg(new PVRush::PVFileDescription(file_load));
+			float sr = PVRush::PVSourceCreatorFactory::discover_input(PVRush::pair_format_creator(format, text_file_lib), file_arg);
 			if (sr > 0.8 && files[j] == files[i]) {
 				ok = true;
 			}

@@ -126,3 +126,12 @@ PVRush::PVExtractor& Picviz::PVSource::get_extractor()
 {
 	return _extractor;
 }
+
+void Picviz::PVSource::serialize_write(PVCore::PVSerializeObject& so)
+{
+	//so.attribute(
+}
+
+void Picviz::PVSource::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
+{
+}

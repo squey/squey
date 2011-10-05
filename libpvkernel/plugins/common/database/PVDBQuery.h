@@ -4,6 +4,7 @@
 #include "PVDBServ_types.h"
 
 #include <pvkernel/core/general.h>
+#include <pvkernel/rush/PVInputDescription.h>
 
 #include <QString>
 #include <QSqlQuery>
@@ -13,7 +14,7 @@
 
 namespace PVRush {
 
-class PVDBQuery
+class PVDBQuery: public PVInputDescription
 {
 public:
 	PVDBQuery();
@@ -32,6 +33,9 @@ public:
 
 	bool connect_serv();
 	QString last_error_serv();
+	
+protected:
+	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 
 protected:
 	PVDBServ_p _infos;
@@ -39,8 +43,5 @@ protected:
 };
 
 }
-
-
-Q_DECLARE_METATYPE(PVRush::PVDBQuery)
 
 #endif

@@ -5,6 +5,7 @@
 #include <pvkernel/rush/PVControllerJob.h>
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVTests.h>
+#include <pvkernel/rush/PVFileDescription.h>
 #include <cstdlib>
 #include <iostream>
 #include "helpers.h"
@@ -24,7 +25,7 @@ int main(int argc, char** argv)
 
 	// Input file
 	QString path_file("test-files/tickets/2/apache.access");
-	PVCore::PVArgument file(path_file);
+	PVRush::PVInputDescription_p file(new PVRush::PVFileDescription(path_file));
 
 	// Load the given format file
 	QString path_format("test-files/tickets/2/apache.access.format");

@@ -44,12 +44,11 @@ int main(int argc, char** argv)
 	PVRush::PVInputType::list_inputs inputs;
 	assert(in_t->createWidget(formats, new_formats, inputs, choseFormat, NULL));
 
-	PVRush::PVInputHDFSFile ihdfs = inputs[0].value<PVRush::PVInputHDFSFile>();
-	ihdfs.set_process_in_hadoop(true);
-	PVCore::PVArgument arg;
-	arg.setValue<PVRush::PVInputHDFSFile>(ihdfs);
+	PVRush::PVInputHDFSFile* ihdfs = dynamic_cast<PVRush::PVInputHDFSFile*>(inputs[0].get());
+	assert(ihdfs);
+	ihdfs->set_process_in_hadoop(true);
 
-	PVRush::PVRawSourceBase::p_type src = cr_text->create_source_from_input(arg, format);
+	PVRush::PVRawSourceBase::p_type src = cr_text->create_source_from_input(inputs[0], format);
 	assert(src);
 
 	// Read chunks

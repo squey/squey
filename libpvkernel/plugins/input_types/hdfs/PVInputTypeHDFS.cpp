@@ -24,11 +24,8 @@ bool PVRush::PVInputTypeHDFS::createWidget(hash_formats const& /*formats*/, hash
 		return false;
 	}
 	*/
-	PVInputHDFSFile f(serv, "/data/squid.log.1B");
-
-	QVariant in;
-	in.setValue(f);
-	inputs.push_back(in);
+	PVInputDescription_p f(new PVInputHDFSFile(serv, "/data/squid.log.1B"));
+	inputs.push_back(f);
 
 	format = QString(PICVIZ_AUTOMATIC_FORMAT_STR);
 
@@ -50,11 +47,6 @@ QString PVRush::PVInputTypeHDFS::human_name() const
 	return QString("HDFS import plugin");
 }
 
-QString PVRush::PVInputTypeHDFS::human_name_of_input(PVCore::PVArgument const& in) const
-{
-	return in.value<PVInputHDFSFile>().get_human_name();
-}
-
 QString PVRush::PVInputTypeHDFS::menu_input_name() const
 {
 	return QString("Import from HDFS...");
@@ -66,7 +58,7 @@ QString PVRush::PVInputTypeHDFS::tab_name_of_inputs(list_inputs const& in) const
 	return QString("TODO: tab name for hdfs");
 }
 
-bool PVRush::PVInputTypeHDFS::get_custom_formats(PVCore::PVArgument const& in, hash_formats &formats) const
+bool PVRush::PVInputTypeHDFS::get_custom_formats(input_type in, hash_formats &formats) const
 {
 	// TODO: find custom format in the hdfs system
 	return false;

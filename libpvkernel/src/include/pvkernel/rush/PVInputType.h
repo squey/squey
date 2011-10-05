@@ -6,6 +6,7 @@
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/rush/PVFormat.h>
+#include <pvkernel/rush/PVInputDescription.h>
 #include <QList>
 #include <QKeySequence>
 #include <QObject>
@@ -17,7 +18,7 @@ class LibKernelDecl PVInputType: public QObject, public PVCore::PVRegistrableCla
 {
 	Q_OBJECT
 public:
-	typedef PVCore::PVArgument input_type;
+	// `input_type' is defined in PVInputDescription
 	typedef QList<input_type> list_inputs;
 	typedef boost::shared_ptr<PVInputType> p_type;
 public:
@@ -25,11 +26,11 @@ public:
 	virtual QString name() const = 0;
 	virtual QString human_name() const = 0;
 	// Warning: the "human name" of an input must be *unique* accross all the possible inputs
-	virtual QString human_name_of_input(input_type const& in) const = 0;
+	virtual QString human_name_of_input(input_type in) const { return in->human_name(); };
 	virtual QString menu_input_name() const = 0;
 	virtual QKeySequence menu_shortcut() const { return QKeySequence(); }
 	virtual QString tab_name_of_inputs(list_inputs const& in) const = 0;
-	virtual bool get_custom_formats(input_type const& in, hash_formats &formats) const = 0;
+	virtual bool get_custom_formats(input_type in, hash_formats &formats) const = 0;
 public:
 	QStringList human_name_of_inputs(list_inputs const& in) const
 	{

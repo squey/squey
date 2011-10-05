@@ -13,6 +13,7 @@
 #include <QVector>
 
 #include <pvkernel/core/general.h>
+#include <pvkernel/core/PVSerializeArchive.h>
 
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVFile.h>
@@ -36,6 +37,7 @@ namespace Picviz {
  * \class PVSource
  */
 class LibPicvizDecl PVSource {
+	friend class PVCore::PVSerializeObject;
 public:
 	typedef boost::shared_ptr<PVSource> p_type;
 public:
@@ -76,6 +78,12 @@ public:
 	PVRush::PVControllerJob_p files_append(PVRush::PVFormat const& format, PVRush::PVSourceCreator_p sc, PVRush::PVInputType::list_inputs inputs);
 	void files_append_noextract(PVRush::PVFormat const& format, PVRush::PVSourceCreator_p sc, PVRush::PVInputType::list_inputs inputs);
 	PVRush::PVExtractor& get_extractor();
+
+protected:
+	void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
+	void serialize_write(PVCore::PVSerializeObject& so);
+
+	PVSERIALIZEOBJECT_SPLIT
 
 protected:
 	void set_format(PVRush::PVFormat const& format);

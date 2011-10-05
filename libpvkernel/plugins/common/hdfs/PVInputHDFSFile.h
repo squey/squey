@@ -2,9 +2,9 @@
 #define PVINPUTHDFSFILE_FILE_H
 
 #include <pvkernel/core/general.h>
+#include <pvkernel/rush/PVInputDescription.h>
 
 #include <QString>
-#include <QMetaType>
 
 #include <hadoop/hdfs.h>
 
@@ -12,7 +12,8 @@
 
 namespace PVRush {
 
-class PVInputHDFSFile {
+class PVInputHDFSFile: public PVInputDescription
+{
 public:
 	PVInputHDFSFile();
 	PVInputHDFSFile(PVInputHDFSServer_p serv, QString const& path);
@@ -26,10 +27,15 @@ public:
 
 	inline hdfsFile get_file() const { assert(_file); return _file; }
 
-	inline QString const& get_human_name() const { return _human_name; }
+	inline QString human_name() const { return _human_name; }
 
 	inline bool should_process_in_hadoop() const { return _process_in_hadoop; }
 	inline void set_process_in_hadoop(bool b) { _process_in_hadoop = b; }
+
+protected:
+	// TODO!
+	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v) { }
+
 protected:
 	PVInputHDFSServer_p _serv;
 	QString _path;
@@ -42,7 +48,5 @@ protected:
 };
 
 }
-
-Q_DECLARE_METATYPE(PVRush::PVInputHDFSFile)
 
 #endif

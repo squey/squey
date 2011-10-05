@@ -3,6 +3,7 @@
 #include <pvkernel/filter/PVFieldsFilter.h>
 #include <pvkernel/rush/PVPluginsLoad.h>
 #include <pvkernel/rush/PVExtractor.h>
+#include <pvkernel/rush/PVFileDescription.h>
 #include <pvkernel/rush/PVControllerJob.h>
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVTests.h>
@@ -34,7 +35,7 @@ int main(int argc, char** argv)
 
 	// Input file
 	QString path_file(argv[1]);
-	PVCore::PVArgument file(path_file);
+	PVRush::PVInputDescription_p file(new PVRush::PVFileDescription(path_file));
 
 	// Get the source creator
 	QString file_path(argv[1]);

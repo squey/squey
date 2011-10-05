@@ -680,10 +680,10 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 
 	// Create the input widget
 	QString choosenFormat;
-	// PVInputType::list_inputs is a QList<QVariant>
+	// PVInputType::list_inputs is a QList<PVInputDescription_p>
 	PVRush::PVInputType::list_inputs inputs;
 	map_files_types files_multi_formats;
-	QHash<QString,PVRush::PVInputType::input_type> hash_input_name;
+	QHash<QString,PVRush::input_type> hash_input_name;
 
 	if (!in_t->createWidget(formats, new_formats, inputs, choosenFormat, this))
 		return; // This means that the user pressed the "cancel" button
@@ -713,7 +713,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 
 		// Go through the inputs
 		for (itin = inputs.begin(); itin != inputs.end(); itin++) {
-			QString in_str = (*itin).toString();
+			QString in_str = (*itin)->human_name();
 			hash_input_name[in_str] = *itin;
 
 			// Pre-discovery to have some sources already eliminated and
@@ -857,7 +857,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 				types_.removeOne(to_remove[i]);
 			}
 			if (types_.size() == 1) {
-				discovered[types_[0]] << (*it).first;
+				discovered[types_[0]] << hash_input_name[(*it).first];
 				map_files_types::iterator it_rem = it;
 				it++;
 				files_multi_formats.erase(it_rem);

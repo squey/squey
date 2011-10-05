@@ -21,11 +21,9 @@ bool PVRush::PVInputTypeDatabase::createWidget(hash_formats const& formats, hash
 	PVDBInfos infos;
 	params->get_dbinfos(infos);
 	PVDBServ_p serv(new PVDBServ(infos));
-	PVDBQuery query(serv, params->get_query());
+	PVInputDescription_p query(new PVDBQuery(serv, params->get_query()));
 
-	QVariant in;
-	in.setValue(query);
-	inputs.push_back(in);
+	inputs.push_back(query);
 
 	if (params->is_format_custom()) {
 		PVRush::PVFormat custom_format;
@@ -55,11 +53,6 @@ QString PVRush::PVInputTypeDatabase::human_name() const
 	return QString("Database import plugin");
 }
 
-QString PVRush::PVInputTypeDatabase::human_name_of_input(PVCore::PVArgument const& in) const
-{
-	return in.value<PVDBQuery>().human_name();
-}
-
 QString PVRush::PVInputTypeDatabase::menu_input_name() const
 {
 	return QString("Import from a database...");
@@ -67,21 +60,13 @@ QString PVRush::PVInputTypeDatabase::menu_input_name() const
 
 QString PVRush::PVInputTypeDatabase::tab_name_of_inputs(list_inputs const& in) const
 {
-	PVDBQuery const& query = in[0].value<PVDBQuery>();
-	return query.human_name();
+	PVInputDescription_p query = in[0];
+	return query->human_name();
 }
 
-bool PVRush::PVInputTypeDatabase::get_custom_formats(PVCore::PVArgument const& in, hash_formats &formats) const
+bool PVRush::PVInputTypeDatabase::get_custom_formats(input_type /*in*/, hash_formats& /*formats*/) const
 {
 	return false;
-#if 0
-	if (!_is_custom_format) {
-		return false;
-	}
-
-	formats["custom"] = _custom_format;
-	return true;
-#endif
 }
 
 QKeySequence PVRush::PVInputTypeDatabase::menu_shortcut() const

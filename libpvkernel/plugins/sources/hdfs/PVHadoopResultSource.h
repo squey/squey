@@ -14,7 +14,7 @@ public:
 		PVRawSourceBase(_null_filter.f()),
 		_recv_serv(nfields, chunk_size)
 	{
-		_name = file.get_human_name();
+		_name = file.human_name();
 		_recv_serv.start(1245);
 	}
 

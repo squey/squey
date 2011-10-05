@@ -5,7 +5,7 @@
 #include <pvkernel/rush/PVControllerJob.h>
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVTests.h>
-
+#include <pvkernel/rush/PVFileDescription.h>
 #include <pvkernel/core/PVChunk.h>
 #include <pvkernel/core/PVField.h>
 #include <pvkernel/core/PVElement.h>
@@ -60,7 +60,7 @@ int main(int argc, char** argv)
 
 	// Input file
 	QString path_file(argv[1]);
-	PVCore::PVArgument file(path_file);
+	PVRush::PVInputDescription_p file(new PVRush::PVFileDescription(path_file));
 
 	// Load the given format file
 	QString path_format(argv[2]);

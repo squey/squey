@@ -132,7 +132,7 @@ protected:
 	bool is_dom_empty();
 
 protected:
-	PVCore::PVArgument _log_input;
+	PVRush::input_type _log_input;
 	PVRush::PVInputType_p _log_input_type;
 	PVRush::PVSourceCreator_p _log_sc;
 	PVRush::PVRawSourceBase_p _log_source;

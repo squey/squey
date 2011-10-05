@@ -5,7 +5,7 @@ PVRush::PVInputHDFS::PVInputHDFS(PVInputHDFSFile const& in)
 {
 	_file_param = in;
 	if (!_file_param.open()) {
-		PVLOG_ERROR("Unable to open hdfs file %s.\n", qPrintable(_file_param.get_human_name()));
+		PVLOG_ERROR("Unable to open hdfs file %s.\n", qPrintable(_file_param.human_name()));
 	}
 
 	_fs = _file_param.get_serv()->get_hdfs();
@@ -40,7 +40,7 @@ bool PVRush::PVInputHDFS::seek(input_offset off)
 
 QString PVRush::PVInputHDFS::human_name()
 {
-	return _file_param.get_human_name();
+	return _file_param.human_name();
 }
 
 IMPL_INPUT(PVRush::PVInputHDFS)

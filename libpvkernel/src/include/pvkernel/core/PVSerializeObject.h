@@ -251,4 +251,11 @@ void PVSerializeObject::list_attributes(QString const& name, T& obj)
 
 }
 
+// Conveniance macros
+#define PVSERIALIZEOBJECT_SPLIT\
+	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)\
+	{\
+		so.split(*this);\
+	}\
+
 #endif

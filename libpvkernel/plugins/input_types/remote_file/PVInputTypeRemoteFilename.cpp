@@ -1,5 +1,6 @@
 #include "PVInputTypeRemoteFilename.h"
 #include "include/PVLogViewerDialog.h"
+#include <pvkernel/rush/PVFileDescription.h>
 
 #include <QMessageBox>
 #include <QFileInfo>
@@ -52,9 +53,11 @@ QString PVRush::PVInputTypeRemoteFilename::human_name() const
 	return QString("Remote file import plugin");
 }
 
-QString PVRush::PVInputTypeRemoteFilename::human_name_of_input(PVCore::PVArgument const& in) const
+QString PVRush::PVInputTypeRemoteFilename::human_name_of_input(input_type in) const
 {
-	QString fn = in.toString();
+	PVFileDescription* f = dynamic_cast<PVFileDescription*>(in.get());
+	assert(f);
+	QString fn = f->path();
 	if (_hash_real_filenames.contains(fn)) {
 		return _hash_real_filenames.value(fn).toString();
 	}
@@ -70,7 +73,9 @@ QString PVRush::PVInputTypeRemoteFilename::tab_name_of_inputs(list_inputs const&
 	bool found_url = false;
 	QUrl url;
 	for (int i = 0; i < in.size(); i++) {
-		QString tmp_name = in[i].toString();
+		PVFileDescription* f = dynamic_cast<PVFileDescription*>(in[i].get());
+		assert(f);
+		QString tmp_name = f->toString();
 		if (_hash_real_filenames.contains(tmp_name)) {
 			found_url = true;
 			url = _hash_real_filenames[tmp_name];
@@ -89,7 +94,7 @@ QString PVRush::PVInputTypeRemoteFilename::menu_input_name() const
 	return QString("Import remote files...");
 }
 
-bool PVRush::PVInputTypeRemoteFilename::get_custom_formats(PVCore::PVArgument const& in, hash_formats &formats) const
+bool PVRush::PVInputTypeRemoteFilename::get_custom_formats(input_type /*in*/, hash_formats& /*formats*/) const
 {
 	return false;
 }
