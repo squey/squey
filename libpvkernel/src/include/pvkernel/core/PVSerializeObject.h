@@ -15,7 +15,7 @@ namespace PVCore {
 class PVSerializeArchive;
 typedef boost::shared_ptr<PVSerializeArchive> PVSerializeArchive_p;
 
-class PVSerializeObjectFileError
+class LibKernelDecl PVSerializeObjectFileError
 {
 public:
 	PVSerializeObjectFileError(QFile const& file)
@@ -28,7 +28,7 @@ protected:
 	QString _msg;
 };
 
-class PVSerializeObject: public boost::enable_shared_from_this<PVSerializeObject>
+class LibKernelDecl PVSerializeObject: public boost::enable_shared_from_this<PVSerializeObject>
 {
 	friend class PVSerializeArchive;
 public:
