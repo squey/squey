@@ -10,6 +10,7 @@
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVChunk.h>
+#include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/rush/PVRawSourceBase_types.h>
 
 #include <tbb/pipeline.h>
@@ -34,6 +35,7 @@ namespace PVRush {
  *
  */
 class LibKernelDecl PVAggregator {
+	friend class PVSerializeObject;
 public:
 	typedef std::list<PVRush::PVRawSourceBase_p> list_inputs;
 	typedef boost::shared_ptr<PVAggregator> p_type;
@@ -171,6 +173,7 @@ protected:
 
 
 	void init();
+
 protected:
 	list_inputs _inputs;
 	mutable list_inputs::iterator _cur_input;
@@ -193,7 +196,7 @@ protected:
 	 * For instance, if an aggregator contains 2 text files, this map object will contain the following information:
 	 * <ul>
 	 * <li>[Global index 0] -> first source</li>
-	 * <li>[Number of lines of first source] -> second source</li>
+	 * <li>[Number of elements of first source] -> second source</li>
 	 * </ul>
 	 *
 	 * These informations are not computed each time a source is added, and are stored as soon as they are known

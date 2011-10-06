@@ -44,7 +44,8 @@ Picviz::PVSource::~PVSource()
 
 void Picviz::PVSource::files_append_noextract(PVRush::PVFormat const& format, PVRush::PVSourceCreator_p sc, PVRush::PVInputType::list_inputs inputs)
 {
-	//set_format(format);
+	_inputs = inputs;
+	_src_plugin = sc->registered_name();
 	PVRush::PVFormat format_ = format;
 	format_.populate();
 	for (int i = 0; i < inputs.count(); i++) {
@@ -52,6 +53,11 @@ void Picviz::PVSource::files_append_noextract(PVRush::PVFormat const& format, PV
 		_extractor.add_source(src);
 	}
 	set_format(format_);
+}
+
+void Picviz::PVSource::reextract()
+{
+	_extractor.process_from_agg_nlines_last_param();
 }
 
 void Picviz::PVSource::set_format(PVRush::PVFormat const& format)
@@ -129,9 +135,31 @@ PVRush::PVExtractor& Picviz::PVSource::get_extractor()
 
 void Picviz::PVSource::serialize_write(PVCore::PVSerializeObject& so)
 {
-	//so.attribute(
+	so.list("inputs", _inputs);
+	//so.object("format", _extractor.get_format());
+	so.attribute("source-plugin", _src_plugin);
+	chunk_index start, nlines;
+	start = _extractor.get_last_start();
+	nlines = _extractor.get_last_nlines();
+	so.attribute("index_start", start);
+	so.attribute("nlines", nlines);
 }
 
 void Picviz::PVSource::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 {
+	so.list("inputs", _inputs);
+	PVRush::PVFormat format;
+	//so.object("format", format);
+	so.attribute("source-plugin", _src_plugin);
+	PVRush::PVSourceCreator_p sc_lib = LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name(_src_plugin);
+	if (!sc_lib) {
+		return;
+	}
+	PVRush::PVSourceCreator_p sc = sc_lib->clone<PVRush::PVSourceCreator>();
+	files_append_noextract(format, sc, _inputs);
+	chunk_index start, nlines;
+	so.attribute("index_start", start);
+	so.attribute("nlines", nlines);
+	_extractor.set_last_start(start);
+	_extractor.set_last_nlines(nlines);
 }

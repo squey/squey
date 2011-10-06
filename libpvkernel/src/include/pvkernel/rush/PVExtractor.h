@@ -70,6 +70,8 @@ public:
 	 */
 	PVControllerJob_p process_from_agg_nlines(chunk_index start, chunk_index nlines, int priority = 0);
 
+	PVControllerJob_p process_from_agg_nlines_last_param() { return process_from_agg_nlines(_last_start, _last_nlines); }
+
 	/*! \brief Process param[in]s between indexes "start" and "end"
 	 *  \param[in] start Index to start the extraction from (an index is typically a line number).
 	 *  \param[in] end Index to end the extraction at
@@ -131,6 +133,11 @@ public:
 	 */
 	PVCol get_number_axes();
 
+	chunk_index get_last_start() { return _last_start; }
+	chunk_index get_last_nlines() { return _last_nlines; }
+	void set_last_start(chunk_index start) { _last_start = start; }
+	void set_last_nlines(chunk_index nlines) { _last_nlines = nlines; }
+
 	void dump_elts(bool dump) { _dump_elts = dump; }
 
 	void dump_mapnraw();
@@ -153,6 +160,11 @@ protected:
 	PVFilter::PVChunkFilter_f _chk_flt;
 	unsigned int _chunks;
 	bool _dump_elts;
+
+protected:
+	chunk_index _last_start;
+	chunk_index _last_nlines;
+	
 };
 
 }

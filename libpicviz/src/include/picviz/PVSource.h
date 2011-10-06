@@ -79,6 +79,8 @@ public:
 	void files_append_noextract(PVRush::PVFormat const& format, PVRush::PVSourceCreator_p sc, PVRush::PVInputType::list_inputs inputs);
 	PVRush::PVExtractor& get_extractor();
 
+	void reextract();
+
 protected:
 	void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 	void serialize_write(PVCore::PVSerializeObject& so);
@@ -92,6 +94,8 @@ protected:
 
 private:
 	std::list<PVFilter::PVFieldsBaseFilter_p> _filters_container;
+	PVRush::PVInputType::list_inputs _inputs;
+	QString _src_plugin;
 };
 
 typedef PVSource::p_type PVSource_p;

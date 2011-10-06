@@ -67,6 +67,9 @@ public:
 	template <typename T>
 	void object(QString const& name, T& obj);
 
+	template <typename T>
+	void object(QString const& name, boost::shared_ptr<T> obj);
+
 	/*! \brief Declare a list to serialize. T must be an STL-compliant container. T::value_type must be serializable.
 	 *  \param[in] name Name of the list to serialize
 	 *  This method declare a list of object to serialize.
@@ -133,6 +136,12 @@ private:
 	p_type create_object(QString const& name);
 	uint32_t get_version();
 
+	template <typename T>
+	void call_serialize(T& obj, p_type new_obj) { obj.serialize(*new_obj, get_version()); }
+
+	template <typename T>
+	void call_serialize(boost::shared_ptr<T> obj, p_type new_obj) { obj->serialize(*new_obj, get_version()); }
+
 protected:
 	QDir const& get_path() const { return _path; }
 
@@ -165,6 +174,13 @@ void PVSerializeObject::object(QString const& name, T& obj)
 }
 
 template <typename T>
+void PVSerializeObject::object(QString const& name, boost::shared_ptr<T> obj)
+{
+	p_type new_obj = create_object(name);
+	obj->serialize(*new_obj, get_version());
+}
+
+template <typename T>
 void PVSerializeObject::list(QString const& name, T& obj)
 {
 	PVSerializeObject_p list_obj = create_object(name);
@@ -175,7 +191,7 @@ void PVSerializeObject::list(QString const& name, T& obj)
 		for (it = obj.begin(); it != obj.end(); it++) {
 			typename T::value_type& v = *it;
 			PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
-			v.serialize(*new_obj, get_version());
+			call_serialize(v, new_obj);
 			idx++;
 		}
 	}
@@ -186,7 +202,7 @@ void PVSerializeObject::list(QString const& name, T& obj)
 			while (true) {
 				typename T::value_type v;
 				PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
-				v.serialize(*new_obj, get_version());
+				call_serialize(v, new_obj);
 				obj.push_back(v);
 				idx++;
 			}

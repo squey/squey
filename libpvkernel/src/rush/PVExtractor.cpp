@@ -21,6 +21,8 @@ PVRush::PVExtractor::PVExtractor(unsigned int chunks) :
 	}
 	_saved_nraw_valid = false;
 	_dump_elts = false;
+	_last_start = 0;
+	_last_nlines = 1;
 }
 
 PVRush::PVExtractor::~PVExtractor()
@@ -148,6 +150,9 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_ind
 	
 	// The job is submitted to the controller and the pointer returned, so that the caller can wait for its end
 	_ctrl.submit_job(job);
+
+	_last_start = start;
+	_last_nlines = nlines;
 
 	return job;
 }
