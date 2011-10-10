@@ -773,7 +773,7 @@ void PVInspector::PVMainWindow::view_new_scatter_Slot()
 	}
 }
 
-void PVInspector::PVMainWindow::view_show_new_Slot()
+void PVInspector::PVMainWindow::view_new_parallel_Slot()
 {
 	PVLOG_INFO("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
 

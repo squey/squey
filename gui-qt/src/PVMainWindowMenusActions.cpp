@@ -117,7 +117,7 @@ void PVInspector::PVMainWindow::create_actions()
 	 ************************/
 	view_open_Action = new QAction(tr("&Open"), this);
 	view_save_Action = new QAction(tr("&Save"), this);
-	view_show_new_Action = new QAction(tr("New Parallel view"), this);
+	view_new_parallel_Action = new QAction(tr("New Parallel view"), this);
 	view_new_scatter_Action = new QAction(tr("New Scatter view"), this);
 
 	/***************************
