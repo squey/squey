@@ -761,6 +761,7 @@ void PVInspector::PVMainWindow::update_reply_finished_Slot(QNetworkReply *reply)
 void PVInspector::PVMainWindow::view_new_scatter_Slot()
 {
 	PVLOG_INFO("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
+
 	// Ask the PVGL to create a GL-View of the currently selected view.
 	if (current_tab && current_tab->get_lib_view()) {
 		PVSDK::PVMessage message;
@@ -771,6 +772,27 @@ void PVInspector::PVMainWindow::view_new_scatter_Slot()
 		pvsdk_messenger->post_message_to_gl(message);
 	}
 }
+
+void PVInspector::PVMainWindow::view_new_parallel_Slot()
+{
+	PVLOG_INFO("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
+
+        // Ask the PVGL to create a GL-View of the currently selected view. 
+        if (current_tab && current_tab->get_lib_view()) {
+		PVSDK::PVMessage message;
+
+                message.function = PVSDK_MESSENGER_FUNCTION_PLEASE_WAIT;
+                message.pointer_1 = new QString(pv_ListingsTabWidget->tabText(pv_ListingsTabWidget->currentIndex()));
+                pvsdk_messenger->post_message_to_gl(message);
+
+                message.function = PVSDK_MESSENGER_FUNCTION_CREATE_VIEW;
+                message.pv_view = current_tab->get_lib_view();
+                message.pointer_1 = new QString(pv_ListingsTabWidget->tabText(pv_ListingsTabWidget->currentIndex()));
+                pvsdk_messenger->post_message_to_gl(message);
+        }
+
+}
+
 
 /******************************************************************************
  *

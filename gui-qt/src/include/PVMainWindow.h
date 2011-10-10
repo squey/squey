@@ -151,7 +151,7 @@ public slots:
 	void textedit_text_changed_Slot();
 	/* void view_open_Slot(); */
 	/* void view_save_Slot(); */
-	/* void view_show_new_Slot(); */
+	void view_new_parallel_Slot();
 	void view_new_scatter_Slot();
 	void check_messages();	/* SLOT? NOT SLOT? */
 	void update_reply_finished_Slot(QNetworkReply *reply);
@@ -226,7 +226,7 @@ private:
 	QAction *view_Action;
 	QAction *view_open_Action;
 	QAction *view_save_Action;
-	QAction *view_show_new_Action;
+	QAction *view_new_parallel_Action;
 	QAction *view_new_scatter_Action;
 	QAction *whats_this_Action;
 	

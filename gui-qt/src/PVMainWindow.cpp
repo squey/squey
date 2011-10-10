@@ -500,7 +500,8 @@ void PVInspector::PVMainWindow::connect_actions()
 
 	// connect(view_open_Action, SIGNAL(triggered()), this, SLOT(view_open_Slot()));
 	// connect(view_save_Action, SIGNAL(triggered()), this, SLOT(view_save_Slot()));
-	// connect(view_show_new_Action, SIGNAL(triggered()), this, SLOT(view_show_new_Slot()));
+
+	connect(view_new_parallel_Action, SIGNAL(triggered()), this, SLOT(view_new_parallel_Slot()));
 	connect(view_new_scatter_Action, SIGNAL(triggered()), this, SLOT(view_new_scatter_Slot()));
 
 	connect(selection_all_Action, SIGNAL(triggered()), this, SLOT(selection_all_Slot()));
