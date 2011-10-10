@@ -155,3 +155,26 @@ void PVRush::PVNraw::fit_to_content()
 	table.resize(_real_nrows);
 	PVLOG_DEBUG("(PVNraw::fit_to_content) fit to content: size=%d.\n", table.size());
 }
+
+void PVRush::PVNraw::dump_csv()
+{
+	PVRush::PVNraw::nraw_table &nraw = get_table();
+	PVRush::PVNraw::nraw_table::iterator it_nraw;
+	PVRush::PVNraw::nraw_table_line::iterator it_nraw_line, it_nraw_line_end;
+	for (it_nraw = nraw.begin(); it_nraw != nraw.end(); it_nraw++) {
+		PVRush::PVNraw::nraw_table_line &l = *it_nraw;
+		if (l.size() == 1) {
+			QString &l_str = *(l.begin());
+			std::cout << l_str.toUtf8().constData() << std::endl;
+			continue;
+		}
+		it_nraw_line_end = l.end();
+		it_nraw_line_end--;
+		for (it_nraw_line = l.begin(); it_nraw_line != it_nraw_line_end; it_nraw_line++) {
+			QString &field = *it_nraw_line;
+			std::cout << "'" << field.toUtf8().constData() << "',";
+		}
+		QString &field = *it_nraw_line;
+		std::cout << "'" << field.toUtf8().constData() << "'" << std::endl;
+	}
+}

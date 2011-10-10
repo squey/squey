@@ -7,11 +7,14 @@ namespace PVRush {
 
 class PVFileDescription: public PVInputDescription
 {
+	friend class PVCore::PVSerializeObject;
 public:
-	PVFileDescription();
 	PVFileDescription(QString const& path):
 		_path(path)
-	{ }
+	{ set_path(path); }
+
+protected:
+	PVFileDescription() { };
 
 public:
 	operator QString() const { return _path; }
@@ -24,6 +27,13 @@ public:
 
 	QString human_name() const { return _path; }
 	QString path() const { return _path; }
+
+protected:
+	void set_path(QString const& path)
+	{
+		QDir dir;
+		_path = dir.absoluteFilePath(path);
+	}
 
 protected:
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)

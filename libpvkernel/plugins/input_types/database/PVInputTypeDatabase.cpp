@@ -73,3 +73,9 @@ QKeySequence PVRush::PVInputTypeDatabase::menu_shortcut() const
 {
 	return QKeySequence();
 }
+
+void PVRush::PVInputTypeDatabase::serialize_inputs(PVCore::PVSerializeObject& so, const QString& name, PVRush::PVInputType::list_inputs& inputs) const
+{
+	_serialize_inputs<PVDBQuery>(so, name, inputs);
+}
+

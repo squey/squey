@@ -118,6 +118,7 @@ namespace PVRush {
 		}
 
 		inline static void set_field(nraw_table_line& line, size_t index_field, const QChar* buf, size_t nchars)
+
 		{
 			static tbb::scalable_allocator<QChar> alloc;
 			QChar* copy = alloc.allocate(nchars);
@@ -129,6 +130,8 @@ namespace PVRush {
 		QString nraw_line_to_csv(PVRow idx) const;
 
 		void fit_to_content();
+
+		void dump_csv();
 
 	private:
 		void allocate_buf(size_t nchars);

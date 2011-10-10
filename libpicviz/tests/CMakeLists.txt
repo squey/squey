@@ -30,6 +30,10 @@ add_executable(Tpicviz_process_file_plotting process_file_plotting.cpp)
 target_link_libraries(Tpicviz_process_file_plotting ${LINK_LIBRARIES})
 add_test(TestIssuesPlotting test_issues.sh plotting)
 
+# Source serialization
+add_executable(Tpicviz_source_serialize source-serialize.cpp)
+target_link_libraries(Tpicviz_source_serialize ${LINK_LIBRARIES})
+
 # Mapping plugin test
 #add_executable(Tpicviz_plugin_mapping plugin-mapping.cpp)
 #target_link_libraries(Tpicviz_plugin_mapping ${LINK_LIBRARIES})

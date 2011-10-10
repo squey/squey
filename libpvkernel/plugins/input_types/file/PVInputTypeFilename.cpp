@@ -185,3 +185,8 @@ QKeySequence PVRush::PVInputTypeFilename::menu_shortcut() const
 {
 	return QKeySequence::Italic;
 }
+
+void PVRush::PVInputTypeFilename::serialize_inputs(PVCore::PVSerializeObject& so, QString const& name, list_inputs& inputs) const
+{
+	_serialize_inputs<PVFileDescription>(so, name, inputs);
+}

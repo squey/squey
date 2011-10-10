@@ -22,6 +22,7 @@ public:
 	QString tab_name_of_inputs(list_inputs const& in) const;
 	QKeySequence menu_shortcut() const;
 	bool get_custom_formats(input_type in, hash_formats &formats) const;
+	void serialize_inputs(PVCore::PVSerializeObject& so, QString const& name, list_inputs& inputs) const;
 
 protected:
 	bool load_files(QStringList const& filenames, bool check_archives, list_inputs& inputs, QWidget* parent) const;

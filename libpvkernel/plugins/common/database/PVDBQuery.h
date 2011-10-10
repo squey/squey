@@ -16,6 +16,7 @@ namespace PVRush {
 
 class PVDBQuery: public PVInputDescription
 {
+	friend class PVCore::PVSerializeObject;
 public:
 	PVDBQuery();
 	PVDBQuery(PVDBServ_p db);

@@ -68,3 +68,8 @@ QKeySequence PVRush::PVInputTypeHDFS::menu_shortcut() const
 {
 	return QKeySequence();
 }
+
+void PVRush::PVInputTypeHDFS::serialize_inputs(PVCore::PVSerializeObject& so, const QString& name, PVRush::PVInputType::list_inputs& inputs) const
+{
+	_serialize_inputs<PVInputHDFSFile>(so, name, inputs);
+}

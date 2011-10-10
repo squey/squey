@@ -14,6 +14,7 @@ namespace PVRush {
 
 class PVInputHDFSFile: public PVInputDescription
 {
+	friend class PVCore::PVSerializeObject;
 public:
 	PVInputHDFSFile();
 	PVInputHDFSFile(PVInputHDFSServer_p serv, QString const& path);
@@ -32,9 +33,14 @@ public:
 	inline bool should_process_in_hadoop() const { return _process_in_hadoop; }
 	inline void set_process_in_hadoop(bool b) { _process_in_hadoop = b; }
 
+private:
+	void compute_human_name();
+
 protected:
-	// TODO!
-	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v) { }
+	void serialize_write(PVCore::PVSerializeObject& so);
+	void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
+
+	PVSERIALIZEOBJECT_SPLIT
 
 protected:
 	PVInputHDFSServer_p _serv;

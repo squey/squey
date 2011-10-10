@@ -13,7 +13,7 @@ PVRush::PVInputHDFSFile::PVInputHDFSFile(PVInputHDFSServer_p serv, QString const
 	_file(NULL)
 {
 	_process_in_hadoop = false;
-	_human_name = _serv->get_human_name() + path;
+	compute_human_name();
 }
 
 PVRush::PVInputHDFSFile::~PVInputHDFSFile()
@@ -40,3 +40,22 @@ void PVRush::PVInputHDFSFile::close()
 	}
 }
 
+void PVRush::PVInputHDFSFile::serialize_write(PVCore::PVSerializeObject& so)
+{
+	so.object("server", *_serv);
+	so.attribute("path", _path);
+	so.attribute("process_hadoop", _process_in_hadoop);
+}
+
+void PVRush::PVInputHDFSFile::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
+{
+	so.object("server", _serv);
+	so.attribute("path", _path);
+	compute_human_name();
+	so.attribute("process_hadoop", _process_in_hadoop);
+}
+
+void PVRush::PVInputHDFSFile::compute_human_name()
+{
+	_human_name = _serv->get_human_name() + _path;
+}

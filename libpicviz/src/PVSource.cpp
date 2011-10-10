@@ -45,7 +45,7 @@ Picviz::PVSource::~PVSource()
 void Picviz::PVSource::files_append_noextract(PVRush::PVFormat const& format, PVRush::PVSourceCreator_p sc, PVRush::PVInputType::list_inputs inputs)
 {
 	_inputs = inputs;
-	_src_plugin = sc->registered_name();
+	_src_plugin = sc;
 	PVRush::PVFormat format_ = format;
 	format_.populate();
 	for (int i = 0; i < inputs.count(); i++) {
@@ -55,9 +55,9 @@ void Picviz::PVSource::files_append_noextract(PVRush::PVFormat const& format, PV
 	set_format(format_);
 }
 
-void Picviz::PVSource::reextract()
+PVRush::PVControllerJob_p Picviz::PVSource::reextract()
 {
-	_extractor.process_from_agg_nlines_last_param();
+	return _extractor.process_from_agg_nlines_last_param();
 }
 
 void Picviz::PVSource::set_format(PVRush::PVFormat const& format)
@@ -133,11 +133,22 @@ PVRush::PVExtractor& Picviz::PVSource::get_extractor()
 	return _extractor;
 }
 
+PVRush::PVInputType_p Picviz::PVSource::get_input_type()
+{
+	assert(_src_plugin);
+	QString in_name = _src_plugin->supported_type();
+	PVRush::PVInputType_p lib = LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name(in_name);
+	assert(lib);
+	return lib->clone<PVRush::PVInputType>();
+}
+
 void Picviz::PVSource::serialize_write(PVCore::PVSerializeObject& so)
 {
-	so.list("inputs", _inputs);
+	PVRush::PVInputType_p in_t = get_input_type();
+	in_t->serialize_inputs(so, "inputs", _inputs);
 	//so.object("format", _extractor.get_format());
-	so.attribute("source-plugin", _src_plugin);
+	QString src_name = _src_plugin->registered_name();
+	so.attribute("source-plugin", src_name);
 	chunk_index start, nlines;
 	start = _extractor.get_last_start();
 	nlines = _extractor.get_last_nlines();
@@ -147,16 +158,17 @@ void Picviz::PVSource::serialize_write(PVCore::PVSerializeObject& so)
 
 void Picviz::PVSource::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 {
-	so.list("inputs", _inputs);
 	PVRush::PVFormat format;
 	//so.object("format", format);
-	so.attribute("source-plugin", _src_plugin);
-	PVRush::PVSourceCreator_p sc_lib = LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name(_src_plugin);
+	QString src_name;
+	so.attribute("source-plugin", src_name);
+	PVRush::PVSourceCreator_p sc_lib = LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name(src_name);
 	if (!sc_lib) {
 		return;
 	}
-	PVRush::PVSourceCreator_p sc = sc_lib->clone<PVRush::PVSourceCreator>();
-	files_append_noextract(format, sc, _inputs);
+	_src_plugin = sc_lib->clone<PVRush::PVSourceCreator>();
+	get_input_type()->serialize_inputs(so, "inputs", _inputs);
+	files_append_noextract(format, _src_plugin, _inputs);
 	chunk_index start, nlines;
 	so.attribute("index_start", start);
 	so.attribute("nlines", nlines);
