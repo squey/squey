@@ -1,1 +1,4 @@
+QMainWindow {
+	background-image: url(:background-window.png);
+}
 # QPushButton { color: red }

@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
+	<file alias="background-window.png">resources/background-window.png</file>
         <file alias="window-icon.png">resources/inspector.png</file>
         <file alias="logo.png">resources/logo.png</file>
         <file>resources/filelink-32.png</file>
