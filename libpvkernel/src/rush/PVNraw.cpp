@@ -6,6 +6,8 @@
 
 #include <pvkernel/rush/PVNraw.h>
 
+#include <iostream>
+
 #define DEFAULT_LINE_SIZE 100
 
 PVRush::PVNraw::PVNraw()

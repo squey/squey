@@ -39,6 +39,7 @@ public:
 	 */
 	PVSDK::PVMessenger *get_messenger(){return pvsdk_messenger;}
 
+protected:
 	/**
 	 *
 	 */
