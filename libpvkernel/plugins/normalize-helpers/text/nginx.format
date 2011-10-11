@@ -1,0 +1,54 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE PVParamXml>
+<param version="2">
+ <splitter sep="@Char( )" type="csv">
+  <field>
+   <axis titlecolor="#ff921d" tag="" key="false" mapping="default" time-format="" group="" type="ipv4" name="Source IP" color="#ffffff" plotting="default" time-sample=""/>
+  </field>
+  <field>
+   <axis titlecolor="#ff921d" key="false" mapping="default" group="" type="enum" name="Axis 2" color="#ffffff" plotting="default"/>
+  </field>
+  <field>
+   <axis titlecolor="#ff921d" key="false" mapping="default" group="" type="enum" name="Axis 3" color="#ffffff" plotting="default"/>
+  </field>
+  <field>
+   <splitter full-line="true" type="regexp" regexp="\[(\d+\/\w+\/\d+:\d+:\d+:\d+)">
+    <field>
+     <axis titlecolor="#ff921d" tag="" mapping="24h" time-format="dd/MMM/yyyy:HH:mm:ss" group="" type="time" name="Time" plotting="default" color="#ffffff" time-sample=""/>
+    </field>
+   </splitter>
+  </field>
+  <field>
+   <axis titlecolor="#ff921d" key="false" mapping="default" group="" type="enum" name="Axis 5" color="#ffffff" plotting="default"/>
+  </field>
+  <field>
+   <splitter full-line="true" type="regexp" regexp="(\S+) (\S+) (\S+)">
+    <field>
+     <axis titlecolor="#ff921d" tag="" mapping="default" time-format="" group="" type="enum" name="Request" plotting="default" color="#ffffff" time-sample=""/>
+    </field>
+    <field>
+     <axis titlecolor="#ff921d" tag="" mapping="default" time-format="" group="" type="string" name="url" plotting="default" color="#ffffff" time-sample=""/>
+    </field>
+    <field>
+     <axis titlecolor="#ff921d" tag="" mapping="default" time-format="" group="" type="enum" name="Protocol" plotting="default" color="#ffffff" time-sample=""/>
+    </field>
+   </splitter>
+  </field>
+  <field>
+   <axis titlecolor="#ff921d" tag="" key="false" mapping="default" time-format="" group="" type="integer" name="Response code" color="#ffffff" plotting="minmax" time-sample=""/>
+  </field>
+  <field>
+   <axis titlecolor="#ff921d" tag="" key="false" mapping="default" time-format="" group="" type="enum" name="Size" color="#ffffff" plotting="default" time-sample=""/>
+  </field>
+  <field>
+   <axis titlecolor="#ff921d" key="false" mapping="default" group="" type="enum" name="Axis 9" color="#ffffff" plotting="default"/>
+  </field>
+  <field>
+   <axis titlecolor="#ff921d" tag="" key="false" mapping="4Bsort" time-format="" group="" type="string" name="User Agent" color="#ffffff" plotting="minmax" time-sample=""/>
+  </field>
+  <field>
+   <axis titlecolor="#ff921d" key="false" mapping="default" group="" type="enum" name="Axis 11" color="#ffffff" plotting="default"/>
+  </field>
+ </splitter>
+ <axes-combination>3,0,11,5,6,7,8,9</axes-combination>
+</param>

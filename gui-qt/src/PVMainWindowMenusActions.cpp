@@ -222,7 +222,7 @@ void PVInspector::PVMainWindow::create_menus()
 	view_Menu->addAction(view_open_Action);
 	view_Menu->addAction(view_save_Action);
 	view_Menu->addSeparator();
-	view_Menu->addAction(view_show_new_Action);
+	view_Menu->addAction(view_new_parallel_Action);
 	view_Menu->addAction(view_new_scatter_Action);
 #endif
 
