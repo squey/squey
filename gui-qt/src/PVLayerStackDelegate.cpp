@@ -152,9 +152,9 @@ void PVInspector::PVLayerStackDelegate::paint(QPainter *painter, const QStyleOpt
 
 			painter->translate(option.rect.x() + 2, option.rect.y() + 2);
 			if (index.data().toInt()) {
-				painter->drawPixmap(0, 0, QPixmap(":/pv-eye-20"));
+				painter->drawPixmap(0, 0, QPixmap(":/layer-active.png"));
 			} else {
-				painter->drawPixmap(0, 0, QPixmap(":/pv-white-20"));
+				painter->drawPixmap(0, 0, QPixmap(":/layer-inactive.png"));
 			}
 			painter->restore();
 			break;

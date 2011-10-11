@@ -16,7 +16,9 @@
 	<file alias="morezoom.png">resources/morezoom.png</file>
 	<file alias="width.png">resources/width.png</file>
 
-	<file alias="pv-eye-20">resources/20x20/stock-eye-20.png</file>
+	<file alias="layer-active.png">resources/layer-active.png</file>
+	<file alias="layer-inactive.png">resources/layer-inactive.png</file>
+
 	<file alias="pv-linked-20">resources/20x20/stock-linked-20.png</file>
 	<file alias="pv-white-20">resources/20x20/pv-white-20.png</file>
 	<file alias="document-new.png">resources/22x22/document-new.png</file>
