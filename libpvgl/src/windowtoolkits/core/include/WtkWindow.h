@@ -12,7 +12,8 @@ namespace PVGL {
 class PVView;
 }
 
-#include <pvgl/PVCom.h>
+//#include <pvgl/PVCom.h>
+#include <pvsdk/PVMessenger.h>
 #include <pvgl/PVWidgetManager.h>
 #include <pvgl/PVIdleManager.h>
 
@@ -26,7 +27,7 @@ namespace PVGL {
 	class WtkWindow {
 	protected:
 		Picviz::PVView_p picviz_view;    //!<
-		PVCom           *pv_com;         //!<
+		PVSDK::PVMessenger           *pv_com;         //!<
 
 		int              width;          //!< The width of the drawable window.
 		int              height;         //!< The height of the drawable window.
@@ -53,8 +54,8 @@ namespace PVGL {
 		void _common_init(void);
 
 	public:
-		WtkWindow(PVCom *com, int win_id);
-		WtkWindow(PVCom *com, void *win_ptr);
+		WtkWindow(PVSDK::PVMessenger *com, int win_id);
+		WtkWindow(PVSDK::PVMessenger *com, void *win_ptr);
 
 		virtual ~WtkWindow();
 

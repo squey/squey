@@ -20,7 +20,7 @@ SET PVRUSH_SOURCE_DIR=libpvkernel\plugins\sources\%BUILD_MODE%\
 SET PVRUSH_NORMALIZE_HELPERS_DIR=libpvkernel\plugins\normalize-helpers\
 SET PVFILTER_NORMALIZE_DIR=libpvkernel\plugins\normalize\%BUILD_MODE%\
 
-PATH=%PATH%;%CACTUSLABS_TRUNK_DIR%\libpvkernel\src\%BUILD_MODE%;%CACTUSLABS_TRUNK_DIR%\libpicviz\src\%BUILD_MODE%;%cactuslabs_trunk_dir%\libpvgl\src\%build_mode%
+PATH=%PATH%;%CACTUSLABS_TRUNK_DIR%\libpvkernel\src\%BUILD_MODE%;%CACTUSLABS_TRUNK_DIR%\libpicviz\src\%BUILD_MODE%;%cactuslabs_trunk_dir%\libpvsdk\src\%build_mode%;%cactuslabs_trunk_dir%\libpvgl\src\%build_mode%
 
 
 echo Trunk directory is: %CACTUSLABS_TRUNK_DIR%

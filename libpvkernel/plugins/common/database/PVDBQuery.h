@@ -36,7 +36,8 @@ public:
 	QString last_error_serv();
 	
 protected:
-	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
+	// TODO: needs to be implemented !
+	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v) { };
 
 protected:
 	PVDBServ_p _infos;

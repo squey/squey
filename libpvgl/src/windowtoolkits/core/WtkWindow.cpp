@@ -8,7 +8,6 @@
 
 #include <pvgl/PVConfig.h>
 #include <pvgl/PVUtils.h>
-#include <pvgl/PVCom.h>
 // #include <pvgl/PVIdleManager.h>
 #include <pvgl/PVMain.h>
 
@@ -19,7 +18,7 @@ void PVGL::WTK::WtkWindow::_common_init(void)
 	max_lines_per_redraw = 1;
 }
 
-PVGL::WTK::WtkWindow::WtkWindow(PVCom *com, int win_id) 
+PVGL::WTK::WtkWindow::WtkWindow(PVSDK::PVMessenger *com, int win_id) 
 {
 	_win_id = win_id;
 	_win_type = WTK_WINDOWTYPE_INT;
@@ -27,7 +26,7 @@ PVGL::WTK::WtkWindow::WtkWindow(PVCom *com, int win_id)
 	_common_init();
 }
 
-PVGL::WTK::WtkWindow::WtkWindow(PVCom *com, void *win_ptr) 
+PVGL::WTK::WtkWindow::WtkWindow(PVSDK::PVMessenger *com, void *win_ptr) 
 {
 	_win_ptr = win_ptr;
 	_win_type = WTK_WINDOWTYPE_POINTER;
