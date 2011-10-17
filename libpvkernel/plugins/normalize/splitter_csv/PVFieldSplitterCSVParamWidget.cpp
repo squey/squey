@@ -157,7 +157,6 @@ void PVFilter::PVFieldSplitterCSVParamWidget::update_recommanded_nfields()
 	QHash<PVCol, PVRow> freq_fields;
 	for (int i = 0; i < data.size(); i++) {
         QString myLine = data[i];
-		PVLOG_INFO(qPrintable(myLine+"\n"));
 		const QChar* start = myLine.constData();
 		QString deep_copy(start, myLine.size());
 		PVCore::PVElement elt(NULL, (char*) deep_copy.constData(), (char*) (deep_copy.constData() + myLine.size()));
