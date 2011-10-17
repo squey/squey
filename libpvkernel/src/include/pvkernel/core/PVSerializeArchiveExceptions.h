@@ -13,9 +13,22 @@ public:
 		_msg(msg)
 	{ }
 public:
-	QString what() { return _msg; }
+	QString const& what() const { return _msg; }
 protected:
 	QString _msg;
+};
+
+class LibKernelDecl PVSerializeArchiveErrorNoObject: public PVSerializeArchiveError
+{
+public:
+	PVSerializeArchiveErrorNoObject(QString const& obj, QString const& msg):
+		PVSerializeArchiveError(msg),
+		_obj(obj)
+	{ }
+public:
+	QString const& obj() const { return _obj; }
+protected:
+	QString _obj;
 };
 
 }

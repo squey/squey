@@ -37,18 +37,23 @@ public:
 	void open(QString const& dir, archive_mode mode);
 	PVSerializeObject_p get_root();
 	version_t get_version() const;
+	// Finish function
 	virtual void finish();
 
 protected:
-	PVSerializeObject_p create_object(QString const& name, PVSerializeObject_p parent);
 	bool is_writing() const { return _mode == write; }
 
 protected:
+	// If you want to create another way of storing archives, you must reimplement these functions
+	
+	// Object create function
+	virtual PVSerializeObject_p create_object(QString const& name, PVSerializeObject_p parent);
 	// Attribute access functions
 	virtual void attribute_write(PVSerializeObject const& so, QString const& name, QVariant const& obj);
 	virtual void attribute_read(PVSerializeObject& so, QString const& name, QVariant& obj, QVariant const& def);
 	virtual void list_attributes_write(PVSerializeObject const& so, QString const& name, std::vector<QVariant> const& obj);
 	virtual void list_attributes_read(PVSerializeObject const& so, QString const& name, std::vector<QVariant>& obj);
+	virtual size_t buffer(PVSerializeObject const& so, QString const& name, void* buf, size_t n);
 
 private:
 	void init();

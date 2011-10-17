@@ -66,7 +66,7 @@ PVCore::PVSerializeObject_p PVCore::PVSerializeArchive::create_object(QString co
 		}
 	}
 	if (!new_path.cd(name)) {
-		throw PVSerializeArchiveError(QString("Unable to change into directory '%1' within '%2'.").arg(name).arg(new_path.absolutePath()));
+		throw PVSerializeArchiveErrorNoObject(name, QString("Unable to change into directory '%1' within '%2'.").arg(name).arg(new_path.absolutePath()));
 	}
 	PVSerializeObject_p ret(new PVSerializeObject(new_path, shared_from_this(), parent));
 	create_attributes(*ret);
@@ -138,4 +138,36 @@ void PVCore::PVSerializeArchive::list_attributes_read(PVSerializeObject const& s
 		obj.push_back(settings->value("value"));
 	}
 	settings->endArray();
+}
+
+size_t PVCore::PVSerializeArchive::buffer(PVSerializeObject const& so, QString const& name, void* buf, size_t n)
+{
+	QFile buf_file(so.get_path().absoluteFilePath(name));
+	if (is_writing()) {
+		if (!buf_file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+			throw PVSerializeObjectFileError(buf_file);
+		}
+		qint64 ret = buf_file.write((const char*) buf, n);
+		if (ret == -1) {
+			throw PVSerializeObjectFileError(buf_file);
+		}
+		// Flush the internal buffers and check that it works.
+		// If we don' t do that, we may have an empty file even if
+		// QFile::write reports that everything was written !
+		if (!buf_file.flush()) {
+			throw PVSerializeObjectFileError(buf_file);
+		}
+
+		return ret;
+	}
+	else {
+		if (!buf_file.open(QIODevice::ReadOnly)) {
+			throw PVSerializeObjectFileError(buf_file);
+		}
+		qint64 ret = buf_file.read((char*) buf, n);
+		if (ret == -1) {
+			throw PVSerializeObjectFileError(buf_file);
+		}
+		return ret;
+	}
 }
