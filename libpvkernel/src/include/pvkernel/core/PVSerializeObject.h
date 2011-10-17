@@ -10,6 +10,8 @@
 #include <QDir>
 #include <QSettings>
 
+#include <vector>
+
 namespace PVCore {
 
 class PVSerializeArchive;
@@ -36,6 +38,7 @@ public:
 
 protected:
 	PVSerializeObject(QDir const& path, PVSerializeArchive_p parent_ar, p_type parent = p_type());
+	QString get_config_path() const;
 
 private:
 	// Private copy-constructor, as these objects must always have been created by
@@ -57,7 +60,7 @@ public:
 		}
 	}
 
-	bool is_writing();
+	bool is_writing() const;
 
 public:
 	/*! \brief Declare a new object to serialize
@@ -130,9 +133,12 @@ public:
 	size_t buffer(QString const& name, void* buf, size_t n);
 
 private:
-	QString get_config_path();
 	p_type create_object(QString const& name);
-	uint32_t get_version();
+	uint32_t get_version() const;
+	void attribute_write(QString const& name, QVariant const& obj);
+	void attribute_read(QString const& name, QVariant& obj, QVariant const& def);
+	void list_attributes_write(QString const& name, std::vector<QVariant> const& list);
+	void list_attributes_read(QString const& name, std::vector<QVariant>& list);
 
 	template <typename T>
 	void call_serialize(T& obj, p_type new_obj) { obj.serialize(*new_obj, get_version()); }
@@ -164,9 +170,6 @@ private:
 	 *  the parent object.
 	 */
 	QDir _path;
-
-private:
-	QSettings _attributes;
 };
 
 typedef PVSerializeObject::p_type PVSerializeObject_p;
@@ -230,10 +233,12 @@ template <class T>
 void PVSerializeObject::attribute(QString const& name, T& obj, T const& def)
 {
 	if (is_writing()) {
-		_attributes.setValue(name, QVariant(obj));
+		attribute_write(name, QVariant(obj));
 	}
 	else {
-		obj = _attributes.value(name, QVariant(def)).value<T>();
+		QVariant v;
+		attribute_read(name, v, QVariant(def));
+		obj = v.value<T>();
 	}
 }
 
@@ -241,25 +246,22 @@ template <class T>
 void PVSerializeObject::list_attributes(QString const& name, T& obj)
 {
 	if (is_writing()) {
-		_attributes.beginWriteArray(name);
-		int idx = 0;
+		std::vector<QVariant> list;
+		list.reserve(obj.size());
 		typename T::const_iterator it;
 		for (it = obj.begin(); it != obj.end(); it++) {
 			typename T::value_type const& v = *it;
-			_attributes.setArrayIndex(idx);
-			_attributes.setValue("value", QVariant(v));
-			idx++;
+			list.push_back(QVariant(v));
 		}
-		_attributes.endArray();
+		list_attributes_write(name, list);
 	}
 	else {
-		int size = _attributes.beginReadArray(name);
-		obj.clear();
-		for (int i = 0; i < size; i++) {
-			_attributes.setArrayIndex(i);
-			obj.push_back(_attributes.value("value").value<typename T::value_type>());
+		std::vector<QVariant> list;
+		list_attributes_read(name, list);
+		std::vector<QVariant>::iterator it;
+		for (it = list.begin(); it != list.end(); it++) {
+			obj.push_back(it->value<typename T::value_type>());
 		}
-		_attributes.endArray();
 	}
 }
 
