@@ -13,6 +13,8 @@
 
 namespace PVCore {
 
+class PVSerializeArchiveOptions;
+
 class LibKernelDecl PVSerializeArchive: public boost::enable_shared_from_this<PVSerializeArchive>
 {
 	friend class PVSerializeObject;
@@ -28,7 +30,7 @@ public:
 
 	virtual ~PVSerializeArchive();
 
-private:
+protected:
 	PVSerializeArchive(const PVSerializeArchive& obj):
    		boost::enable_shared_from_this<PVSerializeArchive>(obj)
 	{ assert(false); }
@@ -37,11 +39,17 @@ public:
 	void open(QString const& dir, archive_mode mode);
 	PVSerializeObject_p get_root();
 	version_t get_version() const;
+	void set_options(boost::shared_ptr<PVSerializeArchiveOptions> options) { _options = options; };
 	// Finish function
 	virtual void finish();
 
 protected:
 	bool is_writing() const { return _mode == write; }
+	QString get_object_logical_path(PVSerializeObject const& so) { return so.get_logical_path(); };
+	PVSerializeObject_p allocate_object(QString const& name, PVSerializeObject_p parent);
+	bool must_write_object(PVSerializeObject const& parent, QString const& child);
+	const PVSerializeArchiveOptions* get_options() const { return _options.get(); }
+	QDir get_dir_for_object(PVSerializeObject const& so) const;
 
 protected:
 	// If you want to create another way of storing archives, you must reimplement these functions
@@ -54,10 +62,12 @@ protected:
 	virtual void list_attributes_write(PVSerializeObject const& so, QString const& name, std::vector<QVariant> const& obj);
 	virtual void list_attributes_read(PVSerializeObject const& so, QString const& name, std::vector<QVariant>& obj);
 	virtual size_t buffer(PVSerializeObject const& so, QString const& name, void* buf, size_t n);
+	virtual void file(PVSerializeObject const& so, QString const& name, QString& path);
 
 private:
 	void init();
 	void create_attributes(PVSerializeObject const& so);
+	QString get_object_config_path(PVSerializeObject const& so) const;
 
 protected:
 	PVSerializeObject_p _root_obj;
@@ -66,6 +76,9 @@ protected:
 	version_t _version;
 	bool _is_opened;
 	QHash<QString, QSettings*> _objs_attributes;
+
+private:
+	boost::shared_ptr<PVSerializeArchiveOptions> _options;
 };
 
 }

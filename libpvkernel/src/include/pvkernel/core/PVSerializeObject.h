@@ -35,11 +35,10 @@ class LibKernelDecl PVSerializeObject: public boost::enable_shared_from_this<PVS
 	friend class PVSerializeArchive;
 public:
 	typedef boost::shared_ptr<PVSerializeObject> p_type;
-	typedef std::list<p_type> list_childs_t;
+	typedef QHash<QString, p_type> list_childs_t;
 
 protected:
-	PVSerializeObject(QDir const& path, PVSerializeArchive_p parent_ar, p_type parent = p_type());
-	QString get_config_path() const;
+	PVSerializeObject(QString const& logical_path, PVSerializeArchive_p parent_ar, p_type parent = p_type());
 
 private:
 	// Private copy-constructor, as these objects must always have been created by
@@ -63,17 +62,15 @@ public:
 
 	bool is_writing() const;
 	bool is_optional() const;
+	bool must_write() const;
+	void set_write(bool write);
 	QString const& description() const;
 	list_childs_t const& childs() const;
+	const p_type get_child_by_name(QString const& name) const;
+	QString const& get_logical_path() const;
 
 public:
-	/*! \brief Declare a new object to serialize
-	 *  \overload
-	 */
-	template <typename T>
-	inline void object(QString const& name, T& obj);
-
-	/*! \brief Declare a new object to serialize that can be optionally saved, with a description
+	/*! \brief Declare a new object to serialize that can be optionally saved, with a description.
 	 *  \param[in] name Name of the object to serialize
 	 *  \param[in][out] obj Object to load/save
 	 *  \param[in] optional Can this object be optionally saved
@@ -83,7 +80,7 @@ public:
 	 *  serialize_(read/write) method of obj with this new PVSerializeObject.
 	 */
 	template <typename T>
-	bool object(QString const& name, T& obj, bool optional, QString const& desc);
+	bool object(QString const& name, T& obj, QString const& desc = QString(), bool optional = false);
 
 	/*! \brief Declare a list to serialize. T must be an STL-compliant container. T::value_type must be serializable.
 	 *  \param[in] name Name of the list to serialize
@@ -145,6 +142,12 @@ public:
 	 */
 	size_t buffer(QString const& name, void* buf, size_t n);
 
+	/*! \brief Include an existing file, given its path.
+	 *  \param[in] name Name of this file. This will be used as the underlying destination filename.
+	 *  \param[in][out] path Path to the file. When reading the archive, this is set to the extracted file path.
+	 */
+	void file(QString const& name, QString& path);
+
 private:
 	p_type create_object(QString const& name, bool optional = false, QString const& desc = QString());
 	uint32_t get_version() const;
@@ -152,6 +155,7 @@ private:
 	void attribute_read(QString const& name, QVariant& obj, QVariant const& def);
 	void list_attributes_write(QString const& name, std::vector<QVariant> const& list);
 	void list_attributes_read(QString const& name, std::vector<QVariant>& list);
+	bool must_write_child(QString const& name);
 
 	template <typename T>
 	void call_serialize(T& obj, p_type new_obj) { obj.serialize(*new_obj, get_version()); }
@@ -166,9 +170,6 @@ private:
 		obj->serialize(*new_obj, get_version());
 	}
 
-protected:
-	QDir const& get_path() const { return _path; }
-
 private:
 	/*! \brief Parent archive pointer
 	 */
@@ -178,21 +179,26 @@ private:
 	 */
 	p_type _parent;
 
-	/*! \brief Full path within the archive.
-	 *  This path is set by PVSerializeArchive::create_object according to
-	 *  the parent object.
+	/*! \brief Logicial path within the archive
+	 *  This path is set by PVSerializeArchive::create_object and is independent of the
+	 *  final root directory and any operating system rules.
+	 *  This can be used to uniquely identify an object.
 	 */
-	QDir _path;
+	QString _logical_path;
 
 	/*! \brief Specifies whether this object is optional or not. Set by create_object.
 	 */
 	bool _is_optional;
 	
-	/*! \brief Specifies a description of this object if it is optional. Set by create_object.
+	/*! \brief Specifies a description of this object.
 	 */
 	QString _desc;
 
-	/*! \brief List of the childs of this object.
+	/*! \brief If this object is optional, specifies whether this object must be written or not.
+	 */
+	bool _must_write;
+
+	/*! \brief Hash of the childs of this object. The key is their name.
 	 */
 	list_childs_t _childs;
 };
@@ -200,20 +206,20 @@ private:
 typedef PVSerializeObject::p_type PVSerializeObject_p;
 
 template <typename T>
-void PVSerializeObject::object(QString const& name, T& obj)
+bool PVSerializeObject::object(QString const& name, T& obj, QString const& desc, bool optional)
 {
-	object(name, obj, false, QString());
-}
-
-template <typename T>
-bool PVSerializeObject::object(QString const& name, T& obj, bool optional, QString const& desc)
-{
+	if (optional && is_writing()) {
+		if (!must_write_child(name)) {
+			return false;
+		}
+	}
+	QString desc_ = (desc.isNull()) ? name:desc;
 	p_type new_obj;
 	try {
-		new_obj = create_object(name, optional, desc);
+		new_obj = create_object(name, optional, desc_);
 	}
 	catch (PVSerializeArchiveErrorNoObject &e) {
-		if (optional && !is_writing()) {
+		if (!optional && !is_writing()) {
 			throw e;
 		}
 		return false;
@@ -229,7 +235,6 @@ void PVSerializeObject::list(QString const& name, T& obj)
 	if (is_writing()) {
 		typename T::iterator it;
 		int idx = 0;
-		QDir dir_obj(_path);
 		for (it = obj.begin(); it != obj.end(); it++) {
 			typename T::value_type& v = *it;
 			PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
@@ -260,7 +265,6 @@ void PVSerializeObject::hash(QString const& name, QHash<K,V>& obj)
 {
 	if (is_writing()) {
 		typename QHash<K,V>::const_iterator it;
-		QDir dir_obj(_path);
 		for (it = obj.begin(); it != obj.end(); it++) {
 			PVSerializeObject_p new_obj = create_object(it.key());
 			it.value().serialize(*new_obj);

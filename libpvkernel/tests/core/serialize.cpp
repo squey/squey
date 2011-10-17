@@ -1,4 +1,5 @@
 #include <pvkernel/core/PVSerializeArchive.h>
+#include <pvkernel/core/PVSerializeArchiveOptions.h>
 #include <pvkernel/core/PVSerializeArchiveZip.h>
 #include <iostream>
 #include <QCoreApplication>
@@ -114,7 +115,7 @@ protected:
 	{
 		so.attribute("str", _str, QString("default"));
 		so.attribute("int", _a, (int) 0);
-		so.object("child", _child);
+		so.object("child", _child, "That's a child", true);
 		so.list("children", _list_children);
 		so.list_attributes("int_children", _list_ints);
 		so.object("buf_test", _buf);
@@ -133,9 +134,18 @@ int main(int argc, char** argv)
 {
 	QCoreApplication(argc, argv);
 
-	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchive("/tmp/test", PVCore::PVSerializeArchive::write, 1));
+	// Main object
 	PVTestObj obj("salut", 4);
+
+	// Options
+	PVCore::PVSerializeArchiveOptions_p options(new PVCore::PVSerializeArchiveOptions(1));
+	options->get_root()->object("obj", obj);
+	options->get_root()->get_child_by_name("obj")->get_child_by_name("child")->set_write(false);
+
+	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchive("/tmp/test", PVCore::PVSerializeArchive::write, 1));
+	ar->set_options(options);
 	ar->get_root()->object("obj", obj);
+
 
 	// Get it back
 	ar = PVCore::PVSerializeArchive_p(new PVCore::PVSerializeArchive("/tmp/test", PVCore::PVSerializeArchive::read, 1));
