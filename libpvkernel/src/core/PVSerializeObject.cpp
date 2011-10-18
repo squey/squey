@@ -15,11 +15,11 @@ bool PVCore::PVSerializeObject::is_writing() const
 	return _parent_ar->is_writing();
 }
 
-PVCore::PVSerializeObject_p PVCore::PVSerializeObject::create_object(QString const& name, bool optional, QString const& desc)
+PVCore::PVSerializeObject_p PVCore::PVSerializeObject::create_object(QString const& name, QString const& desc, bool optional)
 {
 	p_type child = _parent_ar->create_object(name, shared_from_this());
 	child->_is_optional = optional;
-	child->_desc = desc;
+	child->_desc = (desc.isNull())?name:desc;
 	_childs.insert(name, child);
 	return child;
 }

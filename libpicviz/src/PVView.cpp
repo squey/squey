@@ -7,6 +7,7 @@
 #include <math.h>
 
 #include <pvkernel/core/PVClassLibrary.h>
+#include <pvkernel/core/PVSerializeArchiveOptions.h>
 #include <picviz/PVPlotted.h>
 #include <picviz/PVRoot.h>
 #include <picviz/PVSource.h>
@@ -1480,3 +1481,31 @@ void Picviz::PVView::select_inv_lines()
 	volatile_selection = ~floating_selection;
 	process_from_selection();
 }
+
+// Load/save and serialization
+#if 0
+void Picviz::PVView::save_to_file(QString const& path, PVCore::PVSerializeArchiveOptions_p options)
+{
+	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchiveZip(path, PVCore::PVSerializeArchive::write, PICVIZ_ARCHIVES_VERSION));
+	ar->get_root()->object("view", *this);
+	ar->finish();
+}
+
+PVCore::PVSerializeArchiveOptions_p Picviz::PVView::get_default_save_options()
+{
+	PVSerializeArchiveOptions_p ret(new PVSerializeArchiveOptions(PICVIZ_ARCHIVES_VERSION));
+	ret->get_root()->object("view", *this);
+	return ret;
+}
+
+void Picviz::PVView::serialize_write(PVCore::PVSerializeObject& so)
+{
+	so.object("layer-stack", layer_stack, true, "Layers");
+	PVSource_p src = get_source_parent();
+	so.object("source", src);
+}
+
+void Picviz::PVView::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
+{
+}
+#endif

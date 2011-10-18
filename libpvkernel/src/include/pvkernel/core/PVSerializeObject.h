@@ -150,7 +150,7 @@ public:
 	void file(QString const& name, QString& path);
 
 private:
-	p_type create_object(QString const& name, bool optional = false, QString const& desc = QString());
+	p_type create_object(QString const& name, QString const& desc = QString(), bool optional = false);
 	uint32_t get_version() const;
 	void attribute_write(QString const& name, QVariant const& obj);
 	void attribute_read(QString const& name, QVariant& obj, QVariant const& def);
@@ -214,10 +214,9 @@ bool PVSerializeObject::object(QString const& name, T& obj, QString const& desc,
 			return false;
 		}
 	}
-	QString desc_ = (desc.isNull()) ? name:desc;
 	p_type new_obj;
 	try {
-		new_obj = create_object(name, optional, desc_);
+		new_obj = create_object(name, desc, optional);
 	}
 	catch (PVSerializeArchiveErrorNoObject &e) {
 		if (!optional && !is_writing()) {

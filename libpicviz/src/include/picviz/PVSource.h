@@ -28,8 +28,7 @@
 
 #include <picviz/PVScene.h>
 #include <picviz/PVRoot.h>
-
-#include <boost/shared_ptr.hpp>
+#include <picviz/PVSource_types.h>
 
 namespace Picviz {
 
@@ -39,7 +38,7 @@ namespace Picviz {
 class LibPicvizDecl PVSource {
 	friend class PVCore::PVSerializeObject;
 public:
-	typedef boost::shared_ptr<PVSource> p_type;
+	typedef PVSource_p p_type;
 public:
 	PVSource(PVScene_p parent);
 	~PVSource();
@@ -99,8 +98,6 @@ private:
 	PVRush::PVInputType::list_inputs _inputs;
 	PVRush::PVSourceCreator_p _src_plugin;
 };
-
-typedef PVSource::p_type PVSource_p;
 
 }
 

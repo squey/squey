@@ -52,6 +52,11 @@ QVariant PVInspector::PVSerializeOptionsModel::data(const QModelIndex &index, in
 	switch (role) {
 		case Qt::DisplayRole:
 			return QVariant(obj->description());
+		case Qt::CheckStateRole:
+		{
+			bool checked = (obj->is_optional()) ? obj->must_write() : true;
+			return checked ? Qt::Checked : Qt::Unchecked;
+		}
 		default:
 			break;
 	};
@@ -60,7 +65,16 @@ QVariant PVInspector::PVSerializeOptionsModel::data(const QModelIndex &index, in
 }
 
 //QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-//Qt::ItemFlags flags(const QModelIndex &index) const;
+Qt::ItemFlags PVInspector::PVSerializeOptionsModel::flags(const QModelIndex &index) const
+{
+	Qt::ItemFlags flags = Qt::ItemIsUserCheckable | Qt::ItemIsSelectable;
+	PVCore::PVSerializeObject* obj = get_so_index(index);
+	if (obj->is_optional()) {
+		flags |= Qt::ItemIsEnabled | Qt::ItemIsEditable;
+	}
+	return flags;
+}
+
 QModelIndex PVInspector::PVSerializeOptionsModel::parent(const QModelIndex & index) const
 {
 	PVCore::PVSerializeObject* obj = get_so_index(index);
@@ -96,3 +110,17 @@ PVCore::PVSerializeObject* PVInspector::PVSerializeOptionsModel::get_so_index(co
 	assert(ret);
 	return ret;
 }
+
+bool PVInspector::PVSerializeOptionsModel::setData(const QModelIndex& index, const QVariant& value, int role)
+{
+	if (role != Qt::CheckStateRole) {
+		return false;
+	}
+
+	bool checked = value.toBool();
+	PVCore::PVSerializeObject* so = get_so_index(index);
+	so->set_write(checked);
+
+	return true;
+}
+

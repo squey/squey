@@ -30,6 +30,8 @@
 
 
 #include <pvkernel/core/PVArgument.h>
+#include <pvkernel/core/PVSerializeArchive.h>
+#include <pvkernel/core/PVSerializeArchiveOptions_types.h>
 #include <pvkernel/rush/PVExtractor.h>
 #include <picviz/PVView_types.h>
 
@@ -40,6 +42,7 @@ namespace Picviz {
  */
 class LibPicvizDecl PVView {
 
+	//friend class PVCore::PVSerializeObject;
 
 public:
 	typedef PVView_p p_type;
@@ -47,6 +50,8 @@ public:
 public:
 	PVView(PVPlotted_p parent);
 	~PVView();
+
+public:
 
 	/* Variables */
 	PVRoot_p   root;
@@ -185,6 +190,19 @@ public:
 /******************************************************************************
 ******************************************************************************
 *
+* Load/save with options
+*
+******************************************************************************
+*****************************************************************************/
+	PVCore::PVSerializeArchiveOptions_p get_default_save_options();
+	void load_from_file(QString const& path);
+	void save_to_file(QString const& path, PVCore::PVSerializeArchiveOptions_p options);
+
+
+
+/******************************************************************************
+******************************************************************************
+*
 * functions to manipulate the Layers involved in the View
 *
 ******************************************************************************
@@ -275,6 +293,22 @@ public:
 	void recreate_mapping_plotting();
 
 	PVCol get_real_axis_index(PVCol col);
+
+protected:
+/******************************************************************************
+******************************************************************************
+*
+* Serialization
+*
+******************************************************************************
+*****************************************************************************/
+#if 0
+	void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
+	void serialize_write(PVCore::PVSerializeObject& so);
+
+	PVSERIALIZEOBJECT_SPLIT
+#endif
+
 
 protected:
 	bool _is_consistent;

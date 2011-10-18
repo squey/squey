@@ -46,7 +46,7 @@ PVRush::PVImportFileDialog::PVImportFileDialog(QStringList pluginslist, QWidget 
 	activate_netflow_checkbox = new QCheckBox("Use Netflow (PCAP only)");
 	activate_netflow_checkbox->setChecked(true);
 
-	_check_archives_checkbox = new QCheckBox("Automatically decompress detected archive files (warning: this can take a long time for files >1go)");
+	_check_archives_checkbox = new QCheckBox("Automatically decompress detected archive files");
 	_check_archives_checkbox->setChecked(true);
 
 	//options_layout->addWidget(activate_netflow_checkbox, 1, 0);

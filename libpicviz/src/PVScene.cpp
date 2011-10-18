@@ -12,14 +12,10 @@
  * Picviz::PVScene::PVScene
  *
  *****************************************************************************/
-Picviz::PVScene::PVScene(QString scene_name, PVRoot_p parent)
+Picviz::PVScene::PVScene(QString scene_name, PVRoot_p parent):
+	_root(parent),
+	_name(scene_name)
 {
-	root = parent;
-	name = scene_name;
-
-	// if (parent) {
-	// 	parent->scene_append(this);
-	// }
 }
 
 /******************************************************************************
@@ -29,5 +25,19 @@ Picviz::PVScene::PVScene(QString scene_name, PVRoot_p parent)
  *****************************************************************************/
 Picviz::PVScene::~PVScene()
 {
+}
 
+void Picviz::PVScene::add_input(PVRush::PVInputDescription_p in)
+{
+	_inputs.push_back(in);
+}
+
+void Picviz::PVScene::add_source(PVSource_p src)
+{
+	_sources.push_back(src);
+}
+
+Picviz::PVRoot_p Picviz::PVScene::get_root()
+{
+	return _root;
 }

@@ -12,6 +12,7 @@
 #include <PVLayerFilterProcessWidget.h>
 #include <PVAxesCombinationDialog.h>
 #include <PVExtractorWidget.h>
+#include <PVSaveViewsDialog.h>
 
 /******************************************************************************
  *
@@ -753,6 +754,24 @@ void PVInspector::PVMainWindow::update_reply_finished_Slot(QNetworkReply *reply)
 
 }
 
+/******************************************************************************
+ *
+ * PVInspector::PVMainWindow::view_save_Slot
+ *
+ *****************************************************************************/
+void PVInspector::PVMainWindow::view_save_Slot()
+{
+	PVLOG_INFO("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
+
+	if (current_tab && current_tab->get_lib_view()) {
+		QList<Picviz::PVView_p> views;
+		views.push_back(current_tab->get_lib_view());
+
+		PVSaveViewsDialog* dlg = new PVSaveViewsDialog(views, this);
+		dlg->exec();
+		dlg->deleteLater();
+	}
+}
 /******************************************************************************
  *
  * PVInspector::PVMainWindow::view_new_scatter_Slot

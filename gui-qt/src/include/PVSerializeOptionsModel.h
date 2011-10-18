@@ -19,9 +19,10 @@ public:
     //QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     int rowCount(const QModelIndex &index) const;
     int columnCount(const QModelIndex &index) const;
-    //Qt::ItemFlags flags(const QModelIndex &index) const;
 	QModelIndex parent(const QModelIndex & index) const;
 	QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const;
+	Qt::ItemFlags flags(const QModelIndex& index) const;
+	bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole);
 
 protected:
 	PVCore::PVSerializeObject::list_childs_t const& get_childs_index(const QModelIndex& parent) const;

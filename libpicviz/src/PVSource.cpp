@@ -29,7 +29,7 @@
 Picviz::PVSource::PVSource(PVScene_p parent)
 {
 	tparent = parent;
-	root = parent->root;
+	root = parent->get_root();
 	nraw = &(_extractor.get_nraw());
 
 	// Launch the controller thread
