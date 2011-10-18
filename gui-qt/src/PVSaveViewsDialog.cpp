@@ -6,6 +6,7 @@
 
 #include <QFileSystemModel>
 #include <QDir>
+#include <QGridLayout>
 
 PVInspector::PVSaveViewsDialog::PVSaveViewsDialog(QList<Picviz::PVView_p> const& views, QWidget* parent):
 	QFileDialog(parent),
