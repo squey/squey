@@ -72,6 +72,8 @@ include/PVMapWidget.h
 include/PVInputTypeMenuEntries.h
 include/PVOpenFileDialog.h
 include/PVSaveFileDialog.h
+include/PVSerializeOptionsModel.h
+include/PVSerializeOptionsWidget.h
 include/PVStringListChooserWidget.h
 include/PVTabSplitter.h
 
@@ -148,6 +150,8 @@ PVMapWidget.cpp
 PVInputTypeMenuEntries.cpp
 PVOpenFileDialog.cpp
 PVSaveFileDialog.cpp
+PVSerializeOptionsModel.cpp
+PVSerializeOptionsWidget.cpp
 PVStringListChooserWidget.cpp
 PVTabSplitter.cpp
 

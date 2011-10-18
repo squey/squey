@@ -115,10 +115,10 @@ void PVInspector::PVMainWindow::create_actions()
 	/************************
 	 * For the "View" menu entry
 	 ************************/
-	view_open_Action = new QAction(tr("&Open"), this);
-	view_save_Action = new QAction(tr("&Save"), this);
-	view_new_parallel_Action = new QAction(tr("New Parallel view"), this);
-	view_new_scatter_Action = new QAction(tr("New Scatter view"), this);
+	view_open_Action = new QAction(tr("&Open..."), this);
+	view_save_Action = new QAction(tr("&Save current view..."), this);
+	view_new_parallel_Action = new QAction(tr("New &parallel view"), this);
+	view_new_scatter_Action = new QAction(tr("New scatter &view"), this);
 
 	/***************************
 	 * For the "Axes" menu entry
@@ -127,7 +127,7 @@ void PVInspector::PVMainWindow::create_actions()
 	axes_combination_editor_Action = new QAction(tr("Edit axes combination..."), this);
 	axes_mode_Action = new QAction(tr("Enter axes mode"), this);
 	axes_mode_Action->setShortcut(QKeySequence(Qt::Key_X));
-	axes_display_edges_Action = new QAction(tr("Display Edges"), this);
+	axes_display_edges_Action = new QAction(tr("Display edges"), this);
 	axes_display_edges_Action->setShortcut(QKeySequence(Qt::Key_Y));
 
 	/***************************
@@ -217,14 +217,12 @@ void PVInspector::PVMainWindow::create_menus()
 	//scene_Menu->addAction(new_scene_Action);
 	//scene_Menu->addAction(select_scene_Action);
 
-#ifdef CUSTOMER_RELEASE
 	view_Menu = menubar->addMenu(tr("&View"));
 	view_Menu->addAction(view_open_Action);
 	view_Menu->addAction(view_save_Action);
 	view_Menu->addSeparator();
 	view_Menu->addAction(view_new_parallel_Action);
 	view_Menu->addAction(view_new_scatter_Action);
-#endif
 
 	axes_Menu = menubar->addMenu(tr("Axes"));
 	axes_Menu->addAction(axes_editor_Action);

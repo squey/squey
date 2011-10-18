@@ -100,3 +100,8 @@ QString const& PVCore::PVSerializeObject::get_logical_path() const
 {
 	return _logical_path;
 }
+
+PVCore::PVSerializeObject::p_type PVCore::PVSerializeObject::parent()
+{
+	return _parent;
+}

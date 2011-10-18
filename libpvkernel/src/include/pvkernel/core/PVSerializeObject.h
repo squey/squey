@@ -68,6 +68,7 @@ public:
 	list_childs_t const& childs() const;
 	const p_type get_child_by_name(QString const& name) const;
 	QString const& get_logical_path() const;
+	p_type parent();
 
 public:
 	/*! \brief Declare a new object to serialize that can be optionally saved, with a description.
