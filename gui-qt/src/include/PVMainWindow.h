@@ -96,7 +96,6 @@ public:
 	int report_image_index;
 	QString *report_filename;
 
-	//Picviz::PVSource *import_source;
 	Picviz::PVRoot_p root;
 
 	/* QGridLayout *filter_widgets_layout; */
@@ -119,7 +118,6 @@ public slots:
 	void change_of_current_view_Slot();
 	void commit_selection_in_current_layer_Slot();
 	void commit_selection_to_new_layer_Slot();
-	/* void dualslider_value_changed_Slot(); */
 	void export_file_Slot();
 	void export_selection_Slot();
 	void extractor_file_Slot();
@@ -137,11 +135,11 @@ public slots:
 	void map_Slot();
 	void new_file_Slot();
 	void new_scene_Slot();
-	/* void open_file_Slot(); */
+	void project_load_Slot();
+	void project_save_Slot();
+	void project_saveas_Slot();
 	void quit_Slot();
 	void refresh_current_view_Slot();
-	/* void save_file_Slot(); */
-	void remote_log_Slot();
 	void select_scene_Slot();
 	void selection_all_Slot();
 	void selection_inverse_Slot();
@@ -177,6 +175,8 @@ private:
 	void create_actions_import_types(QMenu* menu);
 	void menu_activate_is_file_opened(bool cond);
 
+	bool process_scene();
+
 	QMenu *axes_Menu;
 	QMenu *file_Menu;
 	QMenu *edit_Menu;
@@ -204,6 +204,9 @@ private:
 	QAction *commit_selection_in_current_layer_Action;
 	QAction *commit_selection_to_new_layer_Action;
 	QAction *cut_Action;
+	QAction *project_load_Action;
+	QAction *project_save_Action;
+	QAction *project_saveas_Action;
 	QAction *export_file_Action;
 	QAction *export_selection_Action;
 	QAction *extractor_file_Action;
@@ -214,7 +217,6 @@ private:
 	QAction *paste_Action;
 	QAction *quit_Action;
 	QAction *redo_Action;
-	QAction *remote_log_Action;
 	/* QAction *save_file_Action; */
 	QAction *select_scene_Action;
 	QAction *selection_all_Action;
@@ -278,6 +280,9 @@ public:
 
 private:
 	tbb::task_scheduler_init init_parallel;
+
+private:
+	Picviz::PVScene_p _scene;
 
 private:
 	version_t _last_known_cur_release;

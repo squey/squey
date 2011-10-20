@@ -33,7 +33,7 @@ public:
 	/**
 	 * Constructor
 	 */
-	PVZLevelArray(PVRow initial_row_count);
+	PVZLevelArray(PVRow initial_row_count = 0);
 
 	float& get_value(int index) {assert(index < PICVIZ_Z_LEVEL_ARRAY_MAX_SIZE); return array[index];}
 	const float& get_value(int index) const {assert(index < PICVIZ_Z_LEVEL_ARRAY_MAX_SIZE); return array[index];}

@@ -1,30 +1,10 @@
 #ifndef PVRUSH_PVFILEDESCRIPTION_H
 #define PVRUSH_PVFILEDESCRIPTION_H
 
+#include <pvkernel/core/PVFileSerialize.h>
 #include <pvkernel/rush/PVInputDescription.h>
 
 namespace PVRush {
-
-// Helper class to serialize the original file is wanted
-class PVFileSerialize
-{
-	friend class PVCore::PVSerializeObject;
-public:
-	PVFileSerialize(QString const& path):
-		_path(path)
-	{ }
-public:
-	QString const& get_path() const { return _path; }
-
-protected:
-	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
-	{
-		so.file("data", _path);
-	}
-
-protected:
-	QString _path;
-};
 
 class PVFileDescription: public PVInputDescription
 {
@@ -60,7 +40,7 @@ protected:
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 	{
 		so.attribute("file_path", _path);
-		PVFileSerialize fs(_path);
+		PVCore::PVFileSerialize fs(_path);
 		if (so.object("original", fs, "Include original file", true)) {
 			_path = fs.get_path();
 		}

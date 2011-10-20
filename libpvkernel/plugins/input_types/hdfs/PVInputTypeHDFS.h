@@ -4,12 +4,14 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/rush/PVInputType.h>
 
+#include "../../common/hdfs/PVInputHDFSFile.h"
+
 #include <QString>
 #include <QStringList>
 
 namespace PVRush {
 
-class PVInputTypeHDFS: public PVInputType
+class PVInputTypeHDFS: public PVInputTypeDesc<PVInputHDFSFile>
 {
 public:
 	PVInputTypeHDFS();
@@ -22,7 +24,6 @@ public:
 	QString tab_name_of_inputs(list_inputs const& in) const;
 	QKeySequence menu_shortcut() const;
 	bool get_custom_formats(input_type in, hash_formats &formats) const;
-	virtual void serialize_inputs(PVCore::PVSerializeObject& so, const QString& name, PVRush::PVInputType::list_inputs& inputs) const;
 
 protected:
 	mutable QStringList _tmp_dir_to_delete;

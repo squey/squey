@@ -1,4 +1,4 @@
-#ifndef PVCORE_PVSERIALIZEARCHIVEOPTONS_H
+#ifndef PVCORE_PVSERIALIZEARCHIVEOPTIONS_H
 #define PVCORE_PVSERIALIZEARCHIVEOPTIONS_H
 
 #include <pvkernel/core/general.h>
@@ -38,11 +38,6 @@ protected:
 	virtual void list_attributes_read(PVSerializeObject const&, QString const&, std::vector<QVariant>&) { };
 	virtual size_t buffer(PVSerializeObject const&, QString const&, void*, size_t n) { return n; };
 	virtual void file(PVSerializeObject const&, QString const&, QString&) { };
-
-protected:
-	/*! \brief Store a hash of object paths (as strings) to the real PVSerializeObject pointer
-	 */
-	QHash<QString, PVSerializeObject_p> _objects;
 };
 
 }

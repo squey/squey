@@ -8,6 +8,7 @@
 #include <pvkernel/rush/PVRawSourceBase_types.h>
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVInputDescription.h>
+#include <pvkernel/rush/PVInputType.h>
 
 #include <boost/shared_ptr.hpp>
 #include <list>
@@ -26,6 +27,13 @@ public:
 	virtual source_p create_source_from_input(input_type input, PVFormat& /*used_format*/) const { return create_discovery_source_from_input(input); }
 	virtual source_p create_discovery_source_from_input(input_type input) const = 0;
 	virtual QString supported_type() const = 0;
+	PVInputType_p supported_type_lib()
+	{
+		QString name = supported_type();
+		PVInputType_p type_lib = LIB_CLASS(PVInputType)::get().get_class_by_name(name);
+		assert(type_lib);
+		return type_lib->clone<PVInputType>();
+	}
 	virtual QString name() const = 0;
 	virtual hash_formats get_supported_formats() const = 0;
 

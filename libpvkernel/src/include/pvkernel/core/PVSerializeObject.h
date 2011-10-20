@@ -3,9 +3,11 @@
 
 #include <pvkernel/core/stdint.h>
 #include <pvkernel/core/PVSerializeArchiveExceptions.h>
+#include <pvkernel/core/PVTypeTraits.h>
 
-#include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/type_traits.hpp>
 
 #include <QDir>
 #include <QSettings>
@@ -81,7 +83,7 @@ public:
 	 *  serialize_(read/write) method of obj with this new PVSerializeObject.
 	 */
 	template <typename T>
-	bool object(QString const& name, T& obj, QString const& desc = QString(), bool optional = false);
+	bool object(QString const& name, T& obj, QString const& desc = QString(), bool optional = false, typename PVTypeTraits::remove_shared_ptr<T>::type const* def_v = NULL);
 
 	/*! \brief Declare a list to serialize. T must be an STL-compliant container. T::value_type must be serializable.
 	 *  \param[in] name Name of the list to serialize
@@ -98,7 +100,26 @@ public:
 	 *    ...
 	 */
 	template <typename T>
-	void list(QString const& name, T& obj);
+	p_type list(QString const& name, T& obj, typename PVTypeTraits::remove_shared_ptr<typename T::value_type>::type const* def_v = NULL);
+
+	// C++ 0x is coming, but still too experimental and we may have trouble with MSVC...
+	//template <typename T, typename V = typename T::value_type>
+	template <typename T, typename V>
+	p_type list(QString const& name, T& obj, typename PVTypeTraits::remove_shared_ptr<V>::type const* def_v = NULL);
+
+
+	/*! \brief Declare a list to serialize by making references to objects that has already been serialized.
+	 *  \param[in] name Name of the list to serialize
+	 *  \param[in] obj List to serialize
+	 *  \param[in] ref_so Serialized object returned by a previous call to PVSerializeObject::list
+	 *
+	 *  This method declare a list of object to serialize by making references to objects that has already been serialized.
+	 *  Every elements of T must have already been serialized inside ref_so.
+	 *  It emulates a 1-to-n relationship.
+	 *  T must be an STL-compliant container. T::value_type must be serializable.
+	 */
+	template <typename T>
+	void list_ref(QString const& name, T& obj, p_type ref_so);
 
 	/*! \brief Declare a QHash to serialize. V must be serializable.
 	 *  \param[in] name Name of the QHash to serialize.
@@ -157,18 +178,50 @@ private:
 	void list_attributes_write(QString const& name, std::vector<QVariant> const& list);
 	void list_attributes_read(QString const& name, std::vector<QVariant>& list);
 	bool must_write_child(QString const& name);
+	p_type get_archive_object_from_path(QString const& path) const;
 
 	template <typename T>
-	void call_serialize(T& obj, p_type new_obj) { obj.serialize(*new_obj, get_version()); }
+	void call_serialize(T& obj, p_type new_obj, T const* /*def_v*/) { obj.serialize(*new_obj, get_version()); new_obj->_bound_obj = &obj; }
 
 	template <typename T>
-	void call_serialize(boost::shared_ptr<T>& obj, p_type new_obj)
+	void call_serialize(T* obj, p_type new_obj, T const* def_v) { call_serialize(*obj, new_obj, def_v); }
+
+	template <typename T>
+	void call_serialize(boost::shared_ptr<T>& obj, p_type new_obj, T const* def_v)
 	{
 		if (!obj) {
 			assert(!is_writing());
-			obj.reset(new T());
+			T* new_p;
+			if (def_v) {
+				new_p = new T(*def_v);
+			}
+			else {
+				new_p = new T();
+			}
+			obj.reset(new_p);
 		}
 		obj->serialize(*new_obj, get_version());
+		new_obj->_bound_obj = obj.get();
+	}
+
+	template <typename T>
+	static void* obj_pointer(T& obj) { return &obj; }
+
+	template <typename T>
+	static void* obj_pointer(boost::shared_ptr<T>& obj) { return obj.get(); }
+
+	template <typename T>
+	void pointer_to_obj(void* p, T& obj)
+	{
+		T* dp = (T*) (p);
+		obj = *dp;
+	}
+
+	template <typename T>
+	void pointer_to_obj(void* p, boost::shared_ptr<T>& obj)
+	{
+		T* dp = (T*) (p);
+		obj = dp->shared_from_this();
 	}
 
 private:
@@ -202,12 +255,16 @@ private:
 	/*! \brief Hash of the childs of this object. The key is their name.
 	 */
 	list_childs_t _childs;
+
+	/*! \brief If relevant, represents a pointer to the object that has been serialized
+	 */
+	void* _bound_obj;
 };
 
 typedef PVSerializeObject::p_type PVSerializeObject_p;
 
 template <typename T>
-bool PVSerializeObject::object(QString const& name, T& obj, QString const& desc, bool optional)
+bool PVSerializeObject::object(QString const& name, T& obj, QString const& desc, bool optional, typename PVTypeTraits::remove_shared_ptr<T>::type const* def_v)
 {
 	if (optional && is_writing()) {
 		if (!must_write_child(name)) {
@@ -224,21 +281,30 @@ bool PVSerializeObject::object(QString const& name, T& obj, QString const& desc,
 		}
 		return false;
 	}
-	call_serialize(obj, new_obj);
+	call_serialize(obj, new_obj, def_v);
 	return true;
 }
 
 template <typename T>
-void PVSerializeObject::list(QString const& name, T& obj)
+PVSerializeObject::p_type PVSerializeObject::list(QString const& name, T& obj, typename PVTypeTraits::remove_shared_ptr<typename T::value_type>::type const* def_v)
 {
+	return list<T, typename T::value_type>(name, obj, def_v);
+}
+
+template <typename T, typename V>
+PVSerializeObject::p_type PVSerializeObject::list(QString const& name, T& obj, typename PVTypeTraits::remove_shared_ptr<V>::type const* def_v)
+{
+	typedef typename PVCore::PVTypeTraits::pointer<V>::type Vp;
+	typedef typename PVCore::PVTypeTraits::pointer<typename T::value_type>::type Lvp;
 	PVSerializeObject_p list_obj = create_object(name);
 	if (is_writing()) {
 		typename T::iterator it;
 		int idx = 0;
 		for (it = obj.begin(); it != obj.end(); it++) {
-			typename T::value_type& v = *it;
+			Vp v = PVCore::PVTypeTraits::dynamic_pointer_cast<Vp, Lvp>::cast(PVCore::PVTypeTraits::pointer<typename T::value_type&>::get((*it)));
+			assert(v);
 			PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
-			call_serialize(v, new_obj);
+			call_serialize(v, new_obj, def_v);
 			idx++;
 		}
 	}
@@ -247,15 +313,61 @@ void PVSerializeObject::list(QString const& name, T& obj)
 		int idx = 0;
 		try {
 			while (true) {
-				typename T::value_type v;
+				V v;
 				PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
-				call_serialize(v, new_obj);
+				call_serialize(v, new_obj, def_v);
 				obj.push_back(v);
 				idx++;
 			}
 		}
 		catch (PVSerializeArchiveError& e) {
-			return;
+			return list_obj;
+		}
+	}
+	return list_obj;
+}
+
+template <typename T>
+void PVSerializeObject::list_ref(QString const& name, T& obj, p_type ref_so)
+{
+	if (is_writing()) {
+		typename T::iterator it;
+		QStringList ref_paths;
+		for (it = obj.begin(); it != obj.end(); it++) {
+			typename T::value_type& v = *it;
+
+			// Look for `v' in `ref_so' children
+			list_childs_t const& ref_children = ref_so->childs();
+			list_childs_t::const_iterator it_child;
+			PVSerializeObject_p found_ref;
+			for (it_child = ref_children.begin(); it_child != ref_children.end(); it_child++) {
+				PVSerializeObject_p test_so = it_child.value();
+				assert(test_so->_bound_obj);
+				if (obj_pointer(v) == test_so->_bound_obj) {
+					found_ref = *it_child;
+					break;
+				}
+			}
+			// In this version, every elements of T must have already been serialized.
+			assert(found_ref);
+			ref_paths << found_ref->get_logical_path();
+		}
+		// Save the logical path references as a list of attributes
+		list_attributes(name, ref_paths);
+	}
+	else {
+		// Get the list of reference paths
+		QStringList ref_paths;
+		list_attributes(name, ref_paths);
+		obj.clear();
+
+		// Get the objects that must have been read from a previous serialization
+		for (int i = 0; i < ref_paths.size(); i++) {
+			PVSerializeObject_p obj_ref_so = get_archive_object_from_path(ref_paths[i]);
+			assert(obj_ref_so->_bound_obj);
+			typename T::value_type v;
+			pointer_to_obj(obj_ref_so->_bound_obj, v);
+			obj.push_back(v);
 		}
 	}
 }

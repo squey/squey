@@ -35,6 +35,7 @@ public:
 private:
 	PVClassLibrary()
 	{
+		_last_registered_id = 0;
 	}
 
 public:
@@ -50,6 +51,8 @@ public:
 	{
 		PF pf = f.template clone<RegAs>();
 		pf->__registered_class_name = name;
+		pf->__registered_class_id = _last_registered_id;
+		_last_registered_id++;
 		_classes.insert(name, pf);
 	}
 
@@ -129,6 +132,7 @@ public:
 private:
 	list_classes _classes;
 	list_tags _tags;
+	int _last_registered_id;
 };
 
 class LibKernelDecl PVClassLibraryLibLoader {

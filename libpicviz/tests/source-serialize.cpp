@@ -49,26 +49,35 @@ int main(int argc, char** argv)
 
 	// Create the PVSource object
 	Picviz::PVRoot_p root(new Picviz::PVRoot());
-	Picviz::PVScene_p scene(new Picviz::PVScene("scene", root));
-	Picviz::PVSource_p src(new Picviz::PVSource(scene));
-	PVRush::PVControllerJob_p job = src->files_append(format, sc_file, PVRush::PVInputType::list_inputs() << file);
+	Picviz::PVScene_p scene(new Picviz::PVScene("name", root));
+	Picviz::PVSource_p src(new Picviz::PVSource(PVRush::PVInputType::list_inputs() << file, sc_file, format));
+	scene->add_source(src);
+	PVRush::PVControllerJob_p job = src->extract();
 	job->wait_end();
 
 	// Dump the NRAW
 	src->get_rushnraw().dump_csv();
 
-	// Serialize the source
+	// Serialize the scene
 	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchive("/tmp/test", PVCore::PVSerializeArchive::write, 1));
-	ar->get_root()->object("source", *src);
+	ar->get_root()->object("scene", *scene);
 	ar->finish();
 
 	// Get it back !
-	src.reset(new Picviz::PVSource(scene));
+	src.reset();
+	scene.reset(new Picviz::PVScene("name", root));
 	ar.reset(new PVCore::PVSerializeArchive("/tmp/test", PVCore::PVSerializeArchive::read, 1));
-	ar->get_root()->object("source", *src);
+	ar->get_root()->object("scene", *scene);
 	ar->finish();
 
-	job = src->reextract();
+	Picviz::PVScene::list_sources_t srcs = scene->get_sources(*sc_file->supported_type_lib());
+	if (srcs.size() != 1) {
+		std::cerr << "No source was recreated !" << std::endl;
+		return 1;
+	}
+	src = srcs.at(0);
+	
+	job = src->extract();
 	job->wait_end();
 
 	std::cerr << "--------" << std::endl << "New output: " << std::endl << "----------" << std::endl << std::endl;

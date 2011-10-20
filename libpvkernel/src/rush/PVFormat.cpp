@@ -12,6 +12,7 @@
 #include <QDateTime>
 
 #include <pvkernel/core/debug.h>
+#include <pvkernel/core/PVFileSerialize.h>
 
 #include <pvkernel/rush/PVXmlParamParser.h>
 #include <pvkernel/rush/PVFormat.h>
@@ -288,4 +289,14 @@ void PVRush::PVFormat::only_keep_axes()
 	// keeps the fields !
 	filters_params.clear();
 	PVLOG_DEBUG("(PVRush::PVFormat) removing filters, we have '%d' fields.\n", _axes.size());
+}
+
+void PVRush::PVFormat::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v)
+{
+	so.attribute("name", format_name);
+	so.attribute("path", full_path);
+	PVCore::PVFileSerialize format_file(full_path);
+	so.object("file", format_file, "Include original format file", true);
+	full_path = format_file.get_path();
+	populate();
 }

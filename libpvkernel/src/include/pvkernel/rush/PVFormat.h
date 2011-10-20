@@ -19,6 +19,7 @@
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVArgument.h>
+#include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/filter/PVChunkFilter.h>
 #include <pvkernel/filter/PVElementFilter.h>
 #include <pvkernel/filter/PVFieldsFilter.h>
@@ -61,6 +62,7 @@ public:
 * This is the Format class
 */
 class LibKernelDecl PVFormat {
+	friend class PVCore::PVSerializeObject;
 public:
 	typedef PVFormat_p p_type;
 
@@ -124,6 +126,9 @@ public:
 protected:
 	PVFilter::PVFieldsBaseFilter_f xmldata_to_filter(PVRush::PVXmlParamParserData const& fdata);
 	bool populate_from_parser(PVXmlParamParser& xml_parser, bool forceOneAxis = false);
+
+protected:
+	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 
 protected:
 	list_axes_t _axes;

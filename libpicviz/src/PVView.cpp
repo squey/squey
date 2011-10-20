@@ -25,61 +25,59 @@
  * Picviz::PVView::PVView
  *
  *****************************************************************************/
-Picviz::PVView::PVView(PVPlotted_p parent) :
-	axes_combination(parent->get_source_parent()->axes_combination),
+Picviz::PVView::PVView():
+	boost::enable_shared_from_this<PVView>(),
 	pre_filter_layer("pre_filter_layer"),
 	post_filter_layer("post_filter_layer"),
 	layer_stack_output_layer("view_layer_stack_output_layer"),
-	output_layer("output_layer"),
-	plotted(parent),
-	row_count(plotted->get_row_count()),
-	layer_stack(row_count),
-	nu_index_array(row_count),
-	nz_index_array(row_count),
-	nznu_index_array(row_count),
-	eventline(row_count),
-	z_level_array(row_count)
+	output_layer("output_layer")
 {
-	PVSource_p source;
-	root = parent->root;
+	init_defaults();
+}
 
-	name = "";
+Picviz::PVView::PVView(PVPlotted_p parent) :
+	pre_filter_layer("pre_filter_layer"),
+	post_filter_layer("post_filter_layer"),
+	layer_stack_output_layer("view_layer_stack_output_layer"),
+	output_layer("output_layer")
+{
+	init_defaults();
+	init_from_plotted(parent, false);
+}
 
-	source = get_source_parent();
+Picviz::PVView::PVView(const PVView& /*org*/):
+	boost::enable_shared_from_this<PVView>(),
+	pre_filter_layer("pre_filter_layer"),
+	post_filter_layer("post_filter_layer"),
+	layer_stack_output_layer("view_layer_stack_output_layer"),
+	output_layer("output_layer")
+{
+	assert(false);
+}
+/******************************************************************************
+ *
+ * Picviz::PVView::~PVView
+ *
+ *****************************************************************************/
+Picviz::PVView::~PVView()
+{
+	PVLOG_DEBUG("In PVView destructor\n");
+	delete state_machine;
+	if (plotted && get_source_parent()) {
+		// Tell our parent we are going away for a better life...
+		get_source_parent()->del_view(this);
+	}
+}
 
+/******************************************************************************
+ *
+ * Picviz::PVView::init_defaults
+ *
+ *****************************************************************************/
+void Picviz::PVView::init_defaults()
+{
+	_is_consistent = false;
 	active_axis = 0;
-
-	row_count = plotted->get_row_count();
-
-	// default_zombie_line_properties = new Picviz::PVLineProperties();
-	default_zombie_line_properties.r() = (unsigned char)0;
-	default_zombie_line_properties.g() = (unsigned char)0;
-	default_zombie_line_properties.b() = (unsigned char)0;
-
-	// default_zombie_line_properties = picviz_line_properties_new();
-	// default_zombie_line_properties.color.r() = (unsigned char)0;
-	// default_zombie_line_properties.color.g() = (unsigned char)0;
-	// default_zombie_line_properties.color.b() = (unsigned char)0;
-
-//
-//	floating_selection = picviz_selection_new();
-//
-//	nu_index_array = row_count.new();
-//	nz_index_array = row_count.new();
-//	nznu_index_array = row_count.new();
-//
-//	nu_selection = picviz_selection_new();
-//	picviz_selection_A2A_select_none(nu_selection);
-//
-//	layer_stack = row_count.new();
-
-	nu_selection.select_none();
-
-	reset_layers();
-
-	state_machine = new Picviz::PVStateMachine();
-
-	_is_consistent = true;
 
 	last_extractor_batch_size = pvconfig.value("pvkernel/rush/extract_next", PVEXTRACT_NUMBER_LINES_NEXT_DEFAULT).toInt();
 
@@ -93,18 +91,45 @@ Picviz::PVView::PVView(PVPlotted_p parent) :
 		filters_args[it.key()] = it.value()->get_default_args_for_view(*this);
 	}
 
-	select_all_nonzb_lines();
+	state_machine = new Picviz::PVStateMachine();
+
+	default_zombie_line_properties.r() = (unsigned char)0;
+	default_zombie_line_properties.g() = (unsigned char)0;
+	default_zombie_line_properties.b() = (unsigned char)0;
 }
 
 /******************************************************************************
  *
- * Picviz::PVView::~PVView
+ * Picviz::PVView::init_from_plotted
  *
  *****************************************************************************/
-Picviz::PVView::~PVView()
+void Picviz::PVView::init_from_plotted(PVPlotted_p parent, bool keep_layers)
 {
-	PVLOG_DEBUG("In PVView destructor\n");
-	delete state_machine;
+	root = parent->root;
+	plotted = parent;
+
+	// Init default axes combination from source
+	axes_combination = parent->get_source_parent()->get_axes_combination();
+
+	row_count = plotted->get_row_count();
+	layer_stack.set_row_count(row_count);
+	nu_index_array.set_row_count(row_count);
+	nz_index_array.set_row_count(row_count);
+	nznu_index_array.set_row_count(row_count);
+	eventline.set_row_count(row_count);
+	eventline.set_first_index(0);
+	eventline.set_current_index(row_count);
+	eventline.set_last_index(row_count);
+	z_level_array.set_row_count(row_count);
+
+	// First process
+	if (!keep_layers) {
+		reset_layers();
+	}
+	select_all_nonzb_lines();
+	nu_selection.select_none();
+
+	_is_consistent = true;
 }
 
 /******************************************************************************
@@ -138,28 +163,6 @@ int Picviz::PVView::add_new_layer()
 	layer_stack.append_new_layer();
 
 	return 0;
-}
-
-/******************************************************************************
- *
- * Picviz::PVView::apply_filter_from_name
- *
- *****************************************************************************/
-QString Picviz::PVView::apply_filter_from_name(char * /*name*/, PVCore::PVArgumentList &/*arguments*/)
-{
-	// FIXME: Make PVRoot handle the filters
-
-	// PVFilter &filter;
-	// PVDatatreerootitem &casted_dtri = (PVDatatreerootitem &)dtri;
-
-	// filter = picviz_filters_get_filter_from_name(casted_dtri, filter_name);
-	// if (!filter) {
-	// 	picviz_debug(PICVIZ_DEBUG_CRITICAL, "No such filter name '%s'!\n", filter_name);
-	// 	return NULL;
-	// }
-
-	// return filter->exec_func(view, pre_filter_layer, post_filter_layer, arguments);
-	return QString("");
 }
 
 /******************************************************************************
@@ -1439,22 +1442,14 @@ void Picviz::PVView::recreate_mapping_plotting()
 	// the end of this function
 	Picviz::PVPlotted_p old_plotted = plotted;
 
-	plotted = import_plotted;
-	row_count = plotted->get_row_count();
+	// Save current axes combination
+	PVAxesCombination cur_axes_combination = axes_combination;
 
-	layer_stack.set_row_count(row_count);
-	nu_index_array.set_row_count(row_count);
-	nz_index_array.set_row_count(row_count);
-	nznu_index_array.set_row_count(row_count);
-	eventline.set_row_count(row_count);
-	eventline.set_first_index(0);
-	eventline.set_current_index(row_count);
-	eventline.set_last_index(row_count);
-	z_level_array.set_row_count(row_count);
+	// Reiinit the view with the new plotted
+	init_from_plotted(import_plotted, false);
 
-	volatile_selection = layer_stack_output_layer.get_selection();
-	state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_OFF);
-	process_from_layer_stack();
+	// Restore the previous axes combination
+	axes_combination = cur_axes_combination;
 }
 
 void Picviz::PVView::select_all_nonzb_lines()
@@ -1482,30 +1477,29 @@ void Picviz::PVView::select_inv_lines()
 	process_from_selection();
 }
 
+void Picviz::PVView::set_parent_plotted(PVPlotted_p parent)
+{
+	init_from_plotted(parent, false);
+}
+
+void Picviz::PVView::init_from_source(PVSource_p source, bool keep_layers)
+{
+	Picviz::PVMapping_p import_mapping = Picviz::PVMapping_p(new Picviz::PVMapping(source));
+	Picviz::PVMapped_p import_mapped = Picviz::PVMapped_p(new Picviz::PVMapped(import_mapping));
+	Picviz::PVPlotting_p import_plotting = Picviz::PVPlotting_p(new Picviz::PVPlotting(import_mapped));
+	Picviz::PVPlotted_p import_plotted = Picviz::PVPlotted_p(new Picviz::PVPlotted(import_plotting));
+
+	init_from_plotted(import_plotted, keep_layers);
+}
+
 // Load/save and serialization
-#if 0
-void Picviz::PVView::save_to_file(QString const& path, PVCore::PVSerializeArchiveOptions_p options)
-{
-	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchiveZip(path, PVCore::PVSerializeArchive::write, PICVIZ_ARCHIVES_VERSION));
-	ar->get_root()->object("view", *this);
-	ar->finish();
-}
-
-PVCore::PVSerializeArchiveOptions_p Picviz::PVView::get_default_save_options()
-{
-	PVSerializeArchiveOptions_p ret(new PVSerializeArchiveOptions(PICVIZ_ARCHIVES_VERSION));
-	ret->get_root()->object("view", *this);
-	return ret;
-}
-
 void Picviz::PVView::serialize_write(PVCore::PVSerializeObject& so)
 {
-	so.object("layer-stack", layer_stack, true, "Layers");
-	PVSource_p src = get_source_parent();
-	so.object("source", src);
+	so.object("layer-stack", layer_stack, "Layers", true);
+	//so.object("axes-combination", axes_combination, true, "Axes combination");
 }
 
 void Picviz::PVView::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 {
+	so.object("layer-stack", layer_stack, "Layers", true);
 }
-#endif

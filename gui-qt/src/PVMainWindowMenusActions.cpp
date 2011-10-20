@@ -19,17 +19,17 @@ void PVInspector::PVMainWindow::create_actions()
 	 * For the "File" menu entry
 	 ************************/
 
+	// The project actions
+	project_load_Action = new QAction(tr("&Load a project..."), this);
+	project_save_Action = new QAction(tr("&Save project"), this);
+	project_saveas_Action = new QAction(tr("S&ave project as..."), this);
+
 	// The new_file Action
 	new_file_Action = new QAction(tr("&New"), this);
 	new_file_Action->setIcon(QIcon(":/document-new.png"));
 	new_file_Action->setShortcut(QKeySequence::New);
 	new_file_Action->setStatusTip(tr("Create a new file."));
 	new_file_Action->setWhatsThis(tr("Use this to create a new file."));
-
-	// The importFile Action
-	//	import_file_Action = new QAction(tr("&Import"), this);
-	//	import_file_Action->setToolTip(tr("Import a file."));
-	//	import_file_Action->setShortcut(QKeySequence::Italic);
 
 	// Export our selection Action
 	export_selection_Action = new QAction(tr("Export &selection..."), this);
@@ -41,28 +41,7 @@ void PVInspector::PVMainWindow::create_actions()
 
 	file_format_builder_Action = new QAction(tr("Format Builder..."), this);
 
-
-	//	remote_log_Action = new QAction(tr("Import a &remote file"), this);
-	//	remote_log_Action->setToolTip(tr("Import a remote file."));
-	//	remote_log_Action->setShortcut(Qt::ControlModifier + Qt::Key_R);
-
-	// #ifdef CUSTOMER_RELEASE
-	// 	// The openFile Action
-	// 	open_file_Action = new QAction(tr("&Open"), this);
-	// 	open_file_Action->setIcon(QIcon(":/document-open.png"));
-	// 	open_file_Action->setShortcut(QKeySequence::Open);
-	// 	open_file_Action->setStatusTip(tr("Open a file."));
-	// 	open_file_Action->setToolTip(tr("Open a file."));
-	// 	open_file_Action->setWhatsThis(tr("Use this to open a file."));
-
-	// 	// The saveFile Action
-	// 	save_file_Action = new QAction(tr("&Save"), this);
-	// 	save_file_Action->setToolTip(tr("Export a file"));
-	// 	save_file_Action->setShortcut(QKeySequence::Save);
-	// #endif	// CUSTOMER_RELEASE
-
 	export_file_Action = new QAction(tr("&Export"), this);
-
 
 	quit_Action = new QAction(tr("&Quit"), this);
 
@@ -165,7 +144,10 @@ void PVInspector::PVMainWindow::create_menus()
 	menubar = menuBar();
 
 	file_Menu = menubar->addMenu(tr("&File"));
-	//file_Menu->addAction(new_file_Action);
+	file_Menu->addAction(project_load_Action);
+	file_Menu->addAction(project_save_Action);
+	file_Menu->addAction(project_saveas_Action);
+	file_Menu->addSeparator();
 	create_actions_import_types(file_Menu);
 	file_Menu->addSeparator();
 	file_Menu->addAction(export_selection_Action);
@@ -173,15 +155,6 @@ void PVInspector::PVMainWindow::create_menus()
 	file_Menu->addSeparator();
 	file_Menu->addAction(file_format_builder_Action);
 	file_Menu->addSeparator();
-
-	// #ifdef CUSTOMER_RELEASE
-	// 	file_Menu->addAction(open_file_Action);
-	// 	file_Menu->addAction(save_file_Action);
-	// #endif
-
-	// 	file_Menu->addSeparator();
-	//file_Menu->addAction(export_file_Action);
-	//file_Menu->addSeparator();
 	file_Menu->addAction(quit_Action);
 
 	//edit_Menu = menubar->addMenu(tr("&Edit"));

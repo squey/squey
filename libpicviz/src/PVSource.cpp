@@ -4,9 +4,7 @@
 //! Copyright (C) Philippe Saadé 2009-2011
 //! Copyright (C) Picviz Labs 2011
 
-#include <picviz/PVRoot.h>
-#include <picviz/PVScene.h>
-#include <picviz/PVSource.h>
+#include <pvkernel/core/debug.h>
 
 #include <pvkernel/filter/PVChunkFilterByElt.h>
 #include <pvkernel/filter/PVElementFilterByFields.h>
@@ -22,40 +20,81 @@
 #include <pvkernel/rush/PVControllerJob.h>
 
 #include <picviz/general.h>
-#include <pvkernel/core/debug.h>
+#include <picviz/PVRoot.h>
+#include <picviz/PVScene.h>
+#include <picviz/PVSource.h>
+#include <picviz/PVView.h>
 
-#include <QRegExp>
-
-Picviz::PVSource::PVSource(PVScene_p parent)
+Picviz::PVSource::PVSource(PVRush::PVInputType::list_inputs const& inputs, PVRush::PVSourceCreator_p sc, PVRush::PVFormat format)
 {
-	tparent = parent;
-	root = parent->get_root();
-	nraw = &(_extractor.get_nraw());
+	init();
 
-	// Launch the controller thread
-	_extractor.start_controller();
+	// Set format
+	format.populate();
+	set_format(format);
+
+	// Set sources
+	_inputs = inputs;
+	_src_plugin = sc;
+	files_append_noextract();
+}
+
+Picviz::PVSource::PVSource()
+{
+	init();
+}
+
+Picviz::PVSource::PVSource(const PVSource& org):
+	boost::enable_shared_from_this<PVSource>()
+{
+	init();
+	root = org.root;
+	tparent = org.tparent;
 }
 
 Picviz::PVSource::~PVSource()
 {
 	PVLOG_INFO("In PVSource destructor\n");
 	_extractor.force_stop_controller();
+	if (tparent) {
+		bool ret = tparent->del_source(this);
+		// asserts that we were in the list of sources of our parent
+		assert(ret);
+	}
 }
 
-void Picviz::PVSource::files_append_noextract(PVRush::PVFormat const& format, PVRush::PVSourceCreator_p sc, PVRush::PVInputType::list_inputs inputs)
+void Picviz::PVSource::init()
 {
-	_inputs = inputs;
-	_src_plugin = sc;
-	PVRush::PVFormat format_ = format;
-	format_.populate();
-	for (int i = 0; i < inputs.count(); i++) {
-		PVRush::PVSourceCreator::source_p src = sc->create_source_from_input(inputs[i], format_);
+	nraw = &(_extractor.get_nraw());
+	// Set extractor default values
+	_extractor.set_last_start(0);
+	_extractor.set_last_nlines(pvconfig.value("pvkernel/extract_first", PVEXTRACT_NUMBER_LINES_FIRST_DEFAULT).toInt());
+
+	// Launch the controller thread
+	_extractor.start_controller();
+}
+
+void Picviz::PVSource::set_parent(PVScene_p parent)
+{
+	if (parent) {
+		tparent = parent;
+		root = parent->get_root();
+	}
+	else {
+		tparent.reset();
+		root.reset();
+	}
+}
+
+void Picviz::PVSource::files_append_noextract()
+{
+	for (int i = 0; i < _inputs.count(); i++) {
+		PVRush::PVSourceCreator::source_p src = _src_plugin->create_source_from_input(_inputs[i], _extractor.get_format());
 		_extractor.add_source(src);
 	}
-	set_format(format_);
 }
 
-PVRush::PVControllerJob_p Picviz::PVSource::reextract()
+PVRush::PVControllerJob_p Picviz::PVSource::extract()
 {
 	return _extractor.process_from_agg_nlines_last_param();
 }
@@ -63,18 +102,10 @@ PVRush::PVControllerJob_p Picviz::PVSource::reextract()
 void Picviz::PVSource::set_format(PVRush::PVFormat const& format)
 {
 	_extractor.set_format(format);
-	axes_combination.set_from_format(_extractor.get_format());
+	_axes_combination.set_from_format(_extractor.get_format());
 
 	PVFilter::PVChunkFilter_f chk_flt = _extractor.get_format().create_tbb_filters();
 	_extractor.set_chunk_filter(chk_flt);
-}
-
-PVRush::PVControllerJob_p Picviz::PVSource::files_append(PVRush::PVFormat const& format, PVRush::PVSourceCreator_p sc, PVRush::PVInputType::list_inputs inputs)
-{
-	files_append_noextract(format, sc, inputs);
-	PVRush::PVControllerJob_p job = _extractor.process_from_agg_nlines(0, pvconfig.value("pvkernel/extract_first", PVEXTRACT_NUMBER_LINES_FIRST_DEFAULT).toInt());
-
-	return job;
 }
 
 PVRush::PVNraw::nraw_table& Picviz::PVSource::get_qtnraw()
@@ -117,15 +148,9 @@ PVCol Picviz::PVSource::get_column_count()
 	return nraw->table.at(0).size();
 }
 
-QString Picviz::PVSource::get_value(PVRow row, PVCol col)
+QString const& Picviz::PVSource::get_value(PVRow row, PVCol col) const
 {
 	return nraw->table.at(row)[col];
-}
-
-void Picviz::PVSource::set_limits(PVRow min, PVRow max)
-{
-	limit_min = min;
-	limit_max = max;
 }
 
 PVRush::PVExtractor& Picviz::PVSource::get_extractor()
@@ -133,45 +158,109 @@ PVRush::PVExtractor& Picviz::PVSource::get_extractor()
 	return _extractor;
 }
 
-PVRush::PVInputType_p Picviz::PVSource::get_input_type()
+PVRush::PVInputType_p Picviz::PVSource::get_input_type() const
 {
 	assert(_src_plugin);
-	QString in_name = _src_plugin->supported_type();
-	PVRush::PVInputType_p lib = LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name(in_name);
-	assert(lib);
-	return lib->clone<PVRush::PVInputType>();
+	return _src_plugin->supported_type_lib();
+}
+
+void Picviz::PVSource::process_from_source(bool keep_layers)
+{
+	// Init all views from this source
+	list_views_t::iterator it;
+	for (it = _views.begin(); it != _views.end(); it++) {
+		(*it)->init_from_source(shared_from_this(), keep_layers);
+		(*it)->process_from_layer_stack();
+	}
+}
+
+
+void Picviz::PVSource::add_view(PVView_p view)
+{
+	view->init_from_source(shared_from_this(), false);
+	view->process_from_layer_stack();
+	_views.push_back(view);
+}
+
+bool Picviz::PVSource::del_view(const PVView* view)
+{
+	list_views_t::iterator it;
+	for (it = _views.begin(); it != _views.end(); it++) {
+		if (it->get() == view) {
+			_views.erase(it);
+			return true;
+		}
+	}
+	return false;
 }
 
 void Picviz::PVSource::serialize_write(PVCore::PVSerializeObject& so)
 {
 	PVRush::PVInputType_p in_t = get_input_type();
-	in_t->serialize_inputs(so, "inputs", _inputs);
-	//so.object("format", _extractor.get_format());
+	assert(in_t);
+	PVCore::PVSerializeObject_p so_inputs = tparent->get_so_inputs(*this);
+	if (so_inputs) {
+		// The inputs have bee nserialized by our parents, so just make references to them
+		in_t->serialize_inputs_ref(so, "inputs", _inputs, so_inputs);
+	}
+	else {
+		// Serialize the inputs
+		in_t->serialize_inputs(so, "inputs", _inputs);
+	}
 	QString src_name = _src_plugin->registered_name();
 	so.attribute("source-plugin", src_name);
+
+	// Save the state of the extractor
 	chunk_index start, nlines;
 	start = _extractor.get_last_start();
 	nlines = _extractor.get_last_nlines();
 	so.attribute("index_start", start);
 	so.attribute("nlines", nlines);
+
+	// Save the format
+	so.object("format", _extractor.get_format());
+
+	// Save the views
+	so.list("views", _views);
 }
 
 void Picviz::PVSource::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 {
-	PVRush::PVFormat format;
-	//so.object("format", format);
 	QString src_name;
 	so.attribute("source-plugin", src_name);
 	PVRush::PVSourceCreator_p sc_lib = LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name(src_name);
 	if (!sc_lib) {
 		return;
 	}
+	// Get the source plugin
 	_src_plugin = sc_lib->clone<PVRush::PVSourceCreator>();
-	get_input_type()->serialize_inputs(so, "inputs", _inputs);
-	files_append_noextract(format, _src_plugin, _inputs);
+
+	// Get the inputs
+	PVCore::PVSerializeObject_p so_inputs = tparent->get_so_inputs(*this);
+	if (so_inputs) {
+		// The inputs have been serialized by our parents, so just make references to them
+		get_input_type()->serialize_inputs_ref(so, "inputs", _inputs, so_inputs);
+	}
+	else {
+		// Serialize the inputs
+		get_input_type()->serialize_inputs(so, "inputs", _inputs);
+	}
+
+	// Get the state of the extractor
 	chunk_index start, nlines;
 	so.attribute("index_start", start);
 	so.attribute("nlines", nlines);
 	_extractor.set_last_start(start);
 	_extractor.set_last_nlines(nlines);
+
+	// Get the format
+	PVRush::PVFormat format;
+	so.object("format", format);
+	set_format(format);
+
+	// "Append" the files to the extractor
+	files_append_noextract();
+
+	// Load the views
+	so.list("views", _views);
 }

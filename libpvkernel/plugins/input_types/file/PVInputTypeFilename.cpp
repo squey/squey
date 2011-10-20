@@ -3,7 +3,6 @@
 
 #include <pvkernel/core/PVArchive.h>
 #include <pvkernel/core/PVDirectory.h>
-#include <pvkernel/rush/PVFileDescription.h>
 
 #include <QMessageBox>
 #include <QFileInfo>
@@ -14,7 +13,7 @@
 #endif
 
 PVRush::PVInputTypeFilename::PVInputTypeFilename() :
-	PVInputType()
+	PVInputTypeDesc<PVFileDescription>()
 {
 #ifndef WIN32
 	struct rlimit rlim;
@@ -184,9 +183,4 @@ bool PVRush::PVInputTypeFilename::get_custom_formats(input_type in, hash_formats
 QKeySequence PVRush::PVInputTypeFilename::menu_shortcut() const
 {
 	return QKeySequence::Italic;
-}
-
-void PVRush::PVInputTypeFilename::serialize_inputs(PVCore::PVSerializeObject& so, QString const& name, list_inputs& inputs) const
-{
-	_serialize_inputs<PVFileDescription>(so, name, inputs);
 }

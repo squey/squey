@@ -59,7 +59,9 @@ PVCore::PVSerializeObject_p PVCore::PVSerializeArchive::allocate_object(QString 
 		new_path = "";
 	}
 
-	return PVSerializeObject_p(new PVSerializeObject(new_path, shared_from_this(), parent));
+	PVSerializeObject_p ret(new PVSerializeObject(new_path, shared_from_this(), parent));
+	_objects.insert(get_object_logical_path(*ret), ret);
+	return ret;
 }
 
 void PVCore::PVSerializeArchive::init()
@@ -225,4 +227,10 @@ void PVCore::PVSerializeArchive::file(PVSerializeObject const& so, QString const
 		}
 		path = ar_file;
 	}
+}
+
+PVCore::PVSerializeObject_p PVCore::PVSerializeArchive::get_object_by_path(QString const& path) const
+{
+	assert(_objects.contains(path));
+	return _objects[path];
 }

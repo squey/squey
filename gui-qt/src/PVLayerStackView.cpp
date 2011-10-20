@@ -14,7 +14,6 @@
 
 #include <PVLayerStackView.h>
 
-#define ALL_FILES_FILTER "All files (*.*)"
 /******************************************************************************
  *
  * PVInspector::PVLayerStackView::PVLayerStackView

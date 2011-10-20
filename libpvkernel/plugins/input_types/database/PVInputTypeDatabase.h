@@ -4,12 +4,14 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/rush/PVInputType.h>
 
+#include "../../common/database/PVDBQuery.h"
+
 #include <QString>
 #include <QStringList>
 
 namespace PVRush {
 
-class PVInputTypeDatabase: public PVInputType
+class PVInputTypeDatabase: public PVInputTypeDesc<PVDBQuery>
 {
 public:
 	PVInputTypeDatabase();
@@ -22,7 +24,6 @@ public:
 	QString tab_name_of_inputs(list_inputs const& in) const;
 	QKeySequence menu_shortcut() const;
 	bool get_custom_formats(input_type in, hash_formats &formats) const;
-	void serialize_inputs(PVCore::PVSerializeObject& so, const QString& name, PVRush::PVInputType::list_inputs& inputs) const;
 
 protected:
 	mutable bool _is_custom_format;

@@ -12,7 +12,7 @@
 #include <PVLayerFilterProcessWidget.h>
 #include <PVAxesCombinationDialog.h>
 #include <PVExtractorWidget.h>
-#include <PVSaveViewsDialog.h>
+#include <PVSaveSceneDialog.h>
 
 /******************************************************************************
  *
@@ -496,6 +496,63 @@ void PVInspector::PVMainWindow::new_scene_Slot()
 
 /******************************************************************************
  *
+ * PVInspector::PVMainWindow::project_load_Slot
+ *
+ *****************************************************************************/
+void PVInspector::PVMainWindow::project_load_Slot()
+{
+	QFileDialog* dlg = new QFileDialog(this, tr("Load a project..."), QString(), PICVIZ_SCENE_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
+	dlg->setFileMode(QFileDialog::ExistingFile);
+	dlg->setAcceptMode(QFileDialog::AcceptOpen);
+	if (dlg->exec() != QDialog::Accepted) {
+		return;
+	}
+	QString file = dlg->selectedFiles().at(0);
+
+	// TODO: close all !
+	
+	_scene.reset(new Picviz::PVScene("root", root));
+	_scene->load_from_file(file);
+
+	if (!process_scene()) {
+		PVLOG_ERROR("(PVMainWindow::project_load_Slot) error while processing the scene...\n");
+		return;
+	}
+
+	menu_activate_is_file_opened(true);
+	show_start_page(false);
+	pv_ListingsTabWidget->setVisible(true);
+}
+
+/******************************************************************************
+ *
+ * PVInspector::PVMainWindow::project_save_Slot
+ *
+ *****************************************************************************/
+void PVInspector::PVMainWindow::project_save_Slot()
+{
+}
+
+/******************************************************************************
+ *
+ * PVInspector::PVMainWindow::project_saveas_Slot
+ *
+ *****************************************************************************/
+void PVInspector::PVMainWindow::project_saveas_Slot()
+{
+	if (current_tab && current_tab->get_lib_view()) {
+		PVCore::PVSerializeArchiveOptions_p options(_scene->get_default_serialize_options());
+		PVSaveSceneDialog* dlg = new PVSaveSceneDialog(_scene, options, this);
+		if (dlg->exec() == QDialog::Accepted) {
+			QString file = dlg->selectedFiles().at(0);
+			_scene->save_to_file(file, options);
+		}	
+		dlg->deleteLater();
+	}
+}
+
+/******************************************************************************
+ *
  * PVInspector::PVMainWindow::quit_Slot
  *
  *****************************************************************************/
@@ -512,46 +569,6 @@ void PVInspector::PVMainWindow::quit_Slot()
 void PVInspector::PVMainWindow::refresh_current_view_Slot()
 {
 	// FIXME: this function should probably just die. current_tab->refresh_view_Slot();
-}
-
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::remove_log_Slot()
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::remote_log_Slot()
-{
-#if 0
-	qDebug("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
-
-	QMenuBar *rl_menuBar = new QMenuBar(0);
-	QMenu *rl_fileMenu = rl_menuBar->addMenu( tr( "Machine" ) );
-	// QDialogButtonBox *buttons = new QDialogButtonBox(Qt::Vertical);
-
-	QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
-					 | QDialogButtonBox::Cancel);
-
-	QWidget *rl_central = new QWidget(this);
-	QVBoxLayout *rl_layout = new QVBoxLayout;
-
-	rl_fileMenu->addAction(pv_RemoteLog->addMachineAction());
-	rl_fileMenu->addAction(pv_RemoteLog->removeMachineAction());
-
-	RemoteLogDialog->setMenuBar(rl_menuBar);
-	rl_menuBar->show();
-
-	rl_central->setLayout(rl_layout);
-	rl_layout->addWidget(pv_RemoteLog);
-	rl_layout->addWidget(buttonBox);
-
-	// connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-	connect(buttonBox, SIGNAL(rejected()), RemoteLogDialog, SLOT(hide()));
-
-	RemoteLogDialog->setWindowTitle(tr("Import remote file"));
-	RemoteLogDialog->setCentralWidget(rl_central);
-
-	RemoteLogDialog->show();
-#endif
 }
 
 /******************************************************************************
@@ -762,15 +779,6 @@ void PVInspector::PVMainWindow::update_reply_finished_Slot(QNetworkReply *reply)
 void PVInspector::PVMainWindow::view_save_Slot()
 {
 	PVLOG_INFO("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
-
-	if (current_tab && current_tab->get_lib_view()) {
-		QList<Picviz::PVView_p> views;
-		views.push_back(current_tab->get_lib_view());
-
-		PVSaveViewsDialog* dlg = new PVSaveViewsDialog(views, this);
-		dlg->exec();
-		dlg->deleteLater();
-	}
 }
 /******************************************************************************
  *

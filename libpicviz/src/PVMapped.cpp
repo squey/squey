@@ -201,8 +201,8 @@ void Picviz::PVMapped::to_csv()
 {
 	// WARNING: this is all but efficient. Uses this for testing and
 	// debugging purpose only !
-	for (PVRow i = 0; i < trans_table.getWidth(); i++) {
-		for (PVCol j = 0; j < trans_table.getHeight(); j++) {
+	for (PVRow i = 0; i < (PVRow) trans_table.getWidth(); i++) {
+		for (PVCol j = 0; j < (PVCol) trans_table.getHeight(); j++) {
 			std::cout << trans_table.getValue(j,i);
 			if (j!=table.getWidth()-1) {
 				std::cout << ",";
@@ -219,7 +219,7 @@ void Picviz::PVMapped::to_csv()
  *****************************************************************************/
 PVRush::PVFormat_p Picviz::PVMapped::get_format()
 {
-	return mapping->source->nraw->format;
+	return mapping->source->get_rushnraw().format;
 }
 
 /******************************************************************************

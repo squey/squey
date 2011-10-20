@@ -15,18 +15,18 @@
 Picviz::PVMapping::PVMapping(PVSource_p parent)
 {
 	source = parent;
-	root = parent->root;
+	root = parent->get_root();
 
-	PVCol naxes = parent->nraw->format->get_axes().size();
+	PVCol naxes = parent->get_rushnraw().format->get_axes().size();
 	if (naxes == 0) {
 		PVLOG_ERROR("In PVMapping constructor, no axis have been defined in the format !!!!\n");
 		assert(false);
 	}
 
 	PVLOG_DEBUG("In PVMapping::PVMapping(), debug PVFormat\n");
-	parent->nraw->format->debug();
+	parent->get_rushnraw().format->debug();
 	for (int i=0; i < naxes; i++) {
-		PVMappingProperties mapping_axis(root, *parent->nraw->format, i);
+		PVMappingProperties mapping_axis(root, *parent->get_rushnraw().format, i);
 		columns << mapping_axis;
 		PVLOG_HEAVYDEBUG("%s: Add a column\n", __FUNCTION__);
 	}
@@ -34,7 +34,7 @@ Picviz::PVMapping::PVMapping(PVSource_p parent)
 	_mandatory_filters_values.resize(columns.size());
 
 	// Create the translated version of the nraw
-	source->nraw->create_trans_nraw();
+	source->get_rushnraw().create_trans_nraw();
 }
 
 Picviz::PVMapping::~PVMapping()
@@ -44,7 +44,7 @@ Picviz::PVMapping::~PVMapping()
 
 PVRush::PVFormat_p Picviz::PVMapping::get_format() const
 {
-	return source->nraw->format;
+	return source->get_rushnraw().format;
 }
 
 PVRush::PVNraw::nraw_table& Picviz::PVMapping::get_qtnraw()

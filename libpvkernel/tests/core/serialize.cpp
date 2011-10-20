@@ -4,9 +4,11 @@
 #include <iostream>
 #include <QCoreApplication>
 
+#include <boost/enable_shared_from_this.hpp>
+
 #include <list>
 
-class PVTestChild
+class PVTestChild: public boost::enable_shared_from_this<PVTestChild>
 {
 	friend class PVCore::PVSerializeObject;
 public:
@@ -90,6 +92,13 @@ public:
 			_list_ints.push_back(i);
 		}
 		_buf.set_buf();
+
+		boost::shared_ptr<PVTestChild> p1(new PVTestChild(1));
+		boost::shared_ptr<PVTestChild> p2(new PVTestChild(2));
+		_list_p1.push_back(p1);
+		_list_p1.push_back(p2);
+		_list_p2.push_back(p1);
+		_list_p2.push_back(p2);
 	}
 
 public:
@@ -109,6 +118,17 @@ public:
 			it->dump();
 		}
 		_buf.dump();
+		std::cout << "references:" << std::endl;
+		std::cout << "-----------" << std::endl;
+		std::cout << "Original list:" << std::endl;
+		std::list<boost::shared_ptr<PVTestChild> >::const_iterator it_ptr;
+		for (it_ptr = _list_p1.begin(); it_ptr != _list_p1.end(); it_ptr++) {
+			std::cout << it_ptr->get() << std::endl;
+		}
+		std::cout << "Ref list:" << std::endl;
+		for (it_ptr = _list_p2.begin(); it_ptr != _list_p2.end(); it_ptr++) {
+			std::cout << it_ptr->get() << std::endl;
+		}
 	}
 protected:
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*version*/)
@@ -119,6 +139,10 @@ protected:
 		so.list("children", _list_children);
 		so.list_attributes("int_children", _list_ints);
 		so.object("buf_test", _buf);
+
+		PVTestChild a(1);
+		PVCore::PVSerializeObject_p org = so.list("ref_org", _list_p1, &a);
+		so.list_ref("test_ref", _list_p2, org);
 	}
 
 private:
@@ -126,6 +150,8 @@ private:
 	int _a;
 	PVTestChild _child;
 	std::list<PVTestChild> _list_children;
+	std::list<boost::shared_ptr<PVTestChild> > _list_p1;
+	std::list<boost::shared_ptr<PVTestChild> > _list_p2;
 	std::list<int> _list_ints;
 	PVTestBuf _buf;
 };

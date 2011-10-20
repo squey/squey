@@ -16,6 +16,11 @@
 #include <pvkernel/core/general.h>
 
 #include <pvkernel/core/PVColor.h>
+#include <pvkernel/core/PVArgument.h>
+#include <pvkernel/core/PVSerializeArchive.h>
+#include <pvkernel/core/PVSerializeArchiveOptions_types.h>
+#include <pvkernel/rush/PVExtractor.h>
+
 #include <picviz/PVLinesProperties.h>
 #include <picviz/PVMapped.h>
 #include <picviz/PVPlotted.h>
@@ -28,28 +33,27 @@
 #include <picviz/PVStateMachine.h>
 #include <picviz/PVZLevelArray.h>
 
-
-#include <pvkernel/core/PVArgument.h>
-#include <pvkernel/core/PVSerializeArchive.h>
-#include <pvkernel/core/PVSerializeArchiveOptions_types.h>
-#include <pvkernel/rush/PVExtractor.h>
 #include <picviz/PVView_types.h>
+
+#include <boost/enable_shared_from_this.hpp>
 
 namespace Picviz {
 
 /**
  * \class PVView
  */
-class LibPicvizDecl PVView {
-
-	//friend class PVCore::PVSerializeObject;
-
+class LibPicvizDecl PVView: public boost::enable_shared_from_this<PVView>
+{
+	friend class PVCore::PVSerializeObject;
 public:
 	typedef PVView_p p_type;
 	typedef QHash<QString,PVCore::PVArgumentList> map_filter_arguments;
 public:
 	PVView(PVPlotted_p parent);
+	PVView();
 	~PVView();
+protected:
+	PVView(const PVView& org);
 
 public:
 
@@ -57,8 +61,13 @@ public:
 	PVRoot_p   root;
 	QString    name;
 	int active_axis;
-	PVAxesCombination &axes_combination;
-	/* picviz_line_properties_t default_zombie_line_properties; */
+
+	/*! \brief PVView's specific axes combination
+	 *  It is originaly copied from the parent's PVSource, and then become specific
+	 *  to that view.
+	 */
+	PVAxesCombination axes_combination;
+
 	PVCore::PVColor default_zombie_line_properties;
 	PVSelection floating_selection;
 	PVLayer pre_filter_layer;
@@ -186,19 +195,8 @@ public:
 	void select_no_line();
 	void select_inv_lines();
 
-
-/******************************************************************************
-******************************************************************************
-*
-* Load/save with options
-*
-******************************************************************************
-*****************************************************************************/
-	PVCore::PVSerializeArchiveOptions_p get_default_save_options();
-	void load_from_file(QString const& path);
-	void save_to_file(QString const& path, PVCore::PVSerializeArchiveOptions_p options);
-
-
+	void set_parent_plotted(PVPlotted_p parent);
+	void init_from_source(PVSource_p source, bool keep_layers);
 
 /******************************************************************************
 ******************************************************************************
@@ -232,7 +230,6 @@ public:
 ******************************************************************************
 *****************************************************************************/
 
-	QString apply_filter_from_name(char *name, PVCore::PVArgumentList &arguments);
 	void apply_filter_named_select_all();
 
 	/**
@@ -302,19 +299,24 @@ protected:
 *
 ******************************************************************************
 *****************************************************************************/
-#if 0
 	void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 	void serialize_write(PVCore::PVSerializeObject& so);
 
 	PVSERIALIZEOBJECT_SPLIT
-#endif
+
+/******************************************************************************
+******************************************************************************
+*
+* Initialisation
+*
+******************************************************************************
+*****************************************************************************/
+		void init_defaults();
+		void init_from_plotted(PVPlotted_p parent, bool keep_layers);
 
 
 protected:
 	bool _is_consistent;
-    
-
-
 };
 
 }

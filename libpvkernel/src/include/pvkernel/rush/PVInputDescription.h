@@ -4,11 +4,12 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVSerializeArchive.h>
 
+#include <boost/enable_shared_from_this.hpp>
 #include <boost/shared_ptr.hpp>
 
 namespace PVRush {
 
-class PVInputDescription
+class PVInputDescription: public boost::enable_shared_from_this<PVInputDescription>
 {
 	friend class PVCore::PVSerializeObject;
 public:

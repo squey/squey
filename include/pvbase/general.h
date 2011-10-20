@@ -48,6 +48,8 @@ static QSettings pvconfig(QString("pvconfig.ini"), QSettings::IniFormat);
 #define PVCONFIG_FORMATS_SHOW_INVALID "formats/invalid/warning"
 #define PVCONFIG_FORMATS_SHOW_INVALID_DEFAULT (QVariant(true))
 
+#define ALL_FILES_FILTER "All files (*.*)"
+
 #define PICVIZ_ARCHIVES_VERSION 1
 
 #ifdef WIN32

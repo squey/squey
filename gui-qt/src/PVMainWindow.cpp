@@ -210,6 +210,9 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 	_last_known_cur_release = pvconfig.value(PVCONFIG_LAST_KNOWN_CUR_RELEASE, PICVIZ_VERSION_INVALID).toUInt();
 	_last_known_maj_release = pvconfig.value(PVCONFIG_LAST_KNOWN_MAJ_RELEASE, PICVIZ_VERSION_INVALID).toUInt();
 
+	// Default scene
+	_scene = Picviz::PVScene_p(new Picviz::PVScene(const_cast<char*>("default"), root)); // FIXME!
+
 	update_check();
 }
 
@@ -229,12 +232,11 @@ void PVInspector::PVMainWindow::closeEvent(QCloseEvent* event)
  *
  *****************************************************************************/
 void PVInspector::PVMainWindow::check_messages()
-{ // FIXME: here we use the current tab. We should really use a tab calculated for the pv_view of the message.
+{
 	
 	PVSDK::PVMessage message;
 	if (pvsdk_messenger->get_message_for_qt(message)) {
 		PVTabSplitter* tab_view = get_tab_from_view(message.pv_view);
-		//PVLOG_INFO("PVInspector::PVMainWindow::check_messages()\n");
 		switch (message.function) {
 			case PVSDK_MESSENGER_FUNCTION_CLEAR_SELECTION:
 				{
@@ -287,9 +289,6 @@ void PVInspector::PVMainWindow::check_messages()
 							QString *filename_p = new QString(filename);
 							report_image_index++;
 							initial_path += "/report.html";
-
-							FILE *report_fp = NULL;
-
 
 							bool ok;
 							QString description = QInputDialog::getText(this, tr("Type your description"),
@@ -483,18 +482,14 @@ void PVInspector::PVMainWindow::commit_selection_to_new_layer(Picviz::PVView_p p
 void PVInspector::PVMainWindow::connect_actions()
 {
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
+	connect(project_load_Action, SIGNAL(triggered()), this, SLOT(project_load_Slot()));
+	connect(project_save_Action, SIGNAL(triggered()), this, SLOT(project_save_Slot()));
+	connect(project_saveas_Action, SIGNAL(triggered()), this, SLOT(project_saveas_Slot()));
 	connect(export_file_Action, SIGNAL(triggered()), this, SLOT(export_file_Slot()));
 	connect(export_selection_Action, SIGNAL(triggered()), this, SLOT(export_selection_Slot()));
-	//connect(import_file_Action, SIGNAL(triggered()), this, SLOT(import_file_Slot()));
 	connect(extractor_file_Action, SIGNAL(triggered()), this, SLOT(extractor_file_Slot()));
 	connect(new_file_Action, SIGNAL(triggered()), this, SLOT(new_file_Slot()));
 	connect(new_scene_Action, SIGNAL(triggered()), this, SLOT(new_scene_Slot()));
-//	connect(remote_log_Action, SIGNAL(triggered()), this, SLOT(remote_log_Slot()));
-
-// #ifdef CUSTOMER_RELEASE
-// 	connect(open_file_Action, SIGNAL(triggered()), this, SLOT(open_file_Slot()));
-// 	connect(save_file_Action, SIGNAL(triggered()), this, SLOT(save_file_Slot()));
-// #endif
 	connect(quit_Action, SIGNAL(triggered()), this, SLOT(quit_Slot()));
 	connect(select_scene_Action, SIGNAL(triggered()), this, SLOT(select_scene_Slot()));
 
@@ -883,7 +878,6 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 		}
 	}
 
-	Picviz::PVScene_p import_scene;
 	Picviz::PVMapping_p import_mapping;
 	Picviz::PVMapped_p import_mapped;
 	Picviz::PVPlotting_p import_plotting;
@@ -896,8 +890,6 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 	QHash< QString, PVRush::PVInputType::list_inputs >::const_iterator it = discovered.constBegin();
 	for (; it != discovered.constEnd(); it++) {
 		// Create scene and source
-		import_scene = Picviz::PVScene_p(new Picviz::PVScene(const_cast<char*>("default"), root)); // FIXME!
-		Picviz::PVSource_p import_source = Picviz::PVSource_p(new Picviz::PVSource(import_scene));
 
 		const PVRush::PVInputType::list_inputs& inputs = it.value();
 		const QString& type = it.key();
@@ -911,8 +903,11 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 
 		PVRush::PVControllerJob_p job_import;
 		PVRush::PVFormat const& cur_format = fc.first;
+
+		Picviz::PVSource_p import_source = Picviz::PVSource_p(new Picviz::PVSource(inputs, fc.second, cur_format));
+		_scene->add_source(import_source);
 		try {
-			job_import = import_source->files_append(cur_format, fc.second, inputs);
+			job_import = import_source->extract();
 		}
 		catch (PVRush::PVInputException &e) {
 			PVLOG_ERROR("PVInput error: %s\n", e.what().c_str());
@@ -926,7 +921,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 		}
 		job_import->wait_end();
 		PVLOG_INFO("The normalization job took %0.4f seconds.\n", job_import->duration().seconds());
-		if (import_source->nraw->table.size() == 0) {
+		if (import_source->get_rushnraw().table.size() == 0) {
 			PVLOG_ERROR("Cannot append source!\n");
 			QMessageBox msgBox;
 			msgBox.critical(this, "Cannot import file type", QString("The files %1/%2 cannot be opened. It looks like the format is invalid (invalid regular expressions or filters).").arg(src_name).arg(type));
@@ -945,12 +940,8 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 		pvsdk_messenger->post_message_to_gl(message);
 #endif
 
-		import_mapping = Picviz::PVMapping_p(new Picviz::PVMapping(import_source));
-		import_mapped = Picviz::PVMapped_p(new Picviz::PVMapped(import_mapping));
-		import_plotting = Picviz::PVPlotting_p(new Picviz::PVPlotting(import_mapped));
-		import_plotted = Picviz::PVPlotted_p(new Picviz::PVPlotted(import_plotting));
-		import_view = Picviz::PVView_p(new Picviz::PVView(import_plotted));
-		import_view->process_from_layer_stack();
+		import_view = Picviz::PVView_p(new Picviz::PVView());
+		import_source->add_view(import_view);
 
 		current_tab = new PVTabSplitter(this, import_view, src_name, type, pv_ListingsTabWidget);
 		connect(current_tab,SIGNAL(selection_changed_signal(bool)),this,SLOT(enable_menu_filter_Slot(bool)));
@@ -981,6 +972,49 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 	menu_activate_is_file_opened(true);
 	show_start_page(false);
 	pv_ListingsTabWidget->setVisible(true);
+}
+
+bool PVInspector::PVMainWindow::process_scene()
+{
+	// Here, (re)process the current scene.
+	
+	// TODO: remove all the tabs
+	
+	// Process all sources with their view
+	Picviz::PVScene::list_sources_t srcs = _scene->get_all_sources();
+	Picviz::PVScene::list_sources_t::iterator it;
+	PVRush::PVControllerJob_p job_import;
+
+	try {
+		for (it = srcs.begin(); it != srcs.end(); it++) {
+			Picviz::PVSource_p import_source = *it;
+			job_import = import_source->extract();
+
+			QString format_name = import_source->get_format_name();
+			if (!PVExtractorWidget::show_job_progress_bar(job_import, format_name, job_import->nb_elts_max(), this)) {
+				return false;
+			}
+			
+			job_import->wait_end();
+
+			// Process views (mapping, plotting, etc...) by keeping the existing layers (loaded from the scene)
+			import_source->process_from_source(true);
+
+			// For each view, add a tab
+			Picviz::PVSource::list_views_t const& views = import_source->get_views();
+			Picviz::PVSource::list_views_t::const_iterator it_view;
+			for (it_view = views.begin(); it_view != views.end(); it_view++) {
+				current_tab = new PVTabSplitter(this, *it_view, import_source->get_name(), format_name, pv_ListingsTabWidget);
+				connect(current_tab,SIGNAL(selection_changed_signal(bool)),this,SLOT(enable_menu_filter_Slot(bool)));
+				pv_ListingsTabWidget->addTab(current_tab, current_tab->get_tab_name());
+			}
+		}
+	}
+	catch (PVRush::PVInputException &e) {
+		PVLOG_ERROR("PVInput error: %s\n", e.what().c_str());
+		return false;
+	}
+	return true;
 }
 
 void PVInspector::PVMainWindow::show_start_page(bool visible)

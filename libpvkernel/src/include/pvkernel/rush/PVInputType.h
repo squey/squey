@@ -32,7 +32,8 @@ public:
 	virtual QKeySequence menu_shortcut() const { return QKeySequence(); }
 	virtual QString tab_name_of_inputs(list_inputs const& in) const = 0;
 	virtual bool get_custom_formats(input_type in, hash_formats &formats) const = 0;
-	virtual void serialize_inputs(PVCore::PVSerializeObject& obj, QString const& name, list_inputs& inputs) const = 0;
+	virtual PVCore::PVSerializeObject_p serialize_inputs(PVCore::PVSerializeObject& obj, QString const& name, list_inputs& inputs) const = 0;
+	virtual void serialize_inputs_ref(PVCore::PVSerializeObject& obj, QString const& name, list_inputs& inputs, PVCore::PVSerializeObject_p so_ref) const = 0;
 public:
 	QStringList human_name_of_inputs(list_inputs const& in) const
 	{
@@ -62,28 +63,19 @@ public:
 signals:
 	void edit_format_signal(QString const& path, QWidget* parent) const;
 	void edit_format_signal(QDomDocument& doc, QWidget* parent) const;
+};
 
-protected:
-	template <typename T>
-	void _serialize_inputs(PVCore::PVSerializeObject& obj, QString const& name, list_inputs& inputs) const
+template <typename T>
+class LibKernelDecl PVInputTypeDesc: public PVInputType
+{
+public:
+	virtual PVCore::PVSerializeObject_p serialize_inputs(PVCore::PVSerializeObject& obj, QString const& name, list_inputs& inputs) const
 	{
-		if (obj.is_writing()) {
-			QList<boost::shared_ptr<T> > ins_;
-			for (int i = 0; i < inputs.size(); i++) {
-				boost::shared_ptr<T> p = boost::dynamic_pointer_cast<T>(inputs[i]);
-				assert(p);
-				ins_.push_back(p);
-			}
-			obj.list(name, ins_);
-		}
-		else {
-			QList<boost::shared_ptr<T> > ins_;
-			obj.list< QList<boost::shared_ptr<T> > >(name, ins_);
-			inputs.clear();
-			for (int i = 0; i < ins_.size(); i++) {
-				inputs.push_back(ins_[i]);
-			}
-		}
+		return obj.list<list_inputs, boost::shared_ptr<T> >(name, inputs);
+	}
+	virtual void serialize_inputs_ref(PVCore::PVSerializeObject& obj, QString const& name, list_inputs& inputs, PVCore::PVSerializeObject_p so_ref) const
+	{
+		obj.list_ref(name, inputs, so_ref);
 	}
 };
 

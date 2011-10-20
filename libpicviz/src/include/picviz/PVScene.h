@@ -10,22 +10,37 @@
 #include <QString>
 
 #include <pvkernel/core/general.h>
+#include <pvkernel/core/PVSerializeArchive.h>
+#include <pvkernel/core/PVSerializeArchiveOptions_types.h>
 #include <pvkernel/rush/PVInputDescription.h>
 #include <pvkernel/rush/PVInputType.h>
 #include <picviz/PVPtrObjects.h>
 #include <picviz/PVSource_types.h>
 
 #include <boost/shared_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
+
+#define PICVIZ_SCENE_ARCHIVE_EXT "pv"
+#define PICVIZ_SCENE_ARCHIVE_FILTER "Picviz project files (*." PICVIZ_LAYER_ARCHIVE_EXT ")"
 
 namespace Picviz {
+
+class PVSource;
 
 /**
  * \class PVScene
  */
-class LibPicvizDecl PVScene {
+class LibPicvizDecl PVScene: public boost::enable_shared_from_this<PVScene>
+{
+	friend class PVCore::PVSerializeObject;
+	friend class PVSource;
 public:
 	typedef boost::shared_ptr<PVScene> p_type;
 	typedef QList<PVSource_p> list_sources_t;
+private:
+	// PVRush::list_inputs is QList<PVRush::PVInputDescription_p>
+	typedef std::map<PVRush::PVInputType::base_registrable, std::pair<list_sources_t, PVRush::PVInputType::list_inputs> > hash_type_sources_t;
+	typedef std::map<PVRush::PVInputType::base_registrable, PVCore::PVSerializeObject_p> hash_type_so_inputs;
 public:
 	
 	PVScene(QString scene_name, PVRoot_p parent);
@@ -35,13 +50,28 @@ public:
 	PVRoot_p get_root();
 
 public:
-	void add_input(PVRush::PVInputDescription_p in);
+	PVCore::PVSerializeArchiveOptions_p get_default_serialize_options();
+	void save_to_file(QString const& path, PVCore::PVSerializeArchiveOptions_p options = PVCore::PVSerializeArchiveOptions_p());
+	void load_from_file(QString const& path);
+
+public:
 	void add_source(PVSource_p src);
+	bool del_source(const PVSource* src);
+	
+	list_sources_t get_sources(PVRush::PVInputType const& type) const;
+	list_sources_t get_all_sources() const;
 
 protected:
-	// PVRush::list_inputs is QList<PVRush::PVInputDescription_p>
-	PVRush::PVInputType::list_inputs _inputs;
-	list_sources_t _sources;
+	// Serialization
+	void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
+	void serialize_write(PVCore::PVSerializeObject& so);
+	PVSERIALIZEOBJECT_SPLIT
+
+	PVCore::PVSerializeObject_p get_so_inputs(PVSource const& src);
+
+private:
+	hash_type_sources_t _sources;
+	hash_type_so_inputs _so_inputs;
 
 	PVRoot_p _root;
 	QString _name;

@@ -49,9 +49,8 @@ int main(int argc, char** argv)
 
 	// Create the PVSource object
 	Picviz::PVRoot_p root(new Picviz::PVRoot());
-	Picviz::PVScene_p scene(new Picviz::PVScene("scene", root));
-	Picviz::PVSource_p src(new Picviz::PVSource(scene));
-	PVRush::PVControllerJob_p job = src->files_append(format, sc_file, PVRush::PVInputType::list_inputs() << file);
+	Picviz::PVSource_p src(new Picviz::PVSource(PVRush::PVInputType::list_inputs() << file, sc_file, format));
+	PVRush::PVControllerJob_p job = src->extract();
 	job->wait_end();
 
 	// Map the nraw

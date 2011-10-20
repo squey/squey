@@ -72,7 +72,7 @@ include/PVMapWidget.h
 include/PVInputTypeMenuEntries.h
 include/PVOpenFileDialog.h
 include/PVSaveFileDialog.h
-include/PVSaveViewsDialog.h
+include/PVSaveSceneDialog.h
 include/PVSerializeOptionsModel.h
 include/PVSerializeOptionsWidget.h
 include/PVStringListChooserWidget.h
@@ -151,7 +151,7 @@ PVMapWidget.cpp
 PVInputTypeMenuEntries.cpp
 PVOpenFileDialog.cpp
 PVSaveFileDialog.cpp
-PVSaveViewsDialog.cpp
+PVSaveSceneDialog.cpp
 PVSerializeOptionsModel.cpp
 PVSerializeOptionsWidget.cpp
 PVStringListChooserWidget.cpp

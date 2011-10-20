@@ -19,6 +19,7 @@ core/PVDateTimeParser.cpp
 core/PVDirectory.cpp
 core/PVElement.cpp
 core/PVField.cpp
+core/PVFileSerialize.cpp
 core/PVListFloat2D.cpp
 core/PVLogger.cpp
 core/PVPCRESplitter.cpp
@@ -56,6 +57,7 @@ include/pvkernel/core/PVClassLibrary.h
 include/pvkernel/core/PVDateTimeParser.h
 include/pvkernel/core/PVDirectory.h
 include/pvkernel/core/PVEnumType.h
+include/pvkernel/core/PVFileSerialize.h
 include/pvkernel/core/PVColorGradientDualSliderType.h
 include/pvkernel/core/PVBufferSlice.h
 include/pvkernel/core/PVChunk.h

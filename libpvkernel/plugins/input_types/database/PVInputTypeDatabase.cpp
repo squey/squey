@@ -1,11 +1,10 @@
 #include "PVInputTypeDatabase.h"
 #include "PVDatabaseParamsWidget.h"
 
-#include "../../common/database/PVDBQuery.h"
 #include "../../common/database/PVDBInfos.h"
 
 PVRush::PVInputTypeDatabase::PVInputTypeDatabase() :
-	PVInputType(),
+	PVInputTypeDesc<PVDBQuery>(),
 	_is_custom_format(false)
 {
 }
@@ -73,9 +72,3 @@ QKeySequence PVRush::PVInputTypeDatabase::menu_shortcut() const
 {
 	return QKeySequence();
 }
-
-void PVRush::PVInputTypeDatabase::serialize_inputs(PVCore::PVSerializeObject& so, const QString& name, PVRush::PVInputType::list_inputs& inputs) const
-{
-	_serialize_inputs<PVDBQuery>(so, name, inputs);
-}
-

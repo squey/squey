@@ -1,11 +1,10 @@
 #include "PVInputTypeHDFS.h"
-#include "../../common/hdfs/PVInputHDFSFile.h"
 #include "setenv.h"
 
 #include <QMessageBox>
 
 PVRush::PVInputTypeHDFS::PVInputTypeHDFS():
-	PVInputType()
+	PVInputTypeDesc<PVInputHDFSFile>()
 {
 	if (!init_env_hadoop()) {
 		PVLOG_ERROR("Unable to initialize hadoop environnement. Hadoop support won't work.\n");
@@ -67,9 +66,4 @@ bool PVRush::PVInputTypeHDFS::get_custom_formats(input_type in, hash_formats &fo
 QKeySequence PVRush::PVInputTypeHDFS::menu_shortcut() const
 {
 	return QKeySequence();
-}
-
-void PVRush::PVInputTypeHDFS::serialize_inputs(PVCore::PVSerializeObject& so, const QString& name, PVRush::PVInputType::list_inputs& inputs) const
-{
-	_serialize_inputs<PVInputHDFSFile>(so, name, inputs);
 }

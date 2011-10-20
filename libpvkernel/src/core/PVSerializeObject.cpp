@@ -6,7 +6,8 @@ PVCore::PVSerializeObject::PVSerializeObject(QString const& path, PVSerializeArc
 		_parent(parent),
 		_logical_path(path),
 		_is_optional(false),
-		_must_write(true)
+		_must_write(true),
+		_bound_obj(NULL)
 {
 }
 
@@ -104,4 +105,9 @@ QString const& PVCore::PVSerializeObject::get_logical_path() const
 PVCore::PVSerializeObject::p_type PVCore::PVSerializeObject::parent()
 {
 	return _parent;
+}
+
+PVCore::PVSerializeObject_p PVCore::PVSerializeObject::get_archive_object_from_path(QString const& path) const
+{
+	return _parent_ar->get_object_by_path(path);
 }

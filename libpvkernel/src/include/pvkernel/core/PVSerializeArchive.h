@@ -50,6 +50,7 @@ protected:
 	bool must_write_object(PVSerializeObject const& parent, QString const& child);
 	const PVSerializeArchiveOptions* get_options() const { return _options.get(); }
 	QDir get_dir_for_object(PVSerializeObject const& so) const;
+	PVSerializeObject_p get_object_by_path(QString const& path) const;
 
 protected:
 	// If you want to create another way of storing archives, you must reimplement these functions
@@ -76,6 +77,10 @@ protected:
 	version_t _version;
 	bool _is_opened;
 	QHash<QString, QSettings*> _objs_attributes;
+
+	/*! \brief Store a hash of object paths (as strings) to the real PVSerializeObject pointer
+	 */
+	QHash<QString, PVSerializeObject_p> _objects;
 
 private:
 	boost::shared_ptr<PVSerializeArchiveOptions> _options;

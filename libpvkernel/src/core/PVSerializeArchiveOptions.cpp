@@ -1,11 +1,9 @@
 #include <pvkernel/core/PVSerializeArchiveOptions.h>
 
 
-
 PVCore::PVSerializeObject_p PVCore::PVSerializeArchiveOptions::create_object(QString const& name, PVSerializeObject_p parent)
 {
 	PVSerializeObject_p ret(allocate_object(name, parent));
-	_objects.insert(get_object_logical_path(*ret), ret);
 	return ret;
 }
 

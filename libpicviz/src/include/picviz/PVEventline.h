@@ -17,7 +17,7 @@ namespace Picviz {
  */
 class LibPicvizDecl PVEventline {
 public:
-	PVEventline(PVRow row_count);
+	PVEventline(PVRow row_count = 0);
 public:
 	int get_current_index() const;
 	int get_first_index() const;

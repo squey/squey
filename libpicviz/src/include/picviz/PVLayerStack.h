@@ -34,7 +34,7 @@ public:
 	/**
 	 * Constructor
 	 */
-	PVLayerStack(PVRow row_count);
+	PVLayerStack(PVRow row_count = 0);
 
 	
 	int get_layer_count() const {return layer_count;}

@@ -159,7 +159,7 @@ public:
 	/** @} */
 
 	template <class T>
-	QList<PVCol> get_original_axes_index_with_tag(T const& tag)
+	QList<PVCol> get_original_axes_index_with_tag(T const& tag) const
 	{
 		QList<PVCol> ret;
 		QVector<PVAxis>::const_iterator it;

@@ -568,10 +568,10 @@ void PVGL::PVMap::draw()
 	glUniform2f(get_uni_loc(main_fbo_program, "size"), view->get_width(), view->get_height()); PRINT_OPENGL_ERROR();
 	glBindVertexArray(main_fbo_vao); PRINT_OPENGL_ERROR();
 	GLfloat fbo_vertex_buffer[] = {
-		allocation.x,                    allocation.y,                     0, 0,
-		allocation.x + allocation.width, allocation.y,                     1, 0,
-		allocation.x + allocation.width, allocation.y + allocation.height, 1, 1,
-		allocation.x,                    allocation.y + allocation.height, 0, 1
+		(GLfloat) allocation.x,                    (GLfloat) allocation.y,                     0.0f, 0.0f,
+		(GLfloat) (allocation.x + allocation.width), (GLfloat) allocation.y,                     1.0f, 0.0f,
+		(GLfloat) (allocation.x + allocation.width), (GLfloat) (allocation.y + allocation.height), 1.0f, 1.0f,
+		(GLfloat) allocation.x,                    (GLfloat) (allocation.y + allocation.height), 0.0f, 1.0f
 	};
 	glBindBuffer(GL_ARRAY_BUFFER, main_fbo_vbo); PRINT_OPENGL_ERROR();
 	glBufferData(GL_ARRAY_BUFFER, sizeof fbo_vertex_buffer,
