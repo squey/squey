@@ -63,10 +63,6 @@ Picviz::PVView::~PVView()
 {
 	PVLOG_DEBUG("In PVView destructor\n");
 	delete state_machine;
-	if (plotted && get_source_parent()) {
-		// Tell our parent we are going away for a better life...
-		get_source_parent()->del_view(this);
-	}
 }
 
 /******************************************************************************

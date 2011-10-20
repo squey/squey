@@ -56,11 +56,6 @@ Picviz::PVSource::~PVSource()
 {
 	PVLOG_INFO("In PVSource destructor\n");
 	_extractor.force_stop_controller();
-	if (tparent) {
-		bool ret = tparent->del_source(this);
-		// asserts that we were in the list of sources of our parent
-		assert(ret);
-	}
 }
 
 void Picviz::PVSource::init()
