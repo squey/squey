@@ -479,6 +479,7 @@ void PVInspector::PVMainWindow::commit_selection_to_new_layer(Picviz::PVView_p p
 void PVInspector::PVMainWindow::connect_actions()
 {
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
+	connect(project_new_Action, SIGNAL(triggered()), this, SLOT(project_new_Slot()));
 	connect(project_load_Action, SIGNAL(triggered()), this, SLOT(project_load_Slot()));
 	connect(project_save_Action, SIGNAL(triggered()), this, SLOT(project_save_Slot()));
 	connect(project_saveas_Action, SIGNAL(triggered()), this, SLOT(project_saveas_Slot()));

@@ -138,6 +138,7 @@ public slots:
 	void map_Slot();
 	void new_file_Slot();
 	void new_scene_Slot();
+	void project_new_Slot();
 	void project_load_Slot();
 	void project_save_Slot();
 	void project_saveas_Slot();
@@ -208,6 +209,7 @@ private:
 	QAction *commit_selection_in_current_layer_Action;
 	QAction *commit_selection_to_new_layer_Action;
 	QAction *cut_Action;
+	QAction *project_new_Action;
 	QAction *project_load_Action;
 	QAction *project_save_Action;
 	QAction *project_saveas_Action;

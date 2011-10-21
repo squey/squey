@@ -20,6 +20,7 @@ void PVInspector::PVMainWindow::create_actions()
 	 ************************/
 
 	// The project actions
+	project_new_Action = new QAction(tr("&New project"), this);
 	project_load_Action = new QAction(tr("&Load a project..."), this);
 	project_save_Action = new QAction(tr("&Save project"), this);
 	project_saveas_Action = new QAction(tr("S&ave project as..."), this);
@@ -144,6 +145,7 @@ void PVInspector::PVMainWindow::create_menus()
 	menubar = menuBar();
 
 	file_Menu = menubar->addMenu(tr("&File"));
+	file_Menu->addAction(project_new_Action);
 	file_Menu->addAction(project_load_Action);
 	file_Menu->addAction(project_save_Action);
 	file_Menu->addAction(project_saveas_Action);

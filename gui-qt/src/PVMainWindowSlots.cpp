@@ -496,6 +496,16 @@ void PVInspector::PVMainWindow::new_scene_Slot()
 
 /******************************************************************************
  *
+ * PVInspector::PVMainWindow::project_new_Slot
+ *
+ *****************************************************************************/
+void PVInspector::PVMainWindow::project_new_Slot()
+{
+	close_scene();
+}
+
+/******************************************************************************
+ *
  * PVInspector::PVMainWindow::project_load_Slot
  *
  *****************************************************************************/
