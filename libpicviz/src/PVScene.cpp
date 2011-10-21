@@ -28,6 +28,11 @@ Picviz::PVScene::PVScene(QString scene_name, PVRoot* parent):
  *****************************************************************************/
 Picviz::PVScene::~PVScene()
 {
+	PVLOG_INFO("In PVScene destructor\n");
+	if (_original_archive) {
+		// Remove any potential temporary files
+		_original_archive->finish();
+	}
 }
 
 void Picviz::PVScene::add_source(PVSource_p src)
@@ -195,7 +200,10 @@ void Picviz::PVScene::save_to_file(QString const& path, PVCore::PVSerializeArchi
 
 void Picviz::PVScene::load_from_file(QString const& path)
 {
+	if (_original_archive) {
+		_original_archive->finish();
+	}
 	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchiveZip(path, PVCore::PVSerializeArchive::read, PICVIZ_ARCHIVES_VERSION));
 	ar->get_root()->object("scene", *this);
-	ar->finish();
+	_original_archive = ar;
 }

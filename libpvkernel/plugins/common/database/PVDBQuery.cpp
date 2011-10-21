@@ -43,3 +43,19 @@ QString PVRush::PVDBQuery::human_name() const
 {
 	return _infos->database_name();
 }
+
+void PVRush::PVDBQuery::serialize_write(PVCore::PVSerializeObject& so)
+{
+	so.attribute("query", _query);
+	so.object("server", *_infos);
+}
+
+void PVRush::PVDBQuery::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v)
+{
+	QString query;
+	so.attribute("query", query);
+	set_query(query);
+	PVDBInfos infos;
+	so.object("server", infos);
+	_infos.reset(new PVDBServ(infos));
+}

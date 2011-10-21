@@ -105,7 +105,12 @@ void Picviz::PVView::init_from_plotted(PVPlotted_p parent, bool keep_layers)
 	plotted = parent;
 
 	// Init default axes combination from source
-	axes_combination = parent->get_source_parent()->get_axes_combination();
+	if (keep_layers) {
+		axes_combination.set_from_format(parent->get_source_parent()->get_format());
+	}
+	else {
+		axes_combination = parent->get_source_parent()->get_axes_combination();
+	}
 
 	row_count = plotted->get_row_count();
 	layer_stack.set_row_count(row_count);
@@ -1492,10 +1497,11 @@ void Picviz::PVView::init_from_source(PVSource_p source, bool keep_layers)
 void Picviz::PVView::serialize_write(PVCore::PVSerializeObject& so)
 {
 	so.object("layer-stack", layer_stack, "Layers", true);
-	//so.object("axes-combination", axes_combination, true, "Axes combination");
+	so.object("axes-combination", axes_combination, "Axes combination", true);
 }
 
 void Picviz::PVView::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 {
 	so.object("layer-stack", layer_stack, "Layers", true);
+	so.object("axes-combination", axes_combination, "Axes combination", true);
 }

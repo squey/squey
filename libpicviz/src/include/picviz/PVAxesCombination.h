@@ -11,6 +11,7 @@
 #include <QVector>
 
 #include <pvkernel/core/general.h>
+#include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/rush/PVFormat.h>
 
 #include <picviz/PVAxis.h>
@@ -22,6 +23,8 @@ namespace Picviz {
 * \class PVAxesCombination
 */
 class LibPicvizDecl PVAxesCombination {
+	friend class PVCore::PVSerializeObject;
+private:
 	QVector<float>  abscissae_list;       //!< Axes positions, such as [0.0, 1.29, 2.5, 4.76]
 	QVector<PVAxis> axes_list;            //!< Contains all the used axes
 	QVector<PVCol>  columns_indexes_list; //!< Contains the indices of the axes to place, such as [0,1,3,0]
@@ -257,6 +260,12 @@ public:
 	QString to_string() const;
 
 	QVector<PVAxis> const& get_original_axes_list() const { return original_axes_list; }
+
+protected:
+	void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
+	void serialize_write(PVCore::PVSerializeObject& so);
+
+	PVSERIALIZEOBJECT_SPLIT
 };
 }
 

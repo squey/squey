@@ -381,12 +381,17 @@ void Picviz::PVAxesCombination::set_from_format(PVRush::PVFormat &format)
 	PVRush::list_axes_t const& axes = format.get_axes();
 	PVRush::list_axes_t::const_iterator it;
 
-	std::vector<PVCol> axes_comb = format.get_axes_comb();
-	// Default axes combination
-	if (axes_comb.size() == 0) {
-		axes_comb.reserve(axes.size());
-		for (PVCol i = 0; i < axes.size(); i++) {
-			axes_comb.push_back(i);
+	QVector<PVCol> axes_comb;
+	if (columns_indexes_list.size() > 0) {
+		axes_comb = columns_indexes_list;
+	}
+	else {
+		axes_comb = QVector<PVCol>::fromStdVector(format.get_axes_comb());
+		if (axes_comb.size() == 0) {
+			axes_comb.reserve(axes.size());
+			for (PVCol i = 0; i < axes.size(); i++) {
+				axes_comb.push_back(i);
+			}
 		}
 	}
 
@@ -397,7 +402,7 @@ void Picviz::PVAxesCombination::set_from_format(PVRush::PVFormat &format)
 		original_axes_list.push_back(axis);
 	}
 
-	std::vector<PVCol>::iterator it_comb;
+	QVector<PVCol>::iterator it_comb;
 	for (it_comb = axes_comb.begin(); it_comb != axes_comb.end(); it_comb++) {
 		axis_append(*it_comb);
 	}
@@ -439,4 +444,14 @@ QString Picviz::PVAxesCombination::to_string() const
 	ret += QString::number(columns_indexes_list[columns_indexes_list.size()-1]);
 	PVLOG_DEBUG("(Picviz::PVAxesCombination::to_string) string: %s\n", qPrintable(ret));
 	return ret;
+}
+
+void Picviz::PVAxesCombination::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
+{
+	so.list_attributes("columns_indexes_list", columns_indexes_list);
+}
+
+void Picviz::PVAxesCombination::serialize_write(PVCore::PVSerializeObject& so)
+{
+	so.list_attributes("columns_indexes_list", columns_indexes_list);
 }

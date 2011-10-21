@@ -75,6 +75,8 @@ private:
 
 	PVRoot* _root;
 	QString _name;
+
+	PVCore::PVSerializeArchive_p _original_archive;
 };
 
 typedef PVScene::p_type PVScene_p;

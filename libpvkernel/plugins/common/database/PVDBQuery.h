@@ -4,6 +4,7 @@
 #include "PVDBServ_types.h"
 
 #include <pvkernel/core/general.h>
+#include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/rush/PVInputDescription.h>
 
 #include <QString>
@@ -36,8 +37,10 @@ public:
 	QString last_error_serv();
 	
 protected:
-	// TODO: needs to be implemented !
-	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v) { };
+	void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
+	void serialize_write(PVCore::PVSerializeObject& so);
+
+	PVSERIALIZEOBJECT_SPLIT
 
 protected:
 	PVDBServ_p _infos;

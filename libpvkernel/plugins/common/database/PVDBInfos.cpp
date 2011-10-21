@@ -74,3 +74,14 @@ QSqlDatabase PVRush::PVDBServ::to_database()
 {
 	return _db;
 }
+
+void PVRush::PVDBInfos::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
+{
+	so.attribute("host", _host);
+	so.attribute("username", _username);
+	so.attribute("password", _password);
+	so.attribute("options", _options);
+	so.attribute("type", _type);
+	so.attribute("dbname", _dbname);
+	so.attribute("port", _port);
+}

@@ -91,6 +91,8 @@ public:
 
 	list_views_t const& get_views() const { return _views; }
 
+	PVRush::PVFormat& get_format() { return _extractor.get_format(); }
+
 protected:
 	// For PVScene
 	void set_parent(PVScene* parent);

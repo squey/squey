@@ -3,6 +3,7 @@
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/stdint.h>
+#include <pvkernel/core/PVSerializeArchive.h>
 
 #include <boost/shared_ptr.hpp>
 
@@ -19,6 +20,7 @@ class PVDBServ;
 class PVDBInfos
 {
 	friend class PVDBServ;
+	friend class PVCore::PVSerializeObject;
 public:
 	PVDBInfos();
 	PVDBInfos(QString const& type, QString const& host, uint16_t port, QString const& username, QString const& password, QString const& dbname, QString const& options = QString(""));
@@ -42,6 +44,9 @@ public:
 	
 	// That name *must* be unique accross different databases
 	QString database_name() const;
+
+protected:
+	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 
 protected:
 	QString _host;

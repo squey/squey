@@ -511,7 +511,6 @@ void PVInspector::PVMainWindow::project_load_Slot()
 
 	close_scene();
 	
-	_scene.reset(new Picviz::PVScene("root", root.get()));
 	_scene->load_from_file(file);
 
 	if (!load_scene()) {

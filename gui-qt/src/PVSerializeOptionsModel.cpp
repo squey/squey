@@ -27,7 +27,7 @@ QModelIndex PVInspector::PVSerializeOptionsModel::index(int row, int column, con
 	// Column is always 0 (see columnCount), but asserts it
 	assert(column == 0);
 
-	// Create indexes with a pointer to the corresponding PVSerilizeObject in our tree
+	// Create indexes with a pointer to the corresponding PVSerializeObject in our tree
 	PVCore::PVSerializeObject::list_childs_t const& childs = get_childs_index(parent);
 	assert(row < childs.size());
 	PVCore::PVSerializeObject* obj = childs.values().at(row).get();
@@ -67,10 +67,10 @@ QVariant PVInspector::PVSerializeOptionsModel::data(const QModelIndex &index, in
 //QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 Qt::ItemFlags PVInspector::PVSerializeOptionsModel::flags(const QModelIndex &index) const
 {
-	Qt::ItemFlags flags = Qt::ItemIsUserCheckable | Qt::ItemIsSelectable;
+	Qt::ItemFlags flags = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
 	PVCore::PVSerializeObject* obj = get_so_index(index);
 	if (obj->is_optional()) {
-		flags |= Qt::ItemIsEnabled | Qt::ItemIsEditable;
+		flags |= Qt::ItemIsUserCheckable | Qt::ItemIsEditable;
 	}
 	return flags;
 }

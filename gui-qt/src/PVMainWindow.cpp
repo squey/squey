@@ -1061,6 +1061,7 @@ void PVInspector::PVMainWindow::treat_invalid_formats(QHash<QString, std::pair<Q
 
 void PVInspector::PVMainWindow::display_icon_Slot()
 {
+	close_scene();
 	show_start_page(true);
 }
 
@@ -1979,8 +1980,10 @@ void PVInspector::PVMainWindow::close_source(PVTabSplitter* tab)
 
 void PVInspector::PVMainWindow::close_scene()
 {
+	// Close sources one by one
 	int ntabs = pv_ListingsTabWidget->count();
 	for (int i = 0; i < ntabs; i++) {
-		close_source((PVTabSplitter*) pv_ListingsTabWidget->widget(i));
+		close_source((PVTabSplitter*) pv_ListingsTabWidget->widget(0));
 	}
+	_scene.reset(new Picviz::PVScene("root", root.get()));
 }
