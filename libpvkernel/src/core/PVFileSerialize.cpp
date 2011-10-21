@@ -11,7 +11,18 @@ QString const& PVCore::PVFileSerialize::get_path() const
 	return _path;
 }
 
-void PVCore::PVFileSerialize::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
+void PVCore::PVFileSerialize::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 {
-	so.file("data", _path);
+	QString fname;
+	so.attribute("filename", fname);
+	so.file(fname, _path);
+}
+
+void PVCore::PVFileSerialize::serialize_write(PVCore::PVSerializeObject& so)
+{
+	// Get the file's name
+	QFileInfo fi(_path);
+	QString fname = fi.fileName();
+	so.file(fname, _path);
+	so.attribute("filename", fname);
 }

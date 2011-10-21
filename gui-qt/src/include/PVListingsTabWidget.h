@@ -12,6 +12,7 @@
 namespace PVInspector {
 
 class PVMainWindow;
+class PVTabSplitter;
 
 /**
  * \class PVListingsTabWidget
@@ -24,9 +25,9 @@ class PVListingsTabWidget : public QTabWidget
 
 public:
 	PVListingsTabWidget(PVMainWindow *mw, QWidget *parent = 0);
+	void remove_listing(PVTabSplitter* tab);
 
 signals:
-	void tabCloseRequested(int);
 	void is_empty(); 
 
 public slots:

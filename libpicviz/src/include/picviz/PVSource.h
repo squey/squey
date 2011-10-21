@@ -80,7 +80,7 @@ public:
 	void add_view(PVView_p view);
 
 	// Parents
-	inline PVRoot_p get_root() const { return root; }
+	inline PVRoot* get_root() const { return root; }
 
 	PVRush::PVInputType::list_inputs const& get_inputs() const { return _inputs; }
 
@@ -93,7 +93,7 @@ public:
 
 protected:
 	// For PVScene
-	void set_parent(PVScene_p parent);
+	void set_parent(PVScene* parent);
 	// For PVView objects when they are being deleted
 	bool del_view(const PVView* view);
 
@@ -110,8 +110,8 @@ private:
 	void init();
 
 private:
-	PVScene_p tparent;
-	PVRoot_p root;
+	PVScene* tparent;
+	PVRoot* root;
 
 	PVRush::PVExtractor _extractor;
 	std::list<PVFilter::PVFieldsBaseFilter_p> _filters_container;

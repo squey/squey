@@ -252,7 +252,7 @@ void Picviz::PVMapped::clear_trans_nraw()
  * Picviz::PVMapped::get_source_parent
  *
  *****************************************************************************/
-Picviz::PVSource_p Picviz::PVMapped::get_source_parent()
+Picviz::PVSource* Picviz::PVMapped::get_source_parent()
 {
 	return mapping->get_source_parent();
 }
@@ -262,7 +262,7 @@ Picviz::PVSource_p Picviz::PVMapped::get_source_parent()
  * Picviz::PVMapped::get_root
  *
  *****************************************************************************/
-Picviz::PVRoot_p Picviz::PVMapped::get_root()
+Picviz::PVRoot* Picviz::PVMapped::get_root()
 {
 	return mapping->root;
 }

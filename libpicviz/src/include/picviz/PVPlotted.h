@@ -43,7 +43,7 @@ public:
 	~PVPlotted();
 
 	PVPlotting_p plotting;
-	PVRoot_p root;
+	PVRoot* root;
 
 	// TODO: use PVListFloat2D here !
 	plotted_table_t table; /* Unidimensionnal. It must be contiguous in memory */
@@ -56,7 +56,7 @@ public:
 	const PVRush::PVNraw::nraw_table& get_qtnraw() const;
 	PVRow get_row_count() const;
 	PVCol get_column_count() const;
-	PVSource_p get_source_parent();
+	PVSource* get_source_parent();
 	float get_value(PVRow row, PVCol col) const;
 	void get_sub_col_minmax(plotted_sub_col_t& ret, float& min, float& max, PVSelection const& sel, PVCol col) const;
 	void to_csv();

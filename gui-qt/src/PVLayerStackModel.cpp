@@ -234,3 +234,8 @@ bool PVInspector::PVLayerStackModel::setData(const QModelIndex &index, const QVa
 	return false;
 }
 
+void PVInspector::PVLayerStackModel::update_layer_stack()
+{
+	lib_layer_stack = parent_widget->get_lib_view()->layer_stack;
+	emit_layoutChanged();
+}

@@ -38,11 +38,11 @@ public:
 	typedef boost::shared_ptr<PVMapping> p_type;
 
 public:
-	PVMapping(PVSource_p parent);
+	PVMapping(PVSource* parent);
 	~PVMapping();
 
-	PVSource_p source;
-	PVRoot_p root;
+	PVSource* source;
+	PVRoot* root;
 	QList<PVMappingProperties> columns;
 
 	PVRush::PVFormat_p get_format() const;
@@ -51,7 +51,7 @@ public:
 	PVRush::PVNraw::nraw_trans_table const& get_trans_nraw() const;
 	void clear_trans_nraw();
 	const PVRush::PVNraw::nraw_table& get_qtnraw() const;
-	PVSource_p get_source_parent();
+	PVSource* get_source_parent();
 
 	PVMappingFilter::p_type get_filter_for_col(PVCol col);
 	QString get_group_key_for_col(PVCol col) const;

@@ -30,7 +30,7 @@ private:
 	PVRush::PVFormat format;
 	PVCol index;
 public:
-	PVPlottingProperties(PVRoot_p root, PVRush::PVFormat fmt, int idx);
+	PVPlottingProperties(PVRoot* root, PVRush::PVFormat fmt, int idx);
 	PVPlottingFilter::p_type plotting_filter;
 };
 }

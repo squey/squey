@@ -219,7 +219,7 @@ PVCol PVPlotted::get_column_count() const
 	return plotting->mapped->table.getWidth();
 }
 
-PVSource_p PVPlotted::get_source_parent()
+PVSource* PVPlotted::get_source_parent()
 {
 	return plotting->get_source_parent();
 }

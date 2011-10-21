@@ -211,7 +211,7 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 	_last_known_maj_release = pvconfig.value(PVCONFIG_LAST_KNOWN_MAJ_RELEASE, PICVIZ_VERSION_INVALID).toUInt();
 
 	// Default scene
-	_scene = Picviz::PVScene_p(new Picviz::PVScene(const_cast<char*>("default"), root)); // FIXME!
+	_scene = Picviz::PVScene_p(new Picviz::PVScene(const_cast<char*>("default"), root.get())); // FIXME!
 
 	update_check();
 }
@@ -392,9 +392,6 @@ void PVInspector::PVMainWindow::check_messages()
 					}
 					if (message.pv_view->get_plotted_parent().use_count() != 2) {
 						PVLOG_WARN("PVSDK_MESSENGER_FUNCTION_VIEWS_DESTROYED: in PVMainWindow, after views destroyed, PVPlotted has a use count of %d (should be 2)\n", message.pv_view->get_plotted_parent().use_count());
-					}
-					if (message.pv_view->get_plotted_parent()->get_source_parent().use_count() != 2) {
-						PVLOG_WARN("PVSDK_MESSENGER_FUNCTION_VIEWS_DESTROYED: in PVMainWindow, after views destroyed, PVSource has a use count of %d (should be 2)\n", message.pv_view->get_plotted_parent()->get_source_parent().use_count());
 					}
 					break;
 			case PVSDK_MESSENGER_FUNCTION_VIEW_CREATED:
@@ -878,13 +875,6 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 		}
 	}
 
-	Picviz::PVMapping_p import_mapping;
-	Picviz::PVMapped_p import_mapped;
-	Picviz::PVPlotting_p import_plotting;
-	Picviz::PVPlotted_p import_plotted;
-	Picviz::PVView_p import_view;
-	PVSDK::PVMessage message;
-
 	bool one_extraction_successful = false;
 	// Load a type of file per view
 	QHash< QString, PVRush::PVInputType::list_inputs >::const_iterator it = discovered.constBegin();
@@ -896,72 +886,15 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 
 		PVRush::pair_format_creator const& fc = format_creator[type];
 
-		// AG: the tab index is a mix of the directory and type
-		// If there is only one file, its filename is used instead of the directory
-		// This is now supported by the "input_type/file" plugin
-		QString src_name = in_t->tab_name_of_inputs(inputs);
-
 		PVRush::PVControllerJob_p job_import;
 		PVRush::PVFormat const& cur_format = fc.first;
 
 		Picviz::PVSource_p import_source = Picviz::PVSource_p(new Picviz::PVSource(inputs, fc.second, cur_format));
+		if (!load_source(import_source)) {
+			continue;
+		}
 		_scene->add_source(import_source);
-		try {
-			job_import = import_source->extract();
-		}
-		catch (PVRush::PVInputException &e) {
-			PVLOG_ERROR("PVInput error: %s\n", e.what().c_str());
-			continue;
-		}
 
-		if (!PVExtractorWidget::show_job_progress_bar(job_import, cur_format.get_format_name(), job_import->nb_elts_max(), this)) {
-			message.function = PVSDK_MESSENGER_FUNCTION_DESTROY_TRANSIENT;
-			pvsdk_messenger->post_message_to_gl(message);
-			continue;
-		}
-		job_import->wait_end();
-		PVLOG_INFO("The normalization job took %0.4f seconds.\n", job_import->duration().seconds());
-		if (import_source->get_rushnraw().table.size() == 0) {
-			PVLOG_ERROR("Cannot append source!\n");
-			QMessageBox msgBox;
-			msgBox.critical(this, "Cannot import file type", QString("The files %1/%2 cannot be opened. It looks like the format is invalid (invalid regular expressions or filters).").arg(src_name).arg(type));
-			message.function = PVSDK_MESSENGER_FUNCTION_DESTROY_TRANSIENT;
-			pvsdk_messenger->post_message_to_gl(message);
-			continue;
-		}
-		import_source->get_extractor().dump_nraw();
-
-#ifndef CUDA
-		// Transient view. This need to be created before posting the "PVSDK_MESSENGER_FUNCTION_CREATE_VIEW" message,
-		// because the actual GL view is created by this message. Cf. libpvgl/src/PVMain.cpp::timer_func
-		// for more informations.
-		message.function = PVSDK_MESSENGER_FUNCTION_PLEASE_WAIT;
-		message.pointer_1 = new QString(PVTabSplitter::get_tab_name(src_name, type));
-		pvsdk_messenger->post_message_to_gl(message);
-#endif
-
-		import_view = Picviz::PVView_p(new Picviz::PVView());
-		import_source->add_view(import_view);
-
-		current_tab = new PVTabSplitter(this, import_view, src_name, type, pv_ListingsTabWidget);
-		connect(current_tab,SIGNAL(selection_changed_signal(bool)),this,SLOT(enable_menu_filter_Slot(bool)));
-#ifdef CUDA
-		// Transient view. This need to be created before posting the "PVSDK_MESSENGER_FUNCTION_CREATE_VIEW" message,
-		// because the actual GL view is created by this message. Cf. libpvgl/src/PVMain.cpp::timer_func
-		// for more informations.
-		message.function = PVSDK_MESSENGER_FUNCTION_PLEASE_WAIT;
-		message.pointer_1 = new QString(tab_name);
-		pvsdk_messenger->post_message_to_gl(message);
-#endif
-		
-		// Ask the PVGL to create a GL-View from the previous transient view
-		message.function = PVSDK_MESSENGER_FUNCTION_CREATE_VIEW;
-		message.pv_view = import_view;
-		pvsdk_messenger->post_message_to_gl(message);
-		int new_tab_index = pv_ListingsTabWidget->addTab(current_tab, current_tab->get_tab_name());
-		/* Set the new tab as the active tab */
-		pv_ListingsTabWidget->setCurrentIndex(new_tab_index);
-		
 		one_extraction_successful = true;
 	}
 
@@ -974,46 +907,87 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 	pv_ListingsTabWidget->setVisible(true);
 }
 
-bool PVInspector::PVMainWindow::process_scene()
+bool PVInspector::PVMainWindow::load_scene()
 {
-	// Here, (re)process the current scene.
-	
-	// TODO: remove all the tabs
+	// Here, load the whole scene.
 	
 	// Process all sources with their view
 	Picviz::PVScene::list_sources_t srcs = _scene->get_all_sources();
 	Picviz::PVScene::list_sources_t::iterator it;
 	PVRush::PVControllerJob_p job_import;
 
-	try {
-		for (it = srcs.begin(); it != srcs.end(); it++) {
-			Picviz::PVSource_p import_source = *it;
-			job_import = import_source->extract();
-
-			QString format_name = import_source->get_format_name();
-			if (!PVExtractorWidget::show_job_progress_bar(job_import, format_name, job_import->nb_elts_max(), this)) {
-				return false;
-			}
-			
-			job_import->wait_end();
-
-			// Process views (mapping, plotting, etc...) by keeping the existing layers (loaded from the scene)
-			import_source->process_from_source(true);
-
-			// For each view, add a tab
-			Picviz::PVSource::list_views_t const& views = import_source->get_views();
-			Picviz::PVSource::list_views_t::const_iterator it_view;
-			for (it_view = views.begin(); it_view != views.end(); it_view++) {
-				current_tab = new PVTabSplitter(this, *it_view, import_source->get_name(), format_name, pv_ListingsTabWidget);
-				connect(current_tab,SIGNAL(selection_changed_signal(bool)),this,SLOT(enable_menu_filter_Slot(bool)));
-				pv_ListingsTabWidget->addTab(current_tab, current_tab->get_tab_name());
-			}
+	for (it = srcs.begin(); it != srcs.end(); it++) {
+		Picviz::PVSource_p import_source = *it;
+		if (!load_source(import_source)) {
+			return false;
 		}
+	}
+
+	return true;
+}
+
+bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_p src)
+{
+	// Load a created source
+	
+	// Transient view. This need to be created before posting the "PVSDK_MESSENGER_FUNCTION_CREATE_VIEW" message,
+	// because the actual GL view is created by this message. Cf. libpvgl/src/PVMain.cpp::timer_func
+	// for more informations.
+	PVSDK::PVMessage message;
+	message.function = PVSDK_MESSENGER_FUNCTION_PLEASE_WAIT;
+	message.pointer_1 = new QString(PVTabSplitter::get_tab_name(src));
+	pvsdk_messenger->post_message_to_gl(message);
+
+	// Extract the source
+	PVRush::PVControllerJob_p job_import;
+	try {
+		job_import = src->extract();
 	}
 	catch (PVRush::PVInputException &e) {
 		PVLOG_ERROR("PVInput error: %s\n", e.what().c_str());
 		return false;
 	}
+
+	if (!PVExtractorWidget::show_job_progress_bar(job_import, src->get_format_name(), job_import->nb_elts_max(), this)) {
+		message.function = PVSDK_MESSENGER_FUNCTION_DESTROY_TRANSIENT;
+		pvsdk_messenger->post_message_to_gl(message);
+		return false;
+	}
+	job_import->wait_end();
+	PVLOG_INFO("The normalization job took %0.4f seconds.\n", job_import->duration().seconds());
+	if (src->get_rushnraw().table.size() == 0) {
+		PVLOG_ERROR("Cannot append source!\n");
+		QMessageBox msgBox;
+		msgBox.critical(this, "Cannot import file type", QString("The files %1/%2 cannot be opened. It looks like the format is invalid (invalid regular expressions or filters).").arg(src->get_name()).arg(src->get_format_name()));
+		message.function = PVSDK_MESSENGER_FUNCTION_DESTROY_TRANSIENT;
+		pvsdk_messenger->post_message_to_gl(message);
+		return false;
+	}
+	src->get_extractor().dump_nraw();
+	
+	// If no view is present, create a default one. Otherwise, process them by
+	// keeping the existing layers !
+	Picviz::PVView_p first_view;
+	if (src->get_views().size() == 0) {
+		first_view = Picviz::PVView_p(new Picviz::PVView());
+		src->add_view(first_view);
+	}
+	else {
+		src->process_from_source(true);
+		first_view = src->get_views().at(0);
+	}
+
+	// Ask PVGL to create a GL-View from the previous transient view
+	message.function = PVSDK_MESSENGER_FUNCTION_CREATE_VIEW;
+	message.pv_view = first_view;
+	pvsdk_messenger->post_message_to_gl(message);
+
+	// Add the source's tab
+	current_tab = new PVTabSplitter(this, src, pv_ListingsTabWidget);
+	connect(current_tab,SIGNAL(selection_changed_signal(bool)),this,SLOT(enable_menu_filter_Slot(bool)));
+	int new_tab_index = pv_ListingsTabWidget->addTab(current_tab, current_tab->get_tab_name());
+	pv_ListingsTabWidget->setCurrentIndex(new_tab_index);
+
 	return true;
 }
 
@@ -1984,5 +1958,29 @@ void PVInspector::PVMainWindow::set_version_informations()
 	}
 	if (_last_known_maj_release != PICVIZ_VERSION_INVALID) {
 		pv_lastMajVersion->setText(PVCore::PVVersion::to_str(_last_known_maj_release));
+	}
+}
+
+void PVInspector::PVMainWindow::close_source(PVTabSplitter* tab)
+{
+	Picviz::PVSource_p src(tab->get_lib_src());
+
+	// Destroy all views
+	Picviz::PVSource::list_views_t const& views = src->get_views();
+	Picviz::PVSource::list_views_t::const_iterator it;
+	for (it = views.begin(); it != views.end(); it++) {
+		destroy_pvgl_views(*it);
+	}
+
+	pv_ListingsTabWidget->remove_listing(tab);
+
+	_scene->del_source(src.get());
+}
+
+void PVInspector::PVMainWindow::close_scene()
+{
+	int ntabs = pv_ListingsTabWidget->count();
+	for (int i = 0; i < ntabs; i++) {
+		close_source((PVTabSplitter*) pv_ListingsTabWidget->widget(i));
 	}
 }

@@ -58,7 +58,7 @@ protected:
 public:
 
 	/* Variables */
-	PVRoot_p   root;
+	PVRoot*   root;
 	QString    name;
 	int active_axis;
 
@@ -123,7 +123,7 @@ public:
 	PVCore::PVColor get_color_in_output_layer(PVRow index);
 	PVCol get_column_count();
 	float get_column_count_as_float();
-	PVRoot_p get_root();
+	PVRoot* get_root();
 	PVSelection &get_floating_selection();
 	int get_layer_index(int index);
 	float get_layer_index_as_float(int index);
@@ -279,8 +279,8 @@ public:
 	PVPlotted_p get_plotted_parent();
 	const PVPlotted_p get_plotted_parent() const;
 	
-	PVSource_p get_source_parent();
-	const PVSource_p get_source_parent() const;
+	PVSource* get_source_parent();
+	const PVSource* get_source_parent() const;
 
 	void debug();
 

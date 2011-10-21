@@ -39,7 +39,7 @@ public:
 	~PVMapped();
 
 	PVMapping_p mapping;
-	PVRoot_p root;
+	PVRoot* root;
 
 	PVCore::PVListFloat2D table;
 	PVCore::PVListFloat2D trans_table;
@@ -52,8 +52,8 @@ public:
 	const PVRush::PVNraw::nraw_table& get_qtnraw() const;
 	const PVRush::PVNraw::nraw_trans_table& get_trans_nraw() const;
 	void clear_trans_nraw();
-	PVSource_p get_source_parent();
-	PVRoot_p get_root();
+	PVSource* get_source_parent();
+	PVRoot* get_root();
 
 	PVRow get_row_count();
 	PVCol get_column_count();

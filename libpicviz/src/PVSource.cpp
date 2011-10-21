@@ -37,6 +37,8 @@ Picviz::PVSource::PVSource(PVRush::PVInputType::list_inputs const& inputs, PVRus
 	_inputs = inputs;
 	_src_plugin = sc;
 	files_append_noextract();
+
+	set_parent(NULL);
 }
 
 Picviz::PVSource::PVSource()
@@ -69,15 +71,15 @@ void Picviz::PVSource::init()
 	_extractor.start_controller();
 }
 
-void Picviz::PVSource::set_parent(PVScene_p parent)
+void Picviz::PVSource::set_parent(PVScene* parent)
 {
 	if (parent) {
 		tparent = parent;
 		root = parent->get_root();
 	}
 	else {
-		tparent.reset();
-		root.reset();
+		tparent = NULL;
+		root = NULL;
 	}
 }
 

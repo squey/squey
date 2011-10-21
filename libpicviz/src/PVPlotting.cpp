@@ -71,7 +71,7 @@ const PVRush::PVNraw::nraw_table& Picviz::PVPlotting::get_qtnraw() const
  * Picviz::PVPlotting::get_source_parent
  *
  *****************************************************************************/
-Picviz::PVSource_p Picviz::PVPlotting::get_source_parent()
+Picviz::PVSource* Picviz::PVPlotting::get_source_parent()
 {
 	return mapped->get_source_parent();
 }

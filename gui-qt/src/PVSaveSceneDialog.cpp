@@ -11,6 +11,11 @@ PVInspector::PVSaveSceneDialog::PVSaveSceneDialog(Picviz::PVScene_p scene, PVCor
 	QFileDialog(parent),
 	_scene(scene)
 {
+	setAcceptMode(QFileDialog::AcceptSave);
+	setDefaultSuffix(PICVIZ_SCENE_ARCHIVE_EXT);
+	setWindowTitle(tr("Load project..."));
+	setNameFilters(QStringList() << PICVIZ_SCENE_ARCHIVE_FILTER << ALL_FILES_FILTER);
+
 	QGridLayout* main_layout = (QGridLayout*) layout();
 
 	// Show the options

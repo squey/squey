@@ -12,7 +12,7 @@
 
 #include <iostream>
 
-Picviz::PVMapping::PVMapping(PVSource_p parent)
+Picviz::PVMapping::PVMapping(PVSource* parent)
 {
 	source = parent;
 	root = parent->get_root();
@@ -39,7 +39,6 @@ Picviz::PVMapping::PVMapping(PVSource_p parent)
 
 Picviz::PVMapping::~PVMapping()
 {
-
 }
 
 PVRush::PVFormat_p Picviz::PVMapping::get_format() const
@@ -57,7 +56,7 @@ const PVRush::PVNraw::nraw_table& Picviz::PVMapping::get_qtnraw() const
 	return source->get_qtnraw();
 }
 
-Picviz::PVSource_p Picviz::PVMapping::get_source_parent()
+Picviz::PVSource* Picviz::PVMapping::get_source_parent()
 {
 	return source;
 }

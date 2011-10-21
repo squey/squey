@@ -109,6 +109,9 @@ public:
 	/* void import_type(); */
 	void update_statemachine_label(Picviz::PVView_p view);
 
+	void close_source(int index);
+	void close_source(PVTabSplitter* tab);
+	void close_scene();
 
 public slots:
 	void about_Slot();
@@ -175,7 +178,8 @@ private:
 	void create_actions_import_types(QMenu* menu);
 	void menu_activate_is_file_opened(bool cond);
 
-	bool process_scene();
+	bool load_scene();
+	bool load_source(Picviz::PVSource_p src);
 
 	QMenu *axes_Menu;
 	QMenu *file_Menu;

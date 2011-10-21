@@ -26,11 +26,14 @@
  * PVInspector::PVListingView::PVListingView
  *
  *****************************************************************************/
-PVInspector::PVListingView::PVListingView(PVMainWindow *mw, Picviz::PVView_p pv_view, PVTabSplitter *parent) : QTableView(parent),main_window(mw)
+PVInspector::PVListingView::PVListingView(PVMainWindow *mw, PVTabSplitter *parent):
+	QTableView(parent),
+	main_window(mw),
+	_parent(parent)
 {
 	PVLOG_DEBUG("PVInspector::PVListingView::%s\n", __FUNCTION__);
 
-	lib_view = pv_view;
+	lib_view = parent->get_lib_view();
 	_ctxt_process = NULL;
 
 	setMinimumSize(0,0);
@@ -85,6 +88,8 @@ void PVInspector::PVListingView::update_view_selection_from_listing_selection()
 	QModelIndexList selected_items_list;
 	PVListingModel *myModel = (PVListingModel *)model();
 	unsigned int modifiers;
+	// Get current lib view for this source
+	Picviz::PVView_p lib_view = _parent->get_lib_view();
 
 	/* CODE */
 	state_machine = lib_view->state_machine;
@@ -200,6 +205,9 @@ void PVInspector::PVListingView::show_ctxt_menu(const QPoint& pos)
 		return;
 	}
 
+	// Get current lib view for this source
+	Picviz::PVView_p lib_view = _parent->get_lib_view();
+
 	// Get the string associated (that is, taken from the NRAW)
 	QString v = idx_click.data().toString();
 
@@ -265,4 +273,9 @@ void PVInspector::PVListingView::process_ctxt_menu_action(QAction* act)
 	_ctxt_process = new PVLayerFilterProcessWidget(main_window->current_tab, _ctxt_args, fclone);
 	_ctxt_process->init();
 	_ctxt_process->show();
+}
+
+void PVInspector::PVListingView::update_view()
+{
+	lib_view = _parent->get_lib_view();
 }

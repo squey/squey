@@ -61,7 +61,7 @@ Picviz::PVView::PVView(const PVView& /*org*/):
  *****************************************************************************/
 Picviz::PVView::~PVView()
 {
-	PVLOG_DEBUG("In PVView destructor\n");
+	PVLOG_INFO("In PVView destructor\n");
 	delete state_machine;
 }
 
@@ -674,7 +674,7 @@ int Picviz::PVView::get_real_row_index(int index)
  * Picviz::PVView::get_root
  *
  *****************************************************************************/
-Picviz::PVRoot_p Picviz::PVView::get_root()
+Picviz::PVRoot* Picviz::PVView::get_root()
 {
 	return plotted->root;
 }
@@ -695,12 +695,12 @@ PVRow Picviz::PVView::get_row_count()
  * Picviz::PVView::get_source_parent
  *
  *****************************************************************************/
-Picviz::PVSource_p Picviz::PVView::get_source_parent()
+Picviz::PVSource* Picviz::PVView::get_source_parent()
 {
 	return plotted->get_source_parent();
 }
 
-const Picviz::PVSource_p Picviz::PVView::get_source_parent() const
+const Picviz::PVSource* Picviz::PVView::get_source_parent() const
 {
 	return plotted->get_source_parent();
 }
@@ -1480,7 +1480,7 @@ void Picviz::PVView::set_parent_plotted(PVPlotted_p parent)
 
 void Picviz::PVView::init_from_source(PVSource_p source, bool keep_layers)
 {
-	Picviz::PVMapping_p import_mapping = Picviz::PVMapping_p(new Picviz::PVMapping(source));
+	Picviz::PVMapping_p import_mapping = Picviz::PVMapping_p(new Picviz::PVMapping(source.get()));
 	Picviz::PVMapped_p import_mapped = Picviz::PVMapped_p(new Picviz::PVMapped(import_mapping));
 	Picviz::PVPlotting_p import_plotting = Picviz::PVPlotting_p(new Picviz::PVPlotting(import_mapped));
 	Picviz::PVPlotted_p import_plotted = Picviz::PVPlotted_p(new Picviz::PVPlotted(import_plotting));

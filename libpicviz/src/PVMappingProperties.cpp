@@ -8,7 +8,7 @@
 #include <pvkernel/core/PVClassLibrary.h>
 #include <picviz/PVRoot.h>
 
-Picviz::PVMappingProperties::PVMappingProperties(PVRoot_p root, PVRush::PVFormat fmt, int idx)
+Picviz::PVMappingProperties::PVMappingProperties(PVRoot* root, PVRush::PVFormat fmt, int idx)
 {
 	format = fmt;
 	index = idx;

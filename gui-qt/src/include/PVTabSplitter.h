@@ -10,6 +10,7 @@
 
 #include <QSplitter>
 
+#include <picviz/PVSource.h>
 #include <picviz/PVView.h>
 
 #include <PVLayerStackModel.h>
@@ -41,7 +42,8 @@ public:
 	MatchingTable_t sortMatchingTable; //!<the table sort, modify this array to order the values. sortMatchingTable[0] is the position of the line 0 after sort.
 	MatchingTable_t sortMatchingTable_invert; //!<sortMatchingTable_invert[E] (E: a line in sorted table) return the real position in the nraw 
 	PVMainWindow     *main_window;   //!< The parent PVMainWindow of this PVTabSplitter
-	Picviz::PVView_p lib_view;      //!< The Picviz::PVView 
+	Picviz::PVSource_p _lib_src;    //!< The Picviz::PVSource object this tab is bound to
+	Picviz::PVView_p current_lib_view;      //!< The current Picviz::PVView 
 
 	PVListingView *pv_listing_view; //!< The PVListingView attached with our main application
 
@@ -57,8 +59,6 @@ public:
 	PVAxesCombinationDialog *pv_axes_combination_editor;
 
 	int screenshot_index;
-	QString _src_name;
-	QString _src_type;
 
 public slots:
 	// FIXME!			void update_row_count_in_all_dynamic_listing_model_Slot();
@@ -92,7 +92,7 @@ public:
 	 * @param lib_view
 	 * @param parent
 	 */
-	PVTabSplitter(PVMainWindow *mw, Picviz::PVView_p lib_view, QString const& src_name, QString const& src_type, QWidget *parent);
+	PVTabSplitter(PVMainWindow *mw, Picviz::PVSource_p lib_src, QWidget *parent);
 
 	virtual ~PVTabSplitter();
 
@@ -110,9 +110,15 @@ public:
 
 	/**
 	 *
-	 * @return a pointer to the Picviz::PVView attached to this PVMainSplitter
+	 * @return a pointer to the current Picviz::PVView attached to this PVMainSplitter
 	 */
-	Picviz::PVView_p get_lib_view()const{return lib_view;}
+	Picviz::PVView_p get_lib_view() const { return current_lib_view; }
+
+	/**
+	 *
+	 * @return a pointer to the bound Picviz::PVSource
+	 */
+	Picviz::PVSource_p get_lib_src() const { return _lib_src; }
 
 	/**
 	 *
@@ -129,10 +135,10 @@ public:
 	PVAxesCombinationDialog* get_axes_combination_editor() const { return pv_axes_combination_editor; }
 
 
-	QString get_tab_name() { return get_tab_name(_src_name, _src_type); }
-	static QString get_tab_name(QString const& src, QString const& type) { return src + QString(" / ") + type; }
-	QString get_src_name() { return _src_name; }
-	QString get_src_type() { return _src_type; }
+	QString get_tab_name() { return get_tab_name(_lib_src); }
+	static QString get_tab_name(Picviz::PVSource_p src) { return src->get_name() + QString(" / ") + src->get_format_name(); }
+	QString get_src_name() { return _lib_src->get_name(); }
+	QString get_src_type() { return _lib_src->get_format_name(); }
 
 	/**
 	 *
@@ -151,6 +157,8 @@ public:
 	 * Update filter menu enabling
 	 */
 	void updateFilterMenuEnabling();
+
+	void select_view(Picviz::PVView_p view);
 
 public slots:
 	/**

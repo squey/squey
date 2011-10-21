@@ -56,7 +56,7 @@ int main(int argc, char** argv)
 	job->wait_end();
 
 	// Map the nraw
-	Picviz::PVMapping_p mapping(new Picviz::PVMapping(src));
+	Picviz::PVMapping_p mapping(new Picviz::PVMapping(src.get()));
 	Picviz::PVMapped_p mapped(new Picviz::PVMapped(mapping));
 
 	// And plot the mapped values

@@ -21,7 +21,7 @@
 #include <boost/enable_shared_from_this.hpp>
 
 #define PICVIZ_SCENE_ARCHIVE_EXT "pv"
-#define PICVIZ_SCENE_ARCHIVE_FILTER "Picviz project files (*." PICVIZ_LAYER_ARCHIVE_EXT ")"
+#define PICVIZ_SCENE_ARCHIVE_FILTER "Picviz project files (*." PICVIZ_SCENE_ARCHIVE_EXT ")"
 
 namespace Picviz {
 
@@ -43,11 +43,11 @@ private:
 	typedef std::map<PVRush::PVInputType::base_registrable, PVCore::PVSerializeObject_p> hash_type_so_inputs;
 public:
 	
-	PVScene(QString scene_name, PVRoot_p parent);
+	PVScene(QString scene_name, PVRoot* parent);
 	~PVScene();
 
 public:
-	PVRoot_p get_root();
+	PVRoot* get_root();
 
 public:
 	PVCore::PVSerializeArchiveOptions_p get_default_serialize_options();
@@ -73,7 +73,7 @@ private:
 	hash_type_sources_t _sources;
 	hash_type_so_inputs _so_inputs;
 
-	PVRoot_p _root;
+	PVRoot* _root;
 	QString _name;
 };
 

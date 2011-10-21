@@ -107,6 +107,8 @@ public:
 	*
 	*/
 	void emit_layoutChanged();
+
+	void update_layer_stack();
 };
 }
 

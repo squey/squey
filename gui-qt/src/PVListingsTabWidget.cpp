@@ -25,10 +25,8 @@ PVInspector::PVListingsTabWidget::PVListingsTabWidget(PVMainWindow *mw, QWidget 
 
 	tabBar()->installEventFilter(main_window);
 
-#ifdef CUSTOMER_RELEASE
 	setTabsClosable(true);
 	connect(tabBar(), SIGNAL(tabCloseRequested(int)), this, SLOT(tabCloseRequested_Slot(int)));
-#endif	// CUSTOMER_RELEASE
 }
 
 
@@ -61,24 +59,22 @@ void PVInspector::PVListingsTabWidget::show_hide_views_tab_widget_Slot(bool visi
  *****************************************************************************/
 void PVInspector::PVListingsTabWidget::tabCloseRequested_Slot(int index)
 {
-	PVTabSplitter *current_tab = dynamic_cast<PVTabSplitter*>(widget(index));
+	PVTabSplitter* tab = (PVTabSplitter*) widget(index);
+	assert(tab);
+	main_window->close_source(tab);
+}
 
-	if (!current_tab) {
-		PVLOG_ERROR("PVInspector::PVListingsTabWidget::%s We have a strange beast in the tab widget!\n", __FUNCTION__);
-	}
-
+void PVInspector::PVListingsTabWidget::remove_listing(PVTabSplitter* tab)
+{
+	int index = indexOf(tab);
+	assert(index != -1);
 	removeTab(index);
-/*  DDX: I don't understand why this code exists.if (index == 0) {
-		currentWidget()->hide();
-	}*/
-
-	main_window->destroy_pvgl_views(current_tab->get_lib_view());
-	current_tab->deleteLater();
 
 	if(currentIndex() == -1)
 	{
 		emit is_empty();
 		hide();
 	}
-}
 
+	tab->deleteLater();
+}

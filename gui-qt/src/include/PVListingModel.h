@@ -167,6 +167,8 @@ public:
      */
     void emitLayoutChanged(); 
 
+	void update_view();
+
 protected:
 	mutable QReadWriteLock _local_table_mutex;
 	typedef std::vector<std::pair<PVRow, PVRow>, tbb::cache_aligned_allocator<std::pair<PVRow,PVRow> > > map_sort_t;

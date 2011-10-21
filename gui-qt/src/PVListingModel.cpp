@@ -485,7 +485,8 @@ unsigned int PVInspector::PVListingModel::getMatch(unsigned int l) {
  * PVInspector::PVListingModel::reset_model
  *
  *****************************************************************************/
-void PVInspector::PVListingModel::reset_model(bool initMatchTable) {
+void PVInspector::PVListingModel::reset_model(bool initMatchTable)
+{
 	PVLOG_DEBUG("PVInspector::PVListingModel::%s\n", __FUNCTION__);
 	reset();
 	if (initMatchTable) {
@@ -493,6 +494,13 @@ void PVInspector::PVListingModel::reset_model(bool initMatchTable) {
 	}
 	initLocalMatchingTable();
 	emitLayoutChanged();
-	//PVLOG_INFO("reset_model() : rowCount=%d, corresp.size=%d\n",rowCount(QModelIndex()),correspondTable.size());
 }
 
+void PVInspector::PVListingModel::update_view()
+{
+	lib_view = parent_widget->get_lib_view();
+	assert(lib_view);
+	state_machine = lib_view->state_machine;
+
+	reset_model(true);
+}

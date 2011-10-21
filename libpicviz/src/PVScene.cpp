@@ -15,7 +15,7 @@
  * Picviz::PVScene::PVScene
  *
  *****************************************************************************/
-Picviz::PVScene::PVScene(QString scene_name, PVRoot_p parent):
+Picviz::PVScene::PVScene(QString scene_name, PVRoot* parent):
 	_root(parent),
 	_name(scene_name)
 {
@@ -36,7 +36,7 @@ void Picviz::PVScene::add_source(PVSource_p src)
 	// typedef std::map<PVRush::PVInputType, std::pair<list_sources_t, PVRush::PVInputType::list_inputs> > hash_type_sources_t;
 	// hash_type_sources_t _sources;
 	
-	src->set_parent(shared_from_this());
+	src->set_parent(this);
 	std::pair<list_sources_t, PVRush::PVInputType::list_inputs>& type_srcs = _sources[*(src->get_input_type())];
 
 	PVRush::PVInputType::list_inputs& inputs(type_srcs.second);
@@ -92,7 +92,7 @@ bool Picviz::PVScene::del_source(const PVSource* src)
 	return false;
 }
 
-Picviz::PVRoot_p Picviz::PVScene::get_root()
+Picviz::PVRoot* Picviz::PVScene::get_root()
 {
 	return _root;
 }
@@ -121,10 +121,10 @@ void Picviz::PVScene::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSe
 
 	// Get the sources
 	PVSource_p src(new PVSource());
-	src->set_parent(shared_from_this());
+	src->set_parent(this);
 	list_sources_t all_sources;
 	so.list("sources", all_sources, src.get());
-	src->set_parent(PVScene_p());
+	src->set_parent(NULL);
 	PVLOG_INFO("(PVScene::serialize_read) get %d sources\n", all_sources.size());
 
 	// And finally add them !

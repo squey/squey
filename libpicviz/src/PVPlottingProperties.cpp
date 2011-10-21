@@ -15,7 +15,7 @@
  * Picviz::PVPlottingProperties::PVPlottingProperties
  *
  *****************************************************************************/
-Picviz::PVPlottingProperties::PVPlottingProperties(PVRoot_p root, PVRush::PVFormat fmt, int idx)
+Picviz::PVPlottingProperties::PVPlottingProperties(PVRoot* root, PVRush::PVFormat fmt, int idx)
 {
 	format = fmt;
 	index = idx;

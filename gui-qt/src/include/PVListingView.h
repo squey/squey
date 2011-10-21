@@ -29,13 +29,8 @@ class PVListingView : public QTableView
 	Q_OBJECT
 
 	PVMainWindow    *main_window; //<!
+	PVTabSplitter   *_parent;
 	Picviz::PVView_p lib_view;    //<!
-
-/*	PVListingModel                     *pv_listing_model;                         //!<
-	PVListingNoUnselectedModel         *pv_listing_no_unselected_model;           //!<
-	PVListingNoZombieModel             *pv_listing_no_zombie_model;               //!<
-	PVListingNoZombieNoUnselectedModel *pv_listing_no_zombie_no_unselected_model; //!<
-	int screenshot_index;*/
 
 public slots:
 	void slotDoubleClickOnVHead(int);
@@ -60,7 +55,7 @@ public:
 	 * @param lib_view
 	 * @param parent
 	 */
-	PVListingView(PVMainWindow *mw, Picviz::PVView_p lib_view, PVTabSplitter *parent);
+	PVListingView(PVMainWindow *mw, PVTabSplitter *parent);
 
 	/**
 	 *
@@ -80,6 +75,8 @@ public:
 //	void increment_screenshot_index();
 
 	void keyEnterPressed();
+
+	void update_view();
 
 private:
 	void mouseDoubleClickEvent(QMouseEvent* event);

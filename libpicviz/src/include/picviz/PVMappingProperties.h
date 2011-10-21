@@ -30,7 +30,7 @@ private:
 	PVCol index;
 	QString group_key;
 public:
-	PVMappingProperties(PVRoot_p root, PVRush::PVFormat fmt, int idx);
+	PVMappingProperties(PVRoot* root, PVRush::PVFormat fmt, int idx);
 	PVMappingFilter::p_type mapping_filter;
 	QString get_group_key() const { return group_key; }
 };

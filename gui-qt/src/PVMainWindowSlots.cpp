@@ -509,12 +509,12 @@ void PVInspector::PVMainWindow::project_load_Slot()
 	}
 	QString file = dlg->selectedFiles().at(0);
 
-	// TODO: close all !
+	close_scene();
 	
-	_scene.reset(new Picviz::PVScene("root", root));
+	_scene.reset(new Picviz::PVScene("root", root.get()));
 	_scene->load_from_file(file);
 
-	if (!process_scene()) {
+	if (!load_scene()) {
 		PVLOG_ERROR("(PVMainWindow::project_load_Slot) error while processing the scene...\n");
 		return;
 	}

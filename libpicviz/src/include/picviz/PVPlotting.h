@@ -40,7 +40,7 @@ public:
 	typedef boost::shared_ptr<PVPlotting> p_type;
 public:
 	PVMapped_p mapped;
-	PVRoot_p root;
+	PVRoot* root;
 	QList<PVPlottingProperties> columns;
 
 	/**
@@ -67,7 +67,7 @@ public:
 	/**
 	 * Gets the parent Picviz::PVSource
 	 */
-	Picviz::PVSource_p get_source_parent();
+	Picviz::PVSource* get_source_parent();
 
 	Picviz::PVPlottingFilter::p_type get_filter_for_col(PVCol col);
 };

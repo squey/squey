@@ -21,25 +21,23 @@
  * PVInspector::PVTabSplitter::PVTabSplitter
  *
  *****************************************************************************/
-PVInspector::PVTabSplitter::PVTabSplitter(PVMainWindow *mw, Picviz::PVView_p pv_view, QString const& src_name, QString const& src_type, QWidget *parent) :
+PVInspector::PVTabSplitter::PVTabSplitter(PVMainWindow *mw, Picviz::PVSource_p lib_src, QWidget *parent) :
 	QSplitter(parent),
-	_src_name(src_name),
-	_src_type(src_type)
+	_lib_src(lib_src)
 {
 	PVLOG_DEBUG("PVInspector::PVTabSplitter::%s\n", __FUNCTION__);
+	assert(lib_src->get_views().size() > 0);
+	// Select the first view
+	current_lib_view = lib_src->get_views().at(0);
 
 	main_window = mw;
-	lib_view = pv_view;
 	pv_layer_stack_widget = NULL; // Note that this value can be requested during the creating of the PVLayerStackWidget!
-
-	Picviz::PVStateMachine *state_machine = lib_view->state_machine;
-	// state_machine->listing_mode = Picviz::LISTING_NO_UNSEL_NO_ZOMBIES;
 
 	pv_listing_model = new PVListingModel(main_window, this);
 	pv_listing_no_unselected_model = new PVListingModel(main_window, this);
 	pv_listing_no_zombie_model = new PVListingModel(main_window, this);
 	pv_listing_no_zombie_no_unselected_model = new PVListingModel(main_window, this);
-	pv_listing_view = new PVListingView(main_window, lib_view, this);
+	pv_listing_view = new PVListingView(main_window, this);
 	pv_listing_view->setModel(pv_listing_no_zombie_no_unselected_model);
 
 	addWidget(pv_listing_view);
@@ -55,7 +53,6 @@ PVInspector::PVTabSplitter::PVTabSplitter(PVMainWindow *mw, Picviz::PVView_p pv_
 	setMinimumSize(0,0);
 	setSizePolicy(QSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding));
 	setFocusPolicy(Qt::NoFocus);
-//	moveSplitter(250, 1);
 }
 
 PVInspector::PVTabSplitter::~PVTabSplitter()
@@ -98,7 +95,7 @@ void PVInspector::PVTabSplitter::refresh_listing_Slot()
 {
 	PVLOG_DEBUG("%s \n       %s %d\n",__FILE__,__FUNCTION__,__LINE__);
 	if (pv_listing_view) {
-		lib_view->gl_call_locker.lock();
+		current_lib_view->gl_call_locker.lock();
 		pv_listing_view->viewport()->update();
 		pv_listing_view->verticalHeader()->viewport()->update();
 		//static_cast<PVListingModelBase*>(pv_listing_view->model())->reset_model();
@@ -106,8 +103,8 @@ void PVInspector::PVTabSplitter::refresh_listing_Slot()
 		static_cast<PVListingModel*>(pv_listing_view->model())->initMatchingTable();
                 static_cast<PVListingModel*>(pv_listing_view->model())->initLocalMatchingTable();
 		static_cast<PVListingModel*>(pv_listing_view->model())->emitLayoutChanged();
-		lib_view->gl_call_locker.unlock();
-		main_window->update_statemachine_label(lib_view);
+		current_lib_view->gl_call_locker.unlock();
+		main_window->update_statemachine_label(current_lib_view);
 	}
 }
 
@@ -153,7 +150,7 @@ void PVInspector::PVTabSplitter::update_pv_listing_model_Slot()
 		return;
 	}
 	/* We get an access to the current StateMachine */
-	Picviz::PVStateMachine *state_machine = lib_view->state_machine;
+	Picviz::PVStateMachine *state_machine = current_lib_view->state_machine;
 	/* We prepare a pointer of type (QAbstractTableModel *) */
 	QAbstractTableModel *next_model;
 
@@ -224,4 +221,15 @@ void PVInspector::PVTabSplitter::refresh_axes_combination_Slot()
 	if (pv_axes_combination_editor->isVisible()) {
 		pv_axes_combination_editor->update_used_axes();
 	}
+}
+
+void PVInspector::PVTabSplitter::select_view(Picviz::PVView_p view)
+{
+	assert(view->get_source_parent() == _lib_src.get());
+	current_lib_view = view;
+
+	// Update the layer stack
+	pv_layer_stack_model->update_layer_stack();
+	pv_listing_model->update_view();
+	pv_listing_view->update_view();
 }
