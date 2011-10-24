@@ -52,6 +52,11 @@ QString PVRush::PVInputTypeDatabase::human_name() const
 	return QString("Database import plugin");
 }
 
+QString PVRush::PVInputTypeDatabase::human_name_serialize() const
+{
+	return QString("Databases");
+}
+
 QString PVRush::PVInputTypeDatabase::menu_input_name() const
 {
 	return QString("Import from a database...");

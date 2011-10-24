@@ -131,6 +131,11 @@ QString PVRush::PVInputTypeFilename::human_name() const
 	return QString("File import plugin");
 }
 
+QString PVRush::PVInputTypeFilename::human_name_serialize() const
+{
+	return QString(tr("Files"));
+}
+
 QString PVRush::PVInputTypeFilename::menu_input_name() const
 {
 	return QString("Import files...");

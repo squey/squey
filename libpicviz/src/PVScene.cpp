@@ -10,6 +10,8 @@
 #include <picviz/PVScene.h>
 #include <picviz/PVSource.h>
 
+
+#define ARCHIVE_SCENE_DESC (QObject::tr("Workspace"))
 /******************************************************************************
  *
  * Picviz::PVScene::PVScene
@@ -128,7 +130,7 @@ void Picviz::PVScene::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSe
 	PVSource_p src(new PVSource());
 	src->set_parent(this);
 	list_sources_t all_sources;
-	so.list("sources", all_sources, src.get());
+	so.list("sources", all_sources, QObject::tr("Sources"), src.get());
 	src->set_parent(NULL);
 	PVLOG_INFO("(PVScene::serialize_read) get %d sources\n", all_sources.size());
 
@@ -173,7 +175,14 @@ void Picviz::PVScene::serialize_write(PVCore::PVSerializeObject& so)
 	so.list_attributes("types", input_types);
 
 	// Then serialize the list of sources
-	so.list("sources", all_sources);
+	
+	// Get the sources name
+	QStringList desc;
+	list_sources_t::const_iterator it_src;
+	for (it_src = all_sources.begin(); it_src != all_sources.end(); it_src++) {
+		desc << (*it_src)->get_name() + QString(" / ") + (*it_src)->get_format_name();
+	}
+	so.list(QString("sources"), all_sources, QObject::tr("Sources"), (PVSource*) NULL, desc);
 }
 
 PVCore::PVSerializeObject_p Picviz::PVScene::get_so_inputs(PVSource const& src)
@@ -184,7 +193,7 @@ PVCore::PVSerializeObject_p Picviz::PVScene::get_so_inputs(PVSource const& src)
 PVCore::PVSerializeArchiveOptions_p Picviz::PVScene::get_default_serialize_options()
 {
 	PVCore::PVSerializeArchiveOptions_p ar(new PVCore::PVSerializeArchiveOptions(PICVIZ_ARCHIVES_VERSION));
-	ar->get_root()->object("scene", *this);
+	ar->get_root()->object("scene", *this, ARCHIVE_SCENE_DESC);
 	return ar;
 }
 
@@ -194,7 +203,7 @@ void Picviz::PVScene::save_to_file(QString const& path, PVCore::PVSerializeArchi
 	if (options) {
 		ar->set_options(options);
 	}
-	ar->get_root()->object("scene", *this);
+	ar->get_root()->object("scene", *this, ARCHIVE_SCENE_DESC);
 	ar->finish();
 }
 
@@ -204,6 +213,6 @@ void Picviz::PVScene::load_from_file(QString const& path)
 		_original_archive->finish();
 	}
 	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchiveZip(path, PVCore::PVSerializeArchive::read, PICVIZ_ARCHIVES_VERSION));
-	ar->get_root()->object("scene", *this);
+	ar->get_root()->object("scene", *this, ARCHIVE_SCENE_DESC);
 	_original_archive = ar;
 }
