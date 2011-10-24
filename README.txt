@@ -20,5 +20,4 @@ libpvgl: Manage OpenGL code, high performance graphical representation library
 
 picviz-inspector: QT GUI using all libraries above
 
-
-
+helpers: various programs and libraries that can be useful in and around Picviz

@@ -132,6 +132,8 @@ else(USE_PVGL2)
 endif(USE_PVGL2)
 add_subdirectory(gui-qt)
 
+add_subdirectory(helpers)
+
 message(STATUS "CUDA found: " ${CUDA_FOUND})
 if(CUDA_FOUND)
   message(STATUS "CUDA version: " ${CUDA_VERSION_STRING})
