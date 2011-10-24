@@ -20,6 +20,7 @@ public:
 	bool createWidget(hash_formats const& formats, hash_formats& new_formats, list_inputs &inputs, QString& format, QWidget* parent = NULL) const;
 	QString name() const;
 	QString human_name() const;
+	QString human_name_serialize() const;
 	QString menu_input_name() const;
 	QString tab_name_of_inputs(list_inputs const& in) const;
 	QKeySequence menu_shortcut() const;

@@ -141,7 +141,7 @@ protected:
 		so.object("buf_test", _buf);
 
 		PVTestChild a(1);
-		PVCore::PVSerializeObject_p org = so.list("ref_org", _list_p1, &a);
+		PVCore::PVSerializeObject_p org = so.list("ref_org", _list_p1, QString(), &a);
 		so.list_ref("test_ref", _list_p2, org);
 	}
 

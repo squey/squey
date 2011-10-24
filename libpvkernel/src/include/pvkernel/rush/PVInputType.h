@@ -26,6 +26,7 @@ public:
 	virtual bool createWidget(hash_formats const& formats, hash_formats& new_formats, list_inputs &inputs, QString& format, QWidget* parent = NULL) const = 0;
 	virtual QString name() const = 0;
 	virtual QString human_name() const = 0;
+	virtual QString human_name_serialize() const = 0;
 	// Warning: the "human name" of an input must be *unique* accross all the possible inputs
 	virtual QString human_name_of_input(input_type in) const { return in->human_name(); };
 	virtual QString menu_input_name() const = 0;
@@ -71,7 +72,13 @@ class LibKernelDecl PVInputTypeDesc: public PVInputType
 public:
 	virtual PVCore::PVSerializeObject_p serialize_inputs(PVCore::PVSerializeObject& obj, QString const& name, list_inputs& inputs) const
 	{
-		return obj.list<list_inputs, boost::shared_ptr<T> >(name, inputs);
+		// Get name of inputs
+		QStringList descs;
+		list_inputs::const_iterator it;
+		for (it = inputs.begin(); it != inputs.end(); it++) {
+			descs << human_name_of_input(*it);
+		}
+		return obj.list<list_inputs, boost::shared_ptr<T> >(name, inputs, human_name_serialize(), NULL, descs);
 	}
 	virtual void serialize_inputs_ref(PVCore::PVSerializeObject& obj, QString const& name, list_inputs& inputs, PVCore::PVSerializeObject_p so_ref) const
 	{

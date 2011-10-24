@@ -87,6 +87,9 @@ public:
 
 	/*! \brief Declare a list to serialize. T must be an STL-compliant container. T::value_type must be serializable.
 	 *  \param[in] name Name of the list to serialize
+	 *  \param[in] obj List object to serialize
+	 *  \param[in] def_v Default value to use when an object has to be created (when using shared_ptr for instance)
+	 *  \param[in] descriptions Description to use for the objects inside the list
 	 *  This method declare a list of object to serialize.
 	 *  This will be represented in this form:
 	 *    list_name
@@ -100,12 +103,12 @@ public:
 	 *    ...
 	 */
 	template <typename T>
-	p_type list(QString const& name, T& obj, typename PVTypeTraits::remove_shared_ptr<typename T::value_type>::type const* def_v = NULL);
+	p_type list(QString const& name, T& obj, QString const& desc = QString(), typename PVTypeTraits::remove_shared_ptr<typename T::value_type>::type const* def_v = NULL, QStringList const& descriptions = QStringList());
 
 	// C++ 0x is coming, but still too experimental and we may have trouble with MSVC...
 	//template <typename T, typename V = typename T::value_type>
 	template <typename T, typename V>
-	p_type list(QString const& name, T& obj, typename PVTypeTraits::remove_shared_ptr<V>::type const* def_v = NULL);
+	p_type list(QString const& name, T& obj, QString const& desc = QString(), typename PVTypeTraits::remove_shared_ptr<V>::type const* def_v = NULL, QStringList const& descriptions = QStringList());
 
 
 	/*! \brief Declare a list to serialize by making references to objects that has already been serialized.
@@ -286,24 +289,33 @@ bool PVSerializeObject::object(QString const& name, T& obj, QString const& desc,
 }
 
 template <typename T>
-PVSerializeObject::p_type PVSerializeObject::list(QString const& name, T& obj, typename PVTypeTraits::remove_shared_ptr<typename T::value_type>::type const* def_v)
+PVSerializeObject::p_type PVSerializeObject::list(QString const& name, T& obj, QString const& desc, typename PVTypeTraits::remove_shared_ptr<typename T::value_type>::type const* def_v, QStringList const& descriptions)
 {
-	return list<T, typename T::value_type>(name, obj, def_v);
+	return list<T, typename T::value_type>(name, obj, desc, def_v, descriptions);
 }
 
 template <typename T, typename V>
-PVSerializeObject::p_type PVSerializeObject::list(QString const& name, T& obj, typename PVTypeTraits::remove_shared_ptr<V>::type const* def_v)
+PVSerializeObject::p_type PVSerializeObject::list(QString const& name, T& obj, QString const& desc, typename PVTypeTraits::remove_shared_ptr<V>::type const* def_v, QStringList const& descriptions)
 {
 	typedef typename PVCore::PVTypeTraits::pointer<V>::type Vp;
 	typedef typename PVCore::PVTypeTraits::pointer<typename T::value_type>::type Lvp;
-	PVSerializeObject_p list_obj = create_object(name);
+	PVSerializeObject_p list_obj = create_object(name, desc);
+#ifndef NDEBUG
+	if (descriptions.size() > 0) {
+		assert(descriptions.size() == (int) obj.size());
+	}
+#endif
+	QString desc_;
 	if (is_writing()) {
 		typename T::iterator it;
 		int idx = 0;
 		for (it = obj.begin(); it != obj.end(); it++) {
 			Vp v = PVCore::PVTypeTraits::dynamic_pointer_cast<Vp, Lvp>::cast(PVCore::PVTypeTraits::pointer<typename T::value_type&>::get((*it)));
 			assert(v);
-			PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
+			if (descriptions.size() > 0) {
+				desc_ = descriptions.at(idx);
+			}
+			PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx), desc_);
 			call_serialize(v, new_obj, def_v);
 			idx++;
 		}

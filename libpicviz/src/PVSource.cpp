@@ -215,10 +215,16 @@ void Picviz::PVSource::serialize_write(PVCore::PVSerializeObject& so)
 	so.attribute("nlines", nlines);
 
 	// Save the format
-	so.object("format", _extractor.get_format());
+	so.object("format", _extractor.get_format(), QObject::tr("Format"));
 
 	// Save the views
-	so.list("views", _views);
+	
+	// For now, all the views are called 'default'
+	QStringList descs;
+	for (int i = 0; i < _views.size(); i++) {
+		descs << "default";
+	}
+	so.list("views", _views, QObject::tr("Workspaces"), (PVView*) NULL, descs);
 }
 
 void Picviz::PVSource::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)

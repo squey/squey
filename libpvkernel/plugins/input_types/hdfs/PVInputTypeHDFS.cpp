@@ -46,6 +46,11 @@ QString PVRush::PVInputTypeHDFS::human_name() const
 	return QString("HDFS import plugin");
 }
 
+QString PVRush::PVInputTypeHDFS::human_name_serialize() const
+{
+	return tr("HDFS files");
+}
+
 QString PVRush::PVInputTypeHDFS::menu_input_name() const
 {
 	return QString("Import from HDFS...");
