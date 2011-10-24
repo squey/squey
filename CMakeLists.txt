@@ -122,6 +122,12 @@ include_directories(AFTER "${Picviz_Inspector_SOURCE_DIR}/include")
 
 add_subdirectory(scripts)
 add_subdirectory(libpvkernel)
+
+# Helpers means various stuff we can use
+# such as binaries or libraries, that depends
+# on PVKernel
+add_subdirectory(helpers)
+
 add_subdirectory(libpicviz)
 add_subdirectory(libpvsdk)
 
@@ -132,7 +138,6 @@ else(USE_PVGL2)
 endif(USE_PVGL2)
 add_subdirectory(gui-qt)
 
-add_subdirectory(helpers)
 
 message(STATUS "CUDA found: " ${CUDA_FOUND})
 if(CUDA_FOUND)
