@@ -15,7 +15,7 @@ add_library(sad SHARED ${SRC_FILES} ${HEADER_FILES})
 
 set_target_properties(sad PROPERTIES SOVERSION 1)
 
-target_link_libraries(sad ${QT_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(sad ${PVKERNEL_LIBRARY} ${QT_LIBRARIES} ${Boost_LIBRARIES})
 
 install(TARGETS sad LIBRARY DESTINATION .
 		    RUNTIME DESTINATION .)
