@@ -27,7 +27,6 @@ int PVFilter::PVPluginsLoad::load_normalize_plugins()
 QString PVFilter::PVPluginsLoad::get_normalize_dir()
 {
 	QString pluginsdirs;
-	QStringList pluginsdirs_list; 
 
 	pluginsdirs = QString(getenv("PVFILTER_NORMALIZE_DIR"));
 	if (pluginsdirs.isEmpty()) {
