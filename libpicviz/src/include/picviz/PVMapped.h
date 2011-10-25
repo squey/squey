@@ -20,6 +20,7 @@
 #include <pvkernel/rush/PVNraw.h>
 
 #include <picviz/PVPtrObjects.h>
+#include <picviz/PVMapping.h>
 #ifdef CUDA
 #include <picviz/cuda/PVMapped_create_table_cuda.h>
 #endif
@@ -28,37 +29,60 @@
 
 namespace Picviz {
 
+class PVPlotted;
+
 /**
  * \class PVMapped
  */
 class LibPicvizDecl PVMapped {
+	friend class PVPlotted;
 public:
 	typedef boost::shared_ptr<PVMapped> p_type;
+	typedef QList<PVPlotted_p> list_plotted_t;
 public:
-	PVMapped(PVMapping_p parent);
+	PVMapped(PVMapping const& mapping);
 	~PVMapped();
 
-	PVMapping_p mapping;
-	PVRoot* root;
+public:
+	void create_table();
+	void add_plotted(PVPlotted_p plotted);
 
-	PVCore::PVListFloat2D table;
-	PVCore::PVListFloat2D trans_table;
+public:
+	// Data access
+	PVRow get_row_count();
+	PVCol get_column_count();
 
-	int create_table();
+public:
+	// Debugging functions
 	void to_csv();
 
-	PVRush::PVFormat_p get_format();
+public:
+	// Parents
+	PVSource* get_source_parent();
+	const PVSource* get_source_parent() const;
+
+	PVRoot* get_root_parent();
+	const PVRoot* get_root_parent() const;
+
+	const PVMapping& get_mapping() const { return _mapping; }
+
+public:
+	// NRAW
 	PVRush::PVNraw::nraw_table& get_qtnraw();
 	const PVRush::PVNraw::nraw_table& get_qtnraw() const;
 	const PVRush::PVNraw::nraw_trans_table& get_trans_nraw() const;
 	void clear_trans_nraw();
-	PVSource* get_source_parent();
-	PVRoot* get_root();
+	
+	PVRush::PVFormat_p get_format();
 
-	PVRow get_row_count();
-	PVCol get_column_count();
+protected:
+	PVMapping _mapping;
+	PVRoot* _root;
+	PVSource* _source;
+	list_plotted_t _plotteds;
 
-	void run_mandatory_mapping(Picviz::PVRoot_p root, pvrow row, pvcol col, QString value, float mapped_position, bool is_first, void *userdata);
+	PVCore::PVListFloat2D table;
+	PVCore::PVListFloat2D trans_table;
 };
 
 typedef PVMapped::p_type PVMapped_p;

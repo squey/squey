@@ -323,9 +323,9 @@ void PVGL::PVScatter::mouse_down(int /*button*/, int x, int y, int /*modifiers*/
  *****************************************************************************/
 bool PVGL::PVScatter::mouse_move(int x, int y, int /*modifiers*/)
 {
-	Picviz::PVStateMachine   *state_machine;
 //	PVGL::PVMessage         message;
 	vec2                    plotted_mouse;
+	Picviz::PVStateMachine* state_machine;
 
 	if (!picviz_view) { // The view isn't finished to be read and parsed
 		return false;
@@ -377,9 +377,9 @@ bool PVGL::PVScatter::mouse_move(int x, int y, int /*modifiers*/)
  *****************************************************************************/
 bool PVGL::PVScatter::mouse_up(int /*button*/, int /*x*/, int /*y*/, int /*modifiers*/)
 {
-	Picviz::PVStateMachine *state_machine;
 	vec2 plotted_mouse;
 	PVSDK::PVMessage message;
+	Picviz::PVStateMachine* state_machine;
 
 	PVLOG_DEBUG("PVGL::PVScatter::%s\n", __FUNCTION__);
 
@@ -483,8 +483,7 @@ void PVGL::PVScatter::set_size(int w, int h)
  *****************************************************************************/
 void PVGL::PVScatter::special_keys(int key, int, int)
 {
-	Picviz::PVStateMachine *state_machine;
-
+	Picviz::PVStateMachine* state_machine;
 	if (!picviz_view) { // The view isn't finished to be read and parsed
 		return;
 	}
@@ -608,7 +607,7 @@ void PVGL::PVScatter::update_arrays_positions(void)
 {
 	vec2  *mapped_positions_array;
 	int    plotted_row_size;
-	float *plotted_array = 0;
+	const float *plotted_array = 0;
 
 	PVLOG_DEBUG("PVGL::PVScatter::%s\n", __FUNCTION__);
 
@@ -619,11 +618,11 @@ void PVGL::PVScatter::update_arrays_positions(void)
 	glBindBuffer(GL_ARRAY_BUFFER, vbo_position); PRINT_OPENGL_ERROR();
 	mapped_positions_array = reinterpret_cast<vec2*>(glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY)); PRINT_OPENGL_ERROR();
 
-	plotted_array = &picviz_view->get_plotted_parent()->table[0];
+	plotted_array = picviz_view->get_plotted_parent()->get_table_pointer();
 	plotted_row_size = picviz_view->get_original_axes_count();
 
 	for (PVRow i = 0; i < picviz_view->get_row_count(); i++) {
-		float *current_row = plotted_array + i * plotted_row_size;
+		const float *current_row = plotted_array + i * plotted_row_size;
 		mapped_positions_array[i] = vec2(current_row[picviz_view->axes_combination.get_axis_column_index_fast(first_axis)],
 																		 current_row[picviz_view->axes_combination.get_axis_column_index_fast(second_axis)]);
 	}

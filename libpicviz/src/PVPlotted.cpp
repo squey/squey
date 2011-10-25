@@ -18,6 +18,7 @@
 #include <picviz/PVPlotted.h>
 #include <picviz/PVSource.h>
 #include <picviz/PVSelection.h>
+#include <picviz/PVView.h>
 
 #include <tbb/tick_count.h>
 
@@ -29,18 +30,21 @@
 
 namespace Picviz {
 
-PVPlotted::PVPlotted(PVPlotting_p parent)
+PVPlotted::PVPlotted(PVPlotting const& plotting):
+	_plotting(plotting)
 {
-	plotting = parent;
-	root = parent->root;
+	root = _plotting.get_root_parent();
+	_mapped = _plotting.get_mapped_parent();
 
-	table.reserve(plotting->mapped->get_row_count() * plotting->mapped->get_column_count());
+	_table.reserve(_mapped->get_row_count() * _mapped->get_column_count());
 
 	#ifndef CUDA
 	create_table();
 	#else //CUDA
 	create_table_cuda();
 	#endif //CUDA
+
+	_view.reset(new PVView(this));
 }
 
 PVPlotted::~PVPlotted()
@@ -51,10 +55,10 @@ PVPlotted::~PVPlotted()
 #ifndef CUDA
 int PVPlotted::create_table()
 {
-	PVCol mapped_col_count = plotting->mapped->get_column_count();
+	PVCol mapped_col_count = _mapped->get_column_count();
 
 	QMutex lock;
-	const PVRow nrows = (PVRow)plotting->mapped->table.getHeight();
+	const PVRow nrows = (PVRow)_mapped->table.getHeight();
 	
 	tbb::tick_count tstart = tbb::tick_count::now();
 	
@@ -65,7 +69,7 @@ int PVPlotted::create_table()
 	std::vector<PVPlottingFilter::p_type> plotting_filters;
 	plotting_filters.resize(mapped_col_count);
 	for (PVCol j = 0; j < mapped_col_count; j++) {
-		PVPlottingFilter::p_type mf = plotting->get_filter_for_col(j);
+		PVPlottingFilter::p_type mf = _plotting.get_filter_for_col(j);
 		if (mf) {
 			plotting_filters[j] = mf->clone<PVPlottingFilter>();
 		}
@@ -82,11 +86,11 @@ int PVPlotted::create_table()
 			continue;
 		}
 
-		plotting_filter->set_mapping_mode(plotting->get_format()->get_axes().at(j).get_mapping());
-		plotting_filter->set_mandatory_params(plotting->mapped->mapping->get_mandatory_params_for_col(j));
+		plotting_filter->set_mapping_mode(_plotting.get_format()->get_axes().at(j).get_mapping());
+		plotting_filter->set_mandatory_params(_mapped->get_mapping().get_mandatory_params_for_col(j));
 		plotting_filter->set_dest_array(nrows, trans_table.getRowData(j));
 		tbb::tick_count plstart = tbb::tick_count::now();
-		plotting_filter->operator()(plotting->mapped->trans_table.getRowData(j));
+		plotting_filter->operator()(_mapped->trans_table.getRowData(j));
 		tbb::tick_count plend = tbb::tick_count::now();
 		int64_t nrows_tmp = nrows;
 
@@ -96,13 +100,13 @@ int PVPlotted::create_table()
 #pragma omp parallel for
 		for (int64_t i = 0; i < nrows_tmp; i++) {
 			float v = trans_table.getValue(j, i);
-			table[i*mapped_col_count+j] = v;
-#ifdef PVPLOTTING_CHECK_VALUES
+			_table[i*mapped_col_count+j] = v;
+#ifndef NDEBUG
 			// Check that every plotted value is between 0 and 1
 			if (v > 1 || v < 0) {
 				PVLOG_WARN("Plotting value for row/col %d/%d is %0.4f !\n", i,j,v);
 			}
-#endif //PVPLOTTING_CHECK_VALUES
+#endif
 		}
 	}
 	PVLOG_INFO("(PVPlotted::create_table) end parallel plotting\n");
@@ -111,7 +115,7 @@ int PVPlotted::create_table()
 	PVLOG_INFO("(PVPlotted::create_table) plotting took %0.4f seconds.\n", (tend-tstart).seconds());
 
 	// Free the table of the PVMapped object
-	plotting->mapped->trans_table.free();
+	_mapped->trans_table.free();
 
 	return 0;
 }
@@ -119,9 +123,9 @@ int PVPlotted::create_table()
 /***************** CUDA *****************************************/
 int PVPlotted::create_table_cuda(){
   
-  PVCol mapped_col_count = plotting->mapped->get_column_count();
+  PVCol mapped_col_count = _mapped->get_column_count();
   QMutex lock;
-  const PVRow nrows = (PVRow)plotting->mapped->table.getHeight();
+  const PVRow nrows = (PVRow)_mapped->table.getHeight();
   //float dataTmp[nrows][mapped_col_count];
   
   
@@ -134,11 +138,11 @@ int PVPlotted::create_table_cuda(){
   plottingType[1].type = ipv4_default;
   plottingType[2].type = ipv4_default;
   plottingType[3].type = integer_minmax;
-  plottingType[3].data[0] = plotting->mapped->mapping->dict_float[3]["ymin"];
-  plottingType[3].data[1] = plotting->mapped->mapping->dict_float[3]["ymax"];
+  plottingType[3].data[0] = _mapped->mapping->dict_float[3]["ymin"];
+  plottingType[3].data[1] = _mapped->mapping->dict_float[3]["ymax"];
   plottingType[4].type = integer_minmax;
-  plottingType[4].data[0] = plotting->mapped->mapping->dict_float[4]["ymin"];
-  plottingType[4].data[1] = plotting->mapped->mapping->dict_float[4]["ymax"];
+  plottingType[4].data[0] = _mapped->mapping->dict_float[4]["ymin"];
+  plottingType[4].data[1] = _mapped->mapping->dict_float[4]["ymax"];
   plottingType[5].type = integer_default;
   plottingType[6].type = enum_default;
   plottingType[7].type = integer_port;
@@ -160,7 +164,7 @@ int PVPlotted::create_table_cuda(){
   //kernel caller
   ///FIXME hard cast float* (don't use Qt class in cuda caller)
   PVLOG_INFO("cuda call\n");
-  PVPlotted_create_table_cuda((int)nrows,(int)mapped_col_count, (float*)plotting->mapped->table.getData(),(float*)&table[0], plottingType);  
+  PVPlotted_create_table_cuda((int)nrows,(int)mapped_col_count, (float*)_mapped->table.getData(),(float*)&table[0], plottingType);  
   PVLOG_INFO("cuda end\n");
   
   //to see first log
@@ -179,7 +183,7 @@ int PVPlotted::create_table_cuda(){
   /*PVLOG_INFO("linear call\n");
 	for (PVRow i = 0; i < nrows; i++) {
 		for (PVCol j = 0; j < mapped_col_count; j++) {
-			const float val = plotting->get_position(j, plotting->mapped->table.getValue(i,j));
+			const float val = plotting->get_position(j, _mapped->table.getValue(i,j));
 			//lock.lock();
 			table[i*mapped_col_count+j] = val;
 			//to see first log
@@ -201,32 +205,32 @@ int PVPlotted::create_table_cuda(){
 
 PVRush::PVNraw::nraw_table& PVPlotted::get_qtnraw()
 {
-	return plotting->get_qtnraw();
+	return _plotting.get_qtnraw();
 }
 
 const PVRush::PVNraw::nraw_table& PVPlotted::get_qtnraw() const
 {
-	return plotting->get_qtnraw();
+	return _plotting.get_qtnraw();
 }
 
 PVRow PVPlotted::get_row_count() const
 {
-	return plotting->mapped->table.getHeight();
+	return _mapped->table.getHeight();
 }
 
 PVCol PVPlotted::get_column_count() const
 {
-	return plotting->mapped->table.getWidth();
+	return _mapped->table.getWidth();
 }
 
 PVSource* PVPlotted::get_source_parent()
 {
-	return plotting->get_source_parent();
+	return _plotting.get_source_parent();
 }
 
 float PVPlotted::get_value(PVRow row, PVCol col) const
 {
-	return table[row * get_column_count() + col];
+	return _table[row * get_column_count() + col];
 }
 
 void PVPlotted::to_csv()

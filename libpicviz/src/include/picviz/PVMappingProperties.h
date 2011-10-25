@@ -26,14 +26,23 @@ namespace Picviz {
 */
 class LibPicvizDecl PVMappingProperties {
 private:
-	PVRush::PVFormat format;
-	PVCol index;
-	QString group_key;
 public:
-	PVMappingProperties(PVRoot* root, PVRush::PVFormat fmt, int idx);
-	PVMappingFilter::p_type mapping_filter;
-	QString get_group_key() const { return group_key; }
+	PVMappingProperties(PVMapping const& parent, PVRush::PVFormat const& fmt, int idx);
+	QString get_group_key() const { return _group_key; }
+	void set_mode(QString const& mode);
+	inline PVMappingFilter::p_type get_mapping_filter() const { assert(_mapping_filter); return _mapping_filter; }
+
+public:
+	bool operator==(const PVMappingProperties& org);
+
+private:
+	PVCol _index;
+	QString _group_key;
+	PVSource const* _src_parent;
+	PVMappingFilter::p_type _mapping_filter;
+	QString _type;
 };
+
 }
 
 #endif	/* PICVIZ_PVMAPPINGPROPERTIES_H */

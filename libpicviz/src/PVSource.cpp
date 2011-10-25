@@ -161,34 +161,24 @@ PVRush::PVInputType_p Picviz::PVSource::get_input_type() const
 	return _src_plugin->supported_type_lib();
 }
 
-void Picviz::PVSource::process_from_source(bool keep_layers)
+void Picviz::PVSource::add_mapped(PVMapped_p mapped)
 {
-	// Init all views from this source
-	list_views_t::iterator it;
-	for (it = _views.begin(); it != _views.end(); it++) {
-		(*it)->init_from_source(shared_from_this(), keep_layers);
-		(*it)->process_from_layer_stack();
-	}
+	_mappeds.push_back(mapped);
 }
 
+void Picviz::PVSource::create_default_view()
+{
+	PVMapped_p mapped(new PVMapped(PVMapping(this)));
+	add_mapped(mapped);
+	PVPlotted_p plotted(new PVPlotted(PVPlotting(mapped.get())));
+	// PVMapped::add_plotted will call PVSource::add_view with its view
+	mapped->add_plotted(plotted);
+}
 
 void Picviz::PVSource::add_view(PVView_p view)
 {
-	view->init_from_source(shared_from_this(), false);
 	view->process_from_layer_stack();
 	_views.push_back(view);
-}
-
-bool Picviz::PVSource::del_view(const PVView* view)
-{
-	list_views_t::iterator it;
-	for (it = _views.begin(); it != _views.end(); it++) {
-		if (it->get() == view) {
-			_views.erase(it);
-			return true;
-		}
-	}
-	return false;
 }
 
 void Picviz::PVSource::serialize_write(PVCore::PVSerializeObject& so)
@@ -197,7 +187,7 @@ void Picviz::PVSource::serialize_write(PVCore::PVSerializeObject& so)
 	assert(in_t);
 	PVCore::PVSerializeObject_p so_inputs = tparent->get_so_inputs(*this);
 	if (so_inputs) {
-		// The inputs have bee nserialized by our parents, so just make references to them
+		// The inputs have been serialized by our parents, so just make references to them
 		in_t->serialize_inputs_ref(so, "inputs", _inputs, so_inputs);
 	}
 	else {

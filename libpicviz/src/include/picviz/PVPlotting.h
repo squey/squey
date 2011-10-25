@@ -26,12 +26,6 @@ namespace Picviz {
 
 class PVMapped;
 
-#ifndef picviz_plotting_function
-#define picviz_plotting_function "picviz_plotting_function"
-#endif
-
-/* typedef float (*picviz_plotting_function)(void *plotting, int index, QString &value, void *userdata, int is_first); */
-
 /**
  * \class PVPlotting
  */
@@ -39,25 +33,19 @@ class LibPicvizDecl PVPlotting : public boost::enable_shared_from_this<PVPlottin
 public:
 	typedef boost::shared_ptr<PVPlotting> p_type;
 public:
-	PVMapped_p mapped;
-	PVRoot* root;
-	QList<PVPlottingProperties> columns;
-
 	/**
 	 * Constructor
 	 */
-	PVPlotting(PVMapped_p parent);
+	PVPlotting(PVMapped* mapped);
 	
 	/**
 	 * Destructor
 	 */
 	~PVPlotting();
 
-	/**
-	 * Gets the associated format
-	 */
-	PVRush::PVFormat_p get_format() const;
-
+public:
+	// Parents
+	
 	/**
 	 * Gets the NRAW
 	 */
@@ -68,8 +56,25 @@ public:
 	 * Gets the parent Picviz::PVSource
 	 */
 	Picviz::PVSource* get_source_parent();
+	Picviz::PVRoot* get_root_parent();
 
+	/**
+	 * Gets the associated format
+	 */
+	PVRush::PVFormat_p get_format() const;
+
+	PVMapped* get_mapped_parent();
+	const PVMapped* get_mapped_parent() const;
+
+
+public:
+	// Data access
 	Picviz::PVPlottingFilter::p_type get_filter_for_col(PVCol col);
+
+protected:
+	PVMapped* _mapped;
+	PVRoot* _root;
+	QList<PVPlottingProperties> _columns;
 };
 
 typedef PVPlotting::p_type PVPlotting_p;

@@ -15,16 +15,26 @@
  * Picviz::PVPlottingProperties::PVPlottingProperties
  *
  *****************************************************************************/
-Picviz::PVPlottingProperties::PVPlottingProperties(PVRoot* root, PVRush::PVFormat fmt, int idx)
+Picviz::PVPlottingProperties::PVPlottingProperties(PVPlotting const& parent, PVRush::PVFormat const& format, int idx):
+	_parent(&parent)
 {
-	format = fmt;
-	index = idx;
+	_index = idx;
 
-	QString type = format.get_axes().at(idx).get_type();
+	_type = format.get_axes().at(idx).get_type();
 	QString mode = format.get_axes().at(idx).get_plotting();
 
-	plotting_filter = LIB_CLASS(PVPlottingFilter)::get().get_class_by_name(type + "_" + mode);
-	if (!plotting_filter) {
-		PVLOG_ERROR("Plotting mode '%s' for type '%s' does not exist !\n", qPrintable(mode), qPrintable(type));
+	set_mode(mode);
+}
+
+void Picviz::PVPlottingProperties::set_mode(QString const& mode)
+{
+	_plotting_filter = LIB_CLASS(PVPlottingFilter)::get().get_class_by_name(_type + "_" + mode);
+	if (!_plotting_filter) {
+		PVLOG_ERROR("Plotting mode '%s' for type '%s' does not exist !\n", qPrintable(mode), qPrintable(_type));
 	}
+}
+
+bool Picviz::PVPlottingProperties::operator==(PVPlottingProperties const& org)
+{
+	return (_plotting_filter == org._plotting_filter) && (_parent == org._parent) && (_index == org._index);
 }

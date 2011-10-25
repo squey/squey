@@ -17,16 +17,16 @@
  * Picviz::PVPlotting::PVPlotting
  *
  *****************************************************************************/
-Picviz::PVPlotting::PVPlotting(PVMapped_p parent)
+Picviz::PVPlotting::PVPlotting(PVMapped* parent)
 {
-	mapped = parent;
-	root = parent->root;
+	_mapped = parent;
+	_root = parent->get_root_parent();
 
 	PVRush::PVFormat_p format = parent->get_format();
 
 	for (int i=0; i < format->get_axes().size(); i++) {
-		PVPlottingProperties plotting_axis(root, *format, i);
-		columns << plotting_axis;
+		PVPlottingProperties plotting_axis(*this, *format, i);
+		_columns << plotting_axis;
 		PVLOG_HEAVYDEBUG("%s: Add a column\n", __FUNCTION__);
 	}
 }
@@ -48,7 +48,7 @@ Picviz::PVPlotting::~PVPlotting()
  *****************************************************************************/
 PVRush::PVFormat_p Picviz::PVPlotting::get_format() const
 {
-	return mapped->get_format();
+	return _mapped->get_format();
 }
 
 /******************************************************************************
@@ -58,12 +58,12 @@ PVRush::PVFormat_p Picviz::PVPlotting::get_format() const
  *****************************************************************************/
 PVRush::PVNraw::nraw_table& Picviz::PVPlotting::get_qtnraw()
 {
-	return mapped->get_qtnraw();
+	return _mapped->get_qtnraw();
 }
 
 const PVRush::PVNraw::nraw_table& Picviz::PVPlotting::get_qtnraw() const
 {
-	return mapped->get_qtnraw();
+	return _mapped->get_qtnraw();
 }
 
 /******************************************************************************
@@ -73,11 +73,26 @@ const PVRush::PVNraw::nraw_table& Picviz::PVPlotting::get_qtnraw() const
  *****************************************************************************/
 Picviz::PVSource* Picviz::PVPlotting::get_source_parent()
 {
-	return mapped->get_source_parent();
+	return _mapped->get_source_parent();
 }
 
 
 Picviz::PVPlottingFilter::p_type Picviz::PVPlotting::get_filter_for_col(PVCol col)
 {
-	return columns[col].plotting_filter;
+	return _columns[col].get_plotting_filter();
+}
+
+Picviz::PVMapped* Picviz::PVPlotting::get_mapped_parent()
+{
+	return _mapped;
+}
+
+const Picviz::PVMapped* Picviz::PVPlotting::get_mapped_parent() const
+{
+	return _mapped;
+}
+
+Picviz::PVRoot* Picviz::PVPlotting::get_root_parent()
+{
+	return _root;
 }

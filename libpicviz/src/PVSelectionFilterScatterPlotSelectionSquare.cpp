@@ -52,7 +52,7 @@ void Picviz::PVSelectionFilterScatterPlotSelectionSquare::operator()(PVSelection
 	QColor qcolor;
 
 	//const PVSource* source = _view.get_source_parent();
-	const PVPlotted_p plotted = _view->get_plotted_parent();
+	const PVPlotted* plotted = _view->get_plotted_parent();
 
 	x1_axis_index = _args["x1_axis_index"].toInt();
 	x2_axis_index = _args["x2_axis_index"].toInt();

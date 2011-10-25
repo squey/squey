@@ -387,12 +387,12 @@ void PVInspector::PVMainWindow::check_messages()
 					if (message.pv_view.use_count() != 1) {
 						PVLOG_WARN("PVSDK_MESSENGER_FUNCTION_VIEWS_DESTROYED: in PVMainWindow, after views destroyed, PVView has a use count of %d (should be 1)\n", message.pv_view.use_count());
 					}
-					if (message.pv_view->get_mapped_parent().use_count() != 2) {
+				/*	if (message.pv_view->get_mapped_parent().use_count() != 2) {
 						PVLOG_WARN("PVSDK_MESSENGER_FUNCTION_VIEWS_DESTROYED: in PVMainWindow, after views destroyed, PVMapped has a use count of %d (should be 2)\n", message.pv_view->get_mapped_parent().use_count());
 					}
 					if (message.pv_view->get_plotted_parent().use_count() != 2) {
 						PVLOG_WARN("PVSDK_MESSENGER_FUNCTION_VIEWS_DESTROYED: in PVMainWindow, after views destroyed, PVPlotted has a use count of %d (should be 2)\n", message.pv_view->get_plotted_parent().use_count());
-					}
+					}*/
 					break;
 			case PVSDK_MESSENGER_FUNCTION_VIEW_CREATED:
 						{
@@ -970,14 +970,13 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_p src)
 	// keeping the existing layers !
 	Picviz::PVView_p first_view;
 	if (src->get_views().size() == 0) {
-		first_view = Picviz::PVView_p(new Picviz::PVView());
-		src->add_view(first_view);
+		src->create_default_view();
 	}
 	else {
-		src->process_from_source(true);
-		first_view = src->get_views().at(0);
+		//src->process_from_source(true);
 	}
 
+	first_view = src->get_views().at(0);
 	// Ask PVGL to create a GL-View from the previous transient view
 	message.function = PVSDK_MESSENGER_FUNCTION_CREATE_VIEW;
 	message.pv_view = first_view;

@@ -26,7 +26,7 @@ Picviz::PVMapping::PVMapping(PVSource* parent)
 	PVLOG_DEBUG("In PVMapping::PVMapping(), debug PVFormat\n");
 	parent->get_rushnraw().format->debug();
 	for (int i=0; i < naxes; i++) {
-		PVMappingProperties mapping_axis(root, *parent->get_rushnraw().format, i);
+		PVMappingProperties mapping_axis(*this, *parent->get_rushnraw().format, i);
 		columns << mapping_axis;
 		PVLOG_HEAVYDEBUG("%s: Add a column\n", __FUNCTION__);
 	}
@@ -56,7 +56,22 @@ const PVRush::PVNraw::nraw_table& Picviz::PVMapping::get_qtnraw() const
 	return source->get_qtnraw();
 }
 
-Picviz::PVSource* Picviz::PVMapping::get_source_parent()
+Picviz::PVRoot* Picviz::PVMapping::get_root_parent() 
+{
+	return root;
+}
+
+Picviz::PVSource* Picviz::PVMapping::get_source_parent() 
+{
+	return source;
+}
+
+const Picviz::PVRoot* Picviz::PVMapping::get_root_parent() const
+{
+	return root;
+}
+
+const Picviz::PVSource* Picviz::PVMapping::get_source_parent() const
 {
 	return source;
 }
@@ -73,7 +88,7 @@ void Picviz::PVMapping::clear_trans_nraw()
 
 Picviz::PVMappingFilter::p_type Picviz::PVMapping::get_filter_for_col(PVCol col)
 {
-	return columns[col].mapping_filter;
+	return columns.at(col).get_mapping_filter();
 }
 
 Picviz::mandatory_param_map const& Picviz::PVMapping::get_mandatory_params_for_col(PVCol col) const

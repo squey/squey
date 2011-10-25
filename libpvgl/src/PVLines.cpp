@@ -791,7 +791,7 @@ void PVGL::PVLines::update_arrays_positions(void)
 	PVRow     nb_row;
 	int       nb_col;
 	int       plotted_row_size;
-	float    *plotted_array = 0;
+	const float    *plotted_array = 0;
 	unsigned  nb_positions = 0;
 	unsigned  nb_positions_last_batch = 0;
 
@@ -803,7 +803,7 @@ void PVGL::PVLines::update_arrays_positions(void)
 	/* We get the number of lines and of axes */
 	nb_row = picviz_view->get_row_count();
 	nb_col = picviz_view->get_axes_count();
-	plotted_array = &picviz_view->get_plotted_parent()->table[0];
+	plotted_array = picviz_view->get_plotted_parent()->get_table_pointer();
 	plotted_row_size = picviz_view->get_original_axes_count();
 
 	// We process all lines.
@@ -817,7 +817,7 @@ void PVGL::PVLines::update_arrays_positions(void)
 
 	for (PVRow i = 0; i < nb_row; i++) {
 		unsigned batch_number;
-		float *temp_pointer_in_array = plotted_array + i * plotted_row_size;
+		const float *temp_pointer_in_array = plotted_array + i * plotted_row_size;
 
 		// We test if we have reached the maximum number of lines for OpenGL
 		if (nb_positions >= test_value) {

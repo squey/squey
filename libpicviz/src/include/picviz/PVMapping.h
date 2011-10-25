@@ -41,26 +41,40 @@ public:
 	PVMapping(PVSource* parent);
 	~PVMapping();
 
-	PVSource* source;
-	PVRoot* root;
-	QList<PVMappingProperties> columns;
-
-	PVRush::PVFormat_p get_format() const;
+public:
 	float get_position(int column, QString const& value);
+
+public:
+	// Parents
+	PVSource* get_source_parent();
+	PVRoot* get_root_parent();
+	const PVSource* get_source_parent() const;
+	const PVRoot* get_root_parent() const;
+	PVRush::PVFormat_p get_format() const;
+
+public:
+	// NRAW
 	PVRush::PVNraw::nraw_table& get_qtnraw();
 	PVRush::PVNraw::nraw_trans_table const& get_trans_nraw() const;
 	void clear_trans_nraw();
 	const PVRush::PVNraw::nraw_table& get_qtnraw() const;
-	PVSource* get_source_parent();
 
+public:
+	// Column properties
 	PVMappingFilter::p_type get_filter_for_col(PVCol col);
 	QString get_group_key_for_col(PVCol col) const;
 
+public:
+	// Mandatory parameters
 	mandatory_param_map const& get_mandatory_params_for_col(PVCol col) const;
 	mandatory_param_map& get_mandatory_params_for_col(PVCol col);
 
 protected:
 	QVector<mandatory_param_map> _mandatory_filters_values;
+	QList<PVMappingProperties> columns;
+
+	PVSource* source;
+	PVRoot* root;
 };
 
 typedef PVMapping::p_type PVMapping_p;

@@ -49,7 +49,7 @@ public:
 	typedef PVView_p p_type;
 	typedef QHash<QString,PVCore::PVArgumentList> map_filter_arguments;
 public:
-	PVView(PVPlotted_p parent);
+	PVView(PVPlotted* parent);
 	PVView();
 	~PVView();
 protected:
@@ -74,7 +74,7 @@ public:
 	PVLayer post_filter_layer;
 	PVLayer layer_stack_output_layer;
 	PVLayer output_layer;
-	PVPlotted_p plotted;
+	PVPlotted* plotted;
 	PVRow row_count;
 	PVLayerStack layer_stack;
 	PVIndexArray nu_index_array;
@@ -195,9 +195,6 @@ public:
 	void select_no_line();
 	void select_inv_lines();
 
-	void set_parent_plotted(PVPlotted_p parent);
-	void init_from_source(PVSource_p source, bool keep_layers);
-
 /******************************************************************************
 ******************************************************************************
 *
@@ -267,8 +264,8 @@ public:
 ******************************************************************************
 *****************************************************************************/
 
-	const PVMapped_p get_mapped_parent() const;
-	PVMapped_p get_mapped_parent();
+	const PVMapped* get_mapped_parent() const;
+	PVMapped* get_mapped_parent();
 	
 	PVRush::PVNraw::nraw_table& get_qtnraw_parent();
 	const PVRush::PVNraw::nraw_table& get_qtnraw_parent() const;
@@ -276,8 +273,8 @@ public:
 	PVRush::PVNraw& get_rushnraw_parent();
 	PVRush::PVNraw const& get_rushnraw_parent() const;
 	
-	PVPlotted_p get_plotted_parent();
-	const PVPlotted_p get_plotted_parent() const;
+	PVPlotted* get_plotted_parent();
+	const PVPlotted* get_plotted_parent() const;
 	
 	PVSource* get_source_parent();
 	const PVSource* get_source_parent() const;
@@ -312,11 +309,11 @@ protected:
 ******************************************************************************
 *****************************************************************************/
 		void init_defaults();
-		void init_from_plotted(PVPlotted_p parent, bool keep_layers);
+		void init_from_plotted(PVPlotted* parent, bool keep_layers);
 
 
 protected:
-	bool _is_consistent;
+		bool _is_consistent;
 };
 
 }

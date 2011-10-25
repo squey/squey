@@ -12,9 +12,6 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/rush/PVFormat.h>
 
-//#include <picviz/function.h>
-
-#include <picviz/PVPlottingFunction.h>
 #include <picviz/PVRoot.h>
 #include <picviz/PVPlottingFilter.h>
 
@@ -26,12 +23,21 @@ namespace Picviz {
 * \brief Stored functions and variables that can to be modified by those functions
 */
 class LibPicvizDecl PVPlottingProperties {
-private:
-	PVRush::PVFormat format;
-	PVCol index;
 public:
-	PVPlottingProperties(PVRoot* root, PVRush::PVFormat fmt, int idx);
-	PVPlottingFilter::p_type plotting_filter;
+	PVPlottingProperties(PVPlotting const& parent, PVRush::PVFormat const& fmt, int idx);
+	PVPlottingFilter::p_type get_plotting_filter() { return _plotting_filter; };
+
+public:
+	void set_mode(QString const& mode);
+
+public:
+	bool operator==(PVPlottingProperties const& org);
+
+private:
+	QString _type;
+	PVCol _index;
+	PVPlottingFilter::p_type _plotting_filter;
+	const PVPlotting* _parent;
 };
 }
 

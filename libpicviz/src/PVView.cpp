@@ -35,7 +35,7 @@ Picviz::PVView::PVView():
 	init_defaults();
 }
 
-Picviz::PVView::PVView(PVPlotted_p parent) :
+Picviz::PVView::PVView(PVPlotted* parent) :
 	pre_filter_layer("pre_filter_layer"),
 	post_filter_layer("post_filter_layer"),
 	layer_stack_output_layer("view_layer_stack_output_layer"),
@@ -99,9 +99,9 @@ void Picviz::PVView::init_defaults()
  * Picviz::PVView::init_from_plotted
  *
  *****************************************************************************/
-void Picviz::PVView::init_from_plotted(PVPlotted_p parent, bool keep_layers)
+void Picviz::PVView::init_from_plotted(PVPlotted* parent, bool keep_layers)
 {
-	root = parent->root;
+	root = parent->get_root_parent();
 	plotted = parent;
 
 	// Init default axes combination from source
@@ -462,14 +462,14 @@ bool Picviz::PVView::get_line_state_in_pre_filter_layer(PVRow index) const
  * Picviz::PVView::get_mapped_parent
  *
  *****************************************************************************/
-Picviz::PVMapped_p Picviz::PVView::get_mapped_parent()
+Picviz::PVMapped* Picviz::PVView::get_mapped_parent()
 {
-	return plotted->plotting->mapped;
+	return plotted->get_mapped_parent();
 }
 
-const Picviz::PVMapped_p Picviz::PVView::get_mapped_parent() const
+const Picviz::PVMapped* Picviz::PVView::get_mapped_parent() const
 {
-	return plotted->plotting->mapped;
+	return plotted->get_mapped_parent();
 }
 
 /******************************************************************************
@@ -577,12 +577,12 @@ Picviz::PVLayer &Picviz::PVView::get_output_layer()
  * Picviz::PVView::get_plotted_parent
  *
  *****************************************************************************/
-Picviz::PVPlotted_p Picviz::PVView::get_plotted_parent()
+Picviz::PVPlotted* Picviz::PVView::get_plotted_parent()
 {
 	return plotted;
 }
 
-const Picviz::PVPlotted_p Picviz::PVView::get_plotted_parent() const
+const Picviz::PVPlotted* Picviz::PVView::get_plotted_parent() const
 {
 	return plotted;
 }
@@ -629,14 +629,12 @@ const PVRush::PVNraw::nraw_table& Picviz::PVView::get_qtnraw_parent() const
  *****************************************************************************/
 PVRush::PVNraw& Picviz::PVView::get_rushnraw_parent()
 {
-	// AG: should be plotted->get_rushnraw() but don't have the time for that
-	return plotted->plotting->mapped->mapping->source->get_rushnraw();
+	return plotted->get_mapped_parent()->get_source_parent()->get_rushnraw();
 }
 
 const PVRush::PVNraw& Picviz::PVView::get_rushnraw_parent() const
 {
-	// AG: should be plotted->get_rushnraw() but don't have the time for that
-	return plotted->plotting->mapped->mapping->source->get_rushnraw();
+	return plotted->get_mapped_parent()->get_source_parent()->get_rushnraw();
 }
 
 /******************************************************************************
@@ -681,7 +679,7 @@ int Picviz::PVView::get_real_row_index(int index)
  *****************************************************************************/
 Picviz::PVRoot* Picviz::PVView::get_root()
 {
-	return plotted->root;
+	return plotted->get_root_parent();
 }
 
 /******************************************************************************
@@ -1023,11 +1021,11 @@ void Picviz::PVView::selection_A2B_select_with_square_area(PVSelection &a, PVSel
 	float inner_absciss_min;
 	float inner_absciss_second;
 	float k;
-	float *plotted_array;
+	const float *plotted_array;
 	int plotted_column_count;
 	//int res_count;
 	int row_count;
-	float *temp_pointer_in_array;
+	const float *temp_pointer_in_array;
 	//float x, y, xb, yb;
 	//float x_left, x_right;
 	float xmin, xmax;
@@ -1042,7 +1040,7 @@ void Picviz::PVView::selection_A2B_select_with_square_area(PVSelection &a, PVSel
 	axes_count = axes_combination.get_axes_count();
 
 	/* We need a fast reference to the array of floats in the plotted */
-	plotted_array = &plotted->table[0];
+	plotted_array = &(plotted->get_table().at(0));
 	/* We set the plotted_column_count for further reference */
 	plotted_column_count = plotted->get_column_count();
 	/* We set the row_count of that view, for later usage */
@@ -1418,7 +1416,7 @@ int Picviz::PVView::toggle_layer_stack_layer_n_visible_state(int n)
 
 PVRush::PVExtractor& Picviz::PVView::get_extractor()
 {
-	return plotted->plotting->mapped->mapping->source->get_extractor();
+	return plotted->get_mapped_parent()->get_source_parent()->get_extractor();
 }
 
 void Picviz::PVView::set_consistent(bool c)
@@ -1434,20 +1432,14 @@ bool Picviz::PVView::is_consistent() const
 void Picviz::PVView::recreate_mapping_plotting()
 {
 	// Source has been changed, recreate mapping and plotting
-	Picviz::PVMapping_p import_mapping = Picviz::PVMapping_p(new Picviz::PVMapping(get_source_parent()));
-	Picviz::PVMapped_p import_mapped = Picviz::PVMapped_p(new Picviz::PVMapped(import_mapping));
-	Picviz::PVPlotting_p import_plotting = Picviz::PVPlotting_p(new Picviz::PVPlotting(import_mapped));
-	Picviz::PVPlotted_p import_plotted = Picviz::PVPlotted_p(new Picviz::PVPlotted(import_plotting));
-
-	// We save a reference to the shared pointer here, so that everything is desallocated at
-	// the end of this function
-	Picviz::PVPlotted_p old_plotted = plotted;
+	get_mapped_parent()->create_table();
+	get_plotted_parent()->create_table();
 
 	// Save current axes combination
 	PVAxesCombination cur_axes_combination = axes_combination;
 
 	// Reiinit the view with the new plotted
-	init_from_plotted(import_plotted, false);
+	init_from_plotted(plotted, false);
 
 	// Restore the previous axes combination
 	axes_combination = cur_axes_combination;
@@ -1476,21 +1468,6 @@ void Picviz::PVView::select_inv_lines()
 	state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
 	volatile_selection = ~floating_selection;
 	process_from_selection();
-}
-
-void Picviz::PVView::set_parent_plotted(PVPlotted_p parent)
-{
-	init_from_plotted(parent, false);
-}
-
-void Picviz::PVView::init_from_source(PVSource_p source, bool keep_layers)
-{
-	Picviz::PVMapping_p import_mapping = Picviz::PVMapping_p(new Picviz::PVMapping(source.get()));
-	Picviz::PVMapped_p import_mapped = Picviz::PVMapped_p(new Picviz::PVMapped(import_mapping));
-	Picviz::PVPlotting_p import_plotting = Picviz::PVPlotting_p(new Picviz::PVPlotting(import_mapped));
-	Picviz::PVPlotted_p import_plotted = Picviz::PVPlotted_p(new Picviz::PVPlotted(import_plotting));
-
-	init_from_plotted(import_plotted, keep_layers);
 }
 
 // Load/save and serialization

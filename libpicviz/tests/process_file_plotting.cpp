@@ -56,12 +56,10 @@ int main(int argc, char** argv)
 	job->wait_end();
 
 	// Map the nraw
-	Picviz::PVMapping_p mapping(new Picviz::PVMapping(src.get()));
-	Picviz::PVMapped_p mapped(new Picviz::PVMapped(mapping));
+	Picviz::PVMapped_p mapped(new Picviz::PVMapped(Picviz::PVMapping(src.get())));
 
 	// And plot the mapped values
-	Picviz::PVPlotting_p plotting(new Picviz::PVPlotting(mapped));
-	Picviz::PVPlotted_p plotted(new Picviz::PVPlotted(plotting));
+	Picviz::PVPlotted_p plotted(new Picviz::PVPlotted(Picviz::PVPlotting(mapped.get())));
 
 	// Dump the mapped table to stdout in a CSV format
 	plotted->to_csv();

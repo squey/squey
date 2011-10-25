@@ -243,7 +243,7 @@ void PVGL::PVAxes::draw_names()
 	}
 
 	if (show_limits) {
-		Picviz::PVMapping_p mapping = pv_view->get_mapped_parent()->mapping;
+		Picviz::PVMapping const& mapping = pv_view->get_mapped_parent()->get_mapping();
 
 		for (int i = 0; i < nb_axes; i++) {
 			float gl_coord_x, gl_coord_y_min, gl_coord_y_max;
@@ -252,7 +252,7 @@ void PVGL::PVAxes::draw_names()
 			QByteArray ymax;
 			{
 				PVCol cur_axis = pv_view->axes_combination.get_axis_column_index(i);
-				Picviz::mandatory_param_map const& mand_params = mapping->get_mandatory_params_for_col(cur_axis);
+				Picviz::mandatory_param_map const& mand_params = mapping.get_mandatory_params_for_col(cur_axis);
 				Picviz::mandatory_param_map::const_iterator it_min = mand_params.find(Picviz::mandatory_ymin);
 				Picviz::mandatory_param_map::const_iterator it_max = mand_params.find(Picviz::mandatory_ymax);
 				if (it_min == mand_params.end() || it_max == mand_params.end()) {

@@ -42,9 +42,11 @@ class LibPicvizDecl PVSource: public boost::enable_shared_from_this<PVSource>
 	friend class PVCore::PVSerializeObject;
 	friend class PVScene;
 	friend class PVView;
+	friend class PVMapped;
 public:
 	typedef PVSource_p p_type;
 	typedef QList<PVView_p> list_views_t;
+	typedef QList<PVMapped_p> list_mapped_t;
 public:
 	PVSource(PVRush::PVInputType::list_inputs const& inputs, PVRush::PVSourceCreator_p sc, PVRush::PVFormat format);
 	~PVSource();
@@ -77,7 +79,8 @@ public:
 	inline PVAxesCombination& get_axes_combination() { return _axes_combination; }
 	inline PVAxesCombination const& get_axes_combination() const { return _axes_combination; }
 
-	void add_view(PVView_p view);
+	void add_mapped(PVMapped_p mapped);
+	void create_default_view();
 
 	// Parents
 	inline PVRoot* get_root() const { return root; }
@@ -96,8 +99,8 @@ public:
 protected:
 	// For PVScene
 	void set_parent(PVScene* parent);
-	// For PVView objects when they are being deleted
-	bool del_view(const PVView* view);
+	// For PVMapped
+	void add_view(PVView_p view);
 
 protected:
 	void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
@@ -119,6 +122,7 @@ private:
 	std::list<PVFilter::PVFieldsBaseFilter_p> _filters_container;
 	PVRush::PVInputType::list_inputs _inputs;
 	list_views_t _views;
+	list_mapped_t _mappeds;
 	PVRush::PVSourceCreator_p _src_plugin;
 	PVRush::PVNraw *nraw;
 

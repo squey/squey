@@ -14,6 +14,7 @@
 #include <picviz/PVMandatoryMappingFilter.h>
 #include <picviz/PVMapping.h>
 #include <picviz/PVMapped.h>
+#include <picviz/PVPlotted.h>
 #include <picviz/PVSource.h>
 
 #include <picviz/PVRoot.h>
@@ -27,10 +28,11 @@
  * Picviz::PVMapped::PVMapped
  *
  *****************************************************************************/
-Picviz::PVMapped::PVMapped(PVMapping_p parent)
+Picviz::PVMapped::PVMapped(PVMapping const& mapping):
+	_mapping(mapping)
 {
-	mapping = parent;
-	root = parent->root;
+	_root = _mapping.get_root_parent();
+	_source = _mapping.get_source_parent();
 
 	create_table();
 }
@@ -50,7 +52,7 @@ Picviz::PVMapped::~PVMapped()
  * Picviz::PVMapped::create_table
  *
  *****************************************************************************/
-int Picviz::PVMapped::create_table()
+void Picviz::PVMapped::create_table()
 {
 	PVRush::PVNraw::nraw_table& qt_nraw = get_qtnraw();
 
@@ -124,7 +126,7 @@ PVLOG_INFO("(pvmapped::create_table) begin cuda mapping\n");
 	std::vector<PVMappingFilter::p_type> mapping_filters;
 	mapping_filters.resize(ncols);
 	for (PVCol j = 0; j < ncols; j++) {
-		PVMappingFilter::p_type mf = mapping->get_filter_for_col(j);
+		PVMappingFilter::p_type mf = _mapping.get_filter_for_col(j);
 		if (mf) {
 			mapping_filters[j] = mf->clone<PVMappingFilter>();
 		}
@@ -148,7 +150,7 @@ PVLOG_INFO("(pvmapped::create_table) begin cuda mapping\n");
 		// Get the corresponding object
 		PVRush::PVNraw::nraw_table_line const& fields = trans_nraw[j];
 		PVMappingFilter::p_type mapping_filter = mapping_filters[j];
-		mandatory_param_map& params_map = mapping->get_mandatory_params_for_col(j);
+		mandatory_param_map& params_map = _mapping.get_mandatory_params_for_col(j);
 
 		if (!mapping_filter) {
 			PVLOG_ERROR("An invalid mapping type and/or mode is set for axis %d !\n", j);
@@ -159,7 +161,7 @@ PVLOG_INFO("(pvmapped::create_table) begin cuda mapping\n");
 		mapping_filter->set_dest_array(nrows, trans_table.getRowData(j));
 		mapping_filter->set_format(j, *get_format());
 		// Get the group specific value if relevant
-		QString group_key = mapping->get_group_key_for_col(j);
+		QString group_key = _mapping.get_group_key_for_col(j);
 		if (!group_key.isEmpty()) {
 			PVCore::PVArgument& group_v = grp_values[group_key];
 			mapping_filter->set_group_value(group_v);
@@ -188,8 +190,6 @@ PVLOG_INFO("(pvmapped::create_table) begin cuda mapping\n");
 
 	// Free the transposed NRAW
 	clear_trans_nraw();
-	
-	return 0;
 }
 
 /******************************************************************************
@@ -219,7 +219,7 @@ void Picviz::PVMapped::to_csv()
  *****************************************************************************/
 PVRush::PVFormat_p Picviz::PVMapped::get_format()
 {
-	return mapping->source->get_rushnraw().format;
+	return _mapping.get_source_parent()->get_rushnraw().format;
 }
 
 /******************************************************************************
@@ -229,22 +229,22 @@ PVRush::PVFormat_p Picviz::PVMapped::get_format()
  *****************************************************************************/
 PVRush::PVNraw::nraw_table& Picviz::PVMapped::get_qtnraw()
 {
-	return mapping->get_qtnraw();
+	return _mapping.get_qtnraw();
 }
 
 const PVRush::PVNraw::nraw_table& Picviz::PVMapped::get_qtnraw() const
 {
-	return mapping->get_qtnraw();
+	return _mapping.get_qtnraw();
 }
 
 const PVRush::PVNraw::nraw_trans_table& Picviz::PVMapped::get_trans_nraw() const
 {
-	return mapping->get_trans_nraw();
+	return _mapping.get_trans_nraw();
 }
 
 void Picviz::PVMapped::clear_trans_nraw()
 {
-	mapping->clear_trans_nraw();
+	_mapping.clear_trans_nraw();
 }
 
 /******************************************************************************
@@ -254,17 +254,17 @@ void Picviz::PVMapped::clear_trans_nraw()
  *****************************************************************************/
 Picviz::PVSource* Picviz::PVMapped::get_source_parent()
 {
-	return mapping->get_source_parent();
+	return _mapping.get_source_parent();
 }
 
 /******************************************************************************
  *
- * Picviz::PVMapped::get_root
+ * Picviz::PVMapped::get_root_parent
  *
  *****************************************************************************/
-Picviz::PVRoot* Picviz::PVMapped::get_root()
+Picviz::PVRoot* Picviz::PVMapped::get_root_parent()
 {
-	return mapping->root;
+	return _mapping.get_root_parent();
 }
 
 /******************************************************************************
@@ -285,4 +285,10 @@ PVRow Picviz::PVMapped::get_row_count()
 PVCol Picviz::PVMapped::get_column_count()
 {
 	return table.getWidth();
+}
+
+void Picviz::PVMapped::add_plotted(PVPlotted_p plotted)
+{
+	_plotteds.push_back(plotted);
+	get_source_parent()->add_view(plotted->get_view());
 }
