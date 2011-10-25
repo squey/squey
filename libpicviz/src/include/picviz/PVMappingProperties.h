@@ -10,9 +10,9 @@
 //#include <QList>
 
 #include <pvkernel/core/general.h>
+#include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/rush/PVFormat.h>
 
-#include <picviz/PVMappingFunction.h>
 #include <picviz/PVRoot.h>
 
 #include <picviz/PVMappingFilter.h>
@@ -25,9 +25,13 @@ namespace Picviz {
 * \brief Stored functions and variables that can to be modified by those functions
 */
 class LibPicvizDecl PVMappingProperties {
-private:
+	friend class PVCore::PVSerializeObject;
 public:
-	PVMappingProperties(PVMapping const& parent, PVRush::PVFormat const& fmt, int idx);
+	PVMappingProperties(PVRush::PVFormat const& fmt, int idx);
+protected:
+	// For serialization
+	PVMappingProperties() { _index = 0; }
+public:
 	QString get_group_key() const { return _group_key; }
 	void set_mode(QString const& mode);
 	inline PVMappingFilter::p_type get_mapping_filter() const { assert(_mapping_filter); return _mapping_filter; }
@@ -35,12 +39,15 @@ public:
 public:
 	bool operator==(const PVMappingProperties& org);
 
+protected:
+	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
+
 private:
 	PVCol _index;
 	QString _group_key;
-	PVSource const* _src_parent;
 	PVMappingFilter::p_type _mapping_filter;
 	QString _type;
+	QString _mode;
 };
 
 }

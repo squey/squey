@@ -92,6 +92,7 @@ public:
     
     QMutex gl_call_locker;
 
+	void init_from_plotted(PVPlotted* parent, bool keep_layers);
 
 	/* Functions */
 	PVCol get_axes_count();
@@ -309,7 +310,6 @@ protected:
 ******************************************************************************
 *****************************************************************************/
 		void init_defaults();
-		void init_from_plotted(PVPlotted* parent, bool keep_layers);
 
 
 protected:

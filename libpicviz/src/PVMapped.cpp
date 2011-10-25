@@ -10,7 +10,6 @@
 
 #include <pvkernel/rush/PVFormat.h>
 
-#include <picviz/PVMandatoryMappingFunction.h>
 #include <picviz/PVMandatoryMappingFilter.h>
 #include <picviz/PVMapping.h>
 #include <picviz/PVMapped.h>
@@ -28,12 +27,9 @@
  * Picviz::PVMapped::PVMapped
  *
  *****************************************************************************/
-Picviz::PVMapped::PVMapped(PVMapping const& mapping):
-	_mapping(mapping)
+Picviz::PVMapped::PVMapped(PVMapping const& mapping)
 {
-	_root = _mapping.get_root_parent();
-	_source = _mapping.get_source_parent();
-
+	set_mapping(mapping);
 	create_table();
 }
 
@@ -45,6 +41,13 @@ Picviz::PVMapped::PVMapped(PVMapping const& mapping):
 Picviz::PVMapped::~PVMapped()
 {
 	PVLOG_INFO("In PVMapped destructor\n");
+}
+
+void Picviz::PVMapped::set_mapping(PVMapping const& mapping)
+{
+	_mapping = mapping;
+	_root = _mapping.get_root_parent();
+	_source = _mapping.get_source_parent();
 }
 
 /******************************************************************************
@@ -119,6 +122,7 @@ PVLOG_INFO("(pvmapped::create_table) begin cuda mapping\n");
 
 	// This will use the trans_table of the nraw
 	
+	_source->get_rushnraw().create_trans_nraw();	
 	PVRush::PVNraw::nraw_trans_table const& trans_nraw = get_trans_nraw();
 	PVLOG_INFO("(pvmapped::create_table) begin parallel mapping\n");
 
@@ -291,4 +295,24 @@ void Picviz::PVMapped::add_plotted(PVPlotted_p plotted)
 {
 	_plotteds.push_back(plotted);
 	get_source_parent()->add_view(plotted->get_view());
+}
+
+void Picviz::PVMapped::process_from_source(PVSource* src, bool keep_views_info)
+{
+	_mapping.set_source(src);
+	set_mapping(_mapping);
+	create_table();
+
+	// Process plotting children
+	for (int i = 0; i < _plotteds.size(); i++) {
+		PVPlotted_p plotted = _plotteds[i];
+		plotted->process_from_mapped(this, keep_views_info);
+		get_source_parent()->add_view(plotted->get_view());
+	}
+}
+
+void Picviz::PVMapped::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
+{
+	so.object("mapping", _mapping);
+	so.list("plotted", _plotteds);
 }

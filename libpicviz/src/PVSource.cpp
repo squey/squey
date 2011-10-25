@@ -175,6 +175,14 @@ void Picviz::PVSource::create_default_view()
 	mapped->add_plotted(plotted);
 }
 
+void Picviz::PVSource::process_from_source(bool keep_views_info)
+{
+	for (int i = 0; i < _mappeds.size(); i++) {
+		PVMapped_p mapped(_mappeds[i]);
+		mapped->process_from_source(this, keep_views_info);
+	}
+}
+
 void Picviz::PVSource::add_view(PVView_p view)
 {
 	view->process_from_layer_stack();
@@ -214,7 +222,8 @@ void Picviz::PVSource::serialize_write(PVCore::PVSerializeObject& so)
 	for (int i = 0; i < _views.size(); i++) {
 		descs << "default";
 	}
-	so.list("views", _views, QObject::tr("Workspaces"), (PVView*) NULL, descs);
+	//so.list("views", _views, QObject::tr("Workspaces"), (PVView*) NULL, descs);
+	so.list("mapped", _mappeds);
 }
 
 void Picviz::PVSource::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
@@ -255,5 +264,8 @@ void Picviz::PVSource::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVS
 	files_append_noextract();
 
 	// Load the views
-	so.list("views", _views);
+	//so.list("views", _views);
+	
+	// Load the mapped
+	so.list("mapped", _mappeds);
 }

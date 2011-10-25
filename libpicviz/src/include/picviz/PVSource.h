@@ -87,12 +87,13 @@ public:
 
 	PVRush::PVInputType::list_inputs const& get_inputs() const { return _inputs; }
 
-	void process_from_source(bool keep_layers);
+	void process_from_source(bool keep_view_infos);
 
 	QString get_name() { return _src_plugin->supported_type_lib()->tab_name_of_inputs(_inputs); }
 	QString get_format_name() { return _extractor.get_format().get_format_name(); }
 
 	list_views_t const& get_views() const { return _views; }
+	list_mapped_t const& get_mappeds() const { return _mappeds; }
 
 	PVRush::PVFormat& get_format() { return _extractor.get_format(); }
 

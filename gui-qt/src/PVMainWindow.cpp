@@ -969,11 +969,11 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_p src)
 	// If no view is present, create a default one. Otherwise, process them by
 	// keeping the existing layers !
 	Picviz::PVView_p first_view;
-	if (src->get_views().size() == 0) {
+	if (src->get_mappeds().size() == 0) {
 		src->create_default_view();
 	}
 	else {
-		//src->process_from_source(true);
+		src->process_from_source(true);
 	}
 
 	first_view = src->get_views().at(0);

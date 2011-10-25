@@ -14,8 +14,10 @@
  *   PVCore::PVListFloat2D:PVListFloat2D:()
  *
  *****************************************************************************/
-PVCore::PVListFloat2D::PVListFloat2D(){
-	data = NULL;
+PVCore::PVListFloat2D::PVListFloat2D()
+{
+	width = 0;
+	height = 0;
 }
 
 /******************************************************************************
@@ -23,17 +25,16 @@ PVCore::PVListFloat2D::PVListFloat2D(){
  *   PVCore::PVListFloat2D::PVListFloat2D()
  *
  *****************************************************************************/
-PVCore::PVListFloat2D::~PVListFloat2D(){
+PVCore::PVListFloat2D::~PVListFloat2D()
+{
 	free();
 }
 
 void PVCore::PVListFloat2D::free()
 {
-	if (data) {
-		PVLOG_INFO("In PVListFloat2D destructor\n");
-		::free(data);
-		data = NULL;
-	}
+	data.clear();
+	width = 0;
+	height = 0;
 }
 
 
@@ -44,7 +45,8 @@ void PVCore::PVListFloat2D::free()
  *   PVCore::PVListFloat2D::count()
  *
  *****************************************************************************/
-int PVCore::PVListFloat2D::count(){
+int PVCore::PVListFloat2D::count() const
+{
 	return width*height;
 }
 
@@ -56,8 +58,14 @@ int PVCore::PVListFloat2D::count(){
  *   PVCore::PVListFloat2D::getData()
  *
  *****************************************************************************/
-float* PVCore::PVListFloat2D::getData(){
-	return data;
+float* PVCore::PVListFloat2D::getData()
+{
+	return &data[0];
+}
+
+const float* PVCore::PVListFloat2D::getData() const
+{
+	return &data.at(0);
 }
 
 
@@ -66,8 +74,14 @@ float* PVCore::PVListFloat2D::getData(){
  *   PVCore::PVListFloat2D::getRowData()
  *
  *****************************************************************************/
-float* PVCore::PVListFloat2D::getRowData(PVRow i){
-	return data+i*width;
+float* PVCore::PVListFloat2D::getRowData(PVRow i)
+{
+	return &data[i*width];
+}
+
+const float* PVCore::PVListFloat2D::getRowData(PVRow i) const
+{
+	return &data.at(i*width);
 }
 
 
@@ -77,7 +91,8 @@ float* PVCore::PVListFloat2D::getRowData(PVRow i){
  *   PVCore::PVListFloat2D::getHeight()
  *
  *****************************************************************************/
-PVRow PVCore::PVListFloat2D::getHeight(){
+PVRow PVCore::PVListFloat2D::getHeight() const
+{
 	return height;
 }
 
@@ -89,12 +104,12 @@ PVRow PVCore::PVListFloat2D::getHeight(){
  *   PVCore::PVListFloat2D::getValue()
  *
  *****************************************************************************/
-float PVCore::PVListFloat2D::getValue(PVRow i, PVCol j){
-	assert(data);
+float PVCore::PVListFloat2D::getValue(PVRow i, PVCol j) const
+{
 	assert(i < height);
 	assert(j < width);
 
-	return data[(i*width)+j];
+	return data.at((i*width)+j);
 }
 
 
@@ -105,7 +120,8 @@ float PVCore::PVListFloat2D::getValue(PVRow i, PVCol j){
  *   PVCore::PVListFloat2D::getWidth()
  *
  *****************************************************************************/
-PVCol PVCore::PVListFloat2D::getWidth(){
+PVCol PVCore::PVListFloat2D::getWidth() const
+{
 	return width;
 }
 
@@ -114,18 +130,11 @@ PVCol PVCore::PVListFloat2D::getWidth(){
  *   PVCore::PVListFloat2D::reserve()
  *
  *****************************************************************************/
-void PVCore::PVListFloat2D::reserve(PVCol width_, PVRow height_){
+void PVCore::PVListFloat2D::reserve(PVCol width_, PVRow height_)
+{
 	width = width_;
 	height = height_;
-	if (data) {
-		data = (float*) realloc(data, width*height*sizeof(float));
-	}
-	else {
-		data = (float*)malloc(width*height*sizeof(float));
-	}
-	if (data == NULL) {
-		PVLOG_ERROR("Unable to initialize memory for a float table !\n");
-	}
+	data.resize(width*height);
 }
 
 
@@ -134,8 +143,8 @@ void PVCore::PVListFloat2D::reserve(PVCol width_, PVRow height_){
  *   PVCore::PVListFloat2D::setValue()
  *
  *****************************************************************************/
-void PVCore::PVListFloat2D::setValue(float value, PVRow i, PVCol j){
-	assert(data);
+void PVCore::PVListFloat2D::setValue(float value, PVRow i, PVCol j)
+{
 	assert(i < height);
 	assert(j < width);
 

@@ -19,13 +19,12 @@
  *****************************************************************************/
 Picviz::PVPlotting::PVPlotting(PVMapped* parent)
 {
-	_mapped = parent;
-	_root = parent->get_root_parent();
+	set_mapped(parent);
 
 	PVRush::PVFormat_p format = parent->get_format();
 
 	for (int i=0; i < format->get_axes().size(); i++) {
-		PVPlottingProperties plotting_axis(*this, *format, i);
+		PVPlottingProperties plotting_axis(*format, i);
 		_columns << plotting_axis;
 		PVLOG_HEAVYDEBUG("%s: Add a column\n", __FUNCTION__);
 	}
@@ -95,4 +94,15 @@ const Picviz::PVMapped* Picviz::PVPlotting::get_mapped_parent() const
 Picviz::PVRoot* Picviz::PVPlotting::get_root_parent()
 {
 	return _root;
+}
+
+void Picviz::PVPlotting::set_mapped(PVMapped* mapped)
+{
+	_mapped = mapped;
+	_root = mapped->get_root_parent();
+}
+
+void Picviz::PVPlotting::serialize(PVCore::PVSerializeObject &so, PVCore::PVSerializeArchive::version_t /*v*/)
+{
+	so.list("properties", _columns);
 }

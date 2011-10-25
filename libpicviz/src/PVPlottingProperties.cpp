@@ -15,8 +15,7 @@
  * Picviz::PVPlottingProperties::PVPlottingProperties
  *
  *****************************************************************************/
-Picviz::PVPlottingProperties::PVPlottingProperties(PVPlotting const& parent, PVRush::PVFormat const& format, int idx):
-	_parent(&parent)
+Picviz::PVPlottingProperties::PVPlottingProperties(PVRush::PVFormat const& format, int idx)
 {
 	_index = idx;
 
@@ -28,6 +27,7 @@ Picviz::PVPlottingProperties::PVPlottingProperties(PVPlotting const& parent, PVR
 
 void Picviz::PVPlottingProperties::set_mode(QString const& mode)
 {
+	_mode = mode;
 	_plotting_filter = LIB_CLASS(PVPlottingFilter)::get().get_class_by_name(_type + "_" + mode);
 	if (!_plotting_filter) {
 		PVLOG_ERROR("Plotting mode '%s' for type '%s' does not exist !\n", qPrintable(mode), qPrintable(_type));
@@ -36,5 +36,15 @@ void Picviz::PVPlottingProperties::set_mode(QString const& mode)
 
 bool Picviz::PVPlottingProperties::operator==(PVPlottingProperties const& org)
 {
-	return (_plotting_filter == org._plotting_filter) && (_parent == org._parent) && (_index == org._index);
+	return (_plotting_filter == org._plotting_filter) && (_index == org._index);
+}
+
+void Picviz::PVPlottingProperties::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
+{
+	so.attribute("type", _type);
+	so.attribute("mode", _mode);
+
+	if (!so.is_writing()) {
+		set_mode(_mode);
+	}
 }

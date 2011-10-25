@@ -15,6 +15,7 @@
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVListFloat2D.h>
+#include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/rush/PVNraw.h>
 #include <picviz/PVPtrObjects.h>
 #include <boost/shared_ptr.hpp>
@@ -36,6 +37,7 @@ class PVSelection;
  * \class PVPlotted
  */
 class LibPicvizDecl PVPlotted {
+	friend class PVCore::PVSerializeObject;
 public:
 	typedef boost::shared_ptr<PVPlotted> p_type;
 	typedef QVector<float> plotted_table_t;
@@ -44,12 +46,19 @@ public:
 	PVPlotted(PVPlotting const& plotting);
 	~PVPlotted();
 
+protected:
+	// Serialization
+	PVPlotted() { }
+	void serialize(PVCore::PVSerializeObject &so, PVCore::PVSerializeArchive::version_t v);
+
 public:
 	#ifndef CUDA
 	int create_table();
 	#else //CUDA
 	int create_table_cuda();
 	#endif //CUDA
+
+	void process_from_mapped(PVMapped* mapped, bool keep_views_info);
 
 public:
 	// Parents
@@ -81,6 +90,9 @@ public:
 public:
 	// Debug
 	void to_csv();
+
+private:
+	void set_plotting(PVPlotting const& plotting);
 
 private:
 	PVPlotting _plotting;

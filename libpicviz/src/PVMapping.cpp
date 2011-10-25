@@ -14,8 +14,7 @@
 
 Picviz::PVMapping::PVMapping(PVSource* parent)
 {
-	source = parent;
-	root = parent->get_root();
+	set_source(parent);
 
 	PVCol naxes = parent->get_rushnraw().format->get_axes().size();
 	if (naxes == 0) {
@@ -26,15 +25,10 @@ Picviz::PVMapping::PVMapping(PVSource* parent)
 	PVLOG_DEBUG("In PVMapping::PVMapping(), debug PVFormat\n");
 	parent->get_rushnraw().format->debug();
 	for (int i=0; i < naxes; i++) {
-		PVMappingProperties mapping_axis(*this, *parent->get_rushnraw().format, i);
+		PVMappingProperties mapping_axis(*parent->get_rushnraw().format, i);
 		columns << mapping_axis;
 		PVLOG_HEAVYDEBUG("%s: Add a column\n", __FUNCTION__);
 	}
-
-	_mandatory_filters_values.resize(columns.size());
-
-	// Create the translated version of the nraw
-	source->get_rushnraw().create_trans_nraw();
 }
 
 Picviz::PVMapping::~PVMapping()
@@ -106,4 +100,21 @@ Picviz::mandatory_param_map& Picviz::PVMapping::get_mandatory_params_for_col(PVC
 QString Picviz::PVMapping::get_group_key_for_col(PVCol col) const
 {
 	return columns[col].get_group_key();
+}
+
+void Picviz::PVMapping::set_source(PVSource* src)
+{
+	source = src;
+	root = src->get_root();
+	
+	PVCol naxes = src->get_rushnraw().format->get_axes().size();
+	_mandatory_filters_values.resize(naxes);
+}
+
+void Picviz::PVMapping::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
+{
+	so.list("properties", columns);
+	if (!so.is_writing()) {
+		_mandatory_filters_values.clear();
+	}
 }

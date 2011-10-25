@@ -12,6 +12,7 @@
 #include <QLibrary>
 #include <QVector>
 
+#include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/rush/PVFormat.h>
 
 #include <picviz/general.h>
@@ -30,6 +31,8 @@ class PVMapped;
  * \class PVPlotting
  */
 class LibPicvizDecl PVPlotting : public boost::enable_shared_from_this<PVPlotting> {
+	friend class PVCore::PVSerializeObject;
+	friend class PVPlotted;
 public:
 	typedef boost::shared_ptr<PVPlotting> p_type;
 public:
@@ -42,6 +45,11 @@ public:
 	 * Destructor
 	 */
 	~PVPlotting();
+
+protected:
+	// Serialization
+	PVPlotting() { }
+	void serialize(PVCore::PVSerializeObject &so, PVCore::PVSerializeArchive::version_t v);
 
 public:
 	// Parents
@@ -65,6 +73,8 @@ public:
 
 	PVMapped* get_mapped_parent();
 	const PVMapped* get_mapped_parent() const;
+
+	void set_mapped(PVMapped* mapped);
 
 
 public:

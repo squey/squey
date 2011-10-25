@@ -36,6 +36,7 @@ class PVPlotted;
  */
 class LibPicvizDecl PVMapped {
 	friend class PVPlotted;
+	friend class PVCore::PVSerializeObject;
 public:
 	typedef boost::shared_ptr<PVMapped> p_type;
 	typedef QList<PVPlotted_p> list_plotted_t;
@@ -43,9 +44,16 @@ public:
 	PVMapped(PVMapping const& mapping);
 	~PVMapped();
 
+	void set_mapping(PVMapping const& mapping);
+protected:
+	// For serialization
+	PVMapped() { }
+
 public:
 	void create_table();
 	void add_plotted(PVPlotted_p plotted);
+
+	void process_from_source(PVSource* src, bool keep_views_info);
 
 public:
 	// Data access
@@ -74,6 +82,9 @@ public:
 	void clear_trans_nraw();
 	
 	PVRush::PVFormat_p get_format();
+
+protected:
+	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 
 protected:
 	PVMapping _mapping;

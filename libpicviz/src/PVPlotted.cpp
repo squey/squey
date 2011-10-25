@@ -30,14 +30,9 @@
 
 namespace Picviz {
 
-PVPlotted::PVPlotted(PVPlotting const& plotting):
-	_plotting(plotting)
+PVPlotted::PVPlotted(PVPlotting const& plotting)
 {
-	root = _plotting.get_root_parent();
-	_mapped = _plotting.get_mapped_parent();
-
-	_table.reserve(_mapped->get_row_count() * _mapped->get_column_count());
-
+	set_plotting(plotting);
 	#ifndef CUDA
 	create_table();
 	#else //CUDA
@@ -52,6 +47,13 @@ PVPlotted::~PVPlotted()
 	PVLOG_INFO("In PVPlotted destructor\n");
 }
 
+void PVPlotted::set_plotting(PVPlotting const& plotting)
+{
+	_plotting = plotting;
+	root = _plotting.get_root_parent();
+	_mapped = _plotting.get_mapped_parent();
+}
+
 #ifndef CUDA
 int PVPlotted::create_table()
 {
@@ -59,6 +61,9 @@ int PVPlotted::create_table()
 
 	QMutex lock;
 	const PVRow nrows = (PVRow)_mapped->table.getHeight();
+	
+	_table.clear();
+	_table.reserve(mapped_col_count * nrows);
 	
 	tbb::tick_count tstart = tbb::tick_count::now();
 	
@@ -271,6 +276,25 @@ void Picviz::PVPlotted::get_sub_col_minmax(plotted_sub_col_t& ret, float& min, f
 			ret.push_back(plotted_sub_col_t::value_type(i, v));
 		}
 	}
+}
+
+void Picviz::PVPlotted::process_from_mapped(PVMapped* mapped, bool keep_views_info)
+{
+	_plotting.set_mapped(mapped);
+	set_plotting(_plotting);
+	create_table();
+	if (!keep_views_info || !_view) {
+		_view.reset(new PVView(this));
+	}
+	else {
+		_view->init_from_plotted(this, keep_views_info);
+	}
+}
+
+void Picviz::PVPlotted::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
+{
+	so.object("plotting", _plotting);
+	so.object("view", _view);
 }
 
 }

@@ -26,20 +26,28 @@
 
 namespace Picviz {
 
-#ifndef picviz_mapping_function
-#define picviz_mapping_function "picviz_mapping_function"
-#endif
+class PVMapped;
 
 /**
  * \class PVMapping
  */
 class LibPicvizDecl PVMapping : public boost::enable_shared_from_this<PVMapping> {
+	friend class PVMapped;
+	friend class PVCore::PVSerializeObject;
 public:
 	typedef boost::shared_ptr<PVMapping> p_type;
 
 public:
 	PVMapping(PVSource* parent);
 	~PVMapping();
+
+protected:
+	// For serialization
+	PVMapping() { };
+	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
+
+	// For PVMapped
+	void set_source(PVSource* src);
 
 public:
 	float get_position(int column, QString const& value);

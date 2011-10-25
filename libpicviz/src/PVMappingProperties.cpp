@@ -9,8 +9,7 @@
 #include <pvkernel/core/PVClassLibrary.h>
 #include <picviz/PVRoot.h>
 
-Picviz::PVMappingProperties::PVMappingProperties(PVMapping const& parent, PVRush::PVFormat const& format, int idx):
-	_src_parent(parent.get_source_parent())
+Picviz::PVMappingProperties::PVMappingProperties(PVRush::PVFormat const& format, int idx)
 {
 	_index = idx;
 
@@ -27,6 +26,7 @@ Picviz::PVMappingProperties::PVMappingProperties(PVMapping const& parent, PVRush
 
 void Picviz::PVMappingProperties::set_mode(QString const& mode)
 {
+	_mode = mode;
 	_mapping_filter = LIB_CLASS(Picviz::PVMappingFilter)::get().get_class_by_name(_type + "_" + mode);
 	if (!_mapping_filter) {
 		PVLOG_ERROR("Mapping '%s' for type '%s' does not exist !\n", qPrintable(mode), qPrintable(_type));
@@ -35,6 +35,18 @@ void Picviz::PVMappingProperties::set_mode(QString const& mode)
 
 bool Picviz::PVMappingProperties::operator==(const PVMappingProperties& org)
 {
-	// These properties are equal if and only if the same filter is used on the same index with the same parent
-	return (_mapping_filter == org._mapping_filter) && (_index == org._index) && (_src_parent == org._src_parent);
+	// These properties are equal if and only if the same filter is used on the same index
+	return (_mapping_filter == org._mapping_filter) && (_index == org._index);
+}
+
+void Picviz::PVMappingProperties::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
+{
+	so.attribute("type", _type);
+	so.attribute("mode", _mode);
+	so.attribute("index", _index);
+	so.attribute("group_key", _group_key);
+
+	if (!so.is_writing()) {
+		set_mode(_mode);
+	}
 }

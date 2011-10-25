@@ -11,11 +11,6 @@
 #include <QStringList>
 
 #include <pvkernel/core/general.h>
-
-#include <picviz/PVMandatoryMappingFactory.h>
-#include <picviz/PVMappingFactory.h>
-#include <picviz/PVPlottingFactory.h>
-
 #include <picviz/PVPtrObjects.h> // For PVScene_p
 
 #include <boost/shared_ptr.hpp>
