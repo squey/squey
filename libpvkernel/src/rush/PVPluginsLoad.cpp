@@ -15,7 +15,7 @@ int PVRush::PVPluginsLoad::load_all_plugins()
 
 int PVRush::PVPluginsLoad::load_input_type_plugins()
 {
-	int ret = PVCore::PVClassLibraryLibLoader::load_class_from_dirs(get_input_type_dir().split(PVCORE_DIRECTORY_SEP), INPUT_TYPE_PREFIX);
+	int ret = PVCore::PVClassLibraryLibLoader::load_class_from_dirs(get_input_type_dir(), INPUT_TYPE_PREFIX);
 	if (ret == 0) {
 		PVLOG_WARN("No input plugin have been loaded !\n");
 	}
@@ -27,7 +27,7 @@ int PVRush::PVPluginsLoad::load_input_type_plugins()
 
 int PVRush::PVPluginsLoad::load_source_plugins()
 {
-	int ret = PVCore::PVClassLibraryLibLoader::load_class_from_dirs(get_source_dir().split(PVCORE_DIRECTORY_SEP), SOURCE_PREFIX);
+	int ret = PVCore::PVClassLibraryLibLoader::load_class_from_dirs(get_source_dir(), SOURCE_PREFIX);
 	if (ret == 0) {
 		PVLOG_WARN("No source plugin have been loaded !\n");
 	}
