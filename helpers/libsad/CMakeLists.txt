@@ -30,6 +30,7 @@ else(WIN32)
 endif(WIN32)
 add_definitions(-DSAD_PLUGINS_DIR="${SAD_PLUGINS_DIR}")
 
+include_directories(AFTER ${PVKERNEL_INCLUDE_DIRS})
 
 add_subdirectory(src)
 #add_subdirectory(plugins)
