@@ -59,12 +59,18 @@ int PVCore::PVClassLibraryLibLoader::load_class_from_dir(QString const& pluginsd
 	return count;
 }
 
-int PVCore::PVClassLibraryLibLoader::load_class_from_dirs(QStringList const& pluginsdirs, QString const& prefix)
+int PVCore::PVClassLibraryLibLoader::load_class_from_dirs(QString const& pluginsdirs, QString const& prefix)
 {
+	QStringList pluginsdirs_list = split_plugin_dirs(pluginsdirs);
+
 	int count = 0;
-	for (int i = 0; i < pluginsdirs.size(); i++) {
-		count += load_class_from_dir(pluginsdirs[i], prefix);
+	for (int i = 0; i < pluginsdirs_list.size(); i++) {
+		count += load_class_from_dir(pluginsdirs_list[i], prefix);
 	}
 	return count;
 }
 
+QStringList PVCore::PVClassLibraryLibLoader::split_plugin_dirs(QString const& dirs)
+{
+	return dirs.split(PVCORE_DIRECTORY_SEP);
+}

@@ -2,13 +2,28 @@
 // Copyright (C) Philippe Saade 2011
 // Copyright (C) Picviz Labs 2011
 
+
+#include <pvkernel/core/PVClassLibrary.h>
+
 #include <sad/init.h>
 
-#include <QString>
+#define PLUGIN_PREFIX "engine"
 
 int Sad::initialize(void)
 {
-	QString foo;
+	int ret = PVCore::PVClassLibraryLibLoader::load_class_from_dirs(get_plugins_dir(), PLUGIN_PREFIX);
 
 	return 0;
+}
+
+QString Sad::get_plugins_dir()
+{
+        QString pluginsdirs;
+
+        pluginsdirs = QString(getenv("SAD_PLUGINS_DIR"));
+        if (pluginsdirs.isEmpty()) {
+                pluginsdirs = QString(SAD_PLUGINS_DIR);
+        }
+
+        return pluginsdirs;
 }

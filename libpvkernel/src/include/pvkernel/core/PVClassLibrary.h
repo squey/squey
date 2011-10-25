@@ -139,7 +139,15 @@ class LibKernelDecl PVClassLibraryLibLoader {
 public:
 	static bool load_class(QString const& path);
 	static int load_class_from_dir(QString const& pluginsdir, QString const& prefix);
-	static int load_class_from_dirs(QStringList const& pluginsdirs, QString const& prefix);
+
+	/**
+	 * Load plugins from several directories
+	 *
+	 * @param pluginsdirs list of directories separated with the semicolon char ';'
+	 * @param prefix plugin type prefix, such as "plotting_filter" for the plotting filter plugin type
+	 */
+	static int load_class_from_dirs(QString const& pluginsdirs, QString const& prefix);
+	static QStringList split_plugin_dirs(QString const& dirs);
 };
 
 #define REGISTER_CLASS_AS(name, T, RegAs) \

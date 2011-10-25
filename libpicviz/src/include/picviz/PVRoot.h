@@ -38,8 +38,6 @@ public:
 	/* Functions */
 	int scene_append(PVScene_p scene);
 private:
-	static QStringList split_plugin_dirs(QString const& dirs);
-
 	// Plugins loading
 	static int load_layer_filters();
 	static int load_mapping_filters();

@@ -192,7 +192,7 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 	connect_widgets();
 	menu_activate_is_file_opened(false);
 	
-	create_pvgl_thread ();
+	create_pvgl_thread();
 
 	statusBar();
 	statemachine_label = new QLabel("");

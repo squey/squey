@@ -14,7 +14,7 @@ int PVFilter::PVPluginsLoad::load_all_plugins()
 
 int PVFilter::PVPluginsLoad::load_normalize_plugins()
 {
-	int ret = PVCore::PVClassLibraryLibLoader::load_class_from_dirs(get_normalize_dir().split(PVCORE_DIRECTORY_SEP), NORMALIZE_FILTER_PREFIX);
+	int ret = PVCore::PVClassLibraryLibLoader::load_class_from_dirs(get_normalize_dir(), NORMALIZE_FILTER_PREFIX);
 	if (ret == 0) {
 		PVLOG_WARN("No normalization plugin have been loaded !\n");
 	}
@@ -27,7 +27,6 @@ int PVFilter::PVPluginsLoad::load_normalize_plugins()
 QString PVFilter::PVPluginsLoad::get_normalize_dir()
 {
 	QString pluginsdirs;
-	QStringList pluginsdirs_list; 
 
 	pluginsdirs = QString(getenv("PVFILTER_NORMALIZE_DIR"));
 	if (pluginsdirs.isEmpty()) {
