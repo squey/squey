@@ -72,6 +72,11 @@ PVRush::PVFormat& PVRush::PVExtractor::get_format()
 	return *_nraw.format;
 }
 
+const PVRush::PVFormat& PVRush::PVExtractor::get_format() const
+{
+	return *_nraw.format;
+}
+
 chunk_index PVRush::PVExtractor::pvrow_to_agg_index(PVRow start, bool& found)
 {
 	chunk_index ret = 0;

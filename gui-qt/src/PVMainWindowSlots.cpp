@@ -804,7 +804,7 @@ void PVInspector::PVMainWindow::view_new_scatter_Slot()
 
 		message.function = PVSDK_MESSENGER_FUNCTION_CREATE_SCATTER_VIEW;
 		message.pv_view = current_tab->get_lib_view();
-		message.pointer_1 = new QString(pv_ListingsTabWidget->tabText(pv_ListingsTabWidget->currentIndex()));
+		message.pointer_1 = new QString(current_tab->get_current_view_name());
 		pvsdk_messenger->post_message_to_gl(message);
 	}
 }
@@ -818,12 +818,12 @@ void PVInspector::PVMainWindow::view_new_parallel_Slot()
 		PVSDK::PVMessage message;
 
                 message.function = PVSDK_MESSENGER_FUNCTION_PLEASE_WAIT;
-                message.pointer_1 = new QString(pv_ListingsTabWidget->tabText(pv_ListingsTabWidget->currentIndex()));
+                message.pointer_1 = new QString(current_tab->get_current_view_name());
                 pvsdk_messenger->post_message_to_gl(message);
 
                 message.function = PVSDK_MESSENGER_FUNCTION_CREATE_VIEW;
                 message.pv_view = current_tab->get_lib_view();
-                message.pointer_1 = new QString(pv_ListingsTabWidget->tabText(pv_ListingsTabWidget->currentIndex()));
+                message.pointer_1 = new QString(current_tab->get_current_view_name());
                 pvsdk_messenger->post_message_to_gl(message);
         }
 

@@ -17,7 +17,8 @@
  * Picviz::PVPlotting::PVPlotting
  *
  *****************************************************************************/
-Picviz::PVPlotting::PVPlotting(PVMapped* parent)
+Picviz::PVPlotting::PVPlotting(PVMapped* parent):
+	_name("default")
 {
 	set_mapped(parent);
 
@@ -146,4 +147,5 @@ void Picviz::PVPlotting::invalidate_column(PVCol j)
 void Picviz::PVPlotting::serialize(PVCore::PVSerializeObject &so, PVCore::PVSerializeArchive::version_t /*v*/)
 {
 	so.list("properties", _columns);
+	so.attribute("name", _name);
 }

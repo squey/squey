@@ -89,8 +89,9 @@ public:
 
 	void process_from_source(bool keep_view_infos);
 
-	QString get_name() { return _src_plugin->supported_type_lib()->tab_name_of_inputs(_inputs); }
-	QString get_format_name() { return _extractor.get_format().get_format_name(); }
+	QString get_name() const { return _src_plugin->supported_type_lib()->tab_name_of_inputs(_inputs); }
+	QString get_format_name() const { return _extractor.get_format().get_format_name(); }
+	QString get_window_name() const { return get_name() + QString(" / ") + get_format_name(); }
 
 	list_views_t const& get_views() const { return _views; }
 	list_mapped_t const& get_mappeds() const { return _mappeds; }

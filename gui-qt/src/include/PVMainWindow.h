@@ -282,6 +282,7 @@ public:
 	 *  @param refresh_states
 	 */
 	void update_pvglview(Picviz::PVView_p view, int refresh_states);
+	void ensure_glview_exists(Picviz::PVView_p view);
 	void destroy_pvgl_views(Picviz::PVView_p view);
 
 private:

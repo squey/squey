@@ -539,6 +539,34 @@ void PVGL::PVMain::timer_func(int)
 							pvsdk_messenger->post_message_to_qt(message);
 						}
 					break;
+			case PVSDK_MESSENGER_FUNCTION_ENSURE_VIEW:
+						{
+							// Ensure that a GL view has been created for a given Picviz::PVView
+							bool found_drawable = false;
+							for (std::list<PVGL::PVDrawable*>::iterator it = all_drawables.begin(); it != all_drawables.end(); ++it) {
+								PVGL::PVView *pv_view = dynamic_cast<PVGL::PVView*>(*it);
+								if (pv_view && pv_view->get_libview() == message.pv_view) {
+									found_drawable = true;
+									break;
+								}
+							}
+							if (found_drawable) {
+								// Found one, so do nothing.
+								break;
+							}
+
+							// Create a parallel view
+							QString *name = reinterpret_cast<QString *>(message.pointer_1);
+							create_view(name);
+							all_drawables.push_back(transient_view);
+							glutSetWindow(transient_view->get_window_id());
+							transient_view->init(message.pv_view);
+							message.pointer_1 = new QString(transient_view->get_name());
+							transient_view = 0;
+							message.function = PVSDK_MESSENGER_FUNCTION_VIEW_CREATED;
+							pvsdk_messenger->post_message_to_qt(message);
+						}
+					break;
 			case PVSDK_MESSENGER_FUNCTION_CREATE_SCATTER_VIEW:
 						{
 							QString *name = reinterpret_cast<QString *>(message.pointer_1);

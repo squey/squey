@@ -66,6 +66,9 @@ public:
 	void process_from_mapped(PVMapped* mapped, bool keep_views_info);
 	void process_from_parent_mapped(bool keep_views_info);
 
+	void set_name(QString const& name) { _plotting.set_name(name); }
+	QString const& get_name() const { return _plotting.get_name(); }
+
 public:
 	// Parents
 	PVRush::PVNraw::nraw_table& get_qtnraw();

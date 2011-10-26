@@ -58,6 +58,9 @@ public:
 
 	inline bool is_uptodate() const { return _mapping.is_uptodate(); };
 
+	void set_name(QString const& name) { _mapping.set_name(name); }
+	QString const& get_name() const { return _mapping.get_name(); }
+
 
 public:
 	// Data access

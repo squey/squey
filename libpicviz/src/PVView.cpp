@@ -1472,6 +1472,18 @@ void Picviz::PVView::select_inv_lines()
 	process_from_selection();
 }
 
+QString Picviz::PVView::get_name() const
+{
+	return QString("mapped/plotted: %1/%2").arg(get_mapped_parent()->get_name()).arg(get_plotted_parent()->get_name());
+}
+
+QString Picviz::PVView::get_window_name() const
+{
+	QString ret = get_source_parent()->get_window_name() + " | ";
+	ret += get_name();
+	return ret;
+}
+
 // Load/save and serialization
 void Picviz::PVView::serialize_write(PVCore::PVSerializeObject& so)
 {

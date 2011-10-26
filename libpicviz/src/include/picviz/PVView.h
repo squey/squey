@@ -156,6 +156,9 @@ public:
 
 	PVRush::PVExtractor& get_extractor();
 
+	QString get_name() const;
+	QString get_window_name() const;
+
 
 	PVLayer &get_post_filter_layer();
 	PVLayer &get_pre_filter_layer();
@@ -195,6 +198,7 @@ public:
 	void select_all_nonzb_lines();
 	void select_no_line();
 	void select_inv_lines();
+
 
 /******************************************************************************
 ******************************************************************************

@@ -207,6 +207,12 @@ void PVInspector::PVTabSplitter::select_view(Picviz::PVView_p view)
 void PVInspector::PVTabSplitter::create_new_mapped()
 {
 	Picviz::PVMapping new_mapping(get_lib_src().get());
+
+	// Create new default name
+	unsigned int nmapped = get_lib_src()->get_mappeds().size();
+	QString new_name(tr("New mapped %1").arg(nmapped));
+	new_mapping.set_name(new_name);
+
 	PVMappingPlottingEditDialog* dlg = new PVMappingPlottingEditDialog(&new_mapping, NULL, this);
 	if (dlg->exec() == QDialog::Rejected) {
 		return;
@@ -221,13 +227,21 @@ void PVInspector::PVTabSplitter::select_plotted(Picviz::PVPlotted* plotted)
 {
 	if (!plotted->is_uptodate()) {
 		plotted->process_from_parent_mapped(true);
+		main_window->update_pvglview(plotted->get_view(), PVSDK_MESSENGER_REFRESH_POSITIONS);
 	}
 	select_view(plotted->get_view());
+	main_window->ensure_glview_exists(plotted->get_view());
 }
 
 void PVInspector::PVTabSplitter::create_new_plotted(Picviz::PVMapped* mapped_parent)
 {
 	Picviz::PVPlotting new_plotting(mapped_parent);
+
+	// Create new default name
+	unsigned int nplotted = mapped_parent->get_plotteds().size();
+	QString new_name(tr("New plotted %1").arg(nplotted));
+	new_plotting.set_name(new_name);
+
 	PVMappingPlottingEditDialog* dlg = new PVMappingPlottingEditDialog(NULL, &new_plotting, this);
 	if (dlg->exec() == QDialog::Rejected) {
 		return;
@@ -253,6 +267,19 @@ void PVInspector::PVTabSplitter::edit_plotted(Picviz::PVPlotted* plotted)
 		if (get_lib_view() == plotted->get_view() && !plotted->is_uptodate()) {
 			// If something has changed, reprocess it
 			plotted->process_from_parent_mapped(true);
+			main_window->update_pvglview(plotted->get_view(), PVSDK_MESSENGER_REFRESH_POSITIONS);
 		}
 	}
+}
+
+QString PVInspector::PVTabSplitter::get_current_view_name(Picviz::PVSource_p src)
+{
+	Picviz::PVView_p view = src->current_view();
+	if (view) {
+		return view->get_window_name();
+	}
+
+	QString ret = get_tab_name(src) + " | ";
+	ret += "mapped/plotted: default/default";
+	return ret;
 }

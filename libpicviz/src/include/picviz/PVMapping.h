@@ -78,6 +78,9 @@ public:
 	PVMappingProperties& get_properties_for_col(PVCol col) { assert(col < columns.size()); return columns[col]; }
 	bool is_col_uptodate(PVCol j) const;
 
+	QString const& get_name() const { return _name; }
+	void set_name(QString const& name) { _name = name; }
+
 public:
 	// Mandatory parameters
 	mandatory_param_map const& get_mandatory_params_for_col(PVCol col) const;
@@ -89,6 +92,8 @@ protected:
 
 	PVSource* source;
 	PVRoot* root;
+
+	QString _name;
 };
 
 typedef PVMapping::p_type PVMapping_p;

@@ -939,7 +939,7 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_p src)
 	// for more informations.
 	PVSDK::PVMessage message;
 	message.function = PVSDK_MESSENGER_FUNCTION_PLEASE_WAIT;
-	message.pointer_1 = new QString(PVTabSplitter::get_tab_name(src));
+	message.pointer_1 = new QString(PVTabSplitter::get_current_view_name(src));
 	pvsdk_messenger->post_message_to_gl(message);
 
 	// Extract the source
@@ -1947,6 +1947,15 @@ void PVInspector::PVMainWindow::update_pvglview(Picviz::PVView_p view, int refre
 	message.function = PVSDK_MESSENGER_FUNCTION_REFRESH_VIEW;
 	message.pv_view = view;
 	message.int_1 = refresh_states;
+	pvsdk_messenger->post_message_to_gl(message);
+}
+
+void PVInspector::PVMainWindow::ensure_glview_exists(Picviz::PVView_p view)
+{
+	PVSDK::PVMessage message;
+	message.function = PVSDK_MESSENGER_FUNCTION_ENSURE_VIEW;
+	message.pv_view = view;
+	message.pointer_1 = new QString(view->get_window_name());
 	pvsdk_messenger->post_message_to_gl(message);
 }
 

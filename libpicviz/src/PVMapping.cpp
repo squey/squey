@@ -12,7 +12,8 @@
 
 #include <iostream>
 
-Picviz::PVMapping::PVMapping(PVSource* parent)
+Picviz::PVMapping::PVMapping(PVSource* parent):
+	_name("default")
 {
 	set_source(parent);
 
@@ -149,6 +150,7 @@ QString const& Picviz::PVMapping::get_mode_for_col(PVCol col) const
 void Picviz::PVMapping::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 {
 	so.list("properties", columns);
+	so.attribute("name", _name);
 	if (!so.is_writing()) {
 		_mandatory_filters_values.clear();
 	}

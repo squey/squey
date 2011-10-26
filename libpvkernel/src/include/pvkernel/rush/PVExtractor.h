@@ -103,6 +103,7 @@ public:
 	/*! \brief Get a reference to the internal PVFormat of the internal NRaw
 	 */
 	PVFormat& get_format();
+	PVFormat const& get_format() const;
 
 	/*! \brief Set the format of the NRaw
 	 */

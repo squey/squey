@@ -86,13 +86,17 @@ QVariant PVInspector::PVViewsModel::data(const QModelIndex &index, int role) con
 		{
 			QString ret;
 			if (node_obj.is_mapped()) {
+				Picviz::PVMapped* mapped = node_obj.as_mapped();
 				ret = QString("Mapped");
-				if (!node_obj.as_mapped()->is_uptodate()) {
+				ret += ": " + mapped->get_name();
+				if (!mapped->is_uptodate()) {
 					ret += QString(" *");
 				}
 			}
 			else {
+				Picviz::PVPlotted* plotted = node_obj.as_plotted();
 				ret = QString("Plotted");
+				ret += ": " + plotted->get_name();
 				if (!node_obj.as_plotted()->is_uptodate()) {
 					ret += QString(" *");
 				}

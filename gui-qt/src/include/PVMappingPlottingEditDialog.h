@@ -8,6 +8,7 @@
 #include <QDialog>
 #include <QComboBox>
 #include <QGridLayout>
+#include <QLineEdit>
 #include <QVBoxLayout>
 
 namespace PVInspector {
@@ -41,6 +42,7 @@ private slots:
 private:
 	QGridLayout* _main_grid;
 	QVBoxLayout* _main_layout;
+	QLineEdit* _edit_name;
 	Picviz::PVMapping* _mapping;
 	Picviz::PVPlotting* _plotting;
 	const PVRush::PVFormat* _format;

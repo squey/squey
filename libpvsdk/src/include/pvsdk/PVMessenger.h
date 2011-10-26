@@ -49,6 +49,7 @@ enum PVSDKMessengerFunction
 	PVSDK_MESSENGER_FUNCTION_TOGGLE_DISPLAY_EDGES = 709, //!< We click on the menu Axes/Display/Hide Edges
 	PVSDK_MESSENGER_FUNCTION_SET_VIEW_WINDOWTITLE = 710, //!< We update the title of the view window
 	PVSDK_MESSENGER_FUNCTION_UPDATE_AXES_COMBINATION = 711,   //!< Axes combination have changed
+	PVSDK_MESSENGER_FUNCTION_ENSURE_VIEW = 712,          //!< Ensure that a GL view exists for a given Picviz::PVView
 
 	// Then functions asked by PVGL for PVGL
 	PVSDK_MESSENGER_FUNCTION_UPDATE_OTHER_SELECTIONS = 801, //!< The PVGL should update the selection in other views

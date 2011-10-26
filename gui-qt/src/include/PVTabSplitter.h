@@ -138,9 +138,10 @@ public:
 
 	PVAxesCombinationDialog* get_axes_combination_editor() const { return pv_axes_combination_editor; }
 
-
+	QString get_current_view_name() { return get_current_view_name(get_lib_src()); };
+	static QString get_current_view_name(Picviz::PVSource_p src);
 	QString get_tab_name() { return get_tab_name(_lib_src); }
-	static QString get_tab_name(Picviz::PVSource_p src) { return src->get_name() + QString(" / ") + src->get_format_name(); }
+	static QString get_tab_name(Picviz::PVSource_p src) { return src->get_window_name(); }
 	QString get_src_name() { return _lib_src->get_name(); }
 	QString get_src_type() { return _lib_src->get_format_name(); }
 

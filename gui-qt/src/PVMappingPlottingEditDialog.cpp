@@ -7,6 +7,7 @@
 
 #include <QLabel>
 #include <QDialogButtonBox>
+#include <QHBoxLayout>
 
 PVInspector::PVMappingPlottingEditDialog::PVMappingPlottingEditDialog(Picviz::PVMapping* mapping, Picviz::PVPlotting* plotting, QWidget* parent):
 	QDialog(parent),
@@ -42,6 +43,13 @@ PVInspector::PVMappingPlottingEditDialog::~PVMappingPlottingEditDialog()
 void PVInspector::PVMappingPlottingEditDialog::init_layout()
 {
 	_main_layout = new QVBoxLayout();
+
+	QHBoxLayout* name_layout = new QHBoxLayout();
+	name_layout->addWidget(new QLabel(tr("Name:"), NULL));
+	_edit_name = new QLineEdit();
+	name_layout->addWidget(_edit_name);
+	_main_layout->addLayout(name_layout);
+
 	_main_grid = new QGridLayout();
 	int row = 0;
 	int col = 0;
@@ -67,6 +75,16 @@ void PVInspector::PVMappingPlottingEditDialog::load_settings()
 {
 	int row = 1;
 	PVCol col = 0;
+	// Name
+	QString name;
+	if (has_mapping()) {
+		name = _mapping->get_name();
+	}
+	else {
+		name = _plotting->get_name();
+	}
+	_edit_name->setText(name);
+
 	// Add widgets
 
 	PVRush::list_axes_t const& axes = _format->get_axes();
@@ -93,6 +111,20 @@ void PVInspector::PVMappingPlottingEditDialog::load_settings()
 
 void PVInspector::PVMappingPlottingEditDialog::save_settings()
 {
+	QString name = _edit_name->text();
+	if (name.isEmpty()) {
+		_edit_name->setFocus(Qt::MouseFocusReason);
+		return;
+	}
+
+	// If we're editing both at the same time, give the same name !
+	if (has_mapping()) {
+		_mapping->set_name(name);
+	}
+	if (has_plotting()) {
+		_plotting->set_name(name);
+	}
+
 	int row = 1;
 	PVCol axis_id;
 	for (axis_id = 0; axis_id < _format->get_axes().size(); axis_id++) {
