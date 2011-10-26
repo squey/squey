@@ -44,8 +44,8 @@ PVInspector::PVTabSplitter::PVTabSplitter(PVMainWindow *mw, Picviz::PVSource_p l
 	pv_layer_stack_model = new PVLayerStackModel(main_window, this);
 	pv_layer_stack_widget = new PVLayerStackWidget(main_window, pv_layer_stack_model, this);
 	right_layout->addWidget(pv_layer_stack_widget);
-	PVViewsListingWidget* views_widget = new PVViewsListingWidget(this);
-	right_layout->addWidget(views_widget);
+	_views_widget = new PVViewsListingWidget(this);
+	right_layout->addWidget(_views_widget);
 
 	QWidget* right_widget = new QWidget();
 	right_widget->setLayout(right_layout);
@@ -241,18 +241,18 @@ void PVInspector::PVTabSplitter::edit_mapped(Picviz::PVMapped* mapped)
 {
 	PVMappingPlottingEditDialog* dlg;
 	dlg = new PVMappingPlottingEditDialog(&mapped->get_mapping(), NULL, this);
-	if (dlg->exec() == QDialog::Accepted) {
-		// If a plotted was selected and that it is the current view...
-		if (get_liv_view() == plotted->get_view() && !plotted->is_uptodate()) {
-			// If something has changed, reprocess it
-			plotted->process_from_parent_mapped(true);
-		}
-	}
+	dlg->exec();
 }
 
 void PVInspector::PVTabSplitter::edit_plotted(Picviz::PVPlotted* plotted)
 {
 	PVMappingPlottingEditDialog* dlg;
 	dlg = new PVMappingPlottingEditDialog(NULL, &plotted->get_plotting(), this);
-	dlg->exec();
+	if (dlg->exec() == QDialog::Accepted) {
+		// If a plotted was selected and that it is the current view...
+		if (get_lib_view() == plotted->get_view() && !plotted->is_uptodate()) {
+			// If something has changed, reprocess it
+			plotted->process_from_parent_mapped(true);
+		}
+	}
 }

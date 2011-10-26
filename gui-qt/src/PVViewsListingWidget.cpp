@@ -71,7 +71,6 @@ void PVInspector::PVViewsListingWidget::show_ctxt_menu(const QPoint& pt)
 	}
 	else
 	if (sel_action == edit_action) {
-		PVMappingPlottingEditDialog* dlg;
 		Picviz::PVMapped* mapped = NULL;
 		Picviz::PVPlotted* plotted = NULL;
 		if (node_obj.is_mapped()) {

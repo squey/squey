@@ -28,6 +28,7 @@ class PVListingModel;
 class PVListingView;
 class PVAxesCombinationDialog;
 class PVExtractorWidget;
+class PVViewsListingWidget;
 
 /**
  *  \class PVTabSplitter
@@ -50,6 +51,8 @@ public:
 
 	PVLayerStackModel  *pv_layer_stack_model;
 	PVLayerStackWidget *pv_layer_stack_widget;
+
+	PVViewsListingWidget* _views_widget;
 
 	PVExtractorWidget *_pv_extractor; //!< The extractor widget of this view
 	PVAxesCombinationDialog *pv_axes_combination_editor;
@@ -160,6 +163,13 @@ public:
 	void updateFilterMenuEnabling();
 
 	void select_view(Picviz::PVView_p view);
+
+
+	void create_new_mapped();
+	void select_plotted(Picviz::PVPlotted* plotted);
+	void create_new_plotted(Picviz::PVMapped* mapped_parent);
+	void edit_mapped(Picviz::PVMapped* mapped);
+	void edit_plotted(Picviz::PVPlotted* plotted);
 
 public slots:
 	/**
