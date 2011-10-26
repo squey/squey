@@ -167,7 +167,7 @@ public:
      */
     void emitLayoutChanged(); 
 
-	void update_view();
+	void reset_lib_view();
 
 protected:
 	mutable QReadWriteLock _local_table_mutex;

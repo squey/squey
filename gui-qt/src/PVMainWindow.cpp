@@ -237,6 +237,9 @@ void PVInspector::PVMainWindow::check_messages()
 	PVSDK::PVMessage message;
 	if (pvsdk_messenger->get_message_for_qt(message)) {
 		PVTabSplitter* tab_view = get_tab_from_view(message.pv_view);
+		if (!tab_view) {
+			PVLOG_INFO("(PVMainWindow::check_messages) no tab for message %d\n", message.function);
+		}
 		switch (message.function) {
 			case PVSDK_MESSENGER_FUNCTION_CLEAR_SELECTION:
 				{

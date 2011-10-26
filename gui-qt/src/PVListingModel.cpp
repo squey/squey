@@ -49,10 +49,7 @@ PVInspector::PVListingModel::PVListingModel(PVMainWindow *mw, PVTabSplitter *par
 	zombie_font_brush = QBrush(QColor(200, 200, 200));
 	colSorted = -1;
 
-
-	lib_view = parent_widget->get_lib_view();
-	assert(lib_view);
-	state_machine = lib_view->state_machine;
+	reset_lib_view();
 
 	initMatchingTable();
 	initLocalMatchingTable();
@@ -69,6 +66,21 @@ int PVInspector::PVListingModel::columnCount(const QModelIndex &) const
 	return lib_view->get_axes_count();
 }
 
+void PVInspector::PVListingModel::reset_lib_view()
+{
+	beginResetModel();
+	
+	lib_view = parent_widget->get_lib_view();
+	assert(lib_view);
+	state_machine = lib_view->state_machine;
+
+	parent_widget->sortMatchingTable.clear();
+
+	initMatchingTable();
+	initLocalMatchingTable();
+
+	endResetModel();
+}
 
 /******************************************************************************
  *
@@ -488,19 +500,10 @@ unsigned int PVInspector::PVListingModel::getMatch(unsigned int l) {
 void PVInspector::PVListingModel::reset_model(bool initMatchTable)
 {
 	PVLOG_DEBUG("PVInspector::PVListingModel::%s\n", __FUNCTION__);
-	reset();
+	beginResetModel();
 	if (initMatchTable) {
 		initMatchingTable();
 	}
 	initLocalMatchingTable();
-	emitLayoutChanged();
-}
-
-void PVInspector::PVListingModel::update_view()
-{
-	lib_view = parent_widget->get_lib_view();
-	assert(lib_view);
-	state_machine = lib_view->state_machine;
-
-	reset_model(true);
+	endResetModel();
 }

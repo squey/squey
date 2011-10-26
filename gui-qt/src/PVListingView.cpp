@@ -89,7 +89,6 @@ void PVInspector::PVListingView::update_view_selection_from_listing_selection()
 	PVListingModel *myModel = (PVListingModel *)model();
 	unsigned int modifiers;
 	// Get current lib view for this source
-	Picviz::PVView_p lib_view = _parent->get_lib_view();
 
 	/* CODE */
 	state_machine = lib_view->state_machine;
@@ -205,9 +204,6 @@ void PVInspector::PVListingView::show_ctxt_menu(const QPoint& pos)
 		return;
 	}
 
-	// Get current lib view for this source
-	Picviz::PVView_p lib_view = _parent->get_lib_view();
-
 	// Get the string associated (that is, taken from the NRAW)
 	QString v = idx_click.data().toString();
 
@@ -278,4 +274,5 @@ void PVInspector::PVListingView::process_ctxt_menu_action(QAction* act)
 void PVInspector::PVListingView::update_view()
 {
 	lib_view = _parent->get_lib_view();
+	resizeColumnToContents(2);
 }

@@ -14,6 +14,9 @@ class PVViewsListingWidget: public QWidget
 public:
 	PVViewsListingWidget(PVTabSplitter* tab);
 
+public:
+	void force_refresh();
+
 protected slots:
 	void show_ctxt_menu(const QPoint& pt);
 

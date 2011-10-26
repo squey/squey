@@ -152,3 +152,8 @@ QModelIndex PVInspector::PVViewsModel::parent(const QModelIndex & index) const
 	_nodes_todel.push_back(nt);
 	return createIndex(idx, 0, nt);
 }
+
+void PVInspector::PVViewsModel::force_refresh()
+{
+	emit layoutChanged();
+}

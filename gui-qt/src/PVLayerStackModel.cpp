@@ -29,7 +29,8 @@ PVInspector::PVLayerStackModel::PVLayerStackModel(PVMainWindow *mw, PVTabSplitte
 	QAbstractTableModel(parent),
 	main_window(mw),
 	parent_widget(parent),
-	lib_layer_stack(parent_widget->get_lib_view()->layer_stack)
+	lib_view(parent_widget->get_lib_view()),
+	lib_layer_stack(&lib_view->layer_stack)
 {
 	PVLOG_INFO("PVInspector::PVLayerStackModel::%s : Creating object\n", __FUNCTION__);
 
@@ -50,10 +51,7 @@ PVInspector::PVLayerStackModel::PVLayerStackModel(PVMainWindow *mw, PVTabSplitte
 int PVInspector::PVLayerStackModel::columnCount(const QModelIndex &index) const
 {
 	PVLOG_HEAVYDEBUG("PVInspector::PVLayerStackModel::%s : at row %d and column %d\n", __FUNCTION__, index.row(), index.column());
-
 	return 3;
-	// FIXME PhS : testing purposes !
-	//return 4;
 }
 
 /******************************************************************************
@@ -66,11 +64,10 @@ QVariant PVInspector::PVLayerStackModel::data(const QModelIndex &index, int role
 	PVLOG_HEAVYDEBUG("PVInspector::PVLayerStackModel::%s : at row %d and column %d with role %d\n", __FUNCTION__, index.row(), index.column(), role);
 
 	/* We prepare a direct acces to the total number of layers */
-	int layer_count = lib_layer_stack.get_layer_count();
+	int layer_count = lib_layer_stack->get_layer_count();
 	/* We create and store the true index of the layer in the lib */
 	int lib_index = layer_count -1 - index.row();
 
-	Picviz::PVView_p lib_view = parent_widget->get_lib_view();
 	switch (role) {
 		case (Qt::CheckStateRole):
 			switch (index.column()) {
@@ -86,7 +83,7 @@ QVariant PVInspector::PVLayerStackModel::data(const QModelIndex &index, int role
 				if (parent_widget && parent_widget->get_layer_stack_widget() && parent_widget->get_layer_stack_widget()->get_layer_stack_view()) {
 					PVLayerStackView *layer_stack_view = parent_widget->get_layer_stack_widget()->get_layer_stack_view();
 					/* testing */
-					if (lib_layer_stack.get_selected_layer_index() == lib_index) {
+					if (lib_layer_stack->get_selected_layer_index() == lib_index) {
 						return QBrush(QColor(200,150,130));
 					}
 					if (layer_stack_view->mouse_hover_layer_index == index.row()) {
@@ -115,15 +112,6 @@ QVariant PVInspector::PVLayerStackModel::data(const QModelIndex &index, int role
 			switch (index.column()) {
 				case 2:
 					return /*(char *)*/lib_view->get_layer_stack_layer_n_name(lib_index);
-				// FIXME PhS : testing purposes only
-//				case 3:
-//					QStringList axes_names_list = QStringList();
-//					QVariant value = QVariant();
-//					axes_names_list = main_window->current_tab->get_lib_view()->get_axes_names_list();
-//					PVCore::PVAxisIndexType test = PVCore::PVAxisIndexType(0, axes_names_list);
-//					value.setValue(test);
-//
-//					return value;
 			}
 			break;
 
@@ -185,7 +173,7 @@ int PVInspector::PVLayerStackModel::rowCount(const QModelIndex &/*index*/) const
 {
 	PVLOG_HEAVYDEBUG("PVInspector::PVLayerStackModel::%s\n", __FUNCTION__);
 
-	return lib_layer_stack.get_layer_count();
+	return lib_layer_stack->get_layer_count();
 }
 
 /******************************************************************************
@@ -198,14 +186,13 @@ bool PVInspector::PVLayerStackModel::setData(const QModelIndex &index, const QVa
 	PVLOG_DEBUG("PVInspector::PVLayerStackModel::%s : at row %d and column %d with role %d\n", __FUNCTION__, index.row(), index.column(), role);
 
 	/* We prepare a direct acces to the total number of layers */
-	int layer_count = lib_layer_stack.get_layer_count();
+	int layer_count = lib_layer_stack->get_layer_count();
 	/* We create and store the true index of the layer in the lib */
 	int lib_index = layer_count -1 - index.row();
 
 	/* We prepare access to the layer_stack_view to resize columns */
 	PVLayerStackView *layer_stack_view = parent_widget->get_layer_stack_widget()->get_layer_stack_view();
 
-	Picviz::PVView_p lib_view = parent_widget->get_lib_view();
 	switch (role) {
 		case (Qt::EditRole):
 			switch (index.column()) {
@@ -236,6 +223,8 @@ bool PVInspector::PVLayerStackModel::setData(const QModelIndex &index, const QVa
 
 void PVInspector::PVLayerStackModel::update_layer_stack()
 {
-	lib_layer_stack = parent_widget->get_lib_view()->layer_stack;
-	emit_layoutChanged();
+	beginResetModel();
+	lib_view = parent_widget->get_lib_view();
+	lib_layer_stack = &lib_view->layer_stack;
+	endResetModel();
 }

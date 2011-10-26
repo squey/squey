@@ -15,6 +15,7 @@
 //#include <picviz/layer-stack.h>
 #include <picviz/PVLayer.h>
 #include <picviz/PVLayerStack.h>
+#include <picviz/PVView_types.h>
 
 namespace PVInspector {
 class PVMainWindow;
@@ -30,7 +31,8 @@ Q_OBJECT
 	PVMainWindow         *main_window;     //!<
 	PVTabSplitter        *parent_widget;   //!<
 
-	Picviz::PVLayerStack &lib_layer_stack; //!<
+	Picviz::PVView_p lib_view; //!<
+	Picviz::PVLayerStack *lib_layer_stack; //!<
 
 	QBrush select_brush;       //!<
 	QFont select_font;         //!<
@@ -50,7 +52,7 @@ public:
 	*
 	* @return
 	*/
-	Picviz::PVLayerStack &get_layer_stack_lib()const{return lib_layer_stack;}
+	Picviz::PVLayerStack &get_layer_stack_lib()const{return *lib_layer_stack;}
 
 	/**
 	*  @param

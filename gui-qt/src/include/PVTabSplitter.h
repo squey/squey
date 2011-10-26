@@ -46,10 +46,7 @@ public:
 
 	PVListingView *pv_listing_view; //!< The PVListingView attached with our main application
 
-	PVListingModel *pv_listing_model; //!< The classical Listing model (with zombies and unselected)
-	PVListingModel *pv_listing_no_unselected_model; //!< The Listing model with zombies and without unselected
-	PVListingModel *pv_listing_no_zombie_model; //!< The Listing model without zombies but with unselected
-	PVListingModel *pv_listing_no_zombie_no_unselected_model; //!< The Listing model without both zombies and unselected
+	PVListingModel *pv_listing_model; //!< The listing model
 
 	PVLayerStackModel  *pv_layer_stack_model;
 	PVLayerStackWidget *pv_layer_stack_widget;

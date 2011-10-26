@@ -13,6 +13,7 @@
 #include <PVListingView.h>
 #include <PVExtractorWidget.h>
 #include <PVAxesCombinationDialog.h>
+#include <PVMappingPlottingEditDialog.h>
 #include <PVViewsListingWidget.h>
 
 #include <PVTabSplitter.h>
@@ -34,11 +35,8 @@ PVInspector::PVTabSplitter::PVTabSplitter(PVMainWindow *mw, Picviz::PVSource_p l
 	pv_layer_stack_widget = NULL; // Note that this value can be requested during the creating of the PVLayerStackWidget!
 
 	pv_listing_model = new PVListingModel(main_window, this);
-	pv_listing_no_unselected_model = new PVListingModel(main_window, this);
-	pv_listing_no_zombie_model = new PVListingModel(main_window, this);
-	pv_listing_no_zombie_no_unselected_model = new PVListingModel(main_window, this);
 	pv_listing_view = new PVListingView(main_window, this);
-	pv_listing_view->setModel(pv_listing_no_zombie_no_unselected_model);
+	pv_listing_view->setModel(pv_listing_model);
 
 	addWidget(pv_listing_view);
 
@@ -153,49 +151,6 @@ void PVInspector::PVTabSplitter::update_pv_listing_model_Slot()
 	PVLOG_DEBUG("%s \n       %s \n",__FILE__,__FUNCTION__);
 	
 	updateFilterMenuEnabling();
-
-	if (!pv_listing_view) {
-		PVLOG_INFO("No listing view in %s\n", __FUNCTION__);
-		return;
-	}
-	Picviz::PVView_p current_lib_view = get_lib_view();
-	/* We get an access to the current StateMachine */
-	Picviz::PVStateMachine *state_machine = current_lib_view->state_machine;
-	/* We prepare a pointer of type (QAbstractTableModel *) */
-	QAbstractTableModel *next_model;
-
-	/* We set the model according to the two listing modes */
-	/* First of all, we check if the Unselected are visible */
-        ///TODO replace the follwing "if" by a switch using "switch(state_machine->getListingMode())"
-	if (state_machine->are_listing_unselected_visible()) {
-		/* The Unselected are visible */
-		/* We then check if the Zombie are visible */
-		if (state_machine->are_listing_zombie_visible()) {
-			/* The Zombie are visible too */
-			pv_listing_model->reset_model(false); // This is needed, but I don't know why. Maybe only needed once [DDX] XXX ???
-			next_model = pv_listing_model;
-		} else {
-			/* The Zombie are NOT visible */
-			pv_listing_no_zombie_model->reset_model(false); // Ditto XXX ???
-			next_model = pv_listing_no_zombie_model;
-		}
-	} else {
-		/* The UNSELECTED are NOT visible! */
-		/* We then check if the Zombie are visible */
-		if (state_machine->are_listing_zombie_visible()) {
-			/* The Zombie are visible */
-			pv_listing_no_unselected_model->reset_model(false); // Ditto XXX ???
-			next_model = pv_listing_no_unselected_model;
-		} else {
-			/* The Zombie are NOT visible */
-			pv_listing_no_zombie_no_unselected_model->reset_model(false); // Ditto XXX ???
-                        next_model = pv_listing_no_zombie_no_unselected_model;
-		}
-	}
-
-	/* Now we can set the model ! */
-	pv_listing_view->setModel(next_model);
-        static_cast<PVListingModel*>(next_model)->emitLayoutChanged();
 }
 
 /******************************************************************************
@@ -238,8 +193,66 @@ void PVInspector::PVTabSplitter::select_view(Picviz::PVView_p view)
 	assert(view->get_source_parent() == _lib_src.get());
 	_lib_src->select_view(view);
 
+	sortMatchingTable.clear();
+	sortMatchingTable_invert.clear();
+
 	// Update the layer stack
 	pv_layer_stack_model->update_layer_stack();
-	pv_listing_model->update_view();
+
+	// And the listing
+	pv_listing_model->reset_lib_view();
 	pv_listing_view->update_view();
+}
+
+void PVInspector::PVTabSplitter::create_new_mapped()
+{
+	Picviz::PVMapping new_mapping(get_lib_src().get());
+	PVMappingPlottingEditDialog* dlg = new PVMappingPlottingEditDialog(&new_mapping, NULL, this);
+	if (dlg->exec() == QDialog::Rejected) {
+		return;
+	}
+
+	Picviz::PVMapped_p new_mapped(new Picviz::PVMapped(new_mapping));
+	get_lib_src()->add_mapped(new_mapped);
+	_views_widget->force_refresh();
+}
+
+void PVInspector::PVTabSplitter::select_plotted(Picviz::PVPlotted* plotted)
+{
+	if (!plotted->is_uptodate()) {
+		plotted->process_from_parent_mapped(true);
+	}
+	select_view(plotted->get_view());
+}
+
+void PVInspector::PVTabSplitter::create_new_plotted(Picviz::PVMapped* mapped_parent)
+{
+	Picviz::PVPlotting new_plotting(mapped_parent);
+	PVMappingPlottingEditDialog* dlg = new PVMappingPlottingEditDialog(NULL, &new_plotting, this);
+	if (dlg->exec() == QDialog::Rejected) {
+		return;
+	}
+
+	Picviz::PVPlotted_p new_plotted(new Picviz::PVPlotted(new_plotting));
+	mapped_parent->add_plotted(new_plotted);
+}
+
+void PVInspector::PVTabSplitter::edit_mapped(Picviz::PVMapped* mapped)
+{
+	PVMappingPlottingEditDialog* dlg;
+	dlg = new PVMappingPlottingEditDialog(&mapped->get_mapping(), NULL, this);
+	if (dlg->exec() == QDialog::Accepted) {
+		// If a plotted was selected and that it is the current view...
+		if (get_liv_view() == plotted->get_view() && !plotted->is_uptodate()) {
+			// If something has changed, reprocess it
+			plotted->process_from_parent_mapped(true);
+		}
+	}
+}
+
+void PVInspector::PVTabSplitter::edit_plotted(Picviz::PVPlotted* plotted)
+{
+	PVMappingPlottingEditDialog* dlg;
+	dlg = new PVMappingPlottingEditDialog(NULL, &plotted->get_plotting(), this);
+	dlg->exec();
 }

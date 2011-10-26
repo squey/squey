@@ -43,6 +43,7 @@ public:
 	QModelIndex parent(const QModelIndex & index) const;
 	QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const;
 	Qt::ItemFlags flags(const QModelIndex& index) const;
+	void force_refresh();
 
 public:
 	PVIndexNode const& get_object(QModelIndex const& index) const;
