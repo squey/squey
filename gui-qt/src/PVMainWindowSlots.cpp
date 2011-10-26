@@ -65,7 +65,7 @@ void PVInspector::PVMainWindow::axes_combination_editor_Slot()
 		return;
 	}
 
-	PVAxesCombinationDialog* dlg = current_tab->get_axes_combination_editor();
+	PVAxesCombinationDialog* dlg = current_tab->get_axes_combination_editor(current_tab->get_lib_view());
 	if (dlg->isVisible()) {
 		return;
 	}

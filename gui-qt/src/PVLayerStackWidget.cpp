@@ -41,7 +41,7 @@ PVInspector::PVLayerStackWidget::PVLayerStackWidget(PVMainWindow *mw, PVLayerSta
 	main_layout->addWidget(pv_layer_stack_view);
 	main_layout->addWidget(layer_stack_toolbar);
 
-	setFixedWidth(210);
+	setMinimumWidth(210);
 
 	setLayout(main_layout);
 }

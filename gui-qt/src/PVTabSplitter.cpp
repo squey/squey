@@ -49,10 +49,10 @@ PVInspector::PVTabSplitter::PVTabSplitter(PVMainWindow *mw, Picviz::PVSource_p l
 
 	QWidget* right_widget = new QWidget();
 	right_widget->setLayout(right_layout);
+	right_widget->setMinimumWidth(220);
 	addWidget(right_widget);
 
 	_pv_extractor = new PVExtractorWidget(this);
-	pv_axes_combination_editor = new PVAxesCombinationDialog(this, mw);
 
 	screenshot_index = 0;
 
@@ -183,15 +183,39 @@ void PVInspector::PVTabSplitter::updateFilterMenuEnabling(){
 
 void PVInspector::PVTabSplitter::refresh_axes_combination_Slot()
 {
-	if (pv_axes_combination_editor->isVisible()) {
-		pv_axes_combination_editor->update_used_axes();
+	// TODO: do this only for the good view
+	QHash<Picviz::PVView const*, PVViewWidgets>::const_iterator it;
+	for (it = _view_widgets.begin(); it != _view_widgets.end(); it++) {
+		PVAxesCombinationDialog* pv_axes_combination_editor = it.value().pv_axes_combination_editor; 
+		if (pv_axes_combination_editor->isVisible()) {
+			pv_axes_combination_editor->update_used_axes();
+		}
 	}
+}
+
+PVInspector::PVAxesCombinationDialog* PVInspector::PVTabSplitter::get_axes_combination_editor(Picviz::PVView_p view)
+{
+	PVViewWidgets const& widgets = get_view_widgets(view);
+	return widgets.pv_axes_combination_editor;
+}
+
+PVInspector::PVTabSplitter::PVViewWidgets const& PVInspector::PVTabSplitter::get_view_widgets(Picviz::PVView_p view)
+{
+	assert(view->get_source_parent() == _lib_src.get());
+	if (!_view_widgets.contains(view.get())) {
+		PVViewWidgets widgets(view, this);
+		return *(_view_widgets.insert(view.get(), widgets));
+	}
+	return _view_widgets[view.get()];
 }
 
 void PVInspector::PVTabSplitter::select_view(Picviz::PVView_p view)
 {
 	assert(view->get_source_parent() == _lib_src.get());
 	_lib_src->select_view(view);
+
+	// Create view widgets if necessary
+	get_view_widgets(view);
 
 	sortMatchingTable.clear();
 	sortMatchingTable_invert.clear();
@@ -255,7 +279,16 @@ void PVInspector::PVTabSplitter::edit_mapped(Picviz::PVMapped* mapped)
 {
 	PVMappingPlottingEditDialog* dlg;
 	dlg = new PVMappingPlottingEditDialog(&mapped->get_mapping(), NULL, this);
-	dlg->exec();
+	if (dlg->exec() == QDialog::Rejected) {
+		return;
+	}
+
+	Picviz::PVView_p cur_view = get_lib_view();
+	if (cur_view->get_mapped_parent() == mapped) {
+		mapped->process_parent_source();
+		cur_view->get_plotted_parent()->process_from_parent_mapped(true);
+		main_window->update_pvglview(cur_view, PVSDK_MESSENGER_REFRESH_POSITIONS);
+	}
 }
 
 void PVInspector::PVTabSplitter::edit_plotted(Picviz::PVPlotted* plotted)
@@ -282,4 +315,10 @@ QString PVInspector::PVTabSplitter::get_current_view_name(Picviz::PVSource_p src
 	QString ret = get_tab_name(src) + " | ";
 	ret += "mapped/plotted: default/default";
 	return ret;
+}
+
+// PVViewWidgets
+PVInspector::PVTabSplitter::PVViewWidgets::PVViewWidgets(Picviz::PVView_p view, PVTabSplitter* tab)
+{
+	pv_axes_combination_editor = new PVAxesCombinationDialog(view, tab, tab->main_window);
 }

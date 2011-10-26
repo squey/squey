@@ -38,6 +38,17 @@ class PVTabSplitter : public QSplitter
 	Q_OBJECT
 
 private:
+	class PVViewWidgets
+	{
+	public:
+		PVViewWidgets(Picviz::PVView_p view, PVTabSplitter* tab);
+		PVViewWidgets() { pv_axes_combination_editor = NULL; }
+	
+	public:
+		PVAxesCombinationDialog *pv_axes_combination_editor;
+	};
+
+	friend class PVViewWidgets;
 
 public:
 	MatchingTable_t sortMatchingTable; //!<the table sort, modify this array to order the values. sortMatchingTable[0] is the position of the line 0 after sort.
@@ -55,9 +66,10 @@ public:
 	PVViewsListingWidget* _views_widget;
 
 	PVExtractorWidget *_pv_extractor; //!< The extractor widget of this view
-	PVAxesCombinationDialog *pv_axes_combination_editor;
 
 	int screenshot_index;
+
+	QHash<Picviz::PVView const*, PVViewWidgets> _view_widgets;
 
 public slots:
 	// FIXME!			void update_row_count_in_all_dynamic_listing_model_Slot();
@@ -136,7 +148,7 @@ public:
 	 */
 	PVExtractorWidget* get_extractor_widget() const {return _pv_extractor;}
 
-	PVAxesCombinationDialog* get_axes_combination_editor() const { return pv_axes_combination_editor; }
+	PVAxesCombinationDialog* get_axes_combination_editor(Picviz::PVView_p view);
 
 	QString get_current_view_name() { return get_current_view_name(get_lib_src()); };
 	static QString get_current_view_name(Picviz::PVSource_p src);
@@ -144,6 +156,8 @@ public:
 	static QString get_tab_name(Picviz::PVSource_p src) { return src->get_window_name(); }
 	QString get_src_name() { return _lib_src->get_name(); }
 	QString get_src_type() { return _lib_src->get_format_name(); }
+
+	PVViewWidgets const& get_view_widgets(Picviz::PVView_p view);
 
 	/**
 	 *

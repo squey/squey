@@ -11,6 +11,7 @@ PVInspector::PVViewsListingWidget::PVViewsListingWidget(PVTabSplitter* tab):
 	_model = new PVViewsModel(*tab->get_lib_src(), this);
 	_tree = new QTreeView();
 	_tree->setModel(_model);
+	_tree->setMinimumSize(0,0);
 	_tree->setHeaderHidden(true);
 
 	connect(_tree, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_ctxt_menu(const QPoint&)));
@@ -19,6 +20,8 @@ PVInspector::PVViewsListingWidget::PVViewsListingWidget(PVTabSplitter* tab):
 	QVBoxLayout* layout = new QVBoxLayout();
 	layout->addWidget(_tree);
 	setLayout(layout);
+
+	setMinimumWidth(210);
 
 	setFocusPolicy(Qt::StrongFocus);
 }

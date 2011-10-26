@@ -4,15 +4,16 @@
 
 #include <QVBoxLayout>
 
-PVInspector::PVAxesCombinationDialog::PVAxesCombinationDialog(PVTabSplitter* tab_, PVMainWindow* mw):
-	QDialog(mw)
+PVInspector::PVAxesCombinationDialog::PVAxesCombinationDialog(Picviz::PVView_p view, PVTabSplitter* tab_, PVMainWindow* mw):
+	QDialog(mw),
+	_view(view)
 {
 	main_window = mw;
 	tab = tab_;
 
 	QVBoxLayout* main_layout = new QVBoxLayout();
 	QDialogButtonBox* box_buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-	_axes_widget = new PVAxesCombinationWidget(tab->get_lib_view()->axes_combination, mw);
+	_axes_widget = new PVAxesCombinationWidget(view->axes_combination, mw);
 	main_layout->addWidget(_axes_widget);
 	main_layout->addWidget(box_buttons);
 	setLayout(main_layout);
@@ -33,12 +34,12 @@ void PVInspector::PVAxesCombinationDialog::refresh_axes_slot()
 	tab->refresh_listing_with_horizontal_header_Slot();
 	tab->update_pv_listing_model_Slot();
 	tab->refresh_listing_Slot();
-	main_window->update_pvglview(tab->get_lib_view(), PVSDK_MESSENGER_REFRESH_POSITIONS);
+	main_window->update_pvglview(_view, PVSDK_MESSENGER_REFRESH_POSITIONS);
 }
 
 void PVInspector::PVAxesCombinationDialog::axes_count_changed_slot()
 {
-	main_window->update_pvglview(tab->get_lib_view(), PVSDK_MESSENGER_REFRESH_AXES_COUNT);
+	main_window->update_pvglview(_view, PVSDK_MESSENGER_REFRESH_AXES_COUNT);
 }
 
 void PVInspector::PVAxesCombinationDialog::cancel_slot()

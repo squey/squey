@@ -2,6 +2,7 @@
 #define PVAXESCOMBINATIONDIALOG_H
 
 #include <pvkernel/core/general.h>
+#include <picviz/PVView_types.h>
 #include <QDialog>
 
 namespace PVInspector {
@@ -15,7 +16,7 @@ class PVAxesCombinationDialog: public QDialog
 	Q_OBJECT
 
 public:
-	PVAxesCombinationDialog(PVTabSplitter* tab, PVMainWindow* mw);
+	PVAxesCombinationDialog(Picviz::PVView_p view, PVTabSplitter* tab, PVMainWindow* mw);
 
 public:
 	void save_current_combination();
@@ -30,6 +31,7 @@ protected:
 	PVMainWindow* main_window;
 	PVTabSplitter* tab;
 	PVAxesCombinationWidget* _axes_widget;
+	Picviz::PVView_p _view;
 };
 
 }
