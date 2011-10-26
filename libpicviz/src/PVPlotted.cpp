@@ -62,7 +62,7 @@ int PVPlotted::create_table()
 	QMutex lock;
 	const PVRow nrows = (PVRow)_mapped->table.getHeight();
 	
-	_table.clear();
+	//_table.clear();
 	_table.reserve(mapped_col_count * nrows);
 	
 	tbb::tick_count tstart = tbb::tick_count::now();
@@ -80,18 +80,20 @@ int PVPlotted::create_table()
 		}
 	}
 
-	PVCore::PVListFloat2D trans_table;
 	trans_table.reserve(nrows, mapped_col_count);
 
 	PVLOG_INFO("(PVPlotted::create_table) begin parallel plotting\n");
 	for (PVCol j = 0; j < mapped_col_count; j++) {
+		if (_plotting.is_col_uptodate(j)) {
+			continue;
+		}
 		PVPlottingFilter::p_type plotting_filter = plotting_filters[j];
 		if (!plotting_filter) {
 			PVLOG_ERROR("No valid plotting filter function is defined for axis %d !\n", j);
 			continue;
 		}
 
-		plotting_filter->set_mapping_mode(_plotting.get_format()->get_axes().at(j).get_mapping());
+		plotting_filter->set_mapping_mode(_mapped->get_mapping().get_mode_for_col(j));
 		plotting_filter->set_mandatory_params(_mapped->get_mapping().get_mandatory_params_for_col(j));
 		plotting_filter->set_dest_array(nrows, trans_table.getRowData(j));
 		tbb::tick_count plstart = tbb::tick_count::now();
@@ -99,7 +101,7 @@ int PVPlotted::create_table()
 		tbb::tick_count plend = tbb::tick_count::now();
 		int64_t nrows_tmp = nrows;
 
-		PVLOG_INFO("(PVPlotted::create_table) parallel plotting for axis %d took %0.4f seconds.\n", j, (plend-plstart).seconds());
+		PVLOG_INFO("(PVPlotted::create_table) parallel plotting for axis %d took %0.4f seconds, plugin was %s.\n", j, (plend-plstart).seconds(), qPrintable(plotting_filter->registered_name()));
 
 		// TODO: this is a matrix transposition. Find out the best way to do this !
 #pragma omp parallel for
@@ -113,14 +115,13 @@ int PVPlotted::create_table()
 			}
 #endif
 		}
+
+		_plotting.set_uptodate_for_col(j);
 	}
 	PVLOG_INFO("(PVPlotted::create_table) end parallel plotting\n");
 
 	tbb::tick_count tend = tbb::tick_count::now();
 	PVLOG_INFO("(PVPlotted::create_table) plotting took %0.4f seconds.\n", (tend-tstart).seconds());
-
-	// Free the table of the PVMapped object
-	_mapped->trans_table.free();
 
 	return 0;
 }
@@ -282,6 +283,16 @@ void Picviz::PVPlotted::process_from_mapped(PVMapped* mapped, bool keep_views_in
 {
 	_plotting.set_mapped(mapped);
 	set_plotting(_plotting);
+	process_from_parent_mapped(keep_views_info);
+}
+
+void Picviz::PVPlotted::process_from_parent_mapped(bool keep_views_info)
+{
+	// Check parent consistency
+	if (!_mapped->is_uptodate()) {
+		_mapped->process_parent_source();
+	}
+
 	create_table();
 	if (!keep_views_info || !_view) {
 		_view.reset(new PVView(this));
@@ -289,6 +300,15 @@ void Picviz::PVPlotted::process_from_mapped(PVMapped* mapped, bool keep_views_in
 	else {
 		_view->init_from_plotted(this, keep_views_info);
 	}
+}
+
+bool Picviz::PVPlotted::is_uptodate() const
+{
+	if (!_mapped->is_uptodate()) {
+		return false;
+	}
+
+	return _plotting.is_uptodate();
 }
 
 void Picviz::PVPlotted::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)

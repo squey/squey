@@ -32,12 +32,14 @@ namespace Picviz {
 
 // Forward declaration
 class PVSelection;
+class PVMapped;
 
 /**
  * \class PVPlotted
  */
 class LibPicvizDecl PVPlotted {
 	friend class PVCore::PVSerializeObject;
+	friend class PVMapped;
 public:
 	typedef boost::shared_ptr<PVPlotted> p_type;
 	typedef QVector<float> plotted_table_t;
@@ -51,6 +53,9 @@ protected:
 	PVPlotted() { }
 	void serialize(PVCore::PVSerializeObject &so, PVCore::PVSerializeArchive::version_t v);
 
+	// For PVMapped
+	inline void invalidate_column(PVCol j) { return _plotting.invalidate_column(j); }
+
 public:
 	#ifndef CUDA
 	int create_table();
@@ -59,6 +64,7 @@ public:
 	#endif //CUDA
 
 	void process_from_mapped(PVMapped* mapped, bool keep_views_info);
+	void process_from_parent_mapped(bool keep_views_info);
 
 public:
 	// Parents
@@ -78,6 +84,8 @@ public:
 
 	PVPlotting& get_plotting() { return _plotting; }
 	const PVPlotting& get_plotting() const { return _plotting; }
+
+	bool is_uptodate() const;
 
 public:
 	// Data access
@@ -103,6 +111,7 @@ private:
 	PVMapped* _mapped;
 	plotted_table_t _table; /* Unidimensionnal. It must be contiguous in memory */
 	PVView_p _view;
+	PVCore::PVListFloat2D trans_table;
 };
 
 typedef PVPlotted::p_type PVPlotted_p;

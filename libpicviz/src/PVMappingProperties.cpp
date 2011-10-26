@@ -13,19 +13,33 @@ Picviz::PVMappingProperties::PVMappingProperties(PVRush::PVFormat const& format,
 {
 	_index = idx;
 
-	_type = format.get_axes().at(idx).get_type();
+	QString type = format.get_axes().at(idx).get_type();
 	QString mode = format.get_axes().at(idx).get_mapping();
 	QString group = format.get_axes().at(idx).get_group();
 
-	set_mode(mode);
+	set_type(type, mode);
 
 	if (!group.isEmpty()) {
 		_group_key = group + "_" + _type;
 	}
 }
 
+void Picviz::PVMappingProperties::set_type(QString const& type, QString const& mode)
+{
+	if (_is_uptodate && _type == type && _mode == mode) {
+		return;
+	}
+	_type = type;
+	_is_uptodate = false;
+	set_mode(mode);
+}
+
 void Picviz::PVMappingProperties::set_mode(QString const& mode)
 {
+	if (_is_uptodate && _mode == mode) {
+		return;
+	}
+	_is_uptodate = false;
 	_mode = mode;
 	_mapping_filter = LIB_CLASS(Picviz::PVMappingFilter)::get().get_class_by_name(_type + "_" + mode);
 	if (!_mapping_filter) {
@@ -47,6 +61,7 @@ void Picviz::PVMappingProperties::serialize(PVCore::PVSerializeObject& so, PVCor
 	so.attribute("group_key", _group_key);
 
 	if (!so.is_writing()) {
-		set_mode(_mode);
+		_is_uptodate = false;
+		set_type(_type, _mode);
 	}
 }

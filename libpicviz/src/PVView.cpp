@@ -1432,9 +1432,10 @@ bool Picviz::PVView::is_consistent() const
 void Picviz::PVView::recreate_mapping_plotting()
 {
 	// Source has been changed, recreate mapping and plotting
-	get_mapped_parent()->create_table();
-	get_plotted_parent()->create_table();
+	get_mapped_parent()->process_parent_source();
+	get_plotted_parent()->process_from_parent_mapped(true);
 
+/*
 	// Save current axes combination
 	PVAxesCombination cur_axes_combination = axes_combination;
 
@@ -1443,6 +1444,7 @@ void Picviz::PVView::recreate_mapping_plotting()
 
 	// Restore the previous axes combination
 	axes_combination = cur_axes_combination;
+*/
 }
 
 void Picviz::PVView::select_all_nonzb_lines()

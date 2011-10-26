@@ -19,6 +19,8 @@
 
 namespace Picviz {
 
+class PVMapping;
+
 /**
 * \class PVMappingProperties
 *
@@ -26,6 +28,7 @@ namespace Picviz {
 */
 class LibPicvizDecl PVMappingProperties {
 	friend class PVCore::PVSerializeObject;
+	friend class PVMapping;
 public:
 	PVMappingProperties(PVRush::PVFormat const& fmt, int idx);
 protected:
@@ -33,16 +36,19 @@ protected:
 	PVMappingProperties() { _index = 0; }
 public:
 	QString get_group_key() const { return _group_key; }
+	void set_type(QString const& type, QString const& mode);
 	void set_mode(QString const& mode);
 	inline PVMappingFilter::p_type get_mapping_filter() const { assert(_mapping_filter); return _mapping_filter; }
 	inline QString const& get_type() const { return _type; }
 	inline QString const& get_mode() const { return _mode; }
+	inline bool is_uptodate() const { return _is_uptodate; }
 
 public:
 	bool operator==(const PVMappingProperties& org);
 
 protected:
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
+	void set_uptodate() { _is_uptodate = true; }
 
 private:
 	PVCol _index;
@@ -50,6 +56,7 @@ private:
 	PVMappingFilter::p_type _mapping_filter;
 	QString _type;
 	QString _mode;
+	bool _is_uptodate;
 };
 
 }

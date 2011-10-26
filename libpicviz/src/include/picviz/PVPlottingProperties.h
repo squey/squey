@@ -18,6 +18,9 @@
 
 namespace Picviz {
 
+class PVPlotting;
+class PVMapping;
+
 /**
 * \class PVPlottingProperties
 *
@@ -25,18 +28,25 @@ namespace Picviz {
 */
 class LibPicvizDecl PVPlottingProperties {
 	friend class PVCore::PVSerializeObject;
+	friend class PVPlotting;
 public:
-	PVPlottingProperties(PVRush::PVFormat const& fmt, int idx);
-	PVPlottingFilter::p_type get_plotting_filter() { return _plotting_filter; };
+	PVPlottingProperties(PVMapping const& mapping, PVRush::PVFormat const& fmt, int idx);
 
 protected:
 	// Serialization
-	PVPlottingProperties() { }
+	PVPlottingProperties() { _mapping = NULL; }
+	void set_mapping(const PVMapping& mapping);
+
+	// For PVPlotting
+	inline void set_uptodate() { _is_uptodate = true; }
+	inline void invalidate() { _is_uptodate = false; }
 
 public:
+	PVPlottingFilter::p_type get_plotting_filter();
 	void set_mode(QString const& mode);
 	inline QString const& get_mode() const { return _mode; }
-	inline QString const& get_type() const { return _type; }
+	QString get_type() const;
+	inline bool is_uptodate() const { return _is_uptodate; }
 
 public:
 	bool operator==(PVPlottingProperties const& org);
@@ -49,7 +59,10 @@ private:
 	QString _mode;
 	PVCol _index;
 	PVPlottingFilter::p_type _plotting_filter;
+	bool _is_uptodate;
+	const PVMapping* _mapping;
 };
+
 }
 
 #endif	/* PICVIZ_PVPLOTTINGPROPERTIES_H */

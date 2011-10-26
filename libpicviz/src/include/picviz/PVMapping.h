@@ -21,8 +21,6 @@
 #include <picviz/PVMandatoryMappingFilter.h>
 
 #include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
-
 
 namespace Picviz {
 
@@ -31,7 +29,8 @@ class PVMapped;
 /**
  * \class PVMapping
  */
-class LibPicvizDecl PVMapping : public boost::enable_shared_from_this<PVMapping> {
+class LibPicvizDecl PVMapping
+{
 	friend class PVMapped;
 	friend class PVCore::PVSerializeObject;
 public:
@@ -48,9 +47,11 @@ protected:
 
 	// For PVMapped
 	void set_source(PVSource* src);
+	void set_uptodate_for_col(PVCol j);
 
 public:
 	float get_position(int column, QString const& value);
+	bool is_uptodate() const;
 
 public:
 	// Parents
@@ -70,8 +71,12 @@ public:
 public:
 	// Column properties
 	PVMappingFilter::p_type get_filter_for_col(PVCol col);
+	QString const& get_type_for_col(PVCol col) const;
+	QString const& get_mode_for_col(PVCol col) const;
 	QString get_group_key_for_col(PVCol col) const;
 	PVMappingProperties const& get_properties_for_col(PVCol col) const { assert(col < columns.size()); return columns.at(col); }
+	PVMappingProperties& get_properties_for_col(PVCol col) { assert(col < columns.size()); return columns[col]; }
+	bool is_col_uptodate(PVCol j) const;
 
 public:
 	// Mandatory parameters

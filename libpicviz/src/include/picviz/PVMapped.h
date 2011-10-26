@@ -48,12 +48,16 @@ public:
 protected:
 	// For serialization
 	PVMapped() { }
-
+	
 public:
-	void create_table();
+	void process_parent_source();
+	void process_from_source(PVSource* src, bool keep_views_info);
+	void process_from_parent_source(bool keep_views_info);
+
 	void add_plotted(PVPlotted_p plotted);
 
-	void process_from_source(PVSource* src, bool keep_views_info);
+	inline bool is_uptodate() const { return _mapping.is_uptodate(); };
+
 
 public:
 	// Data access
@@ -88,6 +92,10 @@ public:
 
 protected:
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
+
+private:
+	void invalidate_plotted_children_column(PVCol j);
+	void create_table();
 
 protected:
 	PVMapping _mapping;

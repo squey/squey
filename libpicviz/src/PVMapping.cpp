@@ -111,6 +111,41 @@ void Picviz::PVMapping::set_source(PVSource* src)
 	_mandatory_filters_values.resize(naxes);
 }
 
+bool Picviz::PVMapping::is_uptodate() const
+{
+	QList<PVMappingProperties>::const_iterator it;
+	for (it = columns.begin(); it != columns.end(); it++) {
+		if (!it->is_uptodate()) {
+			return false;
+		}
+	}
+	return true;
+}
+
+void Picviz::PVMapping::set_uptodate_for_col(PVCol j)
+{
+	assert(j < columns.size());
+	get_properties_for_col(j).set_uptodate();
+}
+
+bool Picviz::PVMapping::is_col_uptodate(PVCol j) const
+{
+	assert(j < columns.size());
+	return get_properties_for_col(j).is_uptodate();
+}
+
+QString const& Picviz::PVMapping::get_type_for_col(PVCol col) const
+{
+	assert(col < columns.size());
+	return get_properties_for_col(col).get_type();
+}
+
+QString const& Picviz::PVMapping::get_mode_for_col(PVCol col) const
+{
+	assert(col < columns.size());
+	return get_properties_for_col(col).get_mode();
+}
+
 void Picviz::PVMapping::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 {
 	so.list("properties", columns);

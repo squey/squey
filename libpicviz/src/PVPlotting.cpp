@@ -24,7 +24,7 @@ Picviz::PVPlotting::PVPlotting(PVMapped* parent)
 	PVRush::PVFormat_p format = parent->get_format();
 
 	for (int i=0; i < format->get_axes().size(); i++) {
-		PVPlottingProperties plotting_axis(*format, i);
+		PVPlottingProperties plotting_axis(parent->get_mapping(), *format, i);
 		_columns << plotting_axis;
 		PVLOG_HEAVYDEBUG("%s: Add a column\n", __FUNCTION__);
 	}
@@ -100,6 +100,23 @@ void Picviz::PVPlotting::set_mapped(PVMapped* mapped)
 {
 	_mapped = mapped;
 	_root = mapped->get_root_parent();
+
+	// Set parent mapping for properties
+	QList<PVPlottingProperties>::iterator it;
+	for (it = _columns.begin(); it != _columns.end(); it++) {
+		it->set_mapping(mapped->get_mapping());
+	}
+}
+
+bool Picviz::PVPlotting::is_uptodate() const
+{
+	QList<PVPlottingProperties>::const_iterator it;
+	for (it = _columns.begin(); it != _columns.end(); it++) {
+		if (!it->is_uptodate()) {
+			return false;
+		}
+	}
+	return true;
 }
 
 QString const& Picviz::PVPlotting::get_column_type(PVCol col) const
@@ -107,6 +124,24 @@ QString const& Picviz::PVPlotting::get_column_type(PVCol col) const
 	PVMappingProperties const& prop(_mapped->get_mapping().get_properties_for_col(col));
 	return prop.get_type();
 }
+
+bool Picviz::PVPlotting::is_col_uptodate(PVCol j) const
+{
+	assert(j < _columns.size());
+	return get_properties_for_col(j).is_uptodate();
+}
+
+void Picviz::PVPlotting::set_uptodate_for_col(PVCol j)
+{
+	assert(j < _columns.size());
+	return get_properties_for_col(j).set_uptodate();
+}	
+
+void Picviz::PVPlotting::invalidate_column(PVCol j)
+{
+	assert(j < _columns.size());
+	return get_properties_for_col(j).invalidate();
+}	
 
 void Picviz::PVPlotting::serialize(PVCore::PVSerializeObject &so, PVCore::PVSerializeArchive::version_t /*v*/)
 {

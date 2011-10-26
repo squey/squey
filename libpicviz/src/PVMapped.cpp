@@ -151,10 +151,16 @@ PVLOG_INFO("(pvmapped::create_table) begin cuda mapping\n");
 	// passed through all mapping filters that have the same group and type
 	QHash<QString, PVCore::PVArgument> grp_values;
 	for (PVCol j = 0; j < ncols; j++) {
+		// Check that an update is required
+		if (_mapping.get_properties_for_col(j).is_uptodate()) {
+			continue;
+		}
+
 		// Get the corresponding object
 		PVRush::PVNraw::nraw_table_line const& fields = trans_nraw[j];
 		PVMappingFilter::p_type mapping_filter = mapping_filters[j];
 		mandatory_param_map& params_map = _mapping.get_mandatory_params_for_col(j);
+		params_map.clear();
 
 		if (!mapping_filter) {
 			PVLOG_ERROR("An invalid mapping type and/or mode is set for axis %d !\n", j);
@@ -184,6 +190,9 @@ PVLOG_INFO("(pvmapped::create_table) begin cuda mapping\n");
 		tmap_end = tbb::tick_count::now();
 
 		PVLOG_INFO("(PVMapped::create_table) mandatory mapping for axis %d took %0.4f seconds.\n", j, (tmap_end-tmap_start).seconds());
+
+		_mapping.set_uptodate_for_col(j);
+		invalidate_plotted_children_column(j);
 	}
 	PVLOG_INFO("(pvmapped::create_table) end parallel mapping\n");
 #endif
@@ -301,13 +310,32 @@ void Picviz::PVMapped::process_from_source(PVSource* src, bool keep_views_info)
 {
 	_mapping.set_source(src);
 	set_mapping(_mapping);
-	create_table();
 
+	process_from_parent_source(keep_views_info);
+}
+
+void Picviz::PVMapped::process_parent_source()
+{
+	create_table();
+}
+
+void Picviz::PVMapped::process_from_parent_source(bool keep_views_info)
+{
+	process_parent_source();
 	// Process plotting children
 	for (int i = 0; i < _plotteds.size(); i++) {
 		PVPlotted_p plotted = _plotteds[i];
 		plotted->process_from_mapped(this, keep_views_info);
 		get_source_parent()->add_view(plotted->get_view());
+	}
+}
+
+void Picviz::PVMapped::invalidate_plotted_children_column(PVCol j)
+{
+	list_plotted_t::iterator it;
+	for (it = _plotteds.begin(); it != _plotteds.end(); it++) {
+		PVPlotted_p plotted = *it;
+		plotted->invalidate_column(j);
 	}
 }
 

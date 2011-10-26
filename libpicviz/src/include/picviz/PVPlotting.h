@@ -51,6 +51,10 @@ protected:
 	PVPlotting() { }
 	void serialize(PVCore::PVSerializeObject &so, PVCore::PVSerializeArchive::version_t v);
 
+	// For PVPlotted
+	void set_uptodate_for_col(PVCol j);
+	void invalidate_column(PVCol j);
+
 public:
 	// Parents
 	
@@ -78,11 +82,15 @@ public:
 
 	QString const& get_column_type(PVCol col) const;
 
+	bool is_uptodate() const;
 
 public:
 	// Data access
 	Picviz::PVPlottingFilter::p_type get_filter_for_col(PVCol col);
-	PVPlottingProperties const& get_properties_for_col(PVCol col) { assert(col < _columns.size()); return _columns.at(col); }
+	PVPlottingProperties const& get_properties_for_col(PVCol col) const { assert(col < _columns.size()); return _columns.at(col); }
+	PVPlottingProperties& get_properties_for_col(PVCol col) { assert(col < _columns.size()); return _columns[col]; }
+	bool is_col_uptodate(PVCol j) const;
+	void set_type_for_col(QString const& type, PVCol col);
 
 protected:
 	PVMapped* _mapped;

@@ -30,13 +30,13 @@ private:
 	void init_layout();
 	void finish_layout();
 	void load_settings();
-	void save_settings();
 	void reset_settings_with_format();
 
 	static QComboBox* init_combo(QStringList const& list, QString const& sel);
 
 private slots:
 	void type_changed(const QString& type);
+	void save_settings();
 
 private:
 	QGridLayout* _main_grid;

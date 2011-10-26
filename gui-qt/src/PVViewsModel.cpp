@@ -83,7 +83,22 @@ QVariant PVInspector::PVViewsModel::data(const QModelIndex &index, int role) con
 	PVIndexNode node_obj = get_object(index);
 	switch (role) {
 		case Qt::DisplayRole:
-			return node_obj.is_mapped() ? QString("Mapped") : QString("Plotted");
+		{
+			QString ret;
+			if (node_obj.is_mapped()) {
+				ret = QString("Mapped");
+				if (!node_obj.as_mapped()->is_uptodate()) {
+					ret += QString(" *");
+				}
+			}
+			else {
+				ret = QString("Plotted");
+				if (!node_obj.as_plotted()->is_uptodate()) {
+					ret += QString(" *");
+				}
+			}
+			return ret;
+		}
 		case Qt::FontRole:
 		{
 			if (!node_obj.is_plotted()) {

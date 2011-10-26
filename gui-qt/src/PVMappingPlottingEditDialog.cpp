@@ -28,6 +28,8 @@ PVInspector::PVMappingPlottingEditDialog::PVMappingPlottingEditDialog(Picviz::PV
 		_format = &(_plotting->get_source_parent()->get_format());
 	}
 
+	setWindowTitle(tr("Edit properties..."));
+
 	init_layout();
 	load_settings();
 	finish_layout();
@@ -89,9 +91,40 @@ void PVInspector::PVMappingPlottingEditDialog::load_settings()
 	}
 }
 
+void PVInspector::PVMappingPlottingEditDialog::save_settings()
+{
+	int row = 1;
+	PVCol axis_id;
+	for (axis_id = 0; axis_id < _format->get_axes().size(); axis_id++) {
+		int col = 1;
+		if (has_mapping()) {
+			Picviz::PVMappingProperties& prop = _mapping->get_properties_for_col(axis_id);
+			// Axis type
+			QComboBox* combo = dynamic_cast<QComboBox*>(_main_grid->itemAtPosition(row, col++)->widget());
+			QString type = combo->currentText();
+
+			// Mapping mode
+			combo = dynamic_cast<QComboBox*>(_main_grid->itemAtPosition(row, col++)->widget());
+			QString mode = combo->currentText();
+
+			prop.set_type(type, mode);
+		}
+		if (has_plotting()) {
+			QComboBox* combo = dynamic_cast<QComboBox*>(_main_grid->itemAtPosition(row, col++)->widget());
+			QString mode = combo->currentText();
+			_plotting->get_properties_for_col(axis_id).set_mode(mode);
+		}
+		row++;
+	}
+
+	accept();
+}
+
 void PVInspector::PVMappingPlottingEditDialog::finish_layout()
 {
 	QDialogButtonBox* btns = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+	connect(btns, SIGNAL(accepted()), this, SLOT(save_settings()));
+	connect(btns, SIGNAL(rejected()), this, SLOT(reject()));
 	_main_layout->addWidget(btns);
 }
 
