@@ -48,3 +48,33 @@ void Picviz::PVMappingFilter::set_format(PVCol cur_col, PVRush::PVFormat& format
 	_cur_col = cur_col;
 	_format = &format;
 }
+
+QStringList Picviz::PVMappingFilter::list_types()
+{
+	LIB_CLASS(PVMappingFilter)::list_classes const& map_filters = LIB_CLASS(PVMappingFilter)::get().get_list();
+	LIB_CLASS(PVMappingFilter)::list_classes::const_iterator it;
+	QStringList ret;
+	for (it = map_filters.begin(); it != map_filters.end(); it++) {
+		QString const& name = it.key();
+		QStringList params = name.split('_');
+		if (!ret.contains(params[0])) {
+			ret << params[0];
+		}
+	}
+    return ret;
+}
+
+QStringList Picviz::PVMappingFilter::list_modes(QString const& type)
+{
+	LIB_CLASS(Picviz::PVMappingFilter)::list_classes const& map_filters = LIB_CLASS(Picviz::PVMappingFilter)::get().get_list();
+	LIB_CLASS(Picviz::PVMappingFilter)::list_classes::const_iterator it;
+	QStringList ret;
+	for (it = map_filters.begin(); it != map_filters.end(); it++) {
+		QString const& name = it.key();
+		QStringList params = name.split('_');
+		if (params[0].compare(type) == 0) {
+			ret << params[1];
+		}
+	}
+    return ret;
+}

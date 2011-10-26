@@ -13,6 +13,7 @@
 #include <PVListingView.h>
 #include <PVExtractorWidget.h>
 #include <PVAxesCombinationDialog.h>
+#include <PVViewsListingWidget.h>
 
 #include <PVTabSplitter.h>
 
@@ -28,7 +29,6 @@ PVInspector::PVTabSplitter::PVTabSplitter(PVMainWindow *mw, Picviz::PVSource_p l
 	PVLOG_DEBUG("PVInspector::PVTabSplitter::%s\n", __FUNCTION__);
 	assert(lib_src->get_views().size() > 0);
 	// Select the first view
-	current_lib_view = lib_src->get_views().at(0);
 
 	main_window = mw;
 	pv_layer_stack_widget = NULL; // Note that this value can be requested during the creating of the PVLayerStackWidget!
@@ -41,9 +41,17 @@ PVInspector::PVTabSplitter::PVTabSplitter(PVMainWindow *mw, Picviz::PVSource_p l
 	pv_listing_view->setModel(pv_listing_no_zombie_no_unselected_model);
 
 	addWidget(pv_listing_view);
+
+	QVBoxLayout* right_layout = new QVBoxLayout();
 	pv_layer_stack_model = new PVLayerStackModel(main_window, this);
 	pv_layer_stack_widget = new PVLayerStackWidget(main_window, pv_layer_stack_model, this);
-	addWidget(pv_layer_stack_widget);
+	right_layout->addWidget(pv_layer_stack_widget);
+	PVViewsListingWidget* views_widget = new PVViewsListingWidget(this);
+	right_layout->addWidget(views_widget);
+
+	QWidget* right_widget = new QWidget();
+	right_widget->setLayout(right_layout);
+	addWidget(right_widget);
 
 	_pv_extractor = new PVExtractorWidget(this);
 	pv_axes_combination_editor = new PVAxesCombinationDialog(this, mw);
@@ -94,6 +102,7 @@ void PVInspector::PVTabSplitter::increment_screenshot_index()
 void PVInspector::PVTabSplitter::refresh_listing_Slot()
 {
 	PVLOG_DEBUG("%s \n       %s %d\n",__FILE__,__FUNCTION__,__LINE__);
+	Picviz::PVView_p current_lib_view = get_lib_view();
 	if (pv_listing_view) {
 		current_lib_view->gl_call_locker.lock();
 		pv_listing_view->viewport()->update();
@@ -149,6 +158,7 @@ void PVInspector::PVTabSplitter::update_pv_listing_model_Slot()
 		PVLOG_INFO("No listing view in %s\n", __FUNCTION__);
 		return;
 	}
+	Picviz::PVView_p current_lib_view = get_lib_view();
 	/* We get an access to the current StateMachine */
 	Picviz::PVStateMachine *state_machine = current_lib_view->state_machine;
 	/* We prepare a pointer of type (QAbstractTableModel *) */
@@ -226,7 +236,7 @@ void PVInspector::PVTabSplitter::refresh_axes_combination_Slot()
 void PVInspector::PVTabSplitter::select_view(Picviz::PVView_p view)
 {
 	assert(view->get_source_parent() == _lib_src.get());
-	current_lib_view = view;
+	_lib_src->select_view(view);
 
 	// Update the layer stack
 	pv_layer_stack_model->update_layer_stack();

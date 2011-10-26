@@ -382,18 +382,7 @@ QWidget *PVInspector::PVXmlParamWidgetBoardAxis::getWidgetToFocus(){
  *
  *****************************************************************************/
 QStringList PVInspector::PVXmlParamWidgetBoardAxis::listType() const {
-	LIB_CLASS(Picviz::PVMappingFilter)::list_classes const& map_filters = LIB_CLASS(Picviz::PVMappingFilter)::get().get_list();
-	LIB_CLASS(Picviz::PVMappingFilter)::list_classes::const_iterator it;
-	QStringList ret;
-	for (it = map_filters.begin(); it != map_filters.end(); it++) {
-		QString const& name = it.key();
-		QStringList params = name.split('_');
-		if (!ret.contains(params[0])) {
-			ret << params[0];
-		}
-	}
-    return ret;
-
+	return Picviz::PVMappingFilter::list_types();
 }
 
 
@@ -403,17 +392,7 @@ QStringList PVInspector::PVXmlParamWidgetBoardAxis::listType() const {
  *
  *****************************************************************************/
 QStringList PVInspector::PVXmlParamWidgetBoardAxis::getListTypeMapping(const QString& mType) {
-	LIB_CLASS(Picviz::PVMappingFilter)::list_classes const& map_filters = LIB_CLASS(Picviz::PVMappingFilter)::get().get_list();
-	LIB_CLASS(Picviz::PVMappingFilter)::list_classes::const_iterator it;
-	QStringList ret;
-	for (it = map_filters.begin(); it != map_filters.end(); it++) {
-		QString const& name = it.key();
-		QStringList params = name.split('_');
-		if (params[0].compare(mType) == 0) {
-			ret << params[1];
-		}
-	}
-    return ret;
+	return Picviz::PVMappingFilter::list_modes(mType);
 }
 
 /******************************************************************************
@@ -422,17 +401,7 @@ QStringList PVInspector::PVXmlParamWidgetBoardAxis::getListTypeMapping(const QSt
  *
  *****************************************************************************/
 QStringList PVInspector::PVXmlParamWidgetBoardAxis::getListTypePlotting(const QString& mType) {
-	LIB_CLASS(Picviz::PVPlottingFilter)::list_classes const& pl_filters = LIB_CLASS(Picviz::PVPlottingFilter)::get().get_list();
-	LIB_CLASS(Picviz::PVPlottingFilter)::list_classes::const_iterator it;
-	QStringList ret;
-	for (it = pl_filters.begin(); it != pl_filters.end(); it++) {
-		QString const& name = it.key();
-		QStringList params = name.split('_');
-		if (params[0].compare(mType) == 0) {
-			ret << params[1];
-		}
-	}
-    return ret;
+	return Picviz::PVPlottingFilter::list_modes(mType);
 }
 
 

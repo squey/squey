@@ -43,7 +43,6 @@ public:
 	MatchingTable_t sortMatchingTable_invert; //!<sortMatchingTable_invert[E] (E: a line in sorted table) return the real position in the nraw 
 	PVMainWindow     *main_window;   //!< The parent PVMainWindow of this PVTabSplitter
 	Picviz::PVSource_p _lib_src;    //!< The Picviz::PVSource object this tab is bound to
-	Picviz::PVView_p current_lib_view;      //!< The current Picviz::PVView 
 
 	PVListingView *pv_listing_view; //!< The PVListingView attached with our main application
 
@@ -112,7 +111,12 @@ public:
 	 *
 	 * @return a pointer to the current Picviz::PVView attached to this PVMainSplitter
 	 */
-	Picviz::PVView_p get_lib_view() const { return current_lib_view; }
+	Picviz::PVView_p get_lib_view() const
+	{
+		Picviz::PVView_p ret(_lib_src->current_view());
+		assert(ret);
+		return ret;
+	}
 
 	/**
 	 *

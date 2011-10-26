@@ -76,10 +76,13 @@ public:
 
 	void set_mapped(PVMapped* mapped);
 
+	QString const& get_column_type(PVCol col) const;
+
 
 public:
 	// Data access
 	Picviz::PVPlottingFilter::p_type get_filter_for_col(PVCol col);
+	PVPlottingProperties const& get_properties_for_col(PVCol col) { assert(col < _columns.size()); return _columns.at(col); }
 
 protected:
 	PVMapped* _mapped;

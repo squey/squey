@@ -35,6 +35,8 @@ public:
 	QString get_group_key() const { return _group_key; }
 	void set_mode(QString const& mode);
 	inline PVMappingFilter::p_type get_mapping_filter() const { assert(_mapping_filter); return _mapping_filter; }
+	inline QString const& get_type() const { return _type; }
+	inline QString const& get_mode() const { return _mode; }
 
 public:
 	bool operator==(const PVMappingProperties& org);

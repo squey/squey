@@ -47,3 +47,18 @@ void Picviz::PVPlottingFilter::set_mandatory_params(Picviz::mandatory_param_map 
 {
 	_mandatory_params = &params;
 }
+
+QStringList Picviz::PVPlottingFilter::list_modes(QString const& type)
+{
+	LIB_CLASS(PVPlottingFilter)::list_classes const& pl_filters = LIB_CLASS(PVPlottingFilter)::get().get_list();
+	LIB_CLASS(PVPlottingFilter)::list_classes::const_iterator it;
+	QStringList ret;
+	for (it = pl_filters.begin(); it != pl_filters.end(); it++) {
+		QString const& name = it.key();
+		QStringList params = name.split('_');
+		if (params[0].compare(type) == 0) {
+			ret << params[1];
+		}
+	}
+    return ret;
+}

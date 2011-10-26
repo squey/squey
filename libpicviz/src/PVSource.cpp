@@ -62,6 +62,7 @@ Picviz::PVSource::~PVSource()
 
 void Picviz::PVSource::init()
 {
+	_current_view.reset();
 	nraw = &(_extractor.get_nraw());
 	// Set extractor default values
 	_extractor.set_last_start(0);
@@ -185,6 +186,9 @@ void Picviz::PVSource::process_from_source(bool keep_views_info)
 
 void Picviz::PVSource::add_view(PVView_p view)
 {
+	if (!_current_view) {
+		_current_view = view;
+	}
 	view->process_from_layer_stack();
 	_views.push_back(view);
 }

@@ -60,6 +60,8 @@ public:
 	PVRow get_row_count();
 	PVCol get_column_count();
 
+	list_plotted_t const& get_plotteds() const { return _plotteds; }
+
 public:
 	// Debugging functions
 	void to_csv();
@@ -73,6 +75,7 @@ public:
 	const PVRoot* get_root_parent() const;
 
 	const PVMapping& get_mapping() const { return _mapping; }
+	PVMapping& get_mapping() { return _mapping; }
 
 public:
 	// NRAW

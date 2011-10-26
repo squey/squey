@@ -35,6 +35,8 @@ protected:
 
 public:
 	void set_mode(QString const& mode);
+	inline QString const& get_mode() const { return _mode; }
+	inline QString const& get_type() const { return _type; }
 
 public:
 	bool operator==(PVPlottingProperties const& org);

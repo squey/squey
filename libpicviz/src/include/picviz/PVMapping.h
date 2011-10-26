@@ -71,6 +71,7 @@ public:
 	// Column properties
 	PVMappingFilter::p_type get_filter_for_col(PVCol col);
 	QString get_group_key_for_col(PVCol col) const;
+	PVMappingProperties const& get_properties_for_col(PVCol col) const { assert(col < columns.size()); return columns.at(col); }
 
 public:
 	// Mandatory parameters

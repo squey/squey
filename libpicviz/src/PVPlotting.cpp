@@ -102,6 +102,12 @@ void Picviz::PVPlotting::set_mapped(PVMapped* mapped)
 	_root = mapped->get_root_parent();
 }
 
+QString const& Picviz::PVPlotting::get_column_type(PVCol col) const
+{
+	PVMappingProperties const& prop(_mapped->get_mapping().get_properties_for_col(col));
+	return prop.get_type();
+}
+
 void Picviz::PVPlotting::serialize(PVCore::PVSerializeObject &so, PVCore::PVSerializeArchive::version_t /*v*/)
 {
 	so.list("properties", _columns);

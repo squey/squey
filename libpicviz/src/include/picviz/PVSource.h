@@ -95,6 +95,9 @@ public:
 	list_views_t const& get_views() const { return _views; }
 	list_mapped_t const& get_mappeds() const { return _mappeds; }
 
+	PVView_p current_view() const { return _current_view; }
+	void select_view(PVView_p view) { assert(_views.contains(view)); _current_view = view; }
+
 	PVRush::PVFormat& get_format() { return _extractor.get_format(); }
 
 protected:
@@ -126,6 +129,7 @@ private:
 	list_mapped_t _mappeds;
 	PVRush::PVSourceCreator_p _src_plugin;
 	PVRush::PVNraw *nraw;
+	PVView_p _current_view;
 
 	PVAxesCombination _axes_combination;
 };

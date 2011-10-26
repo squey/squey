@@ -76,6 +76,9 @@ public:
 
 	const float* get_table_pointer() const { return &_table.at(0); }
 
+	PVPlotting& get_plotting() { return _plotting; }
+	const PVPlotting& get_plotting() const { return _plotting; }
+
 public:
 	// Data access
 	PVRow get_row_count() const;

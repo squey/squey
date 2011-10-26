@@ -31,6 +31,8 @@ public:
 	void set_dest_array(PVRow size, float* arr);
 	void set_mapping_mode(QString const& mapping_mode);
 	void set_mandatory_params(Picviz::mandatory_param_map const& params);
+public:
+	static QStringList list_modes(QString const& type);
 protected:
 	QString _mapping_mode;
 	PVRow _dest_size;

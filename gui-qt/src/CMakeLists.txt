@@ -68,6 +68,7 @@ include/PVListingModel.h
 include/PVListingView.h
 include/PVListingsTabWidget.h
 include/PVMainWindow.h
+include/PVMappingPlottingEditDialog.h
 include/PVMapWidget.h
 include/PVInputTypeMenuEntries.h
 include/PVOpenFileDialog.h
@@ -77,6 +78,8 @@ include/PVSerializeOptionsModel.h
 include/PVSerializeOptionsWidget.h
 include/PVStringListChooserWidget.h
 include/PVTabSplitter.h
+include/PVViewsListingWidget.h
+include/PVViewsModel.h
 
 widgets/PVCheckableComboBox.h
 
@@ -148,6 +151,7 @@ PVMainWindow.cpp
 PVMainWindowMenusActions.cpp
 PVMainWindowSlots.cpp
 PVMapWidget.cpp
+PVMappingPlottingEditDialog.cpp
 PVInputTypeMenuEntries.cpp
 PVOpenFileDialog.cpp
 PVSaveFileDialog.cpp
@@ -156,6 +160,8 @@ PVSerializeOptionsModel.cpp
 PVSerializeOptionsWidget.cpp
 PVStringListChooserWidget.cpp
 PVTabSplitter.cpp
+PVViewsListingWidget.cpp
+PVViewsModel.cpp
 
 widgets/PVCheckableComboBox.cpp
 

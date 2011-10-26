@@ -14,6 +14,7 @@
 #include <pvkernel/core/PVRegistrableClass.h>
 #include <pvkernel/rush/PVNraw.h>
 #include <QString>
+#include <QStringList>
 #include <QVector>
 
 namespace PVRush {
@@ -52,6 +53,9 @@ public:
 	void set_format(PVCol current_col, PVRush::PVFormat& format);
 
 	void set_group_value(PVCore::PVArgument& group) { _grp_value = &group; }
+public:
+	static QStringList list_types();
+	static QStringList list_modes(QString const& type);
 protected:
 	PVRow _dest_size;
 	float* _dest;
