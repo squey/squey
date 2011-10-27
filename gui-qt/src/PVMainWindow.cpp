@@ -288,8 +288,6 @@ void PVInspector::PVMainWindow::check_messages()
 			case PVSDK_MESSENGER_FUNCTION_REPORT_CHOOSE_FILENAME:
 						{
 							QString initial_path = QDir::currentPath();
-							QString filename = QString("image%1.png").arg(report_image_index);
-							QString *filename_p = new QString(filename);
 							report_image_index++;
 							initial_path += "/report.html";
 
@@ -309,6 +307,10 @@ void PVInspector::PVMainWindow::check_messages()
 									return;
 								}
 								QTextStream report_out(report_file);
+								QFileInfo fileinfo(*report_filename);
+								QString filename = QString("%1%2image%3.png").arg(fileinfo.absolutePath()).arg(PICVIZ_PATH_SEPARATOR).arg(report_image_index);
+								QString filename_nopath = QString("image%1.png").arg(report_image_index);
+								QString *filename_p = new QString(filename);
 
 								report_out << "<html>\n";
 								report_out << "<head>\n";
@@ -319,7 +321,7 @@ void PVInspector::PVMainWindow::check_messages()
 								report_out << "<tr>\n";
 							        report_out << "<td>" << description << "</td>\n";
 								report_out << "<td><img src=\"";
-								report_out <<  filename;
+								report_out <<  filename_nopath;
 								report_out << "\" width=\"600px\"/></td>\n";
 								report_out << "</tr>\n";
 
@@ -329,10 +331,16 @@ void PVInspector::PVMainWindow::check_messages()
 							} else { // if (!report_started) {
 								QTextStream report_out(report_file);
 
+								QFileInfo fileinfo(*report_filename);
+								QString filename = QString("%1%2image%3.png").arg(fileinfo.absolutePath()).arg(PICVIZ_PATH_SEPARATOR).arg(report_image_index);
+								QString filename_nopath = QString("image%1.png").arg(report_image_index);
+								QString *filename_p = new QString(filename);
+
+
 								report_out << "<tr>\n";
 								report_out << "<td>" << description << "</td>\n";
 								report_out << "<td><img src=\"";
-								report_out <<  filename;
+								report_out <<  filename_nopath;
 								report_out << "\" width=\"600px\"/></td>\n";
 								report_out << "</tr>\n";
 
