@@ -18,7 +18,7 @@ PVCore::PVSerializeObject::list_childs_t const& PVInspector::PVSerializeOptionsM
 		// This is the root of the tree.
 		so_parent =  _options->get_root().get();
 	}
-	PVCore::PVSerializeObject::list_childs_t const& childs = so_parent->childs();
+	PVCore::PVSerializeObject::list_childs_t const& childs = so_parent->visible_childs();
 	return childs;
 }
 
@@ -54,7 +54,10 @@ QVariant PVInspector::PVSerializeOptionsModel::data(const QModelIndex &index, in
 			return QVariant(obj->description());
 		case Qt::CheckStateRole:
 		{
-			bool checked = (obj->is_optional()) ? obj->must_write() : true;
+			if (!obj->is_optional()) {
+				return QVariant();
+			}
+			bool checked = obj->must_write();
 			return checked ? Qt::Checked : Qt::Unchecked;
 		}
 		default:
@@ -121,6 +124,24 @@ bool PVInspector::PVSerializeOptionsModel::setData(const QModelIndex& index, con
 	PVCore::PVSerializeObject* so = get_so_index(index);
 	so->set_write(checked);
 
+	emit dataChanged(index, index);
+	emitDataChangedChildren(index);
+
 	return true;
 }
 
+void PVInspector::PVSerializeOptionsModel::emitDataChangedChildren(const QModelIndex& index_)
+{
+	int nchildren = rowCount(index_);
+	if (nchildren == 0) {
+		return;
+	}
+	
+	QModelIndex first = index(0, 0, index_);
+	QModelIndex last = index(nchildren-1, 0, index_);
+	emit dataChanged(first, last);
+	for (int i = 0; i < nchildren; i++) {
+		QModelIndex child = index(i, 0, index_);
+		emitDataChangedChildren(child);
+	}
+}

@@ -28,6 +28,8 @@ public:
 		Picviz::PVMapped* as_mapped() const { return _mapped; }
 		Picviz::PVPlotted* as_plotted() const { return _plotted; }
 
+		bool operator==(const PVIndexNode& other) const { return (_mapped == other._mapped) && (_plotted == other._plotted); }
+
 	protected:
 		Picviz::PVMapped* _mapped;
 		Picviz::PVPlotted* _plotted;
@@ -43,7 +45,10 @@ public:
 	QModelIndex parent(const QModelIndex & index) const;
 	QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const;
 	Qt::ItemFlags flags(const QModelIndex& index) const;
+
+public:
 	void force_refresh();
+	QModelIndex get_index_from_node(PVIndexNode const& node);
 
 public:
 	PVIndexNode const& get_object(QModelIndex const& index) const;

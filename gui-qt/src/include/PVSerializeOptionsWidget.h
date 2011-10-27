@@ -16,6 +16,9 @@ class PVSerializeOptionsWidget: public QWidget
 public:
 	PVSerializeOptionsWidget(PVCore::PVSerializeArchiveOptions_p options, QWidget* parent = 0);
 
+public:
+	QTreeView* get_view() { return _view; }
+
 protected:
 	QTreeView* _view;
 	PVSerializeOptionsModel* _model;

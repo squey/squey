@@ -27,6 +27,7 @@ public:
 protected:
 	PVCore::PVSerializeObject::list_childs_t const& get_childs_index(const QModelIndex& parent) const;
 	PVCore::PVSerializeObject* get_so_index(const QModelIndex& index) const;
+	void emitDataChangedChildren(const QModelIndex& index);
 
 protected:
 	PVCore::PVSerializeArchiveOptions_p _options;

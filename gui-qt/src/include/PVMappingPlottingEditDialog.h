@@ -8,6 +8,7 @@
 #include <QDialog>
 #include <QComboBox>
 #include <QGridLayout>
+#include <QLabel>
 #include <QLineEdit>
 #include <QVBoxLayout>
 
@@ -34,6 +35,7 @@ private:
 	void reset_settings_with_format();
 
 	static QComboBox* init_combo(QStringList const& list, QString const& sel);
+	static QLabel* create_label(QString const& text, Qt::Alignment align = Qt::AlignCenter);
 
 private slots:
 	void type_changed(const QString& type);

@@ -1493,6 +1493,9 @@ void Picviz::PVView::serialize_write(PVCore::PVSerializeObject& so)
 
 void Picviz::PVView::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 {
-	so.object("layer-stack", layer_stack, "Layers", true);
+	if (!so.object("layer-stack", layer_stack, "Layers", true)) {
+		// If no layer stack, reset all layers so that we have one :)
+		reset_layers();
+	}
 	so.object("axes-combination", axes_combination, "Axes combination", true);
 }

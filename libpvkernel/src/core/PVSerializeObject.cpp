@@ -16,12 +16,17 @@ bool PVCore::PVSerializeObject::is_writing() const
 	return _parent_ar->is_writing();
 }
 
-PVCore::PVSerializeObject_p PVCore::PVSerializeObject::create_object(QString const& name, QString const& desc, bool optional)
+PVCore::PVSerializeObject_p PVCore::PVSerializeObject::create_object(QString const& name, QString const& desc, bool optional, bool visible)
 {
 	p_type child = _parent_ar->create_object(name, shared_from_this());
+	child->_visible = visible;
 	child->_is_optional = optional;
 	child->_desc = (desc.isNull())?name:desc;
 	_childs.insert(name, child);
+
+	if (visible) {
+		_visible_childs.insert(name, child);
+	}
 	return child;
 }
 
@@ -75,16 +80,27 @@ PVCore::PVSerializeObject::list_childs_t const& PVCore::PVSerializeObject::child
 	return _childs;
 }
 
+PVCore::PVSerializeObject::list_childs_t const& PVCore::PVSerializeObject::visible_childs() const
+{
+	return _visible_childs;
+}
+
 bool PVCore::PVSerializeObject::must_write() const
 {
-	assert(is_optional());
 	return _must_write;
 }
 
 void PVCore::PVSerializeObject::set_write(bool write)
 {
-	assert(is_optional());
-	_must_write = write;
+	if (is_optional()) {
+		_must_write = write;
+	}
+
+	// Set `set_write' to all children
+	list_childs_t::iterator it;
+	for (it = _childs.begin(); it != _childs.end(); it++) {
+		(*it)->set_write(write);
+	}
 }
 
 const PVCore::PVSerializeObject::p_type PVCore::PVSerializeObject::get_child_by_name(QString const& name) const
@@ -110,4 +126,9 @@ PVCore::PVSerializeObject::p_type PVCore::PVSerializeObject::parent()
 PVCore::PVSerializeObject_p PVCore::PVSerializeObject::get_archive_object_from_path(QString const& path) const
 {
 	return _parent_ar->get_object_by_path(path);
+}
+
+bool PVCore::PVSerializeObject::visible() const
+{
+	return _visible;
 }

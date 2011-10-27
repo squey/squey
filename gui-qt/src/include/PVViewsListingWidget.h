@@ -8,6 +8,7 @@ namespace PVInspector {
 
 class PVTabSplitter;
 class PVViewsModel;
+class PVViewsListingView;
 
 class PVViewsListingWidget: public QWidget
 {
@@ -16,13 +17,14 @@ public:
 
 public:
 	void force_refresh();
+	PVViewsListingView* get_view() { return _tree; }
 
 protected slots:
 	void show_ctxt_menu(const QPoint& pt);
 
 protected:
 	PVTabSplitter* _tab_parent;
-	QTreeView* _tree;
+	PVViewsListingView* _tree;
 	PVViewsModel* _model;
 
 	Q_OBJECT

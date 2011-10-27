@@ -1,5 +1,6 @@
 #include <PVTabSplitter.h>
 #include <PVViewsModel.h>
+#include <PVViewsListingView.h>
 #include <PVViewsListingWidget.h>
 
 #include <QVBoxLayout>
@@ -9,10 +10,7 @@ PVInspector::PVViewsListingWidget::PVViewsListingWidget(PVTabSplitter* tab):
 	_tab_parent(tab)
 {
 	_model = new PVViewsModel(*tab->get_lib_src(), this);
-	_tree = new QTreeView();
-	_tree->setModel(_model);
-	_tree->setMinimumSize(0,0);
-	_tree->setHeaderHidden(true);
+	_tree = new PVViewsListingView(_model, tab);
 
 	connect(_tree, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_ctxt_menu(const QPoint&)));
 	_tree->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -44,6 +42,11 @@ void PVInspector::PVViewsListingWidget::show_ctxt_menu(const QPoint& pt)
 	QMenu* ctxt_menu = new QMenu();
 	QAction* sel_view_action = new QAction(tr("Select as current view"), NULL);
 	sel_view_action->setEnabled(enable_sel);
+	if (enable_sel) {
+		QFont font;
+		font.setBold(true);
+		sel_view_action->setFont(font);
+	}
 	QAction* new_mapped_action = new QAction(tr("Create new mapped..."), NULL);
 	QAction* new_plotted_action = new QAction(tr("Create new plotted from this mapped..."), NULL);
 	new_plotted_action->setEnabled(enable_new_plotted);
@@ -71,6 +74,7 @@ void PVInspector::PVViewsListingWidget::show_ctxt_menu(const QPoint& pt)
 		assert(node_obj.is_mapped());
 		Picviz::PVMapped* mapped_parent = node_obj.as_mapped();
 		_tab_parent->create_new_plotted(mapped_parent);
+		_tree->expand(idx_click);
 	}
 	else
 	if (sel_action == edit_action) {

@@ -78,6 +78,7 @@ include/PVSerializeOptionsModel.h
 include/PVSerializeOptionsWidget.h
 include/PVStringListChooserWidget.h
 include/PVTabSplitter.h
+include/PVViewsListingView.h
 include/PVViewsListingWidget.h
 include/PVViewsModel.h
 
@@ -160,6 +161,7 @@ PVSerializeOptionsModel.cpp
 PVSerializeOptionsWidget.cpp
 PVStringListChooserWidget.cpp
 PVTabSplitter.cpp
+PVViewsListingView.cpp
 PVViewsListingWidget.cpp
 PVViewsModel.cpp
 

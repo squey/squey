@@ -5,8 +5,8 @@
 #include <picviz/PVPlotting.h>
 #include <picviz/PVSource.h>
 
-#include <QLabel>
 #include <QDialogButtonBox>
+#include <QGroupBox>
 #include <QHBoxLayout>
 
 PVInspector::PVMappingPlottingEditDialog::PVMappingPlottingEditDialog(Picviz::PVMapping* mapping, Picviz::PVPlotting* plotting, QWidget* parent):
@@ -40,9 +40,20 @@ PVInspector::PVMappingPlottingEditDialog::~PVMappingPlottingEditDialog()
 {
 }
 
+QLabel* PVInspector::PVMappingPlottingEditDialog::create_label(QString const& text, Qt::Alignment align)
+{
+	QLabel* ret = new QLabel(text, NULL);
+	ret->setAlignment(align);
+	QFont font(ret->font());
+	font.setBold(true);
+	ret->setFont(font);
+	return ret;
+}
+
 void PVInspector::PVMappingPlottingEditDialog::init_layout()
 {
 	_main_layout = new QVBoxLayout();
+	_main_layout->setSpacing(29);
 
 	QHBoxLayout* name_layout = new QHBoxLayout();
 	name_layout->addWidget(new QLabel(tr("Name:"), NULL));
@@ -51,23 +62,28 @@ void PVInspector::PVMappingPlottingEditDialog::init_layout()
 	_main_layout->addLayout(name_layout);
 
 	_main_grid = new QGridLayout();
+	_main_grid->setHorizontalSpacing(20);
+	_main_grid->setVerticalSpacing(10);
 	int row = 0;
 	int col = 0;
 
 	// Init titles
-	_main_grid->addWidget(new QLabel(tr("Axes"), this), row, col);
+	_main_grid->addWidget(create_label(tr("Axis"), Qt::AlignLeft), row, col);
 	col++;
 	if (has_mapping()) {
-		_main_grid->addWidget(new QLabel(tr("Type"), this), row, col);
+		_main_grid->addWidget(create_label(tr("Type")), row, col);
 		col++;
-		_main_grid->addWidget(new QLabel(tr("Mapping"), this), row, col);
+		_main_grid->addWidget(create_label(tr("Mapping")), row, col);
 		col++;
 	}
 	if (has_plotting()) {
-		_main_grid->addWidget(new QLabel(tr("Plotting"), this), row, col);
+		_main_grid->addWidget(create_label(tr("Plotting")), row, col);
 		col++;
 	}
-	_main_layout->addLayout(_main_grid);
+
+	QGroupBox* box = new QGroupBox(tr("Parameters"));
+	box->setLayout(_main_grid);
+	_main_layout->addWidget(box);
 	setLayout(_main_layout);
 }
 

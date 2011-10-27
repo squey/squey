@@ -310,10 +310,18 @@ void Picviz::PVLayerStack::update_layer_index_array_completely()
 
 void Picviz::PVLayerStack::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 {
-	so.list("layers", table);
+	so.list("layers", table, QString(), (PVLayer*) NULL, QStringList(), false);
 	so.attribute("layer_count", layer_count);
 	so.attribute("selected_layer_index", selected_layer_index);
-	so.object("lia", lia);
+	so.object("lia", lia, QString(), false, (PVLayerIndexArray*) NULL, false);
+
+	if (!so.is_writing()) {
+		layer_count = table.size();
+		if (layer_count == 0) {
+			// Create default layer
+			append_new_layer();
+		}
+	}
 }
 
 void Picviz::PVLayerStack::load_from_file(QString const& path)

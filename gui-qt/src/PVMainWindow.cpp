@@ -987,6 +987,13 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_p src)
 		src->process_from_source(true);
 	}
 
+	// If, even after having processed the pipeline from the source, we still don't have
+	// any views, create a default mapped/plotted/view.
+	// This can happen if mappeds have been saved but with no plotted !
+	if (src->get_views().size() == 0) {
+		src->create_default_view();
+	}
+
 	first_view = src->get_views().at(0);
 	// Ask PVGL to create a GL-View from the previous transient view
 	message.function = PVSDK_MESSENGER_FUNCTION_CREATE_VIEW;

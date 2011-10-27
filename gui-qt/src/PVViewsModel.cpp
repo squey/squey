@@ -23,7 +23,6 @@ PVInspector::PVViewsModel::~PVViewsModel()
 PVInspector::PVViewsModel::PVIndexNode const& PVInspector::PVViewsModel::get_object(QModelIndex const& index) const
 {
 	assert(index.isValid());
-	// Find out the type of the object according to the hierarchy
 	return *(static_cast<PVIndexNode*>(index.internalPointer()));
 }
 
@@ -109,9 +108,12 @@ QVariant PVInspector::PVViewsModel::data(const QModelIndex &index, int role) con
 				return QVariant();
 			}
 			Picviz::PVPlotted* plotted = node_obj.as_plotted();
-			QFont font;
-			font.setBold((plotted->get_view() == _src.current_view()));
-			return font;
+			if (plotted->get_view() == _src.current_view()) {
+				QFont font;
+				font.setBold(true);
+				return font;
+			}
+			return QVariant();
 		}
 		default:
 			break;
@@ -122,7 +124,7 @@ QVariant PVInspector::PVViewsModel::data(const QModelIndex &index, int role) con
 
 Qt::ItemFlags PVInspector::PVViewsModel::flags(const QModelIndex& /*index*/) const
 {
-	Qt::ItemFlags flags = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+	Qt::ItemFlags flags = Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
 	return flags;
 }
 
@@ -160,4 +162,28 @@ QModelIndex PVInspector::PVViewsModel::parent(const QModelIndex & index) const
 void PVInspector::PVViewsModel::force_refresh()
 {
 	emit layoutChanged();
+}
+
+QModelIndex PVInspector::PVViewsModel::get_index_from_node(PVIndexNode const& node)
+{
+	int nmappeds = rowCount(QModelIndex());
+	for (int i = 0; i < nmappeds; i++) {
+		QModelIndex idx = index(i, 0, QModelIndex());
+		if (node.is_mapped()) {
+			PVIndexNode const& test = get_object(idx);
+			if (test == node) {
+				return idx;
+			}
+		}
+		else {
+			int nplotted = rowCount(idx);
+			for (int j = 0; j < nplotted; j++) {
+				QModelIndex idx_plotted = index(j, 0, idx);
+				if (get_object(idx_plotted) == node) {
+					return idx_plotted;
+				}
+			}
+		}
+	}
+	return QModelIndex();
 }

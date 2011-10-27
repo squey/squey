@@ -313,8 +313,8 @@ bool Picviz::PVPlotted::is_uptodate() const
 
 void Picviz::PVPlotted::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 {
-	so.object("plotting", _plotting);
-	so.object("view", _view);
+	so.object("plotting", _plotting, QString(), false, (PVPlotting*) NULL, false);
+	so.object("view", _view, QObject::tr("View"));
 }
 
 }

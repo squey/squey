@@ -341,6 +341,11 @@ void Picviz::PVMapped::invalidate_plotted_children_column(PVCol j)
 
 void Picviz::PVMapped::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 {
-	so.object("mapping", _mapping);
-	so.list("plotted", _plotteds);
+	so.object(QString("mapping"), _mapping, QString(), false, (PVMapping*) NULL, false);
+	QStringList plotted_names;
+	list_plotted_t::const_iterator it;
+	for (it = _plotteds.begin(); it != _plotteds.end(); it++) {
+		plotted_names << (*it)->get_name();
+	}
+	so.list("plotted", _plotteds, "Plotteds", (PVPlotted*) NULL, plotted_names, true, true);
 }

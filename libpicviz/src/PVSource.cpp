@@ -226,8 +226,12 @@ void Picviz::PVSource::serialize_write(PVCore::PVSerializeObject& so)
 	for (int i = 0; i < _views.size(); i++) {
 		descs << "default";
 	}
-	//so.list("views", _views, QObject::tr("Workspaces"), (PVView*) NULL, descs);
-	so.list("mapped", _mappeds);
+	QStringList mapped_names;
+	list_mapped_t::const_iterator it_mapped;
+	for (it_mapped = _mappeds.begin(); it_mapped != _mappeds.end(); it_mapped++) {
+		mapped_names << (*it_mapped)->get_name();
+	}
+	so.list("mapped", _mappeds, "Mappeds", (PVMapped*) NULL, mapped_names, true, true);
 }
 
 void Picviz::PVSource::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
@@ -271,5 +275,5 @@ void Picviz::PVSource::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVS
 	//so.list("views", _views);
 	
 	// Load the mapped
-	so.list("mapped", _mappeds);
+	so.list("mapped", _mappeds, "Mappeds", (PVMapped*) NULL, QStringList(), true, true);
 }

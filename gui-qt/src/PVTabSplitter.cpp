@@ -48,8 +48,12 @@ PVInspector::PVTabSplitter::PVTabSplitter(PVMainWindow *mw, Picviz::PVSource_p l
 	right_layout->addWidget(_views_widget);
 
 	QWidget* right_widget = new QWidget();
+	right_widget->setFocusPolicy(Qt::StrongFocus);
 	right_widget->setLayout(right_layout);
-	right_widget->setMinimumWidth(220);
+
+	QSizePolicy sizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
+	right_widget->setSizePolicy(sizePolicy);
+	right_widget->setMinimumSize(QSize(229, 0));
 	addWidget(right_widget);
 
 	_pv_extractor = new PVExtractorWidget(this);
@@ -58,7 +62,14 @@ PVInspector::PVTabSplitter::PVTabSplitter(PVMainWindow *mw, Picviz::PVSource_p l
 
 	setMinimumSize(0,0);
 	setSizePolicy(QSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding));
-	setFocusPolicy(Qt::NoFocus);
+	setFocusPolicy(Qt::StrongFocus);
+
+	// HACK: AG: this is ugly but I can't find another way to have
+	// the right widget with 220px width at the beggining.
+	QList<int> wsizes = sizes();
+	wsizes[1] = 229;
+	wsizes[0] = 100000;
+	setSizes(wsizes);
 }
 
 PVInspector::PVTabSplitter::~PVTabSplitter()
@@ -273,6 +284,7 @@ void PVInspector::PVTabSplitter::create_new_plotted(Picviz::PVMapped* mapped_par
 
 	Picviz::PVPlotted_p new_plotted(new Picviz::PVPlotted(new_plotting));
 	mapped_parent->add_plotted(new_plotted);
+	_views_widget->force_refresh();
 }
 
 void PVInspector::PVTabSplitter::edit_mapped(Picviz::PVMapped* mapped)

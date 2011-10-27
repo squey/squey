@@ -47,10 +47,10 @@ QString PVRush::PVDBQuery::human_name() const
 void PVRush::PVDBQuery::serialize_write(PVCore::PVSerializeObject& so)
 {
 	so.attribute("query", _query);
-	so.object("server", *_infos);
+	so.object("server", *_infos, QString(), false, (PVDBServ*) NULL, false);
 }
 
-void PVRush::PVDBQuery::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v)
+void PVRush::PVDBQuery::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 {
 	QString query;
 	so.attribute("query", query);
