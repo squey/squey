@@ -896,15 +896,6 @@ void PVInspector::PVMainWindow::update_reply_finished_Slot(QNetworkReply *reply)
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::view_save_Slot
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::view_save_Slot()
-{
-	PVLOG_INFO("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
-}
-/******************************************************************************
- *
  * PVInspector::PVMainWindow::view_new_scatter_Slot
  *
  *****************************************************************************/

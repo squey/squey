@@ -512,8 +512,6 @@ void PVInspector::PVMainWindow::connect_actions()
 	connect(extractor_file_Action, SIGNAL(triggered()), this, SLOT(extractor_file_Slot()));
 	connect(quit_Action, SIGNAL(triggered()), this, SLOT(quit_Slot()));
 
-	// connect(view_open_Action, SIGNAL(triggered()), this, SLOT(view_open_Slot()));
-	connect(view_save_Action, SIGNAL(triggered()), this, SLOT(view_save_Slot()));
 	connect(view_new_parallel_Action, SIGNAL(triggered()), this, SLOT(view_new_parallel_Slot()));
 	connect(view_new_scatter_Action, SIGNAL(triggered()), this, SLOT(view_new_scatter_Slot()));
 
