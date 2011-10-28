@@ -233,7 +233,6 @@ void Picviz::PVSource::add_view(PVView_p view)
 	if (!_current_view) {
 		_current_view = view;
 	}
-	view->process_from_layer_stack();
 	if (!_views.contains(view)) {
 		_views.push_back(view);
 	}

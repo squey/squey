@@ -1091,7 +1091,8 @@ void PVInspector::PVMainWindow::treat_invalid_formats(QHash<QString, std::pair<Q
 
 void PVInspector::PVMainWindow::display_icon_Slot()
 {
-	project_new_Slot();
+	close_scene();
+	set_current_project_filename(QString());
 	show_start_page(true);
 }
 

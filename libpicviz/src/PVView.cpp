@@ -130,6 +130,8 @@ void Picviz::PVView::init_from_plotted(PVPlotted* parent, bool keep_layers)
 	select_all_nonzb_lines();
 	nu_selection.select_none();
 
+	process_from_layer_stack();
+
 	_is_consistent = true;
 }
 
