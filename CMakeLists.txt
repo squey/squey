@@ -90,6 +90,15 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${Picviz_Inspector_SOURCE_DIR}/cmake)
 
 set(USE_OPENMP true)
 
+######################################
+# BEGIN: SET CUSTOMERS CAPABILITIES #
+#####################################
+include(CMakeCustomerSpecifics.txt)
+###################################
+# END: SET CUSTOMERS CAPABILITIES #
+###################################
+
+
 #########################################
 # BEGIN: SET VARIOUS REQUIRED LIBRARIES #
 #########################################
