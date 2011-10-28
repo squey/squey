@@ -26,6 +26,6 @@ void PVInspector::PVViewsListingView::mouseDoubleClickEvent(QMouseEvent* event)
 	PVViewsModel::PVIndexNode node_obj(_model->get_object(idx_click));
 	if (node_obj.is_plotted()) {
 		_tab->select_plotted(node_obj.as_plotted());
-		setDirtyRegion(visibleRegion());
+		_model->emitDataChanged(idx_click);
 	}
 }

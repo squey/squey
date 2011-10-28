@@ -63,6 +63,7 @@ void PVInspector::PVViewsListingWidget::show_ctxt_menu(const QPoint& pt)
 		assert(node_obj.is_plotted());
 		Picviz::PVPlotted* plotted = node_obj.as_plotted();
 		_tab_parent->select_plotted(plotted);
+		_model->emitDataChanged(idx_click);
 	}
 	else
 	if (sel_action == new_mapped_action) {

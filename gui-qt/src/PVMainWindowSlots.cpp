@@ -629,6 +629,7 @@ bool PVInspector::PVMainWindow::project_saveas_Slot()
 	if (current_tab && current_tab->get_lib_view()) {
 		PVCore::PVSerializeArchiveOptions_p options(_scene->get_default_serialize_options());
 		PVSaveSceneDialog* dlg = new PVSaveSceneDialog(_scene, options, this);
+		dlg->selectFile(_cur_project_file);
 		if (dlg->exec() == QDialog::Accepted) {
 			QString file = dlg->selectedFiles().at(0);
 			ret = save_project(file, options);

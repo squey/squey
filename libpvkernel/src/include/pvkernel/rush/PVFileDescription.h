@@ -11,11 +11,14 @@ class PVFileDescription: public PVInputDescription
 	friend class PVCore::PVSerializeObject;
 public:
 	PVFileDescription(QString const& path):
-		_path(path)
+		_path(path),
+		_was_serialized(false)
 	{ set_path(path); }
 
 protected:
-	PVFileDescription() { };
+	PVFileDescription():
+		_was_serialized(false)
+	{ };
 
 public:
 	operator QString() const { return _path; }
@@ -41,13 +44,17 @@ protected:
 	{
 		so.attribute("file_path", _path);
 		PVCore::PVFileSerialize fs(_path);
-		if (so.object("original", fs, "Include original file", true)) {
+		if (so.object("original", fs, "Include original file", !_was_serialized, (PVCore::PVFileSerialize*) NULL, !_was_serialized, false)) {
 			_path = fs.get_path();
+			if (!so.is_writing()) {
+				_was_serialized = true;
+			}
 		}
 	}
 
 protected:
 	QString _path;
+	bool _was_serialized;
 };
 
 }

@@ -86,7 +86,7 @@ public:
 	 *  serialize_(read/write) method of obj with this new PVSerializeObject.
 	 */
 	template <typename T>
-	bool object(QString const& name, T& obj, QString const& desc = QString(), bool optional = false, typename PVTypeTraits::remove_shared_ptr<T>::type const* def_v = NULL, bool visible = true);
+	bool object(QString const& name, T& obj, QString const& desc = QString(), bool optional = false, typename PVTypeTraits::remove_shared_ptr<T>::type const* def_v = NULL, bool visible = true, bool def_option = true);
 
 	/*! \brief Declare a list to serialize. T must be an STL-compliant container. T::value_type must be serializable.
 	 *  \param[in] name Name of the list to serialize
@@ -179,7 +179,7 @@ public:
 	void file(QString const& name, QString& path);
 
 private:
-	p_type create_object(QString const& name, QString const& desc = QString(), bool optional = false, bool visible = true);
+	p_type create_object(QString const& name, QString const& desc = QString(), bool optional = false, bool visible = true, bool def_option = true);
 	uint32_t get_version() const;
 	void attribute_write(QString const& name, QVariant const& obj);
 	void attribute_read(QString const& name, QVariant& obj, QVariant const& def);
@@ -280,7 +280,7 @@ private:
 typedef PVSerializeObject::p_type PVSerializeObject_p;
 
 template <typename T>
-bool PVSerializeObject::object(QString const& name, T& obj, QString const& desc, bool optional, typename PVTypeTraits::remove_shared_ptr<T>::type const* def_v, bool visible)
+bool PVSerializeObject::object(QString const& name, T& obj, QString const& desc, bool optional, typename PVTypeTraits::remove_shared_ptr<T>::type const* def_v, bool visible, bool def_option)
 {
 	if (optional && is_writing()) {
 		if (!must_write_child(name)) {
@@ -289,7 +289,7 @@ bool PVSerializeObject::object(QString const& name, T& obj, QString const& desc,
 	}
 	p_type new_obj;
 	try {
-		new_obj = create_object(name, desc, optional, visible);
+		new_obj = create_object(name, desc, optional, visible, def_option);
 	}
 	catch (PVSerializeArchiveErrorNoObject &e) {
 		if (!optional && !is_writing()) {

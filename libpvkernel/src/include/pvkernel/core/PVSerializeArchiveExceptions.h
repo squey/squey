@@ -12,6 +12,7 @@ public:
 	PVSerializeArchiveError(QString const& msg):
 		_msg(msg)
 	{ }
+
 public:
 	QString const& what() const { return _msg; }
 protected:

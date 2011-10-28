@@ -16,12 +16,13 @@ bool PVCore::PVSerializeObject::is_writing() const
 	return _parent_ar->is_writing();
 }
 
-PVCore::PVSerializeObject_p PVCore::PVSerializeObject::create_object(QString const& name, QString const& desc, bool optional, bool visible)
+PVCore::PVSerializeObject_p PVCore::PVSerializeObject::create_object(QString const& name, QString const& desc, bool optional, bool visible, bool def_option)
 {
 	p_type child = _parent_ar->create_object(name, shared_from_this());
 	child->_visible = visible;
 	child->_is_optional = optional;
 	child->_desc = (desc.isNull())?name:desc;
+	child->_must_write = def_option;
 	_childs.insert(name, child);
 
 	if (visible) {
