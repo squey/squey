@@ -474,24 +474,18 @@ void PVInspector::PVMainWindow::map_Slot()
 
 }
 
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::new_file_Slot
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::new_file_Slot()
+PVMainWindow* PVInspector::PVMainWindow::find_main_window(QString const& file)
 {
-	// nothing here yet
-}
+	// From Qt's example...
+	QString canonicalFilePath = QFileInfo(file).canonicalFilePath();
 
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::new_scene_Slot
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::new_scene_Slot()
-{
-	// nothing here yet
+	foreach (QWidget *widget, qApp->topLevelWidgets()) {
+		MainWindow *mainWin = qobject_cast<MainWindow *>(widget);
+		if (mainWin && mainWin->_cur_project_file == canonicalFilePath) {
+			return mainWin;
+		}
+	}
+	return NULL;
 }
 
 /******************************************************************************
@@ -501,7 +495,10 @@ void PVInspector::PVMainWindow::new_scene_Slot()
  *****************************************************************************/
 void PVInspector::PVMainWindow::project_new_Slot()
 {
-	close_scene();
+	PVMainWindow* new_mw = new PVMainWindow();
+	new_mw->move(x() + 40, y() + 40);
+	new_mw->show();
+	//close_scene();
 }
 
 /******************************************************************************
@@ -519,18 +516,68 @@ void PVInspector::PVMainWindow::project_load_Slot()
 	}
 	QString file = dlg->selectedFiles().at(0);
 
+	PVMainWindow* existing = find_main_window(file);
+	if (existing) {
+		existing->show();
+		existing->raise();
+		existing->activateWindow();
+		return;
+	}
+	if (is_project_untitled() && _scene.isEmpty() && !isWindowModified()) {
+		load_project(file);
+	}
+	else {
+		PVMainWindow* other = new PVMainWindow();
+		if (!other->load_project(file)) {
+			other->deleteLater();
+			return;
+		}
+		other->move(x() + 40, y() + 40);
+		other->show();
+	}
+}
+
+bool PVInspector::PVMainWindow::load_project(QString const& file)
+{
 	close_scene();
 	
-	_scene->load_from_file(file);
+	try {
+		_scene->load_from_file(file);
+	}
+	catch (PVSerializeArchiveError& e) {
+		QMessageBox* box = new QMessageBox(QMessageBox::Critical, tr("Error while loading project..."), tr("Error while loading project %1:\n%2").arg(file).arg(e.what()), QMessageBox::Ok, this);
+		box->exec();
+		return false;
+	}
 
 	if (!load_scene()) {
 		PVLOG_ERROR("(PVMainWindow::project_load_Slot) error while processing the scene...\n");
-		return;
+		return false;
 	}
 
 	menu_activate_is_file_opened(true);
 	show_start_page(false);
 	pv_ListingsTabWidget->setVisible(true);
+
+	set_current_project_filename(file);
+
+	return true;
+}
+
+void PVInspector::PVMainWindow::set_current_project_filename(QString const& file)
+{
+	static int sequence_n = 1;
+
+	if (is_project_untitled()) {
+		_cur_project_file = tr("new-project%1." PICVIZ_SCENE_ARCHIVE_EXTENSION).arg(sequence_n);
+		sequence_n++;
+	}
+	else {
+		_cur_project_file = QFileInfo(file).canonicalFilePath();
+	}
+
+	setWindowModified(false);
+	setWindowFilePath(_cur_project_file);
 }
 
 /******************************************************************************
@@ -540,6 +587,11 @@ void PVInspector::PVMainWindow::project_load_Slot()
  *****************************************************************************/
 void PVInspector::PVMainWindow::project_save_Slot()
 {
+	if (is_project_untitled()) {
+		project_saveas_Slot();
+	}
+	else {
+		save_project(_cur_project_file, 
 }
 
 /******************************************************************************
@@ -554,10 +606,15 @@ void PVInspector::PVMainWindow::project_saveas_Slot()
 		PVSaveSceneDialog* dlg = new PVSaveSceneDialog(_scene, options, this);
 		if (dlg->exec() == QDialog::Accepted) {
 			QString file = dlg->selectedFiles().at(0);
-			_scene->save_to_file(file, options);
+			save_project(file, options);
 		}	
 		dlg->deleteLater();
 	}
+}
+
+void PVInspector::PVMainWindow::save_project(QString const& file, PVCore::PVSerializeArchiveOptions_p options)
+{
+	_scene->save_to_file(file, options);
 }
 
 /******************************************************************************

@@ -136,8 +136,6 @@ public slots:
 	void lines_display_zombies_listing_Slot();
 	void lines_display_zombies_GLview_Slot();
 	void map_Slot();
-	void new_file_Slot();
-	void new_scene_Slot();
 	void project_new_Slot();
 	void project_load_Slot();
 	void project_save_Slot();
@@ -169,6 +167,13 @@ public slots:
 
 protected:
 	void closeEvent(QCloseEvent* event);
+
+private:
+	bool load_project(const QString &file);
+	void save_project(const QString &file, PVCore::PVSerializeArchiveOptions_p options);
+	void set_current_project_filename(const QString& file);
+	bool is_project_untitled() { return _is_project_untitled; }
+	PVMainWindow* find_main_window(const QString& file);
 
 private:
 	void connect_actions();
@@ -290,6 +295,8 @@ private:
 
 private:
 	Picviz::PVScene_p _scene;
+	QString _cur_project_file;
+	bool _is_project_untitled;
 
 private:
 	version_t _last_known_cur_release;

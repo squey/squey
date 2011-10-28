@@ -74,6 +74,8 @@ QFile *report_file;
  *****************************************************************************/
 PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 {
+	_is_project_untitled = true;
+
 	QSplashScreen splash(QPixmap(":/splash-screen"));
 
 	splash.show();

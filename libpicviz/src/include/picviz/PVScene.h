@@ -61,6 +61,8 @@ public:
 	list_sources_t get_sources(PVRush::PVInputType const& type) const;
 	list_sources_t get_all_sources() const;
 
+	bool is_empty() { return _sources.size() == 0; }
+
 protected:
 	// Serialization
 	void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
