@@ -19,11 +19,13 @@ void PVInspector::PVMainWindow::create_actions()
 	 * For the "File" menu entry
 	 ************************/
 
+#ifdef CUSTOMER_CAPABILITY_SAVE
 	// The project actions
 	project_new_Action = new QAction(tr("&New project"), this);
 	project_load_Action = new QAction(tr("&Load a project..."), this);
 	project_save_Action = new QAction(tr("&Save project"), this);
 	project_saveas_Action = new QAction(tr("S&ave project as..."), this);
+#endif	// CUSTOMER_CAPABILITY_SAVE
 
 	// The new_file Action
 	new_file_Action = new QAction(tr("&New"), this);
@@ -95,8 +97,6 @@ void PVInspector::PVMainWindow::create_actions()
 	/************************
 	 * For the "View" menu entry
 	 ************************/
-	view_open_Action = new QAction(tr("&Open..."), this);
-	view_save_Action = new QAction(tr("&Save current view..."), this);
 	view_new_parallel_Action = new QAction(tr("New &parallel view"), this);
 	view_new_scatter_Action = new QAction(tr("New scatter &view"), this);
 
@@ -193,9 +193,6 @@ void PVInspector::PVMainWindow::create_menus()
 	//scene_Menu->addAction(select_scene_Action);
 
 	view_Menu = menubar->addMenu(tr("&View"));
-	view_Menu->addAction(view_open_Action);
-	view_Menu->addAction(view_save_Action);
-	view_Menu->addSeparator();
 	view_Menu->addAction(view_new_parallel_Action);
 	view_Menu->addAction(view_new_scatter_Action);
 

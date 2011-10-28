@@ -152,8 +152,6 @@ public slots:
 	void enable_menu_filter_Slot(bool);
 	void set_color_Slot();
 	void textedit_text_changed_Slot();
-	/* void view_open_Slot(); */
-	void view_save_Slot();
 	void view_new_parallel_Slot();
 	void view_new_scatter_Slot();
 	void check_messages();	/* SLOT? NOT SLOT? */
@@ -232,11 +230,9 @@ private:
 	QAction *file_format_builder_Action;
 	QAction *new_file_Action;
 	QAction *new_scene_Action;
-	/* QAction *open_file_Action; */
 	QAction *paste_Action;
 	QAction *quit_Action;
 	QAction *redo_Action;
-	/* QAction *save_file_Action; */
 	QAction *select_scene_Action;
 	QAction *selection_all_Action;
 	QAction *selection_inverse_Action;
@@ -245,8 +241,6 @@ private:
 	QAction *undo_Action;
 	QAction *undo_history_Action;
 	QAction *view_Action;
-	QAction *view_open_Action;
-	QAction *view_save_Action;
 	QAction *view_new_parallel_Action;
 	QAction *view_new_scatter_Action;
 	QAction *whats_this_Action;

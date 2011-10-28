@@ -11,6 +11,7 @@
 #include <QtGlobal>
 #include <QSettings>
 
+#include "customer.h"
 #include "types.h"
 #include "export.h"
 #include "version.h"
@@ -28,7 +29,7 @@ static QSettings pvconfig(QString("pvconfig.ini"), QSettings::IniFormat);
 #define picviz_max(x,y) ((x)>(y)?(x):(y))
 #define picviz_min(x,y) ((x)<(y)?(x):(y))
 
-#define PICVIZ_LINES_MAX 5000000
+#define PICVIZ_LINES_MAX CUSTOMER_LINESNUMBER
 
 #define PICVIZ_EVENTLINE_LINES_MAX PICVIZ_LINES_MAX
 #define PICVIZ_AXES_MAX 8096 // Max number of axes
