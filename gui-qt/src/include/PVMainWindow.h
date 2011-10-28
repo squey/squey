@@ -138,8 +138,8 @@ public slots:
 	void map_Slot();
 	void project_new_Slot();
 	void project_load_Slot();
-	void project_save_Slot();
-	void project_saveas_Slot();
+	bool project_save_Slot();
+	bool project_saveas_Slot();
 	void quit_Slot();
 	void refresh_current_view_Slot();
 	void select_scene_Slot();
@@ -170,9 +170,11 @@ protected:
 
 private:
 	bool load_project(const QString &file);
-	void save_project(const QString &file, PVCore::PVSerializeArchiveOptions_p options);
+	bool save_project(const QString &file, PVCore::PVSerializeArchiveOptions_p options);
 	void set_current_project_filename(const QString& file);
+	bool maybe_save_project();
 	bool is_project_untitled() { return _is_project_untitled; }
+	void set_project_modified(bool modified);
 	PVMainWindow* find_main_window(const QString& file);
 
 private:

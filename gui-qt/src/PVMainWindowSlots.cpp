@@ -474,13 +474,13 @@ void PVInspector::PVMainWindow::map_Slot()
 
 }
 
-PVMainWindow* PVInspector::PVMainWindow::find_main_window(QString const& file)
+PVInspector::PVMainWindow* PVInspector::PVMainWindow::find_main_window(QString const& file)
 {
 	// From Qt's example...
 	QString canonicalFilePath = QFileInfo(file).canonicalFilePath();
 
 	foreach (QWidget *widget, qApp->topLevelWidgets()) {
-		MainWindow *mainWin = qobject_cast<MainWindow *>(widget);
+		PVMainWindow *mainWin = qobject_cast<PVMainWindow *>(widget);
 		if (mainWin && mainWin->_cur_project_file == canonicalFilePath) {
 			return mainWin;
 		}
@@ -523,7 +523,7 @@ void PVInspector::PVMainWindow::project_load_Slot()
 		existing->activateWindow();
 		return;
 	}
-	if (is_project_untitled() && _scene.isEmpty() && !isWindowModified()) {
+	if (is_project_untitled() && _scene->is_empty() && !isWindowModified()) {
 		load_project(file);
 	}
 	else {
@@ -544,7 +544,7 @@ bool PVInspector::PVMainWindow::load_project(QString const& file)
 	try {
 		_scene->load_from_file(file);
 	}
-	catch (PVSerializeArchiveError& e) {
+	catch (PVCore::PVSerializeArchiveError& e) {
 		QMessageBox* box = new QMessageBox(QMessageBox::Critical, tr("Error while loading project..."), tr("Error while loading project %1:\n%2").arg(file).arg(e.what()), QMessageBox::Ok, this);
 		box->exec();
 		return false;
@@ -568,16 +568,24 @@ void PVInspector::PVMainWindow::set_current_project_filename(QString const& file
 {
 	static int sequence_n = 1;
 
+	_is_project_untitled = file.isEmpty();
+
 	if (is_project_untitled()) {
-		_cur_project_file = tr("new-project%1." PICVIZ_SCENE_ARCHIVE_EXTENSION).arg(sequence_n);
+		_cur_project_file = tr("new-project%1." PICVIZ_SCENE_ARCHIVE_EXT).arg(sequence_n);
 		sequence_n++;
 	}
 	else {
 		_cur_project_file = QFileInfo(file).canonicalFilePath();
 	}
 
-	setWindowModified(false);
+	set_project_modified(false);
 	setWindowFilePath(_cur_project_file);
+}
+
+void PVInspector::PVMainWindow::set_project_modified(bool modified)
+{
+	setWindowModified(modified);
+	project_save_Action->setEnabled(modified);
 }
 
 /******************************************************************************
@@ -585,13 +593,15 @@ void PVInspector::PVMainWindow::set_current_project_filename(QString const& file
  * PVInspector::PVMainWindow::project_save_Slot
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::project_save_Slot()
+bool PVInspector::PVMainWindow::project_save_Slot()
 {
 	if (is_project_untitled()) {
-		project_saveas_Slot();
+		return project_saveas_Slot();
 	}
 	else {
-		save_project(_cur_project_file, 
+		PVCore::PVSerializeArchiveOptions_p options(_scene->get_default_serialize_options());
+		return save_project(_cur_project_file, options);
+	}
 }
 
 /******************************************************************************
@@ -599,22 +609,54 @@ void PVInspector::PVMainWindow::project_save_Slot()
  * PVInspector::PVMainWindow::project_saveas_Slot
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::project_saveas_Slot()
+bool PVInspector::PVMainWindow::project_saveas_Slot()
 {
+	bool ret = false;
 	if (current_tab && current_tab->get_lib_view()) {
 		PVCore::PVSerializeArchiveOptions_p options(_scene->get_default_serialize_options());
 		PVSaveSceneDialog* dlg = new PVSaveSceneDialog(_scene, options, this);
 		if (dlg->exec() == QDialog::Accepted) {
 			QString file = dlg->selectedFiles().at(0);
-			save_project(file, options);
+			ret = save_project(file, options);
 		}	
 		dlg->deleteLater();
 	}
+	return ret;
 }
 
-void PVInspector::PVMainWindow::save_project(QString const& file, PVCore::PVSerializeArchiveOptions_p options)
+bool PVInspector::PVMainWindow::save_project(QString const& file, PVCore::PVSerializeArchiveOptions_p options)
 {
-	_scene->save_to_file(file, options);
+	try {
+		_scene->save_to_file(file, options);
+	}
+	catch (PVCore::PVSerializeArchiveError& e) {
+		QMessageBox* box = new QMessageBox(QMessageBox::Critical, tr("Error while saving project..."), tr("Error while saving project %1:\n%2").arg(file).arg(e.what()), QMessageBox::Ok, this);
+		box->exec();
+		return false;
+	}
+
+	set_current_project_filename(file);
+
+	return true;
+}
+
+bool PVInspector::PVMainWindow::maybe_save_project()
+{
+	if (isWindowModified()) {
+		QMessageBox::StandardButton ret;
+		ret = QMessageBox::warning(this, tr("Picviz Inspector"),
+				tr("The project has been modified.\n"
+					"Do you want to save your changes?"),
+				QMessageBox::Save | QMessageBox::Discard
+				| QMessageBox::Cancel);
+		if (ret == QMessageBox::Save) {
+			return project_save_Slot();
+		}
+		if (ret == QMessageBox::Cancel) {
+			return false;
+		}
+	}
+	return true;
 }
 
 /******************************************************************************

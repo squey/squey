@@ -75,6 +75,7 @@ QFile *report_file;
 PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 {
 	_is_project_untitled = true;
+	set_current_project_filename(QString());
 
 	QSplashScreen splash(QPixmap(":/splash-screen"));
 
@@ -220,12 +221,18 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 
 void PVInspector::PVMainWindow::closeEvent(QCloseEvent* event)
 {
+	if (maybe_save_project()) {
+		event->accept();
+	}
+	else {
+		event->ignore();
+		return;
+	}
 	pvgl_thread->terminate();
 	pvgl_thread->wait();
 	delete pvgl_thread;
 	// Gracefull stops PVGL::PVMain
 	PVGL::PVMain::stop();
-	QMainWindow::closeEvent(event);
 }
 
 /******************************************************************************
