@@ -48,6 +48,7 @@ protected:
 	// For PVMapped
 	void set_source(PVSource* src);
 	void set_uptodate_for_col(PVCol j);
+	void invalidate_all();
 
 public:
 	float get_position(int column, QString const& value);

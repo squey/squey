@@ -48,6 +48,7 @@ public:
 
 public:
 	void force_refresh();
+	void emitDataChanged(QModelIndex const& index);
 	QModelIndex get_index_from_node(PVIndexNode const& node);
 
 public:

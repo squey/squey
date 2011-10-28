@@ -83,14 +83,11 @@ int main(int argc, char *argv[])
 #endif
 
 	app.setOrganizationName("PICVIZ Labs");
-	app.setApplicationName("Picviz Inspector");
+	app.setApplicationName("Picviz Inspector " PICVIZ_CURRENT_VERSION_STR);
 	app.setWindowIcon(QIcon(":/window-icon.png"));
 
 	QResource res_css(":/gui.css");
 	app.setStyleSheet(QString((const char *)res_css.data()));
-
-	wintitle = QString("Picviz Inspector ") + QString(PICVIZ_CURRENT_VERSION_STR);
-	pv_main_window.setWindowTitle(wintitle);
 
 	pv_main_window.show();
 	int ret = app.exec();

@@ -15,6 +15,7 @@
 #include <PVAxesCombinationDialog.h>
 #include <PVMappingPlottingEditDialog.h>
 #include <PVViewsListingWidget.h>
+#include <PVViewsModel.h>
 
 #include <PVTabSplitter.h>
 
@@ -63,6 +64,12 @@ PVInspector::PVTabSplitter::PVTabSplitter(PVMainWindow *mw, Picviz::PVSource_p l
 	setMinimumSize(0,0);
 	setSizePolicy(QSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding));
 	setFocusPolicy(Qt::StrongFocus);
+
+	// Update notifications
+	connect(pv_layer_stack_model, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)), this, SLOT(source_changed_Slot()));
+	connect(pv_layer_stack_model, SIGNAL(layoutChanged()), this, SLOT(source_changed_Slot()));
+	connect(_views_widget->get_model(), SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)), this, SLOT(source_changed_Slot()));
+	connect(_views_widget->get_model(), SIGNAL(layoutChanged()), this, SLOT(source_changed_Slot()));
 
 	// HACK: AG: this is ugly but I can't find another way to have
 	// the right widget with 220px width at the beggining.
@@ -327,6 +334,11 @@ QString PVInspector::PVTabSplitter::get_current_view_name(Picviz::PVSource_p src
 	QString ret = get_tab_name(src) + " | ";
 	ret += "mapped/plotted: default/default";
 	return ret;
+}
+
+void PVInspector::PVTabSplitter::source_changed_Slot()
+{
+	emit source_changed();
 }
 
 // PVViewWidgets

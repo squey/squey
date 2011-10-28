@@ -187,3 +187,8 @@ QModelIndex PVInspector::PVViewsModel::get_index_from_node(PVIndexNode const& no
 	}
 	return QModelIndex();
 }
+
+void PVInspector::PVViewsModel::emitDataChanged(QModelIndex const& index)
+{
+	emit dataChanged(index, index);
+}

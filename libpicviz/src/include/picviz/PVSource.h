@@ -42,7 +42,7 @@ class LibPicvizDecl PVSource: public boost::enable_shared_from_this<PVSource>
 	friend class PVCore::PVSerializeObject;
 	friend class PVScene;
 	friend class PVView;
-	friend class PVMapped;
+	friend class PVPlotted;
 public:
 	typedef PVSource_p p_type;
 	typedef QList<PVView_p> list_views_t;
@@ -73,6 +73,8 @@ public:
 
 	PVRush::PVExtractor& get_extractor();
 	PVRush::PVControllerJob_p extract();
+	PVRush::PVControllerJob_p extract_from_agg_nlines(chunk_index start, chunk_index nlines);
+	void wait_extract_end(PVRush::PVControllerJob_p job);
 
 	PVRush::PVInputType_p get_input_type() const;
 
@@ -104,7 +106,7 @@ public:
 protected:
 	// For PVScene
 	void set_parent(PVScene* parent);
-	// For PVMapped
+	// For PVPlotted
 	void add_view(PVView_p view);
 
 protected:
@@ -118,6 +120,7 @@ private:
 	PVRush::PVRawSourceBase_p create_extractor_source(QString type, QString filename, PVRush::PVFormat const& format);
 	void files_append_noextract();
 	void init();
+	void extract_finished();
 
 private:
 	PVScene* tparent;

@@ -186,6 +186,8 @@ public:
 	void edit_mapped(Picviz::PVMapped* mapped);
 	void edit_plotted(Picviz::PVPlotted* plotted);
 
+	void emit_source_changed() { emit source_changed(); }
+
 public slots:
 	/**
 	 * The Slot that will refresh the PVLayerStackWidget
@@ -194,11 +196,19 @@ public slots:
 
 	void refresh_axes_combination_Slot();
 
+private slots:
+	void source_changed_Slot();
+
 signals:
 	/**
 	 * The selection has changed
 	 */
 	void selection_changed_signal(bool);
+
+	/*
+	 * The source has changed
+	 */
+	void source_changed();
 
 public:
 };

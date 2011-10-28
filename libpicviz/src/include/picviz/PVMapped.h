@@ -36,6 +36,7 @@ class PVPlotted;
  */
 class LibPicvizDecl PVMapped {
 	friend class PVPlotted;
+	friend class PVSource;
 	friend class PVCore::PVSerializeObject;
 public:
 	typedef boost::shared_ptr<PVMapped> p_type;
@@ -48,6 +49,9 @@ public:
 protected:
 	// For serialization
 	PVMapped() { }
+
+	// For PVSource
+	void invalidate_all();
 	
 public:
 	void process_parent_source();

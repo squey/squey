@@ -94,7 +94,52 @@ void Picviz::PVSource::files_append_noextract()
 
 PVRush::PVControllerJob_p Picviz::PVSource::extract()
 {
-	return _extractor.process_from_agg_nlines_last_param();
+	// Set all views as non-consistent
+	list_views_t::iterator it_view;
+	for (it_view = _views.begin(); it_view != _views.end(); it_view++) {
+		(*it_view)->set_consistent(false);
+	}
+
+	PVRush::PVControllerJob_p job = _extractor.process_from_agg_nlines_last_param();
+	return job;
+}
+
+PVRush::PVControllerJob_p Picviz::PVSource::extract_from_agg_nlines(chunk_index start, chunk_index nlines)
+{
+	// Set all views as non-consistent
+	list_views_t::iterator it_view;
+	for (it_view = _views.begin(); it_view != _views.end(); it_view++) {
+		(*it_view)->set_consistent(false);
+	}
+
+	PVRush::PVControllerJob_p job = _extractor.process_from_agg_nlines(start, nlines);
+	return job;
+}
+
+void Picviz::PVSource::wait_extract_end(PVRush::PVControllerJob_p job)
+{
+	job->wait_end();
+	extract_finished();
+}
+
+void Picviz::PVSource::extract_finished()
+{
+	 // Set all mapped children as invalid
+	list_mapped_t::iterator it;
+	for (it = _mappeds.begin(); it != _mappeds.end(); it++) {
+		(*it)->invalidate_all();
+	}
+
+	// Reset all views and process the current one
+	list_views_t::iterator it_view;
+	for (it_view = _views.begin(); it_view != _views.end(); it_view++) {
+		(*it_view)->reset_layers();
+		(*it_view)->set_consistent(true);
+	}
+
+	if (_current_view) {
+		_current_view->recreate_mapping_plotting();
+	}
 }
 
 void Picviz::PVSource::set_format(PVRush::PVFormat const& format)
@@ -172,7 +217,6 @@ void Picviz::PVSource::create_default_view()
 	PVMapped_p mapped(new PVMapped(PVMapping(this)));
 	add_mapped(mapped);
 	PVPlotted_p plotted(new PVPlotted(PVPlotting(mapped.get())));
-	// PVMapped::add_plotted will call PVSource::add_view with its view
 	mapped->add_plotted(plotted);
 }
 
@@ -190,7 +234,9 @@ void Picviz::PVSource::add_view(PVView_p view)
 		_current_view = view;
 	}
 	view->process_from_layer_stack();
-	_views.push_back(view);
+	if (!_views.contains(view)) {
+		_views.push_back(view);
+	}
 }
 
 void Picviz::PVSource::serialize_write(PVCore::PVSerializeObject& so)

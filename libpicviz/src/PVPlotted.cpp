@@ -33,13 +33,7 @@ namespace Picviz {
 PVPlotted::PVPlotted(PVPlotting const& plotting)
 {
 	set_plotting(plotting);
-	#ifndef CUDA
-	create_table();
-	#else //CUDA
-	create_table_cuda();
-	#endif //CUDA
-
-	_view.reset(new PVView(this));
+	process_from_parent_mapped(false);
 }
 
 PVPlotted::~PVPlotted()
@@ -52,6 +46,9 @@ void PVPlotted::set_plotting(PVPlotting const& plotting)
 	_plotting = plotting;
 	root = _plotting.get_root_parent();
 	_mapped = _plotting.get_mapped_parent();
+	if (_view) {
+		get_source_parent()->add_view(_view);
+	}
 }
 
 #ifndef CUDA
@@ -294,8 +291,9 @@ void Picviz::PVPlotted::process_from_parent_mapped(bool keep_views_info)
 	}
 
 	create_table();
-	if (!keep_views_info || !_view) {
+	if (!_view) {
 		_view.reset(new PVView(this));
+		get_source_parent()->add_view(_view);
 	}
 	else {
 		_view->init_from_plotted(this, keep_views_info);

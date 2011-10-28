@@ -1426,7 +1426,7 @@ void Picviz::PVView::set_consistent(bool c)
 
 bool Picviz::PVView::is_consistent() const
 {
-	return _is_consistent;
+	return get_plotted_parent()->is_uptodate() && _is_consistent;
 }
 
 void Picviz::PVView::recreate_mapping_plotting()

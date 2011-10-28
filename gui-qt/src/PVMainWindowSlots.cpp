@@ -495,10 +495,10 @@ PVInspector::PVMainWindow* PVInspector::PVMainWindow::find_main_window(QString c
  *****************************************************************************/
 void PVInspector::PVMainWindow::project_new_Slot()
 {
-	PVMainWindow* new_mw = new PVMainWindow();
-	new_mw->move(x() + 40, y() + 40);
-	new_mw->show();
-	//close_scene();
+	if (maybe_save_project()) {
+		close_scene();
+		set_current_project_filename(QString());
+	}
 }
 
 /******************************************************************************
@@ -516,6 +516,8 @@ void PVInspector::PVMainWindow::project_load_Slot()
 	}
 	QString file = dlg->selectedFiles().at(0);
 
+	load_project(file);
+#if 0
 	PVMainWindow* existing = find_main_window(file);
 	if (existing) {
 		existing->show();
@@ -535,10 +537,16 @@ void PVInspector::PVMainWindow::project_load_Slot()
 		other->move(x() + 40, y() + 40);
 		other->show();
 	}
+#endif
 }
 
 bool PVInspector::PVMainWindow::load_project(QString const& file)
 {
+	if (!maybe_save_project()) {
+		return false;
+	}
+	set_project_modified(false);
+
 	close_scene();
 	
 	try {
@@ -579,6 +587,7 @@ void PVInspector::PVMainWindow::set_current_project_filename(QString const& file
 	}
 
 	set_project_modified(false);
+	setWindowTitle(QString());
 	setWindowFilePath(_cur_project_file);
 }
 
@@ -586,6 +595,11 @@ void PVInspector::PVMainWindow::set_project_modified(bool modified)
 {
 	setWindowModified(modified);
 	project_save_Action->setEnabled(modified);
+}
+
+void PVInspector::PVMainWindow::project_modified_Slot()
+{
+	set_project_modified(true);
 }
 
 /******************************************************************************

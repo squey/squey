@@ -18,6 +18,7 @@ public:
 public:
 	void force_refresh();
 	PVViewsListingView* get_view() { return _tree; }
+	PVViewsModel* get_model() { return _model; }
 
 protected slots:
 	void show_ctxt_menu(const QPoint& pt);

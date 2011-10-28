@@ -14,6 +14,7 @@
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
 #include <QNetworkReply>
+#include <QSet>
 
 #include <picviz/init.h>
 #include <picviz/PVRoot.h>
@@ -113,6 +114,8 @@ public:
 	void close_source(PVTabSplitter* tab);
 	void close_scene();
 
+	static QList<Picviz::PVView_p> list_displayed_picviz_views();
+
 public slots:
 	void about_Slot();
 	void axes_editor_Slot();
@@ -176,6 +179,9 @@ private:
 	bool is_project_untitled() { return _is_project_untitled; }
 	void set_project_modified(bool modified);
 	PVMainWindow* find_main_window(const QString& file);
+
+private slots:
+	void project_modified_Slot();
 
 private:
 	void connect_actions();

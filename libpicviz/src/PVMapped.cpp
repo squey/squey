@@ -303,7 +303,6 @@ PVCol Picviz::PVMapped::get_column_count()
 void Picviz::PVMapped::add_plotted(PVPlotted_p plotted)
 {
 	_plotteds.push_back(plotted);
-	get_source_parent()->add_view(plotted->get_view());
 }
 
 void Picviz::PVMapped::process_from_source(PVSource* src, bool keep_views_info)
@@ -326,7 +325,6 @@ void Picviz::PVMapped::process_from_parent_source(bool keep_views_info)
 	for (int i = 0; i < _plotteds.size(); i++) {
 		PVPlotted_p plotted = _plotteds[i];
 		plotted->process_from_mapped(this, keep_views_info);
-		get_source_parent()->add_view(plotted->get_view());
 	}
 }
 
@@ -337,6 +335,11 @@ void Picviz::PVMapped::invalidate_plotted_children_column(PVCol j)
 		PVPlotted_p plotted = *it;
 		plotted->invalidate_column(j);
 	}
+}
+
+void Picviz::PVMapped::invalidate_all()
+{
+	_mapping.invalidate_all();
 }
 
 void Picviz::PVMapped::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)

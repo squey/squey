@@ -123,6 +123,14 @@ bool Picviz::PVMapping::is_uptodate() const
 	return true;
 }
 
+void Picviz::PVMapping::invalidate_all()
+{
+	QList<PVMappingProperties>::iterator it;
+	for (it = columns.begin(); it != columns.end(); it++) {
+		it->invalidate();
+	}
+}
+
 void Picviz::PVMapping::set_uptodate_for_col(PVCol j)
 {
 	assert(j < columns.size());

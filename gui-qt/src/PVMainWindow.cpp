@@ -218,6 +218,9 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 	update_check();
 
 	set_current_project_filename(QString());
+
+	// The default title isn't set, so do this by hand...
+	setWindowTitle(QString("%1[*] - Picviz Inspector " PICVIZ_CURRENT_VERSION_STR).arg(_cur_project_file));
 }
 
 void PVInspector::PVMainWindow::closeEvent(QCloseEvent* event)
@@ -507,10 +510,7 @@ void PVInspector::PVMainWindow::connect_actions()
 	connect(export_file_Action, SIGNAL(triggered()), this, SLOT(export_file_Slot()));
 	connect(export_selection_Action, SIGNAL(triggered()), this, SLOT(export_selection_Slot()));
 	connect(extractor_file_Action, SIGNAL(triggered()), this, SLOT(extractor_file_Slot()));
-	connect(new_file_Action, SIGNAL(triggered()), this, SLOT(new_file_Slot()));
-	connect(new_scene_Action, SIGNAL(triggered()), this, SLOT(new_scene_Slot()));
 	connect(quit_Action, SIGNAL(triggered()), this, SLOT(quit_Slot()));
-	connect(select_scene_Action, SIGNAL(triggered()), this, SLOT(select_scene_Slot()));
 
 	// connect(view_open_Action, SIGNAL(triggered()), this, SLOT(view_open_Slot()));
 	connect(view_save_Action, SIGNAL(triggered()), this, SLOT(view_save_Slot()));
@@ -927,6 +927,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 	menu_activate_is_file_opened(true);
 	show_start_page(false);
 	pv_ListingsTabWidget->setVisible(true);
+	set_project_modified(true);
 }
 
 bool PVInspector::PVMainWindow::load_scene()
@@ -975,7 +976,7 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_p src)
 		pvsdk_messenger->post_message_to_gl(message);
 		return false;
 	}
-	job_import->wait_end();
+	src->wait_extract_end(job_import);
 	PVLOG_INFO("The normalization job took %0.4f seconds.\n", job_import->duration().seconds());
 	if (src->get_rushnraw().table.size() == 0) {
 		PVLOG_ERROR("Cannot append source!\n");
@@ -1013,6 +1014,7 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_p src)
 	// Add the source's tab
 	current_tab = new PVTabSplitter(this, src, pv_ListingsTabWidget);
 	connect(current_tab,SIGNAL(selection_changed_signal(bool)),this,SLOT(enable_menu_filter_Slot(bool)));
+	connect(current_tab, SIGNAL(source_changed()), this, SLOT(project_modified_Slot()));
 	int new_tab_index = pv_ListingsTabWidget->addTab(current_tab, current_tab->get_tab_name());
 	pv_ListingsTabWidget->setCurrentIndex(new_tab_index);
 
@@ -1089,7 +1091,7 @@ void PVInspector::PVMainWindow::treat_invalid_formats(QHash<QString, std::pair<Q
 
 void PVInspector::PVMainWindow::display_icon_Slot()
 {
-	close_scene();
+	project_new_Slot();
 	show_start_page(true);
 }
 
@@ -1908,6 +1910,9 @@ void PVInspector::PVMainWindow::set_color_selected(const QColor& color)
 
 	// And we commit to the current layer (cf. ticket #38)
 	commit_selection_in_current_layer(current_tab->get_lib_view());
+
+	// And tell that the project has been modified
+	set_project_modified(true);
 }
 
 PVInspector::PVTabSplitter* PVInspector::PVMainWindow::get_tab_from_view(Picviz::PVView_p picviz_view)
@@ -2023,4 +2028,10 @@ void PVInspector::PVMainWindow::close_scene()
 		close_source((PVTabSplitter*) pv_ListingsTabWidget->widget(0));
 	}
 	_scene.reset(new Picviz::PVScene("root", root.get()));
+	set_project_modified(false);
+}
+
+QList<Picviz::PVView_p> PVInspector::PVMainWindow::list_displayed_picviz_views()
+{
+	return PVGL::PVMain::list_displayed_picviz_views();
 }

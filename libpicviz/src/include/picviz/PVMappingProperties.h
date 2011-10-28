@@ -49,6 +49,7 @@ public:
 protected:
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 	void set_uptodate() { _is_uptodate = true; }
+	inline void invalidate() { _is_uptodate = false; }
 
 private:
 	PVCol _index;

@@ -941,3 +941,15 @@ bool pvgl_init(PVSDK::PVMessenger *messenger)
 	return true;
 }
 
+QList<Picviz::PVView_p> PVGL::PVMain::list_displayed_picviz_views()
+{
+	QList<Picviz::PVView_p> ret;
+	std::list<PVGL::PVDrawable*>::const_iterator it;
+	for (it = all_drawables.begin(); it != all_drawables.end(); it++) {
+		Picviz::PVView_p v = (*it)->get_libview();
+		if (!ret.contains(v)) {
+			ret << v;
+		}
+	}
+	return ret;
+}

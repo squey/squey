@@ -88,6 +88,7 @@ void PVInspector::PVViewsListingWidget::show_ctxt_menu(const QPoint& pt)
 			plotted = node_obj.as_plotted();
 			_tab_parent->edit_plotted(plotted);
 		}
+		_model->emitDataChanged(idx_click);
 	}
 }
 
