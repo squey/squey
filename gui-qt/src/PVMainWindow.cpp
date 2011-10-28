@@ -503,10 +503,12 @@ void PVInspector::PVMainWindow::commit_selection_to_new_layer(Picviz::PVView_p p
 void PVInspector::PVMainWindow::connect_actions()
 {
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
+#ifdef CUSTOMER_CAPABILITY_SAVE
 	connect(project_new_Action, SIGNAL(triggered()), this, SLOT(project_new_Slot()));
 	connect(project_load_Action, SIGNAL(triggered()), this, SLOT(project_load_Slot()));
 	connect(project_save_Action, SIGNAL(triggered()), this, SLOT(project_save_Slot()));
 	connect(project_saveas_Action, SIGNAL(triggered()), this, SLOT(project_saveas_Slot()));
+#endif
 	connect(export_file_Action, SIGNAL(triggered()), this, SLOT(export_file_Slot()));
 	connect(export_selection_Action, SIGNAL(triggered()), this, SLOT(export_selection_Slot()));
 	connect(extractor_file_Action, SIGNAL(triggered()), this, SLOT(extractor_file_Slot()));

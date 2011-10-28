@@ -252,7 +252,7 @@ void PVInspector::PVTabSplitter::create_new_mapped()
 
 	// Create new default name
 	unsigned int nmapped = get_lib_src()->get_mappeds().size();
-	QString new_name(tr("New mapped %1").arg(nmapped));
+	QString new_name(tr("New mapping %1").arg(nmapped));
 	new_mapping.set_name(new_name);
 
 	PVMappingPlottingEditDialog* dlg = new PVMappingPlottingEditDialog(&new_mapping, NULL, this);
@@ -281,7 +281,7 @@ void PVInspector::PVTabSplitter::create_new_plotted(Picviz::PVMapped* mapped_par
 
 	// Create new default name
 	unsigned int nplotted = mapped_parent->get_plotteds().size();
-	QString new_name(tr("New plotted %1").arg(nplotted));
+	QString new_name(tr("New plotting %1").arg(nplotted));
 	new_plotting.set_name(new_name);
 
 	PVMappingPlottingEditDialog* dlg = new PVMappingPlottingEditDialog(NULL, &new_plotting, this);

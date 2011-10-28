@@ -326,14 +326,18 @@ void Picviz::PVLayerStack::serialize(PVCore::PVSerializeObject& so, PVCore::PVSe
 
 void Picviz::PVLayerStack::load_from_file(QString const& path)
 {
+#ifdef CUSTOMER_CAPABILITY_SAVE
 	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchiveZip(path, PVCore::PVSerializeArchive::read, PICVIZ_ARCHIVES_VERSION));
 	ar->get_root()->object("layer-stack", *this);
 	ar->finish();
+#endif
 }
 
 void Picviz::PVLayerStack::save_to_file(QString const& path)
 {
+#ifdef CUSTOMER_CAPABILITY_SAVE
 	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchiveZip(path, PVCore::PVSerializeArchive::write, PICVIZ_ARCHIVES_VERSION));
 	ar->get_root()->object("layer-stack", *this);
 	ar->finish();
+#endif
 }

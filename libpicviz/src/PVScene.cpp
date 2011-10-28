@@ -199,20 +199,24 @@ PVCore::PVSerializeArchiveOptions_p Picviz::PVScene::get_default_serialize_optio
 
 void Picviz::PVScene::save_to_file(QString const& path, PVCore::PVSerializeArchiveOptions_p options)
 {
+#ifdef CUSTOMER_CAPABILITY_SAVE
 	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchiveZip(path, PVCore::PVSerializeArchive::write, PICVIZ_ARCHIVES_VERSION));
 	if (options) {
 		ar->set_options(options);
 	}
 	ar->get_root()->object("scene", *this, ARCHIVE_SCENE_DESC);
 	ar->finish();
+#endif
 }
 
 void Picviz::PVScene::load_from_file(QString const& path)
 {
+#ifdef CUSTOMER_CAPABILITY_SAVE
 	if (_original_archive) {
 		_original_archive->finish();
 	}
 	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchiveZip(path, PVCore::PVSerializeArchive::read, PICVIZ_ARCHIVES_VERSION));
 	ar->get_root()->object("scene", *this, ARCHIVE_SCENE_DESC);
 	_original_archive = ar;
+#endif
 }

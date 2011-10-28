@@ -350,5 +350,5 @@ void Picviz::PVMapped::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerial
 	for (it = _plotteds.begin(); it != _plotteds.end(); it++) {
 		plotted_names << (*it)->get_name();
 	}
-	so.list("plotted", _plotteds, "Plotteds", (PVPlotted*) NULL, plotted_names, true, true);
+	so.list("plotted", _plotteds, "Plottings", (PVPlotted*) NULL, plotted_names, true, true);
 }

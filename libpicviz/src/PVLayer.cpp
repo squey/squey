@@ -103,14 +103,18 @@ void Picviz::PVLayer::serialize(PVCore::PVSerializeObject& so, PVCore::PVSeriali
 
 void Picviz::PVLayer::load_from_file(QString const& path)
 {
+#ifdef CUSTOMER_CAPABILITY_SAVE
 	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchiveZip(path, PVCore::PVSerializeArchive::read, PICVIZ_ARCHIVES_VERSION));
 	ar->get_root()->object("layer", *this);
 	ar->finish();
+#endif
 }
 
 void Picviz::PVLayer::save_to_file(QString const& path)
 {
+#ifdef CUSTOMER_CAPABILITY_SAVE
 	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchiveZip(path, PVCore::PVSerializeArchive::write, PICVIZ_ARCHIVES_VERSION));
 	ar->get_root()->object("layer", *this);
 	ar->finish();
+#endif
 }

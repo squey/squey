@@ -508,6 +508,7 @@ void PVInspector::PVMainWindow::project_new_Slot()
  *****************************************************************************/
 void PVInspector::PVMainWindow::project_load_Slot()
 {
+#ifdef CUSTOMER_CAPABILITY_SAVE
 	QFileDialog* dlg = new QFileDialog(this, tr("Load a project..."), QString(), PICVIZ_SCENE_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
 	dlg->setFileMode(QFileDialog::ExistingFile);
 	dlg->setAcceptMode(QFileDialog::AcceptOpen);
@@ -538,10 +539,13 @@ void PVInspector::PVMainWindow::project_load_Slot()
 		other->show();
 	}
 #endif
+
+#endif
 }
 
 bool PVInspector::PVMainWindow::load_project(QString const& file)
 {
+#ifdef CUSTOMER_CAPABILITY_SAVE
 	if (!maybe_save_project()) {
 		return false;
 	}
@@ -568,6 +572,7 @@ bool PVInspector::PVMainWindow::load_project(QString const& file)
 	pv_ListingsTabWidget->setVisible(true);
 
 	set_current_project_filename(file);
+#endif
 
 	return true;
 }
@@ -594,7 +599,9 @@ void PVInspector::PVMainWindow::set_current_project_filename(QString const& file
 void PVInspector::PVMainWindow::set_project_modified(bool modified)
 {
 	setWindowModified(modified);
+#ifdef CUSTOMER_CAPABILITY_SAVE
 	project_save_Action->setEnabled(modified);
+#endif
 }
 
 void PVInspector::PVMainWindow::project_modified_Slot()
@@ -609,6 +616,7 @@ void PVInspector::PVMainWindow::project_modified_Slot()
  *****************************************************************************/
 bool PVInspector::PVMainWindow::project_save_Slot()
 {
+#ifdef CUSTOMER_CAPABILITY_SAVE
 	if (is_project_untitled()) {
 		return project_saveas_Slot();
 	}
@@ -616,6 +624,7 @@ bool PVInspector::PVMainWindow::project_save_Slot()
 		PVCore::PVSerializeArchiveOptions_p options(_scene->get_default_serialize_options());
 		return save_project(_cur_project_file, options);
 	}
+#endif
 }
 
 /******************************************************************************
@@ -626,6 +635,7 @@ bool PVInspector::PVMainWindow::project_save_Slot()
 bool PVInspector::PVMainWindow::project_saveas_Slot()
 {
 	bool ret = false;
+#ifdef CUSTOMER_CAPABILITY_SAVE
 	if (current_tab && current_tab->get_lib_view()) {
 		PVCore::PVSerializeArchiveOptions_p options(_scene->get_default_serialize_options());
 		PVSaveSceneDialog* dlg = new PVSaveSceneDialog(_scene, options, this);
@@ -636,11 +646,13 @@ bool PVInspector::PVMainWindow::project_saveas_Slot()
 		}	
 		dlg->deleteLater();
 	}
+#endif
 	return ret;
 }
 
 bool PVInspector::PVMainWindow::save_project(QString const& file, PVCore::PVSerializeArchiveOptions_p options)
 {
+#ifdef CUSTOMER_CAPABILITY_SAVE
 	try {
 		_scene->save_to_file(file, options);
 	}
@@ -653,10 +665,14 @@ bool PVInspector::PVMainWindow::save_project(QString const& file, PVCore::PVSeri
 	set_current_project_filename(file);
 
 	return true;
+#else
+	return false;
+#endif
 }
 
 bool PVInspector::PVMainWindow::maybe_save_project()
 {
+#ifdef CUSTOMER_CAPABILITY_SAVE
 	if (isWindowModified()) {
 		QMessageBox::StandardButton ret;
 		ret = QMessageBox::warning(this, tr("Picviz Inspector"),
@@ -672,6 +688,9 @@ bool PVInspector::PVMainWindow::maybe_save_project()
 		}
 	}
 	return true;
+#else
+	return false;
+#endif
 }
 
 /******************************************************************************

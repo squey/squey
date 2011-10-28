@@ -48,6 +48,7 @@ PVInspector::PVLayerStackView::PVLayerStackView(PVMainWindow *mw, PVLayerStackMo
 	connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_ctxt_menu(const QPoint&)));
 	setContextMenuPolicy(Qt::CustomContextMenu);
 
+#ifdef CUSTOMER_CAPABILITY_SAVE
 	_ctxt_menu = new QMenu(this);
 	_ctxt_menu_save_act = new QAction(tr("Export this layer..."), NULL);
 	_ctxt_menu_load_act = new QAction(tr("Import a layer..."), NULL);
@@ -59,6 +60,7 @@ PVInspector::PVLayerStackView::PVLayerStackView(PVMainWindow *mw, PVLayerStackMo
 	_ctxt_menu_load_ls_act = new QAction(tr("Load a layer stack..."), NULL);
 	_ctxt_menu->addAction(_ctxt_menu_save_ls_act);
 	_ctxt_menu->addAction(_ctxt_menu_load_ls_act);
+#endif
 
 	setModel(model);
 	resizeColumnsToContents();
@@ -81,6 +83,7 @@ void PVInspector::PVLayerStackView::leaveEvent(QEvent * /*event*/)
 
 void PVInspector::PVLayerStackView::show_ctxt_menu(const QPoint& pt)
 {
+#ifdef CUSTOMER_CAPABILITY_SAVE
 	QModelIndex idx_click = indexAt(pt);
 	_ctxt_menu_save_act->setEnabled(idx_click.isValid());
 
@@ -100,10 +103,12 @@ void PVInspector::PVLayerStackView::show_ctxt_menu(const QPoint& pt)
 	if (act == _ctxt_menu_load_ls_act) {
 		load_layer_stack();
 	}
+#endif
 }
 
 void PVInspector::PVLayerStackView::save_layer(int /*idx*/)
 {
+#ifdef CUSTOMER_CAPABILITY_SAVE
 	// Get layer with index 'idx'
 	Picviz::PVLayer& layer = ((PVLayerStackModel*) model())->get_layer_stack_lib().get_selected_layer();
 
@@ -117,10 +122,12 @@ void PVInspector::PVLayerStackView::save_layer(int /*idx*/)
 	QString file = dlg->selectedFiles().at(0);
 
 	layer.save_to_file(file);
+#endif
 }
 
 void PVInspector::PVLayerStackView::import_layer()
 {
+#ifdef CUSTOMER_CAPABILITY_SAVE
 	QFileDialog* dlg = new QFileDialog(this, tr("Import a layer..."), QString(), PICVIZ_LAYER_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
 	dlg->setFileMode(QFileDialog::ExistingFile);
 	dlg->setAcceptMode(QFileDialog::AcceptOpen);
@@ -137,10 +144,12 @@ void PVInspector::PVLayerStackView::import_layer()
 	layer->load_from_file(file);
 
 	_parent->refresh();
+#endif
 }
 
 void PVInspector::PVLayerStackView::save_layer_stack()
 {
+#ifdef CUSTOMER_CAPABILITY_SAVE
 	// Ask for a filename
 	QFileDialog* dlg = new QFileDialog(this, tr("Choose a file..."), QString(), PICVIZ_LAYERSTACK_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
 	dlg->setAcceptMode(QFileDialog::AcceptSave);
@@ -151,10 +160,12 @@ void PVInspector::PVLayerStackView::save_layer_stack()
 	QString file = dlg->selectedFiles().at(0);
 
 	((PVLayerStackModel*) model())->get_layer_stack_lib().save_to_file(file);
+#endif
 }
 
 void PVInspector::PVLayerStackView::load_layer_stack()
 {
+#ifdef CUSTOMER_CAPABILITY_SAVE
 	QFileDialog* dlg = new QFileDialog(this, tr("Import a layer stack..."), QString(), PICVIZ_LAYERSTACK_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
 	dlg->setFileMode(QFileDialog::ExistingFile);
 	dlg->setAcceptMode(QFileDialog::AcceptOpen);
@@ -167,4 +178,5 @@ void PVInspector::PVLayerStackView::load_layer_stack()
 	model_->get_layer_stack_lib().load_from_file(file);
 
 	_parent->refresh();
+#endif
 }

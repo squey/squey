@@ -276,7 +276,7 @@ void Picviz::PVSource::serialize_write(PVCore::PVSerializeObject& so)
 	for (it_mapped = _mappeds.begin(); it_mapped != _mappeds.end(); it_mapped++) {
 		mapped_names << (*it_mapped)->get_name();
 	}
-	so.list("mapped", _mappeds, "Mappeds", (PVMapped*) NULL, mapped_names, true, true);
+	so.list("mapped", _mappeds, "Mappings", (PVMapped*) NULL, mapped_names, true, true);
 }
 
 void Picviz::PVSource::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
@@ -320,5 +320,5 @@ void Picviz::PVSource::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVS
 	//so.list("views", _views);
 	
 	// Load the mapped
-	so.list("mapped", _mappeds, "Mappeds", (PVMapped*) NULL, QStringList(), true, true);
+	so.list("mapped", _mappeds, "Mappings", (PVMapped*) NULL, QStringList(), true, true);
 }

@@ -145,11 +145,13 @@ void PVInspector::PVMainWindow::create_menus()
 	menubar = menuBar();
 
 	file_Menu = menubar->addMenu(tr("&File"));
+#ifdef CUSTOMER_CAPABILITY_SAVE
 	file_Menu->addAction(project_new_Action);
 	file_Menu->addAction(project_load_Action);
 	file_Menu->addAction(project_save_Action);
 	file_Menu->addAction(project_saveas_Action);
 	file_Menu->addSeparator();
+#endif
 	create_actions_import_types(file_Menu);
 	file_Menu->addSeparator();
 	file_Menu->addAction(export_selection_Action);
