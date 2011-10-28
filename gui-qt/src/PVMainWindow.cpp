@@ -75,7 +75,6 @@ QFile *report_file;
 PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 {
 	_is_project_untitled = true;
-	set_current_project_filename(QString());
 
 	QSplashScreen splash(QPixmap(":/splash-screen"));
 
@@ -217,6 +216,8 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 	_scene = Picviz::PVScene_p(new Picviz::PVScene(const_cast<char*>("default"), root.get())); // FIXME!
 
 	update_check();
+
+	set_current_project_filename(QString());
 }
 
 void PVInspector::PVMainWindow::closeEvent(QCloseEvent* event)
