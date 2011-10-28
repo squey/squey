@@ -146,13 +146,18 @@ void PVInspector::PVMainWindow::create_menus()
 
 	file_Menu = menubar->addMenu(tr("&File"));
 #ifdef CUSTOMER_CAPABILITY_SAVE
-	file_Menu->addAction(project_new_Action);
-	file_Menu->addAction(project_load_Action);
-	file_Menu->addAction(project_save_Action);
-	file_Menu->addAction(project_saveas_Action);
-	file_Menu->addSeparator();
+	QMenu *project_Menu = new QMenu(tr("&Project"));
+	project_Menu->addAction(project_new_Action);
+	project_Menu->addAction(project_load_Action);
+	project_Menu->addAction(project_save_Action);
+	project_Menu->addAction(project_saveas_Action);
+	project_Menu->addSeparator();
+	file_Menu->addMenu(project_Menu);
 #endif
-	create_actions_import_types(file_Menu);
+	QMenu *import_Menu = new QMenu(tr("I&mport"));
+	create_actions_import_types(import_Menu);
+	file_Menu->addMenu(import_Menu);
+
 	file_Menu->addSeparator();
 	file_Menu->addAction(export_selection_Action);
 	file_Menu->addAction(extractor_file_Action);
