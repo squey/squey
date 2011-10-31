@@ -129,7 +129,8 @@ public slots:
 	void extractor_file_Slot();
 	void filter_select_all_Slot();
 	void filter_Slot();
-	void file_format_builder_Slot();
+	void new_format_Slot();
+	void cur_format_Slot();
 	void import_type_default_Slot();
 	void import_type_Slot();
 	void lines_display_unselected_Slot();
@@ -200,6 +201,7 @@ private:
 	QMenu *lines_Menu;
 	QMenu *scene_Menu;
 	QMenu *selection_Menu;
+	QMenu* tools_Menu;
 	QMenu *view_Menu;
 	QMenu *windows_Menu;
 	QMenu *help_Menu;
@@ -227,7 +229,6 @@ private:
 	QAction *export_file_Action;
 	QAction *export_selection_Action;
 	QAction *extractor_file_Action;
-	QAction *file_format_builder_Action;
 	QAction *new_file_Action;
 	QAction *new_scene_Action;
 	QAction *paste_Action;
@@ -238,6 +239,8 @@ private:
 	QAction *selection_inverse_Action;
 	QAction *selection_none_Action;
 	QAction *set_color_Action;
+	QAction* tools_new_format_Action;
+	QAction* tools_cur_format_Action;
 	QAction *undo_Action;
 	QAction *undo_history_Action;
 	QAction *view_Action;

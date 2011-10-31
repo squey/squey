@@ -42,8 +42,6 @@ void PVInspector::PVMainWindow::create_actions()
 	extractor_file_Action = new QAction(tr("&Extractor..."), this);
 	extractor_file_Action->setToolTip(tr("Launch the Picviz Extractor"));
 
-	file_format_builder_Action = new QAction(tr("Format Builder..."), this);
-
 	export_file_Action = new QAction(tr("&Export"), this);
 
 	quit_Action = new QAction(tr("&Quit"), this);
@@ -93,6 +91,12 @@ void PVInspector::PVMainWindow::create_actions()
 	 ************************/
 	new_scene_Action = new QAction(tr("&New Scene"), this);
 	select_scene_Action = new QAction(tr("&Select Scene"), this);
+
+	/************************
+	 * For the "Tools" menu entry
+	 ************************/
+	tools_new_format_Action = new QAction(tr("&New format..."), this);
+	tools_cur_format_Action = new QAction(tr("&Edit current format..."), this);
 
 	/************************
 	 * For the "View" menu entry
@@ -153,7 +157,6 @@ void PVInspector::PVMainWindow::create_menus()
 	project_Menu->addAction(project_saveas_Action);
 
 	file_Menu->addMenu(project_Menu);
-	file_Menu->addAction(file_format_builder_Action);
 	file_Menu->addSeparator();
 	file_Menu->addAction(extractor_file_Action);
 	file_Menu->addSeparator();
@@ -167,6 +170,10 @@ void PVInspector::PVMainWindow::create_menus()
 	file_Menu->addMenu(export_Menu);
 	file_Menu->addSeparator();
 	file_Menu->addAction(quit_Action);
+
+	tools_Menu = menubar->addMenu(tr("&Tools"));
+	tools_Menu->addAction(tools_new_format_Action);
+	tools_Menu->addAction(tools_cur_format_Action);
 
 	//edit_Menu = menubar->addMenu(tr("&Edit"));
 	//edit_Menu->addAction(undo_Action);
@@ -200,7 +207,7 @@ void PVInspector::PVMainWindow::create_menus()
 	//scene_Menu = menubar->addMenu(tr("S&cene"));
 	//scene_Menu->addAction(new_scene_Action);
 	//scene_Menu->addAction(select_scene_Action);
-
+	
 	view_Menu = menubar->addMenu(tr("&View"));
 	view_Menu->addAction(view_new_parallel_Action);
 	view_Menu->addAction(view_new_scatter_Action);
@@ -252,6 +259,7 @@ void PVInspector::PVMainWindow::menu_activate_is_file_opened(bool cond)
 	filter_Menu->setEnabled(cond);
 	lines_Menu->setEnabled(cond);
 	selection_Menu->setEnabled(cond);
+	tools_cur_format_Action->setEnabled(cond);
 	view_Menu->setEnabled(cond);
 	windows_Menu->setEnabled(cond);
 }
