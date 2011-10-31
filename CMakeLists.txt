@@ -106,6 +106,11 @@ include(CMakeRequiredLibraries.txt)
 # END: SET VARIOUS REQUIRED LIBRARIES #
 #######################################
 
+#
+# Handles the version
+#
+include(CMakeVersionHandler.txt)
+
 #############################################
 # BEGIN: ADD INCLUDE DIRS NEEDED EVERYWHERE #
 #############################################

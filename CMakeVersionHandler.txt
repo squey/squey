@@ -1,0 +1,5 @@
+set(INSPECTOR_VERSION_MAJOR 2)
+set(INSPECTOR_VERSION_MINOR 2)
+set(INSPECTOR_VERSION_MICRO 0)
+
+configure_file("include/pvbase/version.h.cmake" "include/pvbase/version.h")
