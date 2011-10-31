@@ -538,7 +538,8 @@ void PVInspector::PVMainWindow::connect_actions()
 	connect(lines_display_zombies_listing_Action, SIGNAL(triggered()), this, SLOT(lines_display_zombies_listing_Slot()));
 	connect(lines_display_zombies_GLview_Action, SIGNAL(triggered()), this, SLOT(lines_display_zombies_GLview_Slot()));
         
-        connect(file_format_builder_Action, SIGNAL(triggered()), this, SLOT(file_format_builder_Slot()));
+	connect(tools_new_format_Action, SIGNAL(triggered()), this, SLOT(new_format_Slot()));
+	connect(tools_cur_format_Action, SIGNAL(triggered()), this, SLOT(cur_format_Slot()));
 
 	//connect(whats_this_Action, SIGNAL(triggered()), this, SLOT(whats_this_Slot()));
 	connect(about_Action, SIGNAL(triggered()), this, SLOT(about_Slot()));

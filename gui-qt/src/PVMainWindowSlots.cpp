@@ -968,11 +968,32 @@ void PVInspector::PVMainWindow::whats_this_Slot()
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::file_format_builder_Slot()
+ * PVInspector::PVMainWindow::new_format_Slot()
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::file_format_builder_Slot() {
+void PVInspector::PVMainWindow::new_format_Slot() {
     PVXmlEditorWidget *editorWidget = new PVXmlEditorWidget(this);
+    editorWidget->show();
+}
+
+/******************************************************************************
+ *
+ * PVInspector::PVMainWindow::cur_format_Slot()
+ *
+ *****************************************************************************/
+void PVInspector::PVMainWindow::cur_format_Slot()
+{
+	Picviz::PVSource_p cur_src = current_tab->get_lib_src();
+	if (!current_tab || !cur_src) {
+		return;
+	}
+	PVRush::PVFormat const& format = cur_src->get_format();
+	if (format.get_full_path().isEmpty()) {
+		return;
+	}
+
+    PVXmlEditorWidget *editorWidget = new PVXmlEditorWidget(this);
+	editorWidget->openFormat(format.get_full_path());
     editorWidget->show();
 }
 
