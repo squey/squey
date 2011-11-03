@@ -13,6 +13,7 @@
 
 #include <pvkernel/core/debug.h>
 #include <pvkernel/core/PVFileSerialize.h>
+#include <pvkernel/core/PVCompList.h>
 
 #include <pvkernel/rush/PVXmlParamParser.h>
 #include <pvkernel/rush/PVFormat.h>
@@ -293,7 +294,7 @@ void PVRush::PVFormat::only_keep_axes()
 	PVLOG_DEBUG("(PVRush::PVFormat) removing filters, we have '%d' fields.\n", _axes.size());
 }
 
-void PVRush::PVFormat::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v)
+void PVRush::PVFormat::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 {
 	so.attribute("name", format_name);
 	so.attribute("path", full_path);
@@ -305,4 +306,48 @@ void PVRush::PVFormat::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerial
 		}
 	}
 	populate();
+}
+
+PVRush::PVFormat::Comparaison PVRush::PVFormat::comp(PVFormat const& original) const
+{
+	Comparaison ret;
+	ret._need_extract = (_axes.size() != original._axes.size()) ||
+	                    (!PVCore::comp_list(filters_params, original.filters_params)) ||
+						(time_format != original.time_format);
+	if (ret._need_extract) {
+		ret._mapping = true;
+		ret._plotting = true;
+		ret._other = true;
+	}
+	else
+	if (_axes.size() == original._axes.size()) {
+		list_axes_t::const_iterator it, it_org;
+		it = _axes.begin();
+		it_org = _axes.begin();
+		ret._mapping = false;
+		ret._plotting = false;
+		ret._other = false;
+		for (; it != _axes.end(); it++) {
+			if (it->get_type() != it_org->get_type()) {
+				ret._mapping = true;
+				ret._plotting = true;
+				break;
+			}
+			if (it->get_mapping() != it_org->get_mapping()) {
+				ret._mapping = true;
+			}
+			if (it->get_plotting() != it_org->get_plotting()) {
+				ret._plotting = true;
+			}
+			if (it->get_time_format() != it_org->get_time_format() ||
+				it->get_tags() != it_org->get_tags() ||
+				it->get_color_str() != it_org->get_color_str() ||
+				it->get_titlecolor_str() != it_org->get_titlecolor_str() ||
+				it->get_name() != it_org->get_name()) {
+				ret._other = true;
+			}
+			it_org++;
+		}
+	}
+	return ret;
 }

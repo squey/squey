@@ -66,6 +66,23 @@ class LibKernelDecl PVFormat {
 public:
 	typedef PVFormat_p p_type;
 
+public:
+	class Comparaison
+	{
+		friend class PVFormat;
+	public:
+		bool same() const { return !_need_extract & !_mapping & !_plotting & !_other; }
+		bool need_extract() const { return _need_extract; }
+		bool different_mapping() const { return _mapping; }
+		bool different_plotting() const { return _plotting; }
+		bool different_other_axes_properties() const { return _other; }
+	protected:
+		bool _need_extract;
+		bool _mapping;
+		bool _plotting;
+		bool _other;
+	};
+
 private:
 	/* QString key_axis; */
 	/* QString axis_color; */
@@ -92,6 +109,8 @@ public:
 	bool populate_from_xml(QString filename, bool forceOneAxis = false);
 	bool populate_from_xml(QDomElement const& rootNode, bool forceOneAxis = false);
 	bool populate(bool forceOneAxis = false);
+
+	Comparaison comp(PVFormat const& original) const;
 	
 	PVFilter::PVChunkFilter_f create_tbb_filters();
 	PVFilter::PVElementFilter_f create_tbb_filters_elt();

@@ -171,10 +171,6 @@ void PVInspector::PVMainWindow::create_menus()
 	file_Menu->addSeparator();
 	file_Menu->addAction(quit_Action);
 
-	tools_Menu = menubar->addMenu(tr("&Tools"));
-	tools_Menu->addAction(tools_new_format_Action);
-	tools_Menu->addAction(tools_cur_format_Action);
-
 	//edit_Menu = menubar->addMenu(tr("&Edit"));
 	//edit_Menu->addAction(undo_Action);
 	//edit_Menu->addAction(redo_Action);
@@ -227,6 +223,10 @@ void PVInspector::PVMainWindow::create_menus()
 	lines_Menu->addAction(lines_display_zombies_Action);
 	lines_Menu->addAction(lines_display_zombies_listing_Action);
 	lines_Menu->addAction(lines_display_zombies_GLview_Action);
+
+	tools_Menu = menubar->addMenu(tr("&Tools"));
+	tools_Menu->addAction(tools_new_format_Action);
+	tools_Menu->addAction(tools_cur_format_Action);
 
 	windows_Menu = menubar->addMenu(tr("&Windows"));
 

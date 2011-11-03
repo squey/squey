@@ -37,6 +37,7 @@
 #include <pvkernel/rush/PVSourceCreator.h>
 #include <pvkernel/rush/PVExtractor.h>
 #include <pvkernel/rush/PVInputType.h>
+#include <picviz/PVSource_types.h>
 
 namespace PVInspector{
 
@@ -51,6 +52,9 @@ public:
     PVXmlEditorWidget(QWidget * parent = NULL);
 
     virtual ~PVXmlEditorWidget();
+
+private:
+	void init(QWidget* parent);
 
 public:
 	void openFormat(QString const& path);
@@ -68,6 +72,7 @@ private:
     //
     QVBoxLayout *vbParam;
     QMenuBar *menuBar;
+	Picviz::PVSource* _org_source; // If this widget is bound to a PVSource's format
 
     //
     QFile logFile;///!< file we open to edit the format

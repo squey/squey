@@ -67,6 +67,7 @@ class LibKernelDecl PVAxisFormat {
 		PVCore::PVColor const& get_titlecolor() const { return titlecolor; }
 		QString get_type() const { return type; }
 		QString get_group() const { return group; }
+		QString get_time_format() const { return time_format; }
 		uint32_t get_unique_id() const { return unique_id; }
 		PVTags const& get_tags() const { return tags; }
 		bool has_tag(QString const& tag) const { return tags.has_tag(tag); }

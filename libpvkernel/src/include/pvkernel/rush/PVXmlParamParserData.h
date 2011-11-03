@@ -11,6 +11,7 @@
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVArgument.h>
+#include <pvkernel/core/PVCompList.h>
 #include <pvkernel/filter/PVFieldsFilter.h>
 
 namespace PVRush {
@@ -28,7 +29,14 @@ public:
 	PVCore::PVArgumentList filter_args;
 	size_t nchildren;
 	PVFilter::filter_child_axes_tag_t children_axes_tag;
+
+	bool operator==(PVXmlParamParserData const& other) const {
+		return filter_lib == other.filter_lib && PVCore::comp_hash(filter_args, other.filter_args);
+	}
+
+	bool operator!=(PVXmlParamParserData const& other) const { return !(*this == other); }
 };
+
 }
 #endif	/* PVXMLPARAMPARSERDATA_H */
 

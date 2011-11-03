@@ -102,6 +102,7 @@ public:
 	void select_view(PVView_p view) { assert(_views.contains(view)); _current_view = view; }
 
 	PVRush::PVFormat& get_format() { return _extractor.get_format(); }
+	void set_format(PVRush::PVFormat const& format);
 
 protected:
 	// For PVScene
@@ -116,7 +117,6 @@ protected:
 	PVSERIALIZEOBJECT_SPLIT
 
 private:
-	void set_format(PVRush::PVFormat const& format);
 	PVRush::PVRawSourceBase_p create_extractor_source(QString type, QString filename, PVRush::PVFormat const& format);
 	void files_append_noextract();
 	void init();

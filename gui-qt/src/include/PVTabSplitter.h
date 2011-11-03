@@ -10,6 +10,7 @@
 
 #include <QSplitter>
 
+#include <pvkernel/rush/PVControllerJob.h>
 #include <picviz/PVSource.h>
 #include <picviz/PVView.h>
 
@@ -187,6 +188,9 @@ public:
 	void edit_plotted(Picviz::PVPlotted* plotted);
 
 	void emit_source_changed() { emit source_changed(); }
+
+public:
+	bool process_extraction_job(PVRush::PVControllerJob_p job);
 
 public slots:
 	/**

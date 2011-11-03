@@ -188,48 +188,15 @@ void PVInspector::PVExtractorWidget::process_Slot()
 	size_t index = _slider_index->value();
 	_batch_size = _size_batch_widget->text().toLong();
 	
-    PVLOG_DEBUG("PVInspector::PVExtractorWidget::process_Slot() l:%d\n",__LINE__);
 	_ext.save_nraw();
-    PVLOG_DEBUG("PVInspector::PVExtractorWidget::process_Slot() l:%d\n",__LINE__);
 	PVRush::PVControllerJob_p job = _inspector_tab->get_lib_src()->extract_from_agg_nlines(index, _batch_size);
-    PVLOG_DEBUG("PVInspector::PVExtractorWidget::process_Slot() l:%d\n",__LINE__);
-
-	// Show a progress box that will finish with "accept" when the job is done
-	if (!show_job_progress_bar(job, _ext.get_format().get_format_name(), _batch_size, this)) {
-		_ext.restore_nraw();
-		_view->set_consistent(true);
-		PVSDK::PVMessage message;
-		message.function = PVSDK_MESSENGER_FUNCTION_REINIT_PVVIEW;
-		message.pv_view = _view;
-		main_window->get_pvmessenger()->post_message_to_gl(message);
-		return;
-	}
-	_inspector_tab->get_lib_src()->wait_extract_end(job);
-	_ext.clear_saved_nraw();
-
-	// Update libpicviz's views according to opened GL views (should be in the future PVSDK !!)
-	QList<Picviz::PVView_p> views = main_window->list_displayed_picviz_views();
-	for (int i = 0; i < views.size(); i++) {
-		Picviz::PVView_p cur_view = views.at(i);
-		cur_view->get_plotted_parent()->process_from_parent_mapped(false);
-
-		// Send a message to PVGL
-		PVSDK::PVMessage message;
-		message.function = PVSDK_MESSENGER_FUNCTION_REINIT_PVVIEW;
-		message.pv_view = cur_view;
-		main_window->get_pvmessenger()->post_message_to_gl(message);
-	}
-
-	PVLOG_INFO("extractor: the normalization job took %0.4f seconds.\n", job->duration().seconds());
+	bool success = _inspector_tab->process_extraction_job(job);
 
 	fill_source_list();
 
-	_view->last_extractor_batch_size = _batch_size;
-	_inspector_tab->emit_source_changed();
-
-	_inspector_tab->refresh_layer_stack_view_Slot();
-	_inspector_tab->refresh_listing_Slot();
-		
+	if (success) {
+		_view->last_extractor_batch_size = _batch_size;
+	}
 }
 
 void PVInspector::PVExtractorWidget::exit_Slot()

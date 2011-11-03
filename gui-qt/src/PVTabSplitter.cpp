@@ -341,8 +341,51 @@ void PVInspector::PVTabSplitter::source_changed_Slot()
 	emit source_changed();
 }
 
+bool PVInspector::PVTabSplitter::process_extraction_job(PVRush::PVControllerJob_p job)
+{
+	bool ret = true;
+	PVRush::PVExtractor& ext = get_lib_src()->get_extractor();
+	// Show a progress box that will finish with "accept" when the job is done
+	if (!PVExtractorWidget::show_job_progress_bar(job, ext.get_format().get_format_name(), job->nb_elts_max(), this)) {
+		ext.restore_nraw();
+		ret = false;
+	}
+	else {
+		get_lib_src()->wait_extract_end(job);
+		ext.clear_saved_nraw();
+	}
+
+	// Update libpicviz's views according to opened GL views (should be in the future PVSDK !!)
+	QList<Picviz::PVView_p> views = main_window->list_displayed_picviz_views();
+	for (int i = 0; i < views.size(); i++) {
+		Picviz::PVView_p cur_view = views.at(i);
+		if (cur_view->get_source_parent() != get_lib_src().get()) {
+			continue;
+		}
+		if (ret) {
+			cur_view->get_plotted_parent()->process_from_parent_mapped(false);
+		}
+
+		// Send a message to PVGL
+		PVSDK::PVMessage message;
+		message.function = PVSDK_MESSENGER_FUNCTION_REINIT_PVVIEW;
+		message.pv_view = cur_view;
+		main_window->get_pvmessenger()->post_message_to_gl(message);
+	}
+
+	if (ret) {
+		PVLOG_INFO("extractor: the normalization job took %0.4f seconds.\n", job->duration().seconds());
+		emit_source_changed();
+		refresh_layer_stack_view_Slot();
+		refresh_listing_Slot();
+	}
+
+	return ret;
+}
+
 // PVViewWidgets
 PVInspector::PVTabSplitter::PVViewWidgets::PVViewWidgets(Picviz::PVView_p view, PVTabSplitter* tab)
 {
 	pv_axes_combination_editor = new PVAxesCombinationDialog(view, tab, tab->main_window);
 }
+

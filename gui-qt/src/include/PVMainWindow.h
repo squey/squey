@@ -181,6 +181,7 @@ private:
 
 private slots:
 	void project_modified_Slot();
+	void cur_format_changed_Slot();
 
 private:
 	void connect_actions();

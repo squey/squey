@@ -27,6 +27,11 @@
 PVInspector::PVXmlEditorWidget::PVXmlEditorWidget(QWidget * parent):
 	QDialog(parent)
 {
+	init(parent);
+}
+
+void PVInspector::PVXmlEditorWidget::init(QWidget* parent)
+{
 	setWindowTitle(FORMAT_BUILDER_TITLE);
     
 	QSplitter* main_splitter = new QSplitter(Qt::Vertical);

@@ -992,9 +992,37 @@ void PVInspector::PVMainWindow::cur_format_Slot()
 		return;
 	}
 
-    PVXmlEditorWidget *editorWidget = new PVXmlEditorWidget(this);
+    PVXmlEditorWidget *editorWidget = new PVXmlEditorWidget(current_tab);
+	//connect(editorWidget, SIGNAL(accepted()), this, SLOT(cur_format_changed_Slot()));
+	//connect(editorWidget, SIGNAL(rejected()), this, SLOT(cur_format_changed_Slot()));
 	editorWidget->openFormat(format.get_full_path());
     editorWidget->show();
+}
+
+void PVInspector::PVMainWindow::cur_format_changed_Slot()
+{
+	PVXmlEditorWidget* editor = dynamic_cast<PVXmlEditorWidget*>(sender());
+	assert(editor);
+	PVTabSplitter* src_tab = dynamic_cast<PVTabSplitter*>(editor->parent());
+	assert(src_tab);
+	Picviz::PVSource_p cur_src = src_tab->get_lib_src();
+
+	PVRush::PVFormat old_format = cur_src->get_format();
+	PVRush::PVFormat new_format(old_format.get_format_name(), old_format.get_full_path());
+
+	PVRush::PVFormat::Comparaison comp = new_format.comp(old_format);
+	if (comp.same()) {
+		return;
+	}
+
+	cur_src->set_format(new_format);
+
+	if (comp.need_extract()) {
+		PVRush::PVExtractor& extractor = cur_src->get_extractor();
+		extractor.save_nraw();
+		PVRush::PVControllerJob_p job = cur_src->extract();
+		src_tab->process_extraction_job(job);
+	}
 }
 
 PVSDK::PVMessenger* PVInspector::PVMainWindow::get_pvmessenger()
