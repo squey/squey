@@ -99,6 +99,8 @@ class LibGLDecl PVLines {
 	 */
 	void draw_selected_lines(GLfloat modelview[16]);
 
+	void free_buffers();
+
 public:
 	/**
 	 * Constructor.

@@ -74,34 +74,69 @@ PVGL::PVLines::PVLines(PVView *view_) : view(view_)
 PVGL::PVLines::~PVLines()
 {
 	PVLOG_INFO("In PVLines destructor\n");
+	free_buffers();
+}
 
+/******************************************************************************
+ *
+ * PVLines::free_buffers
+ *
+ *****************************************************************************/
+void PVGL::PVLines::free_buffers()
+{
 	// Free OpenGL objects
-	if (vbo_color != 0)
+	if (vbo_color != 0) {
 		glDeleteBuffers(1, &vbo_color);
-	if (vbo_zla != 0)
+		vbo_color = 0;
+	}
+	if (vbo_zla != 0) {
 		glDeleteBuffers(1, &vbo_zla);
-	if (tbo_selection != 0)
+		vbo_zla = 0;
+	}
+	if (tbo_selection != 0) {
 		glDeleteBuffers(1, &tbo_selection);
-	if (tbo_selection_texture != 0)
+		tbo_selection = 0;
+	}
+	if (tbo_selection_texture != 0) {
 		glDeleteTextures(1, &tbo_selection_texture);
-	if (tbo_zombie != 0)
+		tbo_selection_texture = 0;
+	}
+	if (tbo_zombie != 0) {
 		glDeleteBuffers(1, &tbo_zombie);
-	if (tbo_zombie_texture != 0)
+		tbo_zombie = 0;
+	}
+	if (tbo_zombie_texture != 0) {
 		glDeleteTextures(1, &tbo_zombie_texture);
-	if (fbo_vao != 0)
+		tbo_zombie_texture = 0;
+	}
+	if (fbo_vao != 0) {
 		glDeleteVertexArrays(1, &fbo_vao); 
-	if (main_fbo != 0)
+		fbo_vao = 0;
+	}
+	if (main_fbo != 0) {
 		glDeleteFramebuffers(1, &main_fbo);
-	if (main_fbo_tex != 0)
+		main_fbo = 0;
+	}
+	if (main_fbo_tex != 0) {
 		glDeleteTextures(1, &main_fbo_tex);
-	if (lines_fbo != 0)
+		main_fbo_tex = 0;
+	}
+	if (lines_fbo != 0) {
 		glDeleteFramebuffers(1, &lines_fbo);
-	if (lines_fbo_tex != 0)
+		lines_fbo = 0;
+	}
+	if (lines_fbo_tex != 0) {
 		glDeleteTextures(1, &lines_fbo_tex);
-	if (zombie_fbo != 0)
+		lines_fbo_tex = 0;
+	}
+	if (zombie_fbo != 0) {
 		glDeleteFramebuffers(1, &zombie_fbo);
-	if (zombie_fbo_tex != 0)
+		zombie_fbo = 0;
+	}
+	if (zombie_fbo_tex != 0) {
 		glDeleteTextures(1, &zombie_fbo_tex);
+		zombie_fbo_tex = 0;
+	}
 
 	std::vector<Batch>::iterator it;
 	for (it = batches.begin(); it != batches.end(); it++) {
@@ -159,6 +194,8 @@ void PVGL::PVLines::set_size(int width, int height)
  *****************************************************************************/
 void PVGL::PVLines::init(Picviz::PVView_p pv_view_)
 {
+	free_buffers();
+	
 	picviz_view = pv_view_;
 	std::vector<std::string> attributes;
 	size_t temp_row_count = picviz_view->get_row_count();

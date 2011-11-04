@@ -134,11 +134,6 @@ void Picviz::PVSource::extract_finished()
 	list_views_t::iterator it_view;
 	for (it_view = _views.begin(); it_view != _views.end(); it_view++) {
 		(*it_view)->reset_layers();
-		(*it_view)->set_consistent(true);
-	}
-
-	if (_current_view) {
-		_current_view->recreate_mapping_plotting();
 	}
 }
 

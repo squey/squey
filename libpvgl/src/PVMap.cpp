@@ -58,29 +58,42 @@ view(view_), widget_manager(widget_manager_), lines(lines_)
  *****************************************************************************/
 PVGL::PVMap::~PVMap()
 {
+	free_buffers();
+}
+
+void PVGL::PVMap::free_buffers()
+{
 	if (main_fbo) {
 		glDeleteFramebuffers(1, &main_fbo);
+		main_fbo = 0;
 	}
 	if (main_fbo_tex) {
 		glDeleteTextures(1, &main_fbo_tex);
+		main_fbo_tex = 0;
 	}
 	if (main_fbo_vao) {
 		glDeleteVertexArrays(1, &main_fbo_vao);
+		main_fbo_vao = 0;
 	}
 	if (main_fbo_vbo) {
 		glDeleteBuffers(1, &main_fbo_vbo);
+		main_fbo_vbo = 0;
 	}
 	if (lines_fbo) {
 		glDeleteFramebuffers(1, &lines_fbo);
+		lines_fbo = 0;
 	}
 	if (lines_fbo_tex) {
 		glDeleteTextures(1, &lines_fbo_tex);
+		lines_fbo_tex = 0;
 	}
 	if (zombie_fbo) {
 		glDeleteFramebuffers(1, &zombie_fbo);
+		zombie_fbo = 0;
 	}
 	if (zombie_fbo_tex) {
 		glDeleteTextures(1, &zombie_fbo_tex);
+		zombie_fbo_tex = 0;
 	}
 }
 
@@ -91,6 +104,7 @@ PVGL::PVMap::~PVMap()
  *****************************************************************************/
 void PVGL::PVMap::init(Picviz::PVView_p pv_view_)
 {
+	free_buffers();
 	std::vector<std::string> attributes;
 
 	PVLOG_DEBUG("PVGL::PVMap::%s\n", __FUNCTION__);

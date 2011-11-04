@@ -365,6 +365,7 @@ bool PVInspector::PVTabSplitter::process_extraction_job(PVRush::PVControllerJob_
 		if (ret) {
 			cur_view->get_plotted_parent()->process_from_parent_mapped(false);
 		}
+		cur_view->set_consistent(true);
 
 		// Send a message to PVGL
 		PVSDK::PVMessage message;

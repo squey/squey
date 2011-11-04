@@ -86,6 +86,8 @@ class LibGLDecl PVMap {
 	 */
 	void init_mask();
 
+	void free_buffers();
+
 
 	bool         visible;         //!<
 	PVAllocation allocation;
