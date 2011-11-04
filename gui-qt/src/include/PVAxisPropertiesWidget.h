@@ -16,6 +16,8 @@
 #include <QStringList>
 #include <QDialogButtonBox>
 
+#include <picviz/PVView_types.h>
+
 
 namespace PVInspector {
 class PVMainWindow;
@@ -38,12 +40,13 @@ private:
 	QDialogButtonBox *box_buttons;
 	PVTabSplitter    *tab;
 	PVMainWindow* main_window;
+	Picviz::PVView_p _view;
 
 public:
 	/**
 	 * Constructor
 	 */
-	PVAxisPropertiesWidget(PVTabSplitter* tab_, PVMainWindow *mw);
+	PVAxisPropertiesWidget(Picviz::PVView_p view, PVTabSplitter* tab_, PVMainWindow *mw);
 
 	/**
 	 * Destructor

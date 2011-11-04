@@ -55,8 +55,11 @@ void PVInspector::PVMainWindow::axes_editor_Slot()
 	if (!current_tab) {
 		return;
 	}
-	pv_AxisProperties = new PVAxisPropertiesWidget(current_tab, this);
-	pv_AxisProperties->show();
+	PVAxisPropertiesWidget* dlg = current_tab->get_axes_properties_widget(current_tab->get_lib_view());
+	if (dlg->isVisible()) {
+		return;
+	}
+	dlg->show();
 }
 
 void PVInspector::PVMainWindow::axes_combination_editor_Slot()

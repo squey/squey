@@ -9,6 +9,7 @@
 #include <pvkernel/core/general.h>
 #include <picviz/PVView.h>
 
+#include <PVAxisPropertiesWidget.h>
 #include <PVMainWindow.h>
 #include <PVListingView.h>
 #include <PVExtractorWidget.h>
@@ -217,6 +218,12 @@ PVInspector::PVAxesCombinationDialog* PVInspector::PVTabSplitter::get_axes_combi
 	return widgets.pv_axes_combination_editor;
 }
 
+PVInspector::PVAxisPropertiesWidget* PVInspector::PVTabSplitter::get_axes_properties_widget(Picviz::PVView_p view)
+{
+	PVViewWidgets const& widgets = get_view_widgets(view);
+	return widgets.pv_axes_properties;
+}
+
 PVInspector::PVTabSplitter::PVViewWidgets const& PVInspector::PVTabSplitter::get_view_widgets(Picviz::PVView_p view)
 {
 	assert(view->get_source_parent() == _lib_src.get());
@@ -388,5 +395,9 @@ bool PVInspector::PVTabSplitter::process_extraction_job(PVRush::PVControllerJob_
 PVInspector::PVTabSplitter::PVViewWidgets::PVViewWidgets(Picviz::PVView_p view, PVTabSplitter* tab)
 {
 	pv_axes_combination_editor = new PVAxesCombinationDialog(view, tab, tab->main_window);
+	pv_axes_properties = new PVAxisPropertiesWidget(view, tab, tab->main_window);
 }
 
+PVInspector::PVTabSplitter::PVViewWidgets::~PVViewWidgets()
+{
+}

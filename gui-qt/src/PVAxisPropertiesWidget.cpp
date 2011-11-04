@@ -15,8 +15,9 @@
  * PVInspector::PVAxisPropertiesWidget::PVAxisPropertiesWidget
  *
  *****************************************************************************/
-PVInspector::PVAxisPropertiesWidget::PVAxisPropertiesWidget(PVTabSplitter* tab_, PVMainWindow *mw):
-	QDialog(mw)
+PVInspector::PVAxisPropertiesWidget::PVAxisPropertiesWidget(Picviz::PVView_p view, PVTabSplitter* tab_, PVMainWindow *mw):
+	QDialog(mw),
+	_view(view)
 {
 	main_window = mw;
 
@@ -32,6 +33,8 @@ PVInspector::PVAxisPropertiesWidget::PVAxisPropertiesWidget(PVTabSplitter* tab_,
 	box_buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel | QDialogButtonBox::Apply);
 	grid_layout = new QGridLayout();
 	main_layout = new QVBoxLayout();
+
+	setWindowTitle(tr("Edit axes..."));
 
 	create();
 }
@@ -54,7 +57,7 @@ void PVInspector::PVAxisPropertiesWidget::apply_slot()
 {
 	PVLOG_INFO("%s \n       %s\n",__FILE__,__FUNCTION__);
 
-	tab->get_lib_view()->set_axis_name(axes_list->currentIndex(), axis_name->text());
+	_view->set_axis_name(axes_list->currentIndex(), axis_name->text());
 
 	refresh_widget(axes_list->currentIndex());
 }
@@ -77,7 +80,7 @@ void PVInspector::PVAxisPropertiesWidget::cancel_slot()
 void PVInspector::PVAxisPropertiesWidget::create()
 {
 	axes_list->clear();
-	axes_names_list = tab->get_lib_view()->get_axes_names_list();
+	axes_names_list = _view->get_axes_names_list();
 	axes_list->addItems(axes_names_list);
 
 	axis_name->setText(axes_names_list[0]);
@@ -121,7 +124,7 @@ void PVInspector::PVAxisPropertiesWidget::refresh_widget()
 void PVInspector::PVAxisPropertiesWidget::refresh_widget(int index)
 {
 	axes_list->clear();
-	axes_names_list = tab->get_lib_view()->get_axes_names_list();
+	axes_names_list = _view->get_axes_names_list();
 	axes_list->addItems(axes_names_list);
 	axes_list->setCurrentIndex(index);
 

@@ -24,6 +24,7 @@ namespace PVInspector {
 
 typedef std::vector<int> MatchingTable_t;
 
+class PVAxisPropertiesWidget;
 class PVMainWindow;
 class PVListingModel;
 class PVListingView;
@@ -43,10 +44,12 @@ private:
 	{
 	public:
 		PVViewWidgets(Picviz::PVView_p view, PVTabSplitter* tab);
-		PVViewWidgets() { pv_axes_combination_editor = NULL; }
+		PVViewWidgets() { pv_axes_combination_editor = NULL; pv_axes_properties = NULL; }
+		~PVViewWidgets();
 	
 	public:
 		PVAxesCombinationDialog *pv_axes_combination_editor;
+		PVAxisPropertiesWidget  *pv_axes_properties;
 	};
 
 	friend class PVViewWidgets;
@@ -150,6 +153,8 @@ public:
 	PVExtractorWidget* get_extractor_widget() const {return _pv_extractor;}
 
 	PVAxesCombinationDialog* get_axes_combination_editor(Picviz::PVView_p view);
+
+	PVAxisPropertiesWidget* get_axes_properties_widget(Picviz::PVView_p view);
 
 	QString get_current_view_name() { return get_current_view_name(get_lib_src()); };
 	static QString get_current_view_name(Picviz::PVSource_p src);

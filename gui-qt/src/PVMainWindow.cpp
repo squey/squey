@@ -996,6 +996,9 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_p src)
 		src->create_default_view();
 	}
 	else {
+		/*Picviz::PVSource& ref_src = *src;
+		QFuture<void> src_process = QtConcurrent::run(boost::bind(&Picviz::PVSource::process_from_source, *src, true));
+		src_process.waitForFinished();*/
 		src->process_from_source(true);
 	}
 
