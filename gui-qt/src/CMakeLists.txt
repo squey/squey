@@ -236,8 +236,8 @@ endif(WIN32)
 
 if(SET_PROTECT)
 	message(INFO " Protection activated !")
-	#set_property(SOURCE main.cpp APPEND PROPERTY COMPILE_FLAGS ${GALVEZ_GCC})
-	set_property(SOURCE PVMainWindow.cpp APPEND PROPERTY COMPILE_FLAGS ${GALVEZ_GCC})
+	#set_property(SOURCE PVMainWindow.cpp APPEND PROPERTY COMPILE_FLAGS ${GALVEZ_GCC})
+	set_property(SOURCE main.cpp APPEND PROPERTY COMPILE_FLAGS ${GALVEZ_GCC})
 	add_definitions(${GALVEZ_CFLAGS})
 endif()
 
