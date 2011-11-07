@@ -8,6 +8,7 @@
 #include <QDialogButtonBox>
 #include <QGroupBox>
 #include <QHBoxLayout>
+#include <QScrollArea>
 
 PVInspector::PVMappingPlottingEditDialog::PVMappingPlottingEditDialog(Picviz::PVMapping* mapping, Picviz::PVPlotting* plotting, QWidget* parent):
 	QDialog(parent),
@@ -61,7 +62,9 @@ void PVInspector::PVMappingPlottingEditDialog::init_layout()
 	name_layout->addWidget(_edit_name);
 	_main_layout->addLayout(name_layout);
 
-	_main_grid = new QGridLayout();
+	QScrollArea* scroll_area = new QScrollArea();
+	scroll_area->setWidgetResizable(true);
+	_main_grid = new QGridLayout(scroll_area);
 	_main_grid->setHorizontalSpacing(20);
 	_main_grid->setVerticalSpacing(10);
 	int row = 0;
@@ -81,9 +84,13 @@ void PVInspector::PVMappingPlottingEditDialog::init_layout()
 		col++;
 	}
 
+	QVBoxLayout* scroll_layout = new QVBoxLayout();
+	scroll_layout->addWidget(scroll_area);
+
 	QGroupBox* box = new QGroupBox(tr("Parameters"));
-	box->setLayout(_main_grid);
-	_main_layout->addWidget(box);
+	box->setLayout(scroll_layout);
+	_main_layout->addWidget(scroll_area);
+
 	setLayout(_main_layout);
 }
 

@@ -391,6 +391,16 @@ bool PVInspector::PVTabSplitter::process_extraction_job(PVRush::PVControllerJob_
 	return ret;
 }
 
+void PVInspector::PVTabSplitter::ensure_column_visible(PVCol col)
+{
+	// That's a hack to force our column to be at the left
+	pv_listing_view->horizontalScrollBar()->setValue(pv_listing_view->horizontalScrollBar()->maximum());
+
+	QModelIndex first_visible_idx = pv_listing_view->indexAt(QPoint(0,0));
+	QModelIndex col_idx = pv_listing_model->index(first_visible_idx.row(), col);
+	pv_listing_view->scrollTo(col_idx, QAbstractItemView::PositionAtTop);
+}
+
 // PVViewWidgets
 PVInspector::PVTabSplitter::PVViewWidgets::PVViewWidgets(Picviz::PVView_p view, PVTabSplitter* tab)
 {

@@ -10,6 +10,8 @@
 #include <QStringList>
 #include <QVector>
 
+#include <functional>
+
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/rush/PVFormat.h>
@@ -284,6 +286,7 @@ protected:
 template <class Iterator>
 bool PVAxesCombination::move_axes_left_one_position(Iterator begin, Iterator end)
 {
+	std::sort(begin, end);
 	bool ret = false;
 	Iterator it;
 	for (it = begin; it != end; it++) {
@@ -295,6 +298,7 @@ bool PVAxesCombination::move_axes_left_one_position(Iterator begin, Iterator end
 template <class Iterator>
 bool PVAxesCombination::move_axes_right_one_position(Iterator begin, Iterator end)
 {
+	std::sort(begin, end, std::greater<PVCol>());
 	bool ret = false;
 	Iterator it;
 	for (it = begin; it != end; it++) {

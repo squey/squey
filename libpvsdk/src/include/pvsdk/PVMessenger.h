@@ -36,6 +36,7 @@ enum PVSDKMessengerFunction
 	PVSDK_MESSENGER_FUNCTION_COMMIT_SELECTION_IN_CURRENT_LAYER = 609, //!< The user has commited a changed in the current layer, tell everybody about this.
 	PVSDK_MESSENGER_FUNCTION_COMMIT_SELECTION_IN_NEW_LAYER = 610, //!< The user has commited a changed in a new layer, tell everybody about this.
 	PVSDK_MESSENGER_FUNCTION_SET_COLOR = 611,                     //!< Show a color-choosing dialog box to color the current selection.
+	PVSDK_MESSENGER_FUNCTION_MAY_ENSURE_AXIS_VIEWABLE = 612,          //!< May ensure an axis is viewable
 
 	// Then the fonctions asked by the Qt interface to the PVGL view.
 	PVSDK_MESSENGER_FUNCTION_PLEASE_WAIT = 701,          //!< The PVGL should display a waiting message during the loading of a file.

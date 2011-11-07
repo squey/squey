@@ -278,6 +278,15 @@ void PVInspector::PVMainWindow::check_messages()
 					tab_view->refresh_axes_combination_Slot();
 					break;
 				}
+			case PVSDK_MESSENGER_FUNCTION_MAY_ENSURE_AXIS_VIEWABLE:
+				{
+					if (!tab_view) {
+						break;
+					}
+
+					tab_view->ensure_column_visible(message.int_1);
+					break;
+				}
 			case PVSDK_MESSENGER_FUNCTION_UPDATE_AXES_COMBINATION:
 				{
 					if (tab_view) {

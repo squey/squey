@@ -146,6 +146,8 @@ public:
 	 */
 	PVMainWindow* get_main_window() const { return main_window; }
 
+	void ensure_column_visible(PVCol col);
+
 	/**
 	 *
 	 * @return a pointer to the PVInspector::PVExtractorWidget attached to this PVMainSplitter

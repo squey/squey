@@ -54,7 +54,12 @@ void PVInspector::PVAxesCombinationWidget::axis_up_Slot()
 
 	_axes_combination.move_axes_left_one_position(axes_id.begin(), axes_id.end());
 	update_used_axes();
-	_list_used->setCurrentRow(axes_id.at(0)-1);
+	QItemSelection new_sel;
+	foreach(PVCol c, axes_id) {
+		QModelIndex midx = _list_used->model()->index(c-1, 0);
+		new_sel.select(midx, midx);
+	}
+	_list_used->selectionModel()->select(new_sel, QItemSelectionModel::ClearAndSelect);
 
 	emit axes_combination_changed();
 }
@@ -74,7 +79,12 @@ void PVInspector::PVAxesCombinationWidget::axis_down_Slot()
 
 	_axes_combination.move_axes_right_one_position(axes_id.begin(), axes_id.end());
 	update_used_axes();
-	_list_used->setCurrentRow(axes_id.at(0)+1);
+	QItemSelection new_sel;
+	foreach(PVCol c, axes_id) {
+		QModelIndex midx = _list_used->model()->index(c+1, 0);
+		new_sel.select(midx, midx);
+	}
+	_list_used->selectionModel()->select(new_sel, QItemSelectionModel::ClearAndSelect);
 
 	emit axes_combination_changed();
 }

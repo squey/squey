@@ -727,26 +727,8 @@ void Picviz::PVView::load_post_to_pre()
  *****************************************************************************/
 int Picviz::PVView::move_active_axis_closest_to_position(float x)
 {
-	/* VARIABLES */
-	int axes_count;
-	int closest_int;
-	unsigned int new_index;
-
 	/* CODE */
-	closest_int = (int)floor(x + 0.5);
-	if ( closest_int < 0 ) {
-		/* We set the leftmost AXIS as destination */
-		new_index = 0;
-	} else {
-		axes_count = axes_combination.get_axes_count();
-		if ( closest_int >= axes_count ) {
-			/* We set the rightmost AXIS as destination */
-			new_index = (unsigned int)(axes_count - 1);
-		} else {
-			/* we can safely set the destination AXIS to the closest_int */
-			new_index = (unsigned int)closest_int;
-		}
-	}
+	PVCol new_index = get_active_axis_closest_to_position(x);
 
 	/* We move the axis if there is a movement */
 	if ( new_index != active_axis ) {
@@ -757,6 +739,28 @@ int Picviz::PVView::move_active_axis_closest_to_position(float x)
 	} else {
 		return 0;
 	}
+}
+
+/******************************************************************************
+ *
+ * Picviz::PVView::get_active_axis_closest_to_position
+ *
+ *****************************************************************************/
+PVCol Picviz::PVView::get_active_axis_closest_to_position(float x)
+{
+	PVCol axes_count = axes_combination.get_axes_count();
+	int ret = (int)floor(x + 0.5);
+	if (ret < 0) {
+		/* We set the leftmost AXIS as destination */
+		return 0;
+	}
+	else
+	if ( ret >= axes_count ) {
+		/* We set the rightmost AXIS as destination */
+		return (PVCol)(axes_count - 1);
+	}
+
+	return (PVCol) ret;
 }
 
 /******************************************************************************

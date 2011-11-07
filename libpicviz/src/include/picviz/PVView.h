@@ -170,6 +170,7 @@ public:
 	void reset_layers();
 
 	int move_active_axis_closest_to_position(float x);
+	PVCol get_active_axis_closest_to_position(float x);
 
 	void refresh_nu_index_array();
 	void refresh_nz_index_array();

@@ -987,6 +987,17 @@ bool PVGL::PVView::mouse_move(int x, int y, int modifiers)
 
 /******************************************************************************
  *
+ * PVGL::PVView::get_leftmost_visible_axis
+ *
+ *****************************************************************************/
+PVCol PVGL::PVView::get_leftmost_visible_axis()
+{
+	vec2 topleft_plotted = screen_to_plotted(vec2(0, 0));
+	return picviz_view->get_active_axis_closest_to_position(topleft_plotted.x);
+}
+
+/******************************************************************************
+ *
  * PVGL::PVView::mouse_up
  *
  *****************************************************************************/
@@ -1011,8 +1022,17 @@ bool PVGL::PVView::mouse_up(int button, int x, int y, int modifiers)
 	if (top_bar->is_visible() && event_line->mouse_up(button, x, y, modifiers)) {
 		return true;
 	}
-	/* We test if we are NOT in GRAB mode */
-	if (!state_machine->is_grabbed()) { // We are in SELECTION mode.
+	/* We test if we are in GRAB mode */
+	if (state_machine->is_grabbed()) {
+		PVCol first_axis = get_leftmost_visible_axis();
+		/* Send a message to Qt */
+		PVSDK::PVMessage message;
+		message.function = PVSDK_MESSENGER_FUNCTION_MAY_ENSURE_AXIS_VIEWABLE;
+		message.pv_view = picviz_view;
+		message.int_1 = (int) first_axis;
+		pv_message->post_message_to_qt(message);
+	}
+	else { // We are in SELECTION mode.
 		/* AG: if the square area is empty (that is the user has just click and release the mouse
 		 * with no mouvements), we need to restore the previous selection. */
 		if (picviz_view->square_area.is_empty()) {

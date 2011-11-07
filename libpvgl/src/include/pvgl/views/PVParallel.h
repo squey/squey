@@ -305,6 +305,8 @@ public:
 	 */
 	void change_axes_count();
 
+	PVCol get_leftmost_visible_axis();
+
 	void update_axes_combination();
   void reinit_picviz_view();
 	void axes_toggle_show_limits() { axes.toggle_show_limits(); }
