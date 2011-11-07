@@ -88,8 +88,9 @@ void PVInspector::PVMappingPlottingEditDialog::init_layout()
 	scroll_layout->addWidget(scroll_area);
 
 	QGroupBox* box = new QGroupBox(tr("Parameters"));
-	box->setLayout(scroll_layout);
-	_main_layout->addWidget(scroll_area);
+	//box->setLayout(scroll_layout);
+	box->setLayout(_main_grid);
+	_main_layout->addWidget(box);
 
 	setLayout(_main_layout);
 }
