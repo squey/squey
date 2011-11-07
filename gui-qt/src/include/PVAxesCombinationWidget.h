@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QComboBox>
+#include <QList>
 
 #include <picviz/PVAxesCombination.h>
 #include "../ui_PVAxesCombinationWidget.h"
@@ -43,9 +44,10 @@ public slots:
 protected:
 	PVCol get_original_axis_selected();
 	QString get_original_axis_selected_name();
-	PVCol get_used_axis_selected();
+	QVector<PVCol> get_used_axes_selected();
 	bool is_used_axis_selected();
 	bool is_original_axis_selected();
+	static QVector<PVCol> get_list_selection(QListWidget* widget);
 
 protected slots:
 	void axis_add_Slot();

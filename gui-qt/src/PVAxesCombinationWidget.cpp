@@ -45,14 +45,16 @@ void PVInspector::PVAxesCombinationWidget::axis_up_Slot()
 		return;
 	}
 
-	PVCol axis_id = get_used_axis_selected();	
-	if (axis_id == 0) {
-		return;
+	QVector<PVCol> axes_id(get_used_axes_selected());
+	foreach(PVCol c, axes_id) {
+		if (c == 0) {
+			return;
+		}
 	}
 
-	_axes_combination.move_axis_left_one_position(axis_id);
+	_axes_combination.move_axes_left_one_position(axes_id.begin(), axes_id.end());
 	update_used_axes();
-	_list_used->setCurrentRow(axis_id-1);
+	_list_used->setCurrentRow(axes_id.at(0)-1);
 
 	emit axes_combination_changed();
 }
@@ -63,14 +65,16 @@ void PVInspector::PVAxesCombinationWidget::axis_down_Slot()
 		return;
 	}
 
-	PVCol axis_id = get_used_axis_selected();
-	if (axis_id == _list_used->count() - 1) {
-		return;
+	QVector<PVCol> axes_id(get_used_axes_selected());
+	foreach (PVCol c, axes_id) {
+		if (c == _list_used->count()-1) {
+			return;
+		}
 	}
 
-	_axes_combination.move_axis_right_one_position(axis_id);
+	_axes_combination.move_axes_right_one_position(axes_id.begin(), axes_id.end());
 	update_used_axes();
-	_list_used->setCurrentRow(axis_id+1);
+	_list_used->setCurrentRow(axes_id.at(0)+1);
 
 	emit axes_combination_changed();
 }
@@ -86,9 +90,9 @@ void PVInspector::PVAxesCombinationWidget::axis_move_Slot()
 		return;
 	}
 
-	PVCol org = get_used_axis_selected();
-	PVCol dest = _move_dlg->get_dest_col(org);
-	if (!_axes_combination.move_axis_to_new_position(org, dest)) {
+	QVector<PVCol> org(get_used_axes_selected());
+	PVCol dest = _move_dlg->get_dest_col(org.at(0));
+	if (!_axes_combination.move_axes_to_new_position(org.begin(), org.end(), dest)) {
 		return;
 	}
 
@@ -108,10 +112,10 @@ void PVInspector::PVAxesCombinationWidget::axis_remove_Slot()
 		return;
 	}
 
-	PVCol axis_id = get_used_axis_selected();	
-	_axes_combination.remove_axis(axis_id);
+	QVector<PVCol> axes_id = get_used_axes_selected();	
+	_axes_combination.remove_axes(axes_id);
 	update_used_axes();
-	_list_used->setCurrentRow(picviz_min(axis_id, _list_used->count()-1));
+	_list_used->setCurrentRow(picviz_min(axes_id.at(0), _list_used->count()-1));
 
 	emit axes_count_changed();
 	emit axes_combination_changed();
@@ -140,9 +144,20 @@ QString PVInspector::PVAxesCombinationWidget::get_original_axis_selected_name()
 	return _list_org->currentItem()->text();
 }
 
-PVCol PVInspector::PVAxesCombinationWidget::get_used_axis_selected()
+QVector<PVCol> PVInspector::PVAxesCombinationWidget::get_list_selection(QListWidget* widget)
 {
-	return _list_used->currentRow();
+	QVector<PVCol> ret;
+	QModelIndexList list = widget->selectionModel()->selectedIndexes();
+	ret.reserve(list.size());
+	foreach (const QModelIndex& idx, list) {
+		ret.push_back(idx.row());
+	}
+	return ret;
+}
+
+QVector<PVCol> PVInspector::PVAxesCombinationWidget::get_used_axes_selected()
+{
+	return get_list_selection(_list_used);
 }
 
 void PVInspector::PVAxesCombinationWidget::update_orig_axes()

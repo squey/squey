@@ -204,6 +204,9 @@ public:
 	*/
 	bool move_axis_left_one_position(PVCol index);
 
+	template <class Iterator>
+	bool move_axes_left_one_position(Iterator begin, Iterator end);
+
 	/**
 	* Move one of the used axes to the right.
 	*
@@ -214,6 +217,9 @@ public:
 	* @note This function does nothing if the axis is already at the rightmost postion.
 	*/
 	bool move_axis_right_one_position(PVCol index);
+
+	template <class Iterator>
+	bool move_axes_right_one_position(Iterator begin, Iterator end);
 
 	/**
 	* Move one of the used axes to a new position.
@@ -226,10 +232,16 @@ public:
 	*/
 	bool move_axis_to_new_position(PVCol index_source, PVCol index_dest);
 
+	template <class Iterator>
+	bool move_axes_to_new_position(Iterator begin, Iterator end, PVCol index_dest);
+
 	/**
 	*
 	*/
 	bool remove_axis(PVCol index);
+	
+	template <class L>
+	bool remove_axes(L const& list_idx);
 
 	/**
 	 * Reset the axis combination to the default one.
@@ -267,6 +279,66 @@ protected:
 
 	PVSERIALIZEOBJECT_SPLIT
 };
+
+
+template <class Iterator>
+bool PVAxesCombination::move_axes_left_one_position(Iterator begin, Iterator end)
+{
+	bool ret = false;
+	Iterator it;
+	for (it = begin; it != end; it++) {
+		ret |= move_axis_left_one_position(*it);
+	}
+	return ret;
+}
+
+template <class Iterator>
+bool PVAxesCombination::move_axes_right_one_position(Iterator begin, Iterator end)
+{
+	bool ret = false;
+	Iterator it;
+	for (it = begin; it != end; it++) {
+		ret |= move_axis_right_one_position(*it);
+	}
+
+	return ret;
+}
+
+template <class Iterator>
+bool PVAxesCombination::move_axes_to_new_position(Iterator begin, Iterator end, PVCol index_dest)
+{
+	bool ret = false;
+	Iterator it;
+	for (it = begin; it != end; it++) {
+		ret |= move_axis_to_new_position(*it, index_dest);
+		index_dest++;
+		if (index_dest >= axes_list.size()) {
+			index_dest = axes_list.size()-1;
+		}
+	}
+
+	return ret;
+}
+
+template <class L>
+bool PVAxesCombination::remove_axes(L const& list_idx)
+{
+	QVector<PVAxis> tmp_axes;
+	QVector<PVCol> tmp_col_indexes;
+	PVCol new_size = axes_list.size() - list_idx.size();
+	tmp_axes.reserve(new_size);
+	tmp_col_indexes.reserve(new_size);
+	for (PVCol i = 0; i < axes_list.size(); i++) {
+		if (std::find(list_idx.begin(), list_idx.end(), i) == list_idx.end()) {
+			tmp_axes.push_back(axes_list.at(i));
+			tmp_col_indexes.push_back(columns_indexes_list.at(i));
+		}
+	}
+	axes_list = tmp_axes;
+	columns_indexes_list = tmp_col_indexes;
+	return true;
+}
+
 }
 
 #endif	/* PICVIZ_PVAXESCOMBINATION_H */
