@@ -7,6 +7,7 @@ include_directories(AFTER ${ICU_INCLUDE})
 
 set(FILTERS_DIST_LIST
 mapping_filter_float_default
+mapping_filter_float_fraction
 mapping_filter_integer_default
 mapping_filter_ipv4_default
 mapping_filter_enum_default
@@ -27,6 +28,9 @@ set(LINK_LIBRARIES ${PICVIZ_LIBRARY} ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
 
 add_library(mapping_filter_float_default SHARED float_default/PVMappingFilterFloatDefault.cpp float_default/register.cpp)
 target_link_libraries(mapping_filter_float_default ${LINK_LIBRARIES})
+
+add_library(mapping_filter_float_fraction SHARED float_fraction/PVMappingFilterFloatFraction.cpp float_fraction/register.cpp)
+target_link_libraries(mapping_filter_float_fraction ${LINK_LIBRARIES})
 
 add_library(mapping_filter_integer_default SHARED integer_default/PVMappingFilterIntegerDefault.cpp integer_default/register.cpp)
 target_link_libraries(mapping_filter_integer_default ${LINK_LIBRARIES})
