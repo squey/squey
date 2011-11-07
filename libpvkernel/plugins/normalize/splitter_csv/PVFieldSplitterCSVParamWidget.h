@@ -11,6 +11,8 @@
 #include <QAction>
 #include <QLineEdit>
 
+#include "qkeysequencewidget/qkeysequencewidget.h"
+
 namespace PVFilter {
 
 class PVFieldSplitterCSVParamWidget: public PVFieldsSplitterParamWidget {
@@ -26,7 +28,8 @@ private:
 	QWidget* param_widget;
 	QLineEdit *child_number_edit;
 	QPalette child_number_org_palette;
-	QLineEdit* separator_text;
+	QKeySequenceWidget* separator_text;
+	//QLineEdit* separator_text;
 	QLabel* _recommands_label;
 	int id;
 
@@ -47,7 +50,8 @@ private:
 	CLASS_REGISTRABLE_NOCOPY(PVFieldSplitterCSVParamWidget)
 
 public slots:
-	void updateSeparator(const QString &sep);
+	//void updateSeparator(const QString &sep);
+	void updateSeparator(QKeySequence key);
 	void updateNChilds();
 	
 

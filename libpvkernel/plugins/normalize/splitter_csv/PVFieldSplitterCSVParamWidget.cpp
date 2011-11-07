@@ -67,9 +67,11 @@ QWidget* PVFilter::PVFieldSplitterCSVParamWidget::get_param_widget()
 	QLabel* separator_label = new QLabel(tr("Field separator:"));
 	separator_label->setAlignment(Qt::AlignLeft);
 	gridLayout->addWidget(separator_label, 0, 0);
-	separator_text = new QLineEdit(l["sep"].toString());
-	separator_text->setAlignment(Qt::AlignHCenter);
-	separator_text->setMaxLength(1);
+	separator_text = new QKeySequenceWidget();
+	separator_text->setClearButtonShow(QKeySequenceWidget::NoShow);
+	separator_text->setKeySequence(QKeySequence((int) l["sep"].toString().at(0).toAscii()));
+	//separator_text->setAlignment(Qt::AlignHCenter);
+	//separator_text->setMaxLength(1);
 	gridLayout->addWidget(separator_text, 0, 2);
 
 	//field number of col
@@ -89,7 +91,8 @@ QWidget* PVFilter::PVFieldSplitterCSVParamWidget::get_param_widget()
 
 	layout->addSpacerItem(new QSpacerItem(1,1,QSizePolicy::Expanding, QSizePolicy::Expanding));
 
-	connect(separator_text, SIGNAL(textChanged(const QString &)), this, SLOT(updateSeparator(const QString &)));
+	//connect(separator_text, SIGNAL(textChanged(const QString &)), this, SLOT(updateSeparator(const QString &)));
+	connect(separator_text, SIGNAL(keySequenceChanged(QKeySequence)), this, SLOT(updateSeparator(QKeySequence)));
 	connect(set_nchilds_btn, SIGNAL(clicked()), this, SLOT(updateNChilds()));
 
 	PVLOG_DEBUG("PVFilter::PVFieldSplitterCSVParamWidget::get_param_widget()     end\n");
@@ -113,17 +116,10 @@ QAction* PVFilter::PVFieldSplitterCSVParamWidget::get_action_menu()
 }
 
 
-void PVFilter::PVFieldSplitterCSVParamWidget::updateSeparator(const QString &sep)
+void PVFilter::PVFieldSplitterCSVParamWidget::updateSeparator(QKeySequence key)
 {
-	QPalette p = separator_text->palette();
-	if (sep.size() != 1) {
-		p.setColor(QPalette::Window, Qt::red);
-		separator_text->setPalette(p);
-		return;
-	}
-	separator_text->setPalette(child_number_org_palette);
 	PVCore::PVArgumentList args;
-	args["sep"]=QVariant(sep.at(0));
+	args["sep"] = QChar::fromAscii(key[0]);
 	this->get_filter()->set_args(args);
 
 	update_recommanded_nfields();

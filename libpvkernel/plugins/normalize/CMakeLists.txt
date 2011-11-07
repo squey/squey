@@ -23,9 +23,11 @@ endmacro(declare_library)
 
 SET(CSV_MOC_HEADERS
 splitter_csv/PVFieldSplitterCSVParamWidget.h
+splitter_csv/qkeysequencewidget/qkeysequencewidget.h
+splitter_csv/qkeysequencewidget/qkeysequencewidget_p.h
 )
 QT4_WRAP_CPP(CSV_MOC_SRCS ${CSV_MOC_HEADERS})
-add_library(normalize_filter_splitter_csv SHARED splitter_csv/PVFieldSplitterCSV.cpp splitter_csv/PVFieldSplitterCSV.h splitter_csv/PVFieldSplitterCSVParamWidget.cpp ${CSV_MOC_SRCS} splitter_csv/libcsv.cpp splitter_csv/register.cpp)
+add_library(normalize_filter_splitter_csv SHARED splitter_csv/PVFieldSplitterCSV.cpp splitter_csv/PVFieldSplitterCSV.h splitter_csv/PVFieldSplitterCSVParamWidget.cpp splitter_csv/qkeysequencewidget/qkeysequencewidget.cpp ${CSV_MOC_SRCS} splitter_csv/libcsv.cpp splitter_csv/register.cpp)
 target_link_libraries(normalize_filter_splitter_csv ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
 declare_library(normalize_filter_splitter_csv)
 

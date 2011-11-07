@@ -249,7 +249,7 @@ bool Picviz::PVAxesCombination::move_axis_left_one_position(PVCol index)
 {
 	if (index >= axes_list.size()) {
 		PVLOG_ERROR("%s: Index out of range in %d >= %d\n", __FUNCTION__, index, axes_list.size());
-		return true;
+		return false;
 	}
 
 	if (index == 0) {
@@ -259,7 +259,7 @@ bool Picviz::PVAxesCombination::move_axis_left_one_position(PVCol index)
 	std::swap(axes_list[index], axes_list[index - 1]);
 	std::swap(columns_indexes_list[index], columns_indexes_list[index -1]);
 
-	return false;
+	return true;
 }
 
 /******************************************************************************
@@ -271,7 +271,7 @@ bool Picviz::PVAxesCombination::move_axis_right_one_position(PVCol index)
 {
 	if (index >= axes_list.size()) {
 		PVLOG_ERROR("%s: Index out of range in %d >= %d\n", __FUNCTION__, index, axes_list.size());
-		return true;
+		return false;
 	}
 
 	if (index == axes_list.count() - 1) {
@@ -281,7 +281,7 @@ bool Picviz::PVAxesCombination::move_axis_right_one_position(PVCol index)
 	std::swap(axes_list[index], axes_list[index + 1]);
 	std::swap(columns_indexes_list[index], columns_indexes_list[index + 1]);
 
-	return false;
+	return true;
 }
 
 /******************************************************************************
@@ -296,11 +296,11 @@ bool Picviz::PVAxesCombination::move_axis_to_new_position(PVCol index_source, PV
 	}
 	if (index_source >= axes_list.size()) {
 		PVLOG_ERROR("%s: Index out of range in %d >= %d\n", __FUNCTION__, index_source, axes_list.size());
-		return true;
+		return false;
 	}
 	if (index_dest >= axes_list.size()) {
 		PVLOG_ERROR("%s: Index out of range in %d >= %d\n", __FUNCTION__, index_dest, axes_list.size());
-		return true;
+		return false;
 	}
 
 	if (index_dest > index_source) {
@@ -315,7 +315,7 @@ bool Picviz::PVAxesCombination::move_axis_to_new_position(PVCol index_source, PV
 		columns_indexes_list.remove(index_source + 1);
 	}
 
-	return false;
+	return true;
 }
 
 /******************************************************************************
@@ -327,13 +327,13 @@ bool Picviz::PVAxesCombination::remove_axis(PVCol index)
 {
 	if ( axes_list.size() <= index ) {
 		PVLOG_ERROR("%s: Index out of range in %d >= %d\n", __FUNCTION__, index, axes_list.size());
-		return true;
+		return false;
 	}
 
 	axes_list.remove(index);
 	columns_indexes_list.remove(index);
 
-	return false;
+	return true;
 }
 
 /******************************************************************************

@@ -12,7 +12,7 @@
    <axis titlecolor="#ffffff" mapping="default" time-format="" group="" type="enum" name="Service" plotting="default" color="#ffffff" time-sample=""/>
   </field>
   <field>
-   <axis name=""/>
+   <axis titlecolor="#ff921d" tag="" mapping="default" time-format="" group="" type="enum" name="Message" plotting="default" color="#ffffff" time-sample=""/>
   </field>
  </splitter>
 </param>
