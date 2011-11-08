@@ -1,24 +1,36 @@
+#ifdef USE_WTK_QT
+
 #include "include/PVGLWidget.h"
+#include "include/global.h"
 
-
-PVGL::WTLQt::PVGLWidget::PVGLWidget(int id, QWidget* parent = 0):
+PVGL::WTKQt::PVGLWidget::PVGLWidget(int id, QWidget* parent):
 	QGLWidget(parent),
 	_win_id(id)
 {
 }
 
-void PVGL::WTLQt::PVGLWidget::initializeGL()
+void PVGL::WTKQt::PVGLWidget::initializeGL()
 {
 }
 
-void PVGL::WTLQt::PVGLWidget::resizeGL(int w, int h)
+void PVGL::WTKQt::PVGLWidget::resizeGL(int w, int h)
 {
-	Global::set_current_window(this);
+	if (!Global::_callback_reshape) {
+		return;
+	}
+
+	assert(Global::is_current_window(this));
 	Global::_callback_reshape(w, h);
 }
 
-void PVGL::WTLQt::PVGLWidget::paintGL()
+void PVGL::WTKQt::PVGLWidget::paintGL()
 {
-	Global::set_current_window(this);
+	if (!Global::_callback_idle) {
+		return;
+	}
+
+	assert(Global::is_current_window(this));
 	Global::_callback_idle();
 }
+
+#endif

@@ -49,6 +49,14 @@ windowtoolkits/freeglut3/Callbacks.cpp
 windowtoolkits/freeglut3/Init.cpp
 windowtoolkits/freeglut3/Time.cpp
 windowtoolkits/freeglut3/Window.cpp
+
+windowtoolkits/qt/Buffers.cpp
+windowtoolkits/qt/Callbacks.cpp
+windowtoolkits/qt/Init.cpp
+windowtoolkits/qt/Time.cpp
+windowtoolkits/qt/Window.cpp
+windowtoolkits/qt/global.cpp
+windowtoolkits/qt/PVGLWidget.cpp
 )
 
 SET(HEADER_FILES
@@ -90,9 +98,19 @@ windowtoolkits/core/include/Buffers.h
 windowtoolkits/core/include/Init.h
 windowtoolkits/core/include/Time.h
 windowtoolkits/core/include/Window.h
+
+windowtoolkits/qt/include/common.h
+windowtoolkits/qt/include/global.h
+windowtoolkits/qt/include/PVGLWidget.h
 )
 
-add_library(pvgl SHARED ${SRC_FILES} ${HEADER_FILES} ${WTK_SRC_FILES} ${WTK_HEADER_FILES})
+SET(MOC_HEADERS
+windowtoolkits/qt/include/PVGLWidget.h
+)
+
+QT4_WRAP_CPP(MOC_SRC ${MOC_HEADERS})
+
+add_library(pvgl SHARED ${SRC_FILES} ${HEADER_FILES} ${WTK_SRC_FILES} ${WTK_HEADER_FILES} ${MOC_SRC})
 set_target_properties(pvgl PROPERTIES SOVERSION 1)
 
 target_link_libraries(pvgl ${PICVIZ_LIBRARY} ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${GLEW_LIBRARY} ${GLUT_glut_LIBRARY} ${OPENGL_LIBRARIES} ${FREETYPE_LIBRARY} ${PVKERNEL_LIBRARIES} ${TBB_LIBRARIES} ${Boost_LIBRARIES} ${PVSDK_LIBRARY})

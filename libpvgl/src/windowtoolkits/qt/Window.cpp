@@ -4,20 +4,25 @@
 //! Copyright (C) Sébastien Tricaud 2009-2011
 //! Copyright (C) Philippe Saade 2009-2011
 
-#ifdef USE_WTK_FREEGLUT3
+#ifdef USE_WTK_QT
 
-#include <QtGlobal>
+#include <QCoreApplication>
+#include <QApplication>
+
+#include <GL/freeglut.h>
 
 #include "../core/include/Window.h"
+#include "include/global.h"
+#include "include/PVGLWidget.h"
 
 int PVGL::wtk_window_int_create(const char *name, int width, int height)
 {
-	return WTKQt::Global::create_window(name, width, height);
+	return PVGL::WTKQt::Global::create_window(name, width, height);
 }
 
 void PVGL::wtk_window_resize(int width, int height)
 {
-	WTKQt::Global::get_current_window()->resize(width, height);
+	PVGL::WTKQt::Global::get_current_window()->resize(width, height);
 }
 
 void PVGL::wtk_window_fullscreen()
@@ -29,7 +34,7 @@ void PVGL::wtk_window_fullscreen()
 
 void PVGL::wtk_window_need_redisplay()
 {
-	glutPostRedisplay();
+	PVGL::WTKQt::Global::get_current_window()->update();
 }
 
 int PVGL::wtk_get_current_window()
@@ -61,20 +66,20 @@ int PVGL::wtk_get_keyboard_modifiers()
 	QApplication* app = static_cast<QApplication*>(core_app);
 #endif
 
-	Qt::KeyboardModifiers modifiers = app->KeyboardModifiers();
+	Qt::KeyboardModifiers modifiers = app->keyboardModifiers();
 
 	// Translate this to GLUT's values
 	int ret = 0;
-	if (modifiers & Qt::ShiftModifier == Qt::ShiftModifier) {
+	if ((modifiers & Qt::ShiftModifier) == Qt::ShiftModifier) {
 		ret |= GLUT_ACTIVE_SHIFT;
 	}
-	if (modifiers & Qt::ControlModifier == Qt::ControlModifier) {
+	if ((modifiers & Qt::ControlModifier) == Qt::ControlModifier) {
 		ret |= GLUT_ACTIVE_CTRL;
 	}
-	if (modifiers & Qt::AltModifier == Qt::AltModifier) {
+	if ((modifiers & Qt::AltModifier) == Qt::AltModifier) {
 		ret |= GLUT_ACTIVE_ALT;
 	}
 	return ret;
 }
 
-#endif	// USE_WTK_FREEGLUT3
+#endif	// USE_WTK_QT

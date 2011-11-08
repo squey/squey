@@ -179,7 +179,7 @@ void PVGL::PVMain::mouse_down(int button, int x, int y)
         
 	current_drawable = get_drawable_from_id(wtk_get_current_window());
 	if (current_drawable) {
-		current_drawable->mouse_down(button, x, y, PVGL::wtk_get_keyvoard_modifiers());
+		current_drawable->mouse_down(button, x, y, PVGL::wtk_get_keyboard_modifiers());
 	}
         mouse_is_moving =true;
 }
@@ -197,7 +197,7 @@ void PVGL::PVMain::mouse_release(int button, int x, int y)
         mouse_is_moving = false;
 	current_drawable = get_drawable_from_id(wtk_get_current_window());
 	if (current_drawable) {
-		current_drawable->mouse_up(button, x, y, PVGL::wtk_get_keyvoard_modifiers());
+		current_drawable->mouse_up(button, x, y, PVGL::wtk_get_keyboard_modifiers());
          }
 }
 
@@ -255,7 +255,7 @@ void PVGL::PVMain::motion_callback(int x, int y)
 
 	current_drawable = get_drawable_from_id(wtk_get_current_window());
 	if (current_drawable) {
-		if (current_drawable->mouse_move(x, y, PVGL::wtk_get_keyvoard_modifiers())) {
+		if (current_drawable->mouse_move(x, y, PVGL::wtk_get_keyboard_modifiers())) {
 		}
 		PVGL::wtk_window_need_redisplay();
 	}
@@ -362,7 +362,7 @@ void PVGL::PVMain::passive_motion_callback(int x, int y)
 	current_drawable = get_drawable_from_id(wtk_get_current_window());
 
 	if (current_drawable) {
-	current_drawable->passive_motion(x, y, PVGL::wtk_get_keyvoard_modifiers());
+	current_drawable->passive_motion(x, y, PVGL::wtk_get_keyboard_modifiers());
 	}
 }
 

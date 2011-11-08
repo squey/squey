@@ -1,16 +1,15 @@
-//! \file Buffer.cpp
 //! $Id$
 //! Copyright (C) Sébastien Tricaud 2009-2011
 //! Copyright (C) Philippe Saade 2009-2011
 
-#ifdef USE_WTK_FREEGLUT3
-
-#include <GL/freeglut.h>
+#ifdef USE_WTK_QT
 
 #include <pvkernel/core/general.h>
 
 #include "../core/include/Buffers.h"
+
 #include "include/global.h"
+#include "include/PVGLWidget.h"
 
 int PVGL::wtk_buffers_swap()
 {
@@ -18,4 +17,4 @@ int PVGL::wtk_buffers_swap()
 	return 0;
 }
 
-#endif	// USE_WTK_FREEGLUT3
+#endif	// USE_WTK_QT

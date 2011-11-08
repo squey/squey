@@ -67,6 +67,21 @@
 
 QFile *report_file;
 
+#include <boost/thread.hpp>
+#include <boost/bind.hpp>
+
+#include <QDialog>
+#include <QPushButton>
+#include <QVBoxLayout>
+void _test_thread(QWidget* p)
+{
+	QDialog* dlg = new QDialog(p);
+	QPushButton* btn = new QPushButton("hello");
+	QVBoxLayout* l = new QVBoxLayout();
+	l->addWidget(btn);
+	dlg->setLayout(l);
+	dlg->show();
+}
 /******************************************************************************
  *
  * PVInspector::PVMainWindow::PVMainWindow
@@ -75,6 +90,8 @@ QFile *report_file;
 PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 {
 	_is_project_untitled = true;
+
+	boost::thread th(boost::bind(_test_thread, this));
 
 	QSplashScreen splash(QPixmap(":/splash-screen"));
 

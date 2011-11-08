@@ -1,13 +1,18 @@
-#ifndef PVGL_WTK_QT_GLOBAL
-#define PVGL_WTK_QT_GLOBAL
+#ifdef USE_WTK_QT
+
+#ifndef PVGL_WTK_QT_GLOBAL_H
+#define PVGL_WTK_QT_GLOBAL_H
 
 #include <pvkernel/core/stdint.h>
 #include <tbb/tick_count.h>
 
+#include "../../core/include/Callbacks.h"
+#include "common.h"
+
+#include <assert.h>
+
 namespace PVGL {
 namespace WTKQt {
-
-class PVGLWidget;
 
 class Global
 {
@@ -26,19 +31,18 @@ public:
 	static pvgl_callback_special_t _callback_special;
 
 public:
-	static int create_window(const char* name, int widget, int height);
+	static int create_window(const char* name, int width, int height);
 	static void set_current_window_id(int id);
 
 public:
-	static inline int get_current_window_id() { return _cur_win_id; }
-	static inline PVGLWidget* get_current_window() { return _cur_win; }
-	static void launch_timer(unsigned int msecs, pvgl_callback_timer_t f, int value);
+	static inline int get_current_window_id() { assert(_cur_win_id != -1); return _cur_win_id; }
+	static inline PVGLWidget* get_current_window() { assert(_cur_win != NULL); return _cur_win; }
 	static void set_ms_start();
 	static tbb::tick_count get_ms_start() { return _init_start; }
 	static PVGLWidget* get_widget_from_id(int id);
 
 protected:
-	static void set_current_window(PVGLWidget* widget);
+	static bool is_current_window(PVGLWidget* widget) { return _cur_win == widget; }
 
 private:
 	static int _cur_win_id;
@@ -49,5 +53,7 @@ private:
 
 }
 }
+
+#endif
 
 #endif

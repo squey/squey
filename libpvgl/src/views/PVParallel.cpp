@@ -146,7 +146,7 @@ void PVGL::PVView::draw(void)
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	if (!picviz_view || !picviz_view->is_consistent()) {
-		int current_time = (wtk_time_ms_elasped_since_init() / 250) % 4;
+		int current_time = (PVGL::wtk_time_ms_elapsed_since_init() / 250) % 4;
 		const char *text = ""; 
 		switch (current_time) {
 			case 0:

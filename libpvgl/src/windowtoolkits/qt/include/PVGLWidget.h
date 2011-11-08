@@ -1,3 +1,5 @@
+#ifdef USE_WTK_QT
+
 #ifndef PVGL_WTK_QT_WIDGET_H
 #define PVGL_WTK_QT_WIDGET_H
 
@@ -18,7 +20,7 @@ public:
 
 protected:
 	void initializeGL();
-	void resizeGL();
+	void resizeGL(int w, int h);
 	void paintGL();
 
 private:
@@ -27,5 +29,7 @@ private:
 
 }
 }
+
+#endif
 
 #endif
