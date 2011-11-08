@@ -5,7 +5,7 @@
  */
 
 #include <pvkernel/rush/PVNraw.h>
-
+#include <tbb/tick_count.h>
 #include <iostream>
 
 #define DEFAULT_LINE_SIZE 100
@@ -48,6 +48,7 @@ void PVRush::PVNraw::clear()
 
 void PVRush::PVNraw::create_trans_nraw()
 {
+	tbb::tick_count start = tbb::tick_count::now();
 	// Create a transposition of the nraw
 	PVCol ncols = table[0].size();
 	PVRow nrows = table.size();
@@ -59,12 +60,15 @@ void PVRush::PVNraw::create_trans_nraw()
 			(*it).resize(nrows);
 		}
 	}
+	tbb::tick_count end = tbb::tick_count::now();
+	PVLOG_INFO("(PVRush::PVNraw::create_trans_nraw) memory allocation took %0.4fs.\n", (end-start).seconds());
 
+	start = end;
 	nraw_table::const_iterator it;
 	nraw_table_line::const_iterator it_col;
 	PVCol c = 0;
 	PVRow r = 0;
-	for (it = table.begin(); it != table.end(); it++) {
+	/*for (it = table.begin(); it != table.end(); it++) {
 		nraw_table_line const& cols = *it;
 		for (it_col = cols.begin(); it_col != cols.end(); it_col++) {
 			trans_table[c][r] = *it_col;
@@ -72,7 +76,14 @@ void PVRush::PVNraw::create_trans_nraw()
 		}
 		c = 0;
 		r++;
+	}*/
+	for (PVRow i = 0; i < nrows; i++) {
+		for (PVCol j = 0; j < ncols; j++) {
+			trans_table[j][i] = table[i][j];
+		}
 	}
+	end = tbb::tick_count::now();
+	PVLOG_INFO("(PVRush::PVNraw::create_trans_nraw) transposition took %0.4fs.\n", (end-start).seconds());
 }
 
 void PVRush::PVNraw::clear_table()
