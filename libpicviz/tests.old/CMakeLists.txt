@@ -1,4 +1,4 @@
-include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/libpicviz/src/include)
+include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/libpicviz/src/include)
 add_definitions(${APR_FLAGS})
 include_directories(AFTER ${APR_INCLUDES})
 include_directories(AFTER ${PCAP_INCLUDE_DIRS})

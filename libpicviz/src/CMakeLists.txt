@@ -1,4 +1,4 @@
-include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/libpicviz/src/include)
+include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/libpicviz/src/include)
 
 add_definitions(${PICVIZ_DEFINITIONS})
 include_directories(AFTER ${PICVIZ_INCLUDE_DIRS})

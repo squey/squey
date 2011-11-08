@@ -1,12 +1,12 @@
 #
 # Layer filters
 #
-include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/libpicviz/src/include)
+include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/libpicviz/src/include)
 
 # PCAP
 include_directories(AFTER ${PCAP_INCLUDE_DIRS})
 
-link_directories(${Picviz_Inspector_SOURCE_DIR}/libpicviz/src/ ${Picviz_Inspector_SOURCE_DIR}/libpvfilter/src/)
+link_directories(${picviz-inspector_SOURCE_DIR}/libpicviz/src/ ${picviz-inspector_SOURCE_DIR}/libpvfilter/src/)
 
 set(FILTERS_DIST_LIST
 layer_filter_axis_gradient
