@@ -1,9 +1,9 @@
-include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/libpvgl2/src/include)
-include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/libpvgl2/src/wtk/include)
+include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/libpvgl2/src/include)
+include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/libpvgl2/src/wtk/include)
 include_directories(AFTER ${GLEW_INCLUDE_PATH})
 include_directories(AFTER ${OPENGL_INCLUDE_DIR})
 include_directories(AFTER ${FREETYPE_INCLUDE_DIRS})
-include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/libpicviz/src/include)
+include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/libpicviz/src/include)
 
 include_directories(AFTER ${CURL_INCLUDE_DIR})
 

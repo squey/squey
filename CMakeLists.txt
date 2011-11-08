@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 
-project(Picviz_Inspector)
+project(picviz-inspector)
 
 if(EXISTS "use_pvgl2")
   set(USE_PVGL2 true)
@@ -86,7 +86,7 @@ else(WIN32)
 	# add_definitions(-Wall -Wextra -pipe -ggdb3 -msse4.1)
 endif(WIN32)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${Picviz_Inspector_SOURCE_DIR}/cmake)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${picviz-inspector_SOURCE_DIR}/cmake)
 
 set(USE_OPENMP true)
 
@@ -127,7 +127,7 @@ message(STATUS "TBB include dirs: " ${TBB_INCLUDE_DIRS})
 include_directories(AFTER ${TBB_INCLUDE_DIRS})
 
 # PVBase
-include_directories(AFTER "${Picviz_Inspector_SOURCE_DIR}/include")
+include_directories(AFTER "${picviz-inspector_SOURCE_DIR}/include")
 
 ###########################################
 # END: ADD INCLUDE DIRS NEEDED EVERYWHERE #

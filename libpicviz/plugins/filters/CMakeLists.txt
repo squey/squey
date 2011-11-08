@@ -1,9 +1,9 @@
 #
 # Filters
 #
-include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/libpicviz/src/include)
+include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/libpicviz/src/include)
 
-link_directories(${Picviz_Inspector_SOURCE_DIR}/libpicviz/src/)
+link_directories(${picviz-inspector_SOURCE_DIR}/libpicviz/src/)
 
 set(FILTERS_DIST_LIST
 #filter_diff

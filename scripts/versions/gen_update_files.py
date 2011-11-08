@@ -62,3 +62,8 @@ for v in versions:
 			f.write(str(last_version[0])+"\n")
 			f.write(str(last_version[1])+"\n")
 			f.write(str(last_version[2])+"\n")
+
+with open(os.path.join(outdir, "update"), "w") as f:
+	f.write("%d.%d.%d" % (last_version[0], last_version[1], last_version[2]))
+
+

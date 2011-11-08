@@ -1,5 +1,5 @@
-include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/libpvsdk/src/include)
-include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/libpicviz/src/include)
+include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/libpvsdk/src/include)
+include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/libpicviz/src/include)
 
 # Qt
 include(${QT_USE_FILE})

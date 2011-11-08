@@ -1,7 +1,7 @@
 #
 # Plotting filters
 #
-include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/libpicviz/src/include)
+include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/libpicviz/src/include)
 
 set(FILTERS_DIST_LIST
 plotting_filter_noprocess

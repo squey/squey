@@ -11,7 +11,7 @@
 #include <picviz/PVView.h>
 
 
-#define INVLUDE_EXCLUDE_STR "Include or exclude pattern"
+#define INCLUDE_EXCLUDE_STR "Include or exclude pattern"
 /******************************************************************************
  *
  * Picviz::PVLayerFilterSearch::PVLayerFilterSearch
@@ -34,7 +34,7 @@ DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterSearch)
 	PVCore::PVArgumentList args;
 	args["Regular expression"] = QRegExp("(.*)");
 	args["Axis"].setValue(PVCore::PVAxisIndexType(0));
-	args[INVLUDE_EXCLUDE_STR ].setValue(PVCore::PVEnumType(QStringList() << QString("include") << QString("exclude"), 0));
+	args[INCLUDE_EXCLUDE_STR ].setValue(PVCore::PVEnumType(QStringList() << QString("include") << QString("exclude"), 0));
 	return args;
 }
 
@@ -47,7 +47,7 @@ void Picviz::PVLayerFilterSearch::operator()(PVLayer& in, PVLayer &out)
 {	
 	int axis_id = _args["Axis"].value<PVCore::PVAxisIndexType>().get_original_index();
 	QRegExp re = _args["Regular expression"].toRegExp();
-	bool include = _args[INVLUDE_EXCLUDE_STR].value<PVCore::PVEnumType>().get_sel_index() == 0;
+	bool include = _args[INCLUDE_EXCLUDE_STR].value<PVCore::PVEnumType>().get_sel_index() == 0;
 	PVLOG_INFO("Apply filter search to axis %d with regexp %s.\n", axis_id, qPrintable(re.pattern()));
 
 	PVRow nb_lines = _view->get_qtnraw_parent().size();

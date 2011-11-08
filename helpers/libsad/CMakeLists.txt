@@ -1,4 +1,4 @@
-set(SAD_LIBRARY ${Picviz_Inspector_SOURCE_DIR}/helpers/libsad/src/libsad.so)
+set(SAD_LIBRARY ${picviz-inspector_SOURCE_DIR}/helpers/libsad/src/libsad.so)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
@@ -13,7 +13,7 @@ add_definitions(-DSAD_PLUGINS_DIR="${SAD_PLUGINS_DIR}")
 #
 # <Include directories>
 #
-include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/helpers/libsad/src/include)
+include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/helpers/libsad/src/include)
 # include(${QT_USE_FILE})
 # include_directories(AFTER ${BOOST_INCLUDEDIR})
 #

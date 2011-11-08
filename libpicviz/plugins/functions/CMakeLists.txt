@@ -2,14 +2,14 @@
 # Functions
 #
 
-include_directories(AFTER ${Picviz_Inspector_SOURCE_DIR}/libpicviz/src/include)
+include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/libpicviz/src/include)
 
 # PCRE
 include_directories(AFTER ${PCRE_INCLUDE_DIR})
 # PCAP
 include_directories(AFTER ${PCAP_INCLUDE_DIRS})
 
-link_directories(${Picviz_Inspector_SOURCE_DIR}/libpicviz/src/)
+link_directories(${picviz-inspector_SOURCE_DIR}/libpicviz/src/)
 
 set(FUNCTIONS_DIST_LIST
 function_mandatory_mapping_minmax
