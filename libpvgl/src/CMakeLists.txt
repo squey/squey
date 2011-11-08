@@ -47,7 +47,6 @@ windowtoolkits/core/WtkWindowsList.cpp
 windowtoolkits/freeglut3/Buffers.cpp
 windowtoolkits/freeglut3/Callbacks.cpp
 windowtoolkits/freeglut3/Init.cpp
-windowtoolkits/freeglut3/LoadingFunction.cpp
 windowtoolkits/freeglut3/Time.cpp
 windowtoolkits/freeglut3/Window.cpp
 )
@@ -89,7 +88,6 @@ windowtoolkits/core/include/WtkWindowsList.h
 
 windowtoolkits/core/include/Buffers.h
 windowtoolkits/core/include/Init.h
-windowtoolkits/core/include/LoadingFunction.h
 windowtoolkits/core/include/Time.h
 windowtoolkits/core/include/Window.h
 )

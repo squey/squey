@@ -48,7 +48,7 @@ void PVGL::wtk_destroy_window(int id)
 	glutDestroyWindow(id);
 }
 
-int PVGL::wtk_get_keyvoard_modifiers()
+int PVGL::wtk_get_keyboard_modifiers()
 {
 	return glutGetModifiers();
 }

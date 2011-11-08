@@ -146,7 +146,27 @@ void PVGL::PVView::draw(void)
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	if (!picviz_view || !picviz_view->is_consistent()) {
-		PVGL::wtk_loading_function(widget_manager, width, height);
+		int current_time = (wtk_time_ms_elasped_since_init() / 250) % 4;
+		const char *text = ""; 
+		switch (current_time) {
+			case 0:
+				text = "Loading";
+				break;
+			case 1:
+				text = "Loading.";
+				break;
+			case 2:
+				text = "Loading..";
+				break;
+			case 3:
+				text = "Loading...";
+				break;
+		}   
+		glOrtho(0, width, height, 0, -1,1);
+
+		glColor4ubv(&PVGL_VIEW_LOADING_COLOR.x);
+		widget_manager.draw_text(50, 50, text, 22);
+
 		return;
 	}
 

@@ -15,7 +15,7 @@ namespace PVGL {
 	int wtk_get_current_window();
 	void wtk_set_current_window(int id);
 	void wtk_destroy_window(int id);
-	int wtk_get_keyvoard_modifiers();
+	int wtk_get_keyboard_modifiers();
 
 }
 
