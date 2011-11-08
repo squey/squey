@@ -12,7 +12,7 @@
 
 #include <pvgl/PVConfig.h>
 
-#include "include/LoadingFunction.h"
+#include "../core/include/LoadingFunction.h"
 
 int PVGL::wtk_loading_function(PVWidgetManager &widget_manager, int width, int height)
 {

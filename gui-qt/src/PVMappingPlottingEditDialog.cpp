@@ -63,7 +63,6 @@ void PVInspector::PVMappingPlottingEditDialog::init_layout()
 	_main_layout->addLayout(name_layout);
 
 	QScrollArea* scroll_area = new QScrollArea();
-	scroll_area->setWidgetResizable(true);
 	_main_grid = new QGridLayout(scroll_area);
 	_main_grid->setHorizontalSpacing(20);
 	_main_grid->setVerticalSpacing(10);

@@ -3,10 +3,8 @@
 //! Copyright (C) Sébastien Tricaud 2009-2011
 //! Copyright (C) Philippe Saade 2009-2011
 
-#ifdef USE_WTK_FREEGLUT3
-
-#ifndef LIBPVGL_WTK_FREEGLUT3_TIME_H
-#define LIBPVGL_WTK_FREEGLUT3_TIME_H
+#ifndef LIBPVGL_WTK_TIME_H
+#define LIBPVGL_WTK_TIME_H
 
 namespace PVGL {
 
@@ -14,6 +12,4 @@ namespace PVGL {
 
 }
 
-#endif	/* LIBPVGL_WTK_FREEGLUT3_TIME_H */
-
-#endif	/* USE_WTK_FREEGLUT3 */
+#endif	/* LIBPVGL_WTK_TIME_H */

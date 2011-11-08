@@ -9,7 +9,7 @@
 
 #include <pvkernel/core/general.h>
 
-#include "include/Init.h"
+#include "../core/include/Init.h"
 
 int PVGL::wtk_init(int argc, char **argv)
 {
@@ -24,6 +24,11 @@ int PVGL::wtk_init(int argc, char **argv)
 	PVLOG_INFO("PVGL::%s glut version: %d\n", __FUNCTION__, glutGet(GLUT_VERSION));	
 
 	return 0;		// void glutInit(); so we can only return 0
+}
+
+void PVGL::wtk_main_loop()
+{
+	glutMainLoop();
 }
 
 #endif	// USE_WTK_FREEGLUT3

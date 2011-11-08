@@ -6,7 +6,6 @@
 
 #define GLEW_STATIC 1
 #include <GL/glew.h>
-#include <GL/freeglut.h>
 
 #include <pvgl/views/PVParallel.h>
 #include <pvgl/PVMain.h>
@@ -26,7 +25,7 @@ void PVGL::PVIdleManager::callback(void)
 	PVLOG_HEAVYDEBUG("PVGL::PVIdleManager::%s\n", __FUNCTION__);
 
 	for (it = tasks.begin(); it != tasks.end(); ++it) {
-		glutSetWindow(it->first.drawable->get_window_id());
+		PVGL::wtk_set_current_window(it->first.drawable->get_window_id());
 		it->first.drawable->draw();
 		PVGL::wtk_buffers_swap();
 	}
@@ -42,7 +41,7 @@ void PVGL::PVIdleManager::callback(void)
 	}
 	if (tasks.empty()) {
 		PVLOG_DEBUG("PVGL::PVIdleManager::%s The Idle List is empty, sleeping.\n", __FUNCTION__);
-		glutIdleFunc(0);
+		PVGL::wtk_set_idle_func(0);
 	}
 }
 
@@ -58,7 +57,7 @@ void PVGL::PVIdleManager::new_task(PVGL::PVDrawable *drawable, PVGL::PVIdleTaskK
 	PVLOG_DEBUG("PVGL::PVIdleManager::%s\n", __FUNCTION__);
 
 	tasks[task] = IdleValue(drawable->get_max_lines_per_redraw());
-	glutIdleFunc(PVGL::PVMain::idle_callback);
+	PVGL::wtk_set_idle_func(PVGL::PVMain::idle_callback);
 }
 
 /******************************************************************************

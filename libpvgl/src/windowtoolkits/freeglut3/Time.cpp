@@ -9,7 +9,7 @@
 
 #include <pvkernel/core/general.h>
 
-#include "include/Time.h"
+#include "../core/include/Time.h"
 
 int PVGL::wtk_time_ms_elapsed_since_init()
 {

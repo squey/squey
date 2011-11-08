@@ -45,6 +45,7 @@ windowtoolkits/core/WtkWindow.cpp
 windowtoolkits/core/WtkWindowsList.cpp
 
 windowtoolkits/freeglut3/Buffers.cpp
+windowtoolkits/freeglut3/Callbacks.cpp
 windowtoolkits/freeglut3/Init.cpp
 windowtoolkits/freeglut3/LoadingFunction.cpp
 windowtoolkits/freeglut3/Time.cpp
@@ -86,11 +87,11 @@ SET(WTK_HEADER_FILES
 windowtoolkits/core/include/WtkWindow.h
 windowtoolkits/core/include/WtkWindowsList.h
 
-windowtoolkits/freeglut3/include/Buffers.h
-windowtoolkits/freeglut3/include/Init.h
-windowtoolkits/freeglut3/include/LoadingFunction.h
-windowtoolkits/freeglut3/include/Time.h
-windowtoolkits/freeglut3/include/Window.h
+windowtoolkits/core/include/Buffers.h
+windowtoolkits/core/include/Init.h
+windowtoolkits/core/include/LoadingFunction.h
+windowtoolkits/core/include/Time.h
+windowtoolkits/core/include/Window.h
 )
 
 add_library(pvgl SHARED ${SRC_FILES} ${HEADER_FILES} ${WTK_SRC_FILES} ${WTK_HEADER_FILES})

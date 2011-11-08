@@ -23,7 +23,6 @@
 
 #define GLEW_STATIC 1
 #include <GL/glew.h>
-#include <GL/freeglut.h>
 
 #include <picviz/general.h>
 #include <pvgl/general.h>
@@ -100,7 +99,7 @@ void PVGL::PVMain::display_callback()
 
 	PVLOG_HEAVYDEBUG("PVGL::PVMain::%s\n", __FUNCTION__);
 
-	current_drawable = PVGL::PVMain::get_drawable_from_id(glutGetWindow());
+	current_drawable = PVGL::PVMain::get_drawable_from_id(wtk_get_current_window());
 
 	if (current_drawable) {
 		current_drawable->draw();
@@ -120,7 +119,7 @@ void PVGL::PVMain::keyboard_callback(unsigned char key, int x, int y)
 	PVLOG_DEBUG("PVGL::PVMain::%s\n", __FUNCTION__);
 
 	last_key_pressed_time = PVGL::wtk_time_ms_elapsed_since_init();
-	current_drawable = get_drawable_from_id(glutGetWindow());
+	current_drawable = get_drawable_from_id(wtk_get_current_window());
 
 	if (current_drawable) {
 		current_drawable->keyboard(key, x, y);
@@ -140,7 +139,7 @@ void PVGL::PVMain::special_callback(int key, int x, int y)
 	PVLOG_DEBUG("PVGL::PVMain::%s\n", __FUNCTION__);
 
 	last_key_pressed_time = PVGL::wtk_time_ms_elapsed_since_init();
-	current_drawable = get_drawable_from_id(glutGetWindow());
+	current_drawable = get_drawable_from_id(wtk_get_current_window());
 	if (current_drawable) {
 		current_drawable->special_keys(key, x, y);
 		PVGL::wtk_window_need_redisplay();
@@ -158,7 +157,7 @@ void PVGL::PVMain::mouse_wheel(int delta_zoom_level, int x, int y)
 
 	PVLOG_DEBUG("PVGL::PVMain::%s\n", __FUNCTION__);
 
-	current_drawable = get_drawable_from_id(glutGetWindow());
+	current_drawable = get_drawable_from_id(wtk_get_current_window());
 	if (current_drawable) {
 		current_drawable->mouse_wheel(delta_zoom_level, x, y);
 	}
@@ -178,9 +177,9 @@ void PVGL::PVMain::mouse_down(int button, int x, int y)
         
         
         
-	current_drawable = get_drawable_from_id(glutGetWindow());
+	current_drawable = get_drawable_from_id(wtk_get_current_window());
 	if (current_drawable) {
-		current_drawable->mouse_down(button, x, y, glutGetModifiers());
+		current_drawable->mouse_down(button, x, y, PVGL::wtk_get_keyvoard_modifiers());
 	}
         mouse_is_moving =true;
 }
@@ -196,9 +195,9 @@ void PVGL::PVMain::mouse_release(int button, int x, int y)
 
 	PVLOG_DEBUG("PVGL::PVMain::%s\n", __FUNCTION__);
         mouse_is_moving = false;
-	current_drawable = get_drawable_from_id(glutGetWindow());
+	current_drawable = get_drawable_from_id(wtk_get_current_window());
 	if (current_drawable) {
-		current_drawable->mouse_up(button, x, y, glutGetModifiers());
+		current_drawable->mouse_up(button, x, y, PVGL::wtk_get_keyvoard_modifiers());
          }
 }
 
@@ -254,9 +253,9 @@ void PVGL::PVMain::motion_callback(int x, int y)
 
 	last_key_pressed_time = PVGL::wtk_time_ms_elapsed_since_init();
 
-	current_drawable = get_drawable_from_id(glutGetWindow());
+	current_drawable = get_drawable_from_id(wtk_get_current_window());
 	if (current_drawable) {
-		if (current_drawable->mouse_move(x, y, glutGetModifiers())) {
+		if (current_drawable->mouse_move(x, y, PVGL::wtk_get_keyvoard_modifiers())) {
 		}
 		PVGL::wtk_window_need_redisplay();
 	}
@@ -266,7 +265,7 @@ void PVGL::PVMain::motion_callback(int x, int y)
 		(*it)->update_selection();
 		(*it)->get_lines().update_arrays_selection();
 		(*it)->set_update_line_dirty();
-		glutSetWindow((*it)->get_window_id());
+		PVGL::wtk_set_current_window((*it)->get_window_id());
 		PVGL::wtk_window_need_redisplay();
 		}
 		}
@@ -280,7 +279,7 @@ void PVGL::PVMain::motion_callback(int x, int y)
  *****************************************************************************/
 void PVGL::PVMain::reshape_callback(int width, int height)
 {
-	PVGL::PVDrawable *current_drawable = get_drawable_from_id(glutGetWindow());
+	PVGL::PVDrawable *current_drawable = get_drawable_from_id(wtk_get_current_window());
 
 	PVLOG_DEBUG("PVGL::PVMain::%s\n", __FUNCTION__);
 
@@ -300,7 +299,7 @@ void PVGL::PVMain::reshape_callback(int width, int height)
  *****************************************************************************/
 void PVGL::PVMain::close_callback(void)
 {
-	int window_id = glutGetWindow();
+	int window_id = wtk_get_current_window();
 	PVLOG_DEBUG("PVGL::PVMain::%s\n", __FUNCTION__);
 
 	// Let's remove the window from our pool.
@@ -360,10 +359,10 @@ void PVGL::PVMain::passive_motion_callback(int x, int y)
 
 	PVLOG_HEAVYDEBUG("PVGL::PVMain::%s\n", __FUNCTION__);
 
-	current_drawable = get_drawable_from_id(glutGetWindow());
+	current_drawable = get_drawable_from_id(wtk_get_current_window());
 
 	if (current_drawable) {
-	current_drawable->passive_motion(x, y, glutGetModifiers());
+	current_drawable->passive_motion(x, y, PVGL::wtk_get_keyvoard_modifiers());
 	}
 }
 
@@ -389,16 +388,7 @@ void PVGL::PVMain::create_view(QString *name)
 		}
 	}
 	name->append(QString(":%1 (parallel view)").arg(index));
-	switch(PVGL::wtk_window_get_type()) {
-	case WINTYPE_INT:
-		window_id = PVGL::wtk_window_int_create(qPrintable(*name), default_width, default_height);
-		break;
-	case WINTYPE_POINTER:
-		// NOT HANDLED YET
-		// break;
-	default:
-		PVLOG_FATAL("The window type get from wtk_window_get_type() is not handled by any known toolkit!\n");
-	}
+	window_id = PVGL::wtk_window_int_create(qPrintable(*name), default_width, default_height);
 	current_view = new PVGL::PVView(window_id, pvsdk_messenger);
 	current_view->set_index(index);
 	current_view->set_base_name(base_name);
@@ -423,15 +413,15 @@ void PVGL::PVMain::create_view(QString *name)
 	glLoadIdentity();
 	PVGL::wtk_buffers_swap();
 
-	glutDisplayFunc(PVGL::PVMain::display_callback);
-	glutKeyboardFunc(PVGL::PVMain::keyboard_callback);
-	glutSpecialFunc(PVGL::PVMain::special_callback);
-	glutMouseFunc(PVGL::PVMain::button_callback);
-	glutMotionFunc(PVGL::PVMain::motion_callback);
-	glutReshapeFunc(PVGL::PVMain::reshape_callback);
-	glutCloseFunc(PVGL::PVMain::close_callback);
-	// glutEntryFunc(PVGL::PVMain::entry_callback);
-	glutPassiveMotionFunc(PVGL::PVMain::passive_motion_callback);
+	PVGL::wtk_set_display_func(PVGL::PVMain::display_callback);
+	PVGL::wtk_set_keyboard_func(PVGL::PVMain::keyboard_callback);
+	PVGL::wtk_set_special_func(PVGL::PVMain::special_callback);
+	PVGL::wtk_set_mouse_func(PVGL::PVMain::button_callback);
+	PVGL::wtk_set_motion_func(PVGL::PVMain::motion_callback);
+	PVGL::wtk_set_reshape_func(PVGL::PVMain::reshape_callback);
+	PVGL::wtk_set_close_func(PVGL::PVMain::close_callback);
+	// PVGL::wtk_set_entry_func(PVGL::PVMain::entry_callback);
+	PVGL::wtk_set_passive_motion_func(PVGL::PVMain::passive_motion_callback);
 
 	transient_view = current_view;
 }
@@ -458,16 +448,7 @@ void PVGL::PVMain::create_scatter(QString *name, Picviz::PVView_p pv_view)
 		}
 	}
 	name->append(QString(":%1 (scatter view)").arg(index));
-	switch(PVGL::wtk_window_get_type()) {
-	case WINTYPE_INT:
-		window_id = PVGL::wtk_window_int_create(qPrintable(*name), default_width, default_height);
-		break;
-	case WINTYPE_POINTER:
-		// NOT HANDLED YET
-		// break;
-	default:
-		PVLOG_FATAL("The window type get from wtk_window_get_type() is not handled by any known toolkit!\n");
-	}
+	window_id = PVGL::wtk_window_int_create(qPrintable(*name), default_width, default_height);
 	new_scatter = new PVGL::PVScatter(window_id, pvsdk_messenger);
 	new_scatter->set_index(index);
 	new_scatter->set_base_name(base_name);
@@ -489,15 +470,15 @@ void PVGL::PVMain::create_scatter(QString *name, Picviz::PVView_p pv_view)
 	PVGL::wtk_buffers_swap();
 	new_scatter->init(pv_view);
 
-	glutDisplayFunc(PVGL::PVMain::display_callback);
-	glutKeyboardFunc(PVGL::PVMain::keyboard_callback);
-	glutSpecialFunc(PVGL::PVMain::special_callback);
-	glutMouseFunc(PVGL::PVMain::button_callback);
-	glutMotionFunc(PVGL::PVMain::motion_callback);
-	glutReshapeFunc(PVGL::PVMain::reshape_callback);
-	glutCloseFunc(PVGL::PVMain::close_callback);
-	glutEntryFunc(PVGL::PVMain::entry_callback);
-	glutPassiveMotionFunc(PVGL::PVMain::passive_motion_callback);
+	PVGL::wtk_set_display_func(PVGL::PVMain::display_callback);
+	PVGL::wtk_set_keyboard_func(PVGL::PVMain::keyboard_callback);
+	PVGL::wtk_set_special_func(PVGL::PVMain::special_callback);
+	PVGL::wtk_set_mouse_func(PVGL::PVMain::button_callback);
+	PVGL::wtk_set_motion_func(PVGL::PVMain::motion_callback);
+	PVGL::wtk_set_reshape_func(PVGL::PVMain::reshape_callback);
+	PVGL::wtk_set_close_func(PVGL::PVMain::close_callback);
+	PVGL::wtk_set_entry_func(PVGL::PVMain::entry_callback);
+	PVGL::wtk_set_passive_motion_func(PVGL::PVMain::passive_motion_callback);
 
 	all_drawables.push_back(new_scatter);
 }
@@ -531,7 +512,7 @@ void PVGL::PVMain::timer_func(int)
 			case PVSDK_MESSENGER_FUNCTION_CREATE_VIEW:
 						{
 							all_drawables.push_back(transient_view);
-							glutSetWindow(transient_view->get_window_id());
+							PVGL::wtk_set_current_window(transient_view->get_window_id());
 							transient_view->init(message.pv_view);
 							message.pointer_1 = new QString(transient_view->get_name());
 							transient_view = 0;
@@ -559,7 +540,7 @@ void PVGL::PVMain::timer_func(int)
 							QString *name = reinterpret_cast<QString *>(message.pointer_1);
 							create_view(name);
 							all_drawables.push_back(transient_view);
-							glutSetWindow(transient_view->get_window_id());
+							PVGL::wtk_set_current_window(transient_view->get_window_id());
 							transient_view->init(message.pv_view);
 							message.pointer_1 = new QString(transient_view->get_name());
 							transient_view = 0;
@@ -579,7 +560,7 @@ void PVGL::PVMain::timer_func(int)
 				case PVSDK_MESSENGER_FUNCTION_DESTROY_TRANSIENT:
 							{
 								if (transient_view) {
-									glutDestroyWindow(transient_view->get_window_id());
+									PVGL::wtk_destroy_window(transient_view->get_window_id());
 									delete transient_view;
 									transient_view = 0;
 								}
@@ -590,7 +571,7 @@ void PVGL::PVMain::timer_func(int)
 						PVGL::PVView *pv_view = dynamic_cast<PVGL::PVView*>(*it);
 						if (pv_view) {
 							if (pv_view->get_libview() == message.pv_view) {
-								glutSetWindow((*it)->get_window_id());
+								PVGL::wtk_set_current_window((*it)->get_window_id());
 								if (message.int_1 & PVSDK_MESSENGER_REFRESH_AXES) {
 									pv_view->update_axes();
 								}
@@ -620,7 +601,7 @@ void PVGL::PVMain::timer_func(int)
 						PVGL::PVScatter *pv_scatter = dynamic_cast<PVGL::PVScatter*>(*it);
 						if (pv_scatter) {
 							if (pv_scatter->get_libview() == message.pv_view) {
-								glutSetWindow((*it)->get_window_id());
+								PVGL::wtk_set_current_window((*it)->get_window_id());
 								if (message.int_1 & PVSDK_MESSENGER_REFRESH_COLOR) {
 									pv_scatter->update_arrays_colors();
 								}
@@ -652,7 +633,7 @@ void PVGL::PVMain::timer_func(int)
 							for (std::list<PVGL::PVDrawable*>::iterator it = all_drawables.begin(); it != all_drawables.end(); ++it) {
 								if ((*it)->get_libview() == message.pv_view && ((*it)->get_window_id() == message.int_1 || message.int_1 == -1)) {
 									unsigned char *image_data;
-									glutSetWindow((*it)->get_window_id());
+									PVGL::wtk_set_current_window((*it)->get_window_id());
 									QString *filename = reinterpret_cast<QString *>(message.pointer_1);
 									if (message.int_1 == -1) {
 										filename->insert(picviz_max(0,filename->lastIndexOf('.')),QString("_%1").arg(rank));
@@ -697,7 +678,7 @@ void PVGL::PVMain::timer_func(int)
 									idle_manager.remove_tasks_for_drawable((*it));
 
 									// Then destroy the window
-									glutSetWindow((*it)->get_window_id());
+									PVGL::wtk_set_current_window((*it)->get_window_id());
 									QString *name = new QString((*it)->get_name());
 									PVSDK::PVMessage message;
 
@@ -706,7 +687,7 @@ void PVGL::PVMain::timer_func(int)
 									message.pointer_1 = name;
 
 									pvsdk_messenger->post_message_to_qt(message);
-									glutDestroyWindow((*it)->get_window_id());
+									PVGL::wtk_destroy_window((*it)->get_window_id());
 
 									it++;
 
@@ -729,7 +710,7 @@ void PVGL::PVMain::timer_func(int)
 							PVLOG_DEBUG("my id: %d, message id: %d\n", (*it)->get_window_id(), message.int_1);
 							PVGL::PVView *pv_view = dynamic_cast<PVGL::PVView*>(*it);
 							if (pv_view) {
-								glutSetWindow(pv_view->get_window_id());
+								PVGL::wtk_set_current_window(pv_view->get_window_id());
 								pv_view->update_selection_except_listing();
 								pv_view->get_lines().update_arrays_selection();
 								pv_view->get_map().update_arrays_selection();
@@ -742,7 +723,7 @@ void PVGL::PVMain::timer_func(int)
 			case PVSDK_MESSENGER_FUNCTION_REINIT_PVVIEW:
 					for (std::list<PVGL::PVDrawable*>::iterator it = all_drawables.begin(); it != all_drawables.end(); ++it) {
 						if ((*it)->get_libview() == message.pv_view) {
-							glutSetWindow((*it)->get_window_id());
+							PVGL::wtk_set_current_window((*it)->get_window_id());
 							(*it)->reinit_picviz_view();
 							PVGL::wtk_window_need_redisplay();
 						}
@@ -781,7 +762,7 @@ void PVGL::PVMain::timer_func(int)
 				if (pv_view->is_update_line_dirty()) {
 
 					PVLOG_DEBUG("   reselect\n");
-					glutSetWindow(pv_view->get_window_id());
+					PVGL::wtk_set_current_window(pv_view->get_window_id());
 					Picviz::PVView_p picviz_view = pv_view->get_libview();
 					if (!picviz_view)
 						continue;
@@ -805,7 +786,7 @@ void PVGL::PVMain::timer_func(int)
 			}
 			PVGL::PVScatter *pv_scatter = dynamic_cast<PVGL::PVScatter*>(*it);
 			if (pv_scatter) {
-				glutSetWindow(pv_scatter->get_window_id());
+				PVGL::wtk_set_current_window(pv_scatter->get_window_id());
 				pv_scatter->update_arrays_selection();
 			}
 		}
@@ -817,7 +798,7 @@ void PVGL::PVMain::timer_func(int)
 			PVGL::PVView *pv_view = dynamic_cast<PVGL::PVView*>(*it);
 			if (pv_view) {
 				if (pv_view->is_set_size_dirty()) {
-					glutSetWindow(pv_view->get_window_id());
+					PVGL::wtk_set_current_window(pv_view->get_window_id());
 					pv_view->update_set_size();
 					glViewport(0, 0, pv_view->get_width(), pv_view->get_height());
 					PVGL::wtk_window_need_redisplay();
@@ -827,15 +808,15 @@ void PVGL::PVMain::timer_func(int)
 	}
 	// Refresh every window every 20 ms
 	for (std::list<PVGL::PVDrawable*>::iterator it = all_drawables.begin(); it != all_drawables.end(); ++it) {
-		glutSetWindow((*it)->get_window_id());
+		PVGL::wtk_set_current_window((*it)->get_window_id());
 		PVGL::wtk_window_need_redisplay();
 	}
 	if (transient_view) {
-		glutSetWindow(transient_view->get_window_id());
+		PVGL::wtk_set_current_window(transient_view->get_window_id());
 		PVGL::wtk_window_need_redisplay();
 	}
         
-	glutTimerFunc(20, timer_func, 0);
+	PVGL::wtk_set_timer_func(20, timer_func, 0);
 }
 
 /******************************************************************************
@@ -882,16 +863,14 @@ bool pvgl_init(PVSDK::PVMessenger *messenger)
 								PVGL::PVMain::create_view(name);
 								//message.function = PVSDK_MESSENGER_FUNCTION_VIEW_CREATED;
 								//pvsdk_messenger->post_message_to_qt(message);
-								glutTimerFunc(5/*20*/, PVGL::PVMain::timer_func, 0);
-								glutMainLoop();
-
-								PVGL::wtk_init(argc, argv);
+								PVGL::wtk_set_timer_func(5/*20*/, PVGL::PVMain::timer_func, 0);
+								PVGL::wtk_main_loop();
 							}
 						break;
 				case PVSDK_MESSENGER_FUNCTION_DESTROY_TRANSIENT:
 							{
 								if (transient_view) {
-									glutDestroyWindow(transient_view->get_window_id());
+									PVGL::wtk_destroy_window(transient_view->get_window_id());
 									delete transient_view;
 									transient_view = 0;
 								}
@@ -900,16 +879,14 @@ bool pvgl_init(PVSDK::PVMessenger *messenger)
 				case PVSDK_MESSENGER_FUNCTION_CREATE_VIEW:
 							{
 								all_drawables.push_back(transient_view);
-								glutSetWindow(transient_view->get_window_id());
+								PVGL::wtk_set_current_window(transient_view->get_window_id());
 								transient_view->init(message.pv_view);
 								message.pointer_1 = new QString(transient_view->get_name());
 								transient_view = 0;
 								message.function = PVSDK_MESSENGER_FUNCTION_VIEW_CREATED;
 								pvsdk_messenger->post_message_to_qt(message);
-								glutTimerFunc(5/*20*/, PVGL::PVMain::timer_func, 0);
-								glutMainLoop();
-
-								PVGL::wtk_init(argc, argv);
+								PVGL::wtk_set_timer_func(5/*20*/, PVGL::PVMain::timer_func, 0);
+								PVGL::wtk_main_loop();
 							}
 						break;
 				case PVSDK_MESSENGER_FUNCTION_CREATE_SCATTER_VIEW:
@@ -920,10 +897,8 @@ bool pvgl_init(PVSDK::PVMessenger *messenger)
 								message.function = PVSDK_MESSENGER_FUNCTION_VIEW_CREATED;
 								message.pointer_1 = new QString(*name);
 								pvsdk_messenger->post_message_to_qt(message);
-								glutTimerFunc(5/*20*/, PVGL::PVMain::timer_func, 0);
-								glutMainLoop();
-
-								PVGL::wtk_init(argc, argv);
+								PVGL::wtk_set_timer_func(5/*20*/, PVGL::PVMain::timer_func, 0);
+								PVGL::wtk_main_loop();
 							}
 						break;
 				default:

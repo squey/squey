@@ -9,7 +9,7 @@
 
 #include <pvkernel/core/general.h>
 
-#include "include/Buffers.h"
+#include "../core/include/Buffers.h"
 
 int PVGL::wtk_buffers_swap()
 {

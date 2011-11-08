@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'qkeysequencewidget_p.h'
 **
-** Created: Fri Nov 4 15:07:12 2011
+** Created: Tue Nov 8 13:53:16 2011
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.7.3)
 **
 ** WARNING! All changes made in this file will be lost!

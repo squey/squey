@@ -10,13 +10,7 @@
 
 #include <QtGlobal>
 
-#include "include/Window.h"
-
-PVGL::WTK_WINTYPE PVGL::wtk_window_get_type(void)
-{
-	// We are freeglut, so our window is an int
-	return WINTYPE_INT;
-}
+#include "../core/include/Window.h"
 
 int PVGL::wtk_window_int_create(const char *name, int width, int height)
 {
@@ -37,6 +31,26 @@ void PVGL::wtk_window_fullscreen()
 void PVGL::wtk_window_need_redisplay()
 {
 	glutPostRedisplay();
+}
+
+int PVGL::wtk_get_current_window()
+{
+	return glutGetWindow();
+}
+
+void PVGL::wtk_set_current_window(int id)
+{
+	glutSetWindow(id);
+}
+
+void PVGL::wtk_destroy_window(int id)
+{
+	glutDestroyWindow(id);
+}
+
+int PVGL::wtk_get_keyvoard_modifiers()
+{
+	return glutGetModifiers();
 }
 
 #endif	// USE_WTK_FREEGLUT3
