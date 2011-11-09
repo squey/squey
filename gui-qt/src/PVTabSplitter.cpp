@@ -89,6 +89,11 @@ PVInspector::PVTabSplitter::~PVTabSplitter()
 //	pv_listing_no_unselected_model->deleteLater();
 //	pv_listing_no_zombie_model->deleteLater();
 //	pv_listing_no_zombie_no_unselected_model->deleteLater();
+
+	QHash<Picviz::PVView const*, PVViewWidgets>::iterator it;
+	for (it = _view_widgets.begin(); it != _view_widgets.end(); it++) {
+		it.value().delete_widgets();
+	}
 }
 
 /******************************************************************************
@@ -410,4 +415,10 @@ PVInspector::PVTabSplitter::PVViewWidgets::PVViewWidgets(Picviz::PVView_p view, 
 
 PVInspector::PVTabSplitter::PVViewWidgets::~PVViewWidgets()
 {
+}
+
+void PVInspector::PVTabSplitter::PVViewWidgets::delete_widgets()
+{
+	pv_axes_combination_editor->deleteLater();
+	pv_axes_properties->deleteLater();
 }

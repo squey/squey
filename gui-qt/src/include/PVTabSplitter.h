@@ -42,11 +42,13 @@ class PVTabSplitter : public QSplitter
 private:
 	class PVViewWidgets
 	{
+		friend class PVTabSplitter;
 	public:
 		PVViewWidgets(Picviz::PVView_p view, PVTabSplitter* tab);
 		PVViewWidgets() { pv_axes_combination_editor = NULL; pv_axes_properties = NULL; }
 		~PVViewWidgets();
-	
+	protected:
+		void delete_widgets();
 	public:
 		PVAxesCombinationDialog *pv_axes_combination_editor;
 		PVAxisPropertiesWidget  *pv_axes_properties;

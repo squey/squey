@@ -2,25 +2,25 @@ cmake_minimum_required(VERSION 2.8)
 
 project(picviz-inspector)
 
-if(EXISTS "use_pvgl2")
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/use_pvgl2)
   set(USE_PVGL2 true)
   message(STATUS "Use PVGL version: 2")
-else(EXISTS "use_pvgl2")
+else()
   message(STATUS "Use PVGL version: 1")
-endif(EXISTS "use_pvgl2")
+endif()
 
 if(USE_PVGL2)
   add_definitions(-DUSE_PVGL2)
 endif(USE_PVGL2)
 
-if(EXISTS "debug")
-	set(DEBUG_MODE true)
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/debug)
+	set(DEBUG_MODE 1)
 	message(STATUS "Compile mode: Debug")
 	set(CMAKE_BUILD_TYPE "Debug")
-else(EXISTS "debug")
+else()
 	message(STATUS "Compile mode: Release")
 	set(CMAKE_BUILD_TYPE "Release")
-endif(EXISTS "debug")
+endif()
 
 set(PICVIZ_SINGLE_TREE_BUILD true)
 set(CMAKE_VERBOSE_MAKEFILE ON)
@@ -69,7 +69,7 @@ if(WIN32)
 	# First, you've got to install Visual 2008 SP1, then install
 	# OpenMP dll in "winsxs" and then set this flag so that we link
 	# with the good version...... !!
-	add_definitions(-D__OPENMP_ASSEMBLY_VERSION="9.0.30729.1")
+	add_definitions(-D__OPENMP_ASSEMBLY_VERSION="9.0.30729.6161")
 	set(MSVC_LINKER_FLAGS "/LARGEADDRESSAWARE")
 	if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
 		# Intraprocedural optimisations

@@ -59,8 +59,9 @@ struct dynamic_pointer_cast<boost::shared_ptr<Y>, boost::shared_ptr<T> >
 template <class T>
 struct pointer
 {
-	typedef typename boost::remove_reference<T>::type* type;
-	static inline type get(T& obj)
+	typedef typename boost::remove_reference<T>::type type_noref;
+	typedef type_noref* type;
+	static inline type get(type_noref& obj)
 	{
 		return &obj;
 	}

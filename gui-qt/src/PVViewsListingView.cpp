@@ -7,9 +7,9 @@ PVInspector::PVViewsListingView::PVViewsListingView(PVViewsModel* model, PVTabSp
 	_tab(tab),
 	_model(model)
 {
+	setHeaderHidden(true);
 	setModel(model);
 	setMinimumSize(0,0);
-	setHeaderHidden(true);
 	setAllColumnsShowFocus(true);
 }
 

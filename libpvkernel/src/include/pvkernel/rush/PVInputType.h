@@ -67,7 +67,7 @@ signals:
 };
 
 template <typename T>
-class LibKernelDecl PVInputTypeDesc: public PVInputType
+class PVInputTypeDesc: public PVInputType
 {
 public:
 	virtual PVCore::PVSerializeObject_p serialize_inputs(PVCore::PVSerializeObject& obj, QString const& name, list_inputs& inputs) const

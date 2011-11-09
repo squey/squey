@@ -883,6 +883,8 @@ bool pvgl_init(PVSDK::PVMessenger *messenger)
 								//pvsdk_messenger->post_message_to_qt(message);
 								PVGL::wtk_set_timer_func(5/*20*/, PVGL::PVMain::timer_func, 0);
 								PVGL::wtk_main_loop();
+
+								PVGL::wtk_init(argc, argv);
 							}
 						break;
 				case PVSDK_MESSENGER_FUNCTION_DESTROY_TRANSIENT:
@@ -905,6 +907,8 @@ bool pvgl_init(PVSDK::PVMessenger *messenger)
 								pvsdk_messenger->post_message_to_qt(message);
 								PVGL::wtk_set_timer_func(5/*20*/, PVGL::PVMain::timer_func, 0);
 								PVGL::wtk_main_loop();
+
+								PVGL::wtk_init(argc, argv);
 							}
 						break;
 				case PVSDK_MESSENGER_FUNCTION_CREATE_SCATTER_VIEW:
@@ -917,6 +921,8 @@ bool pvgl_init(PVSDK::PVMessenger *messenger)
 								pvsdk_messenger->post_message_to_qt(message);
 								PVGL::wtk_set_timer_func(5/*20*/, PVGL::PVMain::timer_func, 0);
 								PVGL::wtk_main_loop();
+
+								PVGL::wtk_init(argc, argv);
 							}
 						break;
 				default:

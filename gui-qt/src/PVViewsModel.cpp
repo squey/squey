@@ -35,9 +35,20 @@ QModelIndex PVInspector::PVViewsModel::index(int row, int column, const QModelIn
 		// Root elements are mapped objects
 		assert(row < _mappeds.size());
 		Picviz::PVMapped_p mapped(_mappeds.at(row));
-		PVIndexNode* nt = new PVIndexNode(mapped.get());
-		_nodes_todel.push_back(nt);
-		return createIndex(row, column, nt);
+		PVIndexNode nt(mapped.get());
+		PVIndexNode* pnt = NULL;
+		QList<PVIndexNode*>::iterator it;
+		for (it = _nodes_todel.begin(); it != _nodes_todel.end(); it++) {
+			if (nt == *(*it)) {
+				pnt = *it;
+				break;
+			}
+		}
+		if (pnt == NULL) {
+			pnt = new PVIndexNode(nt);
+			_nodes_todel.push_back(pnt);
+		}
+		return createIndex(row, column, pnt);
 	}
 
 	PVIndexNode node_obj = get_object(parent);
@@ -45,9 +56,20 @@ QModelIndex PVInspector::PVViewsModel::index(int row, int column, const QModelIn
 	// Create an index for a plotted child object
 	Picviz::PVMapped::list_plotted_t const& children = node_obj.as_mapped()->get_plotteds();
 	assert(row < children.size());
-	PVIndexNode* nt = new PVIndexNode(children.at(row).get());
-	_nodes_todel.push_back(nt);
-	return createIndex(row, column, nt);
+	PVIndexNode nt(children.at(row).get());
+	PVIndexNode* pnt = NULL;
+	QList<PVIndexNode*>::iterator it;
+	for (it = _nodes_todel.begin(); it != _nodes_todel.end(); it++) {
+		if (nt == *(*it)) {
+			pnt = *it;
+			break;
+		}
+	}
+	if (pnt == NULL) {
+		pnt = new PVIndexNode(nt);
+		_nodes_todel.push_back(pnt);
+	}
+	return createIndex(row, column, pnt);
 }
 
 int PVInspector::PVViewsModel::rowCount(const QModelIndex &index) const

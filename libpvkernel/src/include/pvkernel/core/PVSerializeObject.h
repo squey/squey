@@ -361,7 +361,7 @@ PVSerializeObject::p_type PVSerializeObject::list(QString const& name, T& obj, Q
 				idx++;
 			}
 		}
-		catch (PVSerializeArchiveErrorNoObject& e) {
+		catch (PVSerializeArchiveErrorNoObject& /*e*/) {
 			return list_obj;
 		}
 	}

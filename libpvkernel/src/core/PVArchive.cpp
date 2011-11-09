@@ -169,8 +169,8 @@ bool PVCore::PVArchive::create_tarbz2(QString const& ar_path, QString const& dir
 
 	a = archive_write_new();
 	archive_write_set_format_ustar(a);
-	if (archive_write_set_compression_bzip2(a) != ARCHIVE_OK) {
-		PVLOG_ERROR("Unable to use BZIP2 compression\n");
+	if (archive_write_set_compression_gzip(a) != ARCHIVE_OK) {
+		PVLOG_ERROR("Unable to use GZIP compression\n");
 		return false;
 	}
 	QByteArray ar_path_ba = ar_path.toLocal8Bit();
