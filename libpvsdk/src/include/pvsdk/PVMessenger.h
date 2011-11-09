@@ -233,6 +233,7 @@ struct LibSDKDecl PVMessage
 	float  float_1;             //!< First float parameter for the message, if needed.
 	float  float_2;             //!< Second float parameter for the message, if needed.
 	void  *pointer_1;           //!< First pointer parameter for the message, if needed.
+	QObject* obj_1;             //!< First QObject pointer parameter for the message, if needed. (allow for RTTI to work w/ Qt objects)
 	// ...
 };
 

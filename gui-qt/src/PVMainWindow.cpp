@@ -67,21 +67,6 @@
 
 QFile *report_file;
 
-#include <boost/thread.hpp>
-#include <boost/bind.hpp>
-
-#include <QDialog>
-#include <QPushButton>
-#include <QVBoxLayout>
-void _test_thread(QWidget* p)
-{
-	QDialog* dlg = new QDialog(p);
-	QPushButton* btn = new QPushButton("hello");
-	QVBoxLayout* l = new QVBoxLayout();
-	l->addWidget(btn);
-	dlg->setLayout(l);
-	dlg->show();
-}
 /******************************************************************************
  *
  * PVInspector::PVMainWindow::PVMainWindow
@@ -90,8 +75,6 @@ void _test_thread(QWidget* p)
 PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 {
 	_is_project_untitled = true;
-
-	boost::thread th(boost::bind(_test_thread, this));
 
 	QSplashScreen splash(QPixmap(":/splash-screen"));
 
@@ -365,6 +348,7 @@ void PVInspector::PVMainWindow::check_messages()
 								report_out << "</tr>\n";
 
 								message.function = PVSDK_MESSENGER_FUNCTION_TAKE_SCREENSHOT;
+								message.int_2 = true; // a QString* is passed (save to this filename)
 								message.pointer_1 = filename_p;
 								pvsdk_messenger->post_message_to_gl(message);
 							} else { // if (!report_started) {
@@ -384,6 +368,7 @@ void PVInspector::PVMainWindow::check_messages()
 								report_out << "</tr>\n";
 
 								message.function = PVSDK_MESSENGER_FUNCTION_TAKE_SCREENSHOT;
+								message.int_2 = true; // a QString* is passed (save to this filename)
 								message.pointer_1 = filename_p;
 								pvsdk_messenger->post_message_to_gl(message);
 							}
@@ -406,6 +391,7 @@ void PVInspector::PVMainWindow::check_messages()
 							QString *filename = new QString (QFileDialog::getSaveFileName(this, tr("Save Screenshot As"), initial_path, tr("PNG Files (*.png);;All Files (*)")));
 							if (!filename->isEmpty()) {
 								message.function = PVSDK_MESSENGER_FUNCTION_TAKE_SCREENSHOT;
+								message.int_2 = true; // a QString* is passed (save to this filename)
 								message.pointer_1 = filename;
 								pvsdk_messenger->post_message_to_gl(message);
 							}
@@ -413,9 +399,21 @@ void PVInspector::PVMainWindow::check_messages()
 					break;
 			case PVSDK_MESSENGER_FUNCTION_SCREENSHOT_TAKEN:
 						{
-							QString *filename = reinterpret_cast<QString *>(message.pointer_1);
-							PVLOG_INFO("%s: destroying the screenshot filename: %s\n", __FUNCTION__, filename->toStdString().c_str());
-							delete filename;
+							if (message.int_2 == true) {
+								QString *filename = reinterpret_cast<QString *>(message.pointer_1);
+								delete filename;
+							}
+							else {
+								QImage *image = reinterpret_cast<QImage *>(message.pointer_1);
+								QDialog* dlg = new QDialog(this);
+								QVBoxLayout* layout = new QVBoxLayout();
+								QLabel* limg = new QLabel();
+								limg->setPixmap(QPixmap::fromImage(*image));
+								layout->addWidget(limg);
+								dlg->setLayout(layout);
+								dlg->exec();
+								delete image;
+							}
 						}
 					break;
 			case PVSDK_MESSENGER_FUNCTION_ONE_VIEW_DESTROYED:
@@ -542,6 +540,9 @@ void PVInspector::PVMainWindow::connect_actions()
 
 	connect(view_new_parallel_Action, SIGNAL(triggered()), this, SLOT(view_new_parallel_Slot()));
 	connect(view_new_scatter_Action, SIGNAL(triggered()), this, SLOT(view_new_scatter_Slot()));
+#ifndef NDEBUG
+	connect(view_screenshot_qt, SIGNAL(triggered()), this, SLOT(view_screenshot_qt_Slot()));
+#endif
 
 	connect(selection_all_Action, SIGNAL(triggered()), this, SLOT(selection_all_Slot()));
 	connect(selection_none_Action, SIGNAL(triggered()), this, SLOT(selection_none_Slot()));

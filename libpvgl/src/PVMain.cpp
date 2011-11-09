@@ -634,10 +634,22 @@ void PVGL::PVMain::timer_func(int)
 								if ((*it)->get_libview() == message.pv_view && ((*it)->get_window_id() == message.int_1 || message.int_1 == -1)) {
 									unsigned char *image_data;
 									PVGL::wtk_set_current_window((*it)->get_window_id());
-									QString *filename = reinterpret_cast<QString *>(message.pointer_1);
-									if (message.int_1 == -1) {
-										filename->insert(picviz_max(0,filename->lastIndexOf('.')),QString("_%1").arg(rank));
-										rank++;
+									QString *filename = NULL;
+									QImage* image_ret = NULL;
+									if (message.int_2 == true) {
+										// We have a filename, so save it;
+										filename = reinterpret_cast<QString *>(message.pointer_1);
+									}
+									else {
+										// Just save the QImage object
+										image_ret = reinterpret_cast<QImage*>(message.pointer_1);
+									}
+
+									if (filename) {
+										if (message.int_1 == -1) {
+											filename->insert(picviz_max(0,filename->lastIndexOf('.')),QString("_%1").arg(rank));
+											rank++;
+										}
 									}
 									//std::cout << "should take a screenshot and save in: " << filename->toUtf8().data() << std::endl;
 									image_data = new unsigned char[3 * (*it)->get_width() * (*it)->get_height()];
@@ -651,12 +663,18 @@ void PVGL::PVMain::timer_func(int)
 
 									glReadPixels(0, 0, (*it)->get_width(), (*it)->get_height(), GL_RGB, GL_UNSIGNED_BYTE, image_data);
 
-										{
-											QImage image(image_data, (*it)->get_width(), (*it)->get_height(), 3 * (*it)->get_width(),
-																	 QImage::Format_RGB888);
+									{
+										QImage image(image_data, (*it)->get_width(), (*it)->get_height(), 3 * (*it)->get_width(),
+												QImage::Format_RGB888);
+										if (filename) {
 											QImage flipped_image = image.mirrored(false, true);
 											flipped_image.save(*filename);
 										}
+										else {
+											*image_ret = image.mirrored(false, true);
+										}
+									}
+
 									delete[] image_data;
 									if (message.int_1 != -1) {
 										break;

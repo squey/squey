@@ -940,22 +940,33 @@ void PVInspector::PVMainWindow::view_new_parallel_Slot()
 {
 	PVLOG_INFO("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
 
-        // Ask the PVGL to create a GL-View of the currently selected view. 
-        if (current_tab && current_tab->get_lib_view()) {
+	// Ask the PVGL to create a GL-View of the currently selected view. 
+	if (current_tab && current_tab->get_lib_view()) {
 		PVSDK::PVMessage message;
 
-                message.function = PVSDK_MESSENGER_FUNCTION_PLEASE_WAIT;
-                message.pointer_1 = new QString(current_tab->get_current_view_name());
-                pvsdk_messenger->post_message_to_gl(message);
+		message.function = PVSDK_MESSENGER_FUNCTION_PLEASE_WAIT;
+		message.pointer_1 = new QString(current_tab->get_current_view_name());
+		pvsdk_messenger->post_message_to_gl(message);
 
-                message.function = PVSDK_MESSENGER_FUNCTION_CREATE_VIEW;
-                message.pv_view = current_tab->get_lib_view();
-                message.pointer_1 = new QString(current_tab->get_current_view_name());
-                pvsdk_messenger->post_message_to_gl(message);
-        }
-
+		message.function = PVSDK_MESSENGER_FUNCTION_CREATE_VIEW;
+		message.pv_view = current_tab->get_lib_view();
+		message.pointer_1 = new QString(current_tab->get_current_view_name());
+		pvsdk_messenger->post_message_to_gl(message);
+	}
 }
 
+void PVInspector::PVMainWindow::view_screenshot_qt_Slot()
+{
+	// Get a QImage of the current view
+	PVSDK::PVMessage message;
+	message.pv_view = current_tab->get_lib_view(); // Get current view
+	message.function = PVSDK_MESSENGER_FUNCTION_TAKE_SCREENSHOT;
+	message.int_1 = -1;
+	message.int_2 = false;
+	QImage* image = new QImage();
+	message.pointer_1 = image;
+	pvsdk_messenger->post_message_to_gl(message);
+}
 
 /******************************************************************************
  *

@@ -155,6 +155,7 @@ public slots:
 	void textedit_text_changed_Slot();
 	void view_new_parallel_Slot();
 	void view_new_scatter_Slot();
+	void view_screenshot_qt_Slot();
 	void check_messages();	/* SLOT? NOT SLOT? */
 	void update_reply_finished_Slot(QNetworkReply *reply);
 	void whats_this_Slot();
@@ -247,6 +248,7 @@ private:
 	QAction *view_Action;
 	QAction *view_new_parallel_Action;
 	QAction *view_new_scatter_Action;
+	QAction *view_screenshot_qt;
 	QAction *whats_this_Action;
 	
 	QSpacerItem* pv_mainSpacerTop;

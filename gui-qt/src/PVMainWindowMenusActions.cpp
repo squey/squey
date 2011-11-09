@@ -103,6 +103,10 @@ void PVInspector::PVMainWindow::create_actions()
 	 ************************/
 	view_new_parallel_Action = new QAction(tr("New &parallel view"), this);
 	view_new_scatter_Action = new QAction(tr("New scatter &view"), this);
+#ifndef NDEBUG
+	view_screenshot_qt = new QAction(tr("Display view in Qt"), this);
+	view_screenshot_qt->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_T));
+#endif
 
 	/***************************
 	 * For the "Axes" menu entry
@@ -207,6 +211,10 @@ void PVInspector::PVMainWindow::create_menus()
 	view_Menu = menubar->addMenu(tr("&View"));
 	view_Menu->addAction(view_new_parallel_Action);
 	view_Menu->addAction(view_new_scatter_Action);
+#ifndef NDEBUG
+	view_Menu->addSeparator();
+	view_Menu->addAction(view_screenshot_qt);
+#endif
 
 	axes_Menu = menubar->addMenu(tr("Axes"));
 	axes_Menu->addAction(axes_editor_Action);
