@@ -31,7 +31,10 @@ private:
 	QVector<PVAxis> axes_list;            //!< Contains all the used axes
 	QVector<PVCol>  columns_indexes_list; //!< Contains the indices of the axes to place, such as [0,1,3,0]
 	QVector<PVAxis> original_axes_list;   //!< All the axes, left as how they were upon loading the format.
+	bool _is_consistent;                  //!< Whether this object is consistent
 public:
+	PVAxesCombination();
+
 	/**
 	* Add an axis to the list of used axes.
 	*
@@ -152,6 +155,8 @@ public:
 	*/
 	PVCol get_combined_axis_column_index(PVCol index) const;
 
+	QList<PVCol> get_combined_axes_columns_indexes(PVCol index) const;
+
 	/**
 	* Get the number of original axes.
 	*
@@ -187,6 +192,8 @@ public:
 	*
 	*/
 	bool increase_axis_column_index(PVCol index);
+
+	inline bool is_consistent() const { return _is_consistent; }
 
 	/**
 	 * Returns true if the current axes combination is the default one.
@@ -249,6 +256,12 @@ public:
 	 * Reset the axis combination to the default one.
 	 */
 	void reset_to_default();
+
+	/**
+	 * Create an axis combination sorted by name
+	 * \param[in] order True to sort
+	 */
+	void sort_by_name(bool order = true);
 
 	/**
 	*

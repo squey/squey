@@ -1,11 +1,13 @@
 #include <PVAxesCombinationWidget.h>
 #include <picviz/PVAxesCombination.h>
+#include <picviz/PVView.h>
 
 #include <QDialogButtonBox>
 
-PVInspector::PVAxesCombinationWidget::PVAxesCombinationWidget(Picviz::PVAxesCombination& axes_combination, QWidget* parent):
+PVInspector::PVAxesCombinationWidget::PVAxesCombinationWidget(Picviz::PVAxesCombination& axes_combination, QWidget* parent, Picviz::PVView* view):
 	QWidget(parent),
-	_axes_combination(axes_combination)
+	_axes_combination(axes_combination),
+	_view(view)
 {
 	setupUi(this);
 
@@ -18,7 +20,13 @@ PVInspector::PVAxesCombinationWidget::PVAxesCombinationWidget(Picviz::PVAxesComb
 	connect(_btn_axis_down, SIGNAL(clicked()), this, SLOT(axis_down_Slot()));
 	connect(_btn_axis_move, SIGNAL(clicked()), this, SLOT(axis_move_Slot()));
 	connect(_btn_axis_remove, SIGNAL(clicked()), this, SLOT(axis_remove_Slot()));
+	connect(_btn_sort, SIGNAL(clicked()), this, SLOT(sort_Slot()));
 	connect(_btn_reset, SIGNAL(clicked()), this, SLOT(reset_comb_Slot()));
+
+	_btn_sel_singleton->setEnabled(view != NULL);
+	if (view != NULL) {
+		connect(_btn_sel_singleton, SIGNAL(clicked()), this, SLOT(sel_singleton_Slot()));
+	}
 }
 
 void PVInspector::PVAxesCombinationWidget::axis_add_Slot()
@@ -188,6 +196,13 @@ void PVInspector::PVAxesCombinationWidget::update_all()
 	update_used_axes();
 }
 
+void PVInspector::PVAxesCombinationWidget::sort_Slot()
+{
+	_axes_combination.sort_by_name(true);
+	update_used_axes();
+	emit axes_combination_changed();
+}
+
 bool PVInspector::PVAxesCombinationWidget::is_used_axis_selected()
 {
 	return _list_used->selectedItems().size() > 0;
@@ -266,4 +281,19 @@ void PVInspector::PVAxesCombinationWidget::PVMoveToDlg::update_axes()
 	if (old_sel_idx >= 0) {
 		_axes_combo->setCurrentIndex(old_sel_idx);
 	}
+}
+
+void PVInspector::PVAxesCombinationWidget::sel_singleton_Slot()
+{
+	assert(_view);
+	QList<PVCol> cols_rem = _view->get_plotted_parent()->get_singleton_columns_indexes();
+	QItemSelection new_sel;
+	foreach(PVCol c, cols_rem) {
+		QList<PVCol> comb_cols = _axes_combination.get_combined_axes_columns_indexes(c);
+		foreach (PVCol comb_c, comb_cols) {
+			QModelIndex midx = _list_used->model()->index(comb_c, 0);
+			new_sel.select(midx, midx);
+		}
+	}
+	_list_used->selectionModel()->select(new_sel, QItemSelectionModel::ClearAndSelect);
 }

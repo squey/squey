@@ -16,6 +16,17 @@
 
 /******************************************************************************
  *
+ * Picviz::PVAxesCombination::PVAxesCombination
+ *
+ *****************************************************************************/
+
+Picviz::PVAxesCombination::PVAxesCombination():
+	_is_consistent(true)
+{
+}
+
+/******************************************************************************
+ *
  * Picviz::PVAxesCombination::axis_append
  *
  *****************************************************************************/
@@ -140,6 +151,32 @@ PVCol Picviz::PVAxesCombination::get_combined_axis_column_index(PVCol index) con
 	}
 	// Return the last used axis
 	return columns_indexes_list.size() - 1;
+}
+
+/******************************************************************************
+ *
+ * Picviz::PVAxesCombination::get_combined_axes_columns_indexes
+ *
+ *****************************************************************************/
+QList<PVCol> Picviz::PVAxesCombination::get_combined_axes_columns_indexes(PVCol index) const
+{
+	assert(!axes_list.empty());
+	QList<PVCol> cols_ret;
+
+	/* We check that the given axis' index is not out of range */
+	if (index >= original_axes_list.size()) {
+		PVLOG_ERROR("%s: Index out of range in %d >= %d\n", __FUNCTION__, index, original_axes_list.size());
+		return cols_ret;
+	}
+
+	
+	for (PVCol i = 0; i < columns_indexes_list.size(); i++) {
+		if (columns_indexes_list[i] == index) {
+			cols_ret << i;
+		}
+	}
+
+	return cols_ret;
 }
 
 /******************************************************************************
@@ -343,7 +380,7 @@ bool Picviz::PVAxesCombination::remove_axis(PVCol index)
  *****************************************************************************/
 void Picviz::PVAxesCombination::reset_to_default()
 {
-
+	_is_consistent = false;
 	columns_indexes_list.clear();
 	axes_list.clear();
 	abscissae_list.clear();
@@ -351,6 +388,8 @@ void Picviz::PVAxesCombination::reset_to_default()
 	for (PVCol i = 0; i < original_axes_list.size(); i++) {
 		axis_append(i);
 	}
+
+	_is_consistent = true;
 }
 
 /******************************************************************************
@@ -429,6 +468,44 @@ void Picviz::PVAxesCombination::set_original_axes(PVRush::list_axes_t const& axe
 			axis_append(id_org);
 		}
 	}
+}
+
+static bool comp_sort(std::pair<QStringRef, PVCol> const& o1, std::pair<QStringRef, PVCol> const& o2)
+{
+	return o1.first < o2.first;
+}
+static bool comp_inv_sort(std::pair<QStringRef, PVCol> const& o1, std::pair<QStringRef, PVCol> const& o2)
+{
+	return o1.first > o2.first;
+}
+
+void Picviz::PVAxesCombination::sort_by_name(bool order)
+{
+	QStringList names = get_original_axes_names_list();
+	std::vector<std::pair<QStringRef, PVCol> > vec_tosort;
+	vec_tosort.reserve(names.size());
+	for (int i = 0; i < names.size(); i++) {
+		vec_tosort.push_back(std::pair<QStringRef, PVCol>(QStringRef(&names.at(i)), i));
+	}
+
+	if (order) {
+		std::stable_sort(vec_tosort.begin(), vec_tosort.end(), comp_sort);
+	}
+	else {
+		std::stable_sort(vec_tosort.begin(), vec_tosort.end(), comp_inv_sort);
+	}
+
+	_is_consistent = false;
+	columns_indexes_list.clear();
+	axes_list.clear();
+	abscissae_list.clear();
+
+	std::vector<std::pair<QStringRef, PVCol> >::const_iterator it;
+	for (it = vec_tosort.begin(); it != vec_tosort.end(); it++) {
+		axis_append(it->second);
+	}
+
+	_is_consistent = true;
 }
 
 QString Picviz::PVAxesCombination::to_string() const

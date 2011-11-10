@@ -256,6 +256,34 @@ void PVPlotted::to_csv()
 
 }
 
+QList<PVCol> Picviz::PVPlotted::get_singleton_columns_indexes()
+{
+	const PVRow nrows = get_row_count();
+	const PVCol ncols = get_column_count();
+	QList<PVCol> cols_ret;
+
+	if (nrows == 0) {
+		return cols_ret;
+	}
+
+	for (PVCol j = 0; j < ncols; j++) {
+		const float* values = trans_table.getRowData(j);
+		const float ref_v = values[0];
+		bool all_same = true;
+		for (PVRow i = 1; i < nrows; i++) {
+			if (values[i] != ref_v) {
+				all_same = false;
+				break;
+			}
+		}
+		if (all_same) {
+			cols_ret << j;
+		}
+	}
+
+	return cols_ret;
+}
+
 void Picviz::PVPlotted::get_sub_col_minmax(plotted_sub_col_t& ret, float& min, float& max, PVSelection const& sel, PVCol col) const
 {
 	min = FLT_MAX;

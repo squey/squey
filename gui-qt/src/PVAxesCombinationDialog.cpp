@@ -13,7 +13,7 @@ PVInspector::PVAxesCombinationDialog::PVAxesCombinationDialog(Picviz::PVView_p v
 
 	QVBoxLayout* main_layout = new QVBoxLayout();
 	QDialogButtonBox* box_buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-	_axes_widget = new PVAxesCombinationWidget(view->axes_combination, mw);
+	_axes_widget = new PVAxesCombinationWidget(view->axes_combination, mw, view.get());
 	main_layout->addWidget(_axes_widget);
 	main_layout->addWidget(box_buttons);
 	setLayout(main_layout);

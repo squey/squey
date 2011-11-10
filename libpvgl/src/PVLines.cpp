@@ -834,7 +834,7 @@ void PVGL::PVLines::update_arrays_positions(void)
 
 	PVLOG_DEBUG("PVGL::PVLines::%s\n", __FUNCTION__);
 
-	if (!picviz_view->is_consistent()) {
+	if (!picviz_view->is_consistent() || !picviz_view->axes_combination.is_consistent()) {
 		return;
 	}
 	/* We get the number of lines and of axes */

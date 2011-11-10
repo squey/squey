@@ -135,6 +135,21 @@
            </widget>
           </item>
           <item>
+           <widget class="QPushButton" name="_btn_sort">
+            <property name="text">
+             <string>Sort</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="_btn_sel_singleton">
+            <property name="text">
+             <string>Select axes with
+only one value</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QPushButton" name="_btn_reset">
             <property name="text">
              <string>Reset to

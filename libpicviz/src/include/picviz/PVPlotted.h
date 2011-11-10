@@ -90,6 +90,8 @@ public:
 
 	bool is_uptodate() const;
 
+	QList<PVCol> get_singleton_columns_indexes();
+
 public:
 	// Data access
 	PVRow get_row_count() const;

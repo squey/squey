@@ -7,6 +7,7 @@
 
 #include <picviz/PVAxesCombination.h>
 #include "../ui_PVAxesCombinationWidget.h"
+#include <picviz/PVView_types.h>
 
 namespace PVInspector {
 
@@ -31,7 +32,7 @@ private:
 	};
 
 public:
-	PVAxesCombinationWidget(Picviz::PVAxesCombination& axes_combination, QWidget* parent = 0);
+	PVAxesCombinationWidget(Picviz::PVAxesCombination& axes_combination, QWidget* parent = 0, Picviz::PVView* view = NULL);
 
 public:
 	void save_current_combination();
@@ -56,6 +57,8 @@ protected slots:
 	void axis_move_Slot();
 	void axis_remove_Slot();
 	void reset_comb_Slot();
+	void sel_singleton_Slot();
+	void sort_Slot();
 
 signals:
 	void axes_combination_changed();
@@ -65,6 +68,7 @@ protected:
 	Picviz::PVAxesCombination& _axes_combination;
 	Picviz::PVAxesCombination _saved_combination;
 	PVMoveToDlg* _move_dlg;
+	Picviz::PVView* _view;
 };
 
 }
