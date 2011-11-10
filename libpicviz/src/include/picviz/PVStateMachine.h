@@ -30,6 +30,8 @@ namespace Picviz {
             bool listing_zombie_visible;
             bool gl_unselected_visible;
             bool gl_zombie_visible;
+
+	    bool caps_lock_activated;
         public:
 
 	    /** Square Area Modes
@@ -66,7 +68,11 @@ namespace Picviz {
             bool is_grabbed()const {
                 return grabbed;
             }
-            
+ 
+            bool is_caps_lock_activated()const {
+                return caps_lock_activated;
+            }
+           
             //listing state management
             
             bool are_listing_all()const {
@@ -149,6 +155,10 @@ namespace Picviz {
                 grabbed = state;
             }
 
+            void set_caps_lock_activated(bool state) {
+                caps_lock_activated = state;
+            }
+
             void set_listing_unselected_visible(bool visible) {
 		    listing_unselected_visible = visible;
             }
@@ -187,6 +197,10 @@ namespace Picviz {
 
             void toggle_grabbed() {
                 grabbed = !grabbed;
+            }
+
+            void toggle_caps_lock_activated() {
+                caps_lock_activated = !caps_lock_activated;
             }
 
             void toggle_listing_unselected_visibility() {
