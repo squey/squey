@@ -24,6 +24,10 @@ PVInspector::PVSaveSceneDialog::PVSaveSceneDialog(Picviz::PVScene_p scene, PVCor
 
 	QGridLayout* main_layout = (QGridLayout*) layout();
 
+	save_everything_checkbox = new QCheckBox(tr("Include formats and original files"));
+	save_everything_checkbox->setChecked(false);
+	main_layout->addWidget(save_everything_checkbox, 5, 1);
+
 	QTabWidget* tabs = new QTabWidget();
 	QWidget* org_w = new QWidget();
 	org_w->setLayout(main_layout);
@@ -58,3 +62,4 @@ PVInspector::PVSaveSceneDialog::PVSaveSceneDialog(Picviz::PVScene_p scene, PVCor
 	setLayout(layout);
 
 }
+
