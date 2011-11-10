@@ -195,6 +195,15 @@ void PVGL::PVView::draw(void)
 	glOrtho(0,width, height,0, -1,1);
 
 	// Draw number of selected lines
+		// {
+		// 	if (state_machine->is_caps_lock_activated()) {
+		// 		PVLOG_INFO("Caps lock activated!\n");
+		// 		// std::stringstream ss;
+		// 		// // ss << "LPR: " << get_max_lines_per_redraw();
+		// 		// ss << "Caps lock activated!";
+		// 		// label_lpr->set_text(ss.str());
+		// 	}
+		// }
 		{
 			std::stringstream ss;
 			ss << "LPR: " << get_max_lines_per_redraw();
@@ -633,6 +642,10 @@ void PVGL::PVView::special_keys(int key, int, int)
 		return;
 	}
 	state_machine = picviz_view->state_machine;
+
+	// if (glutGetModifiers() & GLUT_ACTIVE_SHIFT) {
+	// 	state_machine->toggle_caps_lock_activated();
+	// }
 
 	switch (key)
 		{
