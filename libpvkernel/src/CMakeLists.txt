@@ -58,6 +58,7 @@ include/pvkernel/core/PVDateTimeParser.h
 include/pvkernel/core/PVDirectory.h
 include/pvkernel/core/PVEnumType.h
 include/pvkernel/core/PVFileSerialize.h
+include/pvkernel/core/PVCheckBoxType.h
 include/pvkernel/core/PVColorGradientDualSliderType.h
 include/pvkernel/core/PVBufferSlice.h
 include/pvkernel/core/PVChunk.h
