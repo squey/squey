@@ -87,6 +87,7 @@ widgets/PVCheckableComboBox.h
 widgets/editors/include/PVAxisIndexEditor.h
 widgets/editors/include/PVAxisIndexCheckBoxEditor.h
 widgets/editors/include/PVAxesIndexEditor.h
+widgets/editors/include/PVCheckBoxEditor.h
 widgets/editors/include/PVColorGradientDualSliderEditor.h
 widgets/editors/include/PVEnumEditor.h
 widgets/editors/include/PVRegexpEditor.h
@@ -173,6 +174,7 @@ widgets/PVCheckableComboBox.cpp
 widgets/editors/PVAxisIndexEditor.cpp
 widgets/editors/PVAxisIndexCheckBoxEditor.cpp
 widgets/editors/PVAxesIndexEditor.cpp
+widgets/editors/PVCheckBoxEditor.cpp
 widgets/editors/PVColorGradientDualSliderEditor.cpp
 widgets/editors/PVEnumEditor.cpp
 widgets/editors/PVRegexpEditor.cpp

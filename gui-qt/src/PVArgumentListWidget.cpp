@@ -18,6 +18,7 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVAxisIndexType.h>
 #include <pvkernel/core/PVAxesIndexType.h>
+#include <pvkernel/core/PVCheckBoxType.h>
 #include <pvkernel/core/PVEnumType.h>
 #include <pvkernel/core/PVColorGradientDualSliderType.h>
 

@@ -21,8 +21,9 @@ class PVCheckBoxType
 {
 public:
 	PVCheckBoxType() { _checked = false; };
+	PVCheckBoxType(const bool checked) { set_checked(checked); };
 
-	inline bool is_checked() const { return _checked; }
+	inline bool get_checked() const { return _checked; }
 	inline void set_checked(const bool checked) { _checked = checked; }
 
 protected:

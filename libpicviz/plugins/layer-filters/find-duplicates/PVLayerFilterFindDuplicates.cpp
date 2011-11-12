@@ -7,7 +7,7 @@
 #include "PVLayerFilterFindDuplicates.h"
 #include <pvkernel/core/PVColor.h>
 #include <pvkernel/core/PVAxisIndexType.h>
-#include <pvkernel/core/PVEnumType.h>
+#include <pvkernel/core/PVCheckBoxType.h>
 #include <picviz/PVView.h>
 
 
@@ -20,7 +20,6 @@ Picviz::PVLayerFilterFindDuplicates::PVLayerFilterFindDuplicates(PVCore::PVArgum
 	: PVLayerFilter(l)
 {
 	INIT_FILTER(PVLayerFilterFindDuplicates, l);
-	add_ctxt_menu_entry("Find duplicates for this value", &PVLayerFilterFindDuplicates::search_value_menu);
 }
 
 /******************************************************************************
@@ -32,6 +31,7 @@ DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterFindDuplicates)
 {
 	PVCore::PVArgumentList args;
 	args["Axis"].setValue(PVCore::PVAxisIndexType(0));
+	args["Remove them"].setValue(PVCore::PVCheckBoxType(false));
 	return args;
 }
 
@@ -86,19 +86,6 @@ void Picviz::PVLayerFilterFindDuplicates::operator()(PVLayer& in, PVLayer &out)
 		}
 	}
 
-}
-
-/******************************************************************************
- *
- * Picviz::PVLayerFilterFindDuplicates::search_value_menu
- *
- *****************************************************************************/
-PVCore::PVArgumentList Picviz::PVLayerFilterFindDuplicates::search_value_menu(PVRow row, PVCol col, QString const& v)
-{
-	PVCore::PVArgumentList args = default_args();
-	args["Regular expression"] = QRegExp(QRegExp::escape(v));
-	args["Axis"].setValue(PVCore::PVAxisIndexType(col));
-	return args;
 }
 
 IMPL_FILTER(Picviz::PVLayerFilterFindDuplicates)
