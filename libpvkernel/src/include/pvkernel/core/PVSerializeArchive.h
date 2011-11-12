@@ -40,6 +40,7 @@ public:
 	PVSerializeObject_p get_root();
 	version_t get_version() const;
 	void set_options(boost::shared_ptr<PVSerializeArchiveOptions> options) { _options = options; };
+	void set_save_everything(bool save_everything) { _save_everything = save_everything; };
 	// Finish function
 	virtual void finish();
 
@@ -84,6 +85,7 @@ protected:
 
 private:
 	boost::shared_ptr<PVSerializeArchiveOptions> _options;
+	bool _save_everything;
 };
 
 }

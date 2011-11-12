@@ -55,7 +55,7 @@ PVInspector::PVSaveSceneDialog::PVSaveSceneDialog(Picviz::PVScene_p scene, PVCor
 
 	QWidget* options_widget = new QWidget();
 	options_widget->setLayout(options_layout);
-	tabs->addTab(options_widget, tr("Options"));
+	tabs->addTab(options_widget, tr("Advanced Options"));
 
 	QVBoxLayout* layout = new QVBoxLayout();
 	layout->addWidget(tabs);

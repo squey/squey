@@ -51,7 +51,7 @@ public:
 
 public:
 	PVCore::PVSerializeArchiveOptions_p get_default_serialize_options();
-	void save_to_file(QString const& path, PVCore::PVSerializeArchiveOptions_p options = PVCore::PVSerializeArchiveOptions_p());
+	void save_to_file(QString const& path, PVCore::PVSerializeArchiveOptions_p options = PVCore::PVSerializeArchiveOptions_p(), bool save_everything = false);
 	void load_from_file(QString const& path);
 
 public:

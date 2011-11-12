@@ -173,7 +173,7 @@ protected:
 
 private:
 	bool load_project(const QString &file);
-	bool save_project(const QString &file, PVCore::PVSerializeArchiveOptions_p options);
+	bool save_project(const QString &file, PVCore::PVSerializeArchiveOptions_p options, bool save_everything);
 	void set_current_project_filename(const QString& file);
 	bool maybe_save_project();
 	bool is_project_untitled() { return _is_project_untitled; }
@@ -304,6 +304,7 @@ private:
 private:
 	Picviz::PVScene_p _scene;
 	QString _cur_project_file;
+	bool _cur_project_save_everything;
 	bool _is_project_untitled;
 
 private:
