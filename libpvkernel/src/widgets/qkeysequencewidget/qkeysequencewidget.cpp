@@ -298,7 +298,7 @@ void QKeySequenceWidgetPrivate::setToolTip(const QString &tip)
 // update the location of widgets
 void QKeySequenceWidgetPrivate::updateView()
 {
-    qDebug() << "update view ";
+    // qDebug() << "update view ";
     switch(showClearButton)
     {
     case QKeySequenceWidget::ShowLeft:

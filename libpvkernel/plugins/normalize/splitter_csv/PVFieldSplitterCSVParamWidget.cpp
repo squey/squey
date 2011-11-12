@@ -10,6 +10,26 @@
 #include <QSpacerItem>
 #include <QPushButton>
 
+static char get_ascii_from_sequence(QKeySequence key)
+{
+	// from qnamespace.h
+	// Key_Escape = 0x01000000,
+	// Key_Tab = 0x01000001,
+	// Key_Backtab = 0x01000002,
+
+	switch(key[0]) {
+	case Qt::Key_Tab:
+		return '\t';
+	case Qt::Key_Backtab:
+		return '\b';
+	case Qt::Key_Escape:
+		return 0x1b;
+	default:
+		return key[0];
+	}
+
+}
+
 /******************************************************************************
  *
  * PVFilter::PVFieldSplitterCSVParamWidget::PVFieldSplitterCSVParamWidget
@@ -71,7 +91,7 @@ QWidget* PVFilter::PVFieldSplitterCSVParamWidget::get_param_widget()
 	separator_text->setKeySequence(QKeySequence("Space"));
 	separator_text->setClearButtonShow(QKeySequenceWidget::NoShow);
 	// FIXME: We must take the default parameter and avoid forcing "Space". However the following code returns '4'
-	// and the .toString() returns '44'.
+	// and the .toString() returns '44'. Look below for '44' and FIXME too.
 	// separator_text->setKeySequence(QKeySequence((int) l["sep"].toString().at(0).toAscii()));
 
 
@@ -96,6 +116,13 @@ QWidget* PVFilter::PVFieldSplitterCSVParamWidget::get_param_widget()
 
 	layout->addSpacerItem(new QSpacerItem(1,1,QSizePolicy::Expanding, QSizePolicy::Expanding));
 
+	// Update the argument from our current sequence value
+	// FIXME: This is a workaround. This is related to the '44' bug (QKeySequence((int) l["sep"].toString().at(0).toAscii())).
+	PVCore::PVArgumentList args;
+	args["sep"] = QChar::fromAscii(get_ascii_from_sequence(separator_text->keySequence()));
+	this->get_filter()->set_args(args);
+	emit args_changed_Signal();
+
 	//connect(separator_text, SIGNAL(textChanged(const QString &)), this, SLOT(updateSeparator(const QString &)));
 	connect(separator_text, SIGNAL(keySequenceChanged(QKeySequence)), this, SLOT(updateSeparator(QKeySequence)));
 	connect(set_nchilds_btn, SIGNAL(clicked()), this, SLOT(updateNChilds()));
@@ -118,26 +145,6 @@ QAction* PVFilter::PVFieldSplitterCSVParamWidget::get_action_menu()
 {
 	assert(action_menu);
 	return action_menu;
-}
-
-static char get_ascii_from_sequence(QKeySequence key)
-{
-	// from qnamespace.h
-	// Key_Escape = 0x01000000,
-	// Key_Tab = 0x01000001,
-	// Key_Backtab = 0x01000002,
-
-	switch(key[0]) {
-	case Qt::Key_Tab:
-		return '\t';
-	case Qt::Key_Backtab:
-		return '\b';
-	case Qt::Key_Escape:
-		return 0x1b;
-	default:
-		return key[0];
-	}
-
 }
 
 void PVFilter::PVFieldSplitterCSVParamWidget::updateSeparator(QKeySequence key)
