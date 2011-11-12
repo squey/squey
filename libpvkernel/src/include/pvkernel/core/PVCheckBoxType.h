@@ -20,7 +20,7 @@ namespace PVCore {
 class PVCheckBoxType
 {
 public:
-	PVCheckBoxType() { _checked = false; };
+	PVCheckBoxType() { };
 	PVCheckBoxType(const bool checked) { set_checked(checked); };
 
 	inline bool get_checked() const { return _checked; }

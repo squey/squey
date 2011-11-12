@@ -20,8 +20,7 @@ PVInspector::PVCheckBoxEditor::PVCheckBoxEditor(Picviz::PVView& view, QWidget *p
 	QCheckBox(parent),
 	_view(view)
 {
-
-	setFocusPolicy(Qt::StrongFocus);
+	// setFocusPolicy(Qt::StrongFocus);
 }
 
 /******************************************************************************
