@@ -66,7 +66,7 @@ bool PVRush::PVFormatVersion::_rec_0to1(QDomElement elt)
 	else
 	if (tag_name == "csv") {
 		elt.setTagName("splitter");
-		elt.setAttribute("type", "csv");
+		elt.setAttribute("type", "csv");		
 		elt.setAttribute("sep", elt.attribute("delimiter"));
 		elt.removeAttribute("delimiter");
 	}

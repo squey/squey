@@ -95,10 +95,10 @@ public:
         :  QPushButton(parent)
         , d(p)
     {
-        qDebug() << "qShortcut button Create";
-        qDebug() << "parent----" << parent;
+        /* qDebug() << "qShortcut button Create"; */
+        /* qDebug() << "parent----" << parent; */
 
-        qDebug() << "visible " << isVisible();      
+        /* qDebug() << "visible " << isVisible();       */
         setMinimumWidth(QPushButton::minimumWidth());
         QPushButton::setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     }

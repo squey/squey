@@ -68,8 +68,13 @@ QWidget* PVFilter::PVFieldSplitterCSVParamWidget::get_param_widget()
 	separator_label->setAlignment(Qt::AlignLeft);
 	gridLayout->addWidget(separator_label, 0, 0);
 	separator_text = new QKeySequenceWidget();
+	separator_text->setKeySequence(QKeySequence("Space"));
 	separator_text->setClearButtonShow(QKeySequenceWidget::NoShow);
-	separator_text->setKeySequence(QKeySequence((int) l["sep"].toString().at(0).toAscii()));
+	// FIXME: We must take the default parameter and avoid forcing "Space". However the following code returns '4'
+	// and the .toString() returns '44'.
+	// separator_text->setKeySequence(QKeySequence((int) l["sep"].toString().at(0).toAscii()));
+
+
 	//separator_text->setAlignment(Qt::AlignHCenter);
 	//separator_text->setMaxLength(1);
 	gridLayout->addWidget(separator_text, 0, 2);
@@ -115,11 +120,32 @@ QAction* PVFilter::PVFieldSplitterCSVParamWidget::get_action_menu()
 	return action_menu;
 }
 
+static char get_ascii_from_sequence(QKeySequence key)
+{
+	// from qnamespace.h
+	// Key_Escape = 0x01000000,
+	// Key_Tab = 0x01000001,
+	// Key_Backtab = 0x01000002,
+
+	switch(key[0]) {
+	case Qt::Key_Tab:
+		return '\t';
+	case Qt::Key_Backtab:
+		return '\b';
+	case Qt::Key_Escape:
+		return 0x1b;
+	default:
+		return key[0];
+	}
+
+}
 
 void PVFilter::PVFieldSplitterCSVParamWidget::updateSeparator(QKeySequence key)
 {
 	PVCore::PVArgumentList args;
-	args["sep"] = QChar::fromAscii(key[0]);
+
+
+	args["sep"] = QChar::fromAscii(get_ascii_from_sequence(key));
 	this->get_filter()->set_args(args);
 
 	update_recommanded_nfields();

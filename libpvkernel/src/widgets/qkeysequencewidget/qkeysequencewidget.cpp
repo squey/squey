@@ -458,7 +458,7 @@ bool QShortcutButton::event(QEvent *e)
 
 void QShortcutButton::keyPressEvent(QKeyEvent *keyEvent)
 {
-    qDebug() << "key pressed";
+    // qDebug() << "key pressed";
     int keyQt =  keyEvent->key();
 
 // Qt sometimes returns garbage keycodes, I observed -1,
@@ -545,7 +545,7 @@ void QShortcutButton::keyPressEvent(QKeyEvent *keyEvent)
 
 void QShortcutButton::keyReleaseEvent(QKeyEvent *keyEvent)
 {
-    qDebug() << "key released";
+    // qDebug() << "key released";
     if (keyEvent->key() == -1)
     {
         // ignore garbage, see keyPressEvent()
