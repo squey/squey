@@ -186,7 +186,7 @@ void PVInspector::PVMainWindow::create_menus()
 	//edit_Menu->addSeparator();
 
 
-	selection_Menu = menubar->addMenu(tr("Se&lection"));
+	selection_Menu = menubar->addMenu(tr("&Selection"));
 	selection_Menu->addAction(selection_all_Action);
 	selection_Menu->addAction(selection_none_Action);
 	selection_Menu->addAction(selection_inverse_Action);
@@ -216,14 +216,14 @@ void PVInspector::PVMainWindow::create_menus()
 	view_Menu->addAction(view_screenshot_qt);
 #endif
 
-	axes_Menu = menubar->addMenu(tr("Axes"));
+	axes_Menu = menubar->addMenu(tr("&Axes"));
 	axes_Menu->addAction(axes_editor_Action);
 	axes_Menu->addAction(axes_combination_editor_Action);
 	axes_Menu->addSeparator();
 	axes_Menu->addAction(axes_mode_Action);
 	axes_Menu->addAction(axes_display_edges_Action);
 
-	lines_Menu = menubar->addMenu(tr("Lines"));
+	lines_Menu = menubar->addMenu(tr("&Lines"));
 	lines_Menu->addAction(lines_display_unselected_Action);
 	lines_Menu->addAction(lines_display_unselected_listing_Action);
 	lines_Menu->addAction(lines_display_unselected_GLview_Action);
@@ -232,7 +232,7 @@ void PVInspector::PVMainWindow::create_menus()
 	lines_Menu->addAction(lines_display_zombies_listing_Action);
 	lines_Menu->addAction(lines_display_zombies_GLview_Action);
 
-	tools_Menu = menubar->addMenu(tr("&Tools"));
+	tools_Menu = menubar->addMenu(tr("T&ools"));
 	tools_Menu->addAction(tools_new_format_Action);
 	tools_Menu->addAction(tools_cur_format_Action);
 
