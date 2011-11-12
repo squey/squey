@@ -31,7 +31,7 @@ DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterFindDuplicates)
 {
 	PVCore::PVArgumentList args;
 	args["Axis"].setValue(PVCore::PVAxisIndexType(0));
-	args["Remove them"].setValue(PVCore::PVCheckBoxType(false));
+	args["Select only non-duplicates"].setValue(PVCore::PVCheckBoxType(false));
 	return args;
 }
 
@@ -43,7 +43,7 @@ DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterFindDuplicates)
 void Picviz::PVLayerFilterFindDuplicates::operator()(PVLayer& in, PVLayer &out)
 {	
 	int axis_id = _args["Axis"].value<PVCore::PVAxisIndexType>().get_original_index();
-	bool remove_them = _args["Remove them"].value<PVCore::PVCheckBoxType>().get_checked();
+	bool non_duplicates = _args["Select only non-duplicates"].value<PVCore::PVCheckBoxType>().get_checked();
 	PVRow nb_lines = _view->get_qtnraw_parent().size();
 
 	PVLOG_INFO("Shall we remove them:%d\n", remove_them);
@@ -82,9 +82,9 @@ void Picviz::PVLayerFilterFindDuplicates::operator()(PVLayer& in, PVLayer &out)
 			QString value = nraw_r[axis_id];
 			PVRow count = lines_duplicates[value];
 			if (count > 1) {
-				out.get_selection().set_line(r, true);
+				out.get_selection().set_line(r, non_duplicates ? false : true);
 			} else {
-				out.get_selection().set_line(r, false);
+				out.get_selection().set_line(r, non_duplicates ? true : false);
 			}
 		}
 	}

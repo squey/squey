@@ -13,7 +13,6 @@ layer_filter_axis_gradient
 layer_filter_diff
 layer_filter_heatline
 layer_filter_find_duplicates
-layer_filter_find_not_duplicates
 layer_filter_search
 layer_filter_webmail
 layer_filter_attacks
@@ -38,9 +37,6 @@ target_link_libraries(layer_filter_search ${LINK_LIBRARIES})
 
 add_library(layer_filter_find_duplicates SHARED find-duplicates/PVLayerFilterFindDuplicates.cpp find-duplicates/register.cpp)
 target_link_libraries(layer_filter_find_duplicates ${LINK_LIBRARIES})
-
-add_library(layer_filter_find_not_duplicates SHARED find-not-duplicates/PVLayerFilterFindNotDuplicates.cpp find-not-duplicates/register.cpp)
-target_link_libraries(layer_filter_find_not_duplicates ${LINK_LIBRARIES})
 
 add_library(layer_filter_webmail SHARED webmail-finder/PVLayerFilterWebmailFinder.cpp webmail-finder/register.cpp)
 target_link_libraries(layer_filter_webmail ${LINK_LIBRARIES})
