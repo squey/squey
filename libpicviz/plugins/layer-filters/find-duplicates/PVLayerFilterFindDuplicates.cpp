@@ -46,8 +46,6 @@ void Picviz::PVLayerFilterFindDuplicates::operator()(PVLayer& in, PVLayer &out)
 	bool non_duplicates = _args["Select only non-duplicates"].value<PVCore::PVCheckBoxType>().get_checked();
 	PVRow nb_lines = _view->get_qtnraw_parent().size();
 
-	PVLOG_INFO("Shall we remove them:%d\n", remove_them);
-
 	PVRush::PVNraw::nraw_table const& nraw = _view->get_qtnraw_parent();
 	QHash<QString, PVRow> lines_duplicates;
 
