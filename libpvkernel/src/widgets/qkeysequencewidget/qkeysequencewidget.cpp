@@ -31,8 +31,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <QKeyEvent>
 #include <QIcon>	
 
-#include "qkeysequencewidget_p.h"
-#include "qkeysequencewidget.h"
+#include <pvkernel/widgets/qkeysequencewidget_p.h>
+#include <pvkernel/widgets/qkeysequencewidget.h>
 
 /*!
   Creates a QKeySequenceWidget object wuth \a parent and empty \a keySequence

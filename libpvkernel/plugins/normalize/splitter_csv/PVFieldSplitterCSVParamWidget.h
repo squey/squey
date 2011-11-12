@@ -11,7 +11,7 @@
 #include <QAction>
 #include <QLineEdit>
 
-#include "qkeysequencewidget/qkeysequencewidget.h"
+#include <pvkernel/widgets/qkeysequencewidget.h>
 
 namespace PVFilter {
 

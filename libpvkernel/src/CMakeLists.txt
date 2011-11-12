@@ -267,10 +267,26 @@ include/pvkernel/rush/PVXmlTreeNodeDom.h
 include/pvkernel/rush/PVInputType.h
 )
 
-SET(SRC_FILES ${CORE_SRC_FILES} ${FILTER_SRC_FILES} ${RUSH_SRC_FILES})
-SET(HEADER_FILES ${CORE_HEADER_FILES} ${FILTER_HEADER_FILES} ${RUSH_HEADER_FILES})
-SET(MOC_HEADERS ${CORE_MOC_HEADERS} ${FILTER_MOC_HEADERS} ${RUSH_MOC_HEADERS})
-QT4_WRAP_CPP(MOC_SRC ${MOC_HEADERS})
+#
+# Widgets
+#
+set(WIDGETS_MOC_HEADERS
+include/pvkernel/widgets/qkeysequencewidget.h
+include/pvkernel/widgets/qkeysequencewidget_p.h
+)
+
+set(WIDGETS_HEADER_FILES
+)
+
+set(WIDGETS_SRC_FILES
+widgets/qkeysequencewidget/qkeysequencewidget.cpp
+)
+
+
+set(SRC_FILES ${CORE_SRC_FILES} ${FILTER_SRC_FILES} ${RUSH_SRC_FILES} ${WIDGETS_SRC_FILES})
+set(HEADER_FILES ${CORE_HEADER_FILES} ${FILTER_HEADER_FILES} ${RUSH_HEADER_FILES} ${WIDGETS_HEADER_FILES})
+set(MOC_HEADERS ${CORE_MOC_HEADERS} ${FILTER_MOC_HEADERS} ${RUSH_MOC_HEADERS} ${WIDGETS_MOC_HEADERS})
+qt4_wrap_cpp(MOC_SRC ${MOC_HEADERS})
 
 add_library(pvkernel SHARED ${SRC_FILES} ${HEADER_FILES} ${MOC_SRC} ${MOC_HEADERS})
 

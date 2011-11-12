@@ -112,9 +112,6 @@ widgets/format-builder/include/PVXmlRegValidatorHighLight.h
 widgets/format-builder/include/PVXmlTreeItemDelegate.h
 widgets/format-builder/include/PVXmlTimeValidatorHighLight.h
 
-widgets/qkeysequencewidget/qkeysequencewidget.h
-widgets/qkeysequencewidget/qkeysequencewidget_p.h
-
 # include/logviewer/addmachinedialog.h
 # include/logviewer/fileconnectiondialog.h
 # include/logviewer/filedownloader.h
@@ -198,9 +195,6 @@ widgets/format-builder/PVXmlRegValidatorHighLight.cpp
 widgets/format-builder/PVXmlTreeItemDelegate.cpp
 widgets/format-builder/PVXmlTreeView.cpp
 widgets/format-builder/PVXmlTimeValidatorHighLight.cpp
-
-widgets/qkeysequencewidget/qkeysequencewidget.cpp
-
 
 # logviewer/addmachinedialog.cpp
 # logviewer/fileconnectiondialog.cpp
