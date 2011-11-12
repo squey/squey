@@ -9,19 +9,10 @@
 #include <pvkernel/core/PVAxesIndexType.h>
 #include <pvkernel/core/PVColorGradientDualSliderType.h>
 #include <pvkernel/core/PVEnumType.h>
+#include <pvkernel/rush/PVUtils.h>
 #include <picviz/PVView.h>
 
 #include <math.h>
-
-static QString generate_row_key_from_values(PVCore::PVAxesIndexType const& axes, PVRush::PVNraw::nraw_table_line const& values)
-{
-	QString ret;
-	PVCore::PVAxesIndexType::const_iterator it;
-	for (it = axes.begin(); it != axes.end(); it++) {
-		ret.append(values[*it]);
-	}
-	return ret;
-}
 
 /******************************************************************************
  *
@@ -109,7 +100,7 @@ void Picviz::PVLayerFilterHeatlineBase::operator()(PVLayer& in, PVLayer &out)
 			return;
 		}
 		PVRush::PVNraw::nraw_table_line const& nrawvalues = nraw.at(counter);
-		key = generate_row_key_from_values(axes, nrawvalues);
+		key = PVRush::PVUtils::generate_key_from_axes_values(axes, nrawvalues);
 
 		PVRow count_frequency = lines_hash[key]+1;
 		lines_hash.insert(key, count_frequency);
@@ -128,7 +119,7 @@ void Picviz::PVLayerFilterHeatlineBase::operator()(PVLayer& in, PVLayer &out)
 		}
 		if (_view->get_line_state_in_pre_filter_layer(counter)) {
 			PVRush::PVNraw::nraw_table_line const& nrawvalues = nraw.at(counter);
-			key = generate_row_key_from_values(axes, nrawvalues);
+			key = PVRush::PVUtils::generate_key_from_axes_values(axes, nrawvalues);
 
 			PVRow count_frequency = lines_hash[key];
 

@@ -3,6 +3,8 @@
 #include <pvkernel/core/PVAxesIndexType.h>
 #include <pvkernel/rush/PVNraw.h>
 
+#include <pvkernel/rush/PVUtils.h>
+
 QString PVRush::PVUtils::generate_key_from_axes_values(PVCore::PVAxesIndexType const& axes, PVRush::PVNraw::nraw_table_line const& values)
 {
 	QString ret;

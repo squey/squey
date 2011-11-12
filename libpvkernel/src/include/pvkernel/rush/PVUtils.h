@@ -4,8 +4,8 @@
  * Copyright (C) Philippe Saade 2010-2011
  */
 
-#ifndef PVRUSH_NRAW_H
-#define PVRUSH_NRAW_H
+#ifndef PVRUSH_PVUTILS_H
+#define PVRUSH_PVUTILS_H
 
 #include <QString>
 
@@ -14,10 +14,9 @@
 #include <pvkernel/rush/PVNraw.h>
 
 namespace PVRush {
-
 	namespace PVUtils {
 		LibKernelDecl QString generate_key_from_axes_values(PVCore::PVAxesIndexType const& axes, PVRush::PVNraw::nraw_table_line const& values);
 	}
 }
 
-#endif	/* PVRUSH_NRAW_H */
+#endif	/* PVRUSH_PVUTILS_H */
