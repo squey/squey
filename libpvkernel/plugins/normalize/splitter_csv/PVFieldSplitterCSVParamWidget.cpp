@@ -91,6 +91,7 @@ QWidget* PVFilter::PVFieldSplitterCSVParamWidget::get_param_widget()
 	separator_text->setKeySequence(QKeySequence("Space"));
 	separator_text->setClearButtonShow(QKeySequenceWidget::NoShow);
 	separator_text->setKeySequence(QKeySequence((int) l["sep"].toChar().toAscii()));
+	separator_text->setMaxNumKey(1);
 
 	gridLayout->addWidget(separator_text, 0, 2);
 

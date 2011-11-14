@@ -72,6 +72,7 @@ public:
     QTimer modifierlessTimeout;
 
     quint32 numKey;
+	quint32 maxNumKey;
     quint32 modifierKeys;
 
     void setToolTip(const QString& tip);

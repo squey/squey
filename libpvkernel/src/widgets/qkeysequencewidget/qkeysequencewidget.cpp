@@ -220,6 +220,14 @@ QIcon QKeySequenceWidget::clearButtonIcon() const
     return d_ptr->clearButton->icon();
 }
 
+void QKeySequenceWidget::setMaxNumKey(quint32 n)
+{
+	if (n < 1) {
+		n = 1;
+	}
+	d_ptr->maxNumKey = n;
+}
+
 // connection internal signals & slots
 void QKeySequenceWidget::_connectingSlots()
 { 
@@ -234,7 +242,7 @@ SLOT(clearKeySequence()));
 // Private class implementation
 
 QKeySequenceWidgetPrivate::QKeySequenceWidgetPrivate()
-    : layout(NULL), clearButton(NULL), shortcutButton(NULL)
+    : maxNumKey(4), layout(NULL), clearButton(NULL), shortcutButton(NULL)
 {
     Q_Q(QKeySequenceWidget);
     Q_UNUSED(q);
@@ -531,7 +539,7 @@ void QShortcutButton::keyPressEvent(QKeyEvent *keyEvent)
 
             d->numKey++; // increment nuber of pressed keys
 
-            if (d->numKey >= 4)
+            if (d->numKey >= d->maxNumKey)
             {
                 d->doneRecording();
                 return;
