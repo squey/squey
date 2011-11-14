@@ -90,13 +90,9 @@ QWidget* PVFilter::PVFieldSplitterCSVParamWidget::get_param_widget()
 	separator_text = new QKeySequenceWidget();
 	separator_text->setKeySequence(QKeySequence("Space"));
 	separator_text->setClearButtonShow(QKeySequenceWidget::NoShow);
-	// FIXME: We must take the default parameter and avoid forcing "Space". However the following code returns '4'
-	// and the .toString() returns '44'. Look below for '44' and FIXME too.
-	// separator_text->setKeySequence(QKeySequence((int) l["sep"].toString().at(0).toAscii()));
+	separator_text->setKeySequence(QKeySequence((int) l["sep"].toChar().toAscii()));
+	separator_text->setMaxNumKey(1);
 
-
-	//separator_text->setAlignment(Qt::AlignHCenter);
-	//separator_text->setMaxLength(1);
 	gridLayout->addWidget(separator_text, 0, 2);
 
 	//field number of col
@@ -115,13 +111,6 @@ QWidget* PVFilter::PVFieldSplitterCSVParamWidget::get_param_widget()
 	layout->addWidget(set_nchilds_btn);
 
 	layout->addSpacerItem(new QSpacerItem(1,1,QSizePolicy::Expanding, QSizePolicy::Expanding));
-
-	// Update the argument from our current sequence value
-	// FIXME: This is a workaround. This is related to the '44' bug (QKeySequence((int) l["sep"].toString().at(0).toAscii())).
-	PVCore::PVArgumentList args;
-	args["sep"] = QChar::fromAscii(get_ascii_from_sequence(separator_text->keySequence()));
-	this->get_filter()->set_args(args);
-	emit args_changed_Signal();
 
 	//connect(separator_text, SIGNAL(textChanged(const QString &)), this, SLOT(updateSeparator(const QString &)));
 	connect(separator_text, SIGNAL(keySequenceChanged(QKeySequence)), this, SLOT(updateSeparator(QKeySequence)));

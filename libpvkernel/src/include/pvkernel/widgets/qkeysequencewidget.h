@@ -91,6 +91,7 @@ public:
     QKeySequence keySequence() const;
     QString noneText() const;
     QIcon clearButtonIcon() const;
+	void setMaxNumKey(quint32 n);
 
     /*!
       \brief Modes of sohow ClearButton
@@ -116,6 +117,9 @@ public Q_SLOTS:
     void setNoneText(const QString text);        
     void setClearButtonIcon(const QIcon& icon);
     void setClearButtonShow(QKeySequenceWidget::ClearButtonShow show);
+
+private:
+	
 };
 
 #endif // QKEYSEQUENCEWIDGET_H
