@@ -24,8 +24,9 @@ public:
 public:
 	virtual ~PVSourceCreator() {}
 public:
-	virtual source_p create_source_from_input(input_type input, PVFormat& /*used_format*/) const { return create_discovery_source_from_input(input); }
-	virtual source_p create_discovery_source_from_input(input_type input) const = 0;
+	/* Used for Hadoop since we read directly the file using libhdfs */
+	virtual source_p create_source_from_input(input_type input, PVFormat& format) const { return create_discovery_source_from_input(input, format); }
+	virtual source_p create_discovery_source_from_input(input_type input, const PVFormat& format) const = 0;
 	virtual QString supported_type() const = 0;
 	PVInputType_p supported_type_lib()
 	{
@@ -40,7 +41,6 @@ public:
 	// "pre-discovery" is called before processing the source into the TBB filters created
 	// by its PVFormat objects. If this function returns false, this PVSourceCreator is automatically
 	// discared (for *all* its formats) for this input.
-	// FIXME: cool, but not used yet in PVMainWindow
 	virtual bool pre_discovery(input_type input) const = 0;
 };
 

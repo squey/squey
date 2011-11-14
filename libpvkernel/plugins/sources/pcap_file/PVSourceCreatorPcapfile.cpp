@@ -10,7 +10,7 @@
 #include <QStringList>
 #include <QFileInfo>
 
-PVRush::PVSourceCreatorPcapfile::source_p PVRush::PVSourceCreatorPcapfile::create_discovery_source_from_input(input_type input) const
+PVRush::PVSourceCreatorPcapfile::source_p PVRush::PVSourceCreatorPcapfile::create_discovery_source_from_input(input_type input, const PVFormat& /*format*/) const
 {
 	// input is a QString !
 	PVFilter::PVChunkFilter* chk_flt = new PVFilter::PVChunkFilter();

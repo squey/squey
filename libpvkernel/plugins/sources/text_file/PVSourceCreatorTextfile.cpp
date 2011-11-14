@@ -12,7 +12,7 @@
 #include <QStringList>
 #include <QFileInfo>
 
-PVRush::PVSourceCreatorTextfile::source_p PVRush::PVSourceCreatorTextfile::create_discovery_source_from_input(input_type input) const
+PVRush::PVSourceCreatorTextfile::source_p PVRush::PVSourceCreatorTextfile::create_discovery_source_from_input(input_type input, const PVFormat& /*format*/) const
 {
 	PVLOG_DEBUG("(text_file plugin) create source for %s\n", qPrintable(input->human_name()));
 	PVFileDescription* file = dynamic_cast<PVFileDescription*>(input.get());

@@ -26,7 +26,7 @@ PVRush::PVSourceCreatorTexthdfs::source_p PVRush::PVSourceCreatorTexthdfs::creat
 	return src;
 }
 
-PVRush::PVSourceCreatorTexthdfs::source_p PVRush::PVSourceCreatorTexthdfs::create_discovery_source_from_input(input_type input) const
+PVRush::PVSourceCreatorTexthdfs::source_p PVRush::PVSourceCreatorTexthdfs::create_discovery_source_from_input(input_type input, const PVFormat& /*format*/) const
 {
 	// input is a PVInputHDFSFile !
 	PVInputHDFSFile* f = dynamic_cast<PVInputHDFSFile*>(input.get());

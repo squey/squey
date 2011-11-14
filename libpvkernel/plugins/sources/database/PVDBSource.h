@@ -4,7 +4,6 @@
 #include <pvbase/general.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
 #include "../../common/database/PVDBQuery.h"
-#include <pvkernel/filter/PVChunkFilter.h>
 
 #include <pvkernel/core/PVChunk.h>
 #include <pvkernel/filter/PVChunkFilter.h>
