@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 
 my ($LOGFILE) = 0;
+my ($read_once) = 0;
 
 sub picviz_open_file {
     $filename = $_[0];
@@ -24,6 +25,13 @@ sub picviz_is_element_text {
 sub picviz_get_next_chunk {
 	my ($min_chunk_size) = $_[0];
 	$row = 0;
+
+	if ($read_once != 0) {
+	    my(@array) = ();
+	    return @array;
+	}
+
+	$read_once = 1;
 
 	while(<LOGFILE>) {
 	    # $line = $_;
