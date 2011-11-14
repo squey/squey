@@ -7,17 +7,15 @@
 #include <QStringList>
 #include <QFileInfo>
 
-extern "C" {
-#include <EXTERN.h>
-#include <perl.h>
-}
-
 #define DEFAULT_PERL_CHUNK_SIZE 1024 * 100
 
 PVRush::PVSourceCreatorPerlfile::source_p PVRush::PVSourceCreatorPerlfile::create_discovery_source_from_input(input_type input, const PVFormat& format) const
 {
 	PVFilter::PVChunkFilter* chk_flt = new PVFilter::PVChunkFilter();
-	source_p src = PVRush::PVPerlSource_p(new PVRush::PVPerlSource(input, DEFAULT_PERL_CHUNK_SIZE, chk_flt->f(), format.get_name()));
+	QFileInfo perl_file_info(format.get_full_path());
+	QString perl_file(perl_file_info.dir().absoluteFilePath(perl_file_info.completeBaseName() + ".pl"));
+
+	source_p src(new PVRush::PVPerlSource(input, DEFAULT_PERL_CHUNK_SIZE, chk_flt->f(), perl_file));
 
 	return src;
 }

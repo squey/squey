@@ -13,9 +13,8 @@
 #include <pvkernel/rush/PVSourceCreator.h>
 #include <boost/bind.hpp>
 
-extern "C"{
+#include <EXTERN.h>
 #include <perl.h>
-}
 
 namespace PVRush {
 
@@ -26,7 +25,7 @@ public:
 public:
 	virtual QString human_name();
 	virtual void seek_begin();
-	virtual bool seek(input_offset off) {return false;}
+	virtual bool seek(input_offset /*off*/) { return false; }
 	virtual void prepare_for_nelts(chunk_index nelts);
 	virtual PVCore::PVChunk* operator()();
 	virtual input_offset get_input_offset_from_index(chunk_index /*idx*/, chunk_index& /*known_idx*/) {return 0;}
