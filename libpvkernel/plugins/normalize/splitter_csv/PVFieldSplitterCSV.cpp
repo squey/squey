@@ -19,7 +19,7 @@ void PVFilter::PVFieldSplitterCSV::set_args(PVCore::PVArgumentList const& args)
 DEFAULT_ARGS_FILTER(PVFilter::PVFieldSplitterCSV)
 {
 	PVCore::PVArgumentList args;
-	args["sep"] = QVariant(',');
+	args["sep"] = QVariant(QChar(','));
 	return args;
 }
 
