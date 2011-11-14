@@ -252,3 +252,6 @@ if(WIN32)
         #       set(PERL_LIBRARY "C:\\strawberry\\perl\\bin\\perl510.dll")                                                                            else(WIN32)
         FIND_PACKAGE(PerlLibs)
 endif(WIN32)
+
+
+FIND_PACKAGE(PythonLibs)
