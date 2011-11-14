@@ -266,20 +266,26 @@ PVFilter::PVElementFilter_f PVRush::PVFormat::create_tbb_filters_elt()
 QHash<QString, PVRush::PVFormat> PVRush::PVFormat::list_formats_in_dir(QString const& format_name_prefix, QString const& dir)
 {
 	QHash<QString, PVRush::PVFormat> ret;
-	QStringList pcre_helpers_dir_list = PVRush::normalize_get_helpers_plugins_dirs(dir);
-	PVLOG_INFO("Search for formats in %s\n", qPrintable(pcre_helpers_dir_list.join(" ")));
+	QStringList normalize_helpers_dir_list = PVRush::normalize_get_helpers_plugins_dirs(dir);
 
-	for (int counter=0; counter < pcre_helpers_dir_list.count(); counter++) {
-		QDir pcre_helpers_dir(pcre_helpers_dir_list[counter]);
-		pcre_helpers_dir.setNameFilters(QStringList() << "*.format" << "*.pcre");
-		QStringList files = pcre_helpers_dir.entryList();
+	for (int counter=0; counter < normalize_helpers_dir_list.count(); counter++) {
+		QString normalize_helpers_dir_str(normalize_helpers_dir_list[counter]);
+		if (normalize_helpers_dir_str.startsWith ("~/")) {
+			normalize_helpers_dir_str.replace (0, 1, QDir::homePath());
+		}
+
+		PVLOG_INFO("Search for formats in %s\n", qPrintable(normalize_helpers_dir_str));	
+		QDir normalize_helpers_dir(normalize_helpers_dir_str);
+		normalize_helpers_dir.setNameFilters(QStringList() << "*.format" << "*.pcre");
+		QStringList files = normalize_helpers_dir.entryList();
 		QStringListIterator filesIterator(files);
 		while (filesIterator.hasNext()) {
 			QString current_file = filesIterator.next();
 			QFileInfo fileInfo(current_file);
 			QString filename = fileInfo.completeBaseName();
 			QString plugin_name = format_name_prefix + QString(":") + filename;
-			ret.insert(plugin_name, PVFormat(plugin_name, pcre_helpers_dir.absoluteFilePath(current_file)));
+			PVLOG_INFO("Adding format '%s'\n", qPrintable(plugin_name));
+			ret.insert(plugin_name, PVFormat(plugin_name, normalize_helpers_dir.absoluteFilePath(current_file)));
 		}
 	}
 

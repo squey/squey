@@ -157,6 +157,7 @@ rush/PVPluginsLoad.cpp
 rush/PVSourceCreatorFactory.cpp
 rush/PVTags.cpp
 rush/PVTests.cpp
+rush/PVUtils.cpp
 rush/PVXmlTreeNodeDom.cpp
 rush/PVRawSourceBase.cpp
 
@@ -228,6 +229,7 @@ include/pvkernel/rush/PVSourceCreator.h
 include/pvkernel/rush/PVPipelineTask.h
 include/pvkernel/rush/PVTags.h
 include/pvkernel/rush/PVTests.h
+include/pvkernel/rush/PVUtils.h
 include/pvkernel/rush/PVXmlParamParser.h
 include/pvkernel/rush/PVXmlParamParserData.h
 

@@ -22,7 +22,7 @@ export PICVIZ_LAYER_FILTERS_DIR=$PICVIZ_PATH/plugins/layer-filters/
 export PICVIZ_MAPPING_FILTERS_DIR=$PICVIZ_PATH/plugins/mapping-filters/
 export PICVIZ_PLOTTING_FILTERS_DIR=$PICVIZ_PATH/plugins/plotting-filters/
 
-export PVRUSH_NORMALIZE_HELPERS_DIR="libpvkernel/plugins/normalize-helpers;/home/stricaud/pvrush-formats-extra/"
+export PVRUSH_NORMALIZE_HELPERS_DIR="libpvkernel/plugins/normalize-helpers;~/.pvrush-formats-extra"
 
 export PVRUSH_INPUTTYPE_DIR=libpvkernel/plugins/input_types
 export PVRUSH_SOURCE_DIR=libpvkernel/plugins/sources
