@@ -62,8 +62,8 @@ void PVInspector::PVMappingPlottingEditDialog::init_layout()
 	name_layout->addWidget(_edit_name);
 	_main_layout->addLayout(name_layout);
 
-	QScrollArea* scroll_area = new QScrollArea();
-	_main_grid = new QGridLayout(scroll_area);
+	QWidget* grid_widget = new QWidget();
+	_main_grid = new QGridLayout(grid_widget);
 	_main_grid->setHorizontalSpacing(20);
 	_main_grid->setVerticalSpacing(10);
 	int row = 0;
@@ -82,13 +82,15 @@ void PVInspector::PVMappingPlottingEditDialog::init_layout()
 		_main_grid->addWidget(create_label(tr("Plotting")), row, col);
 		col++;
 	}
+	QScrollArea* scroll_area = new QScrollArea();
+	scroll_area->setWidget(grid_widget);
+	scroll_area->setWidgetResizable(true);
 
 	QVBoxLayout* scroll_layout = new QVBoxLayout();
 	scroll_layout->addWidget(scroll_area);
 
 	QGroupBox* box = new QGroupBox(tr("Parameters"));
-	//box->setLayout(scroll_layout);
-	box->setLayout(_main_grid);
+	box->setLayout(scroll_layout);
 	_main_layout->addWidget(box);
 
 	setLayout(_main_layout);
