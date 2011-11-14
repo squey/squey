@@ -24,6 +24,7 @@ sub picviz_is_element_text {
 
 sub picviz_get_next_chunk {
 	my ($min_chunk_size) = $_[0];
+	print "From PERL: picviz_get_next_chunk $min_chunk_size\n";
 	$row = 0;
 
 	if ($read_once != 0) {
@@ -33,7 +34,7 @@ sub picviz_get_next_chunk {
 
 	$read_once = 1;
 
-	while(<LOGFILE>) {
+	while(<$main::LOGFILE>) {
 	    # $line = $_;
 	    chomp;
 
@@ -61,6 +62,8 @@ sub picviz_get_next_chunk {
 
 # We must reverse because perl stack will POP from the end
     return reverse @array;
-
 }
 
+picviz_open_file("/tmp/test");
+picviz_seek_begin();
+picviz_get_next_chunk(100);

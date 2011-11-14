@@ -34,8 +34,7 @@ public:
 protected:
 	QString _perl_file;
 	input_offset _start;
-	chunk_index _min_nelts;
-	chunk_index _nelts_chunk;
+	size_t _min_chunk_size;
 	chunk_index _next_index;
 private:
 	static PerlInterpreter *my_perl;
