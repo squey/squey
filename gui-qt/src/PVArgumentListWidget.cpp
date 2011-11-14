@@ -22,34 +22,18 @@
 #include <pvkernel/core/PVEnumType.h>
 #include <pvkernel/core/PVColorGradientDualSliderType.h>
 
-#include <PVArgumentListDelegate.h>
 #include <PVArgumentListModel.h>
 #include <PVArgumentListWidget.h>
 
-// This is the only way I've found to make the widget editable without double clicking.
-// It sure is not the most appropriate way of doing it. However, it seems it is hard to
-// get around the limit fixed by the QTableView that request a double click to be able
-// to edit data.
-// After searching for quite a while, I have seen some people recommend not using a
-// QTableView for this but prefer a QTextDocument. Is that one appropriate? Not sure.
-// At least what we have here work!
-bool PVInspector::PVArgumentListWidget::eventFilter(QObject *obj, QEvent *event)
-{
-	if (obj == _args_view->viewport()) {
-		if (event->type() == QEvent::MouseButtonPress) {
-			QMouseEvent *mouse = (QMouseEvent *)event;
-
-			QModelIndex model_index = _args_view->indexAt(QPoint(mouse->x(), mouse->y()));
-
-			if (model_index.column() == 1) {         // We must be on the widget to edit
-				_args_view->edit(model_index);
-			}
-			return true;
-		}
-	}
-
-	return false;
-}
+#include <PVArgumentEditorCreator.h>
+#include <PVAxisIndexEditor.h>
+#include <PVAxesIndexEditor.h>
+#include <PVCheckBoxEditor.h>
+#include <PVRegexpEditor.h>
+#include <PVEnumEditor.h>
+#include <PVColorGradientDualSliderEditor.h>
+#include <PVSpinBoxEditor.h>
+#include <PVAxisIndexCheckBoxEditor.h>
 
 PVInspector::PVArgumentListWidget::PVArgumentListWidget(Picviz::PVView& view, PVCore::PVArgumentList &args, QWidget* parent):
 	QDialog(parent),
@@ -60,34 +44,30 @@ PVInspector::PVArgumentListWidget::PVArgumentListWidget(Picviz::PVView& view, PV
 	QVBoxLayout *main_layout = new QVBoxLayout();
 	_btn_layout = new QHBoxLayout();
 
-	_args_view = new QTableView();
-	_args_view->setStyleSheet(QString("QTableView { background: rgba(255, 255, 255, 0) };"));
 	_args_model = new PVArgumentListModel(args);
-	_args_del = new PVArgumentListDelegate(view, _args_view);
-	_args_view->horizontalHeader()->hide();
-	_args_view->verticalHeader()->hide();
 
-	// This is the only way to catch the click event and then select the appropriate widget
-	// _args_view->viewport()->installEventFilter(this);
+	init_widget_factory();
 
-	_args_view->setShowGrid(false);
-	_args_view->setFrameShape(QFrame::NoFrame);
-	_args_view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-	_args_view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-
-	_args_view->setEditTriggers(QAbstractItemView::AllEditTriggers);
-
-	_args_view->setModel(_args_model);
-	_args_view->setItemDelegateForColumn(1, _args_del);
-
-	_args_view->resizeRowsToContents();
-	_args_view->resizeColumnsToContents();
-
-	QSize del_size = _args_del->getSize();
-	resize(del_size.width(), del_size.height());
+	_args_layout = new QGridLayout();
+	_mapper = new QDataWidgetMapper();
+	_mapper->setOrientation(Qt::Vertical);
+	_mapper->setModel(_args_model);
+	PVCore::PVArgumentList::iterator it;
+	uint32_t row = 0;
+	for (it = args.begin(); it != args.end(); it++) {
+		QVariant::Type vtype = (QVariant::Type) it.value().userType();
+		QWidget* widget = _args_widget_factory->createEditor(vtype, this);
+		QLabel* label = new QLabel(it.key());
+		label->setBuddy(widget);
+		_args_layout->addWidget(label, row, 0);
+		_args_layout->addWidget(widget, row, 1);
+		_mapper->addMapping(widget, row, _args_widget_factory->valuePropertyName(vtype));
+		row++;
+	}
+	_mapper->toFirst();
 
 	// Set the layouts
-	main_layout->addWidget(_args_view);
+	main_layout->addLayout(_args_layout);
 	main_layout->addLayout(_btn_layout);
 
 	setLayout(main_layout);
@@ -99,9 +79,32 @@ PVInspector::PVArgumentListWidget::PVArgumentListWidget(Picviz::PVView& view, PV
 PVInspector::PVArgumentListWidget::~PVArgumentListWidget()
 {
 	PVLOG_INFO("In PVArgumentListWidget destructor\n");
-	_args_view->deleteLater();
 	_args_model->deleteLater();
-	_args_del->deleteLater();
+}
+
+void PVInspector::PVArgumentListWidget::init_widget_factory()
+{
+	_args_widget_factory = new QItemEditorFactory();
+
+	QItemEditorCreatorBase *pv_axis_index_creator = new PVArgumentEditorCreator<PVAxisIndexEditor>(_view);
+	QItemEditorCreatorBase *pv_axis_index_checkbox_creator = new PVArgumentEditorCreator<PVAxisIndexCheckBoxEditor>(_view);
+	QItemEditorCreatorBase *pv_axes_index_creator = new PVArgumentEditorCreator<PVAxesIndexEditor>(_view);
+	QItemEditorCreatorBase *pv_checkbox_creator = new PVArgumentEditorCreator<PVCheckBoxEditor>(_view);
+	QItemEditorCreatorBase *pv_enum_creator = new PVArgumentEditorCreator<PVEnumEditor>(_view);
+	QItemEditorCreatorBase *regexp_creator = new PVArgumentEditorCreator<PVRegexpEditor>(_view);
+	QItemEditorCreatorBase *dualslider_creator = new PVArgumentEditorCreator<PVColorGradientDualSliderEditor>(_view);
+	QItemEditorCreatorBase *spinbox_creator = new PVArgumentEditorCreator<PVSpinBoxEditor>(_view);
+
+	
+	// And register them into the factory
+	_args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVAxisIndexType>(), pv_axis_index_creator);
+	_args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVAxisIndexCheckBoxType>(), pv_axis_index_checkbox_creator);
+	_args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVAxesIndexType>(), pv_axes_index_creator);
+	_args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVCheckBoxType>(), pv_checkbox_creator);
+	_args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVEnumType>(), pv_enum_creator);
+	_args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVColorGradientDualSliderType>(), dualslider_creator);
+	_args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVSpinBoxType>(), spinbox_creator);
+	_args_widget_factory->registerEditor(QVariant::RegExp, regexp_creator);
 }
 
 void PVInspector::PVArgumentListWidget::init()

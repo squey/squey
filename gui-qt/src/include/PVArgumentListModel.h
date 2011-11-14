@@ -28,7 +28,6 @@ public:
 	Qt::ItemFlags flags(const QModelIndex& index) const;
 	QVariant headerData(int section, Qt::Orientation orientation, int role) const; 
 protected:
-	QString                    _header_name[2];
 	PVCore::PVArgumentList&  _args;
 };
 

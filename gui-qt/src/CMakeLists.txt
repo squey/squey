@@ -43,7 +43,6 @@ add_definitions(${PVGL_FLAGS})
 #include_directories(AFTER ${GLUT_INCLUDE_DIR})
 SET(MOC_HEADERS
 include/PVArgumentEditorCreator.h
-include/PVArgumentListDelegate.h
 include/PVArgumentListModel.h
 include/PVArgumentListWidget.h
 include/PVAxisPropertiesWidget.h
@@ -125,7 +124,6 @@ widgets/format-builder/include/PVXmlTimeValidatorHighLight.h
 SET(SRC_FILES
 #GKMapView.cpp
 main.cpp
-PVArgumentListDelegate.cpp
 PVArgumentListModel.cpp
 PVArgumentListWidget.cpp
 PVAxisPropertiesWidget.cpp

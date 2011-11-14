@@ -11,7 +11,8 @@
 #include <QDialog>
 #include <QEvent>
 
-
+#include <QDataWidgetMapper>
+#include <QItemEditorFactory>
 #include <QTableView>
 #include <QListWidget>
 #include <QVariant>
@@ -22,7 +23,6 @@
 #include <picviz/PVView.h>
 
 #include <PVArgumentListModel.h>
-#include <PVArgumentListDelegate.h>
 
 namespace PVInspector {
 class PVMainWindow;
@@ -34,10 +34,13 @@ class PVArgumentListWidget: public QDialog
 public:
 	PVArgumentListWidget(Picviz::PVView& view, PVCore::PVArgumentList &args, QWidget* parent);
 	virtual ~PVArgumentListWidget();
-	bool eventFilter(QObject *obj, QEvent *event);
+	//bool eventFilter(QObject *obj, QEvent *event);
 	void init();
 	inline bool args_changed() { return _args_has_changed; }
 	inline void clear_args_state() { _args_has_changed = false; }
+
+private:
+	void init_widget_factory();
 
 private slots:
 	void args_changed_Slot();
@@ -52,9 +55,10 @@ protected:
 /* 	void widget_clicked_Slot(); */
 
 protected:
-	QTableView*               _args_view;
+	QGridLayout*              _args_layout;
+	QDataWidgetMapper*        _mapper;
+	QItemEditorFactory*       _args_widget_factory;
 	PVArgumentListModel*      _args_model;
-	PVArgumentListDelegate*   _args_del;
 	PVCore::PVArgumentList& _args;
 	Picviz::PVView&           _view;
 
