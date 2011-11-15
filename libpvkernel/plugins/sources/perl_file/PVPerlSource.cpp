@@ -50,6 +50,26 @@ PVRush::PVPerlSource::PVPerlSource(input_type input, size_t min_chunk_size, PVFi
 
 PVRush::PVPerlSource::~PVPerlSource()
 {
+	SV* svp;
+	dSP;
+	ENTER;
+	SAVETMPS;
+	PUSHMARK(SP);
+	PUTBACK;
+	perl_call_pv("picviz_close", G_EVAL);
+	SPAGAIN;
+	svp = GvSV(gv_fetchpv("@", TRUE, SVt_PV));
+	if (SvTRUE(svp)) {
+		char* err_msg = SvPV_nolen(svp);
+		POPs;
+		PVLOG_ERROR("Error in Perl file %s: %s\n", qPrintable(_perl_file), err_msg);
+		return;
+	}
+
+	PUTBACK;
+	FREETMPS;
+	LEAVE; 
+
 	perl_destruct(my_perl);
 	perl_free(my_perl);
 }

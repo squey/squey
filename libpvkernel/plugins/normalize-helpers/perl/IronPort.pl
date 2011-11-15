@@ -63,3 +63,7 @@ sub picviz_get_next_chunk {
 # We must reverse because perl stack will POP from the end
     return reverse @array;
 }
+
+sub picviz_close {
+	close $main::LOGFILE
+}
