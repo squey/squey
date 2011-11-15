@@ -793,50 +793,55 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 			// Try every possible format
 			QHash<QString,PVCore::PVMeanValue<float> > file_types;
 			tbb::tick_count dis_start = tbb::tick_count::now();
-			try {
-				//for (itfc = dis_format_creator.begin(); itfc != dis_format_creator.end(); itfc++) {
-				QList<PVRush::hash_format_creator::key_type> dis_formats = dis_format_creator.keys();
-				QList<PVRush::hash_format_creator::mapped_type> dis_v = dis_format_creator.values();
-			#pragma omp parallel for
-				for (int i = 0; i < dis_format_creator.size(); i++) {
-					//PVRush::pair_format_creator const& pfc = itfc.value();
-					PVRush::pair_format_creator const& pfc = dis_v.at(i);
-					//QString const& str_format = itfc.key();
-					QString const& str_format = dis_formats.at(i);
-					try {
-						float success_rate = PVRush::PVSourceCreatorFactory::discover_input(pfc, *itin);
-						PVLOG_INFO("For input %s with format %s, success rate is %0.4f\n", qPrintable(in_str), qPrintable(str_format), success_rate);
+			
+			QList<PVRush::hash_format_creator::key_type> dis_formats = dis_format_creator.keys();
+			QList<PVRush::hash_format_creator::mapped_type> dis_v = dis_format_creator.values();
+			bool input_exception = false;
+			std::string input_exception_str;
+#pragma omp parallel for
+			for (int i = 0; i < dis_format_creator.size(); i++) {
+				//PVRush::pair_format_creator const& pfc = itfc.value();
+				PVRush::pair_format_creator const& pfc = dis_v.at(i);
+				//QString const& str_format = itfc.key();
+				QString const& str_format = dis_formats.at(i);
+				try {
+					float success_rate = PVRush::PVSourceCreatorFactory::discover_input(pfc, *itin);
+					PVLOG_INFO("For input %s with format %s, success rate is %0.4f\n", qPrintable(in_str), qPrintable(str_format), success_rate);
 
-						if (success_rate > 0) {
-						#pragma omp critical
-							{
-								file_types[str_format].push(success_rate);
-								discovered_types[str_format].push(success_rate);
-							}
-						}
-					}
-					catch (PVRush::PVXmlParamParserException &e) {
-					#pragma omp critical
+					if (success_rate > 0) {
+#pragma omp critical
 						{
-							formats_error[pfc.first.get_full_path()] = std::pair<QString,QString>(pfc.first.get_format_name(), tr("XML parser error: ") + e.what());
+							file_types[str_format].push(success_rate);
+							discovered_types[str_format].push(success_rate);
 						}
-						continue;
-					}
-					catch (PVRush::PVFormatInvalid &e) {
-					#pragma omp critical
-						{
-							formats_error[pfc.first.get_full_path()] = std::pair<QString,QString>(pfc.first.get_format_name(), e.what());
-						}
-						continue;
 					}
 				}
-			}
-			catch (PVRush::PVInputException &e) {
-				PVLOG_ERROR("PVInput error: %s\n", e.what().c_str());
-				continue;
+				catch (PVRush::PVXmlParamParserException &e) {
+#pragma omp critical
+					{
+						formats_error[pfc.first.get_full_path()] = std::pair<QString,QString>(pfc.first.get_format_name(), tr("XML parser error: ") + e.what());
+					}
+					continue;
+				}
+				catch (PVRush::PVFormatInvalid &e) {
+#pragma omp critical
+					{
+						formats_error[pfc.first.get_full_path()] = std::pair<QString,QString>(pfc.first.get_format_name(), e.what());
+					}
+					continue;
+				}
+				catch (PVRush::PVInputException &e) {
+					input_exception = true;
+					input_exception_str = e.what().c_str();
+					continue;
+				}
 			}
 			tbb::tick_count dis_end = tbb::tick_count::now();
 			PVLOG_INFO("Automatic format discovery took %0.4f seconds.\n", (dis_end-dis_start).seconds());
+			if (input_exception) {
+				PVLOG_ERROR("PVInput exception: %s\n", input_exception_str.c_str());
+				continue;
+			}
 
 			if (file_types.count() == 1) {
 				// We got the formats that matches this input

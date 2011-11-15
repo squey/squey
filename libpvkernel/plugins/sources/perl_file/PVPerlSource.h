@@ -11,6 +11,7 @@
 #include <pvkernel/filter/PVChunkFilter.h>
 #include <pvkernel/filter/PVFilterFunction.h>
 #include <pvkernel/rush/PVSourceCreator.h>
+#include <pvkernel/rush/PVInput.h>
 #include <boost/bind.hpp>
 
 #include <EXTERN.h>
@@ -37,7 +38,31 @@ protected:
 	size_t _min_chunk_size;
 	chunk_index _next_index;
 private:
-	static PerlInterpreter *my_perl;
+	PerlInterpreter *my_perl;
+};
+
+class PVPerlFormatInvalid: public PVFormatInvalid
+{
+public:
+	PVPerlFormatInvalid(QString const& file)
+	{
+		_msg = QObject::tr("Unable to parse %1").arg(file);
+	}
+	QString what() const { return _msg; }
+private:
+	QString _msg;
+};
+
+class PVPerlExecException: public PVFormatInvalid
+{
+public:
+	PVPerlExecException(QString const& file, char* msg)
+	{
+		_msg = QObject::tr("Error in Perl file %1: %2").arg(file).arg(QString::fromLocal8Bit(msg));
+	}
+	QString what() const { return _msg; }
+private:
+	QString _msg;
 };
 
 }

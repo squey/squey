@@ -63,7 +63,3 @@ sub picviz_get_next_chunk {
 # We must reverse because perl stack will POP from the end
     return reverse @array;
 }
-
-picviz_open_file("/tmp/test");
-picviz_seek_begin();
-picviz_get_next_chunk(100);

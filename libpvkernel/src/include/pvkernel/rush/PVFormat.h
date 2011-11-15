@@ -48,13 +48,13 @@ namespace PVRush {
 class PVFormatException
 {
 public:
-	virtual QString what() = 0;
+	virtual QString what() const = 0;
 };
 
 class PVFormatInvalid: public PVFormatException
 {
 public:
-	QString what() { return QString("invalid format (no filters and/or axes)"); }
+	QString what() const { return QString("invalid format (no filters and/or axes)"); }
 };
 
 
