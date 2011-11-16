@@ -76,7 +76,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::allocBoardFields(){
     
     //tab parameter
     group = new PVXmlParamWidgetEditorBox(QString("group"), new QVariant(node->attribute(PVFORMAT_AXIS_GROUP_STR)));
-    groupLabel = new QLabel(tr("Goup :"));
+    groupLabel = new QLabel(tr("Group :"));
 	comboGroup = new PVXmlParamComboBox("group");
 	btnGroupAdd = new QPushButton(tr("Add a group..."));
 	listTags = new PVXmlParamList("tag");
