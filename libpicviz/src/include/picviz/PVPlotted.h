@@ -21,6 +21,7 @@
 #include <boost/shared_ptr.hpp>
 #include <picviz/PVView_types.h>
 #include <picviz/PVPlotting.h>
+#include <picviz/PVSelection.h>
 
 
 #ifdef CUDA
@@ -31,7 +32,6 @@
 namespace Picviz {
 
 // Forward declaration
-class PVSelection;
 class PVMapped;
 
 /**
@@ -40,10 +40,29 @@ class PVMapped;
 class LibPicvizDecl PVPlotted {
 	friend class PVCore::PVSerializeObject;
 	friend class PVMapped;
+private:
+	struct ExpandedSelection
+	{
+		ExpandedSelection(PVCol col_, PVSelection const& sel_):
+			col(col_),
+			sel_p(new PVSelection(sel_))
+		{ }
+		ExpandedSelection():
+			col(0)
+		{ }
+		PVCol col;
+		boost::shared_ptr<PVSelection> sel_p;
+		void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
+		{
+			so.attribute("column", col);
+			so.object("selection", sel_p, QString(), false, (PVSelection*) NULL, false);
+		}
+	};
 public:
 	typedef boost::shared_ptr<PVPlotted> p_type;
 	typedef QVector<float> plotted_table_t;
 	typedef std::vector< std::pair<PVCol,float> > plotted_sub_col_t;
+	typedef std::list<ExpandedSelection> list_expanded_selection_t;
 public:
 	PVPlotted(PVPlotting const& plotting);
 	~PVPlotted();
@@ -62,6 +81,7 @@ public:
 	#else //CUDA
 	int create_table_cuda();
 	#endif //CUDA
+	void process_expanded_selections();
 
 	void process_from_mapped(PVMapped* mapped, bool keep_views_info);
 	void process_from_parent_mapped(bool keep_views_info);
@@ -102,6 +122,7 @@ public:
 	inline plotted_table_t const& get_table() const { return _table; }
 	inline PVView_p get_view() { return _view; }
 	inline const PVView_p get_view() const { return _view; }
+	void expand_selection_on_axis(PVSelection const& sel, PVCol axis_id, bool add = true);
 
 public:
 	// Debug
@@ -117,6 +138,7 @@ private:
 	plotted_table_t _table; /* Unidimensionnal. It must be contiguous in memory */
 	PVView_p _view;
 	PVCore::PVListFloat2D trans_table;
+	list_expanded_selection_t _expanded_sels;
 };
 
 typedef PVPlotted::p_type PVPlotted_p;

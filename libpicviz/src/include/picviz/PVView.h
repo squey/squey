@@ -172,6 +172,8 @@ public:
 	int move_active_axis_closest_to_position(float x);
 	PVCol get_active_axis_closest_to_position(float x);
 
+	void expand_selection_on_axis(PVCol axis_id);
+
 	void refresh_nu_index_array();
 	void refresh_nz_index_array();
 	void refresh_nznu_index_array();

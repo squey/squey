@@ -228,6 +228,17 @@ void Picviz::PVView::debug()
 
 /******************************************************************************
  *
+ * Picviz::PVView::expand_selection_on_axis
+ *
+ *****************************************************************************/
+void Picviz::PVView::expand_selection_on_axis(PVCol axis_id)
+{
+	commit_volatile_in_floating_selection();
+	get_plotted_parent()->expand_selection_on_axis(floating_selection, axis_id);
+}
+
+/******************************************************************************
+ *
  * Picviz::PVView::get_axes_count
  *
  *****************************************************************************/

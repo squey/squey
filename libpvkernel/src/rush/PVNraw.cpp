@@ -147,7 +147,7 @@ QString PVRush::PVNraw::nraw_line_to_csv(PVRow idx) const
 	itlast--;
 	for (it = line.begin(); it != ite; it++) {
 		QString field = *it;
-		if (field.indexOf(QChar(',')) >= 0) {
+		if (field.indexOf(QChar(',')) >= 0 || field.indexOf(QChar('\r')) >= 0 || field.indexOf(QChar('\n')) >= 0) {
 			field.replace(QChar('"'), QString("\\\""));
 			ret += "\"" + field + "\"";
 		}

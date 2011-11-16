@@ -124,6 +124,7 @@ public slots:
 	void change_of_current_view_Slot();
 	void commit_selection_in_current_layer_Slot();
 	void commit_selection_to_new_layer_Slot();
+	void expand_selection_on_axis_Slot();
 	void export_file_Slot();
 	void export_selection_Slot();
 	void extractor_file_Slot();
@@ -214,6 +215,7 @@ private:
 	QAction *axes_combination_editor_Action;
 	QAction *axes_mode_Action;
 	QAction *axes_display_edges_Action;
+	QAction *expand_selection_on_axis_Action;
 	QAction *lines_display_unselected_Action;
 	QAction *lines_display_unselected_listing_Action;
 	QAction *lines_display_unselected_GLview_Action;

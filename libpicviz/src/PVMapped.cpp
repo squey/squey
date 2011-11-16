@@ -14,12 +14,14 @@
 #include <picviz/PVMapping.h>
 #include <picviz/PVMapped.h>
 #include <picviz/PVPlotted.h>
+#include <picviz/PVSelection.h>
 #include <picviz/PVSource.h>
 
 #include <picviz/PVRoot.h>
 
 #include <iostream>
 
+#include <float.h>
 #include <omp.h>
 
 /******************************************************************************
@@ -233,6 +235,32 @@ void Picviz::PVMapped::to_csv()
 PVRush::PVFormat_p Picviz::PVMapped::get_format()
 {
 	return _mapping.get_source_parent()->get_rushnraw().format;
+}
+
+/******************************************************************************
+ *
+ * Picviz::PVMapped::get_sub_col_minmax
+ *
+ *****************************************************************************/
+void Picviz::PVMapped::get_sub_col_minmax(mapped_sub_col_t& ret, float& min, float& max, PVSelection const& sel, PVCol col) const
+{
+	min = FLT_MAX;
+	max = 0;
+	PVRow size = get_qtnraw().size();
+	ret.reserve(sel.get_number_of_selected_lines_in_range(0, size-1));
+	const float* mapped_values = trans_table.getRowData(col);
+	for (PVRow i = 0; i < size; i++) {
+		if (sel.get_line(i)) {
+			const float v = mapped_values[i];
+			if (v > max) {
+			   max = v;
+			}
+	 		if (v < min) {
+				min = v;
+			}		
+			ret.push_back(mapped_sub_col_t::value_type(i, v));
+		}
+	}
 }
 
 /******************************************************************************

@@ -30,6 +30,7 @@
 namespace Picviz {
 
 class PVPlotted;
+class PVSelection;
 
 /**
  * \class PVMapped
@@ -41,6 +42,7 @@ class LibPicvizDecl PVMapped {
 public:
 	typedef boost::shared_ptr<PVMapped> p_type;
 	typedef QList<PVPlotted_p> list_plotted_t;
+	typedef std::vector< std::pair<PVCol,float> > mapped_sub_col_t;
 public:
 	PVMapped(PVMapping const& mapping);
 	~PVMapped();
@@ -55,6 +57,7 @@ protected:
 	
 public:
 	void process_parent_source();
+
 	void process_from_source(PVSource* src, bool keep_views_info);
 	void process_from_parent_source(bool keep_views_info);
 
@@ -70,6 +73,7 @@ public:
 	// Data access
 	PVRow get_row_count();
 	PVCol get_column_count();
+	void get_sub_col_minmax(mapped_sub_col_t& ret, float& min, float& max, PVSelection const& sel, PVCol col) const;
 
 	list_plotted_t const& get_plotteds() const { return _plotteds; }
 

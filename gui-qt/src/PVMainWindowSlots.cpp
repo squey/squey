@@ -4,6 +4,7 @@
 //! Copyright (C) Philippe Saadé 2009-2011
 //! Copyright (C) Picviz Labs 2011
 
+#include <pvkernel/core/PVAxesIndexType.h>
 #include <pvkernel/core/PVVersion.h>
 
 #include <PVMainWindow.h>
@@ -332,6 +333,33 @@ void PVInspector::PVMainWindow::lines_display_zombies_GLview_Slot()
 		lines_display_zombies_GLview_Action->setText(QString(tr("Display zombies lines in view")));
 	} else {
 		lines_display_zombies_GLview_Action->setText(QString(tr("Hide zombies lines in view")));
+	}
+}
+
+void PVInspector::PVMainWindow::expand_selection_on_axis_Slot()
+{
+	if (!current_tab) {
+		return;
+	}
+	Picviz::PVView_p cur_view_p = current_tab->get_lib_view();
+	Picviz::PVView &view = *cur_view_p;
+	PVCore::PVAxesIndexType axes;
+	PVCore::PVArgumentList args;
+	args["Axes"].setValue(axes);
+	PVArgumentListWidget* dlg = new PVArgumentListWidget(view, args, this);
+	dlg->init();
+	if (dlg->exec() != QDialog::Accepted) {
+		return;
+	}
+
+	axes = args.value("Axes").value<PVCore::PVAxesIndexType>();
+	PVCore::PVAxesIndexType::const_iterator it;
+	for (it = axes.begin(); it != axes.end(); it++) {
+		view.expand_selection_on_axis(*it);
+	}
+
+	if (axes.size() > 0) {
+		update_pvglview(cur_view_p, PVSDK_MESSENGER_REFRESH_POSITIONS);
 	}
 }
 

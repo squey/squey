@@ -85,6 +85,7 @@ void PVInspector::PVMainWindow::create_actions()
 	//commit_selection_in_current_layer_Action->setShortcut(QKeySequence(Qt::Key_K));
 	commit_selection_to_new_layer_Action = new QAction(tr("Create new layer from selection"), this);
 	commit_selection_to_new_layer_Action->setShortcut(QKeySequence(Qt::ALT + Qt::Key_K));
+	expand_selection_on_axis_Action = new QAction(tr("Expand selection on axis..."), this);
 
 	/************************
 	 * For the "Scene" menu entry
@@ -196,6 +197,7 @@ void PVInspector::PVMainWindow::create_menus()
 	//selection_Menu->addAction(commit_selection_in_current_layer_Action);
 	selection_Menu->addAction(commit_selection_to_new_layer_Action);
 	selection_Menu->addSeparator();
+	selection_Menu->addAction(expand_selection_on_axis_Action);
 
 	filter_Menu = menubar->addMenu(tr("Fil&ters"));
 	create_filters_menu_and_actions();

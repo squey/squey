@@ -41,7 +41,7 @@ float* Picviz::PVMappingFilterTimeDefault::operator()(PVRush::PVNraw::nraw_table
 
 	int64_t size = _dest_size;
 	// TODO: compare TBB and OpenMP here !!
-#pragma omp parallel for
+#pragma omp parallel for schedule(dynamic, 1000)
 	for (int64_t i = 0; i < size; i++) {
 		int thread_num = omp_get_thread_num();
 		Calendar* cal = cals[thread_num];

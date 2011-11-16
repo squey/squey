@@ -59,7 +59,6 @@ int PVPlotted::create_table()
 	QMutex lock;
 	const PVRow nrows = (PVRow)_mapped->table.getHeight();
 	
-	//_table.clear();
 	_table.reserve(mapped_col_count * nrows);
 	
 	tbb::tick_count tstart = tbb::tick_count::now();
@@ -204,7 +203,34 @@ int PVPlotted::create_table_cuda(){
 /***************** CUDA *****************************************/
 #endif//CUDA
 
+void Picviz::PVPlotted::process_expanded_selections()
+{
+	list_expanded_selection_t::const_iterator it;
+	for (it = _expanded_sels.begin(); it != _expanded_sels.end(); it++) {
+		expand_selection_on_axis(*(it->sel_p), it->col, false);
+	}
+}
 
+void Picviz::PVPlotted::expand_selection_on_axis(PVSelection const& sel, PVCol axis_id, bool add)
+{
+	// Recompute a part of the plotted by expanding a selection through the whole axis
+	PVCol ncols = get_column_count();
+	assert(axis_id < ncols);
+	PVMapped::mapped_sub_col_t sub_plotted;
+	float min,max;
+	get_mapped_parent()->get_sub_col_minmax(sub_plotted, min, max, sel, axis_id);
+	if (sub_plotted.size() == 0 || min >= max) {
+		return;
+	}
+	PVMapped::mapped_sub_col_t::const_iterator it;
+	float diff = max-min;
+	for (it = sub_plotted.begin(); it != sub_plotted.end(); it++) {
+		_table[it->first*ncols+axis_id] = (it->second-min)/diff;
+	}
+	if (add) {
+		_expanded_sels.push_back(ExpandedSelection(axis_id, sel));
+	}
+}
 
 PVRush::PVNraw::nraw_table& PVPlotted::get_qtnraw()
 {
@@ -319,6 +345,12 @@ void Picviz::PVPlotted::process_from_parent_mapped(bool keep_views_info)
 	}
 
 	create_table();
+	if (keep_views_info) {
+		process_expanded_selections();
+	}
+	else {
+		_expanded_sels.clear();
+	}
 	if (!_view) {
 		_view.reset(new PVView(this));
 		get_source_parent()->add_view(_view);
@@ -341,6 +373,9 @@ void Picviz::PVPlotted::serialize(PVCore::PVSerializeObject& so, PVCore::PVSeria
 {
 	so.object("plotting", _plotting, QString(), false, (PVPlotting*) NULL, false);
 	so.object("view", _view, QObject::tr("View"));
+
+
+	so.list("expanded_sels", _expanded_sels, "Expanded selections", (ExpandedSelection*) NULL, QStringList(), true, true);
 }
 
 }

@@ -547,6 +547,7 @@ void PVInspector::PVMainWindow::connect_actions()
 	connect(selection_all_Action, SIGNAL(triggered()), this, SLOT(selection_all_Slot()));
 	connect(selection_none_Action, SIGNAL(triggered()), this, SLOT(selection_none_Slot()));
 	connect(selection_inverse_Action, SIGNAL(triggered()), this, SLOT(selection_inverse_Slot()));
+	connect(expand_selection_on_axis_Action, SIGNAL(triggered()), this, SLOT(expand_selection_on_axis_Slot()));
 
 	connect(set_color_Action, SIGNAL(triggered()), this, SLOT(set_color_Slot()));
 
