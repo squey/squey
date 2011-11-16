@@ -29,6 +29,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef QKEYSEQUENCEWIDGET_H
 #define QKEYSEQUENCEWIDGET_H
 
+#include <pvkernel/core/general.h>
+
 #include "qkeysequencewidget_p.h"
 
 #include <QWidget>
@@ -62,7 +64,7 @@ class QKeySequenceWidgetPrivate;
     connect(keyWidget, SIGNAL(keySequenceChanged(QKeySequence)), this, SLOT(slotKeySequenceChanged(QKeySequence)));
   \endcode 
 */
-class QKeySequenceWidget : public QWidget
+class LibKernelDecl QKeySequenceWidget : public QWidget
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QKeySequenceWidget);
