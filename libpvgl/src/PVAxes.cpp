@@ -244,13 +244,17 @@ void PVGL::PVAxes::draw_names()
 
 	if (show_limits) {
 		Picviz::PVMapping const& mapping = pv_view->get_mapped_parent()->get_mapping();
+		Picviz::PVLayer const& cur_layer = pv_view->get_layer_stack().get_selected_layer();
 
 		for (int i = 0; i < nb_axes; i++) {
 			float gl_coord_x, gl_coord_y_min, gl_coord_y_max;
 			float viewport_coord_x, viewport_coord_y_min, viewport_coord_y_max;
 			QByteArray ymin;
 			QByteArray ymax;
+			QByteArray layer_ymin;
+			QByteArray layer_ymax;
 			{
+				// Global min/max
 				PVCol cur_axis = pv_view->axes_combination.get_axis_column_index(i);
 				Picviz::mandatory_param_map const& mand_params = mapping.get_mandatory_params_for_col(cur_axis);
 				Picviz::mandatory_param_map::const_iterator it_min = mand_params.find(Picviz::mandatory_ymin);
@@ -261,6 +265,15 @@ void PVGL::PVAxes::draw_names()
 				}
 				ymin = (*it_min).second.first.toLocal8Bit();
 				ymax = (*it_max).second.first.toLocal8Bit();
+
+				// Current layer min/max
+				PVRow idx_min,idx_max;
+				if (cur_layer.get_min_for_col(i, idx_min)) {
+					layer_ymin = pv_view->get_data(idx_min, i).toLocal8Bit();
+				}
+				if (cur_layer.get_max_for_col(i, idx_max)) {
+					layer_ymax = pv_view->get_data(idx_max, i).toLocal8Bit();
+				}
 			}
 			gl_coord_x = abscissae_list[i];
 			gl_coord_y_max = 1;
@@ -275,12 +288,18 @@ void PVGL::PVAxes::draw_names()
 			glRotatef (45, 0, 0, 1);
 			glTranslatef (-viewport_coord_x, -viewport_coord_y_min, 0);
 			view->get_widget_manager().draw_text(viewport_coord_x, viewport_coord_y_min, ymin.data(), font_size / 2.0);
+			if (!layer_ymin.isNull() && layer_ymin != ymin) {
+				view->get_widget_manager().draw_text(viewport_coord_x+font_size, viewport_coord_y_min+font_size, layer_ymin.data(), font_size / 2.0);
+			}
 			glPopMatrix();
 			glPushMatrix();
 			glTranslatef (viewport_coord_x, viewport_coord_y_max, 0);
 			glRotatef (-45, 0, 0, 1);
 			glTranslatef (-viewport_coord_x, -viewport_coord_y_max, 0);
 			view->get_widget_manager().draw_text(viewport_coord_x, viewport_coord_y_max, ymax.data(), font_size/ 2.0);
+			if (!layer_ymax.isNull() && layer_ymax != ymax) {
+				view->get_widget_manager().draw_text(viewport_coord_x+font_size, viewport_coord_y_max+font_size, layer_ymax.data(), font_size / 2.0);
+			}
 			glPopMatrix();
 		}
 	}

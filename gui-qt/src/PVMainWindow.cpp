@@ -514,6 +514,7 @@ void PVInspector::PVMainWindow::commit_selection_to_new_layer(Picviz::PVView_p p
 	// picviz_lines_properties_A2B_copy_restricted_by_selection_and_nelts(picviz_view->output_layer.get_lines_properties(), new_layer->lines_properties, new_layer.get_selection(), picviz_view->row_count);
 	/* THEN we can do the updates */
 	/* We need to reprocess the layer stack */
+	new_layer.compute_min_max(*picviz_view->get_plotted_parent());
 	picviz_view->process_from_layer_stack();
 
 	refresh_view(picviz_view);

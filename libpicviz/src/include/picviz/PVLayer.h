@@ -16,12 +16,16 @@
 #include <picviz/PVSelection.h>
 #include <picviz/PVLayer_types.h>
 
+#include <vector>
+
 #define PICVIZ_LAYER_NAME_MAXLEN 1000
 
 #define PICVIZ_LAYER_ARCHIVE_EXT "pvl"
 #define PICVIZ_LAYER_ARCHIVE_FILTER "Picviz layer-stack files (*." PICVIZ_LAYER_ARCHIVE_EXT ")"
 
 namespace Picviz {
+
+class PVPlotted;
 
 /**
  * \class PVLayer
@@ -35,6 +39,8 @@ private:
 	QString            name;
 	PVSelection        selection;
 	bool               visible;
+	std::vector<PVRow> _row_mins;
+	std::vector<PVRow> _row_maxs;
 	
 public:
 
@@ -53,6 +59,10 @@ public:
 	const PVSelection & get_selection() const {return selection;}
 	PVSelection& get_selection() {return selection;}
 	bool get_visible() const {return visible;}
+
+	void compute_min_max(PVPlotted const& plotted);
+	bool get_min_for_col(PVCol col, PVRow& row) const;
+	bool get_max_for_col(PVCol col, PVRow& row) const;
 
 	PVLayer & operator=(const PVLayer & rhs);
 	

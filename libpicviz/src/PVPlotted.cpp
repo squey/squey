@@ -341,6 +341,28 @@ void Picviz::PVPlotted::get_sub_col_minmax(plotted_sub_col_t& ret, float& min, f
 	}
 }
 
+void Picviz::PVPlotted::get_col_minmax(PVRow& min, PVRow& max, PVSelection const& sel, PVCol col) const
+{
+	float vmin,vmax;
+	vmin = FLT_MAX;
+	vmax = 0;
+	min = 0;
+	max = 0;
+	for (PVRow i = 0; i < get_qtnraw().size(); i++) {
+		if (sel.get_line(i)) {
+			float v = get_value(i, col);
+			if (v > vmax) {
+				vmax = v;
+				max = i;
+			}
+			if (v < vmin) {
+				vmin = v;
+				min = i;
+			}		
+		}
+	}
+}
+
 void Picviz::PVPlotted::process_from_mapped(PVMapped* mapped, bool keep_views_info)
 {
 	_plotting.set_mapped(mapped);

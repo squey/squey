@@ -6,9 +6,7 @@
 
 #include <pvkernel/core/PVSerializeArchiveZip.h>
 #include <picviz/PVLayer.h>
-
-
-
+#include <picviz/PVPlotted.h>
 
 /******************************************************************************
  *
@@ -88,6 +86,38 @@ void Picviz::PVLayer::reset_to_full_and_default_color()
 {
 	lines_properties.reset_to_default_color();
 	selection.select_all();
+}
+
+void Picviz::PVLayer::compute_min_max(PVPlotted const& plotted)
+{
+	PVCol col_count = plotted.get_column_count();
+
+	for (PVCol j = 0; j < col_count; j++) {
+		PVRow min,max;
+		plotted.get_col_minmax(min, max, selection, j);
+		_row_mins.push_back(min);
+		_row_maxs.push_back(max);
+	}
+}
+
+bool Picviz::PVLayer::get_min_for_col(PVCol col, PVRow& row) const
+{
+	if (col >= (PVCol) _row_mins.size()) {
+		return false;
+	}
+
+	row = _row_mins[col];
+	return true;
+}
+
+bool Picviz::PVLayer::get_max_for_col(PVCol col, PVRow& row) const
+{
+	if (col >= (PVCol) _row_maxs.size()) {
+		return false;
+	}
+
+	row = _row_maxs[col];
+	return true;
 }
 
 void Picviz::PVLayer::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
