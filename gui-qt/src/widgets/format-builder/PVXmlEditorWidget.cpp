@@ -568,7 +568,13 @@ void PVInspector::PVXmlEditorWidget::slotOpenLog()
 		for (itcr = lcr.begin(); itcr != lcr.end(); itcr++) {
 			PVRush::PVSourceCreator_p sc = *itcr;
 			if (sc->pre_discovery(_log_input)) {
-				_log_sc = sc;
+				try {
+					_log_sc = sc;
+					create_extractor();
+				}
+				catch (PVRush::PVFormatInvalid& e) {
+					continue;
+				}
 				break;
 			}
 		}
@@ -583,7 +589,6 @@ void PVInspector::PVXmlEditorWidget::slotOpenLog()
 		_log_input_type = in_t;
 
 		// First extraction
-		create_extractor();
 		if (is_dom_empty()) {
 			guess_first_splitter();
 		}
