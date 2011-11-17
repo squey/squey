@@ -16,6 +16,7 @@ class PVMappingFilterFloatFraction: public PVMappingFilter
 {
 public:
 	float operator()(QString const& str);
+	QString get_human_name() const { return QString("Fraction (x/y) or classical"); }
 
 	CLASS_FILTER(PVMappingFilterFloatFraction)
 };

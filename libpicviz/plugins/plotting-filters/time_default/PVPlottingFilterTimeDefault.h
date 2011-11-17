@@ -10,6 +10,7 @@ class PVPlottingFilterTimeDefault: public PVPlottingFilter
 {
 public:
 	float* operator()(float* value);
+	QString get_human_name() const { return QString("Default (depends on mapping)"); }
 
 	CLASS_FILTER(PVPlottingFilterTimeDefault)
 };

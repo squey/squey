@@ -31,6 +31,12 @@
 #include <PVXmlParamComboBox.h>
 #include <PVXmlParamColorDialog.h>
 #include <PVXmlParamList.h>
+
+// Widget helpers
+#include <PVAxisTypeWidget.h>
+#include <PVMappingModeWidget.h>
+#include <PVPlottingModeWidget.h>
+
 #include <picviz/plugins.h>
 #include <picviz/PVLayerFilter.h>
 
@@ -71,9 +77,9 @@ public:
     QTabWidget *tabParam;
     PVXmlParamWidgetEditorBox *textName;//name
     //type
-    PVXmlParamComboBox * mapPlotType;
-    PVXmlParamComboBox * comboMapping;
-    PVXmlParamComboBox * comboPlotting;
+	PVWidgetsHelpers::PVAxisTypeWidget* mapPlotType;
+	PVWidgetsHelpers::PVMappingModeWidget* comboMapping;
+	PVWidgetsHelpers::PVPlottingModeWidget* comboPlotting;
 	PVXmlParamComboBox * comboGroup;
 	PVXmlParamList* listTags;
     

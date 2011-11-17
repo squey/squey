@@ -43,18 +43,21 @@ class LibPicvizDecl PVPlotted {
 private:
 	struct ExpandedSelection
 	{
-		ExpandedSelection(PVCol col_, PVSelection const& sel_):
+		ExpandedSelection(PVCol col_, PVSelection const& sel_, QString const& type_):
 			col(col_),
-			sel_p(new PVSelection(sel_))
+			sel_p(new PVSelection(sel_)),
+			type(type_)
 		{ }
 		ExpandedSelection():
 			col(0)
 		{ }
 		PVCol col;
 		boost::shared_ptr<PVSelection> sel_p;
+		QString type;
 		void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 		{
 			so.attribute("column", col);
+			so.attribute("type", type);
 			so.object("selection", sel_p, QString(), false, (PVSelection*) NULL, false);
 		}
 	};
@@ -122,7 +125,7 @@ public:
 	inline plotted_table_t const& get_table() const { return _table; }
 	inline PVView_p get_view() { return _view; }
 	inline const PVView_p get_view() const { return _view; }
-	void expand_selection_on_axis(PVSelection const& sel, PVCol axis_id, bool add = true);
+	void expand_selection_on_axis(PVSelection const& sel, PVCol axis_id, QString const& mode, bool add = true);
 
 public:
 	// Debug

@@ -8,6 +8,7 @@
 #include <pvkernel/core/PVVersion.h>
 
 #include <PVMainWindow.h>
+#include <PVExpandSelDlg.h>
 #include <PVArgumentListWidget.h>
 #include <PVXmlEditorWidget.h>
 #include <PVLayerFilterProcessWidget.h>
@@ -342,20 +343,17 @@ void PVInspector::PVMainWindow::expand_selection_on_axis_Slot()
 		return;
 	}
 	Picviz::PVView_p cur_view_p = current_tab->get_lib_view();
+	PVExpandSelDlg* dlg = new PVExpandSelDlg(cur_view_p, this);
 	Picviz::PVView &view = *cur_view_p;
-	PVCore::PVAxesIndexType axes;
-	PVCore::PVArgumentList args;
-	args["Axes"].setValue(axes);
-	PVArgumentListWidget* dlg = new PVArgumentListWidget(view, args, this);
-	dlg->init();
 	if (dlg->exec() != QDialog::Accepted) {
 		return;
 	}
 
-	axes = args.value("Axes").value<PVCore::PVAxesIndexType>();
+	PVCore::PVAxesIndexType axes = dlg->get_axes();
 	PVCore::PVAxesIndexType::const_iterator it;
+	QString mode = dlg->get_mode();
 	for (it = axes.begin(); it != axes.end(); it++) {
-		view.expand_selection_on_axis(*it);
+		view.expand_selection_on_axis(*it, mode);
 	}
 
 	if (axes.size() > 0) {

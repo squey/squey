@@ -15,6 +15,7 @@
 #include <picviz/PVMapped.h>
 #include <picviz/PVMapping.h>
 #include <picviz/PVPlotting.h>
+#include <picviz/PVPlottingFilter.h>
 #include <picviz/PVPlotted.h>
 #include <picviz/PVSource.h>
 #include <picviz/PVSelection.h>
@@ -207,13 +208,23 @@ void Picviz::PVPlotted::process_expanded_selections()
 {
 	list_expanded_selection_t::const_iterator it;
 	for (it = _expanded_sels.begin(); it != _expanded_sels.end(); it++) {
-		expand_selection_on_axis(*(it->sel_p), it->col, false);
+		expand_selection_on_axis(*(it->sel_p), it->col, it->type, false);
 	}
 }
 
-void Picviz::PVPlotted::expand_selection_on_axis(PVSelection const& sel, PVCol axis_id, bool add)
+void Picviz::PVPlotted::expand_selection_on_axis(PVSelection const& sel, PVCol axis_id, QString const& mode, bool add)
 {
 	// Recompute a part of the plotted by expanding a selection through the whole axis
+	//
+	
+	// Get axis type
+	QString plugin = _plotting.get_properties_for_col(axis_id).get_type() + "_" + mode;
+	PVPlottingFilter::p_type filter = LIB_CLASS(PVPlottingFilter)::get().get_class_by_name(plugin);
+	if (!filter) {
+		return;
+	}
+	PVPlottingFilter::p_type filter_clone = filter->clone<PVPlottingFilter>();
+
 	PVCol ncols = get_column_count();
 	assert(axis_id < ncols);
 	PVMapped::mapped_sub_col_t sub_plotted;
@@ -223,12 +234,12 @@ void Picviz::PVPlotted::expand_selection_on_axis(PVSelection const& sel, PVCol a
 		return;
 	}
 	PVMapped::mapped_sub_col_t::const_iterator it;
-	float diff = max-min;
+	filter_clone->init_expand(min, max);
 	for (it = sub_plotted.begin(); it != sub_plotted.end(); it++) {
-		_table[it->first*ncols+axis_id] = (it->second-min)/diff;
+		_table[it->first*ncols+axis_id] = filter_clone->expand_plotted(it->second);
 	}
 	if (add) {
-		_expanded_sels.push_back(ExpandedSelection(axis_id, sel));
+		_expanded_sels.push_back(ExpandedSelection(axis_id, sel, mode));
 	}
 }
 

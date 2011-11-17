@@ -1,4 +1,8 @@
 #include <PVMappingPlottingEditDialog.h>
+#include <PVAxisTypeWidget.h>
+#include <PVMappingModeWidget.h>
+#include <PVPlottingModeWidget.h>
+
 #include <picviz/PVMapping.h>
 #include <picviz/PVMappingFilter.h>
 #include <picviz/PVPlottingFilter.h>
@@ -119,15 +123,14 @@ void PVInspector::PVMappingPlottingEditDialog::load_settings()
 		col = 0;
 		_main_grid->addWidget(new QLabel(it_axes->get_name(), this), row, col++);
 		if (has_mapping()) {
-			Picviz::PVMappingProperties const& prop = _mapping->get_properties_for_col(axis_id);
-			QComboBox* type_combo = init_combo(get_list_types(), prop.get_type());
+			PVWidgetsHelpers::PVAxisTypeWidget* type_combo = new PVWidgetsHelpers::PVAxisTypeWidget(this);
+			type_combo->sel_type(_mapping->get_type_for_col(axis_id));
 			_main_grid->addWidget(type_combo, row, col++);
 			connect(type_combo, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(type_changed(const QString&)));
-			_main_grid->addWidget(init_combo(get_list_mapping(prop.get_type()), prop.get_mode()), row, col++);
+			_main_grid->addWidget(new PVWidgetsHelpers::PVMappingModeWidget(axis_id, *_mapping, this), row, col++);
 		}
 		if (has_plotting()) {
-			Picviz::PVPlottingProperties const& prop = _plotting->get_properties_for_col(axis_id);
-			_main_grid->addWidget(init_combo(get_list_plotting(prop.get_type()), prop.get_mode()), row, col++);
+			_main_grid->addWidget(new PVWidgetsHelpers::PVPlottingModeWidget(axis_id, *_plotting, this), row, col++);
 		}
 		axis_id++;
 		row++;
@@ -157,18 +160,21 @@ void PVInspector::PVMappingPlottingEditDialog::save_settings()
 		if (has_mapping()) {
 			Picviz::PVMappingProperties& prop = _mapping->get_properties_for_col(axis_id);
 			// Axis type
-			QComboBox* combo = dynamic_cast<QComboBox*>(_main_grid->itemAtPosition(row, col++)->widget());
-			QString type = combo->currentText();
+			PVWidgetsHelpers::PVAxisTypeWidget* combo = dynamic_cast<PVWidgetsHelpers::PVAxisTypeWidget*>(_main_grid->itemAtPosition(row, col++)->widget());
+			assert(combo);
+			QString type = combo->get_sel_type();
 
 			// Mapping mode
-			combo = dynamic_cast<QComboBox*>(_main_grid->itemAtPosition(row, col++)->widget());
-			QString mode = combo->currentText();
+			PVWidgetsHelpers::PVMappingModeWidget* map_combo = dynamic_cast<PVWidgetsHelpers::PVMappingModeWidget*>(_main_grid->itemAtPosition(row, col++)->widget());
+			assert(map_combo);
+			QString mode = map_combo->get_mode();
 
 			prop.set_type(type, mode);
 		}
 		if (has_plotting()) {
-			QComboBox* combo = dynamic_cast<QComboBox*>(_main_grid->itemAtPosition(row, col++)->widget());
-			QString mode = combo->currentText();
+			PVWidgetsHelpers::PVPlottingModeWidget* combo = dynamic_cast<PVWidgetsHelpers::PVPlottingModeWidget*>(_main_grid->itemAtPosition(row, col++)->widget());
+			assert(combo);
+			QString mode = combo->get_mode();
 			_plotting->get_properties_for_col(axis_id).set_mode(mode);
 		}
 		row++;
@@ -185,34 +191,10 @@ void PVInspector::PVMappingPlottingEditDialog::finish_layout()
 	_main_layout->addWidget(btns);
 }
 
-QComboBox* PVInspector::PVMappingPlottingEditDialog::init_combo(QStringList const& list, QString const& sel)
-{
-	QComboBox* ret = new QComboBox();
-	ret->addItems(list);
-	assert(list.contains(sel));
-	ret->setCurrentIndex(list.indexOf(sel));
-	return ret;
-}
-
-QStringList PVInspector::PVMappingPlottingEditDialog::get_list_types()
-{
-	return Picviz::PVMappingFilter::list_types();
-}
-
-QStringList PVInspector::PVMappingPlottingEditDialog::get_list_mapping(QString const& type)
-{
-	return Picviz::PVMappingFilter::list_modes(type);
-}
-
-QStringList PVInspector::PVMappingPlottingEditDialog::get_list_plotting(QString const& type)
-{
-	return Picviz::PVPlottingFilter::list_modes(type);
-}
-
 void PVInspector::PVMappingPlottingEditDialog::type_changed(const QString& type)
 {
 	assert(has_mapping());
-	QComboBox* combo_org = dynamic_cast<QComboBox*>(sender());
+	PVWidgetsHelpers::PVAxisTypeWidget* combo_org = dynamic_cast<PVWidgetsHelpers::PVAxisTypeWidget*>(sender());
 	assert(combo_org);
 	int index = _main_grid->indexOf(combo_org);
 	assert(index != -1);
@@ -220,7 +202,8 @@ void PVInspector::PVMappingPlottingEditDialog::type_changed(const QString& type)
 	int rspan,cspan;
 	_main_grid->getItemPosition(index, &row, &col, &rspan, &cspan);
 	// Mapping combo box is next to the type one
-	QComboBox* combo_mapped = dynamic_cast<QComboBox*>(_main_grid->itemAtPosition(row, col+1)->widget());
+	PVWidgetsHelpers::PVMappingModeWidget* combo_mapped = dynamic_cast<PVWidgetsHelpers::PVMappingModeWidget*>(_main_grid->itemAtPosition(row, col+1)->widget());
 	combo_mapped->clear();
-	combo_mapped->addItems(get_list_mapping(type));
+	combo_mapped->populate_from_type(type);
+	combo_mapped->select_default();
 }

@@ -18,6 +18,7 @@ class PVMappingFilterTimeDefault: public PVMappingFilter
 {
 public:
 	float* operator()(PVRush::PVNraw::nraw_table_line const& values);
+	QString get_human_name() const { return QString("Default"); }
 protected:
 	virtual float cal_to_float(Calendar* cal, bool& success);
 

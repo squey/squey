@@ -53,6 +53,8 @@ public:
 	void set_format(PVCol current_col, PVRush::PVFormat& format);
 
 	void set_group_value(PVCore::PVArgument& group) { _grp_value = &group; }
+
+	virtual QString get_human_name() const;
 public:
 	static QStringList list_types();
 	static QStringList list_modes(QString const& type);

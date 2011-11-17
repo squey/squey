@@ -25,16 +25,11 @@ private:
 	inline bool has_mapping() const { return _mapping != NULL; };
 	inline bool has_plotting() const { return _plotting != NULL; }
 
-	static QStringList get_list_types();
-	static QStringList get_list_mapping(QString const& type);
-	static QStringList get_list_plotting(QString const& type);
-
 	void init_layout();
 	void finish_layout();
 	void load_settings();
 	void reset_settings_with_format();
 
-	static QComboBox* init_combo(QStringList const& list, QString const& sel);
 	static QLabel* create_label(QString const& text, Qt::Alignment align = Qt::AlignCenter);
 
 private slots:

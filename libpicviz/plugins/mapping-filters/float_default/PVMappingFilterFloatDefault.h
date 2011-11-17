@@ -16,6 +16,7 @@ class PVMappingFilterFloatDefault: public PVMappingFilter
 {
 public:
 	float operator()(QString const& str);
+	QString get_human_name() const { return QString("Default"); }
 
 	CLASS_FILTER(PVMappingFilterFloatDefault)
 };

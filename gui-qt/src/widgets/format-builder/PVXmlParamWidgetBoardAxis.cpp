@@ -58,12 +58,12 @@ void PVInspector::PVXmlParamWidgetBoardAxis::allocBoardFields(){
     //name
     textName = new PVXmlParamWidgetEditorBox(QString("name"), new QVariant(node->attribute("name")));
     //type
-    mapPlotType = new PVXmlParamComboBox("type");
+    mapPlotType = new PVWidgetsHelpers::PVAxisTypeWidget(this);
     timeFormatLabel = new QLabel(tr("Format of the time strings") + QString(" :"));
     timeFormat = new PVXmlParamTextEdit(QString("time-format"), QVariant(node->attribute("time-format")));    
     timeFormatStr = node->attribute(PVFORMAT_AXIS_TIMEFORMAT_STR);
-    comboMapping = new PVXmlParamComboBox("mapping");
-    comboPlotting = new PVXmlParamComboBox("plotting");
+    comboMapping = new PVWidgetsHelpers::PVMappingModeWidget(this);
+    comboPlotting = new PVWidgetsHelpers::PVPlottingModeWidget(this);
     
     //tab time format
     timeFormatInTab = new PVXmlParamTextEdit(QString("time-format"), QVariant(timeFormatStr));  
@@ -325,8 +325,6 @@ void PVInspector::PVXmlParamWidgetBoardAxis::initValue()
 {
 	QDir dir(pluginListURL);
     //init of combos
-    QStringList typeL = listType();
-    mapPlotType->addItems(typeL);
     
     //type ...  auto select and default value
 	QString node_type = node->attribute(PVFORMAT_AXIS_TYPE_STR);
@@ -334,20 +332,20 @@ void PVInspector::PVXmlParamWidgetBoardAxis::initValue()
 		node_type = PVFORMAT_AXIS_TYPE_DEFAULT;
 		slotSetVisibleTimeValid(false);
     }
-	mapPlotType->select(node_type);
+	mapPlotType->sel_type(node_type);
 	updatePlotMapping(node_type);
 
 	QString node_mapping = node->attribute(PVFORMAT_AXIS_MAPPING_STR);
     if (node_mapping.isEmpty()) {
 		node_mapping = PVFORMAT_AXIS_MAPPING_DEFAULT;
 	}
-	comboMapping->select(node_mapping);
+	comboMapping->set_mode(node_mapping);
 
 	QString node_plotting = node->attribute(PVFORMAT_AXIS_PLOTTING_STR);
     if (node_plotting.isEmpty()) {
 		node_plotting = PVFORMAT_AXIS_PLOTTING_DEFAULT;
 	}
-	comboPlotting->select(node_plotting);
+	comboPlotting->set_mode(node_plotting);
     
     
     //extra
@@ -475,9 +473,9 @@ void PVInspector::PVXmlParamWidgetBoardAxis::slotSetValues(){
 
   //apply modification
     node->setAttribute(QString(PVFORMAT_AXIS_NAME_STR),textName->text());
-    node->setAttribute(QString(PVFORMAT_AXIS_TYPE_STR),mapPlotType->val().toString());
-    node->setAttribute(QString(PVFORMAT_AXIS_MAPPING_STR),comboMapping->val().toString());
-    node->setAttribute(QString(PVFORMAT_AXIS_PLOTTING_STR),comboPlotting->val().toString());
+    node->setAttribute(QString(PVFORMAT_AXIS_TYPE_STR),mapPlotType->get_sel_type());
+    node->setAttribute(QString(PVFORMAT_AXIS_MAPPING_STR),comboMapping->get_mode());
+    node->setAttribute(QString(PVFORMAT_AXIS_PLOTTING_STR),comboPlotting->get_mode());
     node->setAttribute(QString(PVFORMAT_AXIS_TIMEFORMAT_STR),timeFormat->getVal().toString());
     node->setAttribute(QString(PVFORMAT_AXIS_TIMESAMPLE_STR),timeSample->getVal().toString());
     node->setAttribute(QString(PVFORMAT_AXIS_GROUP_STR),group->val().toString());
@@ -529,7 +527,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::checkMappingTimeFormat()
 {
 	// AG: this is a hack. Check that, if type is "time", that, if a "week" or
 	// "24h" mapping has been set, the good time-format comes with it.
-	QString time_mapping = comboMapping->currentText();
+	QString time_mapping = comboMapping->get_mode();
 	comboMapping->clear_disabled_strings();
 
 	// 24h mapping:  check that 'h' or 'H' are present
@@ -544,7 +542,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::checkMappingTimeFormat()
 		reset_mapping = (time_mapping == "week");
 	}
 	if (reset_mapping) {
-		comboMapping->select("default");
+		comboMapping->select_default();
 	}
 }
 
@@ -571,14 +569,14 @@ void PVInspector::PVXmlParamWidgetBoardAxis::updatePlotMapping(const QString& t)
 {
 	if (t.length() > 1) {
 		comboMapping->clear();
-		comboMapping->addItems(getListTypeMapping(mapPlotType->currentText()));
-		comboMapping->select("default");
+		comboMapping->populate_from_type(mapPlotType->get_sel_type());
+		comboMapping->select_default();
 
 		comboPlotting->clear();
-		comboPlotting->addItems(getListTypePlotting(mapPlotType->currentText()));
-		comboPlotting->select("default");
+		comboPlotting->populate_from_type(mapPlotType->get_sel_type());
+		comboPlotting->select_default();
 
-		if (mapPlotType->currentText() == "time") {//if the type is a Time
+		if (mapPlotType->get_sel_type() == "time") {//if the type is a Time
 			//don't show time format editor
 			slotSetVisibleTimeValid(true);
 			//set the name with "Time" by default
@@ -588,8 +586,8 @@ void PVInspector::PVXmlParamWidgetBoardAxis::updatePlotMapping(const QString& t)
 				textName->setText("Time");
 			}
 			timeSample->validDateFormat(timeFormat->getVal().toString().split("\n"));
-		} else if (mapPlotType->currentText() == "integer") {//if the type is an integer
-			comboPlotting->select("minmax");
+		} else if (mapPlotType->get_sel_type() == "integer") {//if the type is an integer
+			comboPlotting->set_mode("minmax");
 			//don't show time format editor
 			slotSetVisibleTimeValid(false);
 		} else {//if the type is not Time and not integer
@@ -601,7 +599,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::updatePlotMapping(const QString& t)
 
 void PVInspector::PVXmlParamWidgetBoardAxis::setComboGroup()
 {
-	QString type = mapPlotType->val().toString();
+	QString type = mapPlotType->get_sel_type();
 	PVXmlEditorWidget* editor = parent()->parent();
 	PVRush::types_groups_t const& types_grps = editor->getGroups();
 	if (!types_grps.contains(type)) {
@@ -641,7 +639,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::setListTags()
 
 void PVInspector::PVXmlParamWidgetBoardAxis::slotAddGroup()
 {
-	QString type = mapPlotType->val().toString();
+	QString type = mapPlotType->get_sel_type();
 	QDialog* add_dlg = new QDialog(parent()->parent());
 	add_dlg->setWindowTitle(tr("Add a group..."));
 

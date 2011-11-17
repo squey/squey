@@ -119,7 +119,8 @@ public:
 	 * @return The name of that axis
 	 *
 	 */
-	QString get_axis_name(PVCol index);
+	QString get_axis_name(PVCol index) const;
+	QString get_axis_type(PVCol index) const;
 
 	PVCore::PVColor get_color_in_output_layer(PVRow index);
 	PVCol get_column_count();
@@ -172,7 +173,7 @@ public:
 	int move_active_axis_closest_to_position(float x);
 	PVCol get_active_axis_closest_to_position(float x);
 
-	void expand_selection_on_axis(PVCol axis_id);
+	void expand_selection_on_axis(PVCol axis_id, QString const& mode);
 
 	void refresh_nu_index_array();
 	void refresh_nz_index_array();

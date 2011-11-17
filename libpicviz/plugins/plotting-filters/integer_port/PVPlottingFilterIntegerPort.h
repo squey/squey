@@ -10,6 +10,7 @@ class PVPlottingFilterIntegerPort: public PVPlottingFilter
 {
 public:
 	float operator()(float value);
+	QString get_human_name() const { return QString("TCP/UDP port"); }
 
 	CLASS_FILTER(PVPlottingFilterIntegerPort)
 };

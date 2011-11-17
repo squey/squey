@@ -231,10 +231,10 @@ void Picviz::PVView::debug()
  * Picviz::PVView::expand_selection_on_axis
  *
  *****************************************************************************/
-void Picviz::PVView::expand_selection_on_axis(PVCol axis_id)
+void Picviz::PVView::expand_selection_on_axis(PVCol axis_id, QString const& mode)
 {
 	commit_volatile_in_floating_selection();
-	get_plotted_parent()->expand_selection_on_axis(floating_selection, axis_id);
+	get_plotted_parent()->expand_selection_on_axis(floating_selection, axis_id, mode);
 }
 
 /******************************************************************************
@@ -262,13 +262,16 @@ QStringList Picviz::PVView::get_axes_names_list()
  * Picviz::PVView::get_axis_name
  *
  *****************************************************************************/
-QString Picviz::PVView::get_axis_name(PVCol index)
+QString Picviz::PVView::get_axis_name(PVCol index) const
 {
-	PVAxis axis;
-
-	axis = axes_combination.get_axis(index);
-
+	PVAxis const& axis = axes_combination.get_axis(index);
 	return axis.get_name();
+}
+
+QString Picviz::PVView::get_axis_type(PVCol index) const
+{
+	PVAxis const& axis = axes_combination.get_axis(index);
+	return axis.get_type();
 }
 
 // FIXME: This function should be removed

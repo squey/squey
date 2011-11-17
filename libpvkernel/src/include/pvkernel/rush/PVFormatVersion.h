@@ -13,9 +13,11 @@ public:
 private:
 	static bool from0to1(QDomDocument& doc);
 	static bool from1to2(QDomDocument& doc);
+	static bool from2to3(QDomDocument& doc);
 private:
 	static bool _rec_0to1(QDomElement doc);
 	static bool _rec_1to2(QDomElement doc);
+	static bool _rec_2to3(QDomElement doc);
 	static QString get_version(QDomDocument const& doc);
 };
 

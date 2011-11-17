@@ -10,6 +10,7 @@ class PVPlottingFilterNoprocess: public PVPlottingFilter
 {
 public:
 	float operator()(float value);
+	QString get_human_name() const { return QString("Default"); }
 
 	CLASS_FILTER(PVPlottingFilterNoprocess)
 };

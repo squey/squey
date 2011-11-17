@@ -17,6 +17,7 @@ class PVMappingFilterTimeWeek: public PVMappingFilterTimeDefault
 {
 protected:
 	float cal_to_float(Calendar* cal, bool& success); 
+	QString get_human_name() const { return QString("Week"); }
 
 	CLASS_REGISTRABLE(PVMappingFilterTimeWeek)
 };

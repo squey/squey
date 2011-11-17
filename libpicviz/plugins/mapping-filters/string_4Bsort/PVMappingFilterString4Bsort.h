@@ -19,6 +19,7 @@ class PVMappingFilterString4Bsort: public PVMappingFilter
 {
 public:
 	float* operator()(PVRush::PVNraw::nraw_table_line const& values);
+	QString get_human_name() const { return QString("Pseudo-sort on the first 4 bytes"); }
 
 protected:
 	static float compute_str_factor(QString const& str);

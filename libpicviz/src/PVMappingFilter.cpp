@@ -78,3 +78,9 @@ QStringList Picviz::PVMappingFilter::list_modes(QString const& type)
 	}
     return ret;
 }
+
+QString Picviz::PVMappingFilter::get_human_name() const
+{
+	QStringList params = registered_name().split('_');
+	return params[1];
+}

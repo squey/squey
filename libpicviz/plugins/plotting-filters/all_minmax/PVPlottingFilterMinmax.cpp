@@ -35,4 +35,16 @@ float* Picviz::PVPlottingFilterMinmax::operator()(float* values)
 	return _dest;
 }
 
+void Picviz::PVPlottingFilterMinmax::init_expand(float min, float max)
+{
+	_expand_min = min;
+	_expand_max = max;
+	_expand_diff = max-min;
+}
+
+float Picviz::PVPlottingFilterMinmax::expand_plotted(float value) const
+{
+	return (value-_expand_min)/(_expand_diff);
+}
+
 IMPL_FILTER_NOPARAM(Picviz::PVPlottingFilterMinmax)

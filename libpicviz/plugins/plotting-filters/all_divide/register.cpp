@@ -10,6 +10,7 @@
 // This method will be called by libpicviz
 LibCPPExport void register_class()
 {
+#if 0
 	// Register under the name "type_format"
 	PVCore::PVArgumentList args;
 
@@ -21,4 +22,5 @@ LibCPPExport void register_class()
 
 	args["factor"] = QVariant((float)PICVIZ_MAXFLOAT);
 	REGISTER_CLASS_WITH_ARGS("float_default", Picviz::PVPlottingFilterAllDivide, args);
+#endif
 }

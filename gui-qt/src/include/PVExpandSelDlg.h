@@ -1,0 +1,36 @@
+#ifndef PVEXPANDSELDLG_H
+#define PVEXPANDSELDLG_H
+
+#include <QDialog>
+#include <QComboBox>
+#include <QWidget>
+
+#include <pvkernel/core/PVAxesIndexType.h>
+#include <picviz/PVView_types.h>
+
+#include "../widgets/editors/include/PVAxesIndexEditor.h"
+
+namespace PVInspector {
+
+class PVExpandSelDlg: public QDialog
+{
+	Q_OBJECT
+public:
+	PVExpandSelDlg(Picviz::PVView_p view, QWidget* parent);
+
+public:
+	PVCore::PVAxesIndexType get_axes() const;
+	QString get_mode();
+
+private slots:
+	void update_list_modes();
+
+private:
+	Picviz::PVView const& _view;
+	PVAxesIndexEditor* _axes_editor;
+	QComboBox* _combo_modes;
+};
+
+}
+
+#endif

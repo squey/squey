@@ -31,6 +31,11 @@ public:
 	void set_dest_array(PVRow size, float* arr);
 	void set_mapping_mode(QString const& mapping_mode);
 	void set_mandatory_params(Picviz::mandatory_param_map const& params);
+
+	virtual void init_expand(float /*min*/, float /*max*/) { };
+	virtual float expand_plotted(float value) const { return value; }
+
+	virtual QString get_human_name() const;
 public:
 	static QStringList list_modes(QString const& type);
 protected:
@@ -38,6 +43,10 @@ protected:
 	PVRow _dest_size;
 	float* _dest;
 	Picviz::mandatory_param_map const* _mandatory_params;
+
+	float _expand_min;
+	float _expand_max;
+	float _expand_diff;
 };
 
 typedef PVPlottingFilter::func_type PVPlottingFilter_f;

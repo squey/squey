@@ -19,14 +19,24 @@ bool PVRush::PVFormatVersion::to_current(QDomDocument& doc)
 		if (!from1to2(doc)) {
 			return false;
 		}
+		if (!from2to3(doc)) {
+			return false;
+		}
 	}
 	if (version == "1") {
 		if (!from1to2(doc)) {
 			return false;
 		}
+		if (!from2to3(doc)) {
+			return false;
+		}
 	}
-
-	if (version != "2") {
+	if (version == "2") {
+		if (!from2to3(doc)) {
+			return false;
+		}
+	}
+	if (version != "3") {
 		return false;
 	}
 
@@ -42,6 +52,11 @@ bool PVRush::PVFormatVersion::from0to1(QDomDocument& doc)
 bool PVRush::PVFormatVersion::from1to2(QDomDocument& doc)
 {
 	return _rec_1to2(doc.documentElement());
+}
+
+bool PVRush::PVFormatVersion::from2to3(QDomDocument& doc)
+{
+	return _rec_2to3(doc.documentElement());
 }
 
 bool PVRush::PVFormatVersion::_rec_0to1(QDomElement elt)
@@ -109,8 +124,8 @@ bool PVRush::PVFormatVersion::_rec_1to2(QDomElement elt)
 					// Take the axis
 					QDomElement axis = c_elt.firstChildElement("axis");
 					// and set the default tag
-					axis.setAttribute(PVFORMAT_AXIS_TAG_STR, tags[i]);
-					axis.setAttribute(PVFORMAT_AXIS_PLOTTING_STR, plottings[i]);
+					axis.setAttribute("tag", tags[i]);
+					axis.setAttribute("plotting", plottings[i]);
 				}
 			}
 		}
@@ -124,16 +139,37 @@ bool PVRush::PVFormatVersion::_rec_1to2(QDomElement elt)
 	if (tag_name == "axis") {
 		bool is_key = elt.attribute("key", "false") == "true";
 		if (is_key) {
-			QString cur_tag = elt.attribute(PVFORMAT_AXIS_TAG_STR);
+			QString cur_tag = elt.attribute("tag");
 			if (!cur_tag.isEmpty()) {
-				cur_tag += QString(QChar(PVFORMAT_TAGS_SEP)) + "key";
+				cur_tag += QString(QChar(':')) + "key";
 			}
 			else {
 				cur_tag = "key";
 			}
-			elt.setAttribute(PVFORMAT_AXIS_TAG_STR, cur_tag);
+			elt.setAttribute("tag", cur_tag);
 		}
 		elt.removeAttribute("key");
+	}
+
+	QDomNodeList children = elt.childNodes();
+	for (int i = 0; i < children.size(); i++) {
+		if (!_rec_1to2(children.at(i).toElement())) {
+			return false;
+		}
+	}
+	return true;
+}
+
+bool PVRush::PVFormatVersion::_rec_2to3(QDomElement elt)
+{
+	QString const& tag_name = elt.tagName();
+	if (tag_name == "axis") {
+		QString plotting = elt.attribute("plotting", "");
+		QString type = elt.attribute("type", "");
+		if (type != "time" && plotting == "minmax") {
+			// minmax is now default. if default was not minmax, it was only relevant for the time
+			elt.setAttribute(PVFORMAT_AXIS_PLOTTING_STR, "default");
+		}
 	}
 
 	QDomNodeList children = elt.childNodes();

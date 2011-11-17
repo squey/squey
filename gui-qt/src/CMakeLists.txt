@@ -11,6 +11,7 @@ include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/gui-qt/src/widgets/)
 include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/gui-qt/src/widgets/format-builder/include)
 include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/gui-qt/src/widgets/remote-log/include)
 include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/gui-qt/src/widgets/editors/include)
+include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/gui-qt/src/widgets/helpers/include)
 
 # include_directories(AFTER ${GLEW_INCLUDE_PATH})
 # include_directories(AFTER ${OPENGL_INCLUDE_DIR})
@@ -54,6 +55,7 @@ include/PVFilesTypesSelWidget.h
 include/PVExtractorWidget.h
 include/PVColorDialog.h
 include/PVDualSlider.h
+include/PVExpandSelDlg.h
 include/PVExportSelectionDialog.h
 include/PVFilterWidget.h
 include/PVLayerFilterProcessWidget.h
@@ -91,6 +93,11 @@ widgets/editors/include/PVColorGradientDualSliderEditor.h
 widgets/editors/include/PVEnumEditor.h
 widgets/editors/include/PVRegexpEditor.h
 widgets/editors/include/PVSpinBoxEditor.h
+
+widgets/helpers/include/PVAxisTypeWidget.h
+widgets/helpers/include/PVComboBox.h
+widgets/helpers/include/PVMappingModeWidget.h
+widgets/helpers/include/PVPlottingModeWidget.h
 
 widgets/format-builder/include/PVAxisTagHelp.h
 widgets/format-builder/include/PVNrawListingModel.h
@@ -133,6 +140,7 @@ PVCustomStyle.cpp
 PVCustomTitleDialog.cpp
 PVFilesTypesSelWidget.cpp
 PVExtractorWidget.cpp
+PVExpandSelDlg.cpp
 PVColorDialog.cpp
 PVDualSlider.cpp
 PVExportSelectionDialog.cpp
@@ -193,6 +201,11 @@ widgets/format-builder/PVXmlRegValidatorHighLight.cpp
 widgets/format-builder/PVXmlTreeItemDelegate.cpp
 widgets/format-builder/PVXmlTreeView.cpp
 widgets/format-builder/PVXmlTimeValidatorHighLight.cpp
+
+widgets/helpers/PVAxisTypeWidget.cpp
+widgets/helpers/PVComboBox.cpp
+widgets/helpers/PVMappingModeWidget.cpp
+widgets/helpers/PVPlottingModeWidget.cpp
 
 # logviewer/addmachinedialog.cpp
 # logviewer/fileconnectiondialog.cpp
