@@ -176,5 +176,5 @@ void PVInspector::PVLayerStackWidget::refresh()
 {
 	parent_tab->get_lib_view()->process_from_layer_stack();
 	parent_tab->refresh_layer_stack_view_Slot();
-	main_window->update_pvglview(parent_tab->get_lib_view(), PVSDK_MESSENGER_REFRESH_Z|PVSDK_MESSENGER_REFRESH_COLOR|PVSDK_MESSENGER_REFRESH_ZOMBIES|PVSDK_MESSENGER_REFRESH_SELECTION);
+	main_window->update_pvglview(parent_tab->get_lib_view(), PVSDK_MESSENGER_REFRESH_Z|PVSDK_MESSENGER_REFRESH_COLOR|PVSDK_MESSENGER_REFRESH_ZOMBIES|PVSDK_MESSENGER_REFRESH_SELECTION|PVSDK_MESSENGER_REFRESH_SELECTED_LAYER);
 }

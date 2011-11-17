@@ -40,6 +40,8 @@ class PVLayerStackView : public QTableView
 		void leaveEvent(QEvent *event);
 //		void set_model(PVLayerStackModel *pv_listing_model);
 
+		inline PVLayerStackWidget* get_parent() { return _parent; }
+
 	protected:
 		void save_layer(int idx);
 		void import_layer();

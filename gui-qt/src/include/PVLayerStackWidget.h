@@ -40,6 +40,7 @@ class PVLayerStackWidget : public QWidget
 		 * @return
 		 */
 		PVLayerStackView *get_layer_stack_view()const{return pv_layer_stack_view;}
+		PVTabSplitter* get_parent_tab() { return parent_tab; }
 
 	public slots:
 		void delete_layer_Slot();

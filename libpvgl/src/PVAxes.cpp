@@ -244,7 +244,6 @@ void PVGL::PVAxes::draw_names()
 
 	if (show_limits) {
 		Picviz::PVMapping const& mapping = pv_view->get_mapped_parent()->get_mapping();
-		Picviz::PVLayer const& cur_layer = pv_view->get_layer_stack().get_selected_layer();
 
 		for (int i = 0; i < nb_axes; i++) {
 			float gl_coord_x, gl_coord_y_min, gl_coord_y_max;
@@ -267,12 +266,11 @@ void PVGL::PVAxes::draw_names()
 				ymax = (*it_max).second.first.toLocal8Bit();
 
 				// Current layer min/max
-				PVRow idx_min,idx_max;
-				if (cur_layer.get_min_for_col(i, idx_min)) {
-					layer_ymin = pv_view->get_data(idx_min, i).toLocal8Bit();
+				if ((unsigned int) i < _mins_layer.size()) {
+					layer_ymin = pv_view->get_data(_mins_layer[i], i).toLocal8Bit();
 				}
-				if (cur_layer.get_max_for_col(i, idx_max)) {
-					layer_ymax = pv_view->get_data(idx_max, i).toLocal8Bit();
+				if ((unsigned int) i < _maxs_layer.size()) {
+					layer_ymax = pv_view->get_data(_maxs_layer[i], i).toLocal8Bit();
 				}
 			}
 			gl_coord_x = abscissae_list[i];
@@ -392,4 +390,10 @@ void PVGL::PVAxes::update_arrays_bg (void)
 void PVGL::PVAxes::toggle_show_limits()
 {
 	show_limits = !show_limits;
+}
+
+void PVGL::PVAxes::update_current_layer(Picviz::PVLayer const& layer)
+{
+	_mins_layer = layer.get_mins();
+	_maxs_layer = layer.get_maxs();
 }

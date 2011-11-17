@@ -127,6 +127,9 @@ void Picviz::PVView::init_from_plotted(PVPlotted* parent, bool keep_layers)
 	if (!keep_layers) {
 		reset_layers();
 	}
+	else {
+		layer_stack.compute_min_maxs(*parent);
+	}
 	select_all_nonzb_lines();
 	nu_selection.select_none();
 

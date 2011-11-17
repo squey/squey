@@ -142,6 +142,7 @@ void PVInspector::PVLayerStackView::import_layer()
 
 	// And load it
 	layer->load_from_file(file);
+	layer->compute_min_max(*_parent->get_parent_tab()->get_lib_view()->get_plotted_parent());
 
 	_parent->refresh();
 #endif
@@ -175,7 +176,9 @@ void PVInspector::PVLayerStackView::load_layer_stack()
 	QString file = dlg->selectedFiles().at(0);
 
 	PVLayerStackModel* model_ = (PVLayerStackModel*) model();
-	model_->get_layer_stack_lib().load_from_file(file);
+	Picviz::PVLayerStack& stack = model_->get_layer_stack_lib();
+	stack.load_from_file(file);
+	stack.compute_min_maxs(*_parent->get_parent_tab()->get_lib_view()->get_plotted_parent());
 
 	_parent->refresh();
 #endif

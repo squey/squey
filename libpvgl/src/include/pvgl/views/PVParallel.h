@@ -172,6 +172,7 @@ public:
 	void update_positions();
 	void update_zombies();
 	void update_selections();
+	void update_current_layer();
 
 
 

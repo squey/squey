@@ -19,6 +19,8 @@
 
 namespace Picviz {
 
+class PVPlotted;
+
 /**
  * \class PVLayerStack
  */
@@ -54,6 +56,8 @@ public:
 	PVLayer* append_layer(const PVLayer & layer);
 	PVLayer* append_new_layer();
  	PVLayer* append_new_layer_from_selection_and_lines_properties(PVSelection const& selection, PVLinesProperties const& lines_properties);
+
+	void compute_min_maxs(PVPlotted const& plotted);
 
 	void delete_by_index(int index);
 	void delete_all_layers();

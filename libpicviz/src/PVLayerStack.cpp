@@ -307,6 +307,12 @@ void Picviz::PVLayerStack::update_layer_index_array_completely()
 	******************************/
 }
 
+void Picviz::PVLayerStack::compute_min_maxs(PVPlotted const& plotted)
+{
+	for (int i = 0; i < table.size(); i++) {
+		table[i].compute_min_max(plotted);
+	}
+}
 
 void Picviz::PVLayerStack::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 {

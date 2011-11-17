@@ -356,6 +356,18 @@ void PVGL::PVView::update_axes(void)
 	map.update_arrays_zombies();
 }
 
+void PVGL::PVView::update_current_layer()
+{
+	PVLOG_DEBUG("PVGL::PVView::%s\n", __FUNCTION__);
+	if (!picviz_view) { // Sanity check
+		return;
+	}
+	if (!picviz_view->is_consistent()) {
+		return;
+	}
+	axes.update_current_layer(picviz_view->get_layer_stack().get_selected_layer());
+}
+
 /******************************************************************************
  *
  * PVGL::PVView::reset_to_home

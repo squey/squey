@@ -594,6 +594,9 @@ void PVGL::PVMain::timer_func(int)
 								if (message.int_1 & PVSDK_MESSENGER_REFRESH_SELECTION) {
 									pv_view->update_selections();
 								}
+								if (message.int_1 & PVSDK_MESSENGER_REFRESH_SELECTED_LAYER) {
+									pv_view->update_current_layer();
+								}
 								//(*it)->update_all();
 								PVGL::wtk_window_need_redisplay();
 							}

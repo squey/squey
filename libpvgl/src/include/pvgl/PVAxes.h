@@ -14,6 +14,7 @@
 #include <GL/freeglut.h>
 
 #include <pvkernel/core/general.h>
+#include <picviz/PVLayer.h>
 #include <picviz/PVView_types.h>
 
 namespace PVGL {
@@ -40,6 +41,8 @@ class LibGLDecl PVAxes {
 	std::vector<vec3> bg_position_array; //!< The positions of the vertices of the background of the selected axis.
 	GLuint            program_bg;        //!< The shader program handle used to draw the background of the selected axis.
 	bool              show_limits;
+	std::vector<PVRow> _mins_layer;
+	std::vector<PVRow> _maxs_layer;
 
 public:
 
@@ -63,6 +66,8 @@ public:
 	 * Update the axes positions.
 	 */
 	void update_arrays(void);
+
+	void update_current_layer(Picviz::PVLayer const& layer);
 
 	/**
 	 * Draw the axes.
