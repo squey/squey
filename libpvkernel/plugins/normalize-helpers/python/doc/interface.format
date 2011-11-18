@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE PVParamXml>
+<param version="3">
+  <field>
+   <axis titlecolor="#ff921d" tag="" mapping="default" time-format="" group="" type="string" name="Axis 1" plotting="default" color="#ffffff" time-sample=""/>
+  </field>
+  <field>
+   <axis titlecolor="#ff921d" tag="" mapping="default" time-format="" group="" type="string" name="Axis 2" plotting="default" color="#ffffff" time-sample=""/>
+  </field>
+</param>

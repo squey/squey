@@ -5,7 +5,36 @@
 
 #include <pvkernel/rush/PVFileDescription.h>
 
-PythonInterpreter *PVRush::PVPythonSource::my_python = NULL;
+#include <tbb/atomic.h>
+
+#include <string>
+
+// Initialize python instance once and for all
+boost::python::object PVRush::PVPythonSource::_python_main;
+boost::python::dict PVRush::PVPythonSource::_python_main_namespace;
+
+static boost::python::object borrow_ptr(PyObject* p)
+{
+	    boost::python::handle<> h(p);
+		    return boost::python::object(h);
+}
+
+static std::string convert_py_exception_to_string()
+{
+	std::string ret;
+
+	PyObject *ptype = NULL, *pvalue = NULL, *ptraceback = NULL;
+
+	PyErr_Fetch(&ptype, &pvalue, &ptraceback);
+	boost::python::object traceback = boost::python::import("traceback");
+	boost::python::object tb_namespace = traceback.attr("__dict__");
+	boost::python::list lstr = boost::python::extract<boost::python::list>(tb_namespace["format_exception"](borrow_ptr(ptype), borrow_ptr(pvalue), borrow_ptr(ptraceback), boost::python::object(), false));
+	for (boost::python::ssize_t i = 0; i < boost::python::len(lstr); i++) {
+		ret += boost::python::extract<const char*>(lstr[i]);
+	}   
+
+	return ret;
+}
 
 PVRush::PVPythonSource::PVPythonSource(input_type input, size_t min_chunk_size, PVFilter::PVChunkFilter_f src_filter, const QString& python_file):
 	PVRawSourceBase(src_filter),
@@ -13,39 +42,44 @@ PVRush::PVPythonSource::PVPythonSource(input_type input, size_t min_chunk_size, 
 	_min_chunk_size(min_chunk_size),
 	_next_index(0)
 {
-	PVFileDescription* file = dynamic_cast<PVFileDescription*>(input.get());
-	assert(file);
-	QByteArray file_str(file->path().toLocal8Bit());
-
-	if (!my_python) {
-		my_python = python_alloc();
-		python_construct(my_python);
+	static tbb::atomic<bool> python_launched;
+	if (!python_launched.compare_and_swap(true, false)) {
+		Py_Initialize();
+		_python_main = boost::python::import("__main__");
+		_python_main_namespace = boost::python::extract<boost::python::dict>(_python_main.attr("__dict__"));
 	}
 
-	QByteArray python_file_str(python_file.toLocal8Bit());
+	PVFileDescription* file = dynamic_cast<PVFileDescription*>(input.get());
+	assert(file);
 
-	char *args[2] = {(char*) "", python_file_str.data()} ;
-
-	python_parse(my_python, NULL, 2, args, (char **)NULL);
-
-	dSP;
-	ENTER;
-	SAVETMPS;
-	PUSHMARK(SP);
-	XPUSHs(sv_2mortal(newSVpv(file_str.data(), 0)));
-	PUTBACK;
-	python_call_pv("picviz_open_file", G_ARRAY);
-	SPAGAIN;
-
-	PUTBACK;
-	FREETMPS;
-	LEAVE; 
+	_python_own_namespace = _python_main_namespace.copy();
+	
+	try {
+		// Load our script
+		boost::python::exec_file(qPrintable(python_file), _python_main, _python_own_namespace);
+		boost::python::object open_file_f = _python_own_namespace["picviz_open_file"];
+		open_file_f(file->path().toUtf8().constData());
+	}
+	catch (boost::python::error_already_set const&)
+	{
+		//std::string exc = convert_py_exception_to_string();
+		PyErr_Print();
+		//throw PVPythonExecException(python_file, exc.c_str());
+		throw PVPythonExecException(python_file, "");
+	}
 }
 
 PVRush::PVPythonSource::~PVPythonSource()
 {
-	// python_destruct(python_interpreter);
-	// python_free(python_interpreter);
+	try {
+		_python_own_namespace["piciviz_close"]();
+	}
+	catch (boost::python::error_already_set const&)
+	{
+		//std::string exc = convert_py_exception_to_string();
+		PyErr_Print();
+		//PVLOG_ERROR("Error in Python file %s: %s\n", qPrintable(_python_file), exc.c_str());
+	}
 }
 
 QString PVRush::PVPythonSource::human_name()
@@ -55,24 +89,15 @@ QString PVRush::PVPythonSource::human_name()
 
 void PVRush::PVPythonSource::seek_begin()
 {
-	// AG: if I understand correctly, we should be using something
-	// like this:
-	// python_call_pv("picviz_seek_begin", G_DISCARD | G_NOARGS);
-	// because w have no argument (so no need for Python stack stuff) and
-	// we discard the output of the function.
-	// Still, it does not work (segfault) so we are using the code below...
-	
-	dSP;
-	ENTER;
-	SAVETMPS;
-	PUSHMARK(SP);
-	PUTBACK;
-	python_call_pv("picviz_seek_begin", 0);
-	SPAGAIN;
-
-	PUTBACK;
-	FREETMPS;
-	LEAVE; 
+	try {
+		_python_own_namespace["picviz_seek_begin"]();
+	}
+	catch (boost::python::error_already_set const&)
+	{
+		PyErr_Print();
+		//std::string exc = convert_py_exception_to_string();
+		//PVLOG_ERROR("Error in Python file %s: %s\n", qPrintable(_python_file), exc.c_str());
+	}
 }
 
 void PVRush::PVPythonSource::prepare_for_nelts(chunk_index /*nelts*/)
@@ -81,65 +106,53 @@ void PVRush::PVPythonSource::prepare_for_nelts(chunk_index /*nelts*/)
 
 PVCore::PVChunk* PVRush::PVPythonSource::operator()()
 {
-	AV *av;
-	SV *sv;
-	SV *array_sv;
-	SV **array_elem_pp;
-	SV *array_elem;
-	int nelts;
+	boost::python::ssize_t nelts;
 
-	// Initialize PYTHON stack
-	dSP;
-	ENTER;
-	SAVETMPS;
-	PUSHMARK(SP);
-	mXPUSHu((UV) _min_chunk_size);
-	PUTBACK;
-	nelts = python_call_pv("picviz_get_next_chunk", G_ARRAY);
-	SPAGAIN;
+	PVCore::PVChunk* chunk;
+	try {
+		boost::python::list elements = boost::python::extract<boost::python::list>(_python_own_namespace["picviz_get_next_chunk"](_min_chunk_size));
+		nelts = boost::python::len(elements);
+		if (nelts == 0) {
+			// That's the end
+			return NULL;
+		}
 
-	if (nelts == 0) {
-		// That's the end
-		return NULL;
-	}
+		chunk = PVCore::PVChunkMem<>::allocate(0, this);
+		chunk->set_index(_next_index);
 
-	PVCore::PVChunk* chunk = PVCore::PVChunkMem<>::allocate(0, this);
-	chunk->set_index(_next_index);
+		for (boost::python::ssize_t i = 0; i < nelts; i++) {
+			PVCore::PVElement* elt = chunk->add_element();
+			elt->fields().clear();
 
-	for (int i = 0; i < nelts; i++) {
-		sv = POPs;
-		array_sv = SvRV(sv);
-		av = (AV *)array_sv;
-
-		PVCore::PVElement* elt = chunk->add_element();
-		for (int j = 0; j < av_len(av); j++) {
-			array_elem_pp = av_fetch(av, j, FALSE);
-			array_elem = *array_elem_pp;
-
-			char* field_buf;
-			if (SvPOK(array_elem)) {
-				field_buf = SvPV_nolen(array_elem);
+			boost::python::list fields = boost::python::extract<boost::python::list>(elements[i]);
+			boost::python::ssize_t len_ar = boost::python::len(fields);
+			if (len_ar < 0) {
+				continue;
 			}
-			else {
-				PVLOG_ERROR("Field %d of chunk element %d does not contain a string. Using an empty one...\n", i, j);
-				field_buf = (char*) "";
+			for (int j = 0; j < len_ar; j++) {
+				boost::python::extract<const char*> extract_str(fields[j]);
+				QString value;
+				if (extract_str.check()) {
+					value = QString::fromUtf8(extract_str());
+				}
+				else {
+					PVLOG_ERROR("Field %d of chunk element %d does not contain a string. Using an empty one...\n", i, j);
+				}
+				PVCore::PVField f(*elt);
+				size_t size_buf = value.size() * sizeof(QChar);
+				f.allocate_new(size_buf);
+				memcpy(f.begin(), value.constData(), size_buf);
+				elt->fields().push_back(f);
 			}
-			QString value = QString::fromUtf8(field_buf);
-			PVCore::PVField f(*elt);
-			size_t size_buf = value.size() * sizeof(QChar);
-			f.allocate_new(size_buf);
-			memcpy(f.begin(), value.constData(), size_buf);
-			elt->fields().push_back(f);
 		}
 	}
-
-	// Clear PYTHON stack
-	PUTBACK;
-	FREETMPS;
-	LEAVE; 
-
-	// Set the index of the elements inside the chunk
-	chunk->set_elements_index();
+	catch (boost::python::error_already_set const&)
+	{
+		//std::string exc = convert_py_exception_to_string();
+		PyErr_Print();
+		//PVLOG_ERROR("Error in Python file %s: %s\n", qPrintable(_python_file), exc.c_str());
+		return NULL;
+	}
 
 	// Compute the next chunk's index
 	_next_index += chunk->c_elements().size();

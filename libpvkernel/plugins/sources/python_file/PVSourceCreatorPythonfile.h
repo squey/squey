@@ -5,9 +5,6 @@
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/rush/PVSourceCreator.h>
 
-#include "PVPythonSource.h"
-
-
 namespace PVRush {
 
 class PVSourceCreatorPythonfile: public PVSourceCreator

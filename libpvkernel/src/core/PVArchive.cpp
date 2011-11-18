@@ -10,6 +10,7 @@ static void picviz_archive_read_support(struct archive* a)
 {
 	// Support all formats
 	archive_read_support_format_all(a);
+	//archive_read_support_format_raw(a);
 
 	// Support all compression schemes but UUE
 	// (cf. issue #163 and http://groups.google.com/group/libarchive-discuss/browse_thread/thread/641feadda4ff94b1)

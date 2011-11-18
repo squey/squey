@@ -1,19 +1,23 @@
 #ifndef PVPYTHONSOURCE_FILE_H
 #define PVPYTHONSOURCE_FILE_H
 
+// AG: to investigate: pvbase/general.h, which is included by core/general.h,
+// seems to conflict with boost/python.hpp. If this header is after general.h,
+// them you have a compile error !!
+#include <boost/python.hpp>
+
 #include <QString>
 
-#include <pvbase/general.h>
-#include <pvkernel/rush/PVRawSourceBase.h>
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVChunk.h>
 #include <pvkernel/filter/PVChunkFilter.h>
 #include <pvkernel/filter/PVFilterFunction.h>
 #include <pvkernel/rush/PVSourceCreator.h>
-#include <boost/bind.hpp>
+#include <pvkernel/rush/PVInput.h>
+#include <pvkernel/rush/PVRawSourceBase.h>
 
-#include <Python.h>
+#include <boost/bind.hpp>
 
 namespace PVRush {
 
@@ -36,7 +40,33 @@ protected:
 	size_t _min_chunk_size;
 	chunk_index _next_index;
 private:
-	static PythonInterpreter *my_python;
+	static boost::python::object _python_main;
+	static boost::python::dict _python_main_namespace;
+	boost::python::dict _python_own_namespace;
+};
+
+class PVPythonFormatInvalid: public PVFormatInvalid
+{
+public:
+	PVPythonFormatInvalid(QString const& file)
+	{
+		_msg = QObject::tr("Unable to parse %1").arg(file);
+	}
+	QString what() const { return _msg; }
+private:
+	QString _msg;
+};
+
+class PVPythonExecException: public PVFormatInvalid
+{
+public:
+	PVPythonExecException(QString const& file, const char* msg)
+	{
+		_msg = QObject::tr("Error in Python file %1: %2").arg(file).arg(QString::fromLocal8Bit(msg));
+	}
+	QString what() const { return _msg; }
+private:
+	QString _msg;
 };
 
 }

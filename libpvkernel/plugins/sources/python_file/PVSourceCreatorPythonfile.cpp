@@ -1,3 +1,4 @@
+#include "PVPythonSource.h"
 #include "PVSourceCreatorPythonfile.h"
 
 #include <pvkernel/rush/PVFileDescription.h>
@@ -13,7 +14,7 @@ PVRush::PVSourceCreatorPythonfile::source_p PVRush::PVSourceCreatorPythonfile::c
 {
 	PVFilter::PVChunkFilter* chk_flt = new PVFilter::PVChunkFilter();
 	QFileInfo python_file_info(format.get_full_path());
-	QString python_file(python_file_info.dir().absoluteFilePath(python_file_info.completeBaseName() + ".pl"));
+	QString python_file(python_file_info.dir().absoluteFilePath(python_file_info.completeBaseName() + ".py"));
 
 	source_p src(new PVRush::PVPythonSource(input, DEFAULT_PYTHON_CHUNK_SIZE, chk_flt->f(), python_file));
 
