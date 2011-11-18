@@ -44,7 +44,8 @@ PVRush::PVPythonSource::PVPythonSource(input_type input, size_t min_chunk_size, 
 {
 	static tbb::atomic<bool> python_launched;
 	if (!python_launched.compare_and_swap(true, false)) {
-		Py_Initialize();
+		// Do not let python catch the signals !
+		Py_InitializeEx(0);
 		_python_main = boost::python::import("__main__");
 		_python_main_namespace = boost::python::extract<boost::python::dict>(_python_main.attr("__dict__"));
 	}
@@ -56,7 +57,8 @@ PVRush::PVPythonSource::PVPythonSource(input_type input, size_t min_chunk_size, 
 	
 	try {
 		// Load our script
-		boost::python::exec_file(qPrintable(python_file), _python_main, _python_own_namespace);
+		boost::python::exec_file(qPrintable(python_file), _python_own_namespace, _python_own_namespace);
+		//boost::python::exec_file(qPrintable(python_file), _python_main, _python_main_namespace);
 		boost::python::object open_file_f = _python_own_namespace["picviz_open_file"];
 		open_file_f(file->path().toUtf8().constData());
 	}

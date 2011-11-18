@@ -946,7 +946,15 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 		PVRush::PVControllerJob_p job_import;
 		PVRush::PVFormat const& cur_format = fc.first;
 
-		Picviz::PVSource_p import_source = Picviz::PVSource_p(new Picviz::PVSource(inputs, fc.second, cur_format));
+		Picviz::PVSource_p import_source;
+		try {
+			import_source = Picviz::PVSource_p(new Picviz::PVSource(inputs, fc.second, cur_format));
+		}
+		catch (PVRush::PVFormatException const& e) {
+			PVLOG_ERROR("Error with format: %s\n", qPrintable(e.what()));
+			continue;
+		}
+
 		if (!load_source(import_source)) {
 			continue;
 		}
