@@ -52,14 +52,15 @@ def picviz_get_next_chunk(min_chunk_size):
 			except:
 				pass
 
+	print (str(elements))
 	return elements
 
 def picviz_close():
 	pass
 
 
-if __name__ == "__main__":
-	my_pcap = "/donnees/SVN/cactuslogs/pcap/waledac.pcap"
-	picviz_open_file(my_pcap)
-	picviz_get_next_chunk(0)
+# if __name__ == "__main__":
+# 	my_pcap = "/donnees/SVN/cactuslogs/pcap/waledac.pcap"
+# 	picviz_open_file(my_pcap)
+# 	picviz_get_next_chunk(0)
 

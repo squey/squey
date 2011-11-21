@@ -6,6 +6,10 @@ include_directories(AFTER ${ICU_INCLUDE})
 # 	set(PVCORE_LIBRARY pvcore m)
 # endif(WIN32)
 
+add_executable(Tcore_capslock capslock.cpp)
+target_link_libraries(Tcore_capslock ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
+add_test(TestCapslock Tcore_capslock)
+
 add_executable(Tcore_simple simple.cpp)
 target_link_libraries(Tcore_simple ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
 add_test(TestSimple Tcore_simple)

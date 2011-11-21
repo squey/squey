@@ -249,8 +249,15 @@ if(WIN32)
         set(PERLLIBS_FOUND "FALSE")
         #       set(PERL_INCLUDE_PATH "C:\\strawberry\\c\\include")                                                                                   
         #       set(PERL_LIBRARY "C:\\strawberry\\perl\\bin\\perl510.dll")                                                                            else(WIN32)
-        FIND_PACKAGE(PerlLibs)
+        find_package(PerlLibs)
 endif(WIN32)
 
-set(Python_ADDITIONAL_VERSIONS 3.2mu)
-FIND_PACKAGE(PythonLibs)
+set(Python_ADDITIONAL_VERSIONS 3.2)
+find_package(PythonLibs)
+
+#
+# Check for X11 (used to detect caps lock activated ;-))
+#
+if(NOT WIN32)
+	find_package(X11 REQUIRED)
+endif(NOT WIN32)
