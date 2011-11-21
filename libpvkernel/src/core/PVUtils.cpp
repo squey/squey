@@ -7,12 +7,13 @@
 #include <QtGlobal>
 
 #ifdef Q_OS_WIN32
+	#include <Winuser.h>
+#else
 	#include <X11/Xlib.h>
 	#include <X11/XKBlib.h>
-#else
-	#include <Winuser.h>
 #endif
 
+#include <pvkernel/core/PVUtils.h>
 
 // http://www.qtforum.org/article/32572/how-to-determine-if-capslock-is-on-crossplatform.html
 bool PVCore::PVUtils::isCapsLockActivated()
