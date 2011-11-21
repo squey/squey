@@ -280,7 +280,9 @@ void PVInspector::PVTabSplitter::create_new_mapped()
 void PVInspector::PVTabSplitter::select_plotted(Picviz::PVPlotted* plotted)
 {
 	if (!plotted->is_uptodate()) {
-		plotted->process_from_parent_mapped(true);
+		if (!PVCore::PVProgressBox::progress(boost::bind(&Picviz::PVPlotted::process_from_parent_mapped, plotted, true), tr("Processing..."), (QWidget*) this)) {
+			return;
+		}
 		main_window->update_pvglview(plotted->get_view(), PVSDK_MESSENGER_REFRESH_POSITIONS);
 	}
 	select_view(plotted->get_view());
@@ -316,8 +318,14 @@ void PVInspector::PVTabSplitter::edit_mapped(Picviz::PVMapped* mapped)
 
 	Picviz::PVView_p cur_view = get_lib_view();
 	if (cur_view->get_mapped_parent() == mapped) {
-		mapped->process_parent_source();
-		cur_view->get_plotted_parent()->process_from_parent_mapped(true);
+		if (!PVCore::PVProgressBox::progress(boost::bind(&Picviz::PVMapped::process_parent_source, mapped), tr("Processing..."), (QWidget*) this)) {
+			return;
+		}
+		Picviz::PVPlotted* plotted_parent = cur_view->get_plotted_parent();
+		if (!PVCore::PVProgressBox::progress(boost::bind(&Picviz::PVPlotted::process_from_parent_mapped, plotted_parent, true), tr("Processing..."), (QWidget*) this)) {
+			return;
+		}
+
 		main_window->update_pvglview(cur_view, PVSDK_MESSENGER_REFRESH_POSITIONS);
 	}
 }
@@ -330,7 +338,9 @@ void PVInspector::PVTabSplitter::edit_plotted(Picviz::PVPlotted* plotted)
 		// If a plotted was selected and that it is the current view...
 		if (get_lib_view() == plotted->get_view() && !plotted->is_uptodate()) {
 			// If something has changed, reprocess it
-			plotted->process_from_parent_mapped(true);
+			if (!PVCore::PVProgressBox::progress(boost::bind(&Picviz::PVPlotted::process_from_parent_mapped, plotted, true), tr("Processing..."), (QWidget*) this)) {
+				return;
+			}
 			main_window->update_pvglview(plotted->get_view(), PVSDK_MESSENGER_REFRESH_POSITIONS);
 		}
 	}

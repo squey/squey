@@ -79,46 +79,56 @@ int PVPlotted::create_table()
 
 	trans_table.reserve(nrows, mapped_col_count);
 
-	PVLOG_INFO("(PVPlotted::create_table) begin parallel plotting\n");
-	for (PVCol j = 0; j < mapped_col_count; j++) {
-		if (_plotting.is_col_uptodate(j)) {
-			continue;
-		}
-		PVPlottingFilter::p_type plotting_filter = plotting_filters[j];
-		if (!plotting_filter) {
-			PVLOG_ERROR("No valid plotting filter function is defined for axis %d !\n", j);
-			continue;
-		}
+	try {
 
-		plotting_filter->set_mapping_mode(_mapped->get_mapping().get_mode_for_col(j));
-		plotting_filter->set_mandatory_params(_mapped->get_mapping().get_mandatory_params_for_col(j));
-		plotting_filter->set_dest_array(nrows, trans_table.getRowData(j));
-		tbb::tick_count plstart = tbb::tick_count::now();
-		plotting_filter->operator()(_mapped->trans_table.getRowData(j));
-		tbb::tick_count plend = tbb::tick_count::now();
-		int64_t nrows_tmp = nrows;
-
-		PVLOG_INFO("(PVPlotted::create_table) parallel plotting for axis %d took %0.4f seconds, plugin was %s.\n", j, (plend-plstart).seconds(), qPrintable(plotting_filter->registered_name()));
-
-		// TODO: this is a matrix transposition. Find out the best way to do this !
-#pragma omp parallel for
-		for (int64_t i = 0; i < nrows_tmp; i++) {
-			float v = trans_table.getValue(j, i);
-			_table[i*mapped_col_count+j] = v;
-#ifndef NDEBUG
-			// Check that every plotted value is between 0 and 1
-			if (v > 1 || v < 0) {
-				PVLOG_WARN("Plotting value for row/col %d/%d is %0.4f !\n", i,j,v);
+		PVLOG_INFO("(PVPlotted::create_table) begin parallel plotting\n");
+		for (PVCol j = 0; j < mapped_col_count; j++) {
+			if (_plotting.is_col_uptodate(j)) {
+				continue;
 			}
+			PVPlottingFilter::p_type plotting_filter = plotting_filters[j];
+			if (!plotting_filter) {
+				PVLOG_ERROR("No valid plotting filter function is defined for axis %d !\n", j);
+				continue;
+			}
+
+			plotting_filter->set_mapping_mode(_mapped->get_mapping().get_mode_for_col(j));
+			plotting_filter->set_mandatory_params(_mapped->get_mapping().get_mandatory_params_for_col(j));
+			plotting_filter->set_dest_array(nrows, trans_table.getRowData(j));
+			boost::this_thread::interruption_point();
+			tbb::tick_count plstart = tbb::tick_count::now();
+			plotting_filter->operator()(_mapped->trans_table.getRowData(j));
+			tbb::tick_count plend = tbb::tick_count::now();
+			int64_t nrows_tmp = nrows;
+
+			PVLOG_INFO("(PVPlotted::create_table) parallel plotting for axis %d took %0.4f seconds, plugin was %s.\n", j, (plend-plstart).seconds(), qPrintable(plotting_filter->registered_name()));
+
+			boost::this_thread::interruption_point();
+			// TODO: this is a matrix transposition. Find out the best way to do this !
+#pragma omp parallel for
+			for (int64_t i = 0; i < nrows_tmp; i++) {
+				float v = trans_table.getValue(j, i);
+				_table[i*mapped_col_count+j] = v;
+#ifndef NDEBUG
+				// Check that every plotted value is between 0 and 1
+				if (v > 1 || v < 0) {
+					PVLOG_WARN("Plotting value for row/col %d/%d is %0.4f !\n", i,j,v);
+				}
 #endif
+			}
+
+			_plotting.set_uptodate_for_col(j);
 		}
+		PVLOG_INFO("(PVPlotted::create_table) end parallel plotting\n");
 
-		_plotting.set_uptodate_for_col(j);
+		tbb::tick_count tend = tbb::tick_count::now();
+		PVLOG_INFO("(PVPlotted::create_table) plotting took %0.4f seconds.\n", (tend-tstart).seconds());
 	}
-	PVLOG_INFO("(PVPlotted::create_table) end parallel plotting\n");
-
-	tbb::tick_count tend = tbb::tick_count::now();
-	PVLOG_INFO("(PVPlotted::create_table) plotting took %0.4f seconds.\n", (tend-tstart).seconds());
+	catch (boost::thread_interrupted const& e)
+	{
+		PVLOG_INFO("(PVPlotted::create_table) plotting canceled.\n");
+		throw e;
+	}
 
 	return 0;
 }

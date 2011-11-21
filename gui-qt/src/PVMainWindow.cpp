@@ -1034,23 +1034,33 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_p src)
 	// If no view is present, create a default one. Otherwise, process them by
 	// keeping the existing layers !
 	Picviz::PVView_p first_view;
+	bool success = true;
 	if (src->get_mappeds().size() == 0) {
-		src->create_default_view();
+		if (!PVCore::PVProgressBox::progress(boost::bind<void>(&Picviz::PVSource::create_default_view, src.get()), tr("Processing..."), (QWidget*) this)) {
+			success = false;
+		}
 	}
 	else {
-		Picviz::PVSource& ref_src = *src;
-		QFuture<void> src_process = QtConcurrent::run(boost::bind(&Picviz::PVSource::process_from_source, src.get(), true));
-		//PVCore::PVProgressBox* pbox = new PVProgressBox(tr("Processing..."), this);
-		//connect(src_process, SIGNAL(
-		src_process.waitForFinished();
-		//src->process_from_source(true);
+		if (!PVCore::PVProgressBox::progress(boost::bind(&Picviz::PVSource::process_from_source, src.get(), true), tr("Processing..."), (QWidget*) this)) {
+			success = false;
+		}
+	}
+
+	if (!success) {
+		message.function = PVSDK_MESSENGER_FUNCTION_DESTROY_TRANSIENT;
+		pvsdk_messenger->post_message_to_gl(message);
+		return false;
 	}
 
 	// If, even after having processed the pipeline from the source, we still don't have
 	// any views, create a default mapped/plotted/view.
 	// This can happen if mappeds have been saved but with no plotted !
 	if (src->get_views().size() == 0) {
-		src->create_default_view();
+		if (!PVCore::PVProgressBox::progress(boost::bind(&Picviz::PVSource::create_default_view, src.get()), tr("Processing..."), (QWidget*) this)) {
+			message.function = PVSDK_MESSENGER_FUNCTION_DESTROY_TRANSIENT;
+			pvsdk_messenger->post_message_to_gl(message);
+			return false;
+		}
 	}
 
 	first_view = src->get_views().at(0);

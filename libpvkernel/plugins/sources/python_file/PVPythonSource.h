@@ -35,6 +35,7 @@ public:
 	}
 	~PVPythonInitializer()
 	{
+		PyGILState_Ensure();
 		Py_Finalize();
 	}
 private:

@@ -112,6 +112,7 @@ bool PVCore::PVArchive::extract(QString const& path, QString const& dir_dest, QS
 			break;
 		if (r != ARCHIVE_OK) {
 			PVLOG_ERROR("Error while extracting archive %s: %s\n", filename, archive_error_string(a));
+			return false;
 		}
 		if (r < ARCHIVE_WARN) {
 			return false;
@@ -136,6 +137,7 @@ bool PVCore::PVArchive::extract(QString const& path, QString const& dir_dest, QS
 			r = copy_data(a, ext);
 			if (r != ARCHIVE_OK) {
 				PVLOG_ERROR("Error while extracting archive %s: %s\n", filename, archive_error_string(a));
+				return false;
 			}
 			if (r < ARCHIVE_WARN) {
 				return false;
@@ -144,6 +146,7 @@ bool PVCore::PVArchive::extract(QString const& path, QString const& dir_dest, QS
 		r = archive_write_finish_entry(ext);
 		if (r != ARCHIVE_OK) {
 			PVLOG_ERROR("Error while extracting archive %s: %s\n", filename, archive_error_string(a));
+			return false;
 		}
 		if (r < ARCHIVE_WARN) {
 			return false;

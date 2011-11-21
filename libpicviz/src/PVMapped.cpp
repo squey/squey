@@ -19,6 +19,8 @@
 
 #include <picviz/PVRoot.h>
 
+#include <boost/thread.hpp>
+
 #include <iostream>
 
 #include <float.h>
@@ -149,60 +151,67 @@ PVLOG_INFO("(pvmapped::create_table) begin cuda mapping\n");
 	}
 	std::vector<PVMandatoryMappingFilter::p_type>::const_iterator it_pmf;
 
-	// This is a hash whose key is "group_type", that contains the PVArgument
-	// passed through all mapping filters that have the same group and type
-	QHash<QString, PVCore::PVArgument> grp_values;
-	for (PVCol j = 0; j < ncols; j++) {
-		// Check that an update is required
-		if (_mapping.get_properties_for_col(j).is_uptodate()) {
-			continue;
+	try {
+		// This is a hash whose key is "group_type", that contains the PVArgument
+		// passed through all mapping filters that have the same group and type
+		QHash<QString, PVCore::PVArgument> grp_values;
+		for (PVCol j = 0; j < ncols; j++) {
+			// Check that an update is required
+			if (_mapping.get_properties_for_col(j).is_uptodate()) {
+				continue;
+			}
+
+			// Get the corresponding object
+			PVRush::PVNraw::nraw_table_line const& fields = trans_nraw[j];
+			PVMappingFilter::p_type mapping_filter = mapping_filters[j];
+			mandatory_param_map& params_map = _mapping.get_mandatory_params_for_col(j);
+			params_map.clear();
+
+			if (!mapping_filter) {
+				PVLOG_ERROR("An invalid mapping type and/or mode is set for axis %d !\n", j);
+				continue;
+			}
+
+			// Let's make our mapping
+			mapping_filter->set_dest_array(nrows, trans_table.getRowData(j));
+			mapping_filter->set_format(j, *get_format());
+			// Get the group specific value if relevant
+			QString group_key = _mapping.get_group_key_for_col(j);
+			if (!group_key.isEmpty()) {
+				PVCore::PVArgument& group_v = grp_values[group_key];
+				mapping_filter->set_group_value(group_v);
+			}
+			boost::this_thread::interruption_point();
+			tbb::tick_count tmap_start = tbb::tick_count::now();
+			mapping_filter->operator()(fields);
+			tbb::tick_count tmap_end = tbb::tick_count::now();
+			PVLOG_INFO("(PVMapped::create_table) parallel mapping for axis %d took %0.4f seconds.\n", j, (tmap_end-tmap_start).seconds());
+
+			tmap_start = tbb::tick_count::now();
+			// Init the mandatory mapping
+			boost::this_thread::interruption_point();
+			for (it_pmf = mand_mapping_filters.begin(); it_pmf != mand_mapping_filters.end(); it_pmf++) {
+				(*it_pmf)->set_dest_params(params_map);
+				(*it_pmf)->operator()(Picviz::mandatory_param_list_values(&fields, trans_table.getRowData(j)));
+			}
+			tmap_end = tbb::tick_count::now();
+
+			PVLOG_INFO("(PVMapped::create_table) mandatory mapping for axis %d took %0.4f seconds.\n", j, (tmap_end-tmap_start).seconds());
+
+			_mapping.set_uptodate_for_col(j);
+			invalidate_plotted_children_column(j);
 		}
-
-		// Get the corresponding object
-		PVRush::PVNraw::nraw_table_line const& fields = trans_nraw[j];
-		PVMappingFilter::p_type mapping_filter = mapping_filters[j];
-		mandatory_param_map& params_map = _mapping.get_mandatory_params_for_col(j);
-		params_map.clear();
-
-		if (!mapping_filter) {
-			PVLOG_ERROR("An invalid mapping type and/or mode is set for axis %d !\n", j);
-			continue;
-		}
-
-		// Let's make our mapping
-		mapping_filter->set_dest_array(nrows, trans_table.getRowData(j));
-		mapping_filter->set_format(j, *get_format());
-		// Get the group specific value if relevant
-		QString group_key = _mapping.get_group_key_for_col(j);
-		if (!group_key.isEmpty()) {
-			PVCore::PVArgument& group_v = grp_values[group_key];
-			mapping_filter->set_group_value(group_v);
-		}
-		tbb::tick_count tmap_start = tbb::tick_count::now();
-		mapping_filter->operator()(fields);
-		tbb::tick_count tmap_end = tbb::tick_count::now();
-		PVLOG_INFO("(PVMapped::create_table) parallel mapping for axis %d took %0.4f seconds.\n", j, (tmap_end-tmap_start).seconds());
-		
-		tmap_start = tbb::tick_count::now();
-		// Init the mandatory mapping
-		for (it_pmf = mand_mapping_filters.begin(); it_pmf != mand_mapping_filters.end(); it_pmf++) {
-			(*it_pmf)->set_dest_params(params_map);
-			(*it_pmf)->operator()(Picviz::mandatory_param_list_values(&fields, trans_table.getRowData(j)));
-		}
-		tmap_end = tbb::tick_count::now();
-
-		PVLOG_INFO("(PVMapped::create_table) mandatory mapping for axis %d took %0.4f seconds.\n", j, (tmap_end-tmap_start).seconds());
-
-		_mapping.set_uptodate_for_col(j);
-		invalidate_plotted_children_column(j);
+		PVLOG_INFO("(pvmapped::create_table) end parallel mapping\n");
+		tbb::tick_count tend = tbb::tick_count::now();
+		PVLOG_INFO("(PVPlotted::create_table) mapping took %0.4f seconds.\n", (tend-tstart).seconds());
 	}
-	PVLOG_INFO("(pvmapped::create_table) end parallel mapping\n");
+	catch (boost::thread_interrupted const& e)
+	{
+		PVLOG_INFO("(PVPlotted::create_table) mapping canceled.\n");
+		throw e;
+	}
 #endif
 	
-
-	tbb::tick_count tend = tbb::tick_count::now();
-	PVLOG_INFO("(PVPlotted::create_table) mapping took %0.4f seconds.\n", (tend-tstart).seconds());
-
 	// Free the transposed NRAW
 	clear_trans_nraw();
 }

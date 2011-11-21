@@ -33,7 +33,7 @@ void PVCore::PVSerializeArchiveZip::open_zip(QString const& zip_path, archive_mo
 		// to a temporary place, and use this for PVSerializeArchive !
 		QStringList files;
 		if (!PVArchive::extract(zip_path, _tmp_path, files)) {
-			throw PVSerializeArchiveError(QString("Unable to extract archive '%s'.").arg(zip_path));
+			throw PVSerializeArchiveError(QString("Unable to extract archive '%1'.").arg(zip_path));
 		}
 	}
 
