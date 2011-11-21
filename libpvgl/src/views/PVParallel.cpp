@@ -14,6 +14,7 @@
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 
+// #include <pvkernel/core/PVUtils.h>
 
 #include <picviz/PVView.h>
 
@@ -195,6 +196,9 @@ void PVGL::PVView::draw(void)
 	glOrtho(0,width, height,0, -1,1);
 
 	// Draw number of selected lines
+	// if (PVCore::PVUtils::isCapsLockActivated()) {
+	// 	PVLOG_INFO("CAPS LOCK is Activated\n");
+	// }
 		// {
 		// 	if (state_machine->is_caps_lock_activated()) {
 		// 		PVLOG_INFO("Caps lock activated!\n");
