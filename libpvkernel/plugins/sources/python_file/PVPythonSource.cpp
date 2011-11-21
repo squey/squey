@@ -14,8 +14,8 @@ PVRush::PVPythonInitializer g_python;
 
 static boost::python::object borrow_ptr(PyObject* p)
 {
-	    boost::python::handle<> h(p);
-		    return boost::python::object(h);
+	boost::python::handle<> h(p);
+	return boost::python::object(h);
 }
 
 static std::string convert_py_exception_to_string()
@@ -44,8 +44,10 @@ PVRush::PVPythonSource::PVPythonSource(input_type input, size_t min_chunk_size, 
 	PVFileDescription* file = dynamic_cast<PVFileDescription*>(input.get());
 	assert(file);
 
+	PVPythonLocker locker;
+
 	_python_own_namespace = g_python.python_main_namespace.copy();
-	
+
 	try {
 		// Load our script
 		boost::python::exec_file(qPrintable(python_file), _python_own_namespace, _python_own_namespace);
@@ -64,6 +66,7 @@ PVRush::PVPythonSource::PVPythonSource(input_type input, size_t min_chunk_size, 
 
 PVRush::PVPythonSource::~PVPythonSource()
 {
+	PVPythonLocker locker;
 	try {
 		_python_own_namespace["piciviz_close"]();
 	}
@@ -82,6 +85,7 @@ QString PVRush::PVPythonSource::human_name()
 
 void PVRush::PVPythonSource::seek_begin()
 {
+	PVPythonLocker locker;
 	try {
 		_python_own_namespace["picviz_seek_begin"]();
 	}
@@ -99,6 +103,7 @@ void PVRush::PVPythonSource::prepare_for_nelts(chunk_index /*nelts*/)
 
 PVCore::PVChunk* PVRush::PVPythonSource::operator()()
 {
+	PVPythonLocker locker;
 	boost::python::ssize_t nelts;
 
 	PVCore::PVChunk* chunk;

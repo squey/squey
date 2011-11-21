@@ -28,8 +28,10 @@ public:
 	{
 		// Do not let python catch the signals !
 		Py_InitializeEx(0);
+		PyEval_InitThreads();
 		python_main = boost::python::import("__main__");
 		python_main_namespace = boost::python::extract<boost::python::dict>(python_main.attr("__dict__"));
+		PyEval_ReleaseLock();
 	}
 	~PVPythonInitializer()
 	{
@@ -41,6 +43,23 @@ private:
 public:
 	boost::python::object python_main;
 	boost::python::dict python_main_namespace;
+};
+
+class PVPythonLocker
+{
+public:
+	PVPythonLocker()
+	{
+		_state = PyGILState_Ensure();
+	};
+	~PVPythonLocker()
+	{
+		PyGILState_Release(_state);
+	}
+private:
+	PVPythonLocker(const PVPythonLocker&) { }
+private:
+	PyGILState_STATE _state;
 };
 
 class PVPythonSource: public PVRawSourceBase {
@@ -63,6 +82,7 @@ protected:
 	chunk_index _next_index;
 private:
 	boost::python::dict _python_own_namespace;
+	PyThreadState* _python_thread;
 };
 
 class PVPythonFormatInvalid: public PVFormatInvalid
