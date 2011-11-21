@@ -1038,10 +1038,12 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_p src)
 		src->create_default_view();
 	}
 	else {
-		/*Picviz::PVSource& ref_src = *src;
-		QFuture<void> src_process = QtConcurrent::run(boost::bind(&Picviz::PVSource::process_from_source, *src, true));
-		src_process.waitForFinished();*/
-		src->process_from_source(true);
+		Picviz::PVSource& ref_src = *src;
+		QFuture<void> src_process = QtConcurrent::run(boost::bind(&Picviz::PVSource::process_from_source, src.get(), true));
+		//PVCore::PVProgressBox* pbox = new PVProgressBox(tr("Processing..."), this);
+		//connect(src_process, SIGNAL(
+		src_process.waitForFinished();
+		//src->process_from_source(true);
 	}
 
 	// If, even after having processed the pipeline from the source, we still don't have

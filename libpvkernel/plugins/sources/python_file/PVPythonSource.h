@@ -21,6 +21,28 @@
 
 namespace PVRush {
 
+class PVPythonInitializer
+{
+public:
+	PVPythonInitializer()
+	{
+		// Do not let python catch the signals !
+		Py_InitializeEx(0);
+		python_main = boost::python::import("__main__");
+		python_main_namespace = boost::python::extract<boost::python::dict>(python_main.attr("__dict__"));
+	}
+	~PVPythonInitializer()
+	{
+		Py_Finalize();
+	}
+private:
+	PVPythonInitializer(const PVPythonInitializer&) { }
+
+public:
+	boost::python::object python_main;
+	boost::python::dict python_main_namespace;
+};
+
 class PVPythonSource: public PVRawSourceBase {
 public:
 	PVPythonSource(input_type input, size_t min_chunk_size, PVFilter::PVChunkFilter_f src_filter, const QString& python_file);
@@ -40,8 +62,6 @@ protected:
 	size_t _min_chunk_size;
 	chunk_index _next_index;
 private:
-	static boost::python::object _python_main;
-	static boost::python::dict _python_main_namespace;
 	boost::python::dict _python_own_namespace;
 };
 

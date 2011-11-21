@@ -10,8 +10,7 @@
 #include <string>
 
 // Initialize python instance once and for all
-boost::python::object PVRush::PVPythonSource::_python_main;
-boost::python::dict PVRush::PVPythonSource::_python_main_namespace;
+PVRush::PVPythonInitializer g_python;
 
 static boost::python::object borrow_ptr(PyObject* p)
 {
@@ -42,18 +41,10 @@ PVRush::PVPythonSource::PVPythonSource(input_type input, size_t min_chunk_size, 
 	_min_chunk_size(min_chunk_size),
 	_next_index(0)
 {
-	static tbb::atomic<bool> python_launched;
-	if (!python_launched.compare_and_swap(true, false)) {
-		// Do not let python catch the signals !
-		Py_InitializeEx(0);
-		_python_main = boost::python::import("__main__");
-		_python_main_namespace = boost::python::extract<boost::python::dict>(_python_main.attr("__dict__"));
-	}
-
 	PVFileDescription* file = dynamic_cast<PVFileDescription*>(input.get());
 	assert(file);
 
-	_python_own_namespace = _python_main_namespace.copy();
+	_python_own_namespace = g_python.python_main_namespace.copy();
 	
 	try {
 		// Load our script
