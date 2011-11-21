@@ -8,6 +8,7 @@ include_directories(AFTER ${PVKERNEL_INCLUDE_DIRS})
 include_directories(AFTER ${ICU_INCLUDE})
 include_directories(AFTER ${ARCHIVE_INCLUDE_DIRS})
 include_directories(AFTER ${PCAP_INCLUDE_DIRS})
+include_directories(AFTER ${X11_INCLUDE_DIR})
 
 ##########################################
 # begin: SET VARIOUS PLUGINS DIRECTORIES #

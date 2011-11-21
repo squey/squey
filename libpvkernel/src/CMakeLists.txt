@@ -29,6 +29,7 @@ core/PVSerializeArchiveOptions.cpp
 core/PVSerializeArchiveZip.cpp
 core/PVSerializeObject.cpp
 core/PVSplitter.cpp
+core/PVUtils.cpp
 core/PVVersion.cpp
 )
 
@@ -75,6 +76,7 @@ include/pvkernel/core/PVSerializeObject.h
 include/pvkernel/core/PVSpinBoxType.h
 include/pvkernel/core/PVTBBMaxArray.h
 include/pvkernel/core/PVTBBMinMaxArray.h
+include/pvkernel/core/PVUtils.h
 include/pvkernel/core/PVVersion.h
 )
 
@@ -294,7 +296,7 @@ add_library(pvkernel SHARED ${SRC_FILES} ${HEADER_FILES} ${MOC_SRC} ${MOC_HEADER
 
 set_target_properties(pvkernel PROPERTIES SOVERSION 1)
 
-target_link_libraries(pvkernel ${QT_LIBRARIES} ${ICU_LIBRARY} ${TBB_LIBRARIES} ${OpenMP_LIBRARIES} ${Boost_LIBRARIES} ${ARCHIVE_LIBRARY} ${PCAP_LIBRARIES} ${WINSOCK_LIB})
+target_link_libraries(pvkernel ${QT_LIBRARIES} ${ICU_LIBRARY} ${TBB_LIBRARIES} ${OpenMP_LIBRARIES} ${Boost_LIBRARIES} ${ARCHIVE_LIBRARY} ${PCAP_LIBRARIES} ${WINSOCK_LIB} ${X11_LIBRARIES})
 
 INSTALL(TARGETS pvkernel LIBRARY DESTINATION .
 			 RUNTIME DESTINATION .)
