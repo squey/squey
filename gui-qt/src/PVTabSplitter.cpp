@@ -171,8 +171,8 @@ void PVInspector::PVTabSplitter::selection_changed_Slot()
  *****************************************************************************/
 void PVInspector::PVTabSplitter::update_pv_listing_model_Slot()
 {
-	
 	PVLOG_DEBUG("%s \n       %s \n",__FILE__,__FUNCTION__);
+	refresh_listing_Slot();
 	
 	updateFilterMenuEnabling();
 }
