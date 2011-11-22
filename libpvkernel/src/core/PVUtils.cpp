@@ -7,7 +7,7 @@
 #include <QtGlobal>
 
 #ifdef Q_OS_WIN32
-	#include <Winuser.h>
+	#include <windows.h>
 #else
 	#include <X11/Xlib.h>
 	#include <X11/XKBlib.h>
