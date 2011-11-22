@@ -7,9 +7,11 @@
 #ifndef PVCORE_PVUTILS_H
 #define PVCORE_PVUTILS_H
 
+#include <pvkernel/core/general.h>
+
 namespace PVCore {
 	namespace PVUtils {
-		bool isCapsLockActivated(void);
+		LibKernelDecl bool isCapsLockActivated(void);
 	}
 }
 
