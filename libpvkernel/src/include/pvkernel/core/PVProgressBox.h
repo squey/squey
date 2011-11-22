@@ -22,7 +22,7 @@
 
 namespace PVCore {
 
-class PVThreadWatcher: public QObject
+class LibKernelDecl PVThreadWatcher: public QObject
 {
 	Q_OBJECT
 public:
