@@ -51,10 +51,12 @@ class PVPythonLocker
 public:
 	PVPythonLocker()
 	{
+		PVLOG_INFO("PVPythonLocker construct\n");
 		_state = PyGILState_Ensure();
 	};
 	~PVPythonLocker()
 	{
+		PVLOG_INFO("PVPythonLocker destruct\n");
 		PyGILState_Release(_state);
 	}
 private:

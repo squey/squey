@@ -1,19 +1,238 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE PVParamXml>
 <param version="3">
-  <field>
-   <axis titlecolor="#ff921d" tag="" mapping="default" time-format="" group="" type="enum" name="Action" plotting="default" color="#ffffff" time-sample=""/>
-  </field>
-  <field>
-   <axis titlecolor="#ff921d" tag="" mapping="default" time-format="" group="" type="string" name="IDOper" plotting="default" color="#ffffff" time-sample=""/>
-  </field>
-  <field>
-   <axis titlecolor="#ff921d" tag="" mapping="default" time-format="epoch" group="" type="time" name="DateEvt" plotting="minmax" color="#ffffff" time-sample=""/>
-  </field>
-  <field>
-   <axis titlecolor="#ff921d" tag="" mapping="default" time-format="" group="" type="integer" name="IDEvt" plotting="default" color="#ffffff" time-sample=""/>
-  </field>
-  <field>
-   <axis titlecolor="#ff921d" tag="" mapping="default" time-format="" group="" type="integer" name="IDJoueur" plotting="default" color="#ffffff" time-sample=""/>
-  </field>
+<field>
+<axis mapping="default" type="enum" name="action_tag" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="Ad" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="BonusApres" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="BonusApresMise" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="BonusAvant" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="BonusAvantMise" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="BonusMouvement" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="BonusNom" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="CP" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="CauseRefus" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="Civilite" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="Clair" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="Compte:Max" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="Compte:Min" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="Compte_number" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="DateDemande" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="DateEffective" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="DateEvt" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="DateHeure" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="DateModif" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="DateN" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="DepotMax:MontantMM" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="DepotMax:PeriodeMM" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="DepotMax:TypeJeuMM" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="DepotMax_number" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="DescPari:Combi" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="DescPari_number" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="DptN" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="Duree" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="Email" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="Gain" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="IDCoffre" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="IDEvt" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="IDJoueur" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="IDOper" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="IDSession" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="IPJoueur" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="Info" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="Lig:Clair" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="Lig:DateHeure" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="Lig:No" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="Lig:Tech" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="Lig:Type" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="Lig_number" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="Login" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="Mise" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="MiseMax:MontantMM" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="MiseMax:PeriodeMM" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="MiseMax:TypeJeuMM" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="MiseMax_number" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="MontantRembours" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="MoyenPaiement" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="Nom" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="Pari:Choix" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="Pari:Cote" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="Pari_number" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="Pays" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="PaysN" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="Prenoms" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="Pseudo" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="SoldeApres" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="SoldeApresGain" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="SoldeApresMise" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="SoldeApresRembours" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="SoldeAvant" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="SoldeAvantGain" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="SoldeAvantMise" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="SoldeAvantRembours" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="SoldeClos" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="SoldeMouvement" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="Tech" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="TelFixe" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="TelMob" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="TypAg" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="TypeMoyenPaiement" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="TypeRefus" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="Ville" plotting="default" />
+</field>
+<field>
+<axis mapping="default" type="enum" name="VilleN" plotting="default" />
+</field>
 </param>

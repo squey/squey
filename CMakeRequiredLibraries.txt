@@ -252,6 +252,12 @@ if(WIN32)
         find_package(PerlLibs)
 endif(WIN32)
 
+# TODO: check that the good python version is found (the 3.2)
+# We also need to check that these packages are installed:
+#  * python3.2-dev
+#  * libpython3.2
+#  * libboost-python1.46.1
+#  * libboost-python1.46-dev
 set(Python_ADDITIONAL_VERSIONS 3.2)
 find_package(PythonLibs)
 
