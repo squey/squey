@@ -53,5 +53,16 @@ def picviz_get_next_chunk(min_chunk_size):
 def picviz_close():
 	pass
 
+def get_fields(path):
+	xml_tree = xml.etree.ElementTree.parse(path)
+	all_fields = ["action_tag"]
+	for lots in xml_tree.getiterator("Lot"):
+		for action in lots:
+			for field in action.iter():
+				tag = field.tag
+				if tag not in all_fields: all_fields.append(tag)
+	return all_fields
+
+print(get_fields("/data/arjel-1"))
 #picviz_open_file("/data/arjel-1-extract")
 #print(picviz_get_next_chunk(0))
