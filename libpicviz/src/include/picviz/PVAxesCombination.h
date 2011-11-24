@@ -99,7 +99,8 @@ public:
 	* @note the returned axis can't be modified.
 	* @note if the index is out of range, the last axis is returned.
 	*/
-	const PVAxis &get_axis(PVCol index) const;
+	const PVAxis& get_axis(PVCol index) const;
+	const PVAxis& get_original_axis(PVCol index) const;
 
 	/**
 	* Get the current column index of a currently used axes, from its index.

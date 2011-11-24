@@ -277,6 +277,12 @@ QString Picviz::PVView::get_axis_type(PVCol index) const
 	return axis.get_type();
 }
 
+QString Picviz::PVView::get_original_axis_type(PVCol axis_id) const
+{
+	PVAxis const& axis = axes_combination.get_original_axis(axis_id);
+	return axis.get_type();
+}
+
 // FIXME: This function should be removed
 /******************************************************************************
  *

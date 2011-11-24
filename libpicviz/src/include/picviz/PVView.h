@@ -153,6 +153,8 @@ public:
 
 
 	int get_original_axes_count();
+	QString get_original_axis_type(PVCol axis_id) const;
+
 	PVLayer &get_output_layer();
 
 	PVRush::PVExtractor& get_extractor();

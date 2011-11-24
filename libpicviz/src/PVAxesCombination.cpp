@@ -110,6 +110,12 @@ const Picviz::PVAxis &Picviz::PVAxesCombination::get_axis(PVCol index) const
 	return axes_list[index];
 }
 
+const Picviz::PVAxis &Picviz::PVAxesCombination::get_original_axis(PVCol index) const
+{
+	assert(index < original_axes_list.size());
+	return original_axes_list.at(index);
+}
+
 /******************************************************************************
  *
  * Picviz::PVAxesCombination::get_axis_column_index
