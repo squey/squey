@@ -7,7 +7,7 @@ import xml.etree.ElementTree,sys,pprint
 
 # XML tree
 xml_tree = None
-all_fields = None
+all_fields = ['action_tag', 'Ad', 'BonusApres', 'BonusApresMise', 'BonusAvant', 'BonusAvantMise', 'BonusMouvement', 'BonusNom', 'CP', 'CauseRefus', 'Civilite', 'Clair', 'Compte:Max', 'Compte:Min', 'Compte_number', 'DateDemande', 'DateEffective', 'DateEvt', 'DateHeure', 'DateModif', 'DateN', 'DepotMax:MontantMM', 'DepotMax:PeriodeMM', 'DepotMax:TypeJeuMM', 'DepotMax_number', 'DescPari:Combi', 'DescPari_number', 'DptN', 'Duree', 'Email', 'Gain', 'IDCoffre', 'IDEvt', 'IDJoueur', 'IDOper', 'IDSession', 'IPJoueur', 'Info', 'Lig:Clair', 'Lig:DateHeure', 'Lig:No', 'Lig:Tech', 'Lig:Type', 'Lig_number', 'Login', 'Mise', 'MiseMax:MontantMM', 'MiseMax:PeriodeMM', 'MiseMax:TypeJeuMM', 'MiseMax_number', 'MontantRembours', 'MoyenPaiement', 'Nom', 'Pari:Choix', 'Pari:Cote', 'Pari_number', 'Pays', 'PaysN', 'Prenoms', 'Pseudo', 'SoldeApres', 'SoldeApresGain', 'SoldeApresMise', 'SoldeApresRembours', 'SoldeAvant', 'SoldeAvantGain', 'SoldeAvantMise', 'SoldeAvantRembours', 'SoldeClos', 'SoldeMouvement', 'Tech', 'TelFixe', 'TelMob', 'TypAg', 'TypeMoyenPaiement', 'TypeRefus', 'Ville', 'VilleN']
 
 # Current lot_id
 lot_id = 0
@@ -29,9 +29,9 @@ def print_format_from_fields(f, fields):
 def picviz_open_file(path):
 	global xml_tree,all_fields
 	xml_tree = xml.etree.ElementTree.parse(path)
-	all_fields = list(get_fields_from_tree(xml_tree))
-	all_fields.sort()
-	all_fields.insert(0, ACTION_TAG)
+	#all_fields = list(get_fields_from_tree(xml_tree))
+	#all_fields.sort()
+	#all_fields.insert(0, ACTION_TAG)
 	
 	#with open("arjel-picviz.format", "w") as f:
 	#	print_format_from_fields(f, all_fields)
@@ -57,6 +57,8 @@ def picviz_get_next_chunk(min_chunk_size):
 	elements = get_elements_from_tree(xml_tree)
 	for e in elements:
 		ret_e = list()
+		if len(e) > len(all_fields):
+			print("(Python ARJET) WARNING: element with %d fields (> %d)", len(e), len(all_fields))
 		for f in all_fields:
 			if f in e: ret_e.append(e[f])
 			else: ret_e.append("")
@@ -96,7 +98,9 @@ def get_elements_from_node(node, add_parent_tag):
 			ctag = child.tag
 			if (add_parent_tag):
 				ctag = node.tag + ":" + ctag
-			node_fields[ctag] = child.text
+			if child.text == None:
+				child.text = ""
+			node_fields[ctag] = str(child.text)
 	
 	# Process other children
 	children_tags = set()
@@ -111,7 +115,7 @@ def get_elements_from_node(node, add_parent_tag):
 			ctag_field = ctag + "_number"
 			for e in elements_c:
 				e.update(node_fields)
-				e.update({ctag_field: ctag_id})
+				e.update({ctag_field: str(ctag_id)})
 			elements.extend(elements_c)
 			ctag_id = ctag_id + 1
 	
@@ -132,8 +136,10 @@ def get_elements_from_tree(xml_tree):
 	return elements
 
 
-#pprint.pprint(get_fields("/media/truecrypt1/arjel-1-extract"))
+#pprint.pprint(get_fields("/media/truecrypt1/arjel-1"))
 #pprint.pprint(get_elements_from_path("/media/truecrypt1/arjel-1-extract"))
 
 #picviz_open_file("/media/truecrypt1/arjel-1")
+#print(all_fields)
+#pprint.pprint(picviz_get_next_chunk(0))
 #pprint.pprint(picviz_get_next_chunk(0))

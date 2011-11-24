@@ -127,14 +127,15 @@ PVCore::PVChunk* PVRush::PVPythonSource::operator()()
 			if (len_ar < 0) {
 				continue;
 			}
-			for (int j = 0; j < len_ar; j++) {
+			for (boost::python::ssize_t j = 0; j < len_ar; j++) {
 				boost::python::extract<const char*> extract_str(fields[j]);
 				QString value;
 				if (extract_str.check()) {
 					value = QString::fromUtf8(extract_str());
 				}
 				else {
-					PVLOG_ERROR("Field %d of chunk element %d does not contain a string. Using an empty one...\n", i, j);
+					PVLOG_ERROR("Field %d of chunk element %d does not contain a string. Using an empty one...\n", j, i);
+					value = QString("");
 				}
 				PVCore::PVField f(*elt);
 				size_t size_buf = value.size() * sizeof(QChar);
