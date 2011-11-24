@@ -15,7 +15,7 @@ include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/gui-qt/src/widgets/help
 
 # include_directories(AFTER ${GLEW_INCLUDE_PATH})
 # include_directories(AFTER ${OPENGL_INCLUDE_DIR})
-include_directories(AFTER ${CURL_INCLUDE_DIR})
+#include_directories(AFTER ${CURL_INCLUDE_DIR})
 include_directories(AFTER ${ICU_INCLUDE})
 
 # PICVIZ
@@ -254,7 +254,7 @@ if(SET_PROTECT)
 endif()
 
 set_property(TARGET picviz-inspector APPEND PROPERTY LINK_FLAGS ${GALVEZ_LDFLAGS})
-target_link_libraries(picviz-inspector ${QT_LIBRARIES} ${PVSDK_LIBRARY} ${PICVIZ_LIBRARY} ${PVKERNEL_LIBRARY} ${CURL_LIBRARY} ${PVGL_LIBRARY} ${WIN32_EXTRA_LIBS} ${TBB_LIBRARIES} ${TBB_MALLOC_LIBRARY} ${Boost_LIBRARIES} ${ICU_LIBRARY} ${GALVEZ_LIBS})
+target_link_libraries(picviz-inspector ${QT_LIBRARIES} ${PVSDK_LIBRARY} ${PICVIZ_LIBRARY} ${PVKERNEL_LIBRARY} ${PVGL_LIBRARY} ${WIN32_EXTRA_LIBS} ${TBB_LIBRARIES} ${TBB_MALLOC_LIBRARY} ${Boost_LIBRARIES} ${ICU_LIBRARY} ${GALVEZ_LIBS})
 
 INSTALL(TARGETS picviz-inspector DESTINATION .)
 
