@@ -23,6 +23,16 @@ static void picviz_archive_read_support(struct archive* a)
 	archive_clear_error(a);
 }
 
+static void picviz_archive_read_support_noformat(struct archive* a)
+{
+	// Support all formats
+	archive_read_support_format_raw(a);
+
+	archive_read_support_compression_bzip2(a);
+	archive_read_support_compression_gzip(a);
+	archive_clear_error(a);
+}
+
 static int copy_data(struct archive *ar, struct archive *aw)
 {
 	int r;
@@ -65,6 +75,16 @@ bool PVCore::PVArchive::is_archive(QString const& path)
 	ret = archive_read_next_header(a, &entry) == ARCHIVE_OK;
 	archive_read_close(a);
 
+	if (!ret) {
+		a = archive_read_new();
+		picviz_archive_read_support_noformat(a);
+		ret = archive_read_open_file(a, filename, 1000) == ARCHIVE_OK;
+		if (ret) {
+			ret = archive_read_next_header(a, &entry) == ARCHIVE_OK;
+		}
+		archive_read_close(a);
+	}
+
 	return ret;
 }
 
@@ -106,8 +126,18 @@ bool PVCore::PVArchive::extract(QString const& path, QString const& dir_dest, QS
 	if ((r = archive_read_open_file(a, filename, 10240))) {
 		return false;
 	}
-	for (;;) {
+	r = archive_read_next_header(a, &entry);
+	bool read_raw = false;
+	if (r != ARCHIVE_OK) {
+		archive_read_close(a);
+		a = archive_read_new();
+		picviz_archive_read_support_noformat(a);
+		archive_read_open_file(a, filename, 10240);
 		r = archive_read_next_header(a, &entry);
+		read_raw = true;
+	}
+
+	for (;;) {
 		if (r == ARCHIVE_EOF)
 			break;
 		if (r != ARCHIVE_OK) {
@@ -128,12 +158,15 @@ bool PVCore::PVArchive::extract(QString const& path, QString const& dir_dest, QS
 
 		PVLOG_INFO("Extract %s from %s to %s...\n", archive_entry_pathname(entry), filename, filename_ext);
 		archive_entry_set_pathname(entry, filename_ext);
+		if (read_raw) {
+			archive_entry_set_perm(entry, 0400);
+		}
 		r = archive_write_header(ext, entry);
 		if (r != ARCHIVE_OK) {
 			PVLOG_ERROR("Error while extracting archive %s: %s\n", filename, archive_error_string(a));
 		}
 		else
-		if (archive_entry_size(entry) > 0) {
+		if (archive_entry_size(entry) > 0 || read_raw) {
 			r = copy_data(a, ext);
 			if (r != ARCHIVE_OK) {
 				PVLOG_ERROR("Error while extracting archive %s: %s\n", filename, archive_error_string(a));
@@ -152,6 +185,8 @@ bool PVCore::PVArchive::extract(QString const& path, QString const& dir_dest, QS
 			return false;
 		}
 		extracted_files.push_back(path_extract);
+
+		r = archive_read_next_header(a, &entry);
 	}
 	archive_read_finish(a);
 	archive_write_finish(ext);
