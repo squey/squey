@@ -31,11 +31,11 @@ public:
 		PyEval_InitThreads();
 		python_main = boost::python::import("__main__");
 		python_main_namespace = boost::python::extract<boost::python::dict>(python_main.attr("__dict__"));
-		PyEval_ReleaseLock();
+		mainThreadState = PyEval_SaveThread();
 	}
 	~PVPythonInitializer()
 	{
-		PyGILState_Ensure();
+		PyEval_RestoreThread(mainThreadState);
 		Py_Finalize();
 	}
 private:
@@ -44,6 +44,8 @@ private:
 public:
 	boost::python::object python_main;
 	boost::python::dict python_main_namespace;
+private:
+	PyThreadState* mainThreadState;
 };
 
 class PVPythonLocker
