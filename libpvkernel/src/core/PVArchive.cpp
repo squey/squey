@@ -83,6 +83,10 @@ bool PVCore::PVArchive::is_archive(QString const& path)
 			ret = archive_read_next_header(a, &entry) == ARCHIVE_OK;
 		}
 		archive_read_close(a);
+		int ac = archive_compression(a);
+		if (ret && ac == 0) {
+			ret = false;
+		}
 	}
 
 	return ret;
