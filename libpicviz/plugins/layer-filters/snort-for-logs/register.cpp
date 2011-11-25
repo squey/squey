@@ -1,11 +1,20 @@
 // Register the plugin in PVFilterLibrary
 //
 
-#include <pvkernel/core/PVClassLibrary.h>
 #include "PVLayerFilterSnortForLogs.h"
+#include <pvkernel/core/PVClassLibrary.h>
+#include <pvkernel/rush/PVAxisTagsDec.h>
+
 
 // This method will be called by libpicviz
 LibCPPExport void register_class()
 {
 	REGISTER_CLASS("Snort For Logs", Picviz::PVLayerFilterSnortForLogs);
+
+	DECLARE_TAG(PVAXIS_TAG_USER_AGENT, PVAXIS_TAG_USER_AGENT_DESC, Picviz::PVLayerFilterSnortForLogs);
+	DECLARE_TAG(PVAXIS_TAG_SRCPORT, PVAXIS_TAG_SRCPORT_DESC, Picviz::PVLayerFilterSnortForLogs);
+	DECLARE_TAG(PVAXIS_TAG_DSTPORT, PVAXIS_TAG_DSTPORT_DESC, Picviz::PVLayerFilterSnortForLogs);
+	DECLARE_TAG(PVAXIS_TAG_SRCIP, PVAXIS_TAG_SRCIP_DESC, Picviz::PVLayerFilterSnortForLogs);
+	DECLARE_TAG(PVAXIS_TAG_DSTIP, PVAXIS_TAG_DSTIP_DESC, Picviz::PVLayerFilterSnortForLogs);
+
 }

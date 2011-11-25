@@ -7,6 +7,7 @@
 #ifndef PICVIZ_PVLAYERFILTERSNORTFORLOGS_H
 #define PICVIZ_PVLAYERFILTERSNORTFORLOGS_H
 
+#include <pvkernel/core/PVPython.h>
 #include <pvkernel/core/general.h>
 
 #include <picviz/PVLayer.h>
@@ -18,6 +19,10 @@ namespace Picviz {
  * \class PVLayerFilterSnortForLogs
  */
 class PVLayerFilterSnortForLogs : public PVLayerFilter {
+private:
+	boost::python::dict _python_own_namespace;
+	PyThreadState* _python_thread;
+	boost::python::list snort_rules;
 public:
 	PVLayerFilterSnortForLogs(PVCore::PVArgumentList const& l = PVLayerFilterSnortForLogs::default_args());
 public:
@@ -29,3 +34,4 @@ public:
 }
 
 #endif	/* PICVIZ_PVLAYERFILTERSNORTFORLOGS_H */
+
