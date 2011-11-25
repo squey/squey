@@ -17,6 +17,9 @@ namespace Picviz {
 class PVMappingFilterTimeDefault: public PVMappingFilter
 {
 public:
+	PVMappingFilterTimeDefault(PVCore::PVArgumentList const& args = PVMappingFilterTimeDefault::default_args());
+
+public:
 	float* operator()(PVRush::PVNraw::nraw_table_line const& values);
 	QString get_human_name() const { return QString("Default"); }
 protected:

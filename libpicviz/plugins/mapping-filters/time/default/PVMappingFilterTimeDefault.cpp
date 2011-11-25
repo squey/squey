@@ -17,6 +17,19 @@
 // PVCore::PVDateTimeParser dtpars(ltmp);
 // #pragma omp threadprivate(dtpars)
 
+Picviz::PVMappingFilterTimeDefault::PVMappingFilterTimeDefault(PVCore::PVArgumentList const& args):
+	PVMappingFilter()
+{
+	INIT_FILTER(PVMappingFilterTimeDefault, args);
+}
+
+DEFAULT_ARGS_FILTER(Picviz::PVMappingFilterTimeDefault)
+{
+	PVCore::PVArgumentList args;
+	args["time-format"] = PVCore::PVArgument(QString(""));
+	return args;
+}
+
 float* Picviz::PVMappingFilterTimeDefault::operator()(PVRush::PVNraw::nraw_table_line const& values)
 {
 	assert(_dest);

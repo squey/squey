@@ -105,6 +105,12 @@ public:
     
     //***** view values from parent regexp *****
     QTextEdit *tableValueFromParentRegExp;
+
+	// Mapping/plotting parameters widgets
+	QHBoxLayout* _layout_params_mp;
+	//PVArgumentListWidget* _params_mapping;
+	//PVArgumentListWidget* _params_plotting;
+
     
     QPushButton *buttonNextAxis;
     /***************************  board items **********************/

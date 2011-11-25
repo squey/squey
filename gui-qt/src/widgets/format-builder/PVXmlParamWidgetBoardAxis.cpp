@@ -86,7 +86,9 @@ void PVInspector::PVXmlParamWidgetBoardAxis::allocBoardFields(){
     buttonTitleColor = new PVXmlParamColorDialog("titlecolor", PVFORMAT_AXIS_TITLECOLOR_DEFAULT, this);
     titleColorLabel = new QLabel(tr("Color of the axis title :"));
     //slotSetVisibleExtra(false);
-
+	
+	_layout_params_mp = new QHBoxLayout();
+	//_params_mapping = new PVArgumentListWidget();
     
     //button next
     buttonNextAxis = new QPushButton(tr("Next"));

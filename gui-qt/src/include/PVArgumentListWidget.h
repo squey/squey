@@ -19,8 +19,7 @@
 #include <QHBoxLayout>
 
 #include <pvkernel/core/PVArgument.h>
-#include <picviz/general.h>
-#include <picviz/PVView.h>
+#include <picviz/PVView_types.h>
 
 #include <PVArgumentListModel.h>
 
@@ -32,15 +31,16 @@ class PVArgumentListWidget: public QDialog
 	Q_OBJECT
 
 public:
-	PVArgumentListWidget(Picviz::PVView& view, PVCore::PVArgumentList &args, QWidget* parent);
+	PVArgumentListWidget(QItemEditorFactory* args_widget_factory, PVCore::PVArgumentList &args, QWidget* parent);
 	virtual ~PVArgumentListWidget();
 	//bool eventFilter(QObject *obj, QEvent *event);
 	void init();
 	inline bool args_changed() { return _args_has_changed; }
 	inline void clear_args_state() { _args_has_changed = false; }
 
-private:
-	void init_widget_factory();
+public:
+	static QItemEditorFactory* create_layer_widget_factory(Picviz::PVView& view);
+	static QItemEditorFactory* create_mapping_plotting_widget_factory();
 
 private slots:
 	void args_changed_Slot();
@@ -60,7 +60,6 @@ protected:
 	QItemEditorFactory*       _args_widget_factory;
 	PVArgumentListModel*      _args_model;
 	PVCore::PVArgumentList& _args;
-	Picviz::PVView&           _view;
 
 	// Standard buttons
 	QPushButton*              _apply_btn;
@@ -75,6 +74,3 @@ private:
 }
 
 #endif
-
-
-

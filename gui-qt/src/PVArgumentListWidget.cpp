@@ -22,6 +22,8 @@
 #include <pvkernel/core/PVEnumType.h>
 #include <pvkernel/core/PVColorGradientDualSliderType.h>
 
+#include <picviz/PVView_types.h>
+
 #include <PVArgumentListModel.h>
 #include <PVArgumentListWidget.h>
 
@@ -35,18 +37,18 @@
 #include <PVSpinBoxEditor.h>
 #include <PVAxisIndexCheckBoxEditor.h>
 
-PVInspector::PVArgumentListWidget::PVArgumentListWidget(Picviz::PVView& view, PVCore::PVArgumentList &args, QWidget* parent):
+PVInspector::PVArgumentListWidget::PVArgumentListWidget(QItemEditorFactory* args_widget_factory, PVCore::PVArgumentList &args, QWidget* parent):
 	QDialog(parent),
-	_args(args),
-	_view(view)
+	_args_widget_factory(args_widget_factory),
+	_args(args)
 {
+	assert(_args_widget_factory);
+
 	// Initalise layouts
 	QVBoxLayout *main_layout = new QVBoxLayout();
 	_btn_layout = new QHBoxLayout();
 
 	_args_model = new PVArgumentListModel(args);
-
-	init_widget_factory();
 
 	_args_layout = new QGridLayout();
 	_mapper = new QDataWidgetMapper();
@@ -82,29 +84,37 @@ PVInspector::PVArgumentListWidget::~PVArgumentListWidget()
 	_args_model->deleteLater();
 }
 
-void PVInspector::PVArgumentListWidget::init_widget_factory()
+QItemEditorFactory* PVInspector::PVArgumentListWidget::create_layer_widget_factory(Picviz::PVView& view)
 {
-	_args_widget_factory = new QItemEditorFactory();
+	QItemEditorFactory* args_widget_factory = new QItemEditorFactory();
 
-	QItemEditorCreatorBase *pv_axis_index_creator = new PVArgumentEditorCreator<PVAxisIndexEditor>(_view);
-	QItemEditorCreatorBase *pv_axis_index_checkbox_creator = new PVArgumentEditorCreator<PVAxisIndexCheckBoxEditor>(_view);
-	QItemEditorCreatorBase *pv_axes_index_creator = new PVArgumentEditorCreator<PVAxesIndexEditor>(_view);
-	QItemEditorCreatorBase *pv_checkbox_creator = new PVArgumentEditorCreator<PVCheckBoxEditor>(_view);
-	QItemEditorCreatorBase *pv_enum_creator = new PVArgumentEditorCreator<PVEnumEditor>(_view);
-	QItemEditorCreatorBase *regexp_creator = new PVArgumentEditorCreator<PVRegexpEditor>(_view);
-	QItemEditorCreatorBase *dualslider_creator = new PVArgumentEditorCreator<PVColorGradientDualSliderEditor>(_view);
-	QItemEditorCreatorBase *spinbox_creator = new PVArgumentEditorCreator<PVSpinBoxEditor>(_view);
+	QItemEditorCreatorBase *pv_axis_index_creator = new PVArgumentEditorCreator<PVAxisIndexEditor>(view);
+	QItemEditorCreatorBase *pv_axis_index_checkbox_creator = new PVArgumentEditorCreator<PVAxisIndexCheckBoxEditor>(view);
+	QItemEditorCreatorBase *pv_axes_index_creator = new PVArgumentEditorCreator<PVAxesIndexEditor>(view);
+	QItemEditorCreatorBase *pv_checkbox_creator = new PVArgumentEditorCreator<PVCheckBoxEditor>(view);
+	QItemEditorCreatorBase *pv_enum_creator = new PVArgumentEditorCreator<PVEnumEditor>(view);
+	QItemEditorCreatorBase *regexp_creator = new PVArgumentEditorCreator<PVRegexpEditor>(view);
+	QItemEditorCreatorBase *dualslider_creator = new PVArgumentEditorCreator<PVColorGradientDualSliderEditor>(view);
+	QItemEditorCreatorBase *spinbox_creator = new PVArgumentEditorCreator<PVSpinBoxEditor>(view);
 
 	
 	// And register them into the factory
-	_args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVAxisIndexType>(), pv_axis_index_creator);
-	_args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVAxisIndexCheckBoxType>(), pv_axis_index_checkbox_creator);
-	_args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVAxesIndexType>(), pv_axes_index_creator);
-	_args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVCheckBoxType>(), pv_checkbox_creator);
-	_args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVEnumType>(), pv_enum_creator);
-	_args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVColorGradientDualSliderType>(), dualslider_creator);
-	_args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVSpinBoxType>(), spinbox_creator);
-	_args_widget_factory->registerEditor(QVariant::RegExp, regexp_creator);
+	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVAxisIndexType>(), pv_axis_index_creator);
+	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVAxisIndexCheckBoxType>(), pv_axis_index_checkbox_creator);
+	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVAxesIndexType>(), pv_axes_index_creator);
+	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVCheckBoxType>(), pv_checkbox_creator);
+	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVEnumType>(), pv_enum_creator);
+	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVColorGradientDualSliderType>(), dualslider_creator);
+	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVSpinBoxType>(), spinbox_creator);
+	args_widget_factory->registerEditor(QVariant::RegExp, regexp_creator);
+
+	return args_widget_factory;
+}
+
+QItemEditorFactory* PVInspector::PVArgumentListWidget::create_mapping_plotting_widget_factory()
+{
+	QItemEditorFactory* args_widget_factory = new QItemEditorFactory();
+	return args_widget_factory;
 }
 
 void PVInspector::PVArgumentListWidget::init()
