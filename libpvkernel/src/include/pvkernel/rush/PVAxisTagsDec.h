@@ -23,12 +23,36 @@
 #define PVAXIS_TAG_PORT "port"
 #define PVAXIS_TAG_PORT_DESC "Represents a TCP/UDP port."
 
+// Source Port
+#define PVAXIS_TAG_SRCPORT "src-port"
+#define PVAXIS_TAG_SRCPORT_DESC "Represents a TCP/UDP Source port."
+
+// Destination Port
+#define PVAXIS_TAG_DSTPORT "dst-port"
+#define PVAXIS_TAG_DSTPORT_DESC "Represents a TCP/UDP Destination port."
+
+// IP
+#define PVAXIS_TAG_IP "ip"
+#define PVAXIS_TAG_IP_DESC "Represents an IP address."
+
+// Source IP
+#define PVAXIS_TAG_SRCIP "src-ip"
+#define PVAXIS_TAG_SRCIP_DESC "Represents an IP Source address."
+
+// Destination IP
+#define PVAXIS_TAG_DSTIP "dst-ip"
+#define PVAXIS_TAG_DSTIP_DESC "Represents an IP Destination address."
+
 // URL
 #define PVAXIS_TAG_URL "url"
 #define PVAXIS_TAG_URL_DESC "Represents an URL."
 
 // URL-variables
 #define PVAXIS_TAG_URL_VARIABLES "url-variables"
-#define PVAXIS_TAG_URL_VARIABLES_DESC "Represents an HTTP URL's variables"
+#define PVAXIS_TAG_URL_VARIABLES_DESC "Represents an HTTP URL's variables."
+
+// User agent
+#define PVAXIS_TAG_USER_AGENT "user-agent"
+#define PVAXIS_TAG_USER_AGENT_DESC "Represents a User Agent."
 
 #endif
