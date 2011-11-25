@@ -11,6 +11,7 @@
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVChunk.h>
+#include <pvkernel/core/PVPython.h>
 #include <pvkernel/filter/PVChunkFilter.h>
 #include <pvkernel/filter/PVFilterFunction.h>
 #include <pvkernel/rush/PVSourceCreator.h>
@@ -20,52 +21,6 @@
 #include <boost/bind.hpp>
 
 namespace PVRush {
-
-class PVPythonInitializer
-{
-public:
-	PVPythonInitializer()
-	{
-		// Do not let python catch the signals !
-		Py_InitializeEx(0);
-		PyEval_InitThreads();
-		python_main = boost::python::import("__main__");
-		python_main_namespace = boost::python::extract<boost::python::dict>(python_main.attr("__dict__"));
-		mainThreadState = PyEval_SaveThread();
-	}
-	~PVPythonInitializer()
-	{
-		PyEval_RestoreThread(mainThreadState);
-		Py_Finalize();
-	}
-private:
-	PVPythonInitializer(const PVPythonInitializer&) { }
-
-public:
-	boost::python::object python_main;
-	boost::python::dict python_main_namespace;
-private:
-	PyThreadState* mainThreadState;
-};
-
-class PVPythonLocker
-{
-public:
-	PVPythonLocker()
-	{
-		PVLOG_INFO("PVPythonLocker construct\n");
-		_state = PyGILState_Ensure();
-	};
-	~PVPythonLocker()
-	{
-		PVLOG_INFO("PVPythonLocker destruct\n");
-		PyGILState_Release(_state);
-	}
-private:
-	PVPythonLocker(const PVPythonLocker&) { }
-private:
-	PyGILState_STATE _state;
-};
 
 class PVPythonSource: public PVRawSourceBase {
 public:

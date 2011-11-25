@@ -2,6 +2,7 @@
 #include <pvkernel/core/PVChunk.h>
 #include <pvkernel/core/PVElement.h>
 #include <pvkernel/core/PVField.h>
+#include <pvkernel/core/PVPython.h>
 
 #include <pvkernel/rush/PVFileDescription.h>
 
@@ -10,7 +11,7 @@
 #include <string>
 
 // Initialize python instance once and for all
-PVRush::PVPythonInitializer g_python;
+// PVRush::PVPythonInitializer g_python;
 
 static boost::python::object borrow_ptr(PyObject* p)
 {
@@ -44,9 +45,9 @@ PVRush::PVPythonSource::PVPythonSource(input_type input, size_t min_chunk_size, 
 	PVFileDescription* file = dynamic_cast<PVFileDescription*>(input.get());
 	assert(file);
 
-	PVPythonLocker locker;
+	PVCore::PVPythonLocker locker;
 
-	_python_own_namespace = g_python.python_main_namespace.copy();
+	_python_own_namespace = PVCore::PVPythonInitializer::get().python_main_namespace.copy();
 
 	try {
 		// Load our script
@@ -66,7 +67,7 @@ PVRush::PVPythonSource::PVPythonSource(input_type input, size_t min_chunk_size, 
 
 PVRush::PVPythonSource::~PVPythonSource()
 {
-	PVPythonLocker locker;
+	PVCore::PVPythonLocker locker;
 	try {
 		_python_own_namespace["piciviz_close"]();
 	}
@@ -85,7 +86,7 @@ QString PVRush::PVPythonSource::human_name()
 
 void PVRush::PVPythonSource::seek_begin()
 {
-	PVPythonLocker locker;
+	PVCore::PVPythonLocker locker;
 	try {
 		_python_own_namespace["picviz_seek_begin"]();
 	}
@@ -103,7 +104,7 @@ void PVRush::PVPythonSource::prepare_for_nelts(chunk_index /*nelts*/)
 
 PVCore::PVChunk* PVRush::PVPythonSource::operator()()
 {
-	PVPythonLocker locker;
+	PVCore::PVPythonLocker locker;
 	boost::python::ssize_t nelts;
 
 	PVCore::PVChunk* chunk;

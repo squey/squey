@@ -33,6 +33,13 @@ core/PVUtils.cpp
 core/PVVersion.cpp
 )
 
+if(PYTHONLIBS_FOUND)
+	set(CORE_SRC_FILES
+	${CORE_SRC_FILES}
+	core/PVPython.cpp
+	)
+endif(PYTHONLIBS_FOUND)
+
 SET(CORE_MOC_HEADERS
 include/pvkernel/core/PVProgressBox.h
 )
@@ -80,6 +87,12 @@ include/pvkernel/core/PVUtils.h
 include/pvkernel/core/PVVersion.h
 )
 
+if(PYTHONLIBS_FOUND)
+	set(CORE_HEADER_FILES
+	${CORE_HEADER_FILES}
+	include/pvkernel/core/PVPython.h
+	)
+endif(PYTHONLIBS_FOUND)
 
 SET(FILTER_SRC_FILES
 filter/PVChunkFilter.cpp
@@ -286,6 +299,9 @@ set(WIDGETS_SRC_FILES
 widgets/qkeysequencewidget/qkeysequencewidget.cpp
 )
 
+if(PYTHONLIBS_FOUND)
+	include_directories(BEFORE ${PYTHON_INCLUDE_DIRS})
+endif(PYTHONLIBS_FOUND)
 
 set(SRC_FILES ${CORE_SRC_FILES} ${FILTER_SRC_FILES} ${RUSH_SRC_FILES} ${WIDGETS_SRC_FILES})
 set(HEADER_FILES ${CORE_HEADER_FILES} ${FILTER_HEADER_FILES} ${RUSH_HEADER_FILES} ${WIDGETS_HEADER_FILES})
@@ -296,7 +312,7 @@ add_library(pvkernel SHARED ${SRC_FILES} ${HEADER_FILES} ${MOC_SRC} ${MOC_HEADER
 
 set_target_properties(pvkernel PROPERTIES SOVERSION 1)
 
-target_link_libraries(pvkernel ${QT_LIBRARIES} ${ICU_LIBRARY} ${TBB_LIBRARIES} ${OpenMP_LIBRARIES} ${Boost_LIBRARIES} ${ARCHIVE_LIBRARY} ${PCAP_LIBRARIES} ${WINSOCK_LIB} ${X11_LIBRARIES})
+target_link_libraries(pvkernel ${QT_LIBRARIES} ${ICU_LIBRARY} ${TBB_LIBRARIES} ${OpenMP_LIBRARIES} ${Boost_LIBRARIES} ${ARCHIVE_LIBRARY} ${PCAP_LIBRARIES} ${WINSOCK_LIB} ${X11_LIBRARIES} ${PYTHON_LIBRARIES} ${Boost_LIBRARIES_PYTHON})
 
 INSTALL(TARGETS pvkernel LIBRARY DESTINATION .
 			 RUNTIME DESTINATION .)
