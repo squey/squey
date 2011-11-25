@@ -10,9 +10,6 @@
 
 #include <string>
 
-// Initialize python instance once and for all
-// PVRush::PVPythonInitializer g_python;
-
 static boost::python::object borrow_ptr(PyObject* p)
 {
 	boost::python::handle<> h(p);
@@ -45,9 +42,12 @@ PVRush::PVPythonSource::PVPythonSource(input_type input, size_t min_chunk_size, 
 	PVFileDescription* file = dynamic_cast<PVFileDescription*>(input.get());
 	assert(file);
 
+	// This needs to be done before calling the locker, in case we are the first to use python.
+	
+	PVCore::PVPythonInitializer& python = PVCore::PVPythonInitializer::get();
 	PVCore::PVPythonLocker locker;
 
-	_python_own_namespace = PVCore::PVPythonInitializer::get().python_main_namespace.copy();
+	_python_own_namespace = python.python_main_namespace.copy();
 
 	try {
 		// Load our script
