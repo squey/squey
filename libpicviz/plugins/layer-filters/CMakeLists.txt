@@ -15,7 +15,7 @@ layer_filter_heatline
 layer_filter_find_duplicates
 layer_filter_search
 layer_filter_webmail
-layer_filter_attacks
+layer_filter_snort_for_logs
 )
 
 set(FILTERS_DIST_FILES
@@ -41,8 +41,13 @@ target_link_libraries(layer_filter_find_duplicates ${LINK_LIBRARIES})
 add_library(layer_filter_webmail SHARED webmail-finder/PVLayerFilterWebmailFinder.cpp webmail-finder/register.cpp)
 target_link_libraries(layer_filter_webmail ${LINK_LIBRARIES})
 
-add_library(layer_filter_attacks SHARED find-attacks/PVLayerFilterFindAttacks.cpp find-attacks/register.cpp)
-target_link_libraries(layer_filter_attacks ${LINK_LIBRARIES})
+if(PYTHONLIBS_FOUND)
+	# AG: BEFORE here is important, or boost does not include the good patchlevel.h (from Python), and does not
+	# find the good Python version !!
+	include_directories(BEFORE ${PYTHON_INCLUDE_DIRS})
+	add_library(layer_filter_snort_for_logs SHARED snort-for-logs/PVLayerFilterSnortForLogs.cpp snort-for-logs/register.cpp)
+	target_link_libraries(layer_filter_snort_for_logs ${LINK_LIBRARIES} ${PYTHON_LIBRARIES} ${Boost_LIBRARIES_PYTHON})
+endif(PYTHONLIBS_FOUND)
 
 INSTALL(TARGETS ${FILTERS_DIST_LIST} LIBRARY DESTINATION layer-filters
                                      RUNTIME DESTINATION layer-filters)
