@@ -86,8 +86,14 @@ PVInspector::PVArgumentListWidget::~PVArgumentListWidget()
 
 QItemEditorFactory* PVInspector::PVArgumentListWidget::create_layer_widget_factory(Picviz::PVView& view)
 {
-	QItemEditorFactory* args_widget_factory = new QItemEditorFactory();
+	/* AG: try this later...
+	static QItemEditorFactory* args_widget_factory = NULL;
+	if (args_widget_factory != NULL) {
+		return args_widget_factory;
+	}
+	*/
 
+	QItemEditorFactory* args_widget_factory = new QItemEditorFactory();
 	QItemEditorCreatorBase *pv_axis_index_creator = new PVArgumentEditorCreator<PVAxisIndexEditor>(view);
 	QItemEditorCreatorBase *pv_axis_index_checkbox_creator = new PVArgumentEditorCreator<PVAxisIndexCheckBoxEditor>(view);
 	QItemEditorCreatorBase *pv_axes_index_creator = new PVArgumentEditorCreator<PVAxesIndexEditor>(view);
@@ -113,7 +119,19 @@ QItemEditorFactory* PVInspector::PVArgumentListWidget::create_layer_widget_facto
 
 QItemEditorFactory* PVInspector::PVArgumentListWidget::create_mapping_plotting_widget_factory()
 {
+	/* AG: try this later...
+	static QItemEditorFactory* args_widget_factory = NULL;
+	if (args_widget_factory != NULL) {
+		return args_widget_factory;
+	}
+	*/
+
 	QItemEditorFactory* args_widget_factory = new QItemEditorFactory();
+
+	QItemEditorCreatorBase* textline_creator = new QItemEditorCreator<QLineEdit>("test");
+
+	args_widget_factory->registerEditor(QVariant::String, textline_creator);
+
 	return args_widget_factory;
 }
 
