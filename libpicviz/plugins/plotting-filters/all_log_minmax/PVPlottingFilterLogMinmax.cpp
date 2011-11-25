@@ -1,7 +1,9 @@
-#include "PVPlottingFilterMinmax.h"
+#include "PVPlottingFilterLogMinmax.h"
+#include <math.h>
+
 #include <omp.h>
 
-float* Picviz::PVPlottingFilterMinmax::operator()(float* values)
+float* Picviz::PVPlottingFilterLogMinmax::operator()(float* values)
 {
 	assert(values);
 	assert(_dest);
@@ -27,25 +29,41 @@ float* Picviz::PVPlottingFilterMinmax::operator()(float* values)
 		return _dest;
 	}
 
-	float diff = ymax - ymin;
+	float offset = 0;
+	if (ymin <= 0) {
+		offset = -ymin + 1.0f;
+		ymin += offset;
+		ymax += offset;
+	}
+
+	float log_ymin = log2f(ymin);
+	float div = log2f(ymax) - log_ymin;
 #pragma omp parallel for
 	for (int64_t i = 0; i < size; i++) {
-		_dest[i] = (values[i] - ymin) / diff;
+		_dest[i] = (log2f(values[i]+offset) - log_ymin) / div;
 	}
 
 	return _dest;
 }
 
-void Picviz::PVPlottingFilterMinmax::init_expand(float min, float max)
+void Picviz::PVPlottingFilterLogMinmax::init_expand(float min, float max)
 {
-	_expand_min = min;
+	if (min <= 0) {
+		_offset = -min + 1.0f;
+		min += _offset;
+		max += _offset;
+	}
+	else {
+		_offset = 0;
+	}
+	_expand_min = log2f(min);
 	_expand_max = max;
-	_expand_diff = max-min;
+	_expand_diff = log2f(max) - log2f(min);
 }
 
-float Picviz::PVPlottingFilterMinmax::expand_plotted(float value) const
+float Picviz::PVPlottingFilterLogMinmax::expand_plotted(float value) const
 {
-	return (value-_expand_min)/(_expand_diff);
+	return (log2f(value+_offset)-_expand_min)/_expand_diff;
 }
 
-IMPL_FILTER_NOPARAM(Picviz::PVPlottingFilterMinmax)
+IMPL_FILTER_NOPARAM(Picviz::PVPlottingFilterLogMinmax)

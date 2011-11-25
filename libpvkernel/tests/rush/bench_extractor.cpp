@@ -27,6 +27,33 @@
 
 #define NTRIES 2
 
+class PVFieldCreator: public PVFilter::PVFieldsSplitter
+{
+public:
+	PVFieldCreator(int nparams):
+		PVFilter::PVFieldsSplitter(),
+		_nparams(nparams)
+{   
+	INIT_FILTER_NOPARAM(PVFieldCreator);
+	_nparams = nparams;
+}   
+protected:
+	PVCore::list_fields::size_type one_to_many(PVCore::list_fields &l, PVCore::list_fields::iterator it_ins, PVCore::PVField &field)
+	{   
+		PVCore::PVField nf(field);
+		for (int i = 0; i < _nparams; i++) {
+			l.insert(it_ins, nf);
+		}   
+		return _nparams;
+	}   
+public:
+	void set_nfields(int nparams) { _nparams = nparams; }
+protected:
+	int _nparams;
+
+	CLASS_FILTER_NOPARAM(PVFieldCreator)
+};
+
 void clear_disk_cache()
 {
 	//std::cerr << "Clearing disk caches...";
@@ -220,6 +247,17 @@ int main(int argc, char** argv)
 #endif
 	}
 	
+	PVFieldCreator filter_fc(1);
+	for (int i = 1; i <= 8; i++) {
+		filter_fc.set_nfields(i*5000);
+		printf("Field creation (%d)\n", i*5000);
+		PVFilter::PVElementFilterByFields felt2(filter_fc.f());
+		PVFilter::PVChunkFilterByElt fchunk2(felt2.f());
+		dur = bench_utf16_align(lfiles, fchunk2.f(), chunk_size, NLINES, nchunks);
+		print_perf(dur, total_read);
+	}
+	
+#if 0
 	printf("Parallel CSV splitter");
 	PVFilter::PVFieldsSplitter::p_type csv_lib_p = LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("csv");
 	PVFilter::PVFieldsBaseFilter_p fcsv_in = csv_lib_p->clone<PVFilter::PVFieldsBaseFilter>();
@@ -230,6 +268,7 @@ int main(int argc, char** argv)
 	PVFilter::PVChunkFilterByElt fchunk_csv(felt_csv.f());
 	dur = bench_utf16_align(lfiles, fchunk_csv.f(), chunk_size, NLINES, nchunks);
 	print_perf(dur, total_read);
+#endif
 
 #if 0
 	printf("Parallel squid regexp splitter only");

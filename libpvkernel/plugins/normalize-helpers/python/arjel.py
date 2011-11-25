@@ -2,6 +2,7 @@
 # ARJEL XML file parser
 #
 import xml.etree.ElementTree,sys,pprint
+import csv
 
 ## Global vars
 
@@ -135,6 +136,13 @@ def get_elements_from_tree(xml_tree):
 
 	return elements
 
+picviz_open_file(sys.argv[1])
+elements = picviz_get_next_chunk(0)
+
+csv_writer = csv.writer(sys.stdout, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+#csv_writer.writerow(all_fields)
+for e in elements:
+	csv_writer.writerow(e)
 
 #pprint.pprint(get_fields("/media/truecrypt1/arjel-1"))
 #pprint.pprint(get_elements_from_path("/media/truecrypt1/arjel-1-extract"))

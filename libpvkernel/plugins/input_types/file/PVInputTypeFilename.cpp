@@ -40,18 +40,27 @@ bool PVRush::PVInputTypeFilename::createWidget(hash_formats const& formats, hash
 
 bool PVRush::PVInputTypeFilename::load_files(QStringList const& filenames, bool check_archives, list_inputs& inputs, QWidget* parent) const
 {
+	bool extract_all_archive = false;
 	for (int i = 0; i < filenames.size(); i++) {
 		QString const& path = filenames[i];
 		bool add_original = true;
 		if (check_archives && PVCore::PVArchive::is_archive(path)) {
 			PVLOG_DEBUG("(import-files) %s is an archive.\n", qPrintable(path));
 			QStringList extracted;
-			QMessageBox box_ext(QMessageBox::Question,
+			int ret;
+			if (!extract_all_archive) {
+				QMessageBox box_ext(QMessageBox::Question,
 					            "Import files: archive detected", QString("'%1' has been detected as an archive. Do you want to extract it to a temporary directory and import its content ?").arg(path),
-								QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
+								QMessageBox::YesToAll | QMessageBox::Yes | QMessageBox::No | QMessageBox::NoToAll | QMessageBox::Cancel,
 								parent);
-			int ret = box_ext.exec();
+				ret = box_ext.exec();
+			}
+			else {
+				ret = QMessageBox::Yes;
+			}
 			switch (ret) {
+				case QMessageBox::YesToAll:
+					extract_all_archive = true;
 				case QMessageBox::Yes:
 				{
 					// Create a temporary directory of name "/tmp/picviz-archivename-XXXXXX"
@@ -76,6 +85,8 @@ bool PVRush::PVInputTypeFilename::load_files(QStringList const& filenames, bool 
 				}
 				case QMessageBox::Cancel:
 					return false;
+				case QMessageBox::NoToAll:
+					check_archives = false;
 				case QMessageBox::No:
 				default:
 					break;

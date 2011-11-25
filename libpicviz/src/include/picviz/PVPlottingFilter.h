@@ -43,10 +43,6 @@ protected:
 	PVRow _dest_size;
 	float* _dest;
 	Picviz::mandatory_param_map const* _mandatory_params;
-
-	float _expand_min;
-	float _expand_max;
-	float _expand_diff;
 };
 
 typedef PVPlottingFilter::func_type PVPlottingFilter_f;

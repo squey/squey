@@ -22,6 +22,9 @@ target_link_libraries(plotting_filter_noprocess ${LINK_LIBRARIES})
 add_library(plotting_filter_all_minmax SHARED all_minmax/PVPlottingFilterMinmax.cpp all_minmax/register.cpp)
 target_link_libraries(plotting_filter_all_minmax ${LINK_LIBRARIES})
 
+add_library(plotting_filter_all_log_minmax SHARED all_log_minmax/PVPlottingFilterLogMinmax.cpp all_log_minmax/register.cpp)
+target_link_libraries(plotting_filter_all_log_minmax ${LINK_LIBRARIES})
+
 add_library(plotting_filter_float_igr SHARED float_igr/PVPlottingFilterFloatIGR.cpp float_igr/register.cpp)
 target_link_libraries(plotting_filter_float_igr ${LINK_LIBRARIES})
 
