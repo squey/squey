@@ -12,9 +12,9 @@
 #include <QString>
 #include <QStringList>
 #include <QByteArray>
+#include <QVector>
 #include <QMap>
 #include <QHash>
-#include <QList>
 #include <QSet>
 
 #include <cassert>
@@ -22,6 +22,7 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/stdint.h>
 #include <pvkernel/core/PVColor.h>
+#include <pvkernel/core/PVListFastCmp.h>
 #include <pvkernel/rush/PVTags.h>
 
 /**
@@ -40,6 +41,8 @@ class PVXmlParamParser;
 
 class LibKernelDecl PVAxisFormat {
 	friend class PVXmlParamParser;
+public:
+	typedef PVCore::PVListFastCmp<uint32_t, 2> id_t;
 
 	protected:
 		PVCore::PVColor titlecolor;
@@ -51,7 +54,7 @@ class LibKernelDecl PVAxisFormat {
 		QString plotting;
 		QString time_format;
 		PVTags tags;
-		uint32_t unique_id;
+		id_t unique_id;
 		bool unique_id_computed;
 
 	public:
@@ -68,7 +71,7 @@ class LibKernelDecl PVAxisFormat {
 		QString get_type() const { return type; }
 		QString get_group() const { return group; }
 		QString get_time_format() const { return time_format; }
-		uint32_t get_unique_id() const { return unique_id; }
+		id_t const& get_unique_id() const { return unique_id; }
 		PVTags const& get_tags() const { return tags; }
 		bool has_tag(QString const& tag) const { return tags.has_tag(tag); }
 
@@ -84,19 +87,16 @@ class LibKernelDecl PVAxisFormat {
 		void add_tag(QString const& tag) { tags.add_tag(tag); }
 
 	public:
-		bool operator==(const PVAxisFormat& other)
+		inline bool operator==(const PVAxisFormat& other)
 		{
 			assert(unique_id_computed);
 			return unique_id == other.unique_id;
 		}
 
 	protected:
-		void compute_unique_id(QList<uint32_t> const& tree_ids);
+		void compute_unique_id(QVector<uint32_t> const& tree_ids);
 };
 
 }
-
-
-/*@}*/
 
 #endif	/* PVCORE_PVAXISFORMAT_H */

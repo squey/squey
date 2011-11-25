@@ -119,10 +119,8 @@ QHash<int, QStringList> const& PVRush::PVXmlParamParser::getTimeFormat() const
 	return time_format;
 }
 
-int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id, QList<uint32_t> tree_ids)
+int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id, QVector<uint32_t> tree_ids)
 {
-	static PVCore::PVClassLibrary<PVFilter::PVFieldsFilterReg> const& filters_lib = PVCore::PVClassLibrary<PVFilter::PVFieldsFilterReg>::get();
-
 	int newId = id;
 	if (id == -1) {
 		return setDom(node, 0, tree_ids);
@@ -143,17 +141,30 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id, QList<uint
 		}
 	}
 
+	uint32_t* new_tree_id = NULL;
 	for(int i=0; i< nchilds; i++) {
 		QDomElement child = childs.at(i).toElement();
 		QString node_type = getNodeType(child);
 		if (node_type == PVFORMAT_XML_TAG_SPLITTER_STR) {
 			pushFilter(child, newId);
-			tree_ids << i;
+			if (new_tree_id == NULL) {
+				tree_ids.push_back(i);
+				new_tree_id = &tree_ids.back();
+			}
+			else {
+				*new_tree_id = i;
+			}
 			newId = setDom(child, newId, tree_ids);
 		}
 		else
 		if (node_type == PVFORMAT_XML_TAG_FIELD_STR) {
-			tree_ids << i;
+			if (new_tree_id == NULL) {
+				tree_ids.push_back(i);
+				new_tree_id = &tree_ids.back();
+			}
+			else {
+				*new_tree_id = i;
+			}
 			newId = setDom(child, newId, tree_ids);
 		}
 	}
@@ -184,6 +195,9 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id, QList<uint
 			}
 
 			newId++;
+
+			// Only one axis per field
+			break;
 		}
 	}
 

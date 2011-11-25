@@ -72,6 +72,7 @@ include/pvkernel/core/PVBufferSlice.h
 include/pvkernel/core/PVChunk.h
 include/pvkernel/core/PVElement.h
 include/pvkernel/core/PVField.h
+include/pvkernel/core/PVListFastCmp.h
 include/pvkernel/core/PVListFloat2D.h
 include/pvkernel/core/PVLogger.h
 include/pvkernel/core/PVMeanValue.h

@@ -12,7 +12,7 @@
 
 #include <pvkernel/rush/PVAxisFormat.h>
 
-
+#include <boost/functional/hash.hpp>
 
 
 /******************************************************************************
@@ -84,16 +84,12 @@ void PVRush::PVAxisFormat::set_group(QString str)
 	group = str;
 }
 
-void PVRush::PVAxisFormat::compute_unique_id(QList<uint32_t> const& tree_ids)
+void PVRush::PVAxisFormat::compute_unique_id(QVector<uint32_t> const& tree_ids)
 {
-	QByteArray arr;
-	arr.reserve(tree_ids.size() * sizeof(uint32_t));
-	QList<uint32_t>::const_iterator it;
+	unique_id.clear();
+	QVector<uint32_t>::const_iterator it;
 	for (it = tree_ids.begin(); it != tree_ids.end(); it++) {
-		uint32_t v = *it;
-		arr.append((const char*) &v, sizeof(uint32_t));
+		unique_id.push(*it);
 	}
-	unique_id = qHash(arr);
 	unique_id_computed = true;
-	PVLOG_DEBUG("For axis '%s', unique id is %d.\n", qPrintable(name), unique_id);
 }

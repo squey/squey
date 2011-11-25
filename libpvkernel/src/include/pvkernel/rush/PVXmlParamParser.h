@@ -19,6 +19,7 @@
 #include <QMap>
 #include <QTextStream>
 #include <QHash>
+#include <QVector>
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/rush/PVXmlParamParserData.h>
@@ -51,7 +52,7 @@ public:
 	virtual ~PVXmlParamParser();
 
 public:
-	int setDom(QDomElement const& node, int id = -1, QList<uint32_t> tree_ids = QList<uint32_t>());
+	int setDom(QDomElement const& node, int id = -1, QVector<uint32_t> tree_ids = QVector<uint32_t>());
 	list_axes_t const& getAxes()const;
 	QList<PVXmlParamParserData> const& getFields()const;
 	QHash<int, QStringList> const& getTimeFormat()const;

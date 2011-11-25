@@ -28,12 +28,13 @@ int main(int argc, char** argv)
 
 	QString fpath = argv[1];
 	PVRush::PVFormat format("format", fpath);
+	std::cerr << "Start populating the format..." << std::endl;
 	if (!format.populate(true)) {
 		std::cerr << "Unable to populate format from file " << qPrintable(fpath) << std::endl;
 		return 1;
 	}
 
-	format.debug();
+	//format.debug();
 
 	return 0;
 }
