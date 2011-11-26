@@ -32,6 +32,8 @@ Picviz::PVLayerFilterSnortForLogs::PVLayerFilterSnortForLogs(PVCore::PVArgumentL
 		// Load our script
 		boost::python::exec_file("snort-rules.py", _python_own_namespace, _python_own_namespace);
 		snort_rules = boost::python::extract<boost::python::list>(_python_own_namespace["snort_rules"]);
+		rules_number = boost::python::len(snort_rules);
+		PVLOG_INFO("Number of Snort rules loaded: %d\n", rules_number);
 	}
 	catch (boost::python::error_already_set const&)
 	{
@@ -76,7 +78,15 @@ void Picviz::PVLayerFilterSnortForLogs::operator()(PVLayer& in, PVLayer &out)
 
 	out.get_selection().select_none();
 
-	
+	for (int i=0; i < rules_number; i++) {
+		boost::python::dict snort_alert = boost::python::extract<boost::python::dict>(snort_rules[i]);
+		// match_groups
+		boost::python::list match_groups = boost::python::extract<boost::python::list>(snort_alert["match_groups"]);
+		for (int j=0; j < boost::python::len(match_groups); j++) {
+			boost::python::list current_group = boost::python::extract<boost::python::list>(match_groups[j]);
+			// if (current_group[0] == "content")
+		}
+	}
 
 }
 
