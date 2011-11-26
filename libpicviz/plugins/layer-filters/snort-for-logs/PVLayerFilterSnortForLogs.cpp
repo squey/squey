@@ -7,10 +7,12 @@
 #include "PVLayerFilterSnortForLogs.h"
 
 #include <pvkernel/core/PVCheckBoxType.h>
+#include <pvkernel/rush/PVAxisTagsDec.h>
 
 #include <picviz/PVView.h>
 
 #include <QDir>
+#include <QList>
 #include <QString>
 
 /******************************************************************************
@@ -75,6 +77,7 @@ void Picviz::PVLayerFilterSnortForLogs::operator()(PVLayer& in, PVLayer &out)
 	bool other_types = _args["Other Types"].value<PVCore::PVCheckBoxType>().get_checked();
 
 	PVRush::PVNraw::nraw_table const& nraw = _view->get_qtnraw_parent();
+	PVRow nb_lines = _view->get_qtnraw_parent().size();
 
 	out.get_selection().select_none();
 
@@ -95,9 +98,34 @@ void Picviz::PVLayerFilterSnortForLogs::operator()(PVLayer& in, PVLayer &out)
 				if (! QString::compare(QString(key), QString("content"))) {
 					if (value.startsWith("User-Agent: ") && (value.length() != 12)) {
 						value.remove(0, 12);
-						PVLOG_INFO("(from sid:%s) This value is content and search for %s\n", current_sid, qPrintable(value));
-					}      
-				}
+						// Get the axes that have the tag 'user-agent' so we can search for it
+						QList<PVCol> axes_with_user_agent = _view->get_original_axes_index_with_tag(get_tag("key"));
+						for (PVRow r = 0; r < nb_lines; r++) {
+							if (should_cancel()) {
+								if (&in != &out) {
+									out = in;
+								}
+								return;
+							}
+
+							for (int counter = 0; counter < axes_with_user_agent.size(); ++counter) {
+								PVCol axis_id = axes_with_user_agent.at(counter);
+
+								if (_view->get_line_state_in_pre_filter_layer(r)) {
+									PVRush::PVNraw::nraw_table_line const& nraw_r = nraw.at(r);
+									bool sel = false;
+									if (! QString::compare(value, nraw_r[axis_id])) {
+										sel = true;
+									}
+									out.get_selection().set_line(r, sel);
+								}
+
+							}
+
+						} // for (PVRow r = 0; r < nb_lines; r++) {
+
+					} // if (value.startsWith("User-Agent: ") && (value.length() != 12)) {
+				}	  // if (! QString::compare(QString(key), QString("content"))) {
 			}
 		}
 	}
