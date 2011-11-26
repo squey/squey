@@ -99,7 +99,7 @@ void Picviz::PVLayerFilterSnortForLogs::operator()(PVLayer& in, PVLayer &out)
 					if (value.startsWith("User-Agent: ") && (value.length() != 12)) {
 						value.remove(0, 12);
 						// Get the axes that have the tag 'user-agent' so we can search for it
-						QList<PVCol> axes_with_user_agent = _view->get_original_axes_index_with_tag(get_tag("key"));
+						QList<PVCol> axes_with_user_agent = _view->get_original_axes_index_with_tag(get_tag("user-agent"));
 						for (PVRow r = 0; r < nb_lines; r++) {
 							if (should_cancel()) {
 								if (&in != &out) {

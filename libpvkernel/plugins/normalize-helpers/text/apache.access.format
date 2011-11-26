@@ -21,7 +21,7 @@
    <axis titlecolor="#ffffff" tag="key" mapping="default" time-format="" group="" type="integer" name="Response Code" plotting="minmax" color="#ffffff" time-sample=""/>
   </field>
   <field>
-   <axis titlecolor="#ffffff" mapping="4Bsort" time-format="" group="" type="string" name="User Agent" plotting="default" color="#ffffff" time-sample=""/>
+   <axis titlecolor="#ffffff" tag="user-agent" mapping="4Bsort" time-format="" group="" type="string" name="User Agent" plotting="default" color="#ffffff" time-sample=""/>
   </field>
  </splitter>
 </param>
