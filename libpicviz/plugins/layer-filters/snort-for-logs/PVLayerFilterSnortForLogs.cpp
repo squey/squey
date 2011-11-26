@@ -80,11 +80,25 @@ void Picviz::PVLayerFilterSnortForLogs::operator()(PVLayer& in, PVLayer &out)
 
 	for (int i=0; i < rules_number; i++) {
 		boost::python::dict snort_alert = boost::python::extract<boost::python::dict>(snort_rules[i]);
-		// match_groups
 		boost::python::list match_groups = boost::python::extract<boost::python::list>(snort_alert["match_groups"]);
+		const char *current_sid = boost::python::extract<const char*>(snort_alert["sid"]);
+
 		for (int j=0; j < boost::python::len(match_groups); j++) {
+			// PVLOG_INFO("WE ARE IN MATCH GROUP %d of sid %s\n", j, current_sid);
 			boost::python::list current_group = boost::python::extract<boost::python::list>(match_groups[j]);
-			// if (current_group[0] == "content")
+
+			for (int k=0; k < boost::python::len(current_group); k++) {
+				// PVLOG_INFO("Reading our group values (k=%d)\n", k);
+				boost::python::list key_value = boost::python::extract<boost::python::list>(current_group[k]);
+				QString key = PVCore::PVPython::get_list_index_as_qstring(key_value, 0);
+				QString value = PVCore::PVPython::get_list_index_as_qstring(key_value, 1);
+				if (! QString::compare(QString(key), QString("content"))) {
+					if (value.startsWith("User-Agent: ") && (value.length() != 12)) {
+						value.remove(0, 12);
+						PVLOG_INFO("(from sid:%s) This value is content and search for %s\n", current_sid, qPrintable(value));
+					}      
+				}
+			}
 		}
 	}
 
