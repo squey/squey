@@ -100,29 +100,36 @@ void Picviz::PVLayerFilterSnortForLogs::operator()(PVLayer& in, PVLayer &out)
 						value.remove(0, 12);
 						// Get the axes that have the tag 'user-agent' so we can search for it
 						QList<PVCol> axes_with_user_agent = _view->get_original_axes_index_with_tag(get_tag("user-agent"));
-						for (PVRow r = 0; r < nb_lines; r++) {
-							if (should_cancel()) {
-								if (&in != &out) {
-									out = in;
+						for (int counter = 0; counter < axes_with_user_agent.size(); ++counter) {
+							PVCol axis_id = axes_with_user_agent.at(counter);
+							for (PVRow r = 0; r < nb_lines; r++) {
+								if (should_cancel()) {
+									if (&in != &out) {
+										out = in;
+									}
+									return;
 								}
-								return;
-							}
 
-							for (int counter = 0; counter < axes_with_user_agent.size(); ++counter) {
-								PVCol axis_id = axes_with_user_agent.at(counter);
 
 								if (_view->get_line_state_in_pre_filter_layer(r)) {
 									PVRush::PVNraw::nraw_table_line const& nraw_r = nraw.at(r);
-									bool sel = false;
+									// bool sel = false;
 									if (! QString::compare(value, nraw_r[axis_id])) {
-										sel = true;
-									}
-									out.get_selection().set_line(r, sel);
+       										// sel = true;
+										if (!out.get_selection().get_line(r)) {
+											out.get_selection().set_line(r, true);
+										}
+										// PVLOG_INFO("match '%s' with '%s'\n", qPrintable(value), qPrintable(nraw_r[axis_id]));
+									} 
+									// else {
+									// 	PVLOG_INFO("DOES NOT match '%s' with '%s'\n", qPrintable(value), qPrintable(nraw_r[axis_id]));
+									// }
+
+									// PVLOG_INFO("SET LINE %llu TO %d\n", r, sel);
 								}
 
-							}
-
-						} // for (PVRow r = 0; r < nb_lines; r++) {
+							}// for (PVRow r = 0; r < nb_lines; r++) {
+						} 
 
 					} // if (value.startsWith("User-Agent: ") && (value.length() != 12)) {
 				}	  // if (! QString::compare(QString(key), QString("content"))) {
