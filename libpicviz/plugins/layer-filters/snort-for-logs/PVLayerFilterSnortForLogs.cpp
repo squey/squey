@@ -82,6 +82,9 @@ void Picviz::PVLayerFilterSnortForLogs::operator()(PVLayer& in, PVLayer &out)
 	out.get_selection().select_none();
 
 	PVLOG_INFO("Start Snort For Logs\n");
+	// Get the axes that have the tag 'user-agent' so we can search for it
+	QList<PVCol> axes_with_user_agent = _view->get_original_axes_index_with_tag(get_tag("user-agent"));
+
 	for (int i=0; i < rules_number; i++) {
 		boost::python::dict snort_alert = boost::python::extract<boost::python::dict>(snort_rules[i]);
 		boost::python::list match_groups = boost::python::extract<boost::python::list>(snort_alert["match_groups"]);
@@ -99,8 +102,6 @@ void Picviz::PVLayerFilterSnortForLogs::operator()(PVLayer& in, PVLayer &out)
 				if (! QString::compare(QString(key), QString("content"))) {
 					if (value.startsWith("User-Agent: ") && (value.length() != 12)) {
 						value.remove(0, 12);
-						// Get the axes that have the tag 'user-agent' so we can search for it
-						QList<PVCol> axes_with_user_agent = _view->get_original_axes_index_with_tag(get_tag("user-agent"));
 						for (int counter = 0; counter < axes_with_user_agent.size(); ++counter) {
 							PVCol axis_id = axes_with_user_agent.at(counter);
 							for (PVRow r = 0; r < nb_lines; r++) {
@@ -119,7 +120,6 @@ void Picviz::PVLayerFilterSnortForLogs::operator()(PVLayer& in, PVLayer &out)
        										// sel = true;
 										if (!out.get_selection().get_line(r)) {
 											out.get_selection().set_line(r, true);
-											goto next_line;
 										}
 										// PVLOG_INFO("match '%s' with '%s'\n", qPrintable(value), qPrintable(nraw_r[axis_id]));
 									} 
@@ -129,7 +129,7 @@ void Picviz::PVLayerFilterSnortForLogs::operator()(PVLayer& in, PVLayer &out)
 
 									// PVLOG_INFO("SET LINE %llu TO %d\n", r, sel);
 								}
-next_line: {}
+
 							}// for (PVRow r = 0; r < nb_lines; r++) {
 						} 
 
