@@ -112,15 +112,16 @@ void Picviz::PVLayerFilterSnortForLogs::operator()(PVLayer& in, PVLayer &out)
 									return;
 								}
 
+								if (out.get_selection().get_line(r)) {
+									continue;
+								}
 
 								if (_view->get_line_state_in_pre_filter_layer(r)) {
 									PVRush::PVNraw::nraw_table_line const& nraw_r = nraw.at(r);
 									// bool sel = false;
 									if (! QString::compare(value, nraw_r[axis_id])) {
        										// sel = true;
-										if (!out.get_selection().get_line(r)) {
-											out.get_selection().set_line(r, true);
-										}
+										out.get_selection().set_line(r, true);
 										// PVLOG_INFO("match '%s' with '%s'\n", qPrintable(value), qPrintable(nraw_r[axis_id]));
 									} 
 									// else {
