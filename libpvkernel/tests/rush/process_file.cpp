@@ -34,11 +34,13 @@ int main(int argc, char** argv)
 
 	// Load the given format file
 	QString path_format(argv[2]);
+	PVLOG_INFO("Load format...\n");
 	PVRush::PVFormat format("format", path_format);
 	if (!format.populate(true)) {
 		std::cerr << "Can't read format file " << qPrintable(path_format) << std::endl;
 		return 1;
 	}
+	PVLOG_INFO("Format loaded.\n");
 
 	// Get the source creator
 	QString file_path(argv[1]);
@@ -48,11 +50,13 @@ int main(int argc, char** argv)
 	}
 
 	// Process that file with the found source creator thanks to the extractor
+	PVLOG_INFO("Creating source...\n");
 	PVRush::PVSourceCreator::source_p src = sc_file->create_source_from_input(file, format);
 	if (!src) {
 		std::cerr << "Unable to create PVRush source from file " << argv[1] << std::endl;
 		return 1;
 	}
+	PVLOG_INFO("Source created.\n");
 
 	// Create the extractor
 	PVRush::PVExtractor ext;
@@ -60,9 +64,11 @@ int main(int argc, char** argv)
 	ext.add_source(src);
 	ext.set_chunk_filter(format.create_tbb_filters());
 
+	PVLOG_INFO("Asking 1 million lines...\n");
 	// Ask for 1 million lines
 	PVRush::PVControllerJob_p job = ext.process_from_agg_nlines(0, 1000000);
 	job->wait_end();
+	PVLOG_INFO("Extraction finished.\n");
 
 	// Dump the NRAW to stdout
 	dump_nraw_csv(ext.get_nraw());

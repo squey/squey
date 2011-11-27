@@ -23,7 +23,7 @@ public:
 public:
 	void populate_from_type(QString const& type);
 	void populate_from_plotting(PVCol axis_id, Picviz::PVPlotting const& plotting);
-	inline void select_default() { select("default"); }
+	inline void select_default() { set_mode("default"); }
 
 public:
 	bool set_mode(QString const& mode) { return select_userdata(mode); }
