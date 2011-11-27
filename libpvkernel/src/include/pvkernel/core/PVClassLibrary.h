@@ -57,13 +57,13 @@ public:
 	}
 
 	template<class T>
-	void declare_tag(QString const& name, QString const& desc, T const& f)
+	void declare_tag(QString const& name, QString const& desc)
 	{
 		// Looks for a registered version of 'T', and take it if it exists
 		typename list_classes::iterator it_c;
 		PF pf;
 		for (it_c = _classes.begin(); it_c != _classes.end(); it_c++) {
-			if (typeid(*(it_c.value())) == typeid(f)) {
+			if (dynamic_cast<T*>(it_c.value().get()) != NULL) {
 				pf = it_c.value();
 				break;
 			}
@@ -159,7 +159,7 @@ public:
 #define REGISTER_CLASS_WITH_ARGS(name, T, ...) REGISTER_CLASS_AS_WITH_ARGS(name, T, T::RegAs, __VA_ARGS__)
 
 #define DECLARE_TAG_AS(name, desc, T, RegAs) \
-	PVCore::PVClassLibrary<RegAs>::get().declare_tag<T>(name, desc, T());
+	PVCore::PVClassLibrary<RegAs>::get().declare_tag<T>(name, desc);
 #define DECLARE_TAG(name, desc, T) DECLARE_TAG_AS(name, desc, T, T::RegAs)
 
 #define LIB_CLASS(T) \

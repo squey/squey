@@ -77,16 +77,6 @@ void Picviz::PVView::init_defaults()
 
 	last_extractor_batch_size = pvconfig.value("pvkernel/rush/extract_next", PVEXTRACT_NUMBER_LINES_NEXT_DEFAULT).toInt();
 
-	// Create layer filter arguments for that view
-	LIB_CLASS(Picviz::PVLayerFilter) &filters_layer = 	LIB_CLASS(Picviz::PVLayerFilter)::get();
-	LIB_CLASS(Picviz::PVLayerFilter)::list_classes const& lf = filters_layer.get_list();
-	
-	LIB_CLASS(Picviz::PVLayerFilter)::list_classes::const_iterator it;
-
-	for (it = lf.begin(); it != lf.end(); it++) {
-		filters_args[it.key()] = it.value()->get_default_args_for_view(*this);
-	}
-
 	state_machine = new Picviz::PVStateMachine();
 
 	default_zombie_line_properties.r() = (unsigned char)0;
@@ -110,6 +100,16 @@ void Picviz::PVView::init_from_plotted(PVPlotted* parent, bool keep_layers)
 	}
 	else {
 		axes_combination = parent->get_source_parent()->get_axes_combination();
+	}
+
+	// Create layer filter arguments for that view
+	LIB_CLASS(Picviz::PVLayerFilter) &filters_layer = 	LIB_CLASS(Picviz::PVLayerFilter)::get();
+	LIB_CLASS(Picviz::PVLayerFilter)::list_classes const& lf = filters_layer.get_list();
+	
+	LIB_CLASS(Picviz::PVLayerFilter)::list_classes::const_iterator it;
+
+	for (it = lf.begin(); it != lf.end(); it++) {
+		filters_args[it.key()] = it.value()->get_default_args_for_view(*this);
 	}
 
 	row_count = plotted->get_row_count();
