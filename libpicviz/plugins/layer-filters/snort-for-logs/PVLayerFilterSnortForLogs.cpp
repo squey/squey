@@ -119,6 +119,7 @@ void Picviz::PVLayerFilterSnortForLogs::operator()(PVLayer& in, PVLayer &out)
        										// sel = true;
 										if (!out.get_selection().get_line(r)) {
 											out.get_selection().set_line(r, true);
+											goto next_line;
 										}
 										// PVLOG_INFO("match '%s' with '%s'\n", qPrintable(value), qPrintable(nraw_r[axis_id]));
 									} 
@@ -128,7 +129,7 @@ void Picviz::PVLayerFilterSnortForLogs::operator()(PVLayer& in, PVLayer &out)
 
 									// PVLOG_INFO("SET LINE %llu TO %d\n", r, sel);
 								}
-
+next_line: {}
 							}// for (PVRow r = 0; r < nb_lines; r++) {
 						} 
 
