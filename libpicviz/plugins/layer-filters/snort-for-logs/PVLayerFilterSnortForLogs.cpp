@@ -81,6 +81,7 @@ void Picviz::PVLayerFilterSnortForLogs::operator()(PVLayer& in, PVLayer &out)
 
 	out.get_selection().select_none();
 
+	PVLOG_INFO("Start Snort For Logs\n");
 	for (int i=0; i < rules_number; i++) {
 		boost::python::dict snort_alert = boost::python::extract<boost::python::dict>(snort_rules[i]);
 		boost::python::list match_groups = boost::python::extract<boost::python::list>(snort_alert["match_groups"]);
@@ -136,6 +137,8 @@ void Picviz::PVLayerFilterSnortForLogs::operator()(PVLayer& in, PVLayer &out)
 			}
 		}
 	}
+
+	PVLOG_INFO("End Snort For Logs\n");
 
 }
 
