@@ -21,6 +21,7 @@
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/stdint.h>
+#include <pvkernel/core/PVArgument.h>
 #include <pvkernel/core/PVColor.h>
 #include <pvkernel/core/PVListFastCmp.h>
 #include <pvkernel/rush/PVTags.h>

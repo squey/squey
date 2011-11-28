@@ -26,7 +26,7 @@ Picviz::PVMappingFilterTimeDefault::PVMappingFilterTimeDefault(PVCore::PVArgumen
 DEFAULT_ARGS_FILTER(Picviz::PVMappingFilterTimeDefault)
 {
 	PVCore::PVArgumentList args;
-	args["time-format"] = PVCore::PVArgument(QString("blabla"));
+	args["time-format"] = PVCore::PVArgument(QString(""));
 	return args;
 }
 
@@ -44,10 +44,13 @@ float* Picviz::PVMappingFilterTimeDefault::operator()(PVRush::PVNraw::nraw_table
 	Calendar** cals = new Calendar*[max_threads];
 	PVCore::PVDateTimeParser **dtparsers = new PVCore::PVDateTimeParser*[max_threads];
 	tbb::tick_count start_alloc = tbb::tick_count::now();
+	PVRush::PVAxisFormat const& axis = _format->get_axes().at(_cur_col);
+	QString time_format = axis.get_args_mapping()["time-format"].toString();
 	for (int i = 0; i < max_threads; i++) {
 		UErrorCode err = U_ZERO_ERROR;
 		cals[i] = Calendar::createInstance(err);
-		dtparsers[i] = new PVCore::PVDateTimeParser(_format->time_format[_cur_col+1]);
+		//dtparsers[i] = new PVCore::PVDateTimeParser(_format->time_format[_cur_col+1]);
+		dtparsers[i] = new PVCore::PVDateTimeParser(QStringList() << time_format);
 	}
 	tbb::tick_count end_alloc = tbb::tick_count::now();
 	PVLOG_DEBUG("(PVMappingFilterTimeDefault::operator()) object creations took %0.4fs.\n", (end_alloc-start_alloc).seconds());

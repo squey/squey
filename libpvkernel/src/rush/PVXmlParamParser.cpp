@@ -119,6 +119,20 @@ QHash<int, QStringList> const& PVRush::PVXmlParamParser::getTimeFormat() const
 	return time_format;
 }
 
+PVCore::PVArgumentList PVRush::PVXmlParamParser::getMapPlotParameters(QDomElement& elt, QString const& tag)
+{
+	PVCore::PVArgumentList args;
+	QDomNodeList list = elt.elementsByTagName(tag);
+	if (list.size() < 1) {
+		return args;
+	}
+	
+	QDomElement node = list.at(0).toElement();
+	PVRush::PVXmlTreeNodeDom::toArgumentList(node, args);
+	args.remove(PVFORMAT_MAP_PLOT_MODE_STR);
+	return args;
+}
+
 int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id, QVector<uint32_t> tree_ids)
 {
 	int newId = id;
@@ -189,10 +203,26 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id, QVector<ui
 					axis.add_tag(tags[j]);
 				}
 			}
-			_axes.push_back(axis);
 			if(child.attribute(PVFORMAT_AXIS_TYPE_STR, PVFORMAT_AXIS_TYPE_DEFAULT)=="time"){
 				time_format[newId+1]  = child.attribute(PVFORMAT_AXIS_TIMEFORMAT_STR, PVFORMAT_AXIS_TIMEFORMAT_DEFAULT).split("\n");
 			}
+
+			// Mapping and plotting parameters
+			PVLOG_INFO("For axis %s:\n", qPrintable(axis.get_name()));
+			PVCore::PVArgumentList args = getMapPlotParameters(child, PVFORMAT_XML_TAG_MAPPING);
+			axis.set_args_mapping(args);
+			PVLOG_INFO("Mapping args:\n");
+			PVCore::PVArgumentList::const_iterator it;
+			for (it = args.begin(); it != args.end(); it++) {
+				PVLOG_INFO("key: %s | value: %s\n", qPrintable(it.key()), qPrintable(it.value().toString()));
+			}
+			PVLOG_INFO("Plotting args:\n");
+			args = getMapPlotParameters(child, PVFORMAT_XML_TAG_PLOTTING);
+			for (it = args.begin(); it != args.end(); it++) {
+				PVLOG_INFO("key: %s | value: %s\n", qPrintable(it.key()), qPrintable(it.value().toString()));
+			}
+			axis.set_args_plotting(args);
+			_axes.push_back(axis);
 
 			newId++;
 

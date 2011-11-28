@@ -3,9 +3,7 @@
 <param version="3">
  <splitter selectionRegExp-2="(\S+)" selectionRegExp-3="([a-zA-Z/]+)" selectionRegExp-4="(.*)" validator="" full-line="false" type="regexp" regexp="(\w+\s+\d+\s+\d+:\d+:\d+) (\S+) ([a-zA-Z/]+)\S*: (.*)" name="" saveValidator="false" selectionRegExp-1="(\w+\s+\d+\s+\d+:\d+:\d+)">
   <field>
-   <axis titlecolor="#ffffff" mapping="24h" time-format="MMM e H:m:ss" group="" type="time" name="Time" plotting="default" color="#ffffff" time-sample="Feb 9 15:23:53">
-    <mapping/>
-   </axis>
+	  <axis titlecolor="#ffffff" mapping="24h" time-format="MMM e H:m:ss" group="" type="time" name="Time" plotting="default" color="#ffffff" time-sample="Feb 9 15:23:53" />
   </field>
   <field>
    <axis titlecolor="#ffffff" mapping="default" time-format="" group="" type="enum" name="Machine" plotting="default" color="#ffffff" time-sample=""/>

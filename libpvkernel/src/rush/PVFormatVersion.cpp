@@ -22,6 +22,9 @@ bool PVRush::PVFormatVersion::to_current(QDomDocument& doc)
 		if (!from2to3(doc)) {
 			return false;
 		}
+		if (!from3to4(doc)) {
+			return false;
+		}
 	}
 	if (version == "1") {
 		if (!from1to2(doc)) {
@@ -30,17 +33,28 @@ bool PVRush::PVFormatVersion::to_current(QDomDocument& doc)
 		if (!from2to3(doc)) {
 			return false;
 		}
+		if (!from3to4(doc)) {
+			return false;
+		}
 	}
 	if (version == "2") {
 		if (!from2to3(doc)) {
 			return false;
 		}
+		if (!from3to4(doc)) {
+			return false;
+		}
 	}
-	if (version != "3") {
+	if (version == "3") {
+		if (!from3to4(doc)) {
+			return false;
+		}
+	}
+	if (version != "4") {
 		return false;
 	}
 
-	doc.documentElement().setAttribute("version", "2");
+	doc.documentElement().setAttribute("version", PVFORMAT_CURRENT_VERSION);
 	return true;
 }
 
@@ -57,6 +71,11 @@ bool PVRush::PVFormatVersion::from1to2(QDomDocument& doc)
 bool PVRush::PVFormatVersion::from2to3(QDomDocument& doc)
 {
 	return _rec_2to3(doc.documentElement());
+}
+
+bool PVRush::PVFormatVersion::from3to4(QDomDocument& doc)
+{
+	return _rec_3to4(doc.documentElement());
 }
 
 bool PVRush::PVFormatVersion::_rec_0to1(QDomElement elt)
@@ -168,15 +187,48 @@ bool PVRush::PVFormatVersion::_rec_2to3(QDomElement elt)
 		QString type = elt.attribute("type", "");
 		if (type != "time" && type != "ipv4" && plotting == "minmax") {
 			// minmax is now default. if default was not minmax, it was only relevant for the time and ipv4
-			elt.setAttribute(PVFORMAT_AXIS_PLOTTING_STR, "default");
+			elt.setAttribute("plotting", "default");
 		}
 	}
 
 	QDomNodeList children = elt.childNodes();
 	for (int i = 0; i < children.size(); i++) {
-		if (!_rec_1to2(children.at(i).toElement())) {
+		if (!_rec_2to3(children.at(i).toElement())) {
 			return false;
 		}
 	}
 	return true;
 }
+
+bool PVRush::PVFormatVersion::_rec_3to4(QDomElement elt)
+{
+	QString const& tag_name = elt.tagName();
+	if (tag_name == "axis") {
+		QString mapping = elt.attribute("mapping", "");
+		QString plotting = elt.attribute("plotting", "");
+		QString type = elt.attribute("type", "");
+		QDomElement elt_mapping = elt.ownerDocument().createElement(PVFORMAT_XML_TAG_MAPPING);
+		elt_mapping.setAttribute(PVFORMAT_MAP_PLOT_MODE_STR, mapping);
+		if (type == "time") {
+			elt_mapping.setAttribute("time-format", elt.attribute("time-format", ""));
+			elt.removeAttribute("time-format");
+		}
+		elt.appendChild(elt_mapping);
+
+		QDomElement elt_plotting = elt.ownerDocument().createElement(PVFORMAT_XML_TAG_PLOTTING);
+		elt_plotting.setAttribute(PVFORMAT_MAP_PLOT_MODE_STR, plotting);
+		elt.appendChild(elt_plotting);
+
+		elt.removeAttribute("mapping");
+		elt.removeAttribute("plotting");
+	}
+
+	QDomNodeList children = elt.childNodes();
+	for (int i = 0; i < children.size(); i++) {
+		if (!_rec_3to4(children.at(i).toElement())) {
+			return false;
+		}
+	}
+	return true;
+}
+
