@@ -29,7 +29,7 @@ Picviz::PVLayerFilterAxisGradient::PVLayerFilterAxisGradient(PVCore::PVArgumentL
 DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterAxisGradient)
 {
 	PVCore::PVArgumentList args;
-	args["Axis"].setValue(PVCore::PVAxisIndexType(0));
+	args[PVCore::PVArgumentKey("axis", QObject::tr("Axis"))].setValue(PVCore::PVAxisIndexType(0));
 	return args;
 }
 
@@ -47,7 +47,7 @@ void Picviz::PVLayerFilterAxisGradient::operator()(PVLayer& in, PVLayer &out)
 
 	//const PVSource* source = _view.get_source_parent();
 	const PVPlotted* plotted = _view->get_plotted_parent();
-	axis_id = _args["Axis"].value<PVCore::PVAxisIndexType>().get_original_index();
+	axis_id = _args["axis"].value<PVCore::PVAxisIndexType>().get_original_index();
 
 	PVPlotted::plotted_sub_col_t values_sel;
 	float max_plotted,min_plotted;
