@@ -8,25 +8,38 @@
 
 #include <QStandardItemModel>
 
+PVInspector::PVArgumentListModel::PVArgumentListModel(QObject* parent):
+	QAbstractTableModel(parent),
+	_args(NULL)
+{
+}
+
 PVInspector::PVArgumentListModel::PVArgumentListModel(PVCore::PVArgumentList &args, QObject* parent):
 	QAbstractTableModel(parent),
-	_args(args)
+	_args(&args)
 {
+}
+
+void PVInspector::PVArgumentListModel::set_args(PVCore::PVArgumentList& args)
+{
+	beginResetModel();
+	_args = &args;
+	endResetModel();
 }
 
 int PVInspector::PVArgumentListModel::rowCount(const QModelIndex &parent) const
 {
 	// Cf. QAbstractTableModel's documentation. This is for a table view.
-	if (parent.isValid())
+	if (_args == NULL || parent.isValid())
 		return 0;
 
-	return _args.size();
+	return _args->size();
 }
 
 int PVInspector::PVArgumentListModel::columnCount(const QModelIndex& parent) const
 {
 	// Same as above
-	if (parent.isValid())
+	if (_args == NULL || parent.isValid())
 		return 0;
 
 	return 1;
@@ -34,10 +47,10 @@ int PVInspector::PVArgumentListModel::columnCount(const QModelIndex& parent) con
 
 QVariant PVInspector::PVArgumentListModel::data(const QModelIndex& index, int role) const
 {
-	if (role != Qt::DisplayRole && role != Qt::EditRole)
+	if (_args == NULL || (role != Qt::DisplayRole && role != Qt::EditRole))
 		return QVariant();
 
-	PVCore::PVArgumentList::iterator it = _args.begin();
+	PVCore::PVArgumentList::iterator it = _args->begin();
 	std::advance(it, index.row());
 
 	return it.value();
@@ -45,12 +58,12 @@ QVariant PVInspector::PVArgumentListModel::data(const QModelIndex& index, int ro
 
 bool PVInspector::PVArgumentListModel::setData(const QModelIndex& index, const QVariant &value, int role)
 {
-	if (index.column() != 0 || role != Qt::EditRole)
+	if (_args == NULL || index.column() != 0 || role != Qt::EditRole)
 		return false;
 
-	PVCore::PVArgumentList::iterator it = _args.begin();
+	PVCore::PVArgumentList::iterator it = _args->begin();
 	std::advance(it, index.row());
-	if (it == _args.end())
+	if (it == _args->end())
 		return false; // Should never happen !
 
 	it.value() = value;
@@ -62,6 +75,10 @@ bool PVInspector::PVArgumentListModel::setData(const QModelIndex& index, const Q
 
 Qt::ItemFlags PVInspector::PVArgumentListModel::flags(const QModelIndex& index) const
 {
+	if (_args == NULL) {
+		return QAbstractTableModel::flags(index);
+	}
+
 	Qt::ItemFlags ret;
 
 	if (index.column() == 0) {

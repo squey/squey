@@ -19,7 +19,10 @@ namespace PVInspector {
 
 class PVArgumentListModel : public QAbstractTableModel {
 public:
+	PVArgumentListModel(QObject* parent = 0);
 	PVArgumentListModel(PVCore::PVArgumentList& args, QObject* parent = 0);
+public:
+	void set_args(PVCore::PVArgumentList& args);
 public:
 	int rowCount(const QModelIndex &parent) const;
 	int columnCount(const QModelIndex &parent) const;
@@ -28,11 +31,9 @@ public:
 	Qt::ItemFlags flags(const QModelIndex& index) const;
 	QVariant headerData(int section, Qt::Orientation orientation, int role) const; 
 protected:
-	PVCore::PVArgumentList&  _args;
+	PVCore::PVArgumentList*  _args;
 };
-
 
 }
 
 #endif	/* PVARGUMENTLISTMODEL_H */
-

@@ -31,16 +31,22 @@ class PVArgumentListWidget: public QDialog
 	Q_OBJECT
 
 public:
+	PVArgumentListWidget(QItemEditorFactory* args_widget_factory, QWidget* parent);
 	PVArgumentListWidget(QItemEditorFactory* args_widget_factory, PVCore::PVArgumentList &args, QWidget* parent);
 	virtual ~PVArgumentListWidget();
 	//bool eventFilter(QObject *obj, QEvent *event);
 	void init();
+	void set_args(PVCore::PVArgumentList& args);
 	inline bool args_changed() { return _args_has_changed; }
 	inline void clear_args_state() { _args_has_changed = false; }
+
 
 public:
 	static QItemEditorFactory* create_layer_widget_factory(Picviz::PVView& view);
 	static QItemEditorFactory* create_mapping_plotting_widget_factory();
+
+private:
+	void init_widgets();
 
 private slots:
 	void args_changed_Slot();
@@ -50,6 +56,8 @@ protected:
 	virtual void set_btns_layout();
 	virtual void connect_btns();
 
+signals:
+	void args_changed_Signal();
 
 /* public slots: */
 /* 	void widget_clicked_Slot(); */
@@ -59,7 +67,7 @@ protected:
 	QDataWidgetMapper*        _mapper;
 	QItemEditorFactory*       _args_widget_factory;
 	PVArgumentListModel*      _args_model;
-	PVCore::PVArgumentList& _args;
+	PVCore::PVArgumentList*   _args;
 
 	// Standard buttons
 	QPushButton*              _apply_btn;

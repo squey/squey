@@ -53,6 +53,8 @@ public:
 		QString mapping;
 		QString plotting;
 		QString time_format;
+		PVCore::PVArgumentList args_mapping;
+		PVCore::PVArgumentList args_plotting;
 		PVTags tags;
 		id_t unique_id;
 		bool unique_id_computed;
@@ -71,6 +73,8 @@ public:
 		QString get_type() const { return type; }
 		QString get_group() const { return group; }
 		QString get_time_format() const { return time_format; }
+		PVCore::PVArgumentList const& get_args_mapping() const { return args_mapping; }
+		PVCore::PVArgumentList const& get_args_plotting() const { return args_plotting; }
 		id_t const& get_unique_id() const { return unique_id; }
 		PVTags const& get_tags() const { return tags; }
 		bool has_tag(QString const& tag) const { return tags.has_tag(tag); }
@@ -84,6 +88,8 @@ public:
 		void set_titlecolor(PVCore::PVColor color_);
 		void set_type(QString str);
 		void set_group(QString str);
+		void set_args_mapping(PVCore::PVArgumentList const& args) { args_mapping = args; }
+		void set_args_plotting(PVCore::PVArgumentList const& args) { args_plotting = args; }
 		void add_tag(QString const& tag) { tags.add_tag(tag); }
 
 	public:

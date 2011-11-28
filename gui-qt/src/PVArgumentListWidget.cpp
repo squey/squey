@@ -37,25 +37,79 @@
 #include <PVSpinBoxEditor.h>
 #include <PVAxisIndexCheckBoxEditor.h>
 
+static void clearLayout(QLayout* layout)
+{
+	while (QLayoutItem* item = layout->takeAt(0))
+	{
+		if (QWidget* widget = item->widget()) {
+			widget->deleteLater();
+		}
+		else
+		if (QLayout* childLayout = item->layout()) {
+			clearLayout(childLayout);
+		}
+		delete item;
+	}
+}
+
+PVInspector::PVArgumentListWidget::PVArgumentListWidget(QItemEditorFactory* args_widget_factory, QWidget* parent):
+	QDialog(parent),
+	_args_widget_factory(args_widget_factory),
+	_args(NULL)
+{
+	assert(_args_widget_factory);
+	init_widgets();
+	clear_args_state();
+}
+
 PVInspector::PVArgumentListWidget::PVArgumentListWidget(QItemEditorFactory* args_widget_factory, PVCore::PVArgumentList &args, QWidget* parent):
 	QDialog(parent),
 	_args_widget_factory(args_widget_factory),
-	_args(args)
+	_args(&args)
 {
 	assert(_args_widget_factory);
 
-	// Initalise layouts
+	init_widgets();
+	set_args(args);
+}
+
+PVInspector::PVArgumentListWidget::~PVArgumentListWidget()
+{
+	PVLOG_INFO("In PVArgumentListWidget destructor\n");
+	_args_model->deleteLater();
+}
+
+void PVInspector::PVArgumentListWidget::init_widgets()
+{
 	QVBoxLayout *main_layout = new QVBoxLayout();
 	_btn_layout = new QHBoxLayout();
 
-	_args_model = new PVArgumentListModel(args);
+	_args_model = new PVArgumentListModel();
 
 	_args_layout = new QGridLayout();
 	_mapper = new QDataWidgetMapper();
 	_mapper->setOrientation(Qt::Vertical);
 	_mapper->setModel(_args_model);
+
+	// Set the layouts
+	main_layout->addLayout(_args_layout);
+	main_layout->addLayout(_btn_layout);
+
+	setLayout(main_layout);
+
+	connect(_args_model, SIGNAL(dataChanged(QModelIndex const&, QModelIndex const&)), this, SLOT(args_changed_Slot()));
+}
+
+void PVInspector::PVArgumentListWidget::set_args(PVCore::PVArgumentList& args)
+{
+	_args = &args;
+	_args_model->set_args(args);
+	_mapper->clearMapping();
+
 	PVCore::PVArgumentList::iterator it;
 	uint32_t row = 0;
+	// Delete all items from this main QGridLayout
+	clearLayout(_args_layout);
 	for (it = args.begin(); it != args.end(); it++) {
 		QVariant::Type vtype = (QVariant::Type) it.value().userType();
 		QWidget* widget = _args_widget_factory->createEditor(vtype, this);
@@ -67,21 +121,7 @@ PVInspector::PVArgumentListWidget::PVArgumentListWidget(QItemEditorFactory* args
 		row++;
 	}
 	_mapper->toFirst();
-
-	// Set the layouts
-	main_layout->addLayout(_args_layout);
-	main_layout->addLayout(_btn_layout);
-
-	setLayout(main_layout);
-
-	connect(_args_model, SIGNAL(dataChanged(QModelIndex const&, QModelIndex const&)), this, SLOT(args_changed_Slot()));
 	clear_args_state();
-}
-
-PVInspector::PVArgumentListWidget::~PVArgumentListWidget()
-{
-	PVLOG_INFO("In PVArgumentListWidget destructor\n");
-	_args_model->deleteLater();
 }
 
 QItemEditorFactory* PVInspector::PVArgumentListWidget::create_layer_widget_factory(Picviz::PVView& view)
@@ -128,7 +168,7 @@ QItemEditorFactory* PVInspector::PVArgumentListWidget::create_mapping_plotting_w
 
 	QItemEditorFactory* args_widget_factory = new QItemEditorFactory();
 
-	QItemEditorCreatorBase* textline_creator = new QItemEditorCreator<QLineEdit>("test");
+	QItemEditorCreatorBase* textline_creator = new QItemEditorCreator<QLineEdit>("text");
 
 	args_widget_factory->registerEditor(QVariant::String, textline_creator);
 
@@ -165,4 +205,5 @@ void PVInspector::PVArgumentListWidget::connect_btns()
 void PVInspector::PVArgumentListWidget::args_changed_Slot()
 {
 	_args_has_changed = true;
+	emit args_changed_Signal();
 }

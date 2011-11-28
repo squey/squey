@@ -16,7 +16,7 @@ PVInspector::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(PVTabSplitte
 	_filter_p(filter_p),
 	_help_btn(NULL),
 	_pre_filter_layer_org(_view->pre_filter_layer),
-	_args_org(_args),
+	_args_org(*_args),
 	_has_apply(false)
 {
 	setWindowTitle("Filter properties...");
@@ -114,7 +114,7 @@ bool PVInspector::PVLayerFilterProcessWidget::process()
 	_view->process_selection();
 
 	Picviz::PVLayerFilter_p filter_p = _filter_p->clone<Picviz::PVLayerFilter>();
-	filter_p->set_args(_args);
+	filter_p->set_args(*_args);
 	filter_p->set_view(_view);
 	filter_p->set_output(&_view->post_filter_layer);
 
@@ -170,7 +170,7 @@ void PVInspector::PVLayerFilterProcessWidget::cancel_Slot()
 	}
 
 	// Restore original arguments of this layer filter
-	_args = _args_org;
+	*_args = _args_org;
 
 	// Restore the original post_filter_layer
 	_view->post_filter_layer = _view->pre_filter_layer;

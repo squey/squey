@@ -9,6 +9,7 @@
 #include <PVXmlParamWidgetBoardAxis.h>
 #include <PVXmlEditorWidget.h>
 #include <PVAxisTagHelp.h>
+#include <PVArgumentListWidget.h>
 
 #include <QDialogButtonBox>
 
@@ -87,6 +88,8 @@ void PVInspector::PVXmlParamWidgetBoardAxis::allocBoardFields(){
     //slotSetVisibleExtra(false);
 	
 	_layout_params_mp = new QHBoxLayout();
+	_params_mapping = new PVArgumentListWidget(PVArgumentListWidget::create_mapping_plotting_widget_factory(), this);
+	_params_plotting = new PVArgumentListWidget(PVArgumentListWidget::create_mapping_plotting_widget_factory(), this);
     
     //button next
     buttonNextAxis = new QPushButton(tr("Next"));
@@ -243,6 +246,10 @@ void PVInspector::PVXmlParamWidgetBoardAxis::draw(){
     gridLayout->addWidget(new QLabel(tr("Plotting :")), i, 0);
     gridLayout->addWidget(comboPlotting, i, 2, 1, -1);
 	tabGeneral->addLayout(gridLayout);
+	// Mapping/plotting properties
+	_layout_params_mp->addWidget(_params_mapping);
+	_layout_params_mp->addWidget(_params_plotting);
+	tabGeneral->addLayout(_layout_params_mp);
     tabGeneral->addSpacerItem(new QSpacerItem(1,1,QSizePolicy::Expanding, QSizePolicy::Expanding));
     
     //***** tab Time Format *****
@@ -291,7 +298,11 @@ void PVInspector::PVXmlParamWidgetBoardAxis::initConnexion() {
     connect(textName, SIGNAL(textChanged(const QString&)), this, SLOT(slotSetValues()));
     connect(mapPlotType, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
     connect(comboMapping, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
+    connect(comboMapping, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(updateMappingParams()));
+	connect(_params_mapping, SIGNAL(args_changed_Signal()), this, SLOT(slotSetParamsMapping()));
     connect(comboPlotting, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
+    connect(comboPlotting, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(updatePlottingParams()));
+	connect(_params_plotting, SIGNAL(args_changed_Signal()), this, SLOT(slotSetParamsPlotting()));
     connect(listTags, SIGNAL(itemSelectionChanged()), this, SLOT(slotSetValues()));
 	connect(btnTagHelp, SIGNAL(clicked()), this, SLOT(slotShowTagHelp()));
     
@@ -334,17 +345,25 @@ void PVInspector::PVXmlParamWidgetBoardAxis::initValue()
 	mapPlotType->sel_type(node_type);
 	updatePlotMapping(node_type);
 
-	QString node_mapping = node->attribute(PVFORMAT_AXIS_MAPPING_STR);
+	_args_mapping.clear();
+	Picviz::PVMappingFilter::p_type map_lib = get_mapping_lib_filter();
+	QString node_mapping = node->getMappingProperties(map_lib->get_default_args(), _args_mapping);
     if (node_mapping.isEmpty()) {
 		node_mapping = PVFORMAT_AXIS_MAPPING_DEFAULT;
 	}
 	comboMapping->set_mode(node_mapping);
+	_args_map_mode[*map_lib] = _args_mapping;
+	_params_mapping->set_args(_args_mapping);
 	
-	QString node_plotting = node->attribute(PVFORMAT_AXIS_PLOTTING_STR);
+	_args_plotting.clear();
+	Picviz::PVPlottingFilter::p_type plot_lib = get_plotting_lib_filter();
+	QString node_plotting = node->getPlottingProperties(plot_lib->get_default_args(), _args_plotting);
     if (node_plotting.isEmpty()) {
 		node_plotting = PVFORMAT_AXIS_PLOTTING_DEFAULT;
 	}
 	comboPlotting->set_mode(node_plotting);
+	_args_plot_mode[*plot_lib] = _args_plotting;
+	_params_plotting->set_args(_args_plotting);
     
     
     //extra
@@ -362,6 +381,8 @@ void PVInspector::PVXmlParamWidgetBoardAxis::initValue()
 
 	setComboGroup();
 	setListTags();
+	//updateMappingParams();
+	//updatePlottingParams();
 }
 
 /******************************************************************************
@@ -473,8 +494,6 @@ void PVInspector::PVXmlParamWidgetBoardAxis::slotSetValues(){
   //apply modification
     node->setAttribute(QString(PVFORMAT_AXIS_NAME_STR),textName->text());
     node->setAttribute(QString(PVFORMAT_AXIS_TYPE_STR),mapPlotType->get_sel_type());
-    node->setAttribute(QString(PVFORMAT_AXIS_MAPPING_STR),comboMapping->get_mode());
-    node->setAttribute(QString(PVFORMAT_AXIS_PLOTTING_STR),comboPlotting->get_mode());
     node->setAttribute(QString(PVFORMAT_AXIS_TIMEFORMAT_STR),timeFormat->getVal().toString());
     node->setAttribute(QString(PVFORMAT_AXIS_TIMESAMPLE_STR),timeSample->getVal().toString());
     node->setAttribute(QString(PVFORMAT_AXIS_GROUP_STR),group->val().toString());
@@ -483,6 +502,28 @@ void PVInspector::PVXmlParamWidgetBoardAxis::slotSetValues(){
     node->setAttribute(QString(PVFORMAT_AXIS_TAG_STR),listTags->selectedList().join(QString(QChar(PVFORMAT_TAGS_SEP))));
    
     emit signalRefreshView();
+}
+
+void PVInspector::PVXmlParamWidgetBoardAxis::slotSetParamsMapping()
+{
+	QString mode = comboMapping->get_mode();
+	Picviz::PVMappingFilter::p_type lib_filter = get_mapping_lib_filter();
+	if (!lib_filter) {
+		return;
+	}
+	_args_map_mode[*lib_filter] = _args_mapping;
+	node->setMappingProperties(mode, lib_filter->get_default_args(), _args_mapping);
+}
+
+void PVInspector::PVXmlParamWidgetBoardAxis::slotSetParamsPlotting()
+{
+	QString mode = comboPlotting->get_mode();
+	Picviz::PVPlottingFilter::p_type lib_filter = get_plotting_lib_filter();
+	if (!lib_filter) {
+		return;
+	}
+	_args_plot_mode[*lib_filter] = _args_plotting;
+	node->setPlottingProperties(mode, lib_filter->get_default_args(), _args_plotting);
 }
 
 
@@ -567,8 +608,9 @@ void PVInspector::PVXmlParamWidgetBoardAxis::slotSetVisibleTimeValid(bool flag){
 void PVInspector::PVXmlParamWidgetBoardAxis::updatePlotMapping(const QString& t)
 {
 	if (t.length() > 1) {
+		QString type = mapPlotType->get_sel_type();
 		comboMapping->clear();
-		comboMapping->populate_from_type(mapPlotType->get_sel_type());
+		comboMapping->populate_from_type(type);
 		comboMapping->select_default();
 
 		comboPlotting->clear();
@@ -594,6 +636,64 @@ void PVInspector::PVXmlParamWidgetBoardAxis::updatePlotMapping(const QString& t)
 			slotSetVisibleTimeValid(false);
 		}
 	}
+}
+
+Picviz::PVMappingFilter::p_type PVInspector::PVXmlParamWidgetBoardAxis::get_mapping_lib_filter()
+{
+	Picviz::PVMappingFilter::p_type lib_filter;
+	QString mode = comboMapping->get_mode();
+	if (!mode.isEmpty()) {
+		lib_filter = LIB_CLASS(Picviz::PVMappingFilter)::get().get_class_by_name(mapPlotType->get_sel_type() + "_" + mode);
+	}
+
+	return lib_filter;
+}
+
+Picviz::PVPlottingFilter::p_type PVInspector::PVXmlParamWidgetBoardAxis::get_plotting_lib_filter()
+{
+	Picviz::PVPlottingFilter::p_type lib_filter;
+	QString mode = comboPlotting->get_mode();
+	if (!mode.isEmpty()) {
+		lib_filter = LIB_CLASS(Picviz::PVPlottingFilter)::get().get_class_by_name(mapPlotType->get_sel_type() + "_" + mode);
+	}
+
+	return lib_filter;
+}
+
+void PVInspector::PVXmlParamWidgetBoardAxis::updateMappingParams()
+{
+	_args_mapping.clear();
+	Picviz::PVMappingFilter::p_type lib_filter = get_mapping_lib_filter();
+	if (!lib_filter) {
+		return;
+	}
+	std::map<Picviz::PVMappingFilter::base_registrable, PVCore::PVArgumentList>::iterator it;
+	if ((it = _args_map_mode.find(*lib_filter)) != _args_map_mode.end()) {
+		_args_mapping = it->second;
+	}
+	else {
+		_args_mapping = lib_filter->get_default_args();
+	}
+	PVCore::PVArgumentList::iterator it_arg;
+	PVLOG_INFO("updateMappingParams\n");
+	for (it_arg = _args_mapping.begin(); it_arg != _args_mapping.end(); it_arg++) {
+		PVLOG_INFO("key: %s, value: %s\n", qPrintable(it_arg.key()), qPrintable(it_arg.value().toString()));
+	}
+	_params_mapping->set_args(_args_mapping);
+
+	slotSetParamsMapping();
+}
+
+void PVInspector::PVXmlParamWidgetBoardAxis::updatePlottingParams()
+{
+	QString mode = comboPlotting->get_mode();
+	Picviz::PVPlottingFilter::p_type lib_filter_plot = get_plotting_lib_filter();
+	if (!lib_filter_plot) {
+		return;
+	}
+	_args_plotting.clear();
+	//node->getPlottingProperties(lib_filter_plot->get_default_args(), _args_mapping);
+	_params_plotting->set_args(_args_plotting);
 }
 
 void PVInspector::PVXmlParamWidgetBoardAxis::setComboGroup()

@@ -12,6 +12,19 @@ static inline bool compLocal(const str_local_index& s1, const str_local_index& s
 	return strcoll(s1.first.constData(), s2.first.constData()) < 0;
 }
 
+Picviz::PVMappingFilterStringSort::PVMappingFilterStringSort(PVCore::PVArgumentList const& args):
+	PVMappingFilter()
+{
+	INIT_FILTER(PVMappingFilterStringSort, args);
+}
+
+DEFAULT_ARGS_FILTER(Picviz::PVMappingFilterStringSort)
+{
+	PVCore::PVArgumentList args;
+	args["test"] = PVCore::PVArgument(QString(""));
+	return args;
+}
+
 float* Picviz::PVMappingFilterStringSort::operator()(PVRush::PVNraw::nraw_table_line const& values)
 {
 	assert(_dest);

@@ -25,6 +25,9 @@
 #include <QTabWidget>
 #include <QCheckBox>
 
+#include <map>
+
+#include <pvkernel/core/PVArgument.h>
 #include <pvkernel/rush/PVXmlTreeNodeDom.h>
 #include <PVXmlParamWidgetEditorBox.h>
 #include <PVXmlParamTextEdit.h>
@@ -42,6 +45,7 @@
 
 namespace PVInspector{
 
+class PVArgumentListWidget;
 class PVXmlParamWidget;
 
 class PVXmlParamWidgetBoardAxis : public QWidget {
@@ -64,6 +68,8 @@ public:
 	void checkMappingTimeFormat();
 	void setComboGroup();
 	void setListTags();
+	Picviz::PVMappingFilter::p_type get_mapping_lib_filter();
+	Picviz::PVPlottingFilter::p_type get_plotting_lib_filter();
     
     QStringList listType() const;
     QStringList getListTypeMapping(const QString& mType);
@@ -108,8 +114,12 @@ public:
 
 	// Mapping/plotting parameters widgets
 	QHBoxLayout* _layout_params_mp;
-	//PVArgumentListWidget* _params_mapping;
-	//PVArgumentListWidget* _params_plotting;
+	std::map<Picviz::PVMappingFilter::base_registrable, PVCore::PVArgumentList> _args_map_mode;
+	std::map<Picviz::PVPlottingFilter::base_registrable, PVCore::PVArgumentList> _args_plot_mode;
+	PVCore::PVArgumentList _args_mapping;
+	PVCore::PVArgumentList _args_plotting;
+	PVArgumentListWidget* _params_mapping;
+	PVArgumentListWidget* _params_plotting;
 
     
     QPushButton *buttonNextAxis;
@@ -131,6 +141,10 @@ public slots:
     void slotSetVisibleTimeValid(bool flag);
 	void slotAddGroup();
 	void slotShowTagHelp();
+	void updateMappingParams();
+	void updatePlottingParams();
+	void slotSetParamsMapping();
+	void slotSetParamsPlotting();
     
     signals:
     void signalRefreshView();

@@ -243,8 +243,12 @@ void PVRush::PVXmlTreeNodeDom::explore() {
     QDomElement childItem = this->xmlDomElement.firstChildElement();
 
     while (!childItem.isNull()) {
-        addChild(new PVXmlTreeNodeDom(childItem));
-        childItem = childItem.nextSiblingElement();
+		QString tag_name(childItem.tagName());
+		if (tag_name != PVFORMAT_XML_TAG_MAPPING &&
+			tag_name != PVFORMAT_XML_TAG_PLOTTING) {
+			addChild(new PVXmlTreeNodeDom(childItem));
+		}
+		childItem = childItem.nextSiblingElement();
     }
     PVLOG_DEBUG("PVRush::PVXmlTreeNodeDom::explore : end\n");
 }
@@ -642,14 +646,41 @@ bool PVRush::PVXmlTreeNodeDom::isFieldOfUrl() {
     return false;
 }
 
-
-void PVRush::PVXmlTreeNodeDom::setFromArgumentList(PVCore::PVArgumentList const& args) {
+void PVRush::PVXmlTreeNodeDom::setFromArgumentList(QDomElement& elt, PVCore::PVArgumentList const& def_args, PVCore::PVArgumentList const& args)
+{
     PVCore::PVArgumentList::const_iterator it;
     for (it = args.begin(); it != args.end(); it++) {
-        setAttribute(it.key(), PVCore::PVArgument_to_QString(it.value()), true);
+		QString key = it.key();
+		QVariant v = it.value();
+		QVariant def_v = def_args[key];
+		if (v != def_v) {
+			elt.setAttribute(key, PVCore::PVArgument_to_QString(v));
+		}
     }
 }
 
+void PVRush::PVXmlTreeNodeDom::setFromArgumentList(PVCore::PVArgumentList const& args) {
+	PVCore::PVArgumentList::const_iterator it;
+	for (it = args.begin(); it != args.end(); it++) {
+		setAttribute(it.key(), PVCore::PVArgument_to_QString(it.value()), true);
+	}
+}
+
+void PVRush::PVXmlTreeNodeDom::toArgumentList(QDomElement& elt, PVCore::PVArgumentList const& def_args, PVCore::PVArgumentList& args)
+{
+	PVCore::PVArgumentList::const_iterator it;
+	for (it = def_args.begin(); it != def_args.end(); it++) {
+		QString const& key = it.key();
+		QString v = elt.attribute(key);
+		PVCore::PVArgument vset;
+		if (v.trimmed().isEmpty()) {
+			vset = it.value();
+		} else {
+			vset = PVCore::QString_to_PVArgument(v);
+		}
+		args[key] = vset;
+	}
+}
 
 void PVRush::PVXmlTreeNodeDom::toArgumentList(PVCore::PVArgumentList const& default_args, PVCore::PVArgumentList& args) {
     PVCore::PVArgumentList::const_iterator it;
@@ -849,6 +880,98 @@ int PVRush::PVXmlTreeNodeDom::setAxesNames(QStringList const& names, int id)
 		id = getChild(ichild)->setAxesNames(names, id);
 	}
 	return id;
+}
+
+QDomElement PVRush::PVXmlTreeNodeDom::getMappingElement()
+{
+	if (type != axis) {
+		return QDomElement();
+	}
+
+	QDomNodeList elts_mapping = getDom().elementsByTagName(PVFORMAT_XML_TAG_MAPPING);
+	if (elts_mapping.size() < 1) {
+		QDomElement el_map = getDom().ownerDocument().createElement(PVFORMAT_XML_TAG_MAPPING);
+		getDom().appendChild(el_map);
+		return el_map;
+	}
+
+	return elts_mapping.at(0).toElement();
+}
+
+QDomElement PVRush::PVXmlTreeNodeDom::getPlottingElement()
+{
+	if (type != axis) {
+		return QDomElement();
+	}
+
+	QDomNodeList elts_mapping = getDom().elementsByTagName(PVFORMAT_XML_TAG_PLOTTING);
+	if (elts_mapping.size() < 1) {
+		QDomElement el_map = getDom().ownerDocument().createElement(PVFORMAT_XML_TAG_PLOTTING);
+		getDom().appendChild(el_map);
+		return el_map;
+	}
+
+	return elts_mapping.at(0).toElement();
+}
+
+QString PVRush::PVXmlTreeNodeDom::getMappingProperties(PVCore::PVArgumentList const& def_args, PVCore::PVArgumentList& args)
+{
+	QDomElement elt = getMappingElement();
+	if (elt.isNull()) {
+		return QString();
+	}
+
+	toArgumentList(elt, def_args, args);
+
+	return elt.attribute(PVFORMAT_MAP_PLOT_MODE_STR);
+}
+
+QString PVRush::PVXmlTreeNodeDom::getPlottingProperties(PVCore::PVArgumentList const& def_args, PVCore::PVArgumentList& args)
+{
+	QDomElement elt = getPlottingElement();
+	if (elt.isNull()) {
+		return QString();
+	}
+
+	toArgumentList(elt, def_args, args);
+
+	return elt.attribute(PVFORMAT_MAP_PLOT_MODE_STR);
+}
+
+void PVRush::PVXmlTreeNodeDom::deleteAllAttributes(QDomElement& elt)
+{
+	QDomNamedNodeMap map_attrs = elt.attributes();
+	for (int i = 0; i < map_attrs.size(); i++) {
+		elt.removeAttribute(map_attrs.item(i).toAttr().name());
+	}
+}
+
+void PVRush::PVXmlTreeNodeDom::setMappingProperties(QString const& mode, PVCore::PVArgumentList const& def_args, PVCore::PVArgumentList const& args)
+{
+	if (type != axis) {
+		return;
+	}
+	QDomElement elt_mapping = getMappingElement();
+	if (elt_mapping.isNull()) {
+		return;
+	}
+	deleteAllAttributes(elt_mapping);
+	setFromArgumentList(elt_mapping, def_args, args);
+	elt_mapping.setAttribute(PVFORMAT_MAP_PLOT_MODE_STR, mode);
+}
+
+void PVRush::PVXmlTreeNodeDom::setPlottingProperties(QString const& mode, PVCore::PVArgumentList const& def_args, PVCore::PVArgumentList const& args)
+{
+	if (type != axis) {
+		return;
+	}
+	QDomElement elt_plotting = getPlottingElement();
+	if (elt_plotting.isNull()) {
+		return;
+	}
+	deleteAllAttributes(elt_plotting);
+	setFromArgumentList(elt_plotting, def_args, args);
+	elt_plotting.setAttribute(PVFORMAT_MAP_PLOT_MODE_STR, mode);
 }
 
 void PVRush::PVXmlTreeNodeDom::getGroupsByType(types_groups_t& grps)

@@ -1,18 +1,20 @@
 #include "PVPlottingFilterFloatIGR.h"
-
+#define RANGE 3.0f
 
 float Picviz::PVPlottingFilterFloatIGR::operator()(float f)
 {
 	float ret = f;
-	if (ret < -8.0) {
-		ret = -8.0;
+	if (ret < -RANGE) {
+		PVLOG_INFO("Value too low: %0.4f\n", ret);
+		ret = -RANGE;
 	}
 	else
-	if (ret > 8.0) {
-		ret = 8.0;
+	if (ret > RANGE) {
+		PVLOG_INFO("Value too high: %0.4f\n", ret);
+		ret = RANGE;
 	}
 
-	return (ret + 8.0)/16.0;
+	return (ret + RANGE)/(2*RANGE);
 }
 
 IMPL_FILTER_NOPARAM(Picviz::PVPlottingFilterFloatIGR)

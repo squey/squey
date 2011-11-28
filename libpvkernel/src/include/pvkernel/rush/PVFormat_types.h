@@ -47,12 +47,18 @@ typedef QHash<QString, PVRush::PVFormat> hash_formats;
 #define PVFORMAT_FILTER_TYPE_DEFAULT ""
 #define PVFORMAT_FILTER_NAME_DEFAULT ""
 
+// Mapping/plotting properties'name
+#define PVFORMAT_MAP_PLOT_MODE_STR "mode"
+#define PVFORMAT_MAP_PLOT_MODE_DEFAULT "default"
+
 // XML format tags
 #define PVFORMAT_XML_TAG_FIELD_STR "field"
 #define PVFORMAT_XML_TAG_AXIS_STR "axis"
 #define PVFORMAT_XML_TAG_SPLITTER_STR "splitter"
 #define PVFORMAT_XML_TAG_FILTER_STR "filter"
 #define PVFORMAT_XML_TAG_AXES_COMBINATION_STR "axes-combination"
+#define PVFORMAT_XML_TAG_MAPPING "mapping"
+#define PVFORMAT_XML_TAG_PLOTTING "plotting"
 
 #define PVFORMAT_TAGS_SEP ':'
 

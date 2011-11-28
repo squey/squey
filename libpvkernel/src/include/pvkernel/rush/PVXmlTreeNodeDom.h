@@ -105,8 +105,10 @@ public:
      */
     int getRow();
 
+	static void setFromArgumentList(QDomElement& elt, PVCore::PVArgumentList const& def_args, PVCore::PVArgumentList const& args);
 	void setFromArgumentList(PVCore::PVArgumentList const& args);
 	
+	static void toArgumentList(QDomElement& elt, PVCore::PVArgumentList const& def_args, PVCore::PVArgumentList& args);
 	void toArgumentList(PVCore::PVArgumentList const& default_args, PVCore::PVArgumentList& args);
 
     bool isEditable() {
@@ -116,8 +118,8 @@ public:
             return false;
         }
     }
-    
 
+	static void deleteAllAttributes(QDomElement& elt);
 
     /**
      * Setup the DomDocument reference.
@@ -241,6 +243,12 @@ public:
 	PVCol setAxesNames(QStringList const& names, PVCol id);
 
 	void getGroupsByType(types_groups_t& grps);
+
+	void setMappingProperties(QString const& mode, PVCore::PVArgumentList const& def_args, PVCore::PVArgumentList const& args);
+	QString getMappingProperties(PVCore::PVArgumentList const& def_args, PVCore::PVArgumentList& args);
+
+	void setPlottingProperties(QString const& mode, PVCore::PVArgumentList const& def_args, PVCore::PVArgumentList const& args);
+	QString getPlottingProperties(PVCore::PVArgumentList const& def_args, PVCore::PVArgumentList& args);
     
 private:
     QDomDocument xmlFile;
@@ -290,6 +298,10 @@ private:
 	// it means that it has children !
 	// TODO: list the ids of the children, so that they will be selected !
 	ssize_t _field_linear_id;
+
+private:
+	QDomElement getMappingElement();
+	QDomElement getPlottingElement();
     
 public slots:
     void slot_update()

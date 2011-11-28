@@ -26,7 +26,7 @@ Picviz::PVMappingFilterTimeDefault::PVMappingFilterTimeDefault(PVCore::PVArgumen
 DEFAULT_ARGS_FILTER(Picviz::PVMappingFilterTimeDefault)
 {
 	PVCore::PVArgumentList args;
-	args["time-format"] = PVCore::PVArgument(QString(""));
+	args["time-format"] = PVCore::PVArgument(QString("blabla"));
 	return args;
 }
 
