@@ -1,7 +1,8 @@
 #include <pvkernel/core/PVArgument.h>
+#include <pvkernel/core/PVTimeFormatType.h>
 #include <QStringList>
 #include <QRect>
-
+#include <QMetaType>
 
 // Inspired from QSettingsPrivate functions !
 
@@ -34,8 +35,9 @@ static QStringList splitArgs(const QString &s, int idx)
 QString PVCore::PVArgument_to_QString(const PVArgument &v)
 {
 	QString result;
+	int vtype = v.userType();
 
-	switch (v.type()) {
+	switch (vtype) {
 		case QVariant::Invalid:
 			result = QLatin1String("@Invalid()");
 			break;
@@ -111,6 +113,11 @@ QString PVCore::PVArgument_to_QString(const PVArgument &v)
 
 		default:
 		{
+			if (vtype == qMetaTypeId<PVCore::PVTimeFormatType>()) {
+				result = QLatin1String("@PVTimeFormat(") + v.value<PVCore::PVTimeFormatType>().join("\n") + QLatin1String(")");
+				break;
+			}
+
 #ifndef QT_NO_DATASTREAM
 			QByteArray a;
 			{
@@ -166,6 +173,12 @@ PVCore::PVArgument PVCore::QString_to_PVArgument(const QString &s)
 				if (args.size() == 2)
 					return QVariant(QPoint(args[0].toInt(), args[1].toInt()));
 #endif
+			} else if (s.startsWith(QLatin1String("@PVTimeFormat("))) {
+				QVariant ret;
+				if (s.size() >= 14) {
+					ret.setValue<PVCore::PVTimeFormatType>(PVCore::PVTimeFormatType(s.mid(14, s.size()-15).split("\n")));
+				}
+				return ret;
 			} else if (s == QLatin1String("@Invalid()")) {
 				return QVariant();
 			}
@@ -182,6 +195,11 @@ void PVCore::dump_argument_list(PVArgumentList const& l)
 {
 	PVCore::PVArgumentList::const_iterator it;
 	for (it = l.begin(); it != l.end(); it++) {
-		PVLOG_DEBUG("%s = %s (%s)\n", qPrintable(it.key()), qPrintable(it.value().toString()), qPrintable(PVArgument_to_QString(it.value())));
+		PVLOG_DEBUG("%s = %s (%s)\n", qPrintable(it.key().key()), qPrintable(it.value().toString()), qPrintable(PVArgument_to_QString(it.value())));
 	}
+}
+
+unsigned int qHash(PVCore::PVArgumentKey const& key)
+{
+	return qHash(key.key());
 }

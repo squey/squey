@@ -210,7 +210,7 @@ bool PVRush::PVFormatVersion::_rec_3to4(QDomElement elt)
 		QDomElement elt_mapping = elt.ownerDocument().createElement(PVFORMAT_XML_TAG_MAPPING);
 		elt_mapping.setAttribute(PVFORMAT_MAP_PLOT_MODE_STR, mapping);
 		if (type == "time") {
-			elt_mapping.setAttribute("time-format", elt.attribute("time-format", ""));
+			elt_mapping.setAttribute("time-format", QLatin1String("@PVTimeFormat(") + elt.attribute("time-format", "") + QLatin1String(")"));
 			elt.removeAttribute("time-format");
 		}
 		elt.appendChild(elt_mapping);

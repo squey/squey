@@ -14,8 +14,37 @@
 
 namespace PVCore {
 
-typedef QVariant                     PVArgument;
-typedef QHash<QString,PVArgument>    PVArgumentList;
+class PVArgumentKey: public QString
+{
+public:
+	PVArgumentKey(QString const& key, QString const& desc = QString()):
+		QString(key),
+		_desc(desc)
+	{
+		if (desc.isNull()) {
+			_desc = *this;
+		}
+	}
+	PVArgumentKey(const char* key):
+		QString(key),
+		_desc(key)
+	{ }
+
+	QString const& key() const { return *((QString*)this); }
+	QString const& desc() const { return _desc; }
+
+private:
+	QString _desc;
+};
+
+}
+
+unsigned int qHash(PVCore::PVArgumentKey const& key);
+
+namespace PVCore {
+
+typedef QVariant                           PVArgument;
+typedef QHash<PVArgumentKey,PVArgument>    PVArgumentList;
 
 LibKernelDecl QString PVArgument_to_QString(PVArgument const& v);
 LibKernelDecl PVArgument QString_to_PVArgument(QString const& v);
@@ -23,5 +52,6 @@ LibKernelDecl PVArgument QString_to_PVArgument(QString const& v);
 LibKernelDecl void dump_argument_list(PVArgumentList const& l);
 
 }
+
 
 #endif

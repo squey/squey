@@ -1,6 +1,7 @@
 #include "PVMappingFilterTimeDefault.h"
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/core/PVDateTimeParser.h>
+#include <pvkernel/core/PVTimeFormatType.h>
 #include <pvkernel/core/stdint.h>
 
 #include <QStringList>
@@ -26,7 +27,8 @@ Picviz::PVMappingFilterTimeDefault::PVMappingFilterTimeDefault(PVCore::PVArgumen
 DEFAULT_ARGS_FILTER(Picviz::PVMappingFilterTimeDefault)
 {
 	PVCore::PVArgumentList args;
-	args["time-format"] = PVCore::PVArgument(QString(""));
+	PVCore::PVTimeFormatType tf;
+	args[PVCore::PVArgumentKey("time-format", "Format of the time strings")].setValue(tf);
 	return args;
 }
 
@@ -45,12 +47,12 @@ float* Picviz::PVMappingFilterTimeDefault::operator()(PVRush::PVNraw::nraw_table
 	PVCore::PVDateTimeParser **dtparsers = new PVCore::PVDateTimeParser*[max_threads];
 	tbb::tick_count start_alloc = tbb::tick_count::now();
 	PVRush::PVAxisFormat const& axis = _format->get_axes().at(_cur_col);
-	QString time_format = axis.get_args_mapping()["time-format"].toString();
+	QStringList time_format(axis.get_args_mapping()["time-format"].value<PVCore::PVTimeFormatType>());
 	for (int i = 0; i < max_threads; i++) {
 		UErrorCode err = U_ZERO_ERROR;
 		cals[i] = Calendar::createInstance(err);
 		//dtparsers[i] = new PVCore::PVDateTimeParser(_format->time_format[_cur_col+1]);
-		dtparsers[i] = new PVCore::PVDateTimeParser(QStringList() << time_format);
+		dtparsers[i] = new PVCore::PVDateTimeParser(time_format);
 	}
 	tbb::tick_count end_alloc = tbb::tick_count::now();
 	PVLOG_DEBUG("(PVMappingFilterTimeDefault::operator()) object creations took %0.4fs.\n", (end_alloc-start_alloc).seconds());

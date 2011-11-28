@@ -21,6 +21,7 @@
 #include <pvkernel/core/PVCheckBoxType.h>
 #include <pvkernel/core/PVEnumType.h>
 #include <pvkernel/core/PVColorGradientDualSliderType.h>
+#include <pvkernel/core/PVTimeFormatType.h>
 
 #include <picviz/PVView_types.h>
 
@@ -36,6 +37,7 @@
 #include <PVColorGradientDualSliderEditor.h>
 #include <PVSpinBoxEditor.h>
 #include <PVAxisIndexCheckBoxEditor.h>
+#include <PVTimeFormatEditor.h>
 
 static void clearLayout(QLayout* layout)
 {
@@ -113,7 +115,7 @@ void PVInspector::PVArgumentListWidget::set_args(PVCore::PVArgumentList& args)
 	for (it = args.begin(); it != args.end(); it++) {
 		QVariant::Type vtype = (QVariant::Type) it.value().userType();
 		QWidget* widget = _args_widget_factory->createEditor(vtype, this);
-		QLabel* label = new QLabel(it.key());
+		QLabel* label = new QLabel(it.key().desc());
 		label->setBuddy(widget);
 		_args_layout->addWidget(label, row, 0);
 		_args_layout->addWidget(widget, row, 1);
@@ -168,9 +170,9 @@ QItemEditorFactory* PVInspector::PVArgumentListWidget::create_mapping_plotting_w
 
 	QItemEditorFactory* args_widget_factory = new QItemEditorFactory();
 
-	QItemEditorCreatorBase* textline_creator = new QItemEditorCreator<QLineEdit>("text");
+	QItemEditorCreatorBase* timeformat_creator = new QItemEditorCreator<PVTimeFormatEditor>("time_formats");
 
-	args_widget_factory->registerEditor(QVariant::String, textline_creator);
+	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVTimeFormatType>(), timeformat_creator);
 
 	return args_widget_factory;
 }
