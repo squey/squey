@@ -19,17 +19,12 @@ namespace PVCore {
 class PVSerializeArchive;
 typedef boost::shared_ptr<PVSerializeArchive> PVSerializeArchive_p;
 
-class LibKernelDecl PVSerializeObjectFileError
+class LibKernelDecl PVSerializeObjectFileError: public PVSerializeArchiveError 
 {
 public:
-	PVSerializeObjectFileError(QFile const& file)
-	{
-		_msg = QString("Error with file '%1': %2 (%3)").arg(file.fileName()).arg(file.errorString()).arg(file.error());
-	}
-
-	QString const& what() const { return _msg; }
-protected:
-	QString _msg;
+	PVSerializeObjectFileError(QFile const& file):
+		PVSerializeArchiveError(QString("Error with file '%1': %2 (%3)").arg(file.fileName()).arg(file.errorString()).arg(file.error()))
+	{ }
 };
 
 class LibKernelDecl PVSerializeObject: public boost::enable_shared_from_this<PVSerializeObject>

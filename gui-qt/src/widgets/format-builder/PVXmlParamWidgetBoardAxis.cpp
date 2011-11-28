@@ -22,7 +22,6 @@ PVInspector::PVXmlParamWidgetBoardAxis::PVXmlParamWidgetBoardAxis(PVRush::PVXmlT
 	_parent(parent)
 {
     node = pNode;
-    pluginListURL = picviz_plugins_get_functions_dir();
     setObjectName("PVXmlParamWidgetBoardAxis");
 
     allocBoardFields();
@@ -88,7 +87,6 @@ void PVInspector::PVXmlParamWidgetBoardAxis::allocBoardFields(){
     //slotSetVisibleExtra(false);
 	
 	_layout_params_mp = new QHBoxLayout();
-	//_params_mapping = new PVArgumentListWidget();
     
     //button next
     buttonNextAxis = new QPushButton(tr("Next"));
@@ -325,7 +323,6 @@ void PVInspector::PVXmlParamWidgetBoardAxis::initConnexion() {
  *****************************************************************************/
 void PVInspector::PVXmlParamWidgetBoardAxis::initValue()
 {
-	QDir dir(pluginListURL);
     //init of combos
     
     //type ...  auto select and default value
@@ -342,7 +339,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::initValue()
 		node_mapping = PVFORMAT_AXIS_MAPPING_DEFAULT;
 	}
 	comboMapping->set_mode(node_mapping);
-
+	
 	QString node_plotting = node->attribute(PVFORMAT_AXIS_PLOTTING_STR);
     if (node_plotting.isEmpty()) {
 		node_plotting = PVFORMAT_AXIS_PLOTTING_DEFAULT;

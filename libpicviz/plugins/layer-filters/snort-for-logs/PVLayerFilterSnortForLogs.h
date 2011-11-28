@@ -23,6 +23,7 @@ private:
 	boost::python::dict _python_own_namespace;
 	PyThreadState* _python_thread;
 	boost::python::list snort_rules;
+	int rules_number;
 public:
 	PVLayerFilterSnortForLogs(PVCore::PVArgumentList const& l = PVLayerFilterSnortForLogs::default_args());
 public:

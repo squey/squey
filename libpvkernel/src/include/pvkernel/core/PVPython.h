@@ -8,6 +8,8 @@
 
 #include <pvkernel/core/general.h>
 
+#include <QString>
+
 namespace PVCore {
 class LibKernelDecl PVPythonInitializer
 {
@@ -44,6 +46,10 @@ private:
 private:
 	PyGILState_STATE _state;
 };
+
+namespace PVPython {
+	QString get_list_index_as_qstring(boost::python::list pylist, int index);
+}
 
 }
 

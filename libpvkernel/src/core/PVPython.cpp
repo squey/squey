@@ -24,3 +24,16 @@ PVCore::PVPythonInitializer& PVCore::PVPythonInitializer::get()
 	return PVPyInit;
 }
 
+QString PVCore::PVPython::get_list_index_as_qstring(boost::python::list pylist, int index)
+{
+	boost::python::extract<const char*> extract_str(pylist[index]);
+	QString value;
+	if (extract_str.check()) {
+		value = QString::fromUtf8(extract_str());
+	} else {
+		PVLOG_DEBUG("%s returning an empty string!\n", __FUNCTION__);
+		value = QString("");
+	}	
+
+	return value;
+}

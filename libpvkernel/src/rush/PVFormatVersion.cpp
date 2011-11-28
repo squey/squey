@@ -166,8 +166,8 @@ bool PVRush::PVFormatVersion::_rec_2to3(QDomElement elt)
 	if (tag_name == "axis") {
 		QString plotting = elt.attribute("plotting", "");
 		QString type = elt.attribute("type", "");
-		if (type != "time" && plotting == "minmax") {
-			// minmax is now default. if default was not minmax, it was only relevant for the time
+		if (type != "time" && type != "ipv4" && plotting == "minmax") {
+			// minmax is now default. if default was not minmax, it was only relevant for the time and ipv4
 			elt.setAttribute(PVFORMAT_AXIS_PLOTTING_STR, "default");
 		}
 	}
