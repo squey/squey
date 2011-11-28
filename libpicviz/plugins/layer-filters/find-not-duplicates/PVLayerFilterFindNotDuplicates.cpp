@@ -20,7 +20,6 @@ Picviz::PVLayerFilterFindNotDuplicates::PVLayerFilterFindNotDuplicates(PVCore::P
 	: PVLayerFilter(l)
 {
 	INIT_FILTER(PVLayerFilterFindNotDuplicates, l);
-	add_ctxt_menu_entry("Find duplicates for this value", &PVLayerFilterFindNotDuplicates::search_value_menu);
 }
 
 /******************************************************************************
@@ -31,7 +30,7 @@ Picviz::PVLayerFilterFindNotDuplicates::PVLayerFilterFindNotDuplicates(PVCore::P
 DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterFindNotDuplicates)
 {
 	PVCore::PVArgumentList args;
-	args["Axis"].setValue(PVCore::PVAxisIndexType(0));
+	args[PVCore::PVArgumentKey("axis", QObject::tr("Axis")].setValue(PVCore::PVAxisIndexType(0));
 	return args;
 }
 
@@ -42,7 +41,7 @@ DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterFindNotDuplicates)
  *****************************************************************************/
 void Picviz::PVLayerFilterFindNotDuplicates::operator()(PVLayer& in, PVLayer &out)
 {	
-	int axis_id = _args["Axis"].value<PVCore::PVAxisIndexType>().get_original_index();
+	int axis_id = _args["axis"].value<PVCore::PVAxisIndexType>().get_original_index();
 	PVRow nb_lines = _view->get_qtnraw_parent().size();
 
 	PVRush::PVNraw::nraw_table const& nraw = _view->get_qtnraw_parent();
@@ -86,19 +85,6 @@ void Picviz::PVLayerFilterFindNotDuplicates::operator()(PVLayer& in, PVLayer &ou
 		}
 	}
 
-}
-
-/******************************************************************************
- *
- * Picviz::PVLayerFilterFindNotDuplicates::search_value_menu
- *
- *****************************************************************************/
-PVCore::PVArgumentList Picviz::PVLayerFilterFindNotDuplicates::search_value_menu(PVRow row, PVCol col, QString const& v)
-{
-	PVCore::PVArgumentList args = default_args();
-	args["Regular expression"] = QRegExp(QRegExp::escape(v));
-	args["Axis"].setValue(PVCore::PVAxisIndexType(col));
-	return args;
 }
 
 IMPL_FILTER(Picviz::PVLayerFilterFindNotDuplicates)
