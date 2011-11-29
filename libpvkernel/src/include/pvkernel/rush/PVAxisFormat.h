@@ -26,16 +26,6 @@
 #include <pvkernel/core/PVListFastCmp.h>
 #include <pvkernel/rush/PVTags.h>
 
-/**
- * \class PVRush::Format
- * \defgroup Format Input Formating
- * \brief Formating a log file
- * @{
- *
- * A format is used to know how to split the input file or buffer in columns. It is based on a XML description
- * Then is then used by the normalization part.
- *
- */
 namespace PVRush {
 
 class PVXmlParamParser;

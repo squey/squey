@@ -19,6 +19,9 @@ namespace PVCore {
 class PVSerializeArchive;
 typedef boost::shared_ptr<PVSerializeArchive> PVSerializeArchive_p;
 
+/*! \brief Serialization file error
+ * Exception that is thrown when a file error has occured.
+ */
 class LibKernelDecl PVSerializeObjectFileError: public PVSerializeArchiveError 
 {
 public:
@@ -27,6 +30,10 @@ public:
 	{ }
 };
 
+/*! \brief Main serialization object
+ *
+ * This class is the main helper class used for object serialisation.
+ */
 class LibKernelDecl PVSerializeObject: public boost::enable_shared_from_this<PVSerializeObject>
 {
 	friend class PVSerializeArchive;
@@ -38,8 +45,10 @@ protected:
 	PVSerializeObject(QString const& logical_path, PVSerializeArchive_p parent_ar, p_type parent = p_type());
 
 private:
-	// Private copy-constructor, as these objects must always have been created by
-	// PVSerializeArchive::create_object
+	/*! \brief Private copy-constructor
+	 *  Private copy-constructor, as these objects must always be created by
+	 *  PVSerializeArchive::create_object
+	 */
 	PVSerializeObject(const PVSerializeObject& src);
 
 public:

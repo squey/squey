@@ -15,7 +15,7 @@
 namespace PVCore {
 
 /**
- * \struct PVColor:ubvec4
+ * \struct PVColor
  */
 struct LibKernelDecl PVColor: ubvec4 {
 

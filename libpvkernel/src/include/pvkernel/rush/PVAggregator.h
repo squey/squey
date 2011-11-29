@@ -31,8 +31,6 @@ namespace PVRush {
  *
  * For now, each source must implement a working PVRawSourceBase::seek_begin method.
  *
- * \note AG: still lots of improvements are possible in this class. See the different TODO's !
- *
  */
 class LibKernelDecl PVAggregator {
 	friend class PVSerializeObject;
