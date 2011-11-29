@@ -10,6 +10,7 @@ class PVPlottingFilterIpv4Default: public PVPlottingFilter
 {
 public:
 	float* operator()(float* value);
+	QString get_human_name() const { return QString("Default"); }
 
 	CLASS_FILTER(PVPlottingFilterIpv4Default)
 };
