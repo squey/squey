@@ -4,6 +4,8 @@
 #include <QRect>
 #include <QMetaType>
 
+QHash<QString,QString> PVCore::PVArgumentKey::_key_desc;
+
 // Inspired from QSettingsPrivate functions !
 
 static QStringList splitArgs(const QString &s, int idx)

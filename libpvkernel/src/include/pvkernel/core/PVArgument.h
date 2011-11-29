@@ -22,19 +22,29 @@ public:
 		_desc(desc)
 	{
 		if (desc.isNull()) {
-			_desc = *this;
+			set_desc_from_key();
+		}
+		else {
+			_key_desc[key] = desc;
 		}
 	}
 	PVArgumentKey(const char* key):
-		QString(key),
-		_desc(key)
-	{ }
+		QString(key)
+	{
+		set_desc_from_key();
+	}
 
 	QString const& key() const { return *((QString*)this); }
 	QString const& desc() const { return _desc; }
 
 private:
+	void set_desc_from_key()
+	{
+		_desc = _key_desc.value(*this, *this);
+	}
+private:
 	QString _desc;
+	static QHash<QString, QString> _key_desc;
 };
 
 }

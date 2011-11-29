@@ -672,7 +672,6 @@ void PVRush::PVXmlTreeNodeDom::toArgumentList(QDomElement& elt, PVCore::PVArgume
 	for (int i = 0; i < attrs.size(); i++) {
 		QDomAttr a = attrs.item(i).toAttr();
 		QString key(a.name());
-		PVLOG_INFO("(PVXmlTreeNodeDom::toArgumentList) %s | %s\n", qPrintable(key), qPrintable(a.value()));
 		args[key] = PVCore::QString_to_PVArgument(a.value());
 	}
 }

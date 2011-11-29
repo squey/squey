@@ -212,22 +212,12 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id, QVector<ui
 			}
 
 			// Mapping and plotting parameters
-			PVLOG_INFO("For axis %s:\n", qPrintable(axis.get_name()));
 			QString mode;
 			PVCore::PVArgumentList args = getMapPlotParameters(child, PVFORMAT_XML_TAG_MAPPING, mode);
 			axis.set_mapping(mode);
 			axis.set_args_mapping(args);
-			PVLOG_INFO("Mapping args:\n");
-			PVCore::PVArgumentList::const_iterator it;
-			for (it = args.begin(); it != args.end(); it++) {
-				PVLOG_INFO("key: %s | value: %s\n", qPrintable(it.key()), qPrintable(it.value().toString()));
-			}
-			PVLOG_INFO("Plotting args:\n");
 			args = getMapPlotParameters(child, PVFORMAT_XML_TAG_PLOTTING, mode);
 			axis.set_plotting(mode);
-			for (it = args.begin(); it != args.end(); it++) {
-				PVLOG_INFO("key: %s | value: %s\n", qPrintable(it.key()), qPrintable(it.value().toString()));
-			}
 			axis.set_args_plotting(args);
 			_axes.push_back(axis);
 

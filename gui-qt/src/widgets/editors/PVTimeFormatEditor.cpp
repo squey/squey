@@ -19,7 +19,7 @@ PVInspector::PVTimeFormatEditor::PVTimeFormatEditor(QWidget *parent):
 
 	_help_btn = new QPushButton(QIcon(":/help"), tr("Help"));
 
-	QHBoxLayout* main_layout = new QHBoxLayout();
+	QVBoxLayout* main_layout = new QVBoxLayout();
 	main_layout->addWidget(_text_edit);
 	main_layout->addWidget(_help_btn);
 
@@ -68,6 +68,10 @@ PVInspector::PVTimeFormatHelpDlg::PVTimeFormatHelpDlg(PVTimeFormatEditor* editor
 	update_tf_from_editor();
 
 	_ts_validate = new QTextEdit();
+
+	QFontMetrics m(_tfs_edit->font());
+	_tfs_edit->setFixedHeight(6*m.lineSpacing());
+	_ts_validate->setFixedHeight(6*m.lineSpacing());
 
 	_validator_hl = new PVTimeValidatorHighLight(_ts_validate);
 	_validate_btn = new QPushButton(tr("Validate..."));

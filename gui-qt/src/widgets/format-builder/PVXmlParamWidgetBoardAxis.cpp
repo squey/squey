@@ -79,8 +79,13 @@ void PVInspector::PVXmlParamWidgetBoardAxis::allocBoardFields(){
 	_params_mapping = new PVArgumentListWidget(PVArgumentListWidget::create_mapping_plotting_widget_factory(), this);
 	_params_plotting = new PVArgumentListWidget(PVArgumentListWidget::create_mapping_plotting_widget_factory(), this);
 
+	QSizePolicy grp_params_policy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+	grp_params_policy.setHorizontalStretch(1);
 	_grp_mapping = new QGroupBox(tr("Mapping properties"));
 	_grp_plotting = new QGroupBox(tr("Plotting properties"));
+	_params_mapping->setSizePolicy(grp_params_policy);
+	_params_mapping->setSizePolicy(grp_params_policy);
+	_params_plotting->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 	QVBoxLayout* tmp_layout = new QVBoxLayout();
 	tmp_layout->addWidget(_params_mapping);
 	_grp_mapping->setLayout(tmp_layout);
@@ -518,11 +523,6 @@ void PVInspector::PVXmlParamWidgetBoardAxis::updateMappingParams()
 	else {
 		_args_mapping = lib_filter->get_default_args();
 	}
-	PVCore::PVArgumentList::iterator it_arg;
-	PVLOG_INFO("updateMappingParams\n");
-	for (it_arg = _args_mapping.begin(); it_arg != _args_mapping.end(); it_arg++) {
-		PVLOG_INFO("key: %s, value: %s\n", qPrintable(it_arg.key()), qPrintable(it_arg.value().toString()));
-	}
 	_params_mapping->set_args(_args_mapping);
 
 	slotSetParamsMapping();
@@ -530,14 +530,21 @@ void PVInspector::PVXmlParamWidgetBoardAxis::updateMappingParams()
 
 void PVInspector::PVXmlParamWidgetBoardAxis::updatePlottingParams()
 {
-	QString mode = comboPlotting->get_mode();
-	Picviz::PVPlottingFilter::p_type lib_filter_plot = get_plotting_lib_filter();
-	if (!lib_filter_plot) {
+	_args_plotting.clear();
+	Picviz::PVPlottingFilter::p_type lib_filter = get_plotting_lib_filter();
+	if (!lib_filter) {
 		return;
 	}
-	_args_plotting.clear();
-	//node->getPlottingProperties(lib_filter_plot->get_default_args(), _args_mapping);
+	std::map<Picviz::PVPlottingFilter::base_registrable, PVCore::PVArgumentList>::iterator it;
+	if ((it = _args_plot_mode.find(*lib_filter)) != _args_plot_mode.end()) {
+		_args_plotting = it->second;
+	}
+	else {
+		_args_plotting = lib_filter->get_default_args();
+	}
 	_params_plotting->set_args(_args_plotting);
+
+	slotSetParamsPlotting();
 }
 
 void PVInspector::PVXmlParamWidgetBoardAxis::setComboGroup()

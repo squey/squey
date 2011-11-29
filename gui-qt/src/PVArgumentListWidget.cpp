@@ -115,9 +115,9 @@ void PVInspector::PVArgumentListWidget::set_args(PVCore::PVArgumentList& args)
 	for (it = args.begin(); it != args.end(); it++) {
 		QVariant::Type vtype = (QVariant::Type) it.value().userType();
 		QWidget* widget = _args_widget_factory->createEditor(vtype, this);
-		QLabel* label = new QLabel(it.key().desc());
+		QLabel* label = new QLabel(it.key().desc() + QLatin1String(" :"));
 		label->setBuddy(widget);
-		_args_layout->addWidget(label, row, 0);
+		_args_layout->addWidget(label, row, 0, Qt::AlignRight);
 		_args_layout->addWidget(widget, row, 1);
 		_mapper->addMapping(widget, row, _args_widget_factory->valuePropertyName(vtype));
 		row++;
