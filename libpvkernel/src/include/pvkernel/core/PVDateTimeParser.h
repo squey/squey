@@ -27,6 +27,7 @@ public:
 
 public:
 	bool mapping_time_to_cal(QString const& value_, Calendar* cal);
+	QStringList const& original_time_formats() const { return _org_time_format; }
 
 private:
 	void copy(const PVDateTimeParser& src);
@@ -88,6 +89,8 @@ protected:
 
 	UnicodeString _current_year;
 	TimeFormatInterface_p _last_match_time_format;
+
+	QStringList _org_time_format;
 };
 
 }

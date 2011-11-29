@@ -40,7 +40,8 @@ void PVCore::PVDateTimeParser::destroy_tfe(TimeFormatEpoch* p)
 	_alloc_tfe.destroy(p);
 }
 
-PVCore::PVDateTimeParser::PVDateTimeParser(QStringList const& time_format)
+PVCore::PVDateTimeParser::PVDateTimeParser(QStringList const& time_format):
+	_org_time_format(time_format)
 {
 	// Compute the current year
 	// If we are very unlucky, the year can change between this constructor and the computation of the struct tm's... !
@@ -88,6 +89,7 @@ void PVCore::PVDateTimeParser::copy(const PVDateTimeParser& src)
 
 	_current_year = src._current_year;
 	_last_match_time_format = *(_time_format.begin());
+	_org_time_format = src._org_time_format;
 }
 
 bool PVCore::PVDateTimeParser::mapping_time_to_cal(QString const& value, Calendar* cal)

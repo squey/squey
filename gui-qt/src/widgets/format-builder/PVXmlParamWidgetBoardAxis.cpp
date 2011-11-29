@@ -90,6 +90,15 @@ void PVInspector::PVXmlParamWidgetBoardAxis::allocBoardFields(){
 	_layout_params_mp = new QHBoxLayout();
 	_params_mapping = new PVArgumentListWidget(PVArgumentListWidget::create_mapping_plotting_widget_factory(), this);
 	_params_plotting = new PVArgumentListWidget(PVArgumentListWidget::create_mapping_plotting_widget_factory(), this);
+
+	_grp_mapping = new QGroupBox(tr("Mapping properties"));
+	_grp_plotting = new QGroupBox(tr("Plotting properties"));
+	QVBoxLayout* tmp_layout = new QVBoxLayout();
+	tmp_layout->addWidget(_params_mapping);
+	grp_mapping->setLayout(tmp_layout);
+	tmp_layout = new QVBoxLayout();
+	tmp_layout->addWidget(_params_plotting);
+	grp_plotting->setLayout(_params_plotting);
     
     //button next
     buttonNextAxis = new QPushButton(tr("Next"));

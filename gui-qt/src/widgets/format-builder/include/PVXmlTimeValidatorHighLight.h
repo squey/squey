@@ -45,5 +45,7 @@ private:
         PVXmlParamTextEdit *aParent;
         QStringList formatStr;
 };
+
 }
+
 #endif	/* PVXMLREGVALIDATORHIGHLIGHT_H */
