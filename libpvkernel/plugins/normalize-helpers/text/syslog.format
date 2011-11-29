@@ -1,18 +1,30 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE PVParamXml>
-<param version="3">
+<param version="4">
  <splitter selectionRegExp-2="(\S+)" selectionRegExp-3="([a-zA-Z/]+)" selectionRegExp-4="(.*)" validator="" full-line="false" type="regexp" regexp="(\w+\s+\d+\s+\d+:\d+:\d+) (\S+) ([a-zA-Z/]+)\S*: (.*)" name="" saveValidator="false" selectionRegExp-1="(\w+\s+\d+\s+\d+:\d+:\d+)">
   <field>
-	  <axis titlecolor="#ffffff" mapping="24h" time-format="MMM e H:m:ss" group="" type="time" name="Time" plotting="default" color="#ffffff" time-sample="Feb 9 15:23:53" />
+   <axis titlecolor="#ffffff" group="" type="time" name="Time" color="#ffffff" time-sample="Feb 9 15:23:53">
+    <mapping mode="24h" time-format="@PVTimeFormat(MMM e H:m:ss)"/>
+    <plotting mode="default"/>
+   </axis>
   </field>
   <field>
-   <axis titlecolor="#ffffff" mapping="default" time-format="" group="" type="enum" name="Machine" plotting="default" color="#ffffff" time-sample=""/>
+   <axis titlecolor="#ffffff" time-format="" group="" type="enum" name="Machine" color="#ffffff" time-sample="">
+    <mapping mode="default"/>
+    <plotting mode="default"/>
+   </axis>
   </field>
   <field>
-   <axis titlecolor="#ffffff" mapping="default" time-format="" group="" type="enum" name="Service" plotting="default" color="#ffffff" time-sample=""/>
+   <axis titlecolor="#ffffff" time-format="" group="" type="enum" name="Service" color="#ffffff" time-sample="">
+    <mapping mode="default"/>
+    <plotting mode="default"/>
+   </axis>
   </field>
   <field>
-   <axis titlecolor="#ff921d" tag="key" mapping="default" time-format="" group="" type="string" name="Message" plotting="default" color="#ffffff" time-sample=""/>
+   <axis titlecolor="#ff921d" tag="key" time-format="" group="" type="string" name="Message" color="#ffffff" time-sample="">
+    <mapping mode="default"/>
+    <plotting mode="default"/>
+   </axis>
   </field>
  </splitter>
 </param>

@@ -23,6 +23,8 @@
 #endif
 #include <GL/gl.h>
 
+#include <pvkernel/core/general.h>
+
 #include <pvgl/PVUtils.h>
 
 /******************************************************************************
@@ -122,31 +124,31 @@ void check_framebuffer_status(void)
 	PRINT_OPENGL_ERROR ();
 	switch(status) {
 		case GL_FRAMEBUFFER_COMPLETE:
-				std::cerr << "Framebuffer complete!" << std::endl;
+			PVLOG_DEBUG("Framebuffer complete!\n");
 				break;
 		case GL_FRAMEBUFFER_UNSUPPORTED:
-				std::cerr << "Framebuffer GL_FRAMEBUFFER_UNSUPPORTED_EXT." << std::endl;
+			PVLOG_WARN("Framebuffer GL_FRAMEBUFFER_UNSUPPORTED_EXT.\n");
 				break;
 		case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
-				std::cerr << "Framebuffer INCOMPLETE_ATTACHMENT." << std::endl;
+			PVLOG_WARN("Framebuffer INCOMPLETE_ATTACHMENT.\n");
 				break;
 		case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
-				std::cerr << "Framebuffer FRAMEBUFFER_MISSING_ATTACHMENT." << std::endl;
+			PVLOG_WARN("Framebuffer FRAMEBUFFER_MISSING_ATTACHMENT.\n");
 				break;
 		case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
-				std::cerr << "Framebuffer FRAMEBUFFER_DIMENSIONS." << std::endl;
+			PVLOG_WARN("Framebuffer FRAMEBUFFER_DIMENSIONS.\n");
 				break;
 		case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
-				std::cerr << "Framebuffer INCOMPLETE_FORMATS." << std::endl;
+			PVLOG_WARN("Framebuffer INCOMPLETE_FORMATS.\n");
 				break;
 		case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
-				std::cerr << "Framebuffer INCOMPLETE_DRAW_BUFFER." << std::endl;
+			PVLOG_WARN("Framebuffer INCOMPLETE_DRAW_BUFFER.\n");
 				break;
 		case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
-				std::cerr << "Framebuffer INCOMPLETE_READ_BUFFER." << std::endl;
+			PVLOG_WARN("Framebuffer INCOMPLETE_READ_BUFFER.\n");
 				break;
 		case GL_FRAMEBUFFER_BINDING:
-				std::cerr << "Framebuffer BINDING_EXT." << std::endl;
+			PVLOG_WARN("Framebuffer BINDING_EXT.\n");
 				break;
 		default:
 				/* programming error; will fail on all hardware */
@@ -166,7 +168,7 @@ void get_gl_version(int *major, int *minor)
 	if (!version || (sscanf (reinterpret_cast<const char*>(version), "%d.%d", major, minor) != 2))
 		{
 			*major = *minor = 0;
-			std::cerr << "Invalid GL_VERSION format!!!" << std::endl;
+			PVLOG_ERROR("Invalid GL_VERSION format!!!\n");
 		}
 }
 
@@ -388,13 +390,13 @@ void fixing_glew_bugs (void)
 #ifdef MACOS
 
 #else
-	std::cout << "Fixing glew bugs" << std::endl;
+	PVLOG_INFO("Fixing glew bugs\n");
 	if (!GLEW_ARB_vertex_array_object)
 		{
-			std::cout << "Glew didn't find the GL_ARB_vertex_array_object extension!" << std::endl;
+			PVLOG_ERROR("Glew didn't find the GL_ARB_vertex_array_object extension!\n");
 			if (gl_have_extension ("GL_ARB_vertex_array_object"))
 				{
-					std::cout << "But we do!" << std::endl;
+					PVLOG_INFO("But we do!\n");
 					glBindVertexArray = (PFNGLBINDVERTEXARRAYPROC)glXGetProcAddress((const GLubyte*)"glBindVertexArray");
 					glDeleteVertexArrays = (PFNGLDELETEVERTEXARRAYSPROC)glXGetProcAddress((const GLubyte*)"glDeleteVertexArrays");
 					glGenVertexArrays = (PFNGLGENVERTEXARRAYSPROC)glXGetProcAddress((const GLubyte*)"glGenVertexArrays");
@@ -408,10 +410,10 @@ void fixing_glew_bugs (void)
 		}
 	if (!GLEW_ARB_framebuffer_object)
 		{
-			std::cout << "Glew didn't find the GL_ARB_framebuffer_object extension!" << std::endl;
+			PVLOG_ERROR("Glew didn't find the GL_ARB_framebuffer_object extension!\n");
 			if (gl_have_extension ("GL_ARB_framebuffer_object"))
 				{
-					std::cout << "But we do!" << std::endl;
+					PVLOG_INFO("But we do!\n");
 					glBindFramebuffer = (PFNGLBINDFRAMEBUFFERPROC)glXGetProcAddress((const GLubyte*)"glBindFramebuffer");
 					glBindRenderbuffer = (PFNGLBINDRENDERBUFFERPROC)glXGetProcAddress((const GLubyte*)"glBindRenderbuffer");
 					glBlitFramebuffer = (PFNGLBLITFRAMEBUFFERPROC)glXGetProcAddress((const GLubyte*)"glBlitFramebuffer");
@@ -435,7 +437,7 @@ void fixing_glew_bugs (void)
 				}
 			else
 				{
-					std::cout << "And neither we do, exiting!" << std::endl;
+					PVLOG_INFO("And neither we do, exiting!\n");
 					exit (-1);
 				}
 		}
