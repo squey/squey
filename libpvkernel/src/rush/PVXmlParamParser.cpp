@@ -119,7 +119,7 @@ QHash<int, QStringList> const& PVRush::PVXmlParamParser::getTimeFormat() const
 	return time_format;
 }
 
-PVCore::PVArgumentList PVRush::PVXmlParamParser::getMapPlotParameters(QDomElement& elt, QString const& tag)
+PVCore::PVArgumentList PVRush::PVXmlParamParser::getMapPlotParameters(QDomElement& elt, QString const& tag, QString& mode)
 {
 	PVCore::PVArgumentList args;
 	QDomNodeList list = elt.elementsByTagName(tag);
@@ -129,7 +129,13 @@ PVCore::PVArgumentList PVRush::PVXmlParamParser::getMapPlotParameters(QDomElemen
 	
 	QDomElement node = list.at(0).toElement();
 	PVRush::PVXmlTreeNodeDom::toArgumentList(node, args);
-	args.remove(PVFORMAT_MAP_PLOT_MODE_STR);
+	if (args.contains(PVFORMAT_MAP_PLOT_MODE_STR)) {
+		mode = args.take(PVFORMAT_MAP_PLOT_MODE_STR).toString();
+	}
+	else {
+		mode = PVFORMAT_MAP_PLOT_MODE_DEFAULT;
+	}
+		
 	return args;
 }
 
@@ -190,8 +196,6 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id, QVector<ui
 			PVAxisFormat axis;
 			axis.set_name(child.attribute(PVFORMAT_AXIS_NAME_STR, PVFORMAT_AXIS_NAME_DEFAULT));
 			axis.set_type(child.attribute(PVFORMAT_AXIS_TYPE_STR, PVFORMAT_AXIS_TYPE_DEFAULT));
-			axis.set_mapping(child.attribute(PVFORMAT_AXIS_MAPPING_STR, PVFORMAT_AXIS_MAPPING_DEFAULT));
-			axis.set_plotting(child.attribute(PVFORMAT_AXIS_PLOTTING_STR, PVFORMAT_AXIS_PLOTTING_DEFAULT));
 			axis.set_group(child.attribute(PVFORMAT_AXIS_GROUP_STR, PVFORMAT_AXIS_GROUP_DEFAULT));
 			axis.set_color(child.attribute(PVFORMAT_AXIS_COLOR_STR, PVFORMAT_AXIS_COLOR_DEFAULT));
 			axis.set_titlecolor(child.attribute(PVFORMAT_AXIS_TITLECOLOR_STR, PVFORMAT_AXIS_TITLECOLOR_DEFAULT));
@@ -209,7 +213,9 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id, QVector<ui
 
 			// Mapping and plotting parameters
 			PVLOG_INFO("For axis %s:\n", qPrintable(axis.get_name()));
-			PVCore::PVArgumentList args = getMapPlotParameters(child, PVFORMAT_XML_TAG_MAPPING);
+			QString mode;
+			PVCore::PVArgumentList args = getMapPlotParameters(child, PVFORMAT_XML_TAG_MAPPING, mode);
+			axis.set_mapping(mode);
 			axis.set_args_mapping(args);
 			PVLOG_INFO("Mapping args:\n");
 			PVCore::PVArgumentList::const_iterator it;
@@ -217,7 +223,8 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id, QVector<ui
 				PVLOG_INFO("key: %s | value: %s\n", qPrintable(it.key()), qPrintable(it.value().toString()));
 			}
 			PVLOG_INFO("Plotting args:\n");
-			args = getMapPlotParameters(child, PVFORMAT_XML_TAG_PLOTTING);
+			args = getMapPlotParameters(child, PVFORMAT_XML_TAG_PLOTTING, mode);
+			axis.set_plotting(mode);
 			for (it = args.begin(); it != args.end(); it++) {
 				PVLOG_INFO("key: %s | value: %s\n", qPrintable(it.key()), qPrintable(it.value().toString()));
 			}

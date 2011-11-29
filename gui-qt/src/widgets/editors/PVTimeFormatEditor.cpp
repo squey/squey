@@ -14,6 +14,9 @@ PVInspector::PVTimeFormatEditor::PVTimeFormatEditor(QWidget *parent):
 	QWidget(parent)
 {
 	_text_edit = new QTextEdit();
+	QFontMetrics m(_text_edit->font());
+	_text_edit->setFixedHeight(5*m.lineSpacing());
+
 	_help_btn = new QPushButton(QIcon(":/help"), tr("Help"));
 
 	QHBoxLayout* main_layout = new QHBoxLayout();

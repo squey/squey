@@ -64,7 +64,6 @@ public:
     void draw();
     void initConnexion();
     void initValue();
-    void setHelp();
 	void checkMappingTimeFormat();
 	void setComboGroup();
 	void setListTags();
@@ -91,12 +90,6 @@ public:
     
     //***** tab time format ***** 
     QLabel *timeFormatLabel;
-    PVXmlParamTextEdit *timeFormat;
-    PVXmlParamTextEdit *timeFormatInTab;
-    QString timeFormatStr;
-    QGroupBox * groupTimeFormatValidator;
-    QTextEdit *helpTimeFormat;
-    PVXmlParamTextEdit *timeSample;
     QCheckBox *useParentRegExpValue;
 	QPushButton* btnGroupAdd;
 	QPushButton* btnTagHelp;
@@ -120,6 +113,8 @@ public:
 	PVCore::PVArgumentList _args_plotting;
 	PVArgumentListWidget* _params_mapping;
 	PVArgumentListWidget* _params_plotting;
+	QGroupBox* _grp_mapping;
+	QGroupBox* _grp_plotting;
 
     
     QPushButton *buttonNextAxis;
@@ -136,9 +131,6 @@ public slots:
     void slotGoNextAxis();
     void slotSetValues();
     void updatePlotMapping(const QString& t) ;
-    void updateDateValidation();
-    //void slotSetVisibleExtra(bool flag);
-    void slotSetVisibleTimeValid(bool flag);
 	void slotAddGroup();
 	void slotShowTagHelp();
 	void updateMappingParams();

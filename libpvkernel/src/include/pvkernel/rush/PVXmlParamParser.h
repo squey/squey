@@ -68,7 +68,7 @@ private:
 	void parseFromRootNode(QDomElement const& node);
 	void setAxesCombinationFromRootNode(QDomElement const& node);
 	void setAxesCombinationFromString(QString const& str);
-	static PVCore::PVArgumentList getMapPlotParameters(QDomElement& elt, QString const& tag);
+	static PVCore::PVArgumentList getMapPlotParameters(QDomElement& elt, QString const& tag, QString& mode);
     
 private:
 	QList<PVXmlParamParserData> fields;
