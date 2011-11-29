@@ -13,6 +13,7 @@ public:
 	void init_expand(float min, float max);
 	float expand_plotted(float value) const;
 	QString get_human_name() const { return QString("Min/max"); }
+	bool can_expand() const { return true; }
 
 private:
 	float _expand_min;

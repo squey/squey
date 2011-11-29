@@ -9,6 +9,7 @@ plotting_filter_all_minmax
 plotting_filter_all_divide
 plotting_filter_integer_port
 plotting_filter_time_default
+plotting_filter_ipv4_default
 )
 
 set(FILTERS_DIST_FILES
@@ -30,6 +31,9 @@ target_link_libraries(plotting_filter_float_igr ${LINK_LIBRARIES})
 
 add_library(plotting_filter_all_divide SHARED all_divide/PVPlottingFilterAllDivide.cpp all_divide/register.cpp)
 target_link_libraries(plotting_filter_all_divide ${LINK_LIBRARIES})
+
+add_library(plotting_filter_ipv4_default SHARED ipv4_default/PVPlottingFilterIpv4Default.cpp ipv4_default/register.cpp)
+target_link_libraries(plotting_filter_ipv4_default ${LINK_LIBRARIES})
 
 add_library(plotting_filter_integer_port SHARED integer_port/PVPlottingFilterIntegerPort.cpp integer_port/register.cpp)
 target_link_libraries(plotting_filter_integer_port ${LINK_LIBRARIES})

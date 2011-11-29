@@ -48,12 +48,15 @@ void Picviz::PVPlottingFilter::set_mandatory_params(Picviz::mandatory_param_map 
 	_mandatory_params = &params;
 }
 
-QStringList Picviz::PVPlottingFilter::list_modes(QString const& type)
+QStringList Picviz::PVPlottingFilter::list_modes(QString const& type, bool only_expandable)
 {
 	LIB_CLASS(PVPlottingFilter)::list_classes const& pl_filters = LIB_CLASS(PVPlottingFilter)::get().get_list();
 	LIB_CLASS(PVPlottingFilter)::list_classes::const_iterator it;
 	QStringList ret;
 	for (it = pl_filters.begin(); it != pl_filters.end(); it++) {
+		if (only_expandable && !it.value()->can_expand()) {
+			continue;
+		}
 		QString const& name = it.key();
 		QStringList params = name.split('_');
 		if (params[0].compare(type) == 0) {

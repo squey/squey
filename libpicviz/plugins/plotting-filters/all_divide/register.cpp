@@ -16,8 +16,8 @@ LibCPPExport void register_class()
 	//args["factor"] = QVariant((float)65535);
 	//REGISTER_CLASS_WITH_ARGS("integer_default", Picviz::PVPlottingFilterAllDivide, args);
 
-	args["factor"] = QVariant((float)PICVIZ_IPV4_MAXVAL);
-	REGISTER_CLASS_WITH_ARGS("ipv4_default", Picviz::PVPlottingFilterAllDivide, args);
+	//args["factor"] = QVariant((float)PICVIZ_IPV4_MAXVAL);
+	//REGISTER_CLASS_WITH_ARGS("ipv4_default", Picviz::PVPlottingFilterAllDivide, args);
 
 	//args["factor"] = QVariant((float)PICVIZ_MAXFLOAT);
 	//REGISTER_CLASS_WITH_ARGS("float_default", Picviz::PVPlottingFilterAllDivide, args);

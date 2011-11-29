@@ -21,7 +21,6 @@ Picviz::PVMappingFilterStringSort::PVMappingFilterStringSort(PVCore::PVArgumentL
 DEFAULT_ARGS_FILTER(Picviz::PVMappingFilterStringSort)
 {
 	PVCore::PVArgumentList args;
-	args["test"] = PVCore::PVArgument(QString(""));
 	return args;
 }
 

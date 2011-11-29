@@ -36,8 +36,10 @@ public:
 	virtual float expand_plotted(float value) const { return value; }
 
 	virtual QString get_human_name() const;
+
+	virtual bool can_expand() const { return false; }
 public:
-	static QStringList list_modes(QString const& type);
+	static QStringList list_modes(QString const& type, bool only_expandable = false);
 protected:
 	QString _mapping_mode;
 	PVRow _dest_size;
