@@ -23,6 +23,8 @@
 #endif
 #include <GL/gl.h>
 
+#include <pvkernel/core/general.h>
+
 #include <pvgl/PVUtils.h>
 
 /******************************************************************************
@@ -125,28 +127,28 @@ void check_framebuffer_status(void)
 			PVLOG_DEBUG("Framebuffer complete!\n");
 				break;
 		case GL_FRAMEBUFFER_UNSUPPORTED:
-			PVLOG_WARNING("Framebuffer GL_FRAMEBUFFER_UNSUPPORTED_EXT.\n");
+			PVLOG_WARN("Framebuffer GL_FRAMEBUFFER_UNSUPPORTED_EXT.\n");
 				break;
 		case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
-			PVLOG_WARNING("Framebuffer INCOMPLETE_ATTACHMENT.\n");
+			PVLOG_WARN("Framebuffer INCOMPLETE_ATTACHMENT.\n");
 				break;
 		case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
-			PVLOG_WARNING("Framebuffer FRAMEBUFFER_MISSING_ATTACHMENT.\n");
+			PVLOG_WARN("Framebuffer FRAMEBUFFER_MISSING_ATTACHMENT.\n");
 				break;
 		case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
-			PVLOG_WARNING("Framebuffer FRAMEBUFFER_DIMENSIONS.\n");
+			PVLOG_WARN("Framebuffer FRAMEBUFFER_DIMENSIONS.\n");
 				break;
 		case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
-			PVLOG_WARNING("Framebuffer INCOMPLETE_FORMATS.\n");
+			PVLOG_WARN("Framebuffer INCOMPLETE_FORMATS.\n");
 				break;
 		case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
-			PVLOG_WARNING("Framebuffer INCOMPLETE_DRAW_BUFFER.\n");
+			PVLOG_WARN("Framebuffer INCOMPLETE_DRAW_BUFFER.\n");
 				break;
 		case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
-			PVLOG_WARNING("Framebuffer INCOMPLETE_READ_BUFFER.\n");
+			PVLOG_WARN("Framebuffer INCOMPLETE_READ_BUFFER.\n");
 				break;
 		case GL_FRAMEBUFFER_BINDING:
-			PVLOG_WARNING("Framebuffer BINDING_EXT.\n");
+			PVLOG_WARN("Framebuffer BINDING_EXT.\n");
 				break;
 		default:
 				/* programming error; will fail on all hardware */
