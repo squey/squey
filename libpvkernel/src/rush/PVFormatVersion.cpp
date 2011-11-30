@@ -204,7 +204,6 @@ bool PVRush::PVFormatVersion::_rec_3to4(QDomNode node)
 {
 	if (node.isElement()) {
 		QDomElement elt = node.toElement();
-		PVLOG_INFO("Element tag name: %s\n", qPrintable(elt.tagName()));
 		if (elt.tagName() == "axis") {
 			QString mapping = elt.attribute("mapping", "");
 			QString plotting = elt.attribute("plotting", "");

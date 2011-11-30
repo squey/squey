@@ -11,7 +11,7 @@ float* Picviz::PVPlottingFilterIpv4Default::operator()(float* values)
 	int64_t size = _dest_size;
 #pragma omp parallel for
 	for (int64_t i = 0; i < size; i++) {
-		_dest[i] = values[i] / 65535.0;
+		_dest[i] = values[i] / PICVIZ_IPV4_MAXVAL;
 	}
 
 	return _dest;
