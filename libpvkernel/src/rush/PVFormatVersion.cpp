@@ -75,7 +75,7 @@ bool PVRush::PVFormatVersion::from2to3(QDomDocument& doc)
 
 bool PVRush::PVFormatVersion::from3to4(QDomDocument& doc)
 {
-	return _rec_3to4(doc.documentElement());
+	return _rec_3to4(doc);
 }
 
 bool PVRush::PVFormatVersion::_rec_0to1(QDomElement elt)
@@ -200,10 +200,11 @@ bool PVRush::PVFormatVersion::_rec_2to3(QDomElement elt)
 	return true;
 }
 
-bool PVRush::PVFormatVersion::_rec_3to4(QDomElement elt)
+bool PVRush::PVFormatVersion::_rec_3to4(QDomDocument& doc)
 {
-	QString const& tag_name = elt.tagName();
-	if (tag_name == "axis") {
+	QDomElement doc_elt = doc.documentElement();
+	QDomElement elt = doc_elt.firstChildElement("axis");
+	while (!elt.isNull()) {
 		QString mapping = elt.attribute("mapping", "");
 		QString plotting = elt.attribute("plotting", "");
 		QString type = elt.attribute("type", "");
@@ -221,14 +222,10 @@ bool PVRush::PVFormatVersion::_rec_3to4(QDomElement elt)
 
 		elt.removeAttribute("mapping");
 		elt.removeAttribute("plotting");
+
+		elt = doc_elt.nextSiblingElement("axis");
 	}
 
-	QDomNodeList children = elt.childNodes();
-	for (int i = 0; i < children.size(); i++) {
-		if (!_rec_3to4(children.at(i).toElement())) {
-			return false;
-		}
-	}
 	return true;
 }
 
