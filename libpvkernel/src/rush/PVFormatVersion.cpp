@@ -75,7 +75,7 @@ bool PVRush::PVFormatVersion::from2to3(QDomDocument& doc)
 
 bool PVRush::PVFormatVersion::from3to4(QDomDocument& doc)
 {
-	return _rec_3to4(doc);
+	return _rec_3to4(doc.documentElement());
 }
 
 bool PVRush::PVFormatVersion::_rec_0to1(QDomElement elt)
@@ -200,30 +200,36 @@ bool PVRush::PVFormatVersion::_rec_2to3(QDomElement elt)
 	return true;
 }
 
-bool PVRush::PVFormatVersion::_rec_3to4(QDomDocument& doc)
+bool PVRush::PVFormatVersion::_rec_3to4(QDomNode node)
 {
-	QDomElement doc_elt = doc.documentElement();
-	QDomElement elt = doc_elt.firstChildElement("axis");
-	while (!elt.isNull()) {
-		QString mapping = elt.attribute("mapping", "");
-		QString plotting = elt.attribute("plotting", "");
-		QString type = elt.attribute("type", "");
-		QDomElement elt_mapping = elt.ownerDocument().createElement(PVFORMAT_XML_TAG_MAPPING);
-		elt_mapping.setAttribute(PVFORMAT_MAP_PLOT_MODE_STR, mapping);
-		if (type == "time") {
-			elt_mapping.setAttribute("time-format", QLatin1String("@PVTimeFormat(") + elt.attribute("time-format", "") + QLatin1String(")"));
-			elt.removeAttribute("time-format");
+	if (node.isElement()) {
+		QDomElement elt = node.toElement();
+		PVLOG_INFO("Element tag name: %s\n", qPrintable(elt.tagName()));
+		if (elt.tagName() == "axis") {
+			QString mapping = elt.attribute("mapping", "");
+			QString plotting = elt.attribute("plotting", "");
+			QString type = elt.attribute("type", "");
+			QDomElement elt_mapping = elt.ownerDocument().createElement(PVFORMAT_XML_TAG_MAPPING);
+			elt_mapping.setAttribute(PVFORMAT_MAP_PLOT_MODE_STR, mapping);
+			if (type == "time") {
+				elt_mapping.setAttribute("time-format", QLatin1String("@PVTimeFormat(") + elt.attribute("time-format", "") + QLatin1String(")"));
+				elt.removeAttribute("time-format");
+			}
+			elt.appendChild(elt_mapping);
+
+			QDomElement elt_plotting = elt.ownerDocument().createElement(PVFORMAT_XML_TAG_PLOTTING);
+			elt_plotting.setAttribute(PVFORMAT_MAP_PLOT_MODE_STR, plotting);
+			elt.appendChild(elt_plotting);
+
+			elt.removeAttribute("mapping");
+			elt.removeAttribute("plotting");
 		}
-		elt.appendChild(elt_mapping);
+	}
 
-		QDomElement elt_plotting = elt.ownerDocument().createElement(PVFORMAT_XML_TAG_PLOTTING);
-		elt_plotting.setAttribute(PVFORMAT_MAP_PLOT_MODE_STR, plotting);
-		elt.appendChild(elt_plotting);
-
-		elt.removeAttribute("mapping");
-		elt.removeAttribute("plotting");
-
-		elt = doc_elt.nextSiblingElement("axis");
+	QDomNode child = node.firstChild();
+	while (!child.isNull()) {
+		_rec_3to4(child);
+		child = child.nextSibling();
 	}
 
 	return true;
