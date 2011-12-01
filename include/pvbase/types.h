@@ -20,25 +20,6 @@ typedef quint64 pvrow;
 
 #define _U_ __attribute__((unused))
 
-#ifdef WIN32
-#ifndef uint32_t
-	typedef unsigned int uint32_t;
-#endif
-#ifndef uint16_t
-	typedef unsigned short uint16_t;
-#endif
-#ifndef uint8_t
-	typedef unsigned char uint8_t;
-#endif
-#ifndef int16_t
-	typedef short int16_t;
-#endif
-#ifndef ssize_t
-        typedef signed long ssize_t;
-	/* typedef int ssize_t; */
-#endif
-#endif
-
 typedef signed char pv_int8_t;
 typedef unsigned char pv_uint8_t;
 typedef signed short pv_int16_6;

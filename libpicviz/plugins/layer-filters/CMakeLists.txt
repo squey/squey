@@ -15,7 +15,6 @@ layer_filter_heatline
 layer_filter_find_duplicates
 layer_filter_search
 layer_filter_webmail
-layer_filter_snort_for_logs
 )
 
 set(FILTERS_DIST_FILES
@@ -47,6 +46,10 @@ if(PYTHONLIBS_FOUND)
 	include_directories(BEFORE ${PYTHON_INCLUDE_DIRS})
 	add_library(layer_filter_snort_for_logs SHARED snort-for-logs/PVLayerFilterSnortForLogs.cpp snort-for-logs/register.cpp)
 	target_link_libraries(layer_filter_snort_for_logs ${LINK_LIBRARIES} ${PYTHON_LIBRARIES} ${Boost_LIBRARIES_PYTHON})
+	set(FILTERS_DIST_LIST
+	${FILTERS_DIST_LIST}
+	layer_filter_snort_for_logs
+	)
 endif(PYTHONLIBS_FOUND)
 
 INSTALL(TARGETS ${FILTERS_DIST_LIST} LIBRARY DESTINATION layer-filters

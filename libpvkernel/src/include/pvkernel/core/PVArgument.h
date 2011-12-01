@@ -14,7 +14,7 @@
 
 namespace PVCore {
 
-class PVArgumentKey: public QString
+class LibKernelDecl PVArgumentKey: public QString
 {
 public:
 	PVArgumentKey(QString const& key, QString const& desc = QString()):
@@ -49,7 +49,7 @@ private:
 
 }
 
-unsigned int qHash(PVCore::PVArgumentKey const& key);
+extern unsigned int LibKernelDecl qHash(PVCore::PVArgumentKey const& key);
 
 namespace PVCore {
 

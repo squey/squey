@@ -69,7 +69,7 @@ if(WIN32)
 	# First, you've got to install Visual 2008 SP1, then install
 	# OpenMP dll in "winsxs" and then set this flag so that we link
 	# with the good version...... !!
-	add_definitions(-D__OPENMP_ASSEMBLY_VERSION="9.0.30729.6161")
+	#add_definitions(-D__OPENMP_ASSEMBLY_VERSION="9.0.30729.6161")
 	set(MSVC_LINKER_FLAGS "/LARGEADDRESSAWARE")
 	if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
 		# Intraprocedural optimisations
