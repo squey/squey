@@ -2,6 +2,7 @@
 #include <unicode/ustring.h>
 
 #include <pvkernel/core/picviz_intrin.h>
+#include <pvkernel/core/stdint.h>
 
 // Depends on whether SSE4.2 is enabled or not, select
 // the good version of u_memechr
