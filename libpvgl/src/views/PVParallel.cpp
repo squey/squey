@@ -43,6 +43,7 @@ PVGL::PVView::PVView(int win_id, PVSDK::PVMessenger *message) : PVGL::PVDrawable
 		axes(this)
 {
 	PVLOG_DEBUG("PVGL::PVView::%s\n", __FUNCTION__);
+	show_axes = true;
 	translation = vec2(0.0f, 0.0f);
 	zoom_level_x = 0;
 	zoom_level_y = 0;
@@ -187,7 +188,9 @@ void PVGL::PVView::draw(void)
 	axes.draw_bg();
 	selection_square.draw();
 	// screen space
-	axes.draw_names();
+	if (show_axes) {
+		axes.draw_names();
+	}
 	map.draw();
 
 	glDisable(GL_DEPTH_TEST);
@@ -576,6 +579,9 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 					pv_message->post_message_to_qt(message);
 				}
 				break;
+		case 'w': case 'W':
+				show_axes = !show_axes;
+				break;
 		case 'x': case 'X':
 				state_machine->toggle_axes_mode();
 
@@ -617,27 +623,27 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 					pv_message->post_message_to_qt(message);
 				}
 				break;
-			case 127: // Delete key from the main keyboard. In axes mode, delete the selected axis.
-					if (!state_machine->is_axes_mode()) {
-						break;
-					}
-
-					/* We decide to leave at least two axes... */
-					if (picviz_view->get_axes_count() <= 2 ) {
-						break;
-					}
-					picviz_view->axes_combination.remove_axis(picviz_view->active_axis);
-					/* We check if we have just removed the rightmost axis */
-					if (picviz_view->axes_combination.get_axes_count() == picviz_view->active_axis ) {
-						picviz_view->active_axis -= 1;
-					}
-
-					change_axes_count();
-					update_all();
-					message.function = PVSDK_MESSENGER_FUNCTION_REFRESH_LISTING; // WITH_HORIZONTAL_HEADER?
-					message.pv_view = picviz_view;
-					pv_message->post_message_to_qt(message);
+		case 127: // Delete key from the main keyboard. In axes mode, delete the selected axis.
+				if (!state_machine->is_axes_mode()) {
 					break;
+				}
+
+				/* We decide to leave at least two axes... */
+				if (picviz_view->get_axes_count() <= 2 ) {
+					break;
+				}
+				picviz_view->axes_combination.remove_axis(picviz_view->active_axis);
+				/* We check if we have just removed the rightmost axis */
+				if (picviz_view->axes_combination.get_axes_count() == picviz_view->active_axis ) {
+					picviz_view->active_axis -= 1;
+				}
+
+				change_axes_count();
+				update_all();
+				message.function = PVSDK_MESSENGER_FUNCTION_REFRESH_LISTING; // WITH_HORIZONTAL_HEADER?
+				message.pv_view = picviz_view;
+				pv_message->post_message_to_qt(message);
+				break;
 	}
 }
 

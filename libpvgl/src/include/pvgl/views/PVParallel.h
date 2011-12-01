@@ -46,6 +46,7 @@ class LibGLDecl PVView : public PVDrawable {
 	bool selection_dirty;          //!< A boolean to ask for a redraw of the selection
 	bool update_line_dirty;
 	bool size_dirty;               //!< A boolean telling if a size request has been queued.
+	bool show_axes;
 
 	PVLabel  *label_nb_lines;
 	PVLabel  *label_axis_mode;
@@ -175,6 +176,7 @@ public:
 	void update_current_layer();
 
 
+	bool set_show_axes(bool show) { show_axes = show; }
 
 	//! \name drawing
 	//! \{

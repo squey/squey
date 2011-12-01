@@ -26,7 +26,7 @@ include(${QT_USE_FILE})
 # File input plugin
 #
 SET(FILE_MOC_HEADERS file/PVImportFileDialog.h)
-QT4_WRAP_CPP(FILE_MOC_SRC ${FILE_MOC_HEADERS})
+QT4_WRAP_CPP(FILE_MOC_SRC ${FILE_MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})
 
 add_library(input_type_file SHARED file/PVInputTypeFilename.cpp file/PVImportFileDialog.cpp file/register.cpp ${FILE_MOC_SRC})
 target_link_libraries(input_type_file ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES} ${ARCHIVE_LIBRARY})
@@ -35,7 +35,7 @@ target_link_libraries(input_type_file ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES} ${AR
 # Database input plugin
 #
 SET(DB_MOC_HEADERS database/PVDatabaseParamsWidget.h)
-QT4_WRAP_CPP(DB_MOC_SRCS ${DB_MOC_HEADERS})
+QT4_WRAP_CPP(DB_MOC_SRCS ${DB_MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})
 set(DB_UI database/db_params.ui database/db_preview.ui)
 QT4_WRAP_UI(DB_UI_SRCS ${DB_UI})
 
