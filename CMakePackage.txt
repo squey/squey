@@ -17,6 +17,7 @@ IF(WIN32 AND NOT UNIX)
 	SET(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "ExecWait '\\\"$INSTDIR\\\\redist\\\\vcredist_x64.exe\\\" /q:a'
 	ExecWait '\\\"$INSTDIR\\\\redist\\\\WinPcap_4_1_2.exe\\\"'
 	ExecWait 'msiexec.exe /quiet /i \\\"$INSTDIR\\\\redist\\\\openmp_release.msi\\\"'
+	ExecWait 'msiexec.exe /quiet /i \\\"$INSTDIR\\\\redist\\\\python-3.2.2.amd64.msi\\\"'
 	")
 	#	SET(CPACK_NSIS_MODIFY_PATH ON)
 ELSE(WIN32 AND NOT UNIX)

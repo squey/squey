@@ -10,20 +10,20 @@ if(WIN32)
 	install(FILES ${TBB_DIST_FILES} DESTINATION .)
 
 	set(QT4_DIST_FILES
-	C:\\\\Qt\\\\4.7.3\\\\bin\\\\phonon4.dll
-	C:\\\\Qt\\\\4.7.3\\\\bin\\\\QtCore4.dll
-	C:\\\\Qt\\\\4.7.3\\\\bin\\\\QtGui4.dll
-	C:\\\\Qt\\\\4.7.3\\\\bin\\\\QtMultimedia4.dll
-	C:\\\\Qt\\\\4.7.3\\\\bin\\\\QtNetwork4.dll
-	C:\\\\Qt\\\\4.7.3\\\\bin\\\\QtOpenGL4.dll
-	C:\\\\Qt\\\\4.7.3\\\\bin\\\\QtScript4.dll
-	C:\\\\Qt\\\\4.7.3\\\\bin\\\\QtSql4.dll
-	C:\\\\Qt\\\\4.7.3\\\\bin\\\\QtSvg4.dll
-	C:\\\\Qt\\\\4.7.3\\\\bin\\\\QtWebKit4.dll
-	C:\\\\Qt\\\\4.7.3\\\\bin\\\\QtXml4.dll
-	C:\\\\Qt\\\\4.7.3\\\\bin\\\\QtXmlPatterns4.dll
-	C:\\\\Qt\\\\4.7.3\\\\plugins\\\\sqldrivers\\\\qsqlite4.dll
-	C:\\\\Qt\\\\4.7.3\\\\plugins\\\\sqldrivers\\\\qsqlodbc4.dll
+	C:\\\\dev\\\\qt\\\\src\\\\qt-everywhere-opensource-src-4.7.3\\\\bin\\\\phonon4.dll
+	C:\\\\dev\\\\qt\\\\src\\\\qt-everywhere-opensource-src-4.7.3\\\\bin\\\\QtCore4.dll
+	C:\\\\dev\\\\qt\\\\src\\\\qt-everywhere-opensource-src-4.7.3\\\\bin\\\\QtGui4.dll
+	C:\\\\dev\\\\qt\\\\src\\\\qt-everywhere-opensource-src-4.7.3\\\\bin\\\\QtMultimedia4.dll
+	C:\\\\dev\\\\qt\\\\src\\\\qt-everywhere-opensource-src-4.7.3\\\\bin\\\\QtNetwork4.dll
+	C:\\\\dev\\\\qt\\\\src\\\\qt-everywhere-opensource-src-4.7.3\\\\bin\\\\QtOpenGL4.dll
+	C:\\\\dev\\\\qt\\\\src\\\\qt-everywhere-opensource-src-4.7.3\\\\bin\\\\QtScript4.dll
+	C:\\\\dev\\\\qt\\\\src\\\\qt-everywhere-opensource-src-4.7.3\\\\bin\\\\QtSql4.dll
+	C:\\\\dev\\\\qt\\\\src\\\\qt-everywhere-opensource-src-4.7.3\\\\bin\\\\QtSvg4.dll
+	C:\\\\dev\\\\qt\\\\src\\\\qt-everywhere-opensource-src-4.7.3\\\\bin\\\\QtWebKit4.dll
+	C:\\\\dev\\\\qt\\\\src\\\\qt-everywhere-opensource-src-4.7.3\\\\bin\\\\QtXml4.dll
+	C:\\\\dev\\\\qt\\\\src\\\\qt-everywhere-opensource-src-4.7.3\\\\bin\\\\QtXmlPatterns4.dll
+	#C:\\\\Qt\\\\4.7.3\\\\plugins\\\\sqldrivers\\\\qsqlite4.dll
+	#C:\\\\Qt\\\\4.7.3\\\\plugins\\\\sqldrivers\\\\qsqlodbc4.dll
 	)
 	install(FILES ${QT4_DIST_FILES} ${INSPECTOR_ICON} DESTINATION .)
 
@@ -68,9 +68,10 @@ if(WIN32)
 	install(FILES ${ICU_DIST_FILES} DESTINATION .)
 	
 	set(BOOST_DIST_FILES
-	c:\\\\dev\\\\boost\\\\stage\\\\lib\\\\boost_thread-vc90-mt-1_46_1.dll
-	c:\\\\dev\\\\boost\\\\stage\\\\lib\\\\boost_system-vc90-mt-1_46_1.dll
-	c:\\\\dev\\\\boost\\\\stage\\\\lib\\\\boost_date_time-vc90-mt-1_46_1.dll
+	c:\\\\dev\\\\boost\\\\stage\\\\lib\\\\boost_thread-vc90-mt-1_48.dll
+	c:\\\\dev\\\\boost\\\\stage\\\\lib\\\\boost_system-vc90-mt-1_48.dll
+	c:\\\\dev\\\\boost\\\\stage\\\\lib\\\\boost_date_time-vc90-mt-1_48.dll
+	c:\\\\dev\\\\boost\\\\stage\\\\lib\\\\boost_python3-vc90-mt-1_48.dll
 	)
 	install(FILES ${BOOST_DIST_FILES} DESTINATION .)
 	
@@ -78,6 +79,7 @@ if(WIN32)
 	${picviz-inspector_SOURCE_DIR}/third-party/vcredist_x64.exe
 	${picviz-inspector_SOURCE_DIR}/third-party/openmp_release.msi
 	${picviz-inspector_SOURCE_DIR}/third-party/WinPcap_4_1_2.exe
+	${picviz-inspector_SOURCE_DIR}/third-party/python-3.2.2.amd64.msi
 	)
 	install(FILES ${REDIST_FILES} DESTINATION redist)
 	
