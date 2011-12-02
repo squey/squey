@@ -1,5 +1,8 @@
 #include <pvkernel/core/PVPython.h>
 
+boost::mutex PVCore::PVPythonInitializer::_python_init;
+PVCore::PVPythonInitializer* PVCore::PVPythonInitializer::g_python = NULL;
+
 PVCore::PVPythonInitializer::PVPythonInitializer()
 {
 	// Do not let python catch the signals !
@@ -19,9 +22,12 @@ PVCore::PVPythonInitializer::~PVPythonInitializer()
 
 PVCore::PVPythonInitializer& PVCore::PVPythonInitializer::get()
 {
-	static PVCore::PVPythonInitializer PVPyInit;
+	boost::mutex::scoped_lock lock(_python_init);
+	if (g_python == NULL) {
+		g_python = new PVCore::PVPythonInitializer();
+	}
 
-	return PVPyInit;
+	return *g_python;
 }
 
 QString PVCore::PVPython::get_list_index_as_qstring(boost::python::list pylist, int index)

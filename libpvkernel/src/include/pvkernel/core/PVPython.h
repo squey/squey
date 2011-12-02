@@ -6,6 +6,7 @@
 // them you have a compile error !!
 #include <boost/python.hpp>
 
+#include <boost/thread/mutex.hpp>
 #include <pvkernel/core/general.h>
 
 #include <QString>
@@ -25,7 +26,8 @@ public:
 	boost::python::dict python_main_namespace;
 private:
 	PyThreadState* mainThreadState;
-
+	static boost::mutex _python_init;
+	static PVPythonInitializer* g_python;
 };
 
 class PVPythonLocker

@@ -21,7 +21,7 @@
  *
  *****************************************************************************/
 Picviz::PVLayerFilterSnortForLogs::PVLayerFilterSnortForLogs(PVCore::PVArgumentList const& l)
-	: PVLayerFilter(l)
+	: PVLayerFilter(l), rules_number(0)
 {
 	INIT_FILTER(PVLayerFilterSnortForLogs, l);
 
@@ -32,8 +32,7 @@ Picviz::PVLayerFilterSnortForLogs::PVLayerFilterSnortForLogs(PVCore::PVArgumentL
 
 	try {
 		// Load our script
-		//boost::python::exec_file("snort-rules.py", _python_own_namespace, _python_own_namespace);
-		boost::python::exec_file("snort-rules.py");
+		boost::python::exec_file("snort-rules.py", _python_own_namespace, _python_own_namespace);
 		snort_rules = boost::python::extract<boost::python::list>(_python_own_namespace["snort_rules"]);
 		rules_number = boost::python::len(snort_rules);
 		PVLOG_INFO("Number of Snort rules loaded: %d\n", rules_number);
@@ -87,6 +86,7 @@ void Picviz::PVLayerFilterSnortForLogs::operator()(PVLayer& in, PVLayer &out)
 	QList<PVCol> axes_with_user_agent = _view->get_original_axes_index_with_tag(get_tag("user-agent"));
 
 	for (int i=0; i < rules_number; i++) {
+
 		boost::python::dict snort_alert = boost::python::extract<boost::python::dict>(snort_rules[i]);
 		boost::python::list match_groups = boost::python::extract<boost::python::list>(snort_alert["match_groups"]);
 		const char *current_sid = boost::python::extract<const char*>(snort_alert["sid"]);

@@ -267,10 +267,15 @@ endif(WIN32)
 # We also need to check that these packages are installed:
 #  * python3.2-dev
 #  * libpython3.2
-#  * libboost-python1.46.1
-#  * libboost-python1.46-dev
+#  * libboost-python1.48.0
+#  * libboost-python1.48-dev
 set(Python_ADDITIONAL_VERSIONS 3.2)
 find_package(PythonLibs)
+if(DEBUG_MODE)
+	set(PYTHON_LIBRARIES ${PYTHON_DEBUG_LIBRARIES})
+	set(PYTHON_LIBRARY ${PYTHON_DEBUG_LIBRARIES})
+	add_definitions(-DBOOST_DEBUG_PYTHON)
+endif(DEBUG_MODE)
 
 #
 # Check for X11 (used to detect caps lock activated ;-))
