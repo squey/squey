@@ -143,7 +143,7 @@ include/picviz/PVSortQVectorQStringList.h
 include/picviz/PVSortQVectorQStringListThread.h
 
 )
-QT4_WRAP_CPP(MOC_SRC ${MOC_HEADERS})
+QT4_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})
 
 if(CUDA_FOUND)
   set(CUDA_PROPAGATE_HOST_FLAGS "OFF")

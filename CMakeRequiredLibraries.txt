@@ -52,6 +52,8 @@ if(WIN32)
 	set(Boost_USE_STATIC_LIBS       OFF)
 	set(Boost_USE_MULTITHREADED      ON)
 	set(Boost_USE_STATIC_RUNTIME    OFF)
+	# Define this or boost autoamtically tries to link with lib* files, which aren't present under Windows
+	add_definitions(-DBOOST_ALL_NO_LIB)
 	#link_directories("C:\\dev\\boost\\stage\\lib")
 else(WIN32)
 	set(Boost_USE_STATIC_LIBS       OFF)

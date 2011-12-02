@@ -32,7 +32,8 @@ Picviz::PVLayerFilterSnortForLogs::PVLayerFilterSnortForLogs(PVCore::PVArgumentL
 
 	try {
 		// Load our script
-		boost::python::exec_file("snort-rules.py", _python_own_namespace, _python_own_namespace);
+		//boost::python::exec_file("snort-rules.py", _python_own_namespace, _python_own_namespace);
+		boost::python::exec_file("snort-rules.py");
 		snort_rules = boost::python::extract<boost::python::list>(_python_own_namespace["snort_rules"]);
 		rules_number = boost::python::len(snort_rules);
 		PVLOG_INFO("Number of Snort rules loaded: %d\n", rules_number);

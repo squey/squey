@@ -3,6 +3,10 @@
 
 #include <omp.h>
 
+#ifdef WIN32
+#define log2f logf
+#endif
+
 float* Picviz::PVPlottingFilterLogMinmax::operator()(float* values)
 {
 	assert(values);

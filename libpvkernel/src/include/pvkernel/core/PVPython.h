@@ -48,7 +48,7 @@ private:
 };
 
 namespace PVPython {
-	QString get_list_index_as_qstring(boost::python::list pylist, int index);
+	extern QString LibKernelDecl get_list_index_as_qstring(boost::python::list pylist, int index);
 }
 
 }

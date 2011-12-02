@@ -176,7 +176,7 @@ public:
 	void update_current_layer();
 
 
-	bool set_show_axes(bool show) { show_axes = show; }
+	void set_show_axes(bool show) { show_axes = show; }
 
 	//! \name drawing
 	//! \{

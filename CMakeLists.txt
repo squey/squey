@@ -59,6 +59,9 @@ if(WIN32)
 	add_definitions(-DWIN32)
 	add_definitions(-D_WIN32)
 	add_definitions(-D_WINSOCKAPI_)
+	# Defined or python believes where are in 32-bit !!
+	# (and define bad types for Py_ssize_t for instance)
+	add_definitions(-D_WIN64)
 	add_definitions(/MP) # parallel compilation
 	# Visual 2008 and OpenMP with 64 bits is a huge mess.
 	# First, you've got to install Visual 2008 SP1, then install
