@@ -1,0 +1,13 @@
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/cmake-options/use_pvgl2)
+  set(USE_PVGL2 true)
+  message(STATUS "Use PVGL version: 2")
+else()
+  message(STATUS "Use PVGL version: 1")
+endif()
+
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/cmake-options/use_boost1.48_debian)
+  set(USE_BOOST148_DEBIAN true)
+  message(STATUS "Boost 1.48 Debian packages: true")
+else()
+  message(STATUS "Boost 1.48 Debian packages: false")
+endif()

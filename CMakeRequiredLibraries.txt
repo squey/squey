@@ -61,7 +61,13 @@ endif(WIN32)
 set(Boost_ADDITIONAL_VERSIONS "1.48.0")
 find_package(Boost 1.48.0 REQUIRED COMPONENTS date_time system thread)
 set(Boost_LIBRARIES_SAVE ${Boost_LIBRARIES})
-find_package(Boost COMPONENTS python3)
+
+if(USE_BOOST148_DEBIAN)
+	find_package(Boost COMPONENTS python32)
+else(USE_BOOST148_DEBIAN)
+	find_package(Boost COMPONENTS python3)
+endif(USE_BOOST148_DEBIAN)
+
 set(Boost_LIBRARIES_PYTHON ${Boost_LIBRARIES})
 set(Boost_LIBRARIES ${Boost_LIBRARIES_SAVE})
 

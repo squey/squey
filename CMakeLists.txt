@@ -2,12 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 
 project(picviz-inspector)
 
-if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/use_pvgl2)
-  set(USE_PVGL2 true)
-  message(STATUS "Use PVGL version: 2")
-else()
-  message(STATUS "Use PVGL version: 1")
-endif()
+include(CMakeOptions.txt)
 
 if(USE_PVGL2)
   add_definitions(-DUSE_PVGL2)
