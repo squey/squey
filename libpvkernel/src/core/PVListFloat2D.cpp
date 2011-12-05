@@ -130,11 +130,20 @@ PVCol PVCore::PVListFloat2D::getWidth() const
  *   PVCore::PVListFloat2D::reserve()
  *
  *****************************************************************************/
-void PVCore::PVListFloat2D::reserve(PVCol width_, PVRow height_)
+bool PVCore::PVListFloat2D::reserve(PVCol width_, PVRow height_)
 {
 	width = width_;
 	height = height_;
-	data.resize(width*height);
+	try {
+		data.resize(width*height);
+	}
+	catch (std::bad_alloc const&)
+	{
+		PVLOG_ERROR("(PVCore::PVListFloat2D::reserve) unable to allocate memory !\n");
+		return false;
+	}
+
+	return true;
 }
 
 

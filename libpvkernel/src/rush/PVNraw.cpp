@@ -46,19 +46,24 @@ void PVRush::PVNraw::clear()
 	//delete_buffers();
 }
 
-void PVRush::PVNraw::create_trans_nraw()
+bool PVRush::PVNraw::create_trans_nraw()
 {
 	tbb::tick_count start = tbb::tick_count::now();
 	// Create a transposition of the nraw
 	PVCol ncols = table[0].size();
 	PVRow nrows = table.size();
-	trans_table.resize(ncols);
-
+	try
 	{
+		trans_table.resize(ncols);
 		nraw_trans_table::iterator it;
 		for (it = trans_table.begin(); it != trans_table.end(); it++) {
 			(*it).resize(nrows);
 		}
+	}
+	catch (std::bad_alloc const&)
+	{
+		PVLOG_ERROR("(PVRush::PVNraw::create_trans_nraw) unable to allocate memory for the transposed NRAW !\n");
+		return false;
 	}
 	tbb::tick_count end = tbb::tick_count::now();
 	PVLOG_INFO("(PVRush::PVNraw::create_trans_nraw) memory allocation took %0.4fs.\n", (end-start).seconds());
@@ -66,9 +71,10 @@ void PVRush::PVNraw::create_trans_nraw()
 	start = end;
 	nraw_table::const_iterator it;
 	nraw_table_line::const_iterator it_col;
+	/*
 	PVCol c = 0;
 	PVRow r = 0;
-	/*for (it = table.begin(); it != table.end(); it++) {
+	for (it = table.begin(); it != table.end(); it++) {
 		nraw_table_line const& cols = *it;
 		for (it_col = cols.begin(); it_col != cols.end(); it_col++) {
 			trans_table[c][r] = *it_col;
@@ -84,6 +90,7 @@ void PVRush::PVNraw::create_trans_nraw()
 	}
 	end = tbb::tick_count::now();
 	PVLOG_INFO("(PVRush::PVNraw::create_trans_nraw) transposition took %0.4fs.\n", (end-start).seconds());
+	return true;
 }
 
 void PVRush::PVNraw::clear_table()

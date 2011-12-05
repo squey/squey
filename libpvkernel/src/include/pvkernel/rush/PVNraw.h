@@ -27,13 +27,13 @@ namespace PVRush {
 	public:
 		typedef std::vector<QString, tbb::scalable_allocator<QString> > nraw_table_line;
 		typedef std::vector<nraw_table_line, tbb::scalable_allocator<nraw_table_line> > nraw_table;
-		typedef std::vector<nraw_table_line, tbb::scalable_allocator<nraw_table_line> > nraw_trans_table;
+		typedef std::vector<nraw_table_line> nraw_trans_table;
 	public:
 		PVNraw();
 		~PVNraw();
 
 		void reserve(PVRow row, PVCol col);
-		void create_trans_nraw();
+		bool create_trans_nraw();
 		void free_trans_nraw();
 		void clear();
 

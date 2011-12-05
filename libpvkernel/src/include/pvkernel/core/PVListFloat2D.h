@@ -21,7 +21,7 @@ class LibKernelDecl PVListFloat2D {
 		 *@param width of array
 		 *@param height of array
 		 */
-		void reserve(PVCol width, PVRow height);
+		bool reserve(PVCol width, PVRow height);
 
 		void free();
 
