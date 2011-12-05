@@ -24,8 +24,10 @@ PVInspector::PVAxesCombinationWidget::PVAxesCombinationWidget(Picviz::PVAxesComb
 	connect(_btn_reset, SIGNAL(clicked()), this, SLOT(reset_comb_Slot()));
 
 	_btn_sel_singleton->setEnabled(view != NULL);
+	_btn_sel_range->setEnabled(view != NULL);
 	if (view != NULL) {
 		connect(_btn_sel_singleton, SIGNAL(clicked()), this, SLOT(sel_singleton_Slot()));
+		connect(_btn_sel_range, SIGNAL(clicked()), this, SLOT(sel_range_Slot()));
 	}
 }
 
@@ -283,12 +285,10 @@ void PVInspector::PVAxesCombinationWidget::PVMoveToDlg::update_axes()
 	}
 }
 
-void PVInspector::PVAxesCombinationWidget::sel_singleton_Slot()
+void PVInspector::PVAxesCombinationWidget::set_selection_from_cols(QList<PVCol> const& cols)
 {
-	assert(_view);
-	QList<PVCol> cols_rem = _view->get_plotted_parent()->get_singleton_columns_indexes();
 	QItemSelection new_sel;
-	foreach(PVCol c, cols_rem) {
+	foreach(PVCol c, cols) {
 		QList<PVCol> comb_cols = _axes_combination.get_combined_axes_columns_indexes(c);
 		foreach (PVCol comb_c, comb_cols) {
 			QModelIndex midx = _list_used->model()->index(comb_c, 0);
@@ -296,4 +296,73 @@ void PVInspector::PVAxesCombinationWidget::sel_singleton_Slot()
 		}
 	}
 	_list_used->selectionModel()->select(new_sel, QItemSelectionModel::ClearAndSelect);
+}
+
+void PVInspector::PVAxesCombinationWidget::sel_singleton_Slot()
+{
+	assert(_view);
+	QList<PVCol> cols_rem = _view->get_plotted_parent()->get_singleton_columns_indexes();
+	set_selection_from_cols(cols_rem);
+}
+
+void PVInspector::PVAxesCombinationWidget::sel_range_Slot()
+{
+	assert(_view);
+	PVAxesCombinationWidgetSelRange* dlg = new PVAxesCombinationWidgetSelRange((QWidget*) this);
+	if (dlg->exec() != QDialog::Accepted) {
+		return;
+	}
+
+	float min,max;
+	if (!dlg->get_range(min, max)) {
+		return;
+	}
+
+	QList<PVCol> cols;
+	PVAxesCombinationWidgetSelRange::values_source_t src = dlg->get_source();
+	if (dlg->reversed()) {
+		if (src == PVAxesCombinationWidgetSelRange::plotted) {
+			cols = _view->get_plotted_parent()->get_columns_indexes_values_not_within_range(min, max);
+		}
+		else {
+			cols = _view->get_mapped_parent()->get_columns_indexes_values_not_within_range(min, max);
+		}
+	}
+	else {
+		if (src == PVAxesCombinationWidgetSelRange::plotted) {
+			cols = _view->get_plotted_parent()->get_columns_indexes_values_within_range(min, max);
+		}
+		else {
+			cols = _view->get_mapped_parent()->get_columns_indexes_values_within_range(min, max);
+		}
+	}
+	set_selection_from_cols(cols);
+}
+
+// PVAxesCombinationWidgetSelRange implementation
+PVInspector::PVAxesCombinationWidgetSelRange::PVAxesCombinationWidgetSelRange(QWidget* parent):
+	QDialog(parent)
+{
+	setupUi(this);
+}
+
+bool PVInspector::PVAxesCombinationWidgetSelRange::get_range(float& min, float& max)
+{
+	bool ret = true;
+	min = _edit_min->text().toFloat(&ret);
+	if (!ret) {
+		return false;
+	}
+	max = _edit_max->text().toFloat(&ret);
+	return ret;
+}
+
+bool PVInspector::PVAxesCombinationWidgetSelRange::reversed()
+{
+	return _combo_reverse->currentIndex() == 1;
+}
+
+PVInspector::PVAxesCombinationWidgetSelRange::values_source_t PVInspector::PVAxesCombinationWidgetSelRange::get_source()
+{
+	return (_combo_values_src->currentIndex() == 0) ? plotted : mapped;
 }

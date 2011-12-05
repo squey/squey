@@ -114,6 +114,8 @@ public:
 	bool is_uptodate() const;
 
 	QList<PVCol> get_singleton_columns_indexes();
+	QList<PVCol> get_columns_indexes_values_within_range(float min, float max);
+	QList<PVCol> get_columns_indexes_values_not_within_range(float min, float max);
 
 public:
 	// Data access

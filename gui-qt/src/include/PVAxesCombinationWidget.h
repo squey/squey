@@ -7,6 +7,7 @@
 
 #include <picviz/PVAxesCombination.h>
 #include "../ui_PVAxesCombinationWidget.h"
+#include "../ui_PVAxesCombinationWidgetSelRange.h"
 #include <picviz/PVView_types.h>
 
 namespace PVInspector {
@@ -49,6 +50,7 @@ protected:
 	bool is_used_axis_selected();
 	bool is_original_axis_selected();
 	static QVector<PVCol> get_list_selection(QListWidget* widget);
+	void set_selection_from_cols(QList<PVCol> const& cols);
 
 protected slots:
 	void axis_add_Slot();
@@ -58,6 +60,7 @@ protected slots:
 	void axis_remove_Slot();
 	void reset_comb_Slot();
 	void sel_singleton_Slot();
+	void sel_range_Slot();
 	void sort_Slot();
 
 signals:
@@ -69,6 +72,25 @@ protected:
 	Picviz::PVAxesCombination _saved_combination;
 	PVMoveToDlg* _move_dlg;
 	Picviz::PVView* _view;
+};
+
+class PVAxesCombinationWidgetSelRange: public QDialog, Ui::PVAxesCombinationWidgetSelRange
+{
+	Q_OBJECT
+public:
+	enum values_source_t
+	{
+		mapped = 0,
+		plotted
+	};
+
+public:
+	PVAxesCombinationWidgetSelRange(QWidget* parent = NULL);
+
+public:
+	bool get_range(float& min, float& max);
+	bool reversed();
+	values_source_t get_source();
 };
 
 }

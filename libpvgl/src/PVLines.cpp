@@ -807,8 +807,6 @@ void PVGL::PVLines::update_arrays_zombies(void)
 		return;
 	}
 	// Update the TBO
-	// FIXME: with the new PVSelection class, std::bitset is used and does not allow
-	// direct access to its internal buffer. So we might need to do our own...
 	glBindBuffer(GL_TEXTURE_BUFFER, tbo_zombie); PRINT_OPENGL_ERROR();
 	glBufferData(GL_TEXTURE_BUFFER, PICVIZ_SELECTION_NUMBER_OF_BYTES,
 	             picviz_view->layer_stack_output_layer.get_selection().get_buffer(), GL_DYNAMIC_DRAW); PRINT_OPENGL_ERROR();

@@ -221,6 +221,7 @@ picviz-inspector_resource.qrc
 
 SET(UI_FILES
 PVAxesCombinationWidget.ui
+PVAxesCombinationWidgetSelRange.ui
 widgets/format-builder/PVAxisTagHelp.ui
 )
 
