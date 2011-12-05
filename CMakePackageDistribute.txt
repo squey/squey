@@ -68,10 +68,10 @@ if(WIN32)
 	install(FILES ${ICU_DIST_FILES} DESTINATION .)
 	
 	set(BOOST_DIST_FILES
-	c:\\\\dev\\\\boost\\\\stage\\\\lib\\\\boost_thread-vc90-mt-1_48.dll
-	c:\\\\dev\\\\boost\\\\stage\\\\lib\\\\boost_system-vc90-mt-1_48.dll
-	c:\\\\dev\\\\boost\\\\stage\\\\lib\\\\boost_date_time-vc90-mt-1_48.dll
-	c:\\\\dev\\\\boost\\\\stage\\\\lib\\\\boost_python3-vc90-mt-1_48.dll
+	c:\\\\dev\\\\boost\\\\install-root\\\\lib\\\\boost_thread-vc90-mt-1_48.dll
+	c:\\\\dev\\\\boost\\\\install-root\\\\lib\\\\boost_system-vc90-mt-1_48.dll
+	c:\\\\dev\\\\boost\\\\install-root\\\\lib\\\\boost_date_time-vc90-mt-1_48.dll
+	c:\\\\dev\\\\boost\\\\install-root\\\\lib\\\\boost_python3-vc90-mt-1_48.dll
 	)
 	install(FILES ${BOOST_DIST_FILES} DESTINATION .)
 	
