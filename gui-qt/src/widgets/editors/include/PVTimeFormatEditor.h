@@ -66,6 +66,7 @@ private:
 	QTextEdit* _editor; // Parent editor
 	QTextEdit* _tfs_edit;
 	QTextEdit* _ts_validate;
+	QTextEdit* _ts_interpreted;
 	QPushButton* _validate_btn;
 	PVTimeValidatorHighLight* _validator_hl;
 	bool _auto_validate;
@@ -81,6 +82,8 @@ public:
 	
 	void set_time_format(QStringList const& tf);
 	virtual void highlightBlock(QString const& text);
+
+	inline PVCore::PVDateTimeParser* get_parser() const { return _cur_parser; };
 
 public slots:
 	void format_changed();

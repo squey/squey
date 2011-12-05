@@ -64,6 +64,9 @@ PVInspector::PVTimeFormatHelpDlg::PVTimeFormatHelpDlg(PVTimeFormatEditor* editor
 	QTextEdit* help_tf = new QTextEdit();
 	set_help(help_tf);
 
+	_ts_interpreted = new QTextEdit();
+	_ts_interpreted->setReadOnly(true);
+
 	_tfs_edit = new QTextEdit();
 	update_tf_from_editor();
 
@@ -92,8 +95,10 @@ PVInspector::PVTimeFormatHelpDlg::PVTimeFormatHelpDlg(PVTimeFormatEditor* editor
 	bottom_layout->addWidget(_tfs_edit, 1, 0);
 	bottom_layout->addWidget(new QLabel(tr("Enter time strings in order to validate your time format:"), this), 0, 1);
 	bottom_layout->addWidget(_ts_validate, 1, 1);
-	bottom_layout->addWidget(auto_validate_chkbox, 2, 1);
-	bottom_layout->addWidget(_validate_btn, 3, 1);
+	bottom_layout->addWidget(new QLabel(tr("Interpreted time strings (using current locale):"), this), 2, 1);
+	bottom_layout->addWidget(_ts_interpreted, 3, 1);
+	bottom_layout->addWidget(auto_validate_chkbox, 4, 1);
+	bottom_layout->addWidget(_validate_btn, 5, 1);
 
 	QDialogButtonBox* dlg_btns = new QDialogButtonBox(QDialogButtonBox::Save | QDialogButtonBox::Cancel);
 	connect(dlg_btns, SIGNAL(accepted()), this, SLOT(update_tf_to_editor()));
@@ -164,6 +169,32 @@ void PVInspector::PVTimeFormatHelpDlg::time_formats_changed()
 
 void PVInspector::PVTimeFormatHelpDlg::time_strings_changed()
 {
+	PVCore::PVDateTimeParser* parser = _validator_hl->get_parser();
+	if (!parser) {
+		return;
+	}
+
+	QString txt;
+
+	QStringList tfs = _ts_validate->toPlainText().split("\n");
+	UErrorCode err = U_ZERO_ERROR;
+	Calendar* cal = Calendar::createInstance(err);
+	DateFormat* sdf = DateFormat::createDateTimeInstance(DateFormat::LONG, DateFormat::FULL);
+	for (int i = 0; i < tfs.size(); i++) {
+		QString v = tfs.at(i).trimmed();
+		if (v.size() > 0 && parser->mapping_time_to_cal(tfs[i], cal)) {
+			UnicodeString str;
+			FieldPosition pos = 0;
+			sdf->format(*cal, str, pos);
+			txt += QString::fromRawData((const QChar*) str.getBuffer(), str.length());
+		}
+		txt += "\n";
+		cal->clear();
+	}
+	delete sdf;
+	delete cal;
+
+	_ts_interpreted->setPlainText(txt);
 }
 
 void PVInspector::PVTimeFormatHelpDlg::update_tf_to_editor()
