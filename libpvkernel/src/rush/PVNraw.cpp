@@ -52,8 +52,8 @@ bool PVRush::PVNraw::create_trans_nraw()
 void PVRush::PVNraw::clear_table()
 {
 	_real_nrows = 0;
-	for (PVNrow r = 0; r < table.get_nrows(); r++) {
-		PVField* first_field = *(table.get_row_ptr(r));
+	for (PVRow r = 0; r < table.get_nrows(); r++) {
+		PVCore::PVField* first_field = *(table.get_row_ptr(r));
 		first_field->elt_parent()->chunk_parent()->free();
 	}
 	table.clear();
