@@ -8,7 +8,7 @@ boost::object_pool<PVCore::PVDateTimeParser::TimeFormatEpoch> PVCore::PVDateTime
 boost::object_pool<SimpleDateFormat> PVCore::PVDateTimeParser::TimeFormat::_alloc_df;
 
 // No copy is made. The QString must remain valid as long as the UnicodeString object is !
-static UnicodeString icuFromQStringAlias(const QString& src)
+UnicodeString PVCore::PVDateTimeParser::icuFromQStringAlias(const QString& src)
 {
 	return UnicodeString(false, (const UChar *)(src.constData()), src.size());
 }
@@ -92,9 +92,8 @@ void PVCore::PVDateTimeParser::copy(const PVDateTimeParser& src)
 	_org_time_format = src._org_time_format;
 }
 
-bool PVCore::PVDateTimeParser::mapping_time_to_cal(QString const& value, Calendar* cal)
+bool PVCore::PVDateTimeParser::mapping_time_to_cal(UnicodeString const& v, Calendar* cal)
 {
-	UnicodeString v = icuFromQStringAlias(value);
 	if (_last_match_time_format) {
 		if (_last_match_time_format->to_datetime(v, cal))
 			return true;

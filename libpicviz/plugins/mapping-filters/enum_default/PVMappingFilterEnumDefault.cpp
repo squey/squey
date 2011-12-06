@@ -1,9 +1,9 @@
+#include "PVMappingFilterEnumDefault.h"
+
 #ifdef WIN32
 #include <float.h> // for _logb()
 #endif
 #include <math.h>
-
-#include "PVMappingFilterEnumDefault.h"
 
 
 static float _enum_position_factorize(int enumber)
@@ -41,12 +41,12 @@ float* Picviz::PVMappingFilterEnumDefault::operator()(PVRush::PVNraw::const_tran
 	hash_values enum_hash;
 	if (_grp_value && _grp_value->isValid()) {
 		PVLOG_DEBUG("(mapping-enum) using previous values for enumeration\n");
-		enum_hash = _grp_value->toHash();
+		enum_hash = _grp_value->value<hash_values>();
 	}
 	_poscount = 0;
 
 	for (size_t i = 0; i < values.size(); i++) {
-		QString const& value = values[i]->get_qstr();
+		PVCore::PVUnicodeString value(*values[i]);
 		hash_values::iterator it_v = enum_hash.find(value);
 		if (it_v != enum_hash.end()) {
 			position = it_v.value().toInt();
@@ -60,7 +60,7 @@ float* Picviz::PVMappingFilterEnumDefault::operator()(PVRush::PVNraw::const_tran
 	}
 
 	if (_grp_value) {
-		*_grp_value = enum_hash;
+		_grp_value->setValue<hash_values>(enum_hash);
 	}
 
 	return _dest;

@@ -65,7 +65,7 @@ find_package(Boost 1.48.0 REQUIRED COMPONENTS date_time system thread)
 set(Boost_LIBRARIES_SAVE ${Boost_LIBRARIES})
 
 if(USE_BOOST148_DEBIAN)
-	find_package(Boost COMPONENTS python32)
+	find_package(Boost COMPONENTS python-py32)
 else(USE_BOOST148_DEBIAN)
 	find_package(Boost COMPONENTS python3)
 endif(USE_BOOST148_DEBIAN)

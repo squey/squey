@@ -1,6 +1,8 @@
 #ifndef PVCORE_PVDATETIMEPARSER_H
 #define PVCORE_PVDATETIMEPARSER_H
 
+#include <pvkernel/core/PVUnicodeString.h>
+
 #include <unicode/smpdtfmt.h>
 #include <unicode/locid.h>
 #include <unicode/unistr.h>
@@ -26,7 +28,15 @@ public:
 	PVDateTimeParser& operator=(const PVDateTimeParser& src);
 
 public:
-	bool mapping_time_to_cal(QString const& value_, Calendar* cal);
+	inline bool mapping_time_to_cal(QString const& value, Calendar* cal)
+	{
+		return mapping_time_to_cal(icuFromQStringAlias(value), cal);
+	}
+	inline bool mapping_time_to_cal(PVCore::PVUnicodeString const& src, Calendar* cal)
+	{
+		return mapping_time_to_cal(UnicodeString(false, (const UChar *)(src.buffer()), src.size()), cal);
+	}
+	bool mapping_time_to_cal(UnicodeString const& v, Calendar* cal);
 	QStringList const& original_time_formats() const { return _org_time_format; }
 
 private:
@@ -81,6 +91,8 @@ protected:
 private:
 	static void destroy_tf(TimeFormat* p);
 	static void destroy_tfe(TimeFormatEpoch* p);
+
+	static UnicodeString icuFromQStringAlias(const QString& src);
 
 
 protected:

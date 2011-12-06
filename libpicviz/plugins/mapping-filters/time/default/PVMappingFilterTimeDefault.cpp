@@ -1,3 +1,4 @@
+#include <pvkernel/core/PVUnicodeString.h>
 #include "PVMappingFilterTimeDefault.h"
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/core/PVDateTimeParser.h>
@@ -64,8 +65,8 @@ float* Picviz::PVMappingFilterTimeDefault::operator()(PVRush::PVNraw::const_tran
 		int thread_num = omp_get_thread_num();
 		Calendar* cal = cals[thread_num];
 		PVCore::PVDateTimeParser &dtpars = *(dtparsers[thread_num]);
-		QString const& v = values[i]->get_qstr();
-		if (v.isEmpty()) {
+		PVCore::PVUnicodeString v(*values[i]);
+		if (v.size() == 0) {
 			_dest[i] = 0;
 			continue;
 		}

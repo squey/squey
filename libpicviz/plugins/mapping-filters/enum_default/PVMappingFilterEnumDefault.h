@@ -7,11 +7,15 @@
 #ifndef PVFILTER_PVMAPPINGFILTERENUMDEFAULT_H
 #define PVFILTER_PVMAPPINGFILTERENUMDEFAULT_H
 
+#include <pvkernel/core/PVUnicodeString.h>
 #include <pvkernel/core/general.h>
-#include <picviz/PVMappingFilter.h>
-#include <tbb/concurrent_unordered_map.h>
-#include <QString>
 #include <pvkernel/core/stdint.h>
+#include <picviz/PVMappingFilter.h>
+
+#include <QString>
+#include <QMetaType>
+
+#include <tbb/concurrent_unordered_map.h>
 
 // Used by the concurrennt hash map below
 size_t tbb_hasher(const QString& str);
@@ -24,8 +28,8 @@ public:
 	float* operator()(PVRush::PVNraw::const_trans_nraw_table_line const& values);
 	QString get_human_name() const { return QString("Default"); }
 
-protected:
-	typedef QHash<QString, QVariant> hash_values;
+public:
+	typedef QHash<PVCore::PVUnicodeString, QVariant> hash_values;
 protected:
 	uint64_t _poscount;
 
@@ -33,5 +37,8 @@ protected:
 };
 
 }
+
+// WARNING : This declaration MUST BE outside namespace's scope
+Q_DECLARE_METATYPE(Picviz::PVMappingFilterEnumDefault::hash_values)
 
 #endif
