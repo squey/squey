@@ -116,7 +116,7 @@ void PVFilter::PVFieldSplitterURL::set_children_axes_tag(filter_child_axes_tag_t
  *****************************************************************************/
 PVCore::list_fields::size_type PVFilter::PVFieldSplitterURL::one_to_many(PVCore::list_fields &l, PVCore::list_fields::iterator it_ins, PVCore::PVField &field)
 {
-	field.init_qstr();
+	QString qstr = field.get_qstr();
 
 	QString none;		// usefull variable to put an empty string in fields
 
@@ -135,11 +135,11 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterURL::one_to_many(PVCore:
 	}
 
 	// URL splitter
-	QUrl url(field.qstr(), QUrl::TolerantMode);
+	QUrl url(qstr, QUrl::TolerantMode);
 	if (!url.isValid()) {
 		QString ip;
 		uint16_t port = 0;
-		if (split_ip_port(field.qstr(), ip, port)) {
+		if (split_ip_port(qstr, ip, port)) {
 			url_decode_add_field(&buf, none, _col_proto); // Protocol
 			url_decode_add_field(&buf, ip, _col_domain); // Domain
 			url_decode_add_field(&buf, none, _col_tld); // TLD
@@ -148,7 +148,7 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterURL::one_to_many(PVCore:
 			url_decode_add_field(&buf, none, _col_variable); // Variable
 			return buf.nelts;
 		}
-		PVLOG_WARN_FIELD(field, "(PVFieldSplitterURL) invalid url '%s'", qPrintable(field.qstr()));
+		PVLOG_WARN_FIELD(field, "(PVFieldSplitterURL) invalid url '%s'", qPrintable(qstr));
 		field.set_invalid();
 		field.elt_parent()->set_invalid();
 		return 0;
@@ -164,7 +164,7 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterURL::one_to_many(PVCore:
 	// We test if we have :// in the begining of the url so we can add
 	// the protocol properly instead of having bugs such as a procol named "foo.bar.com"
 	// because the given url was "foo.bar.com:google.com/"
-	int ret = field.qstr().indexOf(QString("://"));
+	int ret = qstr.indexOf(QString("://"));
 	if ((ret > 1) && (ret < 15)) {
 		url_decode_add_field(&buf, url.scheme(), _col_proto);
 	} else {
