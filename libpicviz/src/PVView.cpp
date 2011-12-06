@@ -1088,21 +1088,28 @@ void Picviz::PVView::selection_A2B_select_with_square_area(PVSelection &a, PVSel
 		return;
 	}
 
-	/* We compute the position of the first axis before xmin (FIXME ! Wrong -> corrected....)*/
-	axis_left = floorf(xmin);
+	/* We compute the position of the first axis before xmin */
 	/* ... and the one juste after and in the square area */
-	inner_absciss_min = axis_left + 1;
 	if (xmin < 0) {
 		axis_left = 0;
 		inner_absciss_min = 0;
 	}
-	/* We do the some on the right side (FIXME ! Wrong) */
-	axis_right = floorf(xmax + 1);
-	inner_absciss_max = picviz_min(axes_count -1, axis_right - 1);
-	if (axes_count - 1 < xmax) {
+	else {
+		axis_left = floorf(xmin);
+		inner_absciss_min = axis_left + 1;
+	}
+	/* We do the some on the right side */
+	if (axes_count - 1 <= xmax) {
 		axis_right = (float)(axes_count -1);
 		inner_absciss_max = axis_right;
 	}
+	else {
+		axis_right = floorf(xmax + 1);
+		inner_absciss_max = picviz_min(axes_count -1, axis_right - 1);
+	}
+
+	assert(axis_left >= 0 && axis_left < axes_count);
+	assert(axis_right >= 0 && axis_right < axes_count);
 
 	/* We compute the distance between the two inner_absciss */
 	delta_inner_absciss = (int)(inner_absciss_max - inner_absciss_min);
