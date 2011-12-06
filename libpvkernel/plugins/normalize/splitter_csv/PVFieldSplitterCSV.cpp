@@ -49,8 +49,6 @@ void PVFilter::PVFieldSplitterCSV::_csv_new_field(void* s, size_t len, void* p)
 	sp->_f_cur += nchars;
 	sp->_len_buf -= len_qs;
 
-	PVLOG_HEAVYDEBUG("(PVFieldSplitterCSV): new CSV field: %s\n", qPrintable(f.qstr()));
-
 	sp->_lf->insert(sp->_it_ins, f);
 	sp->_nelts++;
 }
@@ -64,8 +62,6 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterCSV::one_to_many(PVCore:
 {
 	PVLOG_HEAVYDEBUG("(PVFieldSplitterCSV): in one_to_many\n");
 
-	field.init_qstr();
-
 	buf_infos inf;
 	// Init csv parser
 	if (csv_init(&inf._p, 0) != 0)
@@ -78,7 +74,7 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterCSV::one_to_many(PVCore:
 	inf._lf = &l;
 	inf._f_cur = (QChar*) field.begin();
 	inf._len_buf = field.size();
-	inf._cstr = field.qstr().toAscii();
+	inf._cstr = field.get_qstr().toAscii();
 	inf._nelts = 0;
 
 	// And use libcsv
