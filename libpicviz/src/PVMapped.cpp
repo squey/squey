@@ -63,8 +63,8 @@ void Picviz::PVMapped::create_table()
 {
 	PVRush::PVNraw::nraw_table& qt_nraw = get_qtnraw();
 
-	const PVRow nrows = (PVRow)qt_nraw.size();
-	const PVCol ncols = (PVCol) qt_nraw.at(0).size();
+	const PVRow nrows = (PVRow)qt_nraw.get_nrows();
+	const PVCol ncols = (PVCol) qt_nraw.get_ncols();
 	table.reserve(ncols,nrows);
 	
 	tbb::tick_count tstart = tbb::tick_count::now();
@@ -162,7 +162,7 @@ PVLOG_INFO("(pvmapped::create_table) begin cuda mapping\n");
 			}
 
 			// Get the corresponding object
-			PVRush::PVNraw::nraw_table_line const& fields = trans_nraw[j];
+			PVRush::PVNraw::const_trans_nraw_table_line fields = trans_nraw[j];
 			PVMappingFilter::p_type mapping_filter = mapping_filters[j];
 			mandatory_param_map& params_map = _mapping.get_mandatory_params_for_col(j);
 			params_map.clear();
@@ -255,7 +255,7 @@ void Picviz::PVMapped::get_sub_col_minmax(mapped_sub_col_t& ret, float& min, flo
 {
 	min = FLT_MAX;
 	max = 0;
-	PVRow size = get_qtnraw().size();
+	PVRow size = get_qtnraw().get_nrows();
 	ret.reserve(sel.get_number_of_selected_lines_in_range(0, size-1));
 	const float* mapped_values = trans_table.getRowData(col);
 	for (PVRow i = 0; i < size; i++) {

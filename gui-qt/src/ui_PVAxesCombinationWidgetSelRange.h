@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'PVAxesCombinationWidgetSelRange.ui'
 **
-** Created: Mon Dec 5 09:56:43 2011
+** Created: Tue Dec 6 09:21:10 2011
 **      by: Qt User Interface Compiler version 4.7.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!

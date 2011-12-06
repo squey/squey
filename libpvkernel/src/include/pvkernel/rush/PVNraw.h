@@ -33,7 +33,10 @@ namespace PVRush {
 //		typedef std::vector<nraw_table_line, tbb::scalable_allocator<nraw_table_line> > nraw_trans_table;
 		typedef PVCore::PVMatrix<PVCore::PVField*, PVRow, PVCol> nraw_table;
 		typedef nraw_table::line nraw_table_line;
+		typedef nraw_table::const_line const_nraw_table_line;
 		typedef nraw_table::transposed_type nraw_trans_table;
+		typedef nraw_trans_table::line trans_nraw_table_line;
+		typedef nraw_trans_table::const_line const_trans_nraw_table_line;
 	public:
 		PVNraw();
 		~PVNraw();
@@ -53,14 +56,17 @@ namespace PVRush {
 		inline nraw_table& get_table() { return table; }
 		inline nraw_table const& get_table() const { return table; }
 
+		inline nraw_trans_table& get_trans_table() { return trans_table; }
+		inline nraw_trans_table const& get_trans_table() const { return trans_table; }
+
 		inline PVRow get_number_rows() const { return table.get_nrows(); }
 		inline PVCol get_number_cols() const { return table.get_ncols(); }
 
 		PVFormat_p format;
 
-		inline QString at(PVRow row, PVCol col) const { return get_value(row, col); }
+		inline QString const& at(PVRow row, PVCol col) const { return get_value(row, col); }
 
-		inline QString get_value(PVRow row, PVCol col) const
+		inline QString const& get_value(PVRow row, PVCol col) const
 		{
 			assert(row < table.get_nrows());
 			assert(col < table.get_ncols());

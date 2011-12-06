@@ -393,7 +393,7 @@ void Picviz::PVPlotted::get_sub_col_minmax(plotted_sub_col_t& ret, float& min, f
 {
 	min = FLT_MAX;
 	max = 0;
-	PVRow size = get_qtnraw().size();
+	PVRow size = get_qtnraw().get_nrows();
 	ret.reserve(sel.get_number_of_selected_lines_in_range(0, size-1));
 	for (PVRow i = 0; i < size; i++) {
 		if (sel.get_line(i)) {
@@ -416,7 +416,7 @@ void Picviz::PVPlotted::get_col_minmax(PVRow& min, PVRow& max, PVSelection const
 	vmax = 0;
 	min = 0;
 	max = 0;
-	for (PVRow i = 0; i < get_qtnraw().size(); i++) {
+	for (PVRow i = 0; i < get_qtnraw().get_nrows(); i++) {
 		if (sel.get_line(i)) {
 			float v = get_value(i, col);
 			if (v > vmax) {

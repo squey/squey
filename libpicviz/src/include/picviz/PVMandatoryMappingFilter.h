@@ -18,7 +18,7 @@
 
 namespace Picviz {
 
-typedef std::pair<const PVRush::PVNraw::nraw_table_line*, float*> mandatory_param_list_values;
+typedef std::pair<const PVRush::PVNraw::const_trans_nraw_table_line*, float*> mandatory_param_list_values;
 typedef std::pair<QString, float> mandatory_param_value;
 
 // This defines the different parameters that a mandatory mapping

@@ -50,10 +50,13 @@ public:
 	template<class L> typename L::size_type split_regexp(L &container, QRegExp& re, typename L::iterator it_ins, bool bFullLine);
 	template<class L> typename L::size_type split_regexp(L &container, RegexMatcher& re, typename L::iterator it_ins, bool bFullLine);
 public:
-	inline QString get_qstr() const
+	inline QString const& get_qstr() const
 	{
-		size_t nc = (_end-_begin)/sizeof(QChar);
-		return QString::fromRawData((QChar*) _begin, nc);
+		if (_qstr.isNull()) {
+			size_t nc = (_end-_begin)/sizeof(QChar);
+			_qstr.setRawData((QChar*) _begin, nc);
+		}
+		return _qstr;
 	}
 	inline UnicodeString get_icustr() const
 	{
@@ -83,6 +86,7 @@ protected:
 	char* _begin;
 	char* _end;
 	char* _physical_end;
+	mutable QString _qstr; // QString "cache"
 
 	// Historically, we had a shared_ptr to a malloc memory zone if necessary
 	// A shared pointer take to much time to initialise and copy, and used to be
