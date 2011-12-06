@@ -99,6 +99,9 @@ void Picviz::PVLayerFilterHeatlineBase::operator()(PVLayer& in, PVLayer &out)
 			}
 			return;
 		}
+		if (!_view->get_line_state_in_pre_filter_layer(counter)) {
+			continue;
+		}
 		PVRush::PVNraw::const_nraw_table_line nrawvalues = nraw.get_row(counter);
 		key = PVRush::PVUtils::generate_key_from_axes_values(axes, nrawvalues);
 
