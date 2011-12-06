@@ -47,12 +47,7 @@ float* Picviz::PVMappingFilterStringSort::operator()(PVRush::PVNraw::const_trans
 		vec[i].second = i;
 	}
 
-	vec_field_sort_t::iterator it;
-	for (it = vec.begin(); it != vec.end(); it++) {
-		PVLOG_DEBUG("pointer: %p\n", it->first);
-	}
-	//tbb::parallel_sort(vec.begin(), vec.end(), compField);
-	std::sort(vec.begin(), vec.end(), compField);
+	tbb::parallel_sort(vec.begin(), vec.end(), compField);
 
 	/*
 	// This is so far the fastest way found to sort a vector of strings

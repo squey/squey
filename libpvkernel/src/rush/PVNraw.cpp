@@ -13,11 +13,13 @@
 PVRush::PVNraw::PVNraw()
 {
 	_real_nrows = 0;
+	_chunks_todel = new list_chunks_t();
 }
 
 PVRush::PVNraw::~PVNraw()
 {
 	clear();
+	delete _chunks_todel;
 }
 
 void PVRush::PVNraw::reserve(PVRow row, PVCol col)
@@ -56,28 +58,22 @@ bool PVRush::PVNraw::create_trans_nraw()
 void PVRush::PVNraw::clear_table()
 {
 	_real_nrows = 0;
-#if 0
-	for (PVRow r = 0; r < table.get_nrows(); r++) {
-		PVCore::PVField* first_field = *(table.get_row_ptr(r));
-		first_field->elt_parent()->chunk_parent()->free();
-	}
-#endif
 	table.clear();
-}
-
-void PVRush::PVNraw::copy(PVNraw &dst, PVNraw const& src)
-{
-	src.table.copy_to(dst.table);
-	if (src.trans_table.get_nrows() > 0) {
-		dst.create_trans_nraw();
+	list_chunks_t::iterator it;
+	for (it = _chunks_todel->begin(); it != _chunks_todel->end(); it++) {
+		(*it)->free();
 	}
-	dst.format = src.format;
+	_chunks_todel->clear();
 }
 
 void PVRush::PVNraw::swap(PVNraw &dst, PVNraw& src)
 {
 	src.table.swap(dst.table);
 	src.trans_table.swap(dst.trans_table);
+
+	list_chunks_t* ltmp = dst._chunks_todel;
+	dst._chunks_todel = src._chunks_todel;
+	src._chunks_todel = ltmp;
 
 	dst.format = src.format;
 }

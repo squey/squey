@@ -24,7 +24,7 @@ PVInspector::PVTimeFormatEditor::PVTimeFormatEditor(QWidget *parent):
 	main_layout->addWidget(_help_btn);
 
 	setLayout(main_layout);
-	setFocusPolicy(Qt::StrongFocus);
+	//setFocusPolicy(Qt::StrongFocus);
 
 	_help_dlg = new PVTimeFormatHelpDlg(this, parent);
 

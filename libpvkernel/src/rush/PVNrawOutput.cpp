@@ -38,6 +38,7 @@ void PVRush::PVNrawOutput::operator()(PVCore::PVChunk* out)
 
 	_nraw_cur_index++;
 
+	_nraw_dest.push_chunk_todelete(out);
 	//out->free();
 }
 

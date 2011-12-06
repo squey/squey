@@ -37,6 +37,8 @@ namespace PVRush {
 		typedef nraw_table::transposed_type nraw_trans_table;
 		typedef nraw_trans_table::line trans_nraw_table_line;
 		typedef nraw_trans_table::const_line const_trans_nraw_table_line;
+	private:
+		typedef std::list<PVCore::PVChunk*, tbb::scalable_allocator<PVCore::PVChunk*> > list_chunks_t;
 	public:
 		PVNraw();
 		~PVNraw();
@@ -45,10 +47,6 @@ namespace PVRush {
 		bool create_trans_nraw();
 		void free_trans_nraw();
 		void clear();
-
-		// This is explicit so that we are aware that we are going to allocate
-		// a huge amount of memory !
-		static void copy(PVNraw &dst, PVNraw const& src);
 
 		// Move an nraw data to another PVNraw object. No copy and allocations occurs.
 		static void swap(PVNraw &dst, PVNraw& src);
@@ -124,6 +122,8 @@ namespace PVRush {
 
 		void dump_csv();
 
+		inline void push_chunk_todelete(PVCore::PVChunk* chunk) { _chunks_todel->push_back(chunk); }
+
 	private:
 		void allocate_buf(size_t nchars);
 		void delete_buffers();
@@ -136,6 +136,7 @@ namespace PVRush {
 	private:
 		QVector<PVNrawChild> children;
 		PVRow _real_nrows;
+		list_chunks_t* _chunks_todel;
 
 		nraw_table table;
 		nraw_trans_table trans_table;
