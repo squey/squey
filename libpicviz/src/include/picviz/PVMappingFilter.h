@@ -44,7 +44,7 @@ public:
 public:
 	// Here we provide a default implementation which call operator()(QString const&) over an OpenMP-parallelised
 	// for loop over values
-	virtual float* operator()(PVRush::PVNraw::nraw_table_line const& values);
+	virtual float* operator()(PVRush::PVNraw::const_trans_nraw_table_line const& values);
 
 	virtual float operator()(QString const& value);
 	virtual void init_from_first(QString const& value);

@@ -722,8 +722,8 @@ void PVRush::PVXmlTreeNodeDom::getChildrenFromField(PVCore::PVField const& field
 	
 	PVCore::PVField field(field_);
 	field.deep_copy();
-	field.init_qstr();
-	QString str_copy(field.qstr().unicode(), field.qstr().size());
+	QString qs = field.get_qstr();
+	QString str_copy(qs.unicode(), qs.size());
 
 	QString plugin_name = attribute("type", "");
 
@@ -792,7 +792,6 @@ void PVRush::PVXmlTreeNodeDom::getChildrenFromField(PVCore::PVField const& field
 	// TODO: AG: ugly, I know that
 	PVCore::list_fields::iterator it_f = lf_res.begin();
 	for (size_t ichild = 0; ichild < lf_res.size(); ichild++) {
-		it_f->init_qstr();
 		getChild(ichild)->getChildrenFromField(*it_f);
 		it_f++;
 		if (it_f == lf_res.end()) {

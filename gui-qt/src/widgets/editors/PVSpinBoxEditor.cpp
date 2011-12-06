@@ -38,7 +38,7 @@ PVInspector::PVSpinBoxEditor::~PVSpinBoxEditor()
  *****************************************************************************/
 void PVInspector::PVSpinBoxEditor::set_spin(PVCore::PVSpinBoxType s)
 {
-	setRange(1, _view.get_qtnraw_parent().size());
+	setRange(1, _view.get_qtnraw_parent().get_nrows());
 	setValue(s.get_value());
 }
 

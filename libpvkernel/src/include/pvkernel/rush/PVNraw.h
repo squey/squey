@@ -14,6 +14,9 @@
 #include <vector>
 
 #include <pvkernel/core/general.h>
+#include <pvkernel/core/PVElement.h>
+#include <pvkernel/core/PVField.h>
+#include <pvkernel/core/PVMatrix.h>
 #include <pvkernel/core/PVMeanValue.h>
 
 #include <pvkernel/rush/PVFormat.h>
@@ -25,9 +28,17 @@ namespace PVRush {
 
 	class LibKernelDecl PVNraw {
 	public:
-		typedef std::vector<QString, tbb::scalable_allocator<QString> > nraw_table_line;
-		typedef std::vector<nraw_table_line, tbb::scalable_allocator<nraw_table_line> > nraw_table;
-		typedef std::vector<nraw_table_line> nraw_trans_table;
+//		typedef std::vector<QString, tbb::scalable_allocator<QString> > nraw_table_line;
+//		typedef std::vector<nraw_table_line, tbb::scalable_allocator<nraw_table_line> > nraw_table;
+//		typedef std::vector<nraw_table_line, tbb::scalable_allocator<nraw_table_line> > nraw_trans_table;
+		typedef PVCore::PVMatrix<PVCore::PVField*, PVRow, PVCol> nraw_table;
+		typedef nraw_table::line nraw_table_line;
+		typedef nraw_table::const_line const_nraw_table_line;
+		typedef nraw_table::transposed_type nraw_trans_table;
+		typedef nraw_trans_table::line trans_nraw_table_line;
+		typedef nraw_trans_table::const_line const_trans_nraw_table_line;
+	private:
+		typedef std::list<PVCore::PVChunk*, tbb::scalable_allocator<PVCore::PVChunk*> > list_chunks_t;
 	public:
 		PVNraw();
 		~PVNraw();
@@ -37,76 +48,59 @@ namespace PVRush {
 		void free_trans_nraw();
 		void clear();
 
-		// This is explicit so that we are aware that we are going to allocate
-		// a huge amount of memory !
-		static void copy(PVNraw &dst, PVNraw const& src);
-
 		// Move an nraw data to another PVNraw object. No copy and allocations occurs.
-		static void move(PVNraw &dst, PVNraw& src);
+		static void swap(PVNraw &dst, PVNraw& src);
 
-		inline void push_line_chars(size_t nchars) { _mean_line_chars.push(nchars); }
 		inline nraw_table& get_table() { return table; }
 		inline nraw_table const& get_table() const { return table; }
 
-		inline PVRow get_number_rows() const { return table.size(); }
-		inline PVCol get_number_cols() const
-		{
-			if (table.size() == 0) {
-				return 0;
-			}
+		inline nraw_trans_table& get_trans_table() { return trans_table; }
+		inline nraw_trans_table const& get_trans_table() const { return trans_table; }
 
-			return (PVCol) table[0].size();
-		}
-
-		nraw_table table;
-		nraw_trans_table trans_table;
+		inline PVRow get_number_rows() const { return table.get_nrows(); }
+		inline PVCol get_number_cols() const { return table.get_ncols(); }
 
 		PVFormat_p format;
 
+		inline QString const& at(PVRow row, PVCol col) const { return get_value(row, col); }
+
 		inline QString const& get_value(PVRow row, PVCol col) const
 		{
-			assert(row < table.size());
-			return table.at(row)[col];
+			assert(row < table.get_nrows());
+			assert(col < table.get_ncols());
+			return table.at(row,col)->get_qstr();
 		}
 
-		inline nraw_table_line& add_row(size_t nfields)
+		inline bool add_row(PVCore::PVElement& elt)
 		{
-			table.push_back(nraw_table_line());
-			nraw_table_line& ret  = *(table.end()-1);
-			ret.resize(nfields);
-			_real_nrows++;
-			return ret;
-#if 0
-			nraw_table_line* ret;
-			if (_real_nrows >= table.size()) {
-				// We always go a bit behind what's asked, so let's grow a bit our table
-				PVRow prev_size = table.size();
-				PVRow new_size = picviz_max(_real_nrows+1, prev_size+1000);
-				table.resize(new_size);
-				for (PVRow i = prev_size; i < new_size; i++) {
-					table[i].resize(nfields);
-				}
-				ret = &table[_real_nrows];
+			if (_real_nrows >= table.get_nrows()) {
+				// Reallocation is necessary
+				PVLOG_DEBUG("(PVNraw::add_row) reallocation of the NRAW table (element %d asked,  table size is %d).\n", _real_nrows, table.get_nrows());
+				table.resize_nrows(_real_nrows + 60240);
+				return true;
 			}
-			else {
-				ret = &table[_real_nrows];
-				if (ret->size() == 0) {
-					PVLOG_DEBUG("(PVNraw::add_row) the number of field was unknown. Resizing the nraw with %d fields...\n", nfields);
-					// The number of field was unknown at the begging, so let's resize everything
-					nraw_table::iterator it;
-					for (it = table.begin(); it != table.end(); it++) {
-						it->resize(nfields);
-					}
+			PVCore::list_fields& lf = elt.fields();
+			if (table.get_ncols() < (PVCol) lf.size()) {
+				PVLOG_WARN("(PVNraw::add_row) NRAW table has %d fields, and %d are requested.\n");
+				if (_real_nrows == 0) {
+					PVLOG_WARN("(PVNraw::add_row) that's the first element of the NRAW, resizing...\n");
+					table.resize(table.get_nrows(), lf.size());
 				}
-				else
-				if (ret->size() != nfields) {
-					PVLOG_ERROR("The number of fields asked (%d) is different from the one is the NRAW (%d) !! Resizing... (but clearly subefficient, and the NRAW won't be consistant (lines with a different number of fields)\n");
-					ret->resize(nfields);
+				else {
+					PVLOG_WARN("(PVNraw::add_row) that's not the first element of the NRAW, this element is invalid ! Discard it...\n");
+					return false;
 				}
 			}
+			PVCore::PVField** pfields = table.get_row_ptr(_real_nrows);
+			PVCore::list_fields::iterator it;
+			PVCol j = 0;
+			for (it = lf.begin(); it != lf.end(); it++) {
+				pfields[j] = &(*it);
+				j++;
+			}
+
 			_real_nrows++;
-			return *ret;
-#endif
+			return true;
 		}
 
 		inline QString get_axis_name(PVCol format_axis_id) const
@@ -117,21 +111,18 @@ namespace PVRush {
             return QString("");
 		}
 
-		inline static void set_field(nraw_table_line& line, size_t index_field, const QChar* buf, size_t nchars)
-
-		{
-			static tbb::scalable_allocator<QChar> alloc;
-			QChar* copy = alloc.allocate(nchars);
-			memcpy(copy, buf, nchars*sizeof(QChar));
-
-			line[index_field].setRawData(copy, (int) nchars);
-		}
-
 		QString nraw_line_to_csv(PVRow idx) const;
 
 		void fit_to_content();
 
+		bool resize_nrows(PVRow row)
+		{
+			return table.resize_nrows(row);
+		}
+
 		void dump_csv();
+
+		inline void push_chunk_todelete(PVCore::PVChunk* chunk) { _chunks_todel->push_back(chunk); }
 
 	private:
 		void allocate_buf(size_t nchars);
@@ -140,12 +131,15 @@ namespace PVRush {
 
 	private:
 		PVNraw(const PVNraw& /*nraw*/) {}
-		PVNraw& operator=(PVNraw const& /*nraw*/) {return *this;}
+		PVNraw& operator=(PVNraw const& /*nraw*/) { return *this; }
 
 	private:
 		QVector<PVNrawChild> children;
-		PVCore::PVMeanValue<size_t> _mean_line_chars;
 		PVRow _real_nrows;
+		list_chunks_t* _chunks_todel;
+
+		nraw_table table;
+		nraw_trans_table trans_table;
 	};
 
 }

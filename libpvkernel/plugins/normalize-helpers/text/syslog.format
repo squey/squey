@@ -22,7 +22,7 @@
   </field>
   <field>
    <axis titlecolor="#ff921d" tag="key" time-format="" group="" type="string" name="Message" color="#ffffff" time-sample="">
-    <mapping mode="default"/>
+    <mapping mode="sort"/>
     <plotting mode="default"/>
    </axis>
   </field>

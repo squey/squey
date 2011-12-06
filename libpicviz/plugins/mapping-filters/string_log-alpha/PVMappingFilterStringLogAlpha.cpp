@@ -7,7 +7,7 @@
 #include <omp.h>
 
 
-float* Picviz::PVMappingFilterStringDefault::operator()(PVRush::PVNraw::nraw_table_line const& values)
+float* Picviz::PVMappingFilterStringDefault::operator()(PVRush::PVNraw::const_trans_nraw_table_line const& values)
 {
 	assert(_dest);
 	assert(values.size() >= _dest_size);

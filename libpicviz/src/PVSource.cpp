@@ -148,7 +148,7 @@ void Picviz::PVSource::set_format(PVRush::PVFormat const& format)
 
 PVRush::PVNraw::nraw_table& Picviz::PVSource::get_qtnraw()
 {
-	return nraw->table;
+	return nraw->get_table();
 }
 
 PVRush::PVNraw& Picviz::PVSource::get_rushnraw()
@@ -163,7 +163,7 @@ const PVRush::PVNraw& Picviz::PVSource::get_rushnraw() const
 
 PVRush::PVNraw::nraw_trans_table const& Picviz::PVSource::get_trans_nraw() const
 {
-	return nraw->trans_table;
+	return nraw->get_trans_table();
 }
 
 void Picviz::PVSource::clear_trans_nraw()
@@ -173,22 +173,22 @@ void Picviz::PVSource::clear_trans_nraw()
 
 const PVRush::PVNraw::nraw_table& Picviz::PVSource::get_qtnraw() const
 {
-	return nraw->table;
+	return nraw->get_table();
 }
 
 PVRow Picviz::PVSource::get_row_count()
 {
-	return nraw->table.size();
+	return nraw->get_number_rows();
 }
 
 PVCol Picviz::PVSource::get_column_count()
 {
-	return nraw->table.at(0).size();
+	return nraw->get_number_cols();
 }
 
 QString const& Picviz::PVSource::get_value(PVRow row, PVCol col) const
 {
-	return nraw->table.at(row)[col];
+	return nraw->at(row,col);
 }
 
 PVRush::PVExtractor& Picviz::PVSource::get_extractor()

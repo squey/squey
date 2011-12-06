@@ -13,12 +13,13 @@
 #include <pvkernel/filter/PVFilterFunction.h>
 #include <pvkernel/rush/PVNraw.h>
 
-#include <tbb/concurrent_unordered_map.h>
+//#include <tbb/concurrent_unordered_map.h>
+#include <map>
 #include <utility>
 
 namespace Picviz {
 
-typedef std::pair<const PVRush::PVNraw::nraw_table_line*, float*> mandatory_param_list_values;
+typedef std::pair<const PVRush::PVNraw::const_trans_nraw_table_line*, float*> mandatory_param_list_values;
 typedef std::pair<QString, float> mandatory_param_value;
 
 // This defines the different parameters that a mandatory mapping
@@ -29,7 +30,8 @@ enum mandatory_mapping_param_type
 	mandatory_ymax
 };
 
-typedef tbb::concurrent_unordered_map<mandatory_mapping_param_type, mandatory_param_value> mandatory_param_map;
+//typedef tbb::concurrent_unordered_map<mandatory_mapping_param_type, mandatory_param_value> mandatory_param_map;
+typedef std::map<mandatory_mapping_param_type, mandatory_param_value> mandatory_param_map;
 
 class LibPicvizDecl PVMandatoryMappingFilter: public PVFilter::PVFilterFunctionBase<int, mandatory_param_list_values const&>, public PVCore::PVRegistrableClass<PVMandatoryMappingFilter>
 {

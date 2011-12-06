@@ -1,5 +1,5 @@
 #include "PVPlottingFilterFloatIGR.h"
-#define RANGE 15.0f
+#define RANGE 20.0f
 
 float Picviz::PVPlottingFilterFloatIGR::operator()(float f)
 {

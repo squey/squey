@@ -34,7 +34,7 @@ static float _enum_position_factorize(int enumber)
 	return res;
 }
 
-float* Picviz::PVMappingFilterEnumDefault::operator()(PVRush::PVNraw::nraw_table_line const& values)
+float* Picviz::PVMappingFilterEnumDefault::operator()(PVRush::PVNraw::const_trans_nraw_table_line const& values)
 {
 	float retval = 0;
 	int position = 0;
@@ -46,7 +46,7 @@ float* Picviz::PVMappingFilterEnumDefault::operator()(PVRush::PVNraw::nraw_table
 	_poscount = 0;
 
 	for (size_t i = 0; i < values.size(); i++) {
-		QString const& value = values[i];
+		QString const& value = values[i]->get_qstr();
 		hash_values::iterator it_v = enum_hash.find(value);
 		if (it_v != enum_hash.end()) {
 			position = it_v.value().toInt();

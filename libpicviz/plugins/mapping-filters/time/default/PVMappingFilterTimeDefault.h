@@ -20,7 +20,7 @@ public:
 	PVMappingFilterTimeDefault(PVCore::PVArgumentList const& args = PVMappingFilterTimeDefault::default_args());
 
 public:
-	float* operator()(PVRush::PVNraw::nraw_table_line const& values);
+	float* operator()(PVRush::PVNraw::const_trans_nraw_table_line const& values);
 	QString get_human_name() const { return QString("Default"); }
 protected:
 	virtual float cal_to_float(Calendar* cal, bool& success);

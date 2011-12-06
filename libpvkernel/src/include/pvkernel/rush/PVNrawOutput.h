@@ -26,6 +26,7 @@ protected:
 protected:
 	PVNraw &_nraw_dest;
 	map_pvrow _pvrow_chunk_idx;
+	PVRow _nraw_cur_index;
 
 	CLASS_FILTER_NONREG(PVNrawOutput)
 };

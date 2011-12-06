@@ -36,7 +36,7 @@ void PVRush::PVOutputFile::operator()(PVCore::PVChunk* out)
 			PVCore::PVField const& field = *itf;
 			if (!field.valid())
 				continue;
-			const QByteArray flocal = field.qstr().toLocal8Bit();
+			const QByteArray flocal = field.get_qstr().toLocal8Bit();
 			fwrite(flocal.data(), flocal.size(), 1, _file);
 			fputc('\t', _file);
 		}

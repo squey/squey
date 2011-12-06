@@ -122,6 +122,7 @@ void PVInspector::PVArgumentListWidget::set_args(PVCore::PVArgumentList& args)
 		_mapper->addMapping(widget, row, _args_widget_factory->valuePropertyName(vtype));
 		row++;
 	}
+	_mapper->setSubmitPolicy(QDataWidgetMapper::AutoSubmit);
 	_mapper->toFirst();
 	clear_args_state();
 }

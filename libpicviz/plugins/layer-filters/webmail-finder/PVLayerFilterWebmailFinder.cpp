@@ -54,7 +54,7 @@ void Picviz::PVLayerFilterWebmailFinder::operator()(PVLayer& in, PVLayer &out)
 {	
 	PVCore::PVAxesIndexType axes_id = _args["Domain axis"].value<PVCore::PVAxesIndexType>();
 
-	PVRow nb_lines = _view->get_qtnraw_parent().size();
+	PVRow nb_lines = _view->get_qtnraw_parent().get_nrows();
 
 	PVRush::PVNraw::nraw_table const& nraw = _view->get_qtnraw_parent();
 
@@ -76,8 +76,7 @@ void Picviz::PVLayerFilterWebmailFinder::operator()(PVLayer& in, PVLayer &out)
 				return;
 			}
 			if (_view->get_line_state_in_pre_filter_layer(r)) {
-				PVRush::PVNraw::nraw_table_line const& nraw_r = nraw.at(r);
-				QString const& data = nraw_r.at(axis_id);
+				QString const& data = nraw.at(r, axis_id)->get_qstr();
 				hotmail_sel.set_line(r, data.contains(hotmail, Qt::CaseInsensitive));
 				yahoo_sel.set_line(r, data.contains(yahoo, Qt::CaseInsensitive));
 			}

@@ -12,8 +12,8 @@ add_executable(Tpicviz_root root.cpp)
 target_link_libraries(Tpicviz_root ${LINK_LIBRARIES})
 add_test(TestRoot Tpicviz_root)
 
-add_executable(Tpicviz_bench_mapping_time bench_mapping-time.cpp)
-target_link_libraries(Tpicviz_bench_mapping_time ${LINK_LIBRARIES})
+#add_executable(Tpicviz_bench_mapping_time bench_mapping-time.cpp)
+#target_link_libraries(Tpicviz_bench_mapping_time ${LINK_LIBRARIES})
 
 
 add_executable(TPVSelection PVSelection.cpp)

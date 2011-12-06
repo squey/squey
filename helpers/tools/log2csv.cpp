@@ -23,29 +23,6 @@ using std::cout;
 using std::cerr;
 using std::endl;
 
-void dump_nraw_csv(PVRush::PVNraw& nraw_)
-{
-	PVRush::PVNraw::nraw_table &nraw = nraw_.get_table();
-	PVRush::PVNraw::nraw_table::iterator it_nraw;
-	PVRush::PVNraw::nraw_table_line::iterator it_nraw_line, it_nraw_line_end;
-	for (it_nraw = nraw.begin(); it_nraw != nraw.end(); it_nraw++) {
-		PVRush::PVNraw::nraw_table_line &l = *it_nraw;
-		if (l.size() == 1) {
-			QString &l_str = *(l.begin());
-			std::cout << l_str.toUtf8().constData() << std::endl;
-			continue;
-		}
-		it_nraw_line_end = l.end();
-		it_nraw_line_end--;
-		// for (it_nraw_line = l.begin(); it_nraw_line != it_nraw_line_end; it_nraw_line++) {
-		// 	QString &field = *it_nraw_line;
-		// 	std::cout << "'FOO" << field.toUtf8().constData() << "',BAR";
-		// }
-		// QString &field = *it_nraw_line;
-		// std::cout << "'CAM" << field.toUtf8().constData() << "'NADA" << std::endl;
-	}
-}
-
 
 int main(int argc, char** argv)
 {

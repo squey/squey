@@ -245,13 +245,13 @@ void PVInspector::PVListingModel::initMatchingTable() {
 	PVLOG_DEBUG("PVListingModel::initCorrespondance()\n");
 	//init the table of corresponding table.
 	//if the size of nraw is not the same as the matching table...
-	if (lib_view->get_qtnraw_parent().size() != parent_widget->sortMatchingTable.size()) {
+	if (lib_view->get_qtnraw_parent().get_nrows() != parent_widget->sortMatchingTable.size()) {
 		PVLOG_DEBUG("         init LISTING_ALL\n");
 		//...reinit the matching table.
 		MatchingTable_t& matchTable = parent_widget->sortMatchingTable;
 		MatchingTable_t& invMatchTable = parent_widget->sortMatchingTable_invert;
 
-		PVRow nraw_size = lib_view->get_qtnraw_parent().size();
+		PVRow nraw_size = lib_view->get_qtnraw_parent().get_nrows();
 		matchTable.reserve(nraw_size);
 		invMatchTable.reserve(nraw_size);
 		matchTable.clear(); // clear remove the object from the std::vector object, but the vector's capacity isn't changed !

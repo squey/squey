@@ -116,17 +116,13 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_pvrow(PVRow start, P
 	}
 
 	// Check whether lines from "start" to "end" already exists
-	if (end < _nraw.table.size()) {
+	if (end < _nraw.get_table().get_nrows()) {
 		if (force_process) {
 			// Ok, we got them, but we want them to be reprocessed. Let's do this !
 			return process_from_agg_nlines(idx_start, end-start + 1);
 		}
 		// Shrink the nraw
-		// TODO: be more efficient
-		PVNraw new_nraw;
-		new_nraw.table.resize(end-start+1);
-		std::copy(_nraw.table.begin() + start, _nraw.table.begin()+end+1, new_nraw.table.begin());
-		_nraw.table = new_nraw.table;
+		_nraw.resize_nrows(end-start+1);
 		return PVControllerJob_p(new PVControllerJobDummy());
 	}
 	else {
@@ -206,10 +202,10 @@ void PVRush::PVExtractor::dump_nraw()
 //	}
 
 	PVLOG_INFO("Nraw:\n");
-	for (int i = 0; i < picviz_min(10,_nraw.table.size()); i++) {
+	for (int i = 0; i < picviz_min(10,_nraw.get_number_rows()); i++) {
 		PVLOG_INFO("Line %d: ", i);
-		for (int j = 0; j < _nraw.table[i].size(); j++) {
-			std::cout << qPrintable(_nraw.table[i][j]) << ",";
+		for (int j = 0; j < _nraw.get_number_cols(); j++) {
+			std::cout << qPrintable(_nraw.at(i,j)) << ",";
 		}
 		std::cout << std::endl;
 	}
@@ -237,14 +233,15 @@ void PVRush::PVExtractor::debug()
 
 void PVRush::PVExtractor::save_nraw()
 {
-	PVNraw::move(_saved_nraw, _nraw);
+	PVNraw::swap(_saved_nraw, _nraw);
 	_saved_nraw_valid = true;
 }
 
 void PVRush::PVExtractor::restore_nraw()
 {
 	if (_saved_nraw_valid) {
-		PVNraw::move(_nraw, _saved_nraw);
+		PVNraw::swap(_nraw, _saved_nraw);
+		_saved_nraw.free_trans_nraw();
 		_saved_nraw_valid = false;
 	}
 }
@@ -252,7 +249,7 @@ void PVRush::PVExtractor::restore_nraw()
 void PVRush::PVExtractor::clear_saved_nraw()
 {
 	if (_saved_nraw_valid) {
-		_saved_nraw.clear();
+		_saved_nraw.free_trans_nraw();
 		_saved_nraw_valid = false;
 	}
 }

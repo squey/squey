@@ -7,47 +7,39 @@
 PVRush::PVNrawOutput::PVNrawOutput(PVRush::PVNraw &nraw_dest) :
 	_nraw_dest(nraw_dest)
 {
+	_nraw_cur_index = 0;
 }
 
 void PVRush::PVNrawOutput::operator()(PVCore::PVChunk* out)
 {
 	// Write all elements of the chunk in the final nraw
-	PVCore::list_elts const& elts = out->c_elements();	
-	PVCore::list_elts::const_iterator it_elt;
-
-	// Index used for the pvrow map table
-	PVRow nraw_index = _nraw_dest.table.size();
+	PVCore::list_elts& elts = out->elements();	
+	PVCore::list_elts::iterator it_elt;
 
 	//std::list<QString, tbb::tbb_allocator<QString> > sl;
 	for (it_elt = elts.begin(); it_elt != elts.end(); it_elt++) {
-		PVCore::PVElement const& e = *(*it_elt);
+		PVCore::PVElement& e = *(*it_elt);
 		if (!e.valid())
 			continue;
 		PVCore::list_fields const& fields = e.c_fields();
-		PVCore::list_fields::const_iterator it_field;
 		if (fields.size() == 0)
 			continue;
 
-		size_t nchars_line = 0;
-		PVRush::PVNraw::nraw_table_line &sl = _nraw_dest.add_row(fields.size());
-		size_t index_f = 0;
-		for (it_field = fields.begin(); it_field != fields.end(); it_field++) {
-			PVCore::PVField const& f = *it_field;
-			if (!f.valid())
-				continue;
-			nchars_line += f.size();
-			//sl[index_f].setUnicode((QChar*) f.begin(), f.size()/(sizeof(QChar)));
-			_nraw_dest.set_field(sl, index_f, (QChar*) f.begin(), f.size()/(sizeof(QChar)));
-			index_f++;
+		if (!_nraw_dest.add_row(e)) {
+			// Discard the chunk
+			return;
 		}
-		_nraw_dest.push_line_chars(nchars_line);
+
+		//PVLOG_DEBUG("(PVNrawOutput) add element\n");
 	}
 	
 	// Save the chunk corresponding index
-	_pvrow_chunk_idx[nraw_index] = out->agg_index();
-	
-	// Free the chunk
-	out->free();
+	_pvrow_chunk_idx[_nraw_cur_index] = out->agg_index();
+
+	_nraw_cur_index++;
+
+	_nraw_dest.push_chunk_todelete(out);
+	//out->free();
 }
 
 PVRush::PVNrawOutput::map_pvrow const& PVRush::PVNrawOutput::get_pvrow_index_map() const
@@ -57,6 +49,7 @@ PVRush::PVNrawOutput::map_pvrow const& PVRush::PVNrawOutput::get_pvrow_index_map
 
 void PVRush::PVNrawOutput::clear_pvrow_index_map()
 {
+	_nraw_cur_index = 0;
 	_pvrow_chunk_idx.clear();
 }
 

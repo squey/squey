@@ -249,7 +249,7 @@ public:
 	 * @return a string containing wanted data
 	 *
 	 */
-	QString get_data(PVRow row, PVCol column);
+	QString const& get_data(PVRow row, PVCol column);
 
 	/**
 	 * Gets the data directly from nraw, without #PVAxesCombination
@@ -260,7 +260,7 @@ public:
 	 * @return a string containing wanted data
 	 *
 	 */
-	QString get_data_raw(PVRow row, PVCol column);
+	QString const& get_data_raw(PVRow row, PVCol column);
 
 	void selection_A2B_select_with_square_area(PVSelection &a, PVSelection &b);
 

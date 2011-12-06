@@ -12,12 +12,12 @@
 #include <pvkernel/core/PVAxesIndexType.h>
 #include <pvkernel/core/PVSpinBoxType.h>
 
-static QString generate_row_key_from_values(PVCore::PVAxesIndexType const& axes, PVRush::PVNraw::nraw_table_line const& values)
+static QString generate_row_key_from_values(PVCore::PVAxesIndexType const& axes, PVRush::PVNraw::const_nraw_table_line const& values)
 {
 	QString ret;
 	PVCore::PVAxesIndexType::const_iterator it;
 	for (it = axes.begin(); it != axes.end(); it++) {
-		ret.append(values[*it]);
+		ret.append(values[*it]->get_qstr());
 	}
 	return ret;
 }
@@ -70,7 +70,7 @@ PVCore::PVArgumentList Picviz::PVLayerFilterDiff::get_default_args_for_view(PVVi
 void Picviz::PVLayerFilterDiff::operator()(PVLayer& in, PVLayer &out)
 {	
 	PVRush::PVNraw::nraw_table const& nraw = _view->get_qtnraw_parent();
-	PVRow nb_lines = nraw.size();
+	PVRow nb_lines = nraw.get_nrows();
 	PVCore::PVAxesIndexType axes = _args["Axes"].value<PVCore::PVAxesIndexType>();
 	if (axes.size() == 0) {
 		_args = get_default_args_for_view(*_view);
@@ -99,7 +99,7 @@ void Picviz::PVLayerFilterDiff::operator()(PVLayer& in, PVLayer &out)
 
 	/* 1st round: we create our hash from the values */
 	for (counter = 0; counter < toline_spinbox.get_value(); counter++) {
-		PVRush::PVNraw::nraw_table_line const& nrawvalues = nraw.at(counter);
+		PVRush::PVNraw::const_nraw_table_line nrawvalues = nraw.get_row(counter);
 		key = generate_row_key_from_values(axes, nrawvalues);
 		// qDebug("KEY VALUE=%s\n", qPrintable(key));
 
@@ -109,7 +109,7 @@ void Picviz::PVLayerFilterDiff::operator()(PVLayer& in, PVLayer &out)
 
 	// /* 2nd round: we get the color from the ratio compared with the key and the frequency */
 	for (counter = 0; counter < nb_lines; counter++) {
-		PVRush::PVNraw::nraw_table_line const& nrawvalues = nraw.at(counter);
+		PVRush::PVNraw::const_nraw_table_line nrawvalues = nraw.get_row(counter);
 		key = generate_row_key_from_values(axes, nrawvalues);
 		int value_from_key = lines_hash[key];
 		if (value_from_key == 1) { 

@@ -46,7 +46,7 @@ void Picviz::PVLayerFilterFindDuplicates::operator()(PVLayer& in, PVLayer &out)
 	int axis_id = _args["Axis"].value<PVCore::PVAxisIndexType>().get_original_index();
 	bool non_duplicates = _args["Select only non-duplicates"].value<PVCore::PVCheckBoxType>().get_checked();
 	bool with_one_duplicate = _args["Select with one duplicate"].value<PVCore::PVCheckBoxType>().get_checked();
-	PVRow nb_lines = _view->get_qtnraw_parent().size();
+	PVRow nb_lines = _view->get_qtnraw_parent().get_nrows();
 
 	PVRush::PVNraw::nraw_table const& nraw = _view->get_qtnraw_parent();
 	QHash<QString, PVRow> lines_duplicates;
@@ -64,8 +64,7 @@ void Picviz::PVLayerFilterFindDuplicates::operator()(PVLayer& in, PVLayer &out)
 		}
 
 		if (_view->get_line_state_in_pre_filter_layer(r)) {
-			PVRush::PVNraw::nraw_table_line const& nraw_r = nraw.at(r);
-			QString value = nraw_r[axis_id];
+			QString const& value = nraw.at(r, axis_id)->get_qstr();
 			PVRow count = lines_duplicates[value]+1;
 			lines_duplicates.insert(value, count);
 		}
@@ -81,8 +80,7 @@ void Picviz::PVLayerFilterFindDuplicates::operator()(PVLayer& in, PVLayer &out)
 		}
 
 		if (_view->get_line_state_in_pre_filter_layer(r)) {
-			PVRush::PVNraw::nraw_table_line const& nraw_r = nraw.at(r);
-			QString value = nraw_r[axis_id];
+			QString const& value = nraw.at(r, axis_id)->get_qstr();
 			PVRow count = lines_duplicates[value];
 			if (count > 1) {
 				if ((line_already_selected[r]) || non_duplicates) {

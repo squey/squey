@@ -44,31 +44,30 @@ public:
 	void grow_by_reallocate(size_t n);
 	void allocate_new(size_t n);
 
-	inline QString const& qstr() const { return _qstr; }
-	inline UnicodeString const& icustr() const { return _icustr; }
 public:
 	template<class L> typename L::size_type split(L &container, char c, typename L::iterator it_ins);
 	template<class L> typename L::size_type split_qchar(L &container, QChar c, typename L::iterator it_ins);
 	template<class L> typename L::size_type split_regexp(L &container, QRegExp& re, typename L::iterator it_ins, bool bFullLine);
 	template<class L> typename L::size_type split_regexp(L &container, RegexMatcher& re, typename L::iterator it_ins, bool bFullLine);
 public:
-	inline void init_qstr()
+	inline QString const& get_qstr() const
 	{
-		size_t nc = (_end-_begin)/sizeof(QChar);
-		_qstr.setRawData((QChar*) _begin, (int) nc);
+		if (_qstr.isNull()) {
+			size_t nc = (_end-_begin)/sizeof(QChar);
+			_qstr.setRawData((QChar*) _begin, nc);
+		}
+		return _qstr;
 	}
-	inline void init_icustr()
+	inline UnicodeString get_icustr() const
 	{
 		size_t nc = (_end-_begin)/sizeof(QChar);
 		// We must use the "setTo" method instead of using this UnicodeString constructor, as this method
 		// it sets the UnicodeString as a "read-only" alias (and not the constructor). Cf. ICU's sources...
-		_icustr.setTo(false, (const UChar *)(_begin), (int32_t) nc);
+		UnicodeString ret;
+		ret.setTo(false, (const UChar *)(_begin), nc);
+		return ret;
 	}
-	inline void init_allstr()
-	{
-		init_qstr();
-		init_icustr();
-	}
+
 	inline void set_buflist(buf_list_t& buf_list) { _buf_list = buf_list; }
 
 protected:
@@ -87,11 +86,7 @@ protected:
 	char* _begin;
 	char* _end;
 	char* _physical_end;
-
-	// If relevant, a QString that represent that buffer ! It should contain UTF-16 valid data !
-	QString _qstr;
-	// Same with ICU
-	UnicodeString _icustr;
+	mutable QString _qstr; // QString "cache"
 
 	// Historically, we had a shared_ptr to a malloc memory zone if necessary
 	// A shared pointer take to much time to initialise and copy, and used to be
@@ -118,7 +113,6 @@ typename L::size_type PVCore::PVBufferSlice::split(L& container, char c, typenam
 		elt._begin = start;
 		elt._end = end;
 		elt._physical_end = elt._end;
-		elt.init_qstr();
 
 		// Add the new object to the container
 		container.insert(it_ins, elt);
@@ -135,7 +129,6 @@ typename L::size_type PVCore::PVBufferSlice::split(L& container, char c, typenam
 		typename L::value_type elt(*((typename L::value_type *)this));
 		elt._begin = start;
 		elt._end = this->end();
-		elt.init_qstr();
 		container.insert(it_ins, elt);
 		n++;
 	}
@@ -146,18 +139,17 @@ typename L::size_type PVCore::PVBufferSlice::split(L& container, char c, typenam
 template <class L>
 typename L::size_type PVCore::PVBufferSlice::split_qchar(L& container, QChar c, typename L::iterator it_ins)
 {
-	init_qstr();
+	QString qs = get_qstr();
 	QChar* str_start = (QChar*) begin();
 	int old_pos_c = 0;
 	int pos_c;
 	int n = 0;
-	ssize_t sstr = _qstr.size();
-	while ((pos_c = _qstr.indexOf(c, old_pos_c)) != -1) {
+	ssize_t sstr = qs.size();
+	while ((pos_c = qs.indexOf(c, old_pos_c)) != -1) {
 		typename L::value_type elt(*((typename L::value_type *)this));
 		elt._begin = (char*) (str_start + old_pos_c);
 		elt._end = (char*) (str_start + pos_c);
 		elt._physical_end = elt._end;
-		elt.init_qstr();
 
 		container.insert(it_ins, elt);
 
@@ -169,7 +161,6 @@ typename L::size_type PVCore::PVBufferSlice::split_qchar(L& container, QChar c, 
 		typename L::value_type elt(*((typename L::value_type *)this));
 		elt._begin = (char*) (str_start + old_pos_c);
 		elt._end = this->end();
-		elt.init_qstr();
 		container.insert(it_ins, elt);
 		n++;
 	}
@@ -180,9 +171,8 @@ typename L::size_type PVCore::PVBufferSlice::split_qchar(L& container, QChar c, 
 template <class L>
 typename L::size_type PVCore::PVBufferSlice::split_regexp(L& container, RegexMatcher& re_, typename L::iterator it_ins, bool bFullLine)
 {
-	init_icustr();
 	UErrorCode err = U_ZERO_ERROR;
-	re_.reset(_icustr);
+	re_.reset(get_icustr());
 	if (bFullLine) {
 		if (!re_.matches(err)) {
 			return 0;
@@ -217,15 +207,15 @@ typename L::size_type PVCore::PVBufferSlice::split_regexp(L& container, RegexMat
 template <class L>
 typename L::size_type PVCore::PVBufferSlice::split_regexp(L& container, QRegExp& re_, typename L::iterator it_ins, bool bFullLine)
 {
-	init_qstr();
+	QString qs = get_qstr();
 	QStringList rx_fields;
 	if (bFullLine) {
-		if (re_.exactMatch(_qstr) == -1) {
+		if (re_.exactMatch(qs) == -1) {
 			return 0;
 		}
 	}
 	else {
-		if (re_.indexIn(_qstr) == -1) {
+		if (re_.indexIn(qs) == -1) {
 			return 0;
 		}
 	}

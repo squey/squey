@@ -1021,7 +1021,7 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_p src)
 	}
 	src->wait_extract_end(job_import);
 	PVLOG_INFO("The normalization job took %0.4f seconds.\n", job_import->duration().seconds());
-	if (src->get_rushnraw().table.size() == 0) {
+	if (src->get_rushnraw().get_number_rows() == 0) {
 		PVLOG_ERROR("Cannot append source!\n");
 		QMessageBox msgBox;
 		msgBox.critical(this, "Cannot import file type", QString("The files %1/%2 cannot be opened. It looks like the format is invalid (invalid regular expressions or filters).").arg(src->get_name()).arg(src->get_format_name()));
