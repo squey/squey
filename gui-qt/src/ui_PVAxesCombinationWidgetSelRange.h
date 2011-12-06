@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'PVAxesCombinationWidgetSelRange.ui'
 **
-** Created: Mon Dec 5 09:56:43 2011
+** Created: Tue Dec 6 14:30:29 2011
 **      by: Qt User Interface Compiler version 4.7.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -46,6 +46,9 @@ public:
     QLabel *label_5;
     QComboBox *_combo_values_src;
     QSpacerItem *horizontalSpacer;
+    QHBoxLayout *horizontalLayout_3;
+    QLabel *label_6;
+    QLineEdit *_edit_rate;
     QDialogButtonBox *buttonBox;
 
     void setupUi(QDialog *PVAxesCombinationWidgetSelRange)
@@ -145,6 +148,21 @@ public:
 
         verticalLayout->addLayout(horizontalLayout_2);
 
+        horizontalLayout_3 = new QHBoxLayout();
+        horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
+        label_6 = new QLabel(PVAxesCombinationWidgetSelRange);
+        label_6->setObjectName(QString::fromUtf8("label_6"));
+
+        horizontalLayout_3->addWidget(label_6);
+
+        _edit_rate = new QLineEdit(PVAxesCombinationWidgetSelRange);
+        _edit_rate->setObjectName(QString::fromUtf8("_edit_rate"));
+
+        horizontalLayout_3->addWidget(_edit_rate);
+
+
+        verticalLayout->addLayout(horizontalLayout_3);
+
         buttonBox = new QDialogButtonBox(PVAxesCombinationWidgetSelRange);
         buttonBox->setObjectName(QString::fromUtf8("buttonBox"));
         buttonBox->setOrientation(Qt::Horizontal);
@@ -179,6 +197,7 @@ public:
          << QApplication::translate("PVAxesCombinationWidgetSelRange", "plotting", 0, QApplication::UnicodeUTF8)
          << QApplication::translate("PVAxesCombinationWidgetSelRange", "mapping", 0, QApplication::UnicodeUTF8)
         );
+        label_6->setText(QApplication::translate("PVAxesCombinationWidgetSelRange", "Percentage of matching values:", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

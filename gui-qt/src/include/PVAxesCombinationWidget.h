@@ -90,6 +90,7 @@ public:
 public:
 	bool get_range(float& min, float& max);
 	bool reversed();
+	double rate();
 	values_source_t get_source();
 };
 

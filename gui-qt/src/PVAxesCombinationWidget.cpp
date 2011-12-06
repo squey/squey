@@ -318,22 +318,23 @@ void PVInspector::PVAxesCombinationWidget::sel_range_Slot()
 		return;
 	}
 
+	double rate = dlg->rate();
 	QList<PVCol> cols;
 	PVAxesCombinationWidgetSelRange::values_source_t src = dlg->get_source();
 	if (dlg->reversed()) {
 		if (src == PVAxesCombinationWidgetSelRange::plotted) {
-			cols = _view->get_plotted_parent()->get_columns_indexes_values_not_within_range(min, max);
+			cols = _view->get_plotted_parent()->get_columns_indexes_values_not_within_range(min, max, rate);
 		}
 		else {
-			cols = _view->get_mapped_parent()->get_columns_indexes_values_not_within_range(min, max);
+			cols = _view->get_mapped_parent()->get_columns_indexes_values_not_within_range(min, max, rate);
 		}
 	}
 	else {
 		if (src == PVAxesCombinationWidgetSelRange::plotted) {
-			cols = _view->get_plotted_parent()->get_columns_indexes_values_within_range(min, max);
+			cols = _view->get_plotted_parent()->get_columns_indexes_values_within_range(min, max, rate);
 		}
 		else {
-			cols = _view->get_mapped_parent()->get_columns_indexes_values_within_range(min, max);
+			cols = _view->get_mapped_parent()->get_columns_indexes_values_within_range(min, max, rate);
 		}
 	}
 	set_selection_from_cols(cols);
@@ -360,6 +361,15 @@ bool PVInspector::PVAxesCombinationWidgetSelRange::get_range(float& min, float& 
 bool PVInspector::PVAxesCombinationWidgetSelRange::reversed()
 {
 	return _combo_reverse->currentIndex() == 1;
+}
+
+double PVInspector::PVAxesCombinationWidgetSelRange::rate()
+{
+	double rate = _edit_rate->text().toDouble()/100.0;
+	if (rate == 0.0) {
+		rate = 1.0;
+	}
+	return rate;
 }
 
 PVInspector::PVAxesCombinationWidgetSelRange::values_source_t PVInspector::PVAxesCombinationWidgetSelRange::get_source()

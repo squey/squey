@@ -379,7 +379,7 @@ void Picviz::PVMapped::invalidate_all()
 	_mapping.invalidate_all();
 }
 
-QList<PVCol> Picviz::PVMapped::get_columns_indexes_values_within_range(float min, float max)
+QList<PVCol> Picviz::PVMapped::get_columns_indexes_values_within_range(float min, float max, double rate)
 {
 	const PVRow nrows = get_row_count();
 	const PVCol ncols = get_column_count();
@@ -389,18 +389,18 @@ QList<PVCol> Picviz::PVMapped::get_columns_indexes_values_within_range(float min
 		return cols_ret;
 	}
 
+	double nrows_d = (double) nrows;
 	for (PVCol j = 0; j < ncols; j++) {
-		bool add_col = true;
+		PVRow nmatch = 0;
 		const float* values = trans_table.getRowData(j);
 		// TODO: optimise w/ SIMD if relevant
 		for (PVRow i = 0; i < nrows; i++) {
 			const float v = values[i];
-			if (v < min || v > max) {
-				add_col = false;
-				break;
+			if (v >= min && v <= max) {
+				nmatch++;
 			}
 		}
-		if (add_col) {
+		if ((double)nmatch/nrows_d >= rate) {
 			cols_ret << j;
 		}
 	}
@@ -408,7 +408,7 @@ QList<PVCol> Picviz::PVMapped::get_columns_indexes_values_within_range(float min
 	return cols_ret;
 }
 
-QList<PVCol> Picviz::PVMapped::get_columns_indexes_values_not_within_range(float min, float max)
+QList<PVCol> Picviz::PVMapped::get_columns_indexes_values_not_within_range(float min, float max, double rate)
 {
 	const PVRow nrows = get_row_count();
 	const PVCol ncols = get_column_count();
@@ -418,18 +418,18 @@ QList<PVCol> Picviz::PVMapped::get_columns_indexes_values_not_within_range(float
 		return cols_ret;
 	}
 
+	double nrows_d = (double) nrows;
 	for (PVCol j = 0; j < ncols; j++) {
-		bool add_col = true;
+		PVRow nmatch = 0;
 		const float* values = trans_table.getRowData(j);
 		// TODO: optimise w/ SIMD if relevant
 		for (PVRow i = 0; i < nrows; i++) {
 			const float v = values[i];
-			if (v >= min && v <= max) {
-				add_col = false;
-				break;
+			if (v < min || v > max) {
+				nmatch++;
 			}
 		}
-		if (add_col) {
+		if ((double)nmatch/nrows_d >= rate) {
 			cols_ret << j;
 		}
 	}

@@ -68,8 +68,8 @@ public:
 	void set_name(QString const& name) { _mapping.set_name(name); }
 	QString const& get_name() const { return _mapping.get_name(); }
 
-	QList<PVCol> get_columns_indexes_values_within_range(float min, float max);
-	QList<PVCol> get_columns_indexes_values_not_within_range(float min, float max);
+	QList<PVCol> get_columns_indexes_values_within_range(float min, float max, double rate = 1.0);
+	QList<PVCol> get_columns_indexes_values_not_within_range(float min, float max, double rate = 1.0);
 
 public:
 	// Data access
