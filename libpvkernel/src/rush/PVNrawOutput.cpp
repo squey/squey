@@ -38,7 +38,7 @@ void PVRush::PVNrawOutput::operator()(PVCore::PVChunk* out)
 
 	_nraw_cur_index++;
 
-	out->free();
+	//out->free();
 }
 
 PVRush::PVNrawOutput::map_pvrow const& PVRush::PVNrawOutput::get_pvrow_index_map() const

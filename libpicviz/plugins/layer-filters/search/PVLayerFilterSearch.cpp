@@ -54,7 +54,7 @@ void Picviz::PVLayerFilterSearch::operator()(PVLayer& in, PVLayer &out)
 	re.setCaseSensitivity((Qt::CaseSensitivity) case_match);
 	PVLOG_INFO("Apply filter search to axis %d with regexp %s.\n", axis_id, qPrintable(re.pattern()));
 
-	PVRow nb_lines = _view->get_qtnraw_parent().size();
+	PVRow nb_lines = _view->get_qtnraw_parent().get_nrows();
 
 	PVRush::PVNraw::nraw_table const& nraw = _view->get_qtnraw_parent();
 	
@@ -67,8 +67,8 @@ void Picviz::PVLayerFilterSearch::operator()(PVLayer& in, PVLayer &out)
 		}
 
 		if (_view->get_line_state_in_pre_filter_layer(r)) {
-			PVRush::PVNraw::nraw_table_line const& nraw_r = nraw.at(r);
-			bool sel = !((re.indexIn(nraw_r[axis_id]) != -1) ^ include);
+			PVRush::PVNraw::const_nraw_table_line nraw_r = nraw.get_row(r);
+			bool sel = !((re.indexIn(nraw_r[axis_id]->get_qstr()) != -1) ^ include);
 			out.get_selection().set_line(r, sel);
 		}
 	}

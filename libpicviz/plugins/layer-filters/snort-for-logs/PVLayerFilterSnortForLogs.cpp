@@ -77,7 +77,7 @@ void Picviz::PVLayerFilterSnortForLogs::operator()(PVLayer& in, PVLayer &out)
 	bool other_types = _args["Other Types"].value<PVCore::PVCheckBoxType>().get_checked();
 
 	PVRush::PVNraw::nraw_table const& nraw = _view->get_qtnraw_parent();
-	PVRow nb_lines = _view->get_qtnraw_parent().size();
+	PVRow nb_lines = _view->get_qtnraw_parent().get_nrows();
 
 	out.get_selection().select_none();
 
@@ -118,9 +118,8 @@ void Picviz::PVLayerFilterSnortForLogs::operator()(PVLayer& in, PVLayer &out)
 								}
 
 								if (_view->get_line_state_in_pre_filter_layer(r)) {
-									PVRush::PVNraw::nraw_table_line const& nraw_r = nraw.at(r);
 									// bool sel = false;
-									if (! QString::compare(value, nraw_r[axis_id])) {
+									if (! QString::compare(value, nraw.at(r, axis_id)->get_qstr())) {
        										// sel = true;
 										out.get_selection().set_line(r, true);
 										// PVLOG_INFO("match '%s' with '%s'\n", qPrintable(value), qPrintable(nraw_r[axis_id]));

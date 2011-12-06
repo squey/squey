@@ -15,7 +15,7 @@
 
 namespace PVRush {
 	namespace PVUtils {
-		LibKernelDecl QString generate_key_from_axes_values(PVCore::PVAxesIndexType const& axes, PVRush::PVNraw::nraw_table_line const& values);
+		LibKernelDecl QString generate_key_from_axes_values(PVCore::PVAxesIndexType const& axes, PVRush::PVNraw::const_nraw_table_line const& values);
 	}
 }
 

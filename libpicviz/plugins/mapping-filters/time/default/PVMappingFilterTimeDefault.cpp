@@ -32,7 +32,7 @@ DEFAULT_ARGS_FILTER(Picviz::PVMappingFilterTimeDefault)
 	return args;
 }
 
-float* Picviz::PVMappingFilterTimeDefault::operator()(PVRush::PVNraw::nraw_table_line const& values)
+float* Picviz::PVMappingFilterTimeDefault::operator()(PVRush::PVNraw::const_trans_nraw_table_line const& values)
 {
 	assert(_dest);
 	assert(values.size() >= _dest_size);
@@ -64,15 +64,16 @@ float* Picviz::PVMappingFilterTimeDefault::operator()(PVRush::PVNraw::nraw_table
 		int thread_num = omp_get_thread_num();
 		Calendar* cal = cals[thread_num];
 		PVCore::PVDateTimeParser &dtpars = *(dtparsers[thread_num]);
-		if (values[i].isEmpty()) {
+		QString const& v = values[i]->get_qstr();
+		if (v.isEmpty()) {
 			_dest[i] = 0;
 			continue;
 		}
-		bool ret = dtpars.mapping_time_to_cal(values[i], cal);
+		bool ret = dtpars.mapping_time_to_cal(v, cal);
 		if (!ret) {
 #pragma omp critical
 			{
-				PVLOG_WARN("(time-mapping) unable to map time string %s. Returns 0 !\n", qPrintable(values[i]));
+				PVLOG_WARN("(time-mapping) unable to map time string %s. Returns 0 !\n", qPrintable(v));
 			}
 			_dest[i] = 0;
 			continue;
@@ -83,7 +84,7 @@ float* Picviz::PVMappingFilterTimeDefault::operator()(PVRush::PVNraw::nraw_table
 		if (!success) {
 #pragma omp critical
 			{
-				PVLOG_WARN("(time-mapping) unable to map time string %s: one field is missing. Returns 0 !\n", qPrintable(values[i]));
+				PVLOG_WARN("(time-mapping) unable to map time string %s: one field is missing. Returns 0 !\n", qPrintable(v));
 			}
 			_dest[i] = 0;
 			continue;

@@ -68,7 +68,7 @@ void Picviz::PVLayerFilterHeatlineBase::operator()(PVLayer& in, PVLayer &out)
 	float ratio;
 	
 	PVRush::PVNraw::nraw_table const& nraw = _view->get_qtnraw_parent();
-	nb_lines = nraw.size();
+	nb_lines = nraw.get_nrows();
 	
 	PVCore::PVAxesIndexType axes = _args.value("axes").value<PVCore::PVAxesIndexType>();
 	if (axes.size() == 0) {
@@ -99,7 +99,7 @@ void Picviz::PVLayerFilterHeatlineBase::operator()(PVLayer& in, PVLayer &out)
 			}
 			return;
 		}
-		PVRush::PVNraw::nraw_table_line const& nrawvalues = nraw.at(counter);
+		PVRush::PVNraw::const_nraw_table_line nrawvalues = nraw.get_row(counter);
 		key = PVRush::PVUtils::generate_key_from_axes_values(axes, nrawvalues);
 
 		PVRow count_frequency = lines_hash[key]+1;
@@ -118,7 +118,7 @@ void Picviz::PVLayerFilterHeatlineBase::operator()(PVLayer& in, PVLayer &out)
 			return;
 		}
 		if (_view->get_line_state_in_pre_filter_layer(counter)) {
-			PVRush::PVNraw::nraw_table_line const& nrawvalues = nraw.at(counter);
+			PVRush::PVNraw::const_nraw_table_line nrawvalues = nraw.get_row(counter);
 			key = PVRush::PVUtils::generate_key_from_axes_values(axes, nrawvalues);
 
 			PVRow count_frequency = lines_hash[key];

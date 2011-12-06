@@ -21,7 +21,7 @@ static inline bool compLocal(const str_local_index& s1, const str_local_index& s
 	return strcoll(s1.first.constData(), s2.first.constData()) < 0;
 }
 
-float* Picviz::PVMappingFilterHostDefault::operator()(PVRush::PVNraw::nraw_table_line const& values)
+float* Picviz::PVMappingFilterHostDefault::operator()(PVRush::PVNraw::const_trans_nraw_table_line const& values)
 {
 	assert(_dest);
 	assert(values.size() >= _dest_size);
@@ -33,14 +33,14 @@ float* Picviz::PVMappingFilterHostDefault::operator()(PVRush::PVNraw::nraw_table
 	list_indexes str_idxes;
 	str_idxes.reserve(ssize);
 	for (int64_t i = 0; i < ssize; i++) {
-		QString const& v = values[i];
+		QString const& v = values[i]->get_qstr();
 		uint32_t ipv4_v;
 		if (PVCore::Network::ipv4_aton(v, ipv4_v)) {
 			// IPv4 are mapped from 0 to 0.5
 			_dest[i] = (float) (((double)ipv4_v/(double)(PICVIZ_IPV4_MAXVAL))/((double)2.0));
 		}
 		else {
-			float res = PVCore::String::compute_str_factor(values[i]); 
+			float res = PVCore::String::compute_str_factor(values[i]->get_qstr()); 
 			if (res > max_str) {
 				max_str = res;
 			}

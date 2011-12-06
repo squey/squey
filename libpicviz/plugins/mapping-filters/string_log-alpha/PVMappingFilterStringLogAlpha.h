@@ -12,7 +12,7 @@ namespace Picviz {
 class PVMappingFilterStringDefault: public PVMappingFilter
 {
 public:
-	float* operator()(PVRush::PVNraw::nraw_table_line const& values);
+	float* operator()(PVRush::PVNraw::const_trans_nraw_table_line const& values);
 
 	CLASS_FILTER(PVMappingFilterStringDefault)
 };

@@ -816,16 +816,16 @@ void PVInspector::PVXmlEditorWidget::set_axes_name_selected_row_Slot(int row)
 {
 	PVRush::PVNraw const& nraw = _log_extract->get_nraw();
 	// We could use QList::fromVector(QVector::fromStdVector(nraw_table_line)), but that's not really efficient...
-	if (row >= nraw.get_table().size()) {
-		PVLOG_WARN("(PVXmlEditorWidget::set_axes_name_selected_row_Slot) row index '%d' does not exist in the current NRAW (size '%d').\n", row, nraw.get_table().size());
+	if (row >= nraw.get_number_rows()) {
+		PVLOG_WARN("(PVXmlEditorWidget::set_axes_name_selected_row_Slot) row index '%d' does not exist in the current NRAW (size '%d').\n", row, nraw.get_number_rows());
 		return;
 	}
 	QStringList names;
-	PVRush::PVNraw::nraw_table_line const& line = nraw.get_table().at(row);
-	PVRush::PVNraw::nraw_table_line::const_iterator it;
-	for (it = line.begin(); it != line.end(); it++) {
+	PVRush::PVNraw::const_nraw_table_line line = nraw.get_table().get_row(row);
+	for (PVCol j = 0; j < line.size(); j++) {
 		// We need to do a deep copy of this
-		QString deep_copy((const QChar*) it->constData(), it->size());
+		QString const& v = line[j]->get_qstr();
+		QString deep_copy((const QChar*) v.constData(), v.size());
 		names << deep_copy;
 	}
 	myTreeModel->setAxesNames(names);

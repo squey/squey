@@ -24,7 +24,7 @@ DEFAULT_ARGS_FILTER(Picviz::PVMappingFilterStringSort)
 	return args;
 }
 
-float* Picviz::PVMappingFilterStringSort::operator()(PVRush::PVNraw::nraw_table_line const& values)
+float* Picviz::PVMappingFilterStringSort::operator()(PVRush::PVNraw::const_trans_nraw_table_line const& values)
 {
 	assert(_dest);
 	assert(values.size() >= _dest_size);
@@ -37,7 +37,7 @@ float* Picviz::PVMappingFilterStringSort::operator()(PVRush::PVNraw::nraw_table_
 	vec_conv_sort_t v_local;
 	v_local.reserve(values.size());
 	for (size_t i = 0; i < values.size(); i++) {
-		v_local.push_back(str_local_index(values[i].toLocal8Bit(),i));
+		v_local.push_back(str_local_index(values[i]->get_qstr().toLocal8Bit(),i));
 	}
 
 	std::sort(v_local.begin(), v_local.end(), compLocal);

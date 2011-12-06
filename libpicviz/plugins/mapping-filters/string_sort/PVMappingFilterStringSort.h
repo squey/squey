@@ -19,7 +19,7 @@ class PVMappingFilterStringSort: public PVMappingFilter
 public:
 	PVMappingFilterStringSort(PVCore::PVArgumentList const& args = PVMappingFilterStringSort::default_args());
 public:
-	float* operator()(PVRush::PVNraw::nraw_table_line const& values);
+	float* operator()(PVRush::PVNraw::const_trans_nraw_table_line const& values);
 	QString get_human_name() const { return QString("Sort"); }
 	
 	CLASS_FILTER(PVMappingFilterStringSort)

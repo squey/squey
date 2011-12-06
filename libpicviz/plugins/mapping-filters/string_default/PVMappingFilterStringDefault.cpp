@@ -7,7 +7,7 @@
 #include <omp.h>
 
 
-float* Picviz::PVMappingFilterStringDefault::operator()(PVRush::PVNraw::nraw_table_line const& values)
+float* Picviz::PVMappingFilterStringDefault::operator()(PVRush::PVNraw::const_trans_nraw_table_line const& values)
 {
 	assert(_dest);
 	assert(values.size() >= _dest_size);
@@ -24,7 +24,7 @@ float* Picviz::PVMappingFilterStringDefault::operator()(PVRush::PVNraw::nraw_tab
 #pragma omp parallel for
 	// Looks like this can be fine optimised with hand made SSE/AVX optimisation
 	for (int64_t i = 0; i < size; i++) {
-		factors[i] = PVCore::String::compute_str_factor(values[i]);
+		factors[i] = PVCore::String::compute_str_factor(values[i]->get_qstr());
 	}
 
 	// Then find the maximum thanks to TBB
