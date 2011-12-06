@@ -233,14 +233,15 @@ void PVRush::PVExtractor::debug()
 
 void PVRush::PVExtractor::save_nraw()
 {
-	PVNraw::move(_saved_nraw, _nraw);
+	PVNraw::swap(_saved_nraw, _nraw);
 	_saved_nraw_valid = true;
 }
 
 void PVRush::PVExtractor::restore_nraw()
 {
 	if (_saved_nraw_valid) {
-		PVNraw::move(_nraw, _saved_nraw);
+		PVNraw::swap(_nraw, _saved_nraw);
+		_saved_nraw.free_trans_nraw();
 		_saved_nraw_valid = false;
 	}
 }
@@ -248,7 +249,7 @@ void PVRush::PVExtractor::restore_nraw()
 void PVRush::PVExtractor::clear_saved_nraw()
 {
 	if (_saved_nraw_valid) {
-		_saved_nraw.clear();
+		_saved_nraw.free_trans_nraw();
 		_saved_nraw_valid = false;
 	}
 }

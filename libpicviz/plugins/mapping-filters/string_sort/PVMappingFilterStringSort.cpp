@@ -1,15 +1,24 @@
 #include "PVMappingFilterStringSort.h"
-#include <QVector>
-#include <QByteArray>
 #include <algorithm>
 #include <vector>
+#include <tbb/parallel_sort.h>
 
 typedef std::vector< std::pair<QByteArray,uint64_t> > vec_conv_sort_t;
 typedef vec_conv_sort_t::value_type str_local_index;
 
+typedef std::vector< std::pair<PVCore::PVField const*, uint64_t> > vec_field_sort_t;
+typedef vec_field_sort_t::value_type field_local_index;
+
 static inline bool compLocal(const str_local_index& s1, const str_local_index& s2)
 {
 	return strcoll(s1.first.constData(), s2.first.constData()) < 0;
+}
+
+static inline bool compField(const field_local_index& s1, const field_local_index& s2)
+{
+	PVCore::PVField const* f1 = s1.first;
+	PVCore::PVField const* f2 = s2.first;
+	return memcmp(f1->begin(), f2->begin(), picviz_min(f1->size(), f2->size())) < 0;
 }
 
 Picviz::PVMappingFilterStringSort::PVMappingFilterStringSort(PVCore::PVArgumentList const& args):
@@ -29,6 +38,23 @@ float* Picviz::PVMappingFilterStringSort::operator()(PVRush::PVNraw::const_trans
 	assert(_dest);
 	assert(values.size() >= _dest_size);
 
+	// Make a memory-based comparaison and do not take care of the locale !
+	vec_field_sort_t vec;
+	vec.resize(values.size());
+	for (uint64_t i = 0; i < values.size(); i++) {
+		PVCore::PVField const* f = values[i];
+		vec[i].first = f;
+		vec[i].second = i;
+	}
+
+	vec_field_sort_t::iterator it;
+	for (it = vec.begin(); it != vec.end(); it++) {
+		PVLOG_DEBUG("pointer: %p\n", it->first);
+	}
+	//tbb::parallel_sort(vec.begin(), vec.end(), compField);
+	std::sort(vec.begin(), vec.end(), compField);
+
+	/*
 	// This is so far the fastest way found to sort a vector of strings
 	// Pre-converting in the current locale and using strcoll is really faster
 	// than directly using QString::localeAwareCompare (under linux !)
@@ -40,18 +66,19 @@ float* Picviz::PVMappingFilterStringSort::operator()(PVRush::PVNraw::const_trans
 		v_local.push_back(str_local_index(values[i]->get_qstr().toLocal8Bit(),i));
 	}
 
-	std::sort(v_local.begin(), v_local.end(), compLocal);
+	std::sort(v_local.begin(), v_local.end(), compLocal);*/
 
-	QByteArray prev;
+	//QByteArray prev;
+	PVCore::PVField const* prev = NULL;
 	uint64_t cur_index = 0;
-	uint64_t size = v_local.size();
-	for (size_t i = 0; i < v_local.size(); i++) {
-		str_local_index const& v = v_local[i];
-		QByteArray const& str_local = v.first;
+	uint64_t size = vec.size();
+	for (size_t i = 0; i < size; i++) {
+		field_local_index const& v = vec[i];
+		PVCore::PVField const* str = v.first;
 		uint64_t org_index = v.second;
-		if (prev != str_local) {
+		if (prev == NULL || prev->size() != str->size() || memcmp(prev->begin(), str->begin(), str->size()) != 0) {
 			cur_index++;
-			prev = str_local;
+			prev = str;
 		}
 		_dest[org_index] = (float)cur_index/(float)size;
 	}

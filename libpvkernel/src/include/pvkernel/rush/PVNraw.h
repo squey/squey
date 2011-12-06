@@ -51,7 +51,7 @@ namespace PVRush {
 		static void copy(PVNraw &dst, PVNraw const& src);
 
 		// Move an nraw data to another PVNraw object. No copy and allocations occurs.
-		static void move(PVNraw &dst, PVNraw& src);
+		static void swap(PVNraw &dst, PVNraw& src);
 
 		inline nraw_table& get_table() { return table; }
 		inline nraw_table const& get_table() const { return table; }
@@ -78,7 +78,7 @@ namespace PVRush {
 			if (_real_nrows >= table.get_nrows()) {
 				// Reallocation is necessary
 				PVLOG_DEBUG("(PVNraw::add_row) reallocation of the NRAW table (element %d asked,  table size is %d).\n", _real_nrows, table.get_nrows());
-				table.resize_nrows(_real_nrows + 1024);
+				table.resize_nrows(_real_nrows + 60240);
 				return true;
 			}
 			PVCore::list_fields& lf = elt.fields();

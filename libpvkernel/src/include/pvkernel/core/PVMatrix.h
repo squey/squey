@@ -128,6 +128,45 @@ public:
 		}
 	}
 
+	void copy_to(matrix_type& dst) const
+	{
+		dst.reserve(_nrows, _ncols);
+		if (value_pod::value) {
+			memcpy(dst._data, _data, _ncols*_nrows*sizeof(value_type));
+		}
+		else {
+			for (index_row i = 0; i < _nrows; i++) {
+				for (index_col j = 0; j < _ncols; j++) {
+					new (&dst._data[i+j*_ncols]) value_type(_data[i+j*_ncols]);
+				}
+			}
+		}
+
+	}
+
+	void swap(matrix_type& dst)
+	{
+		index_col ncols_tmp;
+		index_row nrows_tmp;
+		index_row nrows_physical_tmp;
+		pointer data_tmp;
+
+		ncols_tmp = _ncols;
+		nrows_tmp = _nrows;
+		nrows_physical_tmp = _nrows_physical;
+		data_tmp = _data;
+
+		_data = dst._data;
+		_ncols = dst._ncols;
+		_nrows = dst._nrows;
+		_nrows_physical = dst._nrows_physical;
+
+		dst._data = data_tmp;
+		dst._ncols = ncols_tmp;
+		dst._nrows = nrows_tmp;
+		dst._nrows_physical = nrows_physical_tmp;
+	}
+
 	inline bool reserve(index_row nrows, index_col ncols)
 	{
 		return _allocate(nrows, ncols);

@@ -37,42 +37,49 @@ void PVRush::PVNraw::free_trans_nraw()
 
 void PVRush::PVNraw::clear()
 {
-	trans_table.clear();
+	free_trans_nraw();
 	clear_table();
 }
 
 bool PVRush::PVNraw::create_trans_nraw()
 {
 	// Create a transposition of the nraw
+	tbb::tick_count start = tbb::tick_count::now();
 	trans_table.clear();
 	table.transpose_to(trans_table);
+	tbb::tick_count end = tbb::tick_count::now();
+	PVLOG_INFO("(PVNraw::create_trans_nraw) transposition took %0.4fs\n", (end-start).seconds());
+
 	return true;
 }
 
 void PVRush::PVNraw::clear_table()
 {
 	_real_nrows = 0;
+#if 0
 	for (PVRow r = 0; r < table.get_nrows(); r++) {
 		PVCore::PVField* first_field = *(table.get_row_ptr(r));
 		first_field->elt_parent()->chunk_parent()->free();
 	}
+#endif
 	table.clear();
 }
 
 void PVRush::PVNraw::copy(PVNraw &dst, PVNraw const& src)
 {
-	// TODO!
+	src.table.copy_to(dst.table);
 	if (src.trans_table.get_nrows() > 0) {
 		dst.create_trans_nraw();
 	}
 	dst.format = src.format;
 }
 
-void PVRush::PVNraw::move(PVNraw &dst, PVNraw& src)
+void PVRush::PVNraw::swap(PVNraw &dst, PVNraw& src)
 {
-	// TODO!
-	src.table.clear();
-	src.trans_table.clear();
+	src.table.swap(dst.table);
+	src.trans_table.swap(dst.trans_table);
+
+	dst.format = src.format;
 }
 
 QString PVRush::PVNraw::nraw_line_to_csv(PVRow idx) const

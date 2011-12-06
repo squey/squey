@@ -59,7 +59,7 @@ float* Picviz::PVMappingFilterTimeDefault::operator()(PVRush::PVNraw::const_tran
 
 	int64_t size = _dest_size;
 	// TODO: compare TBB and OpenMP here !!
-#pragma omp parallel for schedule(dynamic, 1000)
+#pragma omp parallel for
 	for (int64_t i = 0; i < size; i++) {
 		int thread_num = omp_get_thread_num();
 		Calendar* cal = cals[thread_num];
@@ -71,10 +71,12 @@ float* Picviz::PVMappingFilterTimeDefault::operator()(PVRush::PVNraw::const_tran
 		}
 		bool ret = dtpars.mapping_time_to_cal(v, cal);
 		if (!ret) {
+			/*
 #pragma omp critical
 			{
 				PVLOG_WARN("(time-mapping) unable to map time string %s. Returns 0 !\n", qPrintable(v));
 			}
+			*/
 			_dest[i] = 0;
 			continue;
 		}
@@ -82,10 +84,12 @@ float* Picviz::PVMappingFilterTimeDefault::operator()(PVRush::PVNraw::const_tran
 		bool success;
 		_dest[i] = cal_to_float(cal, success);
 		if (!success) {
+			/*
 #pragma omp critical
 			{
 				PVLOG_WARN("(time-mapping) unable to map time string %s: one field is missing. Returns 0 !\n", qPrintable(v));
 			}
+			*/
 			_dest[i] = 0;
 			continue;
 		}
