@@ -14,6 +14,7 @@
 #include <QListWidget>
 #include <QFrame>
 #include <QMouseEvent>
+#include <QStandardItemEditorCreator>
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVAxisIndexType.h>
@@ -90,6 +91,9 @@ void PVInspector::PVArgumentListWidget::init_widgets()
 
 	_args_layout = new QGridLayout();
 	_mapper = new QDataWidgetMapper();
+	QItemDelegate* delegate = new QItemDelegate();
+	delegate->setItemEditorFactory(_args_widget_factory);
+	_mapper->setItemDelegate(delegate);
 	_mapper->setOrientation(Qt::Vertical);
 	_mapper->setModel(_args_model);
 
@@ -171,9 +175,11 @@ QItemEditorFactory* PVInspector::PVArgumentListWidget::create_mapping_plotting_w
 
 	QItemEditorFactory* args_widget_factory = new QItemEditorFactory();
 
-	QItemEditorCreatorBase* timeformat_creator = new QItemEditorCreator<PVTimeFormatEditor>("time_formats");
+	QItemEditorCreatorBase *timeformat_creator = new QStandardItemEditorCreator<PVTimeFormatEditor>();
+	QItemEditorCreatorBase *qstr_creator = new QItemEditorCreator<QLineEdit>("text");
 
 	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVTimeFormatType>(), timeformat_creator);
+	args_widget_factory->registerEditor(QVariant::String, qstr_creator);
 
 	return args_widget_factory;
 }

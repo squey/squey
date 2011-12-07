@@ -9,11 +9,13 @@
 #include <QLabel>
 #include <QGroupBox>
 #include <QDialogButtonBox>
+#include <QEvent>
 
 PVInspector::PVTimeFormatEditor::PVTimeFormatEditor(QWidget *parent):
 	QWidget(parent)
 {
 	_text_edit = new QTextEdit();
+	_text_edit->installEventFilter(this);
 	QFontMetrics m(_text_edit->font());
 	_text_edit->setFixedHeight(5*m.lineSpacing());
 
@@ -24,7 +26,7 @@ PVInspector::PVTimeFormatEditor::PVTimeFormatEditor(QWidget *parent):
 	main_layout->addWidget(_help_btn);
 
 	setLayout(main_layout);
-	//setFocusPolicy(Qt::StrongFocus);
+	setFocusPolicy(Qt::WheelFocus);
 
 	_help_dlg = new PVTimeFormatHelpDlg(this, parent);
 
@@ -49,6 +51,20 @@ void PVInspector::PVTimeFormatEditor::show_help()
 
 	_help_dlg->update_tf_from_editor();
 	_help_dlg->show();
+}
+
+bool PVInspector::PVTimeFormatEditor::eventFilter(QObject* object, QEvent* event)
+{
+	if (event->type() == QEvent::FocusOut)
+	{
+		if (object == (QObject*) _text_edit) {
+			// AG: force the widget to lose focus
+			// Using setFocusProxy with _text_edit does not seem to work...
+			setFocus(Qt::MouseFocusReason);
+			clearFocus();
+		}
+	}
+	return QWidget::eventFilter(object, event);
 }
 
 //

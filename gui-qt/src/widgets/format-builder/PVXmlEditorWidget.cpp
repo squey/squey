@@ -404,6 +404,9 @@ void PVInspector::PVXmlEditorWidget::slotOpen() {
  *
  *****************************************************************************/
 void PVInspector::PVXmlEditorWidget::slotSave() {
+	// Take focus, so any currently edited argument will be set
+	setFocus(Qt::MouseFocusReason);
+
 	if (_cur_file.isEmpty()) {
 		slotSaveAs();
 		return;
@@ -428,6 +431,8 @@ void PVInspector::PVXmlEditorWidget::slotSave() {
  *
  *****************************************************************************/
 void PVInspector::PVXmlEditorWidget::slotSaveAs() {
+	setFocus(Qt::MouseFocusReason);
+
     QModelIndex index;
     myTreeView->applyModification(myParamBord_old_model,index);
     QFileDialog fd;
