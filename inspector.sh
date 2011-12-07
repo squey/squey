@@ -31,6 +31,8 @@ export PVFILTER_NORMALIZE_DIR=libpvkernel/plugins/normalize
 
 export LD_LIBRARY_PATH=$PVKERNEL_PATH/src/:$PICVIZ_PATH/src/:$PVGL_PATH/src
 
+VALGRIND_ALLOC_FNS="--alloc-fn=scalable_aligned_malloc --alloc-fn=scalable_malloc --alloc-fn=scalable_posix_memalign"
+
 if [ "$1" == "debug" ]
 then
 export PICVIZ_DEBUG_LEVEL="DEBUG"
@@ -65,13 +67,13 @@ fi
 
 if [ "$1" == "valgrind" ]
 then
-	valgrind --log-file=./valgrind.out --leak-check=full --track-origins=yes --show-reachable=yes gui-qt/src/picviz-inspector
+	valgrind $VALGRIND_ALLOC_FNS --log-file=./valgrind.out --leak-check=full --track-origins=yes --show-reachable=yes gui-qt/src/picviz-inspector
 	exit 0
 fi
 
 if [ "$1" == "massif" ]
 then
-	valgrind --depth=60 --tool=massif --heap=yes  gui-qt/src/picviz-inspector
+	valgrind $VALGRIND_ALLOC_FNS --depth=60 --tool=massif --heap=yes  gui-qt/src/picviz-inspector
 	exit 0
 fi
 

@@ -142,8 +142,9 @@ private:
 	PVRoot* root;
 	PVMapped* _mapped;
 	plotted_table_t _table; /* Unidimensionnal. It must be contiguous in memory */
+	std::vector<float> _tmp_values;
 	PVView_p _view;
-	PVCore::PVListFloat2D trans_table;
+	//PVCore::PVListFloat2D trans_table;
 	list_expanded_selection_t _expanded_sels;
 };
 
