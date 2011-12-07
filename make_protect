@@ -10,6 +10,7 @@ echo "" >"$DIR/gui-qt/src/gen_table.c"
 CC=icecc && CXX=icecc cmake -DPROTECT_PASS=1 . ||exit $?
 touch "$DIR/gui-qt/src/main.cpp"
 ./parallel_make $1
+./parallel_make $1
 make ||exit $1
 
 cd "$DIR/gui-qt/src"
