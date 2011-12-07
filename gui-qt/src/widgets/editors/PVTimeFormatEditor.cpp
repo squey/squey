@@ -174,7 +174,15 @@ void PVInspector::PVTimeFormatHelpDlg::time_strings_changed()
 		return;
 	}
 
-	QString txt;
+	// AG: it is really important to initalize this QString with an empty string
+	// and not only by doin `QString txt'. Indeed, the first variant initalize QString's
+	// internal data (with a malloc). If this is not done, the first string added in the following
+	// for loop will not be copied into the final buffer, because QString will make an alias of the QString
+	// created by QString::fromRawData (which is clever). Then, when the next string is added, it will try
+	// to make a deep-copy of the previous string, but this odes ot exist as it was hold by the previous UnicodeString
+	// object.
+	// Here we are..
+	QString txt("");
 
 	QStringList tfs = _ts_validate->toPlainText().split("\n");
 	UErrorCode err = U_ZERO_ERROR;
