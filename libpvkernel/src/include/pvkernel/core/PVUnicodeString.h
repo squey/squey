@@ -76,7 +76,7 @@ public:
 protected:
 	const utf_char* _buf;
 	size_t _len;
-	QString _qstr;
+	mutable QString _qstr;
 };
 
 }
