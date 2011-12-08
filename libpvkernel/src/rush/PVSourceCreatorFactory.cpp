@@ -89,6 +89,7 @@ float PVRush::PVSourceCreatorFactory::discover_input(pair_format_creator format_
 		// Apply the filter
 		chk_flt(chunk);
 		if (chunk->c_elements().size() == 0) {
+			chunk->free();
 			continue;
 		}
 

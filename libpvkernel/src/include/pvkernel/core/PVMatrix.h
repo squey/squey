@@ -262,7 +262,14 @@ private:
 		if (_data) {
 			free_buf(_data);
 		}
-		pointer p = _alloc.allocate(nrows*ncols);
+		pointer p;
+		try {
+			p = _alloc.allocate(nrows*ncols);
+		}
+		catch (std::bad_alloc const&) {
+			PVLOG_ERROR("(PVMatrix::_allocate) unable to allocate %ld x %ld (%ld bytes).", nrows, ncols, nrows*ncols*sizeof(value_type));
+			return false;
+		}
 		_data = p;
 		if (p == NULL) {
 			return false;
