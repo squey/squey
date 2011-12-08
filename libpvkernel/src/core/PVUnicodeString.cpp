@@ -40,15 +40,15 @@ float PVCore::PVUnicodeString::to_float(bool& ok) const
 bool PVCore::PVUnicodeString::operator==(const PVUnicodeString& o) const
 {
 	// TODO: vectorize this by hand and compare
-	return memcmp(_buf, o._buf, picviz_min(_len, o._len)) == 0;
+	return memcmp(_buf, o._buf, picviz_min(_len, o._len)*sizeof(utf_char)) == 0;
 }
 
 bool PVCore::PVUnicodeString::operator!=(const PVUnicodeString& o) const
 {
-	return memcmp(_buf, o._buf, picviz_min(_len, o._len)) != 0;
+	return memcmp(_buf, o._buf, picviz_min(_len, o._len)*sizeof(utf_char)) != 0;
 }
 
-bool PVCore::PVUnicodeString::compare(const PVUnicodeString& o) const
+int PVCore::PVUnicodeString::compare(const PVUnicodeString& o) const
 {
-	return memcmp(_buf, o._buf, picviz_min(_len, o._len)) < 0;
+	return memcmp(_buf, o._buf, picviz_min(_len, o._len)*sizeof(utf_char));
 }

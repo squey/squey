@@ -76,7 +76,7 @@ void Picviz::PVLayerFilterWebmailFinder::operator()(PVLayer& in, PVLayer &out)
 				return;
 			}
 			if (_view->get_line_state_in_pre_filter_layer(r)) {
-				QString const& data = nraw.at(r, axis_id)->get_qstr();
+				QString const& data = nraw.at(r, axis_id).get_qstr();
 				hotmail_sel.set_line(r, data.contains(hotmail, Qt::CaseInsensitive));
 				yahoo_sel.set_line(r, data.contains(yahoo, Qt::CaseInsensitive));
 			}

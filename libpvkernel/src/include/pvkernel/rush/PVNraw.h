@@ -18,6 +18,7 @@
 #include <pvkernel/core/PVField.h>
 #include <pvkernel/core/PVMatrix.h>
 #include <pvkernel/core/PVMeanValue.h>
+#include <pvkernel/core/PVUnicodeString.h>
 
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVNrawChild.h>
@@ -31,7 +32,7 @@ namespace PVRush {
 //		typedef std::vector<QString, tbb::scalable_allocator<QString> > nraw_table_line;
 //		typedef std::vector<nraw_table_line, tbb::scalable_allocator<nraw_table_line> > nraw_table;
 //		typedef std::vector<nraw_table_line, tbb::scalable_allocator<nraw_table_line> > nraw_trans_table;
-		typedef PVCore::PVMatrix<PVCore::PVField*, PVRow, PVCol> nraw_table;
+		typedef PVCore::PVMatrix<PVCore::PVUnicodeString, PVRow, PVCol> nraw_table;
 		typedef nraw_table::line nraw_table_line;
 		typedef nraw_table::const_line const_nraw_table_line;
 		typedef nraw_table::transposed_type nraw_trans_table;
@@ -62,13 +63,13 @@ namespace PVRush {
 
 		PVFormat_p format;
 
-		inline QString const& at(PVRow row, PVCol col) const { return get_value(row, col); }
+		inline QString at(PVRow row, PVCol col) const { return get_value(row, col); }
 
-		inline QString const& get_value(PVRow row, PVCol col) const
+		inline QString get_value(PVRow row, PVCol col) const
 		{
 			assert(row < table.get_nrows());
 			assert(col < table.get_ncols());
-			return table.at(row,col)->get_qstr();
+			return table.at(row,col).get_qstr();
 		}
 
 		inline bool add_row(PVCore::PVElement& elt)
@@ -91,11 +92,11 @@ namespace PVRush {
 					return false;
 				}
 			}
-			PVCore::PVField** pfields = table.get_row_ptr(_real_nrows);
+			PVCore::PVUnicodeString* pfields = table.get_row_ptr(_real_nrows);
 			PVCore::list_fields::iterator it;
 			PVCol j = 0;
 			for (it = lf.begin(); it != lf.end(); it++) {
-				pfields[j] = &(*it);
+				pfields[j].set_from_slice(*it);
 				j++;
 			}
 

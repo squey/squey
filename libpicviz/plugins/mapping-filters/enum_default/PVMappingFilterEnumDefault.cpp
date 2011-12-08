@@ -46,7 +46,7 @@ float* Picviz::PVMappingFilterEnumDefault::operator()(PVRush::PVNraw::const_tran
 	_poscount = 0;
 
 	for (size_t i = 0; i < values.size(); i++) {
-		PVCore::PVUnicodeString value(*values[i]);
+		PVCore::PVUnicodeString const& value(values[i]);
 		hash_values::iterator it_v = enum_hash.find(value);
 		if (it_v != enum_hash.end()) {
 			position = it_v.value().toInt();

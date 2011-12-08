@@ -33,14 +33,14 @@ float* Picviz::PVMappingFilterHostDefault::operator()(PVRush::PVNraw::const_tran
 	list_indexes str_idxes;
 	str_idxes.reserve(ssize);
 	for (int64_t i = 0; i < ssize; i++) {
-		QString const& v = values[i]->get_qstr();
+		QString const& v = values[i].get_qstr();
 		uint32_t ipv4_v;
 		if (PVCore::Network::ipv4_aton(v, ipv4_v)) {
 			// IPv4 are mapped from 0 to 0.5
 			_dest[i] = (float) (((double)ipv4_v/(double)(PICVIZ_IPV4_MAXVAL))/((double)2.0));
 		}
 		else {
-			float res = PVCore::String::compute_str_factor(values[i]->get_qstr()); 
+			float res = PVCore::String::compute_str_factor(values[i].get_qstr()); 
 			if (res > max_str) {
 				max_str = res;
 			}

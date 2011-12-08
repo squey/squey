@@ -34,8 +34,19 @@ public:
 	// Inline constructors
 	PVUnicodeString(PVBufferSlice const& buf)
 	{
-		_buf = (utf_char*) buf.begin();
-		_len = buf.size()/sizeof(utf_char);
+		set_from_slice(buf);
+	}
+
+	PVUnicodeString()
+	{
+		_buf = NULL;
+		_len = 0;
+	}
+
+	PVUnicodeString(PVUnicodeString const& other)
+	{
+		_buf = other._buf;
+		_len = other._len;
 	}
 
 	PVUnicodeString(const utf_char* buf, size_t len):
@@ -59,24 +70,34 @@ public:
 	// By default, memory-based comparaison are made
 	bool operator==(const PVUnicodeString& o) const;
 	bool operator!=(const PVUnicodeString& o) const;
-	bool compare(const PVUnicodeString& o) const;
+	int compare(const PVUnicodeString& o) const;
 
 	// == Data access ==
 	inline const utf_char* buffer() const { return _buf; }
 	inline size_t size() const { return _len; };
 	inline size_t len() const { return _len; };
-	inline QString const& get_qstr() const
+	inline QString get_qstr() const
 	{
-		if (_qstr.isNull()) {
-			_qstr.setRawData((QChar*) _buf, _len);
-		}
-		return _qstr;
+		return QString::fromRawData((QChar*) _buf, _len);
+	}
+
+	// == Data set ==
+	inline void set_from_slice(PVBufferSlice const& buf)
+	{
+		_buf = (utf_char*) buf.begin();
+		_len = buf.size()/sizeof(utf_char);
+	}
+	PVUnicodeString& operator=(const PVUnicodeString& other) 
+	{
+		_buf = other._buf;
+		_len = other._len;
+		return *this;
 	}
 
 protected:
 	const utf_char* _buf;
 	size_t _len;
-	QString _qstr;
+	//mutable QString _qstr;
 };
 
 }

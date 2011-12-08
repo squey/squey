@@ -84,7 +84,7 @@ QString PVRush::PVNraw::nraw_line_to_csv(PVRow idx) const
 	QString ret;
 	PVRush::PVNraw::nraw_table::const_line line = table[idx];
 	for (PVCol j = 0; j < line.size(); j++) {
-		QString field = line[j]->get_qstr();
+		QString field = line[j].get_qstr();
 		if (field.indexOf(QChar(',')) >= 0 || field.indexOf(QChar('\r')) >= 0 || field.indexOf(QChar('\n')) >= 0) {
 			field.replace(QChar('"'), QString("\\\""));
 			ret += "\"" + field + "\"";
