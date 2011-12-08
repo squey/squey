@@ -116,13 +116,13 @@ public:
 	void set_rows_value(index_row a, index_row b, const_reference v = value_type())
 	{
 		if (value_pod::value) {
-			for (size_t i = (size_t) a*_ncols; i <= (size_t) b*_ncols; i++) {
+			for (size_t i = (size_t) a*_ncols; i < (size_t) (b+1)*_ncols; i++) {
 				_data[i] = v;
 			}
 		}
 		else {
 		#pragma omp parallel for
-			for (size_t i = (size_t) a*_ncols; i <= (size_t) b*_ncols; i++) {
+			for (size_t i = (size_t) a*_ncols; i < (size_t) (b+1)*_ncols; i++) {
 				new (&_data[i]) value_type(v);
 			}
 		}

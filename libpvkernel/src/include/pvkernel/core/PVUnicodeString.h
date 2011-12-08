@@ -11,7 +11,7 @@ class PVUnicodeString;
 }
 
 #ifdef QHASH_H
-#warning libpvkernel/core/PVUnicodeString.h must be included before QHash if you want to use it as a QHash key.
+//#warning libpvkernel/core/PVUnicodeString.h must be included before QHash if you want to use it as a QHash key.
 #endif
 LibKernelDecl unsigned int qHash(PVCore::PVUnicodeString const& str);
 
@@ -76,9 +76,12 @@ public:
 	inline const utf_char* buffer() const { return _buf; }
 	inline size_t size() const { return _len; };
 	inline size_t len() const { return _len; };
-	inline QString get_qstr() const
+	inline QString const& get_qstr() const
 	{
-		return QString::fromRawData((QChar*) _buf, _len);
+		if (_qstr.isNull()) {
+			_qstr.setRawData((QChar*) _buf, _len);
+		}
+		return _qstr;
 	}
 
 	// == Data set ==
@@ -97,7 +100,7 @@ public:
 protected:
 	const utf_char* _buf;
 	size_t _len;
-	//mutable QString _qstr;
+	mutable QString _qstr;
 };
 
 }

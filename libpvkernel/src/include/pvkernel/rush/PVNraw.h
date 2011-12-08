@@ -63,9 +63,9 @@ namespace PVRush {
 
 		PVFormat_p format;
 
-		inline QString at(PVRow row, PVCol col) const { return get_value(row, col); }
+		inline QString const& at(PVRow row, PVCol col) const { return get_value(row, col); }
 
-		inline QString get_value(PVRow row, PVCol col) const
+		inline QString const& get_value(PVRow row, PVCol col) const
 		{
 			assert(row < table.get_nrows());
 			assert(col < table.get_ncols());
@@ -125,6 +125,9 @@ namespace PVRush {
 
 		inline void push_chunk_todelete(PVCore::PVChunk* chunk) { _chunks_todel->push_back(chunk); }
 
+		// AG: should be protected w/ friends and everything...
+		void take_realloc_buffers(PVCore::buf_list_t& list);
+
 	private:
 		void allocate_buf(size_t nchars);
 		void delete_buffers();
@@ -141,6 +144,9 @@ namespace PVRush {
 
 		nraw_table table;
 		nraw_trans_table trans_table;
+
+		// Reallocated buffers from PVElement objects
+		PVCore::buf_list_t _reallocated_buffers; // buf_list_t defined in PVBufferSlice.h
 	};
 
 }

@@ -64,6 +64,15 @@ void PVRush::PVNraw::clear_table()
 		(*it)->free();
 	}
 	_chunks_todel->clear();
+
+	{
+		static tbb::scalable_allocator<char> alloc;
+		PVCore::buf_list_t::const_iterator it;
+		for (it = _reallocated_buffers.begin(); it != _reallocated_buffers.end(); it++) {
+			alloc.deallocate(it->first, it->second);
+		}
+		_reallocated_buffers.clear();
+	}
 }
 
 void PVRush::PVNraw::swap(PVNraw &dst, PVNraw& src)
@@ -74,6 +83,10 @@ void PVRush::PVNraw::swap(PVNraw &dst, PVNraw& src)
 	list_chunks_t* ltmp = dst._chunks_todel;
 	dst._chunks_todel = src._chunks_todel;
 	src._chunks_todel = ltmp;
+
+	PVCore::buf_list_t lbtmp = dst._reallocated_buffers;
+	dst._reallocated_buffers = src._reallocated_buffers;
+	src._reallocated_buffers = lbtmp;
 
 	dst.format = src.format;
 }
@@ -133,4 +146,10 @@ void PVRush::PVNraw::dump_csv()
 		std::cout << "'" << field.toUtf8().constData() << "'" << std::endl;
 	}
 #endif
+}
+
+void PVRush::PVNraw::take_realloc_buffers(PVCore::buf_list_t& list)
+{
+	std::copy(list.begin(), list.end(), _reallocated_buffers.end());
+	list.clear();
 }
