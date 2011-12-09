@@ -88,7 +88,7 @@ void PVRush::PVNraw::swap(PVNraw &dst, PVNraw& src)
 	dst._reallocated_buffers = src._reallocated_buffers;
 	src._reallocated_buffers = lbtmp;
 
-	dst.format = src.format;
+	dst.format.swap(src.format);
 }
 
 QString PVRush::PVNraw::nraw_line_to_csv(PVRow idx) const
