@@ -9,59 +9,62 @@
 #define PVCORE_PVLISTFLOAT2D_H
 
 #include <pvkernel/core/general.h>
+#include <pvkernel/core/PVMatrix.h>
 #include <QVector>
 
 namespace PVCore {
-class LibKernelDecl PVListFloat2D {
-	public:
-		PVListFloat2D();
-		~PVListFloat2D();
-		/**
-		 * allocate an arry of float
-		 *@param width of array
-		 *@param height of array
-		 */
-		bool reserve(PVCol width, PVRow height);
 
-		void free();
+class PVListFloat2D: PVMatrix<float, PVRow, PVCol>
+{
+public:
+	PVListFloat2D():
+		PVMatrix<float, PVRow, PVCol>()
+	{
+	}
 
-		int count() const;
+	PVListFloat2D(const PVListFloat2D& o):
+		PVMatrix<float, PVRow, PVCol>()
+	{
+		o.copy_to(*this);
+	}
+	
+	inline bool reserve(PVCol width, PVRow height)
+	{
+		return resize(height, width);
+	}
 
-		/**
-		 * return an array with all data
-		 */
-		float* getData();
-		const float* getData() const;
+	inline size_t count() const { return get_nrows()*get_ncols(); }
 
-		/**
-		 * return a pointer to a row
-		 */
-		float* getRowData(PVRow i);
-		const float* getRowData(PVRow i) const;
+	/**
+	 * return an array with all data
+	 */
+	inline float* getData() { return get_data(); };
+	inline const float* getData() const { return get_data(); }
 
-		/**
-		 * return a value in table.
-		 */
-		float getValue(PVRow i, PVCol j) const;
+	/**
+	 * return a pointer to a row
+	 */
+	inline float* getRowData(PVRow i) { return get_row_ptr(i); }
+	inline const float* getRowData(PVRow i) const { return get_row_ptr(i); }
 
-		/**
-		 * to set a value.
-		 *@param value to set.
-		 *@param i
-		 *@param j
-		 */
-		void setValue(float value, PVRow i, PVCol j);
+	/**
+	 * return a value in table.
+	 */
+	inline float getValue(PVRow i, PVCol j) const { return at(i, j); }
 
-		PVCol getWidth() const;
+	/**
+	 * to set a value.
+	 *@param value to set.
+	 *@param i
+	 *@param j
+	 */
+	inline void setValue(float value, PVRow i, PVCol j) { set_value(i, j, value); }
 
-		PVRow getHeight() const;
+	inline PVCol getWidth() const { return get_ncols(); }
 
-	private:
-			PVCol width;
-			PVRow height;
-			QVector<float> data;
-};//class PVListFloat2D
+	inline PVRow getHeight() const { return get_nrows(); }
+};
 
-}//namespace PVCore
+}
 
 #endif	/* PICVIZ_PVPLOTTED_CREATE_TABLE_CUDA_H */

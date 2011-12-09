@@ -65,7 +65,7 @@ float* Picviz::PVMappingFilterTimeDefault::operator()(PVRush::PVNraw::const_tran
 		int thread_num = omp_get_thread_num();
 		Calendar* cal = cals[thread_num];
 		PVCore::PVDateTimeParser &dtpars = *(dtparsers[thread_num]);
-		PVCore::PVUnicodeString v(*values[i]);
+		PVCore::PVUnicodeString const v(values[i]);
 		if (v.size() == 0) {
 			_dest[i] = 0;
 			continue;

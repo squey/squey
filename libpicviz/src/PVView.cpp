@@ -325,7 +325,7 @@ QString const& Picviz::PVView::get_data(PVRow row, PVCol column)
 {
 	PVCol real_index = axes_combination.get_axis_column_index_fast(column);
 
-	return get_qtnraw_parent().at(row, real_index)->get_qstr();
+	return get_qtnraw_parent().at(row, real_index).get_qstr();
 }
 
 /******************************************************************************
@@ -345,7 +345,7 @@ PVCol Picviz::PVView::get_real_axis_index(PVCol col)
  *****************************************************************************/
 QString const& Picviz::PVView::get_data_raw(PVRow row, PVCol column)
 {
-	return get_qtnraw_parent().at(row, column)->get_qstr();
+	return get_qtnraw_parent().at(row, column).get_qstr();
 }
 
 /******************************************************************************

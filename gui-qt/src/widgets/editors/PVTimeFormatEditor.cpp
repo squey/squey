@@ -91,6 +91,7 @@ PVInspector::PVTimeFormatHelpDlg::PVTimeFormatHelpDlg(PVTimeFormatEditor* editor
 	QFontMetrics m(_tfs_edit->font());
 	_tfs_edit->setFixedHeight(6*m.lineSpacing());
 	_ts_validate->setFixedHeight(6*m.lineSpacing());
+	_ts_interpreted->setFixedHeight(6*m.lineSpacing());
 
 	_validator_hl = new PVTimeValidatorHighLight(_ts_validate);
 	_validate_btn = new QPushButton(tr("Validate..."));

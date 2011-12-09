@@ -233,6 +233,7 @@ void PVRush::PVExtractor::debug()
 
 void PVRush::PVExtractor::save_nraw()
 {
+	_saved_nraw.format.reset(new PVRush::PVFormat(*_nraw.format));
 	PVNraw::swap(_saved_nraw, _nraw);
 	_saved_nraw_valid = true;
 }

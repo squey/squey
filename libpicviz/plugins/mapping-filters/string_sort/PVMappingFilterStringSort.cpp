@@ -6,7 +6,7 @@
 typedef std::vector< std::pair<QByteArray,uint64_t> > vec_conv_sort_t;
 typedef vec_conv_sort_t::value_type str_local_index;
 
-typedef std::vector< std::pair<PVCore::PVField const*, uint64_t> > vec_field_sort_t;
+typedef std::vector< std::pair<PVCore::PVUnicodeString const*, uint64_t> > vec_field_sort_t;
 typedef vec_field_sort_t::value_type field_local_index;
 
 static inline bool compLocal(const str_local_index& s1, const str_local_index& s2)
@@ -16,9 +16,7 @@ static inline bool compLocal(const str_local_index& s1, const str_local_index& s
 
 static inline bool compField(const field_local_index& s1, const field_local_index& s2)
 {
-	PVCore::PVField const* f1 = s1.first;
-	PVCore::PVField const* f2 = s2.first;
-	return memcmp(f1->begin(), f2->begin(), picviz_min(f1->size(), f2->size())) < 0;
+	return s1.first->compare(*(s2.first)) < 0;
 }
 
 Picviz::PVMappingFilterStringSort::PVMappingFilterStringSort(PVCore::PVArgumentList const& args):
@@ -42,7 +40,7 @@ float* Picviz::PVMappingFilterStringSort::operator()(PVRush::PVNraw::const_trans
 	vec_field_sort_t vec;
 	vec.resize(values.size());
 	for (uint64_t i = 0; i < values.size(); i++) {
-		PVCore::PVField const* f = values[i];
+		PVCore::PVUnicodeString const* f = &values[i];
 		vec[i].first = f;
 		vec[i].second = i;
 	}
@@ -58,20 +56,20 @@ float* Picviz::PVMappingFilterStringSort::operator()(PVRush::PVNraw::const_trans
 	vec_conv_sort_t v_local;
 	v_local.reserve(values.size());
 	for (size_t i = 0; i < values.size(); i++) {
-		v_local.push_back(str_local_index(values[i]->get_qstr().toLocal8Bit(),i));
+		v_local.push_back(str_local_index(values[i].get_qstr().toLocal8Bit(),i));
 	}
 
 	std::sort(v_local.begin(), v_local.end(), compLocal);*/
 
 	//QByteArray prev;
-	PVCore::PVField const* prev = NULL;
+	PVCore::PVUnicodeString const* prev = NULL;
 	uint64_t cur_index = 0;
 	uint64_t size = vec.size();
 	for (size_t i = 0; i < size; i++) {
 		field_local_index const& v = vec[i];
-		PVCore::PVField const* str = v.first;
+		PVCore::PVUnicodeString const* str = v.first;
 		uint64_t org_index = v.second;
-		if (prev == NULL || prev->size() != str->size() || memcmp(prev->begin(), str->begin(), str->size()) != 0) {
+		if (prev == NULL || prev->size() != str->size() || *prev != *str) {
 			cur_index++;
 			prev = str;
 		}

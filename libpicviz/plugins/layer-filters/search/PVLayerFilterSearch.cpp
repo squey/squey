@@ -68,7 +68,7 @@ void Picviz::PVLayerFilterSearch::operator()(PVLayer& in, PVLayer &out)
 
 		if (_view->get_line_state_in_pre_filter_layer(r)) {
 			PVRush::PVNraw::const_nraw_table_line nraw_r = nraw.get_row(r);
-			bool sel = !((re.indexIn(nraw_r[axis_id]->get_qstr()) != -1) ^ include);
+			bool sel = !((re.indexIn(nraw_r[axis_id].get_qstr()) != -1) ^ include);
 			out.get_selection().set_line(r, sel);
 		}
 	}

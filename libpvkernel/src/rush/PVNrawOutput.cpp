@@ -39,7 +39,12 @@ void PVRush::PVNrawOutput::operator()(PVCore::PVChunk* out)
 	_nraw_cur_index++;
 
 	_nraw_dest.push_chunk_todelete(out);
-	//out->free();
+
+	// Give the ownership of reallocated buffers to the NRAW
+	out->give_ownerhsip_realloc_buffers(_nraw_dest);
+
+	// Clear the structures used by the chunk
+	out->free_structs();
 }
 
 PVRush::PVNrawOutput::map_pvrow const& PVRush::PVNrawOutput::get_pvrow_index_map() const

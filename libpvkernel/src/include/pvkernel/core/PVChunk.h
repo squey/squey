@@ -21,6 +21,7 @@
 
 namespace PVRush {
 	class PVAggregator;
+	class PVNraw;
 };
 
 namespace PVCore {
@@ -89,6 +90,13 @@ public:
 		return new_elt;
 	}
 
+	void give_ownerhsip_realloc_buffers(PVRush::PVNraw& nraw)
+	{
+		list_elts::iterator it;
+		for (it = _elts.begin(); it != _elts.end(); it++) {
+			(*it)->give_ownerhsip_realloc_buffers(nraw);
+		}
+	}
 
 	PVRush::PVRawSourceBase* source() const { return _source; };
 

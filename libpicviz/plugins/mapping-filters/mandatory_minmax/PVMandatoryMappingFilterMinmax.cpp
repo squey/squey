@@ -21,8 +21,8 @@ int Picviz::PVMandatoryMappingFilterMinmax::operator()(mandatory_param_list_valu
 	tbb::parallel_reduce(tbb::blocked_range<uint64_t>(0, str_values->size()), mmar, tbb::auto_partitioner());
 
 	// And save the min/max values !
-	mandatory_param_value ymin = mandatory_param_value(str_values->at(mmar.get_min_index())->get_qstr(), mmar.get_min_value());
-	mandatory_param_value ymax = mandatory_param_value(str_values->at(mmar.get_max_index())->get_qstr(), mmar.get_max_value());
+	mandatory_param_value ymin = mandatory_param_value(str_values->at(mmar.get_min_index()).get_qstr(), mmar.get_min_value());
+	mandatory_param_value ymax = mandatory_param_value(str_values->at(mmar.get_max_index()).get_qstr(), mmar.get_max_value());
 
 	_mandatory_params->insert(mandatory_param_map::value_type(Picviz::mandatory_ymin, ymin));
 	_mandatory_params->insert(mandatory_param_map::value_type(Picviz::mandatory_ymax, ymax));

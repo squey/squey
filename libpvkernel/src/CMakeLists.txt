@@ -20,7 +20,7 @@ core/PVDirectory.cpp
 core/PVElement.cpp
 core/PVField.cpp
 core/PVFileSerialize.cpp
-core/PVListFloat2D.cpp
+#core/PVListFloat2D.cpp
 core/PVLogger.cpp
 core/PVPCRESplitter.cpp
 core/PVProgressBox.cpp

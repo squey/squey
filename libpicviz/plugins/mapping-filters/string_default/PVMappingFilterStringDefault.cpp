@@ -24,7 +24,7 @@ float* Picviz::PVMappingFilterStringDefault::operator()(PVRush::PVNraw::const_tr
 #pragma omp parallel for
 	// Looks like this can be fine optimised with hand made SSE/AVX optimisation
 	for (int64_t i = 0; i < size; i++) {
-		factors[i] = PVCore::String::compute_str_factor(values[i]->get_qstr());
+		factors[i] = PVCore::String::compute_str_factor(values[i].get_qstr());
 	}
 
 	// Then find the maximum thanks to TBB

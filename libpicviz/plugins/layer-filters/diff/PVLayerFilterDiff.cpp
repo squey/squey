@@ -17,7 +17,7 @@ static QString generate_row_key_from_values(PVCore::PVAxesIndexType const& axes,
 	QString ret;
 	PVCore::PVAxesIndexType::const_iterator it;
 	for (it = axes.begin(); it != axes.end(); it++) {
-		ret.append(values[*it]->get_qstr());
+		ret.append(values[*it].get_qstr());
 	}
 	return ret;
 }
