@@ -10,7 +10,6 @@ link_directories(${picviz-inspector_SOURCE_DIR}/libpicviz/src/ ${picviz-inspecto
 
 set(FILTERS_DIST_LIST
 layer_filter_axis_gradient
-layer_filter_diff
 layer_filter_heatline
 layer_filter_find_duplicates
 layer_filter_search

@@ -29,7 +29,7 @@ DEFAULT_ARGS_FILTER(Picviz::PVMappingFilterTimeDefault)
 {
 	PVCore::PVArgumentList args;
 	PVCore::PVTimeFormatType tf;
-	args[PVCore::PVArgumentKey("time-format", "Format of the\ntime strings")].setValue(tf);
+	args[PVCore::PVArgumentKey("time-format", "Time strings formats")].setValue(tf);
 	return args;
 }
 
