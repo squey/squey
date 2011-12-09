@@ -15,7 +15,8 @@
 
 PVInspector::PVSaveSceneDialog::PVSaveSceneDialog(Picviz::PVScene_p scene, PVCore::PVSerializeArchiveOptions_p options, QWidget* parent):
 	QFileDialog(parent),
-	_scene(scene)
+	_scene(scene),
+	_options(*options)
 {
 	setAcceptMode(QFileDialog::AcceptSave);
 	setDefaultSuffix(PICVIZ_SCENE_ARCHIVE_EXT);
@@ -24,9 +25,10 @@ PVInspector::PVSaveSceneDialog::PVSaveSceneDialog(Picviz::PVScene_p scene, PVCor
 
 	QGridLayout* main_layout = (QGridLayout*) layout();
 
-	save_everything_checkbox = new QCheckBox(tr("Include formats and original files"));
-	save_everything_checkbox->setChecked(false);
-	main_layout->addWidget(save_everything_checkbox, 5, 1);
+	_save_everything_checkbox = new QCheckBox(tr("Include formats and original files"));
+	_save_everything_checkbox->setTristate(false);
+	connect(_save_everything_checkbox, SIGNAL(stateChanged(int)), this, SLOT(include_files_Slot(int)));
+	main_layout->addWidget(_save_everything_checkbox, 5, 1);
 
 	QTabWidget* tabs = new QTabWidget();
 	QWidget* org_w = new QWidget();
@@ -56,10 +58,30 @@ PVInspector::PVSaveSceneDialog::PVSaveSceneDialog(Picviz::PVScene_p scene, PVCor
 	QWidget* options_widget = new QWidget();
 	options_widget->setLayout(options_layout);
 	tabs->addTab(options_widget, tr("Advanced Options"));
+	tab_changed_Slot(0);
+
+	connect(tabs, SIGNAL(currentChanged(int)), this, SLOT(tab_changed_Slot(int)));
 
 	QVBoxLayout* layout = new QVBoxLayout();
 	layout->addWidget(tabs);
 	setLayout(layout);
-
 }
 
+void PVInspector::PVSaveSceneDialog::include_files_Slot(int state)
+{
+	if (state != Qt::PartiallyChecked) {
+		_options.include_all_files(state == Qt::Checked);
+	}
+}
+
+void PVInspector::PVSaveSceneDialog::tab_changed_Slot(int idx)
+{
+	if (idx == 0) {
+		// AG: still part of the "include all" hack.
+		// We're back ine the mai ntab, update the state of the check box according
+		// to the options.
+		disconnect(_save_everything_checkbox, SIGNAL(stateChanged(int)), this, SLOT(include_files_Slot(int)));
+		_save_everything_checkbox->setCheckState((Qt::CheckState) _options.does_include_all_files());
+		connect(_save_everything_checkbox, SIGNAL(stateChanged(int)), this, SLOT(include_files_Slot(int)));
+	}
+}

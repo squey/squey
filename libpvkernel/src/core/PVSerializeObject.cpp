@@ -7,7 +7,7 @@ PVCore::PVSerializeObject::PVSerializeObject(QString const& path, PVSerializeArc
 		_logical_path(path),
 		_is_optional(false),
 		_must_write(true),
-		_bound_obj(NULL)
+		_bound_obj_type(typeid(void))
 {
 }
 

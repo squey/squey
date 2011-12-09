@@ -57,7 +57,7 @@ int PVPlotted::create_table()
 {
 	PVCol mapped_col_count = _mapped->get_column_count();
 
-	const PVRow nrows = (PVRow)_mapped->table.getHeight();
+	const PVRow nrows = (PVRow)_mapped->get_row_count();
 
 	// That buffer will be about 3.8MB each 10 million lines, so we keep it
 	// to save some allocations.
@@ -267,12 +267,12 @@ const PVRush::PVNraw::nraw_table& PVPlotted::get_qtnraw() const
 
 PVRow PVPlotted::get_row_count() const
 {
-	return _mapped->table.getHeight();
+	return _mapped->get_row_count();
 }
 
 PVCol PVPlotted::get_column_count() const
 {
-	return _mapped->table.getWidth();
+	return _mapped->get_column_count();
 }
 
 PVSource* PVPlotted::get_source_parent()

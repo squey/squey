@@ -65,10 +65,18 @@ public:
 	inline const utf_char* buffer() const { return _buf; }
 	inline size_t size() const { return _len; };
 	inline size_t len() const { return _len; };
+	inline QString const& get_qstr() const
+	{
+		if (_qstr.isNull()) {
+			_qstr.setRawData((QChar*) _buf, _len);
+		}
+		return _qstr;
+	}
 
 protected:
 	const utf_char* _buf;
 	size_t _len;
+	mutable QString _qstr;
 };
 
 }

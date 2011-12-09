@@ -65,7 +65,6 @@ void Picviz::PVMapped::create_table()
 
 	const PVRow nrows = (PVRow)qt_nraw.get_nrows();
 	const PVCol ncols = (PVCol) qt_nraw.get_ncols();
-	table.reserve(ncols,nrows);
 	
 	tbb::tick_count tstart = tbb::tick_count::now();
 	trans_table.reserve(nrows,ncols);
@@ -228,7 +227,7 @@ void Picviz::PVMapped::to_csv()
 	for (PVRow i = 0; i < (PVRow) trans_table.getWidth(); i++) {
 		for (PVCol j = 0; j < (PVCol) trans_table.getHeight(); j++) {
 			std::cout << trans_table.getValue(j,i);
-			if (j!=table.getWidth()-1) {
+			if (j!=trans_table.getHeight()-1) {
 				std::cout << ",";
 			}
 		}
@@ -324,7 +323,7 @@ Picviz::PVRoot* Picviz::PVMapped::get_root_parent()
  *****************************************************************************/
 PVRow Picviz::PVMapped::get_row_count()
 {
-	return table.getHeight();
+	return trans_table.getWidth();
 }
 
 /******************************************************************************
@@ -334,7 +333,7 @@ PVRow Picviz::PVMapped::get_row_count()
  *****************************************************************************/
 PVCol Picviz::PVMapped::get_column_count()
 {
-	return table.getWidth();
+	return trans_table.getHeight();
 }
 
 void Picviz::PVMapped::add_plotted(PVPlotted_p plotted)

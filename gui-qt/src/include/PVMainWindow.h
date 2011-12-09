@@ -16,6 +16,10 @@
 #include <QNetworkReply>
 #include <QSet>
 
+#include <pvkernel/rush/PVInput.h>
+#include <pvkernel/rush/PVSourceCreator.h>
+#include <pvkernel/rush/PVSourceCreatorFactory.h>
+
 #include <picviz/init.h>
 #include <picviz/PVRoot.h>
 #include <picviz/PVScene.h>
@@ -39,6 +43,7 @@
 #include <PVOpenFileDialog.h>
 #include <PVSaveFileDialog.h>
 #include <PVListingsTabWidget.h>
+#include <PVFilesTypesSelWidget.h>
 
 //#include <>
 
@@ -62,7 +67,37 @@ class PVMainWindow : public QMainWindow
 {
 	Q_OBJECT
 
-			QDialog *about_dialog;
+private:
+	struct PVFormatDetectCtxt
+	{
+		PVFormatDetectCtxt(PVRush::PVInputType::list_inputs const& inputs_, QHash<QString,PVRush::input_type>& hash_input_name_, PVRush::hash_formats& formats_, PVRush::hash_format_creator& format_creator_, map_files_types& files_multi_formats_, QHash< QString,PVRush::PVInputType::list_inputs >& discovered_, QHash<QString, std::pair<QString,QString> >& formats_error_, PVRush::list_creators& lcr_, PVRush::PVInputType_p in_t_, QHash<QString,PVCore::PVMeanValue<float> >& discovered_types_):
+			inputs(inputs_),
+			hash_input_name(hash_input_name_),
+			formats(formats_),
+			format_creator(format_creator_),
+			files_multi_formats(files_multi_formats_),
+			discovered(discovered_),
+			formats_error(formats_error_),
+			lcr(lcr_),
+			in_t(in_t_),
+			discovered_types(discovered_types_)
+		{ }
+
+		PVRush::PVInputType::list_inputs const& inputs;
+		QHash<QString,PVRush::input_type>& hash_input_name;
+		PVRush::hash_formats& formats;
+		PVRush::hash_format_creator& format_creator;
+		map_files_types& files_multi_formats;
+		QHash< QString,PVRush::PVInputType::list_inputs >& discovered;
+		QHash<QString,std::pair<QString,QString> >& formats_error;
+		PVRush::list_creators& lcr;
+		PVRush::PVInputType_p in_t;
+		QHash<QString,PVCore::PVMeanValue<float> >& discovered_types;
+	};
+
+private:
+	QDialog *about_dialog;
+
 public:
 	PVMainWindow(QWidget *parent = 0);
 
@@ -174,7 +209,7 @@ protected:
 
 private:
 	bool load_project(const QString &file);
-	bool save_project(const QString &file, PVCore::PVSerializeArchiveOptions_p options, bool save_everything);
+	bool save_project(const QString &file, PVCore::PVSerializeArchiveOptions_p options);
 	void set_current_project_filename(const QString& file);
 	bool maybe_save_project();
 	bool is_project_untitled() { return _is_project_untitled; }
@@ -194,6 +229,11 @@ private:
 	void create_actions_import_types(QMenu* menu);
 	void menu_activate_is_file_opened(bool cond);
 
+	// AG: that needs to be redesigned. I outlined this code as an automatic outliner would do, so that
+	// a progress box can cancel this process.
+	void auto_detect_formats(PVFormatDetectCtxt ctxt);
+
+private:
 	bool load_scene();
 	bool load_source(Picviz::PVSource_p src);
 
@@ -312,6 +352,7 @@ private:
 private:
 	version_t _last_known_cur_release;
 	version_t _last_known_maj_release;
+
 };
 }
 
