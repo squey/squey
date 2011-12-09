@@ -139,7 +139,7 @@ bool PVCore::PVListFloat2D::reserve(PVCol width_, PVRow height_)
 	}
 	catch (std::bad_alloc const&)
 	{
-		PVLOG_ERROR("(PVCore::PVListFloat2D::reserve) unable to allocate memory !\n");
+		PVLOG_ERROR("(PVCore::PVListFloat2D::reserve) unable to allocate memory (%ldx%ldx%ld = %ld)!\n", width_, height_, sizeof(float), width_*height_*sizeof(float));
 		return false;
 	}
 
