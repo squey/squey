@@ -493,6 +493,7 @@ void PVGL::PVMain::timer_func(int)
 	PVSDK::PVMessage message;
 
 	int view_resize_update_timer = pvconfig.value("pvgl/view_resize_update_timer", PVGL_VIEW_RESIZE_UPDATE_TIMER).toInt();
+	int window_timer_refresh = pvconfig.value("pvgl/window_timer_refresh", 20).toInt();
 
 	PVLOG_HEAVYDEBUG("PVGL::PVMain::%s\n", __FUNCTION__);
 
@@ -839,7 +840,7 @@ void PVGL::PVMain::timer_func(int)
 		PVGL::wtk_window_need_redisplay();
 	}
         
-	PVGL::wtk_set_timer_func(20, timer_func, 0);
+	PVGL::wtk_set_timer_func(window_timer_refresh, timer_func, 0);
 }
 
 /******************************************************************************
@@ -863,6 +864,9 @@ bool pvgl_init(PVSDK::PVMessenger *messenger)
 {
 	int argc = 1;
 	char *argv[] = { const_cast<char*>("PVGL"), NULL };
+
+	int main_loop_timer_refresh = pvconfig.value("pvgl/main_loop_timer_refresh", 5/*20*/).toInt();
+
 	pvsdk_messenger = messenger;
 
 	if (pvgl_share_path_exists() == false) {
@@ -886,7 +890,7 @@ bool pvgl_init(PVSDK::PVMessenger *messenger)
 								PVGL::PVMain::create_view(name);
 								//message.function = PVSDK_MESSENGER_FUNCTION_VIEW_CREATED;
 								//pvsdk_messenger->post_message_to_qt(message);
-								PVGL::wtk_set_timer_func(5/*20*/, PVGL::PVMain::timer_func, 0);
+								PVGL::wtk_set_timer_func(main_loop_timer_refresh, PVGL::PVMain::timer_func, 0);
 								PVGL::wtk_main_loop();
 
 								PVGL::wtk_init(argc, argv);
@@ -910,7 +914,7 @@ bool pvgl_init(PVSDK::PVMessenger *messenger)
 								transient_view = 0;
 								message.function = PVSDK_MESSENGER_FUNCTION_VIEW_CREATED;
 								pvsdk_messenger->post_message_to_qt(message);
-								PVGL::wtk_set_timer_func(5/*20*/, PVGL::PVMain::timer_func, 0);
+								PVGL::wtk_set_timer_func(main_loop_timer_refresh, PVGL::PVMain::timer_func, 0);
 								PVGL::wtk_main_loop();
 
 								PVGL::wtk_init(argc, argv);
@@ -924,7 +928,7 @@ bool pvgl_init(PVSDK::PVMessenger *messenger)
 								message.function = PVSDK_MESSENGER_FUNCTION_VIEW_CREATED;
 								message.pointer_1 = new QString(*name);
 								pvsdk_messenger->post_message_to_qt(message);
-								PVGL::wtk_set_timer_func(5/*20*/, PVGL::PVMain::timer_func, 0);
+								PVGL::wtk_set_timer_func(main_loop_timer_refresh, PVGL::PVMain::timer_func, 0);
 								PVGL::wtk_main_loop();
 
 								PVGL::wtk_init(argc, argv);
