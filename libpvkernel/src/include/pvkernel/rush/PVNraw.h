@@ -146,7 +146,7 @@ namespace PVRush {
 		nraw_trans_table trans_table;
 
 		// Reallocated buffers from PVElement objects
-		PVCore::buf_list_t _reallocated_buffers; // buf_list_t defined in PVBufferSlice.h
+		PVCore::buf_list_t* _reallocated_buffers; // buf_list_t defined in PVBufferSlice.h
 	};
 
 }

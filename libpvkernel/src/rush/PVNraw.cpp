@@ -14,12 +14,14 @@ PVRush::PVNraw::PVNraw()
 {
 	_real_nrows = 0;
 	_chunks_todel = new list_chunks_t();
+	_reallocated_buffers = new PVCore::buf_list_t();
 }
 
 PVRush::PVNraw::~PVNraw()
 {
 	clear();
 	delete _chunks_todel;
+	delete _reallocated_buffers;
 }
 
 void PVRush::PVNraw::reserve(PVRow row, PVCol col)
@@ -68,10 +70,10 @@ void PVRush::PVNraw::clear_table()
 	{
 		static tbb::scalable_allocator<char> alloc;
 		PVCore::buf_list_t::const_iterator it;
-		for (it = _reallocated_buffers.begin(); it != _reallocated_buffers.end(); it++) {
+		for (it = _reallocated_buffers->begin(); it != _reallocated_buffers->end(); it++) {
 			alloc.deallocate(it->first, it->second);
 		}
-		_reallocated_buffers.clear();
+		_reallocated_buffers->clear();
 	}
 }
 
@@ -84,11 +86,11 @@ void PVRush::PVNraw::swap(PVNraw &dst, PVNraw& src)
 	dst._chunks_todel = src._chunks_todel;
 	src._chunks_todel = ltmp;
 
-	PVCore::buf_list_t lbtmp = dst._reallocated_buffers;
+	PVCore::buf_list_t* lbtmp = dst._reallocated_buffers;
 	dst._reallocated_buffers = src._reallocated_buffers;
 	src._reallocated_buffers = lbtmp;
 
-	//dst.format.swap(src.format);
+	dst.format = src.format;
 }
 
 QString PVRush::PVNraw::nraw_line_to_csv(PVRow idx) const
@@ -150,6 +152,5 @@ void PVRush::PVNraw::dump_csv()
 
 void PVRush::PVNraw::take_realloc_buffers(PVCore::buf_list_t& list)
 {
-	std::copy(list.begin(), list.end(), _reallocated_buffers.end());
-	list.clear();
+	_reallocated_buffers->splice(_reallocated_buffers->begin(), list);
 }
