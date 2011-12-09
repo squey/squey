@@ -16,7 +16,7 @@ static inline bool compLocal(const str_local_index& s1, const str_local_index& s
 
 static inline bool compField(const field_local_index& s1, const field_local_index& s2)
 {
-	return s1.first->compare(*(s2.first)) < 0;
+	return *s1.first < *s2.first;
 }
 
 Picviz::PVMappingFilterStringSort::PVMappingFilterStringSort(PVCore::PVArgumentList const& args):
@@ -39,6 +39,7 @@ float* Picviz::PVMappingFilterStringSort::operator()(PVRush::PVNraw::const_trans
 	// Make a memory-based comparaison and do not take care of the locale !
 	vec_field_sort_t vec;
 	vec.resize(values.size());
+	// TODO: check if this is SIMDized by GCC
 	for (uint64_t i = 0; i < values.size(); i++) {
 		PVCore::PVUnicodeString const* f = &values[i];
 		vec[i].first = f;

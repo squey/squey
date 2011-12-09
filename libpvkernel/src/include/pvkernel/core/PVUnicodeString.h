@@ -70,6 +70,7 @@ public:
 	// By default, memory-based comparaison are made
 	bool operator==(const PVUnicodeString& o) const;
 	bool operator!=(const PVUnicodeString& o) const;
+	bool operator<(const PVUnicodeString& o) const;
 	int compare(const PVUnicodeString& o) const;
 
 	// == Data access ==
