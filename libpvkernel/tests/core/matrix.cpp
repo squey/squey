@@ -10,6 +10,8 @@ int main()
 	QString str("salut");
 	PVCore::PVMatrix<QString> b;
 	b.resize(10,10,str);
+	b.resize_nrows(40);
+	b.resize_nrows(60);
 
 	return 0;
 }

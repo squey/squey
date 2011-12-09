@@ -135,10 +135,8 @@ public:
 			memcpy(dst._data, _data, _ncols*_nrows*sizeof(value_type));
 		}
 		else {
-			for (index_row i = 0; i < _nrows; i++) {
-				for (index_col j = 0; j < _ncols; j++) {
-					new (&dst._data[i+j*_ncols]) value_type(_data[i+j*_ncols]);
-				}
+			for (index_row i = 0; i < _nrows*_ncols; i++) {
+				new (&dst._data[i]) value_type(_data[i]);
 			}
 		}
 
@@ -249,7 +247,7 @@ private:
 	{
 		// Destruct objects
 		if (!value_pod::value) {
-#pragma omp parallel for
+//#pragma omp parallel for
 			for (uint64_t i = 0; i < _nrows*_ncols; i++) {
 				_alloc.destroy(&p[i]);
 			}
@@ -291,10 +289,8 @@ private:
 			memcpy(p, _data, sizeof(value_type)*_nrows*_ncols);
 		}
 		else {
-			for (index_row i = 0; i < _nrows; i++) {
-				for (index_col j = 0; j < _ncols; j++) {
-					new (&p[i+j*_ncols]) value_type(_data[i+j*_ncols]);
-				}
+			for (index_row i = 0; i < _nrows*_ncols; i++) {
+				new (&p[i]) value_type(_data[i]);
 			}
 		}
 		free_buf(_data);
