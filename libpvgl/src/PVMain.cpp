@@ -56,6 +56,10 @@ static bool _should_stop = false;
 
 PVGL::PVIdleManager idle_manager;
 
+int view_resize_update_timer;
+int window_timer_refresh;
+
+
 /******************************************************************************
  *
  * PVGL::PVMain::idle_callback
@@ -492,9 +496,6 @@ void PVGL::PVMain::timer_func(int)
 {
 	PVSDK::PVMessage message;
 
-	int view_resize_update_timer = pvconfig.value("pvgl/view_resize_update_timer", PVGL_VIEW_RESIZE_UPDATE_TIMER).toInt();
-	int window_timer_refresh = pvconfig.value("pvgl/window_timer_refresh", 20).toInt();
-
 	PVLOG_HEAVYDEBUG("PVGL::PVMain::%s\n", __FUNCTION__);
 
 	if (_should_stop) {
@@ -866,6 +867,9 @@ bool pvgl_init(PVSDK::PVMessenger *messenger)
 	char *argv[] = { const_cast<char*>("PVGL"), NULL };
 
 	int main_loop_timer_refresh = pvconfig.value("pvgl/main_loop_timer_refresh", 5/*20*/).toInt();
+
+	view_resize_update_timer = pvconfig.value("pvgl/view_resize_update_timer", PVGL_VIEW_RESIZE_UPDATE_TIMER).toInt();
+	window_timer_refresh = pvconfig.value("pvgl/window_timer_refresh", 20).toInt();
 
 	pvsdk_messenger = messenger;
 
