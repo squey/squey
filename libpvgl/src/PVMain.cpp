@@ -492,6 +492,8 @@ void PVGL::PVMain::timer_func(int)
 {
 	PVSDK::PVMessage message;
 
+	int view_resize_update_timer = pvconfig.value("pvgl/view_resize_update_timer", PVGL_VIEW_RESIZE_UPDATE_TIMER).toInt();
+
 	PVLOG_HEAVYDEBUG("PVGL::PVMain::%s\n", __FUNCTION__);
 
 	if (_should_stop) {
@@ -814,7 +816,7 @@ void PVGL::PVMain::timer_func(int)
 
 	}
 	// Check if we need to resize
-	if (PVGL::wtk_time_ms_elapsed_since_init() - last_reshape_time_time > PVGL_VIEW_RESIZE_UPDATE_TIMER) {
+	if (PVGL::wtk_time_ms_elapsed_since_init() - last_reshape_time_time > view_resize_update_timer) {
 		for (std::list<PVGL::PVDrawable*>::iterator it = all_drawables.begin(); it != all_drawables.end(); ++it) {
 			PVGL::PVView *pv_view = dynamic_cast<PVGL::PVView*>(*it);
 			if (pv_view) {
