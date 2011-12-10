@@ -56,9 +56,9 @@ static bool _should_stop = false;
 
 PVGL::PVIdleManager idle_manager;
 
-int view_resize_update_timer;
-int window_timer_refresh;
-
+int view_resize_update_timer = 0;
+int window_timer_refresh = 0;
+int mouse_motion_refresh_timer = 0;
 
 /******************************************************************************
  *
@@ -778,7 +778,7 @@ void PVGL::PVMain::timer_func(int)
 		}
 	}
 	// Check if we need to reselect
-	if (PVGL::wtk_time_ms_elapsed_since_init() - last_key_pressed_time > 5/*100*/) {
+	if (PVGL::wtk_time_ms_elapsed_since_init() - last_key_pressed_time > mouse_motion_refresh_timer) {
 
 		//PVLOG_DEBUG("   we need to reselect\n");
 		for (std::list<PVGL::PVDrawable*>::iterator it = all_drawables.begin(); it != all_drawables.end(); ++it) {
@@ -870,6 +870,7 @@ bool pvgl_init(PVSDK::PVMessenger *messenger)
 
 	view_resize_update_timer = pvconfig.value("pvgl/view_resize_update_timer", PVGL_VIEW_RESIZE_UPDATE_TIMER).toInt();
 	window_timer_refresh = pvconfig.value("pvgl/window_timer_refresh", 20).toInt();
+	mouse_motion_refresh_timer = pvconfig.value("pvgl/mouse_motion_refresh_timer", 100).toInt();
 
 	pvsdk_messenger = messenger;
 
