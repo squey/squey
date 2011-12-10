@@ -8,15 +8,6 @@ if(USE_PVGL2)
   add_definitions(-DUSE_PVGL2)
 endif(USE_PVGL2)
 
-if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/debug)
-	set(DEBUG_MODE 1)
-	message(STATUS "Compile mode: Debug")
-	set(CMAKE_BUILD_TYPE "Debug")
-else()
-	message(STATUS "Compile mode: Release")
-	set(CMAKE_BUILD_TYPE "Release")
-endif()
-
 set(PICVIZ_SINGLE_TREE_BUILD true)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
