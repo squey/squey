@@ -14,7 +14,22 @@
 #include <boost/bind.hpp>
 #include <vector>
 
+#include <pvkernel/core/picviz_intrin.h>
+
 namespace PVCore {
+
+void transpose(float* res, float* data, uint32_t nrows, uint32_t ncols);
+
+template <typename T, typename IndexRow, typename IndexCol>
+void transpose(T* res, T* data, IndexRow nrows, IndexCol ncols)
+{
+	// TODO: optimise this !
+	for (IndexRow i = 0; i < nrows; i++) {
+		for (IndexCol j = 0; j < ncols; j++) {
+			res[j*nrows + i] = data[i*ncols + j];
+		}
+	}
+}
 
 template <typename T, typename IndexRow = uint32_t, typename IndexCol = uint32_t, template <class Talloc> class Alloc = std::allocator>
 class PVMatrix
@@ -32,6 +47,7 @@ class PVMatrix
 	// Define the transposed matrix type
 public:
 	typedef PVMatrix<T, index_col, index_row, Alloc> transposed_type;
+	friend class PVMatrix<T, index_col, index_row, Alloc>;
 
 public:
 	class PVMatrixLine
@@ -233,16 +249,16 @@ public:
 public:
 	void transpose_to(transposed_type& res)
 	{
-		// TODO: optimise this !
 		res.resize(_ncols, _nrows);
-		for (index_row i = 0; i < _nrows; i++) {
-			for (index_col j = 0; j < _ncols; j++) {
-				res.set_value(j, i, at(i,j));
-			}
-		}
+		transpose_to(res._data);
 	}
 
 private:
+	void transpose_to(pointer res)
+	{
+		transpose(res, _data, _nrows, _ncols);
+	}
+
 	void free_buf(pointer p)
 	{
 		// Destruct objects
@@ -307,6 +323,9 @@ private:
 	allocator_type _alloc;
 };
 
+
 }
+
+
 
 #endif

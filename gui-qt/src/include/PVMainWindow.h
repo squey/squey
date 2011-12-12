@@ -205,12 +205,12 @@ public slots:
 	void axes_combination_editor_Slot();
 
 	void display_icon_Slot();
+	bool load_project(const QString &file);
 
 protected:
 	void closeEvent(QCloseEvent* event);
 
 private:
-	bool load_project(const QString &file);
 	bool save_project(const QString &file, PVCore::PVSerializeArchiveOptions_p options);
 	void set_current_project_filename(const QString& file);
 	bool maybe_save_project();

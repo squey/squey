@@ -22,6 +22,7 @@ core/PVField.cpp
 core/PVFileSerialize.cpp
 #core/PVListFloat2D.cpp
 core/PVLogger.cpp
+core/PVMatrix.cpp
 core/PVPCRESplitter.cpp
 core/PVProgressBox.cpp
 core/PVSerializeArchive.cpp

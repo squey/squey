@@ -50,3 +50,7 @@ target_link_libraries(Tcore_serialize ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
 # Matrix
 add_executable(Tcore_matrix matrix.cpp)
 target_link_libraries(Tcore_matrix ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
+
+add_definitions(-ftree-vectorizer-verbose=2)
+add_executable(Tcore_transp transp.cpp)
+target_link_libraries(Tcore_transp ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
