@@ -5,7 +5,7 @@
 #include <assert.h>
 
 PVRush::PVPipelineTask::PVPipelineTask() :
-	tbb::task(), _nchunks(0), _running(false)
+	tbb::task(), _nchunks(240), _running(false)
 {
 }
 

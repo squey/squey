@@ -34,6 +34,10 @@ public:
 	inline QTextEdit* text_edit() { return _text_edit; }
 	inline const QTextEdit* text_edit() const { return _text_edit; }
 
+
+protected:
+	bool eventFilter(QObject* object, QEvent* event);
+
 private slots:
 	void show_help();
 

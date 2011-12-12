@@ -42,7 +42,7 @@ float* Picviz::PVMappingFilterString4Bsort::operator()(PVRush::PVNraw::const_tra
 #pragma omp parallel for
 	// Looks like this can be fine optimised with hand made SSE/AVX optimisation
 	for (int64_t i = 0; i < size; i++) {
-		_dest[i] = compute_str_factor(values[i]->get_qstr());
+		_dest[i] = compute_str_factor(values[i].get_qstr());
 	}
 
 	return _dest;

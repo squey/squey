@@ -1,6 +1,7 @@
 #include <pvkernel/core/PVElement.h>
 #include <pvkernel/core/PVField.h>
 #include <pvkernel/core/PVChunk.h>
+#include <pvkernel/rush/PVNraw.h>
 
 tbb::scalable_allocator<PVCore::PVElement> PVCore::PVElement::_alloc;
 
@@ -117,4 +118,9 @@ chunk_index PVCore::PVElement::get_elt_agg_index()
 {
 	PVChunk* parent = chunk_parent();
 	return parent->get_agg_index_of_element(*this);
+}
+
+void PVCore::PVElement::give_ownerhsip_realloc_buffers(PVRush::PVNraw& nraw)
+{
+	nraw.take_realloc_buffers(_reallocated_buffers);
 }

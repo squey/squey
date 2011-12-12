@@ -21,7 +21,6 @@
 
 #include <PVMainWindow.h>
 #include <PVExtractorWidget.h>
-#include <PVFilesTypesSelWidget.h>
 #include <PVStringListChooserWidget.h>
 #include <PVArgumentListWidget.h>
 #include <PVInputTypeMenuEntries.h>
@@ -43,10 +42,7 @@
 #include <pvkernel/core/PVMeanValue.h>
 #include <pvkernel/core/PVVersion.h>
 
-#include <pvkernel/rush/PVInput.h>
-#include <pvkernel/rush/PVSourceCreator.h>
-#include <pvkernel/rush/PVSourceCreatorFactory.h>
-
+#include <pvkernel/rush/PVFileDescription.h>
 
 #include <picviz/general.h>
 #include <picviz/arguments.h>
@@ -77,6 +73,10 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 	_is_project_untitled = true;
 
 	QSplashScreen splash(QPixmap(":/splash-screen"));
+
+	if (time(NULL) >= CUSTOMER_RELEASE_EXPIRATION_DATE) {
+		exit(0);
+	}
 
 	splash.show();
 
@@ -710,6 +710,112 @@ void PVInspector::PVMainWindow::create_filters_menu_and_actions()
 	}
 }
 
+void PVInspector::PVMainWindow::auto_detect_formats(PVFormatDetectCtxt ctxt)
+{
+	PVRush::PVInputType::list_inputs::const_iterator itin;
+
+	// Go through the inputs
+	for (itin = ctxt.inputs.begin(); itin != ctxt.inputs.end(); itin++) {
+		QString in_str = (*itin)->human_name();
+		ctxt.hash_input_name[in_str] = *itin;
+
+		// Pre-discovery to have some sources already eliminated and
+		// save the custom formats of the remaining sources
+		PVRush::list_creators::const_iterator itcr;
+		PVRush::list_creators pre_discovered_creators;
+		PVRush::hash_formats custom_formats;
+		for (itcr = ctxt.lcr.begin(); itcr != ctxt.lcr.end(); itcr++) {
+			PVRush::PVSourceCreator_p sc = *itcr;
+			if (sc->pre_discovery(*itin)) {
+				pre_discovered_creators.push_back(sc);
+				ctxt.in_t->get_custom_formats(*itin, custom_formats);
+			}
+		}
+
+		// Load possible formats of the remaining sources
+		PVRush::hash_format_creator dis_format_creator = PVRush::PVSourceCreatorFactory::get_supported_formats(pre_discovered_creators);
+
+		// Add the custom formats
+		PVRush::hash_formats::const_iterator it_cus_f;
+		for (it_cus_f = custom_formats.begin(); it_cus_f != custom_formats.end(); it_cus_f++) {
+			// Save this custom format to the global formats object
+			ctxt.formats.insert(it_cus_f.key(), it_cus_f.value());
+
+			PVRush::list_creators::const_iterator it_lc;
+			for (it_lc = ctxt.lcr.begin(); it_lc != ctxt.lcr.end(); it_lc++) {
+				PVRush::hash_format_creator::mapped_type v(it_cus_f.value(), *it_lc);
+				dis_format_creator[it_cus_f.key()] = v;
+
+				// Save this format/creator pair to the "format_creator" object
+				ctxt.format_creator[it_cus_f.key()] = v;
+			}
+		}
+
+		// Try every possible format
+		QHash<QString,PVCore::PVMeanValue<float> > file_types;
+		tbb::tick_count dis_start = tbb::tick_count::now();
+
+		QList<PVRush::hash_format_creator::key_type> dis_formats = dis_format_creator.keys();
+		QList<PVRush::hash_format_creator::mapped_type> dis_v = dis_format_creator.values();
+		bool input_exception = false;
+		std::string input_exception_str;
+#pragma omp parallel for
+		for (int i = 0; i < dis_format_creator.size(); i++) {
+			//PVRush::pair_format_creator const& pfc = itfc.value();
+			PVRush::pair_format_creator const& pfc = dis_v.at(i);
+			//QString const& str_format = itfc.key();
+			QString const& str_format = dis_formats.at(i);
+			try {
+				float success_rate = PVRush::PVSourceCreatorFactory::discover_input(pfc, *itin);
+				PVLOG_INFO("For input %s with format %s, success rate is %0.4f\n", qPrintable(in_str), qPrintable(str_format), success_rate);
+
+				if (success_rate > 0) {
+#pragma omp critical
+					{
+						file_types[str_format].push(success_rate);
+						ctxt.discovered_types[str_format].push(success_rate);
+					}
+				}
+			}
+			catch (PVRush::PVXmlParamParserException &e) {
+#pragma omp critical
+				{
+					ctxt.formats_error[pfc.first.get_full_path()] = std::pair<QString,QString>(pfc.first.get_format_name(), tr("XML parser error: ") + e.what());
+				}
+				continue;
+			}
+			catch (PVRush::PVFormatInvalid &e) {
+#pragma omp critical
+				{
+					ctxt.formats_error[pfc.first.get_full_path()] = std::pair<QString,QString>(pfc.first.get_format_name(), e.what());
+				}
+				continue;
+			}
+			catch (PVRush::PVInputException &e) {
+				input_exception = true;
+				input_exception_str = e.what().c_str();
+				continue;
+			}
+		}
+		tbb::tick_count dis_end = tbb::tick_count::now();
+		PVLOG_INFO("Automatic format discovery took %0.4f seconds.\n", (dis_end-dis_start).seconds());
+		if (input_exception) {
+			PVLOG_ERROR("PVInput exception: %s\n", input_exception_str.c_str());
+			continue;
+		}
+
+		if (file_types.count() == 1) {
+			// We got the formats that matches this input
+			ctxt.discovered[file_types.keys()[0]].push_back(*itin);
+		}
+		else {
+			if (file_types.count() > 1) {
+				ctxt.files_multi_formats[in_str] = file_types.keys();
+			}
+		}
+	}
+}
+
 void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 {
 	PVRush::list_creators lcr = PVRush::PVSourceCreatorFactory::get_by_input_type(in_t);
@@ -726,8 +832,6 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 	QString choosenFormat;
 	// PVInputType::list_inputs is a QList<PVInputDescription_p>
 	PVRush::PVInputType::list_inputs inputs;
-	map_files_types files_multi_formats;
-	QHash<QString,PVRush::input_type> hash_input_name;
 
 	if (!in_t->createWidget(formats, new_formats, inputs, choosenFormat, this))
 		return; // This means that the user pressed the "cancel" button
@@ -745,116 +849,30 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 			}
 		}
 	}
+
+	import_type(in_t, inputs, formats, format_creator, choosenFormat);
+}
+
+void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::PVInputType::list_inputs const& inputs, PVRush::hash_formats& formats, PVRush::hash_format_creator& format_creator, QString const& choosenFormat)
+{
+	PVRush::list_creators lcr = PVRush::PVSourceCreatorFactory::get_by_input_type(in_t);
+
 	QHash< QString,PVRush::PVInputType::list_inputs > discovered;
 	QHash<QString,PVCore::PVMeanValue<float> > discovered_types; // format->mean_success_rate
 
 	QHash<QString, std::pair<QString,QString> > formats_error; // Errors w/ some formats
 
+	map_files_types files_multi_formats;
+	QHash<QString,PVRush::input_type> hash_input_name;
+
 	bool file_type_found = false;
 
 	if (choosenFormat.compare(PICVIZ_AUTOMATIC_FORMAT_STR) == 0) {
-		PVRush::PVInputType::list_inputs::const_iterator itin;
-
-		// Go through the inputs
-		for (itin = inputs.begin(); itin != inputs.end(); itin++) {
-			QString in_str = (*itin)->human_name();
-			hash_input_name[in_str] = *itin;
-
-			// Pre-discovery to have some sources already eliminated and
-			// save the custom formats of the remaining sources
-			PVRush::list_creators::const_iterator itcr;
-			PVRush::list_creators pre_discovered_creators;
-			PVRush::hash_formats custom_formats;
-			for (itcr = lcr.begin(); itcr != lcr.end(); itcr++) {
-				PVRush::PVSourceCreator_p sc = *itcr;
-				if (sc->pre_discovery(*itin)) {
-					pre_discovered_creators.push_back(sc);
-					in_t->get_custom_formats(*itin, custom_formats);
-				}
-			}
-
-			// Load possible formats of the remaining sources
-			PVRush::hash_format_creator dis_format_creator = PVRush::PVSourceCreatorFactory::get_supported_formats(pre_discovered_creators);
-
-			// Add the custom formats
-			PVRush::hash_formats::const_iterator it_cus_f;
-			for (it_cus_f = custom_formats.begin(); it_cus_f != custom_formats.end(); it_cus_f++) {
-				// Save this custom format to the global formats object
-				formats.insert(it_cus_f.key(), it_cus_f.value());
-
-				PVRush::list_creators::const_iterator it_lc;
-				for (it_lc = lcr.begin(); it_lc != lcr.end(); it_lc++) {
-					PVRush::hash_format_creator::mapped_type v(it_cus_f.value(), *it_lc);
-					dis_format_creator[it_cus_f.key()] = v;
-
-					// Save this format/creator pair to the "format_creator" object
-					format_creator[it_cus_f.key()] = v;
-				}
-			}
-
-			// Try every possible format
-			QHash<QString,PVCore::PVMeanValue<float> > file_types;
-			tbb::tick_count dis_start = tbb::tick_count::now();
-			
-			QList<PVRush::hash_format_creator::key_type> dis_formats = dis_format_creator.keys();
-			QList<PVRush::hash_format_creator::mapped_type> dis_v = dis_format_creator.values();
-			bool input_exception = false;
-			std::string input_exception_str;
-#pragma omp parallel for
-			for (int i = 0; i < dis_format_creator.size(); i++) {
-				//PVRush::pair_format_creator const& pfc = itfc.value();
-				PVRush::pair_format_creator const& pfc = dis_v.at(i);
-				//QString const& str_format = itfc.key();
-				QString const& str_format = dis_formats.at(i);
-				try {
-					float success_rate = PVRush::PVSourceCreatorFactory::discover_input(pfc, *itin);
-					PVLOG_INFO("For input %s with format %s, success rate is %0.4f\n", qPrintable(in_str), qPrintable(str_format), success_rate);
-
-					if (success_rate > 0) {
-#pragma omp critical
-						{
-							file_types[str_format].push(success_rate);
-							discovered_types[str_format].push(success_rate);
-						}
-					}
-				}
-				catch (PVRush::PVXmlParamParserException &e) {
-#pragma omp critical
-					{
-						formats_error[pfc.first.get_full_path()] = std::pair<QString,QString>(pfc.first.get_format_name(), tr("XML parser error: ") + e.what());
-					}
-					continue;
-				}
-				catch (PVRush::PVFormatInvalid &e) {
-#pragma omp critical
-					{
-						formats_error[pfc.first.get_full_path()] = std::pair<QString,QString>(pfc.first.get_format_name(), e.what());
-					}
-					continue;
-				}
-				catch (PVRush::PVInputException &e) {
-					input_exception = true;
-					input_exception_str = e.what().c_str();
-					continue;
-				}
-			}
-			tbb::tick_count dis_end = tbb::tick_count::now();
-			PVLOG_INFO("Automatic format discovery took %0.4f seconds.\n", (dis_end-dis_start).seconds());
-			if (input_exception) {
-				PVLOG_ERROR("PVInput exception: %s\n", input_exception_str.c_str());
-				continue;
-			}
-
-			if (file_types.count() == 1) {
-				// We got the formats that matches this input
-				discovered[file_types.keys()[0]].push_back(*itin);
-			}
-			else
-			if (file_types.count() > 1) {
-				files_multi_formats[in_str] = file_types.keys();
-			}
+		PVCore::PVProgressBox* pbox = new PVCore::PVProgressBox(tr("Auto-detecting file format..."), (QWidget*) this);
+		pbox->set_enable_cancel(false);
+		if (!PVCore::PVProgressBox::progress(boost::bind(&PVMainWindow::auto_detect_formats, this, PVFormatDetectCtxt(inputs, hash_input_name, formats, format_creator, files_multi_formats, discovered, formats_error, lcr, in_t, discovered_types)), pbox)) {
+			return;
 		}
-
 		file_type_found = (discovered.size() > 0) | (files_multi_formats.size() > 0);
 	}
 	else
@@ -971,6 +989,54 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 	show_start_page(false);
 	pv_ListingsTabWidget->setVisible(true);
 	set_project_modified(true);
+}
+
+void PVInspector::PVMainWindow::load_files(std::vector<QString> const& files, QString format)
+{
+	if (files.size() == 0) {
+		return;
+	}
+
+	PVRush::PVInputType_p in_file = LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name("file");
+	PVRush::list_creators lcr = PVRush::PVSourceCreatorFactory::get_by_input_type(in_file);
+	PVRush::hash_format_creator format_creator = PVRush::PVSourceCreatorFactory::get_supported_formats(lcr);
+
+	PVRush::hash_formats formats;
+	{
+		PVRush::hash_format_creator::const_iterator itfc;
+		for (itfc = format_creator.begin(); itfc != format_creator.end(); itfc++) {
+			formats[itfc.key()] = itfc.value().first;
+		}
+	}
+
+	// Create PVFileDescription objects
+	//
+	
+	PVRush::PVInputType::list_inputs files_in;
+	{
+		std::vector<QString>::const_iterator it;
+		for (it = files.begin(); it != files.end(); it++) {
+			files_in.push_back(PVRush::PVInputDescription_p(new PVRush::PVFileDescription(*it)));
+		}
+	}
+	
+	if (!format.isEmpty()) {
+		PVRush::PVFormat new_format("custom:arg", format);
+		formats["custom:arg"] = new_format;
+
+		PVRush::list_creators::const_iterator it_lc;
+		for (it_lc = lcr.begin(); it_lc != lcr.end(); it_lc++) {
+			PVRush::hash_format_creator::mapped_type v(new_format, *it_lc);
+			// Save this format/creator pair to the "format_creator" object
+			format_creator["custom:arg"] = v;
+		}
+		format = "custom:arg";
+	}
+	else {
+		format = PICVIZ_AUTOMATIC_FORMAT_STR;
+	}
+
+	import_type(in_file, files_in, formats, format_creator, format);
 }
 
 bool PVInspector::PVMainWindow::load_scene()

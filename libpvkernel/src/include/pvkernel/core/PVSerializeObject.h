@@ -4,6 +4,7 @@
 #include <pvkernel/core/stdint.h>
 #include <pvkernel/core/PVSerializeArchiveExceptions.h>
 #include <pvkernel/core/PVTypeTraits.h>
+#include <pvkernel/core/PVTypeInfo.h>
 
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/shared_ptr.hpp>
@@ -77,6 +78,7 @@ public:
 	const p_type get_child_by_name(QString const& name) const;
 	QString const& get_logical_path() const;
 	p_type parent();
+	PVTypeInfo const& bound_obj_type() const { return _bound_obj_type; }
 
 public:
 	/*! \brief Declare a new object to serialize that can be optionally saved, with a description.
@@ -193,7 +195,7 @@ private:
 	p_type get_archive_object_from_path(QString const& path) const;
 
 	template <typename T>
-	void call_serialize(T& obj, p_type new_obj, T const* /*def_v*/) { obj.serialize(*new_obj, get_version()); new_obj->_bound_obj = &obj; }
+	void call_serialize(T& obj, p_type new_obj, T const* /*def_v*/) { obj.serialize(*new_obj, get_version()); new_obj->_bound_obj = &obj; new_obj->_bound_obj_type = typeid(T); }
 
 	template <typename T>
 	void call_serialize(T* obj, p_type new_obj, T const* def_v) { call_serialize(*obj, new_obj, def_v); }
@@ -214,6 +216,7 @@ private:
 		}
 		obj->serialize(*new_obj, get_version());
 		new_obj->_bound_obj = obj.get();
+		new_obj->_bound_obj_type = typeid(T);
 	}
 
 	template <typename T>
@@ -275,6 +278,7 @@ private:
 	/*! \brief If relevant, represents a pointer to the object that has been serialized
 	 */
 	void* _bound_obj;
+	PVTypeInfo _bound_obj_type;
 
 	/*! \brief Whether or not this object is exposed to the user (for options)
 	 */

@@ -13,26 +13,75 @@
 #include <PVMainWindow.h>
 #include <PVCustomStyle.h>
 
+#include <string>
+#include <vector>
+#include <iostream>
+
 #include <stdio.h>
 
 #include <time.h>
 #include <pvkernel/core/picviz_intrin.h>
 
+#include <boost/program_options.hpp>
+
 #define JULY_5 1309856400
-
-// Laposte
-#define SEPT_20 1316520000
-
-// Schneider
-#define DEC_1 1322719200
 
 // #ifdef USE_UNIKEY
   // #include <UniKeyFR.h>
 // #endif
 
+namespace bpo = boost::program_options;
+
 int main(int argc, char *argv[])
 {
 	QApplication app(argc, argv);
+
+	// Program options
+	
+	bpo::options_description desc_opts("Options");
+	desc_opts.add_options()
+		("help", "produce help message")
+		("format", bpo::value<std::string>(), "path to the format to use. Default is automatic discovery.")
+		;
+	bpo::options_description hidden_opts("Hidden options");
+	hidden_opts.add_options()
+		("input-file", bpo::value<std::vector<std::string> >(), "path to the file to load")
+		;
+	bpo::options_description all_opts;
+	all_opts.add(desc_opts).add(hidden_opts);
+
+	bpo::positional_options_description p;
+	p.add("input-file", -1);
+
+	bpo::variables_map vm;
+	bpo::store(bpo::command_line_parser(argc, argv).options(all_opts).positional(p).run(), vm);
+	bpo::notify(vm);
+
+	if (vm.count("help")) {
+		std::cerr << "Picviz Inspector " << PICVIZ_CURRENT_VERSION_STR << std::endl << std::endl;
+		std::cerr << "Usage: " << argv[0] << " [--format format] [file [file...]]" << std::endl;
+		std::cerr << desc_opts << std::endl;
+		return 1;
+	}
+
+	QString format;
+	if (vm.count("format")) {
+		std::string format_arg = vm["format"].as<std::string>();
+		format = QString::fromLocal8Bit(format_arg.c_str(), format_arg.size());
+	}
+
+	std::vector<QString> files;
+	if (vm.count("input-file")) {
+		std::vector<std::string> files_arg = vm["input-file"].as<std::vector<std::string> >();
+		files.reserve(files_arg.size());
+		std::vector<std::string>::const_iterator it;
+		// Convert file path to unicode
+		for (it = files_arg.begin(); it != files_arg.end(); it++) {
+			files.push_back(QString::fromLocal8Bit(it->c_str(), it->size()));
+		}
+	}
+
+
 	//app.setStyle(new PVInspector::PVCustomStyle());
 	PVInspector::PVMainWindow pv_main_window;
 	QString wintitle;
@@ -89,6 +138,11 @@ int main(int argc, char *argv[])
 	app.setStyleSheet(QString((const char *)res_css.data()));
 
 	pv_main_window.show();
+
+	if (files.size() > 0) {
+		pv_main_window.load_files(files, format);
+	}
+
 	int ret = app.exec();
 
 	return ret;

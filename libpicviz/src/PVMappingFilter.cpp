@@ -16,10 +16,10 @@ float* Picviz::PVMappingFilter::operator()(PVRush::PVNraw::const_trans_nraw_tabl
 	assert(_dest);
 	assert(values.size() >= _dest_size);
 
-	init_from_first(values[0]->get_qstr());
+	init_from_first(values[0].get_qstr());
 #pragma omp parallel for
 	for (int64_t i = 0; i < _dest_size; i++) {
-		_dest[i] = operator()(values[i]->get_qstr());
+		_dest[i] = operator()(values[i].get_qstr());
 	}
 
 	return _dest;

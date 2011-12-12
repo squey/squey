@@ -385,7 +385,11 @@ bool PVInspector::PVTabSplitter::process_extraction_job(PVRush::PVControllerJob_
 			continue;
 		}
 		if (ret) {
-			cur_view->get_plotted_parent()->process_from_parent_mapped(false);
+			// We can't cancel this process, because we could have already lost the previous mapping/plotting.
+			// The user, by pressing cancel, expect to come back in 
+			PVCore::PVProgressBox* pbox = new PVCore::PVProgressBox(tr("Processing..."), this);
+			pbox->set_enable_cancel(false);
+			PVCore::PVProgressBox::progress(boost::bind(&Picviz::PVPlotted::process_from_parent_mapped, cur_view->get_plotted_parent(), false), pbox);
 		}
 		cur_view->set_consistent(true);
 

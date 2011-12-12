@@ -57,8 +57,12 @@ int PVPlotted::create_table()
 {
 	PVCol mapped_col_count = _mapped->get_column_count();
 
-	QMutex lock;
-	const PVRow nrows = (PVRow)_mapped->table.getHeight();
+	const PVRow nrows = (PVRow)_mapped->get_row_count();
+
+	// That buffer will be about 3.8MB each 10 million lines, so we keep it
+	// to save some allocations.
+	_tmp_values.reserve(nrows);
+	float* p_tmp_v = &_tmp_values[0];
 	
 	_table.reserve(mapped_col_count * nrows);
 	
@@ -77,8 +81,6 @@ int PVPlotted::create_table()
 		}
 	}
 
-	trans_table.reserve(nrows, mapped_col_count);
-
 	try {
 
 		PVLOG_INFO("(PVPlotted::create_table) begin parallel plotting\n");
@@ -94,7 +96,7 @@ int PVPlotted::create_table()
 
 			plotting_filter->set_mapping_mode(_mapped->get_mapping().get_mode_for_col(j));
 			plotting_filter->set_mandatory_params(_mapped->get_mapping().get_mandatory_params_for_col(j));
-			plotting_filter->set_dest_array(nrows, trans_table.getRowData(j));
+			plotting_filter->set_dest_array(nrows, p_tmp_v);
 			boost::this_thread::interruption_point();
 			tbb::tick_count plstart = tbb::tick_count::now();
 			plotting_filter->operator()(_mapped->trans_table.getRowData(j));
@@ -107,7 +109,7 @@ int PVPlotted::create_table()
 			// TODO: this is a matrix transposition. Find out the best way to do this !
 #pragma omp parallel for
 			for (int64_t i = 0; i < nrows_tmp; i++) {
-				float v = trans_table.getValue(j, i);
+				float v = p_tmp_v[i];
 				_table[i*mapped_col_count+j] = v;
 #ifndef NDEBUG
 				// Check that every plotted value is between 0 and 1
@@ -265,12 +267,12 @@ const PVRush::PVNraw::nraw_table& PVPlotted::get_qtnraw() const
 
 PVRow PVPlotted::get_row_count() const
 {
-	return _mapped->table.getHeight();
+	return _mapped->get_row_count();
 }
 
 PVCol PVPlotted::get_column_count() const
 {
-	return _mapped->table.getWidth();
+	return _mapped->get_column_count();
 }
 
 PVSource* PVPlotted::get_source_parent()
@@ -314,11 +316,14 @@ QList<PVCol> Picviz::PVPlotted::get_singleton_columns_indexes()
 	}
 
 	for (PVCol j = 0; j < ncols; j++) {
-		const float* values = trans_table.getRowData(j);
-		const float ref_v = values[0];
+		//const float* values = trans_table.getRowData(j);
+		//const float ref_v = values[0];
+		// Well, that's completely cache non-optimised, as we're reading the table in the wrong side.
+		// But, with 2GB a table of 50 columnsx10 million lines, can we afford to keep the transposed version ?
+		const float ref_v = _table[j];
 		bool all_same = true;
 		for (PVRow i = 1; i < nrows; i++) {
-			if (values[i] != ref_v) {
+			if (_table[ncols*i+j] != ref_v) {
 				all_same = false;
 				break;
 			}
@@ -344,10 +349,10 @@ QList<PVCol> Picviz::PVPlotted::get_columns_indexes_values_within_range(float mi
 	double nrows_d = (double) nrows;
 	for (PVCol j = 0; j < ncols; j++) {
 		PVRow nmatch = 0;
-		const float* values = trans_table.getRowData(j);
-		// TODO: optimise w/ SIMD if relevant
+		//const float* values = trans_table.getRowData(j);
 		for (PVRow i = 0; i < nrows; i++) {
-			const float v = values[i];
+			//const float v = values[i];
+			const float v = _table[ncols*i+j];
 			if (v >= min && v <= max) {
 				nmatch++;
 			}
@@ -373,10 +378,10 @@ QList<PVCol> Picviz::PVPlotted::get_columns_indexes_values_not_within_range(floa
 	double nrows_d = (double) nrows;
 	for (PVCol j = 0; j < ncols; j++) {
 		PVRow nmatch = 0;
-		const float* values = trans_table.getRowData(j);
-		// TODO: optimise w/ SIMD if relevant
+		//const float* values = trans_table.getRowData(j);
 		for (PVRow i = 0; i < nrows; i++) {
-			const float v = values[i];
+			//const float v = values[i];
+			const float v = _table[ncols*i+j];
 			if (v < min || v > max) {
 				nmatch++;
 			}

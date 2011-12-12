@@ -116,7 +116,6 @@ protected:
 	PVSource* _source;
 	list_plotted_t _plotteds;
 
-	PVCore::PVListFloat2D table;
 	PVCore::PVListFloat2D trans_table;
 };
 

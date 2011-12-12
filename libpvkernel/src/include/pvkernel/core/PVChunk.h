@@ -21,6 +21,7 @@
 
 namespace PVRush {
 	class PVAggregator;
+	class PVNraw;
 };
 
 namespace PVCore {
@@ -37,11 +38,16 @@ public:
 	PVChunk() : _index(0), _n_elts_invalid(0) {};
 	virtual ~PVChunk()
 	{
+		free_structs();
+	}
+	inline void free_structs()
+	{
 		// Free elements
 		list_elts::iterator it;
 		for (it = _elts.begin(); it != _elts.end(); it++) {
 			PVElement::free(*it);
 		}
+		_elts.clear();
 	}
 public:
 	virtual char* begin() const = 0;
@@ -84,6 +90,13 @@ public:
 		return new_elt;
 	}
 
+	void give_ownerhsip_realloc_buffers(PVRush::PVNraw& nraw)
+	{
+		list_elts::iterator it;
+		for (it = _elts.begin(); it != _elts.end(); it++) {
+			(*it)->give_ownerhsip_realloc_buffers(nraw);
+		}
+	}
 
 	PVRush::PVRawSourceBase* source() const { return _source; };
 

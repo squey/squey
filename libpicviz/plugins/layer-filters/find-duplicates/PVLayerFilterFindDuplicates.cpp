@@ -64,7 +64,7 @@ void Picviz::PVLayerFilterFindDuplicates::operator()(PVLayer& in, PVLayer &out)
 		}
 
 		if (_view->get_line_state_in_pre_filter_layer(r)) {
-			QString const& value = nraw.at(r, axis_id)->get_qstr();
+			QString const& value = nraw.at(r, axis_id).get_qstr();
 			PVRow count = lines_duplicates[value]+1;
 			lines_duplicates.insert(value, count);
 		}
@@ -80,7 +80,7 @@ void Picviz::PVLayerFilterFindDuplicates::operator()(PVLayer& in, PVLayer &out)
 		}
 
 		if (_view->get_line_state_in_pre_filter_layer(r)) {
-			QString const& value = nraw.at(r, axis_id)->get_qstr();
+			QString const& value = nraw.at(r, axis_id).get_qstr();
 			PVRow count = lines_duplicates[value];
 			if (count > 1) {
 				if ((line_already_selected[r]) || non_duplicates) {

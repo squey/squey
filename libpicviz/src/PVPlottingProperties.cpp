@@ -23,8 +23,8 @@ Picviz::PVPlottingProperties::PVPlottingProperties(PVMapping const& mapping, PVR
 	_type = get_type();
 	QString mode = format.get_axes().at(idx).get_plotting();
 
-	set_mode(mode);
 	_is_uptodate = false;
+	set_mode(mode);
 }
 
 void Picviz::PVPlottingProperties::set_mapping(const PVMapping& mapping)

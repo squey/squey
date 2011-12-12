@@ -29,6 +29,7 @@ PVInspector::PVAxesCombinationWidget::PVAxesCombinationWidget(Picviz::PVAxesComb
 		connect(_btn_sel_singleton, SIGNAL(clicked()), this, SLOT(sel_singleton_Slot()));
 		connect(_btn_sel_range, SIGNAL(clicked()), this, SLOT(sel_range_Slot()));
 	}
+	_btn_sel_range->hide();
 }
 
 void PVInspector::PVAxesCombinationWidget::axis_add_Slot()

@@ -18,6 +18,11 @@
 
 #include <QList>
 
+namespace PVRush
+{
+	class PVNraw;
+}
+
 namespace PVCore {
 
 class PVChunk;
@@ -74,6 +79,7 @@ public:
 protected:
 	// Set by the parent PVChunk
 	void set_chunk_index(size_t i) { _chunk_index = i; }
+	void give_ownerhsip_realloc_buffers(PVRush::PVNraw& nraw);
 private:
 	void clear_saved_buf();
 	void init(PVChunk* parent);

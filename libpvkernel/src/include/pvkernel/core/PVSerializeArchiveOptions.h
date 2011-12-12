@@ -27,6 +27,8 @@ private:
 
 public:
 	bool must_write(PVSerializeObject const& parent, QString const& name);
+	void include_all_files(bool inc);
+	int does_include_all_files() const;
 
 protected:
 	// Object create function

@@ -112,8 +112,8 @@ void Picviz::PVSortQVectorQStringListThread::swap(int i, int j){
  *
  *****************************************************************************/
 int Picviz::PVSortQVectorQStringListThread::compare(int i, int j, int col){
-	QString item1 = myTable->at(i, col)->get_qstr();
-	QString item2 = myTable->at(j, col)->get_qstr();
+	QString item1 = myTable->at(i, col).get_qstr();
+	QString item2 = myTable->at(j, col).get_qstr();
 	//return the item string compare result
 	return item1.compare(item2);
 }
@@ -154,7 +154,7 @@ void Picviz::PVSortQVectorQStringListThread::init(int idColumn, Qt::SortOrder p_
 	//prepare data
 	for (int idx = 0; idx < sizeData; ++idx) {
 		int row = correspondTable->at(idx);
-		QString *item = new QString(myTable->at(row, idColumn)->get_qstr());//value at column
+		QString *item = new QString(myTable->at(row, idColumn).get_qstr());//value at column
 		sortable.append(QPair<QString*,int>(item, row));
 	}
 }

@@ -651,7 +651,7 @@ bool PVInspector::PVMainWindow::project_save_Slot()
 	}
 	else {
 		PVCore::PVSerializeArchiveOptions_p options(_scene->get_default_serialize_options());
-		return save_project(_cur_project_file, options, _cur_project_save_everything);
+		return save_project(_cur_project_file, options);
 	}
 #endif
 }
@@ -671,7 +671,7 @@ bool PVInspector::PVMainWindow::project_saveas_Slot()
 		dlg->selectFile(_cur_project_file);
 		if (dlg->exec() == QDialog::Accepted) {
 			QString file = dlg->selectedFiles().at(0);
-			ret = save_project(file, options, dlg->save_everything_checkbox->isChecked());
+			ret = save_project(file, options);
 		}	
 		dlg->deleteLater();
 	}
@@ -679,13 +679,11 @@ bool PVInspector::PVMainWindow::project_saveas_Slot()
 	return ret;
 }
 
-bool PVInspector::PVMainWindow::save_project(QString const& file, PVCore::PVSerializeArchiveOptions_p options, bool save_everything)
+bool PVInspector::PVMainWindow::save_project(QString const& file, PVCore::PVSerializeArchiveOptions_p options)
 {
 #ifdef CUSTOMER_CAPABILITY_SAVE
-
-	_cur_project_save_everything = save_everything;
 	try {
-		_scene->save_to_file(file, options, save_everything);
+		_scene->save_to_file(file, options);
 	}
 	catch (PVCore::PVSerializeArchiveError& e) {
 		QMessageBox* box = new QMessageBox(QMessageBox::Critical, tr("Error while saving project..."), tr("Error while saving project %1:\n%2").arg(file).arg(e.what()), QMessageBox::Ok, this);

@@ -404,6 +404,9 @@ void PVInspector::PVXmlEditorWidget::slotOpen() {
  *
  *****************************************************************************/
 void PVInspector::PVXmlEditorWidget::slotSave() {
+	// Take focus, so any currently edited argument will be set
+	setFocus(Qt::MouseFocusReason);
+
 	if (_cur_file.isEmpty()) {
 		slotSaveAs();
 		return;
@@ -428,6 +431,8 @@ void PVInspector::PVXmlEditorWidget::slotSave() {
  *
  *****************************************************************************/
 void PVInspector::PVXmlEditorWidget::slotSaveAs() {
+	setFocus(Qt::MouseFocusReason);
+
     QModelIndex index;
     myTreeView->applyModification(myParamBord_old_model,index);
     QFileDialog fd;
@@ -824,7 +829,7 @@ void PVInspector::PVXmlEditorWidget::set_axes_name_selected_row_Slot(int row)
 	PVRush::PVNraw::const_nraw_table_line line = nraw.get_table().get_row(row);
 	for (PVCol j = 0; j < line.size(); j++) {
 		// We need to do a deep copy of this
-		QString const& v = line[j]->get_qstr();
+		QString const& v = line[j].get_qstr();
 		QString deep_copy((const QChar*) v.constData(), v.size());
 		names << deep_copy;
 	}

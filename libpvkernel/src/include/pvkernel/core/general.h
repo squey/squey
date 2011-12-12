@@ -8,8 +8,6 @@
 #ifndef PVCORE_GENERAL_H
 #define PVCORE_GENERAL_H
 
-#include <QtGlobal>
-
 #include <pvbase/general.h>
 #include <pvkernel/core/stdint.h>
 
