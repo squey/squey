@@ -42,6 +42,8 @@
 #include <pvkernel/core/PVMeanValue.h>
 #include <pvkernel/core/PVVersion.h>
 
+#include <pvkernel/rush/PVFileDescription.h>
+
 #include <picviz/general.h>
 #include <picviz/arguments.h>
 #include <picviz/PVSelection.h>
@@ -71,6 +73,10 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 	_is_project_untitled = true;
 
 	QSplashScreen splash(QPixmap(":/splash-screen"));
+
+	if (time(NULL) >= CUSTOMER_RELEASE_EXPIRATION_DATE) {
+		exit(0);
+	}
 
 	splash.show();
 
@@ -826,8 +832,6 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 	QString choosenFormat;
 	// PVInputType::list_inputs is a QList<PVInputDescription_p>
 	PVRush::PVInputType::list_inputs inputs;
-	map_files_types files_multi_formats;
-	QHash<QString,PVRush::input_type> hash_input_name;
 
 	if (!in_t->createWidget(formats, new_formats, inputs, choosenFormat, this))
 		return; // This means that the user pressed the "cancel" button
@@ -845,10 +849,21 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 			}
 		}
 	}
+
+	import_type(in_t, inputs, formats, format_creator, choosenFormat);
+}
+
+void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::PVInputType::list_inputs const& inputs, PVRush::hash_formats& formats, PVRush::hash_format_creator& format_creator, QString const& choosenFormat)
+{
+	PVRush::list_creators lcr = PVRush::PVSourceCreatorFactory::get_by_input_type(in_t);
+
 	QHash< QString,PVRush::PVInputType::list_inputs > discovered;
 	QHash<QString,PVCore::PVMeanValue<float> > discovered_types; // format->mean_success_rate
 
 	QHash<QString, std::pair<QString,QString> > formats_error; // Errors w/ some formats
+
+	map_files_types files_multi_formats;
+	QHash<QString,PVRush::input_type> hash_input_name;
 
 	bool file_type_found = false;
 
@@ -974,6 +989,54 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 	show_start_page(false);
 	pv_ListingsTabWidget->setVisible(true);
 	set_project_modified(true);
+}
+
+void PVInspector::PVMainWindow::load_files(std::vector<QString> const& files, QString format)
+{
+	if (files.size() == 0) {
+		return;
+	}
+
+	PVRush::PVInputType_p in_file = LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name("file");
+	PVRush::list_creators lcr = PVRush::PVSourceCreatorFactory::get_by_input_type(in_file);
+	PVRush::hash_format_creator format_creator = PVRush::PVSourceCreatorFactory::get_supported_formats(lcr);
+
+	PVRush::hash_formats formats;
+	{
+		PVRush::hash_format_creator::const_iterator itfc;
+		for (itfc = format_creator.begin(); itfc != format_creator.end(); itfc++) {
+			formats[itfc.key()] = itfc.value().first;
+		}
+	}
+
+	// Create PVFileDescription objects
+	//
+	
+	PVRush::PVInputType::list_inputs files_in;
+	{
+		std::vector<QString>::const_iterator it;
+		for (it = files.begin(); it != files.end(); it++) {
+			files_in.push_back(PVRush::PVInputDescription_p(new PVRush::PVFileDescription(*it)));
+		}
+	}
+	
+	if (!format.isEmpty()) {
+		PVRush::PVFormat new_format("custom:arg", format);
+		formats["custom:arg"] = new_format;
+
+		PVRush::list_creators::const_iterator it_lc;
+		for (it_lc = lcr.begin(); it_lc != lcr.end(); it_lc++) {
+			PVRush::hash_format_creator::mapped_type v(new_format, *it_lc);
+			// Save this format/creator pair to the "format_creator" object
+			format_creator["custom:arg"] = v;
+		}
+		format = "custom:arg";
+	}
+	else {
+		format = PICVIZ_AUTOMATIC_FORMAT_STR;
+	}
+
+	import_type(in_file, files_in, formats, format_creator, format);
 }
 
 bool PVInspector::PVMainWindow::load_scene()

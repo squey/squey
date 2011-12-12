@@ -32,7 +32,6 @@ else()
 		# /GL: intra-procedural optimisations by MSVC !
 		set(COMPILER_OPTIMIZE_FLAGS "/Ox /Ob2 /Oi /Ot /GL")
 	else(WIN32)
-		#set(COMPILER_OPTIMIZE_FLAGS "-O3 -march=native")
 		set(COMPILER_OPTIMIZE_FLAGS "-O3 -march=native")
 		add_definitions(-DNDEBUG) # so that 'assert' will generate no code
 		if (CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")

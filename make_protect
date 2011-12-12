@@ -7,7 +7,8 @@ fi
 DIR=$(dirname "$0")
 rm CMakeCache.txt
 echo "" >"$DIR/gui-qt/src/gen_table.c"
-CC=icecc && CXX=icecc cmake -DPROTECT_PASS=1 . ||exit $?
+#CC=icecc && CXX=icecc cmake -DPROTECT_PASS=1 . ||exit $?
+cmake -DPROTECT_PASS=1 . ||exit $?
 touch "$DIR/gui-qt/src/main.cpp"
 ./parallel_make $1
 ./parallel_make $1

@@ -33,11 +33,14 @@ export LD_LIBRARY_PATH=$PVKERNEL_PATH/src/:$PICVIZ_PATH/src/:$PVGL_PATH/src
 
 VALGRIND_ALLOC_FNS="--alloc-fn=scalable_aligned_malloc --alloc-fn=scalable_malloc --alloc-fn=scalable_posix_memalign"
 
+CMD_ARGS=("$@")
+
 if [ "$1" == "debug" ]
 then
 export PICVIZ_DEBUG_LEVEL="DEBUG"
 #export PICVIZ_DEBUG_FILE="debug.txt"
-	gdb gui-qt/src/picviz-inspector
+	unset ARGS[0]
+	gdb --args gui-qt/src/picviz-inspector ${ARGS[@]}
 	exit 0
 fi
 if [ "$1" == "ddd" ]
@@ -52,7 +55,8 @@ if [ "$1" == "debug-nogl" ]
 then
 export PICVIZ_DEBUG_LEVEL="DEBUG"
 #export PICVIZ_DEBUG_FILE="debug.txt"
-	gdb gui-qt/src/picviz-inspector|egrep -v "PVGL"
+	unset ARGS[0]
+	gdb --args gui-qt/src/picviz-inspector ${ARGS[@]} |egrep -v "PVGL"
 #-e ".*PVGL.*" --invert-match
 	exit 0
 fi
@@ -61,7 +65,8 @@ if [ "$1" == "debug-quiet" ]
 then
 export PICVIZ_DEBUG_LEVEL="NOTICE"
 #export PICVIZ_DEBUG_FILE="debug.txt"
-	gdb gui-qt/src/picviz-inspector
+	unset ARGS[0]
+	gdb --args gui-qt/src/picviz-inspector ${ARGS[@]}
 	exit 0
 fi
 
@@ -107,7 +112,4 @@ cd ../..
 	exit 0
 fi
 
-gui-qt/src/picviz-inspector
-
-
-
+gui-qt/src/picviz-inspector $@
