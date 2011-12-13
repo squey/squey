@@ -26,11 +26,13 @@ namespace Picviz {
 */
 class LibPicvizDecl PVAxesCombination {
 	friend class PVCore::PVSerializeObject;
+public:
+	typedef QVector<PVAxis> list_axes_t;
 private:
 	QVector<float>  abscissae_list;       //!< Axes positions, such as [0.0, 1.29, 2.5, 4.76]
-	QVector<PVAxis> axes_list;            //!< Contains all the used axes
+	list_axes_t     axes_list;            //!< Contains all the used axes
 	QVector<PVCol>  columns_indexes_list; //!< Contains the indices of the axes to place, such as [0,1,3,0]
-	QVector<PVAxis> original_axes_list;   //!< All the axes, left as how they were upon loading the format.
+	list_axes_t     original_axes_list;   //!< All the axes, left as how they were upon loading the format.
 	bool _is_consistent;                  //!< Whether this object is consistent
 public:
 	PVAxesCombination();
@@ -287,7 +289,7 @@ public:
 
 	QString to_string() const;
 
-	QVector<PVAxis> const& get_original_axes_list() const { return original_axes_list; }
+	list_axes_t const& get_original_axes_list() const { return original_axes_list; }
 
 protected:
 	void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);

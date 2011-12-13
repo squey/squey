@@ -4,6 +4,7 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/rush/PVFormat_types.h>
 #include <picviz/PVPtrObjects.h>
+#include <picviz/PVAxesCombination.h>
 
 #include <QDialog>
 #include <QComboBox>
@@ -42,7 +43,7 @@ private:
 	QLineEdit* _edit_name;
 	Picviz::PVMapping* _mapping;
 	Picviz::PVPlotting* _plotting;
-	const PVRush::PVFormat* _format;
+	const Picviz::PVAxesCombination::list_axes_t* _axes;
 };
 
 }

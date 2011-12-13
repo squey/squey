@@ -1,17 +1,13 @@
 #ifndef PVPYTHONSOURCE_FILE_H
 #define PVPYTHONSOURCE_FILE_H
 
-// AG: to investigate: pvbase/general.h, which is included by core/general.h,
-// seems to conflict with boost/python.hpp. If this header is after general.h,
-// them you have a compile error !!
-#include <boost/python.hpp>
+#include <pvkernel/core/PVPython.h>
 
 #include <QString>
 
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVChunk.h>
-#include <pvkernel/core/PVPython.h>
 #include <pvkernel/filter/PVChunkFilter.h>
 #include <pvkernel/filter/PVFilterFunction.h>
 #include <pvkernel/rush/PVSourceCreator.h>

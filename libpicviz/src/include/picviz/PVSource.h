@@ -104,6 +104,19 @@ public:
 	PVRush::PVFormat& get_format() { return _extractor.get_format(); }
 	void set_format(PVRush::PVFormat const& format);
 
+	template <class Iterator>
+	void add_column(Iterator begin, Iterator end, Picviz::PVAxis const& axis)
+	{
+		set_views_consistent(false);
+		get_rushnraw().add_column(begin, end);
+		add_column(axis);
+		set_views_consistent(true);
+	}
+
+private:
+	void add_column(Picviz::PVAxis const& axis);
+	void set_views_consistent(bool cons);
+
 protected:
 	// For PVScene
 	void set_parent(PVScene* parent);

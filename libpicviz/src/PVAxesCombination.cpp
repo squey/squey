@@ -32,7 +32,8 @@ Picviz::PVAxesCombination::PVAxesCombination():
  *****************************************************************************/
 void Picviz::PVAxesCombination::axis_append(const PVAxis &axis)
 {
-	axes_list.push_back(axis);
+	original_axes_list.push_back(axis);
+	axis_append(original_axes_list.size() - 1);
 }
 
 /******************************************************************************

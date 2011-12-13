@@ -210,6 +210,12 @@ rush/uchardetect/nsUniversalDetector.cpp
 rush/uchardetect/nsUTF8Prober.cpp
 )
 
+if(PYTHONLIBS_FOUND)
+	set(RUSH_SRC_FILES
+	${RUSH_SRC_FILES}
+	rush/PVNrawPython.cpp
+)
+
 set(RUSH_HEADER_FILES
 include/pvkernel/rush/PVAxisFormat.h
 include/pvkernel/rush/PVAggregator.h
@@ -290,6 +296,7 @@ include/pvkernel/rush/PVXmlTreeNodeDom.h
 include/pvkernel/rush/PVInputType.h
 )
 
+endif(PYTHONLIBS_FOUND)
 #
 # Widgets
 #

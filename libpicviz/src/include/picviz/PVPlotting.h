@@ -54,6 +54,7 @@ protected:
 	// For PVPlotted
 	void set_uptodate_for_col(PVCol j);
 	void invalidate_column(PVCol j);
+	void add_column(PVPlottingProperties const& props);
 
 public:
 	// Parents

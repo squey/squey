@@ -17,7 +17,7 @@ Picviz::PVMapping::PVMapping(PVSource* parent):
 {
 	set_source(parent);
 
-	PVCol naxes = parent->get_rushnraw().format->get_axes().size();
+	PVCol naxes = parent->get_column_count();
 	if (naxes == 0) {
 		PVLOG_ERROR("In PVMapping constructor, no axis have been defined in the format !!!!\n");
 		assert(false);
@@ -25,7 +25,7 @@ Picviz::PVMapping::PVMapping(PVSource* parent):
 
 	PVLOG_DEBUG("In PVMapping::PVMapping(), debug PVFormat\n");
 	parent->get_rushnraw().format->debug();
-	for (int i=0; i < naxes; i++) {
+	for (PVCol i = 0; i < naxes; i++) {
 		PVMappingProperties mapping_axis(*parent->get_rushnraw().format, i);
 		columns << mapping_axis;
 		PVLOG_HEAVYDEBUG("%s: Add a column\n", __FUNCTION__);
@@ -108,7 +108,7 @@ void Picviz::PVMapping::set_source(PVSource* src)
 	source = src;
 	root = src->get_root();
 	
-	PVCol naxes = src->get_rushnraw().format->get_axes().size();
+	PVCol naxes = src->get_column_count();
 	_mandatory_filters_values.resize(naxes);
 }
 
@@ -162,4 +162,10 @@ void Picviz::PVMapping::serialize(PVCore::PVSerializeObject& so, PVCore::PVSeria
 	if (!so.is_writing()) {
 		_mandatory_filters_values.clear();
 	}
+}
+
+void Picviz::PVMapping::add_column(PVMappingProperties const& props)
+{
+	columns.push_back(props);
+	_mandatory_filters_values.push_back(mandatory_param_map());
 }

@@ -72,6 +72,18 @@ namespace PVRush {
 			return table.at(row,col).get_qstr();
 		}
 
+		inline PVCore::PVUnicodeString const& at_unistr(PVRow row, PVCol col) const
+		{
+			assert(row < table.get_nrows());
+			assert(col < table.get_ncols());
+			return table.at(row,col);
+		}
+
+		inline void set_value(PVRow row, PVCol col, PVCore::PVUnicodeString const& str)
+		{
+			table.set_value(row, col, str);
+		}
+
 		inline bool add_row(PVCore::PVElement& elt)
 		{
 			if (_real_nrows >= table.get_nrows()) {
@@ -101,6 +113,26 @@ namespace PVRush {
 			}
 
 			_real_nrows++;
+			return true;
+		}
+
+		template <class Iterator>
+		bool add_column(Iterator begin, Iterator end)
+		{
+			PVCol idx_new_col = get_number_cols();
+			if (!table.resize_ncols(get_number_cols() + 1)) {
+				return false;
+			}
+
+			Iterator it;
+			PVRow i = 0;
+			for (it = begin; it != end; it++) {
+				table.set_value(i, idx_new_col, *it);
+				i++;
+			}
+
+			dump_csv();
+
 			return true;
 		}
 

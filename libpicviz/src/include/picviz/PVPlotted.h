@@ -33,6 +33,7 @@ namespace Picviz {
 
 // Forward declaration
 class PVMapped;
+class PVSource;
 
 /**
  * \class PVPlotted
@@ -40,6 +41,7 @@ class PVMapped;
 class LibPicvizDecl PVPlotted {
 	friend class PVCore::PVSerializeObject;
 	friend class PVMapped;
+	friend class PVSource;
 private:
 	struct ExpandedSelection
 	{
@@ -77,6 +79,9 @@ protected:
 
 	// For PVMapped
 	inline void invalidate_column(PVCol j) { return _plotting.invalidate_column(j); }
+
+	// For PVSource
+	void add_column(PVPlottingProperties const& props);
 
 public:
 	#ifndef CUDA
@@ -144,7 +149,6 @@ private:
 	plotted_table_t _table; /* Unidimensionnal. It must be contiguous in memory */
 	std::vector<float> _tmp_values;
 	PVView_p _view;
-	//PVCore::PVListFloat2D trans_table;
 	list_expanded_selection_t _expanded_sels;
 };
 

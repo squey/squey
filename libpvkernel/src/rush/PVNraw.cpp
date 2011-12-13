@@ -125,7 +125,7 @@ void PVRush::PVNraw::fit_to_content()
 void PVRush::PVNraw::dump_csv()
 {
 	for (PVRow i = 0; i < table.get_nrows(); i++) {
-		nraw_line_to_csv(i);
+		PVLOG_DEBUG("%s\n", qPrintable(nraw_line_to_csv(i)));
 	}
 #if 0
 	PVRush::PVNraw::nraw_table &nraw = get_table();

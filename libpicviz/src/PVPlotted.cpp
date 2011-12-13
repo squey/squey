@@ -59,7 +59,7 @@ int PVPlotted::create_table()
 
 	const PVRow nrows = (PVRow)_mapped->get_row_count();
 
-	// That buffer will be about 3.8MB each 10 million lines, so we keep it
+	// That buffer will be about 3.8MB for 10 million lines, so we keep it
 	// to save some allocations.
 	_tmp_values.reserve(nrows);
 	float* p_tmp_v = &_tmp_values[0];
@@ -106,7 +106,6 @@ int PVPlotted::create_table()
 			PVLOG_INFO("(PVPlotted::create_table) parallel plotting for axis %d took %0.4f seconds, plugin was %s.\n", j, (plend-plstart).seconds(), qPrintable(plotting_filter->registered_name()));
 
 			boost::this_thread::interruption_point();
-			// TODO: this is a matrix transposition. Find out the best way to do this !
 #pragma omp parallel for
 			for (int64_t i = 0; i < nrows_tmp; i++) {
 				float v = p_tmp_v[i];
@@ -473,6 +472,12 @@ bool Picviz::PVPlotted::is_uptodate() const
 	}
 
 	return _plotting.is_uptodate();
+}
+
+
+void Picviz::PVPlotted::add_column(PVPlottingProperties const& props)
+{
+	_plotting.add_column(props);
 }
 
 void Picviz::PVPlotted::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)

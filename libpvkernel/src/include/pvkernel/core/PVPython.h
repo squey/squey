@@ -4,6 +4,9 @@
 // AG: to investigate: pvbase/general.h, which is included by core/general.h,
 // seems to conflict with boost/python.hpp. If this header is after general.h,
 // them you have a compile error !!
+#ifdef PVBASE_GENERAL_H
+#error It seems that including pvbase/general.h before boost/python.hpp gives compilation errors. Be careful to have boost/python.hpp as the first header.
+#endif
 #include <boost/python.hpp>
 
 #include <boost/thread/mutex.hpp>
@@ -12,8 +15,12 @@
 #include <QString>
 
 namespace PVCore {
+
+class PVPythonClassDecl;
+
 class LibKernelDecl PVPythonInitializer
 {
+	friend class PVPythonClassRegister;
 public:
 	~PVPythonInitializer();
 private:
@@ -24,10 +31,13 @@ public:
 public:
 	boost::python::object python_main;
 	boost::python::dict python_main_namespace;
+protected:
+	static void register_class(PVPythonClassDecl const& c);
 private:
 	PyThreadState* mainThreadState;
 	static boost::mutex _python_init;
 	static PVPythonInitializer* g_python;
+	static std::list<PVPythonClassDecl*> _class_registered;
 };
 
 class PVPythonLocker

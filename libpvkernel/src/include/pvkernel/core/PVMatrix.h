@@ -49,7 +49,6 @@ struct PVMatrixComputation<T, uint32_t, uint32_t, true, false, true>
 {
 	static void transpose(T* res, T* data, uint32_t nrows, uint32_t ncols)
 	{
-		PVLOG_INFO("Optimised transposition\n");
 		__transpose_float((float*) res, (float*) data, nrows*sizeof(float)/sizeof(T), ncols*sizeof(float)/sizeof(T));
 	}
 
@@ -74,7 +73,7 @@ struct PVMatrixComputation<T, IndexRow, IndexCol, mod, greater, true>
 		}
 	}
 
-	static void set_rows_value(T* data, IndexRow a, IndexRow b, IndexCol ncols, T v)
+	static void set_rows_value(T* data, IndexRow a, IndexRow b, IndexCol ncols, T const& v)
 	{
 		for (size_t i = (size_t) a*ncols; i < (size_t) (b+1)*ncols; i++) {
 			data[i] = v;
@@ -172,6 +171,10 @@ public:
 			return resize_nrows(nrows);
 		}
 
+		if (_nrows > 0 && _nrows == nrows) {
+			return resize_ncols(ncols);
+		}
+
 		if (!_allocate(nrows, ncols)) {
 			return false;
 		}
@@ -180,21 +183,8 @@ public:
 		return true;
 	}
 
-	void set_rows_value(index_row a, index_row b, const_reference v = value_type())
+	inline void set_rows_value(index_row a, index_row b, const_reference v = value_type())
 	{
-		/*
-		if (value_pod::value) {
-			for (size_t i = (size_t) a*_ncols; i < (size_t) (b+1)*_ncols; i++) {
-				_data[i] = v;
-			}
-		}
-		else {
-		#pragma omp parallel for
-			for (size_t i = (size_t) a*_ncols; i < (size_t) (b+1)*_ncols; i++) {
-				new (&_data[i]) value_type(v);
-			}
-		}
-		*/
 		PVMatrixComputation<value_type, index_row, index_col>::set_rows_value(_data, a, b, _ncols, v);
 	}
 
@@ -240,7 +230,23 @@ public:
 		return _allocate(nrows, ncols);
 	}
 
-	bool resize_nrows(index_row nrows, const_reference v = value_type())
+	bool resize_nrows(index_row nrows)
+	{
+		assert(_data);
+		if (nrows <= _nrows_physical) {
+			// Just shrink the container
+			_nrows = nrows;
+		}
+		else {
+			// We need a reallocation
+			if (!_reallocate_nrows(nrows)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	bool resize_nrows(index_row nrows, const_reference v)
 	{
 		assert(_data);
 		if (nrows <= _nrows) {
@@ -260,6 +266,22 @@ public:
 				return false;
 			}
 			set_rows_value(nrows_old, nrows-1, v);
+		}
+		return true;
+	}
+
+	bool resize_ncols(index_col ncols)
+	{
+		index_col old_ncols = _ncols;
+		if (!_reallocate_ncols(ncols)) {
+			return false;
+		}
+		if (!value_pod::value && _ncols > old_ncols) {
+			for (index_row i = 0; i < _nrows; i++) {
+				for (index_col j = old_ncols; j < _ncols; j++) {
+					new (&_data[i*_ncols+j]) value_type();
+				}
+			}
 		}
 		return true;
 	}
@@ -317,7 +339,7 @@ private:
 	{
 		// Destruct objects
 		if (!value_pod::value) {
-//#pragma omp parallel for
+#pragma omp parallel for
 			for (uint64_t i = 0; i < _nrows*_ncols; i++) {
 				_alloc.destroy(&p[i]);
 			}
@@ -369,6 +391,38 @@ private:
 		_nrows_physical = nrows;
 		return true;
 	}
+
+	inline bool _reallocate_ncols(index_col ncols)
+	{
+		assert(_data);
+
+		if (ncols == _ncols) {
+			return true;
+		}
+
+		pointer p = _alloc.allocate(_nrows*ncols);
+		if (p == NULL) {
+			return false;
+		}
+		index_col colmin = picviz_min(_ncols, ncols);
+		if (value_pod::value) {
+			for (index_row i = 0; i < _nrows; i++) {
+				memcpy(&p[i*ncols], &_data[i*_ncols], colmin);
+			}
+		}
+		else {
+			for (index_row i = 0; i < _nrows; i++) {
+				for (index_col j = 0; j < colmin; j++) {
+					new (&p[i*ncols+j]) value_type(_data[i*_ncols+j]);
+				}
+			}
+		}
+		free_buf(_data);
+		_data = p;
+		_ncols = ncols;
+		return true;
+	}
+
 private:
 	index_col _ncols;
 	index_row _nrows;
