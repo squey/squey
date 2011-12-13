@@ -20,8 +20,9 @@
 
 namespace PVCore {
 
-void transpose(float* res, float* data, uint32_t nrows, uint32_t ncols)
+void __transpose_float(float* res, float* data, uint32_t nrows, uint32_t ncols)
 {
+	PVLOG_INFO("Optimised matrix transposition\n");
 	__v4sf sse_row0, sse_row1, sse_row2, sse_row3;
 
 	__m128i sse_4ncols = _mm_set1_epi32(4*ncols);

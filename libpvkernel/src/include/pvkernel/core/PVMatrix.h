@@ -15,21 +15,72 @@
 #include <vector>
 
 #include <pvkernel/core/picviz_intrin.h>
+#include <pvkernel/core/PVTypeTraits.h>
 
 namespace PVCore {
 
-void transpose(float* res, float* data, uint32_t nrows, uint32_t ncols);
+void __transpose_float(float* res, float* data, uint32_t nrows, uint32_t ncols);
 
-template <typename T, typename IndexRow, typename IndexCol>
-void transpose(T* res, T* data, IndexRow nrows, IndexCol ncols)
+template <class T, class IndexRow, class IndexCol, bool is_float_multiple = PVTypeTraits::is_size_multiple<T, float>::value, bool bigger_than = PVTypeTraits::bigger_than<T, float>::value, bool is_pod = boost::is_pod<T>::value >
+struct PVMatrixComputation
 {
-	// TODO: optimise this !
-	for (IndexRow i = 0; i < nrows; i++) {
-		for (IndexCol j = 0; j < ncols; j++) {
-			res[j*nrows + i] = data[i*ncols + j];
+	static void transpose(T* res, T* data, IndexRow nrows, IndexCol ncols)
+	{
+		// TODO: optimise this !
+		for (IndexRow i = 0; i < nrows; i++) {
+			for (IndexCol j = 0; j < ncols; j++) {
+				res[j*nrows + i] = data[i*ncols + j];
+			}
 		}
 	}
-}
+
+	static void set_rows_value(T* data, IndexRow a, IndexRow b, IndexCol ncols, T const& v)
+	{
+	#pragma omp parallel for
+		for (size_t i = (size_t) a*ncols; i < (size_t) (b+1)*ncols; i++) {
+			new (&data[i]) T(v);
+		}
+	}
+};
+
+// If `T' is a POD, a multiple of sizeof(float) less or equal than sizeof(float), then we can optimise its transposition as it is done with floatting values with SSE.
+template <class T>
+struct PVMatrixComputation<T, uint32_t, uint32_t, true, false, true>
+{
+	static void transpose(T* res, T* data, uint32_t nrows, uint32_t ncols)
+	{
+		PVLOG_INFO("Optimised transposition\n");
+		__transpose_float((float*) res, (float*) data, nrows*sizeof(float)/sizeof(T), ncols*sizeof(float)/sizeof(T));
+	}
+
+	static void set_rows_value(T* data, uint32_t a, uint32_t b, uint32_t ncols, T v)
+	{
+		for (ssize_t i = (ssize_t) a*ncols; i < (ssize_t) (b+1)*ncols; i++) {
+			data[i] = v;
+		}
+	}
+};
+
+template <class T, class IndexRow, class IndexCol, bool mod, bool greater>
+struct PVMatrixComputation<T, IndexRow, IndexCol, mod, greater, true>
+{
+	static void transpose(T* res, T* data, IndexRow nrows, IndexCol ncols)
+	{
+		// TODO: optimise this !
+		for (IndexRow i = 0; i < nrows; i++) {
+			for (IndexCol j = 0; j < ncols; j++) {
+				res[j*nrows + i] = data[i*ncols + j];
+			}
+		}
+	}
+
+	static void set_rows_value(T* data, IndexRow a, IndexRow b, IndexCol ncols, T v)
+	{
+		for (size_t i = (size_t) a*ncols; i < (size_t) (b+1)*ncols; i++) {
+			data[i] = v;
+		}
+	}
+};
 
 template <typename T, typename IndexRow = uint32_t, typename IndexCol = uint32_t, template <class Talloc> class Alloc = std::allocator>
 class PVMatrix
@@ -131,6 +182,7 @@ public:
 
 	void set_rows_value(index_row a, index_row b, const_reference v = value_type())
 	{
+		/*
 		if (value_pod::value) {
 			for (size_t i = (size_t) a*_ncols; i < (size_t) (b+1)*_ncols; i++) {
 				_data[i] = v;
@@ -142,6 +194,8 @@ public:
 				new (&_data[i]) value_type(v);
 			}
 		}
+		*/
+		PVMatrixComputation<value_type, index_row, index_col>::set_rows_value(_data, a, b, _ncols, v);
 	}
 
 	void copy_to(matrix_type& dst) const
@@ -256,7 +310,7 @@ public:
 private:
 	void transpose_to(pointer res)
 	{
-		transpose(res, _data, _nrows, _ncols);
+		PVMatrixComputation<value_type, index_row, index_col>::transpose(res, _data, _nrows, _ncols);
 	}
 
 	void free_buf(pointer p)

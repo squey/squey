@@ -88,6 +88,33 @@ struct pointer<boost::shared_ptr<T>& >
 	static inline type get(type obj) { return obj; }
 };
 
+namespace __impl
+{
+	template <std::size_t mod>
+	struct is_size_multiple_impl
+	{
+		static const bool result = false;
+	};
+
+	template <>
+	struct is_size_multiple_impl<0u>
+	{
+		static const bool result = true;
+	};
+}
+
+template <class T, class MultipleOf>
+struct is_size_multiple
+{
+	static const bool value = __impl::is_size_multiple_impl<sizeof(T)%sizeof(MultipleOf)>::result;
+};
+
+template <class A, class B>
+struct bigger_than
+{
+	static const bool value = sizeof(A)>sizeof(B);
+};
+
 }
 
 }
