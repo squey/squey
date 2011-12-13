@@ -45,6 +45,7 @@ namespace Picviz {
 class LibPicvizDecl PVView: public boost::enable_shared_from_this<PVView>
 {
 	friend class PVCore::PVSerializeObject;
+	friend class PVSource;
 public:
 	typedef PVView_p p_type;
 	typedef QHash<QString,PVCore::PVArgumentList> map_filter_arguments;
@@ -54,6 +55,9 @@ public:
 	~PVView();
 protected:
 	PVView(const PVView& org);
+
+	// For PVSource
+	void add_column(PVAxis const& axis);
 
 public:
 

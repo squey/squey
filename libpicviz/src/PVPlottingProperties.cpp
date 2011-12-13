@@ -16,7 +16,7 @@
  * Picviz::PVPlottingProperties::PVPlottingProperties
  *
  *****************************************************************************/
-Picviz::PVPlottingProperties::PVPlottingProperties(PVMapping const& mapping, PVRush::PVFormat const& format, int idx):
+Picviz::PVPlottingProperties::PVPlottingProperties(PVMapping const& mapping, PVRush::PVFormat const& format, PVCol idx):
 	_mapping(&mapping)
 {
 	_index = idx;
@@ -25,6 +25,15 @@ Picviz::PVPlottingProperties::PVPlottingProperties(PVMapping const& mapping, PVR
 
 	_is_uptodate = false;
 	set_mode(mode);
+}
+
+Picviz::PVPlottingProperties::PVPlottingProperties(PVMapping const& mapping, PVRush::PVAxisFormat const& axis, PVCol idx):
+	_mapping(&mapping)
+{
+	_index = idx;
+	_type = get_type();
+	_is_uptodate = false;
+	set_mode(axis.get_plotting());
 }
 
 void Picviz::PVPlottingProperties::set_mapping(const PVMapping& mapping)
@@ -39,6 +48,14 @@ QString Picviz::PVPlottingProperties::get_type() const
 {
 	assert(_mapping);
 	return _mapping->get_type_for_col(_index);
+}
+
+void Picviz::PVPlottingProperties::set_args(PVCore::PVArgumentList const& args)
+{
+	_args = args;
+	if (_plotting_filter) {
+		_plotting_filter->set_args(args);
+	}
 }
 
 void Picviz::PVPlottingProperties::set_mode(QString const& mode)

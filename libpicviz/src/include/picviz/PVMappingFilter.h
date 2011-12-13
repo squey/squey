@@ -50,7 +50,7 @@ public:
 	virtual void init_from_first(QString const& value);
 
 	void set_dest_array(PVRow size, float *ptr);
-	void set_format(PVCol current_col, PVRush::PVFormat& format);
+	//void set_axis(Picviz::PVAxis const& axis);
 
 	void set_group_value(PVCore::PVArgument& group) { _grp_value = &group; }
 
@@ -61,8 +61,6 @@ public:
 protected:
 	PVRow _dest_size;
 	float* _dest;
-	PVRush::PVFormat* _format;
-	PVCol _cur_col;
 	PVCore::PVArgument* _grp_value;
 };
 

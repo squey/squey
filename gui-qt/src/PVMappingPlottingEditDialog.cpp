@@ -8,6 +8,7 @@
 #include <picviz/PVPlottingFilter.h>
 #include <picviz/PVPlotting.h>
 #include <picviz/PVSource.h>
+#include <picviz/PVView.h>
 
 #include <QDialogButtonBox>
 #include <QGroupBox>
@@ -28,10 +29,10 @@ PVInspector::PVMappingPlottingEditDialog::PVMappingPlottingEditDialog(Picviz::PV
 	}
 #endif
 	if (has_mapping()) {
-		_format = &(_mapping->get_source_parent()->get_format());
+		_axes = &(_mapping->get_source_parent()->current_view()->axes_combination.get_original_axes_list());
 	}
 	else {
-		_format = &(_plotting->get_source_parent()->get_format());
+		_axes = &(_plotting->get_source_parent()->current_view()->axes_combination.get_original_axes_list());
 	}
 
 	setWindowTitle(tr("Edit properties..."));
@@ -116,10 +117,9 @@ void PVInspector::PVMappingPlottingEditDialog::load_settings()
 
 	// Add widgets
 
-	PVRush::list_axes_t const& axes = _format->get_axes();
-	PVRush::list_axes_t::const_iterator it_axes;
+	Picviz::PVAxesCombination::list_axes_t::const_iterator it_axes;
 	PVCol axis_id = 0;
-	for (it_axes = axes.begin(); it_axes != axes.end(); it_axes++) {
+	for (it_axes = _axes->begin(); it_axes != _axes->end(); it_axes++) {
 		col = 0;
 		_main_grid->addWidget(new QLabel(it_axes->get_name(), this), row, col++);
 		if (has_mapping()) {
@@ -154,8 +154,9 @@ void PVInspector::PVMappingPlottingEditDialog::save_settings()
 	}
 
 	int row = 1;
-	PVCol axis_id;
-	for (axis_id = 0; axis_id < _format->get_axes().size(); axis_id++) {
+	PVCol axis_id = 0;
+	Picviz::PVAxesCombination::list_axes_t::const_iterator it_axes;
+	for (it_axes = _axes->begin(); it_axes != _axes->end(); it_axes++) {
 		int col = 1;
 		if (has_mapping()) {
 			Picviz::PVMappingProperties& prop = _mapping->get_properties_for_col(axis_id);
@@ -177,6 +178,7 @@ void PVInspector::PVMappingPlottingEditDialog::save_settings()
 			QString mode = combo->get_mode();
 			_plotting->get_properties_for_col(axis_id).set_mode(mode);
 		}
+		axis_id++;
 		row++;
 	}
 

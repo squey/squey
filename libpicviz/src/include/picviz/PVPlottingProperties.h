@@ -30,7 +30,8 @@ class LibPicvizDecl PVPlottingProperties {
 	friend class PVCore::PVSerializeObject;
 	friend class PVPlotting;
 public:
-	PVPlottingProperties(PVMapping const& mapping, PVRush::PVFormat const& fmt, int idx);
+	PVPlottingProperties(PVMapping const& mapping, PVRush::PVFormat const& fmt, PVCol idx);
+	PVPlottingProperties(PVMapping const& mapping, PVRush::PVAxisFormat const& axis, PVCol idx);
 
 protected:
 	// Serialization
@@ -44,6 +45,7 @@ protected:
 public:
 	PVPlottingFilter::p_type get_plotting_filter();
 	void set_mode(QString const& mode);
+	void set_args(PVCore::PVArgumentList const& args);
 	inline QString const& get_mode() const { return _mode; }
 	QString get_type() const;
 	inline bool is_uptodate() const { return _is_uptodate; }
@@ -59,6 +61,7 @@ private:
 	QString _mode;
 	PVCol _index;
 	PVPlottingFilter::p_type _plotting_filter;
+	PVCore::PVArgumentList _args;
 	bool _is_uptodate;
 	const PVMapping* _mapping;
 };

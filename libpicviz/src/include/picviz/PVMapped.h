@@ -54,6 +54,7 @@ protected:
 
 	// For PVSource
 	void invalidate_all();
+	void add_column(PVMappingProperties const& props);
 	
 public:
 	void process_parent_source();
@@ -78,6 +79,7 @@ public:
 	void get_sub_col_minmax(mapped_sub_col_t& ret, float& min, float& max, PVSelection const& sel, PVCol col) const;
 
 	list_plotted_t const& get_plotteds() const { return _plotteds; }
+
 
 public:
 	// Debugging functions

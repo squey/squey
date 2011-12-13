@@ -30,7 +30,8 @@ class LibPicvizDecl PVMappingProperties {
 	friend class PVCore::PVSerializeObject;
 	friend class PVMapping;
 public:
-	PVMappingProperties(PVRush::PVFormat const& fmt, int idx);
+	PVMappingProperties(PVRush::PVFormat const& fmt, PVCol idx);
+	PVMappingProperties(PVRush::PVAxisFormat const& axis, PVCol idx);
 protected:
 	// For serialization
 	PVMappingProperties() { _index = 0; }
@@ -38,6 +39,7 @@ public:
 	QString get_group_key() const { return _group_key; }
 	void set_type(QString const& type, QString const& mode);
 	void set_mode(QString const& mode);
+	void set_args(PVCore::PVArgumentList const& args);
 	inline PVMappingFilter::p_type get_mapping_filter() const { assert(_mapping_filter); return _mapping_filter; }
 	inline QString const& get_type() const { return _type; }
 	inline QString const& get_mode() const { return _mode; }
@@ -53,9 +55,13 @@ protected:
 	void set_default_args(PVRush::PVAxisFormat const& axis);
 
 private:
+	void set_from_axis(PVRush::PVAxisFormat const& axis);
+
+private:
 	PVCol _index;
 	QString _group_key;
 	PVMappingFilter::p_type _mapping_filter;
+	PVCore::PVArgumentList _args;
 	QString _type;
 	QString _mode;
 	bool _is_uptodate;

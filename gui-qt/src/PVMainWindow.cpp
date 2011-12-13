@@ -520,61 +520,6 @@ void PVInspector::PVMainWindow::commit_selection_to_new_layer(Picviz::PVView_p p
 	refresh_view(picviz_view);
 }
 
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::connect_actions()
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::connect_actions()
-{
-	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
-#ifdef CUSTOMER_CAPABILITY_SAVE
-	connect(project_new_Action, SIGNAL(triggered()), this, SLOT(project_new_Slot()));
-	connect(project_load_Action, SIGNAL(triggered()), this, SLOT(project_load_Slot()));
-	connect(project_save_Action, SIGNAL(triggered()), this, SLOT(project_save_Slot()));
-	connect(project_saveas_Action, SIGNAL(triggered()), this, SLOT(project_saveas_Slot()));
-#endif
-	connect(export_file_Action, SIGNAL(triggered()), this, SLOT(export_file_Slot()));
-	connect(export_selection_Action, SIGNAL(triggered()), this, SLOT(export_selection_Slot()));
-	connect(extractor_file_Action, SIGNAL(triggered()), this, SLOT(extractor_file_Slot()));
-	connect(quit_Action, SIGNAL(triggered()), this, SLOT(quit_Slot()));
-
-	connect(view_new_parallel_Action, SIGNAL(triggered()), this, SLOT(view_new_parallel_Slot()));
-	connect(view_new_scatter_Action, SIGNAL(triggered()), this, SLOT(view_new_scatter_Slot()));
-#ifndef NDEBUG
-	connect(view_screenshot_qt, SIGNAL(triggered()), this, SLOT(view_screenshot_qt_Slot()));
-#endif
-
-	connect(selection_all_Action, SIGNAL(triggered()), this, SLOT(selection_all_Slot()));
-	connect(selection_none_Action, SIGNAL(triggered()), this, SLOT(selection_none_Slot()));
-	connect(selection_inverse_Action, SIGNAL(triggered()), this, SLOT(selection_inverse_Slot()));
-	connect(expand_selection_on_axis_Action, SIGNAL(triggered()), this, SLOT(expand_selection_on_axis_Slot()));
-
-	connect(set_color_Action, SIGNAL(triggered()), this, SLOT(set_color_Slot()));
-
-	//connect(commit_selection_in_current_layer_Action, SIGNAL(triggered()), this, SLOT(commit_selection_in_current_layer_Slot()));
-	connect(commit_selection_to_new_layer_Action, SIGNAL(triggered()), this, SLOT(commit_selection_to_new_layer_Slot()));
-
-	connect(axes_editor_Action, SIGNAL(triggered()), this, SLOT(axes_editor_Slot()));//
-	connect(axes_combination_editor_Action, SIGNAL(triggered()), this, SLOT(axes_combination_editor_Slot()));//
-	connect(axes_mode_Action, SIGNAL(triggered()), this, SLOT(axes_mode_Slot()));
-	connect(axes_display_edges_Action, SIGNAL(triggered()), this, SLOT(axes_display_edges_Slot()));
-
-	connect(lines_display_unselected_Action, SIGNAL(triggered()), this, SLOT(lines_display_unselected_Slot()));
-	connect(lines_display_unselected_listing_Action, SIGNAL(triggered()), this, SLOT(lines_display_unselected_listing_Slot()));
-	connect(lines_display_unselected_GLview_Action, SIGNAL(triggered()), this, SLOT(lines_display_unselected_GLview_Slot()));
-	connect(lines_display_zombies_Action, SIGNAL(triggered()), this, SLOT(lines_display_zombies_Slot()));
-	connect(lines_display_zombies_listing_Action, SIGNAL(triggered()), this, SLOT(lines_display_zombies_listing_Slot()));
-	connect(lines_display_zombies_GLview_Action, SIGNAL(triggered()), this, SLOT(lines_display_zombies_GLview_Slot()));
-        
-	connect(tools_new_format_Action, SIGNAL(triggered()), this, SLOT(new_format_Slot()));
-	connect(tools_cur_format_Action, SIGNAL(triggered()), this, SLOT(cur_format_Slot()));
-
-	//connect(whats_this_Action, SIGNAL(triggered()), this, SLOT(whats_this_Slot()));
-	connect(about_Action, SIGNAL(triggered()), this, SLOT(about_Slot()));
-	
-	
-}
 
 /******************************************************************************
  *

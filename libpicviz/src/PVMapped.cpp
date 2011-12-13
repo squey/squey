@@ -173,7 +173,7 @@ PVLOG_INFO("(pvmapped::create_table) begin cuda mapping\n");
 
 			// Let's make our mapping
 			mapping_filter->set_dest_array(nrows, trans_table.getRowData(j));
-			mapping_filter->set_format(j, *get_format());
+			//mapping_filter->set_axis(j, *get_format());
 			// Get the group specific value if relevant
 			QString group_key = _mapping.get_group_key_for_col(j);
 			if (!group_key.isEmpty()) {
@@ -334,6 +334,11 @@ PVRow Picviz::PVMapped::get_row_count()
 PVCol Picviz::PVMapped::get_column_count()
 {
 	return trans_table.getHeight();
+}
+
+void Picviz::PVMapped::add_column(PVMappingProperties const& props)
+{
+	_mapping.add_column(props);
 }
 
 void Picviz::PVMapped::add_plotted(PVPlotted_p plotted)

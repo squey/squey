@@ -6,8 +6,6 @@
 Picviz::PVMappingFilter::PVMappingFilter()
 {
 	_dest = NULL;
-	_format = NULL;
-	_cur_col = 0;
 	_grp_value = NULL;
 }
 
@@ -41,12 +39,6 @@ void Picviz::PVMappingFilter::set_dest_array(PVRow size, float* ptr)
 	// This array is supposed to be as large as the values given to operator()
 	_dest = ptr;
 	_dest_size = size;
-}
-
-void Picviz::PVMappingFilter::set_format(PVCol cur_col, PVRush::PVFormat& format)
-{
-	_cur_col = cur_col;
-	_format = &format;
 }
 
 QStringList Picviz::PVMappingFilter::list_types()

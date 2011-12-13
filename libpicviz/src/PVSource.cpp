@@ -233,6 +233,36 @@ void Picviz::PVSource::add_view(PVView_p view)
 	}
 }
 
+void Picviz::PVSource::add_column(PVAxis const& axis)
+{
+	PVCol new_col_idx = get_rushnraw().get_number_cols()-1;
+	PVMappingProperties map_prop(axis, new_col_idx);
+
+	// Add that column to our children
+	foreach(PVMapped_p m, _mappeds) {
+		m->add_column(map_prop);
+		PVPlottingProperties plot_prop(m->get_mapping(), axis, new_col_idx);
+		foreach (PVPlotted_p p, m->_plotteds) {
+			p->add_column(plot_prop);
+		}
+	}
+	foreach (PVView_p view, _views) {
+		view->add_column(axis);
+	}
+
+	// Reprocess from source
+	process_from_source(true);
+}
+
+void Picviz::PVSource::set_views_consistent(bool cons)
+{
+	list_views_t::iterator it;
+	for (it = _views.begin(); it != _views.end(); it++) {
+		(*it)->set_consistent(cons);
+	}
+}
+
+
 void Picviz::PVSource::serialize_write(PVCore::PVSerializeObject& so)
 {
 	PVRush::PVInputType_p in_t = get_input_type();

@@ -37,7 +37,6 @@ float* Picviz::PVMappingFilterTimeDefault::operator()(PVRush::PVNraw::const_tran
 {
 	assert(_dest);
 	assert(values.size() >= _dest_size);
-	assert(_format);
 
 	//PVCore::PVDateTimeParser dtpars(_format->time_format[_cur_col+1]);
 	//UErrorCode err = U_ZERO_ERROR;
@@ -47,8 +46,7 @@ float* Picviz::PVMappingFilterTimeDefault::operator()(PVRush::PVNraw::const_tran
 	Calendar** cals = new Calendar*[max_threads];
 	PVCore::PVDateTimeParser **dtparsers = new PVCore::PVDateTimeParser*[max_threads];
 	tbb::tick_count start_alloc = tbb::tick_count::now();
-	PVRush::PVAxisFormat const& axis = _format->get_axes().at(_cur_col);
-	QStringList time_format(axis.get_args_mapping()["time-format"].value<PVCore::PVTimeFormatType>());
+	QStringList time_format(_args["time-format"].value<PVCore::PVTimeFormatType>());
 	for (int i = 0; i < max_threads; i++) {
 		UErrorCode err = U_ZERO_ERROR;
 		cals[i] = Calendar::createInstance(err);

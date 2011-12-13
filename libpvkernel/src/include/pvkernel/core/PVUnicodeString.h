@@ -95,6 +95,7 @@ public:
 	{
 		_buf = other._buf;
 		_len = other._len;
+		_qstr.clear();
 		return *this;
 	}
 

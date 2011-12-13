@@ -1,7 +1,9 @@
 #include <pvkernel/core/PVPython.h>
+#include <pvkernel/core/PVPythonClassDecl.h>
 
 boost::mutex PVCore::PVPythonInitializer::_python_init;
 PVCore::PVPythonInitializer* PVCore::PVPythonInitializer::g_python = NULL;
+std::list<PVCore::PVPythonClassDecl*> PVCore::PVPythonInitializer::_class_registered;
 
 PVCore::PVPythonInitializer::PVPythonInitializer()
 {
@@ -11,6 +13,12 @@ PVCore::PVPythonInitializer::PVPythonInitializer()
 	python_main = boost::python::import("__main__");
 	python_main_namespace = boost::python::extract<boost::python::dict>(python_main.attr("__dict__"));
 	mainThreadState = PyEval_SaveThread();
+
+	// Expose "exposable" class to Python
+	std::list<PVPythonClassDecl*>::iterator it;
+	for (it = _class_registered.begin(); it != _class_registered.end(); it++) {
+		(*it)->declare();
+	}
 }
 
 
@@ -18,6 +26,11 @@ PVCore::PVPythonInitializer::~PVPythonInitializer()
 {
 	PyEval_RestoreThread(mainThreadState);
 	Py_Finalize();
+
+	std::list<PVPythonClassDecl*>::iterator it;
+	for (it = _class_registered.begin(); it != _class_registered.end(); it++) {
+		delete (*it);
+	}
 }
 
 PVCore::PVPythonInitializer& PVCore::PVPythonInitializer::get()
@@ -42,4 +55,15 @@ QString PVCore::PVPython::get_list_index_as_qstring(boost::python::list pylist, 
 	}	
 
 	return value;
+}
+
+void PVCore::PVPythonInitializer::register_class(PVPythonClassDecl const& c)
+{
+	_class_registered.push_back(c.clone());
+}
+
+PVCore::PVPythonClassRegister::PVPythonClassRegister(PVPythonClassDecl const& c)
+{
+	PVLOG_INFO("In PVPythonClassRegister\n");
+	PVPythonInitializer::register_class(c);
 }

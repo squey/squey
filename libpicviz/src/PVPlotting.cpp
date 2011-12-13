@@ -144,6 +144,11 @@ void Picviz::PVPlotting::invalidate_column(PVCol j)
 	return get_properties_for_col(j).invalidate();
 }	
 
+void Picviz::PVPlotting::add_column(PVPlottingProperties const& props)
+{
+	_columns.push_back(props);
+}
+
 void Picviz::PVPlotting::serialize(PVCore::PVSerializeObject &so, PVCore::PVSerializeArchive::version_t /*v*/)
 {
 	so.list("properties", _columns);

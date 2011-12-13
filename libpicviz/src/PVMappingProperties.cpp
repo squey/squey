@@ -9,14 +9,25 @@
 #include <pvkernel/core/PVClassLibrary.h>
 #include <picviz/PVRoot.h>
 
-Picviz::PVMappingProperties::PVMappingProperties(PVRush::PVFormat const& format, int idx)
+Picviz::PVMappingProperties::PVMappingProperties(PVRush::PVFormat const& format, PVCol idx)
 {
 	_index = idx;
+	set_from_axis(format.get_axes().at(idx));
+}
 
-	QString type = format.get_axes().at(idx).get_type();
-	QString mode = format.get_axes().at(idx).get_mapping();
-	QString group = format.get_axes().at(idx).get_group();
+Picviz::PVMappingProperties::PVMappingProperties(PVRush::PVAxisFormat const& axis, PVCol idx)
+{
+	_index = idx;
+	set_from_axis(axis);
+}
 
+void Picviz::PVMappingProperties::set_from_axis(PVRush::PVAxisFormat const& axis)
+{
+	QString type = axis.get_type();
+	QString mode = axis.get_mapping();
+	QString group = axis.get_group();
+
+	set_args(axis.get_args_mapping());
 	set_type(type, mode);
 
 	if (!group.isEmpty()) {
@@ -34,6 +45,14 @@ void Picviz::PVMappingProperties::set_type(QString const& type, QString const& m
 	set_mode(mode);
 }
 
+void Picviz::PVMappingProperties::set_args(PVCore::PVArgumentList const& args)
+{
+	_args = args;
+	if (_mapping_filter) {
+		_mapping_filter->set_args(args);
+	}
+}
+
 void Picviz::PVMappingProperties::set_mode(QString const& mode)
 {
 	if (_is_uptodate && _mode == mode) {
@@ -42,6 +61,7 @@ void Picviz::PVMappingProperties::set_mode(QString const& mode)
 	_is_uptodate = false;
 	_mode = mode;
 	_mapping_filter = LIB_CLASS(Picviz::PVMappingFilter)::get().get_class_by_name(_type + "_" + mode);
+	_mapping_filter->set_args(_args);
 	if (!_mapping_filter) {
 		PVLOG_ERROR("Mapping '%s' for type '%s' does not exist !\n", qPrintable(mode), qPrintable(_type));
 	}
