@@ -110,13 +110,6 @@ int main(int argc, char *argv[])
 	// }
 // #endif
 
- 	// PVLOG_INFO("Current time:%d\n", t);
-#if 0
-	if (t > DEC_1) {
-		exit(42);
-	}
-#endif
-
 	QString locale = QLocale::system().name();
 	PVLOG_INFO("System locale: %s\n", qPrintable(locale));
 

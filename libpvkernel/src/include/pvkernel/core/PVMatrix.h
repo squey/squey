@@ -8,13 +8,12 @@
 #ifndef PVCORE_PVMATRIX_H
 #define PVCORE_PVMATRIX_H
 
-#include <stdint.h>
+#include <pvkernel/core/stdint.h>
 #include <boost/shared_ptr.hpp>
 #include <boost/type_traits/is_pod.hpp>
 #include <boost/bind.hpp>
 #include <vector>
 
-#include <pvkernel/core/picviz_intrin.h>
 #include <pvkernel/core/PVTypeTraits.h>
 
 namespace PVCore {
@@ -37,7 +36,7 @@ struct PVMatrixComputation
 	static void set_rows_value(T* data, IndexRow a, IndexRow b, IndexCol ncols, T const& v)
 	{
 	#pragma omp parallel for
-		for (size_t i = (size_t) a*ncols; i < (size_t) (b+1)*ncols; i++) {
+		for (ssize_t i = (ssize_t) a*ncols; i < (ssize_t) (b+1)*ncols; i++) {
 			new (&data[i]) T(v);
 		}
 	}
@@ -340,7 +339,7 @@ private:
 		// Destruct objects
 		if (!value_pod::value) {
 #pragma omp parallel for
-			for (uint64_t i = 0; i < _nrows*_ncols; i++) {
+			for (int64_t i = 0; i < _nrows*_ncols; i++) {
 				_alloc.destroy(&p[i]);
 			}
 		}
