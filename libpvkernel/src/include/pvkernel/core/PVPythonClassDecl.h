@@ -13,8 +13,9 @@ protected:
 	virtual PVPythonClassDecl* clone() const = 0;
 };
 
-struct LibKernelDecl PVPythonClassRegister
+class LibKernelDecl PVPythonClassRegister
 {
+public:
 	PVPythonClassRegister(PVPythonClassDecl const& c);
 };
 
