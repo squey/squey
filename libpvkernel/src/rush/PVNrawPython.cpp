@@ -28,7 +28,7 @@ PYTHON_EXPOSE_IMPL(PVRush::PVNrawPython)
 		//.def("at", &PVNrawPython::at)
 		.def("at_alias", &PVNrawPython::at_alias, boost::python::return_internal_reference<>())
 		.def("set_value", &PVNrawPython::set_value)
-		.def("get_number_rows", &PVNrawPython::get_number_rows)
-		.def("get_number_cols", &PVNrawPython::get_number_cols)
+		//.def("get_number_rows", &PVNrawPython::get_number_rows)
+		//.def("get_number_cols", &PVNrawPython::get_number_cols)
 	;
 }

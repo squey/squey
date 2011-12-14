@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
 	QApplication app(argc, argv);
 
 	// Program options
-	
+	/*
 	bpo::options_description desc_opts("Options");
 	desc_opts.add_options()
 		("help", "produce help message")
@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
 		for (it = files_arg.begin(); it != files_arg.end(); it++) {
 			files.push_back(QString::fromLocal8Bit(it->c_str(), it->size()));
 		}
-	}
+	}*/
 
 
 	//app.setStyle(new PVInspector::PVCustomStyle());
@@ -132,15 +132,15 @@ int main(int argc, char *argv[])
 	app.setStyleSheet(QString((const char *)res_css.data()));
 
 	pv_main_window.show();
-
+/*
 	if (vm.count("project")) {
 		QString prj_path = QString::fromLocal8Bit(vm["project"].as<std::string>().c_str());
 		pv_main_window.load_project(prj_path);
 	}
-	else
+	else 
 	if (files.size() > 0) {
 		pv_main_window.load_files(files, format);
-	}
+	}*/
 
 	int ret = app.exec();
 
