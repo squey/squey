@@ -456,7 +456,6 @@ void PVInspector::PVMainWindow::filter_Slot(void)
 		Picviz::PVLayerFilter::p_type fclone = filter_org->clone<Picviz::PVLayerFilter>();
 		PVCore::PVArgumentList &args = lib_view->filters_args[filter_name];
 		PVLayerFilterProcessWidget* filter_widget = new PVLayerFilterProcessWidget(current_tab, args, fclone);
-		filter_widget->init();
 		filter_widget->show();
 	}
 }

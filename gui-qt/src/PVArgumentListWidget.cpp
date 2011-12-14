@@ -56,7 +56,7 @@ static void clearLayout(QLayout* layout)
 }
 
 PVInspector::PVArgumentListWidget::PVArgumentListWidget(QWidget* parent):
-	QDialog(parent),
+	QWidget(parent),
 	_args_widget_factory(NULL),
 	_args(NULL)
 {
@@ -64,7 +64,7 @@ PVInspector::PVArgumentListWidget::PVArgumentListWidget(QWidget* parent):
 }
 
 PVInspector::PVArgumentListWidget::PVArgumentListWidget(QItemEditorFactory* args_widget_factory, QWidget* parent):
-	QDialog(parent),
+	QWidget(parent),
 	_args_widget_factory(args_widget_factory),
 	_args(NULL)
 {
@@ -74,7 +74,7 @@ PVInspector::PVArgumentListWidget::PVArgumentListWidget(QItemEditorFactory* args
 }
 
 PVInspector::PVArgumentListWidget::PVArgumentListWidget(QItemEditorFactory* args_widget_factory, PVCore::PVArgumentList &args, QWidget* parent):
-	QDialog(parent),
+	QWidget(parent),
 	_args_widget_factory(args_widget_factory),
 	_args(&args)
 {
@@ -115,7 +115,6 @@ void PVInspector::PVArgumentListWidget::init_widgets()
 
 	// Set the layouts
 	main_layout->addLayout(_args_layout);
-	main_layout->addLayout(_btn_layout);
 
 	setLayout(main_layout);
 
@@ -202,6 +201,7 @@ QItemEditorFactory* PVInspector::PVArgumentListWidget::create_mapping_plotting_w
 	return args_widget_factory;
 }
 
+#if 0
 void PVInspector::PVArgumentListWidget::init()
 {
 	create_btns();
@@ -228,6 +228,7 @@ void PVInspector::PVArgumentListWidget::connect_btns()
 	connect(_apply_btn, SIGNAL(pressed()), this, SLOT(accept()));
 	connect(_cancel_btn, SIGNAL(pressed()), this, SLOT(reject()));
 }
+#endif
 
 void PVInspector::PVArgumentListWidget::args_changed_Slot()
 {

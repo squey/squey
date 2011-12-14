@@ -16,7 +16,7 @@ Picviz::PVAxisComputationPython::PVAxisComputationPython(PVCore::PVArgumentList 
 DEFAULT_ARGS_FILTER(Picviz::PVAxisComputationPython)
 {
 	PVCore::PVArgumentList args;
-	args[PVCore::PVArgumentKey("script", "Script")] = QString("");
+	args[PVCore::PVArgumentKey("script", "Script")] = QString("test");
 	return args;
 }
 

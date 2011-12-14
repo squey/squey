@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <pvkernel/core/PVArgument.h>
+#include <PVArgumentListWidget.h>
 
 #include "../ui_PVAxisComputationDlg.h"
 
@@ -31,6 +32,7 @@ private slots:
 private:
 	boost::shared_ptr<Picviz::PVAxisComputation> _cur_plugin;
 	PVCore::PVArgumentList _plugin_args;
+	PVArgumentListWidget* _args_plugin_widget;
 };
 
 }

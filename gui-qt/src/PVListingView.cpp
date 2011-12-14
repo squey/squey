@@ -267,7 +267,6 @@ void PVInspector::PVListingView::process_ctxt_menu_action(QAction* act)
 		_ctxt_process->deleteLater();
 	}
 	_ctxt_process = new PVLayerFilterProcessWidget(main_window->current_tab, _ctxt_args, fclone);
-	_ctxt_process->init();
 	_ctxt_process->show();
 }
 

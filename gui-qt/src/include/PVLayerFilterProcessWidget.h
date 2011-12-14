@@ -7,7 +7,7 @@
 
 namespace PVInspector {
 
-class PVLayerFilterProcessWidget: public PVArgumentListWidget
+class PVLayerFilterProcessWidget: public QDialog
 {
 	Q_OBJECT
 
@@ -21,9 +21,9 @@ public slots:
 	void cancel_Slot();
 
 protected:
-	virtual void create_btns();
-	virtual void set_btns_layout();
-	virtual void connect_btns();
+	void create_btns();
+	void set_btns_layout();
+	void connect_btns();
 
 	bool process();
 
@@ -34,10 +34,14 @@ protected:
 	PVTabSplitter* _tab;
 	Picviz::PVView_p _view;
 	Picviz::PVLayerFilter_p _filter_p;
+	QPushButton* _cancel_btn;
 	QPushButton* _help_btn;
 	QPushButton* _preview_btn;
+	QPushButton* _apply_btn;
 	Picviz::PVLayer _pre_filter_layer_org;
 	PVCore::PVArgumentList _args_org;
+	PVArgumentListWidget* _args_widget;
+	QHBoxLayout* _btn_layout;
 
 private:
 	bool _has_apply;

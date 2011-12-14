@@ -26,7 +26,7 @@
 namespace PVInspector {
 class PVMainWindow;
 
-class PVArgumentListWidget: public QDialog
+class PVArgumentListWidget: public QWidget
 {
 	Q_OBJECT
 
@@ -36,11 +36,11 @@ public:
 	PVArgumentListWidget(QItemEditorFactory* args_widget_factory, PVCore::PVArgumentList &args, QWidget* parent = NULL);
 	virtual ~PVArgumentListWidget();
 	//bool eventFilter(QObject *obj, QEvent *event);
-	void init();
 	void set_args(PVCore::PVArgumentList& args);
 	void set_widget_factory(QItemEditorFactory* factory);
 	inline bool args_changed() { return _args_has_changed; }
 	inline void clear_args_state() { _args_has_changed = false; }
+	PVCore::PVArgumentList* get_args() { return _args; }
 
 
 public:
@@ -52,11 +52,6 @@ private:
 
 private slots:
 	void args_changed_Slot();
-
-protected:
-	virtual void create_btns();
-	virtual void set_btns_layout();
-	virtual void connect_btns();
 
 signals:
 	void args_changed_Signal();

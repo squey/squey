@@ -10,16 +10,28 @@
 #include <pvkernel/core/PVProgressBox.h>
 
 PVInspector::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(PVTabSplitter* tab, PVCore::PVArgumentList& args, Picviz::PVLayerFilter_p filter_p) :
-	PVArgumentListWidget(PVArgumentListWidget::create_layer_widget_factory(*tab->get_lib_view()), args, tab),
+	QDialog(tab),
 	_tab(tab),
 	_view(tab->get_lib_view()),
 	_filter_p(filter_p),
 	_help_btn(NULL),
 	_pre_filter_layer_org(_view->pre_filter_layer),
-	_args_org(*_args),
+	_args_org(args),
 	_has_apply(false)
 {
+	_args_widget = new PVArgumentListWidget(PVArgumentListWidget::create_layer_widget_factory(*tab->get_lib_view()), args, tab);
 	setWindowTitle("Filter properties...");
+
+	QVBoxLayout* main_layout = new QVBoxLayout();
+	main_layout->addWidget(_args_widget);
+	_btn_layout = new QHBoxLayout();
+	main_layout->addLayout(_btn_layout);
+
+	create_btns();
+	set_btns_layout();
+	connect_btns();
+
+	setLayout(main_layout);
 }
 
 PVInspector::PVLayerFilterProcessWidget::~PVLayerFilterProcessWidget()
@@ -66,7 +78,7 @@ void PVInspector::PVLayerFilterProcessWidget::save_Slot()
 
 	if (_has_apply) {
 		// We test if we haven't made a selection different from the one we previewed
-		if ((_view->state_machine->get_square_area_mode() != Picviz::PVStateMachine::AREA_MODE_OFF) || args_changed()) {
+		if ((_view->state_machine->get_square_area_mode() != Picviz::PVStateMachine::AREA_MODE_OFF) || _args_widget->args_changed()) {
 			if (!process()) {
 				// It has been canceled, so don't close the window !
 				return;
@@ -114,7 +126,7 @@ bool PVInspector::PVLayerFilterProcessWidget::process()
 	_view->process_selection();
 
 	Picviz::PVLayerFilter_p filter_p = _filter_p->clone<Picviz::PVLayerFilter>();
-	filter_p->set_args(*_args);
+	filter_p->set_args(*_args_widget->get_args());
 	filter_p->set_view(_view);
 	filter_p->set_output(&_view->post_filter_layer);
 
@@ -152,7 +164,7 @@ bool PVInspector::PVLayerFilterProcessWidget::process()
 	_tab->get_main_window()->update_pvglview(_view, PVSDK_MESSENGER_REFRESH_SELECTION|PVSDK_MESSENGER_REFRESH_COLOR);
 	_tab->refresh_listing_Slot();
 	_has_apply = true;
-	clear_args_state();
+	_args_widget->clear_args_state();
 
 	return true;
 }
@@ -170,7 +182,7 @@ void PVInspector::PVLayerFilterProcessWidget::cancel_Slot()
 	}
 
 	// Restore original arguments of this layer filter
-	*_args = _args_org;
+	*_args_widget->get_args() = _args_org;
 
 	// Restore the original post_filter_layer
 	_view->post_filter_layer = _view->pre_filter_layer;
