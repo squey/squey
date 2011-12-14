@@ -4,10 +4,8 @@
 //! Copyright (C) Philippe Saadé 2009-2011
 //! Copyright (C) Picviz Labs 2011
 
-#include <pvkernel/core/PVPython.h>
 #include <pvkernel/core/PVAxesIndexType.h>
 #include <pvkernel/core/PVVersion.h>
-#include <pvkernel/rush/PVNrawPython.h>
 
 #include <PVMainWindow.h>
 #include <PVExpandSelDlg.h>
@@ -17,8 +15,6 @@
 #include <PVAxesCombinationDialog.h>
 #include <PVExtractorWidget.h>
 #include <PVSaveSceneDialog.h>
-
-#include <boost/python/stl_iterator.hpp>
 
 /******************************************************************************
  *
@@ -1103,7 +1099,7 @@ void PVInspector::PVMainWindow::axes_new_Slot()
 	if (!current_tab) {
 		return;
 	}
-
+#if 0
 	Picviz::PVView_p view = current_tab->get_lib_view();
 	/*
 	std::vector<PVCore::PVUnicodeString> vec_str;
@@ -1157,4 +1153,5 @@ void PVInspector::PVMainWindow::axes_new_Slot()
 
 	boost::python::stl_input_iterator<PVCore::PVUnicodeString> begin(out_v), end;
 	view->get_source_parent()->add_column(begin, end, axis);
+#endif
 }

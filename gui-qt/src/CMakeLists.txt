@@ -12,7 +12,6 @@ include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/gui-qt/src/widgets/form
 include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/gui-qt/src/widgets/remote-log/include)
 include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/gui-qt/src/widgets/editors/include)
 include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/gui-qt/src/widgets/helpers/include)
-include_directories(BEFORE ${PYTHON_INCLUDE_DIRS})
 
 # include_directories(AFTER ${GLEW_INCLUDE_PATH})
 # include_directories(AFTER ${OPENGL_INCLUDE_DIR})
