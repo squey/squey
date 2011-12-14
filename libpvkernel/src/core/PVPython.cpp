@@ -12,13 +12,14 @@ PVCore::PVPythonInitializer::PVPythonInitializer()
 	PyEval_InitThreads();
 	python_main = boost::python::import("__main__");
 	python_main_namespace = boost::python::extract<boost::python::dict>(python_main.attr("__dict__"));
-	mainThreadState = PyEval_SaveThread();
 
 	// Expose "exposable" class to Python
 	std::list<PVPythonClassDecl*>::iterator it;
 	for (it = _class_registered.begin(); it != _class_registered.end(); it++) {
 		(*it)->declare();
 	}
+
+	mainThreadState = PyEval_SaveThread();
 }
 
 
@@ -64,6 +65,5 @@ void PVCore::PVPythonInitializer::register_class(PVPythonClassDecl const& c)
 
 PVCore::PVPythonClassRegister::PVPythonClassRegister(PVPythonClassDecl const& c)
 {
-	PVLOG_INFO("In PVPythonClassRegister\n");
 	PVPythonInitializer::register_class(c);
 }

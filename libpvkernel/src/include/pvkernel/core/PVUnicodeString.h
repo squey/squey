@@ -2,6 +2,7 @@
 #define PVCORE_PVUNICODESTRING_H
 
 #include <pvbase/export.h>
+#include <pvkernel/core/PVPythonClassDecl.h>
 
 namespace PVCore {
 
@@ -103,6 +104,8 @@ protected:
 	const utf_char* _buf;
 	size_t _len;
 	mutable QString _qstr;
+
+	PYTHON_EXPOSE()
 };
 
 }

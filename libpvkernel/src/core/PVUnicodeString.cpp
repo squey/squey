@@ -1,3 +1,5 @@
+#include <pvkernel/core/PVPython.h>
+#include <pvkernel/core/PVPythonClassDecl.h>
 #include <pvkernel/core/PVUnicodeString.h>
 
 
@@ -68,4 +70,9 @@ bool PVCore::PVUnicodeString::operator<(const PVUnicodeString& o) const
 int PVCore::PVUnicodeString::compare(const PVUnicodeString& o) const
 {
 	return memcmp(_buf, o._buf, picviz_min(_len, o._len)*sizeof(utf_char));
+}
+
+PYTHON_EXPOSE_IMPL(PVCore::PVUnicodeString)
+{
+	boost::python::class_<PVCore::PVUnicodeString>("PVUnicodeString");
 }

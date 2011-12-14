@@ -9,7 +9,7 @@
 #include <iostream>
 
 #define DEFAULT_LINE_SIZE 100
-
+#define MAX_SIZE_RESERVE (size_t(1024*1024*1024u)) // 1GB
 PVRush::PVNraw::PVNraw()
 {
 	_real_nrows = 0;
@@ -29,6 +29,9 @@ void PVRush::PVNraw::reserve(PVRow row, PVCol col)
 	clear_table();
 	if (col == 0) {
 		col = 1;
+	}
+	if (row*col*sizeof(PVCore::PVUnicodeString) >= MAX_SIZE_RESERVE) {
+		row = MAX_SIZE_RESERVE/(col*sizeof(PVCore::PVUnicodeString));
 	}
 	table.resize(row, col);
 }

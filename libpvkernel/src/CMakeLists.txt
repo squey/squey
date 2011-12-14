@@ -37,8 +37,8 @@ core/PVVersion.cpp
 
 if(PYTHONLIBS_FOUND)
 	set(CORE_SRC_FILES
-	${CORE_SRC_FILES}
 	core/PVPython.cpp
+	${CORE_SRC_FILES}
 	)
 endif(PYTHONLIBS_FOUND)
 

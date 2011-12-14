@@ -131,7 +131,7 @@ int main()
 	PVCore::PVPythonLocker locker;
 
 	boost::python::dict python_own_namespace = python.python_main_namespace.copy();
-	const char* code_ = "print(nraw.at(0,0))\nprint(nraw.at(1,0))\nnraw.set_value(0, 0, nraw.at_alias(1,0))\nprint(nraw.at(0,0))";
+	const char* code_ = "print(nraw.at(0,0))\nprint(nraw.at(1,0))\nnraw.set_value(0, 0, nraw.at_alias(1,0))\nprint(nraw.at(0,0))\nref = nraw.at_alias(0,0)\nl = list()\nl.append(ref)\ntest = nraw.at_alias(8,1)";
 
 	try {
 		class_<PVCore::PVUnicodeString>("PVUnicodeString");
@@ -148,6 +148,8 @@ int main()
 		python_own_namespace["nraw"] = python_nraw;
 		//python_own_namespace["test"] = test_vec;
 		boost::python::exec(code_, python_own_namespace, python_own_namespace);
+		PVCore::PVUnicodeString str = boost::python::extract<PVCore::PVUnicodeString>(python_own_namespace["test"]);
+		std::cout << qPrintable(str.get_qstr()) << std::endl;
 	}
 	catch (boost::python::error_already_set const&)
 	{

@@ -4,8 +4,10 @@
 //! Copyright (C) Philippe Saadé 2009-2011
 //! Copyright (C) Picviz Labs 2011
 
+#include <pvkernel/core/PVPython.h>
 #include <pvkernel/core/PVAxesIndexType.h>
 #include <pvkernel/core/PVVersion.h>
+#include <pvkernel/rush/PVNrawPython.h>
 
 #include <PVMainWindow.h>
 #include <PVExpandSelDlg.h>
@@ -15,6 +17,8 @@
 #include <PVAxesCombinationDialog.h>
 #include <PVExtractorWidget.h>
 #include <PVSaveSceneDialog.h>
+
+#include <boost/python/stl_iterator.hpp>
 
 /******************************************************************************
  *
@@ -1101,6 +1105,7 @@ void PVInspector::PVMainWindow::axes_new_Slot()
 	}
 
 	Picviz::PVView_p view = current_tab->get_lib_view();
+	/*
 	std::vector<PVCore::PVUnicodeString> vec_str;
 	PVRow nrows = view->get_rushnraw_parent().get_number_rows();
 	vec_str.reserve(nrows);
@@ -1110,6 +1115,39 @@ void PVInspector::PVMainWindow::axes_new_Slot()
 	for (PVRow i = 0; i < nrows; i++) {
 		vec_str.push_back(PVCore::PVUnicodeString(buf, tmp->size()));
 	}
+	*/
+
+	QDialog* txt_dlg = new QDialog(this);
+	QTextEdit* code_edit = new QTextEdit();
+	QDialogButtonBox* btns = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+	QVBoxLayout* layout_dlg = new QVBoxLayout();
+	layout_dlg->addWidget(code_edit);
+	layout_dlg->addWidget(btns);
+	connect(btns, SIGNAL(accepted()), txt_dlg, SLOT(accept()));
+	connect(btns, SIGNAL(rejected()), txt_dlg, SLOT(reject()));
+	txt_dlg->setLayout(layout_dlg);
+	if (txt_dlg->exec() != QDialog::Accepted) {
+		return;
+	}
+
+	PVCore::PVPythonInitializer& python = PVCore::PVPythonInitializer::get();
+	PVCore::PVPythonLocker lock;
+
+	boost::python::list out_v;
+	boost::python::dict py_ns = python.python_main_namespace.copy();
+
+	try {
+		PVRush::PVNrawPython python_nraw(&view->get_rushnraw_parent());
+		py_ns["nraw"] = python_nraw;
+		py_ns["out_values"] = out_v;
+
+		boost::python::exec(qPrintable(code_edit->toPlainText()), py_ns, py_ns);
+	}
+	catch (boost::python::error_already_set const&)
+	{
+		PyErr_Print();
+		return;
+	}
 
 	Picviz::PVAxis axis;
 	axis.set_type("enum");
@@ -1117,5 +1155,6 @@ void PVInspector::PVMainWindow::axes_new_Slot()
 	axis.set_plotting("default");
 	axis.set_name("New axis test");
 
-	view->get_source_parent()->add_column(vec_str.begin(), vec_str.end(), axis);
+	boost::python::stl_input_iterator<PVCore::PVUnicodeString> begin(out_v), end;
+	view->get_source_parent()->add_column(begin, end, axis);
 }

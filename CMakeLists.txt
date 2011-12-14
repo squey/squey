@@ -71,6 +71,7 @@ else(WIN32)
 	add_definitions(-DUNIX)
 	add_definitions(-DLINUX=2)
 	add_definitions(-Wall -Wextra -pipe)
+	#add_definitions(-include ${picviz-inspector_SOURCE_DIR}/precompiled-headers/qt.h)
 	#add_definitions(-Wall -Wextra -pipe -ggdb3 -msse4.1)
 endif(WIN32)
 

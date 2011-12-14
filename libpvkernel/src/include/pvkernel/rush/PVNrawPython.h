@@ -20,7 +20,7 @@ public:
 	{ } 
 
 public:
-	PVCore::PVUnicodeString const& at_alias(PVRow i, PVCol j)
+	PVCore::PVUnicodeString at_alias(PVRow i, PVCol j)
 	{   
 		return _nraw->at_unistr(i, j); 
 	}   
@@ -39,7 +39,11 @@ public:
 			return L"";
 		}   
 		return _nraw->at(i, j).toStdWString();
-	}   
+	}
+
+	PVRow get_number_rows() const { return _nraw->get_number_rows(); }
+	PVCol get_number_cols() const { return _nraw->get_number_cols(); }
+
 private:
 	PVRush::PVNraw* _nraw;
 

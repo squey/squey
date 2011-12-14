@@ -29,7 +29,7 @@ struct LibKernelDecl PVPythonClassRegister
 		};
 
 #define PYTHON_EXPOSE_IMPL(T)\
-	static PVCore::PVPythonClassRegister __python_register__(T::__PythonDecl());\
+	static PVCore::PVPythonClassRegister __python_register__ = PVCore::PVPythonClassRegister(T::__PythonDecl());\
 	void T::__PythonDecl::declare()
 
 #endif
