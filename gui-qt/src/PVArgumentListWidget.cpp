@@ -55,6 +55,14 @@ static void clearLayout(QLayout* layout)
 	}
 }
 
+PVInspector::PVArgumentListWidget::PVArgumentListWidget(QWidget* parent):
+	QDialog(parent),
+	_args_widget_factory(NULL),
+	_args(NULL)
+{
+	clear_args_state();
+}
+
 PVInspector::PVArgumentListWidget::PVArgumentListWidget(QItemEditorFactory* args_widget_factory, QWidget* parent):
 	QDialog(parent),
 	_args_widget_factory(args_widget_factory),
@@ -80,6 +88,14 @@ PVInspector::PVArgumentListWidget::~PVArgumentListWidget()
 {
 	PVLOG_INFO("In PVArgumentListWidget destructor\n");
 	_args_model->deleteLater();
+}
+
+void PVInspector::PVArgumentListWidget::set_widget_factory(QItemEditorFactory* factory)
+{
+	if (factory) {
+		_args_widget_factory = factory;
+		init_widgets();
+	}
 }
 
 void PVInspector::PVArgumentListWidget::init_widgets()
@@ -149,6 +165,7 @@ QItemEditorFactory* PVInspector::PVArgumentListWidget::create_layer_widget_facto
 	QItemEditorCreatorBase *regexp_creator = new PVArgumentEditorCreator<PVRegexpEditor>(view);
 	QItemEditorCreatorBase *dualslider_creator = new PVArgumentEditorCreator<PVColorGradientDualSliderEditor>(view);
 	QItemEditorCreatorBase *spinbox_creator = new PVArgumentEditorCreator<PVSpinBoxEditor>(view);
+	QItemEditorCreatorBase *qstr_creator = new QItemEditorCreator<QLineEdit>("text");
 
 	
 	// And register them into the factory
@@ -160,6 +177,7 @@ QItemEditorFactory* PVInspector::PVArgumentListWidget::create_layer_widget_facto
 	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVColorGradientDualSliderType>(), dualslider_creator);
 	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVSpinBoxType>(), spinbox_creator);
 	args_widget_factory->registerEditor(QVariant::RegExp, regexp_creator);
+	args_widget_factory->registerEditor(QVariant::String, qstr_creator);
 
 	return args_widget_factory;
 }

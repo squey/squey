@@ -46,6 +46,7 @@ SET(MOC_HEADERS
 include/PVArgumentEditorCreator.h
 include/PVArgumentListModel.h
 include/PVArgumentListWidget.h
+include/PVAxisComputationDlg.h
 include/PVAxisPropertiesWidget.h
 include/PVAxesCombinationWidget.h
 include/PVAxesCombinationDialog.h
@@ -134,6 +135,7 @@ SET(SRC_FILES
 main.cpp
 PVArgumentListModel.cpp
 PVArgumentListWidget.cpp
+PVAxisComputationDlg.cpp
 PVAxisPropertiesWidget.cpp
 PVAxesCombinationWidget.cpp
 PVAxesCombinationDialog.cpp
@@ -220,6 +222,7 @@ picviz-inspector_resource.qrc
 )
 
 SET(UI_FILES
+PVAxisComputationDlg.ui
 PVAxesCombinationWidget.ui
 PVAxesCombinationWidgetSelRange.ui
 widgets/format-builder/PVAxisTagHelp.ui

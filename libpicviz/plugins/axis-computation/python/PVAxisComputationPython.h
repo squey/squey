@@ -11,7 +11,7 @@ public:
 	PVAxisComputationPython(PVCore::PVArgumentList const& args = PVAxisComputationPython::default_args());
 
 public:
-	bool operator()(PVSource* src);
+	bool operator()(PVRush::PVNraw* nraw);
 	QString get_human_name() const { return QString("Python"); }
 
 	CLASS_FILTER(PVAxisComputationPython)

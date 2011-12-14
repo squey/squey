@@ -6,6 +6,7 @@
 
 #include <pvkernel/core/PVAxesIndexType.h>
 #include <pvkernel/core/PVVersion.h>
+#include <picviz/PVAxisComputation.h>
 
 #include <PVMainWindow.h>
 #include <PVExpandSelDlg.h>
@@ -15,6 +16,7 @@
 #include <PVAxesCombinationDialog.h>
 #include <PVExtractorWidget.h>
 #include <PVSaveSceneDialog.h>
+#include <PVAxisComputationDlg.h>
 
 /******************************************************************************
  *
@@ -1099,7 +1101,7 @@ void PVInspector::PVMainWindow::axes_new_Slot()
 	if (!current_tab) {
 		return;
 	}
-#if 0
+	
 	Picviz::PVView_p view = current_tab->get_lib_view();
 	/*
 	std::vector<PVCore::PVUnicodeString> vec_str;
@@ -1113,6 +1115,7 @@ void PVInspector::PVMainWindow::axes_new_Slot()
 	}
 	*/
 
+	/*
 	QDialog* txt_dlg = new QDialog(this);
 	QTextEdit* code_edit = new QTextEdit();
 	QDialogButtonBox* btns = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
@@ -1126,24 +1129,20 @@ void PVInspector::PVMainWindow::axes_new_Slot()
 		return;
 	}
 
-	PVCore::PVPythonInitializer& python = PVCore::PVPythonInitializer::get();
-	PVCore::PVPythonLocker lock;
+	Picviz::PVAxisComputation::p_type ac_lib = LIB_CLASS(Picviz::PVAxisComputation)::get().get_class_by_name("python");
+	Picviz::PVAxisComputation::p_type ac_clone = ac_lib->clone<Picviz::PVAxisComputation>();
 
-	boost::python::list out_v;
-	boost::python::dict py_ns = python.python_main_namespace.copy();
+	PVCore::PVArgumentList args;
+	args["script"] = code_edit->toPlainText();
+	ac_clone->set_args(args);
+	*/
 
-	try {
-		PVRush::PVNrawPython python_nraw(&view->get_rushnraw_parent());
-		py_ns["nraw"] = python_nraw;
-		py_ns["out_values"] = out_v;
-
-		boost::python::exec(qPrintable(code_edit->toPlainText()), py_ns, py_ns);
-	}
-	catch (boost::python::error_already_set const&)
-	{
-		PyErr_Print();
+	PVAxisComputationDlg* dlg = new PVAxisComputationDlg(*view, this);
+	if (dlg->exec() != QDialog::Accepted) {
 		return;
 	}
+
+	Picviz::PVAxisComputation_p ac_plugin = dlg->get_plugin();
 
 	Picviz::PVAxis axis;
 	axis.set_type("enum");
@@ -1151,7 +1150,5 @@ void PVInspector::PVMainWindow::axes_new_Slot()
 	axis.set_plotting("default");
 	axis.set_name("New axis test");
 
-	boost::python::stl_input_iterator<PVCore::PVUnicodeString> begin(out_v), end;
-	view->get_source_parent()->add_column(begin, end, axis);
-#endif
+	view->get_source_parent()->add_column(ac_plugin->f(), axis);
 }

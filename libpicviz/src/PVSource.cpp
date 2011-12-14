@@ -262,6 +262,14 @@ void Picviz::PVSource::set_views_consistent(bool cons)
 	}
 }
 
+void Picviz::PVSource::add_column(PVAxisComputation_f f_axis, PVAxis const& axis)
+{
+	set_views_consistent(false);
+	if (f_axis(&get_rushnraw())) {
+		add_column(axis);
+	}
+	set_views_consistent(true);
+}
 
 void Picviz::PVSource::serialize_write(PVCore::PVSerializeObject& so)
 {

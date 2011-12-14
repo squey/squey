@@ -338,8 +338,9 @@ private:
 	{
 		// Destruct objects
 		if (!value_pod::value) {
+			int64_t fsize = (int64_t) _nrows*_ncols;
 #pragma omp parallel for
-			for (int64_t i = 0; i < _nrows*_ncols; i++) {
+			for (int64_t i = 0; i < fsize; i++) {
 				_alloc.destroy(&p[i]);
 			}
 		}

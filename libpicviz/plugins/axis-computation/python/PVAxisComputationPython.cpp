@@ -1,5 +1,10 @@
 #include <pvkernel/core/PVPython.h>
+#include <pvkernel/rush/PVNrawPython.h>
+#include <pvkernel/rush/PVNraw.h>
+
 #include <picviz/PVSource.h>
+
+#include <boost/python/stl_iterator.hpp>
 
 #include "PVAxisComputationPython.h"
 
@@ -15,9 +20,9 @@ DEFAULT_ARGS_FILTER(Picviz::PVAxisComputationPython)
 	return args;
 }
 
-bool Picviz::PVAxisComputationPython::operator()(PVSource* src)
+bool Picviz::PVAxisComputationPython::operator()(PVRush::PVNraw* nraw)
 {
-	QString script = args["script"].toString();
+	QString script = _args["script"].toString();
 
 	PVCore::PVPythonInitializer& python = PVCore::PVPythonInitializer::get();
 	PVCore::PVPythonLocker lock;
@@ -26,11 +31,11 @@ bool Picviz::PVAxisComputationPython::operator()(PVSource* src)
 	boost::python::dict py_ns = python.python_main_namespace.copy();
 
 	try {
-		PVRush::PVNrawPython python_nraw(&source->get_rushnraw_parent());
+		PVRush::PVNrawPython python_nraw(nraw);
 		py_ns["nraw"] = python_nraw;
 		py_ns["out_values"] = out_v;
 
-		boost::python::exec(qPrintable(code_edit->toPlainText()), py_ns, py_ns);
+		boost::python::exec(script.toUtf8().constData(), py_ns, py_ns);
 	}    
 	catch (boost::python::error_already_set const&)
 	{    
@@ -39,7 +44,7 @@ bool Picviz::PVAxisComputationPython::operator()(PVSource* src)
 	}
 
 	boost::python::stl_input_iterator<PVCore::PVUnicodeString> begin(out_v), end; 
-	src->add_column(begin, end, axis);
+	nraw->add_column(begin, end);
 
 	return true;
 }

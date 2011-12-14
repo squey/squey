@@ -19,6 +19,7 @@
 #define LAYER_FILTER_PREFIX "layer_filter"
 #define MAPPING_FILTER_PREFIX "mapping_filter"
 #define PLOTTING_FILTER_PREFIX "plotting_filter"
+#define AXIS_COMPUTATION_PLUGINS_PREFIX "axis_computation"
 
 namespace Picviz {
 
@@ -42,6 +43,7 @@ private:
 	static int load_layer_filters();
 	static int load_mapping_filters();
 	static int load_plotting_filters();
+	static int load_axis_computation_filters();
 };
 
 typedef PVRoot::p_type PVRoot_p;

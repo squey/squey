@@ -22,6 +22,7 @@ Picviz::PVRoot::PVRoot()
 	load_layer_filters();
 	load_mapping_filters();
 	load_plotting_filters();
+	load_axis_computation_filters();
 
 	// Load PVRush plugins
 	PVRush::PVPluginsLoad::load_all_plugins();
@@ -50,6 +51,22 @@ int Picviz::PVRoot::scene_append(PVScene_p scene)
 	scenes << scene;
 
 	return 0;
+}
+
+/******************************************************************************
+ *
+ * Picviz::PVRoot::load_axis_computation_filters
+ *
+ *****************************************************************************/
+int Picviz::PVRoot::load_axis_computation_filters()
+{
+	int ret = PVCore::PVClassLibraryLibLoader::load_class_from_dirs(QString(picviz_plugins_get_axis_computation_dir()), AXIS_COMPUTATION_PLUGINS_PREFIX);
+	if (ret == 0) {
+		PVLOG_WARN("No axis computation plugin has been loaded !\n");
+	}
+	else {
+		PVLOG_INFO("%d axis computation plugins have been loaded.\n", ret);
+	}
 }
 
 // Layer filters loading

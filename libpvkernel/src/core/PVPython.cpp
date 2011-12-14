@@ -3,7 +3,6 @@
 
 boost::mutex PVCore::PVPythonInitializer::_python_init;
 PVCore::PVPythonInitializer* PVCore::PVPythonInitializer::g_python = NULL;
-std::list<PVCore::PVPythonClassDecl*> PVCore::PVPythonInitializer::_class_registered;
 
 PVCore::PVPythonInitializer::PVPythonInitializer()
 {
@@ -15,7 +14,7 @@ PVCore::PVPythonInitializer::PVPythonInitializer()
 
 	// Expose "exposable" class to Python
 	std::list<PVPythonClassDecl*>::iterator it;
-	for (it = _class_registered.begin(); it != _class_registered.end(); it++) {
+	for (it = get_class_list().begin(); it != get_class_list().end(); it++) {
 		(*it)->declare();
 	}
 
@@ -29,7 +28,7 @@ PVCore::PVPythonInitializer::~PVPythonInitializer()
 	Py_Finalize();
 
 	std::list<PVPythonClassDecl*>::iterator it;
-	for (it = _class_registered.begin(); it != _class_registered.end(); it++) {
+	for (it = get_class_list().begin(); it != get_class_list().end(); it++) {
 		delete (*it);
 	}
 }
@@ -58,9 +57,15 @@ QString PVCore::PVPython::get_list_index_as_qstring(boost::python::list pylist, 
 	return value;
 }
 
+std::list<PVCore::PVPythonClassDecl*>& PVCore::PVPythonInitializer::get_class_list()
+{
+	static std::list<PVCore::PVPythonClassDecl*> list;
+	return list;
+}
+
 void PVCore::PVPythonInitializer::register_class(PVPythonClassDecl const& c)
 {
-	_class_registered.push_back(c.clone());
+	get_class_list().push_back(c.clone());
 }
 
 PVCore::PVPythonClassRegister::PVPythonClassRegister(PVPythonClassDecl const& c)

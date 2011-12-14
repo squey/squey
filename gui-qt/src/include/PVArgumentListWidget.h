@@ -31,12 +31,14 @@ class PVArgumentListWidget: public QDialog
 	Q_OBJECT
 
 public:
-	PVArgumentListWidget(QItemEditorFactory* args_widget_factory, QWidget* parent);
-	PVArgumentListWidget(QItemEditorFactory* args_widget_factory, PVCore::PVArgumentList &args, QWidget* parent);
+	PVArgumentListWidget(QWidget* parent = NULL);
+	PVArgumentListWidget(QItemEditorFactory* args_widget_factory, QWidget* parent = NULL);
+	PVArgumentListWidget(QItemEditorFactory* args_widget_factory, PVCore::PVArgumentList &args, QWidget* parent = NULL);
 	virtual ~PVArgumentListWidget();
 	//bool eventFilter(QObject *obj, QEvent *event);
 	void init();
 	void set_args(PVCore::PVArgumentList& args);
+	void set_widget_factory(QItemEditorFactory* factory);
 	inline bool args_changed() { return _args_has_changed; }
 	inline void clear_args_state() { _args_has_changed = false; }
 

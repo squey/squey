@@ -34,10 +34,11 @@ public:
 protected:
 	static void register_class(PVPythonClassDecl const& c);
 private:
+	static std::list<PVPythonClassDecl*>& get_class_list();
+private:
 	PyThreadState* mainThreadState;
 	static boost::mutex _python_init;
 	static PVPythonInitializer* g_python;
-	static std::list<PVPythonClassDecl*> _class_registered;
 };
 
 class PVPythonLocker
