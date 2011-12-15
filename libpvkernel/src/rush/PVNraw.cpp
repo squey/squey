@@ -9,7 +9,8 @@
 #include <iostream>
 
 #define DEFAULT_LINE_SIZE 100
-#define MAX_SIZE_RESERVE (size_t(100*1024*1024u)) // 1GB
+#define MAX_SIZE_RESERVE (size_t(1024*1024*1024u)) // 1GB
+
 PVRush::PVNraw::PVNraw()
 {
 	_real_nrows = 0;

@@ -14,13 +14,13 @@ void PVRush::PVNrawPython::set_value(PVRow i, PVCol j, PVCore::PVUnicodeString c
 	return _nraw->set_value(i, j, str);
 }
 
-/*std::wstring PVRush::PVNrawPython::at(PVRow i, PVCol j)
+std::wstring PVRush::PVNrawPython::at(PVRow i, PVCol j)
 {
 	if (!_nraw) {
 		return L"";
 	}
 	return _nraw->at(i, j).toStdWString();
-}*/
+}
 
 PVRow PVRush::PVNrawPython::get_number_rows() const
 {
@@ -35,7 +35,7 @@ PVCol PVRush::PVNrawPython::get_number_cols() const
 PYTHON_EXPOSE_IMPL(PVRush::PVNrawPython)
 {
 	boost::python::class_<PVNrawPython>("PVNraw")
-		//.def("at", &PVNrawPython::at)
+		.def("at", &PVNrawPython::at)
 		.def("at_alias", &PVNrawPython::at_alias)
 		.def("set_value", &PVNrawPython::set_value)
 		.def("get_number_rows", &PVNrawPython::get_number_rows)

@@ -24,6 +24,7 @@
 #include <pvkernel/rush/PVNrawChild.h>
 
 #include <tbb/scalable_allocator.h>
+#include <tbb/tick_count.h>
 
 namespace PVRush {
 
@@ -89,7 +90,7 @@ namespace PVRush {
 			if (_real_nrows >= table.get_nrows()) {
 				// Reallocation is necessary
 				PVLOG_DEBUG("(PVNraw::add_row) reallocation of the NRAW table (element %d asked,  table size is %d).\n", _real_nrows, table.get_nrows());
-				table.resize_nrows(_real_nrows + 6024, PVCore::PVUnicodeString());
+				table.resize_nrows(_real_nrows + 60240, PVCore::PVUnicodeString());
 				return true;
 			}
 			PVCore::list_fields& lf = elt.fields();
@@ -120,9 +121,12 @@ namespace PVRush {
 		bool add_column(Iterator begin, Iterator end)
 		{
 			PVCol idx_new_col = get_number_cols();
+			tbb::tick_count tstart = tbb::tick_count::now();
 			if (!table.resize_ncols(get_number_cols() + 1)) {
 				return false;
 			}
+			tbb::tick_count tend = tbb::tick_count::now();
+			PVLOG_INFO("add_column: resize_ncols took %0.4fs.\n", (tend-tstart).seconds());
 
 			Iterator it;
 			PVRow i = 0;
@@ -130,8 +134,6 @@ namespace PVRush {
 				table.set_value(i, idx_new_col, *it);
 				i++;
 			}
-
-			dump_csv();
 
 			return true;
 		}

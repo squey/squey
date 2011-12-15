@@ -16,6 +16,8 @@
 #include <picviz/PVSelection.h>
 #include <picviz/PVLayer_types.h>
 
+//#include <tbb/cache_aligned_allocator.h>
+
 #include <vector>
 
 #define PICVIZ_LAYER_NAME_MAXLEN 1000
@@ -32,6 +34,8 @@ class PVPlotted;
  */
 class LibPicvizDecl PVLayer {
 	friend class PVCore::PVSerializeObject;
+public:
+	typedef std::vector<PVRow> list_row_indexes_t;
 private:
 	int                index;
 	PVLinesProperties  lines_properties;
@@ -39,8 +43,8 @@ private:
 	QString            name;
 	PVSelection        selection;
 	bool               visible;
-	std::vector<PVRow> _row_mins;
-	std::vector<PVRow> _row_maxs;
+	list_row_indexes_t _row_mins;
+	list_row_indexes_t _row_maxs;
 	
 public:
 
@@ -63,8 +67,8 @@ public:
 	void compute_min_max(PVPlotted const& plotted);
 	bool get_min_for_col(PVCol col, PVRow& row) const;
 	bool get_max_for_col(PVCol col, PVRow& row) const;
-	inline std::vector<PVRow> const& get_mins() const { return _row_mins; }
-	inline std::vector<PVRow> const& get_maxs() const { return _row_maxs; }
+	inline list_row_indexes_t get_mins() const { return _row_mins; }
+	inline list_row_indexes_t const& get_maxs() const { return _row_maxs; }
 
 	PVLayer & operator=(const PVLayer & rhs);
 	

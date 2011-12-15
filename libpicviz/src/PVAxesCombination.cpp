@@ -429,7 +429,9 @@ void Picviz::PVAxesCombination::set_from_format(PVRush::PVFormat &format)
 
 	QVector<PVCol> axes_comb;
 	if (columns_indexes_list.size() > 0) {
-		axes_comb = columns_indexes_list;
+		if (axes_comb.size() == 0) {
+			axes_comb = columns_indexes_list;
+		}
 	}
 	else {
 		axes_comb = QVector<PVCol>::fromStdVector(format.get_axes_comb());
@@ -441,16 +443,17 @@ void Picviz::PVAxesCombination::set_from_format(PVRush::PVFormat &format)
 		}
 	}
 
-	clear();
-	for (it = axes.begin(); it != axes.end(); it++) {
-		PVRush::PVAxisFormat const& axis_format = *it;
-		PVAxis axis(axis_format);
-		original_axes_list.push_back(axis);
-	}
+	if (original_axes_list.size() == 0) {
+		for (it = axes.begin(); it != axes.end(); it++) {
+			PVRush::PVAxisFormat const& axis_format = *it;
+			PVAxis axis(axis_format);
+			original_axes_list.push_back(axis);
+		}
 
-	QVector<PVCol>::iterator it_comb;
-	for (it_comb = axes_comb.begin(); it_comb != axes_comb.end(); it_comb++) {
-		axis_append(*it_comb);
+		QVector<PVCol>::iterator it_comb;
+		for (it_comb = axes_comb.begin(); it_comb != axes_comb.end(); it_comb++) {
+			axis_append(*it_comb);
+		}
 	}
 }
 

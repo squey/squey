@@ -74,5 +74,9 @@ int PVCore::PVUnicodeString::compare(const PVUnicodeString& o) const
 
 PYTHON_EXPOSE_IMPL(PVCore::PVUnicodeString)
 {
-	boost::python::class_<PVCore::PVUnicodeString>("PVUnicodeString");
+	boost::python::class_<PVCore::PVUnicodeString>("PVUnicodeString")
+		.def("len", &PVUnicodeString::len)
+		.def("size", &PVUnicodeString::size)
+		.def("compare", &PVUnicodeString::compare)
+	;
 }

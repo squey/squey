@@ -35,8 +35,9 @@ struct PVMatrixComputation
 
 	static void set_rows_value(T* data, IndexRow a, IndexRow b, IndexCol ncols, T const& v)
 	{
+		ssize_t end = (ssize_t) (b+1)*ncols;
 	#pragma omp parallel for
-		for (ssize_t i = (ssize_t) a*ncols; i < (ssize_t) (b+1)*ncols; i++) {
+		for (ssize_t i = (ssize_t) a*ncols; i < end; i++) {
 			new (&data[i]) T(v);
 		}
 	}
@@ -53,7 +54,8 @@ struct PVMatrixComputation<T, uint32_t, uint32_t, true, false, true>
 
 	static void set_rows_value(T* data, uint32_t a, uint32_t b, uint32_t ncols, T v)
 	{
-		for (ssize_t i = (ssize_t) a*ncols; i < (ssize_t) (b+1)*ncols; i++) {
+		ssize_t end = (ssize_t) (b+1)*ncols;
+		for (ssize_t i = (ssize_t) a*ncols; i < end; i++) {
 			data[i] = v;
 		}
 	}

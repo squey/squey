@@ -6,6 +6,8 @@
 #include <QVector>
 #include <QStringList>
 
+#include <iostream>
+
 using namespace boost::python;
 
 /*

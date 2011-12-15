@@ -91,12 +91,15 @@ void Picviz::PVLayer::reset_to_full_and_default_color()
 void Picviz::PVLayer::compute_min_max(PVPlotted const& plotted)
 {
 	PVCol col_count = plotted.get_column_count();
+	_row_mins.resize(col_count);
+	_row_maxs.resize(col_count);
 
+#pragma omp parallel for
 	for (PVCol j = 0; j < col_count; j++) {
 		PVRow min,max;
 		plotted.get_col_minmax(min, max, selection, j);
-		_row_mins.push_back(min);
-		_row_maxs.push_back(max);
+		_row_mins[j] = min;
+		_row_maxs[j] = max;
 	}
 }
 

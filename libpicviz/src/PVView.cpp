@@ -96,7 +96,7 @@ void Picviz::PVView::init_from_plotted(PVPlotted* parent, bool keep_layers)
 
 	// Init default axes combination from source
 	if (keep_layers) {
-		//axes_combination.set_from_format(parent->get_source_parent()->get_format());
+		axes_combination.set_from_format(parent->get_source_parent()->get_format());
 	}
 	else {
 		axes_combination = parent->get_source_parent()->get_axes_combination();

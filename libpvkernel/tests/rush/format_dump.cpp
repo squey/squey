@@ -34,7 +34,7 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	//format.debug();
+	format.debug();
 
 	return 0;
 }

@@ -22,7 +22,7 @@ public:
 public:
 	PVCore::PVUnicodeString at_alias(PVRow i, PVCol j);
 	void set_value(PVRow i, PVCol j, PVCore::PVUnicodeString const& str); 
-	//std::wstring at(PVRow i, PVCol j);
+	std::wstring at(PVRow i, PVCol j);
 	PVRow get_number_rows() const;
 	PVCol get_number_cols() const;
 

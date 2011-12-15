@@ -220,6 +220,8 @@ void PVGL::PVLines::init(Picviz::PVView_p pv_view_)
 	// Create a TBO holding the current non-zombie lines as a bit-field.
 	glGenBuffers(1, &tbo_zombie); PRINT_OPENGL_ERROR();
 	glBindBuffer(GL_TEXTURE_BUFFER, tbo_zombie); PRINT_OPENGL_ERROR();
+	glBufferData(GL_TEXTURE_BUFFER, PICVIZ_SELECTION_NUMBER_OF_BYTES, NULL, GL_DYNAMIC_DRAW); PRINT_OPENGL_ERROR();
+
 	glGenTextures(1, &tbo_zombie_texture); PRINT_OPENGL_ERROR();
 	glActiveTexture(GL_TEXTURE2); PRINT_OPENGL_ERROR();
 	glBindTexture(GL_TEXTURE_BUFFER, tbo_zombie_texture); PRINT_OPENGL_ERROR();
@@ -808,8 +810,8 @@ void PVGL::PVLines::update_arrays_zombies(void)
 	}
 	// Update the TBO
 	glBindBuffer(GL_TEXTURE_BUFFER, tbo_zombie); PRINT_OPENGL_ERROR();
-	glBufferData(GL_TEXTURE_BUFFER, PICVIZ_SELECTION_NUMBER_OF_BYTES,
-	             picviz_view->layer_stack_output_layer.get_selection().get_buffer(), GL_DYNAMIC_DRAW); PRINT_OPENGL_ERROR();
+	glBufferSubData(GL_TEXTURE_BUFFER, 0,
+	                PICVIZ_SELECTION_NUMBER_OF_BYTES, picviz_view->layer_stack_output_layer.get_selection().get_buffer()); PRINT_OPENGL_ERROR();
 
 	set_main_fbo_dirty();
 	set_zombie_fbo_dirty();
@@ -844,6 +846,7 @@ void PVGL::PVLines::update_arrays_positions(void)
 	// We process all lines.
 	test_value = nb_col * PICVIZ_EVENTLINE_LINES_MAX;
 	std::vector<vec4*> mapped_position_arrays;
+	mapped_position_arrays.reserve(nb_batches);
 	for (unsigned batch_number = 0; batch_number < nb_batches; batch_number++) {
 		glBindVertexArray(batches[batch_number].vao); PRINT_OPENGL_ERROR();
 		glBindBuffer(GL_ARRAY_BUFFER, batches[batch_number].vbo_position); PRINT_OPENGL_ERROR();
@@ -881,6 +884,7 @@ void PVGL::PVLines::update_arrays_positions(void)
 			nb_positions_last_batch++;
 		}
 	}
+
 	set_main_fbo_dirty();
 	set_zombie_fbo_dirty();
 	// Unmap the position buffers.
