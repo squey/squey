@@ -64,7 +64,7 @@ int PVPlotted::create_table()
 	_tmp_values.reserve(nrows);
 	float* p_tmp_v = &_tmp_values[0];
 	
-	_table.reserve(mapped_col_count * nrows);
+	_table.resize(mapped_col_count * nrows);
 	
 	tbb::tick_count tstart = tbb::tick_count::now();
 	
@@ -106,7 +106,7 @@ int PVPlotted::create_table()
 			PVLOG_INFO("(PVPlotted::create_table) parallel plotting for axis %d took %0.4f seconds, plugin was %s.\n", j, (plend-plstart).seconds(), qPrintable(plotting_filter->registered_name()));
 
 			boost::this_thread::interruption_point();
-#pragma omp parallel for
+//#pragma omp parallel for
 			for (int64_t i = 0; i < nrows_tmp; i++) {
 				float v = p_tmp_v[i];
 				_table[i*mapped_col_count+j] = v;

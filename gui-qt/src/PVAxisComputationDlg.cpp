@@ -8,11 +8,7 @@ PVInspector::PVAxisComputationDlg::PVAxisComputationDlg(Picviz::PVView& view, QW
 	QDialog(parent)
 {
 	setupUi(this);
-	PVCore::PVArgumentList *args = new PVCore::PVArgumentList();
-	(*args)["test"].setValue(PVCore::PVAxisIndexType(0));
-	_args_plugin_widget = new PVArgumentListWidget(PVArgumentListWidget::create_layer_widget_factory(view), *args, this);
-	verticalLayout->addWidget(_args_plugin_widget);
-	_args_plugin_widget->show();
+	_args_plugin_widget->set_widget_factory(PVArgumentListWidget::create_layer_widget_factory(view));
 
 	init_plugins(_combo_plugins);
 	update_plugin_args();

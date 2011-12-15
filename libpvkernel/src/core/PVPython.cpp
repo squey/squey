@@ -1,3 +1,5 @@
+#ifdef ENABLE_PYTHON_SUPPORT
+
 #include <pvkernel/core/PVPython.h>
 #include <pvkernel/core/PVPythonClassDecl.h>
 
@@ -72,3 +74,5 @@ PVCore::PVPythonClassRegister::PVPythonClassRegister(PVPythonClassDecl const& c)
 {
 	PVPythonInitializer::register_class(c);
 }
+
+#endif

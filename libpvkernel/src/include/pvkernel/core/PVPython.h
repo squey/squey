@@ -1,6 +1,8 @@
 #ifndef PVPYTHON_H
 #define PVPYTHON_H
 
+#ifdef ENABLE_PYTHON_SUPPORT
+
 // AG: to investigate: pvbase/general.h, which is included by core/general.h,
 // seems to conflict with boost/python.hpp. If this header is after general.h,
 // them you have a compile error !!
@@ -65,5 +67,7 @@ namespace PVPython {
 }
 
 }
+
+#endif
 
 #endif //PVPYTHON_H

@@ -84,7 +84,7 @@
    <item>
     <widget class="QGroupBox" name="groupBox_2">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
@@ -92,7 +92,11 @@
      <property name="title">
       <string>Plugin options</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout_2"/>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="PVInspector::PVArgumentListWidget" name="_args_plugin_widget" native="true"/>
+      </item>
+     </layout>
     </widget>
    </item>
    <item>
@@ -156,6 +160,14 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>PVInspector::PVArgumentListWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">PVArgumentListWidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>

@@ -1,6 +1,8 @@
 #ifndef PVCORE_PVPYTHONCLASSREGISTER
 #define PVCORE_PVPYTHONCLASSREGISTER
 
+#ifdef ENABLE_PYTHON_SUPPORT
+
 namespace PVCore {
 
 class PVPythonInitializer;
@@ -32,5 +34,7 @@ public:
 #define PYTHON_EXPOSE_IMPL(T)\
 	static PVCore::PVPythonClassRegister __python_register__ = PVCore::PVPythonClassRegister(T::__PythonDecl());\
 	void T::__PythonDecl::declare()
+
+#endif
 
 #endif

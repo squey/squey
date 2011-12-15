@@ -1,7 +1,6 @@
 #
 # QT is needed for both libpvgl and picviz-inspector
 #
-ADD_DEFINITIONS(-DQT_NO_DEBUG)
 ADD_DEFINITIONS(-DQT_SHARED)
 find_package(Qt4 REQUIRED)
 # QT XML support
@@ -277,6 +276,9 @@ if(DEBUG_MODE)
 	set(PYTHON_LIBRARY ${PYTHON_DEBUG_LIBRARIES})
 	add_definitions(-DBOOST_DEBUG_PYTHON)
 endif(DEBUG_MODE)
+if(PYTHONLIBS_FOUND)
+	add_definitions(-DENABLE_PYTHON_SUPPORT)
+endif(PYTHONLIBS_FOUND)
 
 #
 # Check for X11 (used to detect caps lock activated ;-))
