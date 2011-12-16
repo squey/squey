@@ -83,6 +83,8 @@ public:
 	QString const& get_name() const { return _name; }
 	void set_name(QString const& name) { _name = name; }
 
+	void set_default_args(PVRush::PVFormat const& format);
+
 public:
 	// Mandatory parameters
 	mandatory_param_map const& get_mandatory_params_for_col(PVCol col) const;

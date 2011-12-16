@@ -52,6 +52,7 @@ protected:
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 	void set_uptodate() { _is_uptodate = true; }
 	inline void invalidate() { _is_uptodate = false; }
+	void set_default_args(PVRush::PVAxisFormat const& axis);
 
 private:
 	void set_from_axis(PVRush::PVAxisFormat const& axis);

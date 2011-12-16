@@ -112,6 +112,16 @@ void Picviz::PVMapping::set_source(PVSource* src)
 	_mandatory_filters_values.resize(naxes);
 }
 
+void Picviz::PVMapping::set_default_args(PVRush::PVFormat const& format)
+{
+	QList<PVMappingProperties>::iterator it;
+	PVCol i = 0;
+	for (it = columns.begin(); it != columns.end(); it++) {
+		it->set_default_args(format.get_axes().at(i));
+		i++;
+	}
+}
+
 bool Picviz::PVMapping::is_uptodate() const
 {
 	QList<PVMappingProperties>::const_iterator it;

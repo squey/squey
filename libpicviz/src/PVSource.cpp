@@ -354,4 +354,9 @@ void Picviz::PVSource::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVS
 	
 	// Load the mapped
 	so.list("mapped", _mappeds, "Mappings", (PVMapped*) NULL, QStringList(), true, true);
+
+	list_mapped_t::iterator it;
+	for (it = _mappeds.begin(); it != _mappeds.end(); it++) {
+		(*it)->get_mapping().set_default_args(format);
+	}
 }
