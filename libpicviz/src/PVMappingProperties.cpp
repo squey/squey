@@ -59,6 +59,7 @@ void Picviz::PVMappingProperties::serialize(PVCore::PVSerializeObject& so, PVCor
 	so.attribute("mode", _mode);
 	so.attribute("index", _index);
 	so.attribute("group_key", _group_key);
+	so.arguments("properties", _args);
 
 	if (!so.is_writing()) {
 		_is_uptodate = false;

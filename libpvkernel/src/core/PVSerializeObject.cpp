@@ -66,6 +66,16 @@ void PVCore::PVSerializeObject::list_attributes_read(QString const& name, std::v
 	_parent_ar->list_attributes_read(*this, name, list);
 }
 
+void PVCore::PVSerializeObject::hash_arguments_write(QString const& name, PVArgumentList const& obj)
+{
+	_parent_ar->hash_arguments_write(*this, name, obj);
+}
+
+void PVCore::PVSerializeObject::hash_arguments_read(QString const& name, PVArgumentList& obj)
+{
+	_parent_ar->hash_arguments_read(*this, name, obj);
+}
+
 bool PVCore::PVSerializeObject::is_optional() const
 {
 	return _is_optional;
@@ -133,3 +143,14 @@ bool PVCore::PVSerializeObject::visible() const
 {
 	return _visible;
 }
+
+void PVCore::PVSerializeObject::arguments(QString const& name, PVArgumentList& obj)
+{
+	if (is_writing()) {
+		hash_arguments_write(name, obj);
+	}
+	else {
+		hash_arguments_read(name, obj);
+	}
+}
+

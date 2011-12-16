@@ -38,6 +38,8 @@ protected:
 	virtual void attribute_read(PVSerializeObject&, QString const&, QVariant&, QVariant const&) { };
 	virtual void list_attributes_write(PVSerializeObject const&, QString const&, std::vector<QVariant> const&) { };
 	virtual void list_attributes_read(PVSerializeObject const&, QString const&, std::vector<QVariant>&) { };
+	virtual void hash_arguments_write(PVSerializeObject const&, QString const&, PVArgumentList const&) { };
+	virtual void hash_arguments_read(PVSerializeObject const&, QString const&, PVArgumentList&) { };
 	virtual size_t buffer(PVSerializeObject const&, QString const&, void*, size_t n) { return n; };
 	virtual void file(PVSerializeObject const&, QString const&, QString&) { };
 };

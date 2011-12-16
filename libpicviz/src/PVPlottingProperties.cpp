@@ -78,6 +78,7 @@ void Picviz::PVPlottingProperties::serialize(PVCore::PVSerializeObject& so, PVCo
 {
 	so.attribute("index", _index);
 	so.attribute("mode", _mode);
+	so.arguments("properties", _args);
 
 	if (!so.is_writing()) {
 		_is_uptodate = false;

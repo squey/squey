@@ -2,6 +2,7 @@
 #define PVCORE_PVSERIALIZEOBJECT_H
 
 #include <pvkernel/core/stdint.h>
+#include <pvkernel/core/PVArgument.h>
 #include <pvkernel/core/PVSerializeArchiveExceptions.h>
 #include <pvkernel/core/PVTypeTraits.h>
 #include <pvkernel/core/PVTypeInfo.h>
@@ -153,6 +154,8 @@ public:
 	template <typename K, typename V>
 	void hash(QString const& name, QHash<K,V>& obj);
 
+	void arguments(QString const& name, PVArgumentList& obj);
+
 	/*! \brief Declare an attribute to load/save in the 'configuration' of the object. T must be convertible to and from a QVariant
 	 *  \param[in] name Name of the attribute
 	 *  \param[in][out] obj Attribute to save
@@ -191,6 +194,8 @@ private:
 	void attribute_read(QString const& name, QVariant& obj, QVariant const& def);
 	void list_attributes_write(QString const& name, std::vector<QVariant> const& list);
 	void list_attributes_read(QString const& name, std::vector<QVariant>& list);
+	void hash_arguments_write(QString const& name, PVArgumentList const& obj);
+	void hash_arguments_read(QString const& name, PVArgumentList& obj);
 	bool must_write_child(QString const& name);
 	p_type get_archive_object_from_path(QString const& path) const;
 
@@ -267,11 +272,11 @@ private:
 	 */
 	bool _must_write;
 
-	/*! \brief Hash of the childs of this object. The key is their name.
+	/*! \brief Hash of the children of this object. The key is their name.
 	 */
 	list_childs_t _childs;
 
-	/*! \brief Hash of the visible childs of this object. The key is their name.
+	/*! \brief Hash of the visible children of this object. The key is their name.
 	 */
 	list_childs_t _visible_childs;
 
