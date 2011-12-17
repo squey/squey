@@ -51,8 +51,9 @@ void Picviz::PVLayerFilterFindDuplicates::operator()(PVLayer& in, PVLayer &out)
 	PVRush::PVNraw::nraw_table const& nraw = _view->get_qtnraw_parent();
 	QHash<QString, PVRow> lines_duplicates;
 	QHash<PVRow, bool> line_already_selected; // Hash storing if we already selected a duplicate or not (option with_one_duplicate)
+	QHash<QString, bool> value_already_selected;
 
-	PVLOG_INFO("Select non duplicates:%d; with one duplicate only: %d\n", non_duplicates, with_one_duplicate);
+	// PVLOG_INFO("Select non duplicates:%d; with one duplicate only: %d\n", non_duplicates, with_one_duplicate);
 
 	// First round = We get all lines 
 	for (PVRow r = 0; r < nb_lines; r++) {
@@ -65,7 +66,8 @@ void Picviz::PVLayerFilterFindDuplicates::operator()(PVLayer& in, PVLayer &out)
 
 		if (_view->get_line_state_in_pre_filter_layer(r)) {
 			QString const& value = nraw.at(r, axis_id).get_qstr();
-			PVRow count = lines_duplicates[value]+1;
+			PVRow count = lines_duplicates[value] + 1;
+			// PVLOG_INFO("We insert dup info for value '%s', count '%d'\n", qPrintable(value),count);
 			lines_duplicates.insert(value, count);
 		}
 	}
@@ -83,14 +85,20 @@ void Picviz::PVLayerFilterFindDuplicates::operator()(PVLayer& in, PVLayer &out)
 			QString const& value = nraw.at(r, axis_id).get_qstr();
 			PVRow count = lines_duplicates[value];
 			if (count > 1) {
-				if ((line_already_selected[r]) || non_duplicates) {
-					out.get_selection().set_line(r, non_duplicates ? false : true);
+				if (non_duplicates) {
+					out.get_selection().set_line(r, false);
 				} else {
-					out.get_selection().set_line(r, true);
-					line_already_selected.insert(r, true);
+					if (with_one_duplicate) {
+						if (value_already_selected[value]) {
+							out.get_selection().set_line(r, false);
+						} else {
+							out.get_selection().set_line(r, true);
+							value_already_selected.insert(value, true);
+						}
+					}
 				}
 			} else {
-				out.get_selection().set_line(r, non_duplicates ? true : false);
+				out.get_selection().set_line(r, true);
 			}
 		}
 	}
