@@ -7,20 +7,12 @@
 #include <QSpinBox>
 
 #include "PVLayerFilterDiff.h"
+
 #include <pvkernel/core/PVColor.h>
-#include <picviz/PVView.h>
 #include <pvkernel/core/PVAxesIndexType.h>
 #include <pvkernel/core/PVSpinBoxType.h>
-
-static QString generate_row_key_from_values(PVCore::PVAxesIndexType const& axes, PVRush::PVNraw::const_nraw_table_line const& values)
-{
-	QString ret;
-	PVCore::PVAxesIndexType::const_iterator it;
-	for (it = axes.begin(); it != axes.end(); it++) {
-		ret.append(values[*it].get_qstr());
-	}
-	return ret;
-}
+#include <pvkernel/rush/PVUtils.h>
+#include <picviz/PVView.h>
 
 /******************************************************************************
  *
@@ -41,7 +33,7 @@ Picviz::PVLayerFilterDiff::PVLayerFilterDiff(PVCore::PVArgumentList const& l)
 DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterDiff)
 {
 	PVCore::PVArgumentList args;
-	args["Axes"].setValue(PVCore::PVAxesIndexType());
+	args[PVCore::PVArgumentKey("axes", "Axes")].setValue(PVCore::PVAxesIndexType());
 	args["From line"].setValue(PVCore::PVSpinBoxType());
 	args["To line"].setValue(PVCore::PVSpinBoxType());
 
@@ -57,7 +49,7 @@ PVCore::PVArgumentList Picviz::PVLayerFilterDiff::get_default_args_for_view(PVVi
 {
 	// Retrieve the key axes of the PVFormat of that PVView
 	PVCore::PVArgumentList args = get_args();
-	args["Axes"].setValue(PVCore::PVAxesIndexType(view.get_original_axes_index_with_tag(get_tag("key"))));
+	args["axes"].setValue(PVCore::PVAxesIndexType(view.get_original_axes_index_with_tag(get_tag("key"))));
 	return args;
 }
 
@@ -71,12 +63,12 @@ void Picviz::PVLayerFilterDiff::operator()(PVLayer& in, PVLayer &out)
 {	
 	PVRush::PVNraw::nraw_table const& nraw = _view->get_qtnraw_parent();
 	PVRow nb_lines = nraw.get_nrows();
-	PVCore::PVAxesIndexType axes = _args["Axes"].value<PVCore::PVAxesIndexType>();
+	PVCore::PVAxesIndexType axes = _args["axes"].value<PVCore::PVAxesIndexType>();
 	if (axes.size() == 0) {
 		_args = get_default_args_for_view(*_view);
-		axes = _args["Axes"].value<PVCore::PVAxesIndexType>();
+		axes = _args["axes"].value<PVCore::PVAxesIndexType>();
 		if (axes.size() == 0) {
-			PVLOG_ERROR("(PVLayerFilterHeatlineBase) no key axes defined in the format and no axes selected !\n");
+			PVLOG_ERROR("(PVLayerFilterDiff) no key axes defined in the format and no axes selected !\n");
 			if (&in != &out) {
 				out = in;
 			}
@@ -100,17 +92,20 @@ void Picviz::PVLayerFilterDiff::operator()(PVLayer& in, PVLayer &out)
 	/* 1st round: we create our hash from the values */
 	for (counter = 0; counter < toline_spinbox.get_value(); counter++) {
 		PVRush::PVNraw::const_nraw_table_line nrawvalues = nraw.get_row(counter);
-		key = generate_row_key_from_values(axes, nrawvalues);
-		// qDebug("KEY VALUE=%s\n", qPrintable(key));
+		key = PVRush::PVUtils::generate_key_from_axes_values(axes, nrawvalues);
 
 		lines_hash.insert(key, 1);
+
+		PVLOG_INFO("Add the key %s\n", qPrintable(key));
 	}
 
 
 	// /* 2nd round: we get the color from the ratio compared with the key and the frequency */
 	for (counter = 0; counter < nb_lines; counter++) {
 		PVRush::PVNraw::const_nraw_table_line nrawvalues = nraw.get_row(counter);
-		key = generate_row_key_from_values(axes, nrawvalues);
+
+		key = PVRush::PVUtils::generate_key_from_axes_values(axes, nrawvalues);
+
 		int value_from_key = lines_hash[key];
 		if (value_from_key == 1) { 
 			out.get_selection().set_line(counter, 0);
