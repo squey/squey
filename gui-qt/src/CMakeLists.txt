@@ -226,6 +226,7 @@ PVAxisComputationDlg.ui
 PVAxesCombinationWidget.ui
 PVAxesCombinationWidgetSelRange.ui
 widgets/format-builder/PVAxisTagHelp.ui
+ui/PVViewCorrelationWidget.ui
 )
 
 QT4_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})

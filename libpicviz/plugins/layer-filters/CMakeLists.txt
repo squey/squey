@@ -39,6 +39,9 @@ target_link_libraries(layer_filter_find_duplicates ${LINK_LIBRARIES})
 add_library(layer_filter_webmail SHARED webmail-finder/PVLayerFilterWebmailFinder.cpp webmail-finder/register.cpp)
 target_link_libraries(layer_filter_webmail ${LINK_LIBRARIES})
 
+add_library(layer_filter_find_same_values SHARED find-same-values/PVLayerFilterFindSameValues.cpp find-same-values/register.cpp)
+target_link_libraries(layer_filter_find_same_values ${LINK_LIBRARIES})
+
 if(PYTHONLIBS_FOUND)
 	# AG: BEFORE here is important, or boost does not include the good patchlevel.h (from Python), and does not
 	# find the good Python version !!
