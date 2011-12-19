@@ -138,6 +138,11 @@ void PVInspector::PVListingView::update_view_selection_from_listing_selection()
 	main_window->statusBar()->clearMessage();
 }
 
+/******************************************************************************
+ *
+ * PVInspector::PVListingView::mouseDoubleClickEvent
+ *
+ *****************************************************************************/
 void PVInspector::PVListingView::mouseDoubleClickEvent(QMouseEvent* event)
 {
 	// Here is the reference:
@@ -150,6 +155,11 @@ void PVInspector::PVListingView::mouseDoubleClickEvent(QMouseEvent* event)
 	}
 }
 
+/******************************************************************************
+ *
+ * PVInspector::PVListingView::selectionChanged
+ *
+ *****************************************************************************/
 void PVInspector::PVListingView::selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
 {
 	bool has_sel = selected.indexes().size() > 0;
@@ -186,6 +196,11 @@ void PVInspector::PVListingView::slotDoubleClickOnHHead(int idHeader)
 	static_cast<PVListingModel *>(model())->sortByColumn(idHeader);
 }
 
+/******************************************************************************
+ *
+ * PVInspector::PVListingView::keyEnterPressed
+ *
+ *****************************************************************************/
 void PVInspector::PVListingView::keyEnterPressed()
 {
 	if (selectedIndexes().size() > 0) {
@@ -193,6 +208,11 @@ void PVInspector::PVListingView::keyEnterPressed()
 	}
 }
 
+/******************************************************************************
+ *
+ * PVInspector::PVListingView::show_ctxt_menu
+ *
+ *****************************************************************************/
 void PVInspector::PVListingView::show_ctxt_menu(const QPoint& pos)
 {
 	if (!_show_ctxt_menu) {
@@ -232,6 +252,11 @@ void PVInspector::PVListingView::show_ctxt_menu(const QPoint& pos)
 	}
 }
 
+/******************************************************************************
+ *
+ * PVInspector::PVListingView::process_ctxt_menu_copy
+ *
+ *****************************************************************************/
 void PVInspector::PVListingView::process_ctxt_menu_copy()
 {
 	// The value to copy is in _ctxt_v
@@ -239,6 +264,11 @@ void PVInspector::PVListingView::process_ctxt_menu_copy()
 	cb->setText(_ctxt_v);
 }
 
+/******************************************************************************
+ *
+ * PVInspector::PVListingView::process_ctxt_menu_action
+ *
+ *****************************************************************************/
 void PVInspector::PVListingView::process_ctxt_menu_action(QAction* act)
 {
 	assert(act);
@@ -270,6 +300,11 @@ void PVInspector::PVListingView::process_ctxt_menu_action(QAction* act)
 	_ctxt_process->show();
 }
 
+/******************************************************************************
+ *
+ * PVInspector::PVListingView::update_view
+ *
+ *****************************************************************************/
 void PVInspector::PVListingView::update_view()
 {
 	lib_view = _parent->get_lib_view();
