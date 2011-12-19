@@ -41,6 +41,11 @@ PVGL::PVAxes::PVAxes(PVView *view_): view(view_)
 	vbo_bg_position = 0;
 }
 
+/******************************************************************************
+ *
+ * PVGL::PVAxes::~PVAxes
+ *
+ *****************************************************************************/
 PVGL::PVAxes::~PVAxes()
 {
 	PVLOG_INFO("In PVAxes destructor\n");
@@ -305,6 +310,16 @@ void PVGL::PVAxes::draw_names()
 
 /******************************************************************************
  *
+ * PVGL::PVAxes::toggle_show_limits
+ *
+ *****************************************************************************/
+void PVGL::PVAxes::toggle_show_limits()
+{
+	show_limits = !show_limits;
+}
+
+/******************************************************************************
+ *
  * PVGL::PVAxes::update_arrays
  *
  *****************************************************************************/
@@ -384,14 +399,9 @@ void PVGL::PVAxes::update_arrays_bg (void)
 
 /******************************************************************************
  *
- * PVGL::PVAxes::toggle_show_limits
+ * PVGL::PVAxes::update_current_layer
  *
  *****************************************************************************/
-void PVGL::PVAxes::toggle_show_limits()
-{
-	show_limits = !show_limits;
-}
-
 void PVGL::PVAxes::update_current_layer(Picviz::PVLayer const& layer)
 {
 	_mins_layer = layer.get_mins();
