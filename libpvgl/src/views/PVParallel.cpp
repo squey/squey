@@ -80,6 +80,11 @@ PVGL::PVView::PVView(int win_id, PVSDK::PVMessenger *message) : PVGL::PVDrawable
         
 }
 
+/******************************************************************************
+ *
+ * PVGL::PVView::~PVView
+ *
+ *****************************************************************************/
 PVGL::PVView::~PVView()
 {
 	delete top_bar;
@@ -276,6 +281,11 @@ void PVGL::PVView::update_axes()
 }
 #endif
 
+/******************************************************************************
+ *
+ * PVGL::PVView::update_colors
+ *
+ *****************************************************************************/
 void PVGL::PVView::update_colors()
 {
 	if (!picviz_view) { // Sanity check
@@ -289,6 +299,11 @@ void PVGL::PVView::update_colors()
 	get_map().update_arrays_colors();
 }
 
+/******************************************************************************
+ *
+ * PVGL::PVView::update_z
+ *
+ *****************************************************************************/
 void PVGL::PVView::update_z()
 {
 	if (!picviz_view) { // Sanity check
@@ -302,6 +317,11 @@ void PVGL::PVView::update_z()
 	get_map().update_arrays_z();
 }
 
+/******************************************************************************
+ *
+ * PVGL::PVView::update_positions
+ *
+ *****************************************************************************/
 void PVGL::PVView::update_positions()
 {
 	if (!picviz_view) { // Sanity check
@@ -315,6 +335,11 @@ void PVGL::PVView::update_positions()
 	get_map().update_arrays_positions();
 }
 
+/******************************************************************************
+ *
+ * PVGL::PVView::update_zombies
+ *
+ *****************************************************************************/
 void PVGL::PVView::update_zombies()
 {
 	if (!picviz_view) { // Sanity check
@@ -328,6 +353,11 @@ void PVGL::PVView::update_zombies()
 	get_map().update_arrays_zombies();
 }
 
+/******************************************************************************
+ *
+ * PVGL::PVView::update_selections
+ *
+ *****************************************************************************/
 void PVGL::PVView::update_selections()
 {
 	if (!picviz_view) { // Sanity check
@@ -363,6 +393,11 @@ void PVGL::PVView::update_axes(void)
 	map.update_arrays_zombies();
 }
 
+/******************************************************************************
+ *
+ * PVGL::PVView::update_current_layer
+ *
+ *****************************************************************************/
 void PVGL::PVView::update_current_layer()
 {
 	PVLOG_DEBUG("PVGL::PVView::%s\n", __FUNCTION__);
