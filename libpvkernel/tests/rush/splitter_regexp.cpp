@@ -44,7 +44,7 @@ int main(int argc, char** argv)
 	PVFilter::PVElementFilterByFields* elt_f = new PVFilter::PVElementFilterByFields(sp_lib_p->f());
 	PVFilter::PVChunkFilterByElt* chk_flt = new PVFilter::PVChunkFilterByElt(elt_f->f());
 
-	 PVInput_p ifile(new PVInputFile(argv[1]));
+	PVInput_p ifile(new PVInputFile(argv[1]));
 	PVFilter::PVChunkFilter null;
 	PVUnicodeSource<> source(ifile, atoi(argv[2]), null);
 

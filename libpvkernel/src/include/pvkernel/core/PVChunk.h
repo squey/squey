@@ -27,6 +27,7 @@ namespace PVRush {
 namespace PVCore {
 
 typedef std::list< PVElement*, tbb::scalable_allocator<PVElement*> > list_elts;
+//typedef std::list< PVElement*> list_elts;
 
 
 // Describe chunk interface with no allocator template
@@ -130,6 +131,7 @@ protected:
 
 
 template < template <class T> class Allocator = tbb::scalable_allocator >
+//template < template <class T> class Allocator = std::allocator >
 
 class PVChunkMem : public PVChunk {
 public:
