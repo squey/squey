@@ -116,26 +116,6 @@ namespace PVRush {
 			return true;
 		}
 
-		template <class Iterator>
-		bool add_column(Iterator begin, Iterator end)
-		{
-			PVCol idx_new_col = get_number_cols();
-			if (!table.resize_ncols(get_number_cols() + 1)) {
-				return false;
-			}
-
-			Iterator it;
-			PVRow i = 0;
-			for (it = begin; it != end; it++) {
-				table.set_value(i, idx_new_col, *it);
-				i++;
-			}
-
-			dump_csv();
-
-			return true;
-		}
-
 		inline QString get_axis_name(PVCol format_axis_id) const
 		{
 			if(format_axis_id < format->get_axes().size()) {

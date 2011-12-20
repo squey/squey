@@ -1093,29 +1093,3 @@ void PVInspector::PVMainWindow::edit_format_Slot(QDomDocument& doc, QWidget* par
     editorWidget->show();
 	editorWidget->openFormat(doc);
 }
-
-void PVInspector::PVMainWindow::axes_new_Slot()
-{
-	if (!current_tab) {
-		return;
-	}
-
-	Picviz::PVView_p view = current_tab->get_lib_view();
-	std::vector<PVCore::PVUnicodeString> vec_str;
-	PVRow nrows = view->get_rushnraw_parent().get_number_rows();
-	vec_str.reserve(nrows);
-
-	QString* tmp = new QString("test");
-	const PVCore::PVUnicodeString::utf_char* buf = (const PVCore::PVUnicodeString::utf_char*) tmp->unicode();
-	for (PVRow i = 0; i < nrows; i++) {
-		vec_str.push_back(PVCore::PVUnicodeString(buf, tmp->size()));
-	}
-
-	Picviz::PVAxis axis;
-	axis.set_type("enum");
-	axis.set_mapping("default");
-	axis.set_plotting("default");
-	axis.set_name("New axis test");
-
-	view->get_source_parent()->add_column(vec_str.begin(), vec_str.end(), axis);
-}

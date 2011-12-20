@@ -118,7 +118,6 @@ void PVInspector::PVMainWindow::create_actions()
 	axes_mode_Action->setShortcut(QKeySequence(Qt::Key_X));
 	axes_display_edges_Action = new QAction(tr("Display edges"), this);
 	axes_display_edges_Action->setShortcut(QKeySequence(Qt::Key_Y));
-	axes_new_Action = new QAction(tr("Create new axis..."), this);
 
 	/***************************
 	 * For the "Lines" menu entry
@@ -225,7 +224,6 @@ void PVInspector::PVMainWindow::create_menus()
 	axes_Menu->addSeparator();
 	axes_Menu->addAction(axes_mode_Action);
 	axes_Menu->addAction(axes_display_edges_Action);
-	axes_Menu->addAction(axes_new_Action);
 
 	lines_Menu = menubar->addMenu(tr("&Lines"));
 	lines_Menu->addAction(lines_display_unselected_Action);
@@ -315,7 +313,6 @@ void PVInspector::PVMainWindow::connect_actions()
 	connect(axes_combination_editor_Action, SIGNAL(triggered()), this, SLOT(axes_combination_editor_Slot()));//
 	connect(axes_mode_Action, SIGNAL(triggered()), this, SLOT(axes_mode_Slot()));
 	connect(axes_display_edges_Action, SIGNAL(triggered()), this, SLOT(axes_display_edges_Slot()));
-	connect(axes_new_Action, SIGNAL(triggered()), this, SLOT(axes_new_Slot()));
 
 	connect(lines_display_unselected_Action, SIGNAL(triggered()), this, SLOT(lines_display_unselected_Slot()));
 	connect(lines_display_unselected_listing_Action, SIGNAL(triggered()), this, SLOT(lines_display_unselected_listing_Slot()));

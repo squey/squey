@@ -158,7 +158,6 @@ public slots:
 	void axes_editor_Slot();
 	void axes_mode_Slot();
 	void axes_display_edges_Slot();
-	void axes_new_Slot();
 	void change_of_current_view_Slot();
 	void commit_selection_in_current_layer_Slot();
 	void commit_selection_to_new_layer_Slot();

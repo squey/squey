@@ -50,11 +50,14 @@ protected:
 	};
 
 	class TimeFormat : public TimeFormatInterface {
-		typedef boost::shared_ptr<SimpleDateFormat> SimpleDateFormat_p;
+		typedef SimpleDateFormat* SimpleDateFormat_p;
+		//typedef boost::shared_ptr<SimpleDateFormat> SimpleDateFormat_p;
 	private:
 		UErrorCode _err;
 		bool is_epoch;
 		QString time_format_;
+		SimpleDateFormat* _parsers;
+		size_t _nparsers;
 	public:
 		TimeFormat(QString const& time_format, bool prepend_year);
 		TimeFormat(const TimeFormat&);
@@ -64,7 +67,7 @@ protected:
 
 		bool prepend_year_value;
 		// One object per locale
-		std::vector<SimpleDateFormat_p> parsers;
+		//std::vector<SimpleDateFormat_p> parsers;
 		SimpleDateFormat local_parser;
 		SimpleDateFormat* last_good_parser;
 		UnicodeString current_year;
@@ -75,19 +78,22 @@ protected:
 		static void destroy_sdf(SimpleDateFormat* p);
 
 	private:
-		static boost::object_pool<SimpleDateFormat> _alloc_df;
+		boost::object_pool<SimpleDateFormat> _alloc_df;
 	};
 
 	struct TimeFormatEpoch : public TimeFormatInterface {
 		bool to_datetime(UnicodeString const& value, Calendar* cal);
 	};
 
-	typedef boost::shared_ptr<TimeFormat> TimeFormat_p;
-	typedef boost::shared_ptr<TimeFormatEpoch> TimeFormatEpoch_p;
-	typedef boost::shared_ptr<TimeFormatInterface> TimeFormatInterface_p;
+//	typedef boost::shared_ptr<TimeFormat> TimeFormat_p;
+//	typedef boost::shared_ptr<TimeFormatEpoch> TimeFormatEpoch_p;
+//	typedef boost::shared_ptr<TimeFormatInterface> TimeFormatInterface_p;
+	typedef TimeFormat* TimeFormat_p;
+	typedef TimeFormatEpoch* TimeFormatEpoch_p;
+	typedef TimeFormatInterface* TimeFormatInterface_p;
 
-	static boost::object_pool<TimeFormat> _alloc_tf;
-	static boost::object_pool<TimeFormatEpoch> _alloc_tfe;
+	boost::object_pool<TimeFormat> _alloc_tf;
+	boost::object_pool<TimeFormatEpoch> _alloc_tfe;
 
 private:
 	static void destroy_tf(TimeFormat* p);
