@@ -82,7 +82,11 @@ set(USE_OPENMP true)
 ######################################
 # BEGIN: SET CUSTOMERS CAPABILITIES #
 #####################################
-include(CMakeCustomerSpecifics.txt)
+if(PICVIZ_DEVELOPER_MODE)
+	include(CMakePicvizDeveloperSpecifics.txt)
+else(PICVIZ_DEVELOPER_MODE)
+	include(CMakeCustomerSpecifics.txt)
+endif(PICVIZ_DEVELOPER_MODE)
 ###################################
 # END: SET CUSTOMERS CAPABILITIES #
 ###################################
