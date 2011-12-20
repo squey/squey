@@ -35,7 +35,6 @@ sub picviz_get_next_chunk {
 	$read_once = 1;
 
 	while(<$main::LOGFILE>) {
-	    # $line = $_;
 	    chomp;
 
 	    if (/(\w{3}\s+\w{3}\s+\d+\s+\d+:\d+:\d+\s+\d+).*Start MID \d+ ICID \d+/) { ($timestart) = ($1); }
@@ -47,16 +46,14 @@ sub picviz_get_next_chunk {
 	    if (/.*MID \d+ ICID \d+ .* To: (.*)/) {($to) = ($1);}
 	    
 	    if (/.*Message finished MID.*/ )  {
-#	print "$timestart,$from,$bytes,$signwith,$interface,$address,$port,$subject,$to\n";
-		# print "\"$timestart\",\"$from\",\"$bytes\",\"$address\",\"$subject\",\"$to\"\n";
-		$array[$row][0] = $timestart;
-		$array[$row][1] = $from;
-		$array[$row][2] = $bytes;
-		$array[$row][3] = $address;
-		$array[$row][4] = $subject;
-		$array[$row][5] = $to;
-		$row++;
-		next;
+			$array[$row][0] = $timestart;
+			$array[$row][1] = $from;
+			$array[$row][2] = $bytes;
+			$array[$row][3] = $address;
+			$array[$row][4] = $subject;
+			$array[$row][5] = $to;
+			$row++;
+			next;
 	    }
 	}
 
