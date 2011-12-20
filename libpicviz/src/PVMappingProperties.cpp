@@ -86,3 +86,10 @@ void Picviz::PVMappingProperties::serialize(PVCore::PVSerializeObject& so, PVCor
 		set_type(_type, _mode);
 	}
 }
+
+void Picviz::PVMappingProperties::set_default_args(PVRush::PVAxisFormat const& axis)
+{
+	if (_args.size() == 0) {
+		set_args(axis.get_args_mapping());
+	}
+}
