@@ -28,6 +28,8 @@ namespace PVCore {
 class PVChunk;
 
 typedef std::list<PVField, tbb::scalable_allocator<PVField> > list_fields;
+//typedef std::list<PVField> list_fields;
+
 
 class LibKernelDecl PVElement : public PVBufferSlice {
 	friend class PVField;
@@ -93,7 +95,8 @@ protected:
 	size_t _chunk_index;
 
 private:
-	static tbb::scalable_allocator<PVElement> _alloc;
+ 	static tbb::scalable_allocator<PVElement> _alloc;
+	//static std::allocator<PVElement> _alloc;
 };
 
 }
