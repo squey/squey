@@ -85,6 +85,26 @@ PVCore::PVDateTimeParser::PVDateTimeParser(QStringList const& time_format):
 	}
 }
 
+PVCore::PVDateTimeParser::~PVDateTimeParser()
+{
+	static tbb::scalable_allocator<TimeFormatEpoch> alloc_epoch;
+	static tbb::scalable_allocator<TimeFormat> alloc_format;
+	list_time_format::const_iterator it;
+	for (it = _time_format.begin(); it != _time_format.end(); it++) {
+		TimeFormatInterface* tfi = *it;
+		TimeFormat* tf = dynamic_cast<TimeFormat*>(tfi);
+		if (tf) {
+			tf->~TimeFormat();
+			alloc_format.deallocate(tf, 1);
+		}
+		else {
+			TimeFormatEpoch* tfe = (TimeFormatEpoch*) tfe;
+			tfe->~TimeFormatEpoch();
+			alloc_epoch.deallocate(tfe, 1);
+		}
+	}
+}
+
 void PVCore::PVDateTimeParser::copy(const PVDateTimeParser& src)
 {
 	list_time_format::const_iterator it;
@@ -179,6 +199,10 @@ PVCore::PVDateTimeParser::TimeFormat::~TimeFormat()
 {
 	static tbb::scalable_allocator<SimpleDateFormat> alloc;
 	if (_parsers) {
+		for (size_t i = 0; i < _nparsers; i++) {
+			SimpleDateFormat* psdf = &_parsers[i];
+			psdf->~SimpleDateFormat();
+		}
 		alloc.deallocate(_parsers, _nparsers);
 	}
 }

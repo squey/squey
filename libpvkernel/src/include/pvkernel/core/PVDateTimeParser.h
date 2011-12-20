@@ -24,6 +24,7 @@ public:
 	PVDateTimeParser();
 	PVDateTimeParser(QStringList const& time_format);
 	PVDateTimeParser(const PVDateTimeParser& src);
+	~PVDateTimeParser();
 
 	PVDateTimeParser& operator=(const PVDateTimeParser& src);
 

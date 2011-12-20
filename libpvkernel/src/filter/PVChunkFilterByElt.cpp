@@ -38,6 +38,7 @@ PVCore::PVChunk* PVFilter::PVChunkFilterByElt::operator()(PVCore::PVChunk* chunk
 		PVCore::PVElement &elt = _elt_filter(*(*it));
 		if (!elt.valid())
 		{
+			PVCore::PVElement::free(*it);
 			PVCore::list_elts::iterator it_rem = it;
 			it++;
 			elts.erase(it_rem);

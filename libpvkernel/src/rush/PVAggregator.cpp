@@ -206,7 +206,6 @@ PVCore::PVChunk* PVRush::PVAggregator::operator()() const
 		// We have to read until _nstart indexes
 		ret = read_until_index(_nstart);
 		if (_strict_mode) {
-			PVLOG_INFO("(PVAggregator::operator()) chunk agg index: %d\n", ret->_agg_index);
 			if (ret != NULL && ret->_agg_index < _nstart) {
 				chunk_index nelts = ret->c_elements().size();
 				assert(ret->_agg_index + nelts - 1 >= _nstart);
@@ -214,6 +213,7 @@ PVCore::PVChunk* PVRush::PVAggregator::operator()() const
 				PVCore::list_elts& elts = ret->elements();
 				PVCore::list_elts::iterator it_elt = elts.begin();
 				for (chunk_index i = 0; i < nelts_remove; i++) {
+					PVCore::PVElement::free(*it_elt);
 					PVCore::list_elts::iterator it_er = it_elt;
 					it_elt++;
 					elts.erase(it_er);
@@ -250,6 +250,7 @@ PVCore::PVChunk* PVRush::PVAggregator::operator()() const
 
 			// And remove them all till the end
 			while (it_elt != elts.end()) {
+				PVCore::PVElement::free(*it_elt);
 				PVCore::list_elts::iterator it_er = it_elt;
 				it_elt++;
 				elts.erase(it_er);

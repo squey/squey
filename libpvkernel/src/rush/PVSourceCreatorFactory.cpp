@@ -83,6 +83,12 @@ float PVRush::PVSourceCreatorFactory::discover_input(pair_format_creator format_
 			PVCore::list_elts& l = chunk->elements();
 			size_t new_size = nelts_max-nelts;
 			PVLOG_INFO("(PVSourceCreatorFactory::discover_input) new chunk size %d.\n", new_size);
+			// Free the elements that we are going to remove
+			PVCore::list_elts::iterator it_elt = l.begin();
+			std::advance(it_elt, new_size);
+			for (; it_elt != l.end(); it_elt++) {
+				PVCore::PVElement::free(*it_elt);
+			}
 			l.resize(new_size);
 		}
 

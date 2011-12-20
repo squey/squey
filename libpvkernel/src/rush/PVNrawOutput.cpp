@@ -27,10 +27,9 @@ void PVRush::PVNrawOutput::operator()(PVCore::PVChunk* out)
 
 		if (!_nraw_dest.add_row(e)) {
 			// Discard the chunk
+			out->free();
 			return;
 		}
-
-		//PVLOG_DEBUG("(PVNrawOutput) add element\n");
 	}
 	
 	// Save the chunk corresponding index

@@ -47,17 +47,11 @@ float* Picviz::PVMappingFilterTimeDefault::operator()(PVRush::PVNraw::const_tran
 	PVCore::PVDateTimeParser **dtparsers = new PVCore::PVDateTimeParser*[max_threads];
 	tbb::tick_count start_alloc = tbb::tick_count::now();
 	QStringList time_format(_args["time-format"].value<PVCore::PVTimeFormatType>());
-	static tbb::scalable_allocator<PVCore::PVDateTimeParser> alloc_parser;
 	for (int i = 0; i < max_threads; i++) {
 		UErrorCode err = U_ZERO_ERROR;
 		cals[i] = Calendar::createInstance(err);
 		//dtparsers[i] = new PVCore::PVDateTimeParser(_format->time_format[_cur_col+1]);
-		//dtparsers[i] = new PVCore::PVDateTimeParser(time_format);
-	}
-//#pragma omp parallel for schedule(static)
-	for (int i = 0; i < max_threads; i++) {
-		dtparsers[i] = alloc_parser.allocate(1);
-		new (dtparsers[i]) PVCore::PVDateTimeParser(time_format);
+		dtparsers[i] = new PVCore::PVDateTimeParser(time_format);
 	}
 	tbb::tick_count end_alloc = tbb::tick_count::now();
 	PVLOG_INFO("(PVMappingFilterTimeDefault::operator()) object creations took %0.4fs.\n", (end_alloc-start_alloc).seconds());
@@ -104,8 +98,7 @@ float* Picviz::PVMappingFilterTimeDefault::operator()(PVRush::PVNraw::const_tran
 	// Frees the calendar objects
 	for (int i = 0; i < max_threads; i++) {
 		delete cals[i];
-		//delete dtparsers[i];
-		alloc_parser.deallocate(dtparsers[i], 1);
+		delete dtparsers[i];
 	}
 	delete [] cals;
 	delete [] dtparsers;
