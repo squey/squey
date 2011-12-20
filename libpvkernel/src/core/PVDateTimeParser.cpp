@@ -179,8 +179,6 @@ PVCore::PVDateTimeParser::TimeFormat::TimeFormat(const TimeFormat& src):
 
 PVCore::PVDateTimeParser::TimeFormat::~TimeFormat()
 {
-<<<<<<< HEAD
-=======
 	static tbb::scalable_allocator<SimpleDateFormat> alloc;
 	if (_parsers) {
 		for (size_t i = 0; i < _nparsers; i++) {
@@ -189,7 +187,6 @@ PVCore::PVDateTimeParser::TimeFormat::~TimeFormat()
 		}
 		alloc.deallocate(_parsers, _nparsers);
 	}
->>>>>>> 3dcc8da... Fixes some memory leaks due to element removing
 }
 
 PVCore::PVDateTimeParser::TimeFormat& PVCore::PVDateTimeParser::TimeFormat::operator=(const TimeFormat& src)
