@@ -206,10 +206,7 @@ public slots:
 	 * The Slot that will refresh the PVLayerStackWidget
 	 */
 	void refresh_layer_stack_view_Slot(); // From PVLayerStackWindow
-
 	void refresh_axes_combination_Slot();
-
-private slots:
 	void source_changed_Slot();
 
 signals:

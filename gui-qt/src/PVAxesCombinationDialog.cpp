@@ -19,6 +19,7 @@ PVInspector::PVAxesCombinationDialog::PVAxesCombinationDialog(Picviz::PVView_p v
 	setLayout(main_layout);
 
 	// Buttons
+	connect(box_buttons, SIGNAL(accepted()), tab_, SLOT(source_changed_Slot()));
 	connect(box_buttons, SIGNAL(accepted()), this, SLOT(accept()));
 	connect(box_buttons, SIGNAL(rejected()), this, SLOT(cancel_slot()));
 
