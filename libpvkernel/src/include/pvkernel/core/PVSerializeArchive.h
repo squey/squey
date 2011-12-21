@@ -57,7 +57,7 @@ public:
 protected:
 	bool is_writing() const { return _mode == write; }
 	QString get_object_logical_path(PVSerializeObject const& so) { return so.get_logical_path(); };
-	PVSerializeObject_p allocate_object(QString const& name, PVSerializeObject_p parent);
+	PVSerializeObject_p allocate_object(QString const& name, PVSerializeObject* parent);
 	bool must_write_object(PVSerializeObject const& parent, QString const& child);
 	const PVSerializeArchiveOptions* get_options() const { return _options.get(); }
 	QDir get_dir_for_object(PVSerializeObject const& so) const;
@@ -67,7 +67,7 @@ protected:
 	// If you want to create another way of storing archives, you must reimplement these functions
 	
 	// Object create function
-	virtual PVSerializeObject_p create_object(QString const& name, PVSerializeObject_p parent);
+	virtual PVSerializeObject_p create_object(QString const& name, PVSerializeObject* parent);
 	// Attribute access functions
 	virtual void attribute_write(PVSerializeObject const& so, QString const& name, QVariant const& obj);
 	virtual void attribute_read(PVSerializeObject& so, QString const& name, QVariant& obj, QVariant const& def);

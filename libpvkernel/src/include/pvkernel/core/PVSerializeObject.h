@@ -47,7 +47,7 @@ public:
 	typedef QHash<QString, p_type> list_childs_t;
 
 protected:
-	PVSerializeObject(QString const& logical_path, PVSerializeArchive_p parent_ar, p_type parent = p_type());
+	PVSerializeObject(QString const& logical_path, PVSerializeArchive* parent_ar, PVSerializeObject* parent = NULL);
 
 private:
 	/*! \brief Private copy-constructor
@@ -81,7 +81,7 @@ public:
 	list_childs_t const& visible_childs() const;
 	const p_type get_child_by_name(QString const& name) const;
 	QString const& get_logical_path() const;
-	p_type parent();
+	PVSerializeObject* parent();
 	PVTypeInfo const& bound_obj_type() const { return _bound_obj_type; }
 	bool has_repairable_errors() const;
 
@@ -259,11 +259,11 @@ private:
 private:
 	/*! \brief Parent archive pointer
 	 */
-	PVSerializeArchive_p _parent_ar;
+	PVSerializeArchive* _parent_ar;
 
 	/*! \brief Parent serialization object
 	 */
-	p_type _parent;
+	PVSerializeObject* _parent;
 
 	/*! \brief Logicial path within the archive
 	 *  This path is set by PVSerializeArchive::create_object and is independent of the

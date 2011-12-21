@@ -51,7 +51,7 @@ PVCore::PVSerializeArchive::~PVSerializeArchive()
 	}
 }
 
-PVCore::PVSerializeObject_p PVCore::PVSerializeArchive::allocate_object(QString const& name, PVSerializeObject_p parent)
+PVCore::PVSerializeObject_p PVCore::PVSerializeArchive::allocate_object(QString const& name, PVSerializeObject* parent)
 {
 	QString new_path;
 	if (parent) {
@@ -61,7 +61,7 @@ PVCore::PVSerializeObject_p PVCore::PVSerializeArchive::allocate_object(QString 
 		new_path = "";
 	}
 
-	PVSerializeObject_p ret(new PVSerializeObject(new_path, shared_from_this(), parent));
+	PVSerializeObject_p ret(new PVSerializeObject(new_path, this, parent));
 	_objects.insert(get_object_logical_path(*ret), ret);
 	return ret;
 }
@@ -69,14 +69,14 @@ PVCore::PVSerializeObject_p PVCore::PVSerializeArchive::allocate_object(QString 
 void PVCore::PVSerializeArchive::init()
 {
 #ifdef CUSTOMER_CAPABILITY_SAVE
-	_root_obj = allocate_object(_root_dir, PVSerializeObject_p());
+	_root_obj = allocate_object(_root_dir, NULL);
 	create_attributes(*_root_obj);
 	// Version special attribute
 	_root_obj->attribute(QString("version"), _version, (version_t) 0);
 #endif
 }
 
-PVCore::PVSerializeObject_p PVCore::PVSerializeArchive::create_object(QString const& name, PVSerializeObject_p parent)
+PVCore::PVSerializeObject_p PVCore::PVSerializeArchive::create_object(QString const& name, PVSerializeObject* parent)
 {
 	PVSerializeObject_p ret(allocate_object(name, parent));
 	QDir new_path = get_dir_for_object(*ret);
