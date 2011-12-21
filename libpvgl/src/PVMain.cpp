@@ -555,6 +555,21 @@ void PVGL::PVMain::timer_func(int)
 							pvsdk_messenger->post_message_to_qt(message);
 						}
 					break;
+			case PVSDK_MESSENGER_FUNCTION_ICONIFY_ALL_DRAWABLES:
+					for (std::list<PVGL::PVDrawable*>::iterator it = all_drawables.begin(); it != all_drawables.end(); ++it) {
+						PVGL::wtk_set_current_window((*it)->get_window_id());
+						// TODO: wtk_iconify_window
+						glutIconifyWindow();
+					}
+					break;
+			case PVSDK_MESSENGER_FUNCTION_SHOW_DRAWABLES_OF_PVVIEW:
+					for (std::list<PVGL::PVDrawable*>::iterator it = all_drawables.begin(); it != all_drawables.end(); ++it) {
+						if ((*it)->get_libview() == message.pv_view) {
+							PVGL::wtk_set_current_window((*it)->get_window_id());
+							glutShowWindow();
+						}
+					}
+					break;
 			case PVSDK_MESSENGER_FUNCTION_CREATE_SCATTER_VIEW:
 						{
 							QString *name = reinterpret_cast<QString *>(message.pointer_1);
