@@ -57,6 +57,7 @@ class LibGLDecl PVView : public PVDrawable {
 	 *
 	 */
 	void toggle_map();
+	
 public: //FIXME!
 
 	float xmin;                               //!<
@@ -91,12 +92,26 @@ public:
 	void init(Picviz::PVView_p view);
 
   //! \name getters
+	
+	/**
+	 *
+	 * @return
+	 */
+	vec2 get_center_position();
+	
+	
 	//! \{
 	/**
 	 *
 	 * @return
 	 */
 	PVWidgetManager &get_widget_manager(){return widget_manager;}
+
+	/**
+	 *
+	 * @return
+	 */
+	PVCol get_leftmost_visible_axis();
 
 	/**
 	 *
@@ -109,6 +124,12 @@ public:
 	 * @return
 	 */
 	PVMap &get_map(){return map;}
+
+	/**
+	 *
+	 * @return
+	 */
+	PVCol get_most_centered_visible_axis();
 
 	/**
 	 *
@@ -308,7 +329,6 @@ public:
 	 */
 	void change_axes_count();
 
-	PVCol get_leftmost_visible_axis();
 
 	void update_axes_combination();
   void reinit_picviz_view();

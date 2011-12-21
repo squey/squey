@@ -11,7 +11,12 @@
 #include <QtGlobal>
 #include <QSettings>
 
-#include "customer.h"
+#ifdef PICVIZ_DEVELOPER_MODE
+	#include "picviz-developer.h"
+#else
+	#include "customer.h"
+#endif
+
 #include "types.h"
 #include "export.h"
 #include "version.h"

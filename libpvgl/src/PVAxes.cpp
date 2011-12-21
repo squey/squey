@@ -41,9 +41,14 @@ PVGL::PVAxes::PVAxes(PVView *view_): view(view_)
 	vbo_bg_position = 0;
 }
 
+/******************************************************************************
+ *
+ * PVGL::PVAxes::~PVAxes
+ *
+ *****************************************************************************/
 PVGL::PVAxes::~PVAxes()
 {
-	PVLOG_INFO("In PVAxes destructor\n");
+	PVLOG_DEBUG("PVGL::PVAxes::%s\n", __FUNCTION__);
 
 	if (vao != 0) {
 		glDeleteVertexArrays(1, &vao);
@@ -305,6 +310,18 @@ void PVGL::PVAxes::draw_names()
 
 /******************************************************************************
  *
+ * PVGL::PVAxes::toggle_show_limits
+ *
+ *****************************************************************************/
+void PVGL::PVAxes::toggle_show_limits()
+{
+	PVLOG_DEBUG("PVGL::PVAxes::%s\n", __FUNCTION__);
+
+	show_limits = !show_limits;
+}
+
+/******************************************************************************
+ *
  * PVGL::PVAxes::update_arrays
  *
  *****************************************************************************/
@@ -314,7 +331,7 @@ void PVGL::PVAxes::update_arrays (void)
 	//picviz_axis_t **axes_list = pv_view->axes_combination->axes_list;
 	int nb_axes = pv_view->get_axes_count();
 
-	PVLOG_DEBUG("PVGL::%s\n", __FUNCTION__);
+	PVLOG_DEBUG("PVGL::PVAxes::%s\n", __FUNCTION__);
 
 	if (!pv_view->is_consistent())
 		return;
@@ -359,7 +376,7 @@ void PVGL::PVAxes::update_arrays_bg (void)
 {
 	Picviz::PVStateMachine *state_machine = pv_view->state_machine;
 
-	PVLOG_DEBUG("PVGL::%s\n", __FUNCTION__);
+	PVLOG_DEBUG("PVGL::PVAxes::%s\n", __FUNCTION__);
 
 	if (!pv_view->is_consistent())
 		return;
@@ -384,16 +401,13 @@ void PVGL::PVAxes::update_arrays_bg (void)
 
 /******************************************************************************
  *
- * PVGL::PVAxes::toggle_show_limits
+ * PVGL::PVAxes::update_current_layer
  *
  *****************************************************************************/
-void PVGL::PVAxes::toggle_show_limits()
-{
-	show_limits = !show_limits;
-}
-
 void PVGL::PVAxes::update_current_layer(Picviz::PVLayer const& layer)
 {
+	PVLOG_DEBUG("PVGL::PVAxes::%s\n", __FUNCTION__);
+
 	_mins_layer = layer.get_mins();
 	_maxs_layer = layer.get_maxs();
 }

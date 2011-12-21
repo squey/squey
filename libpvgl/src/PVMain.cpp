@@ -185,6 +185,7 @@ void PVGL::PVMain::mouse_down(int button, int x, int y)
 	if (current_drawable) {
 		current_drawable->mouse_down(button, x, y, PVGL::wtk_get_keyboard_modifiers());
 	}
+	// FIXME: Is this a non-sense?
         mouse_is_moving =true;
 }
 
@@ -263,17 +264,19 @@ void PVGL::PVMain::motion_callback(int x, int y)
 		}
 		PVGL::wtk_window_need_redisplay();
 	}
-	/*FIXME: sync code, ugly!			if (1) {
-		for (std::list<PVGL::PVDrawable*>::iterator it = all_views.begin(); it != all_views.end(); ++it) {
-		if ((*it)->get_libview() == current_view->get_libview() && (*it)->get_window_id() != current_view->get_window_id()) {
-		(*it)->update_selection();
-		(*it)->get_lines().update_arrays_selection();
-		(*it)->set_update_line_dirty();
-		PVGL::wtk_set_current_window((*it)->get_window_id());
-		PVGL::wtk_window_need_redisplay();
-		}
-		}
-		}*/
+	//FIXME: sync code, ugly!
+	// It only works with PVView(s)
+// 	if (1) {
+// 		for (std::list<PVGL::PVDrawable*>::iterator it = all_drawables.begin(); it != all_drawables.end(); ++it) {
+// 			if ((*it)->get_libview() == current_drawable->get_libview() && (*it)->get_window_id() != current_drawable->get_window_id()) {
+// 				(*it)->update_selection();
+// 				(*it)->get_lines().update_arrays_selection();
+// 				(*it)->set_update_line_dirty();
+// 				PVGL::wtk_set_current_window((*it)->get_window_id());
+// 				PVGL::wtk_window_need_redisplay();
+// 			}
+// 		}
+// 	}
 }
 
 /******************************************************************************
@@ -793,7 +796,7 @@ void PVGL::PVMain::timer_func(int)
 						continue;
 					if (picviz_view->square_area.is_dirty()) {
 						PVLOG_DEBUG("   picviz_view->process_from_selection\n");
-						//picviz_view->gl_call_locker.lock();
+						//picviz_view->gl_cdlocker.lock();
 						picviz_view->selection_A2B_select_with_square_area(picviz_view->layer_stack_output_layer.get_selection(), picviz_view->volatile_selection);
 						picviz_view->process_from_selection();
 						picviz_view->square_area.set_clean();

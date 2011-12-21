@@ -26,12 +26,26 @@
 #include <map>
 
 
+
+/******************************************************************************
+ * comp_map_sort
+ *****************************************************************************/
+static inline bool comp_map_sort(const std::pair<PVRow, PVRow>& a, const std::pair<PVRow, PVRow>& b)
+{
+	return a.first < b.first;
+}
+
+
+
+
 /******************************************************************************
  *
  * PVInspector::PVListingModel::PVListingModel
  *
  *****************************************************************************/
 PVInspector::PVListingModel::PVListingModel(PVMainWindow *mw, PVTabSplitter *parent) : QAbstractTableModel(parent) {
+	PVLOG_DEBUG("PVInspector::PVListingModel::%s\n", __FUNCTION__);
+
 	PVLOG_INFO("%s : Creating object\n", __FUNCTION__);
 
 	main_window = mw;
@@ -56,6 +70,7 @@ PVInspector::PVListingModel::PVListingModel(PVMainWindow *mw, PVTabSplitter *par
 }
 
 
+
 /******************************************************************************
  *
  * PVInspector::PVListingModel::columnCount
@@ -63,24 +78,12 @@ PVInspector::PVListingModel::PVListingModel(PVMainWindow *mw, PVTabSplitter *par
  *****************************************************************************/
 int PVInspector::PVListingModel::columnCount(const QModelIndex &) const 
 {
+	PVLOG_DEBUG("PVInspector::PVListingModel::%s\n", __FUNCTION__);
+
 	return lib_view->get_axes_count();
 }
 
-void PVInspector::PVListingModel::reset_lib_view()
-{
-	beginResetModel();
-	
-	lib_view = parent_widget->get_lib_view();
-	assert(lib_view);
-	state_machine = lib_view->state_machine;
 
-	parent_widget->sortMatchingTable.clear();
-
-	initMatchingTable();
-	initLocalMatchingTable();
-
-	endResetModel();
-}
 
 /******************************************************************************
  *
@@ -88,6 +91,7 @@ void PVInspector::PVListingModel::reset_lib_view()
  *
  *****************************************************************************/
 QVariant PVInspector::PVListingModel::data(const QModelIndex &index, int role) const {
+	PVLOG_DEBUG("PVInspector::PVListingModel::%s\n", __FUNCTION__);
 	PVLOG_HEAVYDEBUG("PVInspector::PVListingModel::%s : at row %d and column %d with role %d\n", __FUNCTION__, index.row(), index.column(), role);
 
 	PVCore::PVColor color;
@@ -142,14 +146,16 @@ QVariant PVInspector::PVListingModel::data(const QModelIndex &index, int role) c
 }
 
 
+
 /******************************************************************************
  *
  * PVInspector::PVListingModel::emitLayoutChanged
  *
  *****************************************************************************/
 void PVInspector::PVListingModel::emitLayoutChanged() {
+	PVLOG_DEBUG("PVInspector::PVListingModel::%s\n", __FUNCTION__);
+
 	emit layoutChanged();
-	PVLOG_DEBUG("PVInspector::PVListingModelBase::emitLayoutChanged\n");
 }
 
 
@@ -159,9 +165,136 @@ void PVInspector::PVListingModel::emitLayoutChanged() {
  *
  *****************************************************************************/
 Qt::ItemFlags PVInspector::PVListingModel::flags(const QModelIndex &/*index*/) const {
-	//PVLOG_DEBUG("PVInspector::PVListingModelBase::%s\n", __FUNCTION__);
+	PVLOG_DEBUG("PVInspector::PVListingModel::%s\n", __FUNCTION__);
+
 	return (Qt::ItemIsEnabled | Qt::ItemIsSelectable);
 }
+
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVListingModel::getInvertedMatch
+ *
+ *****************************************************************************/
+unsigned int PVInspector::PVListingModel::getInvertedMatch(unsigned int line){
+	PVLOG_DEBUG("PVInspector::PVListingModel::%s\n", __FUNCTION__);
+
+	return int(parent_widget->sortMatchingTable_invert.at(line));
+}
+
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVListingModel::getLocalMatch
+ *
+ *****************************************************************************/
+unsigned int PVInspector::PVListingModel::getLocalMatch(unsigned int line){
+	PVLOG_DEBUG("PVInspector::PVListingModel::%s\n", __FUNCTION__);
+
+	return int(localMatchingTable.at(line));
+}
+
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVListingModel::getMatch
+ *
+ *****************************************************************************/
+unsigned int PVInspector::PVListingModel::getMatch(unsigned int l) {
+	PVLOG_DEBUG("PVInspector::PVListingModel::%s\n", __FUNCTION__);
+
+	return int(parent_widget->sortMatchingTable.at(l));
+}
+
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVListingModel::getRealRowIndex
+ *
+ *****************************************************************************/
+PVRow PVInspector::PVListingModel::getRealRowIndex(PVRow model_row) const
+{
+	PVLOG_DEBUG("PVInspector::PVListingModel::%s\n", __FUNCTION__);
+
+	// Be sure that no thread are actually creating this table
+	QReadLocker locker(&_local_table_mutex);
+
+	PVCol real_row_index = 0;
+	if (state_machine->are_listing_all()) {
+		real_row_index = parent_widget->sortMatchingTable.at(model_row);
+	}
+	else
+	if (state_machine->are_listing_no_nu_nz()) {//NU NZ
+		real_row_index = localMatchingTable[model_row];//(lib_view->get_nznu_real_row_index(index.row()));//
+	}
+	else
+	if (state_machine->are_listing_no_nu()) {//NU
+		real_row_index = localMatchingTable[model_row];//(lib_view->get_nu_real_row_index(index.row()));
+	}
+	else
+	if (state_machine->are_listing_no_nz()) {//NZ
+		real_row_index = localMatchingTable[model_row];//(lib_view->get_nz_real_row_index(index.row()));
+	}
+	else {
+		PVLOG_ERROR("Unknown listing visibility state!\n");
+	}
+
+	return real_row_index;
+}
+
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVListingModel::headerData
+ *
+ *****************************************************************************/
+QVariant PVInspector::PVListingModel::headerData(int section, Qt::Orientation orientation, int role) const {
+	PVLOG_DEBUG("PVInspector::PVListingModel::%s\n", __FUNCTION__);
+
+	switch (role) {
+		case (Qt::DisplayRole):
+			if (orientation == Qt::Horizontal) {
+				if (section < 0 || section >= lib_view->get_axes_count()) {
+					// That should never happen !
+					return QVariant();
+				}
+				QString axis_name = lib_view->get_axis_name(section);
+				return QVariant(axis_name);
+			} else {
+				if (section < 0) {
+					// That should never happen !
+					return QVariant();
+				}
+				return getRealRowIndex(section);
+			}
+			break;
+		case (Qt::FontRole):
+			if ((orientation == Qt::Vertical) && (lib_view->real_output_selection.get_line(getRealRowIndex(section)))) {
+				return select_font;
+			} else {
+				return unselect_font;
+			}
+			break;
+		case (Qt::TextAlignmentRole):
+			if (orientation == Qt::Horizontal) {
+				return (Qt::AlignLeft + Qt::AlignVCenter);
+			} else {
+				return (Qt::AlignRight + Qt::AlignVCenter);
+			}
+			break;
+
+		default:
+			return QVariant();
+	}
+
+	return QVariant();
+}
+
 
 
 /******************************************************************************
@@ -169,14 +302,8 @@ Qt::ItemFlags PVInspector::PVListingModel::flags(const QModelIndex &/*index*/) c
  * PVInspector::PVListingModel::initLocalMatchingTable
  *
  *****************************************************************************/
-
-static inline bool comp_map_sort(const std::pair<PVRow, PVRow>& a, const std::pair<PVRow, PVRow>& b)
-{
-	return a.first < b.first;
-}
-
 void PVInspector::PVListingModel::initLocalMatchingTable(){
-	PVLOG_DEBUG("PVListingModel::initLocalMatchingTable()\n");
+	PVLOG_DEBUG("PVInspector::PVListingModel::%s\n", __FUNCTION__);
 
 	// Put a mutex for the local mathing table, because a thread can create it while being read by another one (like the model's thread) !
 	QWriteLocker locker(&_local_table_mutex);
@@ -236,13 +363,16 @@ void PVInspector::PVListingModel::initLocalMatchingTable(){
 	}
 }
 
+
+
 /******************************************************************************
  *
  * PVInspector::PVListingModel::initMatchingTable
  *
  *****************************************************************************/
 void PVInspector::PVListingModel::initMatchingTable() {
-	PVLOG_DEBUG("PVListingModel::initCorrespondance()\n");
+	PVLOG_DEBUG("PVInspector::PVListingModel::%s\n", __FUNCTION__);
+
 	//init the table of corresponding table.
 	//if the size of nraw is not the same as the matching table...
 	if (lib_view->get_qtnraw_parent().get_nrows() != parent_widget->sortMatchingTable.size()) {
@@ -269,52 +399,83 @@ void PVInspector::PVListingModel::initMatchingTable() {
 }
 
 
+
 /******************************************************************************
  *
- * PVInspector::PVListingModel::headerData
+ * PVInspector::PVListingModel::reset_lib_view
  *
  *****************************************************************************/
-QVariant PVInspector::PVListingModel::headerData(int section, Qt::Orientation orientation, int role) const {
-	PVLOG_HEAVYDEBUG("PVInspector::PVListingModel::%s\n", __FUNCTION__);
+void PVInspector::PVListingModel::reset_lib_view()
+{
+	PVLOG_DEBUG("PVInspector::PVListingModel::%s\n", __FUNCTION__);
 
-	switch (role) {
-		case (Qt::DisplayRole):
-			if (orientation == Qt::Horizontal) {
-				if (section < 0 || section >= lib_view->get_axes_count()) {
-					// That should never happen !
-					return QVariant();
-				}
-				QString axis_name = lib_view->get_axis_name(section);
-				return QVariant(axis_name);
-			} else {
-				if (section < 0) {
-					// That should never happen !
-					return QVariant();
-				}
-				return getRealRowIndex(section);
-			}
-			break;
-		case (Qt::FontRole):
-			if ((orientation == Qt::Vertical) && (lib_view->real_output_selection.get_line(getRealRowIndex(section)))) {
-				return select_font;
-			} else {
-				return unselect_font;
-			}
-			break;
-		case (Qt::TextAlignmentRole):
-			if (orientation == Qt::Horizontal) {
-				return (Qt::AlignLeft + Qt::AlignVCenter);
-			} else {
-				return (Qt::AlignRight + Qt::AlignVCenter);
-			}
-			break;
+	beginResetModel();
+	
+	lib_view = parent_widget->get_lib_view();
+	assert(lib_view);
+	state_machine = lib_view->state_machine;
 
-		default:
-			return QVariant();
+	parent_widget->sortMatchingTable.clear();
+
+	initMatchingTable();
+	initLocalMatchingTable();
+
+	endResetModel();
+}
+
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVListingModel::reset_model
+ *
+ *****************************************************************************/
+void PVInspector::PVListingModel::reset_model(bool initMatchTable)
+{
+	PVLOG_DEBUG("PVInspector::PVListingModel::%s\n", __FUNCTION__);
+
+	beginResetModel();
+	if (initMatchTable) {
+		initMatchingTable();
+	}
+	initLocalMatchingTable();
+	endResetModel();
+}
+
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVListingModel::rowCount
+ *
+ *****************************************************************************/
+int PVInspector::PVListingModel::rowCount(const QModelIndex &/*index*/) const 
+{
+	PVLOG_DEBUG("PVInspector::PVListingModel::%s\n", __FUNCTION__);
+
+	// We can't return a value if we are creating the localMatchingTable, because we could
+	// try to ask a still udnefined value !
+	QReadLocker locker(&_local_table_mutex);
+	if (state_machine->are_listing_all()) {
+		return int(lib_view->get_row_count());
+	}
+	else
+	if (state_machine->are_listing_no_nu_nz()) {
+		return int(lib_view->get_nznu_index_count());
+	}
+	else
+	if (state_machine->are_listing_no_nu()) {
+		return int(lib_view->get_nu_index_count());
+	}
+	else
+	if (state_machine->are_listing_no_nz()) {
+		return int(lib_view->get_nz_index_count());
 	}
 
-	return QVariant();
+	PVLOG_ERROR("Unknown listing visibility state!\n");
+	return 0;
 }
+
 
 
 /******************************************************************************
@@ -324,6 +485,8 @@ QVariant PVInspector::PVListingModel::headerData(int section, Qt::Orientation or
  *****************************************************************************/
 void PVInspector::PVListingModel::sortByColumn(int idColumn) 
 {       
+	PVLOG_DEBUG("PVInspector::PVListingModel::%s\n", __FUNCTION__);
+
 	if ((idColumn < 0) || (idColumn >= columnCount(QModelIndex()))) {
 		PVLOG_DEBUG("     can't sort the column %d\n",idColumn);
 		return;
@@ -399,111 +562,4 @@ void PVInspector::PVListingModel::sortByColumn(int idColumn)
 }
 
 
-/******************************************************************************
- *
- * PVInspector::PVListingModel::rowCount
- *
- *****************************************************************************/
-int PVInspector::PVListingModel::rowCount(const QModelIndex &/*index*/) const 
-{
-	// We can't return a value if we are creating the localMatchingTable, because we could
-	// try to ask a still udnefined value !
-	QReadLocker locker(&_local_table_mutex);
-	if (state_machine->are_listing_all()) {
-		return int(lib_view->get_row_count());
-	}
-	else
-	if (state_machine->are_listing_no_nu_nz()) {
-		return int(lib_view->get_nznu_index_count());
-	}
-	else
-	if (state_machine->are_listing_no_nu()) {
-		return int(lib_view->get_nu_index_count());
-	}
-	else
-	if (state_machine->are_listing_no_nz()) {
-		return int(lib_view->get_nz_index_count());
-	}
 
-	PVLOG_ERROR("Unknown listing visibility state!\n");
-	return 0;
-}
-
-/******************************************************************************
- *
- * PVInspector::PVListingModel::getRealRowIndex
- *
- *****************************************************************************/
-PVRow PVInspector::PVListingModel::getRealRowIndex(PVRow model_row) const
-{
-	// Be sure that no thread are actually creating this table
-	QReadLocker locker(&_local_table_mutex);
-
-	PVCol real_row_index = 0;
-	if (state_machine->are_listing_all()) {
-		real_row_index = parent_widget->sortMatchingTable.at(model_row);
-	}
-	else
-	if (state_machine->are_listing_no_nu_nz()) {//NU NZ
-		real_row_index = localMatchingTable[model_row];//(lib_view->get_nznu_real_row_index(index.row()));//
-	}
-	else
-	if (state_machine->are_listing_no_nu()) {//NU
-		real_row_index = localMatchingTable[model_row];//(lib_view->get_nu_real_row_index(index.row()));
-	}
-	else
-	if (state_machine->are_listing_no_nz()) {//NZ
-		real_row_index = localMatchingTable[model_row];//(lib_view->get_nz_real_row_index(index.row()));
-	}
-	else {
-		PVLOG_ERROR("Unknown listing visibility state!\n");
-	}
-
-	return real_row_index;
-}
-
-/******************************************************************************
- *
- * PVInspector::PVListingModel::getInvertedMatch
- *
- *****************************************************************************/
-unsigned int PVInspector::PVListingModel::getInvertedMatch(unsigned int line){
-	return int(parent_widget->sortMatchingTable_invert.at(line));
-}
-
-/******************************************************************************
- *
- * PVInspector::PVListingModel::getLocalMatch
- *
- *****************************************************************************/
-unsigned int PVInspector::PVListingModel::getLocalMatch(unsigned int line){
-	return int(localMatchingTable.at(line));
-}
-
-
-/******************************************************************************
- *
- * PVInspector::PVListingModel::getMatch
- *
- *****************************************************************************/
-unsigned int PVInspector::PVListingModel::getMatch(unsigned int l) {
-	PVLOG_DEBUG("PVInspector::PVListingModel::%s\n", __FUNCTION__);
-	return int(parent_widget->sortMatchingTable.at(l));
-}
-
-
-/******************************************************************************
- *
- * PVInspector::PVListingModel::reset_model
- *
- *****************************************************************************/
-void PVInspector::PVListingModel::reset_model(bool initMatchTable)
-{
-	PVLOG_DEBUG("PVInspector::PVListingModel::%s\n", __FUNCTION__);
-	beginResetModel();
-	if (initMatchTable) {
-		initMatchingTable();
-	}
-	initLocalMatchingTable();
-	endResetModel();
-}

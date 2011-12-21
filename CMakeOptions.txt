@@ -21,3 +21,11 @@ else()
 	set(CMAKE_BUILD_TYPE "Release")
 endif()
 
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/cmake-options/picviz-developer)
+	set(PICVIZ_DEVELOPER_MODE 1)
+	add_definitions(-DPICVIZ_DEVELOPER_MODE)	
+	message(STATUS "Picviz Build Type: Developer")
+else()
+	message(STATUS "Picviz Build Type: Customer")
+endif()
+
