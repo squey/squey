@@ -325,8 +325,7 @@ PVRush::PVFormat::Comparaison PVRush::PVFormat::comp(PVFormat const& original) c
 {
 	Comparaison ret;
 	ret._need_extract = (_axes.size() != original._axes.size()) ||
-	                    (!PVCore::comp_list(filters_params, original.filters_params)) ||
-						(time_format != original.time_format);
+	                    (!PVCore::comp_list(filters_params, original.filters_params));
 	if (ret._need_extract) {
 		ret._mapping = true;
 		ret._plotting = true;
@@ -336,7 +335,7 @@ PVRush::PVFormat::Comparaison PVRush::PVFormat::comp(PVFormat const& original) c
 	if (_axes.size() == original._axes.size()) {
 		list_axes_t::const_iterator it, it_org;
 		it = _axes.begin();
-		it_org = _axes.begin();
+		it_org = original._axes.begin();
 		ret._mapping = false;
 		ret._plotting = false;
 		ret._other = false;
@@ -346,14 +345,15 @@ PVRush::PVFormat::Comparaison PVRush::PVFormat::comp(PVFormat const& original) c
 				ret._plotting = true;
 				break;
 			}
-			if (it->get_mapping() != it_org->get_mapping()) {
+			if (it->get_mapping() != it_org->get_mapping() ||
+				!PVCore::comp_hash(it->get_args_mapping(), it_org->get_args_mapping())) {
 				ret._mapping = true;
 			}
-			if (it->get_plotting() != it_org->get_plotting()) {
+			if (it->get_plotting() != it_org->get_plotting() ||
+				!PVCore::comp_hash(it->get_args_plotting(), it_org->get_args_plotting())) {
 				ret._plotting = true;
 			}
-			if (it->get_time_format() != it_org->get_time_format() ||
-				it->get_tags() != it_org->get_tags() ||
+			if (it->get_tags() != it_org->get_tags() ||
 				it->get_color_str() != it_org->get_color_str() ||
 				it->get_titlecolor_str() != it_org->get_titlecolor_str() ||
 				it->get_name() != it_org->get_name()) {

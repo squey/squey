@@ -120,6 +120,18 @@ bool Picviz::PVPlotting::is_uptodate() const
 	return true;
 }
 
+void Picviz::PVPlotting::reset_from_format(PVRush::PVFormat const& format)
+{
+	PVCol naxes = format.get_axes().size();
+	if (_columns.size() < naxes) {
+		return;
+	}
+
+	for (PVCol i = 0; i < naxes; i++) {
+		_columns[i].set_from_axis(format.get_axes().at(i));
+	}
+}
+
 QString const& Picviz::PVPlotting::get_column_type(PVCol col) const
 {
 	PVMappingProperties const& prop(_mapped->get_mapping().get_properties_for_col(col));

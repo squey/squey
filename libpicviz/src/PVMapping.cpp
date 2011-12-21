@@ -71,6 +71,18 @@ const Picviz::PVSource* Picviz::PVMapping::get_source_parent() const
 	return source;
 }
 
+void Picviz::PVMapping::reset_from_format(PVRush::PVFormat const& format)
+{
+	PVCol naxes = format.get_axes().size();
+	if (columns.size() < naxes) {
+		return;
+	}
+
+	for (PVCol i = 0; i < naxes; i++) {
+		columns[i].set_from_axis(format.get_axes().at(i));
+	}
+}
+
 PVRush::PVNraw::nraw_trans_table const& Picviz::PVMapping::get_trans_nraw() const
 {
 	return source->get_trans_nraw();

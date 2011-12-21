@@ -14,6 +14,7 @@ core/PVAxisIndexType.cpp
 core/PVAxisIndexCheckBoxType.cpp
 core/PVBufferSlice.cpp
 core/PVColor.cpp
+core/PVCompList.cpp
 core/PVClassLibrary.cpp
 core/PVDateTimeParser.cpp
 core/PVDirectory.cpp

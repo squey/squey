@@ -36,6 +36,13 @@ Picviz::PVPlottingProperties::PVPlottingProperties(PVMapping const& mapping, PVR
 	set_mode(axis.get_plotting());
 }
 
+void Picviz::PVPlottingProperties::set_from_axis(PVRush::PVAxisFormat const& axis)
+{
+	QString mode = axis.get_plotting();
+	set_args(axis.get_args_plotting());
+	set_mode(mode);
+}
+
 void Picviz::PVPlottingProperties::set_mapping(const PVMapping& mapping)
 {
 	_mapping = &mapping;
@@ -68,7 +75,7 @@ void Picviz::PVPlottingProperties::set_mode(QString const& mode)
 	if (!_plotting_filter) {
 		_mode = "default";
 		_is_uptodate = false;
-		_plotting_filter = LIB_CLASS(PVPlottingFilter)::get().get_class_by_name(get_type() + "_" + _mode);
+		_plotting_filter = LIB_CLASS(PVPlottingFilter)::get().get_class_by_name(get_type() + "_" + _mode)->clone<PVPlottingFilter>();
 		if (!_plotting_filter) {
 			PVLOG_ERROR("Plotting mode '%s' for type '%s' does not exist !\n", qPrintable(mode), qPrintable(get_type()));
 		}

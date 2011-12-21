@@ -1092,8 +1092,8 @@ void PVInspector::PVMainWindow::cur_format_Slot()
 	}
 
     PVXmlEditorWidget *editorWidget = new PVXmlEditorWidget(current_tab);
-	//connect(editorWidget, SIGNAL(accepted()), this, SLOT(cur_format_changed_Slot()));
-	//connect(editorWidget, SIGNAL(rejected()), this, SLOT(cur_format_changed_Slot()));
+	connect(editorWidget, SIGNAL(accepted()), this, SLOT(cur_format_changed_Slot()));
+	connect(editorWidget, SIGNAL(rejected()), this, SLOT(cur_format_changed_Slot()));
 	editorWidget->openFormat(format.get_full_path());
     editorWidget->show();
 }
@@ -1108,6 +1108,7 @@ void PVInspector::PVMainWindow::cur_format_changed_Slot()
 
 	PVRush::PVFormat old_format = cur_src->get_format();
 	PVRush::PVFormat new_format(old_format.get_format_name(), old_format.get_full_path());
+	new_format.populate();
 
 	PVRush::PVFormat::Comparaison comp = new_format.comp(old_format);
 	if (comp.same()) {
@@ -1115,12 +1116,37 @@ void PVInspector::PVMainWindow::cur_format_changed_Slot()
 	}
 
 	cur_src->set_format(new_format);
-
+	
+#if 0
+	// To unstable, because it does not take into account the fact that the axes could have completely changed.
+	// We should recreate a new PVSource !
 	if (comp.need_extract()) {
-		PVRush::PVExtractor& extractor = cur_src->get_extractor();
-		extractor.save_nraw();
-		PVRush::PVControllerJob_p job = cur_src->extract();
-		src_tab->process_extraction_job(job);
+		QMessageBox* box = new QMessageBox(QMessageBox::Question, tr("Format modified"), tr("The splitters and/or filters of this format have been changed. Do you want to reextract your data ?"), QMessageBox::Yes | QMessageBox::No, this);
+		if (box->exec() == QMessageBox::Yes) {
+			PVRush::PVExtractor& extractor = cur_src->get_extractor();
+			extractor.save_nraw();
+			PVRush::PVControllerJob_p job = cur_src->extract();
+			src_tab->process_extraction_job(job);
+			return;
+		}
+	}
+#endif
+
+	if (!comp.need_extract() && (comp.different_mapping() || comp.different_plotting())) {
+		QMessageBox* box = new QMessageBox(QMessageBox::Question, tr("Format modified"), tr("The mapping and/or plotting properties of this format have been changed. Do you want to update the current view ?"), QMessageBox::Yes | QMessageBox::No, this);
+		if (box->exec() == QMessageBox::Yes) {
+			Picviz::PVView_p cur_view = cur_src->current_view();
+			Picviz::PVMapped* mapped = cur_view->get_mapped_parent();
+			Picviz::PVPlotted* plotted = cur_view->get_plotted_parent();
+			mapped->get_mapping().reset_from_format(new_format);
+			plotted->get_plotting().reset_from_format(new_format);
+			if (comp.different_mapping()) {
+				mapped->process_from_parent_source(true);
+			}
+			else {
+				plotted->process_from_parent_mapped(true);
+			}
+		}
 	}
 }
 

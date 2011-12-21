@@ -85,6 +85,8 @@ public:
 
 	bool is_uptodate() const;
 
+	void reset_from_format(PVRush::PVFormat const& format);
+
 public:
 	// Data access
 	Picviz::PVPlottingFilter::p_type get_filter_for_col(PVCol col);
