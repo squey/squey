@@ -374,7 +374,15 @@ bool PVInspector::PVTabSplitter::process_extraction_job(PVRush::PVControllerJob_
 	}
 	else {
 		get_lib_src()->wait_extract_end(job);
-		ext.clear_saved_nraw();
+		if (ext.get_nraw().get_number_rows() == 0) {
+			// Empty extraction, cancel it.
+			QMessageBox::warning(this, tr("Empty extraction"), tr("The extraction just performed is empty. Returning to the previous state..."));
+			ext.restore_nraw();
+			ret = false;
+		}
+		else {
+			ext.clear_saved_nraw();
+		}
 	}
 
 	// Update libpicviz's views according to opened GL views (should be in the future PVSDK !!)

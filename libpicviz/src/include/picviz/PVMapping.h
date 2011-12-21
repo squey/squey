@@ -83,6 +83,7 @@ public:
 	QString const& get_name() const { return _name; }
 	void set_name(QString const& name) { _name = name; }
 
+	void reset_from_format(PVRush::PVFormat const& format);
 	void set_default_args(PVRush::PVFormat const& format);
 
 public:

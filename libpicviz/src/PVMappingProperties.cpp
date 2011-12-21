@@ -60,10 +60,12 @@ void Picviz::PVMappingProperties::set_mode(QString const& mode)
 	}
 	_is_uptodate = false;
 	_mode = mode;
-	_mapping_filter = LIB_CLASS(Picviz::PVMappingFilter)::get().get_class_by_name(_type + "_" + mode);
-	_mapping_filter->set_args(_args);
+	_mapping_filter = LIB_CLASS(Picviz::PVMappingFilter)::get().get_class_by_name(_type + "_" + mode)->clone<Picviz::PVMappingFilter>();
 	if (!_mapping_filter) {
 		PVLOG_ERROR("Mapping '%s' for type '%s' does not exist !\n", qPrintable(mode), qPrintable(_type));
+	}
+	else {
+		_mapping_filter->set_args(_args);
 	}
 }
 

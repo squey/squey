@@ -31,7 +31,7 @@ public:
 	PVFilter::filter_child_axes_tag_t children_axes_tag;
 
 	bool operator==(PVXmlParamParserData const& other) const {
-		return filter_lib == other.filter_lib && PVCore::comp_hash(filter_args, other.filter_args);
+		return filter_lib->registered_id() == other.filter_lib->registered_id() && PVCore::comp_hash(filter_args, other.filter_args);
 	}
 
 	bool operator!=(PVXmlParamParserData const& other) const { return !(*this == other); }

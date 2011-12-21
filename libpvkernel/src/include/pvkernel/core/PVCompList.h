@@ -1,6 +1,9 @@
 #ifndef PVCOMPLIST_H
 #define PVCOMPLIST_H
 
+#include <pvkernel/core/PVArgument.h>
+#include <QList>
+
 namespace PVCore {
 
 template <class T>
@@ -27,6 +30,10 @@ bool comp_list(T const& l1, T const& l2)
 	}
 	return true;
 }
+
+// AG: that's a hack so that format comparaison works. Waiting for better... :s
+template <>
+bool comp_list(QList<PVArgument> const& l1, QList<PVArgument> const& l2);
 
 template <class K, class V>
 bool comp_hash(QHash<K, V> const& h1, QHash<K, V> const& h2)

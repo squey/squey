@@ -44,6 +44,7 @@ protected:
 
 public:
 	PVPlottingFilter::p_type get_plotting_filter();
+	void set_from_axis(PVRush::PVAxisFormat const& axis);
 	void set_mode(QString const& mode);
 	void set_args(PVCore::PVArgumentList const& args);
 	inline QString const& get_mode() const { return _mode; }
