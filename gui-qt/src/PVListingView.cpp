@@ -102,6 +102,7 @@ void PVInspector::PVListingView::update_view_selection_from_listing_selection()
 	modifiers &= ~Qt::KeypadModifier;
 	/* Can't use a switch case here as Qt::ShiftModifier and Qt::ControlModifier aren't really
 	 * constants */
+	// FIXME: PVListingView.cpp:105:59: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
 	if (modifiers == (Qt::ShiftModifier | Qt::ControlModifier)) {
 		state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_INTERSECT_VOLATILE);
 	}
