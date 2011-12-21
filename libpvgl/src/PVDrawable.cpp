@@ -219,5 +219,7 @@ bool PVGL::PVDrawable::passive_motion(int, int, int)
  *****************************************************************************/
 int PVGL::PVDrawable::get_max_lines_per_redraw() const
 {
+	PVLOG_DEBUG("PVGL::PVDrawable::%s\n", __FUNCTION__);
+
 	return max_lines_per_redraw;
 }
