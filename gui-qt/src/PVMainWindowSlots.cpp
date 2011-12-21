@@ -5,6 +5,8 @@
 //! Copyright (C) Picviz Labs 2011
 
 #include <pvkernel/core/PVAxesIndexType.h>
+#include <pvkernel/core/PVSerializeArchiveZip.h>
+#include <pvkernel/core/PVSerializeArchiveFixError.h>
 #include <pvkernel/core/PVVersion.h>
 
 #include <PVMainWindow.h>
@@ -572,6 +574,27 @@ void PVInspector::PVMainWindow::project_load_Slot()
 #endif
 }
 
+bool PVInspector::PVMainWindow::fix_project_errors(PVCore::PVSerializeArchive_p ar)
+{
+	// Fix errors due to invalid file paths
+	PVCore::PVSerializeArchive::list_errors_t errs_file = ar->get_repairable_errors_of_type<PVCore::PVSerializeArchiveErrorFileNotReadable>();
+	// TODO: a nice widget were file paths can be modified by batch (for instance modify all the files' directory in one action)
+	foreach(PVCore::PVSerializeArchiveFixError_p err, errs_file) {
+		QString const& old_path(err->exception_as<PVCore::PVSerializeArchiveErrorFileNotReadable>()->get_path());
+		QMessageBox* box = new QMessageBox(QMessageBox::Warning, tr("Error while loading project..."), tr("File '%1' cannot be found or isn't readable by the process. Please select its new path.").arg(old_path), QMessageBox::Ok, this);
+		box->exec();
+		QString new_file = QFileDialog::getOpenFileName(this, tr("Select new file path..."), old_path);
+		if (new_file.isEmpty()) {
+			return false;
+		}
+		PVCore::PVSerializeArchiveFixAttribute* fix_a = (PVCore::PVSerializeArchiveFixAttribute*) err.get();
+		fix_a->fix(new_file);
+	}
+
+	// Return true if and only if all the errors have been fixed.
+	return !ar->has_repairable_errors();
+}
+
 bool PVInspector::PVMainWindow::load_project(QString const& file)
 {
 #ifdef CUSTOMER_CAPABILITY_SAVE
@@ -581,14 +604,42 @@ bool PVInspector::PVMainWindow::load_project(QString const& file)
 	set_project_modified(false);
 
 	close_scene();
-	
+	PVCore::PVSerializeArchive_p ar;
 	try {
-		_scene->load_from_file(file);
+		ar.reset(new PVCore::PVSerializeArchiveZip(file, PVCore::PVSerializeArchive::read, PICVIZ_ARCHIVES_VERSION));
 	}
 	catch (PVCore::PVSerializeArchiveError& e) {
 		QMessageBox* box = new QMessageBox(QMessageBox::Critical, tr("Error while loading project..."), tr("Error while loading project %1:\n%2").arg(file).arg(e.what()), QMessageBox::Ok, this);
 		box->exec();
 		return false;
+	}
+
+	bool project_has_been_fixed = false;
+	while (true) {
+		QString err_msg;
+		try {
+			_scene->load_from_archive(ar);
+		}
+		catch (PVCore::PVSerializeArchiveError& e) {
+			err_msg = tr("Error while loading project %1:\n%2").arg(file).arg(e.what());
+		}
+		catch (PVRush::PVInputException const& e)
+		{
+			err_msg = tr("Error while loading project %1:\n%2").arg(file).arg(QString::fromStdString(e.what()));
+		}
+		if (ar->has_repairable_errors()) {
+			if (fix_project_errors(ar)) {
+				project_has_been_fixed = true;
+				_scene.reset(new Picviz::PVScene("root", root.get()));
+				continue;
+			}
+			else {
+				QMessageBox* box = new QMessageBox(QMessageBox::Critical, tr("Error while loading project..."), err_msg, QMessageBox::Ok, this);
+				box->exec();
+				return false;
+			}
+		}
+		break;
 	}
 
 	if (!load_scene()) {
@@ -601,6 +652,9 @@ bool PVInspector::PVMainWindow::load_project(QString const& file)
 	pv_ListingsTabWidget->setVisible(true);
 
 	set_current_project_filename(file);
+	if (project_has_been_fixed) {
+		set_project_modified(true);
+	}
 #endif
 
 	return true;

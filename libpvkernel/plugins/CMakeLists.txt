@@ -7,6 +7,11 @@ normalize-helpers/pcap/default.format
 normalize-helpers/pcap/local-192-168-src.format
 )
 
+SET(NORMALIZE_PERL_FORMAT_FILES
+normalize-helpers/perl/IronPort.format
+normalize-helpers/perl/IronPort.pl
+)
+
 SET(NORMALIZE_TEXT_FORMAT_FILES
 normalize-helpers/text/apache.access.format
 normalize-helpers/text/bluecoat.format
@@ -25,3 +30,4 @@ PARENT_SCOPE
 
 INSTALL(FILES ${NORMALIZE_TEXT_FORMAT_FILES} DESTINATION normalize-helpers/text)
 INSTALL(FILES ${NORMALIZE_PCAP_FORMAT_FILES} DESTINATION normalize-helpers/pcap)
+INSTALL(FILES ${NORMALIZE_PERL_FORMAT_FILES} DESTINATION normalize-helpers/perl)

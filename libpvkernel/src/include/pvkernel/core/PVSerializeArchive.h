@@ -4,6 +4,7 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/stdint.h>
 #include <pvkernel/core/PVSerializeArchiveExceptions.h>
+#include <pvkernel/core/PVSerializeArchiveFixError.h>
 #include <pvkernel/core/PVSerializeObject.h>
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
@@ -24,6 +25,7 @@ public:
 		write
 	};
 	typedef uint32_t version_t;
+	typedef QList<boost::shared_ptr<PVSerializeArchiveFixError> > list_errors_t;
 public:
 	PVSerializeArchive(version_t version);
 	PVSerializeArchive(QString const& dir, archive_mode mode, version_t version);
@@ -43,6 +45,14 @@ public:
 	void set_save_everything(bool save_everything) { _save_everything = save_everything; };
 	// Finish function
 	virtual void finish();
+
+	// Repairable errors
+	inline bool has_repairable_errors() const { return _repairable_errors.size() > 0; }
+	template <class T>
+	bool has_repairable_errors_of_type() const;
+	inline list_errors_t const& get_repairable_errors() const { return _repairable_errors; }
+	template <class T>
+	list_errors_t get_repairable_errors_of_type() const;
 
 protected:
 	bool is_writing() const { return _mode == write; }
@@ -68,6 +78,10 @@ protected:
 	virtual size_t buffer(PVSerializeObject const& so, QString const& name, void* buf, size_t n);
 	virtual void file(PVSerializeObject const& so, QString const& name, QString& path);
 
+	// Called by PVSerializeObject
+	void repairable_error(boost::shared_ptr<PVSerializeArchiveFixError> const& error);
+	void error_fixed(PVSerializeArchiveFixError* error);
+
 private:
 	void init();
 	void create_attributes(PVSerializeObject const& so);
@@ -88,7 +102,40 @@ protected:
 private:
 	boost::shared_ptr<PVSerializeArchiveOptions> _options;
 	bool _save_everything;
+
+	/*! \brief List of the declared repairable errors.
+	 *  \sa repairable_error
+	 */
+	list_errors_t _repairable_errors;
+
 };
+
+template <class T>
+bool PVSerializeArchive::has_repairable_errors_of_type() const
+{
+	typedef typename PVTypeTraits::pointer<T>::type Tp;
+	list_errors_t::const_iterator it;
+	for (it = _repairable_errors.begin(); it != _repairable_errors.end(); it++) {
+		if ((*it)->exception_of_type<T>()) {
+			return true;
+		}
+	}
+	return false;
+}
+
+template <class T>
+PVSerializeArchive::list_errors_t PVSerializeArchive::get_repairable_errors_of_type() const
+{
+	typedef typename PVTypeTraits::pointer<T>::type Tp;
+	list_errors_t ret;
+	list_errors_t::const_iterator it;
+	for (it = _repairable_errors.begin(); it != _repairable_errors.end(); it++) {
+		if ((*it)->exception_of_type<T>()) {
+			ret.push_back(*it);
+		}
+	}
+	return ret;
+}
 
 }
 

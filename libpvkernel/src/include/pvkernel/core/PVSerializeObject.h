@@ -19,6 +19,7 @@
 namespace PVCore {
 
 class PVSerializeArchive;
+class PVSerializeArchiveFixError;
 typedef boost::shared_ptr<PVSerializeArchive> PVSerializeArchive_p;
 
 /*! \brief Serialization file error
@@ -39,6 +40,8 @@ public:
 class LibKernelDecl PVSerializeObject: public boost::enable_shared_from_this<PVSerializeObject>
 {
 	friend class PVSerializeArchive;
+	friend class PVSerializeArchiveFixError;
+	friend class PVSerializeArchiveFixAttribute;
 public:
 	typedef boost::shared_ptr<PVSerializeObject> p_type;
 	typedef QHash<QString, p_type> list_childs_t;
@@ -80,6 +83,7 @@ public:
 	QString const& get_logical_path() const;
 	p_type parent();
 	PVTypeInfo const& bound_obj_type() const { return _bound_obj_type; }
+	bool has_repairable_errors() const;
 
 public:
 	/*! \brief Declare a new object to serialize that can be optionally saved, with a description.
@@ -186,6 +190,14 @@ public:
 	 *  \param[in][out] path Path to the file. When reading the archive, this is set to the extracted file path.
 	 */
 	void file(QString const& name, QString& path);
+
+	/*! \brief Declare an error in the archive (while reading it) that can be repaired by further user actions.
+	 */
+	void repairable_error(boost::shared_ptr<PVSerializeArchiveFixError> const& error);
+
+protected:
+	void error_fixed(PVSerializeArchiveFixError* error);
+	void fix_attribute(QString const& name, QVariant const& v);
 
 private:
 	p_type create_object(QString const& name, QString const& desc = QString(), bool optional = false, bool visible = true, bool def_option = true);

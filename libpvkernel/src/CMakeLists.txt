@@ -25,6 +25,7 @@ core/PVLogger.cpp
 core/PVPCRESplitter.cpp
 core/PVProgressBox.cpp
 core/PVSerializeArchive.cpp
+core/PVSerializeArchiveFixError.cpp
 core/PVSerializeArchiveOptions.cpp
 core/PVSerializeArchiveZip.cpp
 core/PVSerializeObject.cpp
@@ -79,6 +80,7 @@ include/pvkernel/core/PVLogger.h
 include/pvkernel/core/PVMeanValue.h
 include/pvkernel/core/PVRegistrableClass.h
 include/pvkernel/core/PVSerializeArchive.h
+include/pvkernel/core/PVSerializeArchiveFixError.h
 include/pvkernel/core/PVSerializeArchiveOptions.h
 include/pvkernel/core/PVSerializeArchiveZip.h
 include/pvkernel/core/PVSerializeObject.h
