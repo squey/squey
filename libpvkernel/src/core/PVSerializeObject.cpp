@@ -46,6 +46,13 @@ void PVCore::PVSerializeObject::file(QString const& name, QString& path)
 	_parent_ar->file(*this, name, path);
 }
 
+void PVCore::PVSerializeObject::fix_attribute(QString const& name, QVariant const& obj)
+{
+	if (!is_writing()) {
+		attribute_write(name, obj);
+	}
+}
+
 void PVCore::PVSerializeObject::attribute_write(QString const& name, QVariant const& obj)
 {
 	_parent_ar->attribute_write(*this, name, obj);
@@ -154,3 +161,17 @@ void PVCore::PVSerializeObject::arguments(QString const& name, PVArgumentList& o
 	}
 }
 
+void PVCore::PVSerializeObject::repairable_error(boost::shared_ptr<PVSerializeArchiveFixError> const& error)
+{
+	_parent_ar->repairable_error(error);
+}
+
+void PVCore::PVSerializeObject::error_fixed(PVSerializeArchiveFixError* error)
+{
+	_parent_ar->error_fixed(error);
+}
+
+bool PVCore::PVSerializeObject::has_repairable_errors() const
+{
+	return _parent_ar->has_repairable_errors();
+}

@@ -160,7 +160,7 @@ bool PVCore::PVArchive::extract(QString const& path, QString const& dir_dest, QS
 		path_extract_local = path_extract.toLocal8Bit();
 		filename_ext = path_extract_local.constData();
 
-		PVLOG_INFO("Extract %s from %s to %s...\n", archive_entry_pathname(entry), filename, filename_ext);
+		//PVLOG_INFO("Extract %s from %s to %s...\n", archive_entry_pathname(entry), filename, filename_ext);
 		archive_entry_set_pathname(entry, filename_ext);
 		if (read_raw) {
 			archive_entry_set_perm(entry, 0400);

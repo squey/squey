@@ -344,19 +344,18 @@ void Picviz::PVSource::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVS
 	// Get the format
 	PVRush::PVFormat format;
 	so.object("format", format);
-	set_format(format);
+	if (!so.has_repairable_errors()) {
+		set_format(format);
 
-	// "Append" the files to the extractor
-	files_append_noextract();
+		// "Append" the files to the extractor
+		files_append_noextract();
 
-	// Load the views
-	//so.list("views", _views);
-	
-	// Load the mapped
-	so.list("mapped", _mappeds, "Mappings", (PVMapped*) NULL, QStringList(), true, true);
+		// Load the mapped
+		so.list("mapped", _mappeds, "Mappings", (PVMapped*) NULL, QStringList(), true, true);
 
-	list_mapped_t::iterator it;
-	for (it = _mappeds.begin(); it != _mappeds.end(); it++) {
-		(*it)->get_mapping().set_default_args(format);
+		list_mapped_t::iterator it;
+		for (it = _mappeds.begin(); it != _mappeds.end(); it++) {
+			(*it)->get_mapping().set_default_args(format);
+		}
 	}
 }

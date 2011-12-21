@@ -288,3 +288,19 @@ PVCore::PVSerializeObject_p PVCore::PVSerializeArchive::get_object_by_path(QStri
 	assert(_objects.contains(path));
 	return _objects[path];
 }
+
+void PVCore::PVSerializeArchive::repairable_error(boost::shared_ptr<PVSerializeArchiveFixError> const& error)
+{
+	_repairable_errors.push_back(error);
+}
+
+void PVCore::PVSerializeArchive::error_fixed(PVSerializeArchiveFixError* error)
+{
+	list_errors_t::iterator it;
+	for (it = _repairable_errors.begin(); it != _repairable_errors.end(); it++) {
+		if (it->get() == error) {
+			_repairable_errors.erase(it);
+			return;
+		}
+	}
+}

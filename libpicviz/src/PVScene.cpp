@@ -31,10 +31,6 @@ Picviz::PVScene::PVScene(QString scene_name, PVRoot* parent):
 Picviz::PVScene::~PVScene()
 {
 	PVLOG_INFO("In PVScene destructor\n");
-	if (_original_archive) {
-		// Remove any potential temporary files
-		_original_archive->finish();
-	}
 }
 
 void Picviz::PVScene::add_source(PVSource_p src)
@@ -134,10 +130,12 @@ void Picviz::PVScene::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSe
 	src->set_parent(NULL);
 	PVLOG_INFO("(PVScene::serialize_read) get %d sources\n", all_sources.size());
 
-	// And finally add them !
-	list_sources_t::iterator it;
-	for (it = all_sources.begin(); it != all_sources.end(); it++) {
-		add_source(*it);
+	if (!so.has_repairable_errors()) {
+		// And finally add them !
+		list_sources_t::iterator it;
+		for (it = all_sources.begin(); it != all_sources.end(); it++) {
+			add_source(*it);
+		}
 	}
 }
 
@@ -213,10 +211,14 @@ void Picviz::PVScene::save_to_file(QString const& path, PVCore::PVSerializeArchi
 void Picviz::PVScene::load_from_file(QString const& path)
 {
 #ifdef CUSTOMER_CAPABILITY_SAVE
-	if (_original_archive) {
-		_original_archive->finish();
-	}
 	PVCore::PVSerializeArchive_p ar(new PVCore::PVSerializeArchiveZip(path, PVCore::PVSerializeArchive::read, PICVIZ_ARCHIVES_VERSION));
+	load_from_archive(ar);
+#endif
+}
+
+void Picviz::PVScene::load_from_archive(PVCore::PVSerializeArchive_p ar)
+{
+#ifdef CUSTOMER_CAPABILITY_SAVE
 	ar->get_root()->object("scene", *this, ARCHIVE_SCENE_DESC);
 	_original_archive = ar;
 #endif

@@ -58,6 +58,10 @@ class QMenu;
 class QPlainTextEdit;
 QT_END_NAMESPACE
 
+namespace PVCore {
+class PVSerializeArchive;
+}
+
 namespace PVInspector {
 
 /**
@@ -239,6 +243,9 @@ private:
 private:
 	bool load_scene();
 	bool load_source(Picviz::PVSource_p src);
+	bool fix_project_errors(boost::shared_ptr<PVCore::PVSerializeArchive> ar);
+
+private:
 
 	QMenu *axes_Menu;
 	QMenu *file_Menu;
