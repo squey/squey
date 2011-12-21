@@ -639,6 +639,7 @@ bool PVInspector::PVMainWindow::load_project(QString const& file)
 					QMessageBox* box = new QMessageBox(QMessageBox::Critical, tr("Error while loading project..."), err_msg, QMessageBox::Ok, this);
 					box->exec();
 				}
+				_scene.reset();
 				return false;
 			}
 		}
@@ -647,6 +648,7 @@ bool PVInspector::PVMainWindow::load_project(QString const& file)
 
 	if (!load_scene()) {
 		PVLOG_ERROR("(PVMainWindow::project_load_Slot) error while processing the scene...\n");
+		_scene.reset();
 		return false;
 	}
 

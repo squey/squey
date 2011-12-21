@@ -81,7 +81,7 @@ Qt::ItemFlags PVInspector::PVSerializeOptionsModel::flags(const QModelIndex &ind
 QModelIndex PVInspector::PVSerializeOptionsModel::parent(const QModelIndex & index) const
 {
 	PVCore::PVSerializeObject* obj = get_so_index(index);
-	PVCore::PVSerializeObject* parent = obj->parent().get();
+	PVCore::PVSerializeObject* parent = obj->parent();
 
 	if (parent == _options->get_root().get()) {
 		return QModelIndex();
@@ -90,7 +90,7 @@ QModelIndex PVInspector::PVSerializeOptionsModel::parent(const QModelIndex & ind
 	// This is not optimal, but for now let's try it like that...
 	
 	// Find out the index of the parent within its parent's children list
-	PVCore::PVSerializeObject* pp = parent->parent().get();
+	PVCore::PVSerializeObject* pp = parent->parent();
 	PVCore::PVSerializeObject::list_childs_t const& childs = pp->childs();
 	QList<PVCore::PVSerializeObject_p> childs_p = childs.values();
 	QList<PVCore::PVSerializeObject_p>::const_iterator it;

@@ -32,7 +32,7 @@ public:
 
 protected:
 	// Object create function
-	virtual PVSerializeObject_p create_object(QString const& name, PVSerializeObject_p parent);
+	virtual PVSerializeObject_p create_object(QString const& name, PVSerializeObject* parent);
 	// Attribute access functions, here empty
 	virtual void attribute_write(PVSerializeObject const&, QString const&, QVariant const&) { };
 	virtual void attribute_read(PVSerializeObject&, QString const&, QVariant&, QVariant const&) { };

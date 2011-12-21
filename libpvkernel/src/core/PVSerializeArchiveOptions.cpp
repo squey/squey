@@ -3,7 +3,7 @@
 
 #include <typeinfo>
 
-PVCore::PVSerializeObject_p PVCore::PVSerializeArchiveOptions::create_object(QString const& name, PVSerializeObject_p parent)
+PVCore::PVSerializeObject_p PVCore::PVSerializeArchiveOptions::create_object(QString const& name, PVSerializeObject* parent)
 {
 	PVSerializeObject_p ret(allocate_object(name, parent));
 	return ret;

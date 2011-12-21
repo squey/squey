@@ -1,7 +1,7 @@
 #include <pvkernel/core/PVSerializeObject.h>
 #include <pvkernel/core/PVSerializeArchive.h>
 
-PVCore::PVSerializeObject::PVSerializeObject(QString const& path, PVSerializeArchive_p parent_ar, PVSerializeObject_p parent):
+PVCore::PVSerializeObject::PVSerializeObject(QString const& path, PVSerializeArchive* parent_ar, PVSerializeObject* parent):
 		_parent_ar(parent_ar),
 		_parent(parent),
 		_logical_path(path),
@@ -18,7 +18,7 @@ bool PVCore::PVSerializeObject::is_writing() const
 
 PVCore::PVSerializeObject_p PVCore::PVSerializeObject::create_object(QString const& name, QString const& desc, bool optional, bool visible, bool def_option)
 {
-	p_type child = _parent_ar->create_object(name, shared_from_this());
+	p_type child = _parent_ar->create_object(name, this);
 	child->_visible = visible;
 	child->_is_optional = optional;
 	child->_desc = (desc.isNull())?name:desc;
@@ -136,7 +136,7 @@ QString const& PVCore::PVSerializeObject::get_logical_path() const
 	return _logical_path;
 }
 
-PVCore::PVSerializeObject::p_type PVCore::PVSerializeObject::parent()
+PVCore::PVSerializeObject* PVCore::PVSerializeObject::parent()
 {
 	return _parent;
 }
