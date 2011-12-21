@@ -576,28 +576,28 @@ void PVGL::PVView::mouse_down(int button, int x, int y, int modifiers)
 			switch (modifiers) {
 				/* INTERSECT */
 				case (GLUT_ACTIVE_SHIFT | GLUT_ACTIVE_CTRL):
-						state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_INTERSECT_VOLATILE);
-						picviz_view->volatile_selection.select_none();
-						break;
+					state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_INTERSECT_VOLATILE);
+					picviz_view->volatile_selection.select_none();
+					break;
 
-						/* SUBSTRACT */
+				/* SUBSTRACT */
 				case GLUT_ACTIVE_CTRL:
-						state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SUBSTRACT_VOLATILE);
-						picviz_view->volatile_selection.select_none();
-						break;
+					state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SUBSTRACT_VOLATILE);
+					picviz_view->volatile_selection.select_none();
+					break;
 
-						/* ADD */
+				/* ADD */
 				case GLUT_ACTIVE_SHIFT:
-						state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_ADD_VOLATILE);
-						picviz_view->volatile_selection.select_none();
-						break;
+					state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_ADD_VOLATILE);
+					picviz_view->volatile_selection.select_none();
+					break;
 
-						/* SET */
+				/* SET */
 				default:
-						state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
-						picviz_view->volatile_selection.select_none();
-						picviz_view->floating_selection.select_none();
-						break;
+					state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
+					picviz_view->volatile_selection.select_none();
+					picviz_view->floating_selection.select_none();
+					break;
 			}
 		}
 	}
