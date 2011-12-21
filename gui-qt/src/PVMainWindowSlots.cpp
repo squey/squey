@@ -635,8 +635,10 @@ bool PVInspector::PVMainWindow::load_project(QString const& file)
 				continue;
 			}
 			else {
-				QMessageBox* box = new QMessageBox(QMessageBox::Critical, tr("Error while loading project..."), err_msg, QMessageBox::Ok, this);
-				box->exec();
+				if (!err_msg.isEmpty()) {
+					QMessageBox* box = new QMessageBox(QMessageBox::Critical, tr("Error while loading project..."), err_msg, QMessageBox::Ok, this);
+					box->exec();
+				}
 				return false;
 			}
 		}
