@@ -185,6 +185,7 @@ void PVGL::PVMain::mouse_down(int button, int x, int y)
 	if (current_drawable) {
 		current_drawable->mouse_down(button, x, y, PVGL::wtk_get_keyboard_modifiers());
 	}
+	// FIXME: Is this a non-sense?
         mouse_is_moving =true;
 }
 
