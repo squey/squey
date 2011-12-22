@@ -1114,8 +1114,6 @@ void PVInspector::PVMainWindow::cur_format_changed_Slot()
 		return;
 	}
 
-	cur_src->set_format(new_format);
-	
 #if 0
 	// Too unstable, because it does not take into account the fact that the axes could have completely changed.
 	// We should recreate a new PVSource !
@@ -1145,6 +1143,7 @@ void PVInspector::PVMainWindow::cur_format_changed_Slot()
 			else {
 				src_tab->process_plotted_if_current(plotted);
 			}
+			cur_src->set_format(new_format);
 		}
 	}
 }
