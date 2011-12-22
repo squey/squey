@@ -58,7 +58,7 @@ set(REMOTEFILE_MOC_HEADERS remote_file/include/addmachinedialog.h remote_file/in
 QT4_WRAP_CPP(REMOTEFILE_MOC_SRCS ${REMOTEFILE_MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})
 include_directories(AFTER ${CURL_INCLUDE_DIR})
 add_library(input_type_remotefile SHARED remote_file/addmachinedialog.cpp remote_file/fileconnectiondialog.cpp remote_file/filedownloader.cpp remote_file/logviewerwidget.cpp remote_file/PVLogViewerDialog.cpp remote_file/PVInputTypeRemoteFilename.cpp remote_file/register.cpp ${REMOTEFILE_MOC_SRCS} file/PVInputTypeFilename.cpp)
-target_link_libraries(input_type_remotefile ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES} ${ARCHIVE_LIBRARY})
+target_link_libraries(input_type_remotefile ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES} ${ARCHIVE_LIBRARY} ${CURL_LIBRARY})
 
 
 INSTALL(TARGETS ${INPUTS_DIST_LIST} LIBRARY DESTINATION input-types
