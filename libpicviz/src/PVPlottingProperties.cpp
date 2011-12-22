@@ -59,6 +59,9 @@ QString Picviz::PVPlottingProperties::get_type() const
 
 void Picviz::PVPlottingProperties::set_args(PVCore::PVArgumentList const& args)
 {
+	if (!PVCore::comp_hash(_args, args)) {
+		_is_uptodate = false;
+	}
 	_args = args;
 	if (_plotting_filter) {
 		_plotting_filter->set_args(args);

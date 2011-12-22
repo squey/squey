@@ -6,7 +6,6 @@ namespace PVCore {
 template <>
 bool comp_list(QList<PVArgument> const& l1, QList<PVArgument> const& l2)
 {
-	PVLOG_INFO("In comp_list for pvargument\n");
 	if (l1.size() != l2.size()) {
 		return false;
 	}
