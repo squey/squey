@@ -316,6 +316,11 @@ void PVInspector::PVTabSplitter::edit_mapped(Picviz::PVMapped* mapped)
 		return;
 	}
 
+	process_mapped_if_current(mapped);
+}
+
+void PVInspector::PVTabSplitter::process_mapped_if_current(Picviz::PVMapped* mapped)
+{
 	Picviz::PVView_p cur_view = get_lib_view();
 	if (cur_view->get_mapped_parent() == mapped) {
 		if (!PVCore::PVProgressBox::progress(boost::bind(&Picviz::PVMapped::process_parent_source, mapped), tr("Processing..."), (QWidget*) this)) {
@@ -325,24 +330,30 @@ void PVInspector::PVTabSplitter::edit_mapped(Picviz::PVMapped* mapped)
 		if (!PVCore::PVProgressBox::progress(boost::bind(&Picviz::PVPlotted::process_from_parent_mapped, plotted_parent, true), tr("Processing..."), (QWidget*) this)) {
 			return;
 		}
-
-		main_window->update_pvglview(cur_view, PVSDK_MESSENGER_REFRESH_POSITIONS);
 	}
+
+	main_window->update_pvglview(cur_view, PVSDK_MESSENGER_REFRESH_POSITIONS);
 }
 
 void PVInspector::PVTabSplitter::edit_plotted(Picviz::PVPlotted* plotted)
 {
 	PVMappingPlottingEditDialog* dlg;
 	dlg = new PVMappingPlottingEditDialog(NULL, &plotted->get_plotting(), this);
-	if (dlg->exec() == QDialog::Accepted) {
-		// If a plotted was selected and that it is the current view...
-		if (get_lib_view() == plotted->get_view() && !plotted->is_uptodate()) {
-			// If something has changed, reprocess it
-			if (!PVCore::PVProgressBox::progress(boost::bind(&Picviz::PVPlotted::process_from_parent_mapped, plotted, true), tr("Processing..."), (QWidget*) this)) {
-				return;
-			}
-			main_window->update_pvglview(plotted->get_view(), PVSDK_MESSENGER_REFRESH_POSITIONS);
+	if (dlg->exec() != QDialog::Accepted) {
+		return;
+	}
+	process_plotted_if_current(plotted);
+}
+
+void PVInspector::PVTabSplitter::process_plotted_if_current(Picviz::PVPlotted* plotted)
+{
+	// If a plotted was selected and that it is the current view...
+	if (get_lib_view() == plotted->get_view() && !plotted->is_uptodate()) {
+		// If something has changed, reprocess it
+		if (!PVCore::PVProgressBox::progress(boost::bind(&Picviz::PVPlotted::process_from_parent_mapped, plotted, true), tr("Processing..."), (QWidget*) this)) {
+			return;
 		}
+		main_window->update_pvglview(plotted->get_view(), PVSDK_MESSENGER_REFRESH_POSITIONS);
 	}
 }
 
