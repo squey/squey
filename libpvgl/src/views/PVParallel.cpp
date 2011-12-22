@@ -1096,6 +1096,21 @@ bool PVGL::PVView::mouse_up(int button, int x, int y, int modifiers)
 		}
 		/* We update the view */
 		PVGL::wtk_window_need_redisplay();
+		/* Trying to solve a bug */
+		if (picviz_view->square_area.is_dirty()) {
+			PVLOG_DEBUG("PVGL::PVView::%s : picviz_view->process_from_selection\n", __FUNCTION__);
+			//picviz_view->gl_cdlocker.lock();
+			picviz_view->selection_A2B_select_with_square_area(picviz_view->layer_stack_output_layer.get_selection(), picviz_view->volatile_selection);
+			picviz_view->process_from_selection();
+			picviz_view->square_area.set_clean();
+			//picviz_view->gl_call_locker.unlock();
+			PVLOG_DEBUG("PVGL::PVView::%s : pv_view->update_lines\n", __FUNCTION__);
+			get_lines().update_arrays_selection();
+			get_map().update_arrays_selection();
+			update_lines();
+		}
+
+		
 		/* We update the listing */
 		update_listing();
 	}
