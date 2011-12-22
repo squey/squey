@@ -1115,10 +1115,8 @@ void PVInspector::PVMainWindow::cur_format_changed_Slot()
 		return;
 	}
 
-	cur_src->set_format(new_format);
-	
 #if 0
-	// To unstable, because it does not take into account the fact that the axes could have completely changed.
+	// Too unstable, because it does not take into account the fact that the axes could have completely changed.
 	// We should recreate a new PVSource !
 	if (comp.need_extract()) {
 		QMessageBox* box = new QMessageBox(QMessageBox::Question, tr("Format modified"), tr("The splitters and/or filters of this format have been changed. Do you want to reextract your data ?"), QMessageBox::Yes | QMessageBox::No, this);
@@ -1141,11 +1139,12 @@ void PVInspector::PVMainWindow::cur_format_changed_Slot()
 			mapped->get_mapping().reset_from_format(new_format);
 			plotted->get_plotting().reset_from_format(new_format);
 			if (comp.different_mapping()) {
-				mapped->process_from_parent_source(true);
+				src_tab->process_mapped_if_current(mapped);
 			}
 			else {
-				plotted->process_from_parent_mapped(true);
+				src_tab->process_plotted_if_current(plotted);
 			}
+			cur_src->set_format(new_format);
 		}
 	}
 }
