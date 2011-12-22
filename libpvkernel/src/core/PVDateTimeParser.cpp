@@ -98,7 +98,7 @@ PVCore::PVDateTimeParser::~PVDateTimeParser()
 			alloc_format.deallocate(tf, 1);
 		}
 		else {
-			TimeFormatEpoch* tfe = (TimeFormatEpoch*) tfe;
+			TimeFormatEpoch* tfe = (TimeFormatEpoch*) tfi;
 			tfe->~TimeFormatEpoch();
 			alloc_epoch.deallocate(tfe, 1);
 		}
