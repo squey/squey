@@ -1118,7 +1118,7 @@ void PVInspector::PVMainWindow::cur_format_changed_Slot()
 	cur_src->set_format(new_format);
 	
 #if 0
-	// To unstable, because it does not take into account the fact that the axes could have completely changed.
+	// Too unstable, because it does not take into account the fact that the axes could have completely changed.
 	// We should recreate a new PVSource !
 	if (comp.need_extract()) {
 		QMessageBox* box = new QMessageBox(QMessageBox::Question, tr("Format modified"), tr("The splitters and/or filters of this format have been changed. Do you want to reextract your data ?"), QMessageBox::Yes | QMessageBox::No, this);

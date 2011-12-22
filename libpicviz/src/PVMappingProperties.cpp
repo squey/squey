@@ -26,8 +26,9 @@ void Picviz::PVMappingProperties::set_from_axis(PVRush::PVAxisFormat const& axis
 	QString type = axis.get_type();
 	QString mode = axis.get_mapping();
 	QString group = axis.get_group();
+	PVCore::PVArgumentList args = axis.get_args_mapping();
 
-	set_args(axis.get_args_mapping());
+	set_args(args);
 	set_type(type, mode);
 
 	if (!group.isEmpty()) {
@@ -47,6 +48,9 @@ void Picviz::PVMappingProperties::set_type(QString const& type, QString const& m
 
 void Picviz::PVMappingProperties::set_args(PVCore::PVArgumentList const& args)
 {
+	if (!PVCore::comp_hash(args, _args)) {
+		_is_uptodate = false;
+	}
 	_args = args;
 	if (_mapping_filter) {
 		_mapping_filter->set_args(args);
