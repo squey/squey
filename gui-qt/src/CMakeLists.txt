@@ -91,6 +91,7 @@ widgets/editors/include/PVAxesIndexEditor.h
 widgets/editors/include/PVCheckBoxEditor.h
 widgets/editors/include/PVColorGradientDualSliderEditor.h
 widgets/editors/include/PVEnumEditor.h
+widgets/editors/include/PVPlainTextEditor.h
 widgets/editors/include/PVRegexpEditor.h
 widgets/editors/include/PVSpinBoxEditor.h
 widgets/editors/include/PVTimeFormatEditor.h
@@ -181,6 +182,7 @@ widgets/editors/PVAxesIndexEditor.cpp
 widgets/editors/PVCheckBoxEditor.cpp
 widgets/editors/PVColorGradientDualSliderEditor.cpp
 widgets/editors/PVEnumEditor.cpp
+widgets/editors/PVPlainTextEditor.cpp
 widgets/editors/PVRegexpEditor.cpp
 widgets/editors/PVSpinBoxEditor.cpp
 widgets/editors/PVTimeFormatEditor.cpp

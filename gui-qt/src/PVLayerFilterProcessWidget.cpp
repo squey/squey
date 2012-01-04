@@ -62,7 +62,9 @@ void PVInspector::PVLayerFilterProcessWidget::connect_btns()
 }
 
 void PVInspector::PVLayerFilterProcessWidget::save_Slot()
-{	
+{
+	// Force the current parameter widget to lose its focus (in case it has not been updated yet !)
+	_apply_btn->setFocus(Qt::MouseFocusReason);
 
 	if (_has_apply) {
 		// We test if we haven't made a selection different from the one we previewed
@@ -159,6 +161,9 @@ bool PVInspector::PVLayerFilterProcessWidget::process()
 
 void PVInspector::PVLayerFilterProcessWidget::preview_Slot()
 {
+	// Force the current parameter widget to lose its focus (in case it has not been updated yet !)
+	_preview_btn->setFocus(Qt::MouseFocusReason);
+
 	process();
 }
 

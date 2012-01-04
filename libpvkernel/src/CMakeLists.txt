@@ -79,6 +79,7 @@ include/pvkernel/core/PVListFastCmp.h
 include/pvkernel/core/PVListFloat2D.h
 include/pvkernel/core/PVLogger.h
 include/pvkernel/core/PVMeanValue.h
+include/pvkernel/core/PVPlainTextType.h
 include/pvkernel/core/PVRegistrableClass.h
 include/pvkernel/core/PVSerializeArchive.h
 include/pvkernel/core/PVSerializeArchiveFixError.h
