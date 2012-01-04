@@ -6,12 +6,13 @@
 #include <QPushButton>
 #include <QHBoxLayout>
 #include <QFileDialog>
-#include <QStringBuilder>
 #include <QMessageBox>
 
 #include <pvkernel/core/PVChunk.h>
 #include <pvkernel/core/PVElement.h>
-#include <pvkernel/rush/PVUnicodeSource.h>
+#include <pvkernel/rush/PVChunkAlign.h>
+#include <pvkernel/rush/PVChunkTransformUTF16.h>
+#include <pvkernel/rush/PVRawSource.h>
 #include <pvkernel/rush/PVInputFile.h>
 
 /******************************************************************************
@@ -50,16 +51,18 @@ void PVInspector::PVPlainTextEditor::slot_import_file()
 	// Use PVUnicodeSource to read the text file. It gives us automatic charset detection !
 	try {
 		PVFilter::PVChunkFilter null_filter;
-		PVRush::PVInput_p ifile(new PVRush::PVInputFile(qPrintable(file)));
-		// 100Ko of chunk size
-		PVRush::PVUnicodeSource<std::allocator> txt_src(ifile, 1024*100, null_filter.f());
+		PVRush::PVChunkTransformUTF16 trans_utf16;
+		PVRush::PVChunkAlign null_align;
+		PVRush::PVInputFile* pfile = new PVRush::PVInputFile(qPrintable(file));
+		PVRush::PVInput_p input(pfile);
+		PVRush::PVRawSource<std::allocator> txt_src(input, null_align, 10*1024*1024, trans_utf16, null_filter.f());
 		PVCore::PVChunk* chunk = txt_src();
-		QString txt;
+		QString txt("");
 		while (chunk) {
 			PVCore::list_elts const& elts = chunk->c_elements();
 			PVCore::list_elts::const_iterator it;
 			for (it = elts.begin(); it != elts.end(); it++) {
-				txt = txt % (*it)->get_qstr() % QString("\n");
+				txt += (*it)->get_qstr();
 			}
 			chunk->free();
 			chunk = txt_src();
