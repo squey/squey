@@ -12,6 +12,7 @@ set(FILTERS_DIST_LIST
 layer_filter_axis_gradient
 layer_filter_heatline
 layer_filter_find_duplicates
+layer_filter_multiple_search
 layer_filter_search
 layer_filter_webmail
 )
@@ -29,6 +30,9 @@ target_link_libraries(layer_filter_diff ${LINK_LIBRARIES})
 
 add_library(layer_filter_heatline SHARED heatline/PVLayerFilterHeatline.cpp heatline/register.cpp)
 target_link_libraries(layer_filter_heatline ${LINK_LIBRARIES})
+
+add_library(layer_filter_multiple_search SHARED multiple-search/PVLayerFilterMultipleSearch.cpp multiple-search/register.cpp)
+target_link_libraries(layer_filter_multiple_search ${LINK_LIBRARIES})
 
 add_library(layer_filter_search SHARED search/PVLayerFilterSearch.cpp search/register.cpp)
 target_link_libraries(layer_filter_search ${LINK_LIBRARIES})
