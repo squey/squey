@@ -84,27 +84,6 @@ namespace PVRush {
 			table.set_value(row, col, str);
 		}
 
-		template <class Iterator>
-		bool add_column(Iterator begin, Iterator end)
-		{
-			PVCol idx_new_col = get_number_cols();
-			tbb::tick_count tstart = tbb::tick_count::now();
-			if (!table.resize_ncols(get_number_cols() + 1)) {
-				return false;
-			}
-			tbb::tick_count tend = tbb::tick_count::now();
-			PVLOG_INFO("add_column: resize_ncols took %0.4fs.\n", (tend-tstart).seconds());
-
-			Iterator it;
-			PVRow i = 0;
-			for (it = begin; it != end; it++) {
-				table.set_value(i, idx_new_col, *it);
-				i++;
-			}
-
-			return true;
-		}
-
 		inline QString get_axis_name(PVCol format_axis_id) const
 		{
 			if(format_axis_id < format->get_axes().size()) {
