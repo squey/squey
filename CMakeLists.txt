@@ -31,8 +31,11 @@ else()
 		# /Ot: favorize fast over small code
 		# /GL: intra-procedural optimisations by MSVC !
 		set(COMPILER_OPTIMIZE_FLAGS "/Ox /Ob2 /Oi /Ot /GL")
+		# Intraprocedural optimisations
+		SET(LINKER_OPTIMIZE_FLAGS "/ltcg")
 	else(WIN32)
-		set(COMPILER_OPTIMIZE_FLAGS "-O3 -march=native")
+		set(COMPILER_OPTIMIZE_FLAGS "-O3 -march=native -flto=jobserver")
+		SET(LINKER_OPTIMIZE_FLAGS "-flto=jobserver")
 		add_definitions(-DNDEBUG) # so that 'assert' will generate no code
 		if (CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
 			add_definitions(-ggdb3)
@@ -60,8 +63,7 @@ if(WIN32)
 	#add_definitions(-D__OPENMP_ASSEMBLY_VERSION="9.0.30729.6161")
 	set(MSVC_LINKER_FLAGS "/LARGEADDRESSAWARE")
 	if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
-		# Intraprocedural optimisations
-		set(MSVC_LINKER_FLAGS "${MSVC_LINKER_FLAGS} /ltcg")
+		set(MSVC_LINKER_FLAGS "${MSVC_LINKER_FLAGS} ${LINKER_OPTIMIZE_FLAGS}")
 	endif()
 	set(CMAKE_EXE_LINKER_FLAGS ${MSVC_LINKER_FLAGS})
 	set(CMAKE_SHARED_LINKER_FLAGS ${MSVC_LINKER_FLAGS})
@@ -72,6 +74,12 @@ else(WIN32)
 	add_definitions(-DLINUX=2)
 	add_definitions(-Wall -Wextra -pipe)
 	#add_definitions(-Wall -Wextra -pipe -ggdb3 -msse4.1)
+
+	if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+		set(CMAKE_EXE_LINKER_FLAGS ${LINKER_OPTIMIZE_FLAGS})
+		set(CMAKE_SHARED_LINKER_FLAGS ${LINKER_OPTIMIZE_FLAGS})
+		set(CMAKE_MODULE_LINKER_FLAGS ${LINKER_OPTIMIZE_FLAGS})
+	endif()
 endif(WIN32)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${picviz-inspector_SOURCE_DIR}/cmake)
