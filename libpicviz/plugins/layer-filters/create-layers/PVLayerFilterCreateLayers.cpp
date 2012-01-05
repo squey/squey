@@ -4,10 +4,53 @@
 //! Copyright (C) Philippe Saadé 2009-2011
 //! Copyright (C) Picviz Labs 2011
 
+#include <QFile>
+#include <QString>
+#include <QByteArray>
+
 #include "PVLayerFilterCreateLayers.h"
 #include <pvkernel/core/PVColor.h>
 #include <pvkernel/core/PVAxesIndexType.h>
 #include <picviz/PVView.h>
+
+int Picviz::PVLayerFilterCreateLayers::create_layers_parse_config(QString filename)
+{
+
+	// PVLOG_INFO("Parse config for %s\n", filename);
+	QRegExp re_section("^\\[(.*)\\]$", Qt::CaseSensitive, QRegExp::RegExp);
+	QString section_name;
+	int line_pos = 1;
+
+	QFile configfile(filename);
+	if (!configfile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+		return -1;
+	}
+
+	while (!configfile.atEnd()) {
+		QByteArray line = configfile.readLine();
+		line.chop(1);
+		if (!line.isEmpty()) {
+			int ret = re_section.indexIn(line);
+			if (ret >= 0) {
+			        section_name = re_section.cap(1);
+				// PVLOG_INFO("Section:%s\n", qPrintable(section_name));
+			} else {
+				if (section_name.isEmpty()) {
+					PVLOG_ERROR("Create Layer config issue: empty section found at line %d\n", line_pos);
+				} else {
+				// We know in which section we are and we parse data
+
+					
+				}
+			}
+		}
+
+		line_pos++;
+		// process_line(line);
+	}
+	return 0;
+}
+
 
 /******************************************************************************
  *
@@ -18,6 +61,7 @@ Picviz::PVLayerFilterCreateLayers::PVLayerFilterCreateLayers(PVCore::PVArgumentL
 	: PVLayerFilter(l)
 {
 	INIT_FILTER(PVLayerFilterCreateLayers, l);
+	create_layers_parse_config(QString("create-layers.conf"));
 }
 
 /******************************************************************************

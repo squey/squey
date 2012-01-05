@@ -9,6 +9,10 @@
 
 #include <pvkernel/core/general.h>
 
+#include <QList>
+#include <QString>
+#include <QPair>
+
 #include <picviz/PVLayer.h>
 #include <picviz/PVLayerFilter.h>
 
@@ -18,11 +22,15 @@ namespace Picviz {
  * \class PVLayerFilterCreateLayers
  */
 class PVLayerFilterCreateLayers : public PVLayerFilter {
+private:
+	QMap<QString, QList<QPair<QString, QString> > > create_layers_config;
+
 public:
 	PVLayerFilterCreateLayers(PVCore::PVArgumentList const& l = PVLayerFilterCreateLayers::default_args());
 public:
 	virtual void operator()(PVLayer& in, PVLayer &out);
 	PVCore::PVArgumentList get_default_args_for_view(PVView const& view);
+	int create_layers_parse_config(QString filename);
 
 	CLASS_FILTER(Picviz::PVLayerFilterCreateLayers)
 
