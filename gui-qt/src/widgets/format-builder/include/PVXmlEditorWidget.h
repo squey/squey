@@ -4,8 +4,8 @@
 //! Copyright (C) Philippe Saadé 2011-2011
 //! Copyright (C) Picviz Labs 2011
 
-#ifndef FEN2_H
-#define	FEN2_H
+#ifndef PVFORMATBUILDER_H
+#define	PVFORMATBUILDER_H
 #include <iostream>
 
 #include <QTreeView>
@@ -46,7 +46,7 @@ typedef QList<PVFilter::PVFieldsFilterParamWidget<PVFilter::one_to_one> > list_f
 
 class PVAxesCombinationWidget;
 
-class PVXmlEditorWidget : public QDialog {
+class PVXmlEditorWidget : public QMainWindow {
     Q_OBJECT
 public:
     PVXmlEditorWidget(QWidget * parent = NULL);
@@ -68,7 +68,7 @@ private:
     PVXmlParamWidget *myParamBord_old_model;
     QWidget *myParamBord;
     QWidget emptyParamBoard;
-	QTabWidget* _main_tab;
+    QTabWidget* _main_tab;
     //
     QVBoxLayout *vbParam;
     QMenuBar *menuBar;
@@ -120,8 +120,8 @@ private:
      * init the splitters list, by listing the plugins found
      */
     void initSplitters();    
-	list_splitters_t _list_splitters;///!<list of the plugins splitters
-	list_filters_t _list_filters;///!<list of the plugins filters
+    list_splitters_t _list_splitters;///!<list of the plugins splitters
+    list_filters_t _list_filters;///!<list of the plugins filters
     
     void showParamBoard(PVRush::PVXmlTreeNodeDom *node);
 
@@ -155,23 +155,22 @@ protected:
 	QString _cur_file;
 
 public slots:
-
-    //slots agissant sur l'arbre.
-    void slotAddAxisIn();
-    void slotAddFilterAfter();
-    void slotAddRegExAfter();
-    void slotAddSplitter();
-    void slotAddUrl();
-    void slotApplyModification();
-    void slotDelete();
-    void slotMoveUp();
-    void slotMoveDown();
-    void slotNeedApply();
-    void slotOpen();
-    void slotOpenLog();
-    void slotSave();
-    void slotSaveAs();
-    void slotUpdateToolDesabled(const QModelIndex &);
+	// Tree slots
+	void slotAddAxisIn();
+	void slotAddFilterAfter();
+	void slotAddRegExAfter();
+	void slotAddSplitter();
+	void slotAddUrl();
+	void slotApplyModification();
+	void slotDelete();
+	void slotMoveUp();
+	void slotMoveDown();
+	void slotNeedApply();
+	void slotOpen();
+	void slotOpenLog();
+	void slotSave();
+	void slotSaveAs();
+	void slotUpdateToolDesabled(const QModelIndex &);
 	void slotExtractorPreview();
 	void slotItemClickedInView(const QModelIndex &index);
 	void slotMainTabChanged(int idx);
@@ -182,5 +181,5 @@ public slots:
 };
 
 }
-#endif	/* FEN2_H */
+#endif	/* PVFORMATBUILDER_H */
 
