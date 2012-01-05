@@ -46,7 +46,7 @@ typedef QList<PVFilter::PVFieldsFilterParamWidget<PVFilter::one_to_one> > list_f
 
 class PVAxesCombinationWidget;
 
-class PVXmlEditorWidget : public QMainWindow {
+class PVXmlEditorWidget : public QDialog {
     Q_OBJECT
 public:
     PVXmlEditorWidget(QWidget * parent = NULL);

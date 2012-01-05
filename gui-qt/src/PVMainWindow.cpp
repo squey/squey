@@ -57,7 +57,7 @@
 #include <pvgl/general.h>
 #include <pvgl/PVMain.h>
 
-#include <PVXmlEditorWidget.h>
+#include <PVFormatBuilderWidget.h>
 
 QFile *report_file;
 

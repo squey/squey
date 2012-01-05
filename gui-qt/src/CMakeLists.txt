@@ -102,11 +102,11 @@ widgets/helpers/include/PVMappingModeWidget.h
 widgets/helpers/include/PVPlottingModeWidget.h
 
 widgets/format-builder/include/PVAxisTagHelp.h
+widgets/format-builder/include/PVFormatBuilderWidget.h
 widgets/format-builder/include/PVNrawListingModel.h
 widgets/format-builder/include/PVNrawListingWidget.h
 widgets/format-builder/include/PVXmlTreeView.h 
 widgets/format-builder/include/PVXmlDomModel.h
-widgets/format-builder/include/PVXmlEditorWidget.h
 widgets/format-builder/include/PVXmlParamColorDialog.h
 widgets/format-builder/include/PVXmlParamComboBox.h
 widgets/format-builder/include/PVXmlParamList.h
@@ -188,10 +188,10 @@ widgets/editors/PVSpinBoxEditor.cpp
 widgets/editors/PVTimeFormatEditor.cpp
 
 widgets/format-builder/PVAxisTagHelp.cpp
+widgets/format-builder/PVFormatBuilderWidget.cpp
 widgets/format-builder/PVNrawListingModel.cpp
 widgets/format-builder/PVNrawListingWidget.cpp
 widgets/format-builder/PVXmlDomModel.cpp
-widgets/format-builder/PVXmlEditorWidget.cpp
 widgets/format-builder/PVXmlParamColorDialog.cpp
 widgets/format-builder/PVXmlParamComboBox.cpp
 widgets/format-builder/PVXmlParamList.cpp

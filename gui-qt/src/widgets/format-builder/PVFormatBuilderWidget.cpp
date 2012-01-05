@@ -7,7 +7,7 @@
 #include <QSplitter>
 
 #include <PVAxesCombinationWidget.h>
-#include <PVXmlEditorWidget.h>
+#include <PVFormatBuilderWidget.h>
 #include <PVXmlTreeItemDelegate.h>
 #include <PVXmlParamWidget.h>
 #include <PVInputTypeMenuEntries.h>

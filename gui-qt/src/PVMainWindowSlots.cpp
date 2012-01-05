@@ -13,7 +13,7 @@
 #include <PVMainWindow.h>
 #include <PVExpandSelDlg.h>
 #include <PVArgumentListWidget.h>
-#include <PVXmlEditorWidget.h>
+#include <PVFormatBuilderWidget.h>
 #include <PVLayerFilterProcessWidget.h>
 #include <PVAxesCombinationDialog.h>
 #include <PVExtractorWidget.h>

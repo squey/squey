@@ -7,7 +7,7 @@
 #include <picviz/PVPlottingFilter.h>
 
 #include <PVXmlParamWidgetBoardAxis.h>
-#include <PVXmlEditorWidget.h>
+#include <PVFormatBuilderWidget.h>
 #include <PVAxisTagHelp.h>
 #include <PVArgumentListWidget.h>
 
