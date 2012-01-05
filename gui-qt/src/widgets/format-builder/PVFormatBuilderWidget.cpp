@@ -25,7 +25,7 @@
  *
  *****************************************************************************/
 PVInspector::PVFormatBuilderWidget::PVFormatBuilderWidget(QWidget * parent):
-	QDialog(parent)
+	QMainWindow(parent)
 {
 	init(parent);
 }
@@ -106,7 +106,11 @@ void PVInspector::PVFormatBuilderWidget::init(QWidget* parent)
 	initToolBar(main_layout);
 	main_layout->addWidget(main_splitter);
 	main_layout->setMenuBar(menuBar);
-	setLayout(main_layout);
+
+	QWidget *central_widget = new QWidget();
+	central_widget->setLayout(main_layout);
+
+	setCentralWidget(central_widget);
     
     //setWindowModality(Qt::ApplicationModal);
     
