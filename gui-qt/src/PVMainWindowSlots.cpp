@@ -1071,7 +1071,7 @@ void PVInspector::PVMainWindow::whats_this_Slot()
  *
  *****************************************************************************/
 void PVInspector::PVMainWindow::new_format_Slot() {
-    PVXmlEditorWidget *editorWidget = new PVXmlEditorWidget(this);
+    PVFormatBuilderWidget *editorWidget = new PVFormatBuilderWidget(this);
     editorWidget->show();
 }
 
@@ -1091,7 +1091,7 @@ void PVInspector::PVMainWindow::cur_format_Slot()
 		return;
 	}
 
-    PVXmlEditorWidget *editorWidget = new PVXmlEditorWidget(current_tab);
+    PVFormatBuilderWidget *editorWidget = new PVFormatBuilderWidget(current_tab);
 	connect(editorWidget, SIGNAL(accepted()), this, SLOT(cur_format_changed_Slot()));
 	connect(editorWidget, SIGNAL(rejected()), this, SLOT(cur_format_changed_Slot()));
 	editorWidget->openFormat(format.get_full_path());
@@ -1100,7 +1100,7 @@ void PVInspector::PVMainWindow::cur_format_Slot()
 
 void PVInspector::PVMainWindow::cur_format_changed_Slot()
 {
-	PVXmlEditorWidget* editor = dynamic_cast<PVXmlEditorWidget*>(sender());
+	PVFormatBuilderWidget* editor = dynamic_cast<PVFormatBuilderWidget*>(sender());
 	assert(editor);
 	PVTabSplitter* src_tab = dynamic_cast<PVTabSplitter*>(editor->parent());
 	assert(src_tab);
@@ -1166,14 +1166,14 @@ void PVInspector::PVMainWindow::enable_menu_filter_Slot(bool f){
 
 void PVInspector::PVMainWindow::edit_format_Slot(QString const& path, QWidget* parent)
 {
-    PVXmlEditorWidget *editorWidget = new PVXmlEditorWidget(parent);
+    PVFormatBuilderWidget *editorWidget = new PVFormatBuilderWidget(parent);
     editorWidget->show();
 	editorWidget->openFormat(path);
 }
 
 void PVInspector::PVMainWindow::edit_format_Slot(QDomDocument& doc, QWidget* parent)
 {
-    PVXmlEditorWidget *editorWidget = new PVXmlEditorWidget(parent);
+    PVFormatBuilderWidget *editorWidget = new PVFormatBuilderWidget(parent);
     editorWidget->show();
 	editorWidget->openFormat(doc);
 }

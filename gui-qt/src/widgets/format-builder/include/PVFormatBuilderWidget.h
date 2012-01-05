@@ -1,4 +1,4 @@
-//! \file PVXmlEditorWidget.h
+//! \file PVFormatBuilderWidget.h
 //! $Id$
 //! Copyright (C) Sébastien Tricaud 2011-2011
 //! Copyright (C) Philippe Saadé 2011-2011
@@ -46,12 +46,12 @@ typedef QList<PVFilter::PVFieldsFilterParamWidget<PVFilter::one_to_one> > list_f
 
 class PVAxesCombinationWidget;
 
-class PVXmlEditorWidget : public QDialog {
+class PVFormatBuilderWidget : public QDialog {
     Q_OBJECT
 public:
-    PVXmlEditorWidget(QWidget * parent = NULL);
+    PVFormatBuilderWidget(QWidget * parent = NULL);
 
-    virtual ~PVXmlEditorWidget();
+    virtual ~PVFormatBuilderWidget();
 
 private:
 	void init(QWidget* parent);
