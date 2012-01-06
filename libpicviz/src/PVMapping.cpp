@@ -128,7 +128,7 @@ void Picviz::PVMapping::set_default_args(PVRush::PVFormat const& format)
 {
 	QList<PVMappingProperties>::iterator it;
 	PVCol i = 0;
-	PVCol ncols = columns.size();
+	PVCol ncols = format.get_axes().size();
 	for (it = columns.begin(); it != columns.end(); it++) {
 		it->set_default_args(format.get_axes().at(i));
 		i++;

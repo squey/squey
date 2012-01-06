@@ -9,7 +9,7 @@
 
 namespace PVRush {
 
-template < template <class T> class Allocator = tbb::scalable_allocator >
+template < template <class T> class Allocator = tbb::tbb_allocator >
 class PVUnicodeSource : public PVRawSource<Allocator> {
 public:
 	typedef typename PVRawSource<Allocator>::alloc_chunk alloc_chunk;

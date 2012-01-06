@@ -1,7 +1,7 @@
 #include <pvkernel/rush/PVChunkTransformUTF16.h>
 #include <string>
 
-#include <tbb/scalable_allocator.h>
+#include <tbb/tbb_allocator.h>
 
 PVRush::PVChunkTransformUTF16::PVChunkTransformUTF16()
 {
@@ -31,7 +31,7 @@ PVRush::PVChunkTransformUTF16::~PVChunkTransformUTF16()
 	ucsdet_close(_csd);
 	ucnv_close(_ucnv);
 	if (_tmp_dest) {
-		static tbb::scalable_allocator<UChar> alloc;
+		static tbb::tbb_allocator<UChar> alloc;
 		alloc.deallocate(_tmp_dest, _tmp_dest_size);
 	}
 #endif
@@ -79,7 +79,7 @@ size_t PVRush::PVChunkTransformUTF16::operator()(char* data, size_t len_read, si
 	const size_t final_size = (s_tmp.size())*2;
 
 	if (final_size > len_avail) {
-		PVLOG_ERROR("Size of chunk too small to get UTF16 datas ! (converted size: %d, available size: %ld)\n", final_size, len_avail);
+		PVLOG_ERROR("Size of chunk too small to get UTF16 datas ! (converted size: %ld, available size: %ld)\n", final_size, len_avail);
 		return len_read;
 	}
 	// And copy the result
@@ -201,7 +201,7 @@ size_t PVRush::PVChunkTransformUTF16::operator()(char* data, size_t len_read, si
 	}
 
 	if (_tmp_dest_size < len_avail/sizeof(UChar)) {
-		static tbb::scalable_allocator<UChar> alloc;
+		static tbb::tbb_allocator<UChar> alloc;
 		if (_tmp_dest) {
 			alloc.deallocate(_tmp_dest, _tmp_dest_size);
 		}
@@ -218,7 +218,7 @@ size_t PVRush::PVChunkTransformUTF16::operator()(char* data, size_t len_read, si
 	ucnv_toUnicode(_ucnv, &target, target_end, &data_conv, data_conv_end, NULL, true, &status);
 	const size_t final_size = (uintptr_t)target - (uintptr_t)_tmp_dest;
 	if (status == U_BUFFER_OVERFLOW_ERROR) {
-		PVLOG_ERROR("Size of chunk too small to get UTF16 datas ! (converted size: %d, available size: %ld)\n", final_size, len_avail);
+		PVLOG_ERROR("Size of chunk too small to get UTF16 datas ! (converted size: %ld, available size: %ld)\n", final_size, len_avail);
 		return len_read;
 	}
 	memcpy(data_org, _tmp_dest, final_size);

@@ -50,4 +50,3 @@ PVCore::PVChunk* PVFilter::PVChunkFilterCountElts::operator()(PVCore::PVChunk* c
 
 	return chunk;
 }
-

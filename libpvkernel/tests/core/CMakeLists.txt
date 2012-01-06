@@ -47,9 +47,16 @@ target_link_libraries(Tcore_timeformat_perf ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES
 add_executable(Tcore_serialize serialize.cpp)
 target_link_libraries(Tcore_serialize ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
 
+# Strings
+add_executable(Tcore_pvstring pvstring.cpp)
+target_link_libraries(Tcore_pvstring ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES} ${ICU_LIBRARY})
+
 # Matrix
 add_executable(Tcore_matrix matrix.cpp)
 target_link_libraries(Tcore_matrix ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
+
+add_executable(Tcore_sizes sizes.cpp)
+target_link_libraries(Tcore_sizes ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
 
 add_definitions(-ftree-vectorizer-verbose=2)
 add_executable(Tcore_transp transp.cpp)

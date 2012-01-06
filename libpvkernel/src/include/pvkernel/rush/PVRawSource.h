@@ -11,11 +11,11 @@
 #include <pvkernel/rush/PVInput.h>
 #include <memory>
 
-#include <tbb/scalable_allocator.h>
+#include <tbb/tbb_allocator.h>
 
 namespace PVRush {
 
-template < template <class T> class Allocator = tbb::scalable_allocator >
+template < template <class T> class Allocator = tbb::tbb_allocator >
 class PVRawSource : public PVRush::PVRawSourceBase {
 public:
 	typedef PVCore::PVChunkMem<Allocator> PVChunkAlloc;

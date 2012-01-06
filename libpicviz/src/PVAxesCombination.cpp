@@ -452,7 +452,10 @@ void Picviz::PVAxesCombination::set_from_format(PVRush::PVFormat &format)
 
 		QVector<PVCol>::iterator it_comb;
 		for (it_comb = axes_comb.begin(); it_comb != axes_comb.end(); it_comb++) {
-			axis_append(*it_comb);
+			PVCol col = *it_comb;
+			if (col < original_axes_list.size()) {
+				axis_append(col);
+			}
 		}
 	}
 }

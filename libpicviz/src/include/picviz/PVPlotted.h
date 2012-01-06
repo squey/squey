@@ -65,7 +65,7 @@ private:
 	};
 public:
 	typedef boost::shared_ptr<PVPlotted> p_type;
-	typedef QVector<float> plotted_table_t;
+	typedef std::vector<float> plotted_table_t;
 	typedef std::vector< std::pair<PVCol,float> > plotted_sub_col_t;
 	typedef std::list<ExpandedSelection> list_expanded_selection_t;
 public:

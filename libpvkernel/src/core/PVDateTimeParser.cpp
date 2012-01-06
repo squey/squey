@@ -4,7 +4,7 @@
 #include <boost/bind.hpp>
 
 #include <tbb/tick_count.h>
-#include <tbb/scalable_allocator.h>
+#include <tbb/tbb_allocator.h>
 
 /*boost::object_pool<PVCore::PVDateTimeParser::TimeFormat> PVCore::PVDateTimeParser::_alloc_tf;
 boost::object_pool<PVCore::PVDateTimeParser::TimeFormatEpoch> PVCore::PVDateTimeParser::_alloc_tfe;
@@ -53,8 +53,8 @@ PVCore::PVDateTimeParser::PVDateTimeParser(QStringList const& time_format):
 
 	_last_match_time_format = NULL;
 	_time_format.resize(time_format.size());
-	static tbb::scalable_allocator<TimeFormatEpoch> alloc_epoch;
-	static tbb::scalable_allocator<TimeFormat> alloc_format;
+	static tbb::tbb_allocator<TimeFormatEpoch> alloc_epoch;
+	static tbb::tbb_allocator<TimeFormat> alloc_format;
 #pragma openmp parallel for
 	for (int i = 0; i < time_format.size(); i++) {
 		QString const& format_org = time_format.at(i);
@@ -87,8 +87,8 @@ PVCore::PVDateTimeParser::PVDateTimeParser(QStringList const& time_format):
 
 PVCore::PVDateTimeParser::~PVDateTimeParser()
 {
-	static tbb::scalable_allocator<TimeFormatEpoch> alloc_epoch;
-	static tbb::scalable_allocator<TimeFormat> alloc_format;
+	static tbb::tbb_allocator<TimeFormatEpoch> alloc_epoch;
+	static tbb::tbb_allocator<TimeFormat> alloc_format;
 	list_time_format::const_iterator it;
 	for (it = _time_format.begin(); it != _time_format.end(); it++) {
 		TimeFormatInterface* tfi = *it;
@@ -173,7 +173,7 @@ void PVCore::PVDateTimeParser::TimeFormat::create_parsers(QString const& time_fo
 	const Locale* list_locales = Locale::getAvailableLocales(nlocales);
 	UnicodeString pattern = icuFromQStringAlias(time_format);
 
-	static tbb::scalable_allocator<SimpleDateFormat> alloc;
+	static tbb::tbb_allocator<SimpleDateFormat> alloc;
 	_parsers = alloc.allocate(nlocales);
 	_nparsers = nlocales;
 	for (int il = 0; il < nlocales; il++) {
@@ -197,7 +197,7 @@ PVCore::PVDateTimeParser::TimeFormat::TimeFormat(const TimeFormat& src):
 
 PVCore::PVDateTimeParser::TimeFormat::~TimeFormat()
 {
-	static tbb::scalable_allocator<SimpleDateFormat> alloc;
+	static tbb::tbb_allocator<SimpleDateFormat> alloc;
 	if (_parsers) {
 		for (size_t i = 0; i < _nparsers; i++) {
 			SimpleDateFormat* psdf = &_parsers[i];

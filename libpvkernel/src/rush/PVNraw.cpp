@@ -81,7 +81,7 @@ void PVRush::PVNraw::clear_table()
 	_chunks_extract->clear();
 
 	{
-		static tbb::scalable_allocator<char> alloc;
+		static tbb::tbb_allocator<char> alloc;
 		PVCore::buf_list_t::const_iterator it;
 		for (it = _reallocated_buffers->begin(); it != _reallocated_buffers->end(); it++) {
 			alloc.deallocate(it->first, it->second);
@@ -156,6 +156,7 @@ void PVRush::PVNraw::fit_to_content()
 			set_row(cur_row, e);
 			cur_row++;
 		}
+		c->free_structs();
 	}
 	assert(cur_row == _real_nrows);
 

@@ -23,7 +23,7 @@
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVNrawChild.h>
 
-#include <tbb/scalable_allocator.h>
+#include <tbb/tbb_allocator.h>
 #include <tbb/tick_count.h>
 
 namespace PVRush {
@@ -40,7 +40,7 @@ namespace PVRush {
 		typedef nraw_trans_table::line trans_nraw_table_line;
 		typedef nraw_trans_table::const_line const_trans_nraw_table_line;
 	private:
-		typedef std::list<PVCore::PVChunk*, tbb::scalable_allocator<PVCore::PVChunk*> > list_chunks_t;
+		typedef std::list<PVCore::PVChunk*, tbb::tbb_allocator<PVCore::PVChunk*> > list_chunks_t;
 	public:
 		PVNraw();
 		~PVNraw();
