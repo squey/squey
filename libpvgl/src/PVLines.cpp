@@ -614,7 +614,7 @@ void PVGL::PVLines::draw_selected_lines(GLfloat modelview[16])
 	}
 	drawn_lines += nb_lines_to_draw;
 	if (drawn_lines >= int(picviz_view->get_row_count())) {
-		idle_manager.remove_task(view, IDLE_REDRAW_LINES);
+		//idle_manager.remove_task(view, IDLE_REDRAW_LINES);
 		main_fbo_dirty = false;
 		drawn_lines = 0;
 	}
@@ -792,6 +792,7 @@ void PVGL::PVLines::update_arrays_selection(void)
 	glBufferData(GL_TEXTURE_BUFFER, PICVIZ_SELECTION_NUMBER_OF_BYTES,
 	             picviz_view->post_filter_layer.get_selection().get_buffer(), GL_DYNAMIC_DRAW); PRINT_OPENGL_ERROR();
 
+	view->update_label_lines_selected_eventline();
 	set_main_fbo_dirty();
 	//update_arrays_colors(); // FIXME: Is this needed or not arfer all?
 }

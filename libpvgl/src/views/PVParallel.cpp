@@ -65,19 +65,23 @@ PVGL::PVView::PVView(int win_id, PVSDK::PVMessenger *message) : PVGL::PVDrawable
 	label_axis_mode->set_color(ubvec4(255, 0, 0, 255));
 	label_axis_mode->hide();
 
+	label_fps = new PVLabel(&widget_manager, "FPS: 0");
+	label_fps->set_shadow(true);
+	label_fps->hide();
+
 	PVHBox *hbox = new PVHBox(&widget_manager);
 	top_bar->add(hbox, 0, 0, -1, -1);
 	PVVBox *vbox = new PVVBox(&widget_manager);
 	hbox->pack_start(vbox);
 	vbox->pack_start(label_axis_mode);
 	vbox->pack_start(label_nb_lines);
+	vbox->pack_start(label_fps);
 	event_line = new PVEventLine(&widget_manager, this, message);
 	hbox->pack_start(event_line, false);
 
 	label_lpr = new PVLabel(&widget_manager, "LPR: 25000"); // FIXME this should use a 'const' ?
 	label_lpr->set_color(ubvec4(0, 0, 0, 255));
 	vbox->pack_start(label_lpr);
-        
 }
 
 /******************************************************************************
@@ -94,6 +98,7 @@ PVGL::PVView::~PVView()
 	delete label_axis_mode;
 	delete event_line;
 	delete label_lpr;
+	delete label_fps;
 }
 
 /******************************************************************************
@@ -135,6 +140,9 @@ void PVGL::PVView::init(Picviz::PVView_p view)
 	axes.update_arrays();
 	axes.update_arrays_bg();
 	selection_square.update_arrays();
+	
+	update_label_lines_selected_eventline();
+	update_label_lpr();
 }
 
 /******************************************************************************
@@ -234,18 +242,14 @@ void PVGL::PVView::draw(void)
 		// 		// label_lpr->set_text(ss.str());
 		// 	}
 		// }
-		{
+	{
+		if (label_fps->is_visible()) {
 			std::stringstream ss;
-			ss << "LPR: " << get_max_lines_per_redraw();
-			label_lpr->set_text(ss.str());
+			ss << "FPS: " << current_fps;
+			label_fps->set_text(ss.str());
 		}
-		{
-			std::stringstream ss;
-			ss << "Lines selected: " << picviz_view->get_number_of_selected_lines() <<
-					" / " << picviz_view->eventline.get_current_index() - picviz_view->eventline.get_first_index() + 1<<
-					" / " << picviz_view->eventline.get_row_count();
-			label_nb_lines->set_text(ss.str());
-		}
+	}
+
 	if (picviz_view->state_machine->is_axes_mode()) {
 		label_axis_mode->show();
 	} else {
@@ -253,6 +257,10 @@ void PVGL::PVView::draw(void)
 	}
 
 	top_bar->draw();
+
+	if (label_fps->is_visible()) {
+		compute_fps();
+	}
 }
 
 /******************************************************************************
@@ -352,7 +360,7 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 				message.pv_view = picviz_view;
 				pv_message->post_message_to_qt(message);
 				break;
-		case 'f': case 'F':
+		case 'f':
 				if (is_fullscreen()) {
 					PVGL::wtk_window_resize(old_width, old_height);
 					toggle_fullscreen(false);
@@ -361,6 +369,14 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 					old_height= get_height();
 					PVGL::wtk_window_fullscreen();
 					toggle_fullscreen(true);
+				}
+				break;
+		case 'F':
+				if (label_fps->is_visible()) {
+					label_fps->hide();
+				}
+				else {
+					label_fps->show();
 				}
 				break;
 		case 'g':
@@ -1040,6 +1056,7 @@ void PVGL::PVView::special_keys(int key, int, int)
 							max_lines_per_redraw = 1000;
 						}
 					}
+					update_label_lpr();
 					break;
 		}
 }
@@ -1306,6 +1323,36 @@ void PVGL::PVView::update_set_size()
 	size_dirty = false;
 	lines.set_size(width, height);
 	map.set_size(width, height);
+}
+
+/******************************************************************************
+ *
+ * PVGL::PVView::update_text_lines_selected_eventline
+ *
+ *****************************************************************************/
+void PVGL::PVView::update_label_lines_selected_eventline()
+{
+	PVLOG_DEBUG("PVGL::PVView::%s\n", __FUNCTION__);
+
+	std::stringstream ss;
+	ss << "Lines selected: " << picviz_view->get_number_of_selected_lines() <<
+		" / " << picviz_view->eventline.get_current_index() - picviz_view->eventline.get_first_index() <<
+		" / " << picviz_view->eventline.get_row_count();
+	label_nb_lines->set_text(ss.str());
+}
+
+/******************************************************************************
+ *
+ * PVGL::PVView::update_lpr
+ *
+ *****************************************************************************/
+void PVGL::PVView::update_label_lpr()
+{
+	PVLOG_DEBUG("PVGL::PVView::%s\n", __FUNCTION__);
+
+	std::stringstream ss;
+	ss << "LPR: " << get_max_lines_per_redraw();
+	label_lpr->set_text(ss.str());
 }
 
 /******************************************************************************
