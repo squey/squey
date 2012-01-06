@@ -614,7 +614,7 @@ void PVGL::PVLines::draw_selected_lines(GLfloat modelview[16])
 	}
 	drawn_lines += nb_lines_to_draw;
 	if (drawn_lines >= int(picviz_view->get_row_count())) {
-		//idle_manager.remove_task(view, IDLE_REDRAW_LINES);
+		idle_manager.remove_task(view, IDLE_REDRAW_LINES);
 		main_fbo_dirty = false;
 		drawn_lines = 0;
 	}
