@@ -3,7 +3,7 @@
 #include <pvkernel/core/PVChunk.h>
 #include <pvkernel/rush/PVNraw.h>
 
-tbb::scalable_allocator<PVCore::PVElement> PVCore::PVElement::_alloc;
+tbb::tbb_allocator<PVCore::PVElement> PVCore::PVElement::_alloc;
 //std::allocator<PVCore::PVElement> PVCore::PVElement::_alloc;
 
 PVCore::PVElement::PVElement(PVChunk* parent) :
@@ -29,7 +29,7 @@ PVCore::PVElement::~PVElement()
 {
 	clear_saved_buf();
 
-	static tbb::scalable_allocator<char> alloc;
+	static tbb::tbb_allocator<char> alloc;
 	buf_list_t::const_iterator it;
 	for (it = _reallocated_buffers.begin(); it != _reallocated_buffers.end(); it++) {
 		alloc.deallocate(it->first, it->second);
@@ -85,7 +85,7 @@ PVCore::buf_list_t& PVCore::PVElement::realloc_bufs()
 void PVCore::PVElement::save_elt_buffer()
 {
 	clear_saved_buf();
-	static tbb::scalable_allocator<char> alloc;
+	static tbb::tbb_allocator<char> alloc;
 	_org_buf = alloc.allocate(size());
 	_org_buf_size = size();
 	memcpy(_org_buf, begin(), size());
@@ -97,7 +97,7 @@ void PVCore::PVElement::clear_saved_buf()
 		return;
 	}
 
-	static tbb::scalable_allocator<char> alloc;
+	static tbb::tbb_allocator<char> alloc;
 	alloc.deallocate(_org_buf, _org_buf_size);
 	_org_buf = NULL;
 	_org_buf_size = 0;

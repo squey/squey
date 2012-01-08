@@ -14,7 +14,7 @@
 
 #include <list>
 
-#include <tbb/scalable_allocator.h>
+#include <tbb/tbb_allocator.h>
 
 #include <QList>
 
@@ -27,7 +27,7 @@ namespace PVCore {
 
 class PVChunk;
 
-typedef std::list<PVField, tbb::scalable_allocator<PVField> > list_fields;
+typedef std::list<PVField, tbb::tbb_allocator<PVField> > list_fields;
 //typedef std::list<PVField> list_fields;
 
 
@@ -75,7 +75,7 @@ public:
 
 	static inline void free(PVElement* elt)
 	{
-		elt->~PVElement();
+		_alloc.destroy(elt);
 		_alloc.deallocate(elt, 1);
 	}
 protected:
@@ -95,7 +95,7 @@ protected:
 	size_t _chunk_index;
 
 private:
- 	static tbb::scalable_allocator<PVElement> _alloc;
+ 	static tbb::tbb_allocator<PVElement> _alloc;
 	//static std::allocator<PVElement> _alloc;
 };
 

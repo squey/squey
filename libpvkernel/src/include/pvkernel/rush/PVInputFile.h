@@ -24,6 +24,9 @@ public:
 	virtual void seek_begin();
 	virtual bool seek(input_offset off);
 	virtual QString human_name();
+public:
+	// File specific
+	uint64_t file_size();
 protected:
 #ifdef WIN32
 	HANDLE _hfile;

@@ -67,16 +67,48 @@ bool PVCore::PVUnicodeString::operator<(const PVUnicodeString& o) const
 
 }
 
+int PVCore::PVUnicodeString::compare(const char* str) const
+{
+	QString str_(str);
+	const uint32_t str_size = str_.size();
+	int ret = memcmp(str_.constData(), _buf, picviz_min(_len, str_size)*sizeof(utf_char));
+	if (ret == 0) {
+		if (_len < str_size) {
+			ret = -1;
+		}
+		else
+		if (_len > str_size) {
+			ret = 1;
+		}
+	}
+	return ret;
+}
+
 int PVCore::PVUnicodeString::compare(const PVUnicodeString& o) const
 {
-	return memcmp(_buf, o._buf, picviz_min(_len, o._len)*sizeof(utf_char));
+	int ret = memcmp(o._buf, _buf, picviz_min(o._len, _len)*sizeof(utf_char));
+	if (ret == 0) {
+		if (_len < o._len) {
+			ret = -1;
+		}
+		else
+		if (_len > o._len) {
+			ret = 1;
+		}
+	}
+	return ret;
 }
 
 PYTHON_EXPOSE_IMPL(PVCore::PVUnicodeString)
 {
+	int (PVUnicodeString::*fp_compare_const_str)(const char*) const;
+	int (PVUnicodeString::*fp_compare_obj)(PVCore::PVUnicodeString const&) const;
+	fp_compare_const_str = &PVUnicodeString::compare;
+	fp_compare_obj = &PVUnicodeString::compare;
 	boost::python::class_<PVCore::PVUnicodeString>("PVUnicodeString")
 		.def("len", &PVUnicodeString::len)
 		.def("size", &PVUnicodeString::size)
-		.def("compare", &PVUnicodeString::compare)
+		.def("compare", fp_compare_const_str)
+		.def("compare_alias", fp_compare_obj)
 	;
 }

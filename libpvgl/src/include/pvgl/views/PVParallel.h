@@ -51,6 +51,7 @@ class LibGLDecl PVView : public PVDrawable {
 	PVLabel  *label_nb_lines;
 	PVLabel  *label_axis_mode;
 	PVLabel  *label_lpr;
+	PVLabel  *label_fps;
 	PVLayout *top_bar;
 	PVEventLine *event_line;
 	/**
@@ -331,8 +332,13 @@ public:
 
 
 	void update_axes_combination();
-  void reinit_picviz_view();
+	void update_label_lines_selected_eventline();
+	void update_label_lpr();
+	void reinit_picviz_view();
 	void axes_toggle_show_limits() { axes.toggle_show_limits(); }
 };
+
+
 }
+
 #endif

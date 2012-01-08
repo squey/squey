@@ -23,6 +23,7 @@
 #include <pvkernel/core/PVEnumType.h>
 #include <pvkernel/core/PVColorGradientDualSliderType.h>
 #include <pvkernel/core/PVTimeFormatType.h>
+#include <pvkernel/core/PVPlainTextType.h>
 
 #include <picviz/PVView_types.h>
 
@@ -39,6 +40,7 @@
 #include <PVSpinBoxEditor.h>
 #include <PVAxisIndexCheckBoxEditor.h>
 #include <PVTimeFormatEditor.h>
+#include <PVPlainTextEditor.h>
 
 static void clearLayout(QLayout* layout)
 {
@@ -164,6 +166,7 @@ QItemEditorFactory* PVInspector::PVArgumentListWidget::create_layer_widget_facto
 	QItemEditorCreatorBase *regexp_creator = new PVArgumentEditorCreator<PVRegexpEditor>(view);
 	QItemEditorCreatorBase *dualslider_creator = new PVArgumentEditorCreator<PVColorGradientDualSliderEditor>(view);
 	QItemEditorCreatorBase *spinbox_creator = new PVArgumentEditorCreator<PVSpinBoxEditor>(view);
+	QItemEditorCreatorBase *plaintext_creator = new PVArgumentEditorCreator<PVPlainTextEditor>(view);
 	QItemEditorCreatorBase *qstr_creator = new QItemEditorCreator<QLineEdit>("text");
 
 	
@@ -175,6 +178,7 @@ QItemEditorFactory* PVInspector::PVArgumentListWidget::create_layer_widget_facto
 	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVEnumType>(), pv_enum_creator);
 	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVColorGradientDualSliderType>(), dualslider_creator);
 	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVSpinBoxType>(), spinbox_creator);
+	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVPlainTextType>(), plaintext_creator);
 	args_widget_factory->registerEditor(QVariant::RegExp, regexp_creator);
 	args_widget_factory->registerEditor(QVariant::String, qstr_creator);
 

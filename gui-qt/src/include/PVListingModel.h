@@ -23,7 +23,7 @@
 #include <pvkernel/core/PVProgressBox.h>
 #include <QAbstractTableModel>
 
-#include <tbb/scalable_allocator.h>
+#include <tbb/tbb_allocator.h>
 #include <tbb/cache_aligned_allocator.h>
 
 namespace PVInspector {
@@ -48,7 +48,7 @@ public:
 
 private:
 	//sorting data
-	std::vector<int, tbb::scalable_allocator<int> > localMatchingTable; //!<the table sort, modify this array to order the values
+	std::vector<int, tbb::tbb_allocator<int> > localMatchingTable; //!<the table sort, modify this array to order the values
     QMutex localMatchingTable_locker;
 	TypeOfSort sortOrder; //!<save the current sorting state (NoOrder, AscendingOrder, DescendingOrder)
 	int colSorted; //!<save the last column whiche was used to sort

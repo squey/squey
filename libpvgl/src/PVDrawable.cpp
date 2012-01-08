@@ -31,7 +31,7 @@
  *****************************************************************************/
 int PVGL::PVDrawable::dumb_scheduler(PVGL::PVIdleTaskKinds kind)
 {
-	PVLOG_DEBUG("PVGL::PVDrawable::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVDrawable::%s\n", __FUNCTION__);
 
 	if (!idle_manager.task_exists(this, kind)) {
 		return 0;
@@ -71,7 +71,7 @@ int PVGL::PVDrawable::dumb_scheduler(PVGL::PVIdleTaskKinds kind)
  *****************************************************************************/
 int PVGL::PVDrawable::small_files_scheduler(PVGL::PVIdleTaskKinds kind)
 {
-	PVLOG_DEBUG("PVGL::PVDrawable::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVDrawable::%s\n", __FUNCTION__);
 
 	if (!idle_manager.task_exists(this, kind)) {
 		return 0;
@@ -88,14 +88,16 @@ int PVGL::PVDrawable::small_files_scheduler(PVGL::PVIdleTaskKinds kind)
 PVGL::PVDrawable::PVDrawable(int win_id, PVSDK::PVMessenger *message) :
 		pv_message(message),
 		widget_manager(0), index(0),
-		window_id(win_id)
+		window_id(win_id),
+		frame_count(0)
 {
+	fps_previous_time = glutGet(GLUT_ELAPSED_TIME);
 	// Default width and height needs to be set, or we will use an undefined value
 	// when resizing our layouts
 	width = pvconfig.value("pvgl/parallel_view_width", PVGL_VIEW_DEFAULT_WIDTH).toInt();
 	height = pvconfig.value("pvgl/parallel_view_height", PVGL_VIEW_DEFAULT_HEIGHT).toInt();
 
-	PVLOG_DEBUG("PVGL::PVDrawable::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVDrawable::%s\n", __FUNCTION__);
 	fullscreen = false;
 }
 
@@ -110,7 +112,7 @@ PVGL::PVDrawable::~PVDrawable()
  *****************************************************************************/
 void PVGL::PVDrawable::init(Picviz::PVView_p view)
 {
-	PVLOG_DEBUG("PVGL::PVDrawable::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVDrawable::%s\n", __FUNCTION__);
 	picviz_view = view;
 
 	int max_lines_for_scheduler_small = pvconfig.value("pvgl/max_lines_for_scheduler_small", 80000).toInt();
@@ -127,9 +129,34 @@ void PVGL::PVDrawable::init(Picviz::PVView_p view)
  * PVGL::PVDrawable::set_size
  *
  *****************************************************************************/
+void PVGL::PVDrawable::compute_fps()
+{
+	frame_count++;
+	
+	int cur_time = glutGet(GLUT_ELAPSED_TIME);
+	int time_interval = cur_time - fps_previous_time;
+
+	if(time_interval > 200)
+	{
+		// calculate the number of frames per second
+		current_fps = (double) frame_count / ((double) time_interval / 1000.0);
+
+		// Set time
+		fps_previous_time = cur_time;
+
+		// Reset frame count
+		frame_count = 0;
+	}
+}
+
+/******************************************************************************
+ *
+ * PVGL::PVDrawable::set_size
+ *
+ *****************************************************************************/
 void PVGL::PVDrawable::set_size(int w, int h)
 {
-	PVLOG_DEBUG("PVGL::PVDrawable::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVDrawable::%s\n", __FUNCTION__);
 
 	width = w;
 	height = h;
@@ -143,7 +170,7 @@ void PVGL::PVDrawable::set_size(int w, int h)
  *****************************************************************************/
 void PVGL::PVDrawable::keyboard(unsigned char, int, int)
 {
-	PVLOG_DEBUG("PVGL::PVDrawable::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVDrawable::%s\n", __FUNCTION__);
 }
 
 /******************************************************************************
@@ -153,7 +180,7 @@ void PVGL::PVDrawable::keyboard(unsigned char, int, int)
  *****************************************************************************/
 void PVGL::PVDrawable::special_keys(int, int, int)
 {
-	PVLOG_DEBUG("PVGL::PVDrawable::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVDrawable::%s\n", __FUNCTION__);
 }
 
 /******************************************************************************
@@ -163,7 +190,7 @@ void PVGL::PVDrawable::special_keys(int, int, int)
  *****************************************************************************/
 void PVGL::PVDrawable::mouse_wheel(int, int, int)
 {
-	PVLOG_DEBUG("PVGL::PVDrawable::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVDrawable::%s\n", __FUNCTION__);
 }
 
 /******************************************************************************
@@ -173,7 +200,7 @@ void PVGL::PVDrawable::mouse_wheel(int, int, int)
  *****************************************************************************/
 void PVGL::PVDrawable::mouse_down(int, int, int, int)
 {
-	PVLOG_DEBUG("PVGL::PVDrawable::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVDrawable::%s\n", __FUNCTION__);
 }
 
 /******************************************************************************
@@ -183,7 +210,7 @@ void PVGL::PVDrawable::mouse_down(int, int, int, int)
  *****************************************************************************/
 bool PVGL::PVDrawable::mouse_move(int, int, int)
 {
-	PVLOG_DEBUG("PVGL::PVDrawable::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVDrawable::%s\n", __FUNCTION__);
 
 	return false;
 }
@@ -195,7 +222,7 @@ bool PVGL::PVDrawable::mouse_move(int, int, int)
  *****************************************************************************/
 bool PVGL::PVDrawable::mouse_up(int, int, int, int)
 {
-	PVLOG_DEBUG("PVGL::PVDrawable::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVDrawable::%s\n", __FUNCTION__);
 
 	return false;
 }
@@ -207,7 +234,7 @@ bool PVGL::PVDrawable::mouse_up(int, int, int, int)
  *****************************************************************************/
 bool PVGL::PVDrawable::passive_motion(int, int, int)
 {
-	PVLOG_DEBUG("PVGL::PVDrawable::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVDrawable::%s\n", __FUNCTION__);
 
 	return false;
 }
@@ -219,7 +246,7 @@ bool PVGL::PVDrawable::passive_motion(int, int, int)
  *****************************************************************************/
 int PVGL::PVDrawable::get_max_lines_per_redraw() const
 {
-	PVLOG_DEBUG("PVGL::PVDrawable::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVGL::PVDrawable::%s\n", __FUNCTION__);
 
 	return max_lines_per_redraw;
 }

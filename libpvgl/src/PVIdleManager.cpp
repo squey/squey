@@ -25,8 +25,9 @@ void PVGL::PVIdleManager::callback(void)
 	PVLOG_HEAVYDEBUG("PVGL::PVIdleManager::%s\n", __FUNCTION__);
 
 	for (it = tasks.begin(); it != tasks.end(); ++it) {
-		PVGL::wtk_set_current_window(it->first.drawable->get_window_id());
-		it->first.drawable->draw();
+		PVDrawable* d = it->first.drawable;
+		PVGL::wtk_set_current_window(d->get_window_id());
+		d->draw();
 		PVGL::wtk_buffers_swap();
 	}
 	it = tasks.begin();

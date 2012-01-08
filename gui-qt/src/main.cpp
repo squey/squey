@@ -18,6 +18,7 @@
 #include <iostream>
 
 #include <stdio.h>
+//#include <dlfcn.h>
 
 #include <time.h>
 #include <pvkernel/core/picviz_intrin.h>
@@ -34,6 +35,7 @@ namespace bpo = boost::program_options;
 
 int main(int argc, char *argv[])
 {
+	//dlopen("/lib/x86_64-linux-gnu/libgcc_s.so.1", RTLD_LAZY);
 	QApplication app(argc, argv);
 
 	// Program options

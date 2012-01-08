@@ -23,7 +23,7 @@
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVNrawChild.h>
 
-#include <tbb/scalable_allocator.h>
+#include <tbb/tbb_allocator.h>
 #include <tbb/tick_count.h>
 
 namespace PVRush {
@@ -40,7 +40,7 @@ namespace PVRush {
 		typedef nraw_trans_table::line trans_nraw_table_line;
 		typedef nraw_trans_table::const_line const_trans_nraw_table_line;
 	private:
-		typedef std::list<PVCore::PVChunk*, tbb::scalable_allocator<PVCore::PVChunk*> > list_chunks_t;
+		typedef std::list<PVCore::PVChunk*, tbb::tbb_allocator<PVCore::PVChunk*> > list_chunks_t;
 	public:
 		PVNraw();
 		~PVNraw();
@@ -85,38 +85,6 @@ namespace PVRush {
 			table.set_value(row, col, str);
 		}
 
-		inline bool add_row(PVCore::PVElement& elt)
-		{
-			if (_real_nrows >= table.get_nrows()) {
-				// Reallocation is necessary
-				PVLOG_DEBUG("(PVNraw::add_row) reallocation of the NRAW table (element %d asked,  table size is %d).\n", _real_nrows, table.get_nrows());
-				table.resize_nrows(_real_nrows + 6024, PVCore::PVUnicodeString());
-				return true;
-			}
-			PVCore::list_fields& lf = elt.fields();
-			if (table.get_ncols() < (PVCol) lf.size()) {
-				PVLOG_WARN("(PVNraw::add_row) NRAW table has %d fields, and %d are requested.\n");
-				if (_real_nrows == 0) {
-					PVLOG_WARN("(PVNraw::add_row) that's the first element of the NRAW, resizing...\n");
-					table.resize(table.get_nrows(), lf.size());
-				}
-				else {
-					PVLOG_WARN("(PVNraw::add_row) that's not the first element of the NRAW, this element is invalid ! Discard it...\n");
-					return false;
-				}
-			}
-			PVCore::PVUnicodeString* pfields = table.get_row_ptr(_real_nrows);
-			PVCore::list_fields::iterator it;
-			PVCol j = 0;
-			for (it = lf.begin(); it != lf.end(); it++) {
-				pfields[j].set_from_slice(*it);
-				j++;
-			}
-
-			_real_nrows++;
-			return true;
-		}
-
 		template <class Iterator>
 		bool add_column(Iterator begin, Iterator end)
 		{
@@ -157,7 +125,17 @@ namespace PVRush {
 
 		void dump_csv();
 
-		inline void push_chunk_todelete(PVCore::PVChunk* chunk) { _chunks_todel->push_back(chunk); }
+		inline void push_chunk(PVCore::PVChunk* chunk)
+		{
+			_chunks_extract->push_back(chunk);
+			PVCore::list_elts::const_iterator it;
+			for (it = chunk->c_elements().begin(); it != chunk->c_elements().end(); it++) {
+				PVCore::PVElement const* elt = *it;
+				if (elt->valid() && elt->c_fields().size() > 0) {
+					_real_nrows++;
+				}
+			}
+		}
 
 		// AG: should be protected w/ friends and everything...
 		void take_realloc_buffers(PVCore::buf_list_t& list);
@@ -167,6 +145,25 @@ namespace PVRush {
 		void delete_buffers();
 		void clear_table();
 
+		inline bool set_row(PVRow row, PVCore::PVElement& elt)
+		{
+			assert(row < table.get_nrows());
+			PVCore::list_fields& lf = elt.fields();
+			if (table.get_ncols() < (PVCol) lf.size()) {
+				PVLOG_WARN("(PVNraw::add_row) NRAW table has %d fields, and %d are requested. This element is invalid, discard it...\n");
+				return false;
+			}
+			PVCore::PVUnicodeString* pfields = table.get_row_ptr(row);
+			PVCore::list_fields::iterator it;
+			PVCol j = 0;
+			for (it = lf.begin(); it != lf.end(); it++) {
+				pfields[j].set_from_slice(*it);
+				j++;
+			}
+			return true;
+		}
+
+
 	private:
 		PVNraw(const PVNraw& /*nraw*/) {}
 		PVNraw& operator=(PVNraw const& /*nraw*/) { return *this; }
@@ -174,7 +171,8 @@ namespace PVRush {
 	private:
 		QVector<PVNrawChild> children;
 		PVRow _real_nrows;
-		list_chunks_t* _chunks_todel;
+		PVCol _ncols_reserved;
+		list_chunks_t* _chunks_extract;
 
 		nraw_table table;
 		nraw_trans_table trans_table;

@@ -1,7 +1,7 @@
 #include <pvkernel/core/PVBufferSlice.h>
 #include <cassert>
 
-#include <tbb/scalable_allocator.h>
+#include <tbb/tbb_allocator.h>
 
 #include <pvkernel/core/stdint.h>
 
@@ -69,7 +69,7 @@ void PVCore::PVBufferSlice::grow_by_reallocate(size_t n)
 	// No choice here...
 	// TODO: allocate this in a circular buffer
 	
-	static tbb::scalable_allocator<char> alloc;
+	static tbb::tbb_allocator<char> alloc;
 	size_t s = size();
 	char* new_buf;
 	if (_realloc_buf) {
@@ -97,7 +97,7 @@ void PVCore::PVBufferSlice::grow_by_reallocate(size_t n)
 void PVCore::PVBufferSlice::allocate_new(size_t n)
 {
 	// Reallocate new buffer with size 'n', and discards the old content
-	static tbb::scalable_allocator<char> alloc;
+	static tbb::tbb_allocator<char> alloc;
 	if (_realloc_buf) {
 		_buf_list.remove(buf_list_t::value_type(_realloc_buf, _physical_end - _begin));
 	}
@@ -109,7 +109,7 @@ void PVCore::PVBufferSlice::allocate_new(size_t n)
 
 void PVCore::PVBufferSlice::_realloc_data()
 {
-	static tbb::scalable_allocator<char> alloc;
+	static tbb::tbb_allocator<char> alloc;
 	size_t s = (uintptr_t)_physical_end - (uintptr_t)_begin;
 	size_t old_size = size();
 

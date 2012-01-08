@@ -82,5 +82,18 @@ QString PVRush::PVInputFile::human_name()
 	return QString(_path.c_str());
 }
 
+uint64_t PVRush::PVInputFile::file_size()
+{
+#ifdef WIN32
+#else
+	uint64_t cur_off = _file.tellg();
+	_file.clear();
+	_file.seekg(0, std::ios::end);
+	uint64_t size = _file.tellg();
+	_file.seekg(cur_off, std::ios::beg);
+	return size;
+#endif
+}
+
 IMPL_INPUT(PVRush::PVInputFile)
 

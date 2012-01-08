@@ -792,6 +792,7 @@ void PVGL::PVLines::update_arrays_selection(void)
 	glBufferData(GL_TEXTURE_BUFFER, PICVIZ_SELECTION_NUMBER_OF_BYTES,
 	             picviz_view->post_filter_layer.get_selection().get_buffer(), GL_DYNAMIC_DRAW); PRINT_OPENGL_ERROR();
 
+	view->update_label_lines_selected_eventline();
 	set_main_fbo_dirty();
 	//update_arrays_colors(); // FIXME: Is this needed or not arfer all?
 }

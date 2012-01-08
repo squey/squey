@@ -92,6 +92,7 @@ widgets/editors/include/PVAxesIndexEditor.h
 widgets/editors/include/PVCheckBoxEditor.h
 widgets/editors/include/PVColorGradientDualSliderEditor.h
 widgets/editors/include/PVEnumEditor.h
+widgets/editors/include/PVPlainTextEditor.h
 widgets/editors/include/PVRegexpEditor.h
 widgets/editors/include/PVSpinBoxEditor.h
 widgets/editors/include/PVTimeFormatEditor.h
@@ -183,6 +184,7 @@ widgets/editors/PVAxesIndexEditor.cpp
 widgets/editors/PVCheckBoxEditor.cpp
 widgets/editors/PVColorGradientDualSliderEditor.cpp
 widgets/editors/PVEnumEditor.cpp
+widgets/editors/PVPlainTextEditor.cpp
 widgets/editors/PVRegexpEditor.cpp
 widgets/editors/PVSpinBoxEditor.cpp
 widgets/editors/PVTimeFormatEditor.cpp
@@ -261,7 +263,7 @@ if(SET_PROTECT)
 endif()
 
 set_property(TARGET picviz-inspector APPEND PROPERTY LINK_FLAGS ${GALVEZ_LDFLAGS})
-target_link_libraries(picviz-inspector ${QT_LIBRARIES} ${PVSDK_LIBRARY} ${PICVIZ_LIBRARY} ${PVKERNEL_LIBRARY} ${PVGL_LIBRARY} ${WIN32_EXTRA_LIBS} ${TBB_LIBRARIES} ${TBB_MALLOC_LIBRARY} ${Boost_LIBRARIES_PYTHON} ${PYTHON_LIBRARY} ${ICU_LIBRARY} ${GALVEZ_LIBS})
+target_link_libraries(picviz-inspector ${QT_LIBRARIES} ${PVSDK_LIBRARY} ${PICVIZ_LIBRARY} ${PVKERNEL_LIBRARY} ${PVGL_LIBRARY} ${WIN32_EXTRA_LIBS} ${TBB_LIBRARIES} ${Boost_LIBRARIES_PYTHON} ${PYTHON_LIBRARY} ${ICU_LIBRARY} ${GALVEZ_LIBS})
 
 INSTALL(TARGETS picviz-inspector DESTINATION .)
 

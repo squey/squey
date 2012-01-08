@@ -107,7 +107,7 @@ void PVRush::PVFormat::debug()
 		PVAxisFormat const& axis = *it;
 
 		fill = fill_spaces(QString::number(i+1, 10), 7);
-		PVLOG_PLAIN( "%d%s", i+1, fill);
+		PVLOG_PLAIN( "%d%s", i, fill);
 		free(fill);
 		fill = fill_spaces(axis.get_type(), 15);
 		PVLOG_PLAIN( "| %s%s", qPrintable(axis.get_type()), fill);

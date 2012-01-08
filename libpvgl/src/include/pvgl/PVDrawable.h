@@ -36,6 +36,11 @@ protected:
 	PVWidgetManager *widget_manager; //!<
 	int max_lines_per_redraw;
 
+	// FPS computation
+	unsigned int frame_count;
+	int fps_previous_time;
+	double current_fps;
+
 private:
 	int              index;          //!< Index number, which is equal to the number of #PVDrawable opened with the same Picviz::PVView.
 	QString          base_name;      //!< Name of this view (filename only).
@@ -57,6 +62,8 @@ public:
 	 *
 	 */
 	virtual void init(Picviz::PVView_p view);
+
+	void compute_fps();
 
 	//! \name getters
 	int get_max_lines_per_redraw() const;

@@ -73,11 +73,12 @@ public:
 	bool operator!=(const PVUnicodeString& o) const;
 	bool operator<(const PVUnicodeString& o) const;
 	int compare(const PVUnicodeString& o) const;
+	int compare(const char* str) const;
 
 	// == Data access ==
 	inline const utf_char* buffer() const { return _buf; }
-	inline size_t size() const { return _len; };
-	inline size_t len() const { return _len; };
+	inline uint32_t size() const { return _len; };
+	inline uint32_t len() const { return _len; };
 	inline QString const& get_qstr() const
 	{
 		if (_qstr.isNull()) {
@@ -102,7 +103,7 @@ public:
 
 protected:
 	const utf_char* _buf;
-	size_t _len;
+	uint32_t _len;
 	mutable QString _qstr;
 
 	PYTHON_EXPOSE()

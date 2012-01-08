@@ -45,10 +45,10 @@ add_library(mapping_filter_host_default SHARED host_default/PVMappingFilterHostD
 target_link_libraries(mapping_filter_host_default ${LINK_LIBRARIES})
 
 add_library(mapping_filter_string_default SHARED string_default/PVMappingFilterStringDefault.cpp string_default/register.cpp)
-target_link_libraries(mapping_filter_string_default ${LINK_LIBRARIES} ${TBB_LIBRARIES} ${TBB_MALLOC_LIBRARY})
+target_link_libraries(mapping_filter_string_default ${LINK_LIBRARIES} ${TBB_LIBRARIES})
 
 add_library(mapping_filter_string_4Bsort SHARED string_4Bsort/PVMappingFilterString4Bsort.cpp string_4Bsort/register.cpp)
-target_link_libraries(mapping_filter_string_4Bsort ${LINK_LIBRARIES} ${TBB_LIBRARIES} ${TBB_MALLOC_LIBRARY})
+target_link_libraries(mapping_filter_string_4Bsort ${LINK_LIBRARIES} ${TBB_LIBRARIES})
 
 add_library(mapping_filter_string_sort SHARED string_sort/PVMappingFilterStringSort.cpp string_sort/register.cpp)
 target_link_libraries(mapping_filter_string_sort ${LINK_LIBRARIES})
