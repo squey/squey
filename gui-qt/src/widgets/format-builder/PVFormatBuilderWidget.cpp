@@ -28,6 +28,7 @@ PVInspector::PVFormatBuilderWidget::PVFormatBuilderWidget(QWidget * parent):
 	QMainWindow(parent)
 {
 	init(parent);
+	setObjectName("PVFormatBuilderWidget");
 }
 
 void PVInspector::PVFormatBuilderWidget::init(QWidget* parent)
@@ -128,10 +129,10 @@ void PVInspector::PVFormatBuilderWidget::init(QWidget* parent)
 	// this will set the pos of this window to absolute (0,0). That's not what we want,
 	// because we want it centered, according to the main window's position (our parent).
 	// So set the window flag and set the center os our gemotry to the center of our parent.
-	QRect geom = QRect(0,0,700,500);
-	setWindowFlags(Qt::Window);
-	geom.moveCenter(parent->geometry().center());
-	setGeometry(geom);
+	// QRect geom = QRect(0,0,700,500);
+	// setWindowFlags(Qt::Window);
+	// geom.moveCenter(parent->geometry().center());
+	// setGeometry(geom);
 }
 /******************************************************************************
  *
@@ -178,6 +179,9 @@ void PVInspector::PVFormatBuilderWidget::actionAllocation(){
     actionOpen = new QAction(tr("Open format..."),(QObject*)this);
     actionOpen->setShortcut(QKeySequence(Qt::CTRL+Qt::Key_O));
     actionOpen->setIcon(QIcon(":/document-open.png"));
+
+    actionNewWindow = new QAction(tr("New window"),(QObject*)this);
+
 }
 
 
@@ -200,7 +204,7 @@ void PVInspector::PVFormatBuilderWidget::initConnexions() {
 	
 
     /*
-     * Connexions for the toolBar.
+     * Connexions for both menu and toolbar.
      */
     connect(actionAddAxisIn,  SIGNAL(triggered()),this,SLOT(slotAddAxisIn()));
     connect(actionAddFilterAfter, SIGNAL(triggered()), this, SLOT(slotAddFilterAfter()));
@@ -208,6 +212,7 @@ void PVInspector::PVFormatBuilderWidget::initConnexions() {
     connect(actionDelete, SIGNAL(triggered()), this, SLOT(slotDelete()));
     connect(actionMoveDown,SIGNAL(triggered()),this,SLOT(slotMoveDown()));
     connect(actionMoveUp,SIGNAL(triggered()),this,SLOT(slotMoveUp()));
+    connect(actionNewWindow,SIGNAL(triggered()),this,SLOT(slotNewWindow()));
     connect(actionOpen,SIGNAL(triggered()),this,SLOT(slotOpen()));
     connect(actionSave, SIGNAL(triggered()), this, SLOT(slotSave()));
     connect(actionSaveAs, SIGNAL(triggered()), this, SLOT(slotSaveAs()));
@@ -391,6 +396,18 @@ void PVInspector::PVFormatBuilderWidget::slotNeedApply(){
 
 /******************************************************************************
  *
+ * PVInspector::PVFormatBuilderWidget::slotNewWindow
+ *
+ *****************************************************************************/
+void PVInspector::PVFormatBuilderWidget::slotNewWindow() 
+{
+	PVFormatBuilderWidget *other = new PVFormatBuilderWidget;
+	other->move(x() + 40, y() + 40);
+	other->show();
+}
+
+/******************************************************************************
+ *
  * PVInspector::PVFormatBuilderWidget::slotOpen
  *
  *****************************************************************************/
@@ -525,6 +542,8 @@ void PVInspector::PVFormatBuilderWidget::slotUpdateToolDesabled(const QModelInde
  *****************************************************************************/
 void PVInspector::PVFormatBuilderWidget::initMenuBar() {
         QMenu *file = menuBar->addMenu(tr("&File"));
+
+	file->addAction(actionNewWindow);
         file->addAction(actionOpen);
         file->addAction(actionSave);
         file->addAction(actionSaveAs);

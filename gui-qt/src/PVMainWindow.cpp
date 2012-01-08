@@ -70,6 +70,8 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 {
 	_is_project_untitled = true;
 
+	setObjectName("PVMainWindow");
+
 	QSplashScreen splash(QPixmap(":/splash-screen"));
 
 	if (time(NULL) >= CUSTOMER_RELEASE_EXPIRATION_DATE) {

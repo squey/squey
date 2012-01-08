@@ -112,6 +112,7 @@ private:
     QAction *actionDelete;
     QAction *actionMoveUp;
     QAction *actionMoveDown;
+    QAction *actionNewWindow;
     QAction *actionOpen;
     QAction *actionSave;
     QAction *actionSaveAs;
@@ -166,6 +167,7 @@ public slots:
 	void slotMoveUp();
 	void slotMoveDown();
 	void slotNeedApply();
+	void slotNewWindow();
 	void slotOpen();
 	void slotOpenLog();
 	void slotSave();
