@@ -290,15 +290,15 @@ bool PVInspector::PVXmlDomModel::setData(const QModelIndex & index, const QVaria
  * PVInspector::PVXmlDomModel::saveXml
  *
  *****************************************************************************/
-bool PVInspector::PVXmlDomModel::saveXml(QString nomDuFichierXml){
+bool PVInspector::PVXmlDomModel::saveXml(QString xml_file){
 
-	if (!nomDuFichierXml.endsWith(".format")) {
-		nomDuFichierXml.append(".format");
+	if (!xml_file.endsWith(".format")) {
+		xml_file.append(".format");
 	}
 
-    QFile file(nomDuFichierXml);
+    QFile file(xml_file);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
-		QMessageBox msg(QMessageBox::Critical, "Error while saving format", QString("Unable to open %1 for writing: ").arg(nomDuFichierXml) + file.errorString(), QMessageBox::Ok);
+		QMessageBox msg(QMessageBox::Critical, "Error while saving format", QString("Unable to open %1 for writing: ").arg(xml_file) + file.errorString(), QMessageBox::Ok);
 		msg.exec();
 		return false;
 	}
