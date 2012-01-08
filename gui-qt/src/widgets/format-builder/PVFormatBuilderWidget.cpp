@@ -223,6 +223,8 @@ void PVInspector::PVFormatBuilderWidget::actionAllocation(){
     actionOpen->setIcon(QIcon(":/document-open.png"));
 
     actionNewWindow = new QAction(tr("New window"),(QObject*)this);
+    actionCloseWindow = new QAction(tr("Close window"),(QObject*)this);
+    actionCloseWindow->setShortcut(QKeySequence(Qt::CTRL+Qt::Key_W));
 
 }
 
@@ -255,6 +257,7 @@ void PVInspector::PVFormatBuilderWidget::initConnexions() {
     connect(actionMoveDown,SIGNAL(triggered()),this,SLOT(slotMoveDown()));
     connect(actionMoveUp,SIGNAL(triggered()),this,SLOT(slotMoveUp()));
     connect(actionNewWindow,SIGNAL(triggered()),this,SLOT(slotNewWindow()));
+    connect(actionCloseWindow,SIGNAL(triggered()),this,SLOT(close()));
     connect(actionOpen,SIGNAL(triggered()),this,SLOT(slotOpen()));
     connect(actionSave, SIGNAL(triggered()), this, SLOT(slotSave()));
     connect(actionSaveAs, SIGNAL(triggered()), this, SLOT(slotSaveAs()));
@@ -596,6 +599,7 @@ void PVInspector::PVFormatBuilderWidget::initMenuBar() {
         QMenu *file = menuBar->addMenu(tr("&File"));
 
 	file->addAction(actionNewWindow);
+        file->addSeparator();
         file->addAction(actionOpen);
         file->addAction(actionSave);
         file->addAction(actionSaveAs);
@@ -615,6 +619,10 @@ void PVInspector::PVFormatBuilderWidget::initMenuBar() {
                         splitter->addAction(action);
                 }
         }
+
+        file->addSeparator();
+	file->addAction(actionCloseWindow);
+
 }
 
 

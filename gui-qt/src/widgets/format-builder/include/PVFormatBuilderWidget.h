@@ -115,6 +115,7 @@ private:
     QAction *actionAddUrl;
     QAction *actionAddRegExIn;
     QPushButton *actionApply;
+    QAction *actionCloseWindow;
     QAction *actionDelete;
     QAction *actionMoveUp;
     QAction *actionMoveDown;
