@@ -31,6 +31,48 @@ PVInspector::PVFormatBuilderWidget::PVFormatBuilderWidget(QWidget * parent):
 	setObjectName("PVFormatBuilderWidget");
 }
 
+bool PVInspector::PVFormatBuilderWidget::somethingChanged(void)
+{
+	if (myTreeView->model()->rowCount()) {
+		return true;
+	}
+
+	return false;
+}
+
+void PVInspector::PVFormatBuilderWidget::closeEvent(QCloseEvent *event)
+{
+	if (somethingChanged()) {
+		QMessageBox msgBox;
+		msgBox.setText("The document has been modified.");
+		msgBox.setInformativeText("Do you want to save your changes?");
+		msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+		msgBox.setDefaultButton(QMessageBox::Save);
+		int ret = msgBox.exec();
+		switch (ret) {
+		case QMessageBox::Save:
+			if (save()) {
+	       			event->accept();
+			} else {
+				event->ignore();
+			}
+			break;
+		case QMessageBox::Discard:
+			event->accept();
+			break;
+		case QMessageBox::Cancel:
+			event->ignore();
+			break;
+		default:
+			// should never be reached
+			break;
+		}
+
+	} else {
+		event->accept();
+	}
+}
+
 void PVInspector::PVFormatBuilderWidget::init(QWidget* parent)
 {
 	setWindowTitle(FORMAT_BUILDER_TITLE);
@@ -419,39 +461,37 @@ void PVInspector::PVFormatBuilderWidget::slotOpen() {
 }
 
 
+bool PVInspector::PVFormatBuilderWidget::save() {
+	// Take focus, so any currently edited argument will be set
+	setFocus(Qt::MouseFocusReason);
+
+	if (_cur_file.isEmpty()) {
+		return saveAs();
+	}	
+
+	bool save_xml = myTreeModel->saveXml(_cur_file);
+	if (save_xml) {
+		return true;
+	}
+
+	QMessageBox err(QMessageBox::Question, tr("Error while saving format"), tr("Unable to save the changes to %1. Do you want to save this format to another location ?").arg(_cur_file), QMessageBox::Yes | QMessageBox::No);
+	if (err.exec() == QMessageBox::No) {
+		return false;
+	}
+
+	return saveAs();
+}
+
 /******************************************************************************
  *
  * PVInspector::PVFormatBuilderWidget::slotSave
  *
  *****************************************************************************/
 void PVInspector::PVFormatBuilderWidget::slotSave() {
-	// Take focus, so any currently edited argument will be set
-	setFocus(Qt::MouseFocusReason);
-
-	if (_cur_file.isEmpty()) {
-		slotSaveAs();
-		return;
-	}	
-
-	if (myTreeModel->saveXml(_cur_file)) {
-		return;
-	}
-
-	QMessageBox err(QMessageBox::Question, tr("Error while saving format"), tr("Unable to save the changes to %1. Do you want to save this format to another location ?").arg(_cur_file), QMessageBox::Yes | QMessageBox::No);
-	if (err.exec() == QMessageBox::No) {
-		return;
-	}
-
-	slotSaveAs();
+	save();
 }
 
-
-/******************************************************************************
- *
- * PVInspector::PVFormatBuilderWidget::slotSaveAs
- *
- *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::slotSaveAs() {
+bool PVInspector::PVFormatBuilderWidget::saveAs() {
 	setFocus(Qt::MouseFocusReason);
 
     QModelIndex index;
@@ -463,8 +503,20 @@ void PVInspector::PVFormatBuilderWidget::slotSaveAs() {
 		if (myTreeModel->saveXml(urlFile)) {
 			_cur_file = urlFile;
 			setWindowTitleForFile(urlFile);
+			return true;
 		}
 	}
+
+	return false;
+}
+
+/******************************************************************************
+ *
+ * PVInspector::PVFormatBuilderWidget::slotSaveAs
+ *
+ *****************************************************************************/
+void PVInspector::PVFormatBuilderWidget::slotSaveAs() {
+	saveAs();
 }
 
 void PVInspector::PVFormatBuilderWidget::setWindowTitleForFile(QString const& path)

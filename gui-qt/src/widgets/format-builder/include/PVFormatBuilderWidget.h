@@ -54,7 +54,9 @@ public:
     virtual ~PVFormatBuilderWidget();
 
 private:
+    	void closeEvent(QCloseEvent *event);
 	void init(QWidget* parent);
+	bool somethingChanged(void);
 
 public:
 	void openFormat(QString const& path);
@@ -62,7 +64,7 @@ public:
 	PVRush::types_groups_t& getGroups() { return myTreeModel->getGroups(); }
 
 private:
-    //
+    //FIXME: Those variables names are crap!
     PVXmlTreeView *myTreeView;
     PVXmlDomModel *myTreeModel;
     PVXmlParamWidget *myParamBord_old_model;
@@ -94,7 +96,11 @@ private:
      */
     void initMenuBar();
     
-	void setWindowTitleForFile(QString const& path);
+    void setWindowTitleForFile(QString const& path);
+
+    bool save();
+    bool saveAs();
+
 
     /**
      * init the toolsbar
