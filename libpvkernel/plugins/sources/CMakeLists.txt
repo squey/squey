@@ -1,7 +1,6 @@
 set(SOURCES_DIST_LIST
 source_text_file
 source_pcap_file
-source_perl_file
 )
 
 
@@ -25,6 +24,9 @@ if(PERLLIBS_FOUND)
 	include_directories(AFTER ${PERL_INCLUDE_PATH})
 	add_library(source_perl_file SHARED perl_file/PVPerlSource.cpp perl_file/PVPerlSource.h perl_file/PVSourceCreatorPerlfile.cpp perl_file/PVSourceCreatorPerlfile.h perl_file/register.cpp)
 	target_link_libraries(source_perl_file ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES} ${PERL_LIBRARY})
+
+
+	set(SOURCES_DIST_LIST ${SOURCES_DIST_LIST} source_perl_file)
 endif(PERLLIBS_FOUND)
 
 if(PYTHONLIBS_FOUND)
