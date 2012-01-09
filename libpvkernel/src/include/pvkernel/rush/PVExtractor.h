@@ -134,6 +134,8 @@ public:
 	 */
 	PVCol get_number_axes();
 
+	void force_number_axes(PVCol naxes);
+
 	chunk_index get_last_start() { return _last_start; }
 	chunk_index get_last_nlines() { return _last_nlines; }
 	void set_last_start(chunk_index start) { _last_start = start; }
@@ -144,6 +146,9 @@ public:
 	void dump_mapnraw();
 	void dump_nraw();
 	void debug();
+
+private:
+	void set_sources_number_fields();
 	
 protected:
 	/*! \brief Find the aggregator index of a line present in the internal nraw
@@ -161,6 +166,7 @@ protected:
 	PVFilter::PVChunkFilter_f _chk_flt;
 	unsigned int _chunks;
 	bool _dump_elts;
+	PVCol _force_naxes; 
 
 protected:
 	chunk_index _last_start;

@@ -4,17 +4,20 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/rush/PVController.h>
 
-#include <QThread>
+#include <tbb/compat/thread>
 
 namespace PVRush {
 
-class LibKernelDecl PVControllerThread : public QThread {
+class LibKernelDecl PVControllerThread
+{
 public:
 	PVControllerThread(PVController& ctrl);
 public:
-	void run();
+	void start();
+	void wait();
 protected:
 	PVController& _ctrl;
+	std::thread _thread;
 };
 
 }

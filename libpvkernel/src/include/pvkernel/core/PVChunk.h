@@ -11,6 +11,7 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/stdint.h>
 #include <pvkernel/core/PVElement.h>
+#include <pvkernel/core/PVField.h>
 #include <pvkernel/rush/PVRawSourceBase_types.h>
 
 #include <tbb/tbb_allocator.h>
@@ -29,19 +30,27 @@ namespace PVCore {
 typedef std::list< PVElement*, tbb::tbb_allocator<PVElement*> > list_elts;
 //typedef std::list<PVElement*> list_elts;
 
-
 // Describe chunk interface with no allocator template
 // Useful in order to use chunks as function arguments...
 class LibKernelDecl PVChunk {
 friend class PVRush::PVAggregator;
 
+protected:
+	// This is what a node in std::list<PVField> looks like !
+	struct __node_list_field
+	{
+		PVCore::PVField f;
+		void *p1;
+		void *p2;
+	};
+
 public:
-	PVChunk() : _index(0), _n_elts_invalid(0) {};
+	PVChunk() : _index(0), _n_elts_invalid(0), _p_chunk_fields(NULL) {};
 	virtual ~PVChunk()
 	{
 		free_structs();
 	}
-	inline void free_structs()
+	void free_structs()
 	{
 		// Free elements
 		list_elts::iterator it;
@@ -49,6 +58,7 @@ public:
 			PVElement::free(*it);
 		}
 		_elts.clear();
+		free_fields_buffer();
 	}
 public:
 	virtual char* begin() const = 0;
@@ -111,6 +121,24 @@ public:
 			i++;
 		}
 	}
+
+	// This should be called when a chunk has been created to reserve its futur fields
+	void init_elements_fields();
+
+protected:
+	void allocate_fields_buffer(PVRow nelts, PVCol nfields)
+	{
+		_p_chunk_fields = ::malloc(sizeof(__node_list_field)*nfields*nelts);
+	}
+
+	void free_fields_buffer()
+	{
+		if (_p_chunk_fields) {
+			::free(_p_chunk_fields);
+			_p_chunk_fields = NULL;
+		}
+	}
+
 private:
 	chunk_index _get_idx_elt(PVElement const& elt)
 	{
@@ -127,6 +155,10 @@ protected:
 	PVRow _n_elts_invalid;
 	size_t _nelts_org;
 	size_t _nelts_valid;
+
+	// Buffer containing the fields for this chunk
+	void* _p_chunk_fields;
+
 };
 
 

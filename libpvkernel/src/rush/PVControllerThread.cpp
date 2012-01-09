@@ -6,9 +6,19 @@ PVRush::PVControllerThread::PVControllerThread(PVController &ctrl) :
 {
 }
 
-void PVRush::PVControllerThread::run()
+void PVRush::PVControllerThread::start()
 {
-	PVLOG_DEBUG("Controller thread launched !\n");
-	_ctrl();
-	PVLOG_DEBUG("Controller thread stopped !\n");
+	if (_thread.joinable()) {
+		PVLOG_WARN("Controller thread already running !\n");
+		return;
+	}
+	std::thread th(boost::bind(&PVController::operator(), &_ctrl));
+	_thread = th;
+}
+
+void PVRush::PVControllerThread::wait()
+{
+	if (_thread.joinable()) {
+		_thread.join();
+	}
 }

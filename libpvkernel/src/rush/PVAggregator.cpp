@@ -336,6 +336,14 @@ PVRush::PVAggregator::list_inputs::iterator PVRush::PVAggregator::agg_index_to_s
 	return _inputs.end();
 }
 
+void PVRush::PVAggregator::set_sources_number_fields(PVCol ncols)
+{
+	list_inputs::iterator it;
+	for (it = _inputs.begin(); it != _inputs.end(); it++) {
+		(*it)->set_number_cols_to_reserve(ncols);
+	}
+}
+
 void PVRush::PVAggregator::debug()
 {
 	// List sources

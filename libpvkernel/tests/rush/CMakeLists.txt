@@ -100,6 +100,10 @@ add_executable(Trush_bench bench_extractor.cpp)
 target_link_libraries(Trush_bench ${LINK_LIBRARIES})
 #add_test(TestBench Trush_bench)
 
+# Memory footprint benchmark
+add_executable(Trush_mem bench_memory.cpp)
+target_link_libraries(Trush_mem ${LINK_LIBRARIES})
+
 add_executable(Trush_input_hdfs input_hdfs.cpp)
 target_link_libraries(Trush_input_hdfs ${LINK_LIBRARIES})
 

@@ -23,6 +23,7 @@ PVRush::PVExtractor::PVExtractor(unsigned int chunks) :
 	_dump_elts = false;
 	_last_start = 0;
 	_last_nlines = 1;
+	_force_naxes = 0;
 }
 
 PVRush::PVExtractor::~PVExtractor()
@@ -98,6 +99,8 @@ chunk_index PVRush::PVExtractor::pvrow_to_agg_index(PVRow start, bool& found)
 PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_pvrow(PVRow start, PVRow end, int priority, bool force_process)
 {
 	assert(start <= end);
+	set_sources_number_fields();
+
 	// Given two pvrows, this function will create an nraw from these two indexes. If the indexes are already in the nraw,
 	// it is just shrinked, unless force_process is set to true.
 	
@@ -140,6 +143,7 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_pvrow(PVRow start, P
 
 PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_index start, chunk_index nlines, int priority)
 {
+	set_sources_number_fields();
 	_nraw.reserve(nlines, get_number_axes());
 
 	_out_nraw.clear_pvrow_index_map();
@@ -161,6 +165,7 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_ind
 
 PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_idxes(chunk_index start, chunk_index end, int priority)
 {
+	set_sources_number_fields();
 	_nraw.reserve(end-start, get_number_axes());
 
 	_out_nraw.clear_pvrow_index_map();
@@ -261,6 +266,11 @@ void PVRush::PVExtractor::set_format(PVFormat const& format)
 	_nraw.format.reset(nraw_format);
 }
 
+void PVRush::PVExtractor::force_number_axes(PVCol naxes)
+{
+	_force_naxes = naxes;
+}
+
 PVCol PVRush::PVExtractor::get_number_axes()
 {
 	if (_nraw.format) {
@@ -269,5 +279,10 @@ PVCol PVRush::PVExtractor::get_number_axes()
 	
 	// The number of axes is unknown, the NRAW will be resized
 	// when the first line is created (see PVNraw::add_row)
-	return 0;
+	return _force_naxes;
+}
+
+void PVRush::PVExtractor::set_sources_number_fields()
+{
+	_agg.set_sources_number_fields(get_number_axes());
 }

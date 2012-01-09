@@ -88,6 +88,9 @@ public:
 		// Set the index of the elements inside the chunk
 		_curc->set_elements_index();
 
+		// Allocate memory for the fields
+		_curc->init_elements_fields();
+
 		// Compute the chunk indexes, based on the number of elements found
 		chunk_index next_index = _curc->index() + _curc->c_elements().size();
 		_offsets[next_index] =  _input->current_input_offset();

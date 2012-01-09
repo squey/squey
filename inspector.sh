@@ -79,7 +79,7 @@ fi
 
 if [ "$1" == "massif" ]
 then
-	valgrind $VALGRIND_ALLOC_FNS --depth=60 --tool=massif --heap=yes --detailed-freq=1 --threshold=0.2  gui-qt/src/picviz-inspector
+	valgrind $VALGRIND_ALLOC_FNS --depth=60 --tool=massif --heap=yes --detailed-freq=1 --threshold=0.1 gui-qt/src/picviz-inspector
 	exit 0
 fi
 

@@ -29,6 +29,14 @@ private:
 public:
 	PVFilter::PVChunkFilter_f source_filter();
 	chunk_index last_elt_index() { return _last_elt_index; }
+	void set_number_cols_to_reserve(PVCol col)
+	{
+		if (col == 0) {
+			col = 1;
+		}
+		_ncols_to_reserve = col;
+	}
+	PVCol get_number_cols_to_reserve() const { return _ncols_to_reserve; }
 	virtual QString human_name() = 0;
 	virtual void seek_begin() = 0;
 	virtual bool seek(input_offset off) = 0;
@@ -39,6 +47,7 @@ public:
 protected:
 	PVFilter::PVChunkFilter_f _src_filter;
 	mutable chunk_index _last_elt_index; // Local file index of the last element of that source. Can correspond to a number of lines
+	PVCol _ncols_to_reserve;
 };
 
 }

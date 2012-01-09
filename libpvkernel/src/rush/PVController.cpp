@@ -1,5 +1,6 @@
 #include <pvkernel/rush/PVController.h>
 #include <tbb/task.h>
+#include <tbb/task_scheduler_init.h>
 
 PVRush::PVController::PVController() :
 	_shouldStop(false), _pipeline(NULL)
@@ -42,6 +43,7 @@ void PVRush::PVController::operator()()
 				// Debug
 				_cur_job->_agg->debug();
 
+				tbb::task_scheduler_init l_anon;
 				// And create the pipeline
 				_pipeline = new(tbb::task::allocate_root()) PVPipelineTask();
 				_pipeline->set_filter(_cur_job->create_tbb_filter());		

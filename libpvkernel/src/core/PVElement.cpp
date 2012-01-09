@@ -41,10 +41,16 @@ void PVCore::PVElement::init(PVChunk* parent)
 	_valid = true;
 	_parent = parent;
 	// In the beggining, it only has a big field
-	PVField f(*this, begin(), end());
-	_fields.push_back(f);
+	//PVField f(*this, begin(), end());
+	//_fields.push_back(f);
 	_org_buf = NULL;
 	_org_buf_size = 0;
+}
+
+void PVCore::PVElement::init_fields(void* fields_buf, size_t size_buf)
+{
+	new (&_fields) list_fields(list_fields::allocator_type(fields_buf, size_buf));
+	_fields.push_back(PVField(*this, begin(), end()));
 }
 
 bool PVCore::PVElement::valid() const

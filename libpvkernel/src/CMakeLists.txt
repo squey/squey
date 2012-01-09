@@ -13,6 +13,7 @@ core/PVArgument.cpp
 core/PVAxisIndexType.cpp
 core/PVAxisIndexCheckBoxType.cpp
 core/PVBufferSlice.cpp
+core/PVChunk.cpp
 core/PVColor.cpp
 core/PVCompList.cpp
 core/PVClassLibrary.cpp

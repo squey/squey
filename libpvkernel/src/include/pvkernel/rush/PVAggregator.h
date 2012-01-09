@@ -156,6 +156,8 @@ public:
 	 */
 	void set_strict_mode(bool sm) { _strict_mode = sm; }
 
+	void set_sources_number_fields(PVCol nfields);
+
 	void debug();
 
 public:

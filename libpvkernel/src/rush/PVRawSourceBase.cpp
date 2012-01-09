@@ -2,7 +2,8 @@
 #include <pvkernel/rush/PVInput.h>
 
 PVRush::PVRawSourceBase::PVRawSourceBase(PVFilter::PVChunkFilter_f src_filter) :
-	_src_filter(src_filter)
+	_src_filter(src_filter),
+	_ncols_to_reserve(1)
 {
 	_last_elt_index = 0;
 }
