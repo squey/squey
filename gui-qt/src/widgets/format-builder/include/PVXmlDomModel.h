@@ -30,14 +30,13 @@ namespace PVInspector{
 class PVXmlDomModel: public QAbstractItemModel {
     
     Q_OBJECT
+
 public:
     PVXmlDomModel(QWidget * parent = NULL);
     virtual ~PVXmlDomModel();
-    
-    
-    
+            
     /*
-     * Méthodes for the toolBar
+     * Toolbar methods
      */
     void addFilterAfter(QModelIndex &index);
     void applyModification(QModelIndex &index,PVXmlParamWidget *paramBord);
@@ -46,7 +45,7 @@ public:
     * Add items
     */
     void addAxisIn(const QModelIndex &index);
-	PVRush::PVXmlTreeNodeDom* addAxisIn(PVRush::PVXmlTreeNodeDom* parentNode);
+    PVRush::PVXmlTreeNodeDom* addAxisIn(PVRush::PVXmlTreeNodeDom* parentNode);
 
 	PVRush::PVXmlTreeNodeDom* addSplitter(const QModelIndex &index, PVFilter::PVFieldsSplitterParamWidget_p splitterPlugin);
     void addRegExIn(const QModelIndex &index);
@@ -106,7 +105,7 @@ public:
     virtual QVariant headerData ( int section, Qt::Orientation orientation, int role = Qt::DisplayRole ) const;
     
     
-    bool saveXml(QString fichierXml);
+    bool saveXml(QString xml_file);
     
     void deleteSelection(QModelIndex &index);
     

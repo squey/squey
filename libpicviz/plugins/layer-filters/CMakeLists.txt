@@ -14,7 +14,7 @@ layer_filter_heatline
 layer_filter_find_duplicates
 layer_filter_multiple_search
 layer_filter_search
-layer_filter_webmail
+layer_filter_create_layers
 )
 
 set(FILTERS_DIST_FILES
@@ -40,8 +40,8 @@ target_link_libraries(layer_filter_search ${LINK_LIBRARIES})
 add_library(layer_filter_find_duplicates SHARED find-duplicates/PVLayerFilterFindDuplicates.cpp find-duplicates/register.cpp)
 target_link_libraries(layer_filter_find_duplicates ${LINK_LIBRARIES})
 
-add_library(layer_filter_webmail SHARED webmail-finder/PVLayerFilterWebmailFinder.cpp webmail-finder/register.cpp)
-target_link_libraries(layer_filter_webmail ${LINK_LIBRARIES})
+add_library(layer_filter_create_layers SHARED create-layers/PVLayerFilterCreateLayers.cpp create-layers/register.cpp)
+target_link_libraries(layer_filter_create_layers ${LINK_LIBRARIES})
 
 add_library(layer_filter_find_same_values SHARED find-same-values/PVLayerFilterFindSameValues.cpp find-same-values/register.cpp)
 target_link_libraries(layer_filter_find_same_values ${LINK_LIBRARIES})

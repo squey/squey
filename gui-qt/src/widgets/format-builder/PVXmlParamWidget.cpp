@@ -24,7 +24,7 @@
  * PVInspector::PVXmlParamWidget::PVXmlParamWidget
  *
  *****************************************************************************/
-PVInspector::PVXmlParamWidget::PVXmlParamWidget(PVXmlEditorWidget* parent) :
+PVInspector::PVXmlParamWidget::PVXmlParamWidget(PVFormatBuilderWidget* parent) :
 	QWidget(),
 	_parent(parent)
 {

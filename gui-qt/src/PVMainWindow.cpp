@@ -57,7 +57,7 @@
 #include <pvgl/general.h>
 #include <pvgl/PVMain.h>
 
-#include <PVXmlEditorWidget.h>
+#include <PVFormatBuilderWidget.h>
 
 QFile *report_file;
 
@@ -69,6 +69,8 @@ QFile *report_file;
 PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 {
 	_is_project_untitled = true;
+
+	setObjectName("PVMainWindow");
 
 	QSplashScreen splash(QPixmap(":/splash-screen"));
 

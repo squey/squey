@@ -1,11 +1,11 @@
-//! \file PVXmlEditorWidget.h
+//! \file PVFormatBuilderWidget.h
 //! $Id$
 //! Copyright (C) Sébastien Tricaud 2011-2011
 //! Copyright (C) Philippe Saadé 2011-2011
 //! Copyright (C) Picviz Labs 2011
 
-#ifndef FEN2_H
-#define	FEN2_H
+#ifndef PVFORMATBUILDER_H
+#define	PVFORMATBUILDER_H
 #include <iostream>
 
 #include <QTreeView>
@@ -46,15 +46,17 @@ typedef QList<PVFilter::PVFieldsFilterParamWidget<PVFilter::one_to_one> > list_f
 
 class PVAxesCombinationWidget;
 
-class PVXmlEditorWidget : public QDialog {
+class PVFormatBuilderWidget : public QMainWindow {
     Q_OBJECT
 public:
-    PVXmlEditorWidget(QWidget * parent = NULL);
+    PVFormatBuilderWidget(QWidget * parent = NULL);
 
-    virtual ~PVXmlEditorWidget();
+    virtual ~PVFormatBuilderWidget();
 
 private:
+    	void closeEvent(QCloseEvent *event);
 	void init(QWidget* parent);
+	bool somethingChanged(void);
 
 public:
 	void openFormat(QString const& path);
@@ -62,13 +64,13 @@ public:
 	PVRush::types_groups_t& getGroups() { return myTreeModel->getGroups(); }
 
 private:
-    //
+    //FIXME: Those variables names are crap!
     PVXmlTreeView *myTreeView;
     PVXmlDomModel *myTreeModel;
     PVXmlParamWidget *myParamBord_old_model;
     QWidget *myParamBord;
     QWidget emptyParamBoard;
-	QTabWidget* _main_tab;
+    QTabWidget* _main_tab;
     //
     QVBoxLayout *vbParam;
     QMenuBar *menuBar;
@@ -94,7 +96,11 @@ private:
      */
     void initMenuBar();
     
-	void setWindowTitleForFile(QString const& path);
+    void setWindowTitleForFile(QString const& path);
+
+    bool save();
+    bool saveAs();
+
 
     /**
      * init the toolsbar
@@ -109,9 +115,11 @@ private:
     QAction *actionAddUrl;
     QAction *actionAddRegExIn;
     QPushButton *actionApply;
+    QAction *actionCloseWindow;
     QAction *actionDelete;
     QAction *actionMoveUp;
     QAction *actionMoveDown;
+    QAction *actionNewWindow;
     QAction *actionOpen;
     QAction *actionSave;
     QAction *actionSaveAs;
@@ -120,8 +128,8 @@ private:
      * init the splitters list, by listing the plugins found
      */
     void initSplitters();    
-	list_splitters_t _list_splitters;///!<list of the plugins splitters
-	list_filters_t _list_filters;///!<list of the plugins filters
+    list_splitters_t _list_splitters;///!<list of the plugins splitters
+    list_filters_t _list_filters;///!<list of the plugins filters
     
     void showParamBoard(PVRush::PVXmlTreeNodeDom *node);
 
@@ -155,23 +163,23 @@ protected:
 	QString _cur_file;
 
 public slots:
-
-    //slots agissant sur l'arbre.
-    void slotAddAxisIn();
-    void slotAddFilterAfter();
-    void slotAddRegExAfter();
-    void slotAddSplitter();
-    void slotAddUrl();
-    void slotApplyModification();
-    void slotDelete();
-    void slotMoveUp();
-    void slotMoveDown();
-    void slotNeedApply();
-    void slotOpen();
-    void slotOpenLog();
-    void slotSave();
-    void slotSaveAs();
-    void slotUpdateToolDesabled(const QModelIndex &);
+	// Tree slots
+	void slotAddAxisIn();
+	void slotAddFilterAfter();
+	void slotAddRegExAfter();
+	void slotAddSplitter();
+	void slotAddUrl();
+	void slotApplyModification();
+	void slotDelete();
+	void slotMoveUp();
+	void slotMoveDown();
+	void slotNeedApply();
+	void slotNewWindow();
+	void slotOpen();
+	void slotOpenLog();
+	void slotSave();
+	void slotSaveAs();
+	void slotUpdateToolDesabled(const QModelIndex &);
 	void slotExtractorPreview();
 	void slotItemClickedInView(const QModelIndex &index);
 	void slotMainTabChanged(int idx);
@@ -182,5 +190,5 @@ public slots:
 };
 
 }
-#endif	/* FEN2_H */
+#endif	/* PVFORMATBUILDER_H */
 

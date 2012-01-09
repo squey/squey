@@ -1,4 +1,4 @@
-//! \file PVXmlEditorWidget.cpp
+//! \file PVFormatBuilderWidget.cpp
 //! $Id$
 //! Copyright (C) Sébastien Tricaud 2011-2011
 //! Copyright (C) Philippe Saadé 2011-2011
@@ -7,7 +7,7 @@
 #include <QSplitter>
 
 #include <PVAxesCombinationWidget.h>
-#include <PVXmlEditorWidget.h>
+#include <PVFormatBuilderWidget.h>
 #include <PVXmlTreeItemDelegate.h>
 #include <PVXmlParamWidget.h>
 #include <PVInputTypeMenuEntries.h>
@@ -21,16 +21,59 @@
 #define FORMAT_BUILDER_TITLE (QObject::tr("Format builder"))
 /******************************************************************************
  *
- * PVInspector::PVXmlEditorWidget::PVXmlEditorWidget
+ * PVInspector::PVFormatBuilderWidget::PVFormatBuilderWidget
  *
  *****************************************************************************/
-PVInspector::PVXmlEditorWidget::PVXmlEditorWidget(QWidget * parent):
-	QDialog(parent)
+PVInspector::PVFormatBuilderWidget::PVFormatBuilderWidget(QWidget * parent):
+	QMainWindow(parent)
 {
 	init(parent);
+	setObjectName("PVFormatBuilderWidget");
 }
 
-void PVInspector::PVXmlEditorWidget::init(QWidget* parent)
+bool PVInspector::PVFormatBuilderWidget::somethingChanged(void)
+{
+	if (myTreeView->model()->rowCount()) {
+		return true;
+	}
+
+	return false;
+}
+
+void PVInspector::PVFormatBuilderWidget::closeEvent(QCloseEvent *event)
+{
+	if (somethingChanged()) {
+		QMessageBox msgBox;
+		msgBox.setText("The document has been modified.");
+		msgBox.setInformativeText("Do you want to save your changes?");
+		msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+		msgBox.setDefaultButton(QMessageBox::Save);
+		int ret = msgBox.exec();
+		switch (ret) {
+		case QMessageBox::Save:
+			if (save()) {
+	       			event->accept();
+			} else {
+				event->ignore();
+			}
+			break;
+		case QMessageBox::Discard:
+			event->accept();
+			break;
+		case QMessageBox::Cancel:
+			event->ignore();
+			break;
+		default:
+			// should never be reached
+			break;
+		}
+
+	} else {
+		event->accept();
+	}
+}
+
+void PVInspector::PVFormatBuilderWidget::init(QWidget* parent)
 {
 	setWindowTitle(FORMAT_BUILDER_TITLE);
     
@@ -106,7 +149,11 @@ void PVInspector::PVXmlEditorWidget::init(QWidget* parent)
 	initToolBar(main_layout);
 	main_layout->addWidget(main_splitter);
 	main_layout->setMenuBar(menuBar);
-	setLayout(main_layout);
+
+	QWidget *central_widget = new QWidget();
+	central_widget->setLayout(main_layout);
+
+	setCentralWidget(central_widget);
     
     //setWindowModality(Qt::ApplicationModal);
     
@@ -124,17 +171,17 @@ void PVInspector::PVXmlEditorWidget::init(QWidget* parent)
 	// this will set the pos of this window to absolute (0,0). That's not what we want,
 	// because we want it centered, according to the main window's position (our parent).
 	// So set the window flag and set the center os our gemotry to the center of our parent.
-	QRect geom = QRect(0,0,700,500);
-	setWindowFlags(Qt::Window);
-	geom.moveCenter(parent->geometry().center());
-	setGeometry(geom);
+	// QRect geom = QRect(0,0,700,500);
+	// setWindowFlags(Qt::Window);
+	// geom.moveCenter(parent->geometry().center());
+	// setGeometry(geom);
 }
 /******************************************************************************
  *
- * PVInspector::PVXmlEditorWidget::~PVXmlEditorWidget
+ * PVInspector::PVFormatBuilderWidget::~PVFormatBuilderWidget
  *
  *****************************************************************************/
-PVInspector::PVXmlEditorWidget::~PVXmlEditorWidget() {
+PVInspector::PVFormatBuilderWidget::~PVFormatBuilderWidget() {
     /*actionAddFilterAfter->deleteLater();
     actionAddRegExAfter->deleteLater();
     actionDelete->deleteLater();
@@ -144,10 +191,10 @@ PVInspector::PVXmlEditorWidget::~PVXmlEditorWidget() {
 
 /******************************************************************************
  *
- * PVInspector::PVXmlEditorWidget::actionAllocation
+ * PVInspector::PVFormatBuilderWidget::actionAllocation
  *
  *****************************************************************************/
-void PVInspector::PVXmlEditorWidget::actionAllocation(){
+void PVInspector::PVFormatBuilderWidget::actionAllocation(){
     actionAddAxisIn = new QAction("add an axis",(QObject*)this);
     actionAddAxisIn->setIcon(QIcon(":/add-axis"));
     actionAddFilterAfter = new QAction("add a filter",(QObject*)this);
@@ -174,15 +221,20 @@ void PVInspector::PVXmlEditorWidget::actionAllocation(){
     actionOpen = new QAction(tr("Open format..."),(QObject*)this);
     actionOpen->setShortcut(QKeySequence(Qt::CTRL+Qt::Key_O));
     actionOpen->setIcon(QIcon(":/document-open.png"));
+
+    actionNewWindow = new QAction(tr("New window"),(QObject*)this);
+    actionCloseWindow = new QAction(tr("Close window"),(QObject*)this);
+    actionCloseWindow->setShortcut(QKeySequence(Qt::CTRL+Qt::Key_W));
+
 }
 
 
 /******************************************************************************
  *
- * PVInspector::PVXmlEditorWidget::initConnexions
+ * PVInspector::PVFormatBuilderWidget::initConnexions
  *
  *****************************************************************************/
-void PVInspector::PVXmlEditorWidget::initConnexions() {
+void PVInspector::PVFormatBuilderWidget::initConnexions() {
     //connexion to update the parameter board
     connect(myTreeView, SIGNAL(clicked(const QModelIndex &)), myParamBord_old_model, SLOT(edit(const QModelIndex &)));
     //connexion to endable/desable items in toolsbar menu.
@@ -196,7 +248,7 @@ void PVInspector::PVXmlEditorWidget::initConnexions() {
 	
 
     /*
-     * Connexions for the toolBar.
+     * Connexions for both menu and toolbar.
      */
     connect(actionAddAxisIn,  SIGNAL(triggered()),this,SLOT(slotAddAxisIn()));
     connect(actionAddFilterAfter, SIGNAL(triggered()), this, SLOT(slotAddFilterAfter()));
@@ -204,6 +256,8 @@ void PVInspector::PVXmlEditorWidget::initConnexions() {
     connect(actionDelete, SIGNAL(triggered()), this, SLOT(slotDelete()));
     connect(actionMoveDown,SIGNAL(triggered()),this,SLOT(slotMoveDown()));
     connect(actionMoveUp,SIGNAL(triggered()),this,SLOT(slotMoveUp()));
+    connect(actionNewWindow,SIGNAL(triggered()),this,SLOT(slotNewWindow()));
+    connect(actionCloseWindow,SIGNAL(triggered()),this,SLOT(close()));
     connect(actionOpen,SIGNAL(triggered()),this,SLOT(slotOpen()));
     connect(actionSave, SIGNAL(triggered()), this, SLOT(slotSave()));
     connect(actionSaveAs, SIGNAL(triggered()), this, SLOT(slotSaveAs()));
@@ -218,10 +272,10 @@ void PVInspector::PVXmlEditorWidget::initConnexions() {
 
 /******************************************************************************
  *
- * PVInspector::PVXmlEditorWidget::initToolBar
+ * PVInspector::PVFormatBuilderWidget::initToolBar
  *
  *****************************************************************************/
-void PVInspector::PVXmlEditorWidget::initToolBar(QVBoxLayout *vb){
+void PVInspector::PVFormatBuilderWidget::initToolBar(QVBoxLayout *vb){
 
     QToolBar *tools = new QToolBar();
 
@@ -242,10 +296,10 @@ void PVInspector::PVXmlEditorWidget::initToolBar(QVBoxLayout *vb){
 }
 /******************************************************************************
  *
- * PVInspector::PVXmlEditorWidget::initSplitters
+ * PVInspector::PVFormatBuilderWidget::initSplitters
  *
  *****************************************************************************/
-void PVInspector::PVXmlEditorWidget::initSplitters() {
+void PVInspector::PVFormatBuilderWidget::initSplitters() {
         LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::list_classes splitters = LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::get().get_list();
         LIB_CLASS(PVFilter::PVFieldsFilterParamWidget<PVFilter::one_to_one>)::list_classes filters = LIB_CLASS(PVFilter::PVFieldsFilterParamWidget<PVFilter::one_to_one>)::get().get_list();
 
@@ -265,63 +319,63 @@ void PVInspector::PVXmlEditorWidget::initSplitters() {
 
 /******************************************************************************
  *
- * PVInspector::PVXmlEditorWidget::slotAddAxisIn
+ * PVInspector::PVFormatBuilderWidget::slotAddAxisIn
  *
  *****************************************************************************/
-void PVInspector::PVXmlEditorWidget::slotAddAxisIn() {
+void PVInspector::PVFormatBuilderWidget::slotAddAxisIn() {
     myTreeView->addAxisIn();
 }
 
 /******************************************************************************
  *
- * PVInspector::PVXmlEditorWidget::slotAddFilterAfter
+ * PVInspector::PVFormatBuilderWidget::slotAddFilterAfter
  *
  *****************************************************************************/
-void PVInspector::PVXmlEditorWidget::slotAddFilterAfter() {
+void PVInspector::PVFormatBuilderWidget::slotAddFilterAfter() {
     myTreeView->addFilterAfter();
 }
 
 /******************************************************************************
  *
- * PVInspector::PVXmlEditorWidget::slotAddRegExAfter
+ * PVInspector::PVFormatBuilderWidget::slotAddRegExAfter
  *
  *****************************************************************************/
-void PVInspector::PVXmlEditorWidget::slotAddRegExAfter() {
+void PVInspector::PVFormatBuilderWidget::slotAddRegExAfter() {
     myTreeView->addRegExIn();
 }
 /******************************************************************************
  *
- * PVInspector::PVXmlEditorWidget::slotAddSplitter
+ * PVInspector::PVFormatBuilderWidget::slotAddSplitter
  *
  *****************************************************************************/
-void PVInspector::PVXmlEditorWidget::slotAddSplitter()
+void PVInspector::PVFormatBuilderWidget::slotAddSplitter()
 {
         QAction* action_src = (QAction*) sender();
         QString const& itype = action_src->data().toString();
         PVFilter::PVFieldsSplitterParamWidget_p in_t = LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::get().get_class_by_name(itype);
         PVFilter::PVFieldsSplitterParamWidget_p in_t_cpy = in_t->clone<PVFilter::PVFieldsSplitterParamWidget>();
 		QString registered_name = in_t_cpy->registered_name();
-        PVLOG_DEBUG("(PVInspector::PVXmlEditorWidget::slotAddSplitter) type_name %s, %s\n", qPrintable(in_t_cpy->type_name()), qPrintable(registered_name));
+        PVLOG_DEBUG("(PVInspector::PVFormatBuilderWidget::slotAddSplitter) type_name %s, %s\n", qPrintable(in_t_cpy->type_name()), qPrintable(registered_name));
         myTreeView->addSplitter(in_t_cpy);
 }
 
 
 /******************************************************************************
  *
- * PVInspector::PVXmlEditorWidget::slotAddUrl
+ * PVInspector::PVFormatBuilderWidget::slotAddUrl
  *
  *****************************************************************************/
-void PVInspector::PVXmlEditorWidget::slotAddUrl(){
+void PVInspector::PVFormatBuilderWidget::slotAddUrl(){
     myTreeView->addUrlIn();
 }
 
 
 /******************************************************************************
  *
- * PVInspector::PVXmlEditorWidget::slotApplyModification
+ * PVInspector::PVFormatBuilderWidget::slotApplyModification
  *
  *****************************************************************************/
-void PVInspector::PVXmlEditorWidget::slotApplyModification() {
+void PVInspector::PVFormatBuilderWidget::slotApplyModification() {
   QModelIndex index;
     myTreeView->applyModification(myParamBord_old_model,index);
 }
@@ -329,10 +383,10 @@ void PVInspector::PVXmlEditorWidget::slotApplyModification() {
 
 /******************************************************************************
  *
- * PVInspector::PVXmlEditorWidget::slotDelete
+ * PVInspector::PVFormatBuilderWidget::slotDelete
  *
  *****************************************************************************/
-void PVInspector::PVXmlEditorWidget::slotDelete() {
+void PVInspector::PVFormatBuilderWidget::slotDelete() {
     QDialog confirm(this);
     QVBoxLayout vb;
     confirm.setLayout(&vb);
@@ -358,39 +412,51 @@ void PVInspector::PVXmlEditorWidget::slotDelete() {
 
 /******************************************************************************
  *
- * PVInspector::PVXmlEditorWidget::slotMoveUp
+ * PVInspector::PVFormatBuilderWidget::slotMoveUp
  *
  *****************************************************************************/
-void PVInspector::PVXmlEditorWidget::slotMoveUp() {
+void PVInspector::PVFormatBuilderWidget::slotMoveUp() {
     myTreeView->moveUp();
 }
 
 
 /******************************************************************************
  *
- * PVInspector::PVXmlEditorWidget::slotMoveDown
+ * PVInspector::PVFormatBuilderWidget::slotMoveDown
  *
  *****************************************************************************/
-void PVInspector::PVXmlEditorWidget::slotMoveDown() {
+void PVInspector::PVFormatBuilderWidget::slotMoveDown() {
     myTreeView->moveDown();
 }
 
 /******************************************************************************
  *
- * PVInspector::PVXmlEditorWidget::slotNeedApply
+ * PVInspector::PVFormatBuilderWidget::slotNeedApply
  *
  *****************************************************************************/
-void PVInspector::PVXmlEditorWidget::slotNeedApply(){
+void PVInspector::PVFormatBuilderWidget::slotNeedApply(){
   QModelIndex index;
     myTreeView->applyModification(myParamBord_old_model,index);
 }
 
 /******************************************************************************
  *
- * PVInspector::PVXmlEditorWidget::slotOpen
+ * PVInspector::PVFormatBuilderWidget::slotNewWindow
  *
  *****************************************************************************/
-void PVInspector::PVXmlEditorWidget::slotOpen() {
+void PVInspector::PVFormatBuilderWidget::slotNewWindow() 
+{
+	PVFormatBuilderWidget *other = new PVFormatBuilderWidget;
+	other->move(x() + 40, y() + 40);
+	other->show();
+}
+
+/******************************************************************************
+ *
+ * PVInspector::PVFormatBuilderWidget::slotOpen
+ *
+ *****************************************************************************/
+void PVInspector::PVFormatBuilderWidget::slotOpen() {
     QFileDialog fd;
     //open file chooser
     QString urlFile = fd.getOpenFileName(0, QString("Select the file."), PVRush::normalize_get_helpers_plugins_dirs(QString("text")).first());
@@ -398,39 +464,37 @@ void PVInspector::PVXmlEditorWidget::slotOpen() {
 }
 
 
-/******************************************************************************
- *
- * PVInspector::PVXmlEditorWidget::slotSave
- *
- *****************************************************************************/
-void PVInspector::PVXmlEditorWidget::slotSave() {
+bool PVInspector::PVFormatBuilderWidget::save() {
 	// Take focus, so any currently edited argument will be set
 	setFocus(Qt::MouseFocusReason);
 
 	if (_cur_file.isEmpty()) {
-		slotSaveAs();
-		return;
+		return saveAs();
 	}	
 
-	if (myTreeModel->saveXml(_cur_file)) {
-		return;
+	bool save_xml = myTreeModel->saveXml(_cur_file);
+	if (save_xml) {
+		return true;
 	}
 
 	QMessageBox err(QMessageBox::Question, tr("Error while saving format"), tr("Unable to save the changes to %1. Do you want to save this format to another location ?").arg(_cur_file), QMessageBox::Yes | QMessageBox::No);
 	if (err.exec() == QMessageBox::No) {
-		return;
+		return false;
 	}
 
-	slotSaveAs();
+	return saveAs();
 }
-
 
 /******************************************************************************
  *
- * PVInspector::PVXmlEditorWidget::slotSaveAs
+ * PVInspector::PVFormatBuilderWidget::slotSave
  *
  *****************************************************************************/
-void PVInspector::PVXmlEditorWidget::slotSaveAs() {
+void PVInspector::PVFormatBuilderWidget::slotSave() {
+	save();
+}
+
+bool PVInspector::PVFormatBuilderWidget::saveAs() {
 	setFocus(Qt::MouseFocusReason);
 
     QModelIndex index;
@@ -442,11 +506,23 @@ void PVInspector::PVXmlEditorWidget::slotSaveAs() {
 		if (myTreeModel->saveXml(urlFile)) {
 			_cur_file = urlFile;
 			setWindowTitleForFile(urlFile);
+			return true;
 		}
 	}
+
+	return false;
 }
 
-void PVInspector::PVXmlEditorWidget::setWindowTitleForFile(QString const& path)
+/******************************************************************************
+ *
+ * PVInspector::PVFormatBuilderWidget::slotSaveAs
+ *
+ *****************************************************************************/
+void PVInspector::PVFormatBuilderWidget::slotSaveAs() {
+	saveAs();
+}
+
+void PVInspector::PVFormatBuilderWidget::setWindowTitleForFile(QString const& path)
 {
 	// Change the window title with the filename of the format
 	QFileInfo fi(path);
@@ -456,10 +532,10 @@ void PVInspector::PVXmlEditorWidget::setWindowTitleForFile(QString const& path)
 
 /******************************************************************************
  *
- * PVInspector::PVXmlEditorWidget::slotUpdateToolDesabled
+ * PVInspector::PVFormatBuilderWidget::slotUpdateToolDesabled
  *
  *****************************************************************************/
-void PVInspector::PVXmlEditorWidget::slotUpdateToolDesabled(const QModelIndex &index){
+void PVInspector::PVFormatBuilderWidget::slotUpdateToolDesabled(const QModelIndex &index){
     PVRush::PVXmlTreeNodeDom *node = myTreeModel->nodeFromIndex(index);
     
     //hideParamBoard();
@@ -516,11 +592,14 @@ void PVInspector::PVXmlEditorWidget::slotUpdateToolDesabled(const QModelIndex &i
 
 /******************************************************************************
  *
- * PVInspector::PVXmlEditorWidget::initMenuBar
+ * PVInspector::PVFormatBuilderWidget::initMenuBar
  *
  *****************************************************************************/
-void PVInspector::PVXmlEditorWidget::initMenuBar() {
+void PVInspector::PVFormatBuilderWidget::initMenuBar() {
         QMenu *file = menuBar->addMenu(tr("&File"));
+
+	file->addAction(actionNewWindow);
+        file->addSeparator();
         file->addAction(actionOpen);
         file->addAction(actionSave);
         file->addAction(actionSaveAs);
@@ -540,15 +619,19 @@ void PVInspector::PVXmlEditorWidget::initMenuBar() {
                         splitter->addAction(action);
                 }
         }
+
+        file->addSeparator();
+	file->addAction(actionCloseWindow);
+
 }
 
 
 /******************************************************************************
  *
- * PVInspector::PVXmlEditorWidget::slotOpenLog
+ * PVInspector::PVFormatBuilderWidget::slotOpenLog
  *
  *****************************************************************************/
-void PVInspector::PVXmlEditorWidget::slotOpenLog()
+void PVInspector::PVFormatBuilderWidget::slotOpenLog()
 {
 	PVRush::PVInputType_p in_t = PVInputTypeMenuEntries::input_type_from_action((QAction*) sender());
 	PVRush::list_creators lcr = PVRush::PVSourceCreatorFactory::get_by_input_type(in_t);
@@ -617,7 +700,7 @@ void PVInspector::PVXmlEditorWidget::slotOpenLog()
 	_nraw_widget->resize_columns_content();
 }
 
-void PVInspector::PVXmlEditorWidget::create_extractor()
+void PVInspector::PVFormatBuilderWidget::create_extractor()
 {
 	if (_log_extract) {
 		_log_extract->force_stop_controller();
@@ -630,7 +713,7 @@ void PVInspector::PVXmlEditorWidget::create_extractor()
 	_log_extract->add_source(_log_source);
 }
 
-void PVInspector::PVXmlEditorWidget::guess_first_splitter()
+void PVInspector::PVFormatBuilderWidget::guess_first_splitter()
 {
 	// Guess first splitter and add it to the dom before parsing it !
 	// The dom is the reference in here.
@@ -676,14 +759,14 @@ void PVInspector::PVXmlEditorWidget::guess_first_splitter()
 
 /******************************************************************************
  *
- * PVInspector::PVXmlEditorWidget::hideParamBoard
+ * PVInspector::PVFormatBuilderWidget::hideParamBoard
  *
  *****************************************************************************/
-void PVInspector::PVXmlEditorWidget::hideParamBoard(){
-        PVLOG_DEBUG("PVInspector::PVXmlEditorWidget::hideParamBoard\n");
+void PVInspector::PVFormatBuilderWidget::hideParamBoard(){
+        PVLOG_DEBUG("PVInspector::PVFormatBuilderWidget::hideParamBoard\n");
 }
 
-void PVInspector::PVXmlEditorWidget::set_format_from_dom()
+void PVInspector::PVFormatBuilderWidget::set_format_from_dom()
 {
 	QDomElement const& rootDom = myTreeModel->getRootDom();
 	PVRush::PVFormat format;
@@ -696,18 +779,18 @@ void PVInspector::PVXmlEditorWidget::set_format_from_dom()
 
 /******************************************************************************
  *
- * PVInspector::PVXmlEditorWidget::showParamBoard
+ * PVInspector::PVFormatBuilderWidget::showParamBoard
  *
  *****************************************************************************/
-void PVInspector::PVXmlEditorWidget::showParamBoard(PVRush::PVXmlTreeNodeDom *node){
+void PVInspector::PVFormatBuilderWidget::showParamBoard(PVRush::PVXmlTreeNodeDom *node){
         assert(node);
-        PVLOG_DEBUG("PVInspector::PVXmlEditorWidget::showParamBoard()\n");
+        PVLOG_DEBUG("PVInspector::PVFormatBuilderWidget::showParamBoard()\n");
         
         //myParamBord=node->getSplitterPlugin()->get_param_widget();
 
 }
 
-void PVInspector::PVXmlEditorWidget::update_table(PVRow start, PVRow end)
+void PVInspector::PVFormatBuilderWidget::update_table(PVRow start, PVRow end)
 {
 	if (!_log_extract) {
 		return;
@@ -770,20 +853,20 @@ void PVInspector::PVXmlEditorWidget::update_table(PVRow start, PVRow end)
 	}
 }
 
-void PVInspector::PVXmlEditorWidget::slotExtractorPreview()
+void PVInspector::PVFormatBuilderWidget::slotExtractorPreview()
 {
 	PVRow start,end;
 	_nraw_widget->get_ext_args(start,end);
 	update_table(start,end);
 }
 
-bool PVInspector::PVXmlEditorWidget::is_dom_empty()
+bool PVInspector::PVFormatBuilderWidget::is_dom_empty()
 {
 	QDomElement const& rootDom = myTreeModel->getRootDom();
 	return !rootDom.hasChildNodes();
 }
 
-void PVInspector::PVXmlEditorWidget::slotItemClickedInView(const QModelIndex &index)
+void PVInspector::PVFormatBuilderWidget::slotItemClickedInView(const QModelIndex &index)
 {
 	// Automatically set the good columns in the mini-extractor
 	
@@ -817,12 +900,12 @@ void PVInspector::PVXmlEditorWidget::slotItemClickedInView(const QModelIndex &in
 	_nraw_widget->select_column(field_id);
 }
 
-void PVInspector::PVXmlEditorWidget::set_axes_name_selected_row_Slot(int row)
+void PVInspector::PVFormatBuilderWidget::set_axes_name_selected_row_Slot(int row)
 {
 	PVRush::PVNraw const& nraw = _log_extract->get_nraw();
 	// We could use QList::fromVector(QVector::fromStdVector(nraw_table_line)), but that's not really efficient...
 	if (row >= nraw.get_number_rows()) {
-		PVLOG_WARN("(PVXmlEditorWidget::set_axes_name_selected_row_Slot) row index '%d' does not exist in the current NRAW (size '%d').\n", row, nraw.get_number_rows());
+		PVLOG_WARN("(PVFormatBuilderWidget::set_axes_name_selected_row_Slot) row index '%d' does not exist in the current NRAW (size '%d').\n", row, nraw.get_number_rows());
 		return;
 	}
 	QStringList names;
@@ -836,11 +919,11 @@ void PVInspector::PVXmlEditorWidget::set_axes_name_selected_row_Slot(int row)
 	myTreeModel->setAxesNames(names);
 }
 
-void PVInspector::PVXmlEditorWidget::set_axes_type_selected_row_Slot(int row)
+void PVInspector::PVFormatBuilderWidget::set_axes_type_selected_row_Slot(int row)
 {
 }
 
-void PVInspector::PVXmlEditorWidget::openFormat(QString const& path)
+void PVInspector::PVFormatBuilderWidget::openFormat(QString const& path)
 {
     QFile f(path);
     if (f.exists()) {//if the file exists...
@@ -851,12 +934,12 @@ void PVInspector::PVXmlEditorWidget::openFormat(QString const& path)
     }
 }
 
-void PVInspector::PVXmlEditorWidget::openFormat(QDomDocument& doc)
+void PVInspector::PVFormatBuilderWidget::openFormat(QDomDocument& doc)
 {
 	myTreeModel->openXml(doc);
 }
 
-void PVInspector::PVXmlEditorWidget::slotMainTabChanged(int idx)
+void PVInspector::PVFormatBuilderWidget::slotMainTabChanged(int idx)
 {
 	if (idx == 1) {
 		// This is the axes combination editor.

@@ -7,7 +7,7 @@
 #include <picviz/PVPlottingFilter.h>
 
 #include <PVXmlParamWidgetBoardAxis.h>
-#include <PVXmlEditorWidget.h>
+#include <PVFormatBuilderWidget.h>
 #include <PVAxisTagHelp.h>
 #include <PVArgumentListWidget.h>
 
@@ -550,7 +550,7 @@ void PVInspector::PVXmlParamWidgetBoardAxis::updatePlottingParams()
 void PVInspector::PVXmlParamWidgetBoardAxis::setComboGroup()
 {
 	QString type = mapPlotType->get_sel_type();
-	PVXmlEditorWidget* editor = parent()->parent();
+	PVFormatBuilderWidget* editor = parent()->parent();
 	PVRush::types_groups_t const& types_grps = editor->getGroups();
 	if (!types_grps.contains(type)) {
 		return;
