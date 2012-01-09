@@ -32,16 +32,15 @@ void PVRush::PVNraw::reserve(PVRow row, PVCol col)
 	if (col == 0) {
 		col = 1;
 	}
-	/*
 #ifndef WIN32
 	size_t max_alloc = (sysconf(_SC_AVPHYS_PAGES) * sysconf(_SC_PAGE_SIZE))/10;
 	if (max_alloc > 0 && row*col*sizeof(PVCore::PVUnicodeString) > max_alloc) {
 		row = max_alloc/(col*sizeof(PVCore::PVUnicodeString));
 	}
 #endif
-	*/
-	PVLOG_DEBUG("(PVNraw::reserve) row=%u col=%u\n", row, col);
+	PVLOG_INFO("(PVNraw::reserve) row=%u col=%u\n", row, col);
 	table.resize(row, col);
+	PVLOG_INFO("(PVNraw::reserve) done\n");
 }
 
 void PVRush::PVNraw::free_trans_nraw()
@@ -129,8 +128,9 @@ void PVRush::PVNraw::fit_to_content()
 	if (_real_nrows > PICVIZ_LINES_MAX) {
 		_real_nrows = PICVIZ_LINES_MAX;
 	}
+	PVLOG_INFO("(PVNraw::fit_to_content) fit to content: size=%d.\n", table.get_nrows());
 	table.resize_nrows(_real_nrows);
-	PVLOG_DEBUG("(PVNraw::fit_to_content) fit to content: size=%d.\n", table.get_nrows());
+	PVLOG_INFO("(PVNraw::fit_to_content) fit to content done\n");
 }
 
 void PVRush::PVNraw::dump_csv()

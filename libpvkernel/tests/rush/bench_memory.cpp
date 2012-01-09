@@ -90,6 +90,7 @@ public:
 			chunk->add_element(chunk->begin(), chunk->physical_end());
 		}
 		chunk->init_elements_fields();
+		PVLOG_INFO("Chunk %d created\n", _cur_chunk);
 		_cur_chunk++;
 		return chunk;
 	}

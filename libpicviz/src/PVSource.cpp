@@ -68,6 +68,11 @@ void Picviz::PVSource::init()
 	_extractor.set_last_start(0);
 	_extractor.set_last_nlines(pvconfig.value("pvkernel/extract_first", PVEXTRACT_NUMBER_LINES_FIRST_DEFAULT).toInt());
 
+	int nchunks = pvconfig.value("pvkernel/number_living_chunks", 0).toInt();
+	if (nchunks != 0) {
+		_extractor.set_number_living_chunks(nchunks);
+	}
+
 	// Launch the controller thread
 	_extractor.start_controller();
 }

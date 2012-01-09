@@ -140,6 +140,12 @@ public:
 	chunk_index get_last_nlines() { return _last_nlines; }
 	void set_last_start(chunk_index start) { _last_start = start; }
 	void set_last_nlines(chunk_index nlines) { _last_nlines = nlines; }
+	inline void set_number_living_chunks(unsigned int nchunks)
+	{
+		if (nchunks > 0) {
+			_chunks = nchunks;
+		}
+	}
 
 	void dump_elts(bool dump) { _dump_elts = dump; }
 

@@ -62,6 +62,7 @@ int main(int argc, char** argv)
 	PVRush::PVExtractor ext;
 	ext.start_controller();
 	ext.add_source(src);
+	ext.set_format(format);
 	ext.set_chunk_filter(format.create_tbb_filters());
 
 	PVLOG_INFO("Asking 1 million lines...\n");
@@ -71,7 +72,7 @@ int main(int argc, char** argv)
 	PVLOG_INFO("Extraction finished.\n");
 
 	// Dump the NRAW to stdout
-	dump_nraw_csv(ext.get_nraw());
+	//dump_nraw_csv(ext.get_nraw());
 
 	return 0;
 }

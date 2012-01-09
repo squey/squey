@@ -15,10 +15,13 @@
 #include <pvkernel/rush/PVRawSourceBase_types.h>
 
 #include <tbb/tbb_allocator.h>
+#include <tbb/scalable_allocator.h>
 
 #include <memory>
 #include <cassert>
 #include <list>
+
+#include <sys/mman.h>
 
 namespace PVRush {
 	class PVAggregator;
@@ -57,8 +60,8 @@ public:
 		for (it = _elts.begin(); it != _elts.end(); it++) {
 			PVElement::free(*it);
 		}
+		free_fields_buffer(_elts.size(), get_source_number_fields());
 		_elts.clear();
-		free_fields_buffer();
 	}
 public:
 	virtual char* begin() const = 0;
@@ -129,12 +132,16 @@ protected:
 	void allocate_fields_buffer(PVRow nelts, PVCol nfields)
 	{
 		_p_chunk_fields = ::malloc(sizeof(__node_list_field)*nfields*nelts);
+		//_p_chunk_fields = mmap(NULL, sizeof(__node_list_field)*nfields*nelts, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+		//PVLOG_INFO("Allocate %u fields for %u elements (%p)...\n", nfields, nelts, _p_chunk_fields);
 	}
 
-	void free_fields_buffer()
+	void free_fields_buffer(PVRow /*nelts*/, PVCol /*nfields*/)
 	{
 		if (_p_chunk_fields) {
+			//PVLOG_INFO("Deallocate %p\n", _p_chunk_fields);
 			::free(_p_chunk_fields);
+			//munmap(_p_chunk_fields, sizeof(__node_list_field)*nfields*nelts);
 			_p_chunk_fields = NULL;
 		}
 	}
@@ -144,6 +151,8 @@ private:
 	{
 		return elt.get_chunk_index();
 	}
+
+	PVCol get_source_number_fields() const;
 protected:
 	// Useful datas
 	char* _logical_end;

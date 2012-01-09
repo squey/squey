@@ -20,7 +20,11 @@ PVRush::PVSourceCreatorTextfile::source_p PVRush::PVSourceCreatorTextfile::creat
 	PVRush::PVInput_p ifile(new PVRush::PVInputFile(file->path().toLocal8Bit().constData()));
 	// FIXME: chunk size must be computed somewhere once and for all !
 	PVFilter::PVChunkFilter* chk_flt = new PVFilter::PVChunkFilter();
-	source_p src = source_p(new PVRush::PVUnicodeSource<>(ifile, 10000000, chk_flt->f()));
+	int size_chunk = pvconfig.value("pvkernel/max_size_chunk").toInt();
+	if (size_chunk <= 0) {
+		size_chunk = 100000;
+	}
+	source_p src = source_p(new PVRush::PVUnicodeSource<>(ifile, size_chunk, chk_flt->f()));
 
 	return src;
 }

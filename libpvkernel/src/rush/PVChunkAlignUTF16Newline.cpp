@@ -21,7 +21,7 @@ bool PVRush::PVChunkAlignUTF16Newline::operator()(PVCore::PVChunk &cur_chunk, PV
 			// Check if the last character is '\r'
 			if (*((uint16_t*)(last_char)) == 0x000d) {
 				elt.set_end(last_char);
-				elt.fields().front().set_end(last_char);
+				//elt.fields().front().set_end(last_char);
 			}
 		}
 	}
