@@ -16,9 +16,17 @@
 
 #include <pvkernel/core/PVTypeTraits.h>
 
+#include <sys/mmap.h>
+
 namespace PVCore {
 
 void __transpose_float(float* res, float* data, uint32_t nrows, uint32_t ncols);
+
+// Fake allocator in order to specify an mmap-based allocation
+template <class T>
+struct PVMatrixAllocatorMmap { }
+
+namespace __impl {
 
 template <class T, class IndexRow, class IndexCol, bool is_float_multiple = PVTypeTraits::is_size_multiple<T, float>::value, bool bigger_than = PVTypeTraits::bigger_than<T, float>::value, bool is_pod = boost::is_pod<T>::value >
 struct PVMatrixComputation
@@ -81,6 +89,60 @@ struct PVMatrixComputation<T, IndexRow, IndexCol, mod, greater, true>
 		}
 	}
 };
+
+template <class T, template <class Talloc> class Alloc = std::allocator>
+class PVMatrixMemory
+{
+	typedef Alloc<T> allocator_type;
+	typedef T value_type;
+	typedef allocator_type::pointer pointer;
+	typedef boost::is_pod<value_type> value_pod;
+public:
+	PVMatrixMemory(allocator_type const& alloc):
+		_alloc(alloc)
+	{ }
+public:
+	inline pointer allocate(size_t n) { return _alloc.allocate(n); }
+	inline pointer reallocate(T* p, size_t old_n, size_t n)
+	{
+		pointer ret = allocate(n);
+		if (value_pod::value) {
+			memcpy(ret, p, sizeof(value_type)*old_n);
+		}
+		else {
+			for (size_t i = 0; i < old_n; i++) {
+				new (&ret[i]) value_type(p[i]);
+			}
+		}
+		deallocate(p, old_n);
+		return ret;
+	}
+	inline void deallocate(pointer p, size_t n) { _alloc.deallocate(p, n); }
+	inline void destroy(pointer p) { _alloc.destroy(p); }
+private:
+	allocator_type _alloc;
+};
+
+
+template <class T>
+class PVMatrixMemory<T, PVMatrixAllocatorMmap>
+{
+	typedef Alloc<T> allocator_type;
+	typedef T value_type;
+	typedef T* pointer;
+public:
+	PVMatrixMemory(allocator_type const& /*alloc*/) { }
+public:
+	inline pointer allocate(size_t n) { return (pointer) mmap(NULL, sizeof(value_type)*n, PROT_WRITE | PROT_READ, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0); }
+	inline pointer reallocate(pointer p, size_t old_n, size_t n)
+	{
+		return mremap(p, sizeof(value_type)*old_n, sizeof(value_type)*n, MREMAP_MAYMOVE);
+	}
+	inline void deallocate(pointer p, size_t n) { munmap(p, sizeof(value_type)*n); }
+	inline void destroy(pointer p) { p->~T(); }
+};
+
+}
 
 template <typename T, typename IndexRow = uint32_t, typename IndexCol = uint32_t, template <class Talloc> class Alloc = std::allocator>
 class PVMatrix
@@ -186,7 +248,7 @@ public:
 
 	inline void set_rows_value(index_row a, index_row b, const_reference v = value_type())
 	{
-		PVMatrixComputation<value_type, index_row, index_col>::set_rows_value(_data, a, b, _ncols, v);
+		__impl::PVMatrixComputation<value_type, index_row, index_col>::set_rows_value(_data, a, b, _ncols, v);
 	}
 
 	void copy_to(matrix_type& dst) const
@@ -333,7 +395,7 @@ public:
 private:
 	void transpose_to(pointer res)
 	{
-		PVMatrixComputation<value_type, index_row, index_col>::transpose(res, _data, _nrows, _ncols);
+		__impl::PVMatrixComputation<value_type, index_row, index_col>::transpose(res, _data, _nrows, _ncols);
 	}
 
 	void free_buf(pointer p)
@@ -375,19 +437,10 @@ private:
 	inline bool _reallocate_nrows(index_row nrows)
 	{
 		assert(_data);
-		pointer p = _alloc.allocate(nrows*_ncols);
+		pointer p = _alloc.reallocate(_nrows*_ncols, nrows*_ncols);
 		if (p == NULL) {
 			return false;
 		}
-		if (value_pod::value) {
-			memcpy(p, _data, sizeof(value_type)*_nrows*_ncols);
-		}
-		else {
-			for (index_row i = 0; i < _nrows*_ncols; i++) {
-				new (&p[i]) value_type(_data[i]);
-			}
-		}
-		free_buf(_data);
 		_data = p;
 		_nrows = nrows;
 		_nrows_physical = nrows;
@@ -430,9 +483,8 @@ private:
 	index_row _nrows;
 	index_row _nrows_physical;
 	pointer _data;
-	allocator_type _alloc;
+	__impl::PVMatrixMemory<value_type, Alloc> _alloc;
 };
-
 
 }
 

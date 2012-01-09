@@ -33,7 +33,7 @@ namespace PVRush {
 //		typedef std::vector<QString, tbb::scalable_allocator<QString> > nraw_table_line;
 //		typedef std::vector<nraw_table_line, tbb::scalable_allocator<nraw_table_line> > nraw_table;
 //		typedef std::vector<nraw_table_line, tbb::scalable_allocator<nraw_table_line> > nraw_trans_table;
-		typedef PVCore::PVMatrix<PVCore::PVUnicodeString, PVRow, PVCol> nraw_table;
+		typedef PVCore::PVMatrix<PVCore::PVUnicodeString, PVRow, PVCol, PVCore::PVMatrixAllocatorMmap > nraw_table;
 		typedef nraw_table::line nraw_table_line;
 		typedef nraw_table::const_line const_nraw_table_line;
 		typedef nraw_table::transposed_type nraw_trans_table;
