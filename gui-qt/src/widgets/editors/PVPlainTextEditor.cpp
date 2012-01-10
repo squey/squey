@@ -58,11 +58,12 @@ void PVInspector::PVPlainTextEditor::slot_import_file()
 		PVRush::PVRawSource<std::allocator> txt_src(input, null_align, 10*1024*1024, trans_utf16, null_filter.f());
 		PVCore::PVChunk* chunk = txt_src();
 		QString txt("");
+		QString str_tmp;
 		while (chunk) {
 			PVCore::list_elts const& elts = chunk->c_elements();
 			PVCore::list_elts::const_iterator it;
 			for (it = elts.begin(); it != elts.end(); it++) {
-				txt += (*it)->get_qstr();
+				txt += (*it)->get_qstr(str_tmp);
 			}
 			chunk->free();
 			chunk = txt_src();

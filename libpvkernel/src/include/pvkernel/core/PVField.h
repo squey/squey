@@ -27,7 +27,7 @@ public:
 	void deep_copy();
 	size_t get_index_of_parent_element();
 	size_t get_agg_index_of_parent_element();
-	inline operator QString() const { return get_qstr(); }
+	inline operator QString() const { QString ret; get_qstr(ret); return ret; }
 private:
 	void init(PVElement& parent);
 protected:

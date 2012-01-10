@@ -69,7 +69,7 @@ public:
 	const PVRush::PVNraw::nraw_trans_table& get_trans_nraw() const;
 	void clear_trans_nraw();
 
-	QString const& get_value(PVRow row, PVCol col) const;
+	QString get_value(PVRow row, PVCol col) const;
 	PVRow get_row_count();
 
 	PVRush::PVExtractor& get_extractor();

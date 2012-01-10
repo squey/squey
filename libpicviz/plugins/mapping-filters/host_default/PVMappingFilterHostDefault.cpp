@@ -33,7 +33,7 @@ float* Picviz::PVMappingFilterHostDefault::operator()(PVRush::PVNraw::const_tran
 	list_indexes str_idxes;
 	str_idxes.reserve(ssize);
 	for (int64_t i = 0; i < ssize; i++) {
-		QString const& v = values[i].get_qstr();
+		QString v = values[i].get_qstr();
 		uint32_t ipv4_v;
 		if (PVCore::Network::ipv4_aton(v, ipv4_v)) {
 			// IPv4 are mapped from 0 to 0.5

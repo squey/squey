@@ -51,7 +51,8 @@ void PVFilter::PVFieldFilterRegexpGrep::set_args(PVCore::PVArgumentList const& a
 PVCore::PVField& PVFilter::PVFieldFilterRegexpGrep::one_to_one(PVCore::PVField& obj)
 {
 	QRegExp rx(_rx); // Local object (local to a thread !)
-	bool found = (rx.indexIn(obj.get_qstr()) != -1);
+	QString str_tmp;
+	bool found = (rx.indexIn(obj.get_qstr(str_tmp)) != -1);
 	if (!(found ^ _inverse))
 	{
 		obj.set_invalid();

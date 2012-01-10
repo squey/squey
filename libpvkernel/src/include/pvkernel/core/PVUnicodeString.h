@@ -24,9 +24,13 @@ namespace PVCore {
  *  Design for performance, and does not use any explicit or implicit sharing as opposed to
  *  QString objects.
  *
+ *  It is forced to be aligned on 4-byte (instead of 8-byte in 64 bits) for memory consumption issues.
+ *  TODO: check the impact on performances !
+ *
  *  This objects are constructed from PVBufferSlice.
  */
-
+#pragma pack(push)
+#pragma pack(4)
 class LibKernelDecl PVUnicodeString
 {
 public:
@@ -44,11 +48,13 @@ public:
 		_len = 0;
 	}
 
+	/*
 	PVUnicodeString(PVUnicodeString const& other)
 	{
 		_buf = other._buf;
 		_len = other._len;
 	}
+	*/
 
 	PVUnicodeString(const utf_char* buf, size_t len):
 		_buf(buf),
@@ -79,12 +85,15 @@ public:
 	inline const utf_char* buffer() const { return _buf; }
 	inline uint32_t size() const { return _len; };
 	inline uint32_t len() const { return _len; };
-	inline QString const& get_qstr() const
+	inline QString get_qstr() const
 	{
+		/*
 		if (_qstr.isNull()) {
 			_qstr.setRawData((QChar*) _buf, _len);
 		}
 		return _qstr;
+		*/
+		return QString::fromRawData((QChar*) _buf, _len);
 	}
 
 	// == Data set ==
@@ -93,6 +102,7 @@ public:
 		_buf = (utf_char*) buf.begin();
 		_len = buf.size()/sizeof(utf_char);
 	}
+	/*
 	PVUnicodeString& operator=(const PVUnicodeString& other) 
 	{
 		_buf = other._buf;
@@ -100,14 +110,16 @@ public:
 		_qstr.clear();
 		return *this;
 	}
+	*/
 
-protected:
+private:
 	const utf_char* _buf;
 	uint32_t _len;
-	mutable QString _qstr;
+	//mutable QString _qstr;
 
 	PYTHON_EXPOSE()
 };
+#pragma pack(pop)
 
 }
 

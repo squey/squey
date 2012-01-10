@@ -50,13 +50,17 @@ public:
 	template<class L> typename L::size_type split_regexp(L &container, QRegExp& re, typename L::iterator it_ins, bool bFullLine);
 	template<class L> typename L::size_type split_regexp(L &container, RegexMatcher& re, typename L::iterator it_ins, bool bFullLine);
 public:
-	inline QString const& get_qstr() const
+	inline QString& get_qstr(QString& ret) const
 	{
+		/*
 		if (_qstr.isNull()) {
 			size_t nc = (_end-_begin)/sizeof(QChar);
 			_qstr.setRawData((QChar*) _begin, nc);
 		}
-		return _qstr;
+		*/
+		const size_t nc = (_end-_begin)/sizeof(QChar);
+		ret.setRawData((QChar*) _begin, nc);
+		return ret;
 	}
 	inline UnicodeString get_icustr() const
 	{
@@ -86,7 +90,8 @@ protected:
 	char* _begin;
 	char* _end;
 	char* _physical_end;
-	mutable QString _qstr; // QString "cache"
+	//mutable QString _qstr; // QString "cache"
+	// This cache is removed, so that 8 byte are won, and get_qstr is generally only called once !
 
 	// Historically, we had a shared_ptr to a malloc memory zone if necessary
 	// A shared pointer take to much time to initialise and copy, and used to be
@@ -139,7 +144,8 @@ typename L::size_type PVCore::PVBufferSlice::split(L& container, char c, typenam
 template <class L>
 typename L::size_type PVCore::PVBufferSlice::split_qchar(L& container, QChar c, typename L::iterator it_ins)
 {
-	QString qs = get_qstr();
+	QString qs;
+	get_qstr(qs);
 	QChar* str_start = (QChar*) begin();
 	int old_pos_c = 0;
 	int pos_c;
@@ -207,7 +213,8 @@ typename L::size_type PVCore::PVBufferSlice::split_regexp(L& container, RegexMat
 template <class L>
 typename L::size_type PVCore::PVBufferSlice::split_regexp(L& container, QRegExp& re_, typename L::iterator it_ins, bool bFullLine)
 {
-	QString qs = get_qstr();
+	QString qs;
+	get_qstr(qs);
 	QStringList rx_fields;
 	if (bFullLine) {
 		if (re_.exactMatch(qs) == -1) {

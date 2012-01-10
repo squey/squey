@@ -722,7 +722,8 @@ void PVRush::PVXmlTreeNodeDom::getChildrenFromField(PVCore::PVField const& field
 	
 	PVCore::PVField field(field_);
 	field.deep_copy();
-	QString qs = field.get_qstr();
+	QString qs;
+	field.get_qstr(qs);
 	QString str_copy(qs.unicode(), qs.size());
 
 	QString plugin_name = attribute("type", "");

@@ -116,7 +116,8 @@ void PVFilter::PVFieldSplitterURL::set_children_axes_tag(filter_child_axes_tag_t
  *****************************************************************************/
 PVCore::list_fields::size_type PVFilter::PVFieldSplitterURL::one_to_many(PVCore::list_fields &l, PVCore::list_fields::iterator it_ins, PVCore::PVField &field)
 {
-	QString qstr = field.get_qstr();
+	QString qstr;
+	field.get_qstr(qstr);
 	QString none;		// usefull variable to put an empty string in fields
 
 	// URL decoder buffer

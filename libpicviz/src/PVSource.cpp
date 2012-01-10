@@ -191,7 +191,7 @@ PVCol Picviz::PVSource::get_column_count()
 	return nraw->get_number_cols();
 }
 
-QString const& Picviz::PVSource::get_value(PVRow row, PVCol col) const
+QString Picviz::PVSource::get_value(PVRow row, PVCol col) const
 {
 	return nraw->at(row,col);
 }

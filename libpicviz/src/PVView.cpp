@@ -321,7 +321,7 @@ float Picviz::PVView::get_column_count_as_float()
  * Picviz::PVView::get_data
  *
  *****************************************************************************/
-QString const& Picviz::PVView::get_data(PVRow row, PVCol column)
+QString Picviz::PVView::get_data(PVRow row, PVCol column)
 {
 	PVCol real_index = axes_combination.get_axis_column_index_fast(column);
 
@@ -343,7 +343,7 @@ PVCol Picviz::PVView::get_real_axis_index(PVCol col)
  * Picviz::PVView::get_data
  *
  *****************************************************************************/
-QString const& Picviz::PVView::get_data_raw(PVRow row, PVCol column)
+QString Picviz::PVView::get_data_raw(PVRow row, PVCol column)
 {
 	return get_qtnraw_parent().at(row, column).get_qstr();
 }

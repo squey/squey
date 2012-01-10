@@ -64,9 +64,9 @@ namespace PVRush {
 
 		PVFormat_p format;
 
-		inline QString const& at(PVRow row, PVCol col) const { return get_value(row, col); }
+		inline QString at(PVRow row, PVCol col) const { return get_value(row, col); }
 
-		inline QString const& get_value(PVRow row, PVCol col) const
+		inline QString get_value(PVRow row, PVCol col) const
 		{
 			assert(row < table.get_nrows());
 			assert(col < table.get_ncols());

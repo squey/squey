@@ -31,8 +31,9 @@ int main()
 	// And print it
 	PVCore::list_elts const& l = read->c_elements();
 	PVCore::list_elts::const_iterator it;
+	QString str_tmp;
 	for (it = l.begin(); it != l.end(); it++) {
-		std::cout << qPrintable((*it)->get_qstr()) << std::endl;
+		std::cout << qPrintable((*it)->get_qstr(str_tmp)) << std::endl;
 	}
 
 	read->free();

@@ -69,12 +69,13 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterCSV::one_to_many(PVCore:
 	csv_set_delim(&inf._p, _sep);
 
 	// Convert to "C strings"
+	QString str_tmp;
 	inf._parent = field.elt_parent();
 	inf._it_ins = it_ins;
 	inf._lf = &l;
 	inf._f_cur = (QChar*) field.begin();
 	inf._len_buf = field.size();
-	inf._cstr = field.get_qstr().toAscii();
+	inf._cstr = field.get_qstr(str_tmp).toAscii();
 	inf._nelts = 0;
 
 	// And use libcsv

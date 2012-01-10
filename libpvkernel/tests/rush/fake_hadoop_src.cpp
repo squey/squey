@@ -109,6 +109,7 @@ int main(int argc, char** argv)
 
 	uint64_t off = 0;
 	if (!final) {
+		QString str_tmp;
 		// Get chunks, filter them and write them down.
 		PVCore::PVChunk* chunk;
 		while ((chunk = (*src)()) != NULL) {
@@ -123,13 +124,13 @@ int main(int argc, char** argv)
 				PVCore::list_fields::iterator it_f;
 				uint32_t selt = 0;
 				for (it_f = fields.begin(); it_f != fields.end(); it_f++) {
-					selt += 4 + it_f->get_qstr().toUtf8().size();
+					selt += 4 + it_f->get_qstr(str_tmp).toUtf8().size();
 				}
 				write(s, &selt, sizeof(uint32_t));
 				uint32_t nfields = fields.size();
 				write(s, &nfields, sizeof(uint32_t));
 				for (it_f = fields.begin(); it_f != fields.end(); it_f++) {
-					QByteArray fba = it_f->get_qstr().toUtf8();
+					QByteArray fba = it_f->get_qstr(str_tmp).toUtf8();
 					//std::cout << fba.constData() << std::endl;
 					uint32_t sfield = (uint32_t) fba.size();
 					write(s, &sfield, sizeof(uint32_t));

@@ -72,6 +72,7 @@ void dump_chunk_csv(PVChunk& c)
 	list_elts& l = c.elements();
 	list_elts::iterator it,ite;
 	ite = l.end();
+	QString str_tmp;
 	for (it = l.begin(); it != ite; it++) {
 		PVElement& elt = *(*it);
 		if (!elt.valid()) {
@@ -79,7 +80,7 @@ void dump_chunk_csv(PVChunk& c)
 		}
 		list_fields& l = elt.fields();
 		if (l.size() == 1) {
-			cout << l.begin()->get_qstr().toUtf8().constData();
+			cout << l.begin()->get_qstr(str_tmp).toUtf8().constData();
 		}
 		else {
 			list_fields::iterator itf,itfe;
@@ -87,10 +88,10 @@ void dump_chunk_csv(PVChunk& c)
 			itfe--;
 			for (itf = l.begin(); itf != itfe; itf++) {
 				PVField& f = *itf;
-				cout << "'" << f.get_qstr().toUtf8().constData() << "',";
+				cout << "'" << f.get_qstr(str_tmp).toUtf8().constData() << "',";
 			}
 			PVField& f = *itf;
-			cout << "'" << f.get_qstr().toUtf8().constData() << "'";
+			cout << "'" << f.get_qstr(str_tmp).toUtf8().constData() << "'";
 		}
 		if (!elt.valid()) {
 			cout << " (invalid)";
