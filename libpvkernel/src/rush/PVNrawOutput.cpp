@@ -25,7 +25,7 @@ void PVRush::PVNrawOutput::operator()(PVCore::PVChunk* out)
 		if (fields.size() == 0)
 			continue;
 
-		if (!_nraw_dest.add_row(e)) {
+		if (!_nraw_dest.add_row(e, *out)) {
 			// Discard the chunk
 			out->free();
 			return;

@@ -59,7 +59,7 @@ protected:
 };
 
 // Virtual source that only creates elements
-template < template <class T> class Allocator = tbb::tbb_allocator >
+template < template <class T> class Allocator = PVCore::PVMMapAllocator >
 class PVElementsSource: public PVRush::PVRawSourceBase
 {
 	typedef PVCore::PVChunkMem<Allocator> PVChunkAlloc;
@@ -86,6 +86,7 @@ public:
 			return NULL;
 		}
 		PVCore::PVChunk* chunk = PVChunkAlloc::allocate(_size_chunk, this, _alloc);
+		memset(chunk->begin(), 0, chunk->avail());
 		for (size_t i = 0; i < _nelts_chunk; i++) {
 			chunk->add_element(chunk->begin(), chunk->physical_end());
 		}
@@ -129,7 +130,7 @@ void bench(size_t nchunks, size_t size_chunk, size_t neltsperc, size_t nfields)
 	PVFilter::PVChunkFilterByElt fchunk(felt.f());
 	PVRush::PVRawSourceBase_p src(new PVElementsSource<>(nchunks, size_chunk, neltsperc));
 
-	PVRush::PVExtractor ext(100);
+	PVRush::PVExtractor ext(1);
 	ext.add_source(src);
 
 	ext.set_chunk_filter(fchunk);

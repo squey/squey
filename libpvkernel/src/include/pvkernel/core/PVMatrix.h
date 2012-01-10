@@ -16,7 +16,8 @@
 
 #include <pvkernel/core/PVTypeTraits.h>
 
-#include <sys/mmap.h>
+#include <sys/mman.h>
+#include <stdio.h>
 
 namespace PVCore {
 
@@ -24,7 +25,13 @@ void __transpose_float(float* res, float* data, uint32_t nrows, uint32_t ncols);
 
 // Fake allocator in order to specify an mmap-based allocation
 template <class T>
-struct PVMatrixAllocatorMmap { }
+struct PVMatrixAllocatorMmap
+{
+	typedef T* pointer;
+	typedef const T* const_pointer;
+	typedef T& reference;
+	typedef const T& const_reference;
+};
 
 namespace __impl {
 
@@ -95,7 +102,7 @@ class PVMatrixMemory
 {
 	typedef Alloc<T> allocator_type;
 	typedef T value_type;
-	typedef allocator_type::pointer pointer;
+	typedef typename allocator_type::pointer pointer;
 	typedef boost::is_pod<value_type> value_pod;
 public:
 	PVMatrixMemory(allocator_type const& alloc):
@@ -127,18 +134,28 @@ private:
 template <class T>
 class PVMatrixMemory<T, PVMatrixAllocatorMmap>
 {
-	typedef Alloc<T> allocator_type;
+	typedef PVMatrixAllocatorMmap<T> allocator_type;
 	typedef T value_type;
 	typedef T* pointer;
 public:
 	PVMatrixMemory(allocator_type const& /*alloc*/) { }
 public:
-	inline pointer allocate(size_t n) { return (pointer) mmap(NULL, sizeof(value_type)*n, PROT_WRITE | PROT_READ, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0); }
+	inline pointer allocate(size_t n)
+	{
+		//PVLOG_INFO("PVNraw mmap: size %0.5f (MB).\n", (double)n*(double)sizeof(value_type)/((double)1024*1024));
+		return (pointer) mmap(NULL, sizeof(value_type)*n, PROT_WRITE | PROT_READ, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+	}
 	inline pointer reallocate(pointer p, size_t old_n, size_t n)
 	{
-		return mremap(p, sizeof(value_type)*old_n, sizeof(value_type)*n, MREMAP_MAYMOVE);
+		//PVLOG_INFO("PVNraw mremap: size %0.5f (MB).\n", (double)n*(double)sizeof(value_type)/((double)1024*1024));
+		return (pointer) mremap(p, sizeof(value_type)*old_n, sizeof(value_type)*n, MREMAP_MAYMOVE);
 	}
-	inline void deallocate(pointer p, size_t n) { munmap(p, sizeof(value_type)*n); }
+	inline void deallocate(pointer p, size_t n)
+	{
+		//PVLOG_INFO("PVNraw munmap: size %0.5f (MB).\n", (double)n*(double)sizeof(value_type)/((double)1024*1024));
+		munmap(p, sizeof(value_type)*n);
+		//PVLOG_INFO("Press a key to continue.\n");
+	}
 	inline void destroy(pointer p) { p->~T(); }
 };
 
@@ -408,7 +425,7 @@ private:
 				_alloc.destroy(&p[i]);
 			}
 		}
-		_alloc.deallocate(p, _nrows*_ncols);
+		_alloc.deallocate(p, _nrows_physical*_ncols);
 	}
 
 	inline bool _allocate(index_row nrows, index_col ncols)
@@ -437,7 +454,7 @@ private:
 	inline bool _reallocate_nrows(index_row nrows)
 	{
 		assert(_data);
-		pointer p = _alloc.reallocate(_nrows*_ncols, nrows*_ncols);
+		pointer p = _alloc.reallocate(_data, _nrows_physical*_ncols, nrows*_ncols);
 		if (p == NULL) {
 			return false;
 		}

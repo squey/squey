@@ -22,7 +22,7 @@ PVRush::PVSourceCreatorTextfile::source_p PVRush::PVSourceCreatorTextfile::creat
 	PVFilter::PVChunkFilter* chk_flt = new PVFilter::PVChunkFilter();
 	int size_chunk = pvconfig.value("pvkernel/max_size_chunk").toInt();
 	if (size_chunk <= 0) {
-		size_chunk = 100000;
+		size_chunk = 4096*100; // Aligned on a page boundary (4ko)
 	}
 	source_p src = source_p(new PVRush::PVUnicodeSource<>(ifile, size_chunk, chk_flt->f()));
 

@@ -27,7 +27,7 @@
 
 #define NLINES 10000000
 
-#define NTRIES 6
+#define NTRIES 1
 
 class PVFieldCreator: public PVFilter::PVFieldsSplitter
 {
@@ -304,7 +304,8 @@ int main(int argc, char** argv)
 #endif
 
 	printf("Parallel squid regexp splitter only");
-	args["regexp"] = PVCore::PVArgument(QString("(\\d+.\\d+.\\d+.\\d+) \\- \\S+ \\[(\\d+\\/\\w+\\/\\d+:\\d+:\\d+:\\d+).*\\] \\\"(\\w+) (.*) (\\S+)\\\" (\\d+) (.*)"));
+	//args["regexp"] = PVCore::PVArgument(QString("(\\d+.\\d+.\\d+.\\d+) \\- \\S+ \\[(\\d+\\/\\w+\\/\\d+:\\d+:\\d+:\\d+).*\\] \\\"(\\w+) (.*) (\\S+)\\\" (\\d+) (.*)"));
+	args["regexp"] = PVCore::PVArgument(QString("(.*) (.*)"));
 	fre_in->set_args(args);
 	dur = bench_utf16_align(lfiles, fchunk.f(), chunk_size, NLINES, nchunks);
 	print_perf(dur, total_read);

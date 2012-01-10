@@ -10,6 +10,7 @@
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/stdint.h>
+#include <pvkernel/core/PVAllocators.h>
 #include <pvkernel/core/PVElement.h>
 #include <pvkernel/core/PVField.h>
 #include <pvkernel/rush/PVRawSourceBase_types.h>
@@ -60,13 +61,14 @@ public:
 		for (it = _elts.begin(); it != _elts.end(); it++) {
 			PVElement::free(*it);
 		}
-		free_fields_buffer(_elts.size(), get_source_number_fields());
+		free_fields_buffer();
 		_elts.clear();
 	}
 public:
 	virtual char* begin() const = 0;
 	char* end() const { return _logical_end; };
 	char* physical_end() const { return _physical_end; };
+	virtual size_t full_chunk_size() const = 0;
 	void set_end(char* p)
 	{
 		assert(p <= _physical_end);
@@ -131,17 +133,18 @@ public:
 protected:
 	void allocate_fields_buffer(PVRow nelts, PVCol nfields)
 	{
-		_p_chunk_fields = ::malloc(sizeof(__node_list_field)*nfields*nelts);
-		//_p_chunk_fields = mmap(NULL, sizeof(__node_list_field)*nfields*nelts, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-		//PVLOG_INFO("Allocate %u fields for %u elements (%p)...\n", nfields, nelts, _p_chunk_fields);
+		//_p_chunk_fields = ::malloc(sizeof(__node_list_field)*nfields*nelts);
+		_fields_size = sizeof(__node_list_field)*nfields*nelts;
+		_p_chunk_fields = mmap(NULL, _fields_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+		//PVLOG_INFO("PVField %p allocate %u\n", _p_chunk_fields, sizeof(__node_list_field)*nfields*nelts);
 	}
 
-	void free_fields_buffer(PVRow /*nelts*/, PVCol /*nfields*/)
+	void free_fields_buffer()
 	{
 		if (_p_chunk_fields) {
-			//PVLOG_INFO("Deallocate %p\n", _p_chunk_fields);
-			::free(_p_chunk_fields);
-			//munmap(_p_chunk_fields, sizeof(__node_list_field)*nfields*nelts);
+			//::free(_p_chunk_fields);
+			//PVLOG_INFO("PVField %p deallocate %u\n", _p_chunk_fields, _fields_size);
+			munmap(_p_chunk_fields, _fields_size);
 			_p_chunk_fields = NULL;
 		}
 	}
@@ -167,11 +170,12 @@ protected:
 
 	// Buffer containing the fields for this chunk
 	void* _p_chunk_fields;
-
+	size_t _fields_size;
 };
 
 
-template < template <class T> class Allocator = tbb::tbb_allocator >
+template < template <class T> class Allocator = PVCore::PVMMapAllocator >
+//template < template <class T> class Allocator = tbb::tbb_allocator >
 //template < template <class T> class Allocator = std::allocator >
 
 class PVChunkMem : public PVChunk {
@@ -189,6 +193,7 @@ public:
 	{
 		size_t size_alloc = sizeof(PVChunkMem<Allocator>)+size+1;
 		PVChunkMem<Allocator>* p = (PVChunkMem<Allocator>*)(a.allocate(size_alloc));
+		//PVLOG_INFO("PVChunk alloc %u bytes, %p.\n", size_alloc, p);
 		if (p == NULL) {
 			PVLOG_ERROR("(PVChunkMem): unable to allocate a new chunk !\n");
 			return NULL;
@@ -204,7 +209,9 @@ public:
 		alloc_chunk ap = _alloc;
 		char* pbegin = begin();
 		this->~PVChunkMem<Allocator>();
-		ap.deallocate((char*)(this), sizeof(PVChunkMem)+(_physical_end-pbegin)+1);
+		size_t dealloc = sizeof(PVChunkMem<Allocator>)+(_physical_end-pbegin)+1;
+		//PVLOG_INFO("PVChunk dealloc %u bytes, %p.\n", dealloc, this);
+		ap.deallocate((char*)(this), dealloc);
 	}
 	PVChunk* realloc_grow(size_t n)
 	{
@@ -216,6 +223,7 @@ public:
 		free();
 		return ret;
 	}
+	virtual size_t full_chunk_size() const { return sizeof(PVChunkMem)+(_physical_end-begin())+1; }
 
 private:
 	alloc_chunk _alloc;

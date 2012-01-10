@@ -15,7 +15,8 @@
 
 namespace PVRush {
 
-template < template <class T> class Allocator = tbb::tbb_allocator >
+template < template <class T> class Allocator = PVCore::PVMMapAllocator >
+//template < template <class T> class Allocator = tbb::tbb_allocator >
 class PVRawSource : public PVRush::PVRawSourceBase {
 public:
 	typedef PVCore::PVChunkMem<Allocator> PVChunkAlloc;

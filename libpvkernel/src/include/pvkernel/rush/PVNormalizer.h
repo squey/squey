@@ -8,17 +8,10 @@
 #ifndef PVRUSH_PVNORMALIZER_H
 #define PVRUSH_PVNORMALIZER_H
 
-#include <QLibrary>
-#include <QList>
 #include <QString>
 #include <QStringList>
-#include <QHash>
-#include <QVector>
 
 #include <pvkernel/core/general.h>
-
-#include <pvkernel/rush/PVFormat.h>
-#include <pvkernel/rush/PVNraw.h>
 
 namespace PVRush {
 

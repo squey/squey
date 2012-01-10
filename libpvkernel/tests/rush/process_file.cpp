@@ -58,18 +58,24 @@ int main(int argc, char** argv)
 	}
 	PVLOG_INFO("Source created.\n");
 
+	//getchar();
 	// Create the extractor
-	PVRush::PVExtractor ext;
-	ext.start_controller();
-	ext.add_source(src);
-	ext.set_format(format);
-	ext.set_chunk_filter(format.create_tbb_filters());
+	{
+		PVRush::PVExtractor ext;
+		ext.start_controller();
+		ext.add_source(src);
+		ext.set_format(format);
+		ext.set_chunk_filter(format.create_tbb_filters());
 
-	PVLOG_INFO("Asking 1 million lines...\n");
-	// Ask for 1 million lines
-	PVRush::PVControllerJob_p job = ext.process_from_agg_nlines(0, 1000000);
-	job->wait_end();
-	PVLOG_INFO("Extraction finished.\n");
+		PVLOG_INFO("Asking 1 million lines...\n");
+		// Ask for 1 million lines
+		PVRush::PVControllerJob_p job = ext.process_from_agg_nlines(0, 2000000);
+		job->wait_end();
+		PVLOG_INFO("Extraction finished. Press a key to remove the NRAW\n");
+		getchar();
+	}
+	PVLOG_INFO("Press a key to exit.\n");
+	getchar();
 
 	// Dump the NRAW to stdout
 	//dump_nraw_csv(ext.get_nraw());

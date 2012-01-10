@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <tbb/tick_count.h>
 #include <iostream>
+#include <stdio.h>
 
 #define DEFAULT_LINE_SIZE 100
 #define MAX_SIZE_RESERVE (size_t(1024*1024*1024u)) // 1GB
@@ -72,10 +73,16 @@ void PVRush::PVNraw::clear_table()
 	_real_nrows = 0;
 	table.clear();
 	list_chunks_t::iterator it;
-	for (it = _chunks_todel->begin(); it != _chunks_todel->end(); it++) {
-		(*it)->free();
+	if (_chunks_todel->size() > 0) {
+		//PVLOG_INFO("Going to free the chunk. Press enter to continue.\n");
+		size_t size_free = 0;
+		for (it = _chunks_todel->begin(); it != _chunks_todel->end(); it++) {
+			size_free += (*it)->full_chunk_size();
+			(*it)->free();
+		}
+		_chunks_todel->clear();
+		//PVLOG_INFO("Freed %0.4f MB of chunks. Press enter to continue.\n", (double)size_free/(1024.0*1024.0));
 	}
-	_chunks_todel->clear();
 
 	{
 		static tbb::tbb_allocator<char> alloc;
