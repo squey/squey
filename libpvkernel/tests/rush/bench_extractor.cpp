@@ -92,6 +92,7 @@ void clear_disk_cache()
 double bench(PVRush::PVExtractor &ext, size_t nlines, size_t nthreads)
 {
 	fflush(stdout);
+	ext.force_number_axes(7);
 	ext.start_controller();
 	double dur = 0;
 	std::vector<double> durs;
@@ -305,11 +306,10 @@ int main(int argc, char** argv)
 
 	printf("Parallel squid regexp splitter only");
 	//args["regexp"] = PVCore::PVArgument(QString("(\\d+.\\d+.\\d+.\\d+) \\- \\S+ \\[(\\d+\\/\\w+\\/\\d+:\\d+:\\d+:\\d+).*\\] \\\"(\\w+) (.*) (\\S+)\\\" (\\d+) (.*)"));
-	args["regexp"] = PVCore::PVArgument(QString("(.*) (.*)"));
+	args["regexp"] = PVCore::PVArgument(QString("([0-9]+)[0-9.]*\\s+[0-9]+\\s+[0-9]+\\s+[A-Z/_-]+([0-9]+)\\s+[0-9]+\\s+(GET|POST|PUT|OPTIONS)\\s+(\\S+)\\s+(\\S+)\\s+([^/]+)/(\\d+.\\d+.\\d+.\\d+)"));
 	fre_in->set_args(args);
 	dur = bench_utf16_align(lfiles, fchunk.f(), chunk_size, NLINES, nchunks);
 	print_perf(dur, total_read);
-
 	// Parallel regexp grep only
 	
 

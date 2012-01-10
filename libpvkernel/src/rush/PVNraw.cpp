@@ -74,14 +74,10 @@ void PVRush::PVNraw::clear_table()
 	table.clear();
 	list_chunks_t::iterator it;
 	if (_chunks_todel->size() > 0) {
-		//PVLOG_INFO("Going to free the chunk. Press enter to continue.\n");
-		size_t size_free = 0;
 		for (it = _chunks_todel->begin(); it != _chunks_todel->end(); it++) {
-			size_free += (*it)->full_chunk_size();
 			(*it)->free();
 		}
 		_chunks_todel->clear();
-		//PVLOG_INFO("Freed %0.4f MB of chunks. Press enter to continue.\n", (double)size_free/(1024.0*1024.0));
 	}
 
 	{

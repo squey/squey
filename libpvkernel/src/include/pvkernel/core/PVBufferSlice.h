@@ -90,10 +90,10 @@ protected:
 	char* _begin;
 	char* _end;
 	char* _physical_end;
+	// AG: this cache is removed, so that 8 bytes (== sizeof(QString) are won, and get_qstr is generally only called once !
 	//mutable QString _qstr; // QString "cache"
-	// This cache is removed, so that 8 byte are won, and get_qstr is generally only called once !
 
-	// Historically, we had a shared_ptr to a malloc memory zone if necessary
+	// AG: historically, we had a shared_ptr to a malloc memory zone if necessary
 	// A shared pointer take to much time to initialise and copy, and used to be
 	// a performance bottleneck during the creation of PVField and PVElement objects !
 	//boost::shared_array<char> _realloc_buf;

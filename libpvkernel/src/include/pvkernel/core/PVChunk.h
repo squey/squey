@@ -68,7 +68,6 @@ public:
 	virtual char* begin() const = 0;
 	char* end() const { return _logical_end; };
 	char* physical_end() const { return _physical_end; };
-	virtual size_t full_chunk_size() const = 0;
 	void set_end(char* p)
 	{
 		assert(p <= _physical_end);
@@ -223,7 +222,6 @@ public:
 		free();
 		return ret;
 	}
-	virtual size_t full_chunk_size() const { return sizeof(PVChunkMem)+(_physical_end-begin())+1; }
 
 private:
 	alloc_chunk _alloc;
