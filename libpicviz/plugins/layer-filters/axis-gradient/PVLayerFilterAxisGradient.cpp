@@ -82,7 +82,7 @@ QString Picviz::PVLayerFilterAxisGradient::detailed_description()
 PVCore::PVArgumentList Picviz::PVLayerFilterAxisGradient::gradient_menu(PVRow /*row*/, PVCol col, QString const& /*v*/)
 {
 	PVCore::PVArgumentList args;
-	args["Axis"].setValue(PVCore::PVAxisIndexType(col));
+	args["axis"].setValue(PVCore::PVAxisIndexType(col));
 	return args;
 
 }

@@ -88,7 +88,6 @@ PVInspector::PVArgumentListWidget::PVArgumentListWidget(QItemEditorFactory* args
 
 PVInspector::PVArgumentListWidget::~PVArgumentListWidget()
 {
-	PVLOG_INFO("In PVArgumentListWidget destructor\n");
 	_args_model->deleteLater();
 }
 
@@ -150,10 +149,12 @@ void PVInspector::PVArgumentListWidget::set_args(PVCore::PVArgumentList& args)
 
 void PVInspector::PVArgumentListWidget::set_args_values(PVCore::PVArgumentList const& args)
 {
-	if (_args->keys() != args.keys()) {
-		return;
+	QList<PVCore::PVArgumentList::key_type> keys_to_change = args.keys();
+	foreach(PVCore::PVArgumentList::key_type const& key, keys_to_change) {
+		if (_args->contains(key)) {
+			(*_args)[key] = args.value(key);
+		}
 	}
-	*_args = args;
 	_mapper->revert();
 	args_changed_Slot();
 }

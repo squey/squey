@@ -15,6 +15,7 @@ Picviz::PVLayerFilterSelectionSearch::PVLayerFilterSelectionSearch(PVCore::PVArg
 	: PVLayerFilter(l)
 {
 	INIT_FILTER(PVLayerFilterSelectionSearch, l);
+	add_ctxt_menu_entry(QObject::tr("Selection-based search on this axis"), &PVLayerFilterSelectionSearch::sel_axis_menu);
 }
 
 /******************************************************************************
@@ -127,6 +128,13 @@ void Picviz::PVLayerFilterSelectionSearch::operator()(PVLayer& in, PVLayer &out)
 			out.get_selection().set_line(r, true);
 		}
 	}
+}
+
+PVCore::PVArgumentList Picviz::PVLayerFilterSelectionSearch::sel_axis_menu(PVRow /*row*/, PVCol col, QString const& /*v*/)
+{
+	PVCore::PVArgumentList args;
+	args["axis"].setValue(PVCore::PVAxisIndexType(col));
+	return args;
 }
 
 IMPL_FILTER(Picviz::PVLayerFilterSelectionSearch)
