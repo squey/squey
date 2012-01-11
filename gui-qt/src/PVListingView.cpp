@@ -290,6 +290,7 @@ void PVInspector::PVListingView::process_ctxt_menu_action(QAction* act)
 	Picviz::PVLayerFilter::ctxt_menu_f args_f = entries[act_name];
 
 	// Get the arguments
+	PVCore::PVArgumentList &args = lib_view->get_last_args_filter(filter_name);
 	_ctxt_args = args_f(_ctxt_row, _ctxt_col, _ctxt_v);
 
 	// Show the layout filter widget
@@ -297,7 +298,11 @@ void PVInspector::PVListingView::process_ctxt_menu_action(QAction* act)
 	if (_ctxt_process) {
 		_ctxt_process->deleteLater();
 	}
-	_ctxt_process = new PVLayerFilterProcessWidget(main_window->current_tab, _ctxt_args, fclone);
+
+	// Creating the PVLayerFilterProcessWidget will save the current args for this filter.
+	// Then we can change them !
+	_ctxt_process = new PVLayerFilterProcessWidget(main_window->current_tab, args, fclone);
+	_ctxt_process->change_args(_ctxt_args);
 	_ctxt_process->show();
 }
 

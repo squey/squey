@@ -452,16 +452,41 @@ void PVInspector::PVMainWindow::filter_Slot(void)
 		Picviz::PVView_p lib_view = current_tab->get_lib_view();
 		QString filter_name = s->objectName();
 
-		//get filter
 		Picviz::PVLayerFilter::p_type filter_org = LIB_CLASS(Picviz::PVLayerFilter)::get().get_class_by_name(filter_name);
-		//cpy filter
 		Picviz::PVLayerFilter::p_type fclone = filter_org->clone<Picviz::PVLayerFilter>();
-		PVCore::PVArgumentList &args = lib_view->filters_args[filter_name];
+		PVCore::PVArgumentList &args = lib_view->get_last_args_filter(filter_name);
 		PVLayerFilterProcessWidget* filter_widget = new PVLayerFilterProcessWidget(current_tab, args, fclone);
 		filter_widget->show();
 	}
 }
 
+/******************************************************************************
+ *
+ * PVInspector::PVMainWindow::filter_reprocess_last_Slot
+ *
+ *****************************************************************************/
+void PVInspector::PVMainWindow::filter_reprocess_last_Slot()
+{
+	if (current_tab && current_tab->get_lib_view()) {
+		Picviz::PVView_p lib_view = current_tab->get_lib_view();
+		if (!lib_view->is_last_filter_used_valid()) {
+			return;
+		}
+		QString const& filter_name = lib_view->get_last_used_filter();
+		Picviz::PVLayerFilter::p_type filter_org = LIB_CLASS(Picviz::PVLayerFilter)::get().get_class_by_name(filter_name);
+		Picviz::PVLayerFilter::p_type fclone = filter_org->clone<Picviz::PVLayerFilter>();
+		PVCore::PVArgumentList &args = lib_view->get_last_args_filter(filter_name);
+		PVLayerFilterProcessWidget* filter_widget = new PVLayerFilterProcessWidget(current_tab, args, fclone);
+		filter_widget->show();
+		filter_widget->preview_Slot();
+	}
+}
+
+/******************************************************************************
+ *
+ * PVInspector::PVMainWindow::extractor_file_Slot
+ *
+ *****************************************************************************/
 void PVInspector::PVMainWindow::extractor_file_Slot()
 {
 	if (!current_tab) {

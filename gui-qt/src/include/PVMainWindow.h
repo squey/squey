@@ -174,6 +174,7 @@ public slots:
 	void filter_Slot();
 	void new_format_Slot();
 	void cur_format_Slot();
+	void filter_reprocess_last_Slot();
 	void import_type_default_Slot();
 	void import_type_Slot();
 	void lines_display_unselected_Slot();
@@ -277,6 +278,7 @@ private:
 	QAction *commit_selection_in_current_layer_Action;
 	QAction *commit_selection_to_new_layer_Action;
 	QAction *cut_Action;
+	QAction *filter_reprocess_last_filter; 
 	QAction *project_new_Action;
 	QAction *project_load_Action;
 	QAction *project_save_Action;

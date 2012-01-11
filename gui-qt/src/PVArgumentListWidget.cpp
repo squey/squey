@@ -148,6 +148,16 @@ void PVInspector::PVArgumentListWidget::set_args(PVCore::PVArgumentList& args)
 	clear_args_state();
 }
 
+void PVInspector::PVArgumentListWidget::set_args_values(PVCore::PVArgumentList const& args)
+{
+	if (_args->keys() != args.keys()) {
+		return;
+	}
+	*_args = args;
+	_mapper->revert();
+	args_changed_Slot();
+}
+
 QItemEditorFactory* PVInspector::PVArgumentListWidget::create_layer_widget_factory(Picviz::PVView& view)
 {
 	/* AG: try this later...

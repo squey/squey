@@ -37,6 +37,7 @@ public:
 	virtual ~PVArgumentListWidget();
 	//bool eventFilter(QObject *obj, QEvent *event);
 	void set_args(PVCore::PVArgumentList& args);
+	void set_args_values(PVCore::PVArgumentList const& args);
 	void set_widget_factory(QItemEditorFactory* factory);
 	inline bool args_changed() { return _args_has_changed; }
 	inline void clear_args_state() { _args_has_changed = false; }

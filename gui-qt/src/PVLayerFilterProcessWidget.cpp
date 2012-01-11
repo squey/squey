@@ -36,6 +36,12 @@ PVInspector::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(PVTabSplitte
 
 PVInspector::PVLayerFilterProcessWidget::~PVLayerFilterProcessWidget()
 {
+	_args_widget->deleteLater();
+}
+
+void PVInspector::PVLayerFilterProcessWidget::change_args(PVCore::PVArgumentList const& args)
+{
+	_args_widget->set_args_values(args);
 }
 
 void PVInspector::PVLayerFilterProcessWidget::create_btns()
@@ -119,6 +125,9 @@ void PVInspector::PVLayerFilterProcessWidget::save_Slot()
 
 	// FIXME: I think this refreshes the listing too. We shall remove the refresh listing slot then
 	_tab->get_main_window()->refresh_view(_view);
+
+	// Save last used filter
+	_view->set_last_used_filter(_filter_p->registered_name());
 
 	accept();
 }

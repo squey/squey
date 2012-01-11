@@ -15,6 +15,8 @@ public:
 	PVLayerFilterProcessWidget(PVTabSplitter* tab, PVCore::PVArgumentList& args, Picviz::PVLayerFilter_p filter_p);
 	virtual ~PVLayerFilterProcessWidget();
 
+	void change_args(PVCore::PVArgumentList const& args);
+
 public slots:
 	void save_Slot();
 	void preview_Slot();

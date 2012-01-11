@@ -87,6 +87,12 @@ void PVInspector::PVMainWindow::create_actions()
 	commit_selection_to_new_layer_Action->setShortcut(QKeySequence(Qt::ALT + Qt::Key_K));
 	expand_selection_on_axis_Action = new QAction(tr("Expand selection on axis..."), this);
 
+	/******************************
+	 * For the "Filter" menu entry
+	 ******************************/
+	filter_reprocess_last_filter = new QAction(tr("Apply last filter..."), this);
+	filter_reprocess_last_filter->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_F));
+
 	/************************
 	 * For the "Scene" menu entry
 	 ************************/
@@ -201,6 +207,8 @@ void PVInspector::PVMainWindow::create_menus()
 	selection_Menu->addAction(expand_selection_on_axis_Action);
 
 	filter_Menu = menubar->addMenu(tr("Fil&ters"));
+	filter_Menu->addAction(filter_reprocess_last_filter);
+	filter_Menu->addSeparator();
 	create_filters_menu_and_actions();
 
 	// layer_Menu = menubar->addMenu(tr("&Layers"));
@@ -316,6 +324,8 @@ void PVInspector::PVMainWindow::connect_actions()
 	connect(axes_mode_Action, SIGNAL(triggered()), this, SLOT(axes_mode_Slot()));
 	connect(axes_display_edges_Action, SIGNAL(triggered()), this, SLOT(axes_display_edges_Slot()));
 	connect(axes_new_Action, SIGNAL(triggered()), this, SLOT(axes_new_Slot()));
+
+	connect(filter_reprocess_last_filter, SIGNAL(triggered()), this, SLOT(filter_reprocess_last_Slot()));
 
 	connect(lines_display_unselected_Action, SIGNAL(triggered()), this, SLOT(lines_display_unselected_Slot()));
 	connect(lines_display_unselected_listing_Action, SIGNAL(triggered()), this, SLOT(lines_display_unselected_listing_Slot()));
