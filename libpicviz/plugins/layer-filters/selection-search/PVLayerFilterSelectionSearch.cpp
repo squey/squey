@@ -50,29 +50,67 @@ void Picviz::PVLayerFilterSelectionSearch::operator()(PVLayer& in, PVLayer &out)
 	PVRush::PVNraw::nraw_table_axis nraw_axis = _view->get_rushnraw_parent().get_col(axis_id);
 	PVRow nb_lines = nraw_axis.size();
 
-	QStringList exps;
+	QList<QStringMatcher> exps;
 	std::vector<QRegExp> rxs;
+	QSet<QString> exps_exact;
 	if (is_rx) {
 		rxs.reserve(nb_lines);
 		for (PVRow i = 0; i < nb_lines; i++) {
 			if (_view->get_line_state_in_pre_filter_layer(i)) {
-				QString pattern = nraw_axis.at(i).get_qstr().trimmed();
-				if (!pattern.isEmpty()) {
-					QRegExp rx;
-					rx.setPattern(pattern);
-					rx.setCaseSensitivity((Qt::CaseSensitivity) case_match);
-					if (is_wildcard) {
-						rx.setPatternSyntax(QRegExp::WildcardUnix);
+				QString pattern(nraw_axis.at(i).get_qstr().trimmed());
+				if (pattern.isEmpty()) {
+					continue;
+				}
+				{
+					std::vector<QRegExp>::const_iterator it;
+					bool found = false;
+					for (it = rxs.begin(); it != rxs.end(); it++) {
+						if (it->pattern() == pattern) {
+							found = true;
+							break;
+						}
 					}
-					rxs.push_back(rx);
+					if (found) {
+						continue;
+					}
+				}
+				QRegExp rx;
+				rx.setPattern(pattern);
+				rx.setCaseSensitivity((Qt::CaseSensitivity) case_match);
+				if (is_wildcard) {
+					rx.setPatternSyntax(QRegExp::WildcardUnix);
+				}
+				rxs.push_back(rx);
+			}
+		}
+	}
+	else
+	if (exact_match) {
+		for (PVRow i = 0; i < nb_lines; i++) {
+			if (_view->get_line_state_in_pre_filter_layer(i)) {
+				QString str(nraw_axis.at(i).get_qstr());
+				if (!str.isEmpty()) {
+					exps_exact << str;
 				}
 			}
 		}
 	}
-	else {
-		for (PVRow i = 0; i < nb_lines; i++) {
-			if (_view->get_line_state_in_pre_filter_layer(i)) {
-				exps << nraw_axis.at(i).get_qstr().trimmed();
+	else
+	for (PVRow i = 0; i < nb_lines; i++) {
+		if (_view->get_line_state_in_pre_filter_layer(i)) {
+			bool found = false;
+			QString str(nraw_axis.at(i).get_qstr().trimmed());
+			if (str.isEmpty()) {
+				continue;
+			}
+			foreach(QStringMatcher const& m, exps) {
+				if (m.pattern() == str) {
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				exps << QStringMatcher(str, (Qt::CaseSensitivity) case_match);
 			}
 		}
 	}
@@ -103,21 +141,30 @@ void Picviz::PVLayerFilterSelectionSearch::operator()(PVLayer& in, PVLayer &out)
 				}
 			}
 		}
-		else {
+		else
+		if (exact_match) {
 			QString str(nraw_axis.at(r).get_qstr());
-			for (int i = 0; i < exps.size(); i++) {
-				QString const& exp = exps.at(i);
-				if (exp.isEmpty()) {
-					continue;
-				}
-				if (exact_match) {
-					if (str.compare(exp, (Qt::CaseSensitivity) case_match) == 0) {
+			if (case_match) {
+				foreach(QString const& p, exps_exact) {
+					if (str == p) {
 						sel = true;
 						break;
 					}
 				}
-				else
-				if (str.contains(exp, (Qt::CaseSensitivity) case_match)) {
+			}
+			else {
+				foreach(QString const& p, exps_exact) {
+					if (str.compare(p, Qt::CaseInsensitive) == 0) {
+						sel = true;
+						break;
+					}
+				}
+			}
+		}
+		else {
+			QString str(nraw_axis.at(r).get_qstr());
+			foreach(QStringMatcher const& exp, exps) {
+				if (exp.indexIn(str) != -1) {
 					sel = true;
 					break;
 				}
