@@ -40,6 +40,9 @@ namespace PVRush {
 
 		typedef nraw_table::column trans_nraw_table_line;
 		typedef nraw_table::const_column const_trans_nraw_table_line;
+
+		typedef trans_nraw_table_line nraw_table_axis;
+		typedef const_trans_nraw_table_line const_nraw_table_axis;
 	private:
 		typedef std::list<PVCore::PVChunk*, tbb::tbb_allocator<PVCore::PVChunk*> > list_chunks_t;
 	public:
