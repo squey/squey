@@ -9,6 +9,9 @@ namespace Picviz {
 class PVPlottingFilterLogMinmax: public PVPlottingFilter
 {
 public:
+	PVPlottingFilterLogMinmax(PVCore::PVArgumentList const& args = PVPlottingFilterLogMinmax::default_args());
+
+public:
 	float* operator()(float* value);
 	void init_expand(float min, float max);
 	float expand_plotted(float value) const;

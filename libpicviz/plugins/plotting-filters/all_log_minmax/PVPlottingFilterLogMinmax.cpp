@@ -7,6 +7,20 @@
 #define log2f logf
 #endif
 
+Picviz::PVPlottingFilterLogMinmax::PVPlottingFilterLogMinmax(PVCore::PVArgumentList const& args):
+	PVPlottingFilter()
+{
+	INIT_FILTER(PVPlottingFilterLogMinmax, args);
+}
+
+DEFAULT_ARGS_FILTER(Picviz::PVPlottingFilterLogMinmax)
+{
+	PVCore::PVArgumentList args;
+	args[PVCore::PVArgumentKey("range-min", "Minimal value (0=auto)")] = QString("0.0");
+	args[PVCore::PVArgumentKey("range-max", "Maximal value (0=auto)")] = QString("0.0");
+	return args;
+}
+
 float* Picviz::PVPlottingFilterLogMinmax::operator()(float* values)
 {
 	assert(values);
@@ -14,18 +28,34 @@ float* Picviz::PVPlottingFilterLogMinmax::operator()(float* values)
 	assert(_mandatory_params);
 
 	float ymin, ymax;
+	ymin = _args["range-min"].toFloat();
+	ymax = _args["range-max"].toFloat();
+
 	int64_t size = _dest_size;
 
-	Picviz::mandatory_param_map::const_iterator it_min = _mandatory_params->find(Picviz::mandatory_ymin);
-	Picviz::mandatory_param_map::const_iterator it_max = _mandatory_params->find(Picviz::mandatory_ymax);
-	if (it_min == _mandatory_params->end() || it_max == _mandatory_params->end()) {
-		PVLOG_WARN("ymin and/or ymax don't exist for an axis. Maybe the mandatory minmax mapping hasn't be run ?\n");
-		memcpy(_dest, values, size*sizeof(float));
-		return _dest;
+	if (ymin == 0.0f) {
+		Picviz::mandatory_param_map::const_iterator it_min = _mandatory_params->find(Picviz::mandatory_ymin);
+		if (it_min == _mandatory_params->end()) {
+			PVLOG_WARN("ymin doesn't exist for an axis. Maybe the mandatory minmax mapping hasn't be run ?\n");
+			memcpy(_dest, values, size*sizeof(float));
+			return _dest;
+		}
+		ymin = (*it_min).second.second;
 	}
-	ymin = (*it_min).second.second;
-	ymax = (*it_max).second.second;
+	if (ymax == 0.0f) {
+		Picviz::mandatory_param_map::const_iterator it_max = _mandatory_params->find(Picviz::mandatory_ymax);
+		if (it_max == _mandatory_params->end()) {
+			PVLOG_WARN("ymax doesn't exist for an axis. Maybe the mandatory minmax mapping hasn't be run ?\n");
+			memcpy(_dest, values, size*sizeof(float));
+			return _dest;
+		}
+		ymax = (*it_max).second.second;
+	}
 
+	if (ymin > ymax) {
+		std::swap(ymin, ymax);
+	}
+	else
 	if (ymin == ymax) {
 		for (int64_t i = 0; i < size; i++) {
 			_dest[i] = 0.5;
@@ -70,4 +100,4 @@ float Picviz::PVPlottingFilterLogMinmax::expand_plotted(float value) const
 	return (log2f(value+_offset)-_expand_min)/_expand_diff;
 }
 
-IMPL_FILTER_NOPARAM(Picviz::PVPlottingFilterLogMinmax)
+IMPL_FILTER(Picviz::PVPlottingFilterLogMinmax)
