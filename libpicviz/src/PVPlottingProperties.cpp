@@ -20,20 +20,16 @@ Picviz::PVPlottingProperties::PVPlottingProperties(PVMapping const& mapping, PVR
 	_mapping(&mapping)
 {
 	_index = idx;
-	_type = get_type();
-	QString mode = format.get_axes().at(idx).get_plotting();
-
+	set_from_axis(format.get_axes().at(idx));
 	_is_uptodate = false;
-	set_mode(mode);
 }
 
 Picviz::PVPlottingProperties::PVPlottingProperties(PVMapping const& mapping, PVRush::PVAxisFormat const& axis, PVCol idx):
 	_mapping(&mapping)
 {
 	_index = idx;
-	_type = get_type();
+	set_from_axis(axis);
 	_is_uptodate = false;
-	set_mode(axis.get_plotting());
 }
 
 void Picviz::PVPlottingProperties::set_from_axis(PVRush::PVAxisFormat const& axis)
@@ -74,7 +70,7 @@ void Picviz::PVPlottingProperties::set_mode(QString const& mode)
 		_is_uptodate = (_mode == mode);
 	}
 	_mode = mode;
-	_plotting_filter = LIB_CLASS(PVPlottingFilter)::get().get_class_by_name(get_type() + "_" + mode);
+	_plotting_filter = LIB_CLASS(PVPlottingFilter)::get().get_class_by_name(get_type() + "_" + mode)->clone<PVPlottingFilter>();
 	if (!_plotting_filter) {
 		_mode = "default";
 		_is_uptodate = false;
@@ -82,6 +78,9 @@ void Picviz::PVPlottingProperties::set_mode(QString const& mode)
 		if (!_plotting_filter) {
 			PVLOG_ERROR("Plotting mode '%s' for type '%s' does not exist !\n", qPrintable(mode), qPrintable(get_type()));
 		}
+	}
+	else {
+		_plotting_filter->set_args(_args);
 	}
 	_type = get_type();
 }
