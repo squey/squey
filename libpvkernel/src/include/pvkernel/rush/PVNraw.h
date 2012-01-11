@@ -37,8 +37,9 @@ namespace PVRush {
 		typedef nraw_table::line nraw_table_line;
 		typedef nraw_table::const_line const_nraw_table_line;
 		typedef nraw_table::transposed_type nraw_trans_table;
-		typedef nraw_trans_table::line trans_nraw_table_line;
-		typedef nraw_trans_table::const_line const_trans_nraw_table_line;
+
+		typedef nraw_table::column trans_nraw_table_line;
+		typedef nraw_table::const_column const_trans_nraw_table_line;
 	private:
 		typedef std::list<PVCore::PVChunk*, tbb::tbb_allocator<PVCore::PVChunk*> > list_chunks_t;
 	public:
@@ -52,6 +53,9 @@ namespace PVRush {
 
 		// Move an nraw data to another PVNraw object. No copy and allocations occurs.
 		static void swap(PVNraw &dst, PVNraw& src);
+
+		inline trans_nraw_table_line get_col(PVCol col) { return table.get_col(col); }
+		inline const_trans_nraw_table_line get_col(PVCol col) const { return table.get_col(col); }
 
 		inline nraw_table& get_table() { return table; }
 		inline nraw_table const& get_table() const { return table; }

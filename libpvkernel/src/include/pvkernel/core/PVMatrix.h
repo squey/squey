@@ -223,9 +223,67 @@ public:
 		const_pointer _p;
 		index_col _size;
 	};
+
+	class PVMatrixColumn
+	{
+	public:
+		PVMatrixColumn(PVMatrix<T, IndexRow, IndexCol, Alloc>& parent, index_col col)
+		{
+			_p = &parent.at(0, col);
+			_size = parent.get_height();
+			_offset = parent.get_width();
+		}
+	public:
+		inline index_row size() const { return _size; }
+		inline index_row count() const { return _size; }
+
+		inline reference at(index_row row) { return _p[offset_for_row(row)]; }
+		inline const_reference at(index_row row) const { return _p[offset_for_row(row)]; }
+		inline reference operator[](index_row row) { return _p[offset_for_row(row)]; }
+		inline const_reference operator[](index_row row) const { return _p[offset_for_row(row)]; }
+
+		inline void set_value(index_row row, const_reference v) { assert(row < _size); _p[offset_for_row(row)] = v; }
+
+	private:
+		inline size_t offset_for_row(index_row row) const { return _offset*row; }
+
+	private:
+		pointer _p;
+		index_row _size;
+		index_col _offset;
+	};
+
+	class PVMatrixColumnConst
+	{
+	public:
+		PVMatrixColumnConst(PVMatrix<T, IndexRow, IndexCol, Alloc> const& parent, index_col col)
+		{
+			_p = &parent.at(0, col);
+			_size = parent.get_height();
+			_offset = parent.get_width();
+		}
+	public:
+		inline index_row size() const { return _size; }
+		inline index_row count() const { return _size; }
+
+		inline const_reference at(index_row row) const { return _p[offset_for_row(row)]; }
+		inline const_reference operator[](index_row row) const { return _p[offset_for_row(row)]; }
+
+	private:
+		inline size_t offset_for_row(index_row row) const { return _offset*row; }
+
+	private:
+		const_pointer _p;
+		index_row _size;
+		index_col _offset;
+	};
+
 public:
 	typedef PVMatrixLineConst const_line;
 	typedef PVMatrixLine line;
+
+	typedef PVMatrixColumnConst const_column;
+	typedef PVMatrixColumn column;
 
 public:
 	PVMatrix(allocator_type const& a = allocator_type()): _ncols(0), _nrows(0), _nrows_physical(0), _data(NULL), _alloc(a) {}
@@ -387,6 +445,9 @@ public:
 
 	inline line operator[](index_row row) { return get_row(row); }
 	inline const_line operator[](index_row row) const { return get_row(row); }
+
+	inline column get_col(index_col col) { assert(_data); assert(col < _ncols); return column(*this, col); }
+	inline const_column get_col(index_col col) const { assert(_data); assert(col < _ncols); return const_column(*this, col); }
 
 	inline pointer get_row_ptr(index_row row) { assert(_data); assert(row < _nrows); return &_data[row*_ncols]; }
 	inline const_pointer get_row_ptr(index_row row) const { assert(_data); assert(row < _nrows); return &_data[row*_ncols]; }

@@ -125,8 +125,12 @@ PVLOG_INFO("(pvmapped::create_table) begin cuda mapping\n");
 
 	// This will use the trans_table of the nraw
 	
+	/*
 	_source->get_rushnraw().create_trans_nraw();	
 	PVRush::PVNraw::nraw_trans_table const& trans_nraw = get_trans_nraw();
+	*/
+	PVRush::PVNraw const& nraw = _source->get_rushnraw();
+
 	PVLOG_INFO("(pvmapped::create_table) begin parallel mapping\n");
 
 	// Create our own plugins from the library
@@ -161,7 +165,7 @@ PVLOG_INFO("(pvmapped::create_table) begin cuda mapping\n");
 			}
 
 			// Get the corresponding object
-			PVRush::PVNraw::const_trans_nraw_table_line fields = trans_nraw[j];
+			PVRush::PVNraw::const_trans_nraw_table_line fields = nraw.get_col(j);
 			PVMappingFilter::p_type mapping_filter = mapping_filters[j];
 			mandatory_param_map& params_map = _mapping.get_mandatory_params_for_col(j);
 			params_map.clear();
@@ -212,7 +216,7 @@ PVLOG_INFO("(pvmapped::create_table) begin cuda mapping\n");
 #endif
 	
 	// Free the transposed NRAW
-	clear_trans_nraw();
+	//clear_trans_nraw();
 }
 
 /******************************************************************************
