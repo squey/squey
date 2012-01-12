@@ -48,8 +48,8 @@ PVInspector::PVLayerStackView::PVLayerStackView(PVMainWindow *mw, PVLayerStackMo
 	connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_ctxt_menu(const QPoint&)));
 	setContextMenuPolicy(Qt::CustomContextMenu);
 
-#ifdef CUSTOMER_CAPABILITY_SAVE
 	_ctxt_menu = new QMenu(this);
+#ifdef CUSTOMER_CAPABILITY_SAVE
 	_ctxt_menu_save_act = new QAction(tr("Export this layer..."), NULL);
 	_ctxt_menu_load_act = new QAction(tr("Import a layer..."), NULL);
 	_ctxt_menu->addAction(_ctxt_menu_save_act);
@@ -60,7 +60,10 @@ PVInspector::PVLayerStackView::PVLayerStackView(PVMainWindow *mw, PVLayerStackMo
 	_ctxt_menu_load_ls_act = new QAction(tr("Load a layer stack..."), NULL);
 	_ctxt_menu->addAction(_ctxt_menu_save_ls_act);
 	_ctxt_menu->addAction(_ctxt_menu_load_ls_act);
+	_ctxt_menu->addSeparator();
 #endif
+	_ctxt_menu_set_sel_layer = new QAction(tr("Set selection from this layer..."), NULL);
+	_ctxt_menu->addAction(_ctxt_menu_set_sel_layer);
 
 	setModel(model);
 	resizeColumnsToContents();
@@ -83,11 +86,15 @@ void PVInspector::PVLayerStackView::leaveEvent(QEvent * /*event*/)
 
 void PVInspector::PVLayerStackView::show_ctxt_menu(const QPoint& pt)
 {
-#ifdef CUSTOMER_CAPABILITY_SAVE
 	QModelIndex idx_click = indexAt(pt);
-	_ctxt_menu_save_act->setEnabled(idx_click.isValid());
 
 	QAction* act = _ctxt_menu->exec(QCursor::pos());
+	if (act == _ctxt_menu_set_sel_layer) {
+		main_window->selection_set_from_current_layer_Slot();
+		return;
+	}
+#ifdef CUSTOMER_CAPABILITY_SAVE
+	_ctxt_menu_save_act->setEnabled(idx_click.isValid());
 	if (act == _ctxt_menu_save_act) {
 		save_layer(idx_click.row());
 	}

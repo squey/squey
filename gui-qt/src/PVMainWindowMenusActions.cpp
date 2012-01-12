@@ -80,6 +80,8 @@ void PVInspector::PVMainWindow::create_actions()
 	selection_inverse_Action->setShortcut(QKeySequence(Qt::Key_I));
 	set_color_Action = new QAction(tr("Set color"), this);
 	set_color_Action->setShortcut(QKeySequence(Qt::Key_C));
+	selection_from_current_layer_Action = new QAction(tr("Set selection from current layer"), this);
+	selection_from_layer_Action = new QAction(tr("Set selection from layer..."), this);
 
 	//commit_selection_in_current_layer_Action = new QAction(tr("Keep &current layer"), this);
 	//commit_selection_in_current_layer_Action->setShortcut(QKeySequence(Qt::Key_K));
@@ -199,6 +201,9 @@ void PVInspector::PVMainWindow::create_menus()
 	selection_Menu->addAction(selection_none_Action);
 	selection_Menu->addAction(selection_inverse_Action);
 	selection_Menu->addSeparator();
+	selection_Menu->addAction(selection_from_current_layer_Action);
+	selection_Menu->addAction(selection_from_layer_Action);
+	selection_Menu->addSeparator();
 	selection_Menu->addAction(set_color_Action);
 	selection_Menu->addSeparator();
 	//selection_Menu->addAction(commit_selection_in_current_layer_Action);
@@ -312,6 +317,8 @@ void PVInspector::PVMainWindow::connect_actions()
 	connect(selection_all_Action, SIGNAL(triggered()), this, SLOT(selection_all_Slot()));
 	connect(selection_none_Action, SIGNAL(triggered()), this, SLOT(selection_none_Slot()));
 	connect(selection_inverse_Action, SIGNAL(triggered()), this, SLOT(selection_inverse_Slot()));
+	connect(selection_from_current_layer_Action, SIGNAL(triggered()), this, SLOT(selection_set_from_current_layer_Slot()));
+	connect(selection_from_layer_Action, SIGNAL(triggered()), this, SLOT(selection_set_from_layer_Slot()));
 	connect(expand_selection_on_axis_Action, SIGNAL(triggered()), this, SLOT(expand_selection_on_axis_Slot()));
 
 	connect(set_color_Action, SIGNAL(triggered()), this, SLOT(set_color_Slot()));

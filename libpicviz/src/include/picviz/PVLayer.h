@@ -93,4 +93,8 @@ protected:
 
 }
 
+// This must be done outside of any namespace
+// This metatype is used for PVLayer widget selection.
+Q_DECLARE_METATYPE(Picviz::PVLayer*)
+
 #endif /* PICVIZ_PVLAYER_H */

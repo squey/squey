@@ -137,6 +137,9 @@ public:
 	QString get_layer_stack_layer_n_name(int n);
 	int get_layer_stack_layer_n_visible_state(int n);
 	PVLayer &get_layer_stack_output_layer();
+
+	inline PVLayer const& get_current_layer() const { return layer_stack.get_selected_layer(); }
+	inline PVLayer& get_current_layer() { return layer_stack.get_selected_layer(); }
 	
 	bool get_line_state_in_layer_stack_output_layer(PVRow index);
 	bool get_line_state_in_layer_stack_output_layer(PVRow index) const;
@@ -199,7 +202,7 @@ public:
 
 	//void set_selection_with_square_area_selection(PVSelection &selection, float xmin, float ymin, float xmax, float ymax);
 	void set_selection_with_final_selection(PVSelection &selection);
-
+	void set_selection_from_layer(PVLayer const& layer);
 
 	int toggle_layer_stack_layer_n_locked_state(int n);
 	int toggle_layer_stack_layer_n_visible_state(int n);

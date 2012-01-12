@@ -2105,3 +2105,10 @@ QList<Picviz::PVView_p> PVInspector::PVMainWindow::list_displayed_picviz_views()
 {
 	return PVGL::PVMain::list_displayed_picviz_views();
 }
+
+void PVInspector::PVMainWindow::set_selection_from_layer(Picviz::PVView_p view, Picviz::PVLayer const& layer)
+{
+	view->set_selection_from_layer(layer);
+	update_pvglview(view, PVSDK_MESSENGER_REFRESH_SELECTION);
+}
+

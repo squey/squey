@@ -36,6 +36,7 @@
 #include <PVCheckBoxEditor.h>
 #include <PVRegexpEditor.h>
 #include <PVEnumEditor.h>
+#include <PVLayerEnumEditor.h>
 #include <PVColorGradientDualSliderEditor.h>
 #include <PVSpinBoxEditor.h>
 #include <PVAxisIndexCheckBoxEditor.h>
@@ -178,6 +179,7 @@ QItemEditorFactory* PVInspector::PVArgumentListWidget::create_layer_widget_facto
 	QItemEditorCreatorBase *dualslider_creator = new PVArgumentEditorCreator<PVColorGradientDualSliderEditor>(view);
 	QItemEditorCreatorBase *spinbox_creator = new PVArgumentEditorCreator<PVSpinBoxEditor>(view);
 	QItemEditorCreatorBase *plaintext_creator = new PVArgumentEditorCreator<PVPlainTextEditor>(view);
+	QItemEditorCreatorBase *layerenum_creator = new PVArgumentEditorCreator<PVLayerEnumEditor>(view);
 	QItemEditorCreatorBase *qstr_creator = new QItemEditorCreator<QLineEdit>("text");
 
 	
@@ -190,6 +192,7 @@ QItemEditorFactory* PVInspector::PVArgumentListWidget::create_layer_widget_facto
 	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVColorGradientDualSliderType>(), dualslider_creator);
 	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVSpinBoxType>(), spinbox_creator);
 	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVPlainTextType>(), plaintext_creator);
+	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<Picviz::PVLayer*>(), layerenum_creator);
 	args_widget_factory->registerEditor(QVariant::RegExp, regexp_creator);
 	args_widget_factory->registerEditor(QVariant::String, qstr_creator);
 
@@ -216,37 +219,48 @@ QItemEditorFactory* PVInspector::PVArgumentListWidget::create_mapping_plotting_w
 	return args_widget_factory;
 }
 
-#if 0
-void PVInspector::PVArgumentListWidget::init()
-{
-	create_btns();
-	set_btns_layout();
-	connect_btns();
-}
-
-void PVInspector::PVArgumentListWidget::create_btns()
-{
-	_apply_btn = new QPushButton("Apply");
-	_apply_btn->setDefault(true);
-	_cancel_btn = new QPushButton("Cancel");
-}
-
-void PVInspector::PVArgumentListWidget::set_btns_layout()
-{
-	_btn_layout->addWidget(_apply_btn);
-	_btn_layout->addWidget(_cancel_btn);
-}
-
-void PVInspector::PVArgumentListWidget::connect_btns()
-{
-	// Connectors
-	connect(_apply_btn, SIGNAL(pressed()), this, SLOT(accept()));
-	connect(_cancel_btn, SIGNAL(pressed()), this, SLOT(reject()));
-}
-#endif
-
 void PVInspector::PVArgumentListWidget::args_changed_Slot()
 {
 	_args_has_changed = true;
 	emit args_changed_Signal();
+}
+
+// Helper functions
+QDialog* PVInspector::PVArgumentListWidget::create_dialog_for_arguments(QItemEditorFactory* widget_factory, PVCore::PVArgumentList& args, QWidget* parent)
+{
+	// Create a dialog with Ok/Cancel buttons that will modify the given arguments
+	// It is the responsability of the user to save the given argument if he wants to retrieve them.
+	// For this purpose, see also modify_arguments_dlg.
+	
+	// Widgets
+	QDialogButtonBox* btns = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+	PVArgumentListWidget* args_widget = new PVArgumentListWidget(widget_factory, args);
+
+	// Layout
+	QVBoxLayout* main_layout = new QVBoxLayout();
+	main_layout->addWidget(args_widget);
+	main_layout->addWidget(btns);
+
+	// Dialog box
+	QDialog* dlg = new QDialog(parent);
+	dlg->setLayout(main_layout);
+
+	// Connections
+	connect(btns, SIGNAL(accepted()), dlg, SLOT(accept()));
+	connect(btns, SIGNAL(rejected()), dlg, SLOT(reject()));
+
+	return dlg;
+}
+
+bool PVInspector::PVArgumentListWidget::modify_arguments_dlg(QItemEditorFactory* widget_factory, PVCore::PVArgumentList& args, QWidget* parent)
+{
+	QDialog* dlg = create_dialog_for_arguments(widget_factory, args, parent);
+	PVCore::PVArgumentList org_args(args);
+	bool ret = true;
+	if (dlg->exec() != QDialog::Accepted) {
+		args = org_args;
+		ret = false;
+	}
+	dlg->deleteLater();
+	return ret;
 }

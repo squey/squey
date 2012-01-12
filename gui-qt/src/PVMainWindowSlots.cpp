@@ -1259,3 +1259,26 @@ void PVInspector::PVMainWindow::axes_new_Slot()
 
 	view->get_source_parent()->add_column(ac_plugin->f(), axis);
 }
+
+void PVInspector::PVMainWindow::selection_set_from_current_layer_Slot()
+{
+	if (current_tab && current_tab->get_lib_view()) {
+		Picviz::PVView_p view(current_tab->get_lib_view());
+		set_selection_from_layer(view, view->get_current_layer());
+	}
+}
+
+void PVInspector::PVMainWindow::selection_set_from_layer_Slot()
+{
+	if (current_tab && current_tab->get_lib_view()) {
+		Picviz::PVView_p view(current_tab->get_lib_view());
+
+		PVCore::PVArgumentList args;
+		args[PVCore::PVArgumentKey("sel-layer", tr("Choose a layer"))].setValue<Picviz::PVLayer*>(&view->get_current_layer());
+		bool ret = PVArgumentListWidget::modify_arguments_dlg(PVArgumentListWidget::create_layer_widget_factory(*view), args, this);
+		if (ret) {
+			Picviz::PVLayer* layer = args["sel-layer"].value<Picviz::PVLayer*>();
+			set_selection_from_layer(view, *layer);
+		}
+	}
+}

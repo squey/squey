@@ -166,6 +166,8 @@ public slots:
 	void change_of_current_view_Slot();
 	void commit_selection_in_current_layer_Slot();
 	void commit_selection_to_new_layer_Slot();
+	void selection_set_from_current_layer_Slot();
+	void selection_set_from_layer_Slot();
 	void expand_selection_on_axis_Slot();
 	void export_file_Slot();
 	void export_selection_Slot();
@@ -223,6 +225,7 @@ private:
 	bool is_project_untitled() { return _is_project_untitled; }
 	void set_project_modified(bool modified);
 	PVMainWindow* find_main_window(const QString& file);
+	void set_selection_from_layer(Picviz::PVView_p view, Picviz::PVLayer const& layer);
 
 private slots:
 	void project_modified_Slot();
@@ -295,6 +298,8 @@ private:
 	QAction *selection_all_Action;
 	QAction *selection_inverse_Action;
 	QAction *selection_none_Action;
+	QAction *selection_from_current_layer_Action;
+	QAction *selection_from_layer_Action;
 	QAction *set_color_Action;
 	QAction* tools_new_format_Action;
 	QAction* tools_cur_format_Action;

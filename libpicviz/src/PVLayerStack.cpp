@@ -314,6 +314,16 @@ void Picviz::PVLayerStack::compute_min_maxs(PVPlotted const& plotted)
 	}
 }
 
+bool Picviz::PVLayerStack::contains_layer(PVLayer* layer)
+{
+	foreach(PVLayer const& l, table) {
+		if (&l == layer) {
+			return true;
+		}
+	}
+	return false;
+}
+
 void Picviz::PVLayerStack::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 {
 	so.list("layers", table, QString(), (PVLayer*) NULL, QStringList(), false);

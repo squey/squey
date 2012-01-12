@@ -7,7 +7,6 @@
 #ifndef PVARGUMENTLISTWIDGET_H
 #define PVARGUMENTLISTWIDGET_H
 
-#include <QtCore>
 #include <QDialog>
 #include <QEvent>
 
@@ -43,10 +42,11 @@ public:
 	inline void clear_args_state() { _args_has_changed = false; }
 	PVCore::PVArgumentList* get_args() { return _args; }
 
-
 public:
 	static QItemEditorFactory* create_layer_widget_factory(Picviz::PVView& view);
 	static QItemEditorFactory* create_mapping_plotting_widget_factory();
+	static QDialog* create_dialog_for_arguments(QItemEditorFactory* widget_factory, PVCore::PVArgumentList& args, QWidget* parent = NULL);
+	static bool modify_arguments_dlg(QItemEditorFactory* widget_factory, PVCore::PVArgumentList& args, QWidget* parent = NULL);
 
 private:
 	void init_widgets();
