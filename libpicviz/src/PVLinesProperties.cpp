@@ -26,11 +26,9 @@
 Picviz::PVLinesProperties::PVLinesProperties()
 {
 	// We initialize a default color as white and fully opaque
-	PVCore::PVColor color = PVCore::PVColor(255, 255, 255, 255);
+	PVCore::PVColor color = PVCore::PVColor::fromRgba(255, 255, 255, 255);
 	
-	table.reserve(PICVIZ_LINESPROPS_NUMBER_OF_CHUNKS);
-
-	table.fill(color, PICVIZ_LINESPROPS_NUMBER_OF_CHUNKS);
+	table.resize(PICVIZ_LINESPROPS_NUMBER_OF_CHUNKS, color);
 }
 
 /******************************************************************************
@@ -273,14 +271,7 @@ Picviz::PVLinesProperties & Picviz::PVLinesProperties::operator=(const PVLinesPr
  *****************************************************************************/
 void Picviz::PVLinesProperties::reset_to_default_color()
 {
-	PVCore::PVColor color;
-
-	color.r() = 255;
-	color.g() = 255;
-	color.b() = 255;
-	color.a() = 255;
-
-	table.fill(color, PICVIZ_LINESPROPS_NUMBER_OF_CHUNKS);
+	memset(&table[0], 0xFF, PICVIZ_LINESPROPS_NUMBER_OF_BYTES);
 }
 
 /******************************************************************************

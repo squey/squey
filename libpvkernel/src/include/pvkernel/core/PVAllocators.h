@@ -1,10 +1,13 @@
 #ifndef PVCORE_PVALLOCATORS_H
 #define PVCORE_PVALLOCATORS_H
 
-#include <cstddef>
-#include <stdint.h>
+#include <pvkernel/core/general.h>
 
+#include <cstddef>
 #include <typeinfo>
+
+#include <stdint.h>
+#include <malloc.h>
 #include <sys/mman.h>
 
 namespace PVCore {
@@ -209,6 +212,65 @@ public:
 		if (munmap(p, sizeof(value_type)*n) != 0) {
 			PVLOG_ERROR("munmap failed.\n");
 		}
+	}
+
+	size_type max_size() const throw()
+	{
+		// From TBB's scalable allocator
+		size_type absolutemax = static_cast<size_type>(-1) / sizeof (value_type);
+		return (absolutemax > 0 ? absolutemax : 1);
+	}
+
+	void construct(pointer p, const_reference val)
+	{
+		::new((void*) p) value_type(val);
+	}
+
+	void destroy(pointer p)
+	{
+		p->~value_type();
+	}
+};
+
+template <class T, int Align>
+class PVAlignedAllocator
+{
+public:
+	typedef T DECLARE_ALIGN(Align) value_type;
+	typedef value_type* pointer;
+	typedef const value_type* const_pointer;
+	typedef value_type& reference;
+	typedef const value_type& const_reference;
+	typedef size_t size_type;
+	typedef ptrdiff_t difference_type;
+	template<class U> struct rebind {
+		typedef PVAlignedAllocator<U, Align> other;
+	}; 
+
+public:
+	pointer address(reference x) const { return &x; }
+	const_pointer address(const_reference x) const { return &x; }
+
+	pointer allocate(size_type n)
+	{
+		pointer p;
+#ifdef WIN32
+		p = (pointer) _aligned_malloc(sizeof(size_type)*n, Align);
+		if (p == NULL) {
+			throw std::bad_alloc();
+		}
+#else
+		int ret = posix_memalign((void**) &p, Align, sizeof(size_type)*n);
+		if (ret != 0) {
+			throw std::bad_alloc();
+		}
+#endif
+		return p;
+	}
+
+	void deallocate(pointer p, size_type /*n*/)
+	{
+		free(p);
 	}
 
 	size_type max_size() const throw()

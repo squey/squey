@@ -43,15 +43,21 @@ float* Picviz::PVMappingFilterTimeDefault::operator()(PVRush::PVNraw::const_tran
 	//Calendar* cal = Calendar::createInstance(err);
 	// Create calender and parsers objects that will be used by our threads
 	const int max_threads = omp_get_max_threads();
-	Calendar** cals = new Calendar*[max_threads];
-	PVCore::PVDateTimeParser **dtparsers = new PVCore::PVDateTimeParser*[max_threads];
+	Calendar* cals[max_threads];
+	PVCore::PVDateTimeParser *dtparsers[max_threads];
+
+	// Get space on the stack for PVDateTimeParser objects
+	char* buf_parsers = (char*) alloca(sizeof(PVCore::PVDateTimeParser)*max_threads);
+
 	tbb::tick_count start_alloc = tbb::tick_count::now();
 	QStringList time_format(_args["time-format"].value<PVCore::PVTimeFormatType>());
 	for (int i = 0; i < max_threads; i++) {
 		UErrorCode err = U_ZERO_ERROR;
 		cals[i] = Calendar::createInstance(err);
 		//dtparsers[i] = new PVCore::PVDateTimeParser(_format->time_format[_cur_col+1]);
-		dtparsers[i] = new PVCore::PVDateTimeParser(time_format);
+		PVCore::PVDateTimeParser *pstack = (PVCore::PVDateTimeParser*) &buf_parsers[i*sizeof(PVCore::PVDateTimeParser)];
+		new (pstack) PVCore::PVDateTimeParser(time_format);
+		dtparsers[i] = pstack;
 	}
 	tbb::tick_count end_alloc = tbb::tick_count::now();
 	PVLOG_INFO("(PVMappingFilterTimeDefault::operator()) object creations took %0.4fs.\n", (end_alloc-start_alloc).seconds());
@@ -98,10 +104,8 @@ float* Picviz::PVMappingFilterTimeDefault::operator()(PVRush::PVNraw::const_tran
 	// Frees the calendar objects
 	for (int i = 0; i < max_threads; i++) {
 		delete cals[i];
-		delete dtparsers[i];
+		//delete dtparsers[i];
 	}
-	delete [] cals;
-	delete [] dtparsers;
 
 	end_alloc = tbb::tick_count::now();
 	PVLOG_INFO("(PVMappingFilterTimeDefault::operator()) object destruction took %0.4fs.\n", (end_alloc-start_alloc).seconds());

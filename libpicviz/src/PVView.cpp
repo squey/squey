@@ -800,26 +800,30 @@ void Picviz::PVView::process_eventline()
 	nu_selection |= real_output_selection;
 //	nu_selection.AB2A_or(real_output_selection);
 
+	PVLinesProperties& out_lps = output_layer.get_lines_properties();
+	PVLinesProperties const& post_lps = post_filter_layer.get_lines_properties();
 	/* We are now able to process the lines_properties */
 	for ( i=0; i<i_max; i++) {
 		/* We check if the line is selected at the end of the process */
+		PVCore::PVColor& out_lp = out_lps.get_line_properties(i);
+		PVCore::PVColor const& post_lp = post_lps.get_line_properties(i);
 		if (real_output_selection.get_line(i)) {
 			/* It is selected, so we copy it's line properties */
-			output_layer.get_lines_properties().get_line_properties(i) = post_filter_layer.get_lines_properties().get_line_properties(i);
+			out_lps.get_line_properties(i) = post_lp;
 			/* ... and set it's z_level */
 			z_level_array.get_value(i) = layer_stack.get_lia().get_value(i) + (1.0*i)/i_max;
 		} else {
 			/* It is not selected in the end, so we check if it was available in the beginning */
 			if (layer_stack_output_layer.get_selection().get_line(i)) {
 				/* The line was available, but is unselected */
-				output_layer.get_lines_properties().get_line_properties(i).r() = post_filter_layer.get_lines_properties().get_line_properties(i).r()/2;
-			  	output_layer.get_lines_properties().get_line_properties(i).g() = post_filter_layer.get_lines_properties().get_line_properties(i).g()/2;
-			  	output_layer.get_lines_properties().get_line_properties(i).b() = post_filter_layer.get_lines_properties().get_line_properties(i).b()/2;
+				out_lp.r() = post_lp.r()/2;
+			  	out_lp.g() = post_lp.g()/2;
+			  	out_lp.b() = post_lp.b()/2;
 				/* We set it's z_level */
 				z_level_array.get_value(i) = (1.0*i)/i_max - 1.0;
 			} else {
 				/* The line is a zombie line */
-				output_layer.get_lines_properties().get_line_properties(i) = default_zombie_line_properties;
+				out_lp = default_zombie_line_properties;
 				/* We set it's z_level */
 				z_level_array.get_value(i) = (1.0*i)/i_max - 2.0;
 			}

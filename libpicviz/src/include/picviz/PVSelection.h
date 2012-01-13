@@ -8,6 +8,7 @@
 #define PICVIZ_PVSELECTION_H
 
 #include <pvkernel/core/stdint.h>
+#include <pvkernel/core/PVAllocators.h>
 #include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/rush/PVNraw.h>
 #include <picviz/general.h>
@@ -37,8 +38,17 @@ namespace Picviz {
 class LibPicvizDecl PVSelection {
 	friend class PVCore::PVSerializeObject;
 
+public:
+	//typedef PVCore::PVAlignedAllocator<uint32_t, 16>::pointer pointer;
+	//typedef uint32_t DECLARE_ALIGN(16) * pointer;
+	typedef uint32_t DECLARE_ALIGN(16) * pointer;
+	typedef uint32_t DECLARE_ALIGN(16) const* const_pointer;
+	typedef PVCore::PVAlignedAllocator<uint32_t, 16> allocator;
+
 private:
-	std::vector<uint32_t> table;
+	//std::vector<uint32_t> table;
+	std::vector<uint32_t, PVCore::PVAlignedAllocator<uint32_t, 16> > vec_table;
+	pointer table;
 
 public:
 	/**
@@ -54,11 +64,13 @@ public:
 	 */
 	PVSelection(std::vector<PVRow> const& rtable);
 
+	PVSelection(PVSelection const& o);
+
 	/**
 	 * Destructor
 	 */
 
-	void* get_buffer();
+	pointer get_buffer();
 
 	/**
 	 * Get the state of line N in the PVSelection
@@ -88,7 +100,7 @@ public:
 	 *
 	 * @return The resulting PVSelection
 	 */
-	//PVSelection & operator=(const PVSelection &rhs);
+	PVSelection & operator=(const PVSelection &rhs);
 
 	/**
 	 * This is the binary outplaced 'AND' operation on two selections

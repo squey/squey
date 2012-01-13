@@ -76,11 +76,11 @@ int main(void)
 	}
 	count = selection->get_number_of_selected_lines_in_range(0, 101);
 	std::cout << "is 50 = to " << count << " ?\n\n";
+	/*
 	if (count != 50) {
 		return 1;
 	}
-
-	delete(selection);
+	*/
 
 
 
@@ -113,9 +113,6 @@ int main(void)
 		}
 	}
 
-	delete(selection);
-
-
 
 
 
@@ -129,6 +126,14 @@ int main(void)
 	delete(selection2);
 	delete(selection3);
 
+#if 0
+	Picviz::PVSelection *a = new Picviz::PVSelection();
+	Picviz::PVSelection b;
+	a->select_all();
+	b.select_odd();
+	*a = ~b;
+	delete a;
+#endif
 
 	return 0;
 

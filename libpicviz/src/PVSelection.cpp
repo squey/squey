@@ -56,7 +56,8 @@ static uint32_t count_bits_between(size_t a, size_t b, const uint32_t* data)
  *****************************************************************************/
 Picviz::PVSelection::PVSelection()
 {
-	table.resize(PICVIZ_SELECTION_NUMBER_OF_CHUNKS);
+	vec_table.resize(PICVIZ_SELECTION_NUMBER_OF_CHUNKS);
+	table = &vec_table[0];
 	select_none();
 }
 
@@ -67,13 +68,20 @@ Picviz::PVSelection::PVSelection()
  *****************************************************************************/
 Picviz::PVSelection::PVSelection(std::vector<PVRow> const& rtable)
 {
-	table.resize(PICVIZ_SELECTION_NUMBER_OF_CHUNKS);
+	vec_table.resize(PICVIZ_SELECTION_NUMBER_OF_CHUNKS);
+	table = &vec_table[0];
 	select_none();
 
 	std::vector<PVRow>::const_iterator it;
 	for (it = rtable.begin(); it != rtable.end(); it++) {
 		set_line(*it, true);
 	}
+}
+
+Picviz::PVSelection::PVSelection(PVSelection const& o):
+	vec_table(o.vec_table),
+	table(&vec_table[0])
+{
 }
 
 /******************************************************************************
@@ -134,6 +142,23 @@ std::vector<PVRow> Picviz::PVSelection::get_rows_table()
 	}
 
 	return rtable;
+}
+
+
+/******************************************************************************
+ *
+ * Picviz::PVSelection::operator=
+ *
+ *****************************************************************************/
+Picviz::PVSelection& Picviz::PVSelection::operator=(const PVSelection &rhs)
+{
+	if (&rhs == this) {
+		return *this;
+	}
+
+	vec_table = rhs.vec_table;
+
+	return *this;
 }
 
 /******************************************************************************
@@ -268,9 +293,7 @@ Picviz::PVSelection & Picviz::PVSelection::operator^=(const PVSelection &rhs)
  *****************************************************************************/
 void Picviz::PVSelection::select_all()
 {
-	for (pv_row i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
-		table[i] = 0xFFFFFFFF;
-	}
+	memset(table, 0xFF, PICVIZ_SELECTION_NUMBER_OF_BYTES);
 }
 
 /******************************************************************************
@@ -280,9 +303,7 @@ void Picviz::PVSelection::select_all()
  *****************************************************************************/
 void Picviz::PVSelection::select_even()
 {
-	for (pv_row i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
-		table[i] = 0xAAAAAAAA;
-	}
+	memset(table, 0xAA, PICVIZ_SELECTION_NUMBER_OF_BYTES);
 }
 
 /******************************************************************************
@@ -292,9 +313,7 @@ void Picviz::PVSelection::select_even()
  *****************************************************************************/
 void Picviz::PVSelection::select_none()
 {
-	for (pv_row i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
-		table[i] = 0;
-	}
+	memset(table, 0x00, PICVIZ_SELECTION_NUMBER_OF_BYTES);
 }
 
 /******************************************************************************
@@ -304,9 +323,7 @@ void Picviz::PVSelection::select_none()
  *****************************************************************************/
 void Picviz::PVSelection::select_odd()
 {
-	for (pv_row i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
-		table[i] = 0x55555555;
-	}
+	memset(table, 0x55, PICVIZ_SELECTION_NUMBER_OF_BYTES);
 }
 
 /******************************************************************************
@@ -346,7 +363,7 @@ void Picviz::PVSelection::set_line(PVRow line_index, bool bool_value)
  * Picviz::PVSelection::get_buffer
  *
  *****************************************************************************/
-void* Picviz::PVSelection::get_buffer()
+uint32_t* Picviz::PVSelection::get_buffer()
 {
 	return &table[0];
 }
@@ -369,5 +386,5 @@ void Picviz::PVSelection::write_selected_lines_nraw(QTextStream& stream, PVRush:
 
 void Picviz::PVSelection::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 {
-	so.buffer("selection_data", &table.at(0), PICVIZ_SELECTION_NUMBER_OF_BYTES);
+	so.buffer("selection_data", table, PICVIZ_SELECTION_NUMBER_OF_BYTES);
 }

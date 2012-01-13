@@ -265,7 +265,7 @@ void PVGL::PVLines::init(Picviz::PVView_p pv_view_)
 		///////////////
 		array_size = nb_vec4 * max_number_of_lines_in_view;
 		size_t salloc = array_size * sizeof(vec4);
-		PVLOG_INFO("PVGL: for batch %d, allocate %d bytes\n", k, salloc);
+		PVLOG_INFO("PVGL: for batch %d, allocate %u bytes\n", k, salloc);
 		glGenBuffers(1, &batch.vbo_position); PRINT_OPENGL_ERROR();
 		glBindBuffer(GL_ARRAY_BUFFER, batch.vbo_position); PRINT_OPENGL_ERROR();
 		glBufferData(GL_ARRAY_BUFFER, array_size * sizeof(vec4), 0, GL_DYNAMIC_DRAW); PRINT_OPENGL_ERROR();
@@ -323,6 +323,7 @@ void PVGL::PVLines::change_axes_count()
 		return;
 	}
 	nb_batches = picviz_max(size_t(0), 1 + (nb_axes - 2) / (14 * 4 - 1));
+	batches.resize(nb_batches);
 
 	for (unsigned k = 0; k < nb_batches; k++) {
 		int nb_vec4;

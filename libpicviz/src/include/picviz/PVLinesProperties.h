@@ -28,7 +28,7 @@ class LibPicvizDecl PVLinesProperties {
 	friend class PVCore::PVSerializeObject;
 public:
 	pvrow last_index; /*<! FIXME: Do we really need this?  */
-	QVector<PVCore::PVColor> table;
+	std::vector<PVCore::PVColor> table;
 
 	/**
 	 * Constructor

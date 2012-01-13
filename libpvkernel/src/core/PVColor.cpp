@@ -8,41 +8,14 @@
 
 #include <pvkernel/core/PVColor.h>
 
-
-
-/******************************************************************************
- *
- * PVCore::PVColor::PVColor
- *
- *****************************************************************************/
-PVCore::PVColor::PVColor()
+PVCore::PVColor PVCore::PVColor::fromRgba(unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
-
-}
-
-/******************************************************************************
- *
- * PVCore::PVColor::PVColor
- *
- *****************************************************************************/
-PVCore::PVColor::PVColor(unsigned char r, unsigned char g, unsigned char b)
-{
-	x = r;
-	y = g;
-	z = b;
-}
-
-/******************************************************************************
- *
- * PVCore::PVColor::PVColor
- *
- *****************************************************************************/
-PVCore::PVColor::PVColor(unsigned char r, unsigned char g, unsigned char b, unsigned char a)
-{
-	x = r;
-	y = g;
-	z = b;
-	w = a;
+	PVColor color;
+	color.x = r;
+	color.y = g;
+	color.z = b;
+	color.w	= a;
+	return color;
 }
 
 /******************************************************************************
@@ -67,44 +40,3 @@ void PVCore::PVColor::fromQColor(QColor color)
 	z = color.blue();
 	w = color.alpha();
 }
-
-/******************************************************************************
- *
- * PVCore::PVColor::r
- *
- *****************************************************************************/
-unsigned char &PVCore::PVColor::r()
-{
-	return x;
-}
-
-/******************************************************************************
- *
- * PVCore::PVColor::g
- *
- *****************************************************************************/
-unsigned char &PVCore::PVColor::g()
-{
-	return y;
-}
-
-/******************************************************************************
- *
- * PVCore::PVColor::b
- *
- *****************************************************************************/
-unsigned char &PVCore::PVColor::b()
-{
-	return z;
-}
-
-/******************************************************************************
- *
- * PVCore::PVColor::a
- *
- *****************************************************************************/
-unsigned char &PVCore::PVColor::a()
-{
-	return w;
-}
-

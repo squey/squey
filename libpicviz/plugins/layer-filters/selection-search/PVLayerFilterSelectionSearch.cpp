@@ -4,6 +4,8 @@
 #include <pvkernel/core/PVAxisIndexType.h>
 #include <picviz/PVView.h>
 
+#include <omp.h>
+
 #define INCLUDE_EXCLUDE_STR "Include or exclude pattern"
 #define CASE_SENSITIVE_STR "Case sensitivity"
 /******************************************************************************
@@ -115,65 +117,78 @@ void Picviz::PVLayerFilterSelectionSearch::operator()(PVLayer& in, PVLayer &out)
 		}
 	}
 
-	for (PVRow r = 0; r < nb_lines; r++) {
-		if (should_cancel()) {
-			if (&in != &out) {
-				out = in;
+	Picviz::PVSelection out_sel_red[omp_get_max_threads()];
+#pragma omp parallel
+	{
+		Picviz::PVSelection& out_sel = out_sel_red[omp_get_thread_num()];
+#pragma omp parallel for
+		for (PVRow r = 0; r < nb_lines; r++) {
+			if (should_cancel()) {
+				// Do nothing, so that this Open-MP loop will end very fast.
+				continue;
 			}
-			return;
-		}
 
-		bool sel = false;
-		if (is_rx) {
-			for (size_t i = 0; i < rxs.size(); i++) {
-				QRegExp& rx = rxs[i];
-				QString str(nraw_axis.at(r).get_qstr());
+			bool sel = false;
+			if (is_rx) {
+				for (size_t i = 0; i < rxs.size(); i++) {
+					QRegExp& rx = rxs[i];
+					QString str(nraw_axis.at(r).get_qstr());
+					if (exact_match) {
+						if (rx.exactMatch(str)) {
+							sel = true;
+							break;
+						}
+					}
+					else
+						if (rx.indexIn(str) != -1) {
+							sel = true;
+							break;
+						}
+				}
+			}
+			else
 				if (exact_match) {
-					if (rx.exactMatch(str)) {
-						sel = true;
-						break;
+					QString str(nraw_axis.at(r).get_qstr());
+					if (case_match) {
+						foreach(QString const& p, exps_exact) {
+							if (str == p) {
+								sel = true;
+								break;
+							}
+						}
+					}
+					else {
+						foreach(QString const& p, exps_exact) {
+							if (str.compare(p, Qt::CaseInsensitive) == 0) {
+								sel = true;
+								break;
+							}
+						}
 					}
 				}
-				else
-				if (rx.indexIn(str) != -1) {
-					sel = true;
-					break;
-				}
-			}
-		}
-		else
-		if (exact_match) {
-			QString str(nraw_axis.at(r).get_qstr());
-			if (case_match) {
-				foreach(QString const& p, exps_exact) {
-					if (str == p) {
-						sel = true;
-						break;
+				else {
+					QString str(nraw_axis.at(r).get_qstr());
+					foreach(QStringMatcher const& exp, exps) {
+						if (exp.indexIn(str) != -1) {
+							sel = true;
+							break;
+						}
 					}
 				}
-			}
-			else {
-				foreach(QString const& p, exps_exact) {
-					if (str.compare(p, Qt::CaseInsensitive) == 0) {
-						sel = true;
-						break;
-					}
-				}
-			}
-		}
-		else {
-			QString str(nraw_axis.at(r).get_qstr());
-			foreach(QStringMatcher const& exp, exps) {
-				if (exp.indexIn(str) != -1) {
-					sel = true;
-					break;
-				}
-			}
-		}
 
-		if (sel) {
-			out.get_selection().set_line(r, true);
+			if (sel) {
+				out_sel.set_line(r, true);
+			}
 		}
+	}
+	if (should_cancel()) {
+		return;
+	}
+
+	// End of the reduction
+	Picviz::PVSelection& out_sel = out.get_selection();
+	for (int i = 0; i < omp_get_max_threads(); i++) {
+		out_sel |= out_sel_red[i];
 	}
 }
 
