@@ -47,6 +47,8 @@
 	<file alias="gmaps.html">resources/gmaps.html</file>
         <file alias="log-icon">resources/log-icon.png</file>
 
+	<file alias="Convergence-Regular.ttf">resources/fonts/Convergence-Regular.ttf</file>
+
 	<file alias="gui.css">resources/gui.css</file>
     </qresource>
 </RCC>

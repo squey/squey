@@ -12,6 +12,7 @@
 #include <QAbstractTableModel>
 #include <QBrush>
 #include <QFont>
+#include <QFontDatabase>
 #include <QModelIndex>
 #include <QReadWriteLock>
 
@@ -64,7 +65,9 @@ protected:
 	PVMainWindow  *main_window;     //!<
 	PVTabSplitter *parent_widget;   //!<
     MatchingTable_t *sortMatchingTable;
-
+    
+	QFontDatabase test_fontdatabase;
+	QFont  row_header_font;
 	QBrush select_brush;            //!<
 	QFont  select_font;             //!<
 	QBrush unselect_brush;          //!<

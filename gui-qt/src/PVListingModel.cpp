@@ -53,6 +53,17 @@ PVInspector::PVListingModel::PVListingModel(PVMainWindow *mw, PVTabSplitter *par
 
 	assert(parent_widget);
 
+	test_fontdatabase = QFontDatabase();
+	//test_fontdatabase.addApplicationFont(QString("/donnees/HORS_SVN/TESTS_PHIL/GOOGLE_WEBFONTS/Convergence/Convergence-Regular.ttf"));
+	//test_fontdatabase.addApplicationFont(QString("/donnees/HORS_SVN/TESTS_PHIL/GOOGLE_WEBFONTS/Metrophobic/Metrophobic.ttf"));
+	
+	test_fontdatabase.addApplicationFont(QString(":/Convergence-Regular.ttf"));
+	
+	//row_header_font = QFont("Helvetica", 7);
+	row_header_font = QFont("Convergence-Regular", 7);
+	//row_header_font = QFont("Metrophobic", 7);
+	//row_header_font = QFont("Courier", 7);
+	
 
 	select_brush = QBrush(QColor(255, 240, 200));
 	unselect_brush = QBrush(QColor(180, 180, 180));
@@ -275,7 +286,8 @@ QVariant PVInspector::PVListingModel::headerData(int section, Qt::Orientation or
 			break;
 		case (Qt::FontRole):
 			if ((orientation == Qt::Vertical) && (lib_view->real_output_selection.get_line(getRealRowIndex(section)))) {
-				return select_font;
+				return row_header_font;
+// 				return select_font;
 			} else {
 				return unselect_font;
 			}
