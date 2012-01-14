@@ -34,6 +34,9 @@ PVInspector::PVTabSplitter::PVTabSplitter(PVMainWindow *mw, Picviz::PVSource_p l
 	// Select the first view
 
 	main_window = mw;
+	
+	setObjectName("PVTabSplitter");
+	
 	pv_layer_stack_widget = NULL; // Note that this value can be requested during the creating of the PVLayerStackWidget!
 
 	pv_listing_model = new PVListingModel(main_window, this);

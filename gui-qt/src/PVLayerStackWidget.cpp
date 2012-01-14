@@ -29,9 +29,13 @@ PVInspector::PVLayerStackWidget::PVLayerStackWidget(PVMainWindow *mw, PVLayerSta
 	main_window = mw;
 	parent_tab = parent;
 
+	setObjectName("PVLayerStackWidget");
+	
 	main_layout = new QVBoxLayout(this);
 
+	// We create the ToolBar of the PVLayerStackWidget
 	layer_stack_toolbar = new QToolBar("Layer Stack ToolBar");
+	layer_stack_toolbar->setObjectName("QToolBar_of_PVLayerStackWidget");
 	create_actions(layer_stack_toolbar);
 
 	pv_layer_stack_view = NULL; // Note that this value can be requested during the creation of the PVLayerStackView
@@ -60,9 +64,10 @@ void PVInspector::PVLayerStackWidget::create_actions(QToolBar *toolbar)
 	QAction *new_layer_Action;
 	PVLOG_DEBUG("PVInspector::PVLayerStackWidget::%s\n", __FUNCTION__);
 
+	
 	// The new_layer Action
 	new_layer_Action = new QAction(tr("New Layer"), this);
-	new_layer_Action->setIcon(QIcon(":/document-new.png"));
+	new_layer_Action->setIcon(QIcon(":/new_layer_icon"));
 	new_layer_Action->setStatusTip(tr("Create a new layer."));
 	new_layer_Action->setWhatsThis(tr("Use this to create a new layer."));
 	toolbar->addAction(new_layer_Action);
@@ -70,7 +75,7 @@ void PVInspector::PVLayerStackWidget::create_actions(QToolBar *toolbar)
 
 	// The move_up Action
 	move_up_Action = new QAction(tr("Move up"), this);
-	move_up_Action->setIcon(QIcon(":/go-up.png"));
+	move_up_Action->setIcon(QIcon(":/move_layer_up_icon"));
 	move_up_Action->setStatusTip(tr("Move selected layer up."));
 	move_up_Action->setToolTip(tr("Move selected layer up."));
 	move_up_Action->setWhatsThis(tr("Use this to move the selected layer up."));
@@ -79,7 +84,7 @@ void PVInspector::PVLayerStackWidget::create_actions(QToolBar *toolbar)
 
 	// The move_down Action
 	move_down_Action = new QAction(tr("Move down"), this);
-	move_down_Action->setIcon(QIcon(":/go-down.png"));
+	move_down_Action->setIcon(QIcon(":/move_layer_down_icon"));
 	move_down_Action->setStatusTip(tr("Move selected layer down."));
 	move_down_Action->setToolTip(tr("Move selected layer down."));
 	move_down_Action->setWhatsThis(tr("Use this to move the selected layer down."));
@@ -88,7 +93,7 @@ void PVInspector::PVLayerStackWidget::create_actions(QToolBar *toolbar)
 
 	// The duplicate_layer Action
 	duplicate_layer_Action = new QAction(tr("Duplicate layer"), this);
-	duplicate_layer_Action->setIcon(QIcon(":/preferences-system-windows.png"));
+	duplicate_layer_Action->setIcon(QIcon(":/duplicate_layer_icon"));
 	duplicate_layer_Action->setStatusTip(tr("Duplicate selected layer."));
 	duplicate_layer_Action->setToolTip(tr("Duplicate selected layer."));
 	duplicate_layer_Action->setWhatsThis(tr("Use this to duplicate the selected layer."));
@@ -97,7 +102,7 @@ void PVInspector::PVLayerStackWidget::create_actions(QToolBar *toolbar)
 
 	// The delete_layer Action
 	delete_layer_Action = new QAction(tr("Delete layer"), this);
-	delete_layer_Action->setIcon(QIcon(":/user-trash.png"));
+	delete_layer_Action->setIcon(QIcon(":/delete_layer_icon"));
 	delete_layer_Action->setStatusTip(tr("Delete layer."));
 	delete_layer_Action->setToolTip(tr("Delete layer."));
 	delete_layer_Action->setWhatsThis(tr("Use this to delete the selected."));

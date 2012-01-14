@@ -4,6 +4,13 @@
 	<!-- CSS -->
 	<file alias="gui.css">resources/gui.css</file>
 
+	<!-- ICONS for PVLayerStackWidget (it's QToolBar) -->
+	<file alias="delete_layer_icon">resources/trafik/elements-interface/icone-supprimer-blanc.png</file>
+	<file alias="duplicate_layer_icon">resources/trafik/elements-interface/icone-dupliquer-blanc.png</file>
+	<file alias="move_layer_up_icon">resources/trafik/elements-interface/icone-monter-blanc.png</file>
+	<file alias="move_layer_down_icon">resources/trafik/elements-interface/icone-descendre-blanc.png</file>
+	<file alias="new_layer_icon">resources/trafik/elements-interface/icone-nouveau-blanc.png</file>
+
 
 	<file alias="background-window.png">resources/background-window.png</file>
         <file alias="window-icon.png">resources/inspector.png</file>
