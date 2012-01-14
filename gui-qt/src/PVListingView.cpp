@@ -35,6 +35,10 @@ PVInspector::PVListingView::PVListingView(PVMainWindow *mw, PVTabSplitter *paren
 
 	lib_view = parent->get_lib_view();
 	_ctxt_process = NULL;
+	
+	// We need to name the headers if we want to style them by CSS (without interfering with other headers...
+	horizontalHeader()->setObjectName("horizontalHeader_of_PVListingView");
+	verticalHeader()->setObjectName("verticalHeader_of_PVListingView");
 
 	setMinimumSize(0,0);
 	setSizePolicy(QSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding));
