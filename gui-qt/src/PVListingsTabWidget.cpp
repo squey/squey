@@ -44,26 +44,9 @@ QTabBar *PVInspector::PVListingsTabWidget::get_tabBar()
 
 /******************************************************************************
  *
- * PVInspector::PVListingsTabWidget::show_hide_views_tab_widget_Slot
+ * PVInspector::PVListingsTabWidget::remove_listing
  *
  *****************************************************************************/
-void PVInspector::PVListingsTabWidget::show_hide_views_tab_widget_Slot(bool visible)
-{
-	setVisible(visible);
-}
-
-/******************************************************************************
- *
- * PVInspector::PVListingsTabWidget::tabCloseRequested_Slot
- *
- *****************************************************************************/
-void PVInspector::PVListingsTabWidget::tabCloseRequested_Slot(int index)
-{
-	PVTabSplitter* tab = (PVTabSplitter*) widget(index);
-	assert(tab);
-	main_window->close_source(tab);
-}
-
 void PVInspector::PVListingsTabWidget::remove_listing(PVTabSplitter* tab)
 {
 	int index = indexOf(tab);
@@ -78,3 +61,32 @@ void PVInspector::PVListingsTabWidget::remove_listing(PVTabSplitter* tab)
 
 	tab->deleteLater();
 }
+
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVListingsTabWidget::show_hide_views_tab_widget_Slot
+ *
+ *****************************************************************************/
+void PVInspector::PVListingsTabWidget::show_hide_views_tab_widget_Slot(bool visible)
+{
+	setVisible(visible);
+}
+
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVListingsTabWidget::tabCloseRequested_Slot
+ *
+ *****************************************************************************/
+void PVInspector::PVListingsTabWidget::tabCloseRequested_Slot(int index)
+{
+	PVTabSplitter* tab = (PVTabSplitter*) widget(index);
+	assert(tab);
+	main_window->close_source(tab);
+}
+
+
+
