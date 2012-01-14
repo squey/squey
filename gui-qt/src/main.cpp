@@ -6,9 +6,12 @@
 
 //! [0]
 #include <QApplication>
+#include <QFile>
 #include <QLocale>
-#include <QTextCodec>
 #include <QResource>
+#include <QString>
+#include <QTextStream>
+#include <QTextCodec>
 
 #include <PVMainWindow.h>
 #include <PVCustomStyle.h>
@@ -129,8 +132,26 @@ int main(int argc, char *argv[])
 	app.setApplicationName("Picviz Inspector " PICVIZ_CURRENT_VERSION_STR);
 	app.setWindowIcon(QIcon(":/window-icon.png"));
 
-	QResource res_css(":/gui.css");
-	app.setStyleSheet(QString((const char *)res_css.data()));
+
+	// We get the CSS as a QFile
+	// WARNING: The following line should not be removed. It is for testing conveniences.
+	// It is commented by default (PhS)
+	//QFile css_file("/donnees/GIT/OLD/picviz-inspector/gui-qt/src/resources/gui.css");
+	// This is the real definition
+	QFile css_file(":/gui.css");
+	
+	// We open the QFile
+	css_file.open(QFile::ReadOnly);
+	// We make it a QTexteStream
+	QTextStream css_stream(&css_file);
+	// We get all the lines in one big QString
+	QString css_string(css_stream.readAll());
+	
+	PVLOG_INFO("Test VOLATILE_CSS : %s\n", qPrintable(css_string));
+ 	
+	// Now we can set the StyleSheet of the application.
+	app.setStyleSheet(css_string);
+	
 
 	pv_main_window.show();
 	if (vm.count("project")) {

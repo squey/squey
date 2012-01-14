@@ -1,5 +1,10 @@
 <RCC>
     <qresource prefix="/">
+
+	<!-- CSS -->
+	<file alias="gui.css">resources/gui.css</file>
+
+
 	<file alias="background-window.png">resources/background-window.png</file>
         <file alias="window-icon.png">resources/inspector.png</file>
         <file alias="logo.png">resources/logo.png</file>
@@ -47,8 +52,22 @@
 	<file alias="gmaps.html">resources/gmaps.html</file>
         <file alias="log-icon">resources/log-icon.png</file>
 
+
+	<!-- QSCROLLBAR ICONS -->
+	<file alias="horizontal-scrollbar-handle">resources/trafik/elements-interface/ascenceur-horizontal-barre-defilement.png</file>
+	<file alias="horizontal-scrollbar-right-arrow">resources/trafik/elements-interface/ascenceur-horizontal-bouton-droite.png</file>
+	<file alias="horizontal-scrollbar-left-arrow">resources/trafik/elements-interface/ascenceur-horizontal-bouton-gauche.png</file>
+	<file alias="horizontal-scrollbar-page-area">resources/trafik/elements-interface/ascenceur-horizontal-portion-milieu.png</file>
+	<file alias="vertical-scrollbar-handle">resources/trafik/elements-interface/ascenceur-vertical-barre-defilement.png</file>
+	<file alias="vertical-scrollbar-down-arrow">resources/trafik/elements-interface/ascenceur-vertical-bouton-bas.png</file>
+	<file alias="vertical-scrollbar-up-arrow">resources/trafik/elements-interface/ascenceur-vertical-bouton-haut.png</file>
+	<file alias="vertical-scrollbar-page-area">resources/trafik/elements-interface/ascenceur-vertical-portion-milieu.png</file>
+
+
+
+	<!-- FONTS -->
 	<file alias="Convergence-Regular.ttf">resources/fonts/Convergence-Regular.ttf</file>
 
-	<file alias="gui.css">resources/gui.css</file>
+
     </qresource>
 </RCC>

@@ -60,7 +60,7 @@ PVInspector::PVListingModel::PVListingModel(PVMainWindow *mw, PVTabSplitter *par
 	test_fontdatabase.addApplicationFont(QString(":/Convergence-Regular.ttf"));
 	
 	//row_header_font = QFont("Helvetica", 7);
-	row_header_font = QFont("Convergence-Regular", 7);
+	row_header_font = QFont("Convergence-Regular", 6);
 	//row_header_font = QFont("Metrophobic", 7);
 	//row_header_font = QFont("Courier", 7);
 	
@@ -284,14 +284,14 @@ QVariant PVInspector::PVListingModel::headerData(int section, Qt::Orientation or
 				return getRealRowIndex(section);
 			}
 			break;
-		case (Qt::FontRole):
-			if ((orientation == Qt::Vertical) && (lib_view->real_output_selection.get_line(getRealRowIndex(section)))) {
-				return row_header_font;
-// 				return select_font;
-			} else {
-				return unselect_font;
-			}
-			break;
+// 		case (Qt::FontRole):
+// 			if ((orientation == Qt::Vertical) && (lib_view->real_output_selection.get_line(getRealRowIndex(section)))) {
+// 				return row_header_font;
+// // 				return select_font;
+// 			} else {
+// 				return unselect_font;
+// 			}
+// 			break;
 		case (Qt::TextAlignmentRole):
 			if (orientation == Qt::Horizontal) {
 				return (Qt::AlignLeft + Qt::AlignVCenter);

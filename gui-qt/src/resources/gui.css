@@ -1,5 +1,202 @@
+/**********************************************************
+ * 
+ * This is the main Picviz Inspector GUI Qt Css file
+ * 
+ * Selectors are listed in alphabetical order
+ * 
+ **********************************************************/
+
+
+
+/*QLineEdit {
+	background-color: yellow;
+}*/
+
+
 QMainWindow#PVMainWindow {
 	background-image: url(:background-window.png);
 }
 
-# QPushButton { color: red }
+
+
+/****************************
+ * PVListingView
+ ***************************/
+
+PVListingView {
+	background-color: white;
+}
+
+
+QHeaderView#horizontalHeader_of_PVListingView::section {
+	background-color: #f5f5f5;
+	
+	font-family: "Arial";
+	font-size: 14px;
+	font-weight: bold;
+	
+	padding: 8px 2px 4px 8px;
+}
+
+QHeaderView#verticalHeader_of_PVListingView::section {
+	background-color: #ffffff;
+	
+	border-bottom-style: none;
+	border-left-style: none;
+	border-right-color: grey;
+	border-right-style: solid;
+	border-right-width: 1px;
+	border-top-style: none;
+	
+	font-family: "Convergence-Regular";
+	font-size: 12px;
+	font-weight: bold;
+	
+	padding-right: 7px;
+}
+
+
+
+/* WARNING: this property is usefull for highlighting SELECTED sections (=rows headers) */
+QHeaderView#verticalHeader_of_PVListingView::section:checked {
+	background-color: #cd8bcc;
+}
+
+
+
+/* WARNING: this property is usefull when pressing the mouse to select sections (because the section that is beeing pressed is not yet considered as "checked" */
+QHeaderView#verticalHeader_of_PVListingView::section:pressed {
+	background-color: #cd8bcc;
+}
+
+
+
+
+/*QHeaderView::section {
+	background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+					stop:0 #616161, stop: 0.5 #505050,
+					stop: 0.6 #434343, stop:1 #656565);
+
+	color: white;
+	padding-left: 4px;
+	border: 1px solid #6c6c6c;
+ }*/
+
+PVListingView QHeaderView::section:checked
+{
+	background-color: red;
+}
+
+/* style the sort indicator */
+PVListingView QHeaderView::down-arrow {
+	background-color: green;
+}
+
+PVListingView QHeaderView::up-arrow {
+	background-color: blue;
+}
+ 
+
+
+
+
+
+/****************************
+ * QScrollBar
+ ***************************/
+
+QScrollBar:horizontal {
+/* 	border: 4px solid grey; */
+	background: white;
+	height: 20px;
+	margin: 0 21px 0 21px;
+}
+
+
+QScrollBar::add-line:horizontal {
+	background-color: #f5f5f5;
+	width: 20px;
+	subcontrol-position: right;
+	subcontrol-origin: margin;
+}
+
+QScrollBar::handle:horizontal {
+	background-color: #666666;
+	margin: 7px 0 7px 0;
+	min-width: 20px;
+}
+
+QScrollBar::left-arrow:horizontal {
+	background-image: url('/donnees/GIT/OLD/picviz-inspector/gui-qt/src/resources/trafik/elements-interface/ascenceur-horizontal-bouton-gauche.png');
+	background-position: center center;
+	background-repeat: no-repeat;
+}
+
+QScrollBar::right-arrow:horizontal {
+	background-image: url('/donnees/GIT/OLD/picviz-inspector/gui-qt/src/resources/trafik/elements-interface/ascenceur-horizontal-bouton-droite.png');
+	background-position: center center;
+	background-repeat: no-repeat;
+
+}
+
+QScrollBar::sub-line:horizontal {
+	background-color: #f5f5f5;
+	width: 20px;
+	subcontrol-position: left;
+	subcontrol-origin: margin;
+}
+/*QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
+	background: white;
+}*/
+
+
+
+
+QScrollBar#verticalScrollBar_of_PVListingView:vertical {
+/* 	border: 4px solid grey; */
+	background: white;
+	width: 21px;
+	margin: 21px 0 21px 0;
+}
+
+QScrollBar#verticalScrollBar_of_PVListingView::add-line {
+	background-color: #f5f5f5;
+	height: 20px;
+	subcontrol-position: bottom;
+	subcontrol-origin: margin;
+}
+
+QScrollBar#verticalScrollBar_of_PVListingView::down-arrow {
+	background-image: url('/donnees/GIT/OLD/picviz-inspector/gui-qt/src/resources/trafik/elements-interface/ascenceur-vertical-bouton-bas.png');
+	background-position: center center;
+	background-repeat: no-repeat;
+}
+
+QScrollBar#verticalScrollBar_of_PVListingView::handle {
+	background-color: #666666;
+	margin: 0 7px 0 7px;
+	min-height: 20px;
+}
+
+QScrollBar#verticalScrollBar_of_PVListingView::sub-line {
+	background-color: #f5f5f5;
+	height: 20px;
+	subcontrol-position: top;
+	subcontrol-origin: margin;
+}
+
+QScrollBar#verticalScrollBar_of_PVListingView::up-arrow {
+	background-image: url('/donnees/GIT/OLD/picviz-inspector/gui-qt/src/resources/trafik/elements-interface/ascenceur-vertical-bouton-haut.png');
+	background-position: center center;
+	background-repeat: no-repeat;
+
+}
+
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+	background-color: #cd8bcc;
+	margin: 0 10px 0 10px;
+	
+}
+
+
+
