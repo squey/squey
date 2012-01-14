@@ -37,21 +37,27 @@ PVInspector::PVTabSplitter::PVTabSplitter(PVMainWindow *mw, Picviz::PVSource_p l
 	
 	setObjectName("PVTabSplitter");
 	
+	// We initialize our pointer to NULL
 	pv_layer_stack_widget = NULL; // Note that this value can be requested during the creating of the PVLayerStackWidget!
 
+	// We prepare the listing part
 	pv_listing_model = new PVListingModel(main_window, this);
 	pv_listing_view = new PVListingView(main_window, this);
 	pv_listing_view->setModel(pv_listing_model);
 
 	addWidget(pv_listing_view);
-
+	
+	// We prepare the right part of the view (with the listing and the Format editor
 	QVBoxLayout* right_layout = new QVBoxLayout();
+	// We prepare the PVLayerStackWidget and add it to the layout
 	pv_layer_stack_model = new PVLayerStackModel(main_window, this);
 	pv_layer_stack_widget = new PVLayerStackWidget(main_window, pv_layer_stack_model, this);
 	right_layout->addWidget(pv_layer_stack_widget);
+	// We prepare the PVViewsListingWidget and add it to the layout
 	_views_widget = new PVViewsListingWidget(this);
 	right_layout->addWidget(_views_widget);
 
+	// Now we really create the right part QWidget and stuff it.
 	QWidget* right_widget = new QWidget();
 	right_widget->setFocusPolicy(Qt::StrongFocus);
 	right_widget->setLayout(right_layout);
@@ -61,6 +67,7 @@ PVInspector::PVTabSplitter::PVTabSplitter(PVMainWindow *mw, Picviz::PVSource_p l
 	right_widget->setMinimumSize(QSize(229, 0));
 	addWidget(right_widget);
 
+	// We also need a PVExtractorWidget
 	_pv_extractor = new PVExtractorWidget(this);
 
 	screenshot_index = 0;
