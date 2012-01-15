@@ -1298,11 +1298,11 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 	QString screenshot_filename;
 	
 	// FIXME!  This is so UGLY !!!
-	QFile css_file("/donnees/GIT/OLD/picviz-inspector/gui-qt/src/resources/gui.css");
-	css_file.open(QFile::ReadOnly);
-	QTextStream css_stream(&css_file);
-	QString css_string(css_stream.readAll());
-	css_file.close();
+// 	QFile css_file("/donnees/GIT/OLD/picviz-inspector/gui-qt/src/resources/gui.css");
+// 	css_file.open(QFile::ReadOnly);
+// 	QTextStream css_stream(&css_file);
+// 	QString css_string(css_stream.readAll());
+// 	css_file.close();
 
 	
 
@@ -1408,8 +1408,9 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 			if (pv_ListingsTabWidget->currentIndex() == -1) {
 				break;
 			}
-			setStyleSheet(css_string);
-			setStyle(QApplication::style());
+			// PhS
+// 			setStyleSheet(css_string);
+// 			setStyle(QApplication::style());
 
 
 // 			number_of_selected_lines = current_lib_view->get_number_of_selected_lines();

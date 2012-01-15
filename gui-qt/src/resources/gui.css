@@ -215,7 +215,7 @@ QSplitter#PVTabSplitter {
 
 
 QSplitter#PVTabSplitter::handle {
-	background-color: #202020;
+	background-color: #cd8bcc;
 }
 
 QSplitter#PVTabSplitter > QWidget{

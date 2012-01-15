@@ -79,7 +79,7 @@ PVInspector::PVLayerStackView::PVLayerStackView(PVMainWindow *mw, PVLayerStackMo
 	_ctxt_menu->addAction(_ctxt_menu_set_sel_layer);
 
 	setModel(model);
-	// PhS resizeColumnsToContents();
+	resizeColumnsToContents();
 	//resizeRowsToContents();
 }
 

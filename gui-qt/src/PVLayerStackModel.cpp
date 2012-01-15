@@ -84,7 +84,7 @@ QVariant PVInspector::PVLayerStackModel::data(const QModelIndex &index, int role
 					PVLayerStackView *layer_stack_view = parent_widget->get_layer_stack_widget()->get_layer_stack_view();
 					/* testing */
 					if (lib_layer_stack->get_selected_layer_index() == lib_index) {
-						return QBrush(QColor(200,150,130));
+						return QBrush(QColor(205,139,204));
 					}
 					if (layer_stack_view->mouse_hover_layer_index == index.row()) {
 						return QBrush(QColor(200,200,200));
@@ -157,10 +157,17 @@ Qt::ItemFlags PVInspector::PVLayerStackModel::flags(const QModelIndex &index) co
  * PVInspector::PVLayerStackModel::headerData
  *
  *****************************************************************************/
-QVariant PVInspector::PVLayerStackModel::headerData(int /*section*/, Qt::Orientation /*orientation*/, int /*role*/) const
+QVariant PVInspector::PVLayerStackModel::headerData(int /*section*/, Qt::Orientation /*orientation*/, int role) const
 {
 	PVLOG_DEBUG("PVInspector::PVLayerStackModel::%s\n", __FUNCTION__);
-
+	
+	// FIXME : this should not be used : delegate...
+	switch (role) {
+		case (Qt::SizeHintRole):
+			return QSize(37,37);
+			break;
+	}
+	
 	return QVariant();
 }
 
@@ -221,6 +228,13 @@ bool PVInspector::PVLayerStackModel::setData(const QModelIndex &index, const QVa
 	return false;
 }
 
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVLayerStackModel::update_layer_stack
+ *
+ *****************************************************************************/
 void PVInspector::PVLayerStackModel::update_layer_stack()
 {
 	beginResetModel();
