@@ -104,12 +104,6 @@ PVInspector::PVTabSplitter::PVTabSplitter(PVMainWindow *mw, Picviz::PVSource_p l
 	connect(_views_widget->get_model(), SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)), this, SLOT(source_changed_Slot()));
 	connect(_views_widget->get_model(), SIGNAL(layoutChanged()), this, SLOT(source_changed_Slot()));
 
-	// HACK: AG: this is ugly but I can't find another way to have
-	// the right widget with 220px width at the beggining.
-// 	QList<int> wsizes = sizes();
-// 	wsizes[1] = 229;
-// 	wsizes[0] = 100000;
-// 	setSizes(wsizes);
 }
 
 
