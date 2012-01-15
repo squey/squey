@@ -146,14 +146,19 @@ int main(int argc, char *argv[])
 	QTextStream css_stream(&css_file);
 	// We get all the lines in one big QString
 	QString css_string(css_stream.readAll());
+	// Now it's time to close the QFile
+	css_file.close();
 	
-	PVLOG_INFO("Test VOLATILE_CSS : %s\n", qPrintable(css_string));
+	PVLOG_HEAVYDEBUG("The current CSS for the GUI is the following :\n%s\n-----------------------------\n", qPrintable(css_string));
  	
 	// Now we can set the StyleSheet of the application.
-	app.setStyleSheet(css_string);
+	//app.setStyleSheet(css_string);
 	
 
 	pv_main_window.show();
+	
+	pv_main_window.setStyleSheet(css_string);
+
 	if (vm.count("project")) {
 		QString prj_path = QString::fromLocal8Bit(vm["project"].as<std::string>().c_str());
 		pv_main_window.load_project(prj_path);

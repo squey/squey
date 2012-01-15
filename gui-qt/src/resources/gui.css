@@ -27,11 +27,9 @@ QMainWindow#PVMainWindow {
 QSplitter#PVTabSplitter {
 	background-color: blue;
 }
+*/
 
-QWidget#PVLayerStackWidget {
-	background-color: yellow;
-}
-
+/*
 QHeaderView#horizontalHeader_of_PVLayerStackView::section {
 	background-color: #f5f500;
 }*/
@@ -40,6 +38,10 @@ QHeaderView#horizontalHeader_of_PVLayerStackView::section {
 /****************************
  * PVLayerStackWidget
  ***************************/
+
+QWidget#PVLayerStackWidget {
+
+}
 
 QToolBar#QToolBar_of_PVLayerStackWidget {
 	background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
@@ -52,7 +54,68 @@ QToolBar#QToolBar_of_PVLayerStackWidget {
 	border-style: solid;
 	border-color: #cbcbcb;
 	border-width: 1px;
+	margin-top: 0;
 }
+
+
+
+
+
+/****************************
+ * PVListingsTabWidget
+ ***************************/
+
+/* The tab widget frame */
+QTabWidget#PVListingsTabWidget::pane {
+     border-top: 1px solid #cbcbcb;
+ }
+
+
+QTabWidget#PVListingsTabWidget::tab-bar {
+     left: 5px; /* move to the right by 5px */
+ }
+
+ /* Style the tab using the tab sub-control. Note that
+     it reads QTabBar _not_ QTabWidget */
+ /* And we make non-selected tabs look smaller */
+QTabWidget#PVListingsTabWidget QTabBar::tab {
+	background-color: grey;
+	border-color: #cbcbcb;
+	border-style: solid;
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
+	border-width: 1px 1px 0 1px;
+
+	color: black;
+	font-family: "Arial";
+	
+	margin-top: 2px; 
+	min-width: 8ex;
+	padding: 4px 3px 4px 10px;
+}
+
+
+
+QTabWidget#PVListingsTabWidget QTabBar::tab:hover {
+	background-color: #cd8bcc;
+ }
+
+
+QTabWidget#PVListingsTabWidget QTabBar::tab:selected {
+	background-color: white;
+	border-color: #f5f5f5;
+	color: #664566;
+	font-weight: bold;
+	margin-top: 0px;
+}
+
+
+
+
+
+
+
+
 
 
 /****************************
@@ -61,11 +124,16 @@ QToolBar#QToolBar_of_PVLayerStackWidget {
 
 QTableView#PVListingView {
 	background-color: #626262;
+	font-family: "Arial";
 }
 
 
 QHeaderView#horizontalHeader_of_PVListingView::section {
 	background-color: #f5f5f5;
+	
+	border-style: solid;
+	border-width: 0 2px 1px 1px;
+	border-color: grey;
 	
 	font-family: "Arial";
 	font-size: 14px;
@@ -142,9 +210,21 @@ PVListingView QHeaderView::up-arrow {
 
 QSplitter#PVTabSplitter {
 	background-color: #626262;
+	padding: 0;
 }
 
 
+QSplitter#PVTabSplitter::handle {
+	background-color: #202020;
+}
+
+QSplitter#PVTabSplitter > QWidget{
+	background-color: #626262;
+}
+
+QWidget#right_widget_of_PVTabSplitter {
+	
+}
 
 
 
@@ -155,7 +235,7 @@ QSplitter#PVTabSplitter {
 QScrollBar:horizontal {
 /* 	border: 4px solid grey; */
 	background: white;
-	height: 20px;
+	height: 21px;
 	margin: 0 21px 0 21px;
 }
 
@@ -192,9 +272,11 @@ QScrollBar::sub-line:horizontal {
 	subcontrol-position: left;
 	subcontrol-origin: margin;
 }
-/*QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
-	background: white;
-}*/
+
+QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
+	background-color: #cd8bcc;
+	margin: 10px 0 10px 0;
+}
 
 
 
@@ -242,7 +324,6 @@ QScrollBar#verticalScrollBar_of_PVListingView::up-arrow {
 QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
 	background-color: #cd8bcc;
 	margin: 0 10px 0 10px;
-	
 }
 
 

@@ -24,6 +24,8 @@ PVInspector::PVListingsTabWidget::PVListingsTabWidget(PVMainWindow *mw, QWidget 
 	main_window = mw;
 
 	tabBar()->installEventFilter(main_window);
+	
+	setObjectName("PVListingsTabWidget");
 
 	setTabsClosable(true);
 	connect(tabBar(), SIGNAL(tabCloseRequested(int)), this, SLOT(tabCloseRequested_Slot(int)));

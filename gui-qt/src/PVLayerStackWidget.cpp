@@ -32,6 +32,7 @@ PVInspector::PVLayerStackWidget::PVLayerStackWidget(PVMainWindow *mw, PVLayerSta
 	setObjectName("PVLayerStackWidget");
 	
 	main_layout = new QVBoxLayout(this);
+	main_layout ->setContentsMargins(0,0,0,0);
 
 	// We create the ToolBar of the PVLayerStackWidget
 	layer_stack_toolbar = new QToolBar("Layer Stack ToolBar");

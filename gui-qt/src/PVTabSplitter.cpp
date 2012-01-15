@@ -48,6 +48,7 @@ PVInspector::PVTabSplitter::PVTabSplitter(PVMainWindow *mw, Picviz::PVSource_p l
 	
 	// We prepare the right part of the view (with the listing and the Format editor
 	QVBoxLayout* right_layout = new QVBoxLayout();
+	right_layout->setContentsMargins(10,10,10,10);
 	
 	// We prepare the PVLayerStackWidget and add it to the layout
 	pv_layer_stack_model = new PVLayerStackModel(main_window, this);
@@ -60,6 +61,7 @@ PVInspector::PVTabSplitter::PVTabSplitter(PVMainWindow *mw, Picviz::PVSource_p l
 
 	// Now we really create the right part QWidget and stuff it.
 	QWidget* right_widget = new QWidget();
+	right_widget->setObjectName("right_widget_of_PVTabSplitter");
 	right_widget->setFocusPolicy(Qt::StrongFocus);
 	right_widget->setLayout(right_layout);
 

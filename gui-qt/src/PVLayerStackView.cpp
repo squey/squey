@@ -34,8 +34,8 @@ PVInspector::PVLayerStackView::PVLayerStackView(PVMainWindow *mw, PVLayerStackMo
 	verticalHeader()->setObjectName("verticalHeader_of_PVLayerStackView");
 	
 	// We fix some Size stuff
-	setMinimumSize(0,0);
-	setSizePolicy(QSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding));
+	// PhS setMinimumSize(0,0);
+	// PhS setSizePolicy(QSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding));
 	setFocusPolicy(Qt::NoFocus);
 	verticalHeader()->hide();
 	horizontalHeader()->hide();
@@ -74,7 +74,7 @@ PVInspector::PVLayerStackView::PVLayerStackView(PVMainWindow *mw, PVLayerStackMo
 	_ctxt_menu->addAction(_ctxt_menu_set_sel_layer);
 
 	setModel(model);
-	resizeColumnsToContents();
+	// PhS resizeColumnsToContents();
 	//resizeRowsToContents();
 }
 

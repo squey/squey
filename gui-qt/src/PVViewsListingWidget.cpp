@@ -16,6 +16,7 @@ PVInspector::PVViewsListingWidget::PVViewsListingWidget(PVTabSplitter* tab):
 	_tree->setContextMenuPolicy(Qt::CustomContextMenu);
 
 	QVBoxLayout* layout = new QVBoxLayout();
+	layout->setContentsMargins(0,0,0,0);
 	layout->addWidget(_tree);
 	setLayout(layout);
 
