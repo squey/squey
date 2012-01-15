@@ -1,3 +1,10 @@
+//! \file PVViewsLIstingWidget.cpp
+//! $Id: PVViewsLIstingWidget.cpp 2501 2011-04-25 14:56:00Z psaade $
+//! Copyright (C) Sébastien Tricaud 2009-2012
+//! Copyright (C) Philippe Saadé 2009-2012
+//! Copyright (C) Picviz Labs 2012
+
+
 #include <PVTabSplitter.h>
 #include <PVViewsModel.h>
 #include <PVViewsListingView.h>
@@ -5,6 +12,11 @@
 
 #include <QVBoxLayout>
 
+/******************************************************************************
+ *
+ * PVInspector::PVViewsListingWidget::PVViewsListingWidget
+ *
+ *****************************************************************************/
 PVInspector::PVViewsListingWidget::PVViewsListingWidget(PVTabSplitter* tab):
 	QWidget(tab),
 	_tab_parent(tab)
@@ -15,16 +27,43 @@ PVInspector::PVViewsListingWidget::PVViewsListingWidget(PVTabSplitter* tab):
 	connect(_tree, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_ctxt_menu(const QPoint&)));
 	_tree->setContextMenuPolicy(Qt::CustomContextMenu);
 
+	// SIZE STUFF
+	// WARNING: nothing should be set here. It is up to the PVViewsListingView to fix a minimal size, etc.
+
+	// LAYOUT STUFF
+	// We need a Layout for that Widget
 	QVBoxLayout* layout = new QVBoxLayout();
+	// We fix the margins for that Layout
 	layout->setContentsMargins(0,0,0,0);
+
+	// We fill the Layout with the PVViewsListingView
 	layout->addWidget(_tree);
+	// We set the Layout in the Widget
 	setLayout(layout);
 
-	setMinimumWidth(210);
-
+	// FOCUS POLICY
 	setFocusPolicy(Qt::StrongFocus);
 }
 
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVViewsListingWidget::force_refresh
+ *
+ *****************************************************************************/
+void PVInspector::PVViewsListingWidget::force_refresh()
+{
+	_model->force_refresh();
+}
+
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVViewsListingWidget::show_ctxt_menu
+ *
+ *****************************************************************************/
 void PVInspector::PVViewsListingWidget::show_ctxt_menu(const QPoint& pt)
 {
 	QModelIndex idx_click = _tree->indexAt(pt);
@@ -92,9 +131,4 @@ void PVInspector::PVViewsListingWidget::show_ctxt_menu(const QPoint& pt)
 		}
 		_model->emitDataChanged(idx_click);
 	}
-}
-
-void PVInspector::PVViewsListingWidget::force_refresh()
-{
-	_model->force_refresh();
 }

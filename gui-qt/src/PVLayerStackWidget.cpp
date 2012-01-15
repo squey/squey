@@ -29,24 +29,37 @@ PVInspector::PVLayerStackWidget::PVLayerStackWidget(PVMainWindow *mw, PVLayerSta
 	main_window = mw;
 	parent_tab = parent;
 
+	// SIZE STUFF
+	// WARNING: nothing should be set here.
+
+	// OBJECTNAME STUFF
 	setObjectName("PVLayerStackWidget");
 	
+	
+	// LAYOUT STUFF
+	// We need a Layout for that Widget
 	main_layout = new QVBoxLayout(this);
-	main_layout ->setContentsMargins(0,0,0,0);
-
-	// We create the ToolBar of the PVLayerStackWidget
-	layer_stack_toolbar = new QToolBar("Layer Stack ToolBar");
-	layer_stack_toolbar->setObjectName("QToolBar_of_PVLayerStackWidget");
-	create_actions(layer_stack_toolbar);
-
+	// We fix the margins for that Layout
+	main_layout->setContentsMargins(0,0,0,0);
+	
+	// PVLAYERSTACKVIEW
 	pv_layer_stack_view = NULL; // Note that this value can be requested during the creation of the PVLayerStackView
 	pv_layer_stack_view = new PVLayerStackView(main_window, model, this);
 	pv_layer_stack_view->setVisible(true);
 
+	// TOOLBAR
+	// We create the ToolBar of the PVLayerStackWidget
+	layer_stack_toolbar = new QToolBar("Layer Stack ToolBar");
+	layer_stack_toolbar->setObjectName("QToolBar_of_PVLayerStackWidget");
+	// SIZE STUFF for the ToolBar
+	layer_stack_toolbar->setMinimumWidth(185);
+	layer_stack_toolbar->setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Fixed);
+	// And we fill the ToolBar
+	create_actions(layer_stack_toolbar);
+
+	// Now we can add our Widgets to the Layout
 	main_layout->addWidget(pv_layer_stack_view);
 	main_layout->addWidget(layer_stack_toolbar);
-
-	setMinimumWidth(210);
 
 	setLayout(main_layout);
 }

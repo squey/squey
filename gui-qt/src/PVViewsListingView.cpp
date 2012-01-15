@@ -1,18 +1,40 @@
+//! \file PVViewsListingView.cpp
+//! $Id: PVViewsListingView.cpp 2501 2011-04-25 14:56:00Z psaade $
+//! Copyright (C) Sébastien Tricaud 2009-2012
+//! Copyright (C) Philippe Saadé 2009-2012
+//! Copyright (C) Picviz Labs 2012
+
+
 #include <PVViewsListingView.h>
 #include <PVViewsModel.h>
 #include <PVTabSplitter.h>
 
+/******************************************************************************
+ *
+ * PVInspector::PVViewsListingView::PVViewsListingView
+ *
+ *****************************************************************************/
 PVInspector::PVViewsListingView::PVViewsListingView(PVViewsModel* model, PVTabSplitter* tab, QWidget* parent):
 	QTreeView(parent),
 	_tab(tab),
 	_model(model)
 {
+	// SIZE STUFF
+	setMinimumSize(100,0);
+	setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Expanding);
+
 	setHeaderHidden(true);
 	setModel(model);
-	setMinimumSize(0,0);
 	setAllColumnsShowFocus(true);
 }
 
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVViewsListingView::mouseDoubleClickEvent
+ *
+ *****************************************************************************/
 void PVInspector::PVViewsListingView::mouseDoubleClickEvent(QMouseEvent* event)
 {
 	QTreeView::mouseDoubleClickEvent(event);

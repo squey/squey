@@ -6,6 +6,7 @@
 
 #include <QtGui>
 #include <QCursor>
+#include <QSizePolicy>
 
 #include <pvkernel/core/general.h>
 #include <picviz/PVStateMachine.h>
@@ -30,21 +31,27 @@ PVInspector::PVListingView::PVListingView(PVMainWindow *mw, PVTabSplitter *paren
 	QTableView(parent),
 	main_window(mw),
 	_parent(parent)
-{
+{	
 	PVLOG_DEBUG("PVInspector::PVListingView::%s\n", __FUNCTION__);
 
 	lib_view = parent->get_lib_view();
 	_ctxt_process = NULL;
 	
+	// SIZE STUFF
+	setMinimumSize(60,40);
+	QSizePolicy temp_size_policy = QSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::Expanding);
+	temp_size_policy.setHorizontalStretch(1);
+	setSizePolicy(temp_size_policy);
+
+	// OBJECTNAME STUFF
 	setObjectName("PVListingView");
 	// We need to name the headers if we want to style them by CSS (without interfering with other headers...
 	horizontalHeader()->setObjectName("horizontalHeader_of_PVListingView");
 	verticalHeader()->setObjectName("verticalHeader_of_PVListingView");
 	horizontalScrollBar()->setObjectName("horizontalScrollBar_of_PVListingView");
 	verticalScrollBar()->setObjectName("verticalScrollBar_of_PVListingView");
-
-	setMinimumSize(0,0);
-	setSizePolicy(QSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding));
+	
+	// FOCUS POLICY
 	setFocusPolicy(Qt::NoFocus);
 	setSelectionMode(QAbstractItemView::ExtendedSelection);
 	setSelectionBehavior(QAbstractItemView::SelectRows);

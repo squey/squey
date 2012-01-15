@@ -34,20 +34,31 @@ PVInspector::PVTabSplitter::PVTabSplitter(PVMainWindow *mw, Picviz::PVSource_p l
 	// Select the first view
 
 	main_window = mw;
+
+	// SIZE STUFF
+	// Nothing here !
 	
+	// OBJECTNAME STUFF
 	setObjectName("PVTabSplitter");
+	
+	// FOCUS POLICY
+	setFocusPolicy(Qt::StrongFocus);
 	
 	// We initialize our pointer to NULL
 	pv_layer_stack_widget = NULL; // Note that this value can be requested during the creating of the PVLayerStackWidget!
 
+	// PVLISTINGVIEW
 	// We prepare the listing part and add it to the PVTabSplitter
 	pv_listing_model = new PVListingModel(main_window, this);
 	pv_listing_view = new PVListingView(main_window, this);
 	pv_listing_view->setModel(pv_listing_model);
 	addWidget(pv_listing_view);
 	
-	// We prepare the right part of the view (with the listing and the Format editor
+	// Layout of the RIGHT_WIDGET
+	// We prepare the right part of the view (with the listing and the Format editor)
+	// We need a Layout
 	QVBoxLayout* right_layout = new QVBoxLayout();
+	// We set the margins in that Layout
 	right_layout->setContentsMargins(10,10,10,10);
 	
 	// We prepare the PVLayerStackWidget and add it to the layout
@@ -59,27 +70,33 @@ PVInspector::PVTabSplitter::PVTabSplitter(PVMainWindow *mw, Picviz::PVSource_p l
 	_views_widget = new PVViewsListingWidget(this);
 	right_layout->addWidget(_views_widget);
 
+	// RIGHT_WIDGET
 	// Now we really create the right part QWidget and stuff it.
 	QWidget* right_widget = new QWidget();
+	// SIZE STUFF
+	right_widget->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
+	right_widget->setMinimumSize(QSize(100, 0));
+	// OBJECTNAME STUFF
 	right_widget->setObjectName("right_widget_of_PVTabSplitter");
+	// FOCUS POLICY
 	right_widget->setFocusPolicy(Qt::StrongFocus);
-	right_widget->setLayout(right_layout);
-
-	// Phs test QSizePolicy sizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
-	// PhS right_widget->setSizePolicy(sizePolicy);
-	// PhS right_widget->setMinimumSize(QSize(229, 0));
 	
-	// Now we can add the Right Widget to our PVTabSplitter
+	// We put the right_layout in the RIGHT_WIDGET
+	right_widget->setLayout(right_layout);
+	
+	// Now we can add the RIGHT_WIDGET to our PVTabSplitter
 	addWidget(right_widget);
+	
+	// INITIAL SIZES
+	// We now set the initial size of the components of that PVTabSplitter (mostly the right_widget...)
+	QList<int> list_of_initial_sizes;
+	list_of_initial_sizes << 1 << 220;
+	setSizes(list_of_initial_sizes);
 
 	// We also need a PVExtractorWidget
 	_pv_extractor = new PVExtractorWidget(this);
 
 	screenshot_index = 0;
-
-// 	setMinimumSize(0,0);
-// 	setSizePolicy(QSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding));
-	setFocusPolicy(Qt::StrongFocus);
 
 	// Update notifications
 	connect(pv_layer_stack_model, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)), this, SLOT(source_changed_Slot()));

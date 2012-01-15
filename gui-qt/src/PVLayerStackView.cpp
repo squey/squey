@@ -27,18 +27,23 @@ PVInspector::PVLayerStackView::PVLayerStackView(PVMainWindow *mw, PVLayerStackMo
 
 	main_window = mw;
 
-	
+	// SIZE STUFF
+	setMinimumWidth(190);
+	setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Expanding);
+
+	// OBJECTNAME STUFF
 	setObjectName("PVLayerStackView");
 	// We need to name the headers if we want to style them by CSS (without interfering with other headers...
 	horizontalHeader()->setObjectName("horizontalHeader_of_PVLayerStackView");
 	verticalHeader()->setObjectName("verticalHeader_of_PVLayerStackView");
 	
-	// We fix some Size stuff
-	// PhS setMinimumSize(0,0);
-	// PhS setSizePolicy(QSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding));
+	// FOCUS POLICY
 	setFocusPolicy(Qt::NoFocus);
+	
+	// HEADERS : we hide them
 	verticalHeader()->hide();
 	horizontalHeader()->hide();
+
 	//viewport()->setMouseTracking(true);
 	//viewport()->setAttribute(Qt::WA_Hover, true);
 
