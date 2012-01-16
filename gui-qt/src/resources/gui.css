@@ -254,13 +254,13 @@ QScrollBar::handle:horizontal {
 }
 
 QScrollBar::left-arrow:horizontal {
-	background-image: url('/donnees/GIT/OLD/picviz-inspector/gui-qt/src/resources/trafik/elements-interface/ascenceur-horizontal-bouton-gauche.png');
+	background-image: url(':/horizontal-scrollbar-left-arrow');
 	background-position: center center;
 	background-repeat: no-repeat;
 }
 
 QScrollBar::right-arrow:horizontal {
-	background-image: url('/donnees/GIT/OLD/picviz-inspector/gui-qt/src/resources/trafik/elements-interface/ascenceur-horizontal-bouton-droite.png');
+	background-image: url(':/horizontal-scrollbar-right-arrow');
 	background-position: center center;
 	background-repeat: no-repeat;
 
@@ -279,8 +279,6 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
 }
 
 
-
-
 QScrollBar#verticalScrollBar_of_PVListingView:vertical {
 /* 	border: 4px solid grey; */
 	background: white;
@@ -296,7 +294,7 @@ QScrollBar#verticalScrollBar_of_PVListingView::add-line {
 }
 
 QScrollBar#verticalScrollBar_of_PVListingView::down-arrow {
-	background-image: url('/donnees/GIT/OLD/picviz-inspector/gui-qt/src/resources/trafik/elements-interface/ascenceur-vertical-bouton-bas.png');
+	background-image: url(':/vertical-scrollbar-down-arrow');
 	background-position: center center;
 	background-repeat: no-repeat;
 }
@@ -315,7 +313,7 @@ QScrollBar#verticalScrollBar_of_PVListingView::sub-line {
 }
 
 QScrollBar#verticalScrollBar_of_PVListingView::up-arrow {
-	background-image: url('/donnees/GIT/OLD/picviz-inspector/gui-qt/src/resources/trafik/elements-interface/ascenceur-vertical-bouton-haut.png');
+	background-image: url(':/vertical-scrollbar-up-arrow');
 	background-position: center center;
 	background-repeat: no-repeat;
 
