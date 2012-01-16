@@ -21,6 +21,7 @@ PVRush::PVControllerJob::PVControllerJob(job_action a, int priority) :
 	_job_finished_run = false;
 	_ctrl_parent = NULL;
 	_dump_elts = false;
+	_job_started = false;
 }
 
 PVRush::PVControllerJob::~PVControllerJob()
@@ -97,6 +98,7 @@ void PVRush::PVControllerJob::job_goingto_start(PVController& ctrl)
 {
 	_tc_start = tbb::tick_count::now();
 	_ctrl_parent = &ctrl;
+	_job_started = true;
 }
 
 void PVRush::PVControllerJob::wait_end()

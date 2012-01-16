@@ -167,7 +167,7 @@ bool PVInspector::PVExtractorWidget::show_job_progress_bar(PVRush::PVControllerJ
 	// launch a thread in order to update the status of the progress bar
 	std::thread th_status(boost::bind(update_status_ext, pbox, job));	
 	pbox->launch_timer_status();
-	if (job->done()) {
+	if (!job->running() && (job->started())) {
 		return true;
 	}
 	if (pbox->exec() == QDialog::Accepted) {
