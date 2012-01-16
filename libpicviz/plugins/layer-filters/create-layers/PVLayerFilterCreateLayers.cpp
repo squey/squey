@@ -8,60 +8,36 @@
 #include <QString>
 #include <QByteArray>
 
+#include "parse-config.h"
 #include "PVLayerFilterCreateLayers.h"
 #include <pvkernel/core/PVColor.h>
 #include <pvkernel/core/PVAxesIndexType.h>
 #include <picviz/PVView.h>
 
-int Picviz::PVLayerFilterCreateLayers::create_layers_parse_config(QString filename)
+static int handle_create_layers_section(QString section_name, QString layer_name, QString regex_for_layer)
 {
 
-	// PVLOG_INFO("Parse config for %s\n", filename);
-	QRegExp re_section("^\\[(.*)\\]$", Qt::CaseSensitive, QRegExp::RegExp);
-	QString section_name;
-	int line_pos = 1;
+	PVLOG_INFO("regex=%s\n", qPrintable(regex_for_layer));
 
-	QFile configfile(filename);
-	if (!configfile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-		return -1;
-	}
-
-	while (!configfile.atEnd()) {
-		QByteArray line = configfile.readLine();
-		line.chop(1);
-		if (!line.isEmpty()) {
-			int ret = re_section.indexIn(line);
-			if (ret >= 0) {
-			        section_name = re_section.cap(1);
-				// PVLOG_INFO("Section:%s\n", qPrintable(section_name));
-			} else {
-				if (section_name.isEmpty()) {
-					PVLOG_ERROR("Create Layer config issue: empty section found at line %d\n", line_pos);
-				} else {
-				// We know in which section we are and we parse data
-
-					
-				}
-			}
-		}
-
-		line_pos++;
-		// process_line(line);
-	}
 	return 0;
 }
 
+int Picviz::PVLayerFilterCreateLayers::create_layers_get_config(QString filename)
+{
+	return create_layers_parse_config(filename, handle_create_layers_section);
+}
 
 /******************************************************************************
  *
  * Picviz::PVLayerFilterCreateLayers::PVLayerFilterCreateLayers
  *
  *****************************************************************************/
-Picviz::PVLayerFilterCreateLayers::PVLayerFilterCreateLayers(PVCore::PVArgumentList const& l)
-	: PVLayerFilter(l)
+Picviz::PVLayerFilterCreateLayers::PVLayerFilterCreateLayers(QString menu_name, PVCore::PVArgumentList const& l)
+	: PVLayerFilter(l),
+	  _menu_name(menu_name)
 {
 	INIT_FILTER(PVLayerFilterCreateLayers, l);
-	create_layers_parse_config(QString("create-layers.conf"));
+	create_layers_get_config(QString("create-layers.conf"));
 }
 
 /******************************************************************************
