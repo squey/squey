@@ -14,6 +14,7 @@
 #include <PVListingView.h>
 #include <PVExtractorWidget.h>
 #include <PVAxesCombinationDialog.h>
+#include <PVListingSortFilterProxyModel.h>
 #include <PVMappingPlottingEditDialog.h>
 #include <PVViewsListingWidget.h>
 #include <PVViewsModel.h>
@@ -50,8 +51,11 @@ PVInspector::PVTabSplitter::PVTabSplitter(PVMainWindow *mw, Picviz::PVSource_p l
 	// PVLISTINGVIEW
 	// We prepare the listing part and add it to the PVTabSplitter
 	pv_listing_model = new PVListingModel(main_window, this);
+	pv_listing_proxy_model = new PVListingSortFilterProxyModel(this);
 	pv_listing_view = new PVListingView(main_window, this);
-	pv_listing_view->setModel(pv_listing_model);
+	pv_listing_proxy_model->setSourceModel(pv_listing_model);
+	pv_listing_view->setModel(pv_listing_proxy_model);
+	pv_listing_view->setSortingEnabled(true);
 	addWidget(pv_listing_view);
 	
 	// Layout of the RIGHT_WIDGET
@@ -473,11 +477,11 @@ void PVInspector::PVTabSplitter::refresh_listing_Slot()
 		current_lib_view->gl_call_locker.lock();
 		pv_listing_view->viewport()->update();
 		pv_listing_view->verticalHeader()->viewport()->update();
-		//static_cast<PVListingModelBase*>(pv_listing_view->model())->reset_model();
+		pv_listing_view->get_listing_model()->reset_model();
 		//update the size of the corresponding table.
-		static_cast<PVListingModel*>(pv_listing_view->model())->initMatchingTable();
-                static_cast<PVListingModel*>(pv_listing_view->model())->initLocalMatchingTable();
-		static_cast<PVListingModel*>(pv_listing_view->model())->emitLayoutChanged();
+//		static_cast<PVListingModel*>(pv_listing_view->model())->initMatchingTable();
+//                static_cast<PVListingModel*>(pv_listing_view->model())->initLocalMatchingTable();
+//		static_cast<PVListingModel*>(pv_listing_view->model())->emitLayoutChanged();
 		current_lib_view->gl_call_locker.unlock();
 		main_window->update_statemachine_label(current_lib_view);
 	}

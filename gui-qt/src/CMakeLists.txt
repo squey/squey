@@ -69,6 +69,7 @@ include/PVLayerStackWidget.h
 include/PVListingModel.h
 include/PVListingView.h
 include/PVListingsTabWidget.h
+include/PVListingSortFilterProxyModel.h
 include/PVMainWindow.h
 include/PVMappingPlottingEditDialog.h
 include/PVMapWidget.h
@@ -160,6 +161,7 @@ PVLayerStackWidget.cpp
 PVListingModel.cpp
 PVListingView.cpp
 PVListingsTabWidget.cpp
+PVListingSortFilterProxyModel.cpp
 PVMainWindow.cpp
 PVMainWindowMenusActions.cpp
 PVMainWindowSlots.cpp

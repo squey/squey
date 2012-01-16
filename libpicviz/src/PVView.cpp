@@ -328,6 +328,12 @@ QString Picviz::PVView::get_data(PVRow row, PVCol column)
 	return get_qtnraw_parent().at(row, real_index).get_qstr();
 }
 
+PVCore::PVUnicodeString const& Picviz::PVView::get_data_unistr(PVRow row, PVCol column)
+{
+	PVCol real_index = axes_combination.get_axis_column_index_fast(column);
+	return get_rushnraw_parent().at_unistr(row, real_index);
+}
+
 /******************************************************************************
  *
  * Picviz::PVView::get_real_axis_index

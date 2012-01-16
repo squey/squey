@@ -181,7 +181,7 @@ public:
 	static PVCore::PVArgumentList default_args() { return PVCore::PVArgumentList(); }
 public:
 	T& operator()(T& obj) { return obj; }
-	virtual func_type f() { return boost::bind<T&>(&PVFilterFunction<T, FilterT_>::operator(), this, _1); }
+	virtual func_type f() { return boost::bind<T&>(&PVFilterFunction<T, FilterT_>::operator(), (PVFilterFunction<T, FilterT_>*) this, _1); }
 };
 
 }

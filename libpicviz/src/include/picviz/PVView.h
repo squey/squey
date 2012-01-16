@@ -256,6 +256,7 @@ public:
 	 *
 	 */
 	QString get_data(PVRow row, PVCol column);
+	PVCore::PVUnicodeString const& get_data_unistr(PVRow row, PVCol column);
 
 	/**
 	 * Gets the data directly from nraw, without #PVAxesCombination
@@ -267,6 +268,8 @@ public:
 	 *
 	 */
 	QString get_data_raw(PVRow row, PVCol column);
+	inline PVCore::PVUnicodeString const& get_data_unistr_raw(PVRow row, PVCol column) { return get_rushnraw_parent().at_unistr(row, column); }
+
 
 	void selection_A2B_select_with_square_area(PVSelection &a, PVSelection &b);
 

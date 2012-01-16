@@ -78,6 +78,8 @@ public:
 
 	void update_view();
 
+	PVListingModel* get_listing_model();
+
 private:
 	void mouseDoubleClickEvent(QMouseEvent* event);
 	void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
