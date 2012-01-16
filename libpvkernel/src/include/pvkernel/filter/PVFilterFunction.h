@@ -9,32 +9,15 @@
 #define PVFILTER_PVFILTERFUNCTION_H
 
 #include <pvkernel/core/general.h>
-#include <pvkernel/core/PVArgument.h>
+#include <pvkernel/core/PVFunctionArgs.h>
 #include <pvkernel/core/PVRegistrableClass.h>
 
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include <exception>
-
 namespace PVFilter {
 
-/*! \brief Exception class if a filter argument is missing during PVFilterFunction::set_args()
- */
-class LibKernelDecl PVFilterArgumentMissing : public std::exception
-{
-public:
-	PVFilterArgumentMissing(QString const& arg) throw() :
-		std::exception()
-	{
-		_what = QString("Argument %1 missing").arg(arg);
-	}
-	~PVFilterArgumentMissing() throw() {};
-	virtual const char* what() const throw() { return qPrintable(_what); };
-protected:
-	QString _what;
-};
 
 //! \brief Base class of a filter function
 //! \tparam Tout the type of output object
@@ -108,7 +91,7 @@ protected:
 //! <li>base, that defines the base class (PVFilterFunctionBase<Tout,Tin). This must *never* be overrided.</li>
 //! </ul>
 template <typename Tout_, typename Tin_>
-class PVFilterFunctionBase
+class PVFilterFunctionBase: public PVCore::PVFunctionArgs<boost::function<Tout_(Tin_)> >
 {
 public:
 	typedef Tout_ Tout;
@@ -117,46 +100,21 @@ public:
 	typedef boost::shared_ptr< PVFilterFunctionBase<Tout,Tin> > p_type;
 	typedef PVFilterFunctionBase<Tout,Tin> base;
 public:
-	PVFilterFunctionBase(PVCore::PVArgumentList const& args = PVFilterFunctionBase<Tout,Tin>::default_args()) :
-		_args(args), _def_args(args)
-	{
-	}
+	PVFilterFunctionBase(PVCore::PVArgumentList const& args = PVFilterFunctionBase<Tout,Tin>::default_args()):
+		PVCore::PVFunctionArgs<func_type>(args)
+	{ }
 public:
 	static PVCore::PVArgumentList default_args() { return PVCore::PVArgumentList(); }
 public:
-
-	//Tout operator()(Tin obj) = 0;
-	//func_type f() { return boost::bind<Tout>(&PVFilterFunctionBase<Tout,Tin>::_f, this, _1); }
-	//Tout _f(Tin obj) { return this->operator()(obj); }
-	//virtual func_type f() { assert(false); return func_type(); }
-	virtual func_type f() = 0;
-	virtual const PVCore::PVArgumentList& get_args() const { return _args; }
-	virtual void set_args(PVCore::PVArgumentList const& args)
-	{
-		PVCore::PVArgumentList::const_iterator it,ite;
-		it = _def_args.begin();
-		ite = _def_args.end();
-		for (; it != ite; it++) {
-			// If that default argument is not present in the given list
-			if (args.find(it.key()) == ite) {
-				// An exception is thrown
-				throw new PVFilterArgumentMissing(it.key());
-			}
-		}
-	   _args = args;
-	}
 	QString const& get_name() { return _name; }
-	PVCore::PVArgumentList const& get_default_args() { return _def_args; }
 protected:
-	PVCore::PVArgumentList _args;
-	PVCore::PVArgumentList _def_args;
 	QString _name;
 };
 
 /*! \brief Special PVFilterFunctionBase function for Tin -> void
  */
 template <typename Tin_>
-class PVFilterFunctionBase<void,Tin_>
+class PVFilterFunctionBase<void,Tin_>: public PVCore::PVFunctionArgs<boost::function<void(Tin_)> >
 {
 public:
 	typedef void Tout;
@@ -165,43 +123,21 @@ public:
 	typedef boost::shared_ptr< PVFilterFunctionBase<void,Tin> > p_type;
 	typedef PVFilterFunctionBase<void,Tin> base;
 public:
-	PVFilterFunctionBase(PVCore::PVArgumentList const& args = PVFilterFunctionBase<void,Tin>::default_args()) :
-		_args(args), _def_args(args)
+	PVFilterFunctionBase(PVCore::PVArgumentList const& args = PVFilterFunctionBase<void,Tin>::default_args()):
+		PVCore::PVFunctionArgs<func_type>(args)
 	{
 	}
 public:
 	static PVCore::PVArgumentList default_args() { return PVCore::PVArgumentList(); }
-public:
-	//void operator()(Tin /*obj*/ ) = 0;
-	//virtual func_type f() { assert(false); return func_type(); }
-	virtual func_type f() = 0;
-	//void _f(Tin obj) { this->operator()(obj); }
 	QString const& get_name() { return _name; }
-	PVCore::PVArgumentList const& get_default_args() { return _def_args; }
-	virtual void set_args(PVCore::PVArgumentList const& args)
-	{
-		PVCore::PVArgumentList::const_iterator it,ite;
-		it = _def_args.begin();
-		ite = _def_args.end();
-		for (; it != ite; it++) {
-			// If that default argument is not present in the given list
-			if (args.find(it.key()) == ite) {
-				// An exception is thrown
-				throw new PVFilterArgumentMissing(it.key());
-			}
-		}
-	   _args = args;
-	}
 protected:
-	PVCore::PVArgumentList _args;
-	PVCore::PVArgumentList _def_args;
 	QString _name;
 };
 
 /*! \brief Special PVFilterFunctionBase function for void -> Tin
  */
 template <typename Tout_>
-class PVFilterFunctionBase<Tout_,void>
+class PVFilterFunctionBase<Tout_,void>: public PVCore::PVFunctionArgs<boost::function<Tout_()> >
 {
 public:
 	typedef Tout_ Tout;
@@ -210,48 +146,15 @@ public:
 	typedef boost::shared_ptr< PVFilterFunctionBase<Tout,void> > p_type;
 	typedef PVFilterFunctionBase<Tout,void> base;
 public:
-	PVFilterFunctionBase(PVCore::PVArgumentList const& args = PVFilterFunctionBase<Tout,void>::default_args()) :
-		_args(args), _def_args(args)
+	PVFilterFunctionBase(PVCore::PVArgumentList const& args = PVFilterFunctionBase<Tout,void>::default_args()):
+		PVCore::PVFunctionArgs<func_type>(args)
 	{
 	}
 public:
 	static PVCore::PVArgumentList default_args() { return PVCore::PVArgumentList(); }
 public:
-	//Tout operator()() = 0;
-	/*! \brief Returns a boost::bind object that calls the operator() function of this filter
-	 */
-	//virtual func_type f() { assert(false); return func_type(); }
-	virtual func_type f() = 0;
-
-	/*! \brief Intermediate function for boost::bind.
-	 * \note This whole process should be optimised because extra-calls are made, and may be a performance bottleneck.
-	 */
-	//Tout _f() { return this->operator()(); }
-
 	QString const& get_name() { return _name; }
-	PVCore::PVArgumentList const& get_default_args() { return _def_args; }
-
-	/*! \brief Set the argument of the filter object.
-	 * Set the argument of the filter object, and compares its keys against the default ones to see if none are missing.
-	 * If it is the case, a PVFilterAgumentMissing exception is thrown.
-	 */
-	virtual void set_args(PVCore::PVArgumentList const& args)
-	{
-		PVCore::PVArgumentList::const_iterator it,ite;
-		it = _def_args.begin();
-		ite = _def_args.end();
-		for (; it != ite; it++) {
-			// If that default argument is not present in the given list
-			if (args.find(it.key()) == ite) {
-				// An exception is thrown
-				throw new PVFilterArgumentMissing(it.key());
-			}
-		}
-	   _args = args;
-	}
 protected:
-	PVCore::PVArgumentList _args;
-	PVCore::PVArgumentList _def_args;
 	QString _name;
 };
 
@@ -295,12 +198,12 @@ public:
 #define CLASS_FILTER_NONREG(T) \
 	public:\
 		virtual func_type f() { return boost::bind<Tout>((Tout(T::*)(Tin))(&T::operator()), this, _1); }\
-		static PVCore::PVArgumentList default_args();\
+	CLASS_FUNC_ARGS_PARAM(T)
 
 #define CLASS_FILTER_NONREG_NOPARAM(T) \
 	public:\
 		virtual func_type f() { return boost::bind<Tout>((Tout(T::*)(Tin))(&T::operator()), this, _1); }\
-		static PVCore::PVArgumentList default_args() { return PVCore::PVArgumentList(); }
+	CLASS_FUNC_ARGS_NOPARAM(T)
 
 #define IMPL_FILTER(T)
 
@@ -318,7 +221,6 @@ public:
 		_args = _def_args;\
 	} while(0)
 
-#define DEFAULT_ARGS_FILTER(T)\
-	PVCore::PVArgumentList T::default_args()
+#define DEFAULT_ARGS_FILTER(T) DEFAULT_ARGS_FUNC(T)
 
 #endif

@@ -63,6 +63,8 @@ include/picviz/PVSelectionFilter.h
 include/picviz/PVSelectionFilterScatterPlotSelectionSquare.h
 include/picviz/PVSortQVectorQStringList.h
 include/picviz/PVSortQVectorQStringListThread.h
+include/picviz/PVDefaultSortingFunc.h
+include/picviz/PVSortingFunc.h
 include/picviz/PVSource.h
 include/picviz/PVSquareArea.h
 include/picviz/PVStateMachine.h
@@ -124,6 +126,8 @@ PVSelectionFilterScatterPlotSelectionSquare.cpp
 PVSquareArea.cpp
 PVSortQVectorQStringList.cpp
 PVSortQVectorQStringListThread.cpp
+PVDefaultSortingFunc.cpp
+PVSortingFunc.cpp
 PVSource.cpp
 PVStateMachine.cpp
 PVVector.cpp

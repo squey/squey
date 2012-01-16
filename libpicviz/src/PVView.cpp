@@ -787,8 +787,9 @@ PVCol Picviz::PVView::get_active_axis_closest_to_position(float x)
  *****************************************************************************/
 void Picviz::PVView::process_eventline()
 {
-	int i;
-	int i_max = row_count;
+	PVRow i;
+	PVRow i_max = row_count;
+	float f_imax = (float) i_max;
 
 	/* We compute the real_output_selection */
 	eventline.selection_A2B_filter(post_filter_layer.get_selection(), real_output_selection);
@@ -811,7 +812,8 @@ void Picviz::PVView::process_eventline()
 			/* It is selected, so we copy it's line properties */
 			out_lps.get_line_properties(i) = post_lp;
 			/* ... and set it's z_level */
-			z_level_array.get_value(i) = layer_stack.get_lia().get_value(i) + (1.0*i)/i_max;
+			//z_level_array.get_value(i) = layer_stack.get_lia().get_value(i) + (f_imax-(float)i)/f_imax;
+			z_level_array.get_value(i) = layer_stack.get_lia().get_value(i) + ((float)i)/f_imax;
 		} else {
 			/* It is not selected in the end, so we check if it was available in the beginning */
 			if (layer_stack_output_layer.get_selection().get_line(i)) {
@@ -820,12 +822,14 @@ void Picviz::PVView::process_eventline()
 			  	out_lp.g() = post_lp.g()/2;
 			  	out_lp.b() = post_lp.b()/2;
 				/* We set it's z_level */
-				z_level_array.get_value(i) = (1.0*i)/i_max - 1.0;
+				//z_level_array.get_value(i) = (f_imax-(float)i)/f_imax - 1.0f;
+				z_level_array.get_value(i) = (float)i/f_imax - 1.0f;
 			} else {
 				/* The line is a zombie line */
 				out_lp = default_zombie_line_properties;
 				/* We set it's z_level */
-				z_level_array.get_value(i) = (1.0*i)/i_max - 2.0;
+				//z_level_array.get_value(i) = (f_imax-(float)i)/f_imax - 2.0f;
+				z_level_array.get_value(i) = (float)i/f_imax - 2.0f;
 			}
 		}
 	}
