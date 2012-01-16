@@ -44,7 +44,7 @@ target_link_libraries(layer_filter_search ${LINK_LIBRARIES})
 add_library(layer_filter_find_duplicates SHARED find-duplicates/PVLayerFilterFindDuplicates.cpp find-duplicates/register.cpp)
 target_link_libraries(layer_filter_find_duplicates ${LINK_LIBRARIES})
 
-add_library(layer_filter_create_layers SHARED create-layers/PVLayerFilterCreateLayers.cpp create-layers/register.cpp)
+add_library(layer_filter_create_layers SHARED create-layers/PVLayerFilterCreateLayers.cpp create-layers/parse-config.cpp create-layers/register.cpp)
 target_link_libraries(layer_filter_create_layers ${LINK_LIBRARIES})
 
 add_library(layer_filter_find_same_values SHARED find-same-values/PVLayerFilterFindSameValues.cpp find-same-values/register.cpp)

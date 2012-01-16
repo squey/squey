@@ -79,6 +79,7 @@ public:
 	bool done() const;
 	bool running() const;
 	bool cancel();
+	bool started() const { return _job_started; }
 	chunk_index status() const;
 	chunk_index nb_elts_max() const;
 	virtual void wait_end(); // wait the end of this job
@@ -115,6 +116,7 @@ protected:
 
 protected:
 	bool _job_done;
+	bool _job_started;
 	PVAggregator* _agg;
 	PVFilter::PVChunkFilter_f _filter;
 	PVOutput* _out_filter;
