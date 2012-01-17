@@ -226,6 +226,7 @@ if (WIN32)
 else(WIN32)
 	find_package(ICU REQUIRED) 
 endif(WIN32)
+#add_definitions(-DU_DISABLE_RENAMING)
 
 # It is OK to find those package even if they are not compiled
 # since we've defined the variable PICVIZ_SINGLE_TREE_BUILD 

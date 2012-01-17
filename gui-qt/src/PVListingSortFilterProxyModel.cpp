@@ -41,9 +41,11 @@ void PVInspector::PVListingSortFilterProxyModel::filter_source_indexes(vec_index
 	// "src_idxes_in".
 	//PVRow nvisible_lines = sel->get_number_of_selected_lines_in_range(0, _lib_view->get_row_count());
 	src_idxes_out.reserve(src_idxes_in.size());
-	for (PVRow i = 0; i < _lib_view->get_row_count(); i++) {
-		if (sel->get_line(i)) {
-			src_idxes_out.push_back(i);
+	vec_indexes_t::const_iterator it;
+	for (it = src_idxes_in.begin(); it != src_idxes_in.end(); it++) {
+		PVRow line = *it;
+		if (sel->get_line(line)) {
+			src_idxes_out.push_back(line);
 		}
 	}
 }

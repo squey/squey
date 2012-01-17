@@ -16,10 +16,15 @@ DEFAULT_ARGS_FUNC(Picviz::PVDefaultSortingFunc)
 
 Picviz::PVSortingFunc_f Picviz::PVDefaultSortingFunc::f()
 {
-	return &comp_match_asc;
+	return &comp_nocase_asc;
 }
 
-bool Picviz::PVDefaultSortingFunc::comp_match_asc(PVCore::PVUnicodeString const& s1, PVCore::PVUnicodeString const& s2)
+bool Picviz::PVDefaultSortingFunc::comp_case_asc(PVCore::PVUnicodeString const& s1, PVCore::PVUnicodeString const& s2)
 {
 	return s1.compare(s2) < 0;
+}
+
+bool Picviz::PVDefaultSortingFunc::comp_nocase_asc(PVCore::PVUnicodeString const& s1, PVCore::PVUnicodeString const& s2)
+{
+	return s1.compareNoCase(s2) < 0;
 }

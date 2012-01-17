@@ -27,6 +27,7 @@ public:
 	// Public interface
 	inline void set_dynamic_sort(bool enable) { _dyn_sort = enable; }
 	inline bool dynamic_sort() const { return _dyn_sort; }
+	void reset_to_default_ordering();
 
 	// Helper functions for derived classes
 protected:

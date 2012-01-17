@@ -55,7 +55,7 @@ PVInspector::PVTabSplitter::PVTabSplitter(PVMainWindow *mw, Picviz::PVSource_p l
 	pv_listing_view = new PVListingView(main_window, this);
 	pv_listing_proxy_model->setSourceModel(pv_listing_model);
 	pv_listing_view->setModel(pv_listing_proxy_model);
-	pv_listing_view->setSortingEnabled(true);
+	//pv_listing_view->setSortingEnabled(true);
 	addWidget(pv_listing_view);
 	
 	// Layout of the RIGHT_WIDGET
@@ -159,6 +159,17 @@ void PVInspector::PVTabSplitter::create_new_mapped()
 	_views_widget->force_refresh();
 }
 
+void PVInspector::PVTabSplitter::toggle_listing_sort()
+{
+	if (pv_listing_view->isSortingEnabled()) {
+		pv_listing_proxy_model->reset_to_default_ordering();
+		pv_listing_view->setSortingEnabled(false);
+	}
+	else {
+		pv_listing_view->sortByColumn(-1, Qt::AscendingOrder);
+		pv_listing_view->setSortingEnabled(true);
+	}
+}
 
 
 /******************************************************************************

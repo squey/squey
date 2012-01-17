@@ -2,6 +2,7 @@
 #include <pvkernel/core/PVPythonClassDecl.h>
 #include <pvkernel/core/PVUnicodeString.h>
 
+#include <unicode/ustring.h>
 
 // Taken from QT 4.7.3's source code
 // The original disclamer is:
@@ -97,6 +98,12 @@ int PVCore::PVUnicodeString::compare(const PVUnicodeString& o) const
 		}
 	}
 	return ret;
+}
+
+int PVCore::PVUnicodeString::compareNoCase(const PVUnicodeString& o) const
+{
+	UErrorCode err = U_ZERO_ERROR;
+	return u_strCaseCompare((const UChar*) _buf, _len, (const UChar*) o._buf, o._len, 0, &err);
 }
 
 PYTHON_EXPOSE_IMPL(PVCore::PVUnicodeString)

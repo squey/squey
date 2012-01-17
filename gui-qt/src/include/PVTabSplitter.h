@@ -199,6 +199,7 @@ public:
 	void process_mapped_if_current(Picviz::PVMapped* mapped);
 	void edit_plotted(Picviz::PVPlotted* plotted);
 	void process_plotted_if_current(Picviz::PVPlotted* plotted);
+	void toggle_listing_sort();
 
 	void emit_source_changed() { emit source_changed(); }
 

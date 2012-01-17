@@ -21,6 +21,13 @@ void PVInspector::PVSortFilterProxyModel::init_default_sort()
 	for (int i = 0; i < row_count; i++) {
 		_vec_sort_m2s.push_back(i);
 	}
+	_sort_idx = -1;
+}
+
+void PVInspector::PVSortFilterProxyModel::reset_to_default_ordering()
+{
+	init_default_sort();
+	do_filter();
 }
 
 void PVInspector::PVSortFilterProxyModel::reverse_sort_order()
@@ -52,6 +59,7 @@ void PVInspector::PVSortFilterProxyModel::do_filter()
 void PVInspector::PVSortFilterProxyModel::do_sort(int column, Qt::SortOrder order)
 {
 	assert(column >= 0 && column < sourceModel()->columnCount());
+	init_default_sort();
 	if (order == Qt::AscendingOrder) {
 		__impl::PVSortProxyAsc s(this, column);
 		std::stable_sort(_vec_sort_m2s.begin(), _vec_sort_m2s.end(), s);
@@ -127,7 +135,6 @@ QModelIndex PVInspector::PVSortFilterProxyModel::mapFromSource(QModelIndex const
 		return QModelIndex();
 	}
 
-	PVLOG_WARN("!!!! Reversed search done !!!!\n");
 	// Reverse search of the original index to save in the source index
 	int search_src_row = src_idx.row();
 	int proxy_row;
