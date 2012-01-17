@@ -149,6 +149,7 @@ public:
 	bool get_line_state_in_pre_filter_layer(PVRow index) const;
 	bool is_line_visible_listing(PVRow index) const;
 	bool is_real_output_selection_empty() const;
+	PVSelection const* get_selection_visible_listing() const;
 
 	int get_nu_index_count();
 	int get_nu_real_row_index(int index);

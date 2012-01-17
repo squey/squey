@@ -1546,6 +1546,24 @@ void Picviz::PVView::add_column(PVAxis const& axis)
 	axes_combination.axis_append(axis);
 }
 
+Picviz::PVSelection const* Picviz::PVView::get_selection_visible_listing() const
+{
+	if (state_machine->are_listing_all()) {
+		return NULL;
+	}
+
+	if (state_machine->are_listing_no_nu_nz()) {
+		return &real_output_selection;
+	}
+
+	if (state_machine->are_listing_no_nu()) {
+		return &nu_selection;
+	}
+
+	if (state_machine->are_listing_no_nz()) {
+		return &layer_stack_output_layer.get_selection();
+	}
+}
 
 bool Picviz::PVView::is_line_visible_listing(PVRow index) const
 {

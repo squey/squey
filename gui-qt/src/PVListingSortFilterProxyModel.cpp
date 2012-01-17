@@ -21,10 +21,39 @@ bool PVInspector::PVListingSortFilterProxyModel::less_than(const QModelIndex &le
 	return _sort_f(*sleft, *sright);
 }
 
+void PVInspector::PVListingSortFilterProxyModel::filter_source_indexes(vec_indexes_t const& src_idxes_in, vec_indexes_t& src_idxes_out)
+{
+	Picviz::PVSelection const* sel = _lib_view->get_selection_visible_listing();
+	// If everything is displayed, just "copy" in to out.
+	// A QVector is used, so no memory copy occurs.
+	if (sel == NULL) {
+		src_idxes_out = src_idxes_in;
+		return;
+	}
+
+	// Filter out lines according to the good selection.
+	src_idxes_out.clear();
+	// AG: the allocation strategy isn't trivial. Indeed, in order to get the number
+	// of visible lines, we need to check every bits of PVSelection (that's what's done in
+	// get_number_of_selected_lines_in_range). There was an attempt to optimise this w/ SSE
+	// and w/ noi branchment, but it gave false result.
+	// Until this is not fixed, we will reserve for "src_idxes_out" the same number of lines than in
+	// "src_idxes_in".
+	//PVRow nvisible_lines = sel->get_number_of_selected_lines_in_range(0, _lib_view->get_row_count());
+	src_idxes_out.reserve(src_idxes_in.size());
+	for (PVRow i = 0; i < _lib_view->get_row_count(); i++) {
+		if (sel->get_line(i)) {
+			src_idxes_out.push_back(i);
+		}
+	}
+}
+
+/*
 bool PVInspector::PVListingSortFilterProxyModel::filter_source_index(int idx_in)
 {
 	return _lib_view->is_line_visible_listing(idx_in);
 }
+*/
 
 void PVInspector::PVListingSortFilterProxyModel::sort(int column, Qt::SortOrder order)
 {
