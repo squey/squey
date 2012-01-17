@@ -1569,6 +1569,11 @@ bool Picviz::PVView::is_line_visible_listing(PVRow index) const
 	return true;
 }
 
+bool Picviz::PVView::is_real_output_selection_empty() const
+{
+	return real_output_selection.is_empty();
+}
+
 // Load/save and serialization
 void Picviz::PVView::serialize_write(PVCore::PVSerializeObject& so)
 {

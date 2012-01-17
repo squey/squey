@@ -597,12 +597,8 @@ void PVInspector::PVTabSplitter::update_pv_listing_model_Slot()
  *
  *****************************************************************************/
 void PVInspector::PVTabSplitter::updateFilterMenuEnabling(){
-	int countSelLine = get_lib_view()->get_nu_index_count();
-	if(countSelLine>0){
-		emit selection_changed_signal(true);
-	}else{
-		emit selection_changed_signal(false);
-	}
+	bool enable_menu = !get_lib_view()->is_real_output_selection_empty();
+	emit selection_changed_signal(enable_menu);
 }
 
 

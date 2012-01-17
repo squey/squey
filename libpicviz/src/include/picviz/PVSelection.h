@@ -47,7 +47,7 @@ public:
 
 private:
 	//std::vector<uint32_t> table;
-	std::vector<uint32_t, PVCore::PVAlignedAllocator<uint32_t, 16> > vec_table;
+	std::vector<uint32_t, allocator> vec_table;
 	pointer table;
 
 public:
@@ -91,6 +91,8 @@ public:
 	 * @return The number of selected line in that range
 	 */
 	int get_number_of_selected_lines_in_range(PVRow a, PVRow b) const;
+
+	bool is_empty() const;
 
 	/**
 	 * This is the copy operator

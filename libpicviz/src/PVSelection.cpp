@@ -6,6 +6,7 @@
 
 #include "bithacks.h"
 
+#include <pvkernel/core/picviz_intrin.h>
 #include <picviz/PVSelection.h>
 
 static inline uint32_t count_bits(size_t n, const uint32_t* data)
@@ -142,6 +143,41 @@ std::vector<PVRow> Picviz::PVSelection::get_rows_table()
 	}
 
 	return rtable;
+}
+
+/******************************************************************************
+ *
+ * Picviz::PVSelection::is_empty
+ *
+ *****************************************************************************/
+bool Picviz::PVSelection::is_empty() const
+{
+#ifdef __SSE4_1__
+	__m128i ones = _mm_set1_epi32(0xFFFFFFFF);
+	__m128i vec;
+	for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i += 4) {
+		vec = _mm_load_si128((__m128i*) &table[i]);
+		if (_mm_testz_si128(vec, ones) == 0) {
+			return false;
+		}
+	}
+#if (PICVIZ_SELECTION_NUMBER_OF_CHUNKS % 4 != 0)
+	for (PVRow i = (PICVIZ_SELECTION_NUMBER_OF_CHUNKS/4)*4; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
+		if (table[i] != 0) {
+			return false;
+		}
+	}
+#endif
+	return true;
+
+#else
+	for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
+		if (table[i] != 0) {
+			return false;
+		}
+	}
+	return true;
+#endif
 }
 
 
