@@ -58,6 +58,13 @@ target_link_libraries(Tcore_matrix ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
 add_executable(Tcore_sizes sizes.cpp)
 target_link_libraries(Tcore_sizes ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
 
+add_executable(Tcore_stable_reverse stable_reverse.cpp)
+target_link_libraries(Tcore_stable_reverse ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
+
+add_executable(Tcore_bench_stable_reverse bench_stable_reverse.cpp)
+target_link_libraries(Tcore_bench_stable_reverse ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
+
 add_definitions(-ftree-vectorizer-verbose=2)
 add_executable(Tcore_transp transp.cpp)
 target_link_libraries(Tcore_transp ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
+
