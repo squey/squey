@@ -71,7 +71,7 @@ PVInspector::PVListingModel::PVListingModel(PVMainWindow *mw, PVTabSplitter *par
  *****************************************************************************/
 int PVInspector::PVListingModel::columnCount(const QModelIndex &) const 
 {
-	PVLOG_DEBUG("PVInspector::PVListingModel::%s\n", __FUNCTION__);
+	PVLOG_HEAVYDEBUG("PVInspector::PVListingModel::%s\n", __FUNCTION__);
 
 	return lib_view->get_axes_count();
 }
@@ -84,7 +84,7 @@ int PVInspector::PVListingModel::columnCount(const QModelIndex &) const
  *
  *****************************************************************************/
 QVariant PVInspector::PVListingModel::data(const QModelIndex &index, int role) const {
-	PVLOG_DEBUG("PVInspector::PVListingModel::%s : at row %d and column %d with role %d\n", __FUNCTION__, index.row(), index.column(), role);
+	PVLOG_HEAVYDEBUG("PVInspector::PVListingModel::%s : at row %d and column %d with role %d\n", __FUNCTION__, index.row(), index.column(), role);
 
 	PVCore::PVColor color;
 	int i;

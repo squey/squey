@@ -73,6 +73,7 @@ include/PVListingSortFilterProxyModel.h
 include/PVMainWindow.h
 include/PVMappingPlottingEditDialog.h
 include/PVMapWidget.h
+include/PVSortFilterProxyModel.h
 include/PVInputTypeMenuEntries.h
 include/PVOpenFileDialog.h
 include/PVSaveFileDialog.h
@@ -173,6 +174,7 @@ PVSaveFileDialog.cpp
 PVSaveSceneDialog.cpp
 PVSerializeOptionsModel.cpp
 PVSerializeOptionsWidget.cpp
+PVSortFilterProxyModel.cpp
 PVStringListChooserWidget.cpp
 PVTabSplitter.cpp
 PVViewsListingView.cpp

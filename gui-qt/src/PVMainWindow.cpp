@@ -262,7 +262,7 @@ void PVInspector::PVMainWindow::check_messages()
 						break;
 					}
 					//PVLOG_INFO("PVInspector::PVMainWindow::check_messages : PVGL_COM_FUNCTION_CLEAR_SELECTION\n");
-					tab_view->refresh_listing_Slot();
+					tab_view->update_pv_listing_model_Slot();
 					tab_view->repaint(0,0,-1,-1);
 					break;
 				}
@@ -275,7 +275,6 @@ void PVInspector::PVMainWindow::check_messages()
 					}
 					tab_view->refresh_listing_with_horizontal_header_Slot();
 					tab_view->update_pv_listing_model_Slot();
-					tab_view->refresh_listing_Slot();
 					tab_view->refresh_axes_combination_Slot();
 					break;
 				}
@@ -305,7 +304,6 @@ void PVInspector::PVMainWindow::check_messages()
 					tab_view->selection_changed_Slot();
 					tab_view->refresh_listing_with_horizontal_header_Slot();
 					tab_view->update_pv_listing_model_Slot();
-					tab_view->refresh_listing_Slot();
 					break;
 				}
 			case PVSDK_MESSENGER_FUNCTION_REPORT_CHOOSE_FILENAME:

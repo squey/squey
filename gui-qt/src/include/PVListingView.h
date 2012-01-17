@@ -75,7 +75,7 @@ public:
 	 */
 //	void increment_screenshot_index();
 
-	void refresh_model();
+	void refresh_listing_filter();
 	void keyEnterPressed();
 
 	void update_view();

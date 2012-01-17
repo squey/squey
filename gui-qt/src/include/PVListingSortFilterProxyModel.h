@@ -5,7 +5,7 @@
 #include <picviz/PVSortingFunc.h>
 #include <picviz/PVView_types.h>
 
-#include <QSortFilterProxyModel>
+#include <PVSortFilterProxyModel.h>
 
 namespace Picviz {
 class PVStateMachine;
@@ -15,7 +15,7 @@ namespace PVInspector {
 
 class PVTabSplitter;
 
-class PVListingSortFilterProxyModel: public QSortFilterProxyModel
+class PVListingSortFilterProxyModel: public PVSortFilterProxyModel
 {
 public:
 	PVListingSortFilterProxyModel(PVTabSplitter* tab_parent, QObject* parent = NULL);
@@ -25,9 +25,9 @@ public:
 	void reset_lib_view();
 
 protected:
-	bool filterAcceptsRow(int row, const QModelIndex &parent) const;
-	bool lessThan(const QModelIndex &left, const QModelIndex &right) const;
+	bool less_than(const QModelIndex &left, const QModelIndex &right) const;
 	void sort(int column, Qt::SortOrder order);
+	bool filter_source_index(int idx_in);
 
 private:
 	mutable Picviz::PVSortingFunc_f _sort_f;

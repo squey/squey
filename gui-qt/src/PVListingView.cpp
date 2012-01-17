@@ -339,7 +339,7 @@ PVInspector::PVListingSortFilterProxyModel* PVInspector::PVListingView::get_list
 	return proxy_model;
 }
 
-void PVInspector::PVListingView::refresh_model()
+void PVInspector::PVListingView::refresh_listing_filter()
 {
 	get_listing_model()->refresh_filter();
 }
