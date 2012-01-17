@@ -115,6 +115,7 @@ void PVInspector::PVMainWindow::create_actions()
 #ifndef NDEBUG
 	view_screenshot_qt = new QAction(tr("Display view in Qt"), this);
 	view_screenshot_qt->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_T));
+	view_sort_listing = new QAction(tr("Sort listing..."), this);
 #endif
 
 	/***************************
@@ -231,6 +232,7 @@ void PVInspector::PVMainWindow::create_menus()
 	view_Menu->addSeparator();
 	view_Menu->addAction(view_screenshot_qt);
 #endif
+	view_Menu->addAction(view_sort_listing);
 
 	axes_Menu = menubar->addMenu(tr("&Axes"));
 	axes_Menu->addAction(axes_editor_Action);
@@ -239,6 +241,8 @@ void PVInspector::PVMainWindow::create_menus()
 	axes_Menu->addAction(axes_mode_Action);
 	axes_Menu->addAction(axes_display_edges_Action);
 	axes_Menu->addAction(axes_new_Action);
+	axes_Menu->addSeparator();
+
 
 	lines_Menu = menubar->addMenu(tr("&Lines"));
 	lines_Menu->addAction(lines_display_unselected_Action);
@@ -313,6 +317,7 @@ void PVInspector::PVMainWindow::connect_actions()
 #ifndef NDEBUG
 	connect(view_screenshot_qt, SIGNAL(triggered()), this, SLOT(view_screenshot_qt_Slot()));
 #endif
+	connect(view_sort_listing, SIGNAL(triggered()), this, SLOT(view_sort_listing_Slot()));
 
 	connect(selection_all_Action, SIGNAL(triggered()), this, SLOT(selection_all_Slot()));
 	connect(selection_none_Action, SIGNAL(triggered()), this, SLOT(selection_none_Slot()));

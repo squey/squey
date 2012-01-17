@@ -228,7 +228,7 @@ void Picviz::PVLayerStack::process(PVLayer &output_layer, PVRow row_count)
 				/* We copy in the output_layer the only new
 				*  lines properties */
 				// picviz_lines_properties_A2B_copy_restricted_by_selection_and_nelts(layer_being_processed->lines_properties, output_layer->lines_properties, temp_selection, view_number_of_rows);
-				layer_being_processed->get_lines_properties().A2B_copy_restricted_by_selection_and_nelts(output_layer.get_lines_properties(), temp_selection, (pvcol)view_number_of_rows);
+				layer_being_processed->get_lines_properties().A2B_copy_restricted_by_selection_and_nelts(output_layer.get_lines_properties(), temp_selection, (PVCol)view_number_of_rows);
 			}
 		}
 	}

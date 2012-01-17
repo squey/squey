@@ -808,7 +808,7 @@ void PVRush::PVXmlTreeNodeDom::clearFiltersData()
 	}
 
 
-	for (size_t ichild = 0; ichild < getChildren().size(); ichild++) {
+	for (int ichild = 0; ichild < getChildren().size(); ichild++) {
 		getChild(ichild)->clearFiltersData();
 	}
 }
@@ -819,7 +819,7 @@ void PVRush::PVXmlTreeNodeDom::updateFiltersDataDisplay()
 		splitterPlugin->update_data_display();
 	}
 
-	for (size_t ichild = 0; ichild < getChildren().size(); ichild++) {
+	for (int ichild = 0; ichild < getChildren().size(); ichild++) {
 		getChild(ichild)->updateFiltersDataDisplay();
 	}
 }
@@ -847,7 +847,7 @@ PVCol PVRush::PVXmlTreeNodeDom::updateFieldLinearId(PVCol id)
 
 bool PVRush::PVXmlTreeNodeDom::hasSplitterAsChild()
 {
-	for (size_t ichild = 0; ichild < getChildren().size(); ichild++) {
+	for (int ichild = 0; ichild < getChildren().size(); ichild++) {
 		QString type = getChild(ichild)->typeToString();
 		if (type == "splitter" || type == "url") {
 			return true;
@@ -873,7 +873,7 @@ PVRush::PVXmlTreeNodeDom* PVRush::PVXmlTreeNodeDom::getFirstFieldParent()
 	return parent->getFirstFieldParent();
 }
 
-int PVRush::PVXmlTreeNodeDom::setAxesNames(QStringList const& names, int id)
+PVCol PVRush::PVXmlTreeNodeDom::setAxesNames(QStringList const& names, PVCol id)
 {
 	if (type == axis) {
 		// Set its name
@@ -886,7 +886,7 @@ int PVRush::PVXmlTreeNodeDom::setAxesNames(QStringList const& names, int id)
 			return id;
 		}
 	}
-	for (size_t ichild = 0; ichild < getChildren().size(); ichild++) {
+	for (int ichild = 0; ichild < getChildren().size(); ichild++) {
 		id = getChild(ichild)->setAxesNames(names, id);
 	}
 	return id;

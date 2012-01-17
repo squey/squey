@@ -3,23 +3,38 @@
 
 #include <picviz/PVDefaultSortingFunc.h>
 #include <picviz/PVSortingFunc.h>
+#include <picviz/PVView_types.h>
 
-#include <QSortFilterProxyModel>
+#include <PVSortFilterProxyModel.h>
+
+namespace Picviz {
+class PVStateMachine;
+}
 
 namespace PVInspector {
 
-class PVListingSortFilterProxyModel: public QSortFilterProxyModel
+class PVTabSplitter;
+
+class PVListingSortFilterProxyModel: public PVSortFilterProxyModel
 {
 public:
-	PVListingSortFilterProxyModel(QObject* parent = NULL);
+	PVListingSortFilterProxyModel(PVTabSplitter* tab_parent, QObject* parent = NULL);
+
+public:
+	void refresh_filter();
+	void reset_lib_view();
 
 protected:
-	bool filterAcceptsRow(int row, const QModelIndex &parent) const;
-	bool lessThan(const QModelIndex &left, const QModelIndex &right) const;
+	bool less_than(const QModelIndex &left, const QModelIndex &right) const;
 	void sort(int column, Qt::SortOrder order);
+	void filter_source_indexes(vec_indexes_t const& src_idxes_in, vec_indexes_t& src_idxes_out);
+	//bool filter_source_index(int idx_in);
 
 private:
 	mutable Picviz::PVSortingFunc_f _sort_f;
+	Picviz::PVView* _lib_view;
+	Picviz::PVStateMachine* _state_machine;
+	PVTabSplitter* _tab_parent;
 
 	// Temporary
 	Picviz::PVDefaultSortingFunc _def_sort;

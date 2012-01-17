@@ -47,7 +47,7 @@ public:
 
 private:
 	//std::vector<uint32_t> table;
-	std::vector<uint32_t, PVCore::PVAlignedAllocator<uint32_t, 16> > vec_table;
+	std::vector<uint32_t, allocator> vec_table;
 	pointer table;
 
 public:
@@ -79,7 +79,7 @@ public:
 	 *
 	 * @return A boolean stating whether it is set or not
 	 */
-	bool get_line (pv_row line_index) const;
+	bool get_line (PVRow line_index) const;
 
 	/**
 	 * Gets the number of lines that are selected, in the range [a,b[
@@ -90,7 +90,9 @@ public:
 	 *
 	 * @return The number of selected line in that range
 	 */
-	int get_number_of_selected_lines_in_range(pv_row a, pv_row b) const;
+	int get_number_of_selected_lines_in_range(PVRow a, PVRow b) const;
+
+	bool is_empty() const;
 
 	/**
 	 * This is the copy operator
@@ -205,7 +207,7 @@ public:
 	 */
 	void set_line(PVRow line_index, bool bool_value);
 
-	inline void set_bit_fast(pv_row line_index){table[line_index / PICVIZ_SELECTION_CHUNK_SIZE] |= 1 << (line_index % PICVIZ_SELECTION_CHUNK_SIZE);}
+	inline void set_bit_fast(PVRow line_index){table[line_index / PICVIZ_SELECTION_CHUNK_SIZE] |= 1 << (line_index % PICVIZ_SELECTION_CHUNK_SIZE);}
 
 	/**
 	 * Get the float table from PVSelection.

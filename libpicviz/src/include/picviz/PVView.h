@@ -81,9 +81,6 @@ public:
 	PVPlotted* plotted;
 	PVRow row_count;
 	PVLayerStack layer_stack;
-	PVIndexArray nu_index_array;
-	PVIndexArray nz_index_array;
-	PVIndexArray nznu_index_array;
 	PVSelection nu_selection;
 	PVSelection real_output_selection;
 	PVEventline eventline;
@@ -147,15 +144,12 @@ public:
 	bool get_line_state_in_output_layer(PVRow index) const;
 	bool get_line_state_in_pre_filter_layer(PVRow index);
 	bool get_line_state_in_pre_filter_layer(PVRow index) const;
+	bool is_line_visible_listing(PVRow index) const;
+	bool is_real_output_selection_empty() const;
+	PVSelection const* get_selection_visible_listing() const;
 
-	int get_nu_index_count();
-	int get_nu_real_row_index(int index);
 	PVSelection &get_nu_selection();
 	int get_number_of_selected_lines();
-	int get_nz_index_count();
-	int get_nz_real_row_index(int index);
-	int get_nznu_index_count();
-	int get_nznu_real_row_index(int index);
 
 
 	int get_original_axes_count();
@@ -182,11 +176,6 @@ public:
 	PVCol get_active_axis_closest_to_position(float x);
 
 	void expand_selection_on_axis(PVCol axis_id, QString const& mode);
-
-	void refresh_nu_index_array();
-	void refresh_nz_index_array();
-	void refresh_nznu_index_array();
-
 
 	void set_active_axis_closest_to_position(float x);
 	void set_axis_name(PVCol index, const QString &name_);
@@ -256,6 +245,7 @@ public:
 	 *
 	 */
 	QString get_data(PVRow row, PVCol column);
+	PVCore::PVUnicodeString const& get_data_unistr(PVRow row, PVCol column);
 
 	/**
 	 * Gets the data directly from nraw, without #PVAxesCombination
@@ -267,6 +257,8 @@ public:
 	 *
 	 */
 	QString get_data_raw(PVRow row, PVCol column);
+	inline PVCore::PVUnicodeString const& get_data_unistr_raw(PVRow row, PVCol column) { return get_rushnraw_parent().at_unistr(row, column); }
+
 
 	void selection_A2B_select_with_square_area(PVSelection &a, PVSelection &b);
 

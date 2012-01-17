@@ -69,9 +69,11 @@ include/PVLayerStackWidget.h
 include/PVListingModel.h
 include/PVListingView.h
 include/PVListingsTabWidget.h
+include/PVListingSortFilterProxyModel.h
 include/PVMainWindow.h
 include/PVMappingPlottingEditDialog.h
 include/PVMapWidget.h
+include/PVSortFilterProxyModel.h
 include/PVInputTypeMenuEntries.h
 include/PVOpenFileDialog.h
 include/PVSaveFileDialog.h
@@ -160,6 +162,7 @@ PVLayerStackWidget.cpp
 PVListingModel.cpp
 PVListingView.cpp
 PVListingsTabWidget.cpp
+PVListingSortFilterProxyModel.cpp
 PVMainWindow.cpp
 PVMainWindowMenusActions.cpp
 PVMainWindowSlots.cpp
@@ -171,6 +174,7 @@ PVSaveFileDialog.cpp
 PVSaveSceneDialog.cpp
 PVSerializeOptionsModel.cpp
 PVSerializeOptionsWidget.cpp
+PVSortFilterProxyModel.cpp
 PVStringListChooserWidget.cpp
 PVTabSplitter.cpp
 PVViewsListingView.cpp
@@ -264,7 +268,7 @@ if(SET_PROTECT)
 	add_definitions(${GALVEZ_CFLAGS})
 endif()
 
-set_property(TARGET picviz-inspector APPEND PROPERTY LINK_FLAGS ${GALVEZ_LDFLAGS})
+set_property(TARGET picviz-inspector APPEND PROPERTY LINK_FLAGS ${GALVEZ_LDFLAGS} -flto=10)
 target_link_libraries(picviz-inspector ${QT_LIBRARIES} ${PVSDK_LIBRARY} ${PICVIZ_LIBRARY} ${PVKERNEL_LIBRARY} ${PVGL_LIBRARY} ${WIN32_EXTRA_LIBS} ${TBB_LIBRARIES} ${Boost_LIBRARIES_PYTHON} ${PYTHON_LIBRARY} ${ICU_LIBRARY} ${GALVEZ_LIBS})
 
 INSTALL(TARGETS picviz-inspector DESTINATION .)

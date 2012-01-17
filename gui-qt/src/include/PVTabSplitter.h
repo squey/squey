@@ -31,6 +31,7 @@ class PVListingView;
 class PVAxesCombinationDialog;
 class PVExtractorWidget;
 class PVViewsListingWidget;
+class PVListingSortFilterProxyModel;
 
 /**
  *  \class PVTabSplitter
@@ -65,6 +66,7 @@ public:
 	PVListingView *pv_listing_view; //!< The PVListingView attached with our main application
 
 	PVListingModel *pv_listing_model; //!< The listing model
+	PVListingSortFilterProxyModel* pv_listing_proxy_model;
 
 	PVLayerStackModel  *pv_layer_stack_model;
 	PVLayerStackWidget *pv_layer_stack_widget;
@@ -197,6 +199,7 @@ public:
 	void process_mapped_if_current(Picviz::PVMapped* mapped);
 	void edit_plotted(Picviz::PVPlotted* plotted);
 	void process_plotted_if_current(Picviz::PVPlotted* plotted);
+	void toggle_listing_sort();
 
 	void emit_source_changed() { emit source_changed(); }
 

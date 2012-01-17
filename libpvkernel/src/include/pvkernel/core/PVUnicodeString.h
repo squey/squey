@@ -80,6 +80,7 @@ public:
 	bool operator<(const PVUnicodeString& o) const;
 	int compare(const PVUnicodeString& o) const;
 	int compare(const char* str) const;
+	int compareNoCase(const PVUnicodeString& o) const;
 
 	// == Data access ==
 	inline const utf_char* buffer() const { return _buf; }

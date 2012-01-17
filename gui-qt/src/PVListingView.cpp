@@ -17,6 +17,7 @@
 
 #include <PVListingView.h>
 #include <PVListingModel.h>
+#include <PVListingSortFilterProxyModel.h>
 #include <PVLayerFilterProcessWidget.h>
 
 #include <pvkernel/core/PVClassLibrary.h>
@@ -82,7 +83,7 @@ PVInspector::PVListingView::PVListingView(PVMainWindow *mw, PVTabSplitter *paren
 	setContextMenuPolicy(Qt::CustomContextMenu);
 
 	// Init the double click action
-	connect(horizontalHeader(), SIGNAL(sectionDoubleClicked(int)), this, SLOT(slotDoubleClickOnHHead(int)));
+	//connect(horizontalHeader(), SIGNAL(sectionDoubleClicked(int)), this, SLOT(slotDoubleClickOnHHead(int)));
 
 	// A double click on the vertical header select the line in the lib view
 	connect(verticalHeader(), SIGNAL(sectionDoubleClicked(int)), this, SLOT(slotDoubleClickOnVHead(int)));
@@ -100,7 +101,7 @@ void PVInspector::PVListingView::update_view_selection_from_listing_selection()
 	int i;
 	int number_of_items;
 	QModelIndexList selected_items_list;
-	PVListingModel *myModel = (PVListingModel *)model();
+	PVListingSortFilterProxyModel* myModel = get_listing_model();
 	unsigned int modifiers;
 	// Get current lib view for this source
 
@@ -138,7 +139,8 @@ void PVInspector::PVListingView::update_view_selection_from_listing_selection()
 	selected_items_list = selectedIndexes();
 	number_of_items = selected_items_list.size();
 	for (i=0; i<number_of_items; i++) {
-		lib_view->volatile_selection.set_line(myModel->getRealRowIndex(selected_items_list[i].row()), 1);
+		//lib_view->volatile_selection.set_line(myModel->getRealRowIndex(selected_items_list[i].row()), 1);
+		lib_view->volatile_selection.set_line(myModel->mapToSource(selected_items_list[i]).row(), 1);
 	}
 	
 	/* We reprocess the view from the selection */
@@ -207,8 +209,7 @@ void PVInspector::PVListingView::slotDoubleClickOnVHead(int /*idHeader*/)
  *****************************************************************************/
 void PVInspector::PVListingView::slotDoubleClickOnHHead(int idHeader) 
 {
-	assert(model());
-	static_cast<PVListingModel *>(model())->sortByColumn(idHeader);
+	//get_listing_model()->sortByColumn(idHeader);
 }
 
 /******************************************************************************
@@ -246,8 +247,8 @@ void PVInspector::PVListingView::show_ctxt_menu(const QPoint& pos)
 	PVCol col = lib_view->get_real_axis_index(idx_click.column());
 
 	// Get the real row index
-	assert(model());
-	PVRow row = static_cast<PVListingModel*>(model())->getRealRowIndex(idx_click.row());
+	//PVRow row = get_listing_model()->getRealRowIndex(idx_click.row());
+	PVRow row = get_listing_model()->mapToSource(idx_click).row();
 
 	// Set these informations in our object, so that they will be retrieved by the slot connected
 	// to the menu's actions.
@@ -329,4 +330,16 @@ void PVInspector::PVListingView::update_view()
 {
 	lib_view = _parent->get_lib_view();
 	resizeColumnToContents(2);
+}
+
+PVInspector::PVListingSortFilterProxyModel* PVInspector::PVListingView::get_listing_model()
+{
+	PVListingSortFilterProxyModel* proxy_model = dynamic_cast<PVListingSortFilterProxyModel*>(model());
+	assert(proxy_model);
+	return proxy_model;
+}
+
+void PVInspector::PVListingView::refresh_listing_filter()
+{
+	get_listing_model()->refresh_filter();
 }

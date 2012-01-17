@@ -1078,6 +1078,15 @@ void PVInspector::PVMainWindow::view_screenshot_qt_Slot()
 	pvsdk_messenger->post_message_to_gl(message);
 }
 
+void PVInspector::PVMainWindow::view_sort_listing_Slot()
+{
+	if (!current_tab) {
+		return;
+	}
+
+	current_tab->toggle_listing_sort();
+}
+
 /******************************************************************************
  *
  * PVInspector::PVMainWindow::whats_this_Slot()

@@ -46,9 +46,9 @@ Picviz::PVLinesProperties::~PVLinesProperties()
  * Picviz::PVLinesProperties::A2A_set_to_line_properties_restricted_by_selection_and_nelts
  *
  *****************************************************************************/
-void Picviz::PVLinesProperties::A2A_set_to_line_properties_restricted_by_selection_and_nelts(PVCore::PVColor line_properties,  PVSelection const& selection, pvrow nelts)
+void Picviz::PVLinesProperties::A2A_set_to_line_properties_restricted_by_selection_and_nelts(PVCore::PVColor line_properties,  PVSelection const& selection, PVRow nelts)
 {
-	pvrow row;
+	PVRow row;
 
 	for (row=0; row<nelts; row++) {
 		if (selection.get_line(row)) {
@@ -62,9 +62,9 @@ void Picviz::PVLinesProperties::A2A_set_to_line_properties_restricted_by_selecti
  * Picviz::PVLinesProperties::A2B_copy_restricted_by_selection_and_nelts
  *
  *****************************************************************************/
-void Picviz::PVLinesProperties::A2B_copy_restricted_by_selection_and_nelts(Picviz::PVLinesProperties &b,  PVSelection const& selection, pvrow nelts)
+void Picviz::PVLinesProperties::A2B_copy_restricted_by_selection_and_nelts(Picviz::PVLinesProperties &b,  PVSelection const& selection, PVRow nelts)
 {
-	pvrow row;
+	PVRow row;
 
 	for (row=0; row < nelts; row++) {
 		if (selection.get_line(row)) {
@@ -78,7 +78,7 @@ void Picviz::PVLinesProperties::A2B_copy_restricted_by_selection_and_nelts(Picvi
  * Picviz::PVLinesProperties::A2B_copy_zombie_off_restricted_by_selection_and_nelts
  *
  *****************************************************************************/
-void Picviz::PVLinesProperties::A2B_copy_zombie_off_restricted_by_selection_and_nelts(Picviz::PVLinesProperties &b,  PVSelection const& selection, pvrow nelts)
+void Picviz::PVLinesProperties::A2B_copy_zombie_off_restricted_by_selection_and_nelts(Picviz::PVLinesProperties &b,  PVSelection const& selection, PVRow nelts)
 {
 	A2B_copy_restricted_by_selection_and_nelts(b, selection, nelts); // FIXME, this is the same code than the previous function, should remove it to make it more generic
 }
@@ -88,9 +88,9 @@ void Picviz::PVLinesProperties::A2B_copy_zombie_off_restricted_by_selection_and_
  * Picviz::PVLinesProperties::A2B_copy_zombie_on_restricted_by_selection_and_nelts
  *
  *****************************************************************************/
-void Picviz::PVLinesProperties::A2B_copy_zombie_on_restricted_by_selection_and_nelts(Picviz::PVLinesProperties &b, PVSelection const& selection, pvrow nelts)
+void Picviz::PVLinesProperties::A2B_copy_zombie_on_restricted_by_selection_and_nelts(Picviz::PVLinesProperties &b, PVSelection const& selection, PVRow nelts)
 {
-	pvrow row;
+	PVRow row;
 
 	for (row=0; row < nelts; row++) {
 		if (selection.get_line(row)) {
@@ -109,12 +109,12 @@ void Picviz::PVLinesProperties::A2B_copy_zombie_on_restricted_by_selection_and_n
  * Picviz::PVLinesProperties::get_line_properties
  *
  *****************************************************************************/
-PVCore::PVColor& Picviz::PVLinesProperties::get_line_properties(pvrow line)
+PVCore::PVColor& Picviz::PVLinesProperties::get_line_properties(PVRow line)
 {
 	return table[line];
 }
 
-const PVCore::PVColor& Picviz::PVLinesProperties::get_line_properties(pvrow line) const
+const PVCore::PVColor& Picviz::PVLinesProperties::get_line_properties(PVRow line) const
 {
 	return table[line];
 }
@@ -124,7 +124,7 @@ const PVCore::PVColor& Picviz::PVLinesProperties::get_line_properties(pvrow line
  * Picviz::PVLinesProperties::line_get_a
  *
  *****************************************************************************/
-unsigned char Picviz::PVLinesProperties::line_get_a(pvrow line)
+unsigned char Picviz::PVLinesProperties::line_get_a(PVRow line)
 {
 	return table[line].a();
 }
@@ -134,7 +134,7 @@ unsigned char Picviz::PVLinesProperties::line_get_a(pvrow line)
  * Picviz::PVLinesProperties::line_get_r
  *
  *****************************************************************************/
-unsigned char Picviz::PVLinesProperties::line_get_r(pvrow line)
+unsigned char Picviz::PVLinesProperties::line_get_r(PVRow line)
 {
 	return table[line].r();
 }
@@ -144,7 +144,7 @@ unsigned char Picviz::PVLinesProperties::line_get_r(pvrow line)
  * Picviz::PVLinesProperties::line_get_b
  *
  *****************************************************************************/
-unsigned char Picviz::PVLinesProperties::line_get_b(pvrow line)
+unsigned char Picviz::PVLinesProperties::line_get_b(PVRow line)
 {
 	return table[line].b();
 }
@@ -154,7 +154,7 @@ unsigned char Picviz::PVLinesProperties::line_get_b(pvrow line)
  * Picviz::PVLinesProperties::line_get_g
  *
  *****************************************************************************/
-unsigned char Picviz::PVLinesProperties::line_get_g(pvrow line)
+unsigned char Picviz::PVLinesProperties::line_get_g(PVRow line)
 {
 	return table[line].g();
 }
@@ -164,7 +164,7 @@ unsigned char Picviz::PVLinesProperties::line_get_g(pvrow line)
  * Picviz::PVLinesProperties::line_set_a
  *
  *****************************************************************************/
-void Picviz::PVLinesProperties::line_set_a(pvrow line, unsigned char a)
+void Picviz::PVLinesProperties::line_set_a(PVRow line, unsigned char a)
 {
 	table[line].a() = a;
 }
@@ -174,7 +174,7 @@ void Picviz::PVLinesProperties::line_set_a(pvrow line, unsigned char a)
  * Picviz::PVLinesProperties::line_set_r
  *
  *****************************************************************************/
-void Picviz::PVLinesProperties::line_set_r(pvrow line, unsigned char r)
+void Picviz::PVLinesProperties::line_set_r(PVRow line, unsigned char r)
 {
 	table[line].r() = r;
 }
@@ -184,7 +184,7 @@ void Picviz::PVLinesProperties::line_set_r(pvrow line, unsigned char r)
  * Picviz::PVLinesProperties::line_set_b
  *
  *****************************************************************************/
-void Picviz::PVLinesProperties::line_set_b(pvrow line, unsigned char b)
+void Picviz::PVLinesProperties::line_set_b(PVRow line, unsigned char b)
 {
 	table[line].b() = b;
 }
@@ -194,7 +194,7 @@ void Picviz::PVLinesProperties::line_set_b(pvrow line, unsigned char b)
  * Picviz::PVLinesProperties::line_set_g
  *
  *****************************************************************************/
-void Picviz::PVLinesProperties::line_set_g(pvrow line, unsigned char g)
+void Picviz::PVLinesProperties::line_set_g(PVRow line, unsigned char g)
 {
 	table[line].g() = g;
 }
@@ -204,7 +204,7 @@ void Picviz::PVLinesProperties::line_set_g(pvrow line, unsigned char g)
  * Picviz::PVLinesProperties::line_set_rgb
  *
  *****************************************************************************/
-void Picviz::PVLinesProperties::line_set_rgb(pvrow line, unsigned char r, unsigned char g, unsigned char b)
+void Picviz::PVLinesProperties::line_set_rgb(PVRow line, unsigned char r, unsigned char g, unsigned char b)
 {
 	line_set_r(line, r);
 	line_set_g(line, g);
@@ -216,7 +216,7 @@ void Picviz::PVLinesProperties::line_set_rgb(pvrow line, unsigned char r, unsign
  * Picviz::PVLinesProperties::line_set_rgba
  *
  *****************************************************************************/
-void Picviz::PVLinesProperties::line_set_rgba(pvrow line, unsigned char r, unsigned char g, unsigned char b, unsigned char a)
+void Picviz::PVLinesProperties::line_set_rgba(PVRow line, unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
 	line_set_r(line, r);
 	line_set_g(line, g);
@@ -229,7 +229,7 @@ void Picviz::PVLinesProperties::line_set_rgba(pvrow line, unsigned char r, unsig
  * Picviz::PVLinesProperties::line_set_rgb_from_color
  *
  *****************************************************************************/
-void Picviz::PVLinesProperties::line_set_rgb_from_color(pvrow line, PVCore::PVColor color)
+void Picviz::PVLinesProperties::line_set_rgb_from_color(PVRow line, PVCore::PVColor color)
 {
 	unsigned char a;
 	a = line_get_a(line);
@@ -242,7 +242,7 @@ void Picviz::PVLinesProperties::line_set_rgb_from_color(pvrow line, PVCore::PVCo
  * Picviz::PVLinesProperties::line_set_rgba_from_color
  *
  *****************************************************************************/
-void Picviz::PVLinesProperties::line_set_rgba_from_color(pvrow line, const PVCore::PVColor &color)
+void Picviz::PVLinesProperties::line_set_rgba_from_color(PVRow line, const PVCore::PVColor &color)
 {
 	table[line] = color;
 }
@@ -279,9 +279,9 @@ void Picviz::PVLinesProperties::reset_to_default_color()
  * Picviz::PVLinesProperties::selection_set_rgba
  *
  *****************************************************************************/
-void Picviz::PVLinesProperties::selection_set_rgba(PVSelection const& selection, pvrow nelts, unsigned char r, unsigned char g, unsigned char b, unsigned char a)
+void Picviz::PVLinesProperties::selection_set_rgba(PVSelection const& selection, PVRow nelts, unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
-	pvrow row;
+	PVRow row;
 	
 	for (row=0; row < nelts; row++) {
 		if (selection.get_line(row)) {
@@ -292,7 +292,7 @@ void Picviz::PVLinesProperties::selection_set_rgba(PVSelection const& selection,
 
 void Picviz::PVLinesProperties::debug()
 {
-	pvrow row;
+	PVRow row;
 
 	for (row=0; row<table.size(); row++) {
 		PVCore::PVColor &c = table[row];

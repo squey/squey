@@ -9,14 +9,8 @@
 
 #include <QtGlobal>
 
-typedef int pv_column;
-typedef int pv_row;
-
-typedef int PVCol;
-typedef quint64 PVRow;
-
-typedef int pvcol;
-typedef quint64 pvrow;
+typedef qint32 PVCol;
+typedef quint32 PVRow;
 
 #define _U_ __attribute__((unused))
 

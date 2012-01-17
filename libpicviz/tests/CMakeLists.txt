@@ -34,6 +34,10 @@ add_test(TestIssuesPlotting test_issues.sh plotting)
 add_executable(Tpicviz_source_serialize source-serialize.cpp)
 target_link_libraries(Tpicviz_source_serialize ${LINK_LIBRARIES})
 
+# Object sizes
+add_executable(Tpicviz_sizes sizes.cpp)
+target_link_libraries(Tpicviz_sizes ${LINK_LIBRARIES})
+
 # Mapping plugin test
 #add_executable(Tpicviz_plugin_mapping plugin-mapping.cpp)
 #target_link_libraries(Tpicviz_plugin_mapping ${LINK_LIBRARIES})
