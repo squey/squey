@@ -20,6 +20,7 @@ namespace PVInspector {
 class PVMainWindow;
 class PVTabSplitter;
 class PVLayerFilterProcessWidget;
+class PVListingSortFilterProxyModel;
 
 /**
  * \class PVListingView
@@ -74,11 +75,12 @@ public:
 	 */
 //	void increment_screenshot_index();
 
+	void refresh_model();
 	void keyEnterPressed();
 
 	void update_view();
 
-	PVListingModel* get_listing_model();
+	PVListingSortFilterProxyModel* get_listing_model();
 
 private:
 	void mouseDoubleClickEvent(QMouseEvent* event);

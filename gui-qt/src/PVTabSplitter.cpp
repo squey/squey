@@ -51,11 +51,11 @@ PVInspector::PVTabSplitter::PVTabSplitter(PVMainWindow *mw, Picviz::PVSource_p l
 	// PVLISTINGVIEW
 	// We prepare the listing part and add it to the PVTabSplitter
 	pv_listing_model = new PVListingModel(main_window, this);
-	pv_listing_proxy_model = new PVListingSortFilterProxyModel(this);
+	pv_listing_proxy_model = new PVListingSortFilterProxyModel(this, this);
 	pv_listing_view = new PVListingView(main_window, this);
 	pv_listing_proxy_model->setSourceModel(pv_listing_model);
 	pv_listing_view->setModel(pv_listing_proxy_model);
-	pv_listing_view->setSortingEnabled(true);
+	//pv_listing_view->setSortingEnabled(true);
 	addWidget(pv_listing_view);
 	
 	// Layout of the RIGHT_WIDGET
@@ -477,7 +477,8 @@ void PVInspector::PVTabSplitter::refresh_listing_Slot()
 		current_lib_view->gl_call_locker.lock();
 		pv_listing_view->viewport()->update();
 		pv_listing_view->verticalHeader()->viewport()->update();
-		pv_listing_view->get_listing_model()->reset_model();
+		//pv_listing_view->get_listing_model()->reset_model();
+		pv_listing_view->refresh_model();
 		//update the size of the corresponding table.
 //		static_cast<PVListingModel*>(pv_listing_view->model())->initMatchingTable();
 //                static_cast<PVListingModel*>(pv_listing_view->model())->initLocalMatchingTable();
@@ -544,6 +545,7 @@ void PVInspector::PVTabSplitter::select_view(Picviz::PVView_p view)
 
 	// And the listing
 	pv_listing_model->reset_lib_view();
+	pv_listing_proxy_model->reset_lib_view();
 	pv_listing_view->update_view();
 }
 

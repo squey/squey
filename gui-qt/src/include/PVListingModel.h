@@ -106,47 +106,7 @@ public:
      */
     int rowCount(const QModelIndex &index) const;
 
-	PVRow getRealRowIndex(PVRow model_row) const;
-
-    /**
-     * Order to PVView to sort table
-     * @param idColumn the id of the column to sort the table.
-     */
-    void sortByColumn(int idColumn);
-    
-    /**
-     * @param line
-     * @return 
-     */
-    unsigned int getInvertedMatch(unsigned int line);
-
-    /**
-     * @param line
-     * @return 
-     */
-    unsigned int getLocalMatch(unsigned int line);
-
-    /**
-     * @param line
-     * @return 
-     */
-    unsigned int getMatch(unsigned int line);
-
-    /**
-     * initialize the matching table for sort.
-     */
-    void initMatchingTable();
-    
-    /**
-     * create a new matching table for nu, nz or nunz situation.
-     */
-    void initLocalMatchingTable();
-
-    /**
-     * reset the model
-     * @param initMatchTable
-     */
-    virtual void reset_model(bool initMatchTable = true);
+	//PVRow getRealRowIndex(PVRow model_row) const;
 
     /**
      *
@@ -164,12 +124,6 @@ public:
      */
     Qt::ItemFlags flags(const QModelIndex &index) const;
 	
-
-    /**
-     * call update for data
-     */
-    void emitLayoutChanged(); 
-
 	void reset_lib_view();
 
 protected:

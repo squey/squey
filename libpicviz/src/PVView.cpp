@@ -841,9 +841,9 @@ void Picviz::PVView::process_eventline()
 	}
 
 	/* Now we MUST refresh the index_array associated to nz and nznu */
-	refresh_nu_index_array();
+	/*refresh_nu_index_array();
 	refresh_nz_index_array();
-	refresh_nznu_index_array();
+	refresh_nznu_index_array();*/
 }
 
 /******************************************************************************
@@ -1544,6 +1544,29 @@ QString Picviz::PVView::get_window_name() const
 void Picviz::PVView::add_column(PVAxis const& axis)
 {
 	axes_combination.axis_append(axis);
+}
+
+
+bool Picviz::PVView::is_line_visible_listing(PVRow index) const
+{
+	if (state_machine->are_listing_all()) {
+		return true;
+	}
+
+	if (state_machine->are_listing_no_nu_nz()) {
+		return real_output_selection.get_line(index);
+	}
+
+	if (state_machine->are_listing_no_nu()) {
+		return nu_selection.get_line(index);
+	}
+
+	if (state_machine->are_listing_no_nz()) {
+		return layer_stack_output_layer.get_selection().get_line(index);
+	}
+
+	//return real_output_selection.get_line(index);
+	return true;
 }
 
 // Load/save and serialization
