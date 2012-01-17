@@ -89,10 +89,10 @@ Picviz::PVSelection::PVSelection(PVSelection const& o):
  * Picviz::PVSelection::get_line
  *
  *****************************************************************************/
-bool Picviz::PVSelection::get_line(pv_row line_index) const
+bool Picviz::PVSelection::get_line(PVRow line_index) const
 {
-	pv_row pos;
-	pv_row shift;
+	PVRow pos;
+	PVRow shift;
 
 	/*
 	 * Say you want to retrieve if the line 20000 is selected or not:
@@ -110,10 +110,10 @@ bool Picviz::PVSelection::get_line(pv_row line_index) const
  * Picviz::PVSelection::get_number_of_selected_lines_in_range
  *
  *****************************************************************************/
-int Picviz::PVSelection::get_number_of_selected_lines_in_range(pv_row a, pv_row b) const
+int Picviz::PVSelection::get_number_of_selected_lines_in_range(PVRow a, PVRow b) const
 {
 	
-	pv_row line_index;
+	PVRow line_index;
 	int count = 0; 
 
 	for (line_index = a; line_index<b; line_index++) { 
@@ -133,7 +133,7 @@ std::vector<PVRow> Picviz::PVSelection::get_rows_table()
 	std::vector<PVRow> rtable;
 	rtable.reserve(PICVIZ_LINES_MAX);
 
-	pv_row line_index;
+	PVRow line_index;
 
 	for (line_index = 0; line_index < PICVIZ_LINES_MAX; line_index++) {
 		if (get_line(line_index)) {
@@ -181,7 +181,7 @@ Picviz::PVSelection Picviz::PVSelection::operator&(const PVSelection &rhs) const
  *****************************************************************************/
 Picviz::PVSelection & Picviz::PVSelection::operator&=(const PVSelection &rhs)
 {
-	for (pv_row i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
+	for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
 		table[i] &= rhs.table[i];
 	}
 
@@ -196,7 +196,7 @@ Picviz::PVSelection & Picviz::PVSelection::operator&=(const PVSelection &rhs)
 Picviz::PVSelection Picviz::PVSelection::operator~() const
 {
 	PVSelection result;
-	for (pv_row i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
+	for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
 		result.table[i] = ~table[i];
 	}
 
@@ -223,7 +223,7 @@ Picviz::PVSelection Picviz::PVSelection::operator|(const PVSelection &rhs) const
  *****************************************************************************/
 Picviz::PVSelection & Picviz::PVSelection::operator|=(const PVSelection &rhs)
 {
-	for (pv_row i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
+	for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
 		table[i] |= rhs.table[i];
 	}
 
@@ -250,7 +250,7 @@ Picviz::PVSelection Picviz::PVSelection::operator-(const PVSelection &rhs) const
  *****************************************************************************/
 Picviz::PVSelection & Picviz::PVSelection::operator-=(const PVSelection &rhs)
 {
-	for (pv_row i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
+	for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
 		table[i] &= ~rhs.table[i];
 	}
 
@@ -277,7 +277,7 @@ Picviz::PVSelection Picviz::PVSelection::operator^(const PVSelection &rhs) const
  *****************************************************************************/
 Picviz::PVSelection & Picviz::PVSelection::operator^=(const PVSelection &rhs)
 {
-	for (pv_row i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
+	for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
 		table[i] ^= rhs.table[i];
 	}
 
@@ -333,7 +333,7 @@ void Picviz::PVSelection::select_odd()
  *****************************************************************************/
 void Picviz::PVSelection::select_inverse()
 {
-	for (pv_row i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
+	for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
 		table[i] = ~table[i];
 	}
 }
@@ -345,8 +345,8 @@ void Picviz::PVSelection::select_inverse()
  *****************************************************************************/
 void Picviz::PVSelection::set_line(PVRow line_index, bool bool_value)
 {
-	pv_row pos;
-	pv_row shift;
+	PVRow pos;
+	PVRow shift;
 
 	pos = line_index / PICVIZ_SELECTION_CHUNK_SIZE;
 	shift = line_index - (pos * PICVIZ_SELECTION_CHUNK_SIZE);

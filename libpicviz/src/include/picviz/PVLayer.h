@@ -53,7 +53,7 @@ public:
 	 */
 	PVLayer(const QString & name_, const PVSelection & sel_ = PVSelection(), const PVLinesProperties & lp_ = PVLinesProperties());
 
-	void A2B_copy_restricted_by_selection_and_nelts(PVLayer &b, PVSelection const& selection, pvrow nelts);
+	void A2B_copy_restricted_by_selection_and_nelts(PVLayer &b, PVSelection const& selection, PVRow nelts);
 
 	int get_index() const {return index;}
 	const PVLinesProperties& get_lines_properties() const {return lines_properties;}
