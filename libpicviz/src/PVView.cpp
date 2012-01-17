@@ -114,9 +114,6 @@ void Picviz::PVView::init_from_plotted(PVPlotted* parent, bool keep_layers)
 
 	row_count = plotted->get_row_count();
 	layer_stack.set_row_count(row_count);
-	nu_index_array.set_row_count(row_count);
-	nz_index_array.set_row_count(row_count);
-	nznu_index_array.set_row_count(row_count);
 	eventline.set_row_count(row_count);
 	eventline.set_first_index(0);
 	eventline.set_current_index(row_count);
@@ -499,26 +496,6 @@ const Picviz::PVMapped* Picviz::PVView::get_mapped_parent() const
 
 /******************************************************************************
  *
- * Picviz::PVView::get_nu_index_count
- *
- *****************************************************************************/
-int Picviz::PVView::get_nu_index_count()
-{
-	return nu_index_array.get_index_count();
-}
-
-/******************************************************************************
- *
- * Picviz::PVView::get_nu_real_row_index
- *
- *****************************************************************************/
-int Picviz::PVView::get_nu_real_row_index(int index)
-{
-	return nu_index_array.at(index);
-}
-
-/******************************************************************************
- *
  * Picviz::PVView::get_nu_selection
  *
  *****************************************************************************/
@@ -535,46 +512,6 @@ Picviz::PVSelection &Picviz::PVView::get_nu_selection()
 int Picviz::PVView::get_number_of_selected_lines()
 {
 	return real_output_selection.get_number_of_selected_lines_in_range(0, row_count);
-}
-
-/******************************************************************************
- *
- * Picviz::PVView::get_nz_index_count
- *
- *****************************************************************************/
-int Picviz::PVView::get_nz_index_count()
-{
-	return nz_index_array.get_index_count();
-}
-
-/******************************************************************************
- *
- * Picviz::PVView::get_nz_real_row_index
- *
- *****************************************************************************/
-int Picviz::PVView::get_nz_real_row_index(int index)
-{
-	return nz_index_array.at(index);
-}
-
-/******************************************************************************
- *
- * Picviz::PVView::get_nznu_index_count
- *
- *****************************************************************************/
-int Picviz::PVView::get_nznu_index_count()
-{
-	return nznu_index_array.get_index_count();
-}
-
-/******************************************************************************
- *
- * Picviz::PVView::get_nznu_real_row_index
- *
- *****************************************************************************/
-int Picviz::PVView::get_nznu_real_row_index(int index)
-{
-	return nznu_index_array.at(index);
 }
 
 /******************************************************************************
@@ -670,31 +607,6 @@ const PVRush::PVNraw& Picviz::PVView::get_rushnraw_parent() const
 Picviz::PVSelection &Picviz::PVView::get_real_output_selection()
 {
 	return real_output_selection;
-}
-
-/******************************************************************************
- *
- * Picviz::PVView::get_real_row_index
- *
- *****************************************************************************/
-int Picviz::PVView::get_real_row_index(int index)
-{
-    PVLOG_DEBUG("Picviz::PVView::get_real_row_index\n");
-    
-    ///TODO usr switch and state_machine->getListingMode()
-	if (state_machine->are_listing_unselected_visible()) {
-		if (state_machine->are_listing_zombie_visible()) {
-			return index;
-		} else {
-			return nz_index_array.at(index);
-		}
-	} else {
-		if (state_machine->are_listing_zombie_visible()) {
-			return nu_index_array.at(index);
-		} else {
-			return nznu_index_array.at(index);
-		}
-	}
 }
 
 /******************************************************************************
@@ -839,11 +751,6 @@ void Picviz::PVView::process_eventline()
 			}
 		}
 	}
-
-	/* Now we MUST refresh the index_array associated to nz and nznu */
-	/*refresh_nu_index_array();
-	refresh_nz_index_array();
-	refresh_nznu_index_array();*/
 }
 
 /******************************************************************************
@@ -918,10 +825,6 @@ void Picviz::PVView::process_from_selection()
 void Picviz::PVView::process_layer_stack()
 {
 	layer_stack.process(layer_stack_output_layer, get_row_count());
-	/* Now we MUST refresh the index_array associated to nu, nz and nznu */
-	refresh_nu_index_array();
-	refresh_nz_index_array();
-	refresh_nznu_index_array();
 }
 
 /******************************************************************************
@@ -1007,37 +910,6 @@ void Picviz::PVView::process_visibility()
 			output_layer.get_selection() |= ~layer_stack_output_layer.get_selection();
 		}
 	}
-}
-
-/******************************************************************************
- *
- * Picviz::PVView::refresh_nu_index_array
- *
- *****************************************************************************/
-void Picviz::PVView::refresh_nu_index_array()
-{
-	nu_index_array.set_from_selection(nu_selection);
-}
-
-
-/******************************************************************************
- *
- * Picviz::PVView::refresh_nz_index_array
- *
- *****************************************************************************/
-void Picviz::PVView::refresh_nz_index_array()
-{
-	nz_index_array.set_from_selection(layer_stack_output_layer.get_selection());
-}
-
-/******************************************************************************
- *
- * Picviz::PVView::refresh_nznu_index_array
- *
- *****************************************************************************/
-void Picviz::PVView::refresh_nznu_index_array()
-{
-	nznu_index_array.set_from_selection( real_output_selection);
 }
 
 /******************************************************************************
