@@ -33,7 +33,7 @@ int create_layers_parse_config(QString filename, int (*handle_create_layers_sect
 
 	while (!configfile.atEnd()) {
 		QByteArray line = configfile.readLine();
-		line.chop(1);
+		if (line[line.size()-1] == '\n') line.chop(1);
 		if ( (!line.isEmpty()) || (!line[0] != '#') ) {
 			int ret = re_section.indexIn(line);
 			if (ret >= 0) {
