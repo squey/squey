@@ -730,8 +730,8 @@ void Picviz::PVView::process_eventline()
 			/* It is selected, so we copy it's line properties */
 			out_lps.get_line_properties(i) = post_lp;
 			/* ... and set it's z_level */
-			//z_level_array.get_value(i) = layer_stack.get_lia().get_value(i) + (f_imax-(float)i)/f_imax;
-			z_level_array.get_value(i) = layer_stack.get_lia().get_value(i) + ((float)i)/f_imax;
+			z_level_array.get_value(i) = layer_stack.get_lia().get_value(i) + (f_imax-(float)i)/f_imax;
+			//z_level_array.get_value(i) = layer_stack.get_lia().get_value(i) + ((float)i)/f_imax;
 		} else {
 			/* It is not selected in the end, so we check if it was available in the beginning */
 			if (layer_stack_output_layer.get_selection().get_line(i)) {
@@ -740,14 +740,14 @@ void Picviz::PVView::process_eventline()
 			  	out_lp.g() = post_lp.g()/2;
 			  	out_lp.b() = post_lp.b()/2;
 				/* We set it's z_level */
-				//z_level_array.get_value(i) = (f_imax-(float)i)/f_imax - 1.0f;
-				z_level_array.get_value(i) = (float)i/f_imax - 1.0f;
+				z_level_array.get_value(i) = (f_imax-(float)i)/f_imax - 1.0f;
+				//z_level_array.get_value(i) = (float)i/f_imax - 1.0f;
 			} else {
 				/* The line is a zombie line */
 				out_lp = default_zombie_line_properties;
 				/* We set it's z_level */
-				//z_level_array.get_value(i) = (f_imax-(float)i)/f_imax - 2.0f;
-				z_level_array.get_value(i) = (float)i/f_imax - 2.0f;
+				z_level_array.get_value(i) = (f_imax-(float)i)/f_imax - 2.0f;
+				//z_level_array.get_value(i) = (float)i/f_imax - 2.0f;
 			}
 		}
 	}
@@ -1420,10 +1420,6 @@ void Picviz::PVView::add_column(PVAxis const& axis)
 
 Picviz::PVSelection const* Picviz::PVView::get_selection_visible_listing() const
 {
-	if (state_machine->are_listing_all()) {
-		return NULL;
-	}
-
 	if (state_machine->are_listing_no_nu_nz()) {
 		return &real_output_selection;
 	}
@@ -1435,6 +1431,9 @@ Picviz::PVSelection const* Picviz::PVView::get_selection_visible_listing() const
 	if (state_machine->are_listing_no_nz()) {
 		return &layer_stack_output_layer.get_selection();
 	}
+
+	// If we're here, then we are listing all...
+	return NULL;
 }
 
 bool Picviz::PVView::is_line_visible_listing(PVRow index) const

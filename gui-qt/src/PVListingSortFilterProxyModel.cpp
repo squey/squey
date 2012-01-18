@@ -57,12 +57,10 @@ void PVInspector::PVListingSortFilterProxyModel::filter_source_indexes(vec_index
 	}
 }
 
-/*
-bool PVInspector::PVListingSortFilterProxyModel::filter_source_index(int idx_in)
+void PVInspector::PVListingSortFilterProxyModel::sort_indexes(int column, Qt::SortOrder order, vec_indexes_t& vec_idxes)
 {
-	return _lib_view->is_line_visible_listing(idx_in);
+	_lib_view->sort_indexes_with_axes_combination(column, order, vec_idxes);
 }
-*/
 
 void PVInspector::PVListingSortFilterProxyModel::sort(int column, Qt::SortOrder order)
 {

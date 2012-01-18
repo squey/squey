@@ -58,18 +58,23 @@ void PVInspector::PVSortFilterProxyModel::do_filter()
 	}
 }
 
+void PVInspector::PVSortFilterProxyModel::sort_indexes(int column, Qt::SortOrder order, vec_indexes_t& vec_idxes)
+{
+	if (order == Qt::AscendingOrder) {
+		__impl::PVSortProxyAsc s(this, column);
+		std::stable_sort(vec_idxes.begin(), vec_idxes.end(), s);
+	}
+	else {
+		__impl::PVSortProxyDesc s(this, column);
+		std::stable_sort(vec_idxes.begin(), vec_idxes.end(), s);
+	}
+}
+
 void PVInspector::PVSortFilterProxyModel::do_sort(int column, Qt::SortOrder order)
 {
 	assert(column >= 0 && column < sourceModel()->columnCount());
 	init_default_sort();
-	if (order == Qt::AscendingOrder) {
-		__impl::PVSortProxyAsc s(this, column);
-		std::stable_sort(_vec_sort_m2s.begin(), _vec_sort_m2s.end(), s);
-	}
-	else {
-		__impl::PVSortProxyDesc s(this, column);
-		std::stable_sort(_vec_sort_m2s.begin(), _vec_sort_m2s.end(), s);
-	}
+	sort_indexes(column, order, _vec_sort_m2s);
 	_sort_idx = column;
 	_cur_order = order;
 }

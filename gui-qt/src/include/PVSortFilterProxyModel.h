@@ -30,6 +30,7 @@ public:
 	inline void set_dynamic_sort(bool enable) { _dyn_sort = enable; }
 	inline bool dynamic_sort() const { return _dyn_sort; }
 	void reset_to_default_ordering();
+	inline vec_indexes_t const& get_proxy_indexes() const { return _vec_filtered_m2s; }
 
 	// Helper functions for derived classes
 protected:
@@ -49,6 +50,12 @@ protected:
 	 *  It returns true iif left == right.
 	 */
 	virtual bool is_equal(const QModelIndex &left, const QModelIndex &right) const = 0;
+
+	/*! \brief Global sorting function
+	 *  Global sorting function to implement in order to sot directly the array of indexes.
+	 *  Default implementation uses the values returned by lees_than.
+	 */
+	virtual void sort_indexes(int column, Qt::SortOrder order, vec_indexes_t& vec_idxes);
 
 	/*! \brief Filter source indexes.
 	 *  This function can be reimplemented to filter a list of source indexes.

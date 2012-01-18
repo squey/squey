@@ -84,6 +84,7 @@ PVInspector::PVListingView::PVListingView(PVMainWindow *mw, PVTabSplitter *paren
 
 	// Init the double click action
 	//connect(horizontalHeader(), SIGNAL(sectionDoubleClicked(int)), this, SLOT(slotDoubleClickOnHHead(int)));
+	connect(horizontalHeader(), SIGNAL(sectionCkucjed(int)), this, SLOT(section_header_clicked_Slot(int)));
 
 	// A double click on the vertical header select the line in the lib view
 	connect(verticalHeader(), SIGNAL(sectionDoubleClicked(int)), this, SLOT(slotDoubleClickOnVHead(int)));
@@ -342,4 +343,8 @@ PVInspector::PVListingSortFilterProxyModel* PVInspector::PVListingView::get_list
 void PVInspector::PVListingView::refresh_listing_filter()
 {
 	get_listing_model()->refresh_filter();
+}
+
+void PVInspector::PVListingView::section_header_clicked_Slot(int col)
+{
 }

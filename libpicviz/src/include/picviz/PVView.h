@@ -31,9 +31,12 @@
 #include <picviz/PVIndexArray.h>
 #include <picviz/PVSquareArea.h>
 #include <picviz/PVStateMachine.h>
+#include <picviz/PVSortingFunc.h>
+#include <picviz/PVDefaultSortingFunc.h>
 #include <picviz/PVZLevelArray.h>
 
 #include <picviz/PVView_types.h>
+#include <picviz/PVView_impl.h>
 
 #include <boost/enable_shared_from_this.hpp>
 
@@ -200,6 +203,8 @@ public:
 	void select_no_line();
 	void select_inv_lines();
 
+	PVSortingFunc_p get_sort_plugin_for_col(PVCol /*col*/) const { return PVSortingFunc_p(new PVDefaultSortingFunc()); };
+
 
 /******************************************************************************
 ******************************************************************************
@@ -271,6 +276,52 @@ public:
 	inline void set_last_used_filter(QString const& name) { _last_filter_name = name; }
 	inline bool is_last_filter_used_valid() const { return !_last_filter_name.isEmpty(); }
 	inline PVCore::PVArgumentList& get_last_args_filter(QString const& name) { return filters_args[name]; }
+
+
+	/* Sorting and unique functions */
+
+	// L must be a vector of integers
+	template <class L>
+	void sort_indexes(PVCol column, Qt::SortOrder order, L& idxes)
+	{
+		PVSortingFunc_p sp = get_sort_plugin_for_col(column);
+		__impl::stable_sort_indexes_f(&get_rushnraw_parent(), column, sp->f(), order, idxes);
+	}
+
+	// L must be a vector of integers
+	template <class L>
+	void unique_indexes_copy(PVCol column, L const& idxes_in, L& idxes_out)
+	{
+		PVSortingFunc_p sp = get_sort_plugin_for_col(column);
+		__impl::unique_indexes_copy_f<L>(&get_rushnraw_parent(), column, sp->f_equals(), idxes_in, idxes_out);
+	}
+
+	template <class L>
+	size_t sort_unique_indexes(PVCol column, L& idxes)
+	{
+		PVSortingFunc_p sp = get_sort_plugin_for_col(column);
+		__impl::sort_indexes_f(&get_rushnraw_parent(), column, sp->f(), Qt::AscendingOrder, idxes);
+		typename L::iterator it_end = __impl::unique_indexes_f<L>(&get_rushnraw_parent(), column, sp->f_equals(), idxes);
+		return it_end-idxes.begin();
+	}
+
+	// Helper functions for sorting
+	template <class L>
+	inline void sort_indexes_with_axes_combination(PVCol column, Qt::SortOrder order, L& idxes)
+	{
+		sort_indexes<L>(axes_combination.get_axis_column_index(column), order, idxes);
+	}
+	template <class L>
+	inline void unique_indexes_copy_with_axes_combination(PVCol column, L const& idxes_in, L& idxes_out)
+	{
+		unique_indexes_copy<L>(axes_combination.get_axis_column_index(column), idxes_in, idxes_out);
+	}
+	template <class L>
+	inline size_t sort_unique_indexes_with_axes_combination(PVCol column, L& idxes)
+	{
+		return sort_unique_indexes<L>(axes_combination.get_axis_column_index(column), idxes);
+	}
+
 
 
 /******************************************************************************

@@ -612,6 +612,17 @@ void PVInspector::PVTabSplitter::updateFilterMenuEnabling(){
 	emit selection_changed_signal(enable_menu);
 }
 
+size_t PVInspector::PVTabSplitter::get_unique_indexes_for_column(PVCol column, QVector<int>& idxes)
+{
+	// TODO: optimise to use current sorting if relevant
+	Picviz::PVView_p current_lib_view = get_lib_view();
+	size_t ret = 0;
+	if (current_lib_view) {
+		idxes = pv_listing_proxy_model->get_proxy_indexes();
+		ret = current_lib_view->sort_unique_indexes_with_axes_combination(column, idxes);
+	}
+	return ret;
+}
 
 
 // PVViewWidgets

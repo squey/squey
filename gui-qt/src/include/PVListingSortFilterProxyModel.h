@@ -28,8 +28,8 @@ protected:
 	bool less_than(const QModelIndex &left, const QModelIndex &right) const;
 	bool is_equal(const QModelIndex &left, const QModelIndex &right) const;
 	void sort(int column, Qt::SortOrder order);
+	void sort_indexes(int column, Qt::SortOrder order, vec_indexes_t& vec_idxes);
 	void filter_source_indexes(vec_indexes_t const& src_idxes_in, vec_indexes_t& src_idxes_out);
-	//bool filter_source_index(int idx_in);
 
 private:
 	mutable Picviz::PVSortingFunc_f _sort_f;
