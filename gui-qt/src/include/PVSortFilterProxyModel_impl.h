@@ -37,6 +37,22 @@ private:
 	QAbstractItemModel* ms;
 };
 
+struct PVSortProxyComp
+{
+	PVSortProxyComp(PVSortFilterProxyModel* m_, int col): column(col), m(m_)
+	{
+		ms = m->sourceModel();
+	}
+	bool operator()(int idx1, int idx2) const
+	{
+		return m->is_equal(ms->index(idx2, column), ms->index(idx1, column));
+	}
+private:
+	int column;
+	PVSortFilterProxyModel* m;
+	QAbstractItemModel* ms;
+};
+
 }
 
 }

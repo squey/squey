@@ -21,6 +21,13 @@ bool PVInspector::PVListingSortFilterProxyModel::less_than(const QModelIndex &le
 	return _sort_f(*sleft, *sright);
 }
 
+bool PVInspector::PVListingSortFilterProxyModel::is_equal(const QModelIndex &left, const QModelIndex &right) const
+{
+	PVCore::PVUnicodeString const* sleft = (PVCore::PVUnicodeString const*) sourceModel()->data(left, PVCustomQtRoles::Sort).value<void*>();
+	PVCore::PVUnicodeString const* sright = (PVCore::PVUnicodeString const*) sourceModel()->data(right, PVCustomQtRoles::Sort).value<void*>();
+	return _equals_f(*sleft, *sright);
+}
+
 void PVInspector::PVListingSortFilterProxyModel::filter_source_indexes(vec_indexes_t const& src_idxes_in, vec_indexes_t& src_idxes_out)
 {
 	Picviz::PVSelection const* sel = _lib_view->get_selection_visible_listing();
@@ -61,6 +68,7 @@ void PVInspector::PVListingSortFilterProxyModel::sort(int column, Qt::SortOrder 
 {
 	// TODO: get this from format, view, etc...
 	_sort_f = _def_sort.f();
+	_equals_f = _def_sort.f_equals();
 	PVSortFilterProxyModel::sort(column, order);
 }
 

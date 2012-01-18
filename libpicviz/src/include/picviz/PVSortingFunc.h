@@ -28,6 +28,7 @@ public:
 
 public:
 	virtual f_type f() = 0;
+	virtual f_type f_equals() = 0;
 
 	CLASS_FUNC_ARGS_NOPARAM()
 };

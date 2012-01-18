@@ -37,10 +37,10 @@ int main()
 		v[i] = pair_int_t(i, 0);
 	}
 	dump(v);
-	PVCore::stable_sort_reverse(v.begin(), v.end(), comp);
+	bool changed = PVCore::stable_sort_reverse(v.begin(), v.end(), comp);
 	dump(v);
 
-	std::cout << std::endl << std::endl;
+	std::cout << "Has changed: " << changed << std::endl << std::endl;
 
 	v.resize(5);
 	v[0] = pair_int_t(0, 0);
@@ -49,10 +49,10 @@ int main()
 		v[i] = pair_int_t(i, 1);
 	}
 	dump(v);
-	PVCore::stable_sort_reverse(v.begin(), v.end(), comp);
+	changed = PVCore::stable_sort_reverse(v.begin(), v.end(), comp);
 	dump(v);
 
-	std::cout << std::endl << std::endl;
+	std::cout << "Has changed: " << changed << std::endl << std::endl;
 
 	v.resize(10);
 	for (int i = 0; i < 5; i++) {

@@ -1,4 +1,5 @@
 #include <pvkernel/core/general.h>
+#include <pvkernel/core/PVAlgorithms.h>
 
 #include <PVSortFilterProxyModel.h>
 #include <PVSortFilterProxyModel_impl.h>
@@ -32,12 +33,13 @@ void PVInspector::PVSortFilterProxyModel::reset_to_default_ordering()
 
 void PVInspector::PVSortFilterProxyModel::reverse_sort_order()
 {
-	// In-place reverse of our 2 caches
-	emit layoutAboutToBeChanged();
-	std::reverse(_vec_sort_m2s.begin(), _vec_sort_m2s.end());
-	std::reverse(_vec_filtered_m2s.begin(), _vec_filtered_m2s.end());
+	// In-place reverse of our first cache
+	bool changed = PVCore::stable_sort_reverse(_vec_sort_m2s.begin(), _vec_sort_m2s.end(), __impl::PVSortProxyComp(this, _sort_idx));
+	if (changed) {
+		// If the sorting order has changed, reprocess the filter
+		do_filter();
+	}
 	_cur_order = (Qt::SortOrder) !_cur_order;
-	emit layoutChanged();
 }
 
 void PVInspector::PVSortFilterProxyModel::do_filter()

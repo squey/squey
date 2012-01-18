@@ -10,6 +10,7 @@ namespace PVInspector {
 namespace __impl {
 class PVSortProxyAsc;
 class PVSortProxyDesc;
+class PVSortProxyComp;
 }
 
 class PVSortFilterProxyModel: public QAbstractProxyModel
@@ -18,6 +19,7 @@ class PVSortFilterProxyModel: public QAbstractProxyModel
 
 	friend class __impl::PVSortProxyAsc;
 	friend class __impl::PVSortProxyDesc;
+	friend class __impl::PVSortProxyComp;
 public:
 	typedef QVector<int> vec_indexes_t;
 
@@ -41,6 +43,12 @@ protected:
 	 *  This function needs to be reimplemented in order to implement sorting.
 	 */
 	virtual bool less_than(const QModelIndex &left, const QModelIndex &right) const = 0;
+
+	/*! \biref Equal compare function
+	 *  This function needs to be reimplemented in order to implement sorting.
+	 *  It returns true iif left == right.
+	 */
+	virtual bool is_equal(const QModelIndex &left, const QModelIndex &right) const = 0;
 
 	/*! \brief Filter source indexes.
 	 *  This function can be reimplemented to filter a list of source indexes.

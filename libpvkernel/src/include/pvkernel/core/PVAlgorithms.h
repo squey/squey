@@ -2,6 +2,7 @@
 #define PVCORE_PVALGORITHMS_H
 
 #include <algorithm>
+#include <iterator>
 
 namespace PVCore {
 
@@ -14,7 +15,7 @@ RandomAccessIterator stable_reverse_find_block(RandomAccessIterator first, Rando
 	if (first == last) {
 		return first;
 	}
-	typename RandomAccessIterator::value_type const& v_comp = *first;
+	typename std::iterator_traits<RandomAccessIterator>::reference v_comp = *first;
 	first++;
 	size++;
 	while (first != last) {
@@ -30,7 +31,7 @@ RandomAccessIterator stable_reverse_find_block(RandomAccessIterator first, Rando
 template <class RandomAccessIterator>
 void stable_reverse_block(RandomAccessIterator b1_b, RandomAccessIterator b1_e, RandomAccessIterator b2_b, RandomAccessIterator b2_e, size_t sb1, size_t sb2)
 {
-	typename RandomAccessIterator::value_type v_tmp;
+	typename std::iterator_traits<RandomAccessIterator>::value_type v_tmp;
 	if (sb1 == sb2) {
 		while (b1_b != b1_e) {
 			v_tmp = *b1_b;
@@ -67,21 +68,24 @@ void stable_reverse_block(RandomAccessIterator b1_b, RandomAccessIterator b1_e, 
 }
 
 template <class RandomAccessIterator, class Comp>
-void stable_sort_reverse(RandomAccessIterator begin, RandomAccessIterator end, Comp c)
+bool stable_sort_reverse(RandomAccessIterator begin, RandomAccessIterator end, Comp c)
 {
 	typedef std::reverse_iterator<RandomAccessIterator> reverse_iterator;
 
 	size_t sb1, sb2;
+	bool changed = false;
 	while (begin != end) {
 		RandomAccessIterator left_block_end = __impl::stable_reverse_find_block(begin, end, c, sb1);
 		if (left_block_end == end) {
-			return;
+			return changed;
 		}
+		changed = true;
 		reverse_iterator right_block_begin = __impl::stable_reverse_find_block(reverse_iterator(end), reverse_iterator(left_block_end), c, sb2);
 		__impl::stable_reverse_block(begin, left_block_end, right_block_begin.base(), end, sb1, sb2);
 		begin += sb2 ;
 		end -= sb1;
 	}
+	return changed;
 }
 
 }
