@@ -7,12 +7,31 @@
 #include "PVLayerFilterCreateLayers.h"
 #include "parse-config.h"
 
-static int handle_create_layers_section(QString section_name, QString layer_name, QString regex_for_layer)
+QStringList declared_tags;
+
+static int append_tag(QString tag) 
+{
+	for (int i = 0; i < declared_tags.size(); ++i) {
+		if (!declared_tags.at(i).compare(tag)) {
+			return 1;
+		}
+	}
+
+	declared_tags << tag;
+	DECLARE_TAG(tag, "", Picviz::PVLayerFilterCreateLayers);
+
+	return 0;
+}
+
+static int handle_create_layers_section(QString section_name, QMap<QString, QStringList> layers_regex)
 {
 	QStringList section_tags = section_name.split(":");
 	QString menu_name = QString("Create Layers/") + section_tags[0];
 
-	REGISTER_CLASS_WITH_ARGS(menu_name, Picviz::PVLayerFilterCreateLayers, section_name);
+	REGISTER_CLASS_WITH_ARGS(menu_name, Picviz::PVLayerFilterCreateLayers, section_name, layers_regex);
+ 	if (section_tags.size() > 1) {
+		append_tag(section_tags[1]);
+	}
 
         return 0;
 }
@@ -26,5 +45,4 @@ int layers_get_config(QString filename)
 LibCPPExport void register_class()
 {
 	layers_get_config("create-layers.conf");
-	// DECLARE_TAG(PVAXIS_TAG_DOMAIN, PVAXIS_TAG_DOMAIN_DESC, Picviz::PVLayerFilterCreateLayers);
 }
