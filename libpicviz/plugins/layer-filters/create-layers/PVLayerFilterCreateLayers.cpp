@@ -82,6 +82,7 @@ void Picviz::PVLayerFilterCreateLayers::operator()(PVLayer& in, PVLayer &out)
 
 
 		PVSelection layer_selection;
+		bool this_layer_has_a_selection = false;
 
 		for (unsigned int i = 0; i < axes_id.size(); i++) {
 			int axis_id = axes_id[i];
@@ -98,6 +99,7 @@ void Picviz::PVLayerFilterCreateLayers::operator()(PVLayer& in, PVLayer &out)
 					for (int layer_regex_i = 0; layer_regex_i < layers_compiled_regex.size(); layer_regex_i++) {
 						QString data = nraw.at(r, axis_id).get_qstr();	
 						int sel = layers_compiled_regex[layer_regex_i].indexIn(data);
+						if (sel == 0) { this_layer_has_a_selection = true; }
 						layer_selection.set_line_select_only(r, !sel);
 					}
 				}
@@ -105,8 +107,10 @@ void Picviz::PVLayerFilterCreateLayers::operator()(PVLayer& in, PVLayer &out)
 		}
 
 		// I really create my new layer
-		PVLayer new_layer(layers_to_create.key(), layer_selection, generic_lp);
-		_view->layer_stack.append_layer(new_layer);
+		if (this_layer_has_a_selection) {
+			PVLayer new_layer(layers_to_create.key(), layer_selection, generic_lp);
+			_view->layer_stack.append_layer(new_layer);
+		}
 
 	}
 
