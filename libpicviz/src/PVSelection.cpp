@@ -396,6 +396,23 @@ void Picviz::PVSelection::set_line(PVRow line_index, bool bool_value)
 
 /******************************************************************************
  *
+ * Picviz::PVSelection::set_line_select_only
+ *
+ *****************************************************************************/
+void Picviz::PVSelection::set_line_select_only(PVRow line_index, bool bool_value)
+{
+	PVRow pos;
+	PVRow shift;
+
+	if (bool_value == false) {
+		return;
+	}
+
+	set_line(line_index, bool_value);
+}
+
+/******************************************************************************
+ *
  * Picviz::PVSelection::get_buffer
  *
  *****************************************************************************/

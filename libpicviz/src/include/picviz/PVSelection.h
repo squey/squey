@@ -207,6 +207,15 @@ public:
 	 */
 	void set_line(PVRow line_index, bool bool_value);
 
+	/**
+	 * Sets the state of line N in the PVSelection only if bool_value is true
+	 *
+	 * @param line_index The index of the line we are interested in
+	 * @param bool_value The boolean value we want to set for that line_index
+	 *
+	 */
+	void set_line_select_only(PVRow line_index, bool bool_value);
+
 	inline void set_bit_fast(PVRow line_index){table[line_index / PICVIZ_SELECTION_CHUNK_SIZE] |= 1 << (line_index % PICVIZ_SELECTION_CHUNK_SIZE);}
 
 	/**
