@@ -115,8 +115,8 @@ void PVInspector::PVMainWindow::create_actions()
 #ifndef NDEBUG
 	view_screenshot_qt = new QAction(tr("Display view in Qt"), this);
 	view_screenshot_qt->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_T));
-	view_sort_listing = new QAction(tr("Sort listing..."), this);
 #endif
+	view_sort_listing = new QAction(tr("Sort listing..."), this);
 
 	/***************************
 	 * For the "Axes" menu entry
