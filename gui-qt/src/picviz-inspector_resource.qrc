@@ -1,16 +1,6 @@
 <RCC>
     <qresource prefix="/">
-
-	<!-- CSS -->
-	<file alias="gui.css">resources/gui.css</file>
-
-	<!-- ICONS for PVLayerStackWidget (it's QToolBar) -->
-	<file alias="delete_layer_icon">resources/trafik/elements-interface/icone-supprimer-blanc.png</file>
-	<file alias="duplicate_layer_icon">resources/trafik/elements-interface/icone-dupliquer-blanc.png</file>
-	<file alias="move_layer_up_icon">resources/trafik/elements-interface/icone-monter-blanc.png</file>
-	<file alias="move_layer_down_icon">resources/trafik/elements-interface/icone-descendre-blanc.png</file>
-	<file alias="new_layer_icon">resources/trafik/elements-interface/icone-nouveau-blanc.png</file>
-
+	<!-- OLD STUFF to be checked or changed -->
 
 	<file alias="background-window.png">resources/background-window.png</file>
         <file alias="window-icon.png">resources/inspector.png</file>
@@ -60,6 +50,27 @@
         <file alias="log-icon">resources/log-icon.png</file>
 
 
+
+	<!-- CSS -->
+	<file alias="gui.css">resources/gui.css</file>
+
+
+	<!-- FONTS -->
+	<file alias="Convergence-Regular.ttf">resources/fonts/Convergence-Regular.ttf</file>
+
+
+	<!-- ICONS for PVLayerStackWidget (it's QToolBar) -->
+	<file alias="delete_layer_icon">resources/trafik/elements-interface/icone-supprimer-blanc.png</file>
+	<file alias="duplicate_layer_icon">resources/trafik/elements-interface/icone-dupliquer-blanc.png</file>
+	<file alias="move_layer_up_icon">resources/trafik/elements-interface/icone-monter-blanc.png</file>
+	<file alias="move_layer_down_icon">resources/trafik/elements-interface/icone-descendre-blanc.png</file>
+	<file alias="new_layer_icon">resources/trafik/elements-interface/icone-nouveau-blanc.png</file>
+
+
+	<!-- START SCREEN -->
+	<file alias="start-logo">resources/trafik/elements-interface/logo-picviz-intro.png</file>
+
+
 	<!-- QSCROLLBAR ICONS -->
 	<file alias="horizontal-scrollbar-handle">resources/trafik/elements-interface/ascenceur-horizontal-barre-defilement.png</file>
 	<file alias="horizontal-scrollbar-right-arrow">resources/trafik/elements-interface/ascenceur-horizontal-bouton-droite.png</file>
@@ -69,11 +80,6 @@
 	<file alias="vertical-scrollbar-down-arrow">resources/trafik/elements-interface/ascenceur-vertical-bouton-bas.png</file>
 	<file alias="vertical-scrollbar-up-arrow">resources/trafik/elements-interface/ascenceur-vertical-bouton-haut.png</file>
 	<file alias="vertical-scrollbar-page-area">resources/trafik/elements-interface/ascenceur-vertical-portion-milieu.png</file>
-
-
-
-	<!-- FONTS -->
-	<file alias="Convergence-Regular.ttf">resources/fonts/Convergence-Regular.ttf</file>
 
 
     </qresource>
