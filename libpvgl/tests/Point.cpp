@@ -12,6 +12,13 @@ Point* allocate_buffer(int size)
 	return table;
 }
 
+Point* allocate_buffer_cuda(int size)
+{
+	assert(size > 0 && size%8 == 0);
+
+	
+}
+
 void fill_buffer(Point* buffer, int size)
 {
 	srand(time(NULL));

@@ -65,7 +65,7 @@ else(WIN32)
 endif(WIN32)
 add_definitions(-DBOOST_PROGRAM_OPTIONS_DYN_LINK)
 set(Boost_ADDITIONAL_VERSIONS "1.48.0")
-find_package(Boost 1.48.0 REQUIRED COMPONENTS date_time system thread program_options)
+find_package(Boost 1.48.0 COMPONENTS date_time system thread program_options)
 set(Boost_LIBRARIES_SAVE ${Boost_LIBRARIES})
 
 if(USE_BOOST148_DEBIAN)
