@@ -18,6 +18,8 @@
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
 
+#include <tbb/task.h>
+
 #include <pvkernel/core/general.h>
 
 namespace PVCore {
@@ -115,6 +117,23 @@ public:
 		return true;
 	}
 
+	static bool progress(tbb::task& root_task, PVProgressBox* pbox)
+	{
+		// This will be the thread that executes the root task
+		typedef boost::function<void()> spawn_f;
+		PVThreadWatcher watcher;
+		connect(&watcher, SIGNAL(finished()), pbox, SLOT(accept()));
+		spawn_f f = boost::bind(static_cast<void(*)(tbb::task&)>(&tbb::task::spawn_root_and_wait), boost::ref(root_task));
+		boost::thread worker(boost::bind(&PVProgressBox::worker_thread<spawn_f>, boost::ref(f)));
+		watcher.set_thread(worker);
+		if (pbox->exec() != QDialog::Accepted) {
+			root_task.cancel_group_execution();
+			worker.join();
+			return false;
+		}
+		return true;
+	}
+
 	template <typename Tret, typename F>
 	static bool progress(F f, QString const& text, Tret& ret, QWidget* parent = NULL)
 	{
@@ -127,6 +146,12 @@ public:
 	{
 		PVProgressBox* pbox = new PVProgressBox(text, parent);
 		return progress(f, pbox);
+	}
+
+	static bool progress(tbb::task& root, QString const& text, QWidget* parent = NULL)
+	{
+		PVProgressBox* pbox = new PVProgressBox(text, parent);
+		return progress(root, pbox);
 	}
 
 public slots:
