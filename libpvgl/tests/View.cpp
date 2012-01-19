@@ -8,14 +8,17 @@ void View::paintGL()
 	const int fraction = 128;
 	tbb::tick_count start = tbb::tick_count::now();
 	std::cout << "Début de l'affichage" << std::endl;
+
+	glColor3f(1,1,1);
 	for(int j = 0 ; j < fraction ; j++)
 	{
 		glBegin(GL_LINES);
 		int offset = j*(buffer_size/fraction); 
 		for(int i = 0 ; i < buffer_size/fraction ; i++)
 		{
-			glVertex3d(0, buffer[offset+i].y1, i);
-			glVertex3d(1024, buffer[offset+i].y2, i);
+			int mon_i = offset+i;
+			glVertex3i(0, buffer[mon_i].y1, 0);
+			glVertex3i(1024, buffer[mon_i].y2, 0);
 		}
 		glEnd();
 	}

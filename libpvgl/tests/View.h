@@ -1,7 +1,7 @@
 #include <QGLWidget>
 #include "Point.h"
 
-#define NB_LINES 1048576*5
+#define NB_LINES 1048576
 
 class View : public QGLWidget
 {
@@ -17,8 +17,8 @@ class View : public QGLWidget
 	virtual void initializeGL()
 	{
 		glClearColor(0,0,0,0);
-		//glDisable(GL_DEPTH_TEST);
-		glEnable(GL_DEPTH_TEST);
+		glDisable(GL_DEPTH_TEST);
+		//glEnable(GL_DEPTH_TEST);
 	}
 
 	virtual void resizeGL(int w, int h)
