@@ -89,14 +89,14 @@ template <class L>
 void unique_indexes_copy_f(PVRush::PVNraw* nraw, PVCol col, Picviz::PVSortingFunc_f f_equals, L const& idxes_in, L& idxes_out)
 {
 	PVViewCompEquals<typename L::value_type> e(nraw, col, f_equals);
-	std::unique_copy(idxes_in.begin(), idxes_in.end(), idxes_out.begin());
+	std::unique_copy(idxes_in.begin(), idxes_in.end(), idxes_out.begin(), e);
 }
 
 template <class L>
 typename L::iterator unique_indexes_f(PVRush::PVNraw* nraw, PVCol col, Picviz::PVSortingFunc_f f_equals, L& idxes_in)
 {
 	PVViewCompEquals<typename L::value_type> e(nraw, col, f_equals);
-	return std::unique(idxes_in.begin(), idxes_in.end());
+	return std::unique(idxes_in.begin(), idxes_in.end(), e);
 }
 
 }

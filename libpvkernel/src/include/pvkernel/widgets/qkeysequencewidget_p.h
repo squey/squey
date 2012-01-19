@@ -106,7 +106,6 @@ public:
 
     virtual ~QShortcutButton()
     {
-        qDebug() << "qShortcut button delete";
     }
 
     virtual QSize sizeHint() const;

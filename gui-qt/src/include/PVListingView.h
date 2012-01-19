@@ -35,8 +35,6 @@ class PVListingView : public QTableView
 
 public slots:
 	void slotDoubleClickOnVHead(int);
-	void slotDoubleClickOnHHead(int idHeader);
-	void show_ctxt_menu(const QPoint& pos);
 
 // FIXME!			void update_row_count_in_all_dynamic_listing_model_Slot();
 			/* void update_to_current_selection_Slot();*/
@@ -82,8 +80,10 @@ public:
 
 	PVListingSortFilterProxyModel* get_listing_model();
 
-private:
+protected:
 	void mouseDoubleClickEvent(QMouseEvent* event);
+
+private:
 	void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
 
 private:
@@ -93,8 +93,15 @@ private:
 private:
 	void update_view_selection_from_listing_selection();
 
+private slots:
+	void show_ctxt_menu(const QPoint& pos);
+	void show_hhead_ctxt_menu(const QPoint& pos);
+
 private:
 	QMenu* _ctxt_menu;
+	QMenu* _hhead_ctxt_menu;
+	QAction* _action_col_sort;
+	QAction* _action_col_unique;
 	bool _show_ctxt_menu;
 	PVRow _ctxt_row;
 	PVCol _ctxt_col;

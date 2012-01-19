@@ -79,12 +79,19 @@ PVInspector::PVListingView::PVListingView(PVMainWindow *mw, PVTabSplitter *paren
 	_act_copy = new QAction(tr("Copy this value to the clipboard"), _ctxt_menu);
 	_ctxt_menu->addAction(_act_copy);
 
+	// Horizontal header context menu
+	//
+	_hhead_ctxt_menu = new QMenu(this);
+	_action_col_unique = new QAction(tr("List unique values of this axis..."), this);
+	_hhead_ctxt_menu->addAction(_action_col_unique);
+
+	// Context menu for the listing
 	connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_ctxt_menu(const QPoint&)));
 	setContextMenuPolicy(Qt::CustomContextMenu);
 
-	// Init the double click action
-	//connect(horizontalHeader(), SIGNAL(sectionDoubleClicked(int)), this, SLOT(slotDoubleClickOnHHead(int)));
-	connect(horizontalHeader(), SIGNAL(sectionCkucjed(int)), this, SLOT(section_header_clicked_Slot(int)));
+	// Context menu of the horizontal header
+	connect(horizontalHeader(), SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(show_hhead_ctxt_menu(const QPoint&)));
+	horizontalHeader()->setContextMenuPolicy(Qt::CustomContextMenu);
 
 	// A double click on the vertical header select the line in the lib view
 	connect(verticalHeader(), SIGNAL(sectionDoubleClicked(int)), this, SLOT(slotDoubleClickOnVHead(int)));
@@ -103,7 +110,7 @@ void PVInspector::PVListingView::update_view_selection_from_listing_selection()
 	int number_of_items;
 	QModelIndexList selected_items_list;
 	PVListingSortFilterProxyModel* myModel = get_listing_model();
-	unsigned int modifiers;
+	int modifiers;
 	// Get current lib view for this source
 
 	/* CODE */
@@ -118,7 +125,6 @@ void PVInspector::PVListingView::update_view_selection_from_listing_selection()
 	modifiers &= ~Qt::KeypadModifier;
 	/* Can't use a switch case here as Qt::ShiftModifier and Qt::ControlModifier aren't really
 	 * constants */
-	// FIXME: PVListingView.cpp:105:59: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
 	if (modifiers == (Qt::ShiftModifier | Qt::ControlModifier)) {
 		state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_INTERSECT_VOLATILE);
 	}
@@ -205,16 +211,6 @@ void PVInspector::PVListingView::slotDoubleClickOnVHead(int /*idHeader*/)
 
 /******************************************************************************
  *
- * PVInspector::PVListingView::slotDoubleClickOnHHead
- *
- *****************************************************************************/
-void PVInspector::PVListingView::slotDoubleClickOnHHead(int idHeader) 
-{
-	//get_listing_model()->sortByColumn(idHeader);
-}
-
-/******************************************************************************
- *
  * PVInspector::PVListingView::keyEnterPressed
  *
  *****************************************************************************/
@@ -266,6 +262,15 @@ void PVInspector::PVListingView::show_ctxt_menu(const QPoint& pos)
 		else {
 			process_ctxt_menu_action(act_sel);
 		}
+	}
+}
+
+void PVInspector::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
+{
+	int col = horizontalHeader()->logicalIndexAt(pos);
+	QAction* sel = _hhead_ctxt_menu->exec(QCursor::pos());
+	if (sel == _action_col_unique) {
+		_parent->show_unique_values(col);
 	}
 }
 
@@ -343,8 +348,4 @@ PVInspector::PVListingSortFilterProxyModel* PVInspector::PVListingView::get_list
 void PVInspector::PVListingView::refresh_listing_filter()
 {
 	get_listing_model()->refresh_filter();
-}
-
-void PVInspector::PVListingView::section_header_clicked_Slot(int col)
-{
 }

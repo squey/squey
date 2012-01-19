@@ -15,6 +15,7 @@
 #include <PVExtractorWidget.h>
 #include <PVAxesCombinationDialog.h>
 #include <PVListingSortFilterProxyModel.h>
+#include <PVListColNrawDlg.h>
 #include <PVMappingPlottingEditDialog.h>
 #include <PVViewsListingWidget.h>
 #include <PVViewsModel.h>
@@ -612,7 +613,7 @@ void PVInspector::PVTabSplitter::updateFilterMenuEnabling(){
 	emit selection_changed_signal(enable_menu);
 }
 
-size_t PVInspector::PVTabSplitter::get_unique_indexes_for_column(PVCol column, QVector<int>& idxes)
+size_t PVInspector::PVTabSplitter::get_unique_indexes_for_current_listing(PVCol column, QVector<int>& idxes)
 {
 	// TODO: optimise to use current sorting if relevant
 	Picviz::PVView_p current_lib_view = get_lib_view();
@@ -622,6 +623,18 @@ size_t PVInspector::PVTabSplitter::get_unique_indexes_for_column(PVCol column, Q
 		ret = current_lib_view->sort_unique_indexes_with_axes_combination(column, idxes);
 	}
 	return ret;
+}
+
+void PVInspector::PVTabSplitter::show_unique_values(PVCol col)
+{
+	QVector<int> rows;
+	size_t nvalues = get_unique_indexes_for_current_listing(col, rows);
+	if (nvalues == 0) {
+		return;
+	}
+
+	PVListColNrawDlg* dlg = new PVListColNrawDlg(*get_lib_view(), rows, nvalues, col, this);
+	dlg->exec();
 }
 
 
@@ -636,8 +649,6 @@ PVInspector::PVTabSplitter::PVViewWidgets::PVViewWidgets(Picviz::PVView_p view, 
 	pv_axes_combination_editor = new PVAxesCombinationDialog(view, tab, tab->main_window);
 	pv_axes_properties = new PVAxisPropertiesWidget(view, tab, tab->main_window);
 }
-
-
 
 /******************************************************************************
  *

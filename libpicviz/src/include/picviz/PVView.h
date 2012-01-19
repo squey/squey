@@ -157,6 +157,7 @@ public:
 
 	int get_original_axes_count();
 	QString get_original_axis_type(PVCol axis_id) const;
+	inline PVCol get_original_axis_index(PVCol view_idx) const { return axes_combination.get_axis_column_index(view_idx); }
 
 	PVLayer &get_output_layer();
 

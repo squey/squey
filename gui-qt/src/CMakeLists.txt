@@ -66,6 +66,7 @@ include/PVLayerStackEventFilter.h
 include/PVLayerStackModel.h
 include/PVLayerStackView.h
 include/PVLayerStackWidget.h
+include/PVListColNrawDlg.h
 include/PVListingModel.h
 include/PVListingView.h
 include/PVListingsTabWidget.h
@@ -159,6 +160,7 @@ PVLayerStackEventFilter.cpp
 PVLayerStackModel.cpp
 PVLayerStackView.cpp
 PVLayerStackWidget.cpp
+PVListColNrawDlg.cpp
 PVListingModel.cpp
 PVListingView.cpp
 PVListingsTabWidget.cpp
@@ -235,6 +237,7 @@ PVAxesCombinationWidget.ui
 PVAxesCombinationWidgetSelRange.ui
 widgets/format-builder/PVAxisTagHelp.ui
 ui/PVViewCorrelationWidget.ui
+PVListColNrawDlg.ui
 )
 
 QT4_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})

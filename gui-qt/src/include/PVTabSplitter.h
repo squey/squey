@@ -201,7 +201,7 @@ public:
 	void process_plotted_if_current(Picviz::PVPlotted* plotted);
 	void toggle_listing_sort();
 
-	size_t get_unique_indexes_for_column(PVCol column, QVector<int>& idxes);
+	size_t get_unique_indexes_for_current_listing(PVCol column, QVector<int>& idxes);
 
 	void emit_source_changed() { emit source_changed(); }
 
@@ -215,6 +215,7 @@ public slots:
 	void refresh_layer_stack_view_Slot(); // From PVLayerStackWindow
 	void refresh_axes_combination_Slot();
 	void source_changed_Slot();
+	void show_unique_values(PVCol col);
 
 signals:
 	/**
