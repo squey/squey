@@ -27,7 +27,7 @@ class View : public QGLWidget
 
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		glOrtho(0.0,1024,0,1024,-1000000000,0);
+		glOrtho(0.0,1024,0,1024,0,1000000000);
 
 		glMatrixMode(GL_MODELVIEW);
 	}
