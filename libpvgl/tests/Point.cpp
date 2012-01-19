@@ -25,5 +25,8 @@ void fill_buffer(Point* buffer, int size)
 
 CollisionBuffer allocate_CB()
 {
-	return new int[1024*1024/8];
+	//return new int[1024*1024/8];
+	CollisionBuffer ret;
+	posix_memalign(&ret, 16, SIZE_CB);
+	return ret;
 }
