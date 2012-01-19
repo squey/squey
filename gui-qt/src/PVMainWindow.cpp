@@ -1174,7 +1174,6 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 {
 	/* VARIABLES */
 	int column_index;
-	int number_of_selected_lines;
 	/* We prepare a direct access to the current lib_view */
 	Picviz::PVView_p current_lib_view;
 	/* ... and the current_selected_layer */
@@ -1661,42 +1660,42 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 				break;
 
 				/* toggle the visibility of the UNSELECTED lines */
-		case Qt::Key_U:
-				/* If there is no view at all, don't do anything */
-				if (pv_ListingsTabWidget->currentIndex() == -1) {
-					break;
-				}
-				switch (event->modifiers()) {
-					/* We only toggle the Listing */
-					case (Qt::AltModifier):
-							/* We toggle*/
-							state_machine->toggle_listing_unselected_visibility();
-							/* We refresh the listing */
-							current_tab->update_pv_listing_model_Slot();
-							break;
+		case Qt::Key_U:	// FIXME: U is useless and it taken by the menu
+				// /* If there is no view at all, don't do anything */
+				// if (pv_ListingsTabWidget->currentIndex() == -1) {
+				// 	break;
+				// }
+				// switch (event->modifiers()) {
+				// 	/* We only toggle the Listing */
+				// 	case (Qt::AltModifier):
+				// 			/* We toggle*/
+				// 			state_machine->toggle_listing_unselected_visibility();
+				// 			/* We refresh the listing */
+				// 			current_tab->update_pv_listing_model_Slot();
+				// 			break;
 
-							/* We only toggle the View */
-					case (Qt::ShiftModifier):
-							/* We toggle*/
-							state_machine->toggle_gl_unselected_visibility();
-							/* We refresh the view */
-							current_lib_view->process_visibility();
-							update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
-							break;
+				// 			/* We only toggle the View */
+				// 	case (Qt::ShiftModifier):
+				// 			/* We toggle*/
+				// 			state_machine->toggle_gl_unselected_visibility();
+				// 			/* We refresh the view */
+				// 			current_lib_view->process_visibility();
+				// 			update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
+				// 			break;
 
-							/* We toggle both the Listing and the View */
-					default:
-							/* We toggle the view first */
-							state_machine->toggle_gl_unselected_visibility();
-							/* We set the listing to be the same */
-							state_machine->set_listing_unselected_visible(state_machine->are_gl_unselected_visible());
-							/* We refresh the view */
-							current_lib_view->process_visibility();
-							update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
-							/* We refresh the listing */
-							current_tab->update_pv_listing_model_Slot();
-							break;
-				}
+				// 			/* We toggle both the Listing and the View */
+				// 	default:
+				// 			/* We toggle the view first */
+				// 			state_machine->toggle_gl_unselected_visibility();
+				// 			/* We set the listing to be the same */
+				// 			state_machine->set_listing_unselected_visible(state_machine->are_gl_unselected_visible());
+				// 			/* We refresh the view */
+				// 			current_lib_view->process_visibility();
+				// 			update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
+				// 			/* We refresh the listing */
+				// 			current_tab->update_pv_listing_model_Slot();
+				// 			break;
+				// }
 				break;
 
 
@@ -1752,43 +1751,43 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 				break;
 
 				/* Toggle the visibility of the ZOMBIE lines */
-		case Qt::Key_Z:
-				/* If there is no view at all, don't do anything */
-				if (pv_ListingsTabWidget->currentIndex() == -1) {
-					break;
-				}
+		case Qt::Key_Z:	// FIXME: Z is useless and it taken by the menu
+				// /* If there is no view at all, don't do anything */
+				// if (pv_ListingsTabWidget->currentIndex() == -1) {
+				// 	break;
+				// }
 
-				switch (event->modifiers()) {
-					/* We only toggle the Listing */
-					case (Qt::AltModifier):
-							/* We toggle */
-							state_machine->toggle_listing_zombie_visibility();
-							/* We refresh the listing */
-							current_tab->update_pv_listing_model_Slot();
-							break;
+				// switch (event->modifiers()) {
+				// 	/* We only toggle the Listing */
+				// 	case (Qt::AltModifier):
+				// 			/* We toggle */
+				// 			state_machine->toggle_listing_zombie_visibility();
+				// 			/* We refresh the listing */
+				// 			current_tab->update_pv_listing_model_Slot();
+				// 			break;
 
-							/* We only toggle the View */
-					case (Qt::ShiftModifier):
-							/* We toggle */
-							state_machine->toggle_gl_zombie_visibility();
-							/* We refresh the view */
-							current_lib_view->process_visibility();
-							update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
-							break;
+				// 			/* We only toggle the View */
+				// 	case (Qt::ShiftModifier):
+				// 			/* We toggle */
+				// 			state_machine->toggle_gl_zombie_visibility();
+				// 			/* We refresh the view */
+				// 			current_lib_view->process_visibility();
+				// 			update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
+				// 			break;
 
-							/* We toggle both the Listing and the View */
-					default:
-							/* We toggle the view first */
-							state_machine->toggle_gl_zombie_visibility();
-							/* We set the listing to be the same */
-							state_machine->set_listing_zombie_visible(state_machine->are_gl_zombie_visible());
-							/* We refresh the view */
-							current_lib_view->process_visibility();
-							update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
-							/* We refresh the listing */
-							current_tab->update_pv_listing_model_Slot();
-							break;
-				}
+				// 			/* We toggle both the Listing and the View */
+				// 	default:
+				// 			/* We toggle the view first */
+				// 			state_machine->toggle_gl_zombie_visibility();
+				// 			/* We set the listing to be the same */
+				// 			state_machine->set_listing_zombie_visible(state_machine->are_gl_zombie_visible());
+				// 			/* We refresh the view */
+				// 			current_lib_view->process_visibility();
+				// 			update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
+				// 			/* We refresh the listing */
+				// 			current_tab->update_pv_listing_model_Slot();
+				// 			break;
+				// }
 				break;
 	}
 }
@@ -1830,12 +1829,6 @@ void PVInspector::PVMainWindow::lines_display_unselected_Slot()
 	update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
 	/* We refresh the listing */
 	current_tab->update_pv_listing_model_Slot();
-
-	if (!lines_display_unselected_Action->text().compare(QString(tr("Hide unselected lines")))) {
-		lines_display_unselected_Action->setText(QString(tr("Display unselected lines")));
-	} else {
-		lines_display_unselected_Action->setText(QString(tr("Hide unselected lines")));
-	}
 }
 
 

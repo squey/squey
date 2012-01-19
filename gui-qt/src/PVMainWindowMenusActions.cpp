@@ -132,18 +132,15 @@ void PVInspector::PVMainWindow::create_actions()
 	/***************************
 	 * For the "Lines" menu entry
 	 ***************************/
-	lines_display_unselected_Action = new QAction(tr("Hide unselected lines"), this);
-	lines_display_unselected_Action->setShortcut(QKeySequence(Qt::Key_U));
-	lines_display_unselected_listing_Action = new QAction(tr("Hide unselected lines in listing"), this);
-	lines_display_unselected_listing_Action->setShortcut(QKeySequence(Qt::ALT + Qt::Key_U));
-	lines_display_unselected_GLview_Action = new QAction(tr("Hide unselected lines in view"), this);
-	lines_display_unselected_GLview_Action->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_U));
-	lines_display_zombies_Action = new QAction(tr("Hide zombies lines"), this);
-	lines_display_zombies_Action->setShortcut(QKeySequence(Qt::Key_Z));
-	lines_display_zombies_listing_Action = new QAction(tr("Hide zombies lines in listing"), this);
-	lines_display_zombies_listing_Action->setShortcut(QKeySequence(Qt::ALT + Qt::Key_Z));
-	lines_display_zombies_GLview_Action = new QAction(tr("Hide zombies lines in view"), this);
-	lines_display_zombies_GLview_Action->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_Z));
+	lines_display_unselected_GLview_Action = new QAction(tr("Toggle unselected lines"), this);
+	lines_display_unselected_GLview_Action->setShortcut(QKeySequence(Qt::Key_U));
+	lines_display_unselected_listing_Action = new QAction(tr("Toggle unselected lines in listing"), this);
+	lines_display_unselected_listing_Action->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_U));
+
+	lines_display_zombies_GLview_Action = new QAction(tr("Toggle zombies lines"), this);
+	lines_display_zombies_GLview_Action->setShortcut(QKeySequence(Qt::Key_Z));
+	lines_display_zombies_listing_Action = new QAction(tr("Toggle zombies lines in listing"), this);
+	lines_display_zombies_listing_Action->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_Z));
 
 	/**************************
 	 * For the "Help" menu entry
@@ -245,11 +242,9 @@ void PVInspector::PVMainWindow::create_menus()
 
 
 	lines_Menu = menubar->addMenu(tr("&Lines"));
-	lines_Menu->addAction(lines_display_unselected_Action);
 	lines_Menu->addAction(lines_display_unselected_listing_Action);
 	lines_Menu->addAction(lines_display_unselected_GLview_Action);
 	lines_Menu->addSeparator();
-	lines_Menu->addAction(lines_display_zombies_Action);
 	lines_Menu->addAction(lines_display_zombies_listing_Action);
 	lines_Menu->addAction(lines_display_zombies_GLview_Action);
 
@@ -339,10 +334,8 @@ void PVInspector::PVMainWindow::connect_actions()
 
 	connect(filter_reprocess_last_filter, SIGNAL(triggered()), this, SLOT(filter_reprocess_last_Slot()));
 
-	connect(lines_display_unselected_Action, SIGNAL(triggered()), this, SLOT(lines_display_unselected_Slot()));
 	connect(lines_display_unselected_listing_Action, SIGNAL(triggered()), this, SLOT(lines_display_unselected_listing_Slot()));
 	connect(lines_display_unselected_GLview_Action, SIGNAL(triggered()), this, SLOT(lines_display_unselected_GLview_Slot()));
-	connect(lines_display_zombies_Action, SIGNAL(triggered()), this, SLOT(lines_display_zombies_Slot()));
 	connect(lines_display_zombies_listing_Action, SIGNAL(triggered()), this, SLOT(lines_display_zombies_listing_Slot()));
 	connect(lines_display_zombies_GLview_Action, SIGNAL(triggered()), this, SLOT(lines_display_zombies_GLview_Slot()));
         

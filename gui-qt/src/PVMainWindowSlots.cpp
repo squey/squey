@@ -212,12 +212,6 @@ void PVInspector::PVMainWindow::lines_display_unselected_listing_Slot()
 	state_machine->toggle_listing_unselected_visibility();
 	/* We refresh the listing */
 	current_tab->update_pv_listing_model_Slot();
-
-	if (!lines_display_unselected_listing_Action->text().compare(QString(tr("Hide unselected lines in listing")))) {
-		lines_display_unselected_listing_Action->setText(QString(tr("Display unselected lines in listing")));
-	} else {
-		lines_display_unselected_listing_Action->setText(QString(tr("Hide unselected lines in listing")));
-	}
 }
 
 /******************************************************************************
@@ -244,12 +238,6 @@ void PVInspector::PVMainWindow::lines_display_unselected_GLview_Slot()
 	/* We refresh the view */
 	current_lib_view->process_visibility();
 	update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
-
-	if (!lines_display_unselected_GLview_Action->text().compare(QString(tr("Hide unselected lines in view")))) {
-		lines_display_unselected_GLview_Action->setText(QString(tr("Display unselected lines in view")));
-	} else {
-		lines_display_unselected_GLview_Action->setText(QString(tr("Hide unselected lines in view")));
-	}
 }
 
 /******************************************************************************
@@ -278,12 +266,6 @@ void PVInspector::PVMainWindow::lines_display_zombies_Slot()
 	/* We refresh the listing */
 	current_tab->update_pv_listing_model_Slot();
 
-	if (!lines_display_zombies_Action->text().compare(QString(tr("Hide zombies lines")))) {
-		lines_display_zombies_Action->setText(QString(tr("Display zombies lines")));
-	} else {
-		lines_display_zombies_Action->setText(QString(tr("Hide zombies lines")));
-	}
-
 }
 
 /******************************************************************************
@@ -305,12 +287,6 @@ void PVInspector::PVMainWindow::lines_display_zombies_listing_Slot()
 	state_machine->toggle_listing_zombie_visibility();
 	/* We refresh the listing */
 	current_tab->update_pv_listing_model_Slot();
-
-	if (!lines_display_zombies_listing_Action->text().compare(QString(tr("Hide zombies lines in listing")))) {
-		lines_display_zombies_listing_Action->setText(QString(tr("Display zombies lines in listing")));
-	} else {
-		lines_display_zombies_listing_Action->setText(QString(tr("Hide zombies lines in listing")));
-	}
 }
 
 /******************************************************************************
@@ -333,12 +309,6 @@ void PVInspector::PVMainWindow::lines_display_zombies_GLview_Slot()
 	/* We refresh the view */
 	current_lib_view->process_visibility();
 	update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
-
-	if (!lines_display_zombies_GLview_Action->text().compare(QString(tr("Hide zombies lines in view")))) {
-		lines_display_zombies_GLview_Action->setText(QString(tr("Display zombies lines in view")));
-	} else {
-		lines_display_zombies_GLview_Action->setText(QString(tr("Hide zombies lines in view")));
-	}
 }
 
 void PVInspector::PVMainWindow::expand_selection_on_axis_Slot()
