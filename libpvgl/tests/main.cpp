@@ -13,10 +13,13 @@ int main(int argc, char **argv)
 {
 	QApplication app(argc, argv);
 	QMainWindow *window = new QMainWindow();
+	
 	View *v = new View(window);
+	
+	window->setCentralWidget(v);
 
 	window->resize(QSize(1024,1024));
-	v->resize(v->sizeHint());
+	//v->resize(v->sizeHint());
 
 	Point* buf = allocate_buffer(NB_LINES);
 	fill_buffer(buf, NB_LINES);
