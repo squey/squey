@@ -6,7 +6,6 @@
 #include "View.h"
 #include "Point.h"
 
-#define NB_LINES 1048576*5
 
 
 

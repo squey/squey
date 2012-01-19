@@ -3,14 +3,21 @@
 
 void View::paintGL()
 {
+	glClear(GL_DEPTH_BUFFER_BIT);
+
+	const int fraction = 128;
 	std::cout << "Début de l'affichage" << std::endl;
-	glBegin(GL_LINES);
-	for(int i = 0 ; i < buffer_size ; i++)
+	for(int j = 0 ; j < fraction ; j++)
 	{
-		glVertex2d(0, buffer[i].y1);
-		glVertex2d(1024, buffer[i].y2);
+		glBegin(GL_LINES);
+		int offset = j*(buffer_size/fraction); 
+		for(int i = 0 ; i < buffer_size/fraction ; i++)
+		{
+			glVertex3d(0, buffer[offset+i].y1, i);
+			glVertex3d(1024, buffer[offset+i].y2, i);
+		}
+		glEnd();
 	}
-	glEnd();
 	std::cout << "Fin de l'affichage" << std::endl;
 }
 
