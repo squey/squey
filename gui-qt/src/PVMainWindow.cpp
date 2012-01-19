@@ -69,21 +69,29 @@ QFile *report_file;
  *****************************************************************************/
 PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 {
+	PVLOG_DEBUG("%s: Creating object\n", __FUNCTION__);
+	
 	_is_project_untitled = true;
 
+	// SIZE STUFF
+	// WARNING: nothing should be set here.
+	
+	// OBJECTNAME STUFF
 	setObjectName("PVMainWindow");
-
+	
+	// SPLASH SCREEN : we create the Splash screen
 	QSplashScreen splash(QPixmap(":/splash-screen"));
 
+	// License validity test : it's a simple "time" check
 	if (time(NULL) >= CUSTOMER_RELEASE_EXPIRATION_DATE) {
 		exit(0);
 	}
-
+	
+	//We can show the Splash Screen
 	splash.show();
 
 	//setWindowFlags(Qt::FramelessWindowHint);
 
-	PVLOG_DEBUG("%s: Creating object\n", __FUNCTION__);
 
 	about_dialog = 0;
 	// picviz_datatreerootitem_t *datatree;
@@ -124,7 +132,7 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 	pv_mainLayout->setSpacing(40);
 	pv_mainLayout->setContentsMargins(0,0,0,0);
 
-	pv_welcomeIcon = new QPixmap(":/logo.png");
+	pv_welcomeIcon = new QPixmap(":/start-logo");
 	pv_labelWelcomeIcon = new QLabel(this);
 	pv_labelWelcomeIcon->setPixmap(*pv_welcomeIcon);
 	pv_labelWelcomeIcon->resize(pv_welcomeIcon->width(), pv_welcomeIcon->height());
@@ -132,6 +140,7 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 	pv_ImportFileButton = new QPushButton("Import files...");
 	pv_ImportFileButton->setIcon(QIcon(":/document-new.png"));
 
+	
 	connect(pv_ImportFileButton, SIGNAL(clicked()), this, SLOT(import_type_default_Slot()));
 	connect(pv_ListingsTabWidget, SIGNAL(is_empty()), this, SLOT(display_icon_Slot()) );
 
@@ -224,21 +233,120 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 	setWindowTitle(QString("%1[*] - Picviz Inspector " PICVIZ_CURRENT_VERSION_STR).arg(_cur_project_file));
 }
 
-void PVInspector::PVMainWindow::closeEvent(QCloseEvent* event)
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVMainWindow::auto_detect_formats
+ *
+ *****************************************************************************/
+void PVInspector::PVMainWindow::auto_detect_formats(PVFormatDetectCtxt ctxt)
 {
-	if (maybe_save_project()) {
-		event->accept();
+	PVRush::PVInputType::list_inputs::const_iterator itin;
+
+	// Go through the inputs
+	for (itin = ctxt.inputs.begin(); itin != ctxt.inputs.end(); itin++) {
+		QString in_str = (*itin)->human_name();
+		ctxt.hash_input_name[in_str] = *itin;
+
+		// Pre-discovery to have some sources already eliminated and
+		// save the custom formats of the remaining sources
+		PVRush::list_creators::const_iterator itcr;
+		PVRush::list_creators pre_discovered_creators;
+		PVRush::hash_formats custom_formats;
+		for (itcr = ctxt.lcr.begin(); itcr != ctxt.lcr.end(); itcr++) {
+			PVRush::PVSourceCreator_p sc = *itcr;
+			if (sc->pre_discovery(*itin)) {
+				pre_discovered_creators.push_back(sc);
+				ctxt.in_t->get_custom_formats(*itin, custom_formats);
+			}
+		}
+
+		// Load possible formats of the remaining sources
+		PVRush::hash_format_creator dis_format_creator = PVRush::PVSourceCreatorFactory::get_supported_formats(pre_discovered_creators);
+
+		// Add the custom formats
+		PVRush::hash_formats::const_iterator it_cus_f;
+		for (it_cus_f = custom_formats.begin(); it_cus_f != custom_formats.end(); it_cus_f++) {
+			// Save this custom format to the global formats object
+			ctxt.formats.insert(it_cus_f.key(), it_cus_f.value());
+
+			PVRush::list_creators::const_iterator it_lc;
+			for (it_lc = ctxt.lcr.begin(); it_lc != ctxt.lcr.end(); it_lc++) {
+				PVRush::hash_format_creator::mapped_type v(it_cus_f.value(), *it_lc);
+				dis_format_creator[it_cus_f.key()] = v;
+
+				// Save this format/creator pair to the "format_creator" object
+				ctxt.format_creator[it_cus_f.key()] = v;
+			}
+		}
+
+		// Try every possible format
+		QHash<QString,PVCore::PVMeanValue<float> > file_types;
+		tbb::tick_count dis_start = tbb::tick_count::now();
+
+		QList<PVRush::hash_format_creator::key_type> dis_formats = dis_format_creator.keys();
+		QList<PVRush::hash_format_creator::mapped_type> dis_v = dis_format_creator.values();
+		bool input_exception = false;
+		std::string input_exception_str;
+#pragma omp parallel for
+		for (int i = 0; i < dis_format_creator.size(); i++) {
+			//PVRush::pair_format_creator const& pfc = itfc.value();
+			PVRush::pair_format_creator const& pfc = dis_v.at(i);
+			//QString const& str_format = itfc.key();
+			QString const& str_format = dis_formats.at(i);
+			try {
+				float success_rate = PVRush::PVSourceCreatorFactory::discover_input(pfc, *itin);
+				PVLOG_INFO("For input %s with format %s, success rate is %0.4f\n", qPrintable(in_str), qPrintable(str_format), success_rate);
+
+				if (success_rate > 0) {
+#pragma omp critical
+					{
+						file_types[str_format].push(success_rate);
+						ctxt.discovered_types[str_format].push(success_rate);
+					}
+				}
+			}
+			catch (PVRush::PVXmlParamParserException &e) {
+#pragma omp critical
+				{
+					ctxt.formats_error[pfc.first.get_full_path()] = std::pair<QString,QString>(pfc.first.get_format_name(), tr("XML parser error: ") + e.what());
+				}
+				continue;
+			}
+			catch (PVRush::PVFormatInvalid &e) {
+#pragma omp critical
+				{
+					ctxt.formats_error[pfc.first.get_full_path()] = std::pair<QString,QString>(pfc.first.get_format_name(), e.what());
+				}
+				continue;
+			}
+			catch (PVRush::PVInputException &e) {
+				input_exception = true;
+				input_exception_str = e.what().c_str();
+				continue;
+			}
+		}
+		tbb::tick_count dis_end = tbb::tick_count::now();
+		PVLOG_INFO("Automatic format discovery took %0.4f seconds.\n", (dis_end-dis_start).seconds());
+		if (input_exception) {
+			PVLOG_ERROR("PVInput exception: %s\n", input_exception_str.c_str());
+			continue;
+		}
+
+		if (file_types.count() == 1) {
+			// We got the formats that matches this input
+			ctxt.discovered[file_types.keys()[0]].push_back(*itin);
+		}
+		else {
+			if (file_types.count() > 1) {
+				ctxt.files_multi_formats[in_str] = file_types.keys();
+			}
+		}
 	}
-	else {
-		event->ignore();
-		return;
-	}
-	pvgl_thread->terminate();
-	pvgl_thread->wait();
-	delete pvgl_thread;
-	// Gracefull stops PVGL::PVMain
-	PVGL::PVMain::stop();
 }
+
+
 
 /******************************************************************************
  *
@@ -466,6 +574,72 @@ void PVInspector::PVMainWindow::check_messages()
 	}
 }
 
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVMainWindow::closeEvent
+ *
+ *****************************************************************************/
+void PVInspector::PVMainWindow::closeEvent(QCloseEvent* event)
+{
+	if (maybe_save_project()) {
+		event->accept();
+	}
+	else {
+		event->ignore();
+		return;
+	}
+	pvgl_thread->terminate();
+	pvgl_thread->wait();
+	delete pvgl_thread;
+	// Gracefuly stops PVGL::PVMain
+	PVGL::PVMain::stop();
+}
+
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVMainWindow::close_scene
+ *
+ *****************************************************************************/
+void PVInspector::PVMainWindow::close_scene()
+{
+	// Close sources one by one
+	int ntabs = pv_ListingsTabWidget->count();
+	for (int i = 0; i < ntabs; i++) {
+		close_source((PVTabSplitter*) pv_ListingsTabWidget->widget(0));
+	}
+	_scene.reset(new Picviz::PVScene("root", root.get()));
+	set_project_modified(false);
+}
+
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVMainWindow::close_source
+ *
+ *****************************************************************************/
+void PVInspector::PVMainWindow::close_source(PVTabSplitter* tab)
+{
+	Picviz::PVSource_p src(tab->get_lib_src());
+
+	// Destroy all views
+	Picviz::PVSource::list_views_t const& views = src->get_views();
+	Picviz::PVSource::list_views_t::const_iterator it;
+	for (it = views.begin(); it != views.end(); it++) {
+		destroy_pvgl_views(*it);
+	}
+
+	pv_ListingsTabWidget->remove_listing(tab);
+
+	_scene->del_source(src.get());
+}
+
+
+
 /******************************************************************************
  *
  * PVInspector::PVMainWindow::commit_selection_in_current_layer
@@ -488,6 +662,8 @@ void PVInspector::PVMainWindow::commit_selection_in_current_layer(Picviz::PVView
 
 	refresh_view(picviz_view);
 }
+
+
 
 /******************************************************************************
  *
@@ -518,6 +694,7 @@ void PVInspector::PVMainWindow::commit_selection_to_new_layer(Picviz::PVView_p p
 
 	refresh_view(picviz_view);
 }
+
 
 
 /******************************************************************************
@@ -585,7 +762,7 @@ static QMenu *create_filters_menu_exists(QHash<QMenu *, int> actions_list, QStri
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::create_filters_menu_and_actions()
+ * PVInspector::PVMainWindow::create_filters_menu_and_actions
  *
  *****************************************************************************/
 void PVInspector::PVMainWindow::create_filters_menu_and_actions()
@@ -654,112 +831,129 @@ void PVInspector::PVMainWindow::create_filters_menu_and_actions()
 	}
 }
 
-void PVInspector::PVMainWindow::auto_detect_formats(PVFormatDetectCtxt ctxt)
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVMainWindow::create_pvgl_thread
+ *
+ *****************************************************************************/
+void PVInspector::PVMainWindow::create_pvgl_thread ()
 {
-	PVRush::PVInputType::list_inputs::const_iterator itin;
+	pvgl_thread = new PVGL::PVGLThread ();
+	pvsdk_messenger = pvgl_thread->get_messenger();
+	pvgl_thread->start ();
+	timer = new QTimer(this);
+	connect(timer, SIGNAL(timeout()), this, SLOT(check_messages()));
+	timer->start(100);
+}
 
-	// Go through the inputs
-	for (itin = ctxt.inputs.begin(); itin != ctxt.inputs.end(); itin++) {
-		QString in_str = (*itin)->human_name();
-		ctxt.hash_input_name[in_str] = *itin;
 
-		// Pre-discovery to have some sources already eliminated and
-		// save the custom formats of the remaining sources
-		PVRush::list_creators::const_iterator itcr;
-		PVRush::list_creators pre_discovered_creators;
-		PVRush::hash_formats custom_formats;
-		for (itcr = ctxt.lcr.begin(); itcr != ctxt.lcr.end(); itcr++) {
-			PVRush::PVSourceCreator_p sc = *itcr;
-			if (sc->pre_discovery(*itin)) {
-				pre_discovered_creators.push_back(sc);
-				ctxt.in_t->get_custom_formats(*itin, custom_formats);
+
+/******************************************************************************
+ *
+ * PVInspector::PVMainWindow::destroy_pvgl_views
+ *
+ *****************************************************************************/
+void PVInspector::PVMainWindow::destroy_pvgl_views(Picviz::PVView_p view)
+{
+	PVSDK::PVMessage message;
+
+	message.function = PVSDK_MESSENGER_FUNCTION_DESTROY_VIEWS;
+	message.pv_view = view;
+	pvsdk_messenger->post_message_to_gl(message);
+}
+
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVMainWindow::display_icon_Slot
+ *
+ *****************************************************************************/
+void PVInspector::PVMainWindow::display_icon_Slot()
+{
+	close_scene();
+	set_current_project_filename(QString());
+	show_start_page(true);
+}
+
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVMainWindow::ensure_glview_exists
+ *
+ *****************************************************************************/
+void PVInspector::PVMainWindow::ensure_glview_exists(Picviz::PVView_p view)
+{
+	PVSDK::PVMessage message;
+	message.function = PVSDK_MESSENGER_FUNCTION_ENSURE_VIEW;
+	message.pv_view = view;
+	message.pointer_1 = new QString(view->get_window_name());
+	pvsdk_messenger->post_message_to_gl(message);
+}
+
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVMainWindow::eventFilter
+ *
+ *****************************************************************************/
+bool PVInspector::PVMainWindow::eventFilter(QObject *watched_object, QEvent *event)
+{
+	//PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
+
+	if (watched_object == pv_ListingsTabWidget->get_tabBar()) {
+		if (event->type() == QEvent::KeyPress) {
+			QKeyEvent *temp_keyEvent = static_cast<QKeyEvent*>(event);
+			int key = temp_keyEvent->key();
+			if ((key == Qt::Key_Left) || (key == Qt::Key_Right) || (key == Qt::Key_Enter) || (key == Qt::Key_Return)) {
+				keyPressEvent(temp_keyEvent);
+				return true;
+			} else {
+				return false;
 			}
+		} else {
+			return false;
 		}
-
-		// Load possible formats of the remaining sources
-		PVRush::hash_format_creator dis_format_creator = PVRush::PVSourceCreatorFactory::get_supported_formats(pre_discovered_creators);
-
-		// Add the custom formats
-		PVRush::hash_formats::const_iterator it_cus_f;
-		for (it_cus_f = custom_formats.begin(); it_cus_f != custom_formats.end(); it_cus_f++) {
-			// Save this custom format to the global formats object
-			ctxt.formats.insert(it_cus_f.key(), it_cus_f.value());
-
-			PVRush::list_creators::const_iterator it_lc;
-			for (it_lc = ctxt.lcr.begin(); it_lc != ctxt.lcr.end(); it_lc++) {
-				PVRush::hash_format_creator::mapped_type v(it_cus_f.value(), *it_lc);
-				dis_format_creator[it_cus_f.key()] = v;
-
-				// Save this format/creator pair to the "format_creator" object
-				ctxt.format_creator[it_cus_f.key()] = v;
-			}
-		}
-
-		// Try every possible format
-		QHash<QString,PVCore::PVMeanValue<float> > file_types;
-		tbb::tick_count dis_start = tbb::tick_count::now();
-
-		QList<PVRush::hash_format_creator::key_type> dis_formats = dis_format_creator.keys();
-		QList<PVRush::hash_format_creator::mapped_type> dis_v = dis_format_creator.values();
-		bool input_exception = false;
-		std::string input_exception_str;
-#pragma omp parallel for
-		for (int i = 0; i < dis_format_creator.size(); i++) {
-			//PVRush::pair_format_creator const& pfc = itfc.value();
-			PVRush::pair_format_creator const& pfc = dis_v.at(i);
-			//QString const& str_format = itfc.key();
-			QString const& str_format = dis_formats.at(i);
-			try {
-				float success_rate = PVRush::PVSourceCreatorFactory::discover_input(pfc, *itin);
-				PVLOG_INFO("For input %s with format %s, success rate is %0.4f\n", qPrintable(in_str), qPrintable(str_format), success_rate);
-
-				if (success_rate > 0) {
-#pragma omp critical
-					{
-						file_types[str_format].push(success_rate);
-						ctxt.discovered_types[str_format].push(success_rate);
-					}
-				}
-			}
-			catch (PVRush::PVXmlParamParserException &e) {
-#pragma omp critical
-				{
-					ctxt.formats_error[pfc.first.get_full_path()] = std::pair<QString,QString>(pfc.first.get_format_name(), tr("XML parser error: ") + e.what());
-				}
-				continue;
-			}
-			catch (PVRush::PVFormatInvalid &e) {
-#pragma omp critical
-				{
-					ctxt.formats_error[pfc.first.get_full_path()] = std::pair<QString,QString>(pfc.first.get_format_name(), e.what());
-				}
-				continue;
-			}
-			catch (PVRush::PVInputException &e) {
-				input_exception = true;
-				input_exception_str = e.what().c_str();
-				continue;
-			}
-		}
-		tbb::tick_count dis_end = tbb::tick_count::now();
-		PVLOG_INFO("Automatic format discovery took %0.4f seconds.\n", (dis_end-dis_start).seconds());
-		if (input_exception) {
-			PVLOG_ERROR("PVInput exception: %s\n", input_exception_str.c_str());
-			continue;
-		}
-
-		if (file_types.count() == 1) {
-			// We got the formats that matches this input
-			ctxt.discovered[file_types.keys()[0]].push_back(*itin);
-		}
-		else {
-			if (file_types.count() > 1) {
-				ctxt.files_multi_formats[in_str] = file_types.keys();
-			}
-		}
+	} else {
+		// pass the event on to the parent class
+		return QMainWindow::eventFilter(watched_object, event);
 	}
 }
 
+
+/******************************************************************************
+ *
+ * PVInspector::PVMainWindow::get_tab_from_view
+ *
+ *****************************************************************************/
+PVInspector::PVTabSplitter* PVInspector::PVMainWindow::get_tab_from_view(Picviz::PVView_p picviz_view)
+{
+	// This returns the tab associated to a picviz view
+	for (int i = 0; i < pv_ListingsTabWidget->count();i++) {
+		PVTabSplitter *tab = dynamic_cast<PVTabSplitter*>(pv_ListingsTabWidget->widget(i));
+		if (!tab) {
+			PVLOG_ERROR("PVInspector::PVMainWindow::%s: Tab isn't tab!!!\n", __FUNCTION__);
+		} else {
+			if (tab->get_lib_view() == picviz_view) {
+				return tab;
+				/* We refresh the listing */
+			}
+		}
+	}
+	return NULL;
+}
+
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVMainWindow::import_type
+ *
+ *****************************************************************************/
 void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 {
 	PVRush::list_creators lcr = PVRush::PVSourceCreatorFactory::get_by_input_type(in_t);
@@ -797,6 +991,13 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 	import_type(in_t, inputs, formats, format_creator, choosenFormat);
 }
 
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVMainWindow::import_type
+ *
+ *****************************************************************************/
 void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::PVInputType::list_inputs const& inputs, PVRush::hash_formats& formats, PVRush::hash_format_creator& format_creator, QString const& choosenFormat)
 {
 	PVRush::list_creators lcr = PVRush::PVSourceCreatorFactory::get_by_input_type(in_t);
@@ -935,241 +1136,25 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 	set_project_modified(true);
 }
 
-void PVInspector::PVMainWindow::load_files(std::vector<QString> const& files, QString format)
-{
-	if (files.size() == 0) {
-		return;
-	}
-
-	PVRush::PVInputType_p in_file = LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name("file");
-	PVRush::list_creators lcr = PVRush::PVSourceCreatorFactory::get_by_input_type(in_file);
-	PVRush::hash_format_creator format_creator = PVRush::PVSourceCreatorFactory::get_supported_formats(lcr);
-
-	PVRush::hash_formats formats;
-	{
-		PVRush::hash_format_creator::const_iterator itfc;
-		for (itfc = format_creator.begin(); itfc != format_creator.end(); itfc++) {
-			formats[itfc.key()] = itfc.value().first;
-		}
-	}
-
-	// Create PVFileDescription objects
-	//
-	
-	PVRush::PVInputType::list_inputs files_in;
-	{
-		std::vector<QString>::const_iterator it;
-		for (it = files.begin(); it != files.end(); it++) {
-			files_in.push_back(PVRush::PVInputDescription_p(new PVRush::PVFileDescription(*it)));
-		}
-	}
-	
-	if (!format.isEmpty()) {
-		PVRush::PVFormat new_format("custom:arg", format);
-		formats["custom:arg"] = new_format;
-
-		PVRush::list_creators::const_iterator it_lc;
-		for (it_lc = lcr.begin(); it_lc != lcr.end(); it_lc++) {
-			PVRush::hash_format_creator::mapped_type v(new_format, *it_lc);
-			// Save this format/creator pair to the "format_creator" object
-			format_creator["custom:arg"] = v;
-		}
-		format = "custom:arg";
-	}
-	else {
-		format = PICVIZ_AUTOMATIC_FORMAT_STR;
-	}
-
-	import_type(in_file, files_in, formats, format_creator, format);
-}
-
-bool PVInspector::PVMainWindow::load_scene()
-{
-	// Here, load the whole scene.
-	
-	// Process all sources with their view
-	Picviz::PVScene::list_sources_t srcs = _scene->get_all_sources();
-	Picviz::PVScene::list_sources_t::iterator it;
-	PVRush::PVControllerJob_p job_import;
-
-	for (it = srcs.begin(); it != srcs.end(); it++) {
-		Picviz::PVSource_p import_source = *it;
-		if (!load_source(import_source)) {
-			return false;
-		}
-	}
-
-	return true;
-}
-
-bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_p src)
-{
-	// Load a created source
-	
-	// Transient view. This need to be created before posting the "PVSDK_MESSENGER_FUNCTION_CREATE_VIEW" message,
-	// because the actual GL view is created by this message. Cf. libpvgl/src/PVMain.cpp::timer_func
-	// for more informations.
-	PVSDK::PVMessage message;
-	message.function = PVSDK_MESSENGER_FUNCTION_PLEASE_WAIT;
-	message.pointer_1 = new QString(PVTabSplitter::get_current_view_name(src));
-	pvsdk_messenger->post_message_to_gl(message);
-
-	// Extract the source
-	PVRush::PVControllerJob_p job_import;
-	try {
-		job_import = src->extract();
-	}
-	catch (PVRush::PVInputException &e) {
-		PVLOG_ERROR("PVInput error: %s\n", e.what().c_str());
-		return false;
-	}
-
-	if (!PVExtractorWidget::show_job_progress_bar(job_import, src->get_format_name(), job_import->nb_elts_max(), this)) {
-		message.function = PVSDK_MESSENGER_FUNCTION_DESTROY_TRANSIENT;
-		pvsdk_messenger->post_message_to_gl(message);
-		return false;
-	}
-	src->wait_extract_end(job_import);
-	PVLOG_INFO("The normalization job took %0.4f seconds.\n", job_import->duration().seconds());
-	if (src->get_rushnraw().get_number_rows() == 0) {
-		PVLOG_ERROR("Cannot append source!\n");
-		QMessageBox msgBox;
-		msgBox.critical(this, "Cannot import file type", QString("The files %1/%2 cannot be opened. It looks like the format is invalid (invalid regular expressions or filters).").arg(src->get_name()).arg(src->get_format_name()));
-		message.function = PVSDK_MESSENGER_FUNCTION_DESTROY_TRANSIENT;
-		pvsdk_messenger->post_message_to_gl(message);
-		return false;
-	}
-	src->get_extractor().dump_nraw();
-	
-	// If no view is present, create a default one. Otherwise, process them by
-	// keeping the existing layers !
-	Picviz::PVView_p first_view;
-	bool success = true;
-	if (src->get_mappeds().size() == 0) {
-		if (!PVCore::PVProgressBox::progress(boost::bind<void>(&Picviz::PVSource::create_default_view, src.get()), tr("Processing..."), (QWidget*) this)) {
-			success = false;
-		}
-	}
-	else {
-		if (!PVCore::PVProgressBox::progress(boost::bind(&Picviz::PVSource::process_from_source, src.get(), true), tr("Processing..."), (QWidget*) this)) {
-			success = false;
-		}
-	}
-
-	if (!success) {
-		message.function = PVSDK_MESSENGER_FUNCTION_DESTROY_TRANSIENT;
-		pvsdk_messenger->post_message_to_gl(message);
-		return false;
-	}
-
-	// If, even after having processed the pipeline from the source, we still don't have
-	// any views, create a default mapped/plotted/view.
-	// This can happen if mappeds have been saved but with no plotted !
-	if (src->get_views().size() == 0) {
-		if (!PVCore::PVProgressBox::progress(boost::bind(&Picviz::PVSource::create_default_view, src.get()), tr("Processing..."), (QWidget*) this)) {
-			message.function = PVSDK_MESSENGER_FUNCTION_DESTROY_TRANSIENT;
-			pvsdk_messenger->post_message_to_gl(message);
-			return false;
-		}
-	}
-
-	first_view = src->get_views().at(0);
-	// Ask PVGL to create a GL-View from the previous transient view
-	message.function = PVSDK_MESSENGER_FUNCTION_CREATE_VIEW;
-	message.pv_view = first_view;
-	pvsdk_messenger->post_message_to_gl(message);
-
-	// Add the source's tab
-	current_tab = new PVTabSplitter(this, src, pv_ListingsTabWidget);
-	connect(current_tab,SIGNAL(selection_changed_signal(bool)),this,SLOT(enable_menu_filter_Slot(bool)));
-	connect(current_tab, SIGNAL(source_changed()), this, SLOT(project_modified_Slot()));
-	int new_tab_index = pv_ListingsTabWidget->addTab(current_tab, current_tab->get_tab_name());
-	pv_ListingsTabWidget->setCurrentIndex(new_tab_index);
-
-	return true;
-}
-
-void PVInspector::PVMainWindow::show_start_page(bool visible)
-{
-	if (visible) {
-		pv_centralWidget->setCurrentWidget(pv_centralStartWidget);
-	}
-	else {
-		pv_centralWidget->setCurrentWidget(pv_centralMainWidget);
-	}
-}
-
-void PVInspector::PVMainWindow::treat_invalid_formats(QHash<QString, std::pair<QString,QString> > const& errors)
-{
-	if (errors.size() == 0) {
-		return;
-	}
-
-	if (!pvconfig.value(PVCONFIG_FORMATS_SHOW_INVALID, PVCONFIG_FORMATS_SHOW_INVALID_DEFAULT).toBool()) {
-	   return;
-	}
-
-	// Get the current ignore list
-	QStringList formats_ignored = pvconfig.value(PVCONFIG_FORMATS_INVALID_IGNORED, QStringList()).toStringList();
-
-	// And remove them from the error list
-	QHash<QString, std::pair<QString, QString> > errors_ = errors;
-	for (int i = 0; i < formats_ignored.size(); i++) {
-		errors_.remove(formats_ignored[i]);
-	}
-
-	if (errors_.size() == 0) {
-		return;
-	}
-
-	QMessageBox msg(QMessageBox::Warning, tr("Invalid formats"), tr("Some formats were invalid."));
-   	msg.setInformativeText(tr("You can simply ignore this message, choose not to display it again (for every format), or remove this warning only for these formats."));
-	QPushButton* ignore = msg.addButton(QMessageBox::Ignore);
-	msg.setDefaultButton(ignore);
-	QPushButton* always_ignore = msg.addButton(tr("Always ignore these formats"), QMessageBox::AcceptRole);
-	QPushButton* never_again = msg.addButton(tr("Never display this message again"), QMessageBox::RejectRole);
-
-	QString detailed_txt;
-	QHash<QString, std::pair<QString,QString> >::const_iterator it;
-	for (it = errors_.begin(); it != errors_.end(); it++) {
-		detailed_txt += it.value().first + QString(" (") + it.key() + QString("): ") + it.value().second + QString("\n");
-	}
-	msg.setDetailedText(detailed_txt);
-
-	msg.exec();
-
-	QPushButton* clicked_btn = (QPushButton*) msg.clickedButton();
-
-	if (clicked_btn == ignore) {
-		return;
-	}
-
-	if (clicked_btn == never_again) {
-		pvconfig.setValue(PVCONFIG_FORMATS_SHOW_INVALID, QVariant(false));
-		return;
-	}
-
-	if (clicked_btn == always_ignore) {
-		// Append these formats to the ignore list
-		formats_ignored.append(errors_.keys());
-		pvconfig.setValue(PVCONFIG_FORMATS_INVALID_IGNORED, formats_ignored);
-	}
-}
 
 
-void PVInspector::PVMainWindow::display_icon_Slot()
-{
-	close_scene();
-	set_current_project_filename(QString());
-	show_start_page(true);
-}
-
+/******************************************************************************
+ *
+ * PVInspector::PVMainWindow::import_type_default_Slot
+ *
+ *****************************************************************************/
 void PVInspector::PVMainWindow::import_type_default_Slot()
 {
 	import_type(LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name("file"));
 }
 
 
+
+/******************************************************************************
+ *
+ * PVInspector::PVMainWindow::import_type_Slot
+ *
+ *****************************************************************************/
 void PVInspector::PVMainWindow::import_type_Slot()
 {
 	QAction* action_src = (QAction*) sender();
@@ -1178,99 +1163,6 @@ void PVInspector::PVMainWindow::import_type_Slot()
 	import_type(in_t);	
 }
 
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::create_pvgl_thread
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::create_pvgl_thread ()
-{
-	pvgl_thread = new PVGL::PVGLThread ();
-	pvsdk_messenger = pvgl_thread->get_messenger();
-	pvgl_thread->start ();
-	timer = new QTimer(this);
-	connect(timer, SIGNAL(timeout()), this, SLOT(check_messages()));
-	timer->start(100);
-}
-
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::destroy_pvgl_views
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::destroy_pvgl_views(Picviz::PVView_p view)
-{
-	PVSDK::PVMessage message;
-
-	message.function = PVSDK_MESSENGER_FUNCTION_DESTROY_VIEWS;
-	message.pv_view = view;
-	pvsdk_messenger->post_message_to_gl(message);
-}
-
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::lines_display_unselected_Slot()
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::lines_display_unselected_Slot()
-{
-	Picviz::PVView_p current_lib_view;
-	Picviz::PVStateMachine *state_machine = NULL;
-
-	if (!current_tab) {
-		return;
-	}
-	current_lib_view = current_tab->get_lib_view();
-	state_machine = current_lib_view->state_machine;
-
-	if (pv_ListingsTabWidget->currentIndex() == -1) {
-		return;
-	}
-
-	state_machine->toggle_gl_unselected_visibility();
-	state_machine->toggle_listing_unselected_visibility();
-	/* We set the listing to be the same */
-	// state_machine->set_listing_unselected_visibility(state_machine->are_unselected_visible());//???
-	/* We refresh the view */
-	current_lib_view->process_visibility();
-	update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
-	/* We refresh the listing */
-	current_tab->update_pv_listing_model_Slot();
-
-	if (!lines_display_unselected_Action->text().compare(QString(tr("Hide unselected lines")))) {
-		lines_display_unselected_Action->setText(QString(tr("Display unselected lines")));
-	} else {
-		lines_display_unselected_Action->setText(QString(tr("Hide unselected lines")));
-	}
-}
-
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::eventFilter
- *
- *****************************************************************************/
-bool PVInspector::PVMainWindow::eventFilter(QObject *watched_object, QEvent *event)
-{
-	//PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
-
-	if (watched_object == pv_ListingsTabWidget->get_tabBar()) {
-		if (event->type() == QEvent::KeyPress) {
-			QKeyEvent *temp_keyEvent = static_cast<QKeyEvent*>(event);
-			int key = temp_keyEvent->key();
-			if ((key == Qt::Key_Left) || (key == Qt::Key_Right) || (key == Qt::Key_Enter) || (key == Qt::Key_Return)) {
-				keyPressEvent(temp_keyEvent);
-				return true;
-			} else {
-				return false;
-			}
-		} else {
-			return false;
-		}
-	} else {
-		// pass the event on to the parent class
-		return QMainWindow::eventFilter(watched_object, event);
-	}
-}
 
 
 /******************************************************************************
@@ -1282,7 +1174,6 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 {
 	/* VARIABLES */
 	int column_index;
-	int number_of_selected_lines;
 	/* We prepare a direct access to the current lib_view */
 	Picviz::PVView_p current_lib_view;
 	/* ... and the current_selected_layer */
@@ -1582,7 +1473,7 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 			}
 
 			break;
-
+ 
 		case Qt::Key_Enter:
 		case Qt::Key_Return: {
 			if (current_tab) {
@@ -1769,42 +1660,42 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 				break;
 
 				/* toggle the visibility of the UNSELECTED lines */
-		case Qt::Key_U:
-				/* If there is no view at all, don't do anything */
-				if (pv_ListingsTabWidget->currentIndex() == -1) {
-					break;
-				}
-				switch (event->modifiers()) {
-					/* We only toggle the Listing */
-					case (Qt::AltModifier):
-							/* We toggle*/
-							state_machine->toggle_listing_unselected_visibility();
-							/* We refresh the listing */
-							current_tab->update_pv_listing_model_Slot();
-							break;
+		case Qt::Key_U:	// FIXME: U is useless and it taken by the menu
+				// /* If there is no view at all, don't do anything */
+				// if (pv_ListingsTabWidget->currentIndex() == -1) {
+				// 	break;
+				// }
+				// switch (event->modifiers()) {
+				// 	/* We only toggle the Listing */
+				// 	case (Qt::AltModifier):
+				// 			/* We toggle*/
+				// 			state_machine->toggle_listing_unselected_visibility();
+				// 			/* We refresh the listing */
+				// 			current_tab->update_pv_listing_model_Slot();
+				// 			break;
 
-							/* We only toggle the View */
-					case (Qt::ShiftModifier):
-							/* We toggle*/
-							state_machine->toggle_gl_unselected_visibility();
-							/* We refresh the view */
-							current_lib_view->process_visibility();
-							update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
-							break;
+				// 			/* We only toggle the View */
+				// 	case (Qt::ShiftModifier):
+				// 			/* We toggle*/
+				// 			state_machine->toggle_gl_unselected_visibility();
+				// 			/* We refresh the view */
+				// 			current_lib_view->process_visibility();
+				// 			update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
+				// 			break;
 
-							/* We toggle both the Listing and the View */
-					default:
-							/* We toggle the view first */
-							state_machine->toggle_gl_unselected_visibility();
-							/* We set the listing to be the same */
-							state_machine->set_listing_unselected_visible(state_machine->are_gl_unselected_visible());
-							/* We refresh the view */
-							current_lib_view->process_visibility();
-							update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
-							/* We refresh the listing */
-							current_tab->update_pv_listing_model_Slot();
-							break;
-				}
+				// 			/* We toggle both the Listing and the View */
+				// 	default:
+				// 			/* We toggle the view first */
+				// 			state_machine->toggle_gl_unselected_visibility();
+				// 			/* We set the listing to be the same */
+				// 			state_machine->set_listing_unselected_visible(state_machine->are_gl_unselected_visible());
+				// 			/* We refresh the view */
+				// 			current_lib_view->process_visibility();
+				// 			update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
+				// 			/* We refresh the listing */
+				// 			current_tab->update_pv_listing_model_Slot();
+				// 			break;
+				// }
 				break;
 
 
@@ -1860,46 +1751,274 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 				break;
 
 				/* Toggle the visibility of the ZOMBIE lines */
-		case Qt::Key_Z:
-				/* If there is no view at all, don't do anything */
-				if (pv_ListingsTabWidget->currentIndex() == -1) {
-					break;
-				}
+		case Qt::Key_Z:	// FIXME: Z is useless and it taken by the menu
+				// /* If there is no view at all, don't do anything */
+				// if (pv_ListingsTabWidget->currentIndex() == -1) {
+				// 	break;
+				// }
 
-				switch (event->modifiers()) {
-					/* We only toggle the Listing */
-					case (Qt::AltModifier):
-							/* We toggle */
-							state_machine->toggle_listing_zombie_visibility();
-							/* We refresh the listing */
-							current_tab->update_pv_listing_model_Slot();
-							break;
+				// switch (event->modifiers()) {
+				// 	/* We only toggle the Listing */
+				// 	case (Qt::AltModifier):
+				// 			/* We toggle */
+				// 			state_machine->toggle_listing_zombie_visibility();
+				// 			/* We refresh the listing */
+				// 			current_tab->update_pv_listing_model_Slot();
+				// 			break;
 
-							/* We only toggle the View */
-					case (Qt::ShiftModifier):
-							/* We toggle */
-							state_machine->toggle_gl_zombie_visibility();
-							/* We refresh the view */
-							current_lib_view->process_visibility();
-							update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
-							break;
+				// 			/* We only toggle the View */
+				// 	case (Qt::ShiftModifier):
+				// 			/* We toggle */
+				// 			state_machine->toggle_gl_zombie_visibility();
+				// 			/* We refresh the view */
+				// 			current_lib_view->process_visibility();
+				// 			update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
+				// 			break;
 
-							/* We toggle both the Listing and the View */
-					default:
-							/* We toggle the view first */
-							state_machine->toggle_gl_zombie_visibility();
-							/* We set the listing to be the same */
-							state_machine->set_listing_zombie_visible(state_machine->are_gl_zombie_visible());
-							/* We refresh the view */
-							current_lib_view->process_visibility();
-							update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
-							/* We refresh the listing */
-							current_tab->update_pv_listing_model_Slot();
-							break;
-				}
+				// 			/* We toggle both the Listing and the View */
+				// 	default:
+				// 			/* We toggle the view first */
+				// 			state_machine->toggle_gl_zombie_visibility();
+				// 			/* We set the listing to be the same */
+				// 			state_machine->set_listing_zombie_visible(state_machine->are_gl_zombie_visible());
+				// 			/* We refresh the view */
+				// 			current_lib_view->process_visibility();
+				// 			update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
+				// 			/* We refresh the listing */
+				// 			current_tab->update_pv_listing_model_Slot();
+				// 			break;
+				// }
 				break;
 	}
 }
+
+
+
+
+
+
+
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVMainWindow::lines_display_unselected_Slot
+ *
+ *****************************************************************************/
+void PVInspector::PVMainWindow::lines_display_unselected_Slot()
+{
+	Picviz::PVView_p current_lib_view;
+	Picviz::PVStateMachine *state_machine = NULL;
+
+	if (!current_tab) {
+		return;
+	}
+	current_lib_view = current_tab->get_lib_view();
+	state_machine = current_lib_view->state_machine;
+
+	if (pv_ListingsTabWidget->currentIndex() == -1) {
+		return;
+	}
+
+	state_machine->toggle_gl_unselected_visibility();
+	state_machine->toggle_listing_unselected_visibility();
+	/* We set the listing to be the same */
+	// state_machine->set_listing_unselected_visibility(state_machine->are_unselected_visible());//???
+	/* We refresh the view */
+	current_lib_view->process_visibility();
+	update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
+	/* We refresh the listing */
+	current_tab->update_pv_listing_model_Slot();
+}
+
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVMainWindow::list_displayed_picviz_views
+ *
+ *****************************************************************************/
+QList<Picviz::PVView_p> PVInspector::PVMainWindow::list_displayed_picviz_views()
+{
+	return PVGL::PVMain::list_displayed_picviz_views();
+}
+
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVMainWindow::load_files
+ *
+ *****************************************************************************/
+void PVInspector::PVMainWindow::load_files(std::vector<QString> const& files, QString format)
+{
+	if (files.size() == 0) {
+		return;
+	}
+
+	PVRush::PVInputType_p in_file = LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name("file");
+	PVRush::list_creators lcr = PVRush::PVSourceCreatorFactory::get_by_input_type(in_file);
+	PVRush::hash_format_creator format_creator = PVRush::PVSourceCreatorFactory::get_supported_formats(lcr);
+
+	PVRush::hash_formats formats;
+	{
+		PVRush::hash_format_creator::const_iterator itfc;
+		for (itfc = format_creator.begin(); itfc != format_creator.end(); itfc++) {
+			formats[itfc.key()] = itfc.value().first;
+		}
+	}
+
+	// Create PVFileDescription objects
+	//
+	
+	PVRush::PVInputType::list_inputs files_in;
+	{
+		std::vector<QString>::const_iterator it;
+		for (it = files.begin(); it != files.end(); it++) {
+			files_in.push_back(PVRush::PVInputDescription_p(new PVRush::PVFileDescription(*it)));
+		}
+	}
+	
+	if (!format.isEmpty()) {
+		PVRush::PVFormat new_format("custom:arg", format);
+		formats["custom:arg"] = new_format;
+
+		PVRush::list_creators::const_iterator it_lc;
+		for (it_lc = lcr.begin(); it_lc != lcr.end(); it_lc++) {
+			PVRush::hash_format_creator::mapped_type v(new_format, *it_lc);
+			// Save this format/creator pair to the "format_creator" object
+			format_creator["custom:arg"] = v;
+		}
+		format = "custom:arg";
+	}
+	else {
+		format = PICVIZ_AUTOMATIC_FORMAT_STR;
+	}
+
+	import_type(in_file, files_in, formats, format_creator, format);
+}
+
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVMainWindow::load_scene
+ *
+ *****************************************************************************/
+bool PVInspector::PVMainWindow::load_scene()
+{
+	// Here, load the whole scene.
+	
+	// Process all sources with their view
+	Picviz::PVScene::list_sources_t srcs = _scene->get_all_sources();
+	Picviz::PVScene::list_sources_t::iterator it;
+	PVRush::PVControllerJob_p job_import;
+
+	for (it = srcs.begin(); it != srcs.end(); it++) {
+		Picviz::PVSource_p import_source = *it;
+		if (!load_source(import_source)) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVMainWindow::load_source
+ *
+ *****************************************************************************/
+bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_p src)
+{
+	// Load a created source
+	
+	// Transient view. This need to be created before posting the "PVSDK_MESSENGER_FUNCTION_CREATE_VIEW" message,
+	// because the actual GL view is created by this message. Cf. libpvgl/src/PVMain.cpp::timer_func
+	// for more informations.
+	PVSDK::PVMessage message;
+	message.function = PVSDK_MESSENGER_FUNCTION_PLEASE_WAIT;
+	message.pointer_1 = new QString(PVTabSplitter::get_current_view_name(src));
+	pvsdk_messenger->post_message_to_gl(message);
+
+	// Extract the source
+	PVRush::PVControllerJob_p job_import;
+	try {
+		job_import = src->extract();
+	}
+	catch (PVRush::PVInputException &e) {
+		PVLOG_ERROR("PVInput error: %s\n", e.what().c_str());
+		return false;
+	}
+
+	if (!PVExtractorWidget::show_job_progress_bar(job_import, src->get_format_name(), job_import->nb_elts_max(), this)) {
+		message.function = PVSDK_MESSENGER_FUNCTION_DESTROY_TRANSIENT;
+		pvsdk_messenger->post_message_to_gl(message);
+		return false;
+	}
+	src->wait_extract_end(job_import);
+	PVLOG_INFO("The normalization job took %0.4f seconds.\n", job_import->duration().seconds());
+	if (src->get_rushnraw().get_number_rows() == 0) {
+		PVLOG_ERROR("Cannot append source!\n");
+		QMessageBox msgBox;
+		msgBox.critical(this, "Cannot import file type", QString("The files %1/%2 cannot be opened. It looks like the format is invalid (invalid regular expressions or filters).").arg(src->get_name()).arg(src->get_format_name()));
+		message.function = PVSDK_MESSENGER_FUNCTION_DESTROY_TRANSIENT;
+		pvsdk_messenger->post_message_to_gl(message);
+		return false;
+	}
+	src->get_extractor().dump_nraw();
+	
+	// If no view is present, create a default one. Otherwise, process them by
+	// keeping the existing layers !
+	Picviz::PVView_p first_view;
+	bool success = true;
+	if (src->get_mappeds().size() == 0) {
+		if (!PVCore::PVProgressBox::progress(boost::bind<void>(&Picviz::PVSource::create_default_view, src.get()), tr("Processing..."), (QWidget*) this)) {
+			success = false;
+		}
+	}
+	else {
+		if (!PVCore::PVProgressBox::progress(boost::bind(&Picviz::PVSource::process_from_source, src.get(), true), tr("Processing..."), (QWidget*) this)) {
+			success = false;
+		}
+	}
+
+	if (!success) {
+		message.function = PVSDK_MESSENGER_FUNCTION_DESTROY_TRANSIENT;
+		pvsdk_messenger->post_message_to_gl(message);
+		return false;
+	}
+
+	// If, even after having processed the pipeline from the source, we still don't have
+	// any views, create a default mapped/plotted/view.
+	// This can happen if mappeds have been saved but with no plotted !
+	if (src->get_views().size() == 0) {
+		if (!PVCore::PVProgressBox::progress(boost::bind(&Picviz::PVSource::create_default_view, src.get()), tr("Processing..."), (QWidget*) this)) {
+			message.function = PVSDK_MESSENGER_FUNCTION_DESTROY_TRANSIENT;
+			pvsdk_messenger->post_message_to_gl(message);
+			return false;
+		}
+	}
+
+	first_view = src->get_views().at(0);
+	// Ask PVGL to create a GL-View from the previous transient view
+	message.function = PVSDK_MESSENGER_FUNCTION_CREATE_VIEW;
+	message.pv_view = first_view;
+	pvsdk_messenger->post_message_to_gl(message);
+
+	// Add the source's tab
+	current_tab = new PVTabSplitter(this, src, pv_ListingsTabWidget);
+	connect(current_tab,SIGNAL(selection_changed_signal(bool)),this,SLOT(enable_menu_filter_Slot(bool)));
+	connect(current_tab, SIGNAL(source_changed()), this, SLOT(project_modified_Slot()));
+	int new_tab_index = pv_ListingsTabWidget->addTab(current_tab, current_tab->get_tab_name());
+	pv_ListingsTabWidget->setCurrentIndex(new_tab_index);
+
+	return true;
+}
+
+
 
 /******************************************************************************
  *
@@ -1919,6 +2038,7 @@ void PVInspector::PVMainWindow::refresh_view(Picviz::PVView_p picviz_view)
 	/* We refresh the listing */
 	tab->refresh_listing_Slot();
 }
+
 
 /******************************************************************************
  *
@@ -1945,6 +2065,13 @@ void PVInspector::PVMainWindow::set_color(Picviz::PVView_p picviz_view)
 	pv_ColorDialog->activateWindow();
 }
 
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVMainWindow::set_color_selected
+ *
+ *****************************************************************************/
 void PVInspector::PVMainWindow::set_color_selected(const QColor& color)
 {
 	if (!color.isValid()) {
@@ -1999,22 +2126,117 @@ void PVInspector::PVMainWindow::set_color_selected(const QColor& color)
 	set_project_modified(true);
 }
 
-PVInspector::PVTabSplitter* PVInspector::PVMainWindow::get_tab_from_view(Picviz::PVView_p picviz_view)
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVMainWindow::set_selection_from_layer
+ *
+ *****************************************************************************/
+void PVInspector::PVMainWindow::set_selection_from_layer(Picviz::PVView_p view, Picviz::PVLayer const& layer)
 {
-	// This returns the tab associated to a picviz view
-	for (int i = 0; i < pv_ListingsTabWidget->count();i++) {
-		PVTabSplitter *tab = dynamic_cast<PVTabSplitter*>(pv_ListingsTabWidget->widget(i));
-		if (!tab) {
-			PVLOG_ERROR("PVInspector::PVMainWindow::%s: Tab isn't tab!!!\n", __FUNCTION__);
-		} else {
-			if (tab->get_lib_view() == picviz_view) {
-				return tab;
-				/* We refresh the listing */
-			}
-		}
-	}
-	return NULL;
+	view->set_selection_from_layer(layer);
+	update_pvglview(view, PVSDK_MESSENGER_REFRESH_SELECTION);
 }
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVMainWindow::set_version_informations
+ *
+ *****************************************************************************/
+void PVInspector::PVMainWindow::set_version_informations()
+{
+	if (_last_known_cur_release != PICVIZ_VERSION_INVALID) {
+		pv_lastCurVersion->setText(PVCore::PVVersion::to_str(_last_known_cur_release));
+	}
+	if (_last_known_maj_release != PICVIZ_VERSION_INVALID) {
+		pv_lastMajVersion->setText(PVCore::PVVersion::to_str(_last_known_maj_release));
+	}
+}
+
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVMainWindow::show_start_page
+ *
+ *****************************************************************************/
+void PVInspector::PVMainWindow::show_start_page(bool visible)
+{
+	if (visible) {
+		pv_centralWidget->setCurrentWidget(pv_centralStartWidget);
+	}
+	else {
+		pv_centralWidget->setCurrentWidget(pv_centralMainWidget);
+	}
+}
+
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVMainWindow::treat_invalid_formats
+ *
+ *****************************************************************************/
+void PVInspector::PVMainWindow::treat_invalid_formats(QHash<QString, std::pair<QString,QString> > const& errors)
+{
+	if (errors.size() == 0) {
+		return;
+	}
+
+	if (!pvconfig.value(PVCONFIG_FORMATS_SHOW_INVALID, PVCONFIG_FORMATS_SHOW_INVALID_DEFAULT).toBool()) {
+	   return;
+	}
+
+	// Get the current ignore list
+	QStringList formats_ignored = pvconfig.value(PVCONFIG_FORMATS_INVALID_IGNORED, QStringList()).toStringList();
+
+	// And remove them from the error list
+	QHash<QString, std::pair<QString, QString> > errors_ = errors;
+	for (int i = 0; i < formats_ignored.size(); i++) {
+		errors_.remove(formats_ignored[i]);
+	}
+
+	if (errors_.size() == 0) {
+		return;
+	}
+
+	QMessageBox msg(QMessageBox::Warning, tr("Invalid formats"), tr("Some formats were invalid."));
+   	msg.setInformativeText(tr("You can simply ignore this message, choose not to display it again (for every format), or remove this warning only for these formats."));
+	QPushButton* ignore = msg.addButton(QMessageBox::Ignore);
+	msg.setDefaultButton(ignore);
+	QPushButton* always_ignore = msg.addButton(tr("Always ignore these formats"), QMessageBox::AcceptRole);
+	QPushButton* never_again = msg.addButton(tr("Never display this message again"), QMessageBox::RejectRole);
+
+	QString detailed_txt;
+	QHash<QString, std::pair<QString,QString> >::const_iterator it;
+	for (it = errors_.begin(); it != errors_.end(); it++) {
+		detailed_txt += it.value().first + QString(" (") + it.key() + QString("): ") + it.value().second + QString("\n");
+	}
+	msg.setDetailedText(detailed_txt);
+
+	msg.exec();
+
+	QPushButton* clicked_btn = (QPushButton*) msg.clickedButton();
+
+	if (clicked_btn == ignore) {
+		return;
+	}
+
+	if (clicked_btn == never_again) {
+		pvconfig.setValue(PVCONFIG_FORMATS_SHOW_INVALID, QVariant(false));
+		return;
+	}
+
+	if (clicked_btn == always_ignore) {
+		// Append these formats to the ignore list
+		formats_ignored.append(errors_.keys());
+		pvconfig.setValue(PVCONFIG_FORMATS_INVALID_IGNORED, formats_ignored);
+	}
+}
+
+
 
 /******************************************************************************
  *
@@ -2049,6 +2271,8 @@ int PVInspector::PVMainWindow::update_check()
 	return 0;
 }
 
+
+
 /******************************************************************************
  *
  * PVInspector::PVMainWindow::update_pvglview
@@ -2064,65 +2288,16 @@ void PVInspector::PVMainWindow::update_pvglview(Picviz::PVView_p view, int refre
 	pvsdk_messenger->post_message_to_gl(message);
 }
 
-void PVInspector::PVMainWindow::ensure_glview_exists(Picviz::PVView_p view)
-{
-	PVSDK::PVMessage message;
-	message.function = PVSDK_MESSENGER_FUNCTION_ENSURE_VIEW;
-	message.pv_view = view;
-	message.pointer_1 = new QString(view->get_window_name());
-	pvsdk_messenger->post_message_to_gl(message);
-}
 
+
+/******************************************************************************
+ *
+ * PVInspector::PVMainWindow::update_statemachine_label
+ *
+ *****************************************************************************/
 void PVInspector::PVMainWindow::update_statemachine_label(Picviz::PVView_p view)
 {
 	statemachine_label->setText(view->state_machine->get_string());
 }
 
-void PVInspector::PVMainWindow::set_version_informations()
-{
-	if (_last_known_cur_release != PICVIZ_VERSION_INVALID) {
-		pv_lastCurVersion->setText(PVCore::PVVersion::to_str(_last_known_cur_release));
-	}
-	if (_last_known_maj_release != PICVIZ_VERSION_INVALID) {
-		pv_lastMajVersion->setText(PVCore::PVVersion::to_str(_last_known_maj_release));
-	}
-}
-
-void PVInspector::PVMainWindow::close_source(PVTabSplitter* tab)
-{
-	Picviz::PVSource_p src(tab->get_lib_src());
-
-	// Destroy all views
-	Picviz::PVSource::list_views_t const& views = src->get_views();
-	Picviz::PVSource::list_views_t::const_iterator it;
-	for (it = views.begin(); it != views.end(); it++) {
-		destroy_pvgl_views(*it);
-	}
-
-	pv_ListingsTabWidget->remove_listing(tab);
-
-	_scene->del_source(src.get());
-}
-
-void PVInspector::PVMainWindow::close_scene()
-{
-	// Close sources one by one
-	int ntabs = pv_ListingsTabWidget->count();
-	for (int i = 0; i < ntabs; i++) {
-		close_source((PVTabSplitter*) pv_ListingsTabWidget->widget(0));
-	}
-	_scene.reset(new Picviz::PVScene("root", root.get()));
-	set_project_modified(false);
-}
-
-QList<Picviz::PVView_p> PVInspector::PVMainWindow::list_displayed_picviz_views()
-{
-	return PVGL::PVMain::list_displayed_picviz_views();
-}
-
-void PVInspector::PVMainWindow::set_selection_from_layer(Picviz::PVView_p view, Picviz::PVLayer const& layer)
-{
-	view->set_selection_from_layer(layer);
-	update_pvglview(view, PVSDK_MESSENGER_REFRESH_SELECTION);
-}
 

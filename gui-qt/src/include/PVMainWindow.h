@@ -272,10 +272,8 @@ private:
 	QAction *axes_display_edges_Action;
 	QAction *axes_new_Action;
 	QAction *expand_selection_on_axis_Action;
-	QAction *lines_display_unselected_Action;
 	QAction *lines_display_unselected_listing_Action;
 	QAction *lines_display_unselected_GLview_Action;
-	QAction *lines_display_zombies_Action;
 	QAction *lines_display_zombies_listing_Action;
 	QAction *lines_display_zombies_GLview_Action;
 	QAction *copy_Action;

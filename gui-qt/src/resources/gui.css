@@ -229,58 +229,61 @@ QWidget#right_widget_of_PVTabSplitter {
 
 
 /****************************
- * QScrollBar
+ * QScrollBar in the PVListingView
  ***************************/
 
-QScrollBar:horizontal {
-/* 	border: 4px solid grey; */
+QScrollBar#horizontalScrollBar_of_PVListingView {
 	background: white;
 	height: 21px;
 	margin: 0 21px 0 21px;
 }
 
 
-QScrollBar::add-line:horizontal {
+QScrollBar#horizontalScrollBar_of_PVListingView::add-line {
 	background-color: #f5f5f5;
 	width: 20px;
 	subcontrol-position: right;
 	subcontrol-origin: margin;
 }
 
-QScrollBar::handle:horizontal {
+QScrollBar#horizontalScrollBar_of_PVListingView::add-page {
+	background-color: #cd8bcc;
+	margin: 10px 0 10px 0;
+}
+
+QScrollBar#horizontalScrollBar_of_PVListingView::handle {
 	background-color: #666666;
 	margin: 7px 0 7px 0;
 	min-width: 20px;
 }
 
-QScrollBar::left-arrow:horizontal {
+QScrollBar#horizontalScrollBar_of_PVListingView::left-arrow {
 	background-image: url(':/horizontal-scrollbar-left-arrow');
 	background-position: center center;
 	background-repeat: no-repeat;
 }
 
-QScrollBar::right-arrow:horizontal {
+QScrollBar#horizontalScrollBar_of_PVListingView::right-arrow {
 	background-image: url(':/horizontal-scrollbar-right-arrow');
 	background-position: center center;
 	background-repeat: no-repeat;
 
 }
 
-QScrollBar::sub-line:horizontal {
+QScrollBar#horizontalScrollBar_of_PVListingView::sub-line {
 	background-color: #f5f5f5;
 	width: 20px;
 	subcontrol-position: left;
 	subcontrol-origin: margin;
 }
 
-QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
+QScrollBar#horizontalScrollBar_of_PVListingView::sub-page {
 	background-color: #cd8bcc;
 	margin: 10px 0 10px 0;
 }
 
 
-QScrollBar#verticalScrollBar_of_PVListingView:vertical {
-/* 	border: 4px solid grey; */
+QScrollBar#verticalScrollBar_of_PVListingView {
 	background: white;
 	width: 21px;
 	margin: 21px 0 21px 0;
@@ -291,6 +294,11 @@ QScrollBar#verticalScrollBar_of_PVListingView::add-line {
 	height: 20px;
 	subcontrol-position: bottom;
 	subcontrol-origin: margin;
+}
+
+QScrollBar#verticalScrollBar_of_PVListingView::add-page {
+	background-color: #cd8bcc;
+	margin: 0 10px 0 10px;
 }
 
 QScrollBar#verticalScrollBar_of_PVListingView::down-arrow {
@@ -312,6 +320,11 @@ QScrollBar#verticalScrollBar_of_PVListingView::sub-line {
 	subcontrol-origin: margin;
 }
 
+QScrollBar#verticalScrollBar_of_PVListingView::sub-page {
+	background-color: #cd8bcc;
+	margin: 0 10px 0 10px;
+}
+
 QScrollBar#verticalScrollBar_of_PVListingView::up-arrow {
 	background-image: url(':/vertical-scrollbar-up-arrow');
 	background-position: center center;
@@ -319,10 +332,6 @@ QScrollBar#verticalScrollBar_of_PVListingView::up-arrow {
 
 }
 
-QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
-	background-color: #cd8bcc;
-	margin: 0 10px 0 10px;
-}
 
 
 
