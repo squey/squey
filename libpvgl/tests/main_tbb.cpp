@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <cstdlib>
+#include <string.h>
 
 #include <tbb/tick_count.h>
 
@@ -10,7 +11,7 @@ void serial_c(Point* pts, size_t n, CollisionBuffer cb)
 {
 	for (size_t i = 0; i < n; i++) {
 		int bit = (pts->y1)*1024 + (pts->y2);
-		B_SET(cb[bit>>5], bit&31);
+		B_SET(cb[bit>>5], (bit&31));
 	}
 }
 
@@ -38,6 +39,8 @@ int main(int argc, char** argv)
 	end = tbb::tick_count::now();
 
 	std::cout << "parallel duration: " << (end-start).seconds() << std::endl;
+
+	std::cout << "memcmp serial vs. parallel: " << (memcmp(cb_ref, red.cb(), SIZE_CB) == 0) << std::endl;
 
 	return 0;
 }

@@ -47,6 +47,8 @@ public:
 			_buf[i] |= xcb[i];
 		}
 	}
+
+	CollisionBuffer cb() const { return _buf; }
 private:
 	CollisionBuffer _buf;
 	Point* _pts;

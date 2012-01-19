@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <cassert>
+#include <cstring>
 
 #include <tbb/cache_aligned_allocator.h>
 
@@ -41,6 +42,9 @@ CollisionBuffer allocate_CB()
 	/*ret = alloc.allocate(NB_INT_CB);
 	assert((uintptr_t) ret % 16 == 0); */
 	posix_memalign((void**) &ret, 16, SIZE_CB);
+
+	memset(ret, 0, SIZE_CB);
+
 	return ret;
 }
 
