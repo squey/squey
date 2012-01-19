@@ -4,6 +4,7 @@ include_directories(AFTER ${FREETYPE_INCLUDE_DIRS})
 
 include_directories(AFTER ${GLUT_INCLUDE_DIR})
 
+set(QT_USE_QTOPENGL TRUE)
 # Qt
 include(${QT_USE_FILE})
 
@@ -16,18 +17,21 @@ Point.cpp
 
 SET(SRC_FILES
 main.cpp
+View.cpp
+Point.cpp
 )
 
 SET(HEADER_FILES
 )
 
 SET(MOC_HEADERS
+View.h
 )
 
 QT4_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})
 
 add_definitions(-march=native -O3)
-#add_executable(run ${SRC_FILES} ${MOC_SRC} ${MOC_HEADERS})
+add_executable(run ${SRC_FILES} ${MOC_SRC} ${MOC_HEADERS})
 add_executable(run-tbb ${TBB_SRC_FILES})
 
 #target_link_libraries(run ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${GLEW_LIBRARY} ${GLUT_glut_LIBRARY} ${OPENGL_LIBRARIES} ${FREETYPE_LIBRARY} ${PVKERNEL_LIBRARIES} ${TBB_LIBRARIES} ${Boost_LIBRARIES} ${PVSDK_LIBRARY} ${OpenMP_LIBRARIES})
