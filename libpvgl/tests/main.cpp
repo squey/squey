@@ -4,11 +4,25 @@
 #include <cstdlib>
 
 #include "View.h"
+#include "Point.h"
+
+#define NB_LINES 1048576
+
+
+
 int main(int argc, char **argv)
 {
 	QApplication app(argc, argv);
 	QMainWindow *window = new QMainWindow();
 	View *v = new View(window);
 
+	window->resize(QSize(1024,1024));
+	v->resize(v->sizeHint());
+
+	Point* buf = allocate_buffer(NB_LINES);
+	fill_buffer(buf, NB_LINES);
+	v->set_buffer(buf, NB_LINES);
+
+	window->show();
 	return app.exec();
 }

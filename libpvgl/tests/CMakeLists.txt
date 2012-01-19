@@ -12,6 +12,8 @@ add_definitions(${OpenMP_CXX_FLAGS})
 
 SET(SRC_FILES
 main.cpp
+View.cpp
+Point.cpp
 )
 
 SET(HEADER_FILES

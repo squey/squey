@@ -11,7 +11,7 @@ typedef int* CollisionBuffer;
 
 Point* allocate_buffer(int size);
 Point* allocate_buffer_cuda(int size);
-
+void fill_buffer(Point* buffer, int size);
 CollisionBuffer allocate_CB(void);
 
 #endif

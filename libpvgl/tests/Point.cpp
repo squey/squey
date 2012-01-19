@@ -1,6 +1,7 @@
 #include "Point.h"
 #include <cstdlib>
 #include <ctime>
+#include <cassert>
 
 Point* allocate_buffer(int size)
 {
@@ -16,7 +17,7 @@ Point* allocate_buffer_cuda(int size)
 {
 	assert(size > 0 && size%8 == 0);
 
-	
+	return NULL;
 }
 
 void fill_buffer(Point* buffer, int size)
@@ -32,5 +33,5 @@ void fill_buffer(Point* buffer, int size)
 
 CollisionBuffer allocate_CB()
 {
-	return new int[1024*1024/8];
+	return new int[1024*1024/32];
 }
