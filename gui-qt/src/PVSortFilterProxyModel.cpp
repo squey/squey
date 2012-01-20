@@ -1,5 +1,7 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVAlgorithms.h>
+#include <pvkernel/core/PVParallels.h>
+#include <pvkernel/core/PVProgressBox.h>
 
 #include <PVSortFilterProxyModel.h>
 #include <PVSortFilterProxyModel_impl.h>
@@ -7,11 +9,16 @@
 #include <algorithm>
 #include <assert.h>
 
+#include <tbb/tick_count.h>
+
+#include <boost/bind.hpp>
+
 PVInspector::PVSortFilterProxyModel::PVSortFilterProxyModel(QObject* parent):
 	QAbstractProxyModel(parent)
 {
 	_sort_idx = -1;
 	set_dynamic_sort(false);
+	_sort_time = -1.0;
 }
 
 void PVInspector::PVSortFilterProxyModel::init_default_sort()
@@ -31,10 +38,36 @@ void PVInspector::PVSortFilterProxyModel::reset_to_default_ordering()
 	do_filter();
 }
 
+bool PVInspector::PVSortFilterProxyModel::__reverse_sort_order()
+{
+	// We have to be invariant about this varaible, which may be modified by __do_sort.
+	int sort_idx = _sort_idx;
+	__impl::PVSortProxyComp comp(this, _sort_idx);
+	// If the stable reverse code takes more than 1/5th of the stable code, use the stable reverse code
+	assert(_sort_time != -1.0);
+	if (_sort_time == -1.0) {
+		// Should not happen !!
+		__do_sort(_sort_idx, (Qt::SortOrder) !_cur_order);
+		return true;
+	}
+	double time_adapt = _sort_time/2.0;
+	PVCore::launch_adaptive(
+			boost::bind(&PVCore::stable_sort_reverse<vec_indexes_t::iterator, __impl::PVSortProxyComp, void()>, _vec_sort_m2s.begin(), _vec_sort_m2s.end(), comp, boost::ref(boost::this_thread::interruption_point)),
+			boost::bind(&PVSortFilterProxyModel::__do_sort, this, _sort_idx, (Qt::SortOrder) !_cur_order),
+			boost::posix_time::milliseconds(time_adapt*1000)
+			);
+	_sort_idx = sort_idx;
+	return true;
+}
+
 void PVInspector::PVSortFilterProxyModel::reverse_sort_order()
 {
 	// In-place reverse of our first cache
-	bool changed = PVCore::stable_sort_reverse(_vec_sort_m2s.begin(), _vec_sort_m2s.end(), __impl::PVSortProxyComp(this, _sort_idx));
+	bool changed = false;
+	QWidget* parent_ = dynamic_cast<QWidget*>(QObject::parent());
+	PVCore::PVProgressBox* box = new PVCore::PVProgressBox(tr("Reverse sorting order..."), parent_);
+	box->set_enable_cancel(false);
+	PVCore::PVProgressBox::progress(boost::bind(&PVInspector::PVSortFilterProxyModel::__reverse_sort_order, this), box, changed);
 	if (changed) {
 		// If the sorting order has changed, reprocess the filter
 		do_filter();
@@ -70,11 +103,23 @@ void PVInspector::PVSortFilterProxyModel::sort_indexes(int column, Qt::SortOrder
 	}
 }
 
+void PVInspector::PVSortFilterProxyModel::__do_sort(int column, Qt::SortOrder order)
+{
+	tbb::tick_count start = tbb::tick_count::now();
+	init_default_sort();
+	sort_indexes(column, order, _vec_sort_m2s);
+	tbb::tick_count end = tbb::tick_count::now();
+	PVLOG_INFO("Sorting took %0.4f seconds.\n", (end-start).seconds());
+	_sort_time =(end-start).seconds();
+}
+
 void PVInspector::PVSortFilterProxyModel::do_sort(int column, Qt::SortOrder order)
 {
 	assert(column >= 0 && column < sourceModel()->columnCount());
-	init_default_sort();
-	sort_indexes(column, order, _vec_sort_m2s);
+	QWidget* parent_ = dynamic_cast<QWidget*>(QObject::parent());
+	PVCore::PVProgressBox* box = new PVCore::PVProgressBox(tr("Sorting..."), parent_);
+	box->set_enable_cancel(false);
+	PVCore::PVProgressBox::progress(boost::bind(&PVInspector::PVSortFilterProxyModel::__do_sort, this, column, order), box);
 	_sort_idx = column;
 	_cur_order = order;
 }
@@ -229,7 +274,7 @@ QModelIndex PVInspector::PVSortFilterProxyModel::index(int row, int col, const Q
 	return createIndex(row, col);
 }
 
-QModelIndex PVInspector::PVSortFilterProxyModel::parent(const QModelIndex& idx) const
+QModelIndex PVInspector::PVSortFilterProxyModel::parent(const QModelIndex& /*idx*/) const
 {
 	return QModelIndex();
 }

@@ -7,12 +7,13 @@
 // PVlistColNrawDlg
 //
 
-PVInspector::PVListColNrawDlg::PVListColNrawDlg(Picviz::PVView const& view, QVector<int> const& idxes, size_t nvalues, PVCol view_col, QWidget* parent):
+PVInspector::PVListColNrawDlg::PVListColNrawDlg(Picviz::PVView const& view, std::vector<int> const& idxes, size_t nvalues, PVCol view_col, QWidget* parent):
 	QDialog(parent)
 {
 	setupUi(this);
 
 	_model = new __impl::PVListColNrawModel(&view.get_rushnraw_parent(), &idxes, nvalues, view.get_original_axis_index(view_col), this);
+	_values_view->setUniformItemSizes(true);
 	_values_view->setModel(_model);
 
 	_nb_values_edit->setText(QString().setNum(nvalues));
@@ -21,7 +22,7 @@ PVInspector::PVListColNrawDlg::PVListColNrawDlg(Picviz::PVView const& view, QVec
 // Private implementation of PVListColNrawModel
 //
 
-PVInspector::__impl::PVListColNrawModel::PVListColNrawModel(PVRush::PVNraw const* nraw, QVector<int> const* idxes, size_t nvalues, PVCol nraw_col, QWidget* parent):
+PVInspector::__impl::PVListColNrawModel::PVListColNrawModel(PVRush::PVNraw const* nraw, std::vector<int> const* idxes, size_t nvalues, PVCol nraw_col, QWidget* parent):
 	QAbstractListModel(parent),
 	_nraw(nraw),
 	_nraw_col(nraw_col),

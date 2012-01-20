@@ -12,14 +12,18 @@ public:
 	PVDefaultSortingFunc(PVCore::PVArgumentList const& l = PVDefaultSortingFunc::default_args());
 public:
 	virtual f_type f();
-	virtual f_type f_equals();
+	virtual fequals_type f_equals();
+	virtual fless_type f_less();
 
 private:
-	static bool comp_case_asc(PVCore::PVUnicodeString const& s1, PVCore::PVUnicodeString const& s2);
-	static bool comp_nocase_asc(PVCore::PVUnicodeString const& s1, PVCore::PVUnicodeString const& s2);
+	static bool less_case_asc(PVCore::PVUnicodeString const& s1, PVCore::PVUnicodeString const& s2);
+	static bool less_nocase_asc(PVCore::PVUnicodeString const& s1, PVCore::PVUnicodeString const& s2);
 
 	static bool equals_case_asc(PVCore::PVUnicodeString const& s1, PVCore::PVUnicodeString const& s2);
 	static bool equals_nocase_asc(PVCore::PVUnicodeString const& s1, PVCore::PVUnicodeString const& s2);
+
+	static int comp_case_asc(PVCore::PVUnicodeString const& s1, PVCore::PVUnicodeString const& s2);
+	static int comp_nocase_asc(PVCore::PVUnicodeString const& s1, PVCore::PVUnicodeString const& s2);
 
 	CLASS_REGISTRABLE(PVDefaultSortingFunc)
 	CLASS_FUNC_ARGS_PARAM(PVDefaultSortingFunc)

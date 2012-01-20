@@ -32,8 +32,8 @@ protected:
 	void filter_source_indexes(vec_indexes_t const& src_idxes_in, vec_indexes_t& src_idxes_out);
 
 private:
-	mutable Picviz::PVSortingFunc_f _sort_f;
-	mutable Picviz::PVSortingFunc_f _equals_f;
+	mutable Picviz::PVSortingFunc_fless _sort_f;
+	mutable Picviz::PVSortingFunc_fequals _equals_f;
 	Picviz::PVView* _lib_view;
 	Picviz::PVStateMachine* _state_machine;
 	PVTabSplitter* _tab_parent;

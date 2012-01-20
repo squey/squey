@@ -301,7 +301,7 @@ public:
 	size_t sort_unique_indexes(PVCol column, L& idxes)
 	{
 		PVSortingFunc_p sp = get_sort_plugin_for_col(column);
-		__impl::sort_indexes_f(&get_rushnraw_parent(), column, sp->f(), Qt::AscendingOrder, idxes);
+		__impl::sort_indexes_f(&get_rushnraw_parent(), column, sp->f_less(), Qt::AscendingOrder, idxes);
 		typename L::iterator it_end = __impl::unique_indexes_f<L>(&get_rushnraw_parent(), column, sp->f_equals(), idxes);
 		return it_end-idxes.begin();
 	}

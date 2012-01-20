@@ -65,7 +65,7 @@ void PVInspector::PVListingSortFilterProxyModel::sort_indexes(int column, Qt::So
 void PVInspector::PVListingSortFilterProxyModel::sort(int column, Qt::SortOrder order)
 {
 	// TODO: get this from format, view, etc...
-	_sort_f = _def_sort.f();
+	_sort_f = _def_sort.f_less();
 	_equals_f = _def_sort.f_equals();
 	PVSortFilterProxyModel::sort(column, order);
 }

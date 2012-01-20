@@ -201,7 +201,7 @@ public:
 	void process_plotted_if_current(Picviz::PVPlotted* plotted);
 	void toggle_listing_sort();
 
-	size_t get_unique_indexes_for_current_listing(PVCol column, QVector<int>& idxes);
+	size_t get_unique_indexes_for_current_listing(PVCol column, std::vector<int>& idxes);
 
 	void emit_source_changed() { emit source_changed(); }
 
