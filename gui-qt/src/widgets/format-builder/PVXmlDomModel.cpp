@@ -728,6 +728,18 @@ void PVInspector::PVXmlDomModel::openXml(QDomDocument& doc)
 }
 
 
+void PVInspector::PVXmlDomModel::setEltMappingPlotting(QDomElement& elt, QString const& type, QString const& mode_mapping, QString const& mode_plotting)
+{
+	elt.setAttribute("type", type);
+
+	QDomElement elt_map = xmlFile.createElement("mapping");
+	elt_map.setAttribute("mode", mode_mapping);
+	QDomElement elt_plot = xmlFile.createElement("plotting");
+	elt_plot.setAttribute("mode", mode_plotting);
+
+	elt.appendChild(elt_map);
+	elt.appendChild(elt_plot);
+}
 
 
 /******************************************************************************
@@ -774,55 +786,37 @@ void PVInspector::PVXmlDomModel::addUrlIn(const QModelIndex &index){
 
 	//set all axis
 	protocol.setAttribute("name", "Protocol");
-	protocol.setAttribute("type", "enum");
-	protocol.setAttribute("mapping", "default");
-	protocol.setAttribute("plotting", "default");
-	protocol.setAttribute("time-format", "");
+	setEltMappingPlotting(protocol, "enum", "default", "default");
 	protocol.setAttribute("key", "false");
 	protocol.setAttribute("color", "#ffffff");
 	protocol.setAttribute("titlecolor", "#ffffff");
 	protocol.setAttribute("tag", "protocol");
 	domain.setAttribute("name", "Domain");
-	domain.setAttribute("type", "host");
-	domain.setAttribute("mapping", "default");
-	domain.setAttribute("plotting", "default");
-	domain.setAttribute("time-format", "");
+	setEltMappingPlotting(domain, "host", "default", "default");
 	domain.setAttribute("key", "true");
 	domain.setAttribute("color", "#ffffff");
 	domain.setAttribute("titlecolor", "#ffffff");
 	domain.setAttribute("tag", "domain");
 	tld.setAttribute("name", "TLD");
-	tld.setAttribute("type", "enum");
-	tld.setAttribute("mapping", "default");
-	tld.setAttribute("plotting", "default");
-	tld.setAttribute("time-format", "");
+	setEltMappingPlotting(tld, "enum", "default", "default");
 	tld.setAttribute("key", "false");
 	tld.setAttribute("color", "#ffffff");
 	tld.setAttribute("titlecolor", "#ffffff");
 	tld.setAttribute("tag", "tld");
 	port.setAttribute("name", "Port");
-	port.setAttribute("type", "integer");
-	port.setAttribute("mapping", "default");
-	port.setAttribute("plotting", "port");
-	port.setAttribute("time-format", "");
+	setEltMappingPlotting(port, "integer", "default", "port");
 	port.setAttribute("key", "false");
 	port.setAttribute("color", "#ffffff");
 	port.setAttribute("titlecolor", "#ffffff");
 	port.setAttribute("tag", "port");
 	url.setAttribute("name", "URL");
-	url.setAttribute("type", "string");
-	url.setAttribute("mapping", "default");
-	url.setAttribute("plotting", "minmax");
-	url.setAttribute("time-format", "");
+	setEltMappingPlotting(url, "string", "default", "default");
 	url.setAttribute("key", "false");
 	url.setAttribute("color", "#ffffff");
 	url.setAttribute("titlecolor", "#ffffff");
 	url.setAttribute("tag", "url");
 	variable.setAttribute("name", "Variable");
-	variable.setAttribute("type", "string");
-	variable.setAttribute("mapping", "default");
-	variable.setAttribute("plotting", "minmax");
-	variable.setAttribute("time-format", "");
+	setEltMappingPlotting(variable, "string", "default", "default");
 	variable.setAttribute("key", "false");
 	variable.setAttribute("color", "#ffffff");
 	variable.setAttribute("titlecolor", "#ffffff");

@@ -143,6 +143,7 @@ public:
     
 private:
 	static void setDefaultAttributesForAxis(QDomElement& elt);
+	void setEltMappingPlotting(QDomElement& elt, QString const& type, QString const& mode_mapping, QString const& mode_plotting);
 
 private:
     PVRush::PVXmlTreeNodeDom *rootNode;

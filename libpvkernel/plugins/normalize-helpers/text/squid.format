@@ -1,16 +1,25 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE PVParamXml>
-<param version="2">
+<param version="4">
  <field>
   <splitter validator="" expression="([0-9]+)[0-9.]*\s+[0-9]+\s+[0-9]+\s+[A-Z/_-]+([0-9]+)\s+[0-9]+\s+(GET|POST|PUT|OPTIONS)\s+(\S+)\s+(\S+)\s+([^/]+)/(\d+.\d+.\d+.\d+)" full-line="true" type="regexp" regexp="([0-9]+)[0-9.]*\s+[0-9]+\s+[0-9]+\s+[A-Z/_-]+([0-9]+)\s+[0-9]+\s+(GET|POST|PUT|OPTIONS)\s+(\S+)\s+(\S+)\s+([^/]+)/(\d+.\d+.\d+.\d+)" name="Squid">
    <field>
-    <axis titlecolor="#ffffff" mapping="default" time-format="epoch" group="" type="time" name="Time" plotting="default" color="#ffffff" time-sample=""/>
+    <axis titlecolor="#ffffff" group="" type="time" name="Time" color="#ffffff" time-sample="">
+     <mapping mode="default" time-format="@PVTimeFormat(epoch)"/>
+     <plotting mode="default"/>
+    </axis>
    </field>
    <field>
-    <axis titlecolor="#ffffff" tag="key" mapping="default" time-format="" group="" type="enum" name="Response Code" plotting="default" color="#ffffff" time-sample=""/>
+    <axis titlecolor="#ffffff" tag="key" time-format="" group="" type="enum" name="Response Code" color="#ffffff" time-sample="">
+     <mapping mode="default"/>
+     <plotting mode="default"/>
+    </axis>
    </field>
    <field>
-    <axis titlecolor="#ffffff" mapping="default" time-format="" group="" type="enum" name="Request" plotting="default" color="#ffffff"/>
+    <axis titlecolor="#ffffff" time-format="" group="" type="enum" name="Request" color="#ffffff">
+     <mapping mode="default"/>
+     <plotting mode="default"/>
+    </axis>
    </field>
    <field>
     <!--<splitter type="url">
@@ -33,16 +42,62 @@
       <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" type="string" name="Variable" plotting="default" color="#ffffff"/>
      </field>
     </splitter>-->
-    <axis titlecolor="#ffffff" tag="domain" mapping="default" time-format="" group="" type="string" name="URL" plotting="default" color="#ffffff" time-sample=""/>
+    <splitter type="url">
+     <field>
+      <axis titlecolor="#ffffff" tag="protocol" key="false" type="enum" name="Protocol" color="#ffffff">
+       <mapping mode="default"/>
+       <plotting mode="default"/>
+      </axis>
+     </field>
+     <field>
+      <axis titlecolor="#ffffff" tag="domain" key="true" type="host" name="Domain" color="#ffffff">
+       <mapping mode="default"/>
+       <plotting mode="default"/>
+      </axis>
+     </field>
+     <field>
+      <axis titlecolor="#ffffff" tag="tld" key="false" type="enum" name="TLD" color="#ffffff">
+       <mapping mode="default"/>
+       <plotting mode="default"/>
+      </axis>
+     </field>
+     <field>
+      <axis titlecolor="#ffffff" tag="port" key="false" type="integer" name="Port" color="#ffffff">
+       <mapping mode="default"/>
+       <plotting mode="port"/>
+      </axis>
+     </field>
+     <field>
+      <axis titlecolor="#ffffff" tag="url" key="false" type="string" name="URL" color="#ffffff">
+       <mapping mode="default"/>
+       <plotting mode="default"/>
+      </axis>
+     </field>
+     <field>
+      <axis titlecolor="#ffffff" tag="url-variables" key="false" type="string" name="Variable" color="#ffffff">
+       <mapping mode="default"/>
+       <plotting mode="default"/>
+      </axis>
+     </field>
+    </splitter>
    </field>
    <field>
-    <axis titlecolor="#ffffff" tag="key" mapping="default" time-format="" group="" type="enum" name="User" plotting="default" color="#ffffff" time-sample=""/>
+    <axis titlecolor="#ffffff" tag="key" time-format="" group="" type="enum" name="User" color="#ffffff" time-sample="">
+     <mapping mode="default"/>
+     <plotting mode="default"/>
+    </axis>
    </field>
    <field>
-    <axis titlecolor="#ffffff" tag="" mapping="default" time-format="" group="" type="enum" name="Method" plotting="default" color="#ffffff" time-sample=""/>
+    <axis titlecolor="#ffffff" tag="" time-format="" group="" type="enum" name="Method" color="#ffffff" time-sample="">
+     <mapping mode="default"/>
+     <plotting mode="default"/>
+    </axis>
    </field>
    <field>
-    <axis titlecolor="#ffffff" tag="key" mapping="default" time-format="" group="" type="ipv4" name="Source IP" plotting="default" color="#ffffff" time-sample=""/>
+    <axis titlecolor="#ffffff" tag="key" time-format="" group="" type="ipv4" name="Source IP" color="#ffffff" time-sample="">
+     <mapping mode="default"/>
+     <plotting mode="default"/>
+    </axis>
    </field>
   </splitter>
  </field>
