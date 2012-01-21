@@ -22,6 +22,9 @@ class PVStartScreenWidget : public QWidget
 	Q_OBJECT
 
 		PVMainWindow     *main_window;            //!<
+		QWidget          *format_widget;
+		QWidget          *import_widget;
+		QWidget          *investigation_widget;
 
 	public:
 		/**

@@ -26,6 +26,8 @@
 #include <PVArgumentListWidget.h>
 #include <PVInputTypeMenuEntries.h>
 #include <PVColorDialog.h>
+#include <PVStartScreenWidget.h>
+
 //#include <geo/GKMapView.h>
 
 #ifdef CUSTOMER_RELEASE
@@ -92,7 +94,11 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 
 	//setWindowFlags(Qt::FramelessWindowHint);
 
-
+	// FIXME
+	PVStartScreenWidget *testt = new PVStartScreenWidget (this, this);
+	testt->show();
+	
+	
 	about_dialog = 0;
 	// picviz_datatreerootitem_t *datatree;
 
@@ -154,6 +160,9 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 	centerLayout->addWidget(pv_ImportFileButton);
 	pv_startLayout->addLayout(centerLayout);
 	pv_startLayout->addItem(new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding));
+	
+	// FIXME
+	pv_startLayout->addWidget(testt);
 
 	QGridLayout* versionLayout = new QGridLayout();
 	QLabel* label = new QLabel(tr("Current version") + QString(" :"));
