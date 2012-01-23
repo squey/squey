@@ -349,3 +349,28 @@ void PVInspector::PVListingView::refresh_listing_filter()
 {
 	get_listing_model()->refresh_filter();
 }
+
+void PVInspector::PVListingView::selectAll()
+{
+	// AG: this function is called by QTableView when the corner button is pushed.
+	// That behaviour can't be changed (it is hardcoded in Qt, see qtableview.cpp:632).
+	// One hack (this one) is to check that the sender of this action is a QAbstractButton whose parent is this
+	// QTableView. Another hack is to take the first child that is a QAbstractButton of this QTableView
+	// and to reconnect it to another slot. Both have drawbacks, we chose this one because it is the quicker to
+	// implement.
+	
+	QObject* s = sender();
+	if (dynamic_cast<QAbstractButton*>(s) && s->parent() == this) {
+		corner_button_clicked();
+	}
+	else {
+		QTableView::selectAll();
+	}
+}
+
+void PVInspector::PVListingView::corner_button_clicked()
+{
+	// Reset to default ordering
+	get_listing_model()->reset_to_default_ordering_or_reverse();
+	sortByColumn(-1, Qt::AscendingOrder);
+}

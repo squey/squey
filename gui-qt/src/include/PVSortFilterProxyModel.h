@@ -32,6 +32,7 @@ public:
 	inline void set_dynamic_sort(bool enable) { _dyn_sort = enable; }
 	inline bool dynamic_sort() const { return _dyn_sort; }
 	void reset_to_default_ordering();
+	void reset_to_default_ordering_or_reverse();
 	inline vec_indexes_t const& get_proxy_indexes() const { return _vec_filtered_m2s; }
 
 	// Helper functions for derived classes

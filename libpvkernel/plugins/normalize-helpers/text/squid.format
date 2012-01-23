@@ -42,44 +42,10 @@
       <axis titlecolor="#ffffff" key="false" mapping="default" time-format="" type="string" name="Variable" plotting="default" color="#ffffff"/>
      </field>
     </splitter>-->
-    <splitter type="url">
-     <field>
-      <axis titlecolor="#ffffff" tag="protocol" key="false" type="enum" name="Protocol" color="#ffffff">
-       <mapping mode="default"/>
-       <plotting mode="default"/>
-      </axis>
-     </field>
-     <field>
-      <axis titlecolor="#ffffff" tag="domain" key="true" type="host" name="Domain" color="#ffffff">
-       <mapping mode="default"/>
-       <plotting mode="default"/>
-      </axis>
-     </field>
-     <field>
-      <axis titlecolor="#ffffff" tag="tld" key="false" type="enum" name="TLD" color="#ffffff">
-       <mapping mode="default"/>
-       <plotting mode="default"/>
-      </axis>
-     </field>
-     <field>
-      <axis titlecolor="#ffffff" tag="port" key="false" type="integer" name="Port" color="#ffffff">
-       <mapping mode="default"/>
-       <plotting mode="port"/>
-      </axis>
-     </field>
-     <field>
-      <axis titlecolor="#ffffff" tag="url" key="false" type="string" name="URL" color="#ffffff">
-       <mapping mode="default"/>
-       <plotting mode="default"/>
-      </axis>
-     </field>
-     <field>
-      <axis titlecolor="#ffffff" tag="url-variables" key="false" type="string" name="Variable" color="#ffffff">
-       <mapping mode="default"/>
-       <plotting mode="default"/>
-      </axis>
-     </field>
-    </splitter>
+    <axis titlecolor="#ff921d" tag="" group="" type="string" name="URL" color="#ffffff">
+     <mapping/>
+     <plotting/>
+    </axis>
    </field>
    <field>
     <axis titlecolor="#ffffff" tag="key" time-format="" group="" type="enum" name="User" color="#ffffff" time-sample="">
