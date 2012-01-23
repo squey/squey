@@ -109,7 +109,10 @@ PVInspector::PVStartScreenWidget::PVStartScreenWidget(PVMainWindow *mw, PVMainWi
 	investigation_widget_layout->addWidget(open_investigation_button);
 	
 	
-	
+	// Final Stretch as Spacer ...
+	format_widget_layout->addStretch(1);
+	import_widget_layout->addStretch(1);
+	investigation_widget_layout->addStretch(1);
 	
 	setLayout(main_layout);
 }
