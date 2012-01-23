@@ -19,6 +19,7 @@ layer_filter_create_layers
 )
 
 set(FILTERS_DIST_FILES
+create-layers/create-layers.conf
 )
 
 set(LINK_LIBRARIES ${PICVIZ_LIBRARY} ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
