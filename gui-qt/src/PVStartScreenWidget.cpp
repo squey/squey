@@ -86,7 +86,7 @@ PVInspector::PVStartScreenWidget::PVStartScreenWidget(PVMainWindow *mw, PVMainWi
 	// We create the headers labels
 	QLabel *format_label = new QLabel("Format", format_widget);
 	QLabel *import_label = new QLabel("Import", import_widget);
-	QLabel *investigation_label = new QLabel("Investigation", investigation_widget);
+	QLabel *investigation_label = new QLabel("INVESTIGATION", investigation_widget);
 	
 	// We add the labels
 	format_widget_layout->addWidget(format_label);

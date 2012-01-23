@@ -56,8 +56,9 @@
 
 
 	<!-- FONTS -->
+	<!-- WARNING : alias must have .ttf extension here not used in the CSS file -->
 	<file alias="Convergence-Regular.ttf">resources/fonts/Convergence-Regular.ttf</file>
-	<file alias="OSP-DIN">resources/fonts/OSP-foundry_DIN/OSP-DIN.ttf</file>
+	<file alias="OSP-DIN.ttf">resources/fonts/OSP-foundry_DIN/OSP-DIN.ttf</file>
 
 
 	<!-- ICONS for PVLayerStackWidget (it's QToolBar) -->

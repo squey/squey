@@ -351,6 +351,21 @@ QScrollBar#verticalScrollBar_of_PVListingView::up-arrow {
 	background-color: white;
 }
 
+#format_widget_of_PVStartScreenWidget QLabel {
+	background-color: red;
+	font-family: "OSP-DIN";
+	font-size: 18px;
+	
+}
+
+
+
+#PVStartScreenWidget /*QWidget QLabel*/ {
+	font-family: "OSP-DIN";
+	font-size: 18px;
+/* 	font-weight: bold; */
+}
+
 #PVStartScreenWidget QPushButton {
 	background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
 				stop:0 #969696,
