@@ -98,6 +98,11 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 	PVStartScreenWidget *testt = new PVStartScreenWidget (this, this);
 	testt->show();
 	
+	// FONT stuff
+	QFontDatabase pv_font_database;
+	pv_font_database.addApplicationFont(QString(":/Jura-DemiBold.ttf"));
+	pv_font_database.addApplicationFont(QString(":/OSP-DIN.ttf"));
+
 	
 	about_dialog = 0;
 	// picviz_datatreerootitem_t *datatree;
@@ -1196,11 +1201,11 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 	QString screenshot_filename;
 	
 	// FIXME!  This is so UGLY !!!
-// 	QFile css_file("/donnees/GIT/OLD/picviz-inspector/gui-qt/src/resources/gui.css");
-// 	css_file.open(QFile::ReadOnly);
-// 	QTextStream css_stream(&css_file);
-// 	QString css_string(css_stream.readAll());
-// 	css_file.close();
+	QFile css_file("/donnees/GIT/OLD/picviz-inspector/gui-qt/src/resources/gui.css");
+	css_file.open(QFile::ReadOnly);
+	QTextStream css_stream(&css_file);
+	QString css_string(css_stream.readAll());
+	css_file.close();
 
 	
 
@@ -1307,8 +1312,8 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 				break;
 			}
 			// PhS
-// 			setStyleSheet(css_string);
-// 			setStyle(QApplication::style());
+			setStyleSheet(css_string);
+			setStyle(QApplication::style());
 
 
 // 			number_of_selected_lines = current_lib_view->get_number_of_selected_lines();

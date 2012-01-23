@@ -50,7 +50,7 @@ public:
 private:
 	//sorting data
 	std::vector<int, tbb::tbb_allocator<int> > localMatchingTable; //!<the table sort, modify this array to order the values
-    QMutex localMatchingTable_locker;
+	QMutex localMatchingTable_locker;
 	TypeOfSort sortOrder; //!<save the current sorting state (NoOrder, AscendingOrder, DescendingOrder)
 	int colSorted; //!<save the last column whiche was used to sort
 	
@@ -64,7 +64,7 @@ private:
 protected:
 	PVMainWindow  *main_window;     //!<
 	PVTabSplitter *parent_widget;   //!<
-    MatchingTable_t *sortMatchingTable;
+	MatchingTable_t *sortMatchingTable;
     
 	QFontDatabase test_fontdatabase;
 	QFont  row_header_font;
