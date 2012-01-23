@@ -1,7 +1,6 @@
 #!/usr/bin/perl
 
 my ($LOGFILE) = 0;
-my ($read_once) = 0;
 
 sub picviz_open_file {
     $filename = $_[0];
@@ -26,17 +25,14 @@ sub picviz_get_next_chunk {
 	my ($min_chunk_size) = $_[0];
 	print "From PERL: picviz_get_next_chunk $min_chunk_size\n";
 	$row = 0;
+	$nbytes = 0;
 
-	if ($read_once != 0) {
-	    my(@array) = ();
-	    return @array;
-	}
-
-	$read_once = 1;
+	my(@array) = ();
 
 	while(<$main::LOGFILE>) {
 	    # $line = $_;
 	    chomp;
+		$nbytes += length;
 
 	    if (/(\w{3}\s+\w{3}\s+\d+\s+\d+:\d+:\d+\s+\d+).*Start MID \d+ ICID \d+/) { ($timestart) = ($1); }
 	    if (/.*ICID \d+ From:\s+(.*)/) { ($from) = ($1); }
@@ -56,8 +52,13 @@ sub picviz_get_next_chunk {
 		$array[$row][4] = $subject;
 		$array[$row][5] = $to;
 		$row++;
-		next;
 	    }
+
+		if ($nbytes >= $min_chunk_size) {
+			last;
+		}
+
+		next;
 	}
 
 # We must reverse because perl stack will POP from the end
