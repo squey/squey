@@ -13,11 +13,6 @@
 }*/
 
 
-QMainWindow#PVMainWindow {
-	background-image: url(:background-window.png);
-}
-
-
 /*QTableView#PVLayerStackView {
 	background-color: green;
 }
@@ -65,21 +60,30 @@ QToolBar#QToolBar_of_PVLayerStackWidget {
  * PVListingsTabWidget
  ***************************/
 
+QTabWidget#PVListingsTabWidget {
+ }
+
+
 /* The tab widget frame */
 QTabWidget#PVListingsTabWidget::pane {
-     border-top: 1px solid #cbcbcb;
+	border-top: 1px solid #cbcbcb;
  }
 
 
 QTabWidget#PVListingsTabWidget::tab-bar {
-     left: 5px; /* move to the right by 5px */
+	left: 5px; /* move to the right by 5px */
  }
+ 
+ 
+/*QTabWidget#PVListingsTabWidget QTabBar {
+ }*/
+ 
+ 
 
  /* Style the tab using the tab sub-control. Note that
      it reads QTabBar _not_ QTabWidget */
  /* And we make non-selected tabs look smaller */
 QTabWidget#PVListingsTabWidget QTabBar::tab {
-	background-color: grey;
 	border-color: #cbcbcb;
 	border-style: solid;
 	border-top-left-radius: 4px;
@@ -203,24 +207,53 @@ PVListingView QHeaderView::up-arrow {
 
 
 
+/****************************
+ * PVMainWindow
+ ***************************/
+
+/*QMainWindow#PVMainWindow {
+	background-image: url(:background-window.png);
+}*/
+
+
+/*QWidget#pv_centralMainWidget_of_PVMainWindow * {
+	background-color: #f0f0f0;
+}*/
+
+
+QWidget#pv_centralStartWidget_of_PVMainWindow {
+	background-image: url(:background-window.png);
+}
+
+QMainWindow#PVMainWindow {
+	background-color: #626262;
+}
+
+
 
 /****************************
  * PVTabSplitter
  ***************************/
 
-QSplitter#PVTabSplitter {
+QMainWindow#PVMainWindow > QSplitter#PVTabSplitter {
 	background-color: #626262;
 	padding: 0;
 }
 
+QSplitter#PVTabSplitter QDialog{
+	background-color: #f5f5f5;
+	padding: 0;
+}
+
+
 
 QSplitter#PVTabSplitter::handle {
-	background-color: #cd8bcc;
+	background-color: #660066;
 }
 
-QSplitter#PVTabSplitter > QWidget{
+/*QSplitter#PVTabSplitter > QWidget{
 	background-color: #626262;
-}
+}*/
 
 QWidget#right_widget_of_PVTabSplitter {
 	
