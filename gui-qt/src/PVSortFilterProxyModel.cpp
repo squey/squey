@@ -38,6 +38,21 @@ void PVInspector::PVSortFilterProxyModel::reset_to_default_ordering()
 	do_filter();
 }
 
+void PVInspector::PVSortFilterProxyModel::reset_to_default_ordering_or_reverse()
+{
+	if (_sort_idx == -1) {
+		// Special case where a std::reverse is really wanted !
+		emit layoutAboutToBeChanged();
+		std::reverse(_vec_sort_m2s.begin(), _vec_sort_m2s.end());
+		std::reverse(_vec_filtered_m2s.begin(), _vec_filtered_m2s.end());
+		emit layoutChanged();
+		_cur_order = (Qt::SortOrder) !_cur_order;
+	}
+	else {
+		reset_to_default_ordering();
+	}
+}
+
 bool PVInspector::PVSortFilterProxyModel::__reverse_sort_order()
 {
 	// We have to be invariant about this varaible, which may be modified by __do_sort.

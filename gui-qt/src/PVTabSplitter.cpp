@@ -57,7 +57,8 @@ PVInspector::PVTabSplitter::PVTabSplitter(PVMainWindow *mw, Picviz::PVSource_p l
 	pv_listing_view = new PVListingView(main_window, this);
 	pv_listing_proxy_model->setSourceModel(pv_listing_model);
 	pv_listing_view->setModel(pv_listing_proxy_model);
-	//pv_listing_view->setSortingEnabled(true);
+	pv_listing_view->sortByColumn(-1, Qt::AscendingOrder);
+	pv_listing_view->setSortingEnabled(true);
 	addWidget(pv_listing_view);
 	
 	// Layout of the RIGHT_WIDGET

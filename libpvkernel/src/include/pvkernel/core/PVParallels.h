@@ -36,9 +36,7 @@ void launch_adaptive(F1 const& f1, F2 const& f2, TimeDuration const& dur)
 	if (!thread.timed_join(dur)) {
 		// f1 takes too much time. We tell thread to stop, and launch f2. Then, waits for thread to finish.
 		thread.interrupt();
-		PVLOG_INFO("launch_adaptive: wait for end of f1.\n");
 		thread.join();
-		PVLOG_INFO("f1 finished.\n");
 		f2();
 	}
 }
@@ -50,9 +48,7 @@ void launch_adaptive(F1 const& f1, F2 const& f2, TimeDuration const& dur, Tret& 
 	if (!thread.timed_join(dur)) {
 		// f1 takes too much time. We tell thread to stop, and launch f2. Then, waits for thread to finish.
 		thread.interrupt();
-		PVLOG_INFO("launch_adaptive: wait for end of f1.\n");
 		thread.join();
-		PVLOG_INFO("f1 finished.\n");
 		ret = f2();
 	}
 }

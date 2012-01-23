@@ -60,7 +60,7 @@ float* Picviz::PVMappingFilterTimeDefault::operator()(PVRush::PVNraw::const_tran
 		dtparsers[i] = pstack;
 	}
 	tbb::tick_count end_alloc = tbb::tick_count::now();
-	PVLOG_INFO("(PVMappingFilterTimeDefault::operator()) object creations took %0.4fs.\n", (end_alloc-start_alloc).seconds());
+	PVLOG_DEBUG("(PVMappingFilterTimeDefault::operator()) object creations took %0.4fs.\n", (end_alloc-start_alloc).seconds());
 
 	int64_t size = _dest_size;
 	// TODO: compare TBB and OpenMP here !!
@@ -108,7 +108,7 @@ float* Picviz::PVMappingFilterTimeDefault::operator()(PVRush::PVNraw::const_tran
 	}
 
 	end_alloc = tbb::tick_count::now();
-	PVLOG_INFO("(PVMappingFilterTimeDefault::operator()) object destruction took %0.4fs.\n", (end_alloc-start_alloc).seconds());
+	PVLOG_DEBUG("(PVMappingFilterTimeDefault::operator()) object destruction took %0.4fs.\n", (end_alloc-start_alloc).seconds());
 
 	return _dest;
 }

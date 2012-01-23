@@ -574,7 +574,6 @@ void PVGL::PVMain::timer_func(int)
 						{
 							QString *name = reinterpret_cast<QString *>(message.pointer_1);
 							create_scatter(name, message.pv_view);
-							PVLOG_INFO("PVGL::%s scatter view created\n", __FUNCTION__);
 							message.function = PVSDK_MESSENGER_FUNCTION_VIEW_CREATED;
 							pvsdk_messenger->post_message_to_qt(message);
 						}

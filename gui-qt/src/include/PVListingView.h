@@ -80,6 +80,10 @@ public:
 
 	PVListingSortFilterProxyModel* get_listing_model();
 
+public slots:
+	void selectAll();
+	void corner_button_clicked();
+
 protected:
 	void mouseDoubleClickEvent(QMouseEvent* event);
 
