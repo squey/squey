@@ -235,7 +235,7 @@ void PVInspector::PVMainWindow::create_menus()
 	axes_Menu->addSeparator();
 	axes_Menu->addAction(axes_mode_Action);
 	axes_Menu->addAction(axes_display_edges_Action);
-	axes_Menu->addAction(axes_new_Action);
+	//axes_Menu->addAction(axes_new_Action);
 	axes_Menu->addSeparator();
 
 

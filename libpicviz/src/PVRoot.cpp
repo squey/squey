@@ -22,7 +22,7 @@ Picviz::PVRoot::PVRoot()
 	load_layer_filters();
 	load_mapping_filters();
 	load_plotting_filters();
-	load_axis_computation_filters();
+	//load_axis_computation_filters();
 	load_sorting_functions_filters();
 
 	// Load PVRush plugins
