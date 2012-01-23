@@ -42,6 +42,9 @@ void PVInspector::PVWidgetsHelpers::PVMappingModeWidget::init(bool params_btn)
 
 		connect(_params_btn, SIGNAL(clicked()), this, SLOT(change_params()));
 	}
+	else {
+		_params_btn = NULL;
+	}
 	setLayout(layout);
 	
 	setFocusPolicy(Qt::StrongFocus);
