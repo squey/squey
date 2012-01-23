@@ -39,9 +39,7 @@ void PVRush::PVNraw::reserve(PVRow row, PVCol col)
 		row = max_alloc/(col*sizeof(PVCore::PVUnicodeString));
 	}
 #endif
-	PVLOG_INFO("(PVNraw::reserve) row=%u col=%u\n", row, col);
 	table.resize(row, col);
-	PVLOG_INFO("(PVNraw::reserve) done\n");
 }
 
 void PVRush::PVNraw::free_trans_nraw()
@@ -63,7 +61,7 @@ bool PVRush::PVNraw::create_trans_nraw()
 	trans_table.clear();
 	table.transpose_to(trans_table);
 	tbb::tick_count end = tbb::tick_count::now();
-	PVLOG_INFO("(PVNraw::create_trans_nraw) transposition took %0.4fs\n", (end-start).seconds());
+	//PVLOG_INFO("(PVNraw::create_trans_nraw) transposition took %0.4fs\n", (end-start).seconds());
 
 	return true;
 }

@@ -22,8 +22,8 @@
   </field>
   <field>
    <axis titlecolor="#ff921d" tag="" time-format="" group="" type="string" name="Message" color="#ffffff" time-sample="">
-    <mapping mode="default"/>
-    <plotting mode="default"/>
+    <mapping mode="plouf"/>
+    <plotting mode="dsfdlsf"/>
    </axis>
   </field>
  </splitter>
