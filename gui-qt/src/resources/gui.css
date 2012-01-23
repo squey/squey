@@ -211,6 +211,26 @@ QWidget#pv_centralStartWidget_of_PVMainWindow {
 	background-image: url(:background-window.png);
 }
 
+/* This is temporary! */
+QWidget#pv_centralStartWidget_of_PVMainWindow QPushButton {
+	background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+				stop:0 #585858,
+				stop:0.5 #3d3d3d,
+				stop:1 #1b1b1b);
+	
+	border-radius: 4px;
+	border-style: none;
+	color: white;
+	
+	font-family: "Arial";
+	font-size: 18px;
+	font-weight: bold;
+	
+	padding: 7px 0px 7px 0px;
+}
+
+
+
 QMainWindow#PVMainWindow {
 	background-image: url(:background-window.png);
 /* 	background-color: #626262; */

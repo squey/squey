@@ -71,6 +71,7 @@
 
 	<!-- START SCREEN -->
 	<file alias="start-logo">resources/trafik/elements-interface/logo-picviz-intro.png</file>
+	<file alias="import-icon-white">resources/trafik/elements-interface/icone-import-blanc.png</file>
 
 
 	<!-- QSCROLLBAR ICONS -->
