@@ -10,26 +10,6 @@
 #include <QSpacerItem>
 #include <QPushButton>
 
-static char get_ascii_from_sequence(QKeySequence key)
-{
-	// from qnamespace.h
-	// Key_Escape = 0x01000000,
-	// Key_Tab = 0x01000001,
-	// Key_Backtab = 0x01000002,
-
-	switch(key[0]) {
-	case Qt::Key_Tab:
-		return '\t';
-	case Qt::Key_Backtab:
-		return '\b';
-	case Qt::Key_Escape:
-		return 0x1b;
-	default:
-		return key[0];
-	}
-
-}
-
 /******************************************************************************
  *
  * PVFilter::PVFieldSplitterCSVParamWidget::PVFieldSplitterCSVParamWidget
@@ -141,7 +121,7 @@ void PVFilter::PVFieldSplitterCSVParamWidget::updateSeparator(QKeySequence key)
 	PVCore::PVArgumentList args;
 
 
-	args["sep"] = QChar::fromAscii(get_ascii_from_sequence(key));
+	args["sep"] = QChar::fromAscii(QKeySequenceWidget::get_ascii_from_sequence(key));
 	this->get_filter()->set_args(args);
 
 	update_recommanded_nfields();

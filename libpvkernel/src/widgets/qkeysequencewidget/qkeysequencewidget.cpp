@@ -34,6 +34,28 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <pvkernel/widgets/qkeysequencewidget_p.h>
 #include <pvkernel/widgets/qkeysequencewidget.h>
 
+char QKeySequenceWidget::get_ascii_from_sequence(QKeySequence key)
+{
+	// from qnamespace.h
+	// Key_Escape = 0x01000000,
+	// Key_Tab = 0x01000001,
+	// Key_Backtab = 0x01000002,
+
+	switch(key[0]) {
+	case Qt::Key_Tab:
+		return '\t';
+	case Qt::Key_Backtab:
+		return '\b';
+	case Qt::Key_Escape:
+		return 0x1b;
+	case Qt::Key_Return:
+	case Qt::Key_Enter:
+		return 0x0a;
+	default:
+		return key[0];
+	}
+}
+
 /*!
   Creates a QKeySequenceWidget object wuth \a parent and empty \a keySequence
 */

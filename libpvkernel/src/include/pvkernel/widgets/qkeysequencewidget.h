@@ -109,6 +109,9 @@ public:
 
     QKeySequenceWidget::ClearButtonShow clearButtonShow() const;
 
+	static char get_ascii_from_sequence(QKeySequence key);
+
+
 Q_SIGNALS:
     void keySequenceChanged(const QKeySequence &seq);
     void keyNotSupported();

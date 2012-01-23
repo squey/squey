@@ -24,8 +24,8 @@ public:
 	PVListColNrawModel(PVRush::PVNraw const* nraw, std::vector<int> const* idxes, size_t nvalues, PVCol nraw_col, QWidget* parent = NULL);
 
 public:
-	int rowCount(QModelIndex const& parent) const;
-	QVariant data(QModelIndex const& index, int role) const;
+	int rowCount(QModelIndex const& parent = QModelIndex()) const;
+	QVariant data(QModelIndex const& index, int role = Qt::DisplayRole) const;
 	QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
 private:
@@ -43,6 +43,13 @@ class PVListColNrawDlg: public QDialog, Ui::PVListColNrawDlg
 
 public:
 	PVListColNrawDlg(Picviz::PVView const& view, std::vector<int> const& idxes, size_t nvalues, PVCol view_col, QWidget* parent = NULL);
+
+private slots:
+	void copy_to_clipboard();
+	void copy_to_file();
+
+private:
+	bool write_values(QDataStream* stream);
 
 private:
 	__impl::PVListColNrawModel* _model;
