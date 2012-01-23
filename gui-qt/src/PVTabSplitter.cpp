@@ -62,11 +62,11 @@ PVInspector::PVTabSplitter::PVTabSplitter(PVMainWindow *mw, Picviz::PVSource_p l
 	addWidget(pv_listing_view);
 	
 	// Layout of the RIGHT_WIDGET
-	// We prepare the right part of the view (with the listing and the Format editor)
+	// We prepare the right part of the view (with the LayerStack and the Format editor)
 	// We need a Layout
 	QVBoxLayout* right_layout = new QVBoxLayout();
 	// We set the margins in that Layout
-	right_layout->setContentsMargins(10,10,10,10);
+	right_layout->setContentsMargins(8,8,8,8);
 	
 	// We prepare the PVLayerStackWidget and add it to the layout
 	pv_layer_stack_model = new PVLayerStackModel(main_window, this);

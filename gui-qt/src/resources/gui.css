@@ -127,7 +127,7 @@ QTabWidget#PVListingsTabWidget QTabBar::tab:selected {
  ***************************/
 
 QTableView#PVListingView {
-	background-color: #626262;
+/* 	background-color: #626262; */
 	font-family: "Arial";
 }
 
@@ -147,7 +147,7 @@ QHeaderView#horizontalHeader_of_PVListingView::section {
 }
 
 QHeaderView#verticalHeader_of_PVListingView::section {
-	background-color: #ffffff;
+	background-color: #f0f0f0;
 	
 	border-bottom-style: none;
 	border-left-style: none;
@@ -190,20 +190,6 @@ QHeaderView#verticalHeader_of_PVListingView::section:pressed {
 	border: 1px solid #6c6c6c;
  }*/
 
-PVListingView QHeaderView::section:checked
-{
-	background-color: red;
-}
-
-/* style the sort indicator */
-PVListingView QHeaderView::down-arrow {
-	background-color: green;
-}
-
-PVListingView QHeaderView::up-arrow {
-	background-color: blue;
-}
- 
 
 
 
@@ -226,7 +212,8 @@ QWidget#pv_centralStartWidget_of_PVMainWindow {
 }
 
 QMainWindow#PVMainWindow {
-	background-color: #626262;
+	background-image: url(:background-window.png);
+/* 	background-color: #626262; */
 }
 
 
@@ -236,19 +223,27 @@ QMainWindow#PVMainWindow {
  ***************************/
 
 QMainWindow#PVMainWindow > QSplitter#PVTabSplitter {
+/* 	background-color: #626262; */
+	padding: 0;
+}
+
+QSplitter#PVTabSplitter QDialog {
+/* 	background-color: #f5f5f5; */
+	padding: 0;
+}
+
+
+/*QSplitter#PVTabSplitter > QWidget#right_widget_of_PVTabSplitter {
 	background-color: #626262;
-	padding: 0;
-}
-
-QSplitter#PVTabSplitter QDialog{
-	background-color: #f5f5f5;
-	padding: 0;
-}
-
+}*/
 
 
 QSplitter#PVTabSplitter::handle {
-	background-color: #660066;
+	background-image: url(':/new_layer_icon');
+	background-position: center center;
+	background-repeat: no-repeat;
+	
+/* 	background-color: #660066; */
 }
 
 /*QSplitter#PVTabSplitter > QWidget{
