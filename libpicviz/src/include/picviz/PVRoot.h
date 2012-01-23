@@ -20,6 +20,7 @@
 #define MAPPING_FILTER_PREFIX "mapping_filter"
 #define PLOTTING_FILTER_PREFIX "plotting_filter"
 #define AXIS_COMPUTATION_PLUGINS_PREFIX "axis_computation"
+#define SORTING_FUNCTIONS_PLUGINS_PREFIX "sorting"
 
 namespace Picviz {
 
@@ -44,6 +45,7 @@ private:
 	static int load_mapping_filters();
 	static int load_plotting_filters();
 	static int load_axis_computation_filters();
+	static int load_sorting_functions_filters();
 };
 
 typedef PVRoot::p_type PVRoot_p;

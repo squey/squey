@@ -204,7 +204,7 @@ public:
 	void select_no_line();
 	void select_inv_lines();
 
-	PVSortingFunc_p get_sort_plugin_for_col(PVCol /*col*/) const { return PVSortingFunc_p(new PVDefaultSortingFunc()); };
+	PVSortingFunc_p get_sort_plugin_for_col(PVCol col) const;
 
 
 /******************************************************************************

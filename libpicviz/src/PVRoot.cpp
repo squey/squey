@@ -23,6 +23,7 @@ Picviz::PVRoot::PVRoot()
 	load_mapping_filters();
 	load_plotting_filters();
 	load_axis_computation_filters();
+	load_sorting_functions_filters();
 
 	// Load PVRush plugins
 	PVRush::PVPluginsLoad::load_all_plugins();
@@ -67,6 +68,7 @@ int Picviz::PVRoot::load_axis_computation_filters()
 	else {
 		PVLOG_INFO("%d axis computation plugins have been loaded.\n", ret);
 	}
+	return ret;
 }
 
 // Layer filters loading
@@ -123,6 +125,23 @@ int Picviz::PVRoot::load_plotting_filters()
 	}
 	else {
 		PVLOG_INFO("%d plotting filters have been loaded.\n", ret);
+	}
+	return ret;
+}
+
+/******************************************************************************
+ *
+ * Picviz::PVRoot::load_sorting_functions_filters
+ *
+ *****************************************************************************/
+int Picviz::PVRoot::load_sorting_functions_filters()
+{
+	int ret = PVCore::PVClassLibraryLibLoader::load_class_from_dirs(QString(picviz_plugins_get_sorting_functions_dir()), SORTING_FUNCTIONS_PLUGINS_PREFIX);
+	if (ret == 0) {
+		PVLOG_WARN("No sorting plugin has been loaded !\n");
+	}
+	else {
+		PVLOG_INFO("%d sorting plugins have been loaded.\n", ret);
 	}
 	return ret;
 }
