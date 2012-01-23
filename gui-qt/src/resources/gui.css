@@ -353,7 +353,7 @@ QScrollBar#verticalScrollBar_of_PVListingView::up-arrow {
 
 #format_widget_of_PVStartScreenWidget QLabel {
 	background-color: red;
-	font-family: "OSP-DIN";
+	font-family: "Jura-DemiBold.ttf";
 	font-size: 18px;
 	
 }
