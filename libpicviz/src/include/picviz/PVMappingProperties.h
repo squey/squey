@@ -40,6 +40,7 @@ public:
 	void set_type(QString const& type, QString const& mode);
 	void set_mode(QString const& mode);
 	void set_args(PVCore::PVArgumentList const& args);
+	PVCore::PVArgumentList const& get_args() const { return _args; }
 	inline PVMappingFilter::p_type get_mapping_filter() const { assert(_mapping_filter); return _mapping_filter; }
 	inline QString const& get_type() const { return _type; }
 	inline QString const& get_mode() const { return _mode; }
