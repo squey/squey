@@ -1,6 +1,7 @@
 #include <pvkernel/rush/PVNraw.h>
 #include <picviz/PVView.h>
 
+#include <pvkernel/core/PVProgressBox.h>
 #include <PVListColNrawDlg.h>
 
 #include <QClipboard>
@@ -39,6 +40,9 @@ bool PVInspector::PVListColNrawDlg::write_values(QDataStream* stream)
 	// Write the values into that data stream.
 	// Values are converted into the system locale.
 	for (int i = 0; i < _model->rowCount(); i++) {
+		if (i % 64 == 0) {
+			boost::this_thread::interruption_point();
+		}
 		tmp = _model->data(_model->index(i, 0)).toString().toLocal8Bit();
 		int len = stream->writeRawData(tmp.constData(), tmp.size());
 		if (len != tmp.size()) {
@@ -58,12 +62,15 @@ void PVInspector::PVListColNrawDlg::copy_to_clipboard()
 	// Write the values into a byte array, and copy it into the clipboard
 	QByteArray ba;
 	QDataStream ds(&ba, QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text);
-	if (!write_values(&ds)) {
+	bool write_success = false;
+	bool process_done = PVCore::PVProgressBox::progress(boost::bind(&PVListColNrawDlg::write_values, this, &ds), tr("Copying values..."), write_success, this);
+	if (!process_done) {
+		return;
+	}
+	if (!write_success) {
 		QMessageBox::critical(this, tr("Copy to clipboard..."), tr("Error while copying to clipboard: no more memory available."));
 		return;
 	}
-
-	PVLOG_INFO("text: %s\n", ba.constData());
 
 	QClipboard *clipboard = QApplication::clipboard();
 	QMimeData* mdata = new QMimeData();
@@ -87,7 +94,17 @@ void PVInspector::PVListColNrawDlg::copy_to_file()
 	}
 
 	QDataStream ds(&file);
-	if (!write_values(&ds)) {
+	bool write_success = false;
+	bool process_done = PVCore::PVProgressBox::progress(boost::bind(&PVListColNrawDlg::write_values, this, &ds), tr("Copying values..."), write_success, this);
+	if (!process_done) {
+		if (QMessageBox::question(this, tr("File writing cancelled"), tr("Do you want to remove the file '%1'?").arg(path), QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes) {
+			if (!file.remove()) {
+				QMessageBox::warning(this, tr("File writing cancelled"), tr("Error while removing '%1': %2").arg(path).arg(file.errorString()));
+			}
+		}
+		return;
+	}
+	if (!write_success) {
 		QMessageBox::critical(this, tr("Copy to file..."), tr("Error while writing to '%1': %2.").arg(path).arg(file.errorString()));
 		return;
 	}
