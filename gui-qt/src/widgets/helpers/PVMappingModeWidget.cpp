@@ -7,28 +7,36 @@
 PVInspector::PVWidgetsHelpers::PVMappingModeWidget::PVMappingModeWidget(QString const& type, QWidget* parent):
 	QWidget(parent)
 {
-	_combo = new PVComboBox(this);
-	QHBoxLayout* layout = new QHBoxLayout();
-	layout->addWidget(_combo);
-	setLayout(layout);
-	
-	setFocusPolicy(Qt::StrongFocus);
-
+	init();
+	_params_btn->setVisible(false);
 	populate_from_type(type);
 }
 
 PVInspector::PVWidgetsHelpers::PVMappingModeWidget::PVMappingModeWidget(PVCol axis_id, Picviz::PVMapping const& mapping, QWidget* parent):
 	QWidget(parent)
 {
-	_combo = new PVComboBox(this);
+	init();
 	populate_from_mapping(axis_id, mapping);
 }
 
 PVInspector::PVWidgetsHelpers::PVMappingModeWidget::PVMappingModeWidget(PVCol axis_id, Picviz::PVView const& view, QWidget* parent):
 	QWidget(parent)
 {
-	_combo = new PVComboBox(this);
+	init();
 	populate_from_mapping(axis_id, view.get_mapped_parent()->get_mapping());
+}
+
+void PVInspector::PVWidgetsHelpers::PVMappingModeWidget::init()
+{
+	_combo = new PVComboBox(this);
+	_params_btn = new QPushButton(tr("Parameters..."));
+	
+	QHBoxLayout* layout = new QHBoxLayout();
+	layout->addWidget(_combo);
+	layout->addWidget(_params_btn);
+	setLayout(layout);
+	
+	setFocusPolicy(Qt::StrongFocus);
 }
 
 void PVInspector::PVWidgetsHelpers::PVMappingModeWidget::populate_from_type(QString const& type)

@@ -6,6 +6,7 @@
 #include <picviz/PVView_types.h>
 #include <PVComboBox.h>
 
+#include <QPushButton>
 #include <QWidget>
 
 namespace PVInspector {
@@ -17,7 +18,7 @@ class PVMappingModeWidget: public QWidget
 public:
 	PVMappingModeWidget(QWidget* parent = NULL):
 		QWidget(parent)
-	{ }
+	{ init(); }
 	PVMappingModeWidget(QString const& type, QWidget* parent = NULL);
 	PVMappingModeWidget(PVCol axis_id, Picviz::PVMapping const& mapping, QWidget* parent = NULL);
 	PVMappingModeWidget(PVCol axis_id, Picviz::PVView const& view, QWidget* parent = NULL);
@@ -35,7 +36,11 @@ public:
 	inline QString get_mode() const { return _combo->get_sel_userdata().toString(); }
 
 private:
+	void init();
+
+private:
 	PVComboBox* _combo;
+	QPushButton* _params_btn;
 };
 
 }
