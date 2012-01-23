@@ -359,27 +359,17 @@ QScrollBar#verticalScrollBar_of_PVListingView::up-arrow {
 
 	border-radius: 4px;
 	
-	text-align: left;
 	font-family: "Arial";
 	font-size: 13px;
 	font-weight: bold;
 	
 	padding: 10px 4px 10px 4px;
+  
 
 }
 
-#PVStartScreenWidget QPushButton:checked {
-	background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-				stop:0 #515151,
-				stop:1 #202020);
-}
 
 
-#PVStartScreenWidget QPushButton:checked {
-	background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-				stop:0 #ff00ff,
-				stop:1 #202020);
-}
 
 
 
