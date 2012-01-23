@@ -147,7 +147,7 @@ QHeaderView#horizontalHeader_of_PVListingView::section {
 }
 
 QHeaderView#verticalHeader_of_PVListingView::section {
-	background-color: #f0f0f0;
+	background-color: #f0f0c0;
 	
 	border-bottom-style: none;
 	border-left-style: none;
@@ -239,7 +239,7 @@ QSplitter#PVTabSplitter QDialog {
 
 
 QSplitter#PVTabSplitter::handle {
-	background-image: url(':/new_layer_icon');
+	background-image: url(':/vertical_handle');
 	background-position: center center;
 	background-repeat: no-repeat;
 	
