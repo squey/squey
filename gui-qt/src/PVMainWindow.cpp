@@ -1202,13 +1202,6 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 	QPixmap screenshot_pixmap;
 	QString screenshot_filename;
 	
-	// FIXME!  This is so UGLY !!!
-	QFile css_file("/donnees/GIT/OLD/picviz-inspector/gui-qt/src/resources/gui.css");
-	css_file.open(QFile::ReadOnly);
-	QTextStream css_stream(&css_file);
-	QString css_string(css_stream.readAll());
-	css_file.close();
-
 	
 
 
@@ -1308,20 +1301,25 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 			break;
 
 
-		/* How much ? : Gives the number of selected lines */
+#ifndef NDEBUG
 		case Qt::Key_Dollar:
+		{
 			if (pv_ListingsTabWidget->currentIndex() == -1) {
 				break;
 			}
+
+			QFile css_file("/donnees/GIT/OLD/picviz-inspector/gui-qt/src/resources/gui.css");
+			css_file.open(QFile::ReadOnly);
+			QTextStream css_stream(&css_file);
+			QString css_string(css_stream.readAll());
+			css_file.close();
+
 			// PhS
 			setStyleSheet(css_string);
 			setStyle(QApplication::style());
-
-
-// 			number_of_selected_lines = current_lib_view->get_number_of_selected_lines();
-// 			PVLOG_ERROR(" There is now %d selected lines \n", number_of_selected_lines);
 			break;
-
+		}
+#endif
 
 		/* Decrease active axis column index */
 		case Qt::Key_Down:
