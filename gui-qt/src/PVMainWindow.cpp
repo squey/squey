@@ -151,7 +151,7 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 	pv_labelWelcomeIcon->resize(pv_welcomeIcon->width(), pv_welcomeIcon->height());
 
 	pv_ImportFileButton = new QPushButton("Import files...");
-	pv_ImportFileButton->setIcon(QIcon(":/document-new.png"));
+	pv_ImportFileButton->setIcon(QIcon(":/import-icon-white"));
 
 	
 	connect(pv_ImportFileButton, SIGNAL(clicked()), this, SLOT(import_type_default_Slot()));

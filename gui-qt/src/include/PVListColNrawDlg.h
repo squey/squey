@@ -47,6 +47,7 @@ public:
 private slots:
 	void copy_to_clipboard();
 	void copy_to_file();
+	void copy_value_clipboard();
 
 private:
 	bool write_values(QDataStream* stream);

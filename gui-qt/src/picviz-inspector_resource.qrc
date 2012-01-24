@@ -58,6 +58,8 @@
 	<!-- FONTS -->
 	<file alias="Convergence-Regular.ttf">resources/fonts/Convergence-Regular.ttf</file>
 
+	<!-- HANDLES -->
+	<file alias="vertical_handle">resources/gui-elements/pv_vertical_handle_01.png</file>
 
 	<!-- ICONS for PVLayerStackWidget (it's QToolBar) -->
 	<file alias="delete_layer_icon">resources/trafik/elements-interface/icone-supprimer-blanc.png</file>
@@ -69,6 +71,7 @@
 
 	<!-- START SCREEN -->
 	<file alias="start-logo">resources/trafik/elements-interface/logo-picviz-intro.png</file>
+	<file alias="import-icon-white">resources/trafik/elements-interface/icone-import-blanc.png</file>
 
 
 	<!-- QSCROLLBAR ICONS -->

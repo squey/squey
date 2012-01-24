@@ -199,7 +199,7 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterURL::one_to_many(PVCore:
 	url_decode_add_field(&buf, host, _col_domain);
 
 	// TLD
-	if (host.at(host.size()-1).isDigit()) {
+	if (host.size() > 1 && host.at(host.size()-1).isDigit()) {
 		// It should be an IP, at least a TLD ending with a number is weird
 		url_decode_add_field(&buf, "", _col_tld);
 	} else {
