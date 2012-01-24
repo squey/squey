@@ -1,6 +1,7 @@
 #include <pvkernel/rush/PVController.h>
 #include <tbb/task.h>
 #include <tbb/task_scheduler_init.h>
+#include <boost/thread/locks.hpp>
 
 PVRush::PVController::PVController() :
 	_shouldStop(false), _pipeline(NULL)
@@ -13,10 +14,11 @@ void PVRush::PVController::operator()()
 	while (!_shouldStop)
 	{
 		{
-			boost::mutex::scoped_lock lock(_mut_job);
+			boost::unique_lock<boost::mutex> lock(_mut_job);
 			while (_jobs.size() == 0) {
-				if (_shouldStop)
+				if (_shouldStop) {
 					return;
+				}
 				_job_present.wait(lock);
 			}
 		}
@@ -130,6 +132,9 @@ void PVRush::PVController::wait_end_and_stop()
 
 void PVRush::PVController::_ask_for_stop()
 {
-	_shouldStop = true;
+	{
+		boost::lock_guard<boost::mutex> lock(_mut_job);
+		_shouldStop = true;
+	}
 	_job_present.notify_one();
 }
