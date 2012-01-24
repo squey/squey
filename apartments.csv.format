@@ -49,7 +49,10 @@
    </axis>
   </field>
   <field>
-   <axis titlecolor="#ff921d" key="false" mapping="default" group="" type="enum" name="SQ. FT." color="#ffffff" plotting="default"/>
+   <axis titlecolor="#ff921d" tag="" key="false" mapping="default" group="" type="integer" name="SQ. FT." color="#ffffff" plotting="default">
+    <mapping/>
+    <plotting/>
+   </axis>
   </field>
  </splitter>
 </param>
