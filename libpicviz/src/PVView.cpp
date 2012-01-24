@@ -19,6 +19,7 @@
 #include <picviz/PVPlotting.h>
 #include <picviz/PVSortQVectorQStringList.h>
 
+#include <tbb/tick_count.h>
 
 /******************************************************************************
  *
@@ -794,12 +795,17 @@ void Picviz::PVView::process_from_filter()
  *****************************************************************************/
 void Picviz::PVView::process_from_layer_stack()
 {
+	tbb::tick_count start = tbb::tick_count::now();
+
 	/* We start by reprocessing the layer_stack */
 	process_layer_stack();
 	process_selection();
 	process_filter();
 	process_eventline();
 	process_visibility();
+
+	tbb::tick_count end = tbb::tick_count::now();
+	PVLOG_INFO("(Picviz::PVView::process_from_layer_stack) function took %0.4f seconds.\n", (end-start).seconds());
 }
 
 /******************************************************************************

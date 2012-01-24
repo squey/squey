@@ -21,7 +21,7 @@
 int main(int argc, char** argv)
 {
 	if (argc <= 2) {
-		std::cerr << "Usage: " << argv[0] << " file format" << std::endl;
+		std::cerr << "Usage: " << argv[0] << " file format [raw_dump] [raw_dump_transpose]" << std::endl;
 		return 1;
 	}
 
@@ -61,8 +61,24 @@ int main(int argc, char** argv)
 	// And plot the mapped values
 	Picviz::PVPlotted_p plotted(new Picviz::PVPlotted(Picviz::PVPlotting(mapped.get())));
 
-	// Dump the mapped table to stdout in a CSV format
-	plotted->to_csv();
+	bool raw_dump = false;
+	bool raw_dump_transp = false;
+	if (argc >= 4) {
+		raw_dump = argv[3][0] == '1';
+		if (argc >= 5) {
+			raw_dump_transp = argv[4][0] == '1';
+		}
+	}
+
+	PVLOG_INFO("Writing output...\n");
+	if (raw_dump) {
+		plotted->dump_buffer_to_file("plotted.out", raw_dump_transp);
+	}
+	else {
+		// Dump the mapped table to stdout in a CSV format
+		plotted->to_csv();
+	}
+	PVLOG_INFO("Done !\n");
 
 	return 0;
 }

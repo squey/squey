@@ -254,6 +254,103 @@ void Picviz::PVPlotted::expand_selection_on_axis(PVSelection const& sel, PVCol a
 	}
 }
 
+bool Picviz::PVPlotted::dump_buffer_to_file(QString const& file, bool write_as_transposed) const
+{
+	// Dump the plotted buffer into a file
+	// Format is:
+	//  * 4 bytes: number of columns
+	//  * 1 byte: is it written in a transposed form
+	//  * the rest is the plotted
+	
+	QFile f(file);
+	if (!f.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+		PVLOG_ERROR("Error while opening %s for writing: %s.\n", qPrintable(file), qPrintable(f.errorString()));
+		return false;
+	}
+
+	PVCol ncols = get_column_count();
+	f.write((const char*) &ncols, sizeof(ncols));
+	f.write((const char*) &write_as_transposed, sizeof(bool));
+
+	const float* buf_to_write = &_table[0];
+	PVCore::PVMatrix<float, PVCol, PVRow> transp_plotted;
+	if (write_as_transposed) {
+		PVCore::PVMatrix<float, PVRow, PVCol> matrix_plotted;
+		matrix_plotted.set_raw_buffer((float*) buf_to_write, get_row_count(), get_column_count());
+		matrix_plotted.transpose_to(transp_plotted);
+		buf_to_write = transp_plotted.get_row_ptr(0);
+	}
+	
+	ssize_t sbuf = _table.size()*sizeof(float);
+	if (f.write((const char*) buf_to_write, sbuf) != sbuf) {
+		PVLOG_ERROR("Error while writing '%s': %s.\n", qPrintable(file), qPrintable(f.errorString()));
+		return false;
+	}
+	f.close();
+
+	return true;
+}
+
+bool Picviz::PVPlotted::load_buffer_from_file(plotted_table_t& buf, PVCol& ncols, bool get_transposed_version, QString const& file)
+{
+	ncols = 0;
+
+	QFile f(file);
+	if (!f.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+		PVLOG_ERROR("Error while opening %s for writing: %s.\n", qPrintable(file), qPrintable(f.errorString()));
+		return false;
+	}
+
+	ssize_t size_buf = f.size()-sizeof(PVCol)-sizeof(bool);
+	if (size_buf <= 0) {
+		PVLOG_ERROR("File is too small to be valid !\n");
+		return false;
+	}
+
+	f.read((char*) &ncols, sizeof(PVCol));
+	bool is_transposed = false;
+	if (f.read((char*) &is_transposed, sizeof(bool)) != sizeof(bool)) {
+		PVLOG_ERROR("Error while reading '%s': %s.\n", qPrintable(file), qPrintable(f.errorString()));
+		return false;
+	}
+
+	bool must_transpose = (is_transposed != get_transposed_version);
+
+	ssize_t nfloats = size_buf/sizeof(float);
+	ssize_t size_read = nfloats*sizeof(float);
+	buf.resize(nfloats);
+
+	float* dest_buf = &buf[0];
+	if (must_transpose) {
+		dest_buf = (float*) malloc(size_read);
+	}
+
+	if (f.read((char*) dest_buf, size_read) != size_read) {
+		PVLOG_ERROR("Error while reading '%s': %s.\n", qPrintable(file), qPrintable(f.errorString()));
+		return false;
+	}
+
+	if (must_transpose) {
+		if (is_transposed) {
+			PVCore::PVMatrix<float, PVRow, PVCol> final;
+			PVCore::PVMatrix<float, PVCol, PVRow> org;
+			org.set_raw_buffer(dest_buf, ncols, nfloats/ncols);
+			final.set_raw_buffer(&buf[0], nfloats/ncols, ncols);
+			org.transpose_to(final);
+		}
+		else {
+			PVCore::PVMatrix<float, PVRow, PVCol> org;
+			PVCore::PVMatrix<float, PVCol, PVRow> final;
+			org.set_raw_buffer(dest_buf, nfloats/ncols, ncols);
+			final.set_raw_buffer(&buf[0], ncols, nfloats/ncols);
+			org.transpose_to(final);
+		}
+		free(dest_buf);
+	}
+
+	return true;
+}
+
 PVRush::PVNraw::nraw_table& PVPlotted::get_qtnraw()
 {
 	return _plotting.get_qtnraw();
