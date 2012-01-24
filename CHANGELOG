@@ -13,6 +13,7 @@ New filters:
 Improvements:
  * improve interface design
  * really reduce the overall amount of RAM usage
+ * set the number of maximum lines to 15 millions
  * improve listing sorting and displaying performances
  * improve visualisation performance by caching some intensive computations
  * improve lines drawing performances
