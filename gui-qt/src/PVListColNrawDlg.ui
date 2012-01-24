@@ -97,14 +97,14 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
-         <widget class="QPushButton" name="pushButton">
+         <widget class="QPushButton" name="_btn_copy_clipboard">
           <property name="text">
            <string>Copy to clipboard...</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_2">
+         <widget class="QPushButton" name="_btn_copy_file">
           <property name="text">
            <string>Copy to file...</string>
           </property>

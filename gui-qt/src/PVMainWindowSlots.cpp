@@ -1038,23 +1038,16 @@ void PVInspector::PVMainWindow::view_new_parallel_Slot()
 void PVInspector::PVMainWindow::view_screenshot_qt_Slot()
 {
 	// Get a QImage of the current view
-	PVSDK::PVMessage message;
-	message.pv_view = current_tab->get_lib_view(); // Get current view
-	message.function = PVSDK_MESSENGER_FUNCTION_TAKE_SCREENSHOT;
-	message.int_1 = -1;
-	message.int_2 = false;
-	QImage* image = new QImage();
-	message.pointer_1 = image;
-	pvsdk_messenger->post_message_to_gl(message);
-}
-
-void PVInspector::PVMainWindow::view_sort_listing_Slot()
-{
-	if (!current_tab) {
-		return;
+	if (current_tab && current_tab->get_lib_view()) {
+		PVSDK::PVMessage message;
+		message.pv_view = current_tab->get_lib_view(); // Get current view
+		message.function = PVSDK_MESSENGER_FUNCTION_TAKE_SCREENSHOT;
+		message.int_1 = -1;
+		message.int_2 = false;
+		QImage* image = new QImage();
+		message.pointer_1 = image;
+		pvsdk_messenger->post_message_to_gl(message);
 	}
-
-	current_tab->toggle_listing_sort();
 }
 
 /******************************************************************************

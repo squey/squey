@@ -27,7 +27,7 @@ namespace PVCore {
  *  It is forced to be aligned on 4-byte (instead of 8-byte in 64 bits) for memory consumption issues.
  *  TODO: check the impact on performances !
  *
- *  This objects are constructed from PVBufferSlice.
+ *  These objects are constructed from PVBufferSlice.
  */
 #pragma pack(push)
 #pragma pack(4)
@@ -95,6 +95,11 @@ public:
 		return _qstr;
 		*/
 		return QString::fromRawData((QChar*) _buf, _len);
+	}
+	inline QString& get_qstr(QString& s) const
+	{
+		s.setRawData((QChar*) _buf, _len);
+		return s;
 	}
 
 	// == Data set ==

@@ -19,6 +19,7 @@
 #include <picviz/PVPlotting.h>
 #include <picviz/PVSortQVectorQStringList.h>
 
+#include <tbb/tick_count.h>
 
 /******************************************************************************
  *
@@ -794,12 +795,17 @@ void Picviz::PVView::process_from_filter()
  *****************************************************************************/
 void Picviz::PVView::process_from_layer_stack()
 {
+	tbb::tick_count start = tbb::tick_count::now();
+
 	/* We start by reprocessing the layer_stack */
 	process_layer_stack();
 	process_selection();
 	process_filter();
 	process_eventline();
 	process_visibility();
+
+	tbb::tick_count end = tbb::tick_count::now();
+	PVLOG_INFO("(Picviz::PVView::process_from_layer_stack) function took %0.4f seconds.\n", (end-start).seconds());
 }
 
 /******************************************************************************
@@ -1461,6 +1467,17 @@ bool Picviz::PVView::is_line_visible_listing(PVRow index) const
 bool Picviz::PVView::is_real_output_selection_empty() const
 {
 	return real_output_selection.is_empty();
+}
+
+Picviz::PVSortingFunc_p Picviz::PVView::get_sort_plugin_for_col(PVCol col) const
+{
+	// Temporary, waiting for all of this to be configurable
+	QString type = get_original_axis_type(col);
+	PVSortingFunc_p f_lib = LIB_CLASS(Picviz::PVSortingFunc)::get().get_class_by_name(type + "_default");
+	if (!f_lib) {
+		f_lib = PVSortingFunc_p(new PVDefaultSortingFunc());
+	}
+	return f_lib;
 }
 
 // Load/save and serialization

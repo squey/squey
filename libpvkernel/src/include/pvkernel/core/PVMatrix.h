@@ -286,7 +286,7 @@ public:
 	typedef PVMatrixColumn column;
 
 public:
-	PVMatrix(allocator_type const& a = allocator_type()): _ncols(0), _nrows(0), _nrows_physical(0), _data(NULL), _alloc(a) {}
+	PVMatrix(allocator_type const& a = allocator_type()): _ncols(0), _nrows(0), _nrows_physical(0), _data(NULL), _alloc(a), _own_data(false) {}
 	PVMatrix(index_row nrows, index_col ncols, allocator_type const& a = allocator_type()):
 		_data(NULL), _alloc(a)
    	{ reserve(nrows, ncols); }
@@ -301,6 +301,15 @@ public:
 		if (_data) {
 			resize_nrows(0);
 		}
+	}
+
+	void set_raw_buffer(pointer data, index_row nrows, index_col ncols)
+	{
+		_own_data = false;
+		_data = data;
+		_nrows = nrows;
+		_nrows_physical = nrows;
+		_ncols = ncols;
 	}
 
 	bool resize(index_row nrows, index_col ncols, const_reference v = value_type())
@@ -426,7 +435,7 @@ public:
 
 	void free()
 	{
-		if (_data) {
+		if (_data && _own_data) {
 			free_buf(_data);
 			_data = NULL;
 			_nrows = 0;
@@ -491,7 +500,7 @@ private:
 
 	inline bool _allocate(index_row nrows, index_col ncols)
 	{
-		if (_data) {
+		if (_data && _own_data) {
 			free_buf(_data);
 		}
 		pointer p;
@@ -502,6 +511,7 @@ private:
 			PVLOG_ERROR("(PVMatrix::_allocate) unable to allocate %ld x %ld (%ld bytes).", nrows, ncols, nrows*ncols*sizeof(value_type));
 			return false;
 		}
+		_own_data = true;
 		_data = p;
 		if (p == NULL) {
 			return false;
@@ -550,7 +560,9 @@ private:
 				}
 			}
 		}
-		free_buf(_data);
+		if (_own_data) {
+			free_buf(_data);
+		}
 		_data = p;
 		_ncols = ncols;
 		return true;
@@ -562,6 +574,7 @@ private:
 	index_row _nrows_physical;
 	pointer _data;
 	__impl::PVMatrixMemory<value_type, Alloc> _alloc;
+	bool _own_data;
 };
 
 }

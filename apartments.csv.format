@@ -1,0 +1,58 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE PVParamXml>
+<param version="4">
+ <splitter sep="@Char(,)" type="csv">
+  <field>
+   <axis titlecolor="#ff921d" tag="" key="false" mapping="default" group="" type="enum" name="AVAILABLE" color="#ffffff" plotting="default">
+    <mapping/>
+    <plotting/>
+   </axis>
+  </field>
+  <field>
+   <axis titlecolor="#ff921d" key="false" mapping="default" group="" type="enum" name="CITY" color="#ffffff" plotting="default">
+    <mapping/>
+    <plotting/>
+   </axis>
+  </field>
+  <field>
+   <axis titlecolor="#ff921d" key="false" mapping="default" group="" type="enum" name="TYPE" color="#ffffff" plotting="default">
+    <mapping/>
+    <plotting/>
+   </axis>
+  </field>
+  <field>
+   <splitter full-line="true" type="regexp" regexp="\$(.*)">
+    <field>
+     <axis titlecolor="#ff921d" tag="" group="" type="enum" name="RENT" color="#ffffff">
+      <mapping/>
+      <plotting/>
+     </axis>
+    </field>
+   </splitter>
+  </field>
+  <field>
+   <axis titlecolor="#ff921d" key="false" mapping="default" group="" type="enum" name="BEDS" color="#ffffff" plotting="default">
+    <mapping/>
+    <plotting/>
+   </axis>
+  </field>
+  <field>
+   <axis titlecolor="#ff921d" key="false" mapping="default" group="" type="enum" name="BATHS" color="#ffffff" plotting="default">
+    <mapping/>
+    <plotting/>
+   </axis>
+  </field>
+  <field>
+   <axis titlecolor="#ff921d" key="false" mapping="default" group="" type="enum" name="PETS" color="#ffffff" plotting="default">
+    <mapping/>
+    <plotting/>
+   </axis>
+  </field>
+  <field>
+   <axis titlecolor="#ff921d" tag="" key="false" mapping="default" group="" type="integer" name="SQ. FT." color="#ffffff" plotting="default">
+    <mapping/>
+    <plotting/>
+   </axis>
+  </field>
+ </splitter>
+</param>

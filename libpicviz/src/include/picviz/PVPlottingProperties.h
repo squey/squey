@@ -47,6 +47,7 @@ public:
 	void set_from_axis(PVRush::PVAxisFormat const& axis);
 	void set_mode(QString const& mode);
 	void set_args(PVCore::PVArgumentList const& args);
+	inline PVCore::PVArgumentList const& get_args() const { return _args; }
 	inline QString const& get_mode() const { return _mode; }
 	QString get_type() const;
 	inline bool is_uptodate() const { return _is_uptodate; }

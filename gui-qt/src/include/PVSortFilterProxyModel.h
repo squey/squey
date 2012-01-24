@@ -5,6 +5,8 @@
 #include <QModelIndex>
 #include <QVector>
 
+#include <boost/date_time/time_duration.hpp>
+
 namespace PVInspector {
 
 namespace __impl {
@@ -30,6 +32,7 @@ public:
 	inline void set_dynamic_sort(bool enable) { _dyn_sort = enable; }
 	inline bool dynamic_sort() const { return _dyn_sort; }
 	void reset_to_default_ordering();
+	void reset_to_default_ordering_or_reverse();
 	inline vec_indexes_t const& get_proxy_indexes() const { return _vec_filtered_m2s; }
 
 	// Helper functions for derived classes
@@ -88,6 +91,8 @@ private:
 	void do_filter();
 	void init_default_sort();
 	void reprocess_source();
+	void __do_sort(int column, Qt::SortOrder order);
+	bool __reverse_sort_order();
 
 private slots:
 	void src_layout_about_changed();
@@ -101,6 +106,7 @@ private:
 	int _sort_idx;
 	Qt::SortOrder _cur_order;
 	bool _dyn_sort;
+	double _sort_time;
 };
 
 }

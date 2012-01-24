@@ -26,6 +26,8 @@
 #include <PVArgumentListWidget.h>
 #include <PVInputTypeMenuEntries.h>
 #include <PVColorDialog.h>
+#include <PVStartScreenWidget.h>
+
 //#include <geo/GKMapView.h>
 
 #ifdef CUSTOMER_RELEASE
@@ -92,7 +94,16 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 
 	//setWindowFlags(Qt::FramelessWindowHint);
 
+	// FIXME
+	PVStartScreenWidget *testt = new PVStartScreenWidget (this, this);
+	testt->show();
+	
+	// FONT stuff
+	QFontDatabase pv_font_database;
+	pv_font_database.addApplicationFont(QString(":/Jura-DemiBold.ttf"));
+	pv_font_database.addApplicationFont(QString(":/OSP-DIN.ttf"));
 
+	
 	about_dialog = 0;
 	// picviz_datatreerootitem_t *datatree;
 
@@ -126,7 +137,9 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 
 	// We display the PV Icon together with a button to import files
 	pv_centralStartWidget = new QWidget();
+	pv_centralStartWidget->setObjectName("pv_centralStartWidget_of_PVMainWindow");
 	pv_centralMainWidget = new QWidget();
+	pv_centralMainWidget->setObjectName("pv_centralMainWidget_of_PVMainWindow");
 
 	pv_mainLayout = new QVBoxLayout();
 	pv_mainLayout->setSpacing(40);
@@ -138,7 +151,7 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 	pv_labelWelcomeIcon->resize(pv_welcomeIcon->width(), pv_welcomeIcon->height());
 
 	pv_ImportFileButton = new QPushButton("Import files...");
-	pv_ImportFileButton->setIcon(QIcon(":/document-new.png"));
+	pv_ImportFileButton->setIcon(QIcon(":/import-icon-white"));
 
 	
 	connect(pv_ImportFileButton, SIGNAL(clicked()), this, SLOT(import_type_default_Slot()));
@@ -154,6 +167,9 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 	centerLayout->addWidget(pv_ImportFileButton);
 	pv_startLayout->addLayout(centerLayout);
 	pv_startLayout->addItem(new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding));
+	
+	// FIXME
+	pv_startLayout->addWidget(testt);
 
 	QGridLayout* versionLayout = new QGridLayout();
 	QLabel* label = new QLabel(tr("Current version") + QString(" :"));
@@ -1186,13 +1202,6 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 	QPixmap screenshot_pixmap;
 	QString screenshot_filename;
 	
-	// FIXME!  This is so UGLY !!!
-// 	QFile css_file("/donnees/GIT/OLD/picviz-inspector/gui-qt/src/resources/gui.css");
-// 	css_file.open(QFile::ReadOnly);
-// 	QTextStream css_stream(&css_file);
-// 	QString css_string(css_stream.readAll());
-// 	css_file.close();
-
 	
 
 
@@ -1292,20 +1301,25 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 			break;
 
 
-		/* How much ? : Gives the number of selected lines */
+#ifndef NDEBUG
 		case Qt::Key_Dollar:
+		{
 			if (pv_ListingsTabWidget->currentIndex() == -1) {
 				break;
 			}
+
+			QFile css_file("/donnees/GIT/OLD/picviz-inspector/gui-qt/src/resources/gui.css");
+			css_file.open(QFile::ReadOnly);
+			QTextStream css_stream(&css_file);
+			QString css_string(css_stream.readAll());
+			css_file.close();
+
 			// PhS
-// 			setStyleSheet(css_string);
-// 			setStyle(QApplication::style());
-
-
-// 			number_of_selected_lines = current_lib_view->get_number_of_selected_lines();
-// 			PVLOG_ERROR(" There is now %d selected lines \n", number_of_selected_lines);
+			setStyleSheet(css_string);
+			setStyle(QApplication::style());
 			break;
-
+		}
+#endif
 
 		/* Decrease active axis column index */
 		case Qt::Key_Down:

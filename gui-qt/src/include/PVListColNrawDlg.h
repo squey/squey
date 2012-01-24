@@ -21,17 +21,17 @@ class PVListColNrawModel: public QAbstractListModel
 	Q_OBJECT
 
 public:
-	PVListColNrawModel(PVRush::PVNraw const* nraw, QVector<int> const* idxes, size_t nvalues, PVCol nraw_col, QWidget* parent = NULL);
+	PVListColNrawModel(PVRush::PVNraw const* nraw, std::vector<int> const* idxes, size_t nvalues, PVCol nraw_col, QWidget* parent = NULL);
 
 public:
-	int rowCount(QModelIndex const& parent) const;
-	QVariant data(QModelIndex const& index, int role) const;
+	int rowCount(QModelIndex const& parent = QModelIndex()) const;
+	QVariant data(QModelIndex const& index, int role = Qt::DisplayRole) const;
 	QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
 private:
 	PVRush::PVNraw const* _nraw;
 	PVCol _nraw_col;
-	QVector<int> const* _idxes;
+	std::vector<int> const* _idxes;
 	size_t _nvalues;
 };
 
@@ -42,7 +42,15 @@ class PVListColNrawDlg: public QDialog, Ui::PVListColNrawDlg
 	Q_OBJECT
 
 public:
-	PVListColNrawDlg(Picviz::PVView const& view, QVector<int> const& idxes, size_t nvalues, PVCol view_col, QWidget* parent = NULL);
+	PVListColNrawDlg(Picviz::PVView const& view, std::vector<int> const& idxes, size_t nvalues, PVCol view_col, QWidget* parent = NULL);
+
+private slots:
+	void copy_to_clipboard();
+	void copy_to_file();
+	void copy_value_clipboard();
+
+private:
+	bool write_values(QDataStream* stream);
 
 private:
 	__impl::PVListColNrawModel* _model;

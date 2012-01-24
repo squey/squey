@@ -135,6 +135,10 @@ public:
 	inline const PVView_p get_view() const { return _view; }
 	void expand_selection_on_axis(PVSelection const& sel, PVCol axis_id, QString const& mode, bool add = true);
 
+	// Plotted dump/load
+	bool dump_buffer_to_file(QString const& file, bool write_as_transposed = false) const;
+	static bool load_buffer_from_file(plotted_table_t& buf, PVCol& ncols, bool get_transpsed_version, QString const& file);
+
 public:
 	// Debug
 	void to_csv();

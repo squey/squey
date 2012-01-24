@@ -7,6 +7,7 @@ core/network.cpp
 core/picviz_intrin.cpp
 core/sse4detector.cpp
 core/sysinfo.cpp
+core/segfault_handler.c
 
 core/PVArchive.cpp
 core/PVArgument.cpp

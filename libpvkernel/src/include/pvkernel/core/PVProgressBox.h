@@ -90,31 +90,19 @@ public:
 	template <typename Tret, typename F>
 	static bool progress(F f, PVProgressBox* pbox, Tret& ret)
 	{
-		PVThreadWatcher watcher;
-		connect(&watcher, SIGNAL(finished()), pbox, SLOT(accept()));
+		PVThreadWatcher* watcher = new PVThreadWatcher();
+		connect(watcher, SIGNAL(finished()), pbox, SLOT(accept()));
 		boost::thread worker(boost::bind(&PVProgressBox::worker_thread<Tret, F>, boost::ref(f), boost::ref(ret)));
-		watcher.set_thread(worker);
-		if (pbox->exec() != QDialog::Accepted) {
-			worker.interrupt();
-			worker.join();
-			return false;
-		}
-		return true;
+		return process_worker_thread(watcher, worker, pbox);
 	}
 
 	template <typename F>
 	static bool progress(F f, PVProgressBox* pbox)
 	{
-		PVThreadWatcher watcher;
-		connect(&watcher, SIGNAL(finished()), pbox, SLOT(accept()));
+		PVThreadWatcher* watcher = new PVThreadWatcher();
+		connect(watcher, SIGNAL(finished()), pbox, SLOT(accept()));
 		boost::thread worker(boost::bind(&PVProgressBox::worker_thread<F>, boost::ref(f)));
-		watcher.set_thread(worker);
-		if (pbox->exec() != QDialog::Accepted) {
-			worker.interrupt();
-			worker.join();
-			return false;
-		}
-		return true;
+		return process_worker_thread(watcher, worker, pbox);
 	}
 
 	static bool progress(tbb::task& root_task, PVProgressBox* pbox)
@@ -156,6 +144,9 @@ public:
 
 public slots:
 	void update_status_Slot();
+
+private:
+	static bool process_worker_thread(PVThreadWatcher* watcher, boost::thread& worker, PVProgressBox* pbox);
 
 private:
 	QLabel *message;

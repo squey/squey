@@ -7,6 +7,7 @@
 #include <QtGui>
 
 #include <pvkernel/core/general.h>
+#include <pvkernel/core/PVProgressBox.h>
 #include <picviz/PVView.h>
 
 #include <PVAxisPropertiesWidget.h>
@@ -56,15 +57,16 @@ PVInspector::PVTabSplitter::PVTabSplitter(PVMainWindow *mw, Picviz::PVSource_p l
 	pv_listing_view = new PVListingView(main_window, this);
 	pv_listing_proxy_model->setSourceModel(pv_listing_model);
 	pv_listing_view->setModel(pv_listing_proxy_model);
-	//pv_listing_view->setSortingEnabled(true);
+	pv_listing_view->sortByColumn(-1, Qt::AscendingOrder);
+	pv_listing_view->setSortingEnabled(true);
 	addWidget(pv_listing_view);
 	
 	// Layout of the RIGHT_WIDGET
-	// We prepare the right part of the view (with the listing and the Format editor)
+	// We prepare the right part of the view (with the LayerStack and the Format editor)
 	// We need a Layout
 	QVBoxLayout* right_layout = new QVBoxLayout();
 	// We set the margins in that Layout
-	right_layout->setContentsMargins(10,10,10,10);
+	right_layout->setContentsMargins(8,8,8,8);
 	
 	// We prepare the PVLayerStackWidget and add it to the layout
 	pv_layer_stack_model = new PVLayerStackModel(main_window, this);
@@ -613,13 +615,15 @@ void PVInspector::PVTabSplitter::updateFilterMenuEnabling(){
 	emit selection_changed_signal(enable_menu);
 }
 
-size_t PVInspector::PVTabSplitter::get_unique_indexes_for_current_listing(PVCol column, QVector<int>& idxes)
+size_t PVInspector::PVTabSplitter::get_unique_indexes_for_current_listing(PVCol column, std::vector<int>& idxes)
 {
 	// TODO: optimise to use current sorting if relevant
 	Picviz::PVView_p current_lib_view = get_lib_view();
 	size_t ret = 0;
 	if (current_lib_view) {
-		idxes = pv_listing_proxy_model->get_proxy_indexes();
+		QVector<int> const& pidxes = pv_listing_proxy_model->get_proxy_indexes();
+		idxes.resize(pidxes.size());
+		std::copy(pidxes.begin(), pidxes.end(), idxes.begin());
 		ret = current_lib_view->sort_unique_indexes_with_axes_combination(column, idxes);
 	}
 	return ret;
@@ -627,8 +631,11 @@ size_t PVInspector::PVTabSplitter::get_unique_indexes_for_current_listing(PVCol 
 
 void PVInspector::PVTabSplitter::show_unique_values(PVCol col)
 {
-	QVector<int> rows;
-	size_t nvalues = get_unique_indexes_for_current_listing(col, rows);
+	std::vector<int> rows;
+	PVCore::PVProgressBox* pbox = new PVCore::PVProgressBox(tr("Computing values..."), this);
+	pbox->set_enable_cancel(false);
+	size_t nvalues;
+	PVCore::PVProgressBox::progress(boost::bind(&PVTabSplitter::get_unique_indexes_for_current_listing, this, col, boost::ref(rows)), pbox, nvalues);
 	if (nvalues == 0) {
 		return;
 	}
