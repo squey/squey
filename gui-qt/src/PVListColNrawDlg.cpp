@@ -22,6 +22,13 @@ PVInspector::PVListColNrawDlg::PVListColNrawDlg(Picviz::PVView const& view, std:
 	_model = new __impl::PVListColNrawModel(&view.get_rushnraw_parent(), &idxes, nvalues, view.get_original_axis_index(view_col), this);
 	_values_view->setUniformItemSizes(true);
 	_values_view->setModel(_model);
+	_values_view->setContextMenuPolicy(Qt::ActionsContextMenu);
+
+	QAction* copy_values_act = new QAction(tr("Copy value in the clipboard..."), this);
+	connect(copy_values_act, SIGNAL(triggered()), this, SLOT(copy_value_clipboard()));
+
+	_values_view->addAction(copy_values_act);
+	_values_view->setSelectionMode(QAbstractItemView::SingleSelection);
 
 	_nb_values_edit->setText(QString().setNum(nvalues));
 
@@ -110,6 +117,15 @@ void PVInspector::PVListColNrawDlg::copy_to_file()
 	}
 
 	QMessageBox::information(this, tr("Copy to file..."), tr("Copy done."));
+}
+
+void PVInspector::PVListColNrawDlg::copy_value_clipboard()
+{
+	QModelIndex idx = _values_view->currentIndex();
+	if (idx.isValid()) {
+		QString txt = _model->data(idx).toString();
+		QApplication::clipboard()->setText(txt);
+	}
 }
 
 // Private implementation of PVListColNrawModel
