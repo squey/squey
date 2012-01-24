@@ -1,0 +1,41 @@
+2.4.0 (23/01/2012)
+------------------
+
+New features:
+ * sorting plugins allow columns to be sorted according to their types
+ * list unique values of a column (for a given selection)
+ * ability to set the current selection as the selection of a given layer
+ * ability to directly modify, in the mapping/plotting edit dialog, the parameters of a type (like the time format)
+
+New filters:
+ * multiple and selection-based search
+ * create layers based on regular expressions
+
+Improvements:
+ * improve interface design
+ * really reduce the overall amount of RAM usage
+ * set the number of maximum lines to 15 millions
+ * improve listing sorting and displaying performances
+ * improve visualisation performance by caching some intensive computations
+ * improve lines drawing performances
+ * performance improvements of the search filters
+ * performance improvements of some core algorithms
+
+Bug fixes :
+ * fix crashes due to bad listing synchronisation with the OpenGL views
+ * do not crash when an invalid mapping and/or plotting is used in a format
+ * fix bug in the URL splitter that could cause a crash with some inputs
+
+Known issues :
+ * if you have this error message when starting the application:
+
+  Could not find platform independent libraries <prefix>
+  Could not find platform dependent libraries <exec_prefix>
+  Consider setting $PYTHONHOME to <prefix>[:<exec_prefix>]
+  Fatal Python error: Py_Initialize: Unable to get the locale encoding
+  LookupError: no codec search functions registered: can't find encoding
+
+ it means that the incorporated python interpreter couldn't find a python installation.
+ This is currently used by the "Snort for logs" plugin.
+ A solution is to install the "python3.2" debian package. A workaround is to remove
+ the file layer-filters/liblayer_snort_for_logs.so .
