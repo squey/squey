@@ -9,8 +9,57 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <assert.h>
+#include <stdbool.h>
+#include <sys/ptrace.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sys/sysctl.h>
+
+// From http://stackoverflow.com/questions/3596781/detect-if-gdb-is-running
+static bool are_we_ptraced()
+{
+	pid_t pid = fork();
+	int status;
+	bool res;
+
+	if (pid == -1)
+	{
+		perror("fork");
+		return -1;
+	}
+
+	if (pid == 0)
+	{
+		pid_t ppid = getppid();
+
+		/* Child */
+		if (ptrace(PTRACE_ATTACH, ppid, NULL, NULL) == 0)
+		{
+			/* Wait for the parent to stop and continue it */
+			waitpid(ppid, NULL, 0);
+			ptrace(PTRACE_CONT, NULL, NULL);
+
+			/* Detach */
+			ptrace(PTRACE_DETACH, getppid(), NULL, NULL);
+
+			/* We were the tracers, so gdb is not present */
+			res = 0;
+		}
+		else
+		{
+			/* Trace failed so gdb is present */
+			res = 1;
+		}
+		exit(res);
+	}
+	else
+	{
+		waitpid(pid, &status, 0);
+		res = WEXITSTATUS(status);
+	}
+	return res;
+}
 
 // Handle segfault by forking gdb !
 // Inspired by http://stackoverflow.com/questions/3151779/how-its-better-to-invoke-gdb-from-program-to-print-its-stacktrace
@@ -55,6 +104,12 @@ static void segfault_handler(int sig, siginfo_t* sinfo, void* uctxt)
 
 void init_segfault_handler()
 {
+	// If we are already ptraced (like if gdb is alreadu running on top of us),
+	// do nothing here.
+	if (are_we_ptraced()) {
+		return;
+	}
+
 	struct sigaction sa;
 	memset(&sa, 0, sizeof(struct sigaction));
 
