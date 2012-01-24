@@ -25,6 +25,7 @@
 
 #include <time.h>
 #include <pvkernel/core/picviz_intrin.h>
+#include <pvkernel/core/segfault_handler.h>
 
 #include <boost/program_options.hpp>
 
@@ -38,7 +39,7 @@ namespace bpo = boost::program_options;
 
 int main(int argc, char *argv[])
 {
-	//dlopen("/lib/x86_64-linux-gnu/libgcc_s.so.1", RTLD_LAZY);
+	init_segfault_handler();
 	QApplication app(argc, argv);
 
 	// Program options

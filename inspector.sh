@@ -114,4 +114,4 @@ cd ../..
 	exit 0
 fi
 
-catchsegv gui-qt/src/picviz-inspector $@
+gui-qt/src/picviz-inspector $@
