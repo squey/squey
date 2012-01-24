@@ -147,7 +147,7 @@ QHeaderView#horizontalHeader_of_PVListingView::section {
 }
 
 QHeaderView#verticalHeader_of_PVListingView::section {
-	background-color: #f0f0c0;
+	background-color: #e0e0e0;
 	
 	border-bottom-style: none;
 	border-left-style: none;
