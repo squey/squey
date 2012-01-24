@@ -1,0 +1,25 @@
+2.4.0 (23/01/2012)
+------------------
+
+New features:
+ * sorting plugins allow columns to be sorted according to their types
+ * list unique values of a column (for a given selection)
+ * ability to set the current selection as the selection of a given layer
+ * ability to directly modify, in the mapping/plotting edit dialog, the parameters of a type (like the time format)
+
+New filters:
+ * multiple and selection-based search
+
+Improvements:
+ * improve interface design
+ * really reduce the overall amount of RAM usage
+ * improve listing sorting and displaying performances
+ * improve visualisation performance by caching some intensive computations
+ * improve lines drawing performances
+ * performance improvements of the search filters
+ * performance improvements of some core algorithms
+
+Bug fixes :
+ * fix crashes due to bad listing synchronisation with the OpenGL views
+ * do not crash when an invalid mapping and/or plotting is used in a format
+ * fix bug in the URL splitter that could cause a crash with some inputs
