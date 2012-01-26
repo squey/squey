@@ -1,11 +1,9 @@
 #ifndef CBREDUCE_H
 #define CBREDUCE_H
 
-#include "../Point.h"
+#include <common/common.h>
 #include <tbb/parallel_reduce.h>
 #include <tbb/blocked_range.h>
-
-#define B_SET(x, n)      ((x) |= (1<<(n)))
 
 class PointsReduce
 {
@@ -35,8 +33,8 @@ public:
 		for (size_t i = r.begin(); i != end; i++) {
 			tmp = &pts[i];
 			// Set CB
-			int bit = tmp->y1*1024 + tmp->y2;
-			B_SET(_buf[bit>>5], (bit & 31));
+			int bit = tmp->y1*PIXELS_CB + tmp->y2;
+			B_SET(_buf[CB_INT_OFFSET(bit)], CB_BITN(bit));
 		}
 	}
 

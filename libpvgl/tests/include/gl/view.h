@@ -1,5 +1,5 @@
 #include <QGLWidget>
-#include "Point.h"
+#include <common/common.h>
 #include <iostream>
 
 //#define NB_LINES 1048576

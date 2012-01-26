@@ -1,6 +1,8 @@
 #include <core-tbb/points_reduce.h>
 #include <common/common.h>
 #include <common/serial_cb.h>
+#include <cuda/common.h>
+#include <cuda/gpu_collision.h>
 
 #include <iostream>
 #include <cstdlib>
@@ -14,6 +16,7 @@ int main(int argc, char** argv)
 		std::cerr << "Usage: " << argv[0] << " size" << std::endl;
 		return 1;
 	}
+	init_cuda();
 
 	size_t nlines = atoll(argv[1]);
 	Point* pts = allocate_buffer(nlines);
@@ -26,14 +29,19 @@ int main(int argc, char** argv)
 	tbb::tick_count end = tbb::tick_count::now();
 	std::cout << "serial duration: " << (end-start).seconds() << std::endl;
 
-	PointsReduce red(pts);
+	CollisionBuffer cb_gpu = allocate_CB();
 	start = tbb::tick_count::now();
-	tbb::parallel_reduce(tbb::blocked_range<size_t>(0, nlines, 10000000), red, tbb::simple_partitioner());
+	gpu_c(pts, nlines, cb_gpu);
 	end = tbb::tick_count::now();
+	std::cout << "GPU duration: " << (end-start).seconds() << std::endl;
 
-	std::cout << "parallel duration: " << (end-start).seconds() << std::endl;
+	std::cout << "memcmp serial vs. parallel: " << (memcmp(cb_ref, cb_gpu, SIZE_CB) == 0) << std::endl;
 
-	std::cout << "memcmp serial vs. parallel: " << (memcmp(cb_ref, red.cb(), SIZE_CB) == 0) << std::endl;
+	write(4, cb_ref, SIZE_CB);
+	write(5, cb_gpu, SIZE_CB);
+
+	free_CB(cb_ref);
+	free_CB(cb_gpu);
 
 	return 0;
 }

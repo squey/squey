@@ -1,4 +1,4 @@
-#include "View.h"
+#include <gl/view.h>
 #include <iostream>
 #include <tbb/tick_count.h>
 

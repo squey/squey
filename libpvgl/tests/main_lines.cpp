@@ -3,11 +3,8 @@
 #include <ctime>
 #include <cstdlib>
 
-#include "View.h"
-#include "Point.h"
-
-
-
+#include <common/common.h>
+#include <gl/view.h>
 
 int main(int argc, char **argv)
 {
