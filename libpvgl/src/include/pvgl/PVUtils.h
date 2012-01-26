@@ -21,7 +21,7 @@
 //!
 #define BUFFER_OFFSET(bytes) ((GLubyte*) NULL + (bytes))
 
-#ifdef DEBUG
+#ifndef NDEBUG
 //!
 #define PRINT_OPENGL_ERROR() print_opengl_error(__FILE__, __LINE__)
 #else

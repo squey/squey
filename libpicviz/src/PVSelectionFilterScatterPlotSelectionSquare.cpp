@@ -54,8 +54,8 @@ void Picviz::PVSelectionFilterScatterPlotSelectionSquare::operator()(PVSelection
 	//const PVSource* source = _view.get_source_parent();
 	const PVPlotted* plotted = _view->get_plotted_parent();
 
-	x1_axis_index = _args["x1_axis_index"].toInt();
-	x2_axis_index = _args["x2_axis_index"].toInt();
+	x1_axis_index = _view->get_original_axis_index(_args["x1_axis_index"].toInt());
+	x2_axis_index = _view->get_original_axis_index(_args["x2_axis_index"].toInt());
 	x1_min = _args["x1_min"].toFloat();
 	x1_max = _args["x1_max"].toFloat();
 	x2_min = _args["x2_min"].toFloat();
