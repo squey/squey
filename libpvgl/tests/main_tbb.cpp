@@ -28,7 +28,7 @@ int main(int argc, char** argv)
 
 	PointsReduce red(pts);
 	start = tbb::tick_count::now();
-	tbb::parallel_reduce(tbb::blocked_range<size_t>(0, nlines, 10000000), red, tbb::simple_partitioner());
+	tbb::parallel_reduce(tbb::blocked_range<size_t>(0, nlines, 100000), red, tbb::simple_partitioner());
 	end = tbb::tick_count::now();
 
 	std::cout << "parallel duration: " << (end-start).seconds() << std::endl;

@@ -18,7 +18,7 @@ file(GLOB COMMON_SRC_FILES common/*.cpp)
 
 set(CUDA_SRC_FILES cuda/common.cpp)
 set(CUDA_PROPAGATE_HOST_FLAGS "OFF")
-set(CUDA_NVCC_FLAGS "-arch=sm_21")
+set(CUDA_NVCC_FLAGS "-O3" "-arch=sm_20")
 
 
 SET(GL_MOC_HEADERS
@@ -39,7 +39,7 @@ ${CORETBB_SRC_FILES}
 main_tbb.cpp
 )
 add_executable(run-tbb ${TBB_SRC_FILES})
-target_link_libraries(run-tbb ${COMMON_LIBS})
+target_link_libraries(run-tbb ${COMMON_LIBS} -ltbbmalloc)
 ####
 
 ####

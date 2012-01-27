@@ -25,7 +25,7 @@ int main(int argc, char** argv)
 
 	CollisionBuffer cb_ref = allocate_CB();
 	tbb::tick_count start = tbb::tick_count::now();
-	serial_cb(pts, nlines, cb_ref);
+	//serial_cb(pts, nlines, cb_ref);
 	tbb::tick_count end = tbb::tick_count::now();
 	std::cout << "serial duration: " << (end-start).seconds() << std::endl;
 

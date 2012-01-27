@@ -27,7 +27,7 @@ void fill_buffer(Point* buffer, int size)
 
 	for(int i = 0 ; i < size ; i++)
 	{
-		buffer[i].y1 = rand() % 1024;
-		buffer[i].y2 = rand() % 1024;
+		buffer[i].y1 = rand() % PIXELS_CB;
+		buffer[i].y2 = rand() % PIXELS_CB;
 	}
 }
