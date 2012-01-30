@@ -23,7 +23,7 @@
   <field>
    <splitter full-line="true" type="regexp" regexp="\$(.*)">
     <field>
-     <axis titlecolor="#ff921d" tag="" group="" type="enum" name="RENT" color="#ffffff">
+     <axis titlecolor="#ff921d" tag="" group="" type="integer" name="RENT" color="#ffffff">
       <mapping/>
       <plotting/>
      </axis>
