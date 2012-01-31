@@ -52,10 +52,14 @@ PVInspector::PVMappingPlottingEditDialog::PVMappingPlottingEditDialog(Picviz::PV
 		_axes = &(_plotting->get_source_parent()->current_view()->axes_combination.get_original_axes_list());
 	}
 
+	// We set the nale of the Dialog Window
 	setWindowTitle(tr("Edit properties..."));
 
+	// We generate and populate the Layout
 	init_layout();
+	// We load the current settings
 	load_settings();
+	// We can set the layout in the Widget
 	finish_layout();
 }
 
@@ -119,9 +123,11 @@ void PVInspector::PVMappingPlottingEditDialog::init_layout()
 {
 	PVLOG_DEBUG("PVInspector::PVMappingPlottingEditDialog::%s\n", __FUNCTION__);
 	
+	// We need a QVBoxLayout for that Widget
 	_main_layout = new QVBoxLayout();
 	_main_layout->setSpacing(29);
 
+	
 	QHBoxLayout* name_layout = new QHBoxLayout();
 	name_layout->addWidget(new QLabel(tr("Name:"), NULL));
 	_edit_name = new QLineEdit();
@@ -175,7 +181,8 @@ void PVInspector::PVMappingPlottingEditDialog::load_settings()
 	
 	int row = 1;
 	PVCol col = 0;
-	// Name
+	
+	// We must get the official name of the 
 	QString name;
 	if (has_mapping()) {
 		name = _mapping->get_name();
