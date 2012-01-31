@@ -1,7 +1,15 @@
+//! \file PVMainPlottingEditDialog.cpp
+//! $Id: PVMainPlottingEditDialog.cpp 3251 2011-07-06 11:51:57Z psaade $
+//! Copyright (C) Sebastien Tricaud 2009-2012
+//! Copyright (C) Philippe Saade 2009-2012
+//! Copyright (C) Picviz Labs 2012
+
 #include <PVMappingPlottingEditDialog.h>
 #include <PVAxisTypeWidget.h>
 #include <PVMappingModeWidget.h>
 #include <PVPlottingModeWidget.h>
+
+#include <pvkernel/core/general.h>
 
 #include <picviz/PVMapping.h>
 #include <picviz/PVMappingFilter.h>
@@ -15,11 +23,20 @@
 #include <QHBoxLayout>
 #include <QScrollArea>
 
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVMappingPlottingEditDialog::PVMappingPlottingEditDialog
+ *
+ *****************************************************************************/
 PVInspector::PVMappingPlottingEditDialog::PVMappingPlottingEditDialog(Picviz::PVMapping* mapping, Picviz::PVPlotting* plotting, QWidget* parent):
 	QDialog(parent),
 	_mapping(mapping),
 	_plotting(plotting)
 {
+	PVLOG_DEBUG("PVInspector::PVMappingPlottingEditDialog::%s\n", __FUNCTION__);
+	
 #ifndef NDEBUG
 	if (has_mapping() && has_plotting()) {
 		assert(_mapping->get_source_parent() == _plotting->get_source_parent());
@@ -42,12 +59,30 @@ PVInspector::PVMappingPlottingEditDialog::PVMappingPlottingEditDialog(Picviz::PV
 	finish_layout();
 }
 
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVMappingPlottingEditDialog::~PVMappingPlottingEditDialog
+ *
+ *****************************************************************************/
 PVInspector::PVMappingPlottingEditDialog::~PVMappingPlottingEditDialog()
 {
+	PVLOG_DEBUG("PVInspector::PVMappingPlottingEditDialog::%s\n", __FUNCTION__);
+	
 }
 
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVMappingPlottingEditDialog::create_label
+ *
+ *****************************************************************************/
 QLabel* PVInspector::PVMappingPlottingEditDialog::create_label(QString const& text, Qt::Alignment align)
 {
+	PVLOG_DEBUG("PVInspector::PVMappingPlottingEditDialog::%s\n", __FUNCTION__);
+	
 	QLabel* ret = new QLabel(text, NULL);
 	ret->setAlignment(align);
 	QFont font(ret->font());
@@ -56,8 +91,34 @@ QLabel* PVInspector::PVMappingPlottingEditDialog::create_label(QString const& te
 	return ret;
 }
 
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVMappingPlottingEditDialog::finish_layout
+ *
+ *****************************************************************************/
+void PVInspector::PVMappingPlottingEditDialog::finish_layout()
+{
+	PVLOG_DEBUG("PVInspector::PVMappingPlottingEditDialog::%s\n", __FUNCTION__);
+	
+	QDialogButtonBox* btns = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+	connect(btns, SIGNAL(accepted()), this, SLOT(save_settings()));
+	connect(btns, SIGNAL(rejected()), this, SLOT(reject()));
+	_main_layout->addWidget(btns);
+}
+
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVMappingPlottingEditDialog::init_layout
+ *
+ *****************************************************************************/
 void PVInspector::PVMappingPlottingEditDialog::init_layout()
 {
+	PVLOG_DEBUG("PVInspector::PVMappingPlottingEditDialog::%s\n", __FUNCTION__);
+	
 	_main_layout = new QVBoxLayout();
 	_main_layout->setSpacing(29);
 
@@ -101,8 +162,17 @@ void PVInspector::PVMappingPlottingEditDialog::init_layout()
 	setLayout(_main_layout);
 }
 
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVMappingPlottingEditDialog::load_settings
+ *
+ *****************************************************************************/
 void PVInspector::PVMappingPlottingEditDialog::load_settings()
 {
+	PVLOG_DEBUG("PVInspector::PVMappingPlottingEditDialog::%s\n", __FUNCTION__);
+	
 	int row = 1;
 	PVCol col = 0;
 	// Name
@@ -137,8 +207,17 @@ void PVInspector::PVMappingPlottingEditDialog::load_settings()
 	}
 }
 
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVMappingPlottingEditDialog::save_settings
+ *
+ *****************************************************************************/
 void PVInspector::PVMappingPlottingEditDialog::save_settings()
 {
+	PVLOG_DEBUG("PVInspector::PVMappingPlottingEditDialog::%s\n", __FUNCTION__);
+	
 	QString name = _edit_name->text();
 	if (name.isEmpty()) {
 		_edit_name->setFocus(Qt::MouseFocusReason);
@@ -185,16 +264,17 @@ void PVInspector::PVMappingPlottingEditDialog::save_settings()
 	accept();
 }
 
-void PVInspector::PVMappingPlottingEditDialog::finish_layout()
-{
-	QDialogButtonBox* btns = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-	connect(btns, SIGNAL(accepted()), this, SLOT(save_settings()));
-	connect(btns, SIGNAL(rejected()), this, SLOT(reject()));
-	_main_layout->addWidget(btns);
-}
 
+
+/******************************************************************************
+ *
+ * PVInspector::PVMappingPlottingEditDialog::type_changed
+ *
+ *****************************************************************************/
 void PVInspector::PVMappingPlottingEditDialog::type_changed(const QString& type)
 {
+	PVLOG_DEBUG("PVInspector::PVMappingPlottingEditDialog::%s\n", __FUNCTION__);
+	
 	assert(has_mapping());
 	PVWidgetsHelpers::PVAxisTypeWidget* combo_org = dynamic_cast<PVWidgetsHelpers::PVAxisTypeWidget*>(sender());
 	assert(combo_org);
