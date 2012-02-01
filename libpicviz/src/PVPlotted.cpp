@@ -296,7 +296,7 @@ bool Picviz::PVPlotted::load_buffer_from_file(plotted_table_t& buf, PVCol& ncols
 	ncols = 0;
 
 	QFile f(file);
-	if (!f.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+	if (!f.open(QIODevice::ReadOnly)) {
 		PVLOG_ERROR("Error while opening %s for writing: %s.\n", qPrintable(file), qPrintable(f.errorString()));
 		return false;
 	}

@@ -5,6 +5,7 @@ include_directories(AFTER ${GLUT_INCLUDE_DIR})
 include_directories(AFTER ${CUDA_INCLUDE_DIRS})
 include_directories(AFTER include/)
 
+remove_definitions(-DPVGL_SHARE_DIR=${PVGL_SHARE_DIR})
 set(QT_USE_QTOPENGL TRUE)
 # Qt
 include(${QT_USE_FILE})
@@ -23,11 +24,13 @@ set(CUDA_NVCC_FLAGS "-O3" "-arch=sm_20")
 
 SET(GL_MOC_HEADERS
 include/gl/view.h
+include/gl/simple_lines_float_view.h
+include/gl/simple_lines_int_view.h
 )
 QT4_WRAP_CPP(GL_MOC_SRC ${GL_MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})
 set(GL_SRC_FILES ${GL_SRC_FILES} ${GL_MOC_SRC})
 
-add_definitions(-march=native -O3)
+#add_definitions(-march=native -O3)
 set(COMMON_LIBS ${QT_LIBRARIES} ${GLEW_LIBRARY} ${GLUT_glut_LIBRARY} ${OPENGL_LIBRARIES} ${FREETYPE_LIBRARY} ${TBB_LIBRARIES} ${OpenMP_LIBRARIES})
 # Tests programs
 
@@ -65,4 +68,16 @@ main_cuda.cpp
 )
 add_executable(cuda_red ${CUDA_RED_SRC_FILES})
 target_link_libraries(cuda_red ${COMMON_LIBS} ${CUDA_LIBRARIES})
+####
+
+####
+# BZ test
+SET(SRC_FILES
+${COMMON_SRC_FILES}
+${GL_SRC_FILES}
+code_bz/bz_compute.cpp
+main_bz.cpp
+)
+add_executable(bz ${SRC_FILES})
+target_link_libraries(bz ${COMMON_LIBS} ${PVKERNEL_LIBRARIES} ${PICVIZ_LIBRARIES})
 ####
