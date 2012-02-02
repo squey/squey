@@ -16,6 +16,7 @@ add_definitions(${OpenMP_CXX_FLAGS})
 file(GLOB CORETBB_SRC_FILES core-tbb/*.cpp)
 file(GLOB GL_SRC_FILES gl/*.cpp)
 file(GLOB COMMON_SRC_FILES common/*.cpp)
+file(GLOB BZ_SRC_FILES code_bz/*.cpp)
 
 set(CUDA_SRC_FILES cuda/common.cpp)
 set(CUDA_PROPAGATE_HOST_FLAGS "OFF")
@@ -23,6 +24,7 @@ set(CUDA_NVCC_FLAGS "-O3" "-arch=sm_20")
 
 
 SET(GL_MOC_HEADERS
+include/gl/bccb_view.h
 include/gl/view.h
 include/gl/simple_lines_float_view.h
 include/gl/simple_lines_int_view.h
@@ -30,7 +32,7 @@ include/gl/simple_lines_int_view.h
 QT4_WRAP_CPP(GL_MOC_SRC ${GL_MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})
 set(GL_SRC_FILES ${GL_SRC_FILES} ${GL_MOC_SRC})
 
-#add_definitions(-march=native -O3)
+add_definitions(-march=native -O3 -DNDEBUG)
 set(COMMON_LIBS ${QT_LIBRARIES} ${GLEW_LIBRARY} ${GLUT_glut_LIBRARY} ${OPENGL_LIBRARIES} ${FREETYPE_LIBRARY} ${TBB_LIBRARIES} ${OpenMP_LIBRARIES})
 # Tests programs
 
@@ -75,9 +77,20 @@ target_link_libraries(cuda_red ${COMMON_LIBS} ${CUDA_LIBRARIES})
 SET(SRC_FILES
 ${COMMON_SRC_FILES}
 ${GL_SRC_FILES}
-code_bz/bz_compute.cpp
+${BZ_SRC_FILES}
 main_bz.cpp
 )
 add_executable(bz ${SRC_FILES})
 target_link_libraries(bz ${COMMON_LIBS} ${PVKERNEL_LIBRARIES} ${PICVIZ_LIBRARIES})
+####
+
+####
+# BZ reduce
+SET(SRC_FILES
+${COMMON_SRC_FILES}
+${BZ_SRC_FILES}
+main_bred.cpp
+)
+add_executable(red-bz ${SRC_FILES})
+target_link_libraries(red-bz ${COMMON_LIBS} ${PVKERNEL_LIBRARIES})
 ####

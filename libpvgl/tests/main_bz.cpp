@@ -1,5 +1,7 @@
 #include <common/common.h>
 #include <code_bz/bz_compute.h>
+#include <code_bz/serial_bcodecb.h>
+#include <gl/bccb_view.h>
 #include <gl/simple_lines_float_view.h>
 #include <gl/simple_lines_int_view.h>
 
@@ -52,6 +54,15 @@ int main(int argc, char** argv)
 	std::vector<PVBCode> codes;
 	bz.compute_b(codes, 0, 1, X_START, X_START+W_FRAME, Y_START, Y_START+H_FRAME);
 
+	// Reduction
+	BCodeCB bc_cb = allocate_BCodeCB();
+	std::cout << "Start BCode reduction..." << std::endl;
+	serial_bcodecb(&codes[0], codes.size(), bc_cb);
+	std::cout << "Reduction done." << std::endl;
+
+	//codes.clear();
+	//bcode_cb_to_bcodes(codes, bc_cb);
+
 	QApplication app(argc, argv);
 	std::vector<float> p_ext;
 	std::vector<int> bz_pts;
@@ -80,6 +91,20 @@ int main(int argc, char** argv)
 		v->set_size(W_FRAME, H_FRAME);
 		v->set_ortho(W_FRAME, H_FRAME);
 		v->set_points(bz_pts);
+
+		window->setCentralWidget(v);
+		window->resize(v->sizeHint());
+		window->show();
+	}
+
+	{
+		QMainWindow *window = new QMainWindow();
+		window->setWindowTitle("bz - red code bz");
+		BCCBView *v = new BCCBView(window);
+
+		v->set_size(W_FRAME, H_FRAME);
+		v->set_ortho(W_FRAME, H_FRAME);
+		v->set_bccb(bc_cb);
 
 		window->setCentralWidget(v);
 		window->resize(v->sizeHint());

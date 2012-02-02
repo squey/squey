@@ -5,30 +5,30 @@ int8_t types_from_line_pos[] = {-1, 2, 3, 1, -1, -1, 4, 0, -1, -1, -1, 5, -1, -1
 
 void PVBCode::to_pts(uint16_t w, uint16_t h, uint16_t& lx, uint16_t& ly, uint16_t& rx, uint16_t& ry) const
 {
-	switch (type) {
+	switch (s.type) {
 	case 0:
-		lx = 0; ly = l;
-		rx = r; ry = 0;
+		lx = 0; ly = s.l;
+		rx = s.r; ry = 0;
 		break;
 	case 1:
-		lx = 0; ly = l;
-		rx = w; ry = r;
+		lx = 0; ly = s.l;
+		rx = w; ry = s.r;
 		break;
 	case 2:
-		lx = 0; ly = l;
-		rx = r; ry = h;
+		lx = 0; ly = s.l;
+		rx = s.r; ry = h;
 		break;
 	case 3:
-		lx = l; ly = h;
-		rx = w; ry = r;
+		lx = s.l; ly = h;
+		rx = w; ry = s.r;
 		break;
 	case 4:
-		lx = l; ly = h;
-		rx = r; ry = 0;
+		lx = s.l; ly = h;
+		rx = s.r; ry = 0;
 		break;
 	case 5:
-		lx = l; ly = 0;
-		rx = w; ry = r;;
+		lx = s.l; ly = 0;
+		rx = w; ry = s.r;
 		break;
 	default:
 		assert(false);
@@ -125,7 +125,6 @@ void PVBZCompute::compute_b(std::vector<PVBCode>& codes, PVCol axis_a, PVCol axi
 		
 		PVBCode bcode;
 		int type = get_line_type(l, x0, x1, y0, y1);
-		bcode.type = type;
 		float bcode_l, bcode_r;
 		switch (type) {
 			case -1:
@@ -164,8 +163,9 @@ void PVBZCompute::compute_b(std::vector<PVBCode>& codes, PVCol axis_a, PVCol axi
 				assert(false);
 				break;
 		}
-		bcode.l = (uint16_t) bcode_l;
-		bcode.r = (uint16_t) bcode_r;
+		bcode.s.type = type;
+		bcode.s.l = (uint16_t) bcode_l;
+		bcode.s.r = (uint16_t) bcode_r;
 
 		codes.push_back(bcode);
 
