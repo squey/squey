@@ -26,7 +26,7 @@ void BCCBView::paintGL()
 			}
 		}
 	}
-	glEnd();	
+	glEnd();
 
 	tbb::tick_count end = tbb::tick_count::now();
 	std::cout << "Fin de l'affichage CB BZ: " << (end-start).seconds() << std::endl;

@@ -13,6 +13,7 @@ void serial_bcodecb(PVBCode* codes, size_t n, BCodeCB cb)
 	}
 }
 
+#if 0
 void sse_bcodecb(PVBCode* codes, size_t n, BCodeCB cb)
 {
 	__m128i sse_codes;
@@ -48,3 +49,4 @@ void sse_bcodecb(PVBCode* codes, size_t n, BCodeCB cb)
 		B_SET(cb[(bit.int_v)>>5], ((bit.int_v)&31));
 	}
 }
+#endif
