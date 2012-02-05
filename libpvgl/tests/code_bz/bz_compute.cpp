@@ -52,16 +52,16 @@ PVBZCompute::PVBZCompute():
 {
 }
 
-void PVBZCompute::set_plotted(std::vector<float> const& plotted, PVCol ncols)
+void PVBZCompute::set_plotted(Picviz::PVPlotted::plotted_table_t const& plotted, PVCol ncols)
 {
-	_plotted = &plotted;
+	_plotted = &plotted[0];
 	_nb_cols = ncols;
 	_nb_rows = plotted.size()/ncols;
 }
 
-void PVBZCompute::set_trans_plotted(std::vector<float> const& plotted, PVCol ncols)
+void PVBZCompute::set_trans_plotted(Picviz::PVPlotted::plotted_table_t const& plotted, PVCol ncols)
 {
-	_trans_plotted = &plotted;
+	_trans_plotted = &plotted[0];
 	_nb_cols = ncols;
 	_nb_rows = plotted.size()/ncols;
 }
@@ -107,7 +107,7 @@ void PVBZCompute::convert_to_points(uint16_t width, uint16_t height, std::vector
 	}
 }
 
-void PVBZCompute::compute_b(std::vector<PVBCode>& codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1)
+void PVBZCompute::compute_b(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1)
 {
 	// Convert box to plotted coordinates
 	vec2 frame_p_left = frame_to_plotted(vec2(X0, Y0));
@@ -122,7 +122,6 @@ void PVBZCompute::compute_b(std::vector<PVBCode>& codes, PVCol axis_a, PVCol axi
 
 	PVLineEq l;
 	l.b = 1.0f;
-	codes.reserve(_nb_rows);
 	for (PVRow i = 0; i < _nb_rows; i++) {
 		float ypl = get_plotted(axis_a, i);
 		float ypr = get_plotted(axis_b, i);
@@ -179,7 +178,7 @@ void PVBZCompute::compute_b(std::vector<PVBCode>& codes, PVCol axis_a, PVCol axi
 	}
 }
 
-int PVBZCompute::compute_b_trans(std::vector<PVBCode>& codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1)
+int PVBZCompute::compute_b_trans(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1)
 {
 	// Convert box to plotted coordinates
 	vec2 frame_p_left = frame_to_plotted(vec2(X0, Y0));
@@ -256,7 +255,7 @@ int PVBZCompute::compute_b_trans(std::vector<PVBCode>& codes, PVCol axis_a, PVCo
 	return 0;
 }
 
-int PVBZCompute::compute_b_trans_nobranch(std::vector<PVBCode>& codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1)
+int PVBZCompute::compute_b_trans_nobranch(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1)
 {
 	// Convert box to plotted coordinates
 	vec2 frame_p_left = frame_to_plotted(vec2(X0, Y0));
@@ -339,7 +338,7 @@ int PVBZCompute::compute_b_trans_nobranch(std::vector<PVBCode>& codes, PVCol axi
 	return 0;
 }
 
-int PVBZCompute::compute_b_trans_nobranch_sse(std::vector<PVBCode>& codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1)
+int PVBZCompute::compute_b_trans_nobranch_sse(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1)
 {
 	// Convert box to plotted coordinates
 	vec2 frame_p_left = frame_to_plotted(vec2(X0, Y0));
@@ -365,8 +364,8 @@ int PVBZCompute::compute_b_trans_nobranch_sse(std::vector<PVBCode>& codes, PVCol
 
 	__m128 sse_ypl, sse_ypr;
 	for (PVRow i = 0; i < _nb_rows; i += 4) {
-		sse_ypl = _mm_loadu_ps(&(*_trans_plotted)[axis_a*_nb_rows+i]);
-		sse_ypr = _mm_loadu_ps(&(*_trans_plotted)[axis_b*_nb_rows+i]);
+		sse_ypl = _mm_load_ps(&_trans_plotted[axis_a*_nb_rows+i]);
+		sse_ypr = _mm_load_ps(&_trans_plotted[axis_b*_nb_rows+i]);
 
 		// Line equation
 		// a*X + b*Y + c = 0
@@ -447,7 +446,7 @@ int PVBZCompute::compute_b_trans_nobranch_sse(std::vector<PVBCode>& codes, PVCol
 	return 0;
 }
 
-int PVBZCompute::compute_b_trans_sse(std::vector<PVBCode>& codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1)
+int PVBZCompute::compute_b_trans_sse(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1)
 {
 	// Convert box to plotted coordinates
 	vec2 frame_p_left = frame_to_plotted(vec2(X0, Y0));
@@ -468,8 +467,8 @@ int PVBZCompute::compute_b_trans_sse(std::vector<PVBCode>& codes, PVCol axis_a, 
 	__m128 sse_ypl, sse_ypr;
 	//PVBCode code;
 	for (PVRow i = 0; i < _nb_rows; i += 4) {
-		sse_ypl = _mm_loadu_ps(&(*_trans_plotted)[axis_a*_nb_rows+i]);
-		sse_ypr = _mm_loadu_ps(&(*_trans_plotted)[axis_b*_nb_rows+i]);
+		sse_ypl = _mm_load_ps(&_trans_plotted[axis_a*_nb_rows+i]);
+		sse_ypr = _mm_load_ps(&_trans_plotted[axis_b*_nb_rows+i]);
 
 		// Line equation
 		// a*X + b*Y + c = 0
@@ -553,7 +552,7 @@ int PVBZCompute::compute_b_trans_sse(std::vector<PVBCode>& codes, PVCol axis_a, 
 	return 0;
 }
 
-int PVBZCompute::compute_b_trans_sse2(std::vector<PVBCode>& codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1)
+int PVBZCompute::compute_b_trans_sse2(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1)
 {
 	// Convert box to plotted coordinates
 	vec2 frame_p_left = frame_to_plotted(vec2(X0, Y0));
@@ -574,8 +573,8 @@ int PVBZCompute::compute_b_trans_sse2(std::vector<PVBCode>& codes, PVCol axis_a,
 	__m128 sse_ypl, sse_ypr;
 	//PVBCode code;
 	for (PVRow i = 0; i < _nb_rows; i += 4) {
-		sse_ypl = _mm_loadu_ps(&(*_trans_plotted)[axis_a*_nb_rows+i]);
-		sse_ypr = _mm_loadu_ps(&(*_trans_plotted)[axis_b*_nb_rows+i]);
+		sse_ypl = _mm_load_ps(&_trans_plotted[axis_a*_nb_rows+i]);
+		sse_ypr = _mm_load_ps(&_trans_plotted[axis_b*_nb_rows+i]);
 
 		// Line equation
 		// a*X + b*Y + c = 0
@@ -665,7 +664,7 @@ int PVBZCompute::compute_b_trans_sse2(std::vector<PVBCode>& codes, PVCol axis_a,
 			__m128i sse_bcodes_lr = _mm_or_si128(_mm_slli_epi32(_mm_cvtps_epi32(sse_bcodes_l), 3),
 			                                     _mm_slli_epi32(_mm_cvtps_epi32(sse_bcodes_r), 14));
 			__m128i sse_bcodes = _mm_or_si128(sse_types, sse_bcodes_lr);
-			_mm_storeu_si128((__m128i*) &codes[i], sse_bcodes);
+			_mm_store_si128((__m128i*) &codes[i], sse_bcodes);
 		}
 		else {
 			PVLOG_WARN("One of the type is -1 !\n");
@@ -674,7 +673,7 @@ int PVBZCompute::compute_b_trans_sse2(std::vector<PVBCode>& codes, PVCol axis_a,
 	return 0;
 }
 
-int PVBZCompute::compute_b_trans_sse3(std::vector<PVBCode>& codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1)
+int PVBZCompute::compute_b_trans_sse3(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1)
 {
 	// Convert box to plotted coordinates
 	vec2 frame_p_left = frame_to_plotted(vec2(X0, Y0));
@@ -695,8 +694,8 @@ int PVBZCompute::compute_b_trans_sse3(std::vector<PVBCode>& codes, PVCol axis_a,
 	__m128 sse_ypl, sse_ypr;
 	//PVBCode code;
 	for (PVRow i = 0; i < _nb_rows; i += 4) {
-		sse_ypl = _mm_loadu_ps(&(*_trans_plotted)[axis_a*_nb_rows+i]);
-		sse_ypr = _mm_loadu_ps(&(*_trans_plotted)[axis_b*_nb_rows+i]);
+		sse_ypl = _mm_load_ps(&_trans_plotted[axis_a*_nb_rows+i]);
+		sse_ypr = _mm_load_ps(&_trans_plotted[axis_b*_nb_rows+i]);
 
 		// Line equation
 		// a*X + b*Y + c = 0
@@ -812,7 +811,7 @@ int PVBZCompute::compute_b_trans_sse3(std::vector<PVBCode>& codes, PVCol axis_a,
 			__m128i sse_bcodes_lr = _mm_or_si128(_mm_slli_epi32(_mm_sub_epi32(_mm_cvtps_epi32(_mm_mul_ps(sse_bcodes_l, _mm_load_ps(zooms_l))), _mm_load_si128((__m128i*) transs_l)), 3),
 			                                     _mm_slli_epi32(_mm_sub_epi32(_mm_cvtps_epi32(_mm_mul_ps(sse_bcodes_r, _mm_load_ps(zooms_r))), _mm_load_si128((__m128i*) transs_r)), 14));
 			__m128i sse_bcodes = _mm_or_si128(sse_types, sse_bcodes_lr);
-			_mm_storeu_si128((__m128i*) &codes[i], sse_bcodes);
+			_mm_store_si128((__m128i*) &codes[i], sse_bcodes);
 		}
 		else {
 			PVLOG_WARN("One of the type is -1 !\n");

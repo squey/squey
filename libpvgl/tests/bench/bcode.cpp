@@ -19,7 +19,7 @@
 	codes.clear();\
 	codes.resize(bz.get_nrows());\
 	BENCH_START(name);\
-	bz.f(codes, 0, 1, X_START, X_START+W_FRAME, Y_START, Y_START+H_FRAME);\
+	bz.f(&codes[0], 0, 1, X_START, X_START+W_FRAME, Y_START, Y_START+H_FRAME);\
 	BENCH_END(name, desc, bz.get_nrows()*2, sizeof(float), codes.size(), sizeof(PVBCode));\
 	CHECK(codes.size() == codes_ref.size());\
 	CHECK(memcmp(&codes[0], &codes_ref[0], codes.size()*sizeof(PVBCode)) == 0);
@@ -36,7 +36,7 @@ void show_codes_diff(PVBCode* bref, PVBCode* bwrong, size_t n)
 	}
 }
 
-void init_rand_plotted(std::vector<float>& p, PVRow nrows)
+void init_rand_plotted(Picviz::PVPlotted::plotted_table_t& p, PVRow nrows)
 {
 	srand(time(NULL));
 	p.clear();
@@ -79,7 +79,7 @@ int main(int argc, char** argv)
 	bz.set_zoom(2048, 2048);
 	
 	std::cout << "Start BCode computation..." << std::endl;
-	std::vector<PVBCode> codes_ref, codes;
+	std::vector<PVBCode, PVCore::PVAlignedAllocator<PVBCode, 16> > codes_ref, codes;
 
 	/*BENCH_START(bcode);
 	bz.compute_b(codes, 0, 1, X_START, X_START+W_FRAME, Y_START, Y_START+H_FRAME);
@@ -88,7 +88,7 @@ int main(int argc, char** argv)
 	// Compute reference
 	codes_ref.resize(bz.get_nrows());
 	BENCH_START(bcode_trans);
-	bz.compute_b_trans(codes_ref, 0, 1, X_START, X_START+W_FRAME, Y_START, Y_START+H_FRAME);
+	bz.compute_b_trans(&codes_ref[0], 0, 1, X_START, X_START+W_FRAME, Y_START, Y_START+H_FRAME);
 	BENCH_END(bcode_trans, "BCode trans-computation", bz.get_nrows()*2, sizeof(float), codes_ref.size(), sizeof(PVBCode));
 
 	// Launch other benchs

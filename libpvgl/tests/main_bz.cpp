@@ -58,7 +58,7 @@ int main(int argc, char** argv)
 	std::vector<PVBCode> codes;
 	codes.reserve(bz.get_nrows());
 	BENCH_START(bcode);
-	bz.compute_b(codes, 0, 1, X_START, X_START+W_FRAME, Y_START, Y_START+H_FRAME);
+	bz.compute_b(&codes[0], 0, 1, X_START, X_START+W_FRAME, Y_START, Y_START+H_FRAME);
 	BENCH_END(bcode, "BCode computation", plotted.size()*2, sizeof(float), codes.size(), sizeof(PVBCode));
 
 	// Reduction

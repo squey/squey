@@ -1,3 +1,4 @@
+#include <common/common.h>
 #include <code_bz/types.h>
 #include <code_bz/init.h>
 
