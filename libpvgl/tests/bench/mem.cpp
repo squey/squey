@@ -26,9 +26,10 @@ void sse_kernel_int(int* DECLARE_ALIGN(16) res, int* DECLARE_ALIGN(16) f1, int* 
 	__m128i sse_cst = _mm_set1_epi32(5);
 	for (size_t i = 0; i < n; i += 4) {
 		sse_f1 = _mm_load_si128((__m128i*) &f1[i]);
-		sse_f2 = _mm_load_si128((__m128i*) &f2[i]);
+		//sse_f2 = _mm_load_si128((__m128i*) &f2[i]);
 
-		sse_res = _mm_mul_epi32(_mm_add_epi32(sse_f1, sse_f2), sse_cst);
+		//sse_res = _mm_mul_epi32(_mm_add_epi32(sse_f1, sse_f2), sse_cst);
+		sse_res = _mm_mul_epi32(sse_f1, sse_cst);
 		_mm_stream_si128((__m128i*) &res[i], sse_res);
 	}
 }
@@ -126,7 +127,7 @@ int main(int argc, char** argv)
 
 	BENCH_START(ki);
 	sse_kernel_int(res_ref, (int*) f1, (int*) f2, n);
-	BENCH_END(ki, "sse-int", n*2, sizeof(float), n, sizeof(int));
+	BENCH_END(ki, "sse-int", n, sizeof(float), n, sizeof(int));
 	
 	BENCH_START(omp);
 	omp_kernel(res, f1, f2, n);

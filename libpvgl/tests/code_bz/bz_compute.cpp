@@ -602,6 +602,7 @@ int PVBZCompute::compute_b_trans_sse2(PVBCode_ap codes, PVCol axis_a, PVCol axis
 		types[2] = types_from_line_pos[_mm_extract_epi32(sse_pos, 2)];
 		types[3] = types_from_line_pos[_mm_extract_epi32(sse_pos, 3)];
 
+		//__m128i sse_types = _mm_set_epi32(types[3], types[2], types[1], types[0]);
 		__m128i sse_types = _mm_load_si128((__m128i*) types);
 
 		// Check if one of the type is -1.
