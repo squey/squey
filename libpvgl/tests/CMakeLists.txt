@@ -32,7 +32,7 @@ include/gl/simple_lines_int_view.h
 QT4_WRAP_CPP(GL_MOC_SRC ${GL_MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})
 set(GL_SRC_FILES ${GL_SRC_FILES} ${GL_MOC_SRC})
 
-add_definitions(-march=native -O3)
+add_definitions(-march=native -O3 -ffast-math)
 set(COMMON_LIBS ${QT_LIBRARIES} ${GLEW_LIBRARY} ${GLUT_glut_LIBRARY} ${OPENGL_LIBRARIES} ${FREETYPE_LIBRARY} ${TBB_LIBRARIES} ${OpenMP_LIBRARIES})
 # Tests programs
 

@@ -93,6 +93,17 @@ int8_t PVBZCompute::get_line_type(PVLineEq const& l, float x0, float x1, float y
 	return type;
 }
 
+int8_t PVBZCompute::get_line_type_int(PVLineEqInt const& l, int x0, int x1, int y0, int y1) const
+{
+	int a = l(x0, y1) >= 0;
+	int b = l(x1, y1) >= 0;
+	int c = l(x1, y0) >= 0;
+	int d = l(x0, y0) >= 0;
+	int lpos = a | b<<1 | c<<2 | d<<3;
+	int8_t type = types_from_line_pos[lpos];
+	return type;
+}
+
 void PVBZCompute::convert_to_points(uint16_t width, uint16_t height, std::vector<PVBCode> const& codes, std::vector<int>& ret)
 {
 	std::vector<PVBCode>::const_iterator it;
@@ -107,7 +118,7 @@ void PVBZCompute::convert_to_points(uint16_t width, uint16_t height, std::vector
 	}
 }
 
-void PVBZCompute::compute_b(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1)
+int PVBZCompute::compute_b(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1)
 {
 	// Convert box to plotted coordinates
 	vec2 frame_p_left = frame_to_plotted(vec2(X0, Y0));
@@ -122,6 +133,7 @@ void PVBZCompute::compute_b(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, float 
 
 	PVLineEq l;
 	l.b = 1.0f;
+	int idx_code = 0;
 	for (PVRow i = 0; i < _nb_rows; i++) {
 		float ypl = get_plotted(axis_a, i);
 		float ypr = get_plotted(axis_b, i);
@@ -174,8 +186,79 @@ void PVBZCompute::compute_b(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, float 
 		bcode.s.l = (uint16_t) bcode_l;
 		bcode.s.r = (uint16_t) bcode_r;
 
-		codes[i] = bcode;
+		codes[idx_code] = bcode;
+		idx_code++;
 	}
+	return idx_code;
+}
+
+int PVBZCompute::compute_b_trans_int(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, int X0, int X1, int Y0, int Y1)
+{
+	float Xdiff = _zoom_x;
+
+	PVLineEqInt l;
+	l.b = Xdiff;
+	//codes.reserve(_nb_rows);
+	int idx_code = 0;
+	for (PVRow i = 0; i < _nb_rows; i++) {
+		float ypl = get_plotted_trans(axis_a, i);
+		float ypr = get_plotted_trans(axis_b, i);
+		int Ypl = (int) (ypl*_zoom_y - _trans_y);
+		int Ypr = (int) (ypr*_zoom_y - _trans_y);
+
+		// Line equation
+		// (ypl-ypr)*x + (Xdiff)*y - Xdiff*ypl = 0
+		// a*X + b*Y + c = 0
+		int Ydiff = Ypl-Ypr;
+		l.a = Ydiff;
+		l.c = -Xdiff*Ypl;
+		
+		PVBCode bcode;
+		int type = get_line_type_int(l, X0, X1, Y0, Y1);
+		int bcode_l, bcode_r;
+		
+		switch (type) {
+			case -1:
+				// This line does not cross our region.
+				//PVLOG_INFO("Line out of region (%f/%f)\n", ypl, ypr);
+				continue;
+			case 0:
+				bcode_l = Ypr-Y0 + ((Ydiff)*(Xdiff-X0))/Xdiff;
+				bcode_r = (Xdiff*(Ypl-Y0))/(Ydiff) - X0;
+				break;
+			case 1:
+				bcode_l = Ypr-Y0 + ((Ydiff)*(Xdiff-X0))/Xdiff;
+				bcode_r = Ypr-Y0 + ((Ydiff)*(Xdiff-X1))/Xdiff;
+				break;
+			case 2:
+				bcode_l = Ypr-Y0 + ((Ydiff)*(Xdiff-X0))/Xdiff;
+				bcode_r = (Xdiff*(Ypl-Y1))/(Ydiff) - X0;
+				break;
+			case 3:
+				bcode_l = (Xdiff*(Ypl-Y1))/(Ydiff) - X0;
+				bcode_r = Ypr-Y0 + ((Ydiff)*(Xdiff-X1))/Xdiff;
+				break;
+			case 4:
+				bcode_l = Ypr-Y0 + ((Ydiff)*(Xdiff-X1))/Xdiff;
+				bcode_r = Ypr-Y0 + ((Ydiff)*(Xdiff-X0))/Xdiff;
+				break;
+			case 5:
+				bcode_l = (Xdiff*(Ypl-Y0))/(Ydiff) - X0;
+				bcode_r = Ypr-Y0 + ((Ydiff)*(Xdiff-X1))/Xdiff;
+				break;
+			default:
+				assert(false);
+				break;
+		}
+		bcode.int_v = 0;
+		bcode.s.type = type;
+		bcode.s.l = (uint16_t) bcode_l;
+		bcode.s.r = (uint16_t) bcode_r;
+
+		codes[idx_code] = bcode;
+		idx_code++;
+	}
+	return idx_code;
 }
 
 int PVBZCompute::compute_b_trans(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1)
@@ -194,6 +277,7 @@ int PVBZCompute::compute_b_trans(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, f
 	PVLineEq l;
 	l.b = 1.0f;
 	//codes.reserve(_nb_rows);
+	int idx_code = 0;
 	for (PVRow i = 0; i < _nb_rows; i++) {
 		float ypl = get_plotted_trans(axis_a, i);
 		float ypr = get_plotted_trans(axis_b, i);
@@ -214,24 +298,20 @@ int PVBZCompute::compute_b_trans(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, f
 				//PVLOG_INFO("Line out of region (%f/%f)\n", ypl, ypr);
 				continue;
 			case 0:
-				bcode_l = (x0*ypr + (1-x0)*ypl);
-				bcode_r = ((ypl-y0)/(ypl-ypr));
-				bcode_l = bcode_l*_zoom_y - Y0;
-				bcode_r = bcode_r*_zoom_x - Xnorm;
+				bcode_l = (x0*ypr + (1-x0)*ypl)*_zoom_y - Y0;
+				bcode_r = ((ypl-y0)/(ypl-ypr))*_zoom_x - Xnorm;
 				break;
 			case 1:
 				bcode_l = (ypl*(1-x0)+ypr*x0)*_zoom_y - Y0;
 				bcode_r = (ypl*(1-x1)+ypr*x1)*_zoom_y - Y0;
 				break;
 			case 2:
-				bcode_l = (x0*ypr + (1-x0)*ypl);
-				bcode_r = ((y1-ypl)/(ypr-ypl));
-				bcode_l = bcode_l*_zoom_y - Y0;
-				bcode_r = bcode_r*_zoom_x - Xnorm;
+				bcode_l = (x0*ypr + (1-x0)*ypl)*_zoom_y - Y0;
+				bcode_r = ((y1-ypl)/(ypr-ypl))*_zoom_x - Xnorm;
 				break;
 			case 3:
 				bcode_l = ((ypl-y1)/(ypl-ypr))*_zoom_x - Xnorm;
-				bcode_r = (ypr + (1-x1)*(ypl-ypr))*_zoom_y - Y0;
+				bcode_r = (ypl*(1-x1)+ypr*x1)*_zoom_y - Y0;
 				break;
 			case 4:
 				bcode_l = ((ypl-y1)/(ypl-ypr))*_zoom_x - Xnorm;
@@ -250,9 +330,10 @@ int PVBZCompute::compute_b_trans(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, f
 		bcode.s.l = (uint16_t) bcode_l;
 		bcode.s.r = (uint16_t) bcode_r;
 
-		codes[i] = bcode;
+		codes[idx_code] = bcode;
+		idx_code++;
 	}
-	return 0;
+	return idx_code;
 }
 
 int PVBZCompute::compute_b_trans_nobranch(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1)
@@ -271,6 +352,7 @@ int PVBZCompute::compute_b_trans_nobranch(PVBCode_ap codes, PVCol axis_a, PVCol 
 	PVLineEq l;
 	l.b = 1.0f;
 	//codes.reserve(_nb_rows);
+	int idx_code = 0;
 	for (PVRow i = 0; i < _nb_rows; i++) {
 		float ypl = get_plotted_trans(axis_a, i);
 		float ypr = get_plotted_trans(axis_b, i);
@@ -333,9 +415,10 @@ int PVBZCompute::compute_b_trans_nobranch(PVBCode_ap codes, PVCol axis_a, PVCol 
 		bcode.s.l = (uint16_t) bcode_l;
 		bcode.s.r = (uint16_t) bcode_r;
 
-		codes[i] = bcode;
+		codes[idx_code] = bcode;
+		idx_code++;
 	}
-	return 0;
+	return idx_code;
 }
 
 int PVBZCompute::compute_b_trans_nobranch_sse(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1)
@@ -465,6 +548,7 @@ int PVBZCompute::compute_b_trans_sse(PVBCode_ap codes, PVCol axis_a, PVCol axis_
 	__m128 sse_y1 = _mm_set1_ps(y1);
 
 	__m128 sse_ypl, sse_ypr;
+	int idx_code = 0;
 	for (PVRow i = 0; i < _nb_rows; i += 4) {
 		sse_ypl = _mm_load_ps(&_trans_plotted[axis_a*_nb_rows+i]);
 		sse_ypr = _mm_load_ps(&_trans_plotted[axis_b*_nb_rows+i]);
@@ -543,9 +627,11 @@ int PVBZCompute::compute_b_trans_sse(PVBCode_ap codes, PVCol axis_a, PVCol axis_
 			bcode.s.type = types[j];
 			bcode.s.l = (uint16_t) bcode_l;
 			bcode.s.r = (uint16_t) bcode_r;
-			sse_bcodes = _mm_insert_epi32(sse_bcodes, bcode.int_v, j);
+			//sse_bcodes = _mm_insert_epi32(sse_bcodes, bcode.int_v, j);
+			codes[idx_code] = bcode;
+			idx_code++;
 		}
-		_mm_store_si128((__m128i*) &codes[i], sse_bcodes);
+		//_mm_store_si128((__m128i*) &codes[i], sse_bcodes);
 	}
 	return 0;
 }
@@ -810,7 +896,7 @@ int PVBZCompute::compute_b_trans_sse3(PVBCode_ap codes, PVCol axis_a, PVCol axis
 			__m128i sse_bcodes_lr = _mm_or_si128(_mm_slli_epi32(_mm_sub_epi32(_mm_cvtps_epi32(_mm_mul_ps(sse_bcodes_l, _mm_load_ps(zooms_l))), _mm_load_si128((__m128i*) transs_l)), 3),
 			                                     _mm_slli_epi32(_mm_sub_epi32(_mm_cvtps_epi32(_mm_mul_ps(sse_bcodes_r, _mm_load_ps(zooms_r))), _mm_load_si128((__m128i*) transs_r)), 14));
 			__m128i sse_bcodes = _mm_or_si128(sse_types, sse_bcodes_lr);
-			_mm_store_si128((__m128i*) &codes[i], sse_bcodes);
+			_mm_stream_si128((__m128i*) &codes[i], sse_bcodes);
 		}
 		else {
 			PVLOG_WARN("One of the type is -1 !\n");
@@ -818,3 +904,517 @@ int PVBZCompute::compute_b_trans_sse3(PVBCode_ap codes, PVCol axis_a, PVCol axis
 	}
 	return 0;
 }
+
+int PVBZCompute::compute_b_trans_sse4(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1)
+{
+	// Convert box to plotted coordinates
+	vec2 frame_p_left = frame_to_plotted(vec2(X0, Y0));
+	vec2 frame_p_right = frame_to_plotted(vec2(X1, Y1));
+	float x0 = frame_p_left.x;
+	float y0 = frame_p_left.y;
+	float x1 = frame_p_right.x;
+	float y1 = frame_p_right.y;
+	x0 -= (int)x0;
+	x1 -= (int)x0;
+	float Xnorm = x0*_zoom_x;
+
+	const __m128 sse_x0 = _mm_set1_ps(x0);
+	const __m128 sse_x0comp = _mm_sub_ps(_mm_set1_ps(1.0f), _mm_set1_ps(x0));
+	const __m128 sse_x1 = _mm_set1_ps(x1);
+	const __m128 sse_x1comp = _mm_sub_ps(_mm_set1_ps(1.0f), _mm_set1_ps(x1));
+	const __m128 sse_y0 = _mm_set1_ps(y0);
+	const __m128 sse_y1 = _mm_set1_ps(y1);
+
+	const __m128i sse_Y0 = _mm_set1_epi32(Y0);
+	const __m128i sse_Xnorm = _mm_set1_epi32((int) Xnorm);
+
+	const __m128 sse_zoomx = _mm_set1_ps(_zoom_x);
+	const __m128 sse_zoomy = _mm_set1_ps(_zoom_y);
+
+	__m128 sse_ypl, sse_ypr;
+	int idx_code = 0;
+	for (PVRow i = 0; i < _nb_rows; i += 4) {
+		sse_ypl = _mm_load_ps(&_trans_plotted[axis_a*_nb_rows+i]);
+		sse_ypr = _mm_load_ps(&_trans_plotted[axis_b*_nb_rows+i]);
+
+		// Line equation
+		// a*X + b*Y + c = 0
+		//
+		// (ypl-ypr)*x + y - ypl = 0
+		// or...
+		// (ypl-ypr)*x + y >= ypl
+
+		__m128 ydiff = _mm_sub_ps(sse_ypl, sse_ypr);
+		__m128i a = _mm_and_si128(_mm_castps_si128(_mm_cmpge_ps(_mm_add_ps(_mm_mul_ps(ydiff, sse_x0), sse_y1), sse_ypl)), _mm_set1_epi32(1));
+		__m128i b = _mm_and_si128(_mm_castps_si128(_mm_cmpge_ps(_mm_add_ps(_mm_mul_ps(ydiff, sse_x1), sse_y1), sse_ypl)), _mm_set1_epi32(1<<1));
+		__m128i c = _mm_and_si128(_mm_castps_si128(_mm_cmpge_ps(_mm_add_ps(_mm_mul_ps(ydiff, sse_x1), sse_y0), sse_ypl)), _mm_set1_epi32(1<<2));
+		__m128i d = _mm_and_si128(_mm_castps_si128(_mm_cmpge_ps(_mm_add_ps(_mm_mul_ps(ydiff, sse_x0), sse_y0), sse_ypl)), _mm_set1_epi32(1<<3));
+		__m128i sse_pos = _mm_or_si128(_mm_or_si128(a, b), _mm_or_si128(c, d));
+
+		/*
+		int a = l(x0, y1) >= 0;
+		int b = l(x1, y1) >= 0;
+		int c = l(x1, y0) >= 0;
+		int d = l(x0, y0) >= 0;
+		int lpos = a | b<<1 | c<<2 | d<<3;
+		*/
+
+		int DECLARE_ALIGN(16) types[4];
+		// Pos -> types
+		types[0] = types_from_line_pos[_mm_extract_epi32(sse_pos, 0)];
+		types[1] = types_from_line_pos[_mm_extract_epi32(sse_pos, 1)];
+		types[2] = types_from_line_pos[_mm_extract_epi32(sse_pos, 2)];
+		types[3] = types_from_line_pos[_mm_extract_epi32(sse_pos, 3)];
+
+		// Special cases when all the types are the same. Let's do this in SSE !!
+		if ((types[0] == types[1]) && (types [1] == types[2]) && (types[2] == types[3])) {
+			__m128i sse_types = _mm_load_si128((__m128i*) types);
+			int type = types[0];
+			__m128i sse_bcodes_li, sse_bcodes_ri;
+			__m128 tmpl,tmpr;
+			switch (type) {
+				case -1:
+					continue;
+				case 0:
+					tmpl = _mm_mul_ps(_mm_add_ps(_mm_mul_ps(sse_ypl, sse_x0comp), _mm_mul_ps(sse_ypr, sse_x0)), sse_zoomy);
+					tmpr = _mm_mul_ps(_mm_div_ps(_mm_sub_ps(sse_ypl, sse_y0), ydiff), sse_zoomx);
+
+					sse_bcodes_li = _mm_sub_epi32(_mm_cvtps_epi32(tmpl), sse_Y0);
+					sse_bcodes_ri = _mm_sub_epi32(_mm_cvtps_epi32(tmpr), sse_Xnorm);
+					break;
+				case 1:
+					tmpl = _mm_mul_ps(_mm_add_ps(_mm_mul_ps(sse_ypl, sse_x0comp), _mm_mul_ps(sse_ypr, sse_x0)), sse_zoomy);
+					tmpr = _mm_mul_ps(_mm_add_ps(_mm_mul_ps(sse_ypl, sse_x1comp), _mm_mul_ps(sse_ypr, sse_x1)), sse_zoomy);
+
+					sse_bcodes_li = _mm_sub_epi32(_mm_cvtps_epi32(tmpl), sse_Y0);
+					sse_bcodes_ri = _mm_sub_epi32(_mm_cvtps_epi32(tmpr), sse_Y0);
+					break;
+				case 2:
+					tmpl = _mm_mul_ps(_mm_add_ps(_mm_mul_ps(sse_ypl, sse_x0comp), _mm_mul_ps(sse_ypr, sse_x0)), sse_zoomy);
+					tmpr = _mm_mul_ps(_mm_div_ps(_mm_sub_ps(sse_ypl, sse_y1), ydiff), sse_zoomx);
+
+					sse_bcodes_li = _mm_sub_epi32(_mm_cvtps_epi32(tmpl), sse_Y0);
+					sse_bcodes_ri = _mm_sub_epi32(_mm_cvtps_epi32(tmpr), sse_Xnorm);
+					break;
+				case 3:
+					tmpl = _mm_mul_ps(_mm_div_ps(_mm_sub_ps(sse_ypl, sse_y1), ydiff), sse_zoomx);
+					tmpr = _mm_mul_ps(_mm_add_ps(_mm_mul_ps(sse_ypl, sse_x1comp), _mm_mul_ps(sse_ypr, sse_x1)), sse_zoomy);
+
+					sse_bcodes_li = _mm_sub_epi32(_mm_cvtps_epi32(tmpr), sse_Xnorm);
+					sse_bcodes_ri = _mm_sub_epi32(_mm_cvtps_epi32(tmpr), sse_Y0);
+					break;
+				case 4:
+					tmpl = _mm_mul_ps(_mm_div_ps(_mm_sub_ps(sse_ypl, sse_y1), ydiff), sse_zoomx);
+					tmpr = _mm_mul_ps(_mm_div_ps(_mm_sub_ps(sse_ypl, sse_y0), ydiff), sse_zoomx);
+
+					sse_bcodes_li = _mm_sub_epi32(_mm_cvtps_epi32(tmpr), sse_Xnorm);
+					sse_bcodes_ri = _mm_sub_epi32(_mm_cvtps_epi32(tmpr), sse_Xnorm);
+					break;
+				case 5:
+					tmpl = _mm_mul_ps(_mm_div_ps(_mm_sub_ps(sse_ypl, sse_y0), ydiff), sse_zoomx);
+					tmpr = _mm_mul_ps(_mm_add_ps(_mm_mul_ps(sse_ypl, sse_x1comp), _mm_mul_ps(sse_ypr, sse_x1)), sse_zoomy);
+
+					sse_bcodes_li = _mm_sub_epi32(_mm_cvtps_epi32(tmpr), sse_Xnorm);
+					sse_bcodes_ri = _mm_sub_epi32(_mm_cvtps_epi32(tmpr), sse_Y0);
+					break;
+			}
+			__m128i sse_bcodes_lr = _mm_or_si128(_mm_slli_epi32(sse_bcodes_li, 3),
+			                                     _mm_slli_epi32(sse_bcodes_ri, 14));
+			__m128i sse_bcodes = _mm_or_si128(sse_types, sse_bcodes_lr);
+			if ((idx_code & 3) == 0) {
+				// We are style 16-byte aligned
+				_mm_stream_si128((__m128i*) &codes[idx_code], sse_bcodes);
+				idx_code += 4;
+			}
+			else {
+				// Un-aligned store, performance loss... :s
+				// Check the difference between this and 4 _mm_stream_si32 !
+				_mm_storeu_si128((__m128i*) &codes[idx_code], sse_bcodes);
+				idx_code += 4;
+			}
+
+			continue;
+		}
+
+		//__m128i sse_types = _mm_set_epi32(types[3], types[2], types[1], types[0]);
+		// It seems to be faster, at this point, to load the memory pointed by types !!
+		__m128i sse_types = _mm_load_si128((__m128i*) types);
+
+		// Check if one of the type is -1.
+		// If not, using some SSE optimisations !
+		if (_mm_testz_si128(_mm_cmpeq_epi32(sse_types, _mm_set1_epi32(-1)), _mm_set1_epi32(0xFFFFFFFF))) {
+			__m128 sse_bcodes_l;
+			__m128 sse_bcodes_r;
+			for (int j = 0; j < 4; j++) {
+				float ypl,ypr,fydiff;
+				_MM_EXTRACT_FLOAT(ypl, sse_ypl, j);
+				_MM_EXTRACT_FLOAT(ypr, sse_ypr, j);
+				_MM_EXTRACT_FLOAT(fydiff, ydiff, j);
+				union { int i; float f; } bcode_l, bcode_r;
+				switch (types[j]) {
+					case 0:
+						bcode_l.f = (x0*ypr + (1-x0)*ypl)*_zoom_y - Y0;
+						bcode_r.f = ((ypl-y0)/(fydiff))*_zoom_x - Xnorm;
+						break;
+					case 1:
+						bcode_l.f = (ypl*(1-x0)+ypr*x0)*_zoom_y - Y0;
+						bcode_r.f = (ypl*(1-x1)+ypr*x1)*_zoom_y - Y0;
+						break;
+					case 2:
+						bcode_l.f = (x0*ypr + (1-x0)*ypl)*_zoom_y - Y0;
+						bcode_r.f = ((y1-ypl)/(fydiff))*_zoom_x - Xnorm;
+						break;
+					case 3:
+						bcode_l.f = ((ypl-y1)/(fydiff))*_zoom_x - Xnorm;
+						bcode_r.f = (ypl*(1-x1)+ypr*x1)*_zoom_y - Y0;
+						break;
+					case 4:
+						bcode_l.f = ((ypl-y1)/(fydiff))*_zoom_x - Xnorm;
+						bcode_r.f = ((ypl-y0)/(fydiff))*_zoom_x - Xnorm;
+						break;
+					case 5:
+						bcode_l.f = ((ypl-y0)/(fydiff))*_zoom_x - Xnorm;
+						bcode_r.f = (x1*ypr + (1-x1)*ypl)*_zoom_y - Y0;
+						break;
+#ifndef NDEBUG
+					default:
+						assert(false);
+						break;
+#endif
+				}
+				// _mm_insert_ps does not suit our purpose.
+				// This will not work without optimisations, because this loop won't be unrolled,
+				// and _mm_insert_epi32 waits for a constant !
+				sse_bcodes_l = _mm_castsi128_ps(_mm_insert_epi32(_mm_castps_si128(sse_bcodes_l), bcode_l.i, j));
+				sse_bcodes_r = _mm_castsi128_ps(_mm_insert_epi32(_mm_castps_si128(sse_bcodes_r), bcode_r.i, j));
+			}
+			// Use sse to set the codes. Casting is also done in SSE, which gives different
+			// results that the serial one (+/- 1 !).
+			// Format:
+			//   * 3 bits: types
+			//   * 11 bits: l
+			//   * 11 bits: r
+			//   * free = 0
+			__m128i sse_bcodes_lr = _mm_or_si128(_mm_slli_epi32(_mm_cvtps_epi32(sse_bcodes_l), 3),
+			                                     _mm_slli_epi32(_mm_cvtps_epi32(sse_bcodes_r), 14));
+			__m128i sse_bcodes = _mm_or_si128(sse_types, sse_bcodes_lr);
+			if ((idx_code & 3) == 0) {
+				// We are style 16-byte aligned
+				_mm_stream_si128((__m128i*) &codes[idx_code], sse_bcodes);
+				idx_code += 4;
+			}
+			else {
+				// Un-aligned store, performance loss... :s
+				// Check the difference between this and 4 _mm_stream_si32 !
+				_mm_storeu_si128((__m128i*) &codes[idx_code], sse_bcodes);
+				idx_code += 4;
+			}
+		}
+		else {
+			// No SSE possible here, do it by hand.
+			PVBCode bcode;
+			bcode.int_v = 0;
+			for (int j = 0; j < 4; j++) {
+				float ypl,ypr,fydiff,bcode_l,bcode_r;
+				_MM_EXTRACT_FLOAT(ypl, sse_ypl, j);
+				_MM_EXTRACT_FLOAT(ypr, sse_ypr, j);
+				_MM_EXTRACT_FLOAT(fydiff, ydiff, j);
+				int type = types[j];
+				switch (type) {
+					case -1:
+						continue;
+					case 0:
+						bcode_l = (x0*ypr + (1-x0)*ypl)*_zoom_y - Y0;
+						bcode_r = ((ypl-y0)/(fydiff))*_zoom_x - Xnorm;
+						break;
+					case 1:
+						bcode_l = (ypl*(1-x0)+ypr*x0)*_zoom_y - Y0;
+						bcode_r = (ypl*(1-x1)+ypr*x1)*_zoom_y - Y0;
+						break;
+					case 2:
+						bcode_l = (x0*ypr + (1-x0)*ypl)*_zoom_y - Y0;
+						bcode_r = ((y1-ypl)/(fydiff))*_zoom_x - Xnorm;
+						break;
+					case 3:
+						bcode_l = ((ypl-y1)/(fydiff))*_zoom_x - Xnorm;
+						bcode_r = (ypl*(1-x1)+ypr*x1)*_zoom_y - Y0;
+						break;
+					case 4:
+						bcode_l = ((ypl-y1)/(fydiff))*_zoom_x - Xnorm;
+						bcode_r = ((ypl-y0)/(fydiff))*_zoom_x - Xnorm;
+						break;
+					case 5:
+						bcode_l = ((ypl-y0)/(fydiff))*_zoom_x - Xnorm;
+						bcode_r = (x1*ypr + (1-x1)*ypl)*_zoom_y - Y0;
+						break;
+					default:
+						assert(false);
+						break;
+				}
+				bcode.int_v = 0;
+				bcode.s.type = type;
+				bcode.s.l = (uint16_t) bcode_l;
+				bcode.s.r = (uint16_t) bcode_r;
+
+				codes[idx_code] = bcode;
+				idx_code++;
+			}
+		}
+	}
+	return idx_code;
+}
+
+#if 0
+int PVBZCompute::compute_b_trans_sse4_int(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, int X0, int X1, int Y0, int Y1)
+{
+	// Convert box to plotted coordinates
+	int Xdiff = _zoom_x;
+
+	PVLineEqInt l;
+	l.b = Xdiff;
+
+	const __m128i sse_X0 = _mm_set1_epi32(x0);
+	const __m128i sse_x0comp = _mm_sub_epi32(_mm_set1_epi32(Xdiff), _mm_set1_epi32(X0));
+	const __m128i sse_X1 = _mm_set1_epi32(X1);
+	const __m128i sse_x1comp = _mm_sub_epi32(_mm_set1_ps(Xdiff), _mm_set1_epi32(X1));
+	const __m128i sse_Y0 = _mm_set1_epi32(Y0);
+	const __m128i sse_Y1 = _mm_set1_epi32(Y1);
+
+	const __m128i sse_zoomx = _mm_set1_epi32(_zoom_x);
+	const __m128i sse_zoomy = _mm_set1_epi32(_zoom_y);
+
+	__m128i sse_Ypl, sse_Ypr;
+	int idx_code = 0;
+	for (PVRow i = 0; i < _nb_rows; i += 4) {
+		__m128 sse_ypl, sse_ypr;
+		sse_ypl = _mm_load_ps(&_trans_plotted[axis_a*_nb_rows+i]);
+		sse_ypr = _mm_load_ps(&_trans_plotted[axis_b*_nb_rows+i]);
+
+		sse_Ypl = _mm_cvtps_epi32(_mm_mul_ps(sse_ypl, sse_zoomy));
+		sse_Ypr = _mm_cvtps_epi32(_mm_mul_ps(sse_ypr, sse_zoomy));
+
+		// Line equation
+		// (ypl-ypr)*x + (Xdiff)*y - Xdiff*ypl = 0
+		// (ypl-ypr)*x + (Xdiff)*y >= Xdiff*ypl = 0
+
+		__m128 ydiff = _mm_sub_ps(sse_ypl, sse_ypr);
+		__m128i a = _mm_and_si128(_mm_castps_si128(_mm_cmpge_ps(_mm_add_ps(_mm_mul_ps(ydiff, sse_x0), sse_y1), sse_ypl)), _mm_set1_epi32(1));
+		__m128i b = _mm_and_si128(_mm_castps_si128(_mm_cmpge_ps(_mm_add_ps(_mm_mul_ps(ydiff, sse_x1), sse_y1), sse_ypl)), _mm_set1_epi32(1<<1));
+		__m128i c = _mm_and_si128(_mm_castps_si128(_mm_cmpge_ps(_mm_add_ps(_mm_mul_ps(ydiff, sse_x1), sse_y0), sse_ypl)), _mm_set1_epi32(1<<2));
+		__m128i d = _mm_and_si128(_mm_castps_si128(_mm_cmpge_ps(_mm_add_ps(_mm_mul_ps(ydiff, sse_x0), sse_y0), sse_ypl)), _mm_set1_epi32(1<<3));
+		__m128i sse_pos = _mm_or_si128(_mm_or_si128(a, b), _mm_or_si128(c, d));
+
+		/*
+		int a = l(x0, y1) >= 0;
+		int b = l(x1, y1) >= 0;
+		int c = l(x1, y0) >= 0;
+		int d = l(x0, y0) >= 0;
+		int lpos = a | b<<1 | c<<2 | d<<3;
+		*/
+
+		int DECLARE_ALIGN(16) types[4];
+		// Pos -> types
+		types[0] = types_from_line_pos[_mm_extract_epi32(sse_pos, 0)];
+		types[1] = types_from_line_pos[_mm_extract_epi32(sse_pos, 1)];
+		types[2] = types_from_line_pos[_mm_extract_epi32(sse_pos, 2)];
+		types[3] = types_from_line_pos[_mm_extract_epi32(sse_pos, 3)];
+
+		// Special cases when all the types are the same. Let's do this in SSE !!
+		if ((types[0] == types[1]) && (types [1] == types[2]) && (types[2] == types[3])) {
+			__m128i sse_types = _mm_load_si128((__m128i*) types);
+			int type = types[0];
+			__m128i sse_bcodes_li, sse_bcodes_ri;
+			__m128 tmpl,tmpr;
+			switch (type) {
+				case -1:
+					continue;
+				case 0:
+					tmpl = _mm_mul_ps(_mm_add_ps(_mm_mul_ps(sse_ypl, sse_x0comp), _mm_mul_ps(sse_ypr, sse_x0)), sse_zoomy);
+					tmpr = _mm_mul_ps(_mm_div_ps(_mm_sub_ps(sse_ypl, sse_y0), ydiff), sse_zoomx);
+
+					sse_bcodes_li = _mm_sub_epi32(_mm_cvtps_epi32(tmpl), sse_Y0);
+					sse_bcodes_ri = _mm_sub_epi32(_mm_cvtps_epi32(tmpr), sse_Xnorm);
+					break;
+				case 1:
+					tmpl = _mm_mul_ps(_mm_add_ps(_mm_mul_ps(sse_ypl, sse_x0comp), _mm_mul_ps(sse_ypr, sse_x0)), sse_zoomy);
+					tmpr = _mm_mul_ps(_mm_add_ps(_mm_mul_ps(sse_ypl, sse_x1comp), _mm_mul_ps(sse_ypr, sse_x1)), sse_zoomy);
+
+					sse_bcodes_li = _mm_sub_epi32(_mm_cvtps_epi32(tmpl), sse_Y0);
+					sse_bcodes_ri = _mm_sub_epi32(_mm_cvtps_epi32(tmpr), sse_Y0);
+					break;
+				case 2:
+					tmpl = _mm_mul_ps(_mm_add_ps(_mm_mul_ps(sse_ypl, sse_x0comp), _mm_mul_ps(sse_ypr, sse_x0)), sse_zoomy);
+					tmpr = _mm_mul_ps(_mm_div_ps(_mm_sub_ps(sse_ypl, sse_y1), ydiff), sse_zoomx);
+
+					sse_bcodes_li = _mm_sub_epi32(_mm_cvtps_epi32(tmpl), sse_Y0);
+					sse_bcodes_ri = _mm_sub_epi32(_mm_cvtps_epi32(tmpr), sse_Xnorm);
+					break;
+				case 3:
+					tmpl = _mm_mul_ps(_mm_div_ps(_mm_sub_ps(sse_ypl, sse_y1), ydiff), sse_zoomx);
+					tmpr = _mm_mul_ps(_mm_add_ps(_mm_mul_ps(sse_ypl, sse_x1comp), _mm_mul_ps(sse_ypr, sse_x1)), sse_zoomy);
+
+					sse_bcodes_li = _mm_sub_epi32(_mm_cvtps_epi32(tmpr), sse_Xnorm);
+					sse_bcodes_ri = _mm_sub_epi32(_mm_cvtps_epi32(tmpr), sse_Y0);
+					break;
+				case 4:
+					tmpl = _mm_mul_ps(_mm_div_ps(_mm_sub_ps(sse_ypl, sse_y1), ydiff), sse_zoomx);
+					tmpr = _mm_mul_ps(_mm_div_ps(_mm_sub_ps(sse_ypl, sse_y0), ydiff), sse_zoomx);
+
+					sse_bcodes_li = _mm_sub_epi32(_mm_cvtps_epi32(tmpr), sse_Xnorm);
+					sse_bcodes_ri = _mm_sub_epi32(_mm_cvtps_epi32(tmpr), sse_Xnorm);
+					break;
+				case 5:
+					tmpl = _mm_mul_ps(_mm_div_ps(_mm_sub_ps(sse_ypl, sse_y0), ydiff), sse_zoomx);
+					tmpr = _mm_mul_ps(_mm_add_ps(_mm_mul_ps(sse_ypl, sse_x1comp), _mm_mul_ps(sse_ypr, sse_x1)), sse_zoomy);
+
+					sse_bcodes_li = _mm_sub_epi32(_mm_cvtps_epi32(tmpr), sse_Xnorm);
+					sse_bcodes_ri = _mm_sub_epi32(_mm_cvtps_epi32(tmpr), sse_Y0);
+					break;
+			}
+			__m128i sse_bcodes_lr = _mm_or_si128(_mm_slli_epi32(sse_bcodes_li, 3),
+			                                     _mm_slli_epi32(sse_bcodes_ri, 14));
+			__m128i sse_bcodes = _mm_or_si128(sse_types, sse_bcodes_lr);
+			if ((idx_code & 3) == 0) {
+				// We are style 16-byte aligned
+				_mm_stream_si128((__m128i*) &codes[idx_code], sse_bcodes);
+				idx_code += 4;
+			}
+			else {
+				// Un-aligned store, performance loss... :s
+				// Check the difference between this and 4 _mm_stream_si32 !
+				_mm_storeu_si128((__m128i*) &codes[idx_code], sse_bcodes);
+				idx_code += 4;
+			}
+
+			continue;
+		}
+
+		//__m128i sse_types = _mm_set_epi32(types[3], types[2], types[1], types[0]);
+		// It seems to be faster, at this point, to load the memory pointed by types !!
+		__m128i sse_types = _mm_load_si128((__m128i*) types);
+
+		// Check if one of the type is -1.
+		// If not, using some SSE optimisations !
+		if (_mm_testz_si128(_mm_cmpeq_epi32(sse_types, _mm_set1_epi32(-1)), _mm_set1_epi32(0xFFFFFFFF))) {
+			__m128 sse_bcodes_l;
+			__m128 sse_bcodes_r;
+			for (int j = 0; j < 4; j++) {
+				float ypl,ypr,fydiff;
+				_MM_EXTRACT_FLOAT(ypl, sse_ypl, j);
+				_MM_EXTRACT_FLOAT(ypr, sse_ypr, j);
+				_MM_EXTRACT_FLOAT(fydiff, ydiff, j);
+				union { int i; float f; } bcode_l, bcode_r;
+				switch (types[j]) {
+					case 0:
+						bcode_l.f = (x0*ypr + (1-x0)*ypl)*_zoom_y - Y0;
+						bcode_r.f = ((ypl-y0)/(fydiff))*_zoom_x - Xnorm;
+						break;
+					case 1:
+						bcode_l.f = (ypl*(1-x0)+ypr*x0)*_zoom_y - Y0;
+						bcode_r.f = (ypl*(1-x1)+ypr*x1)*_zoom_y - Y0;
+						break;
+					case 2:
+						bcode_l.f = (x0*ypr + (1-x0)*ypl)*_zoom_y - Y0;
+						bcode_r.f = ((y1-ypl)/(fydiff))*_zoom_x - Xnorm;
+						break;
+					case 3:
+						bcode_l.f = ((ypl-y1)/(fydiff))*_zoom_x - Xnorm;
+						bcode_r.f = (ypl*(1-x1)+ypr*x1)*_zoom_y - Y0;
+						break;
+					case 4:
+						bcode_l.f = ((ypl-y1)/(fydiff))*_zoom_x - Xnorm;
+						bcode_r.f = ((ypl-y0)/(fydiff))*_zoom_x - Xnorm;
+						break;
+					case 5:
+						bcode_l.f = ((ypl-y0)/(fydiff))*_zoom_x - Xnorm;
+						bcode_r.f = (x1*ypr + (1-x1)*ypl)*_zoom_y - Y0;
+						break;
+#ifndef NDEBUG
+					default:
+						assert(false);
+						break;
+#endif
+				}
+				// _mm_insert_ps does not suit our purpose.
+				// This will not work without optimisations, because this loop won't be unrolled,
+				// and _mm_insert_epi32 waits for a constant !
+				sse_bcodes_l = _mm_castsi128_ps(_mm_insert_epi32(_mm_castps_si128(sse_bcodes_l), bcode_l.i, j));
+				sse_bcodes_r = _mm_castsi128_ps(_mm_insert_epi32(_mm_castps_si128(sse_bcodes_r), bcode_r.i, j));
+			}
+			// Use sse to set the codes. Casting is also done in SSE, which gives different
+			// results that the serial one (+/- 1 !).
+			// Format:
+			//   * 3 bits: types
+			//   * 11 bits: l
+			//   * 11 bits: r
+			//   * free = 0
+			__m128i sse_bcodes_lr = _mm_or_si128(_mm_slli_epi32(_mm_cvtps_epi32(sse_bcodes_l), 3),
+			                                     _mm_slli_epi32(_mm_cvtps_epi32(sse_bcodes_r), 14));
+			__m128i sse_bcodes = _mm_or_si128(sse_types, sse_bcodes_lr);
+			if ((idx_code & 3) == 0) {
+				// We are style 16-byte aligned
+				_mm_stream_si128((__m128i*) &codes[idx_code], sse_bcodes);
+				idx_code += 4;
+			}
+			else {
+				// Un-aligned store, performance loss... :s
+				// Check the difference between this and 4 _mm_stream_si32 !
+				_mm_storeu_si128((__m128i*) &codes[idx_code], sse_bcodes);
+				idx_code += 4;
+			}
+		}
+		else {
+			// No SSE possible here, do it by hand.
+			PVBCode bcode;
+			bcode.int_v = 0;
+			for (int j = 0; j < 4; j++) {
+				float ypl,ypr,fydiff,bcode_l,bcode_r;
+				_MM_EXTRACT_FLOAT(ypl, sse_ypl, j);
+				_MM_EXTRACT_FLOAT(ypr, sse_ypr, j);
+				_MM_EXTRACT_FLOAT(fydiff, ydiff, j);
+				int type = types[j];
+				switch (type) {
+					case -1:
+						continue;
+					case 0:
+						bcode_l = (x0*ypr + (1-x0)*ypl)*_zoom_y - Y0;
+						bcode_r = ((ypl-y0)/(fydiff))*_zoom_x - Xnorm;
+						break;
+					case 1:
+						bcode_l = (ypl*(1-x0)+ypr*x0)*_zoom_y - Y0;
+						bcode_r = (ypl*(1-x1)+ypr*x1)*_zoom_y - Y0;
+						break;
+					case 2:
+						bcode_l = (x0*ypr + (1-x0)*ypl)*_zoom_y - Y0;
+						bcode_r = ((y1-ypl)/(fydiff))*_zoom_x - Xnorm;
+						break;
+					case 3:
+						bcode_l = ((ypl-y1)/(fydiff))*_zoom_x - Xnorm;
+						bcode_r = (ypl*(1-x1)+ypr*x1)*_zoom_y - Y0;
+						break;
+					case 4:
+						bcode_l = ((ypl-y1)/(fydiff))*_zoom_x - Xnorm;
+						bcode_r = ((ypl-y0)/(fydiff))*_zoom_x - Xnorm;
+						break;
+					case 5:
+						bcode_l = ((ypl-y0)/(fydiff))*_zoom_x - Xnorm;
+						bcode_r = (x1*ypr + (1-x1)*ypl)*_zoom_y - Y0;
+						break;
+					default:
+						assert(false);
+						break;
+				}
+				bcode.int_v = 0;
+				bcode.s.type = type;
+				bcode.s.l = (uint16_t) bcode_l;
+				bcode.s.r = (uint16_t) bcode_r;
+
+				codes[idx_code] = bcode;
+				idx_code++;
+			}
+		}
+	}
+	return idx_code;
+}
+#endif
+
