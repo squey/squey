@@ -7,14 +7,38 @@
 
 #include <picviz/PVPlotted.h>
 
+#include <ctime>
+
 #define W_FRAME 2048
 #define H_FRAME 2048
 
-#define X_START 1000
-#define Y_START 1000
+#define X_START 0
+#define Y_START 0
+
+#define LAUNCH_BENCH(name, desc, f)\
+	codes.clear();\
+	codes.resize(bz.get_nrows());\
+	BENCH_START(name);\
+	bz.f(codes, 0, 1, X_START, X_START+W_FRAME, Y_START, Y_START+H_FRAME);\
+	BENCH_END(name, desc, bz.get_nrows()*2, sizeof(float), codes.size(), sizeof(PVBCode));\
+	CHECK(codes.size() == codes_ref.size());\
+	CHECK(memcmp(&codes[0], &codes_ref[0], codes.size()*sizeof(PVBCode)) == 0);
+
+void show_codes_diff(PVBCode* bref, PVBCode* bwrong, size_t n)
+{
+	for (size_t i = 0; i < n; i++) {
+		if (bref[i].int_v != bwrong[i].int_v) {
+			PVBCode ref = bref[i];
+			PVBCode wrong = bwrong[i];
+			printf("Ref: %d|%d|%d|%d ; Wrong: %d|%d|%d|%d\n", ref.s.type, ref.s.l, ref.s.r, ref.s.__free,
+			                                          wrong.s.type, wrong.s.l, wrong.s.r, wrong.s.__free);
+		}
+	}
+}
 
 void init_rand_plotted(std::vector<float>& p, PVRow nrows)
 {
+	srand(time(NULL));
 	p.clear();
 	p.reserve(nrows*2);
 	for (PVRow i = 0; i < nrows; i++) {
@@ -52,47 +76,29 @@ int main(int argc, char** argv)
 	PVBZCompute bz;
 	//bz.set_plotted(plotted, ncols);
 	bz.set_trans_plotted(trans_plotted, ncols);
-	bz.set_zoom(8196, 8196);
+	bz.set_zoom(2048, 2048);
 	
 	std::cout << "Start BCode computation..." << std::endl;
-	std::vector<PVBCode> codes, trans_codes;
-	codes.reserve(bz.get_nrows());
-	trans_codes.reserve(bz.get_nrows());
+	std::vector<PVBCode> codes_ref, codes;
 
-	BENCH_START(bcode);
-	//bz.compute_b(codes, 0, 1, X_START, X_START+W_FRAME, Y_START, Y_START+H_FRAME);
-	BENCH_END(bcode, "BCode computation", bz.get_nrows()*2, sizeof(float), codes.size(), sizeof(PVBCode));
+	/*BENCH_START(bcode);
+	bz.compute_b(codes, 0, 1, X_START, X_START+W_FRAME, Y_START, Y_START+H_FRAME);
+	BENCH_END(bcode, "BCode computation", bz.get_nrows()*2, sizeof(float), codes.size(), sizeof(PVBCode));*/
 
+	// Compute reference
+	codes_ref.resize(bz.get_nrows());
 	BENCH_START(bcode_trans);
-	bz.compute_b_trans(codes, 0, 1, X_START, X_START+W_FRAME, Y_START, Y_START+H_FRAME);
-	BENCH_END(bcode_trans, "BCode trans-computation", bz.get_nrows()*2, sizeof(float), codes.size(), sizeof(PVBCode));
+	bz.compute_b_trans(codes_ref, 0, 1, X_START, X_START+W_FRAME, Y_START, Y_START+H_FRAME);
+	BENCH_END(bcode_trans, "BCode trans-computation", bz.get_nrows()*2, sizeof(float), codes_ref.size(), sizeof(PVBCode));
 
-	//CHECK(codes.size() == trans_codes.size());
-	//CHECK(memcmp(&codes[0], &trans_codes[0], codes.size()*sizeof(PVBCode)) == 0);
-
-	trans_codes.clear();
-	trans_codes.reserve(bz.get_nrows());
-	BENCH_START(bcode_trans_nobranch);
-	bz.compute_b_trans_nobranch(trans_codes, 0, 1, X_START, X_START+W_FRAME, Y_START, Y_START+H_FRAME);
-	BENCH_END(bcode_trans_nobranch, "BCode trans-computation-nobranch", bz.get_nrows()*2, sizeof(float), trans_codes.size(), sizeof(PVBCode));
-
-	CHECK(codes.size() == trans_codes.size());
-	CHECK(memcmp(&codes[0], &trans_codes[0], codes.size()*sizeof(PVBCode)) == 0);
-
-	trans_codes.clear();
-	trans_codes.reserve(bz.get_nrows());
-	BENCH_START(bcode_trans_nobranch_sse);
-	bz.compute_b_trans_nobranch_sse(trans_codes, 0, 1, X_START, X_START+W_FRAME, Y_START, Y_START+H_FRAME);
-	BENCH_END(bcode_trans_nobranch_sse, "BCode trans-computation-nobranch-sse", bz.get_nrows()*2, sizeof(float), trans_codes.size(), sizeof(PVBCode));
-
-	trans_codes.clear();
-	trans_codes.reserve(bz.get_nrows());
-	BENCH_START(bcode_trans_sse);
-	bz.compute_b_trans_sse(trans_codes, 0, 1, X_START, X_START+W_FRAME, Y_START, Y_START+H_FRAME);
-	BENCH_END(bcode_trans_sse, "BCode trans-computation-sse", bz.get_nrows()*2, sizeof(float), trans_codes.size(), sizeof(PVBCode));
-
-	CHECK(codes.size() == trans_codes.size());
-	CHECK(memcmp(&codes[0], &trans_codes[0], codes.size()*sizeof(PVBCode)) == 0);
+	// Launch other benchs
+	LAUNCH_BENCH(bcode_trans_nobranch, "BCode trans-nobranch", compute_b_trans_nobranch);
+	LAUNCH_BENCH(bcode_trans_nobranch_sse, "BCode trans-nobranch-sse", compute_b_trans_nobranch_sse);
+	LAUNCH_BENCH(bcode_trans_sse, "BCode trans-sse",  compute_b_trans_sse);
+	LAUNCH_BENCH(bcode_trans_sse2, "BCode trans-sse2",  compute_b_trans_sse2);
+	//show_codes_diff(&codes_ref[0], &codes[0], codes.size());
+	LAUNCH_BENCH(bcode_trans_sse3, "BCode trans-sse3",  compute_b_trans_sse3);
+	//show_codes_diff(&codes_ref[0], &codes[0], codes.size());
 
 	return 0;
 }

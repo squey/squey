@@ -10,9 +10,9 @@ struct PVBCode
 	union {
 		uint32_t int_v;
 		struct {
+			uint32_t type: 3;
 			uint32_t l: 11; 
 			uint32_t r: 11; 
-			uint32_t type: 3;
 			uint32_t __free: 7;
 		} s;
 	};

@@ -26,6 +26,8 @@ public:
 	int compute_b_trans_nobranch(std::vector<PVBCode>& codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1);
 	int compute_b_trans_nobranch_sse(std::vector<PVBCode>& codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1);
 	int compute_b_trans_sse(std::vector<PVBCode>& codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1);
+	int compute_b_trans_sse2(std::vector<PVBCode>& codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1);
+	int compute_b_trans_sse3(std::vector<PVBCode>& codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1);
 	void convert_to_points(uint16_t width, uint16_t height, std::vector<PVBCode> const& codes, std::vector<int>& ret);
 	inline PVRow get_nrows() const { return _nb_rows; }
 
