@@ -125,7 +125,7 @@ void PVBZCompute::compute_b(std::vector<PVBCode>& codes, PVCol axis_a, PVCol axi
 		float ypr = get_plotted(axis_b, i);
 
 		// Line equation
-		// (ypl-ypr)*x - y + ypl = 0
+		// (ypl-ypr)*x + y - ypl = 0
 		// a*X + b*Y + c = 0
 		l.a = ypl-ypr;
 		l.c = -ypl;
@@ -192,12 +192,15 @@ void PVBZCompute::compute_b_type_sse(std::vector<PVBCode>& codes, PVCol axis_a, 
 	PVLineEq l;
 	l.b = 1.0f;
 	codes.reserve(_nb_rows);
+
+	__m128 sse_line_type_x = _mm_set_ps(x0, x1, x1, x0);
+	__m128 sse_line_type_y = _mm_set_ps(y1, y1, y0, y0);
 	for (PVRow i = 0; i < _nb_rows; i++) {
 		float ypl = get_plotted(axis_a, i);
 		float ypr = get_plotted(axis_b, i);
 
 		// Line equation
-		// (ypl-ypr)*x - y + ypl = 0
+		// (ypl-ypr)*x + y - ypl = 0
 		// a*X + b*Y + c = 0
 		l.a = ypl-ypr;
 		l.c = -ypl;
@@ -205,6 +208,15 @@ void PVBZCompute::compute_b_type_sse(std::vector<PVBCode>& codes, PVCol axis_a, 
 		PVBCode bcode;
 
 		//int type = get_line_type(l, x0, x1, y0, y1);
+		// (ypl-pyr)*x + y >= ypl
+		__m128 sse_ypl = _mm_set1_ps(ypl);
+		__m128i sse_cmp = _mm_cmpgte_ps(_mm_add_ps(_mm_mul_ps(_mm_set1_ps(ypl-ypr), sse_line_type_x), sse_line_type_y), sse_ypl);
+		int a = l(x0, y1) >= 0;
+		int b = l(x1, y1) >= 0;
+		int c = l(x1, y0) >= 0;
+		int d = l(x0, y0) >= 0;
+		int lpos = a | b<<1 | c<<2 | d<<3;
+		int8_t type = types_from_line_pos[lpos];
 
 		float bcode_l, bcode_r;
 		
