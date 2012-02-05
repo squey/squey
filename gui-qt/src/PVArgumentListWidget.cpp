@@ -43,6 +43,11 @@
 #include <PVTimeFormatEditor.h>
 #include <PVPlainTextEditor.h>
 
+/******************************************************************************
+ *
+ * clearLayout
+ *
+ *****************************************************************************/
 static void clearLayout(QLayout* layout)
 {
 	while (QLayoutItem* item = layout->takeAt(0))
@@ -58,6 +63,13 @@ static void clearLayout(QLayout* layout)
 	}
 }
 
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVArgumentListWidget::PVArgumentListWidget
+ *
+ *****************************************************************************/
 PVInspector::PVArgumentListWidget::PVArgumentListWidget(QWidget* parent):
 	QWidget(parent),
 	_args_widget_factory(NULL),
@@ -66,6 +78,13 @@ PVInspector::PVArgumentListWidget::PVArgumentListWidget(QWidget* parent):
 	clear_args_state();
 }
 
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVArgumentListWidget::PVArgumentListWidget
+ *
+ *****************************************************************************/
 PVInspector::PVArgumentListWidget::PVArgumentListWidget(QItemEditorFactory* args_widget_factory, QWidget* parent):
 	QWidget(parent),
 	_args_widget_factory(args_widget_factory),
@@ -76,6 +95,13 @@ PVInspector::PVArgumentListWidget::PVArgumentListWidget(QItemEditorFactory* args
 	clear_args_state();
 }
 
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVArgumentListWidget::PVArgumentListWidget
+ *
+ *****************************************************************************/
 PVInspector::PVArgumentListWidget::PVArgumentListWidget(QItemEditorFactory* args_widget_factory, PVCore::PVArgumentList &args, QWidget* parent):
 	QWidget(parent),
 	_args_widget_factory(args_widget_factory),
@@ -87,79 +113,72 @@ PVInspector::PVArgumentListWidget::PVArgumentListWidget(QItemEditorFactory* args
 	set_args(args);
 }
 
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVArgumentListWidget::~PVArgumentListWidget
+ *
+ *****************************************************************************/
 PVInspector::PVArgumentListWidget::~PVArgumentListWidget()
 {
 	_args_model->deleteLater();
 }
 
-void PVInspector::PVArgumentListWidget::set_widget_factory(QItemEditorFactory* factory)
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVArgumentListWidget::args_changed_Slot
+ *
+ *****************************************************************************/
+void PVInspector::PVArgumentListWidget::args_changed_Slot()
 {
-	if (factory) {
-		_args_widget_factory = factory;
-		init_widgets();
-	}
+	_args_has_changed = true;
+	emit args_changed_Signal();
 }
 
-void PVInspector::PVArgumentListWidget::init_widgets()
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVArgumentListWidget::create_dialog_for_arguments
+ *
+ *****************************************************************************/
+// Helper functions
+QDialog* PVInspector::PVArgumentListWidget::create_dialog_for_arguments(QItemEditorFactory* widget_factory, PVCore::PVArgumentList& args, QWidget* parent)
 {
-	QVBoxLayout *main_layout = new QVBoxLayout();
-	_btn_layout = new QHBoxLayout();
+	// Create a dialog with Ok/Cancel buttons that will modify the given arguments
+	// It is the responsability of the user to save the given argument if he wants to retrieve them.
+	// For this purpose, see also modify_arguments_dlg.
+	
+	// Widgets
+	QDialogButtonBox* btns = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+	PVArgumentListWidget* args_widget = new PVArgumentListWidget(widget_factory, args);
 
-	_args_model = new PVArgumentListModel();
+	// Layout
+	QVBoxLayout* main_layout = new QVBoxLayout();
+	main_layout->addWidget(args_widget);
+	main_layout->addWidget(btns);
 
-	_args_layout = new QGridLayout();
-	_mapper = new QDataWidgetMapper();
-	QItemDelegate* delegate = new QItemDelegate();
-	delegate->setItemEditorFactory(_args_widget_factory);
-	_mapper->setItemDelegate(delegate);
-	_mapper->setOrientation(Qt::Vertical);
-	_mapper->setModel(_args_model);
+	// Dialog box
+	QDialog* dlg = new QDialog(parent);
+	dlg->setLayout(main_layout);
 
-	// Set the layouts
-	main_layout->addLayout(_args_layout);
+	// Connections
+	connect(btns, SIGNAL(accepted()), dlg, SLOT(accept()));
+	connect(btns, SIGNAL(rejected()), dlg, SLOT(reject()));
 
-	setLayout(main_layout);
-
-	connect(_args_model, SIGNAL(dataChanged(QModelIndex const&, QModelIndex const&)), this, SLOT(args_changed_Slot()));
+	return dlg;
 }
 
-void PVInspector::PVArgumentListWidget::set_args(PVCore::PVArgumentList& args)
-{
-	_args = &args;
-	_args_model->set_args(args);
-	_mapper->clearMapping();
 
-	PVCore::PVArgumentList::iterator it;
-	uint32_t row = 0;
-	// Delete all items from this main QGridLayout
-	clearLayout(_args_layout);
-	for (it = args.begin(); it != args.end(); it++) {
-		QVariant::Type vtype = (QVariant::Type) it.value().userType();
-		QWidget* widget = _args_widget_factory->createEditor(vtype, this);
-		QLabel* label = new QLabel(it.key().desc() + QLatin1String(" :"));
-		label->setBuddy(widget);
-		_args_layout->addWidget(label, row, 0, Qt::AlignRight);
-		_args_layout->addWidget(widget, row, 1);
-		_mapper->addMapping(widget, row, _args_widget_factory->valuePropertyName(vtype));
-		row++;
-	}
-	_mapper->setSubmitPolicy(QDataWidgetMapper::AutoSubmit);
-	_mapper->toFirst();
-	clear_args_state();
-}
 
-void PVInspector::PVArgumentListWidget::set_args_values(PVCore::PVArgumentList const& args)
-{
-	QList<PVCore::PVArgumentList::key_type> keys_to_change = args.keys();
-	foreach(PVCore::PVArgumentList::key_type const& key, keys_to_change) {
-		if (_args->contains(key)) {
-			(*_args)[key] = args.value(key);
-		}
-	}
-	_mapper->revert();
-	args_changed_Slot();
-}
-
+/******************************************************************************
+ *
+ * PVInspector::PVArgumentListWidget::create_layer_widget_factory
+ *
+ *****************************************************************************/
 QItemEditorFactory* PVInspector::PVArgumentListWidget::create_layer_widget_factory(Picviz::PVView& view)
 {
 	/* AG: try this later...
@@ -199,6 +218,13 @@ QItemEditorFactory* PVInspector::PVArgumentListWidget::create_layer_widget_facto
 	return args_widget_factory;
 }
 
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVArgumentListWidget::create_mapping_plotting_widget_factory
+ *
+ *****************************************************************************/
 QItemEditorFactory* PVInspector::PVArgumentListWidget::create_mapping_plotting_widget_factory()
 {
 	/* AG: try this later...
@@ -219,39 +245,43 @@ QItemEditorFactory* PVInspector::PVArgumentListWidget::create_mapping_plotting_w
 	return args_widget_factory;
 }
 
-void PVInspector::PVArgumentListWidget::args_changed_Slot()
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVArgumentListWidget::init_widgets
+ *
+ *****************************************************************************/
+void PVInspector::PVArgumentListWidget::init_widgets()
 {
-	_args_has_changed = true;
-	emit args_changed_Signal();
+	QVBoxLayout *main_layout = new QVBoxLayout();
+	_btn_layout = new QHBoxLayout();
+
+	_args_model = new PVArgumentListModel();
+
+	_args_layout = new QGridLayout();
+	_mapper = new QDataWidgetMapper();
+	QItemDelegate* delegate = new QItemDelegate();
+	delegate->setItemEditorFactory(_args_widget_factory);
+	_mapper->setItemDelegate(delegate);
+	_mapper->setOrientation(Qt::Vertical);
+	_mapper->setModel(_args_model);
+
+	// Set the layouts
+	main_layout->addLayout(_args_layout);
+
+	setLayout(main_layout);
+
+	connect(_args_model, SIGNAL(dataChanged(QModelIndex const&, QModelIndex const&)), this, SLOT(args_changed_Slot()));
 }
 
-// Helper functions
-QDialog* PVInspector::PVArgumentListWidget::create_dialog_for_arguments(QItemEditorFactory* widget_factory, PVCore::PVArgumentList& args, QWidget* parent)
-{
-	// Create a dialog with Ok/Cancel buttons that will modify the given arguments
-	// It is the responsability of the user to save the given argument if he wants to retrieve them.
-	// For this purpose, see also modify_arguments_dlg.
-	
-	// Widgets
-	QDialogButtonBox* btns = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-	PVArgumentListWidget* args_widget = new PVArgumentListWidget(widget_factory, args);
 
-	// Layout
-	QVBoxLayout* main_layout = new QVBoxLayout();
-	main_layout->addWidget(args_widget);
-	main_layout->addWidget(btns);
 
-	// Dialog box
-	QDialog* dlg = new QDialog(parent);
-	dlg->setLayout(main_layout);
-
-	// Connections
-	connect(btns, SIGNAL(accepted()), dlg, SLOT(accept()));
-	connect(btns, SIGNAL(rejected()), dlg, SLOT(reject()));
-
-	return dlg;
-}
-
+/******************************************************************************
+ *
+ * PVInspector::PVArgumentListWidget::modify_arguments_dlg
+ *
+ *****************************************************************************/
 bool PVInspector::PVArgumentListWidget::modify_arguments_dlg(QItemEditorFactory* widget_factory, PVCore::PVArgumentList& args, QWidget* parent)
 {
 	QDialog* dlg = create_dialog_for_arguments(widget_factory, args, parent);
@@ -264,3 +294,72 @@ bool PVInspector::PVArgumentListWidget::modify_arguments_dlg(QItemEditorFactory*
 	dlg->deleteLater();
 	return ret;
 }
+
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVArgumentListWidget::set_args
+ *
+ *****************************************************************************/
+void PVInspector::PVArgumentListWidget::set_args(PVCore::PVArgumentList& args)
+{
+	_args = &args;
+	_args_model->set_args(args);
+	_mapper->clearMapping();
+
+	PVCore::PVArgumentList::iterator it;
+	uint32_t row = 0;
+	// Delete all items from this main QGridLayout
+	clearLayout(_args_layout);
+	for (it = args.begin(); it != args.end(); it++) {
+		QVariant::Type vtype = (QVariant::Type) it.value().userType();
+		QWidget* widget = _args_widget_factory->createEditor(vtype, this);
+		QLabel* label = new QLabel(it.key().desc() + QLatin1String(" :"));
+		label->setBuddy(widget);
+		_args_layout->addWidget(label, row, 0, Qt::AlignRight);
+		_args_layout->addWidget(widget, row, 1);
+		_mapper->addMapping(widget, row, _args_widget_factory->valuePropertyName(vtype));
+		row++;
+	}
+	_mapper->setSubmitPolicy(QDataWidgetMapper::AutoSubmit);
+	_mapper->toFirst();
+	clear_args_state();
+}
+
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVArgumentListWidget::set_args_values
+ *
+ *****************************************************************************/
+void PVInspector::PVArgumentListWidget::set_args_values(PVCore::PVArgumentList const& args)
+{
+	QList<PVCore::PVArgumentList::key_type> keys_to_change = args.keys();
+	foreach(PVCore::PVArgumentList::key_type const& key, keys_to_change) {
+		if (_args->contains(key)) {
+			(*_args)[key] = args.value(key);
+		}
+	}
+	_mapper->revert();
+	args_changed_Slot();
+}
+
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVArgumentListWidget::set_widget_factory
+ *
+ *****************************************************************************/
+void PVInspector::PVArgumentListWidget::set_widget_factory(QItemEditorFactory* factory)
+{
+	if (factory) {
+		_args_widget_factory = factory;
+		init_widgets();
+	}
+}
+
+
+

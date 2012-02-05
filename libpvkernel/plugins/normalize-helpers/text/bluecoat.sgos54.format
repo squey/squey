@@ -1,0 +1,190 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE PVParamXml>
+<param version="4">
+ <splitter sep="@Char( )" type="csv">
+  <field>
+   <axis titlecolor="#ff921d" tag="" key="false" group="" type="time" name="date" color="#ffffff" time-sample="">
+    <mapping mode="default" time-format="@PVTimeFormat(yyyy-M-d)"/>
+    <plotting mode="minmax"/>
+   </axis>
+  </field>
+  <field>
+   <axis titlecolor="#ff921d" tag="" key="false" group="" type="time" name="time" color="#ffffff" time-sample="">
+    <mapping mode="24h" time-format="@PVTimeFormat(H:m:ss)"/>
+    <plotting mode="minmax"/>
+   </axis>
+  </field>
+  <field>
+   <axis titlecolor="#ff921d" tag="" key="false" time-format="" group="" type="integer" name="time-taken" color="#ffffff" time-sample="">
+    <mapping mode="default"/>
+    <plotting mode="default"/>
+   </axis>
+  </field>
+  <field>
+   <axis titlecolor="#ff921d" tag="" key="false" group="" type="enum" name="c-ip" color="#ffffff">
+    <mapping mode="default"/>
+    <plotting mode="default"/>
+   </axis>
+  </field>
+  <field>
+   <axis titlecolor="#ff921d" tag="" key="false" group="" type="enum" name="cs-username" color="#ffffff">
+    <mapping mode="default"/>
+    <plotting mode="default"/>
+   </axis>
+  </field>
+  <field>
+   <axis titlecolor="#ff921d" tag="" key="false" group="" type="enum" name="cs-auth-group" color="#ffffff">
+    <mapping mode="default"/>
+    <plotting mode="default"/>
+   </axis>
+  </field>
+  <field>
+   <axis titlecolor="#ff921d" tag="" key="false" group="" type="enum" name="x-exception-id" color="#ffffff">
+    <mapping mode="default"/>
+    <plotting mode="default"/>
+   </axis>
+  </field>
+  <field>
+   <axis titlecolor="#ff921d" tag="" key="false" group="" type="enum" name="sc-filter-result" color="#ffffff">
+    <mapping mode="default"/>
+    <plotting mode="default"/>
+   </axis>
+  </field>
+  <field>
+   <axis titlecolor="#ff921d" tag="" key="false" group="" type="enum" name="cs-categories" color="#ffffff">
+    <mapping mode="default"/>
+    <plotting mode="default"/>
+   </axis>
+  </field>
+  <field>
+   <splitter type="url">
+    <field>
+     <axis titlecolor="#ffffff" tag="protocol" key="false" time-format="" group="" type="enum" name="protocol (referer)" color="#ffffff">
+      <mapping mode="default"/>
+      <plotting mode="default"/>
+     </axis>
+    </field>
+    <field>
+     <axis titlecolor="#ffffff" tag="domain" key="true" time-format="" group="" type="host" name="domain (referer)" color="#ffffff">
+      <mapping mode="default"/>
+      <plotting mode="default"/>
+     </axis>
+    </field>
+    <field>
+     <axis titlecolor="#ffffff" tag="tld" key="false" time-format="" group="" type="enum" name="TLD (referer)" color="#ffffff">
+      <mapping mode="default"/>
+      <plotting mode="default"/>
+     </axis>
+    </field>
+    <field>
+     <axis titlecolor="#ffffff" tag="port" key="false" time-format="" group="" type="integer" name="port (referer)" color="#ffffff">
+      <mapping mode="default"/>
+      <plotting mode="port"/>
+     </axis>
+    </field>
+    <field>
+     <axis titlecolor="#ffffff" tag="url" key="false" time-format="" group="" type="string" name="URL (referer)" color="#ffffff">
+      <mapping mode="default"/>
+      <plotting mode="minmax"/>
+     </axis>
+    </field>
+    <field>
+     <axis titlecolor="#ffffff" tag="url-variables" key="false" time-format="" group="" type="string" name="variable (referer)" color="#ffffff">
+      <mapping mode="default"/>
+      <plotting mode="minmax"/>
+     </axis>
+    </field>
+   </splitter>
+  </field>
+  <field>
+   <axis titlecolor="#ff921d" tag="" key="false" time-format="" group="" type="integer" name="cs-status" color="#ffffff" time-sample="">
+    <mapping mode="default"/>
+    <plotting mode="default"/>
+   </axis>
+  </field>
+  <field>
+   <axis titlecolor="#ff921d" tag="" key="false" group="" type="enum" name="s-action" color="#ffffff">
+    <mapping mode="default"/>
+    <plotting mode="default"/>
+   </axis>
+  </field>
+  <field>
+   <axis titlecolor="#ff921d" tag="" key="false" group="" type="enum" name="cs-method" color="#ffffff">
+    <mapping mode="default"/>
+    <plotting mode="default"/>
+   </axis>
+  </field>
+  <field>
+   <axis titlecolor="#ff921d" tag="" key="false" group="" type="enum" name="rs(Content-Type)" color="#ffffff">
+    <mapping mode="default"/>
+    <plotting mode="default"/>
+   </axis>
+  </field>
+  <field>
+   <axis titlecolor="#ff921d" tag="" key="false" group="" type="enum" name="cs-uri-scheme" color="#ffffff">
+    <mapping mode="default"/>
+    <plotting mode="default"/>
+   </axis>
+  </field>
+  <field>
+   <axis titlecolor="#ff921d" tag="" key="false" group="" type="enum" name="cs-host" color="#ffffff">
+    <mapping mode="default"/>
+    <plotting mode="default"/>
+   </axis>
+  </field>
+  <field>
+   <axis titlecolor="#ff921d" tag="" key="false" time-format="" group="" type="integer" name="cs-uri-port" color="#ffffff" time-sample="">
+    <mapping mode="default"/>
+    <plotting mode="port"/>
+   </axis>
+  </field>
+  <field>
+   <axis titlecolor="#ff921d" tag="" key="false" time-format="" group="" type="string" name="cs-uri-path" color="#ffffff" time-sample="">
+    <mapping mode="default"/>
+    <plotting mode="default"/>
+   </axis>
+  </field>
+  <field>
+   <axis titlecolor="#ff921d" tag="" key="false" time-format="" group="" type="string" name="cs-uri-query" color="#ffffff" time-sample="">
+    <mapping mode="default"/>
+    <plotting mode="default"/>
+   </axis>
+  </field>
+  <field>
+   <axis titlecolor="#ff921d" tag="" key="false" group="" type="enum" name="cs-uri-extension" color="#ffffff">
+    <mapping mode="default"/>
+    <plotting mode="default"/>
+   </axis>
+  </field>
+  <field>
+   <axis titlecolor="#ff921d" tag="user-agent" key="false" time-format="" group="" type="string" name="cs(User-Agent)" color="#ffffff" time-sample="">
+    <mapping mode="default"/>
+    <plotting mode="default"/>
+   </axis>
+  </field>
+  <field>
+   <axis titlecolor="#ff921d" tag="" key="false" time-format="" group="" type="ipv4" name="s-ip" color="#ffffff" time-sample="">
+    <mapping mode="default"/>
+    <plotting mode="default"/>
+   </axis>
+  </field>
+  <field>
+   <axis titlecolor="#ff921d" tag="" key="false" time-format="" group="" type="integer" name="sc-bytes" color="#ffffff" time-sample="">
+    <mapping mode="default"/>
+    <plotting mode="default"/>
+   </axis>
+  </field>
+  <field>
+   <axis titlecolor="#ff921d" tag="" key="false" time-format="" group="" type="integer" name="cs-bytes" color="#ffffff" time-sample="">
+    <mapping mode="default"/>
+    <plotting mode="default"/>
+   </axis>
+  </field>
+  <field>
+   <axis titlecolor="#ff921d" tag="" key="false" group="" type="enum" name="x-virus-id" color="#ffffff">
+    <mapping mode="default"/>
+    <plotting mode="default"/>
+   </axis>
+  </field>
+ </splitter>
+</param>
