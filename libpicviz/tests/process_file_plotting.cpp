@@ -52,7 +52,7 @@ int main(int argc, char** argv)
 	// Create the PVSource object
 	Picviz::PVRoot_p root(new Picviz::PVRoot());
 	Picviz::PVSource_p src(new Picviz::PVSource(PVRush::PVInputType::list_inputs() << file, sc_file, format));
-	PVRush::PVControllerJob_p job = src->extract_from_agg_nlines(0, 100000000);
+	PVRush::PVControllerJob_p job = src->extract_from_agg_nlines(0, 40000000);
 	job->wait_end();
 	PVLOG_INFO("Extracted %u lines...\n", src->get_row_count());
 

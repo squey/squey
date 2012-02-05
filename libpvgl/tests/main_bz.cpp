@@ -1,4 +1,5 @@
 #include <common/common.h>
+#include <common/bench.h>
 #include <code_bz/bz_compute.h>
 #include <code_bz/serial_bcodecb.h>
 #include <gl/bccb_view.h>
@@ -6,6 +7,8 @@
 #include <gl/simple_lines_int_view.h>
 
 #include <picviz/PVPlotted.h>
+
+#include <tbb/tick_count.h>
 
 #include <QApplication>
 #include <QMainWindow>
@@ -51,14 +54,17 @@ int main(int argc, char** argv)
 	bz.set_plotted(plotted, ncols);
 	bz.set_zoom(1024, 1024);
 	
+	std::cout << "Start BCode computation..." << std::endl;
 	std::vector<PVBCode> codes;
+	codes.reserve(bz.get_nrows());
+	BENCH_START(bcode);
 	bz.compute_b(codes, 0, 1, X_START, X_START+W_FRAME, Y_START, Y_START+H_FRAME);
+	BENCH_END(bcode, "BCode computation", plotted.size()*2, sizeof(float), codes.size(), sizeof(PVBCode));
 
 	// Reduction
 	BCodeCB bc_cb = allocate_BCodeCB();
 	std::cout << "Start BCode reduction..." << std::endl;
 	serial_bcodecb(&codes[0], codes.size(), bc_cb);
-	std::cout << "Reduction done." << std::endl;
 
 	//codes.clear();
 	//bcode_cb_to_bcodes(codes, bc_cb);
@@ -67,6 +73,21 @@ int main(int argc, char** argv)
 	std::vector<float> p_ext;
 	std::vector<int> bz_pts;
 	
+	/*
+	{
+		QMainWindow *window = new QMainWindow();
+		window->setWindowTitle("bz - red code bz");
+		BCCBView *v = new BCCBView(window);
+
+		v->set_size(W_FRAME, H_FRAME);
+		v->set_ortho(W_FRAME, H_FRAME);
+		v->set_bccb(bc_cb);
+
+		window->setCentralWidget(v);
+		window->resize(v->sizeHint());
+		window->show();
+	}
+
 	{
 		QMainWindow *window = new QMainWindow();
 		SLFloatView *v = new SLFloatView(window);
@@ -79,7 +100,7 @@ int main(int argc, char** argv)
 		window->setCentralWidget(v);
 		window->resize(v->sizeHint());
 		window->show();
-	}
+	}*/
 	
 
 	{
@@ -97,18 +118,5 @@ int main(int argc, char** argv)
 		window->show();
 	}
 
-	{
-		QMainWindow *window = new QMainWindow();
-		window->setWindowTitle("bz - red code bz");
-		BCCBView *v = new BCCBView(window);
-
-		v->set_size(W_FRAME, H_FRAME);
-		v->set_ortho(W_FRAME, H_FRAME);
-		v->set_bccb(bc_cb);
-
-		window->setCentralWidget(v);
-		window->resize(v->sizeHint());
-		window->show();
-	}
 	return app.exec();
 }
