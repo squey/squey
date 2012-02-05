@@ -52,13 +52,13 @@ int main(int argc, char** argv)
 
 	PVBZCompute bz;
 	bz.set_trans_plotted(plotted, ncols);
-	bz.set_zoom(1024, 1024);
+	bz.set_zoom(8192, 1024);
 	
 	std::cout << "Start BCode computation..." << std::endl;
 	std::vector<PVBCode> codes;
 	codes.resize(bz.get_nrows());
 	BENCH_START(bcode);
-	int ncodes = bz.compute_b_trans_int(&codes[0], 0, 1, X_START, X_START+W_FRAME, Y_START, Y_START+H_FRAME);
+	int ncodes = bz.compute_b_trans_sse_int(&codes[0], 0, 1, X_START, X_START+W_FRAME, Y_START, Y_START+H_FRAME);
 	BENCH_END(bcode, "BCode computation", plotted.size()*2, sizeof(float), codes.size(), sizeof(PVBCode));
 	codes.resize(ncodes);
 

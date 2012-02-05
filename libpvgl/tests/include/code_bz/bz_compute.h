@@ -40,6 +40,7 @@ public:
 	int compute_b_trans_sse3(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1);
 	int compute_b_trans_sse4(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1);
 	int compute_b_trans_int(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, int X0, int X1, int Y0, int Y1);
+	int compute_b_trans_sse_int(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, int X0, int X1, int Y0, int Y1);
 	void convert_to_points(uint16_t width, uint16_t height, std::vector<PVBCode> const& codes, std::vector<int>& ret);
 	inline PVRow get_nrows() const { return _nb_rows; }
 
