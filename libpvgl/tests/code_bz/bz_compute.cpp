@@ -465,7 +465,6 @@ int PVBZCompute::compute_b_trans_sse(PVBCode_ap codes, PVCol axis_a, PVCol axis_
 	__m128 sse_y1 = _mm_set1_ps(y1);
 
 	__m128 sse_ypl, sse_ypr;
-	//PVBCode code;
 	for (PVRow i = 0; i < _nb_rows; i += 4) {
 		sse_ypl = _mm_load_ps(&_trans_plotted[axis_a*_nb_rows+i]);
 		sse_ypr = _mm_load_ps(&_trans_plotted[axis_b*_nb_rows+i]);
@@ -483,6 +482,7 @@ int PVBZCompute::compute_b_trans_sse(PVBCode_ap codes, PVCol axis_a, PVCol axis_
 		__m128i c = _mm_and_si128(_mm_castps_si128(_mm_cmpge_ps(_mm_add_ps(_mm_mul_ps(ydiff, sse_x1), sse_y0), sse_ypl)), _mm_set1_epi32(1<<2));
 		__m128i d = _mm_and_si128(_mm_castps_si128(_mm_cmpge_ps(_mm_add_ps(_mm_mul_ps(ydiff, sse_x0), sse_y0), sse_ypl)), _mm_set1_epi32(1<<3));
 		__m128i sse_pos = _mm_or_si128(_mm_or_si128(a, b), _mm_or_si128(c, d));
+
 		/*
 		int a = l(x0, y1) >= 0;
 		int b = l(x1, y1) >= 0;
@@ -544,10 +544,8 @@ int PVBZCompute::compute_b_trans_sse(PVBCode_ap codes, PVCol axis_a, PVCol axis_
 			bcode.s.l = (uint16_t) bcode_l;
 			bcode.s.r = (uint16_t) bcode_r;
 			sse_bcodes = _mm_insert_epi32(sse_bcodes, bcode.int_v, j);
-			//code = bcode;
-			//codes.push_back(bcode);
 		}
-		_mm_storeu_si128((__m128i*) &codes[i], sse_bcodes);
+		_mm_store_si128((__m128i*) &codes[i], sse_bcodes);
 	}
 	return 0;
 }
