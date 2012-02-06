@@ -4,7 +4,8 @@
 #include <pvkernel/core/picviz_intrin.h>
 #include <pvkernel/core/picviz_libdivide.h>
 
-#define COMPUTE_TYPE_INT(Ypl, Ypr, Ydiff, X0, X0comp, X1comp, Xdiff, d_Xdiff)\
+#define COMPUTE_TYPE_INT(Ypl, Ypr, Ydiff, X0, X0comp, X1comp, Xdiff, d_Xdiff, bcode_l, bcode_r)\
+	uint32_t tmp;\
 	switch (type) {\
 		case -1:\
 			continue;\
@@ -150,39 +151,8 @@ int PVBZCompute::compute_b_trans_int_ld(PVBCode_ap codes, PVCol axis_a, PVCol ax
 		const int type = get_line_type_int(l, X0, X1, Y0, Y1);
 		int bcode_l, bcode_r;
 		
-		COMPUTE_TYPE_INT(Ypl, Ypr, Ydiff, X0, X0comp, X1comp, Xdiff, d_Xdiff);
+		COMPUTE_TYPE_INT(Ypl, Ypr, Ydiff, X0, X0comp, X1comp, Xdiff, d_Xdiff, bcode_l, bcode_r);
 
-		switch (type) {
-			case -1:
-				continue;
-			case 0:
-				bcode_l = Ypr-Y0 + libdivide_u32_do((Ydiff)*(Xdiff-X0), &d_Xdiff);
-				bcode_r = (Xdiff*(Ypl-Y0))/(Ydiff) - X0;
-				break;
-			case 1:
-				bcode_l = Ypr-Y0 + libdivide_u32_do((Ydiff)*(Xdiff-X0), &d_Xdiff);
-				bcode_r = Ypr-Y0 + libdivide_u32_do((Ydiff)*(Xdiff-X1), &d_Xdiff);
-				break;
-			case 2:
-				bcode_l = Ypr-Y0 + libdivide_u32_do((Ydiff)*(Xdiff-X0), &d_Xdiff);
-				bcode_r = (Xdiff*(Ypl-Y1))/(Ydiff) - X0;
-				break;
-			case 3:
-				bcode_l = (Xdiff*(Ypl-Y1))/(Ydiff) - X0;
-				bcode_r = Ypr-Y0 + libdivide_u32_do((Ydiff)*(Xdiff-X1), &d_Xdiff);
-				break;
-			case 4:
-				bcode_l = Ypr-Y0 + libdivide_u32_do((Ydiff)*(Xdiff-X1), &d_Xdiff);
-				bcode_r = Ypr-Y0 + libdivide_u32_do((Ydiff)*(Xdiff-X0), &d_Xdiff);
-				break;
-			case 5:
-				bcode_l = (Xdiff*(Ypl-Y0))/(Ydiff) - X0;
-				bcode_r = Ypr-Y0 + libdivide_u32_do((Ydiff)*(Xdiff-X1), &d_Xdiff);
-				break;
-			default:
-				assert(false);
-				break;
-		}
 		bcode.int_v = 0;
 		bcode.s.type = type;
 		bcode.s.l = (uint16_t) bcode_l;
@@ -256,54 +226,16 @@ int PVBZCompute::compute_b_trans_sse_int(PVBCode_ap codes, PVCol axis_a, PVCol a
 		// No SSE possible here, do it by hand.
 		PVBCode bcode;
 		bcode.int_v = 0;
-		for (int j = 0; j < 4; j++) {
+		// At 4, GCC does not unroll this loop, and _mm_extract_epi32 expect a constant... :/
+		for (int j = 0; j < 3; j++) {
 			const int Ypl = _mm_extract_epi32(sse_Ypl, j);
 			const int Ypr = _mm_extract_epi32(sse_Ypr, j);
 			const int Ydiff = _mm_extract_epi32(sse_Ydiff, j);
 			const int type = types[j];
 			int bcode_l, bcode_r;
+
+			COMPUTE_TYPE_INT(Ypl, Ypr, Ydiff, X0, X0comp, X1comp, Xdiff, d_Xdiff, bcode_l, bcode_r);
 		
-			uint32_t tmp;
-			switch (type) {
-				case -1:
-					continue;
-				case 0:
-					bcode_l = Ypr-Y0 + libdivide_u32_do((Ydiff)*(X0comp), &d_Xdiff);
-					bcode_r = (Xdiff*(Ypl-Y0))/(Ydiff) - X0;
-					break;
-				case 1:
-				case 4:
-					tmp = Ypr-Y0; 
-					bcode_l = tmp + libdivide_u32_do((Ydiff)*(X0comp), &d_Xdiff);
-					bcode_r = tmp + libdivide_u32_do((Ydiff)*(X1comp), &d_Xdiff);
-					if (type == 4) {
-						int bt = bcode_r;
-						bcode_r = bcode_l; bcode_l = bt;
-					}
-					break;
-				case 2:
-					bcode_l = Ypr-Y0 + libdivide_u32_do((Ydiff)*(X0comp), &d_Xdiff);
-					bcode_r = (Xdiff*(Ypl-Y1))/(Ydiff) - X0;
-					break;
-				case 3:
-					bcode_l = (Xdiff*(Ypl-Y1))/(Ydiff) - X0;
-					bcode_r = Ypr-Y0 + libdivide_u32_do((Ydiff)*(X1comp), &d_Xdiff);
-					break;
-				/*case 4:
-					tmp = Ypr-Y0; 
-					bcode_l = tmp + libdivide_u32_do((Ydiff)*(X1comp), &d_Xdiff);
-					bcode_r = tmp + libdivide_u32_do((Ydiff)*(X0comp), &d_Xdiff);
-					break;*/
-				case 5:
-					bcode_l = (Xdiff*(Ypl-Y0))/(Ydiff) - X0;
-					bcode_r = Ypr-Y0 + libdivide_u32_do((Ydiff)*(X1comp), &d_Xdiff);
-					break;
-#ifndef NDEBUG
-				default:
-					assert(false);
-					break;
-#endif
-			}
 			bcode.s.type = type;
 			bcode.s.l = (uint16_t) bcode_l;
 			bcode.s.r = (uint16_t) bcode_r;
@@ -311,6 +243,21 @@ int PVBZCompute::compute_b_trans_sse_int(PVBCode_ap codes, PVCol axis_a, PVCol a
 			codes[idx_code] = bcode;
 			idx_code++;
 		}
+
+		const int Ypl = _mm_extract_epi32(sse_Ypl, 3);
+		const int Ypr = _mm_extract_epi32(sse_Ypr, 3);
+		const int Ydiff = _mm_extract_epi32(sse_Ydiff, 3);
+		const int type = types[3];
+		int bcode_l, bcode_r;
+
+		COMPUTE_TYPE_INT(Ypl, Ypr, Ydiff, X0, X0comp, X1comp, Xdiff, d_Xdiff, bcode_l, bcode_r);
+	
+		bcode.s.type = type;
+		bcode.s.l = (uint16_t) bcode_l;
+		bcode.s.r = (uint16_t) bcode_r;
+
+		codes[idx_code] = bcode;
+		idx_code++;
 	}
 	return idx_code;
 }
@@ -319,11 +266,13 @@ int PVBZCompute::compute_b_trans_sse4_int(PVBCode_ap codes, PVCol axis_a, PVCol 
 {
 	// Convert box to plotted coordinates
 	const unsigned int Xdiff = _zoom_x;
+	const unsigned int X0comp = Xdiff-X0;
+	const unsigned int X1comp = Xdiff-X1;
 
 	const __m128i sse_X0 = _mm_set1_epi32(X0);
-	const __m128i sse_X0comp = _mm_sub_epi32(_mm_set1_epi32(Xdiff), _mm_set1_epi32(X0));
+	const __m128i sse_X0comp = _mm_set1_epi32(X0comp);
 	const __m128i sse_X1 = _mm_set1_epi32(X1);
-	const __m128i sse_X1comp = _mm_sub_epi32(_mm_set1_epi32(Xdiff), _mm_set1_epi32(X1));
+	const __m128i sse_X1comp = _mm_set1_epi32(X1comp);
 	const __m128i sse_Y0 = _mm_set1_epi32(Y0);
 	const __m128i sse_Y1 = _mm_set1_epi32(Y1);
 
@@ -334,14 +283,16 @@ int PVBZCompute::compute_b_trans_sse4_int(PVBCode_ap codes, PVCol axis_a, PVCol 
 	const __m128i sse_Y0Xd = _mm_mullo_epi32(sse_Xdiff, sse_Y0);
 	const __m128i sse_Y1Xd = _mm_mullo_epi32(sse_Xdiff, sse_Y1);
 
-	libdivide::libdivide_u32_t d_Xdiff = libdivide::libdivide_u32_gen(Xdiff);
+	const libdivide::libdivide_u32_t d_Xdiff = libdivide::libdivide_u32_gen(Xdiff);
 
 	__m128i sse_Ypl, sse_Ypr;
 	int idx_code = 0;
-	for (PVRow i = 0; i < _nb_rows; i += 4) {
+	PVRow offa = axis_a*_nb_rows;
+	PVRow offb = axis_b*_nb_rows;
+	for (PVRow i = 0; i < (_nb_rows/4)*4; i += 4) {
 		__m128 sse_ypl, sse_ypr;
-		sse_ypl = _mm_load_ps(&_trans_plotted[axis_a*_nb_rows+i]);
-		sse_ypr = _mm_load_ps(&_trans_plotted[axis_b*_nb_rows+i]);
+		sse_ypl = _mm_load_ps(&_trans_plotted[offa+i]);
+		sse_ypr = _mm_load_ps(&_trans_plotted[offb+i]);
 
 		sse_Ypl = _mm_cvtps_epi32(_mm_mul_ps(sse_ypl, sse_zoomy));
 		sse_Ypr = _mm_cvtps_epi32(_mm_mul_ps(sse_ypr, sse_zoomy));
@@ -352,10 +303,12 @@ int PVBZCompute::compute_b_trans_sse4_int(PVBCode_ap codes, PVCol axis_a, PVCol 
 
 		const __m128i sse_Ydiff = _mm_sub_epi32(sse_Ypl, sse_Ypr);
 		const __m128i sse_Yplcmp = _mm_sub_epi32(_mm_mullo_epi32(sse_Xdiff, sse_Ypl), _mm_set1_epi32(1));
-		const __m128i a = _mm_and_si128(_mm_cmpgt_epi32(_mm_add_epi32(_mm_mullo_epi32(sse_Ydiff, sse_X0), sse_Y1Xd), sse_Yplcmp), _mm_set1_epi32(1));
-		const __m128i b = _mm_and_si128(_mm_cmpgt_epi32(_mm_add_epi32(_mm_mullo_epi32(sse_Ydiff, sse_X1), sse_Y1Xd), sse_Yplcmp), _mm_set1_epi32(1<<1));
-		const __m128i c = _mm_and_si128(_mm_cmpgt_epi32(_mm_add_epi32(_mm_mullo_epi32(sse_Ydiff, sse_X1), sse_Y0Xd), sse_Yplcmp), _mm_set1_epi32(1<<2));
-		const __m128i d = _mm_and_si128(_mm_cmpgt_epi32(_mm_add_epi32(_mm_mullo_epi32(sse_Ydiff, sse_X0), sse_Y0Xd), sse_Yplcmp), _mm_set1_epi32(1<<3));
+		const __m128i sse_mul0 = _mm_mullo_epi32(sse_Ydiff, sse_X0);
+		const __m128i sse_mul1 = _mm_mullo_epi32(sse_Ydiff, sse_X1);
+		const __m128i a = _mm_and_si128(_mm_cmpgt_epi32(_mm_add_epi32(sse_mul0, sse_Y1Xd), sse_Yplcmp), _mm_set1_epi32(1));
+		const __m128i b = _mm_and_si128(_mm_cmpgt_epi32(_mm_add_epi32(sse_mul1, sse_Y1Xd), sse_Yplcmp), _mm_set1_epi32(1<<1));
+		const __m128i c = _mm_and_si128(_mm_cmpgt_epi32(_mm_add_epi32(sse_mul1, sse_Y0Xd), sse_Yplcmp), _mm_set1_epi32(1<<2));
+		const __m128i d = _mm_and_si128(_mm_cmpgt_epi32(_mm_add_epi32(sse_mul0, sse_Y0Xd), sse_Yplcmp), _mm_set1_epi32(1<<3));
 		const __m128i sse_pos = _mm_or_si128(_mm_or_si128(a, b), _mm_or_si128(c, d));
 
 		/*
@@ -373,23 +326,24 @@ int PVBZCompute::compute_b_trans_sse4_int(PVBCode_ap codes, PVCol axis_a, PVCol 
 		types[2] = types_from_line_pos[_mm_extract_epi32(sse_pos, 2)];
 		types[3] = types_from_line_pos[_mm_extract_epi32(sse_pos, 3)];
 
+
 		// Special cases when all the types are the same. Let's do this in SSE !!
 		if ((types[0] == types[1]) && (types [1] == types[2]) && (types[2] == types[3])) {
 			__m128i sse_types = _mm_load_si128((__m128i*) types);
 			int type = types[0];
 			__m128i sse_bcodes_li, sse_bcodes_ri;
-			__m128 tmpl,tmpr;
+			__m128i sse_tmp;
 			switch (type) {
 				case -1:
 					continue;
 				case 0:
-					const __m128i t1 = _mm_sub_epi32(sse_Ypr, sse_YO);
-					const __m128i t2 = _mm_mul_epi32(sse_Ydiff, sse_X0comp);
-					sse_bcodes_li = _mm_add_epi32(t1, libdivide_u32_do(t2, &d_Xdiff));
-
-						//bcode_r = (Xdiff*(Ypl-Y0))/(Ydiff) - X0;
+					sse_bcodes_li = _mm_add_epi32(_mm_sub_epi32(sse_Ypr, sse_Y0), libdivide_u32_do_vector(_mm_mul_epi32(sse_Ydiff, sse_X0comp), &d_Xdiff));
+					//bcode_r = (Xdiff*(Ypl-Y0))/(Ydiff) - X0;
 					break;
 				case 1:
+					sse_tmp = _mm_sub_epi32(sse_Ypr, sse_Y0);
+					sse_bcodes_li = _mm_add_epi32(sse_tmp, libdivide_u32_do_vector(_mm_mul_epi32(sse_Ydiff, sse_X0comp), &d_Xdiff));
+					sse_bcodes_ri = _mm_add_epi32(sse_tmp, libdivide_u32_do_vector(_mm_mul_epi32(sse_Ydiff, sse_X1comp), &d_Xdiff));
 					break;
 				case 2:
 					break;
@@ -411,6 +365,7 @@ int PVBZCompute::compute_b_trans_sse4_int(PVBCode_ap codes, PVCol axis_a, PVCol 
 			else {
 				// Un-aligned store, performance loss... :s
 				// Check the difference between this and 4 _mm_stream_si32 !
+				printf("Unaligned store!\n");
 				_mm_storeu_si128((__m128i*) &codes[idx_code], sse_bcodes);
 				idx_code += 4;
 			}
@@ -427,52 +382,23 @@ int PVBZCompute::compute_b_trans_sse4_int(PVBCode_ap codes, PVCol axis_a, PVCol 
 		if (_mm_testz_si128(_mm_cmpeq_epi32(sse_types, _mm_set1_epi32(-1)), _mm_set1_epi32(0xFFFFFFFF))) {
 			__m128i sse_bcodes_li;
 			__m128i sse_bcodes_ri;
-			for (int j = 0; j < 4; j++) {
-				const int Ypl = _mm_extract_epi32(sse_Ypl, j);
-				const int Ypr = _mm_extract_epi32(sse_Ypr, j);
-				const int Ydiff = _mm_extract_epi32(sse_Ydiff, j);
-				const int type = types[j];
-				int bcode_l, bcode_r;
-
-				switch (type) {
-					case -1:
-						continue;
-					case 0:
-						bcode_l = Ypr-Y0 + libdivide_u32_do((Ydiff)*(Xdiff-X0), &d_Xdiff);
-						bcode_r = (Xdiff*(Ypl-Y0))/(Ydiff) - X0;
-						break;
-					case 1:
-						bcode_l = Ypr-Y0 + libdivide_u32_do((Ydiff)*(Xdiff-X0), &d_Xdiff);
-						bcode_r = Ypr-Y0 + libdivide_u32_do((Ydiff)*(Xdiff-X1), &d_Xdiff);
-						break;
-					case 2:
-						bcode_l = Ypr-Y0 + libdivide_u32_do((Ydiff)*(Xdiff-X0), &d_Xdiff);
-						bcode_r = (Xdiff*(Ypl-Y1))/(Ydiff) - X0;
-						break;
-					case 3:
-						bcode_l = (Xdiff*(Ypl-Y1))/(Ydiff) - X0;
-						bcode_r = Ypr-Y0 + libdivide_u32_do((Ydiff)*(Xdiff-X1), &d_Xdiff);
-						break;
-					case 4:
-						bcode_l = Ypr-Y0 + libdivide_u32_do((Ydiff)*(Xdiff-X1), &d_Xdiff);
-						bcode_r = Ypr-Y0 + libdivide_u32_do((Ydiff)*(Xdiff-X0), &d_Xdiff);
-						break;
-					case 5:
-						bcode_l = (Xdiff*(Ypl-Y0))/(Ydiff) - X0;
-						bcode_r = Ypr-Y0 + libdivide_u32_do((Ydiff)*(Xdiff-X1), &d_Xdiff);
-						break;
-					default:
-						assert(false);
-						break;
-				}
-				// _mm_insert_ps does not suit our purpose.
-				// This will not work without optimisations, because this loop won't be unrolled,
-				// and _mm_insert_epi32 waits for a constant !
-				sse_bcodes_li = _mm_insert_epi32(sse_bcodes_li, bcode_l, j);
-				sse_bcodes_ri = _mm_insert_epi32(sse_bcodes_ri, bcode_r, j);
+			
+#define MANUAL_BCODE_COMPUTE(j)\
+			{\
+				const int Ypl = _mm_extract_epi32(sse_Ypl, j);\
+				const int Ypr = _mm_extract_epi32(sse_Ypr, j);\
+				const int Ydiff = _mm_extract_epi32(sse_Ydiff, j);\
+				const int type = types[j];\
+				int bcode_l, bcode_r;\
+				COMPUTE_TYPE_INT(Ypl, Ypr, Ydiff, X0, X0comp, X1comp, Xdiff, d_Xdiff, bcode_l, bcode_r);\
+				sse_bcodes_li = _mm_insert_epi32(sse_bcodes_li, bcode_l, j);\
+				sse_bcodes_ri = _mm_insert_epi32(sse_bcodes_ri, bcode_r, j);\
 			}
-			// Use sse to set the codes. Casting is also done in SSE, which gives different
-			// results that the serial one (+/- 1 !).
+			MANUAL_BCODE_COMPUTE(0);
+			MANUAL_BCODE_COMPUTE(1);
+			MANUAL_BCODE_COMPUTE(2);
+			MANUAL_BCODE_COMPUTE(3);
+			// Use sse to set the codes.
 			// Format:
 			//   * 3 bits: types
 			//   * 11 bits: l
@@ -482,7 +408,7 @@ int PVBZCompute::compute_b_trans_sse4_int(PVBCode_ap codes, PVCol axis_a, PVCol 
 			                                     _mm_slli_epi32(sse_bcodes_ri, 14));
 			__m128i sse_bcodes = _mm_or_si128(sse_types, sse_bcodes_lr);
 			if ((idx_code & 3) == 0) {
-				// We are style 16-byte aligned
+				// We are still 16-byte aligned
 				_mm_stream_si128((__m128i*) &codes[idx_code], sse_bcodes);
 				idx_code += 4;
 			}
@@ -494,54 +420,26 @@ int PVBZCompute::compute_b_trans_sse4_int(PVBCode_ap codes, PVCol axis_a, PVCol 
 			}
 		}
 		else {
-			PVBCode bcode;
+			int bcode_l, bcode_r;
+			volatile PVBCode bcode;
 			bcode.int_v = 0;
-			for (int j = 0; j < 4; j++) {
-				const int Ypl = _mm_extract_epi32(sse_Ypl, j);
-				const int Ypr = _mm_extract_epi32(sse_Ypr, j);
-				const int Ydiff = _mm_extract_epi32(sse_Ydiff, j);
-				const int type = types[j];
-				int bcode_l, bcode_r;
-
-				switch (type) {
-					case -1:
-						continue;
-					case 0:
-						bcode_l = Ypr-Y0 + libdivide_u32_do((Ydiff)*(Xdiff-X0), &d_Xdiff);
-						bcode_r = (Xdiff*(Ypl-Y0))/(Ydiff) - X0;
-						break;
-					case 1:
-						bcode_l = Ypr-Y0 + libdivide_u32_do((Ydiff)*(Xdiff-X0), &d_Xdiff);
-						bcode_r = Ypr-Y0 + libdivide_u32_do((Ydiff)*(Xdiff-X1), &d_Xdiff);
-						break;
-					case 2:
-						bcode_l = Ypr-Y0 + libdivide_u32_do((Ydiff)*(Xdiff-X0), &d_Xdiff);
-						bcode_r = (Xdiff*(Ypl-Y1))/(Ydiff) - X0;
-						break;
-					case 3:
-						bcode_l = (Xdiff*(Ypl-Y1))/(Ydiff) - X0;
-						bcode_r = Ypr-Y0 + libdivide_u32_do((Ydiff)*(Xdiff-X1), &d_Xdiff);
-						break;
-					case 4:
-						bcode_l = Ypr-Y0 + libdivide_u32_do((Ydiff)*(Xdiff-X1), &d_Xdiff);
-						bcode_r = Ypr-Y0 + libdivide_u32_do((Ydiff)*(Xdiff-X0), &d_Xdiff);
-						break;
-					case 5:
-						bcode_l = (Xdiff*(Ypl-Y0))/(Ydiff) - X0;
-						bcode_r = Ypr-Y0 + libdivide_u32_do((Ydiff)*(Xdiff-X1), &d_Xdiff);
-						break;
-					default:
-						assert(false);
-						break;
-				}
-				bcode.int_v = 0;
-				bcode.s.type = type;
-				bcode.s.l = (uint16_t) bcode_l;
-				bcode.s.r = (uint16_t) bcode_r;
-
-				codes[idx_code] = bcode;
-				idx_code++;
+#define MANUAL_BCODE_COMPUTE2(j)\
+			{\
+				const int Ypl = _mm_extract_epi32(sse_Ypl, j);\
+				const int Ypr = _mm_extract_epi32(sse_Ypr, j);\
+				const int Ydiff = _mm_extract_epi32(sse_Ydiff, j);\
+				const int type = types[j];\
+				COMPUTE_TYPE_INT(Ypl, Ypr, Ydiff, X0, X0comp, X1comp, Xdiff, d_Xdiff, bcode_l, bcode_r);\
+				bcode.s.type = type;\
+				bcode.s.l = bcode_l;\
+				bcode.s.r = bcode_r;\
 			}
+				/*codes[idx_code+j] = bcode;\*/
+			MANUAL_BCODE_COMPUTE2(0);
+			MANUAL_BCODE_COMPUTE2(1);
+			MANUAL_BCODE_COMPUTE2(2);
+			MANUAL_BCODE_COMPUTE2(3);
+			//idx_code += 4;
 		}
 	}
 	return idx_code;

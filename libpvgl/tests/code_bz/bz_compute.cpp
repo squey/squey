@@ -930,9 +930,11 @@ int PVBZCompute::compute_b_trans_sse4(PVBCode_ap codes, PVCol axis_a, PVCol axis
 
 	__m128 sse_ypl, sse_ypr;
 	int idx_code = 0;
+	PVRow offa = axis_a*_nb_rows;
+	PVRow offb = axis_a*_nb_rows;
 	for (PVRow i = 0; i < (_nb_rows/4)*4; i += 4) {
-		sse_ypl = _mm_load_ps(&_trans_plotted[axis_a*_nb_rows+i]);
-		sse_ypr = _mm_load_ps(&_trans_plotted[axis_b*_nb_rows+i]);
+		sse_ypl = _mm_load_ps(&_trans_plotted[offa+i]);
+		sse_ypr = _mm_load_ps(&_trans_plotted[offb+i]);
 
 		// Line equation
 		// a*X + b*Y + c = 0
@@ -1148,7 +1150,6 @@ int PVBZCompute::compute_b_trans_sse4(PVBCode_ap codes, PVCol axis_a, PVCol axis
 						assert(false);
 						break;
 				}
-				bcode.int_v = 0;
 				bcode.s.type = type;
 				bcode.s.l = (uint16_t) bcode_l;
 				bcode.s.r = (uint16_t) bcode_r;
