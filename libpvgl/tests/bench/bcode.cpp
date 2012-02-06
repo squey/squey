@@ -156,14 +156,29 @@ int main(int argc, char** argv)
 	LAUNCH_BENCH(bcode_trans_sse4_notable, "BCode trans-sse4-notable",  compute_b_trans_sse4_notable);
 
 	// OMP
-	size_t nthreads = omp_get_max_threads();
+	//size_t nthreads = omp_get_max_threads();
+	size_t nthreads = 12;
 	PVBCode* pcodes[nthreads];
+	size_t nallocs = (bz.get_nrows()+nthreads-1)/nthreads;
+	nallocs = ((nallocs+3)/4)*4;
 	for (size_t i = 0; i < nthreads; i++) {
-		pcodes[i] = PVCore::PVAlignedAllocator<PVBCode, 16>().allocate((bz.get_nrows()+nthreads-1)/nthreads);
+		pcodes[i] = PVCore::PVAlignedAllocator<PVBCode, 16>().allocate(nallocs);
 	}
 	BENCH_START(bcode_trans_notable_omp);
 	int ncodes = bz.compute_b_trans_sse4_notable_omp(pcodes, 0, 1, X_START, X_START+W_FRAME-1, Y_START, Y_START+H_FRAME-1);
 	BENCH_END(bcode_trans_notable_omp, "BCode trans-computation notable-omp", bz.get_nrows()*2, sizeof(float), ncodes, sizeof(PVBCode));
+
+	BENCH_START(bcode_trans_notable_omp1);
+	ncodes = bz.compute_b_trans_sse4_notable_omp(pcodes, 0, 1, X_START, X_START+W_FRAME-1, Y_START, Y_START+H_FRAME-1);
+	BENCH_END(bcode_trans_notable_omp1, "BCode trans-computation notable-omp", bz.get_nrows()*2, sizeof(float), ncodes, sizeof(PVBCode));
+
+	BENCH_START(bcode_trans_notable_omp2);
+	ncodes = bz.compute_b_trans_sse4_notable_omp(pcodes, 0, 1, X_START, X_START+W_FRAME-1, Y_START, Y_START+H_FRAME-1);
+	BENCH_END(bcode_trans_notable_omp2, "BCode trans-computation notable-omp", bz.get_nrows()*2, sizeof(float), ncodes, sizeof(PVBCode));
+
+	BENCH_START(bcode_trans_notable_omp4);
+	ncodes = bz.compute_b_trans_sse4_notable_omp(pcodes, 0, 1, X_START, X_START+W_FRAME-1, Y_START, Y_START+H_FRAME-1);
+	BENCH_END(bcode_trans_notable_omp4, "BCode trans-computation notable-omp", bz.get_nrows()*2, sizeof(float), ncodes, sizeof(PVBCode));
 
 	return 0;
 }

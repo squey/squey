@@ -20,7 +20,7 @@ struct PVBCode
 	void to_pts_new(uint16_t w, uint16_t h, uint16_t& lx, uint16_t& ly, uint16_t& rx, uint16_t& ry) const;
 };
 
-typedef PVBCode* DECLARE_ALIGN(16) PVBCode_ap;
+typedef PVBCode DECLARE_ALIGN(16) * PVBCode_ap;
 
 #ifdef NBDEUG
 #define assert_bcode_valid(b)

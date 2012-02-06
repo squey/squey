@@ -414,31 +414,33 @@ int PVBZCompute::compute_b_trans_sse4_notable_omp(PVBCode_ap* pcodes, PVCol axis
 	x1 -= (int)x0;
 	float Xnorm = x0*_zoom_x;
 
-	const __m128 sse_x0 = _mm_set1_ps(x0);
-	const __m128 sse_x0comp = _mm_sub_ps(_mm_set1_ps(1.0f), _mm_set1_ps(x0));
-	const __m128 sse_x1 = _mm_set1_ps(x1);
-	const __m128 sse_x1comp = _mm_sub_ps(_mm_set1_ps(1.0f), _mm_set1_ps(x1));
-	const __m128 sse_y0 = _mm_set1_ps(y0);
-	const __m128 sse_y1 = _mm_set1_ps(y1);
+	__m128 sse_x0 = _mm_set1_ps(x0);
+	__m128 sse_x0comp = _mm_sub_ps(_mm_set1_ps(1.0f), _mm_set1_ps(x0));
+	__m128 sse_x1 = _mm_set1_ps(x1);
+	__m128 sse_x1comp = _mm_sub_ps(_mm_set1_ps(1.0f), _mm_set1_ps(x1));
+	__m128 sse_y0 = _mm_set1_ps(y0);
+	__m128 sse_y1 = _mm_set1_ps(y1);
 
-	const __m128i sse_Y0 = _mm_set1_epi32(Y0);
-	const __m128i sse_Xnorm = _mm_set1_epi32((int) Xnorm);
+	__m128i sse_Y0 = _mm_set1_epi32(Y0);
+	__m128i sse_Xnorm = _mm_set1_epi32((int) Xnorm);
 
-	const __m128 sse_zoomx = _mm_set1_ps(_zoom_x);
-	const __m128 sse_zoomy = _mm_set1_ps(_zoom_y);
+	__m128 sse_zoomx = _mm_set1_ps(_zoom_x);
+	__m128 sse_zoomy = _mm_set1_ps(_zoom_y);
 
-	const __m128i sse_1i = _mm_set1_epi32(1);
-
-	__m128 sse_ypl, sse_ypr;
-	const PVRow offa = axis_a*_nb_rows;
-	const PVRow offb = axis_a*_nb_rows;
-	const PVRow end = (_nb_rows*4)/4;
 	int idx_code = 0;
-#pragma omp parallel reduction(+:idx_code)
+#pragma omp parallel reduction(+:idx_code) firstprivate(sse_x0, sse_x0comp, sse_x1, sse_x1comp, sse_y0, sse_y1, sse_Y0, sse_Xnorm, sse_zoomx, sse_zoomy) num_threads(12)
+//#pragma omp parallel reduction(+:idx_code)
 	{
 		// Let's have one list of codes per thread !
 		PVBCode_ap codes = pcodes[omp_get_thread_num()];
-#pragma omp for
+		__m128i sse_1i = _mm_set1_epi32(1);
+
+		const PVRow offa = axis_a*_nb_rows;
+		const PVRow offb = axis_a*_nb_rows;
+		const PVRow end = (_nb_rows*4)/4;
+
+		__m128 sse_ypl,sse_ypr;
+#pragma omp for schedule(guided)
 		for (PVRow i = 0; i < end; i += 4) {
 			sse_ypl = _mm_load_ps(&_trans_plotted[offa+i]);
 			sse_ypr = _mm_load_ps(&_trans_plotted[offb+i]);
@@ -596,9 +598,9 @@ int PVBZCompute::compute_b_trans_sse4_notable_omp(PVBCode_ap* pcodes, PVCol axis
 				//   * free = 0
 				__m128i sse_bcodes_lr = _mm_or_si128(_mm_slli_epi32(_mm_cvtps_epi32(sse_bcodes_l), 3),
 						_mm_slli_epi32(_mm_cvtps_epi32(sse_bcodes_r), 14));
-				volatile __m128i sse_bcodes = _mm_or_si128(sse_types, sse_bcodes_lr);
-				/*
-				   if ((idx_code & 3) == 0) {
+				__m128i sse_bcodes = _mm_or_si128(sse_types, sse_bcodes_lr);
+				
+				if ((idx_code & 3) == 0) {
 				// We are style 16-byte aligned
 				_mm_stream_si128((__m128i*) &codes[idx_code], sse_bcodes);
 				idx_code += 4;
@@ -608,7 +610,7 @@ int PVBZCompute::compute_b_trans_sse4_notable_omp(PVBCode_ap* pcodes, PVCol axis
 				// Check the difference between this and 4 _mm_stream_si32 !
 				_mm_storeu_si128((__m128i*) &codes[idx_code], sse_bcodes);
 				idx_code += 4;
-				}*/
+				}
 			}
 			else {
 				// No SSE possible here, do it by hand.
