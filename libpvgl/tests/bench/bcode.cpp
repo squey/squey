@@ -127,6 +127,7 @@ int main(int argc, char** argv)
 
 	// Compute reference
 	codes_ref.resize(bz.get_nrows());
+#if 0
 	BENCH_START(bcode_trans);
 	bz.compute_b_trans(&codes_ref[0], 0, 1, X_START, X_START+W_FRAME-1, Y_START, Y_START+H_FRAME-1);
 	BENCH_END(bcode_trans, "BCode trans-computation", bz.get_nrows()*2, sizeof(float), codes_ref.size(), sizeof(PVBCode));
@@ -144,10 +145,11 @@ int main(int argc, char** argv)
 	//LAUNCH_BENCH(bcode_trans_sse3, "BCode trans-sse3",  compute_b_trans_sse3);
 	LAUNCH_BENCH(bcode_trans_sse4, "BCode trans-sse4",  compute_b_trans_sse4);
 	LAUNCH_BENCH(bcode_trans_sse4_int, "BCode trans-sse4-int",  compute_b_trans_sse4_int);
+#endif
 
 	// Reference w/ "no-table" variants
 	BENCH_START(bcode_trans_notable);
-	bz.compute_b_trans_notable(&codes_ref[0], 0, 1, X_START, X_START+W_FRAME-1, Y_START, Y_START+H_FRAME-1);
+	//bz.compute_b_trans_notable(&codes_ref[0], 0, 1, X_START, X_START+W_FRAME-1, Y_START, Y_START+H_FRAME-1);
 	BENCH_END(bcode_trans_notable, "BCode trans-computation notable", bz.get_nrows()*2, sizeof(float), codes_ref.size(), sizeof(PVBCode));
 	LAUNCH_BENCH(bcode_trans_sse4_notable, "BCode trans-sse4-notable",  compute_b_trans_sse4_notable);
 

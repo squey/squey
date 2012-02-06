@@ -170,9 +170,11 @@ int PVBZCompute::compute_b_trans_sse4_notable(PVBCode_ap codes, PVCol axis_a, PV
 
 	__m128 sse_ypl, sse_ypr;
 	int idx_code = 0;
-	PVRow offa = axis_a*_nb_rows;
-	PVRow offb = axis_a*_nb_rows;
-	for (PVRow i = 0; i < (_nb_rows/4)*4; i += 4) {
+	const PVRow offa = axis_a*_nb_rows;
+	const PVRow offb = axis_a*_nb_rows;
+	const PVRow end = (_nb_rows*4)/4;
+#pragma omp parallel for
+	for (PVRow i = 0; i < end; i += 4) {
 		sse_ypl = _mm_load_ps(&_trans_plotted[offa+i]);
 		sse_ypr = _mm_load_ps(&_trans_plotted[offb+i]);
 
@@ -199,10 +201,11 @@ int PVBZCompute::compute_b_trans_sse4_notable(PVBCode_ap codes, PVCol axis_a, PV
 		                                                        _mm_slli_epi32(r2, 2)));
 
 		// Special cases when all the types are the same. Let's do this in SSE !!
-		const int64_t dtypes_0 = _mm_extract_epi64(sse_types, 0);
-		if (dtypes_0 == _mm_extract_epi64(sse_types, 1)) {
+		int64_t dtypes_0 = _mm_extract_epi64(sse_types, 0);
+		int64_t dtypes_1 = _mm_extract_epi64(sse_types, 1);
+		if (dtypes_0 == dtypes_1) {
 			// Take the first type.
-			int type = (int) (dtypes_0 & 7);
+			const uint32_t type = _mm_extract_epi32(sse_types, 0);
 			__m128i sse_bcodes_li, sse_bcodes_ri;
 			__m128 tmpl,tmpr;
 			switch (type) {
@@ -253,7 +256,8 @@ int PVBZCompute::compute_b_trans_sse4_notable(PVBCode_ap codes, PVCol axis_a, PV
 			}
 			__m128i sse_bcodes_lr = _mm_or_si128(_mm_slli_epi32(sse_bcodes_li, 3),
 			                                     _mm_slli_epi32(sse_bcodes_ri, 14));
-			__m128i sse_bcodes = _mm_or_si128(sse_types, sse_bcodes_lr);
+			volatile __m128i sse_bcodes = _mm_or_si128(sse_types, sse_bcodes_lr);
+			/*
 			if ((idx_code & 3) == 0) {
 				// We are style 16-byte aligned
 				_mm_stream_si128((__m128i*) &codes[idx_code], sse_bcodes);
@@ -264,7 +268,7 @@ int PVBZCompute::compute_b_trans_sse4_notable(PVBCode_ap codes, PVCol axis_a, PV
 				// Check the difference between this and 4 _mm_stream_si32 !
 				_mm_storeu_si128((__m128i*) &codes[idx_code], sse_bcodes);
 				idx_code += 4;
-			}
+			}*/
 
 			continue;
 		}
@@ -327,7 +331,8 @@ int PVBZCompute::compute_b_trans_sse4_notable(PVBCode_ap codes, PVCol axis_a, PV
 			//   * free = 0
 			__m128i sse_bcodes_lr = _mm_or_si128(_mm_slli_epi32(_mm_cvtps_epi32(sse_bcodes_l), 3),
 			                                     _mm_slli_epi32(_mm_cvtps_epi32(sse_bcodes_r), 14));
-			__m128i sse_bcodes = _mm_or_si128(sse_types, sse_bcodes_lr);
+			volatile __m128i sse_bcodes = _mm_or_si128(sse_types, sse_bcodes_lr);
+			/*
 			if ((idx_code & 3) == 0) {
 				// We are style 16-byte aligned
 				_mm_stream_si128((__m128i*) &codes[idx_code], sse_bcodes);
@@ -338,11 +343,11 @@ int PVBZCompute::compute_b_trans_sse4_notable(PVBCode_ap codes, PVCol axis_a, PV
 				// Check the difference between this and 4 _mm_stream_si32 !
 				_mm_storeu_si128((__m128i*) &codes[idx_code], sse_bcodes);
 				idx_code += 4;
-			}
+			}*/
 		}
 		else {
 			// No SSE possible here, do it by hand.
-			PVBCode bcode;
+			volatile PVBCode bcode;
 			bcode.int_v = 0;
 			for (int j = 0; j < 4; j++) {
 				float ypl,ypr,fydiff,bcode_l,bcode_r;
@@ -385,8 +390,8 @@ int PVBZCompute::compute_b_trans_sse4_notable(PVBCode_ap codes, PVCol axis_a, PV
 				bcode.s.l = (uint16_t) bcode_l;
 				bcode.s.r = (uint16_t) bcode_r;
 
-				codes[idx_code] = bcode;
-				idx_code++;
+				/*codes[idx_code] = bcode;
+				idx_code++;*/
 			}
 		}
 	}
