@@ -13,8 +13,8 @@
 #define W_FRAME 2048
 #define H_FRAME 2048
 
-#define X_START 1000
-#define Y_START 1000
+#define X_START 0
+#define Y_START 0
 
 #define MAX_ERR_PRINT 40
 
@@ -108,7 +108,7 @@ int main(int argc, char** argv)
 	PVBZCompute bz;
 	//bz.set_plotted(plotted, ncols);
 	bz.set_trans_plotted(trans_plotted, ncols);
-	bz.set_zoom(8192, 8192);
+	bz.set_zoom(2048, 2048);
 	
 	std::cout << "Start BCode computation..." << std::endl;
 	std::vector<PVBCode, PVCore::PVAlignedAllocator<PVBCode, 16> > codes_ref, codes;
@@ -128,6 +128,7 @@ int main(int argc, char** argv)
 	//LAUNCH_BENCH(bcode_trans_nobranch_sse, "BCode trans-nobranch-sse", compute_b_trans_nobranch_sse);
 	LAUNCH_BENCH(bcode_trans2, "BCode trans2",  compute_b_trans2);
 	LAUNCH_BENCH(bcode_trans_int, "BCode trans-int",  compute_b_trans_int);
+	LAUNCH_BENCH(bcode_trans_int_ld, "BCode trans-int-ld",  compute_b_trans_int_ld);
 	LAUNCH_BENCH(bcode_trans_sse, "BCode trans-sse",  compute_b_trans_sse);
 	LAUNCH_BENCH(bcode_trans_sse_int, "BCode trans-sse-int",  compute_b_trans_sse_int);
 	//LAUNCH_BENCH(bcode_trans_sse2, "BCode trans-sse2",  compute_b_trans_sse2);
