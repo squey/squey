@@ -94,7 +94,6 @@ int8_t PVBZCompute::get_line_type(PVLineEq const& l, float x0, float x1, float y
 	return type;
 }
 
-
 void PVBZCompute::convert_to_points(uint16_t width, uint16_t height, std::vector<PVBCode> const& codes, std::vector<int>& ret)
 {
 	std::vector<PVBCode>::const_iterator it;

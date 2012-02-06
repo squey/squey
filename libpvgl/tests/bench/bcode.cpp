@@ -110,7 +110,7 @@ int main(int argc, char** argv)
 		std::cerr << "Unable to load plotted !" << std::endl;
 		return 1;
 	}*/
-	init_rand_plotted(trans_plotted, 40000000);
+	init_rand_plotted(trans_plotted, 80000000);
 	std::cout << "Random plotted created." << std::endl;
 
 	PVBZCompute bz;
@@ -136,7 +136,7 @@ int main(int argc, char** argv)
 	//LAUNCH_BENCH(bcode_trans_nobranch, "BCode trans-nobranch", compute_b_trans_nobranch);
 	//LAUNCH_BENCH(bcode_trans_nobranch_sse, "BCode trans-nobranch-sse", compute_b_trans_nobranch_sse);
 	//LAUNCH_BENCH(bcode_trans2, "BCode trans2",  compute_b_trans2);
-	//LAUNCH_BENCH(bcode_trans_int, "BCode trans-int",  compute_b_trans_int);
+	LAUNCH_BENCH(bcode_trans_int, "BCode trans-int",  compute_b_trans_int);
 	//LAUNCH_BENCH(bcode_trans_int_ld, "BCode trans-int-ld",  compute_b_trans_int_ld);
 	LAUNCH_BENCH(bcode_trans_sse, "BCode trans-sse",  compute_b_trans_sse);
 	LAUNCH_BENCH(bcode_trans_sse_int, "BCode trans-sse-int",  compute_b_trans_sse_int);
@@ -144,6 +144,12 @@ int main(int argc, char** argv)
 	//LAUNCH_BENCH(bcode_trans_sse3, "BCode trans-sse3",  compute_b_trans_sse3);
 	LAUNCH_BENCH(bcode_trans_sse4, "BCode trans-sse4",  compute_b_trans_sse4);
 	LAUNCH_BENCH(bcode_trans_sse4_int, "BCode trans-sse4-int",  compute_b_trans_sse4_int);
+
+	// Reference w/ "no-table" variants
+	BENCH_START(bcode_trans_notable);
+	bz.compute_b_trans_notable(&codes_ref[0], 0, 1, X_START, X_START+W_FRAME-1, Y_START, Y_START+H_FRAME-1);
+	BENCH_END(bcode_trans_notable, "BCode trans-computation notable", bz.get_nrows()*2, sizeof(float), codes_ref.size(), sizeof(PVBCode));
+	LAUNCH_BENCH(bcode_trans_sse4_notable, "BCode trans-sse4-notable",  compute_b_trans_sse4_notable);
 
 	return 0;
 }
