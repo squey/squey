@@ -307,7 +307,7 @@ static inline __m128i libdivide_s64_shift_right_vector(__m128i v, int amt) {
     //implementation of _mm_sra_epi64.  Here we have two 64 bit values which are shifted right to logically become (64 - amt) values, and are then sign extended from a (64 - amt) bit number.
     const int b = 64 - amt;
     __m128i m = libdivide__u64_to_m128(1ULL << (b - 1));
-    __m128i x = _mm_srl_epi64(v, libdivide_u32_to_m128i(amt));
+    __m128i x = _mm_srli_epi64(v, amt);
     __m128i result = _mm_sub_epi64(_mm_xor_si128(x, m), m); //result = x^m - m
     return result;
 }
@@ -727,21 +727,21 @@ uint64_t libdivide_u64_do_alg2(uint64_t numer, const struct libdivide_u64_t *den
  
 #if LIBDIVIDE_USE_SSE2    
 __m128i libdivide_u64_do_vector(__m128i numers, const struct libdivide_u64_t * denom) {
-    uint8_t more = denom->more;
+    const uint8_t more = denom->more;
     if (more & LIBDIVIDE_U64_SHIFT_PATH) {
-        return _mm_srl_epi64(numers, libdivide_u32_to_m128i(more & LIBDIVIDE_64_SHIFT_MASK));
+        return _mm_srli_epi64(numers, more & LIBDIVIDE_64_SHIFT_MASK);
     }
     else {
-        __m128i q = libdivide_mullhi_u64_flat_vector(numers, libdivide__u64_to_m128(denom->magic));
+        const __m128i q = libdivide_mullhi_u64_flat_vector(numers, libdivide__u64_to_m128(denom->magic));
         if (more & LIBDIVIDE_ADD_MARKER) {
             //uint32_t t = ((numer - q) >> 1) + q;
             //return t >> denom->shift;
-            __m128i t = _mm_add_epi64(_mm_srli_epi64(_mm_sub_epi64(numers, q), 1), q);
-            return _mm_srl_epi64(t, libdivide_u32_to_m128i(more & LIBDIVIDE_64_SHIFT_MASK));
+            const __m128i t = _mm_add_epi64(_mm_srli_epi64(_mm_sub_epi64(numers, q), 1), q);
+            return _mm_srli_epi64(t, more & LIBDIVIDE_64_SHIFT_MASK);
         }
         else {
             //q >> denom->shift
-            return _mm_srl_epi64(q, libdivide_u32_to_m128i(more));
+            return _mm_srli_epi64(q, more);
         }
     }
 }
@@ -884,7 +884,7 @@ __m128i libdivide_s32_do_vector(__m128i numers, const struct libdivide_s32_t * d
         uint32_t shifter = more & LIBDIVIDE_32_SHIFT_MASK;
         __m128i roundToZeroTweak = _mm_set1_epi32((1 << shifter) - 1); //could use _mm_srli_epi32 with an all -1 register        
         __m128i q = _mm_add_epi32(numers, _mm_and_si128(_mm_srai_epi32(numers, 31), roundToZeroTweak)); //q = numer + ((numer >> 31) & roundToZeroTweak);
-        q = _mm_sra_epi32(q, libdivide_u32_to_m128i(shifter)); // q = q >> shifter
+        q = _mm_srai_epi32(q, shifter); // q = q >> shifter
         __m128i shiftMask = _mm_set1_epi32((int32_t)((int8_t)more >> 7)); //set all bits of shift mask = to the sign bit of more
         q = _mm_sub_epi32(_mm_xor_si128(q, shiftMask), shiftMask); //q = (q ^ shiftMask) - shiftMask;
         return q;
@@ -895,7 +895,7 @@ __m128i libdivide_s32_do_vector(__m128i numers, const struct libdivide_s32_t * d
             __m128i sign = _mm_set1_epi32((int32_t)(int8_t)more >> 7); //must be arithmetic shift
             q = _mm_add_epi32(q, _mm_sub_epi32(_mm_xor_si128(numers, sign), sign)); // q += ((numer ^ sign) - sign);        
         }
-        q = _mm_sra_epi32(q, libdivide_u32_to_m128i(more & LIBDIVIDE_32_SHIFT_MASK)); //q >>= shift
+        q = _mm_srai_epi32(q, more & LIBDIVIDE_32_SHIFT_MASK); //q >>= shift
         q = _mm_add_epi32(q, _mm_srli_epi32(q, 31)); // q += (q < 0)
         return q;
     }
