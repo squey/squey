@@ -16,8 +16,8 @@
 #define W_FRAME 512
 #define H_FRAME 512
 
-#define X_START 0
-#define Y_START 0
+#define X_START 100
+#define Y_START 70
 
 void extract_plotted(PVRow ncols, Picviz::PVPlotted::plotted_table_t const& plotted, std::vector<float>& ret, PVCol axis_a, PVCol axis_b)
 {
@@ -53,13 +53,13 @@ int main(int argc, char** argv)
 
 	PVBZCompute bz;
 	bz.set_trans_plotted(plotted, ncols);
-	bz.set_zoom(512, 512);
+	bz.set_zoom(1024, 1024);
 	
 	std::cout << "Start BCode computation..." << std::endl;
 	std::vector<PVBCode> codes;
 	codes.resize(bz.get_nrows()*2);
 	BENCH_START(bcode);
-	int ncodes = bz.compute_b_trans_sse_int(&codes[0], 0, 1, X_START, X_START+W_FRAME, Y_START, Y_START+H_FRAME);
+	int ncodes = bz.compute_b_trans_notable(&codes[0], 2, 3, X_START, X_START+W_FRAME, Y_START, Y_START+H_FRAME);
 	BENCH_END(bcode, "BCode computation", (plotted.size()/ncols)*2, sizeof(float), codes.size(), sizeof(PVBCode));
 	codes.resize(ncodes);
 
@@ -94,7 +94,7 @@ int main(int argc, char** argv)
 		QMainWindow *window = new QMainWindow();
 		SLFloatView *v = new SLFloatView(window);
 
-		extract_plotted(ncols, plotted, p_ext, 0, 1);
+		extract_plotted(ncols, plotted, p_ext, 2, 3);
 		v->set_size(W_FRAME,H_FRAME);
 		v->set_ortho(1.0, 1.0);
 		v->set_points(p_ext);
@@ -110,7 +110,7 @@ int main(int argc, char** argv)
 		window->setWindowTitle("bz - code bz");
 		SLIntView *v = new SLIntView(window);
 
-		bz.convert_to_points(W_FRAME, H_FRAME, codes, bz_pts);
+		bz.convert_to_points_new(W_FRAME, H_FRAME, codes, bz_pts);
 		v->set_size(W_FRAME, H_FRAME);
 		v->set_ortho(W_FRAME, H_FRAME);
 		v->set_points(bz_pts);
