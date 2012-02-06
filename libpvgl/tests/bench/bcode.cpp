@@ -80,17 +80,18 @@ void init_rand_plotted(Picviz::PVPlotted::plotted_table_t& p, PVRow nrows)
 
 int main(int argc, char** argv)
 {
+	/*
 	if (argc < 2) {
 		std::cerr << "Usage: " << argv[0] << " plotted_file" << std::endl;
 		return 1;
-	}
+	}*/
 
 	if (sizeof(PVBCode) != sizeof(uint32_t)) {
 		std::cerr << "sizeof PVBCode is different from sizeof(uint32_t) !!" << std::endl;
 		return 1;
 	}
 
-	std::cout << "Reading plotted..." << std::endl;
+	std::cout << "Creating random plotted..." << std::endl;
 	PVCol ncols = 2;
 	Picviz::PVPlotted::plotted_table_t plotted, trans_plotted;
 	/*if (!Picviz::PVPlotted::load_buffer_from_file(plotted, ncols, false, QString(argv[1]))) {
@@ -102,7 +103,7 @@ int main(int argc, char** argv)
 		return 1;
 	}*/
 	init_rand_plotted(trans_plotted, 40000000);
-	std::cout << "Plotted read." << std::endl;
+	std::cout << "Random plotted created." << std::endl;
 
 	PVBZCompute bz;
 	//bz.set_plotted(plotted, ncols);

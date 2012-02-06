@@ -1266,7 +1266,7 @@ int PVBZCompute::compute_b_trans_sse_int(PVBCode_ap codes, PVCol axis_a, PVCol a
 	for (PVRow i = 0; i < _nb_rows; i += 4) {
 		__m128 sse_ypl, sse_ypr;
 		sse_ypl = _mm_load_ps(&_trans_plotted[axis_a*_nb_rows+i]);
-		sse_ypr = _mm_load_ps(&_trans_plotted[axis_b*_nb_rows+i]);
+		sse_ypr = _mm_loadu_ps(&_trans_plotted[axis_b*_nb_rows+i]);
 
 		sse_Ypl = _mm_cvtps_epi32(_mm_mul_ps(sse_ypl, sse_zoomy));
 		sse_Ypr = _mm_cvtps_epi32(_mm_mul_ps(sse_ypr, sse_zoomy));
@@ -1277,6 +1277,7 @@ int PVBZCompute::compute_b_trans_sse_int(PVBCode_ap codes, PVCol axis_a, PVCol a
 
 		const __m128i ydiff = _mm_sub_epi32(sse_Ypl, sse_Ypr);
 		const __m128i sse_Yplcmp = _mm_sub_epi32(_mm_mul_epi32(sse_Xdiff, sse_Ypl), _mm_set1_epi32(1));
+		//const __m128i sse_Yplcmp = _mm_mul_epi32(sse_Xdiff, sse_Ypl);
 		const __m128i a = _mm_and_si128(_mm_cmpgt_epi32(_mm_add_epi32(_mm_mul_epi32(ydiff, sse_X0), sse_Y1Xd), sse_Yplcmp), _mm_set1_epi32(1));
 		const __m128i b = _mm_and_si128(_mm_cmpgt_epi32(_mm_add_epi32(_mm_mul_epi32(ydiff, sse_X1), sse_Y1Xd), sse_Yplcmp), _mm_set1_epi32(1<<1));
 		const __m128i c = _mm_and_si128(_mm_cmpgt_epi32(_mm_add_epi32(_mm_mul_epi32(ydiff, sse_X1), sse_Y0Xd), sse_Yplcmp), _mm_set1_epi32(1<<2));

@@ -25,9 +25,10 @@ void extract_plotted(PVRow ncols, Picviz::PVPlotted::plotted_table_t const& plot
 	ret.reserve(nrows*2);
 	for (PVRow i = 0; i < nrows; i++) {
 		ret.push_back(0.0f);
-		ret.push_back(plotted[i*ncols+axis_a]);
+		//ret.push_back(plotted[i*ncols+axis_a]);
+		ret.push_back(plotted[axis_a*nrows+i]);
 		ret.push_back(1.0f);
-		ret.push_back(plotted[i*ncols+axis_b]);
+		ret.push_back(plotted[axis_b*nrows+i]);
 	}
 }
 
