@@ -13,8 +13,8 @@
 #include <QApplication>
 #include <QMainWindow>
 
-#define W_FRAME 1024
-#define H_FRAME 1024
+#define W_FRAME 512
+#define H_FRAME 512
 
 #define X_START 0
 #define Y_START 0
@@ -53,14 +53,14 @@ int main(int argc, char** argv)
 
 	PVBZCompute bz;
 	bz.set_trans_plotted(plotted, ncols);
-	bz.set_zoom(8192, 1024);
+	bz.set_zoom(512, 512);
 	
 	std::cout << "Start BCode computation..." << std::endl;
 	std::vector<PVBCode> codes;
-	codes.resize(bz.get_nrows());
+	codes.resize(bz.get_nrows()*2);
 	BENCH_START(bcode);
 	int ncodes = bz.compute_b_trans_sse_int(&codes[0], 0, 1, X_START, X_START+W_FRAME, Y_START, Y_START+H_FRAME);
-	BENCH_END(bcode, "BCode computation", plotted.size()*2, sizeof(float), codes.size(), sizeof(PVBCode));
+	BENCH_END(bcode, "BCode computation", (plotted.size()/ncols)*2, sizeof(float), codes.size(), sizeof(PVBCode));
 	codes.resize(ncodes);
 
 	// Reduction
@@ -95,7 +95,7 @@ int main(int argc, char** argv)
 		SLFloatView *v = new SLFloatView(window);
 
 		extract_plotted(ncols, plotted, p_ext, 0, 1);
-		v->set_size(1024,1024);
+		v->set_size(W_FRAME,H_FRAME);
 		v->set_ortho(1.0, 1.0);
 		v->set_points(p_ext);
 

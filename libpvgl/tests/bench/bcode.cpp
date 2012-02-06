@@ -13,8 +13,8 @@
 #define W_FRAME 2048
 #define H_FRAME 2048
 
-#define X_START 1000
-#define Y_START 1000
+#define X_START 0
+#define Y_START 0
 
 #define MAX_ERR_PRINT 40
 
@@ -73,8 +73,8 @@ void init_rand_plotted(Picviz::PVPlotted::plotted_table_t& p, PVRow nrows)
 	p.clear();
 	p.reserve(nrows*2);
 	for (PVRow i = 0; i < nrows; i++) {
-		p.push_back((float)((double)(rand()-1)/(double)RAND_MAX));
-		p.push_back((float)((double)(rand()-1)/(double)RAND_MAX));
+		p.push_back((float)((double)(rand())/(double)RAND_MAX));
+		p.push_back((float)((double)(rand())/(double)RAND_MAX));
 	}
 }
 
@@ -89,6 +89,14 @@ int main(int argc, char** argv)
 	if (sizeof(PVBCode) != sizeof(uint32_t)) {
 		std::cerr << "sizeof PVBCode is different from sizeof(uint32_t) !!" << std::endl;
 		return 1;
+	}
+
+	// OpenMP first startup takes some time, so doing useless stuff
+	// here to avoid false results.
+	int a = 0;
+#pragma omp parallel for
+	for (int i = 0; i < 100000; i++) {
+		a += i;
 	}
 
 	std::cout << "Creating random plotted..." << std::endl;
@@ -108,7 +116,7 @@ int main(int argc, char** argv)
 	PVBZCompute bz;
 	//bz.set_plotted(plotted, ncols);
 	bz.set_trans_plotted(trans_plotted, ncols);
-	bz.set_zoom(8192, 8192);
+	bz.set_zoom(2048, 2048);
 	
 	std::cout << "Start BCode computation..." << std::endl;
 	std::vector<PVBCode, PVCore::PVAlignedAllocator<PVBCode, 16> > codes_ref, codes;
@@ -122,17 +130,20 @@ int main(int argc, char** argv)
 	BENCH_START(bcode_trans);
 	bz.compute_b_trans(&codes_ref[0], 0, 1, X_START, X_START+W_FRAME-1, Y_START, Y_START+H_FRAME-1);
 	BENCH_END(bcode_trans, "BCode trans-computation", bz.get_nrows()*2, sizeof(float), codes_ref.size(), sizeof(PVBCode));
+	printf("\n");
 
 	// Launch other benchs
 	//LAUNCH_BENCH(bcode_trans_nobranch, "BCode trans-nobranch", compute_b_trans_nobranch);
 	//LAUNCH_BENCH(bcode_trans_nobranch_sse, "BCode trans-nobranch-sse", compute_b_trans_nobranch_sse);
-	LAUNCH_BENCH(bcode_trans2, "BCode trans2",  compute_b_trans2);
-	LAUNCH_BENCH(bcode_trans_int, "BCode trans-int",  compute_b_trans_int);
+	//LAUNCH_BENCH(bcode_trans2, "BCode trans2",  compute_b_trans2);
+	//LAUNCH_BENCH(bcode_trans_int, "BCode trans-int",  compute_b_trans_int);
+	//LAUNCH_BENCH(bcode_trans_int_ld, "BCode trans-int-ld",  compute_b_trans_int_ld);
 	LAUNCH_BENCH(bcode_trans_sse, "BCode trans-sse",  compute_b_trans_sse);
 	LAUNCH_BENCH(bcode_trans_sse_int, "BCode trans-sse-int",  compute_b_trans_sse_int);
 	//LAUNCH_BENCH(bcode_trans_sse2, "BCode trans-sse2",  compute_b_trans_sse2);
 	//LAUNCH_BENCH(bcode_trans_sse3, "BCode trans-sse3",  compute_b_trans_sse3);
 	LAUNCH_BENCH(bcode_trans_sse4, "BCode trans-sse4",  compute_b_trans_sse4);
+	LAUNCH_BENCH(bcode_trans_sse4_int, "BCode trans-sse4-int",  compute_b_trans_sse4_int);
 
 	return 0;
 }
