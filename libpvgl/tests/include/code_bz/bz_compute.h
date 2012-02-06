@@ -33,6 +33,7 @@ public:
 	void set_zoom(float zoom_x, float zoom_y);
 	int compute_b(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1);
 	int compute_b_trans(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1);
+	int compute_b_trans2(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1);
 	int compute_b_trans_nobranch(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1);
 	int compute_b_trans_nobranch_sse(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1);
 	int compute_b_trans_sse(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1);

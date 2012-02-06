@@ -8,12 +8,13 @@
 #include <picviz/PVPlotted.h>
 
 #include <ctime>
+#include <math.h>
 
 #define W_FRAME 2048
 #define H_FRAME 2048
 
-#define X_START 0
-#define Y_START 0
+#define X_START 1000
+#define Y_START 1000
 
 #define MAX_ERR_PRINT 40
 
@@ -23,29 +24,47 @@
 	BENCH_START(name);\
 	bz.f(&codes[0], 0, 1, X_START, X_START+W_FRAME, Y_START, Y_START+H_FRAME);\
 	BENCH_END(name, desc, bz.get_nrows()*2, sizeof(float), codes.size(), sizeof(PVBCode));\
-	show_codes_diff(&codes_ref[0], &codes[0], codes.size());\
+	{\
+		double freq_types[6];\
+		printf("Mean norm-2 difference: %0.4f %%.\n", stats_codes_diff(&codes_ref[0], &codes[0], codes.size(), freq_types)*100.0);\
+		printf("Types frequency: ");\
+		for (int i = 0; i < 6; i++) {\
+			printf("%d: %0.4f %% | ", i, freq_types[i]*100.0);\
+		}\
+		printf("\n\n");\
+	}
 	/*CHECK(codes.size() == codes_ref.size());\
 	CHECK(memcmp(&codes[0], &codes_ref[0], codes.size()*sizeof(PVBCode)) == 0);*/
 
-void show_codes_diff(PVBCode* bref, PVBCode* bcmp, size_t n)
+double stats_codes_diff(PVBCode* bref, PVBCode* bcmp, size_t n, double freq_types[6])
 {
-	size_t err_print = 0;
+	double rel_diff = 0;
+	uint32_t ntypes[6];
+	for (int i = 0; i < 6; i++) {
+		ntypes[i] = 0.0;
+	}
 	for (size_t i = 0; i < n; i++) {
 		if (bref[i].int_v != bcmp[i].int_v) {
 			PVBCode ref = bref[i];
 			PVBCode cmp = bcmp[i];
-			if (ref.s.type != cmp.s.type || abs(ref.s.l-cmp.s.l) > 4 || abs(ref.s.r-cmp.s.r) > 4 ||
-			    ref.s.__free != 0 || cmp.s.__free != 0) {
-				printf("Ref: %d|%d|%d|%d ; Wrong: %d|%d|%d|%d\n", ref.s.type, ref.s.l, ref.s.r, ref.s.__free,
-			                                          cmp.s.type, cmp.s.l, cmp.s.r, cmp.s.__free);
-				err_print++;
-				if (err_print >= MAX_ERR_PRINT) {
-					printf("Too many errors. Stopping...\n");
-					return;
-				}
+			if (ref.int_v != cmp.int_v) {
+				// Compute norm-2 difference
+				uint16_t ref_lx,ref_ly,ref_rx,ref_ry;
+				uint16_t cmp_lx,cmp_ly,cmp_rx,cmp_ry;
+				ref.to_pts(W_FRAME, H_FRAME, ref_lx, ref_ly, ref_rx, ref_ry);
+				cmp.to_pts(W_FRAME, H_FRAME, cmp_lx, cmp_ly, cmp_rx, cmp_ry);
+				double diff_l = (sqrt((double)((ref_ly-cmp_ly)*(ref_ly-cmp_ly) + (ref_lx-cmp_lx)*(ref_lx-cmp_lx))))/(2048.0);
+				double diff_r = (sqrt((double)((ref_ry-cmp_ry)*(ref_ry-cmp_ry) + (ref_rx-cmp_rx)*(ref_rx-cmp_rx))))/(2048.0);
+				rel_diff += (diff_l+diff_r)/2.0;
 			}
+			ntypes[cmp.s.type]++;
 		}
 	}
+
+	for (int i = 0; i < 6; i++) {
+		freq_types[i] = ((double)ntypes[i])/((double)n);
+	}
+	return rel_diff/((double)(n));
 }
 
 void init_rand_plotted(Picviz::PVPlotted::plotted_table_t& p, PVRow nrows)
@@ -88,7 +107,7 @@ int main(int argc, char** argv)
 	PVBZCompute bz;
 	//bz.set_plotted(plotted, ncols);
 	bz.set_trans_plotted(trans_plotted, ncols);
-	bz.set_zoom(2048, 2048);
+	bz.set_zoom(8192, 8192);
 	
 	std::cout << "Start BCode computation..." << std::endl;
 	std::vector<PVBCode, PVCore::PVAlignedAllocator<PVBCode, 16> > codes_ref, codes;
@@ -106,8 +125,10 @@ int main(int argc, char** argv)
 	// Launch other benchs
 	//LAUNCH_BENCH(bcode_trans_nobranch, "BCode trans-nobranch", compute_b_trans_nobranch);
 	//LAUNCH_BENCH(bcode_trans_nobranch_sse, "BCode trans-nobranch-sse", compute_b_trans_nobranch_sse);
+	LAUNCH_BENCH(bcode_trans2, "BCode trans2",  compute_b_trans2);
 	LAUNCH_BENCH(bcode_trans_int, "BCode trans-int",  compute_b_trans_int);
 	LAUNCH_BENCH(bcode_trans_sse, "BCode trans-sse",  compute_b_trans_sse);
+	LAUNCH_BENCH(bcode_trans_sse_int, "BCode trans-sse-int",  compute_b_trans_sse_int);
 	//LAUNCH_BENCH(bcode_trans_sse2, "BCode trans-sse2",  compute_b_trans_sse2);
 	//LAUNCH_BENCH(bcode_trans_sse3, "BCode trans-sse3",  compute_b_trans_sse3);
 	LAUNCH_BENCH(bcode_trans_sse4, "BCode trans-sse4",  compute_b_trans_sse4);

@@ -129,7 +129,7 @@ int PVBZCompute::compute_b(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, float X
 	float y1 = frame_p_right.y;
 	x0 -= (int)x0;
 	x1 -= (int)x0;
-	float Xnorm = x0*_zoom_x;
+	const float Xnorm = x0*_zoom_x;
 
 	PVLineEq l;
 	l.b = 1.0f;
@@ -145,7 +145,7 @@ int PVBZCompute::compute_b(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, float X
 		l.c = -ypl;
 		
 		PVBCode bcode;
-		int type = get_line_type(l, x0, x1, y0, y1);
+		const int type = get_line_type(l, x0, x1, y0, y1);
 		float bcode_l, bcode_r;
 		
 		switch (type) {
@@ -194,27 +194,27 @@ int PVBZCompute::compute_b(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, float X
 
 int PVBZCompute::compute_b_trans_int(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, int X0, int X1, int Y0, int Y1)
 {
-	float Xdiff = _zoom_x;
+	const int Xdiff = _zoom_x;
 
 	PVLineEqInt l;
 	l.b = Xdiff;
 	//codes.reserve(_nb_rows);
 	int idx_code = 0;
 	for (PVRow i = 0; i < _nb_rows; i++) {
-		float ypl = get_plotted_trans(axis_a, i);
-		float ypr = get_plotted_trans(axis_b, i);
-		int Ypl = (int) (ypl*_zoom_y - _trans_y);
-		int Ypr = (int) (ypr*_zoom_y - _trans_y);
+		const float ypl = get_plotted_trans(axis_a, i);
+		const float ypr = get_plotted_trans(axis_b, i);
+		const int Ypl = (int) (ypl*_zoom_y - _trans_y);
+		const int Ypr = (int) (ypr*_zoom_y - _trans_y);
 
 		// Line equation
 		// (ypl-ypr)*x + (Xdiff)*y - Xdiff*ypl = 0
 		// a*X + b*Y + c = 0
-		int Ydiff = Ypl-Ypr;
+		const int Ydiff = Ypl-Ypr;
 		l.a = Ydiff;
 		l.c = -Xdiff*Ypl;
 		
 		PVBCode bcode;
-		int type = get_line_type_int(l, X0, X1, Y0, Y1);
+		const int type = get_line_type_int(l, X0, X1, Y0, Y1);
 		int bcode_l, bcode_r;
 		
 		switch (type) {
@@ -245,6 +245,82 @@ int PVBZCompute::compute_b_trans_int(PVBCode_ap codes, PVCol axis_a, PVCol axis_
 			case 5:
 				bcode_l = (Xdiff*(Ypl-Y0))/(Ydiff) - X0;
 				bcode_r = Ypr-Y0 + ((Ydiff)*(Xdiff-X1))/Xdiff;
+				break;
+			default:
+				assert(false);
+				break;
+		}
+		bcode.int_v = 0;
+		bcode.s.type = type;
+		bcode.s.l = (uint16_t) bcode_l;
+		bcode.s.r = (uint16_t) bcode_r;
+
+		codes[idx_code] = bcode;
+		idx_code++;
+	}
+	return idx_code;
+}
+
+int PVBZCompute::compute_b_trans2(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1)
+{
+	// Convert box to plotted coordinates
+	vec2 frame_p_left = frame_to_plotted(vec2(X0, Y0));
+	vec2 frame_p_right = frame_to_plotted(vec2(X1, Y1));
+	float x0 = frame_p_left.x;
+	float y0 = frame_p_left.y;
+	float x1 = frame_p_right.x;
+	float y1 = frame_p_right.y;
+	x0 -= (int)x0;
+	x1 -= (int)x0;
+	float Xnorm = x0*_zoom_x;
+
+	PVLineEq l;
+	l.b = 1.0f;
+	//codes.reserve(_nb_rows);
+	int idx_code = 0;
+	for (PVRow i = 0; i < _nb_rows; i++) {
+		float ypl = get_plotted_trans(axis_a, i);
+		float ypr = get_plotted_trans(axis_b, i);
+
+		// Line equation
+		// (ypl-ypr)*x + y - ypl = 0
+		// a*X + b*Y + c = 0
+		l.a = ypl-ypr;
+		l.c = -ypl;
+		
+		PVBCode bcode;
+		const int type = get_line_type(l, x0, x1, y0, y1);
+		float bcode_l, bcode_r;
+		const float inv_ydiff = (1.0f)/(ypl-ypr);
+		
+		switch (type) {
+			case -1:
+				// This line does not cross our region.
+				//PVLOG_INFO("Line out of region (%f/%f)\n", ypl, ypr);
+				continue;
+			case 0:
+				bcode_l = (x0*ypr + (1-x0)*ypl)*_zoom_y - Y0;
+				bcode_r = ((ypl-y0)*inv_ydiff)*_zoom_x - Xnorm;
+				break;
+			case 1:
+				bcode_l = (ypl*(1-x0)+ypr*x0)*_zoom_y - Y0;
+				bcode_r = (ypl*(1-x1)+ypr*x1)*_zoom_y - Y0;
+				break;
+			case 2:
+				bcode_l = (x0*ypr + (1-x0)*ypl)*_zoom_y - Y0;
+				bcode_r = ((y1-ypl)*inv_ydiff)*_zoom_x - Xnorm;
+				break;
+			case 3:
+				bcode_l = ((ypl-y1)*inv_ydiff)*_zoom_x - Xnorm;
+				bcode_r = (ypl*(1-x1)+ypr*x1)*_zoom_y - Y0;
+				break;
+			case 4:
+				bcode_l = ((ypl-y1)*inv_ydiff)*_zoom_x - Xnorm;
+				bcode_r = ((ypl-y0)*inv_ydiff)*_zoom_x - Xnorm;
+				break;
+			case 5:
+				bcode_l = ((ypl-y0)*inv_ydiff)*_zoom_x - Xnorm;
+				bcode_r = (x1*ypr + (1-x1)*ypl)*_zoom_y - Y0;
 				break;
 			default:
 				assert(false);
@@ -540,7 +616,7 @@ int PVBZCompute::compute_b_trans_sse(PVBCode_ap codes, PVCol axis_a, PVCol axis_
 	float y1 = frame_p_right.y;
 	x0 -= (int)x0;
 	x1 -= (int)x0;
-	float Xnorm = x0*_zoom_x;
+	const float Xnorm = x0*_zoom_x;
 
 	__m128 sse_x0 = _mm_set1_ps(x0);
 	__m128 sse_x1 = _mm_set1_ps(x1);
@@ -560,12 +636,12 @@ int PVBZCompute::compute_b_trans_sse(PVBCode_ap codes, PVCol axis_a, PVCol axis_
 		// or...
 		// (ypl-ypr)*x + y >= ypl
 
-		__m128 ydiff = _mm_sub_ps(sse_ypl, sse_ypr);
-		__m128i a = _mm_and_si128(_mm_castps_si128(_mm_cmpge_ps(_mm_add_ps(_mm_mul_ps(ydiff, sse_x0), sse_y1), sse_ypl)), _mm_set1_epi32(1));
-		__m128i b = _mm_and_si128(_mm_castps_si128(_mm_cmpge_ps(_mm_add_ps(_mm_mul_ps(ydiff, sse_x1), sse_y1), sse_ypl)), _mm_set1_epi32(1<<1));
-		__m128i c = _mm_and_si128(_mm_castps_si128(_mm_cmpge_ps(_mm_add_ps(_mm_mul_ps(ydiff, sse_x1), sse_y0), sse_ypl)), _mm_set1_epi32(1<<2));
-		__m128i d = _mm_and_si128(_mm_castps_si128(_mm_cmpge_ps(_mm_add_ps(_mm_mul_ps(ydiff, sse_x0), sse_y0), sse_ypl)), _mm_set1_epi32(1<<3));
-		__m128i sse_pos = _mm_or_si128(_mm_or_si128(a, b), _mm_or_si128(c, d));
+		const __m128 ydiff = _mm_sub_ps(sse_ypl, sse_ypr);
+		const __m128i a = _mm_and_si128(_mm_castps_si128(_mm_cmpge_ps(_mm_add_ps(_mm_mul_ps(ydiff, sse_x0), sse_y1), sse_ypl)), _mm_set1_epi32(1));
+		const __m128i b = _mm_and_si128(_mm_castps_si128(_mm_cmpge_ps(_mm_add_ps(_mm_mul_ps(ydiff, sse_x1), sse_y1), sse_ypl)), _mm_set1_epi32(1<<1));
+		const __m128i c = _mm_and_si128(_mm_castps_si128(_mm_cmpge_ps(_mm_add_ps(_mm_mul_ps(ydiff, sse_x1), sse_y0), sse_ypl)), _mm_set1_epi32(1<<2));
+		const __m128i d = _mm_and_si128(_mm_castps_si128(_mm_cmpge_ps(_mm_add_ps(_mm_mul_ps(ydiff, sse_x0), sse_y0), sse_ypl)), _mm_set1_epi32(1<<3));
+		const __m128i sse_pos = _mm_or_si128(_mm_or_si128(a, b), _mm_or_si128(c, d));
 
 		/*
 		int a = l(x0, y1) >= 0;
@@ -943,12 +1019,12 @@ int PVBZCompute::compute_b_trans_sse4(PVBCode_ap codes, PVCol axis_a, PVCol axis
 		// or...
 		// (ypl-ypr)*x + y >= ypl
 
-		__m128 ydiff = _mm_sub_ps(sse_ypl, sse_ypr);
-		__m128i a = _mm_and_si128(_mm_castps_si128(_mm_cmpge_ps(_mm_add_ps(_mm_mul_ps(ydiff, sse_x0), sse_y1), sse_ypl)), _mm_set1_epi32(1));
-		__m128i b = _mm_and_si128(_mm_castps_si128(_mm_cmpge_ps(_mm_add_ps(_mm_mul_ps(ydiff, sse_x1), sse_y1), sse_ypl)), _mm_set1_epi32(1<<1));
-		__m128i c = _mm_and_si128(_mm_castps_si128(_mm_cmpge_ps(_mm_add_ps(_mm_mul_ps(ydiff, sse_x1), sse_y0), sse_ypl)), _mm_set1_epi32(1<<2));
-		__m128i d = _mm_and_si128(_mm_castps_si128(_mm_cmpge_ps(_mm_add_ps(_mm_mul_ps(ydiff, sse_x0), sse_y0), sse_ypl)), _mm_set1_epi32(1<<3));
-		__m128i sse_pos = _mm_or_si128(_mm_or_si128(a, b), _mm_or_si128(c, d));
+		const __m128 ydiff = _mm_sub_ps(sse_ypl, sse_ypr);
+		const __m128i a = _mm_and_si128(_mm_castps_si128(_mm_cmpge_ps(_mm_add_ps(_mm_mul_ps(ydiff, sse_x0), sse_y1), sse_ypl)), _mm_set1_epi32(1));
+		const __m128i b = _mm_and_si128(_mm_castps_si128(_mm_cmpge_ps(_mm_add_ps(_mm_mul_ps(ydiff, sse_x1), sse_y1), sse_ypl)), _mm_set1_epi32(1<<1));
+		const __m128i c = _mm_and_si128(_mm_castps_si128(_mm_cmpge_ps(_mm_add_ps(_mm_mul_ps(ydiff, sse_x1), sse_y0), sse_ypl)), _mm_set1_epi32(1<<2));
+		const __m128i d = _mm_and_si128(_mm_castps_si128(_mm_cmpge_ps(_mm_add_ps(_mm_mul_ps(ydiff, sse_x0), sse_y0), sse_ypl)), _mm_set1_epi32(1<<3));
+		const __m128i sse_pos = _mm_or_si128(_mm_or_si128(a, b), _mm_or_si128(c, d));
 
 		/*
 		int a = l(x0, y1) >= 0;
@@ -1180,10 +1256,10 @@ int PVBZCompute::compute_b_trans_sse_int(PVBCode_ap codes, PVCol axis_a, PVCol a
 
 	const __m128 sse_zoomx = _mm_set1_ps(_zoom_x);
 	const __m128 sse_zoomy = _mm_set1_ps(_zoom_y);
-	const __m128i sse_Xdiff = _mm_castps_si128(sse_zoomx);
+	const __m128i sse_Xdiff = _mm_set1_epi32((int) _zoom_x);
 
-	const __m128i sse_Y0Xd = _mm_sub_epi32(_mm_mul_epi32(sse_Xdiff, sse_Y0), _mm_set1_epi32(1));
-	const __m128i sse_Y1Xd = _mm_sub_epi32(_mm_mul_epi32(sse_Xdiff, sse_Y1), _mm_set1_epi32(1));
+	const __m128i sse_Y0Xd = _mm_mul_epi32(sse_Xdiff, sse_Y0);
+	const __m128i sse_Y1Xd = _mm_mul_epi32(sse_Xdiff, sse_Y1);
 
 	__m128i sse_Ypl, sse_Ypr;
 	int idx_code = 0;
@@ -1196,16 +1272,16 @@ int PVBZCompute::compute_b_trans_sse_int(PVBCode_ap codes, PVCol axis_a, PVCol a
 		sse_Ypr = _mm_cvtps_epi32(_mm_mul_ps(sse_ypr, sse_zoomy));
 
 		// Line equation
-		// (ypl-ypr)*x + (Xdiff)*y - Xdiff*ypl = 0
-		// (ypl-ypr)*x + (Xdiff)*y >= Xdiff*ypl = 0
+		// (Ypl-Ypr)*x + (Xdiff)*Y - Xdiff*Ypl = 0
+		// (Ypl-Ypr)*x + (Xdiff)*Y >= Xdiff*Ypl = 0
 
-		__m128i ydiff = _mm_sub_epi32(sse_Ypl, sse_Ypr);
-		__m128i sse_Yplcmp = _mm_mul_epi32(sse_Xdiff, sse_Ypl);
-		__m128i a = _mm_and_si128(_mm_cmpgt_epi32(_mm_add_epi32(_mm_mul_epi32(ydiff, sse_X0), sse_Y1Xd), sse_Yplcmp), _mm_set1_epi32(1));
-		__m128i b = _mm_and_si128(_mm_cmpgt_epi32(_mm_add_epi32(_mm_mul_epi32(ydiff, sse_X1), sse_Y1Xd), sse_Yplcmp), _mm_set1_epi32(1<<1));
-		__m128i c = _mm_and_si128(_mm_cmpgt_epi32(_mm_add_epi32(_mm_mul_epi32(ydiff, sse_X1), sse_Y0Xd), sse_Yplcmp), _mm_set1_epi32(1<<2));
-		__m128i d = _mm_and_si128(_mm_cmpgt_epi32(_mm_add_epi32(_mm_mul_epi32(ydiff, sse_X0), sse_Y0Xd), sse_Yplcmp), _mm_set1_epi32(1<<3));
-		__m128i sse_pos = _mm_or_si128(_mm_or_si128(a, b), _mm_or_si128(c, d));
+		const __m128i ydiff = _mm_sub_epi32(sse_Ypl, sse_Ypr);
+		const __m128i sse_Yplcmp = _mm_sub_epi32(_mm_mul_epi32(sse_Xdiff, sse_Ypl), _mm_set1_epi32(1));
+		const __m128i a = _mm_and_si128(_mm_cmpgt_epi32(_mm_add_epi32(_mm_mul_epi32(ydiff, sse_X0), sse_Y1Xd), sse_Yplcmp), _mm_set1_epi32(1));
+		const __m128i b = _mm_and_si128(_mm_cmpgt_epi32(_mm_add_epi32(_mm_mul_epi32(ydiff, sse_X1), sse_Y1Xd), sse_Yplcmp), _mm_set1_epi32(1<<1));
+		const __m128i c = _mm_and_si128(_mm_cmpgt_epi32(_mm_add_epi32(_mm_mul_epi32(ydiff, sse_X1), sse_Y0Xd), sse_Yplcmp), _mm_set1_epi32(1<<2));
+		const __m128i d = _mm_and_si128(_mm_cmpgt_epi32(_mm_add_epi32(_mm_mul_epi32(ydiff, sse_X0), sse_Y0Xd), sse_Yplcmp), _mm_set1_epi32(1<<3));
+		const __m128i sse_pos = _mm_or_si128(_mm_or_si128(a, b), _mm_or_si128(c, d));
 
 		/*
 		int a = l(x0, y1) >= 0;
@@ -1226,11 +1302,10 @@ int PVBZCompute::compute_b_trans_sse_int(PVBCode_ap codes, PVCol axis_a, PVCol a
 		PVBCode bcode;
 		bcode.int_v = 0;
 		for (int j = 0; j < 4; j++) {
-			int Ypl,Ypr,Ydiff;
-			Ypl = _mm_extract_epi32(sse_Ypl, j);
-			Ypr = _mm_extract_epi32(sse_Ypr, j);
-			Ydiff = _mm_extract_epi32(ydiff, j);
-			int type = types[j];
+			const int Ypl = _mm_extract_epi32(sse_Ypl, j);
+			const int Ypr = _mm_extract_epi32(sse_Ypr, j);
+			const int Ydiff = _mm_extract_epi32(ydiff, j);
+			const int type = types[j];
 			int bcode_l, bcode_r;
 		
 			switch (type) {
