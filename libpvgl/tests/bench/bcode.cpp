@@ -15,8 +15,8 @@
 #define W_FRAME 2048
 #define H_FRAME 2048
 
-#define X_START 0
-#define Y_START 0
+#define X_START 5400
+#define Y_START 5600
 
 #define MAX_ERR_PRINT 40
 
@@ -24,8 +24,8 @@
 	codes.clear();\
 	codes.resize(bz.get_nrows());\
 	BENCH_START(name);\
-	bz.f(&codes[0], 0, 1, X_START, X_START+W_FRAME, Y_START, Y_START+H_FRAME);\
-	BENCH_END(name, desc, bz.get_nrows()*2, sizeof(float), codes.size(), sizeof(PVBCode));\
+	ncodes = bz.f(&codes[0], 0, 1, X_START, X_START+W_FRAME, Y_START, Y_START+H_FRAME);\
+	BENCH_END(name, desc, bz.get_nrows()*2, sizeof(float), ncodes, sizeof(PVBCode));\
 	{\
 		double freq_types[6];\
 		printf("Mean norm-2 difference: %0.4f %%.\n", stats_codes_diff(&codes_ref[0], &codes[0], codes.size(), freq_types)*100.0);\
@@ -118,7 +118,7 @@ int main(int argc, char** argv)
 	PVBZCompute bz;
 	//bz.set_plotted(plotted, ncols);
 	bz.set_trans_plotted(trans_plotted, ncols);
-	bz.set_zoom(2048, 2048);
+	bz.set_zoom(16384, 16384);
 	
 	std::cout << "Start BCode computation..." << std::endl;
 	std::vector<PVBCode, PVCore::PVAlignedAllocator<PVBCode, 16> > codes_ref, codes;
@@ -151,8 +151,8 @@ int main(int argc, char** argv)
 
 	// Reference w/ "no-table" variants
 	BENCH_START(bcode_trans_notable);
-	//bz.compute_b_trans_notable(&codes_ref[0], 0, 1, X_START, X_START+W_FRAME-1, Y_START, Y_START+H_FRAME-1);
-	BENCH_END(bcode_trans_notable, "BCode trans-computation notable", bz.get_nrows()*2, sizeof(float), codes_ref.size(), sizeof(PVBCode));
+	int ncodes = bz.compute_b_trans_notable(&codes_ref[0], 0, 1, X_START, X_START+W_FRAME-1, Y_START, Y_START+H_FRAME-1);
+	BENCH_END(bcode_trans_notable, "BCode trans-computation notable", bz.get_nrows()*2, sizeof(float), ncodes, sizeof(PVBCode));
 	LAUNCH_BENCH(bcode_trans_sse4_notable, "BCode trans-sse4-notable",  compute_b_trans_sse4_notable);
 
 	// OMP
@@ -165,7 +165,7 @@ int main(int argc, char** argv)
 		pcodes[i] = PVCore::PVAlignedAllocator<PVBCode, 16>().allocate(nallocs);
 	}
 	BENCH_START(bcode_trans_notable_omp);
-	int ncodes = bz.compute_b_trans_sse4_notable_omp(pcodes, 0, 1, X_START, X_START+W_FRAME-1, Y_START, Y_START+H_FRAME-1);
+	ncodes = bz.compute_b_trans_sse4_notable_omp(pcodes, 0, 1, X_START, X_START+W_FRAME-1, Y_START, Y_START+H_FRAME-1);
 	BENCH_END(bcode_trans_notable_omp, "BCode trans-computation notable-omp", bz.get_nrows()*2, sizeof(float), ncodes, sizeof(PVBCode));
 
 	BENCH_START(bcode_trans_notable_omp1);
