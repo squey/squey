@@ -10,6 +10,8 @@
 #include <ctime>
 #include <math.h>
 
+#include <omp.h>
+
 #define W_FRAME 2048
 #define H_FRAME 2048
 
@@ -152,6 +154,16 @@ int main(int argc, char** argv)
 	//bz.compute_b_trans_notable(&codes_ref[0], 0, 1, X_START, X_START+W_FRAME-1, Y_START, Y_START+H_FRAME-1);
 	BENCH_END(bcode_trans_notable, "BCode trans-computation notable", bz.get_nrows()*2, sizeof(float), codes_ref.size(), sizeof(PVBCode));
 	LAUNCH_BENCH(bcode_trans_sse4_notable, "BCode trans-sse4-notable",  compute_b_trans_sse4_notable);
+
+	// OMP
+	size_t nthreads = omp_get_max_threads();
+	PVBCode* pcodes[nthreads];
+	for (size_t i = 0; i < nthreads; i++) {
+		pcodes[i] = PVCore::PVAlignedAllocator<PVBCode, 16>().allocate((bz.get_nrows()+nthreads-1)/nthreads);
+	}
+	BENCH_START(bcode_trans_notable_omp);
+	int ncodes = bz.compute_b_trans_sse4_notable_omp(pcodes, 0, 1, X_START, X_START+W_FRAME-1, Y_START, Y_START+H_FRAME-1);
+	BENCH_END(bcode_trans_notable_omp, "BCode trans-computation notable-omp", bz.get_nrows()*2, sizeof(float), ncodes, sizeof(PVBCode));
 
 	return 0;
 }

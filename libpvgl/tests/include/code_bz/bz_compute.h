@@ -53,6 +53,9 @@ public:
 	int compute_b_trans_int_ld_notable(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, int X0, int X1, int Y0, int Y1);
 	int compute_b_trans_sse4_int_notable(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1);
 
+	// OMP no-table
+	int compute_b_trans_sse4_notable_omp(PVBCode_ap* pcodes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1);
+
 private:
 	inline float get_plotted(PVCol col, PVRow row) const { return _plotted[row*_nb_cols+col]; }
 	inline float get_plotted_trans(PVCol col, PVRow row) const { return _trans_plotted[col*_nb_rows+row]; }
