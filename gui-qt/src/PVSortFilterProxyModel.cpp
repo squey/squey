@@ -234,6 +234,13 @@ QModelIndex PVInspector::PVSortFilterProxyModel::mapToSource(QModelIndex const& 
 		return QModelIndex();
 	}
 
+	if (src_idx.row() == 0 && _vec_filtered_m2s.size() == 0) {
+		// Special case where no lines are displayed but we still want header information !!
+		// This function is called by QAbstractProxyModel::headerData to find out the good column.
+		// TODO: we should use the axis combination in the proxy, and not in the model.
+		return sourceModel()->index(0, src_idx.column(), QModelIndex());
+	}
+
 	if (src_idx.row() >= _vec_filtered_m2s.size()) {
 		return QModelIndex();
 	}

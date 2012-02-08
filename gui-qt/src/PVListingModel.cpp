@@ -96,8 +96,6 @@ QVariant PVInspector::PVListingModel::data(const QModelIndex &index, int role) c
 
 	real_row_index = index.row();
 
-	PVLOG_HEAVYDEBUG("           correspondId %d\n", real_row_index);
-
 	switch (role) {
 		case (Qt::DisplayRole):
 			return lib_view->get_data(real_row_index, index.column());
@@ -175,7 +173,6 @@ QVariant PVInspector::PVListingModel::headerData(int section, Qt::Orientation or
 					// That should never happen !
 					return QVariant();
 				}
-				//return getRealRowIndex(section);
 				return section;
 			}
 			break;
