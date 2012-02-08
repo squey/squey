@@ -161,6 +161,12 @@ void PVInspector::PVSortFilterProxyModel::sort(int column, Qt::SortOrder order)
 void PVInspector::PVSortFilterProxyModel::reprocess_source()
 {
 	if (_dyn_sort && _sort_idx >= 0 && _sort_idx < sourceModel()->columnCount()) {
+		if (sourceModel()->rowCount() != _vec_sort_m2s.size()) {
+			// Size has changed, recreate a default sort array.
+			int sort_idx = _sort_idx;
+			init_default_sort();
+			_sort_idx = sort_idx;
+		}
 		do_sort(_sort_idx, _cur_order);
 	}
 	else {
@@ -188,6 +194,12 @@ void PVInspector::PVSortFilterProxyModel::invalidate_filter()
 void PVInspector::PVSortFilterProxyModel::invalidate_all()
 {
 	// Force a sort if suitable
+	if (sourceModel() != NULL && sourceModel()->rowCount() != _vec_sort_m2s.size()) {
+		// Size has changed, recreate a default sort array.
+		int sort_idx = _sort_idx;
+		init_default_sort();
+		_sort_idx = sort_idx;
+	}
 	if (_sort_idx >= 0 && _sort_idx < sourceModel()->columnCount()) {
 		do_sort(_sort_idx, _cur_order);
 	}

@@ -394,6 +394,8 @@ bool PVInspector::PVTabSplitter::process_extraction_job(PVRush::PVControllerJob_
 		emit_source_changed();
 		refresh_layer_stack_view_Slot();
 		refresh_listing_Slot();
+		pv_listing_model->reset_lib_view();
+		pv_listing_proxy_model->reset_lib_view();
 	}
 
 	return ret;
