@@ -62,6 +62,7 @@ public:
 	void launch_timer_status();
 	void set_status(int status);
 	void set_enable_cancel(bool cancel);
+	void set_extended_status(QString const& str);
 
 private:
 	template <class F>
@@ -129,7 +130,10 @@ private:
 	int _status;
 	QPushButton *_btnCancel;
 	QString _format_detail;
+	QString _extended_status;
 	QLabel* _detail_label;
+	QLabel* _extended_detail_label;
+	QMutex _ext_str_mutex;
 };
 
 }
