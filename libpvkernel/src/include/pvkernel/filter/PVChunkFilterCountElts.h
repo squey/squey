@@ -23,9 +23,11 @@ public:
 public:
 	PVCore::PVChunk* operator()(PVCore::PVChunk* chunk);
 	inline chunk_index n_elts_done() const { return _n_elts; }
+	inline chunk_index n_elts_invalid() const { return _n_elts_invalid; }
 
 protected:
 	mutable chunk_index _n_elts;
+	mutable chunk_index _n_elts_invalid;
 	chunk_index _done_when;
 	bool* _done_ptr;
 

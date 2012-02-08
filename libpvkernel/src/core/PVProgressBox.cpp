@@ -45,6 +45,9 @@ PVCore::PVProgressBox::PVProgressBox(QString msg, QWidget *parent, Qt::WindowFla
 		_detail_label = new QLabel();
 		layout->addWidget(_detail_label);
 	}
+	_extended_detail_label = new QLabel();
+	_extended_detail_label->setVisible(false);
+	layout->addWidget(_extended_detail_label);
 	
 	widgetCancel = new QWidget(this);
 	layoutCancel = new QHBoxLayout();
@@ -74,12 +77,25 @@ void PVCore::PVProgressBox::set_status(int status)
 	_status = status;
 }
 
+void PVCore::PVProgressBox::set_extended_status(QString const& str)
+{
+	_ext_str_mutex.lock();
+	_extended_status = str;
+	_ext_str_mutex.unlock();
+}
+
 void PVCore::PVProgressBox::update_status_Slot()
 {
 	progress_bar->setValue(_status);
 	if (!_format_detail.isEmpty()) {
 		_detail_label->setText(_format_detail.arg(_status).arg(progress_bar->maximum()));
 	}
+	_ext_str_mutex.lock();
+	if (!_extended_status.isEmpty()) {
+		_extended_detail_label->setVisible(true);
+		_extended_detail_label->setText(_extended_status);
+	}
+	_ext_str_mutex.unlock();
 }
 
 /******************************************************************************

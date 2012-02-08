@@ -81,6 +81,7 @@ public:
 	bool cancel();
 	bool started() const { return _job_started; }
 	chunk_index status() const;
+	chunk_index rejected_elements() const;
 	chunk_index nb_elts_max() const;
 	virtual void wait_end(); // wait the end of this job
 	tbb::tick_count::interval_t duration() const;
