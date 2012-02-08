@@ -63,18 +63,38 @@ void PVInspector::PVWidgetsHelpers::PVMappingModeWidget::populate_from_type(QStr
 			_combo->addItem(human_name, params[1]);
 		}
 	}
+	_cur_type = type;
 }
 
 void PVInspector::PVWidgetsHelpers::PVMappingModeWidget::populate_from_mapping(PVCol axis_id, Picviz::PVMapping& mapping)
 {
 	Picviz::PVMappingProperties& props = mapping.get_properties_for_col(axis_id);
 	_props = &props;
+	QString type = props.get_type();
+	QString mode = props.get_mode();
+	_filter_params[type][mode] = _props->get_args();
 	populate_from_type(props.get_type());
-	set_mode(props.get_mode());
+	set_mode(mode);
+}
 
-	if (_props->get_args().size() == 0 && _params_btn) {
-		_params_btn->setEnabled(false);
+void PVInspector::PVWidgetsHelpers::PVMappingModeWidget::set_filter_params_from_type_mode(QString const& type, QString const& mode)
+{
+	PVCore::PVArgumentList new_args;
+	if (_filter_params.contains(type)) {
+		new_args = _filter_params[type][mode];
 	}
+
+	if (new_args.size() == 0) {
+		// Get default argument
+		Picviz::PVMappingFilter::p_type lib_filter = LIB_CLASS(Picviz::PVMappingFilter)::get().get_class_by_name(type + "_" + mode);
+		new_args = lib_filter->get_default_args();
+	}
+
+	// Keep the argument that are the same from the previous args
+	PVCore::PVArgumentList_set_common_args_from(new_args, _cur_filter_params);
+
+	// And change them
+	_cur_filter_params = new_args;
 }
 
 QSize PVInspector::PVWidgetsHelpers::PVMappingModeWidget::sizeHint() const
@@ -102,5 +122,16 @@ void PVInspector::PVWidgetsHelpers::PVMappingModeWidget::change_params()
 		return;
 	}
 
+	_cur_filter_params = args;
+	_filter_params[_cur_type][get_mode()] = args;
 	_props->set_args(args);
+}
+
+bool PVInspector::PVWidgetsHelpers::PVMappingModeWidget::set_mode(QString const& mode)
+{
+	if (_params_btn) {
+		set_filter_params_from_type_mode(_cur_type, mode);
+		_params_btn->setEnabled(_cur_filter_params.size() > 0);
+	}
+	return _combo->select_userdata(mode);
 }

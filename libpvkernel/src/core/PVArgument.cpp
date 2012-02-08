@@ -201,6 +201,17 @@ void PVCore::dump_argument_list(PVArgumentList const& l)
 	}
 }
 
+void PVCore::PVArgumentList_set_common_args_from(PVCore::PVArgumentList& ret, PVCore::PVArgumentList const& ref)
+{
+	PVCore::PVArgumentList::iterator it;
+	for (it = ret.begin(); it != ret.end(); it++) {
+		QString const& key(it.key());
+		if (ref.contains(key)) {
+			it.value() = ref[key];
+		}
+	}
+}
+
 unsigned int qHash(PVCore::PVArgumentKey const& key)
 {
 	return qHash(key.key());

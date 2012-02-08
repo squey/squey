@@ -35,11 +35,12 @@ public:
 	virtual QSize sizeHint() const;
 
 public:
-	bool set_mode(QString const& mode) { return _combo->select_userdata(mode); }
+	bool set_mode(QString const& mode);
 	inline QString get_mode() const { return _combo->get_sel_userdata().toString(); }
 
 private:
 	void init(bool params_btn);
+	void set_filter_params_from_type_mode(QString const& type, QString const& mode);
 
 private slots:
 	void change_params();
@@ -48,6 +49,9 @@ private:
 	PVComboBox* _combo;
 	QPushButton* _params_btn;
 	Picviz::PVMappingProperties* _props;
+	QHash<QString, QHash<QString, PVCore::PVArgumentList> > _filter_params;
+	PVCore::PVArgumentList _cur_filter_params;
+	QString _cur_type;
 };
 
 }
