@@ -84,15 +84,4 @@ add_executable(bz ${SRC_FILES})
 target_link_libraries(bz ${COMMON_LIBS} ${PVKERNEL_LIBRARIES} ${PICVIZ_LIBRARIES})
 ####
 
-####
-# BZ reduce
-SET(SRC_FILES
-${COMMON_SRC_FILES}
-${BZ_SRC_FILES}
-main_bred.cpp
-)
-add_executable(red-bz ${SRC_FILES})
-target_link_libraries(red-bz ${COMMON_LIBS} ${PVKERNEL_LIBRARIES})
-####
-
 add_subdirectory(bench)

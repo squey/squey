@@ -15,8 +15,8 @@
 #define W_FRAME 2048
 #define H_FRAME 2048
 
-#define X_START 5400
-#define Y_START 5600
+#define X_START 0
+#define Y_START 0
 
 #define MAX_ERR_PRINT 40
 
@@ -118,7 +118,7 @@ int main(int argc, char** argv)
 	PVBZCompute bz;
 	//bz.set_plotted(plotted, ncols);
 	bz.set_trans_plotted(trans_plotted, ncols);
-	bz.set_zoom(16384, 16384);
+	bz.set_zoom(2048, 2048);
 	
 	std::cout << "Start BCode computation..." << std::endl;
 	std::vector<PVBCode, PVCore::PVAlignedAllocator<PVBCode, 16> > codes_ref, codes;

@@ -6,6 +6,7 @@
 #include <gl/simple_lines_float_view.h>
 #include <gl/simple_lines_int_view.h>
 
+#include <pvkernel/core/picviz_intrin.h>
 #include <picviz/PVPlotted.h>
 
 #include <tbb/tick_count.h>
@@ -13,11 +14,11 @@
 #include <QApplication>
 #include <QMainWindow>
 
-#define W_FRAME 512
-#define H_FRAME 512
+#define W_FRAME 1024
+#define H_FRAME 1024
 
-#define X_START 100
-#define Y_START 70
+#define X_START 0
+#define Y_START 0
 
 void extract_plotted(PVRow ncols, Picviz::PVPlotted::plotted_table_t const& plotted, std::vector<float>& ret, PVCol axis_a, PVCol axis_b)
 {
@@ -66,7 +67,8 @@ int main(int argc, char** argv)
 	// Reduction
 	BCodeCB bc_cb = allocate_BCodeCB();
 	std::cout << "Start BCode reduction..." << std::endl;
-	serial_bcodecb(&codes[0], ncodes, bc_cb);
+	//serial_bcodecb(&codes[0], ncodes, bc_cb);
+	//bcodecb_tile(&codes[0], ncodes, bc_cb);
 
 	//codes.clear();
 	//bcode_cb_to_bcodes(codes, bc_cb);
@@ -75,7 +77,7 @@ int main(int argc, char** argv)
 	std::vector<float> p_ext;
 	std::vector<int> bz_pts;
 	
-	/*
+	
 	{
 		QMainWindow *window = new QMainWindow();
 		window->setWindowTitle("bz - red code bz");
@@ -88,7 +90,7 @@ int main(int argc, char** argv)
 		window->setCentralWidget(v);
 		window->resize(v->sizeHint());
 		window->show();
-	}*/
+	}
 
 	{
 		QMainWindow *window = new QMainWindow();
@@ -105,6 +107,7 @@ int main(int argc, char** argv)
 	}
 	
 
+	/*
 	{
 		QMainWindow *window = new QMainWindow();
 		window->setWindowTitle("bz - code bz");
@@ -118,7 +121,7 @@ int main(int argc, char** argv)
 		window->setCentralWidget(v);
 		window->resize(v->sizeHint());
 		window->show();
-	}
+	}*/
 
 	return app.exec();
 }

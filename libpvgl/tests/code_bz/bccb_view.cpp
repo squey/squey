@@ -14,13 +14,12 @@ void BCCBView::paintGL()
 
 	glBegin(GL_LINES);
 	uint16_t lx,ly,rx,ry;
-	for (size_t i = 0; i < NB_INT_BCODECB; i++) {
+	for (uint32_t i = 0; i < NB_INT_BCODECB; i++) {
 		uint32_t tmp = _cb[i];
-		for (int b = 0; b < 32; b++) {
+		for (uint32_t b = 0; b < 32; b++) {
 			if ((tmp & (1<<b)) != 0) {
-				PVBCode code;
-				code.int_v = (i<<5) + b;
-				code.to_pts(_ortho_w, _ortho_h, lx, ly, rx, ry);
+				PVBCode code(cb_idx2bcode(i, b));
+				code.to_pts_new(_ortho_w, _ortho_h, lx, ly, rx, ry);
 				glVertex2i(lx, ly);
 				glVertex2i(rx, ry);
 			}

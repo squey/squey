@@ -4,5 +4,6 @@
 #include <stdlib.h>
 
 void init_random_bcodes(PVBCode* ret, size_t n);
+void init_constant_bcodes(PVBCode* ret, size_t n);
 
 #endif

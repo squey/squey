@@ -24,13 +24,11 @@ void free_BCodeCB(BCodeCB cb)
 
 void bcode_cb_to_bcodes(std::vector<PVBCode>& ret, BCodeCB cb)
 {
-	for (size_t i = 0; i < NB_INT_BCODECB; i++) {
+	for (uint32_t i = 0; i < NB_INT_BCODECB; i++) {
 		uint32_t tmp = cb[i];
-		for (int j = 0; j < 32; j++) {
+		for (uint32_t j = 0; j < 32; j++) {
 			if ((tmp & (1<<j)) != 0) {
-				PVBCode code;
-				code.int_v = (i<<5) + j;
-				ret.push_back(code);
+				ret.push_back(cb_idx2bcode(i, j));
 			}
 		}
 	}

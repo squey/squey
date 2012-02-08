@@ -27,7 +27,6 @@ typedef PVBCode DECLARE_ALIGN(16) * PVBCode_ap;
 #else
 #define assert_bcode_valid(b)\
 	do {\
-		/*assert(((b).int_v) & 0xfe000000 == 0);*/\
 		assert((b).s.__free == 0);\
 		assert((b).s.type <= 6);\
 	} while(0);
