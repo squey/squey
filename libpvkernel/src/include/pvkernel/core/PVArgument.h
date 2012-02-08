@@ -61,6 +61,8 @@ LibKernelDecl PVArgument QString_to_PVArgument(QString const& v);
 
 LibKernelDecl void dump_argument_list(PVArgumentList const& l);
 
+void PVArgumentList_set_common_args_from(PVCore::PVArgumentList& ret, PVCore::PVArgumentList const& ref);
+
 }
 
 
