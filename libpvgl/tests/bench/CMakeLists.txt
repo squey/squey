@@ -24,11 +24,13 @@ target_link_libraries(mem ${COMMON_LIBS} ${PVKERNEL_LIBRARIES})
 SET(SRC_FILES
 ${COMMON_SRC_FILES}
 ${BZ_SRC_FILES}
+${OCL_SRC_FILES}
+../ocl/bccb.cpp
 bred.cpp
 )
 #add_definitions(-DRED_STATS)
 add_executable(red ${SRC_FILES})
-target_link_libraries(red ${COMMON_LIBS} ${PVKERNEL_LIBRARIES})
+target_link_libraries(red ${COMMON_LIBS} ${PVKERNEL_LIBRARIES} ${OCL_LIBRARIES})
 ####
 
 ####

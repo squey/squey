@@ -5,6 +5,9 @@
 #include <code_bz/serial_bcodecb.h>
 #include <code_bz/init.h>
 
+#include <ocl/bccb.h>
+#include <CL/cl.h>
+
 #include <core-tbb/b_reduce.h>
 
 #include <iostream>
@@ -64,6 +67,7 @@ int main(int argc, char** argv)
 	serial_bcodecb(codes, ncodes, cb_ref);
 	BENCH_END(serial, "serial collision", ncodes, sizeof(PVBCode), NB_INT_BCODECB, sizeof(int));
 
+#if 0
 	QSet<uint32_t> set_reds;
 	set_reds.reserve(ncodes);
 	BENCH_START(set);
@@ -71,9 +75,14 @@ int main(int argc, char** argv)
 		set_reds.insert(codes[i].int_v);
 	}
 	COLLISION_BENCH_END(set, "set", cb_ref);
+#endif
 
+	ocl_bccb("../ocl/bccb_kernel.cl", codes, ncodes, cb);
+	CHECK(memcmp(cb, cb_ref, SIZE_BCODECB) == 0);
+
+#if 0
 	BENCH_START(tile);
-	//bcodecb_tile(codes, ncodes, cb, tiles_cb);
+	bcodecb_tile(codes, ncodes, cb, tiles_cb);
 	BENCH_END(tile, "tile collision", ncodes, sizeof(PVBCode), NB_INT_BCODECB, sizeof(int));
 
 	LAUNCH_BENCH(branch, "branch serial collision", bcodecb_branch);
@@ -122,6 +131,7 @@ int main(int argc, char** argv)
 		LAUNCH_BENCH(sse_branch, "sse-branch serial collision", bcodecb_sse_branch);
 		LAUNCH_BENCH(sse_branch2, "sse-branch2 serial collision", bcodecb_sse_branch2);
 	}
+#endif
 
 	return 0;
 }
