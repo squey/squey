@@ -186,6 +186,11 @@ chunk_index PVRush::PVControllerJob::status() const
 	return _f_nelts.n_elts_done();
 }
 
+chunk_index PVRush::PVControllerJob::rejected_elements() const
+{
+	return _f_nelts.n_elts_invalid();
+}
+
 chunk_index PVRush::PVControllerJob::nb_elts_max() const
 {
 	return _max_n_elts;

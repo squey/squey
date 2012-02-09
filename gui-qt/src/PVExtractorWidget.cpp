@@ -152,6 +152,7 @@ void PVInspector::PVExtractorWidget::update_status_ext(PVCore::PVProgressBox* pb
 {
 	while (job->running()) {
 		pbox->set_status(job->status());
+		pbox->set_extended_status(QString("Number of rejected elements: %1").arg(job->rejected_elements()));
 		std::this_thread::sleep_for(tbb::tick_count::interval_t(0.2));
 	}
 }
