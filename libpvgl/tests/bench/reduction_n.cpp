@@ -67,6 +67,39 @@ void red_d2(size_t n, size_t d, uint_ap in)
 	BENCH_END(bench, "ref-d2", n, sizeof(uint32_t), 2*SIZE_INTER_OUT, sizeof(uint32_t));
 }
 
+void red_l2_test(size_t n, size_t d, uint_ap in, uint_ap out)
+{
+	if (d % SIZE_INTER_OUT != 0) {
+		fprintf(stderr, "red_l2_test only working with d multiple of %d.\n", SIZE_INTER_OUT);
+	}
+	uint32_t v;
+	uint32_t* out_l2;
+	posix_memalign((void**) &out_l2, 16, sizeof(uint32_t)*SIZE_INTER_OUT);
+	const uint32_t mask = _and_mask_d;
+	BENCH_START(bench);
+	for (size_t i = 0; i < n; i++) {
+		v = in[i];
+		const uint32_t idx = (v>>5)&mask;
+		const uint32_t vor = v&31;
+		if (idx < SIZE_INTER_OUT) {
+			out_l2[idx] |= vor;
+		}
+	}
+	//memcpy(out, out_l2, SIZE_INTER_OUT);
+	if (d > SIZE_INTER_OUT) {
+		for (size_t i = 0; i < n; i++) {
+			v = in[i];
+			const uint32_t idx = (v>>5)&mask;
+			const uint32_t vor = v&31;
+			if (idx >= SIZE_INTER_OUT) {
+				out_l2[idx-SIZE_INTER_OUT] |= vor;
+			}
+		}
+		//memcpy(&out[SIZE_INTER_OUT], out_l2, SIZE_INTER_OUT);
+	}
+	BENCH_END(bench, "ref-d2", n, sizeof(uint32_t), 2*SIZE_INTER_OUT, sizeof(uint32_t));
+}
+
 void red_omp_d2(size_t n, size_t d, uint_ap in)
 {
 	uint32_t v;
@@ -180,6 +213,8 @@ int main(int argc, char** argv)
 	BENCH_START(serial_ref);
 	red_ref(n, d, in, out);
 	BENCH_END(serial_ref, "ref", n, sizeof(uint32_t), d, sizeof(uint32_t));
+
+	red_l2_test(n, d, in, out);
 #if 0
 	red_d2(n, d, in);
 
