@@ -26,6 +26,7 @@ ${COMMON_SRC_FILES}
 ${BZ_SRC_FILES}
 ${OCL_SRC_FILES}
 ../ocl/bccb.cpp
+../ocl/bccb2.cpp
 bred.cpp
 )
 #add_definitions(-DRED_STATS)
@@ -41,5 +42,15 @@ count_bits.cpp
 )
 add_executable(bits ${SRC_FILES})
 target_link_libraries(bits ${COMMON_LIBS} ${PVKERNEL_LIBRARIES})
+####
+
+####
+# Reduction n
+SET(SRC_FILES
+${COMMON_SRC_FILES}
+reduction_n.cpp
+)
+add_executable(nred ${SRC_FILES})
+target_link_libraries(nred ${COMMON_LIBS} ${PVKERNEL_LIBRARIES})
 ####
 

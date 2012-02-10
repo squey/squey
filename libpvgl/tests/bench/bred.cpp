@@ -28,6 +28,7 @@
 	CHECK(memcmp(cb, cb_ref, SIZE_BCODECB) == 0);
 
 #define LAUNCH_BENCH(name, desc, f)\
+	memset(cb, 0, SIZE_BCODECB);\
 	BENCH_START(name);\
 	f(codes, ncodes, cb);\
 	COLLISION_BENCH_END(name, desc, cb);
@@ -66,6 +67,10 @@ int main(int argc, char** argv)
 	BENCH_START(serial);
 	serial_bcodecb(codes, ncodes, cb_ref);
 	BENCH_END(serial, "serial collision", ncodes, sizeof(PVBCode), NB_INT_BCODECB, sizeof(int));
+	LAUNCH_BENCH(stream, "stream collision", bcodecb_stream);
+	LAUNCH_BENCH(omp_atomic, "omp-atomic", omp_bcodecb_atomic);
+	LAUNCH_BENCH(sse_branch_omp, "omp branch-sse", omp_bcodecb_sse_branch);
+	//LAUNCH_BENCH(omp_atomic2, "omp-atomic2", omp_bcodecb_atomic2);
 
 #if 0
 	QSet<uint32_t> set_reds;
@@ -75,12 +80,10 @@ int main(int argc, char** argv)
 		set_reds.insert(codes[i].int_v);
 	}
 	COLLISION_BENCH_END(set, "set", cb_ref);
-#endif
 
-	ocl_bccb("../ocl/bccb_kernel.cl", codes, ncodes, cb);
+	ocl_bccb2("../ocl/bccb2.cl", codes, ncodes, cb);
 	CHECK(memcmp(cb, cb_ref, SIZE_BCODECB) == 0);
 
-#if 0
 	BENCH_START(tile);
 	bcodecb_tile(codes, ncodes, cb, tiles_cb);
 	BENCH_END(tile, "tile collision", ncodes, sizeof(PVBCode), NB_INT_BCODECB, sizeof(int));

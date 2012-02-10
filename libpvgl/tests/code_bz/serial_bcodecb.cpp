@@ -5,6 +5,8 @@
 #include <tbb/parallel_sort.h>
 #include <pvkernel/core/picviz_intrin.h>
 
+#include <atomic_ops.h>
+
 #include <omp.h>
 #ifdef RED_STATS
 #include <map>
@@ -90,7 +92,21 @@ void omp_bcodecb_atomic(PVBCode* codes, size_t n, BCodeCB cb)
 		const uint32_t nbit = bcode2cb_bitn(bit);
 
 #pragma omp atomic
-		cb[idx] |= nbit;
+		cb[idx] |= 1<<nbit;
+	}
+}
+
+void omp_bcodecb_atomic2(PVBCode* codes, size_t n, BCodeCB cb)
+{
+#pragma omp parallel for
+	for (size_t i = 0; i < n; i++) {
+		const PVBCode bit = codes[i];
+		const uint32_t idx = bcode2cb_idx(bit);
+		const uint32_t nbit = bcode2cb_bitn(bit);
+		_mm_prefetch(&cb[idx], _MM_HINT_NTA);
+
+#pragma omp atomic
+		cb[idx] |= 1<<nbit;
 	}
 }
 
@@ -118,10 +134,10 @@ void bcodecb_stream(PVBCode* codes, size_t n, BCodeCB cb)
 {
 	for (size_t i = 0; i < n; i++) {
 		const PVBCode bit = codes[i];
-		uint32_t* tmp = &cb[bcode2cb_idx(bit)];
-		const uint32_t v = *tmp | (1<<(bcode2cb_bitn(bit)));
-		_mm_stream_si32((int*) tmp, v);
-		//B_SET(cb[(bit.int_v)>>5], ((bit.int_v)&31));
+		const uint32_t idx = bcode2cb_idx(bit)>>30;
+		const unsigned int v = cb[idx];
+		const uint32_t bitn = bcode2cb_bitn(bit);
+		cb[idx] |= 1<<(bitn);
 	}
 }
 
