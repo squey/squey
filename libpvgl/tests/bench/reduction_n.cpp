@@ -61,7 +61,6 @@ void red_d2(size_t n, size_t d, uint_ap in)
 			outs[0][idx] |= vor;
 		}
 		else {
-			printf("%u\n", idx-SIZE_INTER_OUT);
 			outs[1][idx-SIZE_INTER_OUT] |= vor;
 		}
 	}
@@ -181,11 +180,12 @@ int main(int argc, char** argv)
 	BENCH_START(serial_ref);
 	red_ref(n, d, in, out);
 	BENCH_END(serial_ref, "ref", n, sizeof(uint32_t), d, sizeof(uint32_t));
-
+#if 0
 	red_d2(n, d, in);
 
 	red_omp_d2(n, d, in);
 	red_omp_d2(n, d, in);
+#endif
 
 
 	return 0;
