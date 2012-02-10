@@ -214,7 +214,7 @@ int main(int argc, char** argv)
 	red_ref(n, d, in, out);
 	BENCH_END(serial_ref, "ref", n, sizeof(uint32_t), d, sizeof(uint32_t));
 
-	red_l2_test(n, d, in, out);
+	//red_l2_test(n, d, in, out);
 #if 0
 	red_d2(n, d, in);
 
