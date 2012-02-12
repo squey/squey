@@ -54,3 +54,13 @@ add_executable(nred ${SRC_FILES})
 target_link_libraries(nred ${COMMON_LIBS} ${PVKERNEL_LIBRARIES})
 ####
 
+####
+# Reduction n64
+SET(SRC_FILES
+${COMMON_SRC_FILES}
+reduction_n64.cpp
+)
+add_executable(nred64 ${SRC_FILES})
+target_link_libraries(nred64 ${COMMON_LIBS} ${PVKERNEL_LIBRARIES})
+####
+

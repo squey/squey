@@ -14,6 +14,8 @@
 //
 // Let's do it...
 
+#define _GNU_SOURCE
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <memory.h>
@@ -27,8 +29,9 @@
 
 #include <time.h>
 #include <math.h>
+#include <sched.h>
 
-#define SIZE_INTER_OUT (16*1024)
+#define SIZE_INTER_OUT (40*1024)
 typedef uint32_t* DECLARE_ALIGN(16) uint_ap;
 
 uint32_t _and_mask_d = 0;
@@ -110,10 +113,14 @@ void red_omp_d2(size_t n, size_t d, uint_ap in)
 	memset(outs[0], 0, SIZE_INTER_OUT);
 	memset(outs[1], 0, SIZE_INTER_OUT);
 	BENCH_START(bench);
-#pragma omp parallel sections
+	cpu_set_t cset;
+	CPU_ZERO(&cset);
+#pragma omp parallel sections firstprivate(cset)
 	{
 #pragma omp section
 		{
+			CPU_SET(1, &cset);
+			pthread_setaffinity_np(pthread_self(), sizeof(cpu_set_t), &cset);
 			uint_ap out = outs[0];
 			for (size_t i = 0; i < n; i++) {
 				v = in[i];
@@ -125,6 +132,8 @@ void red_omp_d2(size_t n, size_t d, uint_ap in)
 		}
 #pragma omp section
 		{
+			CPU_SET(2, &cset);
+			pthread_setaffinity_np(pthread_self(), sizeof(cpu_set_t), &cset);
 			uint_ap out = outs[1];
 			for (size_t i = 0; i < n; i++) {
 				v = in[i];
@@ -214,7 +223,7 @@ int main(int argc, char** argv)
 	red_ref(n, d, in, out);
 	BENCH_END(serial_ref, "ref", n, sizeof(uint32_t), d, sizeof(uint32_t));
 
-	//red_l2_test(n, d, in, out);
+	//red_omp_d2(n, d, in);
 #if 0
 	red_d2(n, d, in);
 
