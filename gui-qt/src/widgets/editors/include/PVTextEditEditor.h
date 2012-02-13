@@ -26,11 +26,8 @@ public:
 	PVCore::PVTextEditType get_text() const;
 	void set_text(PVCore::PVTextEditType const& text);
 
-protected:
-	virtual bool eventFilter(QObject *object, QEvent *event);
-
-protected slots:
-	void slot_import_file();
+/* protected: */
+/* 	virtual bool eventFilter(QObject *object, QEvent *event); */
 
 protected:
 	QTextEdit* _text_edit;

@@ -16,6 +16,7 @@ layer_filter_multiple_search
 layer_filter_search
 layer_filter_selection_search
 layer_filter_create_layers
+layer_filter_search_plot_onetomany
 )
 
 set(FILTERS_DIST_FILES
@@ -62,6 +63,9 @@ if(PYTHONLIBS_FOUND)
 	layer_filter_snort_for_logs
 	)
 endif(PYTHONLIBS_FOUND)
+
+add_library(layer_filter_search_plot_onetomany SHARED search-plot-onetomany/PVLayerFilterSearchPlotOneToMany.cpp search-plot-onetomany/register.cpp)
+target_link_libraries(layer_filter_search_plot_onetomany ${LINK_LIBRARIES})
 
 INSTALL(TARGETS ${FILTERS_DIST_LIST} LIBRARY DESTINATION layer-filters
                                      RUNTIME DESTINATION layer-filters)

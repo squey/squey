@@ -100,6 +100,7 @@ widgets/editors/include/PVLayerEnumEditor.h
 widgets/editors/include/PVPlainTextEditor.h
 widgets/editors/include/PVRegexpEditor.h
 widgets/editors/include/PVSpinBoxEditor.h
+#widgets/editors/include/PVTextEditEditor.h
 widgets/editors/include/PVTimeFormatEditor.h
 
 widgets/helpers/include/PVAxisTypeWidget.h
@@ -198,6 +199,7 @@ widgets/editors/PVPlainTextEditor.cpp
 widgets/editors/PVRegexpEditor.cpp
 widgets/editors/PVSpinBoxEditor.cpp
 widgets/editors/PVTimeFormatEditor.cpp
+#widgets/editors/PVTextEditEditor.cpp
 
 widgets/format-builder/PVAxisTagHelp.cpp
 widgets/format-builder/PVFormatBuilderWidget.cpp
