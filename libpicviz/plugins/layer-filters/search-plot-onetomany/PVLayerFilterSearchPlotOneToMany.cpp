@@ -10,6 +10,8 @@
 #include <pvkernel/core/PVTextEditType.h>
 #include <picviz/PVView.h>
 
+#include <QList>
+#include <QMap>
 #include <QSpinBox>
 
 
@@ -50,11 +52,18 @@ void Picviz::PVLayerFilterSearchPlotOneToMany::operator()(PVLayer& in, PVLayer &
 	int axis_from_id = _args["axis_from"].value<PVCore::PVAxisIndexType>().get_original_index();
 	int axis_to_id = _args["axis_to"].value<PVCore::PVAxisIndexType>().get_original_index();
 	QString number = _args["number"].toString();
+	int greater_counter = number.toInt();
 
 	PVRow nb_lines = _view->get_qtnraw_parent().get_nrows();
 
-	// PVRush::PVNraw::nraw_table const& nraw = _view->get_qtnraw_parent();
-	
+	const PVPlotted	*plotted = _view->get_plotted_parent();
+
+	QMap <float, QList<float> > plotted_groups;
+
+
+	out.get_selection().select_none();
+
+
 	for (PVRow r = 0; r < nb_lines; r++) {
 		if (should_cancel()) {
 			if (&in != &out) {
@@ -63,11 +72,24 @@ void Picviz::PVLayerFilterSearchPlotOneToMany::operator()(PVLayer& in, PVLayer &
 			return;
 		}
 
-	// 	if (_view->get_line_state_in_pre_filter_layer(r)) {
-	// 		PVRush::PVNraw::const_nraw_table_line nraw_r = nraw.get_row(r);
-	// 		bool sel = !((re.indexIn(nraw_r[axis_id].get_qstr()) != -1) ^ include);
-	// 		out.get_selection().set_line(r, sel);
-	// 	}
+		// First round: We group
+		if (_view->get_line_state_in_pre_filter_layer(r)) {
+			float value_from = plotted->get_value((PVRow)axis_from_id, r);
+			float value_to = plotted->get_value((PVRow)axis_to_id, r);
+
+			plotted_groups[value_from] << value_to;
+		}
+
+		// Second round: We unroll the group to select
+		if (_view->get_line_state_in_pre_filter_layer(r)) {
+			float value_from = plotted->get_value((PVRow)axis_from_id, r);
+			QList<float> to_values = plotted_groups.value(value_from);
+			if (to_values.count() >= greater_counter) {
+				out.get_selection().set_line(r, true);
+			}
+		}
+		
+
 	}
 }
 
