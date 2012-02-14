@@ -67,11 +67,12 @@ int main(int argc, char** argv)
 	BENCH_START(serial);
 	serial_bcodecb(codes, ncodes, cb_ref);
 	BENCH_END(serial, "serial collision", ncodes, sizeof(PVBCode), NB_INT_BCODECB, sizeof(int));
+#if 0
 	LAUNCH_BENCH(stream, "stream collision", bcodecb_stream);
 	LAUNCH_BENCH(omp_atomic, "omp-atomic", omp_bcodecb_atomic);
 	LAUNCH_BENCH(sse_branch_omp, "omp branch-sse", omp_bcodecb_sse_branch);
 	//LAUNCH_BENCH(omp_atomic2, "omp-atomic2", omp_bcodecb_atomic2);
-
+#endif
 #if 0
 	QSet<uint32_t> set_reds;
 	set_reds.reserve(ncodes);

@@ -42,7 +42,7 @@ void red_ref(size_t n, size_t d, uint_ap in, uint_ap out)
 	const uint32_t mask = _and_mask_d;
 	for (size_t i = 0; i < n; i++) {
 		v = in[i];
-		out[(v>>5)&mask] |= v&31;
+		out[(v>>5)] |= v&31;
 	}
 }
 
@@ -58,7 +58,7 @@ void red_d2(size_t n, size_t d, uint_ap in)
 	BENCH_START(bench);
 	for (size_t i = 0; i < n; i++) {
 		v = in[i];
-		const uint32_t idx = (v>>5)&mask;
+		const uint32_t idx = (v>>5);
 		const uint32_t vor = v&31;
 		if (idx < SIZE_INTER_OUT) {
 			outs[0][idx] |= vor;
@@ -82,7 +82,7 @@ void red_l2_test(size_t n, size_t d, uint_ap in, uint_ap out)
 	BENCH_START(bench);
 	for (size_t i = 0; i < n; i++) {
 		v = in[i];
-		const uint32_t idx = (v>>5)&mask;
+		const uint32_t idx = (v>>5);
 		const uint32_t vor = v&31;
 		if (idx < SIZE_INTER_OUT) {
 			out_l2[idx] |= vor;
@@ -92,7 +92,7 @@ void red_l2_test(size_t n, size_t d, uint_ap in, uint_ap out)
 	if (d > SIZE_INTER_OUT) {
 		for (size_t i = 0; i < n; i++) {
 			v = in[i];
-			const uint32_t idx = (v>>5)&mask;
+			const uint32_t idx = (v>>5);
 			const uint32_t vor = v&31;
 			if (idx >= SIZE_INTER_OUT) {
 				out_l2[idx-SIZE_INTER_OUT] |= vor;
@@ -124,7 +124,7 @@ void red_omp_d2(size_t n, size_t d, uint_ap in)
 			uint_ap out = outs[0];
 			for (size_t i = 0; i < n; i++) {
 				v = in[i];
-				const uint32_t idx = (v>>5)&mask;
+				const uint32_t idx = (v>>5);
 				if (idx < SIZE_INTER_OUT) {
 					out[idx] |= v&31;
 				}
@@ -137,7 +137,7 @@ void red_omp_d2(size_t n, size_t d, uint_ap in)
 			uint_ap out = outs[1];
 			for (size_t i = 0; i < n; i++) {
 				v = in[i];
-				const uint32_t idx = (v>>5)&mask;
+				const uint32_t idx = (v>>5);
 				if (idx >= SIZE_INTER_OUT) {
 					out[idx-SIZE_INTER_OUT] |= v&31;
 				}
@@ -180,7 +180,7 @@ void red_ref0_sse(size_t n, uint_ap in, uint_ap out)
 void init_rand_int(size_t n, uint_ap buf)
 {
 	for (size_t i = 0; i < n; i++) {
-		buf[i] = (rand()<<1)+1;
+		buf[i] = ((rand()<<1)+1)&(_and_mask_d<<5) | (rand() & 31);
 	}
 }
 

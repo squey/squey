@@ -82,8 +82,8 @@ void init_rand_plotted(Picviz::PVPlotted::plotted_table_t& p, PVRow nrows)
 
 int main(int argc, char** argv)
 {
-	/*
-	if (argc < 2) {
+	
+	/*if (argc < 2) {
 		std::cerr << "Usage: " << argv[0] << " plotted_file" << std::endl;
 		return 1;
 	}*/
@@ -112,7 +112,7 @@ int main(int argc, char** argv)
 		std::cerr << "Unable to load plotted !" << std::endl;
 		return 1;
 	}*/
-	init_rand_plotted(trans_plotted, 80000000);
+	init_rand_plotted(trans_plotted, 400000);
 	std::cout << "Random plotted created." << std::endl;
 
 	PVBZCompute bz;

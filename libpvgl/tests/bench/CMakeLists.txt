@@ -64,3 +64,33 @@ add_executable(nred64 ${SRC_FILES})
 target_link_libraries(nred64 ${COMMON_LIBS} ${PVKERNEL_LIBRARIES})
 ####
 
+####
+# Reduction n8
+SET(SRC_FILES
+${COMMON_SRC_FILES}
+reduction_n8.cpp
+)
+add_executable(nred8 ${SRC_FILES})
+target_link_libraries(nred8 ${COMMON_LIBS} ${PVKERNEL_LIBRARIES})
+####
+
+####
+# Buckets
+SET(SRC_FILES
+${COMMON_SRC_FILES}
+buckets.cpp
+)
+add_executable(buckets ${SRC_FILES})
+target_link_libraries(buckets ${COMMON_LIBS} ${PVKERNEL_LIBRARIES})
+####
+
+####
+# Red-buckets
+SET(SRC_FILES
+${COMMON_SRC_FILES}
+red_buckets.cpp
+)
+add_executable(nred64_buckets ${SRC_FILES})
+target_link_libraries(nred64_buckets ${COMMON_LIBS} ${PVKERNEL_LIBRARIES})
+####
+
