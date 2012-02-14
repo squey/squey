@@ -150,12 +150,6 @@ void init_rand_int(size_t n, uint_ap buf)
 {
 	for (size_t i = 0; i < n; i++) {
 		uint32_t v = (rand())&_and_mask_d;
-		if (v >> 25 > 0) {
-			printf("error init !");
-		}
-		if (v >> 15 >= 1024) {
-			printf("error init2 !");
-		}
 		buf[i] = v;
 	}
 }
