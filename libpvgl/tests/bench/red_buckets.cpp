@@ -54,7 +54,7 @@ template <typename bucket_v_t>
 void red_ref_bucket_stream(size_t n, bucket_v_t* in, uint64_ap out, uint64_ap out_cache, const size_t sout_cache)
 {
 	bucket_v_t v;
-	//memset(out_cache, 0, sout_cache*sizeof(uint64_t));
+	memset(out_cache, 0, sout_cache*sizeof(uint64_t));
 	for (size_t i = 0; i < n; i++) {
 		v = in[i];
 		out_cache[(v>>6)] |= 1LL<<(v&63);
@@ -69,9 +69,9 @@ void red_ref_bucket_stream(size_t n, bucket_v_t* in, uint64_ap out, uint64_ap ou
 		_mm_store_si128((__m128i*) &out[i], sse_out);
 	}*/
 	//memcpy(out, out_cache, sout_cache*sizeof(uint64_t));
-	/*for (size_t i = 0; i < sout_cache; i++) {
+	for (size_t i = 0; i < sout_cache; i++) {
 		out[i] |= out_cache[i];
-	}*/
+	}
 }
 
 
@@ -356,19 +356,20 @@ int main(int argc, char** argv)
 	posix_memalign((void**) &buckets, 16, sbuckets);
 	memset(buckets, 0, sbuckets);
 	
-	/*BENCH_START(red_ref);
+	BENCH_START(red_ref);
 	red_ref(n, d, in, out_ref);
-	BENCH_END(red_ref, "red-ref", n, sizeof(uint32_t), d, sizeof(uint64_t));*/
+	BENCH_END(red_ref, "red-ref", n, sizeof(uint32_t), d, sizeof(uint64_t));
 
 	memset(out, 0, d*sizeof(uint64_t));
 	if (nbuckets_ln2 >= 9) {
 		//red_buckets_nocommit<uint16_t, uint16_t, uint16_t>(n, nbits_d, in, out, (uint16_t*) buckets, nbuckets_ln2, bucket_size_ln2);
-		red_buckets_stream<uint16_t, uint16_t, uint16_t>(n, nbits_d, in, out, (uint16_t*) buckets, nbuckets_ln2, bucket_size_ln2);
+		red_buckets_stream<uint32_t, uint16_t, uint16_t>(n, nbits_d, in, out, (uint16_t*) buckets, nbuckets_ln2, bucket_size_ln2);
 	}
 	else {
 		//red_buckets_nocommit<uint16_t, uint32_t, uint16_t>(n, nbits_d, in, out, buckets, nbuckets_ln2, bucket_size_ln2);
-		red_buckets_stream<uint16_t, uint32_t, uint16_t>(n, nbits_d, in, out, buckets, nbuckets_ln2, bucket_size_ln2);
+		red_buckets_stream<uint32_t, uint32_t, uint16_t>(n, nbits_d, in, out, buckets, nbuckets_ln2, bucket_size_ln2);
 	}
+	CHECK(memcmp(out_ref, out, d*sizeof(uint64_t)) == 0);
 #if 0
 	//if (bucket_size_ln2 < 16)
 	//	red_buckets<uint16_t, uint32_t>(n, nbits_d, in, out, buckets, nbuckets_ln2, bucket_size_ln2);
