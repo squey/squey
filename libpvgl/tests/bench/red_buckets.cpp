@@ -18,6 +18,7 @@
 
 typedef uint32_t DECLARE_ALIGN(16) * uint_ap;
 typedef uint64_t DECLARE_ALIGN(16) * uint64_ap;
+typedef uint8_t DECLARE_ALIGN(16) * uint8_ap;
 
 uint32_t _and_mask_d = 0;
 
@@ -27,6 +28,15 @@ void red_ref(size_t n, size_t d, uint_ap in, uint64_ap out)
 	for (size_t i = 0; i < n; i++) {
 		v = in[i];
 		out[(v>>6)] |= 1LL<<(v&63);
+	}
+}
+
+void red_ref_8(size_t n, size_t d, uint_ap in, uint8_ap out)
+{
+	uint32_t v;
+	for (size_t i = 0; i < n; i++) {
+		v = in[i];
+		out[v] = 1;
 	}
 }
 
@@ -66,7 +76,7 @@ void red_ref_bucket_stream(size_t n, bucket_v_t* in, uint64_ap out, uint64_ap ou
 
 
 template <typename bucket_pos_t, typename bucket_v_t, typename idx_bucket_t>
-void red_buckets(const size_t n, const size_t nbits_d, uint_ap in, uint64_ap out, bucket_v_t* buckets, const size_t nbuckets_ln2, const uint8_t bucket_size_ln2)
+void red_buckets_nocommit(const size_t n, const size_t nbits_d, uint_ap in, uint64_ap out, bucket_v_t* buckets, const size_t nbuckets_ln2, const uint8_t bucket_size_ln2)
 {
 	const uint8_t nbits_shift = (nbits_d+6)-nbuckets_ln2;
 	if (nbits_shift > sizeof(bucket_v_t)*8) {
@@ -86,8 +96,8 @@ void red_buckets(const size_t n, const size_t nbits_d, uint_ap in, uint64_ap out
 		bucket_pos_t* ppos_bucket = &buckets_pos[idx_bucket];
 		bucket_pos_t pos_bucket = *ppos_bucket;
 		bucket_v_t* b = &buckets[idx_bucket<<bucket_size_ln2];
-		b[pos_bucket] = (bucket_v_t) v;
-		//b[pos_bucket] = v&mask_v;
+		//b[pos_bucket] = (bucket_v_t) v;
+		b[pos_bucket] = v&mask_v;
 		if (pos_bucket == bucket_size-1) {
 			red_ref_bucket(bucket_size, b, out);
 			pos_bucket = 0;
@@ -103,7 +113,7 @@ void red_buckets(const size_t n, const size_t nbits_d, uint_ap in, uint64_ap out
 			red_ref_bucket(pos_bucket, &buckets[i<<bucket_size_ln2], out);
 		}
 	}
-	BENCH_END(red_buckets, "red-buckets-nocommit", n, sizeof(uint32_t), 0, sizeof(uint64_t));
+	BENCH_END(red_buckets, "red-buckets", n, sizeof(uint32_t), 0, sizeof(uint64_t));
 }
 
 template <typename bucket_pos_t, typename bucket_v_t, typename idx_bucket_t>
@@ -285,7 +295,7 @@ void red_buckets_stream(const size_t n, const size_t nbits_d, uint_ap in, uint64
 		bucket_pos_t* ppos_bucket = &buckets_pos[idx_bucket];
 		bucket_pos_t pos_bucket = *ppos_bucket;
 		bucket_v_t* b = &buckets[idx_bucket<<bucket_size_ln2];
-		b[pos_bucket] = ((bucket_v_t) v)&mask_v;
+		b[pos_bucket] = v&mask_v;
 		if (pos_bucket == bucket_size-1) {
 			red_ref_bucket_stream(bucket_size, b, &out[idx_bucket<<(nbits_d-nbuckets_ln2)], out_cache, sout_cache);
 			pos_bucket = 0;
@@ -327,7 +337,7 @@ int main(int argc, char** argv)
 	uint16_t nbuckets = 1<<(nbuckets_ln2);
 
 	uint32_t nbits_d = (uint32_t) (log2f((double)d));
-	printf("nbits_d: %d\n", nbits_d);
+	//printf("nbits_d: %d\n", nbits_d);
 	_and_mask_d = ((1<<(nbits_d+6)) - 1);
 
 	srand(time(NULL));
@@ -342,14 +352,24 @@ int main(int argc, char** argv)
 
 	uint32_t* buckets;
 	size_t sbuckets = (nbuckets)*(bucket_size)*sizeof(uint32_t);
-	printf("Buckets size: %f KB\n", ((double)sbuckets)/1024.0);
+	//printf("Buckets size: %f KB\n", ((double)sbuckets)/1024.0);
 	posix_memalign((void**) &buckets, 16, sbuckets);
 	memset(buckets, 0, sbuckets);
 	
-	BENCH_START(red_ref);
+	/*BENCH_START(red_ref);
 	red_ref(n, d, in, out_ref);
-	BENCH_END(red_ref, "red-ref", n, sizeof(uint32_t), d, sizeof(uint64_t));
+	BENCH_END(red_ref, "red-ref", n, sizeof(uint32_t), d, sizeof(uint64_t));*/
 
+	memset(out, 0, d*sizeof(uint64_t));
+	if (nbuckets_ln2 >= 9) {
+		//red_buckets_nocommit<uint16_t, uint16_t, uint16_t>(n, nbits_d, in, out, (uint16_t*) buckets, nbuckets_ln2, bucket_size_ln2);
+		red_buckets_stream<uint16_t, uint16_t, uint16_t>(n, nbits_d, in, out, (uint16_t*) buckets, nbuckets_ln2, bucket_size_ln2);
+	}
+	else {
+		//red_buckets_nocommit<uint16_t, uint32_t, uint16_t>(n, nbits_d, in, out, buckets, nbuckets_ln2, bucket_size_ln2);
+		red_buckets_stream<uint16_t, uint32_t, uint16_t>(n, nbits_d, in, out, buckets, nbuckets_ln2, bucket_size_ln2);
+	}
+#if 0
 	//if (bucket_size_ln2 < 16)
 	//	red_buckets<uint16_t, uint32_t>(n, nbits_d, in, out, buckets, nbuckets_ln2, bucket_size_ln2);
 	memset(out, 0, d*sizeof(uint64_t));
@@ -361,10 +381,13 @@ int main(int argc, char** argv)
 	memset(out, 0, d*sizeof(uint64_t));
 	red_buckets_ordered_noset<uint32_t, uint32_t, uint16_t>(n, nbits_d, in, out, buckets, nbuckets_ln2, bucket_size_ln2);
 	CHECK(memcmp(out_ref, out, d*sizeof(uint64_t)) == 0);
+	memset(out, 0, d*sizeof(uint64_t));
+	red_buckets_stream<uint32_t, uint32_t, uint16_t>(n, nbits_d, in, out, buckets, nbuckets_ln2, bucket_size_ln2);
+	CHECK(memcmp(out_ref, out, d*sizeof(uint64_t)) == 0);
 
 	if (nbuckets_ln2 >= 9) {
 		printf("Using 16-bit for the bucket buffers...\n");
-		memset(out, 0, d*sizeof(uint64_t));
+		/*memset(out, 0, d*sizeof(uint64_t));
 		red_buckets<uint32_t, uint16_t, uint16_t>(n, nbits_d, in, out, (uint16_t*) buckets, nbuckets_ln2, bucket_size_ln2);
 		CHECK(memcmp(out_ref, out, d*sizeof(uint64_t)) == 0);
 		memset(out, 0, d*sizeof(uint64_t));
@@ -372,16 +395,24 @@ int main(int argc, char** argv)
 		CHECK(memcmp(out_ref, out, d*sizeof(uint64_t)) == 0);
 		memset(out, 0, d*sizeof(uint64_t));
 		red_buckets_ordered_noset<uint32_t, uint16_t, uint16_t>(n, nbits_d, in, out, (uint16_t*) buckets, nbuckets_ln2, bucket_size_ln2);
-		CHECK(memcmp(out_ref, out, d*sizeof(uint64_t)) == 0);
+		CHECK(memcmp(out_ref, out, d*sizeof(uint64_t)) == 0);*/
 		memset(out, 0, d*sizeof(uint64_t));
 		red_buckets_stream<uint32_t, uint16_t, uint16_t>(n, nbits_d, in, out, (uint16_t*) buckets, nbuckets_ln2, bucket_size_ln2);
 		CHECK(memcmp(out_ref, out, d*sizeof(uint64_t)) == 0);
 	}
 
+	uint8_ap out8;
+	posix_memalign((void**) &out8, 16, sizeof(uint8_t)*(d*8*8));
+	BENCH_START(red_ref8);
+	red_ref_8(n, d, in, out8);
+	BENCH_END(red_ref8, "red-ref8", n, sizeof(uint32_t), d*8*8, sizeof(uint8_t));
+	
+
 	tbb::parallel_sort(in, in+n);
 	BENCH_START(red_sort);
 	red_ref(n, d, in, out_ref);
 	BENCH_END(red_sort, "red-after-sort", n, sizeof(uint32_t), d, sizeof(uint64_t));
+#endif
 
 	return 0;
 }
