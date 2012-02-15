@@ -130,6 +130,19 @@ void omp_bcodecb(PVBCode* codes, size_t n, BCodeCB cb, BCodeCB* cb_threads)
 	}
 }
 
+void omp_bcodecb_nomerge(PVBCode* codes, size_t n, BCodeCB* cb_threads, int nth)
+{
+#pragma omp parallel firstprivate(n) firstprivate(cb_threads) num_threads(nth)
+	{
+		BCodeCB cb_thread = cb_threads[omp_get_thread_num()];
+#pragma omp for
+		for (size_t i = 0; i < n; i++) {
+			const PVBCode bit = codes[i];
+			B_SET(cb_thread[bcode2cb_idx(bit)], bcode2cb_bitn(bit));
+		}
+	}
+}
+
 void bcodecb_stream(PVBCode* codes, size_t n, BCodeCB cb)
 {
 	for (size_t i = 0; i < n; i++) {

@@ -20,5 +20,6 @@ void bcodecb_sse_branch2(PVBCode* pts, size_t n, BCodeCB cb);
 void bcodecb_sort_unique(PVBCode* pts, size_t n, BCodeCB cb);
 void bcodecb_parallel_sort_unique(PVBCode* pts, size_t n, BCodeCB cb);
 void bcodecb_sse_sort_branch(PVBCode* codes, size_t n, BCodeCB cb);
+void omp_bcodecb_nomerge(PVBCode* codes, size_t n, BCodeCB* cb_threads, int nth);
 
 #endif

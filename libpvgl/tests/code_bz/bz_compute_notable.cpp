@@ -398,7 +398,7 @@ int PVBZCompute::compute_b_trans_sse4_notable(PVBCode_ap codes, PVCol axis_a, PV
 	return idx_code;
 }
 
-int PVBZCompute::compute_b_trans_sse4_notable_omp(PVBCode_ap* pcodes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1)
+int PVBZCompute::compute_b_trans_sse4_notable_omp(PVBCode_ap* pcodes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1, int nthreads)
 {
 	// It is assumed that codes is a pointer to a list of buffers of size
 	// nrows/nthreads.
@@ -428,7 +428,7 @@ int PVBZCompute::compute_b_trans_sse4_notable_omp(PVBCode_ap* pcodes, PVCol axis
 	__m128 sse_zoomy = _mm_set1_ps(_zoom_y);
 
 	int idx_code = 0;
-#pragma omp parallel reduction(+:idx_code) firstprivate(sse_x0, sse_x0comp, sse_x1, sse_x1comp, sse_y0, sse_y1, sse_Y0, sse_Xnorm, sse_zoomx, sse_zoomy) num_threads(12)
+#pragma omp parallel reduction(+:idx_code) firstprivate(sse_x0, sse_x0comp, sse_x1, sse_x1comp, sse_y0, sse_y1, sse_Y0, sse_Xnorm, sse_zoomx, sse_zoomy) num_threads(nthreads)
 //#pragma omp parallel reduction(+:idx_code)
 	{
 		// Let's have one list of codes per thread !

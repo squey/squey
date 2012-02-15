@@ -133,15 +133,15 @@ void red_rsort2(size_t n, size_t d, uint_ap in, uint64_ap out)
 	BENCH_END(serial_rsort, "rsort", n, sizeof(uint32_t), d, sizeof(uint64_t));
 }
 
-void red_omp_atomic(size_t n, size_t d, uint_ap in, uint64_ap out)
+void red_omp_atomic(size_t n, size_t d, uint_ap in, uint64_ap out, int nthreads)
 {
-	uint64_t v;
-#pragma omp parallel for firstprivate(n)
+#pragma omp parallel for firstprivate(n) num_threads(nthreads)
 	for (size_t i = 0; i < n; i++) {
+		uint64_t v;
 		v = in[i];
 		const uint64_t idx = (v>>6);
 #pragma omp atomic
-		out[idx] |= v&63;
+		out[idx] |= 1<<(v&63);
 	}
 }
 
@@ -152,7 +152,7 @@ void red_ref0(size_t n, uint_ap in, uint64_ap out)
 	// This will be vectorized by GCC in -O3...!
 	for (size_t i = 0; i < n; i++) {
 		v = in[i];
-		out0 |= v&63;
+		out0 |= 1<<(v&63);
 	}
 	out[0] = out0;
 }
@@ -202,6 +202,13 @@ int main(int argc, char** argv)
 	init_rand_int(n, in);
 	memset(out, 0, d*sizeof(uint64_t));
 
+	// Bootstrap openmp
+	int a = 0;
+#pragma omp parallel for
+	for (int i= 0; i < 100000; i++) {
+		a += i;
+	}
+
 #if 0
 	{
 		BENCH_START(ref0);
@@ -217,7 +224,6 @@ int main(int argc, char** argv)
 	}
 
 	memset(out, 0, d*sizeof(uint64_t));
-#endif
 
 	uint_ap in_tmp;
 	posix_memalign((void**) &in_tmp, 16, n*sizeof(uint32_t));
@@ -249,20 +255,15 @@ int main(int argc, char** argv)
 	red_rsort(n, d, in, out);
 	red_rsort2(n, d, in, out);
 
+#endif
 
-#if 0
-	memset(out, 0, d*sizeof(uint64_t));
-	BENCH_START(omp);
-	red_omp_atomic(n, d, in, out);
-	BENCH_END(omp, "omp-atomic", n, sizeof(uint32_t), d, sizeof(uint64_t));
-
-	{
+	for (int i = 1; i <= 24; i++) {
 		memset(out, 0, d*sizeof(uint64_t));
+		printf("Num threads: %d\n", i);
 		BENCH_START(omp);
-		red_omp_atomic(n, d, in, out);
+		red_omp_atomic(n, d, in, out, i);
 		BENCH_END(omp, "omp-atomic", n, sizeof(uint32_t), d, sizeof(uint64_t));
 	}
-#endif
 
 	//red_omp_d2(n, d, in);
 #if 0

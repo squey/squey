@@ -11,6 +11,8 @@
 #include <set>
 #include <tbb/parallel_sort.h>
 
+#include <omp.h>
+
 #include <pvkernel/core/picviz_intrin.h>
 
 #define BUCKET_END (0x80000000)
@@ -51,7 +53,7 @@ void red_ref_bucket(size_t n, bucket_v_t* in, uint64_ap out)
 }
 
 template <typename bucket_v_t>
-void red_ref_bucket_stream(size_t n, bucket_v_t* in, uint64_ap out, uint64_ap out_cache, const size_t sout_cache)
+void red_bucket_commit_clear(size_t n, bucket_v_t* in, uint64_ap out, uint64_ap out_cache, const size_t sout_cache)
 {
 	bucket_v_t v;
 	memset(out_cache, 0, sout_cache*sizeof(uint64_t));
@@ -68,15 +70,24 @@ void red_ref_bucket_stream(size_t n, bucket_v_t* in, uint64_ap out, uint64_ap ou
 		sse_out = _mm_or_si128(_mm_load_si128((__m128i*) &out[i]), sse_out_cache);
 		_mm_store_si128((__m128i*) &out[i], sse_out);
 	}*/
-	//memcpy(out, out_cache, sout_cache*sizeof(uint64_t));
 	for (size_t i = 0; i < sout_cache; i++) {
 		out[i] |= out_cache[i];
 	}
 }
 
+template <typename bucket_v_t>
+void red_bucket_nocommit_noclear(size_t n, bucket_v_t* in, uint64_ap out, uint64_ap out_cache, const size_t sout_cache)
+{
+	bucket_v_t v;
+	for (size_t i = 0; i < n; i++) {
+		v = in[i];
+		out_cache[(v>>6)] |= 1LL<<(v&63);
+	}
+}
+
 
 template <typename bucket_pos_t, typename bucket_v_t, typename idx_bucket_t>
-void red_buckets_nocommit(const size_t n, const size_t nbits_d, uint_ap in, uint64_ap out, bucket_v_t* buckets, const size_t nbuckets_ln2, const uint8_t bucket_size_ln2)
+void red_buckets(const size_t n, const size_t nbits_d, uint_ap in, uint64_ap out, bucket_v_t* buckets, const size_t nbuckets_ln2, const uint8_t bucket_size_ln2)
 {
 	const uint8_t nbits_shift = (nbits_d+6)-nbuckets_ln2;
 	if (nbits_shift > sizeof(bucket_v_t)*8) {
@@ -267,8 +278,8 @@ void red_buckets2(const size_t n, const size_t nbits_d, uint_ap in, uint64_ap ou
 }
 #endif
 
-template <typename bucket_pos_t, typename bucket_v_t, typename idx_bucket_t>
-void red_buckets_stream(const size_t n, const size_t nbits_d, uint_ap in, uint64_ap out, bucket_v_t* buckets, const size_t nbuckets_ln2, const uint8_t bucket_size_ln2)
+template <typename bucket_pos_t, typename bucket_v_t, typename idx_bucket_t, void (*F)(size_t, bucket_v_t*, uint64_ap, uint64_ap, const size_t)>
+void red_buckets_cached(const size_t n, const size_t nbits_d, uint_ap in, uint64_ap out, bucket_v_t* buckets, const size_t nbuckets_ln2, const uint8_t bucket_size_ln2)
 {
 	const uint8_t nbits_shift = (nbits_d+6)-nbuckets_ln2;
 	if (nbits_shift > sizeof(bucket_v_t)*8) {
@@ -297,7 +308,7 @@ void red_buckets_stream(const size_t n, const size_t nbits_d, uint_ap in, uint64
 		bucket_v_t* b = &buckets[idx_bucket<<bucket_size_ln2];
 		b[pos_bucket] = v&mask_v;
 		if (pos_bucket == bucket_size-1) {
-			red_ref_bucket_stream(bucket_size, b, &out[idx_bucket<<(nbits_d-nbuckets_ln2)], out_cache, sout_cache);
+			F(bucket_size, b, &out[idx_bucket<<(nbits_d-nbuckets_ln2)], out_cache, sout_cache);
 			pos_bucket = 0;
 		}
 		else {
@@ -308,10 +319,66 @@ void red_buckets_stream(const size_t n, const size_t nbits_d, uint_ap in, uint64
 	for (size_t i = 0; i < nbuckets; i++) {
 		bucket_pos_t pos_bucket = buckets_pos[i];
 		if (pos_bucket > 0) {
-			red_ref_bucket_stream(pos_bucket, &buckets[i<<bucket_size_ln2], &out[i<<(nbits_d-nbuckets_ln2)], out_cache, sout_cache);
+			F(pos_bucket, &buckets[i<<bucket_size_ln2], &out[i<<(nbits_d-nbuckets_ln2)], out_cache, sout_cache);
 		}
 	}
 	BENCH_END(red_buckets, "red-buckets-stream", n, sizeof(uint32_t), 0, sizeof(uint64_t));
+}
+
+template <typename bucket_pos_t, typename bucket_v_t, typename idx_bucket_t, void (*F)(size_t, bucket_v_t*, uint64_ap, uint64_ap, const size_t)>
+void red_buckets_cached_omp(size_t n, size_t nbits_d, uint_ap in, size_t nbuckets_ln2, uint8_t bucket_size_ln2, int nth)
+{
+	uint8_t nbits_shift = (nbits_d+6)-nbuckets_ln2;
+	bucket_v_t mask_v = (1<<nbits_shift) - 1;
+	idx_bucket_t nbuckets = 1<<nbuckets_ln2;
+	bucket_pos_t bucket_size = (1<<bucket_size_ln2);
+	size_t sout_cache = (1<<(nbits_d-nbuckets_ln2));
+	//uint64_ap outs[nth];
+	//BENCH_START(red_buckets)
+	double time_taken = 0;
+#pragma omp parallel num_threads(nth) firstprivate(nbits_shift,mask_v,nbuckets,bucket_size,sout_cache,n,nbits_d)
+	{
+		bucket_pos_t buckets_pos[nbuckets];
+		memset(buckets_pos, 0, sizeof(bucket_pos_t)*nbuckets);
+		uint64_ap out_cache;
+		posix_memalign((void**) &out_cache, 16, sout_cache*sizeof(uint64_t));
+		bucket_v_t* buckets;
+		posix_memalign((void**) &buckets, 16, nbuckets*bucket_size*sizeof(bucket_v_t));
+		uint64_ap out;
+		posix_memalign((void**) &out, 16, (1<<nbits_d)*sizeof(uint64_t));
+		tbb::tick_count start = tbb::tick_count::now();
+#pragma omp for
+		for (size_t i = 0; i < n; i++) {
+			uint32_t v;
+			v = in[i];
+			const uint32_t idx_bucket = v>>nbits_shift;
+			bucket_pos_t* ppos_bucket = &buckets_pos[idx_bucket];
+			bucket_pos_t pos_bucket = *ppos_bucket;
+			bucket_v_t* b = &buckets[idx_bucket<<bucket_size_ln2];
+			b[pos_bucket] = v&mask_v;
+			if (pos_bucket == bucket_size-1) {
+				F(bucket_size, b, &out[idx_bucket<<(nbits_d-nbuckets_ln2)], out_cache, sout_cache);
+				pos_bucket = 0;
+			}
+			else {
+				pos_bucket++;
+			}
+			*ppos_bucket = pos_bucket;
+		}
+		for (size_t i = 0; i < nbuckets; i++) {
+			bucket_pos_t pos_bucket = buckets_pos[i];
+			if (pos_bucket > 0) {
+				F(pos_bucket, &buckets[i<<bucket_size_ln2], &out[i<<(nbits_d-nbuckets_ln2)], out_cache, sout_cache);
+			}
+		}
+		tbb::tick_count end = tbb::tick_count::now();
+#pragma omp critical
+		{
+			time_taken = std::max(time_taken, (end-start).seconds());
+		}
+	}
+	printf("%d threads: %0.4f ms\n", nth, (time_taken*1000.0));
+	//BENCH_END(red_buckets, "red-buckets-omp", n, sizeof(uint32_t), 0, sizeof(uint64_t));
 }
 
 void init_rand_int(size_t n, uint_ap buf)
@@ -327,6 +394,13 @@ int main(int argc, char** argv)
 	if (argc < 5) {
 		std::cerr << "Usage: " << argv[0] << " dint nint nbuckets_log2 size_bucket_ln2" << std::endl;
 		return 1;
+	}
+
+	// Bootstrap openmp
+	int a = 0;
+#pragma omp parallel for
+	for (int i = 0; i < 1000000; i++) {
+		a += i;
 	}
 
 	size_t d = atoll(argv[1]);
@@ -360,16 +434,22 @@ int main(int argc, char** argv)
 	red_ref(n, d, in, out_ref);
 	BENCH_END(red_ref, "red-ref", n, sizeof(uint32_t), d, sizeof(uint64_t));
 
+
 	memset(out, 0, d*sizeof(uint64_t));
-	if (nbuckets_ln2 >= 9) {
-		//red_buckets_nocommit<uint16_t, uint16_t, uint16_t>(n, nbits_d, in, out, (uint16_t*) buckets, nbuckets_ln2, bucket_size_ln2);
-		red_buckets_stream<uint32_t, uint16_t, uint16_t>(n, nbits_d, in, out, (uint16_t*) buckets, nbuckets_ln2, bucket_size_ln2);
+	for (int i = 1; i <= omp_get_max_threads(); i++) {
+		if (nbuckets_ln2 >= 9) {
+			//red_buckets_nocommit<uint16_t, uint16_t, uint16_t>(n, nbits_d, in, out, (uint16_t*) buckets, nbuckets_ln2, bucket_size_ln2);
+			//red_buckets_cached<uint32_t, uint16_t, uint16_t, red_bucket_commit_clear<uint16_t> >(n, nbits_d, in, out, (uint16_t*) buckets, nbuckets_ln2, bucket_size_ln2);
+			red_buckets_cached_omp<uint32_t, uint16_t, uint16_t, red_bucket_nocommit_noclear<uint16_t> >(n, nbits_d, in, nbuckets_ln2, bucket_size_ln2, i);
+		}
+		else {
+			//red_buckets_nocommit<uint16_t, uint32_t, uint16_t>(n, nbits_d, in, out, buckets, nbuckets_ln2, bucket_size_ln2);
+			//red_buckets_cached<uint32_t, uint32_t, uint16_t, red_bucket_commit_clear<uint32_t> >(n, nbits_d, in, out, buckets, nbuckets_ln2, bucket_size_ln2);
+			red_buckets_cached_omp<uint32_t, uint32_t, uint16_t, red_bucket_nocommit_noclear<uint32_t> >(n, nbits_d, in, nbuckets_ln2, bucket_size_ln2, i);
+		}
 	}
-	else {
-		//red_buckets_nocommit<uint16_t, uint32_t, uint16_t>(n, nbits_d, in, out, buckets, nbuckets_ln2, bucket_size_ln2);
-		red_buckets_stream<uint32_t, uint32_t, uint16_t>(n, nbits_d, in, out, buckets, nbuckets_ln2, bucket_size_ln2);
-	}
-	CHECK(memcmp(out_ref, out, d*sizeof(uint64_t)) == 0);
+	//CHECK(memcmp(out_ref, out, d*sizeof(uint64_t)) == 0);
+
 #if 0
 	//if (bucket_size_ln2 < 16)
 	//	red_buckets<uint16_t, uint32_t>(n, nbits_d, in, out, buckets, nbuckets_ln2, bucket_size_ln2);

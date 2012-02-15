@@ -64,9 +64,23 @@ int main(int argc, char** argv)
 		posix_memalign((void**) &tiles_cb[i], 16, TILE_SIZE_INT*sizeof(uint32_t));
 		memset(tiles_cb[i], 0, TILE_SIZE_INT*sizeof(uint32_t));
 	}
-	BENCH_START(serial);
+
+	int max_th = omp_get_max_threads();
+	BCodeCB* cb_threads = (BCodeCB*) malloc(sizeof(BCodeCB*)*max_th);
+	for (int i = 0; i < max_th; i++) {
+		posix_memalign((void**) &cb_threads[i], 16, SIZE_BCODECB);
+	}
+	/*BENCH_START(serial);
 	serial_bcodecb(codes, ncodes, cb_ref);
-	BENCH_END(serial, "serial collision", ncodes, sizeof(PVBCode), NB_INT_BCODECB, sizeof(int));
+	BENCH_END(serial, "serial collision", ncodes, sizeof(PVBCode), NB_INT_BCODECB, sizeof(int));*/
+
+	//LAUNCH_BENCH(omp_atomic, "omp-atomic", omp_bcodecb_atomic);
+	for (int i = 1; i <= max_th; i++) {
+		BENCH_START(omp_nomerge);
+		omp_bcodecb_nomerge(codes, ncodes, cb_threads, i);
+		BENCH_END(omp_nomerge, "omp-nomerge", ncodes, sizeof(PVBCode), NB_INT_BCODECB, sizeof(int));
+	}
+
 #if 0
 	LAUNCH_BENCH(stream, "stream collision", bcodecb_stream);
 	LAUNCH_BENCH(omp_atomic, "omp-atomic", omp_bcodecb_atomic);
