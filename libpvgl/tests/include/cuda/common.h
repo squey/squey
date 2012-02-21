@@ -14,5 +14,6 @@
 
 void init_cuda();
 int get_number_blocks();
+size_t get_shared_mem_size();
 
 #endif

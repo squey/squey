@@ -421,7 +421,7 @@ int PVBZCompute::compute_b_trans_sse4_int(PVBCode_ap codes, PVCol axis_a, PVCol 
 		}
 		else {
 			int bcode_l, bcode_r;
-			volatile PVBCode bcode;
+			PVBCode bcode;
 			bcode.int_v = 0;
 #define MANUAL_BCODE_COMPUTE2(j)\
 			{\
@@ -439,7 +439,7 @@ int PVBZCompute::compute_b_trans_sse4_int(PVBCode_ap codes, PVCol axis_a, PVCol 
 			MANUAL_BCODE_COMPUTE2(1);
 			MANUAL_BCODE_COMPUTE2(2);
 			MANUAL_BCODE_COMPUTE2(3);
-			//idx_code += 4;
+			idx_code += 4;
 		}
 	}
 	return idx_code;

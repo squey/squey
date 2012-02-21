@@ -18,7 +18,7 @@ file(GLOB GL_SRC_FILES gl/*.cpp)
 file(GLOB COMMON_SRC_FILES common/*.cpp)
 file(GLOB BZ_SRC_FILES code_bz/*.cpp)
 
-set(CUDA_SRC_FILES cuda/common.cpp)
+set(CUDA_SRC_FILES ${CMAKE_CURRENT_LIST_DIR}/cuda/common.cpp)
 set(CUDA_PROPAGATE_HOST_FLAGS "OFF")
 set(CUDA_NVCC_FLAGS "-O3" "-arch=sm_20")
 
@@ -76,6 +76,20 @@ target_link_libraries(cuda_red ${COMMON_LIBS} ${CUDA_LIBRARIES})
 ####
 
 ####
+# CUDA reduction tests
+cuda_compile(CUDA_RED_KERNELS cuda/gpu_bccb.cu)
+set(CUDA_RED_SRC_FILES
+${COMMON_SRC_FILES}
+${CUDA_SRC_FILES}
+${CUDA_RED_KERNELS}
+${BZ_SRC_FILES}
+cuda_collisions.cpp
+)
+add_executable(cuda_bccb ${CUDA_RED_SRC_FILES})
+target_link_libraries(cuda_bccb ${COMMON_LIBS} ${CUDA_LIBRARIES})
+####
+
+####
 # BZ test
 SET(SRC_FILES
 ${COMMON_SRC_FILES}
@@ -100,3 +114,4 @@ target_link_libraries(raster ${COMMON_LIBS} ${PVKERNEL_LIBRARIES} ${PICVIZ_LIBRA
 ####
 
 add_subdirectory(bench)
+add_subdirectory(pipeline)

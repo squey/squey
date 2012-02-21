@@ -1,11 +1,14 @@
-#ifndef PVGL_BZVIEW_H
-#define PVGL_BZVIEW_H
+#ifndef PVBZ_COMPUTE_H
+#define PVBZ_COMPUTE_H
 
 #include <pvkernel/core/general.h>
 #include <picviz/PVPlotted.h>
 
 #include "types.h"
 #include <vector>
+
+// Forward declaration
+class GPUBccb;
 
 struct PVLineEq
 {
@@ -31,30 +34,58 @@ public:
 	void set_plotted(Picviz::PVPlotted::plotted_table_t const& plotted, PVCol ncols);
 	void set_trans_plotted(Picviz::PVPlotted::plotted_table_t const& trans_plotted, PVCol ncols);
 	void set_zoom(float zoom_x, float zoom_y);
+	void set_box(float X0, float X1, float Y0, float Y1);
+
+	int compute_b(PVBCode_ap codes, PVCol axis_a, PVCol axis_b);
+	int compute_b_trans(PVBCode_ap codes, PVCol axis_a, PVCol axis_b);
+	int compute_b_trans2(PVBCode_ap codes, PVCol axis_a, PVCol axis_b);
+	int compute_b_trans_nobranch(PVBCode_ap codes, PVCol axis_a, PVCol axis_b);
+	int compute_b_trans_nobranch_sse(PVBCode_ap codes, PVCol axis_a, PVCol axis_b);
+	int compute_b_trans_sse(PVBCode_ap codes, PVCol axis_a, PVCol axis_b);
+	int compute_b_trans_sse4(PVBCode_ap codes, PVCol axis_a, PVCol axis_b);
+
 	int compute_b(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1);
 	int compute_b_trans(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1);
 	int compute_b_trans2(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1);
 	int compute_b_trans_nobranch(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1);
 	int compute_b_trans_nobranch_sse(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1);
 	int compute_b_trans_sse(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1);
-	int compute_b_trans_sse2(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1);
-	int compute_b_trans_sse3(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1);
 	int compute_b_trans_sse4(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1);
+
+
+	int compute_b_trans_int(PVBCode_ap codes, PVCol axis_a, PVCol axis_b);
+	int compute_b_trans_int_ld(PVBCode_ap codes, PVCol axis_a, PVCol axis_b);
+	int compute_b_trans_sse_int(PVBCode_ap codes, PVCol axis_a, PVCol axis_b);
+	int compute_b_trans_sse4_int(PVBCode_ap codes, PVCol axis_a, PVCol axis_b);
+
 	int compute_b_trans_int(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, int X0, int X1, int Y0, int Y1);
 	int compute_b_trans_int_ld(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, int X0, int X1, int Y0, int Y1);
 	int compute_b_trans_sse_int(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, int X0, int X1, int Y0, int Y1);
 	int compute_b_trans_sse4_int(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1);
+
 	void convert_to_points(uint16_t width, uint16_t height, std::vector<PVBCode> const& codes, std::vector<int>& ret);
 	void convert_to_points_new(uint16_t width, uint16_t height, std::vector<PVBCode> const& codes, std::vector<int>& ret);
 	inline PVRow get_nrows() const { return _nb_rows; }
 
+	int compute_b_trans_notable(PVBCode_ap codes, PVCol axis_a, PVCol axis_b);
+	int compute_b_trans_sse4_notable(PVBCode_ap codes, PVCol axis_a, PVCol axis_b);
+
 	int compute_b_trans_notable(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1);
 	int compute_b_trans_sse4_notable(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1);
+
+	int compute_b_trans_notable(PVBCode_ap codes, PVRow row_start, PVRow row_end, PVCol axis_a, PVCol axis_b);
+	int compute_b_trans_sse4_notable(PVBCode_ap codes, PVRow row_start, PVRow row_end, PVCol axis_a, PVCol axis_b);
+
 	int compute_b_trans_int_ld_notable(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, int X0, int X1, int Y0, int Y1);
 	int compute_b_trans_sse4_int_notable(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1);
 
 	// OMP no-table
+	int compute_b_trans_sse4_notable_omp(PVBCode_ap* pcodes, PVCol axis_a, PVCol axis_b, int nthreads);
 	int compute_b_trans_sse4_notable_omp(PVBCode_ap* pcodes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1, int nthreads);
+
+	int compute_b_trans_sse4_notable_omp_pipe(PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1, size_t size_chunk, GPUBccb& gpu_bccb, int nthreads);
+	int compute_b_trans_sse4_notable_omp_pipe2(PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1, size_t size_chunk, GPUBccb& gpu_bccb, int nthreads);
+	int compute_b_trans_sse4_notable_omp_pipe4(PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1, size_t size_chunk, GPUBccb& gpu_bccb, int nthreads);
 
 private:
 	inline float get_plotted(PVCol col, PVRow row) const { return _plotted[row*_nb_cols+col]; }
@@ -77,6 +108,13 @@ private:
 	uint32_t _zoom_y;
 	uint32_t _trans_x;
 	uint32_t _trans_y;
+
+	float _x0;
+	float _x1;
+	float _y0;
+	float _y1;
+	float _Xnorm;
+	float _Y0;
 };
 
 #define BCOMPUTE_BENCH_START

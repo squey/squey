@@ -3,8 +3,10 @@
 
 #include <common/common.h>
 #include <common/bench.h>
+#include <cuda/common.h>
 #include <code_bz/bz_compute.h>
 
+#include <pvkernel/core/picviz_intrin.h>
 #include <picviz/PVPlotted.h>
 
 #include <ctime>
@@ -112,7 +114,7 @@ int main(int argc, char** argv)
 		std::cerr << "Unable to load plotted !" << std::endl;
 		return 1;
 	}*/
-	init_rand_plotted(trans_plotted, 80000000);
+	init_rand_plotted(trans_plotted, 16000000);
 	std::cout << "Random plotted created." << std::endl;
 
 	PVBZCompute bz;
@@ -157,30 +159,51 @@ int main(int argc, char** argv)
 
 	// OMP
 	//size_t nthreads = omp_get_max_threads();
-	for (int i = 2; i <= 2; i++) {
+	for (int i = 12; i <= 12; i++) {
 		size_t nthreads = i;
 		PVBCode* pcodes[nthreads];
-		size_t nallocs = (bz.get_nrows()+nthreads-1)/nthreads;
+		void* cuda_org[nthreads];
+		size_t nallocs = bz.get_nrows();
 		nallocs = ((nallocs+3)/4)*4;
-		for (size_t i = 0; i < nthreads; i++) {
-			pcodes[i] = PVCore::PVAlignedAllocator<PVBCode, 16>().allocate(nallocs);
+		for (size_t j = 0; j < nthreads; j++) {
+			pcodes[j] = PVCore::PVAlignedAllocator<PVBCode, 16>().allocate(nallocs);
+		}
+#pragma omp parallel num_threads(nthreads)
+		{
+			PVBCode* codes = pcodes[omp_get_thread_num()];
+			__m128i sse_zero = _mm_set1_epi32(0);
+#pragma omp for
+			for (size_t j = 0; j < (nallocs/4)*4; j += 4) {
+				_mm_stream_si128((__m128i*) &codes[i], sse_zero);
+			}
 		}
 
 		BENCH_START(bcode_trans_notable_omp);
 		ncodes = bz.compute_b_trans_sse4_notable_omp(pcodes, 0, 1, X_START, X_START+W_FRAME-1, Y_START, Y_START+H_FRAME-1, i);
 		BENCH_END(bcode_trans_notable_omp, "BCode trans-computation notable-omp", bz.get_nrows()*2, sizeof(float), ncodes, sizeof(PVBCode));
 
+		/*for (size_t j = 0; j < nthreads; j++) {
+			PVCore::PVAlignedAllocator<PVBCode, 16>().deallocate(pcodes[j], nallocs);
+			pcodes[j] = PVCore::PVAlignedAllocator<PVBCode, 16>().allocate(nallocs);
+		}*/
+
+#pragma omp parallel num_threads(nthreads)
+		{
+			PVBCode* codes = pcodes[omp_get_thread_num()];
+			__m128i sse_zero = _mm_set1_epi32(0);
+#pragma omp for
+			for (size_t j = 0; j < (nallocs/4)*4; j += 4) {
+				_mm_stream_si128((__m128i*) &codes[i], sse_zero);
+			}
+		}
+
 		BENCH_START(bcode_trans_notable_omp1);
 		ncodes = bz.compute_b_trans_sse4_notable_omp(pcodes, 0, 1, X_START, X_START+W_FRAME-1, Y_START, Y_START+H_FRAME-1, i);
 		BENCH_END(bcode_trans_notable_omp1, "BCode trans-computation notable-omp", bz.get_nrows()*2, sizeof(float), ncodes, sizeof(PVBCode));
 
-		BENCH_START(bcode_trans_notable_omp2);
-		ncodes = bz.compute_b_trans_sse4_notable_omp(pcodes, 0, 1, X_START, X_START+W_FRAME-1, Y_START, Y_START+H_FRAME-1, i);
-		BENCH_END(bcode_trans_notable_omp2, "BCode trans-computation notable-omp", bz.get_nrows()*2, sizeof(float), ncodes, sizeof(PVBCode));
-
-		BENCH_START(bcode_trans_notable_omp4);
-		ncodes = bz.compute_b_trans_sse4_notable_omp(pcodes, 0, 1, X_START, X_START+W_FRAME-1, Y_START, Y_START+H_FRAME-1, i);
-		BENCH_END(bcode_trans_notable_omp4, "BCode trans-computation notable-omp", bz.get_nrows()*2, sizeof(float), ncodes, sizeof(PVBCode));
+		for (size_t j = 0; j < nthreads; j++) {
+			PVCore::PVAlignedAllocator<PVBCode, 16>().deallocate(pcodes[j], nallocs);
+		}
 	}
 
 	return 0;

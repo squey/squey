@@ -55,19 +55,20 @@ int main(int argc, char** argv)
 	PVBZCompute bz;
 	bz.set_trans_plotted(plotted, ncols);
 	bz.set_zoom(1024, 1024);
+	bz.set_box(X_START, X_START+W_FRAME, Y_START, Y_START+H_FRAME);
 	
 	std::cout << "Start BCode computation..." << std::endl;
 	std::vector<PVBCode> codes;
 	codes.resize(bz.get_nrows()*2);
 	BENCH_START(bcode);
-	int ncodes = bz.compute_b_trans_notable(&codes[0], 2, 3, X_START, X_START+W_FRAME, Y_START, Y_START+H_FRAME);
+	int ncodes = bz.compute_b_trans_notable(&codes[0], 0, 1);
 	BENCH_END(bcode, "BCode computation", (plotted.size()/ncols)*2, sizeof(float), codes.size(), sizeof(PVBCode));
 	codes.resize(ncodes);
 
 	// Reduction
 	BCodeCB bc_cb = allocate_BCodeCB();
 	std::cout << "Start BCode reduction..." << std::endl;
-	//serial_bcodecb(&codes[0], ncodes, bc_cb);
+	serial_bcodecb(&codes[0], ncodes, bc_cb);
 	//bcodecb_tile(&codes[0], ncodes, bc_cb);
 
 	//codes.clear();
@@ -96,7 +97,7 @@ int main(int argc, char** argv)
 		QMainWindow *window = new QMainWindow();
 		SLFloatView *v = new SLFloatView(window);
 
-		extract_plotted(ncols, plotted, p_ext, 2, 3);
+		extract_plotted(ncols, plotted, p_ext, 0, 1);
 		v->set_size(W_FRAME,H_FRAME);
 		v->set_ortho(1.0, 1.0);
 		v->set_points(p_ext);

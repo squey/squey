@@ -1,3 +1,5 @@
+#include <iostream>
+#include <common/common.h>
 #include <code_bz/bz_compute.h>
 #include <cassert>
 
@@ -71,22 +73,31 @@ int8_t PVBZCompute::get_line_type_notable(PVLineEq const& l, float x0, float x1,
 
 int PVBZCompute::compute_b_trans_notable(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1)
 {
+	set_box(X0, X1, Y0, Y1);
+	return compute_b_trans_notable(codes, axis_a, axis_b);
+}
+
+int PVBZCompute::compute_b_trans_notable(PVBCode_ap codes, PVCol axis_a, PVCol axis_b)
+{
+	return compute_b_trans_notable(codes, 0, _nb_rows, axis_a, axis_b);
+}
+
+int PVBZCompute::compute_b_trans_notable(PVBCode_ap codes, PVRow row_start, PVRow row_end, PVCol axis_a, PVCol axis_b)
+{
 	// Convert box to plotted coordinates
-	vec2 frame_p_left = frame_to_plotted(vec2(X0, Y0));
-	vec2 frame_p_right = frame_to_plotted(vec2(X1, Y1));
-	float x0 = frame_p_left.x;
-	float y0 = frame_p_left.y;
-	float x1 = frame_p_right.x;
-	float y1 = frame_p_right.y;
-	x0 -= (int)x0;
-	x1 -= (int)x0;
-	float Xnorm = x0*_zoom_x;
+	float x0 = _x0;
+	float y0 = _y0;
+	float x1 = _x1;
+	float y1 = _y1;
+	float Xnorm = _Xnorm;
+	float Y0 = _Y0;
 
 	PVLineEq l;
 	l.b = 1.0f;
 	//codes.reserve(_nb_rows);
 	int idx_code = 0;
-	for (PVRow i = 0; i < _nb_rows; i++) {
+	VERIFY(row_start < row_end);
+	for (PVRow i = row_start; i < row_end; i++) {
 		float ypl = get_plotted_trans(axis_a, i);
 		float ypr = get_plotted_trans(axis_b, i);
 
@@ -144,16 +155,23 @@ int PVBZCompute::compute_b_trans_notable(PVBCode_ap codes, PVCol axis_a, PVCol a
 
 int PVBZCompute::compute_b_trans_sse4_notable(PVBCode_ap codes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1)
 {
-	// Convert box to plotted coordinates
-	vec2 frame_p_left = frame_to_plotted(vec2(X0, Y0));
-	vec2 frame_p_right = frame_to_plotted(vec2(X1, Y1));
-	float x0 = frame_p_left.x;
-	float y0 = frame_p_left.y;
-	float x1 = frame_p_right.x;
-	float y1 = frame_p_right.y;
-	x0 -= (int)x0;
-	x1 -= (int)x0;
-	float Xnorm = x0*_zoom_x;
+	set_box(X0, X1, Y0, Y1);
+	return compute_b_trans_sse4_notable(codes, axis_a, axis_b);
+}
+
+int PVBZCompute::compute_b_trans_sse4_notable(PVBCode_ap codes, PVCol axis_a, PVCol axis_b)
+{
+	return compute_b_trans_sse4_notable(codes, 0, _nb_rows, axis_a, axis_b);
+}
+
+int PVBZCompute::compute_b_trans_sse4_notable(PVBCode_ap codes, PVRow row_start, PVRow row_end, PVCol axis_a, PVCol axis_b)
+{
+	float x0 = _x0;
+	float y0 = _y0;
+	float x1 = _x1;
+	float y1 = _y1;
+	float Xnorm = _Xnorm;
+	float Y0 = _Y0;
 
 	const __m128 sse_x0 = _mm_set1_ps(x0);
 	const __m128 sse_x0comp = _mm_sub_ps(_mm_set1_ps(1.0f), _mm_set1_ps(x0));
@@ -173,11 +191,16 @@ int PVBZCompute::compute_b_trans_sse4_notable(PVBCode_ap codes, PVCol axis_a, PV
 	__m128 sse_ypl, sse_ypr;
 	int idx_code = 0;
 	const PVRow offa = axis_a*_nb_rows;
-	const PVRow offb = axis_a*_nb_rows;
-	const PVRow end = (_nb_rows*4)/4;
-	for (PVRow i = 0; i < end; i += 4) {
+	const PVRow offb = axis_b*_nb_rows;
+	const PVRow start = (row_start*4)/4;
+	const PVRow end = (row_end*4)/4;
+	for (PVRow i = start; i < end; i += 4) {
 		sse_ypl = _mm_load_ps(&_trans_plotted[offa+i]);
 		sse_ypr = _mm_load_ps(&_trans_plotted[offb+i]);
+		_mm_prefetch(&_trans_plotted[offa+i+4], _MM_HINT_NTA);
+		_mm_prefetch(&_trans_plotted[offb+i+4], _MM_HINT_NTA);
+		_mm_prefetch(&_trans_plotted[offa+i+8], _MM_HINT_NTA);
+		_mm_prefetch(&_trans_plotted[offb+i+8], _MM_HINT_NTA);
 
 		// Line equation
 		// a*X + b*Y + c = 0
@@ -191,6 +214,10 @@ int PVBZCompute::compute_b_trans_sse4_notable(PVBCode_ap codes, PVCol axis_a, PV
 		const __m128i b = _mm_and_si128(_mm_castps_si128(_mm_cmpge_ps(_mm_add_ps(_mm_mul_ps(ydiff, sse_x1), sse_y1), sse_ypl)), sse_1i);
 		const __m128i c = _mm_castps_si128(_mm_cmpge_ps(_mm_add_ps(_mm_mul_ps(ydiff, sse_x1), sse_y0), sse_ypl));
 		const __m128i d = _mm_castps_si128(_mm_cmpge_ps(_mm_add_ps(_mm_mul_ps(ydiff, sse_x0), sse_y0), sse_ypl));
+
+		//_mm_prefetch(&_trans_plotted[offa+i+32], _MM_HINT_NTA);
+		//_mm_prefetch(&_trans_plotted[offb+i+32], _MM_HINT_NTA);
+
 		// r0 = a & !d
 		// r1 = b & !c
 		// r2 = c | d
@@ -200,6 +227,9 @@ int PVBZCompute::compute_b_trans_sse4_notable(PVBCode_ap codes, PVCol axis_a, PV
 		// types = r0 | r1 << 1 | r2 << 2
 		const __m128i sse_types = _mm_or_si128(r0, _mm_or_si128(_mm_slli_epi32(r1, 1),
 		                                                        _mm_slli_epi32(r2, 2)));
+
+		//_mm_prefetch(&_trans_plotted[offa+i+48], _MM_HINT_NTA);
+		//_mm_prefetch(&_trans_plotted[offb+i+48], _MM_HINT_NTA);
 
 		// Special cases when all the types are the same. Let's do this in SSE !!
 		int64_t dtypes_0 = _mm_extract_epi64(sse_types, 0);
@@ -400,19 +430,22 @@ int PVBZCompute::compute_b_trans_sse4_notable(PVBCode_ap codes, PVCol axis_a, PV
 
 int PVBZCompute::compute_b_trans_sse4_notable_omp(PVBCode_ap* pcodes, PVCol axis_a, PVCol axis_b, float X0, float X1, float Y0, float Y1, int nthreads)
 {
+	set_box(X0, X1, Y0, Y1);
+	return compute_b_trans_sse4_notable_omp(pcodes, axis_a, axis_b, nthreads);
+}
+
+int PVBZCompute::compute_b_trans_sse4_notable_omp(PVBCode_ap* pcodes, PVCol axis_a, PVCol axis_b, int nthreads)
+{
 	// It is assumed that codes is a pointer to a list of buffers of size
 	// nrows/nthreads.
 	
 	// Convert box to plotted coordinates
-	vec2 frame_p_left = frame_to_plotted(vec2(X0, Y0));
-	vec2 frame_p_right = frame_to_plotted(vec2(X1, Y1));
-	float x0 = frame_p_left.x;
-	float y0 = frame_p_left.y;
-	float x1 = frame_p_right.x;
-	float y1 = frame_p_right.y;
-	x0 -= (int)x0;
-	x1 -= (int)x0;
-	float Xnorm = x0*_zoom_x;
+	float x0 = _x0;
+	float y0 = _y0;
+	float x1 = _x1;
+	float y1 = _y1;
+	float Xnorm = _Xnorm;
+	float Y0 = _Y0;
 
 	__m128 sse_x0 = _mm_set1_ps(x0);
 	__m128 sse_x0comp = _mm_sub_ps(_mm_set1_ps(1.0f), _mm_set1_ps(x0));
@@ -429,19 +462,18 @@ int PVBZCompute::compute_b_trans_sse4_notable_omp(PVBCode_ap* pcodes, PVCol axis
 
 	int idx_code = 0;
 #pragma omp parallel reduction(+:idx_code) firstprivate(sse_x0, sse_x0comp, sse_x1, sse_x1comp, sse_y0, sse_y1, sse_Y0, sse_Xnorm, sse_zoomx, sse_zoomy) num_threads(nthreads)
-//#pragma omp parallel reduction(+:idx_code)
 	{
 		// Let's have one list of codes per thread !
 		PVBCode_ap codes = pcodes[omp_get_thread_num()];
 		__m128i sse_1i = _mm_set1_epi32(1);
 
 		const PVRow offa = axis_a*_nb_rows;
-		const PVRow offb = axis_a*_nb_rows;
+		const PVRow offb = axis_b*_nb_rows;
 		const PVRow end = (_nb_rows*4)/4;
 
-		__m128 sse_ypl,sse_ypr;
 #pragma omp for schedule(guided)
 		for (PVRow i = 0; i < end; i += 4) {
+			__m128 sse_ypl,sse_ypr;
 			sse_ypl = _mm_load_ps(&_trans_plotted[offa+i]);
 			sse_ypr = _mm_load_ps(&_trans_plotted[offb+i]);
 
@@ -526,7 +558,7 @@ int PVBZCompute::compute_b_trans_sse4_notable_omp(PVBCode_ap* pcodes, PVCol axis
 				__m128i sse_bcodes = _mm_or_si128(sse_types, sse_bcodes_lr);
 
 				if ((idx_code & 3) == 0) {
-					// We are style 16-byte aligned
+					// We are still 16-byte aligned
 					_mm_stream_si128((__m128i*) &codes[idx_code], sse_bcodes);
 					idx_code += 4;
 				}
