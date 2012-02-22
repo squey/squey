@@ -1309,8 +1309,11 @@ void PVGL::PVView::update_label_lines_selected_eventline()
 {
 	PVLOG_DEBUG("PVGL::PVView::%s\n", __FUNCTION__);
 
+	float selected_float = ((float)picviz_view->get_number_of_selected_lines() / (float)picviz_view->eventline.get_row_count());
+	int selected_percent = (int)(selected_float*100);
+
 	std::stringstream ss;
-	ss << "Lines selected: " << picviz_view->get_number_of_selected_lines() <<
+	ss << "Events selected: " << picviz_view->get_number_of_selected_lines() << " (" << selected_percent << "%)" <<
 		" / " << picviz_view->eventline.get_current_index() - picviz_view->eventline.get_first_index() <<
 		" / " << picviz_view->eventline.get_row_count();
 	label_nb_lines->set_text(ss.str());
