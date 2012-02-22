@@ -16,9 +16,19 @@
  * PVInspector::PVCheckBoxEditor::PVCheckBoxEditor
  *
  *****************************************************************************/
-PVInspector::PVCheckBoxEditor::PVCheckBoxEditor(Picviz::PVView& view, QWidget *parent):
+PVInspector::PVCheckBoxEditor::PVCheckBoxEditor(Picviz::PVView &view, QWidget *parent):
 	QCheckBox(parent),
-	_view(view)
+	_view(&view)
+{
+}
+
+PVInspector::PVCheckBoxEditor::PVCheckBoxEditor(QString label, QWidget *parent):
+	QCheckBox(label, parent)
+{
+}
+
+PVInspector::PVCheckBoxEditor::PVCheckBoxEditor(QWidget *parent):
+	QCheckBox(parent)
 {
 }
 

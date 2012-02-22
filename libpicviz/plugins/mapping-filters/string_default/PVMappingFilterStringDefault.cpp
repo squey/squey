@@ -1,11 +1,32 @@
+//! \file PVMappingFilterIPv4Default.cpp
+//! $Id$
+//! Copyright (C) Sébastien Tricaud 2011-2012
+//! Copyright (C) Philippe Saadé 2011-2012
+//! Copyright (C) Picviz Labs 2012
+
 #include "PVMappingFilterStringDefault.h"
 #include <pvkernel/core/PVTBBMaxArray.h>
+#include <pvkernel/core/PVCheckBoxType.h>
 #include <pvkernel/core/string.h>
 
 #include <tbb/parallel_reduce.h>
 
 #include <omp.h>
 
+
+Picviz::PVMappingFilterStringDefault::PVMappingFilterStringDefault(PVCore::PVArgumentList const& args):
+	PVMappingFilter()
+{
+	INIT_FILTER(PVMappingFilterStringDefault, args);
+}
+
+DEFAULT_ARGS_FILTER(Picviz::PVMappingFilterStringDefault)
+{
+	PVCore::PVArgumentList args;
+	PVCore::PVCheckBoxType lowercase_checkbox;
+	args[PVCore::PVArgumentKey("convert-lowercase", "Convert strings to lower case")].setValue(lowercase_checkbox);
+	return args;
+}
 
 float* Picviz::PVMappingFilterStringDefault::operator()(PVRush::PVNraw::const_trans_nraw_table_line const& values)
 {

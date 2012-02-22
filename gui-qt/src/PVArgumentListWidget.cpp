@@ -243,9 +243,11 @@ QItemEditorFactory* PVInspector::PVArgumentListWidget::create_mapping_plotting_w
 
 	QItemEditorCreatorBase *timeformat_creator = new QStandardItemEditorCreator<PVTimeFormatEditor>();
 	QItemEditorCreatorBase *qstr_creator = new QItemEditorCreator<QLineEdit>("text");
+	QItemEditorCreatorBase *pv_checkbox_creator = new QItemEditorCreator<PVCheckBoxEditor>();
 
 	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVTimeFormatType>(), timeformat_creator);
 	args_widget_factory->registerEditor(QVariant::String, qstr_creator);
+	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVCheckBoxType>(), pv_checkbox_creator);
 
 	return args_widget_factory;
 }

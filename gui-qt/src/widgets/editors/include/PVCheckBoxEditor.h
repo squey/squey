@@ -27,7 +27,9 @@ class PVCheckBoxEditor : public QCheckBox
 	Q_PROPERTY(PVCore::PVCheckBoxType _checked READ get_checked WRITE set_checked USER true)
 
 public:
-	PVCheckBoxEditor(Picviz::PVView& view, QWidget *parent = 0);
+	PVCheckBoxEditor(Picviz::PVView &view, QWidget *parent = 0);
+	PVCheckBoxEditor(QString label, QWidget *parent = 0);
+	PVCheckBoxEditor(QWidget *parent = 0);
 	virtual ~PVCheckBoxEditor();
 
 public:
@@ -35,7 +37,7 @@ public:
 	void set_checked(PVCore::PVCheckBoxType e);
 
 protected:
-	Picviz::PVView& _view;
+	Picviz::PVView *_view;
 	PVCore::PVCheckBoxType _e;
 };
 
