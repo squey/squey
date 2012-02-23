@@ -49,6 +49,8 @@ public:
 	void set_parent(PVChunk* parent);
 	void save_elt_buffer();
 	char* get_saved_elt_buffer(size_t& n);
+	bool restore_elt_with_saved_buffer();
+	void clear_saved_buf();
 	PVChunk* chunk_parent();
 	chunk_index get_elt_index();
 	chunk_index get_elt_agg_index();
@@ -86,7 +88,6 @@ protected:
 	void give_ownerhsip_realloc_buffers(PVRush::PVNraw& nraw);
 	void init_fields(void* fields_buf, size_t size_buf);
 private:
-	void clear_saved_buf();
 	void init(PVChunk* parent);
 protected:
 	bool _valid;
