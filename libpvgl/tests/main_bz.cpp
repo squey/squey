@@ -60,16 +60,17 @@ int main(int argc, char** argv)
 	std::cout << "Start BCode computation..." << std::endl;
 	std::vector<PVBCode> codes;
 	codes.resize(bz.get_nrows()*2);
+
+	// First process: compute b-code
 	BENCH_START(bcode);
-	int ncodes = bz.compute_b_trans_notable(&codes[0], 0, 1);
+	int ncodes = bz.compute_b_trans_notable(&codes[0], 2, 3);
 	BENCH_END(bcode, "BCode computation", (plotted.size()/ncols)*2, sizeof(float), codes.size(), sizeof(PVBCode));
 	codes.resize(ncodes);
 
-	// Reduction
+	// Second process: reduction or collision of the b-code
 	BCodeCB bc_cb = allocate_BCodeCB();
 	std::cout << "Start BCode reduction..." << std::endl;
 	serial_bcodecb(&codes[0], ncodes, bc_cb);
-	//bcodecb_tile(&codes[0], ncodes, bc_cb);
 
 	//codes.clear();
 	//bcode_cb_to_bcodes(codes, bc_cb);
@@ -80,6 +81,7 @@ int main(int argc, char** argv)
 	
 	
 	{
+		// Showing lines from the collision buffer
 		QMainWindow *window = new QMainWindow();
 		window->setWindowTitle("bz - red code bz");
 		BCCBView *v = new BCCBView(window);
@@ -94,10 +96,12 @@ int main(int argc, char** argv)
 	}
 
 	{
+
+		// Showing original lines for comparaison purpose
 		QMainWindow *window = new QMainWindow();
 		SLFloatView *v = new SLFloatView(window);
 
-		extract_plotted(ncols, plotted, p_ext, 0, 1);
+		extract_plotted(ncols, plotted, p_ext, 2, 3);
 		v->set_size(W_FRAME,H_FRAME);
 		v->set_ortho(1.0, 1.0);
 		v->set_points(p_ext);
@@ -108,8 +112,8 @@ int main(int argc, char** argv)
 	}
 	
 
-	/*
 	{
+		// Showing b-code for testing purpose
 		QMainWindow *window = new QMainWindow();
 		window->setWindowTitle("bz - code bz");
 		SLIntView *v = new SLIntView(window);
@@ -122,7 +126,7 @@ int main(int argc, char** argv)
 		window->setCentralWidget(v);
 		window->resize(v->sizeHint());
 		window->show();
-	}*/
+	}
 
 	return app.exec();
 }

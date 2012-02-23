@@ -61,7 +61,8 @@ inline PVBCode cb_idx2bcode(uint32_t idx, uint32_t bitn)
 #endif
 
 #define NB_BITS_BCODE 25 // 11*2 for 'l' and 'r', and 3 for the type
-#define NB_BCODE (1<<(NB_BITS_BCODE))
+//#define NB_BCODE (1<<(NB_BITS_BCODE)) <- we can be better than that, because there is only 6 types
+#define NB_BCODE (6*(1<<11)*(1<<11))
 #define NB_INT_BCODECB (NB_BCODE/(8*sizeof(uint32_t)))
 #define SIZE_BCODECB (NB_INT_BCODECB*sizeof(uint32_t))
 

@@ -97,6 +97,17 @@ void PVCore::PVElement::save_elt_buffer()
 	memcpy(_org_buf, begin(), size());
 }
 
+bool PVCore::PVElement::restore_elt_with_saved_buffer()
+{
+	if (!_org_buf) {
+		return false;
+	}
+	assert(_org_buf_size <= physical_size());
+	memcpy(begin(), _org_buf, _org_buf_size);
+	clear_saved_buf();
+	return true;
+}
+
 void PVCore::PVElement::clear_saved_buf()
 {
 	if (!_org_buf) {
