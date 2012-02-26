@@ -243,7 +243,7 @@ QItemEditorFactory* PVInspector::PVArgumentListWidget::create_mapping_plotting_w
 
 	QItemEditorCreatorBase *timeformat_creator = new QStandardItemEditorCreator<PVTimeFormatEditor>();
 	QItemEditorCreatorBase *qstr_creator = new QItemEditorCreator<QLineEdit>("text");
-	QItemEditorCreatorBase *pv_checkbox_creator = new QItemEditorCreator<PVCheckBoxEditor>();
+	QItemEditorCreatorBase *pv_checkbox_creator = new QItemEditorCreator<PVCheckBoxEditor>("Lowercase strings");
 
 	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVTimeFormatType>(), timeformat_creator);
 	args_widget_factory->registerEditor(QVariant::String, qstr_creator);
