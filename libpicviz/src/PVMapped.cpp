@@ -465,6 +465,5 @@ void Picviz::PVMapped::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerial
 		so.attribute("data-size", size);
 		trans_table.reserve(_mapping.get_number_cols(), size/_mapping.get_number_cols());
 		so.buffer("data", trans_table.getData(), size*sizeof(float));
-		_mapping.validate_all();
 	}
 }
