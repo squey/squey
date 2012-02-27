@@ -342,7 +342,7 @@ void PVGL::PVMain::close_callback(void)
  * PVGL::PVMain::entry_callback
  *
  *****************************************************************************/
-void PVGL::PVMain::entry_callback(int state)
+void PVGL::PVMain::entry_callback(int/* state*/)
 {
 #if 0
 	PVLOG_DEBUG("PVGL::PVMain::%s\n", __FUNCTION__);
@@ -755,7 +755,7 @@ void PVGL::PVMain::timer_func(int)
 								PVGL::wtk_set_current_window(pv_view->get_window_id());
 								pv_view->update_selection_except_listing();
 								pv_view->get_lines().update_arrays_selection();
-								pv_view->get_map().update_arrays_selection();
+								// disabled for now pv_view->get_map().update_arrays_selection();
 								pv_view->set_update_line_dirty();
 								PVGL::wtk_window_need_redisplay();
 							}
@@ -817,7 +817,7 @@ void PVGL::PVMain::timer_func(int)
 						//picviz_view->gl_call_locker.unlock();
 						PVLOG_DEBUG("   pv_view->update_lines\n");
 						pv_view->get_lines().update_arrays_selection();
-						pv_view->get_map().update_arrays_selection();
+						// disabled for now pv_view->get_map().update_arrays_selection();
 						pv_view->update_lines();
 					}
 					//                                        PVLOG_DEBUG("   pv_view->update_lines\n");

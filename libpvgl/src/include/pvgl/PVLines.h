@@ -185,6 +185,9 @@ public:
 	void move_offset(const vec2 &delta);
 
   void reinit_picviz_view();
+
+  void update_lpr();
+  void create_batches();
 };
 }
 #endif

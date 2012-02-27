@@ -23,7 +23,7 @@ class PVView;
 #include <pvgl/PVAxes.h>
 #include <pvgl/PVSelectionSquare.h>
 #include <pvgl/PVLines.h>
-#include <pvgl/PVMap.h>
+// disabled map for now #include <pvgl/PVMap.h>
 #include <pvgl/PVWidgetManager.h>
 #include <pvgl/PVEventLine.h>
 #include <pvgl/PVLabel.h>
@@ -40,7 +40,7 @@ class LibGLDecl PVView : public PVDrawable {
 
 	PVWidgetManager  widget_manager;        //!<
 	PVLines lines;                          //!<
-	PVMap   map;
+	//PVMap   map;
 	PVAxes             axes;                //!<
 
 	bool selection_dirty;          //!< A boolean to ask for a redraw of the selection
@@ -57,7 +57,7 @@ class LibGLDecl PVView : public PVDrawable {
 	/**
 	 *
 	 */
-	void toggle_map();
+	//void toggle_map();
 	
 public: //FIXME!
 
@@ -124,7 +124,7 @@ public:
 	 *
 	 * @return
 	 */
-	PVMap &get_map(){return map;}
+	//PVMap &get_map(){return map;}
 
 	/**
 	 *

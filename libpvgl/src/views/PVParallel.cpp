@@ -39,7 +39,7 @@ PVGL::PVView::PVView(int win_id, PVSDK::PVMessenger *message) : PVGL::PVDrawable
 		selection_square(this),
 		widget_manager(),
 		lines(this),
-		map(this, &widget_manager, &lines, width, height),
+		// Disabled for now map(this, &widget_manager, &lines, width, height),
 		axes(this)
 {
 	PVLOG_DEBUG("PVGL::PVView::%s\n", __FUNCTION__);
@@ -51,6 +51,7 @@ PVGL::PVView::PVView(int win_id, PVSDK::PVMessenger *message) : PVGL::PVDrawable
 	update_line_dirty = false;
 	size_dirty = true;
 	max_lines_per_redraw = pvconfig.value("pvgl/lpr", MAX_LINES_PER_REDRAW).toInt();
+	max_lines_per_redraw = 1000; // FIXME: this is just for testing new code
 
 	// Creation of the ui.
 	top_bar = new PVLayout(&widget_manager);
@@ -122,7 +123,7 @@ void PVGL::PVView::init(Picviz::PVView_p view)
 	axes.init(view);
 	selection_square.init(view);
 	lines.init(view);
-	map.init(view);
+	// map.init(view);
 	event_line->set_view(view);
 
 	/* We fill the arrays for later use */
@@ -131,11 +132,11 @@ void PVGL::PVView::init(Picviz::PVView_p view)
 	lines.update_arrays_z();
 	lines.update_arrays_zombies();
 	lines.update_arrays_selection();
-	map.update_arrays_positions();
-	map.update_arrays_colors();
-	map.update_arrays_z();
-	map.update_arrays_zombies();
-	map.update_arrays_selection();
+	// map.update_arrays_positions();
+	// map.update_arrays_colors();
+	// map.update_arrays_z();
+	// map.update_arrays_zombies();
+	// map.update_arrays_selection();
 
 	axes.update_arrays();
 	axes.update_arrays_bg();
@@ -222,7 +223,7 @@ void PVGL::PVView::draw(void)
 	if (show_axes) {
 		axes.draw_names();
 	}
-	map.draw();
+	// map.draw();
 
 	glDisable(GL_DEPTH_TEST);
 
@@ -406,7 +407,7 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 				update_selections();
 				break;
 		case 'm':
-				toggle_map();
+				// toggle_map();
 				break;
 		case 'r':
 				message.function = PVSDK_MESSENGER_FUNCTION_REPORT_CHOOSE_FILENAME;
@@ -436,7 +437,7 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 					/* We refresh the view */
 					//picviz_view_process_visibility(pv_view);
 					get_lines().set_main_fbo_dirty();
-					map.set_main_fbo_dirty();
+					//map.set_main_fbo_dirty();
 				}
 				break;
 		case 'w': case 'W':
@@ -468,7 +469,7 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 					state_machine->toggle_gl_zombie_visibility();
 					/* We refresh the view */
 					get_lines().set_main_fbo_dirty();
-					map.set_main_fbo_dirty();
+					// map.set_main_fbo_dirty();
 				}
 				break;
 		case 127: // Delete key from the main keyboard. In axes mode, delete the selected axis.
@@ -514,9 +515,9 @@ void PVGL::PVView::mouse_down(int button, int x, int y, int modifiers)
 		return;
 	}
 	state_machine = picviz_view->state_machine;
-	if (map.mouse_down(x, y)) {
+/*	if (map.mouse_down(x, y)) {
 		return;
-	}
+	}*/
 	if (top_bar->is_visible() && event_line->mouse_down(button, x, y, modifiers)) {
 		return;
 	}
@@ -613,9 +614,9 @@ bool PVGL::PVView::mouse_move(int x, int y, int modifiers)
 		return false;
 	}
 	state_machine = picviz_view->state_machine;
-	if (map.mouse_move(x, y)) {
+/*	if (map.mouse_move(x, y)) {
 		return false;
-	}
+	}*/
 	if (top_bar->is_visible() && event_line->mouse_move(x, y, modifiers)) {
 		return false;
 	}
@@ -666,9 +667,9 @@ bool PVGL::PVView::mouse_up(int button, int x, int y, int modifiers)
 	}
 	state_machine = picviz_view->state_machine;
 
-	if (map.mouse_up(x, y)) {
+/*	if (map.mouse_up(x, y)) {
 		return true;
-	}
+	}*/
 
 	if (top_bar->is_visible() && event_line->mouse_up(button, x, y, modifiers)) {
 		return true;
@@ -703,7 +704,7 @@ bool PVGL::PVView::mouse_up(int button, int x, int y, int modifiers)
 			//picviz_view->gl_call_locker.unlock();
 			PVLOG_DEBUG("PVGL::PVView::%s : pv_view->update_lines\n", __FUNCTION__);
 			get_lines().update_arrays_selection();
-			get_map().update_arrays_selection();
+			//	get_map().update_arrays_selection();
 			update_lines();
 		}
 
@@ -1025,6 +1026,8 @@ void PVGL::PVView::special_keys(int key, int, int)
 			case GLUT_KEY_F1:
 					if (glutGetModifiers() & GLUT_ACTIVE_SHIFT) {
 						max_lines_per_redraw += 1000;
+						// We should talk PVLines about this!
+						lines.update_lpr();
 					} else {
 						max_lines_per_redraw -= 1000;
 						if (max_lines_per_redraw < 1000) {
@@ -1041,12 +1044,14 @@ void PVGL::PVView::special_keys(int key, int, int)
  * PVGL::PVView::toggle_map
  *
  *****************************************************************************/
+#if 0
 void PVGL::PVView::toggle_map()
 {
 	PVLOG_DEBUG("PVGL::PVView::%s\n", __FUNCTION__);
 
-	map.toggle_map();
+	//map.toggle_map();
 }
+#endif
 
 /******************************************************************************
  *
@@ -1079,16 +1084,17 @@ void PVGL::PVView::update_all(void)
 	}
 	axes.update_arrays();
 	axes.update_arrays_bg();
+	lines.update_lpr();
 	lines.update_arrays_colors();
 	lines.update_arrays_z();
 	lines.update_arrays_selection();
 	lines.update_arrays_zombies();
 	lines.update_arrays_positions();
-	map.update_arrays_colors();
-	map.update_arrays_z();
-	map.update_arrays_selection();
-	map.update_arrays_zombies();
-	map.update_arrays_positions();
+	//map.update_arrays_colors();
+	//map.update_arrays_z();
+	//map.update_arrays_selection();
+	//map.update_arrays_zombies();
+	//map.update_arrays_positions();
 	selection_square.update_arrays();
 }
 
@@ -1110,8 +1116,8 @@ void PVGL::PVView::update_axes(void)
 	axes.update_arrays_bg();
 	lines.update_arrays_selection();
 	lines.update_arrays_zombies();
-	map.update_arrays_selection();
-	map.update_arrays_zombies();
+	//map.update_arrays_selection();
+	//map.update_arrays_zombies();
 }
 
 
@@ -1169,7 +1175,7 @@ void PVGL::PVView::update_colors()
 	}
 
 	get_lines().update_arrays_colors();
-	get_map().update_arrays_colors();
+	//get_map().update_arrays_colors();
 }
 
 /******************************************************************************
@@ -1250,7 +1256,7 @@ void PVGL::PVView::update_positions()
 	}
 
 	get_lines().update_arrays_positions();
-	get_map().update_arrays_positions();
+	//get_map().update_arrays_positions();
 }
 
 /******************************************************************************
@@ -1283,7 +1289,7 @@ void PVGL::PVView::update_selections()
 	}
 
 	get_lines().update_arrays_selection();
-	get_map().update_arrays_selection();
+	//get_map().update_arrays_selection();
 }
 
 /******************************************************************************
@@ -1297,7 +1303,7 @@ void PVGL::PVView::update_set_size()
 
 	size_dirty = false;
 	lines.set_size(width, height);
-	map.set_size(width, height);
+	//map.set_size(width, height);
 }
 
 /******************************************************************************
@@ -1350,7 +1356,7 @@ void PVGL::PVView::update_z()
 	}
 
 	get_lines().update_arrays_z();
-	get_map().update_arrays_z();
+	//get_map().update_arrays_z();
 }
 
 /******************************************************************************
@@ -1370,6 +1376,6 @@ void PVGL::PVView::update_zombies()
 	}
 
 	get_lines().update_arrays_zombies();
-	get_map().update_arrays_zombies();
+	//get_map().update_arrays_zombies();
 }
 
