@@ -92,6 +92,7 @@ include/pvkernel/core/PVSerializeObject.h
 include/pvkernel/core/PVSpinBoxType.h
 include/pvkernel/core/PVTBBMaxArray.h
 include/pvkernel/core/PVTBBMinMaxArray.h
+include/pvkernel/core/PVTextEditType.h
 include/pvkernel/core/PVTimeFormatType.h
 include/pvkernel/core/PVTypeInfo.h
 include/pvkernel/core/PVUtils.h

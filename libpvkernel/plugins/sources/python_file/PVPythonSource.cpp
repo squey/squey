@@ -69,7 +69,7 @@ PVRush::PVPythonSource::~PVPythonSource()
 {
 	PVCore::PVPythonLocker locker;
 	try {
-		_python_own_namespace["piciviz_close"]();
+		_python_own_namespace["picviz_close"]();
 	}
 	catch (boost::python::error_already_set const&)
 	{

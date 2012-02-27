@@ -15,6 +15,7 @@
 #include <QFrame>
 #include <QMouseEvent>
 #include <QStandardItemEditorCreator>
+#include <QTextEdit>
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVAxisIndexType.h>
@@ -24,6 +25,7 @@
 #include <pvkernel/core/PVColorGradientDualSliderType.h>
 #include <pvkernel/core/PVTimeFormatType.h>
 #include <pvkernel/core/PVPlainTextType.h>
+// #include <pvkernel/core/PVTextEditType.h>
 
 #include <picviz/PVView_types.h>
 
@@ -42,6 +44,7 @@
 #include <PVAxisIndexCheckBoxEditor.h>
 #include <PVTimeFormatEditor.h>
 #include <PVPlainTextEditor.h>
+// #include <PVTextEditEditor.h>
 
 /******************************************************************************
  *
@@ -198,6 +201,7 @@ QItemEditorFactory* PVInspector::PVArgumentListWidget::create_layer_widget_facto
 	QItemEditorCreatorBase *dualslider_creator = new PVArgumentEditorCreator<PVColorGradientDualSliderEditor>(view);
 	QItemEditorCreatorBase *spinbox_creator = new PVArgumentEditorCreator<PVSpinBoxEditor>(view);
 	QItemEditorCreatorBase *plaintext_creator = new PVArgumentEditorCreator<PVPlainTextEditor>(view);
+	// QItemEditorCreatorBase *textedit_creator = new PVArgumentEditorCreator<PVTextEditEditor>(view);
 	QItemEditorCreatorBase *layerenum_creator = new PVArgumentEditorCreator<PVLayerEnumEditor>(view);
 	QItemEditorCreatorBase *qstr_creator = new QItemEditorCreator<QLineEdit>("text");
 
@@ -211,6 +215,7 @@ QItemEditorFactory* PVInspector::PVArgumentListWidget::create_layer_widget_facto
 	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVColorGradientDualSliderType>(), dualslider_creator);
 	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVSpinBoxType>(), spinbox_creator);
 	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVPlainTextType>(), plaintext_creator);
+	// args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVTextEditType>(), textedit_creator);
 	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<Picviz::PVLayer*>(), layerenum_creator);
 	args_widget_factory->registerEditor(QVariant::RegExp, regexp_creator);
 	args_widget_factory->registerEditor(QVariant::String, qstr_creator);
@@ -238,9 +243,11 @@ QItemEditorFactory* PVInspector::PVArgumentListWidget::create_mapping_plotting_w
 
 	QItemEditorCreatorBase *timeformat_creator = new QStandardItemEditorCreator<PVTimeFormatEditor>();
 	QItemEditorCreatorBase *qstr_creator = new QItemEditorCreator<QLineEdit>("text");
+	QItemEditorCreatorBase *pv_checkbox_creator = new QItemEditorCreator<PVCheckBoxEditor>("Lowercase strings");
 
 	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVTimeFormatType>(), timeformat_creator);
 	args_widget_factory->registerEditor(QVariant::String, qstr_creator);
+	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVCheckBoxType>(), pv_checkbox_creator);
 
 	return args_widget_factory;
 }
