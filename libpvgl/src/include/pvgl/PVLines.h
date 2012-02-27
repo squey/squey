@@ -36,6 +36,7 @@ class LibGLDecl PVLines {
 		GLuint vbo_position;                //!< The vbo containing all the y coordinates for this batch.
 		GLuint program;                     //!< The shaders (V,G,F) program used for drawing the selected lines for this batch.
 		GLuint zombie_program;              //!< The shaders (V,G,F) program used for drawing the zombie lines for this batch.
+		GLuint vbo_pos_alloc_size; // hack
 	};
 	Picviz::PVView_p picviz_view;          //!< A pointer to the Picviz::PVView related to the lines.
 	PVView          *view;                 //!<
@@ -59,6 +60,7 @@ class LibGLDecl PVLines {
 	GLuint fbo_vao;      //!<
 	int    fbo_width;    //!< The width of the PVGL view fbo (the width of the window plus a percentage), in pixel.
 	int	   fbo_height;   //!< The height of the PVGL view fbo (the height of the window plus a percentage), in pixel.
+
 	vec2   offset; //!<
 	/**
 	 *
@@ -188,6 +190,8 @@ public:
 
   void update_lpr();
   void create_batches();
+  void fill_vbo_colors_and_zla(GLint start, GLsizei count);
+  void fill_vbo_positions(unsigned int batch_index, GLuint start, GLsizei count);
 };
 }
 #endif

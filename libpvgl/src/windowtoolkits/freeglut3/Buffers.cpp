@@ -13,6 +13,7 @@
 
 int PVGL::wtk_buffers_swap()
 {
+	//static int frequency = 0;frequency++;if(frequency%4==0)
 	glutSwapBuffers();
 	return 0;
 }

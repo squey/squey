@@ -51,7 +51,6 @@ PVGL::PVView::PVView(int win_id, PVSDK::PVMessenger *message) : PVGL::PVDrawable
 	update_line_dirty = false;
 	size_dirty = true;
 	max_lines_per_redraw = pvconfig.value("pvgl/lpr", MAX_LINES_PER_REDRAW).toInt();
-	max_lines_per_redraw = 1000; // FIXME: this is just for testing new code
 
 	// Creation of the ui.
 	top_bar = new PVLayout(&widget_manager);
