@@ -49,6 +49,7 @@ protected:
 	void set_source(PVSource* src);
 	void set_uptodate_for_col(PVCol j);
 	void invalidate_all();
+	void validate_all();
 	void add_column(PVMappingProperties const& props);
 
 public:
@@ -79,6 +80,7 @@ public:
 	PVMappingProperties const& get_properties_for_col(PVCol col) const { assert(col < columns.size()); return columns.at(col); }
 	PVMappingProperties& get_properties_for_col(PVCol col) { assert(col < columns.size()); return columns[col]; }
 	bool is_col_uptodate(PVCol j) const;
+	PVCol get_number_cols() const { return columns.size(); }
 
 	QString const& get_name() const { return _name; }
 	void set_name(QString const& name) { _name = name; }

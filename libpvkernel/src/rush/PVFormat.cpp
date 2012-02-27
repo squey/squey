@@ -20,6 +20,7 @@
 #include <pvkernel/rush/PVNormalizer.h>
 
 #include <pvkernel/filter/PVChunkFilterByElt.h>
+#include <pvkernel/filter/PVChunkFilterByEltRestoreInvalid.h>
 #include <pvkernel/filter/PVChunkFilterByEltSaveInvalid.h>
 #include <pvkernel/filter/PVElementFilterByFields.h>
 #include <pvkernel/filter/PVFieldSplitterUTF16Char.h>
@@ -31,6 +32,7 @@ PVRush::PVFormat::PVFormat()
 	_dump_elts = false;
 	_already_pop = false;
 	_original_was_serialized = false;
+	_restore_inv_elts = false;
 }
 
 PVRush::PVFormat::PVFormat(QString const& format_name_, QString const& full_path_)
@@ -210,6 +212,10 @@ PVFilter::PVChunkFilter_f PVRush::PVFormat::create_tbb_filters()
 	PVFilter::PVChunkFilter* chk_flt;
 	if (_dump_elts) {
 		chk_flt = new PVFilter::PVChunkFilterByEltSaveInvalid(elt_f);
+	}
+	else
+	if (_restore_inv_elts) {
+		chk_flt = new PVFilter::PVChunkFilterByEltRestoreInvalid(elt_f);
 	}
 	else {
 		chk_flt = new PVFilter::PVChunkFilterByElt(elt_f);

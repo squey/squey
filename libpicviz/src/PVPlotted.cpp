@@ -582,7 +582,6 @@ void Picviz::PVPlotted::serialize(PVCore::PVSerializeObject& so, PVCore::PVSeria
 	so.object("plotting", _plotting, QString(), false, (PVPlotting*) NULL, false);
 	so.object("view", _view, QObject::tr("View"));
 
-
 	so.list("expanded_sels", _expanded_sels, "Expanded selections", (ExpandedSelection*) NULL, QStringList(), true, true);
 }
 

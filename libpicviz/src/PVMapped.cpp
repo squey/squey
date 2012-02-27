@@ -454,4 +454,16 @@ void Picviz::PVMapped::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerial
 		plotted_names << (*it)->get_name();
 	}
 	so.list("plotted", _plotteds, "Plottings", (PVPlotted*) NULL, plotted_names, true, true);
+
+	if (so.is_writing()) {
+		unsigned int size = trans_table.count();
+		so.attribute("data-size", size);
+		so.buffer("data", trans_table.getData(), size*sizeof(float));
+	}
+	else {
+		unsigned int size = 0;
+		so.attribute("data-size", size);
+		trans_table.reserve(_mapping.get_number_cols(), size/_mapping.get_number_cols());
+		so.buffer("data", trans_table.getData(), size*sizeof(float));
+	}
 }

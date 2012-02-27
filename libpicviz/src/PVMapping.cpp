@@ -262,6 +262,19 @@ void Picviz::PVMapping::invalidate_all()
 	}
 }
 
+/******************************************************************************
+ *
+ * Picviz::PVMapping::validate_all
+ *
+ *****************************************************************************/
+void Picviz::PVMapping::validate_all()
+{
+	QList<PVMappingProperties>::iterator it;
+	for (it = columns.begin(); it != columns.end(); it++) {
+		it->set_uptodate();
+	}
+}
+
 
 
 /******************************************************************************

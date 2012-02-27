@@ -144,6 +144,7 @@ void Picviz::PVSource::extract_finished()
 
 void Picviz::PVSource::set_format(PVRush::PVFormat const& format)
 {
+	//format.restore_invalid_elts(true);
 	_extractor.set_format(format);
 	_axes_combination.set_from_format(_extractor.get_format());
 
