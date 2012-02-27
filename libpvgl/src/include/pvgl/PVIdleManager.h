@@ -8,6 +8,7 @@
 #define LIBPVGL_PVIDLE_MANAGER_H
 
 #include <pvkernel/core/general.h>
+#include <tbb/tick_count.h>
 
 namespace PVGL {
 class PVDrawable;
@@ -59,7 +60,8 @@ class LibGLDecl PVIdleManager {
 	struct IdleValue {
 		int  nb_lines;  //!<
 		bool removed;   //!<
-		IdleValue(int nb_lines_ = 25000, bool removed_ = false):nb_lines(nb_lines_),removed(removed_){}
+		tbb::tick_count time_start;
+		IdleValue(int nb_lines_ = 25000, bool removed_ = false):nb_lines(nb_lines_),removed(removed_){ time_start = tbb::tick_count::now(); }
 	};
 
 	std::map<IdleTask, IdleValue> tasks; //!<
