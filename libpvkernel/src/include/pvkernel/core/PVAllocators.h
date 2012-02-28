@@ -12,6 +12,12 @@
 
 namespace PVCore {
 
+/*! \brief Defines a C++ compliant allocator that can use pre-allocated memory (hack).
+ *
+ * This class defines a C++ compliant allocator that can use pre-allocated memory, and use a fallback allocator in case the original buffer is full.
+ * This is (again) a hack and should not be used if you don't understand what you are doing.
+ *
+ */
 template <class T, class FallbackAllocator = std::allocator<T> >
 class PVPreAllocatedAllocator
 {
@@ -95,9 +101,14 @@ private:
 	FallbackAllocator _fall_alloc;
 };
 
-// AG: this is a really ugly hack to have an std::list with pre-allocation from a more global
-// pointer. This is used to have a better control (and better performances) on PVField
-// allocations and desallocations !
+/*! \brief Defines a C++ compliant allocator that pre-allocates memory for std::list objects (hack).
+ *
+ * This class defines a C++ compliant allocator that pre-allocates memory for std::list objects. This is a really ugly hack to have an std::list with pre-allocation from a more global
+ * pointer. This is used to have a better control (and better performances) on PVField allocations and desallocations.
+ * This is (again) a hack and should not be used if you don't understand what you are doing.
+ *
+ * \todo Improves the way PVField objects are created and destroyed, so that such a thing won't be necessary anymore.
+ */
 template <class T, class FallbackAllocator = std::allocator<T> >
 class PVPreAllocatedListAllocator
 {
@@ -183,6 +194,14 @@ public:
 	FallbackAllocator _fall_alloc;
 };
 
+/*! \brief C++ compliant allocator class that uses direct calls to mmap/munmap.
+ *
+ * This allocator allocates memory thanks to direct calls to mmap/munmap. This can be useful in situations where we need to be sure that memory
+ * will be given back to the system, or when zero-copy reallocation are needed. This is mainly used for the NRAW table in PVRush::PVNraw.
+ *
+ * \todo More generally, we should improve the way some objects (like the NRAW table) are allocated, so that direct nmap calls won't be needed.
+ * \todo Make this work under Windows (which has a different memory management system than Linux.. !)
+ */
 template <class T>
 class PVMMapAllocator
 {
@@ -232,6 +251,14 @@ public:
 	}
 };
 
+/*! \brief C++ compliant allocator class that returns aligned pointers.
+ *
+ * This class uses posix_memalign to ensure that returned pointer are aligned on Align bytes.
+ * This is used for buffers that are loaded/stored with SSE/AVX instructions for instance (thus improving performances).
+ * The value_type declares an aligned type, and thus can be used to give hints to the compiler about the alignement of a pointer.
+ *
+ * \todo Provide a similar behavior under Windows.
+ */
 template <class T, int Align>
 class PVAlignedAllocator
 {

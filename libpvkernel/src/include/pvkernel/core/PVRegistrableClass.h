@@ -54,7 +54,7 @@ template <class RegAs> class PVClassLibrary;
  * The CLASS_REGISTRABLE macro can be replaced by CLASS_REGISTRABLE_NOCOPY if no copy constructor is available for \c MyPluginImplementation.
  *
  * \section register Registration process
- * The registration process is handled by the \ref{PVClassLibrary} class.
+ * The registration process is handled by the \ref PVClassLibrary class.
  *
  * The REGISTER_CLASS macro must be used. For instance, here is how to register our previous MyPluginImplementation class:
  * \code

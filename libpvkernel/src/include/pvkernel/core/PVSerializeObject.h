@@ -88,11 +88,14 @@ public:
 public:
 	/*! \brief Declare a new object to serialize that can be optionally saved, with a description.
 	 *  \param[in] name Name of the object to serialize
-	 *  \param[in][out] obj Object to load/save
+	 *  \param[in,out] obj Object to load/save
 	 *  \param[in] optional Can this object be optionally saved
 	 *  \param[in] desc Description of the object (for usage in a GUI for instance)
 	 *  \param[in] visible Whether or not this object will be exposed by PVInspector::PVSerializeOptionsModel (for instance)
+	 *  \param[in] def_v If not NULL, pointer to a default value to use when creating the object (will call T's copy constructor, which must exists).
+	 *  \param[in] def_option If optional is equal to true, defines the default optional state of this object (true = object will be included).
 	 *  \return If this object can be optionaly saved and an archive is being read, it returns true if the object exists in this archive and was successfully read.
+	 *
 	 *  This method will create a new PVSerializeObject and call the
 	 *  serialize_(read/write) method of obj with this new PVSerializeObject.
 	 */
@@ -106,6 +109,7 @@ public:
 	 *  \param[in] descriptions Description to use for the objects inside the list
 	 *  \param[in] visible Whether this list object will be visible or not
 	 *  \param[in] elts_optional Whether the lements of this list will be optional
+	 *  \param[in] desc Optional description of this list. If an empty QString is given, no description will be associated.
 	 *  This method declare a list of object to serialize.
 	 *  This will be represented in this form:
 	 *    list_name
@@ -141,7 +145,8 @@ public:
 	void list_ref(QString const& name, T& obj, p_type ref_so);
 
 	/*! \brief Declare a QHash to serialize. V must be serializable.
-	 *  \param[in] name Name of the QHash to serialize.
+	 *  \param[in]     name Name of the QHash to serialize.
+	 *  \param[in,out] obj  QHash input/output object to serialize.
 	 *  This method declare a QHash of object to serialize.
 	 *  K has to be convertible to a QVariant.
 	 *  This will be represented in this form:
@@ -161,8 +166,9 @@ public:
 	void arguments(QString const& name, PVArgumentList& obj);
 
 	/*! \brief Declare an attribute to load/save in the 'configuration' of the object. T must be convertible to and from a QVariant
-	 *  \param[in] name Name of the attribute
-	 *  \param[in][out] obj Attribute to save
+	 *  \param[in]     name Name of the attribute
+	 *  \param[in,out] obj  Attribute to save
+	 *  \param[in]     def  When reading, default value for obj 
 	 *  This attribute will be read/saved in the 'config.ini' file associated with the object.
 	 */
 	template <class T>
@@ -170,7 +176,7 @@ public:
 
 	/*! \brief Declare a list of attributes to load/save in the 'configuration' of the object. T must be a STL-compliant container. T::value_type must be convertible to and from a QVariant.
 	 *  \param[in] name Name of the list of attributes
-	 *  \param[in][out] obj List of attributes to save
+	 *  \param[in,out] obj List of attributes to save
 	 *  These attributes will be read/saved in the 'config.ini' file associated with the object.
 	 */
 	template <class T>
@@ -178,7 +184,7 @@ public:
 
 	/*! \brief Read/save a buffer for this object
 	 *  \param[in] name Name of the buffer. This will be used for the underlying filename.
-	 *  \param[in][out] buf Original/destination buffer
+	 *  \param[in,out] buf Original/destination buffer
 	 *  \param[in] n Size of the buffer
 	 *  \return The number of bytes read/written
 	 *  This will read/save the buffer pointed by buf. name is used as the underlying filename.
@@ -187,7 +193,7 @@ public:
 
 	/*! \brief Include an existing file, given its path.
 	 *  \param[in] name Name of this file. This will be used as the underlying destination filename.
-	 *  \param[in][out] path Path to the file. When reading the archive, this is set to the extracted file path.
+	 *  \param[in,out] path Path to the file. When reading the archive, this is set to the extracted file path.
 	 */
 	void file(QString const& name, QString& path);
 
