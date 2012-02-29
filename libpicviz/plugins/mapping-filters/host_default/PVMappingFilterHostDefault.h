@@ -17,8 +17,15 @@ namespace Picviz {
 class PVMappingFilterHostDefault: public PVMappingFilter
 {
 public:
+	PVMappingFilterHostDefault(PVCore::PVArgumentList const& args = PVMappingFilterHostDefault::default_args());
+
+public:
 	float* operator()(PVRush::PVNraw::const_trans_nraw_table_line const& values);
 	QString get_human_name() const { return QString("Default"); }
+	void set_args(PVCore::PVArgumentList const& args);
+
+private:
+	bool _case_sensitive;
 	
 	CLASS_FILTER(PVMappingFilterHostDefault)
 };

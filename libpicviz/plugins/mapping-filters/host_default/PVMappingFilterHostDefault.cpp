@@ -21,6 +21,26 @@ static inline bool compLocal(const str_local_index& s1, const str_local_index& s
 	return strcoll(s1.first.constData(), s2.first.constData()) < 0;
 }
 
+Picviz::PVMappingFilterHostDefault::PVMappingFilterHostDefault(PVCore::PVArgumentList const& args):
+	PVMappingFilter(),
+	_case_sensitive(false) // This will be changed by set_args anyway
+{
+	INIT_FILTER(PVMappingFilterHostDefault, args);
+}
+
+DEFAULT_ARGS_FILTER(Picviz::PVMappingFilterHostDefault)
+{
+	PVCore::PVArgumentList args;
+	args[PVCore::PVArgumentKey("convert-domain-lowercase", "Convert domain strings to lower case")].setValue<bool>(true);
+	return args;
+}
+
+void Picviz::PVMappingFilterHostDefault::set_args(PVCore::PVArgumentList const& args)
+{
+	Picviz::PVMappingFilter::set_args(args);
+	_case_sensitive = !args["convert-lowercase"].toBool();
+}
+
 float* Picviz::PVMappingFilterHostDefault::operator()(PVRush::PVNraw::const_trans_nraw_table_line const& values)
 {
 	assert(_dest);
@@ -40,7 +60,7 @@ float* Picviz::PVMappingFilterHostDefault::operator()(PVRush::PVNraw::const_tran
 			_dest[i] = (float) (((double)ipv4_v/(double)(PICVIZ_IPV4_MAXVAL))/((double)2.0));
 		}
 		else {
-			float res = PVCore::PVStringUtils::compute_str_factor(values[i].get_qstr()); 
+			float res = PVCore::PVStringUtils::compute_str_factor(values[i].get_qstr(), _case_sensitive); 
 			if (res > max_str) {
 				max_str = res;
 			}
@@ -84,4 +104,4 @@ float* Picviz::PVMappingFilterHostDefault::operator()(PVRush::PVNraw::const_tran
 	return _dest;
 }
 
-IMPL_FILTER_NOPARAM(Picviz::PVMappingFilterHostDefault)
+IMPL_FILTER(Picviz::PVMappingFilterHostDefault)
