@@ -59,7 +59,7 @@ include/pvkernel/core/picviz_intrin.h
 include/pvkernel/core/sse4detector.h
 include/pvkernel/core/pv_pcre_splitter.h
 include/pvkernel/core/pv_splitter.h
-include/pvkernel/core/string.h
+include/pvkernel/core/PVStringUtils.h
 include/pvkernel/core/sysinfo.h
 
 include/pvkernel/core/PVArchive.h

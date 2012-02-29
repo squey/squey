@@ -21,8 +21,12 @@ public:
 	PVMappingFilterStringDefault(PVCore::PVArgumentList const& args = PVMappingFilterStringDefault::default_args());
 
 public:
+	// Overloaded from PVFunctionArgs::set_args
+	void set_args(PVCore::PVArgumentList const& args);
 	float* operator()(PVRush::PVNraw::const_trans_nraw_table_line const& values);
 
+private:
+	bool _case_sensitive;
 	CLASS_FILTER(PVMappingFilterStringDefault)
 };
 

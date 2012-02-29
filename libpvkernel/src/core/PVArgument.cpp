@@ -62,12 +62,19 @@ QString PVCore::PVArgument_to_QString(const PVArgument &v)
 			break;
 		}
 
+		case QVariant::Bool:
+		{
+			result = QLatin1String("@Bool(");
+			result += v.toString();
+			result += QLatin1Char(')');
+			break;
+		}
+
 		case QVariant::String:
 		case QVariant::LongLong:
 		case QVariant::ULongLong:
 		case QVariant::Int:
 		case QVariant::UInt:
-		case QVariant::Bool:
 		case QVariant::Double:
 		case QVariant::KeySequence:
 		{
@@ -150,6 +157,9 @@ PVCore::PVArgument PVCore::QString_to_PVArgument(const QString &s)
 				return QVariant(s.toLatin1().mid(11, s.size() - 12));
 			} else if (s.startsWith(QLatin1String("@Char("))) {
 				return (s.size() <= 7) ? QVariant() : QVariant(QChar(s[6]));
+			} else if (s.startsWith(QLatin1String("@Bool("))) {
+				bool ret = s.compare(QLatin1String("@Bool(true)"), Qt::CaseInsensitive) == 0;
+				return QVariant(ret);
 			} else if (s.startsWith(QLatin1String("@Variant("))) {
 #ifndef QT_NO_DATASTREAM
 				QByteArray a(s.toLatin1().mid(9));

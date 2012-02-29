@@ -7,7 +7,7 @@
 #include "PVMappingFilterStringDefault.h"
 #include <pvkernel/core/PVTBBMaxArray.h>
 #include <pvkernel/core/PVCheckBoxType.h>
-#include <pvkernel/core/string.h>
+#include <pvkernel/core/PVStringUtils.h>
 
 #include <tbb/parallel_reduce.h>
 
@@ -15,7 +15,8 @@
 
 
 Picviz::PVMappingFilterStringDefault::PVMappingFilterStringDefault(PVCore::PVArgumentList const& args):
-	PVMappingFilter()
+	PVMappingFilter(),
+	_case_sensitive(true) // This will be changed by set_args anyway
 {
 	INIT_FILTER(PVMappingFilterStringDefault, args);
 }
@@ -23,9 +24,16 @@ Picviz::PVMappingFilterStringDefault::PVMappingFilterStringDefault(PVCore::PVArg
 DEFAULT_ARGS_FILTER(Picviz::PVMappingFilterStringDefault)
 {
 	PVCore::PVArgumentList args;
-	PVCore::PVCheckBoxType lowercase_checkbox;
-	args[PVCore::PVArgumentKey("convert-lowercase", "Convert strings to lower case")].setValue(lowercase_checkbox);
+	//PVCore::PVCheckBoxType lowercase_checkbox;
+	//lowercase_checkbox.set_checked(false);
+	args[PVCore::PVArgumentKey("convert-lowercase", "Convert strings to lower case")].setValue<bool>(false);
 	return args;
+}
+
+void Picviz::PVMappingFilterStringDefault::set_args(PVCore::PVArgumentList const& args)
+{
+	_case_sensitive = !args["convert-lowercase"].toBool();
+	PVLOG_INFO("case sensitive: %d\n", _case_sensitive);
 }
 
 float* Picviz::PVMappingFilterStringDefault::operator()(PVRush::PVNraw::const_trans_nraw_table_line const& values)
@@ -42,10 +50,12 @@ float* Picviz::PVMappingFilterStringDefault::operator()(PVRush::PVNraw::const_tr
 		return _dest;
 	}
 
+	const bool case_sensitive = _case_sensitive;
+	PVLOG_INFO("\n\nPVMappingStringDefault case sensitive in operator(): %d\n", _case_sensitive);
 #pragma omp parallel for
 	// Looks like this can be fine optimised with hand made SSE/AVX optimisation
 	for (int64_t i = 0; i < size; i++) {
-		factors[i] = PVCore::String::compute_str_factor(values[i].get_qstr());
+		factors[i] = PVCore::PVStringUtils::compute_str_factor(values[i].get_qstr(), case_sensitive);
 	}
 
 	// Then find the maximum thanks to TBB
@@ -63,4 +73,4 @@ float* Picviz::PVMappingFilterStringDefault::operator()(PVRush::PVNraw::const_tr
 	return _dest;
 }
 
-IMPL_FILTER_NOPARAM(Picviz::PVMappingFilterStringDefault)
+IMPL_FILTER(Picviz::PVMappingFilterStringDefault)

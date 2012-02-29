@@ -1,5 +1,5 @@
-#ifndef PVCORE_STRING_H
-#define PVCORE_STRING_H
+#ifndef PVCORE_STRINGUTILS_H
+#define PVCORE_STRINGUTILS_H
 
 /* 16105 is the value corresponding to the arbitrary string:
  * "The competent programmer is fully aware of the limited size of his own skull. He therefore approaches his task with full humility, and 
@@ -10,13 +10,20 @@
 
 namespace PVCore {
 
-class String {
+class PVStringUtils {
 public:
-	static inline uint64_t compute_str_factor(QString const& str)
+	static inline uint64_t compute_str_factor(QString const& str, bool case_sensitive = true)
 	{
 		// Using QString::toUtf8 and not QString::toLocal8Bit(), so that the "factor" variable
 		// isn't system-locale dependant.
-		QByteArray value_as_qba = str.toUtf8();
+		QByteArray value_as_qba;
+		if (case_sensitive) {
+			value_as_qba = str.toUtf8();
+		}
+		else {
+			value_as_qba = str.toLower().toUtf8();
+		}
+
 		const char* value_as_char_p = value_as_qba.data();
 		int size = value_as_qba.size();
 

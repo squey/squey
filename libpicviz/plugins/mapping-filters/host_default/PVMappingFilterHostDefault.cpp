@@ -1,6 +1,6 @@
 #include "PVMappingFilterHostDefault.h"
 #include <picviz/limits.h>
-#include <pvkernel/core/string.h>
+#include <pvkernel/core/PVStringUtils.h>
 #include <pvkernel/core/network.h>
 
 #include <QVector>
@@ -40,7 +40,7 @@ float* Picviz::PVMappingFilterHostDefault::operator()(PVRush::PVNraw::const_tran
 			_dest[i] = (float) (((double)ipv4_v/(double)(PICVIZ_IPV4_MAXVAL))/((double)2.0));
 		}
 		else {
-			float res = PVCore::String::compute_str_factor(values[i].get_qstr()); 
+			float res = PVCore::PVStringUtils::compute_str_factor(values[i].get_qstr()); 
 			if (res > max_str) {
 				max_str = res;
 			}
