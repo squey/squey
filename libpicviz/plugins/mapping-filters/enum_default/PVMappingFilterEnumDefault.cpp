@@ -5,8 +5,27 @@
 #endif
 #include <math.h>
 
+Picviz::PVMappingFilterEnumDefault::PVMappingFilterEnumDefault(PVCore::PVArgumentList const& args):
+	PVMappingFilter(),
+	_case_sensitive(true) // This will be changed by set_args anyway
+{
+	INIT_FILTER(PVMappingFilterEnumDefault, args);
+}
 
-static float _enum_position_factorize(int enumber)
+DEFAULT_ARGS_FILTER(Picviz::PVMappingFilterEnumDefault)
+{
+	PVCore::PVArgumentList args;
+	args[PVCore::PVArgumentKey("convert-lowercase", "Convert strings to lower case")].setValue<bool>(false);
+	return args;
+}
+
+void Picviz::PVMappingFilterEnumDefault::set_args(PVCore::PVArgumentList const& args)
+{
+	Picviz::PVMappingFilter::set_args(args);
+	_case_sensitive = !args["convert-lowercase"].toBool();
+}
+
+float Picviz::PVMappingFilterEnumDefault::_enum_position_factorize(qlonglong enumber)
 {
 	float res = 0;
 #ifdef WIN32
@@ -36,34 +55,12 @@ static float _enum_position_factorize(int enumber)
 
 float* Picviz::PVMappingFilterEnumDefault::operator()(PVRush::PVNraw::const_trans_nraw_table_line const& values)
 {
-	float retval = 0;
-	int position = 0;
-	hash_values enum_hash;
-	if (_grp_value && _grp_value->isValid()) {
-		PVLOG_DEBUG("(mapping-enum) using previous values for enumeration\n");
-		enum_hash = _grp_value->value<hash_values>();
+	if (_case_sensitive) {
+		return process<hash_values>(values);
 	}
-	_poscount = 0;
-
-	for (size_t i = 0; i < values.size(); i++) {
-		PVCore::PVUnicodeString const& value(values[i]);
-		hash_values::iterator it_v = enum_hash.find(value);
-		if (it_v != enum_hash.end()) {
-			position = it_v.value().toInt();
-			retval = _enum_position_factorize(position);
-		} else {
-			_poscount++;
-			enum_hash[value] = QVariant((qlonglong)_poscount);
-			retval = _enum_position_factorize(_poscount);
-		}
-		_dest[i] = retval;
+	else {
+		return process<hash_nocase_values>(values);
 	}
-
-	if (_grp_value) {
-		_grp_value->setValue<hash_values>(enum_hash);
-	}
-
-	return _dest;
 }
 
-IMPL_FILTER_NOPARAM(Picviz::PVMappingFilterEnumDefault)
+IMPL_FILTER(Picviz::PVMappingFilterEnumDefault)

@@ -8,6 +8,7 @@ namespace PVCore {
 
 class PVBufferSlice;
 class PVUnicodeString;
+class PVUnicodeStringHashNoCase;
 
 }
 
@@ -15,6 +16,7 @@ class PVUnicodeString;
 //#warning libpvkernel/core/PVUnicodeString.h must be included before QHash if you want to use it as a QHash key.
 #endif
 LibKernelDecl unsigned int qHash(PVCore::PVUnicodeString const& str);
+LibKernelDecl unsigned int qHash(PVCore::PVUnicodeStringHashNoCase const& str);
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVBufferSlice.h>
@@ -53,8 +55,7 @@ public:
 	{
 		_buf = other._buf;
 		_len = other._len;
-	}
-	*/
+	}*/
 
 	PVUnicodeString(const utf_char* buf, size_t len):
 		_buf(buf),
@@ -70,7 +71,9 @@ public:
 	template <typename T>
 	T to_integer() const
 	{
+		// TODO: implement this !
 		T ret = 0;
+		return ret;
 	}
 
 	// == Comparaisons ==
@@ -126,6 +129,17 @@ private:
 	PYTHON_EXPOSE()
 };
 #pragma pack(pop)
+
+class PVUnicodeStringHashNoCase
+{
+public:
+	PVUnicodeStringHashNoCase(PVUnicodeString const& str): _str(str) { }
+public:
+	inline PVUnicodeString const& str() const { return _str; }
+	inline bool operator==(const PVUnicodeStringHashNoCase& o) const { return _str.compareNoCase(o.str()) == 0; }
+private:
+	PVUnicodeString const& _str;
+};
 
 }
 

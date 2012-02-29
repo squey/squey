@@ -25,9 +25,43 @@ static inline unsigned int hash(const PVCore::PVUnicodeString::utf_char *p, int 
 	return h;
 }
 
+static inline unsigned int hash_lowercase(const PVCore::PVUnicodeString::utf_char *p, int n)
+{
+	unsigned int h = 0; 
+	const QChar* qp = (const QChar*) p;
+	const QChar* qe = ((const QChar*) p) + n;
+
+	// Inspired by QString::toLower code source !
+	// Avoid one check in the following loop !
+	if (qp->isLowSurrogate()) {
+		qp++;
+	}
+
+	// TODO: some work can be done for vectorizing this process !
+	while (qp != qe) {
+		uint32_t lc;
+		if (qp->isLowSurrogate() && (qp-1)->isHighSurrogate()) {
+			lc = QChar::toLower(QChar::surrogateToUcs4(*(qp-1), *qp));
+		}
+		else {
+			lc = qp->toLower().unicode();
+		}
+		h = (h << 4) + lc;
+		h ^= (h & 0xf0000000) >> 23;
+		h &= 0x0fffffff;
+		qp++;
+	}
+	return h;
+}
+
 unsigned int qHash(PVCore::PVUnicodeString const& str)
 {
 	return hash(str.buffer(), str.size());
+}
+
+unsigned int qHash(PVCore::PVUnicodeStringHashNoCase const& str)
+{
+	return hash_lowercase(str.str().buffer(), str.str().size());
 }
 
 double PVCore::PVUnicodeString::to_double(bool& ok) const
