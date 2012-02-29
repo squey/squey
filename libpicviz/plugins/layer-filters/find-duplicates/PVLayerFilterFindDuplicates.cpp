@@ -7,7 +7,6 @@
 #include "PVLayerFilterFindDuplicates.h"
 #include <pvkernel/core/PVColor.h>
 #include <pvkernel/core/PVAxisIndexType.h>
-#include <pvkernel/core/PVCheckBoxType.h>
 #include <picviz/PVView.h>
 
 
@@ -31,8 +30,8 @@ DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterFindDuplicates)
 {
 	PVCore::PVArgumentList args;
 	args["Axis"].setValue(PVCore::PVAxisIndexType(0));
-	args["Select only non-duplicates"].setValue(PVCore::PVCheckBoxType(false));
-	args["Select with one duplicate"].setValue(PVCore::PVCheckBoxType(true));
+	args[PVCore::PVArgumentKey("select-only-dup", "Select only non-duplicates")].setValue<bool>(false);
+	args[PVCore::PVArgumentKey("select-only-one-dup", "Select with one duplicate")].setValue<bool>(true);
 	return args;
 }
 
@@ -44,8 +43,8 @@ DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterFindDuplicates)
 void Picviz::PVLayerFilterFindDuplicates::operator()(PVLayer& in, PVLayer &out)
 {	
 	int axis_id = _args["Axis"].value<PVCore::PVAxisIndexType>().get_original_index();
-	bool non_duplicates = _args["Select only non-duplicates"].value<PVCore::PVCheckBoxType>().get_checked();
-	bool with_one_duplicate = _args["Select with one duplicate"].value<PVCore::PVCheckBoxType>().get_checked();
+	bool non_duplicates = _args["select-only-dup"].toBool();
+	bool with_one_duplicate = _args["select-only-one-dup"].toBool();
 	PVRow nb_lines = _view->get_qtnraw_parent().get_nrows();
 
 	PVRush::PVNraw::nraw_table const& nraw = _view->get_qtnraw_parent();

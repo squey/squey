@@ -20,7 +20,6 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVAxisIndexType.h>
 #include <pvkernel/core/PVAxesIndexType.h>
-#include <pvkernel/core/PVCheckBoxType.h>
 #include <pvkernel/core/PVEnumType.h>
 #include <pvkernel/core/PVColorGradientDualSliderType.h>
 #include <pvkernel/core/PVTimeFormatType.h>
@@ -35,7 +34,6 @@
 #include <PVArgumentEditorCreator.h>
 #include <PVAxisIndexEditor.h>
 #include <PVAxesIndexEditor.h>
-#include <PVCheckBoxEditor.h>
 #include <PVRegexpEditor.h>
 #include <PVEnumEditor.h>
 #include <PVLayerEnumEditor.h>
@@ -195,7 +193,6 @@ QItemEditorFactory* PVInspector::PVArgumentListWidget::create_layer_widget_facto
 	QItemEditorCreatorBase *pv_axis_index_creator = new PVArgumentEditorCreator<PVAxisIndexEditor>(view);
 	QItemEditorCreatorBase *pv_axis_index_checkbox_creator = new PVArgumentEditorCreator<PVAxisIndexCheckBoxEditor>(view);
 	QItemEditorCreatorBase *pv_axes_index_creator = new PVArgumentEditorCreator<PVAxesIndexEditor>(view);
-	QItemEditorCreatorBase *pv_checkbox_creator = new PVArgumentEditorCreator<PVCheckBoxEditor>(view);
 	QItemEditorCreatorBase *pv_enum_creator = new PVArgumentEditorCreator<PVEnumEditor>(view);
 	QItemEditorCreatorBase *regexp_creator = new PVArgumentEditorCreator<PVRegexpEditor>(view);
 	QItemEditorCreatorBase *dualslider_creator = new PVArgumentEditorCreator<PVColorGradientDualSliderEditor>(view);
@@ -204,13 +201,14 @@ QItemEditorFactory* PVInspector::PVArgumentListWidget::create_layer_widget_facto
 	// QItemEditorCreatorBase *textedit_creator = new PVArgumentEditorCreator<PVTextEditEditor>(view);
 	QItemEditorCreatorBase *layerenum_creator = new PVArgumentEditorCreator<PVLayerEnumEditor>(view);
 	QItemEditorCreatorBase *qstr_creator = new QItemEditorCreator<QLineEdit>("text");
+	QItemEditorCreatorBase *pv_checkbox_creator = new QItemEditorCreator<QCheckBox>("checked");
 
 	
 	// And register them into the factory
 	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVAxisIndexType>(), pv_axis_index_creator);
 	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVAxisIndexCheckBoxType>(), pv_axis_index_checkbox_creator);
 	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVAxesIndexType>(), pv_axes_index_creator);
-	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVCheckBoxType>(), pv_checkbox_creator);
+	args_widget_factory->registerEditor(QVariant::Bool, pv_checkbox_creator);
 	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVEnumType>(), pv_enum_creator);
 	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVColorGradientDualSliderType>(), dualslider_creator);
 	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVSpinBoxType>(), spinbox_creator);
@@ -243,12 +241,10 @@ QItemEditorFactory* PVInspector::PVArgumentListWidget::create_mapping_plotting_w
 
 	QItemEditorCreatorBase *timeformat_creator = new QStandardItemEditorCreator<PVTimeFormatEditor>();
 	QItemEditorCreatorBase *qstr_creator = new QItemEditorCreator<QLineEdit>("text");
-	QItemEditorCreatorBase *pv_checkbox_creator = new QStandardItemEditorCreator<PVCheckBoxEditor>();
 	QItemEditorCreatorBase *pv_checkbox_creator_bool = new QItemEditorCreator<QCheckBox>("checked");
 
 	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVTimeFormatType>(), timeformat_creator);
 	args_widget_factory->registerEditor(QVariant::String, qstr_creator);
-	args_widget_factory->registerEditor((QVariant::Type) qMetaTypeId<PVCore::PVCheckBoxType>(), pv_checkbox_creator);
 	args_widget_factory->registerEditor(QVariant::Bool, pv_checkbox_creator_bool);
 
 	return args_widget_factory;

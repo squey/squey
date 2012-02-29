@@ -6,7 +6,6 @@
 
 #include "PVLayerFilterSnortForLogs.h"
 
-#include <pvkernel/core/PVCheckBoxType.h>
 #include <pvkernel/rush/PVAxisTagsDec.h>
 
 #include <picviz/PVView.h>
@@ -56,10 +55,10 @@ DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterSnortForLogs)
 {
 	PVCore::PVArgumentList args;
 
-	args["Web client"].setValue(PVCore::PVCheckBoxType(true));
-	args["Web servers"].setValue(PVCore::PVCheckBoxType(true));
-	args["Worms"].setValue(PVCore::PVCheckBoxType(true));
-	args["Other types"].setValue(PVCore::PVCheckBoxType(true));
+	args["Web client"].setValue<bool>(true);
+	args["Web servers"].setValue<bool>(true);
+	args["Worms"].setValue<bool>(true);
+	args["Other types"].setValue<bool>(true);
 
 	return args;
 }
@@ -71,10 +70,10 @@ DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterSnortForLogs)
  *****************************************************************************/
 void Picviz::PVLayerFilterSnortForLogs::operator()(PVLayer& in, PVLayer &out)
 {
-	bool web_clients = _args["Web client"].value<PVCore::PVCheckBoxType>().get_checked();
-	bool web_servers = _args["Web servers"].value<PVCore::PVCheckBoxType>().get_checked();
-	bool worms = _args["Worms"].value<PVCore::PVCheckBoxType>().get_checked();
-	bool other_types = _args["Other Types"].value<PVCore::PVCheckBoxType>().get_checked();
+	bool web_clients = _args["Web client"].toBool();
+	bool web_servers = _args["Web servers"].toBool();
+	bool worms = _args["Worms"].toBool();
+	bool other_types = _args["Other Types"].toBool();
 
 	PVRush::PVNraw::nraw_table const& nraw = _view->get_qtnraw_parent();
 	PVRow nb_lines = _view->get_qtnraw_parent().get_nrows();
