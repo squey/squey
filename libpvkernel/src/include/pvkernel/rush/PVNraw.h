@@ -96,16 +96,16 @@ namespace PVRush {
 		{
 			if (_real_nrows >= table.get_nrows()) {
 				// Reallocation is necessary
-				PVLOG_INFO("(PVNraw::add_row) reallocation of the NRAW table (element %d asked,  table size is %d).\n", _real_nrows, table.get_nrows());
+				PVLOG_DEBUG("(PVNraw::add_row) reallocation of the NRAW table (element %d asked,  table size is %d).\n", _real_nrows, table.get_nrows());
 				table.resize_nrows(_real_nrows + parent.c_elements().size(), PVCore::PVUnicodeString());
-				PVLOG_INFO("(PVNraw::add_row) resizing done !\n");
+				PVLOG_DEBUG("(PVNraw::add_row) resizing done !\n");
 				return true;
 			}
 			PVCore::list_fields& lf = elt.fields();
 			if (table.get_ncols() < (PVCol) lf.size()) {
 				PVLOG_WARN("(PVNraw::add_row) NRAW table has %d fields, and %d are requested.\n", table.get_ncols(), lf.size());
 				if (_real_nrows == 0) {
-					PVLOG_WARN("(PVNraw::add_row) that's the first element of the NRAW, resizing...\n");
+					PVLOG_DEBUG("(PVNraw::add_row) that's the first element of the NRAW, resizing...\n");
 					table.resize(table.get_nrows(), lf.size());
 					PVLOG_DEBUG("(PVNraw::add_row) resizing done !\n");
 				}

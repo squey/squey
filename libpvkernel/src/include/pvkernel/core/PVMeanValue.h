@@ -14,7 +14,7 @@ namespace PVCore {
  * save this mean value and the number of values, but it would involve a loss of precision.
  * So, Tsum can be different that T because, for instance, T can be int16_t but the sum would be int64_t.
  *
- * This a template class and each lib will export its version. There is *no* need for LibKernelDecl
+ * This a template class and each lib will include its versions. There is *no* need for LibKernelDecl
  */
 template<typename T, typename Tsum = T>
 class PVMeanValue
