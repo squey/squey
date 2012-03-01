@@ -178,6 +178,14 @@ public:
 	 */
 	template<class L> typename L::size_type split_regexp(L &container, RegexMatcher& re, typename L::iterator it_ins, bool bFullLine);
 public:
+	/*! \brief Bind a QString to this slice.
+	 *  \param[in] ret QString object to be bound
+	 *  \return Returns ret for conveniance.
+	 *
+	 * This method will call QString::setRawData on ret with the underlying buffer slice.
+	 * The advantage to use an already defined QString is that the itnernal structure might have already been allocated once and for all.
+	 * Creating a QString object each time this function is called can be (used to be, and is still for the mapping process) a performance bottleneck.
+	 */
 	inline QString& get_qstr(QString& ret) const
 	{
 		/*
@@ -190,6 +198,14 @@ public:
 		ret.setRawData((QChar*) _begin, nc);
 		return ret;
 	}
+
+	/*! \brief Create an ICU UnicodeString object bound to this slice.
+	 *  \return A freshly created UnicodeString object bound to this slice.
+	 *
+	 * This function creates a new UnicodeString object and bound it to this buffer slice.
+	 * It has performance issues since the internal structures of UnicodeString are allocated each time.
+	 * See also \ref get_qstr that used to have these issues.
+	 */
 	inline UnicodeString get_icustr() const
 	{
 		size_t nc = (_end-_begin)/sizeof(QChar);
@@ -200,6 +216,10 @@ public:
 		return ret;
 	}
 
+	/*! \brief Change the buffer list that save the allocated buffers.
+	 *  \param[in] buf_list Reference to the buffer list.
+	 *  \sa PVBufferSlice
+	 */
 	inline void set_buflist(buf_list_t& buf_list) { _buf_list = buf_list; }
 
 protected:
