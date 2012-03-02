@@ -50,7 +50,7 @@ public:
 		ite = _def_args.end();
 		for (; it != ite; it++) {
 			// If that default argument is not present in the given list
-			if (args.find(it.key()) == ite) {
+			if (args.find(it.key()) == args.end()) {
 				// An exception is thrown
 				throw PVFunctionArgumentMissing(it.key());
 			}
