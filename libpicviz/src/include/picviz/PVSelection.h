@@ -223,7 +223,7 @@ public:
 	 */
 	std::vector<PVRow> get_rows_table();
 
-	void write_selected_lines_nraw(QTextStream& stream, PVRush::PVNraw const& nraw);
+	void write_selected_lines_nraw(QTextStream& stream, PVRush::PVNraw const& nraw, PVRow write_max);
 
 protected:
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/);

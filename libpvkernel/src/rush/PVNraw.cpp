@@ -124,6 +124,18 @@ QString PVRush::PVNraw::nraw_line_to_csv(PVRow idx) const
 	return ret;
 }
 
+QStringList PVRush::PVNraw::nraw_line_to_qstringlist(PVRow idx) const
+{
+	assert(idx < table.get_nrows());
+	PVRush::PVNraw::nraw_table::const_line line = table[idx];
+	QStringList stringlist;
+	for (PVCol j = 0; j < line.size(); j++) {
+		QString field = line[j].get_qstr();
+		stringlist << field;
+	}
+	return stringlist;
+}
+
 void PVRush::PVNraw::fit_to_content()
 {
 	if (_real_nrows > PICVIZ_LINES_MAX) {
