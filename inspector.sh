@@ -52,7 +52,6 @@ export PICVIZ_DEBUG_LEVEL="DEBUG"
 	ddd gui-qt/src/picviz-inspector
 	exit 0
 fi
-
 if [ "$1" == "debug-nogl" ]
 then
 export PICVIZ_DEBUG_LEVEL="DEBUG"
@@ -113,5 +112,13 @@ cd ../..
 	#gedit /tmp/cuda-test-log.txt
 	exit 0
 fi
+
+if [ "$1" == "test" ]
+then
+#export PICVIZ_DEBUG_FILE="debug.txt"
+	gui-qt/src/picviz-inspector test_petit.log
+	exit 0
+fi
+
 
 gui-qt/src/picviz-inspector $@
