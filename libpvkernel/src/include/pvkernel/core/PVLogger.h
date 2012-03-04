@@ -29,7 +29,7 @@
 // The following are given be decreasing order of importance/verbosity
 // Rem : Use HEAVYDEBUG level when you know that the message is potentially produced
 //       a lot of times (as in a loop) and don't want it to appear in an everyday
-//       DEBUG level.s
+//       DEBUG level.
 #define PVLOG_FATAL(fmt, ...) PVCore::PVLogger::getInstance()->fatal(fmt, ##__VA_ARGS__) 
 #define PVLOG_ERROR(fmt, ...) PVCore::PVLogger::getInstance()->error(fmt, ##__VA_ARGS__) 
 #define PVLOG_CUDA_ERROR(fmt, ...) PVCore::PVLogger::getInstance()->cudaError(fmt, ##__VA_ARGS__) 
@@ -49,43 +49,48 @@
 
 namespace PVCore {
 
-	class LibKernelDecl PVLogger {
-	private:
-		FILE *fp;
-		QByteArray log_filename;
-		QMutex mutex;
-	protected:
-		PVLogger();
-	public:
-		enum LogLevel {
-			PVLOG_FATAL,
-			PVLOG_ERROR,
-			PVLOG_CUDA_ERROR,
-			PVLOG_WARN,
-			PVLOG_INFO,
-			PVLOG_DEBUG,
-			PVLOG_HEAVYDEBUG,
-		};
-
-		~PVLogger();
-
-		/* Singleton */
-		static PVLogger *getInstance();
-
-		LogLevel level;
-		QString datetime_format;
-
-		void heavydebug(const char *, ...);	
-		void debug(const char *, ...);
-		void info(const char *, ...);
-		void warn(const char *, ...);
-		void error(const char *, ...);
-		void cudaError(const char *, ...);
-		void fatal(const char *, ...);
-		void plain(const char *, ...);
-
-		QString get_now_str();
+class LibKernelDecl PVLogger
+{
+public:
+	enum LogLevel {
+		PVLOG_FATAL,
+		PVLOG_ERROR,
+		PVLOG_CUDA_ERROR,
+		PVLOG_WARN,
+		PVLOG_INFO,
+		PVLOG_DEBUG,
+		PVLOG_HEAVYDEBUG,
 	};
+
+protected:
+	PVLogger();
+public:
+
+	~PVLogger();
+
+	/* Singleton */
+	static PVLogger *getInstance();
+
+	LogLevel level;
+	QString datetime_format;
+
+	void heavydebug(const char *, ...);	
+	void debug(const char *, ...);
+	void info(const char *, ...);
+	void warn(const char *, ...);
+	void error(const char *, ...);
+	void cudaError(const char *, ...);
+	void fatal(const char *, ...);
+	void plain(const char *, ...);
+
+	QString get_now_str();
+
+private:
+	FILE *fp;
+	QByteArray log_filename;
+	QMutex mutex;
+};
+
 }
 
 #endif	/* PVCORE_PVLOGGER_H */

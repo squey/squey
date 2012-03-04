@@ -6,6 +6,12 @@
 
 namespace PVCore {
 
+/*! \brief Compares two C++ standard compliant containers.
+ *  \tparam T A C++ standard compliant container. T::value_type::operator!= must exists.
+ *  \param[in] l1 The first container
+ *  \param[in] l2 The second container
+ *  \return true if both containers have the same size and that all their elements are equal (and in the same order), false otherwise.
+ */
 template <class T>
 bool comp_list(T const& l1, T const& l2)
 {
