@@ -156,6 +156,7 @@ namespace PVRush {
 		}
 
 		QString nraw_line_to_csv(PVRow idx) const;
+		QStringList nraw_line_to_qstringlist(PVRow idx) const;
 
 		void fit_to_content();
 

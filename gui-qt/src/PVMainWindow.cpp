@@ -432,6 +432,14 @@ void PVInspector::PVMainWindow::check_messages()
 				}
 			case PVSDK_MESSENGER_FUNCTION_REPORT_CHOOSE_FILENAME:
 						{
+							Picviz::PVView_p view = current_tab->get_lib_view();
+							PVRush::PVNraw const& nraw = view->get_rushnraw_parent();
+							PVRow nrows_counter = 0;
+							PVRow write_max = 20;
+
+							// QString line = nraw.nraw_line_to_csv(0);
+							// PVLOG_INFO("line[0] = %s\n", qPrintable(line));
+
 							QString initial_path = QDir::currentPath();
 							report_image_index++;
 							initial_path += "/report.html";
@@ -469,6 +477,31 @@ void PVInspector::PVMainWindow::check_messages()
 								report_out <<  filename_nopath;
 								report_out << "\" width=\"600px\"/></td>\n";
 								report_out << "</tr>\n";
+								report_out << "</table>\n";
+
+
+								report_out << "<table border=\"1\">\n";
+								PVRow nrows = nraw.get_number_rows();
+								for (PVRow line_index = 0; line_index < nrows; line_index++) {
+									if (!view->get_selection_visible_listing()->get_line(line_index)) {	
+										continue;
+									}
+
+									nrows_counter++;
+									if ((nrows_counter < write_max) || (!write_max)) {
+										QStringList line = nraw.nraw_line_to_qstringlist(line_index);
+										report_out << "<tr>\n";
+										for (int i=0; i < line.size(); i++) {
+											report_out << "<td>" << line[i] << "</td>\n";
+										}
+										report_out << "</tr>\n";
+										// PVLOG_INFO("line:%s\n", qPrintable(line));
+									}
+								}
+								report_out << "</table>\n";
+
+
+								// report_out << src->get_rushnraw().nraw_line_to_csv(0);
 
 								message.function = PVSDK_MESSENGER_FUNCTION_TAKE_SCREENSHOT;
 								message.int_2 = true; // a QString* is passed (save to this filename)
@@ -482,13 +515,35 @@ void PVInspector::PVMainWindow::check_messages()
 								QString filename_nopath = QString("image%1.png").arg(report_image_index);
 								QString *filename_p = new QString(filename);
 
-
+								report_out << "<table border=\"1\">\n";
 								report_out << "<tr>\n";
 								report_out << "<td>" << description << "</td>\n";
 								report_out << "<td><img src=\"";
 								report_out <<  filename_nopath;
 								report_out << "\" width=\"600px\"/></td>\n";
 								report_out << "</tr>\n";
+								report_out << "</table>\n";
+
+								report_out << "<table border=\"1\">\n";
+								PVRow nrows = nraw.get_number_rows();
+								for (PVRow line_index = 0; line_index < nrows; line_index++) {
+									if (!view->get_selection_visible_listing()->get_line(line_index)) {	
+										continue;
+									}
+
+									nrows_counter++;
+									if ((nrows_counter < write_max) || (!write_max)) {
+										QStringList line = nraw.nraw_line_to_qstringlist(line_index);
+										report_out << "<tr>\n";
+										for (int i=0; i < line.size(); i++) {
+											report_out << "<td>" << line[i] << "</td>\n";
+										}
+										report_out << "</tr>\n";
+										// PVLOG_INFO("line:%s\n", qPrintable(line));
+									}
+								}
+								report_out << "</table>\n";
+
 
 								message.function = PVSDK_MESSENGER_FUNCTION_TAKE_SCREENSHOT;
 								message.int_2 = true; // a QString* is passed (save to this filename)

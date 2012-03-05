@@ -380,7 +380,7 @@ void PVInspector::PVMainWindow::export_selection_Slot()
 	// For now, save the NRAW !
 	Picviz::PVView_p view = current_tab->get_lib_view();
 	PVRush::PVNraw const& nraw = view->get_rushnraw_parent();
-	view->get_real_output_selection().write_selected_lines_nraw(stream, nraw);
+	view->get_real_output_selection().write_selected_lines_nraw(stream, nraw, 0);
 
 	setCursor(Qt::ArrowCursor);
 

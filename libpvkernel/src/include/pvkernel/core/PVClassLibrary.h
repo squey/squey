@@ -19,10 +19,56 @@
 
 namespace PVCore {
 
-// This is used to register the class T as RegAs 
-// AG: WARNING: there is *no* LibKernelDecl and this is *wanted* !
-//              check the wiki for more informations
-/*! \brief 
+/*! \brief Template class library used to register relevant classes, with associated tags if necessary. used by the plugin system.
+ *  \tparam RegAs Kind of class library. Must be a base class of T (see \ref register_class). This is generally the interface of a plugin type.
+ *
+ * This class is used by the plugin system to keep track of the different registered plugin. Each plugin implements RegAs (or one of its children),
+ * and is registered thanks to the REGISTER_CLASS or REGISTER_CLASS_AS macros.
+ *
+ * The REGISTER_CLASS(desc, T) macro can be used when T defines the type T::RegAs. Indeed, these two codes are equivalent:
+ *
+ * \code
+ * REGSTIER_CLASS("plugin-name", MyMappingPlugin);
+ * // is the same as
+ * PVCore::PVClassLibrary<MyMappingPlugin::RegAs>::get().register_class("plugin-name", MyMappingPlugin());
+ * \endcode
+ *
+ * Note that you need a valid default constructor for this macro to work.
+ * You can also use the REGISTER_CLASS_WITH_ARGS macros that helps you tune your registration. Both codes are equivalent:
+ *
+ * \code
+ * REGSTIER_CLASS_WITH_ARGS("plugin-name", MyMappingPlugin, arg1, arg2, ...);
+ * // is the same as
+ * PVCore::PVClassLibrary<MyMappingPlugin::RegAs>::get().register_class("plugin-name", MyMappingPlugin(arg1, arg2, ...));
+ * \endcode
+ *
+ * This technique is used so that, for instance, the same plugin can be registered with different default parameters (in terms of PVArgumentList)
+ * and eventually using different constructors.
+ *
+ * For instance, if you have a plugin implementation like this:
+ *
+ * \code
+ * class MyMappingPlugin: public Picviz::PVMappingFilter
+ * {
+ * public:
+ *     MyMappingPlugin(PVCore::PVArgumentList args = MyMappingPlugin::default_args());
+ *     MyMappingPlugin(int param_construct, PVCore::PVArgumentList args = MyMappingPlugin::default_args());
+ * [...]
+ *     CLASS_REGISTRABLE(MyMappingPlugin)
+ * };
+ * \endcode
+ *
+ * then, it can be registered by two ways:
+ *
+ * \code
+ * REGISTER_CLASS("my-plugin-1", MyMappingPlugin);
+ * REGISTER_CLASS_WITH_ARGS("my-plugin-2", MyMappingPlugin, 4);
+ *
+ * In the end, it looks like two plugins exists, but they are using the same underlying class.
+ *
+ * \note
+ * AG: WARNING: there is *no* LibKernelDecl and this is *wanted* !
+ *              check the wiki for more informations
  */
 template<class RegAs>
 class PVClassLibrary {
