@@ -421,19 +421,25 @@ uint32_t* Picviz::PVSelection::get_buffer()
 	return &table[0];
 }
 
-void Picviz::PVSelection::write_selected_lines_nraw(QTextStream& stream, PVRush::PVNraw const& nraw)
+void Picviz::PVSelection::write_selected_lines_nraw(QTextStream& stream, PVRush::PVNraw const& nraw, PVRow write_max)
 {
 	PVRow nrows = nraw.get_number_rows();
 	assert(nrows > 0);
 	PVCol ncols = nraw.get_number_cols();
 	assert(ncols > 0);
-	for (int line_index = 0; line_index < nrows; line_index++) {
+
+	PVRow nrows_counter = 0;
+
+	for (PVRow line_index = 0; line_index < nrows; line_index++) {
 		if (!get_line(line_index)) {
 			continue;
 		}
 
-		QString line = nraw.nraw_line_to_csv(line_index);
-		stream << line << QString("\n");
+		nrows_counter++;
+		if ((nrows_counter < write_max) || (!write_max)) {
+			QString line = nraw.nraw_line_to_csv(line_index);
+			stream << line << QString("\n");
+		}
 	}
 }
 
