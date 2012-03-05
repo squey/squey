@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<QHelpCollectionProject version="1.0">
+	<assistant>
+		<title>Picviz Inspector Help</title>
+		<startPage>qthelp://org.picviz.inspector/doc/index.html</startPage>
+		<!--<applicationIcon>application.png</applicationIcon>-->
+		<enableFilterFunctionality>false</enableFilterFunctionality>
+		<enableDocumentationManager>false</enableDocumentationManager>
+		<enableAddressBar visible="true">true</enableAddressBar>
+		<cacheDirectory>picviz/inspector</cacheDirectory>
+		<!--<aboutMenuText>
+			<text>About My Application</text>
+			<text language="de">ber meine Applikation...</text>
+		</aboutMenuText>
+		<aboutDialog>
+			<file>about.txt</file>
+			<file language="de">ueber.txt</file>
+			<icon>about.png</icon>
+			</aboutDialog>-->
+	</assistant>
+	<!--
+	<docFiles>
+		<generate>
+			<file>
+				<input>myapplication-manual.qhp</input>
+				<output>myapplication-manual.qch</output>
+			</file>
+		</generate>
+		<register>
+			<file>myapplication-manual.qch</file>
+		</register>
+	</docFiles>-->
+</QHelpCollectionProject>

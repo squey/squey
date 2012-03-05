@@ -913,7 +913,7 @@ GENERATE_HTMLHELP      = NO
 # can add a path in front of the file if the result should not be
 # written to the html output directory.
 
-CHM_FILE               = pvkernel
+CHM_FILE               = picviz
 
 # If the GENERATE_HTMLHELP tag is set to YES, the HHC_LOCATION tag can
 # be used to specify the location (absolute path including file name) of
@@ -956,13 +956,13 @@ GENERATE_QHP           = YES
 # be used to specify the file name of the resulting .qch file.
 # The path specified is relative to the HTML output folder.
 
-QCH_FILE               = pvkernel.qch
+QCH_FILE               = libpicviz.qch
 
 # The QHP_NAMESPACE tag specifies the namespace to use when generating
 # Qt Help Project output. For more information please see
 # http://doc.trolltech.com/qthelpproject.html#namespace
 
-QHP_NAMESPACE          = org.picviz.inspector.pvkernel
+QHP_NAMESPACE          = org.picviz.inspector.picviz
 
 # The QHP_VIRTUAL_FOLDER tag specifies the namespace to use when generating
 # Qt Help Project output. For more information please see

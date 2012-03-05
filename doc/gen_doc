@@ -1,0 +1,16 @@
+#!/bin/bash
+# Generate Qt assistant compatible documentation collection
+
+for l in libpvkernel libpicviz gui-qt
+do
+	pushd ../$l/doc
+	doxygen Doxyfile
+	popd
+done
+
+qcollectiongenerator collection.qhcp -o collection.qhc
+for l in libpvkernel libpicviz gui-qt
+do
+	assistant -collectionFile collection.qhc -register ../$l/doc/html/$l.qch
+done
+
