@@ -22,6 +22,8 @@ namespace PVCore {
 // This is used to register the class T as RegAs 
 // AG: WARNING: there is *no* LibKernelDecl and this is *wanted* !
 //              check the wiki for more informations
+/*! \brief 
+ */
 template<class RegAs>
 class PVClassLibrary {
 public:

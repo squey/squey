@@ -36,6 +36,42 @@ typedef std::list< PVElement*, tbb::tbb_allocator<PVElement*> > list_elts;
 
 // Describe chunk interface with no allocator template
 // Useful in order to use chunks as function arguments...
+/*! \brief Defines a chunk of data to be processed by the TBB pipeline during the normalisation process.
+ *  
+ * This class defines a chunk of data to be processed by the TBB pipeline during the normalisation process.
+ *
+ * A chunk is logically organised like this:
+ * <ul>
+ * <li>Chunk of data</li>
+ * <li>
+ *   <ul>
+ *     <li>Element 1 (slice of chunk)
+ *     <ul>
+ *       <li>Field 1 (slice of element 1)</li>
+ *       <li>Field 2 (slice of element 1)</li>
+ *     </ul>
+ *     </li>
+ *     <li>Element 2 (slice of chunk) ...</li>
+ *   </ul>
+ * </li>
+ * </ul>
+ *
+ * In memory, it is organised this way (see also \ref PVChunkMem): each PVChunkMem object is allocated in a way that it contains
+ * space after its own structure for its data. So, a pointer to a PVChunkMem object actually points to:
+ * <pre>
+ * [PVChunkMem object] [space for data] 
+ * ^
+ * |
+ * pointer to the PVChunkMem object
+ * </pre>
+ *
+ * To have a direct pointer to the associated data of a PVChunk, use the \ref begin method. PVChunk is just an interface implemented by PVChunkMem.
+ * PVChunkMem is a template object that takes an allocator as argument.
+ *
+ * \note
+ * There is a concept of logical and physical end, that is the same as \ref PVBufferSlice. Refer to the documentation of this class for more information.
+ *
+ */
 class LibKernelDecl PVChunk {
 friend class PVRush::PVAggregator;
 
@@ -65,9 +101,21 @@ public:
 		_elts.clear();
 	}
 public:
+	/*! \brief Returns a pointer to the beggining of the associated data
+	 */
 	virtual char* begin() const = 0;
+
+	/*! \brief Returns a pointer to the logical end of the associated data
+	 */
 	char* end() const { return _logical_end; };
+
+	/*! \brief Returns a pointer to the physical end of the associated data
+	 */
 	char* physical_end() const { return _physical_end; };
+
+	/*! \brief Set the logical end of the chunk.
+	 *  \param[in] p Logical end of the chunk. Must be >= begin() and <= physical_end()
+	 */
 	void set_end(char* p)
 	{
 		assert(p <= _physical_end);
