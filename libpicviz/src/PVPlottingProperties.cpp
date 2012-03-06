@@ -60,6 +60,8 @@ void Picviz::PVPlottingProperties::set_args(PVCore::PVArgumentList const& args)
 	}
 	_args = args;
 	if (_plotting_filter) {
+		_args = _plotting_filter->get_default_args();
+		PVArgumentList_set_common_args_from(_args, args);
 		_plotting_filter->set_args(args);
 	}
 }
@@ -83,7 +85,7 @@ void Picviz::PVPlottingProperties::set_mode(QString const& mode)
 	}
 	else {
 		_plotting_filter = lib_filter->clone<PVPlottingFilter>();
-		_plotting_filter->set_args(_args);
+		set_args(_args);
 	}
 	_type = get_type();
 }

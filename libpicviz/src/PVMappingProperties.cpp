@@ -53,6 +53,8 @@ void Picviz::PVMappingProperties::set_args(PVCore::PVArgumentList const& args)
 	}
 	_args = args;
 	if (_mapping_filter) {
+		_args = _mapping_filter->get_default_args();
+		PVArgumentList_set_common_args_from(_args, args);
 		_mapping_filter->set_args(args);
 	}
 }
@@ -77,7 +79,7 @@ void Picviz::PVMappingProperties::set_mode(QString const& mode)
 	}
 	else {
 		_mapping_filter = lib_filter->clone<PVMappingFilter>();
-		_mapping_filter->set_args(_args);
+		set_args(_args);
 	}
 }
 
