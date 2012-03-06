@@ -58,11 +58,14 @@ void Picviz::PVPlottingProperties::set_args(PVCore::PVArgumentList const& args)
 	if (!PVCore::comp_hash(_args, args)) {
 		_is_uptodate = false;
 	}
-	_args = args;
 	if (_plotting_filter) {
-		_args = _plotting_filter->get_default_args();
-		PVArgumentList_set_common_args_from(_args, args);
-		_plotting_filter->set_args(args);
+		PVCore::PVArgumentList new_args = _plotting_filter->get_default_args();
+		PVArgumentList_set_common_args_from(new_args, args);
+		_plotting_filter->set_args(new_args);
+		_args = new_args;
+	}
+	else {
+		_args = args;
 	}
 }
 
