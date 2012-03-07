@@ -416,6 +416,9 @@ void PVInspector::PVXmlParamWidgetBoardAxis::slotSetValues(){
     node->setAttribute(QString(PVFORMAT_AXIS_COLOR_STR),buttonColor->getColor());
     node->setAttribute(QString(PVFORMAT_AXIS_TITLECOLOR_STR),buttonTitleColor->getColor());
     node->setAttribute(QString(PVFORMAT_AXIS_TAG_STR),listTags->selectedList().join(QString(QChar(PVFORMAT_TAGS_SEP))));
+
+	updateMappingParams();
+	updatePlottingParams();
    
     emit signalRefreshView();
 }

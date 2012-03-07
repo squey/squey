@@ -6,7 +6,7 @@ float Picviz::PVMappingFilterIPv4Default::operator()(QString const& value)
 {
 	uint32_t intval = 0;
 	if (!PVCore::Network::ipv4_aton(value, intval)) {
-		PVLOG_ERROR("ipv4_mapping: IPv4 address %s has an invalid format. Returns 0\n", qPrintable(value));
+		//PVLOG_ERROR("ipv4_mapping: IPv4 address %s has an invalid format. Returns 0\n", qPrintable(value));
 		return 0;
 	}
 
