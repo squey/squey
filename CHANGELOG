@@ -1,3 +1,13 @@
+2.4.1 (14/02/2012) - Valentine's day release :)
+------------------
+
+This minor release fixes:
+ * de-synchronization of the listing and the GL views after an extraction
+ * show column names even when no lines are selected
+
+This minor release adds the features:
+ * show the number of invalid elements during an extraction
+
 2.4.0 (23/01/2012)
 ------------------
 
