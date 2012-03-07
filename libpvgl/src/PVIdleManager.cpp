@@ -105,7 +105,7 @@ void PVGL::PVIdleManager::remove_task(PVGL::PVDrawable *drawable, PVGL::PVIdleTa
 	}
 	glFinish();
 	tbb::tick_count end = tbb::tick_count::now();
-	PVLOG_INFO("(PVGL::PVIdleManager::remove_task) task done in %0.4f seconds.\n", (end-tasks[task].time_start).seconds());
+	PVLOG_DEBUG("(PVGL::PVIdleManager::remove_task) task done in %0.4f seconds.\n", (end-tasks[task].time_start).seconds());
 	IdleValue value(tasks[task].nb_lines, true);
 	tasks[task] = value;
 }
