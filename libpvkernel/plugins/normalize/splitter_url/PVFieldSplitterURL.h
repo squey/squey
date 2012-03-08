@@ -24,6 +24,8 @@ protected:
 
 private:
 	int _col_proto;
+	int _col_subdomain;
+	int _col_host;
 	int _col_domain;
 	int _col_tld;
 	int _col_port;

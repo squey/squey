@@ -3,6 +3,14 @@
 
 // Defines macros that describe tags
 
+// Subdomain
+#define PVAXIS_TAG_SUBDOMAIN "subdomain"
+#define PVAXIS_TAG_SUBDOMAIN_DESC "Describes an axis that contains a subdomain (www out of www.google.com)."
+
+// Host
+#define PVAXIS_TAG_HOST "host"
+#define PVAXIS_TAG_HOST_DESC "Describes an axis that contains a single host (google.com out of www.google.com)."
+
 // Domain
 #define PVAXIS_TAG_DOMAIN "domain"
 #define PVAXIS_TAG_DOMAIN_DESC "Describes an axis that contains domain information (like an URL)."

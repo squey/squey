@@ -773,10 +773,14 @@ void PVInspector::PVXmlDomModel::addUrlIn(const QModelIndex &index){
 	QDomElement f4 = xmlFile.createElement("field");
 	QDomElement f5 = xmlFile.createElement("field");
 	QDomElement f6 = xmlFile.createElement("field");
+	QDomElement f7 = xmlFile.createElement("field");
+	QDomElement f8 = xmlFile.createElement("field");
 
 	//create axis
 	field->getDom().appendChild(newDom);
 	QDomElement protocol = xmlFile.createElement("axis");
+	QDomElement subdomain = xmlFile.createElement("axis");
+	QDomElement host = xmlFile.createElement("axis");
 	QDomElement domain = xmlFile.createElement("axis");
 	QDomElement tld = xmlFile.createElement("axis");
 	QDomElement port = xmlFile.createElement("axis");
@@ -791,6 +795,21 @@ void PVInspector::PVXmlDomModel::addUrlIn(const QModelIndex &index){
 	protocol.setAttribute("color", "#ffffff");
 	protocol.setAttribute("titlecolor", "#ffffff");
 	protocol.setAttribute("tag", "protocol");
+
+	subdomain.setAttribute("name", "Subdomain");
+	setEltMappingPlotting(subdomain, "string", "default", "default");
+	subdomain.setAttribute("key", "false");
+	subdomain.setAttribute("color", "#ffffff");
+	subdomain.setAttribute("titlecolor", "#ffffff");
+	subdomain.setAttribute("tag", "subdomain");
+
+	host.setAttribute("name", "Host");
+	setEltMappingPlotting(host, "string", "default", "default");
+	host.setAttribute("key", "false");
+	host.setAttribute("color", "#ffffff");
+	host.setAttribute("titlecolor", "#ffffff");
+	host.setAttribute("tag", "host");
+
 	domain.setAttribute("name", "Domain");
 	setEltMappingPlotting(domain, "host", "default", "default");
 	domain.setAttribute("key", "true");
@@ -824,11 +843,13 @@ void PVInspector::PVXmlDomModel::addUrlIn(const QModelIndex &index){
 
 	//add all axis
 	f1.appendChild(protocol);
-	f2.appendChild(domain);
-	f3.appendChild(tld);
-	f4.appendChild(port);
-	f5.appendChild(url);
-	f6.appendChild(variable);
+	f2.appendChild(subdomain);
+	f3.appendChild(host);
+	f4.appendChild(domain);
+	f5.appendChild(tld);
+	f6.appendChild(port);
+	f7.appendChild(url);
+	f8.appendChild(variable);
 
 	//add all fields with axis associate
 	newDom.appendChild(f1);
@@ -837,6 +858,8 @@ void PVInspector::PVXmlDomModel::addUrlIn(const QModelIndex &index){
 	newDom.appendChild(f4);
 	newDom.appendChild(f5);
 	newDom.appendChild(f6);
+	newDom.appendChild(f7);
+	newDom.appendChild(f8);
 
 
 

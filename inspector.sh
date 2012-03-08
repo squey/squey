@@ -52,6 +52,13 @@ export PICVIZ_DEBUG_LEVEL="DEBUG"
 	ddd gui-qt/src/picviz-inspector
 	exit 0
 fi
+if [ "$1" == "nem" ]
+then
+#export PICVIZ_DEBUG_LEVEL="DEBUG"
+#export PICVIZ_DEBUG_FILE="debug.txt"
+	nemiver gui-qt/src/picviz-inspector
+	exit 0
+fi
 if [ "$1" == "debug-nogl" ]
 then
 export PICVIZ_DEBUG_LEVEL="DEBUG"

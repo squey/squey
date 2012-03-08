@@ -1,8 +1,8 @@
 //! \file PVCore::PVFieldSplitterURL.cpp
 //! $Id: PVFieldSplitterURL.cpp 3090 2011-06-09 04:59:46Z stricaud $
-//! Copyright (C) Sébastien Tricaud 2011-2011
-//! Copyright (C) Philippe Saadé 2011-2011
-//! Copyright (C) Picviz Labs 2011
+//! Copyright (C) Sébastien Tricaud 2011-2012
+//! Copyright (C) Philippe Saadé 2011-2012
+//! Copyright (C) Picviz Labs 2011-2012
 
 // Handles urls like this:
 // lintranet.beijaflore.com:443
@@ -15,8 +15,10 @@
 
 #include <QUrl>
 
+#define URL_NUMBER_FIELDS_CREATED 8
+
 struct url_decode_buf {
-	PVCore::PVField *pf[6];
+	PVCore::PVField *pf[URL_NUMBER_FIELDS_CREATED];
 	PVCore::PVField* field;
 	char* data;
 	size_t rem_len;
@@ -84,26 +86,30 @@ PVFilter::PVFieldSplitterURL::PVFieldSplitterURL() :
 
 	// Default tags position values (if the splitter is used outside a format)
 	_col_proto = 0;
-	_col_domain = 1;
-	_col_tld = 2;
-	_col_port = 3;
-	_col_url = 4;
-	_col_variable = 5;
-	_ncols = 6;
+	_col_subdomain = 1;
+	_col_host = 2;
+	_col_domain = 3;
+	_col_tld = 4;
+	_col_port = 5;
+	_col_url = 6;
+	_col_variable = 7;
+	_ncols = 8;
 }
 
 void PVFilter::PVFieldSplitterURL::set_children_axes_tag(filter_child_axes_tag_t const& axes)
 {
 	PVFieldsBaseFilter::set_children_axes_tag(axes);
 	_col_proto = axes.value(PVAXIS_TAG_PROTOCOL, -1);
+	_col_subdomain = axes.value(PVAXIS_TAG_SUBDOMAIN, -1);
+	_col_host = axes.value(PVAXIS_TAG_HOST, -1);
 	_col_domain = axes.value(PVAXIS_TAG_DOMAIN, -1);
 	_col_tld = axes.value(PVAXIS_TAG_TLD, -1);
 	_col_port = axes.value(PVAXIS_TAG_PORT, -1);
 	_col_url = axes.value(PVAXIS_TAG_URL, -1);
 	_col_variable = axes.value(PVAXIS_TAG_URL_VARIABLES, -1);
-	PVCol nmiss = (_col_proto == -1) + (_col_domain == -1) + (_col_tld == -1) + (_col_port == -1) + \
+	PVCol nmiss = (_col_proto == -1) + (_col_subdomain == -1) + (_col_host == -1) + (_col_domain == -1) + (_col_tld == -1) + (_col_port == -1) + \
 				(_col_url == -1) + (_col_variable == -1);
-	_ncols = 6-nmiss;
+	_ncols = URL_NUMBER_FIELDS_CREATED-nmiss;
 	if (_ncols == 0) {
 		PVLOG_WARN("(PVFieldSplitterURL::set_children_axes_tag) warning: URL splitter set but no tags have been found !\n");
 	}
@@ -141,6 +147,8 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterURL::one_to_many(PVCore:
 		uint16_t port = 0;
 		if (split_ip_port(qstr, ip, port)) {
 			url_decode_add_field(&buf, none, _col_proto); // Protocol
+			url_decode_add_field(&buf, none, _col_subdomain); // TLD
+			url_decode_add_field(&buf, none, _col_host); // TLD
 			url_decode_add_field(&buf, ip, _col_domain); // Domain
 			url_decode_add_field(&buf, none, _col_tld); // TLD
 			url_decode_add_field(&buf, QString::number(port), _col_port); // Port
@@ -197,6 +205,21 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterURL::one_to_many(PVCore:
 		url_path.remove(0, host.size());
 	}
 	url_decode_add_field(&buf, host, _col_domain);
+
+	// Now we play with the host(domain) string to extract the host and subdomain
+	QString just_host(" ");
+	QString just_subdomain(" ");
+	// QRegExp host_subdomains_rx("(.*)\\.(.*\..*)");	
+	// if (host_subdomains_rx.indexIn(host, 0) >= 0) {
+	// 	just_subdomain = host_subdomains_rx.cap(1);
+	// 	just_host = host_subdomains_rx.cap(2);
+	// 	url_decode_add_field(&buf, just_subdomain, _col_subdomain);
+	// 	url_decode_add_field(&buf, just_host, _col_host);
+	// } else {
+		url_decode_add_field(&buf, just_host, _col_subdomain);		
+		url_decode_add_field(&buf, just_subdomain, _col_host);
+	// }
+
 
 	// TLD
 	if (host.size() > 1 && host.at(host.size()-1).isDigit()) {
