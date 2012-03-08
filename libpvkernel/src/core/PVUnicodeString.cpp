@@ -38,7 +38,7 @@ static inline unsigned int hash_lowercase(const PVCore::PVUnicodeString::utf_cha
 	}
 
 	// TODO: some work can be done for vectorizing this process !
-	while (qp != qe) {
+	while (qp < qe) {
 		uint32_t lc;
 		if (qp->isLowSurrogate() && (qp-1)->isHighSurrogate()) {
 			lc = QChar::toLower(QChar::surrogateToUcs4(*(qp-1), *qp));

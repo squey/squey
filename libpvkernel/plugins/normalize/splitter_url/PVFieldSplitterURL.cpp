@@ -31,24 +31,25 @@ static void url_decode_add_field(url_decode_buf* buf, QString const& new_field, 
 		return;
 	}
 	size_t bufsize = new_field.size() * sizeof(QChar);
-	if (bufsize > buf->rem_len) {
-		size_t cur_index = buf->data - buf->field->begin();
-		size_t growby = bufsize - buf->rem_len;
-		buf->field->grow_by_reallocate(growby);
-		buf->rem_len += growby;
-		// Update the current data pointer
-		buf->data = buf->field->begin() + cur_index;
-	}
-	memcpy(buf->data, new_field.constData(), bufsize);
 	PVCore::PVField *pf = buf->pf[pos];
-	pf->set_begin(buf->data);
-	pf->set_end(buf->data+bufsize);
-	pf->set_physical_end(buf->data+bufsize);
-	//PVCore::PVField f(*buf->parent, buf->data, buf->data+bufsize);
+	if (bufsize > buf->rem_len) {
+		// This buffer is too short... Do not reallocate it, since it will invalidate
+		// previous pointers !!
+		// Allocate a new one for 'pf'.
+		pf->allocate_new(bufsize);
+		memcpy(pf->begin(), new_field.constData(), bufsize);
+	}
+	else {
+		memcpy(buf->data, new_field.constData(), bufsize);
+		pf->set_begin(buf->data);
+		pf->set_end(buf->data+bufsize);
+		pf->set_physical_end(buf->data+bufsize);
+		//PVCore::PVField f(*buf->parent, buf->data, buf->data+bufsize);
 
-	buf->data += bufsize;
-	buf->rem_len -= bufsize;
-	buf->nelts++;
+		buf->data += bufsize;
+		buf->rem_len -= bufsize;
+		buf->nelts++;
+	}
 }
 
 bool split_ip_port(QString const& str, QString& ip, uint16_t& port)
@@ -207,18 +208,23 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterURL::one_to_many(PVCore:
 	url_decode_add_field(&buf, host, _col_domain);
 
 	// Now we play with the host(domain) string to extract the host and subdomain
-	QString just_host(" ");
-	QString just_subdomain(" ");
-	// QRegExp host_subdomains_rx("(.*)\\.(.*\..*)");	
-	// if (host_subdomains_rx.indexIn(host, 0) >= 0) {
-	// 	just_subdomain = host_subdomains_rx.cap(1);
-	// 	just_host = host_subdomains_rx.cap(2);
-	// 	url_decode_add_field(&buf, just_subdomain, _col_subdomain);
-	// 	url_decode_add_field(&buf, just_host, _col_host);
-	// } else {
-		url_decode_add_field(&buf, just_host, _col_subdomain);		
-		url_decode_add_field(&buf, just_subdomain, _col_host);
-	// }
+	QString just_host;
+	QString just_subdomain;
+	QRegExp host_subdomains_rx("(.*)\\.(.*\..*)");	
+	if (host_subdomains_rx.indexIn(host, 0) >= 0) {
+		just_subdomain = host_subdomains_rx.cap(1);
+		just_host = host_subdomains_rx.cap(2);
+		PVLOG_INFO("Subdomain: %s\n", qPrintable(just_subdomain));
+		PVLOG_INFO("Host: %s\n", qPrintable(just_host));
+		url_decode_add_field(&buf, just_subdomain, _col_subdomain);
+		url_decode_add_field(&buf, just_host, _col_host);
+		QString tmp;
+		PVLOG_INFO("subdomain field: %s\n", qPrintable(buf.pf[_col_subdomain]->get_qstr(tmp)));
+		PVLOG_INFO("host field: %s\n", qPrintable(buf.pf[_col_host]->get_qstr(tmp)));
+	} else {
+		url_decode_add_field(&buf, none, _col_subdomain);		
+		url_decode_add_field(&buf, none, _col_host);
+	}
 
 
 	// TLD

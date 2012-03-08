@@ -8,5 +8,6 @@ int main()
 	std::cout << unistr.compare("salut") << " " << refstr.compare("salut") << std::endl;
 	std::cout << unistr.compare("salu") << " " << refstr.compare("salu") << std::endl;
 	std::cout << unistr.compare("salute") << " " << refstr.compare("salute") << std::endl;
+
 	return 0;
 }
