@@ -114,4 +114,4 @@ target_link_libraries(raster ${COMMON_LIBS} ${PVKERNEL_LIBRARIES} ${PICVIZ_LIBRA
 ####
 
 add_subdirectory(bench)
-add_subdirectory(pipeline)
+#add_subdirectory(pipeline)
