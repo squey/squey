@@ -107,8 +107,8 @@ void red_buckets(const size_t n, const size_t nbits_d, uint_ap in, uint64_ap out
 		bucket_pos_t* ppos_bucket = &buckets_pos[idx_bucket];
 		bucket_pos_t pos_bucket = *ppos_bucket;
 		bucket_v_t* b = &buckets[idx_bucket<<bucket_size_ln2];
-		//b[pos_bucket] = (bucket_v_t) v;
-		b[pos_bucket] = v&mask_v;
+		b[pos_bucket] = (bucket_v_t) v;
+		//b[pos_bucket] = v&mask_v;
 		if (pos_bucket == bucket_size-1) {
 			red_ref_bucket(bucket_size, b, out);
 			pos_bucket = 0;
@@ -436,6 +436,7 @@ int main(int argc, char** argv)
 
 
 	memset(out, 0, d*sizeof(uint64_t));
+#if 0
 	for (int i = 1; i <= omp_get_max_threads(); i++) {
 		if (nbuckets_ln2 >= 9) {
 			//red_buckets_nocommit<uint16_t, uint16_t, uint16_t>(n, nbits_d, in, out, (uint16_t*) buckets, nbuckets_ln2, bucket_size_ln2);
@@ -449,8 +450,8 @@ int main(int argc, char** argv)
 		}
 	}
 	//CHECK(memcmp(out_ref, out, d*sizeof(uint64_t)) == 0);
+#endif
 
-#if 0
 	//if (bucket_size_ln2 < 16)
 	//	red_buckets<uint16_t, uint32_t>(n, nbits_d, in, out, buckets, nbuckets_ln2, bucket_size_ln2);
 	memset(out, 0, d*sizeof(uint64_t));
@@ -461,9 +462,6 @@ int main(int argc, char** argv)
 	CHECK(memcmp(out_ref, out, d*sizeof(uint64_t)) == 0);
 	memset(out, 0, d*sizeof(uint64_t));
 	red_buckets_ordered_noset<uint32_t, uint32_t, uint16_t>(n, nbits_d, in, out, buckets, nbuckets_ln2, bucket_size_ln2);
-	CHECK(memcmp(out_ref, out, d*sizeof(uint64_t)) == 0);
-	memset(out, 0, d*sizeof(uint64_t));
-	red_buckets_stream<uint32_t, uint32_t, uint16_t>(n, nbits_d, in, out, buckets, nbuckets_ln2, bucket_size_ln2);
 	CHECK(memcmp(out_ref, out, d*sizeof(uint64_t)) == 0);
 
 	if (nbuckets_ln2 >= 9) {
@@ -477,9 +475,6 @@ int main(int argc, char** argv)
 		memset(out, 0, d*sizeof(uint64_t));
 		red_buckets_ordered_noset<uint32_t, uint16_t, uint16_t>(n, nbits_d, in, out, (uint16_t*) buckets, nbuckets_ln2, bucket_size_ln2);
 		CHECK(memcmp(out_ref, out, d*sizeof(uint64_t)) == 0);*/
-		memset(out, 0, d*sizeof(uint64_t));
-		red_buckets_stream<uint32_t, uint16_t, uint16_t>(n, nbits_d, in, out, (uint16_t*) buckets, nbuckets_ln2, bucket_size_ln2);
-		CHECK(memcmp(out_ref, out, d*sizeof(uint64_t)) == 0);
 	}
 
 	uint8_ap out8;
@@ -493,7 +488,6 @@ int main(int argc, char** argv)
 	BENCH_START(red_sort);
 	red_ref(n, d, in, out_ref);
 	BENCH_END(red_sort, "red-after-sort", n, sizeof(uint32_t), d, sizeof(uint64_t));
-#endif
 
 	return 0;
 }

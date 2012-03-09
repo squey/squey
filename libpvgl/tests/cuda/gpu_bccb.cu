@@ -673,7 +673,7 @@ void gpu_bccb_2dim(PVBCode* codes, size_t n, BCodeCB cb)
 	verify_cuda(cudaEventCreate(&start));
 	verify_cuda(cudaEventCreate(&end));
 
-	int nblocks_x = 7;
+	int nblocks_x = 14;
 	int nblocks_y = NB_PASSES;
 	int size_grid = nblocks_x*NTHREADS_BLOCK*nblocks_y;
 	fprintf(stderr, "Grid size is %d.\n", size_grid);
@@ -681,8 +681,8 @@ void gpu_bccb_2dim(PVBCode* codes, size_t n, BCodeCB cb)
 
 	dim3 nblocks(nblocks_x, nblocks_y);
 	verify_cuda(cudaEventRecord(start, 0));
-	//bccb_kernel_one_pass<<<nblocks,NTHREADS_BLOCK>>>((unsigned int*) device_codes, n, device_cb);
-	bccb_kernel_hybrid<<<nblocks,NTHREADS_BLOCK>>>((unsigned int*) device_codes, n, device_cb);
+	bccb_kernel_one_pass<<<nblocks,NTHREADS_BLOCK>>>((unsigned int*) device_codes, n, device_cb);
+	//bccb_kernel_hybrid<<<nblocks,NTHREADS_BLOCK>>>((unsigned int*) device_codes, n, device_cb);
 	//bccb_kernel_hybrid_tmp_buf<<<nblocks,NTHREADS_BLOCK>>>((unsigned int*) device_codes, n, dev_tmp_cbs, device_cb);
 	verify_cuda_kernel();
 	verify_cuda(cudaEventRecord(end, 0));

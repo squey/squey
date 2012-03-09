@@ -110,19 +110,19 @@ void omp_bcodecb_atomic2(PVBCode* codes, size_t n, BCodeCB cb)
 	}
 }
 
-void omp_bcodecb(PVBCode* codes, size_t n, BCodeCB cb, BCodeCB* cb_threads)
+void omp_bcodecb(PVBCode* codes, size_t n, BCodeCB cb, BCodeCB* cb_threads, int nth)
 {
-#pragma omp parallel firstprivate(n) firstprivate(cb_threads)
+#pragma omp parallel firstprivate(n) firstprivate(cb_threads) num_threads(nth)
 	{
 		BCodeCB cb_thread = cb_threads[omp_get_thread_num()];
 #pragma omp for
 		for (size_t i = 0; i < n; i++) {
 			const PVBCode bit = codes[i];
-			B_SET(cb_thread[i%NB_INT_CB], bcode2cb_bitn(bit));
+			B_SET(cb_thread[bcode2cb_idx(bit)], bcode2cb_bitn(bit));
 		}
 	}
 
-	for (int i = 0; i < omp_get_max_threads(); i++) {
+	for (int i = 0; i < nth; i++) {
 		BCodeCB cb_thread = cb_threads[i];	
 		for (uint32_t j = 0; j < NB_INT_BCODECB; j++) {
 			cb[j] |= cb_thread[j];

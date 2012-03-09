@@ -89,29 +89,4 @@ add_executable(cuda_bccb ${CUDA_RED_SRC_FILES})
 target_link_libraries(cuda_bccb ${COMMON_LIBS} ${CUDA_LIBRARIES})
 ####
 
-####
-# BZ test
-SET(SRC_FILES
-${COMMON_SRC_FILES}
-${GL_SRC_FILES}
-${BZ_SRC_FILES}
-main_bz.cpp
-)
-add_executable(bz ${SRC_FILES})
-target_link_libraries(bz ${COMMON_LIBS} ${PVKERNEL_LIBRARIES} ${PICVIZ_LIBRARIES})
-####
-
-####
-# ocl rasterisation
-SET(SRC_FILES
-${COMMON_SRC_FILES}
-${OCL_SRC_FILES}
-ocl/raster.cpp
-main_raster.cpp
-)
-add_executable(raster ${SRC_FILES})
-target_link_libraries(raster ${COMMON_LIBS} ${PVKERNEL_LIBRARIES} ${PICVIZ_LIBRARIES} ${OCL_LIBRARIES})
-####
-
 add_subdirectory(bench)
-#add_subdirectory(pipeline)
