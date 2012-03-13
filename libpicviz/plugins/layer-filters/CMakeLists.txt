@@ -10,6 +10,7 @@ link_directories(${picviz-inspector_SOURCE_DIR}/libpicviz/src/ ${picviz-inspecto
 
 set(FILTERS_DIST_LIST
 layer_filter_axis_gradient
+layer_filter_entropy
 layer_filter_heatline
 layer_filter_find_duplicates
 layer_filter_multiple_search
@@ -66,6 +67,10 @@ endif(PYTHONLIBS_FOUND)
 
 add_library(layer_filter_search_plot_onetomany SHARED search-plot-onetomany/PVLayerFilterSearchPlotOneToMany.cpp search-plot-onetomany/register.cpp)
 target_link_libraries(layer_filter_search_plot_onetomany ${LINK_LIBRARIES})
+
+add_library(layer_filter_entropy SHARED entropy/PVLayerFilterEntropy.cpp entropy/register.cpp)
+target_link_libraries(layer_filter_entropy ${LINK_LIBRARIES})
+
 
 INSTALL(TARGETS ${FILTERS_DIST_LIST} LIBRARY DESTINATION layer-filters
                                      RUNTIME DESTINATION layer-filters)
