@@ -32,7 +32,6 @@ DEFAULT_ARGS_FILTER(Picviz::PVSelectionFilterScatterPlotSelectionSquare)
 	args["x1_max"] = 0.6f;
 	args["x2_min"] = 0.0f;
 	args["x2_max"] = 0.1f;
-	args["Menu_Name"] = QString("Test");
 	return args;
 }
 
