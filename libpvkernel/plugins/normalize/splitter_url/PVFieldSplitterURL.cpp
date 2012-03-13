@@ -208,24 +208,18 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterURL::one_to_many(PVCore:
 	url_decode_add_field(&buf, host, _col_domain);
 
 	// Now we play with the host(domain) string to extract the host and subdomain
-	QString just_host;
-	QString just_subdomain;
-	QRegExp host_subdomains_rx("(.*)\\.(.*\..*)");	
-	if (host_subdomains_rx.indexIn(host, 0) >= 0) {
-		just_subdomain = host_subdomains_rx.cap(1);
-		just_host = host_subdomains_rx.cap(2);
-		PVLOG_INFO("Subdomain: %s\n", qPrintable(just_subdomain));
-		PVLOG_INFO("Host: %s\n", qPrintable(just_host));
-		url_decode_add_field(&buf, just_subdomain, _col_subdomain);
+	QStringList splitted_domain = host.split(".");
+	if (splitted_domain.size() > 2) {
+		QString just_host = splitted_domain[splitted_domain.size() -2] + QString(".") + splitted_domain[splitted_domain.size() - 1];
+		splitted_domain.removeLast();
+		splitted_domain.removeLast();
+		QString just_subdomain = splitted_domain.join(".");
+		url_decode_add_field(&buf, just_subdomain, _col_subdomain);		
 		url_decode_add_field(&buf, just_host, _col_host);
-		QString tmp;
-		PVLOG_INFO("subdomain field: %s\n", qPrintable(buf.pf[_col_subdomain]->get_qstr(tmp)));
-		PVLOG_INFO("host field: %s\n", qPrintable(buf.pf[_col_host]->get_qstr(tmp)));
 	} else {
 		url_decode_add_field(&buf, none, _col_subdomain);		
 		url_decode_add_field(&buf, none, _col_host);
 	}
-
 
 	// TLD
 	if (host.size() > 1 && host.at(host.size()-1).isDigit()) {
