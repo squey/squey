@@ -89,4 +89,7 @@ add_executable(cuda_bccb ${CUDA_RED_SRC_FILES})
 target_link_libraries(cuda_bccb ${COMMON_LIBS} ${CUDA_LIBRARIES})
 ####
 
+add_executable(test_interlace test_interlace.cpp ${GL_SRC_FILES})
+target_link_libraries(test_interlace ${COMMON_LIBS} ${PICVIZ_LIBRARIES})
+
 add_subdirectory(bench)
