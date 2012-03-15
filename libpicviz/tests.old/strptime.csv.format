@@ -1,8 +1,0 @@
-revision = 1
-
-time-format[1] =%b %d %H:%M:%S
-
-axes {
-	time 24h default Time
-	ipv4 default default IP Address
-}
