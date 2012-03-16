@@ -80,6 +80,7 @@ PVInspector::PVListingView::PVListingView(PVMainWindow *mw, PVTabSplitter *paren
 	_act_copy = new QAction(tr("Copy this value to the clipboard"), _ctxt_menu);
 	_act_set_color = new QAction(tr("Set color"), _ctxt_menu);
 	_ctxt_menu->addAction(_act_copy);
+	_ctxt_menu->addSeparator();
 	_ctxt_menu->addAction(_act_set_color);
 
 	// Horizontal header context menu
@@ -146,13 +147,11 @@ void PVInspector::PVListingView::update_view_selection_from_listing_selection()
 
 	/* We define the volatile_selection using selection in the listing */
 	lib_view->volatile_selection.select_none();
-	selected_items_list = selectedIndexes();
-	number_of_items = selected_items_list.size();
-	for (i=0; i<number_of_items; i++) {
-		//lib_view->volatile_selection.set_line(myModel->getRealRowIndex(selected_items_list[i].row()), 1);
-		lib_view->volatile_selection.set_line(myModel->mapToSource(selected_items_list[i]).row(), 1);
+	QVector<PVRow> selected_rows_vector = get_selected_rows();
+	foreach (PVRow line, selected_rows_vector) {
+		lib_view->volatile_selection.set_line(line, 1);
 	}
-	
+
 	/* We reprocess the view from the selection */
 	lib_view->process_from_selection();
 	/* We refresh the PVGLView */
@@ -187,7 +186,7 @@ void PVInspector::PVListingView::mouseDoubleClickEvent(QMouseEvent* event)
  * PVInspector::PVListingView::getSelectedRows
  *
  *****************************************************************************/
-QVector<PVRow> PVInspector::PVListingView::getSelectedRows()
+QVector<PVRow> PVInspector::PVListingView::get_selected_rows()
 {
 	QModelIndexList selected_rows_list = selectionModel()->selectedRows(0);
 	int selected_rows_count = selected_rows_list.count();
@@ -199,7 +198,6 @@ QVector<PVRow> PVInspector::PVListingView::getSelectedRows()
 	{
 		int row_index = myModel->mapToSource(selected_rows_list.at(i)).row();
 		selected_rows_vector.append(row_index);
-		PVLOG_INFO("%d \n", row_index);
 	}
 
 	return selected_rows_vector;
@@ -344,7 +342,7 @@ void PVInspector::PVListingView::set_color_selected(const QColor& c)
 		return;
 	}
 
-	QVector<PVRow> selected_rows_vector = getSelectedRows();
+	QVector<PVRow> selected_rows_vector = get_selected_rows();
 	Picviz::PVView_p view = _parent->get_lib_view();
 	Picviz::PVLayer& layer = view->get_current_layer();
 	Picviz::PVLinesProperties& lines_properties = layer.get_lines_properties();

@@ -88,7 +88,7 @@ protected:
 	void mouseDoubleClickEvent(QMouseEvent* event);
 
 private:
-	QVector<PVRow> getSelectedRows();
+	QVector<PVRow> get_selected_rows();
 	void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
 
 private:
