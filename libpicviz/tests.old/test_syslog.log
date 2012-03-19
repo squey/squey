@@ -1,6 +1,0 @@
-Feb 9 16:03:00 xasus kernel: imklog 4.4.2, log source = /proc/kmsg started.
-Feb 9 16:03:00 xasus rsyslogd: [origin software="rsyslogd" swVersion="4.4.2" x-pid="1561" x-info="http://www.rsyslog.com"] (re)start
-Feb 20 12:03:00 xasus kernel: imklog 4.4.2, log source = /proc/kmsg started.
-Feb 20 12:03:00 xasus kernel: imklog 4.4.2, log source = /proc/kmsg started.
-Feb 9 16:03:00 xasus rsyslogd: [origin software="rsyslogd" swVersion="4.4.2" x-pid="1561" x-info="http://www.rsyslog.com"] (re)start
-Feb 20 12:03:00 xasus foo: bar de foobar

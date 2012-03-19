@@ -127,6 +127,9 @@ public:
 	 */
 	PVLayerStackWidget *get_layer_stack_widget()const{return pv_layer_stack_widget;}
 
+	PVListingSortFilterProxyModel* get_listing_proxy_model() { return pv_listing_proxy_model; }
+	PVListingView* get_listing_view() { return pv_listing_view; }
+
 	/**
 	 *
 	 * @return a pointer to the current Picviz::PVView attached to this PVMainSplitter
