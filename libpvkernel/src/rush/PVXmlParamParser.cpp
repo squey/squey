@@ -119,23 +119,27 @@ QHash<int, QStringList> const& PVRush::PVXmlParamParser::getTimeFormat() const
 	return time_format;
 }
 
-PVCore::PVArgumentList PVRush::PVXmlParamParser::getMapPlotParameters(QDomElement& elt, QString const& tag, QString& mode)
+PVRush::PVAxisFormat::node_args_t PVRush::PVXmlParamParser::getMapPlotParameters(QDomElement& elt, QString const& tag, QString& mode)
 {
-	PVCore::PVArgumentList args;
+	PVAxisFormat::node_args_t args;
 	QDomNodeList list = elt.elementsByTagName(tag);
 	if (list.size() < 1) {
 		return args;
 	}
 	
 	QDomElement node = list.at(0).toElement();
-	PVRush::PVXmlTreeNodeDom::toArgumentList(node, args);
+	QDomNamedNodeMap attrs = node.attributes();
+	for (int i = 0; i < attrs.size(); i++) {
+		QDomAttr a = attrs.item(i).toAttr();
+		args[a.name()] = a.value();
+	}
 	if (args.contains(PVFORMAT_MAP_PLOT_MODE_STR)) {
-		mode = args.take(PVFORMAT_MAP_PLOT_MODE_STR).toString();
+		mode = args.take(PVFORMAT_MAP_PLOT_MODE_STR);
 	}
 	else {
 		mode = PVFORMAT_MAP_PLOT_MODE_DEFAULT;
 	}
-		
+
 	return args;
 }
 
@@ -213,7 +217,7 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id, QVector<ui
 
 			// Mapping and plotting parameters
 			QString mode;
-			PVCore::PVArgumentList args = getMapPlotParameters(child, PVFORMAT_XML_TAG_MAPPING, mode);
+			PVAxisFormat::node_args_t args = getMapPlotParameters(child, PVFORMAT_XML_TAG_MAPPING, mode);
 			axis.set_mapping(mode);
 			axis.set_args_mapping(args);
 			args = getMapPlotParameters(child, PVFORMAT_XML_TAG_PLOTTING, mode);

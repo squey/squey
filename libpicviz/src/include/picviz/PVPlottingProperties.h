@@ -13,6 +13,7 @@
 #include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/rush/PVFormat.h>
 
+#include <picviz/PVAxis.h>
 #include <picviz/PVRoot.h>
 #include <picviz/PVPlottingFilter.h>
 
@@ -45,6 +46,7 @@ protected:
 public:
 	PVPlottingFilter::p_type get_plotting_filter();
 	void set_from_axis(PVRush::PVAxisFormat const& axis);
+	void set_from_axis(Picviz::PVAxis const& axis);
 	void set_mode(QString const& mode);
 	void set_args(PVCore::PVArgumentList const& args);
 	inline PVCore::PVArgumentList const& get_args() const { return _args; }

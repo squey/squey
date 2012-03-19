@@ -22,7 +22,7 @@ public:
 
 		return str;
 	}
-	virtual PVCore::PVArgument from_string(QString s) const
+	virtual PVCore::PVArgument from_string(QString const& s) const
 	{
 		PVCore::PVArgument arg;
 		arg.setValue(PVMyCustomType1(s.split("+")));

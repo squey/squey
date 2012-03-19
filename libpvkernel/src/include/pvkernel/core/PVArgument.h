@@ -172,7 +172,7 @@ class PVArgumentTypeBase
 		virtual ~PVArgumentTypeBase() {};
 	public:
 		virtual QString to_string() const = 0;
-		virtual PVArgument from_string(QString str) const = 0;
+		virtual PVArgument from_string(QString const& str) const = 0;
 		virtual void serialize(QDataStream& out) const
 		{
 			out << to_string();

@@ -237,57 +237,54 @@ PVCore::PVArgument PVCore::QString_to_PVArgument(const QString &s)
 PVCore::PVArgument PVCore::QString_to_PVArgument(const QString &s, const QVariant& v)
 {
 	QVariant var;
-	bool ok = false;
+	bool ok = true;
 
 	if (v.userType() >= QMetaType::User) // custom type
 	{
-		var = static_cast<PVArgumentTypeBase*>(const_cast<QVariant*>(&v)->data())->from_string(s);
-		ok = true;
+		var = static_cast<const PVArgumentTypeBase*>(v.constData())->from_string(s);
 	}
 	else // builtin type
 	{
 		switch (v.type())
 		{
 			case QMetaType::Bool:
-			{
 				var = s.compare("true", Qt::CaseInsensitive) == 0;
-				ok = true;
-			}
-			break;
+				break;
+
 			case QMetaType::Int:
-			{
 				var = s.toInt(&ok);
-			}
-			break;
+				break;
+
 			case QMetaType::UInt:
-			{
 				var = s.toUInt(&ok);
-			}
-			break;
+				break;
+
 			case QMetaType::Double:
-			{
 				var = s.toDouble(&ok);
-			}
-			break;
+				break;
+
 			case QMetaType::QChar:
-			{
 				ok = s.length() == 1;
-				if(ok)
-				{
+				if(ok) {
 					var = QVariant(s[0]);
 				}
-			}
-			break;
+				break;
+
 			case QMetaType::LongLong:
-			{
 				var = s.toLongLong(&ok);
-			}
-			break;
+				break;
+
 			case QMetaType::ULongLong:
-			{
 				var = s.toULongLong(&ok);
-			}
-			break;
+				break;
+
+			case QMetaType::QString:
+				var = s;
+				break;
+
+			default:
+				ok = false;
+				break;
 		}
 	}
 

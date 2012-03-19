@@ -258,6 +258,3 @@ void Picviz::PVPlotting::set_uptodate_for_col(PVCol j)
 	assert(j < _columns.size());
 	return get_properties_for_col(j).set_uptodate();
 }	
-
-
-

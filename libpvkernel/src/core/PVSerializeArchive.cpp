@@ -184,7 +184,7 @@ void PVCore::PVSerializeArchive::hash_arguments_write(PVSerializeObject const& s
 #endif
 }
 
-void PVCore::PVSerializeArchive::hash_arguments_read(PVSerializeObject const& so, QString const& name, PVArgumentList& obj)
+void PVCore::PVSerializeArchive::hash_arguments_read(PVSerializeObject const& so, QString const& name, PVArgumentList& obj, PVArgumentList const& def_args)
 {
 #ifdef CUSTOMER_CAPABILITY_SAVE
 	QSettings* settings = _objs_attributes.value(get_object_config_path(so));
@@ -193,7 +193,9 @@ void PVCore::PVSerializeArchive::hash_arguments_read(PVSerializeObject const& so
 	QStringList keys = settings->childKeys();
 	for (int i = 0; i < keys.size(); i++) {
 		QString const& key = keys.at(i);
-		obj[key] = QString_to_PVArgument(settings->value(key).toString());
+		if (def_args.contains(key)) {
+			obj[key] = QString_to_PVArgument(settings->value(key).toString(), def_args[key]);
+		}
 	}
 	settings->endGroup();
 #endif

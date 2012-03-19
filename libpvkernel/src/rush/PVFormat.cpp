@@ -352,11 +352,11 @@ PVRush::PVFormat::Comparaison PVRush::PVFormat::comp(PVFormat const& original) c
 				break;
 			}
 			if (it->get_mapping() != it_org->get_mapping() ||
-				!PVCore::comp_hash(it->get_args_mapping(), it_org->get_args_mapping())) {
+				!PVCore::comp_hash(it->get_args_mapping_string(), it_org->get_args_mapping_string())) {
 				ret._mapping = true;
 			}
 			if (it->get_plotting() != it_org->get_plotting() ||
-				!PVCore::comp_hash(it->get_args_plotting(), it_org->get_args_plotting())) {
+				!PVCore::comp_hash(it->get_args_plotting_string(), it_org->get_args_plotting_string())) {
 				ret._plotting = true;
 			}
 			if (it->get_tags() != it_org->get_tags() ||

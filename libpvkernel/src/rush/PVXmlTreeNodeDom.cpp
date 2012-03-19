@@ -666,6 +666,7 @@ void PVRush::PVXmlTreeNodeDom::setFromArgumentList(PVCore::PVArgumentList const&
 	}
 }
 
+/*
 void PVRush::PVXmlTreeNodeDom::toArgumentList(QDomElement& elt, PVCore::PVArgumentList& args)
 {
 	QDomNamedNodeMap attrs = elt.attributes();
@@ -674,7 +675,7 @@ void PVRush::PVXmlTreeNodeDom::toArgumentList(QDomElement& elt, PVCore::PVArgume
 		QString key(a.name());
 		args[key] = PVCore::QString_to_PVArgument(a.value());
 	}
-}
+}*/
 
 void PVRush::PVXmlTreeNodeDom::toArgumentList(QDomElement& elt, PVCore::PVArgumentList const& def_args, PVCore::PVArgumentList& args)
 {
@@ -686,7 +687,7 @@ void PVRush::PVXmlTreeNodeDom::toArgumentList(QDomElement& elt, PVCore::PVArgume
 		if (v.trimmed().isEmpty()) {
 			vset = it.value();
 		} else {
-			vset = PVCore::QString_to_PVArgument(v);
+			vset = PVCore::QString_to_PVArgument(v, it.value());
 		}
 		args[key] = vset;
 	}
@@ -701,7 +702,7 @@ void PVRush::PVXmlTreeNodeDom::toArgumentList(PVCore::PVArgumentList const& defa
         if (v.trimmed().isEmpty()) {
             vset = it.value();
         } else {
-            vset = PVCore::QString_to_PVArgument(v);
+            vset = PVCore::QString_to_PVArgument(v, it.value());
         }
         args[key] = vset;
     }
