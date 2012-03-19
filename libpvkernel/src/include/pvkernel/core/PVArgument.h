@@ -155,6 +155,7 @@ private:
 	static QHash<QString, QString> _key_desc;
 };
 
+
 }
 
 extern unsigned int LibKernelDecl qHash(PVCore::PVArgumentKey const& key);
@@ -164,8 +165,33 @@ namespace PVCore {
 typedef QVariant                           PVArgument;
 typedef QHash<PVArgumentKey,PVArgument>    PVArgumentList;
 
+class PVArgumentTypeBase
+{
+	public:
+		PVArgumentTypeBase() {};
+		virtual ~PVArgumentTypeBase() {};
+	public:
+		virtual QString to_string() const = 0;
+		virtual PVArgument from_string(QString str) const = 0;
+		virtual void serialize(QDataStream& out) const
+		{
+			out << to_string();
+		}
+		virtual PVArgument unserialize(QDataStream& in) const
+		{
+			QString str;
+			in >> str;
+			return from_string(str);
+		}
+};
+
+QDataStream &operator<<(QDataStream &out, const PVArgumentTypeBase &obj);
+QDataStream &operator>>(QDataStream &in, const PVArgumentTypeBase &obj);
+
 LibKernelDecl QString PVArgument_to_QString(PVArgument const& v);
 LibKernelDecl PVArgument QString_to_PVArgument(QString const& v);
+LibKernelDecl PVArgument QString_to_PVArgument(const QString &s, const QVariant& v);
+
 
 LibKernelDecl void dump_argument_list(PVArgumentList const& l);
 
