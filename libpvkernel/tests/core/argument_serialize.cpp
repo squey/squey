@@ -1,5 +1,6 @@
 #include <QCoreApplication>
 #include <pvkernel/core/PVArgument.h>
+#include <pvkernel/core/PVCompList.h>
 #include <pvkernel/core/PVTimeFormatType.h>
 
 #include <QMetaType>
@@ -7,12 +8,15 @@
 #include <QStringList>
 
 // Declare custom type #1
-class PVMyCustomType: public PVCore::PVArgumentTypeBase
+class PVMyCustomType: public PVCore::PVArgumentType<PVMyCustomType>
 {
 public:
 	PVMyCustomType() {_str1 = ""; _str2 =""; }
 	PVMyCustomType(QString str1, QString str2) {_str1 = str1; _str2 = str2;}
 	PVMyCustomType(QStringList strList) {_str1 = strList[0]; _str2 = strList[1];}
+	bool operator==(const PVMyCustomType &other) const {
+		return _str1 == other._str1 && _str2 == other._str2;
+	}
 	virtual QString to_string() const
 	{
 		QString str;
@@ -34,12 +38,19 @@ private:
 };
 Q_DECLARE_METATYPE(PVMyCustomType)
 
-int main(int argc, char** argv)
+int main()
 {
 	QList<QVariant> vars;
 	QStringList expectedStrings;
 
-	// User defined type
+	// PVTimeFormat
+	PVCore::PVTimeFormatType tf1(QStringList() << "dd" << "mm" << "yyyy");
+	QVariant var0 = QVariant();
+	var0.setValue(tf1);
+	vars.append(var0);
+	expectedStrings.append("dd\nmm\nyyyy");
+
+	// PVMyCustomType
 	PVMyCustomType ct1("AAA", "BBB");
 	QVariant var1 = QVariant();
 	var1.setValue(ct1);
@@ -63,7 +74,7 @@ int main(int argc, char** argv)
 	expectedStrings.append("Z");
 
 	// String
-	QString s = "This is a string";
+	QString s = "This is a string\nThis is another string";
 	vars.append(QVariant(s));
 	expectedStrings.append(s);
 
@@ -99,5 +110,27 @@ int main(int argc, char** argv)
 	}
 	PVLOG_INFO("Deserialization passed: %d\n", deserialization_passed);
 
-	return !(serialization_passed && deserialization_passed);
+	// Create a list of arguments
+	QString iniFilename = "argument_serialize.ini";
+
+	PVCore::PVArgumentList args;
+	for (int i=0; i<vars.count(); i++)
+	{
+		args.insert(QString().sprintf("param_%d", i), vars[i]);
+	}
+
+	// Store the list to ini file
+	QSettings settings(iniFilename, QSettings::IniFormat);
+	PVCore::PVArgumentList_to_QSettings(args, settings, "myGroupName");
+
+	// Load the list from ini file
+	QSettings settings2(iniFilename, QSettings::IniFormat);
+	PVCore::PVArgumentList args2 = QSettings_to_PVArgumentList(settings2, args, "myGroupName");
+	bool qsettings_passed = PVCore::comp_hash(args, args2);
+	PVLOG_INFO("QSettings test passed: %d\n", qsettings_passed);
+
+	// Cleanup
+	QFile::remove(iniFilename);
+
+	return !(serialization_passed && deserialization_passed && qsettings_passed);
 }

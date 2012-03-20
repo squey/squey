@@ -17,9 +17,19 @@ bool comp_list(QList<PVArgument> const& l1, QList<PVArgument> const& l2)
 	for (; it1 != l1.end(); it1++) {
 		QVariant const& v1 = *it1;
 		QVariant const& v2 = *it2;
-		if (v1.canConvert<PVTimeFormatType>() &&
-		    v2.canConvert<PVTimeFormatType>()) {
-			if (v1.value<PVTimeFormatType>() != v2.value<PVTimeFormatType>()) {
+
+		/////
+//		if (v1.canConvert<PVTimeFormatType>() &&
+//		    v2.canConvert<PVTimeFormatType>()) {
+//			if (v1.value<PVTimeFormatType>() != v2.value<PVTimeFormatType>()) {
+//				return false;
+//			}
+		/////
+
+		if (v1.userType() >= QMetaType::User && v1.userType() == v2.userType()) { // custom type
+			const PVArgumentTypeBase* v1b = static_cast<const PVArgumentTypeBase*>(v1.constData());
+			const PVArgumentTypeBase* v2b = static_cast<const PVArgumentTypeBase*>(v2.constData());
+			if (!v1b->is_equal(*v2b)) {
 				return false;
 			}
 		}

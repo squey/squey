@@ -8,7 +8,7 @@
 
 namespace PVCore {
 
-struct PVTimeFormatType: public QStringList, public PVArgumentTypeBase
+struct PVTimeFormatType: public QStringList, public PVArgumentType<PVTimeFormatType>
 {
 	PVTimeFormatType(): QStringList() { }
 	PVTimeFormatType(QStringList const& list):

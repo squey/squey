@@ -171,6 +171,7 @@ class PVArgumentTypeBase
 		PVArgumentTypeBase() {};
 		virtual ~PVArgumentTypeBase() {};
 	public:
+		virtual bool is_equal(const PVArgumentTypeBase &other) const = 0;
 		virtual QString to_string() const = 0;
 		virtual PVArgument from_string(QString const& str) const = 0;
 		virtual void serialize(QDataStream& out) const
@@ -184,6 +185,20 @@ class PVArgumentTypeBase
 			return from_string(str);
 		}
 };
+
+template <class T>
+class PVArgumentType: public PVArgumentTypeBase
+{
+	virtual bool is_equal(const PVArgumentTypeBase &other) const
+	{
+		const T* pother = dynamic_cast<const T*>(&other);
+		if (!pother) {
+			return false;
+		}
+		return *((T*)this) == *pother;
+	}
+};
+
 
 QDataStream &operator<<(QDataStream &out, const PVArgumentTypeBase &obj);
 QDataStream &operator>>(QDataStream &in, const PVArgumentTypeBase &obj);
