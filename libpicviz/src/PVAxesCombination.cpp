@@ -450,6 +450,7 @@ void Picviz::PVAxesCombination::set_from_format(PVRush::PVFormat &format)
 			original_axes_list.push_back(axis);
 		}
 
+		columns_indexes_list.clear();
 		QVector<PVCol>::iterator it_comb;
 		for (it_comb = axes_comb.begin(); it_comb != axes_comb.end(); it_comb++) {
 			PVCol col = *it_comb;
@@ -538,6 +539,7 @@ QString Picviz::PVAxesCombination::to_string() const
 
 void Picviz::PVAxesCombination::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 {
+	columns_indexes_list.clear();
 	so.list_attributes("columns_indexes_list", columns_indexes_list);
 }
 
