@@ -99,5 +99,5 @@ int main(int argc, char** argv)
 	}
 	PVLOG_INFO("Deserialization passed: %d\n", deserialization_passed);
 
-	return (serialization_passed && deserialization_passed) ? 0 : 1;
+	return !(serialization_passed && deserialization_passed);
 }
