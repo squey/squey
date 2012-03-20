@@ -266,6 +266,19 @@ bool PVRush::PVFormatVersion::_rec_4to5(QDomNode node)
 				tf = tf.mid(14, tf.size()-15);
 				elt.setAttribute("time-format", tf);
 			}
+
+			QString cl = elt.attribute("convert-lowercase", QString());
+			if (cl.size() > 0 && cl.startsWith("@Bool(")) {
+				cl = cl.mid(6, cl.size()-7);
+				elt.setAttribute("convert-lowercase", cl);
+			}
+		}
+		if (elt.tagName() == "splitter") {
+			QString sep = elt.attribute("sep", QString());
+			if (sep.size() > 0 && sep.startsWith("@Char(")) {
+				sep = sep.mid(6, sep.size()-7);
+				elt.setAttribute("sep", sep);
+			}
 		}
 	}
 

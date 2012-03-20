@@ -699,7 +699,7 @@ void PVRush::PVXmlTreeNodeDom::toArgumentList(PVCore::PVArgumentList const& defa
         QString const& key = it.key();
         QString v = attribute(key, true);
         PVCore::PVArgument vset;
-        if (v.trimmed().isEmpty()) {
+        if (v.isEmpty()) {
             vset = it.value();
         } else {
             vset = PVCore::QString_to_PVArgument(v, it.value());
