@@ -39,8 +39,6 @@ public:
 
 	virtual ~PVFunctionArgs() { }
 public:
-	static PVArgumentList default_args() { return PVArgumentList(); }
-public:
 	virtual func_type f() = 0;
 	virtual const PVArgumentList& get_args() const { return _args; }
 	virtual void set_args(PVArgumentList const& args)

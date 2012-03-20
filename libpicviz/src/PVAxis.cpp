@@ -36,7 +36,7 @@ void Picviz::PVAxis::init()
 	{
 		Picviz::PVMappingFilter::p_type lib_filter = LIB_CLASS(Picviz::PVMappingFilter)::get().get_class_by_name(get_type() + "_" + get_mapping());
 		if (lib_filter) {
-			PVCore::PVArgumentList def_args = lib_filter->default_args();
+			PVCore::PVArgumentList def_args = lib_filter->get_default_args();
 			_args_mapping = args_from_node(get_args_mapping_string(), def_args);
 		}
 	}
@@ -45,7 +45,7 @@ void Picviz::PVAxis::init()
 	{
 		Picviz::PVPlottingFilter::p_type lib_filter = LIB_CLASS(Picviz::PVPlottingFilter)::get().get_class_by_name(get_type() + "_" + get_plotting());
 		if (lib_filter) {
-			PVCore::PVArgumentList def_args = lib_filter->default_args();
+			PVCore::PVArgumentList def_args = lib_filter->get_default_args();
 			_args_plotting = args_from_node(get_args_plotting_string(), def_args);
 		}
 	}
