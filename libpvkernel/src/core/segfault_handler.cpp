@@ -16,6 +16,8 @@
 #include <sys/wait.h>
 #include <sys/sysctl.h>
 
+#include <tbb/atomic.h>
+
 // From http://stackoverflow.com/questions/3596781/detect-if-gdb-is-running
 static bool are_we_ptraced()
 {
@@ -65,6 +67,11 @@ static bool are_we_ptraced()
 // Inspired by http://stackoverflow.com/questions/3151779/how-its-better-to-invoke-gdb-from-program-to-print-its-stacktrace
 static void segfault_handler(int sig, siginfo_t* sinfo, void* uctxt)
 {
+	// We should only accept one call !
+	static tbb::atomic<bool> _call;
+	if (_call.compare_and_swap(false, true)) {
+		return;
+	}
 	fprintf(stderr, "/!\\ ----------------------------------------------------------------------------------------------------------- /!\\\n");
 	fprintf(stderr, "/!\\ -------- /!\\ Segfault occured at %p, do you want to launch the last-chance gdb ? /!\\ -------- /!\\\n", sinfo->si_addr);
 	fprintf(stderr, "/!\\ ----------------------------------------------------------------------------------------------------------- /!\\\n\n");
