@@ -289,6 +289,7 @@ PVCore::PVArgument PVCore::QString_to_PVArgument(const QString &s, const QVarian
 	}
 
 	if (!ok) {
+		PVLOG_WARN("String '%s' can't be interpreted as a '%s' object ! Using default value...\n", qPrintable(s), v.typeName());
 		var = v;
 	}
 

@@ -25,6 +25,9 @@ bool PVRush::PVFormatVersion::to_current(QDomDocument& doc)
 		if (!from3to4(doc)) {
 			return false;
 		}
+		if (!from4to5(doc)) {
+			return false;
+		}
 	}
 	if (version == "1") {
 		if (!from1to2(doc)) {
@@ -36,6 +39,9 @@ bool PVRush::PVFormatVersion::to_current(QDomDocument& doc)
 		if (!from3to4(doc)) {
 			return false;
 		}
+		if (!from4to5(doc)) {
+			return false;
+		}
 	}
 	if (version == "2") {
 		if (!from2to3(doc)) {
@@ -44,13 +50,24 @@ bool PVRush::PVFormatVersion::to_current(QDomDocument& doc)
 		if (!from3to4(doc)) {
 			return false;
 		}
+		if (!from4to5(doc)) {
+			return false;
+		}
 	}
 	if (version == "3") {
 		if (!from3to4(doc)) {
 			return false;
 		}
+		if (!from4to5(doc)) {
+			return false;
+		}
 	}
-	if (version != "4") {
+	if (version == "4") {
+		if (!from4to5(doc)) {
+			return false;
+		}
+	}
+	if (version == "5") {
 		return false;
 	}
 
@@ -76,6 +93,11 @@ bool PVRush::PVFormatVersion::from2to3(QDomDocument& doc)
 bool PVRush::PVFormatVersion::from3to4(QDomDocument& doc)
 {
 	return _rec_3to4(doc.documentElement());
+}
+
+bool PVRush::PVFormatVersion::from4to5(QDomDocument& doc)
+{
+	return _rec_4to5(doc.documentElement());
 }
 
 bool PVRush::PVFormatVersion::_rec_0to1(QDomElement elt)
@@ -234,3 +256,37 @@ bool PVRush::PVFormatVersion::_rec_3to4(QDomNode node)
 	return true;
 }
 
+bool PVRush::PVFormatVersion::_rec_4to5(QDomNode node)
+{
+	if (node.isElement()) {
+		QDomElement elt = node.toElement();
+		if (elt.tagName() == "mapping") {
+			QString tf = elt.attribute("time-format", QString());
+			if (tf.size() > 0 && tf.startsWith("@PVTimeFormat(")) {
+				tf = tf.mid(14, tf.size()-15);
+				elt.setAttribute("time-format", tf);
+			}
+
+			QString cl = elt.attribute("convert-lowercase", QString());
+			if (cl.size() > 0 && cl.startsWith("@Bool(")) {
+				cl = cl.mid(6, cl.size()-7);
+				elt.setAttribute("convert-lowercase", cl);
+			}
+		}
+		if (elt.tagName() == "splitter") {
+			QString sep = elt.attribute("sep", QString());
+			if (sep.size() > 0 && sep.startsWith("@Char(")) {
+				sep = sep.mid(6, sep.size()-7);
+				elt.setAttribute("sep", sep);
+			}
+		}
+	}
+
+	QDomNode child = node.firstChild();
+	while (!child.isNull()) {
+		_rec_4to5(child);
+		child = child.nextSibling();
+	}
+
+	return true;
+}
