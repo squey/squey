@@ -234,7 +234,7 @@ PVCore::PVArgument PVCore::QString_to_PVArgument(const QString &s)
 	return QVariant(s);
 }
 
-PVCore::PVArgument PVCore::QString_to_PVArgument(const QString &s, const QVariant& v)
+PVCore::PVArgument PVCore::QString_to_PVArgument(const QString &s, const QVariant& v, bool* res_ok /* = 0 */)
 {
 	QVariant var;
 	bool ok = true;
@@ -266,7 +266,7 @@ PVCore::PVArgument PVCore::QString_to_PVArgument(const QString &s, const QVarian
 			case QMetaType::QChar:
 				ok = s.length() >= 1;
 				if(ok) {
-					var = QVariant(s[0]);
+					var = QVariant(QChar(s[0]));
 				}
 				break;
 
@@ -290,6 +290,11 @@ PVCore::PVArgument PVCore::QString_to_PVArgument(const QString &s, const QVarian
 
 	if (!ok) {
 		var = v;
+	}
+
+	if(res_ok)
+	{
+		*res_ok = ok;
 	}
 
 	return var;
