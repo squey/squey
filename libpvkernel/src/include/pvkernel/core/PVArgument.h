@@ -192,6 +192,8 @@ LibKernelDecl QString PVArgument_to_QString(PVArgument const& v);
 LibKernelDecl PVArgument QString_to_PVArgument(QString const& v);
 LibKernelDecl PVArgument QString_to_PVArgument(const QString &s, const QVariant& v);
 
+LibKernelDecl void PVArgumentList_to_QSettings(const PVArgumentList& args, QSettings& settings, const QString& group_name);
+LibKernelDecl PVArgumentList QSettings_to_PVArgumentList(QSettings& settings, const PVArgumentList& def_args, const QString& group_name);
 
 LibKernelDecl void dump_argument_list(PVArgumentList const& l);
 

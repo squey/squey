@@ -264,7 +264,7 @@ PVCore::PVArgument PVCore::QString_to_PVArgument(const QString &s, const QVarian
 				break;
 
 			case QMetaType::QChar:
-				ok = s.length() == 1;
+				ok = s.length() >= 1;
 				if(ok) {
 					var = QVariant(s[0]);
 				}
@@ -293,6 +293,32 @@ PVCore::PVArgument PVCore::QString_to_PVArgument(const QString &s, const QVarian
 	}
 
 	return var;
+}
+
+void PVCore::PVArgumentList_to_QSettings(const PVArgumentList& args, QSettings& settings, const QString& group_name)
+{
+	PVArgumentList::const_iterator it;
+	settings.beginGroup(group_name);
+	for (it = args.begin(); it != args.end(); it++) {
+		settings.setValue(it.key(), PVArgument_to_QString(it.value()));
+	}
+	settings.endGroup();
+}
+
+PVCore::PVArgumentList PVCore::QSettings_to_PVArgumentList(QSettings& settings, const PVArgumentList& def_args, const QString& group_name)
+{
+	PVArgumentList args;
+	settings.beginGroup(group_name);
+	QStringList keys = settings.childKeys();
+	for (int i = 0; i < keys.size(); i++) {
+		QString const& key = keys.at(i);
+		if (def_args.contains(key)) {
+			args[key] = QString_to_PVArgument(settings.value(key).toString(), def_args[key]);
+		}
+	}
+	settings.endGroup();
+
+	return args;
 }
 
 void PVCore::dump_argument_list(PVArgumentList const& l)
