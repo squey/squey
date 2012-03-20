@@ -55,7 +55,28 @@ public:
 		}
 	   _args = args;
 	}
-	PVArgumentList const& get_default_args() { return _def_args; }
+	PVArgumentList const& get_default_args() const { return _def_args; }
+
+	virtual PVArgumentList const& get_args_for_preset() const
+	{
+		return get_args();
+	}
+	virtual QList<PVCore::PVArgumentKey> get_args_keys_for_preset() const
+	{
+		return get_default_args().keys();
+	}
+	void set_args_from_preset(PVArgumentList const& args)
+	{
+		PVArgumentList def_args = get_args_keys_for_preset();
+		PVArgumentList::const_iterator it;
+		for (it = args.begin(); it != args.end(); it++)
+		{
+			if (def_args.contains(it.key()))
+			{
+				_args[it.key()] = it.value();
+			}
+		}
+	}
 protected:
 	PVArgumentList _args;
 	PVArgumentList _def_args;
