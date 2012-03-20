@@ -65,34 +65,33 @@ static bool are_we_ptraced()
 // Inspired by http://stackoverflow.com/questions/3151779/how-its-better-to-invoke-gdb-from-program-to-print-its-stacktrace
 static void segfault_handler(int sig, siginfo_t* sinfo, void* uctxt)
 {
+	fprintf(stderr, "/!\\ ----------------------------------------------------------------------------------------------------------- /!\\\n");
+	fprintf(stderr, "/!\\ -------- /!\\ Segfault occured at %p, do you want to launch the last-chance gdb ? /!\\ -------- /!\\\n", sinfo->si_addr);
+	fprintf(stderr, "/!\\ ----------------------------------------------------------------------------------------------------------- /!\\\n\n");
+	fprintf(stderr, "(Y)es/(N)o [Y]: ");
+	char line[10];
+	line[0] = 0;
+	fgets(line, 9, stdin);
+	if (line[0] != '\n' && line[0] != 'Y' && line[0] != 'y') {
+		abort();
+	}
+
+	fprintf(stderr, "Launching gdb...\n");
+	// Get the PID as a string
+	char pid_buf[11];
+	sprintf(pid_buf, "%d", getpid());
+	// Get current process path
+	// That's linux specific, but, well, we're using gdb :)
+	char process_path[1024];
+	int ret = readlink("/proc/self/exe", process_path, 1024-1);
+	if (ret == -1) {
+		perror("Unable to get current process path !");
+		// TODO: print backtrace by hand !
+		abort();
+	}
+	process_path[ret] = '\0';
 	pid_t child_pid = fork();
 	if (!child_pid) {           
-		fprintf(stderr, "/!\\ ----------------------------------------------------------------------------------------------------------- /!\\\n");
-		fprintf(stderr, "/!\\ -------- /!\\ Segfault occured at %p, do you want to launch the last-chance gdb ? /!\\ -------- /!\\\n", sinfo->si_addr);
-		fprintf(stderr, "/!\\ ----------------------------------------------------------------------------------------------------------- /!\\\n\n");
-		fprintf(stderr, "(Y)es/(N)o [Y]: ");
-		char line[10];
-		line[0] = 0;
-		fgets(line, 9, stdin);
-		if (line[0] != '\n' && line[0] != 'Y' && line[0] != 'y') {
-			abort();
-		}
-
-		fprintf(stderr, "Launching gdb...\n");
-		// Get the PID as a string
-		char pid_buf[11];
-		sprintf(pid_buf, "%d", getpid());
-		// Get current process path
-		// That's linux specific, but, well, we're using gdb :)
-		char process_path[1024];
-		int ret = readlink("/proc/self/exe", process_path, 1024-1);
-		if (ret == -1) {
-			perror("Unable to get current process path !");
-			// TODO: print backtrace by hand !
-			abort();
-		}
-		process_path[ret] = '\0';
-
 		execlp("gdb", "gdb", process_path, pid_buf, NULL);
 		// If this execlp fails, it means we're still in the same process. So abort
 		fprintf(stderr, "GDB failed to start !\n");
