@@ -22,7 +22,6 @@ struct PVTimeFormatType: public QStringList, public PVArgumentTypeBase
 
 	PVArgument from_string(QString const& str) const
 	{
-		PVLOG_INFO("PVTimeFormat from string: %s\n", qPrintable(str));
 		PVArgument arg;
 		arg.setValue(PVTimeFormatType(str.split('\n')));
 		return arg;

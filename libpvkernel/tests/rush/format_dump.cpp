@@ -13,6 +13,14 @@
 #include "helpers.h"
 #include "test-env.h"
 
+void dump_args(PVRush::PVAxisFormat::node_args_t const& args)
+{
+	PVRush::PVAxisFormat::node_args_t::const_iterator it;
+	for (it = args.begin(); it != args.end(); it++) {
+		std::cout << qPrintable(it.key()) << "=" << qPrintable(it.value()) << std::endl;
+	}
+}
+
 int main(int argc, char** argv)
 {
 	if (argc < 2) {
@@ -35,6 +43,20 @@ int main(int argc, char** argv)
 	}
 
 	format.debug();
+
+	PVRush::list_axes_t const& axes = format.get_axes();
+	PVRush::list_axes_t::const_iterator it;
+	PVCol axis_id = 0;
+	for (it = axes.begin(); it != axes.end(); it++) {
+		PVRush::PVAxisFormat::node_args_t const& args = it->get_args_mapping_string();
+		std::cout << "For axis " << axis_id << ", mapping args are :" << std::endl;
+		dump_args(args);
+		std::cout << "For axis " << axis_id << ", plotting args are :" << std::endl;
+		PVRush::PVAxisFormat::node_args_t const& args_p = it->get_args_plotting_string();
+		dump_args(args_p);
+		axis_id++;
+	}
+
 
 	return 0;
 }
