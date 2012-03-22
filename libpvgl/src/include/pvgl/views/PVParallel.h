@@ -221,7 +221,7 @@ public:
 	/**
 	 *
 	 */
-	void set_dirty(){lines.set_main_fbo_dirty(); lines.set_zombie_fbo_dirty();}
+	void set_dirty(){lines.set_lines_fbo_dirty(); lines.set_zombie_fbo_dirty();}
 
 	/**
 	 *

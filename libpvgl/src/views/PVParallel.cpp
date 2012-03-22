@@ -435,7 +435,7 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 					state_machine->toggle_gl_unselected_visibility();
 					/* We refresh the view */
 					//picviz_view_process_visibility(pv_view);
-					get_lines().set_main_fbo_dirty();
+					get_lines().set_zombie_fbo_dirty();
 					map.set_main_fbo_dirty();
 				}
 				break;
@@ -467,7 +467,7 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 					/* We toggle*/
 					state_machine->toggle_gl_zombie_visibility();
 					/* We refresh the view */
-					get_lines().set_main_fbo_dirty();
+					get_lines().set_zombie_fbo_dirty();
 					map.set_main_fbo_dirty();
 				}
 				break;
@@ -881,12 +881,12 @@ void PVGL::PVView::special_keys(int key, int, int)
 						if (glutGetModifiers() & GLUT_ACTIVE_SHIFT) {
 							picviz_view->axes_combination.move_axis_left_one_position(picviz_view->active_axis);
 							picviz_view->active_axis -= 1;
+							update_all();
+							update_axes_combination();
 						} else {
 							picviz_view->active_axis -= 1;
 						}
-						update_all();
 						update_listing();
-						update_axes_combination();
 					} else { // Move/zoom the selection square
 						float x_start, x_end, x_range, x_middle;
 						x_start = picviz_view->square_area.get_start_x();
@@ -920,12 +920,12 @@ void PVGL::PVView::special_keys(int key, int, int)
 						if (glutGetModifiers() & GLUT_ACTIVE_SHIFT) { // Move axis.
 							picviz_view->axes_combination.move_axis_right_one_position(picviz_view->active_axis);
 							picviz_view->active_axis += 1;
+							update_all();
+							update_axes_combination();
 						} else {
 							picviz_view->active_axis += 1;
 						}
-						update_all();
 						update_listing();
-						update_axes_combination();
 					} else {
 						float x_start, x_end, x_range, x_middle;
 						x_start = picviz_view->square_area.get_start_x();
