@@ -146,15 +146,19 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterPcapPacket::one_to_many(
 static void pcap_decode_add_field(pcap_decode_buf* buf, QString const& field)
 {
 	size_t bufsize = field.size() * sizeof(QChar);
-	if (bufsize > buf->rem_len) {
-		PVLOG_WARN("(PVFieldSplitterPcapPacket) buffer is too small to handle packet decoding. Ignoring field !\n");
-		return;
-	}
-	memcpy(buf->data, field.constData(), bufsize);
 	PVCore::PVField f(*buf->parent, buf->data, buf->data+bufsize);
-	buf->data += bufsize;
-	buf->rem_len -= bufsize;
-	buf->l->insert(buf->it_ins, f);
+	if (bufsize > buf->rem_len) {
+		//PVLOG_WARN("(PVFieldSplitterPcapPacket) buffer is too small to handle packet decoding. Ignoring field !\n");
+		PVCore::list_fields::iterator it_new = buf->l->insert(buf->it_ins, f);
+		it_new->allocate_new(bufsize);
+		memcpy(it_new->begin(), field.constData(), bufsize);
+	}
+	else {
+		memcpy(buf->data, field.constData(), bufsize);
+		buf->data += bufsize;
+		buf->rem_len -= bufsize;
+		buf->l->insert(buf->it_ins, f);
+	}
 	buf->nelts++;
 }
 
