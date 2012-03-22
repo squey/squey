@@ -436,7 +436,7 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 					/* We refresh the view */
 					//picviz_view_process_visibility(pv_view);
 					get_lines().set_main_fbo_dirty();
-					//map.set_main_fbo_dirty();
+					map.set_main_fbo_dirty();
 				}
 				break;
 		case 'w': case 'W':
@@ -468,7 +468,7 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 					state_machine->toggle_gl_zombie_visibility();
 					/* We refresh the view */
 					get_lines().set_main_fbo_dirty();
-					// map.set_main_fbo_dirty();
+					map.set_main_fbo_dirty();
 				}
 				break;
 		case 127: // Delete key from the main keyboard. In axes mode, delete the selected axis.
