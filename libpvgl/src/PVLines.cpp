@@ -515,6 +515,25 @@ void PVGL::PVLines::set_main_fbo_dirty()
 
 /******************************************************************************
  *
+ * PVGL::PVLines::set_lines_fbo_dirty
+ *
+ ******************************************************************************/
+void PVGL::PVLines::set_lines_fbo_dirty()
+{
+	PVLOG_DEBUG("PVGL::PVLines::%s\n", __FUNCTION__);
+
+	if (!picviz_view->is_consistent()) {
+		return;
+	}   
+	lines_fbo_dirty = true;
+	drawn_lines = 0;
+	idle_manager.new_task(view, IDLE_REDRAW_LINES);
+	set_main_fbo_dirty();
+}
+
+
+/******************************************************************************
+ *
  * PVGL::PVLines::set_zombie_fbo_dirty
  *
  *****************************************************************************/

@@ -718,6 +718,7 @@ bool PVGL::PVView::mouse_up(int button, int x, int y, int modifiers)
 		state_machine->set_grabbed(false);
 		get_lines().reset_offset();
 		get_lines().set_main_fbo_dirty();
+		get_lines().set_lines_fbo_dirty();
 		//map.set_lines_fbo_dirty();
 		get_lines().set_zombie_fbo_dirty();
 		//map.set_zombie_fbo_dirty();
