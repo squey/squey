@@ -26,20 +26,18 @@ protected:
 	QString _what;
 };
 
-template <class F>
-class PVFunctionArgs
+class PVFunctionArgsBase
 {
+
 public:
-	typedef F func_type;
-public:
-	PVFunctionArgs(PVArgumentList const& args = PVFunctionArgs<F>::default_args()) :
+	PVFunctionArgsBase(PVArgumentList const& args = PVArgumentList()) :
 		_args(args), _def_args(args)
 	{
 	}
 
-	virtual ~PVFunctionArgs() { }
+	virtual ~PVFunctionArgsBase() { }
+
 public:
-	virtual func_type f() = 0;
 	virtual const PVArgumentList& get_args() const { return _args; }
 	virtual void set_args(PVArgumentList const& args)
 	{
@@ -67,7 +65,7 @@ public:
 	}
 	void set_args_from_preset(PVArgumentList const& args)
 	{
-		PVArgumentList def_args = get_args_keys_for_preset();
+		PVArgumentList def_args = get_default_args();
 		PVArgumentList::const_iterator it;
 		for (it = args.begin(); it != args.end(); it++)
 		{
@@ -80,6 +78,20 @@ public:
 protected:
 	PVArgumentList _args;
 	PVArgumentList _def_args;
+};
+
+// FIXME: is this really useful ?!
+template <class F>
+class PVFunctionArgs: public PVFunctionArgsBase
+{
+public:
+	typedef F func_type;
+public:
+	PVFunctionArgs(PVArgumentList const& args = PVArgumentList()) :
+		PVFunctionArgsBase(args)
+	{ }
+public:
+	virtual func_type f() = 0;
 };
 
 }

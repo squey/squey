@@ -28,6 +28,7 @@ core/PVLogger.cpp
 core/PVMatrix.cpp
 core/PVPCRESplitter.cpp
 core/PVProgressBox.cpp
+core/PVPluginPresets.cpp
 core/PVSerializeArchive.cpp
 core/PVSerializeArchiveFixError.cpp
 core/PVSerializeArchiveOptions.cpp
@@ -82,6 +83,7 @@ include/pvkernel/core/PVListFloat2D.h
 include/pvkernel/core/PVLogger.h
 include/pvkernel/core/PVMeanValue.h
 include/pvkernel/core/PVPlainTextType.h
+include/pvkernel/core/PVPluginPresets.h
 include/pvkernel/core/PVRegistrableClass.h
 include/pvkernel/core/PVSerializeArchive.h
 include/pvkernel/core/PVSerializeArchiveFixError.h

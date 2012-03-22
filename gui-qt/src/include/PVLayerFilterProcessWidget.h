@@ -21,6 +21,7 @@ public slots:
 	void save_Slot();
 	void preview_Slot();
 	void cancel_Slot();
+	void preset_changed(int currentIndex);
 
 protected:
 	void create_btns();
@@ -36,6 +37,10 @@ protected:
 	PVTabSplitter* _tab;
 	Picviz::PVView_p _view;
 	Picviz::PVLayerFilter_p _filter_p;
+	QLabel* _presets_label;
+	QGroupBox* _args_widget_box;
+	QHBoxLayout* _presets_layout;
+	QComboBox* _presets_combo;
 	QPushButton* _cancel_btn;
 	QPushButton* _help_btn;
 	QPushButton* _preview_btn;

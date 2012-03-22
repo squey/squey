@@ -23,7 +23,26 @@ PVInspector::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(PVTabSplitte
 	setWindowTitle("Filter properties...");
 
 	QVBoxLayout* main_layout = new QVBoxLayout();
-	main_layout->addWidget(_args_widget);
+
+	// Presets
+	_presets_layout = new QHBoxLayout();
+	_presets_label = new QLabel(tr("Preset:"));
+	_presets_combo = new QComboBox();
+	_presets_layout->addWidget(_presets_label);
+	_presets_layout->addWidget(_presets_combo);
+	_presets_combo->addItems(_filter_p->get_presets().list_presets());
+	_presets_combo->setEnabled(_presets_combo->count());
+	main_layout->addLayout(_presets_layout);
+	connect(_presets_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(preset_changed(int)));
+
+	// Args widget
+	_args_widget_box = new QGroupBox(tr("Filter"));
+	QVBoxLayout* box_layout = new QVBoxLayout();
+	box_layout->addWidget(_args_widget);
+	_args_widget_box->setLayout(box_layout);
+	main_layout->addWidget(_args_widget_box);
+
+	// Buttons
 	_btn_layout = new QHBoxLayout();
 	main_layout->addLayout(_btn_layout);
 
@@ -42,6 +61,17 @@ PVInspector::PVLayerFilterProcessWidget::~PVLayerFilterProcessWidget()
 void PVInspector::PVLayerFilterProcessWidget::change_args(PVCore::PVArgumentList const& args)
 {
 	_args_widget->set_args_values(args);
+}
+
+void PVInspector::PVLayerFilterProcessWidget::preset_changed(int currentIndex)
+{
+	QString presetName = _presets_combo->currentText();
+	_filter_p->get_presets().load_preset(presetName);
+//	_filter_p->get_presets().get_args_for_preset();
+//	foreach(PVCore::PVArgument arg, _filter_p->get_presets().get_args_for_preset())
+//	{
+//		PVLOG_INFO("arg=%s\n", qPrintable(PVCore::PVArgument_to_QString(arg)));
+//	}
 }
 
 void PVInspector::PVLayerFilterProcessWidget::create_btns()

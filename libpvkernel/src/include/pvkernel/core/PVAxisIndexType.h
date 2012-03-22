@@ -8,14 +8,17 @@
 #define PVCORE_PVAXISINDEXTYPE_H
 
 #include <pvkernel/core/general.h>
+#include <pvkernel/core/PVArgument.h>
+
 #include <QMetaType>
+#include <QStringList>
 
 namespace PVCore {
 
 /**
  * \class PVAxisIndexType
  */
-class LibKernelDecl PVAxisIndexType
+class LibKernelDecl PVAxisIndexType : public PVArgumentType<PVAxisIndexType>
 {
 	
 public:
@@ -27,6 +30,28 @@ public:
 
 	int get_original_index();
 	bool get_append_none_axis();
+
+	QString to_string() const
+	{
+		return QString::number(_origin_axis_index) + ":" + QString(_append_none_axis?"true":"false");
+	}
+	PVArgument from_string(QString const& str) const
+	{
+		int  origin_axis_index ;
+		bool append_none_axis ;
+
+		QStringList parts = str.split(":");
+		origin_axis_index = parts[0].toInt();
+		append_none_axis = parts[1].compare("true", Qt::CaseInsensitive) == 0;
+
+		PVArgument arg;
+		arg.setValue(PVAxisIndexType(origin_axis_index, append_none_axis));
+		return arg;
+	}
+	bool operator==(const PVAxisIndexType &other) const
+	{
+		return _origin_axis_index == other._origin_axis_index && _append_none_axis == other._append_none_axis ;
+	}
 
 protected:
 	// The original axis index will never change. PVAxisCombination takes care of any
