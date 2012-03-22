@@ -15,38 +15,41 @@
 
 #include <QUrl>
 
+#define URL_NUMBER_FIELDS_CREATED 6
+
 struct url_decode_buf {
-	PVCore::PVField *pf[6];
-	PVCore::PVField* field;
-	char* data;
-	size_t rem_len;
-	size_t nelts;
+    PVCore::PVField *pf[URL_NUMBER_FIELDS_CREATED];
+    PVCore::PVField* field;
+    char* data;
+    size_t rem_len;
+    size_t nelts;
 };
 
 static void url_decode_add_field(url_decode_buf* buf, QString const& new_field, PVCol pos)
 {
 	if (pos == -1) {
 		return;
-	}
+	}   
 	size_t bufsize = new_field.size() * sizeof(QChar);
-	if (bufsize > buf->rem_len) {
-		size_t cur_index = buf->data - buf->field->begin();
-		size_t growby = bufsize - buf->rem_len;
-		buf->field->grow_by_reallocate(growby);
-		buf->rem_len += growby;
-		// Update the current data pointer
-		buf->data = buf->field->begin() + cur_index;
-	}
-	memcpy(buf->data, new_field.constData(), bufsize);
 	PVCore::PVField *pf = buf->pf[pos];
-	pf->set_begin(buf->data);
-	pf->set_end(buf->data+bufsize);
-	pf->set_physical_end(buf->data+bufsize);
-	//PVCore::PVField f(*buf->parent, buf->data, buf->data+bufsize);
+	if (bufsize > buf->rem_len) {
+		// This buffer is too short... Do not reallocate it, since it will invalidate
+		// previous pointers !!
+		// Allocate a new one for 'pf'.
+		pf->allocate_new(bufsize);
+		memcpy(pf->begin(), new_field.constData(), bufsize);
+	}   
+	else {
+		memcpy(buf->data, new_field.constData(), bufsize);
+		pf->set_begin(buf->data);
+		pf->set_end(buf->data+bufsize);
+		pf->set_physical_end(buf->data+bufsize);
+		//PVCore::PVField f(*buf->parent, buf->data, buf->data+bufsize);
 
-	buf->data += bufsize;
-	buf->rem_len -= bufsize;
-	buf->nelts++;
+		buf->data += bufsize;
+		buf->rem_len -= bufsize;
+		buf->nelts++;
+	}   
 }
 
 bool split_ip_port(QString const& str, QString& ip, uint16_t& port)
@@ -103,7 +106,7 @@ void PVFilter::PVFieldSplitterURL::set_children_axes_tag(filter_child_axes_tag_t
 	_col_variable = axes.value(PVAXIS_TAG_URL_VARIABLES, -1);
 	PVCol nmiss = (_col_proto == -1) + (_col_domain == -1) + (_col_tld == -1) + (_col_port == -1) + \
 				(_col_url == -1) + (_col_variable == -1);
-	_ncols = 6-nmiss;
+	_ncols = URL_NUMBER_FIELDS_CREATED-nmiss;
 	if (_ncols == 0) {
 		PVLOG_WARN("(PVFieldSplitterURL::set_children_axes_tag) warning: URL splitter set but no tags have been found !\n");
 	}
