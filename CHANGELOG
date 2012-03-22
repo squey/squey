@@ -1,3 +1,12 @@
+2.4.2 (22/03/2012)
+-----------------
+
+This minor release fixes:
+* bug in GL parallel view where all lines were redrawn in cases they shouldn't
+* crashes in the PCAP and URL spplitter in some cases
+* bug in the scatter view that didn't take into account the axes combination
+* various bugs in the format builder
+
 2.4.1 (14/02/2012) - Valentine's day release :)
 ------------------
 
