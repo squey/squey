@@ -25,15 +25,17 @@ PVInspector::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(PVTabSplitte
 	QVBoxLayout* main_layout = new QVBoxLayout();
 
 	// Presets
-	_presets_layout = new QHBoxLayout();
-	_presets_label = new QLabel(tr("Preset:"));
-	_presets_combo = new QComboBox();
-	_presets_layout->addWidget(_presets_label);
-	_presets_layout->addWidget(_presets_combo);
-	_presets_combo->addItems(_filter_p->get_presets().list_presets());
-	_presets_combo->setEnabled(_presets_combo->count());
-	main_layout->addLayout(_presets_layout);
-	connect(_presets_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(preset_changed(int)));
+	if (_filter_p->get_presets().can_have_presets()) {
+		_presets_layout = new QHBoxLayout();
+		_presets_label = new QLabel(tr("Preset:"));
+		_presets_combo = new QComboBox();
+		_presets_layout->addWidget(_presets_label);
+		_presets_layout->addWidget(_presets_combo);
+		_presets_combo->addItems(_filter_p->get_presets().list_presets());
+		_presets_combo->setEnabled(_presets_combo->count());
+		main_layout->addLayout(_presets_layout);
+		connect(_presets_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(preset_changed(int)));
+	}
 
 	// Args widget
 	_args_widget_box = new QGroupBox(tr("Filter"));
@@ -67,11 +69,8 @@ void PVInspector::PVLayerFilterProcessWidget::preset_changed(int currentIndex)
 {
 	QString presetName = _presets_combo->currentText();
 	_filter_p->get_presets().load_preset(presetName);
-//	_filter_p->get_presets().get_args_for_preset();
-//	foreach(PVCore::PVArgument arg, _filter_p->get_presets().get_args_for_preset())
-//	{
-//		PVLOG_INFO("arg=%s\n", qPrintable(PVCore::PVArgument_to_QString(arg)));
-//	}
+	//_args_widget->set_args(const_cast<PVCore::PVArgumentList&>(_filter_p->get_presets().get_args_for_preset()));
+	change_args(_filter_p->get_presets().get_args_for_preset());
 }
 
 void PVInspector::PVLayerFilterProcessWidget::create_btns()
@@ -231,7 +230,7 @@ void PVInspector::PVLayerFilterProcessWidget::cancel_Slot()
 	// Restore the original post_filter_layer
 	_view->post_filter_layer = _view->pre_filter_layer;
 
-	// Update verything
+	// Update everything
 	_view->process_from_layer_stack();
 	_tab->get_main_window()->update_pvglview(_view, PVSDK_MESSENGER_REFRESH_SELECTION|PVSDK_MESSENGER_REFRESH_COLOR);
 	_tab->refresh_listing_Slot();

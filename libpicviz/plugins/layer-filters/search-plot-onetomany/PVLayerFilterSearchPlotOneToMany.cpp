@@ -14,6 +14,12 @@
 #include <QMap>
 #include <QSpinBox>
 
+#define ARG_NAME_NUMBER "number"
+#define ARG_DESC_NUMBER "Number"
+#define ARG_NAME_AXIS_FROM "axis_from"
+#define ARG_DESC_AXIS_FROM "Axis From"
+#define ARG_NAME_AXIS_TO "axis_to"
+#define ARG_DESC_AXIS_TO "Axis To"
 
 #define INCLUDE_EXCLUDE_STR "Include or exclude pattern"
 #define CASE_SENSITIVE_STR "Case sensitivity"
@@ -36,9 +42,9 @@ Picviz::PVLayerFilterSearchPlotOneToMany::PVLayerFilterSearchPlotOneToMany(PVCor
 DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterSearchPlotOneToMany)
 {
 	PVCore::PVArgumentList args;
-	args[PVCore::PVArgumentKey("number", QObject::tr("Number"))] = QString("2");
-	args[PVCore::PVArgumentKey("axis_from", QObject::tr("Axis From"))].setValue(PVCore::PVAxisIndexType(0));
-	args[PVCore::PVArgumentKey("axis_to", QObject::tr("Axis To"))].setValue(PVCore::PVAxisIndexType(0));
+	args[PVCore::PVArgumentKey(ARG_NAME_NUMBER, QObject::tr(ARG_DESC_NUMBER))] = QString("2");
+	args[PVCore::PVArgumentKey(ARG_NAME_AXIS_FROM, QObject::tr(ARG_DESC_AXIS_FROM))].setValue(PVCore::PVAxisIndexType(0));
+	args[PVCore::PVArgumentKey(ARG_NAME_AXIS_TO, QObject::tr(ARG_DESC_AXIS_TO))].setValue(PVCore::PVAxisIndexType(0));
 	return args;
 }
 
@@ -49,9 +55,9 @@ DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterSearchPlotOneToMany)
  *****************************************************************************/
 void Picviz::PVLayerFilterSearchPlotOneToMany::operator()(PVLayer& in, PVLayer &out)
 {	
-	int axis_from_id = _args["axis_from"].value<PVCore::PVAxisIndexType>().get_original_index();
-	int axis_to_id = _args["axis_to"].value<PVCore::PVAxisIndexType>().get_original_index();
-	QString number = _args["number"].toString();
+	int axis_from_id = _args[ARG_NAME_AXIS_FROM].value<PVCore::PVAxisIndexType>().get_original_index();
+	int axis_to_id = _args[ARG_NAME_AXIS_TO].value<PVCore::PVAxisIndexType>().get_original_index();
+	QString number = _args[ARG_NAME_NUMBER].toString();
 	int greater_counter = number.toInt();
 
 	PVRow nb_lines = _view->get_qtnraw_parent().get_nrows();
@@ -93,5 +99,12 @@ void Picviz::PVLayerFilterSearchPlotOneToMany::operator()(PVLayer& in, PVLayer &
 	}
 }
 
+QList<PVCore::PVArgumentKey> Picviz::PVLayerFilterSearchPlotOneToMany::get_args_keys_for_preset() const
+{
+	QList<PVCore::PVArgumentKey> keys = get_args_for_preset().keys();
+	keys.removeAll(ARG_NAME_AXIS_FROM);
+	keys.removeAll(ARG_NAME_AXIS_TO);
+	return keys;
+}
 
 IMPL_FILTER(Picviz::PVLayerFilterSearchPlotOneToMany)

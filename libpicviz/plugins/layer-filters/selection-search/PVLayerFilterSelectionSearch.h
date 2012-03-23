@@ -16,6 +16,7 @@ public:
 	PVLayerFilterSelectionSearch(PVCore::PVArgumentList const& l = PVLayerFilterSelectionSearch::default_args());
 public:
 	virtual void operator()(PVLayer& in, PVLayer &out);
+	virtual QList<PVCore::PVArgumentKey> get_args_keys_for_preset() const;
 
 public:
 	static PVCore::PVArgumentList sel_axis_menu(PVRow /*row*/, PVCol col, QString const& /*v*/);

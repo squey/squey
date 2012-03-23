@@ -51,7 +51,7 @@ public:
 			vec.push_back(strList[i].toInt());
 		}
 		PVArgument arg;
-		arg.setValue(vec);
+		arg.setValue(PVAxesIndexType(vec));
 		return arg;
 	}
 	bool operator==(const PVAxesIndexType &other) const

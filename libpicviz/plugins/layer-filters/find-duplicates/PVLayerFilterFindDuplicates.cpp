@@ -9,6 +9,11 @@
 #include <pvkernel/core/PVAxisIndexType.h>
 #include <picviz/PVView.h>
 
+#define ARG_NAME_AXIS "Axis"
+#define ARG_NAME_SELECT_ONLY_DUP "select-only-dup"
+#define ARG_DESC_SELECT_ONLY_DUP "Select only non-duplicates"
+#define ARG_NAME_SELECT_ONLY_ONE_DUP "select-only-one-dup"
+#define ARG_DESC_SELECT_ONLY_ONE_DUP "Select with one duplicate"
 
 /******************************************************************************
  *
@@ -29,9 +34,9 @@ Picviz::PVLayerFilterFindDuplicates::PVLayerFilterFindDuplicates(PVCore::PVArgum
 DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterFindDuplicates)
 {
 	PVCore::PVArgumentList args;
-	args["Axis"].setValue(PVCore::PVAxisIndexType(0));
-	args[PVCore::PVArgumentKey("select-only-dup", "Select only non-duplicates")].setValue<bool>(false);
-	args[PVCore::PVArgumentKey("select-only-one-dup", "Select with one duplicate")].setValue<bool>(true);
+	args[ARG_NAME_AXIS].setValue(PVCore::PVAxisIndexType(0));
+	args[PVCore::PVArgumentKey(ARG_NAME_SELECT_ONLY_DUP, ARG_DESC_SELECT_ONLY_DUP)].setValue<bool>(false);
+	args[PVCore::PVArgumentKey(ARG_NAME_SELECT_ONLY_ONE_DUP, ARG_DESC_SELECT_ONLY_ONE_DUP)].setValue<bool>(true);
 	return args;
 }
 
@@ -42,9 +47,9 @@ DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterFindDuplicates)
  *****************************************************************************/
 void Picviz::PVLayerFilterFindDuplicates::operator()(PVLayer& in, PVLayer &out)
 {	
-	int axis_id = _args["Axis"].value<PVCore::PVAxisIndexType>().get_original_index();
-	bool non_duplicates = _args["select-only-dup"].toBool();
-	bool with_one_duplicate = _args["select-only-one-dup"].toBool();
+	int axis_id = _args[ARG_NAME_AXIS].value<PVCore::PVAxisIndexType>().get_original_index();
+	bool non_duplicates = _args[ARG_NAME_SELECT_ONLY_DUP].toBool();
+	bool with_one_duplicate = _args[ARG_NAME_SELECT_ONLY_ONE_DUP].toBool();
 	PVRow nb_lines = _view->get_qtnraw_parent().get_nrows();
 
 	PVRush::PVNraw::nraw_table const& nraw = _view->get_qtnraw_parent();
@@ -102,6 +107,13 @@ void Picviz::PVLayerFilterFindDuplicates::operator()(PVLayer& in, PVLayer &out)
 		}
 	}
 
+}
+
+QList<PVCore::PVArgumentKey> Picviz::PVLayerFilterFindDuplicates::get_args_keys_for_preset() const
+{
+	QList<PVCore::PVArgumentKey> keys = get_args_for_preset().keys();
+	keys.removeAll(ARG_NAME_AXIS);
+	return keys;
 }
 
 IMPL_FILTER(Picviz::PVLayerFilterFindDuplicates)

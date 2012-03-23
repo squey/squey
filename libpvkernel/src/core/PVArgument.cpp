@@ -319,7 +319,15 @@ PVCore::PVArgumentList PVCore::QSettings_to_PVArgumentList(QSettings& settings, 
 	for (int i = 0; i < keys.size(); i++) {
 		QString const& key = keys.at(i);
 		if (def_args.contains(key)) {
-			args[key] = QString_to_PVArgument(settings.value(key).toString(), def_args[key]);
+			QString str ;
+			if (settings.value(key).type() == QMetaType::QStringList) {
+				// QSettings returns strings containing commas as QStringList
+				str = settings.value(key).toStringList().join(",");
+			}
+			else {
+				str = settings.value(key).toString();
+			}
+			args[key] = QString_to_PVArgument(str, def_args[key]);
 		}
 	}
 	settings.endGroup();

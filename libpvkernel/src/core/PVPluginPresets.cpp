@@ -12,7 +12,7 @@ PVCore::__impl::PVPluginPresets::PVPluginPresets(PVCore::PVFunctionArgsBase* far
 
 }
 
-QStringList PVCore::__impl::PVPluginPresets::list_presets()
+QStringList PVCore::__impl::PVPluginPresets::list_presets() const
 {
 	pvconfig.beginGroup(_abs_reg_name);
 	QStringList presets = pvconfig.childGroups();
@@ -21,17 +21,17 @@ QStringList PVCore::__impl::PVPluginPresets::list_presets()
 	return presets;
 }
 
-void PVCore::__impl::PVPluginPresets::del_preset(QString const& name)
+void PVCore::__impl::PVPluginPresets::del_preset(QString const& name) const
 {
 	pvconfig.remove(_abs_reg_name + "/" + name);
 }
 
-void PVCore::__impl::PVPluginPresets::add_preset(QString const& name)
+void PVCore::__impl::PVPluginPresets::add_preset(QString const& name) const
 {
 	PVArgumentList_to_QSettings(_fargs->get_args_for_preset(), pvconfig, _abs_reg_name + "/" + name);
 }
 
-void PVCore::__impl::PVPluginPresets::modify_preset(QString const& name)
+void PVCore::__impl::PVPluginPresets::modify_preset(QString const& name) const
 {
 	del_preset(name);
 	add_preset(name);
@@ -44,7 +44,12 @@ void PVCore::__impl::PVPluginPresets::load_preset(QString const& name)
 	_fargs->set_args_from_preset(args);
 }
 
-const PVCore::PVArgumentList& PVCore::__impl::PVPluginPresets::get_args_for_preset()
+const PVCore::PVArgumentList& PVCore::__impl::PVPluginPresets::get_args_for_preset() const
 {
 	return _fargs->get_args_for_preset();
+}
+
+bool PVCore::__impl::PVPluginPresets::can_have_presets() const
+{
+	return _fargs->get_args_keys_for_preset().count() > 0;
 }

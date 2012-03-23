@@ -6,8 +6,18 @@
 
 #include <omp.h>
 
-#define INCLUDE_EXCLUDE_STR "Include or exclude pattern"
-#define CASE_SENSITIVE_STR "Case sensitivity"
+
+
+#define ARG_NAME_AXIS "axis"
+#define ARG_DESC_AXIS "Based on values of axis"
+#define ARG_NAME_CASE "case"
+#define ARG_DESC_CASE "Case sensitivity"
+#define ARG_NAME_ENTIRE "entire"
+#define ARG_DESC_ENTIRE "Match on"
+#define ARG_NAME_INTERPRET "interpret"
+#define ARG_DESC_INTERPRET "Interpret expressions as"
+
+
 /******************************************************************************
  *
  * Picviz::PVLayerFilterSelectionSearch::PVLayerFilterSelectionSearch
@@ -28,10 +38,10 @@ Picviz::PVLayerFilterSelectionSearch::PVLayerFilterSelectionSearch(PVCore::PVArg
 DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterSelectionSearch)
 {
 	PVCore::PVArgumentList args;
-	args[PVCore::PVArgumentKey("axis", QObject::tr("Based on values of axis"))].setValue(PVCore::PVAxisIndexType(0));
-	args[PVCore::PVArgumentKey("case", QObject::tr(CASE_SENSITIVE_STR))].setValue(PVCore::PVEnumType(QStringList() << QString("Does not match case") << QString("Match case") , 0));
-	args[PVCore::PVArgumentKey("entire", QObject::tr("Match on"))].setValue(PVCore::PVEnumType(QStringList() << QString("Part of the field") << QString("The entire field") , 0));
-	args[PVCore::PVArgumentKey("interpret", QObject::tr("Interpret expressions as"))].setValue(PVCore::PVEnumType(QStringList() << QString("Plain text") << QString("Regular expressions") << QString("Wildcard") , 0));
+	args[PVCore::PVArgumentKey(ARG_NAME_AXIS, QObject::tr(ARG_DESC_AXIS))].setValue(PVCore::PVAxisIndexType(0));
+	args[PVCore::PVArgumentKey(ARG_NAME_CASE, QObject::tr(ARG_DESC_CASE))].setValue(PVCore::PVEnumType(QStringList() << QString("Does not match case") << QString("Match case") , 0));
+	args[PVCore::PVArgumentKey(ARG_NAME_ENTIRE, QObject::tr(ARG_DESC_ENTIRE))].setValue(PVCore::PVEnumType(QStringList() << QString("Part of the field") << QString("The entire field") , 0));
+	args[PVCore::PVArgumentKey(ARG_NAME_INTERPRET, QObject::tr(ARG_DESC_INTERPRET))].setValue(PVCore::PVEnumType(QStringList() << QString("Plain text") << QString("Regular expressions") << QString("Wildcard") , 0));
 	return args;
 }
 
@@ -42,10 +52,10 @@ DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterSelectionSearch)
  *****************************************************************************/
 void Picviz::PVLayerFilterSelectionSearch::operator()(PVLayer& in, PVLayer &out)
 {	
-	int axis_id = _args["axis"].value<PVCore::PVAxisIndexType>().get_original_index();
-	int interpret = _args["interpret"].value<PVCore::PVEnumType>().get_sel_index();
-	bool case_match = _args["case"].value<PVCore::PVEnumType>().get_sel_index() == 1;
-	bool exact_match = _args["entire"].value<PVCore::PVEnumType>().get_sel_index() == 1;
+	int axis_id = _args[ARG_NAME_AXIS].value<PVCore::PVAxisIndexType>().get_original_index();
+	int interpret = _args[ARG_NAME_INTERPRET].value<PVCore::PVEnumType>().get_sel_index();
+	bool case_match = _args[ARG_NAME_CASE].value<PVCore::PVEnumType>().get_sel_index() == 1;
+	bool exact_match = _args[ARG_NAME_ENTIRE].value<PVCore::PVEnumType>().get_sel_index() == 1;
 	bool is_rx = interpret >= 1;
 	bool is_wildcard = interpret == 2;
 
@@ -192,10 +202,17 @@ void Picviz::PVLayerFilterSelectionSearch::operator()(PVLayer& in, PVLayer &out)
 	}
 }
 
+QList<PVCore::PVArgumentKey> Picviz::PVLayerFilterSelectionSearch::get_args_keys_for_preset() const
+{
+	QList<PVCore::PVArgumentKey> keys = get_args_for_preset().keys();
+	keys.removeAll(ARG_NAME_AXIS);
+	return keys;
+}
+
 PVCore::PVArgumentList Picviz::PVLayerFilterSelectionSearch::sel_axis_menu(PVRow /*row*/, PVCol col, QString const& /*v*/)
 {
 	PVCore::PVArgumentList args;
-	args["axis"].setValue(PVCore::PVAxisIndexType(col));
+	args[ARG_NAME_AXIS].setValue(PVCore::PVAxisIndexType(col));
 	return args;
 }
 

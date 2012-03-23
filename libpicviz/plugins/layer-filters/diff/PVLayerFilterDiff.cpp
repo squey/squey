@@ -14,6 +14,13 @@
 #include <pvkernel/rush/PVUtils.h>
 #include <picviz/PVView.h>
 
+#define ARG_NAME_AXES "axes"
+#define ARG_DESC_AXES "Axes"
+#define ARG_NAME_FROM_LINE "From line"
+#define ARG_NAME_TO_LINE "To line"
+
+
+
 /******************************************************************************
  *
  * Picviz::PVLayerFilterDiff::PVLayerFilterDiff
@@ -33,9 +40,9 @@ Picviz::PVLayerFilterDiff::PVLayerFilterDiff(PVCore::PVArgumentList const& l)
 DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterDiff)
 {
 	PVCore::PVArgumentList args;
-	args[PVCore::PVArgumentKey("axes", "Axes")].setValue(PVCore::PVAxesIndexType());
-	args["To line"].setValue(PVCore::PVSpinBoxType());
-	args["From line"].setValue(PVCore::PVSpinBoxType());
+	args[PVCore::PVArgumentKey(ARG_NAME_AXES, ARG_DESC_AXES)].setValue(PVCore::PVAxesIndexType());
+	args[ARG_NAME_TO_LINE].setValue(PVCore::PVSpinBoxType());
+	args[ARG_NAME_FROM_LINE].setValue(PVCore::PVSpinBoxType());
 
 	return args;
 }
@@ -49,7 +56,7 @@ PVCore::PVArgumentList Picviz::PVLayerFilterDiff::get_default_args_for_view(PVVi
 {
 	// Retrieve the key axes of the PVFormat of that PVView
 	PVCore::PVArgumentList args = get_args();
-	args["axes"].setValue(PVCore::PVAxesIndexType(view.get_original_axes_index_with_tag(get_tag("key"))));
+	args[ARG_NAME_AXES].setValue(PVCore::PVAxesIndexType(view.get_original_axes_index_with_tag(get_tag("key"))));
 	return args;
 }
 
@@ -63,10 +70,10 @@ void Picviz::PVLayerFilterDiff::operator()(PVLayer& in, PVLayer &out)
 {	
 	PVRush::PVNraw::nraw_table const& nraw = _view->get_qtnraw_parent();
 	PVRow nb_lines = nraw.get_nrows();
-	PVCore::PVAxesIndexType axes = _args["axes"].value<PVCore::PVAxesIndexType>();
+	PVCore::PVAxesIndexType axes = _args[ARG_NAME_AXES].value<PVCore::PVAxesIndexType>();
 	if (axes.size() == 0) {
 		_args = get_default_args_for_view(*_view);
-		axes = _args["axes"].value<PVCore::PVAxesIndexType>();
+		axes = _args[ARG_NAME_AXES].value<PVCore::PVAxesIndexType>();
 		if (axes.size() == 0) {
 			PVLOG_ERROR("(PVLayerFilterDiff) no key axes defined in the format and no axes selected !\n");
 			if (&in != &out) {
@@ -76,8 +83,8 @@ void Picviz::PVLayerFilterDiff::operator()(PVLayer& in, PVLayer &out)
 		}
 	}
 
-	PVCore::PVSpinBoxType fromline_spinbox = _args["From line"].value<PVCore::PVSpinBoxType>();
-	PVCore::PVSpinBoxType toline_spinbox = _args["To line"].value<PVCore::PVSpinBoxType>();
+	PVCore::PVSpinBoxType fromline_spinbox = _args[ARG_NAME_FROM_LINE].value<PVCore::PVSpinBoxType>();
+	PVCore::PVSpinBoxType toline_spinbox = _args[ARG_NAME_TO_LINE].value<PVCore::PVSpinBoxType>();
 
 	// PVLOG_INFO("************************************* From line:%d\n", fromline_spinbox.get_value());
 	// PVLOG_INFO("************************************* To line:%d\n", toline_spinbox.get_value());
@@ -112,6 +119,13 @@ void Picviz::PVLayerFilterDiff::operator()(PVLayer& in, PVLayer &out)
 		}
 	}
 
+}
+
+QList<PVCore::PVArgumentKey> Picviz::PVLayerFilterDiff::get_args_keys_for_preset() const
+{
+	QList<PVCore::PVArgumentKey> keys = get_args_for_preset().keys();
+	keys.removeAll(ARG_NAME_AXES);
+	return keys;
 }
 
 IMPL_FILTER(Picviz::PVLayerFilterDiff)

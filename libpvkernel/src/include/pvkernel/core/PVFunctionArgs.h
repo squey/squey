@@ -55,7 +55,7 @@ public:
 	}
 	PVArgumentList const& get_default_args() const { return _def_args; }
 
-	virtual PVArgumentList const& get_args_for_preset() const
+	PVArgumentList const& get_args_for_preset() const
 	{
 		return get_args();
 	}

@@ -17,6 +17,11 @@
 
 #include <math.h>
 
+#define ARG_NAME_AXIS "axis"
+#define ARG_DESC_AXIS "Axis From"
+#define ARG_NAME_NUMBER "number"
+#define ARG_DESC_NUMBER "Number"
+
 /******************************************************************************
  *
  * Picviz::PVLayerFilterEntropy::PVLayerFilterEntropy
@@ -37,8 +42,8 @@ DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterEntropy)
 {
 	PVCore::PVArgumentList args;
 
-	args[PVCore::PVArgumentKey("axis", QObject::tr("Axis From"))].setValue(PVCore::PVAxisIndexType(0));
-	args[PVCore::PVArgumentKey("number", QObject::tr("Number"))] = QString("4");
+	args[PVCore::PVArgumentKey(ARG_NAME_AXIS, QObject::tr(ARG_DESC_AXIS))].setValue(PVCore::PVAxisIndexType(0));
+	args[PVCore::PVArgumentKey(ARG_NAME_NUMBER, QObject::tr(ARG_DESC_NUMBER))] = QString("4");
 
 	return args;
 }
@@ -82,8 +87,8 @@ float get_entropy(QString str)
  *****************************************************************************/
 void Picviz::PVLayerFilterEntropy::operator()(PVLayer& in, PVLayer &out)
 {
-	int axis_id = _args["axis"].value<PVCore::PVAxisIndexType>().get_original_index();
-	QString number = _args["number"].toString();
+	int axis_id = _args[ARG_NAME_AXIS].value<PVCore::PVAxisIndexType>().get_original_index();
+	QString number = _args[ARG_NAME_NUMBER].toString();
 	float greater_counter = number.toFloat();
 
 	PVRush::PVNraw::nraw_table const& nraw = _view->get_qtnraw_parent();
@@ -111,6 +116,13 @@ void Picviz::PVLayerFilterEntropy::operator()(PVLayer& in, PVLayer &out)
 		}
 	}
 
+}
+
+QList<PVCore::PVArgumentKey> Picviz::PVLayerFilterEntropy::get_args_keys_for_preset() const
+{
+	QList<PVCore::PVArgumentKey> keys = get_args_for_preset().keys();
+	keys.removeAll(ARG_NAME_AXIS);
+	return keys;
 }
 
 IMPL_FILTER(Picviz::PVLayerFilterEntropy)

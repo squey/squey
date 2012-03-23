@@ -9,6 +9,9 @@
 #include <pvkernel/core/PVAxisIndexType.h>
 #include <picviz/PVView.h>
 
+#define ARG_NAME_AXIS "axis"
+#define ARG_DESC_AXIS "Axis"
+
 /******************************************************************************
  *
  * Picviz::PVLayerFilterAxisGradient::PVLayerFilterAxisGradient
@@ -29,7 +32,7 @@ Picviz::PVLayerFilterAxisGradient::PVLayerFilterAxisGradient(PVCore::PVArgumentL
 DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterAxisGradient)
 {
 	PVCore::PVArgumentList args;
-	args[PVCore::PVArgumentKey("axis", QObject::tr("Axis"))].setValue(PVCore::PVAxisIndexType(0));
+	args[PVCore::PVArgumentKey(ARG_NAME_AXIS, QObject::tr(ARG_DESC_AXIS))].setValue(PVCore::PVAxisIndexType(0));
 	return args;
 }
 
@@ -47,7 +50,7 @@ void Picviz::PVLayerFilterAxisGradient::operator()(PVLayer& in, PVLayer &out)
 
 	//const PVSource* source = _view.get_source_parent();
 	const PVPlotted* plotted = _view->get_plotted_parent();
-	axis_id = _args["axis"].value<PVCore::PVAxisIndexType>().get_original_index();
+	axis_id = _args[ARG_NAME_AXIS].value<PVCore::PVAxisIndexType>().get_original_index();
 
 	PVPlotted::plotted_sub_col_t values_sel;
 	float max_plotted,min_plotted;
@@ -69,6 +72,13 @@ void Picviz::PVLayerFilterAxisGradient::operator()(PVLayer& in, PVLayer &out)
 	}
 }
 
+QList<PVCore::PVArgumentKey> Picviz::PVLayerFilterAxisGradient::get_args_keys_for_preset() const
+{
+	QList<PVCore::PVArgumentKey> keys = get_args_for_preset().keys();
+	keys.removeAll(ARG_NAME_AXIS);
+	return keys;
+}
+
 QString Picviz::PVLayerFilterAxisGradient::status_bar_description()
 {
 	return QString("Apply a gradient of color on a given axis.");
@@ -82,7 +92,7 @@ QString Picviz::PVLayerFilterAxisGradient::detailed_description()
 PVCore::PVArgumentList Picviz::PVLayerFilterAxisGradient::gradient_menu(PVRow /*row*/, PVCol col, QString const& /*v*/)
 {
 	PVCore::PVArgumentList args;
-	args["axis"].setValue(PVCore::PVAxisIndexType(col));
+	args[ARG_NAME_AXIS].setValue(PVCore::PVAxisIndexType(col));
 	return args;
 
 }
