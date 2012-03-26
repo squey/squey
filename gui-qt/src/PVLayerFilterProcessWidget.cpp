@@ -1,3 +1,5 @@
+#include "PVLayerFilterProcessWidget.h"
+
 #include <QDialog>
 #include <QLabel>
 #include <QPushButton>
@@ -6,7 +8,7 @@
 #include <picviz/PVStateMachine.h>
 
 #include <PVMainWindow.h>
-#include <PVLayerFilterProcessWidget.h>
+
 #include <pvkernel/core/PVProgressBox.h>
 
 PVInspector::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(PVTabSplitter* tab, PVCore::PVArgumentList& args, Picviz::PVLayerFilter_p filter_p) :
@@ -24,18 +26,14 @@ PVInspector::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(PVTabSplitte
 
 	QVBoxLayout* main_layout = new QVBoxLayout();
 
-	// Presets
-	if (_filter_p->get_presets().can_have_presets()) {
-		_presets_layout = new QHBoxLayout();
-		_presets_label = new QLabel(tr("Preset:"));
-		_presets_combo = new QComboBox();
-		_presets_layout->addWidget(_presets_label);
-		_presets_layout->addWidget(_presets_combo);
-		_presets_combo->addItems(_filter_p->get_presets().list_presets());
-		_presets_combo->setEnabled(_presets_combo->count());
-		main_layout->addLayout(_presets_layout);
-		connect(_presets_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(preset_changed(int)));
-	}
+	// Presets widget
+	_presets_widget = new PVPresetsWidget();
+	_presets_widget->add_presets(_filter_p->get_presets().list_presets());
+	main_layout->addWidget(_presets_widget);
+	connect(_presets_widget, SIGNAL(btn_load_clicked_Signal(const QString&)), this, SLOT(load_preset_Slot(const QString&)));
+	connect(_presets_widget, SIGNAL(btn_new_clicked_Signal(const QString&)), this, SLOT(add_preset_Slot(const QString&)));
+	connect(_presets_widget, SIGNAL(btn_save_clicked_Signal(const QString&)), this, SLOT(save_preset_Slot(const QString&)));
+	connect(_presets_widget, SIGNAL(btn_remove_clicked_Signal(const QString&)), this, SLOT(remove_preset_Slot(const QString&)));
 
 	// Args widget
 	_args_widget_box = new QGroupBox(tr("Filter"));
@@ -65,12 +63,26 @@ void PVInspector::PVLayerFilterProcessWidget::change_args(PVCore::PVArgumentList
 	_args_widget->set_args_values(args);
 }
 
-void PVInspector::PVLayerFilterProcessWidget::preset_changed(int currentIndex)
+void PVInspector::PVLayerFilterProcessWidget::add_preset_Slot(const QString& preset)
 {
-	QString presetName = _presets_combo->currentText();
-	_filter_p->get_presets().load_preset(presetName);
+	_filter_p->get_presets().add_preset(preset);
+}
+
+void PVInspector::PVLayerFilterProcessWidget::load_preset_Slot(const QString& preset)
+{
+	_filter_p->get_presets().load_preset(preset);
 	//_args_widget->set_args(const_cast<PVCore::PVArgumentList&>(_filter_p->get_presets().get_args_for_preset()));
 	change_args(_filter_p->get_presets().get_args_for_preset());
+}
+
+void PVInspector::PVLayerFilterProcessWidget::remove_preset_Slot(const QString& preset)
+{
+	_filter_p->get_presets().del_preset(preset);
+}
+
+void PVInspector::PVLayerFilterProcessWidget::save_preset_Slot(const QString& preset)
+{
+	_filter_p->get_presets().modify_preset(preset);
 }
 
 void PVInspector::PVLayerFilterProcessWidget::create_btns()

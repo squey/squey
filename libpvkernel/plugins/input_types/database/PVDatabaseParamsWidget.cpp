@@ -12,7 +12,7 @@
 #include <QPushButton>
 #include <QFileDialog>
 
-// Hash table used to have 'human-readable' name of Qt's SQL dirvers
+// Hash table used to have 'human-readable' name of Qt's SQL drivers
 class HashDriversName
 {
 public:
@@ -77,14 +77,18 @@ PVRush::PVDatabaseParamsWidget::PVDatabaseParamsWidget(PVInputTypeDatabase const
 		}
 	}
 	
+	// Presets widget
+	_presets_widget = new PVInspector::PVPresetsWidget(groupBox);
+	QVBoxLayout* box_layout = new QVBoxLayout();
+	box_layout->addWidget(_presets_widget);
+	groupBox->setLayout(box_layout);
 	populate_presets();
 
 	// Set connections
-	connect(_btn_new, SIGNAL(clicked()), this, SLOT(preset_new_Slot()));
-	connect(_btn_load, SIGNAL(clicked()), this, SLOT(preset_load_Slot()));
-	connect(_btn_save, SIGNAL(clicked()), this, SLOT(preset_save_Slot()));
-	connect(_btn_remove, SIGNAL(clicked()), this, SLOT(preset_remove_Slot()));
-	connect(_combo_preset, SIGNAL(editTextChanged(const QString&)), this, SLOT(preset_text_changed_Slot(const QString&)));
+	connect(_presets_widget, SIGNAL(btn_load_clicked_Signal(const QString&)), this, SLOT(preset_load_Slot(const QString&)));
+	connect(_presets_widget, SIGNAL(btn_new_clicked_Signal(const QString&)), this, SLOT(preset_new_Slot(const QString&)));
+	connect(_presets_widget, SIGNAL(btn_save_clicked_Signal(const QString&)), this, SLOT(preset_save_Slot(const QString&)));
+	connect(_presets_widget, SIGNAL(btn_remove_clicked_Signal(const QString&)), this, SLOT(preset_remove_Slot(const QString&)));
 	connect(_combo_type, SIGNAL(currentIndexChanged(int)), this, SLOT(sql_type_changed_Slot(int)));
 	connect(_btn_query_preview, SIGNAL(clicked()), this, SLOT(query_preview_Slot()));
 	connect(_btn_update_fields, SIGNAL(clicked()), this, SLOT(update_fields_Slot()));
@@ -105,8 +109,8 @@ PVRush::PVDatabaseParamsWidget::PVDatabaseParamsWidget(PVInputTypeDatabase const
 	}
 	else {
 		// Load the first preset if any
-		if (_combo_preset->count() > 0) {
-			load_preset(_combo_preset->itemData(0).toUInt());
+		if (_presets_widget->get_preset_count() > 0) {
+			load_preset(_presets_widget->get_preset_data(0).toUInt());
 		}
 		else {
 			_combo_type->setCurrentIndex(0);
@@ -116,7 +120,6 @@ PVRush::PVDatabaseParamsWidget::PVDatabaseParamsWidget(PVInputTypeDatabase const
 	uint32_t nrows;
 	nrows = _settings.value("preview_nrows", 10).toUInt();
 	_txt_nrows->setText(QString::number(nrows));
-	preset_text_changed_Slot(_combo_preset->lineEdit()->text());
 
 	// Set the existing formats
 	PVRush::hash_formats::const_iterator it;
@@ -144,44 +147,34 @@ PVRush::PVDatabaseParamsWidget::~PVDatabaseParamsWidget()
 
 void PVRush::PVDatabaseParamsWidget::populate_presets()
 {
-	_combo_preset->clear();
+	_presets_widget->clear_presets();
 
 	// List presets
 	PVDBPresets::list_id_names_t l = PVDBPresets::get().list_id_names();
 	PVDBPresets::list_id_names_t::const_iterator it;
 	for (it = l.begin(); it != l.end(); it++) {
-		add_preset(it->second, it->first);
+		_presets_widget->add_preset(it->second,  it->first);
 	}
-}
-
-void PVRush::PVDatabaseParamsWidget::add_preset(QString const& name, PVDBPresets::id_t id)
-{
-	_combo_preset->addItem(name, id);
 }
 
 PVRush::PVDBPresets::id_t PVRush::PVDatabaseParamsWidget::get_current_preset_id()
 {
 	// This assume that an existing preset has been selected !
-	assert(!is_preset_txt_new());
-	return _combo_preset->itemData(_combo_preset->currentIndex()).toUInt();
+	assert(!_presets_widget->is_preset_txt_new());
+	return _presets_widget->get_preset_data().toUInt();
 }
 
-void PVRush::PVDatabaseParamsWidget::preset_new_Slot()
+void PVRush::PVDatabaseParamsWidget::preset_new_Slot(const QString& name)
 {
 	PVDBInfos new_infos;
 	get_dbinfos(new_infos);
 	QString query = get_query();
-	QString name = _combo_preset->lineEdit()->text();
 
 	// Set the new presets
 	PVDBPresets::id_t id = PVDBPresets::get().add(name, new_infos, query);
-
-	// And refresh everything
-	add_preset(name, id);
-	preset_text_changed_Slot(name);
 }
 
-void PVRush::PVDatabaseParamsWidget::preset_load_Slot()
+void PVRush::PVDatabaseParamsWidget::preset_load_Slot(const QString& preset)
 {
 	PVDBPresets::id_t id = get_current_preset_id();
 	load_preset(id);
@@ -194,7 +187,7 @@ void PVRush::PVDatabaseParamsWidget::load_preset(PVDBPresets::id_t id)
 	bool ret = PVDBPresets::get().get(id, infos, query);
 	if (!ret) {
 		// Maybe the user modified the settings by hand...
-		QMessageBox msg(QMessageBox::Critical, tr("Error while loading preset..."), tr("Preset %1 could not be loaded. Maybe it has been modified and/or deleted by another application. The list of available presets will be refreshed.").arg(_combo_preset->currentText()), QMessageBox::Ok);
+		QMessageBox msg(QMessageBox::Critical, tr("Error while loading preset..."), tr("Preset %1 could not be loaded. Maybe it has been modified and/or deleted by another application. The list of available presets will be refreshed.").arg(_presets_widget->get_current_preset_name()), QMessageBox::Ok);
 		msg.exec();
 		populate_presets();
 		return;
@@ -210,7 +203,7 @@ void PVRush::PVDatabaseParamsWidget::load_preset(PVDBPresets::id_t id)
 	_last_load_preset = id;
 }
 
-void PVRush::PVDatabaseParamsWidget::preset_save_Slot()
+void PVRush::PVDatabaseParamsWidget::preset_save_Slot(const QString& preset)
 {
 	PVDBPresets::id_t id = get_current_preset_id();
 	QString query = get_query();
@@ -221,33 +214,10 @@ void PVRush::PVDatabaseParamsWidget::preset_save_Slot()
 	PVDBPresets::get().set(id, new_infos, query);
 }
 
-void PVRush::PVDatabaseParamsWidget::preset_remove_Slot()
+void PVRush::PVDatabaseParamsWidget::preset_remove_Slot(const QString& preset)
 {
 	PVDBPresets::id_t id = get_current_preset_id();
 	PVDBPresets::get().rm(id);
-	populate_presets();
-}
-
-bool PVRush::PVDatabaseParamsWidget::is_preset_txt_new()
-{
-	return _combo_preset->findText(_combo_preset->lineEdit()->text(), Qt::MatchFixedString) == -1;
-}
-
-void PVRush::PVDatabaseParamsWidget::preset_text_changed_Slot(const QString& text)
-{
-	if (text.isEmpty()) {
-		_btn_new->setEnabled(false);
-		_btn_save->setEnabled(false);
-		_btn_load->setEnabled(false);
-		_btn_remove->setEnabled(false);
-		return;
-	}
-
-	bool preset_new = is_preset_txt_new();
-	_btn_new->setEnabled(preset_new);
-	_btn_save->setEnabled(!preset_new);
-	_btn_load->setEnabled(!preset_new);
-	_btn_remove->setEnabled(!preset_new);
 }
 
 void PVRush::PVDatabaseParamsWidget::get_dbinfos(PVDBInfos& infos)

@@ -13,11 +13,11 @@ public:
 	PVPluginPresets(PVFunctionArgsBase* fargs, QString const& registered_name, QString const& path);
 
 	QStringList list_presets() const;
-	void del_preset(QString const& name) const;
+	void del_preset(const QString& name) const;
 
 	void add_preset(const QString& name) const;
-	void load_preset(QString const& name);
-	void modify_preset(QString const& name) const;
+	void load_preset(const QString& name);
+	void modify_preset(const QString& name) const;
 
 	const PVArgumentList& get_args_for_preset() const;
 	bool can_have_presets() const;

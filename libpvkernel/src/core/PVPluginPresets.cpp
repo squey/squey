@@ -46,7 +46,19 @@ void PVCore::__impl::PVPluginPresets::load_preset(QString const& name)
 
 const PVCore::PVArgumentList& PVCore::__impl::PVPluginPresets::get_args_for_preset() const
 {
-	return _fargs->get_args_for_preset();
+	PVArgumentList args = _fargs->get_args_for_preset();
+
+	// Get rid of unwanted args
+	QList<PVCore::PVArgumentKey> keys = _fargs->get_args_keys_for_preset();
+	foreach (PVCore::PVArgumentKey key, keys)
+	{
+		if (args.contains(key))
+		{
+			args.remove(key);
+		}
+	}
+
+	return args;
 }
 
 bool PVCore::__impl::PVPluginPresets::can_have_presets() const
