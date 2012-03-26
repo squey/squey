@@ -19,7 +19,7 @@ void original_fill(float* res, const float* plotted, size_t plotted_ncols, PVRow
 
 void fill_sse(float* res, const float* plotted, size_t plotted_ncols, PVRow start, PVRow end, PVCol* cols, size_t ncols)
 {
-	const size_t ncols_sse = (ncols<<2)>>2;
+	size_t ncols_sse = (ncols<<2)>>2;
 	for (PVRow r = start; r < end; r++) {
 		size_t offset_row_res = r*ncols;
 		const float* plotted_line = &plotted[r*plotted_ncols];
@@ -116,13 +116,14 @@ int main(int argc, char** argv)
 		PVCore::PVMatrix<float, size_t, size_t> plotted,trans_plotted;
 		init_data(plotted, trans_plotted, &res, &ref_res, nrows, ncols);
 
+		BENCH_START(org);
+		original_fill(ref_res, plotted.get_data(), ncols, 0, nrows, &all_cols[0], ncols);
+		BENCH_END_TRANSFORM(org, "original", ncols*nrows, sizeof(float));
+
 		BENCH_START(sse);
 		fill_sse(res, plotted.get_data(), ncols, 0, nrows, &all_cols[0], ncols);
 		BENCH_END_TRANSFORM(sse, "sse", ncols*nrows, sizeof(float));
 
-		BENCH_START(org);
-		original_fill(ref_res, plotted.get_data(), ncols, 0, nrows, &all_cols[0], ncols);
-		BENCH_END_TRANSFORM(org, "original", ncols*nrows, sizeof(float));
 
 		CHECK(memcmp(res, ref_res, nrows*ncols*sizeof(float)) == 0);
 
