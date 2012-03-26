@@ -1,4 +1,5 @@
 include_directories(AFTER ${ICU_INCLUDE})
+add_definitions(-ftree-vectorizer-verbose=2)
 
 # if(WIN32)
 # 	set(PVCORE_LIBRARY pvcore)
@@ -55,6 +56,10 @@ target_link_libraries(Tcore_pvstring ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES} ${ICU
 add_executable(Tcore_matrix matrix.cpp)
 target_link_libraries(Tcore_matrix ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
 
+# OpenGL's fill vbo bench
+add_executable(Tcore_vbo vbo.cpp)
+target_link_libraries(Tcore_vbo ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
+
 add_executable(Tcore_sizes sizes.cpp)
 target_link_libraries(Tcore_sizes ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
 
@@ -67,7 +72,6 @@ target_link_libraries(Tcore_bench_stable_reverse ${PVKERNEL_LIBRARIES} ${QT_LIBR
 add_executable(Tcore_launch_adaptive launch_adaptive.cpp)
 target_link_libraries(Tcore_launch_adaptive ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
 
-add_definitions(-ftree-vectorizer-verbose=2)
 add_executable(Tcore_transp transp.cpp)
 target_link_libraries(Tcore_transp ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
 
