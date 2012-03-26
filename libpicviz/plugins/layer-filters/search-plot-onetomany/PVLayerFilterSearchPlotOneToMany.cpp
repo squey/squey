@@ -101,7 +101,7 @@ void Picviz::PVLayerFilterSearchPlotOneToMany::operator()(PVLayer& in, PVLayer &
 
 QList<PVCore::PVArgumentKey> Picviz::PVLayerFilterSearchPlotOneToMany::get_args_keys_for_preset() const
 {
-	QList<PVCore::PVArgumentKey> keys = get_args_for_preset().keys();
+	QList<PVCore::PVArgumentKey> keys = get_default_args().keys();
 	keys.removeAll(ARG_NAME_AXIS_FROM);
 	keys.removeAll(ARG_NAME_AXIS_TO);
 	return keys;

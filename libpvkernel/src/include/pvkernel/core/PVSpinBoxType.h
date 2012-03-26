@@ -30,11 +30,13 @@ public:
 
 	QString to_string() const
 	{
-		return QString(_value);
+		return QString::number(_value);
 	}
 	PVArgument from_string(QString const& str) const
 	{
-		return PVArgument(str.toInt());
+		PVArgument arg;
+		arg.setValue(PVSpinBoxType(str.toInt()));
+		return arg;
 	}
 	bool operator==(const PVSpinBoxType &other) const
 	{

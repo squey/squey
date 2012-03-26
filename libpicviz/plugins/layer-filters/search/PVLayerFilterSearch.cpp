@@ -45,7 +45,7 @@ DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterSearch)
 /******************************************************************************
  *
  * Picviz::PVLayerFilterSearch::operator()
- *
+ *get_args_for_preset().keys();
  *****************************************************************************/
 void Picviz::PVLayerFilterSearch::operator()(PVLayer& in, PVLayer &out)
 {	
@@ -78,7 +78,7 @@ void Picviz::PVLayerFilterSearch::operator()(PVLayer& in, PVLayer &out)
 
 QList<PVCore::PVArgumentKey> Picviz::PVLayerFilterSearch::get_args_keys_for_preset() const
 {
-	QList<PVCore::PVArgumentKey> keys = get_args_for_preset().keys();
+	QList<PVCore::PVArgumentKey> keys = get_default_args().keys();
 	keys.removeAll(ARG_NAME_AXIS);
 	return keys;
 }

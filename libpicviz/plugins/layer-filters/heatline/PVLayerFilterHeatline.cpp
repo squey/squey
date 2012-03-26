@@ -147,7 +147,7 @@ void Picviz::PVLayerFilterHeatlineBase::operator()(PVLayer& in, PVLayer &out)
 
 QList<PVCore::PVArgumentKey> Picviz::PVLayerFilterHeatlineBase::get_args_keys_for_preset() const
 {
-	QList<PVCore::PVArgumentKey> keys = get_args_for_preset().keys();
+	QList<PVCore::PVArgumentKey> keys = get_default_args().keys();
 	keys.removeAll(ARG_NAME_AXES);
 	return keys;
 }
@@ -237,7 +237,7 @@ void Picviz::PVLayerFilterHeatlineSelAndCol::post(PVLayer& /*in*/, PVLayer& out,
 	// Colorize
 	PVCore::PVColor color;
 	QColor qcolor;
-
+	get_args_for_preset().keys();
 	qcolor.setHsvF((1.0 - ratio)/3.0, 1.0, 1.0);
 	color.fromQColor(qcolor);
 

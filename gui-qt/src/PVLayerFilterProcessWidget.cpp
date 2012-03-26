@@ -16,6 +16,7 @@ PVInspector::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(PVTabSplitte
 	_tab(tab),
 	_view(tab->get_lib_view()),
 	_filter_p(filter_p),
+	_presets_widget(NULL),
 	_help_btn(NULL),
 	_pre_filter_layer_org(_view->pre_filter_layer),
 	_args_org(args),
@@ -27,13 +28,15 @@ PVInspector::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(PVTabSplitte
 	QVBoxLayout* main_layout = new QVBoxLayout();
 
 	// Presets widget
-	_presets_widget = new PVPresetsWidget();
-	_presets_widget->add_presets(_filter_p->get_presets().list_presets());
-	main_layout->addWidget(_presets_widget);
-	connect(_presets_widget, SIGNAL(btn_load_clicked_Signal(const QString&)), this, SLOT(load_preset_Slot(const QString&)));
-	connect(_presets_widget, SIGNAL(btn_new_clicked_Signal(const QString&)), this, SLOT(add_preset_Slot(const QString&)));
-	connect(_presets_widget, SIGNAL(btn_save_clicked_Signal(const QString&)), this, SLOT(save_preset_Slot(const QString&)));
-	connect(_presets_widget, SIGNAL(btn_remove_clicked_Signal(const QString&)), this, SLOT(remove_preset_Slot(const QString&)));
+	if(_filter_p->get_presets().can_have_presets()) {
+		_presets_widget = new PVPresetsWidget();
+		_presets_widget->add_presets(_filter_p->get_presets().list_presets());
+		main_layout->addWidget(_presets_widget);
+		connect(_presets_widget, SIGNAL(btn_load_clicked_Signal(const QString&)), this, SLOT(load_preset_Slot(const QString&)));
+		connect(_presets_widget, SIGNAL(btn_new_clicked_Signal(const QString&)), this, SLOT(add_preset_Slot(const QString&)));
+		connect(_presets_widget, SIGNAL(btn_save_clicked_Signal(const QString&)), this, SLOT(save_preset_Slot(const QString&)));
+		connect(_presets_widget, SIGNAL(btn_remove_clicked_Signal(const QString&)), this, SLOT(remove_preset_Slot(const QString&)));
+	}
 
 	// Args widget
 	_args_widget_box = new QGroupBox(tr("Filter"));
@@ -65,13 +68,13 @@ void PVInspector::PVLayerFilterProcessWidget::change_args(PVCore::PVArgumentList
 
 void PVInspector::PVLayerFilterProcessWidget::add_preset_Slot(const QString& preset)
 {
+	_filter_p->set_args(*_args_widget->get_args());
 	_filter_p->get_presets().add_preset(preset);
 }
 
 void PVInspector::PVLayerFilterProcessWidget::load_preset_Slot(const QString& preset)
 {
 	_filter_p->get_presets().load_preset(preset);
-	//_args_widget->set_args(const_cast<PVCore::PVArgumentList&>(_filter_p->get_presets().get_args_for_preset()));
 	change_args(_filter_p->get_presets().get_args_for_preset());
 }
 
@@ -82,6 +85,7 @@ void PVInspector::PVLayerFilterProcessWidget::remove_preset_Slot(const QString& 
 
 void PVInspector::PVLayerFilterProcessWidget::save_preset_Slot(const QString& preset)
 {
+	_filter_p->set_args(*_args_widget->get_args());
 	_filter_p->get_presets().modify_preset(preset);
 }
 

@@ -40,7 +40,7 @@ public:
 
 	QString to_string() const
 	{
-		return _list.join(",") + ":" + QString(_sel) ;
+		return _list.join(",") + ":" + QString::number(_sel) ;
 	}
 	PVArgument from_string(QString const& str) const
 	{

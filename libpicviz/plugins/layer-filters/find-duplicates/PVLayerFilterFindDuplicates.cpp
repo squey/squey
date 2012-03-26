@@ -84,7 +84,7 @@ void Picviz::PVLayerFilterFindDuplicates::operator()(PVLayer& in, PVLayer &out)
 			}
 			return;
 		}
-
+		get_args_for_preset().keys();
 		if (_view->get_line_state_in_pre_filter_layer(r)) {
 			QString value = nraw.at(r, axis_id).get_qstr();
 			PVRow count = lines_duplicates[value];
@@ -111,7 +111,7 @@ void Picviz::PVLayerFilterFindDuplicates::operator()(PVLayer& in, PVLayer &out)
 
 QList<PVCore::PVArgumentKey> Picviz::PVLayerFilterFindDuplicates::get_args_keys_for_preset() const
 {
-	QList<PVCore::PVArgumentKey> keys = get_args_for_preset().keys();
+	QList<PVCore::PVArgumentKey> keys = get_default_args().keys();
 	keys.removeAll(ARG_NAME_AXIS);
 	return keys;
 }

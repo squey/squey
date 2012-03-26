@@ -16,6 +16,8 @@ class PVPlainTextType : public PVArgumentType<PVPlainTextType>
 public:
 	inline void set_text(QString const& txt) { _txt = txt; }
 	inline QString const& get_text() const { return _txt; }
+	PVPlainTextType(QString const& txt) {set_text(txt);}
+	PVPlainTextType() {set_text("");}
 
 	QString to_string() const
 	{
@@ -23,7 +25,9 @@ public:
 	}
 	PVArgument from_string(QString const& str) const
 	{
-		return PVArgument(_txt);
+		PVArgument arg;
+		arg.setValue(PVPlainTextType(str));
+		return arg;
 	}
 	bool operator==(const PVPlainTextType &other) const
 	{

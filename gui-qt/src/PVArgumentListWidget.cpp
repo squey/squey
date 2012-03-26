@@ -344,7 +344,6 @@ void PVInspector::PVArgumentListWidget::set_args_values(PVCore::PVArgumentList c
 	QList<PVCore::PVArgumentList::key_type> keys_to_change = args.keys();
 	foreach(PVCore::PVArgumentList::key_type const& key, keys_to_change) {
 		if (_args->contains(key)) {
-			PVLOG_INFO("%s=%s\n", qPrintable(key), qPrintable(args.value(key).toString()));
 			(*_args)[key] = args.value(key);
 		}
 	}

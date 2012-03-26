@@ -1,22 +1,28 @@
 #include <QCoreApplication>
-#include <pvkernel/core/PVArgument.h>
-#include <pvkernel/core/PVCompList.h>
-#include <pvkernel/core/PVTimeFormatType.h>
-
-#include <QMetaType>
 #include <QFile>
+#include <QMetaType>
 #include <QStringList>
 
-// Declare custom type #1
+#include <pvkernel/core/PVArgument.h>
+#include <pvkernel/core/PVCompList.h>
+
+#include <pvkernel/core/PVAxesIndexType.h>
+#include <pvkernel/core/PVAxisIndexType.h>
+#include <pvkernel/core/PVAxisIndexCheckBoxType.h>
+#include <pvkernel/core/PVColorGradientDualSliderType.h>
+#include <pvkernel/core/PVEnumType.h>
+#include <pvkernel/core/PVPlainTextType.h>
+#include <pvkernel/core/PVSpinBoxType.h>
+#include <pvkernel/core/PVTimeFormatType.h>
+
+
+// Declare a custom type
 class PVMyCustomType: public PVCore::PVArgumentType<PVMyCustomType>
 {
 public:
-	PVMyCustomType() {_str1 = ""; _str2 =""; }
+	PVMyCustomType() {_str1 = ""; _str2 = ""; }
 	PVMyCustomType(QString str1, QString str2) {_str1 = str1; _str2 = str2;}
 	PVMyCustomType(QStringList strList) {_str1 = strList[0]; _str2 = strList[1];}
-	bool operator==(const PVMyCustomType &other) const {
-		return _str1 == other._str1 && _str2 == other._str2;
-	}
 	virtual QString to_string() const
 	{
 		QString str;
@@ -32,6 +38,10 @@ public:
 		arg.setValue(PVMyCustomType(s.split("+")));
 		return arg;
 	}
+	virtual bool operator==(const PVMyCustomType &other) const
+	{
+		return _str1 == other._str1 && _str2 == other._str2;
+	}
 private:
 	QString _str1;
 	QString _str2;
@@ -43,40 +53,64 @@ int main()
 	QList<QVariant> vars;
 	QStringList expectedStrings;
 
-	// PVTimeFormat
-	PVCore::PVTimeFormatType tf1(QStringList() << "dd" << "mm" << "yyyy");
-	QVariant var0 = QVariant();
-	var0.setValue(tf1);
-	vars.append(var0);
-	expectedStrings.append("dd\nmm\nyyyy");
-
-	// PVMyCustomType
-	PVMyCustomType ct1("AAA", "BBB");
-	QVariant var1 = QVariant();
-	var1.setValue(ct1);
-	vars.append(var1);
-	expectedStrings.append("AAA+BBB");
+	// Bool
+	vars.append(QVariant(true));
+	expectedStrings.append("true");
 
 	// Int
 	vars.append(QVariant(42));
 	expectedStrings.append("42");
 
-	// Bool
-	vars.append(QVariant(true));
-	expectedStrings.append("true");
+	// Char
+	vars.append(QVariant(QChar('Z'))); // Beware that QVariant('Z') makes a string...
+	expectedStrings.append("Z");
 
 	// Float
 	vars.append(QVariant(12.56));
 	expectedStrings.append("12.56");
 
-	// Char
-	vars.append(QVariant(QChar('Z'))); // Beware that QVariant('Z') makes a string...
-	expectedStrings.append("Z");
-
 	// String
-	QString s = "This is a string\nThis is another string";
-	vars.append(QVariant(s));
-	expectedStrings.append(s);
+	QString standardString = "This is a string\nThis is another string";
+	vars.append(QVariant(standardString));
+	expectedStrings.append(standardString);
+
+	// PVMyCustomType
+	vars.append(QVariant::fromValue((PVMyCustomType("AAA", "BBB"))));
+	expectedStrings.append("AAA+BBB");
+
+	// PVAxesIndexType
+	vars.append(QVariant::fromValue(PVCore::PVAxesIndexType(QList<PVCol>() << 1 << 2 << 3)));
+	expectedStrings.append("1,2,3");
+
+    // PVAxisIndexType
+	vars.append(QVariant::fromValue(PVCore::PVAxisIndexType(8, true)));
+	expectedStrings.append("8:true");
+
+	// PVAxisIndexCheckBoxTypes
+	vars.append(QVariant::fromValue(PVCore::PVAxisIndexCheckBoxType(9, false)));
+	expectedStrings.append("9:false");
+
+	// PVColorGradientDualSliderType
+	float pos[2] = {0.01, 0.99};
+	vars.append(QVariant::fromValue(PVCore::PVColorGradientDualSliderType(pos)));
+	expectedStrings.append("0.01,0.99");
+
+	// PVEnumType
+	vars.append(QVariant::fromValue(PVCore::PVEnumType(QStringList() << "this" << "is" << "an" << "enum", 3)));
+	expectedStrings.append("this,is,an,enum:3");
+
+	// PVPlainTextType
+	QString plainText = "Plain\nText";
+	vars.append(QVariant::fromValue(PVCore::PVPlainTextType(plainText)));
+	expectedStrings.append(plainText);
+
+	// PVSpinBoxType
+	vars.append(QVariant::fromValue(PVCore::PVSpinBoxType(666)));
+	expectedStrings.append("666");
+
+	// PVTimeFormat
+	vars.append(QVariant::fromValue(PVCore::PVTimeFormatType(QStringList() << "dd" << "mm" << "yyyy")));
+	expectedStrings.append("dd\nmm\nyyyy");
 
 	// Test serialization
 	QStringList serializedStrings;
@@ -110,22 +144,18 @@ int main()
 	}
 	PVLOG_INFO("Deserialization passed: %d\n", deserialization_passed);
 
-	// Create a list of arguments
+	// Test QSettings serialization and deserialization
 	QString iniFilename = "argument_serialize.ini";
-
+	QString groupName = "myGroupName";
 	PVCore::PVArgumentList args;
 	for (int i=0; i<vars.count(); i++)
 	{
 		args.insert(QString().sprintf("param_%d", i), vars[i]);
 	}
-
-	// Store the list to ini file
 	QSettings settings(iniFilename, QSettings::IniFormat);
-	PVCore::PVArgumentList_to_QSettings(args, settings, "myGroupName");
-
-	// Load the list from ini file
+	PVCore::PVArgumentList_to_QSettings(args, settings, groupName);
 	QSettings settings2(iniFilename, QSettings::IniFormat);
-	PVCore::PVArgumentList args2 = QSettings_to_PVArgumentList(settings2, args, "myGroupName");
+	PVCore::PVArgumentList args2 = QSettings_to_PVArgumentList(settings2, args, groupName);
 	bool qsettings_passed = PVCore::comp_hash(args, args2);
 	PVLOG_INFO("QSettings test passed: %d\n", qsettings_passed);
 

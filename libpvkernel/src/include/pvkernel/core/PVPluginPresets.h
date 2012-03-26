@@ -19,7 +19,7 @@ public:
 	void load_preset(const QString& name);
 	void modify_preset(const QString& name) const;
 
-	const PVArgumentList& get_args_for_preset() const;
+	PVArgumentList get_args_for_preset() const;
 	bool can_have_presets() const;
 
 private:

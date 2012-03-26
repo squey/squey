@@ -43,4 +43,32 @@ bool comp_list(QList<PVArgument> const& l1, QList<PVArgument> const& l2)
 	return true;
 }
 
+template <>
+bool comp_hash(PVCore::PVArgumentList const& h1, PVCore::PVArgumentList const& h2)
+{
+	if (h1.count() != h2.count()) {
+		return false;
+	}
+
+	for (PVCore::PVArgumentList::const_iterator it1 = h1.constBegin(); it1 != h1.constEnd(); it1++) {
+		PVCore::PVArgumentList::const_iterator it2 = h2.find(it1.key());
+		if (it2 == h2.constEnd()) {
+			return false;
+		}
+		if (it1.value().userType() >= QMetaType::User && it1.value().userType() == it2.value().userType()) { // custom type
+			const PVArgumentTypeBase* v1 = static_cast<const PVArgumentTypeBase*>(it1.value().constData());
+			const PVArgumentTypeBase* v2 = static_cast<const PVArgumentTypeBase*>(it2.value().constData());
+			if (!v1->is_equal(*v2)) {
+				return false;
+			}
+		}
+		else
+		if (it1.value() != it2.value()) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
 }
