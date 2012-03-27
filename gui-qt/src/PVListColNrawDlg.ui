@@ -90,7 +90,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QKeySequenceWidget" name="_field_separator_btn" native="true"/>
+         <widget class="PVWidgets::QKeySequenceWidget" name="_field_separator_btn" native="true"/>
         </item>
        </layout>
       </item>
@@ -132,7 +132,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QKeySequenceWidget</class>
+   <class>PVWidgets::QKeySequenceWidget</class>
    <extends>QWidget</extends>
    <header location="global">pvkernel/widgets/qkeysequencewidget.h</header>
    <container>1</container>
