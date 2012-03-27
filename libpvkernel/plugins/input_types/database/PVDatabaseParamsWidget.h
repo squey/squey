@@ -10,7 +10,7 @@
 
 #include <QDomDocument>
 
-#include "../../../../gui-qt/src/include/PVPresetsWidget.h"
+#include <pvkernel/widgets/PVPresetsWidget.h>
 #include "PVDBPresets.h"
 
 namespace PVRush {
@@ -63,7 +63,7 @@ protected:
 	static void show_layout_children(const QLayout* layout, bool show);
 
 protected:
-	PVInspector::PVPresetsWidget* _presets_widget;
+	PVWidgets::PVPresetsWidget* _presets_widget;
 	QSettings _settings;
 	int64_t _last_load_preset;
 	PVInputTypeDatabase const* _in_t;

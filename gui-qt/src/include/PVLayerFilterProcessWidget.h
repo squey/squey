@@ -4,7 +4,7 @@
 #include <picviz/PVLayerFilter.h>
 #include "PVArgumentListWidget.h"
 #include "PVTabSplitter.h"
-#include "PVPresetsWidget.h"
+#include <pvkernel/widgets/PVPresetsWidget.h>
 
 namespace PVInspector {
 
@@ -22,6 +22,7 @@ public slots:
 	void save_Slot();
 	void preview_Slot();
 	void cancel_Slot();
+	void defaults_Slot();
 	void load_preset_Slot(const QString& preset);
 	void add_preset_Slot(const QString& preset);
 	void save_preset_Slot(const QString& preset);
@@ -41,12 +42,13 @@ protected:
 	PVTabSplitter* _tab;
 	Picviz::PVView_p _view;
 	Picviz::PVLayerFilter_p _filter_p;
-	PVPresetsWidget* _presets_widget;
+	PVWidgets::PVPresetsWidget* _presets_widget;
 	QLabel* _presets_label;
 	QGroupBox* _args_widget_box;
 	QHBoxLayout* _presets_layout;
 	QComboBox* _presets_combo;
 	QPushButton* _cancel_btn;
+	QPushButton* _defaults_btn;
 	QPushButton* _help_btn;
 	QPushButton* _preview_btn;
 	QPushButton* _apply_btn;

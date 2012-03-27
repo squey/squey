@@ -28,7 +28,7 @@ private:
 	QWidget* param_widget;
 	QLineEdit *child_number_edit;
 	QPalette child_number_org_palette;
-	QKeySequenceWidget* separator_text;
+	PVWidgets::QKeySequenceWidget* separator_text;
 	//QLineEdit* separator_text;
 	QLabel* _recommands_label;
 	int id;

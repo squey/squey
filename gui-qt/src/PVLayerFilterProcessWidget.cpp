@@ -29,7 +29,7 @@ PVInspector::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(PVTabSplitte
 
 	// Presets widget
 	if(_filter_p->get_presets().can_have_presets()) {
-		_presets_widget = new PVPresetsWidget();
+		_presets_widget = new PVWidgets::PVPresetsWidget();
 		_presets_widget->add_presets(_filter_p->get_presets().list_presets());
 		main_layout->addWidget(_presets_widget);
 		connect(_presets_widget, SIGNAL(btn_load_clicked_Signal(const QString&)), this, SLOT(load_preset_Slot(const QString&)));
@@ -95,6 +95,7 @@ void PVInspector::PVLayerFilterProcessWidget::create_btns()
 	_preview_btn = new QPushButton(QIcon(":/filter"),"Preview");
 	_preview_btn->setDefault(true);
 	_cancel_btn = new QPushButton(QIcon(":/red-cross"),"Cancel");
+	_defaults_btn = new QPushButton(QIcon(":/document-new"),"Defaults");
 	
 	QString filter_desc = _filter_p->detailed_description();
 	if (!filter_desc.isEmpty()) {
@@ -109,6 +110,7 @@ void PVInspector::PVLayerFilterProcessWidget::set_btns_layout()
 	}
 
 	_btn_layout->addWidget(_cancel_btn);
+	_btn_layout->addWidget(_defaults_btn);
 	_btn_layout->addWidget(_preview_btn);
 	_btn_layout->addWidget(_apply_btn);
 }
@@ -118,6 +120,7 @@ void PVInspector::PVLayerFilterProcessWidget::connect_btns()
 	connect(_apply_btn, SIGNAL(pressed()), this, SLOT(save_Slot()));
 	connect(_preview_btn, SIGNAL(pressed()), this, SLOT(preview_Slot()));
 	connect(_cancel_btn, SIGNAL(pressed()), this, SLOT(cancel_Slot()));
+	connect(_defaults_btn, SIGNAL(pressed()), this, SLOT(defaults_Slot()));
 	if (_help_btn) {
 		QMessageBox *msgBox = new QMessageBox(QMessageBox::Information, "Filter help", _filter_p->detailed_description(), QMessageBox::Ok, this);
 		connect(_help_btn, SIGNAL(pressed()), msgBox, SLOT(exec()));
@@ -252,6 +255,11 @@ void PVInspector::PVLayerFilterProcessWidget::cancel_Slot()
 	_tab->refresh_listing_Slot();
 
 	reject();
+}
+
+void PVInspector::PVLayerFilterProcessWidget::defaults_Slot()
+{
+	change_args(_filter_p->get_default_args_for_view(*_view));
 }
 
 void  PVInspector::PVLayerFilterProcessWidget::process_layer_filter(Picviz::PVLayerFilter* filter, Picviz::PVLayer* layer)

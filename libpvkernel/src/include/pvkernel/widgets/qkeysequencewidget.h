@@ -36,6 +36,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <QWidget>
 #include <QIcon>
 
+namespace PVWidgets {
 class QKeySequenceWidgetPrivate;
 
 /*!
@@ -126,5 +127,6 @@ public Q_SLOTS:
 private:
 	
 };
+}
 
 #endif // QKEYSEQUENCEWIDGET_H

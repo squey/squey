@@ -78,7 +78,7 @@ PVRush::PVDatabaseParamsWidget::PVDatabaseParamsWidget(PVInputTypeDatabase const
 	}
 	
 	// Presets widget
-	_presets_widget = new PVInspector::PVPresetsWidget(groupBox);
+	_presets_widget = new PVWidgets::PVPresetsWidget(groupBox);
 	QVBoxLayout* box_layout = new QVBoxLayout();
 	box_layout->addWidget(_presets_widget);
 	groupBox->setLayout(box_layout);

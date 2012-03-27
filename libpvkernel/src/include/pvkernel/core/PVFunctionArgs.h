@@ -81,10 +81,8 @@ public:
 	{
 		PVArgumentList preset_args = get_args_for_preset();
 		PVArgumentList::const_iterator it;
-		for (it = args.begin(); it != args.end(); it++)
-		{
-			if (preset_args.contains(it.key()))
-			{
+		for (it = args.begin(); it != args.end(); it++) {
+			if (preset_args.contains(it.key())) {
 				_args[it.key()] = it.value();
 			}
 		}

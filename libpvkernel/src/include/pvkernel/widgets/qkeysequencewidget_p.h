@@ -39,6 +39,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "qkeysequencewidget.h"
 
+namespace PVWidgets {
+
 class QShortcutButton;
 class QKeySequenceWidget;
 
@@ -119,5 +121,7 @@ protected:
 private:
     QKeySequenceWidgetPrivate * const d;
 };
+
+}
 
 #endif // QKEYSEQUENCEWIDGET_P_H

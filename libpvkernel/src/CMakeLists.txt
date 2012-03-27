@@ -313,6 +313,7 @@ endif(PYTHONLIBS_FOUND)
 set(WIDGETS_MOC_HEADERS
 include/pvkernel/widgets/qkeysequencewidget.h
 include/pvkernel/widgets/qkeysequencewidget_p.h
+include/pvkernel/widgets/PVPresetsWidget.h
 )
 
 set(WIDGETS_HEADER_FILES
@@ -320,6 +321,7 @@ set(WIDGETS_HEADER_FILES
 
 set(WIDGETS_SRC_FILES
 widgets/qkeysequencewidget/qkeysequencewidget.cpp
+widgets/presetswidget/PVPresetsWidget.cpp
 )
 
 if(PYTHONLIBS_FOUND)

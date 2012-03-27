@@ -38,7 +38,7 @@ public:
 	QString to_string() const
 	{
 		QStringList strList;
-		for(int i = 0; i < this->size(); i++) {
+		for (int i = 0; i < this->size(); i++) {
 			strList.append(QString::number((*this)[i]));
 		}
 		return strList.join(",");
@@ -47,7 +47,7 @@ public:
 	{
 		QStringList strList = str.split(",");
 		PVAxesIndexType vec;
-		for (int i = 0 ; i < strList.count(); i++) {
+		for (int i = 0; i < strList.count(); i++) {
 			vec.push_back(strList[i].toInt());
 		}
 		PVArgument arg;

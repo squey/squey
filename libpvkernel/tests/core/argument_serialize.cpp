@@ -130,15 +130,13 @@ int main()
 
 	// Test deserialization
 	bool deserialization_passed = true;
-	for (int i=0; i<vars.count(); i++)
-	{
+	for (int i = 0; i < vars.count(); i++) {
 		bool convert_ok;
 		PVCore::PVArgument arg = PVCore::QString_to_PVArgument(serializedStrings[i], vars[i], &convert_ok);
 		QString str = PVCore::PVArgument_to_QString(arg);
 		bool res = str.compare(serializedStrings[i]) == 0 && convert_ok;
 		deserialization_passed &= res;
-		if (!res)
-		{
+		if (!res) {
 			PVLOG_ERROR("String '%s' wasn't successfully unserialized\n", qPrintable(serializedStrings[i]));
 		}
 	}
@@ -148,8 +146,7 @@ int main()
 	QString iniFilename = "argument_serialize.ini";
 	QString groupName = "myGroupName";
 	PVCore::PVArgumentList args;
-	for (int i=0; i<vars.count(); i++)
-	{
+	for (int i = 0; i < vars.count(); i++) {
 		args.insert(QString().sprintf("param_%d", i), vars[i]);
 	}
 	QSettings settings(iniFilename, QSettings::IniFormat);

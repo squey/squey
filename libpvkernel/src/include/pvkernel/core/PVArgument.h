@@ -204,7 +204,6 @@ QDataStream &operator<<(QDataStream &out, const PVArgumentTypeBase &obj);
 QDataStream &operator>>(QDataStream &in, const PVArgumentTypeBase &obj);
 
 LibKernelDecl QString PVArgument_to_QString(PVArgument const& v);
-LibKernelDecl PVArgument QString_to_PVArgument(QString const& v);
 LibKernelDecl PVArgument QString_to_PVArgument(const QString &s, const QVariant& v, bool* res_ok = 0);
 
 LibKernelDecl void PVArgumentList_to_QSettings(const PVArgumentList& args, QSettings& settings, const QString& group_name);
