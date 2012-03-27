@@ -14,6 +14,13 @@
 
 #include <math.h>
 
+#define ARG_NAME_AXES "axes"
+#define ARG_DESC_AXES "Axes"
+#define ARG_NAME_SCALE "scale"
+#define ARG_DESC_SCALE "Scale"
+#define ARG_NAME_COLORS "colors"
+#define ARG_DESC_COLORS "Colors"
+
 /******************************************************************************
  *
  * Picviz::PVLayerFilterHeatlineBase::PVLayerFilterHeatlineBase
@@ -33,10 +40,10 @@ Picviz::PVLayerFilterHeatlineBase::PVLayerFilterHeatlineBase(PVCore::PVArgumentL
 DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterHeatlineBase)
 {
 	PVCore::PVArgumentList args;
-	args[PVCore::PVArgumentKey("axes", "Axes")].setValue(PVCore::PVAxesIndexType());
+	args[PVCore::PVArgumentKey(ARG_NAME_AXES, ARG_DESC_AXES)].setValue(PVCore::PVAxesIndexType());
 
 	PVCore::PVEnumType scale(QStringList() << "Linear" << "Log", 0);
-	args[PVCore::PVArgumentKey("scale", "Scale")].setValue(scale);
+	args[PVCore::PVArgumentKey(ARG_NAME_SCALE, ARG_DESC_SCALE)].setValue(scale);
 
 	return args;
 }
@@ -50,7 +57,7 @@ PVCore::PVArgumentList Picviz::PVLayerFilterHeatlineBase::get_default_args_for_v
 {
 	PVCore::PVArgumentList args = get_default_args();
 	// Default args with the "key" tag
-	args["axes"].setValue(PVCore::PVAxesIndexType(view.get_original_axes_index_with_tag(get_tag("key"))));
+	args[ARG_NAME_AXES].setValue(PVCore::PVAxesIndexType(view.get_original_axes_index_with_tag(get_tag("key"))));
 	return args;
 }
 
@@ -70,10 +77,10 @@ void Picviz::PVLayerFilterHeatlineBase::operator()(PVLayer& in, PVLayer &out)
 	PVRush::PVNraw::nraw_table const& nraw = _view->get_qtnraw_parent();
 	nb_lines = nraw.get_nrows();
 	
-	PVCore::PVAxesIndexType axes = _args.value("axes").value<PVCore::PVAxesIndexType>();
+	PVCore::PVAxesIndexType axes = _args.value(ARG_NAME_AXES).value<PVCore::PVAxesIndexType>();
 	if (axes.size() == 0) {
 		_args = get_default_args_for_view(*_view);
-		axes = _args.value("axes").value<PVCore::PVAxesIndexType>();
+		axes = _args.value(ARG_NAME_AXES).value<PVCore::PVAxesIndexType>();
 		if (axes.size() == 0) {
 			PVLOG_ERROR("(PVLayerFilterHeatlineBase) no key axes defined in the format and no axes selected !\n");
 			if (&in != &out) {
@@ -83,7 +90,7 @@ void Picviz::PVLayerFilterHeatlineBase::operator()(PVLayer& in, PVLayer &out)
 		}
 	}
 
-	bool bLog = _args.value("scale").value<PVCore::PVEnumType>().get_sel().compare("Log") == 0;
+	bool bLog = _args.value(ARG_NAME_SCALE).value<PVCore::PVEnumType>().get_sel().compare("Log") == 0;
 
 	highest_frequency = 1;
 
@@ -138,6 +145,13 @@ void Picviz::PVLayerFilterHeatlineBase::operator()(PVLayer& in, PVLayer &out)
 	}
 }
 
+QList<PVCore::PVArgumentKey> Picviz::PVLayerFilterHeatlineBase::get_args_keys_for_preset() const
+{
+	QList<PVCore::PVArgumentKey> keys = get_default_args().keys();
+	keys.removeAll(ARG_NAME_AXES);
+	return keys;
+}
+
 void Picviz::PVLayerFilterHeatlineBase::post(PVLayer& /*in*/, PVLayer& /*out*/, float /*ratio*/, PVRow /*line_id*/)
 {
 	// The base filter does nothing
@@ -184,13 +198,13 @@ Picviz::PVLayerFilterHeatlineSel::PVLayerFilterHeatlineSel(PVCore::PVArgumentLis
 DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterHeatlineSel)
 {
 	PVCore::PVArgumentList args = Picviz::PVLayerFilterHeatlineBase::default_args();
-	args[PVCore::PVArgumentKey("colors", "Colors")].setValue(PVCore::PVColorGradientDualSliderType());
+	args[PVCore::PVArgumentKey(ARG_NAME_COLORS, ARG_DESC_COLORS)].setValue(PVCore::PVColorGradientDualSliderType());
 	return args;
 }
 
 void Picviz::PVLayerFilterHeatlineSel::post(PVLayer& /*in*/, PVLayer& out, float ratio, PVRow line_id)
 {
-	PVCore::PVColorGradientDualSliderType ratios = _args["colors"].value<PVCore::PVColorGradientDualSliderType>();
+	PVCore::PVColorGradientDualSliderType ratios = _args[ARG_NAME_COLORS].value<PVCore::PVColorGradientDualSliderType>();
 
 	const float *v = ratios.get_positions();
 
@@ -214,7 +228,7 @@ Picviz::PVLayerFilterHeatlineSelAndCol::PVLayerFilterHeatlineSelAndCol(PVCore::P
 DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterHeatlineSelAndCol)
 {
 	PVCore::PVArgumentList args = Picviz::PVLayerFilterHeatlineBase::default_args();
-	args[PVCore::PVArgumentKey("colors", "Colors")].setValue(PVCore::PVColorGradientDualSliderType());
+	args[PVCore::PVArgumentKey(ARG_NAME_COLORS, ARG_DESC_COLORS)].setValue(PVCore::PVColorGradientDualSliderType());
 	return args;
 }
 
@@ -223,14 +237,14 @@ void Picviz::PVLayerFilterHeatlineSelAndCol::post(PVLayer& /*in*/, PVLayer& out,
 	// Colorize
 	PVCore::PVColor color;
 	QColor qcolor;
-
+	get_args_for_preset().keys();
 	qcolor.setHsvF((1.0 - ratio)/3.0, 1.0, 1.0);
 	color.fromQColor(qcolor);
 
 	out.get_lines_properties().line_set_rgb_from_color(line_id, color);
 
 	// Select
-	PVCore::PVColorGradientDualSliderType ratios = _args.value("colors").value<PVCore::PVColorGradientDualSliderType>();
+	PVCore::PVColorGradientDualSliderType ratios = _args.value(ARG_NAME_COLORS).value<PVCore::PVColorGradientDualSliderType>();
 
 	const float *v = ratios.get_positions();
 

@@ -175,27 +175,29 @@ void PVCore::PVSerializeArchive::hash_arguments_write(PVSerializeObject const& s
 {
 #ifdef CUSTOMER_CAPABILITY_SAVE
 	QSettings* settings = _objs_attributes.value(get_object_config_path(so));
-	PVArgumentList::const_iterator it;
-	settings->beginGroup(name);
-	for (it = obj.begin(); it != obj.end(); it++) {
-		settings->setValue(it.key(), PVArgument_to_QString(it.value()));
-	}
-	settings->endGroup();
+//	PVArgumentList::const_iterator it;
+//	settings->beginGroup(name);
+//	for (it = obj.begin(); it != obj.end(); it++) {
+//		   settings->setValue(it.key(), PVArgument_to_QString(it.value()));
+//	}
+//	settings->endGroup();
+	PVArgumentList_to_QSettings(obj, *settings, name);
 #endif
 }
 
-void PVCore::PVSerializeArchive::hash_arguments_read(PVSerializeObject const& so, QString const& name, PVArgumentList& obj)
+void PVCore::PVSerializeArchive::hash_arguments_read(PVSerializeObject const& so, QString const& name, PVArgumentList& obj, PVArgumentList const& def_args)
 {
 #ifdef CUSTOMER_CAPABILITY_SAVE
 	QSettings* settings = _objs_attributes.value(get_object_config_path(so));
 	obj.clear();
-	settings->beginGroup(name);
-	QStringList keys = settings->childKeys();
-	for (int i = 0; i < keys.size(); i++) {
-		QString const& key = keys.at(i);
-		obj[key] = QString_to_PVArgument(settings->value(key).toString());
-	}
-	settings->endGroup();
+//	QStringList keys = settings->childKeys();
+//	for (int i = 0; i < keys.size(); i++) {
+//		QString const& key = keys.at(i);
+//		if (def_args.contains(key)) {
+//			obj[key] = QString_to_PVArgument(settings->value(key).toString(), def_args[key]);
+//		}
+//	}
+	obj = QSettings_to_PVArgumentList(*settings, def_args, name);
 #endif
 }
 

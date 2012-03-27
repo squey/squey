@@ -44,12 +44,24 @@ bool comp_list(QList<PVArgument> const& l1, QList<PVArgument> const& l2);
 template <class K, class V>
 bool comp_hash(QHash<K, V> const& h1, QHash<K, V> const& h2)
 {
-	if (!comp_list(h1.keys(), h2.keys())) {
+	typedef typename QHash<K, V>::const_iterator Tit;
+
+	if (h1.count() != h2.count()) {
 		return false;
 	}
 
-	return comp_list(h1.values(), h2.values());
+	for (Tit it1 = h1.constBegin(); it1 != h1.constEnd(); it1++) {
+		Tit it2 = h2.find(it1.key());
+		if (it1.value() != it2.value()) {
+			return false;
+		}
+	}
+
+	return true;
 }
+
+template <>
+bool comp_hash(PVCore::PVArgumentList const& h1, PVCore::PVArgumentList const& h2);
 
 }
 

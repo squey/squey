@@ -110,7 +110,7 @@ public:
 	void setFromArgumentList(PVCore::PVArgumentList const& args);
 	
 	static void toArgumentList(QDomElement& elt, PVCore::PVArgumentList const& def_args, PVCore::PVArgumentList& args);
-	static void toArgumentList(QDomElement& elt, PVCore::PVArgumentList& args);
+	//static void toArgumentList(QDomElement& elt, PVCore::PVArgumentList& args);
 	void toArgumentList(PVCore::PVArgumentList const& default_args, PVCore::PVArgumentList& args);
 
     bool isEditable() {

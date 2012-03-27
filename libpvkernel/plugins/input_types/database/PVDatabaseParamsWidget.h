@@ -10,6 +10,7 @@
 
 #include <QDomDocument>
 
+#include <pvkernel/widgets/PVPresetsWidget.h>
 #include "PVDBPresets.h"
 
 namespace PVRush {
@@ -34,13 +35,12 @@ public:
 protected:
 	void populate_presets();
 	PVDBPresets::id_t get_current_preset_id();
-	bool is_preset_txt_new();
 
 public slots:
-	void preset_new_Slot();
-	void preset_load_Slot();
-	void preset_save_Slot();
-	void preset_remove_Slot();
+	void preset_new_Slot(const QString& name);
+	void preset_load_Slot(const QString& name);
+	void preset_save_Slot(const QString& name);
+	void preset_remove_Slot(const QString& name);
 	void preset_text_changed_Slot(const QString& text);
 	void sql_type_changed_Slot(int idx);
 	void query_preview_Slot();
@@ -55,7 +55,6 @@ protected:
 	void set_query(QString const& query);
 	bool select_type(QString const& qt_type);
 	void load_preset(PVDBPresets::id_t id);
-	void add_preset(QString const& name, PVDBPresets::id_t id);
 	QString get_current_driver();
 	void enable_used_format(bool is_existing);
 	void show_def_params();
@@ -64,6 +63,7 @@ protected:
 	static void show_layout_children(const QLayout* layout, bool show);
 
 protected:
+	PVWidgets::PVPresetsWidget* _presets_widget;
 	QSettings _settings;
 	int64_t _last_load_preset;
 	PVInputTypeDatabase const* _in_t;

@@ -24,6 +24,7 @@ public:
 	PVLayerFilterHeatlineBase(PVCore::PVArgumentList const& l = PVLayerFilterHeatlineBase::default_args());
 public:
 	void operator()(PVLayer& in, PVLayer &out);
+	virtual QList<PVCore::PVArgumentKey> get_args_keys_for_preset() const;
 	PVCore::PVArgumentList get_default_args_for_view(PVView const& view);
 protected:
 	virtual void post(PVLayer &in, PVLayer &out, float ratio, PVRow line_id);

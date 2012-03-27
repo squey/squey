@@ -15,7 +15,7 @@ PVInspector::PVListColNrawDlg::PVListColNrawDlg(Picviz::PVView const& view, std:
 	QDialog(parent)
 {
 	setupUi(this);
-	_field_separator_btn->setClearButtonShow(QKeySequenceWidget::NoShow);
+	_field_separator_btn->setClearButtonShow(PVWidgets::QKeySequenceWidget::NoShow);
 	_field_separator_btn->setKeySequence(QKeySequence(Qt::Key_Return));
 	_field_separator_btn->setMaxNumKey(1);
 
@@ -38,7 +38,7 @@ PVInspector::PVListColNrawDlg::PVListColNrawDlg(Picviz::PVView const& view, std:
 
 bool PVInspector::PVListColNrawDlg::write_values(QDataStream* stream)
 {
-	QString sep(QChar::fromAscii(QKeySequenceWidget::get_ascii_from_sequence(_field_separator_btn->keySequence())));
+	QString sep(QChar::fromAscii(PVWidgets::QKeySequenceWidget::get_ascii_from_sequence(_field_separator_btn->keySequence())));
 	if (sep.isEmpty()) {
 		sep = "\n";
 	}

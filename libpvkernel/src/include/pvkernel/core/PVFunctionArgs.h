@@ -26,22 +26,18 @@ protected:
 	QString _what;
 };
 
-template <class F>
-class PVFunctionArgs
+class PVFunctionArgsBase
 {
+
 public:
-	typedef F func_type;
-public:
-	PVFunctionArgs(PVArgumentList const& args = PVFunctionArgs<F>::default_args()) :
+	PVFunctionArgsBase(PVArgumentList const& args = PVArgumentList()) :
 		_args(args), _def_args(args)
 	{
 	}
 
-	virtual ~PVFunctionArgs() { }
+	virtual ~PVFunctionArgsBase() { }
+
 public:
-	static PVArgumentList default_args() { return PVArgumentList(); }
-public:
-	virtual func_type f() = 0;
 	virtual const PVArgumentList& get_args() const { return _args; }
 	virtual void set_args(PVArgumentList const& args)
 	{
@@ -57,10 +53,57 @@ public:
 		}
 	   _args = args;
 	}
-	PVArgumentList const& get_default_args() { return _def_args; }
+	PVArgumentList const& get_default_args() const { return _def_args; }
+
+	PVArgumentList get_args_for_preset() const
+	{
+		PVArgumentList args = get_args();
+		QList<PVCore::PVArgumentKey> keys = get_args_keys_for_preset();
+
+		// Get rid of unwanted args
+		PVArgumentList filtered_args ;
+		foreach (PVCore::PVArgumentKey key, keys)
+		{
+			PVArgumentList::const_iterator it = args.find(key);
+			if (it != args.end())
+			{
+				filtered_args[it.key()] = it.value();
+			}
+		}
+
+		return filtered_args;
+	}
+	virtual QList<PVCore::PVArgumentKey> get_args_keys_for_preset() const
+	{
+		return get_default_args().keys();
+	}
+	void set_args_from_preset(PVArgumentList const& args)
+	{
+		PVArgumentList preset_args = get_args_for_preset();
+		PVArgumentList::const_iterator it;
+		for (it = args.begin(); it != args.end(); it++) {
+			if (preset_args.contains(it.key())) {
+				_args[it.key()] = it.value();
+			}
+		}
+	}
 protected:
 	PVArgumentList _args;
 	PVArgumentList _def_args;
+};
+
+// FIXME: is this really useful ?!
+template <class F>
+class PVFunctionArgs: public PVFunctionArgsBase
+{
+public:
+	typedef F func_type;
+public:
+	PVFunctionArgs(PVArgumentList const& args = PVArgumentList()) :
+		PVFunctionArgsBase(args)
+	{ }
+public:
+	virtual func_type f() = 0;
 };
 
 }

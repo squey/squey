@@ -34,7 +34,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <pvkernel/widgets/qkeysequencewidget_p.h>
 #include <pvkernel/widgets/qkeysequencewidget.h>
 
-char QKeySequenceWidget::get_ascii_from_sequence(QKeySequence key)
+char PVWidgets::QKeySequenceWidget::get_ascii_from_sequence(QKeySequence key)
 {
 	// from qnamespace.h
 	// Key_Escape = 0x01000000,
@@ -59,10 +59,10 @@ char QKeySequenceWidget::get_ascii_from_sequence(QKeySequence key)
 /*!
   Creates a QKeySequenceWidget object wuth \a parent and empty \a keySequence
 */
-QKeySequenceWidget::QKeySequenceWidget(QWidget *parent) :
-    QWidget(parent), d_ptr(new QKeySequenceWidgetPrivate())
+PVWidgets::QKeySequenceWidget::QKeySequenceWidget(QWidget *parent) :
+    QWidget(parent), d_ptr(new PVWidgets::QKeySequenceWidgetPrivate())
 {
-    Q_D(QKeySequenceWidget);
+    Q_D(PVWidgets::QKeySequenceWidget);
     d->q_ptr = this;
     d->init(QKeySequence(), QString());
 
@@ -73,10 +73,10 @@ QKeySequenceWidget::QKeySequenceWidget(QWidget *parent) :
   Creates a QKeySequenceWidget object wuth \a parent and keysequence \a keySequence 
   and string for \a noneString
 */
-QKeySequenceWidget::QKeySequenceWidget(QKeySequence seq, QString noneString, QWidget *parent) :
-        QWidget(parent), d_ptr(new QKeySequenceWidgetPrivate())
+PVWidgets::QKeySequenceWidget::QKeySequenceWidget(QKeySequence seq, QString noneString, QWidget *parent) :
+        QWidget(parent), d_ptr(new PVWidgets::QKeySequenceWidgetPrivate())
 {
-    Q_D(QKeySequenceWidget);
+    Q_D(PVWidgets::QKeySequenceWidget);
     d->q_ptr = this;
     qDebug() << "q_prt " << this;
     d->init(seq, noneString);
@@ -86,8 +86,8 @@ QKeySequenceWidget::QKeySequenceWidget(QKeySequence seq, QString noneString, QWi
 /*!
   Creates a QKeySequenceWidget object wuth \a parent and keysequence \a keySequence   
 */
-QKeySequenceWidget::QKeySequenceWidget(QKeySequence seq, QWidget *parent) :
-        QWidget(parent), d_ptr(new QKeySequenceWidgetPrivate())
+PVWidgets::QKeySequenceWidget::QKeySequenceWidget(QKeySequence seq, QWidget *parent) :
+        QWidget(parent), d_ptr(new PVWidgets::QKeySequenceWidgetPrivate())
 {
     qDebug() << "widget constructor";
     Q_D(QKeySequenceWidget);
@@ -101,11 +101,11 @@ QKeySequenceWidget::QKeySequenceWidget(QKeySequence seq, QWidget *parent) :
 /*!
   Creates a QKeySequenceWidget object wuth \a parent and string for \a noneString
 */
-QKeySequenceWidget::QKeySequenceWidget(QString noneString, QWidget *parent) :
-        QWidget(parent), d_ptr(new QKeySequenceWidgetPrivate())
+PVWidgets::QKeySequenceWidget::QKeySequenceWidget(QString noneString, QWidget *parent) :
+        QWidget(parent), d_ptr(new PVWidgets::QKeySequenceWidgetPrivate())
 {
     qDebug() << "widget constructor";
-    Q_D(QKeySequenceWidget);
+    Q_D(PVWidgets::QKeySequenceWidget);
     d->q_ptr = this;
     qDebug() << "q_prt " << this;
     d->init(QKeySequence(), noneString);
@@ -116,12 +116,12 @@ QKeySequenceWidget::QKeySequenceWidget(QString noneString, QWidget *parent) :
 /*!
   Destroy a QKeySequenceWidget object
 */
-QKeySequenceWidget::~QKeySequenceWidget()
+PVWidgets::QKeySequenceWidget::~QKeySequenceWidget()
 {
     delete d_ptr;
 }
 
-QSize QKeySequenceWidget::sizeHint() const
+QSize PVWidgets::QKeySequenceWidget::sizeHint() const
 {
     return d_ptr->shortcutButton->sizeHint();
 }
@@ -130,7 +130,7 @@ QSize QKeySequenceWidget::sizeHint() const
   Setting tooltip text to sequence button
   \param tip Text string
 */
-void QKeySequenceWidget::setToolTip(const QString &tip)
+void PVWidgets::QKeySequenceWidget::setToolTip(const QString &tip)
 {
     d_ptr->setToolTip(tip);
 }
@@ -140,7 +140,7 @@ void QKeySequenceWidget::setToolTip(const QString &tip)
   \param show Position of clear button \a ClearButtornShow
   \sa clearButtonShow
 */
-void QKeySequenceWidget::setClearButtonShow(QKeySequenceWidget::ClearButtonShow show)
+void PVWidgets::QKeySequenceWidget::setClearButtonShow(PVWidgets::QKeySequenceWidget::ClearButtonShow show)
 {
     d_ptr->showClearButton = show;
     d_ptr->updateView();
@@ -151,9 +151,9 @@ void QKeySequenceWidget::setClearButtonShow(QKeySequenceWidget::ClearButtonShow 
   \param show Display mode of clear button (NoShow, ShowLeft or ShorRight)
   \sa setClearButtonShow
 */
-QKeySequenceWidget::ClearButtonShow QKeySequenceWidget::clearButtonShow() const
+PVWidgets::QKeySequenceWidget::ClearButtonShow PVWidgets::QKeySequenceWidget::clearButtonShow() const
 {
-    return static_cast<QKeySequenceWidget::ClearButtonShow>(d_ptr->showClearButton);
+    return static_cast<PVWidgets::QKeySequenceWidget::ClearButtonShow>(d_ptr->showClearButton);
 }
 
 
@@ -162,7 +162,7 @@ QKeySequenceWidget::ClearButtonShow QKeySequenceWidget::clearButtonShow() const
     \param key Key sequence
     \sa clearKeySequence
  */
-void QKeySequenceWidget::setKeySequence(const QKeySequence& key)
+void PVWidgets::QKeySequenceWidget::setKeySequence(const QKeySequence& key)
 {
     if (d_ptr->isRecording == false)
     {
@@ -181,7 +181,7 @@ void QKeySequenceWidget::setKeySequence(const QKeySequence& key)
     \sa setKeySequence
     \sa clearKeySequence
  */
-QKeySequence QKeySequenceWidget::keySequence() const
+QKeySequence PVWidgets::QKeySequenceWidget::keySequence() const
 {
     return d_ptr->currentSequence;
 }
@@ -190,13 +190,13 @@ QKeySequence QKeySequenceWidget::keySequence() const
     Clear key sequence.
     \sa setKeySequence
  */
-void QKeySequenceWidget::clearKeySequence()
+void PVWidgets::QKeySequenceWidget::clearKeySequence()
 {
     setKeySequence(QKeySequence());
 }
 
 // slot for capture key sequence starting (private)
-void QKeySequenceWidget::captureKeySequence()
+void PVWidgets::QKeySequenceWidget::captureKeySequence()
 {
     d_ptr->startRecording();
 }
@@ -206,7 +206,7 @@ void QKeySequenceWidget::captureKeySequence()
     \param text Text string
     \sa noneText
  */
-void QKeySequenceWidget::setNoneText(const QString text)
+void PVWidgets::QKeySequenceWidget::setNoneText(const QString text)
 {
     d_ptr->noneSequenceText = text;
     d_ptr->updateDisplayShortcut();
@@ -217,7 +217,7 @@ void QKeySequenceWidget::setNoneText(const QString text)
     \return Text string
     \sa setNoneText
  */
-QString QKeySequenceWidget::noneText() const
+QString PVWidgets::QKeySequenceWidget::noneText() const
 {
     return d_ptr->noneSequenceText;
 }
@@ -227,7 +227,7 @@ QString QKeySequenceWidget::noneText() const
     \param icon QIcon object
     \sa clearButtonIcon
  */
-void QKeySequenceWidget::setClearButtonIcon(const QIcon &icon)
+void PVWidgets::QKeySequenceWidget::setClearButtonIcon(const QIcon &icon)
 {
     d_ptr->clearButton->setIcon(icon);
 }
@@ -237,12 +237,12 @@ void QKeySequenceWidget::setClearButtonIcon(const QIcon &icon)
     \return QIcon object
     \sa setClearButtonIcon
  */
-QIcon QKeySequenceWidget::clearButtonIcon() const
+QIcon PVWidgets::QKeySequenceWidget::clearButtonIcon() const
 {
     return d_ptr->clearButton->icon();
 }
 
-void QKeySequenceWidget::setMaxNumKey(quint32 n)
+void PVWidgets::QKeySequenceWidget::setMaxNumKey(quint32 n)
 {
 	if (n < 1) {
 		n = 1;
@@ -251,11 +251,10 @@ void QKeySequenceWidget::setMaxNumKey(quint32 n)
 }
 
 // connection internal signals & slots
-void QKeySequenceWidget::_connectingSlots()
+void PVWidgets::QKeySequenceWidget::_connectingSlots()
 { 
     // connect signals to slots
-    connect(d_ptr->clearButton, SIGNAL(clicked()), this,
-SLOT(clearKeySequence()));
+    connect(d_ptr->clearButton, SIGNAL(clicked()), this, SLOT(clearKeySequence()));
     connect(&d_ptr->modifierlessTimeout, SIGNAL(timeout()), this, SLOT(doneRecording()));
     connect(d_func()->shortcutButton, SIGNAL(clicked()), this, SLOT(captureKeySequence()));
 
@@ -263,21 +262,21 @@ SLOT(clearKeySequence()));
 
 // Private class implementation
 
-QKeySequenceWidgetPrivate::QKeySequenceWidgetPrivate()
+PVWidgets::QKeySequenceWidgetPrivate::QKeySequenceWidgetPrivate()
     : maxNumKey(4), layout(NULL), clearButton(NULL), shortcutButton(NULL)
 {
-    Q_Q(QKeySequenceWidget);
+    Q_Q(PVWidgets::QKeySequenceWidget);
     Q_UNUSED(q);
 }
 
-QKeySequenceWidgetPrivate::~QKeySequenceWidgetPrivate()
+PVWidgets::QKeySequenceWidgetPrivate::~QKeySequenceWidgetPrivate()
 {
 
 }
 
-void QKeySequenceWidgetPrivate::init(const QKeySequence keySeq, const QString noneStr)
+void PVWidgets::QKeySequenceWidgetPrivate::init(const QKeySequence keySeq, const QString noneStr)
 {
-    Q_Q(QKeySequenceWidget);
+    Q_Q(PVWidgets::QKeySequenceWidget);
     Q_UNUSED(q);
     layout = new QHBoxLayout(q_func());
     layout->setMargin(0);
@@ -306,7 +305,7 @@ void QKeySequenceWidgetPrivate::init(const QKeySequence keySeq, const QString no
 
     layout->addWidget(shortcutButton);
 
-    showClearButton = QKeySequenceWidget::ShowRight;
+    showClearButton = PVWidgets::QKeySequenceWidget::ShowRight;
 
     clearButton->setIcon(QIcon(":/img/delete_32.png"));
 
@@ -319,27 +318,27 @@ void QKeySequenceWidgetPrivate::init(const QKeySequence keySeq, const QString no
 }
 
 // set tooltip only for seqyence button
-void QKeySequenceWidgetPrivate::setToolTip(const QString &tip)
+void PVWidgets::QKeySequenceWidgetPrivate::setToolTip(const QString &tip)
 {
     shortcutButton->setToolTip(tip);
     clearButton->setToolTip("");
 }
 
 // update the location of widgets
-void QKeySequenceWidgetPrivate::updateView()
+void PVWidgets::QKeySequenceWidgetPrivate::updateView()
 {
     // qDebug() << "update view ";
     switch(showClearButton)
     {
-    case QKeySequenceWidget::ShowLeft:
+    case PVWidgets::QKeySequenceWidget::ShowLeft:
         clearButton->setVisible(true);
         layout->setDirection(QBoxLayout::LeftToRight);
         break;
-    case QKeySequenceWidget::ShowRight:
+    case PVWidgets::QKeySequenceWidget::ShowRight:
         clearButton->setVisible(true);
         layout->setDirection(QBoxLayout::RightToLeft);
         break;
-    case QKeySequenceWidget::NoShow:
+    case PVWidgets::QKeySequenceWidget::NoShow:
         clearButton->setVisible(false);
         break;
     default:
@@ -347,7 +346,7 @@ void QKeySequenceWidgetPrivate::updateView()
     }
 }
 
-void QKeySequenceWidgetPrivate::startRecording()
+void PVWidgets::QKeySequenceWidgetPrivate::startRecording()
 {
     numKey = 0;
     modifierKeys = 0;
@@ -367,7 +366,7 @@ void QKeySequenceWidgetPrivate::startRecording()
     updateDisplayShortcut();
 }
 
-void QKeySequenceWidgetPrivate::doneRecording()
+void PVWidgets::QKeySequenceWidgetPrivate::doneRecording()
 {
     modifierlessTimeout.stop();
 
@@ -391,13 +390,13 @@ void QKeySequenceWidgetPrivate::doneRecording()
     updateDisplayShortcut();
 }
 
-inline void QKeySequenceWidgetPrivate::cancelRecording()
+inline void PVWidgets::QKeySequenceWidgetPrivate::cancelRecording()
 {
     currentSequence = oldSequence;
     doneRecording();
 }
 
-inline void QKeySequenceWidgetPrivate::controlModifierlessTimout()
+inline void PVWidgets::QKeySequenceWidgetPrivate::controlModifierlessTimout()
 {
     if (numKey != 0 && !modifierKeys)
     {
@@ -412,12 +411,12 @@ inline void QKeySequenceWidgetPrivate::controlModifierlessTimout()
 }
 
 
-inline void QKeySequenceWidgetPrivate::keyNotSupported()
+inline void PVWidgets::QKeySequenceWidgetPrivate::keyNotSupported()
 {
     Q_EMIT q_ptr->keyNotSupported();
 }
 
-void QKeySequenceWidgetPrivate::updateDisplayShortcut()
+void PVWidgets::QKeySequenceWidgetPrivate::updateDisplayShortcut()
 {
     // empty string if no non-modifier was pressed
     QString str = currentSequence.toString(QKeySequence::NativeText);
@@ -458,12 +457,12 @@ void QKeySequenceWidgetPrivate::updateDisplayShortcut()
 
 
 // QKeySequenceButton implementation
-QSize QShortcutButton::sizeHint() const
+QSize PVWidgets::QShortcutButton::sizeHint() const
 {
     return QPushButton::sizeHint();
 }
 
-bool QShortcutButton::event(QEvent *e)
+bool PVWidgets::QShortcutButton::event(QEvent *e)
 {
     if (d->isRecording == true && e->type() == QEvent::KeyPress)
     {
@@ -486,7 +485,7 @@ bool QShortcutButton::event(QEvent *e)
     return QPushButton::event(e);
 }
 
-void QShortcutButton::keyPressEvent(QKeyEvent *keyEvent)
+void PVWidgets::QShortcutButton::keyPressEvent(QKeyEvent *keyEvent)
 {
     // qDebug() << "key pressed";
     int keyQt =  keyEvent->key();
@@ -573,7 +572,7 @@ void QShortcutButton::keyPressEvent(QKeyEvent *keyEvent)
     }
 }
 
-void QShortcutButton::keyReleaseEvent(QKeyEvent *keyEvent)
+void PVWidgets::QShortcutButton::keyReleaseEvent(QKeyEvent *keyEvent)
 {
     // qDebug() << "key released";
     if (keyEvent->key() == -1)

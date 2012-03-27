@@ -23,6 +23,7 @@ public:
 	PVLayerFilterAxisGradient(PVCore::PVArgumentList const& l = PVLayerFilterAxisGradient::default_args());
 public:
 	virtual void operator()(PVLayer& in, PVLayer &out);
+	virtual QList<PVCore::PVArgumentKey> get_args_keys_for_preset() const;
 	virtual QString status_bar_description();
 	virtual QString detailed_description();
 

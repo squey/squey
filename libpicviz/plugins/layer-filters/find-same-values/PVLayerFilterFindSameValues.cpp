@@ -14,6 +14,9 @@
 #include <pvkernel/rush/PVUtils.h>
 #include <picviz/PVView.h>
 
+#define ARG_NAME_AXIS "axis"
+#define ARG_DESC_AXIS "Axis"
+
 /******************************************************************************
  *
  * Picviz::PVLayerFilterFindSameValues::PVLayerFilterFindSameValues
@@ -102,6 +105,13 @@ void Picviz::PVLayerFilterFindSameValues::operator()(PVLayer& in, PVLayer &out)
 		}
 	}
 
+}
+
+QList<PVCore::PVArgumentKey> Picviz::PVLayerFilterFindSameValues::get_args_keys_for_preset() const
+{
+	QList<PVCore::PVArgumentKey> keys = get_default_args().keys();
+	keys.removeAll(ARG_NAME_AXIS);
+	return keys;
 }
 
 IMPL_FILTER(Picviz::PVLayerFilterFindSameValues)

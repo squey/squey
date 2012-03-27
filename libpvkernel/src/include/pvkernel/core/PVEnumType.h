@@ -13,6 +13,8 @@
 #include <QStringList>
 #include <assert.h>
 
+#include <pvkernel/core/PVArgument.h>
+
 namespace PVCore {
 
 /**
@@ -20,7 +22,7 @@ namespace PVCore {
  *
  * \note This class is fully implemented in its definition, so no LibKernelDecl is needed (each library will have its own version).
  */
-class PVEnumType
+class PVEnumType : public PVArgumentType<PVEnumType>
 {
 	
 public:
@@ -35,6 +37,25 @@ public:
 	int get_sel_index() const { return _sel; }
 	void set_sel(int index) { assert(index < _list.count() && index >= 0); _sel = index; };
 	bool set_sel_from_str(QString const& s) { int r = _list.indexOf(s); if (r == -1) return false; _sel = r; return true; }
+
+	QString to_string() const
+	{
+		return _list.join(",") + ":" + QString::number(_sel) ;
+	}
+	PVArgument from_string(QString const& str) const
+	{
+		QStringList parts = str.split(":");
+		int sel = parts[1].toInt();
+		QStringList list = parts[0].split(",");
+
+		PVArgument arg;
+		arg.setValue(PVEnumType(list, sel));
+		return arg;
+	}
+	bool operator==(const PVEnumType &other) const
+	{
+		return _list == other._list && _sel == other._sel ;
+	}
 
 protected:
 	QStringList _list;

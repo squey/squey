@@ -23,6 +23,7 @@ public:
 	PVLayerFilterSearch(PVCore::PVArgumentList const& l = PVLayerFilterSearch::default_args());
 public:
 	virtual void operator()(PVLayer& in, PVLayer &out);
+	virtual QList<PVCore::PVArgumentKey> get_args_keys_for_preset() const;
 
 public:
 	static PVCore::PVArgumentList search_value_menu(PVRow row, PVCol col, QString const& v);

@@ -10,9 +10,11 @@
 #include <pvkernel/core/PVEnumType.h>
 #include <picviz/PVView.h>
 
+#define ARG_NAME_AXIS "Axis"
+#define ARG_NAME_REG_EXP "Regular expression"
+#define ARG_NAME_INCLUDE "Include or exclude pattern"
+#define ARG_NAME_CASE "Case sensitivity"
 
-#define INCLUDE_EXCLUDE_STR "Include or exclude pattern"
-#define CASE_SENSITIVE_STR "Case sensitivity"
 /******************************************************************************
  *
  * Picviz::PVLayerFilterSearch::PVLayerFilterSearch
@@ -33,24 +35,24 @@ Picviz::PVLayerFilterSearch::PVLayerFilterSearch(PVCore::PVArgumentList const& l
 DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterSearch)
 {
 	PVCore::PVArgumentList args;
-	args["Regular expression"] = QRegExp("(.*)");
-	args["Axis"].setValue(PVCore::PVAxisIndexType(0));
-	args[INCLUDE_EXCLUDE_STR].setValue(PVCore::PVEnumType(QStringList() << QString("include") << QString("exclude"), 0));
-	args[CASE_SENSITIVE_STR].setValue(PVCore::PVEnumType(QStringList() << QString("Does not match case") << QString("Match case") , 0));
+	args[ARG_NAME_REG_EXP] = QRegExp("(.*)");
+	args[ARG_NAME_AXIS].setValue(PVCore::PVAxisIndexType(0));
+	args[ARG_NAME_INCLUDE].setValue(PVCore::PVEnumType(QStringList() << QString("include") << QString("exclude"), 0));
+	args[ARG_NAME_CASE].setValue(PVCore::PVEnumType(QStringList() << QString("Does not match case") << QString("Match case") , 0));
 	return args;
 }
 
 /******************************************************************************
  *
  * Picviz::PVLayerFilterSearch::operator()
- *
+ *get_args_for_preset().keys();
  *****************************************************************************/
 void Picviz::PVLayerFilterSearch::operator()(PVLayer& in, PVLayer &out)
 {	
-	int axis_id = _args["Axis"].value<PVCore::PVAxisIndexType>().get_original_index();
-	QRegExp re = _args["Regular expression"].toRegExp();
-	bool include = _args[INCLUDE_EXCLUDE_STR].value<PVCore::PVEnumType>().get_sel_index() == 0;
-	bool case_match = _args[CASE_SENSITIVE_STR].value<PVCore::PVEnumType>().get_sel_index() == 1;
+	int axis_id = _args[ARG_NAME_AXIS].value<PVCore::PVAxisIndexType>().get_original_index();
+	QRegExp re = _args[ARG_NAME_REG_EXP].toRegExp();
+	bool include = _args[ARG_NAME_INCLUDE].value<PVCore::PVEnumType>().get_sel_index() == 0;
+	bool case_match = _args[ARG_NAME_CASE].value<PVCore::PVEnumType>().get_sel_index() == 1;
 	re.setCaseSensitivity((Qt::CaseSensitivity) case_match);
 	PVLOG_INFO("Apply filter search to axis %d with regexp %s.\n", axis_id, qPrintable(re.pattern()));
 
@@ -74,6 +76,13 @@ void Picviz::PVLayerFilterSearch::operator()(PVLayer& in, PVLayer &out)
 	}
 }
 
+QList<PVCore::PVArgumentKey> Picviz::PVLayerFilterSearch::get_args_keys_for_preset() const
+{
+	QList<PVCore::PVArgumentKey> keys = get_default_args().keys();
+	keys.removeAll(ARG_NAME_AXIS);
+	return keys;
+}
+
 /******************************************************************************
  *
  * Picviz::PVLayerFilterSearch::search_value_menu
@@ -82,8 +91,8 @@ void Picviz::PVLayerFilterSearch::operator()(PVLayer& in, PVLayer &out)
 PVCore::PVArgumentList Picviz::PVLayerFilterSearch::search_value_menu(PVRow row, PVCol col, QString const& v)
 {
 	PVCore::PVArgumentList args = default_args();
-	args["Regular expression"] = QRegExp(QRegExp::escape(v));
-	args["Axis"].setValue(PVCore::PVAxisIndexType(col));
+	args[ARG_NAME_REG_EXP] = QRegExp(QRegExp::escape(v));
+	args[ARG_NAME_AXIS].setValue(PVCore::PVAxisIndexType(col));
 	return args;
 }
 

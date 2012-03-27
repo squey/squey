@@ -23,6 +23,11 @@ Picviz::PVMappingProperties::PVMappingProperties(PVRush::PVAxisFormat const& axi
 
 void Picviz::PVMappingProperties::set_from_axis(PVRush::PVAxisFormat const& axis)
 {
+	set_from_axis(Picviz::PVAxis(axis));
+}
+
+void Picviz::PVMappingProperties::set_from_axis(Picviz::PVAxis const& axis)
+{
 	QString type = axis.get_type();
 	QString mode = axis.get_mapping();
 	QString group = axis.get_group();
@@ -98,17 +103,19 @@ void Picviz::PVMappingProperties::serialize(PVCore::PVSerializeObject& so, PVCor
 	so.attribute("mode", _mode);
 	so.attribute("index", _index);
 	so.attribute("group_key", _group_key);
-	so.arguments("properties", _args);
 
 	if (!so.is_writing()) {
 		_is_uptodate = false;
 		set_type(_type, _mode);
+	}
+	if (_mapping_filter) {
+		so.arguments("properties", _args, _mapping_filter->default_args());
 	}
 }
 
 void Picviz::PVMappingProperties::set_default_args(PVRush::PVAxisFormat const& axis)
 {
 	if (_args.size() == 0) {
-		set_args(axis.get_args_mapping());
+		set_args(Picviz::PVAxis(axis).get_args_mapping());
 	}
 }

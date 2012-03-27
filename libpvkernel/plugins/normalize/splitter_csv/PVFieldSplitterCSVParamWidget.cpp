@@ -67,9 +67,9 @@ QWidget* PVFilter::PVFieldSplitterCSVParamWidget::get_param_widget()
 	QLabel* separator_label = new QLabel(tr("Field separator:"));
 	separator_label->setAlignment(Qt::AlignLeft);
 	gridLayout->addWidget(separator_label, 0, 0);
-	separator_text = new QKeySequenceWidget();
+	separator_text = new PVWidgets::QKeySequenceWidget();
 	separator_text->setKeySequence(QKeySequence("Space"));
-	separator_text->setClearButtonShow(QKeySequenceWidget::NoShow);
+	separator_text->setClearButtonShow(PVWidgets::QKeySequenceWidget::NoShow);
 	separator_text->setKeySequence(QKeySequence((int) l["sep"].toChar().toAscii()));
 	separator_text->setMaxNumKey(1);
 
@@ -121,7 +121,7 @@ void PVFilter::PVFieldSplitterCSVParamWidget::updateSeparator(QKeySequence key)
 	PVCore::PVArgumentList args;
 
 
-	args["sep"] = QChar::fromAscii(QKeySequenceWidget::get_ascii_from_sequence(key));
+	args["sep"] = QChar::fromAscii(PVWidgets::QKeySequenceWidget::get_ascii_from_sequence(key));
 	this->get_filter()->set_args(args);
 
 	update_recommanded_nfields();

@@ -163,7 +163,7 @@ public:
 	template <typename K, typename V>
 	void hash(QString const& name, QHash<K,V>& obj);
 
-	void arguments(QString const& name, PVArgumentList& obj);
+	void arguments(QString const& name, PVArgumentList& obj, PVArgumentList const& def_args);
 
 	/*! \brief Declare an attribute to load/save in the 'configuration' of the object. T must be convertible to and from a QVariant
 	 *  \param[in]     name Name of the attribute
@@ -213,7 +213,7 @@ private:
 	void list_attributes_write(QString const& name, std::vector<QVariant> const& list);
 	void list_attributes_read(QString const& name, std::vector<QVariant>& list);
 	void hash_arguments_write(QString const& name, PVArgumentList const& obj);
-	void hash_arguments_read(QString const& name, PVArgumentList& obj);
+	void hash_arguments_read(QString const& name, PVArgumentList& obj, PVArgumentList const& def_args);
 	bool must_write_child(QString const& name);
 	p_type get_archive_object_from_path(QString const& path) const;
 

@@ -16,6 +16,7 @@
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/PVTag.h>
 #include <pvkernel/filter/PVFilterFunction.h>
+#include <pvkernel/core/PVPluginPresets.h>
 
 #include <boost/function.hpp>
 #include <boost/thread.hpp>
@@ -70,6 +71,9 @@ public:
 
 public:
 	static PVCore::PVTag<PVLayerFilter> get_tag(QString const& name);
+
+public:
+	PVCore::PVPluginPresets<PVLayerFilter> get_presets();
 
 protected:
 	virtual void operator()(PVLayer &in, PVLayer &out);

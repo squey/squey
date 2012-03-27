@@ -28,7 +28,7 @@ namespace PVCore {
  * The REGISTER_CLASS(desc, T) macro can be used when T defines the type T::RegAs. Indeed, these two codes are equivalent:
  *
  * \code
- * REGSTIER_CLASS("plugin-name", MyMappingPlugin);
+ * REGISTER_CLASS("plugin-name", MyMappingPlugin);
  * // is the same as
  * PVCore::PVClassLibrary<MyMappingPlugin::RegAs>::get().register_class("plugin-name", MyMappingPlugin());
  * \endcode
@@ -37,7 +37,7 @@ namespace PVCore {
  * You can also use the REGISTER_CLASS_WITH_ARGS macros that helps you tune your registration. Both codes are equivalent:
  *
  * \code
- * REGSTIER_CLASS_WITH_ARGS("plugin-name", MyMappingPlugin, arg1, arg2, ...);
+ * REGISTER_CLASS_WITH_ARGS("plugin-name", MyMappingPlugin, arg1, arg2, ...);
  * // is the same as
  * PVCore::PVClassLibrary<MyMappingPlugin::RegAs>::get().register_class("plugin-name", MyMappingPlugin(arg1, arg2, ...));
  * \endcode

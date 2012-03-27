@@ -23,6 +23,7 @@
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVArgument.h>
+#include <pvkernel/rush/PVAxisFormat.h>
 #include <pvkernel/rush/PVXmlParamParserData.h>
 #include <pvkernel/rush/PVFormat_types.h>
 
@@ -68,7 +69,7 @@ private:
 	void parseFromRootNode(QDomElement const& node);
 	void setAxesCombinationFromRootNode(QDomElement const& node);
 	void setAxesCombinationFromString(QString const& str);
-	static PVCore::PVArgumentList getMapPlotParameters(QDomElement& elt, QString const& tag, QString& mode);
+	static PVAxisFormat::node_args_t getMapPlotParameters(QDomElement& elt, QString const& tag, QString& mode);
     
 private:
 	QList<PVXmlParamParserData> fields;

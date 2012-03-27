@@ -140,7 +140,12 @@ void PVRush::PVFormat::debug()
 		PVXmlParamParser::list_params::const_iterator it_filters;
 		for (it_filters = filters_params.begin(); it_filters != filters_params.end(); it_filters++) {
 			PVXmlParamParserData const& fdata = *it_filters;
-			PVLOG_PLAIN("%d -> %s\n", fdata.axis_id, qPrintable(fdata.filter_lib->registered_name()));
+			PVLOG_PLAIN("%d -> %s. Arguments:\n", fdata.axis_id, qPrintable(fdata.filter_lib->registered_name()));
+			PVCore::PVArgumentList const& args = fdata.filter_args;
+			PVCore::PVArgumentList::const_iterator it_a;
+			for (it_a = args.begin(); it_a != args.end(); it_a++) {
+				PVLOG_PLAIN("'%s' = '%s'\n", qPrintable(it_a.key()), qPrintable(PVCore::PVArgument_to_QString(it_a.value())));
+			}
 		}
 	}
 }
@@ -352,11 +357,11 @@ PVRush::PVFormat::Comparaison PVRush::PVFormat::comp(PVFormat const& original) c
 				break;
 			}
 			if (it->get_mapping() != it_org->get_mapping() ||
-				!PVCore::comp_hash(it->get_args_mapping(), it_org->get_args_mapping())) {
+				!PVCore::comp_hash(it->get_args_mapping_string(), it_org->get_args_mapping_string())) {
 				ret._mapping = true;
 			}
 			if (it->get_plotting() != it_org->get_plotting() ||
-				!PVCore::comp_hash(it->get_args_plotting(), it_org->get_args_plotting())) {
+				!PVCore::comp_hash(it->get_args_plotting_string(), it_org->get_args_plotting_string())) {
 				ret._plotting = true;
 			}
 			if (it->get_tags() != it_org->get_tags() ||

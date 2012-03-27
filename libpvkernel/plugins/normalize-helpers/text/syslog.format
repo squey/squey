@@ -4,7 +4,7 @@
  <splitter selectionRegExp-2="(\S+)" selectionRegExp-3="([a-zA-Z/]+)" selectionRegExp-4="(.*)" validator="" full-line="false" type="regexp" regexp="(\w+\s+\d+\s+\d+:\d+:\d+) (\S+) ([a-zA-Z/]+)\S*: (.*)" name="" saveValidator="false" selectionRegExp-1="(\w+\s+\d+\s+\d+:\d+:\d+)">
   <field>
    <axis titlecolor="#ffffff" tag="" group="" type="time" name="Time" color="#ffffff" time-sample="Feb 9 15:23:53">
-    <mapping mode="24h" time-format="@PVTimeFormat(MMM d H:m:ss)"/>
+    <mapping mode="24h" time-format="MMM d H:m:ss"/>
     <plotting mode="default"/>
    </axis>
   </field>

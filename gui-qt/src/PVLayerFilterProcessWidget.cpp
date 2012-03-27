@@ -1,3 +1,5 @@
+#include "PVLayerFilterProcessWidget.h"
+
 #include <QDialog>
 #include <QLabel>
 #include <QPushButton>
@@ -6,7 +8,7 @@
 #include <picviz/PVStateMachine.h>
 
 #include <PVMainWindow.h>
-#include <PVLayerFilterProcessWidget.h>
+
 #include <pvkernel/core/PVProgressBox.h>
 
 PVInspector::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(PVTabSplitter* tab, PVCore::PVArgumentList& args, Picviz::PVLayerFilter_p filter_p) :
@@ -14,6 +16,7 @@ PVInspector::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(PVTabSplitte
 	_tab(tab),
 	_view(tab->get_lib_view()),
 	_filter_p(filter_p),
+	_presets_widget(NULL),
 	_help_btn(NULL),
 	_pre_filter_layer_org(_view->pre_filter_layer),
 	_args_org(args),
@@ -23,7 +26,26 @@ PVInspector::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(PVTabSplitte
 	setWindowTitle("Filter properties...");
 
 	QVBoxLayout* main_layout = new QVBoxLayout();
-	main_layout->addWidget(_args_widget);
+
+	// Presets widget
+	if(_filter_p->get_presets().can_have_presets()) {
+		_presets_widget = new PVWidgets::PVPresetsWidget();
+		_presets_widget->add_presets(_filter_p->get_presets().list_presets());
+		main_layout->addWidget(_presets_widget);
+		connect(_presets_widget, SIGNAL(btn_load_clicked_Signal(const QString&)), this, SLOT(load_preset_Slot(const QString&)));
+		connect(_presets_widget, SIGNAL(btn_new_clicked_Signal(const QString&)), this, SLOT(add_preset_Slot(const QString&)));
+		connect(_presets_widget, SIGNAL(btn_save_clicked_Signal(const QString&)), this, SLOT(save_preset_Slot(const QString&)));
+		connect(_presets_widget, SIGNAL(btn_remove_clicked_Signal(const QString&)), this, SLOT(remove_preset_Slot(const QString&)));
+	}
+
+	// Args widget
+	_args_widget_box = new QGroupBox(tr("Filter"));
+	QVBoxLayout* box_layout = new QVBoxLayout();
+	box_layout->addWidget(_args_widget);
+	_args_widget_box->setLayout(box_layout);
+	main_layout->addWidget(_args_widget_box);
+
+	// Buttons
 	_btn_layout = new QHBoxLayout();
 	main_layout->addLayout(_btn_layout);
 
@@ -44,12 +66,36 @@ void PVInspector::PVLayerFilterProcessWidget::change_args(PVCore::PVArgumentList
 	_args_widget->set_args_values(args);
 }
 
+void PVInspector::PVLayerFilterProcessWidget::add_preset_Slot(const QString& preset)
+{
+	_filter_p->set_args(*_args_widget->get_args());
+	_filter_p->get_presets().add_preset(preset);
+}
+
+void PVInspector::PVLayerFilterProcessWidget::load_preset_Slot(const QString& preset)
+{
+	_filter_p->get_presets().load_preset(preset);
+	change_args(_filter_p->get_presets().get_args_for_preset());
+}
+
+void PVInspector::PVLayerFilterProcessWidget::remove_preset_Slot(const QString& preset)
+{
+	_filter_p->get_presets().del_preset(preset);
+}
+
+void PVInspector::PVLayerFilterProcessWidget::save_preset_Slot(const QString& preset)
+{
+	_filter_p->set_args(*_args_widget->get_args());
+	_filter_p->get_presets().modify_preset(preset);
+}
+
 void PVInspector::PVLayerFilterProcessWidget::create_btns()
 {
 	_apply_btn = new QPushButton(QIcon(":/save"),"Apply");
 	_preview_btn = new QPushButton(QIcon(":/filter"),"Preview");
 	_preview_btn->setDefault(true);
 	_cancel_btn = new QPushButton(QIcon(":/red-cross"),"Cancel");
+	_defaults_btn = new QPushButton(QIcon(":/document-new"),"Defaults");
 	
 	QString filter_desc = _filter_p->detailed_description();
 	if (!filter_desc.isEmpty()) {
@@ -64,6 +110,7 @@ void PVInspector::PVLayerFilterProcessWidget::set_btns_layout()
 	}
 
 	_btn_layout->addWidget(_cancel_btn);
+	_btn_layout->addWidget(_defaults_btn);
 	_btn_layout->addWidget(_preview_btn);
 	_btn_layout->addWidget(_apply_btn);
 }
@@ -73,6 +120,7 @@ void PVInspector::PVLayerFilterProcessWidget::connect_btns()
 	connect(_apply_btn, SIGNAL(pressed()), this, SLOT(save_Slot()));
 	connect(_preview_btn, SIGNAL(pressed()), this, SLOT(preview_Slot()));
 	connect(_cancel_btn, SIGNAL(pressed()), this, SLOT(cancel_Slot()));
+	connect(_defaults_btn, SIGNAL(pressed()), this, SLOT(defaults_Slot()));
 	if (_help_btn) {
 		QMessageBox *msgBox = new QMessageBox(QMessageBox::Information, "Filter help", _filter_p->detailed_description(), QMessageBox::Ok, this);
 		connect(_help_btn, SIGNAL(pressed()), msgBox, SLOT(exec()));
@@ -201,12 +249,17 @@ void PVInspector::PVLayerFilterProcessWidget::cancel_Slot()
 	// Restore the original post_filter_layer
 	_view->post_filter_layer = _view->pre_filter_layer;
 
-	// Update verything
+	// Update everything
 	_view->process_from_layer_stack();
 	_tab->get_main_window()->update_pvglview(_view, PVSDK_MESSENGER_REFRESH_SELECTION|PVSDK_MESSENGER_REFRESH_COLOR);
 	_tab->refresh_listing_Slot();
 
 	reject();
+}
+
+void PVInspector::PVLayerFilterProcessWidget::defaults_Slot()
+{
+	change_args(_filter_p->get_default_args_for_view(*_view));
 }
 
 void  PVInspector::PVLayerFilterProcessWidget::process_layer_filter(Picviz::PVLayerFilter* filter, Picviz::PVLayer* layer)

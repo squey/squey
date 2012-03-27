@@ -88,11 +88,13 @@ protected:
 	void mouseDoubleClickEvent(QMouseEvent* event);
 
 private:
+	QVector<PVRow> get_selected_rows();
 	void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
 
 private:
 	void process_ctxt_menu_action(QAction* act);
 	void process_ctxt_menu_copy();
+	void process_ctxt_menu_set_color();
 
 private:
 	void update_view_selection_from_listing_selection();
@@ -100,6 +102,7 @@ private:
 private slots:
 	void show_ctxt_menu(const QPoint& pos);
 	void show_hhead_ctxt_menu(const QPoint& pos);
+	void set_color_selected(const QColor& color);
 
 private:
 	QMenu* _ctxt_menu;
@@ -113,6 +116,7 @@ private:
 	PVCore::PVArgumentList _ctxt_args;
 	PVLayerFilterProcessWidget* _ctxt_process;
 	QAction* _act_copy;
+	QAction* _act_set_color;
 };
 
 }

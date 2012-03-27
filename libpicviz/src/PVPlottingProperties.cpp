@@ -34,6 +34,11 @@ Picviz::PVPlottingProperties::PVPlottingProperties(PVMapping const& mapping, PVR
 
 void Picviz::PVPlottingProperties::set_from_axis(PVRush::PVAxisFormat const& axis)
 {
+	set_from_axis(Picviz::PVAxis(axis));
+}
+
+void Picviz::PVPlottingProperties::set_from_axis(Picviz::PVAxis const& axis)
+{
 	QString mode = axis.get_plotting();
 	set_args(axis.get_args_plotting());
 	set_mode(mode);
@@ -112,9 +117,11 @@ void Picviz::PVPlottingProperties::serialize(PVCore::PVSerializeObject& so, PVCo
 {
 	so.attribute("index", _index);
 	so.attribute("mode", _mode);
-	so.arguments("properties", _args);
 
 	if (!so.is_writing()) {
 		_is_uptodate = false;
 	}
+	/*if (_plotting_filter) {
+		so.arguments("properties", _args, _plotting_filter->default_args());
+	}*/
 }

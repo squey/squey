@@ -48,6 +48,10 @@ target_link_libraries(Tcore_timeformat_perf ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES
 add_executable(Tcore_serialize serialize.cpp)
 target_link_libraries(Tcore_serialize ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
 
+add_executable(Tcore_argument_serialize argument_serialize.cpp)
+target_link_libraries(Tcore_argument_serialize ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
+add_test(TestArgumentSerialize Tcore_argument_serialize)
+
 # Strings
 add_executable(Tcore_pvstring pvstring.cpp)
 target_link_libraries(Tcore_pvstring ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES} ${ICU_LIBRARY})

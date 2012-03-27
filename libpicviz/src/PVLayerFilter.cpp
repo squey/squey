@@ -168,4 +168,9 @@ PVCore::PVTag<Picviz::PVLayerFilter> Picviz::PVLayerFilter::get_tag(QString cons
 	return LIB_CLASS(PVLayerFilter)::get().get_tag(name);
 }
 
+PVCore::PVPluginPresets<Picviz::PVLayerFilter> Picviz::PVLayerFilter::get_presets()
+{
+	return PVCore::PVPluginPresets<PVLayerFilter>(*this, "presets/layer_filters");
+}
+
 IMPL_FILTER(Picviz::PVLayerFilter)

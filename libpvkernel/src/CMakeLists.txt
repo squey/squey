@@ -28,6 +28,7 @@ core/PVLogger.cpp
 core/PVMatrix.cpp
 core/PVPCRESplitter.cpp
 core/PVProgressBox.cpp
+core/PVPluginPresets.cpp
 core/PVSerializeArchive.cpp
 core/PVSerializeArchiveFixError.cpp
 core/PVSerializeArchiveOptions.cpp
@@ -82,6 +83,7 @@ include/pvkernel/core/PVListFloat2D.h
 include/pvkernel/core/PVLogger.h
 include/pvkernel/core/PVMeanValue.h
 include/pvkernel/core/PVPlainTextType.h
+include/pvkernel/core/PVPluginPresets.h
 include/pvkernel/core/PVRegistrableClass.h
 include/pvkernel/core/PVSerializeArchive.h
 include/pvkernel/core/PVSerializeArchiveFixError.h
@@ -311,6 +313,7 @@ endif(PYTHONLIBS_FOUND)
 set(WIDGETS_MOC_HEADERS
 include/pvkernel/widgets/qkeysequencewidget.h
 include/pvkernel/widgets/qkeysequencewidget_p.h
+include/pvkernel/widgets/PVPresetsWidget.h
 )
 
 set(WIDGETS_HEADER_FILES
@@ -318,6 +321,7 @@ set(WIDGETS_HEADER_FILES
 
 set(WIDGETS_SRC_FILES
 widgets/qkeysequencewidget/qkeysequencewidget.cpp
+widgets/presetswidget/PVPresetsWidget.cpp
 )
 
 if(PYTHONLIBS_FOUND)

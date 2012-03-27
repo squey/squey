@@ -13,8 +13,8 @@
 #include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/rush/PVFormat.h>
 
+#include <picviz/PVAxis.h>
 #include <picviz/PVRoot.h>
-
 #include <picviz/PVMappingFilter.h>
 
 namespace Picviz {
@@ -57,6 +57,7 @@ protected:
 
 private:
 	void set_from_axis(PVRush::PVAxisFormat const& axis);
+	void set_from_axis(Picviz::PVAxis const& axis);
 
 private:
 	PVCol _index;

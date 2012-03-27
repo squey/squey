@@ -34,173 +34,123 @@ static QStringList splitArgs(const QString &s, int idx)
 	return result;
 }
 
-QString PVCore::PVArgument_to_QString(const PVArgument &v)
+QDataStream &operator<<(QDataStream &out, const PVCore::PVArgumentTypeBase &obj)
 {
-	QString result;
-	int vtype = v.userType();
-
-	switch (vtype) {
-		case QVariant::Invalid:
-			result = QLatin1String("@Invalid()");
-			break;
-
-		case QVariant::ByteArray:
-		{
-			QByteArray a = v.toByteArray();
-			result = QLatin1String("@ByteArray(");
-			result += QString::fromLatin1(a.constData(), a.size());
-			result += QLatin1Char(')');
-			break;
-		}
-
-		// This is not supported in QSettings !!
-		case QVariant::Char:
-		{
-			result = QLatin1String("@Char(");
-			result += v.toString();
-			result += QLatin1Char(')');
-			break;
-		}
-
-		case QVariant::Bool:
-		{
-			result = QLatin1String("@Bool(");
-			result += v.toString();
-			result += QLatin1Char(')');
-			break;
-		}
-
-		case QVariant::String:
-		case QVariant::LongLong:
-		case QVariant::ULongLong:
-		case QVariant::Int:
-		case QVariant::UInt:
-		case QVariant::Double:
-		case QVariant::KeySequence:
-		{
-			result = v.toString();
-			if (result.startsWith(QLatin1Char('@')))
-				result.prepend(QLatin1Char('@'));
-			break;
-		}
-#ifndef QT_NO_GEOM_VARIANT
-		case QVariant::Rect:
-		{
-			QRect r = qvariant_cast<QRect>(v);
-			result += QLatin1String("@Rect(");
-			result += QString::number(r.x());
-			result += QLatin1Char(' ');
-			result += QString::number(r.y());
-			result += QLatin1Char(' ');
-			result += QString::number(r.width());
-			result += QLatin1Char(' ');
-			result += QString::number(r.height());
-			result += QLatin1Char(')');
-			break;
-		}
-		case QVariant::Size:
-		{
-			QSize s = qvariant_cast<QSize>(v);
-			result += QLatin1String("@Size(");
-			result += QString::number(s.width());
-			result += QLatin1Char(' ');
-			result += QString::number(s.height());
-			result += QLatin1Char(')');
-			break;
-		}
-		case QVariant::Point:
-		{
-			QPoint p = qvariant_cast<QPoint>(v);
-			result += QLatin1String("@Point(");
-			result += QString::number(p.x());
-			result += QLatin1Char(' ');
-			result += QString::number(p.y());
-			result += QLatin1Char(')');
-			break;
-		}
-#endif // !QT_NO_GEOM_VARIANT
-
-		default:
-		{
-			if (vtype == qMetaTypeId<PVCore::PVTimeFormatType>()) {
-				result = QLatin1String("@PVTimeFormat(") + v.value<PVCore::PVTimeFormatType>().join("\n") + QLatin1String(")");
-				break;
-			}
-
-#ifndef QT_NO_DATASTREAM
-			QByteArray a;
-			{
-				QDataStream s(&a, QIODevice::WriteOnly);
-				s.setVersion(QDataStream::Qt_4_0);
-				s << v;
-			}
-
-			result = QLatin1String("@Variant(");
-			result += QString::fromLatin1(a.constData(), a.size());
-			result += QLatin1Char(')');
-#else
-			Q_ASSERT(!"QSettings: Cannot save custom types without QDataStream support");
-#endif
-			break;
-		}
-	}
-
-	return result;
+	obj.serialize(out);
+	return out;
 }
 
-
-PVCore::PVArgument PVCore::QString_to_PVArgument(const QString &s)
+QDataStream &operator>>(QDataStream &in, const PVCore::PVArgumentTypeBase &obj)
 {
-	if (s.startsWith(QLatin1Char('@'))) {
-		if (s.endsWith(QLatin1Char(')'))) {
-			if (s.startsWith(QLatin1String("@ByteArray("))) {
-				return QVariant(s.toLatin1().mid(11, s.size() - 12));
-			} else if (s.startsWith(QLatin1String("@Char("))) {
-				return (s.size() <= 7) ? QVariant() : QVariant(QChar(s[6]));
-			} else if (s.startsWith(QLatin1String("@Bool("))) {
-				bool ret = s.compare(QLatin1String("@Bool(true)"), Qt::CaseInsensitive) == 0;
-				return QVariant(ret);
-			} else if (s.startsWith(QLatin1String("@Variant("))) {
-#ifndef QT_NO_DATASTREAM
-				QByteArray a(s.toLatin1().mid(9));
-				QDataStream stream(&a, QIODevice::ReadOnly);
-				stream.setVersion(QDataStream::Qt_4_0);
-				QVariant result;
-				stream >> result;
-				return result;
-#else
-				Q_ASSERT(!"QSettings: Cannot load custom types without QDataStream support");
-#endif
-#ifndef QT_NO_GEOM_VARIANT
-			} else if (s.startsWith(QLatin1String("@Rect("))) {
-				QStringList args = splitArgs(s, 5);
-				if (args.size() == 4)
-					return QVariant(QRect(args[0].toInt(), args[1].toInt(), args[2].toInt(), args[3].toInt()));
-			} else if (s.startsWith(QLatin1String("@Size("))) {
-				QStringList args = splitArgs(s, 5);
-				if (args.size() == 2)
-					return QVariant(QSize(args[0].toInt(), args[1].toInt()));
-			} else if (s.startsWith(QLatin1String("@Point("))) {
-				QStringList args = splitArgs(s, 6);
-				if (args.size() == 2)
-					return QVariant(QPoint(args[0].toInt(), args[1].toInt()));
-#endif
-			} else if (s.startsWith(QLatin1String("@PVTimeFormat("))) {
-				QVariant ret;
-				if (s.size() >= 14) {
-					ret.setValue<PVCore::PVTimeFormatType>(PVCore::PVTimeFormatType(s.mid(14, s.size()-15).split("\n")));
-				}
-				return ret;
-			} else if (s == QLatin1String("@Invalid()")) {
-				return QVariant();
-			}
+	obj.unserialize(in);
+	return in;
+}
 
+QString PVCore::PVArgument_to_QString(const PVCore::PVArgument &v)
+{
+	QString str;
+
+	if (v.userType() >= QMetaType::User) { // custom type
+		str = static_cast<PVArgumentTypeBase*>(const_cast<PVCore::PVArgument*>(&v)->data())->to_string();
+	}
+	else { // builtin type
+		if (v.canConvert<QString>()) {
+			str = v.toString();
 		}
-		if (s.startsWith(QLatin1String("@@")))
-			return QVariant(s.mid(1));
 	}
 
-	return QVariant(s);
+	return str;
+}
+
+PVCore::PVArgument PVCore::QString_to_PVArgument(const QString &s, const QVariant& v, bool* res_ok /* = 0 */)
+{
+	QVariant var;
+	bool ok = true;
+
+	if (v.userType() >= QMetaType::User) { // custom type
+		var = static_cast<const PVArgumentTypeBase*>(v.constData())->from_string(s);
+
+	}
+	else // builtin type
+	{
+		switch (v.type()) {
+		case QMetaType::Bool:
+			var = s.compare("true", Qt::CaseInsensitive) == 0;
+			break;
+		case QMetaType::Int:
+			var = s.toInt(&ok);
+			break;
+		case QMetaType::UInt:
+			var = s.toUInt(&ok);
+			break;
+		case QMetaType::Double:
+			var = s.toDouble(&ok);
+			break;
+		case QMetaType::QChar:
+			ok = s.length() >= 1;
+			if (ok) {
+				var = QVariant(QChar(s[0]));
+			}
+			break;
+		case QMetaType::LongLong:
+			var = s.toLongLong(&ok);
+			break;
+		case QMetaType::ULongLong:
+			var = s.toULongLong(&ok);
+			break;
+		case QMetaType::QString:
+			var = s;
+			break;
+		default:
+			ok = false;
+			break;
+		}
+	}
+
+	if (!ok) {
+		PVLOG_WARN("String '%s' can't be interpreted as a '%s' object ! Using default value...\n", qPrintable(s), v.typeName());
+		var = v;
+	}
+
+	if (res_ok) {
+		*res_ok = ok;
+	}
+
+	return var;
+}
+
+void PVCore::PVArgumentList_to_QSettings(const PVArgumentList& args, QSettings& settings, const QString& group_name)
+{
+	PVArgumentList::const_iterator it;
+	settings.beginGroup(group_name);
+	for (it = args.begin(); it != args.end(); it++) {
+		settings.setValue(it.key(), PVArgument_to_QString(it.value()));
+	}
+	settings.endGroup();
+}
+
+PVCore::PVArgumentList PVCore::QSettings_to_PVArgumentList(QSettings& settings, const PVArgumentList& def_args, const QString& group_name)
+{
+	PVArgumentList args;
+	settings.beginGroup(group_name);
+	QStringList keys = settings.childKeys();
+	for (int i = 0; i < keys.size(); i++) {
+		QString const& key = keys.at(i);
+		if (def_args.contains(key)) {
+			QString str;
+			if (settings.value(key).type() == QMetaType::QStringList) {
+				// QSettings returns strings containing commas as QStringList
+				str = settings.value(key).toStringList().join(",");
+			}
+			else {
+				str = settings.value(key).toString();
+			}
+			args[key] = QString_to_PVArgument(str, def_args[key]);
+		}
+	}
+	settings.endGroup();
+
+	return args;
 }
 
 void PVCore::dump_argument_list(PVArgumentList const& l)
