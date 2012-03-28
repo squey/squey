@@ -100,6 +100,26 @@ void dump_chunk_csv(PVChunk& c)
 	}
 }
 
+void dump_chunk_size_elts(PVChunk& c)
+{
+	// Assume locale is UTF8 !
+	list_elts& l = c.elements();
+	list_elts::iterator it,ite;
+	ite = l.end();
+	for (it = l.begin(); it != ite; it++) {
+		PVElement& elt = *(*it);
+		if (!elt.valid()) {
+			continue;
+		}
+		list_fields& l = elt.fields();
+		std::cout << "Number of elements: " << l.size();
+		if (!elt.valid()) {
+			std::cout << " (invalid)";
+		}
+		std::cout << endl;
+	}
+}
+
 void dump_chunk_raw(PVChunk& c)
 {
 	list_elts& l = c.elements();
@@ -140,6 +160,7 @@ bool process_filter(PVRush::PVRawSourceBase& source, PVFilter::PVChunkFilter_f f
 		nelts_org += no;
 		nelts_valid += nv;
 		dump_chunk_csv(*pc);
+		//dump_chunk_size_elts(*pc);
 		pc->free();
 		pc = source();
 	}
