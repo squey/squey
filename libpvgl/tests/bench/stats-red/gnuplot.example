@@ -1,0 +1,6 @@
+# Pour tracer les graphs avec gnuplot, voici les commandes utilisées par exemple pour tracer le graphe des perfs du core i7 :
+#
+
+$ gnuplot
+> set log x
+> plot "./bw-org" using 1:2 title "BW" with lines axis x1y1, "./l3_miss" using 1:2 title "l3_misses" with lines axis x1y2, "./l2_miss" using 1:2 title "l2_misses" with lines axis x1y2

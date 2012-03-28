@@ -14,6 +14,7 @@
 #include <utility>
 
 #include <pvkernel/core/general.h>
+#include <pvkernel/core/PVAllocators.h>
 #include <pvkernel/core/PVListFloat2D.h>
 #include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/rush/PVNraw.h>
@@ -65,7 +66,7 @@ private:
 	};
 public:
 	typedef boost::shared_ptr<PVPlotted> p_type;
-	typedef std::vector<float> plotted_table_t;
+	typedef std::vector<float, PVCore::PVAlignedAllocator<float, 16> > plotted_table_t;
 	typedef std::vector< std::pair<PVCol,float> > plotted_sub_col_t;
 	typedef std::list<ExpandedSelection> list_expanded_selection_t;
 public:

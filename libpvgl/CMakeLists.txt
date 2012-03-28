@@ -13,15 +13,16 @@ add_definitions(-DUSE_WTK_FREEGLUT3)
 set(QT_USE_QTOPENGL 1)
 
 if(WIN32)
-        set(PVGL_SHARE_DIR "share/")
+        set(PVGL_SHARE_DIR "\"share/\"")
 else(WIN32)
-        set(PVGL_SHARE_DIR "share/")
+        set(PVGL_SHARE_DIR "\"share/\"")
 #        set(PVGL_SHARE_DIR "${CMAKE_INSTALL_PREFIX}/share/picviz/")
 endif(WIN32)
-add_definitions(-DPVGL_SHARE_DIR="${PVGL_SHARE_DIR}")
+add_definitions(-DPVGL_SHARE_DIR=${PVGL_SHARE_DIR})
 add_definitions(${COMPILER_OPTIMIZE_FLAGS})
 
 add_subdirectory(src)
+add_subdirectory(tests)
 
 SET(PVGL_DATA_SHADERS_PARALLEL_FILES
 data/shaders/parallel/axis_bg.frag
