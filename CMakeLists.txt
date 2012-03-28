@@ -144,6 +144,7 @@ add_subdirectory(libpvkernel)
 add_subdirectory(helpers)
 
 add_subdirectory(libpicviz)
+add_subdirectory(libparallelview)
 add_subdirectory(libpvsdk)
 
 if(USE_PVGL2)
