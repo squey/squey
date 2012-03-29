@@ -169,8 +169,8 @@ public:
 		/*uint64_t m = yi & _mask_sup;
 		bool ca = (m & (_mask_odd)) != 0;
 		bool cb = (m & (_mask_even)) == 0;*/
-		bool ca = (m & (_mask_k1)) != 0;
-		bool cb = (m & (_mask_k2)) == 0;
+		bool ca = (yi & (_mask_k1)) != 0;
+		bool cb = (yi & (_mask_k2)) == 0;
 		return !(ca ^ cb);
 	}
 	inline uint32_t min() const { return 1U<<_k1; }

@@ -11,7 +11,9 @@ add_definitions(${PICVIZ_DEFINITIONS})
 add_definitions(${OpenMP_CXX_FLAGS})
 
 SET(SRC_FILES
-tree.cpp
+PVTools.cpp
+PVZoneTree.cpp
+simple_lines_float_view.cpp
 )
 
 SET(HEADER_FILES
@@ -25,7 +27,7 @@ QT4_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})
 add_library(pvparallelview SHARED ${SRC_FILES} ${HEADER_FILES} ${MOC_SRC})
 set_target_properties(pvparallelview PROPERTIES SOVERSION 1)
 
-target_link_libraries(pvparallelview ${PICVIZ_LIBRARY} ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${GLEW_LIBRARY} ${GLUT_glut_LIBRARY} ${OPENGL_LIBRARIES} ${PVKERNEL_LIBRARIES} ${TBB_LIBRARIES} ${Boost_LIBRARIES} ${OpenMP_LIBRARIES})
+target_link_libraries(pvparallelview ${PICVIZ_LIBRARY} ${QT_LIBRARIES} ${GLEW_LIBRARY} ${GLUT_glut_LIBRARY} ${OPENGL_LIBRARIES} ${PVKERNEL_LIBRARIES} ${TBB_LIBRARIES} ${Boost_LIBRARIES} ${OpenMP_LIBRARIES})
 
 INSTALL(TARGETS pvparallelview LIBRARY DESTINATION .
                                RUNTIME DESTINATION .)

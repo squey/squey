@@ -21,7 +21,7 @@ include(FindPkgConfig)
 
 if (DEBUG_MODE)
 	if (NOT WIN32)
-		add_definitions(-ggdb3)
+		add_definitions(-g)
 	endif()
 else()
 	if(WIN32)

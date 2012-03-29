@@ -83,7 +83,6 @@ public:
 	 *  \note It basically compute end() - start().
 	 */
 	size_t size() const;
-	inline size_t physical_size() const { return (uintptr_t)_physical_end - (uintptr_t)_begin; }
 
 	/*! \brief Return the physical size of this slice.
 	 */

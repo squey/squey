@@ -8,3 +8,4 @@ set(QT_USE_QTOPENGL 1)
 add_definitions(${COMPILER_OPTIMIZE_FLAGS})
 
 add_subdirectory(src)
+add_subdirectory(tests)
