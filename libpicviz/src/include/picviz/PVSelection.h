@@ -71,6 +71,7 @@ public:
 	 */
 
 	pointer get_buffer();
+	const_pointer get_buffer() const { return table; };
 
 	/**
 	 * Get the state of line N in the PVSelection
