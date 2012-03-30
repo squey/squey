@@ -4,27 +4,61 @@
 #include <pvparallelview/PVTools.h>
 
 #include <iostream>
+#include <cstdlib>
+#include <ctime>
 
 #include <QApplication>
 #include <QVector>
 
+#include <tbb/scalable_allocator.h>
+
+void init_rand_plotted(Picviz::PVPlotted::plotted_table_t& p, PVCol ncols, PVRow nrows)
+{
+	srand(time(NULL));
+	p.clear();
+	p.reserve(nrows*ncols);
+	for (PVRow i = 0; i < nrows*ncols; i++) {
+		p.push_back((float)((double)(rand())/(double)RAND_MAX));
+	}
+}
+
+void usage(const char* path)
+{
+	std::cerr << "Usage: " << path << " [plotted_file] [nrows] [ncols]" << std::endl;
+}
+
 int main(int argc, char** argv)
 {
 	if (argc < 2) {
-		std::cerr << "Usage: " << argv[0] << " plotted_file" << std::endl;
+		usage(argv[0]);
 		return 1;
 	}
 
 	QApplication app(argc, argv);
 
-	PVCol ncols;
+	PVCol ncols, nrows;
 	Picviz::PVPlotted::plotted_table_t plotted;
 	PVLOG_INFO("Loading plotted...\n");
-	if (!Picviz::PVPlotted::load_buffer_from_file(plotted, ncols, true, QString(argv[1]))) {
-		std::cerr << "Unable to load plotted !" << std::endl;
-		return 1;
+	QString fplotted(argv[1]);
+	if (fplotted == "0") {
+		PVLOG_INFO("Initialising random plotted...\n");
+		if (argc < 4) {
+			usage(argv[0]);
+			return 1;
+		}
+		srand(time(NULL));
+		nrows = atol(argv[2]);
+		ncols = atol(argv[3]);
+		init_rand_plotted(plotted, nrows, ncols);
 	}
-	PVRow nrows = plotted.size()/ncols;
+	else
+	{
+		if (!Picviz::PVPlotted::load_buffer_from_file(plotted, ncols, true, QString(argv[1]))) {
+			std::cerr << "Unable to load plotted !" << std::endl;
+			return 1;
+		}
+		nrows = plotted.size()/ncols;
+	}
 	PVLOG_INFO("Plotted loaded with %u rows and %u columns.\n", nrows, ncols);
 
 	plotted_int_t norm_plotted;
@@ -46,26 +80,38 @@ int main(int argc, char** argv)
 	}*/
 
 	{
-		PVParallelView::PVZoneTree<std::vector<PVRow> >* ztree = new PVParallelView::PVZoneTree<std::vector<PVRow> >(0, 1);
+		PVParallelView::PVZoneTree<std::vector<PVRow, tbb::scalable_allocator<PVRow> > >* ztree = new PVParallelView::PVZoneTree<std::vector<PVRow, tbb::scalable_allocator<PVRow> > >(0, 1);
 		ztree->set_trans_plotted(norm_plotted, nrows, ncols);
 
 		PVLOG_INFO("Zone tree creation...\n");
-		BENCH_START(org);
+		BENCH_START(sse);
 		ztree->process_sse();
-		BENCH_END_TRANSFORM(org, "sse", nrows*2, sizeof(float));
+		BENCH_END_TRANSFORM(sse, "sse", nrows*2, sizeof(float));
+		delete ztree;
+	}
 
+	{
+		PVParallelView::PVZoneTree<std::vector<PVRow, tbb::scalable_allocator<PVRow> > >* ztree = new PVParallelView::PVZoneTree<std::vector<PVRow, tbb::scalable_allocator<PVRow> > >(0, 1);
+		ztree->set_trans_plotted(norm_plotted, nrows, ncols);
+
+		PVLOG_INFO("Zone tree creation...\n");
+		ztree->process_omp_sse();
+		ztree->display("zone-omp", plotted);
+	}
+
+	/*{
 		Picviz::PVSelection sel;
-		sel.select_all();
-		//sel.set_line(40, true);
+		//sel.select_all();
+		sel.set_line(40, true);
 		PVLOG_INFO("Sub-tree from selection creation...\n");
-		PVParallelView::PVZoneTree<std::vector<PVRow> >* ztree_sel = ztree->filter_by_sel<false>(sel);
+		PVParallelView::PVZoneTree<std::vector<PVRow, tbb::scalable_allocator<PVRow> > >* ztree_sel = ztree->filter_by_sel<false>(sel);
 		delete ztree_sel;
 		ztree_sel = ztree->filter_by_sel<true>(sel);
 
 		// Display this tree
 		ztree->display("zone-sse", plotted);
-		ztree_sel->display("zone-sse-sel-first", plotted);
-	}
+		//ztree_sel->display("zone-sse-sel-first", plotted);
+	}*/
 
 	/*{
 		PVParallelView::PVZoneTree<QList<PVRow> >* ztree = new PVParallelView::PVZoneTree<QList<PVRow> >(0, 1);

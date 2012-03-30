@@ -1,3 +1,4 @@
+#include <pvkernel/core/general.h>
 #include <pvparallelview/PVZoneTree.h>
 #include <pvparallelview/simple_lines_float_view.h>
 
@@ -31,6 +32,7 @@ void PVParallelView::PVZoneTreeBase::display(QString const& name, Picviz::PVPlot
 
 	pts_t *pts = new pts_t();
 	get_float_pts(*pts, org_plotted);
+	PVLOG_INFO("Nb lines: %u\n", pts->size()/4);
 	v->set_points(*pts);
 
 	window->setCentralWidget(v);

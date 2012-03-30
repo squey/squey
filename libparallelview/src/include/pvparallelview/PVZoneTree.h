@@ -45,6 +45,7 @@ public:
 public:
 	void process();
 	void process_sse();
+	void process_omp_sse();
 	template <bool only_first>
 	PVZoneTree<Container>* filter_by_sel(Picviz::PVSelection const& sel) const;
 private:
@@ -107,6 +108,69 @@ void PVZoneTree<Container>::process_sse()
 		
 		_tree[b.int_v].push_back(r);
 	}
+}
+
+template <class Container>
+void PVZoneTree<Container>::process_omp_sse()
+{
+	// Naive processing
+	const uint32_t* pcol_a = get_plotted_col(_col_a);
+	const uint32_t* pcol_b = get_plotted_col(_col_b);
+	tbb::tick_count start,end;
+#pragma omp parallel
+	{
+		// Initialize one tree per thread
+		Container* thread_tree = new Container[NBUCKETS];
+		PVRow nrows_sse = (_nrows/4)*4;
+#pragma omp barrier
+#pragma omp master
+		{
+			start = tbb::tick_count::now();
+		}
+		__m128i sse_y1, sse_y2, sse_bcodes;
+#pragma omp for
+		for (PVRow r = 0; r < nrows_sse; r += 4) {
+			sse_y1 = _mm_load_si128((const __m128i*) &pcol_a[r]);
+			sse_y2 = _mm_load_si128((const __m128i*) &pcol_b[r]);
+
+			sse_y1 = _mm_srli_epi32(sse_y1, 32-NBITS_INDEX);
+			sse_y2 = _mm_srli_epi32(sse_y2, 32-NBITS_INDEX);
+			sse_bcodes = _mm_or_si128(sse_y1, _mm_slli_epi32(sse_y2, NBITS_INDEX));
+
+			for (PVRow i = 0; i < 4; i++) {
+				thread_tree[_mm_extract_epi32(sse_bcodes, i)].push_back(r+i);
+			}
+		}
+#pragma omp master
+		for (PVRow r = nrows_sse; r < _nrows; r++) {
+			uint32_t y1 = pcol_a[r];
+			uint32_t y2 = pcol_b[r];
+
+			PVBCode b;
+			b.int_v = 0;
+			b.s.l = y1 >> (32-NBITS_INDEX);
+			b.s.r = y2 >> (32-NBITS_INDEX);
+
+			thread_tree[b.int_v].push_back(r);
+		}
+		/*
+#pragma omp critical
+		{
+			for (size_t b = 0; b < NBUCKETS; b++) {
+				Container& cur_b(thread_tree[b]);
+				Container& main_b(_tree[b]);
+				//main_b.reserve(main_b.size() + cur_b.size());
+				//std::copy(cur_b.begin(), cur_b.end(), main_b.end());
+				main_b.insert(main_b.end(), cur_b.begin(), cur_b.end());
+			}
+		}*/
+#pragma omp barrier
+#pragma omp master
+		{
+			end = tbb::tick_count::now();
+		}
+	}
+	PVLOG_INFO("OMP tree process in %0.4f ms.\n", (end-start).seconds()*1000.0);
 }
 
 template <class Container>
