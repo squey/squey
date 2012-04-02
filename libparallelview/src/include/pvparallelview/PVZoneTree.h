@@ -4,6 +4,7 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/picviz_bench.h>
 #include <pvkernel/core/picviz_intrin.h>
+#include <pvkernel/core/PVPODTree.h>
 #include <QList>
 #include <picviz/PVSelection.h>
 #include <picviz/PVPlotted.h>
@@ -24,6 +25,8 @@ public:
 	void set_trans_plotted(plotted_int_t const& plotted, PVRow nrows, PVCol ncols);
 	virtual void get_float_pts(pts_t& pts, Picviz::PVPlotted::plotted_table_t const& org_plotted) = 0;
 	void display(QString const& name, Picviz::PVPlotted::plotted_table_t const& org_plotted);
+	inline uint32_t get_plotted_value(PVRow r, PVCol c) const { return (*_plotted)[c*_nrows_aligned + r]; }
+	inline uint32_t const* get_plotted_col(PVCol c) const { return &((*_plotted)[c*_nrows_aligned]); }
 protected:
 	plotted_int_t const* _plotted;
 	PVCol _ncols;
@@ -50,10 +53,26 @@ public:
 	PVZoneTree<Container>* filter_by_sel(Picviz::PVSelection const& sel) const;
 private:
 	void get_float_pts(pts_t& pts, Picviz::PVPlotted::plotted_table_t const& org_plotted);
-	inline uint32_t get_plotted_value(PVRow r, PVCol c) const { return (*_plotted)[c*_nrows_aligned + r]; }
-	inline uint32_t const* get_plotted_col(PVCol c) const { return &((*_plotted)[c*_nrows_aligned]); }
 private:
 	list_rows_t _tree[NBUCKETS];
+	PVCol _col_a;
+	PVCol _col_b;
+};
+
+class PVZoneTreeNoAlloc: public PVZoneTreeBase
+{
+	typedef PVCore::PVPODTree<uint32_t, uint32_t, NBUCKETS> Tree;
+public:
+	PVZoneTreeNoAlloc(PVCol col_a, PVCol col_b):
+		_col_a(col_a), _col_b(col_b)
+	{ }
+public:
+	void process_sse();
+	void process_omp_sse();
+private:
+	void get_float_pts(pts_t& pts, Picviz::PVPlotted::plotted_table_t const& org_plotted);
+private:
+	Tree _tree;
 	PVCol _col_a;
 	PVCol _col_b;
 };

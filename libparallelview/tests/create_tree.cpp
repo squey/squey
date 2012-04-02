@@ -85,9 +85,23 @@ int main(int argc, char** argv)
 
 		PVLOG_INFO("Zone tree creation...\n");
 		BENCH_START(sse);
-		ztree->process_sse();
+		//ztree->process_sse();
 		BENCH_END_TRANSFORM(sse, "sse", nrows*2, sizeof(float));
+		//ztree->display("zone", plotted);
 		delete ztree;
+	}
+
+
+	{
+		PVParallelView::PVZoneTreeNoAlloc* ztree = new PVParallelView::PVZoneTreeNoAlloc(0, 1);
+		ztree->set_trans_plotted(norm_plotted, nrows, ncols);
+
+		PVLOG_INFO("Zone tree creation...\n");
+		BENCH_START(sse);
+		//ztree->process_sse();
+		BENCH_END_TRANSFORM(sse, "noalloc-sse", nrows*2, sizeof(float));
+		ztree->display("zone-noalloc", plotted);
+		//delete ztree;
 	}
 
 	{
@@ -96,8 +110,19 @@ int main(int argc, char** argv)
 
 		PVLOG_INFO("Zone tree creation...\n");
 		ztree->process_omp_sse();
-		ztree->display("zone-omp", plotted);
+		//ztree->display("zone-omp", plotted);
 	}
+
+	{
+		PVParallelView::PVZoneTreeNoAlloc* ztree = new PVParallelView::PVZoneTreeNoAlloc(0, 1);
+		ztree->set_trans_plotted(norm_plotted, nrows, ncols);
+
+		PVLOG_INFO("Zone tree noalloc creation...\n");
+		ztree->process_omp_sse();
+		//ztree->display("zone-omp", plotted);
+		//delete ztree;
+	}
+
 
 	/*{
 		Picviz::PVSelection sel;

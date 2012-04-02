@@ -79,3 +79,6 @@ target_link_libraries(Tcore_launch_adaptive ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES
 add_executable(Tcore_transp transp.cpp)
 target_link_libraries(Tcore_transp ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
 
+# POD tree
+add_executable(Tcore_podtree pod_tree.cpp)
+target_link_libraries(Tcore_podtree ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
