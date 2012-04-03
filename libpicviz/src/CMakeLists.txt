@@ -2,6 +2,7 @@ include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/libpicviz/src/include)
 
 add_definitions(${PICVIZ_DEFINITIONS})
 include_directories(AFTER ${PICVIZ_INCLUDE_DIRS})
+include_directories(AFTER ${TULIP_INCLUDE_DIR})
 
 if (NOT WIN32)
 set(MATHS_LIBRARY "-lm")
@@ -177,7 +178,7 @@ add_definitions(-DUSE_PARALLEL_MAPPING_FILTERS)
 add_definitions(-DUSE_PARALLEL_PLOTTING_FILTERS)
 set_target_properties(picviz PROPERTIES SOVERSION 1)
 
-target_link_libraries(picviz ${MATHS_LIBRARY} ${PICVIZ_LIBRARIES_WITHOUT_PICVIZ} ${QT_LIBRARIES} ${PVKERNEL_LIBRARY} ${TBB_LIBRARIES} ${Boost_LIBRARIES} ${ICU_LIBRARY} ${OpenMP_LIBRARIES})
+target_link_libraries(picviz ${MATHS_LIBRARY} ${PICVIZ_LIBRARIES_WITHOUT_PICVIZ} ${QT_LIBRARIES} ${PVKERNEL_LIBRARY} ${TBB_LIBRARIES} ${Boost_LIBRARIES} ${ICU_LIBRARY} ${OpenMP_LIBRARIES} ${TULIP_LIBRARY})
 
 INSTALL(TARGETS picviz LIBRARY DESTINATION .
                        RUNTIME DESTINATION .)
