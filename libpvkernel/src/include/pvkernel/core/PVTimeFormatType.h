@@ -20,10 +20,15 @@ struct PVTimeFormatType: public QStringList, public PVArgumentType<PVTimeFormatT
 		return join("\n");
 	}
 
-	PVArgument from_string(QString const& str) const
+	PVArgument from_string(QString const& str, bool* ok /*= 0*/) const
 	{
 		PVArgument arg;
 		arg.setValue(PVTimeFormatType(str.split('\n')));
+
+		if (ok) {
+			*ok = true;
+		}
+
 		return arg;
 	}
 };

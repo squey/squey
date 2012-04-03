@@ -22,11 +22,12 @@ public slots:
 	void save_Slot();
 	void preview_Slot();
 	void cancel_Slot();
-	void defaults_Slot();
+	void reset_Slot();
 	void load_preset_Slot(const QString& preset);
 	void add_preset_Slot(const QString& preset);
 	void save_preset_Slot(const QString& preset);
 	void remove_preset_Slot(const QString& preset);
+	void rename_preset_Slot(const QString& old_preset, const QString& new_preset);
 
 protected:
 	void create_btns();
@@ -43,12 +44,12 @@ protected:
 	Picviz::PVView_p _view;
 	Picviz::PVLayerFilter_p _filter_p;
 	PVWidgets::PVPresetsWidget* _presets_widget;
-	QLabel* _presets_label;
+	QSplitter* _splitter;
 	QGroupBox* _args_widget_box;
 	QHBoxLayout* _presets_layout;
 	QComboBox* _presets_combo;
 	QPushButton* _cancel_btn;
-	QPushButton* _defaults_btn;
+	QPushButton* _reset_btn;
 	QPushButton* _help_btn;
 	QPushButton* _preview_btn;
 	QPushButton* _apply_btn;

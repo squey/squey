@@ -38,6 +38,12 @@
 	<file alias="add-regexp">resources/22x22/add-regexp.png</file>
 	<file alias="add-url">resources/22x22/add-url.png</file>
 	<file alias="help">resources/22x22/help.png</file>
+	
+	<file alias="load-preset">resources/22x22/load-preset.png</file>
+	<file alias="save-preset">resources/22x22/save-preset.png</file>
+	<file alias="rename-preset">resources/22x22/rename-preset.png</file>
+	<file alias="remove-preset">resources/22x22/remove-preset.png</file>
+	
 	<file alias="picvizlabs-logo">resources/logo.png</file>
 	<file alias="splash-screen">resources/splash.png</file>
 

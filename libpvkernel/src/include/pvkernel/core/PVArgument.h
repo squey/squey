@@ -165,6 +165,16 @@ namespace PVCore {
 typedef QVariant                           PVArgument;
 typedef QHash<PVArgumentKey,PVArgument>    PVArgumentList;
 
+//class PVArgumentList : public QHash<PVArgumentKey, PVArgument>
+//{
+//public:
+//	int remove(const PVArgumentKey& key);
+//	iterator insert(const PVArgumentKey& key, const PVArgument & value);
+//
+//private:
+//	QList<PVArgumentKey> _ordered_keys;
+//};
+
 class PVArgumentTypeBase
 {
 	public:
@@ -173,7 +183,7 @@ class PVArgumentTypeBase
 	public:
 		virtual bool is_equal(const PVArgumentTypeBase &other) const = 0;
 		virtual QString to_string() const = 0;
-		virtual PVArgument from_string(QString const& str) const = 0;
+		virtual PVArgument from_string(QString const& str, bool* ok = 0) const = 0;
 		virtual void serialize(QDataStream& out) const
 		{
 			out << to_string();

@@ -32,10 +32,17 @@ public:
 	{
 		return QString::number(_value);
 	}
-	PVArgument from_string(QString const& str) const
+	PVArgument from_string(QString const& str, bool* ok /*= 0*/) const
 	{
+		bool res_ok = false;
+
 		PVArgument arg;
-		arg.setValue(PVSpinBoxType(str.toInt()));
+		arg.setValue(PVSpinBoxType(str.toInt(&res_ok)));
+
+		if (ok) {
+			*ok = res_ok;
+		}
+
 		return arg;
 	}
 	bool operator==(const PVSpinBoxType &other) const

@@ -38,18 +38,25 @@ public:
 	QString to_string() const
 	{
 		QStringList strList;
-		for (int i = 0; i < this->size(); i++) {
+		for (unsigned int i = 0; i < this->size(); i++) {
 			strList.append(QString::number((*this)[i]));
 		}
 		return strList.join(",");
 	}
-	PVArgument from_string(QString const& str) const
+	PVArgument from_string(QString const& str, bool* ok /*= 0*/) const
 	{
+		bool res_ok = true;
 		QStringList strList = str.split(",");
 		PVAxesIndexType vec;
 		for (int i = 0; i < strList.count(); i++) {
-			vec.push_back(strList[i].toInt());
+			vec.push_back(strList[i].toInt(&res_ok));
+			res_ok &= res_ok;
 		}
+
+		if (ok) {
+			*ok = res_ok && strList.count() > 0;
+		}
+
 		PVArgument arg;
 		arg.setValue(PVAxesIndexType(vec));
 		return arg;

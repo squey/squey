@@ -18,6 +18,7 @@ public:
 	void add_preset(const QString& name) const;
 	void load_preset(const QString& name);
 	void modify_preset(const QString& name) const;
+	void rename_preset(QString const& old_name, QString const& new_name) const;
 
 	PVArgumentList get_args_for_preset() const;
 	bool can_have_presets() const;

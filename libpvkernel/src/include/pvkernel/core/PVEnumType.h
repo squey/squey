@@ -40,16 +40,19 @@ public:
 
 	QString to_string() const
 	{
-		return _list.join(",") + ":" + QString::number(_sel) ;
+		return QString::number(_sel) ;
 	}
-	PVArgument from_string(QString const& str) const
+	PVArgument from_string(QString const& str, bool* ok /*= 0*/) const
 	{
-		QStringList parts = str.split(":");
-		int sel = parts[1].toInt();
-		QStringList list = parts[0].split(",");
+		bool res_ok = false;
 
 		PVArgument arg;
-		arg.setValue(PVEnumType(list, sel));
+		arg.setValue(PVEnumType(_list, str.toInt(&res_ok)));
+
+		if (ok) {
+			*ok = res_ok;
+		}
+
 		return arg;
 	}
 	bool operator==(const PVEnumType &other) const

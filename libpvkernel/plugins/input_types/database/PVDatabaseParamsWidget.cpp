@@ -160,7 +160,7 @@ void PVRush::PVDatabaseParamsWidget::populate_presets()
 PVRush::PVDBPresets::id_t PVRush::PVDatabaseParamsWidget::get_current_preset_id()
 {
 	// This assume that an existing preset has been selected !
-	assert(!_presets_widget->is_preset_txt_new());
+	//assert(!_presets_widget->is_preset_txt_new());
 	return _presets_widget->get_preset_data().toUInt();
 }
 

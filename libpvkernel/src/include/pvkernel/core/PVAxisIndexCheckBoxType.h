@@ -37,17 +37,24 @@ public:
 	{
 		return QString::number(_origin_axis_index) + ":" + QString(_is_checked?"true":"false");
 	}
-	PVArgument from_string(QString const& str) const
+	PVArgument from_string(QString const& str, bool* ok /*= 0*/) const
 	{
-		int  origin_axis_index ;
-		bool is_checked ;
+		PVArgument arg;
+		bool res_ok = false;
 
 		QStringList parts = str.split(":");
-		origin_axis_index = parts[0].toInt();
-		is_checked = parts[1].compare("true", Qt::CaseInsensitive) == 0;
+		if (parts.count() == 2) {
+			int  origin_axis_index ;
+			bool is_checked ;
+			origin_axis_index = parts[0].toInt(&res_ok);
+			is_checked = parts[1].compare("true", Qt::CaseInsensitive) == 0;
+			arg.setValue(PVAxisIndexCheckBoxType(origin_axis_index, is_checked));
+		}
 
-		PVArgument arg;
-		arg.setValue(PVAxisIndexCheckBoxType(origin_axis_index, is_checked));
+		if (ok) {
+			*ok = res_ok;
+		}
+
 		return arg;
 	}
 	bool operator==(const PVAxisIndexCheckBoxType &other) const
