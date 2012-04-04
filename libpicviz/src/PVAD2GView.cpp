@@ -217,6 +217,7 @@ bool Picviz::PVAD2GView::add_node(Picviz::PVView *view)
 	if(node.isValid() == true)
 		return false;
 
+	node = _graph->addNode();
 	_corr_info->setNodeValue(node, view);
 
 	return true;
@@ -232,6 +233,9 @@ bool Picviz::PVAD2GView::set_edge_f(const Picviz::PVView *va, const Picviz::PVVi
 {
 	tlp::node na, nb;
 	tlp::edge e;
+
+	if(_graph == 0)
+		return false;
 
 	na = get_graph_node(va);
 	nb = get_graph_node(vb);
@@ -262,12 +266,14 @@ tlp::node Picviz::PVAD2GView::get_graph_node(const Picviz::PVView *view)
 	tlp::node result; // a tlp::node is initialized to an invalid value
 	tlp::node node;
 
-	if(_graph != 0)
+	if(_graph == 0)
 		return result;
 
 	forEach(node, _graph->getNodes()) {
-		if(view == _corr_info->getNodeValue(node).get_data())
+		if(view == _corr_info->getNodeValue(node).get_data()) {
 			result = node;
+			break;
+		}
 	}
 
 	return result;
