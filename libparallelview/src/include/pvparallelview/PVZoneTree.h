@@ -112,9 +112,10 @@ void PVZoneTree<Container>::process_sse()
 		sse_y2 = _mm_srli_epi32(sse_y2, 32-NBITS_INDEX);
 		sse_bcodes = _mm_or_si128(sse_y1, _mm_slli_epi32(sse_y2, NBITS_INDEX));
 
-		for (PVRow i = 0; i < 4; i++) {
-			_tree[_mm_extract_epi32(sse_bcodes, i)].push_back(r+i);
-		}
+		_tree[_mm_extract_epi32(sse_bcodes, 0)].push_back(r+0);
+		_tree[_mm_extract_epi32(sse_bcodes, 1)].push_back(r+1);
+		_tree[_mm_extract_epi32(sse_bcodes, 2)].push_back(r+2);
+		_tree[_mm_extract_epi32(sse_bcodes, 3)].push_back(r+3);
 	}
 	for (PVRow r = nrows_sse; r < _nrows; r++) {
 		uint32_t y1 = pcol_a[r];
@@ -156,9 +157,10 @@ void PVZoneTree<Container>::process_omp_sse()
 			sse_y2 = _mm_srli_epi32(sse_y2, 32-NBITS_INDEX);
 			sse_bcodes = _mm_or_si128(sse_y1, _mm_slli_epi32(sse_y2, NBITS_INDEX));
 
-			for (PVRow i = 0; i < 4; i++) {
-				thread_tree[_mm_extract_epi32(sse_bcodes, i)].push_back(r+i);
-			}
+			thread_tree[_mm_extract_epi32(sse_bcodes, 0)].push_back(r+0);
+			thread_tree[_mm_extract_epi32(sse_bcodes, 1)].push_back(r+1);
+			thread_tree[_mm_extract_epi32(sse_bcodes, 2)].push_back(r+2);
+			thread_tree[_mm_extract_epi32(sse_bcodes, 3)].push_back(r+3);
 		}
 #pragma omp master
 		for (PVRow r = nrows_sse; r < _nrows; r++) {

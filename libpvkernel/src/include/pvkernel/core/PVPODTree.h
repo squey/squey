@@ -43,19 +43,17 @@ private:
 	{
 		block_t first;
 		block_t cur;
-		//size_type nblocks;
-		size_type nelts_cur_block;
+		pointer p_cur_block;
 
 		inline bool valid() const { return first.p != NULL; }
-		inline void init_first(block_t b, size_type nelts_block) { first = b; cur = first; nelts_cur_block = 0; *(first.next(nelts_block)) = block_t(); }
+		inline void init_first(block_t b) { first = b; cur = first; p_cur_block = b.p; }
 		inline void set_next(block_t b, size_type nelts_block)
 		{
 			*(cur.next(nelts_block)) = b;
 			cur = b;
-			*(cur.next(nelts_block)) = block_t();
-			nelts_cur_block = 0;
+			p_cur_block = cur.p;
 		}
-		inline void push(T v) { *(cur.p + nelts_cur_block) = v; nelts_cur_block++; }
+		inline void push(T v) { *p_cur_block = v; p_cur_block++; }
 		// Returns the number of blocks, even if the current one isn't complete.
 		inline size_type nb_blocks(size_type nelts_block) const
 		{
@@ -77,20 +75,20 @@ private:
 			if (ret == 0) {
 				return 0;
 			}
-			ret = (ret-1)*nelts_block + nelts_cur_block;
+			ret = (ret-1)*nelts_block + cur_size();
 			return ret;
 		}
 
-		inline size_type cur_size() const { return nelts_cur_block; }
+		inline size_type cur_size() const { return p_cur_block-cur.p; }
 		inline T get_first() const { assert(valid()); return *(first.p); }
 
 		inline void move_branch(branch_t& other, size_type nelts_block)
 		{
-			if (other.valid() && other.nelts_cur_block > 0) {
+			if (other.valid() && other.cur_size() > 0) {
 				if (valid()) {
 					*(cur.next(nelts_block)) = other.first;
 					cur = other.cur;
-					nelts_cur_block = other.nelts_cur_block;
+					p_cur_block = other.p_cur_block;
 				}
 				else {
 					*this = other;
@@ -125,7 +123,7 @@ public:
 			else {
 				_cur_index++;
 				if (_cur_block.p == _branch->cur.p &&
-				    _cur_index == _branch->nelts_cur_block) {
+				    _cur_index == _branch->cur_size()) {
 					// We have reached the end of this branch.
 					_cur_block = block_t();
 					_cur_index = 0;
@@ -183,6 +181,10 @@ public:
 #endif
 		_nblocks_max = 0;
 		_nelts_block = 0;
+		typename std::list<pointer>::const_iterator it;
+		for (it = _extra_bufs.begin(); it != _extra_bufs.end(); it++) {
+			allocator_byte::deallocate((unsigned char*) *it, 0);
+		}
 	}
 
 	void resize(size_type nelts)
@@ -203,19 +205,21 @@ public:
 			nblocks_max = (nelts+_nelts_block-1)/(_nelts_block) + NB/2;
 		}
 		else {
-			_nelts_block = nelts/(boost::math::gcd(nelts, (size_type) NB));
-			nblocks_max = NB*(((nelts/_nelts_block)+NB-1)/NB) + nelts%(NB);
+			_nelts_block = picviz_max(10, std::sqrt(nelts));
+			//nblocks_max = NB*(((nelts/_nelts_block)+NB-1)/NB) + nelts%(NB);
+			nblocks_max = (nelts+_nelts_block+1)/_nelts_block + NB/2;
 		}
-		assert(nblocks_max >= NB);
+		//assert(nblocks_max >= NB);
 
 		PVLOG_INFO("(PVPODTree::resize): number of elts in a block = %llu\n", _nelts_block);
 		PVLOG_INFO("(PVPODTree::resize): maximum number of blocks = %llu\n", nblocks_max);
 		_nblocks_max = nblocks_max;
 
 		// Then, compute the size of the buffer
-		size_t buf_size = _nblocks_max*(_nelts_block*sizeof(T) + sizeof(pointer));
+		size_t buf_size = _nblocks_max*(size_block());
 		_buf = (pointer) allocator_byte::allocate(buf_size);
 		assert(_buf);
+		memset(_buf, 0, buf_size);
 		_cur_buf = _buf;
 #ifndef NDEBUG
 		_buf_size = buf_size;
@@ -223,7 +227,7 @@ public:
 		
 		// Init tree
 		/*for (size_type i = 0; i < NB; i++) {
-			_tree[i].init_first(reserve_block(), _nelts_block);
+			_tree[i].init_first(reserve_block());
 		}*/
 	}
 
@@ -231,13 +235,26 @@ public:
 	{
 		assert(branch_id < NB);
 		branch_t& cur_b(_tree[branch_id]);
-		if (!cur_b.valid()) {
-			cur_b.init_first(reserve_block(), _nelts_block);
+		size_type scurblock = cur_b.cur_size();
+		uint32_t jmpid = (((uint32_t)(scurblock == 0))<<1) | (uint32_t)(scurblock==_nelts_block);
+		switch (jmpid)
+		{
+			case 0:	
+				break;
+			case 1:
+				cur_b.set_next(reserve_block(), _nelts_block);
+				break;
+			case 2:
+				cur_b.init_first(reserve_block());
+				break;
+		}
+		/*if (!cur_b.valid()) {
+			cur_b.init_first(reserve_block());
 		}
 		else
 		if (cur_b.cur_size() == _nelts_block) {
 			cur_b.set_next(reserve_block(), _nelts_block);
-		}
+		}*/
 		cur_b.push(elt);
 	}
 
@@ -268,7 +285,15 @@ public:
 	{
 		assert(branch_id < NB);
 		assert(other_branch_id < NB);
+		assert(_nelts_block == other._nelts_block);
 		_tree[branch_id].move_branch(other._tree[other_branch_id], _nelts_block);
+	}
+
+	inline void take_buf(this_type& other)
+	{
+		_extra_bufs.push_back(other._buf);
+		other._buf = NULL;
+		other.clear();
 	}
 
 	inline const_branch_iterator begin_branch(size_type branch_id) const
@@ -287,7 +312,7 @@ public:
 	void dump_buf_stats() const
 	{
 		const size_t usage = ((uintptr_t) _cur_buf - (uintptr_t) _buf);
-		const size_t org_size = ((size_t)_nelts_block*sizeof(value_type)+sizeof(pointer))*_nblocks_max;
+		const size_t org_size = size_block()*_nblocks_max;
 		PVLOG_INFO("Buffer usage: %0.4fMB/%0.4fMB (%0.4f %%)\n", ((double)usage/((1024.0*1024.0))), ((double)org_size)/(1024.0*1024.0), ((double)usage/(double)org_size)*100.0);
 	}
 
@@ -299,18 +324,19 @@ public:
 	}
 
 private:
+	inline size_t size_block() const { return (size_t)_nelts_block*sizeof(value_type)+sizeof(branch_t); }
 	inline block_t reserve_block()
 	{
 		block_t ret;
 		ret.p = _cur_buf;
-		_cur_buf += _nelts_block;
-		_cur_buf = (pointer) ((unsigned char*) _cur_buf + sizeof(pointer));
+		_cur_buf = (pointer) (((unsigned char*)_cur_buf) + size_block());
 		assert(_cur_buf <= (pointer) ((unsigned char*) _buf + _buf_size));
 		return ret;
 	}
 
 	branch_t _tree[NB];
 	pointer _buf;
+	std::list<pointer> _extra_bufs;
 #ifndef NDEBUG
 	size_t _buf_size;
 #endif

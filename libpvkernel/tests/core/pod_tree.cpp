@@ -29,13 +29,15 @@ int main()
 		PVCore::PVPODTree<uint32_t, uint32_t, 4> pod_tree(1287);
 		PVCore::PVPODTree<uint32_t, uint32_t, 4> pod_tree2(1287);
 		for (int i = 0; i < 1287; i++) {
-			pod_tree.push(i%4, i);
+			pod_tree.push(i%3, i);
 			pod_tree2.push(i%4, i);
 		}
 		dump_tree(pod_tree);
 
 		std::cout << "-------" << std::endl;
+		//PVCore::PVPODTree<uint32_t, uint32_t, 4> pod_treef;
 		for (int i = 0; i < 4; i++) {
+			//pod_treef.move_branch(i, i, pod_tree);
 			pod_tree.move_branch(i, 3-i, pod_tree2);
 		}
 		dump_tree(pod_tree);

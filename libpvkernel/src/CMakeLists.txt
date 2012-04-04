@@ -9,6 +9,7 @@ core/sse4detector.cpp
 core/sysinfo.cpp
 core/segfault_handler.cpp
 
+core/PVAllocators.cpp
 core/PVArchive.cpp
 core/PVArgument.cpp
 core/PVAxisIndexType.cpp

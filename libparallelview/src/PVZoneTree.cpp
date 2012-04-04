@@ -10,9 +10,6 @@
 
 void PVParallelView::PVZoneTreeBase::set_trans_plotted(plotted_int_t const& plotted, PVRow nrows, PVCol ncols)
 {
-	assert(_col_a < ncols);
-	assert(_col_b < ncols);
-
 	_plotted = &plotted;
 	_ncols = ncols;
 	_nrows = nrows;
@@ -58,9 +55,10 @@ void PVParallelView::PVZoneTreeNoAlloc::process_sse()
 		sse_y2 = _mm_srli_epi32(sse_y2, 32-NBITS_INDEX);
 		sse_bcodes = _mm_or_si128(sse_y1, _mm_slli_epi32(sse_y2, NBITS_INDEX));
 
-		for (PVRow i = 0; i < 4; i++) {
-			_tree.push(_mm_extract_epi32(sse_bcodes, i), r+i);
-		}
+		_tree.push(_mm_extract_epi32(sse_bcodes, 0), r+0);
+		_tree.push(_mm_extract_epi32(sse_bcodes, 1), r+1);
+		_tree.push(_mm_extract_epi32(sse_bcodes, 2), r+2);
+		_tree.push(_mm_extract_epi32(sse_bcodes, 3), r+3);
 	}
 	for (PVRow r = nrows_sse; r < _nrows; r++) {
 		uint32_t y1 = pcol_a[r];
@@ -83,17 +81,21 @@ void PVParallelView::PVZoneTreeNoAlloc::process_omp_sse()
 	tbb::tick_count start,end,red_start;
 	Tree* thread_trees;
 	int ntrees;
-#pragma omp parallel num_threads(24)
+#pragma omp parallel
 	{
 #pragma omp master
 		{
-			ntrees = omp_get_num_threads();
+			ntrees = omp_get_num_threads()-1;
 			thread_trees = new Tree[ntrees];
 		}
 #pragma omp barrier
 
 		// Initialize one tree per thread
-		Tree* thread_tree = &thread_trees[omp_get_thread_num()];
+		Tree* thread_tree = &thread_trees[omp_get_thread_num()-1];
+#pragma omp master
+		{
+			thread_tree = &_tree;
+		}
 		thread_tree->resize(_nrows/omp_get_num_threads() + omp_get_num_threads());
 		PVRow nrows_sse = (_nrows/4)*4;
 #pragma omp barrier
@@ -111,9 +113,10 @@ void PVParallelView::PVZoneTreeNoAlloc::process_omp_sse()
 			sse_y2 = _mm_srli_epi32(sse_y2, 32-NBITS_INDEX);
 			sse_bcodes = _mm_or_si128(sse_y1, _mm_slli_epi32(sse_y2, NBITS_INDEX));
 
-			for (PVRow i = 0; i < 4; i++) {
-				thread_tree->push(_mm_extract_epi32(sse_bcodes, i), r+i);
-			}
+			thread_tree->push(_mm_extract_epi32(sse_bcodes, 0), r+0);
+			thread_tree->push(_mm_extract_epi32(sse_bcodes, 1), r+1);
+			thread_tree->push(_mm_extract_epi32(sse_bcodes, 2), r+2);
+			thread_tree->push(_mm_extract_epi32(sse_bcodes, 3), r+3);
 		}
 #pragma omp master
 		for (PVRow r = nrows_sse; r < _nrows; r++) {
@@ -136,14 +139,11 @@ void PVParallelView::PVZoneTreeNoAlloc::process_omp_sse()
 			_tree.move_branch(b, b, thread_trees[ith]);
 		}
 	}
-		/*
-#pragma omp master
-		{
-			for (int ith = 0; i < nthreads; i++) {
-				_tree.take_buffer(thread_trees[ith]);
-			}
-		}*/
 	end = tbb::tick_count::now();
+	for (int ith = 0; ith < ntrees; ith++) {
+		_tree.take_buf(thread_trees[ith]);
+	}
+	delete [] thread_trees;
 	
 	PVLOG_INFO("OMP tree process in %0.4f ms.\n", (end-start).seconds()*1000.0);
 	PVLOG_INFO("OMP tree process reduction in %0.4f ms.\n", (end-red_start).seconds()*1000.0);

@@ -21,7 +21,7 @@ include(FindPkgConfig)
 
 if (DEBUG_MODE)
 	if (NOT WIN32)
-		add_definitions(-g)
+		add_definitions(-g -march=native)
 	endif()
 else()
 	if(WIN32)

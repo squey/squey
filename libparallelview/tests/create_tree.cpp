@@ -80,6 +80,7 @@ int main(int argc, char** argv)
 	}*/
 
 	{
+		MEM_START(serial);
 		PVParallelView::PVZoneTree<std::vector<PVRow, tbb::scalable_allocator<PVRow> > >* ztree = new PVParallelView::PVZoneTree<std::vector<PVRow, tbb::scalable_allocator<PVRow> > >(0, 1);
 		ztree->set_trans_plotted(norm_plotted, nrows, ncols);
 
@@ -87,12 +88,14 @@ int main(int argc, char** argv)
 		BENCH_START(sse);
 		//ztree->process_sse();
 		BENCH_END_TRANSFORM(sse, "sse", nrows*2, sizeof(float));
+		MEM_END(serial, "serial sse + std::vector");
 		//ztree->display("zone", plotted);
 		delete ztree;
 	}
 
 
 	{
+		MEM_START(serial);
 		PVParallelView::PVZoneTreeNoAlloc* ztree = new PVParallelView::PVZoneTreeNoAlloc(0, 1);
 		ztree->set_trans_plotted(norm_plotted, nrows, ncols);
 
@@ -100,27 +103,33 @@ int main(int argc, char** argv)
 		BENCH_START(sse);
 		//ztree->process_sse();
 		BENCH_END_TRANSFORM(sse, "noalloc-sse", nrows*2, sizeof(float));
-		ztree->display("zone-noalloc", plotted);
-		//delete ztree;
+		MEM_END(serial, "serial sse + noalloc");
+		//ztree->display("zone-noalloc", plotted);
+		delete ztree;
 	}
 
+	
 	{
+		MEM_START(serial);
 		PVParallelView::PVZoneTree<std::vector<PVRow, tbb::scalable_allocator<PVRow> > >* ztree = new PVParallelView::PVZoneTree<std::vector<PVRow, tbb::scalable_allocator<PVRow> > >(0, 1);
 		ztree->set_trans_plotted(norm_plotted, nrows, ncols);
 
 		PVLOG_INFO("Zone tree creation...\n");
-		ztree->process_omp_sse();
+		//ztree->process_omp_sse();
+		MEM_END(serial, "omp sse + std::vector");
 		//ztree->display("zone-omp", plotted);
 	}
 
 	{
+		MEM_START(serial);
 		PVParallelView::PVZoneTreeNoAlloc* ztree = new PVParallelView::PVZoneTreeNoAlloc(0, 1);
 		ztree->set_trans_plotted(norm_plotted, nrows, ncols);
 
 		PVLOG_INFO("Zone tree noalloc creation...\n");
 		ztree->process_omp_sse();
+		MEM_END(serial, "omp sse + noalloc");
 		//ztree->display("zone-omp", plotted);
-		//delete ztree;
+		delete ztree;
 	}
 
 
@@ -165,5 +174,6 @@ int main(int argc, char** argv)
 	}*/
 
 
-	return app.exec();
+	return 0;
+	//return app.exec();
 }
