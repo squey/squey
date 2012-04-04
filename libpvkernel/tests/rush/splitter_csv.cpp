@@ -21,8 +21,17 @@ using namespace PVCore;
 int main(int argc, char** argv)
 {
 	if (argc <= 2) {
-		cerr << "Usage: " << argv[0] << " file chunk_size" << endl;
+		cerr << "Usage: " << argv[0] << " file chunk_size [separator]" << endl;
 		return 1;
+	}
+
+	char sep = ',';
+	if (argc >= 4) {
+		sep = argv[3][0];
+		// Force an ascii characters
+		if (sep <= 0 || sep >= 128) {
+			sep = ',';
+		}
 	}
 
 	init_env();
@@ -36,10 +45,14 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
+	PVCore::PVArgumentList args = sp_lib_p->get_args();
+	args["sep"] = QVariant(QChar(sep));
+	sp_lib_p->set_args(args);
+
 	PVFilter::PVElementFilterByFields* elt_f = new PVFilter::PVElementFilterByFields(sp_lib_p->f());
 	PVFilter::PVChunkFilterByElt* chk_flt = new PVFilter::PVChunkFilterByElt(elt_f->f());
 
-	 PVInput_p ifile(new PVInputFile(argv[1]));
+	PVInput_p ifile(new PVInputFile(argv[1]));
 	PVFilter::PVChunkFilter null;
 	PVUnicodeSource<> source(ifile, atoi(argv[2]), null);
 
