@@ -39,6 +39,7 @@ include/picviz/limits.h
 include/picviz/memory.h
 include/picviz/plugins.h
 
+include/picviz/PVAD2GView.h
 include/picviz/PVAxesCombination.h
 include/picviz/PVAxis.h
 include/picviz/PVBitset.h
@@ -101,6 +102,7 @@ init.cpp
 #layer-stack.cpp 
 #line-properties.cpp 
 
+PVAD2GView.cpp
 PVAxesCombination.cpp
 PVAxis.cpp
 PVEventline.cpp
