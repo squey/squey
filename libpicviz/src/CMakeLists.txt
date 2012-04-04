@@ -145,12 +145,19 @@ update-protocol.cpp
 #z-level-array.cpp
 )
 
+set(WIDGETS_MOC_HEADERS
+include/picviz/widgets/PVAD2GWidget.h
+)
+
+set(WIDGETS_SRC_FILES
+widgets/PVAD2GWidget.cpp
+)
+
 set(MOC_HEADERS
 include/picviz/PVSortQVectorQStringList.h
 include/picviz/PVSortQVectorQStringListThread.h
-
 )
-QT4_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})
+QT4_WRAP_CPP(MOC_SRC ${MOC_HEADERS} ${WIDGETS_MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})
 
 if(CUDA_FOUND)
   set(CUDA_PROPAGATE_HOST_FLAGS "OFF")
@@ -170,9 +177,9 @@ if(CUDA_FOUND)
   add_definitions(-DPICVIZ_PLOTTING_FILTERS_DIR="${PICVIZ_PLOTTING_FILTERS_DIR}")
 
 #  cuda_add_library(picviz SHARED ${CUDA_GENERATED_FILES} ${CUDA_HEADER_FILES})
-  cuda_add_library(picviz SHARED ${SRC_FILES} ${HEADER_FILES} ${MOC_SRC} ${MOC_HEADERS} ${CUDA_GENERATED_FILES})
+  cuda_add_library(picviz SHARED ${SRC_FILES} ${WIDGETS_SRC_FILES} ${HEADER_FILES} ${MOC_SRC} ${MOC_HEADERS} ${CUDA_GENERATED_FILES})
 else(CUDA_FOUND)
-  add_library(picviz SHARED ${SRC_FILES} ${HEADER_FILES} ${MOC_SRC} ${MOC_HEADERS} ${NONCUDA_SRC_FILES} ${NONCUDA_HEADER_FILES})
+  add_library(picviz SHARED ${SRC_FILES} ${WIDGETS_SRC_FILES} ${HEADER_FILES} ${MOC_SRC} ${MOC_HEADERS} ${NONCUDA_SRC_FILES} ${NONCUDA_HEADER_FILES})
 endif(CUDA_FOUND)
 #add_library(picviz STATIC ${SRC_FILES} ${HEADER_FILES})
 

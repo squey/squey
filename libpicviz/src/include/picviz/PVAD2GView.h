@@ -14,7 +14,7 @@ struct node;
 namespace Picviz {
 
 /**
- * \class PVLayerFilter
+ * \class PVAD2GView
  */
 class PVAD2GView
 {
