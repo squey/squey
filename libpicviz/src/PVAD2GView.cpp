@@ -141,13 +141,18 @@ Picviz::PVAD2GView::~PVAD2GView()
  *****************************************************************************/
 void Picviz::PVAD2GView::run(Picviz::PVView *view)
 {
+	/**
+	 * This method uses an iterative breadth-first graph traversal to
+	 * propagate the selection update to every PVView.
+	 * The "redraw" is done by the caller.
+	 */
 	tlp::node node, next;
 	tlp::edge edge;
 	std::set<tlp::node> visited;
 	std::queue<tlp::node> pending;
-	PVView *va, *vb;
-	PVCombiningFunctionView_p cfview;
-	PVSelection selection;
+	Picviz::PVCombiningFunctionView_p cfview;
+	Picviz::PVSelection selection;
+	Picviz::PVView *va, *vb;
 
 	node = get_graph_node(view);
 
@@ -156,7 +161,7 @@ void Picviz::PVAD2GView::run(Picviz::PVView *view)
 
 	pending.push(node);
 
-	while (pending.size()) {
+	while(pending.size()) {
 		node = pending.front();
 		pending.pop();
 		va = _corr_info->getNodeValue(node).get_data();
@@ -164,11 +169,13 @@ void Picviz::PVAD2GView::run(Picviz::PVView *view)
 		forEach(edge, _graph->getOutEdges(node)) {
 			next = _graph->target(edge);
 
+			// a PVView is only updated once
 			if (visited.find(next) != visited.end())
 				continue;
 
 			vb = _corr_info->getNodeValue(next).get_data();
 			cfview = _corr_info->getEdgeValue(edge).get_data();
+
 			selection = (*cfview)(*va, *vb);
 			vb->set_selection_view(selection);
 
@@ -252,7 +259,7 @@ bool Picviz::PVAD2GView::set_edge_f(const Picviz::PVView *va, const Picviz::PVVi
  *****************************************************************************/
 tlp::node Picviz::PVAD2GView::get_graph_node(const Picviz::PVView *view)
 {
-	tlp::node result; // a tlp::node is initialized as invalid
+	tlp::node result; // a tlp::node is initialized to an invalid value
 	tlp::node node;
 
 	if(_graph != 0)
