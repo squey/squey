@@ -37,6 +37,9 @@ public:
 	                PVCombiningFunctionView_p cfview);
 
 private:
+	tlp::node retrieve_graph_node(const Picviz::PVView *view);
+
+private:
 	/* graph tulip object */
 	tlp::Graph *_graph;
 	/* graph's property */
