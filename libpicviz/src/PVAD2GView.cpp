@@ -2,7 +2,8 @@
 //! Copyright (C) Picviz Labs 2012
 
 #include <picviz/PVAD2GView.h>
-#include <picviz/PVAD2GViewPointerContainer.h>
+#include <picviz/PVAD2GViewValueContainer.h>
+#include <picviz/PVCombiningFunctionView.h>
 
 #include <picviz/PVView.h>
 
@@ -18,6 +19,8 @@
 
 namespace Picviz {
 
+typedef PVAD2GViewValueContainer<Picviz::PVView*> PVAD2GViewNode;
+
 class PVAD2GViewNodeType : public tlp::TypeInterface <Picviz::PVAD2GViewNode> {
 public:
 	static std::string toString(const RealType &value) {
@@ -29,6 +32,8 @@ public:
 		return true;
 	}
 };
+
+typedef PVAD2GViewValueContainer<PVCombiningFunctionView_p> PVAD2GViewEdge;
 
 class PVAD2GViewEdgeType : public tlp::TypeInterface <Picviz::PVAD2GViewEdge> {
 public:
@@ -110,10 +115,10 @@ int count_paths_num(tlp::Graph *graph, tlp::node a, tlp::node b);
  * Picviz::PVAD2GView::PVAD2GView
  *
  *****************************************************************************/
-Picviz::PVAD2GView::PVAD2GView():
-	_graph(0)
+Picviz::PVAD2GView::PVAD2GView()
 {
 	_graph = create_graph();
+	_corr_info = _graph->getLocalProperty<PVAD2GViewCorrelationProperty>("correlationProperty");
 }
 
 /******************************************************************************
@@ -165,6 +170,7 @@ bool Picviz::PVAD2GView::add_node(Picviz::PVView *view)
 	/* if a node has view as pointer, return false
 	   else add new node and set view
 	 */
+	return true;
 }
 
 /******************************************************************************
@@ -172,8 +178,9 @@ bool Picviz::PVAD2GView::add_node(Picviz::PVView *view)
  * Picviz::PVAD2GView::set_edge_f
  *
  *****************************************************************************/
-void Picviz::PVAD2GView::set_edge_f(Picviz::PVView *va, Picviz::PVView *vb,
-                                    PVCombiningFunctionView *cfview)
+bool Picviz::PVAD2GView::set_edge_f(const Picviz::PVView *va, const Picviz::PVView *vb,
+                                    PVCombiningFunctionView_p cfview)
 {
 	// TODO
+	return true;
 }

@@ -3,7 +3,7 @@
 
 #include <pvkernel/core/general.h>
 #include <picviz/PVView.h>
-#include <picviz/PVCombiningFunctionView.h>
+#include <picviz/PVCombiningFunctionView_types.h>
 
 // forward declaration of tlp::Graph and tlp::node
 namespace tlp {
@@ -12,6 +12,9 @@ struct node;
 }
 
 namespace Picviz {
+
+// forward declaration of the class for multi-source correlation property
+class PVAD2GViewCorrelationProperty;
 
 /**
  * \class PVLayerFilter
@@ -30,12 +33,14 @@ public:
 
 	bool add_node(Picviz::PVView *view);
 
-	void set_edge_f(Picviz::PVView *va, Picviz::PVView *vb,
-	                PVCombiningFunctionView *cfview);
+	bool set_edge_f(const Picviz::PVView *va, const Picviz::PVView *vb,
+	                PVCombiningFunctionView_p cfview);
 
 private:
 	/* graph tulip object */
 	tlp::Graph *_graph;
+	/* graph's property */
+	PVAD2GViewCorrelationProperty *_corr_info;
 };
 
 }
