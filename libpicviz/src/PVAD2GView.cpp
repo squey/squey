@@ -4,12 +4,14 @@
 #include <picviz/PVAD2GView.h>
 #include <picviz/PVAD2GViewValueContainer.h>
 #include <picviz/PVCombiningFunctionView.h>
-
 #include <picviz/PVView.h>
 
 #include <tulip/Graph.h>
 #include <tulip/Node.h>
 #include <tulip/PropertyTypes.h>
+
+#include <set>
+#include <queue>
 
 /******************************************************************************
  *
@@ -139,7 +141,41 @@ Picviz::PVAD2GView::~PVAD2GView()
  *****************************************************************************/
 void Picviz::PVAD2GView::run(Picviz::PVView *view)
 {
-	
+	tlp::node node, next;
+	tlp::edge edge;
+	std::set<tlp::node> visited;
+	std::queue<tlp::node> pending;
+	PVView *va, *vb;
+	PVCombiningFunctionView_p cfview;
+	PVSelection selection;
+
+	node = get_graph_node(view);
+
+	if(node.isValid() == false)
+		return;
+
+	pending.push(node);
+
+	while (pending.size()) {
+		node = pending.front();
+		pending.pop();
+		va = _corr_info->getNodeValue(node).get_data();
+
+		forEach(edge, _graph->getOutEdges(node)) {
+			next = _graph->target(edge);
+
+			if (visited.find(next) != visited.end())
+				continue;
+
+			vb = _corr_info->getNodeValue(next).get_data();
+			cfview = _corr_info->getEdgeValue(edge).get_data();
+			selection = (*cfview)(*va, *vb);
+			vb->set_selection_view(selection);
+
+			pending.push(next);
+			visited.insert(next);
+		}
+	}
 }
 
 /******************************************************************************
