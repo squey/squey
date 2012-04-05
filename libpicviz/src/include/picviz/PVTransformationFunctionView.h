@@ -13,7 +13,7 @@ class PVView;
 class PVTransformationFunctionView
 {
 public:
-	PVTransformationFunctionView();
+	PVTransformationFunctionView() { }
 
 public:
 	virtual PVSelection operator()(PVView const& view_org, PVView const& view_dst, PVSelection const& sel_org) const = 0;
