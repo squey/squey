@@ -265,7 +265,7 @@ public:
 	 *
 	 */
 	QString get_data_raw(PVRow row, PVCol column);
-	inline PVCore::PVUnicodeString const& get_data_unistr_raw(PVRow row, PVCol column) { return get_rushnraw_parent().at_unistr(row, column); }
+	inline PVCore::PVUnicodeString const& get_data_unistr_raw(PVRow row, PVCol column) const { return get_rushnraw_parent().at_unistr(row, column); }
 
 
 	void selection_A2B_select_with_square_area(PVSelection &a, PVSelection &b);
