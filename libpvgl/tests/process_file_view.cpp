@@ -1,3 +1,4 @@
+#include <pvkernel/core/PVAxisIndexType.h>
 #include <pvkernel/filter/PVPluginsLoad.h>
 #include <pvkernel/rush/PVInputType.h>
 #include <pvkernel/rush/PVPluginsLoad.h>
@@ -63,8 +64,8 @@ void thread_main(QList<Picviz::PVView_p> views)
 			switch (message.function) {
 				case PVSDK_MESSENGER_FUNCTION_SELECTION_CHANGED:
 					{
-						PVLOG_INFO("Selection changed %p.\n", view.get());
-						foreach (Picviz::PVView_p change_view, views) {
+						PVLOG_INFO("Selection changed %p. Launch graph..\n", view.get());
+						/*foreach (Picviz::PVView_p change_view, views) {
 							if (change_view != view) {
 								PVLOG_INFO("Update view %p..\n", change_view.get());
 								Picviz::PVSelection new_sel = (*cf_p)(*view, *change_view);
@@ -72,6 +73,11 @@ void thread_main(QList<Picviz::PVView_p> views)
 								change_view->set_selection_view(new_sel);
 								gl_update_view(change_view);
 							}
+						}*/
+						g_ad2gv->run(view.get());
+						PVLOG_INFO("Graph done !\n");
+						foreach (Picviz::PVView_p update_view, views) {
+							gl_update_view(update_view);
 						}
 						break;
 					}
@@ -95,30 +101,9 @@ int main(int argc, char** argv)
 	QCoreApplication app(argc, argv);
 	PVFilter::PVPluginsLoad::load_all_plugins();
 	PVRush::PVPluginsLoad::load_all_plugins();
-
-	// // Input file
-	// QString path_file(argv[1]);
-	// PVRush::PVInputDescription_p file(new PVRush::PVFileDescription(path_file));
-
-	// // Load the given format file
-	// QString path_format(argv[2]);
-	// PVRush::PVFormat format("format", path_format);
-	// if (!format.populate()) {
-	// 	std::cerr << "Can't read format file " << qPrintable(path_format) << std::endl;
-	// 	return false;
-	// }
-
-	// // Get the source creator
-	// QString file_path(argv[1]);
-	// PVRush::PVSourceCreator_p sc_file;
-	// if (!PVRush::PVTests::get_file_sc(file, format, sc_file)) {
-	// 	return 1;
-	// }
-
 	// Create the PVSource objects
 	Picviz::PVRoot_p root(new Picviz::PVRoot());
 
-	int count = 0;
 	int argcount = 1;
 
 	QList<Picviz::PVSource_p> srcs;
@@ -155,20 +140,18 @@ int main(int argc, char** argv)
 	Picviz::PVRFFAxesBind* rff_bind = new Picviz::PVRFFAxesBind();
 	PVCore::PVArgumentList args;
 	args["axis_org"].setValue(PVCore::PVAxisIndexType(1));
-	args("axis_dst"].setValue(PVCore::PVAxisIndexType(1));
-	rff_bind->set_args(args);
-	tf->push_rff(Picviz::PVSelRowFilteringFunction_p(rff_bind));
-
-	Picviz::PVCombiningFunctionView* cf_p(new Picviz::PVCombiningFunctionView());
-	Picviz::PVTFViewRowFiltering* tf = cf_p->get_first_tf();
-	Picviz::PVRFFAxesBind* rff_bind = new Picviz::PVRFFAxesBind();
-	PVCore::PVArgumentList args;
-	args["axis_org"].setValue(PVCore::PVAxisIndexType(1));
-	args("axis_dst"].setValue(PVCore::PVAxisIndexType(1));
+	args["axis_dst"].setValue(PVCore::PVAxisIndexType(1));
 	rff_bind->set_args(args);
 	tf->push_rff(Picviz::PVSelRowFilteringFunction_p(rff_bind));
 
 	// Create edges
+	Picviz::PVCombiningFunctionView_p cf_sp(cf_p);
+	g_ad2gv->set_edge_f(views[0].get(), views[1].get(), cf_sp);
+	g_ad2gv->set_edge_f(views[1].get(), views[0].get(), cf_sp);
+	g_ad2gv->set_edge_f(views[0].get(), views[2].get(), cf_sp);
+	g_ad2gv->set_edge_f(views[2].get(), views[0].get(), cf_sp);
+	g_ad2gv->set_edge_f(views[1].get(), views[2].get(), cf_sp);
+	g_ad2gv->set_edge_f(views[2].get(), views[1].get(), cf_sp);
 
 	PVGL::PVGLThread* th_pvgl = new PVGL::PVGLThread();
 	g_msg = th_pvgl->get_messenger();
