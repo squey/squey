@@ -259,7 +259,6 @@ Picviz::PVSelection Picviz::PVSelection::operator|(const PVSelection &rhs) const
  *****************************************************************************/
 Picviz::PVSelection & Picviz::PVSelection::operator|=(const PVSelection &rhs)
 {
-#pragma omp parallel for
 	for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
 		table[i] |= rhs.table[i];
 	}
