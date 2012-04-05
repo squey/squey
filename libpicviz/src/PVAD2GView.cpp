@@ -2,7 +2,7 @@
 //! Copyright (C) Picviz Labs 2012
 
 #include <picviz/PVAD2GView.h>
-#include <picviz/PVAD2GViewValueContainer.h>
+#include <picviz/PVSimpleContainerTmpl.h>
 #include <picviz/PVCombiningFunctionView.h>
 #include <picviz/PVView.h>
 
@@ -13,6 +13,10 @@
 #include <set>
 #include <queue>
 
+// some macro to make things clearer
+#define TLP_NODE_INVALID tlp::node()
+#define TLP_EDGE_INVALID tlp::edge()
+
 /******************************************************************************
  *
  * Classes for Tulip graph property
@@ -21,7 +25,7 @@
 
 namespace Picviz {
 
-typedef PVAD2GViewValueContainer<Picviz::PVView*> PVAD2GViewNode;
+typedef PVSimpleContainerTmpl<Picviz::PVView*> PVAD2GViewNode;
 
 class PVAD2GViewNodeType : public tlp::TypeInterface <Picviz::PVAD2GViewNode> {
 public:
@@ -35,7 +39,7 @@ public:
 	}
 };
 
-typedef PVAD2GViewValueContainer<PVCombiningFunctionView_p> PVAD2GViewEdge;
+typedef PVSimpleContainerTmpl<PVCombiningFunctionView_p> PVAD2GViewEdge;
 
 class PVAD2GViewEdgeType : public tlp::TypeInterface <Picviz::PVAD2GViewEdge> {
 public:
@@ -136,6 +140,18 @@ Picviz::PVAD2GView::~PVAD2GView()
 
 /******************************************************************************
  *
+ * Picviz::PVAD2GView::set_graph
+ *
+ *****************************************************************************/
+void Picviz::PVAD2GView::set_graph(tlp::Graph *graph)
+{
+	if(_graph != 0)
+		delete _graph;
+	_graph = graph;
+}
+
+/******************************************************************************
+ *
  * Picviz::PVAD2GView::run
  *
  *****************************************************************************/
@@ -208,19 +224,22 @@ int count_paths_num(tlp::Graph *graph, tlp::node na, tlp::node nb)
  * Picviz::PVAD2GView::add_node
  *
  *****************************************************************************/
-bool Picviz::PVAD2GView::add_node(Picviz::PVView *view)
+tlp::node Picviz::PVAD2GView::add_view(Picviz::PVView *view)
 {
 	tlp::node node;
 
 	node = get_graph_node(view);
 
 	if(node.isValid() == true)
-		return false;
+		return node;
 
 	node = _graph->addNode();
+	if(node.isValid() == false)
+		return TLP_NODE_INVALID;
+
 	_corr_info->setNodeValue(node, view);
 
-	return true;
+	return node;
 }
 
 /******************************************************************************
@@ -228,32 +247,30 @@ bool Picviz::PVAD2GView::add_node(Picviz::PVView *view)
  * Picviz::PVAD2GView::set_edge_f
  *
  *****************************************************************************/
-bool Picviz::PVAD2GView::set_edge_f(const Picviz::PVView *va, const Picviz::PVView *vb,
-                                    PVCombiningFunctionView_p cfview)
+tlp::edge Picviz::PVAD2GView::set_edge_f(const Picviz::PVView *va,
+                                         const Picviz::PVView *vb,
+                                         PVCombiningFunctionView_p cfview)
 {
 	tlp::node na, nb;
-	tlp::edge e;
-
-	if(_graph == 0)
-		return false;
+	tlp::edge edge;
 
 	na = get_graph_node(va);
 	nb = get_graph_node(vb);
 
 	if((na.isValid() == false) || (nb.isValid() == false))
-		return false;
+		return TLP_EDGE_INVALID;
 
-	e = _graph->existEdge(na, nb, true);
+	edge = _graph->existEdge(na, nb, true);
 
-	if(e.isValid() == false) {
-		e = _graph->addEdge(na, nb);
-		if(e.isValid() == false)
-			return false;
+	if(edge.isValid() == false) {
+		edge = _graph->addEdge(na, nb);
+		if(edge.isValid() == false)
+			return TLP_EDGE_INVALID;
 	}
 
-	_corr_info->getEdgeValue(e).set_data(cfview);
+	_corr_info->getEdgeValue(edge).set_data(cfview);
 
-	return true;
+	return edge;
 }
 
 /******************************************************************************
@@ -263,18 +280,15 @@ bool Picviz::PVAD2GView::set_edge_f(const Picviz::PVView *va, const Picviz::PVVi
  *****************************************************************************/
 tlp::node Picviz::PVAD2GView::get_graph_node(const Picviz::PVView *view)
 {
-	tlp::node result; // a tlp::node is initialized to an invalid value
 	tlp::node node;
 
 	if(_graph == 0)
-		return result;
+		return TLP_NODE_INVALID;
 
 	forEach(node, _graph->getNodes()) {
-		if(view == _corr_info->getNodeValue(node).get_data()) {
-			result = node;
-			break;
-		}
+		if(view == _corr_info->getNodeValue(node).get_data())
+			returnForEach(node);
 	}
 
-	return result;
+	return TLP_NODE_INVALID;
 }
