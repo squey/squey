@@ -146,6 +146,7 @@ PVView.cpp
 PVZLevelArray.cpp
 
 # Correlation files
+PVCombiningFunctionView.cpp
 PVRFFAxesBind.cpp
 PVTFViewRowFiltering.cpp
 

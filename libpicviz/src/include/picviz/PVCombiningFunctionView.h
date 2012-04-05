@@ -14,8 +14,8 @@ class LibPicvizDecl PVCombiningFunctionView
 private:
 	typedef QList<PVTransformationFunctionView_p> list_tf_t;
 public:
-	PVCombiningFunctionView() {}
-	~PVCombiningFunctionView() {}
+	PVCombiningFunctionView();
+	virtual ~PVCombiningFunctionView() {}
 
 public:
 	PVSelection operator() (const PVView &view_src, const PVView &view_dst) const;

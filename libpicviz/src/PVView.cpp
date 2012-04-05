@@ -610,6 +610,11 @@ Picviz::PVSelection &Picviz::PVView::get_real_output_selection()
 	return real_output_selection;
 }
 
+Picviz::PVSelection const& Picviz::PVView::get_real_output_selection() const
+{
+	return real_output_selection;
+}
+
 /******************************************************************************
  *
  * Picviz::PVView::get_root

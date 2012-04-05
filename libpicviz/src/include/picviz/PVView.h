@@ -171,6 +171,7 @@ public:
 	PVLayer &get_pre_filter_layer();
 
 	PVSelection &get_real_output_selection();
+	PVSelection const& get_real_output_selection() const;
 	int get_real_row_index(int index);
 	PVRow get_row_count() const;
 
