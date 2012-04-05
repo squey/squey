@@ -1,7 +1,6 @@
 #ifndef PICVIZ_PVAD2GVIEWVALUECONTAINER_H
 #define PICVIZ_PVAD2GVIEWVALUECONTAINER_H
 
-#include <picviz/PVView.h>
 #include <picviz/PVCombiningFunctionView.h>
 
 namespace Picviz {
