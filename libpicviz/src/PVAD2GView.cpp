@@ -218,8 +218,8 @@ void Picviz::PVAD2GView::run(Picviz::PVView *view)
 				continue;
 
 			vb = _corr_info->getNodeValue(next).get_data();
-			PVLOG_INFO("propagating selection from view %s to view %s\n",
-			            va->name.data(), vb->name.data());
+			PVLOG_INFO("propagating from view %p to view %p\n",
+			            va, vb);
 			cfview_p = _corr_info->getEdgeValue(edge).get_data();
 			selection = (*cfview_p)(*va, *vb);
 			vb->set_selection_view(selection);
@@ -227,6 +227,7 @@ void Picviz::PVAD2GView::run(Picviz::PVView *view)
 			pending.push(next);
 			visited.insert(next);
 		}
+		visited.insert(node);
 	}
 }
 

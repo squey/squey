@@ -14,30 +14,6 @@
 	else \
 		std::cout << "  WRONG: not (" #test ")" << std::endl \
 
-Picviz::PVAD2GView *create_graph()
-{
-	Picviz::PVAD2GView *ad2gv = new Picviz::PVAD2GView();
-	/*
-	tlp::Graph *graph = tlp::newGraph();
-
-	tlp::node va = graph->addNode();
-	tlp::node vb = graph->addNode();
-	tlp::node vc = graph->addNode();
-	tlp::node vd = graph->addNode();
-
-	tlp::edge f0 = graph->addEdge(va, vb);
-	tlp::edge f1 = graph->addEdge(va, vc);
-	tlp::edge f2 = graph->addEdge(vb, vd);
-	tlp::edge f3 = graph->addEdge(vd, vb);
-
-	(void)f0;
-	(void)f1;
-	(void)f2;
-	(void)f3;
-	*/
-	return ad2gv;
-}
-
 int main(void)
 {
 	Picviz::PVView *va = new Picviz::PVView();
@@ -57,6 +33,7 @@ int main(void)
 
 	/* some test for ::add_view()
 	 */
+	std::cout << "-------------------------------------------------------------------------------" << std::endl;
 	std::cout << "first call to PVAD2GView::add_view(va)" << std::endl;
 	na = ad2gv->add_view(va);
 	REPORT_RESULT(na != N_INVAL);
@@ -85,6 +62,7 @@ int main(void)
 
 	delete ad2gv;
 
+	std::cout << "-------------------------------------------------------------------------------" << std::endl;
 	/* we create an usable PVAD2GView
 	 */
 	ad2gv = new Picviz::PVAD2GView();
@@ -96,12 +74,14 @@ int main(void)
 	nd = ad2gv->add_view(vd);
 
 	// set views name
-	va->name = "Va";
-	vb->name = "Vb";
-	vc->name = "Vc";
-	vd->name = "Vd";
+	std::cout << "va = " << va << std::endl;
+	std::cout << "vb = " << vb << std::endl;
+	std::cout << "vc = " << vc << std::endl;
+	std::cout << "vd = " << vd << std::endl;
 
 	std::cout << "::run() with no correlation: no output" << std::endl;
+
+	std::cout << "-------------------------------------------------------------------------------" << std::endl;
 	ad2gv->run(va);
 
 	// add some CFV
@@ -110,8 +90,17 @@ int main(void)
 	e3 = ad2gv->set_edge_f(vb, vd, cfv3);
 	e4 = ad2gv->set_edge_f(vd, vb, cfv4);
 
-	std::cout << "::run() with correlations: output needed" << std::endl;
+	std::cout << "-------------------------------------------------------------------------------" << std::endl;
+	std::cout << "::run(va) with correlations: output needed" << std::endl;
 	ad2gv->run(va);
+
+	std::cout << "-------------------------------------------------------------------------------" << std::endl;
+	std::cout << "::run(vb) with correlations: output needed" << std::endl;
+	ad2gv->run(vb);
+
+	std::cout << "-------------------------------------------------------------------------------" << std::endl;
+	std::cout << "::run(vd) with correlations: output needed" << std::endl;
+	ad2gv->run(vd);
 
 	return 0;
 }
