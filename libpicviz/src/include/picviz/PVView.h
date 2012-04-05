@@ -172,7 +172,7 @@ public:
 
 	PVSelection &get_real_output_selection();
 	int get_real_row_index(int index);
-	PVRow get_row_count();
+	PVRow get_row_count() const;
 
 	void reset_layers();
 

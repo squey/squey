@@ -74,6 +74,14 @@ include/picviz/PVVector.h
 include/picviz/PVView.h
 include/picviz/PVZLevelArray.h
 
+# Correlation files
+include/picviz/PVRFFAxesBind.h
+include/picviz/PVSelRowFilteringFunction.h
+include/picviz/PVSelRowFilteringFunction_types.h
+include/picviz/PVTFViewRowFiltering.h
+include/picviz/PVTransformationFunctionView.h
+include/picviz/PVTransformationFunctionView_types.h
+
 include/picviz/square-area.h
 include/picviz/tags.h
 include/picviz/time.h
@@ -136,6 +144,10 @@ PVStateMachine.cpp
 PVVector.cpp
 PVView.cpp
 PVZLevelArray.cpp
+
+# Correlation files
+PVRFFAxesBind.cpp
+PVTFViewRowFiltering.cpp
 
 memory.cpp
 plugins.cpp
