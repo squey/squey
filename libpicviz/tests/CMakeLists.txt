@@ -42,6 +42,10 @@ target_link_libraries(Tpicviz_source_serialize ${LINK_LIBRARIES})
 add_executable(Tpicviz_sizes sizes.cpp)
 target_link_libraries(Tpicviz_sizes ${LINK_LIBRARIES})
 
+# PVAD2GView
+add_executable(Tpicviz_ad2gview ad2gview.cpp)
+target_link_libraries(Tpicviz_ad2gview ${LINK_LIBRARIES} ${TULIP_LIBRARY})
+
 # Mapping plugin test
 #add_executable(Tpicviz_plugin_mapping plugin-mapping.cpp)
 #target_link_libraries(Tpicviz_plugin_mapping ${LINK_LIBRARIES})

@@ -196,6 +196,7 @@ public:
 	//void set_selection_with_square_area_selection(PVSelection &selection, float xmin, float ymin, float xmax, float ymax);
 	void set_selection_with_final_selection(PVSelection &selection);
 	void set_selection_from_layer(PVLayer const& layer);
+	void set_selection_view(PVSelection const& sel);
 
 	int toggle_layer_stack_layer_n_locked_state(int n);
 	int toggle_layer_stack_layer_n_visible_state(int n);

@@ -9,8 +9,8 @@ namespace Picviz {
 class PVCombiningFunctionView
 {
 public:
-	PVCombiningFunctionView();
-	~PVCombiningFunctionView();
+	PVCombiningFunctionView() {}
+	~PVCombiningFunctionView() {}
 
 public:
 	PVSelection operator() (const PVView &va, const PVView &vb) { return PVSelection(); }
