@@ -87,7 +87,7 @@ void thread_main(QList<Picviz::PVView_p> views)
 	}
 }
 
-Picviz::PVSource *create_src(const QString &path_file, const QString &path_format);
+Picviz::PVSource_p create_src(const QString &path_file, const QString &path_format);
 
 int main(int argc, char** argv)
 {
@@ -126,9 +126,9 @@ int main(int argc, char** argv)
 	int count = 0;
 	int argcount = 1;
 
-	QList<Picviz::PVSource_p> src;
-	QList<Picviz::PVMapped_p> mapped;
-	QList<Picviz::PVPlotted_p> plotted;
+	QList<Picviz::PVSource_p> srcs;
+	QList<Picviz::PVMapped_p> mappeds;
+	QList<Picviz::PVPlotted_p> plotteds;
 	QList<Picviz::PVView_p> views;
 
 	g_ad2gv = new Picviz::PVAD2GView();
@@ -137,20 +137,18 @@ int main(int argc, char** argv)
 		// load a source
 		PVLOG_INFO("loading file  : %s\n", argv[argcount]);
 		PVLOG_INFO("        format: %s\n", argv[argcount+1]);
-		Picviz::PVSource *s = create_src (argv[argcount], argv[argcount+1]);
-		if (s == 0) {
-			return 1;
-		}
-		src << Picviz::PVSource_p(s);
-		mapped << Picviz::PVMapped_p(new Picviz::PVMapped(Picviz::PVMapping(s)));
-		plotted << Picviz::PVPlotted_p(new Picviz::PVPlotted(Picviz::PVPlotting(mapped[count].get())));
-		views << plotted[count]->get_view();
+		Picviz::PVSource_p src = create_src (argv[argcount], argv[argcount+1]);
+		Picviz::PVMapped_p mapped(new Picviz::PVMapped(Picviz::PVMapping(src.get())));
+		Picviz::PVPlotted_p plotted(new Picviz::PVPlotted(Picviz::PVPlotting(mapped.get())));
+		srcs << src;
+		mappeds << mapped;
+		plotteds << plotted;
+		views << plotted->get_view();
 
 		// create the corresponding node
-		g_ad2gv->add_view(plotted[count]->get_view().get());
+		g_ad2gv->add_view(plotted->get_view().get());
 
 		// next!
-		++count;
 		argcount += 2;
 
 	}
@@ -167,7 +165,7 @@ int main(int argc, char** argv)
 	return 0;
 }
 
-Picviz::PVSource *create_src(const QString &path_file, const QString &path_format)
+Picviz::PVSource_p create_src(const QString &path_file, const QString &path_format)
 {
 	// Input file
 	PVRush::PVInputDescription_p file(new PVRush::PVFileDescription(path_file));
@@ -176,17 +174,17 @@ Picviz::PVSource *create_src(const QString &path_file, const QString &path_forma
 	PVRush::PVFormat format("format", path_format);
 	if (!format.populate()) {
 		std::cerr << "Can't read format file " << qPrintable(path_format) << std::endl;
-		return 0;
+		return Picviz::PVSource_p();
 	}
 
 	PVRush::PVSourceCreator_p sc_file;
 	if (!PVRush::PVTests::get_file_sc(file, format, sc_file)) {
-		return 0;
+		return Picviz::PVSource_p();
 	}
 
 	Picviz::PVSource_p src(new Picviz::PVSource(PVRush::PVInputType::list_inputs() << file, sc_file, format));
 	PVRush::PVControllerJob_p job = src->extract();
 	job->wait_end();
 
-	return new Picviz::PVSource(PVRush::PVInputType::list_inputs() << file, sc_file, format);
+	return src;
 }
