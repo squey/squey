@@ -18,7 +18,7 @@ class PVAD2GViewCorrelationProperty;
 class PVView;
 
 /**
- * \class PVLayerFilter
+ * \class PVAD2GView
  */
 class PVAD2GView
 {
