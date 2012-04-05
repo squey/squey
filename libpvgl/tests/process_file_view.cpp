@@ -55,11 +55,6 @@ void thread_main(QList<Picviz::PVView_p> views)
 		g_msg->post_message_to_gl(msg);
 	}
 
-	Picviz::PVCombiningFunctionView* cf_p(new Picviz::PVCombiningFunctionView());
-	Picviz::PVTFViewRowFiltering* tf = cf_p->get_first_tf();
-	Picviz::PVRFFAxesBind* rff_bind = new Picviz::PVRFFAxesBind();
-	tf->push_rff(Picviz::PVSelRowFilteringFunction_p(rff_bind));
-
 	// Process selection messages
 	PVSDK::PVMessage message;
 	while (true) {
@@ -154,6 +149,27 @@ int main(int argc, char** argv)
 	}
 
 	PVLOG_INFO("all loaded\n");
+
+	Picviz::PVCombiningFunctionView* cf_p(new Picviz::PVCombiningFunctionView());
+	Picviz::PVTFViewRowFiltering* tf = cf_p->get_first_tf();
+	Picviz::PVRFFAxesBind* rff_bind = new Picviz::PVRFFAxesBind();
+	PVCore::PVArgumentList args;
+	args["axis_org"].setValue(PVCore::PVAxisIndexType(1));
+	args("axis_dst"].setValue(PVCore::PVAxisIndexType(1));
+	rff_bind->set_args(args);
+	tf->push_rff(Picviz::PVSelRowFilteringFunction_p(rff_bind));
+
+	Picviz::PVCombiningFunctionView* cf_p(new Picviz::PVCombiningFunctionView());
+	Picviz::PVTFViewRowFiltering* tf = cf_p->get_first_tf();
+	Picviz::PVRFFAxesBind* rff_bind = new Picviz::PVRFFAxesBind();
+	PVCore::PVArgumentList args;
+	args["axis_org"].setValue(PVCore::PVAxisIndexType(1));
+	args("axis_dst"].setValue(PVCore::PVAxisIndexType(1));
+	rff_bind->set_args(args);
+	tf->push_rff(Picviz::PVSelRowFilteringFunction_p(rff_bind));
+
+	// Create edges
+
 	PVGL::PVGLThread* th_pvgl = new PVGL::PVGLThread();
 	g_msg = th_pvgl->get_messenger();
 	th_pvgl->start();
