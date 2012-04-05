@@ -23,6 +23,7 @@
  *
  *****************************************************************************/
 
+// TODO: RH: write a correct documentation for the Tulip Property blob...
 namespace Picviz {
 
 typedef PVSimpleContainerTmpl<Picviz::PVView*> PVAD2GViewNode;
@@ -88,42 +89,12 @@ const std::string PVAD2GViewCorrelationProperty::propertyTypename = "PVAD2GViewC
 
 /******************************************************************************
  *
- * temporary code
- *
- *****************************************************************************/
-
-tlp::Graph *create_graph()
-{
-	tlp::Graph *graph = tlp::newGraph();
-
-	tlp::node va = graph->addNode();
-	tlp::node vb = graph->addNode();
-	tlp::node vc = graph->addNode();
-	tlp::node vd = graph->addNode();
-
-	tlp::edge f0 = graph->addEdge(va, vb);
-	tlp::edge f1 = graph->addEdge(va, vc);
-	tlp::edge f2 = graph->addEdge(vb, vd);
-	tlp::edge f3 = graph->addEdge(vd, vb);
-
-	(void)f0;
-	(void)f1;
-	(void)f2;
-	(void)f3;
-
-	return graph;
-}
-
-int count_paths_num(tlp::Graph *graph, tlp::node a, tlp::node b);
-
-/******************************************************************************
- *
  * Picviz::PVAD2GView::PVAD2GView
  *
  *****************************************************************************/
 Picviz::PVAD2GView::PVAD2GView()
 {
-	_graph = create_graph();
+	_graph = tlp::newGraph();
 	_corr_info = _graph->getLocalProperty<PVAD2GViewCorrelationProperty>("correlationProperty");
 }
 
@@ -140,88 +111,7 @@ Picviz::PVAD2GView::~PVAD2GView()
 
 /******************************************************************************
  *
- * Picviz::PVAD2GView::set_graph
- *
- *****************************************************************************/
-void Picviz::PVAD2GView::set_graph(tlp::Graph *graph)
-{
-	if(_graph != 0)
-		delete _graph;
-	_graph = graph;
-}
-
-/******************************************************************************
- *
- * Picviz::PVAD2GView::run
- *
- *****************************************************************************/
-void Picviz::PVAD2GView::run(Picviz::PVView *view)
-{
-	/**
-	 * This method uses an iterative breadth-first graph traversal to
-	 * propagate the selection update to every PVView.
-	 * The "redraw" is done by the caller.
-	 */
-	tlp::node node, next;
-	tlp::edge edge;
-	std::set<tlp::node> visited;
-	std::queue<tlp::node> pending;
-	Picviz::PVCombiningFunctionView_p cfview;
-	Picviz::PVSelection selection;
-	Picviz::PVView *va, *vb;
-
-	node = get_graph_node(view);
-
-	if(node.isValid() == false)
-		return;
-
-	pending.push(node);
-
-	while(pending.size()) {
-		node = pending.front();
-		pending.pop();
-		va = _corr_info->getNodeValue(node).get_data();
-
-		forEach(edge, _graph->getOutEdges(node)) {
-			next = _graph->target(edge);
-
-			// a PVView is only updated once
-			if (visited.find(next) != visited.end())
-				continue;
-
-			vb = _corr_info->getNodeValue(next).get_data();
-			cfview = _corr_info->getEdgeValue(edge).get_data();
-
-			selection = (*cfview)(*va, *vb);
-			vb->set_selection_view(selection);
-
-			pending.push(next);
-			visited.insert(next);
-		}
-	}
-}
-
-/******************************************************************************
- *
- * Picviz::PVAD2GView::check_properties
- *
- *****************************************************************************/
-bool Picviz::PVAD2GView::check_properties()
-{
-	return true;
-}
-
-int count_paths_num(tlp::Graph *graph, tlp::node na, tlp::node nb)
-{
-	int count = 0;
-
-	return count;
-}
-
-
-/******************************************************************************
- *
- * Picviz::PVAD2GView::add_node
+ * Picviz::PVAD2GView::add_view
  *
  *****************************************************************************/
 tlp::node Picviz::PVAD2GView::add_view(Picviz::PVView *view)
@@ -268,9 +158,93 @@ tlp::edge Picviz::PVAD2GView::set_edge_f(const Picviz::PVView *va,
 			return TLP_EDGE_INVALID;
 	}
 
-	_corr_info->getEdgeValue(edge).set_data(cfview);
+	_corr_info->setEdgeValue(edge, cfview);
 
 	return edge;
+}
+
+/******************************************************************************
+ *
+ * Picviz::PVAD2GView::get_edge_f
+ *
+ *****************************************************************************/
+Picviz::PVCombiningFunctionView_p Picviz::PVAD2GView::get_edge_f(const tlp::edge edge)
+{
+	// an invalid value when the edge is not in the Tulip graph
+	if(_graph->isElement(edge) == false)
+		return Picviz::PVCombiningFunctionView_p();
+
+
+	return _corr_info->getEdgeValue(edge).get_data();
+}
+
+/******************************************************************************
+ *
+ * Picviz::PVAD2GView::run
+ *
+ *****************************************************************************/
+void Picviz::PVAD2GView::run(Picviz::PVView *view)
+{
+	/**
+	 * This method uses an iterative breadth-first graph traversal to
+	 * propagate the selection update to every PVView.
+	 * The "redraw" is done by the caller.
+	 */
+	tlp::node node, next;
+	tlp::edge edge;
+	std::set<tlp::node> visited;
+	std::queue<tlp::node> pending;
+	Picviz::PVCombiningFunctionView_p cfview_p;
+	Picviz::PVSelection selection;
+	Picviz::PVView *va, *vb;
+
+	node = get_graph_node(view);
+
+	if(node.isValid() == false)
+		return;
+
+	pending.push(node);
+
+	while(pending.size()) {
+		node = pending.front();
+		pending.pop();
+		va = _corr_info->getNodeValue(node).get_data();
+
+		forEach(edge, _graph->getOutEdges(node)) {
+			next = _graph->target(edge);
+
+			// a PVView is only updated once
+			if (visited.find(next) != visited.end())
+				continue;
+
+			vb = _corr_info->getNodeValue(next).get_data();
+			PVLOG_INFO("propagating selection from view %s to view %s\n",
+			            va->name.data(), vb->name.data());
+			cfview_p = _corr_info->getEdgeValue(edge).get_data();
+			selection = (*cfview_p)(*va, *vb);
+			vb->set_selection_view(selection);
+
+			pending.push(next);
+			visited.insert(next);
+		}
+	}
+}
+
+/******************************************************************************
+ *
+ * Picviz::PVAD2GView::check_properties
+ *
+ *****************************************************************************/
+bool Picviz::PVAD2GView::check_properties()
+{
+	return true;
+}
+
+int count_paths_num(tlp::Graph *graph, tlp::node na, tlp::node nb)
+{
+	int count = 0;
+
+	return count;
 }
 
 /******************************************************************************

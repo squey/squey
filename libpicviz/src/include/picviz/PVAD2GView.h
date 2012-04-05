@@ -28,20 +28,27 @@ public:
 
 public:
 	tlp::Graph *get_graph() { return _graph; }
-	void set_graph(tlp::Graph *graph);
+
+public:
+	tlp::node add_view(Picviz::PVView *view);
+
+	tlp::edge set_edge_f(const Picviz::PVView *va, const Picviz::PVView *vb,
+	                     PVCombiningFunctionView_p cfview);
+
+	Picviz::PVCombiningFunctionView_p get_edge_f(const tlp::edge edge);
 
 public:
 	void run(Picviz::PVView *view);
 
 	bool check_properties();
 
-	tlp::node add_view(Picviz::PVView *view);
-
-	tlp::edge set_edge_f(const Picviz::PVView *va, const Picviz::PVView *vb,
-	                     PVCombiningFunctionView_p cfview);
-
 private:
 	tlp::node get_graph_node(const Picviz::PVView *view);
+
+	/* TODO: I need a method to check paths validity
+	 *
+	 * int count_paths_num(tlp::Graph *graph, tlp::node a, tlp::node b);
+	 */
 
 private:
 	/* graph tulip object */
