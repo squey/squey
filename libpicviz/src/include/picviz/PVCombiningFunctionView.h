@@ -3,17 +3,25 @@
 
 #include <picviz/PVView.h>
 #include <picviz/PVSelection.h>
+#include <picviz/PVTransformationFunctionView_types.h>
+
+#include <QList>
 
 namespace Picviz {
 
-class PVCombiningFunctionView
+class LibPicvizDecl PVCombiningFunctionView
 {
+private:
+	typedef QList<PVTransformationFunctionView_p> list_tf_t;
 public:
 	PVCombiningFunctionView() {}
 	~PVCombiningFunctionView() {}
 
 public:
-	PVSelection operator() (const PVView &va, const PVView &vb) { return PVSelection(); }
+	PVSelection operator() (const PVView &view_src, const PVView &view_dst) const;
+
+protected:
+	list_tf_t _tfs;
 };
 
 }

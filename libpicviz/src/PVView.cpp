@@ -625,7 +625,7 @@ Picviz::PVRoot* Picviz::PVView::get_root()
  * Picviz::PVView::get_row_count
  *
  *****************************************************************************/
-PVRow Picviz::PVView::get_row_count()
+PVRow Picviz::PVView::get_row_count() const
 {
 	return plotted->get_row_count();
 }

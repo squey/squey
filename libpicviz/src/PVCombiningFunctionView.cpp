@@ -1,0 +1,35 @@
+#include <picviz/PVCombiningFunctionView.h>
+#include <picviz/PVTFViewRowFiltering.h>
+
+Picviz::PVCombiningFunctionView::PVCombiningFunctionView()
+{
+	// AG: for now, the only TF in here is a row filtering one
+	PVTransformationFunctionView_p tf_p(new PVTFViewRowFiltering());
+	_tfs.push_back(tf_p);
+}
+
+Picviz::PVSelection Picviz::PVCombiningFunctionView::operator()(PVView const& view_org, PVView const& view_dst) const
+{
+	// AG: this is now hard-coded in here, the idea is to have the user being able to modify this in a close future...
+	Picviz::PVSelection const& sel_src = view_src.get_current_selection();
+	if (_tfs.size() == 0) {
+		return sel_src;
+	}
+
+	std::vector<PVSelection> out_sel;
+	out_sel.reserve(_tfs.size());
+	foreach(PVTransformationFunctionView_p const& tf, _tfs) {
+		out_sel.push_back((*tf)(view_org, view_dst, sel_src));
+	}
+
+	// Merge with an OR operation
+	// For instance, the user could choose the operation he wants to do here !
+	Picviz::PVSelection& ret(out_sel.first()); 
+	std::vector<PVSelection>::const_iterator it_sel = out_sel.begin();
+	it_sel++;
+	for (; it_sel != out_sel.end(); it_sel++) {
+		ret |= *it_sel;
+	}
+
+	return ret;
+}
