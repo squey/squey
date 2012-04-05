@@ -2,10 +2,14 @@
 #include <picviz/PVSelRowFilteringFunction.h>
 #include <picviz/PVView.h>
 
+#include <pvkernel/core/picviz_bench.h>
+
 Picviz::PVSelection Picviz::PVTFViewRowFiltering::operator()(PVView const& view_src, PVView const& view_dst, PVSelection const& sel_org) const
 {
 	// AG: the algorithm here is hard coded, and the idea in a close future is to have the user being able
 	// to create this kind of algorithm with a diagram... !
+	BENCH_START(merge);
+
 	PVSelection sel_ret;
 	sel_ret.select_none();
 
@@ -18,7 +22,7 @@ Picviz::PVSelection Picviz::PVTFViewRowFiltering::operator()(PVView const& view_
 			continue;
 		}
 
-		sel_line.select_all();
+		sel_line.select_none();
 		// sel_line will be filtered by the different RFF (row filtering functions).
 		foreach(PVSelRowFilteringFunction_p const& rff_p, _rffs) {
 			(*rff_p)(r, view_src, view_dst, sel_line);
@@ -26,6 +30,8 @@ Picviz::PVSelection Picviz::PVTFViewRowFiltering::operator()(PVView const& view_
 
 		sel_ret |= sel_line;
 	}
+
+	BENCH_END(merge, "merge", 1, 1, 1, 1);
 
 	return sel_ret;
 }

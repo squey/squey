@@ -29,11 +29,8 @@ void Picviz::PVRFFAxesBind::operator()(PVRow row_org, PVView const& view_org, PV
 
 	const PVCore::PVUnicodeString& str = view_org.get_data_unistr_raw(row_org, _axis_org);
 	for (PVRow r = 0; r < nlines_sel; r++) {
-		if (!sel_dst.get_line(r)) {
-			continue;
-		}
-		if (view_dst.get_data_unistr_raw(r, _axis_dst) != str) {
-			sel_dst.set_line(r, false);
+		if (view_dst.get_data_unistr_raw(r, _axis_dst) == str) {
+			sel_dst.set_line(r, true);
 		}
 	}
 }
