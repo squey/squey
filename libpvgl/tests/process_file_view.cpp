@@ -13,6 +13,9 @@
 #include <picviz/PVMapped.h>
 #include <picviz/PVPlotting.h>
 #include <picviz/PVPlotted.h>
+#include <picviz/PVCombiningFunctionView.h>
+#include <picviz/PVTFViewRowFiltering.h>
+#include <picviz/PVRFFAxesBind.h>
 #include <pvsdk/PVMessenger.h>
 #include <pvgl/PVMain.h>
 #include <pvgl/PVGLThread.h>
@@ -47,6 +50,11 @@ void thread_main(QList<Picviz::PVView_p> views)
 		g_msg->post_message_to_gl(msg);
 	}
 
+	Picviz::PVCombiningFunctionView* cf_p(new Picviz::PVCombiningFunctionView());
+	Picviz::PVTFViewRowFiltering* tf = cf_p->get_first_tf();
+	Picviz::PVRFFAxesBind* rff_bind = new Picviz::PVRFFAxesBind();
+	tf->push_rff(Picviz::PVSelRowFilteringFunction_p(rff_bind));
+
 	// Process selection messages
 	PVSDK::PVMessage message;
 	while (true) {
@@ -56,11 +64,12 @@ void thread_main(QList<Picviz::PVView_p> views)
 				case PVSDK_MESSENGER_FUNCTION_SELECTION_CHANGED:
 					{
 						PVLOG_INFO("Selection changed %p.\n", view.get());
-						Picviz::PVSelection const& sel = view->get_real_output_selection();
 						foreach (Picviz::PVView_p change_view, views) {
 							if (change_view != view) {
 								PVLOG_INFO("Update view %p..\n", change_view.get());
-								change_view->set_selection_view(sel);
+								Picviz::PVSelection new_sel = (*cf_p)(*view, *change_view);
+								PVLOG_INFO("Selection computed for %p..\n", change_view.get());
+								change_view->set_selection_view(new_sel);
 								gl_update_view(change_view);
 							}
 						}

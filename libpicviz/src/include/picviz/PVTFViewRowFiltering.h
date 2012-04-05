@@ -20,6 +20,9 @@ public:
 public:
 	PVSelection operator()(PVView const& view_src, PVView const& view_dst, PVSelection const& sel_org) const;
 
+public:
+	void push_rff(PVSelRowFilteringFunction_p rff) { _rffs << rff; }
+
 protected:
 	list_rff_t _rffs;
 };

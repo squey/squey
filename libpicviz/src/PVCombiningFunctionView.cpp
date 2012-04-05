@@ -33,3 +33,8 @@ Picviz::PVSelection Picviz::PVCombiningFunctionView::operator()(PVView const& vi
 
 	return ret;
 }
+
+Picviz::PVTFViewRowFiltering* Picviz::PVCombiningFunctionView::get_first_tf()
+{
+	return dynamic_cast<PVTFViewRowFiltering*>(_tfs[0].get());
+}

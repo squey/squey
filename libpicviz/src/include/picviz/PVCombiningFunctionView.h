@@ -9,6 +9,8 @@
 
 namespace Picviz {
 
+class PVTFViewRowFiltering;
+
 class LibPicvizDecl PVCombiningFunctionView
 {
 private:
@@ -19,6 +21,7 @@ public:
 
 public:
 	PVSelection operator() (const PVView &view_src, const PVView &view_dst) const;
+	PVTFViewRowFiltering* get_first_tf();
 
 protected:
 	list_tf_t _tfs;
