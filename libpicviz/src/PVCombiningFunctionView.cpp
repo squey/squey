@@ -24,7 +24,7 @@ Picviz::PVSelection Picviz::PVCombiningFunctionView::operator()(PVView const& vi
 
 	// Merge with an OR operation
 	// For instance, the user could choose the operation he wants to do here !
-	Picviz::PVSelection& ret(out_sel.fron()); 
+	Picviz::PVSelection& ret(out_sel.front()); 
 	std::vector<PVSelection>::const_iterator it_sel = out_sel.begin();
 	it_sel++;
 	for (; it_sel != out_sel.end(); it_sel++) {
