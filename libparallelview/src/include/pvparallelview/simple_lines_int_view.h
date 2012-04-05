@@ -1,7 +1,7 @@
 #ifndef SLLINES_INT_H
 #define SLLINES_INT_H
 
-#include <gl/simple_lines_view.h>
+#include <pvparallelview/simple_lines_view.h>
 
 class SLIntView: public SLView<int>
 {

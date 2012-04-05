@@ -11,9 +11,11 @@ add_definitions(${PICVIZ_DEFINITIONS})
 add_definitions(${OpenMP_CXX_FLAGS})
 
 SET(SRC_FILES
+PVBCICode.cpp
 PVTools.cpp
 PVZoneTree.cpp
 simple_lines_float_view.cpp
+simple_lines_int_view.cpp
 )
 
 SET(HEADER_FILES
