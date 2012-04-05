@@ -11,7 +11,7 @@ Picviz::PVSelection Picviz::PVTFViewRowFiltering::operator()(PVView const& view_
 
 	// For each line of sel_org, create a selection that goes with view_dst
 	// Then, merge this selection into the final one.
-	PVRow nlines_sel = sel_org.get_number_of_selected_lines_in_range(0, view_src.get_row_count());
+	PVRow nlines_sel = view_src.get_row_count();
 	PVSelection sel_line;
 	for (PVRow r = 0; r < nlines_sel; r++) {
 		if (!sel_org.get_line(r)) {
