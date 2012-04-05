@@ -2,7 +2,7 @@
 //! Copyright (C) Picviz Labs 2012
 
 #include <picviz/PVAD2GView.h>
-#include <picviz/PVAD2GViewValueContainer.h>
+#include <picviz/PVSimpleContainerTmpl.h>
 #include <picviz/PVCombiningFunctionView.h>
 #include <picviz/PVView.h>
 
@@ -25,7 +25,7 @@
 
 namespace Picviz {
 
-typedef PVAD2GViewValueContainer<Picviz::PVView*> PVAD2GViewNode;
+typedef PVSimpleContainerTmpl<Picviz::PVView*> PVAD2GViewNode;
 
 class PVAD2GViewNodeType : public tlp::TypeInterface <Picviz::PVAD2GViewNode> {
 public:
@@ -39,7 +39,7 @@ public:
 	}
 };
 
-typedef PVAD2GViewValueContainer<PVCombiningFunctionView_p> PVAD2GViewEdge;
+typedef PVSimpleContainerTmpl<PVCombiningFunctionView_p> PVAD2GViewEdge;
 
 class PVAD2GViewEdgeType : public tlp::TypeInterface <Picviz::PVAD2GViewEdge> {
 public:
