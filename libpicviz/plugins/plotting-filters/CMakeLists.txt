@@ -6,6 +6,7 @@ include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/libpicviz/src/include)
 set(FILTERS_DIST_LIST
 plotting_filter_noprocess
 plotting_filter_all_minmax
+plotting_filter_all_log_minmax
 plotting_filter_all_divide
 plotting_filter_integer_port
 plotting_filter_time_default

@@ -15,9 +15,10 @@ Picviz::PVPlottingFilterLogMinmax::PVPlottingFilterLogMinmax(PVCore::PVArgumentL
 
 DEFAULT_ARGS_FILTER(Picviz::PVPlottingFilterLogMinmax)
 {
+	
 	PVCore::PVArgumentList args;
-	args[PVCore::PVArgumentKey("range-min", "Minimal value (0=auto)")] = QString("0.0");
-	args[PVCore::PVArgumentKey("range-max", "Maximal value (0=auto)")] = QString("0.0");
+	/*args[PVCore::PVArgumentKey("range-min", "Minimal value (0=auto)")] = QString("0.0");
+	args[PVCore::PVArgumentKey("range-max", "Maximal value (0=auto)")] = QString("0.0");*/
 	return args;
 }
 
