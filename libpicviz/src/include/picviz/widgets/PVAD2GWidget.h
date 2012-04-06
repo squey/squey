@@ -85,6 +85,10 @@ public:
 		tlp::InteractorChainOfResponsibility("", "AD2GInteractor"),
 		_widget(widget)
 	{
+		construct();
+	}
+	void construct()
+	{
 		_component1 = new AD2GInteractorComponent(_widget);
 		pushInteractorComponent(_component1);
 	}
