@@ -82,6 +82,7 @@ void PVInspector::PVLayerFilterProcessWidget::add_preset_Slot(const QString& pre
 
 void PVInspector::PVLayerFilterProcessWidget::load_preset_Slot(const QString& preset)
 {
+	_filter_p->set_args(*_args_widget->get_args());
 	_filter_p->get_presets().load_preset(preset);
 	change_args(_filter_p->get_args());
 }

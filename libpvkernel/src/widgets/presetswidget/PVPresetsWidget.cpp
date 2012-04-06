@@ -96,7 +96,12 @@ void PVWidgets::PVPresetsWidget::add_preset(const QString& preset, const QVarian
 
 void PVWidgets::PVPresetsWidget::load_Slot()
 {
-	_last_preset_loaded = _list->currentItem()->text();
+	QListWidgetItem* item = _list->currentItem();
+	if (!item) {
+		return;
+	}
+
+	_last_preset_loaded = item->text();
 	emit btn_load_clicked_Signal(_last_preset_loaded);
 }
 
@@ -122,6 +127,9 @@ void PVWidgets::PVPresetsWidget::rename_Slot()
 {
 	// backup item name in case of rename
 	QListWidgetItem* item = _list->currentItem();
+	if (!item) {
+		return;
+	}
 	_old_preset_name = item->text();
 
 	_list->blockSignals(true);
@@ -167,7 +175,11 @@ void PVWidgets::PVPresetsWidget::item_changed_Slot(QListWidgetItem* item)
 
 void PVWidgets::PVPresetsWidget::remove_Slot()
 {
-	QString preset = _list->currentItem()->text();
+	QListWidgetItem* item = _list->currentItem();
+	if (!item) {
+		return;
+	}
+	QString preset = item->text();
 	QMessageBox* box = new QMessageBox(QMessageBox::Question, tr("Confirm delete"), tr("Are you sure you want to delete preset \"%1\"?").arg(preset), QMessageBox::Yes | QMessageBox::No, this);
 	if (box->exec() == QMessageBox::Yes) {
 		delete _list->takeItem(_list->currentRow());

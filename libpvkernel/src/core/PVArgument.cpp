@@ -166,7 +166,7 @@ void PVCore::dump_argument_list(PVArgumentList const& l)
 {
 	PVCore::PVArgumentList::const_iterator it;
 	for (it = l.begin(); it != l.end(); it++) {
-		PVLOG_DEBUG("%s = %s (%s)\n", qPrintable(it.key().key()), qPrintable(it.value().toString()), qPrintable(PVArgument_to_QString(it.value())));
+		PVLOG_INFO("%s = %s (%s)\n", qPrintable(it.key().key()), qPrintable(it.value().toString()), qPrintable(PVArgument_to_QString(it.value())));
 	}
 }
 
