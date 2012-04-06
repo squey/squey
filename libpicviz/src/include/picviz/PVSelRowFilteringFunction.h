@@ -13,6 +13,7 @@ class PVView;
 class PVSelRowFilteringFunction: public PVCore::PVFunctionArgs<boost::function<void(PVRow, PVView const&, PVView const&, PVSelection&)> >
 {
 public:
+	virtual void pre_process(PVView const& view_org, PVView const& view_dst) = 0;
 	virtual void operator()(PVRow row_org, PVView const& view_org, PVView const& view_dst, PVSelection& sel_dst) const = 0;
 };
 

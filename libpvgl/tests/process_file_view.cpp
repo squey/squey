@@ -7,6 +7,7 @@
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVTests.h>
 #include <pvkernel/rush/PVFileDescription.h>
+#include <picviz/widgets/PVAD2GWidget.h>
 #include <picviz/PVRoot.h>
 #include <picviz/PVScene.h>
 #include <picviz/PVSource.h>
@@ -25,7 +26,7 @@
 #include <tulip/Edge.h>
 #include <cstdlib>
 #include <iostream>
-#include <QCoreApplication>
+#include <QApplication>
 #include "test-env.h"
 
 PVSDK::PVMessenger* g_msg;
@@ -48,13 +49,14 @@ void thread_main(QList<Picviz::PVView_p> views)
 	foreach(Picviz::PVView_p const& view, views) {
 		PVSDK::PVMessage msg;
 		msg.function = PVSDK_MESSENGER_FUNCTION_PLEASE_WAIT;
-		msg.pointer_1 = new QString("test");
+		msg.pointer_1 = new QString(view->get_window_name());
 		g_msg->post_message_to_gl(msg);
 
 		msg.function = PVSDK_MESSENGER_FUNCTION_CREATE_VIEW;
 		msg.pv_view = view;
 		g_msg->post_message_to_gl(msg);
 	}
+
 
 	// Process selection messages
 	PVSDK::PVMessage message;
@@ -98,7 +100,7 @@ int main(int argc, char** argv)
 	}
 
 	init_env();
-	QCoreApplication app(argc, argv);
+	QApplication app(argc, argv);
 	PVFilter::PVPluginsLoad::load_all_plugins();
 	PVRush::PVPluginsLoad::load_all_plugins();
 	// Create the PVSource objects
@@ -139,8 +141,8 @@ int main(int argc, char** argv)
 	Picviz::PVTFViewRowFiltering* tf = cf_p->get_first_tf();
 	Picviz::PVRFFAxesBind* rff_bind = new Picviz::PVRFFAxesBind();
 	PVCore::PVArgumentList args;
-	args["axis_org"].setValue(PVCore::PVAxisIndexType(1));
-	args["axis_dst"].setValue(PVCore::PVAxisIndexType(1));
+	args["axis_org"].setValue(PVCore::PVAxisIndexType(0));
+	args["axis_dst"].setValue(PVCore::PVAxisIndexType(0));
 	rff_bind->set_args(args);
 	tf->push_rff(Picviz::PVSelRowFilteringFunction_p(rff_bind));
 
@@ -153,10 +155,18 @@ int main(int argc, char** argv)
 	g_ad2gv->set_edge_f(views[1].get(), views[2].get(), cf_sp);
 	g_ad2gv->set_edge_f(views[2].get(), views[1].get(), cf_sp);
 
+	/*QMainWindow *mw = new QMainWindow();
+	Picviz::PVAD2GWidget* ad2g_widget = new Picviz::PVAD2GWidget(*g_ad2gv, mw);
+	mw->setCentralWidget(ad2g_widget->get_widget());
+	mw->show();*/
+
 	PVGL::PVGLThread* th_pvgl = new PVGL::PVGLThread();
 	g_msg = th_pvgl->get_messenger();
 	th_pvgl->start();
 	boost::thread th_main(boost::bind(thread_main, views));
+
+
+	app.exec();
 
 	th_main.join();
 	th_pvgl->wait();
@@ -182,7 +192,8 @@ Picviz::PVSource_p create_src(const QString &path_file, const QString &path_form
 	}
 
 	Picviz::PVSource_p src(new Picviz::PVSource(PVRush::PVInputType::list_inputs() << file, sc_file, format));
-	PVRush::PVControllerJob_p job = src->extract();
+	src->get_extractor().get_agg().set_strict_mode(true);
+	PVRush::PVControllerJob_p job = src->extract_from_agg_nlines(0, 200000);
 	job->wait_end();
 
 	return src;

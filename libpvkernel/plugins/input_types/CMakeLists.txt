@@ -43,6 +43,17 @@ add_library(input_type_database SHARED ${DB_UI_SRCS} ${DB_MOC_SRCS} database/PVD
 target_link_libraries(input_type_database ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
 
 #
+# ArcSight input plugin
+#
+SET(ARCSIGHT_MOC_HEADERS arcsight/PVArcsightParamsWidget.h)
+QT4_WRAP_CPP(ARCSIGHT_MOC_SRCS ${ARCSIGHT_MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})
+set(ARCSIGHT_UI arcsight/arcsight_params.ui)
+QT4_WRAP_UI(ARCSIGHT_UI_SRCS ${ARCSIGHT_UI})
+
+add_library(input_type_arcsight SHARED ${ARCSIGHT_UI_SRCS} ${ARCSIGHT_MOC_SRCS} arcsight/PVArcsightParamsWidget.cpp arcsight/PVInputTypeArcsight.cpp ../common/arcsight/PVArcsightInfos.cpp arcsight/register.cpp)
+target_link_libraries(input_type_arcsight ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
+
+#
 # HDFS input plugin
 #
 if(HDFS_FOUND)
