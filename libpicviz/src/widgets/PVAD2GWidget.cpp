@@ -12,8 +12,8 @@
 Picviz::PVAD2GWidget::PVAD2GWidget(PVAD2GView& ad2g, QMainWindow* mw /*= NULL*/) :
 	QWidget(mw),
 	_ad2g(ad2g),
-	_mw(mw)//,
-	//_graph(_ad2g.get_graph())
+	_mw(mw),
+	_graph(_ad2g.get_graph())
 {
 	_nodeLinkView = new AD2GNodeLinkDiagramComponent();
 
@@ -29,7 +29,7 @@ Picviz::PVAD2GWidget::PVAD2GWidget(PVAD2GView& ad2g, QMainWindow* mw /*= NULL*/)
 	tlp::DataSet dataSet;
 	dataSet.set<bool>("arrow", true);
 
-	_graph = tlp::loadGraph("/home/jbleonesio/tulip_graph_layout.tlp");
+	//_graph = tlp::loadGraph("/home/jbleonesio/tulip_graph_layout.tlp");
 
 	_nodeLinkView->init();
 	init_toolbar();
