@@ -264,7 +264,7 @@ public:
 	 * @return a string containing wanted data
 	 *
 	 */
-	QString get_data_raw(PVRow row, PVCol column);
+	QString get_data_raw(PVRow row, PVCol column) const { return get_qtnraw_parent().at(row, column).get_qstr(); }
 	inline PVCore::PVUnicodeString const& get_data_unistr_raw(PVRow row, PVCol column) const { return get_rushnraw_parent().at_unistr(row, column); }
 
 
