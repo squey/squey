@@ -72,7 +72,7 @@ static void segfault_handler(int sig, siginfo_t* sinfo, void* uctxt)
 	if (_call.compare_and_swap(false, true)) {
 		return;
 	}
-	fprintf(stderr, "/!\\ ----------------------------------------------------------------------------------------------------------- /!\\\n");
+	/*fprintf(stderr, "/!\\ ----------------------------------------------------------------------------------------------------------- /!\\\n");
 	fprintf(stderr, "/!\\ -------- /!\\ Segfault occured at %p, do you want to launch the last-chance gdb ? /!\\ -------- /!\\\n", sinfo->si_addr);
 	fprintf(stderr, "/!\\ ----------------------------------------------------------------------------------------------------------- /!\\\n\n");
 	fprintf(stderr, "(Y)es/(N)o [Y]: ");
@@ -81,7 +81,7 @@ static void segfault_handler(int sig, siginfo_t* sinfo, void* uctxt)
 	fgets(line, 9, stdin);
 	if (line[0] != '\n' && line[0] != 'Y' && line[0] != 'y') {
 		abort();
-	}
+	}*/
 
 	fprintf(stderr, "Launching gdb...\n");
 	// Get the PID as a string
