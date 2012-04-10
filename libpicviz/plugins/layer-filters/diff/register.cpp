@@ -7,5 +7,5 @@
 // This method will be called by libpicviz
 LibCPPExport void register_class()
 {
-	REGISTER_CLASS("Diff", Picviz::PVLayerFilterDiff);
+	REGISTER_CLASS("diff", Picviz::PVLayerFilterDiff);
 }

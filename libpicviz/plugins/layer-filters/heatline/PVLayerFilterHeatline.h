@@ -56,6 +56,7 @@ public:
 	PVLayerFilterHeatlineSelAndCol(PVCore::PVArgumentList const& l = PVLayerFilterHeatlineSelAndCol::default_args());
 protected:
 	virtual void post(PVLayer &in, PVLayer &out, float ratio, PVRow line_id);
+	virtual QString menu_name() const { return "Frequency gradient"; }
 
 	CLASS_FILTER(Picviz::PVLayerFilterHeatlineSelAndCol)
 };

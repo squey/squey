@@ -7,5 +7,5 @@
 // This method will be called by libpicviz
 LibCPPExport void register_class()
 {
-	REGISTER_CLASS("Plot Search/One to many", Picviz::PVLayerFilterSearchPlotOneToMany);
+	REGISTER_CLASS("plot-search-onetomany", Picviz::PVLayerFilterSearchPlotOneToMany);
 }

@@ -7,5 +7,5 @@
 // This method will be called by libpicviz
 LibCPPExport void register_class()
 {
-	REGISTER_CLASS("Axis Gradient", Picviz::PVLayerFilterAxisGradient);
+	REGISTER_CLASS("axis-gradient", Picviz::PVLayerFilterAxisGradient);
 }

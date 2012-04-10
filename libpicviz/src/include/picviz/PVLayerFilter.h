@@ -53,6 +53,7 @@ public:
 public:
 	virtual QString status_bar_description();
 	virtual QString detailed_description();
+	virtual QString menu_name() const { return registered_name(); }
 
 public:
 	// Helper function for tags

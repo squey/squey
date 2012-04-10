@@ -9,7 +9,7 @@
 // This method will be called by libpicviz
 LibCPPExport void register_class()
 {
-	REGISTER_CLASS("Entropy", Picviz::PVLayerFilterEntropy);
+	REGISTER_CLASS("entropy", Picviz::PVLayerFilterEntropy);
 
 	DECLARE_TAG(PVAXIS_TAG_USER_AGENT, PVAXIS_TAG_USER_AGENT_DESC, Picviz::PVLayerFilterEntropy);
 	DECLARE_TAG(PVAXIS_TAG_SRCPORT, PVAXIS_TAG_SRCPORT_DESC, Picviz::PVLayerFilterEntropy);
