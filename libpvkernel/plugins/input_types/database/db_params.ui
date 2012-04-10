@@ -15,11 +15,11 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QGroupBox" name="groupBox">
-     <property name="title">
-      <string>Saved settings</string>
+    <layout class="QVBoxLayout" name="presets_layout" stretch="">
+     <property name="sizeConstraint">
+      <enum>QLayout::SetMaximumSize</enum>
      </property>
-    </widget>
+    </layout>
    </item>
    <item>
     <widget class="Line" name="line">

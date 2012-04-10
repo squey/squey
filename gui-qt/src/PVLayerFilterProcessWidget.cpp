@@ -30,7 +30,7 @@ PVInspector::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(PVTabSplitte
 
 	// Presets widget
 	if(_filter_p->get_presets().can_have_presets()) {
-		_presets_widget = new PVWidgets::PVPresetsWidget();
+		_presets_widget = new PVWidgets::PVPresetsWidget(tr("Presets"));
 		_presets_widget->add_presets(_filter_p->get_presets().list_presets());
 		main_layout->addWidget(_presets_widget);
 		connect(_presets_widget, SIGNAL(btn_load_clicked_Signal(const QString&)), this, SLOT(load_preset_Slot(const QString&)));
