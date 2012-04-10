@@ -61,16 +61,23 @@ class AD2GInteractorComponent : public tlp::InteractorComponent
 	Q_OBJECT
 
 public:
-	AD2GInteractorComponent(PVAD2GWidget* widget, Qt::MouseButton button = Qt::LeftButton, Qt::KeyboardModifier modifier = Qt::NoModifier):_widget(widget){}
+	AD2GInteractorComponent(PVAD2GWidget* widget, tlp::GlMainWidget* glMainWidget, Qt::MouseButton button = Qt::LeftButton, Qt::KeyboardModifier modifier = Qt::NoModifier);
 	~AD2GInteractorComponent() {}
 	bool eventFilter(QObject* widget, QEvent* e);
-	tlp::InteractorComponent* clone() { return new AD2GInteractorComponent(_widget, mButton, kModifier); }
+	tlp::InteractorComponent* clone() { return new AD2GInteractorComponent(_widget, _glMainWidget, mButton, kModifier); }
+
+public slots:
+	void add_view_Slot(QObject* mouse_event);
+	void remove_view_Slot(int node);
 
 protected:
 	Qt::MouseButton mButton;
 	Qt::KeyboardModifier kModifier;
 	Qt::KeyboardModifiers mousePressModifier;
 	PVAD2GWidget* _widget;
+	QSignalMapper* _addNodeSignalMapper;
+	QSignalMapper* _deleteNodeSignalMapper;
+	tlp::GlMainWidget* _glMainWidget;
 };
 
 /**
@@ -81,15 +88,16 @@ class AD2GInteractor : public tlp::InteractorChainOfResponsibility
 	Q_OBJECT
 
 public:
-	AD2GInteractor(PVAD2GWidget* widget):
+	AD2GInteractor(PVAD2GWidget* widget, tlp::GlMainWidget* glMainWidget):
 		tlp::InteractorChainOfResponsibility("", "AD2GInteractor"),
-		_widget(widget)
+		_widget(widget),
+		_glMainWidget(glMainWidget)
 	{
 		construct();
 	}
 	void construct()
 	{
-		_component1 = new AD2GInteractorComponent(_widget);
+		_component1 = new AD2GInteractorComponent(_widget, _glMainWidget);
 		pushInteractorComponent(_component1);
 	}
 	virtual bool isCompatible(const std::string &viewName) {return false;}
@@ -97,6 +105,7 @@ public:
 private:
 	AD2GInteractorComponent* _component1;
 	PVAD2GWidget* _widget;
+	tlp::GlMainWidget* _glMainWidget;
 };
 
 }
