@@ -58,7 +58,6 @@ void PVInspector::PVAxisPropertiesWidget::apply_slot()
 	PVLOG_INFO("%s \n       %s\n",__FILE__,__FUNCTION__);
 
 	_view->set_axis_name(axes_list->currentIndex(), axis_name->text());
-
 	refresh_widget(axes_list->currentIndex());
 }
 

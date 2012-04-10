@@ -53,6 +53,20 @@ void Picviz::PVAxis::init()
 
 /******************************************************************************
  *
+ * Picviz::PVAxis::serialize
+ *
+ *****************************************************************************/
+void Picviz::PVAxis::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*version*/)
+{
+	PVLOG_INFO("%s:%d: doing nothing\n", __FILE__, __LINE__);
+	so.attribute("is_expandable", is_expandable);
+	so.attribute("is_expanded", is_expanded);
+	so.attribute("thickness", thickness);
+	so.attribute("name", name);
+}
+
+/******************************************************************************
+ *
  * Picviz::PVAxis::~PVAxis
  *
  *****************************************************************************/
