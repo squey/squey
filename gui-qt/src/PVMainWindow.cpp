@@ -1100,9 +1100,10 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 	treat_invalid_formats(formats_error);
 	
 	if (!file_type_found) {
-		QMessageBox msgBox;
-		msgBox.critical(this, "Cannot import file", "The file cannot be opened: invalid file or type!\nReasons can be:\n  * PCAP with no IP packets\n  * PCAP with Netflow without SYN packets (uncheck default Netflow in options)\n  * Invalid parser providing no results\n");
-		PVLOG_ERROR("Cannot import source!\n");
+		QString msg = "<p>The sources cannot be opened: automatic format detection reported <strong>no valid format</strong>.</p>";
+		msg += "<p>Please note that automatic format detection is only appplied on a small subset of the provided sources.</p>";
+		msg += "<p><strong>Trick:</strong> if you know the format of these sources, and if it contains one or more filters that invalidate a lot of elements, you should avoid automatic format detection and select this format by hand in the import sources dialog.</p>";
+		QMessageBox::warning(this, "Cannot import sources", msg);
 		return;
 	}
 
@@ -2030,11 +2031,20 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_p src)
 	src->wait_extract_end(job_import);
 	PVLOG_INFO("The normalization job took %0.4f seconds.\n", job_import->duration().seconds());
 	if (src->get_rushnraw().get_number_rows() == 0) {
-		PVLOG_ERROR("Cannot append source!\n");
-		QMessageBox msgBox;
-		msgBox.critical(this, "Cannot import file type", QString("The files %1/%2 cannot be opened. It looks like the format is invalid (invalid regular expressions or filters).").arg(src->get_name()).arg(src->get_format_name()));
+		QString msg = QString("<p>The files <strong>%1</strong> using format <strong>%2</strong> cannot be opened. ").arg(src->get_name()).arg(src->get_format_name());
+		PVRow nelts = job_import->rejected_elements();
+		if (nelts > 0) {
+			msg += QString("Indeed, <strong>%1 elements</strong> have been extracted but were <strong>all invalid</strong>.</p>").arg(nelts);
+			msg += QString("<p>This is because one or more splitters and/or filters defined in format <strong>%1</strong> reported invalid elements during the extraction.<br />").arg(src->get_format_name());
+			msg += QString("You may have invalid regular expressions set in this format, or simply all the lines have been invalidated by one or more filters thus no lines matches your criterias.</p>");
+			msg += QString("<p>You might try to <strong>fix your format</strong> or try to load <strong>another set of data</strong>.</p>");
+		}
+		else {
+			msg += QString("Indeed, the sources <strong>were empty</strong> (empty files, bad database query, etc...) because no elements have been extracted.</p><p>You should try to load another set of data.</p>");
+		}
 		message.function = PVSDK_MESSENGER_FUNCTION_DESTROY_TRANSIENT;
 		pvsdk_messenger->post_message_to_gl(message);
+		QMessageBox::warning(this, "Cannot load sources", msg);
 		return false;
 	}
 	src->get_extractor().dump_nraw();
