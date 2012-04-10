@@ -50,8 +50,14 @@ int main(int argc, char** argv)
 	// Create the PVSource object
 	Picviz::PVRoot_p root(new Picviz::PVRoot());
 	Picviz::PVSource_p src(new Picviz::PVSource(PVRush::PVInputType::list_inputs() << file, sc_file, format));
+	src->set_invalid_elts_mode(true);
 	PVRush::PVControllerJob_p job = src->extract();
 	job->wait_end();
+
+	QStringList const& inv(job->get_invalid_elts());
+	foreach (QString const& sinv, inv) {
+		PVLOG_INFO("invalid: %s\n", qPrintable(sinv));
+	}
 
 	// Map the nraw
 	Picviz::PVMapped_p mapped(new Picviz::PVMapped(Picviz::PVMapping(src.get())));

@@ -40,6 +40,8 @@ public:
 	virtual bool can_expand() const { return false; }
 public:
 	static QStringList list_modes(QString const& type, bool only_expandable = false);
+	static QList<p_type> list_modes_lib(QString const& type, bool only_expandable);
+	static QString mode_from_registered_name(QString const& rn);
 protected:
 	QString _mapping_mode;
 	PVRow _dest_size;

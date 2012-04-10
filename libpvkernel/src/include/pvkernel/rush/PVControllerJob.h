@@ -75,7 +75,7 @@ public:
 	 */
 	PVControllerJob(job_action a, int priority);
 	virtual ~PVControllerJob();
-	void set_params(chunk_index begin, chunk_index end, chunk_index n_elts, stop_cdtion sc, PVAggregator &agg, PVFilter::PVChunkFilter_f filter, PVOutput& out_filter, size_t nchunks, bool dump_elts = false);
+	void set_params(chunk_index begin, chunk_index end, chunk_index n_elts, stop_cdtion sc, PVAggregator &agg, PVFilter::PVChunkFilter_f filter, PVOutput& out_filter, size_t nchunks, bool dump_inv_elts = false, bool dump_all_elts = false);
 	bool done() const;
 	bool running() const;
 	bool cancel();
@@ -88,7 +88,10 @@ public:
 
 public:
 	QStringList& get_all_elts() { return _all_elts; }
-	QStringList& get_invalids_elts() { return _inv_elts; }
+	QStringList& get_invalid_elts() { return _inv_elts; }
+
+	QStringList const& get_all_elts() const { return _all_elts; }
+	QStringList const& get_invalid_elts() const { return _inv_elts; }
 	
 protected:
 	tbb::filter_t<void,void> create_tbb_filter();
@@ -105,7 +108,8 @@ protected:
 
 protected:
 	// For elements dumping
-	bool _dump_elts;
+	bool _dump_inv_elts;
+	bool _dump_all_elts;
 	
 	// Filters
 	PVFilter::PVChunkFilterDumpElts _elt_valid_filter;

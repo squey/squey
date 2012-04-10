@@ -40,8 +40,10 @@ PVRush::PVImportFileDialog::PVImportFileDialog(QStringList pluginslist, QWidget 
 
 	treat_as_combobox->addItems(pluginslist);
 
+	_check_save_inv_elts = new QCheckBox(tr("Keep invalid elements during extraction.\nWarning: this can slow down the whole process and will consume more memory!"));
 	options_layout->addWidget(treat_as_label, 0, 0);
-	options_layout->addWidget(treat_as_combobox, 0, 1);
+	options_layout->addWidget(treat_as_combobox, 0, 2);
+	options_layout->addWidget(_check_save_inv_elts, 2, 0, 2, -1);
 
 	activate_netflow_checkbox = new QCheckBox("Use Netflow (PCAP only)");
 	activate_netflow_checkbox->setChecked(true);
@@ -102,4 +104,5 @@ void PVRush::PVImportFileDialog::setDefaults()
 	//from_line_edit->setText(QString("0"));
 	//to_line_edit->setText(QString("0"));
 	_check_archives_checkbox->setChecked(true);
+	_check_save_inv_elts->setChecked(false);
 }

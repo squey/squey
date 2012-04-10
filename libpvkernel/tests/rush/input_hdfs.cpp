@@ -1,5 +1,6 @@
 #include <pvkernel/rush/PVPluginsLoad.h>
 #include <pvkernel/core/PVClassLibrary.h>
+#include <pvkernel/rush/PVExtractor.h>
 #include <pvkernel/rush/PVInputType.h>
 #include <pvkernel/rush/PVSourceCreator.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
@@ -20,7 +21,8 @@ int main()
 	PVRush::hash_formats formats, new_formats;
 	QString choseFormat;
 	PVRush::PVInputType::list_inputs inputs;
-	assert(in_t->createWidget(formats, new_formats, inputs, choseFormat, NULL));
+	PVCore::PVArgumentList tmp_args = PVCore::PVArgumentList();
+	assert(in_t->createWidget(formats, new_formats, inputs, choseFormat, tmp_args, NULL));
 
 	PVRush::PVRawSourceBase::p_type src = cr_text->create_discovery_source_from_input(inputs[0], formats.values().at(0));
 	assert(src);

@@ -32,6 +32,7 @@ class PVAxesCombinationDialog;
 class PVExtractorWidget;
 class PVViewsListingWidget;
 class PVListingSortFilterProxyModel;
+class PVListDisplayDlg;
 
 /**
  *  \class PVTabSplitter
@@ -72,6 +73,8 @@ public:
 	PVLayerStackWidget *pv_layer_stack_widget;
 
 	PVViewsListingWidget* _views_widget;
+	
+	PVListDisplayDlg* _inv_elts_dlg;
 
 	PVExtractorWidget *_pv_extractor; //!< The extractor widget of this view
 
@@ -129,6 +132,9 @@ public:
 
 	PVListingSortFilterProxyModel* get_listing_proxy_model() { return pv_listing_proxy_model; }
 	PVListingView* get_listing_view() { return pv_listing_view; }
+
+
+	PVListDisplayDlg* get_source_invalid_elts_dlg() { return _inv_elts_dlg; };
 
 	/**
 	 *

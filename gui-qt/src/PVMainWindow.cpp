@@ -22,6 +22,7 @@
 
 #include <PVMainWindow.h>
 #include <PVExtractorWidget.h>
+#include <PVListDisplayDlg.h>
 #include <PVStringListChooserWidget.h>
 #include <PVArgumentListWidget.h>
 #include <PVInputTypeMenuEntries.h>
@@ -849,8 +850,8 @@ void PVInspector::PVMainWindow::create_filters_menu_and_actions()
 
 	for (it = lf.begin(); it != lf.end(); it++) {
 		//(*it).get_args()["Menu_name"]
-		QString filter_name = QString(it.key());
-		QString action_name = QString(it.key());
+		QString filter_name = it.key();
+		QString action_name = it.value()->menu_name();
 		QString status_tip = it.value()->status_bar_description();
 
 		QStringList actions_name = action_name.split(QString("/"));
@@ -1042,7 +1043,9 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 	// PVInputType::list_inputs is a QList<PVInputDescription_p>
 	PVRush::PVInputType::list_inputs inputs;
 
-	if (!in_t->createWidget(formats, new_formats, inputs, choosenFormat, this))
+	PVCore::PVArgumentList args_extract = PVRush::PVExtractor::default_args_extractor();
+
+	if (!in_t->createWidget(formats, new_formats, inputs, choosenFormat, args_extract, this))
 		return; // This means that the user pressed the "cancel" button
 
 	// Add the new formats to the formats
@@ -1059,7 +1062,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 		}
 	}
 
-	import_type(in_t, inputs, formats, format_creator, choosenFormat);
+	import_type(in_t, inputs, formats, format_creator, choosenFormat, args_extract);
 }
 
 
@@ -1069,7 +1072,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
  * PVInspector::PVMainWindow::import_type
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::PVInputType::list_inputs const& inputs, PVRush::hash_formats& formats, PVRush::hash_format_creator& format_creator, QString const& choosenFormat)
+void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::PVInputType::list_inputs const& inputs, PVRush::hash_formats& formats, PVRush::hash_format_creator& format_creator, QString const& choosenFormat, PVCore::PVArgumentList const& args_ext)
 {
 	PVRush::list_creators lcr = PVRush::PVSourceCreatorFactory::get_by_input_type(in_t);
 
@@ -1100,9 +1103,10 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 	treat_invalid_formats(formats_error);
 	
 	if (!file_type_found) {
-		QMessageBox msgBox;
-		msgBox.critical(this, "Cannot import file", "The file cannot be opened: invalid file or type!\nReasons can be:\n  * PCAP with no IP packets\n  * PCAP with Netflow without SYN packets (uncheck default Netflow in options)\n  * Invalid parser providing no results\n");
-		PVLOG_ERROR("Cannot import source!\n");
+		QString msg = "<p>The sources cannot be opened: automatic format detection reported <strong>no valid format</strong>.</p>";
+		msg += "<p>Please note that automatic format detection is only appplied on a small subset of the provided sources.</p>";
+		msg += "<p><strong>Trick:</strong> if you know the format of these sources, and if it contains one or more filters that invalidate a lot of elements, you should avoid automatic format detection and select this format by hand in the import sources dialog.</p>";
+		QMessageBox::warning(this, "Cannot import sources", msg);
 		return;
 	}
 
@@ -1167,6 +1171,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 	}
 
 	bool one_extraction_successful = false;
+	bool save_inv_elts = args_ext["inv_elts"].toBool();
 	// Load a type of file per view
 	QHash< QString, PVRush::PVInputType::list_inputs >::const_iterator it = discovered.constBegin();
 	for (; it != discovered.constEnd(); it++) {
@@ -1183,6 +1188,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 		Picviz::PVSource_p import_source;
 		try {
 			import_source = Picviz::PVSource_p(new Picviz::PVSource(inputs, fc.second, cur_format));
+			import_source->set_invalid_elts_mode(save_inv_elts);
 		}
 		catch (PVRush::PVFormatException const& e) {
 			PVLOG_ERROR("Error with format: %s\n", qPrintable(e.what()));
@@ -1964,7 +1970,7 @@ void PVInspector::PVMainWindow::load_files(std::vector<QString> const& files, QS
 		format = PICVIZ_AUTOMATIC_FORMAT_STR;
 	}
 
-	import_type(in_file, files_in, formats, format_creator, format);
+	import_type(in_file, files_in, formats, format_creator, format, PVRush::PVExtractor::default_args_extractor());
 }
 
 
@@ -1993,7 +1999,19 @@ bool PVInspector::PVMainWindow::load_scene()
 	return true;
 }
 
+void PVInspector::PVMainWindow::display_inv_elts(PVTabSplitter* tab_src)
+{
+	if (!tab_src) {
+		return;
+	}
 
+	if (tab_src->get_lib_src()->get_invalid_elts().size() > 0) {
+		tab_src->get_source_invalid_elts_dlg()->show();
+	}
+	else {
+		QMessageBox::information(this, tr("Invalid elements"), tr("No invalid element have been saved or created during the extraction of this source."));
+	}
+}
 
 /******************************************************************************
  *
@@ -2030,15 +2048,24 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_p src)
 	src->wait_extract_end(job_import);
 	PVLOG_INFO("The normalization job took %0.4f seconds.\n", job_import->duration().seconds());
 	if (src->get_rushnraw().get_number_rows() == 0) {
-		PVLOG_ERROR("Cannot append source!\n");
-		QMessageBox msgBox;
-		msgBox.critical(this, "Cannot import file type", QString("The files %1/%2 cannot be opened. It looks like the format is invalid (invalid regular expressions or filters).").arg(src->get_name()).arg(src->get_format_name()));
+		QString msg = QString("<p>The files <strong>%1</strong> using format <strong>%2</strong> cannot be opened. ").arg(src->get_name()).arg(src->get_format_name());
+		PVRow nelts = job_import->rejected_elements();
+		if (nelts > 0) {
+			msg += QString("Indeed, <strong>%1 elements</strong> have been extracted but were <strong>all invalid</strong>.</p>").arg(nelts);
+			msg += QString("<p>This is because one or more splitters and/or filters defined in format <strong>%1</strong> reported invalid elements during the extraction.<br />").arg(src->get_format_name());
+			msg += QString("You may have invalid regular expressions set in this format, or simply all the lines have been invalidated by one or more filters thus no lines matches your criterias.</p>");
+			msg += QString("<p>You might try to <strong>fix your format</strong> or try to load <strong>another set of data</strong>.</p>");
+		}
+		else {
+			msg += QString("Indeed, the sources <strong>were empty</strong> (empty files, bad database query, etc...) because no elements have been extracted.</p><p>You should try to load another set of data.</p>");
+		}
 		message.function = PVSDK_MESSENGER_FUNCTION_DESTROY_TRANSIENT;
 		pvsdk_messenger->post_message_to_gl(message);
+		QMessageBox::warning(this, "Cannot load sources", msg);
 		return false;
 	}
 	src->get_extractor().dump_nraw();
-	
+
 	// If no view is present, create a default one. Otherwise, process them by
 	// keeping the existing layers !
 	Picviz::PVView_p first_view;
@@ -2083,6 +2110,10 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_p src)
 	connect(current_tab, SIGNAL(source_changed()), this, SLOT(project_modified_Slot()));
 	int new_tab_index = pv_ListingsTabWidget->addTab(current_tab, current_tab->get_tab_name());
 	pv_ListingsTabWidget->setCurrentIndex(new_tab_index);
+
+	if (src->get_invalid_elts().size() > 0) {
+		display_inv_elts(current_tab);
+	}
 
 	return true;
 }

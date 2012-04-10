@@ -7,5 +7,5 @@
 // This method will be called by libpicviz
 LibCPPExport void register_class()
 {
-	REGISTER_CLASS("Find/Same values", Picviz::PVLayerFilterFindSameValues);
+	REGISTER_CLASS("find-same-values", Picviz::PVLayerFilterFindSameValues);
 }

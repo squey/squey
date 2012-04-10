@@ -1254,3 +1254,10 @@ void PVInspector::PVMainWindow::selection_set_from_layer_Slot()
 		}
 	}
 }
+
+void PVInspector::PVMainWindow::view_display_inv_elts_Slot()
+{
+	if (current_tab && current_tab->get_lib_view()) {
+		display_inv_elts(current_tab);
+	}
+}
