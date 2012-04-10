@@ -56,7 +56,7 @@ Picviz::PVSource::PVSource(const PVSource& org):
 
 Picviz::PVSource::~PVSource()
 {
-	PVLOG_INFO("In PVSource destructor\n");
+	PVLOG_DEBUG("In PVSource destructor\n");
 	_extractor.force_stop_controller();
 }
 
@@ -72,6 +72,8 @@ void Picviz::PVSource::init()
 	if (nchunks != 0) {
 		_extractor.set_number_living_chunks(nchunks);
 	}
+
+	_restore_inv_elts = false;
 
 	// Launch the controller thread
 	_extractor.start_controller();
@@ -124,6 +126,7 @@ PVRush::PVControllerJob_p Picviz::PVSource::extract_from_agg_nlines(chunk_index 
 void Picviz::PVSource::wait_extract_end(PVRush::PVControllerJob_p job)
 {
 	job->wait_end();
+	_inv_elts = job->get_invalid_elts();
 	extract_finished();
 }
 
@@ -145,6 +148,14 @@ void Picviz::PVSource::extract_finished()
 void Picviz::PVSource::set_format(PVRush::PVFormat const& format)
 {
 	_extractor.set_format(format);
+	if (_restore_inv_elts) {
+		_extractor.get_format().restore_invalid_elts(true);
+		_extractor.dump_inv_elts(true);
+	}
+	else {
+		_extractor.get_format().restore_invalid_elts(false);
+		_extractor.dump_inv_elts(false);
+	}
 	_axes_combination.set_from_format(_extractor.get_format());
 
 	PVFilter::PVChunkFilter_f chk_flt = _extractor.get_format().create_tbb_filters();
@@ -274,6 +285,13 @@ void Picviz::PVSource::add_column(PVAxisComputation_f f_axis, PVAxis const& axis
 		add_column(axis);
 	}
 	set_views_consistent(true);
+}
+
+void Picviz::PVSource::set_invalid_elts_mode(bool restore_inv_elts)
+{
+	_restore_inv_elts = restore_inv_elts;
+	PVRush::PVFormat format = _extractor.get_format();
+	set_format(format);
 }
 
 void Picviz::PVSource::serialize_write(PVCore::PVSerializeObject& so)

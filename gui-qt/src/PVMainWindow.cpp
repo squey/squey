@@ -22,6 +22,7 @@
 
 #include <PVMainWindow.h>
 #include <PVExtractorWidget.h>
+#include <PVListDisplayDlg.h>
 #include <PVStringListChooserWidget.h>
 #include <PVArgumentListWidget.h>
 #include <PVInputTypeMenuEntries.h>
@@ -1042,7 +1043,9 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 	// PVInputType::list_inputs is a QList<PVInputDescription_p>
 	PVRush::PVInputType::list_inputs inputs;
 
-	if (!in_t->createWidget(formats, new_formats, inputs, choosenFormat, this))
+	PVCore::PVArgumentList args_extract = PVRush::PVExtractor::default_args_extractor();
+
+	if (!in_t->createWidget(formats, new_formats, inputs, choosenFormat, args_extract, this))
 		return; // This means that the user pressed the "cancel" button
 
 	// Add the new formats to the formats
@@ -1059,7 +1062,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 		}
 	}
 
-	import_type(in_t, inputs, formats, format_creator, choosenFormat);
+	import_type(in_t, inputs, formats, format_creator, choosenFormat, args_extract);
 }
 
 
@@ -1069,7 +1072,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
  * PVInspector::PVMainWindow::import_type
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::PVInputType::list_inputs const& inputs, PVRush::hash_formats& formats, PVRush::hash_format_creator& format_creator, QString const& choosenFormat)
+void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::PVInputType::list_inputs const& inputs, PVRush::hash_formats& formats, PVRush::hash_format_creator& format_creator, QString const& choosenFormat, PVCore::PVArgumentList const& args_ext)
 {
 	PVRush::list_creators lcr = PVRush::PVSourceCreatorFactory::get_by_input_type(in_t);
 
@@ -1168,6 +1171,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 	}
 
 	bool one_extraction_successful = false;
+	bool save_inv_elts = args_ext["inv_elts"].toBool();
 	// Load a type of file per view
 	QHash< QString, PVRush::PVInputType::list_inputs >::const_iterator it = discovered.constBegin();
 	for (; it != discovered.constEnd(); it++) {
@@ -1184,6 +1188,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 		Picviz::PVSource_p import_source;
 		try {
 			import_source = Picviz::PVSource_p(new Picviz::PVSource(inputs, fc.second, cur_format));
+			import_source->set_invalid_elts_mode(save_inv_elts);
 		}
 		catch (PVRush::PVFormatException const& e) {
 			PVLOG_ERROR("Error with format: %s\n", qPrintable(e.what()));
@@ -1965,7 +1970,7 @@ void PVInspector::PVMainWindow::load_files(std::vector<QString> const& files, QS
 		format = PICVIZ_AUTOMATIC_FORMAT_STR;
 	}
 
-	import_type(in_file, files_in, formats, format_creator, format);
+	import_type(in_file, files_in, formats, format_creator, format, PVRush::PVExtractor::default_args_extractor());
 }
 
 
@@ -1994,7 +1999,19 @@ bool PVInspector::PVMainWindow::load_scene()
 	return true;
 }
 
+void PVInspector::PVMainWindow::display_inv_elts(PVTabSplitter* tab_src)
+{
+	if (!tab_src) {
+		return;
+	}
 
+	if (tab_src->get_lib_src()->get_invalid_elts().size() > 0) {
+		tab_src->get_source_invalid_elts_dlg()->show();
+	}
+	else {
+		QMessageBox::information(this, tr("Invalid elements"), tr("No invalid element have been saved or created during the extraction of this source."));
+	}
+}
 
 /******************************************************************************
  *
@@ -2048,7 +2065,7 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_p src)
 		return false;
 	}
 	src->get_extractor().dump_nraw();
-	
+
 	// If no view is present, create a default one. Otherwise, process them by
 	// keeping the existing layers !
 	Picviz::PVView_p first_view;
@@ -2093,6 +2110,10 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_p src)
 	connect(current_tab, SIGNAL(source_changed()), this, SLOT(project_modified_Slot()));
 	int new_tab_index = pv_ListingsTabWidget->addTab(current_tab, current_tab->get_tab_name());
 	pv_ListingsTabWidget->setCurrentIndex(new_tab_index);
+
+	if (src->get_invalid_elts().size() > 0) {
+		display_inv_elts(current_tab);
+	}
 
 	return true;
 }

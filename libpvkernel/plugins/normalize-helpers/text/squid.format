@@ -1,11 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE PVParamXml>
-<param version="4">
+<param version="5">
  <field>
   <splitter validator="" expression="([0-9]+)[0-9.]*\s+[0-9]+\s+[0-9]+\s+[A-Z/_-]+([0-9]+)\s+[0-9]+\s+(GET|POST|PUT|OPTIONS)\s+(\S+)\s+(\S+)\s+([^/]+)/(\d+.\d+.\d+.\d+)" full-line="true" type="regexp" regexp="([0-9]+)[0-9.]*\s+[0-9]+\s+[0-9]+\s+[A-Z/_-]+([0-9]+)\s+[0-9]+\s+(GET|POST|PUT|OPTIONS)\s+(\S+)\s+(\S+)\s+([^/]+)/(\d+.\d+.\d+.\d+)" name="Squid">
    <field>
     <axis titlecolor="#ffffff" group="" type="time" name="Time" color="#ffffff" time-sample="">
-     <mapping mode="default" time-format="@PVTimeFormat(epoch)"/>
+     <mapping mode="default" time-format="epoch"/>
      <plotting mode="default"/>
     </axis>
    </field>
