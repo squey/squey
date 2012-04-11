@@ -11,6 +11,7 @@
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVAxesIndexType.h>
+#include <pvkernel/widgets/PVSizeHintListWidget.h>
 
 #include <picviz/PVView.h>
 
@@ -19,7 +20,7 @@ namespace PVInspector {
 /**
  * \class PVAxesIndexEditor
  */
-class PVAxesIndexEditor : public QListWidget
+class PVAxesIndexEditor : public PVWidgets::PVSizeHintListWidget
 {
 	Q_OBJECT
 	Q_PROPERTY(PVCore::PVAxesIndexType _axes_index READ get_axes_index WRITE set_axes_index USER true)

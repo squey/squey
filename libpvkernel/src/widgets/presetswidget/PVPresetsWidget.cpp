@@ -1,8 +1,16 @@
 #include <pvkernel/core/PVLogger.h>
 #include <pvkernel/widgets/PVPresetsWidget.h>
 
-PVWidgets::PVPresetsWidget::PVPresetsWidget(QWidget* parent, Qt::WindowFlags f) :
+//void PVWidgets::__impl::keyPressEvent(QKeyEvent* event)
+//{
+//	if (event->key() == Qt::Key_F2) {
+//		_parent->rename_Slot();
+//	}
+//}
+
+PVWidgets::PVPresetsWidget::PVPresetsWidget(const QString& title, QWidget* parent, Qt::WindowFlags f) :
 	QWidget(parent, f),
+	_group_box(NULL),
 	_list(NULL),
 	_btn_load(NULL),
 	_btn_save(NULL),
@@ -10,51 +18,71 @@ PVWidgets::PVPresetsWidget::PVPresetsWidget(QWidget* parent, Qt::WindowFlags f) 
 	_btn_remove(NULL)
 {
 	// Widgets
-	_list = new QListWidget();
-	_list->setMaximumHeight(70); // FIXME: Use SizePolicy instead
+	_list = new __impl::PVPresetsListWidget(this);
+	_list->setUniformItemSizes(true);
 
-	QString style = "QPushButton { background-color: white; border-width:1px; border-style: solid; border-color:#66006e;}";
+	// OBJECTNAME STUFF
+	setObjectName("PVPresetsWidget");
 
-	_btn_load = new QPushButton(QIcon(":/load-preset"), "");
-	_btn_load->setMaximumSize(22, 22);
-	_btn_load->setStyleSheet(style);
+	//_btn_load = new QPushButton(tr("Load"));
+	_btn_load = new QPushButton(QIcon(":/Presets_Load_Action_Icon"), "");
+	_btn_load->setMinimumSize(29, 32);
+	//_btn_load->setStyleSheet(style);
 	_btn_load->setToolTip(tr("Load"));
 
-	_btn_save = new QPushButton(QIcon(":/save-preset"), "");
-	_btn_save->setMaximumSize(22, 22);
-	_btn_save->setStyleSheet(style);
+	//_btn_save = new QPushButton(tr("Save"));
+	_btn_save = new QPushButton(QIcon(":/Presets_Save_Action_Icon"), "");
+	_btn_save->setMinimumSize(29, 32);
+	//_btn_save->setStyleSheet(style);
 	_btn_save->setToolTip(tr("Save"));
 
-	_btn_rename = new QPushButton(QIcon(":/rename-preset"), "");
-	_btn_rename->setMaximumSize(22, 22);
-	_btn_rename->setStyleSheet(style);
-	_btn_rename->setToolTip(tr("Rename"));
-
+	//_btn_remove = new QPushButton(tr("Remove"));
 	_btn_remove = new QPushButton(QIcon(":/remove-preset"), "");
-	_btn_remove->setMaximumSize(22, 22);
-	_btn_remove->setStyleSheet(style);
+	_btn_remove->setMinimumSize(29, 32);
+	//_btn_remove->setStyleSheet(style);
 	_btn_remove->setToolTip(tr("Remove"));
 
+	_group_box = new QGroupBox(title);
+
 	// Layouts
+	QVBoxLayout* main_layout = new QVBoxLayout();
 	QVBoxLayout* v_layout = new QVBoxLayout();
 	QHBoxLayout* h_layout = new QHBoxLayout();
 	h_layout->addWidget(_btn_load);
 	h_layout->addWidget(_btn_save);
-	h_layout->addWidget(_btn_rename);
+	//h_layout->addWidget(_btn_rename);
 	h_layout->addWidget(_btn_remove);
 	h_layout->addStretch(1);
 	h_layout->setSpacing(1);
-	v_layout->addWidget(_list);
 	v_layout->addLayout(h_layout);
-	setLayout(v_layout);
+	v_layout->addWidget(_list);
+	_group_box->setLayout(v_layout);
+	main_layout->addWidget(_group_box);
+	setLayout(main_layout);
 
 	// Connection
 	connect(_list, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(load_Slot()));
 	connect(_btn_load, SIGNAL(clicked()), this, SLOT(load_Slot()));
 	connect(_btn_save, SIGNAL(clicked()), this, SLOT(save_Slot()));
-	connect(_btn_rename, SIGNAL(clicked()), this, SLOT(rename_Slot()));
 	connect(_btn_remove, SIGNAL(clicked()), this, SLOT(remove_Slot()));
 	connect(_list, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(item_changed_Slot(QListWidgetItem*)));
+
+	// QAction menu binding
+	_loadAct = new QAction(QIcon(), tr("Load"), this);
+	connect(_loadAct, SIGNAL(triggered()), this, SLOT(load_Slot()));
+	_list->addAction(_loadAct);
+	_saveAct = new QAction(QIcon(), tr("Save"), this);
+	connect(_saveAct, SIGNAL(triggered()), this, SLOT(save_Slot()));
+	_list->addAction(_saveAct);
+	_renameAct = new QAction(QIcon(), tr("Rename"), this);
+	connect(_renameAct, SIGNAL(triggered()), this, SLOT(rename_Slot()));
+	_list->addAction(_renameAct);
+	_removeAct = new QAction(QIcon(), tr("Remove"), this);
+	connect(_removeAct, SIGNAL(triggered()), this, SLOT(remove_Slot()));
+	_list->addAction(_removeAct);
+	_list->setContextMenuPolicy(Qt::ActionsContextMenu);
+
+	update_button_status();
 }
 
 QVariant PVWidgets::PVPresetsWidget::get_preset_data(int index) const
@@ -64,7 +92,11 @@ QVariant PVWidgets::PVPresetsWidget::get_preset_data(int index) const
 
 QVariant PVWidgets::PVPresetsWidget::get_preset_data() const
 {
-	return _list->currentItem()->data(Qt::UserRole);
+	QListWidgetItem* item = _list->currentItem();
+	if (!item) {
+		return QVariant();
+	}
+	return item->data(Qt::UserRole);
 }
 
 void PVWidgets::PVPresetsWidget::clear_presets()
@@ -74,7 +106,11 @@ void PVWidgets::PVPresetsWidget::clear_presets()
 
 QString PVWidgets::PVPresetsWidget::get_current_preset_name() const
 {
-	return _list->currentItem()->text();
+	QListWidgetItem* item = _list->currentItem();
+	if (!item) {
+		return "";
+	}
+	return item->text();
 }
 
 int PVWidgets::PVPresetsWidget::get_preset_count() const
@@ -85,6 +121,7 @@ int PVWidgets::PVPresetsWidget::get_preset_count() const
 void PVWidgets::PVPresetsWidget::add_presets(const QStringList& presets)
 {
 	_list->addItems(presets);
+	update_button_status();
 }
 
 void PVWidgets::PVPresetsWidget::add_preset(const QString& preset, const QVariant& userData)
@@ -92,6 +129,7 @@ void PVWidgets::PVPresetsWidget::add_preset(const QString& preset, const QVarian
 	QListWidgetItem* item = new QListWidgetItem(preset);
 	item->setData(Qt::UserRole, userData);
 	_list->addItem(item);
+	update_button_status();
 }
 
 void PVWidgets::PVPresetsWidget::load_Slot()
@@ -116,6 +154,7 @@ void PVWidgets::PVPresetsWidget::save_Slot()
 			_list->sortItems();
 			_list->setCurrentItem(item);
 			emit btn_new_clicked_Signal(preset);
+			update_button_status();
 		}
 		else {
 			emit btn_save_clicked_Signal(preset);
@@ -157,6 +196,7 @@ void PVWidgets::PVPresetsWidget::item_changed_Slot(QListWidgetItem* item)
 		QMessageBox* box = new QMessageBox(QMessageBox::Question, tr("Existing preset"), tr("The preset \"%1\" already exists. Replace?").arg(item->text()), QMessageBox::Yes | QMessageBox::No, this);
 		if (box->exec() == QMessageBox::Yes) {
 			delete _list->takeItem(_list->currentRow());
+			update_button_status();
 		}
 		else {
 			new_preset_name = _old_preset_name;
@@ -173,6 +213,29 @@ void PVWidgets::PVPresetsWidget::item_changed_Slot(QListWidgetItem* item)
 	_list->blockSignals(false);
 }
 
+void PVWidgets::PVPresetsWidget::update_button_status()
+{
+	bool enabled = _list->count();
+	_btn_load->setEnabled(enabled);
+	_btn_remove->setEnabled(enabled);
+
+	_list->removeAction(_loadAct);
+	_list->removeAction(_saveAct);
+	_list->removeAction(_renameAct);
+	_list->removeAction(_removeAct);
+
+	if (enabled) {
+		_list->addAction(_loadAct);
+		_list->addAction(_saveAct);
+		_list->addAction(_renameAct);
+		_list->addAction(_removeAct);
+	}
+	else {
+		_list->addAction(_saveAct);
+	}
+
+}
+
 void PVWidgets::PVPresetsWidget::remove_Slot()
 {
 	QListWidgetItem* item = _list->currentItem();
@@ -182,8 +245,9 @@ void PVWidgets::PVPresetsWidget::remove_Slot()
 	QString preset = item->text();
 	QMessageBox* box = new QMessageBox(QMessageBox::Question, tr("Confirm delete"), tr("Are you sure you want to delete preset \"%1\"?").arg(preset), QMessageBox::Yes | QMessageBox::No, this);
 	if (box->exec() == QMessageBox::Yes) {
-		delete _list->takeItem(_list->currentRow());
 		emit btn_remove_clicked_Signal(preset);
+		delete _list->takeItem(_list->currentRow());
+		update_button_status();
 	}
 }
 

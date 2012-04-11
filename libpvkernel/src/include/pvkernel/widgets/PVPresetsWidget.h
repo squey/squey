@@ -3,7 +3,13 @@
 
 #include <QtGui>
 
+#include <pvkernel/widgets/PVSizeHintListWidget.h>
+
 namespace PVWidgets {
+
+namespace __impl {
+	class PVPresetsListWidget;
+}
 
 class PVPresetsWidget : public QWidget
 {
@@ -12,7 +18,7 @@ public:
 	friend class PVSavePresetAsDialog;
 
 public:
-	PVPresetsWidget(QWidget* parent = 0, Qt::WindowFlags f = 0);
+	PVPresetsWidget(const QString & title, QWidget* parent = 0, Qt::WindowFlags f = 0);
 
 public slots:
 	void load_Slot();
@@ -20,6 +26,7 @@ public slots:
 	void rename_Slot();
 	void remove_Slot();
 	void item_changed_Slot(QListWidgetItem* item);
+	void update_button_status();
 
 Q_SIGNALS:
 	void btn_load_clicked_Signal(const QString& preset);
@@ -39,16 +46,43 @@ public:
 	int get_preset_count() const;
 
 private:
-	QListWidget* _list;
+	QGroupBox* _group_box;
+	__impl::PVPresetsListWidget* _list;
 	QPushButton* _btn_load;
 	QPushButton* _btn_save;
 	QPushButton* _btn_rename;
 	QPushButton* _btn_remove;
 
+	QAction* _loadAct;
+	QAction* _saveAct;
+	QAction* _renameAct;
+	QAction* _removeAct;
+
 	QString _last_preset_loaded;
 	QString _old_preset_name;
 
 };
+
+namespace __impl {
+
+class PVPresetsListWidget : public PVWidgets::PVSizeHintListWidget
+{
+public:
+	PVPresetsListWidget(PVWidgets::PVPresetsWidget* parent) : PVWidgets::PVSizeHintListWidget((QWidget*)parent)
+	{
+		_parent = parent;
+	}
+	void keyPressEvent(QKeyEvent *event)
+	{
+		if (event->key() == Qt::Key_F2) {
+			_parent->rename_Slot();
+		}
+	}
+private:
+	PVWidgets::PVPresetsWidget* _parent;
+};
+
+}
 
 class PVSavePresetAsDialog: public QDialog
 {
