@@ -113,7 +113,7 @@ void init_segfault_handler()
 {
 	// If we are already ptraced (like if gdb is alreadu running on top of us),
 	// do nothing here.
-	if (are_we_ptraced()) {
+	/*if (are_we_ptraced()) {
 		return;
 	}
 
@@ -123,7 +123,7 @@ void init_segfault_handler()
 	sa.sa_flags = SA_SIGINFO | SA_RESTART;
 	sa.sa_sigaction = segfault_handler;
 
-	sigaction(SIGSEGV, &sa, NULL);
+	sigaction(SIGSEGV, &sa, NULL);*/
 }
 
 #else // WIN32

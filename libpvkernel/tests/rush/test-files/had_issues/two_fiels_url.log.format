@@ -1,0 +1,52 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE PVParamXml>
+<param version="5">
+ <splitter sep=" " type="csv">
+  <field>
+   <axis titlecolor="#ff921d" tag="" key="false" mapping="default" group="" type="integer" name="Axis 1" color="#ffffff" plotting="default">
+    <mapping mode="default"/>
+    <plotting mode="default"/>
+   </axis>
+  </field>
+  <field>
+   <splitter type="url">
+    <field>
+     <axis titlecolor="#ffffff" tag="protocol" key="false" type="enum" name="Protocol" color="#ffffff">
+      <mapping mode="default"/>
+      <plotting mode="default"/>
+     </axis>
+    </field>
+    <field>
+     <axis titlecolor="#ffffff" tag="subdomain" key="false" type="string" name="Subdomain" color="#ffffff">
+      <mapping mode="default"/>
+      <plotting mode="default"/>
+     </axis>
+    </field>
+    <field>
+     <axis titlecolor="#ffffff" tag="host" key="false" type="string" name="Host" color="#ffffff">
+      <mapping mode="default"/>
+      <plotting mode="default"/>
+     </axis>
+    </field>
+    <field>
+     <axis titlecolor="#ffffff" tag="domain" key="true" type="host" name="Domain" color="#ffffff">
+      <mapping mode="default"/>
+      <plotting mode="default"/>
+     </axis>
+    </field>
+    <field>
+     <axis titlecolor="#ffffff" tag="tld" key="false" type="enum" name="TLD" color="#ffffff">
+      <mapping mode="default"/>
+      <plotting mode="default"/>
+     </axis>
+    </field>
+    <field>
+     <axis titlecolor="#ffffff" tag="port" key="false" type="integer" name="Port" color="#ffffff">
+      <mapping mode="default"/>
+      <plotting mode="port"/>
+     </axis>
+    </field>
+   </splitter>
+  </field>
+ </splitter>
+</param>

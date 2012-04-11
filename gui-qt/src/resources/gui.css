@@ -239,6 +239,18 @@ QMainWindow#PVMainWindow {
 
 
 /****************************
+ * PVPresetsWidget
+ ***************************/
+ 
+QWidget#PVPresetsWidget QPushButton {
+	background-color: white;
+	border-width: 1px;
+	border-style: solid;
+	border-color: #66006e;
+}
+
+
+/****************************
  * PVTabSplitter
  ***************************/
 

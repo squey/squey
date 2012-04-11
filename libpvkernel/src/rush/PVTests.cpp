@@ -39,7 +39,13 @@ bool PVRush::PVTests::get_file_sc(input_type file, PVRush::PVFormat const& forma
 		for (itc = pre_discovered_c.begin(); itc != pre_discovered_c.end(); itc++) {
 			PVRush::PVSourceCreator_p sc = *itc;
 			PVRush::pair_format_creator fcr(format, sc);
-			float sr_tmp = PVRush::PVSourceCreatorFactory::discover_input(fcr, file);
+			float sr_tmp;
+			try {
+				sr_tmp = PVRush::PVSourceCreatorFactory::discover_input(fcr, file);
+			}
+			catch (...) {
+				continue;
+			}
 			if (sr_tmp > success_rate) {
 				success_rate = sr_tmp;
 				sc_file = sc;

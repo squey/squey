@@ -660,7 +660,7 @@ void PVGL::PVLines::fill_vbo_positions(unsigned int batch_index, GLuint start, G
 void PVGL::PVLines::fill_vbo_positions(unsigned int batch_index, GLuint start, GLsizei count)
 {
 	glBindBuffer(GL_ARRAY_BUFFER, batches[batch_index].vbo_position); PRINT_OPENGL_ERROR();
-	glBufferData(GL_ARRAY_BUFFER, batches[batch_index].vbo_pos_alloc_size, NULL, GL_DYNAMIC_DRAW); PRINT_OPENGL_ERROR();
+	//glBufferData(GL_ARRAY_BUFFER, batches[batch_index].vbo_pos_alloc_size, NULL, GL_DYNAMIC_DRAW); PRINT_OPENGL_ERROR();
 	vec4* buffer = reinterpret_cast<vec4*>(glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY));
 
 	PVCol plotted_col_size = picviz_view->get_original_axes_count();
@@ -983,7 +983,7 @@ void PVGL::PVLines::update_lpr()
 {
 	size_t nb_axes = picviz_view->get_axes_count();
 	size_t lpr = view->get_max_lines_per_redraw();
-	for (unsigned i = 0; i < batches.size(); i++) {
+	/*for (unsigned i = 0; i < batches.size(); i++) {
 		int nb_vec4;
 		int nb_axes_in_batch;
 		int array_size;
@@ -998,6 +998,11 @@ void PVGL::PVLines::update_lpr()
 		glBindBuffer(GL_ARRAY_BUFFER, batches[i].vbo_position); PRINT_OPENGL_ERROR();
 		array_size = nb_vec4 * lpr;
 		glBufferData(GL_ARRAY_BUFFER, array_size * sizeof(vec4), 0, GL_DYNAMIC_DRAW); PRINT_OPENGL_ERROR();
-	}
+	}*/
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_position_full); PRINT_OPENGL_ERROR();
+	glBufferData(GL_ARRAY_BUFFER, lpr*((NB_AXES_PER_BATCH+3)/4)*sizeof(vec4), 0, GL_DYNAMIC_DRAW); PRINT_OPENGL_ERROR();
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_position_last); PRINT_OPENGL_ERROR();
+	glBufferData(GL_ARRAY_BUFFER, lpr*(((nb_axes%(NB_AXES_PER_BATCH)) + 3)/4)*sizeof(vec4), 0, GL_DYNAMIC_DRAW); PRINT_OPENGL_ERROR();
 
 }

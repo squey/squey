@@ -34,9 +34,9 @@ void PVInspector::PVMainWindow::about_Slot()
 
 		QLabel *logo = new QLabel;
 #ifdef CUDA
-		QString content = "Picviz Inspector v." + QString(PICVIZ_CURRENT_VERSION_STR) + "\n(c) 2010-2011 Picviz Labs SAS\ncontact@picviz.com\nhttp://www.picviz.com\n\nWith CUDA support\nQT version " + QString(QT_VERSION_STR);
+		QString content = "Picviz Inspector v." + QString(PICVIZ_CURRENT_VERSION_STR) + " \"" + QString(PICVIZ_VERSION_NAME) + "\"\n(c) 2010-2011 Picviz Labs SAS\ncontact@picviz.com\nhttp://www.picviz.com\n\nWith CUDA support\nQT version " + QString(QT_VERSION_STR);
 #else
-		QString content = "Picviz Inspector v." + QString(PICVIZ_CURRENT_VERSION_STR) + "\n(c) 2010-2011 Picviz Labs SAS\ncontact@picviz.com\nhttp://www.picviz.com\n\nQT version " + QString(QT_VERSION_STR);
+		QString content = "Picviz Inspector v." + QString(PICVIZ_CURRENT_VERSION_STR) + " \"" + QString(PICVIZ_VERSION_NAME) + "\"\n(c) 2010-2011 Picviz Labs SAS\ncontact@picviz.com\nhttp://www.picviz.com\n\nQT version " + QString(QT_VERSION_STR);
 #endif
 		QLabel *text = new QLabel(content);
 		QPushButton *ok = new QPushButton("OK");

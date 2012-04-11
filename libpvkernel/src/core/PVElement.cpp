@@ -23,6 +23,7 @@ PVCore::PVElement::PVElement(PVElement const& src) :
 {
 	// No copy must occur !
 	assert(false);
+	_org_buf = NULL;
 }
 
 PVCore::PVElement::~PVElement()
