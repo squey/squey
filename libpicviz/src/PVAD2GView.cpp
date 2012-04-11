@@ -14,6 +14,7 @@
 #include <queue>
 
 // some macro to make things clearer
+// Tulip nodes and edges are implicitly initialized to an invalid value
 #define TLP_NODE_INVALID tlp::node()
 #define TLP_EDGE_INVALID tlp::edge()
 
@@ -23,18 +24,26 @@
  *
  *****************************************************************************/
 
-// TODO: RH: write a correct documentation for the Tulip Property blob...
+/* To add a new property to a Tulip graph, some classes are needed:
+ * - a pointer can not be used as a graph property, so it must be encapsulated:
+ *   PVAD2GViewNode and PVAD2GViewEdge
+ * - an interface is needed to (de)serialize the property's values:
+ *   PVAD2GViewNodeType and PVAD2GViewEdgeType
+ * - an algorithm: PVAD2GViewCorrelationAlgorithm
+ * - finally the property definition: AbstractPVAD2GViewCorrelationProperty and
+ *   PVAD2GViewCorrelationProperty
+ */
 namespace Picviz {
 
 typedef PVSimpleContainerTmpl<Picviz::PVView*> PVAD2GViewNode;
 
 class PVAD2GViewNodeType : public tlp::TypeInterface <Picviz::PVAD2GViewNode> {
 public:
-	static std::string toString(const RealType &value) {
+	static std::string toString(const RealType &/*value*/) {
 		// TODO: write serialization exporter
 		return "";
 	}
-	static bool fromString(RealType &value, const std::string &str){
+	static bool fromString(RealType &/*value*/, const std::string &/*str*/){
 		// TODO: write serialization importer
 		return true;
 	}
@@ -44,11 +53,11 @@ typedef PVSimpleContainerTmpl<PVCombiningFunctionView_p> PVAD2GViewEdge;
 
 class PVAD2GViewEdgeType : public tlp::TypeInterface <Picviz::PVAD2GViewEdge> {
 public:
-	static std::string toString(const RealType &value) {
+	static std::string toString(const RealType &/*value*/) {
 		// TODO: write serialization exporter
 		return "";
 	}
-	static bool fromString(RealType &value, const std::string &str){
+	static bool fromString(RealType &/*value*/, const std::string &/*str*/){
 		// TODO: write serialization importer
 		return true;
 	}
@@ -69,8 +78,9 @@ public :
 
 	// PropertyInterface inherited methods
 	tlp::PropertyInterface* clonePrototype(tlp::Graph *g, const std::string& n) {
-		if( !g )
+		if( !g ) {
 			return 0;
+		}
 
 		// allow to get an unregistered property (empty name)
 		PVAD2GViewCorrelationProperty * p = n.empty()
@@ -241,7 +251,7 @@ bool Picviz::PVAD2GView::check_properties()
 	return true;
 }
 
-int count_paths_num(tlp::Graph *graph, tlp::node na, tlp::node nb)
+int count_paths_num(tlp::Graph */*graph*/, tlp::node /*na*/, tlp::node /*nb*/)
 {
 	int count = 0;
 

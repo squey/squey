@@ -347,16 +347,6 @@ PVCol Picviz::PVView::get_real_axis_index(PVCol col)
 
 /******************************************************************************
  *
- * Picviz::PVView::get_data
- *
- *****************************************************************************/
-QString Picviz::PVView::get_data_raw(PVRow row, PVCol column)
-{
-	return get_qtnraw_parent().at(row, column).get_qstr();
-}
-
-/******************************************************************************
- *
  * Picviz::PVView::get_floating_selection
  *
  *****************************************************************************/
