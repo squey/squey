@@ -501,12 +501,6 @@ void PVGL::PVMain::timer_func(int)
 
 	PVLOG_HEAVYDEBUG("PVGL::PVMain::%s\n", __FUNCTION__);
 
-	if (_should_stop) {
-		PVLOG_ERROR("PVGL::PVMain::%s: we are exiting, don't do too much!\n", __FUNCTION__);
-		return;
-	}
-        
-
 	// Do we have mail?
 	if (pvsdk_messenger->get_message_for_gl(message)) {
 		switch (message.function) {
@@ -902,7 +896,7 @@ bool pvgl_init(PVSDK::PVMessenger *messenger)
 
 	// Wait for the first message
 	PVLOG_DEBUG("PVGL::%s Everything created, waiting for message.\n", __FUNCTION__);
-	for(;;) { // FIXME! Dont eat all my cpu!
+	while(!_should_stop) {
 		PVSDK::PVMessage message;
 		if (messenger->get_message_for_gl(message)) {
 			switch (message.function) {

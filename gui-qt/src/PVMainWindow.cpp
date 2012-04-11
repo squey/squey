@@ -662,14 +662,24 @@ void PVInspector::PVMainWindow::closeEvent(QCloseEvent* event)
 		event->ignore();
 		return;
 	}
-	pvgl_thread->terminate();
-	pvgl_thread->wait();
-	delete pvgl_thread;
-	// Gracefuly stops PVGL::PVMain
-	PVGL::PVMain::stop();
+
+	PVCore::PVProgressBox* pbox = new PVCore::PVProgressBox(tr("Closing Picviz Inspector..."), (QWidget*) this);
+	pbox->set_enable_cancel(false);
+	PVCore::PVProgressBox::progress(boost::bind(&PVMainWindow::close_all_views, this), pbox);
 }
 
-
+/******************************************************************************
+ *
+ * PVInspector::PVMainWindow::close_all_views
+ *
+ *****************************************************************************/
+void PVInspector::PVMainWindow::close_all_views()
+{
+	PVGL::PVMain::stop();
+	close_scene();
+	pvgl_thread->wait();
+	delete pvgl_thread;
+}
 
 /******************************************************************************
  *
