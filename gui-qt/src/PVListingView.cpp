@@ -254,10 +254,9 @@ void PVInspector::PVListingView::wheelEvent(QWheelEvent* e)
 {
 	if (e->modifiers() == Qt::ControlModifier)
 	{
-		for (int i = 0 ; i < horizontalHeader()->count(); i++) {
-			int d = e->delta() / 12;
-			setColumnWidth(i, columnWidth(i) + d);
-		}
+		int colIndex = columnAt(e->pos().x());
+		int d = e->delta() / 12;
+		setColumnWidth(colIndex, columnWidth(colIndex) + d);
 	}
 }
 
