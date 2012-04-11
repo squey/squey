@@ -20,7 +20,7 @@ export PVRUSH_SOURCE_DIR=$ISRD/sources/
 
 export PVFILTER_NORMALIZE_DIR=$ISRD/normalize-filters/
 
-export LD_LIBRARY_PATH=$ISRD/.
+export LD_LIBRARY_PATH=$ISRD/.:$LD_LIBRARY_PATH
 
 $ISRD/picviz-inspector
 
