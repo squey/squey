@@ -44,10 +44,8 @@ PVInspector::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(PVTabSplitte
 	QGroupBox* args_widget_box = new QGroupBox(tr("Filter"));
 	_args_widget = new PVArgumentListWidget(PVArgumentListWidget::create_layer_widget_factory(*tab->get_lib_view()), args, NULL);
 	args_widget_box_layout->addWidget(_args_widget);
-	args_widget_box_layout->addStretch(1);
 	args_widget_box->setLayout(args_widget_box_layout);
-//	_args_widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-//	_args_widget->setMinimumSize(QSize(0, 120));
+	_args_widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
 
 	// Buttons
 	_btn_layout = new QHBoxLayout();

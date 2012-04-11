@@ -12,6 +12,7 @@ PVWidgets::PVPresetsWidget::PVPresetsWidget(const QString& title, QWidget* paren
 	_toolbar = new QToolBar("Presets Widget ToolBar");
 	_toolbar->setObjectName("QToolBar_of_PVPresetsWidget");
 	_toolbar->setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Fixed);
+	_toolbar->setIconSize(QSize(22, 22));
 	QHBoxLayout* toolbar_layout = new QHBoxLayout();
 	toolbar_layout->addStretch(1);
 	toolbar_layout->addWidget(_toolbar);
@@ -30,7 +31,7 @@ PVWidgets::PVPresetsWidget::PVPresetsWidget(const QString& title, QWidget* paren
 	_list->addAction(_saveAct);
 	_renameAct = new QAction(QIcon(), tr("Rename"), this);
 	_list->addAction(_renameAct);
-	_removeAct = new QAction(QIcon(":/remove-preset"), tr("Remove"), this);
+	_removeAct = new QAction(QIcon(), tr("Remove"), this);
 	_list->addAction(_removeAct);
 	//_toolbar->addAction(_removeAct);
 	_list->setContextMenuPolicy(Qt::ActionsContextMenu);

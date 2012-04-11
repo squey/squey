@@ -65,6 +65,7 @@
 
 	<!-- HANDLES -->
 	<file alias="vertical_handle">resources/gui-elements/pv_vertical_handle_01.png</file>
+	<file alias="horizontal_handle">resources/gui-elements/pv_horizontal_handle_01.png</file>
 
 	<!-- ICONS for PVLayerStackWidget (it's QToolBar) -->
 	<file alias="delete_layer_icon">resources/trafik/elements-interface/icone-supprimer-blanc.png</file>
