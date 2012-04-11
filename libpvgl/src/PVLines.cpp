@@ -64,6 +64,8 @@ PVGL::PVLines::PVLines(PVView *view_) : view(view_)
 	lines_fbo_tex = 0;
 	zombie_fbo = 0;
 	zombie_fbo_tex = 0;
+	vbo_position_full = 0;
+	vbo_position_last = 0;
 }
 
 /******************************************************************************
@@ -85,6 +87,14 @@ PVGL::PVLines::~PVLines()
 void PVGL::PVLines::free_buffers()
 {
 	// Free OpenGL objects
+	if (vbo_position_full != 0) {
+		glDeleteBuffers(1, &vbo_position_full);
+		vbo_position_full = 0;
+	}
+	if (vbo_position_last != 0) {
+		glDeleteBuffers(1, &vbo_position_last);
+		vbo_position_last = 0;
+	}
 	if (vbo_color != 0) {
 		glDeleteBuffers(1, &vbo_color);
 		vbo_color = 0;
@@ -142,7 +152,7 @@ void PVGL::PVLines::free_buffers()
 	for (it = batches.begin(); it != batches.end(); it++) {
 		Batch& batch = *it;
 		glDeleteVertexArrays(1, &batch.vao);
-		glDeleteBuffers(1, &batch.vbo_position);
+		//glDeleteBuffers(1, &batch.vbo_position);
 	}
 	batches.clear();
 }
@@ -209,6 +219,21 @@ void PVGL::PVLines::create_batches()
 		glDeleteVertexArrays(1, &batch.vao);
 		glDeleteBuffers(1, &batch.vbo_position);
 	}
+	if (vbo_position_full != 0) {
+		glDeleteBuffers(1, &vbo_position_full);
+	}
+	if (vbo_position_last != 0) {
+		glDeleteBuffers(1, &vbo_position_last);
+	}
+
+	{
+		size_t array_size = ((NB_AXES_PER_BATCH+3)/4) * lpr;
+		size_t salloc = array_size * sizeof(vec4);
+		glGenBuffers(1, &vbo_position_full); PRINT_OPENGL_ERROR();
+		glBindBuffer(GL_ARRAY_BUFFER, vbo_position_full); PRINT_OPENGL_ERROR();
+		glBufferData(GL_ARRAY_BUFFER, array_size * sizeof(vec4), 0, GL_DYNAMIC_DRAW); PRINT_OPENGL_ERROR();
+	}
+
 	batches.clear();
 	for (unsigned k = 0; k < nb_batches; k++) {
 		std::vector<std::string> attributes;
@@ -242,11 +267,17 @@ void PVGL::PVLines::create_batches()
 		///////////////
 		array_size = nb_vec4 * lpr;
 		size_t salloc = array_size * sizeof(vec4);
-		PVLOG_INFO("PVGL: for batch %d, allocate %u bytes\n", k, salloc);
-		glGenBuffers(1, &batch.vbo_position); PRINT_OPENGL_ERROR();
-		glBindBuffer(GL_ARRAY_BUFFER, batch.vbo_position); PRINT_OPENGL_ERROR();
-		glBufferData(GL_ARRAY_BUFFER, array_size * sizeof(vec4), 0, GL_DYNAMIC_DRAW); PRINT_OPENGL_ERROR();
 		batch.vbo_pos_alloc_size = salloc;
+		if (k == nb_batches-1) {
+			glGenBuffers(1, &vbo_position_last); PRINT_OPENGL_ERROR();
+			glBindBuffer(GL_ARRAY_BUFFER, vbo_position_last); PRINT_OPENGL_ERROR();
+			glBufferData(GL_ARRAY_BUFFER, array_size * sizeof(vec4), 0, GL_DYNAMIC_DRAW); PRINT_OPENGL_ERROR();
+			batch.vbo_position = vbo_position_last;
+		}
+		else {
+			glBindBuffer(GL_ARRAY_BUFFER, vbo_position_full); PRINT_OPENGL_ERROR();
+			batch.vbo_position = vbo_position_full;
+		}
 
 		for (int i = 2; i < nb_vec4 + 2; i++) {
 			std::stringstream pos;

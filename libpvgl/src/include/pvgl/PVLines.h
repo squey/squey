@@ -43,6 +43,8 @@ class LibGLDecl PVLines {
 	GLuint           vbo_color;            //!<
 	GLuint           vbo_zla;              //!<
 	GLuint           tbo_selection;        //!< The Texture buffer object containing the current selection (the one from the post-filter layer).
+	GLuint			 vbo_position_full;
+	GLuint			 vbo_position_last;
 	GLuint           tbo_selection_texture; //!< The texture object attached to the #tbo_selection.
 
 	friend class PVMap;
