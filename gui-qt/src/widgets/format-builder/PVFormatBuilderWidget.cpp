@@ -654,14 +654,17 @@ void PVInspector::PVFormatBuilderWidget::slotOpenLog()
 		PVRush::list_creators::const_iterator itcr;
 		_log_sc.reset();
 		_log_input_type.reset();
+		create_extractor();
 		for (itcr = lcr.begin(); itcr != lcr.end(); itcr++) {
 			PVRush::PVSourceCreator_p sc = *itcr;
 			if (sc->pre_discovery(_log_input)) {
 				try {
 					_log_sc = sc;
-					create_extractor();
+					// The moni-extractor use the discovery source, as not that much processing is done (it can be handle locally for instance !)
+					_log_source = _log_sc->create_discovery_source_from_input(_log_input, PVRush::PVFormat());
 				}
 				catch (PVRush::PVFormatInvalid& e) {
+					_log_sc.reset();
 					continue;
 				}
 				break;
@@ -674,6 +677,7 @@ void PVInspector::PVFormatBuilderWidget::slotOpenLog()
 			box.show();
 			return;
 		}
+		_log_extract->add_source(_log_source);
 
 		_log_input_type = in_t;
 
@@ -710,9 +714,6 @@ void PVInspector::PVFormatBuilderWidget::create_extractor()
 	_log_extract->dump_all_elts(true);
 	_log_extract->dump_inv_elts(true);
 	_log_extract->start_controller();
-	// The moni-extractor use the discovery source, as not that much processing is done (it can be handle locally for instance !)
-	_log_source = _log_sc->create_discovery_source_from_input(_log_input, PVRush::PVFormat());
-	_log_extract->add_source(_log_source);
 }
 
 void PVInspector::PVFormatBuilderWidget::guess_first_splitter()
