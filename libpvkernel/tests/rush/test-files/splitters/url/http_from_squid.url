@@ -975,7 +975,7 @@ http://www.tabac-info-service.fr/favicon.ico
 http://pub.lnc.nc/delivery/ai.php?filename=nrj_468x60_3.swf&contenttype=swf
 http://pub.lnc.nc/delivery/lg.php?bannerid=50&campaignid=3&zoneid=5&loc=http%3A%2F%2Fwww.lnc.nc%2Farticles%2Farticle_71717_268185.htm&cb=720f6e8b06
 http://541b532983d75005.users.storage.live.com/MyData/MyProfile/GeneralProfile/ProfilePhoto:UserTileSmall,Thumbnail?fofoff=1&ex=24&ck=634001516126912531
-http://www.labo-sante.com/images/ca_left.jpg
+http://www.labo-sante.com:6452/images/ca_left.jpg
 http://www.labo-sante.com/menu_img/menu_m1_bh.pngxxx
 http://www.labo-sante.com/menu_img/menu_m1_b.pngxxx
 http://www.labo-sante.com/menu_img/menu_m1_eh.pngxxx
@@ -999,3 +999,8 @@ http://www.labo-sante.com/menu_img/menu_m1_bh.pngxxxxx
 http://www.labo-sante.com/images/images_new/c_bien_left2.jpg
 http://www.labo-sante.com/menu_img/menu_m1_e.pngxxxxx
 http://qsdqsldqmlsdkqmldq.1223.www.lmfao.com
+tcp://google.com:443/blabla
+tcp://192.168.0.12:443/blabla
+https://www.google.com:443/blabla
+http://192.168.0.12:443/blabla
+http://www.slashdot.org/blabla
