@@ -29,6 +29,7 @@ class LibPicvizDecl PVLayerStack {
 private:
 	PVLayerIndexArray lia;
 	int               layer_count; // layer_count < 256
+	int               next_new_layer_counter; // counter for layers creation
 	int               selected_layer_index;
 	QList<PVLayer>    table;
 public:
