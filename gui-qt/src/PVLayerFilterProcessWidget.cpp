@@ -23,44 +23,55 @@ PVInspector::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(PVTabSplitte
 	_args_org(args),
 	_has_apply(false)
 {
-	_args_widget = new PVArgumentListWidget(PVArgumentListWidget::create_layer_widget_factory(*tab->get_lib_view()), args, tab);
 	setWindowTitle("Filter properties...");
-
-	QVBoxLayout* main_layout = new QVBoxLayout();
 
 	// Presets widget
 	if(_filter_p->get_presets().can_have_presets()) {
 		_presets_widget = new PVWidgets::PVPresetsWidget(tr("Presets"));
 		_presets_widget->add_presets(_filter_p->get_presets().list_presets());
-		main_layout->addWidget(_presets_widget);
 		connect(_presets_widget, SIGNAL(btn_load_clicked_Signal(const QString&)), this, SLOT(load_preset_Slot(const QString&)));
 		connect(_presets_widget, SIGNAL(btn_new_clicked_Signal(const QString&)), this, SLOT(add_preset_Slot(const QString&)));
 		connect(_presets_widget, SIGNAL(btn_save_clicked_Signal(const QString&)), this, SLOT(save_preset_Slot(const QString&)));
 		connect(_presets_widget, SIGNAL(btn_remove_clicked_Signal(const QString&)), this, SLOT(remove_preset_Slot(const QString&)));
 		connect(_presets_widget, SIGNAL(preset_renamed_Signal(const QString&, const QString&)), this, SLOT(rename_preset_Slot(const QString&, const QString&)));
+		_presets_widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+		_presets_widget->setMinimumSize(QSize(0, 130));
 	}
 
-//	_splitter = new QSplitter(Qt::Horizontal, this);
-//	_splitter->addWidget(_presets_widget);
-//	_splitter->addWidget(_args_widget_box);
-//
-//	main_layout->addWidget(_splitter);
-
 	// Args widget
-	_args_widget_box = new QGroupBox(tr("Filter"));
-	QVBoxLayout* box_layout = new QVBoxLayout();
-	box_layout->addWidget(_args_widget);
-	_args_widget_box->setLayout(box_layout);
-	main_layout->addWidget(_args_widget_box);
+	QVBoxLayout* args_widget_box_layout = new QVBoxLayout();
+	QGroupBox* args_widget_box = new QGroupBox(tr("Filter"));
+	_args_widget = new PVArgumentListWidget(PVArgumentListWidget::create_layer_widget_factory(*tab->get_lib_view()), args, NULL);
+	args_widget_box_layout->addWidget(_args_widget);
+	args_widget_box_layout->addStretch(1);
+	args_widget_box->setLayout(args_widget_box_layout);
+//	_args_widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+//	_args_widget->setMinimumSize(QSize(0, 120));
 
 	// Buttons
 	_btn_layout = new QHBoxLayout();
-	main_layout->addLayout(_btn_layout);
-
 	create_btns();
 	set_btns_layout();
 	connect_btns();
 
+	// Splitter
+	QVBoxLayout* main_layout = new QVBoxLayout();
+	if (_filter_p->get_presets().can_have_presets()) {
+		_splitter = new QSplitter(Qt::Vertical);
+		_splitter->setChildrenCollapsible(false);
+		_splitter->addWidget(args_widget_box);
+		_splitter->addWidget(_presets_widget);
+		_splitter->setStretchFactor(0, 4);
+		_splitter->setStretchFactor(1, 1);
+		main_layout->addWidget(_splitter);
+	}
+	else
+	{
+		main_layout->addWidget(args_widget_box);
+		main_layout->addWidget(_presets_widget);
+	}
+
+	main_layout->addLayout(_btn_layout);
 	setLayout(main_layout);
 }
 

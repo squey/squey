@@ -45,7 +45,6 @@ protected:
 	Picviz::PVLayerFilter_p _filter_p;
 	PVWidgets::PVPresetsWidget* _presets_widget;
 	QSplitter* _splitter;
-	QGroupBox* _args_widget_box;
 	QHBoxLayout* _presets_layout;
 	QComboBox* _presets_combo;
 	QPushButton* _cancel_btn;

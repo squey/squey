@@ -277,6 +277,8 @@ void PVInspector::PVArgumentListWidget::init_widgets()
 
 	setLayout(main_layout);
 
+	//setFocusPolicy(Qt::StrongFocus);
+
 	connect(_args_model, SIGNAL(dataChanged(QModelIndex const&, QModelIndex const&)), this, SLOT(args_changed_Slot()));
 }
 

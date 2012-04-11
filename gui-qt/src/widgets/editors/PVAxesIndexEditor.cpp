@@ -7,6 +7,7 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVAxesIndexType.h>
 
+
 #include <picviz/PVView.h>
 
 #include <PVAxesIndexEditor.h>
@@ -21,15 +22,16 @@
  *
  *****************************************************************************/
 PVInspector::PVAxesIndexEditor::PVAxesIndexEditor(Picviz::PVView& view, QWidget *parent):
-	QListWidget(parent),
+	PVWidgets::PVSizeHintListWidget(parent),
 	_view(view)
 {
 	setSelectionMode(QAbstractItemView::ExtendedSelection);
 
 	QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Minimum);
-	sp.setHeightForWidth(sizePolicy().hasHeightForWidth());
+	//sp.setHeightForWidth(sizePolicy().hasHeightForWidth());
 	setSizePolicy(sp);
-	setMinimumHeight(70);
+//	setMinimumHeight(20);
+//	setMaximumHeight(40);
 }
 
 /******************************************************************************
