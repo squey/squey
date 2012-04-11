@@ -74,4 +74,4 @@ target_link_libraries(layer_filter_entropy ${LINK_LIBRARIES})
 
 INSTALL(TARGETS ${FILTERS_DIST_LIST} LIBRARY DESTINATION layer-filters
                                      RUNTIME DESTINATION layer-filters)
-INSTALL(FILES ${FILTERS_DIST_FILES} DESTINATION layer-filters)
+INSTALL(FILES ${FILTERS_DIST_FILES} DESTINATION .)
