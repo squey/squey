@@ -360,7 +360,7 @@ void PVInspector::PVXmlDomModel::saveDefault(){
  * PVInspector::PVXmlDomModel::deleteSelectio
  *
  *****************************************************************************/
-void PVInspector::PVXmlDomModel::deleteSelection(QModelIndex &index) {
+void PVInspector::PVXmlDomModel::deleteSelection(QModelIndex const& index) {
     if (index.isValid()) {
         PVRush::PVXmlTreeNodeDom *nodeASupprimer = nodeFromIndex(index);
         if (nodeASupprimer != rootNode) {

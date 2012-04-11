@@ -210,21 +210,23 @@ void PVInspector::PVXmlTreeView::applyModification(PVXmlParamWidget *paramBord,Q
  * PVInspector::PVXmlTreeView::deleteSelection
  *
  *****************************************************************************/
-void PVInspector::PVXmlTreeView::deleteSelection(){
-    //deleting
-    for(int i=1;i<selectedIndexes().size();i++){
-        QModelIndex index = selectedIndexes().at(i-1);
+void PVInspector::PVXmlTreeView::deleteSelection()
+{
+	QModelIndexList sels_idx = selectedIndexes();
+	foreach(QModelIndex const& index, sels_idx) {
+		if (index.column() != 0) {
+			continue;
+		}
         QModelIndex parentIndex = index.parent();
-        getModel()->deleteSelection(index);
         if (parentIndex.isValid()) {
             collapse(parentIndex);
             expandRecursive(parentIndex);
-            if(parentIndex.isValid())emit clicked(parentIndex);
-	    else PVLOG_WARN("Can't select parentIndex in PVInspector::PVXmlTreeView::deleteSelection()\n");
-        }else{
-        }
+            if (parentIndex.isValid()) {
+				emit clicked(parentIndex);
+			}
+		}
+		getModel()->deleteSelection(index);
     }
-    
 }
 
 
