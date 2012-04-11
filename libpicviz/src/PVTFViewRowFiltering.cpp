@@ -17,18 +17,23 @@ Picviz::PVSelection Picviz::PVTFViewRowFiltering::operator()(PVView const& view_
 	// Then, merge this selection into the final one.
 	PVRow nlines_sel = view_src.get_row_count();
 	PVSelection sel_line;
+
+	foreach(PVSelRowFilteringFunction_p const& rff_p, _rffs) {
+		rff_p->pre_process(view_src, view_dst);
+	}
+
 	for (PVRow r = 0; r < nlines_sel; r++) {
 		if (!sel_org.get_line(r)) {
 			continue;
 		}
 
-		sel_line.select_none();
+		//sel_line.select_none();
 		// sel_line will be filtered by the different RFF (row filtering functions).
 		foreach(PVSelRowFilteringFunction_p const& rff_p, _rffs) {
-			(*rff_p)(r, view_src, view_dst, sel_line);
+			(*rff_p)(r, view_src, view_dst, sel_ret);
 		}
 
-		sel_ret |= sel_line;
+		//sel_ret |= sel_line;
 	}
 
 	BENCH_END(merge, "merge", 1, 1, 1, 1);

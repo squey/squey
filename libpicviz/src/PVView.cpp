@@ -75,6 +75,7 @@ void Picviz::PVView::init_defaults()
 {
 	_is_consistent = false;
 	active_axis = 0;
+	_rushnraw_parent = NULL;
 
 	last_extractor_batch_size = pvconfig.value("pvkernel/rush/extract_next", PVEXTRACT_NUMBER_LINES_NEXT_DEFAULT).toInt();
 
@@ -94,6 +95,8 @@ void Picviz::PVView::init_from_plotted(PVPlotted* parent, bool keep_layers)
 {
 	root = parent->get_root_parent();
 	plotted = parent;
+	_rushnraw_parent = &plotted->get_mapped_parent()->get_source_parent()->get_rushnraw();
+	_mapped_parent = plotted->get_mapped_parent();
 
 	// Init default axes combination from source
 	if (keep_layers) {
@@ -472,21 +475,6 @@ bool Picviz::PVView::get_line_state_in_pre_filter_layer(PVRow index) const
 
 /******************************************************************************
  *
- * Picviz::PVView::get_mapped_parent
- *
- *****************************************************************************/
-Picviz::PVMapped* Picviz::PVView::get_mapped_parent()
-{
-	return plotted->get_mapped_parent();
-}
-
-const Picviz::PVMapped* Picviz::PVView::get_mapped_parent() const
-{
-	return plotted->get_mapped_parent();
-}
-
-/******************************************************************************
- *
  * Picviz::PVView::get_nu_selection
  *
  *****************************************************************************/
@@ -573,21 +561,6 @@ PVRush::PVNraw::nraw_table& Picviz::PVView::get_qtnraw_parent()
 const PVRush::PVNraw::nraw_table& Picviz::PVView::get_qtnraw_parent() const
 {
 	return plotted->get_qtnraw();
-}
-
-/******************************************************************************
- *
- * Picviz::PVView::get_rushnraw_parent
- *
- *****************************************************************************/
-PVRush::PVNraw& Picviz::PVView::get_rushnraw_parent()
-{
-	return plotted->get_mapped_parent()->get_source_parent()->get_rushnraw();
-}
-
-const PVRush::PVNraw& Picviz::PVView::get_rushnraw_parent() const
-{
-	return plotted->get_mapped_parent()->get_source_parent()->get_rushnraw();
 }
 
 /******************************************************************************

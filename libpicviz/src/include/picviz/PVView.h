@@ -82,6 +82,7 @@ public:
 	PVLayer layer_stack_output_layer;
 	PVLayer output_layer;
 	PVPlotted* plotted;
+	PVMapped* _mapped_parent;
 	PVRow row_count;
 	PVLayerStack layer_stack;
 	PVSelection nu_selection;
@@ -335,14 +336,14 @@ public:
 ******************************************************************************
 *****************************************************************************/
 
-	const PVMapped* get_mapped_parent() const;
-	PVMapped* get_mapped_parent();
+	const PVMapped* get_mapped_parent() const { return _mapped_parent; };
+	PVMapped* get_mapped_parent() { return _mapped_parent; };
 	
 	PVRush::PVNraw::nraw_table& get_qtnraw_parent();
 	const PVRush::PVNraw::nraw_table& get_qtnraw_parent() const;
 
-	PVRush::PVNraw& get_rushnraw_parent();
-	PVRush::PVNraw const& get_rushnraw_parent() const;
+	PVRush::PVNraw& get_rushnraw_parent() { assert(_rushnraw_parent); return *_rushnraw_parent; };
+	PVRush::PVNraw const& get_rushnraw_parent() const { assert(_rushnraw_parent); return *_rushnraw_parent; };
 	
 	PVPlotted* get_plotted_parent();
 	const PVPlotted* get_plotted_parent() const;
@@ -386,6 +387,7 @@ protected:
 	bool _is_consistent;
 	QString _last_filter_name;
 	map_filter_arguments filters_args;
+	PVRush::PVNraw* _rushnraw_parent;
 };
 
 }
