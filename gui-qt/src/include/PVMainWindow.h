@@ -228,6 +228,7 @@ private:
 	PVMainWindow* find_main_window(const QString& file);
 	void set_selection_from_layer(Picviz::PVView_p view, Picviz::PVLayer const& layer);
 	void display_inv_elts(PVTabSplitter* tab_src);
+	void close_all_views();
 
 private slots:
 	void project_modified_Slot();

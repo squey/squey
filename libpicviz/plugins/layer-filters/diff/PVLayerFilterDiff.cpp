@@ -44,7 +44,7 @@ DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterDiff)
 	PVCore::PVArgumentList args;
 	args[PVCore::PVArgumentKey(ARG_NAME_AXES, ARG_DESC_AXES)].setValue(PVCore::PVAxesIndexType());
 	args[PVCore::PVArgumentKey(ARG_NAME_TO_LINE, ARG_DESC_TO_LINE)].setValue(PVCore::PVSpinBoxType());
-	args[PVCore::PVArgumentKey(ARG_NAME_FROM_LINE, ARG_DESC_TO_LINE)].setValue(PVCore::PVSpinBoxType());
+	args[PVCore::PVArgumentKey(ARG_NAME_FROM_LINE, ARG_DESC_FROM_LINE)].setValue(PVCore::PVSpinBoxType());
 
 	return args;
 }

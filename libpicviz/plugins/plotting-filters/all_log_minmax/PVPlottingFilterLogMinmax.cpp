@@ -92,8 +92,8 @@ void Picviz::PVPlottingFilterLogMinmax::init_expand(float min, float max)
 		_offset = 0;
 	}
 	_expand_min = log2f(min);
-	_expand_max = max;
-	_expand_diff = log2f(max) - log2f(min);
+	_expand_max = log2f(max);
+	_expand_diff = _expand_max - _expand_min;
 }
 
 float Picviz::PVPlottingFilterLogMinmax::expand_plotted(float value) const
