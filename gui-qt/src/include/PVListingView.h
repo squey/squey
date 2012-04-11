@@ -75,6 +75,7 @@ public:
 
 	void refresh_listing_filter();
 	void keyEnterPressed();
+	void wheelEvent(QWheelEvent* e);
 
 	void update_view();
 
