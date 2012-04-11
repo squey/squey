@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>300</height>
+    <height>310</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -97,7 +97,14 @@
          </widget>
         </item>
         <item>
-         <widget class="PVWidgets::QKeySequenceWidget" name="_field_separator_btn" native="true"/>
+         <widget class="PVWidgets::QKeySequenceWidget" name="_field_separator_btn" native="true">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>
@@ -105,6 +112,12 @@
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
          <widget class="QPushButton" name="_btn_copy_clipboard">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="text">
            <string>Copy to clipboard...</string>
           </property>
@@ -112,6 +125,12 @@
         </item>
         <item>
          <widget class="QPushButton" name="_btn_copy_file">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="text">
            <string>Copy to file...</string>
           </property>
