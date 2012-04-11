@@ -188,12 +188,13 @@ public:
 	 */
 	void move_offset(const vec2 &delta);
 
-  void reinit_picviz_view();
+	void reinit_picviz_view();
 
-  void update_lpr();
-  void create_batches();
-  void fill_vbo_colors_and_zla(GLint start, GLsizei count);
-  void fill_vbo_positions(unsigned int batch_index, GLuint start, GLsizei count);
+	void update_lpr();
+	void create_batches();
+	void fill_vbo_colors_and_zla(GLint start, GLsizei count);
+	void fill_vbo_positions(unsigned int batch_index, GLuint start, GLsizei count);
+	void fill_vbo_positions(float* res, const float* plotted, size_t plotted_ncols, PVRow start, PVRow end, const PVCol* cols, size_t ncols);
 };
 }
 #endif

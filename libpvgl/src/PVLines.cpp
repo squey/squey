@@ -10,6 +10,7 @@
 #define GLEW_STATIC 1
 #include <GL/glew.h>
 
+#include <pvkernel/core/picviz_intrin.h>
 #include <picviz/PVLinesProperties.h>
 #include <picviz/PVView.h>
 #include <picviz/PVSelection.h>
@@ -231,7 +232,7 @@ void PVGL::PVLines::create_batches()
 		size_t salloc = array_size * sizeof(vec4);
 		glGenBuffers(1, &vbo_position_full); PRINT_OPENGL_ERROR();
 		glBindBuffer(GL_ARRAY_BUFFER, vbo_position_full); PRINT_OPENGL_ERROR();
-		glBufferData(GL_ARRAY_BUFFER, array_size * sizeof(vec4), 0, GL_DYNAMIC_DRAW); PRINT_OPENGL_ERROR();
+		glBufferData(GL_ARRAY_BUFFER, salloc, 0, GL_DYNAMIC_DRAW); PRINT_OPENGL_ERROR();
 	}
 
 	batches.clear();
@@ -599,6 +600,7 @@ void PVGL::PVLines::fill_vbo_colors_and_zla(GLint start, GLsizei count)
   glBufferData(GL_ARRAY_BUFFER, count * sizeof(ubvec4), &picviz_view->post_filter_layer.get_lines_properties().table.at(start), GL_DYNAMIC_DRAW); PRINT_OPENGL_ERROR();
 }
 
+#if 0
 /******************************************************************************
  *
  * PVGL::PVLines::fill_vbo_positions
@@ -647,6 +649,63 @@ void PVGL::PVLines::fill_vbo_positions(unsigned int batch_index, GLuint start, G
 		}
 	}
 	glUnmapBuffer(GL_ARRAY_BUFFER); PRINT_OPENGL_ERROR();
+}
+#endif
+
+/******************************************************************************
+ *
+ * PVGL::PVLines::fill_vbo_positions
+ *
+ *****************************************************************************/
+void PVGL::PVLines::fill_vbo_positions(unsigned int batch_index, GLuint start, GLsizei count)
+{
+	glBindBuffer(GL_ARRAY_BUFFER, batches[batch_index].vbo_position); PRINT_OPENGL_ERROR();
+	glBufferData(GL_ARRAY_BUFFER, batches[batch_index].vbo_pos_alloc_size, NULL, GL_DYNAMIC_DRAW); PRINT_OPENGL_ERROR();
+	vec4* buffer = reinterpret_cast<vec4*>(glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY));
+
+	PVCol plotted_col_size = picviz_view->get_original_axes_count();
+
+	const PVCol* cols_comb = picviz_view->axes_combination.get_axis_column_index_buffer();
+	size_t col_start, ncols;
+	col_start = (NB_AXES_PER_BATCH-1)*batch_index;
+	if (batch_index < nb_batches - 1) { 
+		ncols = 4*NB_ATTRIBUTES_PER_BATCH;
+	}    
+	else {
+		ncols = picviz_view->get_axes_count() - (NB_AXES_PER_BATCH - 1) * batch_index;
+	}    
+	fill_vbo_positions((float*) buffer, picviz_view->get_plotted_parent()->get_table_pointer(), plotted_col_size, start, start+count, &cols_comb[col_start], ncols);
+
+	glUnmapBuffer(GL_ARRAY_BUFFER); PRINT_OPENGL_ERROR();
+}
+
+void PVGL::PVLines::fill_vbo_positions(float* res, const float* plotted, size_t plotted_ncols, PVRow start, PVRow end, const PVCol* cols, size_t ncols)
+{
+	size_t ncols_next_4 = ((ncols+3)>>2)<<2;
+#ifdef __SSE__
+	size_t ncols_sse = (ncols>>2)<<2;
+#endif
+	for (PVRow r = start; r < end; r++) {
+		size_t offset_row_res = (r-start)*ncols_next_4;
+		const float* plotted_line = &plotted[r*plotted_ncols];
+#ifdef __SSE__
+		__m128 sse_plotted;
+		for (size_t c = 0; c < ncols_sse; c += 4) {
+			sse_plotted = _mm_set_ps(plotted_line[cols[c+3]],
+			                         plotted_line[cols[c+2]],
+			                         plotted_line[cols[c+1]],
+			                         plotted_line[cols[c+0]]);
+			_mm_storeu_ps(&res[offset_row_res + c], sse_plotted);
+		}
+		for (size_t c = ncols_sse; c < ncols; c++) {
+			res[offset_row_res + c] = plotted_line[cols[c]];
+		}
+#else
+		for (size_t c = 0; c < ncols; c++) {
+			res[offset_row_res + c] = plotted_line[cols[c]];
+		}
+#endif
+	}
 }
 
 /******************************************************************************
