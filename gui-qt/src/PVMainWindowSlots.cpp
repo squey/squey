@@ -674,8 +674,8 @@ void PVInspector::PVMainWindow::set_current_project_filename(QString const& file
 		_cur_project_file = QFileInfo(file).canonicalFilePath();
 	}
 
-	set_project_modified(false);
 	setWindowTitle(QString());
+	set_project_modified(false);
 	setWindowFilePath(_cur_project_file);
 }
 
