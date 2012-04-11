@@ -314,11 +314,11 @@ void PVInspector::PVMainWindow::auto_detect_formats(PVFormatDetectCtxt ctxt)
 			QString const& str_format = dis_formats.at(i);
 			try {
 				float success_rate = PVRush::PVSourceCreatorFactory::discover_input(pfc, *itin);
-				PVLOG_INFO("For input %s with format %s, success rate is %0.4f\n", qPrintable(in_str), qPrintable(str_format), success_rate);
 
 				if (success_rate > 0) {
 #pragma omp critical
 					{
+						PVLOG_INFO("For input %s with format %s, success rate is %0.4f\n", qPrintable(in_str), qPrintable(str_format), success_rate);
 						file_types[str_format].push(success_rate);
 						ctxt.discovered_types[str_format].push(success_rate);
 					}
@@ -338,10 +338,13 @@ void PVInspector::PVMainWindow::auto_detect_formats(PVFormatDetectCtxt ctxt)
 				}
 				continue;
 			}
-			catch (PVRush::PVInputException &e) {
-				input_exception = true;
-				input_exception_str = e.what().c_str();
-				continue;
+			catch (PVRush::PVInputException &e)
+			{
+#pragma omp critical
+				{
+					input_exception = true;
+					input_exception_str = e.what().c_str();
+				}
 			}
 		}
 		tbb::tick_count dis_end = tbb::tick_count::now();
