@@ -5,8 +5,8 @@ New features:
 
  * presets for filters
  * display invalid elements that have been discovered during the extraction on user demand
- * Split subdomains in the url splitter
- * Add a new entropy filter to search for Shannon entropy a given string
+ * split subdomains in the url splitter
+ * add a new entropy filter to search for Shannon entropy a given string
 
 Improvements:
  * improvements in OpenGL memory management that allows 40 millions lines maximum
