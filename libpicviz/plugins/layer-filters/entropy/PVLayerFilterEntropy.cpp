@@ -125,4 +125,14 @@ QList<PVCore::PVArgumentKey> Picviz::PVLayerFilterEntropy::get_args_keys_for_pre
 	return keys;
 }
 
+QString Picviz::PVLayerFilterEntropy::status_bar_description()
+{
+	return QString("Search strings matching for Shannon Entropy.");
+}
+
+QString Picviz::PVLayerFilterEntropy::detailed_description()
+{
+	return QString("<b>Purpose</b><br/>This filter select strings using Shannon entropy<hr><b>Behavior</b><br/>It will select any string that are greater than the wanted entropy. To find obcure strings, it is advised to search for something greater than 4.");
+}
+
 IMPL_FILTER(Picviz::PVLayerFilterEntropy)
