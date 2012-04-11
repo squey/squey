@@ -24,6 +24,7 @@ PVInspector::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(PVTabSplitte
 	_has_apply(false)
 {
 	setWindowTitle("Filter properties...");
+	setObjectName("PVLayerFilterProcessWidget");
 
 	// Presets widget
 	if(_filter_p->get_presets().can_have_presets()) {

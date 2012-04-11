@@ -1,6 +1,8 @@
 #ifndef PVPRESETSWIDGET_H_
 #define PVPRESETSWIDGET_H_
 
+#include <pvkernel/core/PVLogger.h>
+
 #include <QtGui>
 
 #include <pvkernel/widgets/PVSizeHintListWidget.h>
@@ -26,7 +28,7 @@ public slots:
 	void rename_Slot();
 	void remove_Slot();
 	void item_changed_Slot(QListWidgetItem* item);
-	void update_button_status();
+	void update_actions_availability();
 
 Q_SIGNALS:
 	void btn_load_clicked_Signal(const QString& preset);
@@ -48,10 +50,7 @@ public:
 private:
 	QGroupBox* _group_box;
 	__impl::PVPresetsListWidget* _list;
-	QPushButton* _btn_load;
-	QPushButton* _btn_save;
-	QPushButton* _btn_rename;
-	QPushButton* _btn_remove;
+	QToolBar* _toolbar;
 
 	QAction* _loadAct;
 	QAction* _saveAct;
@@ -76,6 +75,9 @@ public:
 	{
 		if (event->key() == Qt::Key_F2) {
 			_parent->rename_Slot();
+		}
+		else if (event->key() == Qt::Key_Delete) {
+			_parent->remove_Slot();
 		}
 	}
 private:
