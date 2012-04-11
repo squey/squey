@@ -1,3 +1,33 @@
+2.5.0 "Dean" (11/04/2012)
+------------------------
+
+New features:
+
+ * presets for filters
+ * display invalid elements that have been discovered during the extraction on user demand
+
+Improvements:
+ * improvements in OpenGL memory management that allows 40 millions lines maximum
+
+Bug fixes:
+ * plotting mode "logarithmic min/max" was in some cases not distributed.
+Moreover, expanding a selection on a axis using the logarithmic mode gave
+wrong results.
+ * various bugs in the format builder
+ * race condition that involved a random crash when loading one or more files
+ * closing Picviz Inspector when some views are opened do not longer cause the
+application to freeze
+
+2.4.1 (14/02/2012) - Valentine's day release :)
+------------------
+
+This minor release fixes:
+ * de-synchronization of the listing and the GL views after an extraction
+ * show column names even when no lines are selected
+
+This minor release adds the features:
+ * show the number of invalid elements during an extraction
+
 2.4.0 (23/01/2012)
 ------------------
 
