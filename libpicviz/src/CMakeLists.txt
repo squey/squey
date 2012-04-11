@@ -79,6 +79,7 @@ include/picviz/PVRFFAxesBind.h
 include/picviz/PVSelRowFilteringFunction.h
 include/picviz/PVSelRowFilteringFunction_types.h
 include/picviz/PVTFViewRowFiltering.h
+include/picviz/PVTFViewRowFilterFastIPv4.h
 include/picviz/PVTransformationFunctionView.h
 include/picviz/PVTransformationFunctionView_types.h
 
@@ -149,6 +150,7 @@ PVZLevelArray.cpp
 PVCombiningFunctionView.cpp
 PVRFFAxesBind.cpp
 PVTFViewRowFiltering.cpp
+PVTFViewRowFilterFastIPv4.cpp
 
 memory.cpp
 plugins.cpp
