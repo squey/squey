@@ -42,8 +42,10 @@ int main(int argc, char** argv)
 	}
 	PVCore::PVArgumentList args;
 	args["regexp"] = QString("([0-9]+)[0-9.]*\\s+[0-9]+\\s+[0-9]+\\s+[A-Z/_-]+([0-9]+)\\s+[0-9]+\\s+(GET|POST|PUT|OPTIONS)\\s+(\\S+)\\s+(\\S+)\\s+([^/]+)/(\\d+.\\d+.\\d+.\\d+)");
+	args["full-line"] = false;
 	regexp_lib_p->set_args(args);
 	args["regexp"] = QString("(yahoo|lnc)");
+	args["reverse"] = true;
 	grep_lib_p->set_args(args);
 
 	// Mapping filters
