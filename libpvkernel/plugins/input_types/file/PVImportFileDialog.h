@@ -25,6 +25,7 @@ class PVImportFileDialog : public QFileDialog
 
 public:
 	PVImportFileDialog(QStringList pluginslist, QWidget *parent = 0);
+	bool save_inv_elts() const { return _check_save_inv_elts->isChecked(); }
 
 	QStringList normalized_plugins_list;
 
@@ -35,6 +36,7 @@ public:
 	QLineEdit *to_line_edit;
 	bool _check_archives;
 	QCheckBox* _check_archives_checkbox;
+	QCheckBox* _check_save_inv_elts;
 };
 }
 

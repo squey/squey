@@ -27,7 +27,7 @@ PVRush::PVInputTypeFilename::PVInputTypeFilename() :
 #endif
 }
 
-bool PVRush::PVInputTypeFilename::createWidget(hash_formats const& formats, hash_formats& /*new_formats*/, list_inputs &inputs, QString& format, QWidget* parent) const
+bool PVRush::PVInputTypeFilename::createWidget(hash_formats const& formats, hash_formats& /*new_formats*/, list_inputs &inputs, QString& format, PVCore::PVArgumentList& args_ext, QWidget* parent) const
 {
 	QStringList formats_name = formats.keys();
 	formats_name.prepend(QString(PICVIZ_AUTOMATIC_FORMAT_STR));
@@ -35,6 +35,7 @@ bool PVRush::PVInputTypeFilename::createWidget(hash_formats const& formats, hash
 	dlg->setDefaults();
 	QStringList filenames = dlg->getFileNames(format);
 	bool check_archives = dlg->_check_archives_checkbox->checkState() == Qt::Checked;
+	args_ext["inv_elts"] = dlg->save_inv_elts();
 	return load_files(filenames, check_archives, inputs, parent);
 }
 

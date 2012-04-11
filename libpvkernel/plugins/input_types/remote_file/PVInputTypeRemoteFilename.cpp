@@ -17,7 +17,7 @@ PVRush::PVInputTypeRemoteFilename::PVInputTypeRemoteFilename() :
 {
 }
 
-bool PVRush::PVInputTypeRemoteFilename::createWidget(hash_formats const& formats, hash_formats& /*new_formats*/, list_inputs &inputs, QString& format, QWidget* parent) const
+bool PVRush::PVInputTypeRemoteFilename::createWidget(hash_formats const& formats, hash_formats& /*new_formats*/, list_inputs &inputs, QString& format, PVCore::PVArgumentList& args_ext, QWidget* parent) const
 {
 	QStringList formats_str = formats.keys();
 	formats_str.push_front(PICVIZ_AUTOMATIC_FORMAT_STR);

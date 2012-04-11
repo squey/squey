@@ -360,7 +360,7 @@ void PVInspector::PVXmlDomModel::saveDefault(){
  * PVInspector::PVXmlDomModel::deleteSelectio
  *
  *****************************************************************************/
-void PVInspector::PVXmlDomModel::deleteSelection(QModelIndex &index) {
+void PVInspector::PVXmlDomModel::deleteSelection(QModelIndex const& index) {
     if (index.isValid()) {
         PVRush::PVXmlTreeNodeDom *nodeASupprimer = nodeFromIndex(index);
         if (nodeASupprimer != rootNode) {
@@ -387,7 +387,7 @@ void PVInspector::PVXmlDomModel::addAxisIn(const QModelIndex &index) {
 
 		//axis adding
 		if (field->typeToString() != "field") {
-			message("You must select a field first.");
+			QMessageBox::information((QWidget*) QObject::parent(), tr("Fromat builder"), tr("You must select a field first."));
 			return;
 		}
 
@@ -435,7 +435,7 @@ PVRush::PVXmlTreeNodeDom* PVInspector::PVXmlDomModel::addAxisIn(PVRush::PVXmlTre
 void PVInspector::PVXmlDomModel::addFilterAfter(QModelIndex &index) {
     PVRush::PVXmlTreeNodeDom *childPrecedent = nodeFromIndex(index); //node sélectionné
     if(childPrecedent->typeToString()!="field"){
-        message("You must select a field first.")
+        QMessageBox::information((QWidget*) QObject::parent(), tr("Fromat builder"), tr("You must select a field first."));
     }else if(childPrecedent->typeToString()=="field"){
         //dom
         QDomElement newDom = xmlFile.createElement("filter");
@@ -469,13 +469,13 @@ PVRush::PVXmlTreeNodeDom* PVInspector::PVXmlDomModel::addSplitter(const QModelIn
 		field = nodeFromIndex(index);
 		if (field->typeToString() == "field") {//a splitter can be add only in field...
 			if (!trustConfictSplitAxes(index)){
-				//message("You must select a field with axis or splitter inside.");
+				//QMessageBox::information((QWidget*) QObject::parent(), tr("Fromat builder"), tr("You must select a field with axis or splitter inside."));
 				return NULL;//we can't add more than one splitter in a field
 			}
 			PVLOG_DEBUG("     adding splitter in a field\n");
 		} else {
-			//message(QString(field->getDom().tagName()));
-			message("You must select a field first.");
+			//QMessageBox::information((QWidget*) QObject::parent(), tr("Fromat builder"), tr(QString(field->getDom().tagName())));
+			QMessageBox::information((QWidget*) QObject::parent(), tr("Fromat builder"), tr("You must select a field first."));
 			return NULL;
 		}
 	}else{//add on the root
@@ -557,8 +557,8 @@ void PVInspector::PVXmlDomModel::addRegExIn(const QModelIndex &index) {
             child->setParent(field);
             field->addChild(child);
         } else {
-            //message(QString(field->getDom().tagName()));
-            message("You must select a field first.");
+            //QMessageBox::information((QWidget*) QObject::parent(), tr("Fromat builder"), tr(QString(field->getDom().tagName())));
+            QMessageBox::information((QWidget*) QObject::parent(), tr("Fromat builder"), tr("You must select a field first."));
         }
     } else {
         if (!trustConfictSplitAxes(index))return;
@@ -683,7 +683,7 @@ bool PVInspector::PVXmlDomModel::openXml(QString url) {
         QString s;
         s.push_back("File can't be open");
         s.push_back(this->urlXml);
-        message(s);
+        QMessageBox::information((QWidget*) QObject::parent(), tr("Fromat builder"), s);
 		return false;
     }
     QTextStream tmpTextXml(&fichier);
@@ -754,8 +754,8 @@ void PVInspector::PVXmlDomModel::addUrlIn(const QModelIndex &index){
 	if(index.isValid()){//if a item is selected...
 		field = nodeFromIndex(index);
 		if(field->typeToString() != "field"){// and if it's not a field
-			message("You must select a field first.")
-				return;
+			QMessageBox::information((QWidget*) QObject::parent(), tr("Fromat builder"), tr("You must select a field first."));
+			return;
 		}
 	}else{//if no item is selected...
 		field = rootNode;//current node is the root node
@@ -891,7 +891,7 @@ bool PVInspector::PVXmlDomModel::trustConfictSplitAxes(const QModelIndex &index)
 	for (int i = 0; i < node->getChildren().count(); i++) {
 		QDomElement child = node->getChildren().at(i)->getDom();
 		if (child.tagName() == "axis" || child.tagName() == "RegEx" || child.tagName() == "url" || child.tagName() == "splitter") {
-			message("There is just one axis or splitter in a field. Delete this one to add a newer.");
+			QMessageBox::information((QWidget*) QObject::parent(), tr("Fromat builder"), tr("There is just one axis or splitter in a field. Delete this one to add a newer."));
 			return false;
 		}
 	}

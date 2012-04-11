@@ -23,7 +23,7 @@ public:
 	typedef QList<input_type> list_inputs;
 	typedef boost::shared_ptr<PVInputType> p_type;
 public:
-	virtual bool createWidget(hash_formats const& formats, hash_formats& new_formats, list_inputs &inputs, QString& format, QWidget* parent = NULL) const = 0;
+	virtual bool createWidget(hash_formats const& formats, hash_formats& new_formats, list_inputs &inputs, QString& format, PVCore::PVArgumentList& args_ext, QWidget* parent = NULL) const = 0;
 	virtual QString name() const = 0;
 	virtual QString human_name() const = 0;
 	virtual QString human_name_serialize() const = 0;
@@ -35,6 +35,7 @@ public:
 	virtual bool get_custom_formats(input_type in, hash_formats &formats) const = 0;
 	virtual PVCore::PVSerializeObject_p serialize_inputs(PVCore::PVSerializeObject& obj, QString const& name, list_inputs& inputs) const = 0;
 	virtual void serialize_inputs_ref(PVCore::PVSerializeObject& obj, QString const& name, list_inputs& inputs, PVCore::PVSerializeObject_p so_ref) const = 0;
+
 public:
 	QStringList human_name_of_inputs(list_inputs const& in) const
 	{

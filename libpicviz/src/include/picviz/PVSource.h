@@ -85,6 +85,8 @@ public:
 	void add_mapped(PVMapped_p mapped);
 	void create_default_view();
 
+	QStringList const& get_invalid_elts() const { return _inv_elts; }
+
 	// Parents
 	inline PVRoot* get_root() const { return root; }
 
@@ -104,6 +106,8 @@ public:
 
 	PVRush::PVFormat& get_format() { return _extractor.get_format(); }
 	void set_format(PVRush::PVFormat const& format);
+
+	void set_invalid_elts_mode(bool restore_inv_elts);
 
 	void add_column(PVAxisComputation_f f_axis, Picviz::PVAxis const& axis);
 
@@ -141,6 +145,8 @@ private:
 	PVRush::PVSourceCreator_p _src_plugin;
 	PVRush::PVNraw *nraw;
 	PVView_p _current_view;
+	bool _restore_inv_elts;
+	QStringList _inv_elts;
 
 	PVAxesCombination _axes_combination;
 };

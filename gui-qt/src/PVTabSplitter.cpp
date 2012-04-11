@@ -11,7 +11,9 @@
 #include <picviz/PVView.h>
 
 #include <PVAxisPropertiesWidget.h>
+#include <PVListDisplayDlg.h>
 #include <PVMainWindow.h>
+#include <PVSimpleStringListModel.h>
 #include <PVListingView.h>
 #include <PVExtractorWidget.h>
 #include <PVAxesCombinationDialog.h>
@@ -60,6 +62,13 @@ PVInspector::PVTabSplitter::PVTabSplitter(PVMainWindow *mw, Picviz::PVSource_p l
 	pv_listing_view->sortByColumn(-1, Qt::AscendingOrder);
 	pv_listing_view->setSortingEnabled(true);
 	addWidget(pv_listing_view);
+
+	// Invalid elements widget
+	PVSimpleStringListModel<QStringList>* inv_elts_model = new PVSimpleStringListModel<QStringList>(lib_src->get_invalid_elts());
+	PVListDisplayDlg* inv_dlg = new PVListDisplayDlg(inv_elts_model, this);
+	inv_dlg->setWindowTitle(tr("Invalid elements"));
+	inv_dlg->set_description(tr("There were invalid elements during the extraction:"));
+	_inv_elts_dlg = inv_dlg;
 	
 	// Layout of the RIGHT_WIDGET
 	// We prepare the right part of the view (with the LayerStack and the Format editor)
@@ -645,7 +654,6 @@ void PVInspector::PVTabSplitter::show_unique_values(PVCol col)
 	PVListColNrawDlg* dlg = new PVListColNrawDlg(*get_lib_view(), rows, nvalues, col, this);
 	dlg->exec();
 }
-
 
 // PVViewWidgets
 /******************************************************************************

@@ -66,8 +66,32 @@ QStringList Picviz::PVPlottingFilter::list_modes(QString const& type, bool only_
     return ret;
 }
 
+QList<Picviz::PVPlottingFilter::p_type> Picviz::PVPlottingFilter::list_modes_lib(QString const& type, bool only_expandable)
+{
+	LIB_CLASS(PVPlottingFilter)::list_classes const& pl_filters = LIB_CLASS(PVPlottingFilter)::get().get_list();
+	LIB_CLASS(PVPlottingFilter)::list_classes::const_iterator it;
+	QList<p_type> ret;
+	ret.reserve(pl_filters.size());
+	for (it = pl_filters.begin(); it != pl_filters.end(); it++) {
+		if (only_expandable && !it.value()->can_expand()) {
+			continue;
+		}
+		QString const& name = it.key();
+		QStringList params = name.split('_');
+		if (params[0].compare(type) == 0) {
+			ret << it.value();
+		}
+	}
+    return ret;
+}
+
+QString Picviz::PVPlottingFilter::mode_from_registered_name(QString const& rn)
+{
+	QStringList params = rn.split('_');
+	return params[1];
+}
+
 QString Picviz::PVPlottingFilter::get_human_name() const
 {
-	QStringList params = registered_name().split('_');
-	return params[1];
+	return mode_from_registered_name(registered_name());
 }

@@ -16,8 +16,10 @@
 
 #define ARG_NAME_AXES "axes"
 #define ARG_DESC_AXES "Axes"
-#define ARG_NAME_FROM_LINE "From line"
-#define ARG_NAME_TO_LINE "To line"
+#define ARG_NAME_FROM_LINE "from-line"
+#define ARG_DESC_FROM_LINE "From line"
+#define ARG_NAME_TO_LINE "to-line"
+#define ARG_DESC_TO_LINE "To line"
 
 
 
@@ -41,8 +43,8 @@ DEFAULT_ARGS_FILTER(Picviz::PVLayerFilterDiff)
 {
 	PVCore::PVArgumentList args;
 	args[PVCore::PVArgumentKey(ARG_NAME_AXES, ARG_DESC_AXES)].setValue(PVCore::PVAxesIndexType());
-	args[ARG_NAME_TO_LINE].setValue(PVCore::PVSpinBoxType());
-	args[ARG_NAME_FROM_LINE].setValue(PVCore::PVSpinBoxType());
+	args[PVCore::PVArgumentKey(ARG_NAME_TO_LINE, ARG_DESC_TO_LINE)].setValue(PVCore::PVSpinBoxType());
+	args[PVCore::PVArgumentKey(ARG_NAME_FROM_LINE, ARG_DESC_TO_LINE)].setValue(PVCore::PVSpinBoxType());
 
 	return args;
 }

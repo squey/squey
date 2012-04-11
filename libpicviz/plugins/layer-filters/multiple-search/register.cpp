@@ -7,5 +7,5 @@
 // This method will be called by libpicviz
 LibCPPExport void register_class()
 {
-	REGISTER_CLASS("Text Search/Multiple values", Picviz::PVLayerFilterMultipleSearch);
+	REGISTER_CLASS("search-multiple", Picviz::PVLayerFilterMultipleSearch);
 }

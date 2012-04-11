@@ -43,6 +43,8 @@ class LibGLDecl PVLines {
 	GLuint           vbo_color;            //!<
 	GLuint           vbo_zla;              //!<
 	GLuint           tbo_selection;        //!< The Texture buffer object containing the current selection (the one from the post-filter layer).
+	GLuint			 vbo_position_full;
+	GLuint			 vbo_position_last;
 	GLuint           tbo_selection_texture; //!< The texture object attached to the #tbo_selection.
 
 	friend class PVMap;
@@ -186,12 +188,13 @@ public:
 	 */
 	void move_offset(const vec2 &delta);
 
-  void reinit_picviz_view();
+	void reinit_picviz_view();
 
-  void update_lpr();
-  void create_batches();
-  void fill_vbo_colors_and_zla(GLint start, GLsizei count);
-  void fill_vbo_positions(unsigned int batch_index, GLuint start, GLsizei count);
+	void update_lpr();
+	void create_batches();
+	void fill_vbo_colors_and_zla(GLint start, GLsizei count);
+	void fill_vbo_positions(unsigned int batch_index, GLuint start, GLsizei count);
+	void fill_vbo_positions(float* res, const float* plotted, size_t plotted_ncols, PVRow start, PVRow end, const PVCol* cols, size_t ncols);
 };
 }
 #endif

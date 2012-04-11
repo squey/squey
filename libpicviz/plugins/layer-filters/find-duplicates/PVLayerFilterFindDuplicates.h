@@ -1,9 +1,3 @@
-//! \file PVLayerFilterFindDuplicates.h
-//! $Id$
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
-
 #ifndef PICVIZ_PVLAYERFILTERFindDuplicates_H
 #define PICVIZ_PVLAYERFILTERFindDuplicates_H
 
@@ -24,6 +18,7 @@ public:
 public:
 	virtual void operator()(PVLayer& in, PVLayer &out);
 	virtual QList<PVCore::PVArgumentKey> get_args_keys_for_preset() const;
+	virtual QString menu_name() const { return "Find/Duplicates"; }
 
 public:
 	CLASS_FILTER(Picviz::PVLayerFilterFindDuplicates)

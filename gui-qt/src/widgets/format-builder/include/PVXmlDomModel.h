@@ -24,8 +24,6 @@
 #include <pvkernel/filter/PVFieldsFilterParamWidget.h>
 #include <picviz/PVAxesCombination.h>
 
-#define message(string){QMessageBox qb;   qb.setText(string);    qb.exec();} 
-//#define dbg {qDebug()<<__FILE__<<__LINE__;}
 namespace PVInspector{
 class PVXmlDomModel: public QAbstractItemModel {
     
@@ -107,7 +105,7 @@ public:
     
     bool saveXml(QString xml_file);
     
-    void deleteSelection(QModelIndex &index);
+    void deleteSelection(QModelIndex const& index);
     
     void moveDown(const QModelIndex &index);
     void moveUp(const QModelIndex &index);

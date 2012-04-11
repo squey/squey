@@ -1,13 +1,15 @@
 #ifndef PVCORE_PVREGISTRABLE_CLASS
 #define PVCORE_PVREGISTRABLE_CLASS
 
-#include <pvkernel/core/general.h>
+//#include <pvkernel/core/general.h>
 #include <boost/shared_ptr.hpp>
+#include <QString>
 
 namespace PVCore {
 
 // Forward declaration
 template <class RegAs> class PVClassLibrary;
+
 
 /*! \brief Define a class type that is "registreable". 
  *
@@ -134,6 +136,12 @@ protected:
 	// This `id' is set when the class is registered, and is unique accross the classes of the same registered type.
 	reg_id_t __registered_class_id;
 };
+
+template <class T>
+unsigned int qHash(PVRegistrableClass<T> const& rc)
+{
+	return rc.registered_id();
+}
 
 }
 

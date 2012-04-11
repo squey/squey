@@ -41,7 +41,7 @@ PVCore::list_fields& PVFilter::PVFieldsMappingFilter::many_to_many(PVCore::list_
 			PVCore::list_fields::iterator it_curf = fields.begin();
 			chunk_index id_field = *it_ind;
 			if (id_field >= fields.size()) {
-				PVLOG_WARN("(PVFieldsMappingFilter) element hasn't enough field to apply mapping (index %d requested, %d fields available). Ignoring element...\n", *it_ind, fields.size());
+				PVLOG_DEBUG("(PVFieldsMappingFilter) element hasn't enough field to apply mapping (index %d requested, %d fields available). Ignoring element...\n", *it_ind, fields.size());
 				continue;
 			}
 			std::advance(it_curf, id_field);

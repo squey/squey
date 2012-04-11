@@ -16,7 +16,7 @@ public:
 	PVInputTypeRemoteFilename();
 	virtual ~PVInputTypeRemoteFilename();
 public:
-	bool createWidget(hash_formats const& formats, hash_formats& new_formats, list_inputs &inputs, QString& format, QWidget* parent = NULL) const;
+	bool createWidget(hash_formats const& formats, hash_formats& new_formats, list_inputs &inputs, QString& format, PVCore::PVArgumentList& args_ext, QWidget* parent = NULL) const;
 	QString name() const;
 	QString human_name() const;
 	QString human_name_serialize() const;
