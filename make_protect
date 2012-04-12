@@ -20,3 +20,4 @@ $GALVEZ_ROOT/tools/gen_table picviz-inspector $2 >gen_table.c ||exit 1
 make ||exit $?
 sh $GALVEZ_ROOT/bin/gen_patcher.sh gen_table.c ||exit 1
 ./patcher ./picviz-inspector
+strip ./picviz-inspector
