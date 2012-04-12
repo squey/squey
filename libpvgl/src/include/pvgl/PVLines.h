@@ -154,7 +154,6 @@ public:
 	 *
 	 */
 	void set_main_fbo_dirty();
-	void set_lines_fbo_dirty();
 
 	/**
 	 *

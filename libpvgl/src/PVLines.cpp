@@ -195,7 +195,6 @@ void PVGL::PVLines::set_size(int width, int height)
 	fbo_height= height* fbo_height_factor;
 
 	set_main_fbo_dirty();
-	set_lines_fbo_dirty();
 	set_zombie_fbo_dirty();
 	reset_offset();
 }
@@ -528,7 +527,6 @@ void PVGL::PVLines::set_zombie_fbo_dirty()
 	zombie_fbo_dirty = true;
 	drawn_zombie_lines = 0;
 	idle_manager.new_task(view, IDLE_REDRAW_ZOMBIE_LINES);
-	set_main_fbo_dirty();
 }
 
 /******************************************************************************
@@ -755,7 +753,7 @@ void PVGL::PVLines::draw_selected_lines(GLfloat modelview[16])
 	drawn_lines += nb_lines_to_draw;
 	if (drawn_lines >= int(picviz_view->get_row_count())) {
 		idle_manager.remove_task(view, IDLE_REDRAW_LINES);
-		lines_fbo_dirty = false;
+		main_fbo_dirty = false;
 		drawn_lines = 0;
 	}
 }
@@ -774,7 +772,7 @@ void PVGL::PVLines::draw()
 	if (!picviz_view->is_consistent()) {
 		return;
 	}
-	if (main_fbo_dirty || lines_fbo_dirty || zombie_fbo_dirty) { // We need to redraw the lines into the framebuffer.
+	if (main_fbo_dirty || zombie_fbo_dirty) { // We need to redraw the lines into the framebuffer.
 		GLfloat modelview[16];
 		// Setup the Antialiasing stuff.
 		if (state_machine->is_antialiased()) {
@@ -802,7 +800,7 @@ void PVGL::PVLines::draw()
 				draw_zombie_lines(modelview);
 			}
 			// Draw the selected lines into their own FBO
-			if (lines_fbo_dirty) {
+			if (main_fbo_dirty) {
 				draw_selected_lines(modelview);
 			}
 		}
@@ -841,10 +839,6 @@ void PVGL::PVLines::draw()
 		glColor3f(1.0f, 1.0f, 1.0f);
 		glLoadMatrixf(modelview);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0); PRINT_OPENGL_ERROR();
-
-		if (!lines_fbo_dirty && !zombie_fbo_dirty) {
-			main_fbo_dirty = false; // XXX we could put the axes & names into this fbo too, we will have to change this.
-		}
 	}
 
 	// Draw the main FBO on the screen.
@@ -889,10 +883,7 @@ void PVGL::PVLines::update_arrays_z(void)
 	if (!picviz_view->is_consistent()) {
 		return;
 	}
-	nb_lines = picviz_view->get_row_count();
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_zla); PRINT_OPENGL_ERROR();
-	glBufferData(GL_ARRAY_BUFFER, nb_lines * sizeof(GLfloat), &(picviz_view->z_level_array.get_value(0)), GL_DYNAMIC_DRAW); PRINT_OPENGL_ERROR();
-	set_lines_fbo_dirty();
+	set_main_fbo_dirty();
 }
 
 /******************************************************************************
@@ -909,12 +900,7 @@ void PVGL::PVLines::update_arrays_colors(void)
 	if (!picviz_view->is_consistent()) {
 		return;
 	}
-	nb_lines = picviz_view->get_row_count();
-
-	// Update the color vbo.
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_color); PRINT_OPENGL_ERROR();
-	glBufferData(GL_ARRAY_BUFFER, nb_lines * sizeof(ubvec4), &picviz_view->post_filter_layer.get_lines_properties().table.at(0), GL_DYNAMIC_DRAW); PRINT_OPENGL_ERROR();
-	set_lines_fbo_dirty();
+	set_main_fbo_dirty();
 	set_zombie_fbo_dirty();
 }
 
@@ -937,7 +923,7 @@ void PVGL::PVLines::update_arrays_selection(void)
 	                picviz_view->post_filter_layer.get_selection().get_buffer()); PRINT_OPENGL_ERROR();
 
 	view->update_label_lines_selected_eventline();
-	set_lines_fbo_dirty();
+	set_main_fbo_dirty();
 	//update_arrays_colors(); // FIXME: Is this needed or not arfer all?
 }
 
@@ -958,7 +944,7 @@ void PVGL::PVLines::update_arrays_zombies(void)
 	glBufferSubData(GL_TEXTURE_BUFFER, 0, PICVIZ_SELECTION_NUMBER_OF_BYTES,
 		   	picviz_view->layer_stack_output_layer.get_selection().get_buffer()); PRINT_OPENGL_ERROR();
 
-	set_lines_fbo_dirty();
+	set_main_fbo_dirty();
 	set_zombie_fbo_dirty();
 }
 
@@ -974,56 +960,7 @@ void PVGL::PVLines::update_arrays_positions(void)
 	if (!picviz_view->is_consistent() || !picviz_view->axes_combination.is_consistent()) {
 		return;
 	}
-	/* We get the number of lines and of axes */
-	nb_row = picviz_view->get_row_count();
-	nb_col = picviz_view->get_axes_count();
-	plotted_array = picviz_view->get_plotted_parent()->get_table_pointer();
-	plotted_row_size = picviz_view->get_original_axes_count();
-
-	// We process all lines.
-	test_value = nb_col * PICVIZ_EVENTLINE_LINES_MAX;
-	std::vector<vec4*> mapped_position_arrays;
-	mapped_position_arrays.reserve(nb_batches);
-	for (unsigned batch_number = 0; batch_number < nb_batches; batch_number++) {
-		glBindVertexArray(batches[batch_number].vao); PRINT_OPENGL_ERROR();
-		glBindBuffer(GL_ARRAY_BUFFER, batches[batch_number].vbo_position); PRINT_OPENGL_ERROR();
-		mapped_position_arrays.push_back(reinterpret_cast<vec4*>(glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY))); PRINT_OPENGL_ERROR();
-	}
-
-	for (PVRow i = 0; i < nb_row; i++) {
-		unsigned batch_number;
-		const float *temp_pointer_in_array = plotted_array + i * plotted_row_size;
-
-		// We test if we have reached the maximum number of lines for OpenGL
-		if (nb_positions >= test_value) {
-//			break;
-		}
-
-		for (batch_number = 0; batch_number < nb_batches - 1; batch_number++) {
-			for (int j = 0; j < 4 * NB_ATTRIBUTES_PER_BATCH; j += 4) {
-				mapped_position_arrays[batch_number][nb_positions + j / 4].x = temp_pointer_in_array[picviz_view->axes_combination.get_axis_column_index_fast((NB_AXES_PER_BATCH - 1) * batch_number + j + 0)];
-				mapped_position_arrays[batch_number][nb_positions + j / 4].y = temp_pointer_in_array[picviz_view->axes_combination.get_axis_column_index_fast((NB_AXES_PER_BATCH - 1) * batch_number + j + 1)];
-				mapped_position_arrays[batch_number][nb_positions + j / 4].z = temp_pointer_in_array[picviz_view->axes_combination.get_axis_column_index_fast((NB_AXES_PER_BATCH - 1) * batch_number + j + 2)];
-				mapped_position_arrays[batch_number][nb_positions + j / 4].w = temp_pointer_in_array[picviz_view->axes_combination.get_axis_column_index_fast((NB_AXES_PER_BATCH - 1) * batch_number + j + 3)];
-			}
-		}
-		nb_positions += NB_ATTRIBUTES_PER_BATCH;
-		// The last batch is a bit special
-		for (int j = 0; j < nb_col - (NB_AXES_PER_BATCH - 1) * int(batch_number); j += 4) {
-			int index = (NB_AXES_PER_BATCH - 1) * batch_number + j;
-			mapped_position_arrays[batch_number][nb_positions_last_batch].x = temp_pointer_in_array[picviz_view->axes_combination.get_axis_column_index_fast(index + 0)];
-			if (index + 1 < nb_col)
-				mapped_position_arrays[batch_number][nb_positions_last_batch].y = temp_pointer_in_array[picviz_view->axes_combination.get_axis_column_index_fast(index + 1)];
-			if (index + 2 < nb_col)
-				mapped_position_arrays[batch_number][nb_positions_last_batch].z = temp_pointer_in_array[picviz_view->axes_combination.get_axis_column_index_fast(index + 2)];
-			if (index + 3 < nb_col)
-				mapped_position_arrays[batch_number][nb_positions_last_batch].w = temp_pointer_in_array[picviz_view->axes_combination.get_axis_column_index_fast(index + 3)];
-			nb_positions_last_batch++;
-		}
-	}
-
-	set_lines_fbo_dirty();
->>>>>>> 91ed179... Backport fix from zombies/unselected switching that used to redraw all
+	set_main_fbo_dirty();
 	set_zombie_fbo_dirty();
 }
 

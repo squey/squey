@@ -435,7 +435,7 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 					state_machine->toggle_gl_unselected_visibility();
 					/* We refresh the view */
 					//picviz_view_process_visibility(pv_view);
-					get_lines().set_zombie_fbo_dirty();
+					get_lines().set_main_fbo_dirty();
 					map.set_main_fbo_dirty();
 				}
 				break;
@@ -467,7 +467,7 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 					/* We toggle*/
 					state_machine->toggle_gl_zombie_visibility();
 					/* We refresh the view */
-					get_lines().set_zombie_fbo_dirty();
+					get_lines().set_main_fbo_dirty();
 					map.set_main_fbo_dirty();
 				}
 				break;
