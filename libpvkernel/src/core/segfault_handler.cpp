@@ -138,7 +138,7 @@ void init_segfault_handler()
 #else // PICVIZ_DEVELOPER_MODE
 
 // TODO: use google breakpad so that users can send us backtraces ?
-void init_segfafult_handler()
+void init_segfault_handler()
 {
 }
 
