@@ -85,11 +85,7 @@ protected:
 	void add_column(PVPlottingProperties const& props);
 
 public:
-	#ifndef CUDA
 	int create_table();
-	#else //CUDA
-	int create_table_cuda();
-	#endif //CUDA
 	void process_expanded_selections();
 
 	void process_from_mapped(PVMapped* mapped, bool keep_views_info);

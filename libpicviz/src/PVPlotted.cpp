@@ -52,7 +52,6 @@ void PVPlotted::set_plotting(PVPlotting const& plotting)
 	}
 }
 
-#ifndef CUDA
 int PVPlotted::create_table()
 {
 	PVCol mapped_col_count = _mapped->get_column_count();
@@ -133,87 +132,6 @@ int PVPlotted::create_table()
 
 	return 0;
 }
-#else //CUDA
-/***************** CUDA *****************************************/
-int PVPlotted::create_table_cuda(){
-  
-  PVCol mapped_col_count = _mapped->get_column_count();
-  QMutex lock;
-  const PVRow nrows = (PVRow)_mapped->table.getHeight();
-  //float dataTmp[nrows][mapped_col_count];
-  
-  
-  //init table type of profile
-  /// TODO do it differently : create a method in PVPlottingPorperties or PVPlottingFunction to generate it
-  //for apache
-  /*PlottingParam *plottingType = new PlottingParam[9];
-  /// FIXME don't feed it hardly
-  plottingType[0].type = time_default;
-  plottingType[1].type = ipv4_default;
-  plottingType[2].type = ipv4_default;
-  plottingType[3].type = integer_minmax;
-  plottingType[3].data[0] = _mapped->mapping->dict_float[3]["ymin"];
-  plottingType[3].data[1] = _mapped->mapping->dict_float[3]["ymax"];
-  plottingType[4].type = integer_minmax;
-  plottingType[4].data[0] = _mapped->mapping->dict_float[4]["ymin"];
-  plottingType[4].data[1] = _mapped->mapping->dict_float[4]["ymax"];
-  plottingType[5].type = integer_default;
-  plottingType[6].type = enum_default;
-  plottingType[7].type = integer_port;
-  plottingType[8].type = integer_port;//for apache*/
-  
-  //for squid
-  PlottingParam *plottingType = new PlottingParam[9];
-  /// FIXME don't feed it hardly
-  plottingType[0].type = time_default;
-  plottingType[1].type = enum_default;
-  plottingType[2].type = enum_default;
-  plottingType[3].type = string_default;
-  plottingType[4].type = enum_default;
-  plottingType[5].type = enum_default;
-  plottingType[6].type = ipv4_default;
-  
-   
-  
-  //kernel caller
-  ///FIXME hard cast float* (don't use Qt class in cuda caller)
-  PVLOG_INFO("cuda call\n");
-  PVPlotted_create_table_cuda((int)nrows,(int)mapped_col_count, (float*)_mapped->table.getData(),(float*)&table[0], plottingType);  
-  PVLOG_INFO("cuda end\n");
-  
-  //to see first log
-  /*for(int i=0;i<9;i++){
-	std::cout<<"*** CUDA TRACE *** cuda val  "<<table[i]<<std::endl;
-  }
-  std::cout<<"*** CUDA TRACE ***    "<<std::endl;
-  for(int i=9;i<18;i++){
-	std::cout<<"*** CUDA TRACE *** cuda val  "<<table[i]<<std::endl;
-  }
-  std::cout<<"*** CUDA TRACE ***    "<<std::endl;*/
-
-  
-  
-  //old
-  /*PVLOG_INFO("linear call\n");
-	for (PVRow i = 0; i < nrows; i++) {
-		for (PVCol j = 0; j < mapped_col_count; j++) {
-			const float val = plotting->get_position(j, _mapped->table.getValue(i,j));
-			//lock.lock();
-			table[i*mapped_col_count+j] = val;
-			//to see first log
-			if(i*mapped_col_count+j<18){
-			  std::cout<<"*** CUDA TRACE *** no cuda val  "<<val<<" ? "<<table[i*mapped_col_count+j]<<std::endl;
-			}
-			//lock.unlock();
-		}
-	}
-	PVLOG_INFO("linear end\n");*/
-  
-  
-  return 0;
-}
-/***************** CUDA *****************************************/
-#endif//CUDA
 
 void Picviz::PVPlotted::process_expanded_selections()
 {

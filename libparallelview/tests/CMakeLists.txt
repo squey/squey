@@ -1,10 +1,10 @@
 include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/libparallelview/src/include)
 add_definitions(${PICVIZ_DEFINITIONS})
 include_directories(AFTER ${PICVIZ_INCLUDE_DIRS})
+include_directories(AFTER ${CUDA_INCLUDE_DIRS})
 
 set(CUDA_PROPAGATE_HOST_FLAGS "OFF")
 set(CUDA_NVCC_FLAGS "-O3" "-arch=sm_20")
-set(CUDA_SRC_FILES ${CMAKE_CURRENT_LIST_DIR}/cuda/common.cpp)
 
 add_definitions(${OpenMP_CXX_FLAGS})
 set(QT_USE_QTOPENGL TRUE)
@@ -20,6 +20,9 @@ target_link_libraries(create_tree ${LINK_LIBRARIES})
 add_executable(show_codes_gl show_codes_gl.cpp)
 target_link_libraries(show_codes_gl ${LINK_LIBRARIES})
 
-cuda_compile(CUDA_KERNELS raster.cu)
-add_executable(raster raster.cpp ${CUDA_KERNELS})
-target_link_libraries(raster ${LINK_LIBRARIES} ${CUDA_LIBRARIES})
+add_executable(masks masks.cpp)
+target_link_libraries(masks ${LINK_LIBRARIES})
+
+cuda_compile(CUDA_KERNELS bci_cuda.cu)
+add_executable(show_codes_cuda show_codes_cuda.cpp ${CUDA_KERNELS})
+target_link_libraries(show_codes_cuda ${LINK_LIBRARIES} ${CUDA_LIBRARIES})

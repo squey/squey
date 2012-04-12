@@ -8,6 +8,7 @@
 #define NBUCKETS ((1UL<<(2*NBITS_INDEX)))
 #define MASK_INT_YCOORD (((1UL)<<(NBITS_INDEX))-1)
 
+#define IMAGE_HEIGHT (1024)
 #define MASK_INT_PLOTTED (~(1UL<<(32-NBITS_INDEX))-1)
 
 #include <pvkernel/core/PVAllocators.h>

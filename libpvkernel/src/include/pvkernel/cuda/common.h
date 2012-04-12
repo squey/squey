@@ -4,13 +4,14 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 
-#define verify_cuda(e) __verify_cuda(e, __FILE__, __LINE__)
-#define __verify_cuda(e, F, L)\
+#define picviz_verify_cuda(e) __picviz_verify_cuda(e, __FILE__, __LINE__)
+#define __picviz_verify_cuda(e, F, L)\
 		if ((e) != cudaSuccess) {\
 			fprintf(stderr, "Cuda assert failed in %s:%d with %s.\n", F, L, cudaGetErrorString(cudaGetLastError()));\
 			abort();\
 		}
-#define verify_cuda_kernel() __verify_cuda_kernel(__FILE__, __LINE__)
+#define picviz_verify_cuda_kernel() __verify_cuda_kernel(__FILE__, __LINE__)
+#define __verify_cuda_kernel(F, L) __picviz_verify_cuda(cudaGetLastError(), F, L)
 
 namespace PVCuda {
 
