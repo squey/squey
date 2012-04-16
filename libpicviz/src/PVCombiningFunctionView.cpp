@@ -1,10 +1,13 @@
 #include <picviz/PVCombiningFunctionView.h>
 #include <picviz/PVTFViewRowFiltering.h>
+#include <picviz/PVTFViewRowFilterFastIPv4.h>
 
 Picviz::PVCombiningFunctionView::PVCombiningFunctionView()
 {
 	// AG: for now, the only TF in here is a row filtering one
 	PVTransformationFunctionView_p tf_p(new PVTFViewRowFiltering());
+	// RH: test using the fast IPv4 row filter
+	PVTransformationFunctionView_p tf_p(new PVTFViewRowFilterFastIPv4());
 	_tfs.push_back(tf_p);
 }
 
