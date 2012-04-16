@@ -18,6 +18,8 @@ public:
 	typedef QList<PVSelRowFilteringFunction_p> list_rff_t;
 
 public:
+	void pre_process(PVView const& view_src, PVView const& view_dst);
+
 	PVSelection operator()(PVView const& view_src, PVView const& view_dst, PVSelection const& sel_org) const;
 
 public:

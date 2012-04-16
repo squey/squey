@@ -16,6 +16,8 @@ public:
 	PVTransformationFunctionView() { }
 
 public:
+	virtual void pre_process(PVView const& view_src, PVView const& view_dst) = 0;
+
 	virtual PVSelection operator()(PVView const& view_org, PVView const& view_dst, PVSelection const& sel_org) const = 0;
 };
 

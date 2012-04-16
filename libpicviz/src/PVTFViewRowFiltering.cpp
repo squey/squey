@@ -4,6 +4,13 @@
 
 #include <pvkernel/core/picviz_bench.h>
 
+void Picviz::PVTFViewRowFiltering::pre_process(PVView const& view_src, PVView const& view_dst)
+{
+	foreach(PVSelRowFilteringFunction_p const& rff_p, _rffs) {
+		rff_p->pre_process(view_src, view_dst);
+	}
+}
+
 Picviz::PVSelection Picviz::PVTFViewRowFiltering::operator()(PVView const& view_src, PVView const& view_dst, PVSelection const& sel_org) const
 {
 	// AG: the algorithm here is hard coded, and the idea in a close future is to have the user being able
@@ -17,10 +24,6 @@ Picviz::PVSelection Picviz::PVTFViewRowFiltering::operator()(PVView const& view_
 	// Then, merge this selection into the final one.
 	PVRow nlines_sel = view_src.get_row_count();
 	PVSelection sel_line;
-
-	foreach(PVSelRowFilteringFunction_p const& rff_p, _rffs) {
-		rff_p->pre_process(view_src, view_dst);
-	}
 
 	for (PVRow r = 0; r < nlines_sel; r++) {
 		if (!sel_org.get_line(r)) {
