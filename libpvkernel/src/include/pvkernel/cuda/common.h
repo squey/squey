@@ -11,7 +11,11 @@
 			abort();\
 		}
 #define picviz_verify_cuda_kernel() __verify_cuda_kernel(__FILE__, __LINE__)
-#define __verify_cuda_kernel(F, L) __picviz_verify_cuda(cudaGetLastError(), F, L)
+#define __verify_cuda_kernel(F, L)\
+	do {\
+		int last_err = cudaGetLastError();\
+		__picviz_verify_cuda(last_err, F, L);\
+	} while(0);
 
 namespace PVCuda {
 

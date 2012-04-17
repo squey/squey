@@ -4,7 +4,8 @@ include_directories(AFTER ${PICVIZ_INCLUDE_DIRS})
 include_directories(AFTER ${CUDA_INCLUDE_DIRS})
 
 set(CUDA_PROPAGATE_HOST_FLAGS "OFF")
-set(CUDA_NVCC_FLAGS "-O3" "-arch=sm_20")
+set(CUDA_NVCC_FLAGS "-gencode arch=compute_20,code=sm_20")
+#set(CUDA_NVCC_FLAGS "-g" "-G")
 
 add_definitions(${OpenMP_CXX_FLAGS})
 set(QT_USE_QTOPENGL TRUE)

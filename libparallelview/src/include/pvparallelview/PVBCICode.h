@@ -16,8 +16,8 @@ struct PVBCICode
 			uint32_t idx;
 			uint32_t l: 10;
 			uint32_t r: 10;
-			uint32_t color: 11;
-			uint32_t __reserved: 1;
+			uint32_t color: 8;
+			uint32_t __reserved: 3;
 		} s;
 	};
 	static void init_random_codes(PVBCICode* codes, size_t n);
@@ -25,7 +25,7 @@ struct PVBCICode
 	static void free_codes(PVBCICode* codes);
 };
 
-typedef PVBCICode DECLARE_ALIGN(16) * PVBCode_ap;
+typedef PVBCICode DECLARE_ALIGN(16) * PVBCICode_ap;
 
 }
 

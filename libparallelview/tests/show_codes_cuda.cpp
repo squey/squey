@@ -1,5 +1,6 @@
 #include <pvkernel/cuda/common.h>
 #include <pvparallelview/common.h>
+#include <pvparallelview/PVHSVColor.h>
 #include <pvparallelview/PVBCICode.h>
 #include "bci_cuda.h"
 #include <pvparallelview/simple_lines_int_view.h>
@@ -16,17 +17,26 @@ void show_codes(PVParallelView::PVBCICode* codes, size_t n)
 	QMainWindow* mw = new QMainWindow();
 	mw->setWindowTitle("codes");
 	SLIntView* v = new SLIntView(mw);
-	v->set_size(1024, 1024);
+	v->set_size(WIDTH, 1024);
 	v->set_ortho(1, 1024);
 
 	std::vector<int32_t>& pts = *(new std::vector<int32_t>);
+	std::vector<PVRGB>& colors = *(new std::vector<PVRGB>);
 	pts.reserve(n*4);
+	colors.reserve(n);
+	PVRGB rgb;
+	rgb.int_v = 0;
 	for (size_t i = 0; i < n; i++) {
 		PVParallelView::PVBCICode c = codes[i];
 		pts.push_back(0); pts.push_back(c.s.l);
 		pts.push_back(1); pts.push_back(c.s.r);
+
+		PVParallelView::PVHSVColor hsv(c.s.color);
+		hsv.to_rgb((uint8_t*) &rgb);
+		colors.push_back(rgb);
 	}
 	v->set_points(pts);
+	v->set_colors(colors);
 	mw->setCentralWidget(v);
 	mw->resize(v->sizeHint());
 	mw->show();
@@ -39,7 +49,7 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	QApplication app(argc, argv);
+	//QApplication app(argc, argv);
 	PVCuda::init_cuda();
 
 	size_t n = atoll(argv[1]);
@@ -54,8 +64,8 @@ int main(int argc, char** argv)
 	write(4, img, WIDTH*IMAGE_HEIGHT*sizeof(uint32_t));
 	delete [] img;
 
-	show_codes(codes, n);
-	app.exec();
+	//show_codes(codes, n);
+	//app.exec();
 
 	PVParallelView::PVBCICode::free_codes(codes);
 	return 0;

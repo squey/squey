@@ -12,6 +12,7 @@ add_definitions(${OpenMP_CXX_FLAGS})
 
 SET(SRC_FILES
 PVBCICode.cpp
+PVHSVColor.cpp
 PVTools.cpp
 PVZoneTree.cpp
 simple_lines_float_view.cpp
