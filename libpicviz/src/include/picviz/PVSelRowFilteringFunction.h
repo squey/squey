@@ -30,7 +30,9 @@ public:
 #define CLASS_RFF_NOPARAM(T)\
 	public:\
 		virtual func_type f() { return boost::bind<void>((void(T::*)(PVRow, PVView const&, PVView const&, PVSelection&))(&T::operator()), this, _1, _2, _3, _4); }\
-	CLASS_FUNC_ARGS_NOPARAM(T)
+	CLASS_FUNC_ARGS_NOPARAM(T)\
+	CLASS_REGISTRABLE(T)
+
 
 }
 
