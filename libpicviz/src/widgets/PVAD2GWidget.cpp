@@ -11,6 +11,13 @@
 #include <picviz/PVView_types.h>
 #include <picviz/PVView.h>
 
+// Correlation
+#include <pvkernel/core/PVAxisIndexType.h>
+#include <picviz/PVCombiningFunctionView.h>
+//#include <picviz/PVRFFAxesBind.h>
+#include <picviz/PVTFViewRowFiltering.h>
+#include <picviz/PVSelRowFilteringFunction.h>
+
 #include <picviz/widgets/PVAD2GInteractor.h>
 
 
@@ -125,7 +132,6 @@ Picviz::PVAD2GWidget::PVAD2GWidget(PVAD2GView& ad2g, QMainWindow* mw /*= NULL*/)
 	nodeWidget->setAcceptDrops(true);
 	nodeWidget->installEventFilter(new __impl::FilterDropEvent(this));
 
-
 	init_toolbar();
 	fill_table();
 
@@ -146,6 +152,20 @@ Picviz::PVAD2GWidget::PVAD2GWidget(PVAD2GView& ad2g, QMainWindow* mw /*= NULL*/)
 
 		initObservers();
 	}
+
+	/////////////////////////////////////////////////////////////////////////////
+	// Create hardcoded graph for testing purpose
+	Picviz::PVScene::list_views_t all_views = _ad2g.get_scene()->get_all_views();
+	Picviz::PVView_p view0 = all_views[0];
+	Picviz::PVView_p view1 = all_views[1];
+	tlp::node n0 = _ad2g.add_view(view0.get());
+	tlp::node n1 = _ad2g.add_view(view1.get());
+	add_combining_function(n0, n1);
+	//////////////////////////////////////////////////////////////////////////////////
+
+	tlp::LayoutProperty* viewLayout = _graph->getLocalProperty<tlp::LayoutProperty>("viewLayout");
+	viewLayout->setNodeValue(n0, tlp::Coord(1, 1, 0));
+	viewLayout->setNodeValue(n1, tlp::Coord(4, 4, 0));
 
 	// Apply layout algorithm:
 //	tlp::LayoutProperty* viewLayout = _graph->getLocalProperty<tlp::LayoutProperty>("viewLayout");
@@ -261,6 +281,31 @@ void Picviz::PVAD2GWidget::remove_view_Slot(int node)
 	}
 }
 
+tlp::edge Picviz::PVAD2GWidget::add_combining_function(const tlp::node source, const tlp::node target)
+{
+	tlp::Graph* graph = _nodeLinkView->getGlMainWidget()->getScene()->getGlGraphComposite()->getInputData()->getGraph();
+
+	// RFF
+	Picviz::PVCombiningFunctionView_p cf_sp(new Picviz::PVCombiningFunctionView());
+	Picviz::PVTFViewRowFiltering* tf = cf_sp->get_first_tf();
+	LIB_CLASS(Picviz::PVSelRowFilteringFunction) &row_filters = LIB_CLASS(Picviz::PVSelRowFilteringFunction)::get();
+	Picviz::PVSelRowFilteringFunction_p rff_bind = row_filters.get_class_by_name("axes_bind");
+	assert(rff_bind);
+	rff_bind = rff_bind->clone<Picviz::PVSelRowFilteringFunction>();
+	PVCore::PVArgumentList args;
+	args["axis_org"].setValue(PVCore::PVAxisIndexType(1));
+	args["axis_dst"].setValue(PVCore::PVAxisIndexType(1));
+	rff_bind->set_args(args);
+	tf->push_rff(rff_bind);
+	PVView* view_src = _ad2g.get_view(source);
+	PVView* view_dst = _ad2g.get_view(target);
+	tlp::edge newEdge = _ad2g.set_edge_f(view_src, view_dst, cf_sp);
+
+	_nodeLinkView->elementSelectedSlot(newEdge.id, false);
+
+	return newEdge;
+}
+
 void Picviz::PVAD2GWidget::remove_combining_function_Slot(int edge)
 {
 	QMessageBox* box = new QMessageBox(QMessageBox::Question, tr("Confirm remove."), tr("Do you really want to remove this combining function?"), QMessageBox::Yes | QMessageBox::No, this);
@@ -275,6 +320,11 @@ void Picviz::PVAD2GWidget::remove_combining_function_Slot(int edge)
 	}
 }
 
+void Picviz::PVAD2GWidget::edit_combining_function(int edge)
+{
+	Picviz::PVAD2GEdgeEditor* edge_editor = new Picviz::PVAD2GEdgeEditor();
+	edge_editor->exec();
+}
 
 void Picviz::PVAD2GWidget::initObservers()
 {
@@ -301,7 +351,6 @@ void Picviz::PVAD2GWidget::fill_table()
 		item->setData(Qt::UserRole, qVariantFromValue((void*) view.get()));
 		_table->setRowCount(_table->rowCount()+1);
 		_table->setItem(_table->rowCount()-1, 0, item);
-
 	}
 
 	_table->horizontalHeader()->hide();

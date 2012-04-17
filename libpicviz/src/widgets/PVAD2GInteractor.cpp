@@ -1,12 +1,5 @@
 #include <picviz/widgets/PVAD2GInteractor.h>
 
-// Correlation
-#include <pvkernel/core/PVAxisIndexType.h>
-#include <picviz/PVCombiningFunctionView.h>
-//#include <picviz/PVRFFAxesBind.h>
-#include <picviz/PVTFViewRowFiltering.h>
-#include <picviz/PVSelRowFilteringFunction.h>
-
 #include <tulip/NodeLinkDiagramComponent.h>
 #include <tulip/GlLine.h>
 
@@ -29,7 +22,7 @@ Picviz::AD2GInteractorComponent::AD2GInteractorComponent(PVAD2GWidget* widget, t
 
 bool Picviz::AD2GInteractorComponent::eventFilter(QObject* widget, QEvent* e)
 {
-	if (!(e->type() == QEvent::MouseButtonPress || e->type() == QEvent::MouseMove || e->type() == QEvent::KeyPress)) {
+	if (!(e->type() == QEvent::MouseButtonPress || e->type() == QEvent::MouseMove || e->type() == QEvent::KeyPress || e->type() == QEvent::MouseButtonDblClick)) {
 		return false;
 	}
 
@@ -48,18 +41,26 @@ bool Picviz::AD2GInteractorComponent::eventFilter(QObject* widget, QEvent* e)
 			}
 		}
 	}
-	else if (e->type() == QEvent::MouseButtonPress || e->type() == QEvent::MouseMove) {
+	else {
 
 		QMouseEvent* qMouseEv = (QMouseEvent*) e;
 
 		bool hoveringOverNode = glMainWidget->doSelect(qMouseEv->x(), qMouseEv->y(), _type, _tmpNode, _tmpEdge) && _type == tlp::NODE;
 		bool hoveringOverEdge = glMainWidget->doSelect(qMouseEv->x(), qMouseEv->y(), _type, _tmpNode, _tmpEdge) && _type == tlp::EDGE;
 
+		if (qMouseEv->type() == QEvent::MouseButtonDblClick) {
+			if (hoveringOverEdge) {
+				_widget->edit_combining_function(_tmpEdge);
+				return true;
+			}
+			return false;
+		}
+
 		if (qMouseEv->buttons() == Qt::LeftButton && qMouseEv->modifiers() == Qt::ControlModifier) {
 
 			// Start edge tracing
 			if (!_edge_started) {
-				if  (hoveringOverNode) {
+				if (hoveringOverNode) {
 					_edge_started = true;
 					initObserver(graph);
 					_source = _tmpNode;
@@ -88,9 +89,9 @@ bool Picviz::AD2GInteractorComponent::eventFilter(QObject* widget, QEvent* e)
 						menu->addAction(directed);
 						menu->addAction(undirected);
 						if (menu->exec(qMouseEv->globalPos()) == undirected) {
-							addLink(widget, _tmpNode, _source);
+							addLink(_widget, _tmpNode, _source);
 						}
-						addLink(widget, _source, _tmpNode);
+						addLink(_widget, _source, _tmpNode);
 					}
 
 					_edge_started=false;
@@ -183,31 +184,12 @@ bool Picviz::AD2GInteractorComponent::eventFilter(QObject* widget, QEvent* e)
 
 void Picviz::AD2GInteractorComponent::addLink(QObject* /*widget*/, const tlp::node source, const tlp::node target)
 {
-	tlp::Graph* g = _glMainWidget->getScene()->getGlGraphComposite()->getInputData()->getGraph();
+	tlp::edge newEdge = _widget->add_combining_function(_source, _tmpNode);
 
-	tlp::LayoutProperty* mLayout = g->getProperty<tlp::LayoutProperty>(_glMainWidget->getScene()->getGlGraphComposite()->getInputData()->getElementLayoutPropName());
-	tlp::edge newEdge = g->addEdge(source, target);
-
-	// RFF
-	Picviz::PVCombiningFunctionView_p cf_sp(new Picviz::PVCombiningFunctionView());
-	Picviz::PVTFViewRowFiltering* tf = cf_sp->get_first_tf();
-	LIB_CLASS(Picviz::PVSelRowFilteringFunction) &row_filters = LIB_CLASS(Picviz::PVSelRowFilteringFunction)::get();
-	Picviz::PVSelRowFilteringFunction_p rff_bind = row_filters.get_class_by_name("axes_bind");
-	assert(rff_bind);
-	rff_bind = rff_bind->clone<Picviz::PVSelRowFilteringFunction>();
-	PVCore::PVArgumentList args;
-	args["axis_org"].setValue(PVCore::PVAxisIndexType(1));
-	args["axis_dst"].setValue(PVCore::PVAxisIndexType(1));
-	rff_bind->set_args(args);
-	tf->push_rff(rff_bind);
-	PVView* view_src = _widget->get_ad2g().get_view(source);
-	PVView* view_dst = _widget->get_ad2g().get_view(target);
-	_widget->get_ad2g().set_edge_f(view_src, view_dst, cf_sp);
-
+	tlp::Graph* graph = _glMainWidget->getScene()->getGlGraphComposite()->getInputData()->getGraph();
+	tlp::LayoutProperty* mLayout = graph->getProperty<tlp::LayoutProperty>(_glMainWidget->getScene()->getGlGraphComposite()->getInputData()->getElementLayoutPropName());
 	mLayout->setEdgeValue(newEdge, _bends);
 	_bends.clear();
-	tlp::NodeLinkDiagramComponent *nodeLinkView=static_cast<tlp::NodeLinkDiagramComponent *>(view);
-	nodeLinkView->elementSelectedSlot(newEdge.id, false);
 }
 
 bool Picviz::AD2GInteractorComponent::draw(tlp::GlMainWidget* glMainWidget)

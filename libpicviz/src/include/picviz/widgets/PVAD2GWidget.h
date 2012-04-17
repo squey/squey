@@ -10,6 +10,8 @@
 #include <pvkernel/core/general.h>
 #include <picviz/PVAD2GView.h>
 
+#include <picviz/widgets/PVAD2GEdgeEditor.h>
+
 namespace Picviz {
 
 namespace __impl {
@@ -49,6 +51,9 @@ public:
 
 public:
 	void add_view(QPoint pos, PVView* view);
+	tlp::edge add_combining_function(const tlp::node source, const tlp::node target);
+	void edit_combining_function(int edge);
+
 	__impl::PVTableWidget* get_table() { return _table; }
 	PVAD2GView& get_ad2g() { return _ad2g; }
 
