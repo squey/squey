@@ -8,34 +8,126 @@
 #include <tulip/PluginLoaderTxt.h>
 ///
 
+#include <picviz/PVView_types.h>
+#include <picviz/PVView.h>
+
+#include <picviz/widgets/PVAD2GInteractor.h>
+
+
+void Picviz::__impl::PVTableWidget::mousePressEvent(QMouseEvent* event)
+{
+	if (event->button() == Qt::LeftButton) {
+		_dragStartPosition = event->pos();
+	}
+
+	QTableWidget::mousePressEvent(event);
+}
+
+
+void Picviz::__impl::PVTableWidget::mouseMoveEvent(QMouseEvent* event)
+{
+	if (!(event->buttons() & Qt::LeftButton))
+		return;
+	if ((event->pos() - _dragStartPosition).manhattanLength() < QApplication::startDragDistance())
+		return;
+
+	QTableWidgetItem* item = ((Picviz::PVAD2GWidget*) parent())->get_table()->currentItem();
+
+	if (item->flags() & Qt::ItemIsEnabled) {
+		QDrag* drag = new QDrag(this);
+		QMimeData* mimeData = new QMimeData;
+		void* ptr = item->data(Qt::UserRole).value<void*>();
+
+		QByteArray byte_array;
+		byte_array.reserve(sizeof(void*));
+		byte_array.append((const char*)ptr, sizeof(void*));
+
+		mimeData->setData("application/x-qabstractitemmodeldatalist", byte_array);
+
+		drag->setMimeData(mimeData);
+
+		Qt::DropAction dropAction = drag->exec(Qt::CopyAction | Qt::MoveAction);
+	}
+
+}
+
+bool Picviz::__impl::FilterDropEvent::eventFilter(QObject* /*object*/, QEvent *event)
+{
+	if(event->type() == QEvent::DragEnter)
+	{
+		QDragEnterEvent* dragEnterEvent = static_cast<QDragEnterEvent*>(event);
+		dragEnterEvent->accept(); // dragEnterEvent->acceptProposedAction();
+		return true;
+	}
+	else if (event->type() == QEvent::Drop) {
+
+		QDropEvent* dropEvent = static_cast<QDropEvent*>(event);
+
+		if (dropEvent->mimeData()->hasFormat("application/x-qabstractitemmodeldatalist")) {
+			dropEvent->acceptProposedAction();
+
+			const QMimeData* mimeData = dropEvent->mimeData();
+			QByteArray itemData = mimeData->data("application/x-qabstractitemmodeldatalist");
+
+			if (itemData.size() < sizeof(PVView**)) {
+				return false;
+			}
+			PVView* view = *(reinterpret_cast<PVView* const*>(itemData.constData()));
+
+			_widget->add_view(dropEvent->pos(), view);
+			QString wn = view->get_window_name();
+
+			// Disable QTableWidgetItem
+			__impl::PVTableWidget* table = ((Picviz::PVAD2GWidget*) parent())->get_table();
+			table->setCurrentCell(-1, -1);
+			for (int i = 0; i < table->rowCount(); i++) {
+				QTableWidgetItem* item = table->item(i, 0);
+				if (item->data(Qt::UserRole).value<void*>() == (void*) view) {
+					item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
+				}
+			}
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
 Picviz::PVAD2GWidget::PVAD2GWidget(PVAD2GView& ad2g, QMainWindow* mw /*= NULL*/) :
 	QWidget(mw),
 	_ad2g(ad2g),
 	_mw(mw),
 	_graph(_ad2g.get_graph())
 {
-	tlp::initTulipLib();
-	tlp::PluginLoaderTxt txtPlug;
-//	tlp::loadPlugin("/usr/local/lib/tulip/libMixedModel-3.7.0.so", &txtPlug);
-    tlp::loadPlugins(&txtPlug);
-	tlp::InteractorManager::getInst().loadPlugins(&txtPlug);
-	tlp::GlyphManager::getInst().loadPlugins(&txtPlug);   // software side plugins, i.e. glyphs
+	//tlp::initTulipLib();
+	//tlp::PluginLoaderTxt txtPlug;
+	//	tlp::loadPlugin("/usr/local/lib/tulip/libMixedModel-3.7.0.so", &txtPlug);
+	//tlp::loadPlugins(&txtPlug);   // library side plugins
+	//tlp::InteractorManager::getInst().loadPlugins(&txtPlug);
+	//tlp::GlyphManager::getInst().loadPlugins(&txtPlug);   // software side plugins, i.e. glyphs
 
 	_nodeLinkView = new AD2GNodeLinkDiagramComponent();
 
-	_widget = _nodeLinkView->construct(this);
+	QHBoxLayout* main_layout = new QHBoxLayout();
+	QWidget* nodeWidget = _nodeLinkView->construct(this);
+	main_layout->addWidget(nodeWidget);
+	_table = new __impl::PVTableWidget(this);
+	main_layout->addWidget(_table);
+	setLayout(main_layout);
+
 	_nodeLinkView->hideOverview(true);
-
-	_graph = tlp::loadGraph("/home/jbleonesio/tulip_graph_layout.tlp");
-
-
 
 	tlp::DataSet dataSet;
 	dataSet.set<bool>("arrow", true);
 
 	_nodeLinkView->init();
+	nodeWidget->setAcceptDrops(true);
+	nodeWidget->installEventFilter(new __impl::FilterDropEvent(this));
+
 
 	init_toolbar();
+	fill_table();
 
 	if (_graph) {
 
@@ -44,12 +136,11 @@ Picviz::PVAD2GWidget::PVAD2GWidget(PVAD2GView& ad2g, QMainWindow* mw /*= NULL*/)
 
 		// Set up graph rendering properties
 		tlp::GlGraphRenderingParameters params = _nodeLinkView->getGlMainWidget()->getScene()->getGlGraphComposite()->getRenderingParameters();
-		params.setViewArrow(true);
-		params.setEdgeColorInterpolate(false);
-
 		tlp::ColorProperty* color_property = _graph->getLocalProperty<tlp::ColorProperty>("viewColor");
 		color_property->setAllNodeValue(tlp::Color(102, 0, 110));
 		color_property->setAllEdgeValue(tlp::Color(142, 142, 142));
+		params.setEdgeColorInterpolate(false);
+		params.setViewArrow(true);
 
 		_nodeLinkView->getGlMainWidget()->getScene()->getGlGraphComposite()->setRenderingParameters(params);
 
@@ -57,14 +148,15 @@ Picviz::PVAD2GWidget::PVAD2GWidget(PVAD2GView& ad2g, QMainWindow* mw /*= NULL*/)
 	}
 
 	// Apply layout algorithm:
-	tlp::LayoutProperty* viewLayout = _graph->getLocalProperty<tlp::LayoutProperty>("viewLayout");
-	std::string err;
-	_graph->applyPropertyAlgorithm("Mixed Model", viewLayout, err);
-	PVLOG_INFO("err=%s\n", err.c_str());
-	viewLayout->center(_graph);
+//	tlp::LayoutProperty* viewLayout = _graph->getLocalProperty<tlp::LayoutProperty>("viewLayout");
+//	std::string err;
+//	_graph->applyPropertyAlgorithm("Mixed Model", viewLayout, err);
+//	PVLOG_INFO("err=%s\n", err.c_str());
+//	viewLayout->center(_graph);
 
 	_nodeLinkView->getGlMainWidget()->resizeGL(800,600);
 }
+
 
 Picviz::PVAD2GWidget::~PVAD2GWidget()
 {
@@ -72,22 +164,18 @@ Picviz::PVAD2GWidget::~PVAD2GWidget()
 	delete _nodeLinkView;
 }
 
-QWidget* Picviz::PVAD2GWidget::get_widget()
-{
-	return _widget;
-}
-
 void Picviz::PVAD2GWidget::init_toolbar()
 {
 	std::list<std::string> interactorsNamesAndPriorityMap(tlp::InteractorManager::getInst().getSortedCompatibleInteractors("Node Link Diagram view"));
 
 	std::list<tlp::Interactor *> interactorsList;
-	for (std::list<std::string>::reverse_iterator it = interactorsNamesAndPriorityMap.rbegin(); it != interactorsNamesAndPriorityMap.rend(); ++it) {
+	/*for (std::list<std::string>::reverse_iterator it = interactorsNamesAndPriorityMap.rbegin(); it != interactorsNamesAndPriorityMap.rend(); ++it) {
 		interactorsList.push_back(tlp::InteractorManager::getInst().getInteractor((*it)));
-	}
+	}*/
 	AD2GInteractor* ad2g_interactor = new AD2GInteractor(this, _nodeLinkView->getGlMainWidget());
 	interactorsList.push_back(ad2g_interactor);
-
+	AD2GInteractor2* ad2g_interactor2 = new AD2GInteractor2(this, _nodeLinkView->getGlMainWidget());
+	interactorsList.push_back(ad2g_interactor2);
 	_nodeLinkView->setInteractors(interactorsList);
 	_nodeLinkView->setActiveInteractor(ad2g_interactor);
 
@@ -121,6 +209,73 @@ void Picviz::PVAD2GWidget::change_interactor_slot()
 	_nodeLinkView->setActiveInteractor(interactorAction->getInteractor());
 }
 
+void Picviz::PVAD2GWidget::add_view_Slot(QObject* mouse_event)
+{
+	QMouseEvent* event = (QMouseEvent*) mouse_event;
+	PVView* view = _ad2g.get_scene()->get_all_views()[_table->currentRow()].get();
+	add_view(event->pos(), view);
+}
+
+
+void Picviz::PVAD2GWidget::add_view(QPoint pos, PVView* view)
+{
+	tlp::Observable::holdObservers();
+
+	// Add view to graph
+	tlp::node newNode = _ad2g.add_view(view);
+
+	// Compute view position
+	tlp::Graph* graph = _nodeLinkView->getGlMainWidget()->getScene()->getGlGraphComposite()->getInputData()->getGraph();
+	tlp::Coord point((double) _nodeLinkView->getGlMainWidget()->width() - (double) pos.x(),(double) pos.y(),0);
+	point = _nodeLinkView->getGlMainWidget()->getScene()->getCamera().screenTo3DWorld(point);
+	tlp::Coord cameraDirection = _nodeLinkView->getGlMainWidget()->getScene()->getCamera().getEyes() - _nodeLinkView->getGlMainWidget()->getScene()->getCamera().getCenter();
+	if(cameraDirection[0]==0 && cameraDirection[1]==0)
+		point[2]=0;
+	tlp::LayoutProperty* mLayout = graph->getProperty<tlp::LayoutProperty>(_nodeLinkView->getGlMainWidget()->getScene()->getGlGraphComposite()->getInputData()->getElementLayoutPropName());
+	mLayout->setNodeValue(newNode, point);
+
+	tlp::Observable::unholdObservers();
+}
+
+void Picviz::PVAD2GWidget::remove_view_Slot(int node)
+{
+	QMessageBox* box = new QMessageBox(QMessageBox::Question, tr("Confirm remove."), tr("Do you really want to remove this view?"), QMessageBox::Yes | QMessageBox::No, this);
+	if (box->exec() == QMessageBox::Yes) {
+
+		tlp::node n = (tlp::node) node;
+		tlp::Graph* graph = _nodeLinkView->getGlMainWidget()->getScene()->getGlGraphComposite()->getInputData()->getGraph();
+		tlp::Observable::holdObservers();
+
+		// Enable item in table
+		PVView* view = _ad2g.get_view(n);
+		for (int i = 0; i < _table->rowCount(); i++) {
+			QTableWidgetItem* item = _table->item(i, 0);
+			if (item->data(Qt::UserRole).value<void*>() == (void*) view) {
+				item->setFlags(item->flags() | Qt::ItemIsEnabled);
+			}
+		}
+
+		graph->delNode(n);
+		_nodeLinkView->getGlMainWidget()->redraw();
+		tlp::Observable::unholdObservers();
+	}
+}
+
+void Picviz::PVAD2GWidget::remove_combining_function_Slot(int edge)
+{
+	QMessageBox* box = new QMessageBox(QMessageBox::Question, tr("Confirm remove."), tr("Do you really want to remove this combining function?"), QMessageBox::Yes | QMessageBox::No, this);
+	if (box->exec() == QMessageBox::Yes) {
+		tlp::edge e = (tlp::edge) edge;
+
+		tlp::Observable::holdObservers();
+		tlp::Graph* graph = _nodeLinkView->getGlMainWidget()->getScene()->getGlGraphComposite()->getInputData()->getGraph();
+		graph->delEdge(e);
+		_nodeLinkView->getGlMainWidget()->redraw();
+		Observable::unholdObservers();
+	}
+}
+
+
 void Picviz::PVAD2GWidget::initObservers()
 {
 	if (_graph) {
@@ -134,6 +289,27 @@ void Picviz::PVAD2GWidget::initObservers()
 
 		delete it;
 	}
+}
+
+void Picviz::PVAD2GWidget::fill_table()
+{
+	_table->setColumnCount(1);
+
+	Picviz::PVScene::list_views_t all_views = _ad2g.get_scene()->get_all_views();
+	foreach (Picviz::PVView_p view, all_views) {
+		QTableWidgetItem* item = new QTableWidgetItem(view->get_window_name());
+		item->setData(Qt::UserRole, qVariantFromValue((void*) view.get()));
+		_table->setRowCount(_table->rowCount()+1);
+		_table->setItem(_table->rowCount()-1, 0, item);
+
+	}
+
+	_table->horizontalHeader()->hide();
+	_table->horizontalHeader()->setStretchLastSection(true);
+	_table->resizeRowsToContents();
+
+	_table->setDragEnabled(true);
+	_table->setDragDropMode(QAbstractItemView::DragOnly);
 }
 
 void Picviz::PVAD2GWidget::clearObservers()
@@ -150,131 +326,7 @@ void Picviz::PVAD2GWidget::clearObservers()
 	}
 }
 
-void Picviz::PVAD2GWidget::update(ObserverIterator begin, ObserverIterator end)
+void Picviz::PVAD2GWidget::update(ObserverIterator /*begin*/, ObserverIterator /*end*/)
 {
 	_nodeLinkView->draw();
-}
-
-Picviz::AD2GInteractorComponent::AD2GInteractorComponent(PVAD2GWidget* widget, tlp::GlMainWidget* glMainWidget, Qt::MouseButton button /*= Qt::LeftButton*/, Qt::KeyboardModifier modifier /*= Qt::NoModifier*/) :
-	_widget(widget),
-	_glMainWidget(glMainWidget)
-{
-	_deleteNodeSignalMapper = new QSignalMapper(this);
-	connect(_deleteNodeSignalMapper, SIGNAL(mapped(int)), this, SLOT(remove_view_Slot(int)));
-
-	_addNodeSignalMapper = new QSignalMapper(this);
-	connect(_addNodeSignalMapper, SIGNAL(mapped(QObject*)), this, SLOT(add_view_Slot(QObject*)));
-}
-
-bool Picviz::AD2GInteractorComponent::eventFilter(QObject* widget, QEvent* e)
-{
-	QMouseEvent* qMouseEv = (QMouseEvent *) e;
-	tlp::GlMainWidget* glMainWidget = (tlp::GlMainWidget *) widget;
-
-	if (e->type() == QEvent::MouseMove) {
-		tlp::node tmpNode;
-		tlp::edge tmpEdge;
-		tlp::ElementType type;
-		bool result = glMainWidget->doSelect(qMouseEv->x(), qMouseEv->y(), type, tmpNode, tmpEdge);
-
-		tlp::Graph *graph=glMainWidget->getScene()->getGlGraphComposite()->getInputData()->getGraph();
-		std::string selectionPropertyName=glMainWidget->getScene()->getGlGraphComposite()->getInputData()->getElementSelectedPropName();
-		tlp::BooleanProperty* selection=graph->getProperty<tlp::BooleanProperty>(selectionPropertyName);
-
-		if (result) {
-			switch(type) {
-				case tlp::NODE:
-					if (!selection->getNodeValue(tmpNode)){
-						selection->setAllEdgeValue(false);
-						selection->setAllNodeValue(false);
-						selection->setNodeValue(tmpNode, true);
-					}
-				break;
-				case tlp::EDGE:
-					if (!selection->getEdgeValue(tmpEdge)){
-						selection->setAllEdgeValue(false);
-						selection->setAllNodeValue(false);
-						selection->setEdgeValue(tmpEdge, true);
-					}
-				break;
-			}
-		}
-		else
-		{
-			selection->setAllEdgeValue(false);
-			selection->setAllNodeValue(false);
-		}
-
-		return true;
-	}
-
-	if (e->type() == QEvent::MouseButtonPress) {
-
-		if (qMouseEv->button()== Qt::RightButton) {
-			tlp::node tmpNode;
-			tlp::edge tmpEdge;
-			tlp::ElementType type;
-			bool result = glMainWidget->doSelect(qMouseEv->x(), qMouseEv->y(), type, tmpNode, tmpEdge);
-
-			QMenu* menu = new QMenu;
-			QAction* my_action;
-
-			if (result) {
-				switch(type) {
-					case tlp::NODE:
-						my_action = new QAction(tr("Remove view"), menu);
-						connect(my_action, SIGNAL(triggered()), _deleteNodeSignalMapper, SLOT(map()));
-						_deleteNodeSignalMapper->setMapping(my_action, (int)tmpNode);
-					break;
-					case tlp::EDGE:
-						my_action = new QAction(tr("Remove combining function"), menu);
-					break;
-				}
-			}
-			else {
-				my_action = new QAction(tr("Add view"), menu);
-				connect(my_action, SIGNAL(triggered()), _addNodeSignalMapper, SLOT(map()));
-				_addNodeSignalMapper->setMapping(my_action, (QObject*) qMouseEv);
-			}
-
-			menu->addAction(my_action);
-			menu->exec(qMouseEv->globalPos());
-			return true;
-		}
-	}
-
-   return false;
-}
-
-void Picviz::AD2GInteractorComponent::add_view_Slot(QObject* mouse_event)
-{
-	PVLOG_INFO("Picviz::AD2GInteractorComponent::add_view_Slot\n");
-
-	tlp::Observable::holdObservers();
-
-	QMouseEvent* qMouseEv = (QMouseEvent*) mouse_event;
-	tlp::Graph* graph = _glMainWidget->getScene()->getGlGraphComposite()->getInputData()->getGraph();
-	tlp::node newNode = graph->addNode();
-
-	tlp::Coord point((double) _glMainWidget->width() - (double) qMouseEv->x(),(double) qMouseEv->y(),0);
-	point = _glMainWidget->getScene()->getCamera().screenTo3DWorld(point);
-	tlp::Coord cameraDirection = _glMainWidget->getScene()->getCamera().getEyes() - _glMainWidget->getScene()->getCamera().getCenter();
-
-	if(cameraDirection[0]==0 && cameraDirection[1]==0)
-	  point[2]=0;
-
-	tlp::LayoutProperty* mLayout = graph->getProperty<tlp::LayoutProperty>(_glMainWidget->getScene()->getGlGraphComposite()->getInputData()->getElementLayoutPropName());
-	mLayout->setNodeValue(newNode, point);
-
-	tlp::Observable::unholdObservers();
-}
-
-void Picviz::AD2GInteractorComponent::remove_view_Slot(int node)
-{
-	PVLOG_INFO("Picviz::AD2GInteractorComponent::remove_view_Slot\n");
-	tlp::node n = (tlp::node) node;
-	tlp::Graph* graph=_glMainWidget->getScene()->getGlGraphComposite()->getInputData()->getGraph();
-	tlp::Observable::holdObservers();
-	graph->delNode(n);
-	tlp::Observable::unholdObservers();
 }

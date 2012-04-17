@@ -69,6 +69,20 @@ Picviz::PVScene::list_sources_t Picviz::PVScene::get_all_sources() const
 	return ret;
 }
 
+Picviz::PVScene::list_views_t Picviz::PVScene::get_all_views() const
+{
+	list_views_t ret;
+	list_sources_t sources = get_all_sources();
+	foreach (PVSource_p source, sources) {
+		PVSource::list_views_t const& views = source->get_views();
+		foreach (Picviz::PVView_p view, views) {
+			ret.append(view);
+		}
+	}
+
+	return ret;
+}
+
 Picviz::PVScene::list_sources_t Picviz::PVScene::get_sources(PVRush::PVInputType const& type) const
 {
 	hash_type_sources_t::const_iterator it = _sources.find(type);

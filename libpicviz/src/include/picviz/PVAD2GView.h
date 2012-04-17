@@ -13,6 +13,8 @@ struct node;
 struct edge;
 }
 
+#include <picviz/PVScene.h>
+
 namespace Picviz {
 
 // forward declaration of the class for multi-source correlation property
@@ -48,14 +50,16 @@ class PVAD2GView
 	typedef boost::function<void(Picviz::PVCombiningFunctionView&, Picviz::PVView& va, Picviz::PVView& vb)> graph_func_t;
 
 public:
-	PVAD2GView();
+	PVAD2GView(Picviz::PVScene* scene);
 	~PVAD2GView();
 
 public:
 	tlp::Graph *get_graph() { return _graph; }
+	PVScene* get_scene() { return _scene; }
 
 public:
 	tlp::node add_view(Picviz::PVView *view);
+	Picviz::PVView* get_view(tlp::node n);
 
 	tlp::edge set_edge_f(const Picviz::PVView *va, const Picviz::PVView *vb,
 	                     PVCombiningFunctionView_p cfview);
@@ -92,6 +96,7 @@ private:
 private:
 	/* graph tulip object */
 	tlp::Graph *_graph;
+	PVScene* _scene;
 	/* graph's property */
 	PVAD2GViewCorrelationProperty *_corr_info;
 };

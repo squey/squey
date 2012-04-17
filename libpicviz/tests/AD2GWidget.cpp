@@ -2,6 +2,8 @@
 
 #include <picviz/PVAD2GView.h>
 #include <picviz/widgets/PVAD2GWidget.h>
+#include <picviz/PVRoot.h>
+#include <picviz/PVScene.h>
 
 
 int main(int argc, char *argv[])
@@ -9,10 +11,15 @@ int main(int argc, char *argv[])
 	QApplication a(argc, argv);
 	QMainWindow w;
 
-	Picviz::PVAD2GView view;
-	Picviz::PVAD2GWidget* ad2g_widget = new Picviz::PVAD2GWidget(view, &w);
-	w.setCentralWidget(ad2g_widget->get_widget());
+	Picviz::PVRoot_p root(new Picviz::PVRoot());
+	Picviz::PVScene_p scene(new Picviz::PVScene("scene", root.get()));
+	Picviz::PVAD2GView ad2gv(scene.get());
+
+	Picviz::PVAD2GWidget* ad2g_widget = new Picviz::PVAD2GWidget(ad2gv, &w);
+	w.setCentralWidget(ad2g_widget);
 	w.show();
+
+	delete ad2g_widget;
 
 	return a.exec();
 }
