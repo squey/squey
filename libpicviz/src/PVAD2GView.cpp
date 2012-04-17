@@ -192,7 +192,7 @@ tlp::edge Picviz::PVAD2GView::set_edge_f(const Picviz::PVView *va,
  * Picviz::PVAD2GView::get_edge_f
  *
  *****************************************************************************/
-Picviz::PVCombiningFunctionView_p Picviz::PVAD2GView::get_edge_f(const tlp::edge edge)
+Picviz::PVCombiningFunctionView_p Picviz::PVAD2GView::get_edge_f(const tlp::edge edge) const
 {
 	// an invalid value when the edge is not in the Tulip graph
 	if(_graph->isElement(edge) == false)
@@ -204,10 +204,10 @@ Picviz::PVCombiningFunctionView_p Picviz::PVAD2GView::get_edge_f(const tlp::edge
 
 /******************************************************************************
  *
- * Picviz::PVAD2GView::run
+ * Picviz::PVAD2GView::visit
  *
  *****************************************************************************/
-void Picviz::PVAD2GView::run(Picviz::PVView *view)
+void Picviz::PVAD2GView::visit_f(Picviz::PVView *view, graph_func_t const& f) const
 {
 	/**
 	 * This method uses an iterative breadth-first graph traversal to
@@ -245,8 +245,8 @@ void Picviz::PVAD2GView::run(Picviz::PVView *view)
 			PVLOG_INFO("propagating from view %p to view %p\n",
 			            va, vb);
 			cfview_p = _corr_info->getEdgeValue(edge).get_data();
-			selection = (*cfview_p)(*va, *vb);
-			vb->set_selection_view(selection);
+
+			f(*cfview_p, *va, *vb);
 
 			pending.push(next);
 			visited.insert(next);
@@ -277,7 +277,7 @@ int count_paths_num(tlp::Graph */*graph*/, tlp::node /*na*/, tlp::node /*nb*/)
  * Picviz::PVAD2GView::retrieve_graph_node
  *
  *****************************************************************************/
-tlp::node Picviz::PVAD2GView::get_graph_node(const Picviz::PVView *view)
+tlp::node Picviz::PVAD2GView::get_graph_node(const Picviz::PVView *view) const
 {
 	tlp::node node;
 

@@ -4,6 +4,10 @@
 
 #include <pvkernel/core/picviz_bench.h>
 
+void Picviz::PVTFViewRowFiltering::pre_process(PVView const& /*view_src*/, PVView const& /*view_dst*/)
+{
+}
+
 Picviz::PVSelection Picviz::PVTFViewRowFiltering::operator()(PVView const& view_src, PVView const& view_dst, PVSelection const& sel_org) const
 {
 	// AG: the algorithm here is hard coded, and the idea in a close future is to have the user being able
