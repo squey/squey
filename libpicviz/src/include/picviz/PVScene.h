@@ -16,6 +16,8 @@
 #include <pvkernel/rush/PVInputType.h>
 #include <picviz/PVPtrObjects.h>
 #include <picviz/PVSource_types.h>
+#include <picviz/PVView_types.h>
+
 
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
@@ -37,6 +39,7 @@ class LibPicvizDecl PVScene: public boost::enable_shared_from_this<PVScene>
 public:
 	typedef boost::shared_ptr<PVScene> p_type;
 	typedef QList<PVSource_p> list_sources_t;
+	typedef QList<PVView_p> list_views_t;
 private:
 	// PVRush::list_inputs is QList<PVRush::PVInputDescription_p>
 	typedef std::map<PVRush::PVInputType::base_registrable, std::pair<list_sources_t, PVRush::PVInputType::list_inputs> > hash_type_sources_t;
@@ -61,6 +64,7 @@ public:
 	
 	list_sources_t get_sources(PVRush::PVInputType const& type) const;
 	list_sources_t get_all_sources() const;
+	list_views_t get_all_views() const;
 
 	bool is_empty() { return _sources.size() == 0; }
 

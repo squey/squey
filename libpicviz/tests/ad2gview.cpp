@@ -3,6 +3,8 @@
 #include <picviz/PVAD2GView.h>
 #include <picviz/PVCombiningFunctionView.h>
 #include <picviz/PVCombiningFunctionView_types.h>
+#include <picviz/PVRoot.h>
+#include <picviz/PVScene.h>
 
 #include <tulip/Graph.h>
 
@@ -21,7 +23,11 @@ int main(void)
 	Picviz::PVView *vc = new Picviz::PVView();
 	Picviz::PVView *vd = new Picviz::PVView();
 
-	Picviz::PVAD2GView *ad2gv = new Picviz::PVAD2GView();
+	Picviz::PVRoot_p root(new Picviz::PVRoot());
+	Picviz::PVScene_p scene(new Picviz::PVScene("scene", root.get()));
+
+
+	Picviz::PVAD2GView *ad2gv = new Picviz::PVAD2GView(scene.get());
 	Picviz::PVCombiningFunctionView_p cfv1(new Picviz::PVCombiningFunctionView());
 	Picviz::PVCombiningFunctionView_p cfv2(new Picviz::PVCombiningFunctionView());
 	Picviz::PVCombiningFunctionView_p cfv3(new Picviz::PVCombiningFunctionView());
@@ -65,7 +71,7 @@ int main(void)
 	std::cout << "-------------------------------------------------------------------------------" << std::endl;
 	/* we create an usable PVAD2GView
 	 */
-	ad2gv = new Picviz::PVAD2GView();
+	ad2gv = new Picviz::PVAD2GView(scene.get());
 
 	// va, vb, vc, vd  are already allocated
 	na = ad2gv->add_view(va);

@@ -19,3 +19,6 @@ set(COMMON_LIBS ${QT_LIBRARIES} ${GLEW_LIBRARY} ${GLUT_glut_LIBRARY} ${OPENGL_LI
 
 add_executable(process_file_view process_file_view.cpp)
 target_link_libraries(process_file_view ${COMMON_LIBS})
+
+add_executable(ad2g_widget ad2g_widget.cpp)
+target_link_libraries(ad2g_widget ${COMMON_LIBS})

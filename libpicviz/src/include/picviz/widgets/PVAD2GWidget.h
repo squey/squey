@@ -3,8 +3,6 @@
 
 #include <QtGui>
 
-#include <tulip/InteractorComponent.h>
-#include "tulip/InteractorChainOfResponsibility.h"
 #include <tulip/NodeLinkDiagramComponent.h>
 #include <tulip/Observable.h>
 #include <tulip/TlpQtTools.h>
@@ -14,12 +12,29 @@
 
 namespace Picviz {
 
+namespace __impl {
+
+class PVAD2GWidget;
+
+class PVTableWidget : public QTableWidget
+{
+public:
+	PVTableWidget(QWidget* parent = 0) : QTableWidget(parent) {}
+	void mousePressEvent(QMouseEvent *event);
+	void mouseMoveEvent(QMouseEvent *event);
+private:
+	QPoint _dragStartPosition;
+};
+
+}
+
+
 class AD2GNodeLinkDiagramComponent : public tlp::NodeLinkDiagramComponent
 {
 public:
 	// Disable view standard context menu
-	virtual void buildContextMenu(QObject* object, QContextMenuEvent* event, QMenu* contextMenu){};
-	virtual void computeContextMenuAction(QAction *action){};
+	virtual void buildContextMenu(QObject*, QContextMenuEvent*, QMenu*){};
+	virtual void computeContextMenuAction(QAction*){};
 };
 
 class /*LibPicvizExport*/ PVAD2GWidget : public QWidget, public tlp::Observable
@@ -32,14 +47,22 @@ public:
 	PVAD2GWidget(PVAD2GView& ad2g, QMainWindow* mw = NULL);
 	~PVAD2GWidget();
 
-	QWidget* get_widget();
+public:
+	void add_view(QPoint pos, PVView* view);
+	__impl::PVTableWidget* get_table() { return _table; }
+	PVAD2GView& get_ad2g() { return _ad2g; }
 
 public slots:
 	void change_interactor_slot();
-	void update(ObserverIterator begin, ObserverIterator end);
-	void observableDestroyed(tlp::Observable* observable) {}
+	void update(ObserverIterator /*begin*/, ObserverIterator /*end*/);
+	void observableDestroyed(tlp::Observable* /*observable*/) {}
+
+	void add_view_Slot(QObject* mouse_event);
+	void remove_view_Slot(int node);
+	void remove_combining_function_Slot(int edge);
 
 private:
+	void fill_table();
 	void init_toolbar();
 	void initObservers();
 	void clearObservers();
@@ -51,62 +74,21 @@ private:
 	QMainWindow* _mw;
 	tlp::Graph* _graph;
 	QToolBar* _toolBar;
+	__impl::PVTableWidget* _table;
 };
 
-/**
- * \class AD2GInteractorComponent
- */
-class AD2GInteractorComponent : public tlp::InteractorComponent
+namespace __impl {
+
+class FilterDropEvent : public QObject
 {
-	Q_OBJECT
-
 public:
-	AD2GInteractorComponent(PVAD2GWidget* widget, tlp::GlMainWidget* glMainWidget, Qt::MouseButton button = Qt::LeftButton, Qt::KeyboardModifier modifier = Qt::NoModifier);
-	~AD2GInteractorComponent() {}
-	bool eventFilter(QObject* widget, QEvent* e);
-	tlp::InteractorComponent* clone() { return new AD2GInteractorComponent(_widget, _glMainWidget, mButton, kModifier); }
-
-public slots:
-	void add_view_Slot(QObject* mouse_event);
-	void remove_view_Slot(int node);
-
-protected:
-	Qt::MouseButton mButton;
-	Qt::KeyboardModifier kModifier;
-	Qt::KeyboardModifiers mousePressModifier;
-	PVAD2GWidget* _widget;
-	QSignalMapper* _addNodeSignalMapper;
-	QSignalMapper* _deleteNodeSignalMapper;
-	tlp::GlMainWidget* _glMainWidget;
-};
-
-/**
- * \class AD2GInteractor
- */
-class AD2GInteractor : public tlp::InteractorChainOfResponsibility
-{
-	Q_OBJECT
-
-public:
-	AD2GInteractor(PVAD2GWidget* widget, tlp::GlMainWidget* glMainWidget):
-		tlp::InteractorChainOfResponsibility("", "AD2GInteractor"),
-		_widget(widget),
-		_glMainWidget(glMainWidget)
-	{
-		construct();
-	}
-	void construct()
-	{
-		_component1 = new AD2GInteractorComponent(_widget, _glMainWidget);
-		pushInteractorComponent(_component1);
-	}
-	virtual bool isCompatible(const std::string &viewName) {return false;}
-
+	FilterDropEvent(Picviz::PVAD2GWidget* widget) : QObject(widget), _widget(widget) {}
+	bool eventFilter(QObject *object, QEvent *event);
 private:
-	AD2GInteractorComponent* _component1;
-	PVAD2GWidget* _widget;
-	tlp::GlMainWidget* _glMainWidget;
+	Picviz::PVAD2GWidget* _widget;
 };
+
+}
 
 }
 
