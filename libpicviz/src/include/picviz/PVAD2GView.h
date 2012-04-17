@@ -6,6 +6,9 @@
 #include <picviz/PVCombiningFunctionView_types.h>
 #include <picviz/PVSelection.h>
 
+#include <list>
+#include <set>
+
 // forward declaration of tlp::Graph and tlp::node
 namespace tlp {
 class Graph;
@@ -48,6 +51,8 @@ namespace __impl {
 class PVAD2GView
 {
 	typedef boost::function<void(Picviz::PVCombiningFunctionView&, Picviz::PVView& va, Picviz::PVView& vb)> graph_func_t;
+	typedef std::list<tlp::node> graph_path_t;
+	typedef std::set<tlp::node> graph_visited_t;
 
 public:
 	PVAD2GView(Picviz::PVScene* scene);
@@ -88,10 +93,8 @@ private:
 
 	void visit_f(Picviz::PVView *view, graph_func_t const& f) const;
 
-	/* TODO: I need a method to check paths validity
-	 *
-	 * int count_paths_num(tlp::Graph *graph, tlp::node a, tlp::node b);
-	 */
+	int count_path_number(const tlp::node& a, const tlp::node& b) const;
+	void count_path_number_rec(const tlp::node& a, const tlp::node& b, int& count, graph_path_t& path, graph_visited_t& visited)const;
 
 private:
 	/* graph tulip object */

@@ -32,17 +32,18 @@ int main(void)
 	Picviz::PVCombiningFunctionView_p cfv2(new Picviz::PVCombiningFunctionView());
 	Picviz::PVCombiningFunctionView_p cfv3(new Picviz::PVCombiningFunctionView());
 	Picviz::PVCombiningFunctionView_p cfv4(new Picviz::PVCombiningFunctionView());
-	tlp::node N_INVAL;
+	tlp::node NODE_INVAL;
 	tlp::node na, nb, nc, nd;
-	tlp::edge E_INVAL;
+	tlp::edge EDGE_INVAL;
 	tlp::edge e1, e2, e3, e4;
+	bool check_ret;
 
 	/* some test for ::add_view()
 	 */
 	std::cout << "-------------------------------------------------------------------------------" << std::endl;
 	std::cout << "first call to PVAD2GView::add_view(va)" << std::endl;
 	na = ad2gv->add_view(va);
-	REPORT_RESULT(na != N_INVAL);
+	REPORT_RESULT(na != NODE_INVAL);
 
 	std::cout << "second call to PVAD2GView::add_view(va)" << std::endl;
 	nb = ad2gv->add_view(va);
@@ -50,13 +51,13 @@ int main(void)
 
 	std::cout << "first call to PVAD2GView::add_view(vb)" << std::endl;
 	nb = ad2gv->add_view(vb);
-	REPORT_RESULT(nb != N_INVAL);
+	REPORT_RESULT(nb != NODE_INVAL);
 
 	/* some test for ::set_edge_f()
 	 */
 	std::cout << "first call to PVAD2GView::set_edge_f(va, vb, cfv1)" << std::endl;
 	e1 = ad2gv->set_edge_f(va, vb, cfv1);
-	REPORT_RESULT(e1 != E_INVAL);
+	REPORT_RESULT(e1 != EDGE_INVAL);
 
 	std::cout << "second call to PVAD2GView::set_edge_f(va, vb, cfv1)" << std::endl;
 	e2 = ad2gv->set_edge_f(va, vb, cfv1);
@@ -79,15 +80,7 @@ int main(void)
 	nc = ad2gv->add_view(vc);
 	nd = ad2gv->add_view(vd);
 
-	// set views name
-	std::cout << "va = " << va << std::endl;
-	std::cout << "vb = " << vb << std::endl;
-	std::cout << "vc = " << vc << std::endl;
-	std::cout << "vd = " << vd << std::endl;
-
-	std::cout << "::run() with no correlation: no output" << std::endl;
-
-	std::cout << "-------------------------------------------------------------------------------" << std::endl;
+	std::cout << "::run() with no correlation; there must be no output" << std::endl;
 	ad2gv->run(va);
 
 	// add some CFV
@@ -97,16 +90,16 @@ int main(void)
 	e4 = ad2gv->set_edge_f(vd, vb, cfv4);
 
 	std::cout << "-------------------------------------------------------------------------------" << std::endl;
-	std::cout << "::run(va) with correlations: output needed" << std::endl;
-	ad2gv->run(va);
+	std::cout << "check_properties()" << std::endl;
+	check_ret = ad2gv->check_properties();
+	REPORT_RESULT(check_ret == true);
 
-	std::cout << "-------------------------------------------------------------------------------" << std::endl;
-	std::cout << "::run(vb) with correlations: output needed" << std::endl;
-	ad2gv->run(vb);
+	std::cout << "adding an edge from vc to vd to make an invalid graph" << std::endl;
+	e4 = ad2gv->set_edge_f(vc, vd, cfv4);
+	std::cout << "check_properties()" << std::endl;
+	check_ret = ad2gv->check_properties();
+	REPORT_RESULT(check_ret == false);
 
-	std::cout << "-------------------------------------------------------------------------------" << std::endl;
-	std::cout << "::run(vd) with correlations: output needed" << std::endl;
-	ad2gv->run(vd);
 
 	return 0;
 }
