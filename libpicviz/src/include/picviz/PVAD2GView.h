@@ -2,7 +2,9 @@
 #define PICVIZ_PVAD2GVIEW_H
 
 #include <pvkernel/core/general.h>
+#include <picviz/PVCombiningFunctionView.h>
 #include <picviz/PVCombiningFunctionView_types.h>
+#include <picviz/PVSelection.h>
 
 // forward declaration of tlp::Graph and tlp::node
 namespace tlp {
@@ -17,11 +19,34 @@ namespace Picviz {
 class PVAD2GViewCorrelationProperty;
 class PVView;
 
+namespace __impl {
+	struct f_update_sel
+	{
+		inline void operator()(Picviz::PVCombiningFunctionView& cf,
+		                       Picviz::PVView& va, Picviz::PVView& vb) const
+		{
+			PVSelection sel(cf(va, vb));
+			vb.set_selection_view(sel);
+		}
+	};
+
+	struct f_pre_process
+	{
+		inline void operator()(Picviz::PVCombiningFunctionView& cf,
+		                       Picviz::PVView& va, Picviz::PVView& vb) const
+		{
+			cf.pre_process(va, vb);
+		}
+	};
+}
+
 /**
  * \class PVAD2GView
  */
 class PVAD2GView
 {
+	typedef boost::function<void(Picviz::PVCombiningFunctionView&, Picviz::PVView& va, Picviz::PVView& vb)> graph_func_t;
+
 public:
 	PVAD2GView();
 	~PVAD2GView();
@@ -35,15 +60,29 @@ public:
 	tlp::edge set_edge_f(const Picviz::PVView *va, const Picviz::PVView *vb,
 	                     PVCombiningFunctionView_p cfview);
 
-	Picviz::PVCombiningFunctionView_p get_edge_f(const tlp::edge edge);
+	Picviz::PVCombiningFunctionView_p get_edge_f(const tlp::edge edge) const;
 
 public:
-	void run(Picviz::PVView *view);
+	void pre_process(Picviz::PVView *view) const {
+		visit(view, __impl::f_pre_process());
+	}
+
+	void run(Picviz::PVView *view) const {
+		visit(view, __impl::f_update_sel());
+	}
 
 	bool check_properties();
 
 private:
-	tlp::node get_graph_node(const Picviz::PVView *view);
+	tlp::node get_graph_node(const Picviz::PVView *view) const;
+
+	template <class F>
+	inline void visit(Picviz::PVView *view, F const& f) const
+	{
+		visit_f(view, boost::bind<void>(f, _1, _2, _3));
+	}
+
+	void visit_f(Picviz::PVView *view, graph_func_t const& f) const;
 
 	/* TODO: I need a method to check paths validity
 	 *
