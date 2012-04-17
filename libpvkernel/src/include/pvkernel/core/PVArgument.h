@@ -164,6 +164,7 @@ namespace PVCore {
 
 typedef QVariant                           PVArgument;
 typedef QHash<PVArgumentKey,PVArgument>    PVArgumentList;
+typedef QList<PVArgumentList::key_type>    PVArgumentKeyList;
 
 class PVArgumentTypeBase
 {
@@ -210,6 +211,8 @@ LibKernelDecl void PVArgumentList_to_QSettings(const PVArgumentList& args, QSett
 LibKernelDecl PVArgumentList QSettings_to_PVArgumentList(QSettings& settings, const PVArgumentList& def_args, const QString& group_name);
 
 LibKernelDecl void dump_argument_list(PVArgumentList const& l);
+
+LibKernelDecl PVCore::PVArgumentList filter_argument_list_with_keys(PVArgumentList const& args, PVArgumentKeyList const& keys, PVArgumentList const& def_args);
 
 void PVArgumentList_set_common_args_from(PVCore::PVArgumentList& ret, PVCore::PVArgumentList const& ref);
 

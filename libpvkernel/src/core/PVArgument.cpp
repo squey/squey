@@ -161,6 +161,25 @@ void PVCore::dump_argument_list(PVArgumentList const& l)
 	}
 }
 
+PVCore::PVArgumentList PVCore::filter_argument_list_with_keys(PVArgumentList const& args, PVArgumentKeyList const& keys, PVArgumentList const& def_args)
+{
+	PVCore::PVArgumentList ret;
+	foreach (QString const& key, keys) {
+		if (!def_args.contains(key)) {
+			continue;
+		}
+		PVCore::PVArgument arg;
+		if (args.contains(key)) {
+			arg = args[key];
+		}
+		else {
+			arg = def_args[key];
+		}
+		ret[key] = arg;
+	}
+	return ret;
+}
+
 void PVCore::PVArgumentList_set_common_args_from(PVCore::PVArgumentList& ret, PVCore::PVArgumentList const& ref)
 {
 	PVCore::PVArgumentList::iterator it;

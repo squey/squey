@@ -42,25 +42,3 @@ void Picviz::PVAD2GEdgeEditor::remove_function_Slot()
 {
 }
 
-Picviz::PVAD2GFunctionProperties::PVAD2GFunctionProperties(QWidget* parent /*= 0*/) :
-	QDialog(parent)
-{
-	setWindowTitle("Function properties");
-
-	// Widgets
-	QLabel* function_label = new QLabel(tr("Function: "));
-	QComboBox* function_combo = new QComboBox();
-	QGroupBox* src_view_box = new QGroupBox(tr("Properties for original view"));
-	QGroupBox* dst_view_box = new QGroupBox(tr("Properties for destination view"));
-
-	// Layout
-	QVBoxLayout* main_layout = new QVBoxLayout();
-	QHBoxLayout* function_type_layout = new QHBoxLayout();
-	function_type_layout->addWidget(function_label);
-	function_type_layout->addWidget(function_combo);
-	main_layout->addLayout(function_type_layout);
-	main_layout->addWidget(src_view_box);
-	main_layout->addWidget(dst_view_box);
-
-	setLayout(main_layout);
-}
