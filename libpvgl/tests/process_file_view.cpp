@@ -141,8 +141,8 @@ int main(int argc, char** argv)
 	Picviz::PVTFViewRowFiltering* tf = cf_p->get_first_tf();
 	Picviz::PVRFFAxesBind* rff_bind = new Picviz::PVRFFAxesBind();
 	PVCore::PVArgumentList args;
-	args["axis_org"].setValue(PVCore::PVAxisIndexType(0));
-	args["axis_dst"].setValue(PVCore::PVAxisIndexType(0));
+	args["axis_org"].setValue(PVCore::PVAxisIndexType(1));
+	args["axis_dst"].setValue(PVCore::PVAxisIndexType(1));
 	rff_bind->set_args(args);
 	tf->push_rff(Picviz::PVSelRowFilteringFunction_p(rff_bind));
 
