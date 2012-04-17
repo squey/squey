@@ -160,10 +160,12 @@ update-protocol.cpp
 
 set(WIDGETS_MOC_HEADERS
 include/picviz/widgets/PVAD2GWidget.h
+include/picviz/widgets/PVAD2GInteractor.h
 )
 
 set(WIDGETS_SRC_FILES
 widgets/PVAD2GWidget.cpp
+widgets/PVAD2GInteractor.cpp
 )
 
 set(MOC_HEADERS
