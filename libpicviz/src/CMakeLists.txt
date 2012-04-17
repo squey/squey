@@ -75,7 +75,6 @@ include/picviz/PVView.h
 include/picviz/PVZLevelArray.h
 
 # Correlation files
-include/picviz/PVRFFAxesBind.h
 include/picviz/PVSelRowFilteringFunction.h
 include/picviz/PVSelRowFilteringFunction_types.h
 include/picviz/PVTFViewRowFiltering.h
@@ -148,7 +147,6 @@ PVZLevelArray.cpp
 
 # Correlation files
 PVCombiningFunctionView.cpp
-PVRFFAxesBind.cpp
 PVTFViewRowFiltering.cpp
 PVTFViewRowFilterFastIPv4.cpp
 

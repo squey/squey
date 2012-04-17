@@ -1,5 +1,5 @@
 #include <pvkernel/core/picviz_bench.h>
-#include <picviz/PVRFFAxesBind.h>
+#include "PVRFFAxesBind.h"
 #include <picviz/PVView.h>
 
 #include <pvkernel/core/PVAxisIndexType.h>
