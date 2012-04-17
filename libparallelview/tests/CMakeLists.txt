@@ -27,3 +27,7 @@ target_link_libraries(masks ${LINK_LIBRARIES})
 cuda_compile(CUDA_KERNELS bci_cuda.cu)
 add_executable(show_codes_cuda show_codes_cuda.cpp ${CUDA_KERNELS})
 target_link_libraries(show_codes_cuda ${LINK_LIBRARIES} ${CUDA_LIBRARIES})
+
+cuda_compile(CUDA_KERNELS bci_cuda_z24.cu)
+add_executable(show_codes_cuda24 show_codes_cuda.cpp ${CUDA_KERNELS})
+target_link_libraries(show_codes_cuda24 ${LINK_LIBRARIES} ${CUDA_LIBRARIES})
