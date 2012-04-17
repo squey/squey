@@ -17,7 +17,7 @@
 #include <picviz/PVPlotted.h>
 #include <picviz/PVCombiningFunctionView.h>
 #include <picviz/PVTFViewRowFiltering.h>
-#include <picviz/PVRFFAxesBind.h>
+#include <picviz/PVSelRowFilteringFunction.h>
 #include <picviz/PVAD2GView.h>
 #include <pvsdk/PVMessenger.h>
 #include <pvgl/PVMain.h>
@@ -108,12 +108,13 @@ int main(int argc, char** argv)
 
 	int argcount = 1;
 
+	Picviz::PVScene_p scene(new Picviz::PVScene("scene", root.get()));
 	QList<Picviz::PVSource_p> srcs;
 	QList<Picviz::PVMapped_p> mappeds;
 	QList<Picviz::PVPlotted_p> plotteds;
 	QList<Picviz::PVView_p> views;
 
-	g_ad2gv = new Picviz::PVAD2GView();
+	g_ad2gv = new Picviz::PVAD2GView(scene.get());
 
 	while (argcount < argc) {
 		// load a source
@@ -137,14 +138,22 @@ int main(int argc, char** argv)
 
 	PVLOG_INFO("all loaded\n");
 
+
+
 	Picviz::PVCombiningFunctionView* cf_p(new Picviz::PVCombiningFunctionView());
 	Picviz::PVTFViewRowFiltering* tf = cf_p->get_first_tf();
-	Picviz::PVRFFAxesBind* rff_bind = new Picviz::PVRFFAxesBind();
+	//Picviz::PVRFFAxesBind* rff_bind = new Picviz::PVRFFAxesBind();
+	LIB_CLASS(Picviz::PVSelRowFilteringFunction) &row_filters = LIB_CLASS(Picviz::PVSelRowFilteringFunction)::get();
+	Picviz::PVSelRowFilteringFunction_p rff_bind = row_filters.get_class_by_name("axes_bind");
+	assert(rff_bind);
+	rff_bind = rff_bind->clone<Picviz::PVSelRowFilteringFunction>();
 	PVCore::PVArgumentList args;
 	args["axis_org"].setValue(PVCore::PVAxisIndexType(1));
 	args["axis_dst"].setValue(PVCore::PVAxisIndexType(1));
 	rff_bind->set_args(args);
-	tf->push_rff(Picviz::PVSelRowFilteringFunction_p(rff_bind));
+	//tf->push_rff(Picviz::PVSelRowFilteringFunction_p(rff_bind));
+	tf->push_rff(rff_bind);
+
 
 	// Create edges
 	Picviz::PVCombiningFunctionView_p cf_sp(cf_p);

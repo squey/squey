@@ -17,8 +17,8 @@ add_definitions(${OpenMP_CXX_FLAGS})
 set(COMMON_LIBS ${QT_LIBRARIES} ${GLEW_LIBRARY} ${GLUT_glut_LIBRARY} ${OPENGL_LIBRARIES} ${FREETYPE_LIBRARY} ${TBB_LIBRARIES} ${OpenMP_LIBRARIES} ${PVKERNEL_LIBRARIES} ${PICVIZ_LIBRARIES} ${PVSDK_LIBRARIES} ${PVGL_LIBRARIES})
 # Tests programs
 
-add_executable(process_file_view process_file_view.cpp)
-target_link_libraries(process_file_view ${COMMON_LIBS})
+add_executable(T_process_file_view process_file_view.cpp)
+target_link_libraries(T_process_file_view ${COMMON_LIBS})
 
-add_executable(ad2g_widget ad2g_widget.cpp)
-target_link_libraries(ad2g_widget ${COMMON_LIBS})
+add_executable(T_ad2g_widget ad2g_widget.cpp)
+target_link_libraries(T_ad2g_widget ${COMMON_LIBS})

@@ -141,18 +141,6 @@ int main(int argc, char** argv)
 
 	PVLOG_INFO("all loaded\n");
 
-	LIB_CLASS(Picviz::PVSelRowFilteringFunction) &row_filters = LIB_CLASS(Picviz::PVSelRowFilteringFunction)::get();
-	LIB_CLASS(Picviz::PVSelRowFilteringFunction)::list_classes const& lf = row_filters.get_list();
-	LIB_CLASS(Picviz::PVSelRowFilteringFunction)::list_classes::const_iterator it;
-
-	PVLOG_INFO("row filters count=%d\n", lf.count());
-	for (it = lf.begin(); it != lf.end(); it++) {
-		PVLOG_INFO("plugin:%s\n", qPrintable(QString(it.key())));
-	}
-
-	Picviz::PVSelRowFilteringFunction::p_type axes_bind = row_filters.get_class_by_name("PVRFFAxesBind");
-
-
 	QMainWindow *mw = new QMainWindow();
 	Picviz::PVAD2GWidget* ad2g_widget = new Picviz::PVAD2GWidget(*g_ad2gv, mw);
 	mw->setCentralWidget(ad2g_widget);

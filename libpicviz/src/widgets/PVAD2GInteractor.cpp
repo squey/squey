@@ -5,6 +5,7 @@
 #include <picviz/PVCombiningFunctionView.h>
 //#include <picviz/PVRFFAxesBind.h>
 #include <picviz/PVTFViewRowFiltering.h>
+#include <picviz/PVSelRowFilteringFunction.h>
 
 #include <tulip/NodeLinkDiagramComponent.h>
 #include <tulip/GlLine.h>
@@ -187,18 +188,21 @@ void Picviz::AD2GInteractorComponent::addLink(QObject* /*widget*/, const tlp::no
 	tlp::LayoutProperty* mLayout = g->getProperty<tlp::LayoutProperty>(_glMainWidget->getScene()->getGlGraphComposite()->getInputData()->getElementLayoutPropName());
 	tlp::edge newEdge = g->addEdge(source, target);
 
-	/*Picviz::PVCombiningFunctionView_p cf_sp(new Picviz::PVCombiningFunctionView());
+	// RFF
+	Picviz::PVCombiningFunctionView_p cf_sp(new Picviz::PVCombiningFunctionView());
 	Picviz::PVTFViewRowFiltering* tf = cf_sp->get_first_tf();
-	Picviz::PVRFFAxesBind* rff_bind = new Picviz::PVRFFAxesBind();
+	LIB_CLASS(Picviz::PVSelRowFilteringFunction) &row_filters = LIB_CLASS(Picviz::PVSelRowFilteringFunction)::get();
+	Picviz::PVSelRowFilteringFunction_p rff_bind = row_filters.get_class_by_name("axes_bind");
+	assert(rff_bind);
+	rff_bind = rff_bind->clone<Picviz::PVSelRowFilteringFunction>();
 	PVCore::PVArgumentList args;
-	args["axis_org"].setValue(PVCore::PVAxisIndexType(0));
-	args["axis_dst"].setValue(PVCore::PVAxisIndexType(0));
+	args["axis_org"].setValue(PVCore::PVAxisIndexType(1));
+	args["axis_dst"].setValue(PVCore::PVAxisIndexType(1));
 	rff_bind->set_args(args);
-	tf->push_rff(Picviz::PVSelRowFilteringFunction_p(rff_bind));
-
+	tf->push_rff(rff_bind);
 	PVView* view_src = _widget->get_ad2g().get_view(source);
 	PVView* view_dst = _widget->get_ad2g().get_view(target);
-	_widget->get_ad2g().set_edge_f(view_src, view_dst, cf_sp);*/
+	_widget->get_ad2g().set_edge_f(view_src, view_dst, cf_sp);
 
 	mLayout->setEdgeValue(newEdge, _bends);
 	_bends.clear();
