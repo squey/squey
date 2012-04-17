@@ -10,7 +10,6 @@
 #include <tulip/Node.h>
 #include <tulip/PropertyTypes.h>
 
-#include <set>
 #include <queue>
 
 // some macro to make things clearer
@@ -262,14 +261,16 @@ void Picviz::PVAD2GView::visit_f(Picviz::PVView *view, graph_func_t const& f) co
  *****************************************************************************/
 bool Picviz::PVAD2GView::check_properties()
 {
+	tlp::node a, b;
+	forEach(a, _graph->getNodes()) {
+		forEach(b, _graph->getNodes()) {
+			if(count_path_number(a, b) > 1) {
+				returnForEach(false);
+			}
+		}
+	}
+
 	return true;
-}
-
-int count_paths_num(tlp::Graph */*graph*/, tlp::node /*na*/, tlp::node /*nb*/)
-{
-	int count = 0;
-
-	return count;
 }
 
 /******************************************************************************
@@ -290,4 +291,59 @@ tlp::node Picviz::PVAD2GView::get_graph_node(const Picviz::PVView *view) const
 	}
 
 	return TLP_NODE_INVALID;
+}
+
+/******************************************************************************
+ *
+ * Picviz::PVAD2GView::count_path_number
+ *
+ *****************************************************************************/
+int Picviz::PVAD2GView::count_path_number(const tlp::node& a, const tlp::node& b) const
+{
+	int count = 0;
+	graph_path_t path;
+	graph_visited_t visited;
+
+	count_path_number_rec(a, b, count, path, visited);
+
+	return count;
+}
+
+/******************************************************************************
+ *
+ * Picviz::PVAD2GView::count_path_number_rec
+ *
+ *****************************************************************************/
+void Picviz::PVAD2GView::count_path_number_rec(const tlp::node& a, const tlp::node& b, int& count, graph_path_t& path, graph_visited_t& visited) const
+{
+	tlp::node next;
+
+	if (visited.find(a) != visited.end())
+		return;
+
+	path.push_back(a);
+	visited.insert(a);
+
+	forEach(next, _graph->getOutNodes(a)) {
+		bool loop_in_path = false;
+
+		// skipping paths with loop
+		for(graph_path_t::iterator it = path.begin(); it != path.end(); ++it)
+			if(*it == next)
+				loop_in_path = true;
+		if(loop_in_path)
+			continue;
+
+
+		if(next == b) {
+			++count;
+			// for(node_list::iterator it = path.begin(); it != path.end(); ++it)
+			// 	std::cout << *it << ", ";
+			// std::cout << next.id << std::endl;
+		}
+
+		count_path_number_rec(next, b, count, path, visited);
+	}
+
+	path.pop_back(); // remove node from path
 }
