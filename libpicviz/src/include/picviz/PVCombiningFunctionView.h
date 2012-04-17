@@ -20,6 +20,7 @@ public:
 	virtual ~PVCombiningFunctionView() {}
 
 public:
+	void pre_process(const PVView &view_src, const PVView &view_dst);
 	PVSelection operator() (const PVView &view_src, const PVView &view_dst) const;
 	PVTFViewRowFiltering* get_first_tf();
 

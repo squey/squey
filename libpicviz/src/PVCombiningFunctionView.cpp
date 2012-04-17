@@ -8,6 +8,13 @@ Picviz::PVCombiningFunctionView::PVCombiningFunctionView()
 	_tfs.push_back(tf_p);
 }
 
+void Picviz::PVCombiningFunctionView::pre_process(PVView const& view_src, PVView const& view_dst)
+{
+	foreach(PVTransformationFunctionView_p const& tf, _tfs) {
+		tf->pre_process(view_src, view_dst);
+	}
+}
+
 Picviz::PVSelection Picviz::PVCombiningFunctionView::operator()(PVView const& view_src, PVView const& view_dst) const
 {
 	// AG: this is now hard-coded in here, the idea is to have the user being able to modify this in a close future...
