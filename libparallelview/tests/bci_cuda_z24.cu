@@ -243,7 +243,7 @@ void show_codes_cuda(PVParallelView::PVBCICode* codes, uint32_t n, uint32_t widt
 	// Compute number of blocks
 	int nblocks = PVCuda::get_number_blocks();
 	int nblocks_x = (width+nthreads_x-1)/nthreads_x;
-	int nblocks_y = n/(nthreads_y*4);
+	int nblocks_y = 2;
 	picviz_verify(nblocks_y > 0);
 	PVLOG_INFO("Number of blocks: %d x %d\n", nblocks_x, nblocks_y);
 

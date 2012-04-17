@@ -230,7 +230,7 @@ __global__ void bcicode_raster_unroll2(uint2* bci_codes, unsigned int n, unsigne
 		shared_img[threadIdx.x + y*blockDim.x] = make_uint2(0, 0xFFFFFFFF);
 	}
 
-	const unsigned int size_grid2 = size_grid<<1;
+	const unsigned int size_grid2 = size_grid<<2;
 	unsigned int idx_codes = y_start;
 
 	const unsigned int n_end = (n/(size_grid2))*(size_grid2);
@@ -240,6 +240,8 @@ __global__ void bcicode_raster_unroll2(uint2* bci_codes, unsigned int n, unsigne
 	for (; idx_codes < n_end; idx_codes += size_grid2) {
 		uint2 code0 = bci_codes[idx_codes];
 		uint2 code1 = bci_codes[idx_codes+size_grid];
+		uint2 code2 = bci_codes[idx_codes+size_grid*2];
+		uint2 code3 = bci_codes[idx_codes+size_grid*3];
 		
 		// For information:
 		// struct PVBCICode
@@ -264,23 +266,39 @@ __global__ void bcicode_raster_unroll2(uint2* bci_codes, unsigned int n, unsigne
 		const float l1 = (float) (code1.y & 0x3ff);
 		const float r1 = (float) ((code1.y & 0xffc00)>>10);
 		const unsigned int color1 = (code1.y & 0x1ff00000)>>20;
+		const float l2 = (float) (code2.y & 0x3ff);
+		const float r2 = (float) ((code2.y & 0xffc00)>>10);
+		const unsigned int color2 = (code2.y & 0x1ff00000)>>20;
+		const float l3 = (float) (code3.y & 0x3ff);
+		const float r3 = (float) ((code3.y & 0xffc00)>>10);
+		const unsigned int color3 = (code3.y & 0x1ff00000)>>20;
 
 		// Compute the y coordinate for band_x
 		const int pixel_y0 = (int) (r0 + ((l0-r0)*alpha) + 0.5f);
 		const int pixel_y1 = (int) (r1 + ((l1-r1)*alpha) + 0.5f);
+		const int pixel_y2 = (int) (r2 + ((l2-r2)*alpha) + 0.5f);
+		const int pixel_y3 = (int) (r3 + ((l3-r3)*alpha) + 0.5f);
 		unsigned int idx_shared_img0 = threadIdx.x + pixel_y0*blockDim.x;
 		unsigned int idx_shared_img1 = threadIdx.x + pixel_y1*blockDim.x;
+		unsigned int idx_shared_img2 = threadIdx.x + pixel_y2*blockDim.x;
+		unsigned int idx_shared_img3 = threadIdx.x + pixel_y3*blockDim.x;
 
 		// Set shared_img
-		uint2 cur_shared_p = shared_img[idx_shared_img0];
-		if (cur_shared_p.y > code0.x) {
-			//shared_img[idx_shared_img0] = make_uint2(hsv2rgb(color0), code0.x);
+		uint2 cur_shared_p0 = shared_img[idx_shared_img0];
+		uint2 cur_shared_p1 = shared_img[idx_shared_img1];
+		uint2 cur_shared_p2 = shared_img[idx_shared_img2];
+		uint2 cur_shared_p3 = shared_img[idx_shared_img3];
+		if (cur_shared_p0.y > code0.x) {
 			shared_img[idx_shared_img0] = make_uint2(color0, code0.x);
 		}
-		cur_shared_p = shared_img[idx_shared_img1];
-		if (cur_shared_p.y > code1.x) {
-			//shared_img[idx_shared_img1] = make_uint2(hsv2rgb(color1), code1.x);
+		if (cur_shared_p1.y > code1.x) {
 			shared_img[idx_shared_img1] = make_uint2(color1, code1.x);
+		}
+		if (cur_shared_p2.y > code2.x) {
+			shared_img[idx_shared_img2] = make_uint2(color2, code2.x);
+		}
+		if (cur_shared_p3.y > code3.x) {
+			shared_img[idx_shared_img3] = make_uint2(color3, code3.x);
 		}
 	}
 	for (; idx_codes < n; idx_codes += size_grid) {
@@ -292,17 +310,15 @@ __global__ void bcicode_raster_unroll2(uint2* bci_codes, unsigned int n, unsigne
 		uint2 cur_shared_p = shared_img[idx_shared_img0];
 		unsigned int color0 = (code0.y & 0x1ff00000)>>20;
 		if (cur_shared_p.y > code0.x) {
-			//shared_img[idx_shared_img0] = make_uint2(hsv2rgb(color0), code0.x);
 			shared_img[idx_shared_img0] = make_uint2(color0, code0.x);
 		}
 	}
 
 	__syncthreads();
 
-	
 	// Final stage is to commit the shared image into the global image
 	for (int y = y_start; y < IMAGE_HEIGHT; y += size_grid) {
-		unsigned int pixel = shared_img[threadIdx.x + (y+0)*blockDim.x].x;
+		unsigned int pixel = shared_img[threadIdx.x + y*blockDim.x].x;
 		if (pixel != 0x00000000) {
 			pixel = hsv2rgb(pixel);
 		}
