@@ -17,13 +17,6 @@ public slots:
 	void remove_function_Slot();
 };
 
-class PVAD2GFunctionProperties : public QDialog
-{
-	Q_OBJECT
-public:
-	PVAD2GFunctionProperties(QWidget* parent = 0);
-};
-
 }
 
 #endif // __PVAD2GEDGEEDITOR_H__

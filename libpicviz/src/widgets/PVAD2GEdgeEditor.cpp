@@ -30,8 +30,6 @@ Picviz::PVAD2GEdgeEditor::PVAD2GEdgeEditor(QWidget* parent /*= 0*/) :
 
 void Picviz::PVAD2GEdgeEditor::add_function_Slot()
 {
-	PVAD2GFunctionProperties* function_properties = new PVAD2GFunctionProperties();
-	function_properties->exec();
 }
 
 void Picviz::PVAD2GEdgeEditor::edit_function_Slot()

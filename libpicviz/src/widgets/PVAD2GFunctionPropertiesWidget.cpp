@@ -1,7 +1,11 @@
-#include <picviz/PVAD2GFunctionPropertiesWidget.h>
+#include <picviz/widgets/PVAD2GFunctionPropertiesWidget.h>
+#include <QLabel>
+#include <QComboBox>
+#include <QGroupBox>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
 
-
-Picviz::PVAD2GFunctionPropertiesWidget::PVAD2GFunctionPropertiesWidget(Picviz::PVView const& view_org, Picviz::PVView const& view_dst, PVSelRowFilteringFunction_p rff_p rff, QWidget* parent /*= 0*/) :
+Picviz::PVAD2GFunctionPropertiesWidget::PVAD2GFunctionPropertiesWidget(Picviz::PVView const& view_org, Picviz::PVView const& view_dst, PVSelRowFilteringFunction_p rff_p, QWidget* parent /*= 0*/) :
 	QWidget(parent),
 	_view_org(view_org),
 	_view_dst(view_dst)
@@ -23,15 +27,17 @@ Picviz::PVAD2GFunctionPropertiesWidget::PVAD2GFunctionPropertiesWidget(Picviz::P
 
 	setLayout(main_layout);
 
-	set_current_rff(rff);
+	set_current_rff(rff_p);
 }
 
 void Picviz::PVAD2GFunctionPropertiesWidget::set_current_rff(PVSelRowFilteringFunction_p const& rff)
 {
+	/*
 	if (_cur_rff) {
 		_rffs_args[*_cur_rff] = 
 	_cur_rff = rff->clone<PVSelRowFilteringFunction>();
 	maps_rff_args_t::const_iterator it = _rffs_args.find(*_cur_rff);
 	if (it != _rffs_args.end()) {
 		_cur_rff->set_args(
+		*/
 }

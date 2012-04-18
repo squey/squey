@@ -5,6 +5,7 @@
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/core/PVRegistrableClass.h>
 #include <picviz/PVSelection.h>
+#include <picviz/PVSelRowFilteringFunction_types.h>
 
 namespace Picviz {
 
@@ -18,8 +19,8 @@ public:
 	typedef boost::shared_ptr<PVSelRowFilteringFunction> p_type;
 	typedef PVSelRowFilteringFunction base_registrable;
 public:
-	virtual void pre_process(PVView const& view_org, PVView const& view_dst) = 0;
-	virtual void operator()(PVRow row_org, PVView const& view_org, PVView const& view_dst, PVSelection& sel_dst) const = 0;
+	virtual void pre_process(PVView const& /*view_org*/, PVView const& /*view_dst*/) { }
+	virtual void operator()(PVRow /*row_org*/, PVView const& /*view_org*/, PVView const& /*view_dst*/, PVSelection& /*sel_dst*/) const { }
 	
 public:
 	inline PVCore::PVArgumentList get_args_for_org_view() const { return get_args_for_view(get_arg_keys_for_org_view()); }
@@ -27,6 +28,8 @@ public:
 
 	inline void set_args_for_org_view(PVCore::PVArgumentList const& v_args) { set_args_for_view(v_args, get_arg_keys_for_org_view()); }
 	inline void set_args_for_dst_view(PVCore::PVArgumentList const& v_args) { set_args_for_view(v_args, get_arg_keys_for_dst_view()); }
+
+	func_type f() { return boost::bind<void>((void(PVSelRowFilteringFunction::*)(PVRow, PVView const&, PVView const&, PVSelection&))(&PVSelRowFilteringFunction::operator()), this, _1, _2, _3, _4); }
 
 protected:
 	virtual PVCore::PVArgumentKeyList get_arg_keys_for_org_view() const { return get_default_args().keys(); };
