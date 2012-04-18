@@ -24,9 +24,89 @@ PVWidgets::AD2GInteractorComponent::AD2GInteractorComponent(PVAD2GWidget* widget
 
 bool PVWidgets::AD2GInteractorComponent::eventFilter(QObject* widget, QEvent* e)
 {
+//#define TEST
+#ifdef TEST
+	tlp::GlMainWidget *glMainWidget = static_cast<tlp::GlMainWidget *>(widget);
 
+	  if (e->type() == QEvent::MouseButtonPress || e->type() == QEvent::MouseButtonRelease) {
+	    QMouseEvent * qMouseEv = static_cast<QMouseEvent *>(e);
 
-	if (!(e->type() == QEvent::MouseButtonPress || e->type() == QEvent::MouseMove || e->type() == QEvent::KeyPress || e->type() == QEvent::MouseButtonDblClick)) {
+	    tlp::ElementType type;
+
+	    tlp::Graph * _graph = glMainWidget->getScene()->getGlGraphComposite()->getInputData()->getGraph();
+
+	    tlp::LayoutProperty* mLayout = _graph->getProperty<tlp::LayoutProperty>(glMainWidget->getScene()->getGlGraphComposite()->getInputData()->getElementLayoutPropName());
+
+	    if (qMouseEv->button()==Qt::LeftButton) {
+	    	if(e->type() == QEvent::MouseButtonPress && !_edge_started) {
+				bool result=glMainWidget->doSelect(qMouseEv->x(), qMouseEv->y(), type, _tmpNode, _tmpEdge);
+
+				if (result && (type == tlp::NODE)) {
+					_edge_started=true;
+				  initObserver(_graph);
+				  _source=_tmpNode;
+				  _curPos=_startPos=mLayout->getNodeValue(_source);
+				  return true;
+				}
+
+				return false;
+	    	}
+	    	else if(e->type() == QEvent::MouseButtonRelease && _edge_started) {
+				bool result = glMainWidget->doSelect(qMouseEv->x(),qMouseEv->y(),type,_tmpNode,_tmpEdge);
+
+				if (result && (type == tlp::NODE)) {
+				  tlp::Observable::holdObservers();
+				  _edge_started=false;
+				  clearObserver();
+				  // allow to undo
+				  _graph->push();
+				  addLink(widget, _source, _tmpNode);
+				  tlp::Observable::unholdObservers();
+				}
+				else {
+				  tlp::Coord point(glMainWidget->width() - qMouseEv->x(), qMouseEv->y(), 0);
+				  _bends.push_back(glMainWidget->getScene()->getCamera().screenTo3DWorld(point));
+				  glMainWidget->redraw();
+				}
+			  }
+
+			  return true;
+	    }
+
+	    if (qMouseEv->buttons()==Qt::MidButton) {
+	      _bends.clear();
+	      _edge_started=false;
+	      clearObserver();
+	      glMainWidget->draw();
+	      return true;
+	    }
+	  }
+
+	  if  (e->type() == QEvent::MouseMove) {
+	    QMouseEvent * qMouseEv = static_cast<QMouseEvent *>(e);
+
+	    if (!_edge_started) {
+	      tlp::node tmpNode;
+	      tlp::edge tmpEdge;
+	      tlp::ElementType type;
+	      bool hoveringOverNode = glMainWidget->doSelect(qMouseEv->x(), qMouseEv->y(), type, _tmpNode, _tmpEdge) && type == tlp::NODE;
+
+	      if (!hoveringOverNode)
+	        return false;
+	    }
+	    else {
+	      tlp::Coord point(glMainWidget->width() - qMouseEv->x(), qMouseEv->y(), 0);
+	      point = glMainWidget->getScene()->getCamera().screenTo3DWorld(point);
+	      _curPos.set(point[0], point[1], point[2]);
+	      glMainWidget->redraw();
+	    }
+
+	    return true;
+	  }
+
+	  return false;
+#else
+	if (!(e->type() == QEvent::MouseButtonPress || e->type() == QEvent::MouseButtonRelease || e->type() == QEvent::MouseMove || e->type() == QEvent::KeyPress || e->type() == QEvent::MouseButtonDblClick)) {
 		return false;
 	}
 
@@ -60,7 +140,36 @@ bool PVWidgets::AD2GInteractorComponent::eventFilter(QObject* widget, QEvent* e)
 			return false;
 		}
 
-		if (qMouseEv->buttons() == Qt::LeftButton && qMouseEv->modifiers() == Qt::ControlModifier) {
+		if (qMouseEv->button()==Qt::LeftButton) {
+			if(e->type() == QEvent::MouseButtonPress && !_edge_started) {
+				if (hoveringOverNode) {
+					_edge_started=true;
+					initObserver(graph);
+					_source=_tmpNode;
+					_curPos=_startPos=mLayout->getNodeValue(_source);
+					return true;
+				}
+				return false;
+			}
+			else if(e->type() == QEvent::MouseButtonRelease && _edge_started) {
+				if (hoveringOverNode) {
+				  tlp::Observable::holdObservers();
+				  _edge_started=false;
+				  clearObserver();
+				  addLink(widget, _source, _tmpNode);
+				  tlp::Observable::unholdObservers();
+				}
+				else {
+				  tlp::Coord point(glMainWidget->width() - qMouseEv->x(), qMouseEv->y(), 0);
+				  _bends.push_back(glMainWidget->getScene()->getCamera().screenTo3DWorld(point));
+				  glMainWidget->redraw();
+				}
+			  }
+
+			  return true;
+		}
+
+		/*if (qMouseEv->button() == Qt::LeftButton ) {//&& qMouseEv->modifiers() == Qt::ControlModifier
 
 			// Start edge tracing
 			if (!_edge_started) {
@@ -87,14 +196,14 @@ bool PVWidgets::AD2GInteractorComponent::eventFilter(QObject* widget, QEvent* e)
 						box->exec();
 					}
 					else {
-						/*QMenu* menu = new QMenu;
-						QAction* directed = new QAction(tr("Directed"), menu);
-						QAction* undirected = new QAction(tr("Undirected"), menu);
-						menu->addAction(directed);
-						menu->addAction(undirected);
-						if (menu->exec(qMouseEv->globalPos()) == undirected) {
-							addLink(_widget, _tmpNode, _source);
-						}*/
+//						QMenu* menu = new QMenu;
+//						QAction* directed = new QAction(tr("Directed"), menu);
+//						QAction* undirected = new QAction(tr("Undirected"), menu);
+//						menu->addAction(directed);
+//						menu->addAction(undirected);
+//						if (menu->exec(qMouseEv->globalPos()) == undirected) {
+//							addLink(_widget, _tmpNode, _source);
+//						}
 						addLink(_widget, _source, _tmpNode);
 					}
 
@@ -112,7 +221,7 @@ bool PVWidgets::AD2GInteractorComponent::eventFilter(QObject* widget, QEvent* e)
 			  }
 
 			return true;
-		}
+		}*/
 
 		// Abort edge tracing
 		if (qMouseEv->buttons() == Qt::MidButton) {
@@ -189,6 +298,7 @@ bool PVWidgets::AD2GInteractorComponent::eventFilter(QObject* widget, QEvent* e)
 	}
 
 	return false;
+#endif
 }
 
 void PVWidgets::AD2GInteractorComponent::addLink(QObject* /*widget*/, const tlp::node source, const tlp::node target)
