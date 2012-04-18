@@ -67,15 +67,7 @@ void thread_main(QList<Picviz::PVView_p> views)
 				case PVSDK_MESSENGER_FUNCTION_SELECTION_CHANGED:
 					{
 						PVLOG_INFO("Selection changed %p. Launch graph..\n", view.get());
-						/*foreach (Picviz::PVView_p change_view, views) {
-							if (change_view != view) {
-								PVLOG_INFO("Update view %p..\n", change_view.get());
-								Picviz::PVSelection new_sel = (*cf_p)(*view, *change_view);
-								PVLOG_INFO("Selection computed for %p..\n", change_view.get());
-								change_view->set_selection_view(new_sel);
-								gl_update_view(change_view);
-							}
-						}*/
+						g_ad2gv->pre_process(view.get());
 						g_ad2gv->run(view.get());
 						PVLOG_INFO("Graph done !\n");
 						foreach (Picviz::PVView_p update_view, views) {
