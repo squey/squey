@@ -142,7 +142,7 @@ int main(int argc, char** argv)
 	PVLOG_INFO("all loaded\n");
 
 	QMainWindow *mw = new QMainWindow();
-	Picviz::PVAD2GWidget* ad2g_widget = new Picviz::PVAD2GWidget(*g_ad2gv, mw);
+	PVWidgets::PVAD2GWidget* ad2g_widget = new PVWidgets::PVAD2GWidget(*g_ad2gv, mw);
 	mw->setCentralWidget(ad2g_widget);
 	mw->show();
 

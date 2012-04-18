@@ -83,20 +83,6 @@ bool PVWidgets::__impl::FilterDropEvent::eventFilter(QObject* /*object*/, QEvent
 			Picviz::PVView* view = *(reinterpret_cast<Picviz::PVView* const*>(itemData.constData()));
 
 			_widget->add_view(dropEvent->pos(), view);
-<<<<<<< HEAD
-			QString wn = view->get_window_name();
-
-			// Disable QTableWidgetItem
-			__impl::PVTableWidget* table = ((PVWidgets::PVAD2GWidget*) parent())->get_table();
-			table->setCurrentCell(-1, -1);
-			for (int i = 0; i < table->rowCount(); i++) {
-				QTableWidgetItem* item = table->item(i, 0);
-				if (item->data(Qt::UserRole).value<void*>() == (void*) view) {
-					item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
-				}
-			}
-=======
->>>>>>> b71d499b286a0904baac8c08d027b1f0588d81fc
 
 			return true;
 		}
@@ -247,11 +233,7 @@ void PVWidgets::PVAD2GWidget::add_view_Slot(QObject* mouse_event)
 }
 
 
-<<<<<<< HEAD
-void PVWidgets::PVAD2GWidget::add_view(QPoint pos, Picviz::PVView* view)
-=======
-tlp::node Picviz::PVAD2GWidget::add_view(QPoint pos, PVView* view)
->>>>>>> b71d499b286a0904baac8c08d027b1f0588d81fc
+tlp::node PVWidgets::PVAD2GWidget::add_view(QPoint pos, Picviz::PVView* view)
 {
 	tlp::Observable::holdObservers();
 
@@ -376,7 +358,7 @@ void PVWidgets::PVAD2GWidget::initObservers()
 
 void PVWidgets::PVAD2GWidget::highlightViewItem(tlp::node n)
 {
-	PVView* view = _ad2g.get_view(n);
+	Picviz::PVView* view = _ad2g.get_view(n);
 	for (int i = 0; i < _table->rowCount(); i++) {
 		QTableWidgetItem* item = _table->item(i, 0);
 		item->setSelected(item->data(Qt::UserRole).value<void*>() == (void*) view && n != tlp::node());
