@@ -30,7 +30,7 @@ namespace __impl {
 		inline void operator()(Picviz::PVCombiningFunctionView& cf,
 		                       Picviz::PVView& va, Picviz::PVView& vb) const
 		{
-			PVSelection sel(cf(va, vb));
+			PVSelection sel = cf(va, vb);
 			vb.set_selection_view(sel);
 		}
 	};

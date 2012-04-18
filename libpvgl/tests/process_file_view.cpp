@@ -84,6 +84,23 @@ void thread_main(QList<Picviz::PVView_p> views)
 
 Picviz::PVSource_p create_src(const QString &path_file, const QString &path_format);
 
+Picviz::PVCombiningFunctionView_p get_cf()
+{
+	Picviz::PVCombiningFunctionView_p cf_p(new Picviz::PVCombiningFunctionView());
+	Picviz::PVTFViewRowFiltering* tf = cf_p->get_first_tf();
+	LIB_CLASS(Picviz::PVSelRowFilteringFunction) &row_filters = LIB_CLASS(Picviz::PVSelRowFilteringFunction)::get();
+	Picviz::PVSelRowFilteringFunction_p rff_bind = row_filters.get_class_by_name("axes_bind");
+	assert(rff_bind);
+	rff_bind = rff_bind->clone<Picviz::PVSelRowFilteringFunction>();
+	PVCore::PVArgumentList args;
+	args["axis_org"].setValue(PVCore::PVAxisIndexType(1));
+	args["axis_dst"].setValue(PVCore::PVAxisIndexType(1));
+	rff_bind->set_args(args);
+	tf->push_rff(rff_bind);
+
+	return cf_p;
+}
+
 int main(int argc, char** argv)
 {
 	if (argc <= 6) {
@@ -130,36 +147,13 @@ int main(int argc, char** argv)
 
 	PVLOG_INFO("all loaded\n");
 
-
-
-	Picviz::PVCombiningFunctionView* cf_p(new Picviz::PVCombiningFunctionView());
-	Picviz::PVTFViewRowFiltering* tf = cf_p->get_first_tf();
-	//Picviz::PVRFFAxesBind* rff_bind = new Picviz::PVRFFAxesBind();
-	LIB_CLASS(Picviz::PVSelRowFilteringFunction) &row_filters = LIB_CLASS(Picviz::PVSelRowFilteringFunction)::get();
-	Picviz::PVSelRowFilteringFunction_p rff_bind = row_filters.get_class_by_name("axes_bind");
-	assert(rff_bind);
-	rff_bind = rff_bind->clone<Picviz::PVSelRowFilteringFunction>();
-	PVCore::PVArgumentList args;
-	args["axis_org"].setValue(PVCore::PVAxisIndexType(1));
-	args["axis_dst"].setValue(PVCore::PVAxisIndexType(1));
-	rff_bind->set_args(args);
-	//tf->push_rff(Picviz::PVSelRowFilteringFunction_p(rff_bind));
-	tf->push_rff(rff_bind);
-
-
 	// Create edges
-	Picviz::PVCombiningFunctionView_p cf_sp(cf_p);
-	g_ad2gv->set_edge_f(views[0].get(), views[1].get(), cf_sp);
-	g_ad2gv->set_edge_f(views[1].get(), views[0].get(), cf_sp);
-	g_ad2gv->set_edge_f(views[0].get(), views[2].get(), cf_sp);
-	g_ad2gv->set_edge_f(views[2].get(), views[0].get(), cf_sp);
-	g_ad2gv->set_edge_f(views[1].get(), views[2].get(), cf_sp);
-	g_ad2gv->set_edge_f(views[2].get(), views[1].get(), cf_sp);
-
-	/*QMainWindow *mw = new QMainWindow();
-	Picviz::PVAD2GWidget* ad2g_widget = new Picviz::PVAD2GWidget(*g_ad2gv, mw);
-	mw->setCentralWidget(ad2g_widget->get_widget());
-	mw->show();*/
+	g_ad2gv->set_edge_f(views[0].get(), views[1].get(), get_cf());
+	g_ad2gv->set_edge_f(views[1].get(), views[0].get(), get_cf());
+	g_ad2gv->set_edge_f(views[0].get(), views[2].get(), get_cf());
+	g_ad2gv->set_edge_f(views[2].get(), views[0].get(), get_cf());
+	g_ad2gv->set_edge_f(views[1].get(), views[2].get(), get_cf());
+	g_ad2gv->set_edge_f(views[2].get(), views[1].get(), get_cf());
 
 	PVGL::PVGLThread* th_pvgl = new PVGL::PVGLThread();
 	g_msg = th_pvgl->get_messenger();
