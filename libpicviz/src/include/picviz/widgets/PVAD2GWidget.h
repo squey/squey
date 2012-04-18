@@ -30,7 +30,6 @@ private:
 
 }
 
-
 class AD2GNodeLinkDiagramComponent : public tlp::NodeLinkDiagramComponent
 {
 public:
@@ -50,9 +49,11 @@ public:
 	~PVAD2GWidget();
 
 public:
-	void add_view(QPoint pos, Picviz::PVView* view);
+	tlp::node add_view(QPoint pos, Picviz::PVView* view);
 	tlp::edge add_combining_function(const tlp::node source, const tlp::node target);
 	void edit_combining_function(int edge);
+
+	void highlightViewItem(tlp::node n);
 
 	__impl::PVTableWidget* get_table() { return _table; }
 	Picviz::PVAD2GView& get_ad2g() { return _ad2g; }
