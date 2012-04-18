@@ -18,10 +18,14 @@ Picviz::AD2GInteractorComponent::AD2GInteractorComponent(PVAD2GWidget* widget, t
 
 	_deleteEdgeSignalMapper = new QSignalMapper(this);
 	connect(_deleteEdgeSignalMapper, SIGNAL(mapped(int)), _widget, SLOT(remove_combining_function_Slot(int)));
+
+	_edge_started = false;
 }
 
 bool Picviz::AD2GInteractorComponent::eventFilter(QObject* widget, QEvent* e)
 {
+
+
 	if (!(e->type() == QEvent::MouseButtonPress || e->type() == QEvent::MouseMove || e->type() == QEvent::KeyPress || e->type() == QEvent::MouseButtonDblClick)) {
 		return false;
 	}
@@ -83,18 +87,18 @@ bool Picviz::AD2GInteractorComponent::eventFilter(QObject* widget, QEvent* e)
 						box->exec();
 					}
 					else {
-						QMenu* menu = new QMenu;
+						/*QMenu* menu = new QMenu;
 						QAction* directed = new QAction(tr("Directed"), menu);
 						QAction* undirected = new QAction(tr("Undirected"), menu);
 						menu->addAction(directed);
 						menu->addAction(undirected);
 						if (menu->exec(qMouseEv->globalPos()) == undirected) {
 							addLink(_widget, _tmpNode, _source);
-						}
+						}*/
 						addLink(_widget, _source, _tmpNode);
 					}
 
-					_edge_started=false;
+					_edge_started = false;
 					_bends.clear();
 					clearObserver();
 
@@ -113,7 +117,7 @@ bool Picviz::AD2GInteractorComponent::eventFilter(QObject* widget, QEvent* e)
 		// Abort edge tracing
 		if (qMouseEv->buttons() == Qt::MidButton) {
 			_bends.clear();
-			_edge_started=false;
+			_edge_started = false;
 			clearObserver();
 			glMainWidget->draw();
 			return true;
@@ -161,17 +165,22 @@ bool Picviz::AD2GInteractorComponent::eventFilter(QObject* widget, QEvent* e)
 						selection->setAllEdgeValue(false);
 						selection->setAllNodeValue(false);
 						selection->setNodeValue(_tmpNode, true);
-					}
-				} else if (hoveringOverEdge) {
-					if (!selection->getEdgeValue(_tmpEdge)) {
-						selection->setAllEdgeValue(false);
-						selection->setAllNodeValue(false);
-						selection->setEdgeValue(_tmpEdge, true);
+						_widget->highlightViewItem(_tmpNode);
 					}
 				}
 				else {
-					selection->setAllEdgeValue(false);
-					selection->setAllNodeValue(false);
+					_widget->highlightViewItem(tlp::node());
+					if (hoveringOverEdge) {
+						if (!selection->getEdgeValue(_tmpEdge)) {
+							selection->setAllEdgeValue(false);
+							selection->setAllNodeValue(false);
+							selection->setEdgeValue(_tmpEdge, true);
+						}
+					}
+					else {
+						selection->setAllEdgeValue(false);
+						selection->setAllNodeValue(false);
+					}
 				}
 			}
 
@@ -229,4 +238,5 @@ void Picviz::AD2GInteractorComponent::clearObserver() {
 
 	_layoutProperty=NULL;
 }
+
 

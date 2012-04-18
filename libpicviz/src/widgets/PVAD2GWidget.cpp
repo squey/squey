@@ -6,6 +6,7 @@
 #include <tulip/TlpTools.h>
 #include <tulip/TlpQtTools.h>
 #include <tulip/PluginLoaderTxt.h>
+#include <tulip/EdgeExtremityGlyphManager.h>
 ///
 
 #include <picviz/PVView_types.h>
@@ -82,17 +83,6 @@ bool Picviz::__impl::FilterDropEvent::eventFilter(QObject* /*object*/, QEvent *e
 			PVView* view = *(reinterpret_cast<PVView* const*>(itemData.constData()));
 
 			_widget->add_view(dropEvent->pos(), view);
-			QString wn = view->get_window_name();
-
-			// Disable QTableWidgetItem
-			__impl::PVTableWidget* table = ((Picviz::PVAD2GWidget*) parent())->get_table();
-			table->setCurrentCell(-1, -1);
-			for (int i = 0; i < table->rowCount(); i++) {
-				QTableWidgetItem* item = table->item(i, 0);
-				if (item->data(Qt::UserRole).value<void*>() == (void*) view) {
-					item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
-				}
-			}
 
 			return true;
 		}
@@ -107,12 +97,12 @@ Picviz::PVAD2GWidget::PVAD2GWidget(PVAD2GView& ad2g, QMainWindow* mw /*= NULL*/)
 	_mw(mw),
 	_graph(_ad2g.get_graph())
 {
-	//tlp::initTulipLib();
-	//tlp::PluginLoaderTxt txtPlug;
+	tlp::initTulipLib();
+	tlp::PluginLoaderTxt txtPlug;
 	//	tlp::loadPlugin("/usr/local/lib/tulip/libMixedModel-3.7.0.so", &txtPlug);
-	//tlp::loadPlugins(&txtPlug);   // library side plugins
-	//tlp::InteractorManager::getInst().loadPlugins(&txtPlug);
-	//tlp::GlyphManager::getInst().loadPlugins(&txtPlug);   // software side plugins, i.e. glyphs
+	tlp::loadPlugins(&txtPlug);   // library side plugins
+	tlp::InteractorManager::getInst().loadPlugins(&txtPlug);
+	tlp::GlyphManager::getInst().loadPlugins(&txtPlug);   // software side plugins, i.e. glyphs
 
 	_nodeLinkView = new AD2GNodeLinkDiagramComponent();
 
@@ -127,6 +117,8 @@ Picviz::PVAD2GWidget::PVAD2GWidget(PVAD2GView& ad2g, QMainWindow* mw /*= NULL*/)
 
 	tlp::DataSet dataSet;
 	dataSet.set<bool>("arrow", true);
+	dataSet.set<bool>("nodeLabel", true);
+	dataSet.set<bool>("edgeLabel", false);
 
 	_nodeLinkView->init();
 	nodeWidget->setAcceptDrops(true);
@@ -136,36 +128,40 @@ Picviz::PVAD2GWidget::PVAD2GWidget(PVAD2GView& ad2g, QMainWindow* mw /*= NULL*/)
 	fill_table();
 
 	if (_graph) {
-
-
 		openGraphOnGlMainWidget(_graph, &dataSet, _nodeLinkView->getGlMainWidget());
 
 		// Set up graph rendering properties
 		tlp::GlGraphRenderingParameters params = _nodeLinkView->getGlMainWidget()->getScene()->getGlGraphComposite()->getRenderingParameters();
+		params.setEdgeColorInterpolate(false);
+		params.setViewArrow(true);
+		params.setAntialiasing(true);
+		params.setViewNodeLabel(true);
+		_nodeLinkView->getGlMainWidget()->getScene()->getGlGraphComposite()->setRenderingParameters(params);
+
 		tlp::ColorProperty* color_property = _graph->getLocalProperty<tlp::ColorProperty>("viewColor");
 		color_property->setAllNodeValue(tlp::Color(102, 0, 110));
 		color_property->setAllEdgeValue(tlp::Color(142, 142, 142));
-		params.setEdgeColorInterpolate(false);
-		params.setViewArrow(true);
-
-		_nodeLinkView->getGlMainWidget()->getScene()->getGlGraphComposite()->setRenderingParameters(params);
+		_graph->getProperty<tlp::IntegerProperty>("viewFontSize")->setAllNodeValue(12);
+		_graph->getLocalProperty<tlp::ColorProperty>("viewLabelColor")->setAllNodeValue(tlp::Color(255, 255, 255));
+		//_graph->getProperty<tlp::IntegerProperty>("viewShape")->setAllEdgeValue(4);
+		_graph->getProperty<tlp::IntegerProperty>("viewSrcAnchorShape")->setAllEdgeValue(-1);
+		_graph->getProperty<tlp::IntegerProperty>("viewTgtAnchorShape")->setAllEdgeValue(50); // 28 for the Christmas Tree ! ;-)
+		_graph->getProperty<tlp::SizeProperty>("viewTgtAnchorSize")->setAllEdgeValue(tlp::Size(0.5, 0.5, 0.5));
 
 		initObservers();
 	}
 
+	_nodeLinkView->getGlMainWidget()->resizeGL(800,600);
+
 	/////////////////////////////////////////////////////////////////////////////
 	// Create hardcoded graph for testing purpose
-	Picviz::PVScene::list_views_t all_views = _ad2g.get_scene()->get_all_views();
-	Picviz::PVView_p view0 = all_views[0];
-	Picviz::PVView_p view1 = all_views[1];
-	tlp::node n0 = _ad2g.add_view(view0.get());
-	tlp::node n1 = _ad2g.add_view(view1.get());
-	add_combining_function(n0, n1);
+//	Picviz::PVScene::list_views_t all_views = _ad2g.get_scene()->get_all_views();
+//	Picviz::PVView_p view0 = all_views[0];
+//	Picviz::PVView_p view1 = all_views[1];
+//	tlp::node n0 = add_view(QPoint(100, 100), view0.get());
+//	tlp::node n1 = add_view(QPoint(300, 300), view1.get());
+//	add_combining_function(n0, n1);
 	//////////////////////////////////////////////////////////////////////////////////
-
-	tlp::LayoutProperty* viewLayout = _graph->getLocalProperty<tlp::LayoutProperty>("viewLayout");
-	viewLayout->setNodeValue(n0, tlp::Coord(1, 1, 0));
-	viewLayout->setNodeValue(n1, tlp::Coord(4, 4, 0));
 
 	// Apply layout algorithm:
 //	tlp::LayoutProperty* viewLayout = _graph->getLocalProperty<tlp::LayoutProperty>("viewLayout");
@@ -174,7 +170,7 @@ Picviz::PVAD2GWidget::PVAD2GWidget(PVAD2GView& ad2g, QMainWindow* mw /*= NULL*/)
 //	PVLOG_INFO("err=%s\n", err.c_str());
 //	viewLayout->center(_graph);
 
-	_nodeLinkView->getGlMainWidget()->resizeGL(800,600);
+
 }
 
 
@@ -237,7 +233,7 @@ void Picviz::PVAD2GWidget::add_view_Slot(QObject* mouse_event)
 }
 
 
-void Picviz::PVAD2GWidget::add_view(QPoint pos, PVView* view)
+tlp::node Picviz::PVAD2GWidget::add_view(QPoint pos, PVView* view)
 {
 	tlp::Observable::holdObservers();
 
@@ -246,7 +242,7 @@ void Picviz::PVAD2GWidget::add_view(QPoint pos, PVView* view)
 
 	// Compute view position
 	tlp::Graph* graph = _nodeLinkView->getGlMainWidget()->getScene()->getGlGraphComposite()->getInputData()->getGraph();
-	tlp::Coord point((double) _nodeLinkView->getGlMainWidget()->width() - (double) pos.x(),(double) pos.y(),0);
+	tlp::Coord point((double) _nodeLinkView->getGlMainWidget()->width() - (double) pos.x(),(double) pos.y(), 0);
 	point = _nodeLinkView->getGlMainWidget()->getScene()->getCamera().screenTo3DWorld(point);
 	tlp::Coord cameraDirection = _nodeLinkView->getGlMainWidget()->getScene()->getCamera().getEyes() - _nodeLinkView->getGlMainWidget()->getScene()->getCamera().getCenter();
 	if(cameraDirection[0]==0 && cameraDirection[1]==0)
@@ -254,7 +250,26 @@ void Picviz::PVAD2GWidget::add_view(QPoint pos, PVView* view)
 	tlp::LayoutProperty* mLayout = graph->getProperty<tlp::LayoutProperty>(_nodeLinkView->getGlMainWidget()->getScene()->getGlGraphComposite()->getInputData()->getElementLayoutPropName());
 	mLayout->setNodeValue(newNode, point);
 
+	// Disable QTableWidgetItem
+	int itemIndex = 0;
+	_table->setCurrentCell(-1, -1);
+	for (int i = 0; i < _table->rowCount(); i++) {
+		QTableWidgetItem* item = _table->item(i, 0);
+		if (item->data(Qt::UserRole).value<void*>() == (void*) view) {
+			itemIndex = item->row();
+			item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
+		}
+	}
+
+	// Add node text
+	tlp::StringProperty* label = graph->getProperty<tlp::StringProperty>("viewLabel");
+	label->setNodeValue(newNode, qPrintable(QString::number(itemIndex+1)));
+
 	tlp::Observable::unholdObservers();
+
+	tlp::saveGraph(graph, "test.tlp");
+
+	return newNode;
 }
 
 void Picviz::PVAD2GWidget::remove_view_Slot(int node)
@@ -338,6 +353,15 @@ void Picviz::PVAD2GWidget::initObservers()
 		}
 
 		delete it;
+	}
+}
+
+void Picviz::PVAD2GWidget::highlightViewItem(tlp::node n)
+{
+	PVView* view = _ad2g.get_view(n);
+	for (int i = 0; i < _table->rowCount(); i++) {
+		QTableWidgetItem* item = _table->item(i, 0);
+		item->setSelected(item->data(Qt::UserRole).value<void*>() == (void*) view && n != tlp::node());
 	}
 }
 
