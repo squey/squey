@@ -51,7 +51,7 @@ public:
 public:
 	tlp::node add_view(QPoint pos, Picviz::PVView* view);
 	tlp::edge add_combining_function(const tlp::node source, const tlp::node target);
-	void edit_combining_function(int edge);
+	void edit_combining_function(tlp::edge edge, tlp::node src, tlp::node dst);
 
 	void highlightViewItem(tlp::node n);
 

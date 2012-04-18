@@ -335,10 +335,14 @@ void PVWidgets::PVAD2GWidget::remove_combining_function_Slot(int edge)
 	}
 }
 
-void PVWidgets::PVAD2GWidget::edit_combining_function(int edge)
+void PVWidgets::PVAD2GWidget::edit_combining_function(tlp::edge edge, tlp::node src, tlp::node dst)
 {
-	//PVWidgets::PVAD2GEdgeEditor* edge_editor = new PVWidgets::PVAD2GEdgeEditor();
-	//edge_editor->exec();
+	Picviz::PVView* view_src = _ad2g.get_view(src);
+	Picviz::PVView* view_dst = _ad2g.get_view(dst);
+	Picviz::PVCombiningFunctionView_p combining_function = _ad2g.get_edge_f(edge);
+
+	PVWidgets::PVAD2GEdgeEditor* edge_editor = new PVWidgets::PVAD2GEdgeEditor(*view_src, *view_dst, *combining_function.get());
+	edge_editor->exec();
 }
 
 void PVWidgets::PVAD2GWidget::initObservers()
