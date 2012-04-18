@@ -5,6 +5,7 @@
 #include <pvkernel/core/PVArgument.h>
 #include <picviz/PVSelRowFilteringFunction.h>
 
+#include <QComboBox>
 #include <QWidget>
 
 namespace Picviz {
@@ -27,7 +28,11 @@ public:
 	Picviz::PVSelRowFilteringFunction_p get_rff() const { return _cur_rff; };
 
 protected:
+	void init_combo_list_rffs();
 	void set_current_rff(Picviz::PVSelRowFilteringFunction const* rff);
+
+protected slots:
+	void combo_func_changed(int idx);
 
 protected:
 	// Constant properties (views)
@@ -43,6 +48,9 @@ protected:
 	PVCore::PVArgumentList _args_dst;
 	PVWidgets::PVArgumentListWidget* _args_org_widget;
 	PVWidgets::PVArgumentListWidget* _args_dst_widget;
+
+	// Widgets
+	QComboBox* _function_combo;
 };
 
 }
