@@ -341,7 +341,7 @@ void PVWidgets::PVAD2GWidget::edit_combining_function(tlp::edge edge, tlp::node 
 	Picviz::PVView* view_dst = _ad2g.get_view(dst);
 	Picviz::PVCombiningFunctionView_p combining_function = _ad2g.get_edge_f(edge);
 
-	PVWidgets::PVAD2GEdgeEditor* edge_editor = new PVWidgets::PVAD2GEdgeEditor(*view_src, *view_dst, *combining_function.get());
+	PVWidgets::PVAD2GEdgeEditor* edge_editor = new PVWidgets::PVAD2GEdgeEditor(*view_src, *view_dst, *combining_function);
 	edge_editor->exec();
 }
 
