@@ -13,9 +13,8 @@
 #include <QVariant>
 
 #include <pvkernel/core/PVArgument.h>
-#include <picviz/general.h>
 
-namespace PVInspector {
+namespace PVWidgets {
 
 class PVArgumentListModel : public QAbstractTableModel {
 public:

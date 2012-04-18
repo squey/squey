@@ -5,11 +5,12 @@
 #include <QPushButton>
 #include <QMessageBox>
 
+#include <pvkernel/core/PVProgressBox.h>
+#include <pvkernel/widgets/PVArgumentListWidget.h>
 #include <picviz/PVStateMachine.h>
+#include <picviz/widgets/PVArgumentListWidgetFactory.h>
 
 #include <PVMainWindow.h>
-
-#include <pvkernel/core/PVProgressBox.h>
 
 PVInspector::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(PVTabSplitter* tab, PVCore::PVArgumentList& args, Picviz::PVLayerFilter_p filter_p) :
 	QDialog(tab),
@@ -22,7 +23,7 @@ PVInspector::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(PVTabSplitte
 	_args_org(args),
 	_has_apply(false)
 {
-	_args_widget = new PVArgumentListWidget(PVArgumentListWidget::create_layer_widget_factory(*tab->get_lib_view()), args, tab);
+	_args_widget = new PVWidgets::PVArgumentListWidget(PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_factory(*tab->get_lib_view()), args, tab);
 	setWindowTitle("Filter properties...");
 
 	QVBoxLayout* main_layout = new QVBoxLayout();

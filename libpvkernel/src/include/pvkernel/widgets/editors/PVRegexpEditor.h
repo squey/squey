@@ -12,9 +12,7 @@
 
 #include <pvkernel/core/general.h>
 
-#include <picviz/PVView.h>
-
-namespace PVInspector {
+namespace PVWidgets {
 
 /**
  * \class PVRegexpEditor
@@ -25,15 +23,12 @@ class PVRegexpEditor : public QLineEdit
 	Q_PROPERTY(QRegExp _rx READ get_rx WRITE set_rx USER true)
 
 public:
-	PVRegexpEditor(Picviz::PVView& view, QWidget *parent = 0);
+	PVRegexpEditor(QWidget *parent = 0);
 	virtual ~PVRegexpEditor();
 
 public:
 	QRegExp get_rx() const;
 	void set_rx(QRegExp rx);
-
-protected:
-	Picviz::PVView& _view;
 };
 
 }

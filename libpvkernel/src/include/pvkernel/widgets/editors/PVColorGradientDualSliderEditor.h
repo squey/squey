@@ -8,12 +8,11 @@
 #define PVCOLORGRADIENTDUALSLIDEREDITOR_H
 
 #include <QWidget>
-#include <picviz/PVView.h>
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVColorGradientDualSliderType.h>
 
 
-namespace PVInspector {
+namespace PVWidgets {
 class PVMainWindow;
 
 /**
@@ -43,7 +42,7 @@ public:
 	/**
 	 * Constructor
 	 */
-	PVColorGradientDualSliderEditor(Picviz::PVView& view, QWidget *parent = 0);
+	PVColorGradientDualSliderEditor(QWidget *parent = 0);
 
 	/**
 	 * Gets the index of the closest sliders from position x
@@ -79,9 +78,6 @@ protected:
 	void mousePressEvent(QMouseEvent *event);
 	void mouseReleaseEvent(QMouseEvent *event);
 	void paintEvent(QPaintEvent *event);
-
-protected:
-	Picviz::PVView& _view;
 };
 
 }

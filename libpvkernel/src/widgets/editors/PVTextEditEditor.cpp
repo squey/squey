@@ -1,7 +1,5 @@
 #include <pvkernel/core/general.h>
-#include <picviz/PVView.h>
-
-#include <PVTextEditEditor.h>
+#include <pvkernel/widgets/editors/PVTextEditEditor.h>
 
 #include <QPushButton>
 #include <QHBoxLayout>
@@ -21,9 +19,8 @@
  * PVCore::PVTextEditEditor::PVTextEditEditor
  *
  *****************************************************************************/
-PVInspector::PVTextEditEditor::PVTextEditEditor(Picviz::PVView& view, QWidget *parent):
-	QWidget(parent),
-	_view(view)
+PVWidgets::PVTextEditEditor::PVTextEditEditor(QWidget *parent):
+	QWidget(parent)
 {
 	_text_edit = new QTextEdit();
 	QFontMetrics m(_text_edit->font());
@@ -37,19 +34,19 @@ PVInspector::PVTextEditEditor::PVTextEditEditor(Picviz::PVView& view, QWidget *p
 }
 
 
-PVCore::PVTextEditType PVInspector::PVTextEditEditor::get_text() const
+PVCore::PVTextEditType PVWidgets::PVTextEditEditor::get_text() const
 {
 	PVCore::PVTextEditType ret;
 	ret.set_text(_text_edit->toTextEdit());
 	return ret;
 }
 
-void PVInspector::PVTextEditEditor::set_text(PVCore::PVTextEditType const& text)
+void PVWidgets::PVTextEditEditor::set_text(PVCore::PVTextEditType const& text)
 {
 	_text_edit->setTextEdit(text.get_text());
 }
 
-// bool PVInspector::PVTextEditEditor::eventFilter(QObject* object, QEvent* event)
+// bool PVWidgets::PVTextEditEditor::eventFilter(QObject* object, QEvent* event)
 // {
 // 	if (event->type() == QEvent::FocusOut)
 // 	{

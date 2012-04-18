@@ -11,22 +11,18 @@
 
 
 #include <pvkernel/core/general.h>
-
-#include <PVMainWindow.h>
-
-#include <PVColorGradientDualSliderEditor.h>
+#include <pvkernel/widgets/editors/PVColorGradientDualSliderEditor.h>
 
 using std::max;
 using std::min;
 
 /******************************************************************************
  *
- * PVInspector::PVColorGradientDualSliderEditor::PVColorGradientDualSliderEditor
+ * PVWidgets::PVColorGradientDualSliderEditor::PVColorGradientDualSliderEditor
  *
  *****************************************************************************/
-PVInspector::PVColorGradientDualSliderEditor::PVColorGradientDualSliderEditor(Picviz::PVView& view, QWidget *parent) :
-	QWidget(parent),
-	_view(view)
+PVWidgets::PVColorGradientDualSliderEditor::PVColorGradientDualSliderEditor(QWidget *parent) :
+	QWidget(parent)
 {
 	last_mouse_press_position = QPointF(0,0);
 	SELECTED_SLIDER = -1;
@@ -61,12 +57,12 @@ PVInspector::PVColorGradientDualSliderEditor::PVColorGradientDualSliderEditor(Pi
 
 /******************************************************************************
  *
- * PVInspector::PVColorGradientDualSliderEditor::get_selected_slider_index()
+ * PVWidgets::PVColorGradientDualSliderEditor::get_selected_slider_index()
  *
  *****************************************************************************/
-int PVInspector::PVColorGradientDualSliderEditor::get_selected_slider_index(float x)
+int PVWidgets::PVColorGradientDualSliderEditor::get_selected_slider_index(float x)
 {
-	PVLOG_DEBUG("PVInspector::PVColorGradientDualSliderEditor::%s\n", __FUNCTION__);
+	PVLOG_DEBUG("PVWidgets::PVColorGradientDualSliderEditor::%s\n", __FUNCTION__);
 	int k;
 	float float_width = (float) width();
 	float float_height = (float) height();
@@ -87,20 +83,20 @@ int PVInspector::PVColorGradientDualSliderEditor::get_selected_slider_index(floa
 
 /******************************************************************************
  *
- * PVInspector::PVColorGradientDualSliderEditor::get_slider_value()
+ * PVWidgets::PVColorGradientDualSliderEditor::get_slider_value()
  *
  *****************************************************************************/
-float PVInspector::PVColorGradientDualSliderEditor::get_slider_value(int index)
+float PVWidgets::PVColorGradientDualSliderEditor::get_slider_value(int index)
 {
 	return sliders_positions[index];
 }
 
 /******************************************************************************
  *
- * PVInspector::PVColorGradientDualSliderEditor::mouseMoveEvent()
+ * PVWidgets::PVColorGradientDualSliderEditor::mouseMoveEvent()
  *
  *****************************************************************************/
-void PVInspector::PVColorGradientDualSliderEditor::mouseMoveEvent(QMouseEvent *event)
+void PVWidgets::PVColorGradientDualSliderEditor::mouseMoveEvent(QMouseEvent *event)
 {
 	/* VARIABLES */
 	float float_height;
@@ -150,10 +146,10 @@ void PVInspector::PVColorGradientDualSliderEditor::mouseMoveEvent(QMouseEvent *e
 
 /******************************************************************************
  *
- * PVInspector::PVColorGradientDualSliderEditor::mousePressEvent()
+ * PVWidgets::PVColorGradientDualSliderEditor::mousePressEvent()
  *
  *****************************************************************************/
-void PVInspector::PVColorGradientDualSliderEditor::mousePressEvent(QMouseEvent *event)
+void PVWidgets::PVColorGradientDualSliderEditor::mousePressEvent(QMouseEvent *event)
 {
 	PVLOG_INFO("DualSlider popup: %d\n", (windowType() == Qt::Popup));
 	last_mouse_press_position = event->posF();
@@ -168,20 +164,20 @@ void PVInspector::PVColorGradientDualSliderEditor::mousePressEvent(QMouseEvent *
 
 /******************************************************************************
  *
- * PVInspector::PVColorGradientDualSliderEditor::mouseReleaseEvent()
+ * PVWidgets::PVColorGradientDualSliderEditor::mouseReleaseEvent()
  *
  *****************************************************************************/
-void PVInspector::PVColorGradientDualSliderEditor::mouseReleaseEvent(QMouseEvent *)
+void PVWidgets::PVColorGradientDualSliderEditor::mouseReleaseEvent(QMouseEvent *)
 {
 	//emit value_changed_Signal();
 }
 
 /******************************************************************************
  *
- * PVInspector::PVColorGradientDualSliderEditor::paintEvent()
+ * PVWidgets::PVColorGradientDualSliderEditor::paintEvent()
  *
  *****************************************************************************/
-void PVInspector::PVColorGradientDualSliderEditor::paintEvent(QPaintEvent *)
+void PVWidgets::PVColorGradientDualSliderEditor::paintEvent(QPaintEvent *)
 {
 	/* VARIABLES */
 	float float_height;
@@ -247,10 +243,10 @@ void PVInspector::PVColorGradientDualSliderEditor::paintEvent(QPaintEvent *)
 
 /******************************************************************************
  *
- * PVInspector::PVColorGradientDualSliderEditor::sizeHint
+ * PVWidgets::PVColorGradientDualSliderEditor::sizeHint
  *
  *****************************************************************************/
-QSize PVInspector::PVColorGradientDualSliderEditor::sizeHint() const
+QSize PVWidgets::PVColorGradientDualSliderEditor::sizeHint() const
 {
 	return QSize(left_margin + 100 + right_margin, YMAX);
 	//return QSize(500,500);
@@ -258,21 +254,21 @@ QSize PVInspector::PVColorGradientDualSliderEditor::sizeHint() const
 
 /******************************************************************************
  *
- * PVInspector::PVColorGradientDualSliderEditor::toggle_visibility_Slot()
+ * PVWidgets::PVColorGradientDualSliderEditor::toggle_visibility_Slot()
  *
  *****************************************************************************/
-void PVInspector::PVColorGradientDualSliderEditor::toggle_visibility_Slot()
+void PVWidgets::PVColorGradientDualSliderEditor::toggle_visibility_Slot()
 {
 	//setVisible(! isVisible());
 }
 
 
-PVCore::PVColorGradientDualSliderType PVInspector::PVColorGradientDualSliderEditor::get_values() const
+PVCore::PVColorGradientDualSliderType PVWidgets::PVColorGradientDualSliderEditor::get_values() const
 {
 	return PVCore::PVColorGradientDualSliderType(sliders_positions);
 }
 
-void PVInspector::PVColorGradientDualSliderEditor::set_values(PVCore::PVColorGradientDualSliderType v)
+void PVWidgets::PVColorGradientDualSliderEditor::set_values(PVCore::PVColorGradientDualSliderType v)
 {
 	sliders_positions[0] = v.get_positions()[0];
 	sliders_positions[1] = v.get_positions()[1];

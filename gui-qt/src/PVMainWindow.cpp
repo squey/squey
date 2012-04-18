@@ -23,7 +23,6 @@
 #include <PVMainWindow.h>
 #include <PVExtractorWidget.h>
 #include <PVStringListChooserWidget.h>
-#include <PVArgumentListWidget.h>
 #include <PVInputTypeMenuEntries.h>
 #include <PVColorDialog.h>
 #include <PVStartScreenWidget.h>

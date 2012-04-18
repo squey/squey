@@ -8,7 +8,7 @@
 #include <pvkernel/core/PVAxesIndexType.h>
 #include <picviz/PVView_types.h>
 
-#include "../widgets/editors/include/PVAxesIndexEditor.h"
+#include <picviz/widgets/editors/PVAxesIndexEditor.h>
 
 namespace PVInspector {
 
@@ -27,7 +27,7 @@ private slots:
 
 private:
 	Picviz::PVView const& _view;
-	PVAxesIndexEditor* _axes_editor;
+	PVWidgets::PVAxesIndexEditor* _axes_editor;
 	QComboBox* _combo_modes;
 };
 

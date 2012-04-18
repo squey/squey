@@ -7,36 +7,33 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVEnumType.h>
 
-#include <picviz/PVView.h>
-
-#include <PVEnumEditor.h>
+#include <pvkernel/widgets/editors/PVEnumEditor.h>
 
 /******************************************************************************
  *
  * PVCore::PVEnumEditor::PVEnumEditor
  *
  *****************************************************************************/
-PVInspector::PVEnumEditor::PVEnumEditor(Picviz::PVView& view, QWidget *parent):
-	QComboBox(parent),
-	_view(view)
+PVWidgets::PVEnumEditor::PVEnumEditor(QWidget *parent):
+	QComboBox(parent)
 {
 }
 
 /******************************************************************************
  *
- * PVInspector::PVEnumEditor::~PVEnumEditor
+ * PVWidgets::PVEnumEditor::~PVEnumEditor
  *
  *****************************************************************************/
-PVInspector::PVEnumEditor::~PVEnumEditor()
+PVWidgets::PVEnumEditor::~PVEnumEditor()
 {
 }
 
 /******************************************************************************
  *
- * PVInspector::PVEnumEditor::set_enum
+ * PVWidgets::PVEnumEditor::set_enum
  *
  *****************************************************************************/
-void PVInspector::PVEnumEditor::set_enum(PVCore::PVEnumType e)
+void PVWidgets::PVEnumEditor::set_enum(PVCore::PVEnumType e)
 {
 	_e = e;
 	clear();
@@ -44,7 +41,7 @@ void PVInspector::PVEnumEditor::set_enum(PVCore::PVEnumType e)
 	setCurrentIndex(e.get_sel_index());
 }
 
-PVCore::PVEnumType PVInspector::PVEnumEditor::get_enum() const
+PVCore::PVEnumType PVWidgets::PVEnumEditor::get_enum() const
 {
 	PVCore::PVEnumType ret(_e);
 	ret.set_sel(currentIndex());

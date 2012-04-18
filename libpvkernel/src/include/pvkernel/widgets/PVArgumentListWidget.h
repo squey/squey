@@ -18,12 +18,10 @@
 #include <QHBoxLayout>
 
 #include <pvkernel/core/PVArgument.h>
-#include <picviz/PVView_types.h>
 
-#include <PVArgumentListModel.h>
+namespace PVWidgets {
 
-namespace PVInspector {
-class PVMainWindow;
+class PVArgumentListModel;
 
 class PVArgumentListWidget: public QWidget
 {
@@ -43,8 +41,6 @@ public:
 	PVCore::PVArgumentList* get_args() { return _args; }
 
 public:
-	static QItemEditorFactory* create_layer_widget_factory(Picviz::PVView& view);
-	static QItemEditorFactory* create_mapping_plotting_widget_factory();
 	static QDialog* create_dialog_for_arguments(QItemEditorFactory* widget_factory, PVCore::PVArgumentList& args, QWidget* parent = NULL);
 	static bool modify_arguments_dlg(QItemEditorFactory* widget_factory, PVCore::PVArgumentList& args, QWidget* parent = NULL);
 

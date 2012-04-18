@@ -5,36 +5,33 @@
 //! Copyright (C) Picviz Labs 2011
 
 #include <pvkernel/core/general.h>
-#include <picviz/PVView.h>
-
-#include <PVRegexpEditor.h>
+#include <pvkernel/widgets/editors/PVRegexpEditor.h>
 
 /******************************************************************************
  *
  * PVCore::PVRegexpEditor::PVRegexpEditor
  *
  *****************************************************************************/
-PVInspector::PVRegexpEditor::PVRegexpEditor(Picviz::PVView& view, QWidget *parent):
-	QLineEdit(parent),
-	_view(view)
+PVWidgets::PVRegexpEditor::PVRegexpEditor(QWidget *parent):
+	QLineEdit(parent)
 {
 }
 
 /******************************************************************************
  *
- * PVInspector::PVRegexpEditor::~PVRegexpEditor
+ * PVWidgets::PVRegexpEditor::~PVRegexpEditor
  *
  *****************************************************************************/
-PVInspector::PVRegexpEditor::~PVRegexpEditor()
+PVWidgets::PVRegexpEditor::~PVRegexpEditor()
 {
 }
 
-void PVInspector::PVRegexpEditor::set_rx(QRegExp rx)
+void PVWidgets::PVRegexpEditor::set_rx(QRegExp rx)
 {
 	setText(rx.pattern());
 }
 
-QRegExp PVInspector::PVRegexpEditor::get_rx() const
+QRegExp PVWidgets::PVRegexpEditor::get_rx() const
 {
 	return QRegExp(text());
 }

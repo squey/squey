@@ -163,6 +163,14 @@ include/picviz/widgets/PVAD2GWidget.h
 include/picviz/widgets/PVAD2GFunctionPropertiesWidget.h
 include/picviz/widgets/PVAD2GInteractor.h
 include/picviz/widgets/PVAD2GEdgeEditor.h
+include/picviz/widgets/PVArgumentListWidgetFactory.h
+include/picviz/widgets/PVViewArgumentEditorCreator.h
+
+include/picviz/widgets/editors/PVAxisIndexEditor.h
+include/picviz/widgets/editors/PVAxisIndexCheckBoxEditor.h
+include/picviz/widgets/editors/PVAxesIndexEditor.h
+include/picviz/widgets/editors/PVLayerEnumEditor.h
+include/picviz/widgets/editors/PVViewRowsSpinBoxEditor.h
 )
 
 set(WIDGETS_SRC_FILES
@@ -170,6 +178,13 @@ widgets/PVAD2GWidget.cpp
 widgets/PVAD2GInteractor.cpp
 widgets/PVAD2GEdgeEditor.cpp
 widgets/PVAD2GFunctionPropertiesWidget.cpp
+widgets/PVArgumentListWidgetFactory.cpp
+
+widgets/editors/PVAxisIndexEditor.cpp
+widgets/editors/PVAxisIndexCheckBoxEditor.cpp
+widgets/editors/PVAxesIndexEditor.cpp
+widgets/editors/PVLayerEnumEditor.cpp
+widgets/editors/PVViewRowsSpinBoxEditor.cpp
 )
 
 set(MOC_HEADERS

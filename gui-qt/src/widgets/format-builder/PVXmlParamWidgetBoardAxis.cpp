@@ -9,7 +9,8 @@
 #include <PVXmlParamWidgetBoardAxis.h>
 #include <PVFormatBuilderWidget.h>
 #include <PVAxisTagHelp.h>
-#include <PVArgumentListWidget.h>
+#include <pvkernel/widgets/PVArgumentListWidget.h>
+#include <picviz/widgets/PVArgumentListWidgetFactory.h>
 
 #include <QDialogButtonBox>
 
@@ -76,8 +77,8 @@ void PVInspector::PVXmlParamWidgetBoardAxis::allocBoardFields(){
     //slotSetVisibleExtra(false);
 	
 	_layout_params_mp = new QHBoxLayout();
-	_params_mapping = new PVArgumentListWidget(PVArgumentListWidget::create_mapping_plotting_widget_factory(), this);
-	_params_plotting = new PVArgumentListWidget(PVArgumentListWidget::create_mapping_plotting_widget_factory(), this);
+	_params_mapping = new PVWidgets::PVArgumentListWidget(PVWidgets::PVArgumentListWidgetFactory::create_mapping_plotting_widget_factory(), this);
+	_params_plotting = new PVWidgets::PVArgumentListWidget(PVWidgets::PVArgumentListWidgetFactory::create_mapping_plotting_widget_factory(), this);
 
 	QSizePolicy grp_params_policy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 	grp_params_policy.setHorizontalStretch(1);

@@ -7,9 +7,7 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVPlainTextType.h>
 
-#include <picviz/PVView.h>
-
-namespace PVInspector {
+namespace PVWidgets {
 
 /**
  * \class PVRegexpEditor
@@ -20,7 +18,7 @@ class PVPlainTextEditor: public QWidget
 	Q_PROPERTY(PVCore::PVPlainTextType _text READ get_text WRITE set_text USER true)
 
 public:
-	PVPlainTextEditor(Picviz::PVView& view, QWidget *parent = 0);
+	PVPlainTextEditor(QWidget *parent = 0);
 
 public:
 	PVCore::PVPlainTextType get_text() const;
@@ -34,7 +32,6 @@ protected slots:
 
 protected:
 	QPlainTextEdit* _text_edit;
-	Picviz::PVView& _view;
 };
 
 }

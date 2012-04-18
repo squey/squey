@@ -14,9 +14,7 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVEnumType.h>
 
-#include <picviz/PVView.h>
-
-namespace PVInspector {
+namespace PVWidgets {
 
 /**
  * \class PVEnumEditor
@@ -27,7 +25,7 @@ class PVEnumEditor : public QComboBox
 	Q_PROPERTY(PVCore::PVEnumType _enum READ get_enum WRITE set_enum USER true)
 
 public:
-	PVEnumEditor(Picviz::PVView& view, QWidget *parent = 0);
+	PVEnumEditor(QWidget *parent = 0);
 	virtual ~PVEnumEditor();
 
 public:
@@ -35,7 +33,6 @@ public:
 	void set_enum(PVCore::PVEnumType e);
 
 protected:
-	Picviz::PVView& _view;
 	PVCore::PVEnumType _e;
 };
 

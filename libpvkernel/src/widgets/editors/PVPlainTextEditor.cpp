@@ -1,7 +1,5 @@
 #include <pvkernel/core/general.h>
-#include <picviz/PVView.h>
-
-#include <PVPlainTextEditor.h>
+#include <pvkernel/widgets/editors/PVPlainTextEditor.h>
 
 #include <QPushButton>
 #include <QHBoxLayout>
@@ -20,9 +18,8 @@
  * PVCore::PVPlainTextEditor::PVPlainTextEditor
  *
  *****************************************************************************/
-PVInspector::PVPlainTextEditor::PVPlainTextEditor(Picviz::PVView& view, QWidget *parent):
-	QWidget(parent),
-	_view(view)
+PVWidgets::PVPlainTextEditor::PVPlainTextEditor(QWidget *parent):
+	QWidget(parent)
 {
 	_text_edit = new QPlainTextEdit();
 	QFontMetrics m(_text_edit->font());
@@ -41,7 +38,7 @@ PVInspector::PVPlainTextEditor::PVPlainTextEditor(Picviz::PVView& view, QWidget 
 	connect(import_file, SIGNAL(clicked()), this, SLOT(slot_import_file()));
 }
 
-void PVInspector::PVPlainTextEditor::slot_import_file()
+void PVWidgets::PVPlainTextEditor::slot_import_file()
 {
 	QString file = QFileDialog::getOpenFileName(this, tr("Select a text file..."));
 	if (file.isEmpty()) {
@@ -76,19 +73,19 @@ void PVInspector::PVPlainTextEditor::slot_import_file()
 	}
 }
 
-PVCore::PVPlainTextType PVInspector::PVPlainTextEditor::get_text() const
+PVCore::PVPlainTextType PVWidgets::PVPlainTextEditor::get_text() const
 {
 	PVCore::PVPlainTextType ret;
 	ret.set_text(_text_edit->toPlainText());
 	return ret;
 }
 
-void PVInspector::PVPlainTextEditor::set_text(PVCore::PVPlainTextType const& text)
+void PVWidgets::PVPlainTextEditor::set_text(PVCore::PVPlainTextType const& text)
 {
 	_text_edit->setPlainText(text.get_text());
 }
 
-bool PVInspector::PVPlainTextEditor::eventFilter(QObject* object, QEvent* event)
+bool PVWidgets::PVPlainTextEditor::eventFilter(QObject* object, QEvent* event)
 {
 	if (event->type() == QEvent::FocusOut)
 	{

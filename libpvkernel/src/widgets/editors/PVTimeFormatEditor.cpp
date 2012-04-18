@@ -1,7 +1,7 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVDateTimeParser.h>
 
-#include <PVTimeFormatEditor.h>
+#include <pvkernel/widgets/editors/PVTimeFormatEditor.h>
 
 #include <QPushButton>
 #include <QCheckBox>
@@ -11,7 +11,7 @@
 #include <QDialogButtonBox>
 #include <QEvent>
 
-PVInspector::PVTimeFormatEditor::PVTimeFormatEditor(QWidget *parent):
+PVWidgets::PVTimeFormatEditor::PVTimeFormatEditor(QWidget *parent):
 	QWidget(parent)
 {
 	_text_edit = new QTextEdit();
@@ -33,17 +33,17 @@ PVInspector::PVTimeFormatEditor::PVTimeFormatEditor(QWidget *parent):
 	connect(_help_btn, SIGNAL(clicked()), this, SLOT(show_help()));
 }
 
-void PVInspector::PVTimeFormatEditor::set_time_formats(PVCore::PVTimeFormatType const& tfs)
+void PVWidgets::PVTimeFormatEditor::set_time_formats(PVCore::PVTimeFormatType const& tfs)
 {
 	text_edit()->setText(tfs.join("\n"));
 }
 
-PVCore::PVTimeFormatType PVInspector::PVTimeFormatEditor::get_time_formats() const
+PVCore::PVTimeFormatType PVWidgets::PVTimeFormatEditor::get_time_formats() const
 {
 	return PVCore::PVTimeFormatType(text_edit()->toPlainText().split("\n"));
 }
 
-void PVInspector::PVTimeFormatEditor::show_help()
+void PVWidgets::PVTimeFormatEditor::show_help()
 {
 	if (_help_dlg->isVisible()) {
 		return;
@@ -53,7 +53,7 @@ void PVInspector::PVTimeFormatEditor::show_help()
 	_help_dlg->show();
 }
 
-bool PVInspector::PVTimeFormatEditor::eventFilter(QObject* object, QEvent* event)
+bool PVWidgets::PVTimeFormatEditor::eventFilter(QObject* object, QEvent* event)
 {
 	if (event->type() == QEvent::FocusOut)
 	{
@@ -71,7 +71,7 @@ bool PVInspector::PVTimeFormatEditor::eventFilter(QObject* object, QEvent* event
 // PVTimeFormatHelpDlg implementation
 //
 
-PVInspector::PVTimeFormatHelpDlg::PVTimeFormatHelpDlg(PVTimeFormatEditor* editor, QWidget* parent):
+PVWidgets::PVTimeFormatHelpDlg::PVTimeFormatHelpDlg(PVTimeFormatEditor* editor, QWidget* parent):
 	QDialog(parent),
 	_editor(editor->text_edit())
 {
@@ -132,7 +132,7 @@ PVInspector::PVTimeFormatHelpDlg::PVTimeFormatHelpDlg(PVTimeFormatEditor* editor
 	auto_validate_chkbox->setCheckState(Qt::Checked);
 }
 
-void PVInspector::PVTimeFormatHelpDlg::set_help(QTextEdit* txt)
+void PVWidgets::PVTimeFormatHelpDlg::set_help(QTextEdit* txt)
 {
   txt->setReadOnly(true);
   txt->document()->setDefaultStyleSheet("td {\nbackground-color:#ffe6bb;\n}\nbody{\nbackground-color:#fcffc4;\n}\n");
@@ -176,7 +176,7 @@ void PVInspector::PVTimeFormatHelpDlg::set_help(QTextEdit* txt)
   txt->setHtml(html);
 }
 
-void PVInspector::PVTimeFormatHelpDlg::time_formats_changed()
+void PVWidgets::PVTimeFormatHelpDlg::time_formats_changed()
 {
 	if (!_auto_validate) {
 		_validator_hl->format_changed();
@@ -184,7 +184,7 @@ void PVInspector::PVTimeFormatHelpDlg::time_formats_changed()
 	}
 }
 
-void PVInspector::PVTimeFormatHelpDlg::time_strings_changed()
+void PVWidgets::PVTimeFormatHelpDlg::time_strings_changed()
 {
 	PVCore::PVDateTimeParser* parser = _validator_hl->get_parser();
 	if (!parser) {
@@ -222,17 +222,17 @@ void PVInspector::PVTimeFormatHelpDlg::time_strings_changed()
 	_ts_interpreted->setPlainText(txt);
 }
 
-void PVInspector::PVTimeFormatHelpDlg::update_tf_to_editor()
+void PVWidgets::PVTimeFormatHelpDlg::update_tf_to_editor()
 {
 	_editor->setPlainText(_tfs_edit->toPlainText());
 }
 
-void PVInspector::PVTimeFormatHelpDlg::update_tf_from_editor()
+void PVWidgets::PVTimeFormatHelpDlg::update_tf_from_editor()
 {
 	_tfs_edit->setPlainText(_editor->toPlainText());
 }
 
-void PVInspector::PVTimeFormatHelpDlg::activate_auto_validation(int state)
+void PVWidgets::PVTimeFormatHelpDlg::activate_auto_validation(int state)
 {
 	_auto_validate = state == Qt::Checked;
 	if (_auto_validate) {
@@ -245,7 +245,7 @@ void PVInspector::PVTimeFormatHelpDlg::activate_auto_validation(int state)
 	}
 }
 
-void PVInspector::PVTimeFormatHelpDlg::validate_time_strings()
+void PVWidgets::PVTimeFormatHelpDlg::validate_time_strings()
 {
 	bool auto_validate = _auto_validate;
 	if (auto_validate) {
@@ -266,7 +266,7 @@ void PVInspector::PVTimeFormatHelpDlg::validate_time_strings()
 // PVTimeValidatorHighLight implementation
 //
 
-PVInspector::PVTimeValidatorHighLight::PVTimeValidatorHighLight(QTextEdit* parent):
+PVWidgets::PVTimeValidatorHighLight::PVTimeValidatorHighLight(QTextEdit* parent):
 	QSyntaxHighlighter(parent),
 	_cur_parser(NULL),
 	_format_has_changed(true)
@@ -276,20 +276,20 @@ PVInspector::PVTimeValidatorHighLight::PVTimeValidatorHighLight(QTextEdit* paren
 	_format_changed.setBackground(QColor("#F0F0F0"));
 }
 
-PVInspector::PVTimeValidatorHighLight::~PVTimeValidatorHighLight()
+PVWidgets::PVTimeValidatorHighLight::~PVTimeValidatorHighLight()
 {
 	if (_cur_parser) {
 		delete _cur_parser;
 	}
 }
 
-void PVInspector::PVTimeValidatorHighLight::format_changed()
+void PVWidgets::PVTimeValidatorHighLight::format_changed()
 {
 	_format_has_changed = true;
 	rehighlight();
 }
 
-void PVInspector::PVTimeValidatorHighLight::set_time_format(QStringList const& tf)
+void PVWidgets::PVTimeValidatorHighLight::set_time_format(QStringList const& tf)
 {
 	if (_cur_parser != NULL) {
 		if (_cur_parser->original_time_formats() == tf) {
@@ -303,7 +303,7 @@ void PVInspector::PVTimeValidatorHighLight::set_time_format(QStringList const& t
 	_format_has_changed = false;
 }
 
-void PVInspector::PVTimeValidatorHighLight::highlightBlock(QString const& text)
+void PVWidgets::PVTimeValidatorHighLight::highlightBlock(QString const& text)
 {
 	if (_format_has_changed) {
 		setFormat(0, text.count(), _format_changed);

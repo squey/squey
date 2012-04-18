@@ -104,7 +104,7 @@ void PVWidgets::PVPresetsWidget::remove_Slot()
 	_combo->removeItem(_combo->currentIndex());
 }
 
-void PVWidgets::PVPresetsWidget::text_changed_Slot(const QString& text)
+void PVWidgets::PVPresetsWidget::text_changed_Slot(const QString& /*text*/)
 {
 	if (_combo->currentText().isEmpty()) {
 		_btn_new->setEnabled(false);

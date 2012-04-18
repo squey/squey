@@ -2,7 +2,8 @@
 #include <picviz/PVView.h>
 
 #include <PVMappingModeWidget.h>
-#include <PVArgumentListWidget.h>
+#include <pvkernel/widgets/PVArgumentListWidget.h>
+#include <picviz/widgets/PVArgumentListWidgetFactory.h>
 
 #include <QHBoxLayout>
 
@@ -117,7 +118,7 @@ void PVInspector::PVWidgetsHelpers::PVMappingModeWidget::change_params()
 	if (args.size() == 0) {
 		return;
 	}
-	bool ret = PVArgumentListWidget::modify_arguments_dlg(PVArgumentListWidget::create_mapping_plotting_widget_factory(), args, this);
+	bool ret = PVWidgets::PVArgumentListWidget::modify_arguments_dlg(PVWidgets::PVArgumentListWidgetFactory::create_mapping_plotting_widget_factory(), args, this);
 	if (!ret) {
 		return;
 	}

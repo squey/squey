@@ -314,6 +314,15 @@ set(WIDGETS_MOC_HEADERS
 include/pvkernel/widgets/qkeysequencewidget.h
 include/pvkernel/widgets/qkeysequencewidget_p.h
 include/pvkernel/widgets/PVPresetsWidget.h
+include/pvkernel/widgets/PVArgumentListModel.h
+include/pvkernel/widgets/PVArgumentListWidget.h
+include/pvkernel/widgets/PVArgumentListWidgetFactory.h
+
+include/pvkernel/widgets/editors/PVColorGradientDualSliderEditor.h
+include/pvkernel/widgets/editors/PVEnumEditor.h
+include/pvkernel/widgets/editors/PVPlainTextEditor.h
+include/pvkernel/widgets/editors/PVRegexpEditor.h
+include/pvkernel/widgets/editors/PVTimeFormatEditor.h
 )
 
 set(WIDGETS_HEADER_FILES
@@ -322,6 +331,15 @@ set(WIDGETS_HEADER_FILES
 set(WIDGETS_SRC_FILES
 widgets/qkeysequencewidget/qkeysequencewidget.cpp
 widgets/presetswidget/PVPresetsWidget.cpp
+widgets/PVArgumentListModel.cpp
+widgets/PVArgumentListWidget.cpp
+widgets/PVArgumentListWidgetFactory.cpp
+
+widgets/editors/PVColorGradientDualSliderEditor.cpp
+widgets/editors/PVEnumEditor.cpp
+widgets/editors/PVPlainTextEditor.cpp
+widgets/editors/PVRegexpEditor.cpp
+widgets/editors/PVTimeFormatEditor.cpp
 )
 
 if(PYTHONLIBS_FOUND)

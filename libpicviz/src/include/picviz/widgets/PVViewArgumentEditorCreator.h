@@ -14,15 +14,15 @@
 #include <pvkernel/core/general.h>
 #include <picviz/PVView.h>
 
-namespace PVInspector {
+namespace PVWidgets {
 
 // Inspired by QStandardItemEditorCreator
 // Reuse the Q_PROPERTY macros
 template <class T>
-class PVArgumentEditorCreator: public QItemEditorCreatorBase
+class PVViewArgumentEditorCreator: public QItemEditorCreatorBase
 {
 public:
-    inline PVArgumentEditorCreator(Picviz::PVView& view)
+    inline PVViewArgumentEditorCreator(Picviz::PVView& view)
         : propertyName(T::staticMetaObject.userProperty().name()), _view(view)
     {}
     inline QWidget *createWidget(QWidget *parent) const { return new T(_view, parent); }

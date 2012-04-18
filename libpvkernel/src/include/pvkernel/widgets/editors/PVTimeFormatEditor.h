@@ -14,7 +14,7 @@ namespace PVCore {
 class PVDateTimeParser;
 }
 
-namespace PVInspector {
+namespace PVWidgets {
 
 class PVTimeFormatHelpDlg;
 class PVTimeValidatorHighLight;
