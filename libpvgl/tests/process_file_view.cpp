@@ -67,7 +67,7 @@ void thread_main(QList<Picviz::PVView_p> views)
 				case PVSDK_MESSENGER_FUNCTION_SELECTION_CHANGED:
 					{
 						PVLOG_INFO("Selection changed %p. Launch graph..\n", view.get());
-						g_ad2gv->pre_process(view.get());
+						g_ad2gv->pre_process();
 						g_ad2gv->run(view.get());
 						PVLOG_INFO("Graph done !\n");
 						foreach (Picviz::PVView_p update_view, views) {
