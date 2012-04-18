@@ -23,6 +23,10 @@ public:
 	void pre_process(PVView const& view_org, PVView const& view_dst);
 	void operator()(PVRow row_org, PVView const& view_org, PVView const& view_dst, PVSelection& sel_dst) const;
 
+protected:
+	PVCore::PVArgumentKeyList get_arg_keys_for_org_view() const { return PVCore::PVArgumentKeyList() << "axis_org"; }
+	PVCore::PVArgumentKeyList get_arg_keys_for_dst_view() const { return PVCore::PVArgumentKeyList() << "axis_dst"; }
+
 private:
 	PVCol _axis_org;
 	PVCol _axis_dst;
