@@ -72,12 +72,12 @@ public:
 	Picviz::PVCombiningFunctionView_p get_edge_f(const tlp::edge edge) const;
 
 public:
-	void pre_process(Picviz::PVView *view) const {
-		visit(view, __impl::f_pre_process());
+	void pre_process() const {
+		visit_edges(__impl::f_pre_process());
 	}
 
 	void run(Picviz::PVView *view) const {
-		visit(view, __impl::f_update_sel());
+		visit_from_view(view, __impl::f_update_sel());
 	}
 
 	bool check_properties();
@@ -86,12 +86,20 @@ private:
 	tlp::node get_graph_node(const Picviz::PVView *view) const;
 
 	template <class F>
-	inline void visit(Picviz::PVView *view, F const& f) const
+	inline void visit_edges(F const& f) const
 	{
-		visit_f(view, boost::bind<void>(f, _1, _2, _3));
+		visit_edges_f(boost::bind<void>(f, _1, _2, _3));
 	}
 
-	void visit_f(Picviz::PVView *view, graph_func_t const& f) const;
+	template <class F>
+	inline void visit_from_view(Picviz::PVView *view, F const& f) const
+	{
+		visit_from_view_f(view, boost::bind<void>(f, _1, _2, _3));
+	}
+
+	void visit_edges_f(graph_func_t const& f) const;
+
+	void visit_from_view_f(Picviz::PVView *view, graph_func_t const& f) const;
 
 	int count_path_number(const tlp::node& a, const tlp::node& b) const;
 	void count_path_number_rec(const tlp::node& a, const tlp::node& b, int& count, graph_path_t& path, graph_visited_t& visited)const;

@@ -67,7 +67,6 @@ void thread_main(QList<Picviz::PVView_p> views)
 				case PVSDK_MESSENGER_FUNCTION_SELECTION_CHANGED:
 					{
 						PVLOG_INFO("Selection changed %p. Launch graph..\n", view.get());
-						g_ad2gv->pre_process(view.get());
 						g_ad2gv->run(view.get());
 						PVLOG_INFO("Graph done !\n");
 						foreach (Picviz::PVView_p update_view, views) {
@@ -154,6 +153,8 @@ int main(int argc, char** argv)
 	g_ad2gv->set_edge_f(views[2].get(), views[0].get(), get_cf());
 	g_ad2gv->set_edge_f(views[1].get(), views[2].get(), get_cf());
 	g_ad2gv->set_edge_f(views[2].get(), views[1].get(), get_cf());
+
+	g_ad2gv->pre_process();
 
 	PVGL::PVGLThread* th_pvgl = new PVGL::PVGLThread();
 	g_msg = th_pvgl->get_messenger();

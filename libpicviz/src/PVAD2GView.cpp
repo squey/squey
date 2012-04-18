@@ -203,10 +203,29 @@ Picviz::PVCombiningFunctionView_p Picviz::PVAD2GView::get_edge_f(const tlp::edge
 
 /******************************************************************************
  *
- * Picviz::PVAD2GView::visit
+ * Picviz::PVAD2GView::visit_from_view_f
  *
  *****************************************************************************/
-void Picviz::PVAD2GView::visit_f(Picviz::PVView *view, graph_func_t const& f) const
+void Picviz::PVAD2GView::visit_edges_f(graph_func_t const& f) const
+{
+	tlp::edge edge;
+	tlp::node a, b;
+
+	forEach(edge, _graph->getEdges()) {
+		a = _graph->source(edge);
+		b = _graph->target(edge);
+		f(*_corr_info->getEdgeValue(edge).get_data(),
+		  *_corr_info->getNodeValue(a).get_data(),
+		  *_corr_info->getNodeValue(b).get_data());
+	}
+}
+
+/******************************************************************************
+ *
+ * Picviz::PVAD2GView::visit_from_view_f
+ *
+ *****************************************************************************/
+void Picviz::PVAD2GView::visit_from_view_f(Picviz::PVView *view, graph_func_t const& f) const
 {
 	/**
 	 * This method uses an iterative breadth-first graph traversal to
