@@ -20,7 +20,7 @@
 #include <tulip/MouseEdgeBendEditor.h>
 #include <tulip/MouseSelectionEditor.h>
 
-namespace Picviz {
+namespace PVWidgets {
 
 class PVAD2GWidget;
 

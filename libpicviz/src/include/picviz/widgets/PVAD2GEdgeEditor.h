@@ -1,20 +1,39 @@
 #ifndef __PVAD2GEDGEEDITOR_H__
 #define __PVAD2GEDGEEDITOR_H__
 
-#include <QtGui>
+#include <pvkernel/core/general.h>
+#include <picviz/PVSelRowFilteringFunction_types.h>
+#include <QDialog>
 
 namespace Picviz {
+class PVView;
+class PVCombiningFunctionView;
+class PVTFViewRowFiltering;
+}
 
-class PVAD2GEdgeEditor : public QDialog
+namespace PVWidgets {
+
+class LibPicvizDecl PVAD2GEdgeEditor : public QDialog
 {
 	Q_OBJECT
 public:
-	PVAD2GEdgeEditor(QWidget* parent = 0);
+	PVAD2GEdgeEditor(Picviz::PVView const& view_org, Picviz::PVView const& view_dst, Picviz::PVCombiningFunctionView& cf, QWidget* parent = 0);
 
 public slots:
 	void add_function_Slot();
 	void edit_function_Slot();
 	void remove_function_Slot();
+
+private:
+	bool edit_rff(Picviz::PVSelRowFilteringFunction_p& rff);
+
+private:
+	static Picviz::PVSelRowFilteringFunction_p get_default_rff();
+
+private:
+	Picviz::PVTFViewRowFiltering& _tf;
+	Picviz::PVView const& _view_org;
+	Picviz::PVView const& _view_dst;
 };
 
 }

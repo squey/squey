@@ -12,11 +12,11 @@
 
 #include <picviz/widgets/PVAD2GEdgeEditor.h>
 
-namespace Picviz {
-
-namespace __impl {
+namespace PVWidgets {
 
 class PVAD2GWidget;
+
+namespace __impl {
 
 class PVTableWidget : public QTableWidget
 {
@@ -39,23 +39,23 @@ public:
 	virtual void computeContextMenuAction(QAction*){};
 };
 
-class /*LibPicvizExport*/ PVAD2GWidget : public QWidget, public tlp::Observable
+class /*LibPVWidgetsExport*/ PVAD2GWidget : public QWidget, public tlp::Observable
 {
 	Q_OBJECT;
 
 	typedef std::set<tlp::Observable*>::iterator ObserverIterator;
 
 public:
-	PVAD2GWidget(PVAD2GView& ad2g, QMainWindow* mw = NULL);
+	PVAD2GWidget(Picviz::PVAD2GView& ad2g, QMainWindow* mw = NULL);
 	~PVAD2GWidget();
 
 public:
-	void add_view(QPoint pos, PVView* view);
+	void add_view(QPoint pos, Picviz::PVView* view);
 	tlp::edge add_combining_function(const tlp::node source, const tlp::node target);
 	void edit_combining_function(int edge);
 
 	__impl::PVTableWidget* get_table() { return _table; }
-	PVAD2GView& get_ad2g() { return _ad2g; }
+	Picviz::PVAD2GView& get_ad2g() { return _ad2g; }
 
 public slots:
 	void change_interactor_slot();
@@ -73,7 +73,7 @@ private:
 	void clearObservers();
 
 private:
-	PVAD2GView& _ad2g;
+	Picviz::PVAD2GView& _ad2g;
 	AD2GNodeLinkDiagramComponent* _nodeLinkView;
 	QWidget* _widget;
 	QMainWindow* _mw;
@@ -87,10 +87,10 @@ namespace __impl {
 class FilterDropEvent : public QObject
 {
 public:
-	FilterDropEvent(Picviz::PVAD2GWidget* widget) : QObject(widget), _widget(widget) {}
+	FilterDropEvent(PVWidgets::PVAD2GWidget* widget) : QObject(widget), _widget(widget) {}
 	bool eventFilter(QObject *object, QEvent *event);
 private:
-	Picviz::PVAD2GWidget* _widget;
+	PVWidgets::PVAD2GWidget* _widget;
 };
 
 }

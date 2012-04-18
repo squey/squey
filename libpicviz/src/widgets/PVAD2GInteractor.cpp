@@ -6,7 +6,7 @@
 
 #include <picviz/widgets/PVAD2GWidget.h>
 
-Picviz::AD2GInteractorComponent::AD2GInteractorComponent(PVAD2GWidget* widget, tlp::GlMainWidget* glMainWidget, Qt::MouseButton /*button*/ /*= Qt::LeftButton*/, Qt::KeyboardModifier /*modifier*/ /*= Qt::NoModifier*/) :
+PVWidgets::AD2GInteractorComponent::AD2GInteractorComponent(PVAD2GWidget* widget, tlp::GlMainWidget* glMainWidget, Qt::MouseButton /*button*/ /*= Qt::LeftButton*/, Qt::KeyboardModifier /*modifier*/ /*= Qt::NoModifier*/) :
 	_widget(widget),
 	_glMainWidget(glMainWidget)
 {
@@ -20,7 +20,7 @@ Picviz::AD2GInteractorComponent::AD2GInteractorComponent(PVAD2GWidget* widget, t
 	connect(_deleteEdgeSignalMapper, SIGNAL(mapped(int)), _widget, SLOT(remove_combining_function_Slot(int)));
 }
 
-bool Picviz::AD2GInteractorComponent::eventFilter(QObject* widget, QEvent* e)
+bool PVWidgets::AD2GInteractorComponent::eventFilter(QObject* widget, QEvent* e)
 {
 	if (!(e->type() == QEvent::MouseButtonPress || e->type() == QEvent::MouseMove || e->type() == QEvent::KeyPress || e->type() == QEvent::MouseButtonDblClick)) {
 		return false;
@@ -182,7 +182,7 @@ bool Picviz::AD2GInteractorComponent::eventFilter(QObject* widget, QEvent* e)
 	return false;
 }
 
-void Picviz::AD2GInteractorComponent::addLink(QObject* /*widget*/, const tlp::node source, const tlp::node target)
+void PVWidgets::AD2GInteractorComponent::addLink(QObject* /*widget*/, const tlp::node source, const tlp::node target)
 {
 	tlp::edge newEdge = _widget->add_combining_function(_source, _tmpNode);
 
@@ -192,7 +192,7 @@ void Picviz::AD2GInteractorComponent::addLink(QObject* /*widget*/, const tlp::no
 	_bends.clear();
 }
 
-bool Picviz::AD2GInteractorComponent::draw(tlp::GlMainWidget* glMainWidget)
+bool PVWidgets::AD2GInteractorComponent::draw(tlp::GlMainWidget* glMainWidget)
 {
   if (!_edge_started) return false;
 
@@ -209,7 +209,7 @@ bool Picviz::AD2GInteractorComponent::draw(tlp::GlMainWidget* glMainWidget)
   return true;
 }
 
-void Picviz::AD2GInteractorComponent::initObserver(tlp::Graph *newGraph)
+void PVWidgets::AD2GInteractorComponent::initObserver(tlp::Graph *newGraph)
 {
 	newGraph->addGraphObserver(this);
 	//graph = newGraph;
@@ -217,7 +217,7 @@ void Picviz::AD2GInteractorComponent::initObserver(tlp::Graph *newGraph)
 	_layoutProperty->addPropertyObserver(this);
 }
 
-void Picviz::AD2GInteractorComponent::clearObserver() {
+void PVWidgets::AD2GInteractorComponent::clearObserver() {
 	tlp::Graph* graph = _glMainWidget->getScene()->getGlGraphComposite()->getInputData()->getGraph();
 	if(graph) {
 		graph->removeGraphObserver(this);

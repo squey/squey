@@ -7,35 +7,35 @@
 
 #include <QWidget>
 
-namespace PVWidgets {
-class PVArgumentListWidget;
+namespace Picviz {
+class PVView;
 }
 
-namespace Picviz {
+namespace PVWidgets {
 
-class PVView;
+class PVArgumentListWidget;
 
 class LibPicvizDecl PVAD2GFunctionPropertiesWidget: public QWidget
 {
 	Q_OBJECT
 	
-	typedef std::map<PVSelRowFilteringFunction, PVCore::PVArgumentList> map_rff_args_t;
+	typedef std::map<Picviz::PVSelRowFilteringFunction::base_registrable, PVCore::PVArgumentList> map_rff_args_t;
 public:
-	PVAD2GFunctionPropertiesWidget(PVView const& view_org, PVView const& view_dst, PVSelRowFilteringFunction_p rff_p, QWidget* parent = NULL);
+	PVAD2GFunctionPropertiesWidget(Picviz::PVView const& view_org, Picviz::PVView const& view_dst, Picviz::PVSelRowFilteringFunction const& rff, QWidget* parent = NULL);
 
 public:
-	PVSelRowFilteringFunction_p get_rff() const;
+	Picviz::PVSelRowFilteringFunction_p get_rff() const { return _cur_rff; };
 
 protected:
-	void set_current_rff(PVSelRowFilteringFunction_p const& rff);
+	void set_current_rff(Picviz::PVSelRowFilteringFunction const* rff);
 
 protected:
 	// Constant properties (views)
-	PVView const& _view_org;
-	PVView const& _view_dst;
+	Picviz::PVView const& _view_org;
+	Picviz::PVView const& _view_dst;
 
 	// RFFs objects
-	PVSelRowFilteringFunction_p _cur_rff;
+	Picviz::PVSelRowFilteringFunction_p _cur_rff;
 	map_rff_args_t _rffs_args;
 
 	// Arguments for different views

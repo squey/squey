@@ -21,7 +21,7 @@
 #include <picviz/widgets/PVAD2GInteractor.h>
 
 
-void Picviz::__impl::PVTableWidget::mousePressEvent(QMouseEvent* event)
+void PVWidgets::__impl::PVTableWidget::mousePressEvent(QMouseEvent* event)
 {
 	if (event->button() == Qt::LeftButton) {
 		_dragStartPosition = event->pos();
@@ -31,14 +31,14 @@ void Picviz::__impl::PVTableWidget::mousePressEvent(QMouseEvent* event)
 }
 
 
-void Picviz::__impl::PVTableWidget::mouseMoveEvent(QMouseEvent* event)
+void PVWidgets::__impl::PVTableWidget::mouseMoveEvent(QMouseEvent* event)
 {
 	if (!(event->buttons() & Qt::LeftButton))
 		return;
 	if ((event->pos() - _dragStartPosition).manhattanLength() < QApplication::startDragDistance())
 		return;
 
-	QTableWidgetItem* item = ((Picviz::PVAD2GWidget*) parent())->get_table()->currentItem();
+	QTableWidgetItem* item = ((PVWidgets::PVAD2GWidget*) parent())->get_table()->currentItem();
 
 	if (item->flags() & Qt::ItemIsEnabled) {
 		QDrag* drag = new QDrag(this);
@@ -58,7 +58,7 @@ void Picviz::__impl::PVTableWidget::mouseMoveEvent(QMouseEvent* event)
 
 }
 
-bool Picviz::__impl::FilterDropEvent::eventFilter(QObject* /*object*/, QEvent *event)
+bool PVWidgets::__impl::FilterDropEvent::eventFilter(QObject* /*object*/, QEvent *event)
 {
 	if(event->type() == QEvent::DragEnter)
 	{
@@ -76,16 +76,16 @@ bool Picviz::__impl::FilterDropEvent::eventFilter(QObject* /*object*/, QEvent *e
 			const QMimeData* mimeData = dropEvent->mimeData();
 			QByteArray itemData = mimeData->data("application/x-qabstractitemmodeldatalist");
 
-			if (itemData.size() < sizeof(PVView**)) {
+			if (itemData.size() < sizeof(Picviz::PVView**)) {
 				return false;
 			}
-			PVView* view = *(reinterpret_cast<PVView* const*>(itemData.constData()));
+			Picviz::PVView* view = *(reinterpret_cast<Picviz::PVView* const*>(itemData.constData()));
 
 			_widget->add_view(dropEvent->pos(), view);
 			QString wn = view->get_window_name();
 
 			// Disable QTableWidgetItem
-			__impl::PVTableWidget* table = ((Picviz::PVAD2GWidget*) parent())->get_table();
+			__impl::PVTableWidget* table = ((PVWidgets::PVAD2GWidget*) parent())->get_table();
 			table->setCurrentCell(-1, -1);
 			for (int i = 0; i < table->rowCount(); i++) {
 				QTableWidgetItem* item = table->item(i, 0);
@@ -101,7 +101,7 @@ bool Picviz::__impl::FilterDropEvent::eventFilter(QObject* /*object*/, QEvent *e
 	return false;
 }
 
-Picviz::PVAD2GWidget::PVAD2GWidget(PVAD2GView& ad2g, QMainWindow* mw /*= NULL*/) :
+PVWidgets::PVAD2GWidget::PVAD2GWidget(Picviz::PVAD2GView& ad2g, QMainWindow* mw /*= NULL*/) :
 	QWidget(mw),
 	_ad2g(ad2g),
 	_mw(mw),
@@ -178,13 +178,13 @@ Picviz::PVAD2GWidget::PVAD2GWidget(PVAD2GView& ad2g, QMainWindow* mw /*= NULL*/)
 }
 
 
-Picviz::PVAD2GWidget::~PVAD2GWidget()
+PVWidgets::PVAD2GWidget::~PVAD2GWidget()
 {
 	clearObservers();
 	delete _nodeLinkView;
 }
 
-void Picviz::PVAD2GWidget::init_toolbar()
+void PVWidgets::PVAD2GWidget::init_toolbar()
 {
 	std::list<std::string> interactorsNamesAndPriorityMap(tlp::InteractorManager::getInst().getSortedCompatibleInteractors("Node Link Diagram view"));
 
@@ -213,7 +213,7 @@ void Picviz::PVAD2GWidget::init_toolbar()
 	}
 }
 
-void Picviz::PVAD2GWidget::change_interactor_slot()
+void PVWidgets::PVAD2GWidget::change_interactor_slot()
 {
 	QAction *action = (QAction*) sender();
 	QList<QAction*> actions = _toolBar->actions();
@@ -229,15 +229,15 @@ void Picviz::PVAD2GWidget::change_interactor_slot()
 	_nodeLinkView->setActiveInteractor(interactorAction->getInteractor());
 }
 
-void Picviz::PVAD2GWidget::add_view_Slot(QObject* mouse_event)
+void PVWidgets::PVAD2GWidget::add_view_Slot(QObject* mouse_event)
 {
 	QMouseEvent* event = (QMouseEvent*) mouse_event;
-	PVView* view = _ad2g.get_scene()->get_all_views()[_table->currentRow()].get();
+	Picviz::PVView* view = _ad2g.get_scene()->get_all_views()[_table->currentRow()].get();
 	add_view(event->pos(), view);
 }
 
 
-void Picviz::PVAD2GWidget::add_view(QPoint pos, PVView* view)
+void PVWidgets::PVAD2GWidget::add_view(QPoint pos, Picviz::PVView* view)
 {
 	tlp::Observable::holdObservers();
 
@@ -257,7 +257,7 @@ void Picviz::PVAD2GWidget::add_view(QPoint pos, PVView* view)
 	tlp::Observable::unholdObservers();
 }
 
-void Picviz::PVAD2GWidget::remove_view_Slot(int node)
+void PVWidgets::PVAD2GWidget::remove_view_Slot(int node)
 {
 	QMessageBox* box = new QMessageBox(QMessageBox::Question, tr("Confirm remove."), tr("Do you really want to remove this view?"), QMessageBox::Yes | QMessageBox::No, this);
 	if (box->exec() == QMessageBox::Yes) {
@@ -267,7 +267,7 @@ void Picviz::PVAD2GWidget::remove_view_Slot(int node)
 		tlp::Observable::holdObservers();
 
 		// Enable item in table
-		PVView* view = _ad2g.get_view(n);
+		Picviz::PVView* view = _ad2g.get_view(n);
 		for (int i = 0; i < _table->rowCount(); i++) {
 			QTableWidgetItem* item = _table->item(i, 0);
 			if (item->data(Qt::UserRole).value<void*>() == (void*) view) {
@@ -281,7 +281,7 @@ void Picviz::PVAD2GWidget::remove_view_Slot(int node)
 	}
 }
 
-tlp::edge Picviz::PVAD2GWidget::add_combining_function(const tlp::node source, const tlp::node target)
+tlp::edge PVWidgets::PVAD2GWidget::add_combining_function(const tlp::node source, const tlp::node target)
 {
 	tlp::Graph* graph = _nodeLinkView->getGlMainWidget()->getScene()->getGlGraphComposite()->getInputData()->getGraph();
 
@@ -297,8 +297,8 @@ tlp::edge Picviz::PVAD2GWidget::add_combining_function(const tlp::node source, c
 	args["axis_dst"].setValue(PVCore::PVAxisIndexType(1));
 	rff_bind->set_args(args);
 	tf->push_rff(rff_bind);
-	PVView* view_src = _ad2g.get_view(source);
-	PVView* view_dst = _ad2g.get_view(target);
+	Picviz::PVView* view_src = _ad2g.get_view(source);
+	Picviz::PVView* view_dst = _ad2g.get_view(target);
 	tlp::edge newEdge = _ad2g.set_edge_f(view_src, view_dst, cf_sp);
 
 	_nodeLinkView->elementSelectedSlot(newEdge.id, false);
@@ -306,7 +306,7 @@ tlp::edge Picviz::PVAD2GWidget::add_combining_function(const tlp::node source, c
 	return newEdge;
 }
 
-void Picviz::PVAD2GWidget::remove_combining_function_Slot(int edge)
+void PVWidgets::PVAD2GWidget::remove_combining_function_Slot(int edge)
 {
 	QMessageBox* box = new QMessageBox(QMessageBox::Question, tr("Confirm remove."), tr("Do you really want to remove this combining function?"), QMessageBox::Yes | QMessageBox::No, this);
 	if (box->exec() == QMessageBox::Yes) {
@@ -320,13 +320,13 @@ void Picviz::PVAD2GWidget::remove_combining_function_Slot(int edge)
 	}
 }
 
-void Picviz::PVAD2GWidget::edit_combining_function(int edge)
+void PVWidgets::PVAD2GWidget::edit_combining_function(int edge)
 {
-	Picviz::PVAD2GEdgeEditor* edge_editor = new Picviz::PVAD2GEdgeEditor();
-	edge_editor->exec();
+	//PVWidgets::PVAD2GEdgeEditor* edge_editor = new PVWidgets::PVAD2GEdgeEditor();
+	//edge_editor->exec();
 }
 
-void Picviz::PVAD2GWidget::initObservers()
+void PVWidgets::PVAD2GWidget::initObservers()
 {
 	if (_graph) {
 		_graph->addObserver(this);
@@ -341,7 +341,7 @@ void Picviz::PVAD2GWidget::initObservers()
 	}
 }
 
-void Picviz::PVAD2GWidget::fill_table()
+void PVWidgets::PVAD2GWidget::fill_table()
 {
 	_table->setColumnCount(1);
 
@@ -361,7 +361,7 @@ void Picviz::PVAD2GWidget::fill_table()
 	_table->setDragDropMode(QAbstractItemView::DragOnly);
 }
 
-void Picviz::PVAD2GWidget::clearObservers()
+void PVWidgets::PVAD2GWidget::clearObservers()
 {
 	if (_graph) {
 		_graph->removeObserver(this);
@@ -375,7 +375,7 @@ void Picviz::PVAD2GWidget::clearObservers()
 	}
 }
 
-void Picviz::PVAD2GWidget::update(ObserverIterator /*begin*/, ObserverIterator /*end*/)
+void PVWidgets::PVAD2GWidget::update(ObserverIterator /*begin*/, ObserverIterator /*end*/)
 {
 	_nodeLinkView->draw();
 }
