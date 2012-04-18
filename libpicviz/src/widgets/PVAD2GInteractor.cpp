@@ -80,8 +80,10 @@ bool PVWidgets::AD2GInteractorComponent::eventFilter(QObject* widget, QEvent* e)
 					clearObserver();
 
 					if (_source == _tmpNode) {
-						QMessageBox* box = new QMessageBox(QMessageBox::Critical, tr("Invalid edge."), tr("Invalid edge"), QMessageBox::Ok, _widget);
-						box->exec();
+						if(! _bends.empty()) {
+							QMessageBox* box = new QMessageBox(QMessageBox::Critical, tr("Invalid edge."), tr("Invalid edge."), QMessageBox::Ok, _widget);
+							box->exec();
+						}
 					}
 					else if (_widget->get_ad2g().get_graph()->existEdge(_source, _tmpNode, true) != tlp::edge()) {
 						QMessageBox* box = new QMessageBox(QMessageBox::Critical, tr("Edge already exist."), tr("This edge is already existing."), QMessageBox::Ok, _widget);
@@ -99,7 +101,6 @@ bool PVWidgets::AD2GInteractorComponent::eventFilter(QObject* widget, QEvent* e)
 						addLink(_widget, _source, _tmpNode);
 					}
 					_bends.clear();
-
 
 					tlp::Observable::unholdObservers();
 				}
