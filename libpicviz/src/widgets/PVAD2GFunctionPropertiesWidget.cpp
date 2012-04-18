@@ -1,9 +1,12 @@
-#include <picviz/widgets/PVAD2GFunctionPropertiesWidget.h>
 #include <QLabel>
 #include <QComboBox>
 #include <QGroupBox>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+
+#include <pvkernel/widgets/PVArgumentListWidget.h>
+#include <picviz/widgets/PVAD2GFunctionPropertiesWidget.h>
+#include <picviz/widgets/PVArgumentListWidgetFactory.h>
 
 Picviz::PVAD2GFunctionPropertiesWidget::PVAD2GFunctionPropertiesWidget(Picviz::PVView const& view_org, Picviz::PVView const& view_dst, PVSelRowFilteringFunction_p rff_p, QWidget* parent /*= 0*/) :
 	QWidget(parent),
@@ -15,6 +18,8 @@ Picviz::PVAD2GFunctionPropertiesWidget::PVAD2GFunctionPropertiesWidget(Picviz::P
 	QComboBox* function_combo = new QComboBox();
 	QGroupBox* src_view_box = new QGroupBox(tr("Properties for original view"));
 	QGroupBox* dst_view_box = new QGroupBox(tr("Properties for destination view"));
+	_args_org_widget = new PVWidgets::PVArgumentListWidget(PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_factory(view_org), _args_org);
+	_args_dst_widget = new PVWidgets::PVArgumentListWidget(PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_factory(view_dst), _args_dst);
 
 	// Layout
 	QVBoxLayout* main_layout = new QVBoxLayout();

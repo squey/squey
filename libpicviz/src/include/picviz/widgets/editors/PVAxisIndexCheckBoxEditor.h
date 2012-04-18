@@ -17,15 +17,8 @@
 
 #include <picviz/PVView.h>
 
-/* #include <PVCheckableComboBox.h> */
-
 namespace PVWidgets {
 
-/**
- * \class PVAxisIndexCheckBoxEditor
- */
-/* class PVAxisIndexCheckBoxEditor : public PVCheckableComboBox */
-/* class PVAxisIndexCheckBoxEditor : public QComboBox */
 class PVAxisIndexCheckBoxEditor : public QWidget
 {
 	Q_OBJECT
@@ -38,14 +31,14 @@ private:
 	int _current_index;
 
 public:
-	PVAxisIndexCheckBoxEditor(Picviz::PVView& view, QWidget *parent = 0);
+	PVAxisIndexCheckBoxEditor(Picviz::PVView const& view, QWidget *parent = 0);
 	virtual ~PVAxisIndexCheckBoxEditor();
 
 	PVCore::PVAxisIndexCheckBoxType get_axis_index() const;
 	void set_axis_index(PVCore::PVAxisIndexCheckBoxType axis_index);
 
 protected:
-	Picviz::PVView& _view;
+	Picviz::PVView const& _view;
 };
 
 }

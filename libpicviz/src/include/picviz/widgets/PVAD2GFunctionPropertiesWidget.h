@@ -6,6 +6,11 @@
 #include <picviz/PVSelRowFilteringFunction.h>
 
 #include <QWidget>
+
+namespace PVWidgets {
+class PVArgumentListWidget;
+}
+
 namespace Picviz {
 
 class PVView;
@@ -34,6 +39,10 @@ protected:
 	map_rff_args_t _rffs_args;
 
 	// Arguments for different views
+	PVCore::PVArgumentList _args_org;
+	PVCore::PVArgumentList _args_dst;
+	PVWidgets::PVArgumentListWidget* _args_org_widget;
+	PVWidgets::PVArgumentListWidget* _args_dst_widget;
 };
 
 }

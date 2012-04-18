@@ -27,7 +27,7 @@ class PVAxisIndexEditor : public QComboBox
 	Q_PROPERTY(PVCore::PVAxisIndexType _axis_index READ get_axis_index WRITE set_axis_index USER true)
 
 public:
-	PVAxisIndexEditor(Picviz::PVView& view, QWidget *parent = 0);
+	PVAxisIndexEditor(Picviz::PVView const& view, QWidget *parent = 0);
 	virtual ~PVAxisIndexEditor();
 
 public:
@@ -35,7 +35,7 @@ public:
 	void set_axis_index(PVCore::PVAxisIndexType axis_index);
 
 protected:
-	Picviz::PVView& _view;
+	Picviz::PVView const& _view;
 };
 
 }

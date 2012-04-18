@@ -256,7 +256,7 @@ PVCol Picviz::PVView::get_axes_count()
  * Picviz::PVView::get_axes_names_list
  *
  *****************************************************************************/
-QStringList Picviz::PVView::get_axes_names_list()
+QStringList Picviz::PVView::get_axes_names_list() const
 {
 	return axes_combination.get_axes_names_list();
 }

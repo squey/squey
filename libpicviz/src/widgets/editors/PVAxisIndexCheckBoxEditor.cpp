@@ -20,7 +20,7 @@
  * PVCore::PVAxisIndexCheckBoxEditor::PVAxisIndexCheckBoxEditor
  *
  *****************************************************************************/
-PVWidgets::PVAxisIndexCheckBoxEditor::PVAxisIndexCheckBoxEditor(Picviz::PVView& view, QWidget *parent):
+PVWidgets::PVAxisIndexCheckBoxEditor::PVAxisIndexCheckBoxEditor(Picviz::PVView const& view, QWidget *parent):
 	QWidget(parent),
 	_view(view)
 {

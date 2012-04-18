@@ -43,7 +43,7 @@ public:
 	/**
 	 * Constructor
 	 */
-	PVCheckBoxAxisIndexEditor(Picviz::PVView& view, QWidget *parent = 0);
+	PVCheckBoxAxisIndexEditor(Picviz::PVView const& view, QWidget *parent = 0);
 
 	/**
 	 * Gets the index of the closest sliders from position x
@@ -81,7 +81,7 @@ protected:
 	void paintEvent(QPaintEvent *event);
 
 protected:
-	Picviz::PVView& _view;
+	Picviz::PVView const& _view;
 };
 
 }

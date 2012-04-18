@@ -314,7 +314,7 @@ void Picviz::PVLayerStack::compute_min_maxs(PVPlotted const& plotted)
 	}
 }
 
-bool Picviz::PVLayerStack::contains_layer(PVLayer* layer)
+bool Picviz::PVLayerStack::contains_layer(PVLayer* layer) const
 {
 	foreach(PVLayer const& l, table) {
 		if (&l == layer) {

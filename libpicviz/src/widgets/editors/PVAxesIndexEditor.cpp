@@ -20,7 +20,7 @@
  * PVCore::PVAxesIndexEditor::PVAxesIndexEditor
  *
  *****************************************************************************/
-PVWidgets::PVAxesIndexEditor::PVAxesIndexEditor(Picviz::PVView& view, QWidget *parent):
+PVWidgets::PVAxesIndexEditor::PVAxesIndexEditor(Picviz::PVView const& view, QWidget *parent):
 	QListWidget(parent),
 	_view(view)
 {

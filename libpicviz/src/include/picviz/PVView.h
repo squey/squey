@@ -113,7 +113,7 @@ public:
 	 * @return The list of all names of all current axes
 	 *
 	 */
-	QStringList get_axes_names_list();
+	QStringList get_axes_names_list() const;
 	
 	/**
 	 * Gets the name of the chosen axis according to the actual PVAxesCombination
@@ -134,6 +134,7 @@ public:
 	int get_layer_index(int index);
 	float get_layer_index_as_float(int index);
 	PVLayerStack &get_layer_stack();
+	inline PVLayerStack const& get_layer_stack() const { return layer_stack; };
 	int get_layer_stack_layer_n_locked_state(int n);
 	QString get_layer_stack_layer_n_name(int n);
 	int get_layer_stack_layer_n_visible_state(int n);

@@ -22,7 +22,7 @@ template <class T>
 class PVViewArgumentEditorCreator: public QItemEditorCreatorBase
 {
 public:
-    inline PVViewArgumentEditorCreator(Picviz::PVView& view)
+    inline PVViewArgumentEditorCreator(Picviz::PVView const& view)
         : propertyName(T::staticMetaObject.userProperty().name()), _view(view)
     {}
     inline QWidget *createWidget(QWidget *parent) const { return new T(_view, parent); }
@@ -30,7 +30,7 @@ public:
 
 private:
     QByteArray propertyName;
-	Picviz::PVView& _view;
+	Picviz::PVView const& _view;
 };
 
 }

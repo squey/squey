@@ -89,7 +89,7 @@ public:
 	 * @return The list of all names of all current axes
 	 *
 	 */
-	QStringList get_axes_names_list();
+	QStringList get_axes_names_list() const;
 	
 	/**
 	* Get an axis, from its index in the list of the currently used axes.

@@ -18,7 +18,7 @@
  * PVInspector::PVViewArgumentListWidget::create_layer_widget_factory
  *
  *****************************************************************************/
-QItemEditorFactory* PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_factory(Picviz::PVView& view)
+QItemEditorFactory* PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_factory(Picviz::PVView const& view)
 {
 	/* AG: try this later...
 	static QItemEditorFactory* args_widget_factory = NULL;

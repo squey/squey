@@ -14,7 +14,7 @@ class PVLayerEnumEditor : public QComboBox
 	Q_PROPERTY(Picviz::PVLayer* _layer READ get_layer WRITE set_layer USER true)
 
 public:
-	PVLayerEnumEditor(Picviz::PVView& view, QWidget *parent = 0);
+	PVLayerEnumEditor(Picviz::PVView const& view, QWidget *parent = 0);
 	virtual ~PVLayerEnumEditor();
 
 public:
@@ -22,7 +22,7 @@ public:
 	void set_layer(Picviz::PVLayer* l);
 
 protected:
-	Picviz::PVView& _view;
+	Picviz::PVView const& _view;
 };
 
 }

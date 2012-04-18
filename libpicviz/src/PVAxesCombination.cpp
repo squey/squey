@@ -81,7 +81,7 @@ PVCol Picviz::PVAxesCombination::get_axes_count() const
  * Picviz::PVAxesCombination::get_axes_names_list
  *
  *****************************************************************************/
-QStringList Picviz::PVAxesCombination::get_axes_names_list()
+QStringList Picviz::PVAxesCombination::get_axes_names_list() const
 {
 	int         i;
 	QStringList output_list;

@@ -25,7 +25,7 @@ class PVAxesIndexEditor : public QListWidget
 	Q_PROPERTY(PVCore::PVAxesIndexType _axes_index READ get_axes_index WRITE set_axes_index USER true)
 
 public:
-	PVAxesIndexEditor(Picviz::PVView& view, QWidget *parent = 0);
+	PVAxesIndexEditor(Picviz::PVView const& view, QWidget *parent = 0);
 	virtual ~PVAxesIndexEditor();
 
 public:
@@ -33,7 +33,7 @@ public:
 	void set_axes_index(PVCore::PVAxesIndexType axes_index);
 
 protected:
-	Picviz::PVView& _view;
+	Picviz::PVView const& _view;
 };
 
 }

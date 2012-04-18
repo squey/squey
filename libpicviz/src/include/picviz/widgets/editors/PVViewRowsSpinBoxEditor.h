@@ -20,7 +20,7 @@ class PVViewRowsSpinBoxEditor : public QSpinBox
 	Q_PROPERTY(PVCore::PVSpinBoxType _s READ get_spin WRITE set_spin USER true)
 
 public:
-	PVViewRowsSpinBoxEditor(Picviz::PVView& view, QWidget *parent = 0);
+	PVViewRowsSpinBoxEditor(Picviz::PVView const& view, QWidget *parent = 0);
 	virtual ~PVViewRowsSpinBoxEditor();
 
 public:
@@ -29,7 +29,7 @@ public:
 
 protected:
 	PVCore::PVSpinBoxType _s;
-	Picviz::PVView& _view;
+	Picviz::PVView const& _view;
 };
 
 }
