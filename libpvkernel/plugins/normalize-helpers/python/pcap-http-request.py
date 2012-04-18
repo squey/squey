@@ -9,10 +9,12 @@ first = True
 
 def picviz_open_file(path):
 	global pcap
-#	print ("READING FROM: " + path)
+
 	pcap_file = open(path, mode="rb")
-#	print (str(pcap_file))
-	pcap = dpkt.pcap.Reader(pcap_file)
+	try:
+		pcap = dpkt.pcap.Reader(pcap_file)
+	except:
+		pass
 
 def picviz_seek_begin():
 	pass
