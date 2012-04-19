@@ -3,11 +3,13 @@
 #include <picviz/PVTFViewRowFiltering.h>
 #include <picviz/widgets/PVAD2GEdgeEditor.h>
 #include <picviz/widgets/PVAD2GFunctionPropertiesDialog.h>
+#include <picviz/widgets/PVAD2GRFFListModel.h>
 
-#include <QListWidget>
+#include <QListView>
 #include <QPushButton>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
+#include <QMessageBox>
 
 PVWidgets::PVAD2GEdgeEditor::PVAD2GEdgeEditor(Picviz::PVView const& view_org, Picviz::PVView const& view_dst, Picviz::PVCombiningFunctionView& cf, QWidget* parent /*= 0*/) :
 	QDialog(parent),
@@ -18,10 +20,14 @@ PVWidgets::PVAD2GEdgeEditor::PVAD2GEdgeEditor(Picviz::PVView const& view_org, Pi
 	setWindowTitle("Edit combining function");
 
 	// Widgets
-	QListWidget* list = new QListWidget();
+	QListView* list = new QListView();
 	QPushButton* btn_add = new QPushButton(tr("Add"));
 	QPushButton* btn_edit = new QPushButton(tr("Edit"));
 	QPushButton* btn_remove = new QPushButton(tr("Remove"));
+
+	// Model
+	Picviz::PVAD2GRFFListModel* rff_list_model = new Picviz::PVAD2GRFFListModel(view_org, view_dst, _tf.get_rffs());
+	list->setModel(rff_list_model);
 
 	// Connections
 	connect(btn_add, SIGNAL(clicked()), this, SLOT(add_function_Slot()));
@@ -70,6 +76,10 @@ void PVWidgets::PVAD2GEdgeEditor::edit_function_Slot()
 
 void PVWidgets::PVAD2GEdgeEditor::remove_function_Slot()
 {
+	QMessageBox* box = new QMessageBox(QMessageBox::Question, tr("Confirm remove."), tr("Do you really want to remove row filter?"), QMessageBox::Yes | QMessageBox::No, this);
+	if (box->exec() == QMessageBox::Yes) {
+
+	}
 }
 
 bool PVWidgets::PVAD2GEdgeEditor::edit_rff(Picviz::PVSelRowFilteringFunction_p& rff)

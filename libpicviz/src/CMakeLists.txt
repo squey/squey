@@ -166,6 +166,7 @@ include/picviz/widgets/PVAD2GInteractor.h
 include/picviz/widgets/PVAD2GEdgeEditor.h
 include/picviz/widgets/PVArgumentListWidgetFactory.h
 include/picviz/widgets/PVViewArgumentEditorCreator.h
+include/picviz/widgets/PVAD2GRFFListModel.h
 
 include/picviz/widgets/editors/PVAxisIndexEditor.h
 include/picviz/widgets/editors/PVAxisIndexCheckBoxEditor.h
@@ -181,6 +182,7 @@ widgets/PVAD2GEdgeEditor.cpp
 widgets/PVAD2GFunctionPropertiesDialog.cpp
 widgets/PVAD2GFunctionPropertiesWidget.cpp
 widgets/PVArgumentListWidgetFactory.cpp
+widgets/PVAD2GRFFListModel.cpp
 
 widgets/editors/PVAxisIndexEditor.cpp
 widgets/editors/PVAxisIndexCheckBoxEditor.cpp

@@ -21,9 +21,12 @@ public:
 	void pre_process(PVView const& view_src, PVView const& view_dst);
 
 	PVSelection operator()(PVView const& view_src, PVView const& view_dst, PVSelection const& sel_org) const;
+	list_rff_t get_rffs() { return _rffs; }
 
 public:
 	void push_rff(PVSelRowFilteringFunction_p rff) { _rffs << rff; }
+	void remove_rff(int index) { _rffs.removeAt(index); }
+	bool remove_rff(PVSelRowFilteringFunction_p rff) { return _rffs.removeOne(rff); }
 
 protected:
 	list_rff_t _rffs;

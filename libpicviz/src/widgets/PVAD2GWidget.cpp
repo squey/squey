@@ -98,11 +98,11 @@ PVWidgets::PVAD2GWidget::PVAD2GWidget(Picviz::PVAD2GView& ad2g, QMainWindow* mw 
 	_graph(_ad2g.get_graph())
 {
 	tlp::initTulipLib();
-	tlp::PluginLoaderTxt txtPlug;
+	//tlp::PluginLoaderTxt txtPlug;
 	//	tlp::loadPlugin("/usr/local/lib/tulip/libMixedModel-3.7.0.so", &txtPlug);
-	tlp::loadPlugins(&txtPlug);   // library side plugins
-	tlp::InteractorManager::getInst().loadPlugins(&txtPlug);
-	tlp::GlyphManager::getInst().loadPlugins(&txtPlug);   // software side plugins, i.e. glyphs
+	//tlp::loadPlugins(&txtPlug);   // library side plugins
+	//tlp::InteractorManager::getInst().loadPlugins(&txtPlug);
+	//tlp::GlyphManager::getInst().loadPlugins(&txtPlug);   // software side plugins, i.e. glyphs
 
 	_nodeLinkView = new AD2GNodeLinkDiagramComponent();
 
