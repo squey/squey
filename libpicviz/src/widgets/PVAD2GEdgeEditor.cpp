@@ -93,9 +93,14 @@ void PVWidgets::PVAD2GEdgeEditor::add_function_Slot()
 void PVWidgets::PVAD2GEdgeEditor::edit_function_Slot()
 {
 	QModelIndex model_index = _list->selectionModel()->currentIndex();
-	Picviz::PVSelRowFilteringFunction_p rff((Picviz::PVSelRowFilteringFunction*)model_index.data(Qt::UserRole).value<void*>());
+	Picviz::PVSelRowFilteringFunction_p rff = ((Picviz::PVSelRowFilteringFunction*)model_index.data(Qt::UserRole).value<void*>())->shared_from_this();
 
-	edit_rff(rff);
+	if (edit_rff(rff)) {
+		QVariant var;
+		var.setValue<void*>(rff.get());
+		_rff_list_model->setData(model_index, var, Qt::UserRole);
+	}
+
 }
 
 void PVWidgets::PVAD2GEdgeEditor::remove_function_Slot()

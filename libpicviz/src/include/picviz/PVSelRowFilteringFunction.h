@@ -7,13 +7,15 @@
 #include <picviz/PVSelection.h>
 #include <picviz/PVSelRowFilteringFunction_types.h>
 
+#include <boost/enable_shared_from_this.hpp>
+
 namespace Picviz {
 
 class PVView;
 
 /*! \brief Interface from selection row filtering functions
  */
-class PVSelRowFilteringFunction: public PVCore::PVFunctionArgs<boost::function<void(PVRow, PVView const&, PVView const&, PVSelection&)> >, public PVCore::PVRegistrableClass<PVSelRowFilteringFunction>
+class PVSelRowFilteringFunction: public PVCore::PVFunctionArgs<boost::function<void(PVRow, PVView const&, PVView const&, PVSelection&)> >, public PVCore::PVRegistrableClass<PVSelRowFilteringFunction>, public boost::enable_shared_from_this<PVSelRowFilteringFunction>
 {
 public:
 	typedef boost::shared_ptr<PVSelRowFilteringFunction> p_type;

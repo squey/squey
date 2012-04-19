@@ -28,8 +28,11 @@ public:
 public:
 	Picviz::PVSelRowFilteringFunction_p get_rff() const { return _cur_rff; };
 
+public slots:
+	void commit_args();
+
 protected:
-	void init_combo_list_rffs();
+	void init_combo_list_rffs(Picviz::PVSelRowFilteringFunction const* rff);
 	void set_current_rff(Picviz::PVSelRowFilteringFunction const* rff);
 
 protected slots:

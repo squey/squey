@@ -56,7 +56,7 @@ bool PVWidgets::PVAD2GRFFListModel::setData(const QModelIndex &index, const QVar
 	PVLOG_INFO("Picviz::PVAD2GRFFListModel::setData\n");
     if (index.row() >= 0 && index.row() < _rffs.size()
         && (role == Qt::UserRole)) {
-        _rffs.replace(index.row(), Picviz::PVSelRowFilteringFunction_p((Picviz::PVSelRowFilteringFunction*)value.value<void*>()));
+        _rffs.replace(index.row(), ((Picviz::PVSelRowFilteringFunction*)value.value<void*>())->shared_from_this());
         emit dataChanged(index, index);
         return true;
     }
@@ -65,7 +65,14 @@ bool PVWidgets::PVAD2GRFFListModel::setData(const QModelIndex &index, const QVar
 
 void PVWidgets::PVAD2GRFFListModel::addRow(QModelIndex model_index, Picviz::PVSelRowFilteringFunction_p rff)
 {
-	insertRow(model_index.row());
+	int row = 0;
+	if (model_index.isValid()) {
+		row = model_index.row();
+	}
+	insertRow(row);
+	if (!model_index.isValid()) {
+		model_index = index(0, 0);
+	}
 	QVariant var;
 	var.setValue<void*>(rff.get());
 	setData(model_index, var, Qt::UserRole);

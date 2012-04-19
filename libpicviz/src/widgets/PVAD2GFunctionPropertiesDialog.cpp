@@ -12,6 +12,7 @@ PVWidgets::PVAD2GFunctionPropertiesDialog::PVAD2GFunctionPropertiesDialog(Picviz
 	QDialogButtonBox* btns = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 
 	// Connections
+	connect(btns, SIGNAL(accepted()), _props, SLOT(commit_args()));
 	connect(btns, SIGNAL(accepted()), this, SLOT(accept()));
 	connect(btns, SIGNAL(rejected()), this, SLOT(reject()));
 

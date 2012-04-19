@@ -48,7 +48,7 @@ PVWidgets::PVAD2GFunctionPropertiesWidget::PVAD2GFunctionPropertiesWidget(Picviz
 
 	setLayout(main_layout);
 
-	init_combo_list_rffs();
+	init_combo_list_rffs(&rff);
 	set_current_rff(&rff);
 
 	// Connections
@@ -66,12 +66,16 @@ void PVWidgets::PVAD2GFunctionPropertiesWidget::combo_func_changed(int idx)
 	set_current_rff(lib_rff.get());
 }
 
-void PVWidgets::PVAD2GFunctionPropertiesWidget::init_combo_list_rffs()
+void PVWidgets::PVAD2GFunctionPropertiesWidget::init_combo_list_rffs(Picviz::PVSelRowFilteringFunction const* rff)
 {
 	LIB_CLASS(Picviz::PVSelRowFilteringFunction)::list_classes const& rffs = LIB_CLASS(Picviz::PVSelRowFilteringFunction)::get().get_list();
 	LIB_CLASS(Picviz::PVSelRowFilteringFunction)::list_classes::const_iterator it;
+	QString reg_name = rff->registered_name();
 	for (it = rffs.begin(); it != rffs.end(); it++) {
 		_function_combo->addItem(it.value()->get_human_name(), QVariant(it.key()));
+		if (it.value()->get_human_name() == reg_name) {
+			_function_combo->setCurrentIndex(_function_combo->count()-1);
+		}
 	}
 }
 
@@ -97,6 +101,20 @@ void PVWidgets::PVAD2GFunctionPropertiesWidget::set_current_rff(Picviz::PVSelRow
 	_args_dst = _cur_rff->get_args_for_dst_view();
 	_args_dst_widget->set_args(_args_dst);
 	_dst_view_box->setVisible(_args_dst.count() > 0);
+}
 
-
+void PVWidgets::PVAD2GFunctionPropertiesWidget::commit_args()
+{
+	PVCore::PVArgumentList args;
+	PVCore::PVArgumentList::const_iterator it;
+	for (it = _args_global.begin(); it != _args_global.end(); it++) {
+		args[it.key()] = it.value();
+	}
+	for (it = _args_org.begin(); it != _args_org.end(); it++) {
+		args[it.key()] = it.value();
+	}
+	for (it = _args_dst.begin(); it != _args_dst.end(); it++) {
+		args[it.key()] = it.value();
+	}
+	_cur_rff->set_args(args);
 }
