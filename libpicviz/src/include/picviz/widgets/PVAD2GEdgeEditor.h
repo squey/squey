@@ -1,9 +1,12 @@
 #ifndef __PVAD2GEDGEEDITOR_H__
 #define __PVAD2GEDGEEDITOR_H__
 
+#include <QDialog>
+#include <QListView>
+
 #include <pvkernel/core/general.h>
 #include <picviz/PVSelRowFilteringFunction_types.h>
-#include <QDialog>
+#include <picviz/widgets/PVAD2GRFFListModel.h>
 
 namespace Picviz {
 class PVView;
@@ -31,6 +34,9 @@ private:
 	static Picviz::PVSelRowFilteringFunction_p get_default_rff();
 
 private:
+	PVAD2GRFFListModel* _rff_list_model;
+	QListView* _list;
+
 	Picviz::PVTFViewRowFiltering& _tf;
 	Picviz::PVView const& _view_org;
 	Picviz::PVView const& _view_dst;

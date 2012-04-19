@@ -21,7 +21,7 @@ namespace __impl {
 class PVTableWidget : public QTableWidget
 {
 public:
-	PVTableWidget(QWidget* parent = 0) : QTableWidget(parent) {}
+	PVTableWidget(QWidget* parent = 0) : QTableWidget(parent) { setEditTriggers(QTableWidget::NoEditTriggers); }
 	void mousePressEvent(QMouseEvent *event);
 	void mouseMoveEvent(QMouseEvent *event);
 private:

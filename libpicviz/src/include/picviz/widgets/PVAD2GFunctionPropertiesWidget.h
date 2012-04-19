@@ -6,6 +6,7 @@
 #include <picviz/PVSelRowFilteringFunction.h>
 
 #include <QComboBox>
+#include <QGroupBox>
 #include <QWidget>
 
 namespace Picviz {
@@ -46,11 +47,17 @@ protected:
 	// Arguments for different views
 	PVCore::PVArgumentList _args_org;
 	PVCore::PVArgumentList _args_dst;
+	PVCore::PVArgumentList _args_global;
+
 	PVWidgets::PVArgumentListWidget* _args_org_widget;
 	PVWidgets::PVArgumentListWidget* _args_dst_widget;
+	PVWidgets::PVArgumentListWidget* _args_global_widget;
 
 	// Widgets
 	QComboBox* _function_combo;
+	QGroupBox* _global_view_box;
+	QGroupBox* _src_view_box;
+	QGroupBox* _dst_view_box;
 };
 
 }

@@ -26,6 +26,7 @@ public:
 public:
 	inline PVCore::PVArgumentList get_args_for_org_view() const { return get_args_for_view(get_arg_keys_for_org_view()); }
 	inline PVCore::PVArgumentList get_args_for_dst_view() const { return get_args_for_view(get_arg_keys_for_dst_view()); }
+	inline PVCore::PVArgumentList get_global_args() const { return get_args_for_view(get_global_arg_keys()); }
 
 	inline void set_args_for_org_view(PVCore::PVArgumentList const& v_args) { set_args_for_view(v_args, get_arg_keys_for_org_view()); }
 	inline void set_args_for_dst_view(PVCore::PVArgumentList const& v_args) { set_args_for_view(v_args, get_arg_keys_for_dst_view()); }
@@ -33,6 +34,17 @@ public:
 protected:
 	virtual PVCore::PVArgumentKeyList get_arg_keys_for_org_view() const = 0;
 	virtual PVCore::PVArgumentKeyList get_arg_keys_for_dst_view() const = 0;
+	virtual PVCore::PVArgumentKeyList get_global_arg_keys() const
+	{
+		PVCore::PVArgumentList args = _args;
+		foreach (PVCore::PVArgumentKey key, get_arg_keys_for_org_view()) {
+			args.remove(key);
+		}
+		foreach (PVCore::PVArgumentKey key, get_arg_keys_for_dst_view()) {
+			args.remove(key);
+		}
+		return args.keys();
+	}
 
 private:
 	inline PVCore::PVArgumentList get_args_for_view(PVCore::PVArgumentKeyList const& keys) const

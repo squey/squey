@@ -6,6 +6,7 @@
 #include <pvkernel/widgets/PVArgumentListWidget.h>
 #include <picviz/widgets/PVAD2GFunctionPropertiesWidget.h>
 #include <picviz/widgets/PVArgumentListWidgetFactory.h>
+#include <pvkernel/widgets/PVArgumentListWidgetFactory.h>
 
 static QVBoxLayout* layout_from_widget(QWidget* w)
 {
@@ -23,13 +24,17 @@ PVWidgets::PVAD2GFunctionPropertiesWidget::PVAD2GFunctionPropertiesWidget(Picviz
 	QLabel* function_label = new QLabel(tr("Function: "));
 	_function_combo = new QComboBox();
 
-	QGroupBox* src_view_box = new QGroupBox(tr("Properties for original view"));
-	_args_org_widget = new PVWidgets::PVArgumentListWidget(PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_factory(view_org));
-	src_view_box->setLayout(layout_from_widget(_args_org_widget));
+	_global_view_box = new QGroupBox(tr("Global properties"));
+	_args_global_widget = new PVWidgets::PVArgumentListWidget(PVWidgets::PVArgumentListWidgetFactory::create_core_widgets_factory());
+	_global_view_box->setLayout(layout_from_widget(_args_global_widget));
 
-	QGroupBox* dst_view_box = new QGroupBox(tr("Properties for destination view"));
+	_src_view_box = new QGroupBox(tr("Properties for original view"));
+	_args_org_widget = new PVWidgets::PVArgumentListWidget(PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_factory(view_org));
+	_src_view_box->setLayout(layout_from_widget(_args_org_widget));
+
+	_dst_view_box = new QGroupBox(tr("Properties for destination view"));
 	_args_dst_widget = new PVWidgets::PVArgumentListWidget(PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_factory(view_dst));
-	dst_view_box->setLayout(layout_from_widget(_args_dst_widget));
+	_dst_view_box->setLayout(layout_from_widget(_args_dst_widget));
 
 	// Layout
 	QVBoxLayout* main_layout = new QVBoxLayout();
@@ -37,8 +42,9 @@ PVWidgets::PVAD2GFunctionPropertiesWidget::PVAD2GFunctionPropertiesWidget(Picviz
 	function_type_layout->addWidget(function_label);
 	function_type_layout->addWidget(_function_combo);
 	main_layout->addLayout(function_type_layout);
-	main_layout->addWidget(src_view_box);
-	main_layout->addWidget(dst_view_box);
+	main_layout->addWidget(_global_view_box);
+	main_layout->addWidget(_src_view_box);
+	main_layout->addWidget(_dst_view_box);
 
 	setLayout(main_layout);
 
@@ -80,9 +86,17 @@ void PVWidgets::PVAD2GFunctionPropertiesWidget::set_current_rff(Picviz::PVSelRow
 		_cur_rff->set_args(it->second);
 	}
 
+	_args_global = _cur_rff->get_global_args();
+	_args_global_widget->set_args(_args_global);
+	_global_view_box->setVisible(_args_global.count() > 0);
+
 	_args_org = _cur_rff->get_args_for_org_view();
 	_args_org_widget->set_args(_args_org);
+	_src_view_box->setVisible(_args_org.count() > 0);
 
 	_args_dst = _cur_rff->get_args_for_dst_view();
 	_args_dst_widget->set_args(_args_dst);
+	_dst_view_box->setVisible(_args_dst.count() > 0);
+
+
 }

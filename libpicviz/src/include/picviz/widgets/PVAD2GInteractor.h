@@ -43,6 +43,9 @@ public:
 protected:
 	virtual void addLink(QObject *, const tlp::node source, const tlp::node dest);
 
+private:
+	void abortEdgeTracing();
+
 protected:
 	Qt::MouseButton mButton;
 	Qt::KeyboardModifier kModifier;

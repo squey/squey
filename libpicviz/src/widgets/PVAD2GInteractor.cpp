@@ -42,6 +42,10 @@ bool PVWidgets::AD2GInteractorComponent::eventFilter(QObject* widget, QEvent* e)
 				_widget->remove_combining_function_Slot(_tmpEdge);
 			}
 		}
+		else if (qKeyEvent->key() == Qt::Key_Escape){
+			abortEdgeTracing();
+			return true;
+		}
 	}
 	else {
 
@@ -116,10 +120,7 @@ bool PVWidgets::AD2GInteractorComponent::eventFilter(QObject* widget, QEvent* e)
 
 		// Abort edge tracing
 		if (qMouseEv->buttons() == Qt::MidButton) {
-			_bends.clear();
-			_edge_started = false;
-			clearObserver();
-			glMainWidget->draw();
+			abortEdgeTracing();
 			return true;
 		}
 
@@ -189,6 +190,14 @@ bool PVWidgets::AD2GInteractorComponent::eventFilter(QObject* widget, QEvent* e)
 	}
 
 	return false;
+}
+
+void PVWidgets::AD2GInteractorComponent::abortEdgeTracing()
+{
+	_bends.clear();
+	_edge_started = false;
+	clearObserver();
+	_glMainWidget->draw();
 }
 
 void PVWidgets::AD2GInteractorComponent::addLink(QObject* /*widget*/, const tlp::node source, const tlp::node target)

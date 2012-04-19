@@ -1,45 +1,49 @@
 #include <picviz/widgets/PVAD2GRFFListModel.h>
 #include <picviz/PVSelRowFilteringFunction.h>
 
-Picviz::PVAD2GRFFListModel::PVAD2GRFFListModel(QObject *parent /*= 0*/)
+PVWidgets::PVAD2GRFFListModel::PVAD2GRFFListModel(QObject *parent /*= 0*/)
     : QAbstractListModel(parent),
     _src_view(NULL),
     _dst_view(NULL)
 {
 }
 
-Picviz::PVAD2GRFFListModel::PVAD2GRFFListModel(const PVView& src_view, const PVView& dst_view, const PVTFViewRowFiltering::list_rff_t &rffs, QObject *parent /*= 0*/) :
+PVWidgets::PVAD2GRFFListModel::PVAD2GRFFListModel(const Picviz::PVView& src_view, const Picviz::PVView& dst_view, const Picviz::PVTFViewRowFiltering::list_rff_t &rffs, QObject *parent /*= 0*/) :
 	QAbstractListModel(parent),
-	lst(rffs),
+	_rffs(rffs),
 	_src_view(&src_view),
 	_dst_view(&dst_view)
 {
 }
 
-int Picviz::PVAD2GRFFListModel::rowCount(const QModelIndex &parent) const
+int PVWidgets::PVAD2GRFFListModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid())
         return 0;
 
-    return lst.count();
+    return _rffs.count();
 }
 
-QVariant Picviz::PVAD2GRFFListModel::data(const QModelIndex &index, int role) const
+QVariant PVWidgets::PVAD2GRFFListModel::data(const QModelIndex &index, int role) const
 {
-    if (index.row() < 0 || index.row() >= lst.size())
+    if (index.row() < 0 || index.row() >= _rffs.size())
         return QVariant();
 
-    if (role == Qt::DisplayRole)
-    	return QVariant(lst.at(index.row())->get_human_name_with_args(*_src_view, *_dst_view));
-    if (role == Qt::UserRole) {
-    	QVariant ret;
-    	ret.setValue<void*>(lst.at(index.row()).get());
+    Picviz::PVSelRowFilteringFunction_p row_filter = _rffs.at(index.row());
+    if (row_filter.get()) {
+		if (role == Qt::DisplayRole)
+			return QVariant(row_filter.get()->get_human_name_with_args(*_src_view, *_dst_view));
+		if (role == Qt::UserRole) {
+	    	QVariant ret;
+	    	ret.setValue<void*>(row_filter.get());
+	    	return ret;
+		}
     }
 
     return QVariant();
 }
 
-Qt::ItemFlags Picviz::PVAD2GRFFListModel::flags(const QModelIndex &index) const
+Qt::ItemFlags PVWidgets::PVAD2GRFFListModel::flags(const QModelIndex &index) const
 {
     if (!index.isValid())
         return QAbstractItemModel::flags(index) | Qt::ItemIsDropEnabled;
@@ -47,59 +51,89 @@ Qt::ItemFlags Picviz::PVAD2GRFFListModel::flags(const QModelIndex &index) const
     return QAbstractItemModel::flags(index) | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
 }
 
-bool Picviz::PVAD2GRFFListModel::setData(const QModelIndex &index, const QVariant &value, int role)
+bool PVWidgets::PVAD2GRFFListModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    /*if (index.row() >= 0 && index.row() < lst.size()
-        && (role == Qt::EditRole || role == Qt::DisplayRole)) {
-        lst.replace(index.row(), value.toString());
+	PVLOG_INFO("Picviz::PVAD2GRFFListModel::setData\n");
+    if (index.row() >= 0 && index.row() < _rffs.size()
+        && (role == Qt::UserRole)) {
+        _rffs.replace(index.row(), Picviz::PVSelRowFilteringFunction_p((Picviz::PVSelRowFilteringFunction*)value.value<void*>()));
         emit dataChanged(index, index);
         return true;
-    }*/
+    }
     return false;
 }
 
-bool Picviz::PVAD2GRFFListModel::insertRows(int row, int count, const QModelIndex &parent)
+void PVWidgets::PVAD2GRFFListModel::addRow(QModelIndex model_index, Picviz::PVSelRowFilteringFunction_p rff)
 {
+	insertRow(model_index.row());
+	QVariant var;
+	var.setValue<void*>(rff.get());
+	setData(model_index, var, Qt::UserRole);
+}
+
+bool PVWidgets::PVAD2GRFFListModel::insertRows(int row, int count, const QModelIndex &parent)
+{
+	PVLOG_INFO("Picviz::PVAD2GRFFListModel::insertRows\n");
+
     if (count < 1 || row < 0 || row > rowCount(parent))
         return false;
 
     beginInsertRows(QModelIndex(), row, row + count - 1);
 
     for (int r = 0; r < count; ++r)
-        lst.insert(row, PVSelRowFilteringFunction_p());
+        _rffs.insert(row, Picviz::PVSelRowFilteringFunction_p());
 
     endInsertRows();
 
     return true;
 }
 
-bool Picviz::PVAD2GRFFListModel::removeRows(int row, int count, const QModelIndex &parent)
+bool PVWidgets::PVAD2GRFFListModel::removeRows(int row, int count, const QModelIndex &parent)
 {
+	PVLOG_INFO("Picviz::PVAD2GRFFListModel::removeRows\n");
+
     if (count <= 0 || row < 0 || (row + count) > rowCount(parent))
         return false;
 
     beginRemoveRows(QModelIndex(), row, row + count - 1);
 
     for (int r = 0; r < count; ++r)
-        lst.removeAt(row);
+        _rffs.removeAt(row);
 
     endRemoveRows();
 
     return true;
 }
 
+Picviz::PVTFViewRowFiltering::list_rff_t PVWidgets::PVAD2GRFFListModel::getRFFList() const
+{
+    return _rffs;
+}
+
+void PVWidgets::PVAD2GRFFListModel::setRFFList(const Picviz::PVTFViewRowFiltering::list_rff_t &rffs)
+{
+    _rffs = rffs;
+    reset();
+}
+
+Qt::DropActions PVWidgets::PVAD2GRFFListModel::supportedDropActions() const
+{
+    return QAbstractItemModel::supportedDropActions() | Qt::MoveAction;
+}
+
+
 /*
-static bool Picviz::ascendingLessThan(const QPair<QString, int> &s1, const QPair<QString, int> &s2)
+static bool PVWidget::ascendingLessThan(const QPair<QString, int> &s1, const QPair<QString, int> &s2)
 {
     return s1.first < s2.first;
 }
 
-static bool Picviz::decendingLessThan(const QPair<QString, int> &s1, const QPair<QString, int> &s2)
+static bool PVWidget::decendingLessThan(const QPair<QString, int> &s1, const QPair<QString, int> &s2)
 {
     return s1.first > s2.first;
 }
 
-void Picviz::PVAD2GRFFListModel::sort(int, Qt::SortOrder order)
+void PVWidget::PVAD2GRFFListModel::sort(int, Qt::SortOrder order)
 {
     emit layoutAboutToBeChanged();
 
@@ -127,19 +161,3 @@ void Picviz::PVAD2GRFFListModel::sort(int, Qt::SortOrder order)
 
     emit layoutChanged();
 }*/
-
-Picviz::PVTFViewRowFiltering::list_rff_t Picviz::PVAD2GRFFListModel::getRFFList() const
-{
-    return lst;
-}
-
-void Picviz::PVAD2GRFFListModel::setRFFList(const PVTFViewRowFiltering::list_rff_t &rffs)
-{
-    lst = rffs;
-    reset();
-}
-
-Qt::DropActions Picviz::PVAD2GRFFListModel::supportedDropActions() const
-{
-    return QAbstractItemModel::supportedDropActions() | Qt::MoveAction;
-}

@@ -110,6 +110,7 @@ PVWidgets::PVAD2GWidget::PVAD2GWidget(Picviz::PVAD2GView& ad2g, QMainWindow* mw 
 	QWidget* nodeWidget = _nodeLinkView->construct(this);
 	main_layout->addWidget(nodeWidget);
 	_table = new __impl::PVTableWidget(this);
+
 	main_layout->addWidget(_table);
 	setLayout(main_layout);
 
