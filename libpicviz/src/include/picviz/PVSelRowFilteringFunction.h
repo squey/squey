@@ -27,7 +27,7 @@ public:
 	}
 	virtual void set_args(PVCore::PVArgumentList const& args)
 	{
-		_do_pre_process = !PVCore::comp_hash(_last_args, args/*, get_args_keys_for_preprocessing()*/);
+		_do_pre_process = !PVCore::comp_hash(_last_args, args, get_args_keys_for_preprocessing());
 		PVCore::PVFunctionArgsBase::set_args(args);
 	}
 	void pre_process(PVView const& view_org, PVView const& view_dst)
