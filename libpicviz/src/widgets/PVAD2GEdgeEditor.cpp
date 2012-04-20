@@ -64,7 +64,6 @@ bool PVWidgets::PVAD2GEdgeEditor::edit_rff(Picviz::PVSelRowFilteringFunction_p& 
 	PVAD2GFunctionPropertiesDialog* dlg = new PVAD2GFunctionPropertiesDialog(_view_org, _view_dst, *rff, this);
 	if (dlg->exec() == QDialog::Accepted) {
 		rff = dlg->get_rff();
-		//_tf.update_rff(rff);
 		return true;
 	}
 	return false;
@@ -81,13 +80,6 @@ void PVWidgets::PVAD2GEdgeEditor::add_function_Slot()
 
 	if (edit_rff(new_rff)) {
 		_rff_list_model->addRow(_list->selectionModel()->currentIndex(), new_rff);
-
-//		QModelIndex model_index = _list->selectionModel()->currentIndex();
-//		_list->model()->insertRow(model_index.row());
-//		QVariant var;
-//		var.setValue<void*>(new_rff.get());
-//		_list->model()->setData(model_index, var, Qt::UserRole);
-		//_tf.push_rff(new_rff);
 	}
 }
 
@@ -109,7 +101,5 @@ void PVWidgets::PVAD2GEdgeEditor::remove_function_Slot()
 	QMessageBox* box = new QMessageBox(QMessageBox::Question, tr("Confirm remove."), tr("Do you really want to remove row filter?"), QMessageBox::Yes | QMessageBox::No, this);
 	if (box->exec() == QMessageBox::Yes) {
 		_list->model()->removeRow(_list->selectionModel()->currentIndex().row());
-		//_tf.remove_rff(_list->selectionModel()->currentIndex().row());
-		//_list->model()->reset();
 	}
 }

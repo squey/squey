@@ -139,11 +139,11 @@ bool PVWidgets::AD2GInteractorComponent::eventFilter(QObject* widget, QEvent* e)
 				connect(my_action, SIGNAL(triggered()), _deleteEdgeSignalMapper, SLOT(map()));
 				_deleteEdgeSignalMapper->setMapping(my_action, (int)_tmpEdge);
 			}
-			else {
+			/*else {
 				my_action = new QAction(tr("Add selected view"), menu);
 				connect(my_action, SIGNAL(triggered()), _addNodeSignalMapper, SLOT(map()));
 				_addNodeSignalMapper->setMapping(my_action, (QObject*) qMouseEv);
-			}
+			}*/
 
 			menu->addAction(my_action);
 			menu->exec(qMouseEv->globalPos());
