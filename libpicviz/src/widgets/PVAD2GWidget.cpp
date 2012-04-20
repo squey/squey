@@ -2,6 +2,8 @@
 
 #include <tulip/Interactor.h>
 #include <tulip/InteractorManager.h>
+#include <picviz/widgets/PVAD2GInteractor.h>
+
 ///
 #include <tulip/TlpTools.h>
 #include <tulip/TlpQtTools.h>
@@ -20,7 +22,6 @@
 #include <picviz/PVSelRowFilteringFunction.h>
 
 #include <picviz/widgets/PVAD2GInteractor.h>
-
 
 void PVWidgets::__impl::PVTableWidget::mousePressEvent(QMouseEvent* event)
 {
@@ -85,6 +86,23 @@ bool PVWidgets::__impl::FilterDropEvent::eventFilter(QObject* /*object*/, QEvent
 			_widget->add_view(dropEvent->pos(), view);
 
 			return true;
+		}
+	}
+	////
+	else if (event->type() == QEvent::KeyPress) {
+		QKeyEvent* qKeyEvent = (QKeyEvent*) event;
+		if (qKeyEvent->key() == Qt::Key_Control) {
+			PVLOG_INFO("Qt::Key_Control Pressed\n");
+			PVAD2GWidget* widget = (PVAD2GWidget*) parent();
+			widget->getNodeLinkView()->setActiveInteractor(widget->getInteractor());
+		}
+	}
+	else if (event->type() == QEvent::KeyRelease) {
+		QKeyEvent* qKeyEvent = (QKeyEvent*) event;
+		if (qKeyEvent->key() == Qt::Key_Control) {
+			PVLOG_INFO("Qt::Key_Control Released\n");
+			PVAD2GWidget* widget = (PVAD2GWidget*) parent();
+			widget->getNodeLinkView()->setActiveInteractor(widget->getInteractor2());
 		}
 	}
 
@@ -189,12 +207,12 @@ void PVWidgets::PVAD2GWidget::init_toolbar()
 	/*for (std::list<std::string>::reverse_iterator it = interactorsNamesAndPriorityMap.rbegin(); it != interactorsNamesAndPriorityMap.rend(); ++it) {
 		interactorsList.push_back(tlp::InteractorManager::getInst().getInteractor((*it)));
 	}*/
-	AD2GInteractor* ad2g_interactor = new AD2GInteractor(this, _nodeLinkView->getGlMainWidget());
-	interactorsList.push_back(ad2g_interactor);
-	AD2GInteractor2* ad2g_interactor2 = new AD2GInteractor2(this, _nodeLinkView->getGlMainWidget());
-	interactorsList.push_back(ad2g_interactor2);
+	_ad2g_interactor = new AD2GInteractor(this, _nodeLinkView->getGlMainWidget());
+	interactorsList.push_back(_ad2g_interactor);
+	_ad2g_interactor2 = new AD2GInteractor2(this, _nodeLinkView->getGlMainWidget());
+	interactorsList.push_back(_ad2g_interactor2);
 	_nodeLinkView->setInteractors(interactorsList);
-	_nodeLinkView->setActiveInteractor(ad2g_interactor);
+	_nodeLinkView->setActiveInteractor(_ad2g_interactor);
 
 	_toolBar = new QToolBar(this);
 	std::list<QAction *> interactorsActionList;

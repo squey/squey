@@ -30,6 +30,9 @@ private:
 
 }
 
+class AD2GInteractor;
+class AD2GInteractor2;
+
 class AD2GNodeLinkDiagramComponent : public tlp::NodeLinkDiagramComponent
 {
 public:
@@ -67,6 +70,10 @@ public slots:
 	void remove_view_Slot(int node);
 	void remove_combining_function_Slot(int edge);
 
+	AD2GInteractor* getInteractor() { return _ad2g_interactor; }
+	AD2GInteractor2* getInteractor2() { return _ad2g_interactor2; }
+	AD2GNodeLinkDiagramComponent* getNodeLinkView() { return _nodeLinkView; }
+
 private:
 	void fill_table();
 	void init_toolbar();
@@ -81,6 +88,9 @@ private:
 	tlp::Graph* _graph;
 	QToolBar* _toolBar;
 	__impl::PVTableWidget* _table;
+
+	AD2GInteractor* _ad2g_interactor;
+	AD2GInteractor2* _ad2g_interactor2;
 };
 
 namespace __impl {

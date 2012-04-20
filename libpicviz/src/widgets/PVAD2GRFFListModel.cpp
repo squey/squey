@@ -1,18 +1,11 @@
 #include <picviz/widgets/PVAD2GRFFListModel.h>
 #include <picviz/PVSelRowFilteringFunction.h>
 
-PVWidgets::PVAD2GRFFListModel::PVAD2GRFFListModel(QObject *parent /*= 0*/)
-    : QAbstractListModel(parent),
-    _src_view(NULL),
-    _dst_view(NULL)
-{
-}
-
-PVWidgets::PVAD2GRFFListModel::PVAD2GRFFListModel(const Picviz::PVView& src_view, const Picviz::PVView& dst_view, const Picviz::PVTFViewRowFiltering::list_rff_t &rffs, QObject *parent /*= 0*/) :
+PVWidgets::PVAD2GRFFListModel::PVAD2GRFFListModel(const Picviz::PVView& src_view, const Picviz::PVView& dst_view, Picviz::PVTFViewRowFiltering::list_rff_t &rffs, QObject *parent /*= 0*/) :
 	QAbstractListModel(parent),
 	_rffs(rffs),
-	_src_view(&src_view),
-	_dst_view(&dst_view)
+	_src_view(src_view),
+	_dst_view(dst_view)
 {
 }
 
@@ -32,7 +25,7 @@ QVariant PVWidgets::PVAD2GRFFListModel::data(const QModelIndex &index, int role)
     Picviz::PVSelRowFilteringFunction_p row_filter = _rffs.at(index.row());
     if (row_filter.get()) {
 		if (role == Qt::DisplayRole)
-			return QVariant(row_filter.get()->get_human_name_with_args(*_src_view, *_dst_view));
+			return QVariant(row_filter.get()->get_human_name_with_args(_src_view, _dst_view));
 		if (role == Qt::UserRole) {
 	    	QVariant ret;
 	    	ret.setValue<void*>(row_filter.get());
@@ -112,15 +105,9 @@ bool PVWidgets::PVAD2GRFFListModel::removeRows(int row, int count, const QModelI
     return true;
 }
 
-Picviz::PVTFViewRowFiltering::list_rff_t PVWidgets::PVAD2GRFFListModel::getRFFList() const
+Picviz::PVTFViewRowFiltering::list_rff_t& PVWidgets::PVAD2GRFFListModel::get_rffs() const
 {
     return _rffs;
-}
-
-void PVWidgets::PVAD2GRFFListModel::setRFFList(const Picviz::PVTFViewRowFiltering::list_rff_t &rffs)
-{
-    _rffs = rffs;
-    reset();
 }
 
 Qt::DropActions PVWidgets::PVAD2GRFFListModel::supportedDropActions() const

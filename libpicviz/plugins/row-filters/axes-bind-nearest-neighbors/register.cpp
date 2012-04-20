@@ -7,5 +7,5 @@
 // This method will be called by libpicviz
 LibCPPExport void register_class()
 {
-	REGISTER_CLASS("Nearest Neighbors", Picviz::PVRFFAxesBindNearestNeighbors);
+	REGISTER_CLASS("axes-bind-nearest-neighbors", Picviz::PVRFFAxesBindNearestNeighbors);
 }
