@@ -24,6 +24,8 @@ PVWidgets::AD2GInteractorComponent::AD2GInteractorComponent(PVAD2GWidget* widget
 
 bool PVWidgets::AD2GInteractorComponent::eventFilter(QObject* widget, QEvent* e)
 {
+	PVLOG_INFO("eventFilter:%d\n", e->type());
+
 	if (!(e->type() == QEvent::MouseButtonPress || e->type() == QEvent::MouseButtonRelease || e->type() == QEvent::MouseMove || e->type() == QEvent::KeyPress || e->type() == QEvent::MouseButtonDblClick)) {
 		return false;
 	}
@@ -37,9 +39,13 @@ bool PVWidgets::AD2GInteractorComponent::eventFilter(QObject* widget, QEvent* e)
 		if (qKeyEvent->key() == Qt::Key_Delete) {
 			if (_type == tlp::NODE && _tmpNode != tlp::node()) {
 				_widget->remove_view_Slot(_tmpNode);
+				_tmpNode = tlp::node();
+				return true;
 			}
 			else if (_type == tlp::EDGE && _tmpEdge != tlp::edge()) {
 				_widget->remove_combining_function_Slot(_tmpEdge);
+				_tmpEdge = tlp::edge();
+				return true;
 			}
 		}
 		else if (qKeyEvent->key() == Qt::Key_Escape){
@@ -85,8 +91,8 @@ bool PVWidgets::AD2GInteractorComponent::eventFilter(QObject* widget, QEvent* e)
 
 					if (_source == _tmpNode) {
 						if(! _bends.empty()) {
-							QMessageBox* box = new QMessageBox(QMessageBox::Critical, tr("Invalid edge."), tr("Invalid edge."), QMessageBox::Ok, _widget);
-							box->exec();
+							//QMessageBox* box = new QMessageBox(QMessageBox::Critical, tr("Invalid edge."), tr("Invalid edge."), QMessageBox::Ok, _widget);
+							//box->exec();
 						}
 					}
 					else if (_widget->get_ad2g().get_graph()->existEdge(_source, _tmpNode, true) != tlp::edge()) {
@@ -111,9 +117,9 @@ bool PVWidgets::AD2GInteractorComponent::eventFilter(QObject* widget, QEvent* e)
 				else {
 				  tlp::Coord point(glMainWidget->width() - qMouseEv->x(), qMouseEv->y(), 0);
 				  _bends.push_back(glMainWidget->getScene()->getCamera().screenTo3DWorld(point));
-				  glMainWidget->redraw();
 				}
 			  }
+			  glMainWidget->redraw();
 
 			  return true;
 		}
