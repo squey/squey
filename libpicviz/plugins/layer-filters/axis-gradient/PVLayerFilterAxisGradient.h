@@ -26,6 +26,7 @@ public:
 	virtual QList<PVCore::PVArgumentKey> get_args_keys_for_preset() const;
 	virtual QString status_bar_description();
 	virtual QString detailed_description();
+	virtual QString menu_name() const { return "Axis gradient"; }
 
 public:
 	static PVCore::PVArgumentList gradient_menu(PVRow row, PVCol col, QString const& v);

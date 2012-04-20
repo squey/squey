@@ -15,9 +15,10 @@ Picviz::PVPlottingFilterLogMinmax::PVPlottingFilterLogMinmax(PVCore::PVArgumentL
 
 DEFAULT_ARGS_FILTER(Picviz::PVPlottingFilterLogMinmax)
 {
+	
 	PVCore::PVArgumentList args;
-	args[PVCore::PVArgumentKey("range-min", "Minimal value (0=auto)")] = QString("0.0");
-	args[PVCore::PVArgumentKey("range-max", "Maximal value (0=auto)")] = QString("0.0");
+	/*args[PVCore::PVArgumentKey("range-min", "Minimal value (0=auto)")] = QString("0.0");
+	args[PVCore::PVArgumentKey("range-max", "Maximal value (0=auto)")] = QString("0.0");*/
 	return args;
 }
 
@@ -91,8 +92,8 @@ void Picviz::PVPlottingFilterLogMinmax::init_expand(float min, float max)
 		_offset = 0;
 	}
 	_expand_min = log2f(min);
-	_expand_max = max;
-	_expand_diff = log2f(max) - log2f(min);
+	_expand_max = log2f(max);
+	_expand_diff = _expand_max - _expand_min;
 }
 
 float Picviz::PVPlottingFilterLogMinmax::expand_plotted(float value) const

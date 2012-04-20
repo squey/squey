@@ -26,6 +26,8 @@ Picviz::PVLayerFilterCreateLayers::PVLayerFilterCreateLayers(QString section_nam
 	  _layers_regex(layers_regex)
 {
 	INIT_FILTER(PVLayerFilterCreateLayers, l);
+	QStringList section_tags = section_name.split(":");
+	_menu_name = QString("Create Layers/") + section_tags[0];
 }
 
 /******************************************************************************

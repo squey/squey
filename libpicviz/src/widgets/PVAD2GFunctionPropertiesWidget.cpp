@@ -70,10 +70,10 @@ void PVWidgets::PVAD2GFunctionPropertiesWidget::init_combo_list_rffs(Picviz::PVS
 {
 	LIB_CLASS(Picviz::PVSelRowFilteringFunction)::list_classes const& rffs = LIB_CLASS(Picviz::PVSelRowFilteringFunction)::get().get_list();
 	LIB_CLASS(Picviz::PVSelRowFilteringFunction)::list_classes::const_iterator it;
-	QString reg_name = rff->registered_name();
+	QString human_name = rff->get_human_name();
 	for (it = rffs.begin(); it != rffs.end(); it++) {
 		_function_combo->addItem(it.value()->get_human_name(), QVariant(it.key()));
-		if (it.value()->get_human_name() == reg_name) {
+		if (it.value()->get_human_name() == human_name) {
 			_function_combo->setCurrentIndex(_function_combo->count()-1);
 		}
 	}

@@ -146,7 +146,7 @@ public:
 	PVSDK::PVMessenger* get_pvmessenger();
 
 	void import_type(PVRush::PVInputType_p in_t);
-	void import_type(PVRush::PVInputType_p in_t, PVRush::PVInputType::list_inputs const& inputs, PVRush::hash_formats& formats, PVRush::hash_format_creator& format_creator, QString const& choosenFormat);
+	void import_type(PVRush::PVInputType_p in_t, PVRush::PVInputType::list_inputs const& inputs, PVRush::hash_formats& formats, PVRush::hash_format_creator& format_creator, QString const& choosenFormat, PVCore::PVArgumentList const& args_ext);
 	void load_files(std::vector<QString> const& files, QString format);
 	/* void import_type(); */
 	void update_statemachine_label(Picviz::PVView_p view);
@@ -201,6 +201,7 @@ public slots:
 	void textedit_text_changed_Slot();
 	void view_new_parallel_Slot();
 	void view_new_scatter_Slot();
+	void view_display_inv_elts_Slot();
 	void view_screenshot_qt_Slot();
 	void check_messages();	/* SLOT? NOT SLOT? */
 	void update_reply_finished_Slot(QNetworkReply *reply);
@@ -226,6 +227,8 @@ private:
 	void set_project_modified(bool modified);
 	PVMainWindow* find_main_window(const QString& file);
 	void set_selection_from_layer(Picviz::PVView_p view, Picviz::PVLayer const& layer);
+	void display_inv_elts(PVTabSplitter* tab_src);
+	void close_all_views();
 
 private slots:
 	void project_modified_Slot();
@@ -306,6 +309,7 @@ private:
 	QAction *view_Action;
 	QAction *view_new_parallel_Action;
 	QAction *view_new_scatter_Action;
+	QAction *view_display_inv_elts_Action;
 	QAction *view_screenshot_qt;
 	QAction *whats_this_Action;
 	

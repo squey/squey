@@ -62,6 +62,7 @@ include/pvkernel/core/pv_pcre_splitter.h
 include/pvkernel/core/pv_splitter.h
 include/pvkernel/core/PVStringUtils.h
 include/pvkernel/core/sysinfo.h
+include/pvkernel/core/hash_sharedptr.h
 
 include/pvkernel/core/PVArchive.h
 include/pvkernel/core/PVArgument.h

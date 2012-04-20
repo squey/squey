@@ -15,7 +15,7 @@ int PVGL::wtk_init(int argc, char **argv)
 {
 
 	glutInitContextVersion(3, 3);
-	glutInitContextFlags(GLUT_FORWARD_COMPATIBLE | GLUT_DEBUG);
+	glutInitContextFlags(GLUT_FORWARD_COMPATIBLE/* | GLUT_DEBUG*/);
 	glutInitContextProfile(GLUT_COMPATIBILITY_PROFILE);
 	//  glutInitContextProfile (GLUT_CORE_PROFILE);
 	glutInit(&argc, argv);

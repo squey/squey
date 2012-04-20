@@ -18,6 +18,7 @@ PVInspector::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(PVTabSplitte
 	_view(tab->get_lib_view()),
 	_filter_p(filter_p),
 	_presets_widget(NULL),
+	_splitter(NULL),
 	_help_btn(NULL),
 	_pre_filter_layer_org(_view->pre_filter_layer),
 	_args_org(args),
@@ -25,35 +26,52 @@ PVInspector::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(PVTabSplitte
 {
 	_args_widget = new PVWidgets::PVArgumentListWidget(PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_factory(*tab->get_lib_view()), args, tab);
 	setWindowTitle("Filter properties...");
-
-	QVBoxLayout* main_layout = new QVBoxLayout();
+	setObjectName("PVLayerFilterProcessWidget");
 
 	// Presets widget
 	if(_filter_p->get_presets().can_have_presets()) {
-		_presets_widget = new PVWidgets::PVPresetsWidget();
+		_presets_widget = new PVWidgets::PVPresetsWidget(tr("Presets"));
 		_presets_widget->add_presets(_filter_p->get_presets().list_presets());
-		main_layout->addWidget(_presets_widget);
 		connect(_presets_widget, SIGNAL(btn_load_clicked_Signal(const QString&)), this, SLOT(load_preset_Slot(const QString&)));
 		connect(_presets_widget, SIGNAL(btn_new_clicked_Signal(const QString&)), this, SLOT(add_preset_Slot(const QString&)));
 		connect(_presets_widget, SIGNAL(btn_save_clicked_Signal(const QString&)), this, SLOT(save_preset_Slot(const QString&)));
 		connect(_presets_widget, SIGNAL(btn_remove_clicked_Signal(const QString&)), this, SLOT(remove_preset_Slot(const QString&)));
+		connect(_presets_widget, SIGNAL(preset_renamed_Signal(const QString&, const QString&)), this, SLOT(rename_preset_Slot(const QString&, const QString&)));
+		_presets_widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+		_presets_widget->setMinimumSize(QSize(0, 130));
 	}
 
 	// Args widget
-	_args_widget_box = new QGroupBox(tr("Filter"));
-	QVBoxLayout* box_layout = new QVBoxLayout();
-	box_layout->addWidget(_args_widget);
-	_args_widget_box->setLayout(box_layout);
-	main_layout->addWidget(_args_widget_box);
+	QVBoxLayout* args_widget_box_layout = new QVBoxLayout();
+	QGroupBox* args_widget_box = new QGroupBox(tr("Filter"));
+	args_widget_box_layout->addWidget(_args_widget);
+	args_widget_box->setLayout(args_widget_box_layout);
+	_args_widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
 
 	// Buttons
 	_btn_layout = new QHBoxLayout();
-	main_layout->addLayout(_btn_layout);
-
 	create_btns();
 	set_btns_layout();
 	connect_btns();
 
+	// Splitter
+	QVBoxLayout* main_layout = new QVBoxLayout();
+	if (_filter_p->get_presets().can_have_presets()) {
+		_splitter = new QSplitter(Qt::Vertical);
+		_splitter->setChildrenCollapsible(false);
+		_splitter->addWidget(args_widget_box);
+		_splitter->addWidget(_presets_widget);
+		_splitter->setStretchFactor(0, 4);
+		_splitter->setStretchFactor(1, 1);
+		main_layout->addWidget(_splitter);
+	}
+	else
+	{
+		main_layout->addWidget(args_widget_box);
+		main_layout->addWidget(_presets_widget);
+	}
+
+	main_layout->addLayout(_btn_layout);
 	setLayout(main_layout);
 }
 
@@ -75,8 +93,9 @@ void PVInspector::PVLayerFilterProcessWidget::add_preset_Slot(const QString& pre
 
 void PVInspector::PVLayerFilterProcessWidget::load_preset_Slot(const QString& preset)
 {
+	_filter_p->set_args(*_args_widget->get_args());
 	_filter_p->get_presets().load_preset(preset);
-	change_args(_filter_p->get_presets().get_args_for_preset());
+	change_args(_filter_p->get_args());
 }
 
 void PVInspector::PVLayerFilterProcessWidget::remove_preset_Slot(const QString& preset)
@@ -90,13 +109,19 @@ void PVInspector::PVLayerFilterProcessWidget::save_preset_Slot(const QString& pr
 	_filter_p->get_presets().modify_preset(preset);
 }
 
+void PVInspector::PVLayerFilterProcessWidget::rename_preset_Slot(const QString& old_preset, const QString& new_preset)
+{
+	_filter_p->get_presets().rename_preset(old_preset, new_preset);
+}
+
 void PVInspector::PVLayerFilterProcessWidget::create_btns()
 {
 	_apply_btn = new QPushButton(QIcon(":/save"),"Apply");
 	_preview_btn = new QPushButton(QIcon(":/filter"),"Preview");
 	_preview_btn->setDefault(true);
 	_cancel_btn = new QPushButton(QIcon(":/red-cross"),"Cancel");
-	_defaults_btn = new QPushButton(QIcon(":/document-new"),"Defaults");
+	_reset_btn = new QPushButton(QIcon(":/document-new"),"Reset");
+	_reset_btn->setVisible(_filter_p->get_presets().can_have_presets());
 	
 	QString filter_desc = _filter_p->detailed_description();
 	if (!filter_desc.isEmpty()) {
@@ -111,17 +136,17 @@ void PVInspector::PVLayerFilterProcessWidget::set_btns_layout()
 	}
 
 	_btn_layout->addWidget(_cancel_btn);
-	_btn_layout->addWidget(_defaults_btn);
+	_btn_layout->addWidget(_reset_btn);
 	_btn_layout->addWidget(_preview_btn);
 	_btn_layout->addWidget(_apply_btn);
 }
 
 void PVInspector::PVLayerFilterProcessWidget::connect_btns()
 {
-	connect(_apply_btn, SIGNAL(pressed()), this, SLOT(save_Slot()));
-	connect(_preview_btn, SIGNAL(pressed()), this, SLOT(preview_Slot()));
 	connect(_cancel_btn, SIGNAL(pressed()), this, SLOT(cancel_Slot()));
-	connect(_defaults_btn, SIGNAL(pressed()), this, SLOT(defaults_Slot()));
+	connect(_reset_btn, SIGNAL(pressed()), this, SLOT(reset_Slot()));
+	connect(_preview_btn, SIGNAL(pressed()), this, SLOT(preview_Slot()));
+	connect(_apply_btn, SIGNAL(pressed()), this, SLOT(save_Slot()));
 	if (_help_btn) {
 		QMessageBox *msgBox = new QMessageBox(QMessageBox::Information, "Filter help", _filter_p->detailed_description(), QMessageBox::Ok, this);
 		connect(_help_btn, SIGNAL(pressed()), msgBox, SLOT(exec()));
@@ -258,7 +283,7 @@ void PVInspector::PVLayerFilterProcessWidget::cancel_Slot()
 	reject();
 }
 
-void PVInspector::PVLayerFilterProcessWidget::defaults_Slot()
+void PVInspector::PVLayerFilterProcessWidget::reset_Slot()
 {
 	change_args(_filter_p->get_default_args_for_view(*_view));
 }

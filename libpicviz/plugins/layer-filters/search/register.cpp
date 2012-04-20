@@ -7,5 +7,5 @@
 // This method will be called by libpicviz
 LibCPPExport void register_class()
 {
-	REGISTER_CLASS("Text Search/By regular expression", Picviz::PVLayerFilterSearch);
+	REGISTER_CLASS("search-regexp", Picviz::PVLayerFilterSearch);
 }

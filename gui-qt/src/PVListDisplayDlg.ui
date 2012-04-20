@@ -1,19 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>PVListColNrawDlg</class>
- <widget class="QDialog" name="PVListColNrawDlg">
+ <class>PVListDisplayDlg</class>
+ <widget class="QDialog" name="PVListDisplayDlg">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>300</height>
+    <height>310</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Unique values...</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QLabel" name="_desc_label">
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+    </widget>
+   </item>
    <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
@@ -90,7 +97,14 @@
          </widget>
         </item>
         <item>
-         <widget class="PVWidgets::QKeySequenceWidget" name="_field_separator_btn" native="true"/>
+         <widget class="PVWidgets::QKeySequenceWidget" name="_field_separator_btn" native="true">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>
@@ -98,6 +112,12 @@
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
          <widget class="QPushButton" name="_btn_copy_clipboard">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="text">
            <string>Copy to clipboard...</string>
           </property>
@@ -105,6 +125,12 @@
         </item>
         <item>
          <widget class="QPushButton" name="_btn_copy_file">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="text">
            <string>Copy to file...</string>
           </property>
@@ -143,7 +169,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>PVListColNrawDlg</receiver>
+   <receiver>PVListDisplayDlg</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -159,7 +185,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>PVListColNrawDlg</receiver>
+   <receiver>PVListDisplayDlg</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

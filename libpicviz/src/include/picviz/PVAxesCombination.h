@@ -117,6 +117,7 @@ public:
 	* @note If the index is out of range, the column index of the last axis is returned.
 	*/
 	PVCol get_axis_column_index(PVCol index) const;
+	inline const PVCol* get_axis_column_index_buffer() const { return &columns_indexes_list.at(0); }
 
 	/**
 	* Get the original axis index from its name.

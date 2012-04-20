@@ -541,9 +541,12 @@ void Picviz::PVAxesCombination::serialize_read(PVCore::PVSerializeObject& so, PV
 {
 	columns_indexes_list.clear();
 	so.list_attributes("columns_indexes_list", columns_indexes_list);
+	//axes_list.clear();
+	//so.list("axes_list", axes_list);
 }
 
 void Picviz::PVAxesCombination::serialize_write(PVCore::PVSerializeObject& so)
 {
 	so.list_attributes("columns_indexes_list", columns_indexes_list);
+	//so.list("axes_list", axes_list);
 }

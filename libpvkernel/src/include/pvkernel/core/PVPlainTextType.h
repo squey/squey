@@ -23,10 +23,15 @@ public:
 	{
 		return _txt;
 	}
-	PVArgument from_string(QString const& str) const
+	PVArgument from_string(QString const& str, bool* ok /*= 0*/) const
 	{
 		PVArgument arg;
 		arg.setValue(PVPlainTextType(str));
+
+		if (ok) {
+			*ok = true;
+		}
+
 		return arg;
 	}
 	bool operator==(const PVPlainTextType &other) const

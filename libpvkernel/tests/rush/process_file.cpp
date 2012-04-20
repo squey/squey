@@ -72,13 +72,15 @@ int main(int argc, char** argv)
 		PVRush::PVControllerJob_p job = ext.process_from_agg_nlines(0, 2000000);
 		job->wait_end();
 		PVLOG_INFO("Extraction finished. Press a key to remove the NRAW\n");
-		getchar();
+		//getchar();
+
+		dump_nraw_csv(ext.get_nraw());
+
 	}
 	PVLOG_INFO("Press a key to exit.\n");
-	getchar();
+	//getchar();
 
 	// Dump the NRAW to stdout
-	//dump_nraw_csv(ext.get_nraw());
 
 	return 0;
 }

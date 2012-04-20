@@ -319,21 +319,8 @@ tlp::edge PVWidgets::PVAD2GWidget::add_combining_function(const tlp::node source
 {
 	tlp::Graph* graph = _nodeLinkView->getGlMainWidget()->getScene()->getGlGraphComposite()->getInputData()->getGraph();
 
-	// RFF
 	Picviz::PVCombiningFunctionView_p cf_sp(new Picviz::PVCombiningFunctionView());
-	Picviz::PVTFViewRowFiltering* tf = cf_sp->get_first_tf();
-	LIB_CLASS(Picviz::PVSelRowFilteringFunction) &row_filters = LIB_CLASS(Picviz::PVSelRowFilteringFunction)::get();
-	Picviz::PVSelRowFilteringFunction_p rff_bind = row_filters.get_class_by_name("axes_bind");
-	assert(rff_bind);
-	rff_bind = rff_bind->clone<Picviz::PVSelRowFilteringFunction>();
-	PVCore::PVArgumentList args;
-	args["axis_org"].setValue(PVCore::PVAxisIndexType(1));
-	args["axis_dst"].setValue(PVCore::PVAxisIndexType(1));
-	rff_bind->set_args(args);
-	tf->push_rff(rff_bind);
-	Picviz::PVView* view_src = _ad2g.get_view(source);
-	Picviz::PVView* view_dst = _ad2g.get_view(target);
-	tlp::edge newEdge = _ad2g.set_edge_f(view_src, view_dst, cf_sp);
+	tlp::edge newEdge = _ad2g.set_edge_f(source, target, cf_sp);
 
 	_nodeLinkView->elementSelectedSlot(newEdge.id, false);
 
@@ -394,7 +381,8 @@ void PVWidgets::PVAD2GWidget::fill_table()
 
 	Picviz::PVScene::list_views_t all_views = _ad2g.get_scene()->get_all_views();
 	foreach (Picviz::PVView_p view, all_views) {
-		QTableWidgetItem* item = new QTableWidgetItem(view->get_window_name());
+		QTableWidgetItem* item = new QTableWidgetItem(view->get_source_parent()->get_name());
+		item->setToolTip(view->get_window_name());
 		item->setData(Qt::UserRole, qVariantFromValue((void*) view.get()));
 		_table->setRowCount(_table->rowCount()+1);
 		_table->setItem(_table->rowCount()-1, 0, item);

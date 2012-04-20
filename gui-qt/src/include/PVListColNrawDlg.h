@@ -2,7 +2,8 @@
 #define PVINSPECTOR_PVLISTCOLNRAWDLG_H
 
 #include <picviz/PVView_types.h>
-#include "../ui_PVListColNrawDlg.h"
+
+#include <PVListDisplayDlg.h>
 
 #include <QAbstractListModel>
 #include <QVector>
@@ -37,23 +38,12 @@ private:
 
 }
 
-class PVListColNrawDlg: public QDialog, Ui::PVListColNrawDlg
+class PVListColNrawDlg: public PVListDisplayDlg
 {
 	Q_OBJECT
 
 public:
 	PVListColNrawDlg(Picviz::PVView const& view, std::vector<int> const& idxes, size_t nvalues, PVCol view_col, QWidget* parent = NULL);
-
-private slots:
-	void copy_to_clipboard();
-	void copy_to_file();
-	void copy_value_clipboard();
-
-private:
-	bool write_values(QDataStream* stream);
-
-private:
-	__impl::PVListColNrawModel* _model;
 };
 
 }

@@ -65,6 +65,7 @@ include/PVLayerStackModel.h
 include/PVLayerStackView.h
 include/PVLayerStackWidget.h
 include/PVListColNrawDlg.h
+include/PVListDisplayDlg.h
 include/PVListingModel.h
 include/PVListingView.h
 include/PVListingsTabWidget.h
@@ -77,6 +78,7 @@ include/PVSaveFileDialog.h
 include/PVSaveSceneDialog.h
 include/PVSerializeOptionsModel.h
 include/PVSerializeOptionsWidget.h
+include/PVSimpleStringListModel.h
 include/PVSortFilterProxyModel.h
 include/PVStartScreenWidget.h
 include/PVStringListChooserWidget.h
@@ -145,6 +147,7 @@ PVLayerStackModel.cpp
 PVLayerStackView.cpp
 PVLayerStackWidget.cpp
 PVListColNrawDlg.cpp
+PVListDisplayDlg.cpp
 PVListingModel.cpp
 PVListingView.cpp
 PVListingsTabWidget.cpp
@@ -210,7 +213,7 @@ PVAxesCombinationWidget.ui
 PVAxesCombinationWidgetSelRange.ui
 widgets/format-builder/PVAxisTagHelp.ui
 ui/PVViewCorrelationWidget.ui
-PVListColNrawDlg.ui
+PVListDisplayDlg.ui
 )
 
 QT4_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})

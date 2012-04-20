@@ -28,16 +28,24 @@ public:
 	{
 		return QString::number(_sliders_positions[0]) + "," + QString::number(_sliders_positions[1]);
 	}
-	PVArgument from_string(QString const& str) const
+	PVArgument from_string(QString const& str, bool* ok /*= 0*/) const
 	{
-		QStringList strList;
-		strList = str.split(",");
-
-		float pos[2] = {strList[0].toFloat(), strList[1].toFloat()};
-
 		PVArgument arg;
-		arg.setValue(PVColorGradientDualSliderType(pos));
+		bool ok1 = false;
+		bool ok2 = false;
+
+		QStringList strList = str.split(",");
+		if (strList.count() == 2) {
+			float pos[2] = {strList[0].toFloat(&ok1), strList[1].toFloat(&ok2)};
+			arg.setValue(PVColorGradientDualSliderType(pos));
+		}
+
+		if (ok) {
+			*ok = ok1 && ok2;
+		}
+
 		return arg;
+
 	}
 	bool operator==(const PVColorGradientDualSliderType &other) const
 	{

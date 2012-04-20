@@ -22,6 +22,7 @@ Picviz::PVLayerStack::PVLayerStack(PVRow row_count) :
 	lia(row_count)
 {
 	layer_count = 0;
+	next_new_layer_counter = 0;
 	selected_layer_index = -1;
 }
 
@@ -33,7 +34,8 @@ Picviz::PVLayerStack::PVLayerStack(PVRow row_count) :
 Picviz::PVLayer* Picviz::PVLayerStack::append_new_layer()
 {
 	/* We prepare the string for the name of the new layer */
-	const QString new_layer_automatic_name = QString("New layer %1").arg(layer_count);
+	const QString new_layer_automatic_name = QString("New layer %1").arg(next_new_layer_counter);
+	++next_new_layer_counter;
 	return append_layer(PVLayer(new_layer_automatic_name));
 }
 
@@ -79,7 +81,12 @@ Picviz::PVLayer* Picviz::PVLayerStack::append_new_layer_from_selection_and_lines
  *****************************************************************************/
 void Picviz::PVLayerStack::delete_by_index(int index)
 {
-	if ((0 < index) && (index < layer_count)) {
+	if (layer_count == 1) {
+		// if there is only one layer, it must not be removable
+		return;
+	}
+
+	if ((0 <= index) && (index < layer_count)) {
 		table.removeAt(index);
 		layer_count--;
 

@@ -239,6 +239,46 @@ QMainWindow#PVMainWindow {
 
 
 /****************************
+ * PVPresetsWidget
+ ***************************/
+/*
+QToolBar#QToolBar_of_PVPresetsWidget {
+	background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+				stop:0 #585858,
+				stop:0.5 #3d3d3d,
+				stop:1 #1b1b1b);
+	
+	border-bottom-left-radius: 4px;
+	border-bottom-right-radius: 4px;
+	border-style: solid;
+	border-color: #cbcbcb;
+	border-width: 1px;
+	margin-top: 0;
+}
+
+QDialog#PVLayerFilterProcessWidget QGroupBox {
+	color: white;
+	font-family: "Arial";
+	font-size: 14px;
+	font-weight: bold;
+}
+
+QDialog#PVLayerFilterProcessWidget QLabel {
+	color: white;
+}
+
+QDialog#PVLayerFilterProcessWidget {
+	background-image: url(:background-window.png);
+}
+
+QDialog#PVLayerFilterProcessWidget QSplitter::handle {
+	background-image: url(':/horizontal_handle');
+	background-position: center center;
+	background-repeat: no-repeat;
+}
+*/
+
+/****************************
  * PVTabSplitter
  ***************************/
 

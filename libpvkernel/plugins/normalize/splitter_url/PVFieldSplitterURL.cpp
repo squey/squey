@@ -237,7 +237,12 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterURL::one_to_many(PVCore:
 
 	// Port discovery:
 	// Add port with 80 as default is there is no known port
-	port.prepend("80");
+	if (url.port() < 0) {
+		port.prepend("80");
+	} else {
+		port.prepend(QString::number(url.port()));
+	}
+
 	if (!url_path.startsWith("/")) {
 		// our url path does not starts with a '/'. The QUrl messed up with
 		// the source port

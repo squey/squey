@@ -40,6 +40,7 @@ public:
 private:
 	void watch()
 	{
+		assert(_thread);
 		_thread->join();
 		emit finished();
 	}

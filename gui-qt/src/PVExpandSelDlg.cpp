@@ -1,8 +1,10 @@
+#include <pvkernel/core/hash_sharedptr.h>
 #include <PVExpandSelDlg.h>
 #include <QGridLayout>
 #include <QDialogButtonBox>
 #include <QLabel>
 #include <QVBoxLayout>
+#include <QPushButton>
 
 #include <picviz/PVPlottingFilter.h>
 
@@ -29,27 +31,27 @@ PVInspector::PVExpandSelDlg::PVExpandSelDlg(Picviz::PVView_p view, QWidget* pare
 
 	main_layout->addLayout(grid_layout);
 
-	QDialogButtonBox* btns = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-	main_layout->addWidget(btns);
+	_btns = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+	main_layout->addWidget(_btns);
 
 	setLayout(main_layout);
 
 	update_list_modes();
 
 	connect(_axes_editor, SIGNAL(itemSelectionChanged()), this, SLOT(update_list_modes()));
-	connect(btns, SIGNAL(accepted()), this, SLOT(accept()));
-	connect(btns, SIGNAL(rejected()), this, SLOT(reject()));
+	connect(_btns, SIGNAL(accepted()), this, SLOT(accept()));
+	connect(_btns, SIGNAL(rejected()), this, SLOT(reject()));
 }
 
 void PVInspector::PVExpandSelDlg::update_list_modes()
 {
 	PVCore::PVAxesIndexType axes = _axes_editor->get_axes_index();
 
-	QSet<QString> modes;
+	QSet<Picviz::PVPlottingFilter::p_type> modes;
 	PVCore::PVAxesIndexType::const_iterator it_axes;
 	for (it_axes = axes.begin(); it_axes != axes.end(); it_axes++) {
 		PVCol axis_id = *it_axes;
-		QSet<QString> axis_modes = Picviz::PVPlottingFilter::list_modes(_view.get_original_axis_type(axis_id), true).toSet();
+		QSet<Picviz::PVPlottingFilter::p_type> axis_modes = Picviz::PVPlottingFilter::list_modes_lib(_view.get_original_axis_type(axis_id), true).toSet();
 		if (modes.size() == 0) {
 			modes = axis_modes;
 		}
@@ -58,27 +60,22 @@ void PVInspector::PVExpandSelDlg::update_list_modes()
 		}
 	}
 
-	QString cur_mode = "default";
-	if (_combo_modes->count() > 0) {
-		QString tmp = _combo_modes->currentText();
-		if (modes.contains(tmp)) {
-			cur_mode = tmp;
-		}
+	_combo_modes->clear();
+
+	bool activate = modes.size() > 0;
+	_combo_modes->setEnabled(activate);
+	_btns->button(QDialogButtonBox::Ok)->setEnabled(activate);
+
+	foreach (Picviz::PVPlottingFilter::p_type const& lib_f, modes) {
+		_combo_modes->addItem(lib_f->get_human_name(), lib_f->registered_name());
 	}
 
-	_combo_modes->clear();
-	QStringList list_modes = modes.toList();
-	_combo_modes->addItems(list_modes);
-	int idx = list_modes.indexOf(cur_mode);
-	if (idx == -1) {
-		idx = 0;
-	}
-	_combo_modes->setCurrentIndex(idx);
+	_combo_modes->setCurrentIndex(0);
 }
 
 QString PVInspector::PVExpandSelDlg::get_mode()
 {
-	return _combo_modes->currentText();
+	return Picviz::PVPlottingFilter::mode_from_registered_name(_combo_modes->itemData(_combo_modes->currentIndex()).toString());
 }
 
 PVCore::PVAxesIndexType PVInspector::PVExpandSelDlg::get_axes() const

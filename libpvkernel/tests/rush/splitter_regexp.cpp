@@ -39,6 +39,7 @@ int main(int argc, char** argv)
 
 	PVCore::PVArgumentList args;
 	args["regexp"] = PVCore::PVArgument(QString(argv[3]));
+	args["full-line"] = false;
 	sp_lib_p->set_args(args);
 
 	PVFilter::PVElementFilterByFields* elt_f = new PVFilter::PVElementFilterByFields(sp_lib_p->f());

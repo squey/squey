@@ -129,4 +129,4 @@ then
 fi
 
 
-gui-qt/src/picviz-inspector $@
+catchsegv gui-qt/src/picviz-inspector $@

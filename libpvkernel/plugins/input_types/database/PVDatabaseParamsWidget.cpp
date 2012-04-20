@@ -78,10 +78,8 @@ PVRush::PVDatabaseParamsWidget::PVDatabaseParamsWidget(PVInputTypeDatabase const
 	}
 	
 	// Presets widget
-	_presets_widget = new PVWidgets::PVPresetsWidget(groupBox);
-	QVBoxLayout* box_layout = new QVBoxLayout();
-	box_layout->addWidget(_presets_widget);
-	groupBox->setLayout(box_layout);
+	_presets_widget = new PVWidgets::PVPresetsWidget(tr("Saved settings"));
+	presets_layout->addWidget(_presets_widget);
 	populate_presets();
 
 	// Set connections
@@ -160,7 +158,7 @@ void PVRush::PVDatabaseParamsWidget::populate_presets()
 PVRush::PVDBPresets::id_t PVRush::PVDatabaseParamsWidget::get_current_preset_id()
 {
 	// This assume that an existing preset has been selected !
-	assert(!_presets_widget->is_preset_txt_new());
+	//assert(!_presets_widget->is_preset_txt_new());
 	return _presets_widget->get_preset_data().toUInt();
 }
 

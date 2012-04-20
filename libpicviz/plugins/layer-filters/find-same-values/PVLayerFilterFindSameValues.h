@@ -26,6 +26,7 @@ class PVLayerFilterFindSameValues : public PVLayerFilter {
 
 		virtual void operator()(PVLayer& in, PVLayer &out);
 		virtual QList<PVCore::PVArgumentKey> get_args_keys_for_preset() const;
+		virtual QString menu_name() const { return "Find/Same values"; }
 
 		CLASS_FILTER(Picviz::PVLayerFilterFindSameValues)
 };

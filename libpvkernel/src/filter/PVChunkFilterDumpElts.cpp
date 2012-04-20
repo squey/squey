@@ -43,7 +43,7 @@ PVCore::PVChunk* PVFilter::PVChunkFilterDumpElts::operator()(PVCore::PVChunk* ch
 				_l << str_elt;
 			}
 			else {
-				PVLOG_WARN("(PVChunkFilterDumpElts) WARNING: no copy of the original element exists. The value saved for an invalid element might be completely changed by previous filters... Remember to use  PVChunkFilterByEltSaveInvalid to avoid this issue !\n");
+				//PVLOG_WARN("(PVChunkFilterDumpElts) WARNING: no copy of the original element exists. The value saved for an invalid element might be completely changed by previous filters... Remember to use PVChunkFilterByEltSaveInvalid or PVChunkFilterByEltRestoreInvalid to avoid this issue !\n");
 				QString deep_copy((const QChar*) elt->begin(), elt->size()/sizeof(QChar));
 				_l << deep_copy;
 			}

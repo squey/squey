@@ -35,17 +35,25 @@ public:
 	{
 		return QString::number(_origin_axis_index) + ":" + QString(_append_none_axis?"true":"false");
 	}
-	PVArgument from_string(QString const& str) const
+	PVArgument from_string(QString const& str, bool* ok /*= 0*/) const
 	{
-		int  origin_axis_index ;
-		bool append_none_axis ;
-
-		QStringList parts = str.split(":");
-		origin_axis_index = parts[0].toInt();
-		append_none_axis = parts[1].compare("true", Qt::CaseInsensitive) == 0;
+		bool res_ok = false;
 
 		PVArgument arg;
-		arg.setValue(PVAxisIndexType(origin_axis_index, append_none_axis));
+
+		QStringList parts = str.split(":");
+		if (parts.count() == 2) {
+			int  origin_axis_index;
+			bool append_none_axis;
+			origin_axis_index = parts[0].toInt(&res_ok);
+			append_none_axis = parts[1].compare("true", Qt::CaseInsensitive) == 0;
+			arg.setValue(PVAxisIndexType(origin_axis_index, append_none_axis));
+		}
+
+		if (ok) {
+			*ok = res_ok;
+		}
+
 		return arg;
 	}
 	bool operator==(const PVAxisIndexType &other) const

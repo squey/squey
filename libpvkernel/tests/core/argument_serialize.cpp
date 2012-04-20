@@ -32,10 +32,22 @@ public:
 
 		return str;
 	}
-	virtual PVCore::PVArgument from_string(QString const& s) const
+	virtual PVCore::PVArgument from_string(QString const& s, bool* ok /*= 0*/) const
 	{
+		bool res_ok = false ;
 		PVCore::PVArgument arg;
-		arg.setValue(PVMyCustomType(s.split("+")));
+
+		QStringList parts = s.split("+");
+
+		if (parts.count() == 2) {
+			arg.setValue(PVMyCustomType(parts));
+			res_ok = true;
+		}
+
+		if (ok) {
+			*ok = res_ok;
+		}
+
 		return arg;
 	}
 	virtual bool operator==(const PVMyCustomType &other) const
@@ -52,65 +64,80 @@ int main()
 {
 	QList<QVariant> vars;
 	QStringList expectedStrings;
+	QList<bool> mustFail;
 
 	// Bool
 	vars.append(QVariant(true));
 	expectedStrings.append("true");
+	mustFail.append(false);
 
 	// Int
 	vars.append(QVariant(42));
 	expectedStrings.append("42");
+	mustFail.append(true);
 
 	// Char
 	vars.append(QVariant(QChar('Z'))); // Beware that QVariant('Z') makes a string...
 	expectedStrings.append("Z");
+	mustFail.append(true);
 
 	// Float
 	vars.append(QVariant(12.56));
 	expectedStrings.append("12.56");
+	mustFail.append(true);
 
 	// String
 	QString standardString = "This is a string\nThis is another string";
 	vars.append(QVariant(standardString));
 	expectedStrings.append(standardString);
+	mustFail.append(false);
 
 	// PVMyCustomType
 	vars.append(QVariant::fromValue((PVMyCustomType("AAA", "BBB"))));
 	expectedStrings.append("AAA+BBB");
+	mustFail.append(false);
 
 	// PVAxesIndexType
 	vars.append(QVariant::fromValue(PVCore::PVAxesIndexType(QList<PVCol>() << 1 << 2 << 3)));
 	expectedStrings.append("1,2,3");
+	mustFail.append(true);
 
     // PVAxisIndexType
 	vars.append(QVariant::fromValue(PVCore::PVAxisIndexType(8, true)));
 	expectedStrings.append("8:true");
+	mustFail.append(true);
 
 	// PVAxisIndexCheckBoxTypes
 	vars.append(QVariant::fromValue(PVCore::PVAxisIndexCheckBoxType(9, false)));
 	expectedStrings.append("9:false");
+	mustFail.append(true);
 
 	// PVColorGradientDualSliderType
 	float pos[2] = {0.01, 0.99};
 	vars.append(QVariant::fromValue(PVCore::PVColorGradientDualSliderType(pos)));
 	expectedStrings.append("0.01,0.99");
+	mustFail.append(true);
 
 	// PVEnumType
 	vars.append(QVariant::fromValue(PVCore::PVEnumType(QStringList() << "this" << "is" << "an" << "enum", 3)));
-	expectedStrings.append("this,is,an,enum:3");
+	expectedStrings.append("3");
+	mustFail.append(true);
 
 	// PVPlainTextType
 	QString plainText = "Plain\nText";
 	vars.append(QVariant::fromValue(PVCore::PVPlainTextType(plainText)));
 	expectedStrings.append(plainText);
+	mustFail.append(false);
 
 	// PVSpinBoxType
 	vars.append(QVariant::fromValue(PVCore::PVSpinBoxType(666)));
 	expectedStrings.append("666");
+	mustFail.append(true);
 
 	// PVTimeFormat
 	vars.append(QVariant::fromValue(PVCore::PVTimeFormatType(QStringList() << "dd" << "mm" << "yyyy")));
 	expectedStrings.append("dd\nmm\nyyyy");
+	mustFail.append(false);
 
 	// Test serialization
 	QStringList serializedStrings;
@@ -142,6 +169,26 @@ int main()
 	}
 	PVLOG_INFO("Deserialization passed: %d\n", deserialization_passed);
 
+	// Test deserialization failure fallback
+	bool bad_deserialization_passed = true;
+	for (int i = 0; i < vars.count(); i++) {
+		if(vars[i].userType() >= QMetaType::User) {
+			PVLOG_DEBUG("Crash test for argument type '%s'\n", vars[i].typeName());
+			static_cast<const PVCore::PVArgumentTypeBase*>(vars[i].constData())->from_string(""); // test for potential crash without opt arg
+		}
+		if (mustFail[i]) {
+			bool convert_ok;
+			QString str_ref = PVCore::PVArgument_to_QString(vars[i]);
+			PVCore::PVArgument arg_ko = PVCore::QString_to_PVArgument("", vars[i], &convert_ok);
+			QString str_ko = PVCore::PVArgument_to_QString(arg_ko);
+			bad_deserialization_passed &= !convert_ok && str_ref == str_ko;
+			if (convert_ok) {
+				PVLOG_ERROR("Badly formed string for argument type '%s' was considered to be successfully converted \n", vars[i].typeName());
+			}
+		}
+	}
+	PVLOG_INFO("Bad deserialization passed: %d\n", bad_deserialization_passed);
+
 	// Test QSettings serialization and deserialization
 	QString iniFilename = "argument_serialize.ini";
 	QString groupName = "myGroupName";
@@ -159,5 +206,5 @@ int main()
 	// Cleanup
 	QFile::remove(iniFilename);
 
-	return !(serialization_passed && deserialization_passed && qsettings_passed);
+	return !(serialization_passed && deserialization_passed && qsettings_passed && bad_deserialization_passed);
 }

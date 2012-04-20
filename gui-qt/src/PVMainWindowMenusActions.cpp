@@ -112,6 +112,7 @@ void PVInspector::PVMainWindow::create_actions()
 	 ************************/
 	view_new_parallel_Action = new QAction(tr("New &parallel view"), this);
 	view_new_scatter_Action = new QAction(tr("New scatter &view"), this);
+	view_display_inv_elts_Action = new QAction(tr("&Display invalid elements..."), this);
 #ifndef NDEBUG
 	view_screenshot_qt = new QAction(tr("Display view in Qt"), this);
 	view_screenshot_qt->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_T));
@@ -224,6 +225,8 @@ void PVInspector::PVMainWindow::create_menus()
 	view_Menu = menubar->addMenu(tr("&View"));
 	view_Menu->addAction(view_new_parallel_Action);
 	view_Menu->addAction(view_new_scatter_Action);
+	view_Menu->addSeparator();
+	view_Menu->addAction(view_display_inv_elts_Action);
 #ifndef NDEBUG
 	view_Menu->addSeparator();
 	view_Menu->addAction(view_screenshot_qt);
@@ -307,6 +310,7 @@ void PVInspector::PVMainWindow::connect_actions()
 
 	connect(view_new_parallel_Action, SIGNAL(triggered()), this, SLOT(view_new_parallel_Slot()));
 	connect(view_new_scatter_Action, SIGNAL(triggered()), this, SLOT(view_new_scatter_Slot()));
+	connect(view_display_inv_elts_Action, SIGNAL(triggered()), this, SLOT(view_display_inv_elts_Slot()));
 #ifndef NDEBUG
 	connect(view_screenshot_qt, SIGNAL(triggered()), this, SLOT(view_screenshot_qt_Slot()));
 #endif

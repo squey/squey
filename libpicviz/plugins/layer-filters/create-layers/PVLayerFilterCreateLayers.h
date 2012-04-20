@@ -22,15 +22,17 @@ namespace Picviz {
  * \class PVLayerFilterCreateLayers
  */
 class PVLayerFilterCreateLayers : public PVLayerFilter {
-private:
-	QString _section_name;
-	QMap <QString, QStringList> _layers_regex;
-
 public:
 	PVLayerFilterCreateLayers(QString section_name, QMap<QString, QStringList> layers_regex, PVCore::PVArgumentList const& l = PVLayerFilterCreateLayers::default_args());
 public:
 	virtual void operator()(PVLayer& in, PVLayer &out);
 	PVCore::PVArgumentList get_default_args_for_view(PVView const& view);
+	virtual QString menu_name() const { return _menu_name; }
+
+private:
+	QString _section_name;
+	QString _menu_name;
+	QMap <QString, QStringList> _layers_regex;
 
 	CLASS_FILTER(Picviz::PVLayerFilterCreateLayers)
 

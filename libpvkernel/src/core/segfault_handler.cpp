@@ -72,7 +72,7 @@ static void segfault_handler(int sig, siginfo_t* sinfo, void* uctxt)
 	if (_call.compare_and_swap(false, true)) {
 		return;
 	}
-	fprintf(stderr, "/!\\ ----------------------------------------------------------------------------------------------------------- /!\\\n");
+	/*fprintf(stderr, "/!\\ ----------------------------------------------------------------------------------------------------------- /!\\\n");
 	fprintf(stderr, "/!\\ -------- /!\\ Segfault occured at %p, do you want to launch the last-chance gdb ? /!\\ -------- /!\\\n", sinfo->si_addr);
 	fprintf(stderr, "/!\\ ----------------------------------------------------------------------------------------------------------- /!\\\n\n");
 	fprintf(stderr, "(Y)es/(N)o [Y]: ");
@@ -81,7 +81,7 @@ static void segfault_handler(int sig, siginfo_t* sinfo, void* uctxt)
 	fgets(line, 9, stdin);
 	if (line[0] != '\n' && line[0] != 'Y' && line[0] != 'y') {
 		abort();
-	}
+	}*/
 
 	fprintf(stderr, "Launching gdb...\n");
 	// Get the PID as a string
@@ -113,7 +113,7 @@ void init_segfault_handler()
 {
 	// If we are already ptraced (like if gdb is alreadu running on top of us),
 	// do nothing here.
-	if (are_we_ptraced()) {
+	/*if (are_we_ptraced()) {
 		return;
 	}
 
@@ -123,7 +123,7 @@ void init_segfault_handler()
 	sa.sa_flags = SA_SIGINFO | SA_RESTART;
 	sa.sa_sigaction = segfault_handler;
 
-	sigaction(SIGSEGV, &sa, NULL);
+	sigaction(SIGSEGV, &sa, NULL);*/
 }
 
 #else // WIN32
@@ -138,7 +138,7 @@ void init_segfault_handler()
 #else // PICVIZ_DEVELOPER_MODE
 
 // TODO: use google breakpad so that users can send us backtraces ?
-void init_segfafult_handler()
+void init_segfault_handler()
 {
 }
 

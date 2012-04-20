@@ -35,9 +35,9 @@ void PVInspector::PVMainWindow::about_Slot()
 
 		QLabel *logo = new QLabel;
 #ifdef CUDA
-		QString content = "Picviz Inspector v." + QString(PICVIZ_CURRENT_VERSION_STR) + "\n(c) 2010-2011 Picviz Labs SAS\ncontact@picviz.com\nhttp://www.picviz.com\n\nWith CUDA support\nQT version " + QString(QT_VERSION_STR);
+		QString content = "Picviz Inspector v." + QString(PICVIZ_CURRENT_VERSION_STR) + " \"" + QString(PICVIZ_VERSION_NAME) + "\"\n(c) 2010-2011 Picviz Labs SAS\ncontact@picviz.com\nhttp://www.picviz.com\n\nWith CUDA support\nQT version " + QString(QT_VERSION_STR);
 #else
-		QString content = "Picviz Inspector v." + QString(PICVIZ_CURRENT_VERSION_STR) + "\n(c) 2010-2011 Picviz Labs SAS\ncontact@picviz.com\nhttp://www.picviz.com\n\nQT version " + QString(QT_VERSION_STR);
+		QString content = "Picviz Inspector v." + QString(PICVIZ_CURRENT_VERSION_STR) + " \"" + QString(PICVIZ_VERSION_NAME) + "\"\n(c) 2010-2011 Picviz Labs SAS\ncontact@picviz.com\nhttp://www.picviz.com\n\nQT version " + QString(QT_VERSION_STR);
 #endif
 		QLabel *text = new QLabel(content);
 		QPushButton *ok = new QPushButton("OK");
@@ -675,8 +675,8 @@ void PVInspector::PVMainWindow::set_current_project_filename(QString const& file
 		_cur_project_file = QFileInfo(file).canonicalFilePath();
 	}
 
-	set_project_modified(false);
 	setWindowTitle(QString());
+	set_project_modified(false);
 	setWindowFilePath(_cur_project_file);
 }
 
@@ -1253,5 +1253,12 @@ void PVInspector::PVMainWindow::selection_set_from_layer_Slot()
 			Picviz::PVLayer* layer = args["sel-layer"].value<Picviz::PVLayer*>();
 			set_selection_from_layer(view, *layer);
 		}
+	}
+}
+
+void PVInspector::PVMainWindow::view_display_inv_elts_Slot()
+{
+	if (current_tab && current_tab->get_lib_view()) {
+		display_inv_elts(current_tab);
 	}
 }

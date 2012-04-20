@@ -38,6 +38,11 @@
 	<file alias="add-regexp">resources/22x22/add-regexp.png</file>
 	<file alias="add-url">resources/22x22/add-url.png</file>
 	<file alias="help">resources/22x22/help.png</file>
+	
+	<file alias="Presets_Load_Action_Icon">resources/Presets_Load_Action_Icon.png</file>
+	<file alias="Presets_Save_Action_Icon">resources/Presets_Save_Action_Icon.png</file>
+	<file alias="remove-preset">resources/22x22/remove-preset.png</file>
+	
 	<file alias="picvizlabs-logo">resources/logo.png</file>
 	<file alias="splash-screen">resources/splash.png</file>
 
@@ -60,6 +65,7 @@
 
 	<!-- HANDLES -->
 	<file alias="vertical_handle">resources/gui-elements/pv_vertical_handle_01.png</file>
+	<file alias="horizontal_handle">resources/gui-elements/pv_horizontal_handle_01.png</file>
 
 	<!-- ICONS for PVLayerStackWidget (it's QToolBar) -->
 	<file alias="delete_layer_icon">resources/trafik/elements-interface/icone-supprimer-blanc.png</file>

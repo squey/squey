@@ -147,7 +147,10 @@ public:
 		}
 	}
 
-	void dump_elts(bool dump) { _dump_elts = dump; }
+	void dump_inv_elts(bool dump) { _dump_inv_elts = dump; }
+	void dump_all_elts(bool dump) { _dump_all_elts = dump; }
+
+	static PVCore::PVArgumentList default_args_extractor();
 
 	void dump_mapnraw();
 	void dump_nraw();
@@ -171,7 +174,8 @@ protected:
 	PVNrawOutput _out_nraw; // Linked to _nraw
 	PVFilter::PVChunkFilter_f _chk_flt;
 	unsigned int _chunks;
-	bool _dump_elts;
+	bool _dump_inv_elts;
+	bool _dump_all_elts;
 	PVCol _force_naxes; 
 
 protected:

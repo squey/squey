@@ -245,6 +245,21 @@ void PVInspector::PVListingView::keyEnterPressed()
 
 /******************************************************************************
  *
+ * PVInspector::PVListingView::wheelEvent
+ *
+ *****************************************************************************/
+void PVInspector::PVListingView::wheelEvent(QWheelEvent* e)
+{
+	if (e->modifiers() == Qt::ControlModifier)
+	{
+		int colIndex = columnAt(e->pos().x());
+		int d = e->delta() / 12;
+		setColumnWidth(colIndex, columnWidth(colIndex) + d);
+	}
+}
+
+/******************************************************************************
+ *
  * PVInspector::PVListingView::show_ctxt_menu
  *
  *****************************************************************************/

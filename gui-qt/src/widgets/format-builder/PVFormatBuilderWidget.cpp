@@ -640,7 +640,8 @@ void PVInspector::PVFormatBuilderWidget::slotOpenLog()
 	PVRush::PVInputType::list_inputs inputs;
 	PVRush::hash_formats formats, new_formats;
 
-	if (!in_t->createWidget(formats, new_formats, inputs, choosenFormat, this))
+	PVCore::PVArgumentList args;
+	if (!in_t->createWidget(formats, new_formats, inputs, choosenFormat, args, this))
 		return; // This means that the user pressed the "cancel" button
 
 	_nraw_model->set_consistent(false);
@@ -653,14 +654,17 @@ void PVInspector::PVFormatBuilderWidget::slotOpenLog()
 		PVRush::list_creators::const_iterator itcr;
 		_log_sc.reset();
 		_log_input_type.reset();
+		create_extractor();
 		for (itcr = lcr.begin(); itcr != lcr.end(); itcr++) {
 			PVRush::PVSourceCreator_p sc = *itcr;
 			if (sc->pre_discovery(_log_input)) {
 				try {
 					_log_sc = sc;
-					create_extractor();
+					// The moni-extractor use the discovery source, as not that much processing is done (it can be handle locally for instance !)
+					_log_source = _log_sc->create_discovery_source_from_input(_log_input, PVRush::PVFormat());
 				}
 				catch (PVRush::PVFormatInvalid& e) {
+					_log_sc.reset();
 					continue;
 				}
 				break;
@@ -673,6 +677,7 @@ void PVInspector::PVFormatBuilderWidget::slotOpenLog()
 			box.show();
 			return;
 		}
+		_log_extract->add_source(_log_source);
 
 		_log_input_type = in_t;
 
@@ -706,11 +711,9 @@ void PVInspector::PVFormatBuilderWidget::create_extractor()
 		_log_extract->force_stop_controller();
 	}
 	_log_extract.reset(new PVRush::PVExtractor());
-	_log_extract->dump_elts(true);
+	_log_extract->dump_all_elts(true);
+	_log_extract->dump_inv_elts(true);
 	_log_extract->start_controller();
-	// The moni-extractor use the discovery source, as not that much processing is done (it can be handle locally for instance !)
-	_log_source = _log_sc->create_discovery_source_from_input(_log_input, PVRush::PVFormat());
-	_log_extract->add_source(_log_source);
 }
 
 void PVInspector::PVFormatBuilderWidget::guess_first_splitter()
@@ -845,8 +848,8 @@ void PVInspector::PVFormatBuilderWidget::update_table(PVRow start, PVRow end)
 
 	// Set the invalid lines widget
 	_inv_lines_widget->clear();
-	QStringList& elts_invalid = job->get_invalids_elts();
-	QStringList::iterator it_ie;
+	QStringList const& elts_invalid = job->get_invalid_elts();
+	QStringList::const_iterator it_ie;
 	for (it_ie = elts_invalid.begin(); it_ie != elts_invalid.end(); it_ie++) {
 		QString const& line = *it_ie;
 		_inv_lines_widget->addItem(line);

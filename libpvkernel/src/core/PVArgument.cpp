@@ -8,6 +8,16 @@ QHash<QString,QString> PVCore::PVArgumentKey::_key_desc;
 
 // Inspired from QSettingsPrivate functions !
 
+//int PVCore::PVArgumentList::remove(const PVArgumentKey& key)
+//{
+//
+//}
+//
+//PVCore::PVArgumentList::iterator PVCore::PVArgumentList::insert(const PVArgumentKey& key, const PVArgument & value)
+//{
+//	QHash::insert()
+//}
+
 static QStringList splitArgs(const QString &s, int idx)
 {
 	int l = s.length();
@@ -68,8 +78,7 @@ PVCore::PVArgument PVCore::QString_to_PVArgument(const QString &s, const QVarian
 	bool ok = true;
 
 	if (v.userType() >= QMetaType::User) { // custom type
-		var = static_cast<const PVArgumentTypeBase*>(v.constData())->from_string(s);
-
+		var = static_cast<const PVArgumentTypeBase*>(v.constData())->from_string(s, &ok);
 	}
 	else // builtin type
 	{
@@ -157,7 +166,7 @@ void PVCore::dump_argument_list(PVArgumentList const& l)
 {
 	PVCore::PVArgumentList::const_iterator it;
 	for (it = l.begin(); it != l.end(); it++) {
-		PVLOG_DEBUG("%s = %s (%s)\n", qPrintable(it.key().key()), qPrintable(it.value().toString()), qPrintable(PVArgument_to_QString(it.value())));
+		PVLOG_INFO("%s = %s (%s)\n", qPrintable(it.key().key()), qPrintable(it.value().toString()), qPrintable(PVArgument_to_QString(it.value())));
 	}
 }
 

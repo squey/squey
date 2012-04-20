@@ -4,6 +4,7 @@
 #include <QDialog>
 #include <QComboBox>
 #include <QWidget>
+#include <QDialogButtonBox>
 
 #include <pvkernel/core/PVAxesIndexType.h>
 #include <picviz/PVView_types.h>
@@ -29,6 +30,7 @@ private:
 	Picviz::PVView const& _view;
 	PVWidgets::PVAxesIndexEditor* _axes_editor;
 	QComboBox* _combo_modes;
+	QDialogButtonBox* _btns;
 };
 
 }

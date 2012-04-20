@@ -766,7 +766,7 @@ void PVRush::PVXmlTreeNodeDom::getChildrenFromField(PVCore::PVField const& field
 	PVCore::list_fields &lf_res = filter_clone->operator()(lf);
 	if (!field.elt_parent()->valid()) {
 		// The filter failed, we can't do much from now.
-		PVLOG_INFO("(getChildrenFromField) splitter returns an invalid field.\n", qPrintable(plugin_name), lf_res.size());
+		//PVLOG_INFO("(getChildrenFromField) splitter returns an invalid field.\n", qPrintable(plugin_name), lf_res.size());
 		if (force_nchild > 0) {
 			setNbr(force_nchild);
 		}

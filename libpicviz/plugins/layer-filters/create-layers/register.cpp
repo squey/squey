@@ -26,9 +26,9 @@ static int append_tag(QString tag)
 static int handle_create_layers_section(QString section_name, QMap<QString, QStringList> layers_regex)
 {
 	QStringList section_tags = section_name.split(":");
-	QString menu_name = QString("Create Layers/") + section_tags[0];
+	QString reg_name = QString("create-layers-") + section_tags[0];
 
-	REGISTER_CLASS_WITH_ARGS(menu_name, Picviz::PVLayerFilterCreateLayers, section_name, layers_regex);
+	REGISTER_CLASS_WITH_ARGS(reg_name, Picviz::PVLayerFilterCreateLayers, section_name, layers_regex);
  	if (section_tags.size() > 1) {
 		append_tag(section_tags[1]);
 	}

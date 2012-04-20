@@ -68,6 +68,10 @@ bool comp_hash(PVCore::PVArgumentList const& h1, PVCore::PVArgumentList const& h
 		PVCore::PVArgument arg1 = h1[key];
 		PVCore::PVArgument arg2 = h2[key];
 
+		if (!arg1.isValid() || !arg1.isValid()) {
+			return false;
+		}
+
 		if (arg1.userType() >= QMetaType::User && arg1.userType() == arg2.userType()) { // custom type
 			const PVArgumentTypeBase* v1 = static_cast<const PVArgumentTypeBase*>(arg1.constData());
 			const PVArgumentTypeBase* v2 = static_cast<const PVArgumentTypeBase*>(arg2.constData());
