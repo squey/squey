@@ -22,13 +22,20 @@ DEFAULT_ARGS_FUNC(Picviz::PVRFFAxesBindNearestNeighbors)
 
 void Picviz::PVRFFAxesBindNearestNeighbors::set_args(PVCore::PVArgumentList const& args)
 {
-	PVFunctionArgsBase::set_args(args);
+	PVSelRowFilteringFunction::set_args(args);
 	_axis_org = args["axis_org"].value<PVCore::PVAxisIndexType>().get_original_index();
 	_axis_dst = args["axis_dst"].value<PVCore::PVAxisIndexType>().get_original_index();
 	_distance = args["distance"].toFloat();
 }
 
-void Picviz::PVRFFAxesBindNearestNeighbors::pre_process(PVView const& /*view_org*/, PVView const& view_dst)
+QString Picviz::PVRFFAxesBindNearestNeighbors::get_human_name_with_args(const PVView& src_view, const PVView& dst_view) const
+{
+	QString dist;
+	dist.setNum(_distance, 'f', 2);
+	return get_human_name() + " (" + src_view.get_axis_name(_axis_org) + " -> " + dst_view.get_axis_name(_axis_dst) + " [" + dist +"])";
+}
+
+void Picviz::PVRFFAxesBindNearestNeighbors::do_pre_process(PVView const& /*view_org*/, PVView const& view_dst)
 {
 	BENCH_START(b);
 

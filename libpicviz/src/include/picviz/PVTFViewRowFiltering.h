@@ -21,7 +21,7 @@ public:
 	void pre_process(PVView const& view_src, PVView const& view_dst);
 
 	PVSelection operator()(PVView const& view_src, PVView const& view_dst, PVSelection const& sel_org) const;
-	list_rff_t get_rffs() { return _rffs; }
+	list_rff_t& get_rffs() { return _rffs; }
 	void set_rffs(list_rff_t rffs) { _rffs = rffs; }
 
 public:

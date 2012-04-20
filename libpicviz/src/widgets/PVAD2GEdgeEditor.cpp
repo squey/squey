@@ -19,6 +19,7 @@ PVWidgets::PVAD2GEdgeEditor::PVAD2GEdgeEditor(Picviz::PVView const& view_org, Pi
 
 	// Widgets
 	_list = new QListView();
+	_list->setMinimumWidth(400);
 	QPushButton* btn_add = new QPushButton(tr("Add"));
 	QPushButton* btn_edit = new QPushButton(tr("Edit"));
 	QPushButton* btn_remove = new QPushButton(tr("Remove"));
@@ -63,6 +64,7 @@ bool PVWidgets::PVAD2GEdgeEditor::edit_rff(Picviz::PVSelRowFilteringFunction_p& 
 	PVAD2GFunctionPropertiesDialog* dlg = new PVAD2GFunctionPropertiesDialog(_view_org, _view_dst, *rff, this);
 	if (dlg->exec() == QDialog::Accepted) {
 		rff = dlg->get_rff();
+		//_tf.update_rff(rff);
 		return true;
 	}
 	return false;
@@ -79,7 +81,6 @@ void PVWidgets::PVAD2GEdgeEditor::add_function_Slot()
 
 	if (edit_rff(new_rff)) {
 		_rff_list_model->addRow(_list->selectionModel()->currentIndex(), new_rff);
-		_tf.set_rffs(_rff_list_model->getRFFList());
 
 //		QModelIndex model_index = _list->selectionModel()->currentIndex();
 //		_list->model()->insertRow(model_index.row());
@@ -108,7 +109,6 @@ void PVWidgets::PVAD2GEdgeEditor::remove_function_Slot()
 	QMessageBox* box = new QMessageBox(QMessageBox::Question, tr("Confirm remove."), tr("Do you really want to remove row filter?"), QMessageBox::Yes | QMessageBox::No, this);
 	if (box->exec() == QMessageBox::Yes) {
 		_list->model()->removeRow(_list->selectionModel()->currentIndex().row());
-		_tf.set_rffs(_rff_list_model->getRFFList());
 		//_tf.remove_rff(_list->selectionModel()->currentIndex().row());
 		//_list->model()->reset();
 	}

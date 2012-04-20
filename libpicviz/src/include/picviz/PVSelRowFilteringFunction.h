@@ -20,7 +20,25 @@ class PVSelRowFilteringFunction: public PVCore::PVFunctionArgs<boost::function<v
 public:
 	typedef boost::shared_ptr<PVSelRowFilteringFunction> p_type;
 public:
-	virtual void pre_process(PVView const& view_org, PVView const& view_dst) = 0;
+	PVSelRowFilteringFunction()
+	{
+		_do_pre_process = true;
+		_last_args = _args;
+	}
+	virtual void set_args(PVCore::PVArgumentList const& args)
+	{
+		_do_pre_process = !PVCore::comp_hash(_last_args, args, get_args_keys_for_preprocessing());
+		PVCore::PVFunctionArgsBase::set_args(args);
+	}
+	void pre_process(PVView const& view_org, PVView const& view_dst)
+	{
+		if (_do_pre_process) {
+			do_pre_process(view_org, view_dst);
+			_last_args = _args;
+			_do_pre_process = false ;
+		}
+	}
+	virtual void do_pre_process(PVView const& view_org, PVView const& view_dst) = 0;
 	virtual void operator()(PVRow row_org, PVView const& view_org, PVView const& view_dst, PVSelection& sel_dst) const = 0;
 	virtual QString get_human_name() const { return registered_name(); }
 	virtual QString get_human_name_with_args(const PVView& /*src_view*/, const PVView& /*dst_view*/) const { return get_human_name(); }
@@ -34,6 +52,7 @@ public:
 	inline void set_args_for_dst_view(PVCore::PVArgumentList const& v_args) { set_args_for_view(v_args, get_arg_keys_for_dst_view()); }
 
 protected:
+	virtual PVCore::PVArgumentKeyList get_args_keys_for_preprocessing() { return _args.keys(); }
 	virtual PVCore::PVArgumentKeyList get_arg_keys_for_org_view() const = 0;
 	virtual PVCore::PVArgumentKeyList get_arg_keys_for_dst_view() const = 0;
 	virtual PVCore::PVArgumentKeyList get_global_arg_keys() const
@@ -58,8 +77,12 @@ private:
 	{
 		PVCore::PVArgumentList args = get_args();
 		PVCore::PVArgumentList_set_common_args_from(args, filter_argument_list_with_keys(v_args, keys, get_default_args()));
+
 		set_args(args);
 	}
+
+	bool _do_pre_process;
+	PVCore::PVArgumentList _last_args;
 };
 
 #define CLASS_RFF(T)\

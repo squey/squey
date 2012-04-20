@@ -12,8 +12,7 @@ class PVAD2GRFFListModel : public QAbstractListModel
 {
     Q_OBJECT
 public:
-    explicit PVAD2GRFFListModel(QObject *parent = 0);
-    PVAD2GRFFListModel(const Picviz::PVView& src_view, const Picviz::PVView& dst_view, const Picviz::PVTFViewRowFiltering::list_rff_t &rffs, QObject *parent = 0);
+    PVAD2GRFFListModel(const Picviz::PVView& src_view, const Picviz::PVView& dst_view, Picviz::PVTFViewRowFiltering::list_rff_t &rffs, QObject *parent = 0);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
 
@@ -28,16 +27,14 @@ public:
 
     //void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
 
-    Picviz::PVTFViewRowFiltering::list_rff_t getRFFList() const;
-    void setRFFList(const Picviz::PVTFViewRowFiltering::list_rff_t &rffs);
+    Picviz::PVTFViewRowFiltering::list_rff_t& get_rffs() const;
 
     Qt::DropActions supportedDropActions() const;
 
 private:
-    Q_DISABLE_COPY(PVAD2GRFFListModel)
-    Picviz::PVTFViewRowFiltering::list_rff_t _rffs;
-    const Picviz::PVView* _src_view;
-    const Picviz::PVView* _dst_view;
+    Picviz::PVTFViewRowFiltering::list_rff_t& _rffs;
+    const Picviz::PVView& _src_view;
+    const Picviz::PVView& _dst_view;
 };
 
 }
