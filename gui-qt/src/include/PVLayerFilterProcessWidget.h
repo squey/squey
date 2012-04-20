@@ -2,9 +2,12 @@
 #define PVINSPECTOR_PVLAYERFILTERPROCESSWIDGET_H
 
 #include <picviz/PVLayerFilter.h>
-#include "PVArgumentListWidget.h"
 #include "PVTabSplitter.h"
 #include <pvkernel/widgets/PVPresetsWidget.h>
+
+namespace PVWidgets {
+class PVArgumentListWidget;
+}
 
 namespace PVInspector {
 
@@ -54,7 +57,7 @@ protected:
 	QPushButton* _apply_btn;
 	Picviz::PVLayer _pre_filter_layer_org;
 	PVCore::PVArgumentList _args_org;
-	PVArgumentListWidget* _args_widget;
+	PVWidgets::PVArgumentListWidget* _args_widget;
 	QHBoxLayout* _btn_layout;
 
 private:

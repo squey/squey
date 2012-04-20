@@ -2,6 +2,7 @@ include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/libpicviz/src/include)
 
 add_definitions(${PICVIZ_DEFINITIONS})
 include_directories(AFTER ${PICVIZ_INCLUDE_DIRS})
+include_directories(AFTER ${TULIP_INCLUDE_DIR})
 
 if (NOT WIN32)
 set(MATHS_LIBRARY "-lm")
@@ -38,6 +39,7 @@ include/picviz/limits.h
 include/picviz/memory.h
 include/picviz/plugins.h
 
+include/picviz/PVAD2GView.h
 include/picviz/PVAxesCombination.h
 include/picviz/PVAxis.h
 include/picviz/PVBitset.h
@@ -72,6 +74,14 @@ include/picviz/PVVector.h
 include/picviz/PVView.h
 include/picviz/PVZLevelArray.h
 
+# Correlation files
+include/picviz/PVSelRowFilteringFunction.h
+include/picviz/PVSelRowFilteringFunction_types.h
+include/picviz/PVTFViewRowFiltering.h
+include/picviz/PVTFViewRowFilterFastIPv4.h
+include/picviz/PVTransformationFunctionView.h
+include/picviz/PVTransformationFunctionView_types.h
+
 include/picviz/square-area.h
 include/picviz/tags.h
 include/picviz/time.h
@@ -100,6 +110,7 @@ init.cpp
 #layer-stack.cpp 
 #line-properties.cpp 
 
+PVAD2GView.cpp
 PVAxesCombination.cpp
 PVAxis.cpp
 PVEventline.cpp
@@ -134,6 +145,11 @@ PVVector.cpp
 PVView.cpp
 PVZLevelArray.cpp
 
+# Correlation files
+PVCombiningFunctionView.cpp
+PVTFViewRowFiltering.cpp
+PVTFViewRowFilterFastIPv4.cpp
+
 memory.cpp
 plugins.cpp
 #square-area.cpp
@@ -142,12 +158,44 @@ update-protocol.cpp
 #z-level-array.cpp
 )
 
+set(WIDGETS_MOC_HEADERS
+include/picviz/widgets/PVAD2GWidget.h
+include/picviz/widgets/PVAD2GFunctionPropertiesDialog.h
+include/picviz/widgets/PVAD2GFunctionPropertiesWidget.h
+include/picviz/widgets/PVAD2GInteractor.h
+include/picviz/widgets/PVAD2GEdgeEditor.h
+include/picviz/widgets/PVArgumentListWidgetFactory.h
+include/picviz/widgets/PVViewArgumentEditorCreator.h
+include/picviz/widgets/PVAD2GRFFListModel.h
+
+include/picviz/widgets/editors/PVAxisIndexEditor.h
+include/picviz/widgets/editors/PVAxisIndexCheckBoxEditor.h
+include/picviz/widgets/editors/PVAxesIndexEditor.h
+include/picviz/widgets/editors/PVLayerEnumEditor.h
+include/picviz/widgets/editors/PVViewRowsSpinBoxEditor.h
+)
+
+set(WIDGETS_SRC_FILES
+widgets/PVAD2GWidget.cpp
+widgets/PVAD2GInteractor.cpp
+widgets/PVAD2GEdgeEditor.cpp
+widgets/PVAD2GFunctionPropertiesDialog.cpp
+widgets/PVAD2GFunctionPropertiesWidget.cpp
+widgets/PVArgumentListWidgetFactory.cpp
+widgets/PVAD2GRFFListModel.cpp
+
+widgets/editors/PVAxisIndexEditor.cpp
+widgets/editors/PVAxisIndexCheckBoxEditor.cpp
+widgets/editors/PVAxesIndexEditor.cpp
+widgets/editors/PVLayerEnumEditor.cpp
+widgets/editors/PVViewRowsSpinBoxEditor.cpp
+)
+
 set(MOC_HEADERS
 include/picviz/PVSortQVectorQStringList.h
 include/picviz/PVSortQVectorQStringListThread.h
-
 )
-QT4_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})
+QT4_WRAP_CPP(MOC_SRC ${MOC_HEADERS} ${WIDGETS_MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})
 
 if(CUDA_FOUND)
   set(CUDA_PROPAGATE_HOST_FLAGS "OFF")
@@ -167,9 +215,9 @@ if(CUDA_FOUND)
   add_definitions(-DPICVIZ_PLOTTING_FILTERS_DIR="${PICVIZ_PLOTTING_FILTERS_DIR}")
 
 #  cuda_add_library(picviz SHARED ${CUDA_GENERATED_FILES} ${CUDA_HEADER_FILES})
-  cuda_add_library(picviz SHARED ${SRC_FILES} ${HEADER_FILES} ${MOC_SRC} ${MOC_HEADERS} ${CUDA_GENERATED_FILES})
+  cuda_add_library(picviz SHARED ${SRC_FILES} ${WIDGETS_SRC_FILES} ${HEADER_FILES} ${MOC_SRC} ${MOC_HEADERS} ${CUDA_GENERATED_FILES})
 else(CUDA_FOUND)
-  add_library(picviz SHARED ${SRC_FILES} ${HEADER_FILES} ${MOC_SRC} ${MOC_HEADERS} ${NONCUDA_SRC_FILES} ${NONCUDA_HEADER_FILES})
+  add_library(picviz SHARED ${SRC_FILES} ${WIDGETS_SRC_FILES} ${HEADER_FILES} ${MOC_SRC} ${MOC_HEADERS} ${NONCUDA_SRC_FILES} ${NONCUDA_HEADER_FILES})
 endif(CUDA_FOUND)
 #add_library(picviz STATIC ${SRC_FILES} ${HEADER_FILES})
 
@@ -177,7 +225,7 @@ add_definitions(-DUSE_PARALLEL_MAPPING_FILTERS)
 add_definitions(-DUSE_PARALLEL_PLOTTING_FILTERS)
 set_target_properties(picviz PROPERTIES SOVERSION 1)
 
-target_link_libraries(picviz ${MATHS_LIBRARY} ${PICVIZ_LIBRARIES_WITHOUT_PICVIZ} ${QT_LIBRARIES} ${PVKERNEL_LIBRARY} ${TBB_LIBRARIES} ${Boost_LIBRARIES} ${ICU_LIBRARY} ${OpenMP_LIBRARIES})
+target_link_libraries(picviz ${MATHS_LIBRARY} ${PICVIZ_LIBRARIES_WITHOUT_PICVIZ} ${QT_LIBRARIES} ${PVKERNEL_LIBRARY} ${TBB_LIBRARIES} ${Boost_LIBRARIES} ${ICU_LIBRARY} ${OpenMP_LIBRARIES} ${TULIP_LIBRARY} ${TULIP_QT4_LIBRARY} ${TULIP_OGL_LIBRARY})
 
 INSTALL(TARGETS picviz LIBRARY DESTINATION .
                        RUNTIME DESTINATION .)

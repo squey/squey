@@ -1,6 +1,8 @@
 #include <pvkernel/core/PVAxisIndexType.h>
 #include <pvkernel/core/PVClassLibrary.h>
+#include <pvkernel/widgets/PVArgumentListWidget.h>
 #include <picviz/PVAxisComputation.h>
+#include <picviz/widgets/PVArgumentListWidgetFactory.h>
 
 #include <PVAxisComputationDlg.h>
 
@@ -8,7 +10,7 @@ PVInspector::PVAxisComputationDlg::PVAxisComputationDlg(Picviz::PVView& view, QW
 	QDialog(parent)
 {
 	setupUi(this);
-	_args_plugin_widget->set_widget_factory(PVArgumentListWidget::create_layer_widget_factory(view));
+	_args_plugin_widget->set_widget_factory(PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_factory(view));
 
 	init_plugins(_combo_plugins);
 	update_plugin_args();

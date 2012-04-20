@@ -43,9 +43,6 @@ add_definitions(${PVGL_FLAGS})
 
 #include_directories(AFTER ${GLUT_INCLUDE_DIR})
 SET(MOC_HEADERS
-include/PVArgumentEditorCreator.h
-include/PVArgumentListModel.h
-include/PVArgumentListWidget.h
 include/PVAxisComputationDlg.h
 include/PVAxisPropertiesWidget.h
 include/PVAxesCombinationWidget.h
@@ -92,18 +89,6 @@ include/PVViewsModel.h
 
 widgets/PVCheckableComboBox.h
 
-widgets/editors/include/PVAxisIndexEditor.h
-widgets/editors/include/PVAxisIndexCheckBoxEditor.h
-widgets/editors/include/PVAxesIndexEditor.h
-widgets/editors/include/PVColorGradientDualSliderEditor.h
-widgets/editors/include/PVEnumEditor.h
-widgets/editors/include/PVLayerEnumEditor.h
-widgets/editors/include/PVPlainTextEditor.h
-widgets/editors/include/PVRegexpEditor.h
-widgets/editors/include/PVSpinBoxEditor.h
-#widgets/editors/include/PVTextEditEditor.h
-widgets/editors/include/PVTimeFormatEditor.h
-
 widgets/helpers/include/PVAxisTypeWidget.h
 widgets/helpers/include/PVComboBox.h
 widgets/helpers/include/PVMappingModeWidget.h
@@ -141,8 +126,6 @@ widgets/format-builder/include/PVXmlTimeValidatorHighLight.h
 SET(SRC_FILES
 #GKMapView.cpp
 main.cpp
-PVArgumentListModel.cpp
-PVArgumentListWidget.cpp
 PVAxisComputationDlg.cpp
 PVAxisPropertiesWidget.cpp
 PVAxesCombinationWidget.cpp
@@ -189,18 +172,6 @@ PVViewsListingWidget.cpp
 PVViewsModel.cpp
 
 widgets/PVCheckableComboBox.cpp
-
-widgets/editors/PVAxisIndexEditor.cpp
-widgets/editors/PVAxisIndexCheckBoxEditor.cpp
-widgets/editors/PVAxesIndexEditor.cpp
-widgets/editors/PVColorGradientDualSliderEditor.cpp
-widgets/editors/PVEnumEditor.cpp
-widgets/editors/PVLayerEnumEditor.cpp
-widgets/editors/PVPlainTextEditor.cpp
-widgets/editors/PVRegexpEditor.cpp
-widgets/editors/PVSpinBoxEditor.cpp
-widgets/editors/PVTimeFormatEditor.cpp
-#widgets/editors/PVTextEditEditor.cpp
 
 widgets/format-builder/PVAxisTagHelp.cpp
 widgets/format-builder/PVFormatBuilderWidget.cpp

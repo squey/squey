@@ -62,4 +62,29 @@ bool comp_hash(PVCore::PVArgumentList const& h1, PVCore::PVArgumentList const& h
 	return true;
 }
 
+bool comp_hash(PVCore::PVArgumentList const& h1, PVCore::PVArgumentList const& h2, const PVCore::PVArgumentKeyList& keys)
+{
+	foreach (PVCore::PVArgumentKey key, keys) {
+		PVCore::PVArgument arg1 = h1[key];
+		PVCore::PVArgument arg2 = h2[key];
+
+		if (!arg1.isValid() || !arg1.isValid()) {
+			return false;
+		}
+
+		if (arg1.userType() >= QMetaType::User && arg1.userType() == arg2.userType()) { // custom type
+			const PVArgumentTypeBase* v1 = static_cast<const PVArgumentTypeBase*>(arg1.constData());
+			const PVArgumentTypeBase* v2 = static_cast<const PVArgumentTypeBase*>(arg2.constData());
+			if (!v1->is_equal(*v2)) {
+				return false;
+			}
+		}
+		else if (arg1 != arg2) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
 }

@@ -16,6 +16,10 @@ add_test(TestRoot Tpicviz_root)
 #target_link_libraries(Tpicviz_bench_mapping_time ${LINK_LIBRARIES})
 
 
+# AD2G Widget
+add_executable(Tpicviz_AD2GWidget AD2GWidget.cpp)
+target_link_libraries(Tpicviz_AD2GWidget ${LINK_LIBRARIES})
+
 add_executable(TPVSelection PVSelection.cpp)
 target_link_libraries(TPVSelection ${LINK_LIBRARIES})
 add_test(TestPVSelection TPVSelection)
@@ -37,6 +41,10 @@ target_link_libraries(Tpicviz_source_serialize ${LINK_LIBRARIES})
 # Object sizes
 add_executable(Tpicviz_sizes sizes.cpp)
 target_link_libraries(Tpicviz_sizes ${LINK_LIBRARIES})
+
+# PVAD2GView
+add_executable(Tpicviz_ad2gview ad2gview.cpp)
+target_link_libraries(Tpicviz_ad2gview ${LINK_LIBRARIES} ${TULIP_LIBRARY})
 
 # Mapping plugin test
 #add_executable(Tpicviz_plugin_mapping plugin-mapping.cpp)

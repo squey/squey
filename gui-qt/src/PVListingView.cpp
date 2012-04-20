@@ -110,8 +110,6 @@ void PVInspector::PVListingView::update_view_selection_from_listing_selection()
 {
 	/* VARIABLES */
 	Picviz::PVStateMachine *state_machine;
-	int i;
-	int number_of_items;
 	QModelIndexList selected_items_list;
 	PVListingSortFilterProxyModel* myModel = get_listing_model();
 	int modifiers;

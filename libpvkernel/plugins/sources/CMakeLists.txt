@@ -1,7 +1,7 @@
 set(SOURCES_DIST_LIST
 source_text_file
 source_pcap_file
-source_perl_file
+#source_perl_file
 )
 
 
@@ -27,14 +27,14 @@ if(PERLLIBS_FOUND)
 	target_link_libraries(source_perl_file ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES} ${PERL_LIBRARY})
 
 
-	set(SOURCES_DIST_LIST ${SOURCES_DIST_LIST} source_perl_file)
+	#set(SOURCES_DIST_LIST ${SOURCES_DIST_LIST} source_perl_file)
 endif(PERLLIBS_FOUND)
 
 if(PYTHONLIBS_FOUND)
 	# AG: BEFORE here is important, or boost does not include the good patchlevel.h (from Python), and does not
 	# find the good Python version !!
 	include_directories(BEFORE ${PYTHON_INCLUDE_DIRS})
- 	add_library(source_python_file SHARED python_file/PVPythonSource.cpp python_file/PVPythonSource.h python_file/PVSourceCreatorPythonfile.cpp python_file/PVSourceCreatorPythonfile.h python_file/register.cpp)
+	add_library(source_python_file SHARED python_file/PVPythonSource.cpp python_file/PVPythonSource.h python_file/PVSourceCreatorPythonfile.cpp python_file/PVSourceCreatorPythonfile.h python_file/register.cpp)
 	target_link_libraries(source_python_file ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES} ${PYTHON_LIBRARIES} ${Boost_LIBRARIES_PYTHON})
 endif(PYTHONLIBS_FOUND)
 

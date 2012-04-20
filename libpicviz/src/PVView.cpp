@@ -75,6 +75,7 @@ void Picviz::PVView::init_defaults()
 {
 	_is_consistent = false;
 	active_axis = 0;
+	_rushnraw_parent = NULL;
 
 	last_extractor_batch_size = pvconfig.value("pvkernel/rush/extract_next", PVEXTRACT_NUMBER_LINES_NEXT_DEFAULT).toInt();
 
@@ -94,6 +95,8 @@ void Picviz::PVView::init_from_plotted(PVPlotted* parent, bool keep_layers)
 {
 	root = parent->get_root_parent();
 	plotted = parent;
+	_rushnraw_parent = &plotted->get_mapped_parent()->get_source_parent()->get_rushnraw();
+	_mapped_parent = plotted->get_mapped_parent();
 
 	// Init default axes combination from source
 	if (keep_layers) {
@@ -253,7 +256,7 @@ PVCol Picviz::PVView::get_axes_count()
  * Picviz::PVView::get_axes_names_list
  *
  *****************************************************************************/
-QStringList Picviz::PVView::get_axes_names_list()
+QStringList Picviz::PVView::get_axes_names_list() const
 {
 	return axes_combination.get_axes_names_list();
 }
@@ -340,16 +343,6 @@ PVCore::PVUnicodeString const& Picviz::PVView::get_data_unistr(PVRow row, PVCol 
 PVCol Picviz::PVView::get_real_axis_index(PVCol col)
 {
 	return axes_combination.get_axis_column_index(col);
-}
-
-/******************************************************************************
- *
- * Picviz::PVView::get_data
- *
- *****************************************************************************/
-QString Picviz::PVView::get_data_raw(PVRow row, PVCol column)
-{
-	return get_qtnraw_parent().at(row, column).get_qstr();
 }
 
 /******************************************************************************
@@ -482,21 +475,6 @@ bool Picviz::PVView::get_line_state_in_pre_filter_layer(PVRow index) const
 
 /******************************************************************************
  *
- * Picviz::PVView::get_mapped_parent
- *
- *****************************************************************************/
-Picviz::PVMapped* Picviz::PVView::get_mapped_parent()
-{
-	return plotted->get_mapped_parent();
-}
-
-const Picviz::PVMapped* Picviz::PVView::get_mapped_parent() const
-{
-	return plotted->get_mapped_parent();
-}
-
-/******************************************************************************
- *
  * Picviz::PVView::get_nu_selection
  *
  *****************************************************************************/
@@ -587,25 +565,15 @@ const PVRush::PVNraw::nraw_table& Picviz::PVView::get_qtnraw_parent() const
 
 /******************************************************************************
  *
- * Picviz::PVView::get_rushnraw_parent
- *
- *****************************************************************************/
-PVRush::PVNraw& Picviz::PVView::get_rushnraw_parent()
-{
-	return plotted->get_mapped_parent()->get_source_parent()->get_rushnraw();
-}
-
-const PVRush::PVNraw& Picviz::PVView::get_rushnraw_parent() const
-{
-	return plotted->get_mapped_parent()->get_source_parent()->get_rushnraw();
-}
-
-/******************************************************************************
- *
  * Picviz::PVView::get_real_output_selection
  *
  *****************************************************************************/
 Picviz::PVSelection &Picviz::PVView::get_real_output_selection()
+{
+	return real_output_selection;
+}
+
+Picviz::PVSelection const& Picviz::PVView::get_real_output_selection() const
 {
 	return real_output_selection;
 }
@@ -625,7 +593,7 @@ Picviz::PVRoot* Picviz::PVView::get_root()
  * Picviz::PVView::get_row_count
  *
  *****************************************************************************/
-PVRow Picviz::PVView::get_row_count()
+PVRow Picviz::PVView::get_row_count() const
 {
 	return plotted->get_row_count();
 }
@@ -1294,6 +1262,17 @@ void Picviz::PVView::set_selection_from_layer(PVLayer const& layer)
 	process_from_selection();
 }
 
+/******************************************************************************
+ *
+ * Picviz::PVView::set_selection_view
+ *
+ *****************************************************************************/
+void Picviz::PVView::set_selection_view(PVSelection const& sel)
+{
+	state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
+	volatile_selection = sel;
+	process_from_selection();
+}
 /******************************************************************************
  *
  * Picviz::PVView::sortByColumn
