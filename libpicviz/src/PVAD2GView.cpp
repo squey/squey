@@ -401,15 +401,10 @@ void Picviz::PVAD2GView::count_path_number_rec(const tlp::node& a, const tlp::no
 	visited.insert(a);
 
 	forEach(next, _graph->getOutNodes(a)) {
-		bool loop_in_path = false;
-
 		// skipping paths with loop
-		for(graph_path_t::iterator it = path.begin(); it != path.end(); ++it)
-			if(*it == next)
-				loop_in_path = true;
-		if(loop_in_path)
+		graph_path_t::iterator it = std::find(path.begin(), path.end(), next);
+		if (it != path.end())
 			continue;
-
 
 		if(next == b) {
 			++count;
