@@ -193,7 +193,7 @@ void PVWidgets::PVPresetsWidget::item_changed_Slot(QListWidgetItem* item)
 	_list->blockSignals(false);
 }
 
-void PVWidgets::PVPresetsWidget::text_changed_Slot(const QString& /*text*/)
+void PVWidgets::PVPresetsWidget::update_actions_availability()
 {
 	bool enabled = _list->count();
 	_loadAct->setEnabled(enabled);
