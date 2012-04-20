@@ -144,15 +144,37 @@ tlp::node Picviz::PVAD2GView::add_view(Picviz::PVView *view)
 
 /******************************************************************************
  *
- * Picviz::PVAD2GView::add_view
+ * Picviz::PVAD2GView::del_view_by_node
  *
  *****************************************************************************/
-Picviz::PVView* Picviz::PVAD2GView::get_view(tlp::node n)
+void Picviz::PVAD2GView::del_view_by_node(tlp::node node)
 {
-	if(_graph->isElement(n) == false)
-		return NULL;
+	tlp::edge edge;
 
-	return _corr_info->getNodeValue(n).get_data();
+	if(node.isValid() == false)
+		return;
+
+	// Tulip removes node and its connected edges but not the properties
+	_corr_info->setNodeValue(node, 0);
+
+	forEach(edge, _graph->getInOutEdges(node)) {
+		_corr_info->setEdgeValue(edge, PVAD2GViewEdge());
+	}
+
+	_graph->delNode(node);
+}
+
+/******************************************************************************
+ *
+ * Picviz::PVAD2GView::get_view
+ *
+ *****************************************************************************/
+Picviz::PVView* Picviz::PVAD2GView::get_view(tlp::node node)
+{
+	if(_graph->isElement(node) == false)
+		return 0;
+
+	return _corr_info->getNodeValue(node).get_data();
 }
 
 /******************************************************************************
@@ -188,6 +210,28 @@ tlp::edge Picviz::PVAD2GView::set_edge_f(const Picviz::PVView *va,
 
 /******************************************************************************
  *
+ * Picviz::PVAD2GView::set_edge_f
+ *
+ *****************************************************************************/
+tlp::edge Picviz::PVAD2GView::set_edge_f(const tlp::node na,
+                                         const tlp::node nb,
+                                         PVCombiningFunctionView_p cfview)
+{
+	tlp::edge edge = _graph->existEdge(na, nb, true);
+
+	if(edge.isValid() == false) {
+		edge = _graph->addEdge(na, nb);
+		if(edge.isValid() == false)
+			return TLP_EDGE_INVALID;
+	}
+
+	_corr_info->setEdgeValue(edge, cfview);
+
+	return edge;
+}
+
+/******************************************************************************
+ *
  * Picviz::PVAD2GView::get_edge_f
  *
  *****************************************************************************/
@@ -199,6 +243,19 @@ Picviz::PVCombiningFunctionView_p Picviz::PVAD2GView::get_edge_f(const tlp::edge
 
 
 	return _corr_info->getEdgeValue(edge).get_data();
+}
+
+/******************************************************************************
+ *
+ * Picviz::PVAD2GView::get_edge_views
+ *
+ *****************************************************************************/
+Picviz::PVAD2GView::graph_edge_views_t Picviz::PVAD2GView::get_edge_views(const tlp::edge edge) const
+{
+	std::pair<tlp::node, tlp::node> res = _graph->ends(edge);
+
+	return Picviz::PVAD2GView::graph_edge_views_t(_corr_info->getNodeValue(res.first).get_data(),
+	                                              _corr_info->getNodeValue(res.second).get_data());
 }
 
 /******************************************************************************

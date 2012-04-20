@@ -8,6 +8,7 @@
 
 #include <list>
 #include <set>
+#include <utility>
 
 // forward declaration of tlp::Graph and tlp::node
 namespace tlp {
@@ -53,6 +54,7 @@ class PVAD2GView
 	typedef boost::function<void(Picviz::PVCombiningFunctionView&, Picviz::PVView& va, Picviz::PVView& vb)> graph_func_t;
 	typedef std::list<tlp::node> graph_path_t;
 	typedef std::set<tlp::node> graph_visited_t;
+	typedef std::pair<PVView*, PVView*> graph_edge_views_t;
 
 public:
 	PVAD2GView(Picviz::PVScene* scene);
@@ -64,12 +66,15 @@ public:
 
 public:
 	tlp::node add_view(Picviz::PVView *view);
-	Picviz::PVView* get_view(tlp::node n);
+	void del_view_by_node(tlp::node node);
+	Picviz::PVView* get_view(tlp::node node);
 
 	tlp::edge set_edge_f(const Picviz::PVView *va, const Picviz::PVView *vb,
 	                     PVCombiningFunctionView_p cfview);
-
+	tlp::edge set_edge_f(const tlp::node na, const tlp::node nb,
+	                     PVCombiningFunctionView_p cfview);
 	Picviz::PVCombiningFunctionView_p get_edge_f(const tlp::edge edge) const;
+	graph_edge_views_t get_edge_views(const tlp::edge edge) const;
 
 public:
 	void pre_process() const {
