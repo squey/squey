@@ -69,6 +69,7 @@ public:
 	void del_view_by_node(tlp::node node);
 	Picviz::PVView* get_view(tlp::node node);
 
+public:
 	tlp::edge set_edge_f(const Picviz::PVView *va, const Picviz::PVView *vb,
 	                     PVCombiningFunctionView_p cfview);
 	tlp::edge set_edge_f(const tlp::node na, const tlp::node nb,
