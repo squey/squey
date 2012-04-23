@@ -66,6 +66,7 @@ public:
 
 public:
 	tlp::node add_view(Picviz::PVView *view);
+	void del_view(Picviz::PVView *view);
 	void del_view_by_node(tlp::node node);
 	Picviz::PVView* get_view(tlp::node node);
 
