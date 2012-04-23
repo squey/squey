@@ -9,7 +9,7 @@
 #include <picviz/PVRoot.h>
 #include <picviz/PVScene.h>
 #include <picviz/PVSource.h>
-
+#include <picviz/PVView.h>
 
 #define ARCHIVE_SCENE_DESC (QObject::tr("Workspace"))
 /******************************************************************************
@@ -56,6 +56,8 @@ void Picviz::PVScene::add_source(PVSource_p src)
 
 	// Add this source to the list of sources for this type
 	sources.push_back(src);
+
+	set_views_id();
 }
 
 Picviz::PVScene::list_sources_t Picviz::PVScene::get_all_sources() const
@@ -113,6 +115,27 @@ Picviz::PVRoot* Picviz::PVScene::get_root()
 {
 	return _root;
 }
+
+Picviz::PVView::id_t Picviz::PVScene::get_new_view_id() const
+{
+	return get_all_views().size();
+}
+
+void Picviz::PVScene::set_views_id()
+{
+	list_views_t views = get_all_views();
+	std::multimap<PVView::id_t, PVView*> map_views;
+	foreach (PVView_p const& vp, views) {
+		map_views.insert(std::make_pair(vp->get_view_id(), vp.get()));
+	}
+	PVView::id_t cur_id = 0;
+	std::multimap<PVView::id_t, PVView*>::iterator it;
+	for (it = map_views.begin(); it != map_views.end(); it++) {
+		it->second->set_view_id(cur_id);
+		cur_id++;
+	}
+}
+
 
 void Picviz::PVScene::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 {

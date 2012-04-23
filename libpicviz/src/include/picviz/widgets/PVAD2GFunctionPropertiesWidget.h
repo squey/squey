@@ -23,9 +23,10 @@ class LibPicvizDecl PVAD2GFunctionPropertiesWidget: public QWidget
 	
 	typedef std::map<Picviz::PVSelRowFilteringFunction::base_registrable, PVCore::PVArgumentList> map_rff_args_t;
 public:
-	PVAD2GFunctionPropertiesWidget(Picviz::PVView const& view_org, Picviz::PVView const& view_dst, Picviz::PVSelRowFilteringFunction const& rff, QWidget* parent = NULL);
+	PVAD2GFunctionPropertiesWidget(/*Picviz::PVView const& view_org, Picviz::PVView const& view_dst, Picviz::PVSelRowFilteringFunction const& rff,*/ QWidget* parent = NULL);
 
 public:
+	void set_current_rff(Picviz::PVView const& view_org, Picviz::PVView const& view_dst, Picviz::PVSelRowFilteringFunction const* rff);
 	Picviz::PVSelRowFilteringFunction_p get_rff() const { return _cur_rff; };
 
 public slots:
@@ -33,15 +34,18 @@ public slots:
 
 protected:
 	void init_combo_list_rffs(Picviz::PVSelRowFilteringFunction const* rff);
-	void set_current_rff(Picviz::PVSelRowFilteringFunction const* rff);
 
 protected slots:
 	void combo_func_changed(int idx);
 
 protected:
 	// Constant properties (views)
-	Picviz::PVView const& _view_org;
-	Picviz::PVView const& _view_dst;
+	const Picviz::PVView* _view_org;
+	const Picviz::PVView* _view_dst;
+
+	PVWidgets::PVArgumentListWidget* _args_org_widget;
+	PVWidgets::PVArgumentListWidget* _args_dst_widget;
+	PVWidgets::PVArgumentListWidget* _args_global_widget;
 
 	// RFFs objects
 	Picviz::PVSelRowFilteringFunction_p _cur_rff;
@@ -52,9 +56,7 @@ protected:
 	PVCore::PVArgumentList _args_dst;
 	PVCore::PVArgumentList _args_global;
 
-	PVWidgets::PVArgumentListWidget* _args_org_widget;
-	PVWidgets::PVArgumentListWidget* _args_dst_widget;
-	PVWidgets::PVArgumentListWidget* _args_global_widget;
+
 
 	// Widgets
 	QComboBox* _function_combo;

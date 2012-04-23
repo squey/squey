@@ -8,7 +8,7 @@ PVWidgets::PVAD2GFunctionPropertiesDialog::PVAD2GFunctionPropertiesDialog(Picviz
 	QDialog(parent)
 {
 	// Widgets
-	_props = new PVAD2GFunctionPropertiesWidget(view_org, view_dst, rff, this);
+	//_props = new PVAD2GFunctionPropertiesWidget(view_org, view_dst, rff, this);
 	QDialogButtonBox* btns = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 
 	// Connections

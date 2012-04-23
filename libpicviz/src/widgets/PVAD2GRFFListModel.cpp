@@ -46,7 +46,6 @@ Qt::ItemFlags PVWidgets::PVAD2GRFFListModel::flags(const QModelIndex &index) con
 
 bool PVWidgets::PVAD2GRFFListModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-	PVLOG_INFO("Picviz::PVAD2GRFFListModel::setData\n");
     if (index.row() >= 0 && index.row() < _rffs.size()
         && (role == Qt::UserRole)) {
         _rffs.replace(index.row(), ((Picviz::PVSelRowFilteringFunction*)value.value<void*>())->shared_from_this());
@@ -73,8 +72,6 @@ void PVWidgets::PVAD2GRFFListModel::addRow(QModelIndex model_index, Picviz::PVSe
 
 bool PVWidgets::PVAD2GRFFListModel::insertRows(int row, int count, const QModelIndex &parent)
 {
-	PVLOG_INFO("Picviz::PVAD2GRFFListModel::insertRows\n");
-
     if (count < 1 || row < 0 || row > rowCount(parent))
         return false;
 
@@ -90,8 +87,6 @@ bool PVWidgets::PVAD2GRFFListModel::insertRows(int row, int count, const QModelI
 
 bool PVWidgets::PVAD2GRFFListModel::removeRows(int row, int count, const QModelIndex &parent)
 {
-	PVLOG_INFO("Picviz::PVAD2GRFFListModel::removeRows\n");
-
     if (count <= 0 || row < 0 || (row + count) > rowCount(parent))
         return false;
 

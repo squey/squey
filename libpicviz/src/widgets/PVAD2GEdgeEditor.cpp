@@ -2,16 +2,18 @@
 #include <picviz/PVSelRowFilteringFunction.h>
 #include <picviz/PVTFViewRowFiltering.h>
 #include <picviz/widgets/PVAD2GEdgeEditor.h>
-#include <picviz/widgets/PVAD2GFunctionPropertiesDialog.h>
 
 #include <QPushButton>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
+#include <QLabel>
+#include <QComboBox>
 #include <QMessageBox>
 
 PVWidgets::PVAD2GEdgeEditor::PVAD2GEdgeEditor(Picviz::PVView const& view_org, Picviz::PVView const& view_dst, Picviz::PVCombiningFunctionView& cf, QWidget* parent /*= 0*/) :
-	QDialog(parent),
-	_tf(*cf.get_first_tf()),
+	QWidget(parent)/*,
+	_tf(*cf.get_first_tf())*/,
+	_rff_list_model(NULL),
 	_view_org(view_org),
 	_view_dst(view_dst)
 {
@@ -19,16 +21,19 @@ PVWidgets::PVAD2GEdgeEditor::PVAD2GEdgeEditor(Picviz::PVView const& view_org, Pi
 
 	// Widgets
 	_list = new QListView();
-	_list->setMinimumWidth(400);
-	QPushButton* btn_add = new QPushButton(tr("Add"));
-	QPushButton* btn_edit = new QPushButton(tr("Edit"));
-	QPushButton* btn_remove = new QPushButton(tr("Remove"));
-
-	// Model
-	_rff_list_model = new PVAD2GRFFListModel(view_org, view_dst, _tf.get_rffs());
+	_rff_list_model = new PVAD2GRFFListModel(view_org, view_dst, cf.get_first_tf()->get_rffs());
 	_list->setModel(_rff_list_model);
 	_list->setDragDropMode(QAbstractItemView::InternalMove);
 	_list->setDragDropOverwriteMode(true);
+	_list->setMinimumWidth(400);
+	QLabel* function_label = new QLabel("Function:");
+	_function_combo = new QComboBox();
+	init_combo_list_rffs();
+
+	QPushButton* btn_add = new QPushButton(tr("+"));
+	QPushButton* btn_edit = new QPushButton(tr("Edit"));
+	QPushButton* btn_remove = new QPushButton(tr("Remove"));
+
 
 	// Connections
 	connect(btn_add, SIGNAL(clicked()), this, SLOT(add_function_Slot()));
@@ -38,49 +43,52 @@ PVWidgets::PVAD2GEdgeEditor::PVAD2GEdgeEditor(Picviz::PVView const& view_org, Pi
 
 	// Layout
 	QHBoxLayout* main_layout = new QHBoxLayout();
-	QVBoxLayout* buttons_layout = new QVBoxLayout();
+	QVBoxLayout* list_buttons_layout = new QVBoxLayout();
+	QHBoxLayout* buttons_layout = new QHBoxLayout();
+	buttons_layout->addWidget(function_label);
+	buttons_layout->addWidget(_function_combo);
 	buttons_layout->addWidget(btn_add);
 	buttons_layout->addWidget(btn_edit);
 	buttons_layout->addWidget(btn_remove);
-	main_layout->addWidget(_list);
-	main_layout->addLayout(buttons_layout);
+	list_buttons_layout->addWidget(_list);
+	list_buttons_layout->addLayout(buttons_layout);
+	main_layout->addLayout(list_buttons_layout);
 	setLayout(main_layout);
 }
 
-Picviz::PVSelRowFilteringFunction_p PVWidgets::PVAD2GEdgeEditor::get_default_rff()
+void PVWidgets::PVAD2GEdgeEditor::init_combo_list_rffs()
 {
-	// Get first RFF plugin in the list
-	LIB_CLASS(Picviz::PVSelRowFilteringFunction)::list_classes const& classes = LIB_CLASS(Picviz::PVSelRowFilteringFunction)::get().get_list();
-	if (classes.size() == 0) {
-		return Picviz::PVSelRowFilteringFunction_p();
+	LIB_CLASS(Picviz::PVSelRowFilteringFunction)::list_classes const& rffs = LIB_CLASS(Picviz::PVSelRowFilteringFunction)::get().get_list();
+	LIB_CLASS(Picviz::PVSelRowFilteringFunction)::list_classes::const_iterator it;
+	for (it = rffs.begin(); it != rffs.end(); it++) {
+		_function_combo->addItem(it.value()->get_human_name(), QVariant(it.key()));
 	}
-
-	return classes.begin().value();
 }
 
-
-bool PVWidgets::PVAD2GEdgeEditor::edit_rff(Picviz::PVSelRowFilteringFunction_p& rff)
+void PVWidgets::PVAD2GEdgeEditor::update(Picviz::PVSelRowFilteringFunction_p& rff)
 {
-	PVAD2GFunctionPropertiesDialog* dlg = new PVAD2GFunctionPropertiesDialog(_view_org, _view_dst, *rff, this);
-	if (dlg->exec() == QDialog::Accepted) {
-		rff = dlg->get_rff();
-		return true;
-	}
-	return false;
+	emit update_fonction_properties(_view_org, _view_dst, rff);
 }
 
 void PVWidgets::PVAD2GEdgeEditor::add_function_Slot()
 {
-	Picviz::PVSelRowFilteringFunction_p new_rff = get_default_rff();
-	if (!new_rff) {
-		return;
-	}
+	QVariant var = _function_combo->itemData(_function_combo->currentIndex(), Qt::UserRole);
+	Picviz::PVSelRowFilteringFunction_p new_rff = LIB_CLASS(Picviz::PVSelRowFilteringFunction)::get().get_class_by_name(var.toString());
 
 	new_rff = new_rff->clone<Picviz::PVSelRowFilteringFunction>();
 
-	if (edit_rff(new_rff)) {
-		_rff_list_model->addRow(_list->selectionModel()->currentIndex(), new_rff);
-	}
+	_rff_list_model->addRow(_list->selectionModel()->currentIndex(), new_rff);
+}
+
+bool PVWidgets::PVAD2GEdgeEditor::edit_rff(Picviz::PVSelRowFilteringFunction_p& rff)
+{
+	//_functionPropertiesWidget->set_current_rff(*_view_org, *_view_dst, rff.get());
+	/*PVAD2GFunctionPropertiesDialog* dlg = new PVAD2GFunctionPropertiesDialog(*_view_org, *_view_dst, *rff, this);
+	if (dlg->exec() == QDialog::Accepted) {
+		rff = dlg->get_rff();
+		return true;
+	}*/
+	return false;
 }
 
 void PVWidgets::PVAD2GEdgeEditor::edit_function_Slot()

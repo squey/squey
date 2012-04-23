@@ -84,6 +84,7 @@ void Picviz::PVSource::set_parent(PVScene* parent)
 	if (parent) {
 		tparent = parent;
 		root = parent->get_root();
+		parent->set_views_id();
 	}
 	else {
 		tparent = NULL;
@@ -245,6 +246,10 @@ void Picviz::PVSource::add_view(PVView_p view)
 		_current_view = view;
 	}
 	if (!_views.contains(view)) {
+		PVScene* scene = get_scene_parent();
+		if (scene) {
+			view->set_view_id(scene->get_new_view_id());
+		}
 		_views.push_back(view);
 	}
 }

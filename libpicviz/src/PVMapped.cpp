@@ -416,6 +416,16 @@ QList<PVCol> Picviz::PVMapped::get_columns_indexes_values_within_range(float min
 	return cols_ret;
 }
 
+Picviz::PVScene* Picviz::PVMapped::get_scene_parent()
+{
+	return _source->get_scene_parent();
+}
+
+const Picviz::PVScene* Picviz::PVMapped::get_scene_parent() const
+{
+	return _source->get_scene_parent();
+}
+
 QList<PVCol> Picviz::PVMapped::get_columns_indexes_values_not_within_range(float min, float max, double rate)
 {
 	const PVRow nrows = get_row_count();

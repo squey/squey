@@ -89,6 +89,8 @@ public:
 
 	// Parents
 	inline PVRoot* get_root() const { return root; }
+	inline PVScene* get_scene_parent() { return tparent; }
+	inline const PVScene* get_scene_parent() const { return tparent; }
 
 	PVRush::PVInputType::list_inputs const& get_inputs() const { return _inputs; }
 
@@ -120,6 +122,7 @@ protected:
 	void set_parent(PVScene* parent);
 	// For PVPlotted
 	void add_view(PVView_p view);
+	void set_views_id();
 
 protected:
 	void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);

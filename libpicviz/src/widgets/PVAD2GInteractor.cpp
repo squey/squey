@@ -24,8 +24,6 @@ PVWidgets::AD2GInteractorComponent::AD2GInteractorComponent(PVAD2GWidget* widget
 
 bool PVWidgets::AD2GInteractorComponent::eventFilter(QObject* widget, QEvent* e)
 {
-	PVLOG_INFO("eventFilter:%d\n", e->type());
-
 	if (!(e->type() == QEvent::MouseButtonPress || e->type() == QEvent::MouseButtonRelease || e->type() == QEvent::MouseMove || e->type() == QEvent::KeyPress || e->type() == QEvent::MouseButtonDblClick)) {
 		return false;
 	}
@@ -56,23 +54,27 @@ bool PVWidgets::AD2GInteractorComponent::eventFilter(QObject* widget, QEvent* e)
 	else {
 
 		QMouseEvent* qMouseEv = (QMouseEvent*) e;
+		PVLOG_INFO("QMouseEvent* qMouseEv = (QMouseEvent*) e;\n");
 
 		bool hoveringOverNode = glMainWidget->doSelect(qMouseEv->x(), qMouseEv->y(), _type, _tmpNode, _tmpEdge) && _type == tlp::NODE;
 		bool hoveringOverEdge = glMainWidget->doSelect(qMouseEv->x(), qMouseEv->y(), _type, _tmpNode, _tmpEdge) && _type == tlp::EDGE;
 
-		if (qMouseEv->type() == QEvent::MouseButtonDblClick) {
-			if (hoveringOverEdge) {
-				tlp::node src = graph->source(_tmpEdge);
-				tlp::node dst = graph->target(_tmpEdge);
-				_widget->edit_combining_function(_tmpEdge, src, dst);
-				return true;
-			}
-			return false;
-		}
-
 		if (qMouseEv->button()==Qt::LeftButton) {
+			if (qMouseEv->type() == QEvent::MouseButtonDblClick) {
+				if (hoveringOverEdge) {
+					tlp::node src = graph->source(_tmpEdge);
+					tlp::node dst = graph->target(_tmpEdge);
+
+					graph->getProperty<tlp::ColorProperty>("viewColor")->setEdgeValue(_tmpEdge, tlp::Color(255, 0, 0));
+
+					_widget->edit_combining_function(_tmpEdge, src, dst);
+					return true;
+				}
+				return false;
+			}
 			// Start edge tracing
-			if(e->type() == QEvent::MouseButtonPress && !_edge_started) {
+			else if(e->type() == QEvent::MouseButtonPress && !_edge_started) {
+				graph->getProperty<tlp::ColorProperty>("viewColor")->setAllEdgeValue(tlp::Color(142, 142, 142));
 				if (hoveringOverNode) {
 					_edge_started=true;
 					initObserver(graph);

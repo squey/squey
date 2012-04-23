@@ -12,6 +12,7 @@
 
 #include <picviz/widgets/PVAD2GEdgeEditor.h>
 
+
 namespace PVWidgets {
 
 class PVAD2GWidget;
@@ -89,6 +90,7 @@ private:
 	tlp::Graph* _graph;
 	QToolBar* _toolBar;
 	__impl::PVTableWidget* _table;
+	PVWidgets::PVAD2GEdgeEditor* _edge_editor;
 
 	AD2GInteractor* _ad2g_interactor;
 	AD2GInteractor2* _ad2g_interactor2;

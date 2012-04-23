@@ -49,9 +49,11 @@ class LibPicvizDecl PVView: public boost::enable_shared_from_this<PVView>
 {
 	friend class PVCore::PVSerializeObject;
 	friend class PVSource;
+	friend class PVScene;
 public:
 	typedef PVView_p p_type;
 	typedef QHash<QString,PVCore::PVArgumentList> map_filter_arguments;
+	typedef int32_t id_t;
 public:
 	PVView(PVPlotted* parent);
 	PVView();
@@ -61,6 +63,7 @@ protected:
 
 	// For PVSource
 	void add_column(PVAxis const& axis);
+	inline void set_view_id(id_t id) { _view_id = id; }
 
 public:
 
@@ -155,6 +158,8 @@ public:
 
 	PVSelection &get_nu_selection();
 	int get_number_of_selected_lines();
+
+	inline id_t get_view_id() const { return _view_id; }
 
 
 	int get_original_axes_count();
@@ -389,6 +394,7 @@ protected:
 	QString _last_filter_name;
 	map_filter_arguments filters_args;
 	PVRush::PVNraw* _rushnraw_parent;
+	id_t _view_id;
 };
 
 }

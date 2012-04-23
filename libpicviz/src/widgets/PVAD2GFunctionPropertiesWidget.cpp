@@ -15,10 +15,12 @@ static QVBoxLayout* layout_from_widget(QWidget* w)
 	return ret;
 }
 
-PVWidgets::PVAD2GFunctionPropertiesWidget::PVAD2GFunctionPropertiesWidget(Picviz::PVView const& view_org, Picviz::PVView const& view_dst, Picviz::PVSelRowFilteringFunction const& rff, QWidget* parent /*= 0*/) :
+PVWidgets::PVAD2GFunctionPropertiesWidget::PVAD2GFunctionPropertiesWidget(/*Picviz::PVView const& view_org, Picviz::PVView const& view_dst, Picviz::PVSelRowFilteringFunction const& rff,*/ QWidget* parent /*= 0*/) :
 	QWidget(parent),
-	_view_org(view_org),
-	_view_dst(view_dst)
+	_view_org(NULL),
+	_view_dst(NULL),
+	_args_org_widget(NULL),
+	_args_dst_widget(NULL)
 {
 	// Widgets
 	QLabel* function_label = new QLabel(tr("Function: "));
@@ -29,12 +31,7 @@ PVWidgets::PVAD2GFunctionPropertiesWidget::PVAD2GFunctionPropertiesWidget(Picviz
 	_global_view_box->setLayout(layout_from_widget(_args_global_widget));
 
 	_src_view_box = new QGroupBox(tr("Properties for original view"));
-	_args_org_widget = new PVWidgets::PVArgumentListWidget(PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_factory(view_org));
-	_src_view_box->setLayout(layout_from_widget(_args_org_widget));
-
 	_dst_view_box = new QGroupBox(tr("Properties for destination view"));
-	_args_dst_widget = new PVWidgets::PVArgumentListWidget(PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_factory(view_dst));
-	_dst_view_box->setLayout(layout_from_widget(_args_dst_widget));
 
 	// Layout
 	QVBoxLayout* main_layout = new QVBoxLayout();
@@ -48,8 +45,8 @@ PVWidgets::PVAD2GFunctionPropertiesWidget::PVAD2GFunctionPropertiesWidget(Picviz
 
 	setLayout(main_layout);
 
-	init_combo_list_rffs(&rff);
-	set_current_rff(&rff);
+	/*init_combo_list_rffs(&rff);
+	set_current_rff(&rff);*/
 
 	// Connections
 	connect(_function_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(combo_func_changed(int)));
@@ -63,7 +60,7 @@ void PVWidgets::PVAD2GFunctionPropertiesWidget::combo_func_changed(int idx)
 		return;
 	}
 
-	set_current_rff(lib_rff.get());
+	set_current_rff(*_view_org, *_view_dst, lib_rff.get());
 }
 
 void PVWidgets::PVAD2GFunctionPropertiesWidget::init_combo_list_rffs(Picviz::PVSelRowFilteringFunction const* rff)
@@ -79,7 +76,7 @@ void PVWidgets::PVAD2GFunctionPropertiesWidget::init_combo_list_rffs(Picviz::PVS
 	}
 }
 
-void PVWidgets::PVAD2GFunctionPropertiesWidget::set_current_rff(Picviz::PVSelRowFilteringFunction const* rff)
+void PVWidgets::PVAD2GFunctionPropertiesWidget::set_current_rff(Picviz::PVView const& view_org, Picviz::PVView const& view_dst, Picviz::PVSelRowFilteringFunction const* rff)
 {
 	if (_cur_rff) {
 		_rffs_args[*_cur_rff] = _cur_rff->get_args();
@@ -94,10 +91,16 @@ void PVWidgets::PVAD2GFunctionPropertiesWidget::set_current_rff(Picviz::PVSelRow
 	_args_global_widget->set_args(_args_global);
 	_global_view_box->setVisible(_args_global.count() > 0);
 
+	delete _args_org_widget;
+	_args_org_widget = new PVWidgets::PVArgumentListWidget(PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_factory(*_view_org));
+	_src_view_box->setLayout(layout_from_widget(_args_org_widget));
 	_args_org = _cur_rff->get_args_for_org_view();
 	_args_org_widget->set_args(_args_org);
 	_src_view_box->setVisible(_args_org.count() > 0);
 
+	delete _args_dst_widget;
+	_args_dst_widget = new PVWidgets::PVArgumentListWidget(PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_factory(*_view_dst));
+	_dst_view_box->setLayout(layout_from_widget(_args_dst_widget));
 	_args_dst = _cur_rff->get_args_for_dst_view();
 	_args_dst_widget->set_args(_args_dst);
 	_dst_view_box->setVisible(_args_dst.count() > 0);
