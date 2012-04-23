@@ -23,12 +23,12 @@ class LibPicvizDecl PVAD2GEdgeEditor : public QWidget
 	Q_OBJECT
 public:
 	PVAD2GEdgeEditor(Picviz::PVView const& view_org, Picviz::PVView const& view_dst, Picviz::PVCombiningFunctionView& cf, QWidget* parent = 0);
-	void update(/*Picviz::PVView const& view_org, Picviz::PVView const& view_dst, Picviz::PVCombiningFunctionView& cf*/ Picviz::PVSelRowFilteringFunction_p& rff);
 
 public slots:
 	void add_function_Slot();
 	void edit_function_Slot();
 	void remove_function_Slot();
+	void update_item_Slot(const Picviz::PVSelRowFilteringFunction_p& rff);
 
 signals:
 	void update_fonction_properties(const Picviz::PVView& view_org, const Picviz::PVView& view_dst, Picviz::PVSelRowFilteringFunction_p& rff);
