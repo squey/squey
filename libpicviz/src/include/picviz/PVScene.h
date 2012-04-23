@@ -69,6 +69,10 @@ public:
 	bool is_empty() { return _sources.size() == 0; }
 
 protected:
+	int32_t get_new_view_id() const;
+	void set_views_id();
+
+protected:
 	// Serialization
 	void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 	void serialize_write(PVCore::PVSerializeObject& so);

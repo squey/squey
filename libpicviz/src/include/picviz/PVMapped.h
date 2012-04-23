@@ -93,6 +93,9 @@ public:
 	PVSource* get_source_parent();
 	const PVSource* get_source_parent() const;
 
+	PVScene* get_scene_parent();
+	const PVScene* get_scene_parent() const;
+
 	PVRoot* get_root_parent();
 	const PVRoot* get_root_parent() const;
 

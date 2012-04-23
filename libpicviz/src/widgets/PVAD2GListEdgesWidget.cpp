@@ -21,8 +21,8 @@ struct add_edge_list_f
 	{
 		PVWidgets::PVAD2GEdgeEditor* edge_widget = new PVWidgets::PVAD2GEdgeEditor(va, vb, cf);
 		size_t idx_row = _cur_idx;
-		_table->setItem(idx_row, 0, new QTableWidgetItem(va.get_window_name()));
-		_table->setItem(idx_row, 1, new QTableWidgetItem(vb.get_window_name()));
+		_table->setItem(idx_row, 0, new QTableWidgetItem(QString::number(va.get_view_id()+1)));
+		_table->setItem(idx_row, 1, new QTableWidgetItem(QString::number(vb.get_view_id()+1)));
 		_table->setCellWidget(idx_row, 2, edge_widget);
 		//_table->setRowHeight(idx_row, edge_widget->height());
 		_table->setRowHeight(idx_row, 150);

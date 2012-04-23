@@ -31,7 +31,8 @@ Picviz::PVView::PVView():
 	pre_filter_layer("pre_filter_layer"),
 	post_filter_layer("post_filter_layer"),
 	layer_stack_output_layer("view_layer_stack_output_layer"),
-	output_layer("output_layer")
+	output_layer("output_layer"),
+	_view_id(-1)
 {
 	init_defaults();
 }
@@ -40,7 +41,8 @@ Picviz::PVView::PVView(PVPlotted* parent) :
 	pre_filter_layer("pre_filter_layer"),
 	post_filter_layer("post_filter_layer"),
 	layer_stack_output_layer("view_layer_stack_output_layer"),
-	output_layer("output_layer")
+	output_layer("output_layer"),
+	_view_id(-1)
 {
 	init_defaults();
 	init_from_plotted(parent, false);
@@ -51,7 +53,8 @@ Picviz::PVView::PVView(const PVView& /*org*/):
 	pre_filter_layer("pre_filter_layer"),
 	post_filter_layer("post_filter_layer"),
 	layer_stack_output_layer("view_layer_stack_output_layer"),
-	output_layer("output_layer")
+	output_layer("output_layer"),
+	_view_id(-1)
 {
 	assert(false);
 }
@@ -788,7 +791,6 @@ void Picviz::PVView::process_from_selection()
 	process_filter();
 	process_eventline();
 	process_visibility();
-        
 }
 
 /******************************************************************************
