@@ -52,9 +52,8 @@ void Picviz::PVRFFAxesBindNearestNeighbors::do_pre_process(PVView const& /*view_
 	BENCH_END(b, "preprocess", 1, 1, 1, 1);
 }
 
-void Picviz::PVRFFAxesBindNearestNeighbors::operator()(PVRow row_org, PVView const& view_org, PVView const& view_dst, PVSelection& sel_dst) const
+void Picviz::PVRFFAxesBindNearestNeighbors::operator()(PVRow row_org, PVView const& view_org, PVView const& /*view_dst*/, PVSelection& sel_dst) const
 {
-	PVRow nlines_sel = view_dst.get_row_count();
 	uint32_t* sel_buf = sel_dst.get_buffer();
 
 	const PVMapped* m_org = view_org.get_mapped_parent();
@@ -62,7 +61,6 @@ void Picviz::PVRFFAxesBindNearestNeighbors::operator()(PVRow row_org, PVView con
 
 	map_rows const& dst_values(_dst_values);
 
-	// TODO: this line has to replaced by a "range" search around mf_org
 	map_rows::const_iterator it_min = dst_values.lower_bound (mf_org - _distance);
 	map_rows::const_iterator it_max = dst_values.upper_bound (mf_org + _distance);
 
@@ -75,6 +73,7 @@ void Picviz::PVRFFAxesBindNearestNeighbors::operator()(PVRow row_org, PVView con
 		std::vector<PVRow> const& rows = it->second;
 		for (size_t i = 0; i < rows.size(); i++) {
 			const PVRow r = rows[i];
+#pragma omp atomic
 			sel_buf[r>>5] |= 1U<<(r&31);
 		}
 	}
