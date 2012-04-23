@@ -22,6 +22,7 @@
 
 #include <pvgl/general.h>
 #include <pvgl/PVConfig.h>
+#include <pvgl/PVMain.h>
 #include <pvgl/PVUtils.h>
 #include <pvgl/PVHBox.h>
 #include <pvgl/PVVBox.h>
@@ -707,8 +708,7 @@ bool PVGL::PVView::mouse_up(int button, int x, int y, int modifiers)
 			update_lines();
 			QList<Picviz::PVView*> views_to_update;
 			picviz_view->emit_user_modified_sel(&views_to_update);
-			foreach(Picviz::PVView* v, views_to_update) {
-			}
+			PVMain::update_views_sel(views_to_update);
 		}
 
 		

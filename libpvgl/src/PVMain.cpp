@@ -773,7 +773,7 @@ void PVGL::PVMain::timer_func(int)
 						}
 					}
 					break;
-		        case PVSDK_MESSENGER_FUNCTION_SET_VIEW_WINDOWTITLE:
+			case PVSDK_MESSENGER_FUNCTION_SET_VIEW_WINDOWTITLE:
 				{
 					PVLOG_INFO("Message to set the window title no handled today!\n");
 				// QString *name = reinterpret_cast<QString *>(message.pointer_1);
@@ -853,6 +853,22 @@ void PVGL::PVMain::timer_func(int)
 	}
         
 	PVGL::wtk_set_timer_func(window_timer_refresh, timer_func, 0);
+}
+
+void PVGL::PVMain::update_views_sel(QList<Picviz::PVView*> const& views)
+{
+	for (std::list<PVGL::PVDrawable*>::iterator it = all_drawables.begin(); it != all_drawables.end(); ++it) {
+		if (views.contains((*it)->get_libview().get())) {
+			PVGL::PVView *pv_view = dynamic_cast<PVGL::PVView*>(*it);
+			if (pv_view) {
+				PVGL::wtk_set_current_window(pv_view->get_window_id());
+				pv_view->update_selection_except_listing();
+				pv_view->get_lines().update_arrays_selection();
+				pv_view->set_update_line_dirty();
+				PVGL::wtk_window_need_redisplay();
+			}
+		}
+	}
 }
 
 /******************************************************************************

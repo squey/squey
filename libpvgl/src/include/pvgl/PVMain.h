@@ -143,6 +143,8 @@ struct LibGLDecl PVMain {
 	static void stop();
 
 	static QList<Picviz::PVView_p> list_displayed_picviz_views();
+
+	static void update_views_sel(QList<Picviz::PVView*> const& views);
 };
 #ifndef DEF_passive_motion_locker_mutex
 #define DEF_passive_motion_locker_mutex
