@@ -1,5 +1,4 @@
 #include <picviz/widgets/PVAD2GListEdgesWidget.h>
-#include <picviz/widgets/PVAD2GEdgeEditor.h>
 
 #include <picviz/PVAD2GView.h>
 #include <picviz/PVCombiningFunctionView.h>
@@ -24,7 +23,7 @@ public:
 	void operator()(Picviz::PVCombiningFunctionView& cf, Picviz::PVView& va, Picviz::PVView& vb) const
 	{
 		PVWidgets::PVAD2GEdgeEditor* edge_widget = new PVWidgets::PVAD2GEdgeEditor(va, vb, cf);
-		QObject::connect(edge_widget, SIGNAL(update_fonction_properties(const Picviz::PVView&, const Picviz::PVView&, Picviz::PVSelRowFilteringFunction_p& )), _parent, SLOT(update_fonction_properties(const Picviz::PVView& src_view, const Picviz::PVView& dst_view, Picviz::PVSelRowFilteringFunction_p& rff)));
+		QObject::connect(edge_widget, SIGNAL(update_fonction_properties(const Picviz::PVView&, const Picviz::PVView&, Picviz::PVSelRowFilteringFunction_p& )), _parent, SLOT(update_fonction_properties(const Picviz::PVView &, const Picviz::PVView &, Picviz::PVSelRowFilteringFunction_p &)));
 		size_t idx_row = _cur_idx;
 		_table->setItem(idx_row, 0, new QTableWidgetItem(QString::number(va.get_view_id()+1)));
 		_table->setItem(idx_row, 1, new QTableWidgetItem(QString::number(vb.get_view_id()+1)));
@@ -45,7 +44,8 @@ private:
 
 PVWidgets::PVAD2GListEdgesWidget::PVAD2GListEdgesWidget(Picviz::PVAD2GView& graph, QWidget* parent):
 	QWidget(parent),
-	_graph(graph)
+	_graph(graph),
+	_current_edge_widget(NULL)
 {
 
 	_edges_table = new QTableWidget(this);
@@ -57,6 +57,9 @@ PVWidgets::PVAD2GListEdgesWidget::PVAD2GListEdgesWidget(Picviz::PVAD2GView& grap
 
 	_function_properties_widget = new PVAD2GFunctionPropertiesWidget(/*_view_org, _view_dst, *rff,*/ this);
 
+	// Connection
+	connect(_function_properties_widget, SIGNAL(function_properties_changed(const Picviz::PVSelRowFilteringFunction_p &)), this, SLOT(update_edge_editor_Slot(const Picviz::PVSelRowFilteringFunction_p &)));
+
 	QHBoxLayout* main_layout = new QHBoxLayout();
 	main_layout->addWidget(_edges_table);
 	main_layout->addWidget(_function_properties_widget);
@@ -65,9 +68,16 @@ PVWidgets::PVAD2GListEdgesWidget::PVAD2GListEdgesWidget(Picviz::PVAD2GView& grap
 	setFocusPolicy(Qt::StrongFocus);
 }
 
+void PVWidgets::PVAD2GListEdgesWidget::update_edge_editor_Slot(const Picviz::PVSelRowFilteringFunction_p & rff)
+{
+	if(_current_edge_widget) {
+		_current_edge_widget->update_item_Slot(rff);
+	}
+}
+
 void PVWidgets::PVAD2GListEdgesWidget::update_fonction_properties(const Picviz::PVView& src_view, const Picviz::PVView& dst_view, Picviz::PVSelRowFilteringFunction_p& rff)
 {
-	PVLOG_INFO("update_fonction_properties\n");
+	_current_edge_widget = (PVAD2GEdgeEditor*) sender();
 	_function_properties_widget->set_current_rff(src_view, dst_view, rff.get());
 }
 

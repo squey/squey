@@ -34,7 +34,6 @@ PVWidgets::PVAD2GEdgeEditor::PVAD2GEdgeEditor(Picviz::PVView const& view_org, Pi
 	QPushButton* btn_edit = new QPushButton(tr("Edit"));
 	QPushButton* btn_remove = new QPushButton(tr("Remove"));
 
-
 	// Connections
 	connect(btn_add, SIGNAL(clicked()), this, SLOT(add_function_Slot()));
 	connect(btn_edit, SIGNAL(clicked()), this, SLOT(edit_function_Slot()));
@@ -65,11 +64,6 @@ void PVWidgets::PVAD2GEdgeEditor::init_combo_list_rffs()
 	}
 }
 
-void PVWidgets::PVAD2GEdgeEditor::update(Picviz::PVSelRowFilteringFunction_p& rff)
-{
-	emit update_fonction_properties(_view_org, _view_dst, rff);
-}
-
 void PVWidgets::PVAD2GEdgeEditor::add_function_Slot()
 {
 	QVariant var = _function_combo->itemData(_function_combo->currentIndex(), Qt::UserRole);
@@ -93,16 +87,28 @@ bool PVWidgets::PVAD2GEdgeEditor::edit_rff(Picviz::PVSelRowFilteringFunction_p& 
 
 void PVWidgets::PVAD2GEdgeEditor::edit_function_Slot()
 {
+	PVLOG_INFO("PVWidgets::PVAD2GEdgeEditor::edit_function_Slot()\n");
+
 	QModelIndex model_index = _list->selectionModel()->currentIndex();
 	Picviz::PVSelRowFilteringFunction_p rff = ((Picviz::PVSelRowFilteringFunction*)model_index.data(Qt::UserRole).value<void*>())->shared_from_this();
 
-	if (edit_rff(rff)) {
-		QVariant var;
-		var.setValue<void*>(rff.get());
-		_rff_list_model->setData(model_index, var, Qt::UserRole);
-	}
+	emit update_fonction_properties(_view_org, _view_dst, rff);
+	//if (edit_rff(rff)) {
+	QVariant var;
+	var.setValue<void*>(rff.get());
+	_rff_list_model->setData(model_index, var, Qt::UserRole);
+	//}
 
 }
+
+void PVWidgets::PVAD2GEdgeEditor::update_item_Slot(const Picviz::PVSelRowFilteringFunction_p& rff)
+{
+	QModelIndex model_index = _list->selectionModel()->currentIndex();
+	QVariant var;
+	var.setValue<void*>(rff.get());
+	_rff_list_model->setData(model_index, var, Qt::UserRole);
+}
+
 
 void PVWidgets::PVAD2GEdgeEditor::remove_function_Slot()
 {

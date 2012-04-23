@@ -52,7 +52,8 @@ static void clearLayout(QLayout* layout)
 PVWidgets::PVArgumentListWidget::PVArgumentListWidget(QWidget* parent):
 	QWidget(parent),
 	_args_widget_factory(NULL),
-	_args(NULL)
+	_args(NULL),
+	_mapper(NULL)
 {
 	clear_args_state();
 }
@@ -263,7 +264,17 @@ void PVWidgets::PVArgumentListWidget::set_widget_factory(QItemEditorFactory* fac
 {
 	if (factory) {
 		_args_widget_factory = factory;
-		init_widgets();
+		if (!_mapper) {
+			init_widgets();
+		}
+		else {
+			QItemDelegate* delegate = new QItemDelegate();
+			delegate->setItemEditorFactory(_args_widget_factory);
+			_mapper->setItemDelegate(delegate);
+			if (_args) {
+				set_args(*_args);
+			}
+		}
 	}
 }
 

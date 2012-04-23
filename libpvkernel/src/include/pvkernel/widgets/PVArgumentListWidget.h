@@ -57,11 +57,12 @@ signals:
 /* 	void widget_clicked_Slot(); */
 
 protected:
-	QGridLayout*              _args_layout;
-	QDataWidgetMapper*        _mapper;
 	QItemEditorFactory*       _args_widget_factory;
-	PVArgumentListModel*      _args_model;
 	PVCore::PVArgumentList*   _args;
+	QDataWidgetMapper*        _mapper;
+
+	QGridLayout*              _args_layout;
+	PVArgumentListModel*      _args_model;
 
 	// Standard buttons
 	QPushButton*              _apply_btn;

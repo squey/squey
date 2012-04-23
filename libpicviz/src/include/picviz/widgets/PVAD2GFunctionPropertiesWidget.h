@@ -29,6 +29,9 @@ public:
 	void set_current_rff(Picviz::PVView const& view_org, Picviz::PVView const& view_dst, Picviz::PVSelRowFilteringFunction const* rff);
 	Picviz::PVSelRowFilteringFunction_p get_rff() const { return _cur_rff; };
 
+signals:
+	void function_properties_changed(const Picviz::PVSelRowFilteringFunction_p& rff);
+
 public slots:
 	void commit_args();
 

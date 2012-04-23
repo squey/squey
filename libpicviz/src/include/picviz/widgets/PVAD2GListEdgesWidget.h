@@ -3,6 +3,7 @@
 
 #include <pvkernel/core/general.h>
 #include <picviz/widgets/PVAD2GFunctionPropertiesWidget.h>
+#include <picviz/widgets/PVAD2GEdgeEditor.h>
 
 #include <QTableWidget>
 #include <QWidget>
@@ -23,9 +24,11 @@ public:
 public slots:
 	void update_list_edges();
 	void update_fonction_properties(const Picviz::PVView& src_view, const Picviz::PVView& dst_view, Picviz::PVSelRowFilteringFunction_p& rff);
+	void update_edge_editor_Slot(const Picviz::PVSelRowFilteringFunction_p & rff);
 
 protected:
 	Picviz::PVAD2GView& _graph;
+	PVAD2GEdgeEditor* _current_edge_widget;
 	QTableWidget* _edges_table;
 	PVAD2GFunctionPropertiesWidget* _function_properties_widget;
 };
