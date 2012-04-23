@@ -56,6 +56,8 @@ void Picviz::PVScene::add_source(PVSource_p src)
 
 	// Add this source to the list of sources for this type
 	sources.push_back(src);
+
+	set_views_id();
 }
 
 Picviz::PVScene::list_sources_t Picviz::PVScene::get_all_sources() const
