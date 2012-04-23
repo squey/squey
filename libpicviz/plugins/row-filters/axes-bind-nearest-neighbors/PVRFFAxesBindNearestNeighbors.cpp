@@ -75,6 +75,7 @@ void Picviz::PVRFFAxesBindNearestNeighbors::operator()(PVRow row_org, PVView con
 		std::vector<PVRow> const& rows = it->second;
 		for (size_t i = 0; i < rows.size(); i++) {
 			const PVRow r = rows[i];
+#pragma omp atomic
 			sel_buf[r>>5] |= 1U<<(r&31);
 		}
 	}

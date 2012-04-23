@@ -25,6 +25,7 @@ Picviz::PVSelection Picviz::PVTFViewRowFiltering::operator()(PVView const& view_
 	PVRow nlines_sel = view_src.get_row_count();
 	PVSelection sel_line;
 
+#pragma omp parallel for
 	for (PVRow r = 0; r < nlines_sel; r++) {
 		if (!sel_org.get_line(r)) {
 			continue;
