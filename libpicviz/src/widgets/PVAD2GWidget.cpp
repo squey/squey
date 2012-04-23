@@ -3,6 +3,7 @@
 #include <tulip/Interactor.h>
 #include <tulip/InteractorManager.h>
 #include <picviz/widgets/PVAD2GInteractor.h>
+#include <picviz/widgets/PVAD2GListEdgesWidget.h>
 
 ///
 #include <tulip/TlpTools.h>
@@ -42,7 +43,7 @@ void PVWidgets::__impl::PVTableWidget::mouseMoveEvent(QMouseEvent* event)
 
 	QTableWidgetItem* item = ((PVWidgets::PVAD2GWidget*) parent())->get_table()->currentItem();
 
-	if (item->flags() & Qt::ItemIsEnabled) {
+	if (item && (item->flags() & Qt::ItemIsEnabled)) {
 		QDrag* drag = new QDrag(this);
 		QMimeData* mimeData = new QMimeData;
 		void* ptr = item->data(Qt::UserRole).value<void*>();
@@ -116,20 +117,24 @@ PVWidgets::PVAD2GWidget::PVAD2GWidget(Picviz::PVAD2GView& ad2g, QMainWindow* mw 
 	_graph(_ad2g.get_graph())
 {
 	tlp::initTulipLib();
-	//tlp::PluginLoaderTxt txtPlug;
-	//	tlp::loadPlugin("/usr/local/lib/tulip/libMixedModel-3.7.0.so", &txtPlug);
-	//tlp::loadPlugins(&txtPlug);   // library side plugins
-	//tlp::InteractorManager::getInst().loadPlugins(&txtPlug);
-	//tlp::GlyphManager::getInst().loadPlugins(&txtPlug);   // software side plugins, i.e. glyphs
 
+	// Widgets
 	_nodeLinkView = new AD2GNodeLinkDiagramComponent();
-
-	QHBoxLayout* main_layout = new QHBoxLayout();
 	QWidget* nodeWidget = _nodeLinkView->construct(this);
-	main_layout->addWidget(nodeWidget);
 	_table = new __impl::PVTableWidget(this);
+	_list_edges_widget = new PVAD2GListEdgesWidget(_ad2g, this);
+	//_function_properties_widget = new PVAD2GFunctionPropertiesWidget(/*_view_org, _view_dst, *rff,*/ this);
 
-	main_layout->addWidget(_table);
+	// Layout
+	QHBoxLayout* graph_views_layout = new QHBoxLayout();
+	graph_views_layout->addWidget(nodeWidget);
+	graph_views_layout->addWidget(_table);
+	QHBoxLayout* edges_properties_layout = new QHBoxLayout();
+	edges_properties_layout->addWidget(_list_edges_widget);
+	//edges_properties_layout->addWidget(_function_properties_widget);
+	QVBoxLayout* main_layout = new QVBoxLayout();
+	main_layout->addLayout(graph_views_layout);
+	main_layout->addLayout(edges_properties_layout);
 	setLayout(main_layout);
 
 	_nodeLinkView->hideOverview(true);
@@ -322,6 +327,8 @@ tlp::edge PVWidgets::PVAD2GWidget::add_combining_function(const tlp::node source
 	Picviz::PVCombiningFunctionView_p cf_sp(new Picviz::PVCombiningFunctionView());
 	tlp::edge newEdge = _ad2g.set_edge_f(source, target, cf_sp);
 
+	_list_edges_widget->update_list_edges();
+
 	_nodeLinkView->elementSelectedSlot(newEdge.id, false);
 
 	return newEdge;
@@ -336,6 +343,9 @@ void PVWidgets::PVAD2GWidget::remove_combining_function_Slot(int edge)
 		tlp::Observable::holdObservers();
 		tlp::Graph* graph = _nodeLinkView->getGlMainWidget()->getScene()->getGlGraphComposite()->getInputData()->getGraph();
 		graph->delEdge(e);
+
+		_list_edges_widget->update_list_edges();
+
 		_nodeLinkView->getGlMainWidget()->redraw();
 		Observable::unholdObservers();
 	}
@@ -343,12 +353,11 @@ void PVWidgets::PVAD2GWidget::remove_combining_function_Slot(int edge)
 
 void PVWidgets::PVAD2GWidget::edit_combining_function(tlp::edge edge, tlp::node src, tlp::node dst)
 {
+
 	Picviz::PVView* view_src = _ad2g.get_view(src);
 	Picviz::PVView* view_dst = _ad2g.get_view(dst);
 	Picviz::PVCombiningFunctionView_p combining_function = _ad2g.get_edge_f(edge);
-
-	PVWidgets::PVAD2GEdgeEditor* edge_editor = new PVWidgets::PVAD2GEdgeEditor(*view_src, *view_dst, *combining_function);
-	edge_editor->exec();
+	//_edge_editor->update(*view_src, *view_dst, *combining_function);
 }
 
 void PVWidgets::PVAD2GWidget::initObservers()

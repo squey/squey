@@ -3,10 +3,12 @@
 
 #include <QDialog>
 #include <QListView>
+#include <QComboBox>
 
 #include <pvkernel/core/general.h>
 #include <picviz/PVSelRowFilteringFunction_types.h>
 #include <picviz/widgets/PVAD2GRFFListModel.h>
+
 
 namespace Picviz {
 class PVView;
@@ -16,30 +18,35 @@ class PVTFViewRowFiltering;
 
 namespace PVWidgets {
 
-class LibPicvizDecl PVAD2GEdgeEditor : public QDialog
+class LibPicvizDecl PVAD2GEdgeEditor : public QWidget
 {
 	Q_OBJECT
 public:
 	PVAD2GEdgeEditor(Picviz::PVView const& view_org, Picviz::PVView const& view_dst, Picviz::PVCombiningFunctionView& cf, QWidget* parent = 0);
+	void update(/*Picviz::PVView const& view_org, Picviz::PVView const& view_dst, Picviz::PVCombiningFunctionView& cf*/ Picviz::PVSelRowFilteringFunction_p& rff);
 
 public slots:
 	void add_function_Slot();
 	void edit_function_Slot();
 	void remove_function_Slot();
 
-private:
-	bool edit_rff(Picviz::PVSelRowFilteringFunction_p& rff);
+signals:
+	void update_fonction_properties(const Picviz::PVView& view_org, const Picviz::PVView& view_dst, Picviz::PVSelRowFilteringFunction_p& rff);
 
 private:
-	static Picviz::PVSelRowFilteringFunction_p get_default_rff();
+	bool edit_rff(Picviz::PVSelRowFilteringFunction_p& rff);
+	void init_combo_list_rffs();
 
 private:
 	PVAD2GRFFListModel* _rff_list_model;
-	QListView* _list;
+	const Picviz::PVView& _view_org;
+	const Picviz::PVView& _view_dst;
 
-	Picviz::PVTFViewRowFiltering& _tf;
-	Picviz::PVView const& _view_org;
-	Picviz::PVView const& _view_dst;
+	QListView* _list;
+	QComboBox* _function_combo;
+
+	/*Picviz::PVTFViewRowFiltering& _tf;*/
+
 };
 
 }
