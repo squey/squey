@@ -14,6 +14,7 @@
 #include <pvkernel/core/PVSerializeArchiveOptions_types.h>
 #include <pvkernel/rush/PVInputDescription.h>
 #include <pvkernel/rush/PVInputType.h>
+#include <picviz/PVAD2GView.h>
 #include <picviz/PVPtrObjects.h>
 #include <picviz/PVSource_types.h>
 #include <picviz/PVView_types.h>
@@ -36,6 +37,7 @@ class LibPicvizDecl PVScene: public boost::enable_shared_from_this<PVScene>
 {
 	friend class PVCore::PVSerializeObject;
 	friend class PVSource;
+	friend class PVView;
 public:
 	typedef boost::shared_ptr<PVScene> p_type;
 	typedef QList<PVSource_p> list_sources_t;
@@ -66,6 +68,9 @@ public:
 	list_sources_t get_all_sources() const;
 	list_views_t get_all_views() const;
 
+	inline PVAD2GView& get_ad2g_view() { return _ad2g_view; }
+	inline PVAD2GView const& get_ad2g_view() const { return _ad2g_view; }
+
 	bool is_empty() { return _sources.size() == 0; }
 
 protected:
@@ -73,6 +78,9 @@ protected:
 	void set_views_id();
 
 protected:
+	// From PVView
+	void user_modified_sel(Picviz::PVView* org);
+
 	// Serialization
 	void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 	void serialize_write(PVCore::PVSerializeObject& so);
@@ -86,6 +94,8 @@ private:
 
 	PVRoot* _root;
 	QString _name;
+
+	PVAD2GView _ad2g_view;
 
 	PVCore::PVSerializeArchive_p _original_archive;
 };

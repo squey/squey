@@ -19,7 +19,8 @@
  *****************************************************************************/
 Picviz::PVScene::PVScene(QString scene_name, PVRoot* parent):
 	_root(parent),
-	_name(scene_name)
+	_name(scene_name),
+	_ad2g_view(this)
 {
 }
 
@@ -97,6 +98,13 @@ Picviz::PVScene::list_sources_t Picviz::PVScene::get_sources(PVRush::PVInputType
 
 bool Picviz::PVScene::del_source(const PVSource* src)
 {
+	// Remove underlying views from the AD2G graph
+	PVSource::list_views_t const& views = src->get_views();
+	foreach (Picviz::PVView_p view, views) {
+		_ad2g_view.del_view(*view);
+	}
+	
+	// Remove this source's inputs if they are no longer used by other sources
 	std::pair<list_sources_t, PVRush::PVInputType::list_inputs>& type_srcs = _sources[*(src->get_input_type())];
 	list_sources_t& list_srcs(type_srcs.first);
 
@@ -136,6 +144,10 @@ void Picviz::PVScene::set_views_id()
 	}
 }
 
+void Picviz::PVScene::user_modified_sel(PVView* src_view)
+{
+	_ad2g_view.run(src_view);
+}
 
 void Picviz::PVScene::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 {

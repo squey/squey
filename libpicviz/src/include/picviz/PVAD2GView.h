@@ -17,23 +17,18 @@ struct node;
 struct edge;
 }
 
-#include <picviz/PVScene.h>
-
 namespace Picviz {
 
 // forward declaration of the class for multi-source correlation property
 class PVAD2GViewCorrelationProperty;
+class PVScene;
 class PVView;
 
 namespace __impl {
 	struct f_update_sel
 	{
-		inline void operator()(Picviz::PVCombiningFunctionView& cf,
-		                       Picviz::PVView& va, Picviz::PVView& vb) const
-		{
-			PVSelection sel = cf(va, vb);
-			vb.set_selection_view(sel);
-		}
+		void operator()(Picviz::PVCombiningFunctionView& cf,
+                        Picviz::PVView& va, Picviz::PVView& vb) const;
 	};
 
 	struct f_pre_process

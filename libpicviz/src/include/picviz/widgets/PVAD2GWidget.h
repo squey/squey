@@ -43,7 +43,7 @@ public:
 	virtual void computeContextMenuAction(QAction*){};
 };
 
-class /*LibPVWidgetsExport*/ PVAD2GWidget : public QWidget, public tlp::Observable
+class LibPicvizDecl PVAD2GWidget : public QWidget, public tlp::Observable
 {
 	Q_OBJECT;
 
@@ -72,12 +72,14 @@ public slots:
 	void remove_view_Slot(int node);
 	void remove_combining_function_Slot(int edge);
 
+	void update_list_views();
+
 	AD2GInteractor* getInteractor() { return _ad2g_interactor; }
 	AD2GInteractor2* getInteractor2() { return _ad2g_interactor2; }
 	AD2GNodeLinkDiagramComponent* getNodeLinkView() { return _nodeLinkView; }
 
 private:
-	void fill_table();
+	void init_table();
 	void init_toolbar();
 	void initObservers();
 	void clearObservers();

@@ -129,6 +129,8 @@ public:
 	QString get_axis_name(PVCol index) const;
 	QString get_axis_type(PVCol index) const;
 
+	void emit_user_modified_sel();
+
 	PVCore::PVColor get_color_in_output_layer(PVRow index);
 	PVCol get_column_count();
 	float get_column_count_as_float();
@@ -354,6 +356,9 @@ public:
 	PVPlotted* get_plotted_parent();
 	const PVPlotted* get_plotted_parent() const;
 	
+	PVScene* get_scene_parent();
+	const PVScene* get_scene_parent() const;
+
 	PVSource* get_source_parent();
 	const PVSource* get_source_parent() const;
 

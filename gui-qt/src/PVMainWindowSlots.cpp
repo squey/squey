@@ -9,6 +9,7 @@
 #include <pvkernel/core/PVSerializeArchiveFixError.h>
 #include <pvkernel/core/PVVersion.h>
 #include <picviz/PVAxisComputation.h>
+#include <picviz/widgets/PVAD2GWidget.h>
 
 #include <PVMainWindow.h>
 #include <PVExpandSelDlg.h>
@@ -1261,4 +1262,26 @@ void PVInspector::PVMainWindow::view_display_inv_elts_Slot()
 	if (current_tab && current_tab->get_lib_view()) {
 		display_inv_elts(current_tab);
 	}
+}
+
+void PVInspector::PVMainWindow::show_correlation_Slot()
+{
+	if (!_ad2g_mw) {
+		_ad2g_mw = new QMainWindow(this);
+		_ad2g_mw->setWindowTitle(tr("Correlations"));
+		PVWidgets::PVAD2GWidget* ad2g_w = new PVWidgets::PVAD2GWidget(_scene->get_ad2g_view(), _ad2g_mw);
+		_ad2g_mw->setCentralWidget(ad2g_w);
+	}
+	else {
+		QWidget* ad2g_mw_c = _ad2g_mw->centralWidget();
+		PVWidgets::PVAD2GWidget* ad2g_w;
+#ifdef NDEBUG
+		ad2g_w = (PVWidgets::PVAD2GWidget*) ad2g_mw_c;
+#else
+		ad2g_w = dynamic_cast<PVWidgets::PVAD2GWidget*>(ad2g_mw_c);
+		assert(ad2g_w);
+#endif
+		ad2g_w->update_list_views();
+	}
+	_ad2g_mw->exec();
 }

@@ -601,6 +601,20 @@ PVRow Picviz::PVView::get_row_count() const
 	return plotted->get_row_count();
 }
 
+/******************************************************************************
+ *
+ * Picviz::PVView::get_scene_parent
+ *
+ *****************************************************************************/
+Picviz::PVScene* Picviz::PVView::get_scene_parent()
+{
+	return get_source_parent()->get_scene_parent();
+}
+
+const Picviz::PVScene* Picviz::PVView::get_scene_parent() const
+{
+	return get_source_parent()->get_scene_parent();
+}
 
 /******************************************************************************
  *
@@ -1459,6 +1473,14 @@ Picviz::PVSortingFunc_p Picviz::PVView::get_sort_plugin_for_col(PVCol col) const
 		f_lib = PVSortingFunc_p(new PVDefaultSortingFunc());
 	}
 	return f_lib;
+}
+
+void Picviz::PVView::emit_user_modified_sel()
+{
+	PVScene* scene = get_scene_parent();
+	if (scene) {
+		scene->user_modified_sel(this);
+	}
 }
 
 // Load/save and serialization

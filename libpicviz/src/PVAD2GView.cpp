@@ -428,3 +428,10 @@ void Picviz::PVAD2GView::count_path_number_rec(const tlp::node& a, const tlp::no
 
 	path.pop_back(); // remove node from path
 }
+
+void Picviz::__impl::f_update_sel::operator()(Picviz::PVCombiningFunctionView& cf, Picviz::PVView& va, Picviz::PVView& vb) const
+{
+	PVSelection sel = cf(va, vb);
+	vb.set_selection_view(sel);
+}
+

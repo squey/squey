@@ -1,5 +1,6 @@
 #include <picviz/PVCombiningFunctionView.h>
 #include <picviz/PVTFViewRowFiltering.h>
+#include <picviz/PVView.h>
 
 Picviz::PVCombiningFunctionView::PVCombiningFunctionView()
 {

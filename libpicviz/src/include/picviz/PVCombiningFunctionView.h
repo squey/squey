@@ -1,7 +1,6 @@
 #ifndef PICVIZ_PVCOMBININGFUNCTIONVIEW_H
 #define PICVIZ_PVCOMBININGFUNCTIONVIEW_H
 
-#include <picviz/PVView.h>
 #include <picviz/PVSelection.h>
 #include <picviz/PVTransformationFunctionView_types.h>
 
@@ -10,6 +9,7 @@
 namespace Picviz {
 
 class PVTFViewRowFiltering;
+class PVView;
 
 class LibPicvizDecl PVCombiningFunctionView
 {

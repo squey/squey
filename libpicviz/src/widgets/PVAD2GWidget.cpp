@@ -149,7 +149,8 @@ PVWidgets::PVAD2GWidget::PVAD2GWidget(Picviz::PVAD2GView& ad2g, QMainWindow* mw 
 	nodeWidget->installEventFilter(new __impl::FilterDropEvent(this));
 
 	init_toolbar();
-	fill_table();
+	init_table();
+	update_list_views();
 
 	if (_graph) {
 		openGraphOnGlMainWidget(_graph, &dataSet, _nodeLinkView->getGlMainWidget());
@@ -384,9 +385,21 @@ void PVWidgets::PVAD2GWidget::highlightViewItem(tlp::node n)
 	}
 }
 
-void PVWidgets::PVAD2GWidget::fill_table()
+void PVWidgets::PVAD2GWidget::init_table()
 {
 	_table->setColumnCount(1);
+
+	_table->horizontalHeader()->hide();
+	_table->horizontalHeader()->setStretchLastSection(true);
+
+	_table->setDragEnabled(true);
+	_table->setDragDropMode(QAbstractItemView::DragOnly);
+}
+
+void PVWidgets::PVAD2GWidget::update_list_views()
+{
+	_table->clear();
+	_table->setRowCount(0);
 
 	Picviz::PVScene::list_views_t all_views = _ad2g.get_scene()->get_all_views();
 	foreach (Picviz::PVView_p view, all_views) {
@@ -396,13 +409,7 @@ void PVWidgets::PVAD2GWidget::fill_table()
 		_table->setRowCount(_table->rowCount()+1);
 		_table->setItem(_table->rowCount()-1, 0, item);
 	}
-
-	_table->horizontalHeader()->hide();
-	_table->horizontalHeader()->setStretchLastSection(true);
 	_table->resizeRowsToContents();
-
-	_table->setDragEnabled(true);
-	_table->setDragDropMode(QAbstractItemView::DragOnly);
 }
 
 void PVWidgets::PVAD2GWidget::clearObservers()
