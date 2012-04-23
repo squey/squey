@@ -159,11 +159,12 @@ update-protocol.cpp
 )
 
 set(WIDGETS_MOC_HEADERS
-include/picviz/widgets/PVAD2GWidget.h
+include/picviz/widgets/PVAD2GEdgeEditor.h
 include/picviz/widgets/PVAD2GFunctionPropertiesDialog.h
 include/picviz/widgets/PVAD2GFunctionPropertiesWidget.h
 include/picviz/widgets/PVAD2GInteractor.h
-include/picviz/widgets/PVAD2GEdgeEditor.h
+include/picviz/widgets/PVAD2GListEdgesWidget.h
+include/picviz/widgets/PVAD2GWidget.h
 include/picviz/widgets/PVArgumentListWidgetFactory.h
 include/picviz/widgets/PVViewArgumentEditorCreator.h
 include/picviz/widgets/PVAD2GRFFListModel.h
@@ -181,6 +182,7 @@ widgets/PVAD2GInteractor.cpp
 widgets/PVAD2GEdgeEditor.cpp
 widgets/PVAD2GFunctionPropertiesDialog.cpp
 widgets/PVAD2GFunctionPropertiesWidget.cpp
+widgets/PVAD2GListEdgesWidget.cpp
 widgets/PVArgumentListWidgetFactory.cpp
 widgets/PVAD2GRFFListModel.cpp
 
