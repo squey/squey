@@ -288,7 +288,7 @@ tlp::node PVWidgets::PVAD2GWidget::add_view(QPoint pos, Picviz::PVView* view)
 
 	// Add node text
 	tlp::StringProperty* label = graph->getProperty<tlp::StringProperty>("viewLabel");
-	label->setNodeValue(newNode, qPrintable(QString::number(itemIndex+1)));
+	label->setNodeValue(newNode, qPrintable(QString::number(view->get_display_view_id())));
 
 	tlp::Observable::unholdObservers();
 
@@ -402,12 +402,12 @@ void PVWidgets::PVAD2GWidget::update_list_views()
 	_table->setRowCount(0);
 
 	Picviz::PVScene::list_views_t all_views = _ad2g.get_scene()->get_all_views();
+	_table->setRowCount(all_views.count());
 	foreach (Picviz::PVView_p view, all_views) {
 		QTableWidgetItem* item = new QTableWidgetItem(view->get_source_parent()->get_name());
 		item->setToolTip(view->get_window_name());
 		item->setData(Qt::UserRole, qVariantFromValue((void*) view.get()));
-		_table->setRowCount(_table->rowCount()+1);
-		_table->setItem(_table->rowCount()-1, 0, item);
+		_table->setItem(view->get_view_id(), 0, item);
 	}
 	_table->resizeRowsToContents();
 }

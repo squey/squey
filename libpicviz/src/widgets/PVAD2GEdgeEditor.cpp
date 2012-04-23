@@ -23,6 +23,7 @@ PVWidgets::PVAD2GEdgeEditor::PVAD2GEdgeEditor(Picviz::PVView const& view_org, Pi
 	_list = new QListView();
 	_rff_list_model = new PVAD2GRFFListModel(view_org, view_dst, cf.get_first_tf()->get_rffs());
 	_list->setModel(_rff_list_model);
+	//_list->resize(_list->width(), _list->currentIndex()->sizeHint().height()) ;
 	_list->setDragDropMode(QAbstractItemView::InternalMove);
 	_list->setDragDropOverwriteMode(true);
 	_list->setMinimumWidth(400);
@@ -72,6 +73,7 @@ void PVWidgets::PVAD2GEdgeEditor::add_function_Slot()
 	new_rff = new_rff->clone<Picviz::PVSelRowFilteringFunction>();
 
 	_rff_list_model->addRow(_list->selectionModel()->currentIndex(), new_rff);
+	//_list->resize(_list->width(), _list->currentIndex()->sizeHint().height() * _rff_list_model->rowCount() + 0) ;
 }
 
 bool PVWidgets::PVAD2GEdgeEditor::edit_rff(Picviz::PVSelRowFilteringFunction_p& rff)

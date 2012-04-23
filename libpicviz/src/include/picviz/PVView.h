@@ -162,6 +162,7 @@ public:
 	int get_number_of_selected_lines();
 
 	inline id_t get_view_id() const { return _view_id; }
+	inline id_t get_display_view_id() const { return _view_id+1; }
 
 
 	int get_original_axes_count();
