@@ -628,7 +628,8 @@ bool PVInspector::PVMainWindow::load_project(QString const& file)
 		if (ar->has_repairable_errors()) {
 			if (fix_project_errors(ar)) {
 				project_has_been_fixed = true;
-				_scene.reset(new Picviz::PVScene("root", root.get()));
+				close_scene();
+				//_scene.reset(new Picviz::PVScene("root", root.get()));
 				continue;
 			}
 			else {
@@ -636,7 +637,8 @@ bool PVInspector::PVMainWindow::load_project(QString const& file)
 					QMessageBox* box = new QMessageBox(QMessageBox::Critical, tr("Error while loading project..."), err_msg, QMessageBox::Ok, this);
 					box->exec();
 				}
-				_scene.reset();
+				close_scene();
+				//_scene.reset();
 				return false;
 			}
 		}
@@ -645,7 +647,8 @@ bool PVInspector::PVMainWindow::load_project(QString const& file)
 
 	if (!load_scene()) {
 		PVLOG_ERROR("(PVMainWindow::project_load_Slot) error while processing the scene...\n");
-		_scene.reset();
+		close_scene();
+		//_scene.reset();
 		return false;
 	}
 
@@ -1283,5 +1286,5 @@ void PVInspector::PVMainWindow::show_correlation_Slot()
 #endif
 		ad2g_w->update_list_views();
 	}
-	_ad2g_mw->exec();
+	_ad2g_mw->show();
 }

@@ -25,6 +25,11 @@ Picviz::PVSelection Picviz::PVTFViewRowFiltering::operator()(PVView const& view_
 	PVRow nlines_sel = view_src.get_row_count();
 	PVSelection sel_line;
 
+	PVLOG_INFO("PVTFViewRowFiltering::operator()) has %u RFF:\n", _rffs.size());
+	foreach(PVSelRowFilteringFunction_p const& rff_p, _rffs) {
+		PVCore::dump_argument_list(rff_p->get_args());
+	}
+
 #pragma omp parallel for
 	for (PVRow r = 0; r < nlines_sel; r++) {
 		if (!sel_org.get_line(r)) {

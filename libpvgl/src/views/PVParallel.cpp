@@ -705,6 +705,10 @@ bool PVGL::PVView::mouse_up(int button, int x, int y, int modifiers)
 			get_lines().update_arrays_selection();
 			//	get_map().update_arrays_selection();
 			update_lines();
+			QList<Picviz::PVView*> views_to_update;
+			picviz_view->emit_user_modified_sel(&views_to_update);
+			foreach(Picviz::PVView* v, views_to_update) {
+			}
 		}
 
 		

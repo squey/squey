@@ -296,7 +296,7 @@ void Picviz::PVAD2GView::visit_edges_f(graph_func_t const& f) const
  * Picviz::PVAD2GView::visit_from_view_f
  *
  *****************************************************************************/
-void Picviz::PVAD2GView::visit_from_view_f(Picviz::PVView *view, graph_func_t const& f) const
+void Picviz::PVAD2GView::visit_from_view_f(Picviz::PVView *view, graph_func_t const& f, QList<Picviz::PVView*>* changed_views) const
 {
 	/**
 	 * This method uses an iterative breadth-first graph traversal to
@@ -336,6 +336,10 @@ void Picviz::PVAD2GView::visit_from_view_f(Picviz::PVView *view, graph_func_t co
 			cfview_p = _corr_info->getEdgeValue(edge).get_data();
 
 			f(*cfview_p, *va, *vb);
+
+			if (changed_views) {
+				changed_views->push_back(vb);
+			}
 
 			pending.push(next);
 			visited.insert(next);

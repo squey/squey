@@ -79,7 +79,7 @@ protected:
 
 protected:
 	// From PVView
-	void user_modified_sel(Picviz::PVView* org);
+	void user_modified_sel(Picviz::PVView* org, QList<Picviz::PVView*>* changed_views = NULL);
 
 	// Serialization
 	void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);

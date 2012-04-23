@@ -129,7 +129,7 @@ public:
 	QString get_axis_name(PVCol index) const;
 	QString get_axis_type(PVCol index) const;
 
-	void emit_user_modified_sel();
+	void emit_user_modified_sel(QList<Picviz::PVView*>* changed_views = NULL);
 
 	PVCore::PVColor get_color_in_output_layer(PVRow index);
 	PVCol get_column_count();

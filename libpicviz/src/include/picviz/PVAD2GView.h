@@ -78,8 +78,8 @@ public:
 		visit_edges(__impl::f_pre_process());
 	}
 
-	void run(Picviz::PVView *view) const {
-		visit_from_view(view, __impl::f_update_sel());
+	void run(Picviz::PVView *view, QList<Picviz::PVView*>* changed_views = NULL) const {
+		visit_from_view(view, __impl::f_update_sel(), changed_views);
 	}
 
 	bool check_properties();
@@ -97,14 +97,14 @@ private:
 	tlp::node get_graph_node(const Picviz::PVView *view) const;
 
 	template <class F>
-	inline void visit_from_view(Picviz::PVView *view, F const& f) const
+	inline void visit_from_view(Picviz::PVView *view, F const& f, QList<Picviz::PVView*>* changed_views) const
 	{
-		visit_from_view_f(view, boost::bind<void>(f, _1, _2, _3));
+		visit_from_view_f(view, boost::bind<void>(f, _1, _2, _3), changed_views);
 	}
 
 	void visit_edges_f(graph_func_t const& f) const;
 
-	void visit_from_view_f(Picviz::PVView *view, graph_func_t const& f) const;
+	void visit_from_view_f(Picviz::PVView *view, graph_func_t const& f, QList<Picviz::PVView*>* changed_views) const;
 
 	int count_path_number(const tlp::node& a, const tlp::node& b) const;
 	void count_path_number_rec(const tlp::node& a, const tlp::node& b, int& count, graph_path_t& path, graph_visited_t& visited)const;

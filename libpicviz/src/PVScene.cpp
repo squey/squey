@@ -101,7 +101,7 @@ bool Picviz::PVScene::del_source(const PVSource* src)
 	// Remove underlying views from the AD2G graph
 	PVSource::list_views_t const& views = src->get_views();
 	foreach (Picviz::PVView_p view, views) {
-		_ad2g_view.del_view(*view);
+		_ad2g_view.del_view(view.get());
 	}
 	
 	// Remove this source's inputs if they are no longer used by other sources
@@ -144,9 +144,10 @@ void Picviz::PVScene::set_views_id()
 	}
 }
 
-void Picviz::PVScene::user_modified_sel(PVView* src_view)
+void Picviz::PVScene::user_modified_sel(PVView* src_view, QList<Picviz::PVView*>* changed_views)
 {
-	_ad2g_view.run(src_view);
+	_ad2g_view.pre_process();
+	_ad2g_view.run(src_view, changed_views);
 }
 
 void Picviz::PVScene::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)

@@ -1475,11 +1475,11 @@ Picviz::PVSortingFunc_p Picviz::PVView::get_sort_plugin_for_col(PVCol col) const
 	return f_lib;
 }
 
-void Picviz::PVView::emit_user_modified_sel()
+void Picviz::PVView::emit_user_modified_sel(QList<Picviz::PVView*>* changed_views)
 {
 	PVScene* scene = get_scene_parent();
 	if (scene) {
-		scene->user_modified_sel(this);
+		scene->user_modified_sel(this, changed_views);
 	}
 }
 
