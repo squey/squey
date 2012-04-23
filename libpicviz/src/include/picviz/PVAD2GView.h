@@ -88,14 +88,17 @@ public:
 
 	bool check_properties();
 
-private:
-	tlp::node get_graph_node(const Picviz::PVView *view) const;
-
 	template <class F>
 	inline void visit_edges(F const& f) const
 	{
 		visit_edges_f(boost::bind<void>(f, _1, _2, _3));
 	}
+
+	size_t get_edges_count() const;
+
+
+private:
+	tlp::node get_graph_node(const Picviz::PVView *view) const;
 
 	template <class F>
 	inline void visit_from_view(Picviz::PVView *view, F const& f) const

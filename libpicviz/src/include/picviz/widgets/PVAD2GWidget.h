@@ -15,6 +15,7 @@
 namespace PVWidgets {
 
 class PVAD2GWidget;
+class PVAD2GListEdgesWidget;
 
 namespace __impl {
 
@@ -91,6 +92,7 @@ private:
 
 	AD2GInteractor* _ad2g_interactor;
 	AD2GInteractor2* _ad2g_interactor2;
+	PVAD2GListEdgesWidget* _list_edges_widget ;
 };
 
 namespace __impl {
