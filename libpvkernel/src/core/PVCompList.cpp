@@ -68,7 +68,7 @@ bool comp_hash(PVCore::PVArgumentList const& h1, PVCore::PVArgumentList const& h
 		PVCore::PVArgument arg1 = h1[key];
 		PVCore::PVArgument arg2 = h2[key];
 
-		if (!arg1.isValid() || !arg1.isValid()) {
+		if (!arg1.isValid() || !arg2.isValid()) {
 			return false;
 		}
 
