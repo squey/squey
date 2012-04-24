@@ -24,6 +24,10 @@ class LibPicvizDecl PVAD2GEdgeEditor : public QWidget
 	Q_OBJECT
 public:
 	PVAD2GEdgeEditor(Picviz::PVView const& view_org, Picviz::PVView const& view_dst, Picviz::PVCombiningFunctionView& cf, QWidget* parent = 0);
+	PVAD2GEdgeEditor(QWidget* parent = 0);
+
+public:
+	void set_cf(Picviz::PVView const& view_org, Picviz::PVView const& view_dst, Picviz::PVCombiningFunctionView& cf);
 
 public slots:
 	void add_function_Slot();
@@ -37,13 +41,14 @@ signals:
 	void rff_removed_Signal(Picviz::PVSelRowFilteringFunction* rff);
 
 private:
+	void init();
 	bool edit_rff(Picviz::PVSelRowFilteringFunction_p& rff);
 	void init_combo_list_rffs();
 
 private:
 	PVAD2GRFFListModel* _rff_list_model;
-	const Picviz::PVView& _view_org;
-	const Picviz::PVView& _view_dst;
+	const Picviz::PVView* _view_org;
+	const Picviz::PVView* _view_dst;
 
 	PVSizeHintListWidget<QListView>* _list;
 	QComboBox* _function_combo;
