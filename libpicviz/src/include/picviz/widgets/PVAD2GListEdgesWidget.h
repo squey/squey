@@ -11,6 +11,7 @@
 
 namespace Picviz {
 class PVAD2GView;
+class PVCombiningFunctionView;
 class PVView;
 }
 
@@ -30,7 +31,6 @@ public slots:
 	void update_list_edges();
 	void update_fonction_properties(const Picviz::PVView& src_view, const Picviz::PVView& dst_view, Picviz::PVSelRowFilteringFunction_p& rff);
 	void update_edge_editor_Slot(const Picviz::PVSelRowFilteringFunction_p & rff);
-	void hide_rff_Slot(Picviz::PVSelRowFilteringFunction* rff);
 
 protected slots:
 	void show_edge(int row, int column = 0);
@@ -40,7 +40,7 @@ protected:
 	QTableWidget* _edges_table;
 	PVAD2GFunctionPropertiesWidget* _function_properties_widget;
 	PVAD2GEdgeEditor* _edge_properties_widget;
-	QStackedWidget* _stack_edge_widget;
+	Picviz::PVCombiningFunctionView* _cur_cf;
 };
 
 }

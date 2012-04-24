@@ -38,7 +38,7 @@ public slots:
 signals:
 	void update_fonction_properties(const Picviz::PVView& view_org, const Picviz::PVView& view_dst, Picviz::PVSelRowFilteringFunction_p& rff);
 	void rff_list_changed();
-	void rff_removed_Signal(Picviz::PVSelRowFilteringFunction* rff);
+	void cur_rff_removed();
 
 private:
 	void init();
@@ -49,6 +49,7 @@ private:
 	PVAD2GRFFListModel* _rff_list_model;
 	const Picviz::PVView* _view_org;
 	const Picviz::PVView* _view_dst;
+	QModelIndex _cur_edited_rff_index;
 
 	PVSizeHintListWidget<QListView>* _list;
 	QComboBox* _function_combo;

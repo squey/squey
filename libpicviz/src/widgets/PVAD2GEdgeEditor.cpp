@@ -35,7 +35,6 @@ void PVWidgets::PVAD2GEdgeEditor::init()
 
 	// Widgets
 	_list = new PVSizeHintListWidget<QListView>();
-	//_list->resize(_list->width(), 10) ;
 	_list->setDragDropMode(QAbstractItemView::InternalMove);
 	_list->setDragDropOverwriteMode(true);
 	_list->setMinimumWidth(400);
@@ -98,9 +97,7 @@ void PVWidgets::PVAD2GEdgeEditor::add_function_Slot()
 	Picviz::PVSelRowFilteringFunction_p new_rff = LIB_CLASS(Picviz::PVSelRowFilteringFunction)::get().get_class_by_name(var.toString());
 
 	new_rff = new_rff->clone<Picviz::PVSelRowFilteringFunction>();
-
 	_rff_list_model->addRow(_list->selectionModel()->currentIndex(), new_rff);
-	//_list->resize(_list->width(), _list->sizeHintForRow(0) * _rff_list_model->rowCount() + 10) ;
 
 	emit rff_list_changed();
 }
@@ -114,14 +111,9 @@ void PVWidgets::PVAD2GEdgeEditor::edit_function_Slot()
 	QModelIndex model_index = _list->selectionModel()->currentIndex();
 	Picviz::PVSelRowFilteringFunction_p rff = ((Picviz::PVSelRowFilteringFunction*)model_index.data(Qt::UserRole).value<void*>())->shared_from_this();
 
-	emit update_fonction_properties(*_view_org, *_view_dst, rff);
-	//if (edit_rff(rff)) {
-	QVariant var;
-	var.setValue<void*>(rff.get());
-	_rff_list_model->setData(model_index, var, Qt::UserRole);
-	//}
+	_cur_edited_rff_index = model_index;
 
-	PVLOG_INFO("PVWidgets::PVAD2GEdgeEditor::edit_function_Slot() rff.get()=%x\n",rff.get());
+	emit update_fonction_properties(*_view_org, *_view_dst, rff);
 }
 
 void PVWidgets::PVAD2GEdgeEditor::update_item_Slot(const Picviz::PVSelRowFilteringFunction_p& rff)
@@ -130,10 +122,9 @@ void PVWidgets::PVAD2GEdgeEditor::update_item_Slot(const Picviz::PVSelRowFilteri
 		return;
 	}
 
-	QModelIndex model_index = _list->selectionModel()->currentIndex();
 	QVariant var;
 	var.setValue<void*>(rff.get());
-	_rff_list_model->setData(model_index, var, Qt::UserRole);
+	_rff_list_model->setData(_cur_edited_rff_index, var, Qt::UserRole);
 }
 
 
@@ -143,12 +134,18 @@ void PVWidgets::PVAD2GEdgeEditor::remove_function_Slot()
 		return;
 	}
 
-	QVariant var = _list->model()->data(_list->selectionModel()->currentIndex(), Qt::UserRole);
-	Picviz::PVSelRowFilteringFunction* rff = (Picviz::PVSelRowFilteringFunction*) var.value<void*>();
+	QModelIndex idx_rem = _list->selectionModel()->currentIndex();
+	if (!idx_rem.isValid()) {
+		return;
+	}
+
+	QVariant var = _list->model()->data(idx_rem, Qt::UserRole);
 
 	QMessageBox* box = new QMessageBox(QMessageBox::Question, tr("Confirm remove."), tr("Do you really want to remove row filter?"), QMessageBox::Yes | QMessageBox::No, this);
 	if (box->exec() == QMessageBox::Yes) {
+		if (idx_rem == _cur_edited_rff_index) {
+			emit cur_rff_removed();
+		}
 		_list->model()->removeRow(_list->selectionModel()->currentIndex().row());
-		emit rff_removed_Signal(rff);
 	}
 }

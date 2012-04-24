@@ -15,16 +15,21 @@ namespace __impl {
 struct add_edge_list_f
 {
 public:
-	add_edge_list_f(QTableWidget* table, QWidget* parent /* =0*/):
+	add_edge_list_f(QTableWidget* table, Picviz::PVCombiningFunctionView* cur_cf):
 		_table(table),
 		_cur_idx(0),
-		_parent(parent)
+		_cur_cf(cur_cf),
+		_cur_cf_found(false)
 	{ }
 
 public:
 	void operator()(Picviz::PVCombiningFunctionView& cf, Picviz::PVView& va, Picviz::PVView& vb) const
 	{
 		size_t idx_row = _cur_idx;
+
+		if (&cf == _cur_cf) {
+			_cur_cf_found = true;
+		}
 
 		QTableWidgetItem* item = new QTableWidgetItem(QString::number(va.get_display_view_id()));
 		item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
@@ -43,17 +48,22 @@ public:
 		_cur_idx++;
 	}
 
+	inline bool cur_cf_found() const { return _cur_cf_found; }
+
 private:
 	mutable QTableWidget* _table;
 	mutable size_t _cur_idx;
 	mutable QWidget* _parent;
+	Picviz::PVCombiningFunctionView* _cur_cf;
+	mutable bool _cur_cf_found;
 };
 
 }
 
 PVWidgets::PVAD2GListEdgesWidget::PVAD2GListEdgesWidget(Picviz::PVAD2GView& graph, QWidget* parent):
 	QWidget(parent),
-	_graph(graph)
+	_graph(graph),
+	_cur_cf(NULL)
 {
 
 	_edges_table = new QTableWidget(this);
@@ -66,12 +76,12 @@ PVWidgets::PVAD2GListEdgesWidget::PVAD2GListEdgesWidget(Picviz::PVAD2GView& grap
 	_edge_properties_widget = new PVWidgets::PVAD2GEdgeEditor(this);
 	_edge_properties_widget->hide();
 	_function_properties_widget = new PVAD2GFunctionPropertiesWidget(/*_view_org, _view_dst, *rff,*/ this);
-	_stack_edge_widget = new QStackedWidget(this);
 
 	// Connection
 	connect(_edges_table, SIGNAL(cellDoubleClicked(int, int)), this, SLOT(show_edge(int, int)));
 	connect(_function_properties_widget, SIGNAL(function_properties_changed(const Picviz::PVSelRowFilteringFunction_p &)), this, SLOT(update_edge_editor_Slot(const Picviz::PVSelRowFilteringFunction_p &)));
 	connect(_edge_properties_widget, SIGNAL(update_fonction_properties(const Picviz::PVView&, const Picviz::PVView&, Picviz::PVSelRowFilteringFunction_p& )), this, SLOT(update_fonction_properties(const Picviz::PVView &, const Picviz::PVView &, Picviz::PVSelRowFilteringFunction_p &)));
+	connect(_edge_properties_widget, SLOT(cur_rff_removed()), _function_properties_widget, SLOT(hide()));
 
 	QHBoxLayout* main_layout = new QHBoxLayout();
 	main_layout->addWidget(_edges_table);
@@ -90,14 +100,10 @@ void PVWidgets::PVAD2GListEdgesWidget::show_edge(int row, int /*column*/)
 
 	Picviz::PVView* view_src = (Picviz::PVView*) item_src->data(Qt::UserRole).value<void*>();
 	Picviz::PVView* view_dst = (Picviz::PVView*) item_dst->data(Qt::UserRole).value<void*>();
-	Picviz::PVCombiningFunctionView* cf = (Picviz::PVCombiningFunctionView*) item_src->data(Qt::UserRole+1).value<void*>();
+	_cur_cf = (Picviz::PVCombiningFunctionView*) item_src->data(Qt::UserRole+1).value<void*>();
 
-	_edge_properties_widget->set_cf(*view_src, *view_dst, *cf);
+	_edge_properties_widget->set_cf(*view_src, *view_dst, *_cur_cf);
 
-	/*
-	if (_stack_edge_widget->count() == 0) {
-		_stack_edge_widget->addWidget(_edge_properties_widget);
-	}*/
 	_edge_properties_widget->show();
 }
 
@@ -110,15 +116,15 @@ void PVWidgets::PVAD2GListEdgesWidget::update_fonction_properties(const Picviz::
 {
 	_function_properties_widget->set_views(src_view, dst_view);
 	_function_properties_widget->set_current_rff(rff.get());
+	_function_properties_widget->show();
 }
 
 void PVWidgets::PVAD2GListEdgesWidget::update_list_edges()
 {
+	__impl::add_edge_list_f f(_edges_table, _cur_cf);
 	_edges_table->setRowCount(_graph.get_edges_count());
-	_graph.visit_edges(__impl::add_edge_list_f(_edges_table, this));
-}
-
-void PVWidgets::PVAD2GListEdgesWidget::hide_rff_Slot(Picviz::PVSelRowFilteringFunction* rff)
-{
-	_function_properties_widget->hide_rff(rff);
+	_graph.visit_edges(f);
+	if (!f.cur_cf_found()) {
+		_edge_properties_widget->hide();
+	}
 }
