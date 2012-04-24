@@ -240,6 +240,13 @@ public:
 	int (PVGL::PVDrawable::*current_scheduler)(PVGL::PVIdleTaskKinds kind);
 
 	virtual void reinit_picviz_view() = 0;
+
+	/**
+	 *
+	 * Update selected views
+	 *
+	 */
+	void update_views() const;
 };
 }
 #endif
