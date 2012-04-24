@@ -250,3 +250,15 @@ int PVGL::PVDrawable::get_max_lines_per_redraw() const
 
 	return max_lines_per_redraw;
 }
+
+/******************************************************************************
+ *
+ * PVGL::PVDrawable::update_views
+ *
+ *****************************************************************************/
+void PVGL::PVDrawable::update_views() const
+{
+	QList<Picviz::PVView*> views_to_update;
+	picviz_view->emit_user_modified_sel(&views_to_update);
+	PVMain::update_views_sel(views_to_update);
+}

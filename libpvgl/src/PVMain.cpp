@@ -808,6 +808,7 @@ void PVGL::PVMain::timer_func(int)
 						pv_view->get_lines().update_arrays_selection();
 						// disabled for now pv_view->get_map().update_arrays_selection();
 						pv_view->update_lines();
+						pv_view->update_views();
 					}
 				}
 			}
@@ -857,6 +858,10 @@ void PVGL::PVMain::update_views_sel(QList<Picviz::PVView*> const& views)
 				pv_view->get_lines().update_arrays_selection();
 				pv_view->set_update_line_dirty();
 				PVGL::wtk_window_need_redisplay();
+				PVSDK::PVMessage message;
+				message.function = PVSDK_MESSENGER_FUNCTION_REFRESH_LISTING;
+				message.pv_view = pv_view->get_libview();
+				pvsdk_messenger->post_message_to_qt(message);
 			}
 		}
 	}

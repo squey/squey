@@ -112,7 +112,7 @@ void PVWidgets::PVAD2GFunctionPropertiesWidget::set_views(Picviz::PVView const& 
 	set_args_widget(_args_dst_widget, _args_dst);
 }
 
-void PVWidgets::PVAD2GFunctionPropertiesWidget::set_current_rff(Picviz::PVSelRowFilteringFunction const* rff)
+void PVWidgets::PVAD2GFunctionPropertiesWidget::set_current_rff(Picviz::PVSelRowFilteringFunction const* rff, bool keep_args)
 {
 	_function_combo->setEnabled(true);
 
@@ -127,13 +127,18 @@ void PVWidgets::PVAD2GFunctionPropertiesWidget::set_current_rff(Picviz::PVSelRow
 		}
 	}
 
-	if (_cur_rff) {
-		_rffs_args[*_cur_rff] = _cur_rff->get_args();
+	if (keep_args) {
+		if (_cur_rff) {
+			_rffs_args[*_cur_rff] = _cur_rff->get_args();
+		}
+		_cur_rff = rff->clone<Picviz::PVSelRowFilteringFunction>();
+		map_rff_args_t::const_iterator it = _rffs_args.find(*_cur_rff);
+		if (it != _rffs_args.end()) {
+			_cur_rff->set_args(it->second);
+		}
 	}
-	_cur_rff = rff->clone<Picviz::PVSelRowFilteringFunction>();
-	map_rff_args_t::const_iterator it = _rffs_args.find(*_cur_rff);
-	if (it != _rffs_args.end()) {
-		_cur_rff->set_args(it->second);
+	else {
+		_cur_rff = rff->clone<Picviz::PVSelRowFilteringFunction>();
 	}
 
 	_args_global = _cur_rff->get_global_args();

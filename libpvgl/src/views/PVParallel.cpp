@@ -355,6 +355,7 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 				message.pv_view = picviz_view;
 				pv_message->post_message_to_qt(message);
 				update_selections();
+				update_views();
 				break;
 		case 'c': case 'C': // Choose a color.
 				message.function = PVSDK_MESSENGER_FUNCTION_SET_COLOR;
@@ -405,6 +406,7 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 				message.pv_view = picviz_view;
 				pv_message->post_message_to_qt(message);
 				update_selections();
+				update_views();
 				break;
 		case 'm':
 				// toggle_map();
@@ -706,9 +708,7 @@ bool PVGL::PVView::mouse_up(int button, int x, int y, int modifiers)
 			get_lines().update_arrays_selection();
 			//	get_map().update_arrays_selection();
 			update_lines();
-			QList<Picviz::PVView*> views_to_update;
-			picviz_view->emit_user_modified_sel(&views_to_update);
-			PVMain::update_views_sel(views_to_update);
+			update_views();
 		}
 
 		
