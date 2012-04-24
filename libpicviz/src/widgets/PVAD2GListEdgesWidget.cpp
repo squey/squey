@@ -76,12 +76,13 @@ PVWidgets::PVAD2GListEdgesWidget::PVAD2GListEdgesWidget(Picviz::PVAD2GView& grap
 	_edge_properties_widget = new PVWidgets::PVAD2GEdgeEditor(this);
 	_edge_properties_widget->hide();
 	_function_properties_widget = new PVAD2GFunctionPropertiesWidget(/*_view_org, _view_dst, *rff,*/ this);
+	_function_properties_widget->hide();
 
 	// Connection
 	connect(_edges_table, SIGNAL(cellDoubleClicked(int, int)), this, SLOT(show_edge(int, int)));
 	connect(_function_properties_widget, SIGNAL(function_properties_changed(const Picviz::PVSelRowFilteringFunction_p &)), this, SLOT(update_edge_editor_Slot(const Picviz::PVSelRowFilteringFunction_p &)));
 	connect(_edge_properties_widget, SIGNAL(update_fonction_properties(const Picviz::PVView&, const Picviz::PVView&, Picviz::PVSelRowFilteringFunction_p& )), this, SLOT(update_fonction_properties(const Picviz::PVView &, const Picviz::PVView &, Picviz::PVSelRowFilteringFunction_p &)));
-	connect(_edge_properties_widget, SLOT(cur_rff_removed()), _function_properties_widget, SLOT(hide()));
+	connect(_edge_properties_widget, SIGNAL(cur_rff_removed()), _function_properties_widget, SLOT(hide()));
 
 	QHBoxLayout* main_layout = new QHBoxLayout();
 	main_layout->addWidget(_edges_table);
@@ -126,5 +127,6 @@ void PVWidgets::PVAD2GListEdgesWidget::update_list_edges()
 	_graph.visit_edges(f);
 	if (!f.cur_cf_found()) {
 		_edge_properties_widget->hide();
+		_function_properties_widget->hide();
 	}
 }
