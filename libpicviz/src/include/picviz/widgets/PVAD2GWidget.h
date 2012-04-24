@@ -57,14 +57,14 @@ public:
 	tlp::node add_view(QPoint pos, Picviz::PVView* view);
 	tlp::edge add_combining_function(const tlp::node source, const tlp::node target);
 	void edit_combining_function(tlp::edge edge, tlp::node src, tlp::node dst);
-
+	void set_edit_graph(bool edit_graph);
 	void highlightViewItem(tlp::node n);
 
 	__impl::PVTableWidget* get_table() { return _table; }
 	Picviz::PVAD2GView& get_ad2g() { return _ad2g; }
 
 public slots:
-	void change_interactor_slot();
+	void update_interactor_Slot();
 	void update(ObserverIterator /*begin*/, ObserverIterator /*end*/);
 	void observableDestroyed(tlp::Observable* /*observable*/) {}
 
@@ -80,7 +80,6 @@ public slots:
 
 private:
 	void init_table();
-	void init_toolbar();
 	void initObservers();
 	void clearObservers();
 
@@ -93,6 +92,9 @@ private:
 	QToolBar* _toolBar;
 	__impl::PVTableWidget* _table;
 	PVWidgets::PVAD2GEdgeEditor* _edge_editor;
+
+	QRadioButton* _radio_edit_graph;
+	QRadioButton* _radio_edit_layout;
 
 	AD2GInteractor* _ad2g_interactor;
 	AD2GInteractor2* _ad2g_interactor2;

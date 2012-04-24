@@ -52,9 +52,7 @@ bool PVWidgets::AD2GInteractorComponent::eventFilter(QObject* widget, QEvent* e)
 		}
 	}
 	else {
-
 		QMouseEvent* qMouseEv = (QMouseEvent*) e;
-		PVLOG_INFO("QMouseEvent* qMouseEv = (QMouseEvent*) e;\n");
 
 		bool hoveringOverNode = glMainWidget->doSelect(qMouseEv->x(), qMouseEv->y(), _type, _tmpNode, _tmpEdge) && _type == tlp::NODE;
 		bool hoveringOverEdge = glMainWidget->doSelect(qMouseEv->x(), qMouseEv->y(), _type, _tmpNode, _tmpEdge) && _type == tlp::EDGE;
