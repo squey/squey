@@ -28,7 +28,7 @@ public:
 
 public:
 	void set_views(Picviz::PVView const& view_org, Picviz::PVView const& view_dst);
-	void set_current_rff(Picviz::PVSelRowFilteringFunction const* rff);
+	void set_current_rff(Picviz::PVSelRowFilteringFunction const* rff, bool keep_args = true);
 	Picviz::PVSelRowFilteringFunction_p get_rff() const { return _cur_rff; };
 
 signals:
