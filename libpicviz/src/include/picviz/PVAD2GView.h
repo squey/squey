@@ -72,6 +72,7 @@ public:
 	                     PVCombiningFunctionView_p cfview);
 	Picviz::PVCombiningFunctionView_p get_edge_f(const tlp::edge edge) const;
 	graph_edge_views_t get_edge_views(const tlp::edge edge) const;
+	void del_edge_f(Picviz::PVView* va, Picviz::PVView* vb);
 
 public:
 	void pre_process() const {
@@ -92,9 +93,11 @@ public:
 
 	size_t get_edges_count() const;
 
+	void set_selected_edge(Picviz::PVView* view_src, Picviz::PVView* view_dst);
+
+	tlp::node get_graph_node(const Picviz::PVView *view) const;
 
 private:
-	tlp::node get_graph_node(const Picviz::PVView *view) const;
 
 	template <class F>
 	inline void visit_from_view(Picviz::PVView *view, F const& f, QList<Picviz::PVView*>* changed_views) const

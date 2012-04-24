@@ -63,8 +63,6 @@ bool PVWidgets::AD2GInteractorComponent::eventFilter(QObject* widget, QEvent* e)
 					tlp::node src = graph->source(_tmpEdge);
 					tlp::node dst = graph->target(_tmpEdge);
 
-					graph->getProperty<tlp::ColorProperty>("viewColor")->setEdgeValue(_tmpEdge, tlp::Color(255, 0, 0));
-
 					_widget->edit_combining_function(_tmpEdge, src, dst);
 					return true;
 				}
@@ -72,7 +70,6 @@ bool PVWidgets::AD2GInteractorComponent::eventFilter(QObject* widget, QEvent* e)
 			}
 			// Start edge tracing
 			else if(e->type() == QEvent::MouseButtonPress && !_edge_started) {
-				graph->getProperty<tlp::ColorProperty>("viewColor")->setAllEdgeValue(tlp::Color(142, 142, 142));
 				if (hoveringOverNode) {
 					_edge_started=true;
 					initObserver(graph);

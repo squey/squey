@@ -50,7 +50,7 @@ void PVWidgets::PVAD2GEdgeEditor::init()
 	connect(btn_add, SIGNAL(clicked()), this, SLOT(add_function_Slot()));
 	connect(btn_edit, SIGNAL(clicked()), this, SLOT(edit_function_Slot()));
 	connect(btn_remove, SIGNAL(clicked()), this, SLOT(remove_function_Slot()));
-	connect(_list, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(edit_function_Slot()));
+	connect(_list, SIGNAL(clicked(const QModelIndex &)), this, SLOT(edit_function_Slot()));
 
 	// Layout
 	QHBoxLayout* main_layout = new QHBoxLayout();

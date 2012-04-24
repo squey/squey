@@ -9,6 +9,7 @@
 #include <tulip/Graph.h>
 #include <tulip/Node.h>
 #include <tulip/PropertyTypes.h>
+#include <tulip/ColorProperty.h>
 
 #include <queue>
 
@@ -149,7 +150,7 @@ tlp::node Picviz::PVAD2GView::add_view(Picviz::PVView *view)
  *****************************************************************************/
 void Picviz::PVAD2GView::del_view(Picviz::PVView *view)
 {
-	tlp::node node;
+	tlp::node node;_graph->delNode(node);
 
 	node = get_graph_node(view);
 
@@ -291,6 +292,17 @@ void Picviz::PVAD2GView::visit_edges_f(graph_func_t const& f) const
 	}
 }
 
+void Picviz::PVAD2GView::set_selected_edge(Picviz::PVView* view_src, Picviz::PVView* view_dst)
+{
+	tlp::node src = get_graph_node(view_src);
+	tlp::node dst = get_graph_node(view_dst);
+	tlp::edge edge = _graph->existEdge(src, dst);
+
+	tlp::ColorProperty* color_property = _graph->getProperty<tlp::ColorProperty>("viewColor");
+	color_property->setAllEdgeValue(tlp::Color(142, 142, 142));
+	color_property->setEdgeValue(edge, tlp::Color(255, 0, 0));
+}
+
 /******************************************************************************
  *
  * Picviz::PVAD2GView::visit_from_view_f
@@ -369,7 +381,7 @@ bool Picviz::PVAD2GView::check_properties()
 
 /******************************************************************************
  *
- * Picviz::PVAD2GView::get_edges_count
+ * Picviz::PVAD2GView::get_edg_graph->delNode(node);es_count
  *
  *****************************************************************************/
 size_t Picviz::PVAD2GView::get_edges_count() const
@@ -395,6 +407,23 @@ tlp::node Picviz::PVAD2GView::get_graph_node(const Picviz::PVView *view) const
 	}
 
 	return TLP_NODE_INVALID;
+}
+
+/******************************************************************************
+ *
+ * Picviz::PVAD2GView::del_edge
+ *
+ *****************************************************************************/
+void Picviz::PVAD2GView::del_edge_f(Picviz::PVView* va, Picviz::PVView* vb)
+{
+	tlp::node na = get_graph_node(va);
+	tlp::node nb = get_graph_node(vb);
+	if (na != TLP_NODE_INVALID && nb != TLP_NODE_INVALID) {
+		tlp::edge edge = _graph->existEdge(na, nb);
+		if (edge != TLP_EDGE_INVALID) {
+			_graph->delEdge(edge);
+		}
+	}
 }
 
 /******************************************************************************

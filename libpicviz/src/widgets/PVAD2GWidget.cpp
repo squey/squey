@@ -126,6 +126,7 @@ PVWidgets::PVAD2GWidget::PVAD2GWidget(Picviz::PVAD2GView& ad2g, QMainWindow* mw 
 	_radio_edit_graph = new QRadioButton(tr("Edit graph"));
 	_radio_edit_graph->setChecked(true);
 	_radio_edit_layout = new QRadioButton(tr("Edit layout"));
+	_radio_edit_layout->setToolTip(tr("Use AltGr to edit graph layout"));
 	radio_layout->addWidget(_radio_edit_graph);
 	radio_layout->addWidget(_radio_edit_layout);
 	radio_layout->addStretch(1);
@@ -205,7 +206,6 @@ void PVWidgets::PVAD2GWidget::set_edit_graph(bool edit_graph)
 
 void PVWidgets::PVAD2GWidget::update_interactor_Slot()
 {
-	PVLOG_INFO("update_interactor\n");
 	if (_radio_edit_graph->isChecked()) {
 		_nodeLinkView->setActiveInteractor(_ad2g_interactor);
 	}
@@ -261,9 +261,10 @@ tlp::node PVWidgets::PVAD2GWidget::add_view(QPoint pos, Picviz::PVView* view)
 	tlp::StringProperty* label = graph->getProperty<tlp::StringProperty>("viewLabel");
 	label->setNodeValue(newNode, qPrintable(QString::number(view->get_display_view_id())));
 
-	tlp::Observable::unholdObservers();
+	// Set view id property
+	graph->getProperty<tlp::IntegerProperty>("view_id")->setNodeValue(newNode, view->get_display_view_id());
 
-	tlp::saveGraph(graph, "test.tlp");
+	tlp::Observable::unholdObservers();
 
 	return newNode;
 }
@@ -323,12 +324,31 @@ void PVWidgets::PVAD2GWidget::remove_combining_function_Slot(int edge)
 	}
 }
 
+/*void PVWidgets::PVAD2GWidget::select_edge(Picviz::PVView* view_src, Picviz::PVView* view_dst)
+{
+	tlp::node src = _ad2g.get_graph_node(view_src);
+	tlp::node dst = _ad2g.get_graph_node(view_dst);
+	tlp::edge edge = _graph->existEdge(src, dst);
+	tlp::Graph* graph = _nodeLinkView->getGlMainWidget()->getScene()->getGlGraphComposite()->getInputData()->getGraph();
+	graph->getProperty<tlp::ColorProperty>("viewColor")->setEdgeValue(edge, tlp::Color(255, 0, 0));
+}*/
+
 void PVWidgets::PVAD2GWidget::edit_combining_function(tlp::edge edge, tlp::node src, tlp::node dst)
 {
 
 	Picviz::PVView* view_src = _ad2g.get_view(src);
 	Picviz::PVView* view_dst = _ad2g.get_view(dst);
 	Picviz::PVCombiningFunctionView_p combining_function = _ad2g.get_edge_f(edge);
+
+	tlp::Graph* graph = _nodeLinkView->getGlMainWidget()->getScene()->getGlGraphComposite()->getInputData()->getGraph();
+	tlp::IntegerProperty* view_id_property = graph->getProperty<tlp::IntegerProperty>("view_id");
+	int src_view_id = view_id_property->getNodeValue(src);
+	int dst_view_id = view_id_property->getNodeValue(dst);
+
+	_list_edges_widget->select_row(src_view_id, dst_view_id);
+
+	_ad2g.set_selected_edge(view_src, view_dst);
+
 	//_edge_editor->update(*view_src, *view_dst, *combining_function);
 }
 

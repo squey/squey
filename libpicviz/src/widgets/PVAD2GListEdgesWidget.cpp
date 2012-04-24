@@ -36,6 +36,7 @@ public:
 
 		QTableWidgetItem* item = new QTableWidgetItem(QString::number(va.get_display_view_id()));
 		item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+		item->setTextAlignment(Qt::AlignCenter);
 		QVariant var;
 		var.setValue<void*>(&va);
 		item->setData(Qt::UserRole, var);
@@ -44,6 +45,7 @@ public:
 		_table->setItem(idx_row, 0, item);
 
 		item = new QTableWidgetItem(QString::number(vb.get_display_view_id()));
+		item->setTextAlignment(Qt::AlignCenter);
 		item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
 		var.setValue<void*>(&vb);
 		item->setData(Qt::UserRole, var);
@@ -60,6 +62,20 @@ private:
 	bool* _cur_edge_found;
 };
 
+class PVTableWidgetTest: public QTableWidget
+{
+public:
+	PVTableWidgetTest(QWidget* parent=NULL):
+		QTableWidget(parent)
+	{ }
+
+public:
+	QSize sizeHint() const
+	{
+		return QSize(horizontalHeader()->size().width(), 40);
+	}
+};
+
 }
 
 PVWidgets::PVAD2GListEdgesWidget::PVAD2GListEdgesWidget(Picviz::PVAD2GView& graph, QWidget* parent):
@@ -68,20 +84,32 @@ PVWidgets::PVAD2GListEdgesWidget::PVAD2GListEdgesWidget(Picviz::PVAD2GView& grap
 	_cur_cf(NULL)
 {
 
-	_edges_table = new QTableWidget(this);
+	_edges_table = (QTableWidget*) (new __impl::PVTableWidgetTest(this));
 	_edges_table->setColumnCount(2);
 	_edges_table->verticalHeader()->hide();
-	_edges_table->setHorizontalHeaderLabels(QStringList() << tr("Source view") << tr("Destination view"));
+	_edges_table->setHorizontalHeaderItem(0, new QTableWidgetItem(tr("From")));
+	_edges_table->setHorizontalHeaderItem(1, new QTableWidgetItem(tr("To")));
 	_edges_table->setSelectionBehavior(QAbstractItemView::SelectRows);
 	_edges_table->setSelectionMode(QAbstractItemView::SingleSelection);
+	_edges_table->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::MinimumExpanding);
+	_edges_table->resizeColumnsToContents();
+	_edges_table->horizontalHeader()->setStretchLastSection(true);
+	_edges_table->horizontalHeader()->setResizeMode(QHeaderView::Fixed);
+
+
+	_removeAct = new QAction(QIcon(), tr("Remove"), this);
+	//_edges_table->addAction(_removeAct);
+	_edges_table->setContextMenuPolicy(Qt::ActionsContextMenu);
+	connect(_removeAct, SIGNAL(triggered()), this, SLOT(remove_Slot()));
+	_removeAct->setEnabled(false);
 
 	_edge_properties_widget = new PVWidgets::PVAD2GEdgeEditor(this);
-	_edge_properties_widget->hide();
+	_edge_properties_widget->setEnabled(false);
 	_function_properties_widget = new PVAD2GFunctionPropertiesWidget(/*_view_org, _view_dst, *rff,*/ this);
 	_function_properties_widget->hide();
 
 	// Connection
-	connect(_edges_table, SIGNAL(cellDoubleClicked(int, int)), this, SLOT(show_edge(int, int)));
+	connect(_edges_table, SIGNAL(currentItemChanged(QTableWidgetItem*, QTableWidgetItem*)), this, SLOT(selection_changed_Slot(QTableWidgetItem*, QTableWidgetItem*)));
 	connect(_function_properties_widget, SIGNAL(function_properties_changed(const Picviz::PVSelRowFilteringFunction_p &)), this, SLOT(update_edge_editor_Slot(const Picviz::PVSelRowFilteringFunction_p &)));
 	connect(_edge_properties_widget, SIGNAL(update_fonction_properties(const Picviz::PVView&, const Picviz::PVView&, Picviz::PVSelRowFilteringFunction_p& )), this, SLOT(update_fonction_properties(const Picviz::PVView &, const Picviz::PVView &, Picviz::PVSelRowFilteringFunction_p &)));
 	connect(_edge_properties_widget, SIGNAL(cur_rff_removed()), _function_properties_widget, SLOT(hide()));
@@ -90,9 +118,40 @@ PVWidgets::PVAD2GListEdgesWidget::PVAD2GListEdgesWidget(Picviz::PVAD2GView& grap
 	main_layout->addWidget(_edges_table);
 	main_layout->addWidget(_edge_properties_widget);
 	main_layout->addWidget(_function_properties_widget);
+	main_layout->addStretch(1);
 
 	setLayout(main_layout);
 	setFocusPolicy(Qt::StrongFocus);
+}
+
+void PVWidgets::PVAD2GListEdgesWidget::select_row(int src_view_id, int dst_view_id)
+{
+	for (int i=0; i<_edges_table->rowCount(); i++) {
+		if (_edges_table->item(i, 0)->text() == QString::number(src_view_id) && _edges_table->item(i, 1)->text() == QString::number(dst_view_id)) {
+			_edges_table->selectRow(i);
+			show_edge(i);
+			break;
+		}
+	}
+}
+
+void PVWidgets::PVAD2GListEdgesWidget::selection_changed_Slot(QTableWidgetItem* cur, QTableWidgetItem* prev)
+{
+	if (cur && cur != prev) {
+		show_edge(cur->row());
+	}
+}
+
+void PVWidgets::PVAD2GListEdgesWidget::remove_Slot()
+{
+	int row = _edges_table->currentIndex().row();
+	QTableWidgetItem* item_src = _edges_table->item(row, 0);
+	QTableWidgetItem* item_dst = _edges_table->item(row, 1);
+	Picviz::PVView* view_src = (Picviz::PVView*) item_src->data(Qt::UserRole).value<void*>();
+	Picviz::PVView* view_dst = (Picviz::PVView*) item_dst->data(Qt::UserRole).value<void*>();
+
+	_edges_table->removeRow(row);
+	_graph.del_edge_f(view_src, view_dst);
 }
 
 void PVWidgets::PVAD2GListEdgesWidget::show_edge(int row, int /*column*/)
@@ -107,7 +166,9 @@ void PVWidgets::PVAD2GListEdgesWidget::show_edge(int row, int /*column*/)
 
 	_edge_properties_widget->set_cf(*view_src, *view_dst, *_cur_cf);
 
-	_edge_properties_widget->show();
+	_graph.set_selected_edge(view_src, view_dst);
+
+	_edge_properties_widget->setEnabled(true);
 }
 
 void PVWidgets::PVAD2GListEdgesWidget::update_edge_editor_Slot(const Picviz::PVSelRowFilteringFunction_p & rff)
@@ -126,10 +187,16 @@ void PVWidgets::PVAD2GListEdgesWidget::update_list_edges()
 {
 	bool edge_found = false;
 	__impl::add_edge_list_f f(_edges_table, _edge_properties_widget->get_view_org(), _edge_properties_widget->get_view_dst(), edge_found);
-	_edges_table->setRowCount(_graph.get_edges_count());
+	size_t nedges =  _graph.get_edges_count();
+	_removeAct->setEnabled(nedges);
+	_edges_table->setRowCount(nedges);
 	_graph.visit_edges(f);
-	if (!edge_found) {
-		_edge_properties_widget->hide();
+	if (edge_found && _edges_table->isEnabled()) {
+		return;
+	}
+
+	if (! nedges) {
+		_edge_properties_widget->setEnabled(false);
 		_function_properties_widget->hide();
 	}
 }
