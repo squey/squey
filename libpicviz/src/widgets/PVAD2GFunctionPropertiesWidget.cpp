@@ -49,7 +49,13 @@ PVWidgets::PVAD2GFunctionPropertiesWidget::PVAD2GFunctionPropertiesWidget(QWidge
 	main_layout->addWidget(_src_view_box);
 	main_layout->addWidget(_dst_view_box);
 
-	setLayout(main_layout);
+	_widget = new QWidget();
+	_widget->setLayout(main_layout);
+	_stacked_widget = new QStackedWidget();
+
+	QVBoxLayout* stacked_widget_layout = new QVBoxLayout();
+	stacked_widget_layout->addWidget(_stacked_widget);
+	setLayout(stacked_widget_layout);
 
 	init_combo_list_rffs();
 	_function_combo->setEnabled(false);
@@ -59,6 +65,13 @@ PVWidgets::PVAD2GFunctionPropertiesWidget::PVAD2GFunctionPropertiesWidget(QWidge
 	connect(_args_org_widget,  SIGNAL(args_changed_Signal()), this, SLOT(commit_args()));
 	connect(_args_dst_widget,  SIGNAL(args_changed_Signal()), this, SLOT(commit_args()));
 	connect(_function_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(combo_func_changed(int)));
+}
+
+void PVWidgets::PVAD2GFunctionPropertiesWidget::hide_rff(Picviz::PVSelRowFilteringFunction* rff)
+{
+	if (_cur_rff.get() == rff) {
+		_stacked_widget->removeWidget(_widget);
+	}
 }
 
 void PVWidgets::PVAD2GFunctionPropertiesWidget::combo_func_changed(int idx)
@@ -94,6 +107,9 @@ void PVWidgets::PVAD2GFunctionPropertiesWidget::set_args_widget(PVArgumentListWi
 
 void PVWidgets::PVAD2GFunctionPropertiesWidget::set_views(Picviz::PVView const& view_org, Picviz::PVView const& view_dst)
 {
+	_stacked_widget->removeWidget(_widget);
+	_stacked_widget->addWidget(_widget);
+
 	_view_org = &view_org;
 	_view_dst = &view_dst;
 
@@ -158,6 +174,5 @@ void PVWidgets::PVAD2GFunctionPropertiesWidget::commit_args()
 	}
 	_cur_rff->set_args(args);
 
-	PVLOG_INFO("function_properties_changed\n");
 	emit function_properties_changed(_cur_rff);
 }

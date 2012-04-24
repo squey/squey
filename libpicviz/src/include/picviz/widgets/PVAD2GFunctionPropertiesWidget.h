@@ -8,6 +8,7 @@
 #include <QComboBox>
 #include <QGroupBox>
 #include <QWidget>
+#include <QStackedWidget>
 
 namespace Picviz {
 class PVView;
@@ -29,6 +30,7 @@ public:
 	void set_views(Picviz::PVView const& view_org, Picviz::PVView const& view_dst);
 	void set_current_rff(Picviz::PVSelRowFilteringFunction const* rff);
 	Picviz::PVSelRowFilteringFunction_p get_rff() const { return _cur_rff; };
+	void hide_rff(Picviz::PVSelRowFilteringFunction* rff);
 
 signals:
 	void function_properties_changed(const Picviz::PVSelRowFilteringFunction_p& rff);
@@ -66,6 +68,9 @@ protected:
 	QGroupBox* _global_view_box;
 	QGroupBox* _src_view_box;
 	QGroupBox* _dst_view_box;
+
+	QStackedWidget* _stacked_widget;
+	QWidget* _widget;
 };
 
 }

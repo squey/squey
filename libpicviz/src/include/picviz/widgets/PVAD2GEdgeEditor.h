@@ -6,6 +6,7 @@
 #include <QComboBox>
 
 #include <pvkernel/core/general.h>
+#include <pvkernel/widgets/PVSizeHintListWidget.h>
 #include <picviz/PVSelRowFilteringFunction_types.h>
 #include <picviz/widgets/PVAD2GRFFListModel.h>
 
@@ -32,6 +33,8 @@ public slots:
 
 signals:
 	void update_fonction_properties(const Picviz::PVView& view_org, const Picviz::PVView& view_dst, Picviz::PVSelRowFilteringFunction_p& rff);
+	void rff_list_changed();
+	void rff_removed_Signal(Picviz::PVSelRowFilteringFunction* rff);
 
 private:
 	bool edit_rff(Picviz::PVSelRowFilteringFunction_p& rff);
@@ -42,7 +45,7 @@ private:
 	const Picviz::PVView& _view_org;
 	const Picviz::PVView& _view_dst;
 
-	QListView* _list;
+	PVSizeHintListWidget<QListView>* _list;
 	QComboBox* _function_combo;
 
 	/*Picviz::PVTFViewRowFiltering& _tf;*/

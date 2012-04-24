@@ -20,10 +20,10 @@ PVWidgets::PVAD2GEdgeEditor::PVAD2GEdgeEditor(Picviz::PVView const& view_org, Pi
 	setWindowTitle("Edit combining function");
 
 	// Widgets
-	_list = new QListView();
+	_list = new PVSizeHintListWidget<QListView>();
 	_rff_list_model = new PVAD2GRFFListModel(view_org, view_dst, cf.get_first_tf()->get_rffs());
 	_list->setModel(_rff_list_model);
-	//_list->resize(_list->width(), _list->currentIndex()->sizeHint().height()) ;
+	_list->resize(_list->width(), 10) ;
 	_list->setDragDropMode(QAbstractItemView::InternalMove);
 	_list->setDragDropOverwriteMode(true);
 	_list->setMinimumWidth(400);
@@ -73,7 +73,9 @@ void PVWidgets::PVAD2GEdgeEditor::add_function_Slot()
 	new_rff = new_rff->clone<Picviz::PVSelRowFilteringFunction>();
 
 	_rff_list_model->addRow(_list->selectionModel()->currentIndex(), new_rff);
-	//_list->resize(_list->width(), _list->currentIndex()->sizeHint().height() * _rff_list_model->rowCount() + 0) ;
+	_list->resize(_list->width(), _list->sizeHintForRow(0) * _rff_list_model->rowCount() + 10) ;
+
+	emit rff_list_changed();
 }
 
 bool PVWidgets::PVAD2GEdgeEditor::edit_rff(Picviz::PVSelRowFilteringFunction_p& rff)
@@ -89,8 +91,6 @@ bool PVWidgets::PVAD2GEdgeEditor::edit_rff(Picviz::PVSelRowFilteringFunction_p& 
 
 void PVWidgets::PVAD2GEdgeEditor::edit_function_Slot()
 {
-	PVLOG_INFO("PVWidgets::PVAD2GEdgeEditor::edit_function_Slot()\n");
-
 	QModelIndex model_index = _list->selectionModel()->currentIndex();
 	Picviz::PVSelRowFilteringFunction_p rff = ((Picviz::PVSelRowFilteringFunction*)model_index.data(Qt::UserRole).value<void*>())->shared_from_this();
 
@@ -101,6 +101,7 @@ void PVWidgets::PVAD2GEdgeEditor::edit_function_Slot()
 	_rff_list_model->setData(model_index, var, Qt::UserRole);
 	//}
 
+	PVLOG_INFO("PVWidgets::PVAD2GEdgeEditor::edit_function_Slot() rff.get()=%x\n",rff.get());
 }
 
 void PVWidgets::PVAD2GEdgeEditor::update_item_Slot(const Picviz::PVSelRowFilteringFunction_p& rff)
@@ -114,8 +115,12 @@ void PVWidgets::PVAD2GEdgeEditor::update_item_Slot(const Picviz::PVSelRowFilteri
 
 void PVWidgets::PVAD2GEdgeEditor::remove_function_Slot()
 {
+	QVariant var = _list->model()->data(_list->selectionModel()->currentIndex(), Qt::UserRole);
+	Picviz::PVSelRowFilteringFunction* rff = (Picviz::PVSelRowFilteringFunction*) var.value<void*>();
+
 	QMessageBox* box = new QMessageBox(QMessageBox::Question, tr("Confirm remove."), tr("Do you really want to remove row filter?"), QMessageBox::Yes | QMessageBox::No, this);
 	if (box->exec() == QMessageBox::Yes) {
 		_list->model()->removeRow(_list->selectionModel()->currentIndex().row());
+		emit rff_removed_Signal(rff);
 	}
 }

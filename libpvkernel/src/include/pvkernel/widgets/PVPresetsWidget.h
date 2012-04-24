@@ -64,10 +64,10 @@ private:
 
 namespace __impl {
 
-class PVPresetsListWidget : public PVWidgets::PVSizeHintListWidget
+class PVPresetsListWidget : public PVWidgets::PVSizeHintListWidget<>
 {
 public:
-	PVPresetsListWidget(PVWidgets::PVPresetsWidget* parent) : PVWidgets::PVSizeHintListWidget((QWidget*)parent)
+	PVPresetsListWidget(PVWidgets::PVPresetsWidget* parent) : PVWidgets::PVSizeHintListWidget<>((QWidget*)parent)
 	{
 		_parent = parent;
 	}

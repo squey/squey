@@ -20,7 +20,7 @@ namespace PVWidgets {
 /**
  * \class PVAxesIndexEditor
  */
-class PVAxesIndexEditor : public PVWidgets::PVSizeHintListWidget
+class PVAxesIndexEditor : public PVWidgets::PVSizeHintListWidget<>
 {
 	Q_OBJECT
 	Q_PROPERTY(PVCore::PVAxesIndexType _axes_index READ get_axes_index WRITE set_axes_index USER true)

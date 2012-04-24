@@ -24,12 +24,14 @@ public:
 	{
 		PVWidgets::PVAD2GEdgeEditor* edge_widget = new PVWidgets::PVAD2GEdgeEditor(va, vb, cf);
 		QObject::connect(edge_widget, SIGNAL(update_fonction_properties(const Picviz::PVView&, const Picviz::PVView&, Picviz::PVSelRowFilteringFunction_p& )), _parent, SLOT(update_fonction_properties(const Picviz::PVView &, const Picviz::PVView &, Picviz::PVSelRowFilteringFunction_p &)));
+		QObject::connect(edge_widget, SIGNAL(rff_list_changed()), _parent, SLOT(resize_content()));
+		QObject::connect(edge_widget, SIGNAL(rff_removed_Signal(Picviz::PVSelRowFilteringFunction*)), _parent, SLOT(hide_rff_Slot(Picviz::PVSelRowFilteringFunction*)));
 		size_t idx_row = _cur_idx;
-		_table->setItem(idx_row, 0, new QTableWidgetItem(QString::number(va.get_view_id()+1)));
-		_table->setItem(idx_row, 1, new QTableWidgetItem(QString::number(vb.get_view_id()+1)));
+		_table->setItem(idx_row, 0, new QTableWidgetItem(QString::number(va.get_display_view_id())));
+		_table->setItem(idx_row, 1, new QTableWidgetItem(QString::number(vb.get_display_view_id())));
 		_table->setCellWidget(idx_row, 2, edge_widget);
-		//_table->setRowHeight(idx_row, edge_widget->height());
-		_table->setRowHeight(idx_row, 150);
+		_table->setRowHeight(idx_row, edge_widget->size().height());
+		//_table->setRowHeight(idx_row, 150);
 		_table->setColumnWidth(2, picviz_max(_table->columnWidth(2), edge_widget->width()));
 		_cur_idx++;
 	}
@@ -86,6 +88,15 @@ void PVWidgets::PVAD2GListEdgesWidget::update_list_edges()
 {
 	_edges_table->setRowCount(_graph.get_edges_count());
 	_graph.visit_edges(__impl::add_edge_list_f(_edges_table, this));
-	//_edges_table->resizeColumnsToContents();
+}
 
+void PVWidgets::PVAD2GListEdgesWidget::hide_rff_Slot(Picviz::PVSelRowFilteringFunction* rff)
+{
+	_function_properties_widget->hide_rff(rff);
+}
+
+void PVWidgets::PVAD2GListEdgesWidget::resize_content()
+{
+
+	_edges_table->resizeRowsToContents();
 }

@@ -5,10 +5,11 @@
 
 namespace PVWidgets {
 
-class PVSizeHintListWidget : public QListWidget
+template <class T = QListWidget>
+class PVSizeHintListWidget : public T
 {
 public:
-	PVSizeHintListWidget(QWidget * parent = 0) : QListWidget(parent) {}
+	PVSizeHintListWidget(QWidget * parent = 0) : T(parent) {}
 	QSize sizeHint() const
 	{
 		return QSize(0, 40);

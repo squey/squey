@@ -22,7 +22,7 @@
  *
  *****************************************************************************/
 PVWidgets::PVAxesIndexEditor::PVAxesIndexEditor(Picviz::PVView const& view, QWidget *parent):
-	PVWidgets::PVSizeHintListWidget(parent),
+	PVWidgets::PVSizeHintListWidget<>(parent),
 	_view(view)
 {
 	setSelectionMode(QAbstractItemView::ExtendedSelection);

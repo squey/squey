@@ -25,6 +25,8 @@ public slots:
 	void update_list_edges();
 	void update_fonction_properties(const Picviz::PVView& src_view, const Picviz::PVView& dst_view, Picviz::PVSelRowFilteringFunction_p& rff);
 	void update_edge_editor_Slot(const Picviz::PVSelRowFilteringFunction_p & rff);
+	void resize_content();
+	void hide_rff_Slot(Picviz::PVSelRowFilteringFunction* rff);
 
 protected:
 	Picviz::PVAD2GView& _graph;
