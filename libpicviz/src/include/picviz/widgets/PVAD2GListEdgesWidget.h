@@ -2,17 +2,22 @@
 #define PICVIZ_PVAD2GLISTEDGESWIDGET_H
 
 #include <pvkernel/core/general.h>
-#include <picviz/widgets/PVAD2GFunctionPropertiesWidget.h>
-#include <picviz/widgets/PVAD2GEdgeEditor.h>
+
+#include <picviz/PVSelRowFilteringFunction_types.h>
 
 #include <QTableWidget>
+#include <QStackedWidget>
 #include <QWidget>
 
 namespace Picviz {
 class PVAD2GView;
+class PVView;
 }
 
 namespace PVWidgets {
+
+class PVAD2GEdgeEditor;
+class PVAD2GFunctionPropertiesWidget;
 
 class LibPicvizDecl PVAD2GListEdgesWidget: public QWidget
 {
@@ -25,14 +30,17 @@ public slots:
 	void update_list_edges();
 	void update_fonction_properties(const Picviz::PVView& src_view, const Picviz::PVView& dst_view, Picviz::PVSelRowFilteringFunction_p& rff);
 	void update_edge_editor_Slot(const Picviz::PVSelRowFilteringFunction_p & rff);
-	void resize_content();
 	void hide_rff_Slot(Picviz::PVSelRowFilteringFunction* rff);
+
+protected slots:
+	void show_edge(int row, int column = 0);
 
 protected:
 	Picviz::PVAD2GView& _graph;
-	PVAD2GEdgeEditor* _current_edge_widget;
 	QTableWidget* _edges_table;
 	PVAD2GFunctionPropertiesWidget* _function_properties_widget;
+	PVAD2GEdgeEditor* _edge_properties_widget;
+	QStackedWidget* _stack_edge_widget;
 };
 
 }
