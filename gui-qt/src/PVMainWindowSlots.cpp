@@ -1270,13 +1270,15 @@ void PVInspector::PVMainWindow::view_display_inv_elts_Slot()
 void PVInspector::PVMainWindow::show_correlation_Slot()
 {
 	if (!_ad2g_mw) {
-		_ad2g_mw = new QMainWindow(this);
+		_ad2g_mw = new QDialog(this);
 		_ad2g_mw->setWindowTitle(tr("Correlations"));
 		PVWidgets::PVAD2GWidget* ad2g_w = new PVWidgets::PVAD2GWidget(_scene->get_ad2g_view(), _ad2g_mw);
-		_ad2g_mw->setCentralWidget(ad2g_w);
+		QVBoxLayout* l = new QVBoxLayout();
+		l->addWidget(ad2g_w);
+		_ad2g_mw->setLayout(l);
 	}
 	else {
-		QWidget* ad2g_mw_c = _ad2g_mw->centralWidget();
+		QWidget* ad2g_mw_c = _ad2g_mw->layout()->itemAt(0)->widget();
 		PVWidgets::PVAD2GWidget* ad2g_w;
 #ifdef NDEBUG
 		ad2g_w = (PVWidgets::PVAD2GWidget*) ad2g_mw_c;
@@ -1286,5 +1288,5 @@ void PVInspector::PVMainWindow::show_correlation_Slot()
 #endif
 		ad2g_w->update_list_views();
 	}
-	_ad2g_mw->show();
+	_ad2g_mw->exec();
 }

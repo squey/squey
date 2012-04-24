@@ -50,7 +50,7 @@ class LibPicvizDecl PVAD2GWidget : public QWidget, public tlp::Observable
 	typedef std::set<tlp::Observable*>::iterator ObserverIterator;
 
 public:
-	PVAD2GWidget(Picviz::PVAD2GView& ad2g, QMainWindow* mw = NULL);
+	PVAD2GWidget(Picviz::PVAD2GView& ad2g, QWidget* parent = NULL);
 	~PVAD2GWidget();
 
 public:

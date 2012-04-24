@@ -108,10 +108,9 @@ bool PVWidgets::__impl::FilterDropEvent::eventFilter(QObject* /*object*/, QEvent
 	return false;
 }
 
-PVWidgets::PVAD2GWidget::PVAD2GWidget(Picviz::PVAD2GView& ad2g, QMainWindow* mw /*= NULL*/) :
-	QWidget(mw),
+PVWidgets::PVAD2GWidget::PVAD2GWidget(Picviz::PVAD2GView& ad2g, QWidget* parent):
+	QWidget(parent),
 	_ad2g(ad2g),
-	_mw(mw),
 	_graph(_ad2g.get_graph())
 {
 	tlp::initTulipLib();

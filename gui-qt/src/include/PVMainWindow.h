@@ -367,7 +367,7 @@ private:
 
 private:
 	Picviz::PVScene_p _scene;
-	QMainWindow* _ad2g_mw;
+	QDialog* _ad2g_mw;
 	QString _cur_project_file;
 	bool _cur_project_save_everything;
 	bool _is_project_untitled;
