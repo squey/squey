@@ -15,20 +15,23 @@ namespace __impl {
 struct add_edge_list_f
 {
 public:
-	add_edge_list_f(QTableWidget* table, Picviz::PVCombiningFunctionView* cur_cf):
+	add_edge_list_f(QTableWidget* table, Picviz::PVView const* cur_va, Picviz::PVView const* cur_vb, bool& edge_found):
 		_table(table),
 		_cur_idx(0),
-		_cur_cf(cur_cf),
-		_cur_cf_found(false)
-	{ }
+		_cur_va(cur_va),
+		_cur_vb(cur_vb),
+		_cur_edge_found(&edge_found)
+	{
+		edge_found = false;
+	}
 
 public:
 	void operator()(Picviz::PVCombiningFunctionView& cf, Picviz::PVView& va, Picviz::PVView& vb) const
 	{
 		size_t idx_row = _cur_idx;
 
-		if (&cf == _cur_cf) {
-			_cur_cf_found = true;
+		if (&va == _cur_va && &vb == _cur_vb) {
+			*_cur_edge_found = true;
 		}
 
 		QTableWidgetItem* item = new QTableWidgetItem(QString::number(va.get_display_view_id()));
@@ -48,14 +51,13 @@ public:
 		_cur_idx++;
 	}
 
-	inline bool cur_cf_found() const { return _cur_cf_found; }
-
 private:
 	mutable QTableWidget* _table;
 	mutable size_t _cur_idx;
 	mutable QWidget* _parent;
-	Picviz::PVCombiningFunctionView* _cur_cf;
-	mutable bool _cur_cf_found;
+	Picviz::PVView const* _cur_va;
+	Picviz::PVView const* _cur_vb;
+	bool* _cur_edge_found;
 };
 
 }
@@ -69,7 +71,7 @@ PVWidgets::PVAD2GListEdgesWidget::PVAD2GListEdgesWidget(Picviz::PVAD2GView& grap
 	_edges_table = new QTableWidget(this);
 	_edges_table->setColumnCount(2);
 	_edges_table->verticalHeader()->hide();
-	_edges_table->setHorizontalHeaderLabels(QStringList() << tr("Source view") << tr("Destination view") << tr("Link functions"));
+	_edges_table->setHorizontalHeaderLabels(QStringList() << tr("Source view") << tr("Destination view"));
 	_edges_table->setSelectionBehavior(QAbstractItemView::SelectRows);
 	_edges_table->setSelectionMode(QAbstractItemView::SingleSelection);
 
@@ -122,10 +124,11 @@ void PVWidgets::PVAD2GListEdgesWidget::update_fonction_properties(const Picviz::
 
 void PVWidgets::PVAD2GListEdgesWidget::update_list_edges()
 {
-	__impl::add_edge_list_f f(_edges_table, _cur_cf);
+	bool edge_found = false;
+	__impl::add_edge_list_f f(_edges_table, _edge_properties_widget->get_view_org(), _edge_properties_widget->get_view_dst(), edge_found);
 	_edges_table->setRowCount(_graph.get_edges_count());
 	_graph.visit_edges(f);
-	if (!f.cur_cf_found()) {
+	if (!edge_found) {
 		_edge_properties_widget->hide();
 		_function_properties_widget->hide();
 	}
