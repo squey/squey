@@ -92,18 +92,16 @@ bool PVWidgets::__impl::FilterDropEvent::eventFilter(QObject* /*object*/, QEvent
 	////
 	else if (event->type() == QEvent::KeyPress) {
 		QKeyEvent* qKeyEvent = (QKeyEvent*) event;
-		if (qKeyEvent->key() == Qt::Key_Control) {
-			PVLOG_INFO("Qt::Key_Control Pressed\n");
+		if (qKeyEvent->key() == Qt::Key_AltGr) {
 			PVAD2GWidget* widget = (PVAD2GWidget*) parent();
-			widget->getNodeLinkView()->setActiveInteractor(widget->getInteractor());
+			widget->set_edit_graph(false);
 		}
 	}
 	else if (event->type() == QEvent::KeyRelease) {
 		QKeyEvent* qKeyEvent = (QKeyEvent*) event;
-		if (qKeyEvent->key() == Qt::Key_Control) {
-			PVLOG_INFO("Qt::Key_Control Released\n");
+		if (qKeyEvent->key() == Qt::Key_AltGr) {
 			PVAD2GWidget* widget = (PVAD2GWidget*) parent();
-			widget->getNodeLinkView()->setActiveInteractor(widget->getInteractor2());
+			widget->set_edit_graph(true);
 		}
 	}
 
@@ -123,19 +121,36 @@ PVWidgets::PVAD2GWidget::PVAD2GWidget(Picviz::PVAD2GView& ad2g, QMainWindow* mw 
 	QWidget* nodeWidget = _nodeLinkView->construct(this);
 	_table = new __impl::PVTableWidget(this);
 	_list_edges_widget = new PVAD2GListEdgesWidget(_ad2g, this);
-	//_function_properties_widget = new PVAD2GFunctionPropertiesWidget(/*_view_org, _view_dst, *rff,*/ this);
+
+	QHBoxLayout* radio_layout = new QHBoxLayout();
+	_radio_edit_graph = new QRadioButton(tr("Edit graph"));
+	_radio_edit_graph->setChecked(true);
+	_radio_edit_layout = new QRadioButton(tr("Edit layout"));
+	radio_layout->addWidget(_radio_edit_graph);
+	radio_layout->addWidget(_radio_edit_layout);
+	radio_layout->addStretch(1);
+
+	connect(_radio_edit_graph, SIGNAL(toggled(bool)), this, SLOT(update_interactor_Slot()));
+	connect(_radio_edit_layout, SIGNAL(toggled(bool)), this, SLOT(update_interactor_Slot()));
 
 	// Layout
 	QHBoxLayout* graph_views_layout = new QHBoxLayout();
-	graph_views_layout->addWidget(nodeWidget);
+	QVBoxLayout* graph_radio_layout = new QVBoxLayout();
+	graph_radio_layout->addWidget(nodeWidget);
+	graph_radio_layout->addLayout(radio_layout);
+	graph_views_layout->addLayout(graph_radio_layout);
 	graph_views_layout->addWidget(_table);
 	QHBoxLayout* edges_properties_layout = new QHBoxLayout();
 	edges_properties_layout->addWidget(_list_edges_widget);
-	//edges_properties_layout->addWidget(_function_properties_widget);
 	QVBoxLayout* main_layout = new QVBoxLayout();
 	main_layout->addLayout(graph_views_layout);
+	main_layout->addLayout(radio_layout);
 	main_layout->addLayout(edges_properties_layout);
 	setLayout(main_layout);
+
+	_ad2g_interactor = new AD2GInteractor(this, _nodeLinkView->getGlMainWidget());
+	_ad2g_interactor2 = new AD2GInteractor2(this, _nodeLinkView->getGlMainWidget());
+	_nodeLinkView->setActiveInteractor(_ad2g_interactor);
 
 	_nodeLinkView->hideOverview(true);
 
@@ -148,7 +163,6 @@ PVWidgets::PVAD2GWidget::PVAD2GWidget(Picviz::PVAD2GView& ad2g, QMainWindow* mw 
 	nodeWidget->setAcceptDrops(true);
 	nodeWidget->installEventFilter(new __impl::FilterDropEvent(this));
 
-	init_toolbar();
 	init_table();
 	update_list_views();
 
@@ -177,25 +191,27 @@ PVWidgets::PVAD2GWidget::PVAD2GWidget(Picviz::PVAD2GView& ad2g, QMainWindow* mw 
 	}
 
 	_nodeLinkView->getGlMainWidget()->resizeGL(800,600);
+}
 
-	/////////////////////////////////////////////////////////////////////////////
-	// Create hardcoded graph for testing purpose
-//	Picviz::PVScene::list_views_t all_views = _ad2g.get_scene()->get_all_views();
-//	Picviz::PVView_p view0 = all_views[0];
-//	Picviz::PVView_p view1 = all_views[1];
-//	tlp::node n0 = add_view(QPoint(100, 100), view0.get());
-//	tlp::node n1 = add_view(QPoint(300, 300), view1.get());
-//	add_combining_function(n0, n1);
-	//////////////////////////////////////////////////////////////////////////////////
+void PVWidgets::PVAD2GWidget::set_edit_graph(bool edit_graph)
+{
+	if (edit_graph) {
+		_radio_edit_graph->setChecked(true);
+	}
+	else {
+		_radio_edit_layout->setChecked(true);
+	}
+}
 
-	// Apply layout algorithm:
-//	tlp::LayoutProperty* viewLayout = _graph->getLocalProperty<tlp::LayoutProperty>("viewLayout");
-//	std::string err;
-//	_graph->applyPropertyAlgorithm("Mixed Model", viewLayout, err);
-//	PVLOG_INFO("err=%s\n", err.c_str());
-//	viewLayout->center(_graph);
-
-
+void PVWidgets::PVAD2GWidget::update_interactor_Slot()
+{
+	PVLOG_INFO("update_interactor\n");
+	if (_radio_edit_graph->isChecked()) {
+		_nodeLinkView->setActiveInteractor(_ad2g_interactor);
+	}
+	else {
+		_nodeLinkView->setActiveInteractor(_ad2g_interactor2);
+	}
 }
 
 
@@ -203,51 +219,6 @@ PVWidgets::PVAD2GWidget::~PVAD2GWidget()
 {
 	clearObservers();
 	delete _nodeLinkView;
-}
-
-void PVWidgets::PVAD2GWidget::init_toolbar()
-{
-	std::list<std::string> interactorsNamesAndPriorityMap(tlp::InteractorManager::getInst().getSortedCompatibleInteractors("Node Link Diagram view"));
-
-	std::list<tlp::Interactor *> interactorsList;
-	/*for (std::list<std::string>::reverse_iterator it = interactorsNamesAndPriorityMap.rbegin(); it != interactorsNamesAndPriorityMap.rend(); ++it) {
-		interactorsList.push_back(tlp::InteractorManager::getInst().getInteractor((*it)));
-	}*/
-	_ad2g_interactor = new AD2GInteractor(this, _nodeLinkView->getGlMainWidget());
-	interactorsList.push_back(_ad2g_interactor);
-	_ad2g_interactor2 = new AD2GInteractor2(this, _nodeLinkView->getGlMainWidget());
-	interactorsList.push_back(_ad2g_interactor2);
-	_nodeLinkView->setInteractors(interactorsList);
-	_nodeLinkView->setActiveInteractor(_ad2g_interactor);
-
-	_toolBar = new QToolBar(this);
-	std::list<QAction *> interactorsActionList;
-	for (std::list<tlp::Interactor *>::iterator it = interactorsList.begin(); it != interactorsList.end(); ++it)
-		interactorsActionList.push_back((*it)->getAction());
-	for (std::list<QAction *>::iterator it = interactorsActionList.begin(); it != interactorsActionList.end(); ++it) {
-		_toolBar->addAction(*it);
-		connect(*it, SIGNAL(triggered()), this, SLOT(change_interactor_slot()));
-	}
-
-	if (_mw) {
-		_mw->addToolBar(_toolBar);
-	}
-}
-
-void PVWidgets::PVAD2GWidget::change_interactor_slot()
-{
-	QAction *action = (QAction*) sender();
-	QList<QAction*> actions = _toolBar->actions();
-
-	for (QList<QAction*>::iterator it = actions.begin(); it != actions.end(); ++it) {
-		(*it)->setChecked(false);
-	}
-
-	action->setCheckable(true);
-	action->setChecked(true);
-
-	tlp::InteractorAction *interactorAction = (tlp::InteractorAction *) action;
-	_nodeLinkView->setActiveInteractor(interactorAction->getInteractor());
 }
 
 void PVWidgets::PVAD2GWidget::add_view_Slot(QObject* mouse_event)
