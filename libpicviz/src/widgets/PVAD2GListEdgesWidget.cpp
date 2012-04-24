@@ -78,7 +78,8 @@ void PVWidgets::PVAD2GListEdgesWidget::update_edge_editor_Slot(const Picviz::PVS
 void PVWidgets::PVAD2GListEdgesWidget::update_fonction_properties(const Picviz::PVView& src_view, const Picviz::PVView& dst_view, Picviz::PVSelRowFilteringFunction_p& rff)
 {
 	_current_edge_widget = (PVAD2GEdgeEditor*) sender();
-	_function_properties_widget->set_current_rff(src_view, dst_view, rff.get());
+	_function_properties_widget->set_views(src_view, dst_view);
+	_function_properties_widget->set_current_rff(rff.get());
 }
 
 void PVWidgets::PVAD2GListEdgesWidget::update_list_edges()
