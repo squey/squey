@@ -7,7 +7,6 @@ namespace Picviz {
 
 class PVSource;
 typedef boost::shared_ptr<PVSource> PVSource_p;
-
 }
 
 

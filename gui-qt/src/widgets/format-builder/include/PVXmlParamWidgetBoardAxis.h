@@ -43,9 +43,12 @@
 #include <picviz/plugins.h>
 #include <picviz/PVLayerFilter.h>
 
+namespace PVWidgets {
+class PVArgumentListWidget;
+}
+
 namespace PVInspector{
 
-class PVArgumentListWidget;
 class PVXmlParamWidget;
 
 class PVXmlParamWidgetBoardAxis : public QWidget {
@@ -111,8 +114,8 @@ public:
 	std::map<Picviz::PVPlottingFilter::base_registrable, PVCore::PVArgumentList> _args_plot_mode;
 	PVCore::PVArgumentList _args_mapping;
 	PVCore::PVArgumentList _args_plotting;
-	PVArgumentListWidget* _params_mapping;
-	PVArgumentListWidget* _params_plotting;
+	PVWidgets::PVArgumentListWidget* _params_mapping;
+	PVWidgets::PVArgumentListWidget* _params_plotting;
 	QGroupBox* _grp_mapping;
 	QGroupBox* _grp_plotting;
 

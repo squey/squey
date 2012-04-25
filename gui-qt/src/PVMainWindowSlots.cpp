@@ -9,10 +9,12 @@
 #include <pvkernel/core/PVSerializeArchiveFixError.h>
 #include <pvkernel/core/PVVersion.h>
 #include <picviz/PVAxisComputation.h>
+#include <picviz/widgets/PVAD2GWidget.h>
 
 #include <PVMainWindow.h>
 #include <PVExpandSelDlg.h>
-#include <PVArgumentListWidget.h>
+#include <pvkernel/widgets/PVArgumentListWidget.h>
+#include <picviz/widgets/PVArgumentListWidgetFactory.h>
 #include <PVFormatBuilderWidget.h>
 #include <PVLayerFilterProcessWidget.h>
 #include <PVAxesCombinationDialog.h>
@@ -626,7 +628,8 @@ bool PVInspector::PVMainWindow::load_project(QString const& file)
 		if (ar->has_repairable_errors()) {
 			if (fix_project_errors(ar)) {
 				project_has_been_fixed = true;
-				_scene.reset(new Picviz::PVScene("root", root.get()));
+				close_scene();
+				//_scene.reset(new Picviz::PVScene("root", root.get()));
 				continue;
 			}
 			else {
@@ -634,7 +637,8 @@ bool PVInspector::PVMainWindow::load_project(QString const& file)
 					QMessageBox* box = new QMessageBox(QMessageBox::Critical, tr("Error while loading project..."), err_msg, QMessageBox::Ok, this);
 					box->exec();
 				}
-				_scene.reset();
+				close_scene();
+				//_scene.reset();
 				return false;
 			}
 		}
@@ -643,7 +647,8 @@ bool PVInspector::PVMainWindow::load_project(QString const& file)
 
 	if (!load_scene()) {
 		PVLOG_ERROR("(PVMainWindow::project_load_Slot) error while processing the scene...\n");
-		_scene.reset();
+		close_scene();
+		//_scene.reset();
 		return false;
 	}
 
@@ -1247,7 +1252,7 @@ void PVInspector::PVMainWindow::selection_set_from_layer_Slot()
 
 		PVCore::PVArgumentList args;
 		args[PVCore::PVArgumentKey("sel-layer", tr("Choose a layer"))].setValue<Picviz::PVLayer*>(&view->get_current_layer());
-		bool ret = PVArgumentListWidget::modify_arguments_dlg(PVArgumentListWidget::create_layer_widget_factory(*view), args, this);
+		bool ret = PVWidgets::PVArgumentListWidget::modify_arguments_dlg(PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_factory(*view), args, this);
 		if (ret) {
 			Picviz::PVLayer* layer = args["sel-layer"].value<Picviz::PVLayer*>();
 			set_selection_from_layer(view, *layer);
@@ -1260,4 +1265,28 @@ void PVInspector::PVMainWindow::view_display_inv_elts_Slot()
 	if (current_tab && current_tab->get_lib_view()) {
 		display_inv_elts(current_tab);
 	}
+}
+
+void PVInspector::PVMainWindow::show_correlation_Slot()
+{
+	if (!_ad2g_mw) {
+		_ad2g_mw = new QDialog(this);
+		_ad2g_mw->setWindowTitle(tr("Correlations"));
+		PVWidgets::PVAD2GWidget* ad2g_w = new PVWidgets::PVAD2GWidget(_scene->get_ad2g_view(), _ad2g_mw);
+		QVBoxLayout* l = new QVBoxLayout();
+		l->addWidget(ad2g_w);
+		_ad2g_mw->setLayout(l);
+	}
+	else {
+		QWidget* ad2g_mw_c = _ad2g_mw->layout()->itemAt(0)->widget();
+		PVWidgets::PVAD2GWidget* ad2g_w;
+#ifdef NDEBUG
+		ad2g_w = (PVWidgets::PVAD2GWidget*) ad2g_mw_c;
+#else
+		ad2g_w = dynamic_cast<PVWidgets::PVAD2GWidget*>(ad2g_mw_c);
+		assert(ad2g_w);
+#endif
+		ad2g_w->update_list_views();
+	}
+	_ad2g_mw->exec();
 }

@@ -110,8 +110,6 @@ void PVInspector::PVListingView::update_view_selection_from_listing_selection()
 {
 	/* VARIABLES */
 	Picviz::PVStateMachine *state_machine;
-	int i;
-	int number_of_items;
 	QModelIndexList selected_items_list;
 	PVListingSortFilterProxyModel* myModel = get_listing_model();
 	int modifiers;
@@ -254,10 +252,9 @@ void PVInspector::PVListingView::wheelEvent(QWheelEvent* e)
 {
 	if (e->modifiers() == Qt::ControlModifier)
 	{
-		for (int i = 0 ; i < horizontalHeader()->count(); i++) {
-			int d = e->delta() / 12;
-			setColumnWidth(i, columnWidth(i) + d);
-		}
+		int colIndex = columnAt(e->pos().x());
+		int d = e->delta() / 12;
+		setColumnWidth(colIndex, columnWidth(colIndex) + d);
 	}
 }
 

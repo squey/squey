@@ -22,6 +22,7 @@ Picviz::PVRoot::PVRoot()
 	load_layer_filters();
 	load_mapping_filters();
 	load_plotting_filters();
+	load_row_filters();
 	load_axis_computation_filters();
 	load_sorting_functions_filters();
 
@@ -125,6 +126,26 @@ int Picviz::PVRoot::load_plotting_filters()
 	}
 	else {
 		PVLOG_INFO("%d plotting filters have been loaded.\n", ret);
+	}
+	return ret;
+}
+
+
+// Row filters loading
+
+/******************************************************************************
+ *
+ * Picviz::PVRoot::load_row_filters
+ *
+ *****************************************************************************/
+int Picviz::PVRoot::load_row_filters()
+{
+	int ret = PVCore::PVClassLibraryLibLoader::load_class_from_dirs(QString(picviz_plugins_get_row_filters_dir()), ROW_FILTER_PREFIX);
+	if (ret == 0) {
+		PVLOG_WARN("No row filters have been loaded !\n");
+	}
+	else {
+		PVLOG_INFO("%d row filters have been loaded.\n", ret);
 	}
 	return ret;
 }

@@ -5,11 +5,12 @@
 #include <QPushButton>
 #include <QMessageBox>
 
+#include <pvkernel/core/PVProgressBox.h>
+#include <pvkernel/widgets/PVArgumentListWidget.h>
 #include <picviz/PVStateMachine.h>
+#include <picviz/widgets/PVArgumentListWidgetFactory.h>
 
 #include <PVMainWindow.h>
-
-#include <pvkernel/core/PVProgressBox.h>
 
 PVInspector::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(PVTabSplitter* tab, PVCore::PVArgumentList& args, Picviz::PVLayerFilter_p filter_p) :
 	QDialog(tab),
@@ -23,6 +24,7 @@ PVInspector::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(PVTabSplitte
 	_args_org(args),
 	_has_apply(false)
 {
+	_args_widget = new PVWidgets::PVArgumentListWidget(PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_factory(*tab->get_lib_view()), args, tab);
 	setWindowTitle("Filter properties...");
 	setObjectName("PVLayerFilterProcessWidget");
 
@@ -42,12 +44,9 @@ PVInspector::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(PVTabSplitte
 	// Args widget
 	QVBoxLayout* args_widget_box_layout = new QVBoxLayout();
 	QGroupBox* args_widget_box = new QGroupBox(tr("Filter"));
-	_args_widget = new PVArgumentListWidget(PVArgumentListWidget::create_layer_widget_factory(*tab->get_lib_view()), args, NULL);
 	args_widget_box_layout->addWidget(_args_widget);
-	args_widget_box_layout->addStretch(1);
 	args_widget_box->setLayout(args_widget_box_layout);
-//	_args_widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-//	_args_widget->setMinimumSize(QSize(0, 120));
+	_args_widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
 
 	// Buttons
 	_btn_layout = new QHBoxLayout();

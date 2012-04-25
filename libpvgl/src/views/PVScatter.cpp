@@ -255,6 +255,7 @@ void PVGL::PVScatter::keyboard(unsigned char key, int, int)
 				message.function = PVSDK_MESSENGER_FUNCTION_REFRESH_LISTING;
 				message.pv_view = picviz_view;
 				pv_message->post_message_to_qt(message);
+				update_views();
 				break;
 		case 'f': case 'F': // Toggle fullscreen
 				if (is_fullscreen()) {
@@ -419,6 +420,7 @@ bool PVGL::PVScatter::mouse_up(int /*button*/, int /*x*/, int /*y*/, int /*modif
 	message.function = PVSDK_MESSENGER_FUNCTION_REFRESH_LISTING;
 	message.pv_view = picviz_view;
 	pv_message->post_message_to_qt(message);
+	update_views();
 
 // 	message.function = PVSDK_MESSENGER_SELECTION_CHANGED;
 // 	message.pv_view = picviz_view;

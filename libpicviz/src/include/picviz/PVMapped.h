@@ -80,6 +80,9 @@ public:
 
 	list_plotted_t const& get_plotteds() const { return _plotteds; }
 
+	inline float get_value(PVRow row, PVCol col) const { return trans_table.getValue(col, row); }
+
+	inline float* get_column_pointer(PVCol col) { return trans_table.getRowData(col); }
 
 public:
 	// Debugging functions
@@ -89,6 +92,9 @@ public:
 	// Parents
 	PVSource* get_source_parent();
 	const PVSource* get_source_parent() const;
+
+	PVScene* get_scene_parent();
+	const PVScene* get_scene_parent() const;
 
 	PVRoot* get_root_parent();
 	const PVRoot* get_root_parent() const;

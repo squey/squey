@@ -24,7 +24,6 @@
 #include <PVExtractorWidget.h>
 #include <PVListDisplayDlg.h>
 #include <PVStringListChooserWidget.h>
-#include <PVArgumentListWidget.h>
 #include <PVInputTypeMenuEntries.h>
 #include <PVColorDialog.h>
 #include <PVStartScreenWidget.h>
@@ -75,6 +74,7 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 	PVLOG_DEBUG("%s: Creating object\n", __FUNCTION__);
 	
 	_is_project_untitled = true;
+	_ad2g_mw = NULL;
 
 	// SIZE STUFF
 	// WARNING: nothing should be set here.
@@ -697,6 +697,10 @@ void PVInspector::PVMainWindow::close_scene()
 		close_source((PVTabSplitter*) pv_ListingsTabWidget->widget(0));
 	}
 	_scene.reset(new Picviz::PVScene("root", root.get()));
+	if (_ad2g_mw) {
+		_ad2g_mw->deleteLater();
+	}
+	_ad2g_mw = NULL;
 	set_project_modified(false);
 }
 

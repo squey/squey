@@ -38,7 +38,7 @@ public:
 	QString to_string() const
 	{
 		QStringList strList;
-		for (unsigned int i = 0; i < this->size(); i++) {
+		for (size_t i = 0; i < this->size(); i++) {
 			strList.append(QString::number((*this)[i]));
 		}
 		return strList.join(",");

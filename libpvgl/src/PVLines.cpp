@@ -195,6 +195,7 @@ void PVGL::PVLines::set_size(int width, int height)
 	fbo_height= height* fbo_height_factor;
 
 	set_main_fbo_dirty();
+	set_lines_fbo_dirty();
 	set_zombie_fbo_dirty();
 	reset_offset();
 }
@@ -514,6 +515,25 @@ void PVGL::PVLines::set_main_fbo_dirty()
 
 /******************************************************************************
  *
+ * PVGL::PVLines::set_lines_fbo_dirty
+ *
+ ******************************************************************************/
+void PVGL::PVLines::set_lines_fbo_dirty()
+{
+	PVLOG_DEBUG("PVGL::PVLines::%s\n", __FUNCTION__);
+
+	if (!picviz_view->is_consistent()) {
+		return;
+	}   
+	lines_fbo_dirty = true;
+	drawn_lines = 0;
+	idle_manager.new_task(view, IDLE_REDRAW_LINES);
+	set_main_fbo_dirty();
+}
+
+
+/******************************************************************************
+ *
  * PVGL::PVLines::set_zombie_fbo_dirty
  *
  *****************************************************************************/
@@ -527,6 +547,7 @@ void PVGL::PVLines::set_zombie_fbo_dirty()
 	zombie_fbo_dirty = true;
 	drawn_zombie_lines = 0;
 	idle_manager.new_task(view, IDLE_REDRAW_ZOMBIE_LINES);
+	set_main_fbo_dirty();
 }
 
 /******************************************************************************
@@ -753,7 +774,7 @@ void PVGL::PVLines::draw_selected_lines(GLfloat modelview[16])
 	drawn_lines += nb_lines_to_draw;
 	if (drawn_lines >= int(picviz_view->get_row_count())) {
 		idle_manager.remove_task(view, IDLE_REDRAW_LINES);
-		main_fbo_dirty = false;
+		lines_fbo_dirty = false;
 		drawn_lines = 0;
 	}
 }
@@ -772,7 +793,7 @@ void PVGL::PVLines::draw()
 	if (!picviz_view->is_consistent()) {
 		return;
 	}
-	if (main_fbo_dirty || zombie_fbo_dirty) { // We need to redraw the lines into the framebuffer.
+	if (main_fbo_dirty || lines_fbo_dirty || zombie_fbo_dirty) { // We need to redraw the lines into the framebuffer.
 		GLfloat modelview[16];
 		// Setup the Antialiasing stuff.
 		if (state_machine->is_antialiased()) {
@@ -800,7 +821,7 @@ void PVGL::PVLines::draw()
 				draw_zombie_lines(modelview);
 			}
 			// Draw the selected lines into their own FBO
-			if (main_fbo_dirty) {
+			if (lines_fbo_dirty) {
 				draw_selected_lines(modelview);
 			}
 		}
@@ -839,6 +860,10 @@ void PVGL::PVLines::draw()
 		glColor3f(1.0f, 1.0f, 1.0f);
 		glLoadMatrixf(modelview);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0); PRINT_OPENGL_ERROR();
+
+		if (!lines_fbo_dirty && !zombie_fbo_dirty) {
+			main_fbo_dirty = false; // XXX we could put the axes & names into this fbo too, we will have to change this.
+		}
 	}
 
 	// Draw the main FBO on the screen.
@@ -923,7 +948,7 @@ void PVGL::PVLines::update_arrays_selection(void)
 	                picviz_view->post_filter_layer.get_selection().get_buffer()); PRINT_OPENGL_ERROR();
 
 	view->update_label_lines_selected_eventline();
-	set_main_fbo_dirty();
+	set_lines_fbo_dirty();
 	//update_arrays_colors(); // FIXME: Is this needed or not arfer all?
 }
 
@@ -944,6 +969,7 @@ void PVGL::PVLines::update_arrays_zombies(void)
 	glBufferSubData(GL_TEXTURE_BUFFER, 0, PICVIZ_SELECTION_NUMBER_OF_BYTES,
 		   	picviz_view->layer_stack_output_layer.get_selection().get_buffer()); PRINT_OPENGL_ERROR();
 
+	//set_lines_fbo_dirty();
 	set_main_fbo_dirty();
 	set_zombie_fbo_dirty();
 }
@@ -961,6 +987,7 @@ void PVGL::PVLines::update_arrays_positions(void)
 		return;
 	}
 	set_main_fbo_dirty();
+	set_lines_fbo_dirty();
 	set_zombie_fbo_dirty();
 }
 

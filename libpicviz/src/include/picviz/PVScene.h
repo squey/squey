@@ -14,8 +14,11 @@
 #include <pvkernel/core/PVSerializeArchiveOptions_types.h>
 #include <pvkernel/rush/PVInputDescription.h>
 #include <pvkernel/rush/PVInputType.h>
+#include <picviz/PVAD2GView.h>
 #include <picviz/PVPtrObjects.h>
 #include <picviz/PVSource_types.h>
+#include <picviz/PVView_types.h>
+
 
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
@@ -34,9 +37,11 @@ class LibPicvizDecl PVScene: public boost::enable_shared_from_this<PVScene>
 {
 	friend class PVCore::PVSerializeObject;
 	friend class PVSource;
+	friend class PVView;
 public:
 	typedef boost::shared_ptr<PVScene> p_type;
 	typedef QList<PVSource_p> list_sources_t;
+	typedef QList<PVView_p> list_views_t;
 private:
 	// PVRush::list_inputs is QList<PVRush::PVInputDescription_p>
 	typedef std::map<PVRush::PVInputType::base_registrable, std::pair<list_sources_t, PVRush::PVInputType::list_inputs> > hash_type_sources_t;
@@ -61,10 +66,21 @@ public:
 	
 	list_sources_t get_sources(PVRush::PVInputType const& type) const;
 	list_sources_t get_all_sources() const;
+	list_views_t get_all_views() const;
+
+	inline PVAD2GView& get_ad2g_view() { return _ad2g_view; }
+	inline PVAD2GView const& get_ad2g_view() const { return _ad2g_view; }
 
 	bool is_empty() { return _sources.size() == 0; }
 
 protected:
+	int32_t get_new_view_id() const;
+	void set_views_id();
+
+protected:
+	// From PVView
+	void user_modified_sel(Picviz::PVView* org, QList<Picviz::PVView*>* changed_views = NULL);
+
 	// Serialization
 	void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 	void serialize_write(PVCore::PVSerializeObject& so);
@@ -78,6 +94,8 @@ private:
 
 	PVRoot* _root;
 	QString _name;
+
+	PVAD2GView _ad2g_view;
 
 	PVCore::PVSerializeArchive_p _original_archive;
 };

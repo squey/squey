@@ -100,6 +100,7 @@ void PVInspector::PVMainWindow::create_actions()
 	 ************************/
 	new_scene_Action = new QAction(tr("&New Scene"), this);
 	select_scene_Action = new QAction(tr("&Select Scene"), this);
+	correlation_scene_Action = new QAction(tr("&Correlations..."), this);
 
 	/************************
 	 * For the "Tools" menu entry
@@ -218,9 +219,10 @@ void PVInspector::PVMainWindow::create_menus()
 	// layer_Menu->addAction(commit_selection_in_current_layer_Action);
 	// layer_Menu->addAction(commit_selection_to_new_layer_Action);
 
-	//scene_Menu = menubar->addMenu(tr("S&cene"));
+	scene_Menu = menubar->addMenu(tr("S&cene"));
 	//scene_Menu->addAction(new_scene_Action);
 	//scene_Menu->addAction(select_scene_Action);
+	scene_Menu->addAction(correlation_scene_Action);
 	
 	view_Menu = menubar->addMenu(tr("&View"));
 	view_Menu->addAction(view_new_parallel_Action);
@@ -323,6 +325,8 @@ void PVInspector::PVMainWindow::connect_actions()
 	connect(expand_selection_on_axis_Action, SIGNAL(triggered()), this, SLOT(expand_selection_on_axis_Slot()));
 
 	connect(set_color_Action, SIGNAL(triggered()), this, SLOT(set_color_Slot()));
+
+	connect(correlation_scene_Action, SIGNAL(triggered()), this, SLOT(show_correlation_Slot()));
 
 	//connect(commit_selection_in_current_layer_Action, SIGNAL(triggered()), this, SLOT(commit_selection_in_current_layer_Slot()));
 	connect(commit_selection_to_new_layer_Action, SIGNAL(triggered()), this, SLOT(commit_selection_to_new_layer_Slot()));

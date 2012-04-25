@@ -49,9 +49,11 @@ class LibPicvizDecl PVView: public boost::enable_shared_from_this<PVView>
 {
 	friend class PVCore::PVSerializeObject;
 	friend class PVSource;
+	friend class PVScene;
 public:
 	typedef PVView_p p_type;
 	typedef QHash<QString,PVCore::PVArgumentList> map_filter_arguments;
+	typedef int32_t id_t;
 public:
 	PVView(PVPlotted* parent);
 	PVView();
@@ -61,6 +63,7 @@ protected:
 
 	// For PVSource
 	void add_column(PVAxis const& axis);
+	inline void set_view_id(id_t id) { _view_id = id; }
 
 public:
 
@@ -82,6 +85,7 @@ public:
 	PVLayer layer_stack_output_layer;
 	PVLayer output_layer;
 	PVPlotted* plotted;
+	PVMapped* _mapped_parent;
 	PVRow row_count;
 	PVLayerStack layer_stack;
 	PVSelection nu_selection;
@@ -112,7 +116,7 @@ public:
 	 * @return The list of all names of all current axes
 	 *
 	 */
-	QStringList get_axes_names_list();
+	QStringList get_axes_names_list() const;
 	
 	/**
 	 * Gets the name of the chosen axis according to the actual PVAxesCombination
@@ -125,6 +129,8 @@ public:
 	QString get_axis_name(PVCol index) const;
 	QString get_axis_type(PVCol index) const;
 
+	void emit_user_modified_sel(QList<Picviz::PVView*>* changed_views = NULL);
+
 	PVCore::PVColor get_color_in_output_layer(PVRow index);
 	PVCol get_column_count();
 	float get_column_count_as_float();
@@ -133,6 +139,7 @@ public:
 	int get_layer_index(int index);
 	float get_layer_index_as_float(int index);
 	PVLayerStack &get_layer_stack();
+	inline PVLayerStack const& get_layer_stack() const { return layer_stack; };
 	int get_layer_stack_layer_n_locked_state(int n);
 	QString get_layer_stack_layer_n_name(int n);
 	int get_layer_stack_layer_n_visible_state(int n);
@@ -154,6 +161,9 @@ public:
 	PVSelection &get_nu_selection();
 	int get_number_of_selected_lines();
 
+	inline id_t get_view_id() const { return _view_id; }
+	inline id_t get_display_view_id() const { return _view_id+1; }
+
 
 	int get_original_axes_count();
 	QString get_original_axis_type(PVCol axis_id) const;
@@ -171,8 +181,9 @@ public:
 	PVLayer &get_pre_filter_layer();
 
 	PVSelection &get_real_output_selection();
+	PVSelection const& get_real_output_selection() const;
 	int get_real_row_index(int index);
-	PVRow get_row_count();
+	PVRow get_row_count() const;
 
 	void reset_layers();
 
@@ -196,6 +207,7 @@ public:
 	//void set_selection_with_square_area_selection(PVSelection &selection, float xmin, float ymin, float xmax, float ymax);
 	void set_selection_with_final_selection(PVSelection &selection);
 	void set_selection_from_layer(PVLayer const& layer);
+	void set_selection_view(PVSelection const& sel);
 
 	int toggle_layer_stack_layer_n_locked_state(int n);
 	int toggle_layer_stack_layer_n_visible_state(int n);
@@ -262,8 +274,8 @@ public:
 	 * @return a string containing wanted data
 	 *
 	 */
-	QString get_data_raw(PVRow row, PVCol column);
-	inline PVCore::PVUnicodeString const& get_data_unistr_raw(PVRow row, PVCol column) { return get_rushnraw_parent().at_unistr(row, column); }
+	QString get_data_raw(PVRow row, PVCol column) const { return get_qtnraw_parent().at(row, column).get_qstr(); }
+	inline PVCore::PVUnicodeString const& get_data_unistr_raw(PVRow row, PVCol column) const { return get_rushnraw_parent().at_unistr(row, column); }
 
 
 	void selection_A2B_select_with_square_area(PVSelection &a, PVSelection &b);
@@ -333,18 +345,21 @@ public:
 ******************************************************************************
 *****************************************************************************/
 
-	const PVMapped* get_mapped_parent() const;
-	PVMapped* get_mapped_parent();
+	const PVMapped* get_mapped_parent() const { return _mapped_parent; };
+	PVMapped* get_mapped_parent() { return _mapped_parent; };
 	
 	PVRush::PVNraw::nraw_table& get_qtnraw_parent();
 	const PVRush::PVNraw::nraw_table& get_qtnraw_parent() const;
 
-	PVRush::PVNraw& get_rushnraw_parent();
-	PVRush::PVNraw const& get_rushnraw_parent() const;
+	PVRush::PVNraw& get_rushnraw_parent() { assert(_rushnraw_parent); return *_rushnraw_parent; };
+	PVRush::PVNraw const& get_rushnraw_parent() const { assert(_rushnraw_parent); return *_rushnraw_parent; };
 	
 	PVPlotted* get_plotted_parent();
 	const PVPlotted* get_plotted_parent() const;
 	
+	PVScene* get_scene_parent();
+	const PVScene* get_scene_parent() const;
+
 	PVSource* get_source_parent();
 	const PVSource* get_source_parent() const;
 
@@ -384,6 +399,8 @@ protected:
 	bool _is_consistent;
 	QString _last_filter_name;
 	map_filter_arguments filters_args;
+	PVRush::PVNraw* _rushnraw_parent;
+	id_t _view_id;
 };
 
 }

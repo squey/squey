@@ -16,6 +16,7 @@ LibPicvizDecl char *picviz_plugins_get_filters_dir(void);
 LibPicvizDecl char *picviz_plugins_get_layer_filters_dir(void);
 LibPicvizDecl char *picviz_plugins_get_mapping_filters_dir(void);
 LibPicvizDecl char *picviz_plugins_get_plotting_filters_dir(void);
+LibPicvizDecl char *picviz_plugins_get_row_filters_dir(void);
 LibPicvizDecl char *picviz_plugins_get_axis_computation_dir(void);
 LibPicvizDecl char *picviz_plugins_get_sorting_functions_dir(void);
 

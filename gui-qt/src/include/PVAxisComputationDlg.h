@@ -3,9 +3,15 @@
 
 #include <QDialog>
 #include <pvkernel/core/PVArgument.h>
-#include <PVArgumentListWidget.h>
+
+#include <boost/shared_ptr.hpp>
 
 #include "../ui_PVAxisComputationDlg.h"
+
+namespace PVWidgets
+{
+	class PVArgumentListWidget;
+}
 
 namespace Picviz
 {

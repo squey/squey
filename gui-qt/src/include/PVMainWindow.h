@@ -203,6 +203,7 @@ public slots:
 	void view_new_scatter_Slot();
 	void view_display_inv_elts_Slot();
 	void view_screenshot_qt_Slot();
+	void show_correlation_Slot();
 	void check_messages();	/* SLOT? NOT SLOT? */
 	void update_reply_finished_Slot(QNetworkReply *reply);
 	void whats_this_Slot();
@@ -273,6 +274,7 @@ private:
 	QAction *axes_mode_Action;
 	QAction *axes_display_edges_Action;
 	QAction *axes_new_Action;
+	QAction *correlation_scene_Action;
 	QAction *expand_selection_on_axis_Action;
 	QAction *lines_display_unselected_listing_Action;
 	QAction *lines_display_unselected_GLview_Action;
@@ -365,6 +367,7 @@ private:
 
 private:
 	Picviz::PVScene_p _scene;
+	QDialog* _ad2g_mw;
 	QString _cur_project_file;
 	bool _cur_project_save_everything;
 	bool _is_project_untitled;

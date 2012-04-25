@@ -22,6 +22,7 @@
 
 #include <pvgl/general.h>
 #include <pvgl/PVConfig.h>
+#include <pvgl/PVMain.h>
 #include <pvgl/PVUtils.h>
 #include <pvgl/PVHBox.h>
 #include <pvgl/PVVBox.h>
@@ -354,6 +355,7 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 				message.pv_view = picviz_view;
 				pv_message->post_message_to_qt(message);
 				update_selections();
+				update_views();
 				break;
 		case 'c': case 'C': // Choose a color.
 				message.function = PVSDK_MESSENGER_FUNCTION_SET_COLOR;
@@ -404,6 +406,7 @@ void PVGL::PVView::keyboard(unsigned char key, int, int)
 				message.pv_view = picviz_view;
 				pv_message->post_message_to_qt(message);
 				update_selections();
+				update_views();
 				break;
 		case 'm':
 				// toggle_map();
@@ -705,6 +708,7 @@ bool PVGL::PVView::mouse_up(int button, int x, int y, int modifiers)
 			get_lines().update_arrays_selection();
 			//	get_map().update_arrays_selection();
 			update_lines();
+			update_views();
 		}
 
 		
@@ -718,6 +722,7 @@ bool PVGL::PVView::mouse_up(int button, int x, int y, int modifiers)
 		state_machine->set_grabbed(false);
 		get_lines().reset_offset();
 		get_lines().set_main_fbo_dirty();
+		get_lines().set_lines_fbo_dirty();
 		//map.set_lines_fbo_dirty();
 		get_lines().set_zombie_fbo_dirty();
 		//map.set_zombie_fbo_dirty();

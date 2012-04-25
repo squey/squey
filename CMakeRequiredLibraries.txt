@@ -291,3 +291,23 @@ endif(PYTHONLIBS_FOUND)
 if(NOT WIN32)
 	find_package(X11 REQUIRED)
 endif(NOT WIN32)
+
+#
+# Check for Tulip 3.7 or above
+#
+# find_package(TULIP3 <VERSION> ...) does not seem to work...
+set(TULIP_REQUIRED_VERSION 3.7)
+if(WIN32)
+else(WIN32)
+	find_package(TULIP3 REQUIRED)
+	if(TULIP_FOUND)
+		if(TULIP_VERSION STRLESS TULIP_REQUIRED_VERSION)
+			message(FATAL_ERROR "Tulip ${TULIP_VERSION} is installed but ${TULIP_REQUIRED_VERSION} is required")
+		else()
+			message(STATUS "Tulip found: ${TULIP_VERSION}")
+			message(STATUS "Tulip include dir: ${TULIP_INCLUDE_DIR}")
+		endif()
+	else()
+		message(FATAL_ERROR "Tulip not found")
+	endif()
+endif(WIN32)

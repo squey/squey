@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>320</height>
+    <height>331</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -94,7 +94,7 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
-       <widget class="PVInspector::PVArgumentListWidget" name="_args_plugin_widget" native="true"/>
+       <widget class="PVWidgets::PVArgumentListWidget" name="_args_plugin_widget" native="true"/>
       </item>
      </layout>
     </widget>
@@ -162,9 +162,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>PVInspector::PVArgumentListWidget</class>
+   <class>PVWidgets::PVArgumentListWidget</class>
    <extends>QWidget</extends>
-   <header location="global">PVArgumentListWidget.h</header>
+   <header location="global">pvkernel/widgets/PVArgumentListWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

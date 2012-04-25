@@ -9,7 +9,7 @@
 #include <picviz/PVRoot.h>
 #include <picviz/PVScene.h>
 #include <picviz/PVSource.h>
-
+#include <picviz/PVView.h>
 
 #define ARCHIVE_SCENE_DESC (QObject::tr("Workspace"))
 /******************************************************************************
@@ -19,7 +19,8 @@
  *****************************************************************************/
 Picviz::PVScene::PVScene(QString scene_name, PVRoot* parent):
 	_root(parent),
-	_name(scene_name)
+	_name(scene_name),
+	_ad2g_view(this)
 {
 }
 
@@ -56,6 +57,8 @@ void Picviz::PVScene::add_source(PVSource_p src)
 
 	// Add this source to the list of sources for this type
 	sources.push_back(src);
+
+	set_views_id();
 }
 
 Picviz::PVScene::list_sources_t Picviz::PVScene::get_all_sources() const
@@ -66,6 +69,20 @@ Picviz::PVScene::list_sources_t Picviz::PVScene::get_all_sources() const
 		std::pair<list_sources_t, PVRush::PVInputType::list_inputs> const& type_srcs = it->second;
 		ret.append(type_srcs.first);
 	}
+	return ret;
+}
+
+Picviz::PVScene::list_views_t Picviz::PVScene::get_all_views() const
+{
+	list_views_t ret;
+	list_sources_t sources = get_all_sources();
+	foreach (PVSource_p source, sources) {
+		PVSource::list_views_t const& views = source->get_views();
+		foreach (Picviz::PVView_p view, views) {
+			ret.append(view);
+		}
+	}
+
 	return ret;
 }
 
@@ -81,6 +98,13 @@ Picviz::PVScene::list_sources_t Picviz::PVScene::get_sources(PVRush::PVInputType
 
 bool Picviz::PVScene::del_source(const PVSource* src)
 {
+	// Remove underlying views from the AD2G graph
+	PVSource::list_views_t const& views = src->get_views();
+	foreach (Picviz::PVView_p view, views) {
+		_ad2g_view.del_view(view.get());
+	}
+	
+	// Remove this source's inputs if they are no longer used by other sources
 	std::pair<list_sources_t, PVRush::PVInputType::list_inputs>& type_srcs = _sources[*(src->get_input_type())];
 	list_sources_t& list_srcs(type_srcs.first);
 
@@ -98,6 +122,32 @@ bool Picviz::PVScene::del_source(const PVSource* src)
 Picviz::PVRoot* Picviz::PVScene::get_root()
 {
 	return _root;
+}
+
+Picviz::PVView::id_t Picviz::PVScene::get_new_view_id() const
+{
+	return get_all_views().size();
+}
+
+void Picviz::PVScene::set_views_id()
+{
+	list_views_t views = get_all_views();
+	std::multimap<PVView::id_t, PVView*> map_views;
+	foreach (PVView_p const& vp, views) {
+		map_views.insert(std::make_pair(vp->get_view_id(), vp.get()));
+	}
+	PVView::id_t cur_id = 0;
+	std::multimap<PVView::id_t, PVView*>::iterator it;
+	for (it = map_views.begin(); it != map_views.end(); it++) {
+		it->second->set_view_id(cur_id);
+		cur_id++;
+	}
+}
+
+void Picviz::PVScene::user_modified_sel(PVView* src_view, QList<Picviz::PVView*>* changed_views)
+{
+	_ad2g_view.pre_process();
+	_ad2g_view.run(src_view, changed_views);
 }
 
 void Picviz::PVScene::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
