@@ -22,3 +22,6 @@ target_link_libraries(T_process_file_view ${COMMON_LIBS})
 
 add_executable(T_ad2g_widget ad2g_widget.cpp)
 target_link_libraries(T_ad2g_widget ${COMMON_LIBS})
+
+add_executable(Tprofile_pvview profile_pvview.cpp)
+target_link_libraries(Tprofile_pvview ${COMMON_LIBS})
