@@ -597,7 +597,7 @@ void PVGL::PVLines::fill_vbo_colors_and_zla(GLint start, GLsizei count)
   glBufferData(GL_ARRAY_BUFFER, count * sizeof(GLfloat), &(picviz_view->z_level_array.get_value(start)), GL_DYNAMIC_DRAW); PRINT_OPENGL_ERROR();
   glBindBuffer(GL_ARRAY_BUFFER, vbo_color);  PRINT_OPENGL_ERROR();
   glBufferData(GL_ARRAY_BUFFER, count * sizeof(ubvec4), NULL, GL_DYNAMIC_DRAW); PRINT_OPENGL_ERROR();
-  glBufferData(GL_ARRAY_BUFFER, count * sizeof(ubvec4), &picviz_view->post_filter_layer.get_lines_properties().table.at(start), GL_DYNAMIC_DRAW); PRINT_OPENGL_ERROR();
+  glBufferData(GL_ARRAY_BUFFER, count * sizeof(ubvec4), &picviz_view->post_filter_layer.get_lines_properties().table[start], GL_DYNAMIC_DRAW); PRINT_OPENGL_ERROR();
 }
 
 #if 0

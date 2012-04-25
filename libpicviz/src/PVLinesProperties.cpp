@@ -18,6 +18,8 @@
 // 	color.a() = 255;
 // }
 
+Picviz::PVLinesProperties::color_allocator_type Picviz::PVLinesProperties::_color_allocator;
+
 /******************************************************************************
  *
  * Picviz::PVLinesProperties::PVLinesProperties
@@ -25,10 +27,19 @@
  *****************************************************************************/
 Picviz::PVLinesProperties::PVLinesProperties()
 {
-	// We initialize a default color as white and fully opaque
-	PVCore::PVColor color = PVCore::PVColor::fromRgba(255, 255, 255, 255);
-	
-	table.resize(PICVIZ_LINESPROPS_NUMBER_OF_CHUNKS, color);
+	table = _color_allocator.allocate(PICVIZ_LINESPROPS_NUMBER_OF_CHUNKS);
+	reset_to_default_color();
+}
+
+/******************************************************************************
+ *
+ * Picviz::PVLinesProperties::PVLinesProperties
+ *
+ *****************************************************************************/
+Picviz::PVLinesProperties::PVLinesProperties(const PVLinesProperties & rhs)
+{
+	table = _color_allocator.allocate(PICVIZ_LINESPROPS_NUMBER_OF_CHUNKS);
+	std::copy(rhs.table, rhs.table + PICVIZ_LINESPROPS_NUMBER_OF_CHUNKS, table);
 }
 
 /******************************************************************************
@@ -38,7 +49,9 @@ Picviz::PVLinesProperties::PVLinesProperties()
  *****************************************************************************/
 Picviz::PVLinesProperties::~PVLinesProperties()
 {
-	// Shall we delete the table?
+	if(table != 0) {
+		_color_allocator.deallocate(table, PICVIZ_LINESPROPS_NUMBER_OF_CHUNKS);
+	}
 }
 
 /******************************************************************************
@@ -259,8 +272,8 @@ Picviz::PVLinesProperties & Picviz::PVLinesProperties::operator=(const PVLinesPr
 		return *this;
 	}
 
-	table = rhs.table;
-	
+	std::copy(rhs.table, rhs.table + PICVIZ_LINESPROPS_NUMBER_OF_CHUNKS, table);
+
 	return *this;
 }
 
@@ -294,7 +307,7 @@ void Picviz::PVLinesProperties::debug()
 {
 	PVRow row;
 
-	for (row=0; row<table.size(); row++) {
+	for (row=0; row<PICVIZ_LINESPROPS_NUMBER_OF_CHUNKS; row++) {
 		PVCore::PVColor &c = table[row];
 		PVLOG_INFO("%d: %d %d %d\n", row, c.r(), c.g(), c.b());
 	}

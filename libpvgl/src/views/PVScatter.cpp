@@ -539,7 +539,7 @@ void PVGL::PVScatter::update_arrays_colors(void)
 	nb_lines = picviz_view->get_row_count();
 	// Update the color vbo.
 	glBindBuffer(GL_ARRAY_BUFFER, vbo_color); PRINT_OPENGL_ERROR();
-	glBufferData(GL_ARRAY_BUFFER, nb_lines * sizeof(ubvec4), &picviz_view->post_filter_layer.get_lines_properties().table.at(0), GL_DYNAMIC_DRAW); PRINT_OPENGL_ERROR();
+	glBufferData(GL_ARRAY_BUFFER, nb_lines * sizeof(ubvec4), &picviz_view->post_filter_layer.get_lines_properties().table[0], GL_DYNAMIC_DRAW); PRINT_OPENGL_ERROR();
 }
 
 /******************************************************************************
