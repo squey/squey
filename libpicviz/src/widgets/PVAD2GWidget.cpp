@@ -420,3 +420,10 @@ void PVWidgets::PVAD2GWidget::update(ObserverIterator /*begin*/, ObserverIterato
 {
 	_nodeLinkView->draw();
 }
+
+void PVWidgets::PVAD2GWidget::update_list_edges()
+{
+	if (_list_edges_widget) {
+		_list_edges_widget->update_list_edges();
+	}
+}

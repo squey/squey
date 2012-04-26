@@ -150,7 +150,7 @@ tlp::node Picviz::PVAD2GView::add_view(Picviz::PVView *view)
  *****************************************************************************/
 void Picviz::PVAD2GView::del_view(Picviz::PVView *view)
 {
-	tlp::node node;_graph->delNode(node);
+	tlp::node node;
 
 	node = get_graph_node(view);
 

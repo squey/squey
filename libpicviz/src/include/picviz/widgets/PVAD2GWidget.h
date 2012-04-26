@@ -74,6 +74,7 @@ public slots:
 	void remove_combining_function_Slot(int edge);
 
 	void update_list_views();
+	void update_list_edges();
 
 	AD2GInteractor* getInteractor() { return _ad2g_interactor; }
 	AD2GInteractor2* getInteractor2() { return _ad2g_interactor2; }

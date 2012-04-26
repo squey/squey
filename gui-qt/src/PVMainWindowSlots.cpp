@@ -1280,13 +1280,10 @@ void PVInspector::PVMainWindow::show_correlation_Slot()
 	else {
 		QWidget* ad2g_mw_c = _ad2g_mw->layout()->itemAt(0)->widget();
 		PVWidgets::PVAD2GWidget* ad2g_w;
-#ifdef NDEBUG
-		ad2g_w = (PVWidgets::PVAD2GWidget*) ad2g_mw_c;
-#else
 		ad2g_w = dynamic_cast<PVWidgets::PVAD2GWidget*>(ad2g_mw_c);
 		assert(ad2g_w);
-#endif
 		ad2g_w->update_list_views();
+		ad2g_w->update_list_edges();
 	}
 	_ad2g_mw->exec();
 }
