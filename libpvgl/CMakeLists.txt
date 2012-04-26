@@ -23,7 +23,6 @@ add_definitions(${COMPILER_OPTIMIZE_FLAGS})
 
 add_subdirectory(src)
 add_subdirectory(tests)
-add_subdirectory(tests)
 
 SET(PVGL_DATA_SHADERS_PARALLEL_FILES
 data/shaders/parallel/axis_bg.frag
