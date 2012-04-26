@@ -45,9 +45,15 @@ void show_codes(PVParallelView::PVBCICode* codes, size_t n)
 int main(int argc, char** argv)
 {
 	if (argc < 2) {
-		std::cerr << "Usage: " << argv[0] << " nlines" << std::endl;
+		std::cerr << "Usage: " << argv[0] << " nlines" << " [width]" << std::endl;
 		return 1;
 	}
+
+	size_t width = WIDTH;
+	if (argc >= 3) {
+		width = atoll(argv[2]);
+	}
+
 
 	//QApplication app(argc, argv);
 	PVCuda::init_cuda();
@@ -57,13 +63,13 @@ int main(int argc, char** argv)
 	PVParallelView::PVBCICode* codes = PVParallelView::PVBCICode::allocate_codes(n);
 	PVParallelView::PVBCICode::init_random_codes(codes, n);
 
-	uint32_t* img = new uint32_t[WIDTH*IMAGE_HEIGHT];
+	uint32_t* img = new uint32_t[width*IMAGE_HEIGHT];
 
-	show_codes_cuda(codes, n, WIDTH, img);
+	show_codes_cuda(codes, n, width, img);
 
 	cudaDeviceReset();
 
-	write(4, img, WIDTH*IMAGE_HEIGHT*sizeof(uint32_t));
+	write(4, img, width*IMAGE_HEIGHT*sizeof(uint32_t));
 	delete [] img;
 
 	//show_codes(codes, n);
