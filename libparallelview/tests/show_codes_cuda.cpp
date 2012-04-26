@@ -61,6 +61,8 @@ int main(int argc, char** argv)
 
 	show_codes_cuda(codes, n, WIDTH, img);
 
+	cudaDeviceReset();
+
 	write(4, img, WIDTH*IMAGE_HEIGHT*sizeof(uint32_t));
 	delete [] img;
 

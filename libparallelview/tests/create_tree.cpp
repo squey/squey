@@ -86,7 +86,7 @@ int main(int argc, char** argv)
 
 		PVLOG_INFO("Zone tree creation...\n");
 		BENCH_START(sse);
-		//ztree->process_sse();
+		ztree->process_sse();
 		BENCH_END_TRANSFORM(sse, "sse", nrows*2, sizeof(float));
 		MEM_END(serial, "serial sse + std::vector");
 		//ztree->display("zone", plotted);
@@ -115,7 +115,7 @@ int main(int argc, char** argv)
 		ztree->set_trans_plotted(norm_plotted, nrows, ncols);
 
 		PVLOG_INFO("Zone tree creation...\n");
-		//ztree->process_omp_sse();
+		ztree->process_omp_sse();
 		MEM_END(serial, "omp sse + std::vector");
 		//ztree->display("zone-omp", plotted);
 	}

@@ -4,7 +4,7 @@ include_directories(AFTER ${PICVIZ_INCLUDE_DIRS})
 include_directories(AFTER ${CUDA_INCLUDE_DIRS})
 
 set(CUDA_PROPAGATE_HOST_FLAGS "OFF")
-set(CUDA_NVCC_FLAGS "-gencode arch=compute_20,code=sm_20")
+set(CUDA_NVCC_FLAGS "-gencode arch=compute_20,code=sm_20" "-Xptxas=-v")
 #set(CUDA_NVCC_FLAGS "-g" "-G")
 
 add_definitions(${OpenMP_CXX_FLAGS})
@@ -31,6 +31,14 @@ target_link_libraries(show_codes_cuda ${LINK_LIBRARIES} ${CUDA_LIBRARIES})
 cuda_compile(CUDA_KERNELS bci_cuda_z24.cu)
 add_executable(show_codes_cuda24 show_codes_cuda.cpp ${CUDA_KERNELS})
 target_link_libraries(show_codes_cuda24 ${LINK_LIBRARIES} ${CUDA_LIBRARIES})
+
+cuda_compile(CUDA_KERNELS bci_cuda_z24_2.cu)
+add_executable(show_codes_cuda24_2 show_codes_cuda.cpp ${CUDA_KERNELS})
+target_link_libraries(show_codes_cuda24_2 ${LINK_LIBRARIES} ${CUDA_LIBRARIES})
+
+#cuda_compile(CUDA_KERNELS bci_cuda_z24_4.cu)
+#add_executable(show_codes_cuda24_4 show_codes_cuda.cpp ${CUDA_KERNELS})
+#target_link_libraries(show_codes_cuda24_4 ${LINK_LIBRARIES} ${CUDA_LIBRARIES})
 
 cuda_compile(CUDA_KERNELS bci_cuda_z24_s16.cu)
 add_executable(show_codes_cuda24_s16 show_codes_cuda.cpp ${CUDA_KERNELS})

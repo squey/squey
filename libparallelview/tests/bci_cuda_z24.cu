@@ -5,8 +5,8 @@
 #include <pvparallelview/PVHSVColor.h>
 #include "bci_cuda.h"
 
-#define NTHREADS_BLOCK 1024
-#define SMEM_IMG_KB (12*4)
+#define NTHREADS_BLOCK 768
+#define SMEM_IMG_KB (6*4)
 #define NCODES_SHARED 512
 
 // From http://code.google.com/p/cudaraster/source/browse/trunk/src/cudaraster/cuda/Util.hpp?r=4
@@ -179,9 +179,9 @@ __global__ void bcicode_raster_unroll2(uint2* bci_codes, unsigned int n, unsigne
 		if (cur_shared_p2 > code2.x) {
 			shared_img[idx_shared_img2] = color2 | code2.x;
 		}
-		if (cur_shared_p3 > code3.x) {
+		/*if (cur_shared_p3 > code3.x) {
 			shared_img[idx_shared_img3] = color3 | code3.x;
-		}
+		}*/
 	}
 	for (; idx_codes < n; idx_codes += size_grid) {
 		uint2 code0 = bci_codes[idx_codes];
@@ -197,9 +197,6 @@ __global__ void bcicode_raster_unroll2(uint2* bci_codes, unsigned int n, unsigne
 		}
 	}
 
-	/*if (threadIdx.x == 0 && threadIdx.y == 0) {
-		printf("%d\n", i);
-	}*/
 	__syncthreads();
 
 	
@@ -243,7 +240,7 @@ void show_codes_cuda(PVParallelView::PVBCICode* codes, uint32_t n, uint32_t widt
 	// Compute number of blocks
 	int nblocks = PVCuda::get_number_blocks();
 	int nblocks_x = (width+nthreads_x-1)/nthreads_x;
-	int nblocks_y = 2;
+	int nblocks_y = 28;
 	picviz_verify(nblocks_y > 0);
 	PVLOG_INFO("Number of blocks: %d x %d\n", nblocks_x, nblocks_y);
 
