@@ -22,10 +22,10 @@ void PVParallelView::PVBCICode::init_random_codes(PVBCICode* codes, size_t n)
 		c.int_v = 0;
 		c.s.idx = rand();
 		c.s.l = i&(MASK_INT_YCOORD);
-		c.s.r = i&(MASK_INT_YCOORD);
+		//c.s.r = i&(MASK_INT_YCOORD);
 		//c.s.l = rand()&(MASK_INT_YCOORD);
 		//c.s.r = rand()&(MASK_INT_YCOORD);
-		//c.s.r = (c.s.l+10)&MASK_INT_YCOORD;
+		c.s.r = (c.s.l+10)&MASK_INT_YCOORD;
 		//c.s.color = rand()&((1<<9)-1);
 		c.s.color = i%((1<<HSV_COLOR_NBITS_ZONE)*6);
 		codes[i] = c;

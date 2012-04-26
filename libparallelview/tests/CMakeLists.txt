@@ -39,3 +39,7 @@ target_link_libraries(show_codes_cuda24_unroll_x ${LINK_LIBRARIES} ${CUDA_LIBRAR
 cuda_compile(CUDA_KERNELS bci_cuda_z24_s16.cu)
 add_executable(show_codes_cuda24_s16 show_codes_cuda.cpp ${CUDA_KERNELS})
 target_link_libraries(show_codes_cuda24_s16 ${LINK_LIBRARIES} ${CUDA_LIBRARIES})
+
+cuda_compile(CUDA_KERNELS bci_cuda_z24_smembci.cu)
+add_executable(show_codes_cuda24_smembci show_codes_cuda.cpp ${CUDA_KERNELS})
+target_link_libraries(show_codes_cuda24_smembci ${LINK_LIBRARIES} ${CUDA_LIBRARIES})
