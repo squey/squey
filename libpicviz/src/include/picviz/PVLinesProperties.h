@@ -26,14 +26,22 @@ namespace Picviz {
  */
 class LibPicvizDecl PVLinesProperties {
 	friend class PVCore::PVSerializeObject;
+
+public:
+	typedef std::allocator<PVCore::PVColor> color_allocator_type;
+private:
+	static color_allocator_type _color_allocator;
+
 public:
 	PVRow last_index; /*<! FIXME: Do we really need this?  */
-	std::vector<PVCore::PVColor> table;
+	PVCore::PVColor *table;
 
 	/**
 	 * Constructor
 	 */
 	PVLinesProperties();
+
+	PVLinesProperties(const PVLinesProperties & rhs);
 
 	/**
 	 * Destructor
