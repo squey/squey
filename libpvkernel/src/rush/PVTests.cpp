@@ -16,14 +16,7 @@ bool PVRush::PVTests::get_file_sc(input_type file, PVRush::PVFormat const& forma
 	PVRush::list_creators lcr = PVRush::PVSourceCreatorFactory::get_by_input_type(in_t);
 
 	// Pre-discovery
-	PVRush::list_creators::iterator itc;
-	PVRush::list_creators pre_discovered_c;
-	for (itc = lcr.begin(); itc != lcr.end(); itc++) {
-		PVRush::PVSourceCreator_p sc = *itc;
-		if (sc->pre_discovery(file)) {
-			pre_discovered_c.push_back(sc);
-		}
-	}
+	PVRush::list_creators pre_discovered_c = PVRush::PVSourceCreatorFactory::filter_creators_pre_discovery(lcr, file);
 
 	PVRush::PVSourceCreator_p sc_file;
 	if (pre_discovered_c.size() == 0) {
@@ -36,6 +29,7 @@ bool PVRush::PVTests::get_file_sc(input_type file, PVRush::PVFormat const& forma
 	else {
 		// Take the source creator that have the highest success rate with the given format
 		float success_rate = -1;
+		PVRush::list_creators::const_iterator itc;
 		for (itc = pre_discovered_c.begin(); itc != pre_discovered_c.end(); itc++) {
 			PVRush::PVSourceCreator_p sc = *itc;
 			PVRush::pair_format_creator fcr(format, sc);

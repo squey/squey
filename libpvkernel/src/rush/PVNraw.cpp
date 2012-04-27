@@ -115,8 +115,10 @@ QString PVRush::PVNraw::nraw_line_to_csv(PVRow idx) const
 			field.replace(QChar('"'), QString("\\\""));
 			ret += "\"" + field + "\"";
 		}
-		else 
+		else { 
 			ret += field;
+		}
+
 		if (j != line.size()-1) {
 			ret += QString(",");
 		}
@@ -149,7 +151,7 @@ void PVRush::PVNraw::fit_to_content()
 void PVRush::PVNraw::dump_csv()
 {
 	for (PVRow i = 0; i < table.get_nrows(); i++) {
-		PVLOG_DEBUG("%s\n", qPrintable(nraw_line_to_csv(i)));
+		std::cout << qPrintable(nraw_line_to_csv(i)) << std::endl;
 	}
 #if 0
 	PVRush::PVNraw::nraw_table &nraw = get_table();

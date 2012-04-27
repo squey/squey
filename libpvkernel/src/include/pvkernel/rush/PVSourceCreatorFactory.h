@@ -6,6 +6,7 @@
 #include <pvkernel/rush/PVInputType.h>
 #include <pvkernel/core/PVArgument.h>
 #include <list>
+#include <map>
 #include <QHash>
 #include <QString>
 
@@ -21,6 +22,8 @@ public:
 	static list_creators get_by_input_type(PVInputType_p in_t);
 	static hash_format_creator get_supported_formats(list_creators const& lcr);
 	static float discover_input(pair_format_creator format, input_type input);
+	static std::multimap<float, pair_format_creator> discover_input(PVInputType_p input_type, PVInputDescription_p input);
+	static list_creators filter_creators_pre_discovery(PVRush::list_creators const& lcr, PVInputDescription_p input);
 };
 
 }

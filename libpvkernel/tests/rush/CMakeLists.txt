@@ -82,6 +82,10 @@ add_executable(Trush_process_file process_file.cpp helpers.cpp)
 target_link_libraries(Trush_process_file ${LINK_LIBRARIES})
 add_test(TestHadIssues ./test_issues.sh)
 
+# Auto-discovery test
+add_executable(Trush_process_file_auto_discovery process_file_auto_discovery.cpp helpers.cpp)
+target_link_libraries(Trush_process_file_auto_discovery ${LINK_LIBRARIES})
+
 # Test cases for tickets
 add_executable(Trush_ticket_1 ticket_1.cpp)
 target_link_libraries(Trush_ticket_1 ${LINK_LIBRARIES})

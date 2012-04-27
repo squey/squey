@@ -28,6 +28,20 @@ PVRush::list_creators PVRush::PVSourceCreatorFactory::get_by_input_type(PVInputT
 	return lcreators_type;
 }
 
+PVRush::list_creators PVRush::PVSourceCreatorFactory::filter_creators_pre_discovery(PVRush::list_creators const& lcr, PVInputDescription_p input)
+{
+	PVRush::list_creators::const_iterator itc;
+	PVRush::list_creators pre_discovered_c;
+	for (itc = lcr.begin(); itc != lcr.end(); itc++) {
+		PVRush::PVSourceCreator_p sc = *itc;
+		if (sc->pre_discovery(input)) {
+			pre_discovered_c.push_back(sc);
+		}
+	}
+
+	return pre_discovered_c;
+}
+
 
 PVRush::hash_format_creator PVRush::PVSourceCreatorFactory::get_supported_formats(list_creators const& lcr)
 {
@@ -132,4 +146,26 @@ float PVRush::PVSourceCreatorFactory::discover_input(pair_format_creator format_
 	PVLOG_INFO("Number of elts valid/total: %d/%d\n", nelts_valid, nelts);
 
 	return (float)nelts_valid/(float)nelts;
+}
+
+std::multimap<float, PVRush::pair_format_creator> PVRush::PVSourceCreatorFactory::discover_input(PVInputType_p input_type, PVInputDescription_p input)
+{
+	std::multimap<float, pair_format_creator> ret;
+	PVRush::list_creators creators = filter_creators_pre_discovery(PVRush::PVSourceCreatorFactory::get_by_input_type(input_type), input);
+	PVRush::hash_format_creator formats_creators = get_supported_formats(creators);
+	PVRush::hash_format_creator::const_iterator it_fc;
+	for (it_fc = formats_creators.begin(); it_fc != formats_creators.end(); it_fc++) {
+		float success = 0.0f;
+		try {
+			success = discover_input(it_fc.value(), input);
+		}
+		catch (...) {
+			continue;
+		}
+		if (success > 0) {
+			ret.insert(std::make_pair(success, it_fc.value()));
+		}
+	}
+
+	return ret;
 }
