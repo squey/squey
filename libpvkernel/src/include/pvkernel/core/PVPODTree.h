@@ -211,8 +211,8 @@ public:
 		}
 		//assert(nblocks_max >= NB);
 
-		PVLOG_INFO("(PVPODTree::resize): number of elts in a block = %llu\n", _nelts_block);
-		PVLOG_INFO("(PVPODTree::resize): maximum number of blocks = %llu\n", nblocks_max);
+		//PVLOG_INFO("(PVPODTree::resize): number of elts in a block = %llu\n", _nelts_block);
+		//PVLOG_INFO("(PVPODTree::resize): maximum number of blocks = %llu\n", nblocks_max);
 		_nblocks_max = nblocks_max;
 
 		// Then, compute the size of the buffer
@@ -248,13 +248,13 @@ public:
 				cur_b.init_first(reserve_block());
 				break;
 		}
-		/*if (!cur_b.valid()) {
+		if (!cur_b.valid()) {
 			cur_b.init_first(reserve_block());
 		}
 		else
 		if (cur_b.cur_size() == _nelts_block) {
 			cur_b.set_next(reserve_block(), _nelts_block);
-		}*/
+		}
 		cur_b.push(elt);
 	}
 
