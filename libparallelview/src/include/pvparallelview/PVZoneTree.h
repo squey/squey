@@ -8,9 +8,11 @@
 #include <QList>
 #include <picviz/PVSelection.h>
 #include <picviz/PVPlotted.h>
+#include <pvparallelview/PVHSVColor.h>
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVBCode.h>
+#include <pvparallelview/PVBCICode.h>
 
 #include <boost/static_assert.hpp>
 #include <boost/type_traits.hpp>
@@ -52,6 +54,7 @@ public:
 	void process_tbb_concurrent_vector();
 	template <bool only_first>
 	PVZoneTree<Container>* filter_by_sel(Picviz::PVSelection const& sel) const;
+	size_t browse_tree_bci(PVHSVColor* colors, PVBCICode* codes);
 private:
 	void get_float_pts(pts_t& pts, Picviz::PVPlotted::plotted_table_t const& org_plotted);
 private:
@@ -70,6 +73,7 @@ public:
 public:
 	void process_sse();
 	void process_omp_sse();
+	size_t browse_tree_bci(PVHSVColor* colors, PVBCICode* codes);
 private:
 	void get_float_pts(pts_t& pts, Picviz::PVPlotted::plotted_table_t const& org_plotted);
 private:
@@ -175,7 +179,7 @@ void PVZoneTree<Container>::process_omp_sse()
 
 			thread_tree[b.int_v].push_back(r);
 		}
-		/*
+
 #pragma omp critical
 		{
 			for (size_t b = 0; b < NBUCKETS; b++) {
@@ -185,7 +189,7 @@ void PVZoneTree<Container>::process_omp_sse()
 				//std::copy(cur_b.begin(), cur_b.end(), main_b.end());
 				main_b.insert(main_b.end(), cur_b.begin(), cur_b.end());
 			}
-		}*/
+		}
 #pragma omp barrier
 #pragma omp master
 		{
@@ -262,6 +266,30 @@ PVZoneTree<Container>* PVZoneTree<Container>::filter_by_sel(Picviz::PVSelection 
 	BENCH_END(subtree, str_bench, _nrows*2, sizeof(float), _nrows*2, sizeof(float));
 
 	return ret;
+}
+
+template <class Container>
+size_t PVZoneTree<Container>::browse_tree_bci(PVHSVColor* colors, PVBCICode* codes)
+{
+	size_t idx_code = 0;
+	for (size_t b = 0; b < NBUCKETS; b++) {
+		list_rows_t const& src(_tree[b]);
+
+		typename list_rows_t::const_iterator it_src = src.begin();
+		if (it_src != src.end())
+		{
+			PVBCICode bci;
+			bci.int_v = 0;
+			bci.s.idx = *it_src;
+			bci.s.l = b & 0x3FF;
+			bci.s.r = (b >> NBITS_INDEX) & 0x3FF;
+			bci.s.color = colors[bci.s.idx].h();
+			codes[idx_code] = bci;
+			idx_code++;
+		}
+	}
+
+	return idx_code;
 }
 
 template <class Container>

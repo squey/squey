@@ -2,6 +2,7 @@
 #include <picviz/PVPlotted.h>
 #include <pvparallelview/PVZoneTree.h>
 #include <pvparallelview/PVTools.h>
+#include <pvparallelview/PVHSVColor.h>
 
 #include <iostream>
 #include <cstdlib>
@@ -54,13 +55,12 @@ void usage(const char* path)
 	std::cerr << "Usage: " << path << " [plotted_file] [nrows] [ncols]" << std::endl;
 }
 
-void test(Picviz::PVPlotted::plotted_table_t& plotted, PVRow nrows, PVCol ncols)
+void test(Picviz::PVPlotted::plotted_table_t& plotted, PVRow nrows, PVCol ncols, PVParallelView::PVHSVColor* colors, PVParallelView::PVBCICode* bci_codes)
 {
 	plotted_int_t norm_plotted;
 	//PVLOG_INFO("Normalizing to 32-bit unsigned integers...\n");
 	PVParallelView::PVTools::norm_int_plotted(plotted, norm_plotted, ncols);
 	//PVLOG_INFO("Done !\n");
-
 
 	{
 		MEM_START(serial);
@@ -71,6 +71,14 @@ void test(Picviz::PVPlotted::plotted_table_t& plotted, PVRow nrows, PVCol ncols)
 		ztree->process();
 		BENCH_END_TRANSFORM(org, "org", nrows*2, sizeof(float));
 		MEM_END(serial, "org");
+
+		{
+		MEM_START(serial);
+		BENCH_START(org);
+		size_t nb_codes = ztree->browse_tree_bci(colors, bci_codes);
+		BENCH_END(org, "org colors", nb_codes, sizeof(PVRow), nb_codes, sizeof(PVParallelView::PVBCICode));
+		MEM_END(serial, "org colors");
+		}
 
 		//ztree->display("zone", plotted);
 		delete ztree;
@@ -84,8 +92,19 @@ void test(Picviz::PVPlotted::plotted_table_t& plotted, PVRow nrows, PVCol ncols)
 
 		BENCH_START(sse);
 		ztree->process_sse();
+
 		BENCH_END_TRANSFORM(sse, "serial sse + std::vector", nrows*2, sizeof(float));
 		MEM_END(serial, "serial sse + std::vector");
+
+		{
+		MEM_START(serial);
+		BENCH_START(sse);
+		size_t nb_codes = ztree->browse_tree_bci(colors, bci_codes);
+		picviz_verify(sizeof(PVParallelView::PVHSVColor) == 1);
+		BENCH_END(sse, "serial sse + std::vector colors", nb_codes, sizeof(PVRow), nb_codes, sizeof(PVParallelView::PVBCICode));
+		MEM_END(serial, "serial sse + std::vector colors");
+		}
+
 		//ztree->display("zone", plotted);
 		delete ztree;
 	}
@@ -98,8 +117,19 @@ void test(Picviz::PVPlotted::plotted_table_t& plotted, PVRow nrows, PVCol ncols)
 
 		BENCH_START(sse);
 		ztree->process_sse();
+
 		BENCH_END_TRANSFORM(sse, "serial sse + noalloc", nrows*2, sizeof(float));
 		MEM_END(serial, "serial sse + noalloc");
+
+		{
+		MEM_START(serial);
+		BENCH_START(sse);
+		size_t nb_codes = ztree->browse_tree_bci(colors, bci_codes);
+		picviz_verify(sizeof(PVParallelView::PVHSVColor) == 1);
+		BENCH_END(sse, "serial sse + noalloc colors", nb_codes, sizeof(PVRow), nb_codes, sizeof(PVParallelView::PVBCICode));
+		MEM_END(serial, "serial sse + noalloc colors");
+		}
+
 		//ztree->display("zone-noalloc", plotted);
 		delete ztree;
 	}
@@ -116,6 +146,16 @@ void test(Picviz::PVPlotted::plotted_table_t& plotted, PVRow nrows, PVCol ncols)
 		ztree->process_omp_sse();
 		BENCH_END_TRANSFORM(sse, "omp sse + std::vector", 1, 1);
 		MEM_END(serial, "omp sse + std::vector");
+
+		{
+		MEM_START(serial);
+		BENCH_START(sse);
+		size_t nb_codes = ztree->browse_tree_bci(colors, bci_codes);
+		picviz_verify(sizeof(PVParallelView::PVHSVColor) == 1);
+		BENCH_END(sse, "omp sse + std::vector colors", nb_codes, sizeof(PVRow), nb_codes, sizeof(PVParallelView::PVBCICode));
+		MEM_END(serial, "omp sse + std::vector colors");
+		}
+
 		//ztree->display("zone-omp", plotted);
 		delete ztree;
 	}
@@ -132,6 +172,16 @@ void test(Picviz::PVPlotted::plotted_table_t& plotted, PVRow nrows, PVCol ncols)
 		BENCH_END_TRANSFORM(sse, "omp sse + noalloc", 1, 1);
 		MEM_END(serial, "omp sse + noalloc");
 		//ztree->display("zone-omp", plotted);
+
+		{
+		MEM_START(serial);
+		BENCH_START(sse);
+		size_t nb_codes = ztree->browse_tree_bci(colors, bci_codes);
+		picviz_verify(sizeof(PVParallelView::PVHSVColor) == 1);
+		BENCH_END(sse, "omp sse + noalloc colors", nb_codes, sizeof(PVRow), nb_codes, sizeof(PVParallelView::PVBCICode));
+		MEM_END(serial, "omp sse + noalloc colors");
+		}
+
 		delete ztree;
 	}
 	std::cout << "---" << std::endl;
@@ -160,10 +210,21 @@ void test(Picviz::PVPlotted::plotted_table_t& plotted, PVRow nrows, PVCol ncols)
 		ztree->set_trans_plotted(norm_plotted, nrows, ncols);
 		BENCH_START(b);
 		ztree->process_tbb_concurrent_vector();
+
 		BENCH_END(b, "tbb concurrent vector", 1, 1, 1, 1);
 
 		//ztree->process();
 		MEM_END(serial, "tbb concurrent vector");
+
+		{
+		MEM_START(serial);
+		BENCH_START(b);
+		size_t nb_codes = ztree->browse_tree_bci(colors, bci_codes);
+		picviz_verify(sizeof(PVParallelView::PVHSVColor) == 1);
+		BENCH_END(b, "tbb concurrent vector colors", nb_codes, sizeof(PVRow), nb_codes, sizeof(PVParallelView::PVBCICode));
+		MEM_END(serial, "tbb concurrent vector colors");
+		}
+
 		delete ztree;
 	}
 	std::cout << "---" << std::endl;
@@ -233,13 +294,19 @@ int main(int argc, char** argv)
 		nrows = atol(argv[2]);
 		ncols = atol(argv[3]);
 
+		PVParallelView::PVHSVColor* colors = PVParallelView::PVHSVColor::init_colors(nrows);
+		PVParallelView::PVBCICode* bci_codes = PVParallelView::PVBCICode::allocate_codes(NBUCKETS);
+
 		std::cout << "== RANDOM DISTRIBUTED PLOTTED ==" << std::endl;
 		init_rand_plotted(plotted, nrows, ncols);
-		test(plotted, nrows, ncols);
+		test(plotted, nrows, ncols, colors, bci_codes);
 
 		std::cout << "== NORMAL DISTRIBUTED PLOTTED ==" << std::endl;
 		init_normal_plotted(plotted, nrows, ncols);
-		test(plotted, nrows, ncols);
+		test(plotted, nrows, ncols, colors, bci_codes);
+
+		delete [] colors;
+		PVParallelView::PVBCICode::free_codes(bci_codes);
 	}
 	else
 	{

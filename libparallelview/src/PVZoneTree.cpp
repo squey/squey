@@ -149,6 +149,27 @@ void PVParallelView::PVZoneTreeNoAlloc::process_omp_sse()
 	//PVLOG_INFO("OMP tree process reduction in %0.4f ms.\n", (end-red_start).seconds()*1000.0);
 }
 
+size_t PVParallelView::PVZoneTreeNoAlloc::browse_tree_bci(PVHSVColor* colors, PVBCICode* codes)
+{
+	size_t idx_code = 0;
+	for (size_t b = 0; b < NBUCKETS; b++) {
+		if (_tree.branch_valid(b)) {
+			PVRow r = _tree.get_first_elt_of_branch(b);
+
+			PVBCICode bci;
+			bci.int_v = 0;
+			bci.s.idx = r;
+			bci.s.l = b & 0x3FF;
+			bci.s.r = (b >> NBITS_INDEX) & 0x3FF;
+			bci.s.color = colors[r].h();
+			codes[idx_code] = bci;
+			idx_code++;
+		}
+	}
+
+	return idx_code;
+}
+
 void PVParallelView::PVZoneTreeNoAlloc::get_float_pts(pts_t& pts, Picviz::PVPlotted::plotted_table_t const& org_plotted)
 {
 	pts.reserve(NBUCKETS*4);
