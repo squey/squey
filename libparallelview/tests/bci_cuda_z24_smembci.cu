@@ -95,9 +95,9 @@ __global__ void bcicode_raster(uint2* bci_codes, unsigned int n, unsigned int wi
 		return;
 	}
 
-	const unsigned int bci_block_idx = blockIdx.x * blockIdx.y*gridDim.x;
+	const unsigned int bci_block_idx = blockIdx.x + blockIdx.y*gridDim.x;
 	const unsigned int bci_size_grid = gridDim.x*gridDim.y*blockDim.x*blockDim.y;
-	const unsigned int img_size_grid = blockDim.y*gridDim.y;
+	const unsigned int img_size_grid = blockDim.y;
 	unsigned int bci_thread_idx = threadIdx.x + threadIdx.y*blockDim.x;
 
 	const float alpha = (float)(width-band_x)/(float)width;
@@ -109,13 +109,16 @@ __global__ void bcicode_raster(uint2* bci_codes, unsigned int n, unsigned int wi
 
 	__syncthreads();
 
+	//unsigned int idx_codes = bci_thread_idx;
 	unsigned int idx_codes = bci_block_idx*(blockDim.x*blockDim.y) + bci_thread_idx;
+	//for (; idx_codes < n; idx_codes += blockDim.x*blockDim.y) {
 	for (; idx_codes < n; idx_codes += bci_size_grid) {
 		shared_bci[bci_thread_idx] = bci_codes[idx_codes];
-		__syncthreads();
+		//__syncthreads();
 
 		unsigned int bci_read_thread_idx;
 		for (unsigned int tx = 0; tx < blockDim.x; tx++) {
+			__syncthreads();
 			bci_read_thread_idx = tx + threadIdx.y*blockDim.x;
 			uint2 code0 = shared_bci[bci_read_thread_idx];
 			code0.x >>= 8;
@@ -128,10 +131,9 @@ __global__ void bcicode_raster(uint2* bci_codes, unsigned int n, unsigned int wi
 			if ((cur_shared_p & MASK_ZBUFFER) > code0.x) {
 				shared_img[idx_shared_img0] = color0 | code0.x;
 			}
+			__syncthreads();
 		}
 	}
-
-	__syncthreads();
 
 	
 	// Final stage is to commit the shared image into the global image
