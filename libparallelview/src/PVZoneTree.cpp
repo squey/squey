@@ -160,6 +160,8 @@ size_t PVParallelView::PVZoneTreeNoAlloc::browse_tree_bci(PVHSVColor* colors, PV
 		if (b1 & b2) {
 			PVRow const& r0 = _tree.get_first_elt_of_branch(b);
 			PVRow r1 = _tree.get_first_elt_of_branch(b+1);
+			//_mm_prefetch((const void*) &_tree.get_first_elt_of_branch((b+2)%NBUCKETS), _MM_HINT_NTA);
+			//_mm_prefetch((const void*) &_tree.get_first_elt_of_branch((b+3)%NBUCKETS), _MM_HINT_NTA);
 
 			// Load
 			__m128i sse_bci_codes = _mm_loadl_epi64((__m128i const*) &r0);
