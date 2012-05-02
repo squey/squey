@@ -80,7 +80,7 @@ private:
 		}
 
 		inline size_type cur_size() const { return p_cur_block-cur.p; }
-		inline T get_first() const { assert(valid()); return *(first.p); }
+		inline T const& get_first() const { assert(valid()); return *(first.p); }
 
 		inline void move_branch(branch_t& other, size_type nelts_block)
 		{
@@ -263,7 +263,7 @@ public:
 		return ((uintptr_t)_cur_buf - (uintptr_t)_buf)/(_nelts_block*sizeof(T) + sizeof(pointer));
 	}
 
-	inline T get_first_elt_of_branch(size_type branch_id) const
+	inline T const& get_first_elt_of_branch(size_type branch_id) const
 	{
 		assert(branch_id < NB);
 		return _tree[branch_id].get_first();

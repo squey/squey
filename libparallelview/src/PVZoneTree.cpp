@@ -1,6 +1,7 @@
 #include <pvkernel/core/general.h>
 #include <pvparallelview/PVZoneTree.h>
 #include <pvparallelview/simple_lines_float_view.h>
+#include <pvkernel/core/picviz_intrin.h>
 
 #include <cassert>
 
@@ -152,17 +153,71 @@ void PVParallelView::PVZoneTreeNoAlloc::process_omp_sse()
 size_t PVParallelView::PVZoneTreeNoAlloc::browse_tree_bci(PVHSVColor* colors, PVBCICode* codes)
 {
 	size_t idx_code = 0;
-	for (size_t b = 0; b < NBUCKETS; b++) {
-		if (_tree.branch_valid(b)) {
-			PVRow r = _tree.get_first_elt_of_branch(b);
+//#pragma omp parallel for reduction(+:idx_code) num_threads(4)
+	for (uint64_t b = 0; b < NBUCKETS; b+=2) {
+		const bool b1 = _tree.branch_valid(b);
+		const bool b2 = _tree.branch_valid(b+1);
+		if (b1 & b2) {
+			PVRow const& r0 = _tree.get_first_elt_of_branch(b);
+			PVRow r1 = _tree.get_first_elt_of_branch(b+1);
 
-			PVBCICode bci;
-			bci.int_v = 0;
-			bci.s.idx = r;
-			bci.s.l = b & 0x3FF;
-			bci.s.r = (b >> NBITS_INDEX) & 0x3FF;
-			bci.s.color = colors[r].h();
-			codes[idx_code] = bci;
+			// Load
+			__m128i sse_bci_codes = _mm_loadl_epi64((__m128i const*) &r0);
+			_mm_insert_epi64(sse_bci_codes, r1, 1);
+
+			//  +------------+------------++------------+------------+
+			//  |          0 | index (r1) ||          0 | index (r0) | (sse_bci_codes)
+			//  +------------+------------++------------+------------+
+
+			__m128i sse_lr;
+			_mm_insert_epi64(sse_lr, b, 0);
+			_mm_insert_epi64(sse_lr, b+1, 1);
+
+			//  +------------+------------++------------+------------+
+			//  |          0 |        lr1 ||          0 |        lr0 | (sse_lr)
+			//  +------------+------------++------------+------------+
+
+			__m128i sse_color = _mm_set1_epi32(0);
+			_mm_insert_epi64(sse_color, colors[r0].h(), 0);
+			_mm_insert_epi64(sse_color, colors[r1].h(), 1);
+			sse_color = _mm_slli_epi64(sse_color, NBITS_INDEX*2);
+
+			//  +------------+------------++------------+------------+
+			//  |          0 |color1 << 20||          0 |color0 << 20| (sse_color)
+			//  +------------+------------++------------+------------+
+
+			__m128i sse_lrcolor;
+			sse_lrcolor = _mm_or_si128(sse_color, sse_lr);
+			sse_lrcolor = _mm_slli_epi64(sse_color, 32);
+
+			//  +------------+------------++------------+------------+
+			//  |   lrcolor1 |   0        ||   lrcolor0 |          0 | (sse_lrcolor)
+			//  +------------+------------++------------+------------+
+
+			sse_bci_codes = _mm_or_si128(sse_bci_codes, sse_lrcolor);
+
+			//  +------------+------------++------------+------------+
+			//  |   lrcolor1 | index (r1) ||   lrcolor0 | index (r0) | (sse_bci_codes)
+			//  +------------+------------++------------+------------+
+
+			if ((idx_code & 1) == 0) {
+				_mm_store_si128((__m128i*)&codes[b], sse_bci_codes);
+			}
+			else {
+				_mm_storeu_si128((__m128i*)&codes[b], sse_bci_codes);
+			}
+
+			idx_code += 2;
+		}
+		else
+		if (b1 | b2) {
+			uint64_t b0 = b + b2;
+			PVRow r0 = _tree.get_first_elt_of_branch(b0);
+
+			PVBCICode bci0;
+			bci0.int_v = r0 | (b0<<32);
+			bci0.s.color = colors[r0].h();
+			codes[b] = bci0;
 			idx_code++;
 		}
 	}
