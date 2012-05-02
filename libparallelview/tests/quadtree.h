@@ -81,21 +81,16 @@ public:
 	void push_back(C &c)
 	{
 		if ((_index == _size) || (_array == 0)) {
-			reallocate();
+			reallocate(_size + _increment);
 		}
 		_array[_index++] = c;
 	}
 
 private:
-	void reallocate(unsigned size = 0)
+	void reallocate(unsigned size)
 	{
-		if (size) {
-			_array = (C*) realloc(_array, (size) * sizeof(C));
-			_size = size;
-		} else {
-			_array = (C*) realloc(_array, (_size + _increment) * sizeof(C));
-			_size += _increment;
-		}
+		_array = (C*) realloc(_array, (size) * sizeof(C));
+		_size = size;
 	}
 
 private:
@@ -215,6 +210,17 @@ public:
 			}
 			std::cout << "SW" << std::endl;
 			_nodes[SW]->dump(indent + 2);
+		}
+	}
+
+	void dump_stat()
+	{
+		if(_datas.is_null()) {
+			for(unsigned i = 0; i < 4; ++i) {
+				_nodes[i]->dump_stat();
+			}
+		} else {
+			std::cout << _y1_mid_value << " " << _y2_mid_value << " " << _datas.size() << std::endl;
 		}
 	}
 
