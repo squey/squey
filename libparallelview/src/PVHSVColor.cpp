@@ -3,7 +3,7 @@
 PVParallelView::PVHSVColor* PVParallelView::PVHSVColor::init_colors(PVRow nb_colors)
 {
 	PVHSVColor* colors = new PVHSVColor[nb_colors];
-	for (int i=0; i<nb_colors; nb_colors++){
+	for (PVRow i=0; i<nb_colors; nb_colors++){
 		colors[i].h() = i%((1<<HSV_COLOR_NBITS_ZONE)*6);
 	}
 	return colors;

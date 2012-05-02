@@ -55,7 +55,7 @@ int main(int argc, char** argv)
 	}
 
 
-	//QApplication app(argc, argv);
+	QApplication app(argc, argv);
 	PVCuda::init_cuda();
 
 	size_t n = atoll(argv[1]);
@@ -72,8 +72,8 @@ int main(int argc, char** argv)
 	write(4, img, width*IMAGE_HEIGHT*sizeof(uint32_t));
 	delete [] img;
 
-	//show_codes(codes, n);
-	//app.exec();
+	show_codes(codes, n);
+	app.exec();
 
 	PVParallelView::PVBCICode::free_codes(codes);
 	return 0;

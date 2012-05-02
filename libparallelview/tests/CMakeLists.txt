@@ -18,6 +18,9 @@ enable_testing()
 add_executable(create_tree create_tree.cpp)
 target_link_libraries(create_tree ${LINK_LIBRARIES})
 
+add_executable(sse_bci sse_bci.cpp)
+target_link_libraries(sse_bci ${LINK_LIBRARIES})
+
 add_executable(create_quadtree create_quadtree.cpp)
 target_link_libraries(create_quadtree ${LINK_LIBRARIES})
 

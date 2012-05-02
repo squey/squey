@@ -74,6 +74,7 @@ public:
 	void process_sse();
 	void process_omp_sse();
 	size_t browse_tree_bci(PVHSVColor* colors, PVBCICode* codes);
+	size_t browse_tree_bci_serial(PVHSVColor* colors, PVBCICode* codes);
 private:
 	void get_float_pts(pts_t& pts, Picviz::PVPlotted::plotted_table_t const& org_plotted);
 private:

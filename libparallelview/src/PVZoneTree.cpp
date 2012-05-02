@@ -155,71 +155,162 @@ size_t PVParallelView::PVZoneTreeNoAlloc::browse_tree_bci(PVHSVColor* colors, PV
 	size_t idx_code = 0;
 //#pragma omp parallel for reduction(+:idx_code) num_threads(4)
 	for (uint64_t b = 0; b < NBUCKETS; b+=2) {
-		const bool b1 = _tree.branch_valid(b);
+		const bool b1 = _tree.branch_valid(b+0);
 		const bool b2 = _tree.branch_valid(b+1);
 		if (b1 & b2) {
+			bool b3 = false;
+			bool b4 = false;
+			if (b < NBUCKETS-2) {
+				b3 = _tree.branch_valid(b+2);
+				b4 = _tree.branch_valid(b+3);
+			}
 			PVRow const& r0 = _tree.get_first_elt_of_branch(b);
 			PVRow r1 = _tree.get_first_elt_of_branch(b+1);
-			//_mm_prefetch((const void*) &_tree.get_first_elt_of_branch((b+2)%NBUCKETS), _MM_HINT_NTA);
-			//_mm_prefetch((const void*) &_tree.get_first_elt_of_branch((b+3)%NBUCKETS), _MM_HINT_NTA);
+			if (b3 & b4) {
+				PVRow r2 = _tree.get_first_elt_of_branch(b+2);
+				PVRow r3 = _tree.get_first_elt_of_branch(b+3);
 
-			// Load
-			__m128i sse_bci_codes = _mm_loadl_epi64((__m128i const*) &r0);
-			_mm_insert_epi64(sse_bci_codes, r1, 1);
+				__m128i sse_lr;
+				sse_lr = _mm_insert_epi32(sse_lr, b+0, 0);
+				sse_lr = _mm_insert_epi32(sse_lr, b+1, 1);
+				sse_lr = _mm_insert_epi32(sse_lr, b+2, 2);
+				sse_lr = _mm_insert_epi32(sse_lr, b+3, 3);
 
-			//  +------------+------------++------------+------------+
-			//  |          0 | index (r1) ||          0 | index (r0) | (sse_bci_codes)
-			//  +------------+------------++------------+------------+
+				//  +------------+------------++------------+------------+
+				//  |        lr3 |        lr2 ||        lr1 |        lr0 | (sse_lr)
+				//  +------------+------------++------------+------------+
 
-			__m128i sse_lr;
-			_mm_insert_epi64(sse_lr, b, 0);
-			_mm_insert_epi64(sse_lr, b+1, 1);
+				__m128i sse_color ;
+				sse_color = _mm_insert_epi32(sse_color, colors[0].h(), 0);
+				sse_color = _mm_insert_epi32(sse_color, colors[1].h(), 1);
+				sse_color = _mm_insert_epi32(sse_color, colors[2].h(), 2);
+				sse_color = _mm_insert_epi32(sse_color, colors[3].h(), 3);
+				sse_color = _mm_slli_epi32(sse_color, NBITS_INDEX*2);
 
-			//  +------------+------------++------------+------------+
-			//  |          0 |        lr1 ||          0 |        lr0 | (sse_lr)
-			//  +------------+------------++------------+------------+
+				//  +------------+------------++------------+------------+
+				//  |color3 << 20|color2 << 20||color1 << 20|color0 << 20| (sse_color)
+				//  +------------+------------++------------+------------+
 
-			__m128i sse_color = _mm_set1_epi32(0);
-			_mm_insert_epi64(sse_color, colors[r0].h(), 0);
-			_mm_insert_epi64(sse_color, colors[r1].h(), 1);
-			sse_color = _mm_slli_epi64(sse_color, NBITS_INDEX*2);
+				__m128i sse_lrcolor;
+				sse_lrcolor = _mm_or_si128(sse_color, sse_lr);
 
-			//  +------------+------------++------------+------------+
-			//  |          0 |color1 << 20||          0 |color0 << 20| (sse_color)
-			//  +------------+------------++------------+------------+
+				//  +------------+------------++------------+------------+
+				//  |   lrcolor3 |   lrcolor2 ||   lrcolor1 |   lrcolor0 | (sse_lrcolor)
+				//  +------------+------------++------------+------------+
 
-			__m128i sse_lrcolor;
-			sse_lrcolor = _mm_or_si128(sse_color, sse_lr);
-			sse_lrcolor = _mm_slli_epi64(sse_color, 32);
+				__m128i sse_index;
+				sse_index = _mm_insert_epi32(sse_index, r0, 0);
+				sse_index = _mm_insert_epi32(sse_index, r1, 1);
+				sse_index = _mm_insert_epi32(sse_index, r2, 2);
+				sse_index = _mm_insert_epi32(sse_index, r3, 3);
 
-			//  +------------+------------++------------+------------+
-			//  |   lrcolor1 |   0        ||   lrcolor0 |          0 | (sse_lrcolor)
-			//  +------------+------------++------------+------------+
+				//  +------------+------------++------------+------------+
+				//  | index (r3) | index (r2) || index (r1) | index (r0) | (sse_index)
+				//  +------------+------------++------------+------------+
 
-			sse_bci_codes = _mm_or_si128(sse_bci_codes, sse_lrcolor);
+				__m128i sse_bcicodes0_1 = _mm_unpacklo_epi32(sse_index, sse_lrcolor);
+				__m128i sse_bcicodes2_3 = _mm_unpackhi_epi32(sse_index, sse_lrcolor);
 
-			//  +------------+------------++------------+------------+
-			//  |   lrcolor1 | index (r1) ||   lrcolor0 | index (r0) | (sse_bci_codes)
-			//  +------------+------------++------------+------------+
+				//  +------------+------------++------------+------------+
+				//  |   lrcolor1 | index (r1) ||   lrcolor0 | index (r0) | (sse_bcicodes0_1)
+				//  +------------+------------++------------+------------+
+				//  +------------+------------++------------+------------+
+				//  |   lrcolor3 | index (r3) ||   lrcolor2 | index (r2) | (sse_bcicodes2_3)
+				//  +------------+------------++------------+------------+
 
-			if ((idx_code & 1) == 0) {
-				_mm_store_si128((__m128i*)&codes[b], sse_bci_codes);
+
+				if ((idx_code & 1) == 0) {
+					_mm_stream_si128((__m128i*)&codes[idx_code+0], sse_bcicodes0_1);
+					_mm_stream_si128((__m128i*)&codes[idx_code+2], sse_bcicodes2_3);
+				}
+				else {
+					_mm_storeu_si128((__m128i*)&codes[idx_code+0], sse_bcicodes0_1);
+					_mm_storeu_si128((__m128i*)&codes[idx_code+2], sse_bcicodes2_3);
+				}
+
+				idx_code += 4;
+				b += 2;
+
 			}
 			else {
-				_mm_storeu_si128((__m128i*)&codes[b], sse_bci_codes);
-			}
+				//_mm_prefetch((const void*) &_tree.get_first_elt_of_branch((b+2)%NBUCKETS), _MM_HINT_NTA);
+				//_mm_prefetch((const void*) &_tree.get_first_elt_of_branch((b+3)%NBUCKETS), _MM_HINT_NTA);
 
-			idx_code += 2;
+				// Load
+				__m128i sse_bci_codes = _mm_loadl_epi64((__m128i const*) &r0);
+				sse_bci_codes = _mm_insert_epi64(sse_bci_codes, r1, 1);
+
+				//  +------------+------------++------------+------------+
+				//  |          0 | index (r1) ||          0 | index (r0) | (sse_bci_codes)
+				//  +------------+------------++------------+------------+
+
+				__m128i sse_lr;
+				sse_lr = _mm_insert_epi64(sse_lr, b+0, 0);
+				sse_lr = _mm_insert_epi64(sse_lr, b+1, 1);
+
+				//  +------------+------------++------------+------------+
+				//  |          0 |        lr1 ||          0 |        lr0 | (sse_lr)
+				//  +------------+------------++------------+------------+
+
+				__m128i sse_color = _mm_set1_epi32(0);
+				sse_color = _mm_insert_epi64(sse_color, colors[r0].h(), 0);
+				sse_color = _mm_insert_epi64(sse_color, colors[r1].h(), 1);
+				sse_color = _mm_slli_epi64(sse_color, NBITS_INDEX*2);
+
+				//  +------------+------------++------------+------------+
+				//  |          0 |color1 << 20||          0 |color0 << 20| (sse_color)
+				//  +------------+------------++------------+------------+
+
+				__m128i sse_lrcolor;
+				sse_lrcolor = _mm_or_si128(sse_color, sse_lr);
+				sse_lrcolor = _mm_slli_epi64(sse_color, 32);
+
+				//  +------------+------------++------------+------------+
+				//  |   lrcolor1 |   0        ||   lrcolor0 |          0 | (sse_lrcolor)
+				//  +------------+------------++------------+------------+
+
+				sse_bci_codes = _mm_or_si128(sse_bci_codes, sse_lrcolor);
+
+				//  +------------+------------++------------+------------+
+				//  |   lrcolor1 | index (r1) ||   lrcolor0 | index (r0) | (sse_bci_codes)
+				//  +------------+------------++------------+------------+
+
+				if ((idx_code & 1) == 0) {
+					_mm_store_si128((__m128i*)&codes[idx_code], sse_bci_codes);
+				}
+				else {
+					_mm_storeu_si128((__m128i*)&codes[idx_code], sse_bci_codes);
+				}
+
+				idx_code += 2;
+			}
 		}
-		else
-		if (b1 | b2) {
+		else if (b1 | b2) {
 			uint64_t b0 = b + b2;
 			PVRow r0 = _tree.get_first_elt_of_branch(b0);
 
 			PVBCICode bci0;
 			bci0.int_v = r0 | (b0<<32);
 			bci0.s.color = colors[r0].h();
-			codes[b] = bci0;
+			codes[idx_code] = bci0;
+			idx_code++;
+		}
+	}
+
+	return idx_code;
+}
+
+size_t PVParallelView::PVZoneTreeNoAlloc::browse_tree_bci_serial(PVHSVColor* colors, PVBCICode* codes)
+{
+	size_t idx_code = 0;
+//#pragma omp parallel for reduction(+:idx_code) num_threads(4)
+	for (uint64_t b = 0; b < NBUCKETS; b++) {
+		if (_tree.branch_valid(b)) {
+			PVRow r = _tree.get_first_elt_of_branch(b);
+			PVBCICode bci;
+			bci.int_v = r | (b<<32);
+			bci.s.color = colors[r].h();
+			codes[idx_code] = bci;
 			idx_code++;
 		}
 	}
