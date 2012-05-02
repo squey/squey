@@ -5,12 +5,12 @@
 #include <limits.h>
 #include <stdlib.h>
 
-#include <sys/time.h>
-
 #include <boost/random.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 
 #include <boost/math/distributions/normal.hpp>
+
+#include <pvkernel/core/picviz_bench.h>
 
 #include "quadtree.h"
 
@@ -30,13 +30,6 @@ void printb (uint32_t v)
 //#define COUNT 10
 
 #define MAX_VALUE ((1<<22) - 1)
-
-long tick()
-{
-	struct timeval tv;
-	gettimeofday(&tv, NULL);
-	return (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
-}
 
 int main(int argc, char **argv)
 {
@@ -60,14 +53,14 @@ int main(int argc, char **argv)
 		entries[i].idx = i;
 	}
 
-	t1 = tick();
+	MEM_START(usage);
+	BENCH_START(time);
 	for(int i = 0; i < COUNT; ++i) {
 		qt.insert(entries[i]);
 	}
-	t2 = tick();
+	BENCH_END(time, "time", COUNT, sizeof(entry), 1, 1);
+	MEM_END(usage, "memory");
 
-	// std::cout << depth << " " << t2 - t1 << std::endl;
-	 std::cout << "insert " << COUNT << " element(s) of size " << sizeof(entry) << " in " << t2 - t1 << " ms" << std::endl;
 	// qt.dump();
 	// qt.dump_stat();
 
