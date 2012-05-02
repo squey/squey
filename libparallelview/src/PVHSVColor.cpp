@@ -1,5 +1,14 @@
 #include <pvparallelview/PVHSVColor.h>
 
+PVParallelView::PVHSVColor* PVParallelView::PVHSVColor::init_colors(PVRow nb_colors)
+{
+	PVHSVColor* colors = new PVHSVColor[nb_colors];
+	for (int i=0; i<nb_colors; nb_colors++){
+		colors[i].h() = i%((1<<HSV_COLOR_NBITS_ZONE)*6);
+	}
+	return colors;
+}
+
 static unsigned char zone2pos(unsigned char zone)
 {
 	const unsigned char a0 = zone&1;

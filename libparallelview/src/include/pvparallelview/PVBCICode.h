@@ -17,7 +17,7 @@ struct PVBCICode
 			uint32_t l: 10;
 			uint32_t r: 10;
 			uint32_t color: 8;
-			uint32_t __reserved: 3;
+			uint32_t __reserved: 4;
 		} s;
 	};
 	static void init_random_codes(PVBCICode* codes, size_t n);

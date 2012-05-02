@@ -23,6 +23,7 @@ public:
 public:
 	inline T& h() { return _h; };
 	inline T  h() const { return _h; };
+	static PVHSVColor* init_colors(PVRow nb_colors);
 
 public:
 	void to_rgb(T& r, T& g, T& b) const;

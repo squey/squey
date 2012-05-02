@@ -6,6 +6,11 @@
 
 #define NBITS_INDEX 10
 #define NBUCKETS ((1UL<<(2*NBITS_INDEX)))
+
+#if (NBUCKETS % 2 != 0)
+#error NBUCKETS must be a multiple of 2
+#endif
+
 #define MASK_INT_YCOORD (((1UL)<<(NBITS_INDEX))-1)
 
 #define IMAGE_HEIGHT (1024)
