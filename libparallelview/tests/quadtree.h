@@ -1,14 +1,14 @@
 #ifndef QUADTREE_H
 #define QUADTREE_H
 
-#include <vector>
-#include <algorithm>
 #include <stdint.h>
 
 #include <omp.h>
 
 #include <stdlib.h>
 #include <string.h>
+
+#include <tbb/concurrent_vector.h>
 
 typedef uint32_t offset;
 
@@ -27,6 +27,8 @@ enum {
 #define MAX_SIZE 10000
 //#define MAX_SIZE 3
 #define NBITS_INDEX 10
+
+// #define USE_CONC_VEC
 
 namespace Picviz
 {
@@ -102,12 +104,27 @@ private:
 	unsigned  _increment;
 	unsigned  _index;
 };
+
+template <class C>
+class PVconcurrentVector : public tbb::concurrent_vector<C>
+{
+public:
+	bool is_null()
+	{
+		return tbb::concurrent_vector<C>::empty() && (tbb::concurrent_vector<C>::capacity() == 0);
+	}
+};
+
 }
+
 
 class PVQuadTree
 {
-	//typedef std::vector<entry> list_rows_t;
+#ifdef USE_CONC_VEC
+	typedef Picviz::PVconcurrentVector<entry> list_rows_t;
+#else
 	typedef Picviz::PVVector<entry> list_rows_t;
+#endif
 
 public:
 	PVQuadTree(uint32_t y1_min_value, uint32_t y1_max_value, uint32_t y2_min_value, uint32_t y2_max_value, int max_level, int cur_level = 0) :
@@ -257,14 +274,11 @@ private:
 		                            _max_level, _cur_level + 1);
 #endif
 
-#ifdef RH
-#pragma omp parallel
+#ifdef USE_CONC_VEC
+#pragma omp parallel for
 		for(unsigned i = 0; i < _datas.size(); ++i) {
-			entry &e = (*_datas)[i];
-			int idx = compute_idx(e);
-			if (idx == omp_get_thread_num()) {
-				_nodes[idx]->_datas.push_back(e);
-			}
+			entry &e = _datas[i];
+			_nodes[compute_idx(e)]->_datas.push_back(e);
 		}
 #else
 		for(unsigned i = 0; i < _datas.size(); ++i) {
