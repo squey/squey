@@ -44,9 +44,7 @@ public:
 
 	~PVVector()
 	{
-		if (_array) {
-			free(_array);
-		}
+		clear();
 	}
 
 	void reserve(unsigned size)
@@ -59,9 +57,18 @@ public:
 		return _index;
 	}
 
+	bool is_null()
+	{
+		return (_array == 0);
+	}
+
 	void clear()
 	{
-		_index = 0;
+		if(_array) {
+			free(_array);
+			_array = 0;
+			_index = 0;
+		}
 	}
 
 	C &at(int i)
@@ -71,7 +78,7 @@ public:
 
 	void push_back(C &c)
 	{
-		if (_index == _size) {
+		if ((_index == _size) || (_array == 0)) {
 			reallocate();
 		}
 		_array[_index++] = c;
@@ -99,8 +106,8 @@ private:
 
 class PVQuadTree
 {
-	typedef std::vector<entry> list_rows_t;
-	// typedef Picviz::PVVector<entry> list_rows_t;
+	//typedef std::vector<entry> list_rows_t;
+	typedef Picviz::PVVector<entry> list_rows_t;
 
 public:
 	PVQuadTree(uint32_t y1_min_value, uint32_t y1_max_value, uint32_t y2_min_value, uint32_t y2_max_value, int max_level, int cur_level = 0) :
@@ -113,8 +120,7 @@ public:
 	{
 		_y1_mid_value = (_y1_min_value + _y1_max_value) / 2;
 		_y2_mid_value = (_y2_min_value + _y2_max_value) / 2;
-		_datas = new list_rows_t();
-		_datas->reserve(MAX_SIZE + 1);
+		_datas.reserve(MAX_SIZE + 1);
 		_nodes[0] = _nodes[1] = _nodes[2] = _nodes[3] = 0;
 		_first.idx = 0;
 	}
@@ -125,15 +131,14 @@ public:
 		_max_level(max_level),
 		_cur_level(cur_level)
 	{
-		_datas = new list_rows_t();
-		_datas->reserve(MAX_SIZE + 1);
+		_datas.reserve(MAX_SIZE + 1);
 		_nodes[0] = _nodes[1] = _nodes[2] = _nodes[3] = 0;
 		_first.idx = 0;
 	}
 
 	~PVQuadTree() {
-		if(_datas != 0) {
-			delete _datas;
+		if(_datas.is_null() == false) {
+			_datas.clear();
 		} else {
 			for(int i = 0; i < 4; ++i) {
 				delete _nodes[i];
@@ -148,27 +153,27 @@ public:
 
 		// searching for the right child
 		PVQuadTree *qt = this;
-		while (qt->_datas == 0) {
+		while (qt->_datas.is_null()) {
 			qt = qt->_nodes[qt->compute_idx(e)];
 		}
 
 		// insertion
-		qt->_datas->push_back(e);
+		qt->_datas.push_back(e);
 
 		// does the current node must be splitted?
-		if((qt->_datas->size() >= MAX_SIZE) && (qt->_cur_level < qt->_max_level)) {
+		if((qt->_datas.size() >= MAX_SIZE) && (qt->_cur_level < qt->_max_level)) {
 			qt->create_next_level();
 		}
 	}
 
 	void dump(unsigned indent = 0)
 	{
-		if (_datas) {
+		if (_datas.is_null() == false) {
 			for(unsigned i = 0; i < indent; ++i) {
 				std::cout << "  ";
 			}
-			for(unsigned i = 0; i < _datas->size(); ++i) {
-				entry &e = _datas->at(i);
+			for(unsigned i = 0; i < _datas.size(); ++i) {
+				entry &e = _datas.at(i);
 				std::cout << "(" << e.y1 << ", " << e.y2 << ", " << e.idx << ") ";
 			}
 			std::cout << std::endl;
@@ -254,25 +259,24 @@ private:
 
 #ifdef RH
 #pragma omp parallel
-		for(unsigned i = 0; i < _datas->size(); ++i) {
+		for(unsigned i = 0; i < _datas.size(); ++i) {
 			entry &e = (*_datas)[i];
 			int idx = compute_idx(e);
 			if (idx == omp_get_thread_num()) {
-				_nodes[idx]->_datas->push_back(e);
+				_nodes[idx]->_datas.push_back(e);
 			}
 		}
 #else
-		for(unsigned i = 0; i < _datas->size(); ++i) {
-			entry &e = _datas->at(i);
-			_nodes[compute_idx(e)]->_datas->push_back(e);
+		for(unsigned i = 0; i < _datas.size(); ++i) {
+			entry &e = _datas.at(i);
+			_nodes[compute_idx(e)]->_datas.push_back(e);
 		}
 #endif
-		delete _datas;
-		_datas = 0;
+		_datas.clear();
 	}
 
 private:
-	list_rows_t *_datas;
+	list_rows_t  _datas;
 	PVQuadTree  *_nodes[4];
 	entry        _first;
 
