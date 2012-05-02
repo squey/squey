@@ -93,7 +93,7 @@ void test(
 	PVParallelView::PVTools::norm_int_plotted(plotted, norm_plotted, ncols);
 	//PVLOG_INFO("Done !\n");
 
-	/*{
+	{
 		MEM_START(serial);
 		PVParallelView::PVZoneTree<std::vector<PVRow> >* ztree = new PVParallelView::PVZoneTree<std::vector<PVRow> >(0, 1);
 		ztree->set_trans_plotted(norm_plotted, nrows, ncols);
@@ -114,9 +114,9 @@ void test(
 		//ztree->display("zone", plotted);
 		delete ztree;
 	}
-	std::cout << "---" << std::endl;*/
+	std::cout << "---" << std::endl;
 
-	/*{
+	{
 		MEM_START(serial);
 		PVParallelView::PVZoneTree<std::vector<PVRow, tbb::scalable_allocator<PVRow> > >* ztree = new PVParallelView::PVZoneTree<std::vector<PVRow, tbb::scalable_allocator<PVRow> > >(0, 1);
 		ztree->set_trans_plotted(norm_plotted, nrows, ncols);
@@ -142,9 +142,9 @@ void test(
 		//ztree->display("zone", plotted);
 		delete ztree;
 	}
-	std::cout << "---" << std::endl;*/
+	std::cout << "---" << std::endl;
 
-	/*{
+	{
 		MEM_START(serial);
 		PVParallelView::PVZoneTreeNoAlloc* ztree = new PVParallelView::PVZoneTreeNoAlloc(0, 1);
 		ztree->set_trans_plotted(norm_plotted, nrows, ncols);
@@ -193,7 +193,7 @@ void test(
 		//ztree->display("zone-omp", plotted);
 		delete ztree;
 	}
-	std::cout << "---" << std::endl;*/
+	std::cout << "---" << std::endl;
 
 
 	{
@@ -207,26 +207,34 @@ void test(
 		MEM_END(serial, "omp sse + noalloc");
 		//ztree->display("zone-omp", plotted);
 
-		{
 		size_t nb_codes_ref = ztree->browse_tree_bci_serial(colors, bci_codes_ref);
+		//show_codes("serial", bci_codes_ref, nb_codes_ref);
 
+		{
 		MEM_START(serial);
 		BENCH_START(sse);
 		size_t nb_codes = ztree->browse_tree_bci(colors, bci_codes);
+		picviz_verify(sizeof(PVParallelView::PVHSVColor) == 1);
+		BENCH_END(sse, "omp sse + noalloc colors old", nb_codes, sizeof(PVRow), nb_codes, sizeof(PVParallelView::PVBCICode));
+		MEM_END(serial, "omp sse + noalloc colors old");
+		CHECK(nb_codes_ref == nb_codes);
+		CHECK(memcmp((const void *) bci_codes, (const void *) bci_codes_ref, nb_codes*sizeof(PVParallelView::PVBCICode)) == 0);
+		}
+
+		{
+		MEM_START(serial);
+		BENCH_START(sse);
+		size_t nb_codes = ztree->browse_tree_bci_old(colors, bci_codes);
 		picviz_verify(sizeof(PVParallelView::PVHSVColor) == 1);
 		BENCH_END(sse, "omp sse + noalloc colors", nb_codes, sizeof(PVRow), nb_codes, sizeof(PVParallelView::PVBCICode));
 		MEM_END(serial, "omp sse + noalloc colors");
 		CHECK(nb_codes_ref == nb_codes);
 		CHECK(memcmp((const void *) bci_codes, (const void *) bci_codes_ref, nb_codes*sizeof(PVParallelView::PVBCICode)) == 0);
-
 		PVLOG_INFO("nb_codes_ref=%d, nb_codes=%d\n",nb_codes_ref, nb_codes);
-
-		// Show BCI codes
-		show_codes("serial", bci_codes_ref, nb_codes_ref);
-		show_codes("parallel", bci_codes, nb_codes);
+		//show_codes("parallel", bci_codes, nb_codes);
+		}
 
 		//PVLOG_INFO("Parallel success: %d\n", nb_codes_ref == nb_codes && !memcmp ((const void *) bci_codes, (const void *) bci_codes_ref, nb_codes_ref));
-		}
 
 		delete ztree;
 	}

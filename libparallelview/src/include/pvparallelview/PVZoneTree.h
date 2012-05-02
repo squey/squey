@@ -73,6 +73,7 @@ public:
 public:
 	void process_sse();
 	void process_omp_sse();
+	size_t browse_tree_bci_old(PVHSVColor* colors, PVBCICode* codes);
 	size_t browse_tree_bci(PVHSVColor* colors, PVBCICode* codes);
 	size_t browse_tree_bci_serial(PVHSVColor* colors, PVBCICode* codes);
 private:
