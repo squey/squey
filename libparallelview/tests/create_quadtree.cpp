@@ -39,7 +39,6 @@ int main(int argc, char **argv)
 	}
 
 	int depth = atoi(argv[1]);
-	long t1, t2;
 
 	boost::mt19937 rnd(0);
 	boost::random::uniform_int_distribution<unsigned> uni(0, UINT_MAX);

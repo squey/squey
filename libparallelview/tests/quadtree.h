@@ -10,94 +10,13 @@
 
 #include <tbb/concurrent_vector.h>
 
+#include "vector.h"
+
 typedef uint32_t offset;
 
 struct entry {
 	offset y1, y2;
 	uint32_t idx;
-};
-
-enum {
-	SW = 0,
-	SE,
-	NW,
-	NE
-};
-
-#define MAX_SIZE 10000
-//#define MAX_SIZE 3
-#define NBITS_INDEX 10
-
-// #define USE_CONC_VEC
-
-namespace Picviz
-{
-template <class C>
-class PVVector
-{
-public:
-	PVVector(unsigned size = 1000, unsigned increment = 1000) :
-		_size(size),
-		_increment(increment),
-		_index(0)
-	{
-		_array = 0;
-	}
-
-	~PVVector()
-	{
-		clear();
-	}
-
-	void reserve(unsigned size)
-	{
-		reallocate(size);
-	}
-
-	unsigned size()
-	{
-		return _index;
-	}
-
-	bool is_null()
-	{
-		return (_array == 0);
-	}
-
-	void clear()
-	{
-		if(_array) {
-			free(_array);
-			_array = 0;
-			_index = 0;
-		}
-	}
-
-	C &at(int i)
-	{
-		return _array[i];
-	}
-
-	void push_back(C &c)
-	{
-		if ((_index == _size) || (_array == 0)) {
-			reallocate(_size + _increment);
-		}
-		_array[_index++] = c;
-	}
-
-private:
-	void reallocate(unsigned size)
-	{
-		_array = (C*) realloc(_array, (size) * sizeof(C));
-		_size = size;
-	}
-
-private:
-	C        *_array;
-	unsigned  _size;
-	unsigned  _increment;
-	unsigned  _index;
 };
 
 template <class C>
@@ -110,15 +29,12 @@ public:
 	}
 };
 
-}
-
-
 class PVQuadTree
 {
 #ifdef USE_CONC_VEC
-	typedef Picviz::PVconcurrentVector<entry> list_rows_t;
+	typedef PVconcurrentVector<entry> list_rows_t;
 #else
-	typedef Picviz::PVVector<entry> list_rows_t;
+	typedef Vector<entry> list_rows_t;
 #endif
 
 public:

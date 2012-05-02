@@ -89,63 +89,54 @@ __global__ void bcicode_raster(uint2* bci_codes, unsigned int n, unsigned int wi
 	__shared__ unsigned int shared_img[(SMEM_IMG_KB*1024)/sizeof(unsigned int)];
 	__shared__ uint2 shared_bci[SMEM_NBCI];
 
-	// The x coordinate of the band this thread is responsible of
-	int band_x = threadIdx.x + blockIdx.x*blockDim.x;
-	if (band_x >= width) {
-		return;
-	}
-
 	const unsigned int bci_block_idx = blockIdx.x + blockIdx.y*gridDim.x;
 	const unsigned int bci_size_grid = gridDim.x*gridDim.y*blockDim.x*blockDim.y;
 	const unsigned int img_size_grid = blockDim.y;
 	unsigned int bci_thread_idx = threadIdx.x + threadIdx.y*blockDim.x;
-
-	const float alpha = (float)(width-band_x)/(float)width;
 	
 	// First stage is to set shared memory
-	for (int y = threadIdx.y; y < IMAGE_HEIGHT; y += img_size_grid) {
+	/*for (int y = threadIdx.y; y < IMAGE_HEIGHT; y += img_size_grid) {
 		shared_img[threadIdx.x + y*blockDim.x] = 0xFFFFFFFF;
-	}
+	}*/
 
-	__syncthreads();
+	//__syncthreads();
 
 	//unsigned int idx_codes = bci_thread_idx;
 	unsigned int idx_codes = bci_block_idx*(blockDim.x*blockDim.y) + bci_thread_idx;
 	//for (; idx_codes < n; idx_codes += blockDim.x*blockDim.y) {
 	for (; idx_codes < n; idx_codes += bci_size_grid) {
 		shared_bci[bci_thread_idx] = bci_codes[idx_codes];
-		//__syncthreads();
+		__syncthreads();
 
 		unsigned int bci_read_thread_idx;
-		for (unsigned int tx = 0; tx < blockDim.x; tx++) {
+		int band_x = threadIdx.x + blockIdx.x*blockDim.x;
+		for (; band_x < width; band_x += blockDim.x) {
+			for (int y = threadIdx.y; y < IMAGE_HEIGHT; y += blockDim.y) {
+				shared_img[threadIdx.x + y*blockDim.x] = img_dst[band_x + y*width];
+			}
 			__syncthreads();
-			bci_read_thread_idx = tx + threadIdx.y*blockDim.x;
-			uint2 code0 = shared_bci[bci_read_thread_idx];
-			code0.x >>= 8;
-			float l0 = (float) (code0.y & 0x3ff);
-			float r0 = (float) ((code0.y & 0xffc00)>>10);
-			int pixel_y0 = (int) (r0 + ((l0-r0)*alpha) + 0.5f);
-			unsigned int idx_shared_img0 = threadIdx.x + pixel_y0*blockDim.x;
-			unsigned int cur_shared_p = shared_img[idx_shared_img0];
-			unsigned int color0 = (code0.y & 0xff00000)<<4;
-			if ((cur_shared_p & MASK_ZBUFFER) > code0.x) {
-				shared_img[idx_shared_img0] = color0 | code0.x;
+			const float alpha = (float)(width-band_x)/(float)width;
+			for (unsigned int tx = 0; tx < blockDim.x; tx++) {
+				bci_read_thread_idx = tx + threadIdx.y*blockDim.x;
+				uint2 code0 = shared_bci[bci_read_thread_idx];
+				code0.x >>= 8;
+				float l0 = (float) (code0.y & 0x3ff);
+				float r0 = (float) ((code0.y & 0xffc00)>>10);
+				int pixel_y0 = (int) (r0 + ((l0-r0)*alpha) + 0.5f);
+				unsigned int idx_shared_img0 = threadIdx.x + pixel_y0*blockDim.x;
+				unsigned int cur_shared_p = shared_img[idx_shared_img0];
+				unsigned int color0 = (code0.y & 0xff00000)<<4;
+				if ((cur_shared_p & MASK_ZBUFFER) > code0.x) {
+					shared_img[idx_shared_img0] = color0 | code0.x;
+				}
+				__syncthreads();
+			}
+
+			for (int y = threadIdx.y; y < IMAGE_HEIGHT; y += blockDim.y) {
+				img_dst[band_x + y*width] = shared_img[threadIdx.x + y*blockDim.x];
 			}
 			__syncthreads();
 		}
-	}
-
-	
-	// Final stage is to commit the shared image into the global image
-	for (int y = threadIdx.y; y < IMAGE_HEIGHT; y += img_size_grid) {
-		unsigned int pixel = shared_img[threadIdx.x + y*blockDim.x]>>24;
-		if (pixel != 0xFF) {
-			pixel = hsv2rgb(pixel);
-		}
-		else {
-			pixel = 0xFFFFFFFF;
-		}
-		img_dst[band_x + y*width] = pixel;
 	}
 }
 
@@ -160,7 +151,7 @@ void show_codes_cuda(PVParallelView::PVBCICode* codes, uint32_t n, uint32_t widt
 
 	size_t simg = width*IMAGE_HEIGHT*sizeof(uint32_t);
 	picviz_verify_cuda(cudaMalloc(&device_img, simg));
-	picviz_verify_cuda(cudaMemset(device_img, 0, simg));
+	picviz_verify_cuda(cudaMemset(device_img, 0xFFFFFFFF, simg));
 	
 	cudaEvent_t start,end;
 	picviz_verify_cuda(cudaEventCreate(&start));
@@ -175,7 +166,8 @@ void show_codes_cuda(PVParallelView::PVBCICode* codes, uint32_t n, uint32_t widt
 
 	// Compute number of blocks
 	int nblocks = PVCuda::get_number_blocks();
-	int nblocks_x = (width+nthreads_x-1)/nthreads_x;
+	//int nblocks_x = (width+nthreads_x-1)/nthreads_x;
+	int nblocks_x = 32;
 	int nblocks_y = 1;
 	picviz_verify(nblocks_y > 0);
 	PVLOG_INFO("Number of blocks: %d x %d\n", nblocks_x, nblocks_y);
@@ -195,6 +187,22 @@ void show_codes_cuda(PVParallelView::PVBCICode* codes, uint32_t n, uint32_t widt
 	
 	float time = 0;
 	picviz_verify_cuda(cudaEventElapsedTime(&time, start, end));
+
+	for (int y = 0; y < IMAGE_HEIGHT; y++) {
+		for (int x = 0; x < width; x++) {
+			unsigned int pixel = img_dst[y*width + x]>>24;
+			if (pixel != 0xFF) {
+				uint8_t* rgb = (uint8_t*) &pixel;
+				PVParallelView::PVHSVColor c(pixel);
+				c.to_rgb(rgb);
+				rgb[3] = 0xFF;
+			}
+			else {
+				pixel = 0xFFFFFFFF;
+			}
+			img_dst[y*width+x] = pixel;
+		}
+	}
 
 	fprintf(stdout, "CUDA kernel time: %0.4f ms, BW: %0.4f MB/s\n", time, (double)(n*sizeof(PVBCICode))/(double)((time/1000.0)*1024.0*1024.0));
 }
