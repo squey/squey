@@ -164,7 +164,7 @@ size_t PVParallelView::PVZoneTreeNoAlloc::browse_tree_bci(PVHSVColor* colors, PV
 		if (_tree.branch_valid(b))
 		{
 			// Initialize SSE variables
-			PVRow const& index = _tree.get_first_elt_of_branch(b);
+			PVRow index = _tree.get_first_elt_of_branch(b);
 
 			sse_index = _mm_shuffle_epi32(sse_index, _MM_SHUFFLE(2,1,0,0));
 			sse_index = _mm_insert_epi32(sse_index, index, 0);
@@ -205,8 +205,8 @@ size_t PVParallelView::PVZoneTreeNoAlloc::browse_tree_bci(PVHSVColor* colors, PV
 				//  |   lrcolor3 | index (r3) ||   lrcolor2 | index (r2) | (sse_bcicodes2_3)
 				//  +------------+------------++------------+------------+
 
-				_mm_stream_si128((__m128i*)&codes[idx_code+0], sse_bcicodes0_1);
-				_mm_stream_si128((__m128i*)&codes[idx_code+2], sse_bcicodes2_3);
+				_mm_store_si128((__m128i*)&codes[idx_code+0], sse_bcicodes0_1);
+				_mm_store_si128((__m128i*)&codes[idx_code+2], sse_bcicodes2_3);
 
 				idx_code += 4;
 				sse_ndx = 0;
@@ -264,7 +264,7 @@ size_t PVParallelView::PVZoneTreeNoAlloc::browse_tree_bci_old(PVHSVColor* colors
 				//  |        lr3 |        lr2 ||        lr1 |        lr0 | (sse_lr)
 				//  +------------+------------++------------+------------+
 
-				__m128i sse_color ;
+				__m128i sse_color;
 				sse_color = _mm_insert_epi32(sse_color, colors[0].h(), 0);
 				sse_color = _mm_insert_epi32(sse_color, colors[1].h(), 1);
 				sse_color = _mm_insert_epi32(sse_color, colors[2].h(), 2);

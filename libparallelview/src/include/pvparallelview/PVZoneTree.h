@@ -54,6 +54,7 @@ public:
 	void process_tbb_concurrent_vector();
 	template <bool only_first>
 	PVZoneTree<Container>* filter_by_sel(Picviz::PVSelection const& sel) const;
+	size_t browse_tree_bci_old(PVHSVColor* colors, PVBCICode* codes);
 	size_t browse_tree_bci(PVHSVColor* colors, PVBCICode* codes);
 private:
 	void get_float_pts(pts_t& pts, Picviz::PVPlotted::plotted_table_t const& org_plotted);
@@ -271,7 +272,7 @@ PVZoneTree<Container>* PVZoneTree<Container>::filter_by_sel(Picviz::PVSelection 
 }
 
 template <class Container>
-size_t PVZoneTree<Container>::browse_tree_bci(PVHSVColor* colors, PVBCICode* codes)
+size_t PVZoneTree<Container>::browse_tree_bci_old(PVHSVColor* colors, PVBCICode* codes)
 {
 	/*size_t idx_code = 0;
 	for (size_t b = 0; b < NBUCKETS; b++) {
@@ -306,23 +307,23 @@ size_t PVZoneTree<Container>::browse_tree_bci(PVHSVColor* colors, PVBCICode* cod
 		{
 			// Load
 			__m128i sse_bci_codes = _mm_loadl_epi64((__m128i const*) &r0);
-			_mm_insert_epi64(sse_bci_codes, r1, 1);
+			sse_bci_codes = _mm_insert_epi64(sse_bci_codes, r1, 1);
 
 			//  +------------+------------++------------+------------+
 			//  |          0 | index (r1) ||          0 | index (r0) | (sse_bci_codes)
 			//  +------------+------------++------------+------------+
 
 			__m128i sse_lr;
-			_mm_insert_epi64(sse_lr, b, 0);
-			_mm_insert_epi64(sse_lr, b+1, 1);
+			sse_lr = _mm_insert_epi64(sse_lr, b, 0);
+			sse_lr = _mm_insert_epi64(sse_lr, b+1, 1);
 
 			//  +------------+------------++------------+------------+
 			//  |          0 |        lr1 ||          0 |        lr0 | (sse_lr)
 			//  +------------+------------++------------+------------+
 
 			__m128i sse_color = _mm_set1_epi32(0);
-			_mm_insert_epi64(sse_color, colors[r0].h(), 0);
-			_mm_insert_epi64(sse_color, colors[r1].h(), 1);
+			sse_color = _mm_insert_epi64(sse_color, colors[r0].h(), 0);
+			sse_color = _mm_insert_epi64(sse_color, colors[r1].h(), 1);
 			sse_color = _mm_slli_epi64(sse_color, NBITS_INDEX*2);
 
 			//  +------------+------------++------------+------------+
@@ -365,6 +366,95 @@ size_t PVZoneTree<Container>::browse_tree_bci(PVHSVColor* colors, PVBCICode* cod
 			idx_code++;
 		}
 	}
+
+	return idx_code;
+}
+
+template <class Container>
+size_t PVZoneTree<Container>::browse_tree_bci(PVHSVColor* colors, PVBCICode* codes)
+{
+	size_t idx_code = 0;
+		int sse_ndx = 0;
+
+		__m128i sse_lr;
+		__m128i sse_color;
+		__m128i sse_index;
+
+		for (uint64_t b = 0; b < NBUCKETS; b++) {
+
+			list_rows_t const& src0(_tree[b]);
+			const bool valid = src0.begin() != src0.end();
+			if(valid) {
+				// Initialize SSE variables
+				PVRow const& index = *src0.begin();
+
+				sse_index = _mm_shuffle_epi32(sse_index, _MM_SHUFFLE(2,1,0,0));
+				sse_index = _mm_insert_epi32(sse_index, index, 0);
+
+				sse_lr = _mm_shuffle_epi32(sse_lr, _MM_SHUFFLE(2,1,0,0));
+				sse_lr = _mm_insert_epi32(sse_lr, b, 0);
+
+				sse_color = _mm_shuffle_epi32(sse_color, _MM_SHUFFLE(2,1,0,0));
+				sse_color = _mm_insert_epi32(sse_color, colors[index].h(), 0);
+
+				sse_ndx++;
+
+				// Execute SSE instructions
+				if (sse_ndx == 4)
+				{
+					//  +------------+------------++------------+------------+
+					//  | index (r3) | index (r2) || index (r1) | index (r0) | (sse_index)
+					//  +------------+------------++------------+------------+
+
+					//  +------------+------------++------------+------------+
+					//  |        lr3 |        lr2 ||        lr1 |        lr0 | (sse_lr)
+					//  +------------+------------++------------+------------+
+
+					//  +------------+------------++------------+------------+
+					//  |     color3 |     color2 ||     color1 |     color0 | (sse_color)
+					//  +------------+------------++------------+------------+
+
+					sse_color = _mm_slli_epi32(sse_color, NBITS_INDEX*2);
+					__m128i sse_lrcolor = _mm_or_si128(sse_color, sse_lr);
+
+					__m128i sse_bcicodes0_1 = _mm_unpacklo_epi32(sse_index, sse_lrcolor);
+					__m128i sse_bcicodes2_3 = _mm_unpackhi_epi32(sse_index, sse_lrcolor);
+
+					//  +------------+------------++------------+------------+
+					//  |   lrcolor1 | index (r1) ||   lrcolor0 | index (r0) | (sse_bcicodes0_1)
+					//  +------------+------------++------------+------------+
+					//  +------------+------------++------------+------------+
+					//  |   lrcolor3 | index (r3) ||   lrcolor2 | index (r2) | (sse_bcicodes2_3)
+					//  +------------+------------++------------+------------+
+
+					_mm_stream_si128((__m128i*)&codes[idx_code+0], sse_bcicodes0_1);
+					_mm_stream_si128((__m128i*)&codes[idx_code+2], sse_bcicodes2_3);
+
+					idx_code += 4;
+					sse_ndx = 0;
+				}
+
+			}
+		}
+
+		for (int i = 0; i < sse_ndx ; i++) {
+			PVBCICode bci;
+
+			PVRow index = _mm_extract_epi32(sse_index, 0);
+			sse_index = _mm_shuffle_epi32(sse_index, _MM_SHUFFLE(0,3,2,1));
+
+			uint64_t b = _mm_extract_epi32(sse_lr, 0);
+			sse_lr = _mm_shuffle_epi32(sse_lr, _MM_SHUFFLE(0,3,2,1));
+
+			bci.int_v = index | (b<<32);
+			bci.s.color = _mm_extract_epi32(sse_lr, 0);
+			sse_lr = _mm_shuffle_epi32(sse_lr, _MM_SHUFFLE(0,3,2,1));
+
+			codes[idx_code] = bci;
+			idx_code++;
+		}
+
+		return idx_code;
 }
 
 template <class Container>
