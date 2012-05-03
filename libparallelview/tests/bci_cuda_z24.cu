@@ -6,8 +6,7 @@
 #include "bci_cuda.h"
 
 #define NTHREADS_BLOCK 768
-#define SMEM_IMG_KB (6*4)
-#define NCODES_SHARED 512
+#define SMEM_IMG_KB (2*4)
 
 // From http://code.google.com/p/cudaraster/source/browse/trunk/src/cudaraster/cuda/Util.hpp?r=4
 // See ptx_isa_3.0.pdf in CUDA SDK documentation for more information on prmt.b32
@@ -86,8 +85,6 @@ __global__ void bcicode_raster_unroll2(uint2* bci_codes, unsigned int n, unsigne
 {
 	// shared_size = blockDim.x*IMAGE_HEIGHT*sizeof(img_zbuffer_t)
 	__shared__ unsigned int shared_img[(SMEM_IMG_KB*1024)/sizeof(unsigned int)];
-	// Nthreads y = 93. So, for a block, we reserve 93*sizeof(uint2) in shared memory
-	//__shared__ uint2 shared_codes[NCODES_SHARED];
 
 	// The x coordinate of the band this thread is responsible of
 	int band_x = threadIdx.x + blockIdx.x*blockDim.x;
@@ -101,17 +98,17 @@ __global__ void bcicode_raster_unroll2(uint2* bci_codes, unsigned int n, unsigne
 	const unsigned int size_grid = blockDim.y*gridDim.y;
 
 	// First stage is to set shared memory
-	for (int y = threadIdx.y; y < IMAGE_HEIGHT; y += size_grid) {
+	for (int y = threadIdx.y; y < IMAGE_HEIGHT; y += blockDim.y) {
 		shared_img[threadIdx.x + y*blockDim.x] = 0xFFFFFFFF;
 	}
 
-	const unsigned int size_grid2 = size_grid<<2;
+	const unsigned int size_grid2 = size_grid<<1;
 	const unsigned int n_end = (n/(size_grid2))*(size_grid2);
 
 	__syncthreads();
 
 	unsigned int idx_codes = y_start;
-	//int i = 0;
+#if 0
 	for (; idx_codes < n_end; idx_codes += size_grid2) {
 		uint2 code0 = bci_codes[idx_codes];
 		uint2 code1 = bci_codes[idx_codes+size_grid];
@@ -167,20 +164,69 @@ __global__ void bcicode_raster_unroll2(uint2* bci_codes, unsigned int n, unsigne
 
 		// Set shared_img
 		unsigned int cur_shared_p0 = shared_img[idx_shared_img0] & MASK_ZBUFFER;
-		unsigned int cur_shared_p1 = shared_img[idx_shared_img1] & MASK_ZBUFFER;
-		unsigned int cur_shared_p2 = shared_img[idx_shared_img2] & MASK_ZBUFFER;
-		unsigned int cur_shared_p3 = shared_img[idx_shared_img3] & MASK_ZBUFFER;
 		if (cur_shared_p0 > code0.x) {
 			shared_img[idx_shared_img0] = color0 | code0.x;
 		}
+		unsigned int cur_shared_p1 = shared_img[idx_shared_img1] & MASK_ZBUFFER;
 		if (cur_shared_p1 > code1.x) {
 			shared_img[idx_shared_img1] = color1 | code1.x;
 		}
+		unsigned int cur_shared_p2 = shared_img[idx_shared_img2] & MASK_ZBUFFER;
 		if (cur_shared_p2 > code2.x) {
 			shared_img[idx_shared_img2] = color2 | code2.x;
 		}
+		unsigned int cur_shared_p3 = shared_img[idx_shared_img3] & MASK_ZBUFFER;
 		if (cur_shared_p3 > code3.x) {
 			shared_img[idx_shared_img3] = color3 | code3.x;
+		}
+		__syncthreads();
+	}
+#endif
+	for (; idx_codes < n_end; idx_codes += size_grid2) {
+		uint2 code0 = bci_codes[idx_codes];
+		uint2 code1 = bci_codes[idx_codes+size_grid];
+		
+		// For information:
+		// struct PVBCICode
+		// {
+		//	typedef PVCore::PVAlignedAllocator<PVBCICode, 16> allocator;
+		//	union {
+		//		uint64_t int_v;
+		//		struct {
+		//			uint32_t idx;
+		//			uint32_t l: 10;
+		//			uint32_t r: 10;
+		//			uint32_t color: 9;
+		//			uint32_t __reserved: 1;
+		//		} s;
+		//	};
+		// }
+
+		// 24-bit z-buffer
+		code0.x >>= 8; code1.x >>= 8;
+
+		// Get l, r and color
+		const float l0 = (float) (code0.y & 0x3ff);
+		const float r0 = (float) ((code0.y & 0xffc00)>>10);
+		const float l1 = (float) (code1.y & 0x3ff);
+		const float r1 = (float) ((code1.y & 0xffc00)>>10);
+
+		// Compute the y coordinate for band_x
+		const int pixel_y0 = (int) (r0 + ((l0-r0)*alpha) + 0.5f);
+		const int pixel_y1 = (int) (r1 + ((l1-r1)*alpha) + 0.5f);
+		unsigned int idx_shared_img0 = threadIdx.x + pixel_y0*blockDim.x;
+		unsigned int idx_shared_img1 = threadIdx.x + pixel_y1*blockDim.x;
+		const unsigned int color0 = (code0.y & 0xff00000)<<4;
+		const unsigned int color1 = (code1.y & 0xff00000)<<4;
+
+		// Set shared_img
+		unsigned int cur_shared_p0 = shared_img[idx_shared_img0] & MASK_ZBUFFER;
+		if (cur_shared_p0 > code0.x) {
+			shared_img[idx_shared_img0] = color0 | code0.x;
+		}
+		unsigned int cur_shared_p1 = shared_img[idx_shared_img1] & MASK_ZBUFFER;
+		if (cur_shared_p1 > code1.x) {
+			shared_img[idx_shared_img1] = color1 | code1.x;
 		}
 	}
 	for (; idx_codes < n; idx_codes += size_grid) {
@@ -191,17 +237,15 @@ __global__ void bcicode_raster_unroll2(uint2* bci_codes, unsigned int n, unsigne
 		int pixel_y0 = (int) (r0 + ((l0-r0)*alpha) + 0.5f);
 		unsigned int idx_shared_img0 = threadIdx.x + pixel_y0*blockDim.x;
 		unsigned int cur_shared_p = shared_img[idx_shared_img0];
-		unsigned int color0 = (code0.y & 0xff00000)<<4;
 		if ((cur_shared_p & MASK_ZBUFFER) > code0.x) {
+			unsigned int color0 = (code0.y & 0xff00000)<<4;
 			shared_img[idx_shared_img0] = color0 | code0.x;
 		}
 	}
-
-	__syncthreads();
-
 	
+	__syncthreads();
 	// Final stage is to commit the shared image into the global image
-	for (int y = y_start; y < IMAGE_HEIGHT; y += size_grid) {
+	for (int y = threadIdx.y; y < IMAGE_HEIGHT; y += blockDim.y) {
 		unsigned int pixel = shared_img[threadIdx.x + y*blockDim.x]>>24;
 		if (pixel != 0xFF) {
 			pixel = hsv2rgb(pixel);
@@ -240,12 +284,13 @@ void show_codes_cuda(PVParallelView::PVBCICode* codes, uint32_t n, uint32_t widt
 	// Compute number of blocks
 	int nblocks = PVCuda::get_number_blocks();
 	int nblocks_x = (width+nthreads_x-1)/nthreads_x;
-	int nblocks_y = 28;
+	int nblocks_y = 1;
 	picviz_verify(nblocks_y > 0);
 	PVLOG_INFO("Number of blocks: %d x %d\n", nblocks_x, nblocks_y);
 
 	//int shared_size = nthreads_x*IMAGE_HEIGHT*sizeof(img_zbuffer_t);
 
+	picviz_verify_cuda(cudaFuncSetCacheConfig(&bcicode_raster_unroll2, cudaFuncCachePreferL1));
 	picviz_verify_cuda(cudaEventRecord(start, 0));
 	bcicode_raster_unroll2<<<dim3(nblocks_x,nblocks_y),dim3(nthreads_x, nthreads_y)>>>((uint2*) device_codes, n, width, device_img);
 	picviz_verify_cuda_kernel();

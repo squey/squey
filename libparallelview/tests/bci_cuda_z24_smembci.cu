@@ -103,22 +103,21 @@ __global__ void bcicode_raster(uint2* bci_codes, unsigned int n, unsigned int wi
 	const float alpha = (float)(width-band_x)/(float)width;
 	
 	// First stage is to set shared memory
-	for (int y = threadIdx.y; y < IMAGE_HEIGHT; y += img_size_grid) {
+	for (int y = threadIdx.y; y < IMAGE_HEIGHT; y += blockDim.y) {
 		shared_img[threadIdx.x + y*blockDim.x] = 0xFFFFFFFF;
 	}
 
 	__syncthreads();
 
-	//unsigned int idx_codes = bci_thread_idx;
-	unsigned int idx_codes = bci_block_idx*(blockDim.x*blockDim.y) + bci_thread_idx;
-	//for (; idx_codes < n; idx_codes += blockDim.x*blockDim.y) {
-	for (; idx_codes < n; idx_codes += bci_size_grid) {
+	unsigned int idx_codes = bci_thread_idx;
+	//unsigned int idx_codes = bci_block_idx*(blockDim.x*blockDim.y) + bci_thread_idx;
+	for (; idx_codes < n; idx_codes += blockDim.x*blockDim.y) {
+	//for (; idx_codes < n; idx_codes += bci_size_grid) {
 		shared_bci[bci_thread_idx] = bci_codes[idx_codes];
-		//__syncthreads();
+		__syncthreads();
 
 		unsigned int bci_read_thread_idx;
-		for (unsigned int tx = 0; tx < blockDim.x; tx++) {
-			__syncthreads();
+		/*for (unsigned int tx = threadIdx.x; tx < blockDim.x; tx++) {
 			bci_read_thread_idx = tx + threadIdx.y*blockDim.x;
 			uint2 code0 = shared_bci[bci_read_thread_idx];
 			code0.x >>= 8;
@@ -133,11 +132,26 @@ __global__ void bcicode_raster(uint2* bci_codes, unsigned int n, unsigned int wi
 			}
 			__syncthreads();
 		}
+		for (unsigned int tx = 0; tx < threadIdx.x; tx++) {
+			bci_read_thread_idx = tx + threadIdx.y*blockDim.x;
+			uint2 code0 = shared_bci[bci_read_thread_idx];
+			code0.x >>= 8;
+			float l0 = (float) (code0.y & 0x3ff);
+			float r0 = (float) ((code0.y & 0xffc00)>>10);
+			int pixel_y0 = (int) (r0 + ((l0-r0)*alpha) + 0.5f);
+			unsigned int idx_shared_img0 = threadIdx.x + pixel_y0*blockDim.x;
+			unsigned int cur_shared_p = shared_img[idx_shared_img0];
+			unsigned int color0 = (code0.y & 0xff00000)<<4;
+			if ((cur_shared_p & MASK_ZBUFFER) > code0.x) {
+				shared_img[idx_shared_img0] = color0 | code0.x;
+			}
+			__syncthreads();
+		}*/
 	}
 
 	
 	// Final stage is to commit the shared image into the global image
-	for (int y = threadIdx.y; y < IMAGE_HEIGHT; y += img_size_grid) {
+	for (int y = threadIdx.y; y < IMAGE_HEIGHT; y += blockDim.y) {
 		unsigned int pixel = shared_img[threadIdx.x + y*blockDim.x]>>24;
 		if (pixel != 0xFF) {
 			pixel = hsv2rgb(pixel);

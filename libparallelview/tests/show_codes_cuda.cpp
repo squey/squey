@@ -54,6 +54,7 @@ int main(int argc, char** argv)
 		width = atoll(argv[2]);
 	}
 
+	srand(0);
 
 	//QApplication app(argc, argv);
 	PVCuda::init_cuda();
