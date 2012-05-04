@@ -38,9 +38,9 @@ cuda_compile(CUDA_KERNELS bci_cuda_z24.cu)
 add_executable(show_codes_cuda24 show_codes_cuda.cpp ${CUDA_KERNELS})
 target_link_libraries(show_codes_cuda24 ${LINK_LIBRARIES} ${CUDA_LIBRARIES})
 
-cuda_compile(CUDA_KERNELS bci_cuda_z24_atomic.cu)
-add_executable(show_codes_cuda24_atomic show_codes_cuda.cpp ${CUDA_KERNELS})
-target_link_libraries(show_codes_cuda24_atomic ${LINK_LIBRARIES} ${CUDA_LIBRARIES})
+#cuda_compile(CUDA_KERNELS bci_cuda_z24_atomic.cu)
+#add_executable(show_codes_cuda24_atomic show_codes_cuda.cpp ${CUDA_KERNELS})
+#target_link_libraries(show_codes_cuda24_atomic ${LINK_LIBRARIES} ${CUDA_LIBRARIES})
 
 #cuda_compile(CUDA_KERNELS bci_cuda_z24_unroll_x.cu)
 #add_executable(show_codes_cuda24_unroll_x show_codes_cuda.cpp ${CUDA_KERNELS})

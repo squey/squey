@@ -56,14 +56,32 @@ void printb (uint32_t v)
 
 #define MAX_VALUE ((1<<22) - 1)
 
+void usage()
+{
+	std::cout << "usage: test-quadtree tree-level test-num" << std::endl;
+	std::cout << std::endl;
+	std::cout << "test 0: 	PVQuadTree with Vector1" << std::endl;
+	std::cout << "test 1: 	PVQuadTree with Vector2" << std::endl;
+	std::cout << "test 2: 	PVQuadTreeTmpl with Vector1" << std::endl;
+	std::cout << "test 3: 	PVQuadTreeTmpl with Vector2" << std::endl;
+	// std::cout << "test 4: 	PVQuadTreeFlat with Vector1" << std::endl;
+	// std::cout << "test 5: 	PVQuadTreeFlat with Vector2" << std::endl;
+}
+
 int main(int argc, char **argv)
 {
-	if (argc != 2) {
-		std::cout << "usage: test-quadtree tree-level" << std::endl;
+	if (argc != 3) {
+		usage();
 		return 1;
 	}
 
 	int depth = atoi(argv[1]);
+	int test = atoi(argv[2]);
+
+	if(test > 3) {
+		usage();
+		return 2;
+	}
 
 	boost::mt19937 rnd(0);
 	boost::random::uniform_int_distribution<unsigned> uni(0, UINT_MAX);
@@ -75,9 +93,7 @@ int main(int argc, char **argv)
 		entries[i].idx = i;
 	}
 
-#if 0
-#if 1
-	{
+	if (test == 0) {
 		PVQuadTree<Vector1<entry> > sqt1(0, MAX_VALUE, 0, MAX_VALUE, depth);
 		std::cout << "sizeof(sqt1): " << sizeof(sqt1) << std::endl;
 		MEM_START(usage);
@@ -88,10 +104,8 @@ int main(int argc, char **argv)
 		BENCH_END(time, "PVQuadTree Vector1", COUNT, sizeof(entry), 1, 1);
 		MEM_END(usage, "PVQuadTree Vector1");
 	}
-#endif
 
-#if 1
-	{
+	if (test == 1) {
 		PVQuadTree<Vector2<entry> > sqt2(0, MAX_VALUE, 0, MAX_VALUE, depth);
 		std::cout << "sizeof(sqt2): " << sizeof(sqt2) << std::endl;
 		MEM_START(usage);
@@ -102,10 +116,8 @@ int main(int argc, char **argv)
 		BENCH_END(time, "PVQuadTree Vector2", COUNT, sizeof(entry), 1, 1);
 		MEM_END(usage, "PVQuadTree Vector2");
 	}
-#endif
 
-#if 1
-	{
+	if (test == 2) {
 		PVQuadTreeTmpl<Vector1<entry>,8> *tqt1 = new PVQuadTreeTmpl<Vector1<entry>,8>(0, MAX_VALUE, 0, MAX_VALUE, 8);
 		(void) depth;
 		std::cout << "sizeof(tqt1): " << sizeof(*tqt1) << std::endl;
@@ -118,10 +130,8 @@ int main(int argc, char **argv)
 		MEM_END(usage, "PVQuadTreeTmpl Vector1");
 		delete tqt1;
 	}
-#endif
 
-#if 1
-	{
+	if (test == 3)  {
 		PVQuadTreeTmpl<Vector2<entry>,8> *tqt2 = new PVQuadTreeTmpl<Vector2<entry>,8>(0, MAX_VALUE, 0, MAX_VALUE, 8);
 		(void) depth;
 		std::cout << "sizeof(tqt2): " << sizeof(*tqt2) << std::endl;
@@ -134,11 +144,8 @@ int main(int argc, char **argv)
 		MEM_END(usage, "PVQuadTreeTmpl Vector2");
 		delete tqt2;
 	}
-#endif
-#endif
 
-#if 1
-	{
+	if (test == 4) {
 		PVQuadTreeFlat<Vector1<entry> > *fqt1 = new PVQuadTreeFlat<Vector1<entry> >(0, MAX_VALUE, 0, MAX_VALUE, depth);
 		std::cout << "sizeof(fqt1): " << sizeof(*fqt1) << std::endl;
 		MEM_START(usage);
@@ -150,12 +157,8 @@ int main(int argc, char **argv)
 		MEM_END(usage, "PVQuadTreeFlat Vector1");
 		delete fqt1;
 	}
-#endif
 
-#if 0
-
-#if 1
-	{
+	if (test == 5) {
 		PVQuadTreeFlat<Vector2<entry> > *fqt2 = new PVQuadTreeFlat<Vector2<entry> >(0, MAX_VALUE, 0, MAX_VALUE, depth);
 		std::cout << "sizeof(fqt2): " << sizeof(*fqt2) << std::endl;
 		MEM_START(usage);
@@ -167,7 +170,6 @@ int main(int argc, char **argv)
 		MEM_END(usage, "PVQuadTreeFlat Vector2");
 		delete fqt2;
 	}
-#endif
 
 #if 0
 	if (tqt->compare(sqt)) {
@@ -175,7 +177,6 @@ int main(int argc, char **argv)
 	} else {
 		std::cout << "trees differs" << std::endl;
 	}
-#endif
 #endif
 
 	return 0;

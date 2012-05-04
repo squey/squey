@@ -129,6 +129,7 @@ void test(
 	}
 	std::cout << "---" << std::endl;
 
+	uint32_t* ref_first_elts = new uint32_t[NBUCKETS];
 	{
 		MEM_START(serial);
 		PVParallelView::PVZoneTree<std::vector<PVRow, tbb::scalable_allocator<PVRow> > >* ztree = new PVParallelView::PVZoneTree<std::vector<PVRow, tbb::scalable_allocator<PVRow> > >(0, 1);
@@ -140,6 +141,9 @@ void test(
 
 		BENCH_END_TRANSFORM(sse, "serial sse + std::vector", nrows*2, sizeof(float));
 		MEM_END(serial, "serial sse + std::vector");
+
+		// Save reference first elts buffer
+		memcpy(ref_first_elts, ztree->get_first_elts(), sizeof(uint32_t)*NBUCKETS);
 
 		{
 		MEM_START(serial);
@@ -230,7 +234,12 @@ void test(
 		show_codes("serial", bci_codes_ref, nb_codes_ref);
 		}
 
-		{
+		delete ztree;
+		ztree = new PVParallelView::PVZoneTreeNoAlloc(0, 1);
+		ztree->set_trans_plotted(norm_plotted, nrows, ncols);
+		ztree->process_omp_sse();
+
+		/*{
 		MEM_START(serial);
 		BENCH_START(sse);
 		size_t nb_codes = ztree->browse_tree_bci_old(colors, bci_codes);
@@ -238,10 +247,17 @@ void test(
 		BENCH_END(sse, "omp sse + noalloc colors old", nb_codes, sizeof(PVRow), nb_codes, sizeof(PVParallelView::PVBCICode));
 		MEM_END(serial, "omp sse + noalloc colors old");
 		CHECK(nb_codes_ref == nb_codes);
-		CHECK(memcmp((const void *) bci_codes, (const void *) bci_codes_ref, nb_codes*sizeof(PVParallelView::PVBCICode)) == 0);
+
 		PVLOG_INFO("nb_codes_ref=%d, nb_codes=%d\n",nb_codes_ref, nb_codes);
 		show_codes("old", bci_codes, nb_codes);
+		CHECK(memcmp((const void *) bci_codes, (const void *) bci_codes_ref, nb_codes*sizeof(PVParallelView::PVBCICode)) == 0);
+		CHECK(memcmp((const void *) ref_first_elts, (const void *) ztree->get_first_elts(), sizeof(uint32_t)*NBUCKETS) == 0);
 		}
+
+		delete ztree;
+		ztree = new PVParallelView::PVZoneTreeNoAlloc(0, 1);
+		ztree->set_trans_plotted(norm_plotted, nrows, ncols);
+		ztree->process_omp_sse();*/
 
 		{
 		MEM_START(serial);
@@ -255,7 +271,7 @@ void test(
 		show_codes("new", bci_codes, nb_codes);
 		}
 
-		write(5, ztree->get_first_elts(), sizeof(PVRow)*NBUCKETS);
+		//write(5, ztree->get_first_elts(), sizeof(PVRow)*NBUCKETS);
 
 		Picviz::PVSelection sel;
 		sel.select_odd();
@@ -269,6 +285,8 @@ void test(
 		delete ztree;
 	}
 	std::cout << "---" << std::endl;
+
+	delete [] ref_first_elts;
 
 	/*{
 		MEM_START(serial);
