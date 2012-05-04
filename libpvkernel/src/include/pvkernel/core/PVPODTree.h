@@ -34,7 +34,7 @@ public:
 private:
 	struct block_t
 	{
-		block_t(): p(NULL) { }
+		block_t(): p((pointer)-1) { }
 
 		pointer p;
 		inline block_t* next(size_type nelts_block) const { return ((block_t*) (p+nelts_block)); }
@@ -45,7 +45,7 @@ private:
 		block_t cur;
 		pointer p_cur_block;
 
-		inline bool valid() const { return first.p != NULL; }
+		inline bool valid() const { return first.p != (pointer)-1; }
 		inline void init_first(block_t b) { first = b; cur = first; p_cur_block = b.p; }
 		inline void set_next(block_t b, size_type nelts_block)
 		{
@@ -111,7 +111,7 @@ public:
 			_branch(NULL), _cur_index(0)
 		{ }
 
-		T const& operator*() { assert(_cur_block.p); return *(_cur_block.p + _cur_index); }
+		T const& operator*() const { return get_cur_ref(); }
 
 		const_branch_iterator& operator++()
 		{
@@ -129,6 +129,11 @@ public:
 					_cur_index = 0;
 				}
 			}
+			if (_cur_block.p != (pointer)-1 && get_cur_ref() == (value_type)(-1)) {
+				// This block is half-full (result of a merging). Process to the next one.
+				_cur_block = *(_cur_block.next(_block_size));
+				_cur_index = 0;
+			}
 			return *this;
 		}
 
@@ -143,6 +148,8 @@ public:
 		bool operator!=(const const_branch_iterator& o) { return _cur_block.p != o._cur_block.p ||
 		                                                         _cur_index != o._cur_index; }
 
+	private:
+		inline T const& get_cur_ref() const { assert(_cur_block.p); return *(_cur_block.p + _cur_index); }
 	private:
 		branch_t const* _branch;
 		block_t _cur_block;
@@ -219,7 +226,7 @@ public:
 		size_t buf_size = _nblocks_max*(size_block());
 		_buf = (pointer) allocator_byte::allocate(buf_size);
 		assert(_buf);
-		memset(_buf, 0, buf_size);
+		memset(_buf, 0xFF, buf_size);
 		_cur_buf = _buf;
 #ifndef NDEBUG
 		_buf_size = buf_size;
@@ -236,7 +243,6 @@ public:
 		bool first = false;
 		assert(branch_id < NB);
 		branch_t& cur_b(_tree[branch_id]);
-		size_type scurblock = cur_b.cur_size();
 		if (!cur_b.valid()) {
 			first = true;
 			cur_b.init_first(reserve_block());

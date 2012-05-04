@@ -65,6 +65,10 @@ __device__ __noinline__ unsigned int hsv2rgb(unsigned int hsv)
 	// v[(pos+1)%3] = 0 ^ mask
 	// v[(pos+2)%3] = 255 ^ mask
 	
+	if (hsv == 0xFF) {
+		return 0xFFFFFFFF; // Special value for white
+	}
+
 	unsigned char zone = (unsigned char) (hsv>>HSV_COLOR_NBITS_ZONE);
 	unsigned char pos = zone2pos(zone);
 	unsigned char mask = (zone&1)*0xFF;
@@ -246,12 +250,13 @@ __global__ void bcicode_raster_unroll2(uint2* bci_codes, unsigned int n, unsigne
 	__syncthreads();
 	// Final stage is to commit the shared image into the global image
 	for (int y = threadIdx.y; y < IMAGE_HEIGHT; y += blockDim.y) {
-		unsigned int pixel = shared_img[threadIdx.x + y*blockDim.x]>>24;
-		if (pixel != 0xFF) {
-			pixel = hsv2rgb(pixel);
+		const unsigned int pixel_shared = shared_img[threadIdx.x + y*blockDim.x];
+		unsigned int pixel;
+		if (pixel_shared != 0xFFFFFFFF) {
+			pixel = hsv2rgb(pixel_shared>>24);
 		}
 		else {
-			pixel = 0xFFFFFFFF;
+			pixel = 0x00000000; // Transparent background
 		}
 		img_dst[band_x + y*width] = pixel;
 	}

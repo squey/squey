@@ -105,6 +105,7 @@ void test(
 	PVParallelView::PVTools::norm_int_plotted(plotted, norm_plotted, ncols);
 	//PVLOG_INFO("Done !\n");
 
+	/*
 	{
 		MEM_START(serial);
 		PVParallelView::PVZoneTree<std::vector<PVRow> >* ztree = new PVParallelView::PVZoneTree<std::vector<PVRow> >(0, 1);
@@ -205,7 +206,7 @@ void test(
 		//ztree->display("zone-omp", plotted);
 		delete ztree;
 	}
-	std::cout << "---" << std::endl;
+	std::cout << "---" << std::endl;*/
 
 
 	{
@@ -255,6 +256,13 @@ void test(
 		}
 
 		write(5, ztree->get_first_elts(), sizeof(PVRow)*NBUCKETS);
+
+		Picviz::PVSelection sel;
+		sel.select_odd();
+		PVParallelView::PVZoneTreeNoAlloc* zsel = ztree->filter_by_sel<false>(sel);
+		delete zsel;
+		//zsel = ztree->filter_by_sel<false>(sel);
+		//delete zsel;
 
 		//PVLOG_INFO("Parallel success: %d\n", nb_codes_ref == nb_codes && !memcmp ((const void *) bci_codes, (const void *) bci_codes_ref, nb_codes_ref));
 

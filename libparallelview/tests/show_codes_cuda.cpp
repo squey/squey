@@ -73,8 +73,8 @@ int main(int argc, char** argv)
 	write(4, img, width*IMAGE_HEIGHT*sizeof(uint32_t));
 	delete [] img;
 
-	show_codes(codes, n);
-	app.exec();
+	//show_codes(codes, n);
+	//app.exec();
 
 	PVParallelView::PVBCICode::free_codes(codes);
 	return 0;

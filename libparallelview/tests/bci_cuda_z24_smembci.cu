@@ -5,7 +5,7 @@
 #include <pvparallelview/PVHSVColor.h>
 #include "bci_cuda.h"
 
-#define NTHREADS_BLOCK 1024
+#define NTHREADS_BLOCK 768
 #define SMEM_IMG_KB (4*4)
 #define NBANDS_THREAD (SMEM_IMG_KB/4)
 
@@ -22,7 +22,8 @@ __device__ __inline__ unsigned int prmt(unsigned int a, unsigned int b, unsigned
 
 using PVParallelView::PVBCICode;
 
-#define MASK_ZBUFFER 0x00FFFFFF
+#define MASK_ZBUFFER 0xFFFFFF00
+#define MASK_COLOR   0x000000FF
 
 #pragma pack(push)
 #pragma pack(4)
@@ -117,42 +118,26 @@ __global__ void bcicode_raster(uint2* bci_codes, unsigned int n, unsigned int wi
 		__syncthreads();
 
 		unsigned int bci_read_thread_idx;
-		/*for (unsigned int tx = threadIdx.x; tx < blockDim.x; tx++) {
+		for (unsigned int i = 0; i < blockDim.x; i++) {
+			const unsigned int tx = (threadIdx.x + i)%blockDim.x;
 			bci_read_thread_idx = tx + threadIdx.y*blockDim.x;
 			uint2 code0 = shared_bci[bci_read_thread_idx];
-			code0.x >>= 8;
+			code0.x &= MASK_ZBUFFER;
 			float l0 = (float) (code0.y & 0x3ff);
 			float r0 = (float) ((code0.y & 0xffc00)>>10);
 			int pixel_y0 = (int) (r0 + ((l0-r0)*alpha) + 0.5f);
 			unsigned int idx_shared_img0 = threadIdx.x + pixel_y0*blockDim.x;
-			unsigned int cur_shared_p = shared_img[idx_shared_img0];
-			unsigned int color0 = (code0.y & 0xff00000)<<4;
-			if ((cur_shared_p & MASK_ZBUFFER) > code0.x) {
-				shared_img[idx_shared_img0] = color0 | code0.x;
-			}
-			__syncthreads();
+			unsigned int color0 = (code0.y & 0xff00000)>>20;
+			atomicMin(&shared_img[idx_shared_img0], color0 | code0.x);
 		}
-		for (unsigned int tx = 0; tx < threadIdx.x; tx++) {
-			bci_read_thread_idx = tx + threadIdx.y*blockDim.x;
-			uint2 code0 = shared_bci[bci_read_thread_idx];
-			code0.x >>= 8;
-			float l0 = (float) (code0.y & 0x3ff);
-			float r0 = (float) ((code0.y & 0xffc00)>>10);
-			int pixel_y0 = (int) (r0 + ((l0-r0)*alpha) + 0.5f);
-			unsigned int idx_shared_img0 = threadIdx.x + pixel_y0*blockDim.x;
-			unsigned int cur_shared_p = shared_img[idx_shared_img0];
-			unsigned int color0 = (code0.y & 0xff00000)<<4;
-			if ((cur_shared_p & MASK_ZBUFFER) > code0.x) {
-				shared_img[idx_shared_img0] = color0 | code0.x;
-			}
-			__syncthreads();
-		}*/
+		__syncthreads();
 	}
 
+	__syncthreads();
 	
 	// Final stage is to commit the shared image into the global image
 	for (int y = threadIdx.y; y < IMAGE_HEIGHT; y += blockDim.y) {
-		unsigned int pixel = shared_img[threadIdx.x + y*blockDim.x]>>24;
+		unsigned int pixel = shared_img[threadIdx.x + y*blockDim.x] & MASK_COLOR;
 		if (pixel != 0xFF) {
 			pixel = hsv2rgb(pixel);
 		}
