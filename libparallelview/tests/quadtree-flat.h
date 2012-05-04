@@ -5,6 +5,9 @@
 
 #include "quadtree.h"
 
+// TODO: replace use *{min,max}_value by a precomputation step
+// TODO: replace *_level by a depth counter which stops recursion
+//       when equal to 0
 template <class Data>
 class PVQuadTreeFlatBase
 {
