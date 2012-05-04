@@ -80,6 +80,8 @@ public:
 public:
 	void process_sse();
 	void process_omp_sse();
+	template <bool only_first>
+	PVZoneTreeNoAlloc* filter_by_sel(Picviz::PVSelection const& sel) const;
 
 private:
 	void get_float_pts(pts_t& pts, Picviz::PVPlotted::plotted_table_t const& org_plotted);
@@ -472,6 +474,35 @@ void PVZoneTreeUnorderedMap<Container>::process_boost()
 		_tree.insert(std::make_pair(b.int_v, r));
 		//PVLOG_INFO("r=%d int_v=0x%x\n", r, b.int_v);
 	}
+}
+
+template <bool only_first>
+PVZoneTreeNoAlloc* PVZoneTreeNoAlloc::filter_by_sel(Picviz::PVSelection const& sel) const
+{
+	// returns a zone tree with only the selected lines
+	PVZoneTreeNoAlloc* ret = new PVZoneTreeNoAlloc(_col_a, _col_b);
+	ret->set_trans_plotted(*_plotted, _nrows, _ncols);
+	ret->_tree.resize(_nrows);
+
+	const char* str_bench = (only_first) ? "subtree-first" : "subtree";
+	BENCH_START(subtree);
+	Picviz::PVSelection::const_pointer sel_buf = sel.get_buffer();
+#pragma omp parallel for firstprivate(sel_buf) firstprivate(ret) num_threads(12)
+	for (size_t b = 0; b < NBUCKETS; b++) {
+		Tree::const_branch_iterator it_src = _tree.begin_branch(b);
+		for (; it_src != _tree.end_branch(b); it_src++) {
+			PVRow r = *it_src;
+			if ((sel_buf[r>>5]) & (1U<<(r&31))) {
+				ret->_tree.push(b, r);
+				if (only_first) {
+					break;
+				}
+			}
+		}
+	}
+	BENCH_END(subtree, str_bench, _nrows*2, sizeof(float), _nrows*2, sizeof(float));
+
+	return ret;
 }
 
 }
