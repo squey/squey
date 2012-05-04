@@ -12,7 +12,33 @@
 
 #include <pvkernel/core/picviz_bench.h>
 
+// gros hack pour que les quadtree connaissent la structure entry
+
+#pragma pack(push)
+#pragma pack(4)
+
+struct entry {
+	uint32_t y1, y2;
+	uint32_t idx;
+};
+
+bool are_diff(const entry &e1, const entry &e2)
+{
+	return ((e1.y1 != e2.y1) || (e1.y2 != e2.y2) || (e1.idx != e2.idx));
+}
+
+#pragma pack(pop)
+
+enum {
+	SW = 0,
+	SE,
+	NW,
+	NE
+};
+
 #include "quadtree.h"
+#include "quadtree-tmpl.h"
+#include "quadtree-flat.h"
 
 void printb (uint32_t v)
 {
@@ -27,7 +53,6 @@ void printb (uint32_t v)
 }
 
 #define COUNT 100000000
-//#define COUNT 10
 
 #define MAX_VALUE ((1<<22) - 1)
 
@@ -43,8 +68,6 @@ int main(int argc, char **argv)
 	boost::mt19937 rnd(0);
 	boost::random::uniform_int_distribution<unsigned> uni(0, UINT_MAX);
 
-	PVQuadTree qt(0, MAX_VALUE, 0, MAX_VALUE, depth);
-
 	entry *entries = new entry  [COUNT];
 	for(int i = 0; i < COUNT; ++i) {
 		entries[i].y1 = random() & MAX_VALUE;
@@ -52,24 +75,108 @@ int main(int argc, char **argv)
 		entries[i].idx = i;
 	}
 
-	MEM_START(usage);
-	BENCH_START(time);
-	for(int i = 0; i < COUNT; ++i) {
-		qt.insert(entries[i]);
+#if 0
+#if 1
+	{
+		PVQuadTree<Vector1<entry> > sqt1(0, MAX_VALUE, 0, MAX_VALUE, depth);
+		std::cout << "sizeof(sqt1): " << sizeof(sqt1) << std::endl;
+		MEM_START(usage);
+		BENCH_START(time);
+		for(int i = 0; i < COUNT; ++i) {
+			sqt1.insert(entries[i]);
+		}
+		BENCH_END(time, "PVQuadTree Vector1", COUNT, sizeof(entry), 1, 1);
+		MEM_END(usage, "PVQuadTree Vector1");
 	}
-	BENCH_END(time, "time", COUNT, sizeof(entry), 1, 1);
-	MEM_END(usage, "memory");
+#endif
 
-	// qt.dump();
-	// qt.dump_stat();
+#if 1
+	{
+		PVQuadTree<Vector2<entry> > sqt2(0, MAX_VALUE, 0, MAX_VALUE, depth);
+		std::cout << "sizeof(sqt2): " << sizeof(sqt2) << std::endl;
+		MEM_START(usage);
+		BENCH_START(time);
+		for(int i = 0; i < COUNT; ++i) {
+			sqt2.insert(entries[i]);
+		}
+		BENCH_END(time, "PVQuadTree Vector2", COUNT, sizeof(entry), 1, 1);
+		MEM_END(usage, "PVQuadTree Vector2");
+	}
+#endif
+
+#if 1
+	{
+		PVQuadTreeTmpl<Vector1<entry>,8> *tqt1 = new PVQuadTreeTmpl<Vector1<entry>,8>(0, MAX_VALUE, 0, MAX_VALUE, 8);
+		(void) depth;
+		std::cout << "sizeof(tqt1): " << sizeof(*tqt1) << std::endl;
+		MEM_START(usage);
+		BENCH_START(time);
+		for(int i = 0; i < COUNT; ++i) {
+			tqt1->insert(entries[i]);
+		}
+		BENCH_END(time, "PVQuadTreeTmpl Vector1", COUNT, sizeof(entry), 1, 1);
+		MEM_END(usage, "PVQuadTreeTmpl Vector1");
+		delete tqt1;
+	}
+#endif
+
+#if 1
+	{
+		PVQuadTreeTmpl<Vector2<entry>,8> *tqt2 = new PVQuadTreeTmpl<Vector2<entry>,8>(0, MAX_VALUE, 0, MAX_VALUE, 8);
+		(void) depth;
+		std::cout << "sizeof(tqt2): " << sizeof(*tqt2) << std::endl;
+		MEM_START(usage);
+		BENCH_START(time);
+		for(int i = 0; i < COUNT; ++i) {
+			tqt2->insert(entries[i]);
+		}
+		BENCH_END(time, "PVQuadTreeTmpl Vector2", COUNT, sizeof(entry), 1, 1);
+		MEM_END(usage, "PVQuadTreeTmpl Vector2");
+		delete tqt2;
+	}
+#endif
+#endif
+
+#if 1
+	{
+		PVQuadTreeFlat<Vector1<entry> > *fqt1 = new PVQuadTreeFlat<Vector1<entry> >(0, MAX_VALUE, 0, MAX_VALUE, depth);
+		std::cout << "sizeof(fqt1): " << sizeof(*fqt1) << std::endl;
+		MEM_START(usage);
+		BENCH_START(time);
+		for(int i = 0; i < COUNT; ++i) {
+			fqt1->insert(entries[i]);
+		}
+		BENCH_END(time, "PVQuadTreeFlat Vector1", COUNT, sizeof(entry), 1, 1);
+		MEM_END(usage, "PVQuadTreeFlat Vector1");
+		delete fqt1;
+	}
+#endif
+
+#if 0
+
+#if 1
+	{
+		PVQuadTreeFlat<Vector2<entry> > *fqt2 = new PVQuadTreeFlat<Vector2<entry> >(0, MAX_VALUE, 0, MAX_VALUE, depth);
+		std::cout << "sizeof(fqt2): " << sizeof(*fqt2) << std::endl;
+		MEM_START(usage);
+		BENCH_START(time);
+		for(int i = 0; i < COUNT; ++i) {
+			fqt2->insert(entries[i]);
+		}
+		BENCH_END(time, "PVQuadTreeFlat Vector2", COUNT, sizeof(entry), 1, 1);
+		MEM_END(usage, "PVQuadTreeFlat Vector2");
+		delete fqt2;
+	}
+#endif
+
+#if 0
+	if (tqt->compare(sqt)) {
+		std::cout << "trees are equal" << std::endl;
+	} else {
+		std::cout << "trees differs" << std::endl;
+	}
+#endif
+#endif
 
 	return 0;
 }
-
-
-
-
-
-
-
-
