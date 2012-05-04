@@ -1,43 +1,39 @@
 #ifndef OWN_VECTOR_H
 #define OWN_VECTOR_H
 
-enum {
-	SW = 0,
-	SE,
-	NW,
-	NE
-};
-
 #define MAX_SIZE 10000
 
-template <class C>
-class Vector
+/*****************************************************************************
+ * version "classique"
+ */
+
+template <class C, int SIZE = 1000, int INCREMENT = 1000>
+class Vector1
 {
 public:
-	Vector(unsigned size = 1000, unsigned increment = 1000) :
+	Vector1(const unsigned size = SIZE) :
 		_size(size),
-		_increment(increment),
 		_index(0)
 	{
 		_array = 0;
 	}
 
-	~Vector()
+	~Vector1()
 	{
 		clear();
 	}
 
-	void reserve(unsigned size)
+	void reserve(const unsigned size)
 	{
 		reallocate(size);
 	}
 
-	unsigned size()
+	inline unsigned size() const
 	{
 		return _index;
 	}
 
-	bool is_null()
+	inline bool is_null() const
 	{
 		return (_array == 0);
 	}
@@ -51,21 +47,27 @@ public:
 		}
 	}
 
-	C &at(int i)
+	inline C &at(const int i)
 	{
 		return _array[i];
 	}
 
-	void push_back(C &c)
+	inline C const& at(const int i) const
 	{
-		if ((_index == _size) || (_array == 0)) {
-			reallocate(_size + _increment);
+		return _array[i];
+	}
+
+	inline void push_back(const C &c)
+	{
+		if (_index == _size) {
+			reallocate(_size + INCREMENT);
 		}
-		_array[_index++] = c;
+		_array[_index] = c;
+		++_index;
 	}
 
 private:
-	void reallocate(unsigned size)
+	void reallocate(const unsigned size)
 	{
 		_array = (C*) realloc(_array, (size) * sizeof(C));
 		_size = size;
@@ -74,8 +76,111 @@ private:
 private:
 	C        *_array;
 	unsigned  _size;
-	unsigned  _increment;
 	unsigned  _index;
+};
+
+
+/* un truc utile pour Vector2 et Vector3
+ */
+enum {
+	VectorImplIndex = 0,
+	VectorImplSize
+};
+
+/*****************************************************************************
+ * version avec classe Impl
+ */
+
+template <class C>
+class Vector2Impl
+{
+public:
+	static Vector2Impl *allocate(unsigned size)
+	{
+		Vector2Impl *p = (Vector2Impl*) malloc((size * sizeof(C)) + sizeof(Vector2Impl));
+		p->size = size;
+		p->index = 0;
+		return p;
+	}
+
+	C *buffer()
+	{
+		return (C*)(this + 1);
+	}
+
+	static Vector2Impl *reallocate(Vector2Impl *p, const unsigned size)
+	{
+		p = (Vector2Impl *)realloc(p, (size) * sizeof(C) + sizeof(Vector2Impl));
+		p->size = size;
+		return p;
+	}
+
+public:
+	unsigned size;
+	unsigned index;
+};
+
+template <class C, int SIZE = 1000, int INCREMENT = 1000>
+class Vector2
+{
+public:
+	Vector2()
+	{
+		_v = 0;
+	}
+
+	~Vector2()
+	{
+		clear();
+	}
+
+	void clear()
+	{
+		if(_v != 0) {
+			free(_v);
+			_v = 0;
+		}
+	}
+
+	unsigned size() const
+	{
+		return _v?_v->index:0;
+	}
+
+	void reserve(const unsigned size)
+	{
+		_v = Vector2Impl<C>::allocate(size);
+		_v->index = 0;
+	}
+
+	inline bool is_null()
+	{
+		return (_v == 0);
+	}
+
+	inline C &at(const int i)
+	{
+		return _v->buffer()[i];
+	}
+
+	inline C const& at(const int i) const
+	{
+		return _v->buffer()[i];
+	}
+
+	void push_back(const C &c)
+	{
+		if (_v == 0) {
+			_v = Vector2Impl<C>::allocate(SIZE);
+		} else if(_v->size ==_v->index) {
+			_v = Vector2Impl<C>::reallocate(_v, _v->size + INCREMENT);
+		}
+		_v->buffer()[_v->index] = c;
+		++(_v->index);
+	}
+
+private:
+	Vector2Impl<C> *_v;
 };
 
 #endif // OWN_VECTOR_H
