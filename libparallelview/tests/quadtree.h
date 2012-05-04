@@ -12,13 +12,6 @@
 
 #include "vector.h"
 
-typedef uint32_t offset;
-
-struct entry {
-	offset y1, y2;
-	uint32_t idx;
-};
-
 template <class C>
 class PVconcurrentVector : public tbb::concurrent_vector<C>
 {
@@ -29,12 +22,13 @@ public:
 	}
 };
 
+template <class Data>
 class PVQuadTree
 {
 #ifdef USE_CONC_VEC
 	typedef PVconcurrentVector<entry> list_rows_t;
 #else
-	typedef Vector<entry> list_rows_t;
+	typedef Data list_rows_t;
 #endif
 
 public:
@@ -50,7 +44,6 @@ public:
 		_y2_mid_value = (_y2_min_value + _y2_max_value) / 2;
 		_datas.reserve(MAX_SIZE + 1);
 		_nodes[0] = _nodes[1] = _nodes[2] = _nodes[3] = 0;
-		_first.idx = 0;
 	}
 
 	PVQuadTree(uint32_t y1_mid_value, uint32_t y2_mid_value, int max_level, int cur_level) :
@@ -61,7 +54,6 @@ public:
 	{
 		_datas.reserve(MAX_SIZE + 1);
 		_nodes[0] = _nodes[1] = _nodes[2] = _nodes[3] = 0;
-		_first.idx = 0;
 	}
 
 	~PVQuadTree() {
@@ -74,15 +66,11 @@ public:
 		}
 	}
 
-	void insert(entry &e) {
-		if (e.idx >= _first.idx) {
-			_first = e;
-		}
-
+	void insert(const entry &e) {
 		// searching for the right child
 		PVQuadTree *qt = this;
 		while (qt->_datas.is_null()) {
-			qt = qt->_nodes[qt->compute_idx(e)];
+			qt = qt->_nodes[qt->compute_index(e)];
 		}
 
 		// insertion
@@ -91,6 +79,18 @@ public:
 		// does the current node must be splitted?
 		if((qt->_datas.size() >= MAX_SIZE) && (qt->_cur_level < qt->_max_level)) {
 			qt->create_next_level();
+		}
+	}
+
+	void insert_(entry &e)
+	{
+		if(_datas.is_null()) {
+			_nodes[compute_index(e)]->insert(e);
+		} else {
+			_datas.push_back(e);
+			if((_datas.size() >= MAX_SIZE) && (_cur_level < _max_level)) {
+				create_next_level();
+			}
 		}
 	}
 
@@ -140,45 +140,14 @@ public:
 		}
 	}
 
-	entry get_first()
-	{
-		return _first;
-	}
-
 private:
-	int compute_idx(entry &e)
+	int compute_index(const entry &e) const
 	{
 		return ((e.y2 > _y2_mid_value) << 1) | (e.y1 > _y1_mid_value);
 	}
 
 	void create_next_level()
 	{
-#ifdef AA
-		// les calculs ci-dessous font perdre 60-70 ms sur 10.000.000 insertions
-		unsigned y1d = _y1_mid_value >> _cur_level;
-		unsigned y2d = _y2_mid_value >> _cur_level;
-		unsigned y1_1 = _y1_mid_value + y1d;
-		unsigned y2_1 = _y2_mid_value + y2d;
-		unsigned y1_0 = _y1_mid_value - y1d;
-		unsigned y2_0 = _y2_mid_value - y2d;
-
-
-		_nodes[NE] = new PVQuadTree(y1_1,
-		                            y2_1,
-		                            _max_level, _cur_level + 1);
-
-		_nodes[SE] = new PVQuadTree(y1_1,
-		                            y2_0,
-		                            _max_level, _cur_level + 1);
-
-		_nodes[SW] = new PVQuadTree(y1_0,
-		                            y2_0,
-		                            _max_level, _cur_level + 1);
-
-		_nodes[NW] = new PVQuadTree(y1_0,
-		                            y2_1,
-		                            _max_level, _cur_level + 1);
-#else
 		_nodes[NE] = new PVQuadTree(_y1_mid_value, _y1_max_value,
 		                            _y2_mid_value, _y2_max_value,
 		                            _max_level, _cur_level + 1);
@@ -194,27 +163,25 @@ private:
 		_nodes[NW] = new PVQuadTree(_y1_min_value, _y1_mid_value,
 		                            _y2_mid_value, _y2_max_value,
 		                            _max_level, _cur_level + 1);
-#endif
 
 #ifdef USE_CONC_VEC
 #pragma omp parallel for
 		for(unsigned i = 0; i < _datas.size(); ++i) {
 			entry &e = _datas[i];
-			_nodes[compute_idx(e)]->_datas.push_back(e);
+			_nodes[compute_index(e)]->_datas.push_back(e);
 		}
 #else
 		for(unsigned i = 0; i < _datas.size(); ++i) {
 			entry &e = _datas.at(i);
-			_nodes[compute_idx(e)]->_datas.push_back(e);
+			_nodes[compute_index(e)]->_datas.push_back(e);
 		}
 #endif
 		_datas.clear();
 	}
 
-private:
+public:
 	list_rows_t  _datas;
 	PVQuadTree  *_nodes[4];
-	entry        _first;
 
 	uint32_t     _y1_min_value;
 	uint32_t     _y1_max_value;
