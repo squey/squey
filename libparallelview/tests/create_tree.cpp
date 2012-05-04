@@ -129,7 +129,6 @@ void test(
 	}
 	std::cout << "---" << std::endl;
 
-	uint32_t* ref_first_elts = new uint32_t[NBUCKETS];
 	{
 		MEM_START(serial);
 		PVParallelView::PVZoneTree<std::vector<PVRow, tbb::scalable_allocator<PVRow> > >* ztree = new PVParallelView::PVZoneTree<std::vector<PVRow, tbb::scalable_allocator<PVRow> > >(0, 1);
@@ -141,9 +140,6 @@ void test(
 
 		BENCH_END_TRANSFORM(sse, "serial sse + std::vector", nrows*2, sizeof(float));
 		MEM_END(serial, "serial sse + std::vector");
-
-		// Save reference first elts buffer
-		memcpy(ref_first_elts, ztree->get_first_elts(), sizeof(uint32_t)*NBUCKETS);
 
 		{
 		MEM_START(serial);
@@ -275,6 +271,9 @@ void test(
 
 		Picviz::PVSelection sel;
 		sel.select_odd();
+		//ztree->browse_tree_bci_by_sel(colors, bci_codes, sel);
+
+
 		PVParallelView::PVZoneTreeNoAlloc* zsel = ztree->filter_by_sel<false>(sel);
 		delete zsel;
 		//zsel = ztree->filter_by_sel<false>(sel);
@@ -285,8 +284,6 @@ void test(
 		delete ztree;
 	}
 	std::cout << "---" << std::endl;
-
-	delete [] ref_first_elts;
 
 	/*{
 		MEM_START(serial);
