@@ -18,6 +18,9 @@ enable_testing()
 add_executable(create_tree create_tree.cpp)
 target_link_libraries(create_tree ${LINK_LIBRARIES})
 
+add_executable(sse_bci sse_bci.cpp)
+target_link_libraries(sse_bci ${LINK_LIBRARIES})
+
 add_executable(create_quadtree create_quadtree.cpp)
 target_link_libraries(create_quadtree ${LINK_LIBRARIES})
 
@@ -34,6 +37,10 @@ target_link_libraries(show_codes_cuda ${LINK_LIBRARIES} ${CUDA_LIBRARIES})
 cuda_compile(CUDA_KERNELS bci_cuda_z24.cu)
 add_executable(show_codes_cuda24 show_codes_cuda.cpp ${CUDA_KERNELS})
 target_link_libraries(show_codes_cuda24 ${LINK_LIBRARIES} ${CUDA_LIBRARIES})
+
+cuda_compile(CUDA_KERNELS bci_cuda_z24_atomic.cu)
+add_executable(show_codes_cuda24_atomic show_codes_cuda.cpp ${CUDA_KERNELS})
+target_link_libraries(show_codes_cuda24_atomic ${LINK_LIBRARIES} ${CUDA_LIBRARIES})
 
 #cuda_compile(CUDA_KERNELS bci_cuda_z24_unroll_x.cu)
 #add_executable(show_codes_cuda24_unroll_x show_codes_cuda.cpp ${CUDA_KERNELS})

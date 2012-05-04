@@ -3,6 +3,7 @@
 #include <pvparallelview/PVZoneTree.h>
 #include <pvparallelview/PVTools.h>
 #include <pvparallelview/PVHSVColor.h>
+#include <pvparallelview/simple_lines_int_view.h>
 
 #include <iostream>
 #include <cstdlib>
@@ -10,6 +11,8 @@
 
 #include <QApplication>
 #include <QVector>
+#include <QMainWindow>
+#include <QString>
 
 #include <tbb/scalable_allocator.h>
 #include <tbb/concurrent_vector.h>
@@ -17,6 +20,36 @@
 #include <boost/random/normal_distribution.hpp>
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/variate_generator.hpp>
+
+void show_codes(QString const& title, PVParallelView::PVBCICode* codes, size_t n)
+{
+	QMainWindow* mw = new QMainWindow();
+	mw->setWindowTitle(title);
+	SLIntView* v = new SLIntView(mw);
+	v->set_size(1024, 1024);
+	v->set_ortho(1, 1024);
+
+	std::vector<int32_t>& pts = *(new std::vector<int32_t>);
+	std::vector<PVRGB>& colors = *(new std::vector<PVRGB>);
+	pts.reserve(n*4);
+	colors.reserve(n);
+	PVRGB rgb;
+	rgb.int_v = 0;
+	for (size_t i = 0; i < n; i++) {
+		PVParallelView::PVBCICode c = codes[i];
+		pts.push_back(0); pts.push_back(c.s.l);
+		pts.push_back(1); pts.push_back(c.s.r);
+
+		PVParallelView::PVHSVColor hsv(c.s.color);
+		hsv.to_rgb((uint8_t*) &rgb);
+		colors.push_back(rgb);
+	}
+	v->set_points(pts);
+	v->set_colors(colors);
+	mw->setCentralWidget(v);
+	mw->resize(v->sizeHint());
+	mw->show();
+}
 
 void init_rand_plotted(Picviz::PVPlotted::plotted_table_t& p, PVRow nrows, PVCol ncols)
 {
@@ -46,7 +79,10 @@ void init_normal_plotted(Picviz::PVPlotted::plotted_table_t& p, PVRow nrows, PVC
 		p.push_back(normal_dist(rand_gen));
 	}
 	for (PVRow i = 0; i < nrows*(ncols-1); i++) {
-		p.push_back(0.5);
+		if (i &1)
+			p.push_back(0.25);
+		else
+			p.push_back(0.75);
 	}
 }
 
@@ -55,7 +91,14 @@ void usage(const char* path)
 	std::cerr << "Usage: " << path << " [plotted_file] [nrows] [ncols]" << std::endl;
 }
 
-void test(Picviz::PVPlotted::plotted_table_t& plotted, PVRow nrows, PVCol ncols, PVParallelView::PVHSVColor* colors, PVParallelView::PVBCICode* bci_codes)
+void test(
+	Picviz::PVPlotted::plotted_table_t& plotted,
+	PVRow nrows,
+	PVCol ncols,
+	PVParallelView::PVHSVColor* colors,
+	PVParallelView::PVBCICode* bci_codes,
+	PVParallelView::PVBCICode* bci_codes_ref
+)
 {
 	plotted_int_t norm_plotted;
 	//PVLOG_INFO("Normalizing to 32-bit unsigned integers...\n");
@@ -92,6 +135,7 @@ void test(Picviz::PVPlotted::plotted_table_t& plotted, PVRow nrows, PVCol ncols,
 
 		BENCH_START(sse);
 		ztree->process_sse();
+		//ztree->display("serial sse + std::vector", plotted);
 
 		BENCH_END_TRANSFORM(sse, "serial sse + std::vector", nrows*2, sizeof(float));
 		MEM_END(serial, "serial sse + std::vector");
@@ -105,6 +149,7 @@ void test(Picviz::PVPlotted::plotted_table_t& plotted, PVRow nrows, PVCol ncols,
 		MEM_END(serial, "serial sse + std::vector colors");
 		}
 
+		write(4, ztree->get_first_elts(), sizeof(PVRow)*NBUCKETS);
 		//ztree->display("zone", plotted);
 		delete ztree;
 	}
@@ -128,6 +173,7 @@ void test(Picviz::PVPlotted::plotted_table_t& plotted, PVRow nrows, PVCol ncols,
 		picviz_verify(sizeof(PVParallelView::PVHSVColor) == 1);
 		BENCH_END(sse, "serial sse + noalloc colors", nb_codes, sizeof(PVRow), nb_codes, sizeof(PVParallelView::PVBCICode));
 		MEM_END(serial, "serial sse + noalloc colors");
+		//show_codes("serial", bci_codes, nb_codes);
 		}
 
 		//ztree->display("zone-noalloc", plotted);
@@ -173,6 +219,29 @@ void test(Picviz::PVPlotted::plotted_table_t& plotted, PVRow nrows, PVCol ncols,
 		MEM_END(serial, "omp sse + noalloc");
 		//ztree->display("zone-omp", plotted);
 
+		size_t nb_codes_ref;
+		{
+		MEM_START(serial);
+		BENCH_START(sse);
+		nb_codes_ref = ztree->browse_tree_bci_no_sse(colors, bci_codes_ref);
+		BENCH_END(sse, "omp sse + noalloc colors no sse", nb_codes_ref, sizeof(PVRow), nb_codes_ref, sizeof(PVParallelView::PVBCICode));
+		MEM_END(serial, "omp sse + noalloc colors no sse");
+		show_codes("serial", bci_codes_ref, nb_codes_ref);
+		}
+
+		{
+		MEM_START(serial);
+		BENCH_START(sse);
+		size_t nb_codes = ztree->browse_tree_bci_old(colors, bci_codes);
+		picviz_verify(sizeof(PVParallelView::PVHSVColor) == 1);
+		BENCH_END(sse, "omp sse + noalloc colors old", nb_codes, sizeof(PVRow), nb_codes, sizeof(PVParallelView::PVBCICode));
+		MEM_END(serial, "omp sse + noalloc colors old");
+		CHECK(nb_codes_ref == nb_codes);
+		CHECK(memcmp((const void *) bci_codes, (const void *) bci_codes_ref, nb_codes*sizeof(PVParallelView::PVBCICode)) == 0);
+		PVLOG_INFO("nb_codes_ref=%d, nb_codes=%d\n",nb_codes_ref, nb_codes);
+		show_codes("old", bci_codes, nb_codes);
+		}
+
 		{
 		MEM_START(serial);
 		BENCH_START(sse);
@@ -180,7 +249,14 @@ void test(Picviz::PVPlotted::plotted_table_t& plotted, PVRow nrows, PVCol ncols,
 		picviz_verify(sizeof(PVParallelView::PVHSVColor) == 1);
 		BENCH_END(sse, "omp sse + noalloc colors", nb_codes, sizeof(PVRow), nb_codes, sizeof(PVParallelView::PVBCICode));
 		MEM_END(serial, "omp sse + noalloc colors");
+		CHECK(nb_codes_ref == nb_codes);
+		CHECK(memcmp((const void *) bci_codes, (const void *) bci_codes_ref, nb_codes*sizeof(PVParallelView::PVBCICode)) == 0);
+		show_codes("new", bci_codes, nb_codes);
 		}
+
+		write(5, ztree->get_first_elts(), sizeof(PVRow)*NBUCKETS);
+
+		//PVLOG_INFO("Parallel success: %d\n", nb_codes_ref == nb_codes && !memcmp ((const void *) bci_codes, (const void *) bci_codes_ref, nb_codes_ref));
 
 		delete ztree;
 	}
@@ -202,9 +278,9 @@ void test(Picviz::PVPlotted::plotted_table_t& plotted, PVRow nrows, PVCol ncols,
 	}
 	std::cout << "---" << std::endl;*/
 
-	{
+	/*{
 		MEM_START(serial);
-		typedef tbb::concurrent_vector< /*std::pair<unsigned int ,*/ PVRow/*>*/ > cv_t;
+		typedef tbb::concurrent_vector< PVRow > cv_t;
 		typedef PVParallelView::PVZoneTree<cv_t> tbb_concurrent_vector_tree;
 		tbb_concurrent_vector_tree* ztree = new tbb_concurrent_vector_tree(0, 1);
 		ztree->set_trans_plotted(norm_plotted, nrows, ncols);
@@ -227,7 +303,7 @@ void test(Picviz::PVPlotted::plotted_table_t& plotted, PVRow nrows, PVCol ncols,
 
 		delete ztree;
 	}
-	std::cout << "---" << std::endl;
+	std::cout << "---" << std::endl;*/
 
 
 	/*{
@@ -295,18 +371,21 @@ int main(int argc, char** argv)
 		ncols = atol(argv[3]);
 
 		PVParallelView::PVHSVColor* colors = PVParallelView::PVHSVColor::init_colors(nrows);
+		PVParallelView::PVBCICode* bci_codes_ref = PVParallelView::PVBCICode::allocate_codes(NBUCKETS);
 		PVParallelView::PVBCICode* bci_codes = PVParallelView::PVBCICode::allocate_codes(NBUCKETS);
 
 		std::cout << "== RANDOM DISTRIBUTED PLOTTED ==" << std::endl;
 		init_rand_plotted(plotted, nrows, ncols);
-		test(plotted, nrows, ncols, colors, bci_codes);
+		test(plotted, nrows, ncols, colors, bci_codes, bci_codes_ref);
 
 		std::cout << "== NORMAL DISTRIBUTED PLOTTED ==" << std::endl;
 		init_normal_plotted(plotted, nrows, ncols);
-		test(plotted, nrows, ncols, colors, bci_codes);
+		test(plotted, nrows, ncols, colors, bci_codes, bci_codes_ref);
 
 		delete [] colors;
+		PVParallelView::PVBCICode::free_codes(bci_codes_ref);
 		PVParallelView::PVBCICode::free_codes(bci_codes);
+
 	}
 	else
 	{
@@ -323,7 +402,7 @@ int main(int argc, char** argv)
 	PVParallelView::PVTools::norm_int_plotted(plotted, norm_plotted, ncols);
 	//PVLOG_INFO("Done !\n");
 
-	//app.exec();
+	app.exec();
 
 	return 0;
 	//return app.exec();
