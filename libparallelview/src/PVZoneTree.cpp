@@ -186,7 +186,7 @@ size_t PVParallelView::PVZoneTreeBase::browse_tree_bci_old(PVHSVColor* colors, P
 				//  +------------+------------++------------+------------+
 
 				if ((idx_code & 1) == 0) {
-					_mm_store_si128((__m128i*)&codes[idx_code], sse_bci_codes);
+					_mm_stream_si128((__m128i*)&codes[idx_code], sse_bci_codes);
 				}
 				else {
 					_mm_storeu_si128((__m128i*)&codes[idx_code], sse_bci_codes);
@@ -213,11 +213,96 @@ size_t PVParallelView::PVZoneTreeBase::browse_tree_bci_old(PVHSVColor* colors, P
 size_t PVParallelView::PVZoneTreeBase::browse_tree_bci(PVHSVColor* colors, PVBCICode* codes)
 {
 	size_t idx_code = 0;
+
+//#pragma omp parallel for reduction(+:idx_code) num_threads(4)
+	for (uint64_t b = 0; b < NBUCKETS; b+=4) {
+
+		__m128i sse_ff = _mm_set1_epi32(0xFFFFFFFF);
+		__m128i sse_index = _mm_load_si128((const __m128i*) &_first_elts[b]);
+		__m128i see_cmp = _mm_cmpeq_epi32(sse_ff, sse_index);
+
+		if (_mm_testz_si128(see_cmp, sse_ff)) {
+
+				__m128i sse_lr;
+				sse_lr = _mm_insert_epi32(sse_lr, b+0, 0);
+				sse_lr = _mm_insert_epi32(sse_lr, b+1, 1);
+				sse_lr = _mm_insert_epi32(sse_lr, b+2, 2);
+				sse_lr = _mm_insert_epi32(sse_lr, b+3, 3);
+
+				//  +------------+------------++------------+------------+
+				//  |        lr3 |        lr2 ||        lr1 |        lr0 | (sse_lr)
+				//  +------------+------------++------------+------------+
+
+				__m128i sse_color;
+				sse_color = _mm_insert_epi32(sse_color, colors[_mm_extract_epi32(sse_index, 0)].h(), 0);
+				sse_color = _mm_insert_epi32(sse_color, colors[_mm_extract_epi32(sse_index, 1)].h(), 1);
+				sse_color = _mm_insert_epi32(sse_color, colors[_mm_extract_epi32(sse_index, 2)].h(), 2);
+				sse_color = _mm_insert_epi32(sse_color, colors[_mm_extract_epi32(sse_index, 3)].h(), 3);
+				sse_color = _mm_slli_epi32(sse_color, NBITS_INDEX*2);
+
+				//  +------------+------------++------------+------------+
+				//  |color3 << 20|color2 << 20||color1 << 20|color0 << 20| (sse_color)
+				//  +------------+------------++------------+------------+
+
+				__m128i sse_lrcolor;
+				sse_lrcolor = _mm_or_si128(sse_color, sse_lr);
+
+				//  +------------+------------++------------+------------+
+				//  |   lrcolor3 |   lrcolor2 ||   lrcolor1 |   lrcolor0 | (sse_lrcolor)
+				//  +------------+------------++------------+------------+
+
+				__m128i sse_bcicodes0_1 = _mm_unpacklo_epi32(sse_index, sse_lrcolor);
+				__m128i sse_bcicodes2_3 = _mm_unpackhi_epi32(sse_index, sse_lrcolor);
+
+				//  +------------+------------++------------+------------+
+				//  |   lrcolor1 | index (r1) ||   lrcolor0 | index (r0) | (sse_bcicodes0_1)
+				//  +------------+------------++------------+------------+
+				//  +------------+------------++------------+------------+
+				//  |   lrcolor3 | index (r3) ||   lrcolor2 | index (r2) | (sse_bcicodes2_3)
+				//  +------------+------------++------------+------------+
+
+
+				if ((idx_code & 1) == 0) {
+					_mm_stream_si128((__m128i*)&codes[idx_code+0], sse_bcicodes0_1);
+					_mm_stream_si128((__m128i*)&codes[idx_code+2], sse_bcicodes2_3);
+				}
+				else {
+					_mm_storeu_si128((__m128i*)&codes[idx_code+0], sse_bcicodes0_1);
+					_mm_storeu_si128((__m128i*)&codes[idx_code+2], sse_bcicodes2_3);
+				}
+
+				idx_code += 4;
+			}
+		else {
+			for (int i=0; i<4; i++) {
+				uint64_t b0 = b + i;
+				PVRow r = get_first_elt_of_branch(b0);
+				if (branch_valid(b0)){
+					PVBCICode bci;
+					bci.int_v = r | (b0<<32);
+					bci.s.color = colors[r].h();
+					codes[idx_code] = bci;
+					idx_code++;
+				}
+			}
+		}
+	}
+
+	return idx_code;
+}
+
+/*size_t PVParallelView::PVZoneTreeBase::browse_tree_bci(PVHSVColor* colors, PVBCICode* codes)
+{
+	size_t idx_code = 0;
 	int sse_ndx = 0;
 
 	__m128i sse_lr;
 	__m128i sse_color;
 	__m128i sse_index;
+
+	uint32_t tmp_index[4] = {0, 0, 0, 0};
+	uint32_t tmp_lr[4]    = {0, 0, 0, 0};
+	uint32_t tmp_color[4] = {0, 0, 0, 0};
 
 	for (uint64_t b = 0; b < NBUCKETS; b++) {
 
@@ -226,20 +311,29 @@ size_t PVParallelView::PVZoneTreeBase::browse_tree_bci(PVHSVColor* colors, PVBCI
 			// Initialize SSE variables
 			PVRow index = get_first_elt_of_branch(b);
 
-			sse_index = _mm_shuffle_epi32(sse_index, _MM_SHUFFLE(2,1,0,0));
-			sse_index = _mm_insert_epi32(sse_index, index, 0);
+			tmp_index[sse_ndx] = index;
+			tmp_lr[sse_ndx] = b;
+			tmp_color[sse_ndx] = colors[index].h();
 
-			sse_lr = _mm_shuffle_epi32(sse_lr, _MM_SHUFFLE(2,1,0,0));
-			sse_lr = _mm_insert_epi32(sse_lr, b, 0);
+			//sse_index = _mm_shuffle_epi32(sse_index, _MM_SHUFFLE(2,1,0,0));
+			//sse_index = _mm_insert_epi32(sse_index, index, 0);
 
-			sse_color = _mm_shuffle_epi32(sse_color, _MM_SHUFFLE(2,1,0,0));
-			sse_color = _mm_insert_epi32(sse_color, colors[index].h(), 0);
+			//sse_lr = _mm_shuffle_epi32(sse_lr, _MM_SHUFFLE(2,1,0,0));
+			//sse_lr = _mm_insert_epi32(sse_lr, b, 0);
+
+			//sse_color = _mm_shuffle_epi32(sse_color, _MM_SHUFFLE(2,1,0,0));
+			//sse_color = _mm_insert_epi32(sse_color, colors[index].h(), 0);
 
 			sse_ndx++;
 
 			// Execute SSE instructions
 			if (sse_ndx == 4)
 			{
+
+				sse_index = _mm_load_si128((const __m128i*) tmp_index); // 16 bits aligned?
+				sse_lr    = _mm_load_si128((const __m128i*) tmp_lr);
+				sse_color = _mm_load_si128((const __m128i*) tmp_color);
+
 				//  +------------+------------++------------+------------+
 				//  | index (r3) | index (r2) || index (r1) | index (r0) | (sse_index)
 				//  +------------+------------++------------+------------+
@@ -265,8 +359,8 @@ size_t PVParallelView::PVZoneTreeBase::browse_tree_bci(PVHSVColor* colors, PVBCI
 				//  |   lrcolor3 | index (r3) ||   lrcolor2 | index (r2) | (sse_bcicodes2_3)
 				//  +------------+------------++------------+------------+
 
-				_mm_store_si128((__m128i*)&codes[idx_code+0], sse_bcicodes0_1);
-				_mm_store_si128((__m128i*)&codes[idx_code+2], sse_bcicodes2_3);
+				_mm_stream_si128((__m128i*)&codes[idx_code+0], sse_bcicodes0_1);
+				_mm_stream_si128((__m128i*)&codes[idx_code+2], sse_bcicodes2_3);
 
 				idx_code += 4;
 				sse_ndx = 0;
@@ -292,7 +386,7 @@ size_t PVParallelView::PVZoneTreeBase::browse_tree_bci(PVHSVColor* colors, PVBCI
 	}
 
 	return idx_code;
-}
+}*/
 
 void PVParallelView::PVZoneTreeNoAlloc::process_sse()
 {
