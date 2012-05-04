@@ -182,8 +182,6 @@ private:
 	}
 
 public:
-	PVQuadTreeTmpl<Data, DEPTH-1> _nodes[4];
-
 	uint32_t     _y1_min_value;
 	uint32_t     _y1_max_value;
 	uint32_t     _y2_min_value;
@@ -191,6 +189,8 @@ public:
 
 	uint32_t     _y1_mid_value;
 	uint32_t     _y2_mid_value;
+
+	PVQuadTreeTmpl<Data, DEPTH-1> _nodes[4];
 };
 
 

@@ -3,6 +3,8 @@
 
 #include <stdlib.h>
 
+#include "quadtree.h"
+
 template <class Data>
 class PVQuadTreeFlatBase
 {
@@ -65,6 +67,34 @@ public:
 		_datas.clear();
 	}
 
+	bool compare(PVQuadTree<Data> &qt, PVQuadTreeFlatBase* trees)
+	{
+		if(_datas.is_null() && qt._datas.is_null()) {
+			// *this sont des noeuds, on va voir les
+			// noeuds fils
+			unsigned p = children();
+			return trees[p].compare(*qt._nodes[0], trees)
+				&& trees[p+1].compare(*qt._nodes[1], trees)
+				&& trees[p+2].compare(*qt._nodes[2], trees)
+				&& trees[p+3].compare(*qt._nodes[3], trees);
+		} else if(_datas.is_null()) {
+			// *this et qt ne sont pas de même type
+			return false;
+		} else if(_datas.size() != qt._datas.size()) {
+			// *this et qt sont de même type mais
+			// pas avec le même nombre d'éléments
+			return false;
+		} else {
+			// même type et même nombre d'éléments
+			for(unsigned i = 0; i < _datas.size(); ++i) {
+				if(are_diff(_datas.at(i), qt._datas.at(i))) {
+					return false;
+				}
+			}
+			return true;
+		}
+	}
+
 public:
 	Data     _datas;
 	unsigned _nodes[4];
@@ -87,10 +117,8 @@ class PVQuadTreeFlat
 public:
 	PVQuadTreeFlat(uint32_t y1_min_value, uint32_t y1_max_value, uint32_t y2_min_value, uint32_t y2_max_value, int max_level)
 	{
-		unsigned count = 1 << (max_level + 1);
-		unsigned dsize = sizeof(PVQuadTreeFlatBase<Data>);
-		_trees = (PVQuadTreeFlatBase<Data>*)calloc(count, dsize);
-		//_trees = new PVQuadTreeFlatBase<Data> [count];
+		unsigned count = 1 << (max_level * 2);
+		_trees = (PVQuadTreeFlatBase<Data>*)malloc(count * sizeof(PVQuadTreeFlatBase<Data>));
 		_trees[0].set(y1_min_value, y1_max_value, y2_min_value, y2_max_value, 0, max_level, 0);
 	}
 
@@ -108,6 +136,11 @@ public:
 		if((qt->_datas.size() >= MAX_SIZE) && (qt->_cur_level < qt->_max_level)) {
 			qt ->create_next_level(&_trees[qt->children()]);
 		}
+	}
+
+	bool compare(PVQuadTree<Data> &qt)
+	{
+		return _trees[0].compare(qt, _trees);
 	}
 
 private:

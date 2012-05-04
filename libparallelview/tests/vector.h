@@ -144,7 +144,7 @@ public:
 
 	unsigned size() const
 	{
-		return _v?_v->index:0;
+		return _v->index;
 	}
 
 	void reserve(const unsigned size)

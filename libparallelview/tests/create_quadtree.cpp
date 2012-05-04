@@ -1,6 +1,8 @@
 
 #include <iostream>
 #include <vector>
+#include <algorithm>
+
 #include <stdint.h>
 #include <limits.h>
 #include <stdlib.h>
@@ -58,29 +60,32 @@ void printb (uint32_t v)
 
 void usage()
 {
-	std::cout << "usage: test-quadtree tree-level test-num" << std::endl;
+	std::cout << "usage: test-quadtree tree-level test-num1 test-num2..." << std::endl;
 	std::cout << std::endl;
-	std::cout << "test 0: 	PVQuadTree with Vector1" << std::endl;
-	std::cout << "test 1: 	PVQuadTree with Vector2" << std::endl;
-	std::cout << "test 2: 	PVQuadTreeTmpl with Vector1" << std::endl;
-	std::cout << "test 3: 	PVQuadTreeTmpl with Vector2" << std::endl;
-	// std::cout << "test 4: 	PVQuadTreeFlat with Vector1" << std::endl;
-	// std::cout << "test 5: 	PVQuadTreeFlat with Vector2" << std::endl;
+	std::cout << "test-num can be:" << std::endl;
+	std::cout << "  0: PVQuadTree with Vector1" << std::endl;
+	std::cout << "  1: PVQuadTree with Vector2" << std::endl;
+	std::cout << "  2: PVQuadTreeTmpl with Vector1" << std::endl;
+	std::cout << "  3: PVQuadTreeTmpl with Vector2" << std::endl;
+	std::cout << "  4: PVQuadTreeFlat with Vector1" << std::endl;
+	std::cout << "  5: PVQuadTreeFlat with Vector2" << std::endl;
 }
+
+#define TESTS_CHECK(vec, value) (std::find(vec.begin(), vec.end(), value) != vec.end())
 
 int main(int argc, char **argv)
 {
-	if (argc != 3) {
+	if (argc < 3) {
 		usage();
 		return 1;
 	}
 
 	int depth = atoi(argv[1]);
-	int test = atoi(argv[2]);
 
-	if(test > 3) {
-		usage();
-		return 2;
+	std::vector<int> tests;
+
+	for (int i = 2; i < argc; ++i) {
+		tests.push_back(atoi(argv[i]));
 	}
 
 	boost::mt19937 rnd(0);
@@ -93,32 +98,35 @@ int main(int argc, char **argv)
 		entries[i].idx = i;
 	}
 
-	if (test == 0) {
-		PVQuadTree<Vector1<entry> > sqt1(0, MAX_VALUE, 0, MAX_VALUE, depth);
-		std::cout << "sizeof(sqt1): " << sizeof(sqt1) << std::endl;
+	PVQuadTree<Vector1<entry> > *sqt1 = 0;
+	if (TESTS_CHECK(tests, 0)) {
+		sqt1 = new PVQuadTree<Vector1<entry> >(0, MAX_VALUE, 0, MAX_VALUE, depth);
+		std::cout << "sizeof(sqt1): " << sizeof(*sqt1) << std::endl;
 		MEM_START(usage);
 		BENCH_START(time);
 		for(int i = 0; i < COUNT; ++i) {
-			sqt1.insert(entries[i]);
+			sqt1->insert(entries[i]);
 		}
 		BENCH_END(time, "PVQuadTree Vector1", COUNT, sizeof(entry), 1, 1);
 		MEM_END(usage, "PVQuadTree Vector1");
 	}
 
-	if (test == 1) {
-		PVQuadTree<Vector2<entry> > sqt2(0, MAX_VALUE, 0, MAX_VALUE, depth);
-		std::cout << "sizeof(sqt2): " << sizeof(sqt2) << std::endl;
+	PVQuadTree<Vector2<entry> > *sqt2 = 0;
+	if (TESTS_CHECK(tests, 1)) {
+		sqt2 = new PVQuadTree<Vector2<entry> >(0, MAX_VALUE, 0, MAX_VALUE, depth);
+		std::cout << "sizeof(sqt2): " << sizeof(*sqt2) << std::endl;
 		MEM_START(usage);
 		BENCH_START(time);
 		for(int i = 0; i < COUNT; ++i) {
-			sqt2.insert(entries[i]);
+			sqt2->insert(entries[i]);
 		}
 		BENCH_END(time, "PVQuadTree Vector2", COUNT, sizeof(entry), 1, 1);
 		MEM_END(usage, "PVQuadTree Vector2");
 	}
 
-	if (test == 2) {
-		PVQuadTreeTmpl<Vector1<entry>,8> *tqt1 = new PVQuadTreeTmpl<Vector1<entry>,8>(0, MAX_VALUE, 0, MAX_VALUE, 8);
+	PVQuadTreeTmpl<Vector1<entry>,8> *tqt1 = 0;
+	if (TESTS_CHECK(tests, 2)) {
+		tqt1 = new PVQuadTreeTmpl<Vector1<entry>,8>(0, MAX_VALUE, 0, MAX_VALUE, 8);
 		(void) depth;
 		std::cout << "sizeof(tqt1): " << sizeof(*tqt1) << std::endl;
 		MEM_START(usage);
@@ -128,11 +136,11 @@ int main(int argc, char **argv)
 		}
 		BENCH_END(time, "PVQuadTreeTmpl Vector1", COUNT, sizeof(entry), 1, 1);
 		MEM_END(usage, "PVQuadTreeTmpl Vector1");
-		delete tqt1;
 	}
 
-	if (test == 3)  {
-		PVQuadTreeTmpl<Vector2<entry>,8> *tqt2 = new PVQuadTreeTmpl<Vector2<entry>,8>(0, MAX_VALUE, 0, MAX_VALUE, 8);
+	PVQuadTreeTmpl<Vector2<entry>,8> *tqt2 = 0;
+	if (TESTS_CHECK(tests, 3))  {
+		tqt2 = new PVQuadTreeTmpl<Vector2<entry>,8>(0, MAX_VALUE, 0, MAX_VALUE, 8);
 		(void) depth;
 		std::cout << "sizeof(tqt2): " << sizeof(*tqt2) << std::endl;
 		MEM_START(usage);
@@ -142,11 +150,11 @@ int main(int argc, char **argv)
 		}
 		BENCH_END(time, "PVQuadTreeTmpl Vector2", COUNT, sizeof(entry), 1, 1);
 		MEM_END(usage, "PVQuadTreeTmpl Vector2");
-		delete tqt2;
 	}
 
-	if (test == 4) {
-		PVQuadTreeFlat<Vector1<entry> > *fqt1 = new PVQuadTreeFlat<Vector1<entry> >(0, MAX_VALUE, 0, MAX_VALUE, depth);
+	PVQuadTreeFlat<Vector1<entry> > *fqt1 = 0;
+	if (TESTS_CHECK(tests, 4)) {
+		fqt1 = new PVQuadTreeFlat<Vector1<entry> >(0, MAX_VALUE, 0, MAX_VALUE, depth);
 		std::cout << "sizeof(fqt1): " << sizeof(*fqt1) << std::endl;
 		MEM_START(usage);
 		BENCH_START(time);
@@ -155,11 +163,11 @@ int main(int argc, char **argv)
 		}
 		BENCH_END(time, "PVQuadTreeFlat Vector1", COUNT, sizeof(entry), 1, 1);
 		MEM_END(usage, "PVQuadTreeFlat Vector1");
-		delete fqt1;
 	}
 
-	if (test == 5) {
-		PVQuadTreeFlat<Vector2<entry> > *fqt2 = new PVQuadTreeFlat<Vector2<entry> >(0, MAX_VALUE, 0, MAX_VALUE, depth);
+	PVQuadTreeFlat<Vector2<entry> > *fqt2 = 0;
+	if (TESTS_CHECK(tests, 5)) {
+		fqt2 = new PVQuadTreeFlat<Vector2<entry> >(0, MAX_VALUE, 0, MAX_VALUE, depth);
 		std::cout << "sizeof(fqt2): " << sizeof(*fqt2) << std::endl;
 		MEM_START(usage);
 		BENCH_START(time);
@@ -168,16 +176,49 @@ int main(int argc, char **argv)
 		}
 		BENCH_END(time, "PVQuadTreeFlat Vector2", COUNT, sizeof(entry), 1, 1);
 		MEM_END(usage, "PVQuadTreeFlat Vector2");
-		delete fqt2;
 	}
 
-#if 0
-	if (tqt->compare(sqt)) {
-		std::cout << "trees are equal" << std::endl;
-	} else {
-		std::cout << "trees differs" << std::endl;
+	if (sqt1 && tqt1) {
+		std::cout << "comparing PVQuadTreeTmpl<Vector1> with PVQuadTree<Vector1>" << std::endl;
+		if (tqt1->compare(*sqt1)) {
+			std::cout << "    equal" << std::endl;
+		} else {
+			std::cout << "    not equal" << std::endl;
+		}
 	}
-#endif
+
+	if (sqt1 && fqt1) {
+		std::cout << "comparing PVQuadTreeTmpl<Vector1> with PVQuadTree<Vector1>" << std::endl;
+		if (fqt1->compare(*sqt1)) {
+			std::cout << "    equal" << std::endl;
+		} else {
+			std::cout << "    not equal" << std::endl;
+		}
+	}
+
+	if(sqt1) {
+		delete sqt1;
+	}
+
+	if(sqt2) {
+		delete sqt2;
+	}
+
+	if(tqt1) {
+		delete tqt1;
+	}
+
+	if(tqt2) {
+		delete tqt2;
+	}
+
+	if(fqt1) {
+		delete fqt1;
+	}
+
+	if(fqt2) {
+		delete fqt2;
+	}
 
 	return 0;
 }
