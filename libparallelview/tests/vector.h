@@ -3,8 +3,6 @@
 
 #define MAX_SIZE 10000
 
-#define Vector Vector2
-
 /*****************************************************************************
  * version "classique"
  */
