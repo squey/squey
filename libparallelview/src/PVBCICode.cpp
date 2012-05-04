@@ -20,8 +20,8 @@ void PVParallelView::PVBCICode::init_random_codes(PVBCICode* codes, size_t n)
 	for (size_t i = 0; i < n; i++) {
 		PVBCICode c;
 		c.int_v = 0;
-		//c.s.idx = rand();
-		c.s.idx = n-i;
+		c.s.idx = rand();
+		//c.s.idx = n-i;
 		//c.s.l = ((i/1024)*4)%1024;
 		//c.s.r = i&(MASK_INT_YCOORD);
 		//c.s.l = rand()&(MASK_INT_YCOORD);
