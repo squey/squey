@@ -22,7 +22,6 @@ public:
 		_cur_level = cur_level;
 		_y1_mid_value = (_y1_min_value + _y1_max_value) / 2;
 		_y2_mid_value = (_y2_min_value + _y2_max_value) / 2;
-		_datas = Data();
 		_datas.reserve(MAX_SIZE + 1);
 	}
 
@@ -117,8 +116,8 @@ class PVQuadTreeFlat
 public:
 	PVQuadTreeFlat(uint32_t y1_min_value, uint32_t y1_max_value, uint32_t y2_min_value, uint32_t y2_max_value, int max_level)
 	{
-		unsigned count = 1 << (max_level * 2);
-		_trees = (PVQuadTreeFlatBase<Data>*)malloc(count * sizeof(PVQuadTreeFlatBase<Data>));
+		_count = 1 << (max_level * 2);
+		_trees = (PVQuadTreeFlatBase<Data>*)calloc(_count, sizeof(PVQuadTreeFlatBase<Data>));
 		_trees[0].set(y1_min_value, y1_max_value, y2_min_value, y2_max_value, 0, max_level, 0);
 	}
 
@@ -144,6 +143,7 @@ public:
 	}
 
 private:
+	unsigned                  _count;
 	PVQuadTreeFlatBase<Data> *_trees;
 };
 

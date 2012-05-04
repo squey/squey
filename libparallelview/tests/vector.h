@@ -103,7 +103,7 @@ public:
 		return p;
 	}
 
-	C *buffer()
+	C *buffer() const
 	{
 		return (C*)(this + 1);
 	}
