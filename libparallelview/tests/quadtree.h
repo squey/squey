@@ -82,64 +82,6 @@ public:
 		}
 	}
 
-	void insert_(entry &e)
-	{
-		if(_datas.is_null()) {
-			_nodes[compute_index(e)]->insert(e);
-		} else {
-			_datas.push_back(e);
-			if((_datas.size() >= MAX_SIZE) && (_cur_level < _max_level)) {
-				create_next_level();
-			}
-		}
-	}
-
-	void dump(unsigned indent = 0)
-	{
-		if (_datas.is_null() == false) {
-			for(unsigned i = 0; i < indent; ++i) {
-				std::cout << "  ";
-			}
-			for(unsigned i = 0; i < _datas.size(); ++i) {
-				entry &e = _datas.at(i);
-				std::cout << "(" << e.y1 << ", " << e.y2 << ", " << e.idx << ") ";
-			}
-			std::cout << std::endl;
-		} else {
-			for(unsigned i = 0; i < indent; ++i) {
-				std::cout << "  ";
-			}
-			std::cout << "NE" << std::endl;
-			_nodes[NE]->dump(indent + 2);
-			for(unsigned i = 0; i < indent; ++i) {
-				std::cout << "  ";
-			}
-			std::cout << "SE" << std::endl;
-			_nodes[SE]->dump(indent + 2);
-			for(unsigned i = 0; i < indent; ++i) {
-				std::cout << "  ";
-			}
-			std::cout << "NW" << std::endl;
-			_nodes[NW]->dump(indent + 2);
-			for(unsigned i = 0; i < indent; ++i) {
-				std::cout << "  ";
-			}
-			std::cout << "SW" << std::endl;
-			_nodes[SW]->dump(indent + 2);
-		}
-	}
-
-	void dump_stat()
-	{
-		if(_datas.is_null()) {
-			for(unsigned i = 0; i < 4; ++i) {
-				_nodes[i]->dump_stat();
-			}
-		} else {
-			std::cout << _y1_mid_value << " " << _y2_mid_value << " " << _datas.size() << std::endl;
-		}
-	}
-
 private:
 	int compute_index(const entry &e) const
 	{
