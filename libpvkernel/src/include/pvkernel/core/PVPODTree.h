@@ -231,24 +231,14 @@ public:
 		}*/
 	}
 
-	void push(size_type branch_id, T elt)
+	bool push(size_type branch_id, T elt)
 	{
+		bool first = false;
 		assert(branch_id < NB);
 		branch_t& cur_b(_tree[branch_id]);
 		size_type scurblock = cur_b.cur_size();
-		uint32_t jmpid = (((uint32_t)(scurblock == 0))<<1) | (uint32_t)(scurblock==_nelts_block);
-		switch (jmpid)
-		{
-			case 0:	
-				break;
-			case 1:
-				cur_b.set_next(reserve_block(), _nelts_block);
-				break;
-			case 2:
-				cur_b.init_first(reserve_block());
-				break;
-		}
 		if (!cur_b.valid()) {
+			first = true;
 			cur_b.init_first(reserve_block());
 		}
 		else
@@ -256,6 +246,7 @@ public:
 			cur_b.set_next(reserve_block(), _nelts_block);
 		}
 		cur_b.push(elt);
+		return first;
 	}
 
 	size_type number_blocks_used() const
