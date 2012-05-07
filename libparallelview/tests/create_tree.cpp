@@ -150,7 +150,7 @@ void test(
 		MEM_END(serial, "serial sse + std::vector colors");
 		}
 
-		write(4, ztree->get_first_elts(), sizeof(PVRow)*NBUCKETS);
+		//write(4, ztree->get_first_elts(), sizeof(PVRow)*NBUCKETS);
 		//ztree->display("zone", plotted);
 		delete ztree;
 	}

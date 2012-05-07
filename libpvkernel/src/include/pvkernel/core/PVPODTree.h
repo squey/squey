@@ -212,9 +212,11 @@ public:
 			nblocks_max = (nelts+_nelts_block-1)/(_nelts_block) + NB/2;
 		}
 		else {
-			_nelts_block = picviz_max(10, std::sqrt(nelts));
+			//_nelts_block = picviz_max(10, std::sqrt(nelts));
+			_nelts_block = 10;
 			//nblocks_max = NB*(((nelts/_nelts_block)+NB-1)/NB) + nelts%(NB);
-			nblocks_max = (nelts+_nelts_block+1)/_nelts_block + NB/2;
+			//nblocks_max = (nelts+_nelts_block+1)/_nelts_block + NB/2;
+			nblocks_max = nelts;
 		}
 		//assert(nblocks_max >= NB);
 
