@@ -64,6 +64,18 @@ public:
 		}
 	}
 
+	inline size_t memory() const
+	{
+		size_t mem = sizeof (PVQuadTree<DataContainer, Data>) - sizeof(DataContainer) + _datas.memory();
+		if(_nodes[0] != 0) {
+			mem += _nodes[0]->memory();
+			mem += _nodes[1]->memory();
+			mem += _nodes[2]->memory();
+			mem += _nodes[3]->memory();
+		}
+		return mem;
+	}
+
 	void insert(const entry &e) {
 		// searching for the right child
 		PVQuadTree *qt = this;

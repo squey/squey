@@ -33,6 +33,15 @@ public:
 		return _index;
 	}
 
+	inline size_t memory() const
+	{
+		if(_array != 0) {
+			return sizeof(Vector1) + _size * sizeof(C);
+		} else {
+			return sizeof(Vector1);
+		}
+	}
+
 	inline bool is_null() const
 	{
 		return (_array == 0);

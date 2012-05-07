@@ -99,7 +99,6 @@ int main(int argc, char **argv)
 	PVQuadTree<Vector1<entry>, entry> *sqt1 = 0;
 	if (TESTS_CHECK(tests, 0)) {
 		sqt1 = new PVQuadTree<Vector1<entry>, entry>(0, MAX_VALUE, 0, MAX_VALUE, DEPTH);
-		std::cout << "sizeof(sqt1): " << sizeof(*sqt1) << std::endl;
 		MEM_START(usage);
 		BENCH_START(time);
 		for(int i = 0; i < count; ++i) {
@@ -107,12 +106,12 @@ int main(int argc, char **argv)
 		}
 		BENCH_END(time, "PVQuadTree", count, sizeof(entry), 1, 1);
 		MEM_END(usage, "PVQuadTree");
+		std::cout << "memory(sqt1): " << sqt1->memory() << std::endl;
 	}
 
 	PVQuadTreeTmpl<Vector1<entry>, entry, 8> *tqt1 = 0;
 	if (TESTS_CHECK(tests, 1)) {
 		tqt1 = new PVQuadTreeTmpl<Vector1<entry>, entry, 8>(0, MAX_VALUE, 0, MAX_VALUE, DEPTH);
-		std::cout << "sizeof(tqt1): " << sizeof(*tqt1) << std::endl;
 		MEM_START(usage);
 		BENCH_START(time);
 		for(int i = 0; i < count; ++i) {
@@ -120,12 +119,12 @@ int main(int argc, char **argv)
 		}
 		BENCH_END(time, "PVQuadTreeTmpl", count, sizeof(entry), 1, 1);
 		MEM_END(usage, "PVQuadTreeTmpl");
+		std::cout << "memory(tqt1): " << tqt1->memory() << std::endl;
 	}
 
 	PVQuadTreeFlat<Vector1<entry>, entry> *fqt1 = 0;
 	if (TESTS_CHECK(tests, 2)) {
 		fqt1 = new PVQuadTreeFlat<Vector1<entry>, entry>(0, MAX_VALUE, 0, MAX_VALUE, DEPTH);
-		std::cout << "sizeof(fqt1): " << sizeof(*fqt1) << std::endl;
 		MEM_START(usage);
 		BENCH_START(time);
 		for(int i = 0; i < count; ++i) {
@@ -133,6 +132,7 @@ int main(int argc, char **argv)
 		}
 		BENCH_END(time, "PVQuadTreeFlat", count, sizeof(entry), 1, 1);
 		MEM_END(usage, "PVQuadTreeFlat");
+		std::cout << "memory(fqt1): " << fqt1->memory() << std::endl;
 	}
 
 	if (sqt1 && tqt1) {

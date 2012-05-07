@@ -27,6 +27,16 @@ public:
 		_datas.reserve(MAX_SIZE + 1);
 	}
 
+	size_t memory() const
+	{
+		return sizeof(PVQuadTreeTmplBase<DataContainer>) - sizeof (DataContainer) + _datas.memory();
+	}
+
+	size_t memory_list() const
+	{
+		return _datas.memory();
+	}
+
 	void insert(const entry &e) {
 		// searching for the right child
 		PVQuadTreeTmplBase *qt = this;
@@ -79,6 +89,32 @@ public:
 
 	~PVQuadTreeTmpl()
 	{
+	}
+
+	size_t memory() const
+	{
+		size_t mem = sizeof(PVQuadTreeTmpl<DataContainer, Data, DEPTH>);
+		mem += _nodes[0].memory_list();
+		mem += _nodes[1].memory_list();
+		mem += _nodes[2].memory_list();
+		mem += _nodes[3].memory_list();
+
+		return mem;
+	}
+
+	size_t memory_list() const
+	{
+		size_t mem = 0;
+		if(this->_datas.is_null()) {
+			mem += _nodes[0].memory_list();
+			mem += _nodes[1].memory_list();
+			mem += _nodes[2].memory_list();
+			mem += _nodes[3].memory_list();
+		} else {
+			mem = this->_datas.memory() - sizeof(DataContainer);
+		}
+
+		return mem;
 	}
 
 	void set(uint32_t y1_min_value, uint32_t y1_max_value, uint32_t y2_min_value, uint32_t y2_max_value, int max_level)
@@ -194,6 +230,11 @@ public:
 
 	~PVQuadTreeTmpl()
 	{
+	}
+
+	size_t memory_list() const
+	{
+		return this->_datas.memory() - sizeof(PVQuadTreeTmplBase<DataContainer>);
 	}
 
 	void set(uint32_t, uint32_t, uint32_t, uint32_t, int max_level)

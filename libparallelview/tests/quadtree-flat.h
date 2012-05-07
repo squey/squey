@@ -26,6 +26,11 @@ public:
 		_datas.reserve(MAX_SIZE + 1);
 	}
 
+	inline size_t memory() const
+	{
+		return sizeof(PVQuadTreeFlatBase<DataContainer, Data>) - sizeof(DataContainer) + _datas.memory();
+	}
+
 	uint32_t children()
 	{
 		return (_position << 2) + 1;
@@ -119,6 +124,15 @@ public:
 		_count = 1 << (max_level * 2);
 		_trees = (PVQuadTreeFlatBase<DataContainer, Data>*)calloc(_count, sizeof(PVQuadTreeFlatBase<DataContainer, Data>));
 		_trees[0].set(y1_min_value, y1_max_value, y2_min_value, y2_max_value, 0, max_level);
+	}
+
+	inline size_t memory() const
+	{
+		size_t mem = _count * (sizeof (PVQuadTreeFlatBase<DataContainer, Data>) - sizeof(DataContainer));
+		for(unsigned i = 0; i < _count; ++i) {
+			mem += _trees[i].memory();
+		}
+		return mem;
 	}
 
 	void insert(const entry &e) {
