@@ -268,7 +268,7 @@ void test(
 		//write(5, ztree->get_first_elts(), sizeof(PVRow)*NBUCKETS);
 
 		Picviz::PVSelection sel;
-		sel.select_all();
+		sel.select_odd();
 		BENCH_START(select);
 		size_t nb_codes = ztree->browse_tree_bci_by_sel(colors, bci_codes, sel);
 		BENCH_END(select, "omp sse + noalloc colors by sel", nb_codes, sizeof(PVRow), nb_codes, sizeof(PVParallelView::PVBCICode));
@@ -378,7 +378,7 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	QApplication app(argc, argv);
+	//QApplication app(argc, argv);
 
 	PVCol ncols, nrows;
 	Picviz::PVPlotted::plotted_table_t plotted;
@@ -426,7 +426,7 @@ int main(int argc, char** argv)
 	PVParallelView::PVTools::norm_int_plotted(plotted, norm_plotted, ncols);
 	//PVLOG_INFO("Done !\n");
 
-	app.exec();
+	//app.exec();
 
 	return 0;
 	//return app.exec();
