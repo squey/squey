@@ -391,7 +391,7 @@ void PVParallelView::PVZoneTreeNoAlloc::process_omp_sse()
 	Tree* thread_trees;
 	uint32_t** thread_first_elts;
 	int ntrees;
-#pragma omp parallel
+#pragma omp parallel num_threads(64)
 	{
 #pragma omp master
 		{

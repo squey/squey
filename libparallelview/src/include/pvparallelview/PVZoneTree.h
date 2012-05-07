@@ -225,7 +225,7 @@ void PVZoneTree<Container>::process_omp_sse()
 	tbb::tick_count start,end;
 	uint32_t** thread_first_elts;
 	uint32_t* first_elts;
-#pragma omp parallel
+#pragma omp parallel num_threads(64)
 	{
 		// Initialize one tree per thread
 		Container* thread_tree = new Container[NBUCKETS];
