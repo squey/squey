@@ -8,7 +8,7 @@
 // TODO: replace use *{min,max}_value by a precomputation step
 // TODO: replace *_level by a depth counter which stops recursion
 //       when equal to 0
-template <class Data>
+template <class DataContainer, class Data>
 class PVQuadTreeFlatBase
 {
 public:
@@ -69,7 +69,7 @@ public:
 		_datas.clear();
 	}
 
-	bool compare(PVQuadTree<Data> &qt, PVQuadTreeFlatBase* trees)
+	bool compare(PVQuadTree<DataContainer, Data> &qt, PVQuadTreeFlatBase* trees)
 	{
 		if(_datas.is_null() && qt._datas.is_null()) {
 			// *this sont des noeuds, on va voir les
@@ -98,7 +98,7 @@ public:
 	}
 
 public:
-	Data     _datas;
+	DataContainer     _datas;
 	unsigned _nodes[4];
 
        	uint32_t _y1_min_value;
@@ -113,20 +113,20 @@ public:
 	uint32_t _cur_level;
 };
 
-template <class Data>
+template <class DataContainer, class Data>
 class PVQuadTreeFlat
 {
 public:
 	PVQuadTreeFlat(uint32_t y1_min_value, uint32_t y1_max_value, uint32_t y2_min_value, uint32_t y2_max_value, int max_level)
 	{
 		_count = 1 << (max_level * 2);
-		_trees = (PVQuadTreeFlatBase<Data>*)calloc(_count, sizeof(PVQuadTreeFlatBase<Data>));
+		_trees = (PVQuadTreeFlatBase<DataContainer, Data>*)calloc(_count, sizeof(PVQuadTreeFlatBase<DataContainer, Data>));
 		_trees[0].set(y1_min_value, y1_max_value, y2_min_value, y2_max_value, 0, max_level, 0);
 	}
 
 	void insert(const entry &e) {
 		// searching for the right child
-		PVQuadTreeFlatBase<Data> *qt = &_trees[0];
+		PVQuadTreeFlatBase<DataContainer, Data> *qt = &_trees[0];
 		while (qt->_datas.is_null()) {
 			qt = &_trees[qt->children() + qt->compute_index(e)];
 		}
@@ -140,14 +140,14 @@ public:
 		}
 	}
 
-	bool compare(PVQuadTree<Data> &qt)
+	bool compare(PVQuadTree<DataContainer, Data> &qt)
 	{
 		return _trees[0].compare(qt, _trees);
 	}
 
 private:
 	unsigned                  _count;
-	PVQuadTreeFlatBase<Data> *_trees;
+	PVQuadTreeFlatBase<DataContainer, Data> *_trees;
 };
 
 #endif // QUADTREE_FLAT_H

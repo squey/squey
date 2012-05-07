@@ -62,8 +62,12 @@ public:
 		if (_index == _size) {
 			reallocate(_size + INCREMENT);
 		}
-		_array[_index] = c;
-		++_index;
+		_array[_index++] = c;
+	}
+
+	C &back() const
+	{
+		return _array[_index-1];
 	}
 
 private:
@@ -177,6 +181,11 @@ public:
 		}
 		_v->buffer()[_v->index] = c;
 		++(_v->index);
+	}
+
+	C &back() const
+	{
+		return _v->buffer()[_v->index-1];
 	}
 
 private:

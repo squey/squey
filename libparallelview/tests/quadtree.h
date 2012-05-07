@@ -22,13 +22,13 @@ public:
 	}
 };
 
-template <class Data>
+template <class DataContainer, class Data>
 class PVQuadTree
 {
 #ifdef USE_CONC_VEC
 	typedef PVconcurrentVector<entry> list_rows_t;
 #else
-	typedef Data list_rows_t;
+	typedef DataContainer list_rows_t;
 #endif
 
 public:
@@ -82,6 +82,24 @@ public:
 		}
 	}
 
+	void get_y1_first(int vmin, int vmax, Data &result)
+	{
+		if(_datas.is_null()) {
+			if(_y1_mid_value < vmax) {
+				_nodes[NW].get_y1_first(vmin, vmax, result);
+				_nodes[SW].get_y1_first(vmin, vmax, result);
+			}
+			if(vmin < _y1_mid_value) {
+				_nodes[NE].get_y1_first(vmin, vmax, result);
+				_nodes[SE].get_y1_first(vmin, vmax, result);
+			}
+		} else {
+			Data current = _datas.back();
+			if(result.idx <= current.idx) {
+				result = current;
+			}
+		}
+	}
 private:
 	int compute_index(const entry &e) const
 	{
