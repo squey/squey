@@ -33,6 +33,15 @@ public:
 		return _index;
 	}
 
+	inline size_t memory() const
+	{
+		if(_array != 0) {
+			return sizeof(Vector1) + _size * sizeof(C);
+		} else {
+			return sizeof(Vector1);
+		}
+	}
+
 	inline bool is_null() const
 	{
 		return (_array == 0);
@@ -62,8 +71,12 @@ public:
 		if (_index == _size) {
 			reallocate(_size + INCREMENT);
 		}
-		_array[_index] = c;
-		++_index;
+		_array[_index++] = c;
+	}
+
+	C &back() const
+	{
+		return _array[_index-1];
 	}
 
 private:
@@ -103,7 +116,7 @@ public:
 		return p;
 	}
 
-	C *buffer()
+	C *buffer() const
 	{
 		return (C*)(this + 1);
 	}
@@ -144,7 +157,7 @@ public:
 
 	unsigned size() const
 	{
-		return _v?_v->index:0;
+		return _v->index;
 	}
 
 	void reserve(const unsigned size)
@@ -177,6 +190,11 @@ public:
 		}
 		_v->buffer()[_v->index] = c;
 		++(_v->index);
+	}
+
+	C &back() const
+	{
+		return _v->buffer()[_v->index-1];
 	}
 
 private:
