@@ -7,7 +7,7 @@
 
 // TODO: replace use *{min,max}_value by a precomputation step
 
-#define USE_INIT
+// #define USE_INIT
 
 template <class DataContainer, class Data>
 class PVQuadTreeFlatBase
