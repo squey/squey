@@ -6,15 +6,14 @@
 #include "quadtree.h"
 
 // TODO: replace use *{min,max}_value by a precomputation step
-// TODO: replace *_level by a depth counter which stops recursion
-//       when equal to 0
+
 template <class DataContainer, class Data>
 class PVQuadTreeFlatBase
 {
 public:
 	PVQuadTreeFlatBase() {}
 
-	void set(uint32_t y1_min_value, uint32_t y1_max_value, uint32_t y2_min_value, uint32_t y2_max_value, uint32_t position, int max_level, int cur_level = 0)
+	void set(uint32_t y1_min_value, uint32_t y1_max_value, uint32_t y2_min_value, uint32_t y2_max_value, uint32_t position, int max_level)
 	{
 		_y1_min_value = y1_min_value;
 		_y1_max_value = y1_max_value;
@@ -22,7 +21,6 @@ public:
 		_y2_max_value = y2_max_value;
 		_position = position;
 		_max_level = max_level;
-		_cur_level = cur_level;
 		_y1_mid_value = (_y1_min_value + _y1_max_value) / 2;
 		_y2_mid_value = (_y2_min_value + _y2_max_value) / 2;
 		_datas.reserve(MAX_SIZE + 1);
@@ -45,22 +43,22 @@ public:
 		tab[NE].set(_y1_mid_value, _y1_max_value,
 		            _y2_mid_value, _y2_max_value,
 		            pos + NE,
-		            _max_level, _cur_level + 1);
+		            _max_level - 1);
 
 		tab[SE].set(_y1_mid_value, _y1_max_value,
 		            _y2_min_value, _y2_mid_value,
 		            pos + SE,
-		            _max_level, _cur_level + 1);
+		            _max_level - 1);
 
 		tab[SW].set(_y1_min_value, _y1_mid_value,
 		            _y2_min_value, _y2_mid_value,
 		            pos + SW,
-		            _max_level, _cur_level + 1);
+		            _max_level - 1);
 
 		tab[NW].set(_y1_min_value, _y1_mid_value,
 		            _y2_mid_value, _y2_max_value,
 		            pos + NW,
-		            _max_level, _cur_level + 1);
+		            _max_level - 1);
 
 		for(unsigned i = 0; i < _datas.size(); ++i) {
 			entry &e = _datas.at(i);
@@ -110,7 +108,6 @@ public:
 	uint32_t _y2_mid_value;
 	uint32_t _position;
 	uint32_t _max_level;
-	uint32_t _cur_level;
 };
 
 template <class DataContainer, class Data>
@@ -121,7 +118,7 @@ public:
 	{
 		_count = 1 << (max_level * 2);
 		_trees = (PVQuadTreeFlatBase<DataContainer, Data>*)calloc(_count, sizeof(PVQuadTreeFlatBase<DataContainer, Data>));
-		_trees[0].set(y1_min_value, y1_max_value, y2_min_value, y2_max_value, 0, max_level, 0);
+		_trees[0].set(y1_min_value, y1_max_value, y2_min_value, y2_max_value, 0, max_level);
 	}
 
 	void insert(const entry &e) {
@@ -135,7 +132,7 @@ public:
 		qt->_datas.push_back(e);
 
 		// does the current node must be splitted?
-		if((qt->_datas.size() >= MAX_SIZE) && (qt->_cur_level < qt->_max_level)) {
+		if((qt->_datas.size() >= MAX_SIZE) && (qt->_max_level)) {
 			qt ->create_next_level(&_trees[qt->children()]);
 		}
 	}

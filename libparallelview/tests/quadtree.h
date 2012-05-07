@@ -32,13 +32,12 @@ class PVQuadTree
 #endif
 
 public:
-	PVQuadTree(uint32_t y1_min_value, uint32_t y1_max_value, uint32_t y2_min_value, uint32_t y2_max_value, int max_level, int cur_level = 0) :
+	PVQuadTree(uint32_t y1_min_value, uint32_t y1_max_value, uint32_t y2_min_value, uint32_t y2_max_value, int max_level) :
 		_y1_min_value(y1_min_value),
 		_y1_max_value(y1_max_value),
 		_y2_min_value(y2_min_value),
 		_y2_max_value(y2_max_value),
-		_max_level(max_level),
-		_cur_level(cur_level)
+		_max_level(max_level)
 	{
 		_y1_mid_value = (_y1_min_value + _y1_max_value) / 2;
 		_y2_mid_value = (_y2_min_value + _y2_max_value) / 2;
@@ -46,11 +45,10 @@ public:
 		_nodes[0] = _nodes[1] = _nodes[2] = _nodes[3] = 0;
 	}
 
-	PVQuadTree(uint32_t y1_mid_value, uint32_t y2_mid_value, int max_level, int cur_level) :
+	PVQuadTree(uint32_t y1_mid_value, uint32_t y2_mid_value, int max_level) :
 		_y1_mid_value(y1_mid_value),
 		_y2_mid_value(y2_mid_value),
-		_max_level(max_level),
-		_cur_level(cur_level)
+		_max_level(max_level)
 	{
 		_datas.reserve(MAX_SIZE + 1);
 		_nodes[0] = _nodes[1] = _nodes[2] = _nodes[3] = 0;
@@ -77,7 +75,7 @@ public:
 		qt->_datas.push_back(e);
 
 		// does the current node must be splitted?
-		if((qt->_datas.size() >= MAX_SIZE) && (qt->_cur_level < qt->_max_level)) {
+		if((qt->_datas.size() >= MAX_SIZE) && qt->_max_level) {
 			qt->create_next_level();
 		}
 	}
@@ -110,19 +108,19 @@ private:
 	{
 		_nodes[NE] = new PVQuadTree(_y1_mid_value, _y1_max_value,
 		                            _y2_mid_value, _y2_max_value,
-		                            _max_level, _cur_level + 1);
+		                            _max_level - 1);
 
 		_nodes[SE] = new PVQuadTree(_y1_mid_value, _y1_max_value,
 		                            _y2_min_value, _y2_mid_value,
-		                            _max_level, _cur_level + 1);
+		                            _max_level - 1);
 
 		_nodes[SW] = new PVQuadTree(_y1_min_value, _y1_mid_value,
 		                            _y2_min_value, _y2_mid_value,
-		                            _max_level, _cur_level + 1);
+		                            _max_level - 1);
 
 		_nodes[NW] = new PVQuadTree(_y1_min_value, _y1_mid_value,
 		                            _y2_mid_value, _y2_max_value,
-		                            _max_level, _cur_level + 1);
+		                            _max_level - 1);
 
 #ifdef USE_CONC_VEC
 #pragma omp parallel for
@@ -151,7 +149,6 @@ public:
 	uint32_t     _y1_mid_value;
 	uint32_t     _y2_mid_value;
 	uint32_t     _max_level;
-	uint32_t     _cur_level;
 };
 
 #endif // QUADTREE_H

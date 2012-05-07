@@ -11,35 +11,20 @@ class PVQuadTreeTmplBase
 {
 public:
 	PVQuadTreeTmplBase() :
-		_max_level(0),
-		_cur_level(0)
+		_max_level(0)
 	{
 	}
 
-	PVQuadTreeTmplBase(int max_level, int cur_level = 0) :
-		_max_level(max_level),
-		_cur_level(cur_level)
+	PVQuadTreeTmplBase(int max_level) :
+		_max_level(max_level)
 	{
 		_datas.reserve(MAX_SIZE + 1);
 	}
 
-	void set(int max_level, int cur_level)
+	void set(int max_level)
 	{
 		_max_level = max_level;
-		_cur_level = cur_level;
 		_datas.reserve(MAX_SIZE + 1);
-	}
-
-	void insert_(entry &e)
-	{
-		if(_datas.is_null()) {
-			do_sub_insert(e);
-		} else {
-			_datas.push_back(e);
-			if((_datas.size() >= MAX_SIZE) && (_cur_level < _max_level)) {
-				create_next_level();
-			}
-		}
 	}
 
 	void insert(const entry &e) {
@@ -53,7 +38,7 @@ public:
 		qt->_datas.push_back(e);
 
 		// does the current node must be splitted?
-		if((qt->_datas.size() >= MAX_SIZE) && (qt->_cur_level < qt->_max_level)) {
+		if((qt->_datas.size() >= MAX_SIZE) && qt->_max_level) {
 			qt->create_next_level();
 		}
 	}
@@ -73,7 +58,6 @@ public:
 
 	DataContainer  _datas;
 	unsigned _max_level;
-	unsigned _cur_level;
 };
 
 template <class DataContainer, class Data, int DEPTH>
@@ -82,13 +66,13 @@ class PVQuadTreeTmpl : public PVQuadTreeTmplBase<DataContainer>
 public:
 	PVQuadTreeTmpl() {}
 
-	PVQuadTreeTmpl(uint32_t y1_min_value, uint32_t y1_max_value, uint32_t y2_min_value, uint32_t y2_max_value, int max_level, int cur_level = 0) :
+	PVQuadTreeTmpl(uint32_t y1_min_value, uint32_t y1_max_value, uint32_t y2_min_value, uint32_t y2_max_value, int max_level) :
 		_y1_min_value(y1_min_value),
 		_y1_max_value(y1_max_value),
 		_y2_min_value(y2_min_value),
 		_y2_max_value(y2_max_value)
 	{
-		PVQuadTreeTmplBase<DataContainer>::set(max_level, cur_level);
+		PVQuadTreeTmplBase<DataContainer>::set(max_level);
 		_y1_mid_value = (_y1_min_value + _y1_max_value) / 2;
 		_y2_mid_value = (_y2_min_value + _y2_max_value) / 2;
 	}
@@ -97,9 +81,9 @@ public:
 	{
 	}
 
-	void set(uint32_t y1_min_value, uint32_t y1_max_value, uint32_t y2_min_value, uint32_t y2_max_value, int max_level, int cur_level = 0)
+	void set(uint32_t y1_min_value, uint32_t y1_max_value, uint32_t y2_min_value, uint32_t y2_max_value, int max_level)
 	{
-		PVQuadTreeTmplBase<DataContainer>::set(max_level, cur_level);
+		PVQuadTreeTmplBase<DataContainer>::set(max_level);
 		_y1_min_value = y1_min_value;
 		_y1_max_value = y1_max_value;
 		_y2_min_value = y2_min_value;
@@ -153,19 +137,19 @@ private:
 		// std::cout << "PVQuadTreeTmpl::create_next_level()" << std::endl;
 		_nodes[NE].set(_y1_mid_value, _y1_max_value,
 		                _y2_mid_value, _y2_max_value,
-		                this->_max_level, this->_cur_level + 1);
+		                this->_max_level - 1);
 
 		_nodes[SE].set(_y1_mid_value, _y1_max_value,
 		               _y2_min_value, _y2_mid_value,
-		               this->_max_level, this->_cur_level + 1);
+		               this->_max_level - 1);
 
 		_nodes[SW].set(_y1_min_value, _y1_mid_value,
 		               _y2_min_value, _y2_mid_value,
-		               this->_max_level, this->_cur_level + 1);
+		               this->_max_level - 1);
 
 		_nodes[NW].set(_y1_min_value, _y1_mid_value,
 		               _y2_mid_value, _y2_max_value,
-		               this->_max_level, this->_cur_level + 1);
+		               this->_max_level - 1);
 
 		for(unsigned i = 0; i < this->_datas.size(); ++i) {
 			entry const& e = this->_datas.at(i);
@@ -202,7 +186,7 @@ public:
 	{
 	}
 
-	//PVQuadTreeTmpl(uint32_t y1_min_value, uint32_t y1_max_value, uint32_t y2_min_value, uint32_t y2_max_value, int max_level, int cur_level = 0) :
+	//PVQuadTreeTmpl(uint32_t y1_min_value, uint32_t y1_max_value, uint32_t y2_min_value, uint32_t y2_max_value, int max_level) :
 
 	PVQuadTreeTmpl(uint32_t, uint32_t, uint32_t, uint32_t, int, int)
 	{
@@ -212,10 +196,10 @@ public:
 	{
 	}
 
-	void set(uint32_t, uint32_t, uint32_t, uint32_t, int max_level, int cur_level)
+	void set(uint32_t, uint32_t, uint32_t, uint32_t, int max_level)
 	{
 		// std::cout << "PVQuadTreeTmpl<0>::set()" << std::endl;
-		PVQuadTreeTmplBase<DataContainer>::set(max_level, cur_level);
+		PVQuadTreeTmplBase<DataContainer>::set(max_level);
 	}
 
 	bool compare(PVQuadTree<DataContainer, Data> &qt)
