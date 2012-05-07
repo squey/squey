@@ -7,6 +7,8 @@
 
 // TODO: replace use *{min,max}_value by a precomputation step
 
+// #define USE_INIT
+
 template <class DataContainer, class Data>
 class PVQuadTreeFlatBase
 {
@@ -41,8 +43,51 @@ public:
 		return ((e.y2 > _y2_mid_value) << 1) | (e.y1 > _y1_mid_value);
 	}
 
+	void init(PVQuadTreeFlatBase *tab, uint32_t y1_min_value, uint32_t y1_max_value, uint32_t y2_min_value, uint32_t y2_max_value, uint32_t position, int max_level)
+	{
+		_position = position;
+		_max_level = max_level;
+		_y1_mid_value = (_y1_min_value + _y1_max_value) / 2;
+		_y2_mid_value = (_y2_min_value + _y2_max_value) / 2;
+
+		if(_max_level == 0) {
+			return;
+		}
+		unsigned pos = children();
+
+		tab[pos + NE].init(tab,
+		                   _y1_mid_value, y1_max_value,
+		                   _y2_mid_value, y2_max_value,
+		                   pos + NE,
+		                   _max_level - 1);
+
+		tab[pos + SE].init(tab,
+		                   _y1_mid_value, y1_max_value,
+		                   y2_min_value, _y2_mid_value,
+		                   pos + SE,
+		                   _max_level - 1);
+
+		tab[pos + SW].init(tab,
+		                   y1_min_value, _y1_mid_value,
+		                   y2_min_value, _y2_mid_value,
+		                   pos + SW,
+		                   _max_level - 1);
+
+		tab[pos + NW].init(tab,
+		                   y1_min_value, _y1_mid_value,
+		                   _y2_mid_value, y2_max_value,
+		                   pos + NW,
+		                   _max_level - 1);
+	}
+
 	void create_next_level(PVQuadTreeFlatBase *tab)
 	{
+#ifdef USE_INIT
+		tab[NE]._datas.reserve(MAX_SIZE + 1);
+		tab[SE]._datas.reserve(MAX_SIZE + 1);
+		tab[SW]._datas.reserve(MAX_SIZE + 1);
+		tab[NW]._datas.reserve(MAX_SIZE + 1);
+#else
 		unsigned pos = children();
 
 		tab[NE].set(_y1_mid_value, _y1_max_value,
@@ -64,6 +109,7 @@ public:
 		            _y2_mid_value, _y2_max_value,
 		            pos + NW,
 		            _max_level - 1);
+#endif
 
 		for(unsigned i = 0; i < _datas.size(); ++i) {
 			entry &e = _datas.at(i);
@@ -123,7 +169,11 @@ public:
 	{
 		_count = 1 << (max_level * 2);
 		_trees = (PVQuadTreeFlatBase<DataContainer, Data>*)calloc(_count, sizeof(PVQuadTreeFlatBase<DataContainer, Data>));
+#ifdef USE_INIT
+		_trees[0].init(_trees, y1_min_value, y1_max_value, y2_min_value, y2_max_value, 0, max_level);
+#else
 		_trees[0].set(y1_min_value, y1_max_value, y2_min_value, y2_max_value, 0, max_level);
+#endif
 	}
 
 	inline size_t memory() const

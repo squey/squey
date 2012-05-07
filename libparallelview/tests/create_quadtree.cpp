@@ -54,6 +54,12 @@ void printb (uint32_t v)
 	}
 }
 
+void print_mem (const char *text, size_t s)
+{
+	double v = s / (1024. * 1024.);
+	std::cout << text  << ": memory usage is: " << v << " Mib" << std::endl;
+}
+
 #define MAX_VALUE ((1<<22) - 1)
 
 void usage()
@@ -99,40 +105,41 @@ int main(int argc, char **argv)
 	PVQuadTree<Vector1<entry>, entry> *sqt1 = 0;
 	if (TESTS_CHECK(tests, 0)) {
 		sqt1 = new PVQuadTree<Vector1<entry>, entry>(0, MAX_VALUE, 0, MAX_VALUE, DEPTH);
-		MEM_START(usage);
+		// MEM_START(usage);
 		BENCH_START(time);
 		for(int i = 0; i < count; ++i) {
 			sqt1->insert(entries[i]);
 		}
 		BENCH_END(time, "PVQuadTree", count, sizeof(entry), 1, 1);
-		MEM_END(usage, "PVQuadTree");
-		std::cout << "memory(sqt1): " << sqt1->memory() << std::endl;
+		// MEM_END(usage, "PVQuadTree");
+		print_mem("PVQuadTree", sqt1->memory());
 	}
 
 	PVQuadTreeTmpl<Vector1<entry>, entry, 8> *tqt1 = 0;
 	if (TESTS_CHECK(tests, 1)) {
 		tqt1 = new PVQuadTreeTmpl<Vector1<entry>, entry, 8>(0, MAX_VALUE, 0, MAX_VALUE, DEPTH);
-		MEM_START(usage);
+		// MEM_START(usage);
 		BENCH_START(time);
 		for(int i = 0; i < count; ++i) {
 			tqt1->insert(entries[i]);
 		}
 		BENCH_END(time, "PVQuadTreeTmpl", count, sizeof(entry), 1, 1);
-		MEM_END(usage, "PVQuadTreeTmpl");
-		std::cout << "memory(tqt1): " << tqt1->memory() << std::endl;
+		// MEM_END(usage, "PVQuadTreeTmpl");
+		print_mem("PVQuadTreeTmpl", tqt1->memory());
 	}
 
 	PVQuadTreeFlat<Vector1<entry>, entry> *fqt1 = 0;
 	if (TESTS_CHECK(tests, 2)) {
 		fqt1 = new PVQuadTreeFlat<Vector1<entry>, entry>(0, MAX_VALUE, 0, MAX_VALUE, DEPTH);
-		MEM_START(usage);
+		// MEM_START(usage);
 		BENCH_START(time);
 		for(int i = 0; i < count; ++i) {
 			fqt1->insert(entries[i]);
 		}
 		BENCH_END(time, "PVQuadTreeFlat", count, sizeof(entry), 1, 1);
-		MEM_END(usage, "PVQuadTreeFlat");
+		// MEM_END(usage, "PVQuadTreeFlat");
 		std::cout << "memory(fqt1): " << fqt1->memory() << std::endl;
+		print_mem("PVQuadTreeFlat", fqt1->memory());
 	}
 
 	if (sqt1 && tqt1) {
