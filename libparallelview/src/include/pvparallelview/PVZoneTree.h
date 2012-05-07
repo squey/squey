@@ -82,6 +82,7 @@ public:
 	void process_omp_sse();
 	template <bool only_first>
 	PVZoneTreeNoAlloc* filter_by_sel(Picviz::PVSelection const& sel) const;
+	size_t browse_tree_bci_by_sel(PVHSVColor* colors, PVBCICode* codes, Picviz::PVSelection const& sel);
 
 private:
 	void get_float_pts(pts_t& pts, Picviz::PVPlotted::plotted_table_t const& org_plotted);
