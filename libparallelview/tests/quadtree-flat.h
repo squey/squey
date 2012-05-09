@@ -18,7 +18,6 @@ public:
 #ifndef USE_INIT
 	void set(uint32_t y1_min_value, uint32_t y1_max_value, uint32_t y2_min_value, uint32_t y2_max_value, uint32_t position, int max_level)
 	{
-		std::cerr << "set node " << position << std::endl;
 		_y1_min_value = y1_min_value;
 		_y1_max_value = y1_max_value;
 		_y2_min_value = y2_min_value;
