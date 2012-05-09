@@ -28,6 +28,11 @@ public:
 		reallocate(size);
 	}
 
+	void reset()
+	{
+		_index = 0;
+	}
+
 	inline unsigned size() const
 	{
 		return _index;
