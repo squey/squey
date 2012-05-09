@@ -80,12 +80,12 @@ public:
 	{
 		if(_datas.is_null()) {
 			if(_y1_mid_value < y1_max) {
-				_nodes[NW]->extract_first_y1(y1_min, y1_max, results);
-				_nodes[SW]->extract_first_y1(y1_min, y1_max, results);
-			}
-			if(y1_min < _y1_mid_value) {
 				_nodes[NE]->extract_first_y1(y1_min, y1_max, results);
 				_nodes[SE]->extract_first_y1(y1_min, y1_max, results);
+			}
+			if(y1_min < _y1_mid_value) {
+				_nodes[NW]->extract_first_y1(y1_min, y1_max, results);
+				_nodes[SW]->extract_first_y1(y1_min, y1_max, results);
 			}
 		} else if(_datas.size() != 0) {
 			results.push_back(_datas.at(0));
@@ -113,18 +113,18 @@ public:
 		if(_datas.is_null()) {
 			if(_y1_mid_value < y1_max) {
 				if(_y2_mid_value < y2_max) {
-					_nodes[NW]->extract_first_y1y2(y1_min, y1_max, y2_min, y2_max, results);
-				}
-				if(y2_min < _y2_mid_value) {
-					_nodes[SW]->extract_first_y1y2(y1_min, y1_max, y2_min, y2_max, results);
-				}
-			}
-			if(y1_min < _y1_mid_value) {
-				if(_y2_mid_value < y2_max) {
 					_nodes[NE]->extract_first_y1y2(y1_min, y1_max, y2_min, y2_max, results);
 				}
 				if(y2_min < _y2_mid_value) {
 					_nodes[SE]->extract_first_y1y2(y1_min, y1_max, y2_min, y2_max, results);
+				}
+			}
+			if(y1_min < _y1_mid_value) {
+				if(_y2_mid_value < y2_max) {
+					_nodes[NW]->extract_first_y1y2(y1_min, y1_max, y2_min, y2_max, results);
+				}
+				if(y2_min < _y2_mid_value) {
+					_nodes[SW]->extract_first_y1y2(y1_min, y1_max, y2_min, y2_max, results);
 				}
 			}
 		} else if(_datas.size() != 0) {
@@ -136,12 +136,12 @@ public:
 	{
 		if(_datas.is_null()) {
 			if(_y1_mid_value < y1_max) {
-				_nodes[NW]->extract_first_y1_bci(y1_min, y1_max, results);
-				_nodes[SW]->extract_first_y1_bci(y1_min, y1_max, results);
-			}
-			if(y1_min < _y1_mid_value) {
 				_nodes[NE]->extract_first_y1_bci(y1_min, y1_max, results);
 				_nodes[SE]->extract_first_y1_bci(y1_min, y1_max, results);
+			}
+			if(y1_min < _y1_mid_value) {
+				_nodes[NW]->extract_first_y1_bci(y1_min, y1_max, results);
+				_nodes[SW]->extract_first_y1_bci(y1_min, y1_max, results);
 			}
 		} else if(_datas.size() != 0) {
 			entry e = _datas.at(0);
@@ -181,18 +181,18 @@ public:
 		if(_datas.is_null()) {
 			if(_y1_mid_value < y1_max) {
 				if(_y2_mid_value < y2_max) {
-					_nodes[NW]->extract_first_y1y2_bci(y1_min, y1_max, y2_min, y2_max, results);
-				}
-				if(y2_min < _y2_mid_value) {
-					_nodes[SW]->extract_first_y1y2_bci(y1_min, y1_max, y2_min, y2_max, results);
-				}
-			}
-			if(y1_min < _y1_mid_value) {
-				if(_y2_mid_value < y2_max) {
 					_nodes[NE]->extract_first_y1y2_bci(y1_min, y1_max, y2_min, y2_max, results);
 				}
 				if(y2_min < _y2_mid_value) {
 					_nodes[SE]->extract_first_y1y2_bci(y1_min, y1_max, y2_min, y2_max, results);
+				}
+			}
+			if(y1_min < _y1_mid_value) {
+				if(_y2_mid_value < y2_max) {
+					_nodes[NW]->extract_first_y1y2_bci(y1_min, y1_max, y2_min, y2_max, results);
+				}
+				if(y2_min < _y2_mid_value) {
+					_nodes[SW]->extract_first_y1y2_bci(y1_min, y1_max, y2_min, y2_max, results);
 				}
 			}
 		} else if(_datas.size() != 0) {
