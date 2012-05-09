@@ -491,16 +491,37 @@ PVZoneTreeNoAlloc* PVZoneTreeNoAlloc::filter_by_sel(Picviz::PVSelection const& s
 	BENCH_START(subtree);
 	Picviz::PVSelection::const_pointer sel_buf = sel.get_buffer();
 	const size_t nthreads = omp_get_max_threads()/2;
-#pragma omp parallel for firstprivate(sel_buf) firstprivate(ret) num_threads(nthreads)
-	for (size_t b = 0; b < NBUCKETS; b++) {
-		Tree::const_branch_iterator it_src = _tree.begin_branch(b);
-		for (; it_src != _tree.end_branch(b); it_src++) {
-			PVRow r = *it_src;
+//#pragma omp parallel for firstprivate(sel_buf) firstprivate(ret) num_threads(nthreads)
+//	for (size_t b = 0; b < NBUCKETS; b++) {
+//		Tree::const_branch_iterator it_src = _tree.begin_branch(b);
+//		for (; it_src != _tree.end_branch(b); it_src++) {
+//			PVRow r = *it_src;
+//			if ((sel_buf[r>>5]) & (1U<<(r&31))) {
+//
+//			}
+//		}
+//	}
+#pragma omp parallel for schedule(dynamic, 6) firstprivate(sel_buf) firstprivate(ret) num_threads(nthreads)
+	for (uint64_t b = 0; b < NBUCKETS; b++) {
+		if (branch_valid(b)) {
+			PVRow r = get_first_elt_of_branch(b);
+			bool found = false;
 			if ((sel_buf[r>>5]) & (1U<<(r&31))) {
-				ret->_tree.push(b, r);
-				if (only_first) {
-					break;
+				found = true;
+			}
+			else {
+				Tree::const_branch_iterator it_src = _tree.begin_branch(b);
+				it_src++;
+				for (; it_src != _tree.end_branch(b); it_src++) {
+					r = *(it_src);
+					if ((sel_buf[r>>5]) & (1U<<(r&31))) {
+						found = true;
+						break;
+					}
 				}
+			}
+			if (found) {
+				ret->_tree.push(b, r);
 			}
 		}
 	}
