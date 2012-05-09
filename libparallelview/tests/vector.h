@@ -1,6 +1,8 @@
 #ifndef OWN_VECTOR_H
 #define OWN_VECTOR_H
 
+#include <algorithm>
+
 #define MAX_SIZE 10000
 
 /*****************************************************************************
@@ -82,6 +84,37 @@ public:
 	C &back() const
 	{
 		return _array[_index-1];
+	}
+
+	Vector1<C> &operator=(const Vector1<C> &v)
+	{
+		clear();
+		if(v._size) {
+			_index = v._index;
+			reserve(v._size);
+			std::copy(v._array, v._array + _index, _array);
+		}
+		return *this;
+	}
+
+	bool operator==(const Vector1<C> &v) const
+	{
+		if(_index != v._index) {
+			return false;
+		}
+
+		if(_array == 0) {
+			if (v._array == 0) {
+				return true;
+			} else {
+				return false;
+			}
+		} else if(v._array == 0) {
+			return true;
+		} else {
+			return std::equal(_array, _array + _index, v._array);
+
+		}
 	}
 
 private:
