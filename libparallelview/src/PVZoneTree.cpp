@@ -214,7 +214,7 @@ size_t PVParallelView::PVZoneTreeBase::browse_tree_bci(PVHSVColor* colors, PVBCI
 {
 	size_t idx_code = 0;
 
-	const size_t nthreads = omp_get_max_threads()/2;
+	const size_t nthreads = atol(getenv("NUM_THREADS"));/*omp_get_max_threads()/2;*/
 #pragma omp parallel num_threads(nthreads)
 	{
 	PVBCICode* th_codes = PVBCICode::allocate_codes(NBUCKETS);
@@ -300,7 +300,7 @@ size_t PVParallelView::PVZoneTreeNoAlloc::browse_tree_bci_by_sel(PVHSVColor* col
 {
 	size_t idx_code = 0;
 	Picviz::PVSelection::const_pointer sel_buf = sel.get_buffer();
-	const size_t nthreads = omp_get_max_threads()/2;
+	const size_t nthreads = atol(getenv("NUM_THREADS"));/*omp_get_max_threads()/2;*/
 #pragma omp parallel firstprivate(sel_buf) reduction(+:idx_code) num_threads(nthreads)
 	{
 		PVBCICode* th_codes = PVBCICode::allocate_codes(NBUCKETS);
@@ -397,7 +397,7 @@ void PVParallelView::PVZoneTreeNoAlloc::process_omp_sse()
 	Tree* thread_trees;
 	uint32_t** thread_first_elts;
 	int ntrees;
-	const size_t nthreads = omp_get_max_threads()/2;
+	const size_t nthreads = atol(getenv("NUM_THREADS"));/*omp_get_max_threads()/2;*/
 #pragma omp parallel num_threads(nthreads)
 	{
 #pragma omp master

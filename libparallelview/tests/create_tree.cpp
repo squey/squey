@@ -400,10 +400,10 @@ int main(int argc, char** argv)
 
 	PVCol ncols, nrows;
 	Picviz::PVPlotted::plotted_table_t plotted;
-	PVLOG_INFO("Loading plotted...\n");
+	//PVLOG_INFO("Loading plotted...\n");
 	QString fplotted(argv[1]);
 	if (fplotted == "0") {
-		PVLOG_INFO("Initialising random plotted...\n");
+		//PVLOG_INFO("Initialising random plotted...\n");
 		if (argc < 4) {
 			usage(argv[0]);
 			return 1;
