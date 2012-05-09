@@ -3,33 +3,15 @@
 
 #include <stdint.h>
 
-#include <omp.h>
-
 #include <stdlib.h>
 #include <string.h>
 
-#include <tbb/concurrent_vector.h>
-
 #include "vector.h"
-
-template <class C>
-class PVconcurrentVector : public tbb::concurrent_vector<C>
-{
-public:
-	bool is_null()
-	{
-		return tbb::concurrent_vector<C>::empty() && (tbb::concurrent_vector<C>::capacity() == 0);
-	}
-};
 
 template <class DataContainer, class Data>
 class PVQuadTree
 {
-#ifdef USE_CONC_VEC
-	typedef PVconcurrentVector<entry> list_rows_t;
-#else
 	typedef DataContainer list_rows_t;
-#endif
 
 public:
 	PVQuadTree(uint32_t y1_min_value, uint32_t y1_max_value, uint32_t y2_min_value, uint32_t y2_max_value, int max_level) :
@@ -92,24 +74,62 @@ public:
 		}
 	}
 
-	void get_y1_first(int vmin, int vmax, Data &result)
+	void extract_first_y1(uint32_t y1_min, uint32_t y1_max, std::vector<Data> &results)
 	{
 		if(_datas.is_null()) {
-			if(_y1_mid_value < vmax) {
-				_nodes[NW].get_y1_first(vmin, vmax, result);
-				_nodes[SW].get_y1_first(vmin, vmax, result);
+			if(_y1_mid_value < y1_max) {
+				_nodes[NW]->extract_first_y1(y1_min, y1_max, results);
+				_nodes[SW]->extract_first_y1(y1_min, y1_max, results);
 			}
-			if(vmin < _y1_mid_value) {
-				_nodes[NE].get_y1_first(vmin, vmax, result);
-				_nodes[SE].get_y1_first(vmin, vmax, result);
+			if(y1_min < _y1_mid_value) {
+				_nodes[NE]->extract_first_y1(y1_min, y1_max, results);
+				_nodes[SE]->extract_first_y1(y1_min, y1_max, results);
 			}
-		} else {
-			Data current = _datas.back();
-			if(result.idx <= current.idx) {
-				result = current;
-			}
+		} else if(_datas.size() != 0) {
+			results.push_back(_datas.at(0));
 		}
 	}
+
+	void extract_first_y2(uint32_t y2_min, uint32_t y2_max, std::vector<Data> &results)
+	{
+		if(_datas.is_null()) {
+			if(_y2_mid_value < y2_max) {
+				_nodes[NW]->extract_first_y2(y2_min, y2_max, results);
+				_nodes[NE]->extract_first_y2(y2_min, y2_max, results);
+			}
+			if(y2_min < _y2_mid_value) {
+				_nodes[SW]->extract_first_y2(y2_min, y2_max, results);
+				_nodes[SE]->extract_first_y2(y2_min, y2_max, results);
+			}
+		} else if(_datas.size() != 0) {
+			results.push_back(_datas.at(0));
+		}
+	}
+
+	void extract_first_y1y2(uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max, std::vector<Data> &results)
+	{
+		if(_datas.is_null()) {
+			if(_y1_mid_value < y1_max) {
+				if(_y2_mid_value < y2_max) {
+					_nodes[NW]->extract_first_y1y2(y1_min, y1_max, y2_min, y2_max, results);
+				}
+				if(y2_min < _y2_mid_value) {
+					_nodes[SW]->extract_first_y1y2(y1_min, y1_max, y2_min, y2_max, results);
+				}
+			}
+			if(y1_min < _y1_mid_value) {
+				if(_y2_mid_value < y2_max) {
+					_nodes[NE]->extract_first_y1y2(y1_min, y1_max, y2_min, y2_max, results);
+				}
+				if(y2_min < _y2_mid_value) {
+					_nodes[SE]->extract_first_y1y2(y1_min, y1_max, y2_min, y2_max, results);
+				}
+			}
+		} else if(_datas.size() != 0) {
+			results.push_back(_datas.at(0));
+		}
+	}
+
 private:
 	int compute_index(const entry &e) const
 	{
@@ -134,18 +154,10 @@ private:
 		                            _y2_mid_value, _y2_max_value,
 		                            _max_level - 1);
 
-#ifdef USE_CONC_VEC
-#pragma omp parallel for
-		for(unsigned i = 0; i < _datas.size(); ++i) {
-			entry &e = _datas[i];
-			_nodes[compute_index(e)]->_datas.push_back(e);
-		}
-#else
 		for(unsigned i = 0; i < _datas.size(); ++i) {
 			entry &e = _datas.at(i);
 			_nodes[compute_index(e)]->_datas.push_back(e);
 		}
-#endif
 		_datas.clear();
 	}
 

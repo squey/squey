@@ -95,11 +95,24 @@ int main(int argc, char **argv)
 	boost::mt19937 rnd(0);
 	boost::random::uniform_int_distribution<unsigned> uni(0, UINT_MAX);
 
-	entry *entries = new entry  [count];
+	entry *entries = new entry [count];
 	for(int i = 0; i < count; ++i) {
 		entries[i].y1 = random() & MAX_VALUE;
 		entries[i].y2 = random() & MAX_VALUE;
 		entries[i].idx = i;
+	}
+
+	entry *ranges = new entry [count];
+	for(int i = 0; i < count; ++i) {
+		uint32_t y1 = random() & MAX_VALUE;
+		uint32_t y2 = random() & MAX_VALUE;
+		if(y1 < y2) {
+			ranges[i].y1 = y1;
+			ranges[i].y2 = y2;
+		} else {
+			ranges[i].y1 = y2;
+			ranges[i].y2 = y1;
+		}
 	}
 
 	PVQuadTree<Vector1<entry>, entry> *sqt1 = 0;
@@ -113,6 +126,18 @@ int main(int argc, char **argv)
 		BENCH_END(time, "PVQuadTree", count, sizeof(entry), 1, 1);
 		MEM_END(usage, "PVQuadTree");
 		print_mem("PVQuadTree", sqt1->memory());
+
+		std::vector<entry> res1;
+		BENCH_START(time_search_rec);
+		sqt1->extract_first_y1(0, MAX_VALUE, res1);
+		BENCH_END(time_search_rec, "PVQuadTree::extract_first_y1", 1, 1, 1, 1);
+		std::cout << "search result size : " << res1.size() << std::endl;
+
+		std::vector<entry> res2;
+		BENCH_START(time_search_rec2);
+		sqt1->extract_first_y1y2(0, MAX_VALUE, 0, MAX_VALUE, res2);
+		BENCH_END(time_search_rec2, "PVQuadTree::extract_first_y1y2", 1, 1, 1, 1);
+		std::cout << "search result size : " << res2.size() << std::endl;
 	}
 
 	PVQuadTreeTmpl<Vector1<entry>, entry, 8> *tqt1 = 0;
