@@ -260,8 +260,8 @@ void test(
 		picviz_verify(sizeof(PVParallelView::PVHSVColor) == 1);
 		BENCH_END(sse, "omp sse + noalloc colors", nb_codes, sizeof(PVRow), nb_codes, sizeof(PVParallelView::PVBCICode));
 		MEM_END(serial, "omp sse + noalloc colors");
-		CHECK(nb_codes_ref == nb_codes);
-		CHECK(memcmp((const void *) bci_codes, (const void *) bci_codes_ref, nb_codes*sizeof(PVParallelView::PVBCICode)) == 0);
+		//CHECK(nb_codes_ref == nb_codes);
+		//CHECK(memcmp((const void *) bci_codes, (const void *) bci_codes_ref, nb_codes*sizeof(PVParallelView::PVBCICode)) == 0);
 		//show_codes("new", bci_codes, nb_codes);
 		}
 
@@ -272,13 +272,18 @@ void test(
 		BENCH_START(select);
 		size_t nb_codes = ztree->browse_tree_bci_by_sel(colors, bci_codes, sel);
 		BENCH_END(select, "omp sse + noalloc colors by sel", nb_codes, sizeof(PVRow), nb_codes, sizeof(PVParallelView::PVBCICode));
-		PVLOG_INFO("nb_codes=%d\n", nb_codes);
+		//PVLOG_INFO("nb_codes=%d\n", nb_codes);
 		//show_codes("selection", bci_codes, nb_codes);
 
-		PVParallelView::PVZoneTreeNoAlloc* zsel = ztree->filter_by_sel<false>(sel);
+		{
+		MEM_START(serial);
+		BENCH_START(sse);
+		PVParallelView::PVZoneTreeNoAlloc* zsel = ztree->filter_by_sel<true>(sel);
+		zsel = ztree->filter_by_sel<true>(sel);
+		BENCH_END(sse, "subtree selection", nb_codes, sizeof(PVRow), nb_codes, sizeof(PVParallelView::PVBCICode));
+		MEM_END(serial, "subtree selection");
 		delete zsel;
-		//zsel = ztree->filter_by_sel<false>(sel);
-		//delete zsel;
+		}
 
 		//PVLOG_INFO("Parallel success: %d\n", nb_codes_ref == nb_codes && !memcmp ((const void *) bci_codes, (const void *) bci_codes_ref, nb_codes_ref));
 

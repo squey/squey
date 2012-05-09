@@ -17,6 +17,8 @@
 #include <boost/static_assert.hpp>
 #include <boost/type_traits.hpp>
 
+#include <omp.h>
+
 namespace PVParallelView {
 
 #define INVALID_VALUE 0xFFFFFFFF
@@ -488,7 +490,8 @@ PVZoneTreeNoAlloc* PVZoneTreeNoAlloc::filter_by_sel(Picviz::PVSelection const& s
 	const char* str_bench = (only_first) ? "subtree-first" : "subtree";
 	BENCH_START(subtree);
 	Picviz::PVSelection::const_pointer sel_buf = sel.get_buffer();
-#pragma omp parallel for firstprivate(sel_buf) firstprivate(ret) num_threads(12)
+	const size_t nthreads = omp_get_max_threads()/2;
+#pragma omp parallel for firstprivate(sel_buf) firstprivate(ret) num_threads(nthreads)
 	for (size_t b = 0; b < NBUCKETS; b++) {
 		Tree::const_branch_iterator it_src = _tree.begin_branch(b);
 		for (; it_src != _tree.end_branch(b); it_src++) {
