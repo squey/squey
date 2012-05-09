@@ -13,6 +13,8 @@
 #include <cassert>
 #include <iostream>
 
+size_t g_block_size_fixed = atoll(getenv("BLOCK_SIZE"));
+
 namespace PVCore {
 
 template <typename T, typename size_type_ = size_t, size_type_ NB = 1000, class Alloc = std::allocator<T> >
@@ -213,7 +215,7 @@ public:
 		}
 		else {
 			//_nelts_block = picviz_max(10, std::sqrt(nelts));
-			_nelts_block = 10;
+			_nelts_block = g_block_size_fixed;
 			//nblocks_max = NB*(((nelts/_nelts_block)+NB-1)/NB) + nelts%(NB);
 			//nblocks_max = (nelts+_nelts_block+1)/_nelts_block + NB/2;
 			nblocks_max = nelts;
