@@ -285,6 +285,13 @@ void test(
 		delete zsel;
 		}
 
+
+		sel.select_none();
+		BENCH_START(select2);
+		nb_codes = ztree->browse_tree_bci_by_sel(colors, bci_codes, sel);
+		BENCH_END(select2, "omp sse + noalloc colors by sel none", nb_codes, sizeof(PVRow), nb_codes, sizeof(PVParallelView::PVBCICode));
+
+
 		//PVLOG_INFO("Parallel success: %d\n", nb_codes_ref == nb_codes && !memcmp ((const void *) bci_codes, (const void *) bci_codes_ref, nb_codes_ref));
 
 		delete ztree;
