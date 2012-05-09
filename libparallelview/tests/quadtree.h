@@ -60,6 +60,29 @@ public:
 		return mem;
 	}
 
+	unsigned elements() const
+	{
+		if(_datas.is_null()) {
+			return _nodes[0]->elements() + _nodes[1]->elements() + _nodes[2]->elements() +_nodes[3]->elements();
+		} else {
+			return _datas.size();
+		}
+	}
+
+	void dump(std::ostream &os) const
+	{
+		if(_datas.is_null()) {
+			for(unsigned i = 0; i < 4; ++i) {
+				_nodes[i]->dump(os);
+			}
+		} else {
+			for(unsigned i = 0; i < _datas.size(); ++i) {
+				entry e = _datas.at(i);
+				os << e.y1 << " " << e.y2 << std::endl;
+			}
+		}
+	}
+
 	void insert(const entry &e) {
 		// searching for the right child
 		PVQuadTree *qt = this;
@@ -206,7 +229,149 @@ public:
 		}
 	}
 
+	PVQuadTree<DataContainer, Data> *extract_subtree_y1(uint32_t y1_min, uint32_t y1_max) const
+	{
+		PVQuadTree<DataContainer, Data> *new_tree = new PVQuadTree<DataContainer, Data>(*this);
+		if(_datas.is_null()) {
+			if(_y1_mid_value < y1_max) {
+				new_tree->_nodes[NE] = _nodes[NW]->extract_subtree_y1(y1_min, y1_max);
+				new_tree->_nodes[SE] = _nodes[SW]->extract_subtree_y1(y1_min, y1_max);
+			} else {
+				new_tree->_nodes[NE] = new PVQuadTree<DataContainer, Data>(*_nodes[NE]);
+				new_tree->_nodes[NE]->_datas.reserve(1);
+				new_tree->_nodes[SE] = new PVQuadTree<DataContainer, Data>(*_nodes[SE]);
+				new_tree->_nodes[SE]->_datas.reserve(1);
+			}
+			if(y1_min < _y1_mid_value) {
+				new_tree->_nodes[NW] = _nodes[NW]->extract_subtree_y1(y1_min, y1_max);
+				new_tree->_nodes[SW] = _nodes[SW]->extract_subtree_y1(y1_min, y1_max);
+			} else {
+				new_tree->_nodes[NW] = new PVQuadTree<DataContainer, Data>(*_nodes[NW]);
+				new_tree->_nodes[NW]->_datas.reserve(1);
+				new_tree->_nodes[SW] = new PVQuadTree<DataContainer, Data>(*_nodes[SW]);
+				new_tree->_nodes[SW]->_datas.reserve(1);
+			}
+		} else if(_datas.size() != 0) {
+			new_tree->_datas = _datas;
+		} else {
+			new_tree->_datas.reserve(1);
+		}
+		return new_tree;
+	}
+
+	PVQuadTree<DataContainer, Data> *extract_subtree_y2(uint32_t y2_min, uint32_t y2_max) const
+	{
+		PVQuadTree<DataContainer, Data> *new_tree = new PVQuadTree<DataContainer, Data>(*this);
+		if(_datas.is_null()) {
+			if(_y2_mid_value < y2_max) {
+				new_tree->_nodes[NW] = _nodes[NW]->extract_subtree_y2(y2_min, y2_max);
+				new_tree->_nodes[NE] = _nodes[NE]->extract_subtree_y2(y2_min, y2_max);
+			} else {
+				new_tree->_nodes[NW] = new PVQuadTree<DataContainer, Data>(*_nodes[NW]);
+				new_tree->_nodes[NW]->_datas.reserve(1);
+				new_tree->_nodes[NE] = new PVQuadTree<DataContainer, Data>(*_nodes[NE]);
+				new_tree->_nodes[NE]->_datas.reserve(1);
+			}
+			if(y2_min < _y2_mid_value) {
+				new_tree->_nodes[SW] = _nodes[SW]->extract_subtree_y2(y2_min, y2_max);
+				new_tree->_nodes[SE] = _nodes[SE]->extract_subtree_y2(y2_min, y2_max);
+			} else {
+				new_tree->_nodes[SW] = new PVQuadTree<DataContainer, Data>(*_nodes[SW]);
+				new_tree->_nodes[SW]->_datas.reserve(1);
+				new_tree->_nodes[SE] = new PVQuadTree<DataContainer, Data>(*_nodes[SE]);
+				new_tree->_nodes[SE]->_datas.reserve(1);
+			}
+		} else if(_datas.size() != 0) {
+			new_tree->_datas = _datas;
+		} else {
+			new_tree->_datas.reserve(1);
+		}
+		return new_tree;
+	}
+
+	PVQuadTree<DataContainer, Data> *extract_subtree_y1y2(uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max) const
+	{
+		PVQuadTree<DataContainer, Data> *new_tree = new PVQuadTree<DataContainer, Data>(*this);
+		if(_datas.is_null()) {
+			if(_y1_mid_value < y1_max) {
+				if(_y2_mid_value < y2_max) {
+					new_tree->_nodes[NE] = _nodes[NE]->extract_subtree_y1y2(y1_min, y1_max, y2_min, y2_max);
+				} else {
+					new_tree->_nodes[NE] = new PVQuadTree<DataContainer, Data>(*_nodes[NE]);
+					new_tree->_nodes[NE]->_datas.reserve(1);
+				}
+				if(y2_min < _y2_mid_value) {
+					new_tree->_nodes[SE] = _nodes[SE]->extract_subtree_y1y2(y1_min, y1_max, y2_min, y2_max);
+				} else {
+					new_tree->_nodes[SE] = new PVQuadTree<DataContainer, Data>(*_nodes[SE]);
+					new_tree->_nodes[SE]->_datas.reserve(1);
+				}
+			} else {
+				new_tree->_nodes[NE] = new PVQuadTree<DataContainer, Data>(*_nodes[NE]);
+				new_tree->_nodes[NE]->_datas.reserve(1);
+				new_tree->_nodes[SE] = new PVQuadTree<DataContainer, Data>(*_nodes[SE]);
+				new_tree->_nodes[SE]->_datas.reserve(1);
+			}
+			if(y1_min < _y1_mid_value) {
+				if(_y2_mid_value < y2_max) {
+					new_tree->_nodes[NW] = _nodes[NW]->extract_subtree_y1y2(y1_min, y1_max, y2_min, y2_max);
+				} else {
+					new_tree->_nodes[NW] = new PVQuadTree<DataContainer, Data>(*_nodes[NW]);
+					new_tree->_nodes[NW]->_datas.reserve(1);
+				}
+				if(y2_min < _y2_mid_value) {
+					new_tree->_nodes[SW] = _nodes[SW]->extract_subtree_y1y2(y1_min, y1_max, y2_min, y2_max);
+				} else {
+					new_tree->_nodes[SW] = new PVQuadTree<DataContainer, Data>(*_nodes[SW]);
+					new_tree->_nodes[SW]->_datas.reserve(1);
+				}
+			} else {
+				new_tree->_nodes[NW] = new PVQuadTree<DataContainer, Data>(*_nodes[NW]);
+				new_tree->_nodes[NW]->_datas.reserve(1);
+				new_tree->_nodes[SW] = new PVQuadTree<DataContainer, Data>(*_nodes[SW]);
+				new_tree->_nodes[SW]->_datas.reserve(1);
+			}
+		} else if(_datas.size() != 0) {
+			new_tree->_datas = _datas;
+		} else {
+			new_tree->_datas.reserve(1);
+		}
+		return new_tree;
+	}
+
+	bool operator==(const PVQuadTree<DataContainer, Data> &qt) const
+	{
+		if(_datas.is_null()) {
+			for(unsigned i = 0; i < 4; ++i) {
+				if ((_nodes[i] == 0) || (qt._nodes[i] == 0)) {
+					return false;
+				}
+			}
+			return (*_nodes[0] == *qt._nodes[0]
+			        &&
+			        *_nodes[1] == *qt._nodes[1]
+			        &&
+			        *_nodes[2] == *qt._nodes[2]
+			        &&
+			        *_nodes[3] == *qt._nodes[3]);
+		} else {
+			return (_datas == qt._datas);
+		}
+	}
+
 private:
+	PVQuadTree(const PVQuadTree<DataContainer, Data> &qt)
+	{
+		_y1_min_value = qt._y1_min_value;
+		_y1_max_value = qt._y1_max_value;
+		_y2_min_value = qt._y2_min_value;
+		_y2_max_value = qt._y2_max_value;
+		_y1_mid_value = qt._y1_mid_value;
+		_y2_mid_value = qt._y2_mid_value;
+		_max_level = qt._max_level;
+		_nodes[0] = _nodes[1] = _nodes[2] = _nodes[3] = 0;
+	}
+
 	int compute_index(const entry &e) const
 	{
 		return ((e.y2 > _y2_mid_value) << 1) | (e.y1 > _y1_mid_value);
