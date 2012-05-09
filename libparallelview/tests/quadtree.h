@@ -8,6 +8,8 @@
 
 #include "vector.h"
 
+#include <pvparallelview/PVBCICode.h>
+
 template <class DataContainer, class Data>
 class PVQuadTree
 {
@@ -74,7 +76,7 @@ public:
 		}
 	}
 
-	void extract_first_y1(uint32_t y1_min, uint32_t y1_max, std::vector<Data> &results)
+	void extract_first_y1(uint32_t y1_min, uint32_t y1_max, std::vector<Data> &results) const
 	{
 		if(_datas.is_null()) {
 			if(_y1_mid_value < y1_max) {
@@ -90,7 +92,7 @@ public:
 		}
 	}
 
-	void extract_first_y2(uint32_t y2_min, uint32_t y2_max, std::vector<Data> &results)
+	void extract_first_y2(uint32_t y2_min, uint32_t y2_max, std::vector<Data> &results) const
 	{
 		if(_datas.is_null()) {
 			if(_y2_mid_value < y2_max) {
@@ -106,7 +108,7 @@ public:
 		}
 	}
 
-	void extract_first_y1y2(uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max, std::vector<Data> &results)
+	void extract_first_y1y2(uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max, std::vector<Data> &results) const
 	{
 		if(_datas.is_null()) {
 			if(_y1_mid_value < y1_max) {
@@ -127,6 +129,80 @@ public:
 			}
 		} else if(_datas.size() != 0) {
 			results.push_back(_datas.at(0));
+		}
+	}
+
+	void extract_first_y1_bci(uint32_t y1_min, uint32_t y1_max, std::vector<PVParallelView::PVBCICode> &results) const
+	{
+		if(_datas.is_null()) {
+			if(_y1_mid_value < y1_max) {
+				_nodes[NW]->extract_first_y1_bci(y1_min, y1_max, results);
+				_nodes[SW]->extract_first_y1_bci(y1_min, y1_max, results);
+			}
+			if(y1_min < _y1_mid_value) {
+				_nodes[NE]->extract_first_y1_bci(y1_min, y1_max, results);
+				_nodes[SE]->extract_first_y1_bci(y1_min, y1_max, results);
+			}
+		} else if(_datas.size() != 0) {
+			entry e = _datas.at(0);
+			PVParallelView::PVBCICode code;
+			code.s.idx = e.idx;
+			code.s.l = e.y1 >> 22;
+			code.s.r = e.y2 >> 22;
+			code.s.color = random() & 255;
+			results.push_back(code);
+		}
+	}
+
+	void extract_first_y2_bci(uint32_t y2_min, uint32_t y2_max, std::vector<PVParallelView::PVBCICode> &results) const
+	{
+		if(_datas.is_null()) {
+			if(_y2_mid_value < y2_max) {
+				_nodes[NW]->extract_first_y2_bci(y2_min, y2_max, results);
+				_nodes[NE]->extract_first_y2_bci(y2_min, y2_max, results);
+			}
+			if(y2_min < _y2_mid_value) {
+				_nodes[SW]->extract_first_y2_bci(y2_min, y2_max, results);
+				_nodes[SE]->extract_first_y2_bci(y2_min, y2_max, results);
+			}
+		} else if(_datas.size() != 0) {
+			entry e = _datas.at(0);
+			PVParallelView::PVBCICode code;
+			code.s.idx = e.idx;
+			code.s.l = e.y1 >> 22;
+			code.s.r = e.y2 >> 22;
+			code.s.color = random() & 255;
+			results.push_back(code);
+		}
+	}
+
+	void extract_first_y1y2_bci(uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max, std::vector<PVParallelView::PVBCICode> &results) const
+	{
+		if(_datas.is_null()) {
+			if(_y1_mid_value < y1_max) {
+				if(_y2_mid_value < y2_max) {
+					_nodes[NW]->extract_first_y1y2_bci(y1_min, y1_max, y2_min, y2_max, results);
+				}
+				if(y2_min < _y2_mid_value) {
+					_nodes[SW]->extract_first_y1y2_bci(y1_min, y1_max, y2_min, y2_max, results);
+				}
+			}
+			if(y1_min < _y1_mid_value) {
+				if(_y2_mid_value < y2_max) {
+					_nodes[NE]->extract_first_y1y2_bci(y1_min, y1_max, y2_min, y2_max, results);
+				}
+				if(y2_min < _y2_mid_value) {
+					_nodes[SE]->extract_first_y1y2_bci(y1_min, y1_max, y2_min, y2_max, results);
+				}
+			}
+		} else if(_datas.size() != 0) {
+			entry e = _datas.at(0);
+			PVParallelView::PVBCICode code;
+			code.s.idx = e.idx;
+			code.s.l = e.y1 >> 22;
+			code.s.r = e.y2 >> 22;
+			code.s.color = random() & 255;
+			results.push_back(code);
 		}
 	}
 
