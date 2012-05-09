@@ -43,29 +43,15 @@ enum {
 
 #include "quadtree.h"
 
-void printb (uint32_t v)
-{
-	for(int i = 31; i >= 0; --i) {
-		if((i & 7) == 7)
-			std::cout << " ";
-		if(v & (1 << i))
-			std::cout << "1";
-		else
-			std::cout << "0";
-	}
-}
-
-void print_mem (const char *text, size_t s)
-{
-	double v = s / (1024. * 1024.);
-	std::cout << text  << ": memory usage is: " << v << " Mib" << std::endl;
-}
-
 #define MAX_VALUE ((1<<22) - 1)
 
 void usage()
 {
-	std::cout << "usage: test-quadtree entry-count" << std::endl;
+	std::cout << "usage: test-quadtree entry-count what" << std::endl;
+	std::cout << std::endl;
+	std::cout << "what can be:" << std::endl;
+	std::cout << "  0: PVQuadTree::extract_first_y1y2 with full area" << std::endl;
+	std::cout << "  1: PVQuadTree::extract_first_y1y2_bci with full area" << std::endl;
 	std::cout << std::endl;
 }
 
@@ -74,22 +60,20 @@ void usage()
 // it's 8 because QuadTreeTmpl's size can not set
 #define DEPTH 8
 
-PVParallelView::PVHSVColor get_color(PVParallelView::PVHSVColor *colors)
-{
-	static int color_index = 0;
-	PVParallelView::PVHSVColor c = colors[color_index];
-	color_index = (color_index + 1) & 255;
-	return c;
-}
-
 int main(int argc, char **argv)
 {
-	if (argc < 2) {
+	if (argc != 3) {
 		usage();
 		return 1;
 	}
 
 	int count = atoi(argv[1]);
+	int what = atoi(argv[2]);
+
+	if(what > 1) {
+		usage();
+		return 2;
+	}
 
 	entry *entries = new entry [count];
 	for(int i = 0; i < count; ++i) {
@@ -98,36 +82,33 @@ int main(int argc, char **argv)
 		entries[i].idx = i;
 	}
 
-	PVParallelView::PVHSVColor *colors = PVParallelView::PVHSVColor::init_colors(256);
-
 	PVQuadTree<Vector1<entry>, entry> *sqt1 = new PVQuadTree<Vector1<entry>, entry>(0, MAX_VALUE, 0, MAX_VALUE, DEPTH);
-	MEM_START(usage);
-	BENCH_START(time);
+	std::cout << "Filling quadtree, it can take a while..." << std::endl;
 	for(int i = 0; i < count; ++i) {
 		sqt1->insert(entries[i]);
 	}
-	BENCH_END(time, "PVQuadTree", count, sizeof(entry), 1, 1);
-	MEM_END(usage, "PVQuadTree");
-	print_mem("PVQuadTree", sqt1->memory());
 
 	std::vector<entry> res1;
 
-	/* extraction of quadtree's data
+	/* extraction of quadtree's raw data
 	 */
-	// res1.reserve(0);
-	// BENCH_START(time_search);
-	// sqt1->extract_first_y1y2(0, MAX_VALUE, 0, MAX_VALUE, res1);
-	// BENCH_END(time_search, "PVQuadTree::serch", 1, 1, 1, 1);
-	// std::cout << "search result size : " << res1.size() << std::endl;
+	if(what == 0) {
+		res1.reserve(0);
+		BENCH_START(time_search);
+		sqt1->extract_first_y1y2(0, MAX_VALUE, 0, MAX_VALUE, res1);
+		BENCH_END(time_search, "PVQuadTree::serch", 1, 1, 1, 1);
+		std::cout << "search result size : " << res1.size() << std::endl;
+	}
 
 	/* extraction of BCICode
 	 */
-	res1.clear();
-	std::vector<PVParallelView::PVBCICode> codes;
-	BENCH_START(time_extract);
-	sqt1->extract_first_y1y2_bci(0, MAX_VALUE, 0, MAX_VALUE, codes);
-	BENCH_END(time_extract, "BCICode Extraction", 1, 1, 1, 1);
-	std::cout << "extraction result size : " << codes.size() << std::endl;
+	if(what == 1) {
+		std::vector<PVParallelView::PVBCICode> codes;
+		BENCH_START(time_extract);
+		sqt1->extract_first_y1y2_bci(0, MAX_VALUE, 0, MAX_VALUE, codes);
+		BENCH_END(time_extract, "BCICode Extraction", 1, 1, 1, 1);
+		std::cout << "extraction result size : " << codes.size() << std::endl;
+	}
 
 	if(sqt1) {
 		delete sqt1;
