@@ -156,6 +156,11 @@ int main(int argc, char **argv)
 		return 2;
 	}
 
+	if(what < 0) {
+		std::cout << TEST_LAST - 1 << std::endl;
+		return 0;
+	}
+
 	entries = new entry [count];
 	for(unsigned i = 0; i < count; ++i) {
 		entries[i].y1 = random() & MAX_VALUE;
