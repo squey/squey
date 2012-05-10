@@ -16,6 +16,7 @@
 
 #include <pvparallelview/PVHSVColor.h>
 #include <pvparallelview/PVBCICode.h>
+#include <picviz/PVSelection.h>
 
 // gros hack pour que les quadtree connaissent la structure entry
 
@@ -68,6 +69,10 @@ void usage()
 	std::cout << "  3: PVQuadTree::extract_subtree_y1 with half area" << std::endl;
 	std::cout << "  4: PVQuadTree::extract_subtree_y1y2 with quarter area" << std::endl;
 	std::cout << "  5: PVQuadTree::extract_subtree_y1y2 with quarter area for each quarter" << std::endl;
+	std::cout << "  6: PVQuadTree::extract_subtree_with_selection with entry-count selected entry" << std::endl;
+	std::cout << "  7: PVQuadTree::extract_subtree_with_selection with entry-count / 2 selected entry" << std::endl;
+	std::cout << "  8: PVQuadTree::extract_subtree_with_selection with entry-count / 4 selected entry" << std::endl;
+	std::cout << "  9: PVQuadTree::extract_subtree_with_selection with no selected entry" << std::endl;
 	std::cout << std::endl;
 }
 
@@ -81,16 +86,16 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	int count = atoi(argv[1]);
+	unsigned count = (unsigned)atoi(argv[1]);
 	int what = atoi(argv[2]);
 
-	if(what > 5) {
+	if(what > 9) {
 		usage();
 		return 2;
 	}
 
 	entry *entries = new entry [count];
-	for(int i = 0; i < count; ++i) {
+	for(unsigned i = 0; i < count; ++i) {
 		entries[i].y1 = random() & MAX_VALUE;
 		entries[i].y2 = random() & MAX_VALUE;
 		entries[i].idx = i;
@@ -98,7 +103,7 @@ int main(int argc, char **argv)
 
 	PVQuadTree<Vector1<entry>, entry> *sqt1 = new PVQuadTree<Vector1<entry>, entry>(0, MAX_VALUE, 0, MAX_VALUE, DEPTH);
 	std::cout << "Filling quadtree, it can take a while..." << std::endl;
-	for(int i = 0; i < count; ++i) {
+	for(unsigned i = 0; i < count; ++i) {
 		sqt1->insert(entries[i]);
 	}
 
@@ -144,7 +149,7 @@ int main(int argc, char **argv)
 	if(what == 3) {
 		PVQuadTree<Vector1<entry>, entry> *subtree;
 		BENCH_START(time_extract_subtree);
-		subtree = sqt1->extract_subtree_y1(0, MAX_VALUE >> 1);
+		subtree = sqt1->extract_subtree_y2(0, MAX_VALUE >> 1);
 		BENCH_END(time_extract_subtree, "Subtree Extraction", 1, 1, 1, 1);
 		print_mem("QuadTree", sqt1->memory());
 		print_mem("SubQuadTree", subtree->memory());
@@ -152,7 +157,6 @@ int main(int argc, char **argv)
 		std::cout << "SubQuadTree's elements count: " << subtree->elements() << std::endl;
 		delete subtree;
 	}
-
 
 	if(what == 4) {
 		PVQuadTree<Vector1<entry>, entry> *subtree;
@@ -183,12 +187,11 @@ int main(int argc, char **argv)
 			std::cout << "SubQuadTree's elements count: " << subtree->elements() << std::endl;
 			delete subtree;
 		}
-
 		{
 			// SE quarter
 			PVQuadTree<Vector1<entry>, entry> *subtree;
 			BENCH_START(time_extract_subtree);
-			subtree = sqt1->extract_subtree_y1y2(             0, MAX_VALUE >> 1,
+			subtree = sqt1->extract_subtree_y1y2(0             , MAX_VALUE >> 1,
 			                                     MAX_VALUE >> 1, MAX_VALUE);
 			BENCH_END(time_extract_subtree, "Subtree Extraction", 1, 1, 1, 1);
 			print_mem("QuadTree", sqt1->memory());
@@ -197,7 +200,6 @@ int main(int argc, char **argv)
 			std::cout << "SubQuadTree's elements count: " << subtree->elements() << std::endl;
 			delete subtree;
 		}
-
 		{
 			// NE quarter
 			PVQuadTree<Vector1<entry>, entry> *subtree;
@@ -211,13 +213,12 @@ int main(int argc, char **argv)
 			std::cout << "SubQuadTree's elements count: " << subtree->elements() << std::endl;
 			delete subtree;
 		}
-
 		{
 			// NW quarter
 			PVQuadTree<Vector1<entry>, entry> *subtree;
 			BENCH_START(time_extract_subtree);
 			subtree = sqt1->extract_subtree_y1y2(MAX_VALUE >> 1, MAX_VALUE,
-			                                                  0, MAX_VALUE >> 1);
+			                                     0             , MAX_VALUE >> 1);
 			BENCH_END(time_extract_subtree, "Subtree Extraction", 1, 1, 1, 1);
 			print_mem("QuadTree", sqt1->memory());
 			print_mem("SubQuadTree", subtree->memory());
@@ -225,7 +226,75 @@ int main(int argc, char **argv)
 			std::cout << "SubQuadTree's elements count: " << subtree->elements() << std::endl;
 			delete subtree;
 		}
+	}
 
+	if(what == 6) {
+		Picviz::PVSelection selection;
+		for(unsigned i = 0; i < count; ++i) {
+			selection.set_line(i, true);
+		}
+		PVQuadTree<Vector1<entry>, entry> *subtree;
+		BENCH_START(time_extract_subtree);
+		subtree = sqt1->extract_subtree_with_selection(selection);
+		BENCH_END(time_extract_subtree, "Subtree Extraction with all selected", 1, 1, 1, 1);
+		print_mem("QuadTree", sqt1->memory());
+		print_mem("SubQuadTree", subtree->memory());
+		if(*sqt1 == *subtree) {
+			std::cout << "subtree is equal" << std::endl;
+		} else {
+			std::cout << "subtree is different" << std::endl;
+		}
+		delete subtree;
+	}
+
+
+	if(what == 7) {
+		Picviz::PVSelection selection;
+		for(unsigned i = 0; i < count / 2; ++i) {
+			selection.set_line(i << 1, true);
+		}
+		PVQuadTree<Vector1<entry>, entry> *subtree;
+		BENCH_START(time_extract_subtree);
+		subtree = sqt1->extract_subtree_with_selection(selection);
+		BENCH_END(time_extract_subtree, "Subtree Extraction with selection", 1, 1, 1, 1);
+		print_mem("QuadTree", sqt1->memory());
+		print_mem("SubQuadTree", subtree->memory());
+		std::cout << "QuadTree's elements count: " << sqt1->elements() << std::endl;
+		std::cout << "SubQuadTree's elements count: " << subtree->elements() << std::endl;
+		delete subtree;
+	}
+
+	if(what == 8) {
+		Picviz::PVSelection selection;
+		for(unsigned i = 0; i < count / 4; ++i) {
+			selection.set_line(i << 2, true);
+		}
+		PVQuadTree<Vector1<entry>, entry> *subtree;
+		BENCH_START(time_extract_subtree);
+		subtree = sqt1->extract_subtree_with_selection(selection);
+		BENCH_END(time_extract_subtree, "Subtree Extraction with selection", 1, 1, 1, 1);
+		print_mem("QuadTree", sqt1->memory());
+		print_mem("SubQuadTree", subtree->memory());
+		std::cout << "QuadTree's elements count: " << sqt1->elements() << std::endl;
+		std::cout << "SubQuadTree's elements count: " << subtree->elements() << std::endl;
+		delete subtree;
+	}
+
+
+	if(what == 9) {
+		Picviz::PVSelection selection;
+		for(unsigned i = 0; i < count; ++i) {
+			selection.set_line(i, false);
+		}
+		PVQuadTree<Vector1<entry>, entry> *subtree;
+		BENCH_START(time_extract_subtree);
+		subtree = sqt1->extract_subtree_with_selection(selection);
+		BENCH_END(time_extract_subtree, "Subtree Extraction with selection", 1, 1, 1, 1);
+		print_mem("QuadTree", sqt1->memory());
+		print_mem("SubQuadTree", subtree->memory());
+		std::cout << "QuadTree's elements count: " << sqt1->elements() << std::endl;
+		std::cout << "SubQuadTree's elements count: " << subtree->elements() << std::endl;
+		delete subtree;
 	}
 
 	if(sqt1) {
