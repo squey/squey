@@ -3,33 +3,18 @@
 
 #include <stdint.h>
 
-#include <omp.h>
-
 #include <stdlib.h>
 #include <string.h>
 
-#include <tbb/concurrent_vector.h>
-
 #include "vector.h"
 
-template <class C>
-class PVconcurrentVector : public tbb::concurrent_vector<C>
-{
-public:
-	bool is_null()
-	{
-		return tbb::concurrent_vector<C>::empty() && (tbb::concurrent_vector<C>::capacity() == 0);
-	}
-};
+#include <pvparallelview/PVBCICode.h>
+#include <picviz/PVSelection.h>
 
 template <class DataContainer, class Data>
 class PVQuadTree
 {
-#ifdef USE_CONC_VEC
-	typedef PVconcurrentVector<entry> list_rows_t;
-#else
 	typedef DataContainer list_rows_t;
-#endif
 
 public:
 	PVQuadTree(uint32_t y1_min_value, uint32_t y1_max_value, uint32_t y2_min_value, uint32_t y2_max_value, int max_level) :
@@ -76,6 +61,31 @@ public:
 		return mem;
 	}
 
+	// usefull for stats but elsewhere?
+	unsigned elements() const
+	{
+		if(_datas.is_null()) {
+			return _nodes[0]->elements() + _nodes[1]->elements() + _nodes[2]->elements() +_nodes[3]->elements();
+		} else {
+			return _datas.size();
+		}
+	}
+
+	// usefull for debug but elsewhere?
+	void dump(std::ostream &os) const
+	{
+		if(_datas.is_null()) {
+			for(unsigned i = 0; i < 4; ++i) {
+				_nodes[i]->dump(os);
+			}
+		} else {
+			for(unsigned i = 0; i < _datas.size(); ++i) {
+				entry e = _datas.at(i);
+				os << e.y1 << " " << e.y2 << std::endl;
+			}
+		}
+	}
+
 	void insert(const entry &e) {
 		// searching for the right child
 		PVQuadTree *qt = this;
@@ -92,25 +102,302 @@ public:
 		}
 	}
 
-	void get_y1_first(int vmin, int vmax, Data &result)
+	void extract_first_y1(uint32_t y1_min, uint32_t y1_max, std::vector<Data> &results) const
 	{
 		if(_datas.is_null()) {
-			if(_y1_mid_value < vmax) {
-				_nodes[NW].get_y1_first(vmin, vmax, result);
-				_nodes[SW].get_y1_first(vmin, vmax, result);
+			if(_y1_mid_value < y1_max) {
+				_nodes[NE]->extract_first_y1(y1_min, y1_max, results);
+				_nodes[SE]->extract_first_y1(y1_min, y1_max, results);
 			}
-			if(vmin < _y1_mid_value) {
-				_nodes[NE].get_y1_first(vmin, vmax, result);
-				_nodes[SE].get_y1_first(vmin, vmax, result);
+			if(y1_min < _y1_mid_value) {
+				_nodes[NW]->extract_first_y1(y1_min, y1_max, results);
+				_nodes[SW]->extract_first_y1(y1_min, y1_max, results);
 			}
-		} else {
-			Data current = _datas.back();
-			if(result.idx <= current.idx) {
-				result = current;
-			}
+		} else if(_datas.size() != 0) {
+			results.push_back(_datas.at(0));
 		}
 	}
+
+	void extract_first_y2(uint32_t y2_min, uint32_t y2_max, std::vector<Data> &results) const
+	{
+		if(_datas.is_null()) {
+			if(_y2_mid_value < y2_max) {
+				_nodes[NW]->extract_first_y2(y2_min, y2_max, results);
+				_nodes[NE]->extract_first_y2(y2_min, y2_max, results);
+			}
+			if(y2_min < _y2_mid_value) {
+				_nodes[SW]->extract_first_y2(y2_min, y2_max, results);
+				_nodes[SE]->extract_first_y2(y2_min, y2_max, results);
+			}
+		} else if(_datas.size() != 0) {
+			results.push_back(_datas.at(0));
+		}
+	}
+
+	void extract_first_y1y2(uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max, std::vector<Data> &results) const
+	{
+		if(_datas.is_null()) {
+			if(_y1_mid_value < y1_max) {
+				if(_y2_mid_value < y2_max) {
+					_nodes[NE]->extract_first_y1y2(y1_min, y1_max, y2_min, y2_max, results);
+				}
+				if(y2_min < _y2_mid_value) {
+					_nodes[SE]->extract_first_y1y2(y1_min, y1_max, y2_min, y2_max, results);
+				}
+			}
+			if(y1_min < _y1_mid_value) {
+				if(_y2_mid_value < y2_max) {
+					_nodes[NW]->extract_first_y1y2(y1_min, y1_max, y2_min, y2_max, results);
+				}
+				if(y2_min < _y2_mid_value) {
+					_nodes[SW]->extract_first_y1y2(y1_min, y1_max, y2_min, y2_max, results);
+				}
+			}
+		} else if(_datas.size() != 0) {
+			results.push_back(_datas.at(0));
+		}
+	}
+
+	void extract_first_y1_bci(uint32_t y1_min, uint32_t y1_max, std::vector<PVParallelView::PVBCICode> &results) const
+	{
+		if(_datas.is_null()) {
+			if(_y1_mid_value < y1_max) {
+				_nodes[NE]->extract_first_y1_bci(y1_min, y1_max, results);
+				_nodes[SE]->extract_first_y1_bci(y1_min, y1_max, results);
+			}
+			if(y1_min < _y1_mid_value) {
+				_nodes[NW]->extract_first_y1_bci(y1_min, y1_max, results);
+				_nodes[SW]->extract_first_y1_bci(y1_min, y1_max, results);
+			}
+		} else if(_datas.size() != 0) {
+			entry e = _datas.at(0);
+			PVParallelView::PVBCICode code;
+			code.s.idx = e.idx;
+			code.s.l = e.y1 >> 22;
+			code.s.r = e.y2 >> 22;
+			code.s.color = random() & 255;
+			results.push_back(code);
+		}
+	}
+
+	void extract_first_y2_bci(uint32_t y2_min, uint32_t y2_max, std::vector<PVParallelView::PVBCICode> &results) const
+	{
+		if(_datas.is_null()) {
+			if(_y2_mid_value < y2_max) {
+				_nodes[NW]->extract_first_y2_bci(y2_min, y2_max, results);
+				_nodes[NE]->extract_first_y2_bci(y2_min, y2_max, results);
+			}
+			if(y2_min < _y2_mid_value) {
+				_nodes[SW]->extract_first_y2_bci(y2_min, y2_max, results);
+				_nodes[SE]->extract_first_y2_bci(y2_min, y2_max, results);
+			}
+		} else if(_datas.size() != 0) {
+			entry e = _datas.at(0);
+			PVParallelView::PVBCICode code;
+			code.s.idx = e.idx;
+			code.s.l = e.y1 >> 22;
+			code.s.r = e.y2 >> 22;
+			code.s.color = random() & 255;
+			results.push_back(code);
+		}
+	}
+
+	void extract_first_y1y2_bci(uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max, std::vector<PVParallelView::PVBCICode> &results) const
+	{
+		if(_datas.is_null()) {
+			if(_y1_mid_value < y1_max) {
+				if(_y2_mid_value < y2_max) {
+					_nodes[NE]->extract_first_y1y2_bci(y1_min, y1_max, y2_min, y2_max, results);
+				}
+				if(y2_min < _y2_mid_value) {
+					_nodes[SE]->extract_first_y1y2_bci(y1_min, y1_max, y2_min, y2_max, results);
+				}
+			}
+			if(y1_min < _y1_mid_value) {
+				if(_y2_mid_value < y2_max) {
+					_nodes[NW]->extract_first_y1y2_bci(y1_min, y1_max, y2_min, y2_max, results);
+				}
+				if(y2_min < _y2_mid_value) {
+					_nodes[SW]->extract_first_y1y2_bci(y1_min, y1_max, y2_min, y2_max, results);
+				}
+			}
+		} else if(_datas.size() != 0) {
+			entry e = _datas.at(0);
+			PVParallelView::PVBCICode code;
+			code.s.idx = e.idx;
+			code.s.l = e.y1 >> 22;
+			code.s.r = e.y2 >> 22;
+			code.s.color = random() & 255;
+			results.push_back(code);
+		}
+	}
+
+	PVQuadTree<DataContainer, Data> *extract_subtree_y1(uint32_t y1_min, uint32_t y1_max) const
+	{
+		PVQuadTree<DataContainer, Data> *new_tree = new PVQuadTree<DataContainer, Data>(*this);
+		if(_datas.is_null()) {
+			if(_y1_mid_value < y1_max) {
+				new_tree->_nodes[NE] = _nodes[NW]->extract_subtree_y1(y1_min, y1_max);
+				new_tree->_nodes[SE] = _nodes[SW]->extract_subtree_y1(y1_min, y1_max);
+			} else {
+				new_tree->_nodes[NE] = new PVQuadTree<DataContainer, Data>(*_nodes[NE]);
+				new_tree->_nodes[NE]->_datas.reserve(1);
+				new_tree->_nodes[SE] = new PVQuadTree<DataContainer, Data>(*_nodes[SE]);
+				new_tree->_nodes[SE]->_datas.reserve(1);
+			}
+			if(y1_min < _y1_mid_value) {
+				new_tree->_nodes[NW] = _nodes[NW]->extract_subtree_y1(y1_min, y1_max);
+				new_tree->_nodes[SW] = _nodes[SW]->extract_subtree_y1(y1_min, y1_max);
+			} else {
+				new_tree->_nodes[NW] = new PVQuadTree<DataContainer, Data>(*_nodes[NW]);
+				new_tree->_nodes[NW]->_datas.reserve(1);
+				new_tree->_nodes[SW] = new PVQuadTree<DataContainer, Data>(*_nodes[SW]);
+				new_tree->_nodes[SW]->_datas.reserve(1);
+			}
+		} else if(_datas.size() != 0) {
+			new_tree->_datas = _datas;
+		} else {
+			new_tree->_datas.reserve(1);
+		}
+		return new_tree;
+	}
+
+	PVQuadTree<DataContainer, Data> *extract_subtree_y2(uint32_t y2_min, uint32_t y2_max) const
+	{
+		PVQuadTree<DataContainer, Data> *new_tree = new PVQuadTree<DataContainer, Data>(*this);
+		if(_datas.is_null()) {
+			if(_y2_mid_value < y2_max) {
+				new_tree->_nodes[NW] = _nodes[NW]->extract_subtree_y2(y2_min, y2_max);
+				new_tree->_nodes[NE] = _nodes[NE]->extract_subtree_y2(y2_min, y2_max);
+			} else {
+				new_tree->_nodes[NW] = new PVQuadTree<DataContainer, Data>(*_nodes[NW]);
+				new_tree->_nodes[NW]->_datas.reserve(1);
+				new_tree->_nodes[NE] = new PVQuadTree<DataContainer, Data>(*_nodes[NE]);
+				new_tree->_nodes[NE]->_datas.reserve(1);
+			}
+			if(y2_min < _y2_mid_value) {
+				new_tree->_nodes[SW] = _nodes[SW]->extract_subtree_y2(y2_min, y2_max);
+				new_tree->_nodes[SE] = _nodes[SE]->extract_subtree_y2(y2_min, y2_max);
+			} else {
+				new_tree->_nodes[SW] = new PVQuadTree<DataContainer, Data>(*_nodes[SW]);
+				new_tree->_nodes[SW]->_datas.reserve(1);
+				new_tree->_nodes[SE] = new PVQuadTree<DataContainer, Data>(*_nodes[SE]);
+				new_tree->_nodes[SE]->_datas.reserve(1);
+			}
+		} else if(_datas.size() != 0) {
+			new_tree->_datas = _datas;
+		} else {
+			new_tree->_datas.reserve(1);
+		}
+		return new_tree;
+	}
+
+	PVQuadTree<DataContainer, Data> *extract_subtree_y1y2(uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max) const
+	{
+		PVQuadTree<DataContainer, Data> *new_tree = new PVQuadTree<DataContainer, Data>(*this);
+		if(_datas.is_null()) {
+			if(_y1_mid_value < y1_max) {
+				if(_y2_mid_value < y2_max) {
+					new_tree->_nodes[NE] = _nodes[NE]->extract_subtree_y1y2(y1_min, y1_max, y2_min, y2_max);
+				} else {
+					new_tree->_nodes[NE] = new PVQuadTree<DataContainer, Data>(*_nodes[NE]);
+					new_tree->_nodes[NE]->_datas.reserve(1);
+				}
+				if(y2_min < _y2_mid_value) {
+					new_tree->_nodes[SE] = _nodes[SE]->extract_subtree_y1y2(y1_min, y1_max, y2_min, y2_max);
+				} else {
+					new_tree->_nodes[SE] = new PVQuadTree<DataContainer, Data>(*_nodes[SE]);
+					new_tree->_nodes[SE]->_datas.reserve(1);
+				}
+			} else {
+				new_tree->_nodes[NE] = new PVQuadTree<DataContainer, Data>(*_nodes[NE]);
+				new_tree->_nodes[NE]->_datas.reserve(1);
+				new_tree->_nodes[SE] = new PVQuadTree<DataContainer, Data>(*_nodes[SE]);
+				new_tree->_nodes[SE]->_datas.reserve(1);
+			}
+			if(y1_min < _y1_mid_value) {
+				if(_y2_mid_value < y2_max) {
+					new_tree->_nodes[NW] = _nodes[NW]->extract_subtree_y1y2(y1_min, y1_max, y2_min, y2_max);
+				} else {
+					new_tree->_nodes[NW] = new PVQuadTree<DataContainer, Data>(*_nodes[NW]);
+					new_tree->_nodes[NW]->_datas.reserve(1);
+				}
+				if(y2_min < _y2_mid_value) {
+					new_tree->_nodes[SW] = _nodes[SW]->extract_subtree_y1y2(y1_min, y1_max, y2_min, y2_max);
+				} else {
+					new_tree->_nodes[SW] = new PVQuadTree<DataContainer, Data>(*_nodes[SW]);
+					new_tree->_nodes[SW]->_datas.reserve(1);
+				}
+			} else {
+				new_tree->_nodes[NW] = new PVQuadTree<DataContainer, Data>(*_nodes[NW]);
+				new_tree->_nodes[NW]->_datas.reserve(1);
+				new_tree->_nodes[SW] = new PVQuadTree<DataContainer, Data>(*_nodes[SW]);
+				new_tree->_nodes[SW]->_datas.reserve(1);
+			}
+		} else if(_datas.size() != 0) {
+			new_tree->_datas = _datas;
+		} else {
+			new_tree->_datas.reserve(1);
+		}
+		return new_tree;
+	}
+
+
+	PVQuadTree<DataContainer, Data> *extract_subtree_with_selection(const Picviz::PVSelection &selection) const
+	{
+		PVQuadTree<DataContainer, Data> *new_tree = new PVQuadTree<DataContainer, Data>(*this);
+		if(_datas.is_null()) {
+			new_tree->_nodes[NE] = _nodes[NE]->extract_subtree_with_selection(selection);
+			new_tree->_nodes[SE] = _nodes[SE]->extract_subtree_with_selection(selection);
+			new_tree->_nodes[NW] = _nodes[NW]->extract_subtree_with_selection(selection);
+			new_tree->_nodes[SW] = _nodes[SW]->extract_subtree_with_selection(selection);
+		} else if(_datas.size() != 0) {
+			new_tree->_datas.reserve(1);
+			for(unsigned i = 0; i < _datas.size(); ++i) {
+				entry e = _datas.at(i);
+				if(selection.get_line(e.idx)) {
+					new_tree->_datas.push_back(e);
+				}
+			}
+		} else {
+			new_tree->_datas.reserve(1);
+		}
+		return new_tree;
+	}
+
+	bool operator==(const PVQuadTree<DataContainer, Data> &qt) const
+	{
+		if(_datas.is_null()) {
+			for(unsigned i = 0; i < 4; ++i) {
+				if ((_nodes[i] == 0) || (qt._nodes[i] == 0)) {
+					return false;
+				}
+			}
+			return (*_nodes[0] == *qt._nodes[0]
+			        &&
+			        *_nodes[1] == *qt._nodes[1]
+			        &&
+			        *_nodes[2] == *qt._nodes[2]
+			        &&
+			        *_nodes[3] == *qt._nodes[3]);
+		} else {
+			return (_datas == qt._datas);
+		}
+	}
+
 private:
+	PVQuadTree(const PVQuadTree<DataContainer, Data> &qt)
+	{
+		_y1_min_value = qt._y1_min_value;
+		_y1_max_value = qt._y1_max_value;
+		_y2_min_value = qt._y2_min_value;
+		_y2_max_value = qt._y2_max_value;
+		_y1_mid_value = qt._y1_mid_value;
+		_y2_mid_value = qt._y2_mid_value;
+		_max_level = qt._max_level;
+		_nodes[0] = _nodes[1] = _nodes[2] = _nodes[3] = 0;
+	}
+
 	int compute_index(const entry &e) const
 	{
 		return ((e.y2 > _y2_mid_value) << 1) | (e.y1 > _y1_mid_value);
@@ -134,18 +421,10 @@ private:
 		                            _y2_mid_value, _y2_max_value,
 		                            _max_level - 1);
 
-#ifdef USE_CONC_VEC
-#pragma omp parallel for
-		for(unsigned i = 0; i < _datas.size(); ++i) {
-			entry &e = _datas[i];
-			_nodes[compute_index(e)]->_datas.push_back(e);
-		}
-#else
 		for(unsigned i = 0; i < _datas.size(); ++i) {
 			entry &e = _datas.at(i);
 			_nodes[compute_index(e)]->_datas.push_back(e);
 		}
-#endif
 		_datas.clear();
 	}
 

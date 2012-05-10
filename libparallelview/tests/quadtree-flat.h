@@ -15,6 +15,7 @@ class PVQuadTreeFlatBase
 public:
 	PVQuadTreeFlatBase() {}
 
+#ifndef USE_INIT
 	void set(uint32_t y1_min_value, uint32_t y1_max_value, uint32_t y2_min_value, uint32_t y2_max_value, uint32_t position, int max_level)
 	{
 		_y1_min_value = y1_min_value;
@@ -27,6 +28,7 @@ public:
 		_y2_mid_value = (_y2_min_value + _y2_max_value) / 2;
 		_datas.reserve(MAX_SIZE + 1);
 	}
+#endif
 
 	inline size_t memory() const
 	{
@@ -47,14 +49,18 @@ public:
 	{
 		_position = position;
 		_max_level = max_level;
-		_y1_mid_value = (_y1_min_value + _y1_max_value) / 2;
-		_y2_mid_value = (_y2_min_value + _y2_max_value) / 2;
+		_y1_mid_value = (y1_min_value + y1_max_value) / 2;
+		_y2_mid_value = (y2_min_value + y2_max_value) / 2;
 
-		if(_max_level == 0) {
+		if(position == 0) {
+			_datas.reserve(MAX_SIZE + 1);
+		}
+
+		if(_max_level == 1) {
 			return;
 		}
-		unsigned pos = children();
 
+		unsigned pos = children();
 		tab[pos + NE].init(tab,
 		                   _y1_mid_value, y1_max_value,
 		                   _y2_mid_value, y2_max_value,
@@ -150,10 +156,12 @@ public:
 	DataContainer     _datas;
 	unsigned _nodes[4];
 
+#ifndef USE_INIT
        	uint32_t _y1_min_value;
 	uint32_t _y1_max_value;
 	uint32_t _y2_min_value;
 	uint32_t _y2_max_value;
+#endif
 
 	uint32_t _y1_mid_value;
 	uint32_t _y2_mid_value;
@@ -207,8 +215,8 @@ public:
 	}
 
 private:
-	unsigned                  _count;
 	PVQuadTreeFlatBase<DataContainer, Data> *_trees;
+	unsigned                                 _count;
 };
 
 #endif // QUADTREE_FLAT_H

@@ -13,7 +13,7 @@
 #include <cassert>
 #include <iostream>
 
-size_t g_block_size_fixed = atoll(getenv("BLOCK_SIZE"));
+//size_t g_block_size_fixed = atoll(getenv("BLOCK_SIZE"));
 
 namespace PVCore {
 
@@ -214,8 +214,8 @@ public:
 			nblocks_max = (nelts+_nelts_block-1)/(_nelts_block) + NB/2;
 		}
 		else {
-			//_nelts_block = picviz_max(10, std::sqrt(nelts));
-			_nelts_block = g_block_size_fixed;
+			_nelts_block = 6;
+			//_nelts_block = g_block_size_fixed;
 			//nblocks_max = NB*(((nelts/_nelts_block)+NB-1)/NB) + nelts%(NB);
 			//nblocks_max = (nelts+_nelts_block+1)/_nelts_block + NB/2;
 			nblocks_max = nelts;
