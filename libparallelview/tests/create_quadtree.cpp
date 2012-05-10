@@ -129,14 +129,14 @@ int main(int argc, char **argv)
 
 		std::vector<entry> res1;
 		BENCH_START(time_search_rec);
-		sqt1->extract_first_y1(0, MAX_VALUE, res1);
-		BENCH_END(time_search_rec, "PVQuadTree::extract_first_y1", 1, 1, 1, 1);
+		sqt1->extract_first_from_y1(0, MAX_VALUE, res1);
+		BENCH_END(time_search_rec, "PVQuadTree::extract_first_from_y1", 1, 1, 1, 1);
 		std::cout << "search result size : " << res1.size() << std::endl;
 
 		std::vector<entry> res2;
 		BENCH_START(time_search_rec2);
-		sqt1->extract_first_y1y2(0, MAX_VALUE, 0, MAX_VALUE, res2);
-		BENCH_END(time_search_rec2, "PVQuadTree::extract_first_y1y2", 1, 1, 1, 1);
+		sqt1->extract_first_from_y1y2(0, MAX_VALUE, 0, MAX_VALUE, res2);
+		BENCH_END(time_search_rec2, "PVQuadTree::extract_first_from_y1y2", 1, 1, 1, 1);
 		std::cout << "search result size : " << res2.size() << std::endl;
 	}
 
