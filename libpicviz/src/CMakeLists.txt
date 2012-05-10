@@ -130,7 +130,6 @@ PVDefaultSortingFunc.cpp
 PVSortingFunc.cpp
 PVSource.cpp
 PVStateMachine.cpp
-PVVector.cpp
 PVView.cpp
 PVZLevelArray.cpp
 
