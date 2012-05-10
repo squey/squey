@@ -74,6 +74,7 @@ enum {
 
 	TEST_SUB_Y1_FULL,
 	TEST_SUB_Y1_HALF,
+	TEST_SUB_Y1Y2_FULL,
 	TEST_SUB_Y1Y2_QUARTER,
 	TEST_SUB_Y1Y2_FOUR_QUARTER,
 
@@ -336,6 +337,19 @@ void do_subtree_tests()
 		std::cout << "# " << test_text[what] << std::endl;
 		BENCH_START(time);
 		subtree = sqt1->extract_subtree_y2(0, MAX_VALUE >> 1);
+		BENCH_END(time, "time", 1, 1, 1, 1);
+		print_mem("QuadTree", sqt1->memory());
+		print_mem("SubQuadTree", subtree->memory());
+		std::cout << "QuadTree's elements count: " << sqt1->elements() << std::endl;
+		std::cout << "SubQuadTree's elements count: " << subtree->elements() << std::endl;
+		delete subtree;
+	}
+
+	if(what == TEST_SUB_Y1Y2_FULL) {
+		std::cout << "# " << test_text[what] << std::endl;
+		BENCH_START(time);
+		subtree = sqt1->extract_subtree_y1y2(0, MAX_VALUE,
+		                                     0, MAX_VALUE);
 		BENCH_END(time, "time", 1, 1, 1, 1);
 		print_mem("QuadTree", sqt1->memory());
 		print_mem("SubQuadTree", subtree->memory());
