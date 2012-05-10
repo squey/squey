@@ -102,55 +102,55 @@ public:
 		}
 	}
 
-	void extract_first_y1(uint32_t y1_min, uint32_t y1_max, std::vector<Data> &results) const
+	void extract_first_from_y1(uint32_t y1_min, uint32_t y1_max, std::vector<Data> &results) const
 	{
 		if(_datas.is_null()) {
 			if(_y1_mid_value < y1_max) {
-				_nodes[NE]->extract_first_y1(y1_min, y1_max, results);
-				_nodes[SE]->extract_first_y1(y1_min, y1_max, results);
+				_nodes[NE]->extract_first_from_y1(y1_min, y1_max, results);
+				_nodes[SE]->extract_first_from_y1(y1_min, y1_max, results);
 			}
 			if(y1_min < _y1_mid_value) {
-				_nodes[NW]->extract_first_y1(y1_min, y1_max, results);
-				_nodes[SW]->extract_first_y1(y1_min, y1_max, results);
+				_nodes[NW]->extract_first_from_y1(y1_min, y1_max, results);
+				_nodes[SW]->extract_first_from_y1(y1_min, y1_max, results);
 			}
 		} else if(_datas.size() != 0) {
 			results.push_back(_datas.at(0));
 		}
 	}
 
-	void extract_first_y2(uint32_t y2_min, uint32_t y2_max, std::vector<Data> &results) const
+	void extract_first_from_y2(uint32_t y2_min, uint32_t y2_max, std::vector<Data> &results) const
 	{
 		if(_datas.is_null()) {
 			if(_y2_mid_value < y2_max) {
-				_nodes[NW]->extract_first_y2(y2_min, y2_max, results);
-				_nodes[NE]->extract_first_y2(y2_min, y2_max, results);
+				_nodes[NW]->extract_first_from_y2(y2_min, y2_max, results);
+				_nodes[NE]->extract_first_from_y2(y2_min, y2_max, results);
 			}
 			if(y2_min < _y2_mid_value) {
-				_nodes[SW]->extract_first_y2(y2_min, y2_max, results);
-				_nodes[SE]->extract_first_y2(y2_min, y2_max, results);
+				_nodes[SW]->extract_first_from_y2(y2_min, y2_max, results);
+				_nodes[SE]->extract_first_from_y2(y2_min, y2_max, results);
 			}
 		} else if(_datas.size() != 0) {
 			results.push_back(_datas.at(0));
 		}
 	}
 
-	void extract_first_y1y2(uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max, std::vector<Data> &results) const
+	void extract_first_from_y1y2(uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max, std::vector<Data> &results) const
 	{
 		if(_datas.is_null()) {
 			if(_y1_mid_value < y1_max) {
 				if(_y2_mid_value < y2_max) {
-					_nodes[NE]->extract_first_y1y2(y1_min, y1_max, y2_min, y2_max, results);
+					_nodes[NE]->extract_first_from_y1y2(y1_min, y1_max, y2_min, y2_max, results);
 				}
 				if(y2_min < _y2_mid_value) {
-					_nodes[SE]->extract_first_y1y2(y1_min, y1_max, y2_min, y2_max, results);
+					_nodes[SE]->extract_first_from_y1y2(y1_min, y1_max, y2_min, y2_max, results);
 				}
 			}
 			if(y1_min < _y1_mid_value) {
 				if(_y2_mid_value < y2_max) {
-					_nodes[NW]->extract_first_y1y2(y1_min, y1_max, y2_min, y2_max, results);
+					_nodes[NW]->extract_first_from_y1y2(y1_min, y1_max, y2_min, y2_max, results);
 				}
 				if(y2_min < _y2_mid_value) {
-					_nodes[SW]->extract_first_y1y2(y1_min, y1_max, y2_min, y2_max, results);
+					_nodes[SW]->extract_first_from_y1y2(y1_min, y1_max, y2_min, y2_max, results);
 				}
 			}
 		} else if(_datas.size() != 0) {
@@ -158,16 +158,34 @@ public:
 		}
 	}
 
-	void extract_first_y1_bci(uint32_t y1_min, uint32_t y1_max, std::vector<PVParallelView::PVBCICode> &results) const
+	void extract_first_from_selection(const Picviz::PVSelection &selection, std::vector<Data> &results) const
+	{
+		if(_datas.is_null()) {
+			_nodes[NE]->extract_first_from_selection(selection, results);
+			_nodes[SE]->extract_first_from_selection(selection, results);
+			_nodes[NW]->extract_first_from_selection(selection, results);
+			_nodes[SW]->extract_first_from_selection(selection, results);
+		} else {
+			for(unsigned i = 0; i < _datas.size(); ++i) {
+				entry e = _datas.at(i);
+				if(selection.get_line(e.idx)) {
+					results.push_back(e);
+					break;
+				}
+			}
+		}
+	}
+
+	void extract_first_bci_from_y1(uint32_t y1_min, uint32_t y1_max, std::vector<PVParallelView::PVBCICode> &results) const
 	{
 		if(_datas.is_null()) {
 			if(_y1_mid_value < y1_max) {
-				_nodes[NE]->extract_first_y1_bci(y1_min, y1_max, results);
-				_nodes[SE]->extract_first_y1_bci(y1_min, y1_max, results);
+				_nodes[NE]->extract_first_bci_from_y1(y1_min, y1_max, results);
+				_nodes[SE]->extract_first_bci_from_y1(y1_min, y1_max, results);
 			}
 			if(y1_min < _y1_mid_value) {
-				_nodes[NW]->extract_first_y1_bci(y1_min, y1_max, results);
-				_nodes[SW]->extract_first_y1_bci(y1_min, y1_max, results);
+				_nodes[NW]->extract_first_bci_from_y1(y1_min, y1_max, results);
+				_nodes[SW]->extract_first_bci_from_y1(y1_min, y1_max, results);
 			}
 		} else if(_datas.size() != 0) {
 			entry e = _datas.at(0);
@@ -180,16 +198,16 @@ public:
 		}
 	}
 
-	void extract_first_y2_bci(uint32_t y2_min, uint32_t y2_max, std::vector<PVParallelView::PVBCICode> &results) const
+	void extract_first_bci_from_y2(uint32_t y2_min, uint32_t y2_max, std::vector<PVParallelView::PVBCICode> &results) const
 	{
 		if(_datas.is_null()) {
 			if(_y2_mid_value < y2_max) {
-				_nodes[NW]->extract_first_y2_bci(y2_min, y2_max, results);
-				_nodes[NE]->extract_first_y2_bci(y2_min, y2_max, results);
+				_nodes[NW]->extract_first_bci_from_y2(y2_min, y2_max, results);
+				_nodes[NE]->extract_first_bci_from_y2(y2_min, y2_max, results);
 			}
 			if(y2_min < _y2_mid_value) {
-				_nodes[SW]->extract_first_y2_bci(y2_min, y2_max, results);
-				_nodes[SE]->extract_first_y2_bci(y2_min, y2_max, results);
+				_nodes[SW]->extract_first_bci_from_y2(y2_min, y2_max, results);
+				_nodes[SE]->extract_first_bci_from_y2(y2_min, y2_max, results);
 			}
 		} else if(_datas.size() != 0) {
 			entry e = _datas.at(0);
@@ -202,23 +220,23 @@ public:
 		}
 	}
 
-	void extract_first_y1y2_bci(uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max, std::vector<PVParallelView::PVBCICode> &results) const
+	void extract_first_bci_from_y1y2(uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max, std::vector<PVParallelView::PVBCICode> &results) const
 	{
 		if(_datas.is_null()) {
 			if(_y1_mid_value < y1_max) {
 				if(_y2_mid_value < y2_max) {
-					_nodes[NE]->extract_first_y1y2_bci(y1_min, y1_max, y2_min, y2_max, results);
+					_nodes[NE]->extract_first_bci_from_y1y2(y1_min, y1_max, y2_min, y2_max, results);
 				}
 				if(y2_min < _y2_mid_value) {
-					_nodes[SE]->extract_first_y1y2_bci(y1_min, y1_max, y2_min, y2_max, results);
+					_nodes[SE]->extract_first_bci_from_y1y2(y1_min, y1_max, y2_min, y2_max, results);
 				}
 			}
 			if(y1_min < _y1_mid_value) {
 				if(_y2_mid_value < y2_max) {
-					_nodes[NW]->extract_first_y1y2_bci(y1_min, y1_max, y2_min, y2_max, results);
+					_nodes[NW]->extract_first_bci_from_y1y2(y1_min, y1_max, y2_min, y2_max, results);
 				}
 				if(y2_min < _y2_mid_value) {
-					_nodes[SW]->extract_first_y1y2_bci(y1_min, y1_max, y2_min, y2_max, results);
+					_nodes[SW]->extract_first_bci_from_y1y2(y1_min, y1_max, y2_min, y2_max, results);
 				}
 			}
 		} else if(_datas.size() != 0) {
@@ -229,6 +247,29 @@ public:
 			code.s.r = e.y2 >> 22;
 			code.s.color = random() & 255;
 			results.push_back(code);
+		}
+	}
+
+	void extract_first_bci_from_selection(const Picviz::PVSelection &selection, std::vector<PVParallelView::PVBCICode> &results) const
+	{
+		if(_datas.is_null()) {
+			_nodes[NE]->extract_first_bci_from_selection(selection, results);
+			_nodes[SE]->extract_first_bci_from_selection(selection, results);
+			_nodes[NW]->extract_first_bci_from_selection(selection, results);
+			_nodes[SW]->extract_first_bci_from_selection(selection, results);
+		} else {
+			for(unsigned i = 0; i < _datas.size(); ++i) {
+				entry e = _datas.at(i);
+				if(selection.get_line(e.idx)) {
+					PVParallelView::PVBCICode code;
+					code.s.idx = e.idx;
+					code.s.l = e.y1 >> 22;
+					code.s.r = e.y2 >> 22;
+					code.s.color = random() & 255;
+					results.push_back(code);
+					break;
+				}
+			}
 		}
 	}
 
@@ -342,15 +383,14 @@ public:
 		return new_tree;
 	}
 
-
-	PVQuadTree<DataContainer, Data> *extract_subtree_with_selection(const Picviz::PVSelection &selection) const
+	PVQuadTree<DataContainer, Data> *extract_subtree_from_selection(const Picviz::PVSelection &selection) const
 	{
 		PVQuadTree<DataContainer, Data> *new_tree = new PVQuadTree<DataContainer, Data>(*this);
 		if(_datas.is_null()) {
-			new_tree->_nodes[NE] = _nodes[NE]->extract_subtree_with_selection(selection);
-			new_tree->_nodes[SE] = _nodes[SE]->extract_subtree_with_selection(selection);
-			new_tree->_nodes[NW] = _nodes[NW]->extract_subtree_with_selection(selection);
-			new_tree->_nodes[SW] = _nodes[SW]->extract_subtree_with_selection(selection);
+			new_tree->_nodes[NE] = _nodes[NE]->extract_subtree_from_selection(selection);
+			new_tree->_nodes[SE] = _nodes[SE]->extract_subtree_from_selection(selection);
+			new_tree->_nodes[NW] = _nodes[NW]->extract_subtree_from_selection(selection);
+			new_tree->_nodes[SW] = _nodes[SW]->extract_subtree_from_selection(selection);
 		} else if(_datas.size() != 0) {
 			new_tree->_datas.reserve(1);
 			for(unsigned i = 0; i < _datas.size(); ++i) {
