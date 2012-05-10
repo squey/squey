@@ -9,6 +9,7 @@
 #include "vector.h"
 
 #include <pvparallelview/PVBCICode.h>
+#include <picviz/PVSelection.h>
 
 template <class DataContainer, class Data>
 class PVQuadTree
@@ -60,6 +61,7 @@ public:
 		return mem;
 	}
 
+	// usefull for stats but elsewhere?
 	unsigned elements() const
 	{
 		if(_datas.is_null()) {
@@ -69,6 +71,7 @@ public:
 		}
 	}
 
+	// usefull for debug but elsewhere?
 	void dump(std::ostream &os) const
 	{
 		if(_datas.is_null()) {
@@ -333,6 +336,29 @@ public:
 			}
 		} else if(_datas.size() != 0) {
 			new_tree->_datas = _datas;
+		} else {
+			new_tree->_datas.reserve(1);
+		}
+		return new_tree;
+	}
+
+
+	PVQuadTree<DataContainer, Data> *extract_subtree_with_selection(const Picviz::PVSelection &selection) const
+	{
+		PVQuadTree<DataContainer, Data> *new_tree = new PVQuadTree<DataContainer, Data>(*this);
+		if(_datas.is_null()) {
+			new_tree->_nodes[NE] = _nodes[NE]->extract_subtree_with_selection(selection);
+			new_tree->_nodes[SE] = _nodes[SE]->extract_subtree_with_selection(selection);
+			new_tree->_nodes[NW] = _nodes[NW]->extract_subtree_with_selection(selection);
+			new_tree->_nodes[SW] = _nodes[SW]->extract_subtree_with_selection(selection);
+		} else if(_datas.size() != 0) {
+			new_tree->_datas.reserve(1);
+			for(unsigned i = 0; i < _datas.size(); ++i) {
+				entry e = _datas.at(i);
+				if(selection.get_line(e.idx)) {
+					new_tree->_datas.push_back(e);
+				}
+			}
 		} else {
 			new_tree->_datas.reserve(1);
 		}
