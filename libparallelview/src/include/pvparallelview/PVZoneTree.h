@@ -17,6 +17,12 @@
 #include <boost/static_assert.hpp>
 #include <boost/type_traits.hpp>
 
+#include "tbb/parallel_for.h"
+#include "tbb/blocked_range.h"
+
+#include "tbb/task_scheduler_init.h"
+#include "tbb/enumerable_thread_specific.h"
+
 #include <omp.h>
 
 namespace PVParallelView {
@@ -72,7 +78,9 @@ protected:
  *****************************************************************************/
 class PVZoneTreeNoAlloc: public PVZoneTreeBase
 {
+public:
 	typedef PVCore::PVPODTree<uint32_t, uint32_t, NBUCKETS> Tree;
+	typedef tbb::enumerable_thread_specific< std::vector<PVRow> > TLS;
 public:
 	PVZoneTreeNoAlloc(PVCol col_a, PVCol col_b):
 		_col_a(col_a), _col_b(col_b)
@@ -80,14 +88,17 @@ public:
 	/*virtual uint32_t get_first_elt_of_branch(uint32_t branch_id) const;
 	virtual bool branch_valid(uint32_t branch_id) const;*/
 public:
+	inline const Tree* get_tree() const { return &_tree; }
 	void process_sse();
 	void process_omp_sse();
 	template <bool only_first>
 	PVZoneTreeNoAlloc* filter_by_sel(Picviz::PVSelection const& sel) const;
+	PVZoneTreeNoAlloc* filter_by_sel_tbb(Picviz::PVSelection const& sel) const;
 	size_t browse_tree_bci_by_sel(PVHSVColor* colors, PVBCICode* codes, Picviz::PVSelection const& sel);
 
 private:
 	void get_float_pts(pts_t& pts, Picviz::PVPlotted::plotted_table_t const& org_plotted);
+
 private:
 	Tree _tree;
 	PVCol _col_a;
@@ -501,6 +512,7 @@ PVZoneTreeNoAlloc* PVZoneTreeNoAlloc::filter_by_sel(Picviz::PVSelection const& s
 //			}
 //		}
 //	}
+
 #pragma omp parallel for schedule(dynamic, 6) firstprivate(sel_buf) firstprivate(ret) num_threads(nthreads)
 	for (uint64_t b = 0; b < NBUCKETS; b++) {
 		if (branch_valid(b)) {
@@ -526,6 +538,74 @@ PVZoneTreeNoAlloc* PVZoneTreeNoAlloc::filter_by_sel(Picviz::PVSelection const& s
 		}
 	}
 	BENCH_END(subtree, str_bench, _nrows*2, sizeof(float), _nrows*2, sizeof(float));
+
+	return ret;
+}
+
+class TBBPF {
+public:
+	TBBPF (
+		const PVZoneTreeNoAlloc* tree,
+		const Picviz::PVSelection::const_pointer sel_buf,
+		PVZoneTreeNoAlloc::TLS* tls
+	) :
+		_tree(tree),
+		_sel_buf(sel_buf),
+		_tls(tls)
+	{
+	}
+
+	TBBPF (TBBPF& x, tbb::split) :  _tree(x._tree), _sel_buf(x._sel_buf), _tls(x._tls)
+	{}
+
+	void operator() (const tbb::blocked_range<size_t>& r) const {
+		PVZoneTreeNoAlloc::TLS::reference tls_ref = _tls->local();
+		for (PVRow b = r.begin(); b != r.end(); ++b) {
+			if (_tree->branch_valid(b)) {
+				PVRow r = _tree->get_first_elt_of_branch(b);
+				bool found = false;
+				if ((_sel_buf[r>>5]) & (1U<<(r&31))) {
+					found = true;
+				}
+				else {
+					PVZoneTreeNoAlloc::Tree::const_branch_iterator it_src = _tree->get_tree()->begin_branch(b);
+					it_src++;
+					for (; it_src != _tree->get_tree()->end_branch(b); it_src++) {
+						r = *(it_src);
+						if ((_sel_buf[r>>5]) & (1U<<(r&31))) {
+							found = true;
+							break;
+						}
+					}
+				}
+				if (found) {
+					tls_ref.push_back(r);
+				}
+			}
+		}
+	}
+
+	const PVZoneTreeNoAlloc* _tree;
+	Picviz::PVSelection::const_pointer _sel_buf;
+	PVZoneTreeNoAlloc::TLS* _tls;
+};
+
+//#define GRAINSIZE 10000
+
+PVZoneTreeNoAlloc* PVZoneTreeNoAlloc::filter_by_sel_tbb(Picviz::PVSelection const& sel) const
+{
+	// returns a zone tree with only the selected lines
+
+	PVZoneTreeNoAlloc* ret = new PVZoneTreeNoAlloc(_col_a, _col_b);
+	ret->set_trans_plotted(*_plotted, _nrows, _ncols);
+	ret->_tree.resize(_nrows);
+
+
+	BENCH_START(subtree);
+	Picviz::PVSelection::const_pointer sel_buf = sel.get_buffer();
+	TLS tls;
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, atol(getenv("GRAINSIZE"))), TBBPF(this, sel_buf, &tls));
+	BENCH_END(subtree, "tb::parallel_for", _nrows*2, sizeof(float), _nrows*2, sizeof(float));
 
 	return ret;
 }

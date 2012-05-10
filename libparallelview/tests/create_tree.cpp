@@ -279,7 +279,6 @@ void test(
 		MEM_START(serial);
 		BENCH_START(sse);
 		PVParallelView::PVZoneTreeNoAlloc* zsel = ztree->filter_by_sel<true>(sel);
-		zsel = ztree->filter_by_sel<true>(sel);
 		BENCH_END(sse, "subtree selection", nb_codes, sizeof(PVRow), nb_codes, sizeof(PVParallelView::PVBCICode));
 		MEM_END(serial, "subtree selection");
 		delete zsel;
@@ -291,16 +290,19 @@ void test(
 		BENCH_START(sse);
 		sel.select_none();
 		PVParallelView::PVZoneTreeNoAlloc* zsel = ztree->filter_by_sel<true>(sel);
-		zsel = ztree->filter_by_sel<true>(sel);
 		BENCH_END(sse, "subtree selection", nb_codes, sizeof(PVRow), nb_codes, sizeof(PVParallelView::PVBCICode));
 		MEM_END(serial, "subtree selection");
 		delete zsel;
 		}
 
+		{
+		sel.select_odd();
+		PVParallelView::PVZoneTreeNoAlloc* zsel = ztree->filter_by_sel_tbb(sel);
+		delete zsel;
+		}
+
 
 		//PVLOG_INFO("Parallel success: %d\n", nb_codes_ref == nb_codes && !memcmp ((const void *) bci_codes, (const void *) bci_codes_ref, nb_codes_ref));
-
-		delete ztree;
 	}
 	std::cout << "---" << std::endl;
 
