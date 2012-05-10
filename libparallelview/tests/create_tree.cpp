@@ -127,7 +127,7 @@ void test(
 		//ztree->display("zone", plotted);
 		delete ztree;
 	}
-	std::cout << "---" << std::endl;
+	std::cout << "---" << std::endl;*/
 
 	{
 		MEM_START(serial);
@@ -150,7 +150,7 @@ void test(
 		MEM_END(serial, "serial sse + std::vector colors");
 		}
 
-		write(4, ztree->get_first_elts(), sizeof(PVRow)*NBUCKETS);
+		//write(4, ztree->get_first_elts(), sizeof(PVRow)*NBUCKETS);
 		//ztree->display("zone", plotted);
 		delete ztree;
 	}
@@ -165,7 +165,7 @@ void test(
 		ztree->process_sse();
 
 		BENCH_END_TRANSFORM(sse, "serial sse + noalloc", nrows*2, sizeof(float));
-		MEM_END(serial, "serial sse + noalloc");
+		MEM_END(serial, "mem serial sse + noalloc");
 
 		{
 		MEM_START(serial);
@@ -173,7 +173,7 @@ void test(
 		size_t nb_codes = ztree->browse_tree_bci(colors, bci_codes);
 		picviz_verify(sizeof(PVParallelView::PVHSVColor) == 1);
 		BENCH_END(sse, "serial sse + noalloc colors", nb_codes, sizeof(PVRow), nb_codes, sizeof(PVParallelView::PVBCICode));
-		MEM_END(serial, "serial sse + noalloc colors");
+		MEM_END(serial, "mem serial sse + noalloc colors");
 		//show_codes("serial", bci_codes, nb_codes);
 		}
 
@@ -183,7 +183,7 @@ void test(
 	std::cout << "---" << std::endl;
 
 	
-	{
+	/*{
 		MEM_START(serial);
 		PVParallelView::PVZoneTree<std::vector<PVRow, tbb::scalable_allocator<PVRow> > >* ztree = new PVParallelView::PVZoneTree<std::vector<PVRow, tbb::scalable_allocator<PVRow> > >(0, 1);
 		ztree->set_trans_plotted(norm_plotted, nrows, ncols);
@@ -217,17 +217,15 @@ void test(
 		BENCH_START(sse);
 		ztree->process_omp_sse();
 		BENCH_END_TRANSFORM(sse, "omp sse + noalloc", 1, 1);
-		MEM_END(serial, "omp sse + noalloc");
+		MEM_END(serial, "mem omp sse + noalloc");
 		//ztree->display("zone-omp", plotted);
 
 		size_t nb_codes_ref;
 		{
-		MEM_START(serial);
 		BENCH_START(sse);
 		nb_codes_ref = ztree->browse_tree_bci_no_sse(colors, bci_codes_ref);
 		BENCH_END(sse, "omp sse + noalloc colors no sse", nb_codes_ref, sizeof(PVRow), nb_codes_ref, sizeof(PVParallelView::PVBCICode));
-		MEM_END(serial, "omp sse + noalloc colors no sse");
-		show_codes("serial", bci_codes_ref, nb_codes_ref);
+		//show_codes("serial", bci_codes_ref, nb_codes_ref);
 		}
 
 		delete ztree;
@@ -262,22 +260,43 @@ void test(
 		picviz_verify(sizeof(PVParallelView::PVHSVColor) == 1);
 		BENCH_END(sse, "omp sse + noalloc colors", nb_codes, sizeof(PVRow), nb_codes, sizeof(PVParallelView::PVBCICode));
 		MEM_END(serial, "omp sse + noalloc colors");
-		CHECK(nb_codes_ref == nb_codes);
-		CHECK(memcmp((const void *) bci_codes, (const void *) bci_codes_ref, nb_codes*sizeof(PVParallelView::PVBCICode)) == 0);
-		show_codes("new", bci_codes, nb_codes);
+		//CHECK(nb_codes_ref == nb_codes);
+		//CHECK(memcmp((const void *) bci_codes, (const void *) bci_codes_ref, nb_codes*sizeof(PVParallelView::PVBCICode)) == 0);
+		//show_codes("new", bci_codes, nb_codes);
 		}
 
 		//write(5, ztree->get_first_elts(), sizeof(PVRow)*NBUCKETS);
 
 		Picviz::PVSelection sel;
 		sel.select_odd();
-		//ztree->browse_tree_bci_by_sel(colors, bci_codes, sel);
+		BENCH_START(select);
+		size_t nb_codes = ztree->browse_tree_bci_by_sel(colors, bci_codes, sel);
+		BENCH_END(select, "omp sse + noalloc colors by sel", nb_codes, sizeof(PVRow), nb_codes, sizeof(PVParallelView::PVBCICode));
+		//PVLOG_INFO("nb_codes=%d\n", nb_codes);
+		//show_codes("selection", bci_codes, nb_codes);
 
-
-		PVParallelView::PVZoneTreeNoAlloc* zsel = ztree->filter_by_sel<false>(sel);
+		{
+		MEM_START(serial);
+		BENCH_START(sse);
+		PVParallelView::PVZoneTreeNoAlloc* zsel = ztree->filter_by_sel<true>(sel);
+		zsel = ztree->filter_by_sel<true>(sel);
+		BENCH_END(sse, "subtree selection", nb_codes, sizeof(PVRow), nb_codes, sizeof(PVParallelView::PVBCICode));
+		MEM_END(serial, "subtree selection");
 		delete zsel;
-		//zsel = ztree->filter_by_sel<false>(sel);
-		//delete zsel;
+		}
+
+
+		{
+		MEM_START(serial);
+		BENCH_START(sse);
+		sel.select_none();
+		PVParallelView::PVZoneTreeNoAlloc* zsel = ztree->filter_by_sel<true>(sel);
+		zsel = ztree->filter_by_sel<true>(sel);
+		BENCH_END(sse, "subtree selection", nb_codes, sizeof(PVRow), nb_codes, sizeof(PVParallelView::PVBCICode));
+		MEM_END(serial, "subtree selection");
+		delete zsel;
+		}
+
 
 		//PVLOG_INFO("Parallel success: %d\n", nb_codes_ref == nb_codes && !memcmp ((const void *) bci_codes, (const void *) bci_codes_ref, nb_codes_ref));
 
@@ -377,14 +396,14 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	QApplication app(argc, argv);
+	//QApplication app(argc, argv);
 
 	PVCol ncols, nrows;
 	Picviz::PVPlotted::plotted_table_t plotted;
-	PVLOG_INFO("Loading plotted...\n");
+	//PVLOG_INFO("Loading plotted...\n");
 	QString fplotted(argv[1]);
 	if (fplotted == "0") {
-		PVLOG_INFO("Initialising random plotted...\n");
+		//PVLOG_INFO("Initialising random plotted...\n");
 		if (argc < 4) {
 			usage(argv[0]);
 			return 1;
@@ -425,7 +444,7 @@ int main(int argc, char** argv)
 	PVParallelView::PVTools::norm_int_plotted(plotted, norm_plotted, ncols);
 	//PVLOG_INFO("Done !\n");
 
-	app.exec();
+	//app.exec();
 
 	return 0;
 	//return app.exec();

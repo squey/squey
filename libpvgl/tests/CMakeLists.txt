@@ -2,7 +2,7 @@ include_directories(AFTER ${GLEW_INCLUDE_PATH})
 include_directories(AFTER ${OPENGL_INCLUDE_DIR})
 include_directories(AFTER ${FREETYPE_INCLUDE_DIRS})
 include_directories(AFTER ${GLUT_INCLUDE_DIR})
-include_directories(AFTER ${CUDA_INCLUDE_DIRS})
+#include_directories(AFTER ${CUDA_INCLUDE_DIRS})
 include_directories(AFTER include/)
 
 remove_definitions(-DPVGL_SHARE_DIR=${PVGL_SHARE_DIR})
@@ -18,9 +18,9 @@ file(GLOB GL_SRC_FILES gl/*.cpp)
 file(GLOB COMMON_SRC_FILES common/*.cpp)
 file(GLOB BZ_SRC_FILES code_bz/*.cpp)
 
-set(CUDA_SRC_FILES ${CMAKE_CURRENT_LIST_DIR}/cuda/common.cpp)
-set(CUDA_PROPAGATE_HOST_FLAGS "OFF")
-set(CUDA_NVCC_FLAGS "-O3" "-arch=sm_20")
+#set(CUDA_SRC_FILES ${CMAKE_CURRENT_LIST_DIR}/cuda/common.cpp)
+#set(CUDA_PROPAGATE_HOST_FLAGS "OFF")
+#set(CUDA_NVCC_FLAGS "-O3" "-arch=sm_20")
 
 
 SET(GL_MOC_HEADERS
@@ -64,29 +64,29 @@ target_link_libraries(run-gl ${COMMON_LIBS})
 
 ####
 # CUDA reduction tests
-cuda_compile(CUDA_RED_KERNELS cuda/gpu_collision.cu)
-set(CUDA_RED_SRC_FILES
-${COMMON_SRC_FILES}
-${CUDA_SRC_FILES}
-${CUDA_RED_KERNELS}
-main_cuda.cpp
-)
-add_executable(cuda_red ${CUDA_RED_SRC_FILES})
-target_link_libraries(cuda_red ${COMMON_LIBS} ${CUDA_LIBRARIES})
+#cuda_compile(CUDA_RED_KERNELS cuda/gpu_collision.cu)
+#set(CUDA_RED_SRC_FILES
+#${COMMON_SRC_FILES}
+#${CUDA_SRC_FILES}
+#${CUDA_RED_KERNELS}
+#main_cuda.cpp
+#)
+#add_executable(cuda_red ${CUDA_RED_SRC_FILES})
+#target_link_libraries(cuda_red ${COMMON_LIBS} ${CUDA_LIBRARIES})
 ####
 
 ####
 # CUDA reduction tests
-cuda_compile(CUDA_RED_KERNELS cuda/gpu_bccb.cu)
-set(CUDA_RED_SRC_FILES
-${COMMON_SRC_FILES}
-${CUDA_SRC_FILES}
-${CUDA_RED_KERNELS}
-${BZ_SRC_FILES}
-cuda_collisions.cpp
-)
-add_executable(cuda_bccb ${CUDA_RED_SRC_FILES})
-target_link_libraries(cuda_bccb ${COMMON_LIBS} ${CUDA_LIBRARIES})
+#cuda_compile(CUDA_RED_KERNELS cuda/gpu_bccb.cu)
+#set(CUDA_RED_SRC_FILES
+#${COMMON_SRC_FILES}
+#${CUDA_SRC_FILES}
+#${CUDA_RED_KERNELS}
+#${BZ_SRC_FILES}
+#cuda_collisions.cpp
+#)
+#add_executable(cuda_bccb ${CUDA_RED_SRC_FILES})
+#target_link_libraries(cuda_bccb ${COMMON_LIBS} ${CUDA_LIBRARIES})
 ####
 
 add_executable(test_interlace test_interlace.cpp ${GL_SRC_FILES})

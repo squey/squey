@@ -4,12 +4,14 @@
 #include <stdint.h>
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVAllocators.h>
+#include <tbb/cache_aligned_allocator.h>
 
 namespace PVParallelView {
 
 struct PVBCICode
 {
-	typedef PVCore::PVAlignedAllocator<PVBCICode, 16> allocator;
+	//typedef PVCore::PVAlignedAllocator<PVBCICode, 16> allocator;
+	typedef tbb::cache_aligned_allocator<PVBCICode> allocator;
 	union {
 		uint64_t int_v;
 		struct {

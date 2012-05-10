@@ -214,7 +214,11 @@ size_t PVParallelView::PVZoneTreeBase::browse_tree_bci(PVHSVColor* colors, PVBCI
 {
 	size_t idx_code = 0;
 
-//#pragma omp parallel for reduction(+:idx_code) num_threads(4)
+	const size_t nthreads = atol(getenv("NUM_THREADS"));/*omp_get_max_threads()/2;*/
+#pragma omp parallel num_threads(nthreads)
+	{
+	PVBCICode* th_codes = PVBCICode::allocate_codes(NBUCKETS);
+#pragma omp for reduction(+:idx_code) schedule(dynamic, 6)
 	for (uint64_t b = 0; b < NBUCKETS; b+=4) {
 
 		__m128i sse_ff = _mm_set1_epi32(0xFFFFFFFF);
@@ -263,12 +267,12 @@ size_t PVParallelView::PVZoneTreeBase::browse_tree_bci(PVHSVColor* colors, PVBCI
 
 
 				if ((idx_code & 1) == 0) {
-					_mm_stream_si128((__m128i*)&codes[idx_code+0], sse_bcicodes0_1);
-					_mm_stream_si128((__m128i*)&codes[idx_code+2], sse_bcicodes2_3);
+					_mm_stream_si128((__m128i*)&th_codes[idx_code+0], sse_bcicodes0_1);
+					_mm_stream_si128((__m128i*)&th_codes[idx_code+2], sse_bcicodes2_3);
 				}
 				else {
-					_mm_storeu_si128((__m128i*)&codes[idx_code+0], sse_bcicodes0_1);
-					_mm_storeu_si128((__m128i*)&codes[idx_code+2], sse_bcicodes2_3);
+					_mm_storeu_si128((__m128i*)&th_codes[idx_code+0], sse_bcicodes0_1);
+					_mm_storeu_si128((__m128i*)&th_codes[idx_code+2], sse_bcicodes2_3);
 				}
 
 				idx_code += 4;
@@ -281,7 +285,49 @@ size_t PVParallelView::PVZoneTreeBase::browse_tree_bci(PVHSVColor* colors, PVBCI
 					PVBCICode bci;
 					bci.int_v = r | (b0<<32);
 					bci.s.color = colors[r].h();
-					codes[idx_code] = bci;
+					th_codes[idx_code] = bci;
+					idx_code++;
+				}
+			}
+		}
+	}
+	}
+
+	return idx_code;
+}
+
+size_t PVParallelView::PVZoneTreeNoAlloc::browse_tree_bci_by_sel(PVHSVColor* colors, PVBCICode* codes, Picviz::PVSelection const& sel)
+{
+	size_t idx_code = 0;
+	Picviz::PVSelection::const_pointer sel_buf = sel.get_buffer();
+	const size_t nthreads = atol(getenv("NUM_THREADS"));/*omp_get_max_threads()/2;*/
+#pragma omp parallel firstprivate(sel_buf) reduction(+:idx_code) num_threads(nthreads)
+	{
+		PVBCICode* th_codes = PVBCICode::allocate_codes(NBUCKETS);
+#pragma omp for schedule(dynamic, 6)
+		for (uint64_t b = 0; b < NBUCKETS; b++) {
+			if (branch_valid(b)) {
+				PVRow r = get_first_elt_of_branch(b);
+				bool found = false;
+				if ((sel_buf[r>>5]) & (1U<<(r&31))) {
+					found = true;
+				}
+				else {
+					Tree::const_branch_iterator it_src = _tree.begin_branch(b);
+					it_src++;
+					for (; it_src != _tree.end_branch(b); it_src++) {
+						r = *(it_src);
+						if ((sel_buf[r>>5]) & (1U<<(r&31))) {
+							found = true;
+							break;
+						}
+					}
+				}
+				if (found) {
+					PVBCICode bci;
+					bci.int_v = r | (b<<32);
+					bci.s.color = colors[r].h();
+					th_codes[idx_code] = bci;
 					idx_code++;
 				}
 			}
@@ -290,103 +336,6 @@ size_t PVParallelView::PVZoneTreeBase::browse_tree_bci(PVHSVColor* colors, PVBCI
 
 	return idx_code;
 }
-
-/*size_t PVParallelView::PVZoneTreeBase::browse_tree_bci(PVHSVColor* colors, PVBCICode* codes)
-{
-	size_t idx_code = 0;
-	int sse_ndx = 0;
-
-	__m128i sse_lr;
-	__m128i sse_color;
-	__m128i sse_index;
-
-	uint32_t tmp_index[4] = {0, 0, 0, 0};
-	uint32_t tmp_lr[4]    = {0, 0, 0, 0};
-	uint32_t tmp_color[4] = {0, 0, 0, 0};
-
-	for (uint64_t b = 0; b < NBUCKETS; b++) {
-
-		if (branch_valid(b))
-		{
-			// Initialize SSE variables
-			PVRow index = get_first_elt_of_branch(b);
-
-			tmp_index[sse_ndx] = index;
-			tmp_lr[sse_ndx] = b;
-			tmp_color[sse_ndx] = colors[index].h();
-
-			//sse_index = _mm_shuffle_epi32(sse_index, _MM_SHUFFLE(2,1,0,0));
-			//sse_index = _mm_insert_epi32(sse_index, index, 0);
-
-			//sse_lr = _mm_shuffle_epi32(sse_lr, _MM_SHUFFLE(2,1,0,0));
-			//sse_lr = _mm_insert_epi32(sse_lr, b, 0);
-
-			//sse_color = _mm_shuffle_epi32(sse_color, _MM_SHUFFLE(2,1,0,0));
-			//sse_color = _mm_insert_epi32(sse_color, colors[index].h(), 0);
-
-			sse_ndx++;
-
-			// Execute SSE instructions
-			if (sse_ndx == 4)
-			{
-
-				sse_index = _mm_load_si128((const __m128i*) tmp_index); // 16 bits aligned?
-				sse_lr    = _mm_load_si128((const __m128i*) tmp_lr);
-				sse_color = _mm_load_si128((const __m128i*) tmp_color);
-
-				//  +------------+------------++------------+------------+
-				//  | index (r3) | index (r2) || index (r1) | index (r0) | (sse_index)
-				//  +------------+------------++------------+------------+
-
-				//  +------------+------------++------------+------------+
-				//  |        lr3 |        lr2 ||        lr1 |        lr0 | (sse_lr)
-				//  +------------+------------++------------+------------+
-
-				//  +------------+------------++------------+------------+
-				//  |     color3 |     color2 ||     color1 |     color0 | (sse_color)
-				//  +------------+------------++------------+------------+
-
-				sse_color = _mm_slli_epi32(sse_color, NBITS_INDEX*2);
-				__m128i sse_lrcolor = _mm_or_si128(sse_color, sse_lr);
-
-				__m128i sse_bcicodes0_1 = _mm_unpacklo_epi32(sse_index, sse_lrcolor);
-				__m128i sse_bcicodes2_3 = _mm_unpackhi_epi32(sse_index, sse_lrcolor);
-
-				//  +------------+------------++------------+------------+
-				//  |   lrcolor1 | index (r1) ||   lrcolor0 | index (r0) | (sse_bcicodes0_1)
-				//  +------------+------------++------------+------------+
-				//  +------------+------------++------------+------------+
-				//  |   lrcolor3 | index (r3) ||   lrcolor2 | index (r2) | (sse_bcicodes2_3)
-				//  +------------+------------++------------+------------+
-
-				_mm_stream_si128((__m128i*)&codes[idx_code+0], sse_bcicodes0_1);
-				_mm_stream_si128((__m128i*)&codes[idx_code+2], sse_bcicodes2_3);
-
-				idx_code += 4;
-				sse_ndx = 0;
-			}
-		}
-	}
-
-	for (int i = 0; i < sse_ndx ; i++) {
-		PVBCICode bci;
-
-		PVRow index = _mm_extract_epi32(sse_index, 0);
-		sse_index = _mm_shuffle_epi32(sse_index, _MM_SHUFFLE(0,3,2,1));
-
-		uint64_t b = _mm_extract_epi32(sse_lr, 0);
-		sse_lr = _mm_shuffle_epi32(sse_lr, _MM_SHUFFLE(0,3,2,1));
-
-		bci.int_v = index | (b<<32);
-		bci.s.color = _mm_extract_epi32(sse_lr, 0);
-		sse_lr = _mm_shuffle_epi32(sse_lr, _MM_SHUFFLE(0,3,2,1));
-
-		codes[idx_code] = bci;
-		idx_code++;
-	}
-
-	return idx_code;
-}*/
 
 void PVParallelView::PVZoneTreeNoAlloc::process_sse()
 {
@@ -448,7 +397,8 @@ void PVParallelView::PVZoneTreeNoAlloc::process_omp_sse()
 	Tree* thread_trees;
 	uint32_t** thread_first_elts;
 	int ntrees;
-#pragma omp parallel
+	const size_t nthreads = atol(getenv("NUM_THREADS"));/*omp_get_max_threads()/2;*/
+#pragma omp parallel num_threads(nthreads)
 	{
 #pragma omp master
 		{
@@ -524,7 +474,7 @@ void PVParallelView::PVZoneTreeNoAlloc::process_omp_sse()
 	}
 
 	red_start = tbb::tick_count::now();
-#pragma omp parallel for
+#pragma omp parallel for num_threads(nthreads)
 	for (ssize_t b = 0; b < (ssize_t) NBUCKETS; b++) {
 		for (int ith = 0; ith < ntrees; ith++) {
 			_tree.move_branch(b, b, thread_trees[ith]);
