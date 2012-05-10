@@ -58,12 +58,14 @@ void print_mem (const char *text, size_t s)
 }
 
 enum {
-	TEST_FIRST_Y1Y2_FULL = 0,
+	TEST_FIRST_Y1_FULL = 0,
+	TEST_FIRST_Y1Y2_FULL,
 	TEST_FIRST_SEL_FULL,
 	TEST_FIRST_SEL_HALF,
 	TEST_FIRST_SEL_QUARTER,
 	TEST_FIRST_SEL_NONE,
 
+	TEST_FIRST_BCI_Y1_FULL,
 	TEST_FIRST_BCI_Y1Y2_FULL,
 	TEST_FIRST_BCI_SEL_FULL,
 	TEST_FIRST_BCI_SEL_HALF,
@@ -84,12 +86,14 @@ enum {
 };
 
 const char *test_text[] = {
+	"PVQuadTree::extract_first_y1 with full area",
 	"PVQuadTree::extract_first_y1y2 with full area",
 	"PVQuadTree::extract_first_selection with full selection",
 	"PVQuadTree::extract_first_selection with entry-count / 2 selected entries",
 	"PVQuadTree::extract_first_selection with entry-count / 4 selected entries",
 	"PVQuadTree::extract_first_selection with no selected entry",
 
+	"PVQuadTree::extract_first_bci_y1 with full area",
 	"PVQuadTree::extract_first_bci_y1y2 with full area",
 	"PVQuadTree::extract_first_bci_selection with full selection",
 	"PVQuadTree::extract_first_bci_selection with entry-count / 2 selected entries",
@@ -129,6 +133,7 @@ std::vector<entry> res1;
 Picviz::PVSelection *selection;
 PVQuadTree<Vector1<entry>, entry> *sqt1;
 PVQuadTree<Vector1<entry>, entry> *subtree;
+std::vector<PVParallelView::PVBCICode> codes;
 
 // forward declarations
 void do_extract_first_tests();
@@ -184,104 +189,120 @@ int main(int argc, char **argv)
 
 void do_extract_first_tests()
 {
+	/* worst case of y1 extraction
+	 */
+	if(what == TEST_FIRST_Y1_FULL) {
+		std::cout << test_text[what] << std::endl;
+		res1.reserve(0);
+		BENCH_START(time);
+		sqt1->extract_first_from_y1(0, MAX_VALUE, res1);
+		BENCH_END(time, "time", 1, 1, 1, 1);
+		std::cout << "search result size : " << res1.size() << std::endl;
+	}
+
 	/* worst case of y1y2 extraction
 	 */
 	if(what == TEST_FIRST_Y1Y2_FULL) {
 		std::cout << test_text[what] << std::endl;
 		res1.reserve(0);
-		BENCH_START(time_search);
+		BENCH_START(time);
 		sqt1->extract_first_from_y1y2(0, MAX_VALUE, 0, MAX_VALUE, res1);
-		BENCH_END(time_search, "::extract_first_from_y1y2", 1, 1, 1, 1);
+		BENCH_END(time, "time", 1, 1, 1, 1);
 		std::cout << "search result size : " << res1.size() << std::endl;
 	}
 
 	if(what == TEST_FIRST_SEL_FULL) {
 		std::cout << test_text[what] << std::endl;
 		selection->select_all();
-		BENCH_START(time_search);
+		BENCH_START(time);
 		sqt1->extract_first_from_selection(*selection, res1);
-		BENCH_END(time_search, "::extract_first_from_selection", 1, 1, 1, 1);
+		BENCH_END(time, "time", 1, 1, 1, 1);
 		std::cout << "search result size : " << res1.size() << std::endl;
 	}
 
 	if(what == TEST_FIRST_SEL_HALF) {
 		std::cout << test_text[what] << std::endl;
 		selection->select_even();
-		BENCH_START(time_search);
+		BENCH_START(time);
 		sqt1->extract_first_from_selection(*selection, res1);
-		BENCH_END(time_search, "::extract_first_from_selection", 1, 1, 1, 1);
+		BENCH_END(time, "time", 1, 1, 1, 1);
 		std::cout << "search result size : " << res1.size() << std::endl;
 	}
 
 	if(what == TEST_FIRST_SEL_QUARTER) {
 		std::cout << test_text[what] << std::endl;
 		memset(selection->get_buffer(), 0x88, PICVIZ_SELECTION_NUMBER_OF_CHUNKS);
-		BENCH_START(time_search);
+		BENCH_START(time);
 		sqt1->extract_first_from_selection(*selection, res1);
-		BENCH_END(time_search, "::extract_first_from_selection", 1, 1, 1, 1);
+		BENCH_END(time, "time", 1, 1, 1, 1);
 		std::cout << "search result size : " << res1.size() << std::endl;
 	}
 
 	if(what == TEST_FIRST_SEL_NONE) {
 		std::cout << test_text[what] << std::endl;
 		selection->select_none();
-		BENCH_START(time_search);
+		BENCH_START(time);
 		sqt1->extract_first_from_selection(*selection, res1);
-		BENCH_END(time_search, "::extract_first_from_selection", 1, 1, 1, 1);
+		BENCH_END(time, "time", 1, 1, 1, 1);
 		std::cout << "search result size : " << res1.size() << std::endl;
 	}
 }
 
 void do_extract_first_bci_tests()
 {
-	/* worst case of first BCICode extraction
+	/* worst case of 1D first BCICode extraction
+	 */
+	if(what == TEST_FIRST_Y1_FULL) {
+		std::cout << test_text[what] << std::endl;
+		BENCH_START(time);
+		sqt1->extract_first_bci_from_y1(0, MAX_VALUE, codes);
+		BENCH_END(time, "time", 1, 1, 1, 1);
+		std::cout << "search result size : " << codes.size() << std::endl;
+	}
+
+	/* worst case of 2D first BCICode extraction
 	 */
 	if(what == TEST_FIRST_BCI_Y1Y2_FULL) {
-		std::vector<PVParallelView::PVBCICode> codes;
 		std::cout << test_text[what] << std::endl;
-		BENCH_START(time_extract);
+		BENCH_START(time);
 		sqt1->extract_first_bci_from_y1y2(0, MAX_VALUE, 0, MAX_VALUE, codes);
-		BENCH_END(time_extract, "BCICode Extraction", 1, 1, 1, 1);
+		BENCH_END(time, "time", 1, 1, 1, 1);
 		std::cout << "extraction result size : " << codes.size() << std::endl;
 	}
 
 	if(what == TEST_FIRST_BCI_SEL_FULL) {
-		std::vector<PVParallelView::PVBCICode> codes;
 		std::cout << test_text[what] << std::endl;
 		selection->select_all();
-		BENCH_START(time_search);
+		BENCH_START(time);
 		sqt1->extract_first_bci_from_selection(*selection, codes);
-		BENCH_END(time_search, "::extract_first_bci_from_selection", 1, 1, 1, 1);
+		BENCH_END(time, "time", 1, 1, 1, 1);
 		std::cout << "search result size : " << codes.size() << std::endl;
 	}
 
 	if(what == TEST_FIRST_BCI_SEL_HALF) {
-		std::vector<PVParallelView::PVBCICode> codes;
 		std::cout << test_text[what] << std::endl;
 		selection->select_even();
-		BENCH_START(time_search);
+		BENCH_START(time);
 		sqt1->extract_first_bci_from_selection(*selection, codes);
-		BENCH_END(time_search, "::extract_first_bci_from_selection", 1, 1, 1, 1);
+		BENCH_END(time, "time", 1, 1, 1, 1);
 		std::cout << "search result size : " << codes.size() << std::endl;
 	}
 
 	if(what == TEST_FIRST_BCI_SEL_QUARTER) {
-		std::vector<PVParallelView::PVBCICode> codes;
 		std::cout << test_text[what] << std::endl;
 		memset(selection->get_buffer(), 0x88, PICVIZ_SELECTION_NUMBER_OF_CHUNKS);
-		BENCH_START(time_search);
+		BENCH_START(time);
 		sqt1->extract_first_bci_from_selection(*selection, codes);
-		BENCH_END(time_search, "::extract_first_bci_from_selection", 1, 1, 1, 1);
+		BENCH_END(time, "time", 1, 1, 1, 1);
 		std::cout << "search result size : " << codes.size() << std::endl;
 	}
 
 	if(what == TEST_FIRST_BCI_SEL_NONE) {
-		std::vector<PVParallelView::PVBCICode> codes;
 		std::cout << test_text[what] << std::endl;
 		selection->select_none();
-		BENCH_START(time_search);
+		BENCH_START(time);
 		sqt1->extract_first_bci_from_selection(*selection, codes);
-		BENCH_END(time_search, "::extract_first_bci_from_selection", 1, 1, 1, 1);
+		BENCH_END(time, "time", 1, 1, 1, 1);
 		std::cout << "search result size : " << res1.size() << std::endl;
 	}
 }
@@ -293,9 +314,9 @@ void do_subtree_tests()
 	 */
 	if(what == TEST_SUB_Y1_FULL) {
 		std::cout << test_text[what] << std::endl;
-		BENCH_START(time_extract_subtree);
+		BENCH_START(time);
 		subtree = sqt1->extract_subtree_y1(0, MAX_VALUE);
-		BENCH_END(time_extract_subtree, "Subtree Extraction", 1, 1, 1, 1);
+		BENCH_END(time, "time", 1, 1, 1, 1);
 		print_mem("QuadTree", sqt1->memory());
 		print_mem("SubQuadTree", subtree->memory());
 		if(*sqt1 == *subtree) {
@@ -308,9 +329,9 @@ void do_subtree_tests()
 
 	if(what == TEST_SUB_Y1_HALF) {
 		std::cout << test_text[what] << std::endl;
-		BENCH_START(time_extract_subtree);
+		BENCH_START(time);
 		subtree = sqt1->extract_subtree_y2(0, MAX_VALUE >> 1);
-		BENCH_END(time_extract_subtree, "Subtree Extraction", 1, 1, 1, 1);
+		BENCH_END(time, "time", 1, 1, 1, 1);
 		print_mem("QuadTree", sqt1->memory());
 		print_mem("SubQuadTree", subtree->memory());
 		std::cout << "QuadTree's elements count: " << sqt1->elements() << std::endl;
@@ -320,16 +341,14 @@ void do_subtree_tests()
 
 	if(what == TEST_SUB_Y1Y2_QUARTER) {
 		std::cout << test_text[what] << std::endl;
-		BENCH_START(time_extract_subtree);
+		BENCH_START(time);
 		subtree = sqt1->extract_subtree_y1y2(0, (MAX_VALUE >> 1),
 		                                     0, (MAX_VALUE >> 1));
-		BENCH_END(time_extract_subtree, "Subtree Extraction", 1, 1, 1, 1);
+		BENCH_END(time, "time", 1, 1, 1, 1);
 		print_mem("QuadTree", sqt1->memory());
 		print_mem("SubQuadTree", subtree->memory());
 		std::cout << "QuadTree's elements count: " << sqt1->elements() << std::endl;
 		std::cout << "SubQuadTree's elements count: " << subtree->elements() << std::endl;
-		// sqt1->dump(std::cout);
-		// subtree->dump(std::cerr);
 		delete subtree;
 	}
 
@@ -337,10 +356,10 @@ void do_subtree_tests()
 		std::cout << test_text[what] << std::endl;
 		{
 			// SW quarter
-			BENCH_START(time_extract_subtree);
+			BENCH_START(time);
 			subtree = sqt1->extract_subtree_y1y2(0, MAX_VALUE >> 1,
 			                                     0, MAX_VALUE >> 1);
-			BENCH_END(time_extract_subtree, "Subtree Extraction", 1, 1, 1, 1);
+			BENCH_END(time, "time", 1, 1, 1, 1);
 			print_mem("QuadTree", sqt1->memory());
 			print_mem("SubQuadTree", subtree->memory());
 			std::cout << "QuadTree's elements count: " << sqt1->elements() << std::endl;
@@ -349,10 +368,10 @@ void do_subtree_tests()
 		}
 		{
 			// SE quarter
-			BENCH_START(time_extract_subtree);
+			BENCH_START(time);
 			subtree = sqt1->extract_subtree_y1y2(0             , MAX_VALUE >> 1,
 			                                     MAX_VALUE >> 1, MAX_VALUE);
-			BENCH_END(time_extract_subtree, "Subtree Extraction", 1, 1, 1, 1);
+			BENCH_END(time, "time", 1, 1, 1, 1);
 			print_mem("QuadTree", sqt1->memory());
 			print_mem("SubQuadTree", subtree->memory());
 			std::cout << "QuadTree's elements count: " << sqt1->elements() << std::endl;
@@ -361,10 +380,10 @@ void do_subtree_tests()
 		}
 		{
 			// NE quarter
-			BENCH_START(time_extract_subtree);
+			BENCH_START(time);
 			subtree = sqt1->extract_subtree_y1y2(MAX_VALUE >> 1, MAX_VALUE,
 			                                     MAX_VALUE >> 1, MAX_VALUE);
-			BENCH_END(time_extract_subtree, "Subtree Extraction", 1, 1, 1, 1);
+			BENCH_END(time, "time", 1, 1, 1, 1);
 			print_mem("QuadTree", sqt1->memory());
 			print_mem("SubQuadTree", subtree->memory());
 			std::cout << "QuadTree's elements count: " << sqt1->elements() << std::endl;
@@ -373,10 +392,10 @@ void do_subtree_tests()
 		}
 		{
 			// NW quarter
-			BENCH_START(time_extract_subtree);
+			BENCH_START(time);
 			subtree = sqt1->extract_subtree_y1y2(MAX_VALUE >> 1, MAX_VALUE,
 			                                     0             , MAX_VALUE >> 1);
-			BENCH_END(time_extract_subtree, "Subtree Extraction", 1, 1, 1, 1);
+			BENCH_END(time, "time", 1, 1, 1, 1);
 			print_mem("QuadTree", sqt1->memory());
 			print_mem("SubQuadTree", subtree->memory());
 			std::cout << "QuadTree's elements count: " << sqt1->elements() << std::endl;
@@ -392,9 +411,9 @@ void do_selection_tests()
 	if(what == TEST_SUB_SEL_FULL) {
 		std::cout << test_text[what] << std::endl;
 		selection->select_all();
-		BENCH_START(time_extract_subtree);
+		BENCH_START(time);
 		subtree = sqt1->extract_subtree_from_selection(*selection);
-		BENCH_END(time_extract_subtree, "Subtree Extraction with all selected", 1, 1, 1, 1);
+		BENCH_END(time, "time", 1, 1, 1, 1);
 		print_mem("QuadTree", sqt1->memory());
 		print_mem("SubQuadTree", subtree->memory());
 		if(*sqt1 == *subtree) {
@@ -408,9 +427,9 @@ void do_selection_tests()
 	if(what == TEST_SUB_SEL_HALF) {
 		std::cout << test_text[what] << std::endl;
 		selection->select_even();
-		BENCH_START(time_extract_subtree);
+		BENCH_START(time);
 		subtree = sqt1->extract_subtree_from_selection(*selection);
-		BENCH_END(time_extract_subtree, "Subtree Extraction with selection", 1, 1, 1, 1);
+		BENCH_END(time, "time", 1, 1, 1, 1);
 		print_mem("QuadTree", sqt1->memory());
 		print_mem("SubQuadTree", subtree->memory());
 		std::cout << "QuadTree's elements count: " << sqt1->elements() << std::endl;
@@ -421,9 +440,9 @@ void do_selection_tests()
 	if(what == TEST_SUB_SEL_QUARTER) {
 		std::cout << test_text[what] << std::endl;
 		memset(selection->get_buffer(), 0x88, PICVIZ_SELECTION_NUMBER_OF_BYTES);
-		BENCH_START(time_extract_subtree);
+		BENCH_START(time);
 		subtree = sqt1->extract_subtree_from_selection(*selection);
-		BENCH_END(time_extract_subtree, "Subtree Extraction with selection", 1, 1, 1, 1);
+		BENCH_END(time, "time", 1, 1, 1, 1);
 		print_mem("QuadTree", sqt1->memory());
 		print_mem("SubQuadTree", subtree->memory());
 		std::cout << "QuadTree's elements count: " << sqt1->elements() << std::endl;
@@ -434,9 +453,9 @@ void do_selection_tests()
 	if(what == TEST_SUB_SEL_NONE) {
 		std::cout << test_text[what] << std::endl;
 		selection->select_none();
-		BENCH_START(time_extract_subtree);
+		BENCH_START(time);
 		subtree = sqt1->extract_subtree_from_selection(*selection);
-		BENCH_END(time_extract_subtree, "Subtree Extraction with selection", 1, 1, 1, 1);
+		BENCH_END(time, "time", 1, 1, 1, 1);
 		print_mem("QuadTree", sqt1->memory());
 		print_mem("SubQuadTree", subtree->memory());
 		std::cout << "QuadTree's elements count: " << sqt1->elements() << std::endl;
