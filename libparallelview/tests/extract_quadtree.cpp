@@ -197,7 +197,7 @@ void do_extract_first_tests()
 	/* worst case of y1 extraction
 	 */
 	if(what == TEST_FIRST_Y1_FULL) {
-		std::cout << test_text[what] << std::endl;
+		std::cout << "# " << test_text[what] << std::endl;
 		res1.reserve(0);
 		BENCH_START(time);
 		sqt1->extract_first_from_y1(0, MAX_VALUE, res1);
@@ -208,7 +208,7 @@ void do_extract_first_tests()
 	/* worst case of y1y2 extraction
 	 */
 	if(what == TEST_FIRST_Y1Y2_FULL) {
-		std::cout << test_text[what] << std::endl;
+		std::cout << "# " << test_text[what] << std::endl;
 		res1.reserve(0);
 		BENCH_START(time);
 		sqt1->extract_first_from_y1y2(0, MAX_VALUE, 0, MAX_VALUE, res1);
@@ -217,7 +217,7 @@ void do_extract_first_tests()
 	}
 
 	if(what == TEST_FIRST_SEL_FULL) {
-		std::cout << test_text[what] << std::endl;
+		std::cout << "# " << test_text[what] << std::endl;
 		selection->select_all();
 		BENCH_START(time);
 		sqt1->extract_first_from_selection(*selection, res1);
@@ -226,7 +226,7 @@ void do_extract_first_tests()
 	}
 
 	if(what == TEST_FIRST_SEL_HALF) {
-		std::cout << test_text[what] << std::endl;
+		std::cout << "# " << test_text[what] << std::endl;
 		selection->select_even();
 		BENCH_START(time);
 		sqt1->extract_first_from_selection(*selection, res1);
@@ -235,7 +235,7 @@ void do_extract_first_tests()
 	}
 
 	if(what == TEST_FIRST_SEL_QUARTER) {
-		std::cout << test_text[what] << std::endl;
+		std::cout << "# " << test_text[what] << std::endl;
 		memset(selection->get_buffer(), 0x88, PICVIZ_SELECTION_NUMBER_OF_CHUNKS);
 		BENCH_START(time);
 		sqt1->extract_first_from_selection(*selection, res1);
@@ -244,7 +244,7 @@ void do_extract_first_tests()
 	}
 
 	if(what == TEST_FIRST_SEL_NONE) {
-		std::cout << test_text[what] << std::endl;
+		std::cout << "# " << test_text[what] << std::endl;
 		selection->select_none();
 		BENCH_START(time);
 		sqt1->extract_first_from_selection(*selection, res1);
@@ -257,8 +257,8 @@ void do_extract_first_bci_tests()
 {
 	/* worst case of 1D first BCICode extraction
 	 */
-	if(what == TEST_FIRST_Y1_FULL) {
-		std::cout << test_text[what] << std::endl;
+	if(what == TEST_FIRST_BCI_Y1_FULL) {
+		std::cout << "# " << test_text[what] << std::endl;
 		BENCH_START(time);
 		sqt1->extract_first_bci_from_y1(0, MAX_VALUE, codes);
 		BENCH_END(time, "time", 1, 1, 1, 1);
@@ -268,7 +268,7 @@ void do_extract_first_bci_tests()
 	/* worst case of 2D first BCICode extraction
 	 */
 	if(what == TEST_FIRST_BCI_Y1Y2_FULL) {
-		std::cout << test_text[what] << std::endl;
+		std::cout << "# " << test_text[what] << std::endl;
 		BENCH_START(time);
 		sqt1->extract_first_bci_from_y1y2(0, MAX_VALUE, 0, MAX_VALUE, codes);
 		BENCH_END(time, "time", 1, 1, 1, 1);
@@ -276,7 +276,7 @@ void do_extract_first_bci_tests()
 	}
 
 	if(what == TEST_FIRST_BCI_SEL_FULL) {
-		std::cout << test_text[what] << std::endl;
+		std::cout << "# " << test_text[what] << std::endl;
 		selection->select_all();
 		BENCH_START(time);
 		sqt1->extract_first_bci_from_selection(*selection, codes);
@@ -285,7 +285,7 @@ void do_extract_first_bci_tests()
 	}
 
 	if(what == TEST_FIRST_BCI_SEL_HALF) {
-		std::cout << test_text[what] << std::endl;
+		std::cout << "# " << test_text[what] << std::endl;
 		selection->select_even();
 		BENCH_START(time);
 		sqt1->extract_first_bci_from_selection(*selection, codes);
@@ -294,7 +294,7 @@ void do_extract_first_bci_tests()
 	}
 
 	if(what == TEST_FIRST_BCI_SEL_QUARTER) {
-		std::cout << test_text[what] << std::endl;
+		std::cout << "# " << test_text[what] << std::endl;
 		memset(selection->get_buffer(), 0x88, PICVIZ_SELECTION_NUMBER_OF_CHUNKS);
 		BENCH_START(time);
 		sqt1->extract_first_bci_from_selection(*selection, codes);
@@ -303,7 +303,7 @@ void do_extract_first_bci_tests()
 	}
 
 	if(what == TEST_FIRST_BCI_SEL_NONE) {
-		std::cout << test_text[what] << std::endl;
+		std::cout << "# " << test_text[what] << std::endl;
 		selection->select_none();
 		BENCH_START(time);
 		sqt1->extract_first_bci_from_selection(*selection, codes);
@@ -318,7 +318,7 @@ void do_subtree_tests()
 	/* comparison with a full extraction
 	 */
 	if(what == TEST_SUB_Y1_FULL) {
-		std::cout << test_text[what] << std::endl;
+		std::cout << "# " << test_text[what] << std::endl;
 		BENCH_START(time);
 		subtree = sqt1->extract_subtree_y1(0, MAX_VALUE);
 		BENCH_END(time, "time", 1, 1, 1, 1);
@@ -333,7 +333,7 @@ void do_subtree_tests()
 	}
 
 	if(what == TEST_SUB_Y1_HALF) {
-		std::cout << test_text[what] << std::endl;
+		std::cout << "# " << test_text[what] << std::endl;
 		BENCH_START(time);
 		subtree = sqt1->extract_subtree_y2(0, MAX_VALUE >> 1);
 		BENCH_END(time, "time", 1, 1, 1, 1);
@@ -345,7 +345,7 @@ void do_subtree_tests()
 	}
 
 	if(what == TEST_SUB_Y1Y2_QUARTER) {
-		std::cout << test_text[what] << std::endl;
+		std::cout << "# " << test_text[what] << std::endl;
 		BENCH_START(time);
 		subtree = sqt1->extract_subtree_y1y2(0, (MAX_VALUE >> 1),
 		                                     0, (MAX_VALUE >> 1));
@@ -358,7 +358,7 @@ void do_subtree_tests()
 	}
 
 	if(what == TEST_SUB_Y1Y2_FOUR_QUARTER) {
-		std::cout << test_text[what] << std::endl;
+		std::cout << "# " << test_text[what] << std::endl;
 		{
 			// SW quarter
 			BENCH_START(time);
@@ -414,7 +414,7 @@ void do_selection_tests()
 {
 
 	if(what == TEST_SUB_SEL_FULL) {
-		std::cout << test_text[what] << std::endl;
+		std::cout << "# " << test_text[what] << std::endl;
 		selection->select_all();
 		BENCH_START(time);
 		subtree = sqt1->extract_subtree_from_selection(*selection);
@@ -430,7 +430,7 @@ void do_selection_tests()
 	}
 
 	if(what == TEST_SUB_SEL_HALF) {
-		std::cout << test_text[what] << std::endl;
+		std::cout << "# " << test_text[what] << std::endl;
 		selection->select_even();
 		BENCH_START(time);
 		subtree = sqt1->extract_subtree_from_selection(*selection);
@@ -443,7 +443,7 @@ void do_selection_tests()
 	}
 
 	if(what == TEST_SUB_SEL_QUARTER) {
-		std::cout << test_text[what] << std::endl;
+		std::cout << "# " << test_text[what] << std::endl;
 		memset(selection->get_buffer(), 0x88, PICVIZ_SELECTION_NUMBER_OF_BYTES);
 		BENCH_START(time);
 		subtree = sqt1->extract_subtree_from_selection(*selection);
@@ -456,7 +456,7 @@ void do_selection_tests()
 	}
 
 	if(what == TEST_SUB_SEL_NONE) {
-		std::cout << test_text[what] << std::endl;
+		std::cout << "# " << test_text[what] << std::endl;
 		selection->select_none();
 		BENCH_START(time);
 		subtree = sqt1->extract_subtree_from_selection(*selection);
