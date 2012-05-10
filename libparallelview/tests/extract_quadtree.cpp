@@ -103,6 +103,7 @@ const char *test_text[] = {
 
 	"PVQuadTree::extract_subtree_y1 with full area",
 	"PVQuadTree::extract_subtree_y1 with half area",
+	"PVQuadTree::extract_subtree_y1y2 with full area",
 	"PVQuadTree::extract_subtree_y1y2 with a quarter of area",
 	"PVQuadTree::extract_subtree_y1y2 with a quarter of area for each quarter",
 
