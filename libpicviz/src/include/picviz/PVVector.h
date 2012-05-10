@@ -7,7 +7,10 @@
 #ifndef PICVIZ_PVVECTOR_H
 #define PICVIZ_PVVECTOR_H
 
-#include <algorithm>
+// for realloc()
+#include <stdlib.h>
+// for memcpy()
+#include <string.h>
 
 namespace Picviz {
 
@@ -101,7 +104,7 @@ public:
 		if(v._size) {
 			_index = v._index;
 			reallocate(v._size);
-			std::copy(v._array, v._array + _index, _array);
+			memcpy(_array, v._array, _index * sizeof(C));
 		}
 		return *this;
 	}
