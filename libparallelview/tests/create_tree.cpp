@@ -129,7 +129,7 @@ void test(
 	}
 	std::cout << "---" << std::endl;*/
 
-	{
+	/*{
 		MEM_START(serial);
 		PVParallelView::PVZoneTree<std::vector<PVRow, tbb::scalable_allocator<PVRow> > >* ztree = new PVParallelView::PVZoneTree<std::vector<PVRow, tbb::scalable_allocator<PVRow> > >(0, 1);
 		ztree->set_trans_plotted(norm_plotted, nrows, ncols);
@@ -180,7 +180,7 @@ void test(
 		//ztree->display("zone-noalloc", plotted);
 		delete ztree;
 	}
-	std::cout << "---" << std::endl;
+	std::cout << "---" << std::endl;*/
 
 	
 	/*{
@@ -253,7 +253,7 @@ void test(
 		ztree->set_trans_plotted(norm_plotted, nrows, ncols);
 		ztree->process_omp_sse();*/
 
-		{
+		/*{
 		MEM_START(serial);
 		BENCH_START(sse);
 		size_t nb_codes = ztree->browse_tree_bci(colors, bci_codes);
@@ -278,6 +278,8 @@ void test(
 		{
 		MEM_START(serial);
 		BENCH_START(sse);
+		Picviz::PVSelection sel;
+		sel.select_odd();
 		PVParallelView::PVZoneTreeNoAlloc* zsel = ztree->filter_by_sel<true>(sel);
 		BENCH_END(sse, "subtree selection", nb_codes, sizeof(PVRow), nb_codes, sizeof(PVParallelView::PVBCICode));
 		MEM_END(serial, "subtree selection");
@@ -288,14 +290,16 @@ void test(
 		{
 		MEM_START(serial);
 		BENCH_START(sse);
+		Picviz::PVSelection sel;
 		sel.select_none();
 		PVParallelView::PVZoneTreeNoAlloc* zsel = ztree->filter_by_sel<true>(sel);
 		BENCH_END(sse, "subtree selection", nb_codes, sizeof(PVRow), nb_codes, sizeof(PVParallelView::PVBCICode));
 		MEM_END(serial, "subtree selection");
 		delete zsel;
-		}
+		}*/
 
 		{
+		Picviz::PVSelection sel;
 		sel.select_odd();
 		PVParallelView::PVZoneTreeNoAlloc* zsel = ztree->filter_by_sel_tbb(sel);
 		delete zsel;
