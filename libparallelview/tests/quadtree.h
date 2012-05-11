@@ -374,7 +374,7 @@ public:
 		}
 	}
 
-	void extract_first_bci_from_y1y2_and_selection(uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max, const Picviz::PVSelection &selection, std::vector<Data> &results) const
+	void extract_first_bci_from_y1y2_and_selection(uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max, const Picviz::PVSelection &selection, std::vector<PVParallelView::PVBCICode> &results) const
 	{
 		if(_datas.is_null()) {
 			if(_y1_mid_value < y1_max) {
