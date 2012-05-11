@@ -59,14 +59,34 @@ void print_mem (const char *text, size_t s)
 
 enum {
 	TEST_FIRST_Y1_FULL = 0,
+	TEST_FIRST_Y1_FULL_SEL_FULL,
+	TEST_FIRST_Y1_FULL_SEL_HALF,
+	TEST_FIRST_Y1_FULL_SEL_QUARTER,
+	TEST_FIRST_Y1_FULL_SEL_NONE,
+
 	TEST_FIRST_Y1Y2_FULL,
+	TEST_FIRST_Y1Y2_FULL_SEL_FULL,
+	TEST_FIRST_Y1Y2_FULL_SEL_HALF,
+	TEST_FIRST_Y1Y2_FULL_SEL_QUARTER,
+	TEST_FIRST_Y1Y2_FULL_SEL_NONE,
+
 	TEST_FIRST_SEL_FULL,
 	TEST_FIRST_SEL_HALF,
 	TEST_FIRST_SEL_QUARTER,
 	TEST_FIRST_SEL_NONE,
 
 	TEST_FIRST_BCI_Y1_FULL,
+	TEST_FIRST_BCI_Y1_FULL_SEL_FULL,
+	TEST_FIRST_BCI_Y1_FULL_SEL_HALF,
+	TEST_FIRST_BCI_Y1_FULL_SEL_QUARTER,
+	TEST_FIRST_BCI_Y1_FULL_SEL_NONE,
+
 	TEST_FIRST_BCI_Y1Y2_FULL,
+	TEST_FIRST_BCI_Y1Y2_FULL_SEL_FULL,
+	TEST_FIRST_BCI_Y1Y2_FULL_SEL_HALF,
+	TEST_FIRST_BCI_Y1Y2_FULL_SEL_QUARTER,
+	TEST_FIRST_BCI_Y1Y2_FULL_SEL_NONE,
+
 	TEST_FIRST_BCI_SEL_FULL,
 	TEST_FIRST_BCI_SEL_HALF,
 	TEST_FIRST_BCI_SEL_QUARTER,
@@ -88,18 +108,38 @@ enum {
 
 const char *test_text[] = {
 	"PVQuadTree::extract_first_y1 with full area",
+	"PVQuadTree::extract_first_y1 with full area and full selection",
+	"PVQuadTree::extract_first_y1 with full area and half selection",
+	"PVQuadTree::extract_first_y1 with full area and quarter selection",
+	"PVQuadTree::extract_first_y1 with full area and no selection",
+
 	"PVQuadTree::extract_first_y1y2 with full area",
+	"PVQuadTree::extract_first_y1y2 with full area and full selection",
+	"PVQuadTree::extract_first_y1y2 with full area and half selection",
+	"PVQuadTree::extract_first_y1y2 with full area and quarter selection",
+	"PVQuadTree::extract_first_y1y2 with full area and no selection",
+
 	"PVQuadTree::extract_first_selection with full selection",
-	"PVQuadTree::extract_first_selection with entry-count / 2 selected entries",
-	"PVQuadTree::extract_first_selection with entry-count / 4 selected entries",
-	"PVQuadTree::extract_first_selection with no selected entry",
+	"PVQuadTree::extract_first_selection with half selection",
+	"PVQuadTree::extract_first_selection with quarter selection",
+	"PVQuadTree::extract_first_selection with no selection",
 
 	"PVQuadTree::extract_first_bci_y1 with full area",
+	"PVQuadTree::extract_first_bci_y1 with full area and full selection",
+	"PVQuadTree::extract_first_bci_y1 with full area and half selection",
+	"PVQuadTree::extract_first_bci_y1 with full area and quarter selection",
+	"PVQuadTree::extract_first_bci_y1 with full area and no selection",
+
 	"PVQuadTree::extract_first_bci_y1y2 with full area",
+	"PVQuadTree::extract_first_bci_y1y2 with full area and full selection",
+	"PVQuadTree::extract_first_bci_y1y2 with full area and half selection",
+	"PVQuadTree::extract_first_bci_y1y2 with full area and quarter selection",
+	"PVQuadTree::extract_first_bci_y1y2 with full area and no selection",
+
 	"PVQuadTree::extract_first_bci_selection with full selection",
-	"PVQuadTree::extract_first_bci_selection with entry-count / 2 selected entries",
-	"PVQuadTree::extract_first_bci_selection with entry-count / 4 selected entries",
-	"PVQuadTree::extract_first_bci_selection with no selected entry",
+	"PVQuadTree::extract_first_bci_selection with half selection",
+	"PVQuadTree::extract_first_bci_selection with quarter selection",
+	"PVQuadTree::extract_first_bci_selection with no selection",
 
 	"PVQuadTree::extract_subtree_y1 with full area",
 	"PVQuadTree::extract_subtree_y1 with half area",
@@ -108,9 +148,9 @@ const char *test_text[] = {
 	"PVQuadTree::extract_subtree_y1y2 with a quarter of area for each quarter",
 
 	"PVQuadTree::extract_subtree_with_selection with full selected entries",
-	"PVQuadTree::extract_subtree_with_selection with entry-count / 2 selected entries",
-	"PVQuadTree::extract_subtree_with_selection with entry-count / 4 selected entries",
-	"PVQuadTree::extract_subtree_with_selection with no selected entry"
+	"PVQuadTree::extract_subtree_with_selection with half selection",
+	"PVQuadTree::extract_subtree_with_selection with quarter selection",
+	"PVQuadTree::extract_subtree_with_selection with no selection"
 };
 
 void usage()
@@ -138,8 +178,14 @@ PVQuadTree<Vector1<entry>, entry> *subtree;
 std::vector<PVParallelView::PVBCICode> codes;
 
 // forward declarations
-void do_extract_first_tests();
-void do_extract_first_bci_tests();
+void do_extract_first_y1_tests();
+void do_extract_first_y1y2_tests();
+void do_extract_first_sel_tests();
+
+void do_extract_first_bci_y1_tests();
+void do_extract_first_bci_y1y2_tests();
+void do_extract_first_bci_sel_tests();
+
 void do_subtree_tests();
 void do_selection_tests();
 
@@ -178,8 +224,14 @@ int main(int argc, char **argv)
 		sqt1->insert(entries[i]);
 	}
 
-	do_extract_first_tests();
-	do_extract_first_bci_tests();
+	do_extract_first_y1_tests();
+	do_extract_first_y1y2_tests();
+	do_extract_first_sel_tests();
+
+	do_extract_first_bci_y1_tests();
+	do_extract_first_bci_y1y2_tests();
+	do_extract_first_bci_sel_tests();
+
 	do_subtree_tests();
 	do_selection_tests();
 
@@ -194,7 +246,7 @@ int main(int argc, char **argv)
 	return 0;
 }
 
-void do_extract_first_tests()
+void do_extract_first_y1_tests()
 {
 	/* worst case of y1 extraction
 	 */
@@ -207,6 +259,45 @@ void do_extract_first_tests()
 		std::cout << "search result size : " << res1.size() << std::endl;
 	}
 
+	if(what == TEST_FIRST_Y1_FULL_SEL_FULL) {
+		std::cout << "# " << test_text[what] << std::endl;
+		selection->select_all();
+		BENCH_START(time);
+		sqt1->extract_first_from_y1_and_selection(0, MAX_VALUE, *selection, res1);
+		BENCH_END(time, "time", 1, 1, 1, 1);
+		std::cout << "search result size : " << res1.size() << std::endl;
+	}
+
+	if(what == TEST_FIRST_Y1_FULL_SEL_HALF) {
+		std::cout << "# " << test_text[what] << std::endl;
+		selection->select_even();
+		BENCH_START(time);
+		sqt1->extract_first_from_y1_and_selection(0, MAX_VALUE, *selection, res1);
+		BENCH_END(time, "time", 1, 1, 1, 1);
+		std::cout << "search result size : " << res1.size() << std::endl;
+	}
+
+	if(what == TEST_FIRST_Y1_FULL_SEL_QUARTER) {
+		std::cout << "# " << test_text[what] << std::endl;
+		memset(selection->get_buffer(), 0x88, PICVIZ_SELECTION_NUMBER_OF_CHUNKS);
+		BENCH_START(time);
+		sqt1->extract_first_from_y1_and_selection(0, MAX_VALUE, *selection, res1);
+		BENCH_END(time, "time", 1, 1, 1, 1);
+		std::cout << "search result size : " << res1.size() << std::endl;
+	}
+
+	if(what == TEST_FIRST_Y1_FULL_SEL_NONE) {
+		std::cout << "# " << test_text[what] << std::endl;
+		selection->select_none();
+		BENCH_START(time);
+		sqt1->extract_first_from_y1_and_selection(0, MAX_VALUE, *selection, res1);
+		BENCH_END(time, "time", 1, 1, 1, 1);
+		std::cout << "search result size : " << res1.size() << std::endl;
+	}
+}
+
+void do_extract_first_y1y2_tests()
+{
 	/* worst case of y1y2 extraction
 	 */
 	if(what == TEST_FIRST_Y1Y2_FULL) {
@@ -218,6 +309,45 @@ void do_extract_first_tests()
 		std::cout << "search result size : " << res1.size() << std::endl;
 	}
 
+	if(what == TEST_FIRST_Y1Y2_FULL_SEL_FULL) {
+		std::cout << "# " << test_text[what] << std::endl;
+		selection->select_all();
+		BENCH_START(time);
+		sqt1->extract_first_from_y1y2_and_selection(0, MAX_VALUE, 0, MAX_VALUE, *selection, res1);
+		BENCH_END(time, "time", 1, 1, 1, 1);
+		std::cout << "search result size : " << res1.size() << std::endl;
+	}
+
+	if(what == TEST_FIRST_Y1Y2_FULL_SEL_HALF) {
+		std::cout << "# " << test_text[what] << std::endl;
+		selection->select_even();
+		BENCH_START(time);
+		sqt1->extract_first_from_y1y2_and_selection(0, MAX_VALUE, 0, MAX_VALUE, *selection, res1);
+		BENCH_END(time, "time", 1, 1, 1, 1);
+		std::cout << "search result size : " << res1.size() << std::endl;
+	}
+
+	if(what == TEST_FIRST_Y1Y2_FULL_SEL_QUARTER) {
+		std::cout << "# " << test_text[what] << std::endl;
+		memset(selection->get_buffer(), 0x88, PICVIZ_SELECTION_NUMBER_OF_CHUNKS);
+		BENCH_START(time);
+		sqt1->extract_first_from_y1y2_and_selection(0, MAX_VALUE, 0, MAX_VALUE, *selection, res1);
+		BENCH_END(time, "time", 1, 1, 1, 1);
+		std::cout << "search result size : " << res1.size() << std::endl;
+	}
+
+	if(what == TEST_FIRST_Y1Y2_FULL_SEL_NONE) {
+		std::cout << "# " << test_text[what] << std::endl;
+		selection->select_none();
+		BENCH_START(time);
+		sqt1->extract_first_from_y1y2_and_selection(0, MAX_VALUE, 0, MAX_VALUE, *selection, res1);
+		BENCH_END(time, "time", 1, 1, 1, 1);
+		std::cout << "search result size : " << res1.size() << std::endl;
+	}
+}
+
+void do_extract_first_sel_tests()
+{
 	if(what == TEST_FIRST_SEL_FULL) {
 		std::cout << "# " << test_text[what] << std::endl;
 		selection->select_all();
@@ -255,7 +385,7 @@ void do_extract_first_tests()
 	}
 }
 
-void do_extract_first_bci_tests()
+void do_extract_first_bci_y1_tests()
 {
 	/* worst case of 1D first BCICode extraction
 	 */
@@ -267,6 +397,45 @@ void do_extract_first_bci_tests()
 		std::cout << "search result size : " << codes.size() << std::endl;
 	}
 
+	if(what == TEST_FIRST_BCI_Y1_FULL_SEL_FULL) {
+		std::cout << "# " << test_text[what] << std::endl;
+		selection->select_all();
+		BENCH_START(time);
+		sqt1->extract_first_bci_from_y1_and_selection(0, MAX_VALUE, *selection, codes);
+		BENCH_END(time, "time", 1, 1, 1, 1);
+		std::cout << "search result size : " << codes.size() << std::endl;
+	}
+
+	if(what == TEST_FIRST_BCI_Y1_FULL_SEL_HALF) {
+		std::cout << "# " << test_text[what] << std::endl;
+		selection->select_even();
+		BENCH_START(time);
+		sqt1->extract_first_bci_from_y1_and_selection(0, MAX_VALUE, *selection, codes);
+		BENCH_END(time, "time", 1, 1, 1, 1);
+		std::cout << "search result size : " << codes.size() << std::endl;
+	}
+
+	if(what == TEST_FIRST_BCI_Y1_FULL_SEL_QUARTER) {
+		std::cout << "# " << test_text[what] << std::endl;
+		memset(selection->get_buffer(), 0x88, PICVIZ_SELECTION_NUMBER_OF_CHUNKS);
+		BENCH_START(time);
+		sqt1->extract_first_bci_from_y1_and_selection(0, MAX_VALUE, *selection, codes);
+		BENCH_END(time, "time", 1, 1, 1, 1);
+		std::cout << "search result size : " << codes.size() << std::endl;
+	}
+
+	if(what == TEST_FIRST_BCI_Y1_FULL_SEL_NONE) {
+		std::cout << "# " << test_text[what] << std::endl;
+		selection->select_none();
+		BENCH_START(time);
+		sqt1->extract_first_bci_from_y1_and_selection(0, MAX_VALUE, *selection, codes);
+		BENCH_END(time, "time", 1, 1, 1, 1);
+		std::cout << "search result size : " << codes.size() << std::endl;
+	}
+}
+
+void do_extract_first_bci_y1y2_tests()
+{
 	/* worst case of 2D first BCICode extraction
 	 */
 	if(what == TEST_FIRST_BCI_Y1Y2_FULL) {
@@ -277,6 +446,45 @@ void do_extract_first_bci_tests()
 		std::cout << "extraction result size : " << codes.size() << std::endl;
 	}
 
+	if(what == TEST_FIRST_BCI_Y1Y2_FULL_SEL_FULL) {
+		std::cout << "# " << test_text[what] << std::endl;
+		selection->select_all();
+		BENCH_START(time);
+		sqt1->extract_first_bci_from_y1y2_and_selection(0, MAX_VALUE, 0, MAX_VALUE, *selection, codes);
+		BENCH_END(time, "time", 1, 1, 1, 1);
+		std::cout << "search result size : " << codes.size() << std::endl;
+	}
+
+	if(what == TEST_FIRST_BCI_Y1Y2_FULL_SEL_HALF) {
+		std::cout << "# " << test_text[what] << std::endl;
+		selection->select_even();
+		BENCH_START(time);
+		sqt1->extract_first_bci_from_y1y2_and_selection(0, MAX_VALUE, 0, MAX_VALUE, *selection, codes);
+		BENCH_END(time, "time", 1, 1, 1, 1);
+		std::cout << "search result size : " << codes.size() << std::endl;
+	}
+
+	if(what == TEST_FIRST_BCI_Y1Y2_FULL_SEL_QUARTER) {
+		std::cout << "# " << test_text[what] << std::endl;
+		memset(selection->get_buffer(), 0x88, PICVIZ_SELECTION_NUMBER_OF_CHUNKS);
+		BENCH_START(time);
+		sqt1->extract_first_bci_from_y1y2_and_selection(0, MAX_VALUE, 0, MAX_VALUE, *selection, codes);
+		BENCH_END(time, "time", 1, 1, 1, 1);
+		std::cout << "search result size : " << codes.size() << std::endl;
+	}
+
+	if(what == TEST_FIRST_BCI_Y1Y2_FULL_SEL_NONE) {
+		std::cout << "# " << test_text[what] << std::endl;
+		selection->select_none();
+		BENCH_START(time);
+		sqt1->extract_first_bci_from_y1y2_and_selection(0, MAX_VALUE, 0, MAX_VALUE, *selection, codes);
+		BENCH_END(time, "time", 1, 1, 1, 1);
+		std::cout << "search result size : " << codes.size() << std::endl;
+	}
+}
+
+void do_extract_first_bci_sel_tests()
+{
 	if(what == TEST_FIRST_BCI_SEL_FULL) {
 		std::cout << "# " << test_text[what] << std::endl;
 		selection->select_all();
