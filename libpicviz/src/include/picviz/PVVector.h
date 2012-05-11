@@ -118,7 +118,7 @@ public:
 		} else if(v._array == 0) {
 			return false;
 		} else {
-			return std::equal(_array, _array + _index, v._array);
+			return (memcmp(_array, v._array, _index * sizeof(C)) == 0);
 		}
 	}
 
@@ -134,6 +134,8 @@ private:
 	unsigned  _size;
 	unsigned  _index;
 };
+
+}
 
 #endif // PICVIZ_PVVECTOR_H
 
