@@ -215,10 +215,10 @@ size_t PVParallelView::PVZoneTreeBase::browse_tree_bci(PVHSVColor* colors, PVBCI
 	size_t idx_code = 0;
 
 	const size_t nthreads = atol(getenv("NUM_THREADS"));/*omp_get_max_threads()/2;*/
-#pragma omp parallel num_threads(nthreads)
-	{
-	PVBCICode* th_codes = PVBCICode::allocate_codes(NBUCKETS);
-#pragma omp for reduction(+:idx_code) schedule(dynamic, 6)
+//#pragma omp parallel num_threads(nthreads)
+//	{
+	//PVBCICode* th_codes = PVBCICode::allocate_codes(NBUCKETS);
+//#pragma omp for reduction(+:idx_code) schedule(dynamic, 6)
 	for (uint64_t b = 0; b < NBUCKETS; b+=4) {
 
 		__m128i sse_ff = _mm_set1_epi32(0xFFFFFFFF);
@@ -267,12 +267,12 @@ size_t PVParallelView::PVZoneTreeBase::browse_tree_bci(PVHSVColor* colors, PVBCI
 
 
 				if ((idx_code & 1) == 0) {
-					_mm_stream_si128((__m128i*)&th_codes[idx_code+0], sse_bcicodes0_1);
-					_mm_stream_si128((__m128i*)&th_codes[idx_code+2], sse_bcicodes2_3);
+					_mm_stream_si128((__m128i*)&codes[idx_code+0], sse_bcicodes0_1);
+					_mm_stream_si128((__m128i*)&codes[idx_code+2], sse_bcicodes2_3);
 				}
 				else {
-					_mm_storeu_si128((__m128i*)&th_codes[idx_code+0], sse_bcicodes0_1);
-					_mm_storeu_si128((__m128i*)&th_codes[idx_code+2], sse_bcicodes2_3);
+					_mm_storeu_si128((__m128i*)&codes[idx_code+0], sse_bcicodes0_1);
+					_mm_storeu_si128((__m128i*)&codes[idx_code+2], sse_bcicodes2_3);
 				}
 
 				idx_code += 4;
@@ -285,13 +285,13 @@ size_t PVParallelView::PVZoneTreeBase::browse_tree_bci(PVHSVColor* colors, PVBCI
 					PVBCICode bci;
 					bci.int_v = r | (b0<<32);
 					bci.s.color = colors[r].h();
-					th_codes[idx_code] = bci;
+					codes[idx_code] = bci;
 					idx_code++;
 				}
 			}
 		}
 	}
-	}
+//	}
 
 	return idx_code;
 }

@@ -111,6 +111,11 @@ private:
  * PVParallelView::PVZoneTree
  *
  *****************************************************************************/
+struct PVBranch {
+	PVRow* p;
+	size_t count;
+};
+
 template <class Container>
 class PVZoneTree: public PVZoneTreeBase
 {
@@ -127,8 +132,10 @@ public:
 
 public:
 	inline const list_rows_t* get_tree() const { return _tree; }
+	inline PVBranch* get_treeb() const {return _treeb;}
 	void process();
 	void process_sse();
+	void process_omp_sse_old();
 	void process_omp_sse();
 	void process_tbb_concurrent_vector();
 	template <bool only_first>
@@ -140,6 +147,8 @@ private:
 	list_rows_t _tree[NBUCKETS];
 	PVCol _col_a;
 	PVCol _col_b;
+	PVBranch* _treeb;
+	PVRow* _tree_data;
 };
 
 /*template <class Container>
@@ -233,7 +242,7 @@ void PVZoneTree<Container>::process_sse()
 }
 
 template <class Container>
-void PVZoneTree<Container>::process_omp_sse()
+void PVZoneTree<Container>::process_omp_sse_old()
 {
 	// Naive processing
 	const uint32_t* pcol_a = get_plotted_col(_col_a);
@@ -327,6 +336,160 @@ void PVZoneTree<Container>::process_omp_sse()
 }
 
 template <class Container>
+void PVZoneTree<Container>::process_omp_sse()
+{
+	const uint32_t* pcol_a = get_plotted_col(_col_a);
+	const uint32_t* pcol_b = get_plotted_col(_col_b);
+	tbb::tick_count start, end;
+
+	_treeb = new PVBranch[NBUCKETS];
+	memset(_treeb, 0, sizeof(PVBranch)*NBUCKETS);
+
+	// Fix max number of threads
+	const size_t nthreads = atol(getenv("NUM_THREADS"));
+	const size_t grain_size = atol(getenv("GRAINSIZE"));
+
+	// Create a tree by thread
+	Container** thread_trees = new Container*[nthreads];
+	for (size_t ith=0; ith<nthreads; ith++) {
+		thread_trees[ith] = new Container[NBUCKETS];
+	}
+
+	// Create an array of first elements by thread
+	PVRow** first_elts_list = new PVRow*[nthreads];
+	for (size_t ith=0; ith<nthreads; ith++) {
+		first_elts_list[ith] = new PVRow[NBUCKETS];
+		memset(first_elts_list[ith], INVALID_VALUE, sizeof(PVRow)*NBUCKETS);
+	}
+	size_t alloc_size = 0;
+#pragma omp parallel num_threads(nthreads)
+	{
+		// Initialize one tree per thread
+		Container* thread_tree = thread_trees[omp_get_thread_num()];
+
+		// Initialize one first elements arrays by thread
+		PVRow* first_elts = first_elts_list[omp_get_thread_num()];
+
+		PVRow nrows_sse = (_nrows/4)*4;
+#pragma omp barrier
+#pragma omp master
+		{
+			start = tbb::tick_count::now();
+		}
+#pragma omp for/* schedule(dynamic, grain_size)*/
+		for (PVRow r = 0; r < nrows_sse; r += 4) {
+			__m128i sse_y1, sse_y2, sse_bcodes;
+			sse_y1 = _mm_load_si128((const __m128i*) &pcol_a[r]);
+			sse_y2 = _mm_load_si128((const __m128i*) &pcol_b[r]);
+
+			sse_y1 = _mm_srli_epi32(sse_y1, 32-NBITS_INDEX);
+			sse_y2 = _mm_srli_epi32(sse_y2, 32-NBITS_INDEX);
+			sse_bcodes = _mm_or_si128(sse_y1, _mm_slli_epi32(sse_y2, NBITS_INDEX));
+
+			uint32_t b0 = _mm_extract_epi32(sse_bcodes, 0);
+			if (thread_tree[b0].size() == 0 ) {
+				first_elts[b0] = r+0;
+			}
+			thread_tree[b0].push_back(r+0);
+
+			uint32_t b1 = _mm_extract_epi32(sse_bcodes, 1);
+			if (thread_tree[b1].size() == 0 ) {
+				first_elts[b1] = r+1;
+			}
+			thread_tree[b1].push_back(r+1);
+
+			uint32_t b2 = _mm_extract_epi32(sse_bcodes, 2);
+			if (thread_tree[b2].size() == 0 ) {
+				first_elts[b2] = r+2;
+			}
+			thread_tree[b2].push_back(r+2);
+
+			uint32_t b3 = _mm_extract_epi32(sse_bcodes, 3);
+			if (thread_tree[b3].size() == 0 ) {
+				first_elts[b3] = r+3;
+			}
+			thread_tree[b3].push_back(r+3);
+		}
+#pragma omp master
+		{
+			for (PVRow r = nrows_sse; r < _nrows; r++) {
+				uint32_t y1 = pcol_a[r];
+				uint32_t y2 = pcol_b[r];
+
+				PVBCode b;
+				b.int_v = 0;
+				b.s.l = y1 >> (32-NBITS_INDEX);
+				b.s.r = y2 >> (32-NBITS_INDEX);
+
+				if (thread_tree[b.int_v].size() == 0 ) {
+					first_elts[b.int_v] = r;
+				}
+				thread_tree[b.int_v].push_back(r);
+			}
+		}
+#pragma omp barrier
+#pragma omp for reduction(+:alloc_size)/*schedule(dynamic, grain_size)*/
+		// _1 Sum the number of elements contained by each branch of the final tree
+		// _2 Store the first element of each branch of the final tree in a buffer
+		for (PVRow b = 0; b < NBUCKETS; b++) {
+			_treeb[b].count = 0;
+			for (size_t ith = 0; ith < nthreads; ith++) {
+				_treeb[b].count += thread_trees[ith][b].size();
+				_first_elts[b] = picviz_min(_first_elts[b], first_elts_list[ith][b]);
+			}
+			alloc_size += (((_treeb[b].count + 15) / 16) * 16);
+		}
+#pragma omp barrier
+#pragma omp master
+		{
+			_tree_data = PVCore::PVAlignedAllocator<PVRow, 16>().allocate(alloc_size);
+
+			// Update branch pointer
+			PVRow* cur_p = _tree_data;
+			for (PVRow b = 0; b < NBUCKETS; b++) {
+				if (_treeb[b].count > 0) {
+					_treeb[b].p = cur_p;
+					cur_p += ((_treeb[b].count + 15)/16)*16;
+				}
+			}
+		}
+#pragma omp barrier
+#pragma omp for schedule(dynamic, grain_size)
+		for (PVRow b = 0; b < NBUCKETS; b++) {
+			if (_treeb[b].count == 0) {
+				continue;
+			}
+			PVRow* cur_branch = _treeb[b].p;
+			for (size_t ith = 0; ith < nthreads; ith++) {
+				Container const& c = thread_trees[ith][b];
+				if (c.size() > 0) {
+					memcpy(cur_branch, &c.at(0), c.size()*sizeof(PVRow));
+					cur_branch += c.size();
+					assert(cur_branch <= _treeb[b].p + _treeb[b].count);
+				}
+			}
+		}
+
+#pragma omp master
+		{
+			end = tbb::tick_count::now();
+		}
+	}
+
+	// Cleanup
+	for (size_t ith=0; ith<nthreads; ith++) {
+		delete [] first_elts_list[ith];
+	}
+	delete [] first_elts_list;
+	for (size_t ith=0; ith<nthreads; ith++) {
+		delete [] thread_trees[ith];
+	}
+	delete [] thread_trees;
+
+	PVLOG_INFO("OMP tree process in %0.4f ms.\n", (end-start).seconds()*1000.0);
+}
+
+template <class Container>
 void PVZoneTree<Container>::process_tbb_concurrent_vector()
 {
 	// Naive processing
@@ -402,56 +565,6 @@ PVZoneTree<Container>* PVZoneTree<Container>::filter_by_sel(Picviz::PVSelection 
 
 	return ret;
 }
-
-/*
- * 	// returns a zone tree with only the selected lines
-	PVZoneTreeNoAlloc* ret = new PVZoneTreeNoAlloc(_col_a, _col_b);
-	ret->set_trans_plotted(*_plotted, _nrows, _ncols);
-	ret->_tree.resize(_nrows);
-
-	const char* str_bench = (only_first) ? "subtree-first" : "subtree";
-	BENCH_START(subtree);
-	Picviz::PVSelection::const_pointer sel_buf = sel.get_buffer();
-	const size_t nthreads = omp_get_max_threads()/2;
-//#pragma omp parallel for firstprivate(sel_buf) firstprivate(ret) num_threads(nthreads)
-//	for (size_t b = 0; b < NBUCKETS; b++) {
-//		Tree::const_branch_iterator it_src = _tree.begin_branch(b);
-//		for (; it_src != _tree.end_branch(b); it_src++) {
-//			PVRow r = *it_src;
-//			if ((sel_buf[r>>5]) & (1U<<(r&31))) {
-//
-//			}
-//		}
-//	}
-
-#pragma omp parallel for schedule(dynamic, 6) firstprivate(sel_buf) firstprivate(ret) num_threads(nthreads)
-	for (uint64_t b = 0; b < NBUCKETS; b++) {
-		if (branch_valid(b)) {
-			PVRow r = get_first_elt_of_branch(b);
-			bool found = false;
-			if ((sel_buf[r>>5]) & (1U<<(r&31))) {
-				found = true;
-			}
-			else {
-				Tree::const_branch_iterator it_src = _tree.begin_branch(b);
-				it_src++;
-				for (; it_src != _tree.end_branch(b); it_src++) {
-					r = *(it_src);
-					if ((sel_buf[r>>5]) & (1U<<(r&31))) {
-						found = true;
-						break;
-					}
-				}
-			}
-			if (found) {
-				ret->_tree.push(b, r);
-			}
-		}
-	}
-	BENCH_END(subtree, str_bench, _nrows*2, sizeof(float), _nrows*2, sizeof(float));
-
-	return ret;
- */
 
 template <class Container>
 class TBBPF2 {
@@ -632,17 +745,6 @@ PVZoneTreeNoAlloc* PVZoneTreeNoAlloc::filter_by_sel(Picviz::PVSelection const& s
 	BENCH_START(subtree);
 	Picviz::PVSelection::const_pointer sel_buf = sel.get_buffer();
 	const size_t nthreads = omp_get_max_threads()/2;
-//#pragma omp parallel for firstprivate(sel_buf) firstprivate(ret) num_threads(nthreads)
-//	for (size_t b = 0; b < NBUCKETS; b++) {
-//		Tree::const_branch_iterator it_src = _tree.begin_branch(b);
-//		for (; it_src != _tree.end_branch(b); it_src++) {
-//			PVRow r = *it_src;
-//			if ((sel_buf[r>>5]) & (1U<<(r&31))) {
-//
-//			}
-//		}
-//	}
-
 #pragma omp parallel for schedule(dynamic, atol(getenv("GRAINSIZE"))) firstprivate(sel_buf) firstprivate(ret) num_threads(nthreads)
 	for (uint64_t b = 0; b < NBUCKETS; b++) {
 		if (branch_valid(b)) {

@@ -184,24 +184,37 @@ void test(
 
 	
 	{
-		MEM_START(serial);
-		PVParallelView::PVZoneTree<std::vector<PVRow, tbb::scalable_allocator<PVRow> > >* ztree = new PVParallelView::PVZoneTree<std::vector<PVRow, tbb::scalable_allocator<PVRow> > >(0, 1);
+		typedef std::vector<PVRow, tbb::scalable_allocator<PVRow> > vector;
+		PVParallelView::PVZoneTree<vector>* ztree = new PVParallelView::PVZoneTree<vector>(0, 1);
 		ztree->set_trans_plotted(norm_plotted, nrows, ncols);
 
 		//PVLOG_INFO("Zone tree creation...\n");
+		{
 		BENCH_START(sse);
 		ztree->process_omp_sse();
 		BENCH_END_TRANSFORM(sse, "omp sse + std::vector", 1, 1);
-		MEM_END(serial, "omp sse + std::vector");
+		}
 
-		/*{
-		MEM_START(serial);
+		{
 		BENCH_START(sse);
-		size_t nb_codes = ztree->browse_tree_bci(colors, bci_codes);
-		picviz_verify(sizeof(PVParallelView::PVHSVColor) == 1);
-		BENCH_END(sse, "omp sse + std::vector colors", nb_codes, sizeof(PVRow), nb_codes, sizeof(PVParallelView::PVBCICode));
-		MEM_END(serial, "omp sse + std::vector colors");
-		}*/
+		ztree->process_omp_sse_old();
+		BENCH_END_TRANSFORM(sse, "omp sse + std::vector old", 1, 1);
+		}
+
+		// Compare tree: old and new version of process_omp_sse
+		/*PVParallelView::PVBranch* treeb = ztree->get_treeb();
+		const vector* tree = ztree->get_tree();
+		for (PVRow b = 0; b < NBUCKETS; b++) {
+			CHECK(treeb[b].count == tree[b].size());
+			for (size_t e = 0; e < treeb[b].count; e++) {
+				PVLOG_INFO("%d=%d\n", treeb[b].p[e], tree[b].at(e));
+			}
+			PVLOG_INFO("---\n");
+		}
+
+		/*size_t nb_codes = ztree->browse_tree_bci(colors, bci_codes);
+		PVLOG_INFO("nb_codes=%d\n", nb_codes);
+		show_codes("omp sse + std::vector", bci_codes, nb_codes);*/
 
 		{
 		Picviz::PVSelection sel;
@@ -216,6 +229,8 @@ void test(
 		PVParallelView::PVZoneTree<std::vector<PVRow, tbb::scalable_allocator<PVRow> > >* zsel = ztree->filter_by_sel<true>(sel);
 		delete zsel;
 		}
+
+		delete ztree;
 
 		/*{
 		Picviz::PVSelection sel;
