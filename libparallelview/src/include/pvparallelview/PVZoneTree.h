@@ -92,7 +92,6 @@ public:
 	inline const Tree* get_tree() const { return &_tree; }
 	void process_sse();
 	void process_omp_sse();
-	template <bool only_first>
 	PVZoneTreeNoAlloc* filter_by_sel(Picviz::PVSelection const& sel) const;
 	PVZoneTreeNoAlloc* filter_by_sel_tbb(Picviz::PVSelection const& sel) const;
 	size_t browse_tree_bci_by_sel(PVHSVColor* colors, PVBCICode* codes, Picviz::PVSelection const& sel);
@@ -138,9 +137,9 @@ public:
 	void process_omp_sse_old();
 	void process_omp_sse();
 	void process_tbb_concurrent_vector();
-	template <bool only_first>
 	PVZoneTree<Container>* filter_by_sel(Picviz::PVSelection const& sel) const;
 	PVZoneTree<Container>* filter_by_sel_tbb(Picviz::PVSelection const& sel) const;
+	PVZoneTree<Container>* filter_by_sel_treeb(Picviz::PVSelection const& sel) const;
 private:
 	void get_float_pts(pts_t& pts, Picviz::PVPlotted::plotted_table_t const& org_plotted);
 private:
@@ -525,14 +524,12 @@ void PVZoneTree<Container>::process_tbb_concurrent_vector()
 }
 
 template <class Container>
-template <bool only_first>
 PVZoneTree<Container>* PVZoneTree<Container>::filter_by_sel(Picviz::PVSelection const& sel) const
 {
 	// returns a zone tree with only the selected lines
 	PVZoneTree<Container>* ret = new PVZoneTree<Container>(_col_a, _col_b);
 	ret->set_trans_plotted(*_plotted, _nrows, _ncols);
 
-	const char* str_bench = (only_first) ? "subtree-first" : "subtree";
 	BENCH_START(subtree);
 	Picviz::PVSelection::const_pointer sel_buf = sel.get_buffer();
 	const size_t nthreads = atol(getenv("NUM_THREADS"));
@@ -561,7 +558,45 @@ PVZoneTree<Container>* PVZoneTree<Container>::filter_by_sel(Picviz::PVSelection 
 			}
 		}
 	}
-	BENCH_END(subtree, str_bench, _nrows*2, sizeof(float), _nrows*2, sizeof(float));
+	BENCH_END(subtree, "filter_by_sel", _nrows*2, sizeof(float), _nrows*2, sizeof(float));
+
+	return ret;
+}
+
+template <class Container>
+PVZoneTree<Container>* PVZoneTree<Container>::filter_by_sel_treeb(Picviz::PVSelection const& sel) const
+{
+	// returns a zone tree with only the selected lines
+	PVZoneTree<Container>* ret = new PVZoneTree<Container>(_col_a, _col_b);
+	ret->set_trans_plotted(*_plotted, _nrows, _ncols);
+
+	BENCH_START(subtree);
+	Picviz::PVSelection::const_pointer sel_buf = sel.get_buffer();
+	const size_t nthreads = atol(getenv("NUM_THREADS"));
+#pragma omp parallel for schedule(dynamic, atol(getenv("GRAINSIZE"))) firstprivate(sel_buf) firstprivate(ret) num_threads(nthreads)
+	for (size_t b = 0; b < NBUCKETS; b++) {
+		if (branch_valid(b)) {
+			list_rows_t& dst(ret->_tree[b]);
+			PVRow r = get_first_elt_of_branch(b);
+			bool found = false;
+			if ((sel_buf[r>>5]) & (1U<<(r&31))) {
+				found = true;
+			}
+			else {
+				for (int i=0; i<_treeb[b].count; i++) {
+					PVRow r = _treeb[b].p[i];
+					if ((sel_buf[r>>5]) & (1U<<(r&31))) {
+						found = true;
+						break;
+					}
+				}
+			}
+			if (found) {
+				dst.push_back(r);
+			}
+		}
+	}
+	BENCH_END(subtree, "filter_by_sel_treeb", _nrows*2, sizeof(float), _nrows*2, sizeof(float));
 
 	return ret;
 }
@@ -733,7 +768,6 @@ void PVZoneTreeUnorderedMap<Container>::process_boost()
 	}
 }
 
-template <bool only_first>
 PVZoneTreeNoAlloc* PVZoneTreeNoAlloc::filter_by_sel(Picviz::PVSelection const& sel) const
 {
 	// returns a zone tree with only the selected lines
@@ -741,7 +775,6 @@ PVZoneTreeNoAlloc* PVZoneTreeNoAlloc::filter_by_sel(Picviz::PVSelection const& s
 	ret->set_trans_plotted(*_plotted, _nrows, _ncols);
 	ret->_tree.resize(_nrows);
 
-	const char* str_bench = (only_first) ? "subtree-first" : "subtree";
 	BENCH_START(subtree);
 	Picviz::PVSelection::const_pointer sel_buf = sel.get_buffer();
 	const size_t nthreads = omp_get_max_threads()/2;
@@ -769,7 +802,7 @@ PVZoneTreeNoAlloc* PVZoneTreeNoAlloc::filter_by_sel(Picviz::PVSelection const& s
 			}
 		}
 	}
-	BENCH_END(subtree, str_bench, _nrows*2, sizeof(float), _nrows*2, sizeof(float));
+	BENCH_END(subtree, "filter_by_sel", _nrows*2, sizeof(float), _nrows*2, sizeof(float));
 
 	return ret;
 }
