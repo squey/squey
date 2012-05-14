@@ -132,6 +132,13 @@ void test(
 		{
 		Picviz::PVSelection sel;
 		sel.select_none();
+		PVParallelView::PVZoneTree<std::vector<PVRow, tbb::scalable_allocator<PVRow> > >* zsel = ztree->filter_by_sel_tbb_treeb(sel);
+		delete zsel;
+		}
+
+		{
+		Picviz::PVSelection sel;
+		sel.select_none();
 		PVParallelView::PVZoneTree<std::vector<PVRow, tbb::scalable_allocator<PVRow> > >* zsel = ztree->filter_by_sel_tbb(sel);
 		delete zsel;
 		}

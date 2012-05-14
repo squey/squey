@@ -140,6 +140,7 @@ public:
 	PVZoneTree<Container>* filter_by_sel(Picviz::PVSelection const& sel) const;
 	PVZoneTree<Container>* filter_by_sel_tbb(Picviz::PVSelection const& sel) const;
 	PVZoneTree<Container>* filter_by_sel_treeb(Picviz::PVSelection const& sel) const;
+	PVZoneTree<Container>* filter_by_sel_tbb_treeb(Picviz::PVSelection const& sel) const;
 private:
 	void get_float_pts(pts_t& pts, Picviz::PVPlotted::plotted_table_t const& org_plotted);
 private:
@@ -664,6 +665,71 @@ PVZoneTree<Container>* PVZoneTree<Container>::filter_by_sel_tbb(Picviz::PVSelect
 	BENCH_START(subtree);
 	tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, atol(getenv("GRAINSIZE"))), TBBPF2<Container>(this, sel_buf, &tls), tbb::simple_partitioner());
 	BENCH_END(subtree, "tbb::parallel_for", _nrows*2, sizeof(float), _nrows*2, sizeof(float));
+
+	return ret;
+}
+
+template <class Container>
+class TBBPF3 {
+public:
+	TBBPF3 (
+		const PVZoneTree<Container>* tree,
+		const Picviz::PVSelection::const_pointer sel_buf,
+		PVZoneTreeBase::TLS* tls
+	) :
+		_tree(tree),
+		_sel_buf(sel_buf),
+		_tls(tls)
+	{
+	}
+
+	TBBPF3(TBBPF3& x, tbb::split) :  _tree(x._tree), _sel_buf(x._sel_buf), _tls(x._tls)
+	{}
+
+	void operator() (const tbb::blocked_range<size_t>& r) const {
+		PVZoneTreeBase::TLS::reference tls_ref = _tls->local();
+		for (PVRow b = r.begin(); b != r.end(); ++b) {
+			if (_tree->branch_valid(b)) {
+				PVRow r = _tree->get_first_elt_of_branch(b);
+				bool found = false;
+				if ((_sel_buf[r>>5]) & (1U<<(r&31))) {
+					found = true;
+				}
+				else {
+					for (int i=0; i< _tree->get_treeb()[b].count; i++) {
+						PVRow r = _tree->get_treeb()[b].p[i];
+						if ((_sel_buf[r>>5]) & (1U<<(r&31))) {
+							found = true;
+							break;
+						}
+					}
+				}
+				if (found) {
+					tls_ref.push_back(r);
+				}
+			}
+		}
+	}
+
+	const PVZoneTree<Container>* _tree;
+	Picviz::PVSelection::const_pointer _sel_buf;
+	PVZoneTreeBase::TLS* _tls;
+};
+
+template <class Container>
+PVZoneTree<Container>* PVZoneTree<Container>::filter_by_sel_tbb_treeb(Picviz::PVSelection const& sel) const
+{
+	// returns a zone tree with only the selected lines
+	PVZoneTree<Container>* ret = new PVZoneTree<Container>(_col_a, _col_b);
+	ret->set_trans_plotted(*_plotted, _nrows, _ncols);
+
+
+	Picviz::PVSelection::const_pointer sel_buf = sel.get_buffer();
+	TLS tls;
+	tbb::task_scheduler_init init(atol(getenv("NUM_THREADS")));
+	BENCH_START(subtree);
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, atol(getenv("GRAINSIZE"))), TBBPF3<Container>(this, sel_buf, &tls), tbb::simple_partitioner());
+	BENCH_END(subtree, "tbb::parallel_for treeb", _nrows*2, sizeof(float), _nrows*2, sizeof(float));
 
 	return ret;
 }
