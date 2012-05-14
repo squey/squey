@@ -129,8 +129,6 @@ namespace __impl {
 	}
 }
 
-// NOTE: the reserve(...) calls could be removed
-
 class PVQuadTree
 {
 public:
@@ -140,7 +138,7 @@ public:
 	}
 
 	~PVQuadTree() {
-		if (_datas.is_null() == false) {
+		if (_nodes == 0) {
 			_datas.clear();
 		} else {
 			delete [] _nodes;
@@ -150,7 +148,7 @@ public:
 	void insert(const PVQuadTreeEntry &e) {
 		// searching for the right child
 		PVQuadTree *qt = this;
-		while (qt->_datas.is_null()) {
+		while (qt->_nodes != 0) {
 			qt = &qt->_nodes[qt->compute_index(e)];
 		}
 
@@ -261,6 +259,7 @@ private:
 		_max_level = max_level;
 		_y1_mid_value = (_y1_min_value + _y1_max_value) / 2;
 		_y2_mid_value = (_y2_min_value + _y2_max_value) / 2;
+		// + 1 to avoid reallocating before a split occurs
 		_datas.reserve(PVQUADTREE_MAX_NODE_ELEMENT_COUNT + 1);
 		_nodes = 0;
 	}
@@ -302,7 +301,7 @@ private:
 	{
 		static void f(PVQuadTree const& obj, uint32_t y1_min, uint32_t y1_max, RESULT &result)
 		{
-			if (obj._datas.is_null()) {
+			if (obj._nodes != 0) {
 				if (obj._y1_mid_value < y1_max) {
 					f(obj._nodes[NE], y1_min, y1_max, result);
 					f(obj._nodes[SE], y1_min, y1_max, result);
@@ -322,7 +321,7 @@ private:
 	{
 		static void f(PVQuadTree const& obj, uint32_t y2_min, uint32_t y2_max, RESULT &result)
 		{
-			if (obj._datas.is_null()) {
+			if (obj._nodes != 0) {
 				if (obj._y2_mid_value < y2_max) {
 					f(obj._nodes[NE], y2_min, y2_max, result);
 					f(obj._nodes[SE], y2_min, y2_max, result);
@@ -342,7 +341,7 @@ private:
 	{
 		static void f(PVQuadTree const& obj, uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max, RESULT &result)
 		{
-			if (obj._datas.is_null()) {
+			if (obj._nodes != 0) {
 				if(obj._y1_mid_value < y1_max) {
 					if(obj._y2_mid_value < y2_max) {
 						f(obj._nodes[NE], y1_min, y1_max, y2_min, y2_max, result);
@@ -370,7 +369,7 @@ private:
 	{
 		static void f(PVQuadTree const& obj, const Picviz::PVSelection &selection, RESULT &result)
 		{
-			if(obj._datas.is_null()) {
+			if(obj._nodes != 0) {
 				f(obj._nodes[NE], selection, result);
 				f(obj._nodes[SE], selection, result);
 				f(obj._nodes[NW], selection, result);
@@ -386,7 +385,7 @@ private:
 	{
 		static void f(PVQuadTree const& obj, uint32_t y1_min, uint32_t y1_max, const Picviz::PVSelection &selection, RESULT &result)
 		{
-			if (obj._datas.is_null()) {
+			if (obj._nodes != 0) {
 				if (obj._y1_mid_value < y1_max) {
 					f(obj._nodes[NE], y1_min, y1_max, selection, result);
 					f(obj._nodes[SE], y1_min, y1_max, selection, result);
@@ -406,7 +405,7 @@ private:
 	{
 		static void f(PVQuadTree const& obj, uint32_t y2_min, uint32_t y2_max, const Picviz::PVSelection &selection, RESULT &result)
 		{
-			if (obj._datas.is_null()) {
+			if (obj._nodes != 0) {
 				if (obj._y2_mid_value < y2_max) {
 					f(obj._nodes[NE], y2_min, y2_max, selection, result);
 					f(obj._nodes[SE], y2_min, y2_max, selection, result);
@@ -426,7 +425,7 @@ private:
 	{
 		static void f(PVQuadTree const& obj, uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max, const Picviz::PVSelection &selection, RESULT &result)
 		{
-			if (obj._datas.is_null()) {
+			if (obj._nodes != 0) {
 				if(obj._y1_mid_value < y1_max) {
 					if(obj._y2_mid_value < y2_max) {
 						f(obj._nodes[NE], y1_min, y1_max, y2_min, y2_max, selection, result);
