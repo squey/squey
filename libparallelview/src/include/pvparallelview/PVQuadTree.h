@@ -46,15 +46,15 @@ namespace __impl {
 		                             RESULT&);
 	};
 
-	void f_get_first(const pvquadtree_entries_t &entries,
-	                 pvquadtree_entries_t &result)
+	void f_get_first_entry(const pvquadtree_entries_t &entries,
+	                       pvquadtree_entries_t &result)
 	{
 		if(entries.size() != 0) {
 			result.push_back(entries.at(0));
 		}
 	}
 
-	void f_get_bci_first(const pvquadtree_entries_t &entries,
+	void f_get_first_bci(const pvquadtree_entries_t &entries,
 	                     pvquadtree_bcicodes_t &result)
 	{
 		if(entries.size() != 0) {
@@ -68,9 +68,9 @@ namespace __impl {
 		}
 	}
 
-	void f_get_first_sel(const pvquadtree_entries_t &entries,
-	                     const Picviz::PVSelection &selection,
-	                     pvquadtree_entries_t &result)
+	void f_get_first_entry_sel(const pvquadtree_entries_t &entries,
+	                           const Picviz::PVSelection &selection,
+	                           pvquadtree_entries_t &result)
 	{
 		for(unsigned i = 0; i < entries.size(); ++i) {
 			PVQuadTreeEntry e = entries.at(i);
@@ -81,7 +81,7 @@ namespace __impl {
 		}
 	}
 
-	void f_get_bci_first_sel(const pvquadtree_entries_t &entries,
+	void f_get_first_bci_sel(const pvquadtree_entries_t &entries,
 	                         const Picviz::PVSelection &selection,
 	                         pvquadtree_bcicodes_t &result)
 	{
@@ -99,9 +99,9 @@ namespace __impl {
 		}
 	}
 
-	void f_get_sel(const pvquadtree_entries_t &entries,
-	               const Picviz::PVSelection &selection,
-	               pvquadtree_entries_t &result)
+	void f_get_entry_sel(const pvquadtree_entries_t &entries,
+	                     const Picviz::PVSelection &selection,
+	                     pvquadtree_entries_t &result)
 	{
 		for(unsigned i = 0; i < entries.size(); ++i) {
 			PVQuadTreeEntry e = entries.at(i);
@@ -175,46 +175,77 @@ public:
 		return mem;
 	}
 
-	inline void get_first_from_y1(uint32_t y1_min, uint32_t y1_max, pvquadtree_entries_t &result) const
+	inline void get_first_entry_from_y1(uint32_t y1_min, uint32_t y1_max, pvquadtree_entries_t &result) const
 	{
-		visit_y1<pvquadtree_entries_t, __impl::f_get_first>::f(*this, y1_min, y1_max, result);
+		visit_y1<pvquadtree_entries_t, __impl::f_get_first_entry>::f(*this, y1_min, y1_max, result);
 	}
 
-	inline void get_first_from_y2(uint32_t y2_min, uint32_t y2_max, pvquadtree_entries_t &result) const
+	inline void get_first_entry_from_y2(uint32_t y2_min, uint32_t y2_max, pvquadtree_entries_t &result) const
 	{
-		visit_y2<pvquadtree_entries_t, __impl::f_get_first>::f(*this, y2_min, y2_max, result);
+		visit_y2<pvquadtree_entries_t, __impl::f_get_first_entry>::f(*this, y2_min, y2_max, result);
 	}
 
-	inline void get_first_from_y1y2(uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max, pvquadtree_entries_t &result) const
+	inline void get_first_entry_from_y1y2(uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max, pvquadtree_entries_t &result) const
 	{
-		visit_y1y2<pvquadtree_entries_t, __impl::f_get_first>::f(*this, y1_min, y1_max, y2_min, y2_max, result);
+		visit_y1y2<pvquadtree_entries_t, __impl::f_get_first_entry>::f(*this, y1_min, y1_max, y2_min, y2_max, result);
 	}
 
-	void get_first_from_selection(const Picviz::PVSelection &selection, pvquadtree_entries_t &result) const
+	void get_first_entry_from_selection(const Picviz::PVSelection &selection, pvquadtree_entries_t &result) const
 	{
-		visit_sel<pvquadtree_entries_t, __impl::f_get_first_sel>::f(*this, selection, result);
+		visit_sel<pvquadtree_entries_t, __impl::f_get_first_entry_sel>::f(*this, selection, result);
+	}
+
+	inline void get_first_from_y1_and_selection(uint32_t y1_min, uint32_t y1_max, const Picviz::PVSelection &selection, pvquadtree_entries_t &result) const
+	{
+		visit_y1_sel<pvquadtree_entries_t, __impl::f_get_first_entry_sel>::f(*this, y1_min, y1_max, selection, result);
+	}
+
+	inline void get_first_from_y2_and_selection(uint32_t y2_min, uint32_t y2_max, const Picviz::PVSelection &selection, pvquadtree_entries_t &result) const
+	{
+		visit_y2_sel<pvquadtree_entries_t, __impl::f_get_first_entry_sel>::f(*this, y2_min, y2_max, selection, result);
+	}
+
+	inline void get_first_from_y1y2_and_selection(uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max, const Picviz::PVSelection &selection, pvquadtree_entries_t &result) const
+	{
+		visit_y1y2_sel<pvquadtree_entries_t, __impl::f_get_first_entry_sel>::f(*this, y1_min, y1_max, y2_min, y2_max, selection, result);
 	}
 
 	inline void get_first_bci_from_y1(uint32_t y1_min, uint32_t y1_max, pvquadtree_bcicodes_t &result) const
 	{
-		visit_y1<pvquadtree_bcicodes_t, __impl::f_get_bci_first>::f(*this, y1_min, y1_max, result);
+		visit_y1<pvquadtree_bcicodes_t, __impl::f_get_first_bci>::f(*this, y1_min, y1_max, result);
 	}
 
 	inline void get_first_bci_from_y2(uint32_t y2_min, uint32_t y2_max, pvquadtree_bcicodes_t &result) const
 	{
-		visit_y2<pvquadtree_bcicodes_t, __impl::f_get_bci_first>::f(*this, y2_min, y2_max, result);
+		visit_y2<pvquadtree_bcicodes_t, __impl::f_get_first_bci>::f(*this, y2_min, y2_max, result);
 	}
 
 	inline void get_first_bci_from_y1y2(uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max, pvquadtree_bcicodes_t &result) const
 	{
-		visit_y1y2<pvquadtree_bcicodes_t, __impl::f_get_bci_first>::f(*this, y1_min, y1_max, y2_min, y2_max, result);
+		visit_y1y2<pvquadtree_bcicodes_t, __impl::f_get_first_bci>::f(*this, y1_min, y1_max, y2_min, y2_max, result);
 	}
 
 	void get_first_bci_from_selection(const Picviz::PVSelection &selection, pvquadtree_bcicodes_t &result) const
 	{
-		visit_sel<pvquadtree_bcicodes_t, __impl::f_get_bci_first_sel>::f(*this, selection, result);
+		visit_sel<pvquadtree_bcicodes_t, __impl::f_get_first_bci_sel>::f(*this, selection, result);
 	}
 
+	inline void get_first_bci_from_y1_and_selection(uint32_t y1_min, uint32_t y1_max, const Picviz::PVSelection &selection, pvquadtree_bcicodes_t &result) const
+	{
+		visit_y1_sel<pvquadtree_bcicodes_t, __impl::f_get_first_bci_sel>::f(*this, y1_min, y1_max, selection, result);
+	}
+
+	inline void get_first_bci_from_y2_and_selection(uint32_t y2_min, uint32_t y2_max, const Picviz::PVSelection &selection, pvquadtree_bcicodes_t &result) const
+	{
+		visit_y2_sel<pvquadtree_bcicodes_t, __impl::f_get_first_bci_sel>::f(*this, y2_min, y2_max, selection, result);
+	}
+
+	inline void get_first_bci_from_y1y2_and_selection(uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max, const Picviz::PVSelection &selection, pvquadtree_bcicodes_t &result) const
+	{
+		visit_y1y2_sel<pvquadtree_bcicodes_t, __impl::f_get_first_bci_sel>::f(*this, y1_min, y1_max, y2_min, y2_max, selection, result);
+	}
+
+	// void get_
 private:
 	// CTOR to use with call to init()
 	PVQuadTree()
@@ -344,6 +375,74 @@ private:
 				f(obj._nodes[SE], selection, result);
 				f(obj._nodes[NW], selection, result);
 				f(obj._nodes[SW], selection, result);
+			} else {
+				F(obj._datas, selection, result);
+			}
+		}
+	};
+
+	template <typename RESULT, typename __impl::f_traverse_sel<RESULT>::function_type F>
+	struct visit_y1_sel
+	{
+		static void f(PVQuadTree const& obj, uint32_t y1_min, uint32_t y1_max, const Picviz::PVSelection &selection, RESULT &result)
+		{
+			if (obj._datas.is_null()) {
+				if (obj._y1_mid_value < y1_max) {
+					f(obj._nodes[NE], y1_min, y1_max, selection, result);
+					f(obj._nodes[SE], y1_min, y1_max, selection, result);
+				}
+				if (y1_min < obj._y1_mid_value) {
+					f(obj._nodes[NW], y1_min, y1_max, selection, result);
+					f(obj._nodes[SW], y1_min, y1_max, selection, result);
+				}
+			} else {
+				F(obj._datas, selection, result);
+			}
+		}
+	};
+
+	template <typename RESULT, typename __impl::f_traverse_sel<RESULT>::function_type F>
+	struct visit_y2_sel
+	{
+		static void f(PVQuadTree const& obj, uint32_t y2_min, uint32_t y2_max, const Picviz::PVSelection &selection, RESULT &result)
+		{
+			if (obj._datas.is_null()) {
+				if (obj._y2_mid_value < y2_max) {
+					f(obj._nodes[NE], y2_min, y2_max, selection, result);
+					f(obj._nodes[SE], y2_min, y2_max, selection, result);
+				}
+				if (y2_min < obj._y2_mid_value) {
+					f(obj._nodes[NW], y2_min, y2_max, selection, result);
+					f(obj._nodes[SW], y2_min, y2_max, selection, result);
+				}
+			} else {
+				F(obj._datas, selection, result);
+			}
+		}
+	};
+
+	template <typename RESULT, typename __impl::f_traverse_sel<RESULT>::function_type F>
+	struct visit_y1y2_sel
+	{
+		static void f(PVQuadTree const& obj, uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max, const Picviz::PVSelection &selection, RESULT &result)
+		{
+			if (obj._datas.is_null()) {
+				if(obj._y1_mid_value < y1_max) {
+					if(obj._y2_mid_value < y2_max) {
+						f(obj._nodes[NE], y1_min, y1_max, y2_min, y2_max, selection, result);
+					}
+					if(y2_min < obj._y2_mid_value) {
+						f(obj._nodes[SE], y1_min, y1_max, y2_min, y2_max, selection, result);
+					}
+				}
+				if(y1_min < obj._y1_mid_value) {
+					if(obj._y2_mid_value < y2_max) {
+						f(obj._nodes[NW], y1_min, y1_max, y2_min, y2_max, selection, result);
+					}
+					if(y2_min < obj._y2_mid_value) {
+						f(obj._nodes[SW], y1_min, y1_max, y2_min, y2_max, selection, result);
+					}
+				}
 			} else {
 				F(obj._datas, selection, result);
 			}
