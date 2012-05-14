@@ -26,6 +26,9 @@ target_link_libraries(create_quadtree ${LINK_LIBRARIES})
 add_executable(extract_quadtree extract_quadtree.cpp)
 target_link_libraries(extract_quadtree ${LINK_LIBRARIES})
 
+add_executable(extract_quadtree_impl extract_quadtree_impl.cpp)
+target_link_libraries(extract_quadtree_impl ${LINK_LIBRARIES})
+
 add_executable(show_codes_gl show_codes_gl.cpp)
 target_link_libraries(show_codes_gl ${LINK_LIBRARIES})
 
