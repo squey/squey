@@ -39,14 +39,98 @@ int main(int argc, char **argv)
 	qt = new PVParallelView::PVQuadTree(0, MAX_VALUE, 0, MAX_VALUE, depth);
 
 	std::cout << "Filling quadtree, it can take a while..." << std::endl;
-	BENCH_START(fill_time);
+	BENCH_START(fill);
 	for(unsigned i = 0; i < count; ++i) {
 		qt->insert(entries[i]);
 	}
-	BENCH_END(fill_time, "fill time", 1, 1, 1, 1);
+	BENCH_END(fill, "fill", 1, 1, 1, 1);
 
-	std::cout << "sizeof     : " << sizeof(*qt) << std::endl;
-	std::cout << "memory used: " << qt->memory() << std::endl;
+	std::cout << "sizeof(node): " << sizeof(*qt) << std::endl;
+	std::cout << "memory used : " << qt->memory() << std::endl;
+
+
+	PVParallelView::PVQuadTree *subtree = 0;
+
+	{
+		std::cout << "extract from full y1" << std::endl;
+		BENCH_START(extract);
+		subtree = qt->get_subtree_from_y1(0, MAX_VALUE);
+		BENCH_END(extract, "extract", 1, 1, 1, 1);
+		std::cout << "memory used: " << subtree->memory() << std::endl;
+		delete subtree;
+	}
+
+	{
+		std::cout << "extract from half y1" << std::endl;
+		BENCH_START(extract);
+		subtree = qt->get_subtree_from_y1(0, MAX_VALUE >> 1);
+		BENCH_END(extract, "extract", 1, 1, 1, 1);
+		std::cout << "memory used: " << subtree->memory() << std::endl;
+		delete subtree;
+	}
+
+	{
+		std::cout << "extract from full y1y2" << std::endl;
+		BENCH_START(extract);
+		subtree = qt->get_subtree_from_y1y2(0, MAX_VALUE, 0, MAX_VALUE);
+		BENCH_END(extract, "extract", 1, 1, 1, 1);
+		std::cout << "memory used: " << subtree->memory() << std::endl;
+		delete subtree;
+	}
+
+	{
+		std::cout << "extract from quarter y1y2" << std::endl;
+		BENCH_START(extract);
+		subtree = qt->get_subtree_from_y1y2(0, MAX_VALUE >> 1, 0, MAX_VALUE >> 1);
+		BENCH_END(extract, "extract", 1, 1, 1, 1);
+		std::cout << "memory used: " << subtree->memory() << std::endl;
+		delete subtree;
+	}
+
+	Picviz::PVSelection *selection;
+	selection = new Picviz::PVSelection();
+
+	{
+		std::cout << "extract from full selection" << std::endl;
+		selection->select_all();
+		BENCH_START(extract);
+		subtree = qt->get_subtree_from_selection(*selection);
+		BENCH_END(extract, "extract", 1, 1, 1, 1);
+		std::cout << "memory used: " << subtree->memory() << std::endl;
+		delete subtree;
+	}
+
+	{
+		std::cout << "extract from half of selection" << std::endl;
+		selection->select_even();
+		BENCH_START(extract);
+		subtree = qt->get_subtree_from_selection(*selection);
+		BENCH_END(extract, "extract", 1, 1, 1, 1);
+		std::cout << "memory used: " << subtree->memory() << std::endl;
+		delete subtree;
+	}
+
+	{
+		std::cout << "extract from quarter of selection" << std::endl;
+		memset(selection->get_buffer(), 0x88, PICVIZ_SELECTION_NUMBER_OF_BYTES);
+		BENCH_START(extract);
+		subtree = qt->get_subtree_from_selection(*selection);
+		BENCH_END(extract, "extract", 1, 1, 1, 1);
+		std::cout << "memory used: " << subtree->memory() << std::endl;
+		delete subtree;
+	}
+
+	{
+		std::cout << "extract from no selection" << std::endl;
+		selection->select_none();
+		BENCH_START(extract);
+		subtree = qt->get_subtree_from_selection(*selection);
+		BENCH_END(extract, "extract", 1, 1, 1, 1);
+		std::cout << "memory used: " << subtree->memory() << std::endl;
+		delete subtree;
+	}
+
+	delete qt;
 
 	return 0;
 }

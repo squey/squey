@@ -243,10 +243,54 @@ public:
 		visit_y1y2_sel<pvquadtree_bcicodes_t, __impl::f_get_first_bci_sel>::f(*this, y1_min, y1_max, y2_min, y2_max, selection, result);
 	}
 
+	PVQuadTree *get_subtree_from_y1(uint32_t y1_min, uint32_t y1_max)
+	{
+		PVQuadTree *new_tree = new PVQuadTree(*this);
+		new_tree->init(*this);
+		get_subtree_from_y1(*new_tree, y1_min, y1_max);
+		return new_tree;
+	}
+
+	PVQuadTree *get_subtree_from_y2(uint32_t y2_min, uint32_t y2_max)
+	{
+		PVQuadTree *new_tree = new PVQuadTree(*this);
+		new_tree->init(*this);
+		get_subtree_from_y2(*new_tree, y2_min, y2_max);
+		return new_tree;
+	}
+
+	PVQuadTree *get_subtree_from_y1y2(uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max)
+	{
+		PVQuadTree *new_tree = new PVQuadTree(*this);
+		new_tree->init(*this);
+		get_subtree_from_y1y2(*new_tree, y1_min, y1_max, y2_min, y2_max);
+		return new_tree;
+	}
+
+	PVQuadTree *get_subtree_from_selection(const Picviz::PVSelection &selection)
+	{
+		PVQuadTree *new_tree = new PVQuadTree(*this);
+		new_tree->init(*this);
+		get_subtree_from_selection(*new_tree, selection);
+		return new_tree;
+	}
+
 private:
 	// CTOR to use with call to init()
 	PVQuadTree()
 	{
+	}
+
+	void init(const PVQuadTree &qt)
+	{
+		_y1_min_value = qt._y1_min_value;
+		_y1_max_value = qt._y1_max_value;
+		_y2_min_value = qt._y2_min_value;
+		_y2_max_value = qt._y2_max_value;
+		_y1_mid_value = qt._y1_mid_value;
+		_y2_mid_value = qt._y2_mid_value;
+		_max_level = qt._max_level;
+		_nodes = 0;
 	}
 
 	void init(uint32_t y1_min_value, uint32_t y1_max_value, uint32_t y2_min_value, uint32_t y2_max_value, int max_level)
@@ -446,6 +490,88 @@ private:
 			}
 		}
 	};
+
+	void get_subtree_from_y1(PVQuadTree& new_tree, uint32_t y1_min, uint32_t y1_max)
+	{
+		if(_nodes != 0) {
+			new_tree._nodes = new PVQuadTree [4];
+			for (int i = 0; i < 4; ++i) {
+				new_tree._nodes[i].init(_nodes[i]);
+			}
+			if(_y1_mid_value < y1_max) {
+				_nodes[NE].get_subtree_from_y1(new_tree._nodes[NE], y1_min, y1_max);
+				_nodes[SE].get_subtree_from_y1(new_tree._nodes[SE], y1_min, y1_max);
+			}
+			if(y1_min < _y1_mid_value) {
+				_nodes[NW].get_subtree_from_y1(new_tree._nodes[NW], y1_min, y1_max);
+				_nodes[SW].get_subtree_from_y1(new_tree._nodes[SW], y1_min, y1_max);
+			}
+		} else {
+			new_tree._datas = _datas;
+		}
+	}
+
+	void get_subtree_from_y2(PVQuadTree& new_tree, uint32_t y2_min, uint32_t y2_max)
+	{
+		if(_nodes != 0) {
+			new_tree._nodes = new PVQuadTree [4];
+			for (int i = 0; i < 4; ++i) {
+				new_tree._nodes[i].init(_nodes[i]);
+			}
+			if(_y2_mid_value < y2_max) {
+				_nodes[NW].get_subtree_from_y2(new_tree._nodes[NW], y2_min, y2_max);
+				_nodes[NE].get_subtree_from_y2(new_tree._nodes[NE], y2_min, y2_max);
+			}
+			if(y2_min < _y2_mid_value) {
+				_nodes[SW].get_subtree_from_y2(new_tree._nodes[SW], y2_min, y2_max);
+				_nodes[SE].get_subtree_from_y2(new_tree._nodes[SE], y2_min, y2_max);
+			}
+		} else {
+			new_tree._datas = _datas;
+		}
+	}
+
+	void get_subtree_from_y1y2(PVQuadTree& new_tree, uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max)
+	{
+		if(_nodes != 0) {
+			new_tree._nodes = new PVQuadTree [4];
+			for (int i = 0; i < 4; ++i) {
+				new_tree._nodes[i].init(_nodes[i]);
+			}
+			if(_y1_mid_value < y1_max) {
+				if(_y2_mid_value < y2_max) {
+					_nodes[NE].get_subtree_from_y1y2(new_tree._nodes[NE], y1_min, y1_max, y2_min, y2_max);
+				}
+				if(y2_min < _y2_mid_value) {
+					_nodes[SE].get_subtree_from_y1y2(new_tree._nodes[SE], y1_min, y1_max, y2_min, y2_max);
+				}
+			}
+			if(y1_min < _y1_mid_value) {
+				if(_y2_mid_value < y2_max) {
+					_nodes[NW].get_subtree_from_y1y2(new_tree._nodes[NW], y1_min, y1_max, y2_min, y2_max);
+				}
+				if(y2_min < _y2_mid_value) {
+					_nodes[SW].get_subtree_from_y1y2(new_tree._nodes[SW], y1_min, y1_max, y2_min, y2_max);
+				}
+			}
+		} else {
+			new_tree._datas = _datas;
+		}
+	}
+
+	void get_subtree_from_selection(PVQuadTree& new_tree, const Picviz::PVSelection &selection)
+	{
+		if(_nodes != 0) {
+			new_tree._nodes = new PVQuadTree [4];
+			for (int i = 0; i < 4; ++i) {
+				new_tree._nodes[i].init(_nodes[i]);
+				_nodes[i].get_subtree_from_selection(new_tree._nodes[i], selection);
+			}
+		} else {
+			__impl::f_get_entry_sel(_datas, selection, new_tree._datas);
+		}
+	}
+
 
 private:
 	pvquadtree_entries_t  _datas;
