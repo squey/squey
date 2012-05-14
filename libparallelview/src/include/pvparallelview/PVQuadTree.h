@@ -58,7 +58,7 @@ namespace __impl {
 	                     pvquadtree_bcicodes_t &result)
 	{
 		if(entries.size() != 0) {
-			PVQuadTreeEntry e = entries.at(0);
+			const PVQuadTreeEntry &e = entries.at(0);
 			PVParallelView::PVBCICode code;
 			code.s.idx = e.idx;
 			code.s.l = (e.y1 >> 22) && 0x3FF;
@@ -73,7 +73,7 @@ namespace __impl {
 	                           pvquadtree_entries_t &result)
 	{
 		for(unsigned i = 0; i < entries.size(); ++i) {
-			PVQuadTreeEntry e = entries.at(i);
+			const PVQuadTreeEntry &e = entries.at(i);
 			if(selection.get_line(e.idx)) {
 				result.push_back(e);
 				break;
@@ -86,7 +86,7 @@ namespace __impl {
 	                         pvquadtree_bcicodes_t &result)
 	{
 		for(unsigned i = 0; i < entries.size(); ++i) {
-			PVQuadTreeEntry e = entries.at(i);
+			const PVQuadTreeEntry &e = entries.at(i);
 			if(selection.get_line(e.idx)) {
 				PVParallelView::PVBCICode code;
 				code.s.idx = e.idx;
@@ -104,7 +104,7 @@ namespace __impl {
 	                     pvquadtree_entries_t &result)
 	{
 		for(unsigned i = 0; i < entries.size(); ++i) {
-			PVQuadTreeEntry e = entries.at(i);
+			const PVQuadTreeEntry &e = entries.at(i);
 			if(selection.get_line(e.idx)) {
 				result.push_back(e);
 			}
@@ -116,7 +116,7 @@ namespace __impl {
 	                   pvquadtree_bcicodes_t &result)
 	{
 		for(unsigned i = 0; i < entries.size(); ++i) {
-			PVQuadTreeEntry e = entries.at(i);
+			const PVQuadTreeEntry &e = entries.at(i);
 			if(selection.get_line(e.idx)) {
 				PVParallelView::PVBCICode code;
 				code.s.idx = e.idx;
@@ -243,7 +243,6 @@ public:
 		visit_y1y2_sel<pvquadtree_bcicodes_t, __impl::f_get_first_bci_sel>::f(*this, y1_min, y1_max, y2_min, y2_max, selection, result);
 	}
 
-	// void get_
 private:
 	// CTOR to use with call to init()
 	PVQuadTree()
