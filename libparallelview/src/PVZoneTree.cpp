@@ -214,7 +214,7 @@ size_t PVParallelView::PVZoneTreeBase::browse_tree_bci(PVHSVColor* colors, PVBCI
 {
 	size_t idx_code = 0;
 
-	const size_t nthreads = atol(getenv("NUM_THREADS"));/*omp_get_max_threads()/2;*/
+//	const size_t nthreads = atol(getenv("NUM_THREADS"));/*omp_get_max_threads()/2;*/
 //#pragma omp parallel num_threads(nthreads)
 //	{
 	//PVBCICode* th_codes = PVBCICode::allocate_codes(NBUCKETS);

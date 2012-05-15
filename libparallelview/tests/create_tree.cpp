@@ -111,6 +111,16 @@ void test(
 		ztree->set_trans_plotted(norm_plotted, nrows, ncols);
 
 		//PVLOG_INFO("Zone tree creation...\n");
+
+		{
+		BENCH_START(sse);
+		ztree->process_tbb_sse();
+		BENCH_END_TRANSFORM(sse, "tbb sse + std::vector", 1, 1);
+		}
+
+		size_t nb_codes = ztree->browse_tree_bci(colors, bci_codes);
+		show_codes("serial", bci_codes, nb_codes);
+
 		{
 		BENCH_START(sse);
 		ztree->process_omp_sse();
@@ -127,26 +137,34 @@ void test(
 		Picviz::PVSelection sel;
 		sel.select_none();
 		PVParallelView::PVZoneTree<vector>* zsel = ztree->filter_by_sel_treeb(sel);
-		}
-
-		{
-		Picviz::PVSelection sel;
-		sel.select_none();
-		PVParallelView::PVZoneTree<std::vector<PVRow, tbb::scalable_allocator<PVRow> > >* zsel = ztree->filter_by_sel_tbb_treeb(sel);
 		delete zsel;
 		}
 
 		{
 		Picviz::PVSelection sel;
 		sel.select_none();
-		PVParallelView::PVZoneTree<std::vector<PVRow, tbb::scalable_allocator<PVRow> > >* zsel = ztree->filter_by_sel_tbb(sel);
+		PVParallelView::PVZoneTree<vector >* zsel = ztree->filter_by_sel_tbb_treeb(sel);
 		delete zsel;
 		}
 
 		{
 		Picviz::PVSelection sel;
 		sel.select_none();
-		PVParallelView::PVZoneTree<std::vector<PVRow, tbb::scalable_allocator<PVRow> > >* zsel = ztree->filter_by_sel(sel);
+		PVParallelView::PVZoneTree<vector >* zsel = ztree->filter_by_sel_tbb(sel);
+		delete zsel;
+		}
+
+		/*{
+		Picviz::PVSelection sel;
+		sel.select_none();
+		PVParallelView::PVZoneTree<vector >* zsel = ztree->filter_by_sel_tbb_2d(sel);
+		delete zsel;
+		}*/
+
+		{
+		Picviz::PVSelection sel;
+		sel.select_none();
+		PVParallelView::PVZoneTree<vector >* zsel = ztree->filter_by_sel(sel);
 		delete zsel;
 		}
 
@@ -188,7 +206,7 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	//QApplication app(argc, argv);
+	QApplication app(argc, argv);
 
 	PVCol ncols, nrows;
 	Picviz::PVPlotted::plotted_table_t plotted;
@@ -236,7 +254,7 @@ int main(int argc, char** argv)
 	PVParallelView::PVTools::norm_int_plotted(plotted, norm_plotted, ncols);
 	//PVLOG_INFO("Done !\n");
 
-	//app.exec();
+	app.exec();
 
 	return 0;
 	//return app.exec();
