@@ -24,6 +24,8 @@
 #include "tbb/task_scheduler_init.h"
 #include "tbb/enumerable_thread_specific.h"
 
+#include <pvkernel/core/PVAlignedBlockedRange.h>
+
 #include <omp.h>
 
 namespace PVParallelView {
@@ -513,14 +515,13 @@ public:
 
 	TBBCreateTreeNRows(TBBCreateTreeNRows& x, tbb::split) :  _ztree(x._ztree), _tls_trees(x.tls_trees), _tls_first_elts(x.tls_first_elts)  {}
 
-	void operator() (const tbb::blocked_range<size_t>& range) const {
-
+	void operator() (const PVCore::PVAlignedBlockedRange<size_t, 4>& range) const {
 		const uint32_t* pcol_a = _ztree->get_plotted_col(_ztree->_col_a);
 		const uint32_t* pcol_b = _ztree->get_plotted_col(_ztree->_col_b);
 
-		PVRow nrows = range.end() - range.begin();
-		PVRow nrows_sse = (nrows/4)*4;
 		PVRow r = range.begin();
+		PVRow nrows = range.end();
+		PVRow nrows_sse = (nrows/4)*4;
 
 		PVZoneTreeBase::TLS_List::reference tls_tree = _tls_trees->local();
 		tls_tree.resize(NBUCKETS);
@@ -531,7 +532,6 @@ public:
 		__m128i sse_y1, sse_y2, sse_bcodes;
 
 		for (; r < nrows_sse; r += 4) {
-
 			sse_y1 = _mm_load_si128((const __m128i*) &pcol_a[r]);
 			sse_y2 = _mm_load_si128((const __m128i*) &pcol_b[r]);
 
@@ -563,7 +563,7 @@ public:
 			}
 			tls_tree[b3].push_back(r+3);
 		}
-		for (r = nrows_sse; r < nrows; r++) {
+		for (; r < nrows; r++) {
 			uint32_t y1 = pcol_a[r];
 			uint32_t y2 = pcol_b[r];
 			PVBCode code_b;
@@ -597,7 +597,7 @@ public:
 
 	TBBMergeTrees(TBBMergeTrees& x, tbb::split) :  _ztree(x._ztree), _tls_trees(x.tls_trees)  {}
 
-	void operator() (const tbb::blocked_range<size_t>& range) const {
+	void operator() (const PVCore::PVAlignedBlockedRange<size_t, 4>& range) const {
 		for (PVRow b = range.begin(); b != range.end(); ++b) {
 			if (_ztree->_treeb[b].count == 0) {
 				continue;
@@ -624,7 +624,7 @@ void PVZoneTree<Container>::process_tbb_sse()
 	TLS_List tls_trees;
 	TLS tls_first_elts;
 	tbb::task_scheduler_init init(atol(getenv("NUM_THREADS")));
-	tbb::parallel_for(tbb::blocked_range<size_t>(0, _nrows, atol(getenv("GRAINSIZE"))), TBBCreateTreeNRows<Container>(this, &tls_trees, &tls_first_elts), tbb::simple_partitioner());
+	tbb::parallel_for(PVCore::PVAlignedBlockedRange<size_t, 4>(0, _nrows, atol(getenv("GRAINSIZE"))), TBBCreateTreeNRows<Container>(this, &tls_trees, &tls_first_elts), tbb::simple_partitioner());
 
 	_treeb = new PVBranch[NBUCKETS];
 	memset(_treeb, 0, sizeof(PVBranch)*NBUCKETS);
@@ -654,7 +654,7 @@ void PVZoneTree<Container>::process_tbb_sse()
 	}
 
 	// Merge trees
-	tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, atol(getenv("GRAINSIZE"))), TBBMergeTrees<Container>(this, &tls_trees), tbb::simple_partitioner());
+	tbb::parallel_for(PVCore::PVAlignedBlockedRange<size_t, 4>(0, NBUCKETS, atol(getenv("GRAINSIZE"))), TBBMergeTrees<Container>(this, &tls_trees), tbb::simple_partitioner());
 }
 
 template <class Container>
