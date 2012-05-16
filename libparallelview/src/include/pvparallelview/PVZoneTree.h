@@ -32,6 +32,30 @@
 namespace PVParallelView {
 
 #define INVALID_VALUE 0xFFFFFFFF
+
+
+struct PVZoneProcessing{
+
+	PVZoneProcessing(
+		plotted_int_t const& plotted_,
+		PVRow nrows_,
+		PVCol col_a_,
+		PVCol col_b_
+	) :
+		plotted(plotted_),
+		nrows(nrows_),
+		col_a(col_a_),
+		col_b(col_b_),
+		nrows_aligned(((nrows+3)/4)*4)
+	{}
+
+	plotted_int_t const& plotted;
+	PVRow nrows;
+	PVCol col_a;
+	PVCol col_b;
+	PVRow nrows_aligned;
+};
+
 /******************************************************************************
  *
  * PVParallelView::PVZoneTreeBase
@@ -64,8 +88,6 @@ public:
 		return _first_elts[branch_id] != INVALID_VALUE;
 	}
 
-	PVRow const* get_first_elts() const { return _first_elts; }
-
 	size_t browse_tree_bci_no_sse(PVHSVColor* colors, PVBCICode* codes);
 	size_t browse_tree_bci_old(PVHSVColor* colors, PVBCICode* codes);
 	size_t browse_tree_bci(PVHSVColor* colors, PVBCICode* codes);
@@ -78,6 +100,8 @@ public://protected:
 	PVRow _nrows;
 	PVRow _nrows_aligned;
 
+	TLS_List tls_trees;
+	TLS tls_first_elts;
 };
 
 
@@ -94,20 +118,17 @@ public:
 	PVZoneTreeNoAlloc(PVCol col_a, PVCol col_b):
 		_col_a(col_a), _col_b(col_b)
 	{ }
-	/*virtual uint32_t get_first_elt_of_branch(uint32_t branch_id) const;
-	virtual bool branch_valid(uint32_t branch_id) const;*/
 public:
-	inline const Tree* get_tree() const { return &_tree; }
 	void process_sse();
 	void process_omp_sse();
-	PVZoneTreeNoAlloc* filter_by_sel(Picviz::PVSelection const& sel) const;
+	PVZoneTreeNoAlloc* filter_by_sel_omp(Picviz::PVSelection const& sel) const;
 	PVZoneTreeNoAlloc* filter_by_sel_tbb(Picviz::PVSelection const& sel) const;
 	size_t browse_tree_bci_by_sel(PVHSVColor* colors, PVBCICode* codes, Picviz::PVSelection const& sel);
 
 private:
 	void get_float_pts(pts_t& pts, Picviz::PVPlotted::plotted_table_t const& org_plotted);
 
-private:
+public://private:
 	Tree _tree;
 	PVCol _col_a;
 	PVCol _col_b;
@@ -134,24 +155,20 @@ public:
 	PVZoneTree(PVCol col_a, PVCol col_b):
 		_col_a(col_a), _col_b(col_b)
 	{ }
-	/*virtual uint32_t get_first_elt_of_branch(uint32_t branch_id) const;
-	virtual bool branch_valid(uint32_t branch_id) const;*/
 
 public:
-	inline const list_rows_t* get_tree() const { return _tree; }
-	inline PVBranch* get_treeb() const {return _treeb;}
-	void process();
-	void process_sse();
-	void process_omp_sse_old();
-	void process_omp_sse();
-	void process_tbb_sse();
-	void process_tbb_sse_b();
+	void process_serial_no_sse();
+	void process_serial_sse();
+	void process_omp_sse_tree();
+	void process_omp_sse_treeb();
+	void process_tbb_sse_treeb(const PVZoneProcessing& zp);
+	void process_tbb_sse_parallelize_on_branches();
 	void process_tbb_concurrent_vector();
-	PVZoneTree<Container>* filter_by_sel(Picviz::PVSelection const& sel) const;
-	PVZoneTree<Container>* filter_by_sel_tbb(Picviz::PVSelection const& sel) const;
-	PVZoneTree<Container>* filter_by_sel_treeb(Picviz::PVSelection const& sel) const;
+
+	PVZoneTree<Container>* filter_by_sel_omp_tree(Picviz::PVSelection const& sel) const;
+	PVZoneTree<Container>* filter_by_sel_tbb_tree(Picviz::PVSelection const& sel) const;
+	PVZoneTree<Container>* filter_by_sel_omp_treeb(Picviz::PVSelection const& sel) const;
 	PVZoneTree<Container>* filter_by_sel_tbb_treeb(Picviz::PVSelection const& sel) const;
-	PVZoneTree<Container>* filter_by_sel_tbb_2d(Picviz::PVSelection const& sel) const;
 private:
 	void get_float_pts(pts_t& pts, Picviz::PVPlotted::plotted_table_t const& org_plotted);
 public://private:
@@ -162,22 +179,8 @@ public://private:
 	PVRow* _tree_data;
 };
 
-/*template <class Container>
-uint32_t PVZoneTree<Container>::get_first_elt_of_branch(uint32_t branch_id) const
-{
-	list_rows_t const& src(_tree[branch_id]);
-	return *src.begin();
-}
-
 template <class Container>
-bool PVZoneTree<Container>::branch_valid(uint32_t branch_id) const
-{
-	list_rows_t const& src(_tree[branch_id]);
-	return src.begin() != src.end();
-}*/
-
-template <class Container>
-void PVZoneTree<Container>::process()
+void PVZoneTree<Container>::process_serial_no_sse()
 {
 	// Naive processing
 	const uint32_t* pcol_a = get_plotted_col(_col_a);
@@ -197,7 +200,7 @@ void PVZoneTree<Container>::process()
 }
 
 template <class Container>
-void PVZoneTree<Container>::process_sse()
+void PVZoneTree<Container>::process_serial_sse()
 {
 	// Naive processing
 	const uint32_t* pcol_a = get_plotted_col(_col_a);
@@ -253,7 +256,7 @@ void PVZoneTree<Container>::process_sse()
 }
 
 template <class Container>
-void PVZoneTree<Container>::process_omp_sse_old()
+void PVZoneTree<Container>::process_omp_sse_tree()
 {
 	// Naive processing
 	const uint32_t* pcol_a = get_plotted_col(_col_a);
@@ -346,8 +349,14 @@ void PVZoneTree<Container>::process_omp_sse_old()
 	//PVLOG_INFO("OMP tree process in %0.4f ms.\n", (end-start).seconds()*1000.0);
 }
 
+
+/******************************************************************************
+ *
+ * PVParallelView::process_omp_sse()
+ *
+ *****************************************************************************/
 template <class Container>
-void PVZoneTree<Container>::process_omp_sse()
+void PVZoneTree<Container>::process_omp_sse_treeb()
 {
 	const uint32_t* pcol_a = get_plotted_col(_col_a);
 	const uint32_t* pcol_b = get_plotted_col(_col_b);
@@ -453,7 +462,6 @@ void PVZoneTree<Container>::process_omp_sse()
 #pragma omp barrier
 #pragma omp master
 		{
-			PVLOG_INFO("alloc_size=%d\n", alloc_size);
 			_tree_data = PVCore::PVAlignedAllocator<PVRow, 16>().allocate(alloc_size);
 
 			// Update branch pointer
@@ -501,21 +509,23 @@ void PVZoneTree<Container>::process_omp_sse()
 	PVLOG_INFO("OMP tree process in %0.4f ms.\n", (end-start).seconds()*1000.0);
 }
 
+
+/******************************************************************************
+ *
+ * PVParallelView::process_tbb_sse()
+ *
+ *****************************************************************************/
 template <class Container>
 class TBBCreateTreeNRows {
 public:
 	TBBCreateTreeNRows (
-		PVZoneTree<Container>* ztree,
-		PVZoneTreeBase::TLS_List* tls_trees,
-		PVZoneTreeBase::TLS* tls_first_elts
+		PVZoneTree<Container>* ztree
 	) :
-		_ztree(ztree),
-		_tls_trees(tls_trees),
-		_tls_first_elts(tls_first_elts)
+		_ztree(ztree)
 	{
 	}
 
-	TBBCreateTreeNRows(TBBCreateTreeNRows& x, tbb::split) :  _ztree(x._ztree), _tls_trees(x._tls_trees), _tls_first_elts(x._tls_first_elts)  {}
+	TBBCreateTreeNRows(TBBCreateTreeNRows& x, tbb::split) :  _ztree(x._ztree)  {}
 
 	void operator() (const PVCore::PVAlignedBlockedRange<size_t, 4>& range) const {
 		const uint32_t* pcol_a = _ztree->get_plotted_col(_ztree->_col_a);
@@ -525,10 +535,10 @@ public:
 		PVRow nrows = range.end();
 		PVRow nrows_sse = (nrows/4)*4;
 
-		PVZoneTreeBase::TLS_List::reference tls_tree = _tls_trees->local();
+		PVZoneTreeBase::TLS_List::reference tls_tree = _ztree->tls_trees.local();
 		tls_tree.resize(NBUCKETS);
 
-		PVZoneTreeBase::TLS::reference tls_first_elts = _tls_first_elts->local();
+		PVZoneTreeBase::TLS::reference tls_first_elts = _ztree->tls_first_elts.local();
 		tls_first_elts.resize(NBUCKETS, INVALID_VALUE);
 
 		__m128i sse_y1, sse_y2, sse_bcodes;
@@ -580,36 +590,32 @@ public:
 		}
 	}
 
-	mutable PVZoneTree<Container>* _ztree;
-	PVZoneTreeBase::TLS_List* _tls_trees;
-	PVZoneTreeBase::TLS* _tls_first_elts;
+	PVZoneTree<Container>* _ztree;
 };
 
 template <class Container>
 class TBBComputeAllocSizeAndFirstElts {
 public:
 	TBBComputeAllocSizeAndFirstElts (
-		PVZoneTree<Container>* ztree,
-		PVZoneTreeBase::TLS_List* tls_trees,
-		PVZoneTreeBase::TLS* tls_first_elts
+		PVZoneTree<Container>* ztree
 	) :
 		_ztree(ztree),
-		_tls_trees(tls_trees),
-		_tls_first_elts(tls_first_elts),
 		_alloc_size(0)
 	{
-		PVLOG_INFO("TBBComputeAllocSizeAndFirstElts\n");
 	}
 
-	TBBComputeAllocSizeAndFirstElts(TBBComputeAllocSizeAndFirstElts& x, tbb::split) :  _ztree(x._ztree), _tls_trees(x._tls_trees), _tls_first_elts(x._tls_first_elts), _alloc_size(0)  {}
+	TBBComputeAllocSizeAndFirstElts(TBBComputeAllocSizeAndFirstElts& x, tbb::split) :
+		_ztree(x._ztree),
+		_alloc_size(0)
+	{}
 
 	void operator() (const tbb::blocked_range<size_t>& range) const {
 		for (PVRow b = range.begin(); b != range.end(); ++b) {
 			_ztree->_treeb[b].count = 0;
-			for (PVZoneTreeBase::TLS_List::const_iterator thread_tree = _tls_trees->begin(); thread_tree != _tls_trees->end(); ++thread_tree) {
+			for (PVZoneTreeBase::TLS_List::const_iterator thread_tree = _ztree->tls_trees.begin(); thread_tree != _ztree->tls_trees.end(); ++thread_tree) {
 				_ztree->_treeb[b].count += (*thread_tree)[b].size();
 			}
-			for (PVZoneTreeBase::TLS::const_iterator first_elts = _tls_first_elts->begin(); first_elts != _tls_first_elts->end(); ++first_elts) {
+			for (PVZoneTreeBase::TLS::const_iterator first_elts = _ztree->tls_first_elts.begin(); first_elts != _ztree->tls_first_elts.end(); ++first_elts) {
 				_ztree->_first_elts[b] = picviz_min(_ztree->_first_elts[b], (*first_elts)[b]);
 			}
 			_alloc_size += (((_ztree->_treeb[b].count + 15) / 16) * 16);
@@ -621,25 +627,16 @@ public:
 		_alloc_size += rhs._alloc_size;
 	}
 
-	mutable PVZoneTree<Container>* _ztree;
-	PVZoneTreeBase::TLS_List* _tls_trees;
-	PVZoneTreeBase::TLS* _tls_first_elts;
+	PVZoneTree<Container>* _ztree;
 	mutable size_t _alloc_size;
 };
 
 template <class Container>
 class TBBMergeTrees {
 public:
-	TBBMergeTrees (
-		PVZoneTree<Container>* ztree,
-		PVZoneTreeBase::TLS_List* tls_trees
-	) :
-		_ztree(ztree),
-		_tls_trees(tls_trees)
-	{
-	}
+	TBBMergeTrees (PVZoneTree<Container>* ztree) : _ztree(ztree) {}
 
-	TBBMergeTrees(TBBMergeTrees& x, tbb::split) :  _ztree(x._ztree), _tls_trees(x.tls_trees)  {}
+	TBBMergeTrees(TBBMergeTrees& x, tbb::split) :  _ztree(x._ztree)  {}
 
 	void operator() (const PVCore::PVAlignedBlockedRange<size_t, 4>& range) const {
 		for (PVRow b = range.begin(); b != range.end(); ++b) {
@@ -647,7 +644,7 @@ public:
 				continue;
 			}
 			PVRow* cur_branch = _ztree->_treeb[b].p;
-			for (PVZoneTreeBase::TLS_List::const_iterator thread_tree = _tls_trees->begin(); thread_tree != _tls_trees->end(); ++thread_tree) {
+			for (PVZoneTreeBase::TLS_List::const_iterator thread_tree = _ztree->tls_trees.begin(); thread_tree != _ztree->tls_trees.end(); ++thread_tree) {
 				typename PVZoneTreeBase::vect const& c = (*thread_tree)[b];
 				if (c.size() > 0) {
 					memcpy(cur_branch, &c.at(0), c.size()*sizeof(PVRow));
@@ -658,27 +655,35 @@ public:
 		}
 	}
 
-	mutable PVZoneTree<Container>* _ztree;
-	PVZoneTreeBase::TLS_List* _tls_trees;
+	PVZoneTree<Container>* _ztree;
 };
 
 template <class Container>
-void PVZoneTree<Container>::process_tbb_sse()
+void PVZoneTree<Container>::process_tbb_sse_treeb(const PVZoneProcessing& zp)
 {
-	TLS_List tls_trees;
-	TLS tls_first_elts;
+
 	tbb::task_scheduler_init init(atol(getenv("NUM_THREADS")));
-	tbb::parallel_for(PVCore::PVAlignedBlockedRange<size_t, 4>(0, _nrows, atol(getenv("GRAINSIZE"))), TBBCreateTreeNRows<Container>(this, &tls_trees, &tls_first_elts), tbb::simple_partitioner());
+	BENCH_START(trees);
+	tbb::parallel_for(PVCore::PVAlignedBlockedRange<size_t, 4>(0, _nrows, atol(getenv("GRAINSIZE"))), TBBCreateTreeNRows<Container>(this), tbb::simple_partitioner());
+	BENCH_END(trees, "TREES", _nrows*2, sizeof(float), _nrows*2, sizeof(float));
 
 	_treeb = new PVBranch[NBUCKETS];
 	memset(_treeb, 0, sizeof(PVBranch)*NBUCKETS);
 
-	TBBComputeAllocSizeAndFirstElts<Container> reduce_body(this, &tls_trees, &tls_first_elts);
+	/*for (TLS_List::iterator thread_tree = tls_trees.begin(); thread_tree != tls_trees.end(); ++thread_tree) {
+		for (PVRow b = 0; b < NBUCKETS; b++) {
+			(*thread_tree)[b].clear();
+		}
+		thread_tree->clear();
+	}
+	for (TLS::iterator first_elts = tls_first_elts.begin(); first_elts != tls_first_elts.end(); ++first_elts) {
+		first_elts->clear();
+	}*/
+
+	TBBComputeAllocSizeAndFirstElts<Container> reduce_body(this);
 	tbb::parallel_reduce(tbb::blocked_range<size_t>(0, NBUCKETS, atol(getenv("GRAINSIZE"))), reduce_body, tbb::simple_partitioner());
 
 	_tree_data = PVCore::PVAlignedAllocator<PVRow, 16>().allocate(reduce_body._alloc_size);
-
-	PVLOG_INFO("alloc_size=%d\n", reduce_body._alloc_size);
 
 	// Update branch pointer
 	PVRow* cur_p = _tree_data;
@@ -690,7 +695,9 @@ void PVZoneTree<Container>::process_tbb_sse()
 	}
 
 	// Merge trees
-	tbb::parallel_for(PVCore::PVAlignedBlockedRange<size_t, 4>(0, NBUCKETS, atol(getenv("GRAINSIZE"))), TBBMergeTrees<Container>(this, &tls_trees), tbb::simple_partitioner());
+	BENCH_START(merge);
+	tbb::parallel_for(PVCore::PVAlignedBlockedRange<size_t, 4>(0, NBUCKETS, atol(getenv("GRAINSIZE"))), TBBMergeTrees<Container>(this), tbb::simple_partitioner());
+	BENCH_END(merge, "MERGE", _nrows*2, sizeof(float), _nrows*2, sizeof(float));
 }
 
 template <class Container>
@@ -766,7 +773,7 @@ public:
 };
 
 template <class Container>
-void PVZoneTree<Container>::process_tbb_sse_b()
+void PVZoneTree<Container>::process_tbb_sse_parallelize_on_branches()
 {
 	tbb::task_scheduler_init init(atol(getenv("NUM_THREADS")));
 	tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, atol(getenv("GRAINSIZE"))), TBBCreateTree<Container>(this), tbb::simple_partitioner());
@@ -808,7 +815,7 @@ void PVZoneTree<Container>::process_tbb_concurrent_vector()
 }
 
 template <class Container>
-PVZoneTree<Container>* PVZoneTree<Container>::filter_by_sel(Picviz::PVSelection const& sel) const
+PVZoneTree<Container>* PVZoneTree<Container>::filter_by_sel_omp_tree(Picviz::PVSelection const& sel) const
 {
 	// returns a zone tree with only the selected lines
 	PVZoneTree<Container>* ret = new PVZoneTree<Container>(_col_a, _col_b);
@@ -842,13 +849,13 @@ PVZoneTree<Container>* PVZoneTree<Container>::filter_by_sel(Picviz::PVSelection 
 			}
 		}
 	}
-	BENCH_END(subtree, "filter_by_sel", _nrows*2, sizeof(float), _nrows*2, sizeof(float));
+	BENCH_END(subtree, "filter_by_sel_omp_tree", _nrows*2, sizeof(float), _nrows*2, sizeof(float));
 
 	return ret;
 }
 
 template <class Container>
-PVZoneTree<Container>* PVZoneTree<Container>::filter_by_sel_treeb(Picviz::PVSelection const& sel) const
+PVZoneTree<Container>* PVZoneTree<Container>::filter_by_sel_omp_treeb(Picviz::PVSelection const& sel) const
 {
 	// returns a zone tree with only the selected lines
 	PVZoneTree<Container>* ret = new PVZoneTree<Container>(_col_a, _col_b);
@@ -880,7 +887,7 @@ PVZoneTree<Container>* PVZoneTree<Container>::filter_by_sel_treeb(Picviz::PVSele
 			}
 		}
 	}
-	BENCH_END(subtree, "filter_by_sel_treeb", _nrows*2, sizeof(float), _nrows*2, sizeof(float));
+	BENCH_END(subtree, "filter_by_sel_omp_treeb", _nrows*2, sizeof(float), _nrows*2, sizeof(float));
 
 	return ret;
 }
@@ -912,7 +919,7 @@ public:
 					found = true;
 				}
 				else {
-					typename PVZoneTree<Container>::list_rows_t const& src(_tree->get_tree()[b]);
+					typename PVZoneTree<Container>::list_rows_t const& src(_tree->_tree[b]);
 					typename PVZoneTree<Container>::list_rows_t::const_iterator it_src;
 					for (it_src = src.begin(); it_src != src.end(); it_src++) {
 						PVRow r = *it_src;
@@ -935,7 +942,7 @@ public:
 };
 
 template <class Container>
-PVZoneTree<Container>* PVZoneTree<Container>::filter_by_sel_tbb(Picviz::PVSelection const& sel) const
+PVZoneTree<Container>* PVZoneTree<Container>::filter_by_sel_tbb_tree(Picviz::PVSelection const& sel) const
 {
 	// returns a zone tree with only the selected lines
 	PVZoneTree<Container>* ret = new PVZoneTree<Container>(_col_a, _col_b);
@@ -947,7 +954,7 @@ PVZoneTree<Container>* PVZoneTree<Container>::filter_by_sel_tbb(Picviz::PVSelect
 	tbb::task_scheduler_init init(atol(getenv("NUM_THREADS")));
 	BENCH_START(subtree);
 	tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, atol(getenv("GRAINSIZE"))), TBBPF2<Container>(this, sel_buf, &tls), tbb::simple_partitioner());
-	BENCH_END(subtree, "tbb::parallel_for", _nrows*2, sizeof(float), _nrows*2, sizeof(float));
+	BENCH_END(subtree, "filter_by_sel_tbb_tree", _nrows*2, sizeof(float), _nrows*2, sizeof(float));
 
 	return ret;
 }
@@ -979,8 +986,8 @@ public:
 					found = true;
 				}
 				else {
-					for (size_t i=0; i< _tree->get_treeb()[b].count; i++) {
-						PVRow r = _tree->get_treeb()[b].p[i];
+					for (size_t i=0; i< _tree->_treeb[b].count; i++) {
+						PVRow r = _tree->_treeb[b].p[i];
 						if ((_sel_buf[r>>5]) & (1U<<(r&31))) {
 							found = true;
 							break;
@@ -1012,62 +1019,7 @@ PVZoneTree<Container>* PVZoneTree<Container>::filter_by_sel_tbb_treeb(Picviz::PV
 	tbb::task_scheduler_init init(atol(getenv("NUM_THREADS")));
 	BENCH_START(subtree);
 	tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, atol(getenv("GRAINSIZE"))), TBBPF3<Container>(this, sel_buf, &tls), tbb::simple_partitioner());
-	BENCH_END(subtree, "tbb::parallel_for treeb", _nrows*2, sizeof(float), _nrows*2, sizeof(float));
-
-	return ret;
-}
-
-/******************************************************************************
- *
- * PVParallelView::TBBFilterBySelBody2D
- *
- *****************************************************************************/
-template <class Container>
-class TBBFilterBySelBody2D {
-public:
-	TBBFilterBySelBody2D (
-		const PVZoneTree<Container>* tree,
-		const Picviz::PVSelection::const_pointer sel_buf,
-		PVZoneTreeBase::TLS* tls
-	) :
-		_tree(tree),
-		_sel_buf(sel_buf),
-		_tls(tls)
-	{
-	}
-
-	TBBFilterBySelBody2D(TBBFilterBySelBody2D& x, tbb::split) :  _tree(x._tree), _sel_buf(x._sel_buf), _tls(x._tls) {}
-
-	void operator() (const tbb::blocked_range2d<size_t>& r) const {
-		for (PVRow row = r.rows().begin(); row != r.rows().end(); ++row) {
-			if ((_sel_buf[row>>5]) & (1U<<(row&31))) {
-
-			}
-			for (PVRow b = r.cols().begin(); b != r.cols().end(); ++b) {
-			}
-		}
-	}
-
-	const PVZoneTree<Container>* _tree;
-	Picviz::PVSelection::const_pointer _sel_buf;
-	PVZoneTreeBase::TLS* _tls;
-};
-
-template <class Container>
-PVZoneTree<Container>* PVZoneTree<Container>::filter_by_sel_tbb_2d(Picviz::PVSelection const& sel) const
-{
-	// returns a zone tree with only the selected lines
-	PVZoneTree<Container>* ret = new PVZoneTree<Container>(_col_a, _col_b);
-	ret->set_trans_plotted(*_plotted, _nrows, _ncols);
-
-
-	Picviz::PVSelection::const_pointer sel_buf = sel.get_buffer();
-	TLS tls;
-	tbb::task_scheduler_init init(atol(getenv("NUM_THREADS")));
-
-	BENCH_START(subtree);
-	tbb::parallel_for(tbb::blocked_range2d<size_t>(0, _nrows, atol(getenv("GRAINSIZE")), 0, NBUCKETS, atol(getenv("GRAINSIZE"))), TBBFilterBySelBody2D<Container>(this, sel_buf, &tls), tbb::simple_partitioner());
-	BENCH_END(subtree, "tbb::parallel_for 2d", _nrows*2, sizeof(float), _nrows*2, sizeof(float));
+	BENCH_END(subtree, "filter_by_sel_tbb_treeb", _nrows*2, sizeof(float), _nrows*2, sizeof(float));
 
 	return ret;
 }
@@ -1124,37 +1076,6 @@ void PVZoneTreeUnorderedMap<Container>::get_float_pts(pts_t& pts, Picviz::PVPlot
 template <class Container>
 void PVZoneTreeUnorderedMap<Container>::process_boost()
 {
-	/*
-	// Naive processing
-	const uint32_t* pcol_a = get_plotted_col(_col_a);
-	const uint32_t* pcol_b = get_plotted_col(_col_b);
-	__m128i sse_y1, sse_y2, sse_bcodes;
-	const PVRow nrows_sse = (_nrows/4)*4;
-	for (PVRow r = 0; r < nrows_sse; r += 4) {
-		sse_y1 = _mm_load_si128((const __m128i*) &pcol_a[r]);
-		sse_y2 = _mm_load_si128((const __m128i*) &pcol_b[r]);
-
-		sse_y1 = _mm_srli_epi32(sse_y1, 32-NBITS_INDEX);
-		sse_y2 = _mm_srli_epi32(sse_y2, 32-NBITS_INDEX);
-		sse_bcodes = _mm_or_si128(sse_y1, _mm_slli_epi32(sse_y2, NBITS_INDEX));
-
-		_tree[_mm_extract_epi32(sse_bcodes, 0)].push_back(r+0);
-		_tree[_mm_extract_epi32(sse_bcodes, 1)].push_back(r+1);
-		_tree[_mm_extract_epi32(sse_bcodes, 2)].push_back(r+2);
-		_tree[_mm_extract_epi32(sse_bcodes, 3)].push_back(r+3);
-	}
-	for (PVRow r = nrows_sse; r < _nrows; r++) {
-		uint32_t y1 = pcol_a[r];
-		uint32_t y2 = pcol_b[r];
-
-		PVBCode b;
-		b.int_v = 0;
-		b.s.l = y1 >> (32-NBITS_INDEX);
-		b.s.r = y2 >> (32-NBITS_INDEX);
-
-		_tree[b.int_v].push_back(r);
-	}
-	*/
 	// Naive processing
 	const uint32_t* pcol_a = get_plotted_col(_col_a);
 	const uint32_t* pcol_b = get_plotted_col(_col_b);
@@ -1168,11 +1089,10 @@ void PVZoneTreeUnorderedMap<Container>::process_boost()
 		b.s.r = y2 >> (32-NBITS_INDEX);
 
 		_tree.insert(std::make_pair(b.int_v, r));
-		//PVLOG_INFO("r=%d int_v=0x%x\n", r, b.int_v);
 	}
 }
 
-PVZoneTreeNoAlloc* PVZoneTreeNoAlloc::filter_by_sel(Picviz::PVSelection const& sel) const
+PVZoneTreeNoAlloc* PVZoneTreeNoAlloc::filter_by_sel_omp(Picviz::PVSelection const& sel) const
 {
 	// returns a zone tree with only the selected lines
 	PVZoneTreeNoAlloc* ret = new PVZoneTreeNoAlloc(_col_a, _col_b);
@@ -1238,9 +1158,9 @@ public:
 					found = true;
 				}
 				else {
-					PVZoneTreeNoAlloc::Tree::const_branch_iterator it_src = _tree->get_tree()->begin_branch(b);
+					PVZoneTreeNoAlloc::Tree::const_branch_iterator it_src = _tree->_tree.begin_branch(b);
 					it_src++;
-					for (; it_src != _tree->get_tree()->end_branch(b); it_src++) {
+					for (; it_src != _tree->_tree.end_branch(b); it_src++) {
 						r = *(it_src);
 						if ((_sel_buf[r>>5]) & (1U<<(r&31))) {
 							found = true;

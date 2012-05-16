@@ -110,33 +110,55 @@ void test(
 		PVParallelView::PVZoneTree<vector>* ztree = new PVParallelView::PVZoneTree<vector>(0, 1);
 		ztree->set_trans_plotted(norm_plotted, nrows, ncols);
 
+		PVParallelView::PVZoneProcessing zp(norm_plotted, nrows, 0, 1);
+
 		//PVLOG_INFO("Zone tree creation...\n");
 
 		{
 		BENCH_START(sse);
-		ztree->process_tbb_sse();
-		BENCH_END_TRANSFORM(sse, "tbb sse + std::vector", 1, 1);
+		ztree->process_tbb_sse_treeb(zp);
+		BENCH_END_TRANSFORM(sse, "process_tbb_sse_treeb", 1, 1);
 		}
+
+		/*{
+		BENCH_START(sse);
+		ztree->process_tbb_sse_treeb();
+		BENCH_END_TRANSFORM(sse, "process_tbb_sse_treeb (again)", 1, 1);
+		}*/
 
 		size_t nb_codes = ztree->browse_tree_bci(colors, bci_codes);
 		show_codes("serial", bci_codes, nb_codes);
 
 		{
 		BENCH_START(sse);
-		ztree->process_omp_sse();
-		BENCH_END_TRANSFORM(sse, "omp sse + std::vector", 1, 1);
+		ztree->process_omp_sse_treeb();
+		BENCH_END_TRANSFORM(sse, "process_omp_sse_treeb", 1, 1);
 		}
 
 		{
 		BENCH_START(sse);
-		ztree->process_omp_sse_old();
-		BENCH_END_TRANSFORM(sse, "omp sse + std::vector old", 1, 1);
+		ztree->process_omp_sse_tree();
+		BENCH_END_TRANSFORM(sse, "process_omp_sse_tree", 1, 1);
 		}
 
 		{
 		Picviz::PVSelection sel;
 		sel.select_none();
-		PVParallelView::PVZoneTree<vector>* zsel = ztree->filter_by_sel_treeb(sel);
+		PVParallelView::PVZoneTree<vector >* zsel = ztree->filter_by_sel_omp_tree(sel);
+		delete zsel;
+		}
+
+		{
+		Picviz::PVSelection sel;
+		sel.select_none();
+		PVParallelView::PVZoneTree<vector >* zsel = ztree->filter_by_sel_tbb_tree(sel);
+		delete zsel;
+		}
+
+		{
+		Picviz::PVSelection sel;
+		sel.select_none();
+		PVParallelView::PVZoneTree<vector>* zsel = ztree->filter_by_sel_omp_treeb(sel);
 		delete zsel;
 		}
 
@@ -144,27 +166,6 @@ void test(
 		Picviz::PVSelection sel;
 		sel.select_none();
 		PVParallelView::PVZoneTree<vector >* zsel = ztree->filter_by_sel_tbb_treeb(sel);
-		delete zsel;
-		}
-
-		{
-		Picviz::PVSelection sel;
-		sel.select_none();
-		PVParallelView::PVZoneTree<vector >* zsel = ztree->filter_by_sel_tbb(sel);
-		delete zsel;
-		}
-
-		/*{
-		Picviz::PVSelection sel;
-		sel.select_none();
-		PVParallelView::PVZoneTree<vector >* zsel = ztree->filter_by_sel_tbb_2d(sel);
-		delete zsel;
-		}*/
-
-		{
-		Picviz::PVSelection sel;
-		sel.select_none();
-		PVParallelView::PVZoneTree<vector >* zsel = ztree->filter_by_sel(sel);
 		delete zsel;
 		}
 
@@ -186,7 +187,7 @@ void test(
 		{
 		Picviz::PVSelection sel;
 		sel.select_none();
-		PVParallelView::PVZoneTreeNoAlloc* zsel = ztree->filter_by_sel(sel);
+		PVParallelView::PVZoneTreeNoAlloc* zsel = ztree->filter_by_sel_omp(sel);
 		delete zsel;
 		}
 
