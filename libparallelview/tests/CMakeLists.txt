@@ -29,6 +29,9 @@ target_link_libraries(extract_quadtree ${LINK_LIBRARIES})
 add_executable(Tquadtree_impl quadtree_impl.cpp)
 target_link_libraries(Tquadtree_impl ${LINK_LIBRARIES})
 
+add_executable(Tmultigrid_impl multigrid_impl.cpp)
+target_link_libraries(Tmultigrid_impl ${LINK_LIBRARIES})
+
 add_executable(show_codes_gl show_codes_gl.cpp)
 target_link_libraries(show_codes_gl ${LINK_LIBRARIES})
 
