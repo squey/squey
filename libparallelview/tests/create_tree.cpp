@@ -1,6 +1,9 @@
+#include <pvparallelview/PVContainerZoneTree.h>
 #include <pvkernel/core/picviz_bench.h>
 #include <picviz/PVPlotted.h>
+#include <pvparallelview/PVBCICode.h>
 #include <pvparallelview/PVZoneTree.h>
+#include <pvparallelview/PVZoneTreeNoAlloc.h>
 #include <pvparallelview/PVTools.h>
 #include <pvparallelview/PVHSVColor.h>
 #include <pvparallelview/simple_lines_int_view.h>
@@ -37,6 +40,7 @@ void show_codes(QString const& title, PVParallelView::PVBCICode* codes, size_t n
 	rgb.int_v = 0;
 	for (size_t i = 0; i < n; i++) {
 		PVParallelView::PVBCICode c = codes[i];
+		c = codes[i];
 		pts.push_back(0); pts.push_back(c.s.l);
 		pts.push_back(1); pts.push_back(c.s.r);
 
@@ -100,25 +104,25 @@ void test(
 	PVParallelView::PVBCICode* bci_codes_ref
 )
 {
-	plotted_int_t norm_plotted;
+	Picviz::PVPlotted::uint_plotted_table_t norm_plotted;
 	//PVLOG_INFO("Normalizing to 32-bit unsigned integers...\n");
-	PVParallelView::PVTools::norm_int_plotted(plotted, norm_plotted, ncols);
+	Picviz::PVPlotted::norm_int_plotted(plotted, norm_plotted, ncols);
 	//PVLOG_INFO("Done !\n");
 	
 	{
 		typedef std::vector<PVRow, tbb::scalable_allocator<PVRow> > vector;
-		PVParallelView::PVZoneTree<vector>* ztree = new PVParallelView::PVZoneTree<vector>(0, 1);
+		PVParallelView::PVContainerZoneTree<vector>* ztree = new PVParallelView::PVContainerZoneTree<vector>(0, 1);
 		ztree->set_trans_plotted(norm_plotted, nrows, ncols);
 
-		PVParallelView::PVZoneProcessing zp(norm_plotted, nrows, 0, 1);
+		//PVParallelView::PVZoneProcessing zp(norm_plotted, nrows, 0, 1);
 
 		//PVLOG_INFO("Zone tree creation...\n");
 
-		{
+		/*{
 		BENCH_START(sse);
-		ztree->process_tbb_sse_treeb(zp);
+		ztree->process_tbb_sse_treeb();
 		BENCH_END_TRANSFORM(sse, "process_tbb_sse_treeb", 1, 1);
-		}
+		}*/
 
 		/*{
 		BENCH_START(sse);
@@ -129,11 +133,11 @@ void test(
 		size_t nb_codes = ztree->browse_tree_bci(colors, bci_codes);
 		show_codes("serial", bci_codes, nb_codes);
 
-		{
+		/*{
 		BENCH_START(sse);
 		ztree->process_omp_sse_treeb();
 		BENCH_END_TRANSFORM(sse, "process_omp_sse_treeb", 1, 1);
-		}
+		}*/
 
 		{
 		BENCH_START(sse);
@@ -144,30 +148,26 @@ void test(
 		{
 		Picviz::PVSelection sel;
 		sel.select_none();
-		PVParallelView::PVZoneTree<vector >* zsel = ztree->filter_by_sel_omp_tree(sel);
-		delete zsel;
+		ztree->filter_by_sel_omp_tree(sel);
 		}
 
 		{
 		Picviz::PVSelection sel;
 		sel.select_none();
-		PVParallelView::PVZoneTree<vector >* zsel = ztree->filter_by_sel_tbb_tree(sel);
-		delete zsel;
+		ztree->filter_by_sel_tbb_tree(sel);
+		}
+
+		/*{
+		Picviz::PVSelection sel;
+		sel.select_none();
+		ztree->filter_by_sel_omp_treeb(sel);
 		}
 
 		{
 		Picviz::PVSelection sel;
 		sel.select_none();
-		PVParallelView::PVZoneTree<vector>* zsel = ztree->filter_by_sel_omp_treeb(sel);
-		delete zsel;
-		}
-
-		{
-		Picviz::PVSelection sel;
-		sel.select_none();
-		PVParallelView::PVZoneTree<vector >* zsel = ztree->filter_by_sel_tbb_treeb(sel);
-		delete zsel;
-		}
+		ztree->filter_by_sel_tbb_treeb(sel);
+		}*/
 
 		delete ztree;
 	}
@@ -187,15 +187,13 @@ void test(
 		{
 		Picviz::PVSelection sel;
 		sel.select_none();
-		PVParallelView::PVZoneTreeNoAlloc* zsel = ztree->filter_by_sel_omp(sel);
-		delete zsel;
+		ztree->filter_by_sel_omp(sel);
 		}
 
 		{
 		Picviz::PVSelection sel;
 		sel.select_none();
-		PVParallelView::PVZoneTreeNoAlloc* zsel = ztree->filter_by_sel_tbb(sel);
-		delete zsel;
+		ztree->filter_by_sel_tbb(sel);
 		}
 	}
 }
@@ -250,9 +248,9 @@ int main(int argc, char** argv)
 	}
 	//PVLOG_INFO("Plotted loaded with %u rows and %u columns.\n", nrows, ncols);
 
-	plotted_int_t norm_plotted;
+	Picviz::PVPlotted::uint_plotted_table_t norm_plotted;
 	//PVLOG_INFO("Normalizing to 32-bit unsigned integers...\n");
-	PVParallelView::PVTools::norm_int_plotted(plotted, norm_plotted, ncols);
+	Picviz::PVPlotted::norm_int_plotted(plotted, norm_plotted, ncols);
 	//PVLOG_INFO("Done !\n");
 
 	app.exec();
