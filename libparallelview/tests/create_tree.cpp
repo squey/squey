@@ -114,36 +114,14 @@ void test(
 		PVParallelView::PVContainerZoneTree<vector>* ztree = new PVParallelView::PVContainerZoneTree<vector>(0, 1);
 		ztree->set_trans_plotted(norm_plotted, nrows, ncols);
 
-		//PVParallelView::PVZoneProcessing zp(norm_plotted, nrows, 0, 1);
-
-		//PVLOG_INFO("Zone tree creation...\n");
-
-		/*{
-		BENCH_START(sse);
-		ztree->process_tbb_sse_treeb();
-		BENCH_END_TRANSFORM(sse, "process_tbb_sse_treeb", 1, 1);
-		}*/
-
-		/*{
-		BENCH_START(sse);
-		ztree->process_tbb_sse_treeb();
-		BENCH_END_TRANSFORM(sse, "process_tbb_sse_treeb (again)", 1, 1);
-		}*/
-
-		size_t nb_codes = ztree->browse_tree_bci(colors, bci_codes);
-		show_codes("serial", bci_codes, nb_codes);
-
-		/*{
-		BENCH_START(sse);
-		ztree->process_omp_sse_treeb();
-		BENCH_END_TRANSFORM(sse, "process_omp_sse_treeb", 1, 1);
-		}*/
-
 		{
 		BENCH_START(sse);
 		ztree->process_omp_sse_tree();
 		BENCH_END_TRANSFORM(sse, "process_omp_sse_tree", 1, 1);
 		}
+
+		size_t nb_codes = ztree->browse_tree_bci(colors, bci_codes);
+		show_codes("serial", bci_codes, nb_codes);
 
 		{
 		Picviz::PVSelection sel;
@@ -157,7 +135,36 @@ void test(
 		ztree->filter_by_sel_tbb_tree(sel);
 		}
 
-		/*{
+		delete ztree;
+	}
+	std::cout << "---" << std::endl;
+
+	{
+		PVParallelView::PVZoneTree* ztree = new PVParallelView::PVZoneTree(0, 1);
+		ztree->set_trans_plotted(norm_plotted, nrows, ncols);
+		
+		{
+		BENCH_START(sse);
+		ztree->process_tbb_sse_treeb();
+		BENCH_END_TRANSFORM(sse, "process_tbb_sse_treeb", 1, 1);
+		}
+
+		{
+		BENCH_START(sse);
+		ztree->process_tbb_sse_treeb();
+		BENCH_END_TRANSFORM(sse, "process_tbb_sse_treeb (again)", 1, 1);
+		}
+
+		size_t nb_codes = ztree->browse_tree_bci(colors, bci_codes);
+		show_codes("serial", bci_codes, nb_codes);
+
+		{
+		BENCH_START(sse);
+		ztree->process_omp_sse_treeb();
+		BENCH_END_TRANSFORM(sse, "process_omp_sse_treeb", 1, 1);
+		}
+
+		{
 		Picviz::PVSelection sel;
 		sel.select_none();
 		ztree->filter_by_sel_omp_treeb(sel);
@@ -167,7 +174,7 @@ void test(
 		Picviz::PVSelection sel;
 		sel.select_none();
 		ztree->filter_by_sel_tbb_treeb(sel);
-		}*/
+		}
 
 		delete ztree;
 	}
