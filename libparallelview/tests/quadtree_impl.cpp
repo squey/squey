@@ -9,7 +9,9 @@
 unsigned count;
 unsigned depth;
 
-PVParallelView::PVQuadTree *qt;
+typedef PVParallelView::PVQuadTree<22> own_pvquadtree;
+
+own_pvquadtree *qt;
 PVParallelView::PVQuadTreeEntry *entries;
 
 #define MAX_VALUE ((1<<22) - 1)
@@ -36,7 +38,7 @@ int main(int argc, char **argv)
 		entries[i].idx = i;
 	}
 
-	qt = new PVParallelView::PVQuadTree(0, MAX_VALUE, 0, MAX_VALUE, depth);
+	qt = new own_pvquadtree(0, MAX_VALUE, 0, MAX_VALUE, depth);
 
 	std::cout << "Filling quadtree, it can take a while..." << std::endl;
 	BENCH_START(fill);
@@ -49,10 +51,22 @@ int main(int argc, char **argv)
 	std::cout << "memory used : " << qt->memory() << std::endl;
 
 
-	PVParallelView::PVQuadTree *subtree = 0;
+	PVParallelView::pvquadtree_bcicodes_t bcicodes;
+
+	for (unsigned i = 1; i < 9; ++i) {
+		std::cout << "extract BCI codes from y1 for zoom " << i << std::endl;
+		BENCH_START(extract);
+		qt->get_first_bci_from_y1(0, MAX_VALUE >> i, i, bcicodes);
+		BENCH_END(extract, "extract", 1, 1, 1, 1);
+		std::cout << "elements found: " << bcicodes.size() << std::endl;
+		bcicodes.clear();
+	}
+
+	std::cout << std::endl;
+	own_pvquadtree *subtree = 0;
 
 	{
-		std::cout << "extract from full y1" << std::endl;
+		std::cout << "extract subtree from full y1" << std::endl;
 		BENCH_START(extract);
 		subtree = qt->get_subtree_from_y1(0, MAX_VALUE);
 		BENCH_END(extract, "extract", 1, 1, 1, 1);
@@ -61,7 +75,7 @@ int main(int argc, char **argv)
 	}
 
 	{
-		std::cout << "extract from half y1" << std::endl;
+		std::cout << "extract subtree from half y1" << std::endl;
 		BENCH_START(extract);
 		subtree = qt->get_subtree_from_y1(0, MAX_VALUE >> 1);
 		BENCH_END(extract, "extract", 1, 1, 1, 1);
@@ -70,7 +84,7 @@ int main(int argc, char **argv)
 	}
 
 	{
-		std::cout << "extract from full y1y2" << std::endl;
+		std::cout << "extract subtree from full y1y2" << std::endl;
 		BENCH_START(extract);
 		subtree = qt->get_subtree_from_y1y2(0, MAX_VALUE, 0, MAX_VALUE);
 		BENCH_END(extract, "extract", 1, 1, 1, 1);
@@ -79,7 +93,7 @@ int main(int argc, char **argv)
 	}
 
 	{
-		std::cout << "extract from quarter y1y2" << std::endl;
+		std::cout << "extract subtree from quarter y1y2" << std::endl;
 		BENCH_START(extract);
 		subtree = qt->get_subtree_from_y1y2(0, MAX_VALUE >> 1, 0, MAX_VALUE >> 1);
 		BENCH_END(extract, "extract", 1, 1, 1, 1);
@@ -87,11 +101,12 @@ int main(int argc, char **argv)
 		delete subtree;
 	}
 
+	std::cout << std::endl;
 	Picviz::PVSelection *selection;
 	selection = new Picviz::PVSelection();
 
 	{
-		std::cout << "extract from full selection" << std::endl;
+		std::cout << "extract subtree from full selection" << std::endl;
 		selection->select_all();
 		BENCH_START(extract);
 		subtree = qt->get_subtree_from_selection(*selection);
@@ -101,7 +116,7 @@ int main(int argc, char **argv)
 	}
 
 	{
-		std::cout << "extract from half of selection" << std::endl;
+		std::cout << "extract subtree from half of selection" << std::endl;
 		selection->select_even();
 		BENCH_START(extract);
 		subtree = qt->get_subtree_from_selection(*selection);
@@ -111,7 +126,7 @@ int main(int argc, char **argv)
 	}
 
 	{
-		std::cout << "extract from quarter of selection" << std::endl;
+		std::cout << "extract subtree from quarter of selection" << std::endl;
 		memset(selection->get_buffer(), 0x88, PICVIZ_SELECTION_NUMBER_OF_BYTES);
 		BENCH_START(extract);
 		subtree = qt->get_subtree_from_selection(*selection);
@@ -121,7 +136,7 @@ int main(int argc, char **argv)
 	}
 
 	{
-		std::cout << "extract from no selection" << std::endl;
+		std::cout << "extract subtree from no selection" << std::endl;
 		selection->select_none();
 		BENCH_START(extract);
 		subtree = qt->get_subtree_from_selection(*selection);
