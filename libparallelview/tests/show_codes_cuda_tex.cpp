@@ -61,7 +61,7 @@ int main(int argc, char** argv)
 	mw->setWindowTitle("codes");
 	LBView* v = new LBView(mw, width, IMAGE_HEIGHT);
 
-	PVCuda::init_cuda();
+	PVCuda::init_gl_cuda();
 
 	size_t n = atoll(argv[1]);
 
