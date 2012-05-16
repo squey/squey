@@ -24,14 +24,14 @@ struct PVMultiGridEntry {
 
 typedef Picviz::PVVector<PVMultiGridEntry> pvmultigrid_entries_t;
 
-template <int SIDE>
+template <int ORDER>
 class PVMultiGrid
 {
 public:
 	PVMultiGrid(uint32_t y1_min_value, uint32_t y1_max_value, uint32_t y2_min_value, uint32_t y2_max_value, int max_level)
 	{
-		uint32_t y1_step = (y1_max_value + 1 - y1_min_value) / SIDE;
-		uint32_t y2_step = (y2_max_value + 1 - y2_min_value) / SIDE;
+		uint32_t y1_step = (y1_max_value + 1 - y1_min_value) >> ORDER;
+		uint32_t y2_step = (y2_max_value + 1 - y2_min_value) >> ORDER;
 
 		init(y1_min_value, y1_step, y2_min_value, y2_step, max_level);
 	}
@@ -50,7 +50,7 @@ public:
 		if (_nodes != 0) {
 			int depth = -1;
 			int d;
-			for (int i = 0; i < SIDE * SIDE; ++i) {
+			for (int i = 0; i < (1 << ORDER) * (1 << ORDER); ++i) {
 				d = _nodes[i].max_depth();
 				if (d > depth) {
 					depth = d;
@@ -66,7 +66,7 @@ public:
 	{
 		size_t mem = sizeof (PVMultiGrid) - sizeof(pvmultigrid_entries_t) + _datas.memory();
 		if (_nodes != 0) {
-			for(int i = 0; i < SIDE * SIDE; ++i) {
+			for(int i = 0; i < (1 << ORDER) * (1 << ORDER); ++i) {
 				mem += _nodes[i].memory();
 			}
 		}
@@ -113,24 +113,24 @@ private:
 	{
 		int y1 = (e.y1 - _y1_min_value) / _y1_step;
 		int y2 = (e.y2 - _y2_min_value) / _y2_step;
-		return (y2 * SIDE) + y1;
+		return (y2 << ORDER) + y1;
 	}
 
 	void create_next_level()
 	{
 		uint32_t y1_min, y2_min;
-		uint32_t y1_step = _y1_step / SIDE;
-		uint32_t y2_step = _y2_step / SIDE;
+		uint32_t y1_step = _y1_step >> ORDER;
+		uint32_t y2_step = _y2_step >> ORDER;
 
-		_nodes = new PVMultiGrid [SIDE * SIDE];
+		_nodes = new PVMultiGrid [(1 << ORDER) * (1 << ORDER)];
 
 		y2_min = _y2_min_value;
-		for (int y2 = 0; y2 < SIDE; ++y2) {
+		for (int y2 = 0; y2 < (1 << ORDER); ++y2) {
 			y1_min = _y1_min_value;
-			for (int y1 = 0; y1 < SIDE; ++y1) {
-				_nodes[(y2 * SIDE) + y1].init(y1_min, y1_step,
-				                              y2_min, y2_step,
-				                              _max_level - 1);
+			for (int y1 = 0; y1 < (1 << ORDER); ++y1) {
+				_nodes[(y2 << ORDER) + y1].init(y1_min, y1_step,
+				                                y2_min, y2_step,
+				                                _max_level - 1);
 				y1_min += _y1_step;
 			}
 			y2_min += _y2_step;
