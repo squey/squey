@@ -45,6 +45,11 @@ public:
 		reallocate(size);
 	}
 
+	void compact()
+	{
+		reallocate(_index);
+	}
+
 	void reset()
 	{
 		_index = 0;
