@@ -1,8 +1,10 @@
+
 #ifndef PVCUDA_COMMON_H
 #define PVCUDA_COMMON_H
 
 #include <cuda.h>
 #include <cuda_runtime.h>
+#include <cuda_gl_interop.h>
 
 #define picviz_verify_cuda(e) __picviz_verify_cuda(e, __FILE__, __LINE__)
 #define __picviz_verify_cuda(e, F, L)\
@@ -20,6 +22,7 @@
 namespace PVCuda {
 
 void init_cuda();
+void init_gl_cuda();
 int get_number_blocks();
 size_t get_shared_mem_size();
 

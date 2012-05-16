@@ -10,6 +10,13 @@ void PVCuda::init_cuda()
 	picviz_verify_cuda(cudaSetDeviceFlags(cudaDeviceMapHost));
 }
 
+void PVCuda::init_gl_cuda()
+{
+	cuInit(0);
+	picviz_verify_cuda(cudaGLSetGLDevice(DEV_CUDA)); // Tesla
+	picviz_verify_cuda(cudaSetDeviceFlags(cudaDeviceMapHost));
+}
+
 int PVCuda::get_number_blocks()
 {
 	cudaDeviceProp prop;
