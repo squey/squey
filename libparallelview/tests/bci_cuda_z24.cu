@@ -232,6 +232,7 @@ __global__ void bcicode_raster_unroll2(uint2* bci_codes, unsigned int n, unsigne
 		if (cur_shared_p1 > code1.x) {
 			shared_img[idx_shared_img1] = color1 | code1.x;
 		}
+		__syncthreads();
 	}
 	for (; idx_codes < n; idx_codes += size_grid) {
 		uint2 code0 = bci_codes[idx_codes];
@@ -245,6 +246,7 @@ __global__ void bcicode_raster_unroll2(uint2* bci_codes, unsigned int n, unsigne
 			unsigned int color0 = (code0.y & 0xff00000)<<4;
 			shared_img[idx_shared_img0] = color0 | code0.x;
 		}
+		__syncthreads();
 	}
 	
 	__syncthreads();
@@ -307,6 +309,60 @@ void show_codes_cuda(PVParallelView::PVBCICode* codes, uint32_t n, uint32_t widt
 	picviz_verify_cuda(cudaFree(device_codes));
 	picviz_verify_cuda(cudaFree(device_img));
 	
+	float time = 0;
+	picviz_verify_cuda(cudaEventElapsedTime(&time, start, end));
+
+	fprintf(stderr, "CUDA kernel time: %0.4f ms, BW: %0.4f MB/s\n", time, (double)(n*sizeof(PVBCICode))/(double)((time/1000.0)*1024.0*1024.0));
+}
+
+
+void show_codes_cuda(PVParallelView::PVBCICode* codes, uint32_t n, uint32_t width, GLuint buffer_id)
+{
+	PVBCICode* device_codes;
+	cudaGraphicsResource *cuda_pbo_resource;
+
+	picviz_verify(sizeof(PVBCICode) == sizeof(uint64_t));
+
+	picviz_verify_cuda(cudaMalloc(&device_codes, n*sizeof(PVBCICode)));
+	picviz_verify_cuda(cudaMemcpy(device_codes, codes, n*sizeof(PVBCICode), cudaMemcpyHostToDevice));
+
+	unsigned *pixels;
+	size_t num_bytes;
+	picviz_verify_cuda(cudaGraphicsGLRegisterBuffer(&cuda_pbo_resource, buffer_id, cudaGraphicsMapFlagsWriteDiscard));
+
+	cudaEvent_t start,end;
+	picviz_verify_cuda(cudaEventCreate(&start));
+	picviz_verify_cuda(cudaEventCreate(&end));
+
+	// Compute number of threads per block
+	int nthreads_x = (picviz_min(width, (SMEM_IMG_KB*1024)/(IMAGE_HEIGHT*sizeof(img_zbuffer_t))));
+	int nthreads_y = NTHREADS_BLOCK/nthreads_x;
+	picviz_verify(nthreads_x*nthreads_y <= NTHREADS_BLOCK);
+	PVLOG_INFO("Number threads per block: %d x %d\n", nthreads_x, nthreads_y);
+
+	// Compute number of blocks
+	int nblocks = PVCuda::get_number_blocks();
+	int nblocks_x = (width+nthreads_x-1)/nthreads_x;
+	int nblocks_y = 1;
+	picviz_verify(nblocks_y > 0);
+	PVLOG_INFO("Number of blocks: %d x %d\n", nblocks_x, nblocks_y);
+
+	picviz_verify_cuda(cudaFuncSetCacheConfig(&bcicode_raster_unroll2, cudaFuncCachePreferL1));
+	picviz_verify_cuda(cudaEventRecord(start, 0));
+
+	picviz_verify_cuda(cudaGraphicsMapResources(1, &cuda_pbo_resource, 0));
+	picviz_verify_cuda(cudaGraphicsResourceGetMappedPointer((void**)&pixels, &num_bytes, cuda_pbo_resource));
+
+	bcicode_raster_unroll2<<<dim3(nblocks_x,nblocks_y),dim3(nthreads_x, nthreads_y)>>>((uint2*) device_codes, n, width, pixels);
+
+	picviz_verify_cuda_kernel();
+	picviz_verify_cuda(cudaEventRecord(end, 0));
+	picviz_verify_cuda(cudaEventSynchronize(end));
+
+	cudaGraphicsUnmapResources(1, &cuda_pbo_resource, 0);
+
+	picviz_verify_cuda(cudaFree(device_codes));
+
 	float time = 0;
 	picviz_verify_cuda(cudaEventElapsedTime(&time, start, end));
 
