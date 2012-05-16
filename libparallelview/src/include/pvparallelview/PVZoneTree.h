@@ -18,6 +18,7 @@
 #include <boost/type_traits.hpp>
 
 #include "tbb/parallel_for.h"
+#include "tbb/parallel_reduce.h"
 #include "tbb/blocked_range.h"
 #include "tbb/blocked_range2d.h"
 
@@ -452,6 +453,7 @@ void PVZoneTree<Container>::process_omp_sse()
 #pragma omp barrier
 #pragma omp master
 		{
+			PVLOG_INFO("alloc_size=%d\n", alloc_size);
 			_tree_data = PVCore::PVAlignedAllocator<PVRow, 16>().allocate(alloc_size);
 
 			// Update branch pointer
@@ -513,7 +515,7 @@ public:
 	{
 	}
 
-	TBBCreateTreeNRows(TBBCreateTreeNRows& x, tbb::split) :  _ztree(x._ztree), _tls_trees(x.tls_trees), _tls_first_elts(x.tls_first_elts)  {}
+	TBBCreateTreeNRows(TBBCreateTreeNRows& x, tbb::split) :  _ztree(x._ztree), _tls_trees(x._tls_trees), _tls_first_elts(x._tls_first_elts)  {}
 
 	void operator() (const PVCore::PVAlignedBlockedRange<size_t, 4>& range) const {
 		const uint32_t* pcol_a = _ztree->get_plotted_col(_ztree->_col_a);
@@ -584,6 +586,48 @@ public:
 };
 
 template <class Container>
+class TBBComputeAllocSizeAndFirstElts {
+public:
+	TBBComputeAllocSizeAndFirstElts (
+		PVZoneTree<Container>* ztree,
+		PVZoneTreeBase::TLS_List* tls_trees,
+		PVZoneTreeBase::TLS* tls_first_elts
+	) :
+		_ztree(ztree),
+		_tls_trees(tls_trees),
+		_tls_first_elts(tls_first_elts),
+		_alloc_size(0)
+	{
+		PVLOG_INFO("TBBComputeAllocSizeAndFirstElts\n");
+	}
+
+	TBBComputeAllocSizeAndFirstElts(TBBComputeAllocSizeAndFirstElts& x, tbb::split) :  _ztree(x._ztree), _tls_trees(x._tls_trees), _tls_first_elts(x._tls_first_elts), _alloc_size(0)  {}
+
+	void operator() (const tbb::blocked_range<size_t>& range) const {
+		for (PVRow b = range.begin(); b != range.end(); ++b) {
+			_ztree->_treeb[b].count = 0;
+			for (PVZoneTreeBase::TLS_List::const_iterator thread_tree = _tls_trees->begin(); thread_tree != _tls_trees->end(); ++thread_tree) {
+				_ztree->_treeb[b].count += (*thread_tree)[b].size();
+			}
+			for (PVZoneTreeBase::TLS::const_iterator first_elts = _tls_first_elts->begin(); first_elts != _tls_first_elts->end(); ++first_elts) {
+				_ztree->_first_elts[b] = picviz_min(_ztree->_first_elts[b], (*first_elts)[b]);
+			}
+			_alloc_size += (((_ztree->_treeb[b].count + 15) / 16) * 16);
+		}
+	}
+
+	void join(TBBComputeAllocSizeAndFirstElts& rhs)
+	{
+		_alloc_size += rhs._alloc_size;
+	}
+
+	mutable PVZoneTree<Container>* _ztree;
+	PVZoneTreeBase::TLS_List* _tls_trees;
+	PVZoneTreeBase::TLS* _tls_first_elts;
+	mutable size_t _alloc_size;
+};
+
+template <class Container>
 class TBBMergeTrees {
 public:
 	TBBMergeTrees (
@@ -629,20 +673,12 @@ void PVZoneTree<Container>::process_tbb_sse()
 	_treeb = new PVBranch[NBUCKETS];
 	memset(_treeb, 0, sizeof(PVBranch)*NBUCKETS);
 
-	size_t alloc_size = 0;
-//#pragma omp parallel for reduction(+:alloc_size)/*schedule(dynamic, grain_size)*/
-	for (PVRow b = 0; b < NBUCKETS; b++) {
-		_treeb[b].count = 0;
-		for (TLS_List::const_iterator thread_tree = tls_trees.begin(); thread_tree != tls_trees.end(); ++thread_tree) {
-			_treeb[b].count += (*thread_tree)[b].size();
-		}
-		for (TLS::const_iterator first_elts = tls_first_elts.begin(); first_elts != tls_first_elts.end(); ++first_elts) {
-			_first_elts[b] = picviz_min(_first_elts[b], (*first_elts)[b]);
-		}
-		alloc_size += (((_treeb[b].count + 15) / 16) * 16);
-	}
+	TBBComputeAllocSizeAndFirstElts<Container> reduce_body(this, &tls_trees, &tls_first_elts);
+	tbb::parallel_reduce(tbb::blocked_range<size_t>(0, NBUCKETS, atol(getenv("GRAINSIZE"))), reduce_body, tbb::simple_partitioner());
 
-	_tree_data = PVCore::PVAlignedAllocator<PVRow, 16>().allocate(alloc_size);
+	_tree_data = PVCore::PVAlignedAllocator<PVRow, 16>().allocate(reduce_body._alloc_size);
+
+	PVLOG_INFO("alloc_size=%d\n", reduce_body._alloc_size);
 
 	// Update branch pointer
 	PVRow* cur_p = _tree_data;
