@@ -46,14 +46,6 @@ namespace __impl {
 		                             RESULT&);
 	};
 
-	void f_get_first_entry(const pvquadtree_entries_t &entries,
-	                       pvquadtree_entries_t &result)
-	{
-		if(entries.size() != 0) {
-			result.push_back(entries.at(0));
-		}
-	}
-
 	void f_get_first_bci(const pvquadtree_entries_t &entries,
 	                     pvquadtree_bcicodes_t &result)
 	{
@@ -65,19 +57,6 @@ namespace __impl {
 			code.s.r = (e.y2 >> 22) && 0x3FF;
 			code.s.color = random() & 255;
 			result.push_back(code);
-		}
-	}
-
-	void f_get_first_entry_sel(const pvquadtree_entries_t &entries,
-	                           const Picviz::PVSelection &selection,
-	                           pvquadtree_entries_t &result)
-	{
-		for(unsigned i = 0; i < entries.size(); ++i) {
-			const PVQuadTreeEntry &e = entries.at(i);
-			if(selection.get_line(e.idx)) {
-				result.push_back(e);
-				break;
-			}
 		}
 	}
 
@@ -171,41 +150,6 @@ public:
                         mem += _nodes[3].memory();
 		}
 		return mem;
-	}
-
-	inline void get_first_entry_from_y1(uint32_t y1_min, uint32_t y1_max, pvquadtree_entries_t &result) const
-	{
-		visit_y1<pvquadtree_entries_t, __impl::f_get_first_entry>::f(*this, y1_min, y1_max, result);
-	}
-
-	inline void get_first_entry_from_y2(uint32_t y2_min, uint32_t y2_max, pvquadtree_entries_t &result) const
-	{
-		visit_y2<pvquadtree_entries_t, __impl::f_get_first_entry>::f(*this, y2_min, y2_max, result);
-	}
-
-	inline void get_first_entry_from_y1y2(uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max, pvquadtree_entries_t &result) const
-	{
-		visit_y1y2<pvquadtree_entries_t, __impl::f_get_first_entry>::f(*this, y1_min, y1_max, y2_min, y2_max, result);
-	}
-
-	void get_first_entry_from_selection(const Picviz::PVSelection &selection, pvquadtree_entries_t &result) const
-	{
-		visit_sel<pvquadtree_entries_t, __impl::f_get_first_entry_sel>::f(*this, selection, result);
-	}
-
-	inline void get_first_from_y1_and_selection(uint32_t y1_min, uint32_t y1_max, const Picviz::PVSelection &selection, pvquadtree_entries_t &result) const
-	{
-		visit_y1_sel<pvquadtree_entries_t, __impl::f_get_first_entry_sel>::f(*this, y1_min, y1_max, selection, result);
-	}
-
-	inline void get_first_from_y2_and_selection(uint32_t y2_min, uint32_t y2_max, const Picviz::PVSelection &selection, pvquadtree_entries_t &result) const
-	{
-		visit_y2_sel<pvquadtree_entries_t, __impl::f_get_first_entry_sel>::f(*this, y2_min, y2_max, selection, result);
-	}
-
-	inline void get_first_from_y1y2_and_selection(uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max, const Picviz::PVSelection &selection, pvquadtree_entries_t &result) const
-	{
-		visit_y1y2_sel<pvquadtree_entries_t, __impl::f_get_first_entry_sel>::f(*this, y1_min, y1_max, y2_min, y2_max, selection, result);
 	}
 
 	inline void get_first_bci_from_y1(uint32_t y1_min, uint32_t y1_max, pvquadtree_bcicodes_t &result) const
