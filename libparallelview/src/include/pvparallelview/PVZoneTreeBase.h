@@ -19,11 +19,11 @@ protected:
 	typedef std::vector<float> pts_t;
 
 public:
-	void set_trans_plotted(Picviz::PVPlotted::uint_plotted_table_t const& plotted, PVRow nrows, PVCol ncols);
-	virtual void get_float_pts(pts_t& pts, Picviz::PVPlotted::plotted_table_t const& org_plotted) = 0;
-	void display(QString const& name, Picviz::PVPlotted::plotted_table_t const& org_plotted);
-	inline uint32_t get_plotted_value(PVRow r, PVCol c) const { return (*_plotted)[c*_nrows_aligned + r]; }
-	inline uint32_t const* get_plotted_col(PVCol c) const { return &((*_plotted)[c*_nrows_aligned]); }
+	PVZoneTreeBase();
+
+public:
+	virtual void get_float_pts(pts_t& pts, Picviz::PVPlotted::plotted_table_t const& org_plotted, PVRow nrows, PVCol col_a, PVCol col_b) = 0;
+	void display(QString const& name, Picviz::PVPlotted::plotted_table_t const& org_plotted, PVRow nrows, PVCol col_a, PVCol col_b);
 
 	inline uint32_t get_first_elt_of_branch(uint32_t branch_id) const
 	{
@@ -42,13 +42,6 @@ public:
 public:
 	PVRow DECLARE_ALIGN(16) _first_elts[NBUCKETS];
 	PVRow DECLARE_ALIGN(16) _sel_elts[NBUCKETS];
-
-	Picviz::PVPlotted::uint_plotted_table_t const* _plotted;
-	PVCol _col_a;
-	PVCol _col_b;
-	PVRow _nrows;
-	PVCol _ncols;
-	PVRow _nrows_aligned;
 };
 
 }

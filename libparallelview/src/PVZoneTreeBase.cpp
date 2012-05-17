@@ -11,22 +11,13 @@
 
 #include <omp.h>
 
-void PVParallelView::PVZoneTreeBase::set_trans_plotted(Picviz::PVPlotted::uint_plotted_table_t const& plotted, PVRow nrows, PVCol ncols)
+PVParallelView::PVZoneTreeBase::PVZoneTreeBase()
 {
-	_plotted = &plotted;
-	_ncols = ncols;
-	_nrows = nrows;
-	_nrows_aligned = ((_nrows+3)/4)*4;
-
-	/*for (PVRow i = 0; i < NBUCKETS; i++) {
-		_tree[i].reserve(_nrows);
-	}*/
-
 	memset(_first_elts, PVROW_INVALID_VALUE, sizeof(PVRow)*NBUCKETS);
 	memset(_sel_elts, PVROW_INVALID_VALUE, sizeof(PVRow)*NBUCKETS);
 }
 
-void PVParallelView::PVZoneTreeBase::display(QString const& name, Picviz::PVPlotted::plotted_table_t const& org_plotted)
+void PVParallelView::PVZoneTreeBase::display(QString const& name, Picviz::PVPlotted::plotted_table_t const& org_plotted, PVRow nrows, PVCol col_a, PVCol col_b)
 {
 	QMainWindow *window = new QMainWindow();
 	window->setWindowTitle(name);
@@ -36,7 +27,7 @@ void PVParallelView::PVZoneTreeBase::display(QString const& name, Picviz::PVPlot
 	v->set_ortho(1.0f, 1.0f);
 
 	pts_t *pts = new pts_t();
-	get_float_pts(*pts, org_plotted);
+	get_float_pts(*pts, org_plotted, nrows, col_a, col_b);
 	PVLOG_INFO("Nb lines: %u\n", pts->size()/4);
 	v->set_points(*pts);
 

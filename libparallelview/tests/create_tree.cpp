@@ -109,6 +109,7 @@ void test(
 	Picviz::PVPlotted::norm_int_plotted(plotted, norm_plotted, ncols);
 	//PVLOG_INFO("Done !\n");
 	
+	/*
 	{
 		typedef std::vector<PVRow, tbb::scalable_allocator<PVRow> > vector;
 		PVParallelView::PVContainerZoneTree<vector>* ztree = new PVParallelView::PVContainerZoneTree<vector>(0, 1);
@@ -137,30 +138,33 @@ void test(
 
 		delete ztree;
 	}
-	std::cout << "---" << std::endl;
+	std::cout << "---" << std::endl;*/
 
 	{
-		PVParallelView::PVZoneTree* ztree = new PVParallelView::PVZoneTree(0, 1);
-		ztree->set_trans_plotted(norm_plotted, nrows, ncols);
+		PVParallelView::PVZoneTree* ztree = new PVParallelView::PVZoneTree();
+		//ztree->set_trans_plotted(norm_plotted, nrows, ncols);
+		PVParallelView::PVZoneProcessing zp(norm_plotted, nrows, 0, 1);
 		
 		{
 		BENCH_START(sse);
-		ztree->process_tbb_sse_treeb();
+		ztree->process_tbb_sse_treeb(zp);
 		BENCH_END_TRANSFORM(sse, "process_tbb_sse_treeb", 1, 1);
 		}
 
 		{
 		BENCH_START(sse);
-		ztree->process_tbb_sse_treeb();
+		ztree->process_tbb_sse_treeb(zp);
 		BENCH_END_TRANSFORM(sse, "process_tbb_sse_treeb (again)", 1, 1);
 		}
 
+		BENCH_START(bci);
 		size_t nb_codes = ztree->browse_tree_bci(colors, bci_codes);
+		BENCH_END(bci, "bci", sizeof(PVRow), NBUCKETS, sizeof(PVParallelView::PVBCICode), nb_codes);
 		show_codes("serial", bci_codes, nb_codes);
 
 		{
 		BENCH_START(sse);
-		ztree->process_omp_sse_treeb();
+		ztree->process_omp_sse_treeb(zp);
 		BENCH_END_TRANSFORM(sse, "process_omp_sse_treeb", 1, 1);
 		}
 
@@ -181,6 +185,7 @@ void test(
 	std::cout << "---" << std::endl;
 
 
+	/*
 	{
 		MEM_START(serial);
 		PVParallelView::PVZoneTreeNoAlloc* ztree = new PVParallelView::PVZoneTreeNoAlloc(0, 1);
@@ -202,7 +207,7 @@ void test(
 		sel.select_none();
 		ztree->filter_by_sel_tbb(sel);
 		}
-	}
+	}*/
 }
 
 int main(int argc, char** argv)

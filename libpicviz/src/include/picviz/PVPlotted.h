@@ -131,7 +131,7 @@ public:
 	inline PVRow get_aligned_row_count() const
 	{
 		PVRow ret = get_row_count();
-		return ALIGN_SIZE(ret, PVROW_VECTOR_ALIGNEMENT);
+		return ((ret+PVROW_VECTOR_ALIGNEMENT-1)/(PVROW_VECTOR_ALIGNEMENT))*PVROW_VECTOR_ALIGNEMENT;
 	}
 	PVSource* get_source_parent();
 	float get_value(PVRow row, PVCol col) const;

@@ -5,6 +5,7 @@
 #include <pvparallelview/PVBCICode.h>
 #include <pvparallelview/PVHSVColor.h>
 #include <pvparallelview/PVZoneTreeNoAlloc.h>
+#include <pvparallelview/PVZoneProcessing.h>
 #include <pvparallelview/simple_lines_float_view.h>
 
 #include <tbb/task_scheduler_init.h>
@@ -111,14 +112,15 @@ size_t PVParallelView::PVZoneTreeNoAlloc::browse_tree_bci_by_sel(PVHSVColor* col
 	return idx_code;
 }
 
-void PVParallelView::PVZoneTreeNoAlloc::process_sse()
+void PVParallelView::PVZoneTreeNoAlloc::process_sse(PVZoneProcessing const& zp)
 {
-	_tree.resize(_nrows);
+	const PVRow nrows = zp.nrows();
+	_tree.resize(nrows);
 	// Naive processing
-	const uint32_t* pcol_a = get_plotted_col(_col_a);
-	const uint32_t* pcol_b = get_plotted_col(_col_b);
+	const uint32_t* pcol_a = zp.get_plotted_col_a();
+	const uint32_t* pcol_b = zp.get_plotted_col_b();
 	__m128i sse_y1, sse_y2, sse_bcodes;
-	const PVRow nrows_sse = (_nrows/4)*4;
+	const PVRow nrows_sse = (nrows/4)*4;
 	for (PVRow r = 0; r < nrows_sse; r += 4) {
 		sse_y1 = _mm_load_si128((const __m128i*) &pcol_a[r]);
 		sse_y2 = _mm_load_si128((const __m128i*) &pcol_b[r]);
@@ -147,7 +149,7 @@ void PVParallelView::PVZoneTreeNoAlloc::process_sse()
 			_first_elts[b3] = (r+3);
 		}
 	}
-	for (PVRow r = nrows_sse; r < _nrows; r++) {
+	for (PVRow r = nrows_sse; r < nrows; r++) {
 		uint32_t y1 = pcol_a[r];
 		uint32_t y2 = pcol_b[r];
 
@@ -162,11 +164,12 @@ void PVParallelView::PVZoneTreeNoAlloc::process_sse()
 	}
 }
 
-void PVParallelView::PVZoneTreeNoAlloc::process_omp_sse()
+void PVParallelView::PVZoneTreeNoAlloc::process_omp_sse(PVZoneProcessing const& zp)
 {
 	// Naive processing
-	const uint32_t* pcol_a = get_plotted_col(_col_a);
-	const uint32_t* pcol_b = get_plotted_col(_col_b);
+	const uint32_t* pcol_a = zp.get_plotted_col_a();
+	const uint32_t* pcol_b = zp.get_plotted_col_b();
+	const PVRow nrows = zp.nrows();
 	tbb::tick_count start,end,red_start;
 	Tree* thread_trees;
 	uint32_t** thread_first_elts;
@@ -194,8 +197,8 @@ void PVParallelView::PVZoneTreeNoAlloc::process_omp_sse()
 			thread_tree = &_tree;
 			first_elts = _first_elts;
 		}
-		thread_tree->resize(_nrows/omp_get_num_threads() + omp_get_num_threads());
-		PVRow nrows_sse = (_nrows/4)*4;
+		thread_tree->resize(nrows/omp_get_num_threads() + omp_get_num_threads());
+		PVRow nrows_sse = (nrows/4)*4;
 #pragma omp barrier
 #pragma omp master
 		{
@@ -232,7 +235,7 @@ void PVParallelView::PVZoneTreeNoAlloc::process_omp_sse()
 			}
 		}
 #pragma omp master
-		for (PVRow r = nrows_sse; r < _nrows; r++) {
+		for (PVRow r = nrows_sse; r < nrows; r++) {
 			uint32_t y1 = pcol_a[r];
 			uint32_t y2 = pcol_b[r];
 
@@ -270,16 +273,16 @@ void PVParallelView::PVZoneTreeNoAlloc::process_omp_sse()
 	//PVLOG_INFO("OMP tree process reduction in %0.4f ms.\n", (end-red_start).seconds()*1000.0);
 }
 
-void PVParallelView::PVZoneTreeNoAlloc::get_float_pts(pts_t& pts, Picviz::PVPlotted::plotted_table_t const& org_plotted)
+void PVParallelView::PVZoneTreeNoAlloc::get_float_pts(pts_t& pts, Picviz::PVPlotted::plotted_table_t const& org_plotted, PVRow nrows, PVCol col_a, PVCol col_b)
 {
 	pts.reserve(NBUCKETS*4);
 	for (uint32_t i = 0; i < NBUCKETS; i++) {
 		if (_tree.branch_valid(i)) {
 			PVRow idx_first = _tree.get_first_elt_of_branch(i);
 			pts.push_back(0.0f);
-			pts.push_back(org_plotted[_col_a*_nrows+idx_first]);
+			pts.push_back(org_plotted[col_a*nrows+idx_first]);
 			pts.push_back(1.0f);
-			pts.push_back(org_plotted[_col_b*_nrows+idx_first]);
+			pts.push_back(org_plotted[col_b*nrows+idx_first]);
 		}
 	}
 }
@@ -292,7 +295,7 @@ void PVParallelView::PVZoneTreeNoAlloc::filter_by_sel_tbb(Picviz::PVSelection co
 	TLS tls;
 	tbb::task_scheduler_init init(atol(getenv("NUM_THREADS")));
 	tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, atol(getenv("GRAINSIZE"))), __impl::TBBPF(this, sel_buf, &tls), tbb::simple_partitioner());
-	BENCH_END(subtree, "tbb::parallel_for", _nrows*2, sizeof(float), _nrows*2, sizeof(float));
+	BENCH_END(subtree, "tbb::parallel_for", 1, 1, sizeof(PVRow), NBUCKETS);
 }
 
 void PVParallelView::PVZoneTreeNoAlloc::filter_by_sel_omp(Picviz::PVSelection const& sel)
@@ -327,6 +330,6 @@ void PVParallelView::PVZoneTreeNoAlloc::filter_by_sel_omp(Picviz::PVSelection co
 			}
 		}
 	}
-	BENCH_END(subtree, "filter_by_sel", _nrows*2, sizeof(float), _nrows*2, sizeof(float));
+	BENCH_END(subtree, "filter_by_sel", 1, 1, sizeof(PVRow), NBUCKETS);
 }
 

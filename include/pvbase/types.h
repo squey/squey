@@ -15,8 +15,6 @@ typedef quint32 PVRow;
 #define PVROW_INVALID_VALUE 0xFFFFFFFF
 #define PVROW_VECTOR_ALIGNEMENT (128/(sizeof(PVRow)*8)) // Define necessary alignement of pointers of PVRows for vectorisation usage
 
-#define ALIGN_SIZE(n, align) ((((n)*(align)-1)/(align))*(align))
-
 #define _U_ __attribute__((unused))
 
 typedef signed char pv_int8_t;

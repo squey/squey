@@ -7,10 +7,11 @@
 #include <picviz/PVPlotted.h>
 
 #include <pvparallelview/common.h>
-#include <pvparallelview/PVZoneTree.h>
-#include <pvparallelview/PVHSVColor.h>
 #include <pvparallelview/PVBCode.h>
 #include <pvparallelview/PVBCICode.h>
+#include <pvparallelview/PVHSVColor.h>
+#include <pvparallelview/PVZoneProcessing.h>
+#include <pvparallelview/PVZoneTree.h>
 
 #include <boost/static_assert.hpp>
 #include <boost/type_traits.hpp>
@@ -24,31 +25,40 @@
 
 #include <omp.h>
 
-namespace __impl {
+namespace PVParallelView { namespace __impl {
 
-class TBBCreateTreeNRows {
+class TBBCreateTreeNRows
+{
 public:
-	TBBCreateTreeNRows (
-		PVParallelView::PVZoneTree* ztree
-	) :
-		_ztree(ztree)
+	TBBCreateTreeNRows(PVParallelView::PVZoneTree::PVTBBCreateTreeParams const& params):
+		_params(params)
+	{ }
+
+	TBBCreateTreeNRows(TBBCreateTreeNRows& x, tbb::split):
+		_params(x._params)
+	{ }
+
+public:
+
+	void operator() (const PVCore::PVAlignedBlockedRange<size_t, 4>& range) const
 	{
-	}
+		PVParallelView::PVZoneProcessing const& zp = _params.zp();
+		PVParallelView::PVZoneTree& ztree = _params.ztree();
+		
+		PVCol col_a = zp.col_a();
+		PVCol col_b = zp.col_b();
 
-	TBBCreateTreeNRows(TBBCreateTreeNRows& x, tbb::split) :  _ztree(x._ztree)  {}
-
-	void operator() (const PVCore::PVAlignedBlockedRange<size_t, 4>& range) const {
-		const uint32_t* pcol_a = _ztree->get_plotted_col(_ztree->_col_a);
-		const uint32_t* pcol_b = _ztree->get_plotted_col(_ztree->_col_b);
+		const uint32_t* pcol_a = zp.get_plotted_col(col_a);
+		const uint32_t* pcol_b = zp.get_plotted_col(col_b);
 
 		PVRow r = range.begin();
 		PVRow nrows = range.end();
 		PVRow nrows_sse = (nrows/4)*4;
 
-		PVParallelView::PVZoneTree::TLS_List::reference tls_tree = _ztree->tls_trees.local();
+		PVParallelView::PVZoneTree::TLS_List::reference tls_tree = ztree.tls_trees.local();
 		tls_tree.resize(NBUCKETS);
 
-		PVParallelView::PVZoneTree::TLS::reference tls_first_elts = _ztree->tls_first_elts.local();
+		PVParallelView::PVZoneTree::TLS::reference tls_first_elts = ztree.tls_first_elts.local();
 		tls_first_elts.resize(NBUCKETS, PVROW_INVALID_VALUE);
 
 		__m128i sse_y1, sse_y2, sse_bcodes;
@@ -100,25 +110,28 @@ public:
 		}
 	}
 
-	PVParallelView::PVZoneTree* _ztree;
+private:
+	PVParallelView::PVZoneTree::PVTBBCreateTreeParams const& _params;
 };
 
-class TBBComputeAllocSizeAndFirstElts {
+class TBBComputeAllocSizeAndFirstElts
+{
 public:
 	TBBComputeAllocSizeAndFirstElts (
 		PVParallelView::PVZoneTree* ztree
 	) :
 		_ztree(ztree),
 		_alloc_size(0)
-	{
-	}
+	{ }
 
 	TBBComputeAllocSizeAndFirstElts(TBBComputeAllocSizeAndFirstElts& x, tbb::split) :
 		_ztree(x._ztree),
 		_alloc_size(0)
-	{}
+	{ }
 
-	void operator() (const tbb::blocked_range<size_t>& range) const {
+public:
+	void operator() (const tbb::blocked_range<size_t>& range) const
+	{
 		for (PVRow b = range.begin(); b != range.end(); ++b) {
 			_ztree->_treeb[b].count = 0;
 			for (PVParallelView::PVZoneTree::TLS_List::const_iterator thread_tree = _ztree->tls_trees.begin(); thread_tree != _ztree->tls_trees.end(); ++thread_tree) {
@@ -136,17 +149,25 @@ public:
 		_alloc_size += rhs._alloc_size;
 	}
 
+public:
+	inline size_t alloc_size() const { return _alloc_size; }
+
+private:
 	PVParallelView::PVZoneTree* _ztree;
 	mutable size_t _alloc_size;
 };
 
-class TBBMergeTrees {
+class TBBMergeTrees
+{
 public:
 	TBBMergeTrees (PVParallelView::PVZoneTree* ztree) : _ztree(ztree) {}
 
 	TBBMergeTrees(TBBMergeTrees& x, tbb::split) :  _ztree(x._ztree)  {}
 
-	void operator() (const PVCore::PVAlignedBlockedRange<size_t, 4>& range) const {
+public:
+
+	void operator() (const PVCore::PVAlignedBlockedRange<size_t, 4>& range) const
+	{
 		for (PVRow b = range.begin(); b != range.end(); ++b) {
 			if (_ztree->_treeb[b].count == 0) {
 				continue;
@@ -163,26 +184,29 @@ public:
 		}
 	}
 
+private:
 	PVParallelView::PVZoneTree* _ztree;
 };
 
-class TBBPF3 {
+class TBBPF3
+{
 public:
 	TBBPF3 (
 		PVParallelView::PVZoneTree* tree,
-		const Picviz::PVSelection::const_pointer sel_buf,
-		PVParallelView::PVZoneTree::TLS* tls
+		const Picviz::PVSelection::const_pointer sel_buf
 	) :
 		_tree(tree),
-		_sel_buf(sel_buf),
-		_tls(tls)
+		_sel_buf(sel_buf)
 	{
 	}
 
-	TBBPF3(TBBPF3& x, tbb::split) :  _tree(x._tree), _sel_buf(x._sel_buf), _tls(x._tls)
+	TBBPF3(TBBPF3& x, tbb::split) :  _tree(x._tree), _sel_buf(x._sel_buf)
 	{}
 
-	void operator() (const tbb::blocked_range<size_t>& r) const {
+public:
+
+	void operator() (const tbb::blocked_range<size_t>& r) const
+	{
 		for (PVRow b = r.begin(); b != r.end(); ++b) {
 			if (_tree->branch_valid(b)) {
 				PVRow r = _tree->get_first_elt_of_branch(b);
@@ -209,25 +233,30 @@ public:
 		}
 	}
 
+private:
 	mutable PVParallelView::PVZoneTree* _tree;
 	Picviz::PVSelection::const_pointer _sel_buf;
-	PVParallelView::PVZoneTree::TLS* _tls;
 };
 
-}
+} }
 
 // PVZoneTree implementation
 //
 
-void PVParallelView::PVZoneTree::process_tbb_sse_treeb()
+PVParallelView::PVZoneTree::PVZoneTree():
+	PVZoneTreeBase()
 {
-
-	tbb::task_scheduler_init init(atol(getenv("NUM_THREADS")));
-	BENCH_START(trees);
-	tbb::parallel_for(PVCore::PVAlignedBlockedRange<size_t, 4>(0, _nrows, atol(getenv("GRAINSIZE"))), __impl::TBBCreateTreeNRows(this), tbb::simple_partitioner());
-	BENCH_END(trees, "TREES", _nrows*2, sizeof(float), _nrows*2, sizeof(float));
-
 	_treeb = new PVBranch[NBUCKETS];
+}
+
+void PVParallelView::PVZoneTree::process_tbb_sse_treeb(PVZoneProcessing const& zp)
+{
+	tbb::task_scheduler_init init(atol(getenv("NUM_THREADS")));
+	PVRow nrows = zp.nrows();
+	BENCH_START(trees);
+	tbb::parallel_for(PVCore::PVAlignedBlockedRange<size_t, 4>(0, nrows, atol(getenv("GRAINSIZE"))), __impl::TBBCreateTreeNRows(PVTBBCreateTreeParams(*this, zp)), tbb::simple_partitioner());
+	BENCH_END(trees, "TREES", nrows*2, sizeof(float), nrows*2, sizeof(float));
+
 	memset(_treeb, 0, sizeof(PVBranch)*NBUCKETS);
 
 	/*for (TLS_List::iterator thread_tree = tls_trees.begin(); thread_tree != tls_trees.end(); ++thread_tree) {
@@ -243,7 +272,7 @@ void PVParallelView::PVZoneTree::process_tbb_sse_treeb()
 	__impl::TBBComputeAllocSizeAndFirstElts reduce_body(this);
 	tbb::parallel_reduce(tbb::blocked_range<size_t>(0, NBUCKETS, atol(getenv("GRAINSIZE"))), reduce_body, tbb::simple_partitioner());
 
-	_tree_data = PVCore::PVAlignedAllocator<PVRow, 16>().allocate(reduce_body._alloc_size);
+	_tree_data = PVCore::PVAlignedAllocator<PVRow, 16>().allocate(reduce_body.alloc_size());
 
 	// Update branch pointer
 	PVRow* cur_p = _tree_data;
@@ -257,10 +286,10 @@ void PVParallelView::PVZoneTree::process_tbb_sse_treeb()
 	// Merge trees
 	BENCH_START(merge);
 	tbb::parallel_for(PVCore::PVAlignedBlockedRange<size_t, 4>(0, NBUCKETS, atol(getenv("GRAINSIZE"))), __impl::TBBMergeTrees(this), tbb::simple_partitioner());
-	BENCH_END(merge, "MERGE", _nrows*2, sizeof(float), _nrows*2, sizeof(float));
+	BENCH_END(merge, "MERGE", nrows*2, sizeof(float), nrows*2, sizeof(float));
 }
 
-void PVParallelView::PVZoneTree::process_omp_sse_treeb()
+void PVParallelView::PVZoneTree::process_omp_sse_treeb(PVZoneProcessing const& zp)
 {
 #if 0
 	const uint32_t* pcol_a = get_plotted_col(_col_a);
@@ -415,16 +444,12 @@ void PVParallelView::PVZoneTree::process_omp_sse_treeb()
 #endif
 }
 
-PVParallelView::PVZoneTree* PVParallelView::PVZoneTree::filter_by_sel_omp_treeb(Picviz::PVSelection const& sel)
+void PVParallelView::PVZoneTree::filter_by_sel_omp_treeb(Picviz::PVSelection const& sel)
 {
-	// returns a zone tree with only the selected lines
-	PVZoneTree* ret = new PVZoneTree(_col_a, _col_b);
-	ret->set_trans_plotted(*_plotted, _nrows, _ncols);
-
 	BENCH_START(subtree);
 	Picviz::PVSelection::const_pointer sel_buf = sel.get_buffer();
 	const size_t nthreads = atol(getenv("NUM_THREADS"));
-#pragma omp parallel for schedule(dynamic, atol(getenv("GRAINSIZE"))) firstprivate(sel_buf) firstprivate(ret) num_threads(nthreads)
+#pragma omp parallel for schedule(dynamic, atol(getenv("GRAINSIZE"))) firstprivate(sel_buf) num_threads(nthreads)
 	for (size_t b = 0; b < NBUCKETS; b++) {
 		if (branch_valid(b)) {
 			PVRow r = get_first_elt_of_branch(b);
@@ -449,39 +474,34 @@ PVParallelView::PVZoneTree* PVParallelView::PVZoneTree::filter_by_sel_omp_treeb(
 			}
 		}
 	}
-	BENCH_END(subtree, "filter_by_sel_omp_treeb", _nrows*2, sizeof(float), _nrows*2, sizeof(float));
-
-	return ret;
+	//BENCH_END(subtree, "filter_by_sel_omp_treeb", _nrows*2, sizeof(float), _nrows*2, sizeof(float));
+	BENCH_END(subtree, "filter_by_sel_omp_treeb", 1, 1, sizeof(PVRow), NBUCKETS);
 }
 	
-PVParallelView::PVZoneTree* PVParallelView::PVZoneTree::filter_by_sel_tbb_treeb(Picviz::PVSelection const& sel)
+void PVParallelView::PVZoneTree::filter_by_sel_tbb_treeb(Picviz::PVSelection const& sel)
 {
 	// returns a zone tree with only the selected lines
-	PVZoneTree* ret = new PVZoneTree(_col_a, _col_b);
-	ret->set_trans_plotted(*_plotted, _nrows, _ncols);
-
 
 	Picviz::PVSelection::const_pointer sel_buf = sel.get_buffer();
-	TLS tls;
 	tbb::task_scheduler_init init(atol(getenv("NUM_THREADS")));
 	BENCH_START(subtree);
-	tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, atol(getenv("GRAINSIZE"))), __impl::TBBPF3(this, sel_buf, &tls), tbb::simple_partitioner());
-	BENCH_END(subtree, "filter_by_sel_tbb_treeb", _nrows*2, sizeof(float), _nrows*2, sizeof(float));
-
-	return ret;
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, atol(getenv("GRAINSIZE"))), __impl::TBBPF3(this, sel_buf), tbb::simple_partitioner());
+	//BENCH_END(subtree, "filter_by_sel_tbb_treeb", _nrows*2, sizeof(float), _nrows*2, sizeof(float));
+	BENCH_END(subtree, "filter_by_sel_tbb_treeb", 1, 1, sizeof(PVRow), NBUCKETS);
 }
 
 
-void PVParallelView::PVZoneTree::get_float_pts(pts_t& pts, Picviz::PVPlotted::plotted_table_t const& org_plotted)
+void PVParallelView::PVZoneTree::get_float_pts(pts_t& pts, Picviz::PVPlotted::plotted_table_t const& org_plotted, PVRow nrows, PVCol col_a, PVCol col_b)
 {
 	pts.reserve(NBUCKETS*4);
 	for (size_t i = 0; i < NBUCKETS; i++) {
 		if (branch_valid(i) > 0) {
 			PVRow idx_first = get_first_elt_of_branch(i);
 			pts.push_back(0.0f);
-			pts.push_back(org_plotted[_col_a*_nrows+idx_first]);
+			pts.push_back(org_plotted[col_a*nrows+idx_first]);
 			pts.push_back(1.0f);
-			pts.push_back(org_plotted[_col_b*_nrows+idx_first]);
+			pts.push_back(org_plotted[col_b*nrows+idx_first]);
+		
 		}
 	}
 }

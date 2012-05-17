@@ -10,10 +10,11 @@
 #include <picviz/PVPlotted.h>
 
 #include <pvparallelview/common.h>
-#include <pvparallelview/PVZoneTreeBase.h>
-#include <pvparallelview/PVHSVColor.h>
 #include <pvparallelview/PVBCode.h>
 #include <pvparallelview/PVBCICode.h>
+#include <pvparallelview/PVHSVColor.h>
+#include <pvparallelview/PVZoneProcessing.h>
+#include <pvparallelview/PVZoneTreeBase.h>
 
 #include <boost/static_assert.hpp>
 #include <boost/type_traits.hpp>
@@ -32,44 +33,66 @@
 namespace PVParallelView {
 
 template <class Container>
+class TBBCreateTree;
+
+template <class Container>
 class PVContainerZoneTree: public PVZoneTreeBase
 {
 	// Ensure that container::value_type is PVRow
 	BOOST_STATIC_ASSERT((boost::is_same<typename Container::value_type, PVRow>::value));
+
+	friend class TBBCreateTree<Container>;
+
+protected:
+	typedef PVContainerZoneTree<Container> ztree_t;
+
+	struct PVTBBCreateTreeParams
+	{
+	public:
+		PVTBBCreateTreeParams(ztree_t& ztree, PVZoneProcessing const& zp):
+			_ztree(ztree), _zp(zp)
+		{ }
+	public:
+		inline ztree_t& ztree() const { return _ztree; }
+		inline PVZoneProcessing const& zp() const { return _zp; }
+	private:
+		ztree_t& _ztree;
+		PVZoneProcessing const& _zp;
+	};
+
 public:
 	typedef std::vector<PVRow, tbb::scalable_allocator<PVRow> > vect;
 	typedef tbb::enumerable_thread_specific<vect> TLS;
 public:
 	typedef Container list_rows_t;
 public:
-	PVContainerZoneTree(PVCol col_a, PVCol col_b):
-		_col_a(col_a), _col_b(col_b)
+	PVContainerZoneTree():
+		PVZoneTreeBase()
 	{ }
 
 public:
-	void process_serial_no_sse();
-	void process_serial_sse();
-	void process_omp_sse_tree();
-	void process_tbb_concurrent_vector();
-	void process_tbb_sse_parallelize_on_branches();
+	void process_serial_no_sse(PVZoneProcessing const& zp);
+	void process_serial_sse(PVZoneProcessing const& zp);
+	void process_omp_sse_tree(PVZoneProcessing const& zp);
+	void process_tbb_concurrent_vector(PVZoneProcessing const& zp);
+	void process_tbb_sse_parallelize_on_branches(PVZoneProcessing const& zp);
 
 	void filter_by_sel_omp_tree(Picviz::PVSelection const& sel);
 	void filter_by_sel_tbb_tree(Picviz::PVSelection const& sel);
 private:
-	void get_float_pts(pts_t& pts, Picviz::PVPlotted::plotted_table_t const& org_plotted);
+	void get_float_pts(pts_t& pts, Picviz::PVPlotted::plotted_table_t const& org_plotted, PVRow nrows, PVCol col_a, PVCol col_b);
 public:
 	list_rows_t _tree[NBUCKETS];
-	PVCol _col_a;
-	PVCol _col_b;
 };
 
 template <class Container>
-void PVContainerZoneTree<Container>::process_serial_no_sse()
+void PVContainerZoneTree<Container>::process_serial_no_sse(PVZoneProcessing const& zp)
 {
 	// Naive processing
-	const uint32_t* pcol_a = get_plotted_col(_col_a);
-	const uint32_t* pcol_b = get_plotted_col(_col_b);
-	for (PVRow r = 0; r < _nrows; r++) {
+	const uint32_t* pcol_a = zp.get_plotted_col_a();
+	const uint32_t* pcol_b = zp.get_plotted_col_b();
+	const PVRow nrows = zp.nrows();
+	for (PVRow r = 0; r < nrows; r++) {
 		uint32_t y1 = pcol_a[r];
 		uint32_t y2 = pcol_b[r];
 
@@ -84,13 +107,14 @@ void PVContainerZoneTree<Container>::process_serial_no_sse()
 }
 
 template <class Container>
-void PVContainerZoneTree<Container>::process_serial_sse()
+void PVContainerZoneTree<Container>::process_serial_sse(PVZoneProcessing const& zp)
 {
 	// Naive processing
-	const uint32_t* pcol_a = get_plotted_col(_col_a);
-	const uint32_t* pcol_b = get_plotted_col(_col_b);
+	const uint32_t* pcol_a = zp.get_plotted_col_a();
+	const uint32_t* pcol_b = zp.get_plotted_col_b();
+	const PVRow nrows = zp.nrows();
 	__m128i sse_y1, sse_y2, sse_bcodes;
-	const PVRow nrows_sse = (_nrows/4)*4;
+	const PVRow nrows_sse = (nrows/4)*4;
 	for (PVRow r = 0; r < nrows_sse; r += 4) {
 		sse_y1 = _mm_load_si128((const __m128i*) &pcol_a[r]);
 		sse_y2 = _mm_load_si128((const __m128i*) &pcol_b[r]);
@@ -123,7 +147,7 @@ void PVContainerZoneTree<Container>::process_serial_sse()
 		}
 		_tree[b3].push_back(r+3);
 	}
-	for (PVRow r = nrows_sse; r < _nrows; r++) {
+	for (PVRow r = nrows_sse; r < nrows; r++) {
 		uint32_t y1 = pcol_a[r];
 		uint32_t y2 = pcol_b[r];
 
@@ -141,11 +165,12 @@ void PVContainerZoneTree<Container>::process_serial_sse()
 
 
 template <class Container>
-void PVContainerZoneTree<Container>::process_omp_sse_tree()
+void PVContainerZoneTree<Container>::process_omp_sse_tree(PVZoneProcessing const& zp)
 {
 	// Naive processing
-	const uint32_t* pcol_a = get_plotted_col(_col_a);
-	const uint32_t* pcol_b = get_plotted_col(_col_b);
+	const uint32_t* pcol_a = zp.get_plotted_col_a();
+	const uint32_t* pcol_b = zp.get_plotted_col_b();
+	const PVRow nrows = zp.nrows();
 	tbb::tick_count start,end;
 	//uint32_t** thread_first_elts;
 	//uint32_t* first_elts;
@@ -155,7 +180,7 @@ void PVContainerZoneTree<Container>::process_omp_sse_tree()
 		Container* thread_tree = new Container[NBUCKETS];
 		uint32_t* first_elts = new uint32_t[NBUCKETS];
 		memset(first_elts, PVROW_INVALID_VALUE, sizeof(PVRow)*NBUCKETS);
-		PVRow nrows_sse = (_nrows/4)*4;
+		PVRow nrows_sse = (nrows/4)*4;
 #pragma omp barrier
 #pragma omp master
 		{
@@ -196,7 +221,7 @@ void PVContainerZoneTree<Container>::process_omp_sse_tree()
 			thread_tree[b3].push_back(r+3);
 		}
 #pragma omp master
-		for (PVRow r = nrows_sse; r < _nrows; r++) {
+		for (PVRow r = nrows_sse; r < nrows; r++) {
 			uint32_t y1 = pcol_a[r];
 			uint32_t y2 = pcol_b[r];
 
@@ -238,21 +263,25 @@ template <class Container>
 class TBBCreateTree {
 public:
 	TBBCreateTree (
-		PVContainerZoneTree<Container>* ztree
+		typename PVContainerZoneTree<Container>::PVTBBCreateTreeParams const& params
 	) :
-		_ztree(ztree)
-	{
-	}
+		_params(params)
+	{ }
 
-	TBBCreateTree(TBBCreateTree& x, tbb::split) :  _ztree(x._ztree) {}
+	TBBCreateTree(TBBCreateTree& x, tbb::split):
+		_params(x._params)
+	{ }
 
+public:
 	void operator() (const tbb::blocked_range<size_t>& range) const {
-		const uint32_t* pcol_a = _ztree->get_plotted_col(_ztree->_col_a);
-		const uint32_t* pcol_b = _ztree->get_plotted_col(_ztree->_col_b);
+		PVParallelView::PVZoneProcessing const& zp = _params.zp();
+		PVParallelView::PVContainerZoneTree<Container>& ztree = _params.tree();
+		const uint32_t* pcol_a = zp.get_plotted_col_a();
+		const uint32_t* pcol_b = zp.get_plotted_col_b();
 
+		const PVRow nrows = zp.nrows();
+		const PVRow nrows_sse = zp.nrows_aligned();
 		for (PVRow b = range.begin(); b != range.end(); ++b) { // NBUCKETS
-			PVRow nrows = _ztree->_nrows;
-			PVRow nrows_sse = (_ztree->_nrows/4)*4;
 			PVRow r = 0;
 			for (; r < nrows_sse; r += 4) { // _nrows
 				__m128i sse_y1, sse_y2, sse_bcodes;
@@ -265,26 +294,26 @@ public:
 
 				uint32_t b0 = _mm_extract_epi32(sse_bcodes, 0);
 				if (b0 == b) {
-					_ztree->_first_elts[b0] = picviz_min(_ztree->_first_elts[b0], r+0);
-					_ztree->_tree[b0].push_back(r+0);
+					ztree._first_elts[b0] = picviz_min(ztree._first_elts[b0], r+0);
+					ztree._tree[b0].push_back(r+0);
 				}
 
 				uint32_t b1 = _mm_extract_epi32(sse_bcodes, 1);
 				if (b1 == b) {
-					_ztree->_first_elts[b1] = picviz_min(_ztree->_first_elts[b1], r+1);
-					_ztree->_tree[b1].push_back(r+1);
+					ztree._first_elts[b1] = picviz_min(ztree._first_elts[b1], r+1);
+					ztree._tree[b1].push_back(r+1);
 				}
 
 				uint32_t b2 = _mm_extract_epi32(sse_bcodes, 2);
 				if (b2 == b) {
-					_ztree->_first_elts[b2] = picviz_min(_ztree->_first_elts[b2], r+2);
-					_ztree->_tree[b2].push_back(r+2);
+					ztree._first_elts[b2] = picviz_min(ztree._first_elts[b2], r+2);
+					ztree._tree[b2].push_back(r+2);
 				}
 
 				uint32_t b3 = _mm_extract_epi32(sse_bcodes, 3);
 				if (b3 == b) {
-					_ztree->_first_elts[b3] = picviz_min(_ztree->_first_elts[b3], r+3);
-					_ztree->_tree[b3].push_back(r+3);
+					ztree._first_elts[b3] = picviz_min(ztree._first_elts[b3], r+3);
+					ztree._tree[b3].push_back(r+3);
 				}
 			}
 			for (r = nrows_sse; r < nrows; r++) {
@@ -296,32 +325,34 @@ public:
 				code_b.s.r = y2 >> (32-NBITS_INDEX);
 
 				if (code_b.int_v == b) {
-					_ztree->_first_elts[code_b.int_v] = picviz_min(_ztree->_first_elts[code_b.int_v], r);
-					_ztree->_tree[code_b.int_v].push_back(r);
+					ztree._first_elts[code_b.int_v] = picviz_min(ztree._first_elts[code_b.int_v], r);
+					ztree._tree[code_b.int_v].push_back(r);
 				}
 			}
 		}
 	}
 
-	mutable PVContainerZoneTree<Container>* _ztree;
+private:
+	typename PVContainerZoneTree<Container>::PVTBBCreateTreeParams const& _params;
 };
 
 
 template <class Container>
-void PVContainerZoneTree<Container>::process_tbb_sse_parallelize_on_branches()
+void PVContainerZoneTree<Container>::process_tbb_sse_parallelize_on_branches(PVZoneProcessing const& zp)
 {
 	tbb::task_scheduler_init init(atol(getenv("NUM_THREADS")));
 	tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, atol(getenv("GRAINSIZE"))), TBBCreateTree<Container>(this), tbb::simple_partitioner());
 }
 
 template <class Container>
-void PVContainerZoneTree<Container>::process_tbb_concurrent_vector()
+void PVContainerZoneTree<Container>::process_tbb_concurrent_vector(PVZoneProcessing const& zp)
 {
 	// Naive processing
-	const uint32_t* pcol_a = get_plotted_col(_col_a);
-	const uint32_t* pcol_b = get_plotted_col(_col_b);
+	const uint32_t* pcol_a = zp.get_plotted_col_a();
+	const uint32_t* pcol_b = zp.get_plotted_col_b();
+	const PVRow nrows = zp.nrows();
 	__m128i sse_y1, sse_y2, sse_bcodes;
-	PVRow nrows_sse = (_nrows/4)*4;
+	PVRow nrows_sse = (nrows/4)*4;
 #pragma omp parallel for private(sse_y1,sse_y2,sse_bcodes) firstprivate(nrows_sse)
 	for (PVRow r = 0; r < nrows_sse; r += 4) {
 		sse_y1 = _mm_load_si128((const __m128i*) &pcol_a[r]);
@@ -336,7 +367,7 @@ void PVContainerZoneTree<Container>::process_tbb_concurrent_vector()
 		_tree[_mm_extract_epi32(sse_bcodes, 2)].push_back(r+2);
 		_tree[_mm_extract_epi32(sse_bcodes, 3)].push_back(r+3);
 	}
-	for (PVRow r = nrows_sse; r < _nrows; r++) {
+	for (PVRow r = nrows_sse; r < nrows; r++) {
 		uint32_t y1 = pcol_a[r];
 		uint32_t y2 = pcol_b[r];
 
@@ -378,9 +409,13 @@ void PVContainerZoneTree<Container>::filter_by_sel_omp_tree(Picviz::PVSelection 
 			if (found) {
 				_sel_elts[b] = r;
 			}
+			else {
+				_sel_elts[b] = PVROW_INVALID_VALUE;
+			}
 		}
 	}
-	BENCH_END(subtree, "filter_by_sel_omp_tree", _nrows*2, sizeof(float), _nrows*2, sizeof(float));
+	//BENCH_END(subtree, "filter_by_sel_omp_tree", _nrows*2, sizeof(float), _nrows*2, sizeof(float));
+	BENCH_END(subtree, "filter_by_sel_omp_tree", 1, 1, 1, 1);
 }
 
 template <class Container>
@@ -388,16 +423,14 @@ class TBBPF2 {
 public:
 	TBBPF2 (
 		PVContainerZoneTree<Container>* tree,
-		const Picviz::PVSelection::const_pointer sel_buf,
-		typename PVContainerZoneTree<Container>::TLS* tls
+		const Picviz::PVSelection::const_pointer sel_buf
 	) :
 		_tree(tree),
-		_sel_buf(sel_buf),
-		_tls(tls)
+		_sel_buf(sel_buf)
 	{
 	}
 
-	TBBPF2(TBBPF2& x, tbb::split) :  _tree(x._tree), _sel_buf(x._sel_buf), _tls(x._tls)
+	TBBPF2(TBBPF2& x, tbb::split) :  _tree(x._tree), _sel_buf(x._sel_buf)
 	{}
 
 	void operator() (const tbb::blocked_range<size_t>& r) const {
@@ -422,13 +455,15 @@ public:
 				if (found) {
 					_tree->_sel_elts[b] = r;
 				}
+				else {
+					_tree->_sel_elts[b] = PVROW_INVALID_VALUE;
+				}
 			}
 		}
 	}
 
 	mutable PVContainerZoneTree<Container>* _tree;
 	Picviz::PVSelection::const_pointer _sel_buf;
-	typename PVContainerZoneTree<Container>::TLS* _tls;
 };
 
 template <class Container>
@@ -440,11 +475,12 @@ void PVContainerZoneTree<Container>::filter_by_sel_tbb_tree(Picviz::PVSelection 
 	tbb::task_scheduler_init init(atol(getenv("NUM_THREADS")));
 	BENCH_START(subtree);
 	tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, atol(getenv("GRAINSIZE"))), TBBPF2<Container>(this, sel_buf, &tls), tbb::simple_partitioner());
-	BENCH_END(subtree, "filter_by_sel_tbb_tree", _nrows*2, sizeof(float), _nrows*2, sizeof(float));
+	//BENCH_END(subtree, "filter_by_sel_tbb_tree", _nrows*2, sizeof(float), _nrows*2, sizeof(float));
+	BENCH_END(subtree, "filter_by_sel_tbb_tree", 1, 1, 1, 1);
 }
 
 template <class Container>
-void PVContainerZoneTree<Container>::get_float_pts(pts_t& pts, Picviz::PVPlotted::plotted_table_t const& org_plotted)
+void PVContainerZoneTree<Container>::get_float_pts(pts_t& pts, Picviz::PVPlotted::plotted_table_t const& org_plotted, PVRow nrows, PVCol col_a, PVCol col_b)
 {
 	pts.reserve(NBUCKETS*4);
 	for (size_t i = 0; i < NBUCKETS; i++) {
@@ -452,9 +488,9 @@ void PVContainerZoneTree<Container>::get_float_pts(pts_t& pts, Picviz::PVPlotted
 		if (bucket.size() > 0) {
 			PVRow idx_first = *bucket.begin();
 			pts.push_back(0.0f);
-			pts.push_back(org_plotted[_col_a*_nrows+idx_first]);
+			pts.push_back(org_plotted[col_a*nrows+idx_first]);
 			pts.push_back(1.0f);
-			pts.push_back(org_plotted[_col_b*_nrows+idx_first]);
+			pts.push_back(org_plotted[col_b*nrows+idx_first]);
 		}
 	}
 }

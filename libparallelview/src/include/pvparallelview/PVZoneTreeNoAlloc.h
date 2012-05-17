@@ -10,6 +10,8 @@
 
 namespace PVParallelView {
 
+class PVZoneProcessing;
+
 class PVZoneTreeNoAlloc: public PVZoneTreeBase
 {
 public:
@@ -17,12 +19,12 @@ public:
 	typedef std::vector<PVRow, tbb::scalable_allocator<PVRow> > vect;
 	typedef tbb::enumerable_thread_specific<vect> TLS;
 public:
-	PVZoneTreeNoAlloc(PVCol col_a, PVCol col_b):
-		_col_a(col_a), _col_b(col_b)
+	PVZoneTreeNoAlloc():
+		PVZoneTreeBase()
 	{ }
 public:
-	void process_sse();
-	void process_omp_sse();
+	void process_sse(PVZoneProcessing const& zp);
+	void process_omp_sse(PVZoneProcessing const& zp);
 
 	void filter_by_sel_omp(Picviz::PVSelection const& sel);
 	void filter_by_sel_tbb(Picviz::PVSelection const& sel);
@@ -30,12 +32,10 @@ public:
 	size_t browse_tree_bci_by_sel(PVHSVColor* colors, PVBCICode* codes, Picviz::PVSelection const& sel);
 
 private:
-	void get_float_pts(pts_t& pts, Picviz::PVPlotted::plotted_table_t const& org_plotted);
+	void get_float_pts(pts_t& pts, Picviz::PVPlotted::plotted_table_t const& org_plotted, PVRow nrows, PVCol col_a, PVCol col_b);
 
 public://private:
 	Tree _tree;
-	PVCol _col_a;
-	PVCol _col_b;
 };
 
 }
