@@ -29,20 +29,18 @@
 
 #define dbg { std::cout<<"*** CUDA TRACE ***  file "<<__FILE__<<"  line "<<__LINE__<<std::endl; }
 
-namespace Picviz {
-
-PVPlotted::PVPlotted(PVPlotting const& plotting)
+Picviz::PVPlotted::PVPlotted(PVPlotting const& plotting)
 {
 	set_plotting(plotting);
 	process_from_parent_mapped(false);
 }
 
-PVPlotted::~PVPlotted()
+Picviz::PVPlotted::~PVPlotted()
 {
 	PVLOG_INFO("In PVPlotted destructor\n");
 }
 
-void PVPlotted::set_plotting(PVPlotting const& plotting)
+void Picviz::PVPlotted::set_plotting(PVPlotting const& plotting)
 {
 	_plotting = plotting;
 	root = _plotting.get_root_parent();
@@ -52,11 +50,10 @@ void PVPlotted::set_plotting(PVPlotting const& plotting)
 	}
 }
 
-int PVPlotted::create_table()
+int Picviz::PVPlotted::create_table()
 {
-	PVCol mapped_col_count = _mapped->get_column_count();
-
-	const PVRow nrows = (PVRow)_mapped->get_row_count();
+	const PVCol mapped_col_count = get_column_count();
+	const PVRow nrows = get_row_count();
 
 	// That buffer will be about 3.8MB for 10 million lines, so we keep it
 	// to save some allocations.
@@ -64,6 +61,12 @@ int PVPlotted::create_table()
 	float* p_tmp_v = &_tmp_values[0];
 	
 	_table.resize(mapped_col_count * nrows);
+
+	// Futur and only plotted, transposed normalized unisnged integer.
+	// Align the number of lines on a mulitple of 4, in order to have 16-byte aligned starting adresses for each axis
+	
+	const PVRow nrows_aligned = get_aligned_row_count();
+	_uint_table.resize(mapped_col_count * nrows_aligned);
 	
 	tbb::tick_count tstart = tbb::tick_count::now();
 	
@@ -109,6 +112,8 @@ int PVPlotted::create_table()
 			for (int64_t i = 0; i < nrows_tmp; i++) {
 				float v = p_tmp_v[i];
 				_table[i*mapped_col_count+j] = v;
+				_uint_table[j*nrows_aligned + i] = (uint32_t) ((double)v * (double)UINT_MAX);
+
 #ifndef NDEBUG
 				// Check that every plotted value is between 0 and 1
 				if (v > 1 || v < 0) {
@@ -269,37 +274,37 @@ bool Picviz::PVPlotted::load_buffer_from_file(plotted_table_t& buf, PVCol& ncols
 	return true;
 }
 
-PVRush::PVNraw::nraw_table& PVPlotted::get_qtnraw()
-{
-	return _plotting.get_qtnraw();
-}
-
-const PVRush::PVNraw::nraw_table& PVPlotted::get_qtnraw() const
-{
-	return _plotting.get_qtnraw();
-}
-
-PVRow PVPlotted::get_row_count() const
+PVRow Picviz::PVPlotted::get_row_count() const
 {
 	return _mapped->get_row_count();
 }
 
-PVCol PVPlotted::get_column_count() const
+PVCol Picviz::PVPlotted::get_column_count() const
 {
 	return _mapped->get_column_count();
 }
 
-PVSource* PVPlotted::get_source_parent()
+PVRush::PVNraw::nraw_table& Picviz::PVPlotted::get_qtnraw()
+{
+	return _plotting.get_qtnraw();
+}
+
+const PVRush::PVNraw::nraw_table& Picviz::PVPlotted::get_qtnraw() const
+{
+	return _plotting.get_qtnraw();
+}
+
+Picviz::PVSource* Picviz::PVPlotted::get_source_parent()
 {
 	return _plotting.get_source_parent();
 }
 
-float PVPlotted::get_value(PVRow row, PVCol col) const
+float Picviz::PVPlotted::get_value(PVRow row, PVCol col) const
 {
 	return _table[row * get_column_count() + col];
 }
 
-void PVPlotted::to_csv()
+void Picviz::PVPlotted::to_csv()
 {
 	PVRow row_count;
 	PVCol col_count;
@@ -503,4 +508,19 @@ void Picviz::PVPlotted::serialize(PVCore::PVSerializeObject& so, PVCore::PVSeria
 	so.list("expanded_sels", _expanded_sels, "Expanded selections", (ExpandedSelection*) NULL, QStringList(), true, true);
 }
 
+void Picviz::PVPlotted::norm_int_plotted(plotted_table_t const& trans_plotted, uint_plotted_table_t& res, PVCol ncols)
+{
+	// Here, we make every row starting on a 16-byte boundary
+	PVRow nrows = trans_plotted.size()/ncols;
+	PVRow nrows_aligned = ((nrows+3)/4)*4;
+	size_t dest_size = nrows_aligned*ncols;
+	res.reserve(dest_size);
+	for (PVCol c = 0; c < ncols; c++) {
+		for (PVRow r = 0; r < nrows; r++) {
+			res.push_back((uint32_t) ((double)trans_plotted[c*nrows+r] * (double)UINT_MAX));
+		}
+		for (PVRow r = nrows; r < nrows_aligned; r++) {
+			res.push_back(0);
+		}
+	}
 }

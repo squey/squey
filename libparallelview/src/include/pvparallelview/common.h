@@ -18,6 +18,6 @@
 
 #include <pvkernel/core/PVAllocators.h>
 
-typedef std::vector<uint32_t, PVCore::PVAlignedAllocator<uint32_t, 16> > plotted_int_t;
+typedef PVCol PVZoneID;
 
 #endif

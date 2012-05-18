@@ -15,6 +15,8 @@ PVBCICode.cpp
 PVHSVColor.cpp
 PVTools.cpp
 PVZoneTree.cpp
+PVZoneTreeBase.cpp
+PVZoneTreeNoAlloc.cpp
 simple_lines_float_view.cpp
 simple_lines_int_view.cpp
 )

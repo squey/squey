@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+namespace PVParallelView {
+
 #pragma pack(push)
 #pragma pack(4)
 struct PVBCode
@@ -20,6 +22,9 @@ struct PVBCode
 };
 
 typedef PVBCode DECLARE_ALIGN(16) * PVBCode_ap;
+#pragma pack(pop)
+
+}
 
 #ifdef NBDEUG
 #define assert_bcode_valid(b)
@@ -29,7 +34,5 @@ typedef PVBCode DECLARE_ALIGN(16) * PVBCode_ap;
 		assert((b).s.__free == 0);\
 	} while(0);
 #endif
-
-#pragma pack(pop)
 
 #endif

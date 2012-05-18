@@ -67,6 +67,7 @@ private:
 public:
 	typedef boost::shared_ptr<PVPlotted> p_type;
 	typedef std::vector<float, PVCore::PVAlignedAllocator<float, 16> > plotted_table_t;
+	typedef std::vector<uint32_t, PVCore::PVAlignedAllocator<uint32_t, 16> > uint_plotted_table_t;
 	typedef std::vector< std::pair<PVCol,float> > plotted_sub_col_t;
 	typedef std::list<ExpandedSelection> list_expanded_selection_t;
 public:
@@ -94,6 +95,8 @@ public:
 	void set_name(QString const& name) { _plotting.set_name(name); }
 	QString const& get_name() const { return _plotting.get_name(); }
 
+	static void norm_int_plotted(plotted_table_t const& trans_plotted, uint_plotted_table_t& res, PVCol ncols);
+
 public:
 	// Parents
 	PVRush::PVNraw::nraw_table& get_qtnraw();
@@ -110,6 +113,8 @@ public:
 
 	const float* get_table_pointer() const { return &_table.at(0); }
 
+	uint_plotted_table_t& get_uint_plotted() { return _uint_table; }
+
 	PVPlotting& get_plotting() { return _plotting; }
 	const PVPlotting& get_plotting() const { return _plotting; }
 
@@ -123,6 +128,11 @@ public:
 	// Data access
 	PVRow get_row_count() const;
 	PVCol get_column_count() const;
+	inline PVRow get_aligned_row_count() const
+	{
+		PVRow ret = get_row_count();
+		return ALIGN_SIZE(ret, PVROW_VECTOR_ALIGNEMENT);
+	}
 	PVSource* get_source_parent();
 	float get_value(PVRow row, PVCol col) const;
 	void get_sub_col_minmax(plotted_sub_col_t& ret, float& min, float& max, PVSelection const& sel, PVCol col) const;
@@ -134,7 +144,7 @@ public:
 
 	// Plotted dump/load
 	bool dump_buffer_to_file(QString const& file, bool write_as_transposed = false) const;
-	static bool load_buffer_from_file(plotted_table_t& buf, PVCol& ncols, bool get_transpsed_version, QString const& file);
+	static bool load_buffer_from_file(plotted_table_t& buf, PVCol& ncols, bool get_transposed_version, QString const& file);
 
 public:
 	// Debug
@@ -147,7 +157,8 @@ private:
 	PVPlotting _plotting;
 	PVRoot* root;
 	PVMapped* _mapped;
-	plotted_table_t _table; /* Unidimensionnal. It must be contiguous in memory */
+	plotted_table_t _table;
+	uint_plotted_table_t _uint_table;
 	std::vector<float> _tmp_values;
 	PVView_p _view;
 	list_expanded_selection_t _expanded_sels;
