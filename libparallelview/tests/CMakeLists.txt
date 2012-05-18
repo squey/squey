@@ -32,6 +32,9 @@ target_link_libraries(Tquadtree_impl ${LINK_LIBRARIES})
 add_executable(Tmultigrid_impl multigrid_impl.cpp)
 target_link_libraries(Tmultigrid_impl ${LINK_LIBRARIES})
 
+add_executable(Tzoomedzonetree_impl zoomedzonetree_impl.cpp)
+target_link_libraries(Tzoomedzonetree_impl ${LINK_LIBRARIES})
+
 add_executable(show_codes_gl show_codes_gl.cpp)
 target_link_libraries(show_codes_gl ${LINK_LIBRARIES})
 
