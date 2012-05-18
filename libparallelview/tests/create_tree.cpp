@@ -151,6 +151,16 @@ void test(
 		BENCH_END_TRANSFORM(sse, "process_tbb_sse_treeb", 1, 1);
 		}
 
+		/*PVParallelView::PVZoneTree::PVBranch* treeb = ztree->get_treeb();
+		for (size_t b = 0; b < NBUCKETS; b++) {
+			for (int i = 0; i < treeb[b].count; i++) {
+				PVLOG_INFO("treeb[%d]=%d\n", b, treeb[b].p[i]);
+			}
+			if (treeb[b].count) {
+				PVLOG_INFO("---\n");
+			}
+		}*/
+
 		{
 		BENCH_START(sse);
 		ztree->process_tbb_sse_treeb(zp);

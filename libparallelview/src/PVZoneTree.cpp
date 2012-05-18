@@ -20,6 +20,7 @@
 #include <tbb/parallel_reduce.h>
 #include <tbb/blocked_range.h>
 #include <tbb/blocked_range2d.h>
+#include <tbb/parallel_sort.h>
 
 #include <tbb/task_scheduler_init.h>
 
@@ -55,11 +56,8 @@ public:
 		PVRow nrows = range.end();
 		PVRow nrows_sse = (nrows/4)*4;
 
-		PVParallelView::PVZoneTree::TLS_List::reference tls_tree = ztree.tls_trees.local();
-		tls_tree.resize(NBUCKETS);
-
-		PVParallelView::PVZoneTree::TLS::reference tls_first_elts = ztree.tls_first_elts.local();
-		tls_first_elts.resize(NBUCKETS, PVROW_INVALID_VALUE);
+		PVParallelView::PVZoneTree::tls_array_t::reference tls_first_elts = ztree._tls_first_elts.local();
+		PVParallelView::PVZoneTree::tls_tree_t::reference tls_tree = ztree._tls_trees.local();
 
 		__m128i sse_y1, sse_y2, sse_bcodes;
 
@@ -134,10 +132,10 @@ public:
 	{
 		for (PVRow b = range.begin(); b != range.end(); ++b) {
 			_ztree->_treeb[b].count = 0;
-			for (PVParallelView::PVZoneTree::TLS_List::const_iterator thread_tree = _ztree->tls_trees.begin(); thread_tree != _ztree->tls_trees.end(); ++thread_tree) {
+			for (PVParallelView::PVZoneTree::tls_tree_t::const_iterator thread_tree = _ztree->_tls_trees.begin(); thread_tree != _ztree->_tls_trees.end(); ++thread_tree) {
 				_ztree->_treeb[b].count += (*thread_tree)[b].size();
 			}
-			for (PVParallelView::PVZoneTree::TLS::const_iterator first_elts = _ztree->tls_first_elts.begin(); first_elts != _ztree->tls_first_elts.end(); ++first_elts) {
+			for (PVParallelView::PVZoneTree::tls_array_t::const_iterator first_elts = _ztree->_tls_first_elts.begin(); first_elts != _ztree->_tls_first_elts.end(); ++first_elts) {
 				_ztree->_first_elts[b] = picviz_min(_ztree->_first_elts[b], (*first_elts)[b]);
 			}
 			_alloc_size += (((_ztree->_treeb[b].count + 15) / 16) * 16);
@@ -173,14 +171,16 @@ public:
 				continue;
 			}
 			PVRow* cur_branch = _ztree->_treeb[b].p;
-			for (PVParallelView::PVZoneTree::TLS_List::const_iterator thread_tree = _ztree->tls_trees.begin(); thread_tree != _ztree->tls_trees.end(); ++thread_tree) {
-				PVParallelView::PVZoneTree::vect const& c = (*thread_tree)[b];
+			PVRow* branch = cur_branch;
+			for (PVParallelView::PVZoneTree::tls_tree_t::const_iterator thread_tree = _ztree->_tls_trees.begin(); thread_tree != _ztree->_tls_trees.end(); ++thread_tree) {
+				PVParallelView::PVZoneTree::vec_rows_t const& c = (*thread_tree)[b];
 				if (c.size() > 0) {
 					memcpy(cur_branch, &c.at(0), c.size()*sizeof(PVRow));
 					cur_branch += c.size();
 					assert(cur_branch <= _ztree->_treeb[b].p + _ztree->_treeb[b].count);
 				}
 			}
+			tbb::parallel_sort(branch, cur_branch);
 		}
 	}
 
@@ -188,10 +188,9 @@ private:
 	PVParallelView::PVZoneTree* _ztree;
 };
 
-class TBBPF3
-{
+class TBBSelFilter {
 public:
-	TBBPF3 (
+	TBBSelFilter (
 		PVParallelView::PVZoneTree* tree,
 		const Picviz::PVSelection::const_pointer sel_buf
 	) :
@@ -200,7 +199,7 @@ public:
 	{
 	}
 
-	TBBPF3(TBBPF3& x, tbb::split) :  _tree(x._tree), _sel_buf(x._sel_buf)
+	TBBSelFilter(TBBSelFilter& x, tbb::split) :  _tree(x._tree), _sel_buf(x._sel_buf)
 	{}
 
 public:
@@ -246,32 +245,38 @@ private:
 PVParallelView::PVZoneTree::PVZoneTree():
 	PVZoneTreeBase()
 {
-	_treeb = new PVBranch[NBUCKETS];
 }
 
 void PVParallelView::PVZoneTree::process_tbb_sse_treeb(PVZoneProcessing const& zp)
 {
-	tbb::task_scheduler_init init(atol(getenv("NUM_THREADS")));
+	const size_t nthreads = atol(getenv("NUM_THREADS"));
+	tbb::task_scheduler_init init(nthreads);
 	PVRow nrows = zp.nrows();
+
+	// Reset intermediate trees and first elements. TODO: parallelize that
+	for (tls_tree_t::iterator tls_tree = _tls_trees.begin(); tls_tree != _tls_trees.end(); ++ tls_tree) {
+		for (int b = 0 ; b < NBUCKETS; b++)
+		{
+			(*tls_tree)[b].clear();
+		}
+	}
+	for (tls_array_t::iterator tls_first_elts = _tls_first_elts.begin(); tls_first_elts != _tls_first_elts.end(); ++tls_first_elts) {
+		memset(tls_first_elts->elems, PVROW_INVALID_VALUE, sizeof(PVRow)*NBUCKETS);
+	}
+
 	BENCH_START(trees);
-	tbb::parallel_for(PVCore::PVAlignedBlockedRange<size_t, 4>(0, nrows, atol(getenv("GRAINSIZE"))), __impl::TBBCreateTreeNRows(PVTBBCreateTreeParams(*this, zp)), tbb::simple_partitioner());
+	tbb::parallel_for(PVCore::PVAlignedBlockedRange<size_t, 4>(0, nrows, /*atol(getenv("GRAINSIZE"))*/zp.nrows()/nthreads), __impl::TBBCreateTreeNRows(PVTBBCreateTreeParams(*this, zp)), tbb::simple_partitioner());
 	BENCH_END(trees, "TREES", nrows*2, sizeof(float), nrows*2, sizeof(float));
 
 	memset(_treeb, 0, sizeof(PVBranch)*NBUCKETS);
 
-	/*for (TLS_List::iterator thread_tree = tls_trees.begin(); thread_tree != tls_trees.end(); ++thread_tree) {
-		for (PVRow b = 0; b < NBUCKETS; b++) {
-			(*thread_tree)[b].clear();
-		}
-		thread_tree->clear();
-	}
-	for (TLS::iterator first_elts = tls_first_elts.begin(); first_elts != tls_first_elts.end(); ++first_elts) {
-		first_elts->clear();
-	}*/
-
 	__impl::TBBComputeAllocSizeAndFirstElts reduce_body(this);
 	tbb::parallel_reduce(tbb::blocked_range<size_t>(0, NBUCKETS, atol(getenv("GRAINSIZE"))), reduce_body, tbb::simple_partitioner());
 
+
+	if (_tree_data) {
+		PVCore::PVAlignedAllocator<PVRow, 16>().deallocate(_tree_data, reduce_body.alloc_size());
+	}
 	_tree_data = PVCore::PVAlignedAllocator<PVRow, 16>().allocate(reduce_body.alloc_size());
 
 	// Update branch pointer
@@ -291,12 +296,10 @@ void PVParallelView::PVZoneTree::process_tbb_sse_treeb(PVZoneProcessing const& z
 
 void PVParallelView::PVZoneTree::process_omp_sse_treeb(PVZoneProcessing const& zp)
 {
-#if 0
-	const uint32_t* pcol_a = get_plotted_col(_col_a);
-	const uint32_t* pcol_b = get_plotted_col(_col_b);
+	const uint32_t* pcol_a = zp.get_plotted_col_a();
+	const uint32_t* pcol_b = zp.get_plotted_col_b();
 	tbb::tick_count start, end;
 
-	_treeb = new PVBranch[NBUCKETS];
 	memset(_treeb, 0, sizeof(PVBranch)*NBUCKETS);
 
 	// Fix max number of threads
@@ -304,33 +307,33 @@ void PVParallelView::PVZoneTree::process_omp_sse_treeb(PVZoneProcessing const& z
 	const size_t grain_size = atol(getenv("GRAINSIZE"));
 
 	// Create a tree by thread
-	Container** thread_trees = new Container*[nthreads];
+	vec_rows_t** thread_trees = new vec_rows_t*[nthreads];
 	for (size_t ith=0; ith<nthreads; ith++) {
-		thread_trees[ith] = new Container[NBUCKETS];
+		thread_trees[ith] = new vec_rows_t[NBUCKETS];
 	}
 
 	// Create an array of first elements by thread
 	PVRow** first_elts_list = new PVRow*[nthreads];
 	for (size_t ith=0; ith<nthreads; ith++) {
 		first_elts_list[ith] = new PVRow[NBUCKETS];
-		memset(first_elts_list[ith], INVALID_VALUE, sizeof(PVRow)*NBUCKETS);
+		memset(first_elts_list[ith], PVROW_INVALID_VALUE, sizeof(PVRow)*NBUCKETS);
 	}
 	size_t alloc_size = 0;
 #pragma omp parallel num_threads(nthreads)
 	{
 		// Initialize one tree per thread
-		Container* thread_tree = thread_trees[omp_get_thread_num()];
+		vec_rows_t* thread_tree = thread_trees[omp_get_thread_num()];
 
 		// Initialize one first elements arrays by thread
 		PVRow* first_elts = first_elts_list[omp_get_thread_num()];
 
-		PVRow nrows_sse = (_nrows/4)*4;
+		PVRow nrows_sse = (zp.nrows()/4)*4;
 #pragma omp barrier
 #pragma omp master
 		{
 			start = tbb::tick_count::now();
 		}
-#pragma omp for/* schedule(dynamic, grain_size)*/
+#pragma omp for schedule(static)
 		for (PVRow r = 0; r < nrows_sse; r += 4) {
 			__m128i sse_y1, sse_y2, sse_bcodes;
 			sse_y1 = _mm_load_si128((const __m128i*) &pcol_a[r]);
@@ -366,7 +369,7 @@ void PVParallelView::PVZoneTree::process_omp_sse_treeb(PVZoneProcessing const& z
 		}
 #pragma omp master
 		{
-			for (PVRow r = nrows_sse; r < _nrows; r++) {
+			for (PVRow r = nrows_sse; r < zp.nrows(); r++) {
 				uint32_t y1 = pcol_a[r];
 				uint32_t y2 = pcol_b[r];
 
@@ -382,7 +385,7 @@ void PVParallelView::PVZoneTree::process_omp_sse_treeb(PVZoneProcessing const& z
 			}
 		}
 #pragma omp barrier
-#pragma omp for reduction(+:alloc_size)/*schedule(dynamic, grain_size)*/
+#pragma omp for reduction(+:alloc_size) schedule(dynamic, grain_size)
 		// _1 Sum the number of elements contained by each branch of the final tree
 		// _2 Store the first element of each branch of the final tree in a buffer
 		for (PVRow b = 0; b < NBUCKETS; b++) {
@@ -415,7 +418,7 @@ void PVParallelView::PVZoneTree::process_omp_sse_treeb(PVZoneProcessing const& z
 			}
 			PVRow* cur_branch = _treeb[b].p;
 			for (size_t ith = 0; ith < nthreads; ith++) {
-				Container const& c = thread_trees[ith][b];
+				vec_rows_t const& c = thread_trees[ith][b];
 				if (c.size() > 0) {
 					memcpy(cur_branch, &c.at(0), c.size()*sizeof(PVRow));
 					cur_branch += c.size();
@@ -441,7 +444,6 @@ void PVParallelView::PVZoneTree::process_omp_sse_treeb(PVZoneProcessing const& z
 	delete [] thread_trees;
 
 	PVLOG_INFO("OMP tree process in %0.4f ms.\n", (end-start).seconds()*1000.0);
-#endif
 }
 
 void PVParallelView::PVZoneTree::filter_by_sel_omp_treeb(Picviz::PVSelection const& sel)
@@ -485,8 +487,7 @@ void PVParallelView::PVZoneTree::filter_by_sel_tbb_treeb(Picviz::PVSelection con
 	Picviz::PVSelection::const_pointer sel_buf = sel.get_buffer();
 	tbb::task_scheduler_init init(atol(getenv("NUM_THREADS")));
 	BENCH_START(subtree);
-	tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, atol(getenv("GRAINSIZE"))), __impl::TBBPF3(this, sel_buf), tbb::simple_partitioner());
-	//BENCH_END(subtree, "filter_by_sel_tbb_treeb", _nrows*2, sizeof(float), _nrows*2, sizeof(float));
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, atol(getenv("GRAINSIZE"))), __impl::TBBSelFilter(this, sel_buf), tbb::simple_partitioner());
 	BENCH_END(subtree, "filter_by_sel_tbb_treeb", 1, 1, sizeof(PVRow), NBUCKETS);
 }
 

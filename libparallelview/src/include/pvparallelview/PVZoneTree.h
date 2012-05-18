@@ -6,11 +6,13 @@
 #include <picviz/PVPlotted.h>
 #include <pvparallelview/PVHSVColor.h>
 
+#include <pvkernel/core/PVPODStaticArray.h>
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVZoneTreeBase.h>
 
-#include <boost/static_assert.hpp>
+#include <boost/array.hpp>
 #include <boost/type_traits.hpp>
+#include <boost/static_assert.hpp>
 
 #include <tbb/enumerable_thread_specific.h>
 
@@ -20,7 +22,7 @@ namespace __impl {
 class TBBCreateTreeNRows; 
 class TBBComputeAllocSizeAndFirstElts;
 class TBBMergeTrees;
-class TBBPF3;
+class TBBSelFilter;
 }
 
 class PVZoneProcessing;
@@ -30,9 +32,9 @@ class PVZoneTree: public PVZoneTreeBase
 	friend class __impl::TBBCreateTreeNRows;
 	friend class __impl::TBBComputeAllocSizeAndFirstElts;
 	friend class __impl::TBBMergeTrees;
-	friend class __impl::TBBPF3;
+	friend class __impl::TBBSelFilter;
 
-protected:
+public://protected:
 	struct PVBranch
 	{
 		PVRow* p;
@@ -54,10 +56,11 @@ protected:
 	};
 
 protected:
-	typedef std::vector<PVRow, tbb::scalable_allocator<PVRow> > vect;
-	typedef std::vector<vect, tbb::scalable_allocator<vect> > vectvect;
-	typedef tbb::enumerable_thread_specific<vect> TLS;
-	typedef tbb::enumerable_thread_specific<vectvect> TLS_List;
+	typedef std::vector<PVRow, tbb::scalable_allocator<PVRow> > vec_rows_t;
+	typedef PVCore::PVPODStaticArray<PVRow, NBUCKETS, PVROW_INVALID_VALUE> nbuckets_array_t;
+	typedef boost::array<vec_rows_t, NBUCKETS> nbuckets_array_vector_t;
+	typedef tbb::enumerable_thread_specific<nbuckets_array_t> tls_array_t;
+	typedef tbb::enumerable_thread_specific<nbuckets_array_vector_t> tls_tree_t;
 
 public:
 	PVZoneTree();
@@ -65,6 +68,10 @@ public:
 public:
 	inline void process(PVZoneProcessing const& zp) { process_tbb_sse_treeb(zp); }
 	inline void filter_by_sel(Picviz::PVSelection const& sel) { filter_by_sel_tbb_treeb(sel); }
+
+	///
+	PVBranch* get_treeb() {return _treeb;}
+	///
 
 public:
 	void process_omp_sse_treeb(PVZoneProcessing const& zp);
@@ -78,10 +85,10 @@ private:
 	void get_float_pts(pts_t& pts, Picviz::PVPlotted::plotted_table_t const& org_plotted, PVRow nrows, PVCol col_a, PVCol col_b);
 
 protected:
-	PVBranch* _treeb;
+	PVBranch _treeb[NBUCKETS];
 	PVRow* _tree_data;
-	TLS_List tls_trees;
-	TLS tls_first_elts;
+	tls_tree_t _tls_trees;
+	tls_array_t _tls_first_elts;
 };
 
 }
