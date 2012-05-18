@@ -116,12 +116,31 @@ public:
 		init(y1_min_value, y1_max_value, y2_min_value, y2_max_value, max_level);
 	}
 
+	// CTOR to use with call to init()
+	PVQuadTree()
+	{
+	}
+
 	~PVQuadTree() {
 		if (_nodes == 0) {
 			_datas.clear();
 		} else {
 			delete [] _nodes;
 		}
+	}
+
+	void init(uint32_t y1_min_value, uint32_t y1_max_value, uint32_t y2_min_value, uint32_t y2_max_value, int max_level)
+	{
+		_y1_min_value = y1_min_value;
+		_y1_max_value = y1_max_value;
+		_y2_min_value = y2_min_value;
+		_y2_max_value = y2_max_value;
+		_max_level = max_level;
+		_y1_mid_value = (_y1_min_value + _y1_max_value) / 2;
+		_y2_mid_value = (_y2_min_value + _y2_max_value) / 2;
+		// + 1 to avoid reallocating before a split occurs
+		_datas.reserve(PVQUADTREE_MAX_NODE_ELEMENT_COUNT + 1);
+		_nodes = 0;
 	}
 
 	void insert(const PVQuadTreeEntry &e) {
@@ -221,11 +240,6 @@ public:
 	}
 
 private:
-	// CTOR to use with call to init()
-	PVQuadTree()
-	{
-	}
-
 	void init(const PVQuadTree &qt)
 	{
 		_y1_min_value = qt._y1_min_value;
@@ -235,20 +249,6 @@ private:
 		_y1_mid_value = qt._y1_mid_value;
 		_y2_mid_value = qt._y2_mid_value;
 		_max_level = qt._max_level;
-		_nodes = 0;
-	}
-
-	void init(uint32_t y1_min_value, uint32_t y1_max_value, uint32_t y2_min_value, uint32_t y2_max_value, int max_level)
-	{
-		_y1_min_value = y1_min_value;
-		_y1_max_value = y1_max_value;
-		_y2_min_value = y2_min_value;
-		_y2_max_value = y2_max_value;
-		_max_level = max_level;
-		_y1_mid_value = (_y1_min_value + _y1_max_value) / 2;
-		_y2_mid_value = (_y2_min_value + _y2_max_value) / 2;
-		// + 1 to avoid reallocating before a split occurs
-		_datas.reserve(PVQUADTREE_MAX_NODE_ELEMENT_COUNT + 1);
 		_nodes = 0;
 	}
 
