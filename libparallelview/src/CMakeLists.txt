@@ -14,6 +14,7 @@ SET(SRC_FILES
 PVBCICode.cpp
 PVHSVColor.cpp
 PVTools.cpp
+PVZoomedZoneTree.cpp
 PVZoneTree.cpp
 PVZoneTreeBase.cpp
 PVZoneTreeNoAlloc.cpp
@@ -22,6 +23,20 @@ simple_lines_int_view.cpp
 )
 
 SET(HEADER_FILES
+include/pvparallelview/common.h
+include/pvparallelview/PVBCICode.h
+include/pvparallelview/PVBCode.h
+include/pvparallelview/PVContainerZoneTree.h
+include/pvparallelview/PVHSVColor.h
+include/pvparallelview/PVPODBlockContainer.h
+include/pvparallelview/PVQuadTree.h
+include/pvparallelview/PVTools.h
+include/pvparallelview/PVZoneProcessing.h
+include/pvparallelview/PVZonesManager.h
+include/pvparallelview/PVZoneTreeBase.h
+include/pvparallelview/PVZoneTree.h
+include/pvparallelview/PVZoneTreeNoAlloc.h
+include/pvparallelview/PVZoomedZoneTree.h
 )
 
 SET(MOC_HEADERS
