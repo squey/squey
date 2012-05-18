@@ -6,7 +6,9 @@
 #include <picviz/PVSelection.h>
 #include <picviz/PVVector.h>
 
+#include <pvparallelview/common.h>
 #include <pvparallelview/PVBCICode.h>
+#include <pvparallelview/PVHSVColor.h>
 
 namespace PVParallelView {
 
@@ -36,6 +38,7 @@ namespace __impl {
 	{
 		typedef void(*function_type)(const PVQuadTreeEntry &,
 		                             uint32_t shift, uint32_t mask,
+		                             const PVHSVColor *colors,
 		                             RESULT&);
 	};
 
@@ -44,23 +47,26 @@ namespace __impl {
 	{
 		typedef void(*function_type)(const pvquadtree_entries_t &,
 		                             const Picviz::PVSelection &,
+		                             const PVHSVColor *colors,
 		                             RESULT&);
 	};
 
 	void f_get_first_bci(const PVQuadTreeEntry &e,
 	                     uint32_t shift, uint32_t mask,
+	                     const PVHSVColor *colors,
 	                     pvquadtree_bcicodes_t &result)
 	{
 		PVParallelView::PVBCICode code;
 		code.s.idx = e.idx;
 		code.s.l = (e.y1 >> shift) && mask;
 		code.s.r = (e.y2 >> shift) && mask;
-		code.s.color = random() & 255;
+		code.s.color = colors[e.idx].h();
 		result.push_back(code);
 	}
 
 	void f_get_first_bci_sel(const pvquadtree_entries_t &entries,
 	                         const Picviz::PVSelection &selection,
+	                         const PVHSVColor *colors,
 	                         pvquadtree_bcicodes_t &result)
 	{
 		for(unsigned i = 0; i < entries.size(); ++i) {
@@ -70,7 +76,7 @@ namespace __impl {
 				code.s.idx = e.idx;
 				code.s.l = e.y1 >> 22;
 				code.s.r = e.y2 >> 22;
-				code.s.color = random() & 255;
+				code.s.color = colors[e.idx].h();
 				result.push_back(code);
 				break;
 			}
@@ -79,6 +85,7 @@ namespace __impl {
 
 	void f_get_entry_sel(const pvquadtree_entries_t &entries,
 	                     const Picviz::PVSelection &selection,
+	                     const PVHSVColor */*colors*/,
 	                     pvquadtree_entries_t &result)
 	{
 		for(unsigned i = 0; i < entries.size(); ++i) {
@@ -91,6 +98,7 @@ namespace __impl {
 
 	void f_get_bci_sel(const pvquadtree_entries_t &entries,
 	                   const Picviz::PVSelection &selection,
+	                   const PVHSVColor *colors,
 	                   pvquadtree_bcicodes_t &result)
 	{
 		for(unsigned i = 0; i < entries.size(); ++i) {
@@ -100,14 +108,13 @@ namespace __impl {
 				code.s.idx = e.idx;
 				code.s.l = e.y1 >> 22;
 				code.s.r = e.y2 >> 22;
-				code.s.color = random() & 255;
+				code.s.color = colors[e.idx].h();
 				result.push_back(code);
 			}
 		}
 	}
 }
 
-template <int LSB_COUNT>
 class PVQuadTree
 {
 public:
@@ -172,40 +179,43 @@ public:
 		return mem;
 	}
 
-	inline void get_first_bci_from_y1(uint32_t y1_min, uint32_t y1_max, uint32_t zoom, pvquadtree_bcicodes_t &result) const
+	inline void get_first_bci_from_y1(uint32_t y1_min, uint32_t y1_max, uint32_t zoom, const PVHSVColor *colors, pvquadtree_bcicodes_t &result) const
 	{
-		uint32_t shift = LSB_COUNT - zoom;
-		visit_y1<pvquadtree_bcicodes_t, __impl::f_get_first_bci>::f(*this, y1_min, y1_max, zoom, shift, 0X03FF, result);
+		uint32_t shift = (32 - NBITS_INDEX) - zoom;
+		visit_y1<pvquadtree_bcicodes_t, __impl::f_get_first_bci>::f(*this, y1_min, y1_max, zoom, shift, MASK_INT_YCOORD, colors, result);
 	}
 
-	inline void get_first_bci_from_y2(uint32_t y2_min, uint32_t y2_max, uint32_t shift, uint32_t mask, pvquadtree_bcicodes_t &result) const
+	inline void get_first_bci_from_y2(uint32_t y2_min, uint32_t y2_max, uint32_t zoom, const PVHSVColor *colors, pvquadtree_bcicodes_t &result) const
 	{
-		visit_y2<pvquadtree_bcicodes_t, __impl::f_get_first_bci>::f(*this, y2_min, y2_max, shift, mask, result);
+		uint32_t shift = (32 - NBITS_INDEX) - zoom;
+		visit_y2<pvquadtree_bcicodes_t, __impl::f_get_first_bci>::f(*this, y2_min, y2_max, zoom, shift, MASK_INT_YCOORD, colors, result);
 	}
 
-	inline void get_first_bci_from_y1y2(uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max, uint32_t shift, uint32_t mask, pvquadtree_bcicodes_t &result) const
+	inline void get_first_bci_from_y1y2(uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max, uint32_t zoom, const PVHSVColor *colors, pvquadtree_bcicodes_t &result) const
 	{
-		visit_y1y2<pvquadtree_bcicodes_t, __impl::f_get_first_bci>::f(*this, y1_min, y1_max, y2_min, y2_max, shift, mask, result);
+		uint32_t shift = (32 - NBITS_INDEX) - zoom;
+		visit_y1y2<pvquadtree_bcicodes_t, __impl::f_get_first_bci>::f(*this, y1_min, y1_max, y2_min, y2_max, zoom, shift, MASK_INT_YCOORD, colors, result);
 	}
 
-	void get_first_bci_from_selection(const Picviz::PVSelection &selection, pvquadtree_bcicodes_t &result) const
+	void get_first_bci_from_selection(const Picviz::PVSelection &selection, const PVHSVColor *colors, pvquadtree_bcicodes_t &result) const
+
 	{
-		visit_sel<pvquadtree_bcicodes_t, __impl::f_get_first_bci_sel>::f(*this, selection, result);
+		visit_sel<pvquadtree_bcicodes_t, __impl::f_get_first_bci_sel>::f(*this, selection, colors, result);
 	}
 
-	inline void get_first_bci_from_y1_and_selection(uint32_t y1_min, uint32_t y1_max, const Picviz::PVSelection &selection, pvquadtree_bcicodes_t &result) const
+	inline void get_first_bci_from_y1_and_selection(uint32_t y1_min, uint32_t y1_max, const Picviz::PVSelection &selection, const PVHSVColor *colors, pvquadtree_bcicodes_t &result) const
 	{
-		visit_y1_sel<pvquadtree_bcicodes_t, __impl::f_get_first_bci_sel>::f(*this, y1_min, y1_max, selection, result);
+		visit_y1_sel<pvquadtree_bcicodes_t, __impl::f_get_first_bci_sel>::f(*this, y1_min, y1_max, selection, colors, result);
 	}
 
-	inline void get_first_bci_from_y2_and_selection(uint32_t y2_min, uint32_t y2_max, const Picviz::PVSelection &selection, pvquadtree_bcicodes_t &result) const
+	inline void get_first_bci_from_y2_and_selection(uint32_t y2_min, uint32_t y2_max, const Picviz::PVSelection &selection, const PVHSVColor *colors, pvquadtree_bcicodes_t &result) const
 	{
-		visit_y2_sel<pvquadtree_bcicodes_t, __impl::f_get_first_bci_sel>::f(*this, y2_min, y2_max, selection, result);
+		visit_y2_sel<pvquadtree_bcicodes_t, __impl::f_get_first_bci_sel>::f(*this, y2_min, y2_max, selection, colors, result);
 	}
 
-	inline void get_first_bci_from_y1y2_and_selection(uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max, const Picviz::PVSelection &selection, pvquadtree_bcicodes_t &result) const
+	inline void get_first_bci_from_y1y2_and_selection(uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max, const Picviz::PVSelection &selection, const PVHSVColor *colors, pvquadtree_bcicodes_t &result) const
 	{
-		visit_y1y2_sel<pvquadtree_bcicodes_t, __impl::f_get_first_bci_sel>::f(*this, y1_min, y1_max, y2_min, y2_max, selection, result);
+		visit_y1y2_sel<pvquadtree_bcicodes_t, __impl::f_get_first_bci_sel>::f(*this, y1_min, y1_max, y2_min, y2_max, selection, colors, result);
 	}
 
 	PVQuadTree *get_subtree_from_y1(uint32_t y1_min, uint32_t y1_max)
@@ -289,7 +299,7 @@ private:
 	template <typename RESULT, typename __impl::f_traverse_dim<RESULT>::function_type F>
 	struct visit_y1
 	{
-		static void f(PVQuadTree const& obj, uint32_t y1_min, uint32_t y1_max, uint32_t zoom, uint32_t shift, uint32_t mask, RESULT &result)
+		static void f(PVQuadTree const& obj, uint32_t y1_min, uint32_t y1_max, uint32_t zoom, uint32_t shift, uint32_t mask, const PVHSVColor *colors, RESULT &result)
 		{
 			if (zoom == 0) {
 				if (obj._nodes != 0) {
@@ -299,23 +309,23 @@ private:
 					f2(obj, y1_min, y1_max, e);
 					if (e.idx != UINT_MAX) {
 						// it has been found
-						F(e, shift, mask, result);
+						F(e, shift, mask, colors, result);
 					}
 				} else {
 					// the first element has been found
 					if (obj._datas.size() != 0) {
-						F(obj._datas.at(0), shift, mask, result);
+						F(obj._datas.at(0), shift, mask, colors, result);
 					}
 				}
 			} else {
 				if (obj._nodes != 0) {
 					if (obj._y1_mid_value < y1_max) {
-						f(obj._nodes[NE], y1_min, y1_max, zoom - 1, shift, mask, result);
-						f(obj._nodes[SE], y1_min, y1_max, zoom - 1, shift, mask, result);
+						f(obj._nodes[NE], y1_min, y1_max, zoom - 1, shift, mask, colors, result);
+						f(obj._nodes[SE], y1_min, y1_max, zoom - 1, shift, mask, colors, result);
 					}
 					if (y1_min < obj._y1_mid_value) {
-						f(obj._nodes[NW], y1_min, y1_max, zoom - 1, shift, mask, result);
-						f(obj._nodes[SW], y1_min, y1_max, zoom - 1, shift, mask, result);
+						f(obj._nodes[NW], y1_min, y1_max, zoom - 1, shift, mask, colors, result);
+						f(obj._nodes[SW], y1_min, y1_max, zoom - 1, shift, mask, colors, result);
 					}
 				} else {
 					// we have to extract (1<<zoom) elements
@@ -323,7 +333,7 @@ private:
 						for (unsigned ie = 0; ie < obj._datas.size(); ++ie) {
 							const PVQuadTreeEntry &e = obj._datas.at(ie);
 							if ((y1_min < e.y1) && (e.y1 < y1_max)) {
-								F(obj._datas.at(ie), shift, mask, result);
+								F(obj._datas.at(ie), shift, mask, colors, result);
 								break;
 							}
 						}
@@ -354,7 +364,7 @@ private:
 	template <typename RESULT, typename __impl::f_traverse_dim<RESULT>::function_type F>
 	struct visit_y2
 	{
-		static void f(PVQuadTree const& obj, uint32_t y2_min, uint32_t y2_max, uint32_t zoom, uint32_t shift, uint32_t mask, RESULT &result)
+		static void f(PVQuadTree const& obj, uint32_t y2_min, uint32_t y2_max, uint32_t zoom, uint32_t shift, uint32_t mask, const PVHSVColor *colors, RESULT &result)
 		{
 			if (zoom == 0) {
 				if (obj._nodes != 0) {
@@ -364,23 +374,23 @@ private:
 					f2(obj, y2_min, y2_max, e);
 					if (e.idx != UINT_MAX) {
 						// it has been found
-						F(e, shift, mask, result);
+						F(e, shift, mask, colors, result);
 					}
 				} else {
 					// the first element has been found
 					if (obj._datas.size() != 0) {
-						F(obj._datas.at(0), shift, mask, result);
+						F(obj._datas.at(0), shift, mask, colors, result);
 					}
 				}
 			} else {
 				if (obj._nodes != 0) {
 					if (obj._y2_mid_value < y2_max) {
-						f(obj._nodes[NE], y2_min, y2_max, zoom - 1, shift, mask, result);
-						f(obj._nodes[SE], y2_min, y2_max, zoom - 1, shift, mask, result);
+						f(obj._nodes[NE], y2_min, y2_max, zoom - 1, shift, mask, colors, result);
+						f(obj._nodes[SE], y2_min, y2_max, zoom - 1, shift, mask, colors, result);
 					}
 					if (y2_min < obj._y2_mid_value) {
-						f(obj._nodes[NW], y2_min, y2_max, zoom - 1, shift, mask, result);
-						f(obj._nodes[SW], y2_min, y2_max, zoom - 1, shift, mask, result);
+						f(obj._nodes[NW], y2_min, y2_max, zoom - 1, shift, mask, colors, result);
+						f(obj._nodes[SW], y2_min, y2_max, zoom - 1, shift, mask, colors, result);
 					}
 				} else {
 					// we have to extract (1<<zoom) elements
@@ -388,7 +398,7 @@ private:
 						for (unsigned ie = 0; ie < obj._datas.size(); ++ie) {
 							const PVQuadTreeEntry &e = obj._datas.at(ie);
 							if ((y2_min < e.y2) && (e.y2 < y2_max)) {
-								F(obj._datas.at(ie), shift, mask, result);
+								F(obj._datas.at(ie), shift, mask, colors, result);
 								break;
 							}
 						}
@@ -420,7 +430,7 @@ private:
 	template <typename RESULT, typename __impl::f_traverse_dim<RESULT>::function_type F>
 	struct visit_y1y2
 	{
-		static void f(PVQuadTree const& obj, uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max, uint32_t zoom, uint32_t shift, uint32_t mask, RESULT &result)
+		static void f(PVQuadTree const& obj, uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max, uint32_t zoom, uint32_t shift, uint32_t mask, const PVHSVColor *colors, RESULT &result)
 		{
 			if (zoom == 0) {
 				if (obj._nodes != 0) {
@@ -430,30 +440,30 @@ private:
 					f2(obj, y1_min, y1_max, y2_min, y2_max, e);
 					if (e.idx != UINT_MAX) {
 						// it has been found
-						F(e, shift, mask, result);
+						F(e, shift, mask, colors, result);
 					}
 				} else {
 					// the first element has been found
 					if (obj._datas.size() != 0) {
-						F(obj._datas.at(0), shift, mask, result);
+						F(obj._datas.at(0), shift, mask, colors, result);
 					}
 				}
 			} else {
 				if (obj._nodes != 0) {
 					if(obj._y1_mid_value < y1_max) {
 						if(obj._y2_mid_value < y2_max) {
-							f(obj._nodes[NE], y1_min, y1_max, y2_min, y2_max, zoom - 1, shift, mask, result);
+							f(obj._nodes[NE], y1_min, y1_max, y2_min, y2_max, zoom - 1, shift, mask, colors, result);
 						}
 						if(y2_min < obj._y2_mid_value) {
-							f(obj._nodes[SE], y1_min, y1_max, y2_min, y2_max, zoom - 1, shift, mask, result);
+							f(obj._nodes[SE], y1_min, y1_max, y2_min, y2_max, zoom - 1, shift, mask, colors, result);
 						}
 					}
 					if(y1_min < obj._y1_mid_value) {
 						if(obj._y2_mid_value < y2_max) {
-							f(obj._nodes[NW], y1_min, y1_max, y2_min, y2_max, zoom - 1, shift, mask, result);
+							f(obj._nodes[NW], y1_min, y1_max, y2_min, y2_max, zoom - 1, shift, mask, colors, result);
 						}
 						if(y2_min < obj._y2_mid_value) {
-							f(obj._nodes[SW], y1_min, y1_max, y2_min, y2_max, zoom - 1, shift, mask, result);
+							f(obj._nodes[SW], y1_min, y1_max, y2_min, y2_max, zoom - 1, shift, mask, colors, result);
 						}
 					}
 				} else {
@@ -462,7 +472,7 @@ private:
 						for (unsigned ie = 0; ie < obj._datas.size(); ++ie) {
 							const PVQuadTreeEntry &e = obj._datas.at(ie);
 							if ((y1_min < e.y1) && (e.y1 < y1_max) && (y2_min < e.y2) && (e.y2 < y2_max)) {
-								F(obj._datas.at(ie), shift, mask, result);
+								F(obj._datas.at(ie), shift, mask, colors, result);
 								break;
 							}
 						}
@@ -502,15 +512,15 @@ private:
 	template <typename RESULT, typename __impl::f_traverse_sel<RESULT>::function_type F>
 	struct visit_sel
 	{
-		static void f(PVQuadTree const& obj, const Picviz::PVSelection &selection, RESULT &result)
+		static void f(PVQuadTree const& obj, const Picviz::PVSelection &selection, const PVHSVColor *colors, RESULT &result)
 		{
 			if(obj._nodes != 0) {
-				f(obj._nodes[NE], selection, result);
-				f(obj._nodes[SE], selection, result);
-				f(obj._nodes[NW], selection, result);
-				f(obj._nodes[SW], selection, result);
+				f(obj._nodes[NE], selection, colors, result);
+				f(obj._nodes[SE], selection, colors, result);
+				f(obj._nodes[NW], selection, colors, result);
+				f(obj._nodes[SW], selection, colors, result);
 			} else {
-				F(obj._datas, selection, result);
+				F(obj._datas, selection, colors, result);
 			}
 		}
 	};
@@ -518,19 +528,19 @@ private:
 	template <typename RESULT, typename __impl::f_traverse_sel<RESULT>::function_type F>
 	struct visit_y1_sel
 	{
-		static void f(PVQuadTree const& obj, uint32_t y1_min, uint32_t y1_max, const Picviz::PVSelection &selection, RESULT &result)
+		static void f(PVQuadTree const& obj, uint32_t y1_min, uint32_t y1_max, const Picviz::PVSelection &selection, const PVHSVColor *colors, RESULT &result)
 		{
 			if (obj._nodes != 0) {
 				if (obj._y1_mid_value < y1_max) {
-					f(obj._nodes[NE], y1_min, y1_max, selection, result);
-					f(obj._nodes[SE], y1_min, y1_max, selection, result);
+					f(obj._nodes[NE], y1_min, y1_max, selection, colors, result);
+					f(obj._nodes[SE], y1_min, y1_max, selection, colors, result);
 				}
 				if (y1_min < obj._y1_mid_value) {
-					f(obj._nodes[NW], y1_min, y1_max, selection, result);
-					f(obj._nodes[SW], y1_min, y1_max, selection, result);
+					f(obj._nodes[NW], y1_min, y1_max, selection, colors, result);
+					f(obj._nodes[SW], y1_min, y1_max, selection, colors, result);
 				}
 			} else {
-				F(obj._datas, selection, result);
+				F(obj._datas, selection, colors, result);
 			}
 		}
 	};
@@ -538,19 +548,19 @@ private:
 	template <typename RESULT, typename __impl::f_traverse_sel<RESULT>::function_type F>
 	struct visit_y2_sel
 	{
-		static void f(PVQuadTree const& obj, uint32_t y2_min, uint32_t y2_max, const Picviz::PVSelection &selection, RESULT &result)
+		static void f(PVQuadTree const& obj, uint32_t y2_min, uint32_t y2_max, const Picviz::PVSelection &selection, const PVHSVColor *colors, RESULT &result)
 		{
 			if (obj._nodes != 0) {
 				if (obj._y2_mid_value < y2_max) {
-					f(obj._nodes[NE], y2_min, y2_max, selection, result);
-					f(obj._nodes[SE], y2_min, y2_max, selection, result);
+					f(obj._nodes[NE], y2_min, y2_max, selection, colors, result);
+					f(obj._nodes[SE], y2_min, y2_max, selection, colors, result);
 				}
 				if (y2_min < obj._y2_mid_value) {
-					f(obj._nodes[NW], y2_min, y2_max, selection, result);
-					f(obj._nodes[SW], y2_min, y2_max, selection, result);
+					f(obj._nodes[NW], y2_min, y2_max, selection, colors, result);
+					f(obj._nodes[SW], y2_min, y2_max, selection, colors, result);
 				}
 			} else {
-				F(obj._datas, selection, result);
+				F(obj._datas, selection, colors, result);
 			}
 		}
 	};
@@ -558,27 +568,27 @@ private:
 	template <typename RESULT, typename __impl::f_traverse_sel<RESULT>::function_type F>
 	struct visit_y1y2_sel
 	{
-		static void f(PVQuadTree const& obj, uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max, const Picviz::PVSelection &selection, RESULT &result)
+		static void f(PVQuadTree const& obj, uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max, const Picviz::PVSelection &selection, const PVHSVColor *colors, RESULT &result)
 		{
 			if (obj._nodes != 0) {
 				if(obj._y1_mid_value < y1_max) {
 					if(obj._y2_mid_value < y2_max) {
-						f(obj._nodes[NE], y1_min, y1_max, y2_min, y2_max, selection, result);
+						f(obj._nodes[NE], y1_min, y1_max, y2_min, y2_max, selection, colors, result);
 					}
 					if(y2_min < obj._y2_mid_value) {
-						f(obj._nodes[SE], y1_min, y1_max, y2_min, y2_max, selection, result);
+						f(obj._nodes[SE], y1_min, y1_max, y2_min, y2_max, selection, colors, result);
 					}
 				}
 				if(y1_min < obj._y1_mid_value) {
 					if(obj._y2_mid_value < y2_max) {
-						f(obj._nodes[NW], y1_min, y1_max, y2_min, y2_max, selection, result);
+						f(obj._nodes[NW], y1_min, y1_max, y2_min, y2_max, selection, colors, result);
 					}
 					if(y2_min < obj._y2_mid_value) {
-						f(obj._nodes[SW], y1_min, y1_max, y2_min, y2_max, selection, result);
+						f(obj._nodes[SW], y1_min, y1_max, y2_min, y2_max, selection, colors, result);
 					}
 				}
 			} else {
-				F(obj._datas, selection, result);
+				F(obj._datas, selection, colors, result);
 			}
 		}
 	};
@@ -660,7 +670,7 @@ private:
 				_nodes[i].get_subtree_from_selection(new_tree._nodes[i], selection);
 			}
 		} else {
-			__impl::f_get_entry_sel(_datas, selection, new_tree._datas);
+			__impl::f_get_entry_sel(_datas, selection, 0, new_tree._datas);
 		}
 	}
 
