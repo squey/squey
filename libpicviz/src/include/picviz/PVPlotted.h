@@ -114,6 +114,7 @@ public:
 	const float* get_table_pointer() const { return &_table.at(0); }
 
 	uint_plotted_table_t& get_uint_plotted() { return _uint_table; }
+	uint_plotted_table_t const& get_uint_plotted() const { return _uint_table; }
 
 	PVPlotting& get_plotting() { return _plotting; }
 	const PVPlotting& get_plotting() const { return _plotting; }

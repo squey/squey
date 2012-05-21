@@ -12,8 +12,8 @@ public:
 	PVZoneProcessing(
 		Picviz::PVPlotted::uint_plotted_table_t const& plotted,
 		PVRow nrows,
-		PVCol col_a,
-		PVCol col_b
+		PVCol col_a = 0,
+		PVCol col_b = 1
 	):
 		_plotted(plotted),
 		_nrows(nrows),
@@ -23,9 +23,15 @@ public:
 	{ }
 
 public:
+	void set_col_a(PVCol c) { _col_a = c; }
+	void set_col_b(PVCol c) { _col_b = c; }
+
+public:
 	inline PVRow nrows() const { return _nrows; }
-	inline PVCol col_a() const { return _col_a; }
-	inline PVCol col_b() const { return _col_b; }
+	inline PVCol const& col_a() const { return _col_a; }
+	inline PVCol const& col_b() const { return _col_b; }
+	inline PVCol& col_a() { return _col_a; }
+	inline PVCol& col_b() { return _col_b; }
 	inline PVRow nrows_aligned() const { return _nrows_aligned; }
 
 	inline uint32_t get_plotted_value(PVRow r, PVCol c) const { return (_plotted)[c*_nrows_aligned + r]; }
