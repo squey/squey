@@ -57,8 +57,8 @@ namespace __impl {
 	                       PVBCICode *code)
 	{
 		code->s.idx = e.idx;
-		code->s.l = (e.y1 >> shift) && mask;
-		code->s.r = (e.y2 >> shift) && mask;
+		code->s.l = (e.y1 >> shift) & mask;
+		code->s.r = (e.y2 >> shift) & mask;
 		code->s.color = colors[e.idx].h();
 		return 1;
 	}
