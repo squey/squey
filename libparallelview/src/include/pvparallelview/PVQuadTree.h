@@ -327,12 +327,12 @@ private:
 						num += f(obj._nodes[SW], y1_min, y1_max, zoom - 1, shift, mask, colors, codes + num);
 					}
 				} else {
-					// we have to extract (1<<zoom) elements from _datas
+					// we have to extract 'zoom' elements from _datas
 					for (unsigned ie = 0; ie < obj._datas.size(); ++ie) {
 						const PVQuadTreeEntry &e = obj._datas.at(ie);
 						if ((y1_min < e.y1) && (e.y1 < y1_max)) {
 							num += F(obj._datas.at(ie), shift, mask, colors, codes + num);
-							if (num >= (1UL<<zoom)) {
+							if (num >= zoom) {
 								break;
 							}
 						}
@@ -395,12 +395,12 @@ private:
 						num += f(obj._nodes[SW], y2_min, y2_max, zoom - 1, shift, mask, colors, codes + num);
 					}
 				} else {
-					// we have to extract (1<<zoom) elements from _datas
+					// we have to extract 'zoom' elements from _datas
 					for (unsigned ie = 0; ie < obj._datas.size(); ++ie) {
 						const PVQuadTreeEntry &e = obj._datas.at(ie);
 						if ((y2_min < e.y2) && (e.y2 < y2_max)) {
 							num += F(obj._datas.at(ie), shift, mask, colors, codes + num);
-							if (num >= (1UL<<zoom)) {
+							if (num >= zoom) {
 								break;
 							}
 						}
@@ -472,12 +472,12 @@ private:
 						}
 					}
 				} else {
-					// we have to extract (1<<zoom) elements from _datas
+					// we have to extract zoom elements from _datas
 					for (unsigned ie = 0; ie < obj._datas.size(); ++ie) {
 						const PVQuadTreeEntry &e = obj._datas.at(ie);
 						if ((y1_min < e.y1) && (e.y1 < y1_max) && (y2_min < e.y2) && (e.y2 < y2_max)) {
 							num += F(obj._datas.at(ie), shift, mask, colors, codes + num);
-							if (num >= (1UL<<zoom)) {
+							if (num >= zoom) {
 								break;
 							}
 						}
