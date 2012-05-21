@@ -23,6 +23,9 @@ target_link_libraries(sse_bci ${LINK_LIBRARIES})
 add_executable(create_quadtree create_quadtree.cpp)
 target_link_libraries(create_quadtree ${LINK_LIBRARIES})
 
+add_executable(create_quadtree_impl create_quadtree_impl.cpp)
+target_link_libraries(create_quadtree_impl ${LINK_LIBRARIES})
+
 add_executable(extract_quadtree extract_quadtree.cpp)
 target_link_libraries(extract_quadtree ${LINK_LIBRARIES})
 
