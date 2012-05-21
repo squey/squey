@@ -290,6 +290,8 @@ public:
 	QString to_string() const;
 
 	list_axes_t const& get_original_axes_list() const { return original_axes_list; }
+	
+	QVector<PVCol> const& get_axes_index_list() const { return columns_indexes_list; }
 
 protected:
 	void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
