@@ -14,7 +14,7 @@ SET(SRC_FILES
 PVBCICode.cpp
 PVHSVColor.cpp
 PVTools.cpp
-#PVZoomedZoneTree.cpp
+PVZoomedZoneTree.cpp
 PVZonesManager.cpp
 PVZoneTree.cpp
 PVZoneTreeBase.cpp
