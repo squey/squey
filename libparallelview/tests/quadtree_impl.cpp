@@ -5,14 +5,14 @@
 #include <pvkernel/core/picviz_bench.h>
 
 #include <pvparallelview/PVQuadTree.h>
+#include <pvparallelview/PVHSVColor.h>
 
 unsigned count;
 unsigned depth;
 
-typedef PVParallelView::PVQuadTree<22> own_pvquadtree;
-
-own_pvquadtree *qt;
-PVParallelView::PVQuadTreeEntry *entries;
+PVParallelView::PVQuadTree *qt = 0;
+PVParallelView::PVQuadTreeEntry *entries = 0;
+PVParallelView::PVBCICode* bci_codes = 0;
 
 #define MAX_VALUE ((1<<22) - 1)
 
@@ -31,6 +31,8 @@ int main(int argc, char **argv)
 	depth = (unsigned)atoi(argv[1]);
 	count = (unsigned)atoi(argv[2]);
 
+	PVParallelView::PVHSVColor* colors = PVParallelView::PVHSVColor::init_colors(count);
+
 	entries = new PVParallelView::PVQuadTreeEntry [count];
 	for(unsigned i = 0; i < count; ++i) {
 		entries[i].y1 = random() & MAX_VALUE;
@@ -38,7 +40,7 @@ int main(int argc, char **argv)
 		entries[i].idx = i;
 	}
 
-	qt = new own_pvquadtree(0, MAX_VALUE, 0, MAX_VALUE, depth);
+	qt = new PVParallelView::PVQuadTree(0, MAX_VALUE, 0, MAX_VALUE, depth);
 
 	std::cout << "Filling quadtree, it can take a while..." << std::endl;
 	BENCH_START(fill);
@@ -50,20 +52,18 @@ int main(int argc, char **argv)
 	std::cout << "sizeof(node): " << sizeof(*qt) << std::endl;
 	std::cout << "memory used : " << qt->memory() << std::endl;
 
-
-	PVParallelView::pvquadtree_bcicodes_t bcicodes;
+	bci_codes = PVParallelView::PVBCICode::allocate_codes(4096);
 
 	for (unsigned i = 1; i < 9; ++i) {
 		std::cout << "extract BCI codes from y1 for zoom " << i << std::endl;
 		BENCH_START(extract);
-		qt->get_first_bci_from_y1(0, MAX_VALUE >> i, i, bcicodes);
+		size_t num = qt->get_first_bci_from_y1(0, MAX_VALUE >> i, i, colors, bci_codes);
 		BENCH_END(extract, "extract", 1, 1, 1, 1);
-		std::cout << "elements found: " << bcicodes.size() << std::endl;
-		bcicodes.clear();
+		std::cout << "elements found: " << num << std::endl;
 	}
 
 	std::cout << std::endl;
-	own_pvquadtree *subtree = 0;
+	PVParallelView::PVQuadTree *subtree = 0;
 
 	{
 		std::cout << "extract subtree from full y1" << std::endl;
@@ -145,7 +145,11 @@ int main(int argc, char **argv)
 		delete subtree;
 	}
 
-	delete qt;
+	if (qt) {
+		delete qt;
+	}
+	// a double free occurs if uncommented...
+	// if (bci_codes) { delete bci_codes; }
 
 	return 0;
 }
