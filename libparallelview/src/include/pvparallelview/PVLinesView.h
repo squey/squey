@@ -36,6 +36,8 @@ public:
 
 public:
 	QVector<std::pair<QImage, uint32_t> > translate(int32_t x);
+	void render_sel();
+	void render_all();
 
 private:
 	PVZonesDrawing& _zd;
