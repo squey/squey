@@ -35,9 +35,9 @@ public:
 		return _first_elts[branch_id] != PVROW_INVALID_VALUE;
 	}
 
-	size_t browse_tree_bci_no_sse(PVHSVColor* colors, PVBCICode* codes);
-	size_t browse_tree_bci_old(PVHSVColor* colors, PVBCICode* codes);
-	size_t browse_tree_bci(PVHSVColor* colors, PVBCICode* codes);
+	size_t browse_tree_bci_no_sse(PVHSVColor const* colors, PVBCICode* codes) const;
+	size_t browse_tree_bci_old(PVHSVColor const* colors, PVBCICode* codes) const;
+	size_t browse_tree_bci(PVHSVColor const* colors, PVBCICode* codes) const;
 
 public:
 	PVRow DECLARE_ALIGN(16) _first_elts[NBUCKETS];

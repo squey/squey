@@ -36,7 +36,7 @@ void PVParallelView::PVZoneTreeBase::display(QString const& name, Picviz::PVPlot
 	window->show();
 }
 
-size_t PVParallelView::PVZoneTreeBase::browse_tree_bci_no_sse(PVHSVColor* colors, PVBCICode* codes)
+size_t PVParallelView::PVZoneTreeBase::browse_tree_bci_no_sse(PVHSVColor const* colors, PVBCICode* codes) const
 {
 	size_t idx_code = 0;
 //#pragma omp parallel for reduction(+:idx_code) num_threads(4)
@@ -54,7 +54,7 @@ size_t PVParallelView::PVZoneTreeBase::browse_tree_bci_no_sse(PVHSVColor* colors
 	return idx_code;
 }
 
-size_t PVParallelView::PVZoneTreeBase::browse_tree_bci_old(PVHSVColor* colors, PVBCICode* codes)
+size_t PVParallelView::PVZoneTreeBase::browse_tree_bci_old(PVHSVColor const* colors, PVBCICode* codes) const
 {
 	size_t idx_code = 0;
 //#pragma omp parallel for reduction(+:idx_code) num_threads(4)
@@ -204,7 +204,7 @@ size_t PVParallelView::PVZoneTreeBase::browse_tree_bci_old(PVHSVColor* colors, P
 	return idx_code;
 }
 
-size_t PVParallelView::PVZoneTreeBase::browse_tree_bci(PVHSVColor* colors, PVBCICode* codes)
+size_t PVParallelView::PVZoneTreeBase::browse_tree_bci(PVHSVColor const* colors, PVBCICode* codes) const
 {
 	size_t idx_code = 0;
 

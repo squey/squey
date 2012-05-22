@@ -11,8 +11,9 @@
 #include <pvparallelview/PVZoneTreeBase.h>
 
 #include <boost/array.hpp>
-#include <boost/type_traits.hpp>
+#include <boost/shared_ptr.hpp>
 #include <boost/static_assert.hpp>
+#include <boost/type_traits.hpp>
 
 #include <tbb/enumerable_thread_specific.h>
 
@@ -33,6 +34,9 @@ class PVZoneTree: public PVZoneTreeBase
 	friend class __impl::TBBComputeAllocSizeAndFirstElts;
 	friend class __impl::TBBMergeTrees;
 	friend class __impl::TBBSelFilter;
+
+public:
+	typedef boost::shared_ptr<PVZoneTree> p_type;
 
 public://protected:
 	struct PVBranch
@@ -90,6 +94,8 @@ protected:
 	tls_tree_t _tls_trees;
 	tls_array_t _tls_first_elts;
 };
+
+typedef PVZoneTree::p_type PVZoneTree_p;
 
 }
 

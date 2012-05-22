@@ -24,13 +24,15 @@ void PVParallelView::PVZonesManager::set_uint_plotted(Picviz::PVPlotted::uint_pl
 void PVParallelView::PVZonesManager::update_all()
 {
 	PVZoneID nzones = get_number_zones();
+	PVLOG_INFO("(PVZonesManager::update_all) number of zones = %d\n", nzones);
 	assert(nzones >= 1);
-	_full_trees.resize(nzones);
+	_zones.resize(nzones);
 	
 	PVZoneProcessing zp(get_uint_plotted(), get_number_rows());
 	for (PVZoneID z = 0; z < nzones; z++) {
 		get_zone_cols(z, zp.col_a(), zp.col_b());
-		_full_trees[z].process(zp);
+		PVZoneTree& ztree = _zones[z].ztree();
+		ztree.process(zp);
 	}
 }
 
@@ -49,4 +51,14 @@ void PVParallelView::PVZonesManager::update_from_axes_comb(Picviz::PVView const&
 void PVParallelView::PVZonesManager::set_uint_plotted(Picviz::PVView const& view)
 {
 	set_uint_plotted(view.get_plotted_parent()->get_uint_plotted(), view.get_row_count(), view.get_column_count());
+}
+
+size_t PVParallelView::PVZonesManager::get_zone_absolute_pos(PVZoneID zone) const
+{
+	assert(z < _zones.size());
+	size_t pos = 0;
+	for (PVZoneID z = 0; z < zone; z++) {
+		pos += _zones[z].width() + PVParallelView::AxisWidth;
+	}
+	return pos;
 }

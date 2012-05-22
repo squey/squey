@@ -14,7 +14,20 @@
 #define MASK_INT_YCOORD (((1UL)<<(NBITS_INDEX))-1)
 
 #define IMAGE_HEIGHT (1024)
+#define PARALLELVIEW_IMAGE_HEIGHT IMAGE_HEIGHT
+
+#define PARALLELVIEW_AXIS_WIDTH 3
+
 #define MASK_INT_PLOTTED (~(1UL<<(32-NBITS_INDEX))-1)
+
+namespace PVParallelView {
+
+enum {
+	AxisWidth = PARALLELVIEW_AXIS_WIDTH,
+	ImageHeight = PARALLELVIEW_IMAGE_HEIGHT
+};
+
+}
 
 #include <pvkernel/core/PVAllocators.h>
 

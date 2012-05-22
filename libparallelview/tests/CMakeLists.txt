@@ -26,14 +26,14 @@ target_link_libraries(create_quadtree ${LINK_LIBRARIES})
 add_executable(extract_quadtree extract_quadtree.cpp)
 target_link_libraries(extract_quadtree ${LINK_LIBRARIES})
 
-add_executable(Tquadtree_impl quadtree_impl.cpp)
-target_link_libraries(Tquadtree_impl ${LINK_LIBRARIES})
+#add_executable(Tquadtree_impl quadtree_impl.cpp)
+#target_link_libraries(Tquadtree_impl ${LINK_LIBRARIES})
 
 add_executable(Tmultigrid_impl multigrid_impl.cpp)
 target_link_libraries(Tmultigrid_impl ${LINK_LIBRARIES})
 
-add_executable(Tzoomedzonetree_impl zoomedzonetree_impl.cpp)
-target_link_libraries(Tzoomedzonetree_impl ${LINK_LIBRARIES})
+#add_executable(Tzoomedzonetree_impl zoomedzonetree_impl.cpp)
+#target_link_libraries(Tzoomedzonetree_impl ${LINK_LIBRARIES})
 
 add_executable(show_codes_gl show_codes_gl.cpp)
 target_link_libraries(show_codes_gl ${LINK_LIBRARIES})
@@ -72,4 +72,11 @@ if (CUDA_FOUND)
 	cuda_compile(CUDA_KERNELS bci_cuda_z24_smembci.cu)
 	add_executable(show_codes_cuda24_smembci show_codes_cuda.cpp ${CUDA_KERNELS})
 	target_link_libraries(show_codes_cuda24_smembci ${LINK_LIBRARIES} ${CUDA_LIBRARIES})
+
+	cuda_compile(CUDA_KERNELS multiple_zones_cuda.cu)
+	add_executable(multiple_zones_cuda multiple_zones_cuda.cpp ${CUDA_KERNELS})
+	target_link_libraries(multiple_zones_cuda ${LINK_LIBRARIES} ${CUDA_LIBRARIES})
+
+	add_executable(lines_drawing lines_drawing.cpp)
+	target_link_libraries(lines_drawing ${LINK_LIBRARIES})
 endif (CUDA_FOUND)

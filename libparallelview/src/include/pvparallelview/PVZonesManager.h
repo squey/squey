@@ -6,7 +6,7 @@
 #include <picviz/PVPlotted.h>
 #include <picviz/PVView_types.h>
 
-#include <pvparallelview/PVZoneTree.h>
+#include <pvparallelview/PVZone.h>
 
 // Forward declarations
 namespace Picviz {
@@ -15,27 +15,37 @@ class PVView;
 
 namespace PVParallelView {
 
-class PVView;
-class PVZoneQuadTree;
-
 class PVZonesManager
 {
-	typedef std::vector<PVZoneTree> list_zones_tree_t;
-//	typedef std::vector<PVZoneQuadTree> list_zones_quad_tree_t;
-
-public:
-	typedef PVCol PVZoneID;
+	typedef std::vector<PVZone> list_zones_t;
 
 public:
 	PVZonesManager();
 
 public:
 	void update_all();
+	void reset_axes_comb();
 	void update_from_axes_comb(QVector<PVCol> const& ac);
 	void update_from_axes_comb(Picviz::PVView const& view);
 	void update_zone(PVZoneID zone);
 	void reverse_zone(PVZoneID zone);
 	void add_zone(PVZoneID zone);
+
+public:
+	template <class Tree>
+	inline Tree const& get_zone_tree(PVZoneID z) const
+	{
+		assert(z < get_number_zones());
+		return _zones[z].get_tree<Tree>();
+	}
+
+	inline uint32_t get_zone_width(PVZoneID z) const
+	{
+		assert(z < get_number_zones());
+		return _zones[z].width();
+	}
+
+	size_t get_zone_absolute_pos(PVZoneID z) const;
 
 public:
 	void set_uint_plotted(Picviz::PVPlotted::uint_plotted_table_t const& plotted, PVRow nrows, PVCol ncols);
@@ -58,9 +68,11 @@ private:
 	PVRow _nrows;
 	PVCol _ncols;
 	QVector<PVCol> _axes_comb;
-	list_zones_tree_t _full_trees;
+	list_zones_t _zones;
 	//list_zones_tree_t _quad_trees;
 };
+
+
 
 }
 
