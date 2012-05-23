@@ -2,6 +2,7 @@
 #include <QGLWidget>
 #include <iostream>
 
+#include <pvparallelview/common.h>
 #include <pvkernel/core/picviz_bench.h>
 #include <picviz/PVPlotted.h>
 #include <pvparallelview/PVBCICode.h>
@@ -33,14 +34,23 @@ public:
 	OpenGLScene(QObject* parent, PVParallelView::PVLinesView* lines_view) : QGraphicsScene(parent), _lines_view(lines_view)
 	{
 		_lines_view->render_all();
-
 		PVParallelView::PVLinesView::list_zone_images_t images = _lines_view->get_zones_images();
 
-		int pos = 0;
 		for (int z = 0; z < images.size() ; z++) {
 			QGraphicsPixmapItem* zone_image = addPixmap(QPixmap::fromImage(images[z].all->qimage()));
-			zone_image->setPos(QPointF(pos, 0));
-			pos += _lines_view->get_zone_width(z) + 3;
+			_zones.push_back(zone_image);
+			zone_image->setPos(QPointF(_lines_view->get_zones_manager().get_zone_absolute_pos(z), 0));
+		}
+	}
+
+	void refresh_zones()
+	{
+		_lines_view->render_all();
+		PVParallelView::PVLinesView::list_zone_images_t images = _lines_view->get_zones_images();
+
+		for (int zid = 0; zid < _zones.size() ; zid++) {
+			_zones[zid]->setPixmap(QPixmap::fromImage(images[zid].all->qimage()));
+			_zones[zid]->setPos(QPointF(_lines_view->get_zones_manager().get_zone_absolute_pos(zid), 0));
 		}
 	}
 
@@ -70,21 +80,23 @@ public:
 		if (event->button() == Qt::RightButton)
 		{
 			GraphicsView* view = ((GraphicsView*)parent());
+
 			int translation = _hscroll_value - view->horizontalScrollBar()->value();
 		}
 	}
 
-	/*void wheelEvent(QGraphicsSceneWheelEvent* event)
+	void wheelEvent(QGraphicsSceneWheelEvent* event)
 	{
-		int zoom = event->delta();
+		int zoom = event->delta() / 2;
 		if (event->modifiers() == Qt::ControlModifier) {
-			_zoom_manager->set_local_zoom(event->scenePos(), zoom);
+			if (_lines_view->update_local_zone_width(event->scenePos().x(), zoom)) {
+				refresh_zones();
+			}
 		}
-		else {
-			_zoom_manager->set_global_zoom(zoom);
+		else
+		{
 		}
-
-	}*/
+	}
 
 	/*void drawBackground(QPainter *painter, const QRectF &)
 	{
@@ -95,6 +107,7 @@ private:
 	PVParallelView::PVLinesView* _lines_view;
     unsigned int _hscroll_value;
     qreal _translation_start_x;
+    QList<QGraphicsPixmapItem*> _zones;
 };
 
 void usage(const char* path)
@@ -157,13 +170,12 @@ int main(int argc, char** argv)
 	PVParallelView::PVBCIDrawingBackendCUDA backend_cuda;
 	PVParallelView::PVZonesDrawing &zones_drawing = *(new PVParallelView::PVZonesDrawing(zm, backend_cuda, *colors));
 
-	PVParallelView::PVLinesView &lines_view = *(new PVParallelView::PVLinesView(zones_drawing, 5));
+	PVParallelView::PVLinesView &lines_view = *(new PVParallelView::PVLinesView(zones_drawing, ncols-1));
 
 	GraphicsView view;
-	view.setViewport(new QGLWidget());
+	view.setViewport(new QWidget());
 	view.setScene(new OpenGLScene(&view, &lines_view));
 	view.resize(1920, 1600);
-	view.scale(3, 1);
 	view.show();
 
 	app.exec();

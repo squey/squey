@@ -1,6 +1,6 @@
 #include <pvparallelview/PVLinesView.h>
 
-PVParallelView::PVLinesView::PVLinesView(PVZonesDrawing& zones_drawing, PVZoneID nb_zones, uint32_t zone_width /* = PVParallelView::ZoneWidth */) :
+PVParallelView::PVLinesView::PVLinesView(PVZonesDrawing& zones_drawing, PVZoneID nb_zones, uint32_t zone_width /* = PVParallelView::ZoneMaxWidth */) :
 	_zd(zones_drawing),
 	_nb_drawable_zones(nb_zones),
 	_zone_width(zone_width),

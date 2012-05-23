@@ -68,6 +68,11 @@ public:
 		return _zm.get_zone_width(z);
 	}
 
+	inline const PVZonesManager&  get_zones_manager() const
+	{
+		return _zm;
+	}
+
 private:
 	void draw_bci(PVBCIBackendImage& dst_img, uint32_t x_start, PVZoneID zone, PVBCICode* codes, size_t n);
 

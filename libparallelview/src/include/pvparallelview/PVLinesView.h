@@ -4,6 +4,7 @@
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVBCIBackendImage_types.h>
 #include <pvparallelview/PVZonesDrawing.h>
+#include <pvkernel/core/PVAlgorithms.h>
 
 namespace PVParallelView {
 
@@ -33,7 +34,7 @@ class PVLinesView
 public:
 	typedef std::vector<ZoneImages> list_zone_images_t;
 public:
-	PVLinesView(PVZonesDrawing& zones_drawing, PVZoneID nb_drawable_zones, uint32_t zone_width = PVParallelView::ZoneWidth);
+	PVLinesView(PVZonesDrawing& zones_drawing, PVZoneID nb_drawable_zones, uint32_t zone_width = PVParallelView::ZoneMaxWidth);
 
 public:
 	void set_nb_drawable_zones(uint32_t nb_zones) { _nb_drawable_zones = nb_zones;}
@@ -48,6 +49,27 @@ public:
 	{
 		return _zd.get_zone_width(z);
 	}
+
+	bool update_local_zone_width(int abs_pos, int width)
+	{
+		PVZoneID zid = get_zones_manager().get_zone_id(abs_pos);
+
+		int old_width = get_zones_manager().get_zone_width(zid);
+		int new_width = old_width + width;
+
+		new_width = PVCore::clamp(new_width, (int) PVParallelView::ZoneMinWidth, (int) PVParallelView::ZoneMaxWidth);
+
+		if (new_width != old_width) {
+			_zones_imgs[zid].all->set_width(new_width);
+			get_zones_manager().set_zone_width(zid, new_width);
+			return true;
+		}
+
+		return false;
+	}
+
+	inline const PVZonesDrawing& get_zones_drawing() const { return _zd; }
+	inline const PVZonesManager& get_zones_manager() const { return _zd.get_zones_manager(); }
 
 	const list_zone_images_t& get_zones_images() const { return _zones_imgs; }
 	PVZoneID get_first_zone() const { return _first_zone; }
