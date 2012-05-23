@@ -41,8 +41,8 @@ struct PVQuadTreeEntry {
 #pragma pack(pop)
 
 // typedef Picviz::PVVector<PVQuadTreeEntry, tbb::scalable_allocator<PVQuadTreeEntry> > pvquadtree_entries_t;
-typedef Picviz::PVVector<PVQuadTreeEntry, 1000, PVCore::PVJEMallocAllocator<PVQuadTreeEntry> > pvquadtree_entries_t;
-// typedef Picviz::PVVector<PVQuadTreeEntry> pvquadtree_entries_t;
+// typedef Picviz::PVVector<PVQuadTreeEntry, 1000, PVCore::PVJEMallocAllocator<PVQuadTreeEntry> > pvquadtree_entries_t;
+typedef Picviz::PVVector<PVQuadTreeEntry> pvquadtree_entries_t;
 
 typedef std::vector<PVParallelView::PVBCICode> pvquadtree_bcicodes_t;
 
