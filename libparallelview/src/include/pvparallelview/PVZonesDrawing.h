@@ -58,6 +58,7 @@ public:
 	void draw_zone(PVBCIBackendImage& dst_img, uint32_t x_start, PVZoneID zone, Fbci const& f_bci)
 	{
 		Tree const& zone_tree = _zm.get_zone_tree<Tree>(zone);
+		PVLOG_INFO("draw_zone: tree pointer: %p\n", &zone_tree);
 		size_t ncodes = (zone_tree.*f_bci)(_colors, _computed_codes);
 		draw_bci(dst_img, x_start, zone, _computed_codes, ncodes);
 	}

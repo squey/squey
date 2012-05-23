@@ -44,7 +44,6 @@ public:
 	void operator() (const PVCore::PVAlignedBlockedRange<size_t, 4>& range) const
 	{
 		PVParallelView::PVZoneProcessing const& zp = _params.zp();
-		PVParallelView::PVZoneTree& ztree = _params.ztree();
 		
 		PVCol col_a = zp.col_a();
 		PVCol col_b = zp.col_b();
@@ -56,8 +55,8 @@ public:
 		PVRow nrows = range.end();
 		PVRow nrows_sse = (nrows/4)*4;
 
-		PVParallelView::PVZoneTree::tls_array_t::reference tls_first_elts = ztree._tls_first_elts.local();
-		PVParallelView::PVZoneTree::tls_tree_t::reference tls_tree = ztree._tls_trees.local();
+		PVParallelView::PVZoneTree::tls_array_t::reference tls_first_elts = _params.tls()._tls_first_elts.local();
+		PVParallelView::PVZoneTree::tls_tree_t::reference tls_tree = _params.tls()._tls_trees.local();
 
 		__m128i sse_y1, sse_y2, sse_bcodes;
 
@@ -116,14 +115,16 @@ class TBBComputeAllocSizeAndFirstElts
 {
 public:
 	TBBComputeAllocSizeAndFirstElts (
-		PVParallelView::PVZoneTree* ztree
+		PVParallelView::PVZoneTree* ztree, PVParallelView::PVZoneTree::ProcessTLS& tls
 	) :
 		_ztree(ztree),
+		_tls(tls),
 		_alloc_size(0)
 	{ }
 
 	TBBComputeAllocSizeAndFirstElts(TBBComputeAllocSizeAndFirstElts& x, tbb::split) :
 		_ztree(x._ztree),
+		_tls(x._tls),
 		_alloc_size(0)
 	{ }
 
@@ -132,10 +133,10 @@ public:
 	{
 		for (PVRow b = range.begin(); b != range.end(); ++b) {
 			_ztree->_treeb[b].count = 0;
-			for (PVParallelView::PVZoneTree::tls_tree_t::const_iterator thread_tree = _ztree->_tls_trees.begin(); thread_tree != _ztree->_tls_trees.end(); ++thread_tree) {
+			for (PVParallelView::PVZoneTree::tls_tree_t::const_iterator thread_tree = _tls._tls_trees.begin(); thread_tree != _tls._tls_trees.end(); ++thread_tree) {
 				_ztree->_treeb[b].count += (*thread_tree)[b].size();
 			}
-			for (PVParallelView::PVZoneTree::tls_array_t::const_iterator first_elts = _ztree->_tls_first_elts.begin(); first_elts != _ztree->_tls_first_elts.end(); ++first_elts) {
+			for (PVParallelView::PVZoneTree::tls_array_t::const_iterator first_elts = _tls._tls_first_elts.begin(); first_elts != _tls._tls_first_elts.end(); ++first_elts) {
 				_ztree->_first_elts[b] = picviz_min(_ztree->_first_elts[b], (*first_elts)[b]);
 			}
 			_alloc_size += (((_ztree->_treeb[b].count + 15) / 16) * 16);
@@ -152,15 +153,20 @@ public:
 
 private:
 	PVParallelView::PVZoneTree* _ztree;
+	PVParallelView::PVZoneTree::ProcessTLS& _tls;
 	mutable size_t _alloc_size;
 };
 
 class TBBMergeTrees
 {
 public:
-	TBBMergeTrees (PVParallelView::PVZoneTree* ztree) : _ztree(ztree) {}
+	TBBMergeTrees (PVParallelView::PVZoneTree* ztree, PVParallelView::PVZoneTree::ProcessTLS& tls):
+		_ztree(ztree), _tls(tls)
+	{ }
 
-	TBBMergeTrees(TBBMergeTrees& x, tbb::split) :  _ztree(x._ztree)  {}
+	TBBMergeTrees(TBBMergeTrees& x, tbb::split):
+		_ztree(x._ztree), _tls(x._tls)
+	{ }
 
 public:
 
@@ -172,7 +178,7 @@ public:
 			}
 			PVRow* cur_branch = _ztree->_treeb[b].p;
 			PVRow* branch = cur_branch;
-			for (PVParallelView::PVZoneTree::tls_tree_t::const_iterator thread_tree = _ztree->_tls_trees.begin(); thread_tree != _ztree->_tls_trees.end(); ++thread_tree) {
+			for (PVParallelView::PVZoneTree::tls_tree_t::const_iterator thread_tree = _tls._tls_trees.begin(); thread_tree != _tls._tls_trees.end(); ++thread_tree) {
 				PVParallelView::PVZoneTree::vec_rows_t const& c = (*thread_tree)[b];
 				if (c.size() > 0) {
 					memcpy(cur_branch, &c.at(0), c.size()*sizeof(PVRow));
@@ -186,6 +192,7 @@ public:
 
 private:
 	PVParallelView::PVZoneTree* _ztree;
+	PVParallelView::PVZoneTree::ProcessTLS& _tls;
 };
 
 class TBBSelFilter {
@@ -247,30 +254,31 @@ PVParallelView::PVZoneTree::PVZoneTree():
 {
 }
 
-void PVParallelView::PVZoneTree::process_tbb_sse_treeb(PVZoneProcessing const& zp)
+void PVParallelView::PVZoneTree::process_tbb_sse_treeb(PVZoneProcessing const& zp, ProcessTLS& tls)
 {
 	const size_t nthreads = atol(getenv("NUM_THREADS"));
 	tbb::task_scheduler_init init(nthreads);
 	PVRow nrows = zp.nrows();
 
 	// Reset intermediate trees and first elements. TODO: parallelize that
-	for (tls_tree_t::iterator tls_tree = _tls_trees.begin(); tls_tree != _tls_trees.end(); ++ tls_tree) {
-		for (int b = 0 ; b < NBUCKETS; b++)
-		{
+	tls_tree_t& tls_trees = tls._tls_trees;
+	tls_array_t& tls_first_elts = tls._tls_first_elts;
+	for (tls_tree_t::iterator tls_tree = tls_trees.begin(); tls_tree != tls_trees.end(); ++ tls_tree) {
+		for (size_t b = 0 ; b < NBUCKETS; b++) {
 			(*tls_tree)[b].clear();
 		}
 	}
-	for (tls_array_t::iterator tls_first_elts = _tls_first_elts.begin(); tls_first_elts != _tls_first_elts.end(); ++tls_first_elts) {
-		memset(tls_first_elts->elems, PVROW_INVALID_VALUE, sizeof(PVRow)*NBUCKETS);
+	for (tls_array_t::iterator it = tls_first_elts.begin(); it != tls_first_elts.end(); ++it) {
+		memset(it->elems, PVROW_INVALID_VALUE, sizeof(PVRow)*NBUCKETS);
 	}
 
 	BENCH_START(trees);
-	tbb::parallel_for(PVCore::PVAlignedBlockedRange<size_t, 4>(0, nrows, /*atol(getenv("GRAINSIZE"))*/zp.nrows()/nthreads), __impl::TBBCreateTreeNRows(PVTBBCreateTreeParams(*this, zp)), tbb::simple_partitioner());
+	tbb::parallel_for(PVCore::PVAlignedBlockedRange<size_t, 4>(0, nrows, /*atol(getenv("GRAINSIZE"))*/zp.nrows()/nthreads), __impl::TBBCreateTreeNRows(PVTBBCreateTreeParams(zp, tls)), tbb::simple_partitioner());
 	BENCH_END(trees, "TREES", nrows*2, sizeof(float), nrows*2, sizeof(float));
 
 	memset(_treeb, 0, sizeof(PVBranch)*NBUCKETS);
 
-	__impl::TBBComputeAllocSizeAndFirstElts reduce_body(this);
+	__impl::TBBComputeAllocSizeAndFirstElts reduce_body(this, tls);
 	tbb::parallel_reduce(tbb::blocked_range<size_t>(0, NBUCKETS, atol(getenv("GRAINSIZE"))), reduce_body, tbb::simple_partitioner());
 
 
@@ -290,7 +298,7 @@ void PVParallelView::PVZoneTree::process_tbb_sse_treeb(PVZoneProcessing const& z
 
 	// Merge trees
 	BENCH_START(merge);
-	tbb::parallel_for(PVCore::PVAlignedBlockedRange<size_t, 4>(0, NBUCKETS, atol(getenv("GRAINSIZE"))), __impl::TBBMergeTrees(this), tbb::simple_partitioner());
+	tbb::parallel_for(PVCore::PVAlignedBlockedRange<size_t, 4>(0, NBUCKETS, atol(getenv("GRAINSIZE"))), __impl::TBBMergeTrees(this, tls), tbb::simple_partitioner());
 	BENCH_END(merge, "MERGE", nrows*2, sizeof(float), nrows*2, sizeof(float));
 }
 

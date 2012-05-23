@@ -96,15 +96,9 @@ int main(int argc, char** argv)
 
 	PVParallelView::PVBCIBackendImage_p dst_img = zones_drawing.create_image(768);
 	zones_drawing.draw_zone<PVParallelView::PVZoneTree>(*dst_img, 0, 0, &PVParallelView::PVZoneTree::browse_tree_bci);
-	printf("%u\n", zm.get_zone_absolute_pos(1));
 	zones_drawing.draw_zone<PVParallelView::PVZoneTree>(*dst_img, zm.get_zone_absolute_pos(1), 1, &PVParallelView::PVZoneTree::browse_tree_bci);
 
 	show_qimage("test", dst_img->qimage());
-
-	dst_img->set_width(256);
-	zones_drawing.draw_zone<PVParallelView::PVZoneTree>(*dst_img, 0, 0, &PVParallelView::PVZoneTree::browse_tree_bci);
-
-	show_qimage("test2", dst_img->qimage());
 
 	app.exec();
 

@@ -26,7 +26,10 @@ void PVParallelView::PVZonesManager::update_all()
 	PVZoneID nzones = get_number_zones();
 	PVLOG_INFO("(PVZonesManager::update_all) number of zones = %d\n", nzones);
 	assert(nzones >= 1);
-	_zones.resize(nzones);
+	_zones.reserve(nzones);
+	for (PVZoneID z = 0; z < nzones; z++) {
+		_zones.push_back(PVZone());
+	}
 	
 	PVZoneProcessing zp(get_uint_plotted(), get_number_rows());
 	for (PVZoneID z = 0; z < nzones; z++) {

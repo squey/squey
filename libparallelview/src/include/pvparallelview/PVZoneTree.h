@@ -38,6 +38,27 @@ class PVZoneTree: public PVZoneTreeBase
 public:
 	typedef boost::shared_ptr<PVZoneTree> p_type;
 
+protected:
+	typedef std::vector<PVRow, tbb::scalable_allocator<PVRow> > vec_rows_t;
+	typedef PVCore::PVPODStaticArray<PVRow, NBUCKETS, PVROW_INVALID_VALUE> nbuckets_array_t;
+	typedef boost::array<vec_rows_t, NBUCKETS> nbuckets_array_vector_t;
+	typedef tbb::enumerable_thread_specific<nbuckets_array_t> tls_array_t;
+	typedef tbb::enumerable_thread_specific<nbuckets_array_vector_t> tls_tree_t;
+
+public:
+	class ProcessTLS
+	{
+		friend class PVZoneTree;
+		friend class __impl::TBBCreateTreeNRows;
+		friend class __impl::TBBComputeAllocSizeAndFirstElts;
+		friend class __impl::TBBMergeTrees;
+		friend class __impl::TBBSelFilter;
+	protected:
+		tls_tree_t _tls_trees;
+		tls_array_t _tls_first_elts;
+	};
+
+
 public://protected:
 	struct PVBranch
 	{
@@ -48,29 +69,25 @@ public://protected:
 	struct PVTBBCreateTreeParams
 	{
 	public:
-		PVTBBCreateTreeParams(PVZoneTree& ztree, PVZoneProcessing const& zp):
-			_ztree(ztree), _zp(zp)
+		PVTBBCreateTreeParams(PVZoneProcessing const& zp, PVZoneTree::ProcessTLS& tls):
+			_zp(zp), _tls(tls)
 		{ }
 	public:
-		inline PVZoneTree& ztree() const { return _ztree; }
+		//inline PVZoneTree& ztree() const { return _ztree; }
 		inline PVZoneProcessing const& zp() const { return _zp; }
+		inline ProcessTLS& tls() const { return _tls; }
 	private:
-		PVZoneTree& _ztree;
 		PVZoneProcessing const& _zp;
+		ProcessTLS& _tls;
 	};
 
-protected:
-	typedef std::vector<PVRow, tbb::scalable_allocator<PVRow> > vec_rows_t;
-	typedef PVCore::PVPODStaticArray<PVRow, NBUCKETS, PVROW_INVALID_VALUE> nbuckets_array_t;
-	typedef boost::array<vec_rows_t, NBUCKETS> nbuckets_array_vector_t;
-	typedef tbb::enumerable_thread_specific<nbuckets_array_t> tls_array_t;
-	typedef tbb::enumerable_thread_specific<nbuckets_array_vector_t> tls_tree_t;
 
 public:
 	PVZoneTree();
 
 public:
 	inline void process(PVZoneProcessing const& zp) { process_tbb_sse_treeb(zp); }
+	inline void process_tls(PVZoneProcessing const& zp, ProcessTLS tls) { process_tbb_sse_treeb(zp, tls); }
 	inline void filter_by_sel(Picviz::PVSelection const& sel) { filter_by_sel_tbb_treeb(sel); }
 
 	///
@@ -79,7 +96,8 @@ public:
 
 public:
 	void process_omp_sse_treeb(PVZoneProcessing const& zp);
-	void process_tbb_sse_treeb(PVZoneProcessing const& zp);
+	inline void process_tbb_sse_treeb(PVZoneProcessing const& zp) { process_tbb_sse_treeb(zp, _tls); }
+	void process_tbb_sse_treeb(PVZoneProcessing const& zp, ProcessTLS& tls);
 	void process_tbb_sse_parallelize_on_branches(PVZoneProcessing const& zp);
 
 	void filter_by_sel_omp_treeb(Picviz::PVSelection const& sel);
@@ -91,8 +109,7 @@ private:
 protected:
 	PVBranch _treeb[NBUCKETS];
 	PVRow* _tree_data;
-	tls_tree_t _tls_trees;
-	tls_array_t _tls_first_elts;
+	ProcessTLS _tls;
 };
 
 typedef PVZoneTree::p_type PVZoneTree_p;

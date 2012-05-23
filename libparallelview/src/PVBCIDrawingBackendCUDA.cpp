@@ -95,6 +95,7 @@ void PVParallelView::PVBCIDrawingBackendCUDA::operator()(PVBCIBackendImage& dst_
 	assert(dst_img_cuda != NULL);
 	assert(x_start + width <= (size_t) dst_img_cuda->width());
 
+	PVLOG_INFO("Nb codes in CUDA backend: %lu\n", n);
 	picviz_verify_cuda(cudaMemcpy(_device_codes, codes, n*sizeof(codes), cudaMemcpyHostToDevice));
 	show_codes_cuda(_device_codes, n, width, dst_img_cuda->device_img(), dst_img_cuda->width(), x_start);
 	dst_img_cuda->copy_device_to_host();
