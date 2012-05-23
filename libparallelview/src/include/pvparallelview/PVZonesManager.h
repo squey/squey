@@ -7,6 +7,7 @@
 #include <picviz/PVView_types.h>
 
 #include <pvparallelview/PVZone.h>
+#include <pvparallelview/PVZoneTree.h>
 
 // Forward declarations
 namespace Picviz {
@@ -15,9 +16,16 @@ class PVView;
 
 namespace PVParallelView {
 
+namespace __impl {
+class ZoneCreation;
+}
+
 class PVZonesManager
 {
+	friend class PVParallelView::__impl::ZoneCreation;
+
 	typedef std::vector<PVZone> list_zones_t;
+	typedef tbb::enumerable_thread_specific<PVZoneTree::ProcessTLS> process_ztree_tls_t;
 
 public:
 	PVZonesManager();
@@ -58,7 +66,7 @@ public:
 	void set_uint_plotted(Picviz::PVPlotted::uint_plotted_table_t const& plotted, PVRow nrows, PVCol ncols);
 	void set_uint_plotted(Picviz::PVView const& view);
 
-private:
+protected:
 	inline PVZoneID get_number_zones() const { return _axes_comb.size()-1; }
 	inline PVRow get_number_rows() const { return _nrows; }
 	inline void get_zone_cols(PVZoneID z, PVCol& a, PVCol& b)
@@ -69,13 +77,13 @@ private:
 	}
 	inline Picviz::PVPlotted::uint_plotted_table_t const& get_uint_plotted() const { assert(_uint_plotted); return *_uint_plotted; }
 
-	
-private:
+protected:
 	Picviz::PVPlotted::uint_plotted_table_t const* _uint_plotted;
 	PVRow _nrows;
 	PVCol _ncols;
 	QVector<PVCol> _axes_comb;
 	list_zones_t _zones;
+	process_ztree_tls_t _tls_ztree;
 	//list_zones_tree_t _quad_trees;
 };
 

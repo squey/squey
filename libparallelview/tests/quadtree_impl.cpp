@@ -10,7 +10,9 @@
 unsigned count;
 unsigned depth;
 
-PVParallelView::PVQuadTree *qt = 0;
+typedef PVParallelView::PVQuadTree<10000, 1000, 10000> pvquadtree;
+
+pvquadtree *qt = 0;
 PVParallelView::PVQuadTreeEntry *entries = 0;
 PVParallelView::PVBCICode* bci_codes = 0;
 
@@ -40,7 +42,7 @@ int main(int argc, char **argv)
 		entries[i].idx = i;
 	}
 
-	qt = new PVParallelView::PVQuadTree(0, MAX_VALUE, 0, MAX_VALUE, depth);
+	qt = new pvquadtree(0, MAX_VALUE, 0, MAX_VALUE, depth);
 
 	std::cout << "Filling quadtree, it can take a while..." << std::endl;
 	BENCH_START(fill);
@@ -63,7 +65,7 @@ int main(int argc, char **argv)
 	}
 
 	std::cout << std::endl;
-	PVParallelView::PVQuadTree *subtree = 0;
+	pvquadtree *subtree = 0;
 
 	{
 		std::cout << "extract subtree from full y1" << std::endl;
