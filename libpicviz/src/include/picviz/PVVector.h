@@ -7,14 +7,12 @@
 #ifndef PICVIZ_PVVECTOR_H
 #define PICVIZ_PVVECTOR_H
 
-// for realloc()
-#include <stdlib.h>
 // for memcpy()
 #include <string.h>
 
 namespace Picviz {
 
-template <class C, int INCREMENT = 1000>
+template <class C, int INCREMENT = 1000, class Alloc = std::allocator<C> >
 class PVVector
 {
 public:
@@ -58,7 +56,7 @@ public:
 	void clear()
 	{
 		if(_array) {
-			free(_array);
+			Alloc().deallocate(_array, _size);
 			_array = 0;
 			_size = 0;
 			_index = 0;
@@ -130,7 +128,12 @@ public:
 private:
 	void reallocate(const unsigned size)
 	{
-		_array = (C*) realloc(_array, (size) * sizeof(C));
+		C *array = Alloc().allocate(size);
+		if (_array != 0) {
+			memcpy(array, _array, _size * sizeof(C));
+			Alloc().deallocate(_array, _size);
+		}
+		_array = array;
 		_size = size;
 	}
 
