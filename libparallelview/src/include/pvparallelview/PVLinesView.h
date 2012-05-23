@@ -37,7 +37,7 @@ public:
 
 public:
 	void set_nb_drawable_zones(uint32_t nb_zones) { _nb_drawable_zones = nb_zones;}
-	void set_zone_width(uint32_t zone_width) { zone_width = _zone_width; }
+	void set_zone_width(uint32_t zone_width) { _zone_width = zone_width; }
 
 public:
 	QVector<std::pair<QImage, uint32_t> > translate(int32_t x);
