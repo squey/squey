@@ -32,6 +32,7 @@ PVZoneTreeBase.cpp
 PVZoneTreeNoAlloc.cpp
 simple_lines_float_view.cpp
 simple_lines_int_view.cpp
+PVAxisWidget.cpp
 )
 
 set(CUDA_SRC_FILES
@@ -54,6 +55,7 @@ include/pvparallelview/PVZoneTreeBase.h
 include/pvparallelview/PVZoneTree.h
 include/pvparallelview/PVZoneTreeNoAlloc.h
 include/pvparallelview/PVZoomedZoneTree.h
+include/pvparallelview/PVAxisWidget.h
 )
 
 SET(MOC_HEADERS
