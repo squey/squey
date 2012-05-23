@@ -7,12 +7,14 @@
 #ifndef PICVIZ_PVVECTOR_H
 #define PICVIZ_PVVECTOR_H
 
+#include <pvkernel/core/PVAllocators.h>
+
 // for memcpy()
 #include <string.h>
 
 namespace Picviz {
 
-template <class C, int INCREMENT = 1000, class Alloc = std::allocator<C> >
+template <class C, int INCREMENT = 1000, class Alloc = PVCore::PVReallocableCAllocator<C> >
 class PVVector
 {
 public:
@@ -128,12 +130,7 @@ public:
 private:
 	void reallocate(const unsigned size)
 	{
-		C *array = Alloc().allocate(size);
-		if (_array != 0) {
-			memcpy(array, _array, _size * sizeof(C));
-			Alloc().deallocate(_array, _size);
-		}
-		_array = array;
+		_array = Alloc().reallocate(_array, _size, size);
 		_size = size;
 	}
 
