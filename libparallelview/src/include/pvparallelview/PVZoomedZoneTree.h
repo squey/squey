@@ -6,7 +6,10 @@
 
 #include <picviz/PVPlotted.h>
 
+#define PVQUADTREE_ALLOC_ELEMENT_COUNT 1000
 #include <pvparallelview/PVQuadTree.h>
+#include <pvparallelview/PVZoneProcessing.h>
+#include <pvparallelview/PVZoneTree.h>
 
 namespace PVParallelView {
 
@@ -15,6 +18,8 @@ class PVHSVColor;
 
 class PVZoomedZoneTree
 {
+	typedef PVQuadTree<10000, 1000> pvquadtree;
+
 public:
 	PVZoomedZoneTree(uint32_t max_level);
 
@@ -22,15 +27,20 @@ public:
 
 	inline size_t memory() const
 	{
-		size_t mem = 0;
+		size_t mem = sizeof(PVZoomedZoneTree);
 		for (int i = 0; i < 1024 * 1024; ++i) {
 			mem += _trees[i].memory();
 		}
 		return mem;
 	}
 
-	void process(const Picviz::PVPlotted::uint_plotted_table_t &plotted,
-	             PVCol col_a, PVCol col_b, PVRow nrows);
+	void process_seq(const PVZoneProcessing &zp);
+
+	void process_seq_from_zt(const PVZoneProcessing &zp, PVZoneTree &zt);
+
+	void process_omp(const PVZoneProcessing &zp);
+
+	void process_omp_from_zt(const PVZoneProcessing &zp, PVZoneTree &zt);
 
 	size_t browse_tree_bci_by_y1(uint32_t y_min, uint32_t y_max,
 	                             PVHSVColor* colors, PVBCICode* codes) const;
@@ -45,8 +55,14 @@ private:
 			((e.y1 >> (32-NBITS_INDEX)) & MASK_INT_YCOORD);
 	}
 
+	inline uint32_t compute_index(uint32_t y1, uint32_t y2) const
+	{
+		return  (((y2 >> (32-NBITS_INDEX)) & MASK_INT_YCOORD) << NBITS_INDEX) +
+			((y1 >> (32-NBITS_INDEX)) & MASK_INT_YCOORD);
+	}
+
 private:
-	PVQuadTree _trees [1024 * 1024];
+	pvquadtree *_trees;
 };
 
 }

@@ -10,9 +10,9 @@
 #include <pvparallelview/PVBCICode.h>
 #include <pvparallelview/PVHSVColor.h>
 
-namespace PVParallelView {
+#include <pvkernel/core/PVAllocators.h>
 
-#define PVQUADTREE_MAX_NODE_ELEMENT_COUNT 10000
+namespace PVParallelView {
 
 #define SW 0
 #define SE 1
@@ -26,10 +26,24 @@ struct PVQuadTreeEntry {
 	uint32_t y1;
 	uint32_t y2;
 	PVRow    idx;
+
+	PVQuadTreeEntry()
+	{
+	}
+
+	PVQuadTreeEntry(uint32_t y1_, uint32_t y2_, PVRow r)
+	{
+		y1 = y1_;
+		y2 = y2_;
+		idx = r;
+	}
 };
 #pragma pack(pop)
 
-typedef Picviz::PVVector<PVQuadTreeEntry> pvquadtree_entries_t;
+// typedef Picviz::PVVector<PVQuadTreeEntry, tbb::scalable_allocator<PVQuadTreeEntry> > pvquadtree_entries_t;
+typedef Picviz::PVVector<PVQuadTreeEntry, 1000, PVCore::PVJEMallocAllocator<PVQuadTreeEntry> > pvquadtree_entries_t;
+// typedef Picviz::PVVector<PVQuadTreeEntry> pvquadtree_entries_t;
+
 typedef std::vector<PVParallelView::PVBCICode> pvquadtree_bcicodes_t;
 
 namespace __impl {
@@ -113,6 +127,7 @@ namespace __impl {
 	}
 }
 
+template<int MAX_ELEMENTS_PER_NODE = 10000, int REALLOC_ELEMENT_COUNT = 1000, int PREALLOC_ELEMENT_COUNT = 0>
 class PVQuadTree
 {
 public:
@@ -144,8 +159,9 @@ public:
 		_y2_min_value = y2_min_value;
 		_y2_mid_value = y2_mid_value;
 		_max_level = max_level;
-		// + 1 to avoid reallocating before a split occurs
-		_datas.reserve(PVQUADTREE_MAX_NODE_ELEMENT_COUNT + 1);
+		if (PREALLOC_ELEMENT_COUNT != 0) {
+			_datas.reserve(PREALLOC_ELEMENT_COUNT);
+		}
 		_nodes = 0;
 	}
 
@@ -160,7 +176,7 @@ public:
 		qt->_datas.push_back(e);
 
 		// does the current node must be splitted?
-		if ((qt->_datas.size() >= PVQUADTREE_MAX_NODE_ELEMENT_COUNT) && qt->_max_level) {
+		if ((qt->_datas.size() >= MAX_ELEMENTS_PER_NODE) && qt->_max_level) {
 			qt->create_next_level();
 		}
 	}

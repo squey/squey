@@ -1,7 +1,7 @@
 #include <pvkernel/core/picviz_bench.h>
 #include <picviz/PVPlotted.h>
 #include <pvparallelview/PVBCICode.h>
-#include <pvparallelview/PVQuadTree.h>
+#include <pvparallelview/PVZoneProcessing.h>
 #include <pvparallelview/PVZoomedZoneTree.h>
 #include <pvparallelview/PVTools.h>
 #include <pvparallelview/PVHSVColor.h>
@@ -24,6 +24,17 @@
 #include <boost/random/variate_generator.hpp>
 
 #include <stdarg.h>
+#include <stdlib.h>
+
+enum {
+	MODE_SEQ,
+	MODE_OMP,
+	MODE_SEQ_ZT,
+	MODE_OMP_ZT,
+	MODE_FILE
+};
+
+int mode_value;
 
 void show_codes(QString const& title, PVParallelView::PVBCICode* codes, size_t n)
 {
@@ -58,7 +69,7 @@ void show_codes(QString const& title, PVParallelView::PVBCICode* codes, size_t n
 
 void init_rand_plotted(Picviz::PVPlotted::plotted_table_t& p, PVRow nrows, PVCol ncols)
 {
-	srand(time(NULL));
+	//srand(time(NULL));
 	p.clear();
 	p.reserve(nrows*ncols);
 	for (PVRow i = 0; i < nrows*ncols; i++) {
@@ -93,7 +104,24 @@ void init_normal_plotted(Picviz::PVPlotted::plotted_table_t& p, PVRow nrows, PVC
 
 void usage(const char* path)
 {
-	std::cerr << "Usage: " << path << " [plotted_file] [nrows] [ncols]" << std::endl;
+	std::cerr << "Usage: " << path << " [plotted_file] [nrows] [ncols]" << std::endl << std::endl;
+	std::cerr << "if plotted_file == 0, test ZZT::process_seq" << std::endl;
+	std::cerr << "if plotted_file == 1, test ZZT::process_omp" << std::endl;
+	std::cerr << "if plotted_file == 2, test ZZT::process_seq_zt" << std::endl;
+	std::cerr << "if plotted_file == 3, test ZZT::process_omp_zt" << std::endl;
+}
+
+void memprintf(const char *text, size_t mem)
+{
+	if (mem < 1024) {
+		printf ("%s: %lu o\n", text, mem);
+	} else if (mem < (1024 * 1024)) {
+		printf ("%s: %.3f Kio\n", text, mem / 1024.);
+	} else if (mem < (1024 * 1024 * 1024)) {
+		printf ("%s: %.3f Mio\n", text, mem / (1024. * 1024.));
+	} else {
+		printf ("%s: %.3f Gio\n", text, mem / (1024. * 1024. * 1024.));
+	}
 }
 
 void fdprintf(int fd, const char *format, ...)
@@ -117,34 +145,56 @@ void test(
 	PVParallelView::PVBCICode* bci_codes_ref
 )
 {
+	(void) bci_codes_ref;
+
+	std::cout << "== test ==" << std::endl;
+
 	Picviz::PVPlotted::uint_plotted_table_t norm_plotted;
 	Picviz::PVPlotted::norm_int_plotted(plotted, norm_plotted, ncols);
 
 	{
-		PVParallelView::PVZoomedZoneTree* zztree = new PVParallelView::PVZoomedZoneTree(8);
+		PVParallelView::PVZoomedZoneTree* zzt = new PVParallelView::PVZoomedZoneTree(8);
+		PVParallelView::PVZoneProcessing zp(norm_plotted, nrows, 0, 1);
+		PVParallelView::PVZoneTree *zt = 0;
 
+		if ((mode_value == MODE_SEQ_ZT) || (mode_value == MODE_OMP_ZT)) {
+			zt = new PVParallelView::PVZoneTree();
+			std::cout << "== ZT::process ==" << std::endl;
+			BENCH_START(process);
+			zt-> process(zp);
+			BENCH_END_TRANSFORM(process, "ZT::process", 1, 1);
+		}
+
+		std::cout << "== ZZT::process ==" << std::endl;
 		{
 			BENCH_START(process);
-			zztree->process(norm_plotted, 0U, 1U, nrows);
+			if (mode_value == MODE_SEQ) {
+				zzt->process_seq(zp);
+			} else if (mode_value == MODE_OMP) {
+				zzt->process_omp(zp);
+			} else if (mode_value == MODE_SEQ_ZT) {
+				zzt->process_seq_from_zt(zp, *zt);
+			} else if (mode_value == MODE_OMP_ZT) {
+				zzt->process_omp_from_zt(zp, *zt);
+			}
 			BENCH_END_TRANSFORM(process, "ZZT::process", 1, 1);
-			std::cout << "memory: " << zztree->memory() << std::endl;
+			memprintf("memory", zzt->memory());
 		}
 
 		size_t nb_codes;
 		{
 			BENCH_START(browse);
-			nb_codes = zztree->browse_tree_bci_by_y1(0, UINT_MAX >> 1, colors, bci_codes);
+			nb_codes = zzt->browse_tree_bci_by_y1(0, UINT_MAX, colors, bci_codes);
 			BENCH_END_TRANSFORM(browse, "ZZT::browse_tree_bci_by_y1", 1, 1);
+			std::cout << "browse found " << nb_codes << " element(s)" << std::endl;
 		}
 
-		// for(unsigned i = 0; i < nb_codes; ++i) {
-		// 	printf ("%5d %5d %4d %12d\n",
-		// 	        bci_codes[i].s.l, bci_codes[i].s.r,
-		// 	        bci_codes[i].s.color, bci_codes[i].s.idx);
-		// }
-
-		show_codes("serial", bci_codes, nb_codes);
-		delete zztree;
+		(void) nb_codes;
+		// show_codes("serial", bci_codes, nb_codes);
+		delete zzt;
+		if (zt != 0) {
+			delete zt;
+		}
 	}
 }
 
@@ -155,13 +205,30 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
+	// to make sure they are defined
+	setenv("NUM_THREADS", "4", 0);
+	setenv("GRAINSIZE", "100", 0);
+
 	QApplication app(argc, argv);
 
 	PVCol ncols, nrows;
 	Picviz::PVPlotted::plotted_table_t plotted;
 	//PVLOG_INFO("Loading plotted...\n");
 	QString fplotted(argv[1]);
+
 	if (fplotted == "0") {
+		mode_value = MODE_SEQ;
+	} else if (fplotted == "1") {
+		mode_value = MODE_OMP;
+	} else if (fplotted == "2") {
+		mode_value = MODE_SEQ_ZT;
+	} else if (fplotted == "3") {
+		mode_value = MODE_OMP_ZT;
+	} else {
+		mode_value = MODE_FILE;
+	}
+
+	if (mode_value != MODE_FILE) {
 		//PVLOG_INFO("Initialising random plotted...\n");
 		if (argc < 4) {
 			usage(argv[0]);
@@ -172,6 +239,7 @@ int main(int argc, char** argv)
 		nrows = atol(argv[2]);
 		ncols = atol(argv[3]);
 
+		memprintf("real data size", nrows * sizeof(PVParallelView::PVQuadTreeEntry));
 		PVParallelView::PVHSVColor* colors = PVParallelView::PVHSVColor::init_colors(nrows);
 		PVParallelView::PVBCICode* bci_codes_ref = PVParallelView::PVBCICode::allocate_codes(NBUCKETS);
 		PVParallelView::PVBCICode* bci_codes = PVParallelView::PVBCICode::allocate_codes(NBUCKETS);
@@ -180,17 +248,14 @@ int main(int argc, char** argv)
 		init_rand_plotted(plotted, nrows, ncols);
 		test(plotted, nrows, ncols, colors, bci_codes, bci_codes_ref);
 
-		// std::cout << "== NORMAL DISTRIBUTED PLOTTED ==" << std::endl;
-		// init_normal_plotted(plotted, nrows, ncols);
-		// test(plotted, nrows, ncols, colors, bci_codes, bci_codes_ref);
+		std::cout << "== NORMAL DISTRIBUTED PLOTTED ==" << std::endl;
+		init_normal_plotted(plotted, nrows, ncols);
+		test(plotted, nrows, ncols, colors, bci_codes, bci_codes_ref);
 
 		delete [] colors;
 		PVParallelView::PVBCICode::free_codes(bci_codes_ref);
 		PVParallelView::PVBCICode::free_codes(bci_codes);
-
-	}
-	else
-	{
+	} else {
 		if (!Picviz::PVPlotted::load_buffer_from_file(plotted, ncols, true, QString(argv[1]))) {
 			std::cerr << "Unable to load plotted !" << std::endl;
 			return 1;
@@ -198,6 +263,7 @@ int main(int argc, char** argv)
 		nrows = plotted.size()/ncols;
 		std::cout << "Plotted loaded" << std::endl;
 
+		memprintf("real data size", nrows * sizeof(PVParallelView::PVQuadTreeEntry));
 		PVParallelView::PVHSVColor* colors = PVParallelView::PVHSVColor::init_colors(nrows);
 		PVParallelView::PVBCICode* bci_codes_ref = PVParallelView::PVBCICode::allocate_codes(NBUCKETS);
 		PVParallelView::PVBCICode* bci_codes = PVParallelView::PVBCICode::allocate_codes(NBUCKETS);
@@ -212,7 +278,7 @@ int main(int argc, char** argv)
 	Picviz::PVPlotted::norm_int_plotted(plotted, norm_plotted, ncols);
 	//PVLOG_INFO("Done !\n");
 
-	app.exec();
+	// app.exec();
 
 	return 0;
 	//return app.exec();
