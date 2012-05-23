@@ -112,9 +112,9 @@ void PVCore::PVProgressBox::set_enable_cancel(bool enable)
 	_btnCancel->setEnabled(enable);
 }
 
-bool PVCore::PVProgressBox::process_worker_thread(PVThreadWatcher* watcher, boost::thread& worker, PVProgressBox* pbox)
+bool PVCore::PVProgressBox::process_worker_thread(__impl::ThreadEndSignal* watcher, boost::thread& worker, PVProgressBox* pbox)
 {
-	watcher->set_thread(worker);
+	//watcher->set_thread(worker);
 	// Show the window only if the work takes more than 50ms (avoid window flashing)
 	if (!worker.timed_join(boost::posix_time::milliseconds(250))) {
 		if (pbox->exec() != QDialog::Accepted) {
