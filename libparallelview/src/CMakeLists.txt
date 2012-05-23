@@ -25,6 +25,7 @@ PVHSVColor.cpp
 PVTools.cpp
 PVZoomedZoneTree.cpp
 PVZonesDrawing.cpp
+PVLinesView.cpp
 PVZonesManager.cpp
 PVZoneTree.cpp
 PVZoneTreeBase.cpp
@@ -43,6 +44,7 @@ include/pvparallelview/PVBCICode.h
 include/pvparallelview/PVBCode.h
 include/pvparallelview/PVContainerZoneTree.h
 include/pvparallelview/PVHSVColor.h
+include/pvparallelview/PVLinesView.h
 include/pvparallelview/PVPODBlockContainer.h
 include/pvparallelview/PVQuadTree.h
 include/pvparallelview/PVTools.h

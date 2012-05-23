@@ -4,8 +4,10 @@
 #include <pvkernel/core/general.h>
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVBCICode.h>
+#include <pvparallelview/PVBCIDrawingBackend.h>
 #include <pvparallelview/PVBCIBackendImage_types.h>
 #include <pvparallelview/PVZonesManager.h>
+#include <pvparallelview/PVBCIBackendImage.h>
 
 #include <boost/utility.hpp>
 
@@ -30,7 +32,7 @@ public:
 	inline void set_backend(PVBCIDrawingBackend const& backend) { _draw_backend = &backend; }
 
 public:
-	inline PVBCIBackendImage_p create_image(size_t width) { assert(_draw_backend); return _draw_backend->create_image(width); }
+	inline PVBCIBackendImage_p create_image(size_t width) const { assert(_draw_backend); return _draw_backend->create_image(width); }
 
 public:
 	template <class Tree, class Fbci>
@@ -45,7 +47,7 @@ public:
 	uint32_t draw_zones(PVBCIBackendImage& dst_img, uint32_t x_start, PVZoneID zone_start, PVZoneID nzones, Fbci const& f_bci)
 	{
 		for (PVZoneID zone = zone_start; zone < nzones; zone++) {
-			assert(x_start + _zm.get_zone_zoom(zone) + AxisWidth <= dst_img.width());
+			assert(x_start + _zm.get_zone_width(zone) + AxisWidth <= dst_img.width());
 			draw_zone<Tree,Fbci>(dst_img, x_start, zone, f_bci);
 			x_start += _zm.get_zone_width(zone) + AxisWidth;
 		}
@@ -56,8 +58,14 @@ public:
 	void draw_zone(PVBCIBackendImage& dst_img, uint32_t x_start, PVZoneID zone, Fbci const& f_bci)
 	{
 		Tree const& zone_tree = _zm.get_zone_tree<Tree>(zone);
+		PVLOG_INFO("draw_zone: tree pointer: %p\n", &zone_tree);
 		size_t ncodes = (zone_tree.*f_bci)(_colors, _computed_codes);
 		draw_bci(dst_img, x_start, zone, _computed_codes, ncodes);
+	}
+
+	inline uint32_t get_zone_width(PVZoneID z) const
+	{
+		return _zm.get_zone_width(z);
 	}
 
 private:
