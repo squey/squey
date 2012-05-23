@@ -62,6 +62,11 @@ public:
 		draw_bci(dst_img, x_start, zone, _computed_codes, ncodes);
 	}
 
+	inline uint32_t get_zone_width(PVZoneID z) const
+	{
+		return _zm.get_zone_width(z);
+	}
+
 private:
 	void draw_bci(PVBCIBackendImage& dst_img, uint32_t x_start, PVZoneID zone, PVBCICode* codes, size_t n);
 

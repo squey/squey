@@ -13,16 +13,88 @@
 
 #include <QApplication>
 
+#define WIDTH 1920
+#define HEIGHT 1600
 
 class GraphicsView : public QGraphicsView
 {
 public:
+
+	virtual void translateViewPort(int translation)
+	{
+		QScrollBar *hBar = horizontalScrollBar();
+		hBar->setValue(hBar->value() + (isRightToLeft() ? -translation : translation));
+	}
 };
 
 class OpenGLScene : public QGraphicsScene
 {
 public:
-	OpenGLScene(QObject* parent) : QGraphicsScene(parent) {}
+	OpenGLScene(QObject* parent, PVParallelView::PVLinesView* lines_view) : QGraphicsScene(parent), _lines_view(lines_view)
+	{
+		_lines_view->render_all();
+
+		PVParallelView::PVLinesView::list_zone_images_t images = _lines_view->get_zones_images();
+
+		int pos = 0;
+		for (int z = 0; z < images.size() ; z++) {
+			QGraphicsPixmapItem* zone_image = addPixmap(QPixmap::fromImage(images[z].all->qimage()));
+			zone_image->setPos(QPointF(pos, 0));
+			pos += _lines_view->get_zone_width(z) + 3;
+		}
+	}
+
+	void mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+	{
+		if (event->buttons() == Qt::RightButton) {
+			GraphicsView* view = ((GraphicsView*)parent());
+
+			QScrollBar *hBar = view->horizontalScrollBar();
+			view->translateViewPort(_translation_start_x - event->scenePos().x());
+		}
+	}
+
+	void mousePressEvent(QGraphicsSceneMouseEvent *event)
+	{
+		if (event->button() == Qt::RightButton)
+		{
+			GraphicsView* view = ((GraphicsView*)parent());
+
+			_hscroll_value = view->horizontalScrollBar()->value();
+			_translation_start_x = event->scenePos().x();
+		}
+	}
+
+	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+	{
+		if (event->button() == Qt::RightButton)
+		{
+			GraphicsView* view = ((GraphicsView*)parent());
+			int translation = _hscroll_value - view->horizontalScrollBar()->value();
+		}
+	}
+
+	/*void wheelEvent(QGraphicsSceneWheelEvent* event)
+	{
+		int zoom = event->delta();
+		if (event->modifiers() == Qt::ControlModifier) {
+			_zoom_manager->set_local_zoom(event->scenePos(), zoom);
+		}
+		else {
+			_zoom_manager->set_global_zoom(zoom);
+		}
+
+	}*/
+
+	/*void drawBackground(QPainter *painter, const QRectF &)
+	{
+
+	}*/
+
+private:
+	PVParallelView::PVLinesView* _lines_view;
+    unsigned int _hscroll_value;
+    qreal _translation_start_x;
 };
 
 void usage(const char* path)
@@ -85,11 +157,13 @@ int main(int argc, char** argv)
 	PVParallelView::PVBCIDrawingBackendCUDA backend_cuda;
 	PVParallelView::PVZonesDrawing &zones_drawing = *(new PVParallelView::PVZonesDrawing(zm, backend_cuda, *colors));
 
-	PVParallelView::PVLinesView &lines_view = *(new PVParallelView::PVLinesView(zones_drawing, ncols));
+	PVParallelView::PVLinesView &lines_view = *(new PVParallelView::PVLinesView(zones_drawing, 5));
 
 	GraphicsView view;
 	view.setViewport(new QGLWidget());
-	view.setScene(new OpenGLScene(&view));
+	view.setScene(new OpenGLScene(&view, &lines_view));
+	view.resize(1920, 1600);
+	view.scale(3, 1);
 	view.show();
 
 	app.exec();
