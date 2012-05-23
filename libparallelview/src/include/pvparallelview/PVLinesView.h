@@ -1,7 +1,9 @@
 #ifndef PVPARALLELVIEW_PVLINESVIEW_H
 #define PVPARALLELVIEW_PVLINESVIEW_H
 
+#include <pvparallelview/common.h>
 #include <pvparallelview/PVBCIBackendImage_types.h>
+#include <pvparallelview/PVZonesDrawing.h>
 
 namespace PVParallelView {
 
@@ -28,11 +30,11 @@ class PVLinesView
 	};
 
 public:
-	PVLinesView(PVZonesDrawing& zones_drawing, uint32_t nb_zones, uint32_t size_zone);
+	PVLinesView(PVZonesDrawing& zones_drawing, uint32_t nb_zones, uint32_t zone_width = PVParallelView::ZoneWidth);
 
 public:
-	void set_nb_zones(uint32_t nb_zones);
-	void set_zone_width(uint32_t zone_width);
+	void set_nb_zones(uint32_t nb_zones) { _nb_zones = nb_zones;}
+	void set_zone_width(uint32_t zone_width) { zone_width = _zone_width; }
 
 public:
 	QVector<std::pair<QImage, uint32_t> > translate(int32_t x);
@@ -41,7 +43,11 @@ public:
 
 private:
 	PVZonesDrawing& _zd;
-	std::vector<ZoneImages> _zones_imgs;
+	uint32_t _nb_zones;
+	uint32_t _zone_width;
+
+	std::vector<ZoneImages> _zones_imgs_sel;
+	std::vector<ZoneImages> _zones_imgs_all;
 	uint32_t _view_pos;
 
 };

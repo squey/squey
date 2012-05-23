@@ -1,4 +1,3 @@
-#include <pvparallelview/PVBCIDrawingBackend.h>
 #include <pvparallelview/PVZonesDrawing.h>
 
 PVParallelView::PVZonesDrawing::PVZonesDrawing(PVZonesManager const& zm, PVBCIDrawingBackend const& backend, PVHSVColor const& colors):

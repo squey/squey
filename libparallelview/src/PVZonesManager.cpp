@@ -55,7 +55,7 @@ void PVParallelView::PVZonesManager::set_uint_plotted(Picviz::PVView const& view
 
 size_t PVParallelView::PVZonesManager::get_zone_absolute_pos(PVZoneID zone) const
 {
-	assert(z < _zones.size());
+	assert(zone < _zones.size());
 	size_t pos = 0;
 	for (PVZoneID z = 0; z < zone; z++) {
 		pos += _zones[z].width() + PVParallelView::AxisWidth;
