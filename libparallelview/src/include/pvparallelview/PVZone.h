@@ -14,7 +14,7 @@ public:
 	{ }
 
 public:
-	inline void set_width(uint32_t width) { _width = width; }
+	inline void set_width(uint32_t width) const { _width = width; }
 	uint32_t width() const { return _width; }
 
 	PVZoneTree& ztree() { return *_ztree; }
@@ -29,7 +29,7 @@ public:
 
 private:
 	PVZoneTree_p _ztree;
-	uint32_t _width;
+	mutable uint32_t _width; // TODO: Fix that
 };
 
 template <>

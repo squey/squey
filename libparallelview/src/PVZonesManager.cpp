@@ -65,3 +65,19 @@ size_t PVParallelView::PVZonesManager::get_zone_absolute_pos(PVZoneID zone) cons
 	}
 	return pos;
 }
+
+PVZoneID PVParallelView::PVZonesManager::get_zone_id(int abs_pos) const
+{
+	PVZoneID zid = 0;
+	size_t pos = 0;
+	for (; zid < _zones.size()-1 ; zid++)
+	{
+		pos += _zones[zid].width() + PVParallelView::AxisWidth;
+		if (pos > abs_pos) {
+			break;
+		}
+	}
+
+	assert(zid < _zones.size());
+	return zid;
+}

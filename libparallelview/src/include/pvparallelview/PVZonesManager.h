@@ -35,6 +35,7 @@ public:
 	template <class Tree>
 	inline Tree const& get_zone_tree(PVZoneID z) const
 	{
+		PVLOG_INFO("z=%d get_number_zones()=%d\n");
 		assert(z < get_number_zones());
 		return _zones[z].get_tree<Tree>();
 	}
@@ -45,7 +46,13 @@ public:
 		return _zones[z].width();
 	}
 
+	void set_zone_width(PVZoneID zid, int width) const
+	{
+		_zones[zid].set_width(width);
+	}
+
 	size_t get_zone_absolute_pos(PVZoneID z) const;
+	PVZoneID get_zone_id(int abs_pos) const;
 
 public:
 	void set_uint_plotted(Picviz::PVPlotted::uint_plotted_table_t const& plotted, PVRow nrows, PVCol ncols);
