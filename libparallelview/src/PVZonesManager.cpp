@@ -4,6 +4,7 @@
 
 #include <tbb/parallel_for.h>
 #include <tbb/blocked_range.h>
+#include <tbb/task_scheduler_init.h>
 
 namespace PVParallelView { namespace __impl {
 
@@ -58,16 +59,24 @@ void PVParallelView::PVZonesManager::update_all()
 	}
 	
 	PVZoneProcessing zp(get_uint_plotted(), get_number_rows());
+	/*
 	{
 		__impl::ZoneCreation zc;
 		zc._zm = this;
+		char* env_threads = getenv("NUM_THREADS");
+		int nthreads = 0;
+		if (env_threads) {
+			nthreads = atoi(env_threads);
+		}
+		tbb::task_scheduler_init scheduler(nthreads);
 		tbb::parallel_for(tbb::blocked_range<PVZoneID>(0, nzones, 8), zc);
-	}
-	/*for (PVZoneID z = 0; z < nzones; z++) {
+	}*/
+	PVParallelView::PVZoneTree::ProcessTLS tls;
+	for (PVZoneID z = 0; z < nzones; z++) {
 		get_zone_cols(z, zp.col_a(), zp.col_b());
 		PVZoneTree& ztree = _zones[z].ztree();
-		ztree.process(zp, *tls);
-	}*/
+		ztree.process(zp, tls);
+	}
 }
 
 void PVParallelView::PVZonesManager::update_from_axes_comb(QVector<PVCol> const& ac)
