@@ -34,6 +34,7 @@ simple_lines_float_view.cpp
 simple_lines_int_view.cpp
 PVAxisWidget.cpp
 PVAxisSlider.cpp
+PVQuadTree.cpp
 )
 
 set(CUDA_SRC_FILES
