@@ -1,6 +1,7 @@
 #ifndef PVPARALLELVIEW_PVBCIDRAWINGBACKENDCUDA_H
 #define PVPARALLELVIEW_PVBCIDRAWINGBACKENDCUDA_H
 
+#include <pvkernel/cuda/common.h>
 #include <pvparallelview/PVBCIDrawingBackend.h>
 
 namespace PVParallelView {
@@ -22,6 +23,7 @@ public:
 private:
 	// TODO: make that one per CUDA device !
 	PVBCICode* _device_codes;
+	cudaStream_t _main_stream;
 };
 
 }
