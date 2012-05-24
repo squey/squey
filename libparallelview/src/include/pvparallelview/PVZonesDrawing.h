@@ -55,12 +55,23 @@ public:
 	}
 
 	template <class Tree, class Fbci>
-	void draw_zone(PVBCIBackendImage& dst_img, uint32_t x_start, PVZoneID zone, Fbci const& f_bci)
+	void draw_zone_lambda(PVBCIBackendImage& dst_img, uint32_t x_start, PVZoneID zone, Fbci const& f_bci)
 	{
 		Tree const& zone_tree = _zm.get_zone_tree<Tree>(zone);
 		PVLOG_INFO("draw_zone: tree pointer: %p\n", &zone_tree);
-		size_t ncodes = (zone_tree.*f_bci)(_colors, _computed_codes);
+		size_t ncodes = f_bci(zone_tree, _colors, _computed_codes);
 		draw_bci(dst_img, x_start, zone, _computed_codes, ncodes);
+	}
+
+	template <class Tree, class Fbci>
+	inline void draw_zone(PVBCIBackendImage& dst_img, uint32_t x_start, PVZoneID zone, Fbci const& f_bci)
+	{
+		draw_zone_lambda<Tree>(dst_img, x_start, zone,
+		                       [&](Tree const& zone_tree, PVHSVColor const* colors, PVBCICode* codes)
+		                       {
+			                       return (zone_tree.*f_bci)(colors, codes);
+		                       }
+		                       );
 	}
 
 	inline uint32_t get_zone_width(PVZoneID z) const
