@@ -12,7 +12,12 @@
 #include <pvparallelview/PVZonesManager.h>
 #include <pvparallelview/PVLinesView.h>
 
+#include <pvparallelview/PVAxisWidget.h>
+#include <picviz/PVAxis.h>
+
 #include <QApplication>
+
+#define CRAND() (127 + (random() & 0x7F))
 
 class PVFullParallelView : public QGraphicsView
 {
@@ -32,13 +37,10 @@ public:
 		_lines_view->render_all_imgs(PVParallelView::ImageWidth);
 		PVParallelView::PVLinesView::list_zone_images_t images = _lines_view->get_zones_images();
 
-		// Add ALL axes
-		int pos = -PVParallelView::AxisWidth;
-		for (PVCol c = 0; c < (PVZoneID) _lines_view->get_zones_manager().get_number_cols() ; c++) {
-			QGraphicsRectItem* axis = addRect(QRect(pos, 0, PVParallelView::AxisWidth, PVParallelView::ImageHeight), QPen(Qt::black), QBrush(Qt::black));
-			_axes.push_back(axis);
-			pos += PVParallelView::ZoneDefaultWidth + PVParallelView::AxisWidth;
-		}
+		PVParallelView::PVAxisWidget *axisw;
+		Picviz::PVAxis *axis;
+		PVZoneID z;
+		int pos = 0;
 
 		// Add visible zones
 		for (PVZoneID z = 0; z < (PVZoneID) images.size() ; z++) {
@@ -48,6 +50,29 @@ public:
 			if (z < _lines_view->get_zones_manager().get_number_zones()) {
 				zone_image->setPos(QPointF(_lines_view->get_zone_absolute_pos(z), 0));
 			}
+		}
+
+		// Add ALL axes
+		PVZoneID nzones = (PVZoneID) _lines_view->get_zones_manager().get_number_cols();
+		for (z = 0; z < nzones; z++) {
+			axis = new Picviz::PVAxis();
+			axis->set_name(QString("axis ") + QString::number(z));
+			axis->set_color(PVCore::PVColor::fromRgba(CRAND(), CRAND(), CRAND(), 0));
+			axis->set_titlecolor(PVCore::PVColor::fromRgba(CRAND(), CRAND(), CRAND(), 0));
+			_axes.push_back(axis);
+
+			if (z < nzones-1) {
+				pos = _lines_view->get_zones_manager().get_zone_absolute_pos(z);
+			}
+			else {
+				// Special case for last axis
+				pos += _lines_view->get_zones_manager().get_zone_width(z-1);
+			}
+
+			axisw = new PVParallelView::PVAxisWidget(axis);
+			axisw->setPos(QPointF(pos - PVParallelView::AxisWidth, 0));
+			addItem(axisw);
+			axisw->add_range_sliders(768, 1000);
 		}
 	}
 
@@ -111,8 +136,8 @@ public:
 		//Global zoom
 		else
 		{
-			uint32_t view_x = view->horizontalScrollBar()->value();
-			_lines_view->set_all_zones_width_and_render(view_x, view->width(), [=](uint32_t width){ return width+zoom; });
+			uint32_t view_x = view()->horizontalScrollBar()->value();
+			_lines_view->set_all_zones_width_and_render(view_x, view()->width(), [=](uint32_t width){ return width+zoom; });
 			update_zones_position();
 		}
 	}
@@ -122,7 +147,7 @@ private:
     qreal _translation_start_x;
 
     QList<QGraphicsPixmapItem*> _zones;
-    QList<QGraphicsRectItem*> _axes;
+    QList<Picviz::PVAxis*> _axes;
 };
 
 void usage(const char* path)
