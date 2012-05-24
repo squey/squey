@@ -35,6 +35,13 @@ PVParallelView::PVZoomedZoneTree::~PVZoomedZoneTree()
 	}
 }
 
+void PVParallelView::PVZoomedZoneTree::compact()
+{
+	for (int i = 0; i < 1024 * 1024; ++i) {
+		_trees[i].compact();
+	}
+}
+
 void PVParallelView::PVZoomedZoneTree::process_seq(const PVParallelView::PVZoneProcessing &zp)
 {
 	const uint32_t* pcol_a = zp.get_plotted_col_a();

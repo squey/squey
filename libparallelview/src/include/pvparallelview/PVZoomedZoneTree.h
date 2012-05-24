@@ -3,10 +3,7 @@
 
 #include <pvbase/types.h>
 #include <pvparallelview/common.h>
-
 #include <picviz/PVPlotted.h>
-
-#define PVQUADTREE_ALLOC_ELEMENT_COUNT 1000
 #include <pvparallelview/PVQuadTree.h>
 #include <pvparallelview/PVZoneProcessing.h>
 #include <pvparallelview/PVZoneTree.h>
@@ -34,6 +31,9 @@ public:
 		return mem;
 	}
 
+	void compact();
+
+public:
 	void process_seq(const PVZoneProcessing &zp);
 
 	void process_seq_from_zt(const PVZoneProcessing &zp, PVZoneTree &zt);
@@ -66,4 +66,5 @@ private:
 };
 
 }
+
 #endif //  PARALLELVIEW_PVZOOMEDZONETREE_H
