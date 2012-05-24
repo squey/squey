@@ -77,7 +77,7 @@ public:
 		return (PVFullParallelView*)parent() ;
 	}
 
-	void update_zones_position()
+	void update_zones_position(bool update_all = true)
 	{
 		PVParallelView::PVLinesView::list_zone_images_t images = _lines_view->get_zones_images();
 		for (PVZoneID zid = _lines_view->get_first_drawn_zone(); zid <= _lines_view->get_last_drawn_zone(); zid++) {
@@ -89,9 +89,22 @@ public:
 		// Update axes position
 		PVZoneID nzones = (PVZoneID) _lines_view->get_zones_manager().get_number_cols();
 		uint32_t pos = 0;
-		for (PVZoneID z = 0; z < nzones-1; z++) {
+
+		PVZoneID z = 1;
+		if (! update_all) {
+			uint32_t view_x = view()->horizontalScrollBar()->value();
+			z = _lines_view->get_zone_from_scene_pos(view_x) + 1;
+		}
+		for (; z < nzones; z++) {
+			if (z < nzones-1) {
+				pos = _lines_view->get_zones_manager().get_zone_absolute_pos(z);
+			}
+			else {
+				// Special case for last axis
+				pos += _lines_view->get_zones_manager().get_zone_width(z-1);
+			};
+
 			_axes[z]->setPos(QPointF(pos - PVParallelView::AxisWidth, 0));
-			pos += _lines_view->get_zone_width(z) + PVParallelView::AxisWidth;
 		}
 	}
 
@@ -133,7 +146,7 @@ public:
 			PVZoneID zid = _lines_view->get_zone_from_scene_pos(event->scenePos().x());
 			uint32_t z_width = _lines_view->get_zone_width(zid);
 			if (_lines_view->set_zone_width_and_render(zid, z_width + zoom)) {
-				update_zones_position();
+				update_zones_position(false);
 			}
 		}
 		//Global zoom
