@@ -43,7 +43,6 @@ public:
 	template <class Tree>
 	inline Tree const& get_zone_tree(PVZoneID z) const
 	{
-		PVLOG_INFO("z=%d get_number_zones()=%d\n");
 		assert(z < get_number_zones());
 		return _zones[z].get_tree<Tree>();
 	}

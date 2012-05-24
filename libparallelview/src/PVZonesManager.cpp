@@ -13,7 +13,7 @@ public:
 	void operator()(const tbb::blocked_range<PVZoneID>& r) const
 	{
 		PVParallelView::PVZonesManager* zm = _zm;
-		PVParallelView::PVZoneTree::ProcessTLS& tls = zm->_tls_ztree.local();
+		PVParallelView::PVZoneTree::ProcessTLS tls;
 		PVParallelView::PVZoneProcessing zp(zm->get_uint_plotted(), zm->get_number_rows());
 		for (PVZoneID z = r.begin(); z != r.end(); z++) {
 			zm->get_zone_cols(z, zp.col_a(), zp.col_b());
@@ -58,11 +58,10 @@ void PVParallelView::PVZonesManager::update_all()
 	}
 	
 	PVZoneProcessing zp(get_uint_plotted(), get_number_rows());
-	PVZoneTree::ProcessTLS tls;
 	{
 		__impl::ZoneCreation zc;
 		zc._zm = this;
-		tbb::parallel_for(tbb::blocked_range<PVZoneID>(0, nzones, 1), zc);
+		tbb::parallel_for(tbb::blocked_range<PVZoneID>(0, nzones, 8), zc);
 	}
 	/*for (PVZoneID z = 0; z < nzones; z++) {
 		get_zone_cols(z, zp.col_a(), zp.col_b());

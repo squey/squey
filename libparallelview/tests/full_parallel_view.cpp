@@ -50,8 +50,9 @@ public:
 	{
 		PVParallelView::PVLinesView::list_zone_images_t images = _lines_view->get_zones_images();
 		for (PVZoneID zid = _lines_view->get_first_drawn_zone(); zid <= _lines_view->get_last_drawn_zone(); zid++) {
-			_zones[zid]->setPixmap(QPixmap::fromImage(images[zid-_lines_view->get_first_drawn_zone()].bg->qimage()));
-			_zones[zid]->setPos(QPointF(_lines_view->get_zone_absolute_pos(zid), 0));
+			const PVZoneID img_id = zid-_lines_view->get_first_drawn_zone();
+			_zones[img_id]->setPixmap(QPixmap::fromImage(images[img_id].bg->qimage()));
+			_zones[img_id]->setPos(QPointF(_lines_view->get_zone_absolute_pos(zid), 0));
 		}
 
 	}
