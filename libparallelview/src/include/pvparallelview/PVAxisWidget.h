@@ -1,34 +1,42 @@
 #ifndef PVPARALLELVIEW_PVAXISWIDGET_H
 #define PVPARALLELVIEW_PVAXISWIDGET_H
 
+#include <pvparallelview/PVAxisSlider.h>
+
 #include <QGraphicsItem>
 
-#include <picviz/PVAxis.h>
+#include <vector>
+#include <utility>
+
+namespace Picviz
+{
+
+class PVAxis;
+
+}
 
 namespace PVParallelView
 {
 
+typedef std::pair<PVAxisSlider*, PVAxisSlider*> PVAxisRangeSliders;
+
 class PVAxisWidget : public QGraphicsItem
 {
 public:
-	PVAxisWidget() {}
-	PVAxisWidget(const Picviz::PVAxis &axis);
-	PVAxisWidget(const QString &text);
+	PVAxisWidget(Picviz::PVAxis *axis);
 
-	~PVAxisWidget() {}
+	~PVAxisWidget();
 
 	QRectF boundingRect () const;
 
 	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
 
-private:
-	void set_text(QString &name);
-
-	void update_bbox();
+	void add_range_sliders(uint32_t y1, uint32_t y2);
 
 private:
-	QString _text;
-	QRectF  _bbox;
+	Picviz::PVAxis*                 _axis;
+	QRectF                          _bbox;
+	std::vector<PVAxisRangeSliders> _sliders;
 };
 
 }
