@@ -64,16 +64,14 @@ void PVParallelView::PVAxisWidget::add_range_sliders(uint32_t p1, uint32_t p2)
 {
 	PVParallelView::PVAxisRangeSliders sliders;
 
-	if (s != 0) {
-		sliders.first = new PVParallelView::PVAxisSlider(0, 1023, p1);
-		sliders.second = new PVParallelView::PVAxisSlider(0, 1023, p2);
+	sliders.first = new PVParallelView::PVAxisSlider(0, 1023, p1);
+	sliders.second = new PVParallelView::PVAxisSlider(0, 1023, p2);
 
-		sliders.first->setPos(pos());
-		sliders.second->setPos(pos());
+	sliders.first->setPos(pos());
+	sliders.second->setPos(pos());
 
-		addToGroup(sliders.first);
-		addToGroup(sliders.second);
+	addToGroup(sliders.first);
+	addToGroup(sliders.second);
 
-		_sliders.push_back(sliders);
-	}
+	_sliders.push_back(sliders);
 }
