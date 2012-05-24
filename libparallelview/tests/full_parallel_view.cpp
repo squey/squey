@@ -37,11 +37,7 @@ public:
 		_lines_view->render_all_imgs(PVParallelView::ImageWidth);
 		PVParallelView::PVLinesView::list_zone_images_t images = _lines_view->get_zones_images();
 
-		PVParallelView::PVAxisWidget *axisw;
-		Picviz::PVAxis *axis;
-		PVZoneID z;
 		int pos = 0;
-
 		// Add visible zones
 		for (PVZoneID z = 0; z < (PVZoneID) images.size() ; z++) {
 			QGraphicsPixmapItem* zone_image = addPixmap(QPixmap::fromImage(images[z].bg->qimage()));
@@ -54,12 +50,11 @@ public:
 
 		// Add ALL axes
 		PVZoneID nzones = (PVZoneID) _lines_view->get_zones_manager().get_number_cols();
-		for (z = 0; z < nzones; z++) {
-			axis = new Picviz::PVAxis();
+		for (PVZoneID z = 0; z < nzones; z++) {
+			Picviz::PVAxis* axis = new Picviz::PVAxis();
 			axis->set_name(QString("axis ") + QString::number(z));
 			axis->set_color(PVCore::PVColor::fromRgba(CRAND(), CRAND(), CRAND(), 0));
 			axis->set_titlecolor(PVCore::PVColor::fromRgba(CRAND(), CRAND(), CRAND(), 0));
-			_axes.push_back(axis);
 
 			if (z < nzones-1) {
 				pos = _lines_view->get_zones_manager().get_zone_absolute_pos(z);
@@ -69,9 +64,10 @@ public:
 				pos += _lines_view->get_zones_manager().get_zone_width(z-1);
 			}
 
-			axisw = new PVParallelView::PVAxisWidget(axis);
+			PVParallelView::PVAxisWidget* axisw = new PVParallelView::PVAxisWidget(axis);
 			axisw->setPos(QPointF(pos - PVParallelView::AxisWidth, 0));
 			addItem(axisw);
+			_axes.push_back(axisw);
 			axisw->add_range_sliders(768, 1000);
 		}
 	}
@@ -90,6 +86,13 @@ public:
 			_zones[img_id]->setPos(QPointF(_lines_view->get_zone_absolute_pos(zid), 0));
 		}
 
+		// Update axes position
+		PVZoneID nzones = (PVZoneID) _lines_view->get_zones_manager().get_number_cols();
+		uint32_t pos = 0;
+		for (PVZoneID z = 0; z < nzones-1; z++) {
+			_axes[z]->setPos(QPointF(pos - PVParallelView::AxisWidth, 0));
+			pos += _lines_view->get_zone_width(z) + PVParallelView::AxisWidth;
+		}
 	}
 
 	void mouseMoveEvent(QGraphicsSceneMouseEvent *event)
@@ -147,7 +150,7 @@ private:
     qreal _translation_start_x;
 
     QList<QGraphicsPixmapItem*> _zones;
-    QList<Picviz::PVAxis*> _axes;
+    QList<PVParallelView::PVAxisWidget*> _axes;
 };
 
 void usage(const char* path)
