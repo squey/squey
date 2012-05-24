@@ -8,6 +8,10 @@
 #include <pvparallelview/PVZoneProcessing.h>
 #include <pvparallelview/PVZoneTree.h>
 
+#include <boost/shared_ptr.hpp>
+
+#include <tbb/tick_count.h>
+
 namespace PVParallelView {
 
 class PVBCICode;
@@ -18,7 +22,7 @@ class PVZoomedZoneTree
 	typedef PVQuadTree<10000, 1000> pvquadtree;
 
 public:
-	PVZoomedZoneTree(uint32_t max_level);
+	PVZoomedZoneTree(uint32_t max_level = 8);
 
 	~PVZoomedZoneTree();
 
@@ -29,6 +33,21 @@ public:
 			mem += _trees[i].memory();
 		}
 		return mem;
+	}
+
+	inline void process(const PVZoneProcessing &zp, PVZoneTree &zt)
+	{
+		tbb::tick_count start, end;
+		start = tbb::tick_count::now();
+		process_omp_from_zt(zp, zt);
+		end = tbb::tick_count::now();
+		PVLOG_INFO("PVZoomedZoneTree::process in %0.4f ms.\n", (end-start).seconds()*1000.0);
+		size_t old_size = memory();
+		start = tbb::tick_count::now();
+		compact();
+		end = tbb::tick_count::now();
+		PVLOG_INFO("PVZoomedZoneTree::compact in %0.4f ms.\n", (end-start).seconds()*1000.0);
+		PVLOG_INFO("PVZoomedZoneTree::memory: %lu octets -> %lu octets.\n", old_size, memory());
 	}
 
 	void compact();
@@ -64,6 +83,8 @@ private:
 private:
 	pvquadtree *_trees;
 };
+
+typedef boost::shared_ptr<PVZoomedZoneTree> PVZoomedZoneTree_p;
 
 }
 
