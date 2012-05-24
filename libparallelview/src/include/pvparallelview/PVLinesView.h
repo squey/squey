@@ -59,9 +59,11 @@ public:
 	inline PVZoneID get_zone_from_scene_pos(int32_t x) const { return get_zones_manager().get_zone_id(x); }
 
 	bool set_zone_width_and_render(PVZoneID z, uint32_t width);
+	bool set_all_zones_width_and_render(uint32_t width);
 
 	inline const PVZonesDrawing& get_zones_drawing() const { return _zd; }
 	inline const PVZonesManager& get_zones_manager() const { return _zd.get_zones_manager(); }
+	inline PVZonesManager& get_zones_manager() { return _zd.get_zones_manager(); }
 	inline uint32_t get_zone_width(PVZoneID z) const { return _zd.get_zone_width(z); }
 
 	const list_zone_images_t& get_zones_images() const { return _zones_imgs; }
@@ -69,6 +71,18 @@ public:
 	inline PVZoneID get_last_drawn_zone() const { return picviz_min(_first_zone + _zones_imgs.size()-1, get_zones_manager().get_number_zones()-1); }
 	bool is_zone_drawn(PVZoneID z) const { return (z >= get_first_drawn_zone() && z <= get_last_drawn_zone()); }
 	inline uint32_t get_zone_absolute_pos(PVZoneID z) const { return get_zones_manager().get_zone_absolute_pos(z); }
+
+	template <class F>
+	bool set_all_zones_width_and_render(int32_t visible_view_x, uint32_t width, F const& f)
+	{
+		width = PVCore::clamp(width, (uint32_t) PVParallelView::ZoneMinWidth, (uint32_t) PVParallelView::ZoneMaxWidth);
+
+		get_zones_manager().set_zones_width(f);
+
+		render_all(visible_view_x, width);
+
+		return true;
+	}
 
 private:
 	inline void update_zone_image_width(PVZoneID zid)
@@ -84,7 +98,7 @@ private:
 	template <class F>
 	void render_all_zones(uint32_t view_width, F const& fzone)
 	{
-		int32_t view_x = _visibile_view_x;
+		int32_t view_x = _visible_view_x;
 		if (view_x < 0) {
 			uint32_t unused_width = (uint32_t) (-view_x);
 			if (unused_width >= view_width) {
@@ -150,7 +164,7 @@ private:
 	{
 
 		int32_t new_view_x = view_x;
-		_visibile_view_x = new_view_x;
+		_visible_view_x = new_view_x;
 		PVZoneID new_first_zone = get_first_zone_from_viewport(view_x, view_width);
 		if (new_first_zone == _first_zone) {
 			// "Le changement, c'est pas maintenant !"
@@ -202,7 +216,7 @@ private:
 	PVZonesDrawing& _zd;
 	PVZoneID _first_zone;
 	uint32_t _zone_max_width;
-	int32_t _visibile_view_x;
+	int32_t _visible_view_x;
 
 	list_zone_images_t _zones_imgs;
 };

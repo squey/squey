@@ -2,6 +2,7 @@
 #define PVPARALLELVIEW_PVZONE_H
 
 #include <pvparallelview/PVZoneTree.h>
+#include <pvparallelview/common.h>
 
 namespace PVParallelView {
 
@@ -14,7 +15,7 @@ public:
 	{ }
 
 public:
-	inline void set_width(uint32_t width) const { _width = width; }
+	inline void set_width(uint32_t width) const { assert(width <= PVParallelView::ZoneMaxWidth); _width = width; }
 	uint32_t width() const { return _width; }
 
 	PVZoneTree& ztree() { return *_ztree; }

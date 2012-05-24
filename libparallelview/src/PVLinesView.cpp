@@ -4,7 +4,7 @@ PVParallelView::PVLinesView::PVLinesView(PVZonesDrawing& zones_drawing, PVZoneID
 	_zd(zones_drawing),
 	_first_zone(0),
 	_zone_max_width(zone_width),
-	_visibile_view_x(0)
+	_visible_view_x(0)
 {
 	set_nb_drawable_zones(nb_zones);
 }
@@ -148,7 +148,7 @@ void PVParallelView::PVLinesView::left_shift_images(PVZoneID s)
 void PVParallelView::PVLinesView::render_all(int32_t view_x, uint32_t view_width)
 {
 	_first_zone = get_first_zone_from_viewport(view_x, view_width);
-	_visibile_view_x = view_x;
+	_visible_view_x = view_x;
 	render_all_imgs(view_width);
 }
 

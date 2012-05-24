@@ -21,7 +21,7 @@ class PVHSVColor;
 class PVZonesDrawing: public boost::noncopyable
 {
 public:
-	PVZonesDrawing(PVZonesManager const& zm, PVBCIDrawingBackend const& backend, PVHSVColor const& colors);
+	PVZonesDrawing(PVZonesManager& zm, PVBCIDrawingBackend const& backend, PVHSVColor const& colors);
 	~PVZonesDrawing();
 
 /*public:
@@ -73,11 +73,16 @@ public:
 		return _zm;
 	}
 
+	inline PVZonesManager&  get_zones_manager()
+	{
+		return _zm;
+	}
+
 private:
 	void draw_bci(PVBCIBackendImage& dst_img, uint32_t x_start, PVZoneID zone, PVBCICode* codes, size_t n);
 
 private:
-	PVZonesManager const& _zm;
+	PVZonesManager& _zm;
 	PVBCIDrawingBackend const* _draw_backend;
 	PVHSVColor const* _colors;
 	PVBCICode* _computed_codes;
