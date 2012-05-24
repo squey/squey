@@ -58,6 +58,14 @@ public:
 		_zones[zid].set_width(width);
 	}
 
+	template <class F>
+	void set_zones_width(F const& f)
+	{
+		for (PVZoneID zid = 0; zid < _zones.size(); zid++) {
+			_zones[zid].set_width(f(_zones[zid].width()));
+		}
+	}
+
 	uint32_t get_zone_absolute_pos(PVZoneID z) const;
 	PVZoneID get_zone_id(int abs_pos) const;
 
@@ -65,9 +73,11 @@ public:
 	void set_uint_plotted(Picviz::PVPlotted::uint_plotted_table_t const& plotted, PVRow nrows, PVCol ncols);
 	void set_uint_plotted(Picviz::PVView const& view);
 	inline PVZoneID get_number_zones() const { return _axes_comb.size()-1; }
+	inline PVCol get_number_cols() const { return _ncols; }
 
 protected:
 	inline PVRow get_number_rows() const { return _nrows; }
+
 	inline void get_zone_cols(PVZoneID z, PVCol& a, PVCol& b)
 	{
 		assert(z < get_number_zones());

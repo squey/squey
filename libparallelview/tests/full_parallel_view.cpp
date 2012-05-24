@@ -12,30 +12,37 @@
 #include <pvparallelview/PVZonesManager.h>
 #include <pvparallelview/PVLinesView.h>
 
+#include <pvparallelview/PVAxisWidget.h>
+#include <picviz/PVAxis.h>
+
 #include <QApplication>
 
-#define WIDTH 1920
-#define HEIGHT 1600
+#define CRAND() (127 + (random() & 0x7F))
 
-class GraphicsView : public QGraphicsView
+class PVFullParallelView : public QGraphicsView
 {
 public:
-
-	virtual void translateViewPort(int translation)
+	virtual void translate_viewport(int translation)
 	{
 		QScrollBar *hBar = horizontalScrollBar();
 		hBar->setValue(hBar->value() + (isRightToLeft() ? -translation : translation));
 	}
 };
 
-class OpenGLScene : public QGraphicsScene
+class PVParallelScene : public QGraphicsScene
 {
 public:
-	OpenGLScene(QObject* parent, PVParallelView::PVLinesView* lines_view) : QGraphicsScene(parent), _lines_view(lines_view)
+	PVParallelScene(QObject* parent, PVParallelView::PVLinesView* lines_view) : QGraphicsScene(parent), _lines_view(lines_view)
 	{
-		_lines_view->render_all_imgs(WIDTH);
+		_lines_view->render_all_imgs(PVParallelView::ImageWidth);
 		PVParallelView::PVLinesView::list_zone_images_t images = _lines_view->get_zones_images();
 
+		PVParallelView::PVAxisWidget *axisw;
+		Picviz::PVAxis *axis;
+		PVZoneID z;
+		int pos = 0;
+
+		// Add visible zones
 		for (PVZoneID z = 0; z < (PVZoneID) images.size() ; z++) {
 			QGraphicsPixmapItem* zone_image = addPixmap(QPixmap::fromImage(images[z].bg->qimage()));
 			zone_image->setOpacity(0.5);
@@ -44,9 +51,37 @@ public:
 				zone_image->setPos(QPointF(_lines_view->get_zone_absolute_pos(z), 0));
 			}
 		}
+
+		// Add ALL axes
+		PVZoneID nzones = (PVZoneID) _lines_view->get_zones_manager().get_number_cols();
+		for (z = 0; z < nzones; z++) {
+			axis = new Picviz::PVAxis();
+			axis->set_name(QString("axis ") + QString::number(z));
+			axis->set_color(PVCore::PVColor::fromRgba(CRAND(), CRAND(), CRAND(), 0));
+			axis->set_titlecolor(PVCore::PVColor::fromRgba(CRAND(), CRAND(), CRAND(), 0));
+			_axes.push_back(axis);
+
+			if (z < nzones-1) {
+				pos = _lines_view->get_zones_manager().get_zone_absolute_pos(z);
+			}
+			else {
+				// Special case for last axis
+				pos += _lines_view->get_zones_manager().get_zone_width(z-1);
+			}
+
+			axisw = new PVParallelView::PVAxisWidget(axis);
+			axisw->setPos(QPointF(pos - PVParallelView::AxisWidth, 0));
+			addItem(axisw);
+			axisw->add_range_sliders(768, 1000);
+		}
 	}
 
-	void set_zones_position()
+	PVFullParallelView* view()
+	{
+		return (PVFullParallelView*)parent() ;
+	}
+
+	void update_zones_position()
 	{
 		PVParallelView::PVLinesView::list_zone_images_t images = _lines_view->get_zones_images();
 		for (PVZoneID zid = _lines_view->get_first_drawn_zone(); zid <= _lines_view->get_last_drawn_zone(); zid++) {
@@ -60,10 +95,9 @@ public:
 	void mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 	{
 		if (event->buttons() == Qt::RightButton) {
-			GraphicsView* view = ((GraphicsView*)parent());
-
-			QScrollBar *hBar = view->horizontalScrollBar();
-			view->translateViewPort(_translation_start_x - event->scenePos().x());
+			// Translate viewport
+			QScrollBar *hBar = view()->horizontalScrollBar();
+			view()->translate_viewport(_translation_start_x - event->scenePos().x());
 		}
 	}
 
@@ -71,9 +105,7 @@ public:
 	{
 		if (event->button() == Qt::RightButton)
 		{
-			GraphicsView* view = ((GraphicsView*)parent());
-
-			_hscroll_value = view->horizontalScrollBar()->value();
+			// Store view position to compute translation
 			_translation_start_x = event->scenePos().x();
 		}
 	}
@@ -82,39 +114,40 @@ public:
 	{
 		if (event->button() == Qt::RightButton)
 		{
-			GraphicsView* view = ((GraphicsView*)parent());
-
-			int translation = _hscroll_value - view->horizontalScrollBar()->value();
-			_lines_view->translate(view->horizontalScrollBar()->value(), view->width());
-			set_zones_position();
+			// translate zones
+			uint32_t view_x = view()->horizontalScrollBar()->value();
+			_lines_view->translate(view_x, view()->width());
+			update_zones_position();
 		}
 	}
 
 	void wheelEvent(QGraphicsSceneWheelEvent* event)
 	{
 		int zoom = event->delta() / 2;
+
+		// Local zoom
 		if (event->modifiers() == Qt::ControlModifier) {
 			PVZoneID zid = _lines_view->get_zone_from_scene_pos(event->scenePos().x());
 			uint32_t z_width = _lines_view->get_zone_width(zid);
 			if (_lines_view->set_zone_width_and_render(zid, z_width + zoom)) {
-				set_zones_position();
+				update_zones_position();
 			}
 		}
+		//Global zoom
 		else
 		{
+			uint32_t view_x = view()->horizontalScrollBar()->value();
+			_lines_view->set_all_zones_width_and_render(view_x, view()->width(), [=](uint32_t width){ return width+zoom; });
+			update_zones_position();
 		}
 	}
 
-	/*void drawBackground(QPainter *painter, const QRectF &)
-	{
-
-	}*/
-
 private:
 	PVParallelView::PVLinesView* _lines_view;
-    unsigned int _hscroll_value;
     qreal _translation_start_x;
+
     QList<QGraphicsPixmapItem*> _zones;
+    QList<Picviz::PVAxis*> _axes;
 };
 
 void usage(const char* path)
@@ -177,12 +210,13 @@ int main(int argc, char** argv)
 	PVParallelView::PVBCIDrawingBackendCUDA backend_cuda;
 	PVParallelView::PVZonesDrawing &zones_drawing = *(new PVParallelView::PVZonesDrawing(zm, backend_cuda, *colors));
 
-	PVParallelView::PVLinesView &lines_view = *(new PVParallelView::PVLinesView(zones_drawing, 20));
+	PVParallelView::PVLinesView &lines_view = *(new PVParallelView::PVLinesView(zones_drawing, ncols/2));
 
-	GraphicsView view;
+	PVFullParallelView view;
 	view.setViewport(new QWidget());
-	view.setScene(new OpenGLScene(&view, &lines_view));
+	view.setScene(new PVParallelScene(&view, &lines_view));
 	view.resize(1920, 1600);
+	view.horizontalScrollBar()->setValue(0);
 	view.show();
 
 	app.exec();
