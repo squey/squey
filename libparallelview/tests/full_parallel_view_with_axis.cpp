@@ -100,7 +100,6 @@ public:
 		if (event->buttons() == Qt::RightButton) {
 			GraphicsView* view = ((GraphicsView*)parent());
 
-			QScrollBar *hBar = view->horizontalScrollBar();
 			view->translateViewPort(_translation_start_x - event->scenePos().x());
 		}
 	}
@@ -122,7 +121,6 @@ public:
 		{
 			GraphicsView* view = ((GraphicsView*)parent());
 
-			int translation = _hscroll_value - view->horizontalScrollBar()->value();
 			_lines_view->translate(view->horizontalScrollBar()->value(), view->width());
 			set_zones_position();
 		}
