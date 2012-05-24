@@ -5,6 +5,7 @@
 #include <pvparallelview/PVBCIDrawingBackendCUDA.h>
 #include <pvparallelview/PVHSVColor.h>
 #include <pvparallelview/PVHSVColor.h>
+#include <pvparallelview/PVLinesView.h>
 #include <pvparallelview/PVTools.h>
 #include <pvparallelview/PVZonesDrawing.h>
 #include <pvparallelview/PVZonesManager.h>
@@ -100,6 +101,14 @@ int main(int argc, char** argv)
 	zones_drawing.draw_zone<PVParallelView::PVZoneTree>(*dst_img, zm.get_zone_absolute_pos(2), 2, &PVParallelView::PVZoneTree::browse_tree_bci);
 
 	show_qimage("test", dst_img->qimage());
+
+	PVParallelView::PVLinesView lv(zones_drawing, 4);
+	lv.render_bg(400);
+	lv.translate(100, 400);
+	lv.translate(260, 400);
+	lv.translate(260*2, 400);
+	lv.render_all(260*4, 400);
+	lv.translate(0, 400);
 
 	app.exec();
 

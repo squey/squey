@@ -14,8 +14,8 @@ set(LINK_LIBRARIES ${PICVIZ_LIBRARY} ${PVKERNEL_LIBRARY} ${QT_LIBRARIES} ${TBB_L
 
 enable_testing()
 
-add_executable(full_parallel_view full_parallel_view.cpp)
-target_link_libraries(full_parallel_view ${LINK_LIBRARIES})
+#add_executable(full_parallel_view full_parallel_view.cpp)
+#target_link_libraries(full_parallel_view ${LINK_LIBRARIES})
 
 add_executable(create_tree create_tree.cpp)
 target_link_libraries(create_tree ${LINK_LIBRARIES})

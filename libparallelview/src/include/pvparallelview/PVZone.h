@@ -10,7 +10,7 @@ class PVZone
 public:
 	PVZone():
 		_ztree(new PVZoneTree()),
-		_width(256)
+		_width(PVParallelView::ZoneDefaultWidth)
 	{ }
 
 public:

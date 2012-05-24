@@ -38,5 +38,6 @@ enum {
 #include <pvkernel/core/PVAllocators.h>
 
 typedef PVCol PVZoneID;
+#define PVZONEID_INVALID (-1)
 
 #endif
