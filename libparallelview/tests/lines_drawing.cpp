@@ -103,7 +103,7 @@ int main(int argc, char** argv)
 	show_qimage("test", dst_img->qimage());
 
 	PVParallelView::PVLinesView lv(zones_drawing, 4);
-	lv.render_bg(400);
+	lv.render_all_imgs(400);
 	lv.translate(100, 400);
 	lv.translate(260, 400);
 	lv.translate(260*2, 400);

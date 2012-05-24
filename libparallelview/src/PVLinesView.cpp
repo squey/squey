@@ -11,20 +11,32 @@ PVParallelView::PVLinesView::PVLinesView(PVZonesDrawing& zones_drawing, PVZoneID
 
 void PVParallelView::PVLinesView::translate(int32_t view_x, uint32_t view_width)
 {
-	PVLOG_INFO("(translate) vec_x: %d px\n", view_x);
-	do_translate(view_x, view_width, [&](PVZoneID z) { PVLOG_INFO("(translate) render zone %u\n", z); });
+	PVLOG_INFO("(translate) view_x: %d px\n", view_x);
+	do_translate(view_x, view_width,
+		[&](PVZoneID z)
+		{
+			PVLOG_INFO("(translate) render zone %u\n", z);
+			assert(z >= _first_zone);
+			_zd.draw_zone<PVParallelView::PVZoneTree>(*_zones_imgs[z-_first_zone].bg, 0, z, &PVParallelView::PVZoneTree::browse_tree_bci);
+		}
+	);
 }
 
 
-void PVParallelView::PVLinesView::render_bg(uint32_t view_width) const
+void PVParallelView::PVLinesView::render_bg(uint32_t view_width)
 {
 	render_all_zones(view_width,
-	    [&](PVZoneID z){ PVLOG_INFO("(render_bg) render zone %u\n", z); }
+	    [&](PVZoneID z)
+	    {
+			PVLOG_INFO("(render_bg) render zone %u\n", z);
+			assert(z >= _first_zone);
+			_zd.draw_zone<PVParallelView::PVZoneTree>(*_zones_imgs[z-_first_zone].bg, 0, z, &PVParallelView::PVZoneTree::browse_tree_bci);
+		}
 	);
-	//_zd.draw_zone<PVParallelView::PVZoneTree>(*_zones_imgs[i].all, 0, i+_first_zone, &PVParallelView::PVZoneTree::browse_tree_bci);
+
 }
 
-void PVParallelView::PVLinesView::render_sel(uint32_t view_width) const
+void PVParallelView::PVLinesView::render_sel(uint32_t view_width)
 {
 	render_all_zones(view_width,
 	    [&](PVZoneID z){ PVLOG_INFO("(render_sel) render zone %u\n", z); }
@@ -32,12 +44,16 @@ void PVParallelView::PVLinesView::render_sel(uint32_t view_width) const
 	//_zd.draw_zone<PVParallelView::PVZoneTree>(*_zones_imgs[i].all, 0, i+_first_zone, &PVParallelView::PVZoneTree::browse_tree_bci);
 }
 
-void PVParallelView::PVLinesView::render_all_imgs(uint32_t view_width) const
+void PVParallelView::PVLinesView::render_all_imgs(uint32_t view_width)
 {
 	render_all_zones(view_width,
-	    [&](PVZoneID z){ PVLOG_INFO("(render_sel) render zone %u\n", z); }
+		[&](PVZoneID z)
+		{
+			PVLOG_INFO("(render_all_imgs) render zone %u\n", z);
+			assert(z >= _first_zone);
+			_zd.draw_zone<PVParallelView::PVZoneTree>(*_zones_imgs[z-_first_zone].bg, 0, z, &PVParallelView::PVZoneTree::browse_tree_bci);
+		}
 	);
-	//_zd.draw_zone<PVParallelView::PVZoneTree>(*_zones_imgs[i].all, 0, i+_first_zone, &PVParallelView::PVZoneTree::browse_tree_bci);
 }
 
 
@@ -51,7 +67,7 @@ bool PVParallelView::PVLinesView::set_zone_width_and_render(PVZoneID zid, uint32
 
 	PVZoneID img = get_image_index_of_zone(zid);
 	get_zones_manager().set_zone_width(zid, width);
-	if (img != PVZONEID_INVALID) {
+	if (is_zone_drawn(zid)) {
 		_zones_imgs[img].set_width(width);
 		render_zone_all_imgs(zid, _zones_imgs[img]);
 		return true;
@@ -60,9 +76,12 @@ bool PVParallelView::PVLinesView::set_zone_width_and_render(PVZoneID zid, uint32
 	return false;
 }
 
-void PVParallelView::PVLinesView::render_zone_all_imgs(PVZoneID z, ZoneImages const& zi) const
+void PVParallelView::PVLinesView::render_zone_all_imgs(PVZoneID z, ZoneImages const& zi)
 {
 	PVLOG_INFO("(lines view) render zone %d\n", z);
+	if (is_zone_drawn(z)) {
+		_zd.draw_zone<PVParallelView::PVZoneTree>(*_zones_imgs[z-_first_zone].bg, 0, z, &PVParallelView::PVZoneTree::browse_tree_bci);
+	}
 }
 
 PVZoneID PVParallelView::PVLinesView::get_image_index_of_zone(PVZoneID z) const
@@ -126,6 +145,13 @@ void PVParallelView::PVLinesView::left_shift_images(PVZoneID s)
 	std::rotate(_zones_imgs.begin(), _zones_imgs.begin()+s, _zones_imgs.end());
 }
 
+void PVParallelView::PVLinesView::render_all(int32_t view_x, uint32_t view_width)
+{
+	_first_zone = get_first_zone_from_viewport(view_x, view_width);
+	_visibile_view_x = view_x;
+	render_all_imgs(view_width);
+}
+
 void PVParallelView::PVLinesView::right_shift_images(PVZoneID s)
 {
 	assert(s < (PVZoneID) _zones_imgs.size());
@@ -171,9 +197,7 @@ PVZoneID PVParallelView::PVLinesView::get_first_zone_from_viewport(int32_t view_
 	else {
 		ret = zfirst_visible - (zones_drawable/2) - 1;
 	}
-	if (ret < 0) {
-		ret = 0;
-	}
+	ret = PVCore::clamp(ret, 0, (PVZoneID) (nzones_total-_zones_imgs.size()));
 	PVLOG_INFO("From viewport %d/%u: first zone %d\n", view_x, view_width, ret);
 
 	return ret;

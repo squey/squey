@@ -33,25 +33,27 @@ class OpenGLScene : public QGraphicsScene
 public:
 	OpenGLScene(QObject* parent, PVParallelView::PVLinesView* lines_view) : QGraphicsScene(parent), _lines_view(lines_view)
 	{
-		_lines_view->render_all();
+		_lines_view->render_all_imgs(WIDTH);
 		PVParallelView::PVLinesView::list_zone_images_t images = _lines_view->get_zones_images();
 
-		for (int z = 0; z < images.size() ; z++) {
-			QGraphicsPixmapItem* zone_image = addPixmap(QPixmap::fromImage(images[z].all->qimage()));
+		for (PVZoneID z = 0; z < (PVZoneID) images.size() ; z++) {
+			QGraphicsPixmapItem* zone_image = addPixmap(QPixmap::fromImage(images[z].bg->qimage()));
+			zone_image->setOpacity(0.5);
 			_zones.push_back(zone_image);
-			zone_image->setPos(QPointF(_lines_view->get_zones_manager().get_zone_absolute_pos(z), 0));
+			if (z < _lines_view->get_zones_manager().get_number_zones()) {
+				zone_image->setPos(QPointF(_lines_view->get_zone_absolute_pos(z), 0));
+			}
 		}
 	}
 
-	void refresh_zones()
+	void set_zones_position()
 	{
-		_lines_view->render_all();
 		PVParallelView::PVLinesView::list_zone_images_t images = _lines_view->get_zones_images();
-
-		for (int zid = 0; zid < _zones.size() ; zid++) {
-			_zones[zid]->setPixmap(QPixmap::fromImage(images[zid].all->qimage()));
-			_zones[zid]->setPos(QPointF(_lines_view->get_zones_manager().get_zone_absolute_pos(zid), 0));
+		for (PVZoneID zid = _lines_view->get_first_drawn_zone(); zid <= _lines_view->get_last_drawn_zone(); zid++) {
+			_zones[zid]->setPixmap(QPixmap::fromImage(images[zid-_lines_view->get_first_drawn_zone()].bg->qimage()));
+			_zones[zid]->setPos(QPointF(_lines_view->get_zone_absolute_pos(zid), 0));
 		}
+
 	}
 
 	void mouseMoveEvent(QGraphicsSceneMouseEvent *event)
@@ -82,6 +84,8 @@ public:
 			GraphicsView* view = ((GraphicsView*)parent());
 
 			int translation = _hscroll_value - view->horizontalScrollBar()->value();
+			_lines_view->translate(view->horizontalScrollBar()->value(), view->width());
+			set_zones_position();
 		}
 	}
 
@@ -89,8 +93,10 @@ public:
 	{
 		int zoom = event->delta() / 2;
 		if (event->modifiers() == Qt::ControlModifier) {
-			if (_lines_view->update_local_zone_width(event->scenePos().x(), zoom)) {
-				refresh_zones();
+			PVZoneID zid = _lines_view->get_zone_from_scene_pos(event->scenePos().x());
+			uint32_t z_width = _lines_view->get_zone_width(zid);
+			if (_lines_view->set_zone_width_and_render(zid, z_width + zoom)) {
+				set_zones_position();
 			}
 		}
 		else
@@ -170,7 +176,7 @@ int main(int argc, char** argv)
 	PVParallelView::PVBCIDrawingBackendCUDA backend_cuda;
 	PVParallelView::PVZonesDrawing &zones_drawing = *(new PVParallelView::PVZonesDrawing(zm, backend_cuda, *colors));
 
-	PVParallelView::PVLinesView &lines_view = *(new PVParallelView::PVLinesView(zones_drawing, ncols-1));
+	PVParallelView::PVLinesView &lines_view = *(new PVParallelView::PVLinesView(zones_drawing, 20));
 
 	GraphicsView view;
 	view.setViewport(new QWidget());

@@ -49,15 +49,12 @@ public:
 
 public:
 	void translate(int32_t view_x, uint32_t view_width);
-	void render_all(int32_t view_x, uint32_t view_width)
-	{
-		_first_zone = get_first_zone_from_viewport(view_x, view_width);
-		_visibile_view_x = view_x;
-		render_all_imgs(view_width);
-	}
-	void render_bg(uint32_t view_width) const;
-	void render_sel(uint32_t view_width) const;
-	void render_all_imgs(uint32_t view_width) const;
+
+	void render_all(int32_t view_x, uint32_t view_width);
+	void render_all_imgs(uint32_t view_width);
+
+	void render_bg(uint32_t view_width);
+	void render_sel(uint32_t view_width);
 
 	inline PVZoneID get_zone_from_scene_pos(int32_t x) const { return get_zones_manager().get_zone_id(x); }
 
@@ -69,17 +66,23 @@ public:
 
 	const list_zone_images_t& get_zones_images() const { return _zones_imgs; }
 	inline PVZoneID get_first_drawn_zone() const { return _first_zone; }
-	inline PVZoneID get_last_drawn_zone() const { return _first_zone + _zones_imgs.size(); }
+	inline PVZoneID get_last_drawn_zone() const { return picviz_min(_first_zone + _zones_imgs.size()-1, get_zones_manager().get_number_zones()-1); }
 	bool is_zone_drawn(PVZoneID z) const { return (z >= get_first_drawn_zone() && z <= get_last_drawn_zone()); }
 	inline uint32_t get_zone_absolute_pos(PVZoneID z) const { return get_zones_manager().get_zone_absolute_pos(z); }
 
 private:
-	void render_zone_all_imgs(PVZoneID z, ZoneImages const& zi) const;
+	inline void update_zone_image_width(PVZoneID zid)
+	{
+		assert(is_zone_drawn(zid));
+		_zones_imgs[zid - _first_zone].set_width(get_zone_width(zid));
+	}
+
+	void render_zone_all_imgs(PVZoneID z, ZoneImages const& zi);
 
 	PVZoneID get_image_index_of_zone(PVZoneID z) const;
 	
 	template <class F>
-	void render_all_zones(uint32_t view_width, F const& fzone) const
+	void render_all_zones(uint32_t view_width, F const& fzone)
 	{
 		int32_t view_x = _visibile_view_x;
 		if (view_x < 0) {
@@ -105,7 +108,8 @@ private:
 		// Process visible zones
 		uint32_t cur_width = 0;
 		PVZoneID cur_z = zfirst_visible;
-		while (cur_width < view_width && cur_z < nzones_total) {
+		while (cur_width < view_width && cur_z < nzones_total && zones_to_draw > 0) {
+			update_zone_image_width(cur_z);
 			fzone(cur_z);
 			const uint32_t offset = get_zone_width(cur_z) + PVParallelView::AxisWidth;
 			cur_width += offset;
@@ -114,20 +118,29 @@ private:
 		}
 		right_invisible_zone = cur_z;
 
+		// Process hidden zones
 		while (zones_to_draw > 0) {
+			bool one_done = false;
 			if (left_invisible_zone > _first_zone) {
 				left_invisible_zone--;
 				assert(left_invisible_zone >= _first_zone);
+				update_zone_image_width(left_invisible_zone);
 				fzone(left_invisible_zone);
 				zones_to_draw--;
 				if (zones_to_draw == 0) {
 					break;
 				}
+				one_done = true;
 			}
 			if (right_invisible_zone < nzones_total) {
+				update_zone_image_width(right_invisible_zone);
 				fzone(right_invisible_zone);
 				right_invisible_zone++;
 				zones_to_draw--;
+				one_done = true;
+			}
+			if (!one_done) {
+				break;
 			}
 		}
 	}
@@ -135,6 +148,7 @@ private:
 	template <class F>
 	void do_translate(int32_t view_x, uint32_t view_width, F const& fzone_draw)
 	{
+
 		int32_t new_view_x = view_x;
 		_visibile_view_x = new_view_x;
 		PVZoneID new_first_zone = get_first_zone_from_viewport(view_x, view_width);
@@ -144,31 +158,39 @@ private:
 			return;
 		}
 
+		PVZoneID pre_first_zone = _first_zone;
+		_first_zone = new_first_zone;
+
 		const PVZoneID nzones_img = _zones_imgs.size();
-		const PVZoneID diff = std::abs(new_first_zone - _first_zone);
+		const PVZoneID diff = std::abs(new_first_zone - pre_first_zone);
 		if (diff >= nzones_img) {
-			_first_zone = new_first_zone;
+
 			render_all_zones(view_width, fzone_draw);
 			return;
 		}
 		PVLOG_INFO("(do translate) first zone: %d\n", new_first_zone);
 
-		if (new_first_zone > _first_zone) {
+		if (new_first_zone > pre_first_zone) {
 			const PVZoneID n = diff;
 			left_shift_images(n);
 			const PVZoneID nimgs = _zones_imgs.size();
-			for (PVZoneID z = nimgs-n; z < nimgs; z++) {
-				fzone_draw(z+new_first_zone);
+			PVZoneID z = _first_zone + nimgs - n;
+			const PVZoneID last_z = picviz_min(nimgs+_first_zone, get_zones_manager().get_number_zones());
+			for (; z < last_z; z++) {
+				update_zone_image_width(z);
+				fzone_draw(z);
 			}
 		}
 		else {
-			const PVZoneID n = diff;
 			right_shift_images(diff);
-			for (PVZoneID z = 0; z < n; z++) {
-				fzone_draw(z+new_first_zone);
+			const PVZoneID n = diff;
+			PVZoneID z = _first_zone;
+			const PVZoneID last_z = picviz_min(_first_zone + n, get_zones_manager().get_number_zones());
+			for (; z < last_z; z++) {
+				update_zone_image_width(z);
+				fzone_draw(z);
 			}
 		}
-		_first_zone = new_first_zone;
 	}
 
 	PVZoneID get_first_zone_from_viewport(int32_t view_x, uint32_t view_width) const;
