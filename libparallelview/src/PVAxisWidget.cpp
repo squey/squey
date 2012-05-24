@@ -10,6 +10,7 @@
 #include <QPainter>
 #include <QGraphicsScene>
 
+// pour faire déborder l'axe de la zone "image"
 #define PVAW_CST 8
 
 /* NOTES :
@@ -60,13 +61,17 @@ void PVParallelView::PVAxisWidget::paint(QPainter *painter,
                                          const QStyleOptionGraphicsItem */*option*/,
                                          QWidget */*widget*/)
 {
+	QPen pen = painter->pen();
+
 	painter->fillRect(0, - PVAW_CST,
 	                  PVParallelView::AxisWidth, IMAGE_HEIGHT + (2 * PVAW_CST),
 	                  _axis->get_color().toQColor());
 	painter->save();
 	painter->translate(- PVParallelView::AxisWidth, - PVAW_CST);
 	painter->rotate(-45.);
+	painter->setPen(_axis->get_titlecolor().toQColor());
 	painter->drawText(10, 0, _axis->get_name());
+	painter->setPen(pen);
 	painter->restore();
 }
 
