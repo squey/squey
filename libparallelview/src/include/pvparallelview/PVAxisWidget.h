@@ -20,12 +20,10 @@ namespace PVParallelView
 
 typedef std::pair<PVAxisSlider*, PVAxisSlider*> PVAxisRangeSliders;
 
-class PVAxisWidget : public QGraphicsItem
+class PVAxisWidget : public QGraphicsItemGroup
 {
 public:
 	PVAxisWidget(Picviz::PVAxis *axis);
-
-	~PVAxisWidget();
 
 	QRectF boundingRect () const;
 

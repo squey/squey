@@ -10,13 +10,8 @@
 #include <QPainter>
 #include <QGraphicsScene>
 
-// pour faire déborder l'axe de la zone "image"
+// Used to draw the axis out of the image zone
 #define PVAW_CST 8
-
-/* NOTES :
- * - parentItem() et setParentItem() pour lier un RangeSliders à son Axis
- * - scene() pour récupérer
- */
 
 /*****************************************************************************
  * PVParallelView::PVAxisWidget::PVAxisWidget
@@ -28,19 +23,6 @@ PVParallelView::PVAxisWidget::PVAxisWidget(Picviz::PVAxis *axis) :
 }
 
 /*****************************************************************************
- * PVParallelView::PVAxisWidget::~PVAxisWidget
- *****************************************************************************/
-
-PVParallelView::PVAxisWidget::~PVAxisWidget()
-{
-	QGraphicsScene *s = scene();
-
-	if (s != 0) {
-		s->removeItem(this);
-	}
-}
-
-/*****************************************************************************
  * PVParallelView::PVAxisWidget::boundingRect
  *****************************************************************************/
 
@@ -49,7 +31,6 @@ QRectF PVParallelView::PVAxisWidget::boundingRect () const
 	QRectF bbox = QRectF(- PVParallelView::AxisWidth, - PVAW_CST,
 	                     PVParallelView::AxisWidth, IMAGE_HEIGHT + (2 * PVAW_CST));
 
-	// des valeurs au pif (mais pas au rouge)
 	return bbox.united(QRectF(- PVParallelView::AxisWidth, 0, 50, -50));
 }
 
@@ -81,19 +62,16 @@ void PVParallelView::PVAxisWidget::paint(QPainter *painter,
 
 void PVParallelView::PVAxisWidget::add_range_sliders(uint32_t p1, uint32_t p2)
 {
-	QGraphicsScene *s = scene();
 	PVParallelView::PVAxisRangeSliders sliders;
 
-	if (s != 0) {
-		sliders.first = new PVParallelView::PVAxisSlider(0, 1023, p1);
-		sliders.second = new PVParallelView::PVAxisSlider(0, 1023, p2);
+	sliders.first = new PVParallelView::PVAxisSlider(0, 1023, p1);
+	sliders.second = new PVParallelView::PVAxisSlider(0, 1023, p2);
 
-		sliders.first->setPos(pos());
-		sliders.second->setPos(pos());
+	sliders.first->setPos(pos());
+	sliders.second->setPos(pos());
 
-		s->addItem(sliders.first);
-		s->addItem(sliders.second);
+	addToGroup(sliders.first);
+	addToGroup(sliders.second);
 
-		_sliders.push_back(sliders);
-	}
+	_sliders.push_back(sliders);
 }

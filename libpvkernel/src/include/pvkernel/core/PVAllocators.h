@@ -334,7 +334,7 @@ public:
 
 	pointer allocate(size_type n)
 	{
-		pointer p = (pointer) malloc(n * sizeof(size_type));
+		pointer p = (pointer) malloc(n * sizeof(value_type));
 		if (p == NULL) {
 			throw std::bad_alloc();
 		}
@@ -343,7 +343,7 @@ public:
 
 	pointer reallocate(pointer p, size_type /*on*/, size_type nn)
 	{
-		pointer np = (pointer) realloc(p, nn);
+		pointer np = (pointer) realloc(p, nn * sizeof(value_type));
 		if (np == NULL) {
 			throw std::bad_alloc();
 		}

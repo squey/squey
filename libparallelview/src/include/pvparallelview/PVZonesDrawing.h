@@ -117,6 +117,9 @@ public:
 	   );
 	}
 
+	// a = 10; b = 250;
+	//draw_zone_lambda<PVParallelView::PVZoomedZoneTree>(img, 0, 4, [&](PVZoomedZoneTree const& zone_tree, PVHSVColor const* colors, PVBCICodes* codes) { zone_tree.create_codes(a, b); });
+
 	inline uint32_t get_zone_width(PVZoneID z) const
 	{
 		return _zm.get_zone_width(z);

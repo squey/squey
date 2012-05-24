@@ -140,6 +140,17 @@ public:
 		}
 	}
 
+	void compact()
+	{
+		if (_nodes) {
+			for (int i = 0; i < 4; ++i) {
+				_nodes[i].compact();
+			}
+		} else {
+			_datas.reserve(_datas.size());
+		}
+	}
+
 	inline size_t memory() const
 	{
 		size_t mem = sizeof (PVQuadTree) - sizeof(pvquadtree_entries_t) + _datas.memory();
