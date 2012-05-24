@@ -13,7 +13,7 @@ PVParallelView::PVZoomedZoneTree::PVZoomedZoneTree(uint32_t max_level)
 	uint32_t y1_min;
 	uint32_t y2_min;
 
-	_trees = new pvquadtree [1024 * 1024];
+	_trees = new pvquadtree [NBUCKETS];
 	y2_min = 0;
 	for(uint32_t y2 = 0; y2 < 1024; ++y2) {
 		y1_min = 0;
@@ -60,6 +60,7 @@ void PVParallelView::PVZoomedZoneTree::process_seq_from_zt(const PVZoneProcessin
 			PVParallelView::PVQuadTreeEntry e(pcol_a[r], pcol_b[r], r);
 			_trees[i].insert(e);
 		}
+		_trees[i].compact();
 	}
 }
 
@@ -134,6 +135,7 @@ void PVParallelView::PVZoomedZoneTree::process_omp_from_zt(const PVZoneProcessin
 			PVParallelView::PVQuadTreeEntry e(pcol_a[r], pcol_b[r], r);
 			_trees[i].insert(e);
 		}
+		_trees[i].compact();
 	}
 }
 

@@ -1,4 +1,3 @@
-#include <pvkernel/cuda/common.h>
 #include <pvparallelview/PVBCIBackendImage.h>
 #include <pvparallelview/PVBCIDrawingBackendCUDA.h>
 #include <pvparallelview/cuda/bci_cuda.h>
@@ -77,11 +76,13 @@ private:
 PVParallelView::PVBCIDrawingBackendCUDA::PVBCIDrawingBackendCUDA()
 {
 	picviz_verify_cuda(cudaMalloc(&_device_codes, NBUCKETS*sizeof(PVBCICode)));
+	picviz_verify_cuda(cudaStreamCreate(&_main_stream));
 }
 
 PVParallelView::PVBCIDrawingBackendCUDA::~PVBCIDrawingBackendCUDA()
 {
 	picviz_verify_cuda(cudaFree(_device_codes));
+	picviz_verify_cuda(cudaStreamDestroy(_main_stream));
 }
 
 PVParallelView::PVBCIBackendImage_p PVParallelView::PVBCIDrawingBackendCUDA::create_image(size_t img_width) const
@@ -95,7 +96,18 @@ void PVParallelView::PVBCIDrawingBackendCUDA::operator()(PVBCIBackendImage& dst_
 	assert(dst_img_cuda != NULL);
 	assert(x_start + width <= (size_t) dst_img_cuda->width());
 
-	picviz_verify_cuda(cudaMemcpy(_device_codes, codes, n*sizeof(codes), cudaMemcpyHostToDevice));
-	show_codes_cuda(_device_codes, n, width, dst_img_cuda->device_img(), dst_img_cuda->width(), x_start);
-	dst_img_cuda->copy_device_to_host();
+	// Wait for that point in the stream
+	cudaEvent_t end;
+	cudaEventCreate(&end, 0);
+
+#pragma omp critical
+	{
+		picviz_verify_cuda(cudaMemcpyAsync(_device_codes, codes, n*sizeof(codes), cudaMemcpyHostToDevice, _main_stream));
+		show_codes_cuda(_device_codes, n, width, dst_img_cuda->device_img(), dst_img_cuda->width(), x_start, _main_stream);
+		dst_img_cuda->copy_device_to_host(_main_stream);
+		cudaEventRecord(end, _main_stream);
+	}
+
+	cudaEventSynchronize(end);
+	cudaEventDestroy(end);
 }

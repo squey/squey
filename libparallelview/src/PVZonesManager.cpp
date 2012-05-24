@@ -76,6 +76,8 @@ void PVParallelView::PVZonesManager::update_all()
 		get_zone_cols(z, zp.col_a(), zp.col_b());
 		PVZoneTree& ztree = _zones[z].ztree();
 		ztree.process(zp, tls);
+		PVZoomedZoneTree& zztree = _zones[z].zoomed_ztree();
+		zztree.process(zp, ztree);
 	}
 }
 

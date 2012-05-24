@@ -2,6 +2,7 @@
 #define PVPARALLELVIEW_PVZONE_H
 
 #include <pvparallelview/PVZoneTree.h>
+#include <pvparallelview/PVZoomedZoneTree.h>
 #include <pvparallelview/common.h>
 
 namespace PVParallelView {
@@ -11,6 +12,7 @@ class PVZone
 public:
 	PVZone():
 		_ztree(new PVZoneTree()),
+		_zoomed_ztree(new PVZoomedZoneTree()),
 		_width(PVParallelView::ZoneDefaultWidth)
 	{ }
 
@@ -21,6 +23,9 @@ public:
 	PVZoneTree& ztree() { return *_ztree; }
 	PVZoneTree const& ztree() const { return *_ztree; }
 
+	PVZoomedZoneTree& zoomed_ztree() { return *_zoomed_ztree; }
+	PVZoomedZoneTree const& zoomed_ztree() const { return *_zoomed_ztree; }
+
 	template <class Tree>
 	Tree const& get_tree() const
 	{
@@ -30,6 +35,7 @@ public:
 
 private:
 	PVZoneTree_p _ztree;
+	PVZoomedZoneTree_p _zoomed_ztree;
 	mutable uint32_t _width; // TODO: Fix that
 };
 
@@ -37,6 +43,12 @@ template <>
 inline PVZoneTree const& PVZone::get_tree<PVZoneTree>() const
 {
 	return *_ztree;
+}
+
+template <>
+inline PVZoomedZoneTree const& PVZone::get_tree<PVZoomedZoneTree>() const
+{
+	return *_zoomed_ztree;
 }
 
 }
