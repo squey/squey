@@ -21,6 +21,8 @@ class PVParallelScene : public QGraphicsScene
 public:
 	PVParallelScene(QObject* parent, PVParallelView::PVLinesView* lines_view) : QGraphicsScene(parent), _lines_view(lines_view)
 	{
+		connect(view()->horizontalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(translate_and_update_zones_position()));
+
 		_lines_view->render_all_imgs(PVParallelView::ImageWidth);
 		PVParallelView::PVLinesView::list_zone_images_t images = _lines_view->get_zones_images();
 
