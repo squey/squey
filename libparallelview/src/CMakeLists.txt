@@ -62,6 +62,7 @@ include/pvparallelview/PVAxisSlider.h
 )
 
 SET(MOC_HEADERS
+include/pvparallelview/PVRenderingJob.h
 )
 
 QT4_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})

@@ -102,17 +102,20 @@ int main(int argc, char** argv)
 
 	show_qimage("test", dst_img->qimage());
 
-	/*
+	PVParallelView::PVRenderingJob render_job;
 	PVParallelView::PVLinesView lv(zones_drawing, 4);
-	lv.render_all_imgs(400);
+	QFuture<void> the_future_is_here = lv.render_all_imgs(400, render_job);
+
+
+	/*
 	lv.translate(100, 400);
 	lv.translate(260, 400);
 	lv.translate(260*2, 400);
 	lv.render_all(260*4, 400);
-	lv.translate(0, 400);
-	*/
+	lv.translate(0, 400);*/
 
 	// Test concurrent drawing
+	/*
 	std::vector<PVParallelView::PVBCIBackendImage_p> imgs;
 	std::vector<PVParallelView::PVBCIBackendImage*> imgs_p;
 	imgs.resize(20); imgs_p.resize(20);
@@ -127,7 +130,7 @@ int main(int argc, char** argv)
 
 	for (int i = 0; i < 10; i++) {
 		show_qimage(QString::number(i), imgs_p[i]->qimage());
-	}
+	}*/
 
 	app.exec();
 
