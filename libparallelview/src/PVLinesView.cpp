@@ -197,7 +197,7 @@ PVZoneID PVParallelView::PVLinesView::get_first_zone_from_viewport(int32_t view_
 	else {
 		ret = zfirst_visible - (zones_drawable/2) - 1;
 	}
-	ret = PVCore::clamp(ret, 0, (PVZoneID) (nzones_total-_zones_imgs.size()));
+	ret = PVCore::clamp(ret, 0, (PVZoneID) std::max(0, (nzones_total-(PVZoneID)_zones_imgs.size())));
 	PVLOG_INFO("From viewport %d/%u: first zone %d\n", view_x, view_width, ret);
 
 	return ret;
