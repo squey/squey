@@ -17,6 +17,9 @@ enable_testing()
 add_executable(full_parallel_view full_parallel_view.cpp)
 target_link_libraries(full_parallel_view ${LINK_LIBRARIES})
 
+add_executable(full_parallel_view_with_axis full_parallel_view_with_axis.cpp)
+target_link_libraries(full_parallel_view_with_axis ${LINK_LIBRARIES})
+
 add_executable(create_tree create_tree.cpp)
 target_link_libraries(create_tree ${LINK_LIBRARIES})
 
