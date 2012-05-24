@@ -42,15 +42,8 @@ public:
 		process_omp_from_zt(zp, zt);
 		end = tbb::tick_count::now();
 		PVLOG_INFO("PVZoomedZoneTree::process in %0.4f ms.\n", (end-start).seconds()*1000.0);
-		size_t old_size = memory();
-		start = tbb::tick_count::now();
-		compact();
-		end = tbb::tick_count::now();
-		PVLOG_INFO("PVZoomedZoneTree::compact in %0.4f ms.\n", (end-start).seconds()*1000.0);
-		PVLOG_INFO("PVZoomedZoneTree::memory: %lu octets -> %lu octets.\n", old_size, memory());
+		PVLOG_INFO("PVZoomedZoneTree::memory: %lu octets.\n", memory());
 	}
-
-	void compact();
 
 public:
 	void process_seq(const PVZoneProcessing &zp);
