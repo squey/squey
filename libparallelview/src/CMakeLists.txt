@@ -64,6 +64,7 @@ include/pvparallelview/PVParallelScene.h
 )
 
 SET(MOC_HEADERS
+include/pvparallelview/PVRenderingJob.h
 include/pvparallelview/PVFullParallelView.h
 include/pvparallelview/PVParallelScene.h
 )

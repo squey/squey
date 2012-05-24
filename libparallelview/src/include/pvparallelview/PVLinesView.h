@@ -3,8 +3,11 @@
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVBCIBackendImage_types.h>
+#include <pvparallelview/PVRenderingJob.h>
 #include <pvparallelview/PVZonesDrawing.h>
 #include <pvkernel/core/PVAlgorithms.h>
+
+#include <QFuture>
 
 namespace PVParallelView {
 
@@ -51,7 +54,10 @@ public:
 	void translate(int32_t view_x, uint32_t view_width);
 
 	void render_all(int32_t view_x, uint32_t view_width);
+	QFuture<void> render_all(int32_t view_x, uint32_t view_width, PVRenderingJob& job);
+
 	void render_all_imgs(uint32_t view_width);
+	QFuture<void> render_all_imgs(uint32_t view_width, PVRenderingJob& job);
 
 	void render_bg(uint32_t view_width);
 	void render_sel(uint32_t view_width);
@@ -96,8 +102,9 @@ private:
 	PVZoneID get_image_index_of_zone(PVZoneID z) const;
 	
 	template <class F>
-	void render_all_zones(uint32_t view_width, F const& fzone)
+	void render_all_zones(uint32_t view_width, F const& fzone, PVRenderingJob* job = NULL)
 	{
+		job->reset();
 		int32_t view_x = _visible_view_x;
 		if (view_x < 0) {
 			uint32_t unused_width = (uint32_t) (-view_x);
@@ -123,8 +130,12 @@ private:
 		uint32_t cur_width = 0;
 		PVZoneID cur_z = zfirst_visible;
 		while (cur_width < view_width && cur_z < nzones_total && zones_to_draw > 0) {
+			if (job && job->should_cancel()) {
+				return;
+			}
 			update_zone_image_width(cur_z);
 			fzone(cur_z);
+			job->zone_finished(cur_z);
 			const uint32_t offset = get_zone_width(cur_z) + PVParallelView::AxisWidth;
 			cur_width += offset;
 			cur_z++;
@@ -138,8 +149,12 @@ private:
 			if (left_invisible_zone > _first_zone) {
 				left_invisible_zone--;
 				assert(left_invisible_zone >= _first_zone);
+				if (job && job->should_cancel()) {
+					return;
+				}
 				update_zone_image_width(left_invisible_zone);
 				fzone(left_invisible_zone);
+				job->zone_finished(cur_z);
 				zones_to_draw--;
 				if (zones_to_draw == 0) {
 					break;
@@ -147,8 +162,12 @@ private:
 				one_done = true;
 			}
 			if (right_invisible_zone < nzones_total) {
+				if (job && job->should_cancel()) {
+					return;
+				}
 				update_zone_image_width(right_invisible_zone);
 				fzone(right_invisible_zone);
+				job->zone_finished(cur_z);
 				right_invisible_zone++;
 				zones_to_draw--;
 				one_done = true;
