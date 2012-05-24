@@ -37,8 +37,8 @@ public:
 		_lines_view->render_all_imgs(PVParallelView::ImageWidth);
 		PVParallelView::PVLinesView::list_zone_images_t images = _lines_view->get_zones_images();
 
-		int pos = 0;
 		// Add visible zones
+		int pos = 0;
 		for (PVZoneID z = 0; z < (PVZoneID) images.size() ; z++) {
 			QGraphicsPixmapItem* zone_image = addPixmap(QPixmap::fromImage(images[z].bg->qimage()));
 			zone_image->setOpacity(0.5);
