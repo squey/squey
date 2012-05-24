@@ -59,10 +59,14 @@ include/pvparallelview/PVZoneTreeNoAlloc.h
 include/pvparallelview/PVZoomedZoneTree.h
 include/pvparallelview/PVAxisWidget.h
 include/pvparallelview/PVAxisSlider.h
+include/pvparallelview/PVFullParallelView.h
+include/pvparallelview/PVParallelScene.h
 )
 
 SET(MOC_HEADERS
 include/pvparallelview/PVRenderingJob.h
+include/pvparallelview/PVFullParallelView.h
+include/pvparallelview/PVParallelScene.h
 )
 
 QT4_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})
