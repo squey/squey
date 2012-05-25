@@ -249,7 +249,7 @@ private:
 				}
 			}
 
-			for (PVZoneID z = first_z_to_render; z < last_z; z++) {
+			for (PVZoneID z = last_z-1; z >= first_z_to_render; z--) {
 				if (job && job->should_cancel()) {
 					return;
 				}

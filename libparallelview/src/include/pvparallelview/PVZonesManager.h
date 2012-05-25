@@ -56,7 +56,7 @@ public:
 		return _zones[z].width();
 	}
 
-	void set_zone_width(PVZoneID zid, uint32_t width) const
+	void set_zone_width(PVZoneID zid, uint32_t width)
 	{
 		_zones[zid].set_width(PVCore::clamp(width, (uint32_t) PVParallelView::ZoneMinWidth, (uint32_t) PVParallelView::ZoneMaxWidth));
 	}
