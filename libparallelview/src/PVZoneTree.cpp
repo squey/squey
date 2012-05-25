@@ -250,7 +250,8 @@ private:
 //
 
 PVParallelView::PVZoneTree::PVZoneTree():
-	PVZoneTreeBase()
+	PVZoneTreeBase(),
+	_tree_data(0)
 {
 }
 
