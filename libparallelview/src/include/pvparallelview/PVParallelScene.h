@@ -6,7 +6,7 @@
 #include <QGraphicsSceneWheelEvent>
 
 #include <picviz/PVAxis.h>
-#include <pvparallelview/PVSquareAreaGraphicsItem.h>
+#include <pvparallelview/PVSelectionSquareGraphicsItem.h>
 #include <pvparallelview/PVAxisWidget.h>
 #include <pvparallelview/PVFullParallelView.h>
 #include <pvparallelview/PVLinesView.h>
@@ -23,8 +23,10 @@ public:
 	PVParallelScene(QObject* parent, PVParallelView::PVLinesView* lines_view) :
 		QGraphicsScene(parent),
 		_lines_view(lines_view),
-		_square_area(new PVParallelView::PVSquareAreaGraphicsItem(this))
+		_selection_square(new PVParallelView::PVSelectionSquareGraphicsItem(this))
 	{
+		setBackgroundBrush(Qt::black);
+
 		connect(view()->horizontalScrollBar(), SIGNAL(sliderPressed()), this, SLOT(slider_pressed_Slot()));
 		connect(view()->horizontalScrollBar(), SIGNAL(sliderReleased()), this, SLOT(slider_released_Slot()));
 
@@ -66,9 +68,12 @@ public:
 		}
 	}
 
+	inline PVLinesView* get_lines_view() { return _lines_view; }
+
+private:
 	PVParallelView::PVFullParallelView* view()
 	{
-		return (PVParallelView::PVFullParallelView*)parent() ;
+		return (PVParallelView::PVFullParallelView*) parent();
 	}
 
 	void update_zones_position(bool update_all = true)
@@ -105,17 +110,16 @@ public:
 	void mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 	{
 		if (event->buttons() == Qt::RightButton) {
-			QScrollBar *hBar = view()->horizontalScrollBar();
 			// Translate viewport
+			QScrollBar *hBar = view()->horizontalScrollBar();
 			hBar->setValue(hBar->value() + int(_translation_start_x - event->scenePos().x()));
 		}
 		else
 		{
 			// trace square area
-			QPointF top_left(qMin(_square_area_pos.x(), event->scenePos().x()), qMin(_square_area_pos.y(), event->scenePos().y()));
-			QPointF bottom_right(qMax(_square_area_pos.x(), event->scenePos().x()), qMax(_square_area_pos.y(), event->scenePos().y()));
-
-			_square_area->setRect(QRectF(top_left, bottom_right));
+			QPointF top_left(qMin(_selection_square_pos.x(), event->scenePos().x()), qMin(_selection_square_pos.y(), event->scenePos().y()));
+			QPointF bottom_right(qMax(_selection_square_pos.x(), event->scenePos().x()), qMax(_selection_square_pos.y(), event->scenePos().y()));
+			_selection_square->setRect(QRectF(top_left, bottom_right));
 		}
 	}
 
@@ -128,7 +132,7 @@ public:
 		}
 		else
 		{
-			_square_area_pos = event->scenePos();
+			_selection_square_pos = event->scenePos();
 		}
 	}
 
@@ -141,9 +145,14 @@ public:
 		}
 		else
 		{
+			PVZoneID zid = _lines_view->get_zones_manager().get_zone_id(_selection_square->rect().x());
+			QRect r = map_to_axis(zid, _selection_square->rect());
+
+			_selection_square->compute_selection(zid, r);
+
 			// Remove selection
-			if (_square_area_pos == event->scenePos()) {
-				_square_area->setRect(0, 0, 0, 0);
+			if (_selection_square_pos == event->scenePos()) {
+				_selection_square->setRect(0, 0, 0, 0);
 			}
 		}
 	}
@@ -176,7 +185,14 @@ public:
 		update_zones_position();
 	}
 
-public slots:
+	QRect map_to_axis(PVZoneID zid, QRectF rect)
+	{
+		QPointF point = _axes[zid]->map_from_scene(rect.topLeft());
+
+		return QRect(point.x(), point.y(), rect.width(), rect.height());
+	}
+
+private slots:
 	void slider_pressed_Slot()
 	{
 		_translation_start_x = (qreal) view()->horizontalScrollBar()->value();
@@ -194,8 +210,8 @@ private:
     QList<QGraphicsPixmapItem*> _zones;
     QList<PVParallelView::PVAxisWidget*> _axes;
 
-    PVParallelView::PVSquareAreaGraphicsItem* _square_area;
-    QPointF _square_area_pos;
+    PVParallelView::PVSelectionSquareGraphicsItem* _selection_square;
+    QPointF _selection_square_pos;
 };
 
 }

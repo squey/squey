@@ -53,7 +53,7 @@ public:
 		return _zones[z].width();
 	}
 
-	void set_zone_width(PVZoneID zid, int width) const
+	void set_zone_width(PVZoneID zid, int width)
 	{
 		_zones[zid].set_width(width);
 	}
@@ -61,7 +61,7 @@ public:
 	template <class F>
 	void set_zones_width(F const& f)
 	{
-		for (PVZoneID zid = 0; zid < _zones.size(); zid++) {
+		for (PVZoneID zid = 0; zid < (PVZoneID) _zones.size(); zid++) {
 			_zones[zid].set_width(f(_zones[zid].width()));
 		}
 	}

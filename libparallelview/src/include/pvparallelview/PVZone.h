@@ -17,7 +17,7 @@ public:
 	{ }
 
 public:
-	inline void set_width(uint32_t width) const { assert(width <= PVParallelView::ZoneMaxWidth); _width = width; }
+	inline void set_width(uint32_t width) { assert(width <= PVParallelView::ZoneMaxWidth); _width = width; }
 	uint32_t width() const { return _width; }
 
 	PVZoneTree& ztree() { return *_ztree; }
@@ -36,7 +36,7 @@ public:
 private:
 	PVZoneTree_p _ztree;
 	PVZoomedZoneTree_p _zoomed_ztree;
-	mutable uint32_t _width; // TODO: Fix that
+	uint32_t _width;
 };
 
 template <>

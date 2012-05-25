@@ -104,7 +104,7 @@ private:
 	template <class F>
 	void render_all_zones(uint32_t view_width, F const& fzone, PVRenderingJob* job = NULL)
 	{
-		job->reset();
+		//job->reset();
 		int32_t view_x = _visible_view_x;
 		if (view_x < 0) {
 			uint32_t unused_width = (uint32_t) (-view_x);
@@ -135,7 +135,7 @@ private:
 			}
 			update_zone_image_width(cur_z);
 			fzone(cur_z);
-			job->zone_finished(cur_z);
+			//job->zone_finished(cur_z);
 			const uint32_t offset = get_zone_width(cur_z) + PVParallelView::AxisWidth;
 			cur_width += offset;
 			cur_z++;
@@ -154,7 +154,7 @@ private:
 				}
 				update_zone_image_width(left_invisible_zone);
 				fzone(left_invisible_zone);
-				job->zone_finished(cur_z);
+				//job->zone_finished(cur_z);
 				zones_to_draw--;
 				if (zones_to_draw == 0) {
 					break;
@@ -167,7 +167,7 @@ private:
 				}
 				update_zone_image_width(right_invisible_zone);
 				fzone(right_invisible_zone);
-				job->zone_finished(cur_z);
+				//job->zone_finished(cur_z);
 				right_invisible_zone++;
 				zones_to_draw--;
 				one_done = true;
