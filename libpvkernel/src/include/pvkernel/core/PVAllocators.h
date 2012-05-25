@@ -386,7 +386,7 @@ public:
 	{
 		pointer np = this->allocate(nn);
 		if (p != 0) {
-			memcpy(np, p, on * sizeof(T));
+			memcpy(np, p, on * sizeof(value_type));
 			this->deallocate(p, on);
 		}
 		return np;
@@ -405,7 +405,7 @@ public:
 
 	pointer allocate(size_type n)
 	{
-		pointer p = (pointer) jemalloc(n * sizeof(T));
+		pointer p = (pointer) jemalloc(n * sizeof(value_type));
 		if (p == 0) {
 			throw std::bad_alloc();
 		}
@@ -414,7 +414,7 @@ public:
 
 	pointer reallocate(pointer p, size_type /*on*/, size_type nn)
 	{
-		pointer np = (pointer) jerealloc(p, nn * sizeof(T));
+		pointer np = (pointer) jerealloc(p, nn * sizeof(value_type));
 		if (np == 0) {
 			throw std::bad_alloc();
 		}
