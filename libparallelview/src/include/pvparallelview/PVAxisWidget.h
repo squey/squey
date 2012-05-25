@@ -20,6 +20,8 @@ namespace PVParallelView
 
 typedef std::pair<PVAxisSlider*, PVAxisSlider*> PVAxisRangeSliders;
 
+// TODO: Maybe rename this class to PVAxisGraphicsItem since it's more a QGraphicsItem than a QWidget...
+
 class PVAxisWidget : public QGraphicsItemGroup
 {
 public:

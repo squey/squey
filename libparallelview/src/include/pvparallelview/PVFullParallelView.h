@@ -11,12 +11,6 @@ class PVParallelScene;
 class PVFullParallelView : public QGraphicsView
 {
 	Q_OBJECT
-public:
-	virtual void translate_viewport(int translation)
-	{
-		QScrollBar *hBar = horizontalScrollBar();
-		hBar->setValue(hBar->value() + (isRightToLeft() ? -translation : translation));
-	}
 };
 
 }

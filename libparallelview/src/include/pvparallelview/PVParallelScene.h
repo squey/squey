@@ -6,6 +6,7 @@
 #include <QGraphicsSceneWheelEvent>
 
 #include <picviz/PVAxis.h>
+#include <pvparallelview/PVSquareAreaGraphicsItem.h>
 #include <pvparallelview/PVAxisWidget.h>
 #include <pvparallelview/PVFullParallelView.h>
 #include <pvparallelview/PVLinesView.h>
@@ -19,9 +20,13 @@ class PVParallelScene : public QGraphicsScene
 {
 	Q_OBJECT
 public:
-	PVParallelScene(QObject* parent, PVParallelView::PVLinesView* lines_view) : QGraphicsScene(parent), _lines_view(lines_view)
+	PVParallelScene(QObject* parent, PVParallelView::PVLinesView* lines_view) :
+		QGraphicsScene(parent),
+		_lines_view(lines_view),
+		_square_area(new PVParallelView::PVSquareAreaGraphicsItem(this))
 	{
-		connect(view()->horizontalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(translate_and_update_zones_position()));
+		connect(view()->horizontalScrollBar(), SIGNAL(sliderPressed()), this, SLOT(slider_pressed_Slot()));
+		connect(view()->horizontalScrollBar(), SIGNAL(sliderReleased()), this, SLOT(slider_released_Slot()));
 
 		_lines_view->render_all_imgs(PVParallelView::ImageWidth);
 		PVParallelView::PVLinesView::list_zone_images_t images = _lines_view->get_zones_images();
@@ -100,8 +105,17 @@ public:
 	void mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 	{
 		if (event->buttons() == Qt::RightButton) {
+			QScrollBar *hBar = view()->horizontalScrollBar();
 			// Translate viewport
-			view()->translate_viewport(_translation_start_x - event->scenePos().x());
+			hBar->setValue(hBar->value() + int(_translation_start_x - event->scenePos().x()));
+		}
+		else
+		{
+			// trace square area
+			QPointF top_left(qMin(_square_area_pos.x(), event->scenePos().x()), qMin(_square_area_pos.y(), event->scenePos().y()));
+			QPointF bottom_right(qMax(_square_area_pos.x(), event->scenePos().x()), qMax(_square_area_pos.y(), event->scenePos().y()));
+
+			_square_area->setRect(QRectF(top_left, bottom_right));
 		}
 	}
 
@@ -112,6 +126,10 @@ public:
 			// Store view position to compute translation
 			_translation_start_x = event->scenePos().x();
 		}
+		else
+		{
+			_square_area_pos = event->scenePos();
+		}
 	}
 
 	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
@@ -120,6 +138,13 @@ public:
 		{
 			// translate zones
 			translate_and_update_zones_position();
+		}
+		else
+		{
+			// Remove selection
+			if (_square_area_pos == event->scenePos()) {
+				_square_area->setRect(0, 0, 0, 0);
+			}
 		}
 	}
 
@@ -144,12 +169,22 @@ public:
 		}
 	}
 
-public slots:
 	void translate_and_update_zones_position()
 	{
 		uint32_t view_x = view()->horizontalScrollBar()->value();
 		_lines_view->translate(view_x, view()->width());
 		update_zones_position();
+	}
+
+public slots:
+	void slider_pressed_Slot()
+	{
+		_translation_start_x = (qreal) view()->horizontalScrollBar()->value();
+	}
+
+	void slider_released_Slot()
+	{
+		translate_and_update_zones_position();
 	}
 
 private:
@@ -158,6 +193,9 @@ private:
 
     QList<QGraphicsPixmapItem*> _zones;
     QList<PVParallelView::PVAxisWidget*> _axes;
+
+    PVParallelView::PVSquareAreaGraphicsItem* _square_area;
+    QPointF _square_area_pos;
 };
 
 }
