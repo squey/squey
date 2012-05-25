@@ -3,10 +3,12 @@
 
 #include <QGraphicsView>
 #include <QScrollBar>
+#include <QFuture>
 
 namespace PVParallelView {
 
 class PVParallelScene;
+class PVRenderingJob;
 
 class PVFullParallelView : public QGraphicsView
 {

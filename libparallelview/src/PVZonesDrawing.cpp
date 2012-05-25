@@ -15,5 +15,7 @@ PVParallelView::PVZonesDrawing::~PVZonesDrawing()
 
 void PVParallelView::PVZonesDrawing::draw_bci(PVBCIBackendImage& dst_img, uint32_t x_start, PVZoneID zone, PVBCICode* codes, size_t n)
 {
-	_draw_backend->operator()(dst_img, x_start, _zm.get_zone_width(zone), codes, n);
+	uint32_t width = _zm.get_zone_width(zone);
+	dst_img.set_width(width);
+	_draw_backend->operator()(dst_img, x_start, width, codes, n);
 }

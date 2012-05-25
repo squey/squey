@@ -2,12 +2,15 @@
 #define PVPARALLELVIEW_PVZONESMANAGER_H
 
 #include <pvkernel/core/general.h>
+#include <pvkernel/core/PVAlgorithms.h>
 
 #include <picviz/PVPlotted.h>
 #include <picviz/PVView_types.h>
 
 #include <pvparallelview/PVZone.h>
 #include <pvparallelview/PVZoneTree.h>
+
+#include <boost/utility.hpp>
 
 // Forward declarations
 namespace Picviz {
@@ -20,7 +23,7 @@ namespace __impl {
 class ZoneCreation;
 }
 
-class PVZonesManager
+class PVZonesManager: boost::noncopyable
 {
 	friend class PVParallelView::__impl::ZoneCreation;
 
@@ -53,16 +56,16 @@ public:
 		return _zones[z].width();
 	}
 
-	void set_zone_width(PVZoneID zid, int width) const
+	void set_zone_width(PVZoneID zid, uint32_t width) const
 	{
-		_zones[zid].set_width(width);
+		_zones[zid].set_width(PVCore::clamp(width, (uint32_t) PVParallelView::ZoneMinWidth, (uint32_t) PVParallelView::ZoneMaxWidth));
 	}
 
 	template <class F>
 	void set_zones_width(F const& f)
 	{
-		for (PVZoneID zid = 0; zid < _zones.size(); zid++) {
-			_zones[zid].set_width(f(_zones[zid].width()));
+		for (PVZoneID zid = 0; zid < (PVZoneID) _zones.size(); zid++) {
+			set_zone_width(zid, f(get_zone_width(zid)));
 		}
 	}
 

@@ -13,12 +13,47 @@ PVParallelView::PVLinesView::PVLinesView(PVZonesDrawing& zones_drawing, PVZoneID
 void PVParallelView::PVLinesView::translate(int32_t view_x, uint32_t view_width)
 {
 	PVLOG_INFO("(translate) view_x: %d px\n", view_x);
-	do_translate(view_x, view_width,
+
+	PVZoneID pre_first_zone = set_new_view(view_x, view_width);
+	if (pre_first_zone == _first_zone) {
+		// "Le changement, c'est pas maintenant !"
+		PVLOG_INFO("(do_translate) same first zone. Do nothing.\n");
+		return;
+	}
+
+	do_translate(pre_first_zone, view_width,
 		[&](PVZoneID z)
 		{
 			PVLOG_INFO("(translate) render zone %u\n", z);
 			assert(z >= _first_zone);
 			_zd.draw_zone<PVParallelView::PVZoneTree>(*_zones_imgs[z-_first_zone].bg, 0, z, &PVParallelView::PVZoneTree::browse_tree_bci);
+		}
+	);
+}
+
+QFuture<void> PVParallelView::PVLinesView::translate(int32_t view_x, uint32_t view_width, PVRenderingJob& job)
+{
+	PVLOG_INFO("(translate) view_x: %d px\n", view_x);
+
+	// First, set new view x (before launching anything in the future !! ;))
+	
+	PVZoneID pre_first_zone = set_new_view(view_x, view_width);
+	if (pre_first_zone == _first_zone) {
+		// "Le changement, c'est pas maintenant !"
+		PVLOG_INFO("(do_translate) same first zone. Do nothing.\n");
+		return QFuture<void>();
+	}
+
+	return QtConcurrent::run([&, pre_first_zone, view_width]
+		{
+			do_translate(pre_first_zone, view_width,
+			[&](PVZoneID z)
+			{
+				PVLOG_INFO("(translate) render zone %u\n", z);
+				assert(z >= _first_zone);
+				_zd.draw_zone<PVParallelView::PVZoneTree>(*_zones_imgs[z-_first_zone].bg, 0, z, &PVParallelView::PVZoneTree::browse_tree_bci);
+			},
+			&job);
 		}
 	);
 }
@@ -51,7 +86,7 @@ void PVParallelView::PVLinesView::render_all_imgs(uint32_t view_width)
 		[&](PVZoneID z)
 		{
 			PVLOG_INFO("(render_all_imgs) render zone %u\n", z);
-			assert(z >= _first_zone);
+			assert(is_zone_drawn(z));
 			_zd.draw_zone<PVParallelView::PVZoneTree>(*_zones_imgs[z-_first_zone].bg, 0, z, &PVParallelView::PVZoneTree::browse_tree_bci);
 		}
 	);
@@ -59,7 +94,7 @@ void PVParallelView::PVLinesView::render_all_imgs(uint32_t view_width)
 
 QFuture<void> PVParallelView::PVLinesView::render_all_imgs(uint32_t view_width, PVRenderingJob& job)
 {
-	return QtConcurrent::run<>([&]{
+	return QtConcurrent::run<>([&, view_width]{
 			render_all_zones(view_width,
 				[&](PVZoneID z)
 				{
@@ -76,29 +111,42 @@ QFuture<void> PVParallelView::PVLinesView::render_all_imgs(uint32_t view_width, 
 
 bool PVParallelView::PVLinesView::set_zone_width_and_render(PVZoneID zid, uint32_t width)
 {
-	width = PVCore::clamp(width, (uint32_t) PVParallelView::ZoneMinWidth, (uint32_t) PVParallelView::ZoneMaxWidth);
-
-	if (width == get_zone_width(zid)) {
+	if (!set_zone_width(zid, width)) {
+		// width hasn't changed !
 		return false;
 	}
 
-	PVZoneID img = get_image_index_of_zone(zid);
-	get_zones_manager().set_zone_width(zid, width);
 	if (is_zone_drawn(zid)) {
-		_zones_imgs[img].set_width(width);
-		render_zone_all_imgs(zid, _zones_imgs[img]);
+		render_zone_all_imgs(zid);
 		return true;
 	}
 
 	return false;
 }
 
-void PVParallelView::PVLinesView::render_zone_all_imgs(PVZoneID z, ZoneImages const& zi)
+void PVParallelView::PVLinesView::render_zone_all_imgs(PVZoneID z)
 {
 	PVLOG_INFO("(lines view) render zone %d\n", z);
 	if (is_zone_drawn(z)) {
 		_zd.draw_zone<PVParallelView::PVZoneTree>(*_zones_imgs[z-_first_zone].bg, 0, z, &PVParallelView::PVZoneTree::browse_tree_bci);
 	}
+}
+
+QFuture<void> PVParallelView::PVLinesView::render_zone_all_imgs(PVZoneID z, PVRenderingJob& job)
+{
+	PVLOG_INFO("(lines view) render zone %d\n", z);
+	if (!is_zone_drawn(z)) {
+		// "You've got no future" !
+		return QFuture<void>();
+	}
+
+	PVZoneID img_id = z-_first_zone;
+	return QtConcurrent::run<>([&, z, img_id]
+		{
+			_zd.draw_zone<PVParallelView::PVZoneTree>(*_zones_imgs[img_id].bg, 0, z, &PVParallelView::PVZoneTree::browse_tree_bci);
+			job.zone_finished(z);
+		}
+	);
 }
 
 PVZoneID PVParallelView::PVLinesView::get_image_index_of_zone(PVZoneID z) const
@@ -164,15 +212,13 @@ void PVParallelView::PVLinesView::left_shift_images(PVZoneID s)
 
 void PVParallelView::PVLinesView::render_all(int32_t view_x, uint32_t view_width)
 {
-	_first_zone = get_first_zone_from_viewport(view_x, view_width);
-	_visible_view_x = view_x;
+	set_new_view(view_x, view_width);
 	render_all_imgs(view_width);
 }
 
 QFuture<void> PVParallelView::PVLinesView::render_all(int32_t view_x, uint32_t view_width, PVRenderingJob& job)
 {
-	_first_zone = get_first_zone_from_viewport(view_x, view_width);
-	_visible_view_x = view_x;
+	set_new_view(view_x, view_width);
 	return render_all_imgs(view_width, job);
 }
 

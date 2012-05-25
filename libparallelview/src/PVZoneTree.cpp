@@ -250,14 +250,14 @@ private:
 //
 
 PVParallelView::PVZoneTree::PVZoneTree():
-	PVZoneTreeBase()
+	PVZoneTreeBase(),
+	_tree_data(NULL)
 {
 }
 
 void PVParallelView::PVZoneTree::process_tbb_sse_treeb(PVZoneProcessing const& zp, ProcessTLS& tls)
 {
 	const size_t nthreads = atol(getenv("NUM_THREADS"));
-	tbb::task_scheduler_init init(nthreads);
 	PVRow nrows = zp.nrows();
 
 	// Reset intermediate trees and first elements. TODO: parallelize that
@@ -493,7 +493,6 @@ void PVParallelView::PVZoneTree::filter_by_sel_tbb_treeb(Picviz::PVSelection con
 	// returns a zone tree with only the selected lines
 
 	Picviz::PVSelection::const_pointer sel_buf = sel.get_buffer();
-	tbb::task_scheduler_init init(atol(getenv("NUM_THREADS")));
 	BENCH_START(subtree);
 	tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, atol(getenv("GRAINSIZE"))), __impl::TBBSelFilter(this, sel_buf), tbb::simple_partitioner());
 	BENCH_END(subtree, "filter_by_sel_tbb_treeb", 1, 1, sizeof(PVRow), NBUCKETS);
