@@ -47,6 +47,13 @@ public:
 		return _zones[z].get_tree<Tree>();
 	}
 
+	template <class Tree>
+	inline Tree& get_zone_tree(PVZoneID z)
+	{
+		assert(z < get_number_zones());
+		return _zones[z].get_tree<Tree>();
+	}
+
 	inline uint32_t get_zone_width(PVZoneID z) const
 	{
 		assert(z < get_number_zones());

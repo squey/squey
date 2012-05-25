@@ -115,6 +115,28 @@ struct bigger_than
 	static const bool value = sizeof(A)>sizeof(B);
 };
 
+#if 0
+template <class T, class A, class B>
+struct select_object
+{
+	BOOST_STATIC_ASSERT((false));
+	typedef T return_type;
+};
+
+template <class T, class A, class B>
+struct select_object
+{
+	BOOST_STATIC_ASSERT((false));
+	typedef T return_type;
+};
+
+template <class B, class A, class B>
+B select_object(A /*a*/, B b)
+{
+	return b;
+}
+#endif
+
 }
 
 }
