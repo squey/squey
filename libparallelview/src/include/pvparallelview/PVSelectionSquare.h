@@ -24,8 +24,8 @@ public:
 
 	void compute_selection(PVZoneID zid, QRect rect)
 	{
-		Picviz::PVSelection* sel = new Picviz::PVSelection();
-		uint32_t width = _zm.get_zone_width(zid);
+		//Picviz::PVSelection* sel = new Picviz::PVSelection();
+		int32_t width = _zm.get_zone_width(zid);
 
 		PVZoneTree& ztree = _zm.get_zone_tree<PVZoneTree>(zid);
 		PVZoneTree::PVBranch* treeb = ztree.get_treeb();
@@ -33,15 +33,16 @@ public:
 
 		PVLineEqInt line;
 		line.b = -width;
-		for (uint32_t b = 0 ; b < NBUCKETS; b++)
+		for (uint32_t branch = 0 ; branch < NBUCKETS; branch++)
 		{
-			PVRow r =  ztree.get_first_elt_of_branch(b);
+			PVRow r =  ztree.get_first_elt_of_branch(branch);
 			if(r == PVROW_INVALID_VALUE) {
+				ztree._sel_elts[branch] = PVROW_INVALID_VALUE;
 				continue;
 			}
-			code_b.int_v = b;
-			uint32_t y1 = code_b.s.l;
-			uint32_t y2 = code_b.s.r;
+			code_b.int_v = branch;
+			int32_t y1 = code_b.s.l;
+			int32_t y2 = code_b.s.r;
 
 			line.a = y2 - y1;
 			line.c = y1;
@@ -56,9 +57,12 @@ public:
 			if (is_line_selected)
 			{
 				for (size_t i = 0; i < treeb[b].count; i++) {
-					sel->set_bit_fast(treeb[b].p[i]);
+					//sel->set_bit_fast(treeb[b].p[i]);
 				}
-				ztree._sel_elts[b] = r;
+				ztree._sel_elts[branch] = r;
+			}
+			else {
+				ztree._sel_elts[branch] = PVROW_INVALID_VALUE;
 			}
 		}
 	}

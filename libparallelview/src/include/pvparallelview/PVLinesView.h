@@ -61,7 +61,9 @@ public:
 	QFuture<void> render_all_imgs(uint32_t view_width, PVRenderingJob& job);
 
 	void render_bg(uint32_t view_width);
+
 	void render_sel(uint32_t view_width);
+	QFuture<void> render_sel(uint32_t view_width, PVRenderingJob& job);
 
 	void render_zone_all_imgs(PVZoneID z);
 	QFuture<void> render_zone_all_imgs(PVZoneID z, PVRenderingJob& job);

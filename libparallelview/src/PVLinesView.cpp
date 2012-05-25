@@ -75,9 +75,29 @@ void PVParallelView::PVLinesView::render_bg(uint32_t view_width)
 void PVParallelView::PVLinesView::render_sel(uint32_t view_width)
 {
 	render_all_zones(view_width,
-	    [&](PVZoneID z){ PVLOG_INFO("(render_sel) render zone %u\n", z); }
+		[&](PVZoneID z)
+		{
+			PVLOG_INFO("(render_sel) render zone %u\n", z);
+			assert(is_zone_drawn(z));
+			_zd.draw_zone<PVParallelView::PVZoneTree>(*_zones_imgs[z-_first_zone].sel, 0, z, &PVParallelView::PVZoneTree::browse_tree_bci_sel);
+		}
 	);
-	//_zd.draw_zone<PVParallelView::PVZoneTree>(*_zones_imgs[i].all, 0, i+_first_zone, &PVParallelView::PVZoneTree::browse_tree_bci);
+}
+
+QFuture<void> PVParallelView::PVLinesView::render_sel(uint32_t view_width, PVRenderingJob& job)
+{
+	return QtConcurrent::run<>([&, view_width]{
+			render_all_zones(view_width,
+				[&](PVZoneID z)
+				{
+					PVLOG_INFO("(render_all_imgs) render zone %u\n", z);
+					assert(z >= _first_zone);
+					_zd.draw_zone<PVParallelView::PVZoneTree>(*_zones_imgs[z-_first_zone].sel, 0, z, &PVParallelView::PVZoneTree::browse_tree_bci_sel);
+				},
+				&job
+			);
+		}
+	);
 }
 
 void PVParallelView::PVLinesView::render_all_imgs(uint32_t view_width)
@@ -88,6 +108,7 @@ void PVParallelView::PVLinesView::render_all_imgs(uint32_t view_width)
 			PVLOG_INFO("(render_all_imgs) render zone %u\n", z);
 			assert(is_zone_drawn(z));
 			_zd.draw_zone<PVParallelView::PVZoneTree>(*_zones_imgs[z-_first_zone].bg, 0, z, &PVParallelView::PVZoneTree::browse_tree_bci);
+			_zd.draw_zone<PVParallelView::PVZoneTree>(*_zones_imgs[z-_first_zone].sel, 0, z, &PVParallelView::PVZoneTree::browse_tree_bci_sel);
 		}
 	);
 }
@@ -101,6 +122,7 @@ QFuture<void> PVParallelView::PVLinesView::render_all_imgs(uint32_t view_width, 
 					PVLOG_INFO("(render_all_imgs) render zone %u\n", z);
 					assert(z >= _first_zone);
 					_zd.draw_zone<PVParallelView::PVZoneTree>(*_zones_imgs[z-_first_zone].bg, 0, z, &PVParallelView::PVZoneTree::browse_tree_bci);
+					_zd.draw_zone<PVParallelView::PVZoneTree>(*_zones_imgs[z-_first_zone].sel, 0, z, &PVParallelView::PVZoneTree::browse_tree_bci_sel);
 				},
 				&job
 			);

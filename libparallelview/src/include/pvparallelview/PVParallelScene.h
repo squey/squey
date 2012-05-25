@@ -107,7 +107,10 @@ private:
 			PVZoneID zid = _lines_view->get_zones_manager().get_zone_id(_selection_square->rect().x());
 			QRect r = map_to_axis(zid, _selection_square->rect());
 
+			cancel_current_job();
 			_selection_square->compute_selection(zid, r);
+			_lines_view->render_sel(view()->width());
+			update_zones_position();
 
 			// Remove selection
 			if (_selection_square_pos == event->scenePos()) {
@@ -142,19 +145,23 @@ private slots:
 		const PVZoneID img_id = zid-_lines_view->get_first_drawn_zone();
 
 		// Check whether the image needs scaling.
-		QImage qimg = images[img_id].bg->qimage();
-		QImage final_img;
+		QImage qimg_bg = images[img_id].bg->qimage();
+		QImage qimg_sel = images[img_id].sel->qimage();
+		QImage final_img_bg;
+		QImage final_img_sel;
 		const uint32_t zone_width = _lines_view->get_zone_width(zid);
-		if ((uint32_t) qimg.width() != zone_width) {
-			final_img = qimg.scaled(zone_width, qimg.height(), Qt::IgnoreAspectRatio, Qt::FastTransformation);
+		if ((uint32_t) qimg_sel.width() != zone_width) {
+			final_img_bg = qimg_bg.scaled(zone_width, qimg_bg.height(), Qt::IgnoreAspectRatio, Qt::FastTransformation);
+			final_img_sel = qimg_sel.scaled(zone_width, qimg_sel.height(), Qt::IgnoreAspectRatio, Qt::FastTransformation);
 		}
 		else {
-			final_img = qimg;
+			final_img_bg = qimg_bg;
+			final_img_sel = qimg_sel;
 		}
 
 		// Convert the image to a pixmap
-		_zones[img_id]->setPixmap(QPixmap::fromImage(final_img));
-		_zones[img_id]->setPos(QPointF(_lines_view->get_zone_absolute_pos(zid), 0));
+		_zones[img_id].setPixmap(QPixmap::fromImage(final_img_sel), QPixmap::fromImage(final_img_bg));
+		_zones[img_id].setPos(QPointF(_lines_view->get_zone_absolute_pos(zid), 0));
 	}
 
 private:
@@ -207,10 +214,29 @@ private slots:
 	}
 
 private:
+
+	struct ZoneImages
+	{
+		QGraphicsPixmapItem* sel;
+		QGraphicsPixmapItem* bg;
+
+		void setPos(QPointF point)
+		{
+			sel->setPos(point);
+			bg->setPos(point);
+		}
+
+		void setPixmap(QPixmap const& pixmap_sel, QPixmap const& pixmap_bg)
+		{
+			sel->setPixmap(pixmap_sel);
+			bg->setPixmap(pixmap_bg);
+		}
+	};
+
     PVParallelView::PVLinesView* _lines_view;
     qreal _translation_start_x;
 
-    QList<QGraphicsPixmapItem*> _zones;
+    QList<ZoneImages> _zones;
     QList<PVParallelView::PVAxisWidget*> _axes;
 
 	PVRenderingJob* _rendering_job;

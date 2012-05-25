@@ -19,11 +19,13 @@ PVParallelView::PVParallelScene::PVParallelScene(QObject* parent, PVParallelView
 	int pos = 0;
 	_zones.reserve(images.size());
 	for (PVZoneID z = 0; z < (PVZoneID) images.size() ; z++) {
-		QGraphicsPixmapItem* zone_image = addPixmap(QPixmap::fromImage(images[z].bg->qimage()));
-		//zone_image->setOpacity(0.5);
-		_zones.push_back(zone_image);
+		ZoneImages zi;
+		zi.sel = addPixmap(QPixmap::fromImage(images[z].sel->qimage()));
+		zi.bg = addPixmap(QPixmap::fromImage(images[z].bg->qimage()));
+		zi.bg->setOpacity(0.5);
+		_zones.push_back(zi);
 		if (z < _lines_view->get_zones_manager().get_number_zones()) {
-			zone_image->setPos(QPointF(_lines_view->get_zone_absolute_pos(z), 0));
+			zi.setPos(QPointF(_lines_view->get_zone_absolute_pos(z), 0));
 		}
 	}
 

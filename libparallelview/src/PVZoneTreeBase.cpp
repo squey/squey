@@ -206,6 +206,16 @@ size_t PVParallelView::PVZoneTreeBase::browse_tree_bci_old(PVHSVColor const* col
 
 size_t PVParallelView::PVZoneTreeBase::browse_tree_bci(PVHSVColor const* colors, PVBCICode* codes) const
 {
+	return browse_tree_bci_from_buffer(_first_elts, colors, codes);
+}
+
+size_t PVParallelView::PVZoneTreeBase::browse_tree_bci_sel(PVHSVColor const* colors, PVBCICode* codes) const
+{
+	return browse_tree_bci_from_buffer(_sel_elts, colors, codes);
+}
+
+size_t PVParallelView::PVZoneTreeBase::browse_tree_bci_from_buffer(const PVRow* elts, PVHSVColor const* colors, PVBCICode* codes) const
+{
 	size_t idx_code = 0;
 
 //	const size_t nthreads = atol(getenv("NUM_THREADS"));/*omp_get_max_threads()/2;*/
@@ -216,7 +226,7 @@ size_t PVParallelView::PVZoneTreeBase::browse_tree_bci(PVHSVColor const* colors,
 	for (uint64_t b = 0; b < NBUCKETS; b+=4) {
 
 		__m128i sse_ff = _mm_set1_epi32(0xFFFFFFFF);
-		__m128i sse_index = _mm_load_si128((const __m128i*) &_first_elts[b]);
+		__m128i sse_index = _mm_load_si128((const __m128i*) &elts[b]);
 		__m128i see_cmp = _mm_cmpeq_epi32(sse_ff, sse_index);
 
 		if (_mm_testz_si128(see_cmp, sse_ff)) {
@@ -274,8 +284,8 @@ size_t PVParallelView::PVZoneTreeBase::browse_tree_bci(PVHSVColor const* colors,
 		else {
 			for (int i=0; i<4; i++) {
 				uint64_t b0 = b + i;
-				PVRow r = get_first_elt_of_branch(b0);
-				if (branch_valid(b0)){
+				PVRow r = elts[b0];
+				if (r != PVROW_INVALID_VALUE){
 					PVBCICode bci;
 					bci.int_v = r | (b0<<32);
 					bci.s.color = colors[r].h();
