@@ -1,6 +1,8 @@
 #ifndef PVPARALLELVIEW_PVZONE_H
 #define PVPARALLELVIEW_PVZONE_H
 
+#include <pvkernel/core/PVTypeTraits.h>
+
 #include <pvparallelview/PVZoneTree.h>
 #include <pvparallelview/PVZoomedZoneTree.h>
 #include <pvparallelview/common.h>
@@ -30,7 +32,14 @@ public:
 	Tree const& get_tree() const
 	{
 		assert(false);
-		return Tree();
+		return *(new Tree());
+	}
+
+	template <class Tree>
+	Tree& get_tree()
+	{
+		assert(false);
+		return *(new Tree());
 	}
 
 private:
@@ -46,7 +55,19 @@ inline PVZoneTree const& PVZone::get_tree<PVZoneTree>() const
 }
 
 template <>
+inline PVZoneTree& PVZone::get_tree<PVZoneTree>()
+{
+	return *_ztree;
+}
+
+template <>
 inline PVZoomedZoneTree const& PVZone::get_tree<PVZoomedZoneTree>() const
+{
+	return *_zoomed_ztree;
+}
+
+template <>
+inline PVZoomedZoneTree& PVZone::get_tree<PVZoomedZoneTree>()
 {
 	return *_zoomed_ztree;
 }
