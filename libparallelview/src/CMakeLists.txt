@@ -26,6 +26,7 @@ PVTools.cpp
 PVZoomedZoneTree.cpp
 PVZonesDrawing.cpp
 PVLinesView.cpp
+PVSelectionSquareGraphicsItem.cpp
 PVZonesManager.cpp
 PVZoneTree.cpp
 PVZoneTreeBase.cpp
