@@ -145,7 +145,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1(uint32_t y_min, u
 {
 	uint32_t t_min = (y_min >> (32 - NBITS_INDEX)) & MASK_INT_YCOORD;
 	uint32_t t_max = (y_max >> (32 - NBITS_INDEX)) & MASK_INT_YCOORD;
-	uint32_t zoom = (UINT32_MAX / (y_max - y_min)) - 1;
+	uint32_t zoom = (uint32_t)(log10(UINT32_MAX / (double)(y_max - y_min)) / log10(2.));
 	size_t num = 0;
 
 	for (uint32_t j = t_min; j <= t_max; ++j) {
@@ -163,7 +163,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y2(uint32_t y_min, u
 {
 	uint32_t t_min = (y_min >> (32 - NBITS_INDEX)) & MASK_INT_YCOORD;
 	uint32_t t_max = (y_max >> (32 - NBITS_INDEX)) & MASK_INT_YCOORD;
-	uint32_t zoom = (UINT32_MAX / (y_max - y_min)) - 1;
+	uint32_t zoom = (uint32_t)(log10(UINT32_MAX / (double)(y_max - y_min)) / log10(2.));
 	size_t num = 0;
 
 	for (uint32_t j = t_min; j <= t_max; ++j) {
