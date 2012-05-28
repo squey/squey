@@ -269,6 +269,26 @@ void PVParallelView::PVLinesView::update_sel_from_zone(uint32_t view_width, PVZo
 	);
 }
 
+QFuture<void> PVParallelView::PVLinesView::update_sel_from_zone(uint32_t view_width, PVZoneID zid_sel, const Picviz::PVSelection& sel, PVRenderingJob& job)
+{
+	return QtConcurrent::run<>([&, view_width]{
+		render_all_zones(view_width,
+			[&,view_width,zid_sel](PVZoneID z)
+			{
+			PVLOG_INFO("(render_sel) render zone %u\n", z);
+						assert(is_zone_drawn(z));
+						update_zone_images_width(z);
+						if (zid_sel != z) {
+							get_zones_manager().filter_zone_by_sel(z, sel);
+						}
+						_zd.draw_zone<PVParallelView::PVZoneTree>(*_zones_imgs[z-_first_zone].sel, 0, z, &PVParallelView::PVZoneTree::browse_tree_bci_sel);
+			},
+			&job
+		);
+		}
+	);
+}
+
 void PVParallelView::PVLinesView::right_shift_images(PVZoneID s)
 {
 	assert(s < (PVZoneID) _zones_imgs.size());
