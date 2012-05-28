@@ -126,12 +126,11 @@ void PVParallelView::PVZoomedZoneTree::process_omp_from_zt(const PVZoneProcessin
 	const uint32_t* pcol_a = zp.get_plotted_col_a();
 	const uint32_t* pcol_b = zp.get_plotted_col_b();
 	PVParallelView::PVZoneTree::PVBranch *treeb = zt.get_treeb();
-	PVRow r;
 
 #pragma omp parallel for num_threads(4)
 	for(unsigned i = 0; i < NBUCKETS; ++i) {
 		for (unsigned j = 0; j < treeb[i].count; ++j) {
-			r = treeb[i].p[j];
+			PVRow r = treeb[i].p[j];
 			PVParallelView::PVQuadTreeEntry e(pcol_a[r], pcol_b[r], r);
 			_trees[i].insert(e);
 		}
