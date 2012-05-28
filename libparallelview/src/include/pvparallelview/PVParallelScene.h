@@ -36,7 +36,6 @@ private:
 		return (PVParallelView::PVFullParallelView*) parent();
 	}
 
-
 	void update_zones_position(bool update_all = true)
 	{
 		PVParallelView::PVLinesView::list_zone_images_t images = _lines_view->get_zones_images();

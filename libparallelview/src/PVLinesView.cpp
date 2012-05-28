@@ -175,6 +175,7 @@ QFuture<void> PVParallelView::PVLinesView::render_zone_all_imgs(PVZoneID z, PVRe
 		{
 			update_zone_images_width(z);
 			_zd.draw_zone<PVParallelView::PVZoneTree>(*_zones_imgs[img_id].bg, 0, z, &PVParallelView::PVZoneTree::browse_tree_bci);
+			_zd.draw_zone<PVParallelView::PVZoneTree>(*_zones_imgs[img_id].sel, 0, z, &PVParallelView::PVZoneTree::browse_tree_bci_sel);
 			job.zone_finished(z);
 		}
 	);
