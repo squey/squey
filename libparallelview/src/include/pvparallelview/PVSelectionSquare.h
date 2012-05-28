@@ -62,8 +62,8 @@ public:
 
 			if (is_line_selected)
 			{
-				for (size_t i = 0; i < treeb[b].count; i++) {
-					sel.set_bit_fast(treeb[b].p[i]);
+				for (size_t i = 0; i < treeb[branch].count; i++) {
+					sel.set_bit_fast(treeb[branch].p[i]);
 				}
 				ztree._sel_elts[branch] = r;
 			}
