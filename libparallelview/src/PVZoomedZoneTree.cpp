@@ -139,7 +139,8 @@ void PVParallelView::PVZoomedZoneTree::process_omp_from_zt(const PVZoneProcessin
 }
 
 size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1(uint32_t y_min, uint32_t y_max,
-                                                               PVHSVColor* colors, PVBCICode* codes) const
+                                                               const PVHSVColor* colors,
+                                                               PVBCICode* codes) const
 {
 	uint32_t t_min = (y_min >> (32 - NBITS_INDEX)) & MASK_INT_YCOORD;
 	uint32_t t_max = (y_max >> (32 - NBITS_INDEX)) & MASK_INT_YCOORD;
@@ -154,7 +155,8 @@ size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1(uint32_t y_min, u
 }
 
 size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y2(uint32_t y_min, uint32_t y_max,
-                                                               PVHSVColor* colors, PVBCICode* codes) const
+                                                               const PVHSVColor* colors,
+                                                               PVBCICode* codes) const
 {
 	uint32_t t_min = 1024 * (y_min >> (32 - NBITS_INDEX)) & MASK_INT_YCOORD;
 	uint32_t t_max = 1024 * (y_max >> (32 - NBITS_INDEX)) & MASK_INT_YCOORD;
