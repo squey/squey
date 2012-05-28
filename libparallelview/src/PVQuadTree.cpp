@@ -30,8 +30,8 @@ size_t PVParallelView::__impl::f_get_first_bci_sel(const pvquadtree_entries_t &e
 		const PVQuadTreeEntry &e = entries.at(i);
 		if(selection.get_line(e.idx)) {
 			code->s.idx = e.idx;
-			code->s.l = e.y1 >> 22;
-			code->s.r = e.y2 >> 22;
+			code->s.l = e.y1 >> (32 - NBITS_INDEX);
+			code->s.r = e.y2 >> (32 - NBITS_INDEX);
 			code->s.color = colors[e.idx].h();
 			return 1;
 		}
@@ -70,8 +70,8 @@ void PVParallelView::__impl::f_get_bci_sel(const pvquadtree_entries_t &entries,
 		if(selection.get_line(e.idx)) {
 			PVParallelView::PVBCICode code;
 			code.s.idx = e.idx;
-			code.s.l = e.y1 >> 22;
-			code.s.r = e.y2 >> 22;
+			code.s.l = e.y1 >> (32 - NBITS_INDEX);
+			code.s.r = e.y2 >> (32 - NBITS_INDEX);
 			code.s.color = colors[e.idx].h();
 			result.push_back(code);
 		}
