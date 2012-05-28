@@ -120,6 +120,8 @@ public:
 		_max_level = max_level;
 		if (PREALLOC_ELEMENT_COUNT != 0) {
 			_datas.reserve(PREALLOC_ELEMENT_COUNT);
+		} else {
+			_datas = pvquadtree_entries_t();
 		}
 		_nodes = 0;
 	}
@@ -272,7 +274,7 @@ private:
 		                _max_level - 1);
 
 		for (unsigned i = 0; i < _datas.size(); ++i) {
-			PVQuadTreeEntry &e = _datas.at(i);
+			const PVQuadTreeEntry &e = _datas.at(i);
 			_nodes[compute_index(e)]._datas.push_back(e);
 		}
 		_datas.clear();
@@ -313,15 +315,11 @@ private:
 						num += f(obj._nodes[SW], y1_min, y1_max, zoom - 1, shift, mask, colors, codes + num);
 					}
 				} else {
-					// we have to extract 'zoom' elements from _datas
-					for (unsigned ie = 0; ie < obj._datas.size(); ++ie) {
-						const PVQuadTreeEntry &e = obj._datas.at(ie);
-						if ((y1_min < e.y1) && (e.y1 < y1_max)) {
-							num += F(obj._datas.at(ie), shift, mask, colors, codes + num);
-							if (num >= zoom) {
-								break;
-							}
-						}
+					// we have to extract the 'zoom' first elements from _datas
+					uint32_t count = std::min(zoom, obj._datas.size());
+					for (unsigned i = 0; i < count; ++i) {
+						const PVQuadTreeEntry &e = obj._datas.at(i);
+						num += F(e, shift, mask, colors, codes + num);
 					}
 				}
 				return num;
@@ -339,9 +337,11 @@ private:
 					f2(obj._nodes[SW], y1_min, y1_max, result);
 				}
 			} else {
-				const PVQuadTreeEntry &e = obj._datas.at(0);
-				if (e.idx < result.idx) {
-					result = e;
+				if (obj._datas.size() != 0) {
+					const PVQuadTreeEntry &e = obj._datas.at(0);
+					if (e.idx <= result.idx) {
+						result = e;
+					}
 				}
 			}
 		}
@@ -374,22 +374,16 @@ private:
 				if (obj._nodes != 0) {
 					if (obj._y2_mid_value < y2_max) {
 						num += f(obj._nodes[NE], y2_min, y2_max, zoom - 1, shift, mask, colors, codes + num);
-						num += f(obj._nodes[SE], y2_min, y2_max, zoom - 1, shift, mask, colors, codes + num);
+						num += f(obj._nodes[NW], y2_min, y2_max, zoom - 1, shift, mask, colors, codes + num);
 					}
 					if (y2_min < obj._y2_mid_value) {
-						num += f(obj._nodes[NW], y2_min, y2_max, zoom - 1, shift, mask, colors, codes + num);
+						num += f(obj._nodes[SE], y2_min, y2_max, zoom - 1, shift, mask, colors, codes + num);
 						num += f(obj._nodes[SW], y2_min, y2_max, zoom - 1, shift, mask, colors, codes + num);
 					}
 				} else {
-					// we have to extract 'zoom' elements from _datas
-					for (unsigned ie = 0; ie < obj._datas.size(); ++ie) {
-						const PVQuadTreeEntry &e = obj._datas.at(ie);
-						if ((y2_min < e.y2) && (e.y2 < y2_max)) {
-							num += F(obj._datas.at(ie), shift, mask, colors, codes + num);
-							if (num >= zoom) {
-								break;
-							}
-						}
+					// we have to extract the 'zoom' first elements from _datas
+					for (unsigned i = 0; i < std::min(zoom, obj._datas.size()); ++i) {
+						num += F(obj._datas.at(i), shift, mask, colors, codes + num);
 					}
 				}
 				return num;
@@ -401,16 +395,18 @@ private:
 			if (obj._nodes != 0) {
 				if (obj._y2_mid_value < y2_max) {
 					f2(obj._nodes[NE], y2_min, y2_max, result);
-					f2(obj._nodes[SE], y2_min, y2_max, result);
+					f2(obj._nodes[NW], y2_min, y2_max, result);
 				}
 				if (y2_min < obj._y2_mid_value) {
-					f2(obj._nodes[NW], y2_min, y2_max, result);
+					f2(obj._nodes[SE], y2_min, y2_max, result);
 					f2(obj._nodes[SW], y2_min, y2_max, result);
 				}
 			} else {
-				const PVQuadTreeEntry &e = obj._datas.at(0);
-				if (e.idx < result.idx) {
-					result = e;
+				if (obj._datas.size() != 0) {
+					const PVQuadTreeEntry &e = obj._datas.at(0);
+					if (e.idx <= result.idx) {
+						result = e;
+					}
 				}
 			}
 		}
@@ -458,15 +454,9 @@ private:
 						}
 					}
 				} else {
-					// we have to extract zoom elements from _datas
-					for (unsigned ie = 0; ie < obj._datas.size(); ++ie) {
-						const PVQuadTreeEntry &e = obj._datas.at(ie);
-						if ((y1_min < e.y1) && (e.y1 < y1_max) && (y2_min < e.y2) && (e.y2 < y2_max)) {
-							num += F(obj._datas.at(ie), shift, mask, colors, codes + num);
-							if (num >= zoom) {
-								break;
-							}
-						}
+					// we have to extract the 'zoom' first elements from _datas
+					for (unsigned i = 0; i < std::min(zoom, obj._datas.size()); ++i) {
+						num += F(obj._datas.at(i), shift, mask, colors, codes + num);
 					}
 				}
 				return num;
@@ -493,9 +483,11 @@ private:
 					}
 				}
 			} else {
-				const PVQuadTreeEntry &e = obj._datas.at(0);
-				if (e.idx < result.idx) {
-					result = e;
+				if (obj._datas.size() != 0) {
+					const PVQuadTreeEntry &e = obj._datas.at(0);
+					if (e.idx < result.idx) {
+						result = e;
+					}
 				}
 			}
 		}
@@ -550,10 +542,10 @@ private:
 				size_t num = 0;
 				if (obj._y2_mid_value < y2_max) {
 					num += f(obj._nodes[NE], y2_min, y2_max, selection, colors, codes + num);
-					num += f(obj._nodes[SE], y2_min, y2_max, selection, colors, codes + num);
+					num += f(obj._nodes[NW], y2_min, y2_max, selection, colors, codes + num);
 				}
 				if (y2_min < obj._y2_mid_value) {
-					num += f(obj._nodes[NW], y2_min, y2_max, selection, colors, codes + num);
+					num += f(obj._nodes[SE], y2_min, y2_max, selection, colors, codes + num);
 					num += f(obj._nodes[SW], y2_min, y2_max, selection, colors, codes + num);
 				}
 				return num;
