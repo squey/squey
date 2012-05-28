@@ -42,7 +42,13 @@ public:
 	inline void set_backend(PVBCIDrawingBackend const& backend) { _draw_backend = &backend; }
 
 public:
-	inline PVBCIBackendImage_p create_image(size_t width) const { assert(_draw_backend); return _draw_backend->create_image(width); }
+	inline PVBCIBackendImage_p create_image(size_t width) const
+	{
+		assert(_draw_backend);
+		PVBCIBackendImage_p ret = _draw_backend->create_image(width);
+		ret->set_width(width);
+		return ret;
+	}
 
 public:
 	template <class Tree, class Fbci, class BackendImageIterator>
@@ -101,7 +107,7 @@ public:
 	void draw_zone_lambda(PVBCIBackendImage& dst_img, uint32_t x_start, PVZoneID zone, Fbci const& f_bci)
 	{
 		Tree const& zone_tree = _zm.get_zone_tree<Tree>(zone);
-		PVLOG_INFO("draw_zone: tree pointer: %p\n", &zone_tree);
+		PVLOG_INFO("draw_zone_lambda: tree pointer: %p\n", &zone_tree);
 		size_t ncodes = f_bci(zone_tree, _colors, _computed_codes);
 		draw_bci(dst_img, x_start, zone, _computed_codes, ncodes);
 	}

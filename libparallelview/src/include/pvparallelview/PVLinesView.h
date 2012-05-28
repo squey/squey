@@ -105,6 +105,12 @@ public:
 
 private:
 	PVZoneID get_image_index_of_zone(PVZoneID z) const;
+
+	inline void update_zone_images_width(PVZoneID z)
+	{
+		assert(is_zone_drawn(z));
+		_zones_imgs[z-get_first_drawn_zone()].set_width(get_zone_width(z));
+	}
 	
 	template <class F>
 	void render_all_zones(uint32_t view_width, F const& fzone, PVRenderingJob* job = NULL)
