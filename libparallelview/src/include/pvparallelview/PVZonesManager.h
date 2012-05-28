@@ -15,6 +15,7 @@
 // Forward declarations
 namespace Picviz {
 class PVView;
+class PVSelection;
 }
 
 namespace PVParallelView {
@@ -78,6 +79,8 @@ public:
 
 	uint32_t get_zone_absolute_pos(PVZoneID z) const;
 	PVZoneID get_zone_id(int abs_pos) const;
+
+	void filter_zone_by_sel(PVZoneID zid, const Picviz::PVSelection& sel);
 
 public:
 	void set_uint_plotted(Picviz::PVPlotted::uint_plotted_table_t const& plotted, PVRow nrows, PVCol ncols);

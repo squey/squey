@@ -95,6 +95,12 @@ void PVParallelView::PVZonesManager::update_from_axes_comb(Picviz::PVView const&
 	update_from_axes_comb(view.get_axes_combination().get_axes_index_list());
 }
 
+void PVParallelView::PVZonesManager::filter_zone_by_sel(PVZoneID zid, const Picviz::PVSelection& sel)
+{
+	assert(zid < (PVZoneID) _zones.size());
+	_zones[zid].ztree().filter_by_sel(sel);
+}
+
 void PVParallelView::PVZonesManager::set_uint_plotted(Picviz::PVView const& view)
 {
 	set_uint_plotted(view.get_plotted_parent()->get_uint_plotted(), view.get_row_count(), view.get_column_count());

@@ -22,7 +22,7 @@ PVParallelView::PVParallelScene::PVParallelScene(QObject* parent, PVParallelView
 		ZoneImages zi;
 		zi.sel = addPixmap(QPixmap::fromImage(images[z].sel->qimage()));
 		zi.bg = addPixmap(QPixmap::fromImage(images[z].bg->qimage()));
-		zi.bg->setOpacity(0.5);
+		zi.bg->setOpacity(0.25);
 		_zones.push_back(zi);
 		if (z < _lines_view->get_zones_manager().get_number_zones()) {
 			zi.setPos(QPointF(_lines_view->get_zone_absolute_pos(z), 0));

@@ -18,9 +18,9 @@ class PVSelectionSquareGraphicsItem : public QGraphicsRectItem
 public:
 	PVSelectionSquareGraphicsItem(PVParallelScene* s);
 
-	void compute_selection(PVZoneID zid, QRect rect)
+	void compute_selection(PVZoneID zid, QRect rect, Picviz::PVSelection& sel)
 	{
-		_selection_square->compute_selection(zid, rect);
+		_selection_square->compute_selection(zid, rect, sel);
 	}
 
 	~PVSelectionSquareGraphicsItem()

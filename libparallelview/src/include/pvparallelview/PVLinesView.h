@@ -9,6 +9,10 @@
 
 #include <QFuture>
 
+namespace Picviz {
+class PVSelection;
+}
+
 namespace PVParallelView {
 
 class PVZonesDrawing;
@@ -64,6 +68,8 @@ public:
 
 	void render_sel(uint32_t view_width);
 	QFuture<void> render_sel(uint32_t view_width, PVRenderingJob& job);
+
+	void update_sel_from_zone(uint32_t view_width, PVZoneID zid, const Picviz::PVSelection& sel);
 
 	void render_zone_all_imgs(PVZoneID z);
 	QFuture<void> render_zone_all_imgs(PVZoneID z, PVRenderingJob& job);

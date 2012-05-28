@@ -107,15 +107,16 @@ private:
 			PVZoneID zid = _lines_view->get_zones_manager().get_zone_id(_selection_square->rect().x());
 			QRect r = map_to_axis(zid, _selection_square->rect());
 
-			cancel_current_job();
-			_selection_square->compute_selection(zid, r);
-			_lines_view->render_sel(view()->width());
-			update_zones_position();
-
-			// Remove selection
 			if (_selection_square_pos == event->scenePos()) {
-				_selection_square->setRect(0, 0, 0, 0);
+				// Remove selection
+				r = QRect(0, 0, 0, 0);
+				_selection_square->setRect(r);
 			}
+
+			cancel_current_job();
+			_selection_square->compute_selection(zid, r, _sel);
+			_lines_view->update_sel_from_zone(view()->width(), zid, _sel);
+			update_zones_position();
 		}
 	}
 
@@ -193,14 +194,9 @@ private:
 		}
 	}
 
-	inline QPointF map_to_axis(PVZoneID zid, QPointF p) const { return _axes[zid]->map_from_scene(p); }
-	inline QPointF map_from_axis(PVZoneID zid, QPointF p) const { return _axes[zid]->map_to_scene(p); }
-
-	QRect map_to_axis(PVZoneID zid, QRectF rect) const
-	{
-		QPointF point = _axes[zid]->map_from_scene(rect.topLeft());
-		return QRect(point.x(), point.y(), rect.width(), rect.height());
-	}
+	inline QPointF map_to_axis(PVZoneID zid, QPointF p) const { return _axes[zid]->mapFromScene(p); }
+	inline QPointF map_from_axis(PVZoneID zid, QPointF p) const { return _axes[zid]->mapToScene(p); }
+	QRect map_to_axis(PVZoneID zid, QRectF rect) const { return _axes[zid]->map_from_scene(rect); }
 
 private slots:
 	void slider_pressed_Slot()
@@ -244,6 +240,8 @@ private:
     
 	PVParallelView::PVSelectionSquareGraphicsItem* _selection_square;
     QPointF _selection_square_pos;
+
+    Picviz::PVSelection _sel;
 };
 
 }

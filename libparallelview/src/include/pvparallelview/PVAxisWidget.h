@@ -35,21 +35,10 @@ public:
 
 	void add_range_sliders(uint32_t y1, uint32_t y2);
 
-	QPointF map_from_scene(QPointF point) const
+	QRect map_from_scene(QRectF rect) const
 	{
-		// Use a QPointF because mapFromScene called with a QRectF returns a QPolygon...
-		QPointF mapped_point = mapFromScene(point);
-		return QPointF(mapped_point.x() - PVParallelView::AxisWidth, mapped_point.y() + PVAW_CST);
-	}
-
-	QPointF map_to_scene(QPointF point) const
-	{
-		// Use a QPointF because mapFromScene called with a QRectF returns a QPolygon...
-
-		point.rx() += PVParallelView::AxisWidth;
-		point.ry() -= PVAW_CST;
-		QPointF mapped_point = mapToScene(point);
-		return QPointF(mapped_point.x(), mapped_point.y());
+		QPointF point = mapFromScene(rect.topLeft());
+		return QRect(point.x(), point.y(), rect.width(), rect.height());
 	}
 
 private:

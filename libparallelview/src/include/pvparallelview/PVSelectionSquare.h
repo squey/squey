@@ -2,6 +2,7 @@
 #define PVSELECTIONSQUARE_H_
 
 #include <picviz/PVSelection.h>
+#include <pvparallelview/common.h>
 #include <pvparallelview/PVZoneTree.h>
 #include <pvparallelview/PVZonesManager.h>
 #include <pvparallelview/PVBCode.h>
@@ -22,14 +23,19 @@ class PVSelectionSquare
 public:
 	PVSelectionSquare(PVZonesManager& zm) : _zm(zm) {};
 
-	void compute_selection(PVZoneID zid, QRect rect)
+	void compute_selection(PVZoneID zid, QRect rect, Picviz::PVSelection& sel)
 	{
-		//Picviz::PVSelection* sel = new Picviz::PVSelection();
+		sel.select_none();
 		int32_t width = _zm.get_zone_width(zid);
 
 		PVZoneTree& ztree = _zm.get_zone_tree<PVZoneTree>(zid);
 		PVZoneTree::PVBranch* treeb = ztree.get_treeb();
 		PVParallelView::PVBCode code_b;
+
+		if (rect.isNull()) {
+			memset(ztree._sel_elts, PVROW_INVALID_VALUE, NBUCKETS*sizeof(PVRow));
+			return;
+		}
 
 		PVLineEqInt line;
 		line.b = -width;
@@ -45,19 +51,19 @@ public:
 			int32_t y2 = code_b.s.r;
 
 			line.a = y2 - y1;
-			line.c = y1;
+			line.c = y1*width;
 
 			bool a = line(rect.topLeft().x(), rect.topLeft().y()) >= 0;
 			bool b = line(rect.topRight().x(), rect.topRight().y()) >=0;
 			bool c = line(rect.bottomLeft().x(), rect.bottomLeft().y()) >=0;
 			bool d = line(rect.bottomRight().x(), rect.bottomRight().y()) >=0;
 
-			bool is_line_selected = ((a | b | c | d) & (!(a & b & c & d)));
+			bool is_line_selected = (a | b | c | d) & (!(a & b & c & d));
 
 			if (is_line_selected)
 			{
 				for (size_t i = 0; i < treeb[b].count; i++) {
-					//sel->set_bit_fast(treeb[b].p[i]);
+					sel.set_bit_fast(treeb[b].p[i]);
 				}
 				ztree._sel_elts[branch] = r;
 			}

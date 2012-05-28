@@ -211,31 +211,26 @@ public:
 
 public:
 
-	void operator() (const tbb::blocked_range<size_t>& r) const
+	void operator() (const tbb::blocked_range<size_t>& range) const
 	{
-		for (PVRow b = r.begin(); b != r.end(); ++b) {
+		for (PVRow b = range.begin(); b != range.end(); ++b) {
+			PVRow res = PVROW_INVALID_VALUE;
 			if (_tree->branch_valid(b)) {
 				PVRow r = _tree->get_first_elt_of_branch(b);
-				bool found = false;
 				if ((_sel_buf[r>>5]) & (1U<<(r&31))) {
-					found = true;
+					res = r;
 				}
 				else {
 					for (size_t i=0; i< _tree->_treeb[b].count; i++) {
 						PVRow r = _tree->_treeb[b].p[i];
 						if ((_sel_buf[r>>5]) & (1U<<(r&31))) {
-							found = true;
+							res = r;
 							break;
 						}
 					}
 				}
-				if (found) {
-					_tree->_sel_elts[b] = r;
-				}
-				else {
-					_tree->_sel_elts[b] = PVROW_INVALID_VALUE;
-				}
 			}
+			_tree->_sel_elts[b] = res;
 		}
 	}
 
