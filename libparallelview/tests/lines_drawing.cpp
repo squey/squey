@@ -91,6 +91,9 @@ int main(int argc, char** argv)
 	PVParallelView::PVZonesManager &zm = *(new PVParallelView::PVZonesManager());
 	zm.set_uint_plotted(norm_plotted, nrows, ncols);
 	zm.update_all();
+	zm.set_zone_width(0, 128);
+	zm.set_zone_width(1, 128);
+	zm.set_zone_width(2, 128);
 
 	PVParallelView::PVBCIDrawingBackendCUDA backend_cuda;
 	PVParallelView::PVZonesDrawing &zones_drawing = *(new PVParallelView::PVZonesDrawing(zm, backend_cuda, *colors));
@@ -102,9 +105,9 @@ int main(int argc, char** argv)
 
 	show_qimage("test", dst_img->qimage());
 
-	PVParallelView::PVRenderingJob render_job;
+	/*PVParallelView::PVRenderingJob render_job;
 	PVParallelView::PVLinesView lv(zones_drawing, 4);
-	QFuture<void> the_future_is_here = lv.render_all_imgs(400, render_job);
+	QFuture<void> the_future_is_here = lv.render_all_imgs(400, render_job);*/
 
 
 	/*

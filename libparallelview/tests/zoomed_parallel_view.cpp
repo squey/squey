@@ -36,7 +36,7 @@ public:
 class OpenGLScene : public QGraphicsScene
 {
 public:
-	OpenGLScene(QObject* parent, PVParallelView::PVLinesView* lines_view) : QGraphicsScene(parent), _lines_view(lines_view)
+	OpenGLScene(QObject* parent, PVParallelView::PVLinesView* lines_view, PVCol col) : QGraphicsScene(parent), _lines_view(lines_view), _col(col)
 	{
 		_lines_view->render_all_imgs(WIDTH);
 		PVParallelView::PVLinesView::list_zone_images_t images = _lines_view->get_zones_images();
@@ -152,6 +152,7 @@ private:
 	qreal _translation_start_x;
 	QList<QGraphicsPixmapItem*> _zones;
 	std::vector<Picviz::PVAxis*> _axis;
+	PVCol _col;
 };
 
 void usage(const char* path)
@@ -218,7 +219,7 @@ int main(int argc, char** argv)
 
 	GraphicsView view;
 	view.setViewport(new QWidget());
-	view.setScene(new OpenGLScene(&view, &lines_view));
+	view.setScene(new OpenGLScene(&view, &lines_view, 2));
 	view.resize(1920, 1600);
 	view.show();
 
