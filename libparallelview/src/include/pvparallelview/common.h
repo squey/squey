@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <stdint.h>
+#include <QMetaType>
 
 #define NBITS_INDEX 10
 #define NBUCKETS ((1UL<<(2*NBITS_INDEX)))
@@ -42,5 +43,7 @@ enum {
 
 typedef PVCol PVZoneID;
 #define PVZONEID_INVALID (-1)
+
+Q_DECLARE_METATYPE(PVZoneID);
 
 #endif

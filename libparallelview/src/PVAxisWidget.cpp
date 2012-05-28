@@ -5,13 +5,11 @@
 #include <pvparallelview/PVAxisWidget.h>
 
 // pour PVParallelView::AxisWidth
-#include <pvparallelview/common.h>
 
 #include <QPainter>
 #include <QGraphicsScene>
 
-// Used to draw the axis out of the image zone
-#define PVAW_CST 8
+
 
 /*****************************************************************************
  * PVParallelView::PVAxisWidget::PVAxisWidget

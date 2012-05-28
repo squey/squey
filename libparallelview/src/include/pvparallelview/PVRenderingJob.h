@@ -18,21 +18,22 @@ class PVRenderingJob: public QObject
 	Q_OBJECT
 
 public:
-	PVRenderingJob()
+	PVRenderingJob(QObject* parent = NULL):
+		QObject(parent)
 	{
 		_should_cancel = false;
 	}
 
 public:
 	void cancel() { _should_cancel = true; }
+	void reset() { _should_cancel = false; }
 
 protected:
 	bool should_cancel() const { return _should_cancel == true; }
 	void zone_finished(PVZoneID z) { emit zone_rendered(z); }
-	void reset() { _should_cancel = false; }
 
 signals:
-	void zone_rendered(PVZoneID z);
+	void zone_rendered(int z);
 
 protected:
 	tbb::atomic<bool> _should_cancel;

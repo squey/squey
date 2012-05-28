@@ -77,10 +77,10 @@ int main(int argc, char** argv)
 	PVParallelView::PVBCIDrawingBackendCUDA backend_cuda;
 	PVParallelView::PVZonesDrawing &zones_drawing = *(new PVParallelView::PVZonesDrawing(zm, backend_cuda, *colors));
 
-	PVParallelView::PVLinesView &lines_view = *(new PVParallelView::PVLinesView(zones_drawing, ncols/2));
+	PVParallelView::PVLinesView &lines_view = *(new PVParallelView::PVLinesView(zones_drawing, 20));
 
 	PVParallelView::PVFullParallelView view;
-	view.setViewport(new QWidget());
+	view.setViewport(new QGLWidget());
 	view.setScene(new PVParallelView::PVParallelScene(&view, &lines_view));
 	view.resize(1920, 1600);
 	view.horizontalScrollBar()->setValue(0);
