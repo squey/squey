@@ -36,7 +36,6 @@ private:
 		return (PVParallelView::PVFullParallelView*) parent();
 	}
 
-
 	void update_zones_position(bool update_all = true)
 	{
 		PVParallelView::PVLinesView::list_zone_images_t images = _lines_view->get_zones_images();
@@ -115,7 +114,12 @@ private:
 
 			cancel_current_job();
 			_selection_square->compute_selection(zid, r, _sel);
-			_lines_view->update_sel_from_zone(view()->width(), zid, _sel);
+			launch_job_future([&](PVRenderingJob& rendering_job)
+				{
+
+					return _lines_view->update_sel_from_zone(view()->width(), zid, _sel, rendering_job);
+				}
+			);
 			update_zones_position();
 		}
 	}
@@ -237,6 +241,7 @@ private:
 
 	PVRenderingJob* _rendering_job;
 	QFuture<void> _rendering_future;
+	QFuture<void> _sel_rendering_future;
     
 	PVParallelView::PVSelectionSquareGraphicsItem* _selection_square;
     QPointF _selection_square_pos;

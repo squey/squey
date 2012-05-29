@@ -26,7 +26,7 @@ static uint32_t count_bits_between(size_t a, size_t b, const uint32_t* data)
 	size_t a_byte = a >> 5; // = a/32
 	size_t b_byte = b >> 5;
 
-	size_t tmp = (1 << 5) - 1; // Used for modulus operations (%32)
+	const size_t tmp = (1 << 5) - 1; // Used for modulus operations (%32)
 
 	if (a_byte == b_byte) {
 		uint8_t shift_left = a & tmp;
@@ -57,8 +57,7 @@ static uint32_t count_bits_between(size_t a, size_t b, const uint32_t* data)
  *****************************************************************************/
 Picviz::PVSelection::PVSelection()
 {
-	vec_table.resize(PICVIZ_SELECTION_NUMBER_OF_CHUNKS);
-	table = &vec_table[0];
+	allocate_table();
 	select_none();
 }
 
@@ -67,43 +66,20 @@ Picviz::PVSelection::PVSelection()
  * Picviz::PVSelection::PVSelection(std::vector<PVRow>)
  *
  *****************************************************************************/
-Picviz::PVSelection::PVSelection(std::vector<PVRow> const& rtable)
+Picviz::PVSelection::PVSelection(std::vector<PVRow> const& r_table)
 {
-	vec_table.resize(PICVIZ_SELECTION_NUMBER_OF_CHUNKS);
-	table = &vec_table[0];
+	allocate_table();
 	select_none();
 
 	std::vector<PVRow>::const_iterator it;
-	for (it = rtable.begin(); it != rtable.end(); it++) {
+	for (it = r_table.begin(); it != r_table.end(); it++) {
 		set_line(*it, true);
 	}
 }
 
-Picviz::PVSelection::PVSelection(PVSelection const& o):
-	vec_table(o.vec_table),
-	table(&vec_table[0])
+Picviz::PVSelection::PVSelection(PVSelection const& o)
 {
-}
-
-/******************************************************************************
- *
- * Picviz::PVSelection::get_line
- *
- *****************************************************************************/
-bool Picviz::PVSelection::get_line(PVRow line_index) const
-{
-	PVRow pos;
-	PVRow shift;
-
-	/*
-	 * Say you want to retrieve if the line 20000 is selected or not:
-	 * pos = 312
-	 * shift = 32
-	 */
-	pos = line_index / PICVIZ_SELECTION_CHUNK_SIZE;
-	shift = line_index - (pos * PICVIZ_SELECTION_CHUNK_SIZE);
-
-	return B_IS_SET(table[pos], shift);
+	allocate_and_copy_from(o);
 }
 
 /******************************************************************************
@@ -126,23 +102,23 @@ int Picviz::PVSelection::get_number_of_selected_lines_in_range(PVRow a, PVRow b)
 	return count;
 	
 
-	// return count_bits_between(a, b-1, &table[0]);
+	// return count_bits_between(a, b-1, &_table[0]);
 }
 
 std::vector<PVRow> Picviz::PVSelection::get_rows_table()
 {
-	std::vector<PVRow> rtable;
-	rtable.reserve(PICVIZ_LINES_MAX);
+	std::vector<PVRow> r_table;
+	r_table.reserve(PICVIZ_LINES_MAX);
 
 	PVRow line_index;
 
 	for (line_index = 0; line_index < PICVIZ_LINES_MAX; line_index++) {
 		if (get_line(line_index)) {
-			rtable.push_back(line_index);
+			r_table.push_back(line_index);
 		}
 	}
 
-	return rtable;
+	return r_table;
 }
 
 /******************************************************************************
@@ -153,17 +129,17 @@ std::vector<PVRow> Picviz::PVSelection::get_rows_table()
 bool Picviz::PVSelection::is_empty() const
 {
 #ifdef __SSE4_1__
-	__m128i ones = _mm_set1_epi32(0xFFFFFFFF);
+	const __m128i ones = _mm_set1_epi32(0xFFFFFFFF);
 	__m128i vec;
 	for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i += 4) {
-		vec = _mm_load_si128((__m128i*) &table[i]);
+		vec = _mm_load_si128((__m128i*) &_table[i]);
 		if (_mm_testz_si128(vec, ones) == 0) {
 			return false;
 		}
 	}
 #if (PICVIZ_SELECTION_NUMBER_OF_CHUNKS % 4 != 0)
 	for (PVRow i = (PICVIZ_SELECTION_NUMBER_OF_CHUNKS/4)*4; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
-		if (table[i] != 0) {
+		if (_table[i] != 0) {
 			return false;
 		}
 	}
@@ -172,7 +148,7 @@ bool Picviz::PVSelection::is_empty() const
 
 #else
 	for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
-		if (table[i] != 0) {
+		if (_table[i] != 0) {
 			return false;
 		}
 	}
@@ -192,7 +168,7 @@ Picviz::PVSelection& Picviz::PVSelection::operator=(const PVSelection &rhs)
 		return *this;
 	}
 
-	vec_table = rhs.vec_table;
+	memcpy(_table, rhs._table, PICVIZ_SELECTION_NUMBER_OF_CHUNKS);
 
 	return *this;
 }
@@ -204,7 +180,7 @@ Picviz::PVSelection& Picviz::PVSelection::operator=(const PVSelection &rhs)
  *****************************************************************************/
 Picviz::PVSelection Picviz::PVSelection::operator&(const PVSelection &rhs) const
 {
-	Picviz::PVSelection result = *this;
+	Picviz::PVSelection result(*this);
 	result &= rhs;
 
 	return result;
@@ -218,7 +194,7 @@ Picviz::PVSelection Picviz::PVSelection::operator&(const PVSelection &rhs) const
 Picviz::PVSelection & Picviz::PVSelection::operator&=(const PVSelection &rhs)
 {
 	for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
-		table[i] &= rhs.table[i];
+		_table[i] &= rhs._table[i];
 	}
 
 	return *this;
@@ -233,7 +209,7 @@ Picviz::PVSelection Picviz::PVSelection::operator~() const
 {
 	PVSelection result;
 	for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
-		result.table[i] = ~table[i];
+		result._table[i] = ~_table[i];
 	}
 
 	return result;
@@ -260,7 +236,7 @@ Picviz::PVSelection Picviz::PVSelection::operator|(const PVSelection &rhs) const
 Picviz::PVSelection & Picviz::PVSelection::operator|=(const PVSelection &rhs)
 {
 	for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
-		table[i] |= rhs.table[i];
+		_table[i] |= rhs._table[i];
 	}
 
 	return *this;
@@ -287,7 +263,7 @@ Picviz::PVSelection Picviz::PVSelection::operator-(const PVSelection &rhs) const
 Picviz::PVSelection & Picviz::PVSelection::operator-=(const PVSelection &rhs)
 {
 	for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
-		table[i] &= ~rhs.table[i];
+		_table[i] &= ~rhs._table[i];
 	}
 
 	return *this;
@@ -314,7 +290,7 @@ Picviz::PVSelection Picviz::PVSelection::operator^(const PVSelection &rhs) const
 Picviz::PVSelection & Picviz::PVSelection::operator^=(const PVSelection &rhs)
 {
 	for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
-		table[i] ^= rhs.table[i];
+		_table[i] ^= rhs._table[i];
 	}
 
 	return *this;
@@ -329,7 +305,7 @@ Picviz::PVSelection & Picviz::PVSelection::operator^=(const PVSelection &rhs)
  *****************************************************************************/
 void Picviz::PVSelection::select_all()
 {
-	memset(table, 0xFF, PICVIZ_SELECTION_NUMBER_OF_BYTES);
+	memset(_table, 0xFF, PICVIZ_SELECTION_NUMBER_OF_BYTES);
 }
 
 /******************************************************************************
@@ -339,7 +315,7 @@ void Picviz::PVSelection::select_all()
  *****************************************************************************/
 void Picviz::PVSelection::select_even()
 {
-	memset(table, 0xAA, PICVIZ_SELECTION_NUMBER_OF_BYTES);
+	memset(_table, 0xAA, PICVIZ_SELECTION_NUMBER_OF_BYTES);
 }
 
 /******************************************************************************
@@ -349,7 +325,7 @@ void Picviz::PVSelection::select_even()
  *****************************************************************************/
 void Picviz::PVSelection::select_none()
 {
-	memset(table, 0x00, PICVIZ_SELECTION_NUMBER_OF_BYTES);
+	memset(_table, 0x00, PICVIZ_SELECTION_NUMBER_OF_BYTES);
 }
 
 /******************************************************************************
@@ -359,7 +335,7 @@ void Picviz::PVSelection::select_none()
  *****************************************************************************/
 void Picviz::PVSelection::select_odd()
 {
-	memset(table, 0x55, PICVIZ_SELECTION_NUMBER_OF_BYTES);
+	memset(_table, 0x55, PICVIZ_SELECTION_NUMBER_OF_BYTES);
 }
 
 /******************************************************************************
@@ -370,7 +346,7 @@ void Picviz::PVSelection::select_odd()
 void Picviz::PVSelection::select_inverse()
 {
 	for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
-		table[i] = ~table[i];
+		_table[i] = ~_table[i];
 	}
 }
 
@@ -381,16 +357,13 @@ void Picviz::PVSelection::select_inverse()
  *****************************************************************************/
 void Picviz::PVSelection::set_line(PVRow line_index, bool bool_value)
 {
-	PVRow pos;
-	PVRow shift;
-
-	pos = line_index / PICVIZ_SELECTION_CHUNK_SIZE;
-	shift = line_index - (pos * PICVIZ_SELECTION_CHUNK_SIZE);
-
+	const PVRow pos = line_index / PICVIZ_SELECTION_CHUNK_SIZE;
+	const PVRow shift = line_index - (pos * PICVIZ_SELECTION_CHUNK_SIZE);
+	
 	if ( bool_value )  {
-		B_SET(table[pos], shift);
+		B_SET(_table[pos], shift);
 	} else {
-		B_UNSET(table[pos], shift);
+		B_UNSET(_table[pos], shift);
 	}
 }
 
@@ -401,32 +374,58 @@ void Picviz::PVSelection::set_line(PVRow line_index, bool bool_value)
  *****************************************************************************/
 void Picviz::PVSelection::set_line_select_only(PVRow line_index, bool bool_value)
 {
-	PVRow pos;
-	PVRow shift;
-
 	if (bool_value == false) {
 		return;
 	}
 
-	set_line(line_index, bool_value);
+	set_line(line_index, true);
 }
 
-/******************************************************************************
- *
- * Picviz::PVSelection::get_buffer
- *
- *****************************************************************************/
-uint32_t* Picviz::PVSelection::get_buffer()
+ssize_t Picviz::PVSelection::get_last_nonzero_chunk_index() const
 {
-	return &table[0];
+#ifdef __SSE4_1__
+	__m128i ones = _mm_set1_epi32(0xFFFFFFFF);
+	__m128i vec;
+#if (PICVIZ_SELECTION_NUMBER_OF_CHUNKS % 4 != 0)
+	for (PVRow i = PICVIZ_SELECTION_NUMBER_OF_CHUNKS-1; i >= (PICVIZ_SELECTION_NUMBER_OF_CHUNKS/4)*4; i--) {
+		if (table[i] != 0) {
+			return i;
+		}
+	}
+#endif
+	for (ssize_t i = ((PICVIZ_SELECTION_NUMBER_OF_CHUNKS/4)*4)-4; i >= 0; i -= 4) {
+		vec = _mm_load_si128((__m128i*) &_table[i]);
+		if (_mm_testz_si128(vec, ones) == 0) {
+			uint64_t DECLARE_ALIGN(16) final_sel[2];
+			_mm_store_si128((__m128i*)final_sel, vec);
+			// If final_sel[0] == 0, it means that the chunk is in one of the last two 32 bits of vec.
+			// Otherwise, it is one of the two first.
+			uint8_t reg_pos = (final_sel[1] != 0);
+			uint32_t* preg_last2 = (uint32_t*) &final_sel[reg_pos];
+			uint8_t reg_pos_last2 = (preg_last2[1] != 0);
+			return i + (reg_pos<<1) + reg_pos_last2;
+		}
+	}
+	return -1;
+
+#else
+	for (PVRow i = PICVIZ_SELECTION_NUMBER_OF_CHUNKS-1; i >= 0; i--) {
+		if (table[i] != 0) {
+			return i;
+		}
+	}
+	return -1;
+#endif
 }
 
 void Picviz::PVSelection::write_selected_lines_nraw(QTextStream& stream, PVRush::PVNraw const& nraw, PVRow write_max)
 {
 	PVRow nrows = nraw.get_number_rows();
 	assert(nrows > 0);
+#ifndef NDEBUG
 	PVCol ncols = nraw.get_number_cols();
 	assert(ncols > 0);
+#endif
 
 	PVRow nrows_counter = 0;
 
@@ -445,5 +444,5 @@ void Picviz::PVSelection::write_selected_lines_nraw(QTextStream& stream, PVRush:
 
 void Picviz::PVSelection::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 {
-	so.buffer("selection_data", table, PICVIZ_SELECTION_NUMBER_OF_BYTES);
+	so.buffer("selection_data", _table, PICVIZ_SELECTION_NUMBER_OF_BYTES);
 }

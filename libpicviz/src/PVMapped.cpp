@@ -177,7 +177,7 @@ void Picviz::PVMapped::to_csv()
 	for (PVRow i = 0; i < (PVRow) trans_table.getWidth(); i++) {
 		for (PVCol j = 0; j < (PVCol) trans_table.getHeight(); j++) {
 			std::cout << trans_table.getValue(j,i);
-			if (j!=trans_table.getHeight()-1) {
+			if (j!=(PVCol)(trans_table.getHeight()-1)) {
 				std::cout << ",";
 			}
 		}
