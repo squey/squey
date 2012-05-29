@@ -48,9 +48,7 @@ public:
 	typedef PVCore::PVAlignedAllocator<uint32_t, 16> allocator;
 
 private:
-	//std::vector<uint32_t> table;
-	std::vector<uint32_t, allocator> vec_table;
-	pointer table;
+	pointer _table;
 
 public:
 	/**
@@ -68,12 +66,27 @@ public:
 
 	PVSelection(PVSelection const& o);
 
+	~PVSelection()
+	{
+		if (_table) {
+			free_table();
+		}
+	}
+
+	// Move constructor. Save a lot of useless allocations, memcpys and desallocations !
+	PVSelection(PVSelection&& o)
+	{
+		PVLOG_INFO("PVSelection move constructor called from object %p to %p\n", &o, this);
+		_table = o._table;
+		o._table = NULL;
+	}
+
 	/**
 	 * Destructor
 	 */
 
-	pointer get_buffer();
-	const_pointer get_buffer() const { return table; };
+	inline pointer get_buffer() { return _table; }
+	inline const_pointer get_buffer() const { return _table; };
 
 	/**
 	 * Get the state of line N in the PVSelection
@@ -82,7 +95,19 @@ public:
 	 *
 	 * @return A boolean stating whether it is set or not
 	 */
-	bool get_line (PVRow line_index) const;
+	inline bool get_line (PVRow line_index) const
+	{
+		const PVRow pos = line_index / PICVIZ_SELECTION_CHUNK_SIZE;
+		const PVRow shift = line_index - (pos * PICVIZ_SELECTION_CHUNK_SIZE);
+
+		/*
+		 * Say you want to retrieve if the line 20000 is selected or not:
+		 * pos = 312
+		 * shift = 32
+		 */
+
+		return (_table[pos] & (1<<shift));
+	}
 
 	/**
 	 * Gets the number of lines that are selected, in the range [a,b[
@@ -106,6 +131,20 @@ public:
 	 * @return The resulting PVSelection
 	 */
 	PVSelection & operator=(const PVSelection &rhs);
+
+	PVSelection& operator=(PVSelection&& rhs)
+	{
+		PVLOG_INFO("PVSelection move assignement called from object %p to %p\n", &rhs, this);
+		if (this != &rhs) {
+			if (_table) {
+				free_table();
+			}
+			_table = rhs._table;
+			rhs._table = NULL;
+		}
+
+		return *this;
+	}
 
 	/**
 	 * This is the binary outplaced 'AND' operation on two selections
@@ -219,7 +258,7 @@ public:
 	 */
 	void set_line_select_only(PVRow line_index, bool bool_value);
 
-	inline void set_bit_fast(PVRow line_index){table[line_index / PICVIZ_SELECTION_CHUNK_SIZE] |= 1 << (line_index % PICVIZ_SELECTION_CHUNK_SIZE);}
+	inline void set_bit_fast(PVRow line_index) { _table[line_index / PICVIZ_SELECTION_CHUNK_SIZE] |= 1 << (line_index % PICVIZ_SELECTION_CHUNK_SIZE);}
 
 	// Returns the index of the last chunk that contains a line
 	// Returns -1 if no chunk is empty
@@ -238,7 +277,7 @@ public:
 		const ssize_t last_chunk_sse = (last_chunk/4)*4;
 		ssize_t i;
 		for (i = 0; i < last_chunk_sse; i += 4) {
-			sse_sel = _mm_load_si128((__m128i*) &table[i]);
+			sse_sel = _mm_load_si128((__m128i*) &_table[i]);
 			if (_mm_testz_si128(sse_sel, ones) == 1) {
 				// If this vector is null, then go one the next one.
 				continue;
@@ -271,7 +310,7 @@ public:
 			assert(nbits == 0);
 		}
 		for (; i <= last_chunk; i++) {
-			const uint32_t sel_buf = table[i];
+			const uint32_t sel_buf = _table[i];
 			for (uint32_t j = 0; j < 32; j++) {
 				if (sel_buf & (1U<<j)) {
 					f((i<<5) +j);
@@ -288,7 +327,7 @@ public:
 			return;
 		}
 		for (ssize_t i = 0; i <= last_chunk; i++) {
-			const uint32_t sel_buf = table[i];
+			const uint32_t sel_buf = _table[i];
 			for (uint32_t j = 0; j < 32; j++) {
 				if (sel_buf & (1U << j)) {
 					f((i<<5)+j);
@@ -303,6 +342,15 @@ public:
 	std::vector<PVRow> get_rows_table();
 
 	void write_selected_lines_nraw(QTextStream& stream, PVRush::PVNraw const& nraw, PVRow write_max);
+
+private:
+	inline void allocate_table() { _table = allocator().allocate(PICVIZ_SELECTION_NUMBER_OF_CHUNKS); }
+	inline void free_table() { allocator().deallocate(_table, PICVIZ_SELECTION_NUMBER_OF_CHUNKS); }
+	inline void allocate_and_copy_from(PVSelection const& o)
+	{
+		allocate_table();
+		memcpy(_table, o._table, PICVIZ_SELECTION_NUMBER_OF_CHUNKS);
+	}
 
 protected:
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/);

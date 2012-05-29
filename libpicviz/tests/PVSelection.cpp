@@ -114,16 +114,14 @@ int main(void)
 	if (count != 50) {
 		return 1;
 	}
-	count = selection->get_number_of_selected_lines_in_range(0, 101);
-	std::cout << "is 50 = to " << count << " ?\n\n";
-	/*
-	if (count != 50) {
-		return 1;
-	}
-	*/
 
+	// Test of C++0x features
+	a.select_even();
+	b.select_odd();
 
-
+	Picviz::PVSelection c = a | b;
+	PVLOG_INFO("a: %p , b = %p , c = %p\n", &a, &b, &c);
+	std::cout << "PVSelection should be empty: PVSelection::is_empty() = " << c.is_empty() << std::endl;
 
 	/**********************************************************************
 	***********************************************************************
