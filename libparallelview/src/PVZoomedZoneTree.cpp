@@ -3,6 +3,7 @@
 
 #include <omp.h>
 
+#include <pvkernel/core/PVAlgorithms.h>
 #include <pvparallelview/PVZoomedZoneTree.h>
 
 #define ZZT_MAX_VALUE (1 << (32-NBITS_INDEX))
@@ -139,17 +140,17 @@ void PVParallelView::PVZoomedZoneTree::process_omp_from_zt(const PVZoneProcessin
 	}
 }
 
-size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1(uint32_t y_min, uint32_t y_max,
+size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1(uint32_t t_min, uint32_t zoom,
                                                                const PVHSVColor* colors,
                                                                PVBCICode* codes) const
 {
-	uint32_t t_min = (y_min >> (32 - NBITS_INDEX)) & MASK_INT_YCOORD;
-	uint32_t t_max = (y_max >> (32 - NBITS_INDEX)) & MASK_INT_YCOORD;
-	uint32_t zoom = (uint32_t)(log10(UINT32_MAX / (double)(y_max - y_min)) / log10(2.));
+	uint32_t t_max = PVCore::clamp(1024U >> zoom, 0U, 1024U);
+	uint32_t y_min = t_min * 1024;
+	uint32_t y_max = t_max * 1024;
 	size_t num = 0;
 
-	for (uint32_t j = t_min; j <= t_max; ++j) {
-		for (uint32_t i = t_min; i <= t_max; ++i) {
+	for (uint32_t j = t_min; j < t_max; ++j) {
+		for (uint32_t i = t_min; i < t_max; ++i) {
 			num += _trees[(j * 1024) + i].get_first_bci_from_y1(y_min, y_max, zoom, colors, codes + num);
 		}
 	}
@@ -157,17 +158,17 @@ size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1(uint32_t y_min, u
 	return num;
 }
 
-size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y2(uint32_t y_min, uint32_t y_max,
+size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y2(uint32_t t_min, uint32_t zoom,
                                                                const PVHSVColor* colors,
                                                                PVBCICode* codes) const
 {
-	uint32_t t_min = (y_min >> (32 - NBITS_INDEX)) & MASK_INT_YCOORD;
-	uint32_t t_max = (y_max >> (32 - NBITS_INDEX)) & MASK_INT_YCOORD;
-	uint32_t zoom = (uint32_t)(log10(UINT32_MAX / (double)(y_max - y_min)) / log10(2.));
+	uint32_t t_max = PVCore::clamp(1024U >> zoom, 0U, 1024U);
+	uint32_t y_min = t_min * 1024;
+	uint32_t y_max = t_max * 1024;
 	size_t num = 0;
 
-	for (uint32_t j = t_min; j <= t_max; ++j) {
-		for (uint32_t i = t_min; i <= t_max; ++i) {
+	for (uint32_t j = t_min; j < t_max; ++j) {
+		for (uint32_t i = t_min; i < t_max; ++i) {
 			num += _trees[(j * 1024) + i].get_first_bci_from_y2(y_min, y_max, zoom, colors, codes + num);
 		}
 	}
