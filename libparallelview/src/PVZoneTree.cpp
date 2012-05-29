@@ -239,7 +239,137 @@ private:
 	Picviz::PVSelection::const_pointer _sel_buf;
 };
 
+class TBBSelRowsFilter {
+public:
+	TBBSelRowsFilter (
+		PVParallelView::PVZoneTree::PVTBBFilterSelParams const& params
+	) : _params(params) {}
+
+	TBBSelRowsFilter(TBBSelRowsFilter& x, tbb::split) : _params(x._params) {}
+
+public:
+
+	void operator() (const tbb::blocked_range<size_t>& range) const
+	{
+		Picviz::PVSelection::const_pointer sel_buf = _params.sel().get_buffer();
+		PVParallelView::PVZoneTree::tls_array_t::reference tls_sel_elts = _params.tls()._tls_sel_elts.local();
+		PVParallelView::PVZoneProcessing const& zp = _params.zp();
+
+		const uint32_t* pcol_a = zp.get_plotted_col(zp.col_a());
+		const uint32_t* pcol_b = zp.get_plotted_col(zp.col_b());
+
+		for (PVRow r = range.begin(); r != range.end(); ++r) {
+			// If line is selected
+			if ((sel_buf[r>>5]) & (1U<<(r&31))) {
+				// Compute b code
+				PVParallelView::PVBCode code_b;
+				code_b.int_v = 0;
+				code_b.s.l = pcol_a[r] >> (32-NBITS_INDEX);
+				code_b.s.r = pcol_b[r] >> (32-NBITS_INDEX);
+
+				PVRow b = code_b.int_v;
+				tls_sel_elts[b] = r;
+			}
+		}
+	}
+
+private:
+	PVParallelView::PVZoneTree::PVTBBFilterSelParams const& _params;
+};
+
+class TBBReduceSelElts
+{
+public:
+	TBBReduceSelElts (
+		PVParallelView::PVZoneTree* ztree, PVParallelView::PVZoneTree::ProcessTLS& tls
+	) :
+		_ztree(ztree),
+		_tls(tls)
+	{ }
+
+	TBBReduceSelElts(TBBReduceSelElts& x, tbb::split) :
+		_ztree(x._ztree),
+		_tls(x._tls)
+	{ }
+
+public:
+	void operator() (const tbb::blocked_range<size_t>& range) const
+	{
+		for (PVRow b = range.begin(); b != range.end(); ++b) {
+			for (PVParallelView::PVZoneTree::tls_array_t::const_iterator sel_elts = _tls._tls_sel_elts.begin(); sel_elts != _tls._tls_sel_elts.end(); ++sel_elts) {
+				_ztree->_sel_elts[b] = picviz_min(_ztree->_sel_elts[b], (*sel_elts)[b]);
+			}
+		}
+	}
+
+private:
+	PVParallelView::PVZoneTree* _ztree;
+	PVParallelView::PVZoneTree::ProcessTLS& _tls;
+};
+
+
 } }
+
+void PVParallelView::PVZoneTree::filter_by_sel_tbb_treeb_new(PVZoneProcessing const& zp, const Picviz::PVSelection& sel, ProcessTLS& tls)
+{
+
+	/*// Clear TLS
+	tls_array_t& tls_sel_elts = tls._tls_sel_elts;
+	for (tls_array_t::iterator it = tls_sel_elts.begin(); it != tls_sel_elts.end(); ++it) {
+		memset(it->elems, PVROW_INVALID_VALUE, sizeof(PVRow)*NBUCKETS);
+	}
+
+	BENCH_START(subtree);
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, zp.nrows(), atol(getenv("GRAINSIZE"))), __impl::TBBSelRowsFilter(PVTBBFilterSelParams(zp, sel, tls)), tbb::simple_partitioner());
+	BENCH_END(subtree, "filter_by_sel_tbb_treeb_new_1", 1, 1, sizeof(PVRow), zp.nrows());
+
+	memset(_sel_elts, PVROW_INVALID_VALUE, sizeof(PVRow)*NBUCKETS);
+
+	__impl::TBBReduceSelElts reduce_body(this, tls);
+	BENCH_START(subtree2);
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, atol(getenv("GRAINSIZE"))), reduce_body, tbb::simple_partitioner());
+	BENCH_END(subtree2, "filter_by_sel_tbb_treeb_new_2", 1, 1, sizeof(PVRow), zp.nrows());*/
+
+	/*BENCH_START(subtree);
+	memset(_sel_elts, PVROW_INVALID_VALUE, sizeof(PVRow)*NBUCKETS);
+	Picviz::PVSelection::const_pointer sel_buf = sel.get_buffer();
+	const uint32_t* pcol_a = zp.get_plotted_col(zp.col_a());
+	const uint32_t* pcol_b = zp.get_plotted_col(zp.col_b());
+	for (PVRow r = 0; r < zp.nrows(); ++r) {
+		// If line is selected
+		if ((sel_buf[r>>5]) & (1U<<(r&31))) {
+			// Compute b code
+			PVParallelView::PVBCode code_b;
+			code_b.int_v = 0;
+			code_b.s.l = pcol_a[r] >> (32-NBITS_INDEX);
+			code_b.s.r = pcol_b[r] >> (32-NBITS_INDEX);
+
+			PVRow b = code_b.int_v;
+			_sel_elts[b] = picviz_min(_sel_elts[b], r);
+		}
+	}
+	BENCH_END(subtree, "filter_by_sel_tbb_treeb_new", 1, 1, sizeof(PVRow), zp.nrows());*/
+
+	BENCH_START(subtree);
+	memset(_sel_elts, PVROW_INVALID_VALUE, sizeof(PVRow)*NBUCKETS);
+	Picviz::PVSelection::const_pointer sel_buf = sel.get_buffer();
+	const uint32_t* pcol_a = zp.get_plotted_col(zp.col_a());
+	const uint32_t* pcol_b = zp.get_plotted_col(zp.col_b());
+
+	sel.visit_selected_lines_sse(zp.nrows()>>5, [&](PVRow r){
+		/*PVParallelView::PVBCode code_b;
+		code_b.int_v = 0;
+		code_b.s.l = pcol_a[r] >> (32-NBITS_INDEX);
+		code_b.s.r = pcol_b[r] >> (32-NBITS_INDEX);*/
+
+		const PVRow y1 = pcol_a[r] >> (32-NBITS_INDEX);
+		const PVRow y2 = pcol_b[r] >> (32-NBITS_INDEX);
+
+		const PVRow b = y1 | (y2 << NBITS_INDEX);
+		_sel_elts[b] = picviz_min(_sel_elts[b], r);
+	});
+	BENCH_END(subtree, "filter_by_sel_tbb_treeb_new", 1, 1, sizeof(PVRow), zp.nrows());
+}
 
 // PVZoneTree implementation
 //
@@ -482,7 +612,7 @@ void PVParallelView::PVZoneTree::filter_by_sel_omp_treeb(Picviz::PVSelection con
 	//BENCH_END(subtree, "filter_by_sel_omp_treeb", _nrows*2, sizeof(float), _nrows*2, sizeof(float));
 	BENCH_END(subtree, "filter_by_sel_omp_treeb", 1, 1, sizeof(PVRow), NBUCKETS);
 }
-	
+
 void PVParallelView::PVZoneTree::filter_by_sel_tbb_treeb(Picviz::PVSelection const& sel)
 {
 	// returns a zone tree with only the selected lines
@@ -492,7 +622,6 @@ void PVParallelView::PVZoneTree::filter_by_sel_tbb_treeb(Picviz::PVSelection con
 	tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, atol(getenv("GRAINSIZE"))), __impl::TBBSelFilter(this, sel_buf), tbb::simple_partitioner());
 	BENCH_END(subtree, "filter_by_sel_tbb_treeb", 1, 1, sizeof(PVRow), NBUCKETS);
 }
-
 
 void PVParallelView::PVZoneTree::get_float_pts(pts_t& pts, Picviz::PVPlotted::plotted_table_t const& org_plotted, PVRow nrows, PVCol col_a, PVCol col_b)
 {

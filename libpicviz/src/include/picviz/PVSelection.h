@@ -265,17 +265,23 @@ public:
 	ssize_t get_last_nonzero_chunk_index() const;
 
 	template <class F>
-	void visit_selected_lines_sse(F const& f)
+	void visit_selected_lines_sse(F const& f) const
 	{
 		const ssize_t last_chunk = get_last_nonzero_chunk_index();
-		if (last_chunk == -1) {
+		if (last_chunk < 0) {
 			// No lines are selected !
 			return;
 		}
+		visit_selected_lines_sse((uint32_t) last_chunk, f);
+	}
+
+	template <class F>
+	void visit_selected_lines_sse(uint32_t last_chunk, F const& f) const
+	{
 		__m128i sse_sel;
 		const __m128i ones = _mm_set1_epi32(0xFFFFFFFF);
 		const ssize_t last_chunk_sse = (last_chunk/4)*4;
-		ssize_t i;
+		uint32_t i;
 		for (i = 0; i < last_chunk_sse; i += 4) {
 			sse_sel = _mm_load_si128((__m128i*) &_table[i]);
 			if (_mm_testz_si128(sse_sel, ones) == 1) {
@@ -320,7 +326,7 @@ public:
 	}
 
 	template <class F>
-	void visit_selected_lines(F const& f)
+	void visit_selected_lines(F const& f) const
 	{
 		const ssize_t last_chunk = get_last_nonzero_chunk_index(); 
 		if (last_chunk == -1) {
@@ -328,6 +334,9 @@ public:
 		}
 		for (ssize_t i = 0; i <= last_chunk; i++) {
 			const uint32_t sel_buf = _table[i];
+			if (sel_buf == 0) {
+				continue;
+			}
 			for (uint32_t j = 0; j < 32; j++) {
 				if (sel_buf & (1U << j)) {
 					f((i<<5)+j);

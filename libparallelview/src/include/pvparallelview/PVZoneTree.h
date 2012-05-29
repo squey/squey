@@ -17,6 +17,7 @@
 
 #include <tbb/enumerable_thread_specific.h>
 
+
 namespace PVParallelView {
 
 namespace __impl {
@@ -24,6 +25,8 @@ class TBBCreateTreeNRows;
 class TBBComputeAllocSizeAndFirstElts;
 class TBBMergeTrees;
 class TBBSelFilter;
+class TBBSelRowsFilter;
+class TBBReduceSelElts;
 }
 
 class PVZoneProcessing;
@@ -35,6 +38,8 @@ class PVZoneTree: public PVZoneTreeBase
 	friend class __impl::TBBComputeAllocSizeAndFirstElts;
 	friend class __impl::TBBMergeTrees;
 	friend class __impl::TBBSelFilter;
+	friend class __impl::TBBSelRowsFilter;
+	friend class __impl::TBBReduceSelElts;
 	friend class PVSelectionSquare;
 
 public:
@@ -55,9 +60,12 @@ public:
 		friend class __impl::TBBComputeAllocSizeAndFirstElts;
 		friend class __impl::TBBMergeTrees;
 		friend class __impl::TBBSelFilter;
+		friend class __impl::TBBSelRowsFilter;
+		friend class __impl::TBBReduceSelElts;
 	protected:
 		tls_tree_t _tls_trees;
 		tls_array_t _tls_first_elts;
+		tls_array_t _tls_sel_elts;
 	};
 
 
@@ -83,6 +91,22 @@ public://protected:
 		ProcessTLS& _tls;
 	};
 
+	struct PVTBBFilterSelParams
+		{
+		public:
+		PVTBBFilterSelParams(PVZoneProcessing const& zp, Picviz::PVSelection const& sel, PVZoneTree::ProcessTLS& tls):
+				_zp(zp), _sel(sel), _tls(tls)
+			{ }
+		public:
+			inline PVZoneProcessing const& zp() const { return _zp; }
+			inline ProcessTLS& tls() const { return _tls; }
+			inline Picviz::PVSelection const& sel() const { return _sel; }
+		private:
+			PVZoneProcessing const& _zp;
+			Picviz::PVSelection const& _sel;
+			ProcessTLS& _tls;
+		};
+
 
 public:
 	PVZoneTree();
@@ -91,6 +115,8 @@ public:
 	inline void process(PVZoneProcessing const& zp) { process_tbb_sse_treeb(zp); }
 	inline void process(PVZoneProcessing const& zp, ProcessTLS& tls) { process_tbb_sse_treeb(zp, tls); }
 	inline void filter_by_sel(Picviz::PVSelection const& sel) { filter_by_sel_tbb_treeb(sel); }
+
+	inline void filter_by_sel_new(PVZoneProcessing const& zp, const Picviz::PVSelection& sel, ProcessTLS& tls) { filter_by_sel_tbb_treeb_new(zp, sel, tls); }
 
 	///
 	PVBranch* get_treeb() {return _treeb;}
@@ -104,6 +130,7 @@ public:
 
 	void filter_by_sel_omp_treeb(Picviz::PVSelection const& sel);
 	void filter_by_sel_tbb_treeb(Picviz::PVSelection const& sel);
+	void filter_by_sel_tbb_treeb_new(PVZoneProcessing const& zp, const Picviz::PVSelection& sel, ProcessTLS& tls);
 
 private:
 	void get_float_pts(pts_t& pts, Picviz::PVPlotted::plotted_table_t const& org_plotted, PVRow nrows, PVCol col_a, PVCol col_b);
