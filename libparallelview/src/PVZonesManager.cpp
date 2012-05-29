@@ -20,6 +20,8 @@ public:
 			zm->get_zone_cols(z, zp.col_a(), zp.col_b());
 			PVZoneTree& ztree = zm->_zones[z].ztree();
 			ztree.process(zp, tls);
+			PVZoomedZoneTree& zztree = zm->_zones[z].zoomed_ztree();
+			zztree.process(zp, ztree);
 		}
 	}
 

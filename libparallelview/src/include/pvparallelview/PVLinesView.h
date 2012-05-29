@@ -70,6 +70,7 @@ public:
 	QFuture<void> render_sel(uint32_t view_width, PVRenderingJob& job);
 
 	void update_sel_from_zone(uint32_t view_width, PVZoneID zid, const Picviz::PVSelection& sel);
+	QFuture<void> update_sel_from_zone(uint32_t view_width, PVZoneID zid_sel, const Picviz::PVSelection& sel, PVRenderingJob& job);
 
 	void render_zone_all_imgs(PVZoneID z);
 	QFuture<void> render_zone_all_imgs(PVZoneID z, PVRenderingJob& job);
