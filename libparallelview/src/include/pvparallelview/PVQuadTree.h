@@ -51,6 +51,7 @@ namespace __impl {
 	struct f_traverse_dim
 	{
 		typedef size_t(*function_type)(const PVQuadTreeEntry &,
+		                               uint32_t y_start,
 		                               uint32_t, uint32_t,
 		                               const PVHSVColor *,
 		                               RESULT *);
@@ -66,6 +67,7 @@ namespace __impl {
 	};
 
 	size_t f_get_first_bci(const PVQuadTreeEntry &e,
+	                       uint32_t y_start,
 	                       uint32_t shift, uint32_t mask,
 	                       const PVHSVColor *colors,
 	                       PVBCICode *code);
@@ -294,12 +296,12 @@ private:
 					f2(obj, y1_min, y1_max, e);
 					if (e.idx != UINT_MAX) {
 						// it has been found
-						return F(e, shift, mask, colors, codes);
+						return F(e, y1_min, shift, mask, colors, codes);
 					}
 				} else {
 					// the first element has been found
 					if (obj._datas.size() != 0) {
-						return F(obj._datas.at(0), shift, mask, colors, codes);
+						return F(obj._datas.at(0), y1_min, shift, mask, colors, codes);
 					}
 				}
 				return 0;
@@ -319,7 +321,7 @@ private:
 					uint32_t count = std::min(zoom, obj._datas.size());
 					for (unsigned i = 0; i < count; ++i) {
 						const PVQuadTreeEntry &e = obj._datas.at(i);
-						num += F(e, shift, mask, colors, codes + num);
+						num += F(e, y1_min, shift, mask, colors, codes + num);
 					}
 				}
 				return num;
@@ -360,12 +362,12 @@ private:
 					f2(obj, y2_min, y2_max, e);
 					if (e.idx != UINT_MAX) {
 						// it has been found
-						return F(e, shift, mask, colors, codes);
+						return F(e, y2_min, shift, mask, colors, codes);
 					}
 				} else {
 					// the first element has been found
 					if (obj._datas.size() != 0) {
-						return F(obj._datas.at(0), shift, mask, colors, codes);
+						return F(obj._datas.at(0), y2_min, shift, mask, colors, codes);
 					}
 				}
 				return 0;
@@ -383,7 +385,7 @@ private:
 				} else {
 					// we have to extract the 'zoom' first elements from _datas
 					for (unsigned i = 0; i < std::min(zoom, obj._datas.size()); ++i) {
-						num += F(obj._datas.at(i), shift, mask, colors, codes + num);
+						num += F(obj._datas.at(i), y2_min, shift, mask, colors, codes + num);
 					}
 				}
 				return num;

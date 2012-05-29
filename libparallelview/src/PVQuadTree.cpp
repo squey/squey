@@ -6,13 +6,14 @@
  *****************************************************************************/
 
 size_t PVParallelView::__impl::f_get_first_bci(const PVQuadTreeEntry &e,
+                                               uint32_t y_start,
                                                uint32_t shift, uint32_t mask,
                                                const PVHSVColor *colors,
                                                PVBCICode *code)
 {
 	code->s.idx = e.idx;
-	code->s.l = (e.y1 >> shift) & mask;
-	code->s.r = (e.y2 >> shift) & mask;
+	code->s.l = ((e.y1 - y_start) >> shift) & mask;
+	code->s.r = ((e.y2 - y_start) >> shift) & mask;
 	code->s.color = colors[e.idx].h();
 	return 1;
 }
