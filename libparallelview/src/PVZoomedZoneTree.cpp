@@ -144,9 +144,9 @@ size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1(uint32_t t_min, u
                                                                const PVHSVColor* colors,
                                                                PVBCICode* codes) const
 {
-	uint32_t t_max = PVCore::clamp(1024U >> zoom, 0U, 1024U);
-	uint32_t y_min = t_min * 1024;
-	uint32_t y_max = t_max * 1024;
+	uint32_t t_max = PVCore::clamp(t_min + (1024U >> zoom), 0U, 1024U);
+	uint32_t y_min = t_min << (32 - NBITS_INDEX);
+	uint32_t y_max = t_max << (32 - NBITS_INDEX);
 	size_t num = 0;
 
 	for (uint32_t j = t_min; j < t_max; ++j) {
