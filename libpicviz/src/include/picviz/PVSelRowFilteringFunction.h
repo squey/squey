@@ -56,8 +56,8 @@ public:
 	inline void set_args_for_org_view(PVCore::PVArgumentList const& v_args) { set_args_for_view(v_args, get_arg_keys_for_org_view()); }
 	inline void set_args_for_dst_view(PVCore::PVArgumentList const& v_args) { set_args_for_view(v_args, get_arg_keys_for_dst_view()); }
 
-	inline PVBinaryOperation get_combination_op() const { return _combination_op; }
-	inline void set_combination_op(PVBinaryOperation op) { _combination_op = op; }
+	inline PVCore::PVBinaryOperation get_combination_op() const { return _combination_op; }
+	inline void set_combination_op(PVCore::PVBinaryOperation op) { _combination_op = op; }
 
 protected:
 	virtual void do_pre_process(PVView const& view_org, PVView const& view_dst) = 0;
