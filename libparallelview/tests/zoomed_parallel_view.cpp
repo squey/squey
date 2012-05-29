@@ -12,6 +12,8 @@
 #include <pvparallelview/PVZonesManager.h>
 #include <pvparallelview/PVLinesView.h>
 
+#include <pvparallelview/PVZoomedParallelView.h>
+
 #include <QApplication>
 
 #include <pvparallelview/PVAxisWidget.h>
@@ -215,12 +217,10 @@ int main(int argc, char** argv)
 	PVParallelView::PVBCIDrawingBackendCUDA backend_cuda;
 	PVParallelView::PVZonesDrawing &zones_drawing = *(new PVParallelView::PVZonesDrawing(zm, backend_cuda, *colors));
 
-	PVParallelView::PVLinesView &lines_view = *(new PVParallelView::PVLinesView(zones_drawing, 20));
-
-	GraphicsView view;
+	QGraphicsView view;
 	view.setViewport(new QWidget());
-	view.setScene(new OpenGLScene(&view, &lines_view, 2));
-	view.resize(1920, 1600);
+	view.setScene(new PVParallelView::PVZoomedParallelView(&view, zones_drawing, 1));
+	view.resize(1024, 1024);
 	view.show();
 
 	app.exec();

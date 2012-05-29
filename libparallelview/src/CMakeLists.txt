@@ -24,6 +24,7 @@ PVBCICode.cpp
 PVHSVColor.cpp
 PVTools.cpp
 PVZoomedZoneTree.cpp
+PVZoomedParallelView.cpp
 PVZonesDrawing.cpp
 PVLinesView.cpp
 PVParallelScene.cpp
@@ -59,6 +60,8 @@ include/pvparallelview/PVZoneTreeBase.h
 include/pvparallelview/PVZoneTree.h
 include/pvparallelview/PVZoneTreeNoAlloc.h
 include/pvparallelview/PVZoomedZoneTree.h
+include/pvparallelview/PVZoomedParallelView.h
+include/pvparallelview/PVZoomedZoneView.h
 include/pvparallelview/PVAxisWidget.h
 include/pvparallelview/PVAxisSlider.h
 include/pvparallelview/PVFullParallelView.h
