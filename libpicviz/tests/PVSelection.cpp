@@ -1,7 +1,7 @@
 #include <stdlib.h>
+#include <pvkernel/core/picviz_bench.h>
 
 #include <picviz/PVSelection.h>
-
 #include <iostream>
 
 
@@ -34,6 +34,46 @@ int main(void)
 	delete(selection);
 
 
+	a.select_none();
+	BENCH_START(sel);
+	std::cout << "get_last_nonzero_chunk_index on empty sel: " << a.get_last_nonzero_chunk_index() << std::endl;
+	BENCH_END(sel, "bench", sizeof(uint32_t), PICVIZ_SELECTION_NUMBER_OF_CHUNKS, 1, 1);
+
+	a.select_all();
+	BENCH_START(self);
+	std::cout << "get_last_nonzero_chunk_index on full sel (should be " << (PICVIZ_SELECTION_NUMBER_OF_CHUNKS-1) << "): " << a.get_last_nonzero_chunk_index() << std::endl;
+	BENCH_END(self, "bench", sizeof(uint32_t), PICVIZ_SELECTION_NUMBER_OF_CHUNKS, 1, 1);
+
+	a.select_none();
+	a.set_bit_fast(4);
+	std::cout << "get_last_nonzero_chunk_index with bit 4: " << a.get_last_nonzero_chunk_index() << std::endl;
+
+	a.set_bit_fast(44);
+	std::cout << "get_last_nonzero_chunk_index with bit 44: " << a.get_last_nonzero_chunk_index() << std::endl;
+
+	a.set_bit_fast(32*4);
+	std::cout << "get_last_nonzero_chunk_index with bit 32*4: " << a.get_last_nonzero_chunk_index() << std::endl;
+
+	a.visit_selected_lines([&](PVRow r) { std::cout << r << "," ; } );
+	std::cout << std::endl;
+	a.visit_selected_lines_sse([&](PVRow r) { std::cout << r << "," ; } );
+	std::cout << std::endl;
+
+	a.select_none();
+#define NLINES_TEST 10000
+	for (int i = 0; i < NLINES_TEST; i++) {
+		a.set_bit_fast(rand()%(PICVIZ_LINES_MAX/4));
+	}
+	std::vector<PVRow> ref,test;
+	ref.reserve(NLINES_TEST); test.reserve(NLINES_TEST);
+	BENCH_START(ref);
+	a.visit_selected_lines([&](PVRow r) { ref.push_back(r); });
+	BENCH_END(ref, "visit ref", sizeof(uint32_t), PICVIZ_SELECTION_NUMBER_OF_CHUNKS, sizeof(PVRow), ref.size());
+	BENCH_START(sse);
+	a.visit_selected_lines_sse([&](PVRow r) { test.push_back(r); });
+	BENCH_END(sse, "visit sse", sizeof(uint32_t), PICVIZ_SELECTION_NUMBER_OF_CHUNKS, sizeof(PVRow), test.size());
+
+	std::cout << "Visit sse test: " << (ref == test) << std::endl;
 
 	/**********************************************************************
 	*
@@ -102,6 +142,9 @@ int main(void)
 
 	std::cout << "\nWe test the operator~\n";
 	b.select_all();
+	BENCH_START(opnot);
+	b.select_inverse();
+	BENCH_END_TRANSFORM(opnot, "operator ~", sizeof(uint32_t), PICVIZ_SELECTION_NUMBER_OF_CHUNKS);
 	a = ~b;
 
 	for (i=0; i<PICVIZ_LINES_MAX; i++) {

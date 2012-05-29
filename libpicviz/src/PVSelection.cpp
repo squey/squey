@@ -204,7 +204,7 @@ Picviz::PVSelection& Picviz::PVSelection::operator=(const PVSelection &rhs)
  *****************************************************************************/
 Picviz::PVSelection Picviz::PVSelection::operator&(const PVSelection &rhs) const
 {
-	Picviz::PVSelection result = *this;
+	Picviz::PVSelection result(*this);
 	result &= rhs;
 
 	return result;
@@ -419,6 +419,43 @@ void Picviz::PVSelection::set_line_select_only(PVRow line_index, bool bool_value
 uint32_t* Picviz::PVSelection::get_buffer()
 {
 	return &table[0];
+}
+
+ssize_t Picviz::PVSelection::get_last_nonzero_chunk_index() const
+{
+#ifdef __SSE4_1__
+	__m128i ones = _mm_set1_epi32(0xFFFFFFFF);
+	__m128i vec;
+#if (PICVIZ_SELECTION_NUMBER_OF_CHUNKS % 4 != 0)
+	for (PVRow i = PICVIZ_SELECTION_NUMBER_OF_CHUNKS-1; i >= (PICVIZ_SELECTION_NUMBER_OF_CHUNKS/4)*4; i--) {
+		if (table[i] != 0) {
+			return i;
+		}
+	}
+#endif
+	for (ssize_t i = ((PICVIZ_SELECTION_NUMBER_OF_CHUNKS/4)*4)-4; i >= 0; i -= 4) {
+		vec = _mm_load_si128((__m128i*) &table[i]);
+		if (_mm_testz_si128(vec, ones) == 0) {
+			uint64_t DECLARE_ALIGN(16) final_sel[2];
+			_mm_store_si128((__m128i*)final_sel, vec);
+			// If final_sel[0] == 0, it means that the chunk is in one of the last two 32 bits of vec.
+			// Otherwise, it is one of the two first.
+			uint8_t reg_pos = (final_sel[1] != 0);
+			uint32_t* preg_last2 = (uint32_t*) &final_sel[reg_pos];
+			uint8_t reg_pos_last2 = (preg_last2[1] != 0);
+			return i + (reg_pos<<1) + reg_pos_last2;
+		}
+	}
+	return -1;
+
+#else
+	for (PVRow i = PICVIZ_SELECTION_NUMBER_OF_CHUNKS-1; i >= 0; i--) {
+		if (table[i] != 0) {
+			return i;
+		}
+	}
+	return -1;
+#endif
 }
 
 void Picviz::PVSelection::write_selected_lines_nraw(QTextStream& stream, PVRush::PVNraw const& nraw, PVRow write_max)
