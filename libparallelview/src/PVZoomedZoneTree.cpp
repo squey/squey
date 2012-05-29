@@ -75,7 +75,7 @@ void PVParallelView::PVZoomedZoneTree::process_omp(const PVParallelView::PVZoneP
 	uint32_t nthreads = 4;
 	uint32_t STEP_ELE_COUNT = THREAD_ELE_COUNT * nthreads;
 	uint32_t nrows_omp = (nrows / STEP_ELE_COUNT) * STEP_ELE_COUNT;
-	uint32_t tree_count = (1024 * 1024) / nthreads;
+	uint32_t tree_count = (NBUCKETS) / nthreads;
 	char *buffer = new char [nthreads * 64];
 
 #pragma omp parallel num_threads(4)
@@ -162,9 +162,9 @@ size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y2(uint32_t t_min, u
                                                                const PVHSVColor* colors,
                                                                PVBCICode* codes) const
 {
-	uint32_t t_max = PVCore::clamp(1024U >> zoom, 0U, 1024U);
-	uint32_t y_min = t_min * 1024;
-	uint32_t y_max = t_max * 1024;
+	uint32_t t_max = PVCore::clamp(t_min + (1024U >> zoom), 0U, 1024U);
+	uint32_t y_min = t_min << (32 - NBITS_INDEX);
+	uint32_t y_max = t_max << (32 - NBITS_INDEX);
 	size_t num = 0;
 
 	for (uint32_t j = t_min; j < t_max; ++j) {

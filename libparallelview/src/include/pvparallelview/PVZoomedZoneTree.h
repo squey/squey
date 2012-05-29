@@ -29,7 +29,7 @@ public:
 	inline size_t memory() const
 	{
 		size_t mem = sizeof(PVZoomedZoneTree);
-		for (int i = 0; i < 1024 * 1024; ++i) {
+		for (int i = 0; i < NBUCKETS; ++i) {
 			mem += _trees[i].memory();
 		}
 		return mem;
