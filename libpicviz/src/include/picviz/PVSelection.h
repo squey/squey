@@ -267,6 +267,7 @@ public:
 	template <class F>
 	void visit_selected_lines_sse(F const& f)
 	{
+#ifdef __SSE_4_1__
 		const ssize_t last_chunk = get_last_nonzero_chunk_index();
 		if (last_chunk == -1) {
 			// No lines are selected !
@@ -317,6 +318,9 @@ public:
 				}
 			}
 		}
+#else
+		visit_selected_lines(f);
+#endif
 	}
 
 	template <class F>

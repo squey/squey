@@ -410,7 +410,7 @@ ssize_t Picviz::PVSelection::get_last_nonzero_chunk_index() const
 
 #else
 	for (PVRow i = PICVIZ_SELECTION_NUMBER_OF_CHUNKS-1; i >= 0; i--) {
-		if (table[i] != 0) {
+		if (_table[i] != 0) {
 			return i;
 		}
 	}
