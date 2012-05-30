@@ -359,47 +359,40 @@ tlp::Graph* Picviz::PVAD2GView::get_serializable_sub_graph() const
 {
 	tlp::Graph* sub_graph = tlp::newGraph();
 	tlp::copyToGraph(sub_graph, _graph);
-	// Delete that property as it is not serializable back !
-	if (sub_graph->existLocalProperty("correlationProperty")) {
-		sub_graph->delLocalProperty("correlationProperty");
-	}
 
+	PVAD2GViewCorrelationProperty* corr_info = _graph->getLocalProperty<PVAD2GViewCorrelationProperty>("correlationProperty");
 	tlp::StringProperty* sub_corr_info = sub_graph->getLocalProperty<tlp::StringProperty>("correlationStringProperty");
 
-	// Visit each edges, and check whether the views has been serialized
-	// In such a case, add the view it has not been made, and then add the edge
+	// Convert every nodes
+	QList<tlp::node> nodes_to_del;
+	tlp::node node;
+	forEach(node, sub_graph->getNodes()) {
+		if (!node.isValid()) {
+			continue;
+		}
+		Picviz::PVView const* view = corr_info->getNodeValue(node);
+		if (view || view->get_last_so().expired()) {
+			nodes_to_del.push_back(node);
+			continue;
+		}
+
+		sub_corr_info->setNodeValue(node, corr_info->getNodeStringValue(node));
+	}
+
+	foreach(node, nodes_to_del) {
+		sub_graph->delNode(node);
+	}
+
+	// Visit each edges, and serialize them.
 	tlp::edge edge;
-	tlp::node na, nb;
-
-	forEach(edge, _graph->getEdges()) {
-		na = _graph->source(edge);
-		nb = _graph->target(edge);
-
-		Picviz::PVView const* view_a = _corr_info->getNodeValue(na);
-		Picviz::PVView const* view_b = _corr_info->getNodeValue(nb);
-
-		if ((!view_a || !view_b) ||
-		    (view_a->get_last_so().expired() || view_b->get_last_so().expired())) {
-			continue;
-		}
-
-		std::string va_str = _corr_info->getNodeStringValue(na);
-		std::string vb_str = _corr_info->getNodeStringValue(nb);
-
-		tlp::node sub_na = serializable_sub_graph_add_view(sub_graph, sub_corr_info, va_str);
-		if (!sub_na.isValid()) {
-			continue;
-		}
-		tlp::node sub_nb = serializable_sub_graph_add_view(sub_graph, sub_corr_info, vb_str);
-		if (!sub_nb.isValid()) {
-			continue;
-		}
-
-		tlp::edge new_edge = sub_graph->addEdge(sub_na, sub_nb);
-		if (new_edge.isValid()) {
-			sub_corr_info->setEdgeValue(new_edge, _corr_info->getEdgeStringValue(edge));
+	forEach(edge, sub_graph->getEdges()) {
+		if (edge.isValid()) {
+			sub_corr_info->setEdgeValue(edge, corr_info->getEdgeStringValue(edge));
 		}
 	}
+
+	// Remove correlationProperty
+	_graph->delLocalProperty("correlationProperty");
 
 	return sub_graph;
 }
@@ -780,9 +773,9 @@ void Picviz::PVAD2GView::serialize_read(PVCore::PVSerializeObject& so, PVCore::P
 	_graph->delLocalProperty("correlationStringProperty");
 
 	// Remove invalid nodes
-	foreach(node, nodes_to_del) {
+	/*foreach(node, nodes_to_del) {
 		del_view_by_node(node);
-	}
+	}*/
 }
 
 void Picviz::PVAD2GView::serialize_write(PVCore::PVSerializeObject& so)
