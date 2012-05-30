@@ -35,16 +35,19 @@ QVariant PVWidgets::PVAD2GRFFListModel::data(const QModelIndex &index, int role)
 	}
 
 	Picviz::PVSelRowFilteringFunction_p row_filter = _rffs.at(index.row());
+
+	if (row_filter.get() == 0) {
+		return QVariant();
+	}
+
 	if (index.column() == 1) {
 		// RFF behavior
-		if (row_filter.get()) {
-			if (role == Qt::DisplayRole)
-				return QVariant(row_filter.get()->get_human_name_with_args(_src_view, _dst_view));
-			if (role == Qt::UserRole) {
-				QVariant ret;
-				ret.setValue<void*>(row_filter.get());
-				return ret;
-			}
+		if (role == Qt::DisplayRole)
+			return QVariant(row_filter.get()->get_human_name_with_args(_src_view, _dst_view));
+		if (role == Qt::UserRole) {
+			QVariant ret;
+			ret.setValue<void*>(row_filter.get());
+			return ret;
 		}
 	} else {
 		// binary operation behavior
@@ -53,7 +56,7 @@ QVariant PVWidgets::PVAD2GRFFListModel::data(const QModelIndex &index, int role)
 				return PVCore::get_binary_operation_name(row_filter.get()->get_combination_op());
 			}
 		} else if ((role == Qt::UserRole) || (role == Qt::EditRole)) {
-			return QVariant(row_filter.get()->get_combination_op());
+			return QVariant((int)row_filter.get()->get_combination_op());
 		}
 	}
 
@@ -75,6 +78,8 @@ Qt::ItemFlags PVWidgets::PVAD2GRFFListModel::flags(const QModelIndex &index) con
 		// the first binary operation is not editable
 		if (index.row() != 0) {
 			all_flags = Qt::ItemIsEditable | Qt::ItemIsEnabled;
+		} else {
+			all_flags &= ~(Qt::ItemIsEditable | Qt::ItemIsEnabled);
 		}
 	}
 
@@ -101,7 +106,7 @@ bool PVWidgets::PVAD2GRFFListModel::setData(const QModelIndex &index, const QVar
 		}
 	} else {
 		// binary operations behavior
-		if (role == Qt::EditRole) {
+		if ((role == Qt::UserRole) || (role == Qt::EditRole)) {
 			_rffs.at(index.row()).get()->set_combination_op((PVCore::PVBinaryOperation)value.toInt());
 			return true;
 		}
