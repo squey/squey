@@ -267,7 +267,7 @@ public:
 	ssize_t get_last_nonzero_chunk_index() const;
 
 	template <class F>
-	void visit_selected_lines_sse(F const& f)
+	void visit_selected_lines(F const& f)
 	{
 #ifdef __SSE_4_1__
 		const ssize_t last_chunk = get_last_nonzero_chunk_index();
@@ -321,25 +321,8 @@ public:
 			}
 		}
 #else
-		visit_selected_lines(f);
+		visit_selected_lines_serial(f);
 #endif
-	}
-
-	template <class F>
-	void visit_selected_lines(F const& f)
-	{
-		const ssize_t last_chunk = get_last_nonzero_chunk_index(); 
-		if (last_chunk == -1) {
-			return;
-		}
-		for (ssize_t i = 0; i <= last_chunk; i++) {
-			const uint32_t sel_buf = _table[i];
-			for (uint32_t j = 0; j < 32; j++) {
-				if (sel_buf & (1U << j)) {
-					f((i<<5)+j);
-				}
-			}
-		}
 	}
 
 	/**
@@ -348,6 +331,27 @@ public:
 	std::vector<PVRow> get_rows_table();
 
 	void write_selected_lines_nraw(QTextStream& stream, PVRush::PVNraw const& nraw, PVRow write_max);
+
+private:
+	template <class F>
+	void visit_selected_lines_serial(F const& f)
+	{
+		const ssize_t last_chunk = get_last_nonzero_chunk_index(); 
+		if (last_chunk == -1) {
+			return;
+		}
+		for (ssize_t i = 0; i <= last_chunk; i++) {
+			const uint32_t sel_buf = _table[i];
+			if (sel_buf == 0) {
+				continue;
+			}
+			for (uint32_t j = 0; j < 32; j++) {
+				if (sel_buf & (1U << j)) {
+					f((i<<5)+j);
+				}
+			}
+		}
+	}
 
 private:
 	inline void allocate_table() { _table = allocator().allocate(PICVIZ_SELECTION_NUMBER_OF_CHUNKS); }
