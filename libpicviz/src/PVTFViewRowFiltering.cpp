@@ -64,11 +64,6 @@ Picviz::PVSelection Picviz::PVTFViewRowFiltering::operator()(PVView const& view_
 				{
 					sel_tmp_row ^= sel_tmp_rff;
 				}
-				case PVCore::PVBinaryOperation::NOT:
-				{
-					sel_tmp_row = ~sel_tmp_rff;
-					break;
-				}
 				default:
 				{
 					assert(false);
