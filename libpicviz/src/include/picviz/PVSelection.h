@@ -194,6 +194,8 @@ public:
 	 */
 	PVSelection & operator|=(const PVSelection &rhs);
 
+	PVSelection& or_optimized(const PVSelection &rhs);
+
 	/**
 	 * This is the binary outplaced 'SUBSTRACTION' operation on two selections
 	 * C = A - B
