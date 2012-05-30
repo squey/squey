@@ -268,7 +268,7 @@ bool FileDownLoader::download( const QString &remoteFile, QString&tempFile, cons
 		PVCore::PVProgressBox *progressDialog = new PVCore::PVProgressBox(tr("Downloading %1...").arg(url.toString()), NULL, 0);
 
 		CURLcode curlResult;
-		QFuture<void> worker = QtConcurrent::run<void>(&FileDownLoaderPrivate::download_thread, d, &tempFile, &curlResult);
+		QFuture<void> worker = QtConcurrent::run<>(&FileDownLoaderPrivate::download_thread, d, &tempFile, &curlResult);
 		QFutureWatcher<void> watcher;
 		watcher.setFuture(worker);
 		QObject::connect(&watcher, SIGNAL(finished()), progressDialog, SLOT(accept()), Qt::QueuedConnection);

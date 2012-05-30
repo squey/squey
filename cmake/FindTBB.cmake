@@ -38,6 +38,7 @@ clear_if_changed(TBB_PREFIX_PATH
 
 create_search_paths(TBB)
 set(TBB_INC_SEARCH_PATH ${TBB_INC_SEARCH_PATH} ${TBB_PREFIX_PATH})
+set(TBB_LIB_SEARCH_PATH ${TBB_LIB_SEARCH_PATH} ${TBB_PREFIX_PATH})
 
 # For Windows, let's assume that the user might be using the precompiled
 # TBB packages from the main website. These use a rather awkward directory

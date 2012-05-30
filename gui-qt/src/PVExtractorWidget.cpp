@@ -24,7 +24,7 @@
 
 #include <pvsdk/PVMessenger.h>
 
-#include <tbb/compat/thread>
+#include <boost/thread.hpp>
 
 /******************************************************************************
  *
@@ -153,7 +153,7 @@ void PVInspector::PVExtractorWidget::update_status_ext(PVCore::PVProgressBox* pb
 	while (job->running()) {
 		pbox->set_status(job->status());
 		pbox->set_extended_status(QString("Number of rejected elements: %1").arg(job->rejected_elements()));
-		std::this_thread::sleep_for(tbb::tick_count::interval_t(0.2));
+		boost::this_thread::sleep(boost::posix_time::milliseconds(200));
 	}
 }
 
@@ -166,7 +166,7 @@ bool PVInspector::PVExtractorWidget::show_job_progress_bar(PVRush::PVControllerJ
 	pbar->setMinimum(0);
 	connect(job.get(), SIGNAL(job_done_signal()), pbox, SLOT(accept()));
 	// launch a thread in order to update the status of the progress bar
-	std::thread th_status(boost::bind(update_status_ext, pbox, job));	
+	boost::thread th_status(boost::bind(update_status_ext, pbox, job));	
 	pbox->launch_timer_status();
 	if (!job->running() && (job->started())) {
 		return true;

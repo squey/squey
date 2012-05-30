@@ -13,43 +13,29 @@
 #include <QProgressBar>
 #include <QFuture>
 #include <QFutureWatcher>
-#include <QtCore>
+#include <QObject>
 
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
+
+#include <tbb/task.h>
 
 #include <pvkernel/core/general.h>
 
 namespace PVCore {
 
-class LibKernelDecl PVThreadWatcher: public QObject
+namespace __impl {
+
+class ThreadEndSignal: public QObject
 {
 	Q_OBJECT
 public:
-	PVThreadWatcher(boost::thread& thread)
-	{
-		set_thread(thread);
-	}
-	PVThreadWatcher() { _thread = NULL; }
-	
-	void set_thread(boost::thread& thread)
-	{
-		_thread = &thread;
-		boost::thread watcher(boost::bind(&PVThreadWatcher::watch, this));
-	}
-private:
-	void watch()
-	{
-		assert(_thread);
-		_thread->join();
-		emit finished();
-	}
+	void emit_finished() { emit finished(); }
 signals:
 	void finished();
-
-private:
-	boost::thread* _thread;
 };
+
+}
 
 class LibKernelDecl PVProgressBox: public QDialog
 {
@@ -67,42 +53,62 @@ public:
 
 private:
 	template <class F>
-	static void worker_thread(F f)
+	static void worker_thread(F f, __impl::ThreadEndSignal* s)
 	{
 		try {
 			f();
 		}
 		catch (boost::thread_interrupted) {
 		}
+		s->emit_finished();
 	}
 
 	template <class Tret, class F>
-	static void worker_thread(F f, Tret& ret)
+	static void worker_thread(F f, Tret& ret, __impl::ThreadEndSignal* s)
 	{
 		try {
 			ret = f();
 		}
 		catch (boost::thread_interrupted) {
 		}
+		s->emit_finished();
 	}
 
 public:
 	template <typename Tret, typename F>
 	static bool progress(F f, PVProgressBox* pbox, Tret& ret)
 	{
-		PVThreadWatcher* watcher = new PVThreadWatcher();
-		connect(watcher, SIGNAL(finished()), pbox, SLOT(accept()));
-		boost::thread worker(boost::bind(&PVProgressBox::worker_thread<Tret, F>, boost::ref(f), boost::ref(ret)));
-		return process_worker_thread(watcher, worker, pbox);
+		//PVThreadWatcher* watcher = new PVThreadWatcher();
+		__impl::ThreadEndSignal* end_s = new __impl::ThreadEndSignal();
+		connect(end_s, SIGNAL(finished()), pbox, SLOT(accept()));
+		boost::thread worker(boost::bind(&PVProgressBox::worker_thread<Tret, F>, boost::ref(f), boost::ref(ret), end_s));
+		return process_worker_thread(end_s, worker, pbox);
 	}
 
 	template <typename F>
 	static bool progress(F f, PVProgressBox* pbox)
 	{
-		PVThreadWatcher* watcher = new PVThreadWatcher();
-		connect(watcher, SIGNAL(finished()), pbox, SLOT(accept()));
-		boost::thread worker(boost::bind(&PVProgressBox::worker_thread<F>, boost::ref(f)));
-		return process_worker_thread(watcher, worker, pbox);
+		//PVThreadWatcher* watcher = new PVThreadWatcher();
+		__impl::ThreadEndSignal* end_s = new __impl::ThreadEndSignal();
+		connect(end_s, SIGNAL(finished()), pbox, SLOT(accept()));
+		boost::thread worker(boost::bind(&PVProgressBox::worker_thread<F>, boost::ref(f), end_s));
+		return process_worker_thread(end_s, worker, pbox);
+	}
+
+	static bool progress(tbb::task& root_task, PVProgressBox* pbox)
+	{
+		// This will be the thread that executes the root task
+		typedef boost::function<void()> spawn_f;
+		__impl::ThreadEndSignal* end_s = new __impl::ThreadEndSignal();
+		connect(end_s, SIGNAL(finished()), pbox, SLOT(accept()));
+		spawn_f f = boost::bind(static_cast<void(*)(tbb::task&)>(&tbb::task::spawn_root_and_wait), boost::ref(root_task));
+		boost::thread worker(boost::bind(&PVProgressBox::worker_thread<spawn_f>, boost::ref(f), end_s));
+		if (pbox->exec() != QDialog::Accepted) {
+			root_task.cancel_group_execution();
+			worker.join();
+			return false;
+		}
+		return true;
 	}
 
 	template <typename Tret, typename F>
@@ -119,11 +125,17 @@ public:
 		return progress(f, pbox);
 	}
 
+	static bool progress(tbb::task& root, QString const& text, QWidget* parent = NULL)
+	{
+		PVProgressBox* pbox = new PVProgressBox(text, parent);
+		return progress(root, pbox);
+	}
+
 public slots:
 	void update_status_Slot();
 
 private:
-	static bool process_worker_thread(PVThreadWatcher* watcher, boost::thread& worker, PVProgressBox* pbox);
+	static bool process_worker_thread(__impl::ThreadEndSignal* watcher, boost::thread& worker, PVProgressBox* pbox);
 
 private:
 	QLabel *message;

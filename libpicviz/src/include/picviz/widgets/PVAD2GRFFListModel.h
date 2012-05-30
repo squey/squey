@@ -25,6 +25,8 @@ public:
     bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex());
     bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
 
+    void move_index(QModelIndex index, bool up);
+
     //void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
 
     Picviz::PVTFViewRowFiltering::list_rff_t& get_rffs() const;

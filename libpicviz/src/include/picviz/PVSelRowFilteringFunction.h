@@ -3,6 +3,7 @@
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVArgument.h>
+#include <pvkernel/core/PVBinaryOperation.h>
 #include <pvkernel/core/PVRegistrableClass.h>
 #include <picviz/PVSelection.h>
 #include <picviz/PVSelRowFilteringFunction_types.h>
@@ -25,7 +26,8 @@ public:
 	PVSelRowFilteringFunction():
 		fargs_t(),
 		reg_class_t(),
-		_do_pre_process(true)
+		_do_pre_process(true),
+		_combination_op(PVCore::PVBinaryOperation::OR)
 	{ }
 
 public:
@@ -53,6 +55,9 @@ public:
 
 	inline void set_args_for_org_view(PVCore::PVArgumentList const& v_args) { set_args_for_view(v_args, get_arg_keys_for_org_view()); }
 	inline void set_args_for_dst_view(PVCore::PVArgumentList const& v_args) { set_args_for_view(v_args, get_arg_keys_for_dst_view()); }
+
+	inline PVCore::PVBinaryOperation get_combination_op() const { return _combination_op; }
+	inline void set_combination_op(PVCore::PVBinaryOperation op) { _combination_op = op; }
 
 protected:
 	virtual void do_pre_process(PVView const& view_org, PVView const& view_dst) = 0;
@@ -87,6 +92,7 @@ private:
 
 	bool _do_pre_process;
 	PVCore::PVArgumentList _last_args;
+	PVCore::PVBinaryOperation _combination_op;
 };
 
 #define CLASS_RFF(T)\
