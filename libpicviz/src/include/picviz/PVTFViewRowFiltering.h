@@ -28,6 +28,10 @@ public:
 	void push_rff(PVSelRowFilteringFunction_p rff) { _rffs << rff; }
 	void remove_rff(int index) { _rffs.removeAt(index); }
 	bool remove_rff(PVSelRowFilteringFunction_p rff) { return _rffs.removeOne(rff); }
+	
+public:
+	void to_xml(QDomElement& elt) const;
+	void from_xml(QDomElement const& elt);
 
 protected:
 	list_rff_t _rffs;

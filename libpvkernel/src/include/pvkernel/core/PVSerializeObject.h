@@ -49,6 +49,9 @@ public:
 protected:
 	PVSerializeObject(QString const& logical_path, PVSerializeArchive* parent_ar, PVSerializeObject* parent = NULL);
 
+public:
+	virtual ~PVSerializeObject() { }
+
 private:
 	/*! \brief Private copy-constructor
 	 *  Private copy-constructor, as these objects must always be created by
@@ -85,6 +88,18 @@ public:
 	PVTypeInfo const& bound_obj_type() const { return _bound_obj_type; }
 	bool has_repairable_errors() const;
 
+	bool object_exists_by_path(QString const& path) const;
+	p_type get_object_by_path(QString const& path) const;
+
+	template <class T>
+	inline T* bound_obj_as() const
+	{
+		if (bound_obj_type() != typeid(T) || !_bound_obj) {
+			return NULL;
+		}
+		return (T*) _bound_obj;
+	}
+
 public:
 	/*! \brief Declare a new object to serialize that can be optionally saved, with a description.
 	 *  \param[in] name Name of the object to serialize
@@ -100,7 +115,7 @@ public:
 	 *  serialize_(read/write) method of obj with this new PVSerializeObject.
 	 */
 	template <typename T>
-	bool object(QString const& name, T& obj, QString const& desc = QString(), bool optional = false, typename PVTypeTraits::remove_shared_ptr<T>::type const* def_v = NULL, bool visible = true, bool def_option = true);
+	bool object(QString const& name, T& obj, QString const& desc = QString(), bool optional = false, typename PVTypeTraits::remove_shared_ptr<T>::type const* def_v = NULL, bool visible = true, bool def_option = true, p_type* used_so = NULL);
 
 	/*! \brief Declare a list to serialize. T must be an STL-compliant container. T::value_type must be serializable.
 	 *  \param[in] name Name of the list to serialize
@@ -191,6 +206,14 @@ public:
 	 */
 	size_t buffer(QString const& name, void* buf, size_t n);
 
+	/*! \brief Read a buffer for this object, by just providing the path to its underlying filename.
+	 *  \param[in] name Name of the buffer. This will be used for the underlying filename.
+	 *  \param[in,out] path Path to the file. When reading the archive, this is set to the extracted file path.
+	 *  \return false is the archive is being read, true otherwise.
+	 *  This method can only be used when the archive is being read !
+	 */
+	bool buffer_path(QString const& name, QString& path);
+
 	/*! \brief Include an existing file, given its path.
 	 *  \param[in] name Name of this file. This will be used as the underlying destination filename.
 	 *  \param[in,out] path Path to the file. When reading the archive, this is set to the extracted file path.
@@ -204,6 +227,7 @@ public:
 protected:
 	void error_fixed(PVSerializeArchiveFixError* error);
 	void fix_attribute(QString const& name, QVariant const& v);
+	inline const void* bound_obj() const { return _bound_obj; }
 
 private:
 	p_type create_object(QString const& name, QString const& desc = QString(), bool optional = false, bool visible = true, bool def_option = true);
@@ -311,7 +335,7 @@ private:
 typedef PVSerializeObject::p_type PVSerializeObject_p;
 
 template <typename T>
-bool PVSerializeObject::object(QString const& name, T& obj, QString const& desc, bool optional, typename PVTypeTraits::remove_shared_ptr<T>::type const* def_v, bool visible, bool def_option)
+bool PVSerializeObject::object(QString const& name, T& obj, QString const& desc, bool optional, typename PVTypeTraits::remove_shared_ptr<T>::type const* def_v, bool visible, bool def_option, p_type* used_so)
 {
 	if (optional && is_writing()) {
 		if (!must_write_child(name)) {
@@ -327,6 +351,9 @@ bool PVSerializeObject::object(QString const& name, T& obj, QString const& desc,
 			throw e;
 		}
 		return false;
+	}
+	if (used_so) {
+		*used_so = new_obj;
 	}
 	call_serialize(obj, new_obj, def_v);
 	return true;

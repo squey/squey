@@ -32,7 +32,7 @@
 
 PVSDK::PVMessenger* g_msg;
 
-Picviz::PVAD2GView *g_ad2gv;
+Picviz::PVAD2GView_p g_ad2gv;
 
 void gl_update_view(Picviz::PVView_p view)
 {
@@ -107,7 +107,7 @@ int main(int argc, char** argv)
 	QList<Picviz::PVPlotted_p> plotteds;
 	QList<Picviz::PVView_p> views;
 
-	g_ad2gv = new Picviz::PVAD2GView(scene.get());
+	g_ad2gv.reset(new Picviz::PVAD2GView(scene.get()));
 
 	while (argcount < argc) {
 		// load a source
@@ -134,7 +134,7 @@ int main(int argc, char** argv)
 	PVLOG_INFO("all loaded\n");
 
 	QMainWindow *mw = new QMainWindow();
-	PVWidgets::PVAD2GWidget* ad2g_widget = new PVWidgets::PVAD2GWidget(*g_ad2gv, mw);
+	PVWidgets::PVAD2GWidget* ad2g_widget = new PVWidgets::PVAD2GWidget(g_ad2gv, mw);
 	mw->setCentralWidget(ad2g_widget);
 	mw->show();
 

@@ -2,6 +2,9 @@
 #define PICVIZ_PVAD2GVIEW_H
 
 #include <pvkernel/core/general.h>
+#include <pvkernel/core/PVSerializeArchive.h>
+
+#include <picviz/PVAD2GView_types.h>
 #include <picviz/PVCombiningFunctionView.h>
 #include <picviz/PVCombiningFunctionView_types.h>
 #include <picviz/PVSelection.h>
@@ -46,11 +49,14 @@ namespace __impl {
  */
 class PVAD2GView
 {
+	friend class PVCore::PVSerializeObject;
+
 	typedef boost::function<void(Picviz::PVCombiningFunctionView&, Picviz::PVView& va, Picviz::PVView& vb)> graph_func_t;
 	typedef std::list<tlp::node> graph_path_t;
 	typedef std::set<tlp::node> graph_visited_t;
 	typedef std::pair<PVView*, PVView*> graph_edge_views_t;
 
+	typedef PVAD2GView_p p_type;
 public:
 	PVAD2GView(Picviz::PVScene* scene);
 	~PVAD2GView();
@@ -58,6 +64,8 @@ public:
 public:
 	tlp::Graph *get_graph() { return _graph; }
 	PVScene* get_scene() { return _scene; }
+
+	boost::shared_ptr<tlp::Graph> get_graph_serializable() const;
 
 public:
 	tlp::node add_view(Picviz::PVView *view);
@@ -97,6 +105,8 @@ public:
 
 	tlp::node get_graph_node(const Picviz::PVView *view) const;
 
+	tlp::Graph* get_serializable_sub_graph() const;
+
 private:
 
 	template <class F>
@@ -111,6 +121,16 @@ private:
 
 	int count_path_number(const tlp::node& a, const tlp::node& b) const;
 	void count_path_number_rec(const tlp::node& a, const tlp::node& b, int& count, graph_path_t& path, graph_visited_t& visited)const;
+
+public:
+	void load_from_file(QString const& path);
+	void save_to_file(QString const& path);
+
+protected:
+	void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
+	void serialize_write(PVCore::PVSerializeObject& so);
+
+	PVSERIALIZEOBJECT_SPLIT
 
 private:
 	/* graph tulip object */

@@ -2,12 +2,15 @@
 #include <picviz/PVSelRowFilteringFunction.h>
 #include <picviz/PVTFViewRowFiltering.h>
 #include <picviz/widgets/PVAD2GEdgeEditor.h>
+#include <picviz/widgets/PVCombinOpDelegate.h>
 
+#include <QPushButton>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QComboBox>
 #include <QMessageBox>
+#include <QHeaderView>
 
 PVWidgets::PVAD2GEdgeEditor::PVAD2GEdgeEditor(QWidget* parent /*= 0*/) :
 	QWidget(parent),
@@ -33,7 +36,17 @@ void PVWidgets::PVAD2GEdgeEditor::init()
 	setWindowTitle("Edit combining function");
 
 	// Widgets
-	_list = new PVSizeHintListWidget<QListView>();
+	_list = new PVSizeHintListWidget<QTableView>();
+	_combin_op_delegate = new PVWidgets::PVCombinOpDelegate(this);
+
+	// initializing the QTableView
+	_list->setItemDelegateForColumn(0, _combin_op_delegate);
+	_list->setShowGrid(false);
+	_list->horizontalHeader()->hide();
+	_list->verticalHeader()->hide();
+	_list->setMinimumWidth(_list->horizontalHeader()->length());
+	_list->horizontalHeader()->setStretchLastSection(true);
+
 	_list->setDragDropMode(QAbstractItemView::InternalMove);
 	_list->setDragDropOverwriteMode(true);
 	_list->setMinimumWidth(400);
@@ -100,7 +113,11 @@ void PVWidgets::PVAD2GEdgeEditor::add_function_Slot()
 	Picviz::PVSelRowFilteringFunction_p new_rff = LIB_CLASS(Picviz::PVSelRowFilteringFunction)::get().get_class_by_name(var.toString());
 
 	new_rff = new_rff->clone<Picviz::PVSelRowFilteringFunction>();
-	_rff_list_model->addRow(_list->selectionModel()->currentIndex(), new_rff);
+
+	// make sure the new RFF is added in the correct column (it is force to 1)
+	QModelIndex current_index = _list->selectionModel()->currentIndex();
+	QModelIndex model_index = current_index.sibling(current_index.row(), 1);
+	_rff_list_model->addRow(model_index, new_rff);
 
 	emit rff_list_changed();
 
@@ -108,7 +125,7 @@ void PVWidgets::PVAD2GEdgeEditor::add_function_Slot()
 
 	// Update selection
 	_list->selectionModel()->clearSelection();
-	_list->selectionModel()->setCurrentIndex(_rff_list_model->index(0, 0), QItemSelectionModel::Select);
+	_list->selectionModel()->setCurrentIndex(_rff_list_model->index(0, 1), QItemSelectionModel::Select);
 }
 
 void PVWidgets::PVAD2GEdgeEditor::edit_function_Slot()
@@ -118,6 +135,10 @@ void PVWidgets::PVAD2GEdgeEditor::edit_function_Slot()
 	}
 
 	QModelIndex model_index = _list->selectionModel()->currentIndex();
+
+	if (model_index.column() != 1) {
+		return;
+	}
 
 	Picviz::PVSelRowFilteringFunction_p rff = ((Picviz::PVSelRowFilteringFunction*)model_index.data(Qt::UserRole).value<void*>())->shared_from_this();
 
@@ -144,7 +165,7 @@ void PVWidgets::PVAD2GEdgeEditor::move_function(bool up)
 
 		// Update selection
 		_list->selectionModel()->clearSelection();
-		_list->selectionModel()->setCurrentIndex(_rff_list_model->index(row + (up ? -1 : 1), 0), QItemSelectionModel::Select);
+		_list->selectionModel()->setCurrentIndex(_rff_list_model->index(row + (up ? -1 : 1), 1), QItemSelectionModel::Select);
 	}
 }
 
@@ -165,7 +186,6 @@ void PVWidgets::PVAD2GEdgeEditor::remove_function_Slot()
 	if (!_rff_list_model) {
 		return;
 	}
-
 
 	QModelIndex idx_rem = _list->selectionModel()->currentIndex();
 	if (!idx_rem.isValid()) {

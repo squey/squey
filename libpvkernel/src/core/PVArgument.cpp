@@ -162,6 +162,33 @@ PVCore::PVArgumentList PVCore::QSettings_to_PVArgumentList(QSettings& settings, 
 	return args;
 }
 
+void PVCore::PVArgumentList_to_QDomElement(const PVArgumentList& args, QDomElement& elt)
+{
+	PVArgumentList::const_iterator it;
+	for (it = args.begin(); it != args.end(); it++) {
+		QDomElement arg_elt = elt.ownerDocument().createElement("argument");
+		arg_elt.setAttribute("name", it.key());
+		arg_elt.setAttribute("value", PVArgument_to_QString(it.value())); 
+		elt.appendChild(arg_elt);
+	}
+}
+
+PVCore::PVArgumentList PVCore::QDomElement_to_PVArgumentList(QDomElement const& elt, const PVArgumentList& def_args)
+{
+	// TODO: refaire ça !
+	PVArgumentList args;
+	QDomElement child = elt.firstChildElement("argument");
+	for (; !child.isNull(); child = child.nextSiblingElement("argument")) {
+		QString key = child.attribute("name", "");
+		if (!def_args.contains(key)) {
+			continue;
+		}
+		QString value = child.attribute("value", QString());
+		args[key] = QString_to_PVArgument(value, def_args[key]);
+	}
+	return args;
+}
+
 void PVCore::dump_argument_list(PVArgumentList const& l)
 {
 	PVCore::PVArgumentList::const_iterator it;

@@ -106,6 +106,7 @@
 #include <pvkernel/core/general.h>
 #include <QHash>
 #include <QString>
+#include <QDomElement>
 #include <QVariant>
 
 /*!
@@ -219,6 +220,9 @@ LibKernelDecl PVArgument QString_to_PVArgument(const QString &s, const QVariant&
 
 LibKernelDecl void PVArgumentList_to_QSettings(const PVArgumentList& args, QSettings& settings, const QString& group_name);
 LibKernelDecl PVArgumentList QSettings_to_PVArgumentList(QSettings& settings, const PVArgumentList& def_args, const QString& group_name);
+
+LibKernelDecl void PVArgumentList_to_QDomElement(const PVArgumentList& args, QDomElement& elt);
+LibKernelDecl PVArgumentList QDomElement_to_PVArgumentList(QDomElement const& elt, const PVArgumentList& def_args);
 
 LibKernelDecl void dump_argument_list(PVArgumentList const& l);
 

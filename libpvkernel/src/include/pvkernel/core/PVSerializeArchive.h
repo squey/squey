@@ -62,6 +62,7 @@ protected:
 	const PVSerializeArchiveOptions* get_options() const { return _options.get(); }
 	QDir get_dir_for_object(PVSerializeObject const& so) const;
 	PVSerializeObject_p get_object_by_path(QString const& path) const;
+	bool object_exists_by_path(QString const& path) const;
 
 protected:
 	// If you want to create another way of storing archives, you must reimplement these functions
@@ -76,11 +77,14 @@ protected:
 	virtual void hash_arguments_write(PVSerializeObject const& so, QString const& name, PVArgumentList const& obj);
 	virtual void hash_arguments_read(PVSerializeObject const& so, QString const& name, PVArgumentList& obj, PVArgumentList const& def_args);
 	virtual size_t buffer(PVSerializeObject const& so, QString const& name, void* buf, size_t n);
+	virtual void buffer_path(PVSerializeObject const& so, QString const& name, QString& path);
 	virtual void file(PVSerializeObject const& so, QString const& name, QString& path);
 
 	// Called by PVSerializeObject
 	void repairable_error(boost::shared_ptr<PVSerializeArchiveFixError> const& error);
 	void error_fixed(PVSerializeArchiveFixError* error);
+
+	QString get_object_path_in_archive(const void* obj_ptr) const;
 
 private:
 	void init();

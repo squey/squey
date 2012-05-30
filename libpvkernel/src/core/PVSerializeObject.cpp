@@ -41,6 +41,16 @@ size_t PVCore::PVSerializeObject::buffer(QString const& name, void* buf, size_t 
 	return _parent_ar->buffer(*this, name, buf, n);
 }
 
+bool PVCore::PVSerializeObject::buffer_path(QString const& name, QString& path)
+{
+	if (is_writing()) {
+		return false;
+	}
+
+	_parent_ar->buffer_path(*this, name, path);
+	return true;
+}
+
 void PVCore::PVSerializeObject::file(QString const& name, QString& path)
 {
 	_parent_ar->file(*this, name, path);
@@ -139,6 +149,24 @@ QString const& PVCore::PVSerializeObject::get_logical_path() const
 PVCore::PVSerializeObject* PVCore::PVSerializeObject::parent()
 {
 	return _parent;
+}
+
+bool PVCore::PVSerializeObject::object_exists_by_path(QString const& path) const
+{
+	// This can only be accessed while reading
+	if (is_writing()) {
+		return false;
+	}
+	return _parent_ar->object_exists_by_path(path);
+}
+
+PVCore::PVSerializeObject_p PVCore::PVSerializeObject::get_object_by_path(QString const& path) const
+{
+	// This can only be accessed while reading
+	if (is_writing()) {
+		return PVCore::PVSerializeObject_p();
+	}
+	return get_archive_object_from_path(path);
 }
 
 PVCore::PVSerializeObject_p PVCore::PVSerializeObject::get_archive_object_from_path(QString const& path) const

@@ -3,18 +3,21 @@
 
 #include <QtCore/qstringlist.h>
 #include <QtGui/qabstractitemview.h>
+#include <QtCore/QAbstractTableModel>
 
+#include <pvkernel/core/PVBinaryOperation.h>
 #include <picviz/PVTFViewRowFiltering.h>
 
 namespace PVWidgets {
 
-class PVAD2GRFFListModel : public QAbstractListModel
+class PVAD2GRFFListModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
     PVAD2GRFFListModel(const Picviz::PVView& src_view, const Picviz::PVView& dst_view, Picviz::PVTFViewRowFiltering::list_rff_t &rffs, QObject *parent = 0);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const;
 
     QVariant data(const QModelIndex &index, int role) const;
     bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);

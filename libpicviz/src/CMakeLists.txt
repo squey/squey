@@ -134,6 +134,7 @@ PVScene.cpp
 PVSelection.cpp
 PVSelectionFilter.cpp
 PVSelectionFilterScatterPlotSelectionSquare.cpp
+PVSelRowFilteringFunction.cpp
 PVSquareArea.cpp
 PVSortQVectorQStringList.cpp
 PVSortQVectorQStringListThread.cpp
@@ -167,6 +168,7 @@ include/picviz/widgets/PVAD2GWidget.h
 include/picviz/widgets/PVArgumentListWidgetFactory.h
 include/picviz/widgets/PVViewArgumentEditorCreator.h
 include/picviz/widgets/PVAD2GRFFListModel.h
+include/picviz/widgets/PVCombinOpDelegate.h
 
 include/picviz/widgets/editors/PVAxisIndexEditor.h
 include/picviz/widgets/editors/PVAxisIndexCheckBoxEditor.h
@@ -185,6 +187,7 @@ widgets/PVAD2GFunctionPropertiesWidget.cpp
 widgets/PVAD2GListEdgesWidget.cpp
 widgets/PVArgumentListWidgetFactory.cpp
 widgets/PVAD2GRFFListModel.cpp
+widgets/PVCombinOpDelegate.cpp
 
 widgets/editors/PVAxisIndexEditor.cpp
 widgets/editors/PVAxisIndexCheckBoxEditor.cpp

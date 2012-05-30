@@ -11,12 +11,12 @@ class PVSimpleContainerTmpl
 {
 public:
 	PVSimpleContainerTmpl(int i = 0) { (void)i; }
-	PVSimpleContainerTmpl(T data) { set_data(data); }
+	PVSimpleContainerTmpl(T const& data) { set_data(data); }
 	~PVSimpleContainerTmpl() {}
 
 public:
-	void set_data(T data) { _data = data; }
-	T get_data() const { return _data; }
+	void set_data(T const& data) { _data = data; }
+	T const& get_data() const { return _data; }
 
 public:
 	bool operator != (const PVSimpleContainerTmpl<T> &c) const { return _data != c._data; }

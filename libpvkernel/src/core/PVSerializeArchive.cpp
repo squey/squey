@@ -233,6 +233,12 @@ size_t PVCore::PVSerializeArchive::buffer(PVSerializeObject const& so, QString c
 	}
 }
 
+void PVCore::PVSerializeArchive::buffer_path(PVSerializeObject const& so, QString const& name, QString& path)
+{
+	assert(!is_writing());
+	path = get_dir_for_object(so).absoluteFilePath(name);
+}
+
 bool PVCore::PVSerializeArchive::must_write_object(PVSerializeObject const& parent, QString const& child)
 {
 #ifdef CUSTOMER_CAPABILITY_SAVE
@@ -291,6 +297,11 @@ PVCore::PVSerializeObject_p PVCore::PVSerializeArchive::get_object_by_path(QStri
 	return _objects[path];
 }
 
+bool PVCore::PVSerializeArchive::object_exists_by_path(QString const& path) const
+{
+	return _objects.contains(path);
+}
+
 void PVCore::PVSerializeArchive::repairable_error(boost::shared_ptr<PVSerializeArchiveFixError> const& error)
 {
 	_repairable_errors.push_back(error);
@@ -305,4 +316,20 @@ void PVCore::PVSerializeArchive::error_fixed(PVSerializeArchiveFixError* error)
 			return;
 		}
 	}
+}
+
+QString PVCore::PVSerializeArchive::get_object_path_in_archive(const void* obj_ptr) const
+{
+	if (!obj_ptr) {
+		return QString();
+	}
+
+	QHash<QString, PVSerializeObject_p>::const_iterator it;
+	for (it = _objects.begin(); it != _objects.end(); it++) {
+		if (it.value()->bound_obj() == obj_ptr) {
+			return it.key();
+		}
+	}
+
+	return QString();
 }

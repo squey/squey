@@ -20,7 +20,7 @@
 Picviz::PVScene::PVScene(QString scene_name, PVRoot* parent):
 	_root(parent),
 	_name(scene_name),
-	_ad2g_view(this)
+	_ad2g_view(new PVAD2GView(this))
 {
 }
 
@@ -101,7 +101,7 @@ bool Picviz::PVScene::del_source(const PVSource* src)
 	// Remove underlying views from the AD2G graph
 	PVSource::list_views_t const& views = src->get_views();
 	foreach (Picviz::PVView_p view, views) {
-		_ad2g_view.del_view(view.get());
+		_ad2g_view->del_view(view.get());
 	}
 	
 	// Remove this source's inputs if they are no longer used by other sources
@@ -146,8 +146,8 @@ void Picviz::PVScene::set_views_id()
 
 void Picviz::PVScene::user_modified_sel(PVView* src_view, QList<Picviz::PVView*>* changed_views)
 {
-	_ad2g_view.pre_process();
-	_ad2g_view.run(src_view, changed_views);
+	_ad2g_view->pre_process();
+	_ad2g_view->run(src_view, changed_views);
 }
 
 void Picviz::PVScene::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
@@ -187,6 +187,10 @@ void Picviz::PVScene::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSe
 			add_source(*it);
 		}
 	}
+
+	// Correlation, make this optional for compatibility with old project (so that we are still in version 1 :))
+	_ad2g_view.reset(new Picviz::PVAD2GView(this));
+	so.object("correlation", *_ad2g_view, QObject::tr("Correlation graph"), true);
 }
 
 void Picviz::PVScene::serialize_write(PVCore::PVSerializeObject& so)
@@ -231,6 +235,9 @@ void Picviz::PVScene::serialize_write(PVCore::PVSerializeObject& so)
 		desc << (*it_src)->get_name() + QString(" / ") + (*it_src)->get_format_name();
 	}
 	so.list(QString("sources"), all_sources, QObject::tr("Sources"), (PVSource*) NULL, desc);
+
+	// Correlation (optional)
+	so.object("correlation", *_ad2g_view, QObject::tr("Correlation graph"), true);
 }
 
 PVCore::PVSerializeObject_p Picviz::PVScene::get_so_inputs(PVSource const& src)

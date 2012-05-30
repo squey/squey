@@ -24,6 +24,15 @@
 
 #include <picviz/widgets/PVAD2GInteractor.h>
 
+namespace PVWidgets {
+class AD2GNodeLinkDiagramComponent : public tlp::NodeLinkDiagramComponent
+{
+public:
+	// Disable view standard context menu
+	virtual void buildContextMenu(QObject*, QContextMenuEvent*, QMenu*){};
+	virtual void computeContextMenuAction(QAction*){};
+};
+
 void PVWidgets::__impl::PVTableWidget::mousePressEvent(QMouseEvent* event)
 {
 	if (event->button() == Qt::LeftButton) {
@@ -31,6 +40,9 @@ void PVWidgets::__impl::PVTableWidget::mousePressEvent(QMouseEvent* event)
 	}
 
 	QTableWidget::mousePressEvent(event);
+
+}
+
 }
 
 
@@ -108,18 +120,16 @@ bool PVWidgets::__impl::FilterDropEvent::eventFilter(QObject* /*object*/, QEvent
 	return false;
 }
 
-PVWidgets::PVAD2GWidget::PVAD2GWidget(Picviz::PVAD2GView& ad2g, QWidget* parent):
+PVWidgets::PVAD2GWidget::PVAD2GWidget(Picviz::PVAD2GView_p ad2g, QWidget* parent):
 	QWidget(parent),
 	_ad2g(ad2g),
-	_graph(_ad2g.get_graph())
+	_graph(_ad2g->get_graph())
 {
-	tlp::initTulipLib();
-
 	// Widgets
 	_nodeLinkView = new AD2GNodeLinkDiagramComponent();
 	QWidget* nodeWidget = _nodeLinkView->construct(this);
 	_table = new __impl::PVTableWidget(this);
-	_list_edges_widget = new PVAD2GListEdgesWidget(_ad2g, this);
+	_list_edges_widget = new PVAD2GListEdgesWidget(*_ad2g);
 
 	// Layout
 	QHBoxLayout* graph_views_layout = new QHBoxLayout();
@@ -150,6 +160,7 @@ PVWidgets::PVAD2GWidget::PVAD2GWidget(Picviz::PVAD2GView& ad2g, QWidget* parent)
 
 	init_table();
 	update_list_views();
+	update_list_edges();
 
 	if (_graph) {
 		openGraphOnGlMainWidget(_graph, &dataSet, _nodeLinkView->getGlMainWidget());
@@ -197,7 +208,7 @@ PVWidgets::PVAD2GWidget::~PVAD2GWidget()
 void PVWidgets::PVAD2GWidget::add_view_Slot(QObject* mouse_event)
 {
 	QMouseEvent* event = (QMouseEvent*) mouse_event;
-	Picviz::PVView* view = _ad2g.get_scene()->get_all_views()[_table->currentRow()].get();
+	Picviz::PVView* view = _ad2g->get_scene()->get_all_views()[_table->currentRow()].get();
 	add_view(event->pos(), view);
 }
 
@@ -207,7 +218,7 @@ tlp::node PVWidgets::PVAD2GWidget::add_view(QPoint pos, Picviz::PVView* view)
 	tlp::Observable::holdObservers();
 
 	// Add view to graph
-	tlp::node newNode = _ad2g.add_view(view);
+	tlp::node newNode = _ad2g->add_view(view);
 
 	// Compute view position
 	tlp::Graph* graph = _nodeLinkView->getGlMainWidget()->getScene()->getGlGraphComposite()->getInputData()->getGraph();
@@ -252,7 +263,7 @@ void PVWidgets::PVAD2GWidget::remove_view_Slot(int node)
 		tlp::Observable::holdObservers();
 
 		// Enable item in table
-		Picviz::PVView* view = _ad2g.get_view(n);
+		Picviz::PVView* view = _ad2g->get_view(n);
 		for (int i = 0; i < _table->rowCount(); i++) {
 			QTableWidgetItem* item = _table->item(i, 0);
 			if (item->data(Qt::UserRole).value<void*>() == (void*) view) {
@@ -271,7 +282,7 @@ tlp::edge PVWidgets::PVAD2GWidget::add_combining_function(const tlp::node source
 	tlp::Graph* graph = _nodeLinkView->getGlMainWidget()->getScene()->getGlGraphComposite()->getInputData()->getGraph();
 
 	Picviz::PVCombiningFunctionView_p cf_sp(new Picviz::PVCombiningFunctionView());
-	tlp::edge newEdge = _ad2g.set_edge_f(source, target, cf_sp);
+	tlp::edge newEdge = _ad2g->set_edge_f(source, target, cf_sp);
 
 	_list_edges_widget->update_list_edges();
 
@@ -299,8 +310,8 @@ void PVWidgets::PVAD2GWidget::remove_combining_function_Slot(int edge)
 
 /*void PVWidgets::PVAD2GWidget::select_edge(Picviz::PVView* view_src, Picviz::PVView* view_dst)
 {
-	tlp::node src = _ad2g.get_graph_node(view_src);
-	tlp::node dst = _ad2g.get_graph_node(view_dst);
+	tlp::node src = _ad2g->get_graph_node(view_src);
+	tlp::node dst = _ad2g->get_graph_node(view_dst);
 	tlp::edge edge = _graph->existEdge(src, dst);
 	tlp::Graph* graph = _nodeLinkView->getGlMainWidget()->getScene()->getGlGraphComposite()->getInputData()->getGraph();
 	graph->getProperty<tlp::ColorProperty>("viewColor")->setEdgeValue(edge, tlp::Color(255, 0, 0));
@@ -309,9 +320,9 @@ void PVWidgets::PVAD2GWidget::remove_combining_function_Slot(int edge)
 void PVWidgets::PVAD2GWidget::edit_combining_function(tlp::edge edge, tlp::node src, tlp::node dst)
 {
 
-	Picviz::PVView* view_src = _ad2g.get_view(src);
-	Picviz::PVView* view_dst = _ad2g.get_view(dst);
-	Picviz::PVCombiningFunctionView_p combining_function = _ad2g.get_edge_f(edge);
+	Picviz::PVView* view_src = _ad2g->get_view(src);
+	Picviz::PVView* view_dst = _ad2g->get_view(dst);
+	Picviz::PVCombiningFunctionView_p combining_function = _ad2g->get_edge_f(edge);
 
 	tlp::Graph* graph = _nodeLinkView->getGlMainWidget()->getScene()->getGlGraphComposite()->getInputData()->getGraph();
 	tlp::IntegerProperty* view_id_property = graph->getProperty<tlp::IntegerProperty>("view_id");
@@ -320,7 +331,7 @@ void PVWidgets::PVAD2GWidget::edit_combining_function(tlp::edge edge, tlp::node 
 
 	_list_edges_widget->select_row(src_view_id, dst_view_id);
 
-	_ad2g.set_selected_edge(view_src, view_dst);
+	_ad2g->set_selected_edge(view_src, view_dst);
 
 	//_edge_editor->update(*view_src, *view_dst, *combining_function);
 }
@@ -342,7 +353,7 @@ void PVWidgets::PVAD2GWidget::initObservers()
 
 void PVWidgets::PVAD2GWidget::highlightViewItem(tlp::node n)
 {
-	Picviz::PVView* view = _ad2g.get_view(n);
+	Picviz::PVView* view = _ad2g->get_view(n);
 	for (int i = 0; i < _table->rowCount(); i++) {
 		QTableWidgetItem* item = _table->item(i, 0);
 		item->setSelected(item->data(Qt::UserRole).value<void*>() == (void*) view && n != tlp::node());
@@ -365,7 +376,7 @@ void PVWidgets::PVAD2GWidget::update_list_views()
 	_table->clear();
 	_table->setRowCount(0);
 
-	Picviz::PVScene::list_views_t all_views = _ad2g.get_scene()->get_all_views();
+	Picviz::PVScene::list_views_t all_views = _ad2g->get_scene()->get_all_views();
 	_table->setRowCount(all_views.count());
 	foreach (Picviz::PVView_p view, all_views) {
 		QTableWidgetItem* item = new QTableWidgetItem(view->get_source_parent()->get_name());

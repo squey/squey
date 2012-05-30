@@ -8,7 +8,7 @@
 #include <tulip/TlpQtTools.h>
 
 #include <pvkernel/core/general.h>
-#include <picviz/PVAD2GView.h>
+#include <picviz/PVAD2GView_types.h>
 
 #include <picviz/widgets/PVAD2GEdgeEditor.h>
 
@@ -34,14 +34,7 @@ private:
 
 class AD2GInteractor;
 class AD2GInteractor2;
-
-class AD2GNodeLinkDiagramComponent : public tlp::NodeLinkDiagramComponent
-{
-public:
-	// Disable view standard context menu
-	virtual void buildContextMenu(QObject*, QContextMenuEvent*, QMenu*){};
-	virtual void computeContextMenuAction(QAction*){};
-};
+class AD2GNodeLinkDiagramComponent;
 
 class LibPicvizDecl PVAD2GWidget : public QWidget, public tlp::Observable
 {
@@ -50,8 +43,8 @@ class LibPicvizDecl PVAD2GWidget : public QWidget, public tlp::Observable
 	typedef std::set<tlp::Observable*>::iterator ObserverIterator;
 
 public:
-	PVAD2GWidget(Picviz::PVAD2GView& ad2g, QWidget* parent = NULL);
-	~PVAD2GWidget();
+	PVAD2GWidget(Picviz::PVAD2GView_p ad2g, QWidget* parent = NULL);
+	virtual ~PVAD2GWidget();
 
 public:
 	tlp::node add_view(QPoint pos, Picviz::PVView* view);
@@ -62,7 +55,7 @@ public:
 	void highlightViewItem(tlp::node n);
 
 	__impl::PVTableWidget* get_table() { return _table; }
-	Picviz::PVAD2GView& get_ad2g() { return _ad2g; }
+	Picviz::PVAD2GView& get_ad2g() { return *_ad2g; }
 
 public slots:
 	void update(ObserverIterator /*begin*/, ObserverIterator /*end*/);
@@ -85,7 +78,7 @@ private:
 	void clearObservers();
 
 private:
-	Picviz::PVAD2GView& _ad2g;
+	Picviz::PVAD2GView_p _ad2g;
 	AD2GNodeLinkDiagramComponent* _nodeLinkView;
 	QWidget* _widget;
 	QMainWindow* _mw;

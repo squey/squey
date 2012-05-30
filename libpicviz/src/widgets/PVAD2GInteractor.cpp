@@ -1,3 +1,4 @@
+#include <picviz/PVAD2GView.h>
 #include <picviz/widgets/PVAD2GInteractor.h>
 
 #include <tulip/NodeLinkDiagramComponent.h>

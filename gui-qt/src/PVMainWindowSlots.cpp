@@ -1272,7 +1272,7 @@ void PVInspector::PVMainWindow::show_correlation_Slot()
 	if (!_ad2g_mw) {
 		_ad2g_mw = new QDialog(this);
 		_ad2g_mw->setWindowTitle(tr("Correlations"));
-		PVWidgets::PVAD2GWidget* ad2g_w = new PVWidgets::PVAD2GWidget(_scene->get_ad2g_view(), _ad2g_mw);
+		PVWidgets::PVAD2GWidget* ad2g_w = new PVWidgets::PVAD2GWidget(_scene->get_ad2g_view_p());
 		QVBoxLayout* l = new QVBoxLayout();
 		l->addWidget(ad2g_w);
 		_ad2g_mw->setLayout(l);
