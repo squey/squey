@@ -165,6 +165,7 @@ PVWidgets::PVAD2GWidget::PVAD2GWidget(Picviz::PVAD2GView& ad2g, QWidget* parent)
 
 	init_table();
 	update_list_views();
+	update_list_edges();
 
 	if (_graph) {
 		openGraphOnGlMainWidget(_graph, &dataSet, _nodeLinkView->getGlMainWidget());

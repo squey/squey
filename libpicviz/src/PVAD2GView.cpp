@@ -23,6 +23,9 @@
 #define TLP_NODE_INVALID tlp::node()
 #define TLP_EDGE_INVALID tlp::edge()
 
+#define TLP_CORR_PROPERTY "correlation_property"
+#define TLP_STR_CORR_PROPERTY "correlation_str_property"
+
 /******************************************************************************
  *
  * Classes for Tulip graph property
@@ -209,7 +212,7 @@ Picviz::PVAD2GView::PVAD2GView(Picviz::PVScene* scene) :
 	_scene(scene)
 {
 	_graph = tlp::newGraph();
-	_corr_info = _graph->getLocalProperty<PVAD2GViewCorrelationProperty>("correlationProperty");
+	_corr_info = _graph->getLocalProperty<PVAD2GViewCorrelationProperty>(TLP_CORR_PROPERTY);
 }
 
 /******************************************************************************
@@ -291,7 +294,7 @@ tlp::Graph* Picviz::PVAD2GView::get_serializable_sub_graph() const
 	// if and only if the corresponding nodes (views) are serializable.
 	
 	tlp::Graph* sub_graph = tlp::newGraph();
-	PVAD2GViewCorrelationProperty* sub_corr_info = sub_graph->getLocalProperty<PVAD2GViewCorrelationProperty>("correlationProperty");
+	PVAD2GViewCorrelationProperty* sub_corr_info = sub_graph->getLocalProperty<PVAD2GViewCorrelationProperty>(TLP_CORR_PROPERTY);
 	tlp::copyToGraph(sub_graph, _graph);
 	//sub_corr_info->copy(_corr_info);
 
@@ -360,18 +363,19 @@ tlp::Graph* Picviz::PVAD2GView::get_serializable_sub_graph() const
 	tlp::Graph* sub_graph = tlp::newGraph();
 	tlp::copyToGraph(sub_graph, _graph);
 
-	PVAD2GViewCorrelationProperty* corr_info = _graph->getLocalProperty<PVAD2GViewCorrelationProperty>("correlationProperty");
-	tlp::StringProperty* sub_corr_info = sub_graph->getLocalProperty<tlp::StringProperty>("correlationStringProperty");
+	PVAD2GViewCorrelationProperty* corr_info = sub_graph->getLocalProperty<PVAD2GViewCorrelationProperty>(TLP_CORR_PROPERTY);
+	tlp::StringProperty* sub_corr_info = sub_graph->getLocalProperty<tlp::StringProperty>(TLP_STR_CORR_PROPERTY);
 
 	// Convert every nodes
 	QList<tlp::node> nodes_to_del;
 	tlp::node node;
 	forEach(node, sub_graph->getNodes()) {
 		if (!node.isValid()) {
+			nodes_to_del.push_back(node);
 			continue;
 		}
 		Picviz::PVView const* view = corr_info->getNodeValue(node);
-		if (view || view->get_last_so().expired()) {
+		if (!view || view->get_last_so().expired()) {
 			nodes_to_del.push_back(node);
 			continue;
 		}
@@ -392,7 +396,7 @@ tlp::Graph* Picviz::PVAD2GView::get_serializable_sub_graph() const
 	}
 
 	// Remove correlationProperty
-	_graph->delLocalProperty("correlationProperty");
+	sub_graph->delLocalProperty(TLP_CORR_PROPERTY);
 
 	return sub_graph;
 }
@@ -730,12 +734,12 @@ void Picviz::PVAD2GView::serialize_read(PVCore::PVSerializeObject& so, PVCore::P
 	if (!_graph) {
 		// Fail to load correlation graph !
 		_graph = tlp::newGraph();
-		_corr_info = _graph->getLocalProperty<PVAD2GViewCorrelationProperty>("correlationProperty");
+		_corr_info = _graph->getLocalProperty<PVAD2GViewCorrelationProperty>(TLP_CORR_PROPERTY);
 		return;
 	}
 	// TLP graph properties
-	_corr_info = _graph->getLocalProperty<PVAD2GViewCorrelationProperty>("correlationProperty");
-	tlp::StringProperty* sub_corr_info = _graph->getLocalProperty<tlp::StringProperty>("correlationStringProperty");
+	_corr_info = _graph->getLocalProperty<PVAD2GViewCorrelationProperty>(TLP_CORR_PROPERTY);
+	tlp::StringProperty* sub_corr_info = _graph->getLocalProperty<tlp::StringProperty>(TLP_STR_CORR_PROPERTY);
 
 	// Convert edges to PVCombiningFunctionView
 	tlp::edge e;
@@ -770,7 +774,7 @@ void Picviz::PVAD2GView::serialize_read(PVCore::PVSerializeObject& so, PVCore::P
 		}
 	}
 
-	_graph->delLocalProperty("correlationStringProperty");
+	_graph->delLocalProperty(TLP_STR_CORR_PROPERTY);
 
 	// Remove invalid nodes
 	/*foreach(node, nodes_to_del) {
