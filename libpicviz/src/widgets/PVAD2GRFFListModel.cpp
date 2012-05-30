@@ -160,6 +160,21 @@ Picviz::PVTFViewRowFiltering::list_rff_t& PVWidgets::PVAD2GRFFListModel::get_rff
     return _rffs;
 }
 
+void PVWidgets::PVAD2GRFFListModel::move_index(QModelIndex idx, bool up)
+{
+	QVariant var = data(idx, Qt::UserRole);
+
+	int old_row = idx.row();
+	int new_row = old_row + (up ? -1 : 1);
+	removeRows(old_row, 1);
+	insertRows(new_row, 1, QModelIndex());
+
+	QModelIndex new_idx = index(new_row, idx.column(), QModelIndex());
+	setData(new_idx, var, Qt::UserRole);
+
+	//emit dataChanged(new_idx, new_idx);
+}
+
 Qt::DropActions PVWidgets::PVAD2GRFFListModel::supportedDropActions() const
 {
     return QAbstractItemModel::supportedDropActions() | Qt::MoveAction;

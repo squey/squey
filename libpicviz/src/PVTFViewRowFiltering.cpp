@@ -30,7 +30,9 @@ Picviz::PVSelection Picviz::PVTFViewRowFiltering::operator()(PVView const& view_
 		PVCore::dump_argument_list(rff_p->get_args());
 	}
 
-#pragma omp parallel for
+	PVSelection sel_tmp_row;
+	PVSelection sel_tmp_rff;
+//#pragma omp parallel for
 	for (PVRow r = 0; r < nlines_sel; r++) {
 		if (!sel_org.get_line(r)) {
 			continue;
@@ -38,11 +40,45 @@ Picviz::PVSelection Picviz::PVTFViewRowFiltering::operator()(PVView const& view_
 
 		//sel_line.select_none();
 		// sel_line will be filtered by the different RFF (row filtering functions).
+
+		int index = 0;
+		sel_tmp_row.select_none();
 		foreach(PVSelRowFilteringFunction_p const& rff_p, _rffs) {
-			(*rff_p)(r, view_src, view_dst, sel_ret);
+
+			sel_tmp_rff.select_none();
+			(*rff_p)(r, view_src, view_dst, sel_tmp_rff);
+
+			switch (rff_p->get_combination_op() /*index*/) {
+				case PVCore::PVBinaryOperation::OR:
+				{
+					sel_tmp_row |= sel_tmp_rff;
+					//sel_tmp_row.or_optimized(sel_tmp_rff);
+					break;
+				}
+				case PVCore::PVBinaryOperation::AND:
+				{
+					sel_tmp_row &= sel_tmp_rff;
+					break;
+				}
+				case PVCore::PVBinaryOperation::XOR:
+				{
+					sel_tmp_row ^= sel_tmp_rff;
+				}
+				case PVCore::PVBinaryOperation::NOT:
+				{
+					sel_tmp_row = ~sel_tmp_rff;
+					break;
+				}
+				default:
+				{
+					assert(false);
+				}
+			}
+			index++;
 		}
 
-		//sel_ret |= sel_line;
+		sel_ret |= sel_tmp_row;
+		//sel_ret.or_optimized(sel_tmp_row);
 	}
 
 	BENCH_END(merge, "merge", 1, 1, 1, 1);

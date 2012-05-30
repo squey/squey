@@ -20,6 +20,7 @@ PVWidgets::PVAD2GEdgeEditor::PVAD2GEdgeEditor(QWidget* parent /*= 0*/) :
 {
 	init();
 }
+
 PVWidgets::PVAD2GEdgeEditor::PVAD2GEdgeEditor(Picviz::PVView const& view_org, Picviz::PVView const& view_dst, Picviz::PVCombiningFunctionView& cf, QWidget* parent /*= 0*/):
 	QWidget(parent),
 	_rff_list_model(NULL),
@@ -53,14 +54,16 @@ void PVWidgets::PVAD2GEdgeEditor::init()
 	_function_combo = new QComboBox();
 	init_combo_list_rffs();
 
-	QPushButton* btn_add = new QPushButton(tr("+"));
-	QPushButton* btn_edit = new QPushButton(tr("Edit"));
-	QPushButton* btn_remove = new QPushButton(tr("Remove"));
+	QPushButton* btn_add = new QPushButton(tr("Add"));
+	_btn_up = new QPushButton(tr("Up"));
+	_btn_down = new QPushButton(tr("Down"));
+	_btn_remove = new QPushButton(tr("Remove"));
 
 	// Connections
 	connect(btn_add, SIGNAL(clicked()), this, SLOT(add_function_Slot()));
-	connect(btn_edit, SIGNAL(clicked()), this, SLOT(edit_function_Slot()));
-	connect(btn_remove, SIGNAL(clicked()), this, SLOT(remove_function_Slot()));
+	connect(_btn_remove, SIGNAL(clicked()), this, SLOT(remove_function_Slot()));
+	connect(_btn_up, SIGNAL(clicked()), this, SLOT(move_function_up_Slot()));
+	connect(_btn_down, SIGNAL(clicked()), this, SLOT(move_function_down_Slot()));
 	connect(_list, SIGNAL(clicked(const QModelIndex &)), this, SLOT(edit_function_Slot()));
 
 	// Layout
@@ -70,8 +73,9 @@ void PVWidgets::PVAD2GEdgeEditor::init()
 	buttons_layout->addWidget(function_label);
 	buttons_layout->addWidget(_function_combo);
 	buttons_layout->addWidget(btn_add);
-	buttons_layout->addWidget(btn_edit);
-	buttons_layout->addWidget(btn_remove);
+	buttons_layout->addWidget(_btn_up);
+	buttons_layout->addWidget(_btn_down);
+	buttons_layout->addWidget(_btn_remove);
 	list_buttons_layout->addWidget(_list);
 	list_buttons_layout->addLayout(buttons_layout);
 	main_layout->addLayout(list_buttons_layout);
@@ -87,6 +91,7 @@ void PVWidgets::PVAD2GEdgeEditor::set_cf(Picviz::PVView const& view_org, Picviz:
 	_view_dst = &view_dst;
 	_rff_list_model = new PVAD2GRFFListModel(view_org, view_dst, cf.get_first_tf()->get_rffs());
 	_list->setModel(_rff_list_model);
+	connect(_list->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)), this, SLOT(update_buttons_status()));
 }
 
 void PVWidgets::PVAD2GEdgeEditor::init_combo_list_rffs()
@@ -111,6 +116,12 @@ void PVWidgets::PVAD2GEdgeEditor::add_function_Slot()
 	_rff_list_model->addRow(_list->selectionModel()->currentIndex(), new_rff);
 
 	emit rff_list_changed();
+
+	update_buttons_status();
+
+	// Update selection
+	_list->selectionModel()->clearSelection();
+	_list->selectionModel()->setCurrentIndex(_rff_list_model->index(0, 0), QItemSelectionModel::Select);
 }
 
 void PVWidgets::PVAD2GEdgeEditor::edit_function_Slot()
@@ -130,6 +141,28 @@ void PVWidgets::PVAD2GEdgeEditor::edit_function_Slot()
 	_cur_edited_rff_index = model_index;
 
 	emit update_fonction_properties(*_view_org, *_view_dst, rff);
+}
+
+void PVWidgets::PVAD2GEdgeEditor::update_buttons_status()
+{
+	QModelIndex model_index = _list->selectionModel()->currentIndex();
+	_btn_up->setEnabled(model_index.row() > 0);
+	_btn_down->setEnabled(model_index.row() < _rff_list_model->rowCount()-1 && _rff_list_model->rowCount() > 1);
+	_btn_remove->setEnabled(_rff_list_model->rowCount() > 0);
+}
+
+void PVWidgets::PVAD2GEdgeEditor::move_function(bool up)
+{
+	QModelIndexList items = _list->selectionModel()->selectedIndexes();
+	if (items.count() == 1) {
+		QModelIndex index = items.at(0);
+		int row = index.row();
+		_rff_list_model->move_index(index, up);
+
+		// Update selection
+		_list->selectionModel()->clearSelection();
+		_list->selectionModel()->setCurrentIndex(_rff_list_model->index(row + (up ? -1 : 1), 0), QItemSelectionModel::Select);
+	}
 }
 
 void PVWidgets::PVAD2GEdgeEditor::update_item_Slot(const Picviz::PVSelRowFilteringFunction_p& rff)
@@ -163,5 +196,6 @@ void PVWidgets::PVAD2GEdgeEditor::remove_function_Slot()
 			emit cur_rff_removed();
 		}
 		_list->model()->removeRow(_list->selectionModel()->currentIndex().row());
+		update_buttons_status();
 	}
 }
