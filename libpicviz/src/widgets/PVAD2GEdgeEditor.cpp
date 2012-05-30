@@ -113,7 +113,11 @@ void PVWidgets::PVAD2GEdgeEditor::add_function_Slot()
 	Picviz::PVSelRowFilteringFunction_p new_rff = LIB_CLASS(Picviz::PVSelRowFilteringFunction)::get().get_class_by_name(var.toString());
 
 	new_rff = new_rff->clone<Picviz::PVSelRowFilteringFunction>();
-	_rff_list_model->addRow(_list->selectionModel()->currentIndex(), new_rff);
+
+	// make sure the new RFF is added in the correct column (it is force to 1)
+	QModelIndex current_index = _list->selectionModel()->currentIndex();
+	QModelIndex model_index = current_index.sibling(current_index.row(), 1);
+	_rff_list_model->addRow(model_index, new_rff);
 
 	emit rff_list_changed();
 
@@ -161,7 +165,7 @@ void PVWidgets::PVAD2GEdgeEditor::move_function(bool up)
 
 		// Update selection
 		_list->selectionModel()->clearSelection();
-		_list->selectionModel()->setCurrentIndex(_rff_list_model->index(row + (up ? -1 : 1), 0), QItemSelectionModel::Select);
+		_list->selectionModel()->setCurrentIndex(_rff_list_model->index(row + (up ? -1 : 1), 1), QItemSelectionModel::Select);
 	}
 }
 
