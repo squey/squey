@@ -1,9 +1,10 @@
 #ifndef __PVAD2GEDGEEDITOR_H__
 #define __PVAD2GEDGEEDITOR_H__
 
+#include <QComboBox>
 #include <QDialog>
 #include <QListView>
-#include <QComboBox>
+#include <QPushButton>
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/widgets/PVSizeHintListWidget.h>
@@ -33,9 +34,12 @@ public:
 
 public slots:
 	void add_function_Slot();
+	void move_function_up_Slot() {move_function(true);}
+	void move_function_down_Slot() {move_function(false);}
 	void edit_function_Slot();
 	void remove_function_Slot();
 	void update_item_Slot(const Picviz::PVSelRowFilteringFunction_p& rff);
+	void update_buttons_status();
 
 signals:
 	void update_fonction_properties(const Picviz::PVView& view_org, const Picviz::PVView& view_dst, Picviz::PVSelRowFilteringFunction_p& rff);
@@ -46,6 +50,7 @@ private:
 	void init();
 	bool edit_rff(Picviz::PVSelRowFilteringFunction_p& rff);
 	void init_combo_list_rffs();
+	void move_function(bool up);
 
 private:
 	PVAD2GRFFListModel* _rff_list_model;
@@ -55,6 +60,10 @@ private:
 
 	PVSizeHintListWidget<QListView>* _list;
 	QComboBox* _function_combo;
+
+	QPushButton* _btn_up;
+	QPushButton* _btn_down;
+	QPushButton* _btn_remove;
 
 	/*Picviz::PVTFViewRowFiltering& _tf;*/
 

@@ -2,7 +2,7 @@
 #include <picviz/PVSelRowFilteringFunction.h>
 
 PVWidgets::PVAD2GRFFListModel::PVAD2GRFFListModel(const Picviz::PVView& src_view, const Picviz::PVView& dst_view, Picviz::PVTFViewRowFiltering::list_rff_t &rffs, QObject *parent /*= 0*/) :
-	QAbstractListModel(parent),
+QAbstractListModel(parent),
 	_rffs(rffs),
 	_src_view(src_view),
 	_dst_view(dst_view)
@@ -103,6 +103,21 @@ bool PVWidgets::PVAD2GRFFListModel::removeRows(int row, int count, const QModelI
 Picviz::PVTFViewRowFiltering::list_rff_t& PVWidgets::PVAD2GRFFListModel::get_rffs() const
 {
     return _rffs;
+}
+
+void PVWidgets::PVAD2GRFFListModel::move_index(QModelIndex idx, bool up)
+{
+	QVariant var = data(idx, Qt::UserRole);
+
+	int old_row = idx.row();
+	int new_row = old_row + (up ? -1 : 1);
+	removeRows(old_row, 1);
+	insertRows(new_row, 1, QModelIndex());
+
+	QModelIndex new_idx = index(new_row, idx.column(), QModelIndex());
+	setData(new_idx, var, Qt::UserRole);
+
+	//emit dataChanged(new_idx, new_idx);
 }
 
 Qt::DropActions PVWidgets::PVAD2GRFFListModel::supportedDropActions() const
