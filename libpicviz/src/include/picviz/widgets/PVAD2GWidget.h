@@ -65,7 +65,6 @@ public:
 	Picviz::PVAD2GView& get_ad2g() { return _ad2g; }
 
 public slots:
-	void update_interactor_Slot();
 	void update(ObserverIterator /*begin*/, ObserverIterator /*end*/);
 	void observableDestroyed(tlp::Observable* /*observable*/) {}
 

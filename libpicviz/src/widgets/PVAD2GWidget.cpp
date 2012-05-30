@@ -90,7 +90,7 @@ bool PVWidgets::__impl::FilterDropEvent::eventFilter(QObject* /*object*/, QEvent
 		}
 	}
 	////
-	else if (event->type() == QEvent::KeyPress) {
+	/*else if (event->type() == QEvent::KeyPress) {
 		QKeyEvent* qKeyEvent = (QKeyEvent*) event;
 		if (qKeyEvent->key() == Qt::Key_AltGr) {
 			PVAD2GWidget* widget = (PVAD2GWidget*) parent();
@@ -103,7 +103,7 @@ bool PVWidgets::__impl::FilterDropEvent::eventFilter(QObject* /*object*/, QEvent
 			PVAD2GWidget* widget = (PVAD2GWidget*) parent();
 			widget->set_edit_graph(true);
 		}
-	}
+	}*/
 
 	return false;
 }
@@ -121,35 +121,20 @@ PVWidgets::PVAD2GWidget::PVAD2GWidget(Picviz::PVAD2GView& ad2g, QWidget* parent)
 	_table = new __impl::PVTableWidget(this);
 	_list_edges_widget = new PVAD2GListEdgesWidget(_ad2g, this);
 
-	QHBoxLayout* radio_layout = new QHBoxLayout();
-	_radio_edit_graph = new QRadioButton(tr("Edit graph"));
-	_radio_edit_graph->setChecked(true);
-	_radio_edit_layout = new QRadioButton(tr("Edit layout"));
-	_radio_edit_layout->setToolTip(tr("Use AltGr to edit graph layout"));
-	radio_layout->addWidget(_radio_edit_graph);
-	radio_layout->addWidget(_radio_edit_layout);
-	radio_layout->addStretch(1);
-
-	connect(_radio_edit_graph, SIGNAL(toggled(bool)), this, SLOT(update_interactor_Slot()));
-	connect(_radio_edit_layout, SIGNAL(toggled(bool)), this, SLOT(update_interactor_Slot()));
-
 	// Layout
 	QHBoxLayout* graph_views_layout = new QHBoxLayout();
 	QVBoxLayout* graph_radio_layout = new QVBoxLayout();
 	graph_radio_layout->addWidget(nodeWidget);
-	graph_radio_layout->addLayout(radio_layout);
 	graph_views_layout->addLayout(graph_radio_layout);
 	graph_views_layout->addWidget(_table);
 	QHBoxLayout* edges_properties_layout = new QHBoxLayout();
 	edges_properties_layout->addWidget(_list_edges_widget);
 	QVBoxLayout* main_layout = new QVBoxLayout();
 	main_layout->addLayout(graph_views_layout);
-	main_layout->addLayout(radio_layout);
 	main_layout->addLayout(edges_properties_layout);
 	setLayout(main_layout);
 
 	_ad2g_interactor = new AD2GInteractor(this, _nodeLinkView->getGlMainWidget());
-	_ad2g_interactor2 = new AD2GInteractor2(this, _nodeLinkView->getGlMainWidget());
 	_nodeLinkView->setActiveInteractor(_ad2g_interactor);
 
 	_nodeLinkView->hideOverview(true);
@@ -202,17 +187,6 @@ void PVWidgets::PVAD2GWidget::set_edit_graph(bool edit_graph)
 		_radio_edit_layout->setChecked(true);
 	}
 }
-
-void PVWidgets::PVAD2GWidget::update_interactor_Slot()
-{
-	if (_radio_edit_graph->isChecked()) {
-		_nodeLinkView->setActiveInteractor(_ad2g_interactor);
-	}
-	else {
-		_nodeLinkView->setActiveInteractor(_ad2g_interactor2);
-	}
-}
-
 
 PVWidgets::PVAD2GWidget::~PVAD2GWidget()
 {

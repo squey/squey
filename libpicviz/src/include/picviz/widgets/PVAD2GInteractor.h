@@ -14,11 +14,13 @@
 #include <tulip/ObservableProperty.h>
 #include <tulip/ObservableGraph.h>
 #include <tulip/TlpQtTools.h>
-
 #include <tulip/MouseInteractors.h>
-#include <tulip/MouseSelector.h>
 #include <tulip/MouseEdgeBendEditor.h>
-#include <tulip/MouseSelectionEditor.h>
+
+#include <picviz/widgets/PVMouseSelectionEditor.h>
+#include <picviz/widgets/PVMouseSelector.h>
+#include <pvkernel/core/general.h>
+
 
 namespace PVWidgets {
 
@@ -45,6 +47,8 @@ protected:
 
 private:
 	void abortEdgeTracing();
+	void mMouseTranslate(tlp::node, double newX, double newY, GlMainWidget *glMainWidget);
+	void update_selection(tlp::Graph* graph, tlp::GlMainWidget* glMainWidget, bool hoveringOverNode, bool hoveringOverEdge);
 
 protected:
 	Qt::MouseButton mButton;
@@ -65,6 +69,8 @@ protected:
 	tlp::node _tmpNode;
 	tlp::edge _tmpEdge;
 	tlp::ElementType _type;
+	Coord _editPosition;
+	bool _translation_started;
 };
 
 /**
@@ -87,40 +93,13 @@ public:
 		_component1 = new AD2GInteractorComponent(_widget, _glMainWidget);
 		pushInteractorComponent(_component1);
 	}
-	virtual bool isCompatible(const std::string &/*viewName*/) {return false;}
+	virtual bool isCompatible(const std::string &/*viewName*/) {return true;}
 
 private:
 	AD2GInteractorComponent* _component1;
 	PVAD2GWidget* _widget;
 	tlp::GlMainWidget* _glMainWidget;
 };
-
-class AD2GInteractor2 : public tlp::InteractorChainOfResponsibility
-{
-	Q_OBJECT
-
-public:
-	AD2GInteractor2(PVAD2GWidget* widget, tlp::GlMainWidget* glMainWidget):
-		tlp::InteractorChainOfResponsibility("", "Edit layout"),
-		_widget(widget),
-		_glMainWidget(glMainWidget)
-	{
-		construct();
-	}
-	void construct()
-	{
-	    pushInteractorComponent(new tlp::MouseSelector);
-	    pushInteractorComponent(new tlp::MouseSelectionEditor);
-	    pushInteractorComponent(new tlp::MouseEdgeBendEditor);
-	}
-	virtual bool isCompatible(const std::string &/*viewName*/) {return false;}
-
-private:
-	AD2GInteractorComponent* _component1;
-	PVAD2GWidget* _widget;
-	tlp::GlMainWidget* _glMainWidget;
-};
-
 
 }
 

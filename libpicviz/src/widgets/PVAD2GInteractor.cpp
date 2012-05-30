@@ -8,7 +8,8 @@
 
 PVWidgets::AD2GInteractorComponent::AD2GInteractorComponent(PVAD2GWidget* widget, tlp::GlMainWidget* glMainWidget, Qt::MouseButton /*button*/ /*= Qt::LeftButton*/, Qt::KeyboardModifier /*modifier*/ /*= Qt::NoModifier*/) :
 	_widget(widget),
-	_glMainWidget(glMainWidget)
+	_glMainWidget(glMainWidget),
+	_translation_started(false)
 {
 	_deleteNodeSignalMapper = new QSignalMapper(this);
 	connect(_deleteNodeSignalMapper, SIGNAL(mapped(int)), _widget, SLOT(remove_view_Slot(int)));
@@ -24,13 +25,18 @@ PVWidgets::AD2GInteractorComponent::AD2GInteractorComponent(PVAD2GWidget* widget
 
 bool PVWidgets::AD2GInteractorComponent::eventFilter(QObject* widget, QEvent* e)
 {
-	if (!(e->type() == QEvent::MouseButtonPress || e->type() == QEvent::MouseButtonRelease || e->type() == QEvent::MouseMove || e->type() == QEvent::KeyPress || e->type() == QEvent::MouseButtonDblClick)) {
+	if (!(e->type() == QEvent::MouseButtonPress || e->type() == QEvent::MouseButtonRelease || e->type() == QEvent::MouseMove || e->type() == QEvent::KeyPress || e->type() == QEvent::KeyRelease || e->type() == QEvent::MouseButtonDblClick)) {
 		return false;
 	}
 
 	tlp::GlMainWidget* glMainWidget = (tlp::GlMainWidget* ) widget;
 	tlp::Graph* graph = glMainWidget->getScene()->getGlGraphComposite()->getInputData()->getGraph();
 	tlp::LayoutProperty* mLayout = graph->getProperty<tlp::LayoutProperty>(glMainWidget->getScene()->getGlGraphComposite()->getInputData()->getElementLayoutPropName());
+
+	if (e->type() == QEvent::MouseButtonRelease)
+	{
+		_translation_started = false;
+	}
 
 	if (e->type() == QEvent::KeyPress) {
 		QKeyEvent* qKeyEvent = (QKeyEvent*) e;
@@ -50,6 +56,15 @@ bool PVWidgets::AD2GInteractorComponent::eventFilter(QObject* widget, QEvent* e)
 			abortEdgeTracing();
 			return true;
 		}
+		else if (qKeyEvent->key() == Qt::Key_Control) {
+			glMainWidget->setCursor(QCursor(Qt::PointingHandCursor));
+		}
+	}
+	else if (e->type() == QEvent::KeyRelease) {
+		QKeyEvent* qKeyEvent = (QKeyEvent*) e;
+		if (qKeyEvent->key() == Qt::Key_Control) {
+			glMainWidget->setCursor(QCursor(Qt::ArrowCursor));
+		}
 	}
 	else {
 		QMouseEvent* qMouseEv = (QMouseEvent*) e;
@@ -57,144 +72,170 @@ bool PVWidgets::AD2GInteractorComponent::eventFilter(QObject* widget, QEvent* e)
 		bool hoveringOverNode = glMainWidget->doSelect(qMouseEv->x(), qMouseEv->y(), _type, _tmpNode, _tmpEdge) && _type == tlp::NODE;
 		bool hoveringOverEdge = glMainWidget->doSelect(qMouseEv->x(), qMouseEv->y(), _type, _tmpNode, _tmpEdge) && _type == tlp::EDGE;
 
-		if (qMouseEv->button()==Qt::LeftButton) {
-			if (qMouseEv->type() == QEvent::MouseButtonDblClick) {
-				if (hoveringOverEdge) {
-					tlp::node src = graph->source(_tmpEdge);
-					tlp::node dst = graph->target(_tmpEdge);
+		// Edit graph layout
+		if (qMouseEv->modifiers() & Qt::ControlModifier) {
 
-					_widget->edit_combining_function(_tmpEdge, src, dst);
-					return true;
-				}
-				return false;
+			update_selection(graph, glMainWidget, hoveringOverNode, hoveringOverEdge);
+
+			if (e->type() == QEvent::MouseButtonPress && qMouseEv->button()==Qt::LeftButton) {
+				_translation_started = true;
+
+				_editPosition[0] = qMouseEv->x();
+				_editPosition[1] = qMouseEv->y();
 			}
-			// Start edge tracing
-			else if(e->type() == QEvent::MouseButtonPress && !_edge_started) {
-				if (hoveringOverNode) {
-					_edge_started=true;
-					initObserver(graph);
-					_source=_tmpNode;
-					_curPos=_startPos=mLayout->getNodeValue(_source);
-					return true;
+			else if (e->type() == QEvent::MouseMove)
+			{
+				if (_translation_started && _tmpNode.isValid()) {
+					mMouseTranslate(_tmpNode, qMouseEv->x(), qMouseEv->y(), glMainWidget);
 				}
-				return false;
 			}
-			// Finish edge tracing
-			else if(e->type() == QEvent::MouseButtonRelease && _edge_started) {
-				if (hoveringOverNode) {
-					tlp::Observable::holdObservers();
-					_edge_started = false;
-					clearObserver();
-
-					if (_source == _tmpNode) {
-						if(! _bends.empty()) {
-							//QMessageBox* box = new QMessageBox(QMessageBox::Critical, tr("Invalid edge."), tr("Invalid edge."), QMessageBox::Ok, _widget);
-							//box->exec();
-						}
-					}
-					else if (_widget->get_ad2g().get_graph()->existEdge(_source, _tmpNode, true) != tlp::edge()) {
-						QMessageBox* box = new QMessageBox(QMessageBox::Critical, tr("Edge already exist."), tr("This edge is already existing."), QMessageBox::Ok, _widget);
-						box->exec();
-					}
-					else {
-//						QMenu* menu = new QMenu;
-//						QAction* directed = new QAction(tr("Directed"), menu);
-//						QAction* undirected = new QAction(tr("Undirected"), menu);
-//						menu->addAction(directed);
-//						menu->addAction(undirected);
-//						if (menu->exec(qMouseEv->globalPos()) == undirected) {
-//							addLink(_widget, _tmpNode, _source);
-//						}
-						addLink(_widget, _source, _tmpNode);
-					}
-					_bends.clear();
-
-					tlp::Observable::unholdObservers();
-				}
-				else {
-				  tlp::Coord point(glMainWidget->width() - qMouseEv->x(), qMouseEv->y(), 0);
-				  _bends.push_back(glMainWidget->getScene()->getCamera().screenTo3DWorld(point));
-				}
-			  }
-			  glMainWidget->redraw();
-
-			  return true;
 		}
-
-		// Abort edge tracing
-		if (qMouseEv->buttons() == Qt::MidButton) {
-			abortEdgeTracing();
-			return true;
-		}
-
-		if (qMouseEv->button() == Qt::RightButton) {
-
-			QMenu* menu = new QMenu;
-			QAction* my_action;
-
-			if (hoveringOverNode) {
-				my_action = new QAction(tr("Remove view"), menu);
-				connect(my_action, SIGNAL(triggered()), _deleteNodeSignalMapper, SLOT(map()));
-				_deleteNodeSignalMapper->setMapping(my_action, (int)_tmpNode);
-			}
-			else if (hoveringOverEdge) {
-				my_action = new QAction(tr("Remove combining function"), menu);
-				connect(my_action, SIGNAL(triggered()), _deleteEdgeSignalMapper, SLOT(map()));
-				_deleteEdgeSignalMapper->setMapping(my_action, (int)_tmpEdge);
-			}
-			else {
-//				my_action = new QAction(tr("Add selected view"), menu);
-//				connect(my_action, SIGNAL(triggered()), _addNodeSignalMapper, SLOT(map()));
-//				_addNodeSignalMapper->setMapping(my_action, (QObject*) qMouseEv);
-				return false;
-
-			}
-
-			menu->addAction(my_action);
-			menu->exec(qMouseEv->globalPos());
-			return true;
-		}
-
-		if  (e->type() == QEvent::MouseMove) {
-			if (_edge_started) {
-				tlp::Coord point(glMainWidget->width() - qMouseEv->x(), qMouseEv->y(), 0);
-				point = glMainWidget->getScene()->getCamera().screenTo3DWorld(point);
-				_curPos.set(point[0], point[1], point[2]);
-				glMainWidget->redraw();
-			}
-			else {
-				std::string selectionPropertyName=glMainWidget->getScene()->getGlGraphComposite()->getInputData()->getElementSelectedPropName();
-				tlp::BooleanProperty* selection=graph->getProperty<tlp::BooleanProperty>(selectionPropertyName);
-
-				if (hoveringOverNode) {
-					if (!selection->getNodeValue(_tmpNode)) {
-						selection->setAllEdgeValue(false);
-						selection->setAllNodeValue(false);
-						selection->setNodeValue(_tmpNode, true);
-						_widget->highlightViewItem(_tmpNode);
-					}
-				}
-				else {
-					_widget->highlightViewItem(tlp::node());
+		else {
+			if (qMouseEv->button()==Qt::LeftButton) {
+				if (qMouseEv->type() == QEvent::MouseButtonDblClick) {
 					if (hoveringOverEdge) {
-						if (!selection->getEdgeValue(_tmpEdge)) {
-							selection->setAllEdgeValue(false);
-							selection->setAllNodeValue(false);
-							selection->setEdgeValue(_tmpEdge, true);
+						tlp::node src = graph->source(_tmpEdge);
+						tlp::node dst = graph->target(_tmpEdge);
+
+						_widget->edit_combining_function(_tmpEdge, src, dst);
+						return true;
+					}
+					return false;
+				}
+				// Start edge tracing
+				else if(e->type() == QEvent::MouseButtonPress && !_edge_started) {
+					if (hoveringOverNode) {
+						_edge_started=true;
+						initObserver(graph);
+						_source=_tmpNode;
+						_curPos=_startPos=mLayout->getNodeValue(_source);
+						return true;
+					}
+					return false;
+				}
+				// Finish edge tracing
+				else if(e->type() == QEvent::MouseButtonRelease && _edge_started) {
+					if (hoveringOverNode) {
+						tlp::Observable::holdObservers();
+						_edge_started = false;
+						clearObserver();
+
+						if (_source == _tmpNode) {
+							if(! _bends.empty()) {
+								//QMessageBox* box = new QMessageBox(QMessageBox::Critical, tr("Invalid edge."), tr("Invalid edge."), QMessageBox::Ok, _widget);
+								//box->exec();
+							}
 						}
+						else if (_widget->get_ad2g().get_graph()->existEdge(_source, _tmpNode, true) != tlp::edge()) {
+							QMessageBox* box = new QMessageBox(QMessageBox::Critical, tr("Edge already exist."), tr("This edge is already existing."), QMessageBox::Ok, _widget);
+							box->exec();
+						}
+						else {
+	//						QMenu* menu = new QMenu;
+	//						QAction* directed = new QAction(tr("Directed"), menu);
+	//						QAction* undirected = new QAction(tr("Undirected"), menu);
+	//						menu->addAction(directed);
+	//						menu->addAction(undirected);
+	//						if (menu->exec(qMouseEv->globalPos()) == undirected) {
+	//							addLink(_widget, _tmpNode, _source);
+	//						}
+							addLink(_widget, _source, _tmpNode);
+						}
+						_bends.clear();
+
+						tlp::Observable::unholdObservers();
 					}
 					else {
-						selection->setAllEdgeValue(false);
-						selection->setAllNodeValue(false);
+					  tlp::Coord point(glMainWidget->width() - qMouseEv->x(), qMouseEv->y(), 0);
+					  _bends.push_back(glMainWidget->getScene()->getCamera().screenTo3DWorld(point));
 					}
-				}
+				  }
+				  glMainWidget->redraw();
+
+				  return true;
 			}
 
-			return true;
+
+			// Abort edge tracing
+			if (qMouseEv->buttons() == Qt::MidButton) {
+				abortEdgeTracing();
+				return true;
+			}
+
+			if (qMouseEv->button() == Qt::RightButton) {
+
+				QMenu* menu = new QMenu;
+				QAction* my_action;
+
+				if (hoveringOverNode) {
+					my_action = new QAction(tr("Remove view"), menu);
+					connect(my_action, SIGNAL(triggered()), _deleteNodeSignalMapper, SLOT(map()));
+					_deleteNodeSignalMapper->setMapping(my_action, (int)_tmpNode);
+				}
+				else if (hoveringOverEdge) {
+					my_action = new QAction(tr("Remove combining function"), menu);
+					connect(my_action, SIGNAL(triggered()), _deleteEdgeSignalMapper, SLOT(map()));
+					_deleteEdgeSignalMapper->setMapping(my_action, (int)_tmpEdge);
+				}
+				else {
+	//				my_action = new QAction(tr("Add selected view"), menu);
+	//				connect(my_action, SIGNAL(triggered()), _addNodeSignalMapper, SLOT(map()));
+	//				_addNodeSignalMapper->setMapping(my_action, (QObject*) qMouseEv);
+					return false;
+
+				}
+
+				menu->addAction(my_action);
+				menu->exec(qMouseEv->globalPos());
+				return true;
+			}
+
+			if  (e->type() == QEvent::MouseMove) {
+				if (_edge_started) {
+					tlp::Coord point(glMainWidget->width() - qMouseEv->x(), qMouseEv->y(), 0);
+					point = glMainWidget->getScene()->getCamera().screenTo3DWorld(point);
+					_curPos.set(point[0], point[1], point[2]);
+					glMainWidget->redraw();
+				}
+				else {
+					update_selection(graph, glMainWidget, hoveringOverNode, hoveringOverEdge);
+				}
+
+				return true;
+			}
 		}
 	}
 
 	return false;
+}
+
+void PVWidgets::AD2GInteractorComponent::update_selection(tlp::Graph* graph, tlp::GlMainWidget* glMainWidget, bool hoveringOverNode, bool hoveringOverEdge)
+{
+	std::string selectionPropertyName=glMainWidget->getScene()->getGlGraphComposite()->getInputData()->getElementSelectedPropName();
+	tlp::BooleanProperty* selection=graph->getProperty<tlp::BooleanProperty>(selectionPropertyName);
+
+	if (hoveringOverNode) {
+		if (!selection->getNodeValue(_tmpNode)) {
+			selection->setAllEdgeValue(false);
+			selection->setAllNodeValue(false);
+			selection->setNodeValue(_tmpNode, true);
+			_widget->highlightViewItem(_tmpNode);
+		}
+	}
+	else {
+		_widget->highlightViewItem(tlp::node());
+		if (hoveringOverEdge) {
+			if (!selection->getEdgeValue(_tmpEdge)) {
+				selection->setAllEdgeValue(false);
+				selection->setAllNodeValue(false);
+				selection->setEdgeValue(_tmpEdge, true);
+			}
+		}
+		else {
+			selection->setAllEdgeValue(false);
+			selection->setAllNodeValue(false);
+		}
+	}
 }
 
 void PVWidgets::AD2GInteractorComponent::abortEdgeTracing()
@@ -252,4 +293,24 @@ void PVWidgets::AD2GInteractorComponent::clearObserver() {
 	_layoutProperty=NULL;
 }
 
+void PVWidgets::AD2GInteractorComponent::mMouseTranslate(tlp::node n, double newX, double newY, GlMainWidget *glMainWidget) {
+  Observable::holdObservers();
+  GlGraphInputData *inputData=glMainWidget->getScene()->getGlGraphComposite()->getInputData();
+  tlp::Graph* graph = glMainWidget->getScene()->getGlGraphComposite()->getInputData()->getGraph();
+  tlp::LayoutProperty* layout = graph->getProperty<tlp::LayoutProperty>(glMainWidget->getScene()->getGlGraphComposite()->getInputData()->getElementLayoutPropName());
+  tlp::BooleanProperty* selection = graph->getProperty<tlp::BooleanProperty>(inputData->getElementSelectedPropName());
+  Coord v0(0,0,0);
+  Coord v1((double)(_editPosition[0] - newX), -(double)(_editPosition[1] - newY),0);
+  v0 = glMainWidget->getScene()->getCamera().screenTo3DWorld(v0);
+  v1 = glMainWidget->getScene()->getCamera().screenTo3DWorld(v1);
+  v1 -= v0;
+  Iterator<node> *itN = selection->getNodesEqualTo(true, graph);
+  Iterator<edge> *itE = selection->getEdgesEqualTo(true, graph);
+  layout->translate(v1, itN, itE);
+  delete itN;
+  delete itE;
+  _editPosition[0]  = newX;
+  _editPosition[1]  = newY;
+  Observable::unholdObservers();
+}
 
