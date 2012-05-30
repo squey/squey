@@ -696,10 +696,10 @@ void PVInspector::PVMainWindow::close_scene()
 	for (int i = 0; i < ntabs; i++) {
 		close_source((PVTabSplitter*) pv_ListingsTabWidget->widget(0));
 	}
-	_scene.reset(new Picviz::PVScene("root", root.get()));
 	if (_ad2g_mw) {
 		_ad2g_mw->deleteLater();
 	}
+	_scene.reset(new Picviz::PVScene("root", root.get()));
 	_ad2g_mw = NULL;
 	set_project_modified(false);
 }

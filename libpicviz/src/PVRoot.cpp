@@ -11,6 +11,8 @@
 #include <pvkernel/filter/PVPluginsLoad.h>
 #include <pvkernel/rush/PVPluginsLoad.h>
 
+#include <tulip/TlpTools.h>
+
 /******************************************************************************
  *
  * Picviz::PVRoot::PVRoot
@@ -18,6 +20,9 @@
  *****************************************************************************/
 Picviz::PVRoot::PVRoot()
 {
+	// Tulip initialisation
+	tlp::initTulipLib();
+
 	// PVRoot handle the filters
 	load_layer_filters();
 	load_mapping_filters();

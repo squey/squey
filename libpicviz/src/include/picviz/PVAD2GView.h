@@ -4,6 +4,7 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVSerializeArchive.h>
 
+#include <picviz/PVAD2GView_types.h>
 #include <picviz/PVCombiningFunctionView.h>
 #include <picviz/PVCombiningFunctionView_types.h>
 #include <picviz/PVSelection.h>
@@ -55,6 +56,7 @@ class PVAD2GView
 	typedef std::set<tlp::node> graph_visited_t;
 	typedef std::pair<PVView*, PVView*> graph_edge_views_t;
 
+	typedef PVAD2GView_p p_type;
 public:
 	PVAD2GView(Picviz::PVScene* scene);
 	~PVAD2GView();

@@ -68,8 +68,9 @@ public:
 	list_sources_t get_all_sources() const;
 	list_views_t get_all_views() const;
 
-	inline PVAD2GView& get_ad2g_view() { return _ad2g_view; }
-	inline PVAD2GView const& get_ad2g_view() const { return _ad2g_view; }
+	inline PVAD2GView& get_ad2g_view() { return *_ad2g_view; }
+	inline PVAD2GView const& get_ad2g_view() const { return *_ad2g_view; }
+	inline PVAD2GView_p get_ad2g_view_p() { return _ad2g_view; }
 
 	bool is_empty() { return _sources.size() == 0; }
 
@@ -95,7 +96,9 @@ private:
 	PVRoot* _root;
 	QString _name;
 
-	PVAD2GView _ad2g_view;
+	// This is a shared pointer for current issues with the widget (which will be deleted by Qt *after*
+	// this object).
+	PVAD2GView_p _ad2g_view;
 
 	PVCore::PVSerializeArchive_p _original_archive;
 };
