@@ -18,6 +18,8 @@
 #include <tulip/MouseEdgeBendEditor.h>
 
 #include <pvkernel/core/general.h>
+#include <picviz/widgets/PVMouseSelectionEditor.h>
+#include <picviz/widgets/PVMouseSelector.h>
 
 
 namespace PVWidgets {
