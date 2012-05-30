@@ -2,6 +2,7 @@
 #include <picviz/PVSelRowFilteringFunction.h>
 #include <picviz/PVTFViewRowFiltering.h>
 #include <picviz/widgets/PVAD2GEdgeEditor.h>
+#include <picviz/widgets/PVCombinOpDelegate.h>
 
 #include <QPushButton>
 #include <QHBoxLayout>
@@ -9,6 +10,7 @@
 #include <QLabel>
 #include <QComboBox>
 #include <QMessageBox>
+#include <QHeaderView>
 
 PVWidgets::PVAD2GEdgeEditor::PVAD2GEdgeEditor(QWidget* parent /*= 0*/) :
 	QWidget(parent),
@@ -18,7 +20,6 @@ PVWidgets::PVAD2GEdgeEditor::PVAD2GEdgeEditor(QWidget* parent /*= 0*/) :
 {
 	init();
 }
-
 PVWidgets::PVAD2GEdgeEditor::PVAD2GEdgeEditor(Picviz::PVView const& view_org, Picviz::PVView const& view_dst, Picviz::PVCombiningFunctionView& cf, QWidget* parent /*= 0*/):
 	QWidget(parent),
 	_rff_list_model(NULL),
@@ -34,7 +35,17 @@ void PVWidgets::PVAD2GEdgeEditor::init()
 	setWindowTitle("Edit combining function");
 
 	// Widgets
-	_list = new PVSizeHintListWidget<QListView>();
+	_list = new PVSizeHintListWidget<QTableView>();
+	_combin_op_delegate = new PVWidgets::PVCombinOpDelegate(this);
+
+	// initializing the QTableView
+	_list->setItemDelegateForColumn(1, _combin_op_delegate);
+	_list->setShowGrid(false);
+	_list->horizontalHeader()->hide();
+	_list->verticalHeader()->hide();
+	_list->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+	_list->horizontalHeader()->setStretchLastSection(true);
+
 	_list->setDragDropMode(QAbstractItemView::InternalMove);
 	_list->setDragDropOverwriteMode(true);
 	_list->setMinimumWidth(400);
@@ -109,6 +120,11 @@ void PVWidgets::PVAD2GEdgeEditor::edit_function_Slot()
 	}
 
 	QModelIndex model_index = _list->selectionModel()->currentIndex();
+
+	if (model_index.column() != 0) {
+		return;
+	}
+
 	Picviz::PVSelRowFilteringFunction_p rff = ((Picviz::PVSelRowFilteringFunction*)model_index.data(Qt::UserRole).value<void*>())->shared_from_this();
 
 	_cur_edited_rff_index = model_index;

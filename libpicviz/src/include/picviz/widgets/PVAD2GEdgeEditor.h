@@ -2,14 +2,13 @@
 #define __PVAD2GEDGEEDITOR_H__
 
 #include <QDialog>
-#include <QListView>
+#include <QTableView>
 #include <QComboBox>
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/widgets/PVSizeHintListWidget.h>
 #include <picviz/PVSelRowFilteringFunction_types.h>
 #include <picviz/widgets/PVAD2GRFFListModel.h>
-
 
 namespace Picviz {
 class PVView;
@@ -18,6 +17,8 @@ class PVTFViewRowFiltering;
 }
 
 namespace PVWidgets {
+
+class PVCombinOpDelegate;
 
 class LibPicvizDecl PVAD2GEdgeEditor : public QWidget
 {
@@ -53,7 +54,8 @@ private:
 	const Picviz::PVView* _view_dst;
 	QModelIndex _cur_edited_rff_index;
 
-	PVSizeHintListWidget<QListView>* _list;
+	PVSizeHintListWidget<QTableView>* _list;
+	PVCombinOpDelegate *_combin_op_delegate;
 	QComboBox* _function_combo;
 
 	/*Picviz::PVTFViewRowFiltering& _tf;*/
