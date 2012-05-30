@@ -442,6 +442,16 @@ void Picviz::PVSelection::write_selected_lines_nraw(QTextStream& stream, PVRush:
 	}
 }
 
+Picviz::PVSelection& Picviz::PVSelection::or_optimized(const PVSelection& rhs)
+{
+	uint32_t last_chunk = picviz_max(get_last_nonzero_chunk_index(), rhs.get_last_nonzero_chunk_index());
+	for (PVRow i = 0; i < last_chunk; i++) {
+		_table[i] |= rhs._table[i];
+	}
+
+	return *this;
+}
+
 void Picviz::PVSelection::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 {
 	so.buffer("selection_data", _table, PICVIZ_SELECTION_NUMBER_OF_BYTES);

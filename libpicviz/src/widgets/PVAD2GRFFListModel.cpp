@@ -2,7 +2,7 @@
 #include <picviz/PVSelRowFilteringFunction.h>
 
 PVWidgets::PVAD2GRFFListModel::PVAD2GRFFListModel(const Picviz::PVView& src_view, const Picviz::PVView& dst_view, Picviz::PVTFViewRowFiltering::list_rff_t &rffs, QObject *parent /*= 0*/) :
-QAbstractListModel(parent),
+	QAbstractTableModel(parent),
 	_rffs(rffs),
 	_src_view(src_view),
 	_dst_view(dst_view)
@@ -17,42 +17,97 @@ int PVWidgets::PVAD2GRFFListModel::rowCount(const QModelIndex &parent) const
     return _rffs.count();
 }
 
+int PVWidgets::PVAD2GRFFListModel::columnCount(const QModelIndex &parent) const
+{
+    if (parent.isValid())
+        return 0;
+
+    return 2;
+}
+
 QVariant PVWidgets::PVAD2GRFFListModel::data(const QModelIndex &index, int role) const
 {
-    if (index.row() < 0 || index.row() >= _rffs.size())
-        return QVariant();
+	if (index.row() < 0 || index.row() >= _rffs.size()) {
+		return QVariant();
+	}
+	if (index.column() < 0 || index.column() >= 2) {
+		return QVariant();
+	}
 
-    Picviz::PVSelRowFilteringFunction_p row_filter = _rffs.at(index.row());
-    if (row_filter.get()) {
-		if (role == Qt::DisplayRole)
-			return QVariant(row_filter.get()->get_human_name_with_args(_src_view, _dst_view));
-		if (role == Qt::UserRole) {
-	    	QVariant ret;
-	    	ret.setValue<void*>(row_filter.get());
-	    	return ret;
+	Picviz::PVSelRowFilteringFunction_p row_filter = _rffs.at(index.row());
+	if (index.column() == 1) {
+		// RFF behavior
+		if (row_filter.get()) {
+			if (role == Qt::DisplayRole)
+				return QVariant(row_filter.get()->get_human_name_with_args(_src_view, _dst_view));
+			if (role == Qt::UserRole) {
+				QVariant ret;
+				ret.setValue<void*>(row_filter.get());
+				return ret;
+			}
 		}
-    }
+	} else {
+		// binary operation behavior
+		if (role == Qt::DisplayRole) {
+			if (index.row() != 0) {
+				return PVCore::get_binary_operation_name(row_filter.get()->get_combination_op());
+			}
+		} else if ((role == Qt::UserRole) || (role == Qt::EditRole)) {
+			return QVariant(row_filter.get()->get_combination_op());
+		}
+	}
 
-    return QVariant();
+	return QVariant();
 }
 
 Qt::ItemFlags PVWidgets::PVAD2GRFFListModel::flags(const QModelIndex &index) const
 {
-    if (!index.isValid())
-        return QAbstractItemModel::flags(index) | Qt::ItemIsDropEnabled;
+	if (!index.isValid()) {
+		return QAbstractItemModel::flags(index) | Qt::ItemIsDropEnabled;
+	}
 
-    return QAbstractItemModel::flags(index) | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
+	Qt::ItemFlags all_flags = QAbstractItemModel::flags(index);
+
+	if (index.column() == 1) {
+		// RFF are drag & droppable
+		all_flags |= Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
+	} else {
+		// the first binary operation is not editable
+		if (index.row() != 0) {
+			all_flags = Qt::ItemIsEditable | Qt::ItemIsEnabled;
+		}
+	}
+
+	return all_flags;
 }
 
 bool PVWidgets::PVAD2GRFFListModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    if (index.row() >= 0 && index.row() < _rffs.size()
-        && (role == Qt::UserRole)) {
-        _rffs.replace(index.row(), ((Picviz::PVSelRowFilteringFunction*)value.value<void*>())->shared_from_this());
-        emit dataChanged(index, index);
-        return true;
-    }
-    return false;
+	if (index.row() < 0 || index.row() >= _rffs.size()) {
+		return false;
+	}
+	if (index.column() < 0 || index.column() >= 2) {
+		return false;
+	}
+
+	int col = index.column();
+
+	if (col == 1) {
+		// RFF behavior
+		if (role == Qt::UserRole) {
+			_rffs.replace(index.row(), ((Picviz::PVSelRowFilteringFunction*)value.value<void*>())->shared_from_this());
+			emit dataChanged(index, index);
+			return true;
+		}
+	} else {
+		// binary operations behavior
+		if (role == Qt::EditRole) {
+			_rffs.at(index.row()).get()->set_combination_op((PVCore::PVBinaryOperation)value.toInt());
+			return true;
+		}
+	}
+
+	return false;
 }
 
 void PVWidgets::PVAD2GRFFListModel::addRow(QModelIndex model_index, Picviz::PVSelRowFilteringFunction_p rff)
@@ -63,7 +118,7 @@ void PVWidgets::PVAD2GRFFListModel::addRow(QModelIndex model_index, Picviz::PVSe
 	}
 	insertRow(row);
 	if (!model_index.isValid()) {
-		model_index = index(0, 0);
+		model_index = index(0, 1);
 	}
 	QVariant var;
 	var.setValue<void*>(rff.get());
