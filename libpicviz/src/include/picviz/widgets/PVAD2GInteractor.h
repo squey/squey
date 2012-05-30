@@ -17,8 +17,6 @@
 #include <tulip/MouseInteractors.h>
 #include <tulip/MouseEdgeBendEditor.h>
 
-#include <picviz/widgets/PVMouseSelectionEditor.h>
-#include <picviz/widgets/PVMouseSelector.h>
 #include <pvkernel/core/general.h>
 
 
