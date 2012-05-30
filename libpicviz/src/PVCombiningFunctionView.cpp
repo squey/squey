@@ -46,3 +46,39 @@ Picviz::PVTFViewRowFiltering* Picviz::PVCombiningFunctionView::get_first_tf()
 {
 	return dynamic_cast<PVTFViewRowFiltering*>(_tfs[0].get());
 }
+
+Picviz::PVTFViewRowFiltering const* Picviz::PVCombiningFunctionView::get_first_tf() const
+{
+	return dynamic_cast<PVTFViewRowFiltering const*>(_tfs[0].get());
+}
+
+void Picviz::PVCombiningFunctionView::from_string(std::string const& str)
+{
+	QDomDocument xml_doc;
+	if (!xml_doc.setContent(QByteArray(str.c_str(), str.size()), false)) {
+		return;
+	}
+
+	QDomElement elt_tf = xml_doc.firstChildElement("tf");
+	if (elt_tf.isNull()) {
+		return;
+	}
+	get_first_tf()->from_xml(elt_tf);
+}
+
+void Picviz::PVCombiningFunctionView::to_string(std::string& str) const
+{
+	// AG: for now, this is a hand-made QDomDocument.
+	// What we will have to do in the future (:/) :
+	//  * have a clear interface for PVSerializeArchive, and move to
+	//    a different class the directory-specific properties and methods
+	//  * make a PVSerializeArchiveXml backend
+	//  * use this backend to create/read the xml file
+	
+	QDomDocument xml_doc;
+	QDomElement first_tf = xml_doc.createElement("tf");
+	get_first_tf()->to_xml(first_tf);
+	xml_doc.appendChild(first_tf);
+
+	str = xml_doc.toByteArray(4).constData();
+}

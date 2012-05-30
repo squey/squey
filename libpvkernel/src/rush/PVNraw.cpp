@@ -57,10 +57,10 @@ void PVRush::PVNraw::clear()
 bool PVRush::PVNraw::create_trans_nraw()
 {
 	// Create a transposition of the nraw
-	tbb::tick_count start = tbb::tick_count::now();
+	//tbb::tick_count start = tbb::tick_count::now();
 	trans_table.clear();
 	table.transpose_to(trans_table);
-	tbb::tick_count end = tbb::tick_count::now();
+	//tbb::tick_count end = tbb::tick_count::now();
 	//PVLOG_INFO("(PVNraw::create_trans_nraw) transposition took %0.4fs\n", (end-start).seconds());
 
 	return true;

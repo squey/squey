@@ -187,6 +187,9 @@ void Picviz::PVScene::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSe
 			add_source(*it);
 		}
 	}
+
+	// Correlation, make this optional for compatibility with old project (so that we are still in version 1 :))
+	so.object("correlation", _ad2g_view, QObject::tr("Correlation graph"), true);
 }
 
 void Picviz::PVScene::serialize_write(PVCore::PVSerializeObject& so)
@@ -231,6 +234,9 @@ void Picviz::PVScene::serialize_write(PVCore::PVSerializeObject& so)
 		desc << (*it_src)->get_name() + QString(" / ") + (*it_src)->get_format_name();
 	}
 	so.list(QString("sources"), all_sources, QObject::tr("Sources"), (PVSource*) NULL, desc);
+
+	// Correlation (optional)
+	so.object("correlation", _ad2g_view, QObject::tr("Correlation graph"), true);
 }
 
 PVCore::PVSerializeObject_p Picviz::PVScene::get_so_inputs(PVSource const& src)

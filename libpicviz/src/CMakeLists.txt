@@ -134,6 +134,7 @@ PVScene.cpp
 PVSelection.cpp
 PVSelectionFilter.cpp
 PVSelectionFilterScatterPlotSelectionSquare.cpp
+PVSelRowFilteringFunction.cpp
 PVSquareArea.cpp
 PVSortQVectorQStringList.cpp
 PVSortQVectorQStringListThread.cpp

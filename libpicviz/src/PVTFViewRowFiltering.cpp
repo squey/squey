@@ -80,3 +80,26 @@ Picviz::PVSelection Picviz::PVTFViewRowFiltering::operator()(PVView const& view_
 
 	return sel_ret;
 }
+
+
+void Picviz::PVTFViewRowFiltering::to_xml(QDomElement& elt) const
+{
+	list_rff_t::const_iterator it;
+	for (it = _rffs.begin(); it != _rffs.end(); it++) {
+		QDomElement rff_elt = elt.ownerDocument().createElement("rff");
+		(*it)->to_xml(rff_elt);
+		elt.appendChild(rff_elt);
+	}
+}
+
+void Picviz::PVTFViewRowFiltering::from_xml(QDomElement const& elt)
+{
+	_rffs.clear();
+	QDomElement child = elt.firstChildElement("rff");
+	for (; !child.isNull(); child = child.nextSiblingElement("rff")) {
+		PVSelRowFilteringFunction_p rff = PVSelRowFilteringFunction::from_xml(child);
+		if (rff) {
+			push_rff(rff);
+		}
+	}
+}

@@ -1,8 +1,10 @@
-
+#include "test-env.h"
 #include <picviz/PVView.h>
 #include <picviz/PVAD2GView.h>
 #include <picviz/PVCombiningFunctionView.h>
 #include <picviz/PVCombiningFunctionView_types.h>
+#include <picviz/PVSelRowFilteringFunction.h>
+#include <picviz/PVTFViewRowFiltering.h>
 #include <picviz/PVRoot.h>
 #include <picviz/PVScene.h>
 
@@ -18,6 +20,7 @@
 
 int main(void)
 {
+	init_env();
 	Picviz::PVView *va = new Picviz::PVView();
 	Picviz::PVView *vb = new Picviz::PVView();
 	Picviz::PVView *vc = new Picviz::PVView();
@@ -66,6 +69,21 @@ int main(void)
 	std::cout << "first call to PVAD2GView::set_edge_f(va, vb, cfv2)" << std::endl;
 	e2 = ad2gv->set_edge_f(va, vb, cfv2);
 	REPORT_RESULT(e2 == e1);
+
+	Picviz::PVSelRowFilteringFunction_p rff = LIB_CLASS(Picviz::PVSelRowFilteringFunction)::get().get_class_by_name("axes_bind");
+	assert(rff);
+	cfv2->get_first_tf()->push_rff(rff);
+
+	std::string cf_str;
+	cfv2->to_string(cf_str);
+	std::cout << "CF to string: " << std::endl << cf_str << std::endl;
+
+	cfv1->from_string(cf_str);
+	cf_str.clear();
+	cfv1->to_string(cf_str);
+	std::cout << "CF from->to string: " << std::endl << cf_str << std::endl;
+
+	//ad2gv->save_to_file("/tmp/test.ad2g");
 
 	delete ad2gv;
 
