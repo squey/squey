@@ -18,4 +18,5 @@ void init_env()
 	pv_setenv("PVRUSH_SOURCE_DIR","../../libpvkernel/plugins/sources",0);
 	pv_setenv("PICVIZ_MAPPING_FILTERS_DIR","../plugins/mapping-filters",0);
 	pv_setenv("PICVIZ_PLOTTING_FILTERS_DIR","../plugins/plotting-filters",0);
+	pv_setenv("PICVIZ_ROW_FILTERS_DIR","../plugins/row-filters",0);
 }

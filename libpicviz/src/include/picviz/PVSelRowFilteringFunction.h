@@ -47,7 +47,7 @@ public:
 	virtual void operator()(PVRow row_org, PVView const& view_org, PVView const& view_dst, PVSelection& sel_dst) const = 0;
 	virtual QString get_human_name() const { return registered_name(); }
 	virtual QString get_human_name_with_args(const PVView& /*src_view*/, const PVView& /*dst_view*/) const { return get_human_name(); }
-	
+
 public:
 	inline PVCore::PVArgumentList get_args_for_org_view() const { return get_args_for_view(get_arg_keys_for_org_view()); }
 	inline PVCore::PVArgumentList get_args_for_dst_view() const { return get_args_for_view(get_arg_keys_for_dst_view()); }
@@ -58,6 +58,10 @@ public:
 
 	inline PVCore::PVBinaryOperation get_combination_op() const { return _combination_op; }
 	inline void set_combination_op(PVCore::PVBinaryOperation op) { _combination_op = op; }
+
+public:
+	void to_xml(QDomElement& elt) const;
+	static p_type from_xml(QDomElement const& elt);
 
 protected:
 	virtual void do_pre_process(PVView const& view_org, PVView const& view_dst) = 0;
