@@ -35,7 +35,7 @@ QVariant PVWidgets::PVAD2GRFFListModel::data(const QModelIndex &index, int role)
 	}
 
 	Picviz::PVSelRowFilteringFunction_p row_filter = _rffs.at(index.row());
-	if (index.column() == 0) {
+	if (index.column() == 1) {
 		// RFF behavior
 		if (row_filter.get()) {
 			if (role == Qt::DisplayRole)
@@ -68,7 +68,7 @@ Qt::ItemFlags PVWidgets::PVAD2GRFFListModel::flags(const QModelIndex &index) con
 
 	Qt::ItemFlags all_flags = QAbstractItemModel::flags(index);
 
-	if (index.column() == 0) {
+	if (index.column() == 1) {
 		// RFF are drag & droppable
 		all_flags |= Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
 	} else {
@@ -92,7 +92,7 @@ bool PVWidgets::PVAD2GRFFListModel::setData(const QModelIndex &index, const QVar
 
 	int col = index.column();
 
-	if (col == 0) {
+	if (col == 1) {
 		// RFF behavior
 		if (role == Qt::UserRole) {
 			_rffs.replace(index.row(), ((Picviz::PVSelRowFilteringFunction*)value.value<void*>())->shared_from_this());
@@ -118,7 +118,7 @@ void PVWidgets::PVAD2GRFFListModel::addRow(QModelIndex model_index, Picviz::PVSe
 	}
 	insertRow(row);
 	if (!model_index.isValid()) {
-		model_index = index(0, 0);
+		model_index = index(0, 1);
 	}
 	QVariant var;
 	var.setValue<void*>(rff.get());

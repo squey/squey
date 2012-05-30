@@ -39,11 +39,11 @@ void PVWidgets::PVAD2GEdgeEditor::init()
 	_combin_op_delegate = new PVWidgets::PVCombinOpDelegate(this);
 
 	// initializing the QTableView
-	_list->setItemDelegateForColumn(1, _combin_op_delegate);
+	_list->setItemDelegateForColumn(0, _combin_op_delegate);
 	_list->setShowGrid(false);
 	_list->horizontalHeader()->hide();
 	_list->verticalHeader()->hide();
-	_list->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+	_list->setMinimumWidth(_list->horizontalHeader()->length());
 	_list->horizontalHeader()->setStretchLastSection(true);
 
 	_list->setDragDropMode(QAbstractItemView::InternalMove);
@@ -121,7 +121,7 @@ void PVWidgets::PVAD2GEdgeEditor::edit_function_Slot()
 
 	QModelIndex model_index = _list->selectionModel()->currentIndex();
 
-	if (model_index.column() != 0) {
+	if (model_index.column() != 1) {
 		return;
 	}
 
