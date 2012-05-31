@@ -125,8 +125,9 @@ void PVWidgets::PVAD2GEdgeEditor::add_function_Slot()
 
 	// Update selection
 	_list->selectionModel()->clearSelection();
-	_list->selectionModel()->setCurrentIndex(_rff_list_model->index(0, 1), QItemSelectionModel::Select);
+	_list->selectionModel()->setCurrentIndex(_rff_list_model->index(current_index.row(), 1), QItemSelectionModel::Select);
 }
+
 
 void PVWidgets::PVAD2GEdgeEditor::edit_function_Slot()
 {

@@ -34,7 +34,7 @@ public:
 
     Picviz::PVTFViewRowFiltering::list_rff_t& get_rffs() const;
 
-    Qt::DropActions supportedDropActions() const;
+    //Qt::DropActions supportedDropActions() const;
 
 private:
     Picviz::PVTFViewRowFiltering::list_rff_t& _rffs;

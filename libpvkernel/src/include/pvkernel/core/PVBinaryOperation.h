@@ -11,9 +11,9 @@ enum PVBinaryOperation
 	OR = FIRST_BINOP,
 	AND,
 	XOR,
-	NOR,
-	NAND,
-	NXOR,
+	OR_NOT,
+	AND_NOT,
+	XOR_NOT,
 	LAST_BINOP
 };
 
