@@ -63,6 +63,22 @@ Picviz::PVSelection Picviz::PVTFViewRowFiltering::operator()(PVView const& view_
 				case PVCore::PVBinaryOperation::XOR:
 				{
 					sel_tmp_row ^= sel_tmp_rff;
+					break;
+				}
+				case PVCore::PVBinaryOperation::OR_NOT:
+				{
+					sel_tmp_row.or_not(sel_tmp_rff);
+					break;
+				}
+				case PVCore::PVBinaryOperation::AND_NOT:
+				{
+					sel_tmp_row.and_not(sel_tmp_rff);
+					break;
+				}
+				case PVCore::PVBinaryOperation::XOR_NOT:
+				{
+					sel_tmp_row.xor_not(sel_tmp_rff=;
+					break;
 				}
 				default:
 				{
