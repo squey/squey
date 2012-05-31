@@ -98,6 +98,7 @@ void PVInspector::PVMainWindow::create_actions()
 	/************************
 	 * For the "Scene" menu entry
 	 ************************/
+	scene_menu_event_filter = new SceneMenuEventFilter(this);
 	new_scene_Action = new QAction(tr("&New Scene"), this);
 	select_scene_Action = new QAction(tr("&Select Scene"), this);
 	correlation_scene_Action = new QAction(tr("&Correlations..."), this);
@@ -326,6 +327,7 @@ void PVInspector::PVMainWindow::connect_actions()
 
 	connect(set_color_Action, SIGNAL(triggered()), this, SLOT(set_color_Slot()));
 
+	scene_Menu->installEventFilter(scene_menu_event_filter);
 	connect(correlation_scene_Action, SIGNAL(triggered()), this, SLOT(show_correlation_Slot()));
 
 	//connect(commit_selection_in_current_layer_Action, SIGNAL(triggered()), this, SLOT(commit_selection_in_current_layer_Slot()));

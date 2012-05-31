@@ -175,8 +175,6 @@ include/picviz/widgets/editors/PVAxisIndexCheckBoxEditor.h
 include/picviz/widgets/editors/PVAxesIndexEditor.h
 include/picviz/widgets/editors/PVLayerEnumEditor.h
 include/picviz/widgets/editors/PVViewRowsSpinBoxEditor.h
-include/picviz/widgets/PVMouseSelectionEditor.h
-include/picviz/widgets/PVMouseSelector.h
 )
 
 set(WIDGETS_SRC_FILES
@@ -194,8 +192,6 @@ widgets/editors/PVAxisIndexCheckBoxEditor.cpp
 widgets/editors/PVAxesIndexEditor.cpp
 widgets/editors/PVLayerEnumEditor.cpp
 widgets/editors/PVViewRowsSpinBoxEditor.cpp
-widgets/PVMouseSelectionEditor.cpp
-widgets/PVMouseSelector.cpp
 )
 
 set(MOC_HEADERS
