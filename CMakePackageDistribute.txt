@@ -21,6 +21,12 @@ set(QTWEBKIT_PATCH "0")
 set(LINUX_TBB_PATH "/usr/lib")
 set(TBB_MAJOR "2")
 
+set(LINUX_BOOST_PATH "/usr/lib")
+set(BOOST_PYTHON_VER "3.2mu")
+set(BOOST_VER "1.48.0")
+
+set(LINUX_MISCLIB_PATH "/usr/lib")
+
 if(WIN32)
 	set(TBB_DIST_FILES
 		${WIN_TBB_PATH}\\\\tbb.dll
@@ -138,6 +144,10 @@ else(WIN32)
 
 		DESTINATION .)
 
+
+	#
+	# TBB
+	#
 	install(FILES 
 
 		${LINUX_TBB_PATH}/libtbb.so.${TBB_MAJOR} 
@@ -146,23 +156,39 @@ else(WIN32)
 
 		DESTINATION .)
 
-	install(FILES /usr/lib/libboost_thread.so.1.48.0 /usr/lib/libboost_system.so.1.48.0 /usr/lib/libboost_date_time.so.1.48.0 /usr/lib/libboost_program_options.so.1.48.0 DESTINATION .)
-	install(FILES /usr/lib/x86_64-linux-gnu/libgomp.so.1 /usr/lib/x86_64-linux-gnu/libgomp.so.1.0.0 DESTINATION .)
-	install(FILES /usr/lib/x86_64-linux-gnu/libpcap.so.0.8 /usr/lib/x86_64-linux-gnu/libpcap.so.1.2.1 DESTINATION .)
-	install(FILES /usr/lib/x86_64-linux-gnu/libarchive.so.12 /usr/lib/x86_64-linux-gnu/libarchive.so.12.0.4 DESTINATION .)
-	install(FILES /usr/lib/libglut.so.3 /usr/lib/libglut.so.3.9.0 DESTINATION .)
-	install(FILES /usr/lib/x86_64-linux-gnu/libfreetype.so.6 /usr/lib/x86_64-linux-gnu/libfreetype.so.6.8.1 DESTINATION .)
-	install(FILES /usr/lib/libicui18n.so.48 /usr/lib/libicui18n.so.48.1.1 /usr/lib/libicuuc.so.48 /usr/lib/libicuuc.so.48.1.1 /usr/lib/libicudata.so.48 /usr/lib/libicudata.so.48.1.1 DESTINATION .)
-	install(FILES /usr/lib/x86_64-linux-gnu/libGLEW.so  /usr/lib/x86_64-linux-gnu/libGLEW.so.1.6 /usr/lib/x86_64-linux-gnu/libGLEW.so.1.6.0 DESTINATION .)
-	install(FILES /usr/lib/x86_64-linux-gnu/libaudio.so.2  /usr/lib/x86_64-linux-gnu/libaudio.so.2.4 DESTINATION .)
+	#
+	# Boost
+	#
+	install(FILES 
+
+		${LINUX_BOOST_PATH}/libboost_thread.so.${BOOST_VER} 
+		${LINUX_BOOST_PATH}/libboost_system.so.${BOOST_VER} 
+		${LINUX_BOOST_PATH}/libboost_date_time.so.${BOOST_VER} 
+		${LINUX_BOOST_PATH}/libboost_program_options.so.${BOOST_VER} 
+		${LINUX_BOOST_PATH}/libpython${BOOST_PYTHON_VER}.so 
+		${LINUX_BOOST_PATH}/libpython${BOOST_PYTHON_VER}.so.1 
+		${LINUX_BOOST_PATH}/libpython${BOOST_PYTHON_VER}.so.1.0 
+		${LINUX_BOOST_PATH}/libboost_python-py32.so 
+		${LINUX_BOOST_PATH}/libboost_python-py32.so.${BOOST_VER} 
+
+		DESTINATION .)
+
+
+	install(FILES ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libgomp.so.1 ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libgomp.so.1.0.0 DESTINATION .)
+	install(FILES ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libpcap.so.0.8 ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libpcap.so.1.2.1 DESTINATION .)
+	install(FILES ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libarchive.so.12 ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libarchive.so.12.0.4 DESTINATION .)
+	install(FILES ${LINUX_MISCLIB_PATH}/libglut.so.3 ${LINUX_MISCLIB_PATH}/libglut.so.3.9.0 DESTINATION .)
+	install(FILES ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libfreetype.so.6 ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libfreetype.so.6.8.1 DESTINATION .)
+	install(FILES ${LINUX_MISCLIB_PATH}/libicui18n.so.48 ${LINUX_MISCLIB_PATH}/libicui18n.so.48.1.1 ${LINUX_MISCLIB_PATH}/libicuuc.so.48 ${LINUX_MISCLIB_PATH}/libicuuc.so.48.1.1 ${LINUX_MISCLIB_PATH}/libicudata.so.48 ${LINUX_MISCLIB_PATH}/libicudata.so.48.1.1 DESTINATION .)
+	install(FILES ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libGLEW.so  ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libGLEW.so.1.6 ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libGLEW.so.1.6.0 DESTINATION .)
+	install(FILES ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libaudio.so.2  ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libaudio.so.2.4 DESTINATION .)
 	#install(FILES /opt/curl/lib/libcurl.so.4 /opt/curl/lib/libcurl.so.4.2.0 DESTINATION .)
-	install(FILES /usr/lib/x86_64-linux-gnu/libssh2.so.1 /usr/lib/x86_64-linux-gnu/libssh2.so.1.0.1 DESTINATION .)
-	install(FILES /usr/lib/libQtCLucene.so.${QTLIBS_MAJOR} /usr/lib/libQtCLucene.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR} /usr/lib/libQtCLucene.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH} DESTINATION .)
-	install(FILES /usr/lib/x86_64-linux-gnu/libstdc++.so.6 /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.17 DESTINATION .)
-	install(FILES /usr/lib/libpython3.2mu.so /usr/lib/libpython3.2mu.so.1 /usr/lib/libpython3.2mu.so.1.0 /usr/lib/libboost_python-py32.so /usr/lib/libboost_python-py32.so.1.48.0 DESTINATION .)
-	install(FILES /usr/lib/x86_64-linux-gnu/liblzma.so.5  /usr/lib/x86_64-linux-gnu/liblzma.so.5.0.0 DESTINATION .)
-	install(FILES /usr/lib/x86_64-linux-gnu/libcrypto.so  /usr/lib/x86_64-linux-gnu/libcrypto.so.1.0.0 DESTINATION .)
-	install(FILES /usr/lib/x86_64-linux-gnu/libssl.so  /usr/lib/x86_64-linux-gnu/libssl.so.1.0.0 DESTINATION .)
-	install(FILES /usr/lib/x86_64-linux-gnu/libffi.so.5  /usr/lib/x86_64-linux-gnu/libffi.so.5.0.10 DESTINATION .)
-	install(FILES /usr/lib/x86_64-linux-gnu/libnettle.so.4 /usr/lib/x86_64-linux-gnu/libnettle.so.4.3 DESTINATION .)
+	install(FILES ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libssh2.so.1 ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libssh2.so.1.0.1 DESTINATION .)
+	install(FILES ${LINUX_MISCLIB_PATH}/libQtCLucene.so.${QTLIBS_MAJOR} ${LINUX_MISCLIB_PATH}/libQtCLucene.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR} ${LINUX_MISCLIB_PATH}/libQtCLucene.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH} DESTINATION .)
+	install(FILES ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libstdc++.so.6 ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libstdc++.so.6.0.17 DESTINATION .)
+	install(FILES ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/liblzma.so.5  ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/liblzma.so.5.0.0 DESTINATION .)
+	install(FILES ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libcrypto.so  ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libcrypto.so.1.0.0 DESTINATION .)
+	install(FILES ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libssl.so  ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libssl.so.1.0.0 DESTINATION .)
+	install(FILES ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libffi.so.5  ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libffi.so.5.0.10 DESTINATION .)
+	install(FILES ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libnettle.so.4 ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libnettle.so.4.3 DESTINATION .)
 endif(WIN32)
