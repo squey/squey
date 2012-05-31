@@ -143,9 +143,9 @@ void PVRush::PVNraw::fit_to_content()
 	if (_real_nrows > PICVIZ_LINES_MAX) {
 		_real_nrows = PICVIZ_LINES_MAX;
 	}
-	PVLOG_INFO("(PVNraw::fit_to_content) fit to content: size=%d.\n", table.get_nrows());
+	PVLOG_DEBUG("(PVNraw::fit_to_content) fit to content: size=%d.\n", table.get_nrows());
 	table.resize_nrows(_real_nrows);
-	PVLOG_INFO("(PVNraw::fit_to_content) fit to content done\n");
+	PVLOG_DEBUG("(PVNraw::fit_to_content) fit to content done\n");
 }
 
 void PVRush::PVNraw::dump_csv()

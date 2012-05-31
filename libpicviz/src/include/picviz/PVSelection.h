@@ -75,7 +75,6 @@ public:
 	// Move constructor. Save a lot of useless allocations, memcpys and desallocations !
 	PVSelection(PVSelection&& o)
 	{
-		PVLOG_INFO("PVSelection move constructor called from object %p to %p\n", &o, this);
 		_table = o._table;
 		o._table = NULL;
 	}
@@ -133,7 +132,6 @@ public:
 
 	PVSelection& operator=(PVSelection&& rhs)
 	{
-		PVLOG_INFO("PVSelection move assignement called from object %p to %p\n", &rhs, this);
 		if (this != &rhs) {
 			if (_table) {
 				free_table();
