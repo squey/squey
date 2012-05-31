@@ -406,14 +406,14 @@ ssize_t Picviz::PVSelection::get_last_nonzero_chunk_index(ssize_t starting_chunk
 	const ssize_t ending_chunk_aligned = (ssize_t)(((size_t)ending_chunk>>2)<<2);
 	if (ending_chunk_aligned <= starting_chunk) {
 		for (ssize_t i = ending_chunk; i >= starting_chunk; i--) {
-			if (table[i] != 0) {
+			if (_table[i] != 0) {
 				return i;
 			}
 		}
 	}
 	else {
 		for (ssize_t i = ending_chunk; i >= ending_chunk_aligned; i--) {
-			if (table[i] != 0) {
+			if (_table[i] != 0) {
 				return i;
 			}
 		}
