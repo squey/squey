@@ -33,8 +33,6 @@ namespace Picviz {
 /* Selection for axes */
 #define PICVIZ_SELECTION_AXES_NUMBER_OF_CHUNKS (PICVIZ_AXES_MAX / PICVIZ_SELECTION_CHUNK_SIZE + 1)
 
-class PVSparseSelection;
-
 /**
 * \class PVSelection
 */
@@ -166,7 +164,6 @@ public:
 	 * @return A reference to the resulting PVSelection
 	 */
 	PVSelection& operator&=(const PVSelection &rhs);
-	PVSelection& operator&=(const PVSparseSelection &rhs);
 	PVSelection& and_optimized(const PVSelection& rhs);
 
 	/**
@@ -196,7 +193,6 @@ public:
 	 * @return A reference to the resulting PVSelection
 	 */
 	PVSelection& operator|=(const PVSelection &rhs);
-	PVSelection& operator|=(const PVSparseSelection &rhs);
 	PVSelection& or_optimized(const PVSelection &rhs);
 
 	/**

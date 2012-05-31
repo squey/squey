@@ -9,7 +9,6 @@
 #include <pvkernel/core/picviz_intrin.h>
 
 #include <picviz/PVSelection.h>
-#include <picviz/PVSparseSelection.h>
 
 static inline uint32_t count_bits(size_t n, const uint32_t* data)
 {
