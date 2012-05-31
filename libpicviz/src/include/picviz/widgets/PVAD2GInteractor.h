@@ -1,8 +1,16 @@
 #ifndef __PVAD2GINTERACTOR_H__
 #define __PVAD2GINTERACTOR_H__
 
-#include <QtGui>
-#include <QtCore>
+#include <QSignalMapper>
+#include <QEvent>
+#include <QMenu>
+#include <QMouseEvent>
+#include <QDrag>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QMessageBox>
+#include <QHeaderView>
+#include <QApplication>
 
 #include <tulip/Interactor.h>
 #include <tulip/InteractorManager.h>
@@ -18,8 +26,6 @@
 #include <tulip/MouseEdgeBendEditor.h>
 
 #include <pvkernel/core/general.h>
-#include <picviz/widgets/PVMouseSelectionEditor.h>
-#include <picviz/widgets/PVMouseSelector.h>
 
 
 namespace PVWidgets {
@@ -43,11 +49,11 @@ public:
 	bool draw(tlp::GlMainWidget*);
 
 protected:
-	virtual void addLink(QObject *, const tlp::node source, const tlp::node dest);
+	virtual void addLink();
 
 private:
-	void abortEdgeTracing();
-	void mMouseTranslate(tlp::node, double newX, double newY, GlMainWidget *glMainWidget);
+	void abort_edge_tracing();
+	void mouse_translate(tlp::node, double newX, double newY, tlp::GlMainWidget *glMainWidget);
 	void update_selection(tlp::Graph* graph, tlp::GlMainWidget* glMainWidget, bool hoveringOverNode, bool hoveringOverEdge);
 
 protected:
@@ -69,7 +75,7 @@ protected:
 	tlp::node _tmpNode;
 	tlp::edge _tmpEdge;
 	tlp::ElementType _type;
-	Coord _editPosition;
+	tlp::Coord _editPosition;
 	bool _translation_started;
 };
 

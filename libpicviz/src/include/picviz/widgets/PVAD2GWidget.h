@@ -1,7 +1,10 @@
 #ifndef PICVIZ_PVAD2BWIDGET_H
 #define PICVIZ_PVAD2GWIDGET_H
 
-#include <QtGui>
+#include <QTableWidget>
+#include <QWidget>
+#include <QTableWidget>
+#include <QTableWidget>
 
 #include <tulip/NodeLinkDiagramComponent.h>
 #include <tulip/Observable.h>
@@ -51,7 +54,6 @@ public:
 	tlp::edge add_combining_function(const tlp::node source, const tlp::node target);
 	void edit_combining_function(tlp::edge edge, tlp::node src, tlp::node dst);
 	//void select_edge(Picviz::PVView* view_src, Picviz::PVView* view_dst);
-	void set_edit_graph(bool edit_graph);
 	void highlightViewItem(tlp::node n);
 
 	__impl::PVTableWidget* get_table() { return _table; }
@@ -69,7 +71,6 @@ public slots:
 	void update_list_edges();
 
 	AD2GInteractor* getInteractor() { return _ad2g_interactor; }
-	AD2GInteractor2* getInteractor2() { return _ad2g_interactor2; }
 	AD2GNodeLinkDiagramComponent* getNodeLinkView() { return _nodeLinkView; }
 
 private:
@@ -87,11 +88,7 @@ private:
 	__impl::PVTableWidget* _table;
 	PVWidgets::PVAD2GEdgeEditor* _edge_editor;
 
-	QRadioButton* _radio_edit_graph;
-	QRadioButton* _radio_edit_layout;
-
 	AD2GInteractor* _ad2g_interactor;
-	AD2GInteractor2* _ad2g_interactor2;
 	PVAD2GListEdgesWidget* _list_edges_widget ;
 };
 

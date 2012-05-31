@@ -1,30 +1,23 @@
-#include <picviz/widgets/PVAD2GWidget.h>
-
+#include <tulip/EdgeExtremityGlyphManager.h>
 #include <tulip/Interactor.h>
 #include <tulip/InteractorManager.h>
+#include <tulip/PluginLoaderTxt.h>
+#include <tulip/TlpQtTools.h>
+#include <tulip/TlpTools.h>
+
 #include <picviz/widgets/PVAD2GInteractor.h>
 #include <picviz/widgets/PVAD2GListEdgesWidget.h>
+#include <picviz/widgets/PVAD2GWidget.h>
 
-///
-#include <tulip/TlpTools.h>
-#include <tulip/TlpQtTools.h>
-#include <tulip/PluginLoaderTxt.h>
-#include <tulip/EdgeExtremityGlyphManager.h>
-///
-
-#include <picviz/PVView_types.h>
 #include <picviz/PVView.h>
-
-// Correlation
-#include <pvkernel/core/PVAxisIndexType.h>
+#include <picviz/PVView_types.h>
 #include <picviz/PVCombiningFunctionView.h>
-//#include <picviz/PVRFFAxesBind.h>
 #include <picviz/PVTFViewRowFiltering.h>
 #include <picviz/PVSelRowFilteringFunction.h>
-
-#include <picviz/widgets/PVAD2GInteractor.h>
+#include <pvkernel/core/PVAxisIndexType.h>
 
 namespace PVWidgets {
+
 class AD2GNodeLinkDiagramComponent : public tlp::NodeLinkDiagramComponent
 {
 public:
@@ -44,7 +37,6 @@ void PVWidgets::__impl::PVTableWidget::mousePressEvent(QMouseEvent* event)
 }
 
 }
-
 
 void PVWidgets::__impl::PVTableWidget::mouseMoveEvent(QMouseEvent* event)
 {
@@ -68,7 +60,7 @@ void PVWidgets::__impl::PVTableWidget::mouseMoveEvent(QMouseEvent* event)
 
 		drag->setMimeData(mimeData);
 
-		Qt::DropAction dropAction = drag->exec(Qt::CopyAction | Qt::MoveAction);
+		drag->exec(Qt::CopyAction | Qt::MoveAction);
 	}
 
 }
@@ -91,7 +83,7 @@ bool PVWidgets::__impl::FilterDropEvent::eventFilter(QObject* /*object*/, QEvent
 			const QMimeData* mimeData = dropEvent->mimeData();
 			QByteArray itemData = mimeData->data("application/x-qabstractitemmodeldatalist");
 
-			if (itemData.size() < sizeof(Picviz::PVView**)) {
+			if (itemData.size() < (int)sizeof(Picviz::PVView**)) {
 				return false;
 			}
 			Picviz::PVView* view = *(reinterpret_cast<Picviz::PVView* const*>(itemData.constData()));
@@ -101,21 +93,6 @@ bool PVWidgets::__impl::FilterDropEvent::eventFilter(QObject* /*object*/, QEvent
 			return true;
 		}
 	}
-	////
-	/*else if (event->type() == QEvent::KeyPress) {
-		QKeyEvent* qKeyEvent = (QKeyEvent*) event;
-		if (qKeyEvent->key() == Qt::Key_AltGr) {
-			PVAD2GWidget* widget = (PVAD2GWidget*) parent();
-			widget->set_edit_graph(false);
-		}
-	}
-	else if (event->type() == QEvent::KeyRelease) {
-		QKeyEvent* qKeyEvent = (QKeyEvent*) event;
-		if (qKeyEvent->key() == Qt::Key_AltGr) {
-			PVAD2GWidget* widget = (PVAD2GWidget*) parent();
-			widget->set_edit_graph(true);
-		}
-	}*/
 
 	return false;
 }
@@ -133,9 +110,7 @@ PVWidgets::PVAD2GWidget::PVAD2GWidget(Picviz::PVAD2GView_p ad2g, QWidget* parent
 
 	// Layout
 	QHBoxLayout* graph_views_layout = new QHBoxLayout();
-	QVBoxLayout* graph_radio_layout = new QVBoxLayout();
-	graph_radio_layout->addWidget(nodeWidget);
-	graph_views_layout->addLayout(graph_radio_layout);
+	graph_views_layout->addWidget(nodeWidget);
 	graph_views_layout->addWidget(_table);
 	QHBoxLayout* edges_properties_layout = new QHBoxLayout();
 	edges_properties_layout->addWidget(_list_edges_widget);
@@ -178,7 +153,7 @@ PVWidgets::PVAD2GWidget::PVAD2GWidget(Picviz::PVAD2GView_p ad2g, QWidget* parent
 		color_property->setAllEdgeValue(tlp::Color(142, 142, 142));
 		_graph->getProperty<tlp::IntegerProperty>("viewFontSize")->setAllNodeValue(12);
 		_graph->getLocalProperty<tlp::ColorProperty>("viewLabelColor")->setAllNodeValue(tlp::Color(255, 255, 255));
-		//_graph->getProperty<tlp::IntegerProperty>("viewShape")->setAllEdgeValue(4);
+		//_graph->getProperty<tlp::IntegerProperty>("viewShape")->setAllEdgeValue(4); // Bezier curve
 		_graph->getProperty<tlp::IntegerProperty>("viewSrcAnchorShape")->setAllEdgeValue(-1);
 		_graph->getProperty<tlp::IntegerProperty>("viewTgtAnchorShape")->setAllEdgeValue(50); // 28 for the Christmas Tree ! ;-)
 		_graph->getProperty<tlp::SizeProperty>("viewTgtAnchorSize")->setAllEdgeValue(tlp::Size(0.5, 0.5, 0.5));
@@ -187,16 +162,6 @@ PVWidgets::PVAD2GWidget::PVAD2GWidget(Picviz::PVAD2GView_p ad2g, QWidget* parent
 	}
 
 	_nodeLinkView->getGlMainWidget()->resizeGL(800,600);
-}
-
-void PVWidgets::PVAD2GWidget::set_edit_graph(bool edit_graph)
-{
-	if (edit_graph) {
-		_radio_edit_graph->setChecked(true);
-	}
-	else {
-		_radio_edit_layout->setChecked(true);
-	}
 }
 
 PVWidgets::PVAD2GWidget::~PVAD2GWidget()
@@ -231,12 +196,10 @@ tlp::node PVWidgets::PVAD2GWidget::add_view(QPoint pos, Picviz::PVView* view)
 	mLayout->setNodeValue(newNode, point);
 
 	// Disable QTableWidgetItem
-	int itemIndex = 0;
 	_table->setCurrentCell(-1, -1);
 	for (int i = 0; i < _table->rowCount(); i++) {
 		QTableWidgetItem* item = _table->item(i, 0);
 		if (item->data(Qt::UserRole).value<void*>() == (void*) view) {
-			itemIndex = item->row();
 			item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
 		}
 	}
@@ -279,8 +242,6 @@ void PVWidgets::PVAD2GWidget::remove_view_Slot(int node)
 
 tlp::edge PVWidgets::PVAD2GWidget::add_combining_function(const tlp::node source, const tlp::node target)
 {
-	tlp::Graph* graph = _nodeLinkView->getGlMainWidget()->getScene()->getGlGraphComposite()->getInputData()->getGraph();
-
 	Picviz::PVCombiningFunctionView_p cf_sp(new Picviz::PVCombiningFunctionView());
 	tlp::edge newEdge = _ad2g->set_edge_f(source, target, cf_sp);
 
