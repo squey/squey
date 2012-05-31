@@ -808,7 +808,6 @@ void PVInspector::PVMainWindow::refresh_current_view_Slot()
  *****************************************************************************/
 void PVInspector::PVMainWindow::select_scene_Slot()
 {
-
 }
 
 /******************************************************************************

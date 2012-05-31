@@ -33,7 +33,6 @@ void PVWidgets::__impl::PVTableWidget::mousePressEvent(QMouseEvent* event)
 	}
 
 	QTableWidget::mousePressEvent(event);
-
 }
 
 }
@@ -163,6 +162,7 @@ PVWidgets::PVAD2GWidget::PVAD2GWidget(Picviz::PVAD2GView_p ad2g, QWidget* parent
 
 	_nodeLinkView->getGlMainWidget()->resizeGL(800,600);
 }
+
 
 PVWidgets::PVAD2GWidget::~PVAD2GWidget()
 {
