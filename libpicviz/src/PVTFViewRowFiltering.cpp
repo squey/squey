@@ -78,7 +78,7 @@ Picviz::PVSelection Picviz::PVTFViewRowFiltering::operator()(PVView const& view_
 				}
 				case PVCore::PVBinaryOperation::XOR_NOT:
 				{
-					sel_tmp_row.xor_not(sel_tmp_rff=;
+					sel_tmp_row.xor_not(sel_tmp_rff);
 					break;
 				}
 				default:
