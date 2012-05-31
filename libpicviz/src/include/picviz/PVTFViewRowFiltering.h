@@ -29,6 +29,9 @@ public:
 	void remove_rff(int index) { _rffs.removeAt(index); }
 	bool remove_rff(PVSelRowFilteringFunction_p rff) { return _rffs.removeOne(rff); }
 	
+private:
+	bool all_rff_or_operation() const;
+
 public:
 	void to_xml(QDomElement& elt) const;
 	void from_xml(QDomElement const& elt);

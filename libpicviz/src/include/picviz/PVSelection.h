@@ -294,17 +294,17 @@ public:
 	ssize_t get_last_nonzero_chunk_index(ssize_t starting_chunk = 0, ssize_t ending_chunk = PICVIZ_SELECTION_NUMBER_OF_CHUNKS-1) const;
 
 	template <class F>
-	void visit_selected_lines(F const& f)
+	void visit_selected_lines(F const& f, ssize_t last_chunk_ = PICVIZ_SELECTION_NUMBER_OF_CHUNKS-1) const
 	{
 #ifdef __SSE_4_1__
-		const size_t last_chunk = get_last_nonzero_chunk_index();
-		if (last_chunk == 0) {
+		const ssize_t last_chunk = get_last_nonzero_chunk_index(last_chunk_);
+		if (last_chunk == -1) {
 			// No lines are selected !
 			return;
 		}
 		__m128i sse_sel;
 		const __m128i ones = _mm_set1_epi32(0xFFFFFFFF);
-		const size_t last_chunk_sse = (last_chunk/4)*4;
+		const size_t last_chunk_sse = (((size_t)last_chunk)>>2)<<2;
 		size_t i;
 		for (i = 0; i < last_chunk_sse; i += 4) {
 			sse_sel = _mm_load_si128((__m128i*) &_table[i]);
@@ -348,7 +348,7 @@ public:
 			}
 		}
 #else
-		visit_selected_lines_serial(f);
+		visit_selected_lines_serial(f, last_chunk_);
 #endif
 	}
 
@@ -361,9 +361,9 @@ public:
 
 private:
 	template <class F>
-	void visit_selected_lines_serial(F const& f)
+	void visit_selected_lines_serial(F const& f, ssize_t last_chunk_ = PICVIZ_SELECTION_NUMBER_OF_CHUNKS-1) const
 	{
-		const ssize_t last_chunk = get_last_nonzero_chunk_index(); 
+		const ssize_t last_chunk = get_last_nonzero_chunk_index(last_chunk_); 
 		if (last_chunk == 0) {
 			return;
 		}
