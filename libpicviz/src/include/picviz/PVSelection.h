@@ -236,6 +236,36 @@ public:
 	 */
 	PVSelection & operator^=(const PVSelection &rhs);
 
+	/**
+	 * This is the binary INPLACED 'OR NOT' operation on two selections
+	 * A.or_not(B)  (that stands for A = A | ~B)
+	 *
+	 * @param rhs The second selection involved in the 'OR NOT' operator
+	 *
+	 * @return A reference to the resulting PVSelection
+	 */
+	PVSelection & or_not(const PVSelection &rhs);
+
+	/**
+	 * This is the binary INPLACED 'AND NOT' operation on two selections
+	 * A.and_not(B)  (that stands for A = A | ~B)
+	 *
+	 * @param rhs The second selection involved in the 'AND NOT' operator
+	 *
+	 * @return A reference to the resulting PVSelection
+	 */
+	PVSelection & and_not(const PVSelection &rhs);
+
+	/**
+	 * This is the binary INPLACED 'XOR NOT' operation on two selections
+	 * A.xor_not(B)  (that stands for A = A ^ ~B)
+	 *
+	 * @param rhs The second selection involved in the 'XOR NOT' operator
+	 *
+	 * @return A reference to the resulting PVSelection
+	 */
+	PVSelection & xor_not(const PVSelection &rhs);
+
 	void select_all();
 	void select_even();
 	void select_none();

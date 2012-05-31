@@ -296,7 +296,47 @@ Picviz::PVSelection & Picviz::PVSelection::operator^=(const PVSelection &rhs)
 	return *this;
 }
 
+/******************************************************************************
+ *
+ * Picviz::PVSelection::or_not
+ *
+ *****************************************************************************/
+Picviz::PVSelection & Picviz::PVSelection::or_not(const PVSelection &rhs)
+{
+	for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
+		_table[i] |= ~rhs._table[i];
+	}
 
+	return *this;
+}
+
+/******************************************************************************
+ *
+ * Picviz::PVSelection::and_not
+ *
+ *****************************************************************************/
+Picviz::PVSelection & Picviz::PVSelection::and_not(const PVSelection &rhs)
+{
+	for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
+		_table[i] &= ~rhs._table[i];
+	}
+
+	return *this;
+}
+
+/******************************************************************************
+ *
+ * Picviz::PVSelection::xor_not
+ *
+ *****************************************************************************/
+Picviz::PVSelection & Picviz::PVSelection::xor_not(const PVSelection &rhs)
+{
+	for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
+		_table[i] ^= ~rhs._table[i];
+	}
+
+	return *this;
+}
 
 /******************************************************************************
  *
