@@ -775,7 +775,7 @@ void PVGL::PVMain::timer_func(int)
 					break;
 			case PVSDK_MESSENGER_FUNCTION_SET_VIEW_WINDOWTITLE:
 				{
-					PVLOG_INFO("Message to set the window title no handled today!\n");
+					PVLOG_DEBUG("Message to set the window title no handled today!\n");
 				// QString *name = reinterpret_cast<QString *>(message.pointer_1);
 				// for (std::list<PVGL::PVDrawable*>::iterator it = all_drawables.begin(); it != all_drawables.end(); ++it) {
 				// 	PVGL::PVView *pv_view = dynamic_cast<PVGL::PVView*>(*it);
@@ -875,7 +875,7 @@ void PVGL::PVMain::update_views_sel(QList<Picviz::PVView*> const& views)
 
 void PVGL::PVMain::stop()
 {
-	PVLOG_INFO("PVGL::%s: stopping\n", __FUNCTION__);
+	PVLOG_DEBUG("PVGL::%s: stopping\n", __FUNCTION__);
 	_should_stop = true;
 }
 
@@ -952,7 +952,7 @@ bool pvgl_init(PVSDK::PVMessenger *messenger)
 							{
 								QString *name = reinterpret_cast<QString *>(message.pointer_1);
 								PVGL::PVMain::create_scatter(name, message.pv_view);
-								PVLOG_INFO("PVGL::%s scatter view created\n", __FUNCTION__);
+								PVLOG_DEBUG("PVGL::%s scatter view created\n", __FUNCTION__);
 								message.function = PVSDK_MESSENGER_FUNCTION_VIEW_CREATED;
 								message.pointer_1 = new QString(*name);
 								pvsdk_messenger->post_message_to_qt(message);

@@ -33,7 +33,6 @@ namespace Picviz {
 /* Selection for axes */
 #define PICVIZ_SELECTION_AXES_NUMBER_OF_CHUNKS (PICVIZ_AXES_MAX / PICVIZ_SELECTION_CHUNK_SIZE + 1)
 
-
 /**
 * \class PVSelection
 */
@@ -76,7 +75,6 @@ public:
 	// Move constructor. Save a lot of useless allocations, memcpys and desallocations !
 	PVSelection(PVSelection&& o)
 	{
-		PVLOG_INFO("PVSelection move constructor called from object %p to %p\n", &o, this);
 		_table = o._table;
 		o._table = NULL;
 	}
@@ -134,7 +132,6 @@ public:
 
 	PVSelection& operator=(PVSelection&& rhs)
 	{
-		PVLOG_INFO("PVSelection move assignement called from object %p to %p\n", &rhs, this);
 		if (this != &rhs) {
 			if (_table) {
 				free_table();
@@ -164,7 +161,8 @@ public:
 	 *
 	 * @return A reference to the resulting PVSelection
 	 */
-	PVSelection & operator&=(const PVSelection &rhs);
+	PVSelection& operator&=(const PVSelection &rhs);
+	PVSelection& and_optimized(const PVSelection& rhs);
 
 	/**
 	 * This is the unary bitwise outplaced 'NOT' operation on one selection
@@ -192,8 +190,7 @@ public:
 	 *
 	 * @return A reference to the resulting PVSelection
 	 */
-	PVSelection & operator|=(const PVSelection &rhs);
-
+	PVSelection& operator|=(const PVSelection &rhs);
 	PVSelection& or_optimized(const PVSelection &rhs);
 
 	/**
@@ -236,6 +233,36 @@ public:
 	 */
 	PVSelection & operator^=(const PVSelection &rhs);
 
+	/**
+	 * This is the binary INPLACED 'OR NOT' operation on two selections
+	 * A.or_not(B)  (that stands for A = A | ~B)
+	 *
+	 * @param rhs The second selection involved in the 'OR NOT' operator
+	 *
+	 * @return A reference to the resulting PVSelection
+	 */
+	PVSelection & or_not(const PVSelection &rhs);
+
+	/**
+	 * This is the binary INPLACED 'AND NOT' operation on two selections
+	 * A.and_not(B)  (that stands for A = A | ~B)
+	 *
+	 * @param rhs The second selection involved in the 'AND NOT' operator
+	 *
+	 * @return A reference to the resulting PVSelection
+	 */
+	PVSelection & and_not(const PVSelection &rhs);
+
+	/**
+	 * This is the binary INPLACED 'XOR NOT' operation on two selections
+	 * A.xor_not(B)  (that stands for A = A ^ ~B)
+	 *
+	 * @param rhs The second selection involved in the 'XOR NOT' operator
+	 *
+	 * @return A reference to the resulting PVSelection
+	 */
+	PVSelection & xor_not(const PVSelection &rhs);
+
 	void select_all();
 	void select_even();
 	void select_none();
@@ -262,23 +289,23 @@ public:
 
 	inline void set_bit_fast(PVRow line_index) { _table[line_index / PICVIZ_SELECTION_CHUNK_SIZE] |= 1 << (line_index % PICVIZ_SELECTION_CHUNK_SIZE);}
 
-	// Returns the index of the last chunk that contains a line
-	// Returns -1 if no chunk is empty
-	ssize_t get_last_nonzero_chunk_index() const;
+	// Returns the index of the chunk following the last chunk that contains a line
+	// Thus, returns 0 if no chunk is empty
+	ssize_t get_last_nonzero_chunk_index(ssize_t starting_chunk = 0, ssize_t ending_chunk = PICVIZ_SELECTION_NUMBER_OF_CHUNKS-1) const;
 
 	template <class F>
 	void visit_selected_lines(F const& f)
 	{
 #ifdef __SSE_4_1__
-		const ssize_t last_chunk = get_last_nonzero_chunk_index();
-		if (last_chunk == -1) {
+		const size_t last_chunk = get_last_nonzero_chunk_index();
+		if (last_chunk == 0) {
 			// No lines are selected !
 			return;
 		}
 		__m128i sse_sel;
 		const __m128i ones = _mm_set1_epi32(0xFFFFFFFF);
-		const ssize_t last_chunk_sse = (last_chunk/4)*4;
-		ssize_t i;
+		const size_t last_chunk_sse = (last_chunk/4)*4;
+		size_t i;
 		for (i = 0; i < last_chunk_sse; i += 4) {
 			sse_sel = _mm_load_si128((__m128i*) &_table[i]);
 			if (_mm_testz_si128(sse_sel, ones) == 1) {
@@ -337,10 +364,10 @@ private:
 	void visit_selected_lines_serial(F const& f)
 	{
 		const ssize_t last_chunk = get_last_nonzero_chunk_index(); 
-		if (last_chunk == -1) {
+		if (last_chunk == 0) {
 			return;
 		}
-		for (ssize_t i = 0; i <= last_chunk; i++) {
+		for (ssize_t i = 0; i < last_chunk; i++) {
 			const uint32_t sel_buf = _table[i];
 			if (sel_buf == 0) {
 				continue;
@@ -364,8 +391,8 @@ private:
 
 protected:
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/);
-	inline ssize_t get_min_last_nonzero_chunk_index(PVSelection const& other) const { return picviz_min(get_last_nonzero_chunk_index(), other.get_last_nonzero_chunk_index()); }
-	inline ssize_t get_max_last_nonzero_chunk_index(PVSelection const& other) const { return picviz_max(get_last_nonzero_chunk_index(), other.get_last_nonzero_chunk_index()); }
+	ssize_t get_min_last_nonzero_chunk_index(PVSelection const& other) const;
+	ssize_t get_max_last_nonzero_chunk_index(PVSelection const& other) const;
 };
 
 }

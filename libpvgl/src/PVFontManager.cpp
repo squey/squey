@@ -25,19 +25,19 @@ PVGL::PVFont::PVFont()
 
 	error = FT_Init_FreeType(&library);
 	if (error) {
-		PVLOG_INFO("PVGL::PVFont::%s: Cannot open the freetype library\n", __FUNCTION__);
+		PVLOG_WARN("PVGL::PVFont::%s: Cannot open the freetype library\n", __FUNCTION__);
 	}
 	error = FT_New_Face(library, (pvgl_get_share_path() + "FreeSans.ttf").c_str(), 0, &face);
 	if (error) {
-		PVLOG_INFO("PVGL::PVFont::%s: Cannot load the %s font file.\n", "FreeSans.ttf");
+		PVLOG_WARN("PVGL::PVFont::%s: Cannot load the %s font file.\n", "FreeSans.ttf");
 	}
 	error = FT_Select_Charmap(face, FT_ENCODING_UNICODE);
 	if (error) {
-		PVLOG_INFO("PVGL::PVFont::%s: Cannot find the Unicode encoding in the current font.\n", __FUNCTION__);
+		PVLOG_WARN("PVGL::PVFont::%s: Cannot find the Unicode encoding in the current font.\n", __FUNCTION__);
 	}
 	error = FT_Set_Char_Size(face, 22 * 64, 22 * 64, 100, 100);
 	if (error) {
-		PVLOG_INFO("PVGL::PVFont::%s: Cannot select a char size of %d in the current font.\n", __FUNCTION__, 22);
+		PVLOG_WARN("PVGL::PVFont::%s: Cannot select a char size of %d in the current font.\n", __FUNCTION__, 22);
 	}
 
 	glPixelStorei(GL_UNPACK_LSB_FIRST, GL_FALSE);

@@ -211,9 +211,9 @@ void PVRush::PVExtractor::dump_nraw()
 	for (int i = 0; i < picviz_min(10,_nraw.get_number_rows()); i++) {
 		PVLOG_INFO("Line %d: ", i);
 		for (int j = 0; j < _nraw.get_number_cols(); j++) {
-			std::cout << qPrintable(_nraw.at(i,j)) << ",";
+			std::cerr << qPrintable(_nraw.at(i,j)) << ",";
 		}
-		std::cout << std::endl;
+		std::cerr << std::endl;
 	}
 }
 
@@ -229,11 +229,11 @@ PVRush::PVAggregator& PVRush::PVExtractor::get_agg()
 
 void PVRush::PVExtractor::debug()
 {
-	PVLOG_INFO("PVExtractor debug\n");
+	PVLOG_DEBUG("PVExtractor debug\n");
 	_agg.debug();
-	PVLOG_INFO("PVExtractor nraw\n");
+	PVLOG_DEBUG("PVExtractor nraw\n");
 	dump_nraw();
-	PVLOG_INFO("PVExtractor map nraw\n");
+	PVLOG_DEBUG("PVExtractor map nraw\n");
 	dump_mapnraw();
 }
 
