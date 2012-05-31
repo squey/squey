@@ -32,7 +32,7 @@ PVInspector::PVLayerStackModel::PVLayerStackModel(PVMainWindow *mw, PVTabSplitte
 	lib_view(parent_widget->get_lib_view()),
 	lib_layer_stack(&lib_view->layer_stack)
 {
-	PVLOG_INFO("PVInspector::PVLayerStackModel::%s : Creating object\n", __FUNCTION__);
+	PVLOG_DEBUG("PVInspector::PVLayerStackModel::%s : Creating object\n", __FUNCTION__);
 
 	select_brush = QBrush(QColor(255,240,200));
 	unselect_brush = QBrush(QColor(180,180,180));

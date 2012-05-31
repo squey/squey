@@ -151,7 +151,7 @@ void PVWidgets::PVColorGradientDualSliderEditor::mouseMoveEvent(QMouseEvent *eve
  *****************************************************************************/
 void PVWidgets::PVColorGradientDualSliderEditor::mousePressEvent(QMouseEvent *event)
 {
-	PVLOG_INFO("DualSlider popup: %d\n", (windowType() == Qt::Popup));
+	PVLOG_DEBUG("DualSlider popup: %d\n", (windowType() == Qt::Popup));
 	last_mouse_press_position = event->posF();
 	if (event->button() == Qt::LeftButton) {
 		SELECTED_SLIDER = get_selected_slider_index(event->x());
