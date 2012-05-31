@@ -47,6 +47,7 @@ void PVWidgets::PVAD2GEdgeEditor::init()
 	_list->setMinimumWidth(_list->horizontalHeader()->length());
 	_list->horizontalHeader()->setStretchLastSection(true);
 
+	_list->setSelectionMode(QAbstractItemView::SingleSelection);
 	_list->setDragDropMode(QAbstractItemView::InternalMove);
 	_list->setDragDropOverwriteMode(true);
 	_list->setMinimumWidth(400);

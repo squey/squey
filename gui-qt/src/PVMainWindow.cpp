@@ -937,8 +937,6 @@ void PVInspector::PVMainWindow::create_pvgl_thread ()
 	timer->start(100);
 }
 
-
-
 /******************************************************************************
  *
  * PVInspector::PVMainWindow::destroy_pvgl_views
@@ -2416,5 +2414,25 @@ void PVInspector::PVMainWindow::update_statemachine_label(Picviz::PVView_p view)
 {
 	statemachine_label->setText(view->state_machine->get_string());
 }
+
+
+/******************************************************************************
+ *
+ * PVInspector::PVMainWindow::SceneMenuEventFilter::eventFilter
+ *
+ *****************************************************************************/
+bool PVInspector::PVMainWindow::SceneMenuEventFilter::eventFilter(QObject* obj, QEvent* event)
+{
+	if(event->type() == QEvent::Show) {
+		bool is_enabled = false;
+		Picviz::PVScene* s = _parent->_scene.get();
+		if (s){
+			uint32_t nb_sources = _parent->_scene->get_all_sources().count();
+			is_enabled = nb_sources >= 2;
+		}
+		_parent->correlation_scene_Action->setEnabled(is_enabled);
+	}
+}
+
 
 

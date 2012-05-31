@@ -34,7 +34,7 @@
 PVInspector::PVListingModel::PVListingModel(PVMainWindow *mw, PVTabSplitter *parent) : QAbstractTableModel(parent) {
 	PVLOG_DEBUG("PVInspector::PVListingModel::%s\n", __FUNCTION__);
 
-	PVLOG_INFO("%s : Creating object\n", __FUNCTION__);
+	PVLOG_DEBUG("%s : Creating object\n", __FUNCTION__);
 
 	main_window = mw;
 	parent_widget = parent;

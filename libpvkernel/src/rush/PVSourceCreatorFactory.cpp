@@ -74,7 +74,7 @@ float PVRush::PVSourceCreatorFactory::discover_input(pair_format_creator format_
 		throw PVRush::PVFormatInvalid();
 	}
 	end = tbb::tick_count::now();
-	PVLOG_INFO("(PVSourceCreatorFactory::discover_input) format population took %0.4f.\n", (end-start).seconds());
+	PVLOG_INFO("Format %s population took %0.4f.\n", qPrintable(format.get_format_name()), (end-start).seconds());
 	PVSourceCreator_p sc = format_.second;
 
 	PVFilter::PVChunkFilter_f chk_flt = format.create_tbb_filters();
@@ -97,7 +97,7 @@ float PVRush::PVSourceCreatorFactory::discover_input(pair_format_creator format_
 		if (chunk->c_elements().size() + nelts > nelts_max) {
 			PVCore::list_elts& l = chunk->elements();
 			size_t new_size = nelts_max-nelts;
-			PVLOG_INFO("(PVSourceCreatorFactory::discover_input) new chunk size %d.\n", new_size);
+			PVLOG_DEBUG("(PVSourceCreatorFactory::discover_input) new chunk size %d.\n", new_size);
 			// Free the elements that we are going to remove
 			PVCore::list_elts::iterator it_elt = l.begin();
 			std::advance(it_elt, new_size);
@@ -119,7 +119,7 @@ float PVRush::PVSourceCreatorFactory::discover_input(pair_format_creator format_
 		PVCol chunk_nfields = (*(chunk->c_elements().begin()))->c_fields().size();
 		PVCol format_nfields = format.get_axes().size();
 		if (chunk_nfields != format_nfields) {
-		   PVLOG_INFO("For format %s, the number of fields after the normalization is %d, different of the number of axes of the format (%d).\n",	qPrintable(format.get_format_name()), chunk_nfields, format_nfields);
+		   PVLOG_DEBUG("For format %s, the number of fields after the normalization is %d, different of the number of axes of the format (%d).\n",	qPrintable(format.get_format_name()), chunk_nfields, format_nfields);
 		   chunk->free();
 		   return 0;
 		}
@@ -141,9 +141,7 @@ float PVRush::PVSourceCreatorFactory::discover_input(pair_format_creator format_
 	}
 
 	end = tbb::tick_count::now();
-	PVLOG_INFO("(PVSourceCreatorFactory::discover_input) format discovery took %0.4f.\n", (end-start).seconds());
-
-	PVLOG_INFO("Number of elts valid/total: %d/%d\n", nelts_valid, nelts);
+	PVLOG_INFO("Discovery with format %s took %0.4f, %d/%d elements are valid.\n", qPrintable(format.get_format_name()), (end-start).seconds(), nelts_valid, nelts);
 
 	return (float)nelts_valid/(float)nelts;
 }

@@ -64,6 +64,8 @@ class PVSerializeArchive;
 
 namespace PVInspector {
 
+class PVMainWindow;
+
 /**
  * \class PVMainWindow
  */
@@ -97,6 +99,16 @@ private:
 		PVRush::list_creators& lcr;
 		PVRush::PVInputType_p in_t;
 		QHash<QString,PVCore::PVMeanValue<float> >& discovered_types;
+	};
+
+	class SceneMenuEventFilter : public QObject
+	{
+	public:
+		SceneMenuEventFilter(PVMainWindow* parent) : _parent(parent) {}
+	protected:
+		bool eventFilter(QObject *obj, QEvent *event);
+	private:
+		PVMainWindow* _parent;
 	};
 
 private:
@@ -267,6 +279,7 @@ private:
 	QMenu *windows_Menu;
 	QMenu *help_Menu;
 
+	SceneMenuEventFilter* scene_menu_event_filter;
 
 	QAction *about_Action;
 	QAction *axes_editor_Action;
