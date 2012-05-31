@@ -46,6 +46,9 @@ target_link_libraries(Tpicviz_sizes ${LINK_LIBRARIES})
 add_executable(Tpicviz_ad2gview ad2gview.cpp)
 target_link_libraries(Tpicviz_ad2gview ${LINK_LIBRARIES} ${TULIP_LIBRARY})
 
+add_executable(sel_red selection_red.cpp)
+target_link_libraries(sel_red ${LINK_LIBRARIES} ${TULIP_LIBRARY})
+
 # Mapping plugin test
 #add_executable(Tpicviz_plugin_mapping plugin-mapping.cpp)
 #target_link_libraries(Tpicviz_plugin_mapping ${LINK_LIBRARIES})
