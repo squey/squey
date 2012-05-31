@@ -1,7 +1,8 @@
+#include <QFrame>
+
 #include <tulip/EdgeExtremityGlyphManager.h>
 #include <tulip/Interactor.h>
 #include <tulip/InteractorManager.h>
-#include <tulip/PluginLoaderTxt.h>
 #include <tulip/TlpQtTools.h>
 #include <tulip/TlpTools.h>
 
@@ -11,10 +12,7 @@
 
 #include <picviz/PVView.h>
 #include <picviz/PVView_types.h>
-#include <picviz/PVCombiningFunctionView.h>
-#include <picviz/PVTFViewRowFiltering.h>
-#include <picviz/PVSelRowFilteringFunction.h>
-#include <pvkernel/core/PVAxisIndexType.h>
+
 
 namespace PVWidgets {
 
@@ -109,8 +107,15 @@ PVWidgets::PVAD2GWidget::PVAD2GWidget(Picviz::PVAD2GView_p ad2g, QWidget* parent
 
 	// Layout
 	QHBoxLayout* graph_views_layout = new QHBoxLayout();
-	graph_views_layout->addWidget(nodeWidget);
+	QHBoxLayout* node_widget_layout = new QHBoxLayout();
+	node_widget_layout->addWidget(nodeWidget);
+	QFrame* graph_frame = new QFrame();
+	graph_frame->setFrameStyle(QFrame::Panel);
+	graph_frame->setLayout(node_widget_layout);
+	graph_views_layout->addWidget(graph_frame);
 	graph_views_layout->addWidget(_table);
+	graph_views_layout->setStretchFactor(graph_frame, 3);
+	graph_views_layout->setStretchFactor(_table, 1);
 	QHBoxLayout* edges_properties_layout = new QHBoxLayout();
 	edges_properties_layout->addWidget(_list_edges_widget);
 	QVBoxLayout* main_layout = new QVBoxLayout();
@@ -159,8 +164,6 @@ PVWidgets::PVAD2GWidget::PVAD2GWidget(Picviz::PVAD2GView_p ad2g, QWidget* parent
 
 		initObservers();
 	}
-
-	_nodeLinkView->getGlMainWidget()->resizeGL(800,600);
 }
 
 
