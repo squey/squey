@@ -47,7 +47,7 @@
 namespace tlp {
 
 template <typename T>
-struct StoredType<boost::shared_ptr<T> > {          
+struct StoredType<boost::shared_ptr<T> > {
 	typedef boost::shared_ptr<T> Value;
 	typedef Value ReturnedValue;
 	typedef Value const ReturnedConstValue;
@@ -74,7 +74,7 @@ struct StoredType<boost::shared_ptr<T> > {
 };
 
 template <typename T>
-struct StoredType<T*> {          
+struct StoredType<T*> {
 	typedef T* Value;
 	typedef T* ReturnedValue;
 	typedef T* ReturnedConstValue;
@@ -130,7 +130,7 @@ public:
 		// This can be called to know the string value of default value. So we must
 		// handle the case where `view' is NULL.
 		if (view == defaultValue()) {
-			return std::string(); 
+			return std::string();
 		}
 
 		// Get weak pointer to the last serialized object of this view
@@ -292,7 +292,7 @@ tlp::Graph* Picviz::PVAD2GView::get_serializable_sub_graph() const
 	// Get a sub graph of our graph that can be serialized (that is, whose views have been serialized).
 	// A cleaner way to do this would be to set a BooleanProperty to our graph, whose values will be true
 	// if and only if the corresponding nodes (views) are serializable.
-	
+
 	tlp::Graph* sub_graph = tlp::newGraph();
 	PVAD2GViewCorrelationProperty* sub_corr_info = sub_graph->getLocalProperty<PVAD2GViewCorrelationProperty>(TLP_CORR_PROPERTY);
 	tlp::copyToGraph(sub_graph, _graph);
@@ -635,6 +635,24 @@ tlp::node Picviz::PVAD2GView::get_graph_node(const Picviz::PVView *view) const
 /******************************************************************************
  *
  * Picviz::PVAD2GView::del_edge
+ *
+ *****************************************************************************/
+void Picviz::PVAD2GView::del_edge(const tlp::edge edge) const
+{
+	if (edge == TLP_EDGE_INVALID) {
+		return;
+	}
+
+	if (_graph->isElement(edge) == true) {
+		_corr_info->setEdgeValue(edge, PVAD2GViewEdge());
+		_graph->delEdge(edge);
+	}
+}
+
+
+/******************************************************************************
+ *
+ * Picviz::PVAD2GView::del_edge_f
  *
  *****************************************************************************/
 void Picviz::PVAD2GView::del_edge_f(Picviz::PVView* va, Picviz::PVView* vb)
