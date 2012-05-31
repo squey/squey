@@ -3,36 +3,42 @@ install(FILES "gui-qt/src/resources/icon.png" DESTINATION .)
 install(FILES "gui-qt/src/resources/picviz-inspector.ico" DESTINATION .)
 install(FILES "CHANGELOG" DESTINATION .)
 
+set(WIN_TBB_PATH "C:\\\\dev\\\\tbb\\\\bin\\\\intel64\\\\vc9")
+set(WIN_QT4_PATH "C:\\\\dev\\\\qt\\\\src\\\\qt-everywhere-opensource-src-4.7.3\\\\bin")
+set(WIN_CURL_PATH "C:\\\\dev\\\\curl")
+set(WIN_ICU_PATH "c:\\\\dev\\\\icu-amd64\\\\bin64")
+set(WIN_BOOST_PATH "c:\\\\dev\\\\boost\\\\install-root\\\\lib")
+
 if(WIN32)
 	set(TBB_DIST_FILES
-	C:\\\\dev\\\\tbb\\\\bin\\\\intel64\\\\vc9\\\\tbb.dll
-	C:\\\\dev\\\\tbb\\\\bin\\\\intel64\\\\vc9\\\\tbbmalloc.dll
+		${WIN_TBB_PATH}\\\\tbb.dll
+		${WIN_TBB_PATH}\\\\tbbmalloc.dll
 	)
 	install(FILES ${TBB_DIST_FILES} DESTINATION .)
 
 	set(QT4_DIST_FILES
-	C:\\\\dev\\\\qt\\\\src\\\\qt-everywhere-opensource-src-4.7.3\\\\bin\\\\phonon4.dll
-	C:\\\\dev\\\\qt\\\\src\\\\qt-everywhere-opensource-src-4.7.3\\\\bin\\\\QtCore4.dll
-	C:\\\\dev\\\\qt\\\\src\\\\qt-everywhere-opensource-src-4.7.3\\\\bin\\\\QtGui4.dll
-	C:\\\\dev\\\\qt\\\\src\\\\qt-everywhere-opensource-src-4.7.3\\\\bin\\\\QtMultimedia4.dll
-	C:\\\\dev\\\\qt\\\\src\\\\qt-everywhere-opensource-src-4.7.3\\\\bin\\\\QtNetwork4.dll
-	C:\\\\dev\\\\qt\\\\src\\\\qt-everywhere-opensource-src-4.7.3\\\\bin\\\\QtOpenGL4.dll
-	C:\\\\dev\\\\qt\\\\src\\\\qt-everywhere-opensource-src-4.7.3\\\\bin\\\\QtScript4.dll
-	C:\\\\dev\\\\qt\\\\src\\\\qt-everywhere-opensource-src-4.7.3\\\\bin\\\\QtSql4.dll
-	C:\\\\dev\\\\qt\\\\src\\\\qt-everywhere-opensource-src-4.7.3\\\\bin\\\\QtSvg4.dll
-	C:\\\\dev\\\\qt\\\\src\\\\qt-everywhere-opensource-src-4.7.3\\\\bin\\\\QtWebKit4.dll
-	C:\\\\dev\\\\qt\\\\src\\\\qt-everywhere-opensource-src-4.7.3\\\\bin\\\\QtXml4.dll
-	C:\\\\dev\\\\qt\\\\src\\\\qt-everywhere-opensource-src-4.7.3\\\\bin\\\\QtXmlPatterns4.dll
+	${WIN_QT4_PATH}\\\\phonon4.dll
+	${WIN_QT4_PATH}\\\\QtCore4.dll
+	${WIN_QT4_PATH}\\\\QtGui4.dll
+	${WIN_QT4_PATH}\\\\QtMultimedia4.dll
+	${WIN_QT4_PATH}\\\\QtNetwork4.dll
+	${WIN_QT4_PATH}\\\\QtOpenGL4.dll
+	${WIN_QT4_PATH}\\\\QtScript4.dll
+	${WIN_QT4_PATH}\\\\QtSql4.dll
+	${WIN_QT4_PATH}\\\\QtSvg4.dll
+	${WIN_QT4_PATH}\\\\QtWebKit4.dll
+	${WIN_QT4_PATH}\\\\QtXml4.dll
+	${WIN_QT4_PATH}\\\\QtXmlPatterns4.dll
 	#C:\\\\Qt\\\\4.7.3\\\\plugins\\\\sqldrivers\\\\qsqlite4.dll
 	#C:\\\\Qt\\\\4.7.3\\\\plugins\\\\sqldrivers\\\\qsqlodbc4.dll
 	)
 	install(FILES ${QT4_DIST_FILES} ${INSPECTOR_ICON} DESTINATION .)
 
 	set(CURL_DIST_FILES
-	C:\\\\dev\\\\curl\\\\curllib.dll
-	C:\\\\dev\\\\curl\\\\libeay32.dll
-	C:\\\\dev\\\\curl\\\\openldap.dll
-	C:\\\\dev\\\\curl\\\\ssleay32.dll
+	${WIN_CURL_PATH}\\\\curllib.dll
+	${WIN_CURL_PATH}\\\\libeay32.dll
+	${WIN_CURL_PATH}\\\\openldap.dll
+	${WIN_CURL_PATH}\\\\ssleay32.dll
 	)
 	install(FILES ${CURL_DIST_FILES} DESTINATION .)
 	
@@ -58,22 +64,22 @@ if(WIN32)
 	#install(FILES ${ZLIB_DIST_FILES} DESTINATION .)	
 
 	set(ICU_DIST_FILES
-	c:\\\\dev\\\\icu-amd64\\\\bin64\\\\icudt44.dll
-	c:\\\\dev\\\\icu-amd64\\\\bin64\\\\icuio44.dll
-	c:\\\\dev\\\\icu-amd64\\\\bin64\\\\iculx44.dll
-	c:\\\\dev\\\\icu-amd64\\\\bin64\\\\icule44.dll
-	c:\\\\dev\\\\icu-amd64\\\\bin64\\\\icutu44.dll
-	c:\\\\dev\\\\icu-amd64\\\\bin64\\\\icuin44.dll
-	c:\\\\dev\\\\icu-amd64\\\\bin64\\\\icuuc44.dll
+	${WIN_ICU_PATH}\\\\icudt44.dll
+	${WIN_ICU_PATH}\\\\icuio44.dll
+	${WIN_ICU_PATH}\\\\iculx44.dll
+	${WIN_ICU_PATH}\\\\icule44.dll
+	${WIN_ICU_PATH}\\\\icutu44.dll
+	${WIN_ICU_PATH}\\\\icuin44.dll
+	${WIN_ICU_PATH}\\\\icuuc44.dll
 	)
 	install(FILES ${ICU_DIST_FILES} DESTINATION .)
 	
 	set(BOOST_DIST_FILES
-	c:\\\\dev\\\\boost\\\\install-root\\\\lib\\\\boost_thread-vc90-mt-1_48.dll
-	c:\\\\dev\\\\boost\\\\install-root\\\\lib\\\\boost_system-vc90-mt-1_48.dll
-	c:\\\\dev\\\\boost\\\\install-root\\\\lib\\\\boost_date_time-vc90-mt-1_48.dll
-	c:\\\\dev\\\\boost\\\\install-root\\\\lib\\\\boost_python3-vc90-mt-1_48.dll
-	c:\\\\dev\\\\boost\\\\install-root\\\\lib\\\\boost_program-options-vc90-mt-1_48.dll
+	${WIN_BOOST_PATH}\\\\boost_thread-vc90-mt-1_48.dll
+	${WIN_BOOST_PATH}\\\\boost_system-vc90-mt-1_48.dll
+	${WIN_BOOST_PATH}\\\\boost_date_time-vc90-mt-1_48.dll
+	${WIN_BOOST_PATH}\\\\boost_python3-vc90-mt-1_48.dll
+	${WIN_BOOST_PATH}\\\\boost_program-options-vc90-mt-1_48.dll
 	)
 	install(FILES ${BOOST_DIST_FILES} DESTINATION .)
 	
