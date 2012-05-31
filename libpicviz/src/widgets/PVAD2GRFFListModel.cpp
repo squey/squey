@@ -180,10 +180,10 @@ void PVWidgets::PVAD2GRFFListModel::move_index(QModelIndex idx, bool up)
 	//emit dataChanged(new_idx, new_idx);
 }
 
-Qt::DropActions PVWidgets::PVAD2GRFFListModel::supportedDropActions() const
+/*Qt::DropActions PVWidgets::PVAD2GRFFListModel::supportedDropActions() const
 {
     return QAbstractItemModel::supportedDropActions() | Qt::MoveAction;
-}
+}*/
 
 
 /*
