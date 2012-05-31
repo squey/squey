@@ -222,7 +222,6 @@ void PVWidgets::PVAD2GWidget::remove_view_Slot(int node)
 	if (box->exec() == QMessageBox::Yes) {
 
 		tlp::node n = (tlp::node) node;
-		tlp::Graph* graph = _nodeLinkView->getGlMainWidget()->getScene()->getGlGraphComposite()->getInputData()->getGraph();
 		tlp::Observable::holdObservers();
 
 		// Enable item in table
@@ -234,7 +233,10 @@ void PVWidgets::PVAD2GWidget::remove_view_Slot(int node)
 			}
 		}
 
-		graph->delNode(n);
+		_ad2g->del_view_by_node(n);
+
+		_list_edges_widget->update_list_edges();
+
 		_nodeLinkView->getGlMainWidget()->redraw();
 		tlp::Observable::unholdObservers();
 	}
@@ -259,8 +261,8 @@ void PVWidgets::PVAD2GWidget::remove_combining_function_Slot(int edge)
 		tlp::edge e = (tlp::edge) edge;
 
 		tlp::Observable::holdObservers();
-		tlp::Graph* graph = _nodeLinkView->getGlMainWidget()->getScene()->getGlGraphComposite()->getInputData()->getGraph();
-		graph->delEdge(e);
+
+		_ad2g->del_edge(e);
 
 		_list_edges_widget->update_list_edges();
 
