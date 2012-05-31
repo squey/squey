@@ -2424,8 +2424,13 @@ void PVInspector::PVMainWindow::update_statemachine_label(Picviz::PVView_p view)
 bool PVInspector::PVMainWindow::SceneMenuEventFilter::eventFilter(QObject* obj, QEvent* event)
 {
 	if(event->type() == QEvent::Show) {
-		uint32_t nb_sources = _parent->_scene->get_all_sources().count();
-		_parent->correlation_scene_Action->setEnabled(nb_sources >= 2);
+		bool is_enabled = false;
+		Picviz::PVScene* s = _parent->_scene.get();
+		if (s){
+			uint32_t nb_sources = _parent->_scene->get_all_sources().count();
+			is_enabled = nb_sources >= 2;
+		}
+		_parent->correlation_scene_Action->setEnabled(is_enabled);
 	}
 }
 
