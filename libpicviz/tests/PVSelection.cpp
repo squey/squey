@@ -114,6 +114,23 @@ int main(void)
 	BENCH_END_TRANSFORM(opt_or2, "Opt OR", sizeof(uint32_t), PICVIZ_SELECTION_NUMBER_OF_CHUNKS);
 	std::cout << "Last chunk : " << c.get_last_nonzero_chunk_index() << std::endl;
 
+	a.select_none();
+	b.select_none();
+	a.set_line(34, true);
+	b.set_line(32*5+2, true);
+
+	std::cout << "Line 34 set, last nonzero chunk (1) = " << a.get_last_nonzero_chunk_index() << std::endl;
+	std::cout << "Line 32*5+2 set, last nonzero chunk (5) = " << b.get_last_nonzero_chunk_index() << std::endl;
+	std::cout << "Line 32*5+2 set, last nonzero chunk from 4 (5) = " << b.get_last_nonzero_chunk_index(4) << std::endl;
+	std::cout << "Line 32*5+2 set, last nonzero chunk from 5 (5) = " << b.get_last_nonzero_chunk_index(5) << std::endl;
+	std::cout << "Line 32*5+2 set, last nonzero chunk from 6 (5) = " << b.get_last_nonzero_chunk_index(6) << std::endl;
+	std::cout << "Line 32*5+2 set, last nonzero chunk from 7 (5) = " << b.get_last_nonzero_chunk_index(7) << std::endl;
+
+	std::cout << "Line 32*5+2 set, last nonzero chunk to 4 (5) = " << b.get_last_nonzero_chunk_index(0, 4) << std::endl;
+	std::cout << "Line 32*5+2 set, last nonzero chunk to 5 (5) = " << b.get_last_nonzero_chunk_index(0, 5) << std::endl;
+	std::cout << "Line 32*5+2 set, last nonzero chunk to 6 (5) = " << b.get_last_nonzero_chunk_index(0, 6) << std::endl;
+	std::cout << "Line 32*5+2 set, last nonzero chunk to 7 (5) = " << b.get_last_nonzero_chunk_index(0, 7) << std::endl;
+
 	/**********************************************************************
 	***********************************************************************
 	*
