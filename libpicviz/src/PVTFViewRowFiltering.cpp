@@ -51,13 +51,14 @@ Picviz::PVSelection Picviz::PVTFViewRowFiltering::operator()(PVView const& view_
 			switch (rff_p->get_combination_op() /*index*/) {
 				case PVCore::PVBinaryOperation::OR:
 				{
-					sel_tmp_row |= sel_tmp_rff;
-					//sel_tmp_row.or_optimized(sel_tmp_rff);
+					//sel_tmp_row |= sel_tmp_rff;
+					sel_tmp_row.or_optimized(sel_tmp_rff);
 					break;
 				}
 				case PVCore::PVBinaryOperation::AND:
 				{
-					sel_tmp_row &= sel_tmp_rff;
+					//sel_tmp_row &= sel_tmp_rff;
+					sel_tmp_row.and_optimized(sel_tmp_rff);
 					break;
 				}
 				case PVCore::PVBinaryOperation::XOR:

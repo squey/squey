@@ -7,7 +7,9 @@
 #include "bithacks.h"
 
 #include <pvkernel/core/picviz_intrin.h>
+
 #include <picviz/PVSelection.h>
+#include <picviz/PVSparseSelection.h>
 
 static inline uint32_t count_bits(size_t n, const uint32_t* data)
 {
@@ -200,6 +202,18 @@ Picviz::PVSelection & Picviz::PVSelection::operator&=(const PVSelection &rhs)
 	return *this;
 }
 
+Picviz::PVSelection& Picviz::PVSelection::and_optimized(const PVSelection& rhs)
+{
+	const ssize_t last_chunk = get_max_last_nonzero_chunk_index(rhs);
+	if (last_chunk >= 0) {
+		for (PVRow i = 0; i < (PVRow) last_chunk; i++) {
+			_table[i] &= rhs._table[i];
+		}
+	}
+
+	return *this;
+}
+
 /******************************************************************************
  *
  * Picviz::PVSelection::operator~
@@ -229,7 +243,7 @@ Picviz::PVSelection Picviz::PVSelection::operator|(const PVSelection &rhs) const
 }
 
 /******************************************************************************
- *
+*
  * Picviz::PVSelection::operator|=
  *
  *****************************************************************************/
@@ -421,40 +435,51 @@ void Picviz::PVSelection::set_line_select_only(PVRow line_index, bool bool_value
 	set_line(line_index, true);
 }
 
-ssize_t Picviz::PVSelection::get_last_nonzero_chunk_index() const
+ssize_t Picviz::PVSelection::get_last_nonzero_chunk_index(ssize_t starting_chunk, ssize_t ending_chunk) const
 {
+	if (starting_chunk < 0 || ending_chunk < 0) {
+		return -1;
+	}
 #ifdef __SSE4_1__
 	__m128i ones = _mm_set1_epi32(0xFFFFFFFF);
 	__m128i vec;
-#if (PICVIZ_SELECTION_NUMBER_OF_CHUNKS % 4 != 0)
-	for (PVRow i = PICVIZ_SELECTION_NUMBER_OF_CHUNKS-1; i >= (PICVIZ_SELECTION_NUMBER_OF_CHUNKS/4)*4; i--) {
-		if (table[i] != 0) {
-			return i;
+	const ssize_t ending_chunk_aligned = (ssize_t)(((size_t)ending_chunk>>2)<<2);
+	if (ending_chunk_aligned <= starting_chunk) {
+		for (ssize_t i = ending_chunk; i >= starting_chunk; i--) {
+			if (_table[i] != 0) {
+				return i;
+			}
 		}
 	}
-#endif
-	for (ssize_t i = ((PICVIZ_SELECTION_NUMBER_OF_CHUNKS/4)*4)-4; i >= 0; i -= 4) {
-		vec = _mm_load_si128((__m128i*) &_table[i]);
-		if (_mm_testz_si128(vec, ones) == 0) {
-			uint64_t DECLARE_ALIGN(16) final_sel[2];
-			_mm_store_si128((__m128i*)final_sel, vec);
-			// If final_sel[0] == 0, it means that the chunk is in one of the last two 32 bits of vec.
-			// Otherwise, it is one of the two first.
-			uint8_t reg_pos = (final_sel[1] != 0);
-			uint32_t* preg_last2 = (uint32_t*) &final_sel[reg_pos];
-			uint8_t reg_pos_last2 = (preg_last2[1] != 0);
-			return i + (reg_pos<<1) + reg_pos_last2;
+	else {
+		for (ssize_t i = ending_chunk; i >= ending_chunk_aligned; i--) {
+			if (_table[i] != 0) {
+				return i;
+			}
+		}
+		for (ssize_t i = ((ssize_t)ending_chunk_aligned)-4; i >= starting_chunk; i -= 4) {
+			vec = _mm_load_si128((__m128i*) &_table[i]);
+			if (_mm_testz_si128(vec, ones) == 0) {
+				uint64_t DECLARE_ALIGN(16) final_sel[2];
+				_mm_store_si128((__m128i*)final_sel, vec);
+				// If final_sel[0] == 0, it means that the chunk is in one of the last two 32 bits of vec.
+				// Otherwise, it is one of the two first.
+				uint8_t reg_pos = (final_sel[1] != 0);
+				uint32_t* preg_last2 = (uint32_t*) &final_sel[reg_pos];
+				uint8_t reg_pos_last2 = (preg_last2[1] != 0);
+				return i + (reg_pos<<1) + reg_pos_last2;
+			}
 		}
 	}
-	return -1;
+	return starting_chunk-1;
 
 #else
-	for (PVRow i = PICVIZ_SELECTION_NUMBER_OF_CHUNKS-1; i >= 0; i--) {
+	for (ssize_t i = ending_chunk; i >= starting_chunk; i--) {
 		if (_table[i] != 0) {
 			return i;
 		}
 	}
-	return -1;
+	return starting_chunk-1;
 #endif
 }
 
@@ -484,12 +509,29 @@ void Picviz::PVSelection::write_selected_lines_nraw(QTextStream& stream, PVRush:
 
 Picviz::PVSelection& Picviz::PVSelection::or_optimized(const PVSelection& rhs)
 {
-	uint32_t last_chunk = picviz_max(get_last_nonzero_chunk_index(), rhs.get_last_nonzero_chunk_index());
-	for (PVRow i = 0; i < last_chunk; i++) {
-		_table[i] |= rhs._table[i];
+	const ssize_t last_chunk = rhs.get_last_nonzero_chunk_index();
+	if (last_chunk >= 0) {
+		// TODO: GCC vectorize this, but we could try to
+		// do this by SSE and checking whether rhs._table[] vectors
+		// are non-null before doing the actual OR+store (thus saving stores)
+		for (PVRow i = 0; i < (PVRow) last_chunk; i++) {
+			_table[i] |= rhs._table[i];
+		}
 	}
 
 	return *this;
+}
+
+ssize_t Picviz::PVSelection::get_min_last_nonzero_chunk_index(PVSelection const& other) const
+{
+	const ssize_t last_chunk = other.get_last_nonzero_chunk_index();
+	return get_last_nonzero_chunk_index(0, last_chunk);
+}
+
+ssize_t Picviz::PVSelection::get_max_last_nonzero_chunk_index(PVSelection const& other) const
+{
+	const ssize_t last_chunk = other.get_last_nonzero_chunk_index();
+	return get_last_nonzero_chunk_index(last_chunk, PICVIZ_SELECTION_NUMBER_OF_CHUNKS-1);
 }
 
 void Picviz::PVSelection::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
