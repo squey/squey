@@ -13,13 +13,13 @@ QString PVCore::get_binary_operation_name(PVCore::PVBinaryOperation binop)
 	case PVCore::XOR:
 		return QString("XOR");
 		break;
-	case PVCore::NOR:
+	case PVCore::OR_NOT:
 		return QString("OR NOT");
 		break;
-	case PVCore::NAND:
+	case PVCore::AND_NOT:
 		return QString("AND NOT");
 		break;
-	case PVCore::NXOR:
+	case PVCore::XOR_NOT:
 		return QString("XOR NOT");
 		break;
 	default:
