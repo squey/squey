@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <pvkernel/core/picviz_bench.h>
 
 #include <picviz/PVSelection.h>
 
@@ -79,9 +80,39 @@ int main(void)
 	a.select_even();
 	b.select_odd();
 
-	Picviz::PVSelection c = a | b;
+	Picviz::PVSelection c = std::move(a & b);
 	PVLOG_INFO("a: %p , b = %p , c = %p\n", &a, &b, &c);
 	std::cout << "PVSelection should be empty: PVSelection::is_empty() = " << c.is_empty() << std::endl;
+
+	c = a;
+	c.and_optimized(b);
+	std::cout << "PVSelection should be empty: PVSelection::is_empty() = " << c.is_empty() << std::endl;
+
+	c = a;
+	BENCH_START(original_or);
+	c |= b;
+	BENCH_END_TRANSFORM(original_or, "Original OR", sizeof(uint32_t), PICVIZ_SELECTION_NUMBER_OF_CHUNKS);
+	std::cout << "Last chunk should be " << PICVIZ_SELECTION_NUMBER_OF_CHUNKS-1 << " : " << c.get_last_nonzero_chunk_index() << std::endl;
+
+	c = a;
+	BENCH_START(opt_or);
+	c.or_optimized(b);
+	BENCH_END_TRANSFORM(opt_or, "Opt OR", sizeof(uint32_t), PICVIZ_SELECTION_NUMBER_OF_CHUNKS);
+	std::cout << "Last chunk should be " << PICVIZ_SELECTION_NUMBER_OF_CHUNKS-1 << " : " << c.get_last_nonzero_chunk_index() << std::endl;
+
+	b.select_none();
+
+	c = a;
+	BENCH_START(original_or2);
+	c |= b;
+	BENCH_END_TRANSFORM(original_or2, "Original OR", sizeof(uint32_t), PICVIZ_SELECTION_NUMBER_OF_CHUNKS);
+	std::cout << "Last chunk : " << c.get_last_nonzero_chunk_index() << std::endl;
+
+	c = a;
+	BENCH_START(opt_or2);
+	c.or_optimized(b);
+	BENCH_END_TRANSFORM(opt_or2, "Opt OR", sizeof(uint32_t), PICVIZ_SELECTION_NUMBER_OF_CHUNKS);
+	std::cout << "Last chunk : " << c.get_last_nonzero_chunk_index() << std::endl;
 
 	/**********************************************************************
 	***********************************************************************
