@@ -46,7 +46,8 @@ Picviz::PVSelection Picviz::PVTFViewRowFiltering::operator()(PVView const& view_
 
 	if (all_rff_or_operation()) {
 		PVLOG_INFO("Correlation: only OR operations, optimizing process...\n");
-#pragma omp parallel num_threads(12)
+		double time_for = 0.0;
+#pragma omp parallel num_threads(12) reduction(+:time_for)
 		{
 			sel_org.visit_selected_lines([&](PVRow r)
 				{
@@ -57,7 +58,8 @@ Picviz::PVSelection Picviz::PVTFViewRowFiltering::operator()(PVView const& view_
 							(*rff_p)(r, view_src, view_dst, task_sel);
 						}
 					}
-				});
+				},
+				PVSelection::line_index_to_chunk(nlines_sel));
 #pragma omp taskwait
 		}
 

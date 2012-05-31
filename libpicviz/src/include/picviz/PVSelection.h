@@ -359,6 +359,8 @@ public:
 
 	void write_selected_lines_nraw(QTextStream& stream, PVRush::PVNraw const& nraw, PVRow write_max);
 
+	static inline PVRow line_index_to_chunk(PVRow r) { return r>>5; }
+
 private:
 	template <class F>
 	void visit_selected_lines_serial(F const& f, ssize_t last_chunk_ = PICVIZ_SELECTION_NUMBER_OF_CHUNKS-1) const
