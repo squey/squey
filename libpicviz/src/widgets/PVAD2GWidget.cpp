@@ -335,6 +335,7 @@ void PVWidgets::PVAD2GWidget::init_table()
 
 	_table->setDragEnabled(true);
 	_table->setDragDropMode(QAbstractItemView::DragOnly);
+	_table->setSelectionMode(QAbstractItemView::SingleSelection);
 }
 
 void PVWidgets::PVAD2GWidget::update_list_views()

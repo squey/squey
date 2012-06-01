@@ -131,6 +131,20 @@ int main(void)
 	std::cout << "Line 32*5+2 set, last nonzero chunk to 6 (5) = " << b.get_last_nonzero_chunk_index(0, 6) << std::endl;
 	std::cout << "Line 32*5+2 set, last nonzero chunk to 7 (5) = " << b.get_last_nonzero_chunk_index(0, 7) << std::endl;
 
+	std::cout << "Checking only one line set in range [1024, 1088]" << std::endl;
+	for (int i = 0; i < (PICVIZ_SELECTION_CHUNK_SIZE * 2) + 1; ++i) {
+		PVRow r = 1024 + i;
+		a.select_none();
+		a.set_line(r, true);
+		ssize_t expected = r / PICVIZ_SELECTION_CHUNK_SIZE;
+		ssize_t res = a.get_last_nonzero_chunk_index(0, 64);
+		if (res != expected) {
+			std::cout << "Test fails with line " << r
+			          << " set and last nonzero chunk to 64: returns "
+			          << res << " but " << expected << " expected";
+		}
+	}
+
 	/**********************************************************************
 	***********************************************************************
 	*

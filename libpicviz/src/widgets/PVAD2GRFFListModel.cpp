@@ -17,11 +17,8 @@ int PVWidgets::PVAD2GRFFListModel::rowCount(const QModelIndex &parent) const
     return _rffs.count();
 }
 
-int PVWidgets::PVAD2GRFFListModel::columnCount(const QModelIndex &parent) const
+int PVWidgets::PVAD2GRFFListModel::columnCount(const QModelIndex &/*parent*/) const
 {
-    if (parent.isValid())
-        return 0;
-
     return 2;
 }
 
@@ -168,6 +165,20 @@ Picviz::PVTFViewRowFiltering::list_rff_t& PVWidgets::PVAD2GRFFListModel::get_rff
 void PVWidgets::PVAD2GRFFListModel::move_index(QModelIndex idx, bool up)
 {
 	QVariant var = data(idx, Qt::UserRole);
+
+	// the following line is REQUIRED to avoid a segfault when doing the
+	// following step:
+	// 1- click on "Add"
+	// 2- click on "Up" or "Down"
+	// In that case, remove_Rows() frees the a RFF (stored as a shared
+	// pointer) because it is its last reference. setData()
+	// (shared_from_this more precisely) throws also the following
+	// exception:
+	// terminate called after throwing an instance of 'boost::exception_detail::clone_impl<boost::exception_detail::error_info_injector<boost::bad_weak_ptr> >'
+	//
+	// In the other cases, the PVAD2GFunctionPropertiesWidget is shown,
+	// it has also a reference on it, so that the RFF is not freed.
+	Picviz::PVSelRowFilteringFunction_p srff_p = _rffs.at(idx.row());
 
 	int old_row = idx.row();
 	int new_row = old_row + (up ? -1 : 1);
