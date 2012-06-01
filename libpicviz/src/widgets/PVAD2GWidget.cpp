@@ -198,7 +198,7 @@ tlp::node PVWidgets::PVAD2GWidget::add_view(QPoint pos, Picviz::PVView* view)
 	tlp::LayoutProperty* mLayout = graph->getProperty<tlp::LayoutProperty>(_nodeLinkView->getGlMainWidget()->getScene()->getGlGraphComposite()->getInputData()->getElementLayoutPropName());
 	mLayout->setNodeValue(newNode, point);
 
-	// Disable QTableWidgetItem
+	// Disable the view from the list of views
 	_table->setCurrentCell(-1, -1);
 	set_enabled_view_item_in_table(view, false);
 
@@ -222,7 +222,7 @@ void PVWidgets::PVAD2GWidget::remove_view_Slot(int node)
 		tlp::node n = (tlp::node) node;
 		tlp::Observable::holdObservers();
 
-		// Enable item in table
+		// Enable view in the list of views
 		Picviz::PVView* view = _ad2g->get_view(n);
 		set_enabled_view_item_in_table(view, true);
 
@@ -340,10 +340,14 @@ void PVWidgets::PVAD2GWidget::update_list_views()
 		item->setToolTip(view->get_window_name());
 		item->setData(Qt::UserRole, qVariantFromValue((void*) view.get()));
 		_table->setItem(view->get_view_id(), 0, item);
-
-		// Disable QTableWidgetItem
-		set_enabled_view_item_in_table(view.get(), false);
 	}
+
+	// Disable all the view present in the graph from the list of views
+	tlp::node node;
+	forEach(node, _graph->getNodes()) {
+		set_enabled_view_item_in_table(_ad2g->get_view(node), false);
+	}
+
 	_table->resizeRowsToContents();
 }
 
