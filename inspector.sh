@@ -128,5 +128,10 @@ then
 	exit 0
 fi
 
-
-catchsegv gui-qt/src/picviz-inspector $@
+LOAD_PROJECT=""
+if [ ${1: -3} == ".pv" ]
+then
+	LOAD_PROJECT="--project "
+fi
+	
+catchsegv gui-qt/src/picviz-inspector $LOAD_PROJECT $@
