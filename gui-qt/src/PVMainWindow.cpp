@@ -2426,12 +2426,14 @@ bool PVInspector::PVMainWindow::SceneMenuEventFilter::eventFilter(QObject* obj, 
 	if(event->type() == QEvent::Show) {
 		bool is_enabled = false;
 		Picviz::PVScene* s = _parent->_scene.get();
-		if (s){
+		if (s) {
 			uint32_t nb_sources = _parent->_scene->get_all_sources().count();
 			is_enabled = nb_sources >= 2;
 		}
 		_parent->correlation_scene_Action->setEnabled(is_enabled);
+		return true;
 	}
+	return QObject::eventFilter(obj, event);
 }
 
 
