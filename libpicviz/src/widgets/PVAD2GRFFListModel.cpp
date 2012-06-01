@@ -17,11 +17,8 @@ int PVWidgets::PVAD2GRFFListModel::rowCount(const QModelIndex &parent) const
     return _rffs.count();
 }
 
-int PVWidgets::PVAD2GRFFListModel::columnCount(const QModelIndex &parent) const
+int PVWidgets::PVAD2GRFFListModel::columnCount(const QModelIndex &/*parent*/) const
 {
-    if (parent.isValid())
-        return 0;
-
     return 2;
 }
 
