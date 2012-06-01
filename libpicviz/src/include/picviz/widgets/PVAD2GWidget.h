@@ -77,6 +77,7 @@ private:
 	void init_table();
 	void initObservers();
 	void clearObservers();
+	void set_enabled_view_item_in_table(Picviz::PVView* view, bool enabled);
 
 private:
 	Picviz::PVAD2GView_p _ad2g;

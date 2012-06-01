@@ -200,12 +200,7 @@ tlp::node PVWidgets::PVAD2GWidget::add_view(QPoint pos, Picviz::PVView* view)
 
 	// Disable QTableWidgetItem
 	_table->setCurrentCell(-1, -1);
-	for (int i = 0; i < _table->rowCount(); i++) {
-		QTableWidgetItem* item = _table->item(i, 0);
-		if (item->data(Qt::UserRole).value<void*>() == (void*) view) {
-			item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
-		}
-	}
+	set_enabled_view_item_in_table(view, false);
 
 	// Add node text
 	tlp::StringProperty* label = graph->getProperty<tlp::StringProperty>("viewLabel");
@@ -229,12 +224,7 @@ void PVWidgets::PVAD2GWidget::remove_view_Slot(int node)
 
 		// Enable item in table
 		Picviz::PVView* view = _ad2g->get_view(n);
-		for (int i = 0; i < _table->rowCount(); i++) {
-			QTableWidgetItem* item = _table->item(i, 0);
-			if (item->data(Qt::UserRole).value<void*>() == (void*) view) {
-				item->setFlags(item->flags() | Qt::ItemIsEnabled);
-			}
-		}
+		set_enabled_view_item_in_table(view, true);
 
 		_ad2g->del_view_by_node(n);
 
@@ -350,8 +340,26 @@ void PVWidgets::PVAD2GWidget::update_list_views()
 		item->setToolTip(view->get_window_name());
 		item->setData(Qt::UserRole, qVariantFromValue((void*) view.get()));
 		_table->setItem(view->get_view_id(), 0, item);
+
+		// Disable QTableWidgetItem
+		set_enabled_view_item_in_table(view.get(), false);
 	}
 	_table->resizeRowsToContents();
+}
+
+void PVWidgets::PVAD2GWidget::set_enabled_view_item_in_table(Picviz::PVView* view, bool enabled)
+{
+	for (int i = 0; i < _table->rowCount(); i++) {
+		QTableWidgetItem* item = _table->item(i, 0);
+		if (item && item->data(Qt::UserRole).value<void*>() == (void*) view) {
+			if (enabled) {
+				item->setFlags(item->flags() | Qt::ItemIsEnabled);
+			}
+			else {
+				item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
+			}
+		}
+	}
 }
 
 void PVWidgets::PVAD2GWidget::clearObservers()
