@@ -28,7 +28,9 @@ namespace Picviz {
 #else
 #define PICVIZ_SELECTION_NUMBER_OF_CHUNKS ((PICVIZ_LINES_MAX / PICVIZ_SELECTION_CHUNK_SIZE) + 1)
 #endif
-#define PICVIZ_SELECTION_NUMBER_OF_BYTES (PICVIZ_SELECTION_NUMBER_OF_CHUNKS * ((PICVIZ_SELECTION_CHUNK_SIZE)/8))
+#define PICVIZ_SELECTION_NUMBER_OF_ROWS (PICVIZ_SELECTION_NUMBER_OF_CHUNKS * PICVIZ_SELECTION_CHUNK_SIZE)
+#define PICVIZ_SELECTION_NUMBER_OF_BYTES (PICVIZ_SELECTION_NUMBER_OF_ROWS / 8)
+
 
 /* Selection for axes */
 #define PICVIZ_SELECTION_AXES_NUMBER_OF_CHUNKS (PICVIZ_AXES_MAX / PICVIZ_SELECTION_CHUNK_SIZE + 1)
@@ -294,10 +296,10 @@ public:
 	ssize_t get_last_nonzero_chunk_index(ssize_t starting_chunk = 0, ssize_t ending_chunk = PICVIZ_SELECTION_NUMBER_OF_CHUNKS-1) const;
 
 	template <class F>
-	void visit_selected_lines(F const& f, ssize_t last_chunk_ = PICVIZ_SELECTION_NUMBER_OF_CHUNKS-1) const
+	void visit_selected_lines(F const& f, PVRow nrows = PICVIZ_SELECTION_NUMBER_OF_ROWS) const
 	{
 #ifdef __SSE_4_1__
-		const ssize_t last_chunk = get_last_nonzero_chunk_index(last_chunk_);
+		const ssize_t last_chunk = get_last_nonzero_chunk_index(line_index_to_chunk(nrows - 1));
 		if (last_chunk == -1) {
 			// No lines are selected !
 			return;
@@ -320,6 +322,10 @@ public:
 
 			if (vec64_0 != 0) {
 				while (nbits > 0 && cur_b < 64) {
+					PVRow idx = (i<<5) + cur_b;
+					if (idx >= nrows) {
+						return;
+					}
 					if (vec64_0 & (1UL<<cur_b)) {
 						f((i<<5) + cur_b);
 						nbits--;
@@ -330,6 +336,10 @@ public:
 			}
 			if (vec64_1 != 0) {
 				while (nbits > 0 && cur_b < 64) {
+					PVRow idx = (i<<5) + cur_b + 64;
+					if (idx >= nrows) {
+						return;
+					}
 					if (vec64_1 & (1UL<<cur_b)) {
 						f((i<<5) + cur_b + 64);
 						nbits--;
@@ -342,13 +352,17 @@ public:
 		for (; i <= last_chunk; i++) {
 			const uint32_t sel_buf = _table[i];
 			for (uint32_t j = 0; j < 32; j++) {
+				PVRow idx = (i<<5) +j;
+				if (idx >= nrows) {
+					return;
+				}
 				if (sel_buf & (1U<<j)) {
-					f((i<<5) +j);
+					f(idx);
 				}
 			}
 		}
 #else
-		visit_selected_lines_serial(f, last_chunk_);
+		visit_selected_lines_serial(f, nrows);
 #endif
 	}
 
@@ -363,9 +377,9 @@ public:
 
 private:
 	template <class F>
-	void visit_selected_lines_serial(F const& f, ssize_t last_chunk_ = PICVIZ_SELECTION_NUMBER_OF_CHUNKS-1) const
+	void visit_selected_lines_serial(F const& f, PVRow nrows = PICVIZ_SELECTION_NUMBER_OF_ROWS) const
 	{
-		const ssize_t last_chunk = get_last_nonzero_chunk_index(last_chunk_); 
+		const ssize_t last_chunk = get_last_nonzero_chunk_index(line_index_to_chunk(nrows - 1));
 		if (last_chunk == 0) {
 			return;
 		}
@@ -375,8 +389,12 @@ private:
 				continue;
 			}
 			for (uint32_t j = 0; j < 32; j++) {
+				PVRow idx = (i<<5)+j;
+				if (idx >= nrows) {
+					return;
+				}
 				if (sel_buf & (1U << j)) {
-					f((i<<5)+j);
+					f(idx);
 				}
 			}
 		}

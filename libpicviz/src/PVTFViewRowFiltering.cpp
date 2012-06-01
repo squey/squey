@@ -59,7 +59,7 @@ Picviz::PVSelection Picviz::PVTFViewRowFiltering::operator()(PVView const& view_
 						}
 					}
 				},
-				PVSelection::line_index_to_chunk(nlines_sel));
+				nlines_sel);
 #pragma omp taskwait
 		}
 
