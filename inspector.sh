@@ -40,10 +40,15 @@ CMD_ARGS=("$@")
 
 if [ "$1" == "debug" ]
 then
+LOAD_PROJECT=""
+if [ ${2: -3} == ".pv" ]
+then
+	LOAD_PROJECT="--project "
+fi
 export PICVIZ_DEBUG_LEVEL="DEBUG"
 #export PICVIZ_DEBUG_FILE="debug.txt"
-	unset ARGS[0]
-	gdb --args gui-qt/src/picviz-inspector ${ARGS[@]}
+	unset CMD_ARGS[0]
+	gdb -ex run --args gui-qt/src/picviz-inspector $LOAD_PROJECT ${CMD_ARGS[@]}
 	exit 0
 fi
 if [ "$1" == "ddd" ]
@@ -126,12 +131,6 @@ then
 #export PICVIZ_DEBUG_FILE="debug.txt"
 	gui-qt/src/picviz-inspector test_petit.log
 	exit 0
-fi
-
-LOAD_PROJECT=""
-if [ ${1: -3} == ".pv" ]
-then
-	LOAD_PROJECT="--project "
 fi
 	
 catchsegv gui-qt/src/picviz-inspector $LOAD_PROJECT $@
