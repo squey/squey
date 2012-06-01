@@ -135,6 +135,14 @@ void PVWidgets::PVAD2GListEdgesWidget::select_row(int src_view_id, int dst_view_
 	}
 }
 
+void PVWidgets::PVAD2GListEdgesWidget::clear_current_edge()
+{
+	_function_properties_widget->hide();
+	_edges_table->clearSelection();
+	_edge_properties_widget->setEnabled(false);
+	_edge_properties_widget->set_no_cf();
+}
+
 void PVWidgets::PVAD2GListEdgesWidget::selection_changed_Slot(QTableWidgetItem* cur, QTableWidgetItem* prev)
 {
 	if (cur && cur != prev) {
@@ -189,7 +197,11 @@ void PVWidgets::PVAD2GListEdgesWidget::update_list_edges()
 	__impl::add_edge_list_f f(_edges_table, _edge_properties_widget->get_view_org(), _edge_properties_widget->get_view_dst(), edge_found);
 	size_t nedges =  _graph.get_edges_count();
 	_removeAct->setEnabled(nedges);
+
+	_edges_table->blockSignals(true);
 	_edges_table->setRowCount(nedges);
+	_edges_table->blockSignals(false);
+
 	_graph.visit_edges(f);
 	if (edge_found && _edges_table->isEnabled()) {
 		return;

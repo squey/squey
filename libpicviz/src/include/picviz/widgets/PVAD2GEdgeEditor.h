@@ -29,6 +29,7 @@ public:
 	PVAD2GEdgeEditor(QWidget* parent = 0);
 
 public:
+	void set_no_cf();
 	void set_cf(Picviz::PVView const& view_org, Picviz::PVView const& view_dst, Picviz::PVCombiningFunctionView& cf);
 	Picviz::PVView const* get_view_org() const { return _view_org; }
 	Picviz::PVView const* get_view_dst() const { return _view_dst; }

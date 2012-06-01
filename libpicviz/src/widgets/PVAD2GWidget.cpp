@@ -226,6 +226,8 @@ void PVWidgets::PVAD2GWidget::remove_view_Slot(int node)
 		Picviz::PVView* view = _ad2g->get_view(n);
 		set_enabled_view_item_in_table(view, true);
 
+		_list_edges_widget->clear_current_edge();
+
 		_ad2g->del_view_by_node(n);
 
 		_list_edges_widget->update_list_edges();
@@ -254,6 +256,8 @@ void PVWidgets::PVAD2GWidget::remove_combining_function_Slot(int edge)
 		tlp::edge e = (tlp::edge) edge;
 
 		tlp::Observable::holdObservers();
+
+		_list_edges_widget->clear_current_edge();
 
 		_ad2g->del_edge(e);
 

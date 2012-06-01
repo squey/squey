@@ -29,6 +29,8 @@ public:
 	PVAD2GListEdgesWidget(Picviz::PVAD2GView& graph, QWidget* parent = NULL);
 	void select_row(int src_view_id, int dst_view_id);
 
+	void clear_current_edge();
+
 public slots:
 	void update_list_edges();
 	void update_fonction_properties(const Picviz::PVView& src_view, const Picviz::PVView& dst_view, Picviz::PVSelRowFilteringFunction_p& rff);

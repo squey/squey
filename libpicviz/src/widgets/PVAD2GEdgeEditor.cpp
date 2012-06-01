@@ -83,6 +83,16 @@ void PVWidgets::PVAD2GEdgeEditor::init()
 	setLayout(main_layout);
 }
 
+void PVWidgets::PVAD2GEdgeEditor::set_no_cf()
+{
+	if (_rff_list_model) {
+		_list->selectionModel()->clearSelection();
+		_list->setModel(0);
+		_rff_list_model->deleteLater();
+		_rff_list_model = 0;
+	}
+}
+
 void PVWidgets::PVAD2GEdgeEditor::set_cf(Picviz::PVView const& view_org, Picviz::PVView const& view_dst, Picviz::PVCombiningFunctionView& cf)
 {
 	if (_rff_list_model) {
