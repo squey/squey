@@ -516,13 +516,16 @@ void Picviz::PVAD2GView::visit_edges_f(graph_func_t const& f) const
 
 void Picviz::PVAD2GView::set_selected_edge(Picviz::PVView* view_src, Picviz::PVView* view_dst)
 {
-	tlp::node src = get_graph_node(view_src);
-	tlp::node dst = get_graph_node(view_dst);
-	tlp::edge edge = _graph->existEdge(src, dst);
-
 	tlp::ColorProperty* color_property = _graph->getProperty<tlp::ColorProperty>("viewColor");
 	color_property->setAllEdgeValue(tlp::Color(142, 142, 142));
-	color_property->setEdgeValue(edge, tlp::Color(255, 0, 0));
+	if ((view_src != NULL) && (view_dst != NULL)) {
+		tlp::node src = get_graph_node(view_src);
+		tlp::node dst = get_graph_node(view_dst);
+		tlp::edge edge = _graph->existEdge(src, dst);
+
+
+		color_property->setEdgeValue(edge, tlp::Color(255, 0, 0));
+	}
 }
 
 /******************************************************************************
