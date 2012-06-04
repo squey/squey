@@ -15,14 +15,14 @@ namespace __impl {
 struct add_edge_list_f
 {
 public:
-	add_edge_list_f(QTableWidget* table, Picviz::PVView const* cur_va, Picviz::PVView const* cur_vb, bool& edge_found):
+	add_edge_list_f(QTableWidget* table, Picviz::PVView const* cur_va, Picviz::PVView const* cur_vb, int& edge_index):
 		_table(table),
 		_cur_idx(0),
 		_cur_va(cur_va),
 		_cur_vb(cur_vb),
-		_cur_edge_found(&edge_found)
+		_cur_edge_index(&edge_index)
 	{
-		edge_found = false;
+		edge_index = -1;
 	}
 
 public:
@@ -31,7 +31,7 @@ public:
 		size_t idx_row = _cur_idx;
 
 		if (&va == _cur_va && &vb == _cur_vb) {
-			*_cur_edge_found = true;
+			*_cur_edge_index = _cur_idx;
 		}
 
 		QTableWidgetItem* item = new QTableWidgetItem(QString::number(va.get_display_view_id()));
@@ -59,7 +59,7 @@ private:
 	mutable QWidget* _parent;
 	Picviz::PVView const* _cur_va;
 	Picviz::PVView const* _cur_vb;
-	bool* _cur_edge_found;
+	int* _cur_edge_index;
 };
 
 class PVTableWidgetTest: public QTableWidget
@@ -72,7 +72,7 @@ public:
 public:
 	QSize sizeHint() const
 	{
-		return QSize(horizontalHeader()->size().width(), 40);
+		return QSize(horizontalHeader()->size().width() + 20, 40);
 	}
 };
 
@@ -95,7 +95,7 @@ PVWidgets::PVAD2GListEdgesWidget::PVAD2GListEdgesWidget(Picviz::PVAD2GView& grap
 	_edges_table->resizeColumnsToContents();
 	_edges_table->horizontalHeader()->setStretchLastSection(true);
 	_edges_table->horizontalHeader()->setResizeMode(QHeaderView::Fixed);
-
+	_edges_table->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
 	_removeAct = new QAction(QIcon(), tr("Remove"), this);
 	//_edges_table->addAction(_removeAct);
@@ -193,17 +193,25 @@ void PVWidgets::PVAD2GListEdgesWidget::update_fonction_properties(const Picviz::
 
 void PVWidgets::PVAD2GListEdgesWidget::update_list_edges()
 {
-	bool edge_found = false;
-	__impl::add_edge_list_f f(_edges_table, _edge_properties_widget->get_view_org(), _edge_properties_widget->get_view_dst(), edge_found);
+	int edge_new_index = -1;
+	__impl::add_edge_list_f f(_edges_table, _edge_properties_widget->get_view_org(), _edge_properties_widget->get_view_dst(), edge_new_index);
 	size_t nedges =  _graph.get_edges_count();
 	_removeAct->setEnabled(nedges);
 
-	_edges_table->blockSignals(true);
-	_edges_table->setRowCount(nedges);
-	_edges_table->blockSignals(false);
+	// unselecting any edge in the graph view
+	_graph.set_selected_edge(0, 0);
 
+	// clearing the edge table
+	for (int i = 0; i < _edges_table->rowCount(); ++i) {
+		_edges_table->removeRow(0);
+	}
+
+	// and filling it with valid edges
+	_edges_table->setRowCount(nedges);
 	_graph.visit_edges(f);
-	if (edge_found && _edges_table->isEnabled()) {
+
+	if ((edge_new_index != -1) && _edges_table->isEnabled()) {
+		_edges_table->selectRow(edge_new_index);
 		return;
 	}
 
