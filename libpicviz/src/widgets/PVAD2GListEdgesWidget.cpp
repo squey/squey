@@ -72,7 +72,7 @@ public:
 public:
 	QSize sizeHint() const
 	{
-		return QSize(horizontalHeader()->size().width(), 40);
+		return QSize(horizontalHeader()->size().width() + 20, 40);
 	}
 };
 
@@ -95,7 +95,7 @@ PVWidgets::PVAD2GListEdgesWidget::PVAD2GListEdgesWidget(Picviz::PVAD2GView& grap
 	_edges_table->resizeColumnsToContents();
 	_edges_table->horizontalHeader()->setStretchLastSection(true);
 	_edges_table->horizontalHeader()->setResizeMode(QHeaderView::Fixed);
-
+	_edges_table->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
 	_removeAct = new QAction(QIcon(), tr("Remove"), this);
 	//_edges_table->addAction(_removeAct);
