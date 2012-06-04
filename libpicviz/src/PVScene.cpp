@@ -11,6 +11,7 @@
 #include <picviz/PVSource.h>
 #include <picviz/PVView.h>
 
+
 #define ARCHIVE_SCENE_DESC (QObject::tr("Workspace"))
 /******************************************************************************
  *
@@ -112,6 +113,7 @@ bool Picviz::PVScene::del_source(const PVSource* src)
 	for (it = list_srcs.begin(); it != list_srcs.end(); it++) {
 		if (it->get() == src) {
 			list_srcs.erase(it);
+			set_views_id();
 			return true;
 		}
 	}

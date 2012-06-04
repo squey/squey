@@ -116,11 +116,9 @@ PVWidgets::PVAD2GWidget::PVAD2GWidget(Picviz::PVAD2GView_p ad2g, QWidget* parent
 	graph_views_layout->addWidget(_table);
 	graph_views_layout->setStretchFactor(graph_frame, 3);
 	graph_views_layout->setStretchFactor(_table, 1);
-	QHBoxLayout* edges_properties_layout = new QHBoxLayout();
-	edges_properties_layout->addWidget(_list_edges_widget);
 	QVBoxLayout* main_layout = new QVBoxLayout();
 	main_layout->addLayout(graph_views_layout);
-	main_layout->addLayout(edges_properties_layout);
+	main_layout->addWidget(_list_edges_widget);
 	setLayout(main_layout);
 
 	_ad2g_interactor = new AD2GInteractor(this, _nodeLinkView->getGlMainWidget());
@@ -337,6 +335,9 @@ void PVWidgets::PVAD2GWidget::update_list_views()
 	_table->clear();
 	_table->setRowCount(0);
 
+	tlp::StringProperty* label = _graph->getProperty<tlp::StringProperty>("viewLabel");
+	tlp::IntegerProperty* view_id_prop = _graph->getProperty<tlp::IntegerProperty>("view_id");
+
 	Picviz::PVScene::list_views_t all_views = _ad2g->get_scene()->get_all_views();
 	_table->setRowCount(all_views.count());
 	foreach (Picviz::PVView_p view, all_views) {
@@ -349,7 +350,10 @@ void PVWidgets::PVAD2GWidget::update_list_views()
 	// Disable all the view present in the graph from the list of views
 	tlp::node node;
 	forEach(node, _graph->getNodes()) {
-		set_enabled_view_item_in_table(_ad2g->get_view(node), false);
+		Picviz::PVView* view = _ad2g->get_view(node);
+		label->setNodeValue(node, qPrintable(QString::number(view->get_display_view_id())));
+		view_id_prop->setNodeValue(node, view->get_display_view_id());
+		set_enabled_view_item_in_table(view, false);
 	}
 
 	_table->resizeRowsToContents();
