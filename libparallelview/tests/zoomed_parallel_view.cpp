@@ -16,7 +16,7 @@
 
 #include <QApplication>
 
-#include <pvparallelview/PVAxisWidget.h>
+#include <pvparallelview/PVAxisGraphicsItem.h>
 #include <picviz/PVAxis.h>
 
 #define WIDTH 1920
@@ -53,7 +53,7 @@ public:
 		}
 
 		// axis
-		PVParallelView::PVAxisWidget *axisw;
+		PVParallelView::PVAxisGraphicsItem *axisw;
 		Picviz::PVAxis *axis;
 		PVZoneID z;
 		int pos = 0;
@@ -66,7 +66,7 @@ public:
 			_axis.push_back(axis);
 
 			pos = _lines_view->get_zones_manager().get_zone_absolute_pos(z);
-			axisw = new PVParallelView::PVAxisWidget(axis);
+			axisw = new PVParallelView::PVAxisGraphicsItem(axis);
 			axisw->setPos(QPointF(pos - PVParallelView::AxisWidth, 0));
 			addItem(axisw);
 			axisw->add_range_sliders(768, 1000);
@@ -79,7 +79,7 @@ public:
 		_axis.push_back(axis);
 
 		pos += _lines_view->get_zones_manager().get_zone_width(z-1);
-		axisw = new PVParallelView::PVAxisWidget(axis);
+		axisw = new PVParallelView::PVAxisGraphicsItem(axis);
 		axisw->setPos(QPointF(pos - PVParallelView::AxisWidth, 0));
 		addItem(axisw);
 		axisw->add_range_sliders(768, 1000);

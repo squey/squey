@@ -1,5 +1,5 @@
-#ifndef PVPARALLELVIEW_PVAXISWIDGET_H
-#define PVPARALLELVIEW_PVAXISWIDGET_H
+#ifndef PVPARALLELVIEW_PVAXISGRAPHICSITEM_H
+#define PVPARALLELVIEW_PVAXISGRAPHICSITEM_H
 
 #include <vector>
 #include <utility>
@@ -22,12 +22,10 @@ namespace PVParallelView
 
 typedef std::pair<PVAxisSlider*, PVAxisSlider*> PVAxisRangeSliders;
 
-// TODO: Maybe rename this class to PVAxisGraphicsItem since it's more a QGraphicsItem than a QWidget...
-
-class PVAxisWidget : public QGraphicsItemGroup
+class PVAxisGraphicsItem : public QGraphicsItemGroup
 {
 public:
-	PVAxisWidget(Picviz::PVAxis *axis);
+	PVAxisGraphicsItem(Picviz::PVAxis *axis);
 
 	QRectF boundingRect () const;
 
@@ -49,4 +47,4 @@ private:
 
 }
 
-#endif // PVPARALLELVIEW_PVAXISWIDGET_H
+#endif // PVPARALLELVIEW_PVAXISGRAPHICSITEM_H

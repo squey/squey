@@ -45,7 +45,7 @@ PVParallelView::PVParallelScene::PVParallelScene(QObject* parent, PVParallelView
 			pos += _lines_view->get_zones_manager().get_zone_width(z-1);
 		}
 
-		PVParallelView::PVAxisWidget* axisw = new PVParallelView::PVAxisWidget(axis);
+		PVParallelView::PVAxisGraphicsItem* axisw = new PVParallelView::PVAxisGraphicsItem(axis);
 		axisw->setPos(QPointF(pos - PVParallelView::AxisWidth, 0));
 		addItem(axisw);
 		_axes.push_back(axisw);

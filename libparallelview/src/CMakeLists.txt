@@ -35,7 +35,7 @@ PVZoneTreeBase.cpp
 PVZoneTreeNoAlloc.cpp
 simple_lines_float_view.cpp
 simple_lines_int_view.cpp
-PVAxisWidget.cpp
+PVAxisGraphicsItem.cpp
 PVAxisSlider.cpp
 PVQuadTree.cpp
 )
@@ -62,7 +62,7 @@ include/pvparallelview/PVZoneTreeNoAlloc.h
 include/pvparallelview/PVZoomedZoneTree.h
 include/pvparallelview/PVZoomedParallelView.h
 include/pvparallelview/PVZoomedZoneView.h
-include/pvparallelview/PVAxisWidget.h
+include/pvparallelview/PVAxisGraphicsItem.h
 include/pvparallelview/PVAxisSlider.h
 include/pvparallelview/PVFullParallelView.h
 include/pvparallelview/PVParallelScene.h

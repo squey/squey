@@ -2,7 +2,7 @@
 #include <iostream>
 
 #include <picviz/PVAxis.h>
-#include <pvparallelview/PVAxisWidget.h>
+#include <pvparallelview/PVAxisGraphicsItem.h>
 
 // pour PVParallelView::AxisWidth
 
@@ -12,19 +12,19 @@
 
 
 /*****************************************************************************
- * PVParallelView::PVAxisWidget::PVAxisWidget
+ * PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem
  *****************************************************************************/
 
-PVParallelView::PVAxisWidget::PVAxisWidget(Picviz::PVAxis *axis) :
+PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem(Picviz::PVAxis *axis) :
 	_axis(axis)
 {
 }
 
 /*****************************************************************************
- * PVParallelView::PVAxisWidget::boundingRect
+ * PVParallelView::PVAxisGraphicsItem::boundingRect
  *****************************************************************************/
 
-QRectF PVParallelView::PVAxisWidget::boundingRect () const
+QRectF PVParallelView::PVAxisGraphicsItem::boundingRect () const
 {
 	QRectF bbox = QRectF(- PVParallelView::AxisWidth, - PVAW_CST,
 	                     PVParallelView::AxisWidth, IMAGE_HEIGHT + (2 * PVAW_CST));
@@ -33,12 +33,12 @@ QRectF PVParallelView::PVAxisWidget::boundingRect () const
 }
 
 /*****************************************************************************
- * PVParallelView::PVAxisWidget::paint
+ * PVParallelView::PVAxisGraphicsItem::paint
  *****************************************************************************/
 
-void PVParallelView::PVAxisWidget::paint(QPainter *painter,
-                                         const QStyleOptionGraphicsItem */*option*/,
-                                         QWidget */*widget*/)
+void PVParallelView::PVAxisGraphicsItem::paint(QPainter *painter,
+                                               const QStyleOptionGraphicsItem */*option*/,
+                                               QWidget */*widget*/)
 {
 	QPen pen = painter->pen();
 
@@ -55,10 +55,10 @@ void PVParallelView::PVAxisWidget::paint(QPainter *painter,
 }
 
 /*****************************************************************************
- * PVParallelView::PVAxisWidget::add_range_sliders
+ * PVParallelView::PVAxisGraphicsItem::add_range_sliders
  *****************************************************************************/
 
-void PVParallelView::PVAxisWidget::add_range_sliders(uint32_t p1, uint32_t p2)
+void PVParallelView::PVAxisGraphicsItem::add_range_sliders(uint32_t p1, uint32_t p2)
 {
 	PVParallelView::PVAxisRangeSliders sliders;
 

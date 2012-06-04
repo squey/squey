@@ -7,7 +7,7 @@
 
 #include <picviz/PVAxis.h>
 #include <pvparallelview/PVSelectionSquareGraphicsItem.h>
-#include <pvparallelview/PVAxisWidget.h>
+#include <pvparallelview/PVAxisGraphicsItem.h>
 #include <pvparallelview/PVFullParallelView.h>
 #include <pvparallelview/PVLinesView.h>
 
@@ -237,7 +237,7 @@ private:
     qreal _translation_start_x;
 
     QList<ZoneImages> _zones;
-    QList<PVParallelView::PVAxisWidget*> _axes;
+    QList<PVParallelView::PVAxisGraphicsItem*> _axes;
 
 	PVRenderingJob* _rendering_job;
 	QFuture<void> _rendering_future;
