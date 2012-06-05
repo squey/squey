@@ -7,13 +7,15 @@
 
 PVParallelView::PVZoomedParallelView::PVZoomedParallelView(QObject* parent,
                                                            PVParallelView::PVZonesDrawing &zones_drawing,
+                                                           int top, int bottom,
                                                            PVCol axis) :
 	QGraphicsScene(parent),
 	_zones_drawing(zones_drawing),
 	_left_zone(0),
 	_right_zone(0),
 	_axis(axis),
-	_y_position(0)
+	_top(top),
+	_bottom(bottom)
 {
 	setBackgroundBrush(Qt::black);
 
