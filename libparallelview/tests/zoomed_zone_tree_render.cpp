@@ -46,9 +46,11 @@ void init_rand_plotted(Picviz::PVPlotted::plotted_table_t& p, PVRow nrows, PVCol
 	srand(time(NULL));
 	p.clear();
 	p.reserve(nrows*ncols);
-	// for (PVRow i = 0; i < nrows*ncols; i++) {
-	// 	p.push_back((float)((double)(rand())/(double)RAND_MAX));
-	// }
+#if 1
+	for (PVRow i = 0; i < nrows*ncols; i++) {
+		p.push_back((float)((double)(rand())/(double)RAND_MAX));
+	}
+#else
 	for (PVCol j = 0; j < ncols; ++j) {
 		for (PVRow i = 0; i < nrows; i++) {
 			p.push_back((32. * i) / 1024.);
@@ -56,7 +58,7 @@ void init_rand_plotted(Picviz::PVPlotted::plotted_table_t& p, PVRow nrows, PVCol
 			// p.push_back((32. * i + 0.5) / 1024.);
 		}
 	}
-
+#endif
 }
 
 void show_qimage(QString const& title, QImage const& img)
@@ -169,12 +171,13 @@ int main(int argc, char** argv)
 
 #if 1
 	uint32_t a = 0;
-	uint32_t b = 0;
+	uint32_t b = UINT32_MAX;
 
 	// std::cout << "drawing area [" << a << ", " << b << "]" << std::endl;
 
 	PVParallelView::PVBCIBackendImage_p dst_img2 = zones_drawing.create_image(1920);
 
+	BENCH_START(col1);
 	zones_drawing.draw_zone_lambda<PVParallelView::PVZoomedZoneTree>
 		(*dst_img2, zm.get_zone_absolute_pos(0), 0,
 		 [&](PVParallelView::PVZoomedZoneTree const &zoomed_zone_tree,
@@ -188,12 +191,14 @@ int main(int argc, char** argv)
 			 // }
 			 return num;
 		 });
+	BENCH_END(col1, "render col1", 1, 1, 1, 1);
 
-	a = 512;
-	b = 1;
+	a = UINT32_MAX / 2;
+	b = UINT32_MAX;
 
 	// std::cout << "drawing area [" << a << ", " << b << "]" << std::endl;
 
+	BENCH_START(col2);
 	zones_drawing.draw_zone_lambda<PVParallelView::PVZoomedZoneTree>
 		(*dst_img2, zm.get_zone_absolute_pos(1), 0,
 		 [&](PVParallelView::PVZoomedZoneTree const &zoomed_zone_tree,
@@ -207,12 +212,14 @@ int main(int argc, char** argv)
 			 // }
 			 return num;
 		 });
+	BENCH_END(col2, "render col2", 1, 1, 1, 1);
 
 	a = 0;
-	b = 2;
+	b = UINT32_MAX >> 2;
 
 	// std::cout << "drawing area [" << a << ", " << b << "]" << std::endl;
 
+	BENCH_START(col3);
 	zones_drawing.draw_zone_lambda<PVParallelView::PVZoomedZoneTree>
 		(*dst_img2, zm.get_zone_absolute_pos(2), 0,
 		 [&](PVParallelView::PVZoomedZoneTree const &zoomed_zone_tree,
@@ -226,12 +233,14 @@ int main(int argc, char** argv)
 			 // }
 			 return num;
 		 });
+	BENCH_END(col3, "render col3", 1, 1, 1, 1);
 
 	a = 0;
-	b = 3;
+	b = UINT32_MAX >> 3;
 
 	// std::cout << "drawing area [" << a << ", " << b << "]" << std::endl;
 
+	BENCH_START(col4);
 	zones_drawing.draw_zone_lambda<PVParallelView::PVZoomedZoneTree>
 		(*dst_img2, zm.get_zone_absolute_pos(3), 0,
 		 [&](PVParallelView::PVZoomedZoneTree const &zoomed_zone_tree,
@@ -245,6 +254,7 @@ int main(int argc, char** argv)
 			 // }
 			 return num;
 		 });
+	BENCH_END(col4, "render col4", 1, 1, 1, 1);
 
 	show_qimage("test - zoomed zone tree", dst_img2->qimage());
 #endif
