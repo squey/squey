@@ -23,6 +23,9 @@ target_link_libraries(zoomed_parallel_view ${LINK_LIBRARIES})
 add_executable(zoomed_zone_tree_render zoomed_zone_tree_render.cpp)
 target_link_libraries(zoomed_zone_tree_render ${LINK_LIBRARIES})
 
+add_executable(zoomed_zone_tree_render2 zoomed_zone_tree_render2.cpp)
+target_link_libraries(zoomed_zone_tree_render2 ${LINK_LIBRARIES})
+
 add_executable(create_tree create_tree.cpp)
 target_link_libraries(create_tree ${LINK_LIBRARIES})
 
