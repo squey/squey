@@ -140,13 +140,13 @@ void PVParallelView::PVZoomedZoneTree::process_omp_from_zt(const PVZoneProcessin
 	}
 }
 
-size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1(uint32_t t_min, uint32_t zoom,
+size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1(uint32_t y_min, int zoom,
                                                                const PVHSVColor* colors,
                                                                PVBCICode* codes) const
 {
+	uint32_t t_min = y_min >> (32 - NBITS_INDEX);
 	uint32_t t_max = PVCore::clamp(t_min + (1024U >> zoom), 0U, 1024U);
-	uint32_t y_min = t_min << (32 - NBITS_INDEX);
-	uint32_t y_max = t_max << (32 - NBITS_INDEX);
+	uint32_t y_max = PVCore::clamp(y_min + (UINT32_MAX >> zoom), 0U, UINT32_MAX);
 	size_t num = 0;
 
 	for (uint32_t j = t_min; j < t_max; ++j) {
@@ -158,13 +158,13 @@ size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1(uint32_t t_min, u
 	return num;
 }
 
-size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y2(uint32_t t_min, uint32_t zoom,
+size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y2(uint32_t y_min, int zoom,
                                                                const PVHSVColor* colors,
                                                                PVBCICode* codes) const
 {
+	uint32_t t_min = y_min >> (32 - NBITS_INDEX);
 	uint32_t t_max = PVCore::clamp(t_min + (1024U >> zoom), 0U, 1024U);
-	uint32_t y_min = t_min << (32 - NBITS_INDEX);
-	uint32_t y_max = t_max << (32 - NBITS_INDEX);
+	uint32_t y_max = PVCore::clamp(y_min + (UINT32_MAX >> zoom), 0U, UINT32_MAX);
 	size_t num = 0;
 
 	for (uint32_t j = t_min; j < t_max; ++j) {
