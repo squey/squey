@@ -86,7 +86,8 @@ public:
 				size_t ncodes = f_bci(zone_tree, _colors, codes);
 
 				// And draw them...
-				draw_bci(*(*(dst_img_begin + zone)), 0, zone, codes, ncodes);
+				PVBCIBackendImage &dst_img = *(*(dst_img_begin + zone));
+				draw_bci(dst_img, 0, dst_img.width(), codes, ncodes);
 			}
 		);
 	}
