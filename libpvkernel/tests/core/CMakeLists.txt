@@ -79,3 +79,7 @@ target_link_libraries(Tcore_launch_adaptive ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES
 add_executable(Tcore_transp transp.cpp)
 target_link_libraries(Tcore_transp ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
 
+# Data tree
+add_executable(Tcore_datatree datatree.cpp)
+target_link_libraries(Tcore_datatree ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
+
