@@ -145,8 +145,9 @@ size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1(uint32_t y_min, i
                                                                PVBCICode* codes) const
 {
 	uint32_t t_min = y_min >> (32 - NBITS_INDEX);
-	uint32_t t_max = PVCore::clamp(t_min + (1024U >> zoom), 0U, 1024U);
-	uint32_t y_max = PVCore::clamp(y_min + (UINT32_MAX >> zoom), 0U, UINT32_MAX);
+	uint32_t t_max = PVCore::clamp<uint32_t>(t_min + (1024U >> zoom), 0U, 1024U);
+	uint32_t y_max = (uint32_t) PVCore::clamp<uint64_t>(y_min + ((uint64_t)UINT32_MAX >> zoom),
+	                                                    0, UINT32_MAX);
 	size_t num = 0;
 
 	for (uint32_t j = t_min; j < t_max; ++j) {
@@ -163,8 +164,9 @@ size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y2(uint32_t y_min, i
                                                                PVBCICode* codes) const
 {
 	uint32_t t_min = y_min >> (32 - NBITS_INDEX);
-	uint32_t t_max = PVCore::clamp(t_min + (1024U >> zoom), 0U, 1024U);
-	uint32_t y_max = PVCore::clamp(y_min + (UINT32_MAX >> zoom), 0U, UINT32_MAX);
+	uint32_t t_max = PVCore::clamp<uint32_t>(t_min + (1024U >> zoom), 0U, 1024U);
+	uint32_t y_max = (uint32_t) PVCore::clamp<uint64_t>(y_min + ((uint64_t)UINT32_MAX >> zoom),
+	                                                    0, UINT32_MAX);
 	size_t num = 0;
 
 	for (uint32_t j = t_min; j < t_max; ++j) {
