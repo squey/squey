@@ -47,6 +47,7 @@ int main()
 	PVScene* scene1 = new PVScene();
 	PVScene* scene2 = new PVScene();
 	PVSource* source = new PVSource(scene1);
+	PVSource* source2 = new PVSource(scene1);
 	PVMapped* mapped = new PVMapped(source);
 	PVPlotted* plotted = new PVPlotted(mapped);
 
@@ -82,8 +83,16 @@ int main()
 
 	// Reparenting
 	std::cout << std::endl << "=REPARENTING=" << std::endl;
-
 	source->set_parent(scene2);
+	std::cout << "scene1:" << std::endl;
+	scene1->dump();
+	std::cout << "scene2:" << std::endl;
+	scene2->dump();
+
+	// changing child
+	std::cout << std::endl << "=CHANGING CHILD=" << std::endl;
+	source2->set_parent(scene1);
+	source2->add_child(mapped);
 	std::cout << "scene1:" << std::endl;
 	scene1->dump();
 	std::cout << "scene2:" << std::endl;

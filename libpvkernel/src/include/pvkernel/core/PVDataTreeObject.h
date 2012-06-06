@@ -33,7 +33,9 @@ public:
 	{
 		// It's safe to use 'this' in the constructor since we just want
 		// to store the address of the child in the parent.
-		_parent->add_child(static_cast<typename Tchild::parent_t*>(this));
+		if(_parent){
+			_parent->add_child(static_cast<typename Tchild::parent_t*>(this));
+		}
 	}
 
 	/*! \brief Delete the data tree object and all of it's underlying children hierarchy.
@@ -42,13 +44,12 @@ public:
 	{
 		auto me = static_cast<typename Tchild::parent_t*>(this);
 		_parent->remove_child(me);
-		std::cout << typeid(typename Tchild::parent_t).name() << "::~TreeObject" << std::endl;
+		std::cout << typeid(typename Tchild::parent_t).name() << "(" << me << ")"<< "::~TreeObject" << std::endl;
 		for (auto child: _children) {
 			delete child;
 		}
 	}
 
-	//
 	/*! \brief Return an ancestor of a data tree object at the specified hierarchical level (as a class type).
 	 *  If no level is specified, the parent is returned.
 	 *  \return An ancestor.
@@ -89,8 +90,13 @@ public:
 				already_exist = true;
 			}
 		}
-
 		if (!already_exist) {
+			auto me = static_cast<typename Tchild::parent_t*>(this);
+			auto child_parent = child->get_parent();
+			if (child_parent != me) {
+				// steal child to parent
+				child_parent->remove_child(child);
+			}
 			_children.push_back(child);
 		}
 		else {
@@ -119,7 +125,8 @@ public:
 	 */
 	void dump(uint32_t spacing = 10)
 	{
-		std::cout << " |" << std::setfill('-') << std::setw(spacing) << typeid(typename Tchild::parent_t).name() << std::endl;
+		auto me = static_cast<typename Tchild::parent_t*>(this);
+		std::cout << " |" << std::setfill('-') << std::setw(spacing) << typeid(typename Tchild::parent_t).name() << "(" << me << ")" << std::endl;
 		for (auto child: _children) {
 			child->dump(spacing + 5);
 		}
