@@ -51,27 +51,27 @@ public:
 	}
 
 public:
-	template <class Tree, class Fbci, class BackendImageIterator>
+	template <class Fbci, class BackendImageIterator>
 	void draw_zones(BackendImageIterator dst_img_begin, PVZoneID zone_start, PVZoneID nzones, Fbci const& f_bci)
 	{
 		for (PVZoneID zone = zone_start; zone < nzones; zone++) {
-			draw_zone<Tree, Fbci>(dst_img_begin, 0, zone, f_bci);
+			draw_zone<Fbci>(dst_img_begin, 0, zone, f_bci);
 			dst_img_begin++;
 		}
 	}
-	
-	template <class Tree, class Fbci, class BackendImageIterator>
+
+	template <class Fbci, class BackendImageIterator>
 	inline QFuture<void> draw_zones_futur(BackendImageIterator dst_img_begin, PVZoneID zone_start, PVZoneID nzones, Fbci const& f_bci)
 	{
-		return draw_zones_futur_lambda<Tree>(dst_img_begin, zone_start, nzones,
-			[&](Tree const& zone_tree, PVHSVColor const* colors, PVBCICode* codes)
+		return draw_zones_futur_lambda(dst_img_begin, zone_start, nzones,
+			[&](PVZoneTree const& zone_tree, PVHSVColor const* colors, PVBCICode* codes)
 			{
 				return (zone_tree.*f_bci)(colors, codes);
 			}
 	   );
 	}
 
-	template <class Tree, class Fbci, class BackendImageIterator>
+	template <class Fbci, class BackendImageIterator>
 	QFuture<void> draw_zones_futur_lambda(BackendImageIterator dst_img_begin, PVZoneID zone_start, PVZoneID nzones, Fbci const& f_bci)
 	{
 		return QtConcurrent::map(boost::counting_iterator<PVZoneID>(zone_start), boost::counting_iterator<PVZoneID>(nzones),
@@ -82,7 +82,7 @@ public:
 				PVBCICode* codes = &arr_codes[0];
 
 				// Get the BCI codes
-				Tree const& zone_tree = _zm.get_zone_tree<Tree>(zone);
+				PVZoneTree const& zone_tree = _zm.get_zone_tree<PVZoneTree>(zone);
 				size_t ncodes = f_bci(zone_tree, _colors, codes);
 
 				// And draw them...
@@ -91,37 +91,36 @@ public:
 		);
 	}
 
-
-	template <class Tree, class Fbci>
+	template <class Fbci>
 	uint32_t draw_zones(PVBCIBackendImage& dst_img, uint32_t x_start, PVZoneID zone_start, PVZoneID nzones, Fbci const& f_bci)
 	{
 		for (PVZoneID zone = zone_start; zone < nzones; zone++) {
 			assert(x_start + _zm.get_zone_width(zone) + AxisWidth <= dst_img.width());
-			draw_zone<Tree,Fbci>(dst_img, x_start, zone, f_bci);
+			draw_zone<Fbci>(dst_img, x_start, zone, f_bci);
 			x_start += _zm.get_zone_width(zone) + AxisWidth;
 		}
 		return x_start;
 	}
 
-	template <class Tree, class Fbci>
-	void draw_zone_lambda(PVBCIBackendImage& dst_img, uint32_t x_start, PVZoneID zone, Fbci const& f_bci)
-	{
-		Tree const& zone_tree = _zm.get_zone_tree<Tree>(zone);
-		PVLOG_INFO("draw_zone_lambda: tree pointer: %p\n", &zone_tree);
-		size_t ncodes = f_bci(zone_tree, _colors, _computed_codes);
-		draw_bci(dst_img, x_start, zone, _computed_codes, ncodes);
-	}
-
-	template <class Tree, class Fbci>
+	template <class Fbci>
 	inline void draw_zone(PVBCIBackendImage& dst_img, uint32_t x_start, PVZoneID zone, Fbci const& f_bci)
 	{
-		draw_zone_lambda<Tree>(dst_img, x_start, zone,
-			[&](Tree const& zone_tree, PVHSVColor const* colors, PVBCICode* codes)
+		PVZoneTree const &zone_tree = _zm.get_zone_tree<PVZoneTree>(zone);
+		draw_bci_lambda<PVZoneTree>(zone_tree, dst_img, x_start, _zm.get_zone_width(zone),
+			[&](PVZoneTree const& zone_tree, PVHSVColor const* colors, PVBCICode* codes)
 			{
 				return (zone_tree.*f_bci)(colors, codes);
 			}
 	   );
 	}
+
+	template <class Tree, class Fbci>
+	void draw_bci_lambda(Tree const &zone_tree, PVBCIBackendImage& dst_img, uint32_t x_start, size_t width, Fbci const& f_bci)
+	{
+		size_t ncodes = f_bci(zone_tree, _colors, _computed_codes);
+		draw_bci(dst_img, x_start, width, _computed_codes, ncodes);
+	}
+
 
 	// a = 10; b = 250;
 	//draw_zone_lambda<PVParallelView::PVZoomedZoneTree>(img, 0, 4, [&](PVZoomedZoneTree const& zone_tree, PVHSVColor const* colors, PVBCICodes* codes) { zone_tree.create_codes(a, b); });
@@ -142,7 +141,7 @@ public:
 	}
 
 private:
-	void draw_bci(PVBCIBackendImage& dst_img, uint32_t x_start, PVZoneID zone, PVBCICode* codes, size_t n);
+	void draw_bci(PVBCIBackendImage& dst_img, uint32_t x_start, size_t width, PVBCICode* codes, size_t n);
 
 private:
 	PVZonesManager& _zm;

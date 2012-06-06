@@ -99,9 +99,9 @@ int main(int argc, char** argv)
 	PVParallelView::PVZonesDrawing &zones_drawing = *(new PVParallelView::PVZonesDrawing(zm, backend_cuda, *colors));
 
 	PVParallelView::PVBCIBackendImage_p dst_img = zones_drawing.create_image(1024);
-	zones_drawing.draw_zone<PVParallelView::PVZoneTree>(*dst_img, 0, 0, &PVParallelView::PVZoneTree::browse_tree_bci);
-	zones_drawing.draw_zone<PVParallelView::PVZoneTree>(*dst_img, zm.get_zone_absolute_pos(1), 1, &PVParallelView::PVZoneTree::browse_tree_bci);
-	zones_drawing.draw_zone<PVParallelView::PVZoneTree>(*dst_img, zm.get_zone_absolute_pos(2), 2, &PVParallelView::PVZoneTree::browse_tree_bci);
+	zones_drawing.draw_zone(*dst_img, 0, 0, &PVParallelView::PVZoneTree::browse_tree_bci);
+	zones_drawing.draw_zone(*dst_img, zm.get_zone_absolute_pos(1), 1, &PVParallelView::PVZoneTree::browse_tree_bci);
+	zones_drawing.draw_zone(*dst_img, zm.get_zone_absolute_pos(2), 2, &PVParallelView::PVZoneTree::browse_tree_bci);
 
 	show_qimage("test", dst_img->qimage());
 
