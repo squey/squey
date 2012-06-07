@@ -5,10 +5,7 @@
 
 #include <QGraphicsView>
 
-/* TODO:
- *  - read PVZoomedTile's comment
- *
- * NOTE:
+/* NOTE:
  *  - It could be better to have a tile tree to render tile at different resolutions.
  *    It depends on the time of the tile renderings.
  *    2012-06-07: It is fast enough (for 300M lines, it needs 170 ms per tile for the
@@ -19,6 +16,9 @@
  *    search in for crossing lines.
  *  - with a correct zoom, a fast slider movement shows black screen (but when the slider is
  *    released, the tiling is correctly update), I don't think it can be corrected.
+ *
+ * IMPORTANT NOTE:
+ *  - read PVZoomedTile's comment in PVZoomedTiler.cpp
  */
 
 namespace PVParallelView
