@@ -124,34 +124,39 @@ int main(int argc, char** argv)
 	PVParallelView::PVZonesManager &zm = *(new PVParallelView::PVZonesManager());
 	zm.set_uint_plotted(norm_plotted, nrows, ncols);
 	zm.update_all();
-	zm.set_zone_width(0, 256);
 
 	PVParallelView::PVBCIDrawingBackendCUDA backend_cuda;
 	PVParallelView::PVZonesDrawing &zones_drawing = *(new PVParallelView::PVZonesDrawing(zm, backend_cuda, *colors));
 
 	PVParallelView::PVBCIBackendImage_p dst_img1 = zones_drawing.create_image(1920);
 
-	uint32_t a = 0;
-	uint32_t b = UINT32_MAX;
+	uint32_t p = 0;
+	uint32_t z = 0;
 
 	for (int i = 0; i < 4; ++i) {
-		PVParallelView::PVBCIBackendImage_p dst_img = zones_drawing.create_image(300);
-		std::cout << "drawing area [" << a << ", " << b << "]" << std::endl;
+		PVParallelView::PVBCIBackendImage_p dst_img = zones_drawing.create_image(512);
+		std::cout << "drawing area: " << p << " (" << z << ")" << std::endl;
 
 		BENCH_START(col);
-		zones_drawing.draw_zone_lambda<PVParallelView::PVZoomedZoneTree>
-			(*dst_img, zm.get_zone_absolute_pos(0), 0,
+#if 1
+		zones_drawing.draw_zoomed_zone(*dst_img, p, z, 0,
+		                               &PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1);
+#else
+		PVParallelView::PVZoomedZoneTree const &zoomed_zone_tree = zm.get_zone_tree<PVParallelView::PVZoomedZoneTree>(0);
+		zones_drawing.draw_bci_lambda<PVParallelView::PVZoomedZoneTree>
+			(zoomed_zone_tree, *dst_img, 0, 512,
 			 [&](PVParallelView::PVZoomedZoneTree const &zoomed_zone_tree,
 			     PVParallelView::PVHSVColor const* colors,
 			     PVParallelView::PVBCICode* codes)
 			 {
-				 size_t num = zoomed_zone_tree.browse_tree_bci_by_y1(a, b, colors, codes);
+				 size_t num = zoomed_zone_tree.browse_tree_bci_by_y1(p, z, colors, codes);
 				 std::cout << "ZZT-0: num of codes: " << num << std::endl;
 				 return num;
 			 });
+#endif
 		BENCH_END(col, "render col", 1, 1, 1, 1);
 		show_qimage("test - zoomed zone tree" + QString::number(i), dst_img->qimage());
-		b >>= 1;
+		++z;
 	}
 
 	app.exec();

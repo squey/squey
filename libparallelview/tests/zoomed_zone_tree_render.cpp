@@ -171,15 +171,16 @@ int main(int argc, char** argv)
 
 #if 1
 	uint32_t a = 0;
-	uint32_t b = UINT32_MAX;
+	uint32_t b = 0;
 
 	// std::cout << "drawing area [" << a << ", " << b << "]" << std::endl;
 
 	PVParallelView::PVBCIBackendImage_p dst_img2 = zones_drawing.create_image(1920);
 
 	BENCH_START(col1);
-	zones_drawing.draw_zone_lambda<PVParallelView::PVZoomedZoneTree>
-		(*dst_img2, zm.get_zone_absolute_pos(0), 0,
+	PVParallelView::PVZoomedZoneTree const &zoomed_zone_tree = zm.get_zone_tree<PVParallelView::PVZoomedZoneTree>(0);
+	zones_drawing.draw_bci_lambda<PVParallelView::PVZoomedZoneTree>
+		(zoomed_zone_tree, *dst_img2, zm.get_zone_absolute_pos(0), 256,
 		 [&](PVParallelView::PVZoomedZoneTree const &zoomed_zone_tree,
 		     PVParallelView::PVHSVColor const* colors,
 		     PVParallelView::PVBCICode* codes)
@@ -193,14 +194,15 @@ int main(int argc, char** argv)
 		 });
 	BENCH_END(col1, "render col1", 1, 1, 1, 1);
 
-	a = UINT32_MAX / 2;
-	b = UINT32_MAX;
+	// "1 +" because position must be a power of 2
+	a = 1 + (UINT32_MAX / 2);
+	b = 0;
 
 	// std::cout << "drawing area [" << a << ", " << b << "]" << std::endl;
 
 	BENCH_START(col2);
-	zones_drawing.draw_zone_lambda<PVParallelView::PVZoomedZoneTree>
-		(*dst_img2, zm.get_zone_absolute_pos(1), 0,
+	zones_drawing.draw_bci_lambda<PVParallelView::PVZoomedZoneTree>
+		(zoomed_zone_tree, *dst_img2, zm.get_zone_absolute_pos(1), 256,
 		 [&](PVParallelView::PVZoomedZoneTree const &zoomed_zone_tree,
 		     PVParallelView::PVHSVColor const* colors,
 		     PVParallelView::PVBCICode* codes)
@@ -215,13 +217,13 @@ int main(int argc, char** argv)
 	BENCH_END(col2, "render col2", 1, 1, 1, 1);
 
 	a = 0;
-	b = UINT32_MAX >> 2;
+	b = 2;
 
 	// std::cout << "drawing area [" << a << ", " << b << "]" << std::endl;
 
 	BENCH_START(col3);
-	zones_drawing.draw_zone_lambda<PVParallelView::PVZoomedZoneTree>
-		(*dst_img2, zm.get_zone_absolute_pos(2), 0,
+	zones_drawing.draw_bci_lambda<PVParallelView::PVZoomedZoneTree>
+		(zoomed_zone_tree, *dst_img2, zm.get_zone_absolute_pos(2), 256,
 		 [&](PVParallelView::PVZoomedZoneTree const &zoomed_zone_tree,
 		     PVParallelView::PVHSVColor const* colors,
 		     PVParallelView::PVBCICode* codes)
@@ -236,13 +238,13 @@ int main(int argc, char** argv)
 	BENCH_END(col3, "render col3", 1, 1, 1, 1);
 
 	a = 0;
-	b = UINT32_MAX >> 3;
+	b = 3;
 
 	// std::cout << "drawing area [" << a << ", " << b << "]" << std::endl;
 
 	BENCH_START(col4);
-	zones_drawing.draw_zone_lambda<PVParallelView::PVZoomedZoneTree>
-		(*dst_img2, zm.get_zone_absolute_pos(3), 0,
+	zones_drawing.draw_bci_lambda<PVParallelView::PVZoomedZoneTree>
+		(zoomed_zone_tree, *dst_img2, zm.get_zone_absolute_pos(3), 256,
 		 [&](PVParallelView::PVZoomedZoneTree const &zoomed_zone_tree,
 		     PVParallelView::PVHSVColor const* colors,
 		     PVParallelView::PVBCICode* codes)
