@@ -40,6 +40,7 @@ namespace __impl {
 // TODO: make it more C++ish
 int Y_TILE_NUMBER = 3;
 int Y_TILE_OFFSET = 3 * IMAGE_HEIGHT;
+float UPDATE_SCALE = 1.3;
 
 // TODO: make it more C++ish
 enum pv_zoomed_tiler_zoom_t {
@@ -221,7 +222,7 @@ private:
 		 */
 		int new_y_pos = pixmap->pos().y();
 		int old_y_pos = new_y_pos;
-		while ((pos - new_y_pos) > (IMAGE_HEIGHT * 1.5)) {
+		while ((pos - new_y_pos) > (IMAGE_HEIGHT * __impl::UPDATE_SCALE)) {
 			new_y_pos += __impl::Y_TILE_OFFSET;
 		}
 
@@ -235,7 +236,7 @@ private:
 		 */
 		new_y_pos = pixmap->pos().y();
 		old_y_pos = new_y_pos;
-		while ((new_y_pos - pos) > (IMAGE_HEIGHT * 1.5)) {
+		while ((new_y_pos - pos) > (IMAGE_HEIGHT * __impl::UPDATE_SCALE)) {
 			new_y_pos -= __impl::Y_TILE_OFFSET;
 		}
 
