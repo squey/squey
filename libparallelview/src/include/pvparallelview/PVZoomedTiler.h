@@ -34,9 +34,9 @@ class PVZoomedTiler : public QGraphicsScene
 
 public:
 	enum pv_zoom_type_t {
-		ZOOM_NONE,
+		ZOOM_NONE = 0,
 		ZOOM_IN,
-		ZOOM_OUT,
+		ZOOM_OUT
 	};
 
 	PVZoomedTiler(QObject *parent, PVParallelView::PVZonesDrawing &zones_drawing,
@@ -48,11 +48,10 @@ public:
 	void mousePressEvent(QGraphicsSceneMouseEvent *event);
 	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
 	void wheelEvent(QGraphicsSceneWheelEvent* event);
-	void resizeEvent(QResizeEvent* event);
 
-private:
 	void update_scene_space(pv_zoom_type_t zoom_type = ZOOM_NONE);
 
+private:
 	void update_tiles_row_position(int tile_num, int new_y_pos);
 	void update_tiles_row(int tile_num);
 

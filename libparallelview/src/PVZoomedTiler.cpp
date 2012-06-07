@@ -17,7 +17,6 @@ int Y_TILE_NUMBER = 3;
 int Y_TILE_OFFSET = 3 * IMAGE_HEIGHT;
 float UPDATE_SCALE = 1.3;
 
-
 struct PVParallelView::PVZoomedTile
 {
 	PVParallelView::PVBCIBackendImage_p  bimage;
@@ -106,8 +105,11 @@ PVParallelView::PVZoomedTiler::PVZoomedTiler(QObject *parent, PVParallelView::PV
 	setBackgroundBrush(Qt::black);
 	view()->verticalScrollBar()->setValue(position);
 
-	// it will automatically invalidate all tiles to force their rendering
-	update_scene_space();
+	/* we invalidate all tiles to force their rendering... I agree that not
+	 * using a valid value of pv_zoom_type_t is a hack but is it a private
+	 * behavior, not a public one
+	 */
+	update_scene_space((pv_zoom_type_t)-1);
 
 	connect(view()->verticalScrollBar(), SIGNAL(sliderMoved(int)),
 	        this, SLOT(update_tiles_Slot(int)));
@@ -192,15 +194,6 @@ void PVParallelView::PVZoomedTiler::wheelEvent(QGraphicsSceneWheelEvent* event)
 }
 
 /*****************************************************************************
- * PVParallelView::PVZoomedTiler::resizeEvent()
- *****************************************************************************/
-
-void PVParallelView::PVZoomedTiler::resizeEvent(QResizeEvent* /*event*/)
-{
-	update_scene_space();
-}
-
-/*****************************************************************************
  * PVParallelView::PVZoomedTiler::update_scene_space()
  *****************************************************************************/
 
@@ -215,6 +208,11 @@ void PVParallelView::PVZoomedTiler::update_scene_space(pv_zoom_type_t zoom_type)
 	// rescale the view to keep its aspect ratio
 	view()->resetTransform();
 	view()->scale(_zoom + 1, 1);
+
+	if (zoom_type == ZOOM_NONE) {
+		// nothing else to do
+		return;
+	}
 
 	if (zoom_type == ZOOM_IN) {
 		sb->setValue(sb->value() << 1);
