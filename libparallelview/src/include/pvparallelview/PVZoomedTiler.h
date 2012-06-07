@@ -252,22 +252,13 @@ private slots:
 		}
 	}
 
-	void update_slider_Slot()
-	{
-		std::cout << "PVZoomedTiler::update_slider_Slot()" << std::endl;
-	}
-
 private:
-	/* The {is,set}Visible(true|false) code in:
-	 *    ::update_tile_position(PVZoomedTile &tile, int new_y_pos)
-	 * and
-	 *    ::invalidate_tile(PVZoomedTile &tile, bool is_left)
-	 *
-	 * is a work-around for a known bug in Qt which extends the scene
-	 * rectangle to the rectangle normally used by the horizontal
-	 * scrollbar. This bug is referenced QTBUG-14711: "QGraphicsView does
-	 * not fully respect scrollbar policies set to Qt::ScrollBarAlwaysOff".
-	 * for further information, see following URI:
+	/* The method ::update_tile_visibility(...) is a work-around for a
+	 * known bug in Qt which extends the scene rectangle to the rectangle
+	 * normally used by the horizontal scrollbar. This bug is referenced
+	 * QTBUG-14711: "QGraphicsView does not fully respect scrollbar
+	 * policies set to Qt::ScrollBarAlwaysOff". for further information,
+	 see following URI:
 	 * https://bugreports.qt-project.org/browse/QTBUG-14711
 	 *
 	 * When this bug will be corrected, remove it.
@@ -280,13 +271,13 @@ private:
 		if ((int)pixmap->pos().y() >= limit) {
 			if (pixmap->isVisible() == true) {
 				pixmap->setVisible(false);
-				std::cout << "hiding pixmap " << pixmap << std::endl;
+				// std::cout << "hiding pixmap " << pixmap << std::endl;
 			}
 			return false;
 		} else {
 			if (pixmap->isVisible() == false) {
 				pixmap->setVisible(true);
-				std::cout << "showing pixmap " << pixmap << std::endl;
+				// std::cout << "showing pixmap " << pixmap << std::endl;
 			}
 			return true;
 		}
