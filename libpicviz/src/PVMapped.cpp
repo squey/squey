@@ -31,11 +31,18 @@
  * Picviz::PVMapped::PVMapped
  *
  *****************************************************************************/
-Picviz::PVMapped::PVMapped(PVMapping const& mapping)
+Picviz::PVMapped::PVMapped(PVMapping const& mapping) : data_tree_mapped_t(const_cast<PVMapping*>(&mapping))
 {
 	set_mapping(mapping);
 	create_table();
 }
+
+/******************************************************************************
+ *
+ * Picviz::PVMapped::PVMapped
+ *
+ *****************************************************************************/
+Picviz::PVMapped::PVMapped() : data_tree_mapped_t() { }
 
 /******************************************************************************
  *

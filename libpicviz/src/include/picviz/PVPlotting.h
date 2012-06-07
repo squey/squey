@@ -12,6 +12,7 @@
 #include <QLibrary>
 #include <QVector>
 
+#include <pvkernel/core/PVDataTreeObject.h>
 #include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/rush/PVFormat.h>
 
@@ -30,7 +31,8 @@ class PVMapped;
 /**
  * \class PVPlotting
  */
-class LibPicvizDecl PVPlotting : public boost::enable_shared_from_this<PVPlotting> {
+typedef typename PVCore::PVDataTreeObject<PVMapped, PVPlotted> data_tree_plotting_t;
+class LibPicvizDecl PVPlotting : public data_tree_plotting_t, public boost::enable_shared_from_this<PVPlotting> {
 	friend class PVCore::PVSerializeObject;
 	friend class PVPlotted;
 public:
@@ -48,7 +50,7 @@ public:
 
 protected:
 	// Serialization
-	PVPlotting() { }
+	PVPlotting();
 	void serialize(PVCore::PVSerializeObject &so, PVCore::PVSerializeArchive::version_t v);
 
 	// For PVPlotted

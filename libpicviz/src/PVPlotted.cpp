@@ -31,10 +31,14 @@
 
 namespace Picviz {
 
-PVPlotted::PVPlotted(PVPlotting const& plotting)
+PVPlotted::PVPlotted(PVPlotting const& plotting) : data_tree_plotted_t(const_cast<PVPlotting*>(&plotting))
 {
 	set_plotting(plotting);
 	process_from_parent_mapped(false);
+}
+
+PVPlotted::PVPlotted() : data_tree_plotted_t()
+{
 }
 
 PVPlotted::~PVPlotted()

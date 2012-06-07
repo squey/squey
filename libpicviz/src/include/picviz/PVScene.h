@@ -9,6 +9,7 @@
 
 #include <QString>
 
+#include <pvkernel/core/PVDataTreeObject.h>
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/core/PVSerializeArchiveOptions_types.h>
@@ -33,7 +34,8 @@ class PVSource;
 /**
  * \class PVScene
  */
-class LibPicvizDecl PVScene: public boost::enable_shared_from_this<PVScene>
+typedef typename PVCore::PVDataTreeObject<PVRoot, PVSource> data_tree_scene_t;
+class LibPicvizDecl PVScene: public data_tree_scene_t, public boost::enable_shared_from_this<PVScene>
 {
 	friend class PVCore::PVSerializeObject;
 	friend class PVSource;

@@ -38,7 +38,8 @@ class PVSource;
 /**
  * \class PVPlotted
  */
-class LibPicvizDecl PVPlotted {
+typedef typename PVCore::PVDataTreeObject<PVPlotting, PVCore::PVDataTreeNoChildren<PVPlotted> > data_tree_plotted_t ;
+class LibPicvizDecl PVPlotted : public data_tree_plotted_t {
 	friend class PVCore::PVSerializeObject;
 	friend class PVMapped;
 	friend class PVSource;
@@ -74,7 +75,7 @@ public:
 
 protected:
 	// Serialization
-	PVPlotted() { }
+	PVPlotted();
 	void serialize(PVCore::PVSerializeObject &so, PVCore::PVSerializeArchive::version_t v);
 
 	// For PVMapped

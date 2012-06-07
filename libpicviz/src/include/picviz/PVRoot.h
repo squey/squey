@@ -12,6 +12,7 @@
 
 #include <pvkernel/core/general.h>
 #include <picviz/PVPtrObjects.h> // For PVScene_p
+#include <pvkernel/core/PVDataTreeObject.h>
 
 #include <boost/shared_ptr.hpp>
 
@@ -28,7 +29,8 @@ namespace Picviz {
 /**
  * \class PVRoot
  */
-class LibPicvizDecl PVRoot {
+typedef typename PVCore::PVDataTreeObject<PVCore::PVDataTreeNoParent<PVRoot>, PVScene> data_tree_root_t;
+class LibPicvizDecl PVRoot : public data_tree_root_t {
 public:
 	typedef boost::shared_ptr<PVRoot> p_type;
 public:

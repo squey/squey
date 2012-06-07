@@ -8,6 +8,7 @@
 
 #include <picviz/PVMapped.h>
 #include <picviz/PVPlotting.h>
+#include <picviz/PVPlotted.h>
 #include <picviz/PVSource.h>
 
 #include <iostream>
@@ -19,6 +20,7 @@
  *
  *****************************************************************************/
 Picviz::PVPlotting::PVPlotting(PVMapped* parent):
+	data_tree_plotting_t(parent),
 	_name("default")
 {
 	set_mapped(parent);
@@ -31,6 +33,13 @@ Picviz::PVPlotting::PVPlotting(PVMapped* parent):
 		PVLOG_HEAVYDEBUG("%s: Add a column\n", __FUNCTION__);
 	}
 }
+
+/******************************************************************************
+ *
+ * Picviz::PVPlotting::PVPlotting
+ *
+ *****************************************************************************/
+Picviz::PVPlotting::PVPlotting() : data_tree_plotting_t() { }
 
 /******************************************************************************
  *

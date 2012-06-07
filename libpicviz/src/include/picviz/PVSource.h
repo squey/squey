@@ -13,6 +13,7 @@
 #include <QVector>
 
 #include <pvkernel/core/general.h>
+#include <pvkernel/core/PVDataTreeObject.h>
 #include <pvkernel/core/PVSerializeArchive.h>
 
 #include <pvkernel/rush/PVFormat.h>
@@ -38,7 +39,8 @@ namespace Picviz {
 /**
  * \class PVSource
  */
-class LibPicvizDecl PVSource: public boost::enable_shared_from_this<PVSource>
+typedef typename PVCore::PVDataTreeObject<PVScene, PVMapping> data_tree_source_t;
+class LibPicvizDecl PVSource: public data_tree_source_t, public boost::enable_shared_from_this<PVSource>
 {
 	friend class PVCore::PVSerializeObject;
 	friend class PVScene;

@@ -19,6 +19,7 @@
  *
  *****************************************************************************/
 Picviz::PVScene::PVScene(QString scene_name, PVRoot* parent):
+	data_tree_scene_t(parent),
 	_root(parent),
 	_name(scene_name),
 	_ad2g_view(new PVAD2GView(this))
@@ -175,10 +176,10 @@ void Picviz::PVScene::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSe
 	}
 
 	// Get the sources
-	PVSource_p src(new PVSource());
+	PVSource* src = new PVSource();
 	src->set_parent(this);
 	list_sources_t all_sources;
-	so.list("sources", all_sources, QObject::tr("Sources"), src.get());
+	so.list("sources", all_sources, QObject::tr("Sources"), src);
 	src->set_parent(NULL);
 	PVLOG_INFO("(PVScene::serialize_read) get %d sources\n", all_sources.size());
 

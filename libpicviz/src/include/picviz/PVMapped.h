@@ -13,6 +13,7 @@
 #include <QHash>
 #include <QVector>
 
+#include <pvkernel/core/PVDataTreeObject.h>
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVListFloat2D.h>
 
@@ -35,7 +36,8 @@ class PVSelection;
 /**
  * \class PVMapped
  */
-class LibPicvizDecl PVMapped {
+typedef typename PVCore::PVDataTreeObject<PVMapping, PVPlotting> data_tree_mapped_t;
+class LibPicvizDecl PVMapped : public data_tree_mapped_t{
 	friend class PVPlotted;
 	friend class PVSource;
 	friend class PVCore::PVSerializeObject;
@@ -50,7 +52,7 @@ public:
 	void set_mapping(PVMapping const& mapping);
 protected:
 	// For serialization
-	PVMapped() { }
+	PVMapped();
 
 	// For PVSource
 	void invalidate_all();

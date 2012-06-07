@@ -29,7 +29,7 @@ public:
 	 *  \param[in] parent Parent of the object
 	 *  The lifetime of the child is handled by the parent.
 	 */
-	PVDataTreeObject(Tparent* parent) : _parent(parent)
+	PVDataTreeObject(Tparent* parent = NULL) : _parent(parent)
 	{
 		// It's safe to use 'this' in the constructor since we just want
 		// to store the address of the child in the parent.
@@ -79,6 +79,7 @@ public:
 	 *  \param[in] child Child of the data tree object to add.
 	 *  A check is done to assert that the child is not already a children of the data tree object
 	 *  in order to avoid a nasty mess.
+	 *  If the child belongs to another hierarchy, stole it from its parent first.
 	 */
 	void add_child(Tchild* child)
 	{

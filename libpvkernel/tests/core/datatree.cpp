@@ -11,28 +11,32 @@ class PVMapped;
 class PVSource;
 class PVScene;
 
-class PVScene : public PVCore::PVDataTreeObject<PVCore::PVDataTreeNoParent<PVScene>, PVSource>
+typedef typename PVCore::PVDataTreeObject<PVCore::PVDataTreeNoParent<PVScene>, PVSource> data_tree_scene_t;
+class PVScene : public data_tree_scene_t
 {
 public:
-	PVScene(PVCore::PVDataTreeNoParent<PVScene>* parent = NULL) : PVCore::PVDataTreeObject<PVCore::PVDataTreeNoParent<PVScene>, PVSource>(parent) {};
+	PVScene(PVCore::PVDataTreeNoParent<PVScene>* parent = NULL) : data_tree_scene_t(parent) {};
 };
 
-class PVSource : public PVCore::PVDataTreeObject<PVScene, PVMapped>
+typedef typename PVCore::PVDataTreeObject<PVScene, PVMapped> data_tree_source_t;
+class PVSource : public data_tree_source_t
 {
 public:
-	PVSource(PVScene* parent = NULL) : PVCore::PVDataTreeObject<PVScene, PVMapped>(parent) {};
+	PVSource(PVScene* parent = NULL) : data_tree_source_t(parent) {};
 };
 
-class PVMapped : public PVCore::PVDataTreeObject<PVSource, PVPlotted>
+typedef typename PVCore::PVDataTreeObject<PVSource, PVPlotted> data_tree_mapped_t;
+class PVMapped : public data_tree_mapped_t
 {
 public:
-	PVMapped(PVSource* parent = NULL) : PVCore::PVDataTreeObject<PVSource, PVPlotted>(parent) {};
+	PVMapped(PVSource* parent = NULL) : data_tree_mapped_t(parent) {};
 };
 
-class PVPlotted : public PVCore::PVDataTreeObject<PVMapped, PVCore::PVDataTreeNoChildren<PVPlotted> >
+typedef typename PVCore::PVDataTreeObject<PVMapped, PVCore::PVDataTreeNoChildren<PVPlotted>> data_tree_plotted_t;
+class PVPlotted : public data_tree_plotted_t
 {
 public:
-	PVPlotted(PVMapped* parent = NULL) : PVCore::PVDataTreeObject<PVMapped, PVCore::PVDataTreeNoChildren<PVPlotted>>(parent) {};
+	PVPlotted(PVMapped* parent = NULL) : data_tree_plotted_t(parent) {};
 };
 
 

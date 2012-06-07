@@ -8,6 +8,7 @@
 
 #include <pvkernel/rush/PVFormat.h>
 #include <picviz/PVMapping.h>
+#include <picviz/PVMapped.h>
 #include <picviz/PVSource.h>
 
 #include <iostream>
@@ -20,6 +21,7 @@
  *
  *****************************************************************************/
 Picviz::PVMapping::PVMapping(PVSource* parent):
+	data_tree_mapping_t(parent),
 	_name("default")
 {
 	set_source(parent);
@@ -39,7 +41,12 @@ Picviz::PVMapping::PVMapping(PVSource* parent):
 	}
 }
 
-
+/******************************************************************************
+ *
+ * Picviz::PVMapping::PVMapping
+ *
+ *****************************************************************************/
+Picviz::PVMapping::PVMapping() : data_tree_mapping_t() { };
 
 /******************************************************************************
  *

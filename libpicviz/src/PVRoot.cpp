@@ -5,6 +5,7 @@
 //! Copyright (C) Picviz Labs 2011
 
 #include <picviz/PVRoot.h>
+#include <picviz/PVScene.h>
 #include <picviz/plugins.h>
 
 #include <pvkernel/core/PVClassLibrary.h>
@@ -18,7 +19,7 @@
  * Picviz::PVRoot::PVRoot
  *
  *****************************************************************************/
-Picviz::PVRoot::PVRoot()
+Picviz::PVRoot::PVRoot() : data_tree_root_t()
 {
 	// Tulip initialisation
 	tlp::initTulipLib();

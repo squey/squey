@@ -26,6 +26,7 @@
 #include <picviz/PVView.h>
 
 Picviz::PVSource::PVSource(PVRush::PVInputType::list_inputs const& inputs, PVRush::PVSourceCreator_p sc, PVRush::PVFormat format)
+	: data_tree_source_t()
 {
 	init();
 
@@ -41,12 +42,13 @@ Picviz::PVSource::PVSource(PVRush::PVInputType::list_inputs const& inputs, PVRus
 	set_parent(NULL);
 }
 
-Picviz::PVSource::PVSource()
+Picviz::PVSource::PVSource() : data_tree_source_t()
 {
 	init();
 }
 
 Picviz::PVSource::PVSource(const PVSource& org):
+	data_tree_source_t(org.tparent),
 	boost::enable_shared_from_this<PVSource>()
 {
 	init();

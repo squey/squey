@@ -11,6 +11,8 @@
 #include <QLibrary>
 #include <QVector>
 
+#include <pvkernel/core/PVDataTreeObject.h>
+
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVNraw.h>
 
@@ -29,7 +31,8 @@ class PVMapped;
 /**
  * \class PVMapping
  */
-class LibPicvizDecl PVMapping
+typedef typename PVCore::PVDataTreeObject<PVSource, PVMapped> data_tree_mapping_t;
+class LibPicvizDecl PVMapping : public data_tree_mapping_t
 {
 	friend class PVMapped;
 	friend class PVCore::PVSerializeObject;
@@ -42,7 +45,7 @@ public:
 
 protected:
 	// For serialization
-	PVMapping() { };
+	PVMapping();
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 
 	// For PVMapped
