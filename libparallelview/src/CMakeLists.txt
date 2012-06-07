@@ -62,6 +62,7 @@ include/pvparallelview/PVZoneTreeNoAlloc.h
 include/pvparallelview/PVZoomedZoneTree.h
 include/pvparallelview/PVZoomedParallelView.h
 include/pvparallelview/PVZoomedZoneView.h
+include/pvparallelview/PVZoomedTiler.h
 include/pvparallelview/PVAxisGraphicsItem.h
 include/pvparallelview/PVAxisSlider.h
 include/pvparallelview/PVFullParallelView.h
@@ -72,6 +73,7 @@ SET(MOC_HEADERS
 include/pvparallelview/PVRenderingJob.h
 include/pvparallelview/PVFullParallelView.h
 include/pvparallelview/PVParallelScene.h
+include/pvparallelview/PVZoomedTiler.h
 )
 
 QT4_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})
