@@ -115,16 +115,26 @@ public:
 	   );
 	}
 
+	template <class Fbci>
+	inline void draw_zoomed_zone(PVBCIBackendImage &dst_img, uint32_t y_min, int zoom, PVZoneID zone, Fbci const &f_bci)
+	{
+		PVZoomedZoneTree const &zoomed_zone_tree = _zm.get_zone_tree<PVZoomedZoneTree>(zone);
+		draw_bci_lambda<PVParallelView::PVZoomedZoneTree>
+			(zoomed_zone_tree, dst_img, 0, dst_img.width(),
+			 [&](PVParallelView::PVZoomedZoneTree const &zoomed_zone_tree,
+			     PVParallelView::PVHSVColor const* colors,
+			     PVParallelView::PVBCICode* codes)
+			 {
+				 return (zoomed_zone_tree.*f_bci)(y_min, zoom, colors, codes);
+			 });
+	}
+
 	template <class Tree, class Fbci>
 	void draw_bci_lambda(Tree const &zone_tree, PVBCIBackendImage& dst_img, uint32_t x_start, size_t width, Fbci const& f_bci)
 	{
 		size_t ncodes = f_bci(zone_tree, _colors, _computed_codes);
 		draw_bci(dst_img, x_start, width, _computed_codes, ncodes);
 	}
-
-
-	// a = 10; b = 250;
-	//draw_zone_lambda<PVParallelView::PVZoomedZoneTree>(img, 0, 4, [&](PVZoomedZoneTree const& zone_tree, PVHSVColor const* colors, PVBCICodes* codes) { zone_tree.create_codes(a, b); });
 
 	inline uint32_t get_zone_width(PVZoneID z) const
 	{
