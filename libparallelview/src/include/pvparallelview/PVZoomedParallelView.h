@@ -2,51 +2,31 @@
 #define PVPARALLELVIEW_PVZOOMEDPARALLELVIEW_H
 
 #include <QGraphicsView>
-#include <QGraphicsScene>
-#include <QGraphicsSceneMouseEvent>
-#include <QGraphicsSceneWheelEvent>
+#include <QResizeEvent>
 
-#include <pvbase/types.h>
+#include <pvparallelview/PVZoomedTiler.h>
 
 namespace PVParallelView {
 
-class PVZonesDrawing;
-
-class PVZoomedZoneView;
-
-class PVZoomedParallelView : public QGraphicsScene
+class PVZoomedParallelView : public QGraphicsView
 {
-public:
-	PVZoomedParallelView(QObject* parent, PVParallelView::PVZonesDrawing &zones_drawing,
-	                     int top, int bottom,
-	                     PVCol axis);
-
-	~PVZoomedParallelView();
-
-	void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
-
-	void mousePressEvent(QGraphicsSceneMouseEvent *event);
-
-	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
-
-	void wheelEvent(QGraphicsSceneWheelEvent* event);
+	Q_OBJECT
 
 private:
-	QGraphicsView* view()
+
+	void resizeEvent(QResizeEvent* event)
 	{
-		return (QGraphicsView*) parent();
+		// forcing update of the scene's sceneRect
+		((PVZoomedTiler*)scene())->update_scene_space();
+
+		// re-centering the view
+		QRectF r = mapToScene(rect()).boundingRect();
+		centerOn(QPointF(0., r.center().y()));
+
+		// and propagating the event (it is required)
+		QGraphicsView::resizeEvent(event);
 	}
 
-private:
-	PVZonesDrawing   &_zones_drawing;
-	PVZoomedZoneView *_left_zone;
-	PVZoomedZoneView *_right_zone;
-	PVCol             _axis;
-	int               _top;
-	int               _bottom;
-	qreal             _translation_start_y;
-	QImage            _left_images[4];
-	QImage            _right_images[4];
 };
 
 }

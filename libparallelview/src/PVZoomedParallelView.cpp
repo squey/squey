@@ -5,6 +5,7 @@
 #include <pvparallelview/PVZonesDrawing.h>
 #include <pvparallelview/PVZoomedZoneView.h>
 
+#if 0
 PVParallelView::PVZoomedParallelView::PVZoomedParallelView(QObject* parent,
                                                            PVParallelView::PVZonesDrawing &zones_drawing,
                                                            int top, int bottom,
@@ -71,3 +72,4 @@ void PVParallelView::PVZoomedParallelView::wheelEvent(QGraphicsSceneWheelEvent* 
 	} else{
 	}
 }
+#endif

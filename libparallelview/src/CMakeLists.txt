@@ -75,6 +75,7 @@ include/pvparallelview/PVRenderingJob.h
 include/pvparallelview/PVFullParallelView.h
 include/pvparallelview/PVParallelScene.h
 include/pvparallelview/PVZoomedTiler.h
+include/pvparallelview/PVZoomedParallelView.h
 )
 
 QT4_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})
