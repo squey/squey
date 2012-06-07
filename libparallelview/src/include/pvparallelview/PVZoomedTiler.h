@@ -3,6 +3,8 @@
 
 #include <pvbase/types.h>
 
+#include <pvkernel/core/picviz_bench.h>
+
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVZonesDrawing.h>
 
@@ -310,7 +312,7 @@ private:
 
 		// std::cout << "redrawing tile at " << y_min << std::endl;
 
-
+		BENCH_START(render);
 		if (is_left) {
 			_zones_drawing.draw_zoomed_zone(*tile.bimage, y_min, _zoom, _axis - 1,
 			                                &PVZoomedZoneTree::browse_tree_bci_by_y2);
@@ -318,6 +320,7 @@ private:
 			_zones_drawing.draw_zoomed_zone(*tile.bimage, y_min, _zoom, _axis,
 			                                &PVZoomedZoneTree::browse_tree_bci_by_y1);
 		}
+		BENCH_END(render, "render tile", 1, 1, 1, 1);
 		pixmap->setPixmap(QPixmap::fromImage(tile.bimage->qimage()));
 	}
 
