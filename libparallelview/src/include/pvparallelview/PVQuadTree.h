@@ -318,10 +318,8 @@ private:
 					}
 				} else {
 					// we have to extract the 'zoom' first elements from _datas
-					uint32_t count = std::min(zoom, obj._datas.size());
-					for (unsigned i = 0; i < count; ++i) {
-						const PVQuadTreeEntry &e = obj._datas.at(i);
-						num += F(e, y1_min, shift, mask, colors, codes + num);
+					for (unsigned i = 0; i < std::min(zoom, obj._datas.size()); ++i) {
+						num += F(obj._datas.at(i), y1_min, shift, mask, colors, codes + num);
 					}
 				}
 				return num;
