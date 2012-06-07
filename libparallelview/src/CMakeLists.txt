@@ -24,7 +24,6 @@ PVBCICode.cpp
 PVHSVColor.cpp
 PVTools.cpp
 PVZoomedZoneTree.cpp
-PVZoomedParallelView.cpp
 PVZoomedTiler.cpp
 PVZonesDrawing.cpp
 PVLinesView.cpp
