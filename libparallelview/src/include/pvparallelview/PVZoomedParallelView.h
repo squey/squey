@@ -23,9 +23,6 @@ public:
 
 	~PVZoomedParallelView();
 
-
-	void drawBackground(QPainter *painter, const QRectF &rect);
-
 	void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
 
 	void mousePressEvent(QGraphicsSceneMouseEvent *event);
