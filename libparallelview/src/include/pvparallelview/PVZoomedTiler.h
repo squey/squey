@@ -43,7 +43,7 @@ int Y_TILE_OFFSET = 3 * IMAGE_HEIGHT;
 float UPDATE_SCALE = 1.3;
 
 // TODO: make it more C++ish
-enum pv_zoomed_tiler_zoom_t {
+enum pv_zoomed_tiler_zoom_type_t {
 	NO_ZOOM,
 	ZOOM_IN,
 	ZOOM_OUT,
@@ -171,7 +171,7 @@ private:
 		return (QGraphicsView*) parent();
 	}
 
-	void update_scene_space(__impl::pv_zoomed_tiler_zoom_t zoom_type = __impl::NO_ZOOM)
+	void update_scene_space(__impl::pv_zoomed_tiler_zoom_type_t zoom_type = __impl::NO_ZOOM)
 	{
 		QScrollBar *sb = view()->verticalScrollBar();
 		int max_value = IMAGE_HEIGHT * (1 << _zoom);
