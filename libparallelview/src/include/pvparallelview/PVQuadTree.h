@@ -94,8 +94,8 @@ class PVQuadTree
 public:
 	PVQuadTree(uint32_t y1_min_value, uint32_t y1_max_value, uint32_t y2_min_value, uint32_t y2_max_value, int max_level)
 	{
-		uint32_t y1_mid = (y1_max_value - y1_min_value) >> 1;
-		uint32_t y2_mid = (y2_max_value - y2_min_value) >> 1;
+		uint32_t y1_mid = y1_min_value + ((y1_max_value - y1_min_value) >> 1);
+		uint32_t y2_mid = y2_min_value + ((y2_max_value - y2_min_value) >> 1);
 
 		init(y1_min_value, y1_mid, y2_min_value, y2_mid, max_level);
 	}
