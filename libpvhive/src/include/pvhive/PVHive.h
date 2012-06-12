@@ -8,7 +8,7 @@ namespace PVHive
 class PVHive
 {
 public:
-	PVHive &get()
+	static PVHive &get()
 	{
 		if (_hive == nullptr) {
 			_hive = new PVHive;

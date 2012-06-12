@@ -1,4 +1,6 @@
 
+#include <iostream>
+
 #include <pvhive/PVHive.h>
 
 int main()
