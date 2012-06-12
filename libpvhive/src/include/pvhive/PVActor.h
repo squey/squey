@@ -35,6 +35,10 @@ private:
 	T *_object;
 };
 
+// a little macro to hide the decltype verbosity
+#define PVACTOR_CALL(Actor, Method, Param...)	  \
+	(Actor).call<decltype(Method), Method>(Param)
+
 }
 
 #endif // LIVPVHIVE_PVACTOR_H

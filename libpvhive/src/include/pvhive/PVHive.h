@@ -5,7 +5,6 @@
 #include <map>
 
 #include <boost/thread.hpp>
-#include <boost/tuple/tuple.hpp>
 
 #include <pvhive/PVObserver.h>
 
@@ -83,9 +82,8 @@ public:
 	{
 		{
 			read_lock_t read_lock(_observers_lock);
-			observers_t::const_iterator it,it_end;
-			boost::tie(it,it_end) = _observers.equal_range(actor._object);
-			for (; it != it_end; it++) {
+			auto ret = const_cast<observers_t&>(_observers).equal_range(actor._object);
+			for (auto it = ret.first; it != ret.second; ++it) {
 				it->second->about_to_be_deleted();
 			}
 		}
@@ -138,9 +136,8 @@ public:
 	{
 		{
 			read_lock_t read_lock(_observers_lock);
-			observers_t::const_iterator it,it_end;
-			boost::tie(it,it_end) = _observers.equal_range((void*) obj);
-			for (; it != it_end; it++) {
+			auto ret = const_cast<observers_t&>(_observers).equal_range((void*) obj);
+			for (auto it = ret.first; it != ret.second; ++it) {
 				it->second->refresh();
 			}
 		}
