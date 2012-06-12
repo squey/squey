@@ -25,7 +25,9 @@ protected:
 	}
 
 	virtual void about_to_be_deleted()
-	{}
+	{
+		 emit_about_to_be_deleted_signal(this);
+	}
 };
 
 }
