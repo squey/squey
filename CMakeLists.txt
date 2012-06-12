@@ -138,6 +138,7 @@ include_directories(AFTER "${picviz-inspector_SOURCE_DIR}/include")
 
 add_subdirectory(scripts)
 add_subdirectory(libpvkernel)
+add_subdirectory(libpvhive)
 
 # Helpers means various stuff we can use
 # such as binaries or libraries, that depends

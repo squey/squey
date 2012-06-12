@@ -234,6 +234,7 @@ endif(WIN32)
 # it just returns PATHS and avoid adding multiple search of the
 # same package in the different sub directories.
 find_package(PVKernel REQUIRED)
+find_package(PVHive REQUIRED)
 find_package(Picviz REQUIRED)
 find_package(PVSDK REQUIRED)
 
