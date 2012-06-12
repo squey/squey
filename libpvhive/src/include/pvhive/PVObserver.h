@@ -7,6 +7,8 @@
 namespace PVHive
 {
 
+class PVHive;
+
 class PVObserverBase
 {
 protected:
@@ -18,19 +20,18 @@ template <class T>
 class PVObserver : public PVObserverBase
 {
 public:
+	friend class PVHive;
+
 	PVObserver()
 	{
 		_object = nullptr;
 	}
 
-	void set_object(const T *object)
-	{
-		assert(_object == nullptr);
-		_object = object;
-	}
-
 protected:
 
+	/**
+	 * @return the address of the observed object
+	 */
 	T const* get_object() const
 	{
 		return _object;
