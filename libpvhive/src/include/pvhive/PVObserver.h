@@ -12,6 +12,8 @@ class PVHive;
 class PVObserverBase
 {
 protected:
+	friend class PVHive;
+
 	virtual void refresh() = 0;
 	virtual void about_to_be_deleted() = 0;
 };
