@@ -30,6 +30,7 @@ public:
 			sleep(1); // insert actor
 			std::cout << "PVHiveTest::register_actor() end insert" << std::endl;
 		}
+		std::cout << "PVHiveTest::register_actor() _actor_mutex released" << std::endl;
 		std::cout << "---" << std::endl;
 	}
 
@@ -47,6 +48,7 @@ public:
 			sleep(1); // erase actor
 			std::cout << "PVHiveTest::unregister_actor() end erase" << std::endl;
 		}
+		std::cout << "PVHiveTest::unregister_actor() _observers_lock released" << std::endl;
 		std::cout << "---" << std::endl;
 	}
 
@@ -62,6 +64,7 @@ public:
 			sleep(1); // insert observer
 			std::cout << "PVHiveTest::register_observer() end insert" << std::endl;
 		}
+		std::cout << "PVHiveTest::register_observer() _observers_lock released" << std::endl;
 		std::cout << "---" << std::endl;
 	}
 
@@ -77,6 +80,7 @@ public:
 			sleep(1); // insert observer
 			std::cout << "PVHiveTest::refresh_observers() end observers read" << std::endl;
 		}
+		std::cout << "PVHiveTest::refresh_observers() _observers_lock released" << std::endl;
 		std::cout << "---" << std::endl;
 	}
 
