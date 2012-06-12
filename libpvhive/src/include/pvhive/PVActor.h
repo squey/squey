@@ -15,6 +15,11 @@ class PVActor : public PVActorBase
 public:
 	friend class PVHive;
 
+	~PVActor()
+	{
+		PVHive::get().unregister_actor(*this);
+	}
+
 	/**
 	 * Invoke an actor's method on its object
 	 *
