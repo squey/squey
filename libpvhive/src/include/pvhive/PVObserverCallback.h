@@ -2,7 +2,7 @@
 #ifndef LIBPVHIVE_PVOBSERVERCALLBACK_H
 #define LIBPVHIVE_PVOBSERVERCALLBACK_H
 
-#incldue <pvhive/PVObserver.h>
+#include <pvhive/PVObserver.h>
 
 namespace PVHive
 {
