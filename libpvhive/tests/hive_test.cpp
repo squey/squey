@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include <pvhive/PVHive.h>
+#include <pvhive/PVActor.h>
 
 int main()
 {
@@ -15,6 +16,11 @@ int main()
 	}
 
 	std::cout << "PVHive::get() works" << std::endl;
+
+	int i;
+	PVHive::PVActor<int> a;
+
+	PVHive::PVHive::get().register_actor<int>(i, a);
 
 	return 0;
 }

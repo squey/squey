@@ -7,8 +7,15 @@
 namespace PVHive
 {
 
+class PVActorBase;
+
+template <class T>
+class PVActor;
+
 class PVHive
 {
+	typedef std::multimap<void*, PVActorBase*> actors_t;
+
 public:
 	static PVHive &get()
 	{
@@ -16,6 +23,14 @@ public:
 			_hive = new PVHive;
 		}
 		return *_hive;
+	}
+
+public:
+	template <class T>
+	void register_actor(T& p, PVActor<T>& actor)
+	{
+		_actors.insert(std::make_pair((void*) &p, (PVActorBase*) &actor));
+		actor._object = &p;
 	}
 
 public:
@@ -35,8 +50,8 @@ private:
 
 private:
 	static PVHive *_hive;
+	actors_t _actors;
 };
-
 
 }
 
