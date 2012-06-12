@@ -1,6 +1,8 @@
 
-#ifndef LIVPVHIVE_HIVE_H
-#define LIVPVHIVE_HIVE_H
+#ifndef LIBPVHIVE_PVHIVE_H
+#define LIBPVHIVE_PVHIVE_H
+
+#include <map>
 
 namespace PVHive
 {
@@ -15,10 +17,27 @@ public:
 		}
 		return *_hive;
 	}
+
+public:
+	template <typename T, typename F, F f, typename... Ttypes>
+	void call_object(T* obj, Ttypes... params)
+	{
+		call_object_default<T, F, f>(obj, params...);
+	}
+
+private:
+	template <typename T, typename F, F f, typename... Ttypes>
+	void call_object_default(T* obj, Ttypes... params)
+	{
+		(obj->*f)(params...);
+		refresh_observers(obj);
+	}
+
 private:
 	static PVHive *_hive;
 };
 
+
 }
 
-#endif // LIVPVHIVE_HIVE_H
+#endif // LIBPVHIVE_PVHIVE_H
