@@ -6,6 +6,7 @@ PVHive.cpp
 )
 
 SET(PVHIVE_MOC_HEADERS
+include/pvhive/PVRefreshSignal.h
 )
 
 set(PVHIVE_HEADER_FILES
@@ -13,6 +14,7 @@ include/pvhive/PVHive.h
 include/pvhive/PVActor.h
 include/pvhive/PVObserver.h
 include/pvhive/PVObserverCallback.h
+include/pvhive/PVRefreshSignal.h
 )
 
 set(SRC_FILES ${PVHIVE_SRC_FILES})
