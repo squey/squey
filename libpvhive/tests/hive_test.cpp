@@ -5,16 +5,30 @@
 #include <pvhive/PVActor.h>
 #include <pvhive/PVObserver.h>
 
-template <class T>
-class Obs : public PVHive::PVObserver<T>
+class Ci
 {
 public:
-	Obs()
+	Ci(int i) : _i(i) {}
+
+	void set_i(int i) { _i = i; }
+
+	int get_i() const { return _i; }
+
+private:
+	int _i;
+};
+
+typedef PVHive::PVActor<Ci> CiActor;
+
+class CiObs : public PVHive::PVObserver<Ci>
+{
+public:
+	CiObs()
 	{}
 
 	virtual void refresh()
 	{
-		std::cout << "Obs::refresh()" << std::endl;
+		std::cout << "Obs::refresh(): " << get_object()->get_i() << std::endl;
 	}
 
 	virtual void about_to_be_deleted()
@@ -22,6 +36,7 @@ public:
 		std::cout << "Obs::about_to_be_deleted()" << std::endl;
 	}
 };
+
 
 int main()
 {
@@ -36,15 +51,18 @@ int main()
 
 	std::cout << "PVHive::get() works" << std::endl;
 
-	int i;
-	PVHive::PVActor<int> a;
+	Ci i(0);
+	CiActor a;
 
-	PVHive::PVHive::get().register_actor<int>(i, a);
+	PVHive::PVHive::get().register_actor(i, a);
 
-	Obs<int> o;
+	CiObs o;
 
-	PVHive::PVHive::get().register_observer<int>(i, o);
+	PVHive::PVHive::get().register_observer(i, o);
 
+	a.call<decltype(&Ci::set_i), &Ci::set_i>(24);
+
+	PVACTOR_CALL(a, &Ci::set_i, 42);
 
 	return 0;
 }
