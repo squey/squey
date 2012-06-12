@@ -52,7 +52,7 @@ public:
 		}
 
 		// an actor must be set for only one object
-		assert(actor._object == nullptr);
+		assert(actor._object != nullptr);
 
 		actor._object = &object;
 	}
