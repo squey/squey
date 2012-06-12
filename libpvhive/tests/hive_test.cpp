@@ -3,6 +3,25 @@
 
 #include <pvhive/PVHive.h>
 #include <pvhive/PVActor.h>
+#include <pvhive/PVObserver.h>
+
+template <class T>
+class Obs : public PVHive::PVObserver<T>
+{
+public:
+	Obs()
+	{}
+
+	virtual void refresh()
+	{
+		std::cout << "Obs::refresh()" << std::endl;
+	}
+
+	virtual void about_to_be_deleted()
+	{
+		std::cout << "Obs::about_to_be_deleted()" << std::endl;
+	}
+};
 
 int main()
 {
@@ -21,6 +40,11 @@ int main()
 	PVHive::PVActor<int> a;
 
 	PVHive::PVHive::get().register_actor<int>(i, a);
+
+	Obs<int> o;
+
+	PVHive::PVHive::get().register_observer<int>(i, o);
+
 
 	return 0;
 }
