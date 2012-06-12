@@ -4,6 +4,7 @@
 
 #include <map>
 
+#include <boost/thread.hpp>
 #include <boost/tuple/tuple.hpp>
 
 #include <pvhive/PVObserver.h>
@@ -46,8 +47,52 @@ public:
 	template <class T>
 	void register_actor(T& p, PVActor<T>& actor)
 	{
-		_actors.insert(std::make_pair((void*) &p, (PVActorBase*) &actor));
-		actor._object = &p;
+		{
+			boost::lock_guard<boost::mutex> lock(_actors_mutex);
+			_actors.insert(std::make_pair((void*) &p, (PVActorBase*) &actor));
+		}
+
+		// an actor must be set for only one object
+		assert(actor._p == nullptr);
+
+		actor._p = &p;
+	}
+
+	/**
+	 * Helper method easily create and register an actor for an address
+	 *
+	 * @param p the observed address
+	 * @return the actor
+	 */
+	template <class T>
+	PVActor<T>* register_actor(T& p)
+	{
+		PVActor<T>* actor = new PVActor<T>();
+		register_actor(p, *actor);
+
+		return actor;
+	}
+
+	/**
+	 * Unregister an actor an notify all observers of its manager address
+	 * that it is about to be deleted.
+	 *
+	 */
+	template <class T>
+	void unregister_actor(PVActor<T>& actor)
+	{
+		{
+			read_lock_t read_lock(_observers_lock);
+			observers_t::const_iterator it,it_end;
+			boost::tie(it,it_end) = _observers.equal_range(actor._p);
+			for (; it != it_end; it++) {
+				it->second->about_to_be_deleted();
+			}
+		}
+		{
+			boost::lock_guard<boost::mutex> lock(_actors_mutex);
+			_actors.erase(actor._p);
+		}
 	}
 
 	/**
@@ -59,7 +104,10 @@ public:
 	template <class T>
 	void register_observer(T const& p, PVObserver<T>& observer)
 	{
-		_observers.insert(std::make_pair((void*) &p, (PVObserverBase*) &observer));
+		{
+			write_lock_t write_lock(_observers_lock);
+			_observers.insert(std::make_pair((void*) &p, (PVObserverBase*) &observer));
+		}
 
 		// an observer must be set for only one object
 		assert(observer._object == nullptr);
@@ -88,10 +136,13 @@ public:
 	template <typename T>
 	void refresh_observers(T const* obj)
 	{
-		observers_t::const_iterator it,it_end;
-		boost::tie(it,it_end) = _observers.equal_range((void*) obj);
-		for (; it != it_end; it++) {
-			it->second->refresh();
+		{
+			read_lock_t read_lock(_observers_lock);
+			observers_t::const_iterator it,it_end;
+			boost::tie(it,it_end) = _observers.equal_range((void*) obj);
+			for (; it != it_end; it++) {
+				it->second->refresh();
+			}
 		}
 	}
 
@@ -113,6 +164,13 @@ private:
 	static PVHive *_hive;
 	actors_t       _actors;
 	observers_t    _observers;
+
+	// thread safety
+	typedef boost::shared_mutex lock_t;
+	typedef boost::unique_lock<boost::shared_mutex> write_lock_t;
+	typedef boost::shared_lock<boost::shared_mutex> read_lock_t;
+	lock_t _observers_lock;
+	boost::mutex _actors_mutex;
 };
 
 }
