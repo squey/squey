@@ -11,6 +11,8 @@ class PVHive;
 
 class PVObserverBase
 {
+public:
+	friend class PVHive;
 protected:
 	friend class PVHive;
 

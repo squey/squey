@@ -45,17 +45,17 @@ public:
 	 * @param actor the actor
 	 */
 	template <class T>
-	void register_actor(T& p, PVActor<T>& actor)
+	void register_actor(T& object, PVActor<T>& actor)
 	{
 		{
 			boost::lock_guard<boost::mutex> lock(_actors_mutex);
-			_actors.insert(std::make_pair((void*) &p, (PVActorBase*) &actor));
+			_actors.insert(std::make_pair((void*) &object, (PVActorBase*) &actor));
 		}
 
 		// an actor must be set for only one object
-		assert(actor._p == nullptr);
+		assert(actor._object == nullptr);
 
-		actor._p = &p;
+		actor._object = &object;
 	}
 
 	/**
@@ -65,10 +65,10 @@ public:
 	 * @return the actor
 	 */
 	template <class T>
-	PVActor<T>* register_actor(T& p)
+	PVActor<T>* register_actor(T& object)
 	{
 		PVActor<T>* actor = new PVActor<T>();
-		register_actor(p, *actor);
+		register_actor(object, *actor);
 
 		return actor;
 	}
@@ -84,14 +84,14 @@ public:
 		{
 			read_lock_t read_lock(_observers_lock);
 			observers_t::const_iterator it,it_end;
-			boost::tie(it,it_end) = _observers.equal_range(actor._p);
+			boost::tie(it,it_end) = _observers.equal_range(actor._object);
 			for (; it != it_end; it++) {
 				it->second->about_to_be_deleted();
 			}
 		}
 		{
 			boost::lock_guard<boost::mutex> lock(_actors_mutex);
-			_actors.erase(actor._p);
+			_actors.erase(actor._object);
 		}
 	}
 
