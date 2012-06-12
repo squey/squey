@@ -40,6 +40,7 @@ public:
 };
 
 
+class Test{};
 /******************************************************************************
  *
  * Test case
@@ -55,7 +56,15 @@ int main()
 	PVMapped* mapped = new PVMapped(source);
 	PVPlotted* plotted = new PVPlotted(mapped);
 
-	// Test parent access
+	// Dump scene
+	std::cout << "=SCENE DUMP=" << std::endl;
+	std::cout << "scene1:" << std::endl;
+	scene1->dump();
+	std::cout << "scene2:" << std::endl;
+	scene2->dump();
+	std::cout << std::endl;
+
+	// Parent access
 	std::cout << "=PARENT ACCESS=" << std::endl;
 	auto scene_parent = scene1->get_parent();
 	auto source_parent = source->get_parent<PVScene>();
@@ -78,12 +87,16 @@ int main()
 	std::cout << "plotted->get_parent<PVSource>()=" << std::hex << plotted_parent_parent << std::endl;
 	std::cout << "plotted->get_parent<PVScene>()=" << std::hex << plotted_parent_parent_parent << std::endl;
 
-	// Dump scene
-	std::cout << std::endl << "=SCENE DUMP=" << std::endl;
-	std::cout << "scene1:" << std::endl;
-	scene1->dump();
-	std::cout << "scene2:" << std::endl;
-	scene2->dump();
+	// Children access
+	std::cout << std::endl << "=CHILDREN ACCESS=" << std::endl;
+	std::cout << "scene1->get_children()=";
+	scene1->dump_children();
+	std::cout << "scene1->get_children<PVSource>()=";
+	scene1->dump_children<PVSource>();
+	std::cout << "scene1->get_children<PVMapped>()=";
+	scene1->dump_children<PVMapped>();
+	std::cout << "scene1->get_children<PVPlotted>()=";
+	scene1->dump_children<PVPlotted>();
 
 	// Reparenting
 	std::cout << std::endl << "=REPARENTING=" << std::endl;
@@ -93,7 +106,7 @@ int main()
 	std::cout << "scene2:" << std::endl;
 	scene2->dump();
 
-	// changing child
+	// Changing child
 	std::cout << std::endl << "=CHANGING CHILD=" << std::endl;
 	source2->set_parent(scene1);
 	source2->add_child(mapped);

@@ -9,7 +9,6 @@
 #include <stdlib.h>
 #include <typeinfo>
 #include <vector>
-using namespace std;
 
 namespace PVCore
 {
@@ -22,7 +21,8 @@ class PVDataTreeObject
 {
 public:
 	typedef Tparent parent_t;
-	typedef std::vector<Tchild*> children_t;
+	typedef Tchild child_t;
+	typedef std::vector<child_t*> children_t;
 
 public:
 	/*! \brief Create a TreeObject with the specified parent and add itself as one of its children.
@@ -43,11 +43,13 @@ public:
 	~PVDataTreeObject()
 	{
 		auto me = static_cast<typename Tchild::parent_t*>(this);
-		_parent->remove_child(me);
-		std::cout << typeid(typename Tchild::parent_t).name() << "(" << me << ")"<< "::~TreeObject" << std::endl;
-		for (auto child: _children) {
-			delete child;
+		if (_parent) {
+			_parent->remove_child(me);
 		}
+		std::cout << typeid(typename Tchild::parent_t).name() << "(" << me << ")"<< "::~TreeObject" << std::endl;
+		/*for (auto child: _children) {
+			delete child;
+		}*/
 	}
 
 	/*! \brief Return an ancestor of a data tree object at the specified hierarchical level (as a class type).
@@ -57,6 +59,11 @@ public:
 	 */
 	template <typename Tancestor = Tparent>
 	inline Tancestor* get_parent()
+	{
+		return GetParentImpl<Tparent, Tancestor>::get_parent(_parent);
+	}
+	template <typename Tancestor = Tparent>
+	inline const Tancestor* get_parent()  const
 	{
 		return GetParentImpl<Tparent, Tancestor>::get_parent(_parent);
 	}
@@ -73,6 +80,17 @@ public:
 		}
 		_parent = parent;
 		_parent->add_child(me);
+	}
+
+	/*! \brief Return the children of a data tree object at the specified hierarchical level (as a class type).
+	 *  If no level is specified, the direct children are returned.
+	 *  \return The list of children.
+	 *  Note: Compile with '-std=c++0x' flag to support function template default parameter.
+	 */
+	template <typename T = Tchild>
+	typename T::parent_t::children_t get_children()
+	{
+		return GetChildrenImpl<Tchild, T>::get_children(_children);
 	}
 
 	/*! \brief Add a child to the data tree object.
@@ -133,8 +151,21 @@ public:
 		}
 	}
 
+	template <typename T = Tchild>
+	void dump_children()
+	{
+		auto children = get_children<T>();
+		std::cout << "(";
+		for (uint32_t i = 0; i < children.size() ; i++) {
+			if(i != 0)
+				std::cout << ", ";
+			std::cout << children[i];
+		}
+		std::cout << ")" << std::endl;
+	}
+
 private:
-	/*! \brief Implementation of the TreeObject::get_parent() method.
+	/*! \brief Implementation of the PVDataTreeObject::get_parent() method.
 	 *	"function template partial specialization is not allowed":
 	 * 	we must use static methods inside a template class
 	 */
@@ -146,7 +177,10 @@ private:
 	template <typename T, typename Tancestor>
 	struct GetParentImpl<T, Tancestor, true>
 	{
-		static inline Tancestor* get_parent(Tancestor* parent) { return parent; }
+		static inline Tancestor* get_parent(Tancestor* parent)
+		{
+			return parent;
+		}
 	};
 
 	/*! \brief Partial specialization for the case we haven't found the ancestor yet.
@@ -155,10 +189,45 @@ private:
 	template <typename T, typename Tancestor>
 	struct GetParentImpl<T, Tancestor, false>
 	{
-		typedef typename T::parent_t parent_t;
 		static inline Tancestor* get_parent(T* parent)
 		{
-			return GetParentImpl<parent_t, Tancestor>::get_parent(parent->get_parent());
+			return GetParentImpl<typename T::parent_t, Tancestor>::get_parent(parent->get_parent());
+		}
+	};
+
+	/*! \brief Implementation of the PVDataTreeObject::get_children() method.
+	 *	"function template partial specialization is not allowed":
+	 * 	we must use static methods inside a template class
+	 */
+	template <typename T, typename Tc, bool B = std::is_same<T, Tc>::value>
+	struct GetChildrenImpl;
+
+	/*! \brief Partial specialization for the case we have found the child class.
+	*/
+	template <typename T, typename Tc>
+	struct GetChildrenImpl<T, Tc, true>
+	{
+		static inline typename Tc::parent_t::children_t get_children(typename Tc::parent_t::children_t children)
+		{
+			return children;
+		}
+	};
+
+	/*! \brief Partial specialization for the case we haven't found the child class yet.
+	 * 	Recursively specialize this class with a child class of one level lower.
+	 */
+	template <typename T, typename Tc>
+	struct GetChildrenImpl<T, Tc, false>
+	{
+		static inline typename Tc::parent_t::children_t get_children(typename T::parent_t::children_t children)
+		{
+			typename T::children_t children_tmp;
+			for (auto child : children) {
+				for (auto c : child->get_children()) {
+					children_tmp.push_back(c);
+				}
+			}
+			return GetChildrenImpl<typename T::child_t, Tc>::get_children(std::move(children_tmp));
 		}
 	};
 
@@ -180,7 +249,7 @@ struct PVDataTreeNoParent
 		return NULL;
 	}
 	void add_child(Tchild* /*child*/) {}
-	void remove_child(Tchild* /*child*/){}
+	void remove_child(Tchild* /*child*/) {}
 };
 
 /*! \brief Special class to represent the fact that a tree object is not meant to have any children.
@@ -189,6 +258,14 @@ template <typename Tparent>
 struct PVDataTreeNoChildren
 {
 	typedef Tparent parent_t;
+	typedef PVDataTreeNoChildren child_t;
+	typedef std::vector<PVDataTreeNoChildren*> children_t;
+	inline PVDataTreeNoChildren* get_children()
+	{
+		std::cout << "WARNING: The data tree object has no children of such specified type" << std::endl;
+		assert(false);
+		return NULL;
+	}
 	void dump(uint32_t /*spacing*/){}
 };
 }
