@@ -15,7 +15,7 @@ class PVObserverSignal : public __impl::PVRefreshSignal, public PVObserver<T>
 {
 public:
 	PVObserverSignal(QObject* parent) :
-	__impl::PVRefreshSignal(parent)
+		__impl::PVRefreshSignal(parent)
 	{}
 
 protected:
@@ -26,7 +26,7 @@ protected:
 
 	virtual void about_to_be_deleted()
 	{
-		 emit_about_to_be_deleted_signal(this);
+		emit_about_to_be_deleted_signal(this);
 	}
 };
 
