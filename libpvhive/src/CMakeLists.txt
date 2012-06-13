@@ -3,6 +3,8 @@ include_directories(AFTER ${ICU_INCLUDE})
 
 set(PVHIVE_SRC_FILES
 PVHive.cpp
+PVActorBase.cpp
+PVObserver.cpp
 )
 
 SET(PVHIVE_MOC_HEADERS
