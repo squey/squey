@@ -13,10 +13,17 @@ class PVObserverBase
 {
 public:
 	friend class PVHive;
-protected:
 
+public:
+	PVObserverBase() : _object(nullptr) {}
+	virtual ~PVObserverBase();
+
+protected:
 	virtual void refresh() = 0;
 	virtual void about_to_be_deleted() = 0;
+
+protected:
+	void* _object;
 };
 
 template <class T>
@@ -25,21 +32,13 @@ class PVObserver : public PVObserverBase
 public:
 	friend class PVHive;
 
-	PVObserver()
-	{
-		_object = nullptr;
-	}
-
 	/**
 	 * @return the address of the observed object
 	 */
 	T const* get_object() const
 	{
-		return _object;
+		return const_cast<T*>((T*)_object);
 	}
-
-protected:
-	T const* _object;
 };
 
 }

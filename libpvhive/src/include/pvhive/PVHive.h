@@ -7,11 +7,10 @@
 #include <boost/thread.hpp>
 
 #include <pvhive/PVObserver.h>
+#include <pvhive/PVActorBase.h>
 
 namespace PVHive
 {
-
-class PVActorBase;
 
 template <class T>
 class PVActor;
@@ -44,17 +43,17 @@ public:
 	 * @param actor the actor
 	 */
 	template <class T>
-	void register_actor(T& object, PVActor<T>& actor)
+	void register_actor(T& object, PVActorBase& actor)
 	{
 		{
 			boost::lock_guard<boost::mutex> lock(_actors_mutex);
-			_actors.insert(std::make_pair((void*) &object, (PVActorBase*) &actor));
+			_actors.insert(std::make_pair((void*) &object, &actor));
 		}
 
 		// an actor must be set for only one object
-		assert(actor._object != nullptr);
+		assert(actor._object == nullptr);
 
-		actor._object = &object;
+		actor._object = (void*) &object;
 	}
 
 	/**
@@ -77,8 +76,7 @@ public:
 	 * that it is about to be deleted.
 	 *
 	 */
-	template <class T>
-	void unregister_actor(PVActor<T>& actor)
+	void unregister_actor(PVActorBase& actor)
 	{
 		{
 			read_lock_t read_lock(_observers_lock);
@@ -90,6 +88,7 @@ public:
 		{
 			boost::lock_guard<boost::mutex> lock(_actors_mutex);
 			_actors.erase(actor._object);
+			actor._object = nullptr;
 		}
 	}
 
@@ -100,17 +99,30 @@ public:
 	 * @param observer the observer
 	 */
 	template <class T>
-	void register_observer(T const& p, PVObserver<T>& observer)
+	void register_observer(T const& p, PVObserverBase& observer)
 	{
 		{
 			write_lock_t write_lock(_observers_lock);
-			_observers.insert(std::make_pair((void*) &p, (PVObserverBase*) &observer));
+			_observers.insert(std::make_pair((void*) &p, &observer));
 		}
 
 		// an observer must be set for only one object
 		assert(observer._object == nullptr);
 
-		observer._object = &p;
+		observer._object = (void*) &p;
+	}
+
+	/**
+	 * Unregister an observer.
+	 *
+	 */
+	void unregister_observer(PVObserverBase& observer)
+	{
+		{
+			write_lock_t write_lock(_observers_lock);
+			_observers.erase(observer._object);
+			observer._object = nullptr;
+		}
 	}
 
 public:
@@ -163,10 +175,9 @@ private:
 	observers_t    _observers;
 
 	// thread safety
-	typedef boost::shared_mutex lock_t;
 	typedef boost::unique_lock<boost::shared_mutex> write_lock_t;
 	typedef boost::shared_lock<boost::shared_mutex> read_lock_t;
-	lock_t _observers_lock;
+	boost::shared_mutex _observers_lock;
 	boost::mutex _actors_mutex;
 };
 

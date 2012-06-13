@@ -3,11 +3,10 @@
 #define LIVPVHIVE_PVACTOR_H
 
 #include <pvhive/PVHive.h>
+#include <pvhive/PVActorBase.h>
 
 namespace PVHive
 {
-
-class PVActorBase {};
 
 template <class T>
 class PVActor : public PVActorBase
@@ -15,9 +14,9 @@ class PVActor : public PVActorBase
 public:
 	friend class PVHive;
 
-	~PVActor()
+	PVActor()
 	{
-		PVHive::get().unregister_actor(*this);
+		_object = nullptr;
 	}
 
 	/**
@@ -28,11 +27,8 @@ public:
 	template <typename F, F f, typename... P>
 	void call(P... params)
 	{
-		PVHive::get().call_object<T, F, f>(_object, params...);
+		PVHive::get().call_object<T, F, f>((T*)_object, params...);
 	}
-
-private:
-	T *_object;
 };
 
 // a little macro to hide the decltype verbosity
