@@ -15,6 +15,16 @@ namespace PVHive
 template <class T>
 class PVActor;
 
+/**
+ * \attention any specialization of template method ::call_object() *must* be
+ * declared the namespace PVHive (you can use the macros
+ * PVHIVE_CALL_OBJECT_BLOCK_BEGIN() and PVHIVE_CALL_OBJECT_BLOCK_END()).
+*/
+
+#define PVHIVE_CALL_OBJECT_BLOCK_BEGIN() namespace PVHive {
+#define PVHIVE_CALL_OBJECT_BLOCK_END() }
+
+
 class PVHive
 {
 	/* a template can not use a pointer on template class; so we have

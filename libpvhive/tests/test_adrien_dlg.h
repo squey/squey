@@ -49,7 +49,6 @@ protected:
 	virtual void about_to_be_deleted() { }
 };
 
-
 class TestDlg: public QDialog
 {
 	Q_OBJECT

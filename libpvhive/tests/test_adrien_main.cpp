@@ -53,8 +53,7 @@ public:
 	}*/
 };
 
-namespace PVHive
-{
+PVHIVE_CALL_OBJECT_BLOCK_BEGIN()
 
 template <>
 void PVHive::PVHive::call_object<MyObject, decltype(&MyObject::set_prop), &MyObject::set_prop, boost::reference_wrapper<ObjectProperty const> >(MyObject* o, boost::reference_wrapper<ObjectProperty const> p)
@@ -88,7 +87,7 @@ void PVHive::PVHive::call_object<MyObject, decltype(&MyObject::set_i2), &MyObjec
 	call_object_default<MyObject, decltype(&MyObject::set_i2), &MyObject::set_i2, int>(o, i);
 }
 
-}
+PVHIVE_CALL_OBJECT_BLOCK_END()
 
 /* would be nice to have:
 
