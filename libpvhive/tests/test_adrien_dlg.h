@@ -25,7 +25,9 @@ public:
 protected:
 	virtual void refresh()
 	{
-		std::cout << "Label observer callback in thread " << boost::this_thread::get_id() << std::endl;
+		std::cout << "  Label refresh" << std::endl;
+		std::cout << "    running thread " << boost::this_thread::get_id() << std::endl;
+		std::cout << "    owner thread   " << thread() << std::endl;
 		setText(QString::number(get_object()->_v));
 	}
 	virtual void about_to_be_deleted() { }
@@ -43,7 +45,9 @@ public:
 protected:
 	virtual void refresh()
 	{
-		std::cout << "Label observer callback in thread " << boost::this_thread::get_id() << std::endl;
+		std::cout << "  Bar refresh" << std::endl;
+		std::cout << "    running thread " << boost::this_thread::get_id() << std::endl;
+		std::cout << "    owner thread   " << thread() << std::endl;
 		setValue(get_object()->_v);
 	}
 	virtual void about_to_be_deleted() { }
@@ -76,7 +80,7 @@ public:
 		hive.register_observer(o, _myobj_observer);
 		hive.register_observer(o.get_prop(), _objprop_observer);
 		hive.register_observer(o.get_prop(), *_other_label);
-		//hive.register_observer(o.get_prop(), *_bar);
+		hive.register_observer(o.get_prop(), *_bar);
 
 		_myobj_observer.connect_refresh(this, SLOT(observer_changed()));
 		_objprop_observer.connect_refresh(this, SLOT(prop_changed(PVHive::PVObserverBase*)));
@@ -85,13 +89,16 @@ public:
 public slots:
 	void observer_changed()
 	{
-		//QMessageBox::information(this, "test", "observer changed");
-		std::cout << "observer changed in thread " << boost::this_thread::get_id() << std::endl;
+		std::cout << "  GUI observer_changed" << std::endl;
+		std::cout << "    running thread " << boost::this_thread::get_id() << std::endl;
+		std::cout << "    owner thread   " << thread() << std::endl;
 	}
 
 	void prop_changed(PVHive::PVObserverBase* v)
 	{
-		std::cout << "GUI slot in thread " << boost::this_thread::get_id() << std::endl;
+		std::cout << "  GUI prop_changed" << std::endl;
+		std::cout << "    running thread " << boost::this_thread::get_id() << std::endl;
+		std::cout << "    owner thread   " << thread() << std::endl;
 		PVHive::PVObserverSignal<ObjectProperty>* prop_v = dynamic_cast<PVHive::PVObserverSignal<ObjectProperty>*>(v);
 		assert(prop_v);
 		int new_v = prop_v->get_object()->_v;

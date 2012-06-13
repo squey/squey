@@ -3,63 +3,23 @@
 
 #include <pvhive/PVHive.h>
 #include <pvhive/PVActor.h>
-#include <pvhive/PVObserver.h>
 #include <pvhive/PVObserverCallback.h>
 
 #include "test_adrien_objs.h"
 #include "test_adrien_dlg.h"
+#include "test_adrien_hdr.h"
 
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
 
-class MyObjObserver: public PVHive::PVObserver<MyObject>
-{
-public:
-	void refresh() { std::cout << "refresh obj observer: " << get_object()->get_i() << std::endl; }
-	void about_to_be_deleted() { }
-};
-
-class MyObjActor: public PVHive::PVActor<MyObject>
-{
-public:
-#if 0
-	template <typename F, F f, typename... Ttypes>
-	void call(Ttypes... params)
-	{
-		Actor<MyObject>::call<F, f>(params...);
-		/*if (f == &MyObject::set_i2) {
-			std::cout << "actor int2 custom" << std::endl;
-		}
-		else
-		if (f == &MyObject::set_prop) {
-			parent_cc().refresh_observers(&_p._prop);
-		}*/
-	}
-#endif
-
-	/*
-	template <typename... Ttypes>
-	void call(decltype(&MyObject::set_i2) f, Ttypes... params)
-	{
-		std::cout << "set_i2 special actor" << std::endl;
-		Actor<MyObject>::call(f, params...);
-	}
-
-	template <typename... Ttypes>
-	void call(decltype(&MyObject::set_i) f, Ttypes... params)
-	{
-		std::cout << "set_i special actor" << std::endl;
-		Actor<MyObject>::call(f, params...);
-	}*/
-};
 
 PVHIVE_CALL_OBJECT_BLOCK_BEGIN()
 
 template <>
 void PVHive::PVHive::call_object<MyObject, decltype(&MyObject::set_prop), &MyObject::set_prop, boost::reference_wrapper<ObjectProperty const> >(MyObject* o, boost::reference_wrapper<ObjectProperty const> p)
 {
-	std::cout << "specialized control center call for MyObject::set_prop" << std::endl;
-	std::cout << "Hive call in thread " << boost::this_thread::get_id() << std::endl;
+	std::cout << "  PVHive::call_object for MyObject::set_prop" << std::endl;
+	std::cout << "    in thread " << boost::this_thread::get_id() << std::endl;
 	call_object_default<MyObject, decltype(&MyObject::set_prop), &MyObject::set_prop, ObjectProperty const&>(o, p);
 	refresh_observers(&o->get_prop());
 }
@@ -67,8 +27,8 @@ void PVHive::PVHive::call_object<MyObject, decltype(&MyObject::set_prop), &MyObj
 template <>
 void PVHive::PVHive::call_object<MyObject, decltype(&MyObject::set_prop), &MyObject::set_prop, ObjectProperty>(MyObject* o, ObjectProperty p)
 {
-	std::cout << "specialized control center call for MyObject::set_prop, non const& version" << std::endl;
-	std::cout << "Hive call in thread " << boost::this_thread::get_id() << std::endl;
+	std::cout << "  PVHive::call_object for MyObject::set_prop, non const& version" << std::endl;
+	std::cout << "    in thread " << boost::this_thread::get_id() << std::endl;
 	call_object_default<MyObject, decltype(&MyObject::set_prop), &MyObject::set_prop, ObjectProperty>(o, p);
 	refresh_observers(&o->get_prop());
 }
@@ -76,14 +36,16 @@ void PVHive::PVHive::call_object<MyObject, decltype(&MyObject::set_prop), &MyObj
 template <>
 void PVHive::PVHive::call_object<MyObject, decltype(&MyObject::set_i), &MyObject::set_i, int>(MyObject* o, int i)
 {
-	std::cout << "specialized control center call for MyObject::set_i" << std::endl;
+	std::cout << "  PVHive::call_object for MyObject::set_i" << std::endl;
+	std::cout << "    in thread " << boost::this_thread::get_id() << std::endl;
 	call_object_default<MyObject, decltype(&MyObject::set_i), &MyObject::set_i, int>(o, i);
 }
 
 template <>
 void PVHive::PVHive::call_object<MyObject, decltype(&MyObject::set_i2), &MyObject::set_i2, int>(MyObject* o, int i)
 {
-	std::cout << "specialized control center call for MyObject::set_i2" << std::endl;
+	std::cout << "  PVHive::call_object for MyObject::set_i2" << std::endl;
+	std::cout << "    in thread " << boost::this_thread::get_id() << std::endl;
 	call_object_default<MyObject, decltype(&MyObject::set_i2), &MyObject::set_i2, int>(o, i);
 }
 
@@ -106,11 +68,12 @@ void update_prop(PVHive::PVHive& cc, MyObject& o)
 	MyObjActor actor;
 	cc.register_actor(o, actor);
 
+	std::cout << "Update thread is " << boost::this_thread::get_id() << std::endl;
 	int v = 0;
 	while(true) {
 		sleep(1);
+		std::cout << "Update prop to " << v << std::endl;
 		actor.call<decltype(&MyObject::set_prop), &MyObject::set_prop>(boost::cref(ObjectProperty(v)));
-		//actor.easy_call(func(&MyObject::set_prop), boost::cref(ObjectProperty(v)));
 		v++;
 	}
 }
@@ -122,8 +85,8 @@ int main(int argc, char** argv)
 	MyObjObserver observer;
 
 	auto observer_callback = PVHive::create_observer_callback<MyObject>(
-			[](MyObject const* o) { std::cout << "refresh obj observer lambda: " << o->get_i() << std::endl; },
-			[](MyObject const* o) { std::cout << "delete lambda: " << o->get_i() << std::endl; }
+			[](MyObject const* o) { std::cout << "  Callback refresh to " << o->get_i() << std::endl; },
+			[](MyObject const* o) { std::cout << "  Callback delete for " << o->get_i() << std::endl; }
 		);
 
 	PVHive::PVHive &hive = PVHive::PVHive::get();
@@ -141,6 +104,8 @@ int main(int argc, char** argv)
 
 	std::cout << "Main thread is " << boost::this_thread::get_id() << std::endl;
 
+	// MyThread mt(o, &app);
+	//mt.start();
 	boost::thread th(boost::bind(update_prop, boost::ref(hive), boost::ref(o)));
 
 	app.exec();
