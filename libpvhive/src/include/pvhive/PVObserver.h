@@ -30,8 +30,6 @@ public:
 		_object = nullptr;
 	}
 
-protected:
-
 	/**
 	 * @return the address of the observed object
 	 */

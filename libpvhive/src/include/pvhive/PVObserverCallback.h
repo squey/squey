@@ -25,7 +25,7 @@ protected:
 
 	virtual void about_to_be_deleted()
 	{
-		_delete_cb(PVObserver<T>::get_obj());
+		_delete_cb(PVObserver<T>::get_object());
 	}
 
 private:
