@@ -8,10 +8,10 @@ namespace PVHive
 {
 
 template <class T, class RefreshF, class DeleteF>
-class ObserverCallback : public Observer<T>
+class PVObserverCallback : public PVObserver<T>
 {
 public:
-	ObserverCallback(RefreshF const& r, DeleteF const& d):
+	PVObserverCallback(RefreshF const& r, DeleteF const& d) :
 		_refresh_cb(r),
 		_delete_cb(d)
 	{}
@@ -20,12 +20,12 @@ protected:
 	virtual void refresh()
 	{
 
-		_refresh_cb(Observer<T>::get_object());
+		_refresh_cb(PVObserver<T>::get_object());
 	}
 
 	virtual void about_to_be_deleted()
 	{
-		_delete_cb(Observer<T>::get_obj());
+		_delete_cb(PVObserver<T>::get_obj());
 	}
 
 private:
@@ -34,10 +34,10 @@ private:
 };
 
 template <class T, class RefreshF, class DeleteF>
-ObserverCallback<T, RefreshF, DeleteF>
+PVObserverCallback<T, RefreshF, DeleteF>
 create_observer_callback(RefreshF const& r, DeleteF const& d)
 {
-	return ObserverCallback<T, RefreshF, DeleteF>(r, d);
+	return PVObserverCallback<T, RefreshF, DeleteF>(r, d);
 }
 
 }
