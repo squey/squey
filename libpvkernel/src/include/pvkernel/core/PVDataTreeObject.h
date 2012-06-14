@@ -8,7 +8,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <typeinfo>
-#include <vector>
+
+#include <QList>
+
+#include <boost/shared_ptr.hpp>
+
+#include <pvkernel/core/general.h>
 
 namespace PVCore
 {
@@ -20,21 +25,26 @@ template <typename Tparent, typename Tchild>
 class PVDataTreeObject
 {
 public:
+	template<typename T1, typename T2> friend class PVDataTreeObject;
+
+public:
 	typedef Tparent parent_t;
 	typedef Tchild child_t;
-	typedef std::vector<child_t*> children_t;
+	typedef boost::shared_ptr<child_t> pchild_t;
+	typedef QList<pchild_t> children_t;
 
 public:
 	/*! \brief Create a TreeObject with the specified parent and add itself as one of its children.
 	 *  \param[in] parent Parent of the object
 	 *  The lifetime of the child is handled by the parent.
 	 */
-	PVDataTreeObject(Tparent* parent = NULL) : _parent(parent)
+	PVDataTreeObject(Tparent* parent = nullptr) : _parent(parent)
 	{
 		// It's safe to use 'this' in the constructor since we just want
 		// to store the address of the child in the parent.
-		if(_parent){
-			_parent->add_child(static_cast<typename Tchild::parent_t*>(this));
+		if (_parent) {
+			auto me = static_cast<typename Tchild::parent_t*>(this);
+			_parent->add_child(me);
 		}
 	}
 
@@ -43,12 +53,9 @@ public:
 	~PVDataTreeObject()
 	{
 		auto me = static_cast<typename Tchild::parent_t*>(this);
-		if (_parent) {
-			_parent->remove_child(me);
-		}
 		std::cout << typeid(typename Tchild::parent_t).name() << "(" << me << ")"<< "::~TreeObject" << std::endl;
-		/*for (auto child: _children) {
-			delete child;
+		/*if (_parent) {
+			_parent->remove_child(me);
 		}*/
 	}
 
@@ -74,12 +81,19 @@ public:
 	 */
 	void set_parent(Tparent* parent)
 	{
-		auto me = static_cast<typename Tchild::parent_t*>(this);
-		if (_parent) {
-			_parent->remove_child(me);
+		if (_parent == parent) {
+			return;
 		}
+
+		auto me = static_cast<typename Tchild::parent_t*>(this);
+		typename Tparent::pchild_t me_p;
+		if (_parent) {
+			me_p = _parent->remove_child(me);
+			if (parent) {
+				parent->_children.push_back(me_p);
+			}
+		};
 		_parent = parent;
-		_parent->add_child(me);
 	}
 
 	/*! \brief Return the children of a data tree object at the specified hierarchical level (as a class type).
@@ -92,6 +106,11 @@ public:
 	{
 		return GetChildrenImpl<Tchild, T>::get_children(_children);
 	}
+	template <typename T = Tchild>
+	const typename T::parent_t::children_t get_children() const
+	{
+		return GetChildrenImpl<Tchild, T>::get_children(_children);
+	}
 
 	/*! \brief Add a child to the data tree object.
 	 *  \param[in] child Child of the data tree object to add.
@@ -101,43 +120,56 @@ public:
 	 */
 	void add_child(Tchild* child)
 	{
-		// TODO: use std::find instead
-		bool already_exist = false;
+		if(child == nullptr) {
+			return;
+		}
+
+		bool found = false;
 		for (auto c: _children) {
-			if (child == c)
+			if (child == c.get())
 			{
-				already_exist = true;
+				found = true;
+				break;
 			}
 		}
-		if (!already_exist) {
+		if (!found) {
 			auto me = static_cast<typename Tchild::parent_t*>(this);
 			auto child_parent = child->get_parent();
-			if (child_parent != me) {
+			pchild_t pchild;
+			if (child_parent && child_parent != me) {
 				// steal child to parent
-				child_parent->remove_child(child);
+				pchild = child_parent->remove_child(child);
 			}
-			_children.push_back(child);
+			else {
+				pchild.reset(child);
+			}
+			child->_parent = me;
+			_children.push_back(pchild);
 		}
 		else {
-			assert(false); // tried to add child twice!
-		}
-	}
-
-	/*! \brief Helper method to add several children to the data tree object.
-	 */
-	void add_children(children_t children)
-	{
-		for (auto child: children) {
-			add_child(child);
+			PVLOG_WARN("Tried to add child (0x%x) twice\n", child);
+			//assert(false); // tried to add child twice!
 		}
 	}
 
 	/*! \brief Remove a child of the data tree object.
 	 *  \param[in] child Child of the data tree object to remove.
+	 *  \return a shared_ptr to the removed child in order to postpone its destruction.
 	 */
-	void remove_child(Tchild* child)
+	pchild_t remove_child(Tchild* child)
 	{
-		_children.erase(std::remove(_children.begin(), _children.end(), child), _children.end());
+		pchild_t pchild;
+		for (int i = 0; i < _children.size(); i++) {
+			if (child == _children[i].get())
+			{
+				pchild = _children[i];
+				_children.erase(_children.begin()+i);
+				pchild->set_parent(nullptr);
+				break;
+			}
+		}
+
+		return pchild;
 	}
 
 	/*! \brief Dump the data tree object and all of it's underlying children hierarchy.
@@ -156,7 +188,7 @@ public:
 	{
 		auto children = get_children<T>();
 		std::cout << "(";
-		for (uint32_t i = 0; i < children.size() ; i++) {
+		for (int i = 0; i < children.size() ; i++) {
 			if(i != 0)
 				std::cout << ", ";
 			std::cout << children[i];
@@ -191,7 +223,11 @@ private:
 	{
 		static inline Tancestor* get_parent(T* parent)
 		{
-			return GetParentImpl<typename T::parent_t, Tancestor>::get_parent(parent->get_parent());
+			if (parent != nullptr) {
+				return GetParentImpl<typename T::parent_t, Tancestor>::get_parent(parent->get_parent());
+			}
+
+			return nullptr;
 		}
 	};
 
@@ -242,14 +278,18 @@ template <typename Tchild>
 struct PVDataTreeNoParent
 {
 	typedef PVDataTreeNoParent parent_t;
+	typedef Tchild child_t;
+	typedef boost::shared_ptr<child_t> pchild_t;
+	typedef QList<pchild_t> children_t;
 	inline PVDataTreeNoParent* get_parent()
 	{
 		std::cout << "WARNING: The data tree object has no ancestor of such specified type" << std::endl;
 		assert(false);
-		return NULL;
+		return nullptr;
 	}
 	void add_child(Tchild* /*child*/) {}
-	void remove_child(Tchild* /*child*/) {}
+	pchild_t remove_child(Tchild* /*child*/) { return pchild_t();}
+	children_t _children;
 };
 
 /*! \brief Special class to represent the fact that a tree object is not meant to have any children.
@@ -259,14 +299,16 @@ struct PVDataTreeNoChildren
 {
 	typedef Tparent parent_t;
 	typedef PVDataTreeNoChildren child_t;
-	typedef std::vector<PVDataTreeNoChildren*> children_t;
+	typedef boost::shared_ptr<child_t> pchild_t;
+	typedef QList<pchild_t> children_t;
 	inline PVDataTreeNoChildren* get_children()
 	{
 		std::cout << "WARNING: The data tree object has no children of such specified type" << std::endl;
 		assert(false);
-		return NULL;
+		return nullptr;
 	}
 	void dump(uint32_t /*spacing*/){}
+	children_t _children;
 };
 }
 
