@@ -1,8 +1,4 @@
 
-#ifdef DEBUG
-#include <iostream>
-#endif
-
 #include <QMetaType>
 
 #include <pvhive/PVHive.h>
@@ -20,7 +16,13 @@ PVHive::PVHive *PVHive::PVHive::_hive = nullptr;
 PVHive::PVHive::PVHive(QObject *parent) :
 	QThread(parent)
 {
-	// Qt has to know the type function_t for signals/slots
+	/* Qt has to know the type function_t for signals/slots; otherwise
+	 * there is the following error at run-time:
+	 * QObject::connect: Cannot queue arguments of type '__impl::function_t'
+	 * (Make sure '__impl::function_t' is registered using qRegisterMetaType().)
+	 *
+	 * This problem occurs when a non QThread thread do an action.
+	 */
 	qRegisterMetaType<__impl::function_t>("__impl::function_t");
 
 	connect(this, SIGNAL(invoke_object(__impl::function_t)),
@@ -38,9 +40,6 @@ PVHive::PVHive::PVHive(QObject *parent) :
 
 void PVHive::PVHive::run()
 {
-#ifdef DEBUG
-	std::cout << "PVHive::PVHive::thread is " << thread() << std::endl;
-#endif
 	exec();
 }
 
