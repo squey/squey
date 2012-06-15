@@ -63,7 +63,7 @@ public:
 		if (_hive == nullptr) {
 			_hive = new PVHive;
 		}
-		return *_hive;
+              return *_hive;
 	}
 
 public:
@@ -187,6 +187,10 @@ private:
 
 private:
 	PVHive(QObject *parent = nullptr);
+	~PVHive();
+	PVHive(const PVHive&);
+	PVHive &operator=(const PVHive&);
+
 	void run();
 
 signals:
