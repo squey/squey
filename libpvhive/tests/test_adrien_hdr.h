@@ -70,6 +70,12 @@ public:
 		_timer->start(1000);
 	}
 
+	~MyThread()
+	{
+		quit();
+		wait();
+	}
+
 	void run()
 	{
 		std::cout << "Update thread is " << boost::this_thread::get_id() << std::endl;
