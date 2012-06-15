@@ -26,8 +26,26 @@ template <class T>
 class PVActor;
 
 /**
- * \attention any specialization of template method ::call_object() *must* be
- * declared the namespace PVHive (you can use the macros
+ * @class PVHive
+ *
+ * @brief The PVHive a system to ease update propagation in programs with
+ * interdependant objects.
+ *
+ * When dealing with changing objects, keeping all dependants objects updated
+ * can be complex and can need lots of lines of code to maintain the coherency;
+ * as keeping a correct behaviour each time a new functionnality is added.
+ *
+ * The PVHive also implements a callback-like system to automatize this
+ * action-reaction scheme. It is based on 3 concepts:
+ *  - the hive which is the keeper of list of action-reaction; It is the
+ *    "entity" which do the action
+ *  - the actor tell the hive on which object it will do changes
+ *  - the observer tell the hive for which object it want update notification
+ */
+
+/**
+ * @attention any specialization of template method ::call_object() *must* be
+ * declared in the namespace PVHive (you can use the macros
  * PVHIVE_CALL_OBJECT_BLOCK_BEGIN() and PVHIVE_CALL_OBJECT_BLOCK_END()).
 */
 
@@ -60,15 +78,13 @@ public:
 	template <class T>
 	void register_actor(T& object, PVActorBase& actor)
 	{
-		{
-			boost::lock_guard<boost::mutex> lock(_actors_mutex);
-			_actors.insert(std::make_pair((void*) &object, &actor));
-		}
-
 		// an actor must be set for only one object
 		assert(actor._object == nullptr);
 
 		actor._object = (void*) &object;
+
+		boost::lock_guard<boost::mutex> lock(_actors_mutex);
+		_actors.insert(std::make_pair((void*) &object, &actor));
 	}
 
 	/**
@@ -102,15 +118,13 @@ public:
 	template <class T>
 	void register_observer(T const& object, PVObserverBase& observer)
 	{
-		{
-			write_lock_t write_lock(_observers_lock);
-			_observers.insert(std::make_pair((void*) &object, &observer));
-		}
-
 		// an observer must be set for only one object
 		assert(observer._object == nullptr);
 
 		observer._object = (void*) &object;
+
+		write_lock_t write_lock(_observers_lock);
+		_observers.insert(std::make_pair((void*) &object, &observer));
 	}
 
 	/**
@@ -118,6 +132,11 @@ public:
 	 *
 	 */
 	void unregister_observer(PVObserverBase& observer);
+
+	/**
+	 * Emit about_to_be_deleted to each observer of object
+	 */
+	void emit_about_to_be_deleted(void* object);
 
 public:
 	/**
@@ -129,6 +148,9 @@ public:
 	template <typename T, typename F, F f, typename... P>
 	void call_object(T* object, P... params)
 	{
+		// object must be a valid address
+		assert(object != nullptr);
+
 		call_object_default<T, F, f>(object, params...);
 	}
 
@@ -140,6 +162,9 @@ public:
 	template <typename T>
 	void refresh_observers(T const* object)
 	{
+		// object must be a valid address
+		assert(object != nullptr);
+
 		emit refresh_observers((void*)object);
 	}
 
@@ -151,10 +176,13 @@ private:
 	 * @param params the method parameters
 	 */
 	template <typename T, typename F, F f, typename... P>
-	void call_object_default(T* obj, P... params)
+	void call_object_default(T* object, P... params)
 	{
-		emit invoke_object(std::bind(f, obj, params...));
-		emit refresh_observers((void*)obj);
+		// object must be a valid address
+		assert(object != nullptr);
+
+		emit invoke_object(std::bind(f, object, params...));
+		emit refresh_observers((void*)object);
 	}
 
 private:
