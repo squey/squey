@@ -1,8 +1,4 @@
 
-#ifdef DEBUG
-#include <iostream>
-#endif
-
 #include <QMetaType>
 
 #include <pvhive/PVHive.h>
@@ -38,9 +34,6 @@ PVHive::PVHive::PVHive(QObject *parent) :
 
 void PVHive::PVHive::run()
 {
-#ifdef DEBUG
-	std::cout << "PVHive::PVHive::thread is " << thread() << std::endl;
-#endif
 	exec();
 }
 
