@@ -85,9 +85,16 @@ int main(int argc, char** argv)
 	MyObjObserver observer;
 
 	auto observer_callback = PVHive::create_observer_callback<MyObject>(
-			[](MyObject const* o) { std::cout << "  Callback refresh to " << o->get_i() << std::endl; },
-			[](MyObject const* o) { std::cout << "  Callback delete for " << o->get_i() << std::endl; }
+			[](MyObject const* o) { std::cout << "  Callback refresh to i=" << o->get_i() << std::endl; },
+			[](MyObject const* o) { std::cout << "  Callback delete for i=" << o->get_i() << std::endl; }
 		);
+
+	QApplication app(argc, argv);
+
+	std::cout << "Main thread is " << boost::this_thread::get_id() << std::endl;
+
+	TestDlg* dlg = new TestDlg(o, NULL);
+	dlg->show();
 
 	PVHive::PVHive &hive = PVHive::PVHive::get();
 	hive.register_actor(o, actor);
@@ -97,16 +104,8 @@ int main(int argc, char** argv)
 	actor.call<decltype(&MyObject::set_i), &MyObject::set_i>(8);
 	actor.call<decltype(&MyObject::set_i2), &MyObject::set_i2>(9);
 
-	QApplication app(argc, argv);
-
-	TestDlg* dlg = new TestDlg(hive, o, NULL);
-	dlg->show();
-
-	std::cout << "Main thread is " << boost::this_thread::get_id() << std::endl;
-
-	// MyThread mt(o, &app);
-	//mt.start();
-	boost::thread th(boost::bind(update_prop, boost::ref(hive), boost::ref(o)));
+	MyThread mt(o, &app);
+	mt.start();
 
 	app.exec();
 

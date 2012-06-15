@@ -16,7 +16,7 @@
 class MyObjObserver: public PVHive::PVObserver<MyObject>
 {
 public:
-	void refresh() { std::cout << "  MyObjObserver refresh to " << get_object()->get_i() << std::endl; }
+	void refresh() { std::cout << "  MyObjObserver refresh to i=" << get_object()->get_i() << std::endl; }
 	void about_to_be_deleted() { }
 };
 
@@ -90,6 +90,5 @@ private:
 	MyObjActor _actor;
 	QTimer *_timer;
 };
-
 
 #endif // TEST_ADRIEN_HDR_H

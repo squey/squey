@@ -58,7 +58,7 @@ class TestDlg: public QDialog
 	Q_OBJECT
 
 public:
-	TestDlg(PVHive::PVHive& hive, MyObject const& o, QWidget* parent):
+	TestDlg(MyObject const& o, QWidget* parent):
 		QDialog(parent),
 		_myobj_observer(this),
 		_objprop_observer(this)
@@ -77,6 +77,7 @@ public:
 		_progress_bar->setMinimum(0);
 		_progress_bar->setMaximum(100);
 
+		PVHive::PVHive &hive = PVHive::PVHive::get();
 		hive.register_observer(o, _myobj_observer);
 		hive.register_observer(o.get_prop(), _objprop_observer);
 		hive.register_observer(o.get_prop(), *_other_label);
