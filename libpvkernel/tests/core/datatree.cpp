@@ -317,13 +317,36 @@ int main()
 	std::cout << "a2:" << std::endl;
 	a2->dump(); std::cout << std::endl;
 
+	PVLOG_INFO("Removing parent passed: %d\n", removing_parent);
+
 	//////////////////////////////////////////
-	//  Test8 - Get null ancestor if parent is null
+	//  Test9 - Create an object without parent and then set a parent
 	//////////////////////////////////////////
-	D d2;
+
+	C* c3  = new C();
+	c3->set_parent(b3);
+
+	std::cout << "a1:" << std::endl;
+	a1->dump();
+	std::cout << "a2:" << std::endl;
+	a2->dump(); std::cout << std::endl;
+
+	bool create_without_parent_and_set_parent = true;
+	{
+		create_without_parent_and_set_parent &= (c3->get_parent() == b3);
+		auto b3_children = b3->get_children();
+		create_without_parent_and_set_parent &= (b3_children.size() == 1 && b3_children[0].get() == c3);
+	}
+
+	PVLOG_INFO("Create without parent and set parent passed: %d\n", create_without_parent_and_set_parent);
+
+	//////////////////////////////////////////
+	//  Test10 - Get null ancestor if parent is null
+	//////////////////////////////////////////
+	D d3;
 
 	bool null_parent_null_ancestor = true;
-	null_parent_null_ancestor &= (d2.get_parent() == nullptr && d2.get_parent<A>() == nullptr);
+	null_parent_null_ancestor &= (d3.get_parent() == nullptr && d3.get_parent<A>() == nullptr);
 
 	PVLOG_INFO("Get null ancestor if parent is null: %d\n", null_parent_null_ancestor);
 
@@ -332,5 +355,5 @@ int main()
 	delete a1;
 	delete a2;
 
-	return !(parent_access && children_access && same_parent && changing_parent && changing_child && removing_child && removing_parent && null_parent_null_ancestor);
+	return !(parent_access && children_access && same_parent && changing_parent && changing_child && create_with_parent_and_set_same_parent && removing_child && removing_parent && create_without_parent_and_set_parent && null_parent_null_ancestor);
 }

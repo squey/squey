@@ -17,6 +17,46 @@
 
 namespace PVCore
 {
+/*! \brief Special class to represent the fact that a tree object is at the root of the hierarchy.
+*/
+template <typename Tchild>
+struct PVDataTreeNoParent
+{
+	typedef PVDataTreeNoParent parent_t;
+	typedef Tchild child_t;
+	typedef boost::shared_ptr<child_t> pchild_t;
+	typedef QList<pchild_t> children_t;
+	inline PVDataTreeNoParent* get_parent()
+	{
+		std::cout << "WARNING: The data tree object has no ancestor of such specified type" << std::endl;
+		assert(false);
+		return nullptr;
+	}
+	bool is_root() { return true; }
+	void add_child(Tchild* /*child*/) {}
+	pchild_t remove_child(Tchild* /*child*/) { return pchild_t();}
+	children_t _children;
+};
+
+/*! \brief Special class to represent the fact that a tree object is not meant to have any children.
+*/
+template <typename Tparent>
+struct PVDataTreeNoChildren
+{
+	typedef Tparent parent_t;
+	typedef PVDataTreeNoChildren child_t;
+	typedef boost::shared_ptr<child_t> pchild_t;
+	typedef QList<pchild_t> children_t;
+	inline PVDataTreeNoChildren* get_children()
+	{
+		std::cout << "WARNING: The data tree object has no children of such specified type" << std::endl;
+		assert(false);
+		return nullptr;
+	}
+	void dump(uint32_t /*spacing*/){}
+	children_t _children;
+};
+
 /*! \brief Data tree object base class.
  *
  * This class is the base class for all objects of the data tree.
@@ -54,9 +94,14 @@ public:
 	{
 		auto me = static_cast<typename Tchild::parent_t*>(this);
 		std::cout << typeid(typename Tchild::parent_t).name() << "(" << me << ")"<< "::~TreeObject" << std::endl;
-		/*if (_parent) {
-			_parent->remove_child(me);
-		}*/
+	}
+
+	/*! \brief Check if the object is an instance of the root class of the hierarchy.
+	 *  \return true, false otherwise.
+	 */
+	bool is_root()
+	{
+		return  std::is_same<Tparent, PVDataTreeNoParent<typename Tchild::parent_t> >::value;
 	}
 
 	/*! \brief Return an ancestor of a data tree object at the specified hierarchical level (as a class type).
@@ -92,8 +137,13 @@ public:
 			if (parent) {
 				parent->_children.push_back(me_p);
 			}
-		};
+		}
+		auto old_parent = _parent;
 		_parent = parent;
+		if (old_parent == nullptr && !parent->is_root()) {
+			me_p.reset(me);
+			parent->_children.push_back(me_p);
+		}
 	}
 
 	/*! \brief Return the children of a data tree object at the specified hierarchical level (as a class type).
@@ -147,8 +197,8 @@ public:
 			_children.push_back(pchild);
 		}
 		else {
-			PVLOG_WARN("Tried to add child (0x%x) twice\n", child);
-			//assert(false); // tried to add child twice!
+			PVLOG_WARN("Tried to add child (0x%x) twice!\n", child);
+			assert(false);
 		}
 	}
 
@@ -164,7 +214,7 @@ public:
 			{
 				pchild = _children[i];
 				_children.erase(_children.begin()+i);
-				pchild->set_parent(nullptr);
+				pchild.get()->_parent = nullptr;
 				break;
 			}
 		}
@@ -269,45 +319,6 @@ private:
 
 private:
 	Tparent* _parent;
-	children_t _children;
-};
-
-/*! \brief Special class to represent the fact that a tree object is at the root of the hierarchy.
-*/
-template <typename Tchild>
-struct PVDataTreeNoParent
-{
-	typedef PVDataTreeNoParent parent_t;
-	typedef Tchild child_t;
-	typedef boost::shared_ptr<child_t> pchild_t;
-	typedef QList<pchild_t> children_t;
-	inline PVDataTreeNoParent* get_parent()
-	{
-		std::cout << "WARNING: The data tree object has no ancestor of such specified type" << std::endl;
-		assert(false);
-		return nullptr;
-	}
-	void add_child(Tchild* /*child*/) {}
-	pchild_t remove_child(Tchild* /*child*/) { return pchild_t();}
-	children_t _children;
-};
-
-/*! \brief Special class to represent the fact that a tree object is not meant to have any children.
-*/
-template <typename Tparent>
-struct PVDataTreeNoChildren
-{
-	typedef Tparent parent_t;
-	typedef PVDataTreeNoChildren child_t;
-	typedef boost::shared_ptr<child_t> pchild_t;
-	typedef QList<pchild_t> children_t;
-	inline PVDataTreeNoChildren* get_children()
-	{
-		std::cout << "WARNING: The data tree object has no children of such specified type" << std::endl;
-		assert(false);
-		return nullptr;
-	}
-	void dump(uint32_t /*spacing*/){}
 	children_t _children;
 };
 }
