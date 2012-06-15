@@ -41,9 +41,7 @@ class PVActor;
  *    "entity" which do the action
  *  - the actor tell the hive on which object it will do changes
  *  - the observer tell the hive for which object it want update notification
- */
-
-/**
+ *
  * @attention any specialization of template method ::call_object() *must* be
  * declared in the namespace PVHive (you can use the macros
  * PVHIVE_CALL_OBJECT_BLOCK_BEGIN() and PVHIVE_CALL_OBJECT_BLOCK_END()).
@@ -90,7 +88,7 @@ public:
 	/**
 	 * Helper method easily create and register an actor for an address
 	 *
-	 * @param p the observed address
+	 * @param object the observed address
 	 * @return the actor
 	 */
 	template <class T>
@@ -101,13 +99,6 @@ public:
 
 		return actor;
 	}
-
-	/**
-	 * Unregister an actor an notify all observers of its managed address
-	 * that it is about to be deleted.
-	 *
-	 */
-	void unregister_actor(PVActorBase& actor);
 
 	/**
 	 * Register an observer for an address
@@ -128,21 +119,25 @@ public:
 	}
 
 	/**
-	 * Unregister an observer.
+	 * Unregister an actor an notify all dependent observers
+	 * that they must stop observing
 	 *
+	 * @param actor the actor
 	 */
-	void unregister_observer(PVObserverBase& observer);
+	void unregister_actor(PVActorBase& actor);
 
 	/**
-	 * Emit about_to_be_deleted to each observer of object
+	 * Unregister an observer
+	 *
+	 * @param observer the observer
 	 */
-	void emit_about_to_be_deleted(void* object);
+	void unregister_observer(PVObserverBase& observer);
 
 public:
 	/**
 	 * Generic call to apply an action on a object
 	 *
-	 * @param obj the managed address
+	 * @param object the managed address
 	 * @param params the method parameters
 	 */
 	template <typename T, typename F, F f, typename... P>
@@ -184,6 +179,11 @@ private:
 		emit invoke_object(std::bind(f, object, params...));
 		emit refresh_observers((void*)object);
 	}
+
+	/**
+	 * Emit about_to_be_deleted to each observer of object
+	 */
+	void emit_about_to_be_deleted(void* object);
 
 private:
 	PVHive(QObject *parent = nullptr);
