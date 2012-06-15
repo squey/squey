@@ -75,10 +75,7 @@ void PVHive::PVHive::run()
 
 void PVHive::PVHive::unregister_actor(PVActorBase& actor)
 {
-	// the actor must have a valid object
-	assert(actor._object != nullptr);
-
-	emit_about_to_be_deleted(actor._object);
+	unregister_object(actor._object);
 
 	boost::lock_guard<boost::mutex> lock(_actors_mutex);
 	_actors.erase(actor._object);
@@ -98,6 +95,18 @@ void PVHive::PVHive::unregister_observer(PVObserverBase& observer)
 
 	_observers.erase(observer._object);
 	observer._object = nullptr;
+}
+
+/*****************************************************************************
+ * PVHive::PVHive::unregister_object()
+ *****************************************************************************/
+
+void PVHive::PVHive::unregister_object(void *object)
+{
+	// the object must be a valid address
+	assert(object != nullptr);
+
+	emit_about_to_be_deleted(object);
 }
 
 /*****************************************************************************

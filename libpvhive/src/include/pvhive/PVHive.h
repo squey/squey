@@ -133,6 +133,17 @@ public:
 	 */
 	void unregister_observer(PVObserverBase& observer);
 
+	/**
+	 * Unregister an object
+	 *
+	 * @param object the object
+	 */
+	template <typename T>
+	void unregister_object(T const &object)
+	{
+		unregister_object((void*)&object);
+	}
+
 public:
 	/**
 	 * Generic call to apply an action on a object
@@ -184,6 +195,13 @@ private:
 	 * Emit about_to_be_deleted to each observer of object
 	 */
 	void emit_about_to_be_deleted(void* object);
+
+	/**
+	 * Unregister an object
+	 *
+	 * @param object the object
+	 */
+	void unregister_object(void *object);
 
 private:
 	PVHive(QObject *parent = nullptr);
