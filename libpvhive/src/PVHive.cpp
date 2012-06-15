@@ -115,9 +115,6 @@ void PVHive::PVHive::unregister_object(void *object)
 
 void PVHive::PVHive::emit_about_to_be_deleted(void* object)
 {
-	// object must be a valid address
-	assert(object != nullptr);
-
 	read_lock_t read_lock(_observers_lock);
 	auto ret = const_cast<observers_t&>(_observers).equal_range(object);
 	for (auto it = ret.first; it != ret.second; ++it) {
