@@ -45,6 +45,36 @@ void PVHive::PVHive::run()
 }
 
 /*****************************************************************************
+ * PVHive::PVHive::unregister_actor()
+ *****************************************************************************/
+
+void PVHive::PVHive::unregister_actor(PVActorBase& actor)
+{
+	{
+		read_lock_t read_lock(_observers_lock);
+		auto ret = const_cast<observers_t&>(_observers).equal_range(actor._object);
+		for (auto it = ret.first; it != ret.second; ++it) {
+			it->second->about_to_be_deleted();
+		}
+	}
+
+	boost::lock_guard<boost::mutex> lock(_actors_mutex);
+	_actors.erase(actor._object);
+	actor._object = nullptr;
+}
+
+/*****************************************************************************
+ * PVHive::PVHive::unregister_observer()
+ *****************************************************************************/
+
+void PVHive::PVHive::unregister_observer(PVObserverBase& observer)
+{
+	write_lock_t write_lock(_observers_lock);
+	_observers.erase(observer._object);
+	observer._object = nullptr;
+}
+
+/*****************************************************************************
  * PVHive::PVHive::do_invoke_object()
  *****************************************************************************/
 
