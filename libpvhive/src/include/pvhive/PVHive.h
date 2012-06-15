@@ -3,6 +3,9 @@
 #define LIBPVHIVE_PVHIVE_H
 
 #include <map>
+#include <functional>
+
+#include <QThread>
 
 #include <boost/thread.hpp>
 
@@ -11,6 +14,13 @@
 
 namespace PVHive
 {
+
+namespace __impl
+{
+
+typedef std::function<void()> function_t;
+
+}
 
 template <class T>
 class PVActor;
@@ -24,9 +34,10 @@ class PVActor;
 #define PVHIVE_CALL_OBJECT_BLOCK_BEGIN() namespace PVHive {
 #define PVHIVE_CALL_OBJECT_BLOCK_END() }
 
-
-class PVHive
+class PVHive : public QThread
 {
+	Q_OBJECT
+
 	/* a template can not use a pointer on template class; so we have
 	 * PVActorBase and PVObserverBase
 	 */
@@ -156,13 +167,7 @@ public:
 	template <typename T>
 	void refresh_observers(T const* obj)
 	{
-		{
-			read_lock_t read_lock(_observers_lock);
-			auto ret = const_cast<observers_t&>(_observers).equal_range((void*) obj);
-			for (auto it = ret.first; it != ret.second; ++it) {
-				it->second->refresh();
-			}
-		}
+		emit refresh_observers((void*)obj);
 	}
 
 private:
@@ -175,9 +180,23 @@ private:
 	template <typename T, typename F, F f, typename... P>
 	void call_object_default(T* obj, P... params)
 	{
-		(obj->*f)(params...);
-		refresh_observers(obj);
+		emit invoke_object(std::bind(f, obj, params...));
+		emit refresh_observers((void*)obj);
 	}
+
+private:
+	PVHive(QObject *parent = nullptr);
+	void run();
+
+signals:
+	void invoke_object(__impl::function_t func);
+
+	void refresh_observers(void *object);
+
+private slots:
+	void do_invoke_object(__impl::function_t func);
+
+	void do_refresh_observers(void *object);
 
 private:
 	static PVHive *_hive;
