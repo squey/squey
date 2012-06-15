@@ -3,6 +3,9 @@
 #define LIBPVHIVE_PVHIVE_H
 
 #include <map>
+#include <functional>
+
+#include <QThread>
 
 #include <boost/thread.hpp>
 
@@ -11,6 +14,13 @@
 
 namespace PVHive
 {
+
+namespace __impl
+{
+
+typedef std::function<void()> function_t;
+
+}
 
 template <class T>
 class PVActor;
@@ -24,14 +34,9 @@ class PVActor;
 #define PVHIVE_CALL_OBJECT_BLOCK_BEGIN() namespace PVHive {
 #define PVHIVE_CALL_OBJECT_BLOCK_END() }
 
-
-class PVHive
+class PVHive : public QThread
 {
-	/* a template can not use a pointer on template class; so we have
-	 * PVActorBase and PVObserverBase
-	 */
-	typedef std::multimap<void*, PVActorBase*> actors_t;
-	typedef std::multimap<void*, PVObserverBase*> observers_t;
+	Q_OBJECT
 
 public:
 	/**
@@ -82,25 +87,11 @@ public:
 	}
 
 	/**
-	 * Unregister an actor an notify all observers of its manager address
+	 * Unregister an actor an notify all observers of its managed address
 	 * that it is about to be deleted.
 	 *
 	 */
-	void unregister_actor(PVActorBase& actor)
-	{
-		{
-			read_lock_t read_lock(_observers_lock);
-			auto ret = const_cast<observers_t&>(_observers).equal_range(actor._object);
-			for (auto it = ret.first; it != ret.second; ++it) {
-				it->second->about_to_be_deleted();
-			}
-		}
-		{
-			boost::lock_guard<boost::mutex> lock(_actors_mutex);
-			_actors.erase(actor._object);
-			actor._object = nullptr;
-		}
-	}
+	void unregister_actor(PVActorBase& actor);
 
 	/**
 	 * Register an observer for an address
@@ -109,31 +100,24 @@ public:
 	 * @param observer the observer
 	 */
 	template <class T>
-	void register_observer(T const& p, PVObserverBase& observer)
+	void register_observer(T const& object, PVObserverBase& observer)
 	{
 		{
 			write_lock_t write_lock(_observers_lock);
-			_observers.insert(std::make_pair((void*) &p, &observer));
+			_observers.insert(std::make_pair((void*) &object, &observer));
 		}
 
 		// an observer must be set for only one object
 		assert(observer._object == nullptr);
 
-		observer._object = (void*) &p;
+		observer._object = (void*) &object;
 	}
 
 	/**
 	 * Unregister an observer.
 	 *
 	 */
-	void unregister_observer(PVObserverBase& observer)
-	{
-		{
-			write_lock_t write_lock(_observers_lock);
-			_observers.erase(observer._object);
-			observer._object = nullptr;
-		}
-	}
+	void unregister_observer(PVObserverBase& observer);
 
 public:
 	/**
@@ -143,44 +127,55 @@ public:
 	 * @param params the method parameters
 	 */
 	template <typename T, typename F, F f, typename... P>
-	void call_object(T* obj, P... params)
+	void call_object(T* object, P... params)
 	{
-		call_object_default<T, F, f>(obj, params...);
+		call_object_default<T, F, f>(object, params...);
 	}
 
 	/**
-	 * tells all observers of an address that a change has occurred
+	 * Tell all observers of an address that a change has occurred
 	 *
-	 * @param obj the observed address
+	 * @param object the observed address
 	 */
 	template <typename T>
-	void refresh_observers(T const* obj)
+	void refresh_observers(T const* object)
 	{
-		{
-			read_lock_t read_lock(_observers_lock);
-			auto ret = const_cast<observers_t&>(_observers).equal_range((void*) obj);
-			for (auto it = ret.first; it != ret.second; ++it) {
-				it->second->refresh();
-			}
-		}
+		emit refresh_observers((void*)object);
 	}
 
 private:
 	/**
 	 * Apply an action on a object and propagate the change event
 	 *
-	 * @param obj the managed address
+	 * @param object the managed address
 	 * @param params the method parameters
 	 */
 	template <typename T, typename F, F f, typename... P>
 	void call_object_default(T* obj, P... params)
 	{
-		(obj->*f)(params...);
-		refresh_observers(obj);
+		emit invoke_object(std::bind(f, obj, params...));
+		emit refresh_observers((void*)obj);
 	}
 
 private:
+	PVHive(QObject *parent = nullptr);
+	void run();
+
+signals:
+	void invoke_object(__impl::function_t func);
+
+	void refresh_observers(void *object);
+
+private slots:
+	void do_invoke_object(__impl::function_t func);
+
+	void do_refresh_observers(void *object);
+
+private:
 	static PVHive *_hive;
+
+	typedef std::multimap<void*, PVActorBase*> actors_t;
+	typedef std::multimap<void*, PVObserverBase*> observers_t;
 	actors_t       _actors;
 	observers_t    _observers;
 

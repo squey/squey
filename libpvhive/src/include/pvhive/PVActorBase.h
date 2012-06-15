@@ -1,5 +1,5 @@
-#ifndef LIVPVHIVE_PVACTORBASE_H_
-#define LIVPVHIVE_PVACTORBASE_H_
+#ifndef LIVPVHIVE_PVACTORBASE_H
+#define LIVPVHIVE_PVACTORBASE_H
 
 namespace PVHive
 {
@@ -19,4 +19,4 @@ protected:
 
 }
 
-#endif /* LIVPVHIVE_PVACTORBASE_H_ */
+#endif /* LIVPVHIVE_PVACTORBASE_H */
