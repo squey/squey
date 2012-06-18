@@ -84,15 +84,9 @@ public:
 	inline PVAxesCombination& get_axes_combination() { return _axes_combination; }
 	inline PVAxesCombination const& get_axes_combination() const { return _axes_combination; }
 
-	void add_mapped(PVMapped_p mapped);
 	void create_default_view();
 
 	QStringList const& get_invalid_elts() const { return _inv_elts; }
-
-	// Parents
-	inline PVRoot* get_root() const { return root; }
-	inline PVScene* get_scene_parent() { return tparent; }
-	inline const PVScene* get_scene_parent() const { return tparent; }
 
 	PVRush::PVInputType::list_inputs const& get_inputs() const { return _inputs; }
 
@@ -102,11 +96,11 @@ public:
 	QString get_format_name() const { return _extractor.get_format().get_format_name(); }
 	QString get_window_name() const { return get_name() + QString(" / ") + get_format_name(); }
 
-	list_views_t const& get_views() const { return _views; }
-	list_mapped_t const& get_mappeds() const { return _mappeds; }
+	//list_views_t const& get_views() const { return _views; }
+	//list_mapped_t const& get_mappeds() const { return _mappeds; }
 
 	PVView_p current_view() const { return _current_view; }
-	void select_view(PVView_p view) { assert(_views.contains(view)); _current_view = view; }
+	void select_view(PVView_p view);
 
 	PVRush::PVFormat& get_format() { return _extractor.get_format(); }
 	void set_format(PVRush::PVFormat const& format);
@@ -121,7 +115,7 @@ private:
 
 protected:
 	// For PVScene
-	void set_parent(PVScene* parent);
+	void set_scene(PVScene* parent);
 	// For PVPlotted
 	void add_view(PVView_p view);
 	void set_views_id();
@@ -139,14 +133,10 @@ private:
 	void extract_finished();
 
 private:
-	PVScene* tparent;
-	PVRoot* root;
-
 	PVRush::PVExtractor _extractor;
 	std::list<PVFilter::PVFieldsBaseFilter_p> _filters_container;
 	PVRush::PVInputType::list_inputs _inputs;
-	list_views_t _views;
-	list_mapped_t _mappeds;
+
 	PVRush::PVSourceCreator_p _src_plugin;
 	PVRush::PVNraw *nraw;
 	PVView_p _current_view;

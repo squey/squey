@@ -60,11 +60,6 @@ public:
 	bool is_uptodate() const;
 
 public:
-	// Parents
-	PVSource* get_source_parent();
-	PVRoot* get_root_parent();
-	const PVSource* get_source_parent() const;
-	const PVRoot* get_root_parent() const;
 	PVRush::PVFormat_p get_format() const;
 
 public:
@@ -99,9 +94,6 @@ public:
 protected:
 	QVector<mandatory_param_map> _mandatory_filters_values;
 	QList<PVMappingProperties> columns;
-
-	PVSource* source;
-	PVRoot* root;
 
 	QString _name;
 };

@@ -19,6 +19,7 @@
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/core/PVSerializeArchiveOptions_types.h>
+#include <pvkernel/core/PVDataTreeObject.h>
 #include <pvkernel/rush/PVExtractor.h>
 
 #include <picviz/PVLinesProperties.h>
@@ -45,7 +46,8 @@ namespace Picviz {
 /**
  * \class PVView
  */
-class LibPicvizDecl PVView: public boost::enable_shared_from_this<PVView>
+typedef typename PVCore::PVDataTreeObject<PVPlotted, PVCore::PVDataTreeNoChildren<PVView> > data_tree_view_t;
+class LibPicvizDecl PVView: public data_tree_view_t, public boost::enable_shared_from_this<PVView>
 {
 	friend class PVCore::PVSerializeObject;
 	friend class PVSource;
@@ -84,8 +86,6 @@ public:
 	PVLayer post_filter_layer;
 	PVLayer layer_stack_output_layer;
 	PVLayer output_layer;
-	PVPlotted* plotted;
-	PVMapped* _mapped_parent;
 	PVRow row_count;
 	PVLayerStack layer_stack;
 	PVSelection nu_selection;
@@ -134,7 +134,6 @@ public:
 	PVCore::PVColor get_color_in_output_layer(PVRow index);
 	PVCol get_column_count();
 	float get_column_count_as_float();
-	PVRoot* get_root();
 	PVSelection &get_floating_selection();
 	int get_layer_index(int index);
 	float get_layer_index_as_float(int index);
@@ -346,24 +345,12 @@ public:
 *
 ******************************************************************************
 *****************************************************************************/
-
-	const PVMapped* get_mapped_parent() const { return _mapped_parent; };
-	PVMapped* get_mapped_parent() { return _mapped_parent; };
 	
 	PVRush::PVNraw::nraw_table& get_qtnraw_parent();
 	const PVRush::PVNraw::nraw_table& get_qtnraw_parent() const;
 
 	PVRush::PVNraw& get_rushnraw_parent() { assert(_rushnraw_parent); return *_rushnraw_parent; };
 	PVRush::PVNraw const& get_rushnraw_parent() const { assert(_rushnraw_parent); return *_rushnraw_parent; };
-	
-	PVPlotted* get_plotted_parent();
-	const PVPlotted* get_plotted_parent() const;
-	
-	PVScene* get_scene_parent();
-	const PVScene* get_scene_parent() const;
-
-	PVSource* get_source_parent();
-	const PVSource* get_source_parent() const;
 
 	void debug();
 

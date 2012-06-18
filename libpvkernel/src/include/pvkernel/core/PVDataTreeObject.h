@@ -202,6 +202,34 @@ public:
 		}
 	}
 
+
+	void add_child(pchild_t child_p)
+	{
+		bool found = false;
+		for (auto c: _children) {
+			if (child_p.get() == c.get())
+			{
+				found = true;
+				break;
+			}
+		}
+		if (!found) {
+			auto me = static_cast<typename Tchild::parent_t*>(this);
+			auto child_parent = child_p->get_parent();
+			pchild_t pchild;
+			if (child_parent && child_parent != me) {
+				// steal child to parent
+				child_p = child_parent->remove_child(child_p.get());
+			}
+			child_p.get()->_parent = me;
+			_children.push_back(child_p);
+		}
+		else {
+			PVLOG_WARN("Tried to add child (0x%x) twice!\n", child_p.get());
+			assert(false);
+		}
+	}
+
 	/*! \brief Remove a child of the data tree object.
 	 *  \param[in] child Child of the data tree object to remove.
 	 *  \return a shared_ptr to the removed child in order to postpone its destruction.

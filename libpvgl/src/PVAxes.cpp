@@ -248,7 +248,7 @@ void PVGL::PVAxes::draw_names()
 	}
 
 	if (show_limits) {
-		Picviz::PVMapping const& mapping = pv_view->get_mapped_parent()->get_mapping();
+		Picviz::PVMapping const& mapping = *pv_view->get_parent<Picviz::PVMapping>();
 
 		for (int i = 0; i < nb_axes; i++) {
 			float gl_coord_x, gl_coord_y_min, gl_coord_y_max;

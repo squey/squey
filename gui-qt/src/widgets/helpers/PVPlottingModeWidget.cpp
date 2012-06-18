@@ -24,7 +24,7 @@ PVInspector::PVWidgetsHelpers::PVPlottingModeWidget::PVPlottingModeWidget(PVCol 
 	QWidget(parent)
 {
 	init(params_btn);
-	populate_from_plotting(axis_id, view.get_plotted_parent()->get_plotting());
+	populate_from_plotting(axis_id, *view.get_parent<Picviz::PVPlotting>());
 }
 
 QSize PVInspector::PVWidgetsHelpers::PVPlottingModeWidget::sizeHint() const

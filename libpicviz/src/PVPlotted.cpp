@@ -31,9 +31,11 @@
 
 namespace Picviz {
 
-PVPlotted::PVPlotted(PVPlotting const& plotting) : data_tree_plotted_t(const_cast<PVPlotting*>(&plotting))
+PVPlotted::PVPlotted(PVPlotting* plotting) : data_tree_plotted_t(plotting)
 {
-	set_plotting(plotting);
+	if (_view) {
+		get_parent<PVSource>()->add_view(_view);
+	}
 	process_from_parent_mapped(false);
 }
 
@@ -46,22 +48,12 @@ PVPlotted::~PVPlotted()
 	PVLOG_INFO("In PVPlotted destructor\n");
 }
 
-void PVPlotted::set_plotting(PVPlotting const& plotting)
-{
-	_plotting = plotting;
-	root = _plotting.get_root_parent();
-	_mapped = _plotting.get_mapped_parent();
-	if (_view) {
-		get_source_parent()->add_view(_view);
-	}
-}
-
 #ifndef CUDA
 int PVPlotted::create_table()
 {
-	PVCol mapped_col_count = _mapped->get_column_count();
+	PVCol mapped_col_count = get_parent<PVMapped>()->get_column_count();
 
-	const PVRow nrows = (PVRow)_mapped->get_row_count();
+	const PVRow nrows = (PVRow)get_parent<PVMapped>()->get_row_count();
 
 	// That buffer will be about 3.8MB for 10 million lines, so we keep it
 	// to save some allocations.
@@ -79,7 +71,7 @@ int PVPlotted::create_table()
 	std::vector<PVPlottingFilter::p_type> plotting_filters;
 	plotting_filters.resize(mapped_col_count);
 	for (PVCol j = 0; j < mapped_col_count; j++) {
-		PVPlottingFilter::p_type mf = _plotting.get_filter_for_col(j);
+		PVPlottingFilter::p_type mf = get_parent<PVPlotting>()->get_filter_for_col(j);
 		if (mf) {
 			plotting_filters[j] = mf->clone<PVPlottingFilter>();
 		}
@@ -89,7 +81,7 @@ int PVPlotted::create_table()
 
 		PVLOG_INFO("(PVPlotted::create_table) begin parallel plotting\n");
 		for (PVCol j = 0; j < mapped_col_count; j++) {
-			if (_plotting.is_col_uptodate(j)) {
+			if (get_parent<PVPlotting>()->is_col_uptodate(j)) {
 				continue;
 			}
 			PVPlottingFilter::p_type plotting_filter = plotting_filters[j];
@@ -98,12 +90,12 @@ int PVPlotted::create_table()
 				continue;
 			}
 
-			plotting_filter->set_mapping_mode(_mapped->get_mapping().get_mode_for_col(j));
-			plotting_filter->set_mandatory_params(_mapped->get_mapping().get_mandatory_params_for_col(j));
+			plotting_filter->set_mapping_mode(get_parent<PVMapping>()->get_mode_for_col(j));
+			plotting_filter->set_mandatory_params(get_parent<PVMapping>()->get_mandatory_params_for_col(j));
 			plotting_filter->set_dest_array(nrows, p_tmp_v);
 			boost::this_thread::interruption_point();
 			tbb::tick_count plstart = tbb::tick_count::now();
-			plotting_filter->operator()(_mapped->trans_table.getRowData(j));
+			plotting_filter->operator()(get_parent<PVMapped>()->trans_table.getRowData(j));
 			tbb::tick_count plend = tbb::tick_count::now();
 			int64_t nrows_tmp = nrows;
 
@@ -122,7 +114,7 @@ int PVPlotted::create_table()
 #endif
 			}
 
-			_plotting.set_uptodate_for_col(j);
+			get_parent<PVPlotting>()->set_uptodate_for_col(j);
 		}
 		PVLOG_INFO("(PVPlotted::create_table) end parallel plotting\n");
 
@@ -233,7 +225,7 @@ void Picviz::PVPlotted::expand_selection_on_axis(PVSelection const& sel, PVCol a
 	//
 	
 	// Get axis type
-	QString plugin = _plotting.get_properties_for_col(axis_id).get_type() + "_" + mode;
+	QString plugin = get_parent<PVPlotting>()->get_properties_for_col(axis_id).get_type() + "_" + mode;
 	PVPlottingFilter::p_type filter = LIB_CLASS(PVPlottingFilter)::get().get_class_by_name(plugin);
 	if (!filter) {
 		return;
@@ -244,7 +236,7 @@ void Picviz::PVPlotted::expand_selection_on_axis(PVSelection const& sel, PVCol a
 	assert(axis_id < ncols);
 	PVMapped::mapped_sub_col_t sub_plotted;
 	float min,max;
-	get_mapped_parent()->get_sub_col_minmax(sub_plotted, min, max, sel, axis_id);
+	get_parent<PVMapped>()->get_sub_col_minmax(sub_plotted, min, max, sel, axis_id);
 	if (sub_plotted.size() == 0 || min >= max) {
 		return;
 	}
@@ -357,27 +349,22 @@ bool Picviz::PVPlotted::load_buffer_from_file(plotted_table_t& buf, PVCol& ncols
 
 PVRush::PVNraw::nraw_table& PVPlotted::get_qtnraw()
 {
-	return _plotting.get_qtnraw();
+	return get_parent<PVPlotting>()->get_qtnraw();
 }
 
 const PVRush::PVNraw::nraw_table& PVPlotted::get_qtnraw() const
 {
-	return _plotting.get_qtnraw();
+	return get_parent<PVPlotting>()->get_qtnraw();
 }
 
 PVRow PVPlotted::get_row_count() const
 {
-	return _mapped->get_row_count();
+	return get_parent<PVMapped>()->get_row_count();
 }
 
 PVCol PVPlotted::get_column_count() const
 {
-	return _mapped->get_column_count();
-}
-
-PVSource* PVPlotted::get_source_parent()
-{
-	return _plotting.get_source_parent();
+	return get_parent<PVMapped>()->get_column_count();
 }
 
 float PVPlotted::get_value(PVRow row, PVCol col) const
@@ -538,16 +525,18 @@ void Picviz::PVPlotted::get_col_minmax(PVRow& min, PVRow& max, PVSelection const
 
 void Picviz::PVPlotted::process_from_mapped(PVMapped* mapped, bool keep_views_info)
 {
-	_plotting.set_mapped(mapped);
-	set_plotting(_plotting);
+	get_parent<PVPlotting>()->set_mapped(mapped);
+
 	process_from_parent_mapped(keep_views_info);
 }
 
 void Picviz::PVPlotted::process_from_parent_mapped(bool keep_views_info)
 {
 	// Check parent consistency
-	if (!_mapped->is_uptodate()) {
-		_mapped->process_parent_source();
+	auto mapped = get_parent<PVMapped>();
+
+	if (!mapped->is_uptodate()) {
+		mapped->process_parent_source();
 	}
 
 	create_table();
@@ -559,7 +548,7 @@ void Picviz::PVPlotted::process_from_parent_mapped(bool keep_views_info)
 	}
 	if (!_view) {
 		_view.reset(new PVView(this));
-		get_source_parent()->add_view(_view);
+		get_parent<PVSource>()->add_view(_view);
 	}
 	else {
 		_view->init_from_plotted(this, keep_views_info);
@@ -568,27 +557,29 @@ void Picviz::PVPlotted::process_from_parent_mapped(bool keep_views_info)
 
 bool Picviz::PVPlotted::is_uptodate() const
 {
-	if (!_mapped->is_uptodate()) {
+	if (!get_parent<PVMapped>()->is_uptodate()) {
 		return false;
 	}
 
-	return _plotting.is_uptodate();
+	return get_parent<PVPlotting>()->is_uptodate();
 }
 
 
 void Picviz::PVPlotted::add_column(PVPlottingProperties const& props)
 {
-	_plotting.add_column(props);
+	get_parent<PVPlotting>()->add_column(props);
 }
 
 void Picviz::PVPlotted::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 {
-	so.object("plotting", _plotting, QString(), false, (PVPlotting*) NULL, false);
+	auto plotting = new PVPlotting();
+	so.object("plotting", *plotting, QString(), false, (PVPlotting*) NULL, false);
 	PVCore::PVSerializeObject_p view_so;
 	so.object("view", _view, QObject::tr("View"), false, (PVView*) NULL, true, true, &view_so);
 	if (so.is_writing()) {
 		_view->set_last_so(view_so);
 	}
+	add_child(_view); // <<<
 
 	so.list("expanded_sels", _expanded_sels, "Expanded selections", (ExpandedSelection*) NULL, QStringList(), true, true);
 }

@@ -35,7 +35,7 @@ class PVSource;
  * \class PVScene
  */
 typedef typename PVCore::PVDataTreeObject<PVRoot, PVSource> data_tree_scene_t;
-class LibPicvizDecl PVScene: public data_tree_scene_t, public boost::enable_shared_from_this<PVScene>
+class LibPicvizDecl PVScene: public data_tree_scene_t
 {
 	friend class PVCore::PVSerializeObject;
 	friend class PVSource;
@@ -54,9 +54,6 @@ public:
 	~PVScene();
 
 public:
-	PVRoot* get_root();
-
-public:
 	PVCore::PVSerializeArchiveOptions_p get_default_serialize_options();
 	void save_to_file(QString const& path, PVCore::PVSerializeArchiveOptions_p options = PVCore::PVSerializeArchiveOptions_p(), bool save_everything = false);
 	void load_from_file(QString const& path);
@@ -67,8 +64,6 @@ public:
 	bool del_source(const PVSource* src);
 	
 	list_sources_t get_sources(PVRush::PVInputType const& type) const;
-	list_sources_t get_all_sources() const;
-	list_views_t get_all_views() const;
 
 	inline PVAD2GView& get_ad2g_view() { return *_ad2g_view; }
 	inline PVAD2GView const& get_ad2g_view() const { return *_ad2g_view; }
@@ -95,7 +90,6 @@ private:
 	hash_type_sources_t _sources;
 	hash_type_so_inputs _so_inputs;
 
-	PVRoot* _root;
 	QString _name;
 
 	// This is a shared pointer for current issues with the widget (which will be deleted by Qt *after*

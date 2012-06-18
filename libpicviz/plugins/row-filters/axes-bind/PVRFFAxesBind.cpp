@@ -35,7 +35,7 @@ void Picviz::PVRFFAxesBind::do_pre_process(PVView const& /*view_org*/, PVView co
 {
 	BENCH_START(b);
 	PVRow nrows = view_dst.get_row_count();
-	const PVMapped* m_dst = view_dst.get_mapped_parent();
+	const PVMapped* m_dst = view_dst.get_parent<PVMapped>();
 //#pragma omp parallel num_threads(NTHREADS)
 //	{
 		//hash_rows &dst_values(_dst_values[omp_get_thread_num()]);
@@ -77,7 +77,7 @@ void Picviz::PVRFFAxesBind::operator()(PVRow row_org, PVView const& view_org, PV
 		}
 	}*/
 
-	const PVMapped* m_org = view_org.get_mapped_parent();
+	const PVMapped* m_org = view_org.get_parent<PVMapped>();
 	float mf_org = m_org->get_value(row_org, _axis_org);
 
 	//for (int i = 0; i < NTHREADS; i++) {

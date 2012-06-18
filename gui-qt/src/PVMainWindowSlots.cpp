@@ -10,6 +10,8 @@
 #include <pvkernel/core/PVVersion.h>
 #include <picviz/PVAxisComputation.h>
 #include <picviz/widgets/PVAD2GWidget.h>
+#include <picviz/PVPlotting.h>
+#include <picviz/PVMapping.h>
 
 #include <PVMainWindow.h>
 #include <PVExpandSelDlg.h>
@@ -1135,10 +1137,10 @@ void PVInspector::PVMainWindow::cur_format_changed_Slot()
 		QMessageBox* box = new QMessageBox(QMessageBox::Question, tr("Format modified"), tr("The mapping and/or plotting properties of this format have been changed. Do you want to update the current view ?"), QMessageBox::Yes | QMessageBox::No, this);
 		if (box->exec() == QMessageBox::Yes) {
 			Picviz::PVView_p cur_view = cur_src->current_view();
-			Picviz::PVMapped* mapped = cur_view->get_mapped_parent();
-			Picviz::PVPlotted* plotted = cur_view->get_plotted_parent();
-			mapped->get_mapping().reset_from_format(new_format);
-			plotted->get_plotting().reset_from_format(new_format);
+			Picviz::PVMapped* mapped = cur_view->get_parent<Picviz::PVMapped>();
+			Picviz::PVPlotted* plotted = cur_view->get_parent<Picviz::PVPlotted>();
+			mapped->get_parent<Picviz::PVMapping>()->reset_from_format(new_format);
+			plotted->get_parent<Picviz::PVPlotting>()->reset_from_format(new_format);
 			if (comp.different_mapping()) {
 				src_tab->process_mapped_if_current(mapped);
 			}
@@ -1233,7 +1235,7 @@ void PVInspector::PVMainWindow::axes_new_Slot()
 	axis.set_plotting("default");
 	axis.set_name("New axis test");
 
-	view->get_source_parent()->add_column(ac_plugin->f(), axis);
+	view->get_parent<Picviz::PVSource>()->add_column(ac_plugin->f(), axis);
 }
 
 void PVInspector::PVMainWindow::selection_set_from_current_layer_Slot()

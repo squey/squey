@@ -22,7 +22,7 @@
 #include <picviz/PVView_types.h>
 #include <picviz/PVPlotting.h>
 #include <picviz/PVSelection.h>
-
+#include <picviz/PVView.h>
 
 #ifdef CUDA
 #include <picviz/cuda/PVPlotted_create_table_cuda.h>
@@ -38,7 +38,7 @@ class PVSource;
 /**
  * \class PVPlotted
  */
-typedef typename PVCore::PVDataTreeObject<PVPlotting, PVCore::PVDataTreeNoChildren<PVPlotted> > data_tree_plotted_t ;
+typedef typename PVCore::PVDataTreeObject<PVPlotting, PVView> data_tree_plotted_t ;
 class LibPicvizDecl PVPlotted : public data_tree_plotted_t {
 	friend class PVCore::PVSerializeObject;
 	friend class PVMapped;
@@ -70,7 +70,7 @@ public:
 	typedef std::vector< std::pair<PVCol,float> > plotted_sub_col_t;
 	typedef std::list<ExpandedSelection> list_expanded_selection_t;
 public:
-	PVPlotted(PVPlotting const& plotting);
+	PVPlotted(PVPlotting* plotting);
 	~PVPlotted();
 
 protected:
@@ -79,7 +79,7 @@ protected:
 	void serialize(PVCore::PVSerializeObject &so, PVCore::PVSerializeArchive::version_t v);
 
 	// For PVMapped
-	inline void invalidate_column(PVCol j) { return _plotting.invalidate_column(j); }
+	inline void invalidate_column(PVCol j) { return get_parent<PVPlotting>()->invalidate_column(j); }
 
 	// For PVSource
 	void add_column(PVPlottingProperties const& props);
@@ -95,8 +95,8 @@ public:
 	void process_from_mapped(PVMapped* mapped, bool keep_views_info);
 	void process_from_parent_mapped(bool keep_views_info);
 
-	void set_name(QString const& name) { _plotting.set_name(name); }
-	QString const& get_name() const { return _plotting.get_name(); }
+	void set_name(QString const& name) { get_parent<PVPlotting>()->set_name(name); }
+	QString const& get_name() const { return get_parent<PVPlotting>()->get_name(); }
 
 public:
 	// Parents
@@ -106,16 +106,7 @@ public:
 	PVRush::PVNraw& get_rushnraw_parent();
 	const PVRush::PVNraw& get_rushnraw_parent() const;
 
-	PVRoot* get_root_parent() { return root; }
-	const PVRoot* get_root_parent() const { return root; }
-
-	PVMapped* get_mapped_parent() { return _mapped; }
-	const PVMapped* get_mapped_parent() const { return _mapped; }
-
 	const float* get_table_pointer() const { return &_table.at(0); }
-
-	PVPlotting& get_plotting() { return _plotting; }
-	const PVPlotting& get_plotting() const { return _plotting; }
 
 	bool is_uptodate() const;
 
@@ -127,7 +118,6 @@ public:
 	// Data access
 	PVRow get_row_count() const;
 	PVCol get_column_count() const;
-	PVSource* get_source_parent();
 	float get_value(PVRow row, PVCol col) const;
 	void get_sub_col_minmax(plotted_sub_col_t& ret, float& min, float& max, PVSelection const& sel, PVCol col) const;
 	void get_col_minmax(PVRow& min, PVRow& max, PVSelection const& sel, PVCol col) const;
@@ -145,12 +135,6 @@ public:
 	void to_csv();
 
 private:
-	void set_plotting(PVPlotting const& plotting);
-
-private:
-	PVPlotting _plotting;
-	PVRoot* root;
-	PVMapped* _mapped;
 	plotted_table_t _table; /* Unidimensionnal. It must be contiguous in memory */
 	std::vector<float> _tmp_values;
 	PVView_p _view;

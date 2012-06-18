@@ -16,6 +16,7 @@
 
 #include <picviz/PVLinesProperties.h>
 #include <picviz/PVView.h>
+#include <picviz/PVPlotted.h>
 
 // Filters
 #include <pvkernel/core/PVClassLibrary.h>
@@ -620,7 +621,7 @@ void PVGL::PVScatter::update_arrays_positions(void)
 	glBindBuffer(GL_ARRAY_BUFFER, vbo_position); PRINT_OPENGL_ERROR();
 	mapped_positions_array = reinterpret_cast<vec2*>(glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY)); PRINT_OPENGL_ERROR();
 
-	plotted_array = picviz_view->get_plotted_parent()->get_table_pointer();
+	plotted_array = picviz_view->get_parent<Picviz::PVPlotted>()->get_table_pointer();
 	plotted_row_size = picviz_view->get_original_axes_count();
 
 	for (PVRow i = 0; i < picviz_view->get_row_count(); i++) {

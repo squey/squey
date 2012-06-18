@@ -716,10 +716,14 @@ void PVInspector::PVMainWindow::close_source(PVTabSplitter* tab)
 	Picviz::PVSource_p src(tab->get_lib_src());
 
 	// Destroy all views
-	Picviz::PVSource::list_views_t const& views = src->get_views();
+	/*Picviz::PVSource::list_views_t const& views = src->get_views();
 	Picviz::PVSource::list_views_t::const_iterator it;
 	for (it = views.begin(); it != views.end(); it++) {
 		destroy_pvgl_views(*it);
+	}*/
+	for (auto view : src->get_children<Picviz::PVView>()){
+		boost::shared_ptr<Picviz::PVView> view_p(view);
+		destroy_pvgl_views(view_p);
 	}
 
 	pv_ListingsTabWidget->remove_listing(tab);
@@ -778,7 +782,7 @@ void PVInspector::PVMainWindow::commit_selection_to_new_layer(Picviz::PVView_p p
 	// picviz_lines_properties_A2B_copy_restricted_by_selection_and_nelts(picviz_view->output_layer.get_lines_properties(), new_layer->lines_properties, new_layer.get_selection(), picviz_view->row_count);
 	/* THEN we can do the updates */
 	/* We need to reprocess the layer stack */
-	new_layer.compute_min_max(*picviz_view->get_plotted_parent());
+	new_layer.compute_min_max(*picviz_view->get_parent<Picviz::PVPlotted>());
 	picviz_view->process_from_layer_stack();
 
 	refresh_view(picviz_view);
@@ -1998,15 +2002,8 @@ void PVInspector::PVMainWindow::load_files(std::vector<QString> const& files, QS
 bool PVInspector::PVMainWindow::load_scene()
 {
 	// Here, load the whole scene.
-	
-	// Process all sources with their view
-	Picviz::PVScene::list_sources_t srcs = _scene->get_all_sources();
-	Picviz::PVScene::list_sources_t::iterator it;
-	PVRush::PVControllerJob_p job_import;
-
-	for (it = srcs.begin(); it != srcs.end(); it++) {
-		Picviz::PVSource_p import_source = *it;
-		if (!load_source(import_source)) {
+	for (auto source_p : _scene->get_children<Picviz::PVSource>()) {
+		if (!load_source(source_p)) {
 			return false;
 		}
 	}
@@ -2083,9 +2080,8 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_p src)
 
 	// If no view is present, create a default one. Otherwise, process them by
 	// keeping the existing layers !
-	Picviz::PVView_p first_view;
 	bool success = true;
-	if (src->get_mappeds().size() == 0) {
+	if (src->get_children<Picviz::PVMapped>().size() == 0) {
 		if (!PVCore::PVProgressBox::progress(boost::bind<void>(&Picviz::PVSource::create_default_view, src.get()), tr("Processing..."), (QWidget*) this)) {
 			success = false;
 		}
@@ -2105,7 +2101,7 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_p src)
 	// If, even after having processed the pipeline from the source, we still don't have
 	// any views, create a default mapped/plotted/view.
 	// This can happen if mappeds have been saved but with no plotted !
-	if (src->get_views().size() == 0) {
+	if (src->get_children<Picviz::PVMapped>().size() == 0) {
 		if (!PVCore::PVProgressBox::progress(boost::bind(&Picviz::PVSource::create_default_view, src.get()), tr("Processing..."), (QWidget*) this)) {
 			message.function = PVSDK_MESSENGER_FUNCTION_DESTROY_TRANSIENT;
 			pvsdk_messenger->post_message_to_gl(message);
@@ -2113,10 +2109,10 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_p src)
 		}
 	}
 
-	first_view = src->get_views().at(0);
+	auto first_view_p = src->get_children<Picviz::PVView>().at(0);
 	// Ask PVGL to create a GL-View from the previous transient view
 	message.function = PVSDK_MESSENGER_FUNCTION_CREATE_VIEW;
-	message.pv_view = first_view;
+	message.pv_view = first_view_p;
 	pvsdk_messenger->post_message_to_gl(message);
 
 	// Add the source's tab
@@ -2427,7 +2423,10 @@ bool PVInspector::PVMainWindow::SceneMenuEventFilter::eventFilter(QObject* obj, 
 		bool is_enabled = false;
 		Picviz::PVScene* s = _parent->_scene.get();
 		if (s) {
-			uint32_t nb_sources = _parent->_scene->get_all_sources().count();
+			uint32_t nb_sources = _parent->_scene->get_children<Picviz::PVSource>().size();
+			PVLOG_INFO("s=0x%x\n", &(*s));
+			s->dump();
+			PVLOG_INFO("nb_sources=0x%x\n", nb_sources);
 			is_enabled = nb_sources >= 2;
 		}
 		_parent->correlation_scene_Action->setEnabled(is_enabled);

@@ -40,7 +40,7 @@ void Picviz::PVRFFAxesBindNearestNeighbors::do_pre_process(PVView const& /*view_
 	BENCH_START(b);
 
 	PVRow nrows = view_dst.get_row_count();
-	const PVMapped* m_dst = view_dst.get_mapped_parent();
+	const PVMapped* m_dst = view_dst.get_parent<PVMapped>();
 
 	map_rows &dst_values(_dst_values);
 	dst_values.clear();
@@ -56,7 +56,7 @@ void Picviz::PVRFFAxesBindNearestNeighbors::operator()(PVRow row_org, PVView con
 {
 	uint32_t* sel_buf = sel_dst.get_buffer();
 
-	const PVMapped* m_org = view_org.get_mapped_parent();
+	const PVMapped* m_org = view_org.get_parent<PVMapped>();
 	float mf_org = m_org->get_value(row_org, _axis_org);
 
 	map_rows const& dst_values(_dst_values);

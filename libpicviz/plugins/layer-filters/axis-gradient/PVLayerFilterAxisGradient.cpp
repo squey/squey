@@ -49,7 +49,7 @@ void Picviz::PVLayerFilterAxisGradient::operator()(PVLayer& in, PVLayer &out)
 	QColor qcolor;	
 
 	//const PVSource* source = _view.get_source_parent();
-	const PVPlotted* plotted = _view->get_plotted_parent();
+	const PVPlotted* plotted = _view->get_parent<PVPlotted>();
 	axis_id = _args[ARG_NAME_AXIS].value<PVCore::PVAxisIndexType>().get_original_index();
 
 	PVPlotted::plotted_sub_col_t values_sel;

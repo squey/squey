@@ -32,7 +32,7 @@ class PVMapped;
  * \class PVPlotting
  */
 typedef typename PVCore::PVDataTreeObject<PVMapped, PVPlotted> data_tree_plotting_t;
-class LibPicvizDecl PVPlotting : public data_tree_plotting_t, public boost::enable_shared_from_this<PVPlotting> {
+class LibPicvizDecl PVPlotting : public data_tree_plotting_t/*, public boost::enable_shared_from_this<PVPlotting>*/ {
 	friend class PVCore::PVSerializeObject;
 	friend class PVPlotted;
 public:
@@ -66,20 +66,11 @@ public:
 	 */
 	PVRush::PVNraw::nraw_table& get_qtnraw();
 	const PVRush::PVNraw::nraw_table& get_qtnraw() const;
-	
-	/**
-	 * Gets the parent Picviz::PVSource
-	 */
-	Picviz::PVSource* get_source_parent();
-	Picviz::PVRoot* get_root_parent();
 
 	/**
 	 * Gets the associated format
 	 */
 	PVRush::PVFormat_p get_format() const;
-
-	PVMapped* get_mapped_parent();
-	const PVMapped* get_mapped_parent() const;
 
 	void set_mapped(PVMapped* mapped);
 
@@ -101,8 +92,6 @@ public:
 	void set_name(QString const& name) { _name = name; }
 
 protected:
-	PVMapped* _mapped;
-	PVRoot* _root;
 	QList<PVPlottingProperties> _columns;
 
 	QString _name;

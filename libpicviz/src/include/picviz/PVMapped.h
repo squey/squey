@@ -46,10 +46,8 @@ public:
 	typedef QList<PVPlotted_p> list_plotted_t;
 	typedef std::vector< std::pair<PVCol,float> > mapped_sub_col_t;
 public:
-	PVMapped(PVMapping const& mapping);
+	PVMapped(PVMapping* mapping);
 	~PVMapped();
-
-	void set_mapping(PVMapping const& mapping);
 protected:
 	// For serialization
 	PVMapped();
@@ -64,23 +62,19 @@ public:
 	void process_from_source(PVSource* src, bool keep_views_info);
 	void process_from_parent_source(bool keep_views_info);
 
-	void add_plotted(PVPlotted_p plotted);
+	inline bool is_uptodate() const { return get_parent<PVMapping>()->is_uptodate(); };
 
-	inline bool is_uptodate() const { return _mapping.is_uptodate(); };
-
-	void set_name(QString const& name) { _mapping.set_name(name); }
-	QString const& get_name() const { return _mapping.get_name(); }
+	void set_name(QString const& name) { get_parent<PVMapping>()->set_name(name); }
+	QString const& get_name() const { return get_parent<PVMapping>()->get_name(); }
 
 	QList<PVCol> get_columns_indexes_values_within_range(float min, float max, double rate = 1.0);
 	QList<PVCol> get_columns_indexes_values_not_within_range(float min, float max, double rate = 1.0);
 
 public:
 	// Data access
-	PVRow get_row_count();
-	PVCol get_column_count();
+	PVRow get_row_count() const;
+	PVCol get_column_count() const;
 	void get_sub_col_minmax(mapped_sub_col_t& ret, float& min, float& max, PVSelection const& sel, PVCol col) const;
-
-	list_plotted_t const& get_plotteds() const { return _plotteds; }
 
 	inline float get_value(PVRow row, PVCol col) const { return trans_table.getValue(col, row); }
 
@@ -91,27 +85,13 @@ public:
 	void to_csv();
 
 public:
-	// Parents
-	PVSource* get_source_parent();
-	const PVSource* get_source_parent() const;
-
-	PVScene* get_scene_parent();
-	const PVScene* get_scene_parent() const;
-
-	PVRoot* get_root_parent();
-	const PVRoot* get_root_parent() const;
-
-	const PVMapping& get_mapping() const { return _mapping; }
-	PVMapping& get_mapping() { return _mapping; }
-
-public:
 	// NRAW
 	PVRush::PVNraw::nraw_table& get_qtnraw();
 	const PVRush::PVNraw::nraw_table& get_qtnraw() const;
 	const PVRush::PVNraw::nraw_trans_table& get_trans_nraw() const;
 	void clear_trans_nraw();
 	
-	PVRush::PVFormat_p get_format();
+	PVRush::PVFormat_p get_format() const;
 
 protected:
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
@@ -121,11 +101,6 @@ private:
 	void create_table();
 
 protected:
-	PVMapping _mapping;
-	PVRoot* _root;
-	PVSource* _source;
-	list_plotted_t _plotteds;
-
 	PVCore::PVListFloat2D trans_table;
 };
 
