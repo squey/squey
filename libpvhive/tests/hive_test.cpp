@@ -1,6 +1,8 @@
 
 #include <iostream>
 
+#include <QApplication>
+
 #include <pvhive/PVHive.h>
 #include <pvhive/PVActor.h>
 #include <pvhive/PVObserver.h>
@@ -38,8 +40,10 @@ public:
 };
 
 
-int main()
+int main(int argc, char **argv)
 {
+	QApplication app(argc, argv);
+
 	PVHive::PVHive &h1 = PVHive::PVHive::get();
 	PVHive::PVHive &h2 = PVHive::PVHive::get();
 
