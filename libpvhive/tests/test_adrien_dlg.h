@@ -3,6 +3,7 @@
 
 #include <pvhive/PVHive.h>
 #include <pvhive/PVObserverSignal.h>
+#include <pvhive/PVQObserver.h>
 #include "test_adrien_objs.h"
 
 #include <QDialog>
@@ -53,6 +54,29 @@ protected:
 	virtual void about_to_be_deleted() { }
 };
 
+class MyObjQObserver : public PVHive::PVQObserver<MyObject>
+{
+public:
+	MyObjQObserver(QObject *parent) :
+		PVHive::PVQObserver<MyObject>(parent)
+	{
+		connect_refresh(this, SLOT(do_refresh(PVHive::PVObserverBase *)));
+	}
+
+	virtual void do_refresh(PVHive::PVObserverBase *)
+	{
+		std::cout << "  MyObjObserverQt::do_refresh" << std::endl;
+		std::cout << "    running thread " << boost::this_thread::get_id() << std::endl;
+		std::cout << "    owner thread   " << thread() << std::endl;
+	}
+
+	virtual void do_about_to_be_deleted(PVHive::PVObserverBase *)
+	{
+		std::cout << "MyObjObserver::do_about_to_be_deleted" << std::endl;
+	}
+
+};
+
 class TestDlg: public QDialog
 {
 	Q_OBJECT
@@ -86,21 +110,13 @@ public:
 		 */
 		//hive.register_observer(o.get_prop(), *_bar);
 
-		_myobj_observer.connect_refresh(this, SLOT(observer_changed()));
 		_objprop_observer.connect_refresh(this, SLOT(prop_changed(PVHive::PVObserverBase*)));
 	}
 
 public slots:
-	void observer_changed()
-	{
-		std::cout << "  GUI observer_changed" << std::endl;
-		std::cout << "    running thread " << boost::this_thread::get_id() << std::endl;
-		std::cout << "    owner thread   " << thread() << std::endl;
-	}
-
 	void prop_changed(PVHive::PVObserverBase* v)
 	{
-		std::cout << "  GUI prop_changed" << std::endl;
+		std::cout << "  TestDlg::prop_changed" << std::endl;
 		std::cout << "    running thread " << boost::this_thread::get_id() << std::endl;
 		std::cout << "    owner thread   " << thread() << std::endl;
 		PVHive::PVObserverSignal<ObjectProperty>* prop_v = dynamic_cast<PVHive::PVObserverSignal<ObjectProperty>*>(v);
@@ -111,7 +127,7 @@ public slots:
 	}
 
 private:
-	PVHive::PVObserverSignal<MyObject> _myobj_observer;
+	MyObjQObserver _myobj_observer;
 	PVHive::PVObserverSignal<ObjectProperty> _objprop_observer;
 
 	QLabel* _prop_label;

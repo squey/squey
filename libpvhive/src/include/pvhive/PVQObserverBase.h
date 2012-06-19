@@ -1,0 +1,50 @@
+
+#ifndef LIBPVHIVE_PVQOBSERVERBASE_H
+#define LIBPVHIVE_PVQOBSERVERBASE_H
+
+#include <pvhive/PVRefreshSignal.h>
+
+namespace PVHive
+{
+
+class PVObserverBase;
+
+namespace __impl
+{
+
+class PVQObserverBase : public PVRefreshSignal
+{
+	Q_OBJECT
+
+public:
+	PVQObserverBase(QObject *parent = nullptr) :
+		PVRefreshSignal(parent)
+	{
+		connect_refresh(this, SLOT(do_refresh(PVHive::PVObserverBase *)));
+		connect_about_to_be_deleted(this, SLOT(do_about_to_be_deleted(PVHive::PVObserverBase *)));
+	}
+
+protected slots:
+/* Qt's signals/slots mechanism can not work properly with namespaces; leading
+ * to run-time errors of type "Incompatible sender/receiver arguments" or
+ * "No such signal": the signals use implicit namespaces prefix (otherwise it
+ * does not compile) and the slots use explicit namespaces prefix. So that the
+ * MOC's internal strcmp fails when comparing signals/slots signatures.
+ *
+ * To get round, the symbol Q_MOC_RUN has to be used to test if moc is running
+ * or not. See http://qt-project.org/doc/qt-4.8/moc.html
+ */
+#ifdef Q_MOC_RUN
+	virtual void do_refresh(PVHive::PVObserverBase *o) = 0;
+	virtual void do_about_to_be_deleted(PVHive::PVObserverBase *o) = 0;
+#else
+	virtual void do_refresh(PVObserverBase *o) = 0;
+	virtual void do_about_to_be_deleted(PVObserverBase *o) = 0;
+#endif
+};
+
+}
+
+}
+
+#endif // LIBPVHIVE_PVQOBSERVERBASE_H
