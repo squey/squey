@@ -59,9 +59,7 @@ class MyObjQObserver : public PVHive::PVQObserver<MyObject>
 public:
 	MyObjQObserver(QObject *parent) :
 		PVHive::PVQObserver<MyObject>(parent)
-	{
-		connect_refresh(this, SLOT(do_refresh(PVHive::PVObserverBase *)));
-	}
+	{}
 
 	virtual void do_refresh(PVHive::PVObserverBase *)
 	{
