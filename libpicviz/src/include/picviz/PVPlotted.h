@@ -24,6 +24,8 @@
 #include <picviz/PVSelection.h>
 #include <picviz/PVView.h>
 
+#include <boost/enable_shared_from_this.hpp>
+
 #ifdef CUDA
 #include <picviz/cuda/PVPlotted_create_table_cuda.h>
 #endif
@@ -39,7 +41,7 @@ class PVSource;
  * \class PVPlotted
  */
 typedef typename PVCore::PVDataTreeObject<PVPlotting, PVView> data_tree_plotted_t ;
-class LibPicvizDecl PVPlotted : public data_tree_plotted_t {
+class LibPicvizDecl PVPlotted : public data_tree_plotted_t, public boost::enable_shared_from_this<PVPlotted> {
 	friend class PVCore::PVSerializeObject;
 	friend class PVMapped;
 	friend class PVSource;

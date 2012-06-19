@@ -721,14 +721,13 @@ void PVInspector::PVMainWindow::close_source(PVTabSplitter* tab)
 	for (it = views.begin(); it != views.end(); it++) {
 		destroy_pvgl_views(*it);
 	}*/
-	for (auto view : src->get_children<Picviz::PVView>()){
-		boost::shared_ptr<Picviz::PVView> view_p(view);
+	_scene->del_source(src.get());
+	for (auto view_p : src->get_children<Picviz::PVView>()){
+		//boost::shared_ptr<Picviz::PVView> view_p(view);
 		destroy_pvgl_views(view_p);
 	}
 
 	pv_ListingsTabWidget->remove_listing(tab);
-
-	_scene->del_source(src.get());
 }
 
 

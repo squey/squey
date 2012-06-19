@@ -427,4 +427,8 @@ void Picviz::PVMapped::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerial
 	}
 	list_plotted_t plotteds_p;
 	so.list("plotted", plotteds_p, "Plottings", (PVPlotted*) NULL, plotted_names, true, true);
+	for (auto plotted_p : plotteds_p) {
+		auto plotting = plotted_p->get_parent<PVPlotting>();
+		mapping->add_child(shared_from_this());
+	}
 }

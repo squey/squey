@@ -252,12 +252,12 @@ public:
 
 	/*! \brief Dump the data tree object and all of it's underlying children hierarchy.
 	 */
-	void dump(uint32_t spacing = 10)
+	void dump(uint32_t spacing = 20)
 	{
 		auto me = static_cast<typename Tchild::parent_t*>(this);
 		std::cout << " |" << std::setfill('-') << std::setw(spacing) << typeid(typename Tchild::parent_t).name() << "(" << me << ")" << std::endl;
 		for (auto child: _children) {
-			child->dump(spacing + 5);
+			child->dump(spacing + 10);
 		}
 	}
 

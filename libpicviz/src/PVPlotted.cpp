@@ -574,12 +574,13 @@ void Picviz::PVPlotted::serialize(PVCore::PVSerializeObject& so, PVCore::PVSeria
 {
 	auto plotting = new PVPlotting();
 	so.object("plotting", *plotting, QString(), false, (PVPlotting*) NULL, false);
+	plotting->add_child(shared_from_this());
 	PVCore::PVSerializeObject_p view_so;
 	so.object("view", _view, QObject::tr("View"), false, (PVView*) NULL, true, true, &view_so);
 	if (so.is_writing()) {
 		_view->set_last_so(view_so);
 	}
-	add_child(_view); // <<<
+	add_child(_view);
 
 	so.list("expanded_sels", _expanded_sels, "Expanded selections", (ExpandedSelection*) NULL, QStringList(), true, true);
 }
