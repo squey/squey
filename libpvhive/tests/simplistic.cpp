@@ -68,6 +68,7 @@ int main(int argc, char **argv)
 
 	PVACTOR_CALL(a, &Ci::set_i, 42);
 
+	PVHive::PVHive::get().unregister_observer(o);
 	PVHive::PVHive::get().unregister_actor(a);
 
 	return 0;

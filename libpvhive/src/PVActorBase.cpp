@@ -3,5 +3,7 @@
 
 PVHive::PVActorBase::~PVActorBase()
 {
-	PVHive::get().unregister_actor(*this);
+	if (_object != nullptr) {
+		PVHive::get().unregister_actor(*this);
+	}
 }

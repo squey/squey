@@ -3,5 +3,7 @@
 
 PVHive::PVObserverBase::~PVObserverBase()
 {
-	PVHive::get().unregister_observer(*this);
+	if (_object != nullptr) {
+		PVHive::get().unregister_observer(*this);
+	}
 }
