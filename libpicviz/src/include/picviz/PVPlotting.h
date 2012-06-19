@@ -72,7 +72,7 @@ public:
 	 */
 	PVRush::PVFormat_p get_format() const;
 
-	void set_mapped(PVMapped* mapped);
+	void set_parent(PVMapped* mapped);
 
 	QString const& get_column_type(PVCol col) const;
 

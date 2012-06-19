@@ -31,8 +31,9 @@
  * Picviz::PVMapped::PVMapped
  *
  *****************************************************************************/
-Picviz::PVMapped::PVMapped(PVMapping* mapping) : data_tree_mapped_t(mapping)
+Picviz::PVMapped::PVMapped(PVMapping* mapping)
 {
+	set_parent(mapping);
 	create_table();
 }
 
@@ -41,7 +42,7 @@ Picviz::PVMapped::PVMapped(PVMapping* mapping) : data_tree_mapped_t(mapping)
  * Picviz::PVMapped::PVMapped
  *
  *****************************************************************************/
-Picviz::PVMapped::PVMapped() : data_tree_mapped_t() { }
+Picviz::PVMapped::PVMapped(){}
 
 /******************************************************************************
  *

@@ -20,10 +20,9 @@
  *
  *****************************************************************************/
 Picviz::PVPlotting::PVPlotting(PVMapped* parent):
-	data_tree_plotting_t(parent),
 	_name("default")
 {
-	set_mapped(parent);
+	set_parent(parent);
 
 	PVRush::PVFormat_p format = parent->get_format();
 
@@ -194,9 +193,9 @@ void Picviz::PVPlotting::serialize(PVCore::PVSerializeObject &so, PVCore::PVSeri
  * Picviz::PVPlotting::set_mapped
  *
  *****************************************************************************/
-void Picviz::PVPlotting::set_mapped(PVMapped* mapped)
+void Picviz::PVPlotting::set_parent(PVMapped* mapped)
 {
-	set_parent(mapped);
+	data_tree_plotting_t::set_parent(mapped);
 
 	// Set parent mapping for properties
 	QList<PVPlottingProperties>::iterator it;

@@ -32,7 +32,6 @@ struct PVDataTreeNoParent
 		assert(false);
 		return nullptr;
 	}
-	bool is_root() { return true; }
 	void add_child(Tchild* /*child*/) {}
 	pchild_t remove_child(Tchild* /*child*/) { return pchild_t();}
 	children_t _children;
@@ -74,34 +73,16 @@ public:
 	typedef QList<pchild_t> children_t;
 
 public:
-	/*! \brief Create a TreeObject with the specified parent and add itself as one of its children.
-	 *  \param[in] parent Parent of the object
-	 *  The lifetime of the child is handled by the parent.
+	/*! \brief Default constructor
 	 */
-	PVDataTreeObject(Tparent* parent = nullptr) : _parent(parent)
-	{
-		// It's safe to use 'this' in the constructor since we just want
-		// to store the address of the child in the parent.
-		if (_parent) {
-			auto me = static_cast<typename Tchild::parent_t*>(this);
-			_parent->add_child(me);
-		}
-	}
+	PVDataTreeObject() : _parent(nullptr) {}
 
 	/*! \brief Delete the data tree object and all of it's underlying children hierarchy.
 	 */
 	~PVDataTreeObject()
 	{
 		auto me = static_cast<typename Tchild::parent_t*>(this);
-		std::cout << typeid(typename Tchild::parent_t).name() << "(" << me << ")"<< "::~TreeObject" << std::endl;
-	}
-
-	/*! \brief Check if the object is an instance of the root class of the hierarchy.
-	 *  \return true, false otherwise.
-	 */
-	bool is_root()
-	{
-		return  std::is_same<Tparent, PVDataTreeNoParent<typename Tchild::parent_t> >::value;
+		std::cout << typeid(typename Tchild::parent_t).name() << "(" << me << ")"<< "::~PVDataTreeObject" << std::endl;
 	}
 
 	/*! \brief Return an ancestor of a data tree object at the specified hierarchical level (as a class type).
@@ -124,24 +105,26 @@ public:
 	 *  \param[in] parent Parent of the data tree object.
 	 *  If a parent is already set, properly reparent with taking care of the child.
 	 */
-	void set_parent(Tparent* parent)
+	virtual void set_parent(Tparent* parent)
 	{
 		if (_parent == parent) {
 			return;
 		}
 
 		auto me = static_cast<typename Tchild::parent_t*>(this);
+		bool child_added = false;
 		typename Tparent::pchild_t me_p;
 		if (_parent) {
 			me_p = _parent->remove_child(me);
 			if (parent) {
 				parent->_children.push_back(me_p);
+				child_added = true;
 			}
 		}
 		auto old_parent = _parent;
 		_parent = parent;
-		if (old_parent == nullptr && !parent->is_root()) {
-			me_p.reset(me);
+		if (old_parent == nullptr && parent &&!child_added) {
+			typename Tparent::pchild_t me_p(me);
 			parent->_children.push_back(me_p);
 		}
 	}

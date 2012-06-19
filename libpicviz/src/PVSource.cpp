@@ -25,7 +25,6 @@
 #include <picviz/PVView.h>
 
 Picviz::PVSource::PVSource(PVRush::PVInputType::list_inputs const& inputs, PVRush::PVSourceCreator_p sc, PVRush::PVFormat format)
-	: data_tree_source_t()
 {
 	init();
 
@@ -39,15 +38,15 @@ Picviz::PVSource::PVSource(PVRush::PVInputType::list_inputs const& inputs, PVRus
 	files_append_noextract();
 }
 
-Picviz::PVSource::PVSource() : data_tree_source_t()
+Picviz::PVSource::PVSource()
 {
 	init();
 }
 
 Picviz::PVSource::PVSource(const PVSource& org):
-	data_tree_source_t(const_cast<PVScene*>(org.get_parent())),
 	boost::enable_shared_from_this<PVSource>()
 {
+	set_parent(const_cast<PVScene*>(org.get_parent()));
 	init();
 }
 
@@ -76,10 +75,10 @@ void Picviz::PVSource::init()
 	_extractor.start_controller();
 }
 
-void Picviz::PVSource::set_scene(PVScene* parent)
+void Picviz::PVSource::set_parent(PVScene* parent)
 {
 	if (parent) {
-		set_parent(parent);
+		PVDataTreeObject<PVScene, PVMapping>::set_parent(parent);
 		parent->set_views_id();
 	}
 }

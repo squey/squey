@@ -21,10 +21,9 @@
  *
  *****************************************************************************/
 Picviz::PVMapping::PVMapping(PVSource* parent):
-	data_tree_mapping_t(parent),
 	_name("default")
 {
-	set_source(parent);
+	set_parent(parent);
 
 	PVCol naxes = parent->get_column_count();
 	if (naxes == 0) {
@@ -328,9 +327,9 @@ void Picviz::PVMapping::set_default_args(PVRush::PVFormat const& format)
  * Picviz::PVMapping::set_source
  *
  *****************************************************************************/
-void Picviz::PVMapping::set_source(PVSource* src)
+void Picviz::PVMapping::set_parent(PVSource* src)
 {
-	set_parent(src);
+	data_tree_mapping_t::set_parent(src);
 	
 	PVCol naxes = src->get_column_count();
 	_mandatory_filters_values.resize(naxes);

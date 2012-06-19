@@ -114,9 +114,8 @@ private:
 	void set_views_consistent(bool cons);
 
 protected:
-	// For PVScene
-	void set_scene(PVScene* parent);
-	// For PVPlotted
+	void set_parent(PVScene* parent);
+
 	void add_view(PVView_p view);
 	void set_views_id();
 

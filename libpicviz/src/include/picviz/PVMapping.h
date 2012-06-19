@@ -49,7 +49,7 @@ protected:
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 
 	// For PVMapped
-	void set_source(PVSource* src);
+	void set_parent(PVSource* src);
 	void set_uptodate_for_col(PVCol j);
 	void invalidate_all();
 	void validate_all();

@@ -19,10 +19,10 @@
  *
  *****************************************************************************/
 Picviz::PVScene::PVScene(QString scene_name, PVRoot* parent):
-	data_tree_scene_t(parent),
 	_name(scene_name),
 	_ad2g_view(new PVAD2GView(this))
 {
+	set_parent(parent);
 }
 
 /******************************************************************************
@@ -41,7 +41,7 @@ void Picviz::PVScene::add_source(PVSource_p src)
 	// typedef std::map<PVRush::PVInputType, std::pair<list_sources_t, PVRush::PVInputType::list_inputs> > hash_type_sources_t;
 	// hash_type_sources_t _sources;
 	
-	src->set_scene(this);
+	src->set_parent(this);
 
 	std::pair<list_sources_t, PVRush::PVInputType::list_inputs>& type_srcs = _sources[*(src->get_input_type())];
 
@@ -146,7 +146,7 @@ void Picviz::PVScene::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSe
 
 	// Get the sources
 	PVSource* src = new PVSource();
-	src->set_scene(this);
+	src->set_parent(this);
 	list_sources_t all_sources;
 	so.list("sources", all_sources, QObject::tr("Sources"), src);
 	//src->set_scene(NULL);

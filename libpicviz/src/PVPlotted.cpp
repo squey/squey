@@ -31,15 +31,17 @@
 
 namespace Picviz {
 
-PVPlotted::PVPlotted(PVPlotting* plotting) : data_tree_plotted_t(plotting)
+PVPlotted::PVPlotted(PVPlotting* plotting)
 {
+	set_parent(plotting);
+
 	if (_view) {
 		get_parent<PVSource>()->add_view(_view);
 	}
 	process_from_parent_mapped(false);
 }
 
-PVPlotted::PVPlotted() : data_tree_plotted_t()
+PVPlotted::PVPlotted()
 {
 }
 
@@ -525,7 +527,7 @@ void Picviz::PVPlotted::get_col_minmax(PVRow& min, PVRow& max, PVSelection const
 
 void Picviz::PVPlotted::process_from_mapped(PVMapped* mapped, bool keep_views_info)
 {
-	get_parent<PVPlotting>()->set_mapped(mapped);
+	get_parent<PVPlotting>()->set_parent(mapped);
 
 	process_from_parent_mapped(keep_views_info);
 }

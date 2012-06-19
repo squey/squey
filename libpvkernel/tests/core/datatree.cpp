@@ -16,29 +16,37 @@ typedef typename PVCore::PVDataTreeObject<PVCore::PVDataTreeNoParent<A>, B> data
 class A : public data_tree_a_t
 {
 public:
-	A(PVCore::PVDataTreeNoParent<A>* parent = NULL) : data_tree_a_t(parent) {};
+	A(PVCore::PVDataTreeNoParent<A>* parent = nullptr) { set_parent(nullptr); }
 };
 
 typedef typename PVCore::PVDataTreeObject<A, C> data_tree_b_t;
 class B : public data_tree_b_t
 {
 public:
-	B(A* parent = NULL) : data_tree_b_t(parent) {};
+	B(A* parent = NULL) { set_parent(parent); };
 };
 
 typedef typename PVCore::PVDataTreeObject<B, D> data_tree_c_t;
 class C : public data_tree_c_t
 {
 public:
-	C(B* parent = NULL) : data_tree_c_t(parent) {};
+	C(B* parent = NULL) { set_parent(parent); };
+	void set_parent(B* parent) { data_tree_c_t::set_parent(parent); std::cout << "C::set_parent is overriden to add special functionnalities." << std::endl; }
 };
 
 typedef typename PVCore::PVDataTreeObject<C, PVCore::PVDataTreeNoChildren<D>> data_tree_d_t;
 class D : public data_tree_d_t
 {
 public:
-	D(C* parent = NULL) : data_tree_d_t(parent) {};
+	D(C* parent = NULL) { set_parent(parent); };
 };
+
+
+bool my_assert(bool res)
+{
+	assert(res);
+	return res;
+}
 
 /******************************************************************************
  *
@@ -74,17 +82,17 @@ int main()
 	std::cout << std::endl;
 
 	bool parent_access = true;
-	parent_access &= (a1->get_parent() == nullptr);
-	parent_access &= (a2->get_parent() == nullptr);
-	parent_access &= (b1->get_parent() == a1);
-	parent_access &= (b2->get_parent() == a1);
-	parent_access &= (b3->get_parent() == a2);
-	parent_access &= (c->get_parent() == b1);
-	parent_access &= (c->get_parent<A>() == a1);
-	parent_access &= (d->get_parent() == c);
-	parent_access &= (d->get_parent<B>() == b1);
-	parent_access &= (d->get_parent<A>() == a1);
-	parent_access &= (d->get_parent<C>() == c);
+	parent_access &= my_assert(a1->get_parent() == nullptr);
+	parent_access &= my_assert(a2->get_parent() == nullptr);
+	parent_access &= my_assert(b1->get_parent() == a1);
+	parent_access &= my_assert(b2->get_parent() == a1);
+	parent_access &= my_assert(b3->get_parent() == a2);
+	parent_access &= my_assert(c->get_parent() == b1);
+	parent_access &= my_assert(c->get_parent<A>() == a1);
+	parent_access &= my_assert(d->get_parent() == c);
+	parent_access &= my_assert(d->get_parent<B>() == b1);
+	parent_access &= my_assert(d->get_parent<A>() == a1);
+	parent_access &= my_assert(d->get_parent<C>() == c);
 	PVLOG_INFO("Parent access passed: %d\n", parent_access);
 
 
@@ -94,16 +102,16 @@ int main()
 	bool children_access = true;
 	{
 	auto a1_children = a1->get_children();
-	children_access &= (a1_children.size() == 2 && a1_children[0].get() == b1 && a1_children[1].get() == b2);
+	children_access &= my_assert(a1_children.size() == 2 && a1_children[0].get() == b1 && a1_children[1].get() == b2);
 	auto a2_children = a2->get_children();
-	children_access &= (a2_children.size() == 1 && a2_children[0].get() == b3);
+	children_access &= my_assert(a2_children.size() == 1 && a2_children[0].get() == b3);
 	auto b1_children = b1->get_children();
-	children_access &= (b1_children.size() == 1 && b1_children[0].get() == c);
-	children_access &= (b2->get_children().size() == 0);
-	children_access &= (b3->get_children().size() == 0);
+	children_access &= my_assert(b1_children.size() == 1 && b1_children[0].get() == c);
+	children_access &= my_assert(b2->get_children().size() == 0);
+	children_access &= my_assert(b3->get_children().size() == 0);
 	auto c_children = c->get_children();
-	children_access &= (c_children.size() == 1 && c_children[0].get() == d);
-	children_access &= (d->get_children().size() == 0);
+	children_access &= my_assert(c_children.size() == 1 && c_children[0].get() == d);
+	children_access &= my_assert(d->get_children().size() == 0);
 	}
 	PVLOG_INFO("Children access passed: %d\n", children_access);
 
@@ -123,28 +131,28 @@ int main()
 	d->set_parent(c);
 
 	{
-	same_parent &= (a1->get_parent() == nullptr);
-	same_parent &= (a2->get_parent() == nullptr);
-	same_parent &= (b1->get_parent() == a1);
-	same_parent &= (b2->get_parent() == a1);
-	same_parent &= (b3->get_parent() == a2);
-	same_parent &= (c->get_parent() == b1);
-	same_parent &= (c->get_parent<A>() == a1);
-	same_parent &= (d->get_parent() == c);
-	same_parent &= (d->get_parent<B>() == b1);
-	same_parent &= (d->get_parent<A>() == a1);
-	same_parent &= (d->get_parent<C>() == c);
+	same_parent &= my_assert(a1->get_parent() == nullptr);
+	same_parent &= my_assert(a2->get_parent() == nullptr);
+	same_parent &= my_assert(b1->get_parent() == a1);
+	same_parent &= my_assert(b2->get_parent() == a1);
+	same_parent &= my_assert(b3->get_parent() == a2);
+	same_parent &= my_assert(c->get_parent() == b1);
+	same_parent &= my_assert(c->get_parent<A>() == a1);
+	same_parent &= my_assert(d->get_parent() == c);
+	same_parent &= my_assert(d->get_parent<B>() == b1);
+	same_parent &= my_assert(d->get_parent<A>() == a1);
+	same_parent &= my_assert(d->get_parent<C>() == c);
 	auto a1_children = a1->get_children();
-	same_parent &= (a1_children.size() == 2 && a1_children[0].get() == b1 && a1_children[1].get() == b2);
+	same_parent &= my_assert(a1_children.size() == 2 && a1_children[0].get() == b1 && a1_children[1].get() == b2);
 	auto a2_children = a2->get_children();
-	same_parent &= (a2_children.size() == 1 && a2_children[0].get() == b3);
+	same_parent &= my_assert(a2_children.size() == 1 && a2_children[0].get() == b3);
 	auto b1_children = b1->get_children();
-	same_parent &= (b1_children.size() == 1 && b1_children[0].get() == c);
-	same_parent &= (b2->get_children().size() == 0);
-	same_parent &= (b3->get_children().size() == 0);
+	same_parent &= my_assert(b1_children.size() == 1 && b1_children[0].get() == c);
+	same_parent &= my_assert(b2->get_children().size() == 0);
+	same_parent &= my_assert(b3->get_children().size() == 0);
 	auto c_children = c->get_children();
-	same_parent &= (c_children.size() == 1 && c_children[0].get() == d);
-	same_parent &= (d->get_children().size() == 0);
+	same_parent &= my_assert(c_children.size() == 1 && c_children[0].get() == d);
+	same_parent &= my_assert(d->get_children().size() == 0);
 	}
 
 	std::cout << "a1:" << std::endl;
@@ -170,35 +178,35 @@ int main()
 
 	{
 	// a1 <-> b2
-	changing_parent &= (a1->get_parent() == nullptr);
+	changing_parent &= my_assert(a1->get_parent() == nullptr);
 	auto a1_children = a1->get_children();
-	changing_parent &= (a1_children.size() == 1);
-	changing_parent &= (a1_children[0].get() == b2);
-	changing_parent &= (b2->get_parent() == a1);
-	changing_parent &= (b2->get_children().size() == 0);
+	changing_parent &= my_assert(a1_children.size() == 1);
+	changing_parent &= my_assert(a1_children[0].get() == b2);
+	changing_parent &= my_assert(b2->get_parent() == a1);
+	changing_parent &= my_assert(b2->get_children().size() == 0);
 
 	// a2 <-> (b1, b3)
-	changing_parent &= (a2->get_parent() == nullptr);
+	changing_parent &= my_assert(a2->get_parent() == nullptr);
 	auto a2_children = a2->get_children();
-	changing_parent &= (a2_children.size() == 2);
-	changing_parent &= (a2_children[0].get() == b3);
-	changing_parent &= (a2_children[1].get() == b1);
-	changing_parent &= (b1->get_parent() == a2);
-	changing_parent &= (b3->get_parent() == a2);
+	changing_parent &= my_assert(a2_children.size() == 2);
+	changing_parent &= my_assert(a2_children[0].get() == b3);
+	changing_parent &= my_assert(a2_children[1].get() == b1);
+	changing_parent &= my_assert(b1->get_parent() == a2);
+	changing_parent &= my_assert(b3->get_parent() == a2);
 
 	// (b1, b3) <-> c
 	auto b1_children = b1->get_children();
-	changing_parent &= (b1_children.size() == 1);
-	changing_parent &= (b1_children[0].get() == c);
-	changing_parent &= (c->get_parent() == b1);
-	changing_parent &= (b3->get_children().size() == 0);
+	changing_parent &= my_assert(b1_children.size() == 1);
+	changing_parent &= my_assert(b1_children[0].get() == c);
+	changing_parent &= my_assert(c->get_parent() == b1);
+	changing_parent &= my_assert(b3->get_children().size() == 0);
 
 	// c <-> d
-	changing_parent &= (d->get_parent() == c);
+	changing_parent &= my_assert(d->get_parent() == c);
 	auto c_children = c->get_children();
-	changing_parent &= (c_children.size() == 1);
-	changing_parent &= (c_children[0].get() == d);
-	changing_parent &= (d->get_children().size() == 0);
+	changing_parent &= my_assert(c_children.size() == 1);
+	changing_parent &= my_assert(c_children[0].get() == d);
+	changing_parent &= my_assert(d->get_children().size() == 0);
 	}
 
 
@@ -218,28 +226,28 @@ int main()
 	bool changing_child = true;
 	{
 	// a1 <-> b2
-	changing_child &= (a1->get_parent() == nullptr);
+	changing_child &= my_assert(a1->get_parent() == nullptr);
 	auto a1_children = a1->get_children();
-	changing_child &= (a1_children.size() == 1 && a1_children[0].get() == b2);
-	changing_child &= (b2->get_parent() == a1);
+	changing_child &= my_assert(a1_children.size() == 1 && a1_children[0].get() == b2);
+	changing_child &= my_assert(b2->get_parent() == a1);
 
 	// b2 <-> c
 	auto b2_children = b2->get_children();
-	changing_child &= (b2_children.size() == 1 && b2_children[0].get() == c);
-	changing_child &= (c->get_parent() == b2);
+	changing_child &= my_assert(b2_children.size() == 1 && b2_children[0].get() == c);
+	changing_child &= my_assert(c->get_parent() == b2);
 
 	// c <-> d
 	auto c_children = c->get_children();
-	changing_child &= (c_children.size() == 1 && c_children[0].get() == d);
-	changing_child &= (d->get_parent() == c);
+	changing_child &= my_assert(c_children.size() == 1 && c_children[0].get() == d);
+	changing_child &= my_assert(d->get_parent() == c);
 
 	// a2 <-> (b1, b3)
 	auto a2_children = a2->get_children();
-	changing_child &= (a2_children.size() == 2 && a2_children[0].get() == b3 && a2_children[1].get() == b1);
-	changing_child &= (b1->get_parent() == a2);
-	changing_child &= (b3->get_parent() == a2);
-	changing_child &= (b1->get_children().size() == 0);
-	changing_child &= (b3->get_children().size() == 0);
+	changing_child &= my_assert(a2_children.size() == 2 && a2_children[0].get() == b3 && a2_children[1].get() == b1);
+	changing_child &= my_assert(b1->get_parent() == a2);
+	changing_child &= my_assert(b3->get_parent() == a2);
+	changing_child &= my_assert(b1->get_children().size() == 0);
+	changing_child &= my_assert(b3->get_children().size() == 0);
 	}
 
 	PVLOG_INFO("Changing child passed: %d\n", changing_child);
@@ -253,23 +261,23 @@ int main()
 	bool create_with_parent_and_set_same_parent = true;
 	{
 		// a1 <-> b2
-		create_with_parent_and_set_same_parent &= (a1->get_parent() == nullptr);
+		create_with_parent_and_set_same_parent &= my_assert(a1->get_parent() == nullptr);
 		auto a1_children = a1->get_children();
-		create_with_parent_and_set_same_parent &= (a1_children.size() == 1 && a1_children[0].get() == b2);
+		create_with_parent_and_set_same_parent &= my_assert(a1_children.size() == 1 && a1_children[0].get() == b2);
 
 		// b2 <-> (c, c2)
-		create_with_parent_and_set_same_parent &= (b2->get_parent() == a1);
+		create_with_parent_and_set_same_parent &= my_assert(b2->get_parent() == a1);
 		auto b2_children = b2->get_children();
-		create_with_parent_and_set_same_parent &= (b2_children.size() == 2 && b2_children[0].get() == c && b2_children[1].get() == c2);
-		create_with_parent_and_set_same_parent &= (c->get_parent() == b2);
-		create_with_parent_and_set_same_parent &= (c2->get_parent() == b2);
-		create_with_parent_and_set_same_parent &= (c2->get_children().size() == 0);
+		create_with_parent_and_set_same_parent &= my_assert(b2_children.size() == 2 && b2_children[0].get() == c && b2_children[1].get() == c2);
+		create_with_parent_and_set_same_parent &= my_assert(c->get_parent() == b2);
+		create_with_parent_and_set_same_parent &= my_assert(c2->get_parent() == b2);
+		create_with_parent_and_set_same_parent &= my_assert(c2->get_children().size() == 0);
 
 		// c <-> d
-		create_with_parent_and_set_same_parent &= (d->get_parent() == c);
+		create_with_parent_and_set_same_parent &= my_assert(d->get_parent() == c);
 		auto c_children = c->get_children();
-		create_with_parent_and_set_same_parent &= (c_children.size() == 1 && c_children[0].get() == d);
-		create_with_parent_and_set_same_parent &= (d->get_children().size() == 0);
+		create_with_parent_and_set_same_parent &= my_assert(c_children.size() == 1 && c_children[0].get() == d);
+		create_with_parent_and_set_same_parent &= my_assert(d->get_children().size() == 0);
 	}
 
 	std::cout << "a1:" << std::endl;
@@ -287,8 +295,8 @@ int main()
 
 	bool removing_child = true;
 	{
-		removing_child &= (a1->get_parent() == nullptr);
-		removing_child &= (a1->get_children().size() == 0);
+		removing_child &= my_assert(a1->get_parent() == nullptr);
+		removing_child &= my_assert(a1->get_children().size() == 0);
 	}
 
 	std::cout << "a1:" << std::endl;
@@ -305,11 +313,11 @@ int main()
 
 	bool removing_parent = true;
 	{
-		removing_parent &= (a2->get_parent() == nullptr);
+		removing_parent &= my_assert(a2->get_parent() == nullptr);
 		auto a2_children = a2->get_children();
-		removing_parent &= (a2_children.size() == 1 && a2_children[0].get() == b3);
-		removing_parent &= (b3->get_parent() == a2);
-		removing_parent &= (b3->get_children().size() == 0);
+		removing_parent &= my_assert(a2_children.size() == 1 && a2_children[0].get() == b3);
+		removing_parent &= my_assert(b3->get_parent() == a2);
+		removing_parent &= my_assert(b3->get_children().size() == 0);
 	}
 
 	std::cout << "a1:" << std::endl;
@@ -333,9 +341,9 @@ int main()
 
 	bool create_without_parent_and_set_parent = true;
 	{
-		create_without_parent_and_set_parent &= (c3->get_parent() == b3);
+		create_without_parent_and_set_parent &= my_assert(c3->get_parent() == b3);
 		auto b3_children = b3->get_children();
-		create_without_parent_and_set_parent &= (b3_children.size() == 1 && b3_children[0].get() == c3);
+		create_without_parent_and_set_parent &= my_assert(b3_children.size() == 1 && b3_children[0].get() == c3);
 	}
 
 	PVLOG_INFO("Create without parent and set parent passed: %d\n", create_without_parent_and_set_parent);
@@ -346,7 +354,7 @@ int main()
 	D d3;
 
 	bool null_parent_null_ancestor = true;
-	null_parent_null_ancestor &= (d3.get_parent() == nullptr && d3.get_parent<A>() == nullptr);
+	null_parent_null_ancestor &= my_assert(d3.get_parent() == nullptr && d3.get_parent<A>() == nullptr);
 
 	PVLOG_INFO("Get null ancestor if parent is null: %d\n", null_parent_null_ancestor);
 
