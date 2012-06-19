@@ -65,14 +65,14 @@ public:
 
 	virtual void do_refresh(PVHive::PVObserverBase *)
 	{
-		std::cout << "  MyObjObserverQt::do_refresh" << std::endl;
+		std::cout << "  MyObjQObserver::do_refresh" << std::endl;
 		std::cout << "    running thread " << boost::this_thread::get_id() << std::endl;
 		std::cout << "    owner thread   " << thread() << std::endl;
 	}
 
 	virtual void do_about_to_be_deleted(PVHive::PVObserverBase *)
 	{
-		std::cout << "MyObjObserver::do_about_to_be_deleted" << std::endl;
+		std::cout << "MyObjQObserver::do_about_to_be_deleted" << std::endl;
 	}
 
 };

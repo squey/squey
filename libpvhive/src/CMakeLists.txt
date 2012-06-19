@@ -18,6 +18,7 @@ include/pvhive/PVHive.h
 include/pvhive/PVActor.h
 include/pvhive/PVObserver.h
 include/pvhive/PVObserverCallback.h
+include/pvhive/PVObserverSignal.h
 include/pvhive/PVRefreshSignal.h
 include/pvhive/PVQObserver.h
 include/pvhive/PVQObserverBase.h
