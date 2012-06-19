@@ -1,23 +1,21 @@
 
-#ifndef LIBPVHIVE_PVQOBSERVERBASE_H
-#define LIBPVHIVE_PVQOBSERVERBASE_H
+#ifndef LIBPVHIVE_PVQREFRESH_H
+#define LIBPVHIVE_PVQREFRESH_H
 
 #include <pvhive/PVRefreshSignal.h>
 
 namespace PVHive
 {
 
-class PVObserverBase;
-
 namespace __impl
 {
 
-class PVQObserverBase : public PVRefreshSignal
+class PVQRefresh : public PVRefreshSignal
 {
 	Q_OBJECT
 
 public:
-	PVQObserverBase(QObject *parent = nullptr) :
+	PVQRefresh(QObject *parent = nullptr) :
 		PVRefreshSignal(parent)
 	{
 		connect_refresh(this, SLOT(do_refresh(PVHive::PVObserverBase *)));
@@ -47,4 +45,4 @@ protected slots:
 
 }
 
-#endif // LIBPVHIVE_PVQOBSERVERBASE_H
+#endif // LIBPVHIVE_PVQREFRESH_H
