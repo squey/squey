@@ -5,17 +5,17 @@
 #include <QObject>
 
 #include <pvhive/PVObserver.h>
-#include <pvhive/PVQObserverBase.h>
+#include <pvhive/PVQRefresh.h>
 
 namespace PVHive
 {
 
 template <class T>
-class PVQObserver : public __impl::PVQObserverBase, public PVObserver<T>
+class PVQObserver : public __impl::PVQRefresh, public PVObserver<T>
 {
 public:
 	PVQObserver(QObject* parent) :
-		__impl::PVQObserverBase(parent)
+		__impl::PVQRefresh(parent)
 	{}
 
 protected:
