@@ -81,7 +81,10 @@ public:
 		hive.register_observer(o, _myobj_observer);
 		hive.register_observer(o.get_prop(), _objprop_observer);
 		hive.register_observer(o.get_prop(), *_other_label);
-		hive.register_observer(o.get_prop(), *_bar);
+		/* the next line can run without error only if the thread doing the
+		 * refresh() calls ingherits from QObject
+		 */
+		//hive.register_observer(o.get_prop(), *_bar);
 
 		_myobj_observer.connect_refresh(this, SLOT(observer_changed()));
 		_objprop_observer.connect_refresh(this, SLOT(prop_changed(PVHive::PVObserverBase*)));
