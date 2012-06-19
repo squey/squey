@@ -10,7 +10,7 @@ PVObserver.cpp
 SET(PVHIVE_MOC_HEADERS
 include/pvhive/PVHive.h
 include/pvhive/PVRefreshSignal.h
-include/pvhive/PVQObserverBase.h
+include/pvhive/PVQRefresh.h
 )
 
 set(PVHIVE_HEADER_FILES
@@ -21,7 +21,7 @@ include/pvhive/PVObserverCallback.h
 include/pvhive/PVObserverSignal.h
 include/pvhive/PVRefreshSignal.h
 include/pvhive/PVQObserver.h
-include/pvhive/PVQObserverBase.h
+include/pvhive/PVQRefresh.h
 )
 
 set(SRC_FILES ${PVHIVE_SRC_FILES})
