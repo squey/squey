@@ -16,6 +16,8 @@ PVHive::PVHive *PVHive::PVHive::_hive = nullptr;
 PVHive::PVHive::PVHive(QObject *parent) :
 	QThread(parent)
 {
+#if 0
+	// code for asynchronous call_object/refresh()
 	/* Qt has to know the type function_t for signals/slots; otherwise
 	 * there is the following error at run-time:
 	 * QObject::connect: Cannot queue arguments of type '__impl::function_t'
@@ -32,6 +34,7 @@ PVHive::PVHive::PVHive(QObject *parent) :
 	        this, SLOT(do_refresh_observers(void*)));
 
 	start();
+#endif
 }
 
 /*****************************************************************************

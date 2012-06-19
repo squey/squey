@@ -171,7 +171,13 @@ public:
 		// object must be a valid address
 		assert(object != nullptr);
 
+#if 0
+		// fully asynchronous refresh() but prone to race conditions
 		emit refresh_observers((void*)object);
+#else
+		// synchronous refresh() (except for PVObserverSignal)
+		do_refresh_observers((void*)object);
+#endif
 	}
 
 private:
@@ -187,8 +193,15 @@ private:
 		// object must be a valid address
 		assert(object != nullptr);
 
+#if 0
+		// fully asynchronous job but prone to race conditions
 		emit invoke_object(std::bind(f, object, params...));
 		emit refresh_observers((void*)object);
+#else
+		// synchronous job (except for PVObserverSignal::refresh)
+		(object->*f)(params...);
+		do_refresh_observers((void*)object);
+#endif
 	}
 
 	/**
