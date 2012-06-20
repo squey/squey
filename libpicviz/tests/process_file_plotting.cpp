@@ -56,10 +56,10 @@ int main(int argc, char** argv)
 	job->wait_end();
 
 	// Map the nraw
-	Picviz::PVMapped_p mapped(new Picviz::PVMapped(new Picviz::PVMapping(src.get())));
+	Picviz::PVMapped_p mapped(new Picviz::PVMapped(src.get()));
 
 	// And plot the mapped values
-	Picviz::PVPlotted_p plotted(new Picviz::PVPlotted(new Picviz::PVPlotting(mapped.get())));
+	Picviz::PVPlotted_p plotted(new Picviz::PVPlotted(mapped.get()));
 
 	bool raw_dump = false;
 	bool raw_dump_transp = false;

@@ -60,7 +60,7 @@ int main(int argc, char** argv)
 	}
 
 	// Map the nraw
-	Picviz::PVMapped_p mapped(new Picviz::PVMapped(new Picviz::PVMapping(src.get())));
+	Picviz::PVMapped_p mapped(new Picviz::PVMapped(src.get()));
 
 	// Dump the mapped table to stdout in a CSV format
 	mapped->to_csv();

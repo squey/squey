@@ -39,17 +39,17 @@ PVInspector::PVMappingPlottingEditDialog::PVMappingPlottingEditDialog(Picviz::PV
 	
 #ifndef NDEBUG
 	if (has_mapping() && has_plotting()) {
-		assert(_mapping->get_parent<Picviz::PVSource>() == _plotting->get_parent<Picviz::PVSource>());
+		assert(_mapping->get_mapped()->get_parent<Picviz::PVSource>() == _plotting->get_plotted()->get_parent<Picviz::PVSource>());
 	}
 	else {
 		assert(has_mapping() || has_plotting());
 	}
 #endif
 	if (has_mapping()) {
-		_axes = &(_mapping->get_parent<Picviz::PVSource>()->current_view()->axes_combination.get_original_axes_list());
+		_axes = &(_mapping->get_mapped()->get_parent<Picviz::PVSource>()->current_view()->axes_combination.get_original_axes_list());
 	}
 	else {
-		_axes = &(_plotting->get_parent<Picviz::PVSource>()->current_view()->axes_combination.get_original_axes_list());
+		_axes = &(_plotting->get_plotted()->get_parent<Picviz::PVSource>()->current_view()->axes_combination.get_original_axes_list());
 	}
 
 	// We set the nale of the Dialog Window

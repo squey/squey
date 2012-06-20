@@ -31,9 +31,10 @@
  * Picviz::PVMapped::PVMapped
  *
  *****************************************************************************/
-Picviz::PVMapped::PVMapped(PVMapping* mapping)
+Picviz::PVMapped::PVMapped(PVSource* source)
 {
-	set_parent(mapping);
+	_mapping.reset(new PVMapping(this));
+	set_parent(source);
 	create_table();
 }
 
@@ -42,7 +43,7 @@ Picviz::PVMapped::PVMapped(PVMapping* mapping)
  * Picviz::PVMapped::PVMapped
  *
  *****************************************************************************/
-Picviz::PVMapped::PVMapped(){}
+Picviz::PVMapped::PVMapped() {}
 
 /******************************************************************************
  *
@@ -52,6 +53,14 @@ Picviz::PVMapped::PVMapped(){}
 Picviz::PVMapped::~PVMapped()
 {
 	PVLOG_INFO("In PVMapped destructor\n");
+}
+
+void Picviz::PVMapped::set_parent(PVSource* source)
+{
+	data_tree_mapped_t::set_parent(source);
+
+	PVCol naxes = source->get_column_count();
+	_mapping->_mandatory_filters_values.resize(naxes);
 }
 
 /******************************************************************************
@@ -81,7 +90,7 @@ PVLOG_INFO("(pvmapped::create_table) begin cuda mapping\n");
 		    //if(j!=1){
 		      QStringList slist = qt_nraw.at(i);
 		      QString value = slist[j];
-		      float val = mapping->get_position(j, value);
+		      float val = _mapping->get_position(j, value);
 		      table.setValue(val,i,j);
 		      ////trans_table.setValue(val, j, i);//seg fault
 		      ////run_mandatory_mapping(this->get_root(), i, j, value, val, is_first, userdata);
@@ -160,14 +169,14 @@ PVLOG_INFO("(pvmapped::create_table) begin cuda mapping\n");
 		QHash<QString, PVCore::PVArgument> grp_values;
 		for (PVCol j = 0; j < ncols; j++) {
 			// Check that an update is required
-			if (get_parent<PVMapping>()->get_properties_for_col(j).is_uptodate()) {
+			if (_mapping->get_properties_for_col(j).is_uptodate()) {
 				continue;
 			}
 
 			// Get the corresponding object
 			PVRush::PVNraw::const_trans_nraw_table_line fields = nraw.get_col(j);
 			PVMappingFilter::p_type mapping_filter = mapping_filters[j];
-			mandatory_param_map& params_map = get_parent<PVMapping>()->get_mandatory_params_for_col(j);
+			mandatory_param_map& params_map = _mapping->get_mandatory_params_for_col(j);
 			params_map.clear();
 
 			if (!mapping_filter) {
@@ -179,7 +188,7 @@ PVLOG_INFO("(pvmapped::create_table) begin cuda mapping\n");
 			mapping_filter->set_dest_array(nrows, trans_table.getRowData(j));
 			//mapping_filter->set_axis(j, *get_format());
 			// Get the group specific value if relevant
-			QString group_key = get_parent<PVMapping>()->get_group_key_for_col(j);
+			QString group_key = _mapping->get_group_key_for_col(j);
 			if (!group_key.isEmpty()) {
 				PVCore::PVArgument& group_v = grp_values[group_key];
 				mapping_filter->set_group_value(group_v);
@@ -201,7 +210,7 @@ PVLOG_INFO("(pvmapped::create_table) begin cuda mapping\n");
 
 			PVLOG_INFO("(PVMapped::create_table) mandatory mapping for axis %d took %0.4f seconds.\n", j, (tmap_end-tmap_start).seconds());
 
-			get_parent<PVMapping>()->set_uptodate_for_col(j);
+			_mapping->set_uptodate_for_col(j);
 			invalidate_plotted_children_column(j);
 		}
 		PVLOG_INFO("(pvmapped::create_table) end parallel mapping\n");
@@ -282,22 +291,22 @@ void Picviz::PVMapped::get_sub_col_minmax(mapped_sub_col_t& ret, float& min, flo
  *****************************************************************************/
 PVRush::PVNraw::nraw_table& Picviz::PVMapped::get_qtnraw()
 {
-	return get_parent<PVMapping>()->get_qtnraw();
+	return _mapping->get_qtnraw();
 }
 
 const PVRush::PVNraw::nraw_table& Picviz::PVMapped::get_qtnraw() const
 {
-	return get_parent<PVMapping>()->get_qtnraw();
+	return _mapping->get_qtnraw();
 }
 
 const PVRush::PVNraw::nraw_trans_table& Picviz::PVMapped::get_trans_nraw() const
 {
-	return get_parent<PVMapping>()->get_trans_nraw();
+	return _mapping->get_trans_nraw();
 }
 
 void Picviz::PVMapped::clear_trans_nraw()
 {
-	get_parent<PVMapping>()->clear_trans_nraw();
+	_mapping->clear_trans_nraw();
 }
 
 /******************************************************************************
@@ -322,13 +331,12 @@ PVCol Picviz::PVMapped::get_column_count() const
 
 void Picviz::PVMapped::add_column(PVMappingProperties const& props)
 {
-	get_parent<PVMapping>()->add_column(props);
+	_mapping->add_column(props);
 }
 
 void Picviz::PVMapped::process_from_source(PVSource* src, bool keep_views_info)
 {
-	get_parent<PVMapping>()->set_parent(src);
-	set_parent(get_parent<PVMapping>());
+	set_parent(src);
 
 	process_from_parent_source(keep_views_info);
 }
@@ -356,7 +364,7 @@ void Picviz::PVMapped::invalidate_plotted_children_column(PVCol j)
 
 void Picviz::PVMapped::invalidate_all()
 {
-	get_parent<PVMapping>()->invalidate_all();
+	_mapping->invalidate_all();
 }
 
 QList<PVCol> Picviz::PVMapped::get_columns_indexes_values_within_range(float min, float max, double rate)
@@ -419,7 +427,7 @@ QList<PVCol> Picviz::PVMapped::get_columns_indexes_values_not_within_range(float
 
 void Picviz::PVMapped::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 {
-	PVMapping* mapping = new PVMapping();
+	/*PVMapping* mapping = new PVMapping();
 	so.object(QString("mapping"), *mapping, QString(), false, (PVMapping*) NULL, false);
 	set_parent(mapping);
 	QStringList plotted_names;
@@ -431,5 +439,5 @@ void Picviz::PVMapped::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerial
 	for (auto plotted_p : plotteds_p) {
 		auto plotting = plotted_p->get_parent<PVPlotting>();
 		mapping->add_child(shared_from_this());
-	}
+	}*/
 }

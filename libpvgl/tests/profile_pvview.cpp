@@ -124,9 +124,9 @@ int main(int argc, char** argv)
 	PVLOG_INFO("step: %s - %d\n", __FILE__, __LINE__);
 	Picviz::PVSource_p src = create_src (argv[IFILE], argv[IFORMAT]);
 	PVLOG_INFO("step: %s - %d\n", __FILE__, __LINE__);
-	Picviz::PVMapped_p mapped(new Picviz::PVMapped(new Picviz::PVMapping(src.get())));
+	Picviz::PVMapped_p mapped(new Picviz::PVMapped(src.get()));
 	PVLOG_INFO("step: %s - %d\n", __FILE__, __LINE__);
-	Picviz::PVPlotted_p plotted(new Picviz::PVPlotted(new Picviz::PVPlotting(mapped.get())));
+	Picviz::PVPlotted_p plotted(new Picviz::PVPlotted(mapped.get()));
 	//Picviz::PVPlotted_p plotted2(new Picviz::PVPlotted(Picviz::PVPlotting(mapped.get())));
 	PVLOG_INFO("step: %s - %d\n", __FILE__, __LINE__);
 	//mapped->add_plotted(plotted2);

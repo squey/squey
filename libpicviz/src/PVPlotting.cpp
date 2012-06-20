@@ -19,15 +19,15 @@
  * Picviz::PVPlotting::PVPlotting
  *
  *****************************************************************************/
-Picviz::PVPlotting::PVPlotting(PVMapped* parent):
-	_name("default")
+Picviz::PVPlotting::PVPlotting(PVPlotted* plotted):
+	_name("default"),
+	_plotted(plotted)
 {
-	set_parent(parent);
-
-	PVRush::PVFormat_p format = parent->get_format();
+	plotted->set_plotting(this);
+	PVRush::PVFormat_p format = _plotted->get_plotting()->get_format();
 
 	for (int i=0; i < format->get_axes().size(); i++) {
-		PVPlottingProperties plotting_axis(*get_parent<PVMapping>(), *format, i);
+		PVPlottingProperties plotting_axis(*_plotted->get_parent()->get_mapping(), *format, i);
 		_columns << plotting_axis;
 		PVLOG_HEAVYDEBUG("%s: Add a column\n", __FUNCTION__);
 	}
@@ -38,7 +38,7 @@ Picviz::PVPlotting::PVPlotting(PVMapped* parent):
  * Picviz::PVPlotting::PVPlotting
  *
  *****************************************************************************/
-Picviz::PVPlotting::PVPlotting() : data_tree_plotting_t() { }
+Picviz::PVPlotting::PVPlotting() {}
 
 /******************************************************************************
  *
@@ -69,7 +69,7 @@ void Picviz::PVPlotting::add_column(PVPlottingProperties const& props)
  *****************************************************************************/
 QString const& Picviz::PVPlotting::get_column_type(PVCol col) const
 {
-	PVMappingProperties const& prop(get_parent<PVMapping>()->get_properties_for_col(col));
+	PVMappingProperties const& prop(_plotted->get_parent()->get_mapping()->get_properties_for_col(col));
 	return prop.get_type();
 }
 
@@ -94,7 +94,7 @@ Picviz::PVPlottingFilter::p_type Picviz::PVPlotting::get_filter_for_col(PVCol co
  *****************************************************************************/
 PVRush::PVFormat_p Picviz::PVPlotting::get_format() const
 {
-	return get_parent<PVMapped>()->get_format();
+	return _plotted->get_parent()->get_format();
 }
 
 /******************************************************************************
@@ -104,12 +104,12 @@ PVRush::PVFormat_p Picviz::PVPlotting::get_format() const
  *****************************************************************************/
 PVRush::PVNraw::nraw_table& Picviz::PVPlotting::get_qtnraw()
 {
-	return get_parent<PVMapped>()->get_qtnraw();
+	return _plotted->get_parent()->get_qtnraw();
 }
 
 const PVRush::PVNraw::nraw_table& Picviz::PVPlotting::get_qtnraw() const
 {
-	return get_parent<PVMapped>()->get_qtnraw();
+	return _plotted->get_parent()->get_qtnraw();
 }
 
 /******************************************************************************
@@ -184,24 +184,6 @@ void Picviz::PVPlotting::serialize(PVCore::PVSerializeObject &so, PVCore::PVSeri
 {
 	so.list("properties", _columns);
 	so.attribute("name", _name);
-}
-
-
-
-/******************************************************************************
- *
- * Picviz::PVPlotting::set_mapped
- *
- *****************************************************************************/
-void Picviz::PVPlotting::set_parent(PVMapped* mapped)
-{
-	data_tree_plotting_t::set_parent(mapped);
-
-	// Set parent mapping for properties
-	QList<PVPlottingProperties>::iterator it;
-	for (it = _columns.begin(); it != _columns.end(); it++) {
-		it->set_mapping(*get_parent<PVMapping>());
-	}
 }
 
 

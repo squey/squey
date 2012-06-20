@@ -20,21 +20,22 @@
  * Picviz::PVMapping::PVMapping
  *
  *****************************************************************************/
-Picviz::PVMapping::PVMapping(PVSource* parent):
-	_name("default")
+Picviz::PVMapping::PVMapping(PVMapped* mapped):
+	_name("default"),
+	_mapped(mapped)
 {
-	set_parent(parent);
+	mapped->set_mapping(this);
 
-	PVCol naxes = parent->get_column_count();
+	PVCol naxes = _mapped->get_column_count();
 	if (naxes == 0) {
 		PVLOG_ERROR("In PVMapping constructor, no axis have been defined in the format !!!!\n");
 		assert(false);
 	}
 
 	PVLOG_DEBUG("In PVMapping::PVMapping(), debug PVFormat\n");
-	parent->get_rushnraw().format->debug();
+	_mapped->get_parent<PVSource>()->get_rushnraw().format->debug();
 	for (PVCol i = 0; i < naxes; i++) {
-		PVMappingProperties mapping_axis(*parent->get_rushnraw().format, i);
+		PVMappingProperties mapping_axis(*_mapped->get_parent<PVSource>()->get_rushnraw().format, i);
 		columns << mapping_axis;
 		PVLOG_HEAVYDEBUG("%s: Add a column\n", __FUNCTION__);
 	}
@@ -45,7 +46,7 @@ Picviz::PVMapping::PVMapping(PVSource* parent):
  * Picviz::PVMapping::PVMapping
  *
  *****************************************************************************/
-Picviz::PVMapping::PVMapping() : data_tree_mapping_t() { };
+Picviz::PVMapping::PVMapping() {}
 
 /******************************************************************************
  *
@@ -79,7 +80,7 @@ void Picviz::PVMapping::add_column(PVMappingProperties const& props)
  *****************************************************************************/
 void Picviz::PVMapping::clear_trans_nraw()
 {
-	get_parent<PVSource>()->clear_trans_nraw();
+	_mapped->clear_trans_nraw();
 }
 
 
@@ -103,7 +104,7 @@ Picviz::PVMappingFilter::p_type Picviz::PVMapping::get_filter_for_col(PVCol col)
  *****************************************************************************/
 PVRush::PVFormat_p Picviz::PVMapping::get_format() const
 {
-	return get_parent<PVSource>()->get_rushnraw().format;
+	return _mapped->get_parent<PVSource>()->get_rushnraw().format;
 }
 
 
@@ -166,7 +167,7 @@ QString const& Picviz::PVMapping::get_mode_for_col(PVCol col) const
  *****************************************************************************/
 PVRush::PVNraw::nraw_table& Picviz::PVMapping::get_qtnraw()
 {
-	return get_parent<PVSource>()->get_qtnraw();
+	return _mapped->get_parent<PVSource>()->get_qtnraw();
 }
 
 
@@ -178,7 +179,7 @@ PVRush::PVNraw::nraw_table& Picviz::PVMapping::get_qtnraw()
  *****************************************************************************/
 const PVRush::PVNraw::nraw_table& Picviz::PVMapping::get_qtnraw() const
 {
-	return get_parent<PVSource>()->get_qtnraw();
+	return _mapped->get_parent<PVSource>()->get_qtnraw();
 }
 
 
@@ -189,7 +190,7 @@ const PVRush::PVNraw::nraw_table& Picviz::PVMapping::get_qtnraw() const
  *****************************************************************************/
 PVRush::PVNraw::nraw_trans_table const& Picviz::PVMapping::get_trans_nraw() const
 {
-	return get_parent<PVSource>()->get_trans_nraw();
+	return _mapped->get_parent<PVSource>()->get_trans_nraw();
 }
 
 
@@ -319,23 +320,6 @@ void Picviz::PVMapping::set_default_args(PVRush::PVFormat const& format)
 		}
 	}
 }
-
-
-
-/******************************************************************************
- *
- * Picviz::PVMapping::set_source
- *
- *****************************************************************************/
-void Picviz::PVMapping::set_parent(PVSource* src)
-{
-	data_tree_mapping_t::set_parent(src);
-	
-	PVCol naxes = src->get_column_count();
-	_mandatory_filters_values.resize(naxes);
-}
-
-
 
 /******************************************************************************
  *

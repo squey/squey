@@ -37,7 +37,7 @@ class PVSelection;
 /**
  * \class PVMapped
  */
-typedef typename PVCore::PVDataTreeObject<PVMapping, PVPlotting> data_tree_mapped_t;
+typedef typename PVCore::PVDataTreeObject<PVSource, PVPlotted> data_tree_mapped_t;
 class LibPicvizDecl PVMapped : public data_tree_mapped_t, public boost::enable_shared_from_this<PVMapped> {
 	friend class PVPlotted;
 	friend class PVSource;
@@ -47,7 +47,7 @@ public:
 	typedef QList<PVPlotted_p> list_plotted_t;
 	typedef std::vector< std::pair<PVCol,float> > mapped_sub_col_t;
 public:
-	PVMapped(PVMapping* mapping);
+	PVMapped(PVSource* source);
 	~PVMapped();
 protected:
 	// For serialization
@@ -63,10 +63,13 @@ public:
 	void process_from_source(PVSource* src, bool keep_views_info);
 	void process_from_parent_source(bool keep_views_info);
 
-	inline bool is_uptodate() const { return get_parent<PVMapping>()->is_uptodate(); };
+	inline bool is_uptodate() const { return _mapping->is_uptodate(); };
 
-	void set_name(QString const& name) { get_parent<PVMapping>()->set_name(name); }
-	QString const& get_name() const { return get_parent<PVMapping>()->get_name(); }
+	void set_parent(PVSource* source);
+	PVMapping* get_mapping() { return _mapping.get(); }
+	void set_mapping(PVMapping* mapping) { _mapping.reset(mapping); }
+	void set_name(QString const& name) { _mapping->set_name(name); }
+	QString const& get_name() const { return _mapping->get_name(); }
 
 	QList<PVCol> get_columns_indexes_values_within_range(float min, float max, double rate = 1.0);
 	QList<PVCol> get_columns_indexes_values_not_within_range(float min, float max, double rate = 1.0);
@@ -103,6 +106,7 @@ private:
 
 protected:
 	PVCore::PVListFloat2D trans_table;
+	PVMapping_p _mapping;
 };
 
 typedef PVMapped::p_type PVMapped_p;

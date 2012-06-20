@@ -77,8 +77,9 @@ void Picviz::PVSource::init()
 
 void Picviz::PVSource::set_parent(PVScene* parent)
 {
+	data_tree_source_t::set_parent(parent);
+
 	if (parent) {
-		PVDataTreeObject<PVScene, PVMapping>::set_parent(parent);
 		parent->set_views_id();
 	}
 }
@@ -215,7 +216,7 @@ PVRush::PVInputType_p Picviz::PVSource::get_input_type() const
 
 void Picviz::PVSource::create_default_view()
 {
-	new PVPlotted(new PVPlotting(new PVMapped(new PVMapping(this))));
+	new PVPlotted(new PVMapped(this));
 }
 
 void Picviz::PVSource::process_from_source(bool keep_views_info)

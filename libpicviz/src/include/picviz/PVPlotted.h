@@ -40,7 +40,7 @@ class PVSource;
 /**
  * \class PVPlotted
  */
-typedef typename PVCore::PVDataTreeObject<PVPlotting, PVView> data_tree_plotted_t ;
+typedef typename PVCore::PVDataTreeObject<PVMapped, PVView> data_tree_plotted_t ;
 class LibPicvizDecl PVPlotted : public data_tree_plotted_t, public boost::enable_shared_from_this<PVPlotted> {
 	friend class PVCore::PVSerializeObject;
 	friend class PVMapped;
@@ -72,8 +72,10 @@ public:
 	typedef std::vector< std::pair<PVCol,float> > plotted_sub_col_t;
 	typedef std::list<ExpandedSelection> list_expanded_selection_t;
 public:
-	PVPlotted(PVPlotting* plotting);
+	PVPlotted(PVMapped* mapped);
 	~PVPlotted();
+	void set_parent(PVMapped* mapped);
+	void set_plotting(PVPlotting* plotting) { _plotting.reset(plotting); }
 
 protected:
 	// Serialization
@@ -81,7 +83,7 @@ protected:
 	void serialize(PVCore::PVSerializeObject &so, PVCore::PVSerializeArchive::version_t v);
 
 	// For PVMapped
-	inline void invalidate_column(PVCol j) { return get_parent<PVPlotting>()->invalidate_column(j); }
+	inline void invalidate_column(PVCol j) { return _plotting->invalidate_column(j); }
 
 	// For PVSource
 	void add_column(PVPlottingProperties const& props);
@@ -97,8 +99,9 @@ public:
 	void process_from_mapped(PVMapped* mapped, bool keep_views_info);
 	void process_from_parent_mapped(bool keep_views_info);
 
-	void set_name(QString const& name) { get_parent<PVPlotting>()->set_name(name); }
+	void set_name(QString const& name) { _plotting->set_name(name); }
 	QString const& get_name() const { return get_parent<PVPlotting>()->get_name(); }
+	PVPlotting* get_plotting() { return _plotting.get(); }
 
 public:
 	// Parents
@@ -137,6 +140,7 @@ public:
 	void to_csv();
 
 private:
+	PVPlotting_p _plotting;
 	plotted_table_t _table; /* Unidimensionnal. It must be contiguous in memory */
 	std::vector<float> _tmp_values;
 	PVView_p _view;

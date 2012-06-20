@@ -154,7 +154,10 @@ PVInspector::PVTabSplitter::~PVTabSplitter()
  *****************************************************************************/
 void PVInspector::PVTabSplitter::create_new_mapped()
 {
-	Picviz::PVMapping* new_mapping = new Picviz::PVMapping(get_lib_src().get());
+
+	Picviz::PVMapped* mapped = new Picviz::PVMapped(get_lib_src().get());
+
+	Picviz::PVMapping* new_mapping = new Picviz::PVMapping(mapped);
 
 	// Create new default name
 	unsigned int nmapped = get_lib_src()->get_children<Picviz::PVMapped>().size();
@@ -166,7 +169,6 @@ void PVInspector::PVTabSplitter::create_new_mapped()
 		return;
 	}
 
-	new Picviz::PVMapped(new_mapping);
 	_views_widget->force_refresh();
 }
 
@@ -190,7 +192,8 @@ void PVInspector::PVTabSplitter::toggle_listing_sort()
  *****************************************************************************/
 void PVInspector::PVTabSplitter::create_new_plotted(Picviz::PVMapped* mapped_parent)
 {
-	Picviz::PVPlotting* new_plotting = new Picviz::PVPlotting(mapped_parent);
+	Picviz::PVPlotted* plotted = new Picviz::PVPlotted(mapped_parent);
+	Picviz::PVPlotting* new_plotting = new Picviz::PVPlotting(plotted);
 
 	// Create new default name
 	unsigned int nplotted = mapped_parent->get_children<Picviz::PVPlotted>().size();
@@ -202,7 +205,6 @@ void PVInspector::PVTabSplitter::create_new_plotted(Picviz::PVMapped* mapped_par
 		return;
 	}
 
-	new Picviz::PVPlotted(new_plotting);
 	_views_widget->force_refresh();
 }
 

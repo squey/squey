@@ -31,8 +31,7 @@ class PVMapped;
 /**
  * \class PVMapping
  */
-typedef typename PVCore::PVDataTreeObject<PVSource, PVMapped> data_tree_mapping_t;
-class LibPicvizDecl PVMapping : public data_tree_mapping_t
+class LibPicvizDecl PVMapping
 {
 	friend class PVMapped;
 	friend class PVCore::PVSerializeObject;
@@ -40,7 +39,7 @@ public:
 	typedef boost::shared_ptr<PVMapping> p_type;
 
 public:
-	PVMapping(PVSource* parent);
+	PVMapping(PVMapped* mapped);
 	~PVMapping();
 
 protected:
@@ -60,6 +59,7 @@ public:
 	bool is_uptodate() const;
 
 public:
+	PVMapped* get_mapped() { return _mapped; }
 	PVRush::PVFormat_p get_format() const;
 
 public:
@@ -96,6 +96,7 @@ protected:
 	QList<PVMappingProperties> columns;
 
 	QString _name;
+	PVMapped* _mapped;
 };
 
 typedef PVMapping::p_type PVMapping_p;

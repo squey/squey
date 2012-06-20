@@ -31,8 +31,7 @@ class PVMapped;
 /**
  * \class PVPlotting
  */
-typedef typename PVCore::PVDataTreeObject<PVMapped, PVPlotted> data_tree_plotting_t;
-class LibPicvizDecl PVPlotting : public data_tree_plotting_t/*, public boost::enable_shared_from_this<PVPlotting>*/ {
+class LibPicvizDecl PVPlotting : public boost::enable_shared_from_this<PVPlotting> {
 	friend class PVCore::PVSerializeObject;
 	friend class PVPlotted;
 public:
@@ -41,7 +40,7 @@ public:
 	/**
 	 * Constructor
 	 */
-	PVPlotting(PVMapped* mapped);
+	PVPlotting(PVPlotted* mapped);
 	
 	/**
 	 * Destructor
@@ -72,7 +71,7 @@ public:
 	 */
 	PVRush::PVFormat_p get_format() const;
 
-	void set_parent(PVMapped* mapped);
+	PVPlotted* get_plotted() { return _plotted; }
 
 	QString const& get_column_type(PVCol col) const;
 
@@ -94,6 +93,7 @@ public:
 protected:
 	QList<PVPlottingProperties> _columns;
 
+	PVPlotted* _plotted;
 	QString _name;
 };
 
