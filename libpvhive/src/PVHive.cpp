@@ -80,8 +80,15 @@ void PVHive::PVHive::unregister_actor(PVActorBase& actor)
 {
 	unregister_object(actor._object);
 
-	boost::lock_guard<boost::mutex> lock(_actors_mutex);
-	_actors.erase(actor._object);
+	{
+		boost::lock_guard<boost::mutex> lock(_actors_mutex);
+		auto res = _actors.find(actor._object);
+		if (res != _actors.end()) {
+			res->second.erase(&actor);
+		}
+	}
+
+	unregister_object(actor._object);
 	actor._object = nullptr;
 }
 
@@ -95,8 +102,10 @@ void PVHive::PVHive::unregister_observer(PVObserverBase& observer)
 	assert(observer._object != nullptr);
 
 	write_lock_t write_lock(_observers_lock);
-
-	_observers.erase(observer._object);
+	auto res = _observers.find(observer._object);
+	if (res != _observers.end()) {
+		res->second.erase(&observer);
+	}
 	observer._object = nullptr;
 }
 
@@ -109,19 +118,13 @@ void PVHive::PVHive::unregister_object(void *object)
 	// the object must be a valid address
 	assert(object != nullptr);
 
-	emit_about_to_be_deleted(object);
-}
-
-/*****************************************************************************
- * PVHive::PVHive::emit_about_to_be_deleted()
- *****************************************************************************/
-
-void PVHive::PVHive::emit_about_to_be_deleted(void* object)
-{
 	read_lock_t read_lock(_observers_lock);
-	auto ret = const_cast<observers_t&>(_observers).equal_range(object);
-	for (auto it = ret.first; it != ret.second; ++it) {
-		it->second->about_to_be_deleted();
+	auto res = _observers.find(object);
+	if (res != _observers.end()) {
+		for (auto it : res->second) {
+			it->about_to_be_deleted();
+		}
+		_observers.erase(object);
 	}
 }
 
@@ -140,8 +143,11 @@ void PVHive::PVHive::do_invoke_object(__impl::function_t func)
 
 void PVHive::PVHive::do_refresh_observers(void *object)
 {
-	auto ret = const_cast<observers_t&>(_observers).equal_range(object);
-	for (auto it = ret.first; it != ret.second; ++it) {
-		it->second->refresh();
+	read_lock_t read_lock(_observers_lock);
+	auto res = _observers.find(object);
+	if (res != _observers.end()) {
+		for (auto it : res->second) {
+			it->refresh();
+		}
 	}
 }

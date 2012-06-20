@@ -2,7 +2,8 @@
 #ifndef LIBPVHIVE_PVHIVE_H
 #define LIBPVHIVE_PVHIVE_H
 
-#include <map>
+#include <set>
+#include <unordered_map>
 #include <functional>
 
 #include <QThread>
@@ -82,7 +83,7 @@ public:
 		actor._object = (void*) &object;
 
 		boost::lock_guard<boost::mutex> lock(_actors_mutex);
-		_actors.insert(std::make_pair((void*) &object, &actor));
+		_actors[(void*) &object].insert(&actor);
 	}
 
 	/**
@@ -115,7 +116,7 @@ public:
 		observer._object = (void*) &object;
 
 		write_lock_t write_lock(_observers_lock);
-		_observers.insert(std::make_pair((void*) &object, &observer));
+		_observers[(void*) &object].insert(&observer);
 	}
 
 	/**
@@ -143,6 +144,14 @@ public:
 	{
 		unregister_object((void*)&object);
 	}
+
+private:
+	/**
+	 * Unregister an object
+	 *
+	 * @param object the object
+	 */
+	void unregister_object(void *object);
 
 public:
 	/**
@@ -204,18 +213,6 @@ private:
 #endif
 	}
 
-	/**
-	 * Emit about_to_be_deleted to each observer of object
-	 */
-	void emit_about_to_be_deleted(void* object);
-
-	/**
-	 * Unregister an object
-	 *
-	 * @param object the object
-	 */
-	void unregister_object(void *object);
-
 private:
 	PVHive(QObject *parent = nullptr);
 	~PVHive();
@@ -237,8 +234,8 @@ private slots:
 private:
 	static PVHive *_hive;
 
-	typedef std::multimap<void*, PVActorBase*> actors_t;
-	typedef std::multimap<void*, PVObserverBase*> observers_t;
+	typedef std::unordered_map<void*, std::set<PVActorBase*> > actors_t;
+	typedef std::unordered_map<void*, std::set<PVObserverBase*> > observers_t;
 	actors_t       _actors;
 	observers_t    _observers;
 
