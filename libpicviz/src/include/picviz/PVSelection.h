@@ -406,7 +406,7 @@ private:
 	inline void allocate_and_copy_from(PVSelection const& o)
 	{
 		allocate_table();
-		memcpy(_table, o._table, PICVIZ_SELECTION_NUMBER_OF_CHUNKS);
+		memcpy(_table, o._table, PICVIZ_SELECTION_NUMBER_OF_BYTES);
 	}
 
 protected:
