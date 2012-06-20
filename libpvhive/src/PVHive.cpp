@@ -88,7 +88,6 @@ void PVHive::PVHive::unregister_actor(PVActorBase& actor)
 		}
 	}
 
-	unregister_object(actor._object);
 	actor._object = nullptr;
 }
 
@@ -140,7 +139,6 @@ void PVHive::PVHive::do_invoke_object(__impl::function_t func)
 /*****************************************************************************
  * PVHive::PVHive::do_refresh_observers()
  *****************************************************************************/
-
 void PVHive::PVHive::do_refresh_observers(void *object)
 {
 	read_lock_t read_lock(_observers_lock);
