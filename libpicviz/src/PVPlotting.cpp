@@ -23,8 +23,7 @@ Picviz::PVPlotting::PVPlotting(PVPlotted* plotted):
 	_name("default"),
 	_plotted(plotted)
 {
-	plotted->set_plotting(this);
-	PVRush::PVFormat_p format = _plotted->get_plotting()->get_format();
+	PVRush::PVFormat_p format = _plotted->get_parent()->get_format();
 
 	for (int i=0; i < format->get_axes().size(); i++) {
 		PVPlottingProperties plotting_axis(*_plotted->get_parent()->get_mapping(), *format, i);

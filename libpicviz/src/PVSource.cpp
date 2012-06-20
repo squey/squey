@@ -248,7 +248,7 @@ void Picviz::PVSource::add_column(PVAxis const& axis)
 	// Add that column to our children
 	for (auto mapped : get_children<PVMapped>()) {
 		mapped->add_column(map_prop);
-		PVPlottingProperties plot_prop(*mapped->get_parent<PVMapping>(), axis, new_col_idx);
+		PVPlottingProperties plot_prop(*mapped->get_mapping(), axis, new_col_idx);
 		for (auto plotted : mapped->get_children<PVPlotted>()) {
 			plotted->add_column(plot_prop);
 		}
@@ -368,8 +368,8 @@ void Picviz::PVSource::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVS
 		so.list("mapped", mappeds_p, "Mappings", (PVMapped*) NULL, QStringList(), true, true);
 
 		for (auto mapped_p : mappeds_p) {
-			auto mapping = mapped_p->get_parent<PVMapping>();
-			mapping->set_default_args(format);
+			mapped_p->get_mapping()->set_default_args(format);
+			add_child(mapped_p);
 		}
 	}
 }

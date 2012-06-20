@@ -114,8 +114,8 @@ int main(int argc, char** argv)
 		PVLOG_INFO("loading file  : %s\n", argv[argcount]);
 		PVLOG_INFO("        format: %s\n", argv[argcount+1]);
 		Picviz::PVSource_p src = create_src (argv[argcount], argv[argcount+1]);
-		Picviz::PVMapped_p mapped(new Picviz::PVMapped(new Picviz::PVMapping(src.get())));
-		Picviz::PVPlotted_p plotted(new Picviz::PVPlotted(new Picviz::PVPlotting(mapped.get())));
+		Picviz::PVMapped_p mapped(new Picviz::PVMapped(src.get()));
+		Picviz::PVPlotted_p plotted(new Picviz::PVPlotted(mapped.get()));
 		//Picviz::PVPlotted_p plotted2(new Picviz::PVPlotted(Picviz::PVPlotting(mapped.get())));
 		//mapped->add_plotted(plotted2);
 		scene->add_child(src.get());

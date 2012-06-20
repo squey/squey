@@ -33,7 +33,6 @@ namespace Picviz {
 
 PVPlotted::PVPlotted(PVMapped* mapped)
 {
-	_plotting.reset(new PVPlotting(this));
 	set_parent(mapped);
 
 	if (_view) {
@@ -55,6 +54,8 @@ void PVPlotted::set_parent(PVMapped* mapped)
 {
 	data_tree_plotted_t::set_parent(mapped);
 
+	_plotting = PVPlotting_p(new PVPlotting(this));
+
 	// Set parent mapping for properties
 	QList<PVPlottingProperties>::iterator it;
 	for (it = _plotting->_columns.begin(); it != _plotting->_columns.end(); it++) {
@@ -65,9 +66,9 @@ void PVPlotted::set_parent(PVMapped* mapped)
 #ifndef CUDA
 int PVPlotted::create_table()
 {
-	PVCol mapped_col_count = get_parent<PVMapped>()->get_column_count();
+	PVCol mapped_col_count = get_parent()->get_column_count();
 
-	const PVRow nrows = (PVRow)get_parent<PVMapped>()->get_row_count();
+	const PVRow nrows = (PVRow)get_parent()->get_row_count();
 
 	// That buffer will be about 3.8MB for 10 million lines, so we keep it
 	// to save some allocations.
@@ -104,12 +105,12 @@ int PVPlotted::create_table()
 				continue;
 			}
 
-			plotting_filter->set_mapping_mode(get_parent<PVMapping>()->get_mode_for_col(j));
-			plotting_filter->set_mandatory_params(get_parent<PVMapping>()->get_mandatory_params_for_col(j));
+			plotting_filter->set_mapping_mode(get_parent()->get_mapping()->get_mode_for_col(j));
+			plotting_filter->set_mandatory_params(get_parent()->get_mapping()->get_mandatory_params_for_col(j));
 			plotting_filter->set_dest_array(nrows, p_tmp_v);
 			boost::this_thread::interruption_point();
 			tbb::tick_count plstart = tbb::tick_count::now();
-			plotting_filter->operator()(get_parent<PVMapped>()->trans_table.getRowData(j));
+			plotting_filter->operator()(get_parent()->trans_table.getRowData(j));
 			tbb::tick_count plend = tbb::tick_count::now();
 			int64_t nrows_tmp = nrows;
 
@@ -373,12 +374,12 @@ const PVRush::PVNraw::nraw_table& PVPlotted::get_qtnraw() const
 
 PVRow PVPlotted::get_row_count() const
 {
-	return get_parent<PVMapped>()->get_row_count();
+	return get_parent()->get_row_count();
 }
 
 PVCol PVPlotted::get_column_count() const
 {
-	return get_parent<PVMapped>()->get_column_count();
+	return get_parent()->get_column_count();
 }
 
 float PVPlotted::get_value(PVRow row, PVCol col) const
@@ -547,7 +548,7 @@ void Picviz::PVPlotted::process_from_mapped(PVMapped* mapped, bool keep_views_in
 void Picviz::PVPlotted::process_from_parent_mapped(bool keep_views_info)
 {
 	// Check parent consistency
-	auto mapped = get_parent<PVMapped>();
+	auto mapped = get_parent();
 
 	if (!mapped->is_uptodate()) {
 		mapped->process_parent_source();
@@ -571,7 +572,7 @@ void Picviz::PVPlotted::process_from_parent_mapped(bool keep_views_info)
 
 bool Picviz::PVPlotted::is_uptodate() const
 {
-	if (!get_parent<PVMapped>()->is_uptodate()) {
+	if (!get_parent()->is_uptodate()) {
 		return false;
 	}
 
@@ -586,17 +587,14 @@ void Picviz::PVPlotted::add_column(PVPlottingProperties const& props)
 
 void Picviz::PVPlotted::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 {
-	/*auto plotting = new PVPlotting();
-	so.object("plotting", *plotting, QString(), false, (PVPlotting*) NULL, false);
-	plotting->add_child(shared_from_this());
+	so.object("plotting", _plotting, QString(), false, (PVPlotting*) NULL, false);
 	PVCore::PVSerializeObject_p view_so;
 	so.object("view", _view, QObject::tr("View"), false, (PVView*) NULL, true, true, &view_so);
 	if (so.is_writing()) {
 		_view->set_last_so(view_so);
 	}
-	add_child(_view);
 
-	so.list("expanded_sels", _expanded_sels, "Expanded selections", (ExpandedSelection*) NULL, QStringList(), true, true);*/
+	so.list("expanded_sels", _expanded_sels, "Expanded selections", (ExpandedSelection*) NULL, QStringList(), true, true);
 }
 
 }

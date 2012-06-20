@@ -24,18 +24,18 @@ Picviz::PVMapping::PVMapping(PVMapped* mapped):
 	_name("default"),
 	_mapped(mapped)
 {
-	mapped->set_mapping(this);
+	PVSource* source = _mapped->get_parent();
 
-	PVCol naxes = _mapped->get_column_count();
+	PVCol naxes = source->get_column_count();
 	if (naxes == 0) {
 		PVLOG_ERROR("In PVMapping constructor, no axis have been defined in the format !!!!\n");
 		assert(false);
 	}
 
 	PVLOG_DEBUG("In PVMapping::PVMapping(), debug PVFormat\n");
-	_mapped->get_parent<PVSource>()->get_rushnraw().format->debug();
+	source->get_rushnraw().format->debug();
 	for (PVCol i = 0; i < naxes; i++) {
-		PVMappingProperties mapping_axis(*_mapped->get_parent<PVSource>()->get_rushnraw().format, i);
+		PVMappingProperties mapping_axis(*source->get_rushnraw().format, i);
 		columns << mapping_axis;
 		PVLOG_HEAVYDEBUG("%s: Add a column\n", __FUNCTION__);
 	}

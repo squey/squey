@@ -48,7 +48,7 @@ fi
 export PICVIZ_DEBUG_LEVEL="DEBUG"
 #export PICVIZ_DEBUG_FILE="debug.txt"
 	unset CMD_ARGS[0]
-	gdb --args gui-qt/src/picviz-inspector $LOAD_PROJECT ${CMD_ARGS[@]}
+	gdb -ex run --args gui-qt/src/picviz-inspector $LOAD_PROJECT ${CMD_ARGS[@]}
 	exit 0
 fi
 if [ "$1" == "ddd" ]

@@ -33,7 +33,6 @@
  *****************************************************************************/
 Picviz::PVMapped::PVMapped(PVSource* source)
 {
-	_mapping.reset(new PVMapping(this));
 	set_parent(source);
 	create_table();
 }
@@ -58,6 +57,7 @@ Picviz::PVMapped::~PVMapped()
 void Picviz::PVMapped::set_parent(PVSource* source)
 {
 	data_tree_mapped_t::set_parent(source);
+	_mapping = PVMapping_p(new PVMapping(this));
 
 	PVCol naxes = source->get_column_count();
 	_mapping->_mandatory_filters_values.resize(naxes);
@@ -138,7 +138,7 @@ PVLOG_INFO("(pvmapped::create_table) begin cuda mapping\n");
 	_source->get_rushnraw().create_trans_nraw();	
 	PVRush::PVNraw::nraw_trans_table const& trans_nraw = get_trans_nraw();
 	*/
-	PVRush::PVNraw const& nraw = get_parent<PVSource>()->get_rushnraw();
+	PVRush::PVNraw const& nraw = get_parent()->get_rushnraw();
 
 	PVLOG_INFO("(pvmapped::create_table) begin parallel mapping\n");
 
@@ -146,7 +146,7 @@ PVLOG_INFO("(pvmapped::create_table) begin cuda mapping\n");
 	std::vector<PVMappingFilter::p_type> mapping_filters;
 	mapping_filters.resize(ncols);
 	for (PVCol j = 0; j < ncols; j++) {
-		PVMappingFilter::p_type mf = get_parent<PVMapping>()->get_filter_for_col(j);
+		PVMappingFilter::p_type mf = _mapping->get_filter_for_col(j);
 		if (mf) {
 			mapping_filters[j] = mf->clone<PVMappingFilter>();
 		}
@@ -427,17 +427,24 @@ QList<PVCol> Picviz::PVMapped::get_columns_indexes_values_not_within_range(float
 
 void Picviz::PVMapped::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 {
-	/*PVMapping* mapping = new PVMapping();
-	so.object(QString("mapping"), *mapping, QString(), false, (PVMapping*) NULL, false);
-	set_parent(mapping);
-	QStringList plotted_names;
-	for (auto plotted_p : get_children<PVPlotted>()) {
-		plotted_names << plotted_p->get_name();
+	if (so.is_writing()) {
+		so.object(QString("mapping"), *_mapping, QString(), false, (PVMapping*) NULL, false);
+		QStringList plotted_names;
+		for (auto plotted_p : get_children<PVPlotted>()) {
+			plotted_names << plotted_p->get_name();
+		}
+		list_plotted_t plotteds_p = get_children<PVPlotted>();
+		so.list("plotted", plotteds_p, "Plottings", (PVPlotted*) NULL, plotted_names, true, true);
 	}
-	list_plotted_t plotteds_p;
-	so.list("plotted", plotteds_p, "Plottings", (PVPlotted*) NULL, plotted_names, true, true);
-	for (auto plotted_p : plotteds_p) {
-		auto plotting = plotted_p->get_parent<PVPlotting>();
-		mapping->add_child(shared_from_this());
-	}*/
+	else
+	{
+		PVMapping* mapping = new PVMapping();
+		so.object(QString("mapping"), *mapping, QString(), false, (PVMapping*) NULL, false);
+		_mapping = PVMapping_p(mapping);
+		list_plotted_t plotteds_p;
+		so.list("plotted", plotteds_p, "Plottings", (PVPlotted*) NULL, QStringList(), true, true);
+		for (auto plotted_p : plotteds_p) {
+			add_child(plotted_p);
+		}
+	}
 }

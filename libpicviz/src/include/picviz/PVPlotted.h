@@ -100,7 +100,7 @@ public:
 	void process_from_parent_mapped(bool keep_views_info);
 
 	void set_name(QString const& name) { _plotting->set_name(name); }
-	QString const& get_name() const { return get_parent<PVPlotting>()->get_name(); }
+	QString const& get_name() const { return _plotting->get_name(); }
 	PVPlotting* get_plotting() { return _plotting.get(); }
 
 public:
