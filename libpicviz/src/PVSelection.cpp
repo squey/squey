@@ -169,7 +169,7 @@ Picviz::PVSelection& Picviz::PVSelection::operator=(const PVSelection &rhs)
 		return *this;
 	}
 
-	memcpy(_table, rhs._table, PICVIZ_SELECTION_NUMBER_OF_CHUNKS);
+	memcpy(_table, rhs._table, PICVIZ_SELECTION_NUMBER_OF_BYTES);
 
 	return *this;
 }

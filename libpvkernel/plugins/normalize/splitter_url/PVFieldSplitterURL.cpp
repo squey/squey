@@ -125,6 +125,7 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterURL::one_to_many(PVCore:
 {
 	QString qstr;
 	field.get_qstr(qstr);
+	QString qstr_copy(qstr.constData(), qstr.size());
 	QString none;		// usefull variable to put an empty string in fields
 
 	// URL decoder buffer
@@ -286,7 +287,7 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterURL::one_to_many(PVCore:
 		}
 	}
 	url_decode_add_field(&buf, url_path, _col_url);
-	url_decode_add_field(&buf, qitems, _col_variable);
+	url_decode_add_field(&buf, qstr_copy, _col_variable);
 
 	return buf.nelts;
 }
