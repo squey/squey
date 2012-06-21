@@ -21,7 +21,7 @@
 int main(int argc, char** argv)
 {
 	if (argc <= 2) {
-		std::cerr << "Usage: " << argv[0] << " file format [raw_dump] [raw_dump_transpose]" << std::endl;
+		std::cerr << "Usage: " << argv[0] << " file format [raw_dump] [raw_dump_transpose] [output]" << std::endl;
 		return 1;
 	}
 
@@ -63,16 +63,20 @@ int main(int argc, char** argv)
 
 	bool raw_dump = false;
 	bool raw_dump_transp = false;
+	QString out_path("plotted.out");
 	if (argc >= 4) {
 		raw_dump = argv[3][0] == '1';
 		if (argc >= 5) {
 			raw_dump_transp = argv[4][0] == '1';
+			if (argc >= 6) {
+				out_path = argv[5];
+			}
 		}
 	}
 
 	PVLOG_INFO("Writing output...\n");
 	if (raw_dump) {
-		plotted->dump_buffer_to_file("plotted.out", raw_dump_transp);
+		plotted->dump_buffer_to_file(out_path, raw_dump_transp);
 	}
 	else {
 		// Dump the mapped table to stdout in a CSV format
