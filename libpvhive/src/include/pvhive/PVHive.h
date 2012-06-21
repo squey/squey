@@ -69,9 +69,6 @@ public:
 		assert(actor._object == nullptr);
 
 		actor._object = (void*) &object;
-
-		boost::lock_guard<boost::mutex> lock(_actors_mutex);
-		_actors[(void*) &object].insert(&actor);
 	}
 
 	/**
@@ -113,7 +110,13 @@ public:
 	 *
 	 * @param actor the actor
 	 */
-	void unregister_actor(PVActorBase& actor);
+	void unregister_actor(PVActorBase& actor)
+	{
+		// the actor must have a valid object
+		assert(actor._object != nullptr);
+
+		actor._object = nullptr;
+	}
 
 	/**
 	 * Unregister an observer
@@ -199,16 +202,13 @@ private:
 private:
 	static PVHive *_hive;
 
-	typedef std::unordered_map<void*, std::set<PVActorBase*> > actors_t;
 	typedef std::unordered_map<void*, std::set<PVObserverBase*> > observers_t;
-	actors_t       _actors;
 	observers_t    _observers;
 
 	// thread safety
 	typedef boost::unique_lock<boost::shared_mutex> write_lock_t;
 	typedef boost::shared_lock<boost::shared_mutex> read_lock_t;
 	boost::shared_mutex _observers_lock;
-	boost::mutex _actors_mutex;
 };
 
 }
