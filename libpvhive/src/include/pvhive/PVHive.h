@@ -205,7 +205,7 @@ private:
 
 private:
 	PVHive() {}
-	~PVHive();
+	~PVHive() {}
 	PVHive(const PVHive&) {}
 	PVHive &operator=(const PVHive&) { return *this; }
 
@@ -213,7 +213,7 @@ private:
 	static PVHive *_hive;
 
 	typedef std::unordered_map<void*, std::set<PVObserverBase*> > observers_t;
-	observers_t    _observers;
+	observers_t _observers;
 
 	// thread safety
 	typedef boost::unique_lock<boost::shared_mutex> write_lock_t;
