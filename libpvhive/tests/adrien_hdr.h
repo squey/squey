@@ -11,7 +11,7 @@
 #include <pvhive/PVActor.h>
 #include <pvhive/PVObserver.h>
 
-#include "test_adrien_objs.h"
+#include "adrien_objs.h"
 
 class MyObjObserver: public PVHive::PVObserver<MyObject>
 {

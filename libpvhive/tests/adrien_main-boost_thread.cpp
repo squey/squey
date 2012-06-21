@@ -5,9 +5,9 @@
 #include <pvhive/PVActor.h>
 #include <pvhive/PVObserverCallback.h>
 
-#include "test_adrien_objs.h"
-#include "test_adrien_dlg.h"
-#include "test_adrien_hdr.h"
+#include "adrien_objs.h"
+#include "adrien_dlg.h"
+#include "adrien_hdr.h"
 
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
@@ -105,8 +105,7 @@ int main(int argc, char** argv)
 	actor.call<decltype(&MyObject::set_i), &MyObject::set_i>(8);
 	actor.call<decltype(&MyObject::set_i2), &MyObject::set_i2>(9);
 
-	MyThread mt(o, &app);
-	mt.start();
+	boost::thread th(boost::bind(update_prop, boost::ref(hive), boost::ref(o)));
 
 	app.exec();
 

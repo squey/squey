@@ -4,7 +4,7 @@
 #include <pvhive/PVHive.h>
 #include <pvhive/PVObserverSignal.h>
 #include <pvhive/PVQObserver.h>
-#include "test_adrien_objs.h"
+#include "adrien_objs.h"
 
 #include <QDialog>
 #include <QLabel>
