@@ -15,14 +15,10 @@ PVHive::PVHive *PVHive::PVHive::_hive = nullptr;
 
 void PVHive::PVHive::unregister_actor(PVActorBase& actor)
 {
-	unregister_object(actor._object);
-
-	{
-		boost::lock_guard<boost::mutex> lock(_actors_mutex);
-		auto res = _actors.find(actor._object);
-		if (res != _actors.end()) {
-			res->second.erase(&actor);
-		}
+	boost::lock_guard<boost::mutex> lock(_actors_mutex);
+	auto res = _actors.find(actor._object);
+	if (res != _actors.end()) {
+		res->second.erase(&actor);
 	}
 
 	actor._object = nullptr;
