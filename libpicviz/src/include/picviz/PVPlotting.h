@@ -31,7 +31,7 @@ class PVMapped;
 /**
  * \class PVPlotting
  */
-class LibPicvizDecl PVPlotting : public boost::enable_shared_from_this<PVPlotting> {
+class LibPicvizDecl PVPlotting {
 	friend class PVCore::PVSerializeObject;
 	friend class PVPlotted;
 public:

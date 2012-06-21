@@ -2100,7 +2100,7 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_p src)
 	// If, even after having processed the pipeline from the source, we still don't have
 	// any views, create a default mapped/plotted/view.
 	// This can happen if mappeds have been saved but with no plotted !
-	if (src->get_children<Picviz::PVMapped>().size() == 0) {
+	if (src->get_children<Picviz::PVView>().size() == 0) {
 		if (!PVCore::PVProgressBox::progress(boost::bind(&Picviz::PVSource::create_default_view, src.get()), tr("Processing..."), (QWidget*) this)) {
 			message.function = PVSDK_MESSENGER_FUNCTION_DESTROY_TRANSIENT;
 			pvsdk_messenger->post_message_to_gl(message);

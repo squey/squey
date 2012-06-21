@@ -27,7 +27,6 @@
 #endif
 
 #include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
 
 namespace Picviz {
 
@@ -38,7 +37,7 @@ class PVSelection;
  * \class PVMapped
  */
 typedef typename PVCore::PVDataTreeObject<PVSource, PVPlotted> data_tree_mapped_t;
-class LibPicvizDecl PVMapped : public data_tree_mapped_t, public boost::enable_shared_from_this<PVMapped> {
+class LibPicvizDecl PVMapped : public data_tree_mapped_t {
 	friend class PVPlotted;
 	friend class PVSource;
 	friend class PVCore::PVSerializeObject;
@@ -67,7 +66,7 @@ public:
 
 	void set_parent(PVSource* source);
 	PVMapping* get_mapping() { return _mapping.get(); }
-	void set_mapping(PVMapping* mapping) { _mapping.reset(mapping); }
+	void set_mapping(PVMapping* mapping) { _mapping = PVMapping_p(mapping); }
 	void set_name(QString const& name) { _mapping->set_name(name); }
 	QString const& get_name() const { return _mapping->get_name(); }
 

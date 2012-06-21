@@ -149,7 +149,7 @@ void Picviz::PVScene::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSe
 	src->set_parent(this);
 	list_sources_t all_sources;
 	so.list("sources", all_sources, QObject::tr("Sources"), src);
-	//src->set_scene(NULL);
+	src->set_parent(NULL);
 	PVLOG_INFO("(PVScene::serialize_read) get %d sources\n", all_sources.size());
 
 	if (!so.has_repairable_errors()) {

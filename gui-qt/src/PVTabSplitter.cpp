@@ -163,6 +163,7 @@ void PVInspector::PVTabSplitter::create_new_mapped()
 	unsigned int nmapped = get_lib_src()->get_children<Picviz::PVMapped>().size();
 	QString new_name(tr("New mapping %1").arg(nmapped));
 	new_mapping->set_name(new_name);
+	mapped->set_mapping(new_mapping);
 
 	PVMappingPlottingEditDialog* dlg = new PVMappingPlottingEditDialog(new_mapping, NULL, this);
 	if (dlg->exec() == QDialog::Rejected) {
@@ -199,6 +200,7 @@ void PVInspector::PVTabSplitter::create_new_plotted(Picviz::PVMapped* mapped_par
 	unsigned int nplotted = mapped_parent->get_children<Picviz::PVPlotted>().size();
 	QString new_name(tr("New plotting %1").arg(nplotted));
 	new_plotting->set_name(new_name);
+	plotted->set_plotting(new_plotting);
 
 	PVMappingPlottingEditDialog* dlg = new PVMappingPlottingEditDialog(NULL, new_plotting, this);
 	if (dlg->exec() == QDialog::Rejected) {
@@ -218,7 +220,7 @@ void PVInspector::PVTabSplitter::create_new_plotted(Picviz::PVMapped* mapped_par
 void PVInspector::PVTabSplitter::edit_mapped(Picviz::PVMapped* mapped)
 {
 	PVMappingPlottingEditDialog* dlg;
-	dlg = new PVMappingPlottingEditDialog(mapped->get_parent<Picviz::PVMapping>(), NULL, this);
+	dlg = new PVMappingPlottingEditDialog(mapped->get_mapping(), NULL, this);
 	if (dlg->exec() == QDialog::Rejected) {
 		return;
 	}
@@ -236,7 +238,7 @@ void PVInspector::PVTabSplitter::edit_mapped(Picviz::PVMapped* mapped)
 void PVInspector::PVTabSplitter::edit_plotted(Picviz::PVPlotted* plotted)
 {
 	PVMappingPlottingEditDialog* dlg;
-	dlg = new PVMappingPlottingEditDialog(NULL, plotted->get_parent<Picviz::PVPlotting>(), this);
+	dlg = new PVMappingPlottingEditDialog(NULL, plotted->get_plotting(), this);
 	if (dlg->exec() != QDialog::Accepted) {
 		return;
 	}

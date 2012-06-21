@@ -34,10 +34,6 @@ namespace Picviz {
 PVPlotted::PVPlotted(PVMapped* mapped)
 {
 	set_parent(mapped);
-
-	if (_view) {
-		get_parent<PVSource>()->add_view(_view);
-	}
 	process_from_parent_mapped(false);
 }
 
@@ -55,6 +51,9 @@ void PVPlotted::set_parent(PVMapped* mapped)
 	data_tree_plotted_t::set_parent(mapped);
 
 	_plotting = PVPlotting_p(new PVPlotting(this));
+	if (_view) {
+		get_parent<PVSource>()->add_view(_view);
+	}
 
 	// Set parent mapping for properties
 	QList<PVPlottingProperties>::iterator it;
