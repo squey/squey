@@ -97,7 +97,6 @@ int main(int argc, char** argv)
 	dlg->show();
 
 	PVHive::PVHive &hive = PVHive::PVHive::get();
-	std::cout << "PVHive::thread is " << hive.thread() << std::endl;
 
 	hive.register_actor(o, actor);
 	hive.register_observer(o, observer);
