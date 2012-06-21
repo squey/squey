@@ -10,69 +10,6 @@
 PVHive::PVHive *PVHive::PVHive::_hive = nullptr;
 
 /*****************************************************************************
- * PVHive::PVHive::PVHive()
- *****************************************************************************/
-
-PVHive::PVHive::PVHive(QObject *parent) :
-	QThread(parent)
-{
-#if 0
-	// code for asynchronous call_object/refresh()
-	/* Qt has to know the type function_t for signals/slots; otherwise
-	 * there is the following error at run-time:
-	 * QObject::connect: Cannot queue arguments of type '__impl::function_t'
-	 * (Make sure '__impl::function_t' is registered using qRegisterMetaType().)
-	 *
-	 * This problem occurs when a non QThread thread do an action.
-	 */
-	qRegisterMetaType<__impl::function_t>("__impl::function_t");
-
-	connect(this, SIGNAL(invoke_object(__impl::function_t)),
-	        this, SLOT(do_invoke_object(__impl::function_t)));
-
-	connect(this, SIGNAL(refresh_observers(void*)),
-	        this, SLOT(do_refresh_observers(void*)));
-
-	start();
-#endif
-}
-
-/*****************************************************************************
- * PVHive::PVHive::PVHive()
- *****************************************************************************/
-
-PVHive::PVHive::PVHive(const PVHive&) :
-	QThread(nullptr)
-{}
-
-
-/*****************************************************************************
- * PVHive::PVHive::PVHive()
- *****************************************************************************/
-PVHive::PVHive &PVHive::PVHive::operator=(const PVHive&)
-{
-	return *this;
-}
-
-/*****************************************************************************
- * PVHive::PVHive::run()
- *****************************************************************************/
-PVHive::PVHive::~PVHive()
-{
-	quit();
-	wait();
-}
-
-/*****************************************************************************
- * PVHive::PVHive::run()
- *****************************************************************************/
-
-void PVHive::PVHive::run()
-{
-	exec();
-}
-
-/*****************************************************************************
  * PVHive::PVHive::unregister_actor()
  *****************************************************************************/
 
@@ -125,15 +62,6 @@ void PVHive::PVHive::unregister_object(void *object)
 		}
 		_observers.erase(object);
 	}
-}
-
-/*****************************************************************************
- * PVHive::PVHive::do_invoke_object()
- *****************************************************************************/
-
-void PVHive::PVHive::do_invoke_object(__impl::function_t func)
-{
-	func();
 }
 
 /*****************************************************************************

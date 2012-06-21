@@ -8,7 +8,6 @@ PVObserver.cpp
 )
 
 SET(PVHIVE_MOC_HEADERS
-include/pvhive/PVHive.h
 include/pvhive/PVRefreshSignal.h
 include/pvhive/PVQRefresh.h
 )

@@ -4,9 +4,6 @@
 
 #include <set>
 #include <unordered_map>
-#include <functional>
-
-#include <QThread>
 
 #include <boost/thread.hpp>
 
@@ -15,13 +12,6 @@
 
 namespace PVHive
 {
-
-namespace __impl
-{
-
-typedef std::function<void()> function_t;
-
-}
 
 template <class T>
 class PVActor;
@@ -51,10 +41,8 @@ class PVActor;
 #define PVHIVE_CALL_OBJECT_BLOCK_BEGIN() namespace PVHive {
 #define PVHIVE_CALL_OBJECT_BLOCK_END() }
 
-class PVHive : public QThread
+class PVHive
 {
-	Q_OBJECT
-
 public:
 	/**
 	 * @return a reference on the global PVHive
@@ -180,13 +168,7 @@ public:
 		// object must be a valid address
 		assert(object != nullptr);
 
-#if 0
-		// fully asynchronous refresh() but prone to race conditions
-		emit refresh_observers((void*)object);
-#else
-		// synchronous refresh() (except for PVObserverSignal)
 		do_refresh_observers((void*)object);
-#endif
 	}
 
 private:
@@ -202,34 +184,17 @@ private:
 		// object must be a valid address
 		assert(object != nullptr);
 
-#if 0
-		// fully asynchronous job but prone to race conditions
-		emit invoke_object(std::bind(f, object, params...));
-		emit refresh_observers((void*)object);
-#else
-		// synchronous job (except for PVObserverSignal::refresh)
 		(object->*f)(params...);
 		do_refresh_observers((void*)object);
-#endif
 	}
 
-private:
-	PVHive(QObject *parent = nullptr);
-	~PVHive();
-	PVHive(const PVHive&);
-	PVHive &operator=(const PVHive&);
-
-	void run();
-
-signals:
-	void invoke_object(__impl::function_t func);
-
-	void refresh_observers(void *object);
-
-private slots:
-	void do_invoke_object(__impl::function_t func);
-
 	void do_refresh_observers(void *object);
+
+private:
+	PVHive() {}
+	~PVHive();
+	PVHive(const PVHive&) {}
+	PVHive &operator=(const PVHive&) { return *this; }
 
 private:
 	static PVHive *_hive;
