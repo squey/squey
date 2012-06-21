@@ -28,10 +28,16 @@ class PVActor;
  *
  * The PVHive also implements a callback-like system to automatize this
  * action-reaction scheme. It is based on 3 concepts:
- *  - the hive which is the keeper of list of action-reaction; It is the
- *    "entity" which do the action
- *  - the actor tell the hive on which object it will do changes
- *  - the observer tell the hive for which object it want update notification
+ * - the hive which is the keeper of list of callbacks for each observable
+ *   objects;
+ * - the actor which subscribe to notify updates when modifying a given object;
+ * - the observer which subscribe to update notification for a given object.
+ *
+ * Note that:
+ * - an actor can act on an object which have no observer (as no opened view
+ *   for a data set);
+ * - an observer can be registered for an object which have no actor (as no
+ *   opened property editor for a property).
  *
  * @attention any specialization of template method ::call_object() *must* be
  * declared in the namespace PVHive (you can use the macros
