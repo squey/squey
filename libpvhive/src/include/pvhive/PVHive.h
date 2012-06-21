@@ -4,6 +4,7 @@
 
 #include <set>
 #include <unordered_map>
+#include <type_traits>
 
 #include <boost/thread.hpp>
 
@@ -139,6 +140,9 @@ public:
 	template <typename T>
 	void unregister_object(T const &object)
 	{
+		// if T is a pointer, its address is used, not its value
+		static_assert(!std::is_pointer<T>::value, "PVHive::PVHive::unregister_object<T>(T const &) does not accept pointer as parameter");
+
 		unregister_object((void*)&object);
 	}
 
