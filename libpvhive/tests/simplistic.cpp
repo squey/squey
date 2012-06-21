@@ -17,7 +17,7 @@ struct Obj1
 
 	void print()
 	{
-		std::cout << "    Obj1::print" << std::endl;
+		std::cout << "  Obj1::print" << std::endl;
 	}
 };
 
@@ -30,7 +30,7 @@ struct Obj2
 
 	void print()
 	{
-		std::cout << "    Obj2::print" << std::endl;
+		std::cout << "  Obj2::print" << std::endl;
 	}
 };
 
@@ -39,7 +39,7 @@ class Obj1Observer : public PVHive::PVObserver<Obj1>
 public:
 	virtual void refresh()
 	{
-		std::cout << "    Obj1Observer::refresh for object " << _object << std::endl;
+		std::cout << "  Obj1Observer::refresh for object " << _object << std::endl;
 	}
 
 	virtual void about_to_be_deleted()
@@ -55,7 +55,7 @@ class Obj2Observer : public PVHive::PVObserver<Obj2>
 public:
 	virtual void refresh()
 	{
-		std::cout << "    Obj2Observer::refresh for object " << _object << std::endl;
+		std::cout << "  Obj2Observer::refresh for object " << _object << std::endl;
 	}
 
 	virtual void about_to_be_deleted()
@@ -99,12 +99,16 @@ int main(int argc, char **argv)
 	Obj2Observer o2o2;
 	PVHive::PVHive::get().register_observer(*o2, o2o2);
 
-
+	std::cout << "a1o1 calls &Obj1::print" << std::endl;
 	PVACTOR_CALL(a1o1, &Obj1::print);
+	std::cout << "a1o2 calls &Obj2::print" << std::endl;
 	PVACTOR_CALL(a1o2, &Obj2::print);
 
 	std::cout << "unregister a1o1" << std::endl;
 	PVHive::PVHive::get().unregister_actor(a1o1);
+
+	std::cout << "unregister o1" << std::endl;
+	PVHive::PVHive::get().unregister_object(*o1);
 
 	std::cout << "unregister o1o2" << std::endl;
 	PVHive::PVHive::get().unregister_observer(o2o2);
