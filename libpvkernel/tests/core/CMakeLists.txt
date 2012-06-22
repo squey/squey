@@ -83,3 +83,7 @@ target_link_libraries(Tcore_transp ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
 add_executable(Tcore_datatree datatree.cpp)
 target_link_libraries(Tcore_datatree ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
 
+# Shared Pointer
+add_executable(Tcore_shared_ptr shared_ptr.cpp)
+target_link_libraries(Tcore_shared_ptr)
+
