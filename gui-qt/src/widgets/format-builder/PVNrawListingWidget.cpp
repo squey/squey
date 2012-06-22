@@ -98,7 +98,7 @@ void PVInspector::PVNrawListingWidget::get_ext_args(PVRow& start, PVRow& end)
 	}
 }
 
-void PVInspector::PVNrawListingWidget::set_last_input(PVRush::PVInputType_p in_t, PVRush::input_type input)
+void PVInspector::PVNrawListingWidget::set_last_input(PVRush::PVInputType_p in_t, PVRush::PVInputDescription_p input)
 {
 	if (!in_t) {
 		_src_label->hide();

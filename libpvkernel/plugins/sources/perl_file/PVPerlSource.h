@@ -21,7 +21,7 @@ namespace PVRush {
 
 class PVPerlSource: public PVRawSourceBase {
 public:
-	PVPerlSource(input_type input, size_t min_chunk_size, PVFilter::PVChunkFilter_f src_filter, const QString& perl_file);
+	PVPerlSource(PVInputDescription_p input, size_t min_chunk_size, PVFilter::PVChunkFilter_f src_filter, const QString& perl_file);
 	virtual ~PVPerlSource();
 public:
 	virtual QString human_name();

@@ -76,7 +76,7 @@ class PVMainWindow : public QMainWindow
 private:
 	struct PVFormatDetectCtxt
 	{
-		PVFormatDetectCtxt(PVRush::PVInputType::list_inputs const& inputs_, QHash<QString,PVRush::input_type>& hash_input_name_, PVRush::hash_formats& formats_, PVRush::hash_format_creator& format_creator_, map_files_types& files_multi_formats_, QHash< QString,PVRush::PVInputType::list_inputs >& discovered_, QHash<QString, std::pair<QString,QString> >& formats_error_, PVRush::list_creators& lcr_, PVRush::PVInputType_p in_t_, QHash<QString,PVCore::PVMeanValue<float> >& discovered_types_):
+		PVFormatDetectCtxt(PVRush::PVInputType::list_inputs const& inputs_, QHash<QString,PVRush::PVInputDescription_p>& hash_input_name_, PVRush::hash_formats& formats_, PVRush::hash_format_creator& format_creator_, map_files_types& files_multi_formats_, QHash< QString,PVRush::PVInputType::list_inputs >& discovered_, QHash<QString, std::pair<QString,QString> >& formats_error_, PVRush::list_creators& lcr_, PVRush::PVInputType_p in_t_, QHash<QString,PVCore::PVMeanValue<float> >& discovered_types_):
 			inputs(inputs_),
 			hash_input_name(hash_input_name_),
 			formats(formats_),
@@ -90,7 +90,7 @@ private:
 		{ }
 
 		PVRush::PVInputType::list_inputs const& inputs;
-		QHash<QString,PVRush::input_type>& hash_input_name;
+		QHash<QString,PVRush::PVInputDescription_p>& hash_input_name;
 		PVRush::hash_formats& formats;
 		PVRush::hash_format_creator& format_creator;
 		map_files_types& files_multi_formats;

@@ -5,7 +5,7 @@
 
 #include <pvkernel/rush/PVFileDescription.h>
 
-PVRush::PVPerlSource::PVPerlSource(input_type input, size_t min_chunk_size, PVFilter::PVChunkFilter_f src_filter, const QString& perl_file):
+PVRush::PVPerlSource::PVPerlSource(PVInputDescription_p input, size_t min_chunk_size, PVFilter::PVChunkFilter_f src_filter, const QString& perl_file):
 	PVRawSourceBase(src_filter),
 	_perl_file(perl_file),
 	_min_chunk_size(min_chunk_size),

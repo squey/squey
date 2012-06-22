@@ -19,20 +19,20 @@ class LibKernelDecl PVInputType: public QObject, public PVCore::PVRegistrableCla
 {
 	Q_OBJECT
 public:
-	// `input_type' is defined in PVInputDescription
-	typedef QList<input_type> list_inputs;
 	typedef boost::shared_ptr<PVInputType> p_type;
+	// List of inputs description
+	typedef QList<PVInputDescription_p> list_inputs;
 public:
 	virtual bool createWidget(hash_formats const& formats, hash_formats& new_formats, list_inputs &inputs, QString& format, PVCore::PVArgumentList& args_ext, QWidget* parent = NULL) const = 0;
 	virtual QString name() const = 0;
 	virtual QString human_name() const = 0;
 	virtual QString human_name_serialize() const = 0;
 	// Warning: the "human name" of an input must be *unique* accross all the possible inputs
-	virtual QString human_name_of_input(input_type in) const { return in->human_name(); };
+	virtual QString human_name_of_input(PVInputDescription_p in) const { return in->human_name(); };
 	virtual QString menu_input_name() const = 0;
 	virtual QKeySequence menu_shortcut() const { return QKeySequence(); }
 	virtual QString tab_name_of_inputs(list_inputs const& in) const = 0;
-	virtual bool get_custom_formats(input_type in, hash_formats &formats) const = 0;
+	virtual bool get_custom_formats(PVInputDescription_p in, hash_formats &formats) const = 0;
 	virtual PVCore::PVSerializeObject_p serialize_inputs(PVCore::PVSerializeObject& obj, QString const& name, list_inputs& inputs) const = 0;
 	virtual void serialize_inputs_ref(PVCore::PVSerializeObject& obj, QString const& name, list_inputs& inputs, PVCore::PVSerializeObject_p so_ref) const = 0;
 

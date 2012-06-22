@@ -7,7 +7,7 @@
 #include <pvkernel/filter/PVChunkFilter.h>
 #include <pvkernel/rush/PVChunkTransform.h>
 
-PVRush::PVSourceCreatorTexthdfs::source_p PVRush::PVSourceCreatorTexthdfs::create_source_from_input(input_type input, PVRush::PVFormat& used_format) const
+PVRush::PVSourceCreatorTexthdfs::source_p PVRush::PVSourceCreatorTexthdfs::create_source_from_input(PVInputDescription_p input, PVRush::PVFormat& used_format) const
 {
 	PVRush::PVInputHDFSFile *ihdfs = dynamic_cast<PVRush::PVInputHDFSFile*>(input.get());
 	assert(ihdfs);
@@ -26,7 +26,7 @@ PVRush::PVSourceCreatorTexthdfs::source_p PVRush::PVSourceCreatorTexthdfs::creat
 	return src;
 }
 
-PVRush::PVSourceCreatorTexthdfs::source_p PVRush::PVSourceCreatorTexthdfs::create_discovery_source_from_input(input_type input, const PVFormat& /*format*/) const
+PVRush::PVSourceCreatorTexthdfs::source_p PVRush::PVSourceCreatorTexthdfs::create_discovery_source_from_input(PVInputDescription_p input, const PVFormat& /*format*/) const
 {
 	// input is a PVInputHDFSFile !
 	PVInputHDFSFile* f = dynamic_cast<PVInputHDFSFile*>(input.get());
@@ -49,7 +49,7 @@ QString PVRush::PVSourceCreatorTexthdfs::supported_type() const
 	return QString("hdfs");
 }
 
-bool PVRush::PVSourceCreatorTexthdfs::pre_discovery(input_type /*input*/) const
+bool PVRush::PVSourceCreatorTexthdfs::pre_discovery(PVInputDescription_p /*input*/) const
 {
 	// AG: I don't know a magic method for being sure that a file is a text-file
 	// We'll let the TBB filters work for the moment...

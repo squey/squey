@@ -1100,7 +1100,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 	QHash<QString, std::pair<QString,QString> > formats_error; // Errors w/ some formats
 
 	map_files_types files_multi_formats;
-	QHash<QString,PVRush::input_type> hash_input_name;
+	QHash<QString,PVRush::PVInputDescription_p> hash_input_name;
 
 	bool file_type_found = false;
 

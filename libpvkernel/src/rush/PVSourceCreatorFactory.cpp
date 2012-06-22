@@ -65,7 +65,7 @@ PVRush::hash_format_creator PVRush::PVSourceCreatorFactory::get_supported_format
 	return ret;
 }
 
-float PVRush::PVSourceCreatorFactory::discover_input(pair_format_creator format_, input_type input)
+float PVRush::PVSourceCreatorFactory::discover_input(pair_format_creator format_, PVInputDescription_p input)
 {
 	PVFormat format = format_.first;
 	tbb::tick_count start,end;

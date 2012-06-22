@@ -68,7 +68,7 @@ QString PVRush::PVInputTypeDatabase::tab_name_of_inputs(list_inputs const& in) c
 	return query->human_name();
 }
 
-bool PVRush::PVInputTypeDatabase::get_custom_formats(input_type /*in*/, hash_formats& /*formats*/) const
+bool PVRush::PVInputTypeDatabase::get_custom_formats(PVInputDescription_p /*in*/, hash_formats& /*formats*/) const
 {
 	return false;
 }
