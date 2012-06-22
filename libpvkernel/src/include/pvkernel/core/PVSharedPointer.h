@@ -224,6 +224,12 @@ pv_shared_ptr<T> make_shared(T *t, D d)
 	return pv_shared_ptr<T>(t, d);
 }
 
+template <class T, class U, class V>
+std::basic_ostream<U, V>& operator<<(std::basic_ostream<U, V>& os, const pv_shared_ptr<T>& rhs)
+{
+	return os << rhs.get();
+}
+
 }
 
 #endif // PVCORE_SHAREDPOINTER_H
