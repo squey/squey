@@ -64,9 +64,9 @@ public:
 
 public:
 	/**
-	 * Register an actor for an address
+	 * Register an actor for an obect
 	 *
-	 * @param p the managed address
+	 * @param p the managed object
 	 * @param actor the actor
 	 */
 	template <class T>
@@ -79,9 +79,9 @@ public:
 	}
 
 	/**
-	 * Helper method easily create and register an actor for an address
+	 * Helper method easily create and register an actor for an object
 	 *
-	 * @param object the observed address
+	 * @param object the observed object
 	 * @return the actor
 	 */
 	template <class T>
@@ -94,9 +94,9 @@ public:
 	}
 
 	/**
-	 * Register an observer for an address
+	 * Register an observer for an object
 	 *
-	 * @param p the observed address
+	 * @param object the observed object
 	 * @param observer the observer
 	 */
 	template <class T>
@@ -182,7 +182,7 @@ public:
 	/**
 	 * Generic call to apply an action on a object
 	 *
-	 * @param object the managed address
+	 * @param object the managed object
 	 * @param params the method parameters
 	 */
 	template <typename T, typename F, F f, typename... P>
@@ -195,9 +195,9 @@ public:
 	}
 
 	/**
-	 * Tell all observers of an address that a change has occurred
+	 * Tell all observers of an object that a change has occurred
 	 *
-	 * @param object the observed address
+	 * @param object the observed object
 	 */
 	template <typename T>
 	void refresh_observers(T const* object)
@@ -212,7 +212,7 @@ private:
 	/**
 	 * Apply an action on a object and propagate the change event
 	 *
-	 * @param object the managed address
+	 * @param object the managed object
 	 * @param params the method parameters
 	 */
 	template <typename T, typename F, F f, typename... P>
