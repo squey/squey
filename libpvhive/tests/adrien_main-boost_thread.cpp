@@ -66,7 +66,7 @@ void Hive::call_object<decltype(func(&MyObject::set_prop))>(MyObject* o, boost::
 void update_prop(PVHive::PVHive& cc, MyObject& o)
 {
 	MyObjActor actor;
-	cc.register_actor(o.get_prop(), actor);
+	cc.register_actor(o, actor);
 
 	std::cout << "Update thread is " << boost::this_thread::get_id() << std::endl;
 	int v = 0;
