@@ -18,10 +18,10 @@ void PVHive::PVHive::unregister_observer(PVObserverBase& observer)
 	// the observer must have a valid object
 	assert(observer._object != nullptr);
 
-	write_lock_t write_lock(_observers_lock);
-	auto res = _observers.find(observer._object);
-	if (res != _observers.end()) {
-		res->second.erase(&observer);
+	write_lock_t write_lock(_observables_lock);
+	auto entry = _observables.find(observer._object);
+	if (entry != _observables.end()) {
+		entry->second.first.erase(&observer);
 	}
 	observer._object = nullptr;
 }
@@ -35,13 +35,22 @@ void PVHive::PVHive::unregister_object(void *object)
 	// the object must be a valid address
 	assert(object != nullptr);
 
-	read_lock_t read_lock(_observers_lock);
-	auto res = _observers.find(object);
-	if (res != _observers.end()) {
-		for (auto it : res->second) {
+	read_lock_t read_lock(_observables_lock);
+	auto entry = _observables.find(object);
+	if (entry != _observables.end()) {
+		// notify properties observers
+		for (auto it : entry->second.second) {
+			auto res = _observables.find(it);
+			for (auto pit : res->second.first) {
+				pit->about_to_be_deleted();
+			}
+			_observables.erase(it);
+		}
+		// notify observers
+		for (auto it : entry->second.first) {
 			it->about_to_be_deleted();
 		}
-		_observers.erase(object);
+		_observables.erase(object);
 	}
 }
 
@@ -50,10 +59,10 @@ void PVHive::PVHive::unregister_object(void *object)
  *****************************************************************************/
 void PVHive::PVHive::do_refresh_observers(void *object)
 {
-	read_lock_t read_lock(_observers_lock);
-	auto res = _observers.find(object);
-	if (res != _observers.end()) {
-		for (auto it : res->second) {
+	read_lock_t read_lock(_observables_lock);
+	auto entry = _observables.find(object);
+	if (entry != _observables.end()) {
+		for (auto it : entry->second.first) {
 			it->refresh();
 		}
 	}

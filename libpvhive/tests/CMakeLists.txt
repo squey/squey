@@ -6,6 +6,9 @@ set(COMMON_LIBRARIES ${PVHIVE_LIBRARIES} ${BOOST_LIBRARIES} ${Boost_LIBRARIES_PY
 add_executable(Tsimplistic simplistic.cpp)
 target_link_libraries(Tsimplistic ${COMMON_LIBRARIES})
 
+add_executable(Tproperties properties.cpp)
+target_link_libraries(Tproperties ${COMMON_LIBRARIES})
+
 add_executable(Tthread_safe thread_safe.cpp)
 target_link_libraries(Tthread_safe ${COMMON_LIBRARIES})
 
@@ -16,3 +19,4 @@ target_link_libraries(Tadrien-boost_thread ${COMMON_LIBRARIES})
 
 add_executable(Tadrien-qt_thread adrien_main-qt_thread.cpp ${TEST_ADRIEN_MOC_SRC})
 target_link_libraries(Tadrien-qt_thread ${COMMON_LIBRARIES})
+

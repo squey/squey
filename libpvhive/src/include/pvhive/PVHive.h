@@ -107,8 +107,32 @@ public:
 
 		observer._object = (void*) &object;
 
-		write_lock_t write_lock(_observers_lock);
-		_observers[(void*) &object].insert(&observer);
+		write_lock_t write_lock(_observables_lock);
+		_observables[(void*) &object].first.insert(&observer);
+	}
+
+	/**
+	 * Register an observer for a member variable of an object
+	 *
+	 * @param object the parent object
+	 * @prop_get: a function returning a reference on object's property
+	 * @param observer the observer
+	 *
+	 * @attention using a method as pro_get will not compile.
+	 */
+	template <class T, class F>
+	void register_observer(T const& object, F const &prop_get, PVObserverBase& observer)
+	{
+		// an observer must be set for only one object
+		assert(observer._object == nullptr);
+
+		auto &property = prop_get(object);
+		write_lock_t write_lock(_observables_lock);
+		// inserting observer
+		_observables[(void*) &property].first.insert(&observer);
+		// inserting property
+		_observables[(void*) &object].second.insert((void*) &property);
+		observer._object = (void*) &property;
 	}
 
 	/**
@@ -212,13 +236,15 @@ private:
 private:
 	static PVHive *_hive;
 
-	typedef std::unordered_map<void*, std::set<PVObserverBase*> > observers_t;
-	observers_t _observers;
+	typedef std::set<PVObserverBase*> observers_t;
+	typedef std::set<void*> properties_t;
+	typedef std::unordered_map<void*, std::pair<observers_t, properties_t> > observables_t;
+	observables_t _observables;
 
 	// thread safety
 	typedef boost::unique_lock<boost::shared_mutex> write_lock_t;
 	typedef boost::shared_lock<boost::shared_mutex> read_lock_t;
-	boost::shared_mutex _observers_lock;
+	boost::shared_mutex _observables_lock;
 };
 
 }
