@@ -1,3 +1,4 @@
+#include <pvkernel/core/PVHardwareConcurrency.h>
 #include <pvkernel/core/picviz_bench.h>
 #include <pvkernel/core/picviz_intrin.h>
 
@@ -14,6 +15,8 @@
 #include <cassert>
 
 #include <omp.h>
+
+#define GRAINSIZE 100
 
 namespace __impl {
 
@@ -75,7 +78,7 @@ size_t PVParallelView::PVZoneTreeNoAlloc::browse_tree_bci_by_sel(PVHSVColor* col
 {
 	size_t idx_code = 0;
 	Picviz::PVSelection::const_pointer sel_buf = sel.get_buffer();
-	const size_t nthreads = atol(getenv("NUM_THREADS"));/*omp_get_max_threads()/2;*/
+	const size_t nthreads = PVCore::PVHardwareConcurrency::get_physical_core_number();
 #pragma omp parallel firstprivate(sel_buf) reduction(+:idx_code) num_threads(nthreads)
 	{
 		PVBCICode* th_codes = PVBCICode::allocate_codes(NBUCKETS);
@@ -174,7 +177,7 @@ void PVParallelView::PVZoneTreeNoAlloc::process_omp_sse(PVZoneProcessing const& 
 	Tree* thread_trees;
 	uint32_t** thread_first_elts;
 	int ntrees;
-	const size_t nthreads = atol(getenv("NUM_THREADS"));/*omp_get_max_threads()/2;*/
+	const size_t nthreads = PVCore::PVHardwareConcurrency::get_physical_core_number();
 #pragma omp parallel num_threads(nthreads)
 	{
 #pragma omp master
@@ -293,8 +296,9 @@ void PVParallelView::PVZoneTreeNoAlloc::filter_by_sel_tbb(Picviz::PVSelection co
 	BENCH_START(subtree);
 	Picviz::PVSelection::const_pointer sel_buf = sel.get_buffer();
 	TLS tls;
-	tbb::task_scheduler_init init(atol(getenv("NUM_THREADS")));
-	tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, atol(getenv("GRAINSIZE"))), __impl::TBBPF(this, sel_buf, &tls), tbb::simple_partitioner());
+	const size_t nthreads = PVCore::PVHardwareConcurrency::get_physical_core_number();
+	tbb::task_scheduler_init init(nthreads);
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, GRAINSIZE), __impl::TBBPF(this, sel_buf, &tls), tbb::simple_partitioner());
 	BENCH_END(subtree, "tbb::parallel_for", 1, 1, sizeof(PVRow), NBUCKETS);
 }
 

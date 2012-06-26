@@ -1,3 +1,4 @@
+#include <pvkernel/core/PVHardwareConcurrency.h>
 #include <picviz/PVView.h>
 #include <pvparallelview/PVZonesManager.h>
 #include <pvparallelview/PVZoneProcessing.h>
@@ -65,11 +66,7 @@ void PVParallelView::PVZonesManager::update_all()
 	{
 		__impl::ZoneCreation zc;
 		zc._zm = this;
-		char* env_threads = getenv("NUM_THREADS");
-		int nthreads = 0;
-		if (env_threads) {
-			nthreads = atoi(env_threads);
-		}
+		const size_t nthreads = PVCore::PVHardwareConcurrency::get_physical_core_number();
 		tbb::task_scheduler_init init(nthreads);
 		tbb::parallel_for(tbb::blocked_range<PVZoneID>(0, nzones, 8), zc);
 	}

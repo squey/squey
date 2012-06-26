@@ -1,6 +1,7 @@
 #ifndef PVPARALLELVIEW_PVCONTAINERZONETREE_H
 #define PVPARALLELVIEW_PVCONTAINERZONETREE_H
 
+#include <pvkernel/core/PVHardwareConcurrency.h>
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVAlignedBlockedRange.h>
 #include <pvkernel/core/picviz_bench.h>
@@ -174,7 +175,8 @@ void PVContainerZoneTree<Container>::process_omp_sse_tree(PVZoneProcessing const
 	tbb::tick_count start,end;
 	//uint32_t** thread_first_elts;
 	//uint32_t* first_elts;
-#pragma omp parallel num_threads(atol(getenv("NUM_THREADS")))
+	const size_t nthreads = PVCore::PVHardwareConcurrency::get_physical_core_number();
+#pragma omp parallel num_threads(nthreads)
 	{
 		// Initialize one tree per thread
 		Container* thread_tree = new Container[NBUCKETS];
@@ -340,7 +342,8 @@ private:
 template <class Container>
 void PVContainerZoneTree<Container>::process_tbb_sse_parallelize_on_branches(PVZoneProcessing const& zp)
 {
-	tbb::task_scheduler_init init(atol(getenv("NUM_THREADS")));
+	const size_t nthreads = PVCore::PVHardwareConcurrency::get_physical_core_number();
+	tbb::task_scheduler_init init(nthreads);
 	tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, atol(getenv("GRAINSIZE"))), TBBCreateTree<Container>(this), tbb::simple_partitioner());
 }
 

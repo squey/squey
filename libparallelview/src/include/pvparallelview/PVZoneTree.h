@@ -5,10 +5,12 @@
 #include <picviz/PVSelection.h>
 #include <picviz/PVPlotted.h>
 #include <pvparallelview/PVHSVColor.h>
+#include <pvparallelview/PVZoneProcessing.h>
 
 #include <pvkernel/core/PVPODStaticArray.h>
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVZoneTreeBase.h>
+#include <pvkernel/core/PVAlgorithms.h>
 
 #include <boost/array.hpp>
 #include <boost/shared_ptr.hpp>
@@ -16,14 +18,15 @@
 #include <boost/type_traits.hpp>
 
 #include <tbb/enumerable_thread_specific.h>
+#include <tbb/task_scheduler_init.h>
 
 
 namespace PVParallelView {
 
 namespace __impl {
-class TBBCreateTreeNRows; 
+class TBBMergeTreesTask;
+class TBBCreateTreeTask;
 class TBBComputeAllocSizeAndFirstElts;
-class TBBMergeTrees;
 class TBBSelFilter;
 class TBBSelRowsFilter;
 class TBBReduceSelElts;
@@ -34,9 +37,9 @@ class PVSelectionSquare;
 
 class PVZoneTree: public PVZoneTreeBase
 {
-	friend class __impl::TBBCreateTreeNRows;
+	friend class __impl::TBBCreateTreeTask;
+	friend class __impl::TBBMergeTreesTask;
 	friend class __impl::TBBComputeAllocSizeAndFirstElts;
-	friend class __impl::TBBMergeTrees;
 	friend class __impl::TBBSelFilter;
 	friend class __impl::TBBSelRowsFilter;
 	friend class __impl::TBBReduceSelElts;
@@ -51,14 +54,16 @@ protected:
 	typedef boost::array<vec_rows_t, NBUCKETS> nbuckets_array_vector_t;
 	typedef tbb::enumerable_thread_specific<nbuckets_array_t> tls_array_t;
 	typedef tbb::enumerable_thread_specific<nbuckets_array_vector_t> tls_tree_t;
+	typedef tls_tree_t::pointer tls_tree_pointer_t;
 
 public:
 	class ProcessTLS
 	{
+	public:
 		friend class PVZoneTree;
-		friend class __impl::TBBCreateTreeNRows;
+		friend class __impl::TBBCreateTreeTask;
+		friend class __impl::TBBMergeTreesTask;
 		friend class __impl::TBBComputeAllocSizeAndFirstElts;
-		friend class __impl::TBBMergeTrees;
 		friend class __impl::TBBSelFilter;
 		friend class __impl::TBBSelRowsFilter;
 		friend class __impl::TBBReduceSelElts;
@@ -76,19 +81,63 @@ public://protected:
 		size_t count;
 	};
 
-	struct PVTBBCreateTreeParams
+	struct PVTaskTLSMapper
 	{
+		PVTaskTLSMapper(uint32_t ntasks) : ntasks(ntasks)
+		{
+			tls_trees_index = new tls_tree_pointer_t[ntasks];
+		}
+
+		~PVTaskTLSMapper()
+		{
+			delete [] tls_trees_index;
+		}
+
+		const uint32_t ntasks;
+		mutable tls_tree_pointer_t* tls_trees_index;
+	};
+
+	struct PVTreeParams
+	{
+		struct PVRange
+		{
+			PVRow begin;
+			PVRow end;
+		};
 	public:
-		PVTBBCreateTreeParams(PVZoneProcessing const& zp, PVZoneTree::ProcessTLS& tls):
-			_zp(zp), _tls(tls)
-		{ }
+		PVTreeParams(PVZoneProcessing const& zp, PVZoneTree::ProcessTLS& tls, PVTaskTLSMapper& tls_mapper, uint32_t max_val):
+			_zp(zp), _tls(tls), _tls_mapper(tls_mapper), _ntasks(tls_mapper.ntasks)
+		{
+			_ranges = new PVRange[_ntasks];
+			PVRow begin = 0;
+			PVRow range_size = (((max_val/_ntasks)+4-1)/4)*4;
+			for (uint32_t task = 0 ; task < _ntasks-1 ; task++)
+			{
+				_ranges[task].begin = begin;
+				_ranges[task].end = begin+range_size;
+				begin += range_size;
+			}
+			_ranges[_ntasks-1].begin = begin;
+			_ranges[_ntasks-1].end = max_val;
+		}
+
+		~PVTreeParams()
+		{
+			delete [] _ranges;
+		}
 	public:
 		//inline PVZoneTree& ztree() const { return _ztree; }
 		inline PVZoneProcessing const& zp() const { return _zp; }
 		inline ProcessTLS& tls() const { return _tls; }
+		inline PVTaskTLSMapper& tls_mapper() const { return _tls_mapper; }
+		inline const PVRange& range(uint32_t task_num) const { return _ranges[task_num]; }
+		inline uint32_t ntasks() const { return _ntasks; }
 	private:
 		PVZoneProcessing const& _zp;
 		ProcessTLS& _tls;
+		PVTaskTLSMapper& _tls_mapper;
+		PVRange* _ranges;
+		uint32_t _ntasks;
 	};
 
 	struct PVTBBFilterSelParams

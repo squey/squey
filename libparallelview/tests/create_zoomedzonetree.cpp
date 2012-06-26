@@ -205,10 +205,6 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	// to make sure they are defined
-	setenv("NUM_THREADS", "4", 0);
-	setenv("GRAINSIZE", "100", 0);
-
 	QApplication app(argc, argv);
 
 	PVCol ncols, nrows;

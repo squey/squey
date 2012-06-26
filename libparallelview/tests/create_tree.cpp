@@ -151,15 +151,21 @@ void test(
 		BENCH_END_TRANSFORM(sse, "process_tbb_sse_treeb", 1, 1);
 		}
 
-		/*PVParallelView::PVZoneTree::PVBranch* treeb = ztree->get_treeb();
+		PVParallelView::PVZoneTree::PVBranch* treeb = ztree->get_treeb();
+		bool sorted = true;
 		for (size_t b = 0; b < NBUCKETS; b++) {
+			sorted = true;
+			int last_value = 0;
 			for (int i = 0; i < treeb[b].count; i++) {
-				PVLOG_INFO("treeb[%d]=%d\n", b, treeb[b].p[i]);
+				sorted &= treeb[b].p[i] >= last_value;
+				last_value = treeb[b].p[i];
+				//PVLOG_INFO("treeb[%d]=%d sorted=%d\n", b, treeb[b].p[i], sorted);
 			}
 			if (treeb[b].count) {
-				PVLOG_INFO("---\n");
+				//PVLOG_INFO("---\n");
 			}
-		}*/
+		}
+		PVLOG_INFO("sorted=%d\n", sorted);
 
 		{
 		BENCH_START(sse);
