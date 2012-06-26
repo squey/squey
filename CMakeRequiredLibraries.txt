@@ -292,3 +292,9 @@ endif(PYTHONLIBS_FOUND)
 if(NOT WIN32)
 	find_package(X11 REQUIRED)
 endif(NOT WIN32)
+
+
+find_package(HWLoc REQUIRED)
+if (HWLOC_FOUND)
+  include_directories(${HWLOC_INCLUDE_DIRS})
+endif (BZIP2_FOUND)

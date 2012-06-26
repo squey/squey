@@ -82,3 +82,7 @@ target_link_libraries(Tcore_transp ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
 # POD tree
 add_executable(Tcore_podtree pod_tree.cpp)
 target_link_libraries(Tcore_podtree ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
+
+# Hardware concurrency
+add_executable(Tcore_hardware_concurrency hardware_concurrency.cpp)
+target_link_libraries(Tcore_hardware_concurrency ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
