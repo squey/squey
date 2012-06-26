@@ -34,6 +34,7 @@
 #include <picviz/PVStateMachine.h>
 #include <picviz/PVSortingFunc.h>
 #include <picviz/PVDefaultSortingFunc.h>
+#include <picviz/PVPlotted.h>
 #include <picviz/PVZLevelArray.h>
 
 #include <picviz/PVView_types.h>
@@ -47,19 +48,20 @@ namespace Picviz {
  * \class PVView
  */
 typedef typename PVCore::PVDataTreeObject<PVPlotted, PVCore::PVDataTreeNoChildren<PVView> > data_tree_view_t;
-class LibPicvizDecl PVView: public data_tree_view_t, public boost::enable_shared_from_this<PVView>
+class LibPicvizDecl PVView: public data_tree_view_t
 {
 	friend class PVCore::PVSerializeObject;
 	friend class PVSource;
 	friend class PVScene;
+	friend class PVCore::PVDataTreeAutoShared<PVView>;
 public:
-	typedef PVView_p p_type;
+	//typedef PVView_p p_type;
 	typedef QHash<QString,PVCore::PVArgumentList> map_filter_arguments;
 	typedef int32_t id_t;
-public:
-	PVView(PVPlotted* parent);
+protected:
 	PVView();
-	~PVView();
+public:
+	virtual ~PVView();
 protected:
 	PVView(const PVView& org);
 
@@ -392,6 +394,8 @@ protected:
 	boost::weak_ptr<PVCore::PVSerializeObject> _last_so;
 	id_t _view_id;
 };
+
+typedef PVView::p_type PVView_p;
 
 }
 

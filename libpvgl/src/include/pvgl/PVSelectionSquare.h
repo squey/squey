@@ -24,7 +24,7 @@ class PVView;
  * \class PVSelectionSquare
  */
 class LibGLDecl PVSelectionSquare {
-	Picviz::PVView_p pv_view;                //!<
+	Picviz::PVView_sp pv_view;                //!<
 	PVView      *view;
 
 	GLuint                vao;             //!<
@@ -45,7 +45,7 @@ public:
 	 *
 	 * @param view
 	 */
-	void init(Picviz::PVView_p view);
+	void init(Picviz::PVView_sp view);
 
 	/**
 	 *

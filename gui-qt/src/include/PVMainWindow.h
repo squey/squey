@@ -167,7 +167,7 @@ public:
 	void close_source(PVTabSplitter* tab);
 	void close_scene();
 
-	static QList<Picviz::PVView_p> list_displayed_picviz_views();
+	static QList<Picviz::PVView_sp> list_displayed_picviz_views();
 
 public slots:
 	void about_Slot();

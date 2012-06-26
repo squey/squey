@@ -31,18 +31,9 @@
  * Picviz::PVMapped::PVMapped
  *
  *****************************************************************************/
-Picviz::PVMapped::PVMapped(PVSource* source)
+Picviz::PVMapped::PVMapped()
 {
-	set_parent(source);
-	create_table();
 }
-
-/******************************************************************************
- *
- * Picviz::PVMapped::PVMapped
- *
- *****************************************************************************/
-Picviz::PVMapped::PVMapped() {}
 
 /******************************************************************************
  *
@@ -54,9 +45,9 @@ Picviz::PVMapped::~PVMapped()
 	PVLOG_INFO("In PVMapped destructor\n");
 }
 
-void Picviz::PVMapped::set_parent(PVSource* source)
+void Picviz::PVMapped::set_parent_from_ptr(PVSource* source)
 {
-	data_tree_mapped_t::set_parent(source);
+	data_tree_mapped_t::set_parent_from_ptr(source);
 	_mapping = PVMapping_p(new PVMapping(this));
 
 	PVCol naxes = source->get_column_count();

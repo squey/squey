@@ -24,7 +24,7 @@ class PVScatter;
  * \class PVScatterPlotSelectionSquare
  */
 class LibGLDecl PVScatterPlotSelectionSquare {
-	Picviz::PVView_p pv_view;                //!<
+	Picviz::PVView_sp pv_view;                //!<
 	PVScatter      *scatter;
 
 	std::vector<GLushort> indices_array;   //!<
@@ -50,7 +50,7 @@ public:
 	 *
 	 * @param view
 	 */
-	void init(Picviz::PVView_p view);
+	void init(Picviz::PVView_sp view);
 
 	/**
 	 *

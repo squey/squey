@@ -49,9 +49,10 @@ Picviz::PVSelection Picviz::PVTFViewRowFiltering::operator()(PVView const& view_
 		double time_for = 0.0;
 #pragma omp parallel num_threads(12) reduction(+:time_for)
 		{
+#pragma omp single
 			sel_org.visit_selected_lines([&](PVRow r)
 				{
-			#pragma omp task
+			#pragma omp task default(shared)
 					{
 						Picviz::PVSelection& task_sel = tls_sel.local();
 						foreach(PVSelRowFilteringFunction_p const& rff_p, _rffs) {

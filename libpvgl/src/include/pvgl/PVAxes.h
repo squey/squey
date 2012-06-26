@@ -26,7 +26,7 @@ class PVView;
  * \brief Handle the drawing of the axes, unselected and selected (when in axis mode)
  */
 class LibGLDecl PVAxes {
-	Picviz::PVView_p pv_view;             //!< A pointer to the Picviz::PVView we are handling.
+	Picviz::PVView_sp pv_view;             //!< A pointer to the Picviz::PVView we are handling.
 	PVView          *view;                //!< A pointer to the PVGL::PVView we are drawing to.
 
 	GLuint              vao;             //!< The VertexArrayObject for the axes.
@@ -60,7 +60,7 @@ public:
 	 *
 	 * @param view The Picviz::PVView we have to represent.
 	 */
-	void init(Picviz::PVView_p view);
+	void init(Picviz::PVView_sp view);
 
 	/**
 	 * Update the axes positions.

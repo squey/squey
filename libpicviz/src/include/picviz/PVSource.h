@@ -40,22 +40,25 @@ namespace Picviz {
  * \class PVSource
  */
 typedef typename PVCore::PVDataTreeObject<PVScene, PVMapped> data_tree_source_t;
-class LibPicvizDecl PVSource: public data_tree_source_t, public boost::enable_shared_from_this<PVSource>
+class LibPicvizDecl PVSource: public data_tree_source_t
 {
 	friend class PVCore::PVSerializeObject;
 	friend class PVScene;
 	friend class PVView;
 	friend class PVPlotted;
+	friend class PVCore::PVDataTreeAutoShared<PVSource>;
 public:
-	typedef PVSource_p p_type;
-	typedef QList<PVView_p> list_views_t;
-	typedef QList<PVMapped_p> list_mapped_t;
-public:
-	PVSource(PVRush::PVInputType::list_inputs const& inputs, PVRush::PVSourceCreator_p sc, PVRush::PVFormat format);
-	~PVSource();
+	//typedef PVSource_p p_type;
+	typedef QList<PVView_sp> list_views_t;
+	typedef children_t list_mapped_t;
+
 protected:
+	PVSource(PVRush::PVInputType::list_inputs const& inputs, PVRush::PVSourceCreator_p sc, PVRush::PVFormat format);
 	PVSource();
 	PVSource(const PVSource& org);
+
+public:
+	~PVSource();
 
 public:
 
@@ -99,8 +102,8 @@ public:
 	//list_views_t const& get_views() const { return _views; }
 	//list_mapped_t const& get_mappeds() const { return _mappeds; }
 
-	PVView_p current_view() const { return _current_view; }
-	void select_view(PVView_p view);
+	PVView_sp current_view() const { return _current_view; }
+	void select_view(PVView_sp view);
 
 	PVRush::PVFormat& get_format() { return _extractor.get_format(); }
 	void set_format(PVRush::PVFormat const& format);
@@ -114,9 +117,9 @@ private:
 	void set_views_consistent(bool cons);
 
 protected:
-	void set_parent(PVScene* parent);
+	virtual void set_parent_from_ptr(PVScene* parent);
 
-	void add_view(PVView_p view);
+	void add_view(PVView_sp view);
 	void set_views_id();
 
 protected:
@@ -138,7 +141,7 @@ private:
 
 	PVRush::PVSourceCreator_p _src_plugin;
 	PVRush::PVNraw *nraw;
-	PVView_p _current_view;
+	PVView_sp _current_view;
 	bool _restore_inv_elts;
 	QStringList _inv_elts;
 

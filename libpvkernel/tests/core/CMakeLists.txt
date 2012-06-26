@@ -74,7 +74,7 @@ add_executable(Tcore_bench_stable_reverse bench_stable_reverse.cpp)
 target_link_libraries(Tcore_bench_stable_reverse ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
 
 add_executable(Tcore_launch_adaptive launch_adaptive.cpp)
-target_link_libraries(Tcore_launch_adaptive ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
+target_link_libraries(Tcore_launch_adaptive ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES} ${Boost_LIBRARIES})
 
 add_executable(Tcore_transp transp.cpp)
 target_link_libraries(Tcore_transp ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})

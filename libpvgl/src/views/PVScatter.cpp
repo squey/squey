@@ -66,7 +66,7 @@ PVGL::PVScatter::PVScatter(int win_id, PVSDK::PVMessenger *message) : PVGL::PVDr
  * PVGL::PVScatter::init
  *
  *****************************************************************************/
-void PVGL::PVScatter::init(Picviz::PVView_p view)
+void PVGL::PVScatter::init(Picviz::PVView_sp view)
 {
 	size_t temp_row_count = view->get_row_count();
 	size_t max_number_of_lines_in_view = temp_row_count;//picviz_min(temp_row_count, size_t(PICVIZ_EVENTLINE_LINES_MAX));

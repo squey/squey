@@ -69,7 +69,9 @@ QFile *report_file;
  * PVInspector::PVMainWindow::PVMainWindow
  *
  *****************************************************************************/
-PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
+PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
+	QMainWindow(parent),
+	_scene(root, "root")
 {
 	PVLOG_DEBUG("%s: Creating object\n", __FUNCTION__);
 	
@@ -122,7 +124,6 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 	//We activate all available Windows
 	pv_ExportSelectionDialog = new PVExportSelectionDialog(this);
 	pv_ExportSelectionDialog->hide();
-	root = Picviz::PVRoot_p(new Picviz::PVRoot());
 	pv_FilterWidget = new PVFilterWidget(this);
 	pv_FilterWidget->hide();
 
@@ -238,9 +239,6 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 	// Load version informations
 	_last_known_cur_release = pvconfig.value(PVCONFIG_LAST_KNOWN_CUR_RELEASE, PICVIZ_VERSION_INVALID).toUInt();
 	_last_known_maj_release = pvconfig.value(PVCONFIG_LAST_KNOWN_MAJ_RELEASE, PICVIZ_VERSION_INVALID).toUInt();
-
-	// Default scene
-	_scene = Picviz::PVScene_p(new Picviz::PVScene(const_cast<char*>("default"), root.get())); // FIXME!
 
 	update_check();
 
@@ -699,7 +697,7 @@ void PVInspector::PVMainWindow::close_scene()
 	if (_ad2g_mw) {
 		_ad2g_mw->deleteLater();
 	}
-	_scene.reset(new Picviz::PVScene("root", root.get()));
+	_scene = Picviz::PVScene_p(root, "default");
 	_ad2g_mw = NULL;
 	set_project_modified(false);
 }
@@ -1205,7 +1203,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 
 		Picviz::PVSource_p import_source;
 		try {
-			import_source = Picviz::PVSource_p(new Picviz::PVSource(inputs, fc.second, cur_format));
+			import_source = Picviz::PVSource_p(_scene, inputs, fc.second, cur_format);
 			import_source->set_invalid_elts_mode(save_inv_elts);
 		}
 		catch (PVRush::PVFormatException const& e) {
@@ -1931,7 +1929,7 @@ void PVInspector::PVMainWindow::lines_display_unselected_Slot()
  * PVInspector::PVMainWindow::list_displayed_picviz_views
  *
  *****************************************************************************/
-QList<Picviz::PVView_p> PVInspector::PVMainWindow::list_displayed_picviz_views()
+QList<Picviz::PVView_sp> PVInspector::PVMainWindow::list_displayed_picviz_views()
 {
 	return PVGL::PVMain::list_displayed_picviz_views();
 }
@@ -2108,7 +2106,8 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_p src)
 		}
 	}
 
-	auto first_view_p = src->get_children<Picviz::PVView>().at(0);
+	//auto first_view_p = src->get_children<Picviz::PVView>().at(0);
+	Picviz::PVView_p first_view_p = src->current_view();
 	// Ask PVGL to create a GL-View from the previous transient view
 	message.function = PVSDK_MESSENGER_FUNCTION_CREATE_VIEW;
 	message.pv_view = first_view_p;

@@ -18,7 +18,7 @@
  * PVGL::PVSelectionSquare::init
  *
  *****************************************************************************/
-void PVGL::PVSelectionSquare::init(Picviz::PVView_p view)
+void PVGL::PVSelectionSquare::init(Picviz::PVView_sp view)
 {
 	PVLOG_DEBUG("PVGL::PVSelectionSquare::%s\n", __FUNCTION__);
 

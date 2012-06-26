@@ -48,9 +48,9 @@ int main(int argc, char** argv)
 	}
 
 	// Create the PVSource object
-	Picviz::PVRoot_p root(new Picviz::PVRoot());
-	Picviz::PVScene_p scene(new Picviz::PVScene("name", root.get()));
-	Picviz::PVSource_p src(new Picviz::PVSource(PVRush::PVInputType::list_inputs() << file, sc_file, format));
+	Picviz::PVRoot_p root;
+	Picviz::PVScene_p scene(root, "scene");
+	Picviz::PVSource_p src(scene, PVRush::PVInputType::list_inputs() << file, sc_file, format);
 	scene->add_source(src);
 	PVRush::PVControllerJob_p job = src->extract();
 	job->wait_end();
@@ -65,7 +65,7 @@ int main(int argc, char** argv)
 
 	// Get it back !
 	src.reset();
-	scene.reset(new Picviz::PVScene("name", root.get()));
+	scene = Picviz::PVScene_p(root, "scene");
 	ar.reset(new PVCore::PVSerializeArchive("/tmp/test", PVCore::PVSerializeArchive::read, 1));
 	ar->get_root()->object("scene", *scene);
 	ar->finish();

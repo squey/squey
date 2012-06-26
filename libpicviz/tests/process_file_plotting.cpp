@@ -50,16 +50,19 @@ int main(int argc, char** argv)
 	}
 
 	// Create the PVSource object
-	Picviz::PVRoot_p root(new Picviz::PVRoot());
-	Picviz::PVSource_p src(new Picviz::PVSource(PVRush::PVInputType::list_inputs() << file, sc_file, format));
+	Picviz::PVRoot_p root;
+	Picviz::PVScene_p scene(root, "scene");
+	Picviz::PVSource_p src(scene, PVRush::PVInputType::list_inputs() << file, sc_file, format);
 	PVRush::PVControllerJob_p job = src->extract();
 	job->wait_end();
 
 	// Map the nraw
-	Picviz::PVMapped_p mapped(new Picviz::PVMapped(src.get()));
+	Picviz::PVMapped_p mapped(src);
+	mapped->process_from_parent_source(false);
 
 	// And plot the mapped values
-	Picviz::PVPlotted_p plotted(new Picviz::PVPlotted(mapped.get()));
+	Picviz::PVPlotted_p plotted(mapped);
+	plotted->process_from_parent_mapped(false);
 
 	bool raw_dump = false;
 	bool raw_dump_transp = false;

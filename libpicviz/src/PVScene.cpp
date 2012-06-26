@@ -18,11 +18,10 @@
  * Picviz::PVScene::PVScene
  *
  *****************************************************************************/
-Picviz::PVScene::PVScene(QString scene_name, PVRoot* parent):
+Picviz::PVScene::PVScene(QString scene_name):
 	_name(scene_name),
 	_ad2g_view(new PVAD2GView(this))
 {
-	set_parent(parent);
 }
 
 /******************************************************************************

@@ -56,8 +56,6 @@ PVCore::PVField& PVFilter::PVFieldFilterRegexpGrep::one_to_one(PVCore::PVField& 
 	if (!(found ^ _inverse))
 	{
 		obj.set_invalid();
-		// Invalidate the parent element
-		obj.elt_parent()->set_invalid();
 	}
 	return obj;
 }

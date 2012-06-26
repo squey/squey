@@ -18,11 +18,11 @@
 #include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/rush/PVNraw.h>
 #include <picviz/PVPtrObjects.h>
+#include <picviz/PVMapped.h>
 #include <boost/shared_ptr.hpp>
 #include <picviz/PVView_types.h>
 #include <picviz/PVPlotting.h>
 #include <picviz/PVSelection.h>
-#include <picviz/PVView.h>
 
 
 #ifdef CUDA
@@ -66,19 +66,20 @@ private:
 		}
 	};
 public:
-	typedef boost::shared_ptr<PVPlotted> p_type;
+	//typedef boost::shared_ptr<PVPlotted> p_type;
 	typedef std::vector<float> plotted_table_t;
 	typedef std::vector< std::pair<PVCol,float> > plotted_sub_col_t;
 	typedef std::list<ExpandedSelection> list_expanded_selection_t;
 public:
-	PVPlotted(PVMapped* mapped);
+	PVPlotted();
+
+public:
 	~PVPlotted();
-	void set_parent(PVMapped* mapped);
+
 	void set_plotting(PVPlotting* plotting) { _plotting = PVPlotting_p(plotting); }
 
 protected:
 	// Serialization
-	PVPlotted();
 	void serialize(PVCore::PVSerializeObject &so, PVCore::PVSerializeArchive::version_t v);
 
 	// For PVMapped
@@ -126,8 +127,8 @@ public:
 	void get_sub_col_minmax(plotted_sub_col_t& ret, float& min, float& max, PVSelection const& sel, PVCol col) const;
 	void get_col_minmax(PVRow& min, PVRow& max, PVSelection const& sel, PVCol col) const;
 	inline plotted_table_t const& get_table() const { return _table; }
-	inline PVView_p get_view() { return _view; }
-	inline const PVView_p get_view() const { return _view; }
+	inline PVView_sp get_view() { return _view; }
+	inline const PVView_sp get_view() const { return _view; }
 	void expand_selection_on_axis(PVSelection const& sel, PVCol axis_id, QString const& mode, bool add = true);
 
 	// Plotted dump/load
@@ -138,11 +139,14 @@ public:
 	// Debug
 	void to_csv();
 
+protected:
+	virtual void set_parent_from_ptr(PVMapped* mapped);
+
 private:
 	PVPlotting_p _plotting;
 	plotted_table_t _table; /* Unidimensionnal. It must be contiguous in memory */
 	std::vector<float> _tmp_values;
-	PVView_p _view;
+	PVView_sp _view;
 	list_expanded_selection_t _expanded_sels;
 };
 

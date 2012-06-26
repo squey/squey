@@ -24,7 +24,8 @@
 #include <picviz/PVSource.h>
 #include <picviz/PVView.h>
 
-Picviz::PVSource::PVSource(PVRush::PVInputType::list_inputs const& inputs, PVRush::PVSourceCreator_p sc, PVRush::PVFormat format)
+Picviz::PVSource::PVSource(PVRush::PVInputType::list_inputs const& inputs, PVRush::PVSourceCreator_p sc, PVRush::PVFormat format):
+	data_tree_source_t()
 {
 	init();
 
@@ -38,13 +39,14 @@ Picviz::PVSource::PVSource(PVRush::PVInputType::list_inputs const& inputs, PVRus
 	files_append_noextract();
 }
 
-Picviz::PVSource::PVSource()
+Picviz::PVSource::PVSource():
+	data_tree_source_t()
 {
 	init();
 }
 
 Picviz::PVSource::PVSource(const PVSource& org):
-	boost::enable_shared_from_this<PVSource>()
+	data_tree_source_t()
 {
 	set_parent(const_cast<PVScene*>(org.get_parent()));
 	init();
@@ -75,9 +77,9 @@ void Picviz::PVSource::init()
 	_extractor.start_controller();
 }
 
-void Picviz::PVSource::set_parent(PVScene* parent)
+void Picviz::PVSource::set_parent_from_ptr(PVScene* parent)
 {
-	data_tree_source_t::set_parent(parent);
+	data_tree_source_t::set_parent_from_ptr(parent);
 
 	if (parent) {
 		parent->set_views_id();
@@ -122,7 +124,7 @@ void Picviz::PVSource::wait_extract_end(PVRush::PVControllerJob_p job)
 	extract_finished();
 }
 
-void Picviz::PVSource::select_view(PVView_p view)
+void Picviz::PVSource::select_view(PVView_sp view)
 {
 	 assert(get_children<PVView>().contains(view));
 	 _current_view = view;
@@ -216,7 +218,13 @@ PVRush::PVInputType_p Picviz::PVSource::get_input_type() const
 
 void Picviz::PVSource::create_default_view()
 {
-	new PVPlotted(new PVMapped(this));
+	//new PVPlotted(new PVMapped(this));
+	PVMapped_p def_mapped;
+	def_mapped->set_parent(this);
+	def_mapped->process_from_parent_source(false);
+	PVPlotted_p def_plotted;
+	def_plotted->set_parent(def_mapped);
+	def_plotted->process_from_parent_mapped(false);
 }
 
 void Picviz::PVSource::process_from_source(bool keep_views_info)
@@ -226,7 +234,7 @@ void Picviz::PVSource::process_from_source(bool keep_views_info)
 	}
 }
 
-void Picviz::PVSource::add_view(PVView_p view)
+void Picviz::PVSource::add_view(PVView_sp view)
 {
 	auto views_p = get_children<PVView>();
 	if (!_current_view) {

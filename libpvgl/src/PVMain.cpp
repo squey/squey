@@ -438,7 +438,7 @@ void PVGL::PVMain::create_view(QString *name)
  * PVGL::PVMain::create_scatter
  *
  *****************************************************************************/
-void PVGL::PVMain::create_scatter(QString *name, Picviz::PVView_p pv_view)
+void PVGL::PVMain::create_scatter(QString *name, Picviz::PVView_sp pv_view)
 {
 	PVGL::PVScatter *new_scatter;
 	int       window_id;
@@ -796,7 +796,7 @@ void PVGL::PVMain::timer_func(int)
 			if (pv_view) {
 				if (pv_view->is_update_line_dirty()) {
 					PVGL::wtk_set_current_window(pv_view->get_window_id());
-					Picviz::PVView_p picviz_view = pv_view->get_libview();
+					Picviz::PVView_sp picviz_view = pv_view->get_libview();
 					if (!picviz_view)
 						continue;
 					if (picviz_view->square_area.is_dirty()) {
@@ -977,12 +977,12 @@ bool pvgl_init(PVSDK::PVMessenger *messenger)
 	return true;
 }
 
-QList<Picviz::PVView_p> PVGL::PVMain::list_displayed_picviz_views()
+QList<Picviz::PVView_sp> PVGL::PVMain::list_displayed_picviz_views()
 {
-	QList<Picviz::PVView_p> ret;
+	QList<Picviz::PVView_sp> ret;
 	std::list<PVGL::PVDrawable*>::const_iterator it;
 	for (it = all_drawables.begin(); it != all_drawables.end(); it++) {
-		Picviz::PVView_p v = (*it)->get_libview();
+		Picviz::PVView_sp v = (*it)->get_libview();
 		if (!ret.contains(v)) {
 			ret << v;
 		}

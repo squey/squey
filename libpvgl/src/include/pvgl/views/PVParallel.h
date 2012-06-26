@@ -10,7 +10,7 @@
 #include <QtCore>
 #include <vector>
 
-#include <picviz/PVView.h>
+#include <picviz/PVView_types.h>
 
 namespace PVGL {
 class PVView;
@@ -90,7 +90,7 @@ public:
 	/**
 	 *
 	 */
-	void init(Picviz::PVView_p view);
+	void init(Picviz::PVView_sp view);
 
   //! \name getters
 	

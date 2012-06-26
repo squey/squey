@@ -9,7 +9,7 @@
 
 #include <vector>
 
-#include <picviz/PVView.h>
+#include <picviz/PVView_types.h>
 
 #include <pvgl/PVUtils.h>
 #include <pvgl/PVFonts.h>
@@ -68,7 +68,7 @@ public:
 	/**
 	 *
 	 */
-	void init(Picviz::PVView_p view);
+	void init(Picviz::PVView_sp view);
 
 	//! \name drawing
 	//! \{

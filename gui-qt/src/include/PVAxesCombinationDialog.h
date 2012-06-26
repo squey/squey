@@ -16,7 +16,7 @@ class PVAxesCombinationDialog: public QDialog
 	Q_OBJECT
 
 public:
-	PVAxesCombinationDialog(Picviz::PVView_p view, PVTabSplitter* tab, PVMainWindow* mw);
+	PVAxesCombinationDialog(Picviz::PVView_sp view, PVTabSplitter* tab, PVMainWindow* mw);
 
 public:
 	void save_current_combination();
@@ -31,7 +31,7 @@ protected:
 	PVMainWindow* main_window;
 	PVTabSplitter* tab;
 	PVAxesCombinationWidget* _axes_widget;
-	Picviz::PVView_p _view;
+	Picviz::PVView_sp _view;
 };
 
 }

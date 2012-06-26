@@ -22,6 +22,7 @@
 
 #include <picviz/PVPtrObjects.h>
 #include <picviz/PVMapping.h>
+#include <picviz/PVSource.h>
 #ifdef CUDA
 #include <picviz/cuda/PVMapped_create_table_cuda.h>
 #endif
@@ -41,16 +42,17 @@ class LibPicvizDecl PVMapped : public data_tree_mapped_t {
 	friend class PVPlotted;
 	friend class PVSource;
 	friend class PVCore::PVSerializeObject;
+	friend class PVCore::PVDataTreeAutoShared<PVMapped>;
 public:
-	typedef boost::shared_ptr<PVMapped> p_type;
-	typedef QList<PVPlotted_p> list_plotted_t;
+	//typedef boost::shared_ptr<PVMapped> p_type;
 	typedef std::vector< std::pair<PVCol,float> > mapped_sub_col_t;
-public:
-	PVMapped(PVSource* source);
-	~PVMapped();
+	typedef children_t list_plotted_t;
+
 protected:
-	// For serialization
 	PVMapped();
+
+public:
+	~PVMapped();
 
 	// For PVSource
 	void invalidate_all();
@@ -64,7 +66,6 @@ public:
 
 	inline bool is_uptodate() const { return _mapping->is_uptodate(); };
 
-	void set_parent(PVSource* source);
 	PVMapping* get_mapping() { return _mapping.get(); }
 	void set_mapping(PVMapping* mapping) { _mapping = PVMapping_p(mapping); }
 	void set_name(QString const& name) { _mapping->set_name(name); }
@@ -95,6 +96,9 @@ public:
 	void clear_trans_nraw();
 	
 	PVRush::PVFormat_p get_format() const;
+
+protected:
+	virtual void set_parent_from_ptr(PVSource* source);
 
 protected:
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);

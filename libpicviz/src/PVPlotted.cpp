@@ -31,14 +31,9 @@
 
 namespace Picviz {
 
-PVPlotted::PVPlotted(PVMapped* mapped)
-{
-	set_parent(mapped);
-	process_from_parent_mapped(false);
-}
-
 PVPlotted::PVPlotted()
 {
+	//process_from_parent_mapped(false);
 }
 
 PVPlotted::~PVPlotted()
@@ -46,9 +41,9 @@ PVPlotted::~PVPlotted()
 	PVLOG_INFO("In PVPlotted destructor\n");
 }
 
-void PVPlotted::set_parent(PVMapped* mapped)
+void PVPlotted::set_parent_from_ptr(PVMapped* mapped)
 {
-	data_tree_plotted_t::set_parent(mapped);
+	data_tree_plotted_t::set_parent_from_ptr(mapped);
 
 	_plotting = PVPlotting_p(new PVPlotting(this));
 	if (_view) {
@@ -561,7 +556,8 @@ void Picviz::PVPlotted::process_from_parent_mapped(bool keep_views_info)
 		_expanded_sels.clear();
 	}
 	if (!_view) {
-		_view.reset(new PVView(this));
+		_view = PVView_p();
+		_view->init_from_plotted(this, false);
 		get_parent<PVSource>()->add_view(_view);
 	}
 	else {

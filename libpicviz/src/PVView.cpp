@@ -27,7 +27,6 @@
  *
  *****************************************************************************/
 Picviz::PVView::PVView():
-	boost::enable_shared_from_this<PVView>(),
 	pre_filter_layer("pre_filter_layer"),
 	post_filter_layer("post_filter_layer"),
 	layer_stack_output_layer("view_layer_stack_output_layer"),
@@ -37,6 +36,7 @@ Picviz::PVView::PVView():
 	init_defaults();
 }
 
+/*
 Picviz::PVView::PVView(PVPlotted* parent) :
 	pre_filter_layer("pre_filter_layer"),
 	post_filter_layer("post_filter_layer"),
@@ -48,10 +48,9 @@ Picviz::PVView::PVView(PVPlotted* parent) :
 
 	init_defaults();
 	init_from_plotted(parent, false);
-}
+}*/
 
 Picviz::PVView::PVView(const PVView& /*org*/):
-	boost::enable_shared_from_this<PVView>(),
 	pre_filter_layer("pre_filter_layer"),
 	post_filter_layer("post_filter_layer"),
 	layer_stack_output_layer("view_layer_stack_output_layer"),

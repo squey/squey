@@ -155,9 +155,9 @@ PVInspector::PVTabSplitter::~PVTabSplitter()
 void PVInspector::PVTabSplitter::create_new_mapped()
 {
 
-	Picviz::PVMapped* mapped = new Picviz::PVMapped(get_lib_src().get());
+	Picviz::PVMapped_p mapped(get_lib_src());
 
-	Picviz::PVMapping* new_mapping = new Picviz::PVMapping(mapped);
+	Picviz::PVMapping* new_mapping = new Picviz::PVMapping(mapped.get());
 
 	// Create new default name
 	unsigned int nmapped = get_lib_src()->get_children<Picviz::PVMapped>().size();
@@ -193,8 +193,8 @@ void PVInspector::PVTabSplitter::toggle_listing_sort()
  *****************************************************************************/
 void PVInspector::PVTabSplitter::create_new_plotted(Picviz::PVMapped* mapped_parent)
 {
-	Picviz::PVPlotted* plotted = new Picviz::PVPlotted(mapped_parent);
-	Picviz::PVPlotting* new_plotting = new Picviz::PVPlotting(plotted);
+	Picviz::PVPlotted_p plotted(mapped_parent->shared_from_this());
+	Picviz::PVPlotting* new_plotting = new Picviz::PVPlotting(plotted.get());
 
 	// Create new default name
 	unsigned int nplotted = mapped_parent->get_children<Picviz::PVPlotted>().size();
@@ -378,7 +378,7 @@ bool PVInspector::PVTabSplitter::process_extraction_job(PVRush::PVControllerJob_
 	}
 
 	// Update libpicviz's views according to opened GL views (should be in the future PVSDK !!)
-	QList<Picviz::PVView_p> views = main_window->list_displayed_picviz_views();
+	QList<Picviz::PVView_sp> views = main_window->list_displayed_picviz_views();
 	for (int i = 0; i < views.size(); i++) {
 		Picviz::PVView_p cur_view = views.at(i);
 		if (cur_view->get_parent<Picviz::PVSource>() != get_lib_src().get()) {

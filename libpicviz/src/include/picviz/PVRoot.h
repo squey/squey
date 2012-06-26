@@ -32,16 +32,11 @@ namespace Picviz {
 typedef typename PVCore::PVDataTreeObject<PVCore::PVDataTreeNoParent<PVRoot>, PVScene> data_tree_root_t;
 class LibPicvizDecl PVRoot : public data_tree_root_t {
 public:
-	typedef boost::shared_ptr<PVRoot> p_type;
+	//typedef boost::shared_ptr<PVRoot> p_type;
 public:
 	PVRoot();
 	~PVRoot();
 
-	/* Properties */
-	QList<PVScene_p> scenes;
-
-	/* Functions */
-	int scene_append(PVScene_p scene);
 private:
 	// Plugins loading
 	static int load_layer_filters();

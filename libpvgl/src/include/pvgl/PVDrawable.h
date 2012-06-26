@@ -26,7 +26,7 @@ namespace PVGL {
  */
 class LibGLDecl PVDrawable {
 protected:
-	Picviz::PVView_p picviz_view;    //!<
+	Picviz::PVView_sp picviz_view;    //!<
 	PVSDK::PVMessenger *pv_message;
 
 
@@ -61,7 +61,7 @@ public:
 	/**
 	 *
 	 */
-	virtual void init(Picviz::PVView_p view);
+	virtual void init(Picviz::PVView_sp view);
 
 	void compute_fps();
 
@@ -87,7 +87,7 @@ public:
 	 *
 	 * @return
 	 */
-	Picviz::PVView_p get_libview() const {return picviz_view;}
+	Picviz::PVView_sp get_libview() const {return picviz_view;}
 
 	/**
 	 *

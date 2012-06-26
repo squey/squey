@@ -110,7 +110,7 @@ PVGL::PVDrawable::~PVDrawable()
  * PVGL::PVDrawable::init
  *
  *****************************************************************************/
-void PVGL::PVDrawable::init(Picviz::PVView_p view)
+void PVGL::PVDrawable::init(Picviz::PVView_sp view)
 {
 	PVLOG_HEAVYDEBUG("PVGL::PVDrawable::%s\n", __FUNCTION__);
 	picviz_view = view;

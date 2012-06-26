@@ -18,6 +18,7 @@
 #include <picviz/PVAD2GView.h>
 #include <picviz/PVPtrObjects.h>
 #include <picviz/PVSource_types.h>
+#include <picviz/PVRoot.h>
 #include <picviz/PVView_types.h>
 
 
@@ -40,17 +41,20 @@ class LibPicvizDecl PVScene: public data_tree_scene_t
 	friend class PVCore::PVSerializeObject;
 	friend class PVSource;
 	friend class PVView;
+	friend class PVCore::PVDataTreeAutoShared<PVScene>;
 public:
-	typedef boost::shared_ptr<PVScene> p_type;
+	//typedef boost::shared_ptr<PVScene> p_type;
 	typedef QList<PVSource_p> list_sources_t;
-	typedef QList<PVView_p> list_views_t;
+	typedef QList<PVView_sp> list_views_t;
 private:
 	// PVRush::list_inputs is QList<PVRush::PVInputDescription_p>
 	typedef std::map<PVRush::PVInputType::base_registrable, std::pair<list_sources_t, PVRush::PVInputType::list_inputs> > hash_type_sources_t;
 	typedef std::map<PVRush::PVInputType::base_registrable, PVCore::PVSerializeObject_p> hash_type_so_inputs;
+
+protected:
+	PVScene(QString scene_name);
+
 public:
-	
-	PVScene(QString scene_name, PVRoot* parent);
 	~PVScene();
 
 public:
