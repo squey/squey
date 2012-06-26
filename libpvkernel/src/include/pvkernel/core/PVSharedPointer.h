@@ -11,6 +11,28 @@ namespace PVCore
 namespace __impl
 {
 
+typedef std::atomic_flag pv_spin_lock_t;
+
+class pv_spin_lock_guard_t
+{
+public:
+	pv_spin_lock_guard_t(pv_spin_lock_t &sl) : _sl(sl)
+	{
+		while(_sl.test_and_set(std::memory_order_acquire));
+	}
+
+	~pv_spin_lock_guard_t()
+	{
+		_sl.clear(std::memory_order_release);
+	}
+
+	pv_spin_lock_guard_t(const pv_spin_lock_guard_t&) = delete;
+	pv_spin_lock_guard_t& operator=(const pv_spin_lock_guard_t&) = delete;
+
+private:
+	pv_spin_lock_t &_sl;
+};
+
 template <typename T>
 class pv_ref_counter
 {
@@ -19,21 +41,24 @@ public:
 	typedef T*       pointer;
 	typedef    void(*deleter)(pointer);
 
-	pv_ref_counter() : _data(nullptr), _deleter(nullptr), _count(0)
+	pv_ref_counter() : _data(nullptr), _deleter(nullptr), _count(0), _spin_lock(ATOMIC_FLAG_INIT)
 	{}
 
 	pv_ref_counter(pointer p, deleter d) : _data(p), _deleter(d), _count(1)
 	{}
 
-	~pv_ref_counter() {}
+	~pv_ref_counter()
+	{}
 
 	void inc_count()
 	{
+		pv_spin_lock_guard_t guard(_spin_lock);
 		++_count;
 	}
 
 	void dec_count()
 	{
+		pv_spin_lock_guard_t guard(_spin_lock);
 		--_count;
 		if(_count == 0) {
 			if (_deleter) {
@@ -44,30 +69,35 @@ public:
 		}
 	}
 
-	uint32_t use_count() const
+	uint32_t use_count()
 	{
+		pv_spin_lock_guard_t guard(_spin_lock);
 		return _count;
 	}
 
-	pointer get() const
+	pointer get()
 	{
+		pv_spin_lock_guard_t guard(_spin_lock);
 		return _data;
 	}
 
 	void set_deleter(deleter d)
 	{
+		pv_spin_lock_guard_t guard(_spin_lock);
 		_deleter = d;
 	}
 
 	deleter get_deleter()
 	{
+		pv_spin_lock_guard_t guard(_spin_lock);
 		return _deleter;
 	}
 
 private:
-	volatile pointer  _data;
-	volatile deleter  _deleter;
-	volatile uint32_t _count;
+	pointer        _data;
+	deleter        _deleter;
+	uint32_t       _count;
+	pv_spin_lock_t _spin_lock;
 };
 
 }
