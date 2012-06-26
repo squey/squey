@@ -144,10 +144,9 @@ void Picviz::PVScene::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSe
 	}
 
 	// Get the sources
-	PVSource* src = new PVSource();
-	src->set_parent(this);
+	PVSource_p src(shared_from_this());
 	list_sources_t all_sources;
-	so.list("sources", all_sources, QObject::tr("Sources"), src);
+	so.list("sources", all_sources, QObject::tr("Sources"), src.get());
 	src->set_parent(NULL);
 	PVLOG_INFO("(PVScene::serialize_read) get %d sources\n", all_sources.size());
 

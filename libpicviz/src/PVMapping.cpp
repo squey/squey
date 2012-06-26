@@ -36,7 +36,7 @@ Picviz::PVMapping::PVMapping(PVMapped* mapped):
 	source->get_rushnraw().format->debug();
 	for (PVCol i = 0; i < naxes; i++) {
 		PVMappingProperties mapping_axis(*source->get_rushnraw().format, i);
-		columns << mapping_axis;
+		add_column(mapping_axis);
 		PVLOG_HEAVYDEBUG("%s: Add a column\n", __FUNCTION__);
 	}
 }
