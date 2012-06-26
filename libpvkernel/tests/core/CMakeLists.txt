@@ -79,3 +79,6 @@ target_link_libraries(Tcore_launch_adaptive ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES
 add_executable(Tcore_transp transp.cpp)
 target_link_libraries(Tcore_transp ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
 
+# Hardware concurrency
+add_executable(Tcore_hardware_concurrency hardware_concurrency.cpp)
+target_link_libraries(Tcore_hardware_concurrency ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
