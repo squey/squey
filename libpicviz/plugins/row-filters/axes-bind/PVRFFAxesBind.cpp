@@ -51,7 +51,7 @@ void Picviz::PVRFFAxesBind::do_pre_process(PVView const& /*view_org*/, PVView co
 	BENCH_END(b, "preprocess", 1, 1, 1, 1);
 }
 
-void Picviz::PVRFFAxesBind::operator()(PVRow row_org, PVView const& view_org, PVView const& view_dst, PVSparseSelection& sel_dst) const
+void Picviz::PVRFFAxesBind::operator()(PVRow row_org, PVView const& view_org, PVView const& /*view_dst*/, PVSparseSelection& sel_dst) const
 {
 	/*
 	PVRow nlines_sel = view_dst.get_row_count();
@@ -95,4 +95,22 @@ void Picviz::PVRFFAxesBind::operator()(PVRow row_org, PVView const& view_org, PV
 			//sel_buf[r>>5] |= 1U<<(r&31);
 		}
 	//}
+}
+
+void Picviz::PVRFFAxesBind::process_or(PVRow row_org, PVView const& view_org, PVView const& /*view_dst*/, PVSelection& sel_dst) const
+{
+	const PVMapped* m_org = view_org.get_mapped_parent();
+	float mf_org = m_org->get_value(row_org, _axis_org);
+
+	hash_rows const& dst_values(_dst_values);
+	hash_rows::const_iterator it_f = dst_values.find(mf_org);
+	if (it_f == dst_values.end()) {
+		return;
+	}
+
+	std::vector<PVRow> const& rows = it_f->second;
+	for (size_t i = 0; i < rows.size(); i++) {
+		const PVRow r = rows[i];
+		sel_dst.set_bit_fast(r);
+	}
 }

@@ -25,6 +25,7 @@ public:
 
 	void do_pre_process(PVView const& view_org, PVView const& view_dst);
 	void operator()(PVRow row_org, PVView const& view_org, PVView const& view_dst, PVSparseSelection& sel_dst) const;
+	void process_or(PVRow row_org, PVView const& view_org, PVView const& view_dst, PVSelection& sel_dst) const;
 
 protected:
 	PVCore::PVArgumentKeyList get_arg_keys_for_org_view() const { return PVCore::PVArgumentKeyList() << "axis_org"; }

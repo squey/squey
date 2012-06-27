@@ -57,11 +57,9 @@ Picviz::PVSelection Picviz::PVTFViewRowFiltering::operator()(PVView const& view_
 			#pragma omp task default(shared)
 					{
 						Picviz::PVSelection& task_sel = tls_sel.local();
-						Picviz::PVSparseSelection row_sel;
 						foreach(PVSelRowFilteringFunction_p const& rff_p, _rffs) {
-							(*rff_p)(r, view_src, view_dst, row_sel);
+							rff_p->process_or(r, view_src, view_dst, task_sel);
 						}
-						task_sel |= row_sel;
 					}
 				},
 				nlines_sel);

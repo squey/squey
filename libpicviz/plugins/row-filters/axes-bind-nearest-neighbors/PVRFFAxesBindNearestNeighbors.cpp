@@ -77,3 +77,27 @@ void Picviz::PVRFFAxesBindNearestNeighbors::operator()(PVRow row_org, PVView con
 		}
 	}
 }
+
+void Picviz::PVRFFAxesBindNearestNeighbors::process_or(PVRow row_org, PVView const& view_org, PVView const& /*view_dst*/, PVSelection& sel_dst) const
+{
+	const PVMapped* m_org = view_org.get_mapped_parent();
+	float mf_org = m_org->get_value(row_org, _axis_org);
+
+	map_rows const& dst_values(_dst_values);
+
+	map_rows::const_iterator it_min = dst_values.lower_bound (mf_org - _distance);
+	map_rows::const_iterator it_max = dst_values.upper_bound (mf_org + _distance);
+
+	// rejecting out of bounds results
+	if (it_min == dst_values.end() || it_max == dst_values.begin()) {
+		return;
+	}
+
+	for (map_rows::const_iterator it = it_min; it != it_max; ++it) {
+		std::vector<PVRow> const& rows = it->second;
+		for (size_t i = 0; i < rows.size(); i++) {
+			const PVRow r = rows[i];
+			sel_dst.set_bit_fast(r);
+		}
+	}
+}
