@@ -42,16 +42,16 @@ Picviz::PVSelection Picviz::PVTFViewRowFiltering::operator()(PVView const& view_
 	const PVRow nlines_sel = view_src.get_row_count();
 	// Special case when all RFF have "OR" operation. We can be really faster by always writing into the same
 	// selection !
-	tbb::enumerable_thread_specific<PVSelection> tls_sel;
+	tbb::enumerable_thread_specific<PVSelection, tbb::tbb_allocator<PVSelection>, tbb::ets_key_per_instance> tls_sel;
 
 	if (all_rff_or_operation()) {
 		PVLOG_INFO("Correlation: only OR operations, optimizing process...\n");
-		double time_for = 0.0;
-#pragma omp parallel num_threads(12) reduction(+:time_for)
+#pragma omp parallel num_threads(12)
 		{
+#pragma omp single
 			sel_org.visit_selected_lines([&](PVRow r)
 				{
-			#pragma omp task
+			#pragma omp task default(shared)
 					{
 						Picviz::PVSelection& task_sel = tls_sel.local();
 						foreach(PVSelRowFilteringFunction_p const& rff_p, _rffs) {
@@ -62,92 +62,96 @@ Picviz::PVSelection Picviz::PVTFViewRowFiltering::operator()(PVView const& view_
 				nlines_sel);
 #pragma omp taskwait
 		}
-
-		if (tls_sel.size() == 0) {
-			return std::move(PVSelection());
-		}
-		PVSelection& final_sel = *tls_sel.begin();
-		// Merge all TLS selections
-		tbb::enumerable_thread_specific<PVSelection>::const_iterator it_sel = tls_sel.begin();
-		it_sel++;
-		BENCH_START(sel_red);
-		for (; it_sel != tls_sel.end(); it_sel++) {
-			final_sel.or_optimized(*it_sel);
-		}
-		BENCH_END(sel_red, "selection reduction", 1, 1, 1, 1);
-		BENCH_END(merge, "merge", 1, 1, 1, 1);
-		return std::move(final_sel);
 	}
-		
-	PVSelection sel_ret;
-
-	PVLOG_DEBUG("PVTFViewRowFiltering::operator()) has %u RFF:\n", _rffs.size());
-	foreach(PVSelRowFilteringFunction_p const& rff_p, _rffs) {
-		PVCore::dump_argument_list(rff_p->get_args());
-	}
-
-	// For each line of sel_org, create a selection that goes with view_dst
-	// Then, merge this selection into the final one.
-	PVSelection sel_tmp_row;
-	PVSelection sel_tmp_rff;
-
-	for (PVRow r = 0; r < nlines_sel; r++) {
-		if (!sel_org.get_line(r)) {
-			continue;
-		}
-
-		sel_tmp_row.select_none();
+	else {
+		PVLOG_DEBUG("PVTFViewRowFiltering::operator()) has %u RFF:\n", _rffs.size());
 		foreach(PVSelRowFilteringFunction_p const& rff_p, _rffs) {
-
-			sel_tmp_rff.select_none();
-			(*rff_p)(r, view_src, view_dst, sel_tmp_rff);
-
-			switch (rff_p->get_combination_op() /*index*/) {
-				case PVCore::PVBinaryOperation::OR:
-				{
-					//sel_tmp_row |= sel_tmp_rff;
-					sel_tmp_row.or_optimized(sel_tmp_rff);
-					break;
-				}
-				case PVCore::PVBinaryOperation::AND:
-				{
-					//sel_tmp_row &= sel_tmp_rff;
-					sel_tmp_row.and_optimized(sel_tmp_rff);
-					break;
-				}
-				case PVCore::PVBinaryOperation::XOR:
-				{
-					sel_tmp_row ^= sel_tmp_rff;
-					break;
-				}
-				case PVCore::PVBinaryOperation::OR_NOT:
-				{
-					sel_tmp_row.or_not(sel_tmp_rff);
-					break;
-				}
-				case PVCore::PVBinaryOperation::AND_NOT:
-				{
-					sel_tmp_row.and_not(sel_tmp_rff);
-					break;
-				}
-				case PVCore::PVBinaryOperation::XOR_NOT:
-				{
-					sel_tmp_row.xor_not(sel_tmp_rff);
-					break;
-				}
-				default:
-				{
-					assert(false);
-				}
-			}
+			PVCore::dump_argument_list(rff_p->get_args());
 		}
 
-		sel_ret.or_optimized(sel_tmp_row);
+		// For each line of sel_org, create a selection that goes with view_dst
+		// Then, merge this selection into the final one.
+		tbb::enumerable_thread_specific<PVSelection, tbb::tbb_allocator<PVSelection>, tbb::ets_key_per_instance> tls_sel_tmp_row;
+		tbb::enumerable_thread_specific<PVSelection, tbb::tbb_allocator<PVSelection>, tbb::ets_key_per_instance> tls_sel_tmp_rff;
+
+#pragma omp parallel num_threads(12)
+		{
+#pragma omp single
+			sel_org.visit_selected_lines([&](PVRow r) {
+#pragma omp task default(shared)
+				{
+					Picviz::PVSelection& sel_tmp_row = tls_sel_tmp_row.local();
+					Picviz::PVSelection& sel_tmp_rff = tls_sel_tmp_rff.local();
+					sel_tmp_row.select_none();
+					decltype(_rffs)::const_iterator it_rff = _rffs.begin();
+					(*(*it_rff))(r, view_src, view_dst, sel_tmp_row);
+					it_rff++;
+					for (; it_rff != _rffs.end(); it_rff++) {
+						sel_tmp_rff.select_none();
+						Picviz::PVSelRowFilteringFunction& rff_ref(*(*it_rff));
+						rff_ref(r, view_src, view_dst, sel_tmp_rff);
+
+						switch (rff_ref.get_combination_op()) {
+							case PVCore::PVBinaryOperation::OR:
+								{
+									sel_tmp_row.or_optimized(sel_tmp_rff);
+									break;
+								}
+							case PVCore::PVBinaryOperation::AND:
+								{
+									sel_tmp_row &= sel_tmp_rff;
+									break;
+								}
+							case PVCore::PVBinaryOperation::XOR:
+								{
+									sel_tmp_row ^= sel_tmp_rff;
+									break;
+								}
+							case PVCore::PVBinaryOperation::OR_NOT:
+								{
+									sel_tmp_row.or_not(sel_tmp_rff);
+									break;
+								}
+							case PVCore::PVBinaryOperation::AND_NOT:
+								{
+									sel_tmp_row.and_not(sel_tmp_rff);
+									break;
+								}
+							case PVCore::PVBinaryOperation::XOR_NOT:
+								{
+									sel_tmp_row.xor_not(sel_tmp_rff);
+									break;
+								}
+							default:
+								{
+									assert(false);
+								}
+						}
+					}
+
+					Picviz::PVSelection& task_sel = tls_sel.local();
+					task_sel.or_optimized(sel_tmp_row);
+				}
+			},
+			nlines_sel);
+#pragma omp taskwait
+		}
 	}
 
+	if (tls_sel.size() == 0) {
+		return std::move(PVSelection());
+	}
+	PVSelection& final_sel = *tls_sel.begin();
+	// Merge all TLS selections
+	decltype(tls_sel)::const_iterator it_sel = tls_sel.begin();
+	it_sel++;
+	BENCH_START(sel_red);
+	for (; it_sel != tls_sel.end(); it_sel++) {
+		final_sel.or_optimized(*it_sel);
+	}
+	BENCH_END(sel_red, "selection reduction", 1, 1, 1, 1);
 	BENCH_END(merge, "merge", 1, 1, 1, 1);
-
-	return sel_ret;
+	return std::move(final_sel);
 }
 
 
