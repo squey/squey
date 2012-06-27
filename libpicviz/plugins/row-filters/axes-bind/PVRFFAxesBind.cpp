@@ -1,5 +1,6 @@
 #include <pvkernel/core/picviz_bench.h>
 #include "PVRFFAxesBind.h"
+#include <picviz/PVSparseSelection.h>
 #include <picviz/PVView.h>
 
 #include <pvkernel/core/PVAxisIndexType.h>
@@ -50,12 +51,11 @@ void Picviz::PVRFFAxesBind::do_pre_process(PVView const& /*view_org*/, PVView co
 	BENCH_END(b, "preprocess", 1, 1, 1, 1);
 }
 
-void Picviz::PVRFFAxesBind::operator()(PVRow row_org, PVView const& view_org, PVView const& view_dst, PVSelection& sel_dst) const
+void Picviz::PVRFFAxesBind::operator()(PVRow row_org, PVView const& view_org, PVView const& view_dst, PVSparseSelection& sel_dst) const
 {
-	PVRow nlines_sel = view_dst.get_row_count();
-	uint32_t* sel_buf = sel_dst.get_buffer();
-
 	/*
+	PVRow nlines_sel = view_dst.get_row_count();
+
 	const PVCore::PVUnicodeString& str = view_org.get_data_unistr_raw(row_org, _axis_org);
 #pragma omp parallel for
 	for (PVRow r = 0; r < nlines_sel; r++) {
@@ -91,7 +91,8 @@ void Picviz::PVRFFAxesBind::operator()(PVRow row_org, PVView const& view_org, PV
 		std::vector<PVRow> const& rows = it_f->second;
 		for (size_t i = 0; i < rows.size(); i++) {
 			const PVRow r = rows[i];
-			sel_buf[r>>5] |= 1U<<(r&31);
+			sel_dst.set(r);
+			//sel_buf[r>>5] |= 1U<<(r&31);
 		}
 	//}
 }

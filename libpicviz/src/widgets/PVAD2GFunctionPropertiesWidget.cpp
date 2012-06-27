@@ -3,10 +3,13 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 
+#include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/widgets/PVArgumentListWidget.h>
+#include <pvkernel/widgets/PVArgumentListWidgetFactory.h>
+
+#include <picviz/PVSelRowFilteringFunction.h>
 #include <picviz/widgets/PVAD2GFunctionPropertiesWidget.h>
 #include <picviz/widgets/PVArgumentListWidgetFactory.h>
-#include <pvkernel/widgets/PVArgumentListWidgetFactory.h>
 
 static QVBoxLayout* layout_from_widget(QWidget* w)
 {

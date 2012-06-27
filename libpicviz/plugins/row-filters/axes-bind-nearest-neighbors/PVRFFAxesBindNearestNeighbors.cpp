@@ -1,5 +1,6 @@
 #include <pvkernel/core/picviz_bench.h>
 #include "PVRFFAxesBindNearestNeighbors.h"
+#include <picviz/PVSparseSelection.h>
 #include <picviz/PVView.h>
 
 #include <pvkernel/core/PVAxisIndexType.h>
@@ -52,10 +53,8 @@ void Picviz::PVRFFAxesBindNearestNeighbors::do_pre_process(PVView const& /*view_
 	BENCH_END(b, "preprocess", 1, 1, 1, 1);
 }
 
-void Picviz::PVRFFAxesBindNearestNeighbors::operator()(PVRow row_org, PVView const& view_org, PVView const& /*view_dst*/, PVSelection& sel_dst) const
+void Picviz::PVRFFAxesBindNearestNeighbors::operator()(PVRow row_org, PVView const& view_org, PVView const& /*view_dst*/, PVSparseSelection& sel_dst) const
 {
-	uint32_t* sel_buf = sel_dst.get_buffer();
-
 	const PVMapped* m_org = view_org.get_mapped_parent();
 	float mf_org = m_org->get_value(row_org, _axis_org);
 
@@ -73,8 +72,8 @@ void Picviz::PVRFFAxesBindNearestNeighbors::operator()(PVRow row_org, PVView con
 		std::vector<PVRow> const& rows = it->second;
 		for (size_t i = 0; i < rows.size(); i++) {
 			const PVRow r = rows[i];
-#pragma omp atomic
-			sel_buf[r>>5] |= 1U<<(r&31);
+			//sel_buf[r>>5] |= 1U<<(r&31);
+			sel_dst.set(r);
 		}
 	}
 }

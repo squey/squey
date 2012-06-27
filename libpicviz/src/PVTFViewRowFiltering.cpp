@@ -1,7 +1,9 @@
 #include <pvkernel/core/picviz_bench.h>
+#include <pvkernel/core/PVHardwareConcurrency.h>
 
 #include <picviz/PVTFViewRowFiltering.h>
 #include <picviz/PVSelRowFilteringFunction.h>
+#include <picviz/PVSparseSelection.h>
 #include <picviz/PVView.h>
 
 #include <tbb/blocked_range.h>
@@ -44,9 +46,10 @@ Picviz::PVSelection Picviz::PVTFViewRowFiltering::operator()(PVView const& view_
 	// selection !
 	tbb::enumerable_thread_specific<PVSelection, tbb::tbb_allocator<PVSelection>, tbb::ets_key_per_instance> tls_sel;
 
+	const size_t ncores = PVCore::PVHardwareConcurrency::get_physical_core_number();
 	if (all_rff_or_operation()) {
 		PVLOG_INFO("Correlation: only OR operations, optimizing process...\n");
-#pragma omp parallel num_threads(12)
+#pragma omp parallel num_threads(ncores)
 		{
 #pragma omp single
 			sel_org.visit_selected_lines([&](PVRow r)
@@ -54,9 +57,11 @@ Picviz::PVSelection Picviz::PVTFViewRowFiltering::operator()(PVView const& view_
 			#pragma omp task default(shared)
 					{
 						Picviz::PVSelection& task_sel = tls_sel.local();
+						Picviz::PVSparseSelection row_sel;
 						foreach(PVSelRowFilteringFunction_p const& rff_p, _rffs) {
-							(*rff_p)(r, view_src, view_dst, task_sel);
+							(*rff_p)(r, view_src, view_dst, row_sel);
 						}
+						task_sel |= row_sel;
 					}
 				},
 				nlines_sel);
@@ -71,30 +76,30 @@ Picviz::PVSelection Picviz::PVTFViewRowFiltering::operator()(PVView const& view_
 
 		// For each line of sel_org, create a selection that goes with view_dst
 		// Then, merge this selection into the final one.
-		tbb::enumerable_thread_specific<PVSelection, tbb::tbb_allocator<PVSelection>, tbb::ets_key_per_instance> tls_sel_tmp_row;
-		tbb::enumerable_thread_specific<PVSelection, tbb::tbb_allocator<PVSelection>, tbb::ets_key_per_instance> tls_sel_tmp_rff;
+		tbb::enumerable_thread_specific<PVSparseSelection, tbb::tbb_allocator<PVSparseSelection>, tbb::ets_key_per_instance> tls_sel_tmp_row;
+		tbb::enumerable_thread_specific<PVSparseSelection, tbb::tbb_allocator<PVSparseSelection>, tbb::ets_key_per_instance> tls_sel_tmp_rff;
 
-#pragma omp parallel num_threads(12)
+#pragma omp parallel num_threads(ncores)
 		{
 #pragma omp single
 			sel_org.visit_selected_lines([&](PVRow r) {
 #pragma omp task default(shared)
 				{
-					Picviz::PVSelection& sel_tmp_row = tls_sel_tmp_row.local();
-					Picviz::PVSelection& sel_tmp_rff = tls_sel_tmp_rff.local();
-					sel_tmp_row.select_none();
+					Picviz::PVSparseSelection& sel_tmp_row = tls_sel_tmp_row.local();
+					Picviz::PVSparseSelection& sel_tmp_rff = tls_sel_tmp_rff.local();
+					sel_tmp_row.clear();
 					decltype(_rffs)::const_iterator it_rff = _rffs.begin();
 					(*(*it_rff))(r, view_src, view_dst, sel_tmp_row);
 					it_rff++;
 					for (; it_rff != _rffs.end(); it_rff++) {
-						sel_tmp_rff.select_none();
+						sel_tmp_rff.clear();
 						Picviz::PVSelRowFilteringFunction& rff_ref(*(*it_rff));
 						rff_ref(r, view_src, view_dst, sel_tmp_rff);
 
 						switch (rff_ref.get_combination_op()) {
 							case PVCore::PVBinaryOperation::OR:
 								{
-									sel_tmp_row.or_optimized(sel_tmp_rff);
+									sel_tmp_row |= sel_tmp_rff;
 									break;
 								}
 							case PVCore::PVBinaryOperation::AND:
@@ -104,22 +109,22 @@ Picviz::PVSelection Picviz::PVTFViewRowFiltering::operator()(PVView const& view_
 								}
 							case PVCore::PVBinaryOperation::XOR:
 								{
-									sel_tmp_row ^= sel_tmp_rff;
+									//sel_tmp_row ^= sel_tmp_rff;
 									break;
 								}
 							case PVCore::PVBinaryOperation::OR_NOT:
 								{
-									sel_tmp_row.or_not(sel_tmp_rff);
+									//sel_tmp_row.or_not(sel_tmp_rff);
 									break;
 								}
 							case PVCore::PVBinaryOperation::AND_NOT:
 								{
-									sel_tmp_row.and_not(sel_tmp_rff);
+									//sel_tmp_row.and_not(sel_tmp_rff);
 									break;
 								}
 							case PVCore::PVBinaryOperation::XOR_NOT:
 								{
-									sel_tmp_row.xor_not(sel_tmp_rff);
+									//sel_tmp_row.xor_not(sel_tmp_rff);
 									break;
 								}
 							default:
@@ -130,7 +135,7 @@ Picviz::PVSelection Picviz::PVTFViewRowFiltering::operator()(PVView const& view_
 					}
 
 					Picviz::PVSelection& task_sel = tls_sel.local();
-					task_sel.or_optimized(sel_tmp_row);
+					task_sel |= sel_tmp_row;
 				}
 			},
 			nlines_sel);

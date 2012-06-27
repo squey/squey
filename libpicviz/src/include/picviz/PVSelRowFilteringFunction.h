@@ -4,21 +4,26 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/core/PVBinaryOperation.h>
+#include <pvkernel/core/PVFunctionArgs.h>
 #include <pvkernel/core/PVRegistrableClass.h>
-#include <picviz/PVSelection.h>
+#include <pvkernel/core/PVCompList.h>
+
 #include <picviz/PVSelRowFilteringFunction_types.h>
 
 #include <boost/enable_shared_from_this.hpp>
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
 
 namespace Picviz {
 
+class PVSparseSelection;
 class PVView;
 
 /*! \brief Interface from selection row filtering functions
  */
-class PVSelRowFilteringFunction: public PVCore::PVFunctionArgs<boost::function<void(PVRow, PVView const&, PVView const&, PVSelection&)> >, public PVCore::PVRegistrableClass<PVSelRowFilteringFunction>, public boost::enable_shared_from_this<PVSelRowFilteringFunction>
+class PVSelRowFilteringFunction: public PVCore::PVFunctionArgs<boost::function<void(PVRow, PVView const&, PVView const&, PVSparseSelection&)> >, public PVCore::PVRegistrableClass<PVSelRowFilteringFunction>, public boost::enable_shared_from_this<PVSelRowFilteringFunction>
 {
-	typedef PVCore::PVFunctionArgs<boost::function<void(PVRow, PVView const&, PVView const&, PVSelection&)> > fargs_t;
+	typedef PVCore::PVFunctionArgs<boost::function<void(PVRow, PVView const&, PVView const&, PVSparseSelection&)> > fargs_t;
 	typedef PVCore::PVRegistrableClass<PVSelRowFilteringFunction> reg_class_t;
 public:
 	typedef boost::shared_ptr<PVSelRowFilteringFunction> p_type;
@@ -44,7 +49,7 @@ public:
 			_do_pre_process = false ;
 		}
 	}
-	virtual void operator()(PVRow row_org, PVView const& view_org, PVView const& view_dst, PVSelection& sel_dst) const = 0;
+	virtual void operator()(PVRow row_org, PVView const& view_org, PVView const& view_dst, PVSparseSelection& sel_dst) const = 0;
 	virtual QString get_human_name() const { return registered_name(); }
 	virtual QString get_human_name_with_args(const PVView& /*src_view*/, const PVView& /*dst_view*/) const { return get_human_name(); }
 
@@ -101,13 +106,13 @@ private:
 
 #define CLASS_RFF(T)\
 	public:\
-		virtual func_type f() { return boost::bind<void>((void(T::*)(PVRow, PVView const&, PVView const&, PVSelection&))(&T::operator()), this, _1, _2, _3, _4); }\
+		virtual func_type f() { return boost::bind<void>((void(T::*)(PVRow, PVView const&, PVView const&, PVSparseSelection&))(&T::operator()), this, _1, _2, _3, _4); }\
 	CLASS_FUNC_ARGS_PARAM(T) \
 	CLASS_REGISTRABLE(T)
 
 #define CLASS_RFF_NOPARAM(T)\
 	public:\
-		virtual func_type f() { return boost::bind<void>((void(T::*)(PVRow, PVView const&, PVView const&, PVSelection&))(&T::operator()), this, _1, _2, _3, _4); }\
+		virtual func_type f() { return boost::bind<void>((void(T::*)(PVRow, PVView const&, PVView const&, PVSparseSelection&))(&T::operator()), this, _1, _2, _3, _4); }\
 	CLASS_FUNC_ARGS_NOPARAM(T)\
 	CLASS_REGISTRABLE(T)
 

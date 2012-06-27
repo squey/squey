@@ -7,8 +7,10 @@
 #include "bithacks.h"
 
 #include <pvkernel/core/picviz_intrin.h>
+#include <pvkernel/rush/PVNraw.h>
 
 #include <picviz/PVSelection.h>
+#include <picviz/PVSparseSelection.h>
 
 static inline uint32_t count_bits(size_t n, const uint32_t* data)
 {
@@ -248,8 +250,21 @@ Picviz::PVSelection Picviz::PVSelection::operator|(const PVSelection &rhs) const
  *****************************************************************************/
 Picviz::PVSelection & Picviz::PVSelection::operator|=(const PVSelection &rhs)
 {
-	for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
-		_table[i] |= rhs._table[i];
+	if (&rhs != this) {
+		for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
+			_table[i] |= rhs._table[i];
+		}
+	}
+
+	return *this;
+}
+
+Picviz::PVSelection & Picviz::PVSelection::operator|=(const PVSparseSelection &rhs)
+{
+	PVSparseSelection::map_chunks_t const& chunks = rhs.get_chunks();
+	PVSparseSelection::map_chunks_t::const_iterator it;
+	for (it = chunks.begin(); it != chunks.end(); it++) {
+		_table[it->first] |= it->second;
 	}
 
 	return *this;
@@ -410,13 +425,13 @@ void Picviz::PVSelection::select_inverse()
  *****************************************************************************/
 void Picviz::PVSelection::set_line(PVRow line_index, bool bool_value)
 {
-	const PVRow pos = line_index / PICVIZ_SELECTION_CHUNK_SIZE;
-	const PVRow shift = line_index - (pos * PICVIZ_SELECTION_CHUNK_SIZE);
+	const PVRow pos = line_index_to_chunk(line_index);
+	const PVRow shift = line_index_to_chunk_bit(line_index);
 	
 	if ( bool_value )  {
-		B_SET(_table[pos], shift);
+		_table[pos] |= 1UL<<shift;
 	} else {
-		B_UNSET(_table[pos], shift);
+		_table[pos] &= ~(1UL<<shift);
 	}
 }
 

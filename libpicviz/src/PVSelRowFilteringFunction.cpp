@@ -1,5 +1,5 @@
-#include <picviz/PVSelRowFilteringFunction.h>
 #include <pvkernel/core/PVClassLibrary.h>
+#include <picviz/PVSelRowFilteringFunction.h>
 
 void Picviz::PVSelRowFilteringFunction::to_xml(QDomElement& elt) const
 {

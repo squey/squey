@@ -11,7 +11,6 @@
 #include <pvkernel/core/picviz_intrin.h>
 #include <pvkernel/core/PVAllocators.h>
 #include <pvkernel/core/PVSerializeArchive.h>
-#include <pvkernel/rush/PVNraw.h>
 
 #include <picviz/general.h>
 
@@ -19,10 +18,15 @@
 
 #include <vector>
 
+namespace PVRush {
+class PVNraw;
+}
 
 namespace Picviz {
 
-#define PICVIZ_SELECTION_CHUNK_SIZE 32
+class PVSparseSelection;
+
+#define PICVIZ_SELECTION_CHUNK_SIZE 64
 #if (PICVIZ_LINES_MAX % PICVIZ_SELECTION_CHUNK_SIZE == 0)
 #define PICVIZ_SELECTION_NUMBER_OF_CHUNKS (PICVIZ_LINES_MAX / PICVIZ_SELECTION_CHUNK_SIZE)
 #else
@@ -44,9 +48,9 @@ class LibPicvizDecl PVSelection {
 public:
 	//typedef PVCore::PVAlignedAllocator<uint32_t, 16>::pointer pointer;
 	//typedef uint32_t DECLARE_ALIGN(16) * pointer;
-	typedef uint32_t DECLARE_ALIGN(16) * pointer;
-	typedef uint32_t DECLARE_ALIGN(16) const* const_pointer;
-	typedef PVCore::PVAlignedAllocator<uint32_t, 16> allocator;
+	typedef uint64_t DECLARE_ALIGN(16) * pointer;
+	typedef uint64_t DECLARE_ALIGN(16) const* const_pointer;
+	typedef PVCore::PVAlignedAllocator<uint64_t, 16> allocator;
 
 private:
 	pointer _table;
@@ -97,8 +101,8 @@ public:
 	 */
 	inline bool get_line (PVRow line_index) const
 	{
-		const PVRow pos = line_index / PICVIZ_SELECTION_CHUNK_SIZE;
-		const PVRow shift = line_index - (pos * PICVIZ_SELECTION_CHUNK_SIZE);
+		const PVRow pos = line_index_to_chunk(line_index);
+		const PVRow shift = line_index_to_chunk_bit(line_index);
 
 		/*
 		 * Say you want to retrieve if the line 20000 is selected or not:
@@ -106,7 +110,7 @@ public:
 		 * shift = 32
 		 */
 
-		return (_table[pos] & (1<<shift));
+		return (_table[pos] & (1UL<<shift));
 	}
 
 	/**
@@ -193,6 +197,7 @@ public:
 	 * @return A reference to the resulting PVSelection
 	 */
 	PVSelection& operator|=(const PVSelection &rhs);
+	PVSelection& operator|=(const PVSparseSelection &rhs);
 	PVSelection& or_optimized(const PVSelection &rhs);
 
 	/**
@@ -289,7 +294,7 @@ public:
 	 */
 	void set_line_select_only(PVRow line_index, bool bool_value);
 
-	inline void set_bit_fast(PVRow line_index) { _table[line_index / PICVIZ_SELECTION_CHUNK_SIZE] |= 1 << (line_index % PICVIZ_SELECTION_CHUNK_SIZE);}
+	inline void set_bit_fast(PVRow line_index) { _table[line_index_to_chunk(line_index)] |= 1UL << (line_index_to_chunk_bit(line_index)); }
 
 	// Returns the index of the chunk following the last chunk that contains a line
 	// Thus, returns 0 if no chunk is empty
@@ -322,12 +327,12 @@ public:
 
 			if (vec64_0 != 0) {
 				while (nbits > 0 && cur_b < 64) {
-					PVRow idx = (i<<5) + cur_b;
+					PVRow idx = chunk_to_line_index(i) + cur_b;
 					if (idx >= nrows) {
 						return;
 					}
 					if (vec64_0 & (1UL<<cur_b)) {
-						f((i<<5) + cur_b);
+						f(chunk_to_line_index(i) + cur_b);
 						nbits--;
 					}
 					cur_b++;
@@ -336,12 +341,12 @@ public:
 			}
 			if (vec64_1 != 0) {
 				while (nbits > 0 && cur_b < 64) {
-					PVRow idx = (i<<5) + cur_b + 64;
+					PVRow idx = chunk_to_line_index(i) + cur_b + 64;
 					if (idx >= nrows) {
 						return;
 					}
 					if (vec64_1 & (1UL<<cur_b)) {
-						f((i<<5) + cur_b + 64);
+						f(chunk_to_line_index(i) + cur_b + 64);
 						nbits--;
 					}
 					cur_b++;
@@ -352,7 +357,7 @@ public:
 		for (; i <= last_chunk; i++) {
 			const uint32_t sel_buf = _table[i];
 			for (uint32_t j = 0; j < 32; j++) {
-				PVRow idx = (i<<5) +j;
+				PVRow idx = chunk_to_line_index(i) +j;
 				if (idx >= nrows) {
 					return;
 				}
@@ -373,7 +378,9 @@ public:
 
 	void write_selected_lines_nraw(QTextStream& stream, PVRush::PVNraw const& nraw, PVRow write_max);
 
-	static inline PVRow line_index_to_chunk(PVRow r) { return r>>5; }
+	static inline PVRow line_index_to_chunk(const PVRow r) { return r>>6; }
+	static inline PVRow chunk_to_line_index(const PVRow r) { return r<<6; }
+	static inline PVRow line_index_to_chunk_bit(const PVRow r) { return r & 63; }
 
 private:
 	template <class F>
@@ -384,16 +391,16 @@ private:
 			return;
 		}
 		for (ssize_t i = 0; i < last_chunk; i++) {
-			const uint32_t sel_buf = _table[i];
+			const uint64_t sel_buf = _table[i];
 			if (sel_buf == 0) {
 				continue;
 			}
-			for (uint32_t j = 0; j < 32; j++) {
-				PVRow idx = (i<<5)+j;
+			for (uint32_t j = 0; j < 64; j++) {
+				PVRow idx = chunk_to_line_index(i) + j;
 				if (idx >= nrows) {
 					return;
 				}
-				if (sel_buf & (1U << j)) {
+				if (sel_buf & (1ULL << j)) {
 					f(idx);
 				}
 			}
