@@ -1,4 +1,5 @@
 
+include_directories(AFTER ${PVKERNEL_INCLUDE_DIR})
 include_directories(AFTER ${PVHIVE_INCLUDE_DIR})
 
 set(COMMON_LIBRARIES ${PVHIVE_LIBRARIES} ${BOOST_LIBRARIES} ${Boost_LIBRARIES_PYTHON} ${PYTHON_LIBRARY})
@@ -19,4 +20,9 @@ target_link_libraries(Tadrien-boost_thread ${COMMON_LIBRARIES})
 
 add_executable(Tadrien-qt_thread adrien_main-qt_thread.cpp ${TEST_ADRIEN_MOC_SRC})
 target_link_libraries(Tadrien-qt_thread ${COMMON_LIBRARIES})
+
+QT4_WRAP_CPP(TEST_FUNCTIONAL_MOC_SRC functional_dlg.h functional_objs.h OPTIONS ${QT4_WRAP_OPTIONS})
+
+add_executable(Tfunctional functional_main.cpp ${TEST_FUNCTIONAL_MOC_SRC})
+target_link_libraries(Tfunctional ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES})
 
