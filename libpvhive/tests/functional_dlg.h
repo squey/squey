@@ -11,12 +11,12 @@
 
 #include "functional_objs.h"
 
-class BigTestDlg : public QDialog
+class FunctionalDlg : public QDialog
 {
 	Q_OBJECT
 
 public:
-	BigTestDlg(QWidget* parent) : QDialog(parent), _entity_next(0),
+	FunctionalDlg(QWidget* parent) : QDialog(parent), _entity_next(0),
 	                              _actor_next(0), _observer_next(0)
 	{
 		QPushButton *pb;
@@ -61,7 +61,7 @@ public:
 		resize(320,200);
 	}
 
-	~BigTestDlg()
+	~FunctionalDlg()
 	{
 	}
 

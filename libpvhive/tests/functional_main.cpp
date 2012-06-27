@@ -7,7 +7,7 @@ int main(int argc, char** argv)
 {
 	QApplication app(argc, argv);
 
-	BigTestDlg dlg(nullptr);
+	FunctionalDlg dlg(nullptr);
 
 	dlg.show();
 
