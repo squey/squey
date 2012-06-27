@@ -15,6 +15,7 @@
 #include <QHBoxLayout>
 #include <QTimer>
 #include <QLabel>
+#include <QThread>
 
 class Entity
 {
@@ -68,41 +69,58 @@ private:
 	int _id;
 };
 
-class EntityActor : public QDialog, public Interactor, public PVHive::PVActor<Entity>
+class EntityActor : public Interactor, public PVHive::PVActor<Entity>
+{
+public:
+	EntityActor(int id) :
+	Interactor(id),
+		_value(0)
+	{
+		_duration = random() % 2000;
+	}
+
+	virtual void terminate()
+	{
+	}
+
+protected:
+	int     _value;
+	int     _duration;
+};
+
+class EntityTimerActor : public QDialog, public EntityActor
 {
 	Q_OBJECT
 
 public:
-	EntityActor(int id, QString &obj_name, QWidget *parent) :
+	EntityTimerActor(int id, QString &obj_name, QWidget *parent) :
 		QDialog(parent),
-		Interactor(id),
-		_value(0)
+		EntityActor(id)
 	{
-		int duration = random() % 2000;
+		_timer = new QTimer(this);
+		connect(_timer, SIGNAL(timeout()), this, SLOT(do_update()));
+		_timer->start(_duration);
 
 		QVBoxLayout *vb = new QVBoxLayout(this);
 
-		QLabel *l = new QLabel(QString("update each ") + QString::number(duration) + " ms");
+		QLabel *l = new QLabel(QString("update each ") + QString::number(_duration) + " ms");
 		vb->addWidget(l);
 
 		_vl = new QLabel("count: NA");
 		vb->addWidget(_vl);
 
-		_timer = new QTimer(this);
-		connect(_timer, SIGNAL(timeout()), this, SLOT(do_update()));
-		_timer->start(duration);
-
-		setWindowTitle("actor " + QString::number(id) + " (" + obj_name + ")");
+		setWindowTitle("timer actor " + QString::number(id) + " (" + obj_name + ")");
 
 		setAttribute(Qt::WA_DeleteOnClose, true);
 
 		resize(256, 64);
 	}
 
-	~EntityActor()
+	~EntityTimerActor()
 	{
-		std::cout << "actor " << get_id() << ": death" << std::endl;
+		std::cout << "timer actor " << get_id() << ": death" << std::endl;
 	}
+
 
 	virtual void terminate()
 	{
@@ -118,10 +136,41 @@ private slots:
 	}
 
 private:
-	int     _id;
-	int     _value;
-	QTimer *_timer;
 	QLabel *_vl;
+	QTimer *_timer;
+};
+
+class EntityThreadActor : public QThread, public EntityActor
+{
+public:
+	EntityThreadActor(int id, QObject *parent) :
+		QThread(parent),
+		EntityActor(id),
+		_can_run(true)
+	{
+		start();
+	}
+
+	virtual void terminate()
+	{
+		_can_run = false;
+		wait();
+		deleteLater();
+	}
+
+	void run()
+	{
+		while(_can_run) {
+			msleep(_duration);
+			std::cout << "thread actor " << get_id()
+			          << ": update to " << _value << std::endl;
+			PVACTOR_CALL(*this, &Entity::set_value, _value);
+			++_value;
+		}
+	}
+
+private:
+	bool _can_run;
 };
 
 class EntityObserver : public QDialog, public Interactor, public PVHive::PVObserver<Entity>
@@ -194,7 +243,7 @@ public:
 
 	virtual void do_refresh(PVHive::PVObserverBase *)
 	{
-		std::cout << "qobserver " << get_id() << ": new value is "
+		std::cout << "qobserver " << get_id() << ": value: "
 		          << get_object()->get_value() << std::endl;
 	}
 
@@ -254,7 +303,7 @@ signals:
 public slots:
 	void do_refresh(PVHive::PVObserverBase *)
 	{
-		std::cout << "observersignal " << get_id() << ": new value is "
+		std::cout << "observersignal " << get_id() << ": value: "
 		          << _os.get_object()->get_value() << std::endl;
 	}
 
@@ -286,7 +335,7 @@ public:
 		_ocb = PVHive::create_observer_callback<Entity,
 		                                        func_type,
 		                                        func_type>(std::bind([] (const Entity *e, EntityObserverCB *o) {
-					                                        std::cout << "observercb " << o->get_id() << ": " << e->get_value() << std::endl;
+					                                        std::cout << "observercb " << o->get_id() << ": value: " << e->get_value() << std::endl;
 				                                        }, std::placeholders::_1, this),
 			                                        std::bind([](const Entity *e, EntityObserverCB *o){
 					                                        QMessageBox box;

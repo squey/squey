@@ -26,15 +26,21 @@ public:
 
 		QGridLayout *gb = new QGridLayout(this);
 
-		/* add buttons for entity and actor
+		/* add button for entity
 		 */
 		pb = new QPushButton(QString("Add entity"), this);
 		connect(pb, SIGNAL(clicked(bool)), this, SLOT(do_add_entity()));
 		gb->addWidget(pb, 0, 0);
 
-		pb = new QPushButton(QString("Add actor"), this);
-		connect(pb, SIGNAL(clicked(bool)), this, SLOT(do_add_actor()));
+		/* add buttons for actors
+		 */
+		pb = new QPushButton(QString("Add timer actor"), this);
+		connect(pb, SIGNAL(clicked(bool)), this, SLOT(do_add_timer_actor()));
 		gb->addWidget(pb, 0, 1);
+
+		pb = new QPushButton(QString("Add thread actor"), this);
+		connect(pb, SIGNAL(clicked(bool)), this, SLOT(do_add_thread_actor()));
+		gb->addWidget(pb, 1, 1);
 
 		/* add buttons for each type of observer
 		 */
@@ -101,7 +107,7 @@ private slots:
 
 	void do_close_actor(int)
 	{
-		EntityActor *a = qobject_cast<EntityActor *>(sender());
+		EntityTimerActor *a = qobject_cast<EntityTimerActor *>(sender());
 		auto items = _actor_lw->findItems(QString::number(a->get_id()),
 		                                  Qt::MatchExactly);
 		if (items.isEmpty() == false) {
@@ -131,7 +137,7 @@ private slots:
 		++_entity_next;
 	}
 
-	void do_add_actor()
+	void do_add_timer_actor()
 	{
 		auto selected = _entity_lw->selectedItems();
 
@@ -142,7 +148,7 @@ private slots:
 		int eid = selected.at(0)->text().toInt();
 		QString ent_name = "object " + QString::number(eid);
 
-		EntityActor *a = new EntityActor(_actor_next, ent_name, this);
+		EntityTimerActor *a = new EntityTimerActor(_actor_next, ent_name, this);
 		_actor_list[_actor_next] = a;
 		_actor_lw->addItem(QString::number(_actor_next));
 		++_actor_next;
@@ -153,6 +159,26 @@ private slots:
 		PVHive::PVHive::get().register_actor(*e, *a);
 
 		a->show();
+	}
+
+	void do_add_thread_actor()
+	{
+		auto selected = _entity_lw->selectedItems();
+
+		if (selected.isEmpty()) {
+			return;
+		}
+
+		int eid = selected.at(0)->text().toInt();
+		QString ent_name = "object " + QString::number(eid);
+
+		EntityThreadActor *a = new EntityThreadActor(_actor_next, this);
+		_actor_list[_actor_next] = a;
+		_actor_lw->addItem(QString::number(_actor_next));
+		++_actor_next;
+
+		Entity *e = _entity_list[eid];
+		PVHive::PVHive::get().register_actor(*e, *a);
 	}
 
 	void do_add_observer()
