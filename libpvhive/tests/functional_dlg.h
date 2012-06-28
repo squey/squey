@@ -112,7 +112,7 @@ private slots:
 	void do_close_actor(int)
 	{
 		EntityTimerActor *a = qobject_cast<EntityTimerActor *>(sender());
-		auto items = _actor_lw->findItems(QString::number(a->get_id()),
+		auto items = _actor_lw->findItems("a" + QString::number(a->get_id()),
 		                                  Qt::MatchExactly);
 		if (items.isEmpty() == false) {
 			items.at(0)->setSelected(true);
@@ -123,7 +123,7 @@ private slots:
 	void do_close_observer(int)
 	{
 		Interactor *o = dynamic_cast<Interactor *>(sender());
-		auto items = _observer_lw->findItems(QString::number(o->get_id()),
+		auto items = _observer_lw->findItems("o" + QString::number(o->get_id()),
 		                                     Qt::MatchExactly);
 		if (items.isEmpty() == false) {
 			items.at(0)->setSelected(true);
@@ -137,7 +137,7 @@ private slots:
 	{
 		Entity *e = new Entity(_entity_next);
 		_entity_list[_entity_next] = e;
-		_entity_lw->addItem(QString::number(_entity_next));
+		_entity_lw->addItem("e" + QString::number(_entity_next));
 		++_entity_next;
 	}
 
@@ -145,13 +145,13 @@ private slots:
 	{
 		PropertyEntity *e = new PropertyEntity(_entity_next);
 		_entity_list[_entity_next] = e;
-		_entity_lw->addItem(QString::number(_entity_next));
+		_entity_lw->addItem("e" + QString::number(_entity_next));
 		++_entity_next;
 
 		Entity *p = e->get_prop();
 		_entity_list[_entity_next] = p;
 		p->set_id(_entity_next);
-		_entity_lw->addItem(QString::number(_entity_next));
+		_entity_lw->addItem("p" + QString::number(_entity_next));
 		++_entity_next;
 	}
 
@@ -163,12 +163,12 @@ private slots:
 			return;
 		}
 
-		int eid = selected.at(0)->text().toInt();
+		int eid = selected.at(0)->text().mid(1).toInt();
 		QString ent_name = "object " + QString::number(eid);
 
 		EntityTimerActor *a = new EntityTimerActor(_actor_next, ent_name, this);
 		_actor_list[_actor_next] = a;
-		_actor_lw->addItem(QString::number(_actor_next));
+		_actor_lw->addItem("a" + QString::number(_actor_next));
 		++_actor_next;
 
 		connect(a, SIGNAL(finished(int)), this, SLOT(do_close_actor(int)));
@@ -187,12 +187,12 @@ private slots:
 			return;
 		}
 
-		int eid = selected.at(0)->text().toInt();
+		int eid = selected.at(0)->text().mid(1).toInt();
 		QString ent_name = "object " + QString::number(eid);
 
 		EntityThreadActor *a = new EntityThreadActor(_actor_next, this);
 		_actor_list[_actor_next] = a;
-		_actor_lw->addItem(QString::number(_actor_next));
+		_actor_lw->addItem("a" + QString::number(_actor_next));
 		++_actor_next;
 
 		Entity *e = _entity_list[eid];
@@ -207,7 +207,7 @@ private slots:
 			return;
 		}
 
-		int eid = selected.at(0)->text().toInt();
+		int eid = selected.at(0)->text().mid(1).toInt();
 		QString ent_name = "object " + QString::number(eid);
 		EntityObserver *o = new EntityObserver(_observer_next, ent_name, this);
 		add_observer(_observer_next, o, o, eid);
@@ -226,7 +226,7 @@ private slots:
 			return;
 		}
 
-		int eid = selected.at(0)->text().toInt();
+		int eid = selected.at(0)->text().mid(1).toInt();
 		QString ent_name = "object " + QString::number(eid);
 		EntityQObserver *o = new EntityQObserver(_observer_next, this);
 		add_observer(_observer_next, o, o, eid);
@@ -243,7 +243,7 @@ private slots:
 			return;
 		}
 
-		int eid = selected.at(0)->text().toInt();
+		int eid = selected.at(0)->text().mid(1).toInt();
 		QString ent_name = "object " + QString::number(eid);
 		EntityObserverCB *o = new EntityObserverCB(_observer_next);
 		add_observer(_observer_next, o, o->get(), eid);
@@ -260,7 +260,7 @@ private slots:
 			return;
 		}
 
-		int eid = selected.at(0)->text().toInt();
+		int eid = selected.at(0)->text().mid(1).toInt();
 		QString ent_name = "object " + QString::number(eid);
 		EntityObserverSignal *o = new EntityObserverSignal(_observer_next, this);
 		add_observer(_observer_next, o, o->get(), eid);
@@ -278,7 +278,7 @@ private slots:
 		}
 
 		QListWidgetItem *item = selected.at(0);
-		int eid = item->text().toInt();
+		int eid = item->text().mid(1).toInt();
 		Entity *e = _entity_list[eid];
 
 		if (e->get_parent() != nullptr) {
@@ -294,7 +294,7 @@ private slots:
 		if(e->has_prop()) {
 			int pid = e->get_prop()->get_id();
 			_entity_list.remove(eid);
-			auto items = _entity_lw->findItems(QString::number(pid),
+			auto items = _entity_lw->findItems("p" + QString::number(pid),
 			                                   Qt::MatchExactly);
 			delete items.at(0);
 		}
@@ -311,7 +311,7 @@ private slots:
 		}
 
 		QListWidgetItem *item = selected.at(0);
-		int aid = item->text().toInt();
+		int aid = item->text().mid(1).toInt();
 		Interactor *a = _actor_list[aid];
 		_actor_list.remove(aid);
 		delete item;
@@ -327,7 +327,7 @@ private slots:
 		}
 
 		QListWidgetItem *item = selected.at(0);
-		int oid = item->text().toInt();
+		int oid = item->text().mid(1).toInt();
 		Interactor *o = dynamic_cast<Interactor*>(_observer_list[oid]);
 		_observer_list.remove(oid);
 		delete item;
@@ -338,7 +338,7 @@ private:
 	void add_observer(int id, Interactor *i, PVHive::PVObserverBase *o, int eid)
 	{
 		_observer_list[id] = i;
-		_observer_lw->addItem(QString::number(id));
+		_observer_lw->addItem("o" + QString::number(id));
 
 		Entity *e = _entity_list[eid];
 		Entity *p = e->get_parent();
