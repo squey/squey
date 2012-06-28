@@ -86,7 +86,7 @@ Picviz::PVSelection Picviz::PVTFViewRowFiltering::operator()(PVView const& view_
 					Picviz::PVSparseSelection& sel_tmp_row = tls_sel_tmp_row.local();
 					Picviz::PVSparseSelection& sel_tmp_rff = tls_sel_tmp_rff.local();
 					sel_tmp_row.clear();
-					decltype(_rffs)::const_iterator it_rff = _rffs.begin();
+					list_rff_t::const_iterator it_rff = _rffs.begin();
 					(*(*it_rff))(r, view_src, view_dst, sel_tmp_row);
 					it_rff++;
 					for (; it_rff != _rffs.end(); it_rff++) {
@@ -146,7 +146,8 @@ Picviz::PVSelection Picviz::PVTFViewRowFiltering::operator()(PVView const& view_
 	}
 	PVSelection& final_sel = *tls_sel.begin();
 	// Merge all TLS selections
-	decltype(tls_sel)::const_iterator it_sel = tls_sel.begin();
+	tbb::enumerable_thread_specific<PVSelection, tbb::tbb_allocator<PVSelection>, tbb::ets_key_per_instance>::const_iterator it_sel;
+	it_sel = tls_sel.begin();
 	it_sel++;
 	BENCH_START(sel_red);
 	for (; it_sel != tls_sel.end(); it_sel++) {
