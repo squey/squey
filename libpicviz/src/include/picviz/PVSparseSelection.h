@@ -76,19 +76,20 @@ public:
 			if (c == 0) {
 				continue;
 			}
-			/*size_t nbits = PVCore::PVBitCount::bit_count(c);
+			const size_t off = ((size_t)(it->first))<<nbits_per_chunk_ln2;
+			size_t nbits = PVCore::PVBitCount::bit_count(c);
 			for (size_t i = 0; ((i < 64) & (nbits > 0)); i++) {
 				if ((c & (1UL<<(i)))) {
-					f(((size_t)(it->first))<<6 + i);
+					f(off + i);
 					nbits--;
 				}
-			}*/
-			const size_t off = ((size_t)(it->first))<<nbits_per_chunk_ln2;
+			}
+			/*const size_t off = ((size_t)(it->first))<<nbits_per_chunk_ln2;
 			for (size_t i = 0; i < nbits_per_chunk; i++) {
 				if ((c & (1UL<<(i)))) {
 					f(off + i);
 				}
-			}
+			}*/
 		}
 	}
 
