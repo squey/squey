@@ -32,6 +32,10 @@ public:
 		connect(pb, SIGNAL(clicked(bool)), this, SLOT(do_add_entity()));
 		gb->addWidget(pb, 0, 0);
 
+		pb = new QPushButton(QString("Add entity with property"), this);
+		connect(pb, SIGNAL(clicked(bool)), this, SLOT(do_add_propertyentity()));
+		gb->addWidget(pb, 1, 0);
+
 		/* add buttons for actors
 		 */
 		pb = new QPushButton(QString("Add timer actor"), this);
@@ -133,6 +137,20 @@ private slots:
 	{
 		Entity *e = new Entity(_entity_next);
 		_entity_list[_entity_next] = e;
+		_entity_lw->addItem(QString::number(_entity_next));
+		++_entity_next;
+	}
+
+	void do_add_propertyentity()
+	{
+		PropertyEntity *e = new PropertyEntity(_entity_next);
+		_entity_list[_entity_next] = e;
+		_entity_lw->addItem(QString::number(_entity_next));
+		++_entity_next;
+
+		Entity *p = e->get_prop();
+		_entity_list[_entity_next] = p;
+		p->set_id(_entity_next);
 		_entity_lw->addItem(QString::number(_entity_next));
 		++_entity_next;
 	}
@@ -262,11 +280,26 @@ private slots:
 		QListWidgetItem *item = selected.at(0);
 		int eid = item->text().toInt();
 		Entity *e = _entity_list[eid];
+
+		if (e->get_parent() != nullptr) {
+			return;
+		}
+
 		std::cout << "start unregistering entity " << eid << std::endl;
 		PVHive::PVHive::get().unregister_object(*e);
 		std::cout << "end unregistering entity " << eid << std::endl;
 		_entity_list.remove(eid);
 		delete item;
+
+		if(e->has_prop()) {
+			int pid = e->get_prop()->get_id();
+			_entity_list.remove(eid);
+			auto items = _entity_lw->findItems(QString::number(pid),
+			                                   Qt::MatchExactly);
+			delete items.at(0);
+		}
+
+		delete e;
 	}
 
 	void do_del_actor()
@@ -308,7 +341,15 @@ private:
 		_observer_lw->addItem(QString::number(id));
 
 		Entity *e = _entity_list[eid];
-		PVHive::PVHive::get().register_observer<Entity>(*e, *o);
+		Entity *p = e->get_parent();
+		if (p != nullptr) {
+			PVHive::PVHive::get().register_observer<Entity>(*p,
+			                                                [](Entity const &e) -> Entity & {
+				                                                return *(e.get_prop());
+			                                                }, *o);
+		} else {
+			PVHive::PVHive::get().register_observer<Entity>(*e, *o);
+		}
 	}
 
 private:

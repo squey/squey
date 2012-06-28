@@ -20,8 +20,16 @@
 class Entity
 {
 public:
-	Entity(int id) : _id(id)
-	{}
+	Entity(int id = 0, Entity *parent = nullptr)
+	{
+		set_id(id);
+		set_parent(parent);
+	}
+
+	void set_id(int id)
+	{
+		_id = id;
+	}
 
 	int get_id() const
 	{
@@ -31,6 +39,17 @@ public:
 	QString get_id_str() const
 	{
 		return QString::number(_id);
+	}
+
+
+	void set_parent(Entity *p)
+	{
+		_parent = p;
+	}
+
+	Entity *get_parent() const
+	{
+		return _parent;
 	}
 
 	void set_value(int v)
@@ -43,10 +62,44 @@ public:
 		return _v;
 	}
 
+	virtual bool has_prop() const
+	{
+		return false;
+	}
+
+	virtual Entity *get_prop() const
+	{
+		return nullptr;
+	}
+
 private:
-	int _id;
-	int _v;
+	int     _id;
+	Entity *_parent;
+	int     _v;
 };
+
+class PropertyEntity : public Entity
+{
+public:
+	PropertyEntity(int id, Entity *parent = nullptr) : Entity(id, parent)
+	{
+		_prop.set_parent(this);
+	}
+
+	virtual bool has_prop() const
+	{
+		return true;
+	}
+
+	virtual Entity *get_prop() const
+	{
+		return const_cast<Entity*>(&_prop);
+	}
+
+private:
+	Entity _prop;
+};
+
 
 class Interactor
 {
