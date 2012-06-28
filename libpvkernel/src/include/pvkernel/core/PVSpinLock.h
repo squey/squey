@@ -7,7 +7,13 @@
 namespace PVCore
 {
 
-typedef std::atomic_flag pv_spin_lock_t;
+struct pv_spin_lock_t : public std::atomic_flag
+{
+	pv_spin_lock_t()
+	{
+		atomic_flag_clear(this);
+	}
+};
 
 class pv_spin_lock_guard_t
 {
