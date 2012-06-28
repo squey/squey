@@ -42,7 +42,7 @@ class PVActor;
  * @attention any specialization of template method ::call_object() *must* be
  * declared in the namespace PVHive (you can use the macros
  * PVHIVE_CALL_OBJECT_BLOCK_BEGIN() and PVHIVE_CALL_OBJECT_BLOCK_END()).
-*/
+ */
 
 #define PVHIVE_CALL_OBJECT_BLOCK_BEGIN() namespace PVHive {
 #define PVHIVE_CALL_OBJECT_BLOCK_END() }

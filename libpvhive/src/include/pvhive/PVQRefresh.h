@@ -18,8 +18,8 @@ public:
 	PVQRefresh(QObject *parent = nullptr) :
 		PVRefreshSignal(parent)
 	{
-		connect_refresh(this, SLOT(do_refresh(PVHive::PVObserverBase *)));
-		connect_about_to_be_deleted(this, SLOT(do_about_to_be_deleted(PVHive::PVObserverBase *)));
+		connect_refresh(this, "do_refresh");
+		connect_about_to_be_deleted(this, "do_about_to_be_deleted");
 	}
 
 protected slots:

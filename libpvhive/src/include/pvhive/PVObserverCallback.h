@@ -11,6 +11,9 @@ template <class T, class RefreshF, class DeleteF>
 class PVObserverCallback : public PVObserver<T>
 {
 public:
+	PVObserverCallback()
+	{}
+
 	PVObserverCallback(RefreshF const& r, DeleteF const& d) :
 		_refresh_cb(r),
 		_delete_cb(d)
@@ -19,7 +22,6 @@ public:
 protected:
 	virtual void refresh()
 	{
-
 		_refresh_cb(PVObserver<T>::get_object());
 	}
 

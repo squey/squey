@@ -5,6 +5,7 @@ set(PVHIVE_SRC_FILES
 PVHive.cpp
 PVActorBase.cpp
 PVObserver.cpp
+PVRefreshSignal.cpp
 )
 
 SET(PVHIVE_MOC_HEADERS
