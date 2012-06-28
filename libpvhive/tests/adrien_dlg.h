@@ -104,11 +104,11 @@ public:
 		hive.register_observer(o.get_prop(), _objprop_observer);
 		hive.register_observer(o.get_prop(), *_other_label);
 		/* the next line can run without error only if the thread doing the
-		 * refresh() calls ingherits from QObject
+		 * refresh() calls inherits from QObject
 		 */
 		//hive.register_observer(o.get_prop(), *_bar);
 
-		_objprop_observer.connect_refresh(this, SLOT(prop_changed(PVHive::PVObserverBase*)));
+		_objprop_observer.connect_refresh(this, "prop_changed");
 	}
 
 public slots:
