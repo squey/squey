@@ -28,7 +28,10 @@ public:
 	void call(P... params)
 	{
 		PVCore::pv_spin_lock_guard_t slg(_spinlock);
-		PVHive::get().call_object<T, F, f>((T*)get_object(), params...);
+		T *object = (T*)get_object();
+		if (object != nullptr) {
+			PVHive::get().call_object<T, F, f>(object, params...);
+		}
 	}
 };
 
