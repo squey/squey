@@ -72,9 +72,9 @@ public:
 	void register_actor(T& object, PVActorBase& actor)
 	{
 		// an actor must be set for only one object
-		assert(actor._object == nullptr);
+		assert(actor.get_object() == nullptr);
 
-		actor._object = (void*) &object;
+		actor.set_object((void*) &object);
 	}
 
 	/**
@@ -143,9 +143,9 @@ public:
 	void unregister_actor(PVActorBase& actor)
 	{
 		// the actor must have a valid object
-		assert(actor._object != nullptr);
+		assert(actor.get_object() != nullptr);
 
-		actor._object = nullptr;
+		actor.set_object(nullptr);
 	}
 
 	/**

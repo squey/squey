@@ -5,6 +5,8 @@
 #include <pvhive/PVHive.h>
 #include <pvhive/PVActorBase.h>
 
+#include <pvkernel/core/PVSpinLock.h>
+
 namespace PVHive
 {
 
@@ -15,9 +17,7 @@ public:
 	friend class PVHive;
 
 	PVActor()
-	{
-		_object = nullptr;
-	}
+	{}
 
 	/**
 	 * Invoke an actor's method on its object
@@ -27,7 +27,8 @@ public:
 	template <typename F, F f, typename... P>
 	void call(P... params)
 	{
-		PVHive::get().call_object<T, F, f>((T*)_object, params...);
+		PVCore::pv_spin_lock_guard_t slg(_spinlock);
+		PVHive::get().call_object<T, F, f>((T*)get_object(), params...);
 	}
 };
 
