@@ -41,10 +41,12 @@ void PVHive::PVHive::unregister_object(void *object)
 		// notify properties observers
 		for (auto it : entry->second.properties) {
 			auto res = _observables.find(it);
-			for (auto pit : res->second.observers) {
-				pit->about_to_be_deleted();
+			if (res != _observables.end()) {
+				for (auto pit : res->second.observers) {
+					pit->about_to_be_deleted();
+				}
+				_observables.erase(it);
 			}
-			_observables.erase(it);
 		}
 		// notify observers
 		for (auto it : entry->second.observers) {
