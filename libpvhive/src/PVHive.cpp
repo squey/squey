@@ -35,7 +35,7 @@ void PVHive::PVHive::unregister_object(void *object)
 	// the object must be a valid address
 	assert(object != nullptr);
 
-	read_lock_t read_lock(_observables_lock);
+	write_lock_t write_lock(_observables_lock);
 	auto entry = _observables.find(object);
 	if (entry != _observables.end()) {
 		// notify properties observers
