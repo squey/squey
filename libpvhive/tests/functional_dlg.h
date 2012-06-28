@@ -281,10 +281,6 @@ private slots:
 		int eid = item->text().mid(1).toInt();
 		Entity *e = _entity_list[eid];
 
-		if (e->get_parent() != nullptr) {
-			return;
-		}
-
 		std::cout << "start unregistering entity " << eid << std::endl;
 		PVHive::PVHive::get().unregister_object(*e);
 		std::cout << "end unregistering entity " << eid << std::endl;
@@ -296,10 +292,14 @@ private slots:
 			_entity_list.remove(eid);
 			auto items = _entity_lw->findItems("p" + QString::number(pid),
 			                                   Qt::MatchExactly);
-			delete items.at(0);
+			if (items.isEmpty() == false) {
+				delete items.at(0);
+			}
 		}
 
-		delete e;
+		if (e->get_parent() == nullptr) {
+			delete e;
+		}
 	}
 
 	void do_del_actor()
