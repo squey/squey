@@ -21,7 +21,7 @@ void PVHive::PVHive::unregister_observer(PVObserverBase& observer)
 	write_lock_t write_lock(_observables_lock);
 	auto entry = _observables.find(observer._object);
 	if (entry != _observables.end()) {
-		entry->second.first.erase(&observer);
+		entry->second.observers.erase(&observer);
 	}
 	observer._object = nullptr;
 }
@@ -39,15 +39,15 @@ void PVHive::PVHive::unregister_object(void *object)
 	auto entry = _observables.find(object);
 	if (entry != _observables.end()) {
 		// notify properties observers
-		for (auto it : entry->second.second) {
+		for (auto it : entry->second.properties) {
 			auto res = _observables.find(it);
-			for (auto pit : res->second.first) {
+			for (auto pit : res->second.observers) {
 				pit->about_to_be_deleted();
 			}
 			_observables.erase(it);
 		}
 		// notify observers
-		for (auto it : entry->second.first) {
+		for (auto it : entry->second.observers) {
 			it->about_to_be_deleted();
 		}
 		_observables.erase(object);
@@ -62,7 +62,7 @@ void PVHive::PVHive::do_refresh_observers(void *object)
 	read_lock_t read_lock(_observables_lock);
 	auto entry = _observables.find(object);
 	if (entry != _observables.end()) {
-		for (auto it : entry->second.first) {
+		for (auto it : entry->second.observers) {
 			it->refresh();
 		}
 	}

@@ -107,7 +107,7 @@ public:
 		observer._object = (void*) &object;
 
 		write_lock_t write_lock(_observables_lock);
-		_observables[(void*) &object].first.insert(&observer);
+		_observables[(void*) &object].observers.insert(&observer);
 	}
 
 	/**
@@ -128,9 +128,9 @@ public:
 		auto &property = prop_get(object);
 		write_lock_t write_lock(_observables_lock);
 		// inserting observer
-		_observables[(void*) &property].first.insert(&observer);
+		_observables[(void*) &property].observers.insert(&observer);
 		// inserting property
-		_observables[(void*) &object].second.insert((void*) &property);
+		_observables[(void*) &object].properties.insert((void*) &property);
 		observer._object = (void*) &property;
 	}
 
@@ -237,7 +237,14 @@ private:
 
 	typedef std::set<PVObserverBase*> observers_t;
 	typedef std::set<void*> properties_t;
-	typedef std::unordered_map<void*, std::pair<observers_t, properties_t> > observables_t;
+
+	struct observable_t
+	{
+		observers_t  observers;
+		properties_t properties;
+	};
+
+	typedef std::unordered_map<void*, observable_t > observables_t;
 	observables_t _observables;
 
 	// thread safety
