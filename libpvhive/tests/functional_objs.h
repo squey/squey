@@ -1,4 +1,3 @@
-
 #ifndef BIG_TEST_OBJS_H
 #define BIG_TEST_OBJS_H
 
@@ -9,6 +8,8 @@
 #include <pvhive/PVObserverSignal.h>
 
 #include <functional>
+
+#include <boost/thread.hpp>
 
 #include <QDialog>
 #include <QMessageBox>
@@ -26,6 +27,9 @@ public:
 		set_parent(parent);
 	}
 
+	virtual ~Entity()
+	{}
+
 	void set_id(int id)
 	{
 		_id = id;
@@ -41,6 +45,10 @@ public:
 		return QString::number(_id);
 	}
 
+	QString get_name() const
+	{
+		return "object " + QString().sprintf("%p", this) + " - " + QString::number(_id);
+	}
 
 	void set_parent(Entity *p)
 	{
@@ -100,6 +108,37 @@ private:
 	Entity _prop;
 };
 
+class ThreadEntity : public QThread, public PropertyEntity
+{
+public:
+	ThreadEntity(int id, QObject *qparent = nullptr, Entity *eparent = nullptr) :
+		QThread(qparent),
+		PropertyEntity(id, eparent),
+		_time(10)
+	{
+		std::cout << "ThreadEntity: I'AM " << this << std::endl;
+	}
+
+	~ThreadEntity()
+	{
+		PVHive::PVHive::get().unregister_object(*this);
+		std::cout << "~ThreadEntity(): DEATH" << std::endl;
+	}
+
+	int get_time() const
+	{
+		return _time;
+	}
+
+	void run()
+	{
+		sleep(_time);
+		deleteLater();
+	}
+
+private:
+	int _time;
+};
 
 class Interactor
 {
@@ -132,6 +171,11 @@ public:
 		_duration = random() % 2000;
 	}
 
+	void do_register(Entity *e)
+	{
+		PVHive::PVHive::get().register_actor(*e, *this);
+	}
+
 	virtual void terminate()
 	{
 	}
@@ -146,7 +190,7 @@ class EntityTimerActor : public QDialog, public EntityActor
 	Q_OBJECT
 
 public:
-	EntityTimerActor(int id, QString &obj_name, QWidget *parent) :
+	EntityTimerActor(int id, Entity *e, QWidget *parent) :
 		QDialog(parent),
 		EntityActor(id)
 	{
@@ -162,7 +206,10 @@ public:
 		_vl = new QLabel("count: NA");
 		vb->addWidget(_vl);
 
-		setWindowTitle("timer actor " + QString::number(id) + " (" + obj_name + ")");
+		setWindowTitle("timer actor " + QString().sprintf("%p", this) + " - "
+		               + e->get_name());
+
+		do_register(e);
 
 		setAttribute(Qt::WA_DeleteOnClose, true);
 
@@ -226,12 +273,13 @@ private:
 	bool _can_run;
 };
 
+
 class EntityObserver : public QDialog, public Interactor, public PVHive::PVObserver<Entity>
 {
 	Q_OBJECT
 
 public:
-	EntityObserver(int id, QString &obj_name, QWidget *parent) :
+	EntityObserver(int id, Entity *e, QWidget *parent) :
 		QDialog(parent),
 		Interactor(id)
 	{
@@ -240,7 +288,8 @@ public:
 		_vl = new QLabel("value: NA");
 		vb->addWidget(_vl);
 
-		setWindowTitle("observer " + QString::number(id) + " (" + obj_name + ")");
+		setWindowTitle("timer actor " + QString().sprintf("%p", this) + " - "
+		               + e->get_name());
 
 		setAttribute(Qt::WA_DeleteOnClose, true);
 

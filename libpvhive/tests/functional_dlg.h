@@ -8,6 +8,7 @@
 #include <QGridLayout>
 #include <QPushButton>
 #include <QListWidget>
+#include <QMetaType>
 
 #include "functional_objs.h"
 
@@ -35,6 +36,10 @@ public:
 		pb = new QPushButton(QString("Add entity with property"), this);
 		connect(pb, SIGNAL(clicked(bool)), this, SLOT(do_add_propertyentity()));
 		gb->addWidget(pb, 1, 0);
+
+		pb = new QPushButton(QString("Add entity in thread"), this);
+		connect(pb, SIGNAL(clicked(bool)), this, SLOT(do_add_entity_in_thread()));
+		gb->addWidget(pb, 2, 0);
 
 		/* add buttons for actors
 		 */
@@ -90,6 +95,8 @@ public:
 		gb->addWidget(pb, POS_DEL, 2);
 
 		resize(320,200);
+
+		qRegisterMetaType<QItemSelection>("QItemSelection");
 	}
 
 	~FunctionalDlg()
@@ -108,6 +115,29 @@ private:
 	}
 
 private slots:
+	void do_close_entity(QObject *e)
+	{
+		std::cout << "::do_close_entity in thread " << boost::this_thread::get_id() << std::endl;
+		std::cout << "    v   : " << e << std::endl;
+		int k = _entity_list.key((Entity*)e, -1);
+
+		std::cout << "    k(v): " << k << std::endl;
+
+		std::cout << "    content:" << std::endl;
+		for (auto it = _entity_list.begin(); it != _entity_list.end(); ++it) {
+			std::cout << "        " << it.key() << ": " << it.value()
+			          << " (" << it.value()->get_id() << ")" << std::endl;
+		}
+
+		if (k != -1) {
+			auto items = _entity_lw->findItems("e" + QString::number(k),
+			                                   Qt::MatchExactly);
+			if (items.isEmpty() == false) {
+				items.at(0)->setSelected(true);
+				do_del_entity();
+			}
+		}
+	}
 
 	void do_close_actor(int)
 	{
@@ -135,24 +165,88 @@ private slots:
 
 	void do_add_entity()
 	{
+		std::cout << "::do_add_entity() in thread " << boost::this_thread::get_id() << std::endl;
+
 		Entity *e = new Entity(_entity_next);
-		_entity_list[_entity_next] = e;
+
+		std::cout << "    v   : " << e << std::endl;
+
+		_entity_list.insert(_entity_next, e);
 		_entity_lw->addItem("e" + QString::number(_entity_next));
 		++_entity_next;
+
+		int k = _entity_list.key((Entity*)e, -1);
+		std::cout << "    k(v): " << k << std::endl;
+
+		std::cout << "    content:" << std::endl;
+		for (auto it = _entity_list.begin(); it != _entity_list.end(); ++it) {
+			std::cout << "        " << it.key() << ": " << it.value()
+			          << " (" << it.value()->get_id() << ")" << std::endl;
+		}
 	}
 
 	void do_add_propertyentity()
 	{
+		std::cout << "::do_add_propertyentity() in thread " << boost::this_thread::get_id() << std::endl;
 		PropertyEntity *e = new PropertyEntity(_entity_next);
-		_entity_list[_entity_next] = e;
+
+		std::cout << "    v   : " << e << std::endl;
+
+		_entity_list.insert(_entity_next, e);
 		_entity_lw->addItem("e" + QString::number(_entity_next));
 		++_entity_next;
 
 		Entity *p = e->get_prop();
-		_entity_list[_entity_next] = p;
 		p->set_id(_entity_next);
+		_entity_list.insert(_entity_next, p);
 		_entity_lw->addItem("p" + QString::number(_entity_next));
 		++_entity_next;
+
+		int k = _entity_list.key((Entity*)e, -1);
+		std::cout << "    k(v): " << k << std::endl;
+		std::cout << "    content:" << std::endl;
+		for (auto it = _entity_list.begin(); it != _entity_list.end(); ++it) {
+			std::cout << "        " << it.key() << ": " << it.value()
+			          << " (" << it.value()->get_id() << ")" << std::endl;
+		}
+	}
+
+	void do_add_entity_in_thread()
+	{
+		std::cout << "::do_add_entity_in_thread() in thread " << boost::this_thread::get_id() << std::endl;
+		ThreadEntity *e = new ThreadEntity(_entity_next);
+
+		std::cout << "    v   : " << e << std::endl;
+
+		_entity_list.insert(_entity_next, e);
+		_entity_lw->addItem("e" + QString::number(_entity_next));
+		++_entity_next;
+
+		Entity *p = e->get_prop();
+		p->set_id(_entity_next);
+		_entity_list.insert(_entity_next, p);
+		_entity_lw->addItem("p" + QString::number(_entity_next));
+		++_entity_next;
+
+		QMessageBox box ;
+		box.setText("Information ");
+		box.setInformativeText("A entity and a property will be created");
+		box.setInformativeText("You have " + QString::number(e->get_time())
+		                       + " seconds to do what you want, they are automatically deleted after this delay");
+		box.setStandardButtons(QMessageBox::Ok);
+		box.exec();
+
+		connect(e, SIGNAL(destroyed(QObject*)), this, SLOT(do_close_entity(QObject *)));
+
+		int k = _entity_list.key((Entity*)e, -1);
+		std::cout << "    k(v): " << k << std::endl;
+		std::cout << "    content:" << std::endl;
+		for (auto it = _entity_list.begin(); it != _entity_list.end(); ++it) {
+			std::cout << "        " << it.key() << ": " << it.value()
+			          << " (" << it.value()->get_id() << ")" << std::endl;
+		}
+
+		e->start();
 	}
 
 	void do_add_timer_actor()
@@ -164,17 +258,14 @@ private slots:
 		}
 
 		int eid = selected.at(0)->text().mid(1).toInt();
-		QString ent_name = "object " + QString::number(eid);
+		Entity *e = _entity_list.value(eid);
 
-		EntityTimerActor *a = new EntityTimerActor(_actor_next, ent_name, this);
-		_actor_list[_actor_next] = a;
+		EntityTimerActor *a = new EntityTimerActor(_actor_next, e, this);
+		_actor_list.insert(_actor_next, a);
 		_actor_lw->addItem("a" + QString::number(_actor_next));
 		++_actor_next;
 
 		connect(a, SIGNAL(finished(int)), this, SLOT(do_close_actor(int)));
-
-		Entity *e = _entity_list[eid];
-		PVHive::PVHive::get().register_actor(*e, *a);
 
 		a->show();
 	}
@@ -188,14 +279,14 @@ private slots:
 		}
 
 		int eid = selected.at(0)->text().mid(1).toInt();
-		QString ent_name = "object " + QString::number(eid);
+		Entity *e = _entity_list.value(eid);
+		QString ent_name = "object " + QString().sprintf("%p", e) + QString::number(eid);
 
 		EntityThreadActor *a = new EntityThreadActor(_actor_next, this);
-		_actor_list[_actor_next] = a;
+		_actor_list.insert(_actor_next, a);
 		_actor_lw->addItem("a" + QString::number(_actor_next));
 		++_actor_next;
 
-		Entity *e = _entity_list[eid];
 		PVHive::PVHive::get().register_actor(*e, *a);
 	}
 
@@ -208,8 +299,8 @@ private slots:
 		}
 
 		int eid = selected.at(0)->text().mid(1).toInt();
-		QString ent_name = "object " + QString::number(eid);
-		EntityObserver *o = new EntityObserver(_observer_next, ent_name, this);
+		Entity *e = _entity_list.value(eid);
+		EntityObserver *o = new EntityObserver(_observer_next, e, this);
 		add_observer(_observer_next, o, o, eid);
 		++_observer_next;
 
@@ -227,7 +318,8 @@ private slots:
 		}
 
 		int eid = selected.at(0)->text().mid(1).toInt();
-		QString ent_name = "object " + QString::number(eid);
+		Entity *e = _entity_list.value(eid);
+		QString ent_name = "object " + QString().sprintf("%p", e) + QString::number(eid);
 		EntityQObserver *o = new EntityQObserver(_observer_next, this);
 		add_observer(_observer_next, o, o, eid);
 		++_observer_next;
@@ -244,7 +336,8 @@ private slots:
 		}
 
 		int eid = selected.at(0)->text().mid(1).toInt();
-		QString ent_name = "object " + QString::number(eid);
+		Entity *e = _entity_list.value(eid);
+		QString ent_name = "object " + QString().sprintf("%p", e) + QString::number(eid);
 		EntityObserverCB *o = new EntityObserverCB(_observer_next);
 		add_observer(_observer_next, o, o->get(), eid);
 		++_observer_next;
@@ -261,7 +354,8 @@ private slots:
 		}
 
 		int eid = selected.at(0)->text().mid(1).toInt();
-		QString ent_name = "object " + QString::number(eid);
+		Entity *e = _entity_list.value(eid);
+		QString ent_name = "object " + QString().sprintf("%p", e) + QString::number(eid);
 		EntityObserverSignal *o = new EntityObserverSignal(_observer_next, this);
 		add_observer(_observer_next, o, o->get(), eid);
 		++_observer_next;
@@ -279,17 +373,22 @@ private slots:
 
 		QListWidgetItem *item = selected.at(0);
 		int eid = item->text().mid(1).toInt();
-		Entity *e = _entity_list[eid];
+		delete item;
 
+		auto res = _entity_list.find(eid);
+		if (res == _entity_list.end()) {
+			// the entity has already been unregistered
+			return;
+		}
+		Entity *e = _entity_list.value(eid);
 		std::cout << "start unregistering entity " << eid << std::endl;
 		PVHive::PVHive::get().unregister_object(*e);
 		std::cout << "end unregistering entity " << eid << std::endl;
 		_entity_list.remove(eid);
-		delete item;
 
 		if(e->has_prop()) {
 			int pid = e->get_prop()->get_id();
-			_entity_list.remove(eid);
+			_entity_list.remove(pid);
 			auto items = _entity_lw->findItems("p" + QString::number(pid),
 			                                   Qt::MatchExactly);
 			if (items.isEmpty() == false) {
@@ -312,7 +411,7 @@ private slots:
 
 		QListWidgetItem *item = selected.at(0);
 		int aid = item->text().mid(1).toInt();
-		Interactor *a = _actor_list[aid];
+		Interactor *a = _actor_list.value(aid);
 		_actor_list.remove(aid);
 		delete item;
 		a->terminate();
@@ -328,7 +427,7 @@ private slots:
 
 		QListWidgetItem *item = selected.at(0);
 		int oid = item->text().mid(1).toInt();
-		Interactor *o = dynamic_cast<Interactor*>(_observer_list[oid]);
+		Interactor *o = dynamic_cast<Interactor*>(_observer_list.value(oid));
 		_observer_list.remove(oid);
 		delete item;
 		o->terminate();
@@ -337,10 +436,10 @@ private slots:
 private:
 	void add_observer(int id, Interactor *i, PVHive::PVObserverBase *o, int eid)
 	{
-		_observer_list[id] = i;
+		_observer_list.insert(id, i);
 		_observer_lw->addItem("o" + QString::number(id));
 
-		Entity *e = _entity_list[eid];
+		Entity *e = _entity_list.value(eid);
 		Entity *p = e->get_parent();
 		if (p != nullptr) {
 			PVHive::PVHive::get().register_observer<Entity>(*p,
