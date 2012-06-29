@@ -1,6 +1,7 @@
 include(CTest)
 set(CTEST_PROJECT_NAME "PVHive")
 
+include_directories(AFTER ${PVKERNEL_INCLUDE_DIRS})
 include_directories(AFTER ${PVHIVE_INCLUDE_DIRS})
 include_directories(AFTER ${Boost_INCLUDE_DIR})
 
