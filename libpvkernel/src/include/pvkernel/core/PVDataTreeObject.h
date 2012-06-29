@@ -11,11 +11,13 @@
 
 #include <QList>
 
-#include <pvkernel/core/PVTypeTraits.h>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/shared_ptr.hpp>
 
+#include <pvkernel/core/PVTypeTraits.h>
 #include <pvkernel/core/general.h>
+#include <pvkernel/core/PVSerializeArchiveZip.h>
+#include <pvkernel/core/PVSerializeObject.h>
 
 namespace PVCore
 {
@@ -123,6 +125,8 @@ struct PVDataTreeNoParent
 		return nullptr;
 	}
 	pchild_t remove_child(Tchild& /*child*/) { return pchild_t();}
+	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v)  {}
+
 	children_t _children;
 };
 
@@ -170,6 +174,9 @@ struct PVDataTreeNoChildren
 		return nullptr;
 	}
 	void dump(uint32_t /*spacing*/){}
+	void serialize(PVCore::PVSerializeObject&, PVCore::PVSerializeArchive::version_t) {}
+	void set_parent_from_ptr(parent_t* parent) {}
+	void set_parent(parent_t* parent) {}
 	children_t _children;
 };
 
@@ -203,15 +210,12 @@ public:
 	PVDataTreeObject():
 		boost::enable_shared_from_this<real_type_t>(),
 		_parent(nullptr)
-	{ }
+	{
+	}
 
 	/*! \brief Delete the data tree object and all of it's underlying children hierarchy.
 	 */
-	virtual ~PVDataTreeObject()
-	{
-		real_type_t* me = static_cast<real_type_t*>(this);
-		std::cout << typeid(real_type_t).name() << "(" << me << ")"<< "::~PVDataTreeObject" << std::endl;
-	}
+	virtual ~PVDataTreeObject() {}
 
 	/*! \brief Return an ancestor of a data tree object at the specified hierarchical level (as a class type).
 	 *  If no level is specified, the parent is returned.
@@ -258,37 +262,10 @@ public:
 
 	/*! \brief Add a child to the data tree object.
 	 *  \param[in] child Child of the data tree object to add.
-	 *  A check is done to assert that the child is not already a children of the data tree object
-	 *  in order to avoid a nasty mess.
-	 *  If the child belongs to another hierarchy, stole it from its parent first.
+	 *  This is basically a helper method doing a set_parent on the child.
 	 */
 	void add_child(pchild_t& child_p)
 	{
-		/*
-		bool found = false;
-		for (auto c: _children) {
-			if (child_p.get() == c.get())
-			{
-				found = true;
-				break;
-			}
-		}
-		if (found) {
-			return false;
-		}
-
-		auto me = static_cast<typename Tchild::parent_t*>(this);
-		auto child_parent = child_p->get_parent();
-		pchild_t pchild;
-		if (child_parent && child_parent != me) {
-			// steal child to parent
-			child_p = child_parent->remove_child(*child_p);
-		}
-		child_p->_parent = me;
-		_children.push_back(child_p);
-		return true;
-		*/
-
 		real_type_t* me = static_cast<real_type_t*>(this);
 		child_p->set_parent(me);
 	}
@@ -313,6 +290,29 @@ public:
 		return pchild;
 	}
 	inline pchild_t remove_child(pchild_t const& child) { return remove_child(*child); }
+
+	virtual void serialize_write(PVCore::PVSerializeObject&) = 0;
+	virtual void serialize_read(PVCore::PVSerializeObject&, PVCore::PVSerializeArchive::version_t) = 0;
+
+	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t/* v*/)
+	{
+		so.split(*this);
+
+		QString name = typeid(child_t).name();
+		if (so.is_writing()) {
+			so.list("children", _children, QString(), (child_t*) NULL);
+		}
+		else {
+			children_t children;
+			if (!so.list("children", children, QString(), (child_t*) NULL, QStringList(), true, true)) {
+				// No children born in here...
+				return;
+			}
+			for (auto child_p: children) {
+				add_child(child_p);
+			}
+		}
+	}
 
 	/*! \brief Dump the data tree object and all of it's underlying children hierarchy.
 	 */

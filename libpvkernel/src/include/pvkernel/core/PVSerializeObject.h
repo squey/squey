@@ -42,6 +42,7 @@ class LibKernelDecl PVSerializeObject: public boost::enable_shared_from_this<PVS
 	friend class PVSerializeArchive;
 	friend class PVSerializeArchiveFixError;
 	friend class PVSerializeArchiveFixAttribute;
+
 public:
 	typedef boost::shared_ptr<PVSerializeObject> p_type;
 	typedef QHash<QString, p_type> list_childs_t;
@@ -144,6 +145,12 @@ public:
 	//template <typename T, typename V = typename T::value_type>
 	template <typename T, typename V>
 	p_type list(QString const& name, T& obj, QString const& desc = QString(), typename PVTypeTraits::remove_shared_ptr<V>::type const* def_v = NULL, QStringList const& descriptions = QStringList(), bool visible = true, bool elts_optional = false);
+
+
+	template <typename T>
+	p_type list_datatree(QString const& name, T& obj, QString const& desc = QString(), typename PVTypeTraits::remove_shared_ptr<typename T::value_type>::type const* def_v = NULL, QStringList const& descriptions = QStringList(), bool visible = true, bool elts_optional = false);
+	template <typename T, typename V>
+	p_type list_datatree(QString const& name, T& obj, QString const& desc = QString(), typename PVTypeTraits::remove_shared_ptr<V>::type const* def_v = NULL, QStringList const& descriptions = QStringList(), bool visible = true, bool elts_optional = false);
 
 
 	/*! \brief Declare a list to serialize by making references to objects that has already been serialized.
@@ -419,11 +426,25 @@ PVSerializeObject::p_type PVSerializeObject::list(QString const& name, T& obj, Q
 				idx++;
 			}
 		}
-		catch (PVSerializeArchiveErrorNoObject& /*e*/) {
+		catch (PVSerializeArchiveErrorNoObject const& /*e*/) {
 			return list_obj;
 		}
 	}
 	return list_obj;
+}
+
+// is_base_of<T, PVCore::PVDataTreeObject>
+template <typename T>
+PVSerializeObject::p_type PVSerializeObject::list_datatree(QString const& name, T& obj, QString const& desc, typename PVTypeTraits::remove_shared_ptr<typename T::value_type>::type const* def_v, QStringList const& descriptions, bool visible, bool elts_optional)
+{
+	return list_datatree<T, typename T::value_type>(name, obj, desc, def_v, descriptions, visible, elts_optional);
+}
+
+template <typename T, typename V>
+PVSerializeObject::p_type PVSerializeObject::list_datatree(QString const& name, T& obj, QString const& desc, typename PVTypeTraits::remove_shared_ptr<V>::type const* def_v, QStringList const& descriptions, bool visible, bool elts_optional)
+{
+	PVLOG_INFO("list_datatree\n");
+	return p_type();
 }
 
 template <typename T>
