@@ -74,7 +74,15 @@ public:
 		// an actor must be set for only one object
 		assert(actor.get_object() == nullptr);
 
+		std::cout << "::register_actor - content" << std::endl;
+		std::cout << "    param: " << &object << " " << &actor << std::endl;
+
 		actor.set_object((void*) &object);
+
+		write_lock_t write_lock(_observables_lock);
+		_observables[(void*) &object].actors.insert(&actor);
+
+		print();
 	}
 
 	/**
@@ -104,10 +112,15 @@ public:
 		// an observer must be set for only one object
 		assert(observer._object == nullptr);
 
+		std::cout << "::register_observer (2) - content" << std::endl;
+		std::cout << "    param: " << &object << " " << &observer << std::endl;
+
 		observer._object = (void*) &object;
 
 		write_lock_t write_lock(_observables_lock);
 		_observables[(void*) &object].observers.insert(&observer);
+
+		print();
 	}
 
 	/**
@@ -125,6 +138,9 @@ public:
 		// an observer must be set for only one object
 		assert(observer._object == nullptr);
 
+		std::cout << "::register_observer (3) - content" << std::endl;
+		std::cout << "    param: " << &object << " " << &observer << std::endl;
+
 		auto &property = prop_get(object);
 		write_lock_t write_lock(_observables_lock);
 		// inserting observer
@@ -132,6 +148,9 @@ public:
 		// inserting property
 		_observables[(void*) &object].properties.insert((void*) &property);
 		observer._object = (void*) &property;
+
+		std::cout << "    param: " << &object << " " << &property << " " << &observer << std::endl;
+		print();
 	}
 
 	/**
@@ -140,13 +159,7 @@ public:
 	 *
 	 * @param actor the actor
 	 */
-	void unregister_actor(PVActorBase& actor)
-	{
-		// the actor must have a valid object
-		assert(actor.get_object() != nullptr);
-
-		actor.set_object(nullptr);
-	}
+	void unregister_actor(PVActorBase& actor);
 
 	/**
 	 * Unregister an observer
@@ -207,6 +220,30 @@ public:
 		do_refresh_observers((void*)object);
 	}
 
+	void print() const
+	{
+		std::cout << "hive " << this << " - content:" << std::endl;
+		for (auto it : _observables) {
+			std::cout << "    " << it.first << std::endl;
+
+			std::cout << "        actors:" << std::endl;
+			for (auto it2 : it.second.actors) {
+				std::cout << "            " << it2 << std::endl;
+			}
+
+			std::cout << "        observers:" << std::endl;
+			for (auto it2 : it.second.observers) {
+				std::cout << "            " << it2 << std::endl;
+			}
+
+			std::cout << "        properties:" << std::endl;
+			for (auto it2 : it.second.properties) {
+				std::cout << "            " << it2 << std::endl;
+			}
+		}
+
+	}
+
 private:
 	/**
 	 * Apply an action on a object and propagate the change event
@@ -235,11 +272,13 @@ private:
 private:
 	static PVHive *_hive;
 
+	typedef std::set<PVActorBase*> actors_t;
 	typedef std::set<PVObserverBase*> observers_t;
 	typedef std::set<void*> properties_t;
 
 	struct observable_t
 	{
+		actors_t  actors;
 		observers_t  observers;
 		properties_t properties;
 	};
