@@ -6,7 +6,6 @@
 
 #include <cstdint>
 
-
 namespace PVCore
 {
 
@@ -21,7 +20,7 @@ public:
 	typedef T*       pointer;
 	typedef    void(*deleter)(pointer);
 
-	pv_ref_counter() : _data(nullptr), _deleter(nullptr), _count(0), _spin_lock(ATOMIC_FLAG_INIT)
+	pv_ref_counter() : _data(nullptr), _deleter(nullptr), _count(0), _spin_lock()
 	{}
 
 	pv_ref_counter(pointer p, deleter d) : _data(p), _deleter(d), _count(1)
