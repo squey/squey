@@ -5,6 +5,8 @@
 #include <set>
 #include <unordered_map>
 
+#include <iostream>
+
 #include <boost/thread.hpp>
 
 #include <pvhive/PVObserver.h>
