@@ -65,17 +65,15 @@ void th_actor_func()
 {
 	std::cout << "th_actor: init - " <<boost::this_thread::get_id()
 	          << std::endl;
-
 	int count = 0;
 	e = new Entity(42);
 	EntityActor a;
-
 	PVHive::PVHive::get().register_actor(*e, a);
 
 	std::cout << "th_actor: pseudo sync" << std::endl;
 	sleep(1);
-	std::cout << "th_actor: run" << std::endl;
 
+	std::cout << "th_actor: run" << std::endl;
 	while (count < 10) {
 		sleep(1);
 		std::cout << "th_actor_func - " << boost::this_thread::get_id()
@@ -89,25 +87,53 @@ void th_actor_func()
 	PVHive::PVHive::get().unregister_object(*e);
 	delete e;
 	e = nullptr;
+
 	std::cout << "th_actor: terminate" << std::endl;
 }
 
-void th_observer_func()
+/* This thread will wait until 'e' is destroyed by its thread.
+ */
+void th_long_observer_func()
 {
-	std::cout << "th_observer_func: init - "
+	std::cout << "th_long_observer_func: init - "
 	          << boost::this_thread::get_id()  << std::endl;
-
 	EntityObserver o;
-
 	PVHive::PVHive::get().register_observer(*e, o);
 
-	std::cout << "th_observer_func: run" << std::endl;
-
+	std::cout << "th_long_observer_func: run" << std::endl;
 	while (observer_must_run) {
 		sleep(1);
 	}
 
-	std::cout << "th_observer_func: terminate" << std::endl;
+	std::cout << "th_long_observer_func: clean" << std::endl;
+	PVHive::PVHive::get().unregister_observer(o);
+
+	std::cout << "th_long_observer_func: terminate" << std::endl;
+}
+
+/* This thread will wait less time to exit earlier.
+ */
+void th_short_observer_func()
+{
+	std::cout << "th_short_observer_func: init - "
+	          << boost::this_thread::get_id()  << std::endl;
+
+	int count = 0;
+	EntityObserver o;
+
+	PVHive::PVHive::get().register_observer(*e, o);
+
+	std::cout << "th_short_observer_func: run" << std::endl;
+
+	while (count < 5) {
+		sleep(1);
+		++count;
+	}
+
+	std::cout << "th_short_observer_func: clean" << std::endl;
+	PVHive::PVHive::get().unregister_observer(o);
+
+	std::cout << "th_short_observer_func: terminate" << std::endl;
 }
 
 int main()
@@ -115,10 +141,12 @@ int main()
 
 	boost::thread tha(boost::bind(th_actor_func));
 	sleep(1);
-	boost::thread tho(boost::bind(th_observer_func));
+	boost::thread thlo(boost::bind(th_long_observer_func));
+	boost::thread thso(boost::bind(th_short_observer_func));
 
 	tha.join();
-	tho.join();
+	thlo.join();
+	thso.join();
 
 	PVHive::PVHive::get().print();
 
