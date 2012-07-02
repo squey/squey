@@ -108,38 +108,6 @@ private:
 	Entity _prop;
 };
 
-class ThreadEntity : public QThread, public PropertyEntity
-{
-public:
-	ThreadEntity(int id, QObject *qparent = nullptr, Entity *eparent = nullptr) :
-		QThread(qparent),
-		PropertyEntity(id, eparent),
-		_time(10)
-	{
-		std::cout << "ThreadEntity: I'AM " << this << std::endl;
-	}
-
-	~ThreadEntity()
-	{
-		PVHive::PVHive::get().unregister_object(*this);
-		std::cout << "~ThreadEntity(): DEATH" << std::endl;
-	}
-
-	int get_time() const
-	{
-		return _time;
-	}
-
-	void run()
-	{
-		sleep(_time);
-		deleteLater();
-	}
-
-private:
-	int _time;
-};
-
 class Interactor
 {
 public:
@@ -288,7 +256,7 @@ public:
 		_vl = new QLabel("value: NA");
 		vb->addWidget(_vl);
 
-		setWindowTitle("timer actor " + QString().sprintf("%p", this) + " - "
+		setWindowTitle("observer " + QString().sprintf("%p", this) + " - "
 		               + e->get_name());
 
 		setAttribute(Qt::WA_DeleteOnClose, true);
