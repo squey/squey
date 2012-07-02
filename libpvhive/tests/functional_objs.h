@@ -17,6 +17,7 @@
 #include <QTimer>
 #include <QLabel>
 #include <QThread>
+#include <QEventLoop>
 
 class Entity
 {
@@ -25,6 +26,7 @@ public:
 	{
 		set_id(id);
 		set_parent(parent);
+		set_dynamic(true);
 	}
 
 	virtual ~Entity()
@@ -65,6 +67,16 @@ public:
 		_v = v;
 	}
 
+	void set_dynamic(bool d)
+	{
+		_dynamic = d;
+	}
+
+	bool get_dynamic() const
+	{
+		return _dynamic;
+	}
+
 	int get_value() const
 	{
 		return _v;
@@ -83,6 +95,7 @@ public:
 private:
 	int     _id;
 	Entity *_parent;
+	bool    _dynamic;
 	int     _v;
 };
 
@@ -92,7 +105,11 @@ public:
 	PropertyEntity(int id, Entity *parent = nullptr) : Entity(id, parent)
 	{
 		_prop.set_parent(this);
+		_prop.set_dynamic(false);
 	}
+
+	virtual ~PropertyEntity()
+	{}
 
 	virtual bool has_prop() const
 	{
@@ -106,6 +123,48 @@ public:
 
 private:
 	Entity _prop;
+};
+
+class ThreadEntity : public QThread
+{
+	Q_OBJECT
+
+public:
+	ThreadEntity(int id, Entity *eparent = nullptr, QObject *qparent = nullptr) :
+		QThread(qparent),
+		_pe(id, eparent), _time(10)
+	{
+		_pe.set_dynamic(false);
+	}
+
+	~ThreadEntity()
+	{}
+
+	Entity *get_ent() const
+	{
+		return const_cast<PropertyEntity*>(&_pe);
+	}
+
+	int get_time() const
+	{
+		return _time;
+	}
+
+	void run()
+	{
+		QTimer timer(nullptr);
+		timer.setSingleShot(true);
+		connect(&timer, SIGNAL(timeout()), this, SLOT(quit()));
+		timer.start(_time * 1000);
+
+		exec();
+
+		std::cout << "Thread quit" << std::endl;
+	}
+
+private:
+	PropertyEntity _pe;
+	int            _time;
 };
 
 class Interactor

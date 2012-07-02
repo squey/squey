@@ -37,6 +37,10 @@ public:
 		connect(pb, SIGNAL(clicked(bool)), this, SLOT(do_add_propertyentity()));
 		gb->addWidget(pb, 1, 0);
 
+		pb = new QPushButton(QString("Add entity from thread"), this);
+		connect(pb, SIGNAL(clicked(bool)), this, SLOT(do_add_entity_from_thread()));
+		gb->addWidget(pb, 2, 0);
+
 		/* add buttons for actors
 		 */
 		pb = new QPushButton(QString("Add timer actor"), this);
@@ -111,6 +115,22 @@ private:
 	}
 
 private slots:
+	void do_terminate_thread()
+	{
+		std::cerr << "::do_terminate_thread(): after thread" << std::endl;
+		ThreadEntity *te = qobject_cast<ThreadEntity*>(sender());
+
+		Entity *e = te->get_ent();
+
+		//PVHive::PVHive::get().unregister_object(_pe);
+		auto items = _entity_lw->findItems("e" + QString::number(e->get_id()),
+		                                     Qt::MatchExactly);
+		if (items.isEmpty() == false) {
+			items.at(0)->setSelected(true);
+			do_del_entity();
+		}
+	}
+
 	void do_close_actor(int)
 	{
 		EntityTimerActor *a = qobject_cast<EntityTimerActor *>(sender());
@@ -157,6 +177,35 @@ private slots:
 		_entity_list.insert(_entity_next, p);
 		_entity_lw->addItem("p" + QString::number(_entity_next));
 		++_entity_next;
+	}
+
+	void do_add_entity_from_thread()
+	{
+		ThreadEntity *te = new ThreadEntity(_entity_next);
+
+		Entity *e = te->get_ent();
+		_entity_list.insert(_entity_next, e);
+		_entity_lw->addItem("e" + QString::number(_entity_next));
+		++_entity_next;
+
+		Entity *p = e->get_prop();
+		p->set_id(_entity_next);
+		_entity_list.insert(_entity_next, p);
+		_entity_lw->addItem("p" + QString::number(_entity_next));
+		++_entity_next;
+
+		connect(te, SIGNAL(finished()), this, SLOT(do_terminate_thread()));
+
+		QMessageBox box ;
+		box.setText("Information ");
+		box.setInformativeText("A entity and a property will be created");
+		box.setInformativeText("You have " + QString::number(te->get_time())
+		                       + " seconds to do what you want, they are"
+		                       + " automatically deleted after this delay");
+		box.setStandardButtons(QMessageBox::Ok);
+		box.exec();
+
+		te->start();
 	}
 
 	void do_add_timer_actor()
@@ -307,7 +356,7 @@ private slots:
 			}
 		}
 
-		if (e->get_parent() == nullptr) {
+		if (e->get_dynamic()) {
 			delete e;
 		}
 	}
