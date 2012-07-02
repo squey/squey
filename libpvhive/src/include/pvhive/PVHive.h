@@ -76,15 +76,10 @@ public:
 		// an actor must be set for only one object
 		assert(actor.get_object() == nullptr);
 
-		std::cout << "::register_actor - content" << std::endl;
-		std::cout << "    param: " << &object << " " << &actor << std::endl;
-
 		actor.set_object((void*) &object);
 
 		write_lock_t write_lock(_observables_lock);
 		_observables[(void*) &object].actors.insert(&actor);
-
-		print();
 	}
 
 	/**
@@ -114,15 +109,10 @@ public:
 		// an observer must be set for only one object
 		assert(observer._object == nullptr);
 
-		std::cout << "::register_observer (2) - content" << std::endl;
-		std::cout << "    param: " << &object << " " << &observer << std::endl;
-
 		observer._object = (void*) &object;
 
 		write_lock_t write_lock(_observables_lock);
 		_observables[(void*) &object].observers.insert(&observer);
-
-		print();
 	}
 
 	/**
@@ -140,9 +130,6 @@ public:
 		// an observer must be set for only one object
 		assert(observer._object == nullptr);
 
-		std::cout << "::register_observer (3) - content" << std::endl;
-		std::cout << "    param: " << &object << " " << &observer << std::endl;
-
 		auto &property = prop_get(object);
 		write_lock_t write_lock(_observables_lock);
 		// inserting observer
@@ -150,9 +137,6 @@ public:
 		// inserting property
 		_observables[(void*) &object].properties.insert((void*) &property);
 		observer._object = (void*) &property;
-
-		std::cout << "    param: " << &object << " " << &property << " " << &observer << std::endl;
-		print();
 	}
 
 	/**
@@ -224,7 +208,7 @@ public:
 
 	void print() const
 	{
-		std::cout << "hive " << this << " - content:" << std::endl;
+		std::cout << "PVHive - " << this << " - content:" << std::endl;
 		for (auto it : _observables) {
 			std::cout << "    " << it.first << std::endl;
 
