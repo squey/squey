@@ -158,8 +158,6 @@ public:
 		timer.start(_time * 1000);
 
 		exec();
-
-		std::cout << "Thread quit" << std::endl;
 	}
 
 private:

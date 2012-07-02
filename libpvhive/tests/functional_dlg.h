@@ -122,7 +122,6 @@ private slots:
 
 		Entity *e = te->get_ent();
 
-		//PVHive::PVHive::get().unregister_object(_pe);
 		auto items = _entity_lw->findItems("e" + QString::number(e->get_id()),
 		                                     Qt::MatchExactly);
 		if (items.isEmpty() == false) {
