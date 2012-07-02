@@ -26,3 +26,6 @@ QT4_WRAP_CPP(TEST_FUNCTIONAL_MOC_SRC functional_dlg.h functional_objs.h OPTIONS 
 add_executable(Tfunctional functional_main.cpp ${TEST_FUNCTIONAL_MOC_SRC})
 target_link_libraries(Tfunctional ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES})
 
+add_executable(Tinter-threads inter-threads.cpp)
+target_link_libraries(Tinter-threads ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES})
+
