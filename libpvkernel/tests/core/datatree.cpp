@@ -18,12 +18,15 @@ class D;
 typedef typename PVCore::PVDataTreeObject<PVCore::PVDataTreeNoParent<A>, B> data_tree_a_t;
 class A : public data_tree_a_t
 {
-public:
+	friend class PVCore::PVDataTreeAutoShared<A>;
+
+protected:
 	A(int i = 0):
 		data_tree_a_t(),
 		_i(i)
 	{}
 
+public:
 	virtual ~A() { std::cout << "~A(" << this << ")" << std::endl; }
 
 	void save_to_file(QString const& path, bool save_everything = true)
@@ -47,12 +50,13 @@ public:
 		so.attribute("_i", _i);
 	}
 
-	virtual void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v)
+	virtual void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t)
 	{
 		so.attribute("_i", _i);
 	}
 
 	int get_i() { return _i; }
+
 private:
 	int _i;
 };
@@ -61,13 +65,15 @@ typedef typename PVCore::PVDataTreeObject<A, C> data_tree_b_t;
 class B : public data_tree_b_t
 {
 	friend class PVCore::PVDataTreeAutoShared<B>;
-public:
-	virtual ~B() { std::cout << "~B(" << this << ")" << std::endl; }
-public:
+
+protected:
 	B(int i = 0):
 		data_tree_b_t(),
 		_i(i)
    	{}
+
+public:
+	virtual ~B() { std::cout << "~B(" << this << ")" << std::endl; }
 
 	void set_parent_from_ptr(A* parent)
 	{
@@ -78,19 +84,23 @@ public:
 	virtual void serialize_write(PVCore::PVSerializeObject& so)
 	{
 		so.attribute("_i", _i);
+		so.attribute("_j", _j);
 	}
 
-	virtual void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v)
+	virtual void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t)
 	{
 		so.attribute("_i", _i);
+		so.attribute("_j", _j);
 	}
 
 	int get_i() { return _i; }
 	int get_j() { return _j; }
+	void set_j(int j) { _j = j; }
 
 public:
 	void f() const { std::cout << "B i = " << _i << std::endl; }
 	inline int i() const { return _i; }
+
 private:
 	int _i;
 	int _j;
@@ -99,11 +109,15 @@ private:
 typedef typename PVCore::PVDataTreeObject<B, D> data_tree_c_t;
 class C : public data_tree_c_t
 {
-public:
+	friend class PVCore::PVDataTreeAutoShared<C>;
+
+protected:
 	C(int i = 0):
 		data_tree_c_t(),
 		_i(i)
 	{ }
+
+public:
 	virtual ~C() { std::cout << "~C(" << this << ")" << std::endl; }
 
 	virtual void set_parent_from_ptr(B* parent)
@@ -114,18 +128,19 @@ public:
 
 	virtual void serialize_write(PVCore::PVSerializeObject& so)
 	{
-		//std::cout << "C::serialize_write" << std::endl;
 		so.attribute("_i", _i);
+		so.attribute("_j", _j);
 	}
 
-	virtual void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v)
+	virtual void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t)
 	{
-		//std::cout << "C::serialize_read" << std::endl;
 		so.attribute("_i", _i);
+		so.attribute("_j", _j);
 	}
 
 	int get_i() { return _i; }
 	int get_j() { return _j; }
+	void set_j(int j) { _j = j; }
 
 private:
 	int _i;
@@ -135,11 +150,15 @@ private:
 typedef typename PVCore::PVDataTreeObject<C, PVCore::PVDataTreeNoChildren<D>> data_tree_d_t;
 class D : public data_tree_d_t
 {
-public:
+	friend class PVCore::PVDataTreeAutoShared<D>;
+
+protected:
 	D(int i = 0):
 		data_tree_d_t(),
 		_i(i)
    	{ }
+
+public:
 	virtual ~D()
 	{
 		std::cout << "~D(" << this << ")" << std::endl;
@@ -153,17 +172,19 @@ public:
 
 	virtual void serialize_write(PVCore::PVSerializeObject& so)
 	{
-		//std::cout << "D::serialize_write" << std::endl;
 		so.attribute("_i", _i);
+		so.attribute("_j", _j);
 	}
-	virtual void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v)
+
+	virtual void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t)
 	{
-		//std::cout << "D::serialize_read" << std::endl;
 		so.attribute("_i", _i);
+		so.attribute("_j", _j);
 	}
 
 	int get_i() { return _i; }
 	int get_j() { return _j; }
+	void set_j(int j) { _j = j; }
 
 private:
 	int _i;
@@ -476,7 +497,7 @@ bool standard_use_case()
 	//////////////////////////////////////////
 	//  Test9 - Create an object without parent and then set a parent
 	//////////////////////////////////////////
-
+#if 0
 	boost::shared_ptr<C> c3(new C());
 	c3->set_parent(b3);
 
@@ -493,14 +514,14 @@ bool standard_use_case()
 	}
 
 	PVLOG_INFO("Create without parent and set parent passed: %d\n", create_without_parent_and_set_parent);
-
+#endif
 	//////////////////////////////////////////
 	//  Test10 - Get null ancestor if parent is null
 	//////////////////////////////////////////
-	D d3;
+	D_p d3;
 
 	bool null_parent_null_ancestor = true;
-	null_parent_null_ancestor &= my_assert(d3.get_parent() == nullptr && d3.get_parent<A>() == nullptr);
+	null_parent_null_ancestor &= my_assert(d3->get_parent() == nullptr && d3->get_parent<A>() == nullptr);
 
 	PVLOG_INFO("Get null ancestor if parent is null: %d\n", null_parent_null_ancestor);
 
@@ -509,7 +530,7 @@ bool standard_use_case()
 	a1.reset();
 	a2.reset();
 
-	return (parent_access && children_access && same_parent && changing_parent && changing_child && create_with_parent_and_set_same_parent && removing_child && removing_parent && create_without_parent_and_set_parent && null_parent_null_ancestor);
+	return (parent_access && children_access && same_parent && changing_parent && changing_child && create_with_parent_and_set_same_parent && removing_child && removing_parent && null_parent_null_ancestor);
 }
 
 bool serialize_use_case()
@@ -522,7 +543,9 @@ bool serialize_use_case()
 	B_p b1(a1, 4);
 	B_p b2(a1, 3);
 	C_p c(b1, 2);
+	c->set_j(c->get_j() * 10);
 	D_p d(c, 1);
+	d->set_j(d->get_j() * 10);
 	std::cout << "b1 = " << b1.get() << std::endl;
 	std::cout << "b2 = " << b2.get() << std::endl;
 
@@ -537,54 +560,69 @@ bool serialize_use_case()
 	a1->load_from_file("datatree_serialized");
 
 	a1->dump();
+	std::cout << std::endl;
 
-	bool deserialized = true;
+	bool hierarchical_serialization = true;
+	bool class_content = false;
+	bool content_from_parent = false;
 	auto a1_children = a1->get_children();
-	deserialized &= a1_children.size() == 2;
-	if (deserialized) {
+	hierarchical_serialization &= a1_children.size() == 2;
+	if (hierarchical_serialization) {
 		auto b1 = a1_children[0];
 		auto b2 = a1_children[1];
 		auto b1_children = b1->get_children();
 		auto b2_children = b2->get_children();
-		deserialized &= b1_children.size() == 1;
-		if (deserialized) {
+		hierarchical_serialization &= b1_children.size() == 1;
+		if (hierarchical_serialization) {
 			auto c = b1_children[0];
 			auto c_children = c->get_children();
-			deserialized &= c_children.size() == 1;
-			if (deserialized) {
+			hierarchical_serialization &= c_children.size() == 1;
+			if (hierarchical_serialization) {
 				auto d = c_children[0];
 				auto d_children = d->get_children();
 
 				// a1 <-> (b1, b2)
-				deserialized &= my_assert(a1->get_parent() == nullptr);
-				deserialized &= my_assert(a1->get_i() == 5);
-				deserialized &= my_assert(a1_children.size() == 2 && a1_children[0] == b1 && a1_children[1] == b2);
-				deserialized &= my_assert(b1->get_parent() == a1.get() && b2->get_parent() == a1.get());
-				deserialized &= my_assert(b1->get_i() == 4 && b2->get_i() == 3);
-				deserialized &= my_assert(b1->get_j() == b1->get_parent()->get_i()*2);
-				deserialized &= my_assert(b2->get_j() == b2->get_parent()->get_i()*2);
-				deserialized &= my_assert(b2_children.size() == 0);
+				hierarchical_serialization &= my_assert(a1->get_parent() == nullptr);
+				hierarchical_serialization &= my_assert(a1_children.size() == 2 && a1_children[0] == b1 && a1_children[1] == b2);
+				hierarchical_serialization &= my_assert(b1->get_parent() == a1.get() && b2->get_parent() == a1.get());
+				hierarchical_serialization &= my_assert(b2_children.size() == 0);
 
 				// b1 <-> c
-				deserialized &= my_assert(b1->get_parent() == a1.get());
-				deserialized &= my_assert(b1_children.size() == 1 && b1_children[0] == c);
-				deserialized &= my_assert(c->get_parent() == b1.get());
-				deserialized &= my_assert(c->get_i() == 2);
-				deserialized &= my_assert(c->get_j() == c->get_parent()->get_i()*2);
+				hierarchical_serialization &= my_assert(b1->get_parent() == a1.get());
+				hierarchical_serialization &= my_assert(b1_children.size() == 1 && b1_children[0] == c);
+				hierarchical_serialization &= my_assert(c->get_parent() == b1.get());
 
 				// c <-> d
-				deserialized &= my_assert(d->get_parent() == c.get());
-				deserialized &= my_assert(c_children.size() == 1 && c_children[0] == d);
-				deserialized &= my_assert(d_children.size() == 0);
-				deserialized &= my_assert(d->get_i() == 1);
-				deserialized &= my_assert(d->get_j() == d->get_parent()->get_i()*2);
+				hierarchical_serialization &= my_assert(d->get_parent() == c.get());
+				hierarchical_serialization &= my_assert(c_children.size() == 1 && c_children[0] == d);
+				hierarchical_serialization &= my_assert(d_children.size() == 0);
+
+				if (hierarchical_serialization) {
+
+					class_content = true;
+					class_content &= my_assert(a1->get_i() == 5);
+					class_content &= my_assert(b1->get_i() == 4 && b2->get_i() == 3);
+					class_content &= my_assert(c->get_i() == 2);
+					class_content &= my_assert(d->get_i() == 1);
+
+					if (class_content) {
+
+						content_from_parent = true;
+						content_from_parent &= my_assert(b1->get_j() == b1->get_parent()->get_i()*2);
+						content_from_parent &= my_assert(b2->get_j() == b2->get_parent()->get_i()*2);
+						content_from_parent &= my_assert(c->get_j() == c->get_parent()->get_i()*2*10);
+						content_from_parent &= my_assert(d->get_j() == d->get_parent()->get_i()*2*10);
+					}
+				}
 			}
 		}
 	}
 
-	PVLOG_INFO("Deserialization passed: %d\n", deserialized);
+	PVLOG_INFO("Hierarchical serialization/deserialization passed: %d\n", hierarchical_serialization);
+	PVLOG_INFO("Class content integrity passed: %d\n", class_content);
+	PVLOG_INFO("Class content from parent integrity passed: %d\n", content_from_parent);
 
-	return deserialized;
+	return hierarchical_serialization && class_content && content_from_parent;
 }
 
 /******************************************************************************

@@ -20,6 +20,8 @@ namespace PVCore {
 
 class PVSerializeArchive;
 class PVSerializeArchiveFixError;
+template <typename T> class PVDataTreeAutoShared;
+
 typedef boost::shared_ptr<PVSerializeArchive> PVSerializeArchive_p;
 
 /*! \brief Serialization file error
@@ -146,12 +148,8 @@ public:
 	template <typename T, typename V>
 	p_type list(QString const& name, T& obj, QString const& desc = QString(), typename PVTypeTraits::remove_shared_ptr<V>::type const* def_v = NULL, QStringList const& descriptions = QStringList(), bool visible = true, bool elts_optional = false);
 
-
-	template <typename T>
-	p_type list_datatree(QString const& name, T& obj, QString const& desc = QString(), typename PVTypeTraits::remove_shared_ptr<typename T::value_type>::type const* def_v = NULL, QStringList const& descriptions = QStringList(), bool visible = true, bool elts_optional = false);
-	template <typename T, typename V>
-	p_type list_datatree(QString const& name, T& obj, QString const& desc = QString(), typename PVTypeTraits::remove_shared_ptr<V>::type const* def_v = NULL, QStringList const& descriptions = QStringList(), bool visible = true, bool elts_optional = false);
-
+	template <typename F>
+	p_type list_read(F const& func, QString const& name, QString const& desc = QString(), bool visible = true, bool elts_optional = false);
 
 	/*! \brief Declare a list to serialize by making references to objects that has already been serialized.
 	 *  \param[in] name Name of the list to serialize
@@ -268,6 +266,14 @@ private:
 			}
 			obj.reset(new_p);
 		}
+		obj->serialize(*new_obj, get_version());
+		new_obj->_bound_obj = obj.get();
+		new_obj->_bound_obj_type = typeid(T);
+	}
+
+	template <typename T>
+	void call_serialize(PVDataTreeAutoShared<T>& obj, p_type new_obj, T const*)
+	{
 		obj->serialize(*new_obj, get_version());
 		new_obj->_bound_obj = obj.get();
 		new_obj->_bound_obj_type = typeid(T);
@@ -433,18 +439,40 @@ PVSerializeObject::p_type PVSerializeObject::list(QString const& name, T& obj, Q
 	return list_obj;
 }
 
-// is_base_of<T, PVCore::PVDataTreeObject>
-template <typename T>
-PVSerializeObject::p_type PVSerializeObject::list_datatree(QString const& name, T& obj, QString const& desc, typename PVTypeTraits::remove_shared_ptr<typename T::value_type>::type const* def_v, QStringList const& descriptions, bool visible, bool elts_optional)
+template <typename F>
+PVSerializeObject::p_type PVSerializeObject::list_read(F const& func, QString const& name, QString const& desc, bool visible, bool elts_optional)
 {
-	return list_datatree<T, typename T::value_type>(name, obj, desc, def_v, descriptions, visible, elts_optional);
-}
+	assert(!is_writing());
 
-template <typename T, typename V>
-PVSerializeObject::p_type PVSerializeObject::list_datatree(QString const& name, T& obj, QString const& desc, typename PVTypeTraits::remove_shared_ptr<V>::type const* def_v, QStringList const& descriptions, bool visible, bool elts_optional)
-{
-	PVLOG_INFO("list_datatree\n");
-	return p_type();
+	typedef decltype(func()) V;
+	typedef typename PVTypeTraits::remove_shared_ptr<V>::type const def_t;
+	PVSerializeObject_p list_obj;
+	try {
+		list_obj = create_object(name, desc, elts_optional, visible);
+	}
+	catch (PVSerializeArchiveErrorNoObject& e) {
+		if (!elts_optional && !is_writing()) {
+			throw e;
+		}
+		return p_type();
+	}
+	int idx = 0;
+	try {
+		while (true) {
+			PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
+			// This is really important to have the following line (creation of a new object) after
+			// the creation of the PVSerializeObject_p. Indeed, when the exception of a "not found element" is thrown,
+			// we would have potentially created a useless object (that might have been added, for instance, to the datatree).
+			// If you want to store the children to a list, add the child to the list in the func function and return its address
+			V v = func();
+			call_serialize(v, new_obj, (def_t*) NULL);
+			idx++;
+		}
+	}
+	catch (PVSerializeArchiveErrorNoObject const&) {
+		return list_obj;
+	}
+	return list_obj;
 }
 
 template <typename T>

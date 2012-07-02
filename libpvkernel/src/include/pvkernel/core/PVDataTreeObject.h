@@ -61,7 +61,6 @@ public:
 		this->get()->set_parent(parent);
 	}
 
-
 public:
 	PVDataTreeAutoShared(boost::shared_ptr<T> const& o):
 		boost::shared_ptr<T>(o)
@@ -118,20 +117,20 @@ struct PVDataTreeNoParent
 	typedef Tchild child_t;
 	typedef boost::shared_ptr<child_t> pchild_t;
 	typedef QList<pchild_t> children_t;
+
 	inline PVDataTreeNoParent* get_parent()
 	{
 		std::cout << "WARNING: The data tree object has no ancestor of such specified type" << std::endl;
 		assert(false);
 		return nullptr;
 	}
-	pchild_t remove_child(Tchild& /*child*/) { return pchild_t();}
-	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v)  {}
+	pchild_t remove_child(Tchild&) { return pchild_t(); }
 
 	children_t _children;
 };
 
 template <class T>
-class PVDataTreeAutoShared<PVDataTreeNoParent<T> >: public boost::shared_ptr<PVDataTreeNoParent<T> >
+class PVDataTreeAutoShared<PVDataTreeNoParent<T> > : public boost::shared_ptr<PVDataTreeNoParent<T> >
 {
 	typedef PVDataTreeNoParent<T> obj_type;
 	typedef boost::shared_ptr<obj_type> p_type;
@@ -164,8 +163,9 @@ struct PVDataTreeNoChildren
 {
 	typedef Tparent parent_t;
 	typedef PVDataTreeNoChildren child_t;
-	typedef boost::shared_ptr<child_t> pchild_t;
+	typedef PVDataTreeAutoShared<child_t> pchild_t;
 	typedef QList<pchild_t> children_t;
+	typedef boost::shared_ptr<parent_t> pparent_t;
 
 	inline PVDataTreeNoChildren* get_children()
 	{
@@ -173,10 +173,12 @@ struct PVDataTreeNoChildren
 		assert(false);
 		return nullptr;
 	}
-	void dump(uint32_t /*spacing*/){}
+	void dump(uint32_t){}
 	void serialize(PVCore::PVSerializeObject&, PVCore::PVSerializeArchive::version_t) {}
-	void set_parent_from_ptr(parent_t* parent) {}
-	void set_parent(parent_t* parent) {}
+	void set_parent(parent_t*) {}
+	void set_parent(pparent_t const&) {}
+	QString get_serialized_description() { return QString(); }
+
 	children_t _children;
 };
 
@@ -194,7 +196,7 @@ public:
 	typedef Tparent parent_t;
 	typedef Tchild child_t;
 	typedef boost::shared_ptr<parent_t> pparent_t;
-	typedef boost::shared_ptr<child_t> pchild_t;
+	typedef PVDataTreeAutoShared<child_t> pchild_t;
 	typedef QList<pchild_t> children_t;
 	typedef PVDataTreeObject<parent_t, child_t> data_tree_t;
 
@@ -216,6 +218,8 @@ public:
 	/*! \brief Delete the data tree object and all of it's underlying children hierarchy.
 	 */
 	virtual ~PVDataTreeObject() {}
+
+	virtual QString get_serialized_description() { return QString(); }
 
 	/*! \brief Return an ancestor of a data tree object at the specified hierarchical level (as a class type).
 	 *  If no level is specified, the parent is returned.
@@ -298,18 +302,18 @@ public:
 	{
 		so.split(*this);
 
-		QString name = typeid(child_t).name();
 		if (so.is_writing()) {
-			so.list("children", _children, QString(), (child_t*) NULL);
+			QStringList descriptions;
+			for (auto child : _children) {
+				descriptions << child->get_serialized_description();
+			}
+			so.list("children", _children, QString(), (child_t*) NULL, descriptions);
 		}
 		else {
-			children_t children;
-			if (!so.list("children", children, QString(), (child_t*) NULL, QStringList(), true, true)) {
+			auto create_func = [&]{ return PVDataTreeAutoShared<child_t>(this->shared_from_this()); };
+			if (!so.list_read(create_func, "children", QString(), true, true)) {
 				// No children born in here...
 				return;
-			}
-			for (auto child_p: children) {
-				add_child(child_p);
 			}
 		}
 	}
