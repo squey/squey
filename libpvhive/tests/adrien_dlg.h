@@ -26,7 +26,7 @@ public:
 protected:
 	virtual void refresh()
 	{
-		std::cout << "  Label refresh" << std::endl;
+		std::cout << "  Label refresh to " << get_object()->_v << std::endl;
 		std::cout << "    running thread " << boost::this_thread::get_id() << std::endl;
 		std::cout << "    owner thread   " << thread() << std::endl;
 		setText(QString::number(get_object()->_v));
@@ -46,7 +46,7 @@ public:
 protected:
 	virtual void refresh()
 	{
-		std::cout << "  Bar refresh" << std::endl;
+		std::cout << "  Bar refresh to " << get_object()->_v << std::endl;
 		std::cout << "    running thread " << boost::this_thread::get_id() << std::endl;
 		std::cout << "    owner thread   " << thread() << std::endl;
 		setValue(get_object()->_v);
