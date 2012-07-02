@@ -127,6 +127,8 @@ private slots:
 		if (items.isEmpty() == false) {
 			items.at(0)->setSelected(true);
 			do_del_entity();
+
+			delete te;
 		}
 	}
 
