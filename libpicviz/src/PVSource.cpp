@@ -197,7 +197,7 @@ PVRow Picviz::PVSource::get_row_count()
 
 PVCol Picviz::PVSource::get_column_count()
 {
-	return nraw->get_number_cols();
+	return get_format().get_axes().size();
 }
 
 QString Picviz::PVSource::get_value(PVRow row, PVCol col) const
@@ -294,6 +294,8 @@ void Picviz::PVSource::set_invalid_elts_mode(bool restore_inv_elts)
 
 void Picviz::PVSource::serialize_write(PVCore::PVSerializeObject& so)
 {
+	data_tree_source_t::serialize_write(so);
+
 	PVRush::PVInputType_p in_t = get_input_type();
 	assert(in_t);
 	PVCore::PVSerializeObject_p so_inputs = get_parent<PVScene>()->get_so_inputs(*this);
@@ -317,23 +319,9 @@ void Picviz::PVSource::serialize_write(PVCore::PVSerializeObject& so)
 
 	// Save the format
 	so.object("format", _extractor.get_format(), QObject::tr("Format"));
-
-	// Save the views
-	
-	// For now, all the views are called 'default'
-	QStringList descs;
-	for (int i = 0; i < get_children<PVView>().size() ; i++) {
-		descs << "default";
-	}
-	QStringList mapped_names;
-	for (auto mapped : get_children<PVMapped>()) {
-		mapped_names << mapped->get_name();
-	}
-	auto mappeds_p = get_children<PVMapped>();
-	so.list("mapped", mappeds_p, "Mappings", (PVMapped*) NULL, mapped_names, true, true);
 }
 
-void Picviz::PVSource::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
+void Picviz::PVSource::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v)
 {
 	QString src_name;
 	so.attribute("source-plugin", src_name);
@@ -345,6 +333,7 @@ void Picviz::PVSource::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVS
 	_src_plugin = sc_lib->clone<PVRush::PVSourceCreator>();
 
 	// Get the inputs
+	assert(get_parent<PVScene>());
 	PVCore::PVSerializeObject_p so_inputs = get_parent<PVScene>()->get_so_inputs(*this);
 	if (so_inputs) {
 		// The inputs have been serialized by our parents, so just make references to them
@@ -367,17 +356,11 @@ void Picviz::PVSource::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVS
 	so.object("format", format);
 	if (!so.has_repairable_errors()) {
 		set_format(format);
+		get_parent()->add_source(shared_from_this());
 
 		// "Append" the files to the extractor
 		files_append_noextract();
-
-		// Load the mapped
-		list_mapped_t mappeds_p;
-		so.list("mapped", mappeds_p, "Mappings", (PVMapped*) NULL, QStringList(), true, true);
-
-		for (auto mapped_p : mappeds_p) {
-			mapped_p->get_mapping()->set_default_args(format);
-			add_child(mapped_p);
-		}
 	}
+
+	data_tree_source_t::serialize_read(so, v);
 }

@@ -48,6 +48,8 @@ public:
 	typedef std::vector< std::pair<PVCol,float> > mapped_sub_col_t;
 	typedef children_t list_plotted_t;
 
+	QString get_children_description() { return "Plotted(s)"; }
+
 protected:
 	PVMapped();
 
@@ -101,7 +103,9 @@ protected:
 	virtual void set_parent_from_ptr(PVSource* source);
 
 protected:
-	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
+	void serialize_write(PVCore::PVSerializeObject& so);
+	void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
+	PVSERIALIZEOBJECT_SPLIT
 
 private:
 	void invalidate_plotted_children_column(PVCol j);

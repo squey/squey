@@ -177,7 +177,7 @@ struct PVDataTreeNoChildren
 	void serialize(PVCore::PVSerializeObject&, PVCore::PVSerializeArchive::version_t) {}
 	void set_parent(parent_t*) {}
 	void set_parent(pparent_t const&) {}
-	QString get_serialized_description() { return QString(); }
+	QString get_serialize_description() { return QString(); }
 
 	children_t _children;
 };
@@ -219,7 +219,8 @@ public:
 	 */
 	virtual ~PVDataTreeObject() {}
 
-	virtual QString get_serialized_description() { return QString(); }
+	virtual QString get_serialize_description() { return QString(); }
+	virtual QString get_children_description() { return "Children"; }
 
 	/*! \brief Return an ancestor of a data tree object at the specified hierarchical level (as a class type).
 	 *  If no level is specified, the parent is returned.
@@ -295,26 +296,21 @@ public:
 	}
 	inline pchild_t remove_child(pchild_t const& child) { return remove_child(*child); }
 
-	virtual void serialize_write(PVCore::PVSerializeObject&) = 0;
-	virtual void serialize_read(PVCore::PVSerializeObject&, PVCore::PVSerializeArchive::version_t) = 0;
-
-	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t/* v*/)
+	virtual void serialize_write(PVCore::PVSerializeObject& so)
 	{
-		so.split(*this);
-
-		if (so.is_writing()) {
-			QStringList descriptions;
-			for (auto child : _children) {
-				descriptions << child->get_serialized_description();
-			}
-			so.list("children", _children, QString(), (child_t*) NULL, descriptions);
+		QStringList descriptions;
+		for (auto child : _children) {
+			descriptions << child->get_serialize_description();
 		}
-		else {
-			auto create_func = [&]{ return PVDataTreeAutoShared<child_t>(this->shared_from_this()); };
-			if (!so.list_read(create_func, "children", QString(), true, true)) {
-				// No children born in here...
-				return;
-			}
+		so.list(get_children_description(), _children, QString(), (child_t*) NULL, descriptions);
+	};
+
+	virtual void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v)
+	{
+		auto create_func = [&]{ return PVDataTreeAutoShared<child_t>(this->shared_from_this()); };
+		if (!so.list_read(create_func, get_children_description(), QString(), true, true)) {
+			// No children born in here...
+			return;
 		}
 	}
 

@@ -16,6 +16,7 @@
 #include <picviz/PVPlotted.h>
 #include <picviz/PVSelection.h>
 #include <picviz/PVSource.h>
+#include <picviz/PVView.h>
 
 #include <picviz/PVRoot.h>
 
@@ -49,9 +50,6 @@ void Picviz::PVMapped::set_parent_from_ptr(PVSource* source)
 {
 	data_tree_mapped_t::set_parent_from_ptr(source);
 	_mapping = PVMapping_p(new PVMapping(this));
-
-	PVCol naxes = source->get_column_count();
-	_mapping->_mandatory_filters_values.resize(naxes);
 }
 
 /******************************************************************************
@@ -416,26 +414,18 @@ QList<PVCol> Picviz::PVMapped::get_columns_indexes_values_not_within_range(float
 	return cols_ret;
 }
 
-void Picviz::PVMapped::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
+void Picviz::PVMapped::serialize_write(PVCore::PVSerializeObject& so)
 {
-	if (so.is_writing()) {
-		so.object(QString("mapping"), *_mapping, QString(), false, (PVMapping*) NULL, false);
-		QStringList plotted_names;
-		for (auto plotted_p : get_children<PVPlotted>()) {
-			plotted_names << plotted_p->get_name();
-		}
-		list_plotted_t plotteds_p = get_children<PVPlotted>();
-		so.list("plotted", plotteds_p, "Plottings", (PVPlotted*) NULL, plotted_names, true, true);
-	}
-	else
-	{
-		PVMapping* mapping = new PVMapping();
-		so.object(QString("mapping"), *mapping, QString(), false, (PVMapping*) NULL, false);
-		_mapping = PVMapping_p(mapping);
-		list_plotted_t plotteds_p;
-		so.list("plotted", plotteds_p, "Plottings", (PVPlotted*) NULL, QStringList(), true, true);
-		for (auto plotted_p : plotteds_p) {
-			add_child(plotted_p);
-		}
-	}
+	data_tree_mapped_t::serialize_write(so);
+
+	so.object(QString("mapping"), *_mapping, QString(), false, (PVMapping*) NULL, false);
+}
+
+void Picviz::PVMapped::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v)
+{
+	data_tree_mapped_t::serialize_read(so, v);
+
+	PVMapping* mapping = new PVMapping(this);
+	so.object(QString("mapping"), *mapping, QString(), false, (PVMapping*) NULL, false);
+	_mapping = PVMapping_p(mapping);
 }

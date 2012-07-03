@@ -70,6 +70,9 @@ public:
 	typedef std::vector<float> plotted_table_t;
 	typedef std::vector< std::pair<PVCol,float> > plotted_sub_col_t;
 	typedef std::list<ExpandedSelection> list_expanded_selection_t;
+
+	QString get_children_description() { return "View(s)"; }
+
 public:
 	PVPlotted();
 
@@ -80,7 +83,9 @@ public:
 
 protected:
 	// Serialization
-	void serialize(PVCore::PVSerializeObject &so, PVCore::PVSerializeArchive::version_t v);
+	void serialize_write(PVCore::PVSerializeObject& so);
+	void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/);
+	PVSERIALIZEOBJECT_SPLIT
 
 	// For PVMapped
 	inline void invalidate_column(PVCol j) { return _plotting->invalidate_column(j); }

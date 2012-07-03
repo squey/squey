@@ -11,6 +11,8 @@
 #include <picviz/PVSource.h>
 #include <picviz/PVMapping.h>
 #include <picviz/PVMapped.h>
+#include <picviz/PVPlotted.h>
+#include <picviz/PVView.h>
 #include <cstdlib>
 #include <iostream>
 #include <QCoreApplication>

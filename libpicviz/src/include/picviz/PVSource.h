@@ -62,6 +62,8 @@ public:
 
 public:
 
+	QString get_children_description() { return "Mapped(s)"; }
+
 	/* Functions */
 	PVCol get_column_count();
 
@@ -125,7 +127,6 @@ protected:
 protected:
 	void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 	void serialize_write(PVCore::PVSerializeObject& so);
-
 	PVSERIALIZEOBJECT_SPLIT
 
 private:

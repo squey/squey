@@ -148,7 +148,7 @@ public:
 	int report_image_index;
 	QString *report_filename;
 
-	Picviz::PVRoot_p root;
+	PVCore::PVDataTreeAutoShared<Picviz::PVRoot> root;
 
 	/* QGridLayout *filter_widgets_layout; */
 	void commit_selection_in_current_layer(Picviz::PVView_p view);
@@ -379,7 +379,7 @@ private:
 	tbb::task_scheduler_init init_parallel;
 
 private:
-	Picviz::PVScene_p _scene;
+	PVCore::PVDataTreeAutoShared<Picviz::PVScene> _scene;
 	QDialog* _ad2g_mw;
 	QString _cur_project_file;
 	bool _cur_project_save_everything;

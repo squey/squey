@@ -237,7 +237,7 @@ void Picviz::PVView::debug()
  *
  * Picviz::PVView::expand_selection_on_axis
  *
- *****************************************************************************/
+ *************************************************************************data_tree_view_t****/
 void Picviz::PVView::expand_selection_on_axis(PVCol axis_id, QString const& mode)
 {
 	commit_volatile_in_floating_selection();
@@ -1431,12 +1431,16 @@ void Picviz::PVView::emit_user_modified_sel(QList<Picviz::PVView*>* changed_view
 // Load/save and serialization
 void Picviz::PVView::serialize_write(PVCore::PVSerializeObject& so)
 {
+	data_tree_view_t::serialize_write(so);
+
 	so.object("layer-stack", layer_stack, "Layers", true);
 	so.object("axes-combination", axes_combination, "Axes combination", true);
 }
 
-void Picviz::PVView::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
+void Picviz::PVView::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v)
 {
+	data_tree_view_t::serialize_read(so, v);
+
 	if (!so.object("layer-stack", layer_stack, "Layers", true)) {
 		// If no layer stack, reset all layers so that we have one :)
 		reset_layers();

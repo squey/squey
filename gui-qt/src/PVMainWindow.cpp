@@ -697,7 +697,7 @@ void PVInspector::PVMainWindow::close_scene()
 	if (_ad2g_mw) {
 		_ad2g_mw->deleteLater();
 	}
-	_scene = Picviz::PVScene_p(root, "default");
+	_scene = PVCore::PVDataTreeAutoShared<Picviz::PVScene>(root, "default");
 	_ad2g_mw = NULL;
 	set_project_modified(false);
 }

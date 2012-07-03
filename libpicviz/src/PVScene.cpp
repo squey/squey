@@ -40,7 +40,7 @@ void Picviz::PVScene::add_source(PVSource_p src)
 	// typedef std::map<PVRush::PVInputType, std::pair<list_sources_t, PVRush::PVInputType::list_inputs> > hash_type_sources_t;
 	// hash_type_sources_t _sources;
 	
-	src->set_parent(this);
+	//src->set_parent(this);
 
 	std::pair<list_sources_t, PVRush::PVInputType::list_inputs>& type_srcs = _sources[*(src->get_input_type())];
 
@@ -121,7 +121,7 @@ void Picviz::PVScene::user_modified_sel(PVView* src_view, QList<Picviz::PVView*>
 	_ad2g_view->run(src_view, changed_views);
 }
 
-void Picviz::PVScene::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
+void Picviz::PVScene::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v)
 {
 	// Get the list of input types
 	QStringList input_types;
@@ -143,20 +143,14 @@ void Picviz::PVScene::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSe
 		_so_inputs[*int_lib] = so_inputs;
 	}
 
-	// Get the sources
-	PVSource_p src(shared_from_this());
-	list_sources_t all_sources;
-	so.list("sources", all_sources, QObject::tr("Sources"), src.get());
-	src->set_parent(NULL);
-	PVLOG_INFO("(PVScene::serialize_read) get %d sources\n", all_sources.size());
+	data_tree_scene_t::serialize_read(so, v);
 
-	if (!so.has_repairable_errors()) {
+	/*if (!so.has_repairable_errors()) {
 		// And finally add them !
-		list_sources_t::iterator it;
-		for (it = all_sources.begin(); it != all_sources.end(); it++) {
-			add_source(*it);
+		for (auto child : get_children()) {
+			add_source(*child);
 		}
-	}
+	}*/
 
 	// Correlation, make this optional for compatibility with old project (so that we are still in version 1 :))
 	_ad2g_view.reset(new Picviz::PVAD2GView(this));
@@ -165,6 +159,8 @@ void Picviz::PVScene::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSe
 
 void Picviz::PVScene::serialize_write(PVCore::PVSerializeObject& so)
 {
+	data_tree_scene_t::serialize_write(so);
+
 	// First serialize the sources.
 	// The tree will be like this:
 	_so_inputs.clear();
@@ -196,15 +192,6 @@ void Picviz::PVScene::serialize_write(PVCore::PVSerializeObject& so)
 
 	so.list_attributes("types", input_types);
 
-	// Then serialize the list of sources
-	
-	// Get the sources name
-	QStringList desc;
-	list_sources_t::const_iterator it_src;
-	for (it_src = all_sources.begin(); it_src != all_sources.end(); it_src++) {
-		desc << (*it_src)->get_name() + QString(" / ") + (*it_src)->get_format_name();
-	}
-	so.list(QString("sources"), all_sources, QObject::tr("Sources"), (PVSource*) NULL, desc);
 
 	// Correlation (optional)
 	so.object("correlation", *_ad2g_view, QObject::tr("Correlation graph"), true);

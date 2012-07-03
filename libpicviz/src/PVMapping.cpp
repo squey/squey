@@ -27,10 +27,13 @@ Picviz::PVMapping::PVMapping(PVMapped* mapped):
 	PVSource* source = _mapped->get_parent();
 
 	PVCol naxes = source->get_column_count();
+
 	if (naxes == 0) {
 		PVLOG_ERROR("In PVMapping constructor, no axis have been defined in the format !!!!\n");
 		assert(false);
 	}
+
+	_mandatory_filters_values.resize(naxes);
 
 	PVLOG_DEBUG("In PVMapping::PVMapping(), debug PVFormat\n");
 	source->get_rushnraw().format->debug();

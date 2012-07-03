@@ -580,14 +580,25 @@ void Picviz::PVPlotted::add_column(PVPlottingProperties const& props)
 	_plotting->add_column(props);
 }
 
-void Picviz::PVPlotted::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
+void Picviz::PVPlotted::serialize_write(PVCore::PVSerializeObject& so)
 {
+	data_tree_plotted_t::serialize_write(so);
+
 	so.object("plotting", _plotting, QString(), false, (PVPlotting*) NULL, false);
 	PVCore::PVSerializeObject_p view_so;
 	so.object("view", _view, QObject::tr("View"), false, (PVView*) NULL, true, true, &view_so);
-	if (so.is_writing()) {
-		_view->set_last_so(view_so);
-	}
+	_view->set_last_so(view_so);
+
+	so.list("expanded_sels", _expanded_sels, "Expanded selections", (ExpandedSelection*) NULL, QStringList(), true, true);
+}
+
+void Picviz::PVPlotted::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v)
+{
+	data_tree_plotted_t::serialize_read(so, v);
+
+	so.object("plotting", _plotting, QString(), false, (PVPlotting*) NULL, false);
+	PVCore::PVSerializeObject_p view_so;
+	so.object("view", _view, QObject::tr("View"), false, (PVView*) NULL, true, true, &view_so);
 
 	so.list("expanded_sels", _expanded_sels, "Expanded selections", (ExpandedSelection*) NULL, QStringList(), true, true);
 }

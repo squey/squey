@@ -15,6 +15,12 @@ class B;
 class C;
 class D;
 
+#define PVSERIALIZEOBJECT_SPLIT\
+	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)\
+	{\
+		so.split(*this);\
+	}\
+
 typedef typename PVCore::PVDataTreeObject<PVCore::PVDataTreeNoParent<A>, B> data_tree_a_t;
 class A : public data_tree_a_t
 {
@@ -47,13 +53,19 @@ public:
 
 	virtual void serialize_write(PVCore::PVSerializeObject& so)
 	{
+		data_tree_a_t::serialize_write(so);
+
 		so.attribute("_i", _i);
 	}
 
-	virtual void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t)
+	virtual void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v)
 	{
+		data_tree_a_t::serialize_read(so, v);
+
 		so.attribute("_i", _i);
 	}
+
+	PVSERIALIZEOBJECT_SPLIT
 
 	int get_i() { return _i; }
 
@@ -83,15 +95,21 @@ public:
 
 	virtual void serialize_write(PVCore::PVSerializeObject& so)
 	{
+		data_tree_b_t::serialize_write(so);
+
 		so.attribute("_i", _i);
 		so.attribute("_j", _j);
 	}
 
-	virtual void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t)
+	virtual void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v)
 	{
+		data_tree_b_t::serialize_read(so, v);
+
 		so.attribute("_i", _i);
 		so.attribute("_j", _j);
 	}
+
+	PVSERIALIZEOBJECT_SPLIT
 
 	int get_i() { return _i; }
 	int get_j() { return _j; }
@@ -128,15 +146,21 @@ public:
 
 	virtual void serialize_write(PVCore::PVSerializeObject& so)
 	{
+		data_tree_c_t::serialize_write(so);
+
 		so.attribute("_i", _i);
 		so.attribute("_j", _j);
 	}
 
-	virtual void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t)
+	virtual void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v)
 	{
+		data_tree_c_t::serialize_read(so, v);
+
 		so.attribute("_i", _i);
 		so.attribute("_j", _j);
 	}
+
+	PVSERIALIZEOBJECT_SPLIT
 
 	int get_i() { return _i; }
 	int get_j() { return _j; }
@@ -172,15 +196,21 @@ public:
 
 	virtual void serialize_write(PVCore::PVSerializeObject& so)
 	{
+		data_tree_d_t::serialize_write(so);
+
 		so.attribute("_i", _i);
 		so.attribute("_j", _j);
 	}
 
-	virtual void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t)
+	virtual void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v)
 	{
+		data_tree_d_t::serialize_read(so, v);
+
 		so.attribute("_i", _i);
 		so.attribute("_j", _j);
 	}
+
+	PVSERIALIZEOBJECT_SPLIT
 
 	int get_i() { return _i; }
 	int get_j() { return _j; }

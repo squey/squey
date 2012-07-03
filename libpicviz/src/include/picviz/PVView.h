@@ -373,7 +373,6 @@ protected:
 *****************************************************************************/
 	void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 	void serialize_write(PVCore::PVSerializeObject& so);
-
 	PVSERIALIZEOBJECT_SPLIT
 
 /******************************************************************************
