@@ -33,7 +33,7 @@ QString Picviz::PVRFFAxesBindNearestNeighbors::get_human_name_with_args(const PV
 {
 	QString dist;
 	dist.setNum(_distance, 'f', 2);
-	return get_human_name() + " (" + src_view.get_axis_name(_axis_org) + " -> " + dst_view.get_axis_name(_axis_dst) + " [" + dist +"])";
+	return get_human_name() + " (" + src_view.get_original_axis_name(_axis_org) + " -> " + dst_view.get_original_axis_name(_axis_dst) + " [" + dist +"])";
 }
 
 void Picviz::PVRFFAxesBindNearestNeighbors::do_pre_process(PVView const& /*view_org*/, PVView const& view_dst)
