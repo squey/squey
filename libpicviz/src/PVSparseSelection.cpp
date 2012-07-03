@@ -1,12 +1,6 @@
 #include <picviz/PVSparseSelection.h>
 
 
-void Picviz::PVSparseSelection::clear()
-{
-	_chunks.clear();	
-	_last_chunk = insert_new_chunk(0);
-}
-
 Picviz::PVSparseSelection& Picviz::PVSparseSelection::operator&=(PVSparseSelection const& o)
 {
 	// Check for self-assignement
@@ -14,15 +8,22 @@ Picviz::PVSparseSelection& Picviz::PVSparseSelection::operator&=(PVSparseSelecti
 		return *this;
 	}
 
+	if (o.get_chunks().size() == 0) {
+		clear();
+		return *this;
+	}
+
 	map_chunks_t::iterator it_this; map_chunks_t::const_iterator it_o;
 	it_this = _chunks.begin(); it_o = o._chunks.begin();
+
+	const map_chunks_t::const_iterator it_o_end = o._chunks.end();
 	
 	chunk_index_t idx_this;
 	while (it_this != _chunks.end()) {
 		idx_this = it_this->first;
 		chunk_index_t idx_o = it_o->first;
 		// TODO: we can have a logarithmic number of camparaisons here !
-		while (idx_o < idx_this) {
+		while (idx_o < idx_this && it_o != o._chunks.end()) {
 			it_o++;
 			idx_o = it_o->first;
 		}
@@ -45,7 +46,7 @@ Picviz::PVSparseSelection& Picviz::PVSparseSelection::operator&=(PVSparseSelecti
 Picviz::PVSparseSelection& Picviz::PVSparseSelection::operator|=(PVSparseSelection const& o)
 {
 	// Check for self-assignement
-	if (&o == this) {
+	if (&o == this || o.get_chunks().size() == 0) {
 		return *this;
 	}
 
