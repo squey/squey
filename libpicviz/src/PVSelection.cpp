@@ -457,7 +457,7 @@ ssize_t Picviz::PVSelection::get_last_nonzero_chunk_index(ssize_t starting_chunk
 #ifdef __SSE4_1__
 	__m128i ones = _mm_set1_epi32(0xFFFFFFFF);
 	__m128i vec;
-	const ssize_t ending_chunk_aligned = (ssize_t)(((size_t)ending_chunk>>2)<<2);
+	const ssize_t ending_chunk_aligned = (ssize_t)(((size_t)ending_chunk>>1)<<1);
 	if (ending_chunk_aligned <= starting_chunk) {
 		for (ssize_t i = ending_chunk; i >= starting_chunk; i--) {
 			if (_table[i] != 0) {
@@ -471,7 +471,7 @@ ssize_t Picviz::PVSelection::get_last_nonzero_chunk_index(ssize_t starting_chunk
 				return i;
 			}
 		}
-		for (ssize_t i = ((ssize_t)ending_chunk_aligned)-4; i >= starting_chunk; i -= 4) {
+		for (ssize_t i = ((ssize_t)ending_chunk_aligned)-2; i >= starting_chunk; i -= 2) {
 			vec = _mm_load_si128((__m128i*) &_table[i]);
 			if (_mm_testz_si128(vec, ones) == 0) {
 				uint64_t DECLARE_ALIGN(16) final_sel[2];
@@ -479,9 +479,10 @@ ssize_t Picviz::PVSelection::get_last_nonzero_chunk_index(ssize_t starting_chunk
 				// If final_sel[0] == 0, it means that the chunk is in one of the last two 32 bits of vec.
 				// Otherwise, it is one of the two first.
 				uint8_t reg_pos = (final_sel[1] != 0);
-				uint32_t* preg_last2 = (uint32_t*) &final_sel[reg_pos];
-				uint8_t reg_pos_last2 = (preg_last2[1] != 0);
-				return i + (reg_pos<<1) + reg_pos_last2;
+				//uint32_t* preg_last2 = (uint32_t*) &final_sel[reg_pos];
+				//uint8_t reg_pos_last2 = (preg_last2[1] != 0);
+				//return i + (reg_pos<<1) + reg_pos_last2;
+				return i + (reg_pos<<1);
 			}
 		}
 	}

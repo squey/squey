@@ -10,9 +10,13 @@
 #include <pvkernel/core/stdint.h>
 #include <pvkernel/core/picviz_intrin.h>
 #include <pvkernel/core/PVAllocators.h>
+#include <pvkernel/core/PVBitVisitor.h>
 #include <pvkernel/core/PVSerializeArchive.h>
+#include <pvkernel/core/PVAlignedBlockedRange.h>
 
 #include <picviz/general.h>
+
+#include <tbb/parallel_for.h>
 
 #include <QTextStream>
 
@@ -300,6 +304,7 @@ public:
 	// Thus, returns 0 if no chunk is empty
 	ssize_t get_last_nonzero_chunk_index(ssize_t starting_chunk = 0, ssize_t ending_chunk = PICVIZ_SELECTION_NUMBER_OF_CHUNKS-1) const;
 
+#if 0
 	template <class F>
 	void visit_selected_lines(F const& f, PVRow nrows = PICVIZ_SELECTION_NUMBER_OF_ROWS) const
 	{
@@ -311,9 +316,9 @@ public:
 		}
 		__m128i sse_sel;
 		const __m128i ones = _mm_set1_epi32(0xFFFFFFFF);
-		const size_t last_chunk_sse = (((size_t)last_chunk)>>2)<<2;
+		const size_t last_chunk_sse = (((size_t)last_chunk)>>1)<<1;
 		size_t i;
-		for (i = 0; i < last_chunk_sse; i += 4) {
+		for (i = 0; i < last_chunk_sse; i += 2) {
 			sse_sel = _mm_load_si128((__m128i*) &_table[i]);
 			if (_mm_testz_si128(sse_sel, ones) == 1) {
 				// If this vector is null, then go one the next one.
@@ -324,15 +329,16 @@ public:
 			const uint64_t vec64_1 = _mm_extract_epi64(sse_sel, 1);
 			size_t nbits = _mm_popcnt_u64(vec64_0) + _mm_popcnt_u64(vec64_1);
 			size_t cur_b = 0;
+			const PVRow off = chunk_to_line_index(i);
 
 			if (vec64_0 != 0) {
 				while (nbits > 0 && cur_b < 64) {
-					PVRow idx = chunk_to_line_index(i) + cur_b;
+					const PVRow idx = off + cur_b;
 					if (idx >= nrows) {
 						return;
 					}
 					if (vec64_0 & (1UL<<cur_b)) {
-						f(chunk_to_line_index(i) + cur_b);
+						f(idx);
 						nbits--;
 					}
 					cur_b++;
@@ -341,12 +347,12 @@ public:
 			}
 			if (vec64_1 != 0) {
 				while (nbits > 0 && cur_b < 64) {
-					PVRow idx = chunk_to_line_index(i) + cur_b + 64;
+					const PVRow idx = off + cur_b + 64;
 					if (idx >= nrows) {
 						return;
 					}
 					if (vec64_1 & (1UL<<cur_b)) {
-						f(chunk_to_line_index(i) + cur_b + 64);
+						f(idx);
 						nbits--;
 					}
 					cur_b++;
@@ -355,9 +361,9 @@ public:
 			assert(nbits == 0);
 		}
 		for (; i <= last_chunk; i++) {
-			const uint32_t sel_buf = _table[i];
-			for (uint32_t j = 0; j < 32; j++) {
-				PVRow idx = chunk_to_line_index(i) +j;
+			const uint64_t sel_buf = _table[i];
+			for (PVRow j = 0; j < 64; j++) {
+				const PVRow idx = chunk_to_line_index(i) +j;
 				if (idx >= nrows) {
 					return;
 				}
@@ -366,6 +372,71 @@ public:
 				}
 			}
 		}
+#else
+		visit_selected_lines_serial(f, nrows);
+#endif
+	}
+#endif
+
+	template <class F>
+	void visit_selected_lines(F const& f, const PVRow nrows = PICVIZ_SELECTION_NUMBER_OF_ROWS) const
+	{
+		if (nrows <= 0) {
+			return;
+		}
+#ifdef __SSE4_1__
+		const ssize_t last_chunk = get_last_nonzero_chunk_index(0, line_index_to_chunk(nrows - 1));
+		if (last_chunk == -1) {
+			// No lines are selected !
+			return;
+		}
+		__m128i sse_sel;
+		size_t last_chunk_sse = (((size_t)(last_chunk))>>1)<<1;
+		size_t i;
+		for (i = 0; i < last_chunk_sse; i += 2) {
+			sse_sel = _mm_load_si128((__m128i*) &_table[i]);
+			PVCore::PVBitVisitor::visit_bits(sse_sel, f, chunk_to_line_index(i));
+		}
+		for (; i < last_chunk; i++) {
+			const uint64_t sel_buf = _table[i];
+			PVCore::PVBitVisitor::visit_bits(sel_buf, f, chunk_to_line_index(i));
+		}
+		// On last chunk, do not overflow !
+		PVCore::PVBitVisitor::visit_bits(_table[last_chunk], [=,&f](const PVRow r){ if (r < nrows) f(r); }, chunk_to_line_index(last_chunk));
+#else
+		visit_selected_lines_serial(f, nrows);
+#endif
+	}
+
+	template <class F>
+	void visit_selected_lines_tbb(F const& f, const PVRow nrows = PICVIZ_SELECTION_NUMBER_OF_ROWS) const
+	{
+		if (nrows <= 0) {
+			return;
+		}
+#ifdef __SSE4_1__
+		const ssize_t last_chunk = get_last_nonzero_chunk_index(0, line_index_to_chunk(nrows - 1));
+		if (last_chunk == -1) {
+			// No lines are selected !
+			return;
+		}
+		size_t last_chunk_sse = (((size_t)(last_chunk))>>1)<<1;
+		size_t i;
+		tbb::parallel_for(PVCore::PVAlignedBlockedRange<size_t, 2>(9, last_chunk_sse),
+			[&](PVCore::PVAlignedBlockedRange<size_t, 2> const& range)
+			{
+				__m128i sse_sel;
+				for (size_t i = range.begin(); i != range.end(); i++) {
+					sse_sel = _mm_load_si128((__m128i*) &_table[i]);
+					PVCore::PVBitVisitor::visit_bits(sse_sel, f, chunk_to_line_index(i));
+				}
+			});
+		for (; i < last_chunk; i++) {
+			const uint64_t sel_buf = _table[i];
+			PVCore::PVBitVisitor::visit_bits(sel_buf, f, chunk_to_line_index(i));
+		}
+		// On last chunk, do not overflow !
+		PVCore::PVBitVisitor::visit_bits(_table[last_chunk], [=,&f](const PVRow r){ if (r < nrows) f(r); }, chunk_to_line_index(last_chunk));
 #else
 		visit_selected_lines_serial(f, nrows);
 #endif
@@ -382,7 +453,8 @@ public:
 	static inline PVRow chunk_to_line_index(const PVRow r) { return r<<6; }
 	static inline PVRow line_index_to_chunk_bit(const PVRow r) { return r & 63; }
 
-private:
+public:
+#if 0
 	template <class F>
 	void visit_selected_lines_serial(F const& f, PVRow nrows = PICVIZ_SELECTION_NUMBER_OF_ROWS) const
 	{
@@ -405,6 +477,25 @@ private:
 				}
 			}
 		}
+	}
+#endif
+
+	template <class F>
+	void visit_selected_lines_serial(F const& f, const PVRow nrows = PICVIZ_SELECTION_NUMBER_OF_ROWS) const
+	{
+		if (nrows <= 0) {
+			return;
+		}
+		const ssize_t last_chunk = get_last_nonzero_chunk_index(0, line_index_to_chunk(nrows - 1));
+		if (last_chunk == -1) {
+			return;
+		}
+		for (ssize_t i = 0; i < last_chunk; i++) {
+			const uint64_t sel_buf = _table[i];
+			PVCore::PVBitVisitor::visit_bits(sel_buf, f, chunk_to_line_index(i));
+		}
+		// On last chunk, do not overflow !
+		PVCore::PVBitVisitor::visit_bits(_table[last_chunk], [=,&f](const PVRow r){ if (r < nrows) f(r); }, chunk_to_line_index(last_chunk));
 	}
 
 private:
