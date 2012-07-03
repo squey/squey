@@ -9,6 +9,8 @@
 
 #include <tbb/tbb_allocator.h>
 
+#include <map>
+
 namespace Picviz {
 
 class LibPicvizDecl PVSparseSelection
@@ -16,7 +18,9 @@ class LibPicvizDecl PVSparseSelection
 public:
 	typedef uint32_t chunk_index_t;
 	typedef uint64_t chunk_t;
+
 	typedef std::map<chunk_index_t, chunk_t, std::less<chunk_index_t>, tbb::tbb_allocator<std::pair<chunk_index_t, chunk_t> > > map_chunks_t;
+	//typedef std::map<chunk_index_t, chunk_t> map_chunks_t;
 
 private:
 	constexpr static size_t nbits_per_chunk = sizeof(chunk_t)*8;
@@ -25,13 +29,12 @@ private:
 public:
 	PVSparseSelection()
 	{
-		_last_chunk = insert_new_chunk(0);
 	}
 
 	~PVSparseSelection() { }
 
 public:
-	void clear();
+	inline void clear() { _chunks.clear(); }
 
 	inline void set(size_t bit)
 	{
@@ -113,7 +116,7 @@ private:
 	// Chunk manipulations
 	inline chunk_t& get_chunk_by_idx(const chunk_index_t idx)
 	{
-		if (get_last_chunk_index() == idx) {
+		if (_chunks.size() > 0 && get_last_chunk_index() == idx) {
 			return get_last_chunk();
 		}
 
@@ -122,7 +125,12 @@ private:
 		if (it_c == _chunks.end()) {
 			// This chunk does not exist. Add a new one. Specify the last used chunk as a helper in order
 			// to potentially improve the insertion performance.
-			it_c = insert_new_chunk_with_last(idx);
+			if (_chunks.size() > 0) {
+				it_c = insert_new_chunk_with_last(idx);
+			}
+			else {
+				it_c = insert_new_chunk(idx);
+			}
 		}
 
 		_last_chunk = it_c;
@@ -131,7 +139,7 @@ private:
 
 	inline bool chunk_exists(const chunk_index_t idx)
 	{
-		if (get_last_chunk_index() == idx) {
+		if (_chunks.size() > 0 && get_last_chunk_index() == idx) {
 			return true;
 		}
 
@@ -145,7 +153,7 @@ private:
 
 	inline bool chunk_exists(const chunk_index_t idx, map_chunks_t::const_iterator& it_c) const
 	{
-		if (get_last_chunk_index() == idx) {
+		if (_chunks.size() > 0 && get_last_chunk_index() == idx) {
 			it_c = _last_chunk;
 			return true;
 		}
