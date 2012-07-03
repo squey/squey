@@ -5,6 +5,8 @@
 #include <picviz/PVSparseSelection.h>
 #include <picviz/PVSelection.h>
 
+#include <tbb/parallel_sort.h>
+
 #include <iostream>
 #include <algorithm>
 
@@ -46,6 +48,7 @@ void dump_sel(const char* str, Picviz::PVSparseSelection const& s)
 
 int main()
 {
+	std::cout << "sizeof map_chunks_t::value_t: " << sizeof(Picviz::PVSparseSelection::map_chunks_t::value_type) << std::endl;
 	Picviz::PVSparseSelection s;
 
 	// Set bits i ndifferent chunks and check that the returned list is okay.
@@ -61,7 +64,7 @@ int main()
 	ASSERT_VALID(check_equals(nbits, &bits[0], set_bits));
 
 	// Set randomely bits and check
-	nbits = 10;
+	nbits = 10000;
 	s.clear();
 	srand(time(NULL));
 	std::vector<size_t> bits_ref; bits_ref.reserve(nbits);
@@ -115,6 +118,91 @@ int main()
 		const size_t bits_ref[] = {1,64,65,66,67,10000ULL,10000000ULL};
 		ASSERT_VALID(check_equals(sizeof(bits_ref)/sizeof(size_t), (size_t*) bits_ref, set_bits));
 	}
+
+	// Performance tests
+	//
+	
+	// Random number generation that will be used for the following tests
+	std::vector<size_t> random_bits;
+	std::vector<size_t> random_sorted_bits(random_bits);
+	nbits = 1000000;
+	random_bits.reserve(nbits);
+	random_sorted_bits.reserve(nbits);
+	for (size_t i = 0; i < nbits; i++) {
+		const size_t rn = rand();
+		random_bits.push_back(rn);
+		random_sorted_bits.push_back(rn);
+	}
+	tbb::parallel_sort(random_sorted_bits.begin(), random_sorted_bits.end());
+
+	// Creation perforamnce test
+	s.clear();
+	BENCH_START(creation);
+	for (size_t i = 0; i < nbits; i++) {
+		s.set(random_bits[i]);
+	}
+	BENCH_END(creation, "creation-random", sizeof(size_t), nbits, sizeof(Picviz::PVSparseSelection::map_chunks_t::value_type), s.get_chunks().size());
+
+	s.clear();
+	BENCH_START(creation2);
+	for (size_t i = 0; i < nbits; i++) {
+		s.set(random_sorted_bits[i]);
+	}
+	BENCH_END(creation2, "creation-sorted", sizeof(size_t), nbits, sizeof(Picviz::PVSparseSelection::map_chunks_t::value_type), s.get_chunks().size());
+
+	// Fast creation/removing with small number of objects
+	s.clear();
+
+	BENCH_START(fast_cr);
+	for (size_t i = 0; i < nbits; i++) {
+		const size_t r = random_bits[i];
+		s.set(r);
+		s.clear();
+	}
+	BENCH_END_TRANSFORM(fast_cr, "fast-creation", sizeof(size_t), nbits);
+
+	BENCH_START(fast_cr2);
+	for (size_t i = 0; i < nbits; i++) {
+		const size_t r = random_sorted_bits[i];
+		s.set(r);
+		s.clear();
+	}
+	BENCH_END_TRANSFORM(fast_cr2, "fast-creation-sorted", sizeof(size_t), nbits);
+
+	// Fast creation/removing with AND-ing the intermediare results
+	s.clear();
+	s2.clear();
+
+	BENCH_START(fast_cr_anding);
+	for (size_t i = 0; i < nbits; i++) {
+		const size_t r = random_bits[i];
+		s2.set(r);
+		s2.set(r+1);
+		s2.set(r+2);
+		s2.set(r+4);
+		s &= s2;
+		s2.clear();
+	}
+	BENCH_END_TRANSFORM(fast_cr_anding, "fast-creation-anding", sizeof(size_t), nbits);
+
+	// Same, with 4 and operations
+	s.clear();
+	s2.clear();
+
+	BENCH_START(fast_cr_anding4);
+	for (size_t i = 0; i < nbits; i++) {
+		const size_t r = random_bits[i];
+		s2.set(r);
+		s2.set(r+1);
+		s2.set(r+2);
+		s2.set(r+4);
+		s &= s2;
+		s &= s2;
+		s &= s2;
+		s &= s2;
+		s2.clear();
+	}
+	BENCH_END_TRANSFORM(fast_cr_anding4, "fast-creation-anding-4", sizeof(size_t), nbits);
 
 	return 0;
 }
