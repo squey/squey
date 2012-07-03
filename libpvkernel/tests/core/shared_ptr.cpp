@@ -135,7 +135,7 @@ int main()
 	std::cout << "  p_p2 = p_p1" << std::endl;
 	p_p2 = p_p1;
 	std::cout << "  p_p3 = new pouet..." << std::endl;
-	pouet_p p_p3 = new pouet;
+	pouet_p p_p3 = pouet_p(new pouet);
 
 	std::cout << "  operator ==" << std::endl;
 	assert(p_p1 == p_p2);
