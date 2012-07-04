@@ -18,6 +18,7 @@
 #include <QLabel>
 #include <QThread>
 #include <QEventLoop>
+#include <QPushButton>
 
 class Entity
 {
@@ -210,23 +211,21 @@ protected:
 	int     _duration;
 };
 
-class EntityTimerActor : public QDialog, public EntityActor
+class EntityButtonActor : public QDialog, public EntityActor
 {
 	Q_OBJECT
 
 public:
-	EntityTimerActor(int id, Entity *e, QWidget *parent) :
+	EntityButtonActor(int id, Entity *e, QWidget *parent) :
 		QDialog(parent),
 		EntityActor(id)
 	{
-		_timer = new QTimer(this);
-		connect(_timer, SIGNAL(timeout()), this, SLOT(do_update()));
-		_timer->start(_duration);
-
 		QVBoxLayout *vb = new QVBoxLayout(this);
 
-		QLabel *l = new QLabel(QString("update each ") + QString::number(_duration) + " ms");
-		vb->addWidget(l);
+		QPushButton *b = new QPushButton("increment");
+		vb->addWidget(b);
+
+		connect(b, SIGNAL(clicked(bool)), this, SLOT(do_inc(bool)));
 
 		_vl = new QLabel("count: NA");
 		vb->addWidget(_vl);
@@ -241,7 +240,7 @@ public:
 		resize(256, 64);
 	}
 
-	~EntityTimerActor()
+	~EntityButtonActor()
 	{
 		std::cout << "timer actor " << get_id() << ": death" << std::endl;
 	}
@@ -253,7 +252,7 @@ public:
 	}
 
 private slots:
-	void do_update()
+	void do_inc(bool)
 	{
 		_vl->setText("count: " + QString::number(_value));
 		PVACTOR_CALL(*this, &Entity::set_value, _value);

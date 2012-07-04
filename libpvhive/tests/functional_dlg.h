@@ -43,8 +43,8 @@ public:
 
 		/* add buttons for actors
 		 */
-		pb = new QPushButton(QString("Add timer actor"), this);
-		connect(pb, SIGNAL(clicked(bool)), this, SLOT(do_add_timer_actor()));
+		pb = new QPushButton(QString("Add button actor"), this);
+		connect(pb, SIGNAL(clicked(bool)), this, SLOT(do_add_button_actor()));
 		gb->addWidget(pb, 0, 1);
 
 		pb = new QPushButton(QString("Add thread actor"), this);
@@ -134,7 +134,7 @@ private slots:
 
 	void do_close_actor(int)
 	{
-		EntityTimerActor *a = qobject_cast<EntityTimerActor *>(sender());
+		EntityButtonActor *a = qobject_cast<EntityButtonActor *>(sender());
 		auto items = _actor_lw->findItems("a" + QString::number(a->get_id()),
 		                                  Qt::MatchExactly);
 		if (items.isEmpty() == false) {
@@ -227,7 +227,7 @@ private slots:
 		te->start();
 	}
 
-	void do_add_timer_actor()
+	void do_add_button_actor()
 	{
 		auto selected = _entity_lw->selectedItems();
 
@@ -238,7 +238,7 @@ private slots:
 		int eid = selected.at(0)->text().mid(1).toInt();
 		Entity *e = _entity_list.value(eid);
 
-		EntityTimerActor *a = new EntityTimerActor(_actor_next, e, this);
+		EntityButtonActor *a = new EntityButtonActor(_actor_next, e, this);
 		_actor_list.insert(_actor_next, a);
 		_actor_lw->addItem("a" + QString::number(_actor_next));
 		++_actor_next;
