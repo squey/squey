@@ -135,13 +135,23 @@ void Picviz::PVScene::set_views_id()
 {
 	list_views_t views = get_all_views();
 	std::multimap<PVView::id_t, PVView*> map_views;
+	std::list<PVView*> list_new_views;
 	foreach (PVView_p const& vp, views) {
-		map_views.insert(std::make_pair(vp->get_view_id(), vp.get()));
+		if (vp->get_view_id() == -1) {
+			list_new_views.push_back(vp.get());
+		}
+		else {
+			map_views.insert(std::make_pair(vp->get_view_id(), vp.get()));
+		}
 	}
 	PVView::id_t cur_id = 0;
 	std::multimap<PVView::id_t, PVView*>::iterator it;
 	for (it = map_views.begin(); it != map_views.end(); it++) {
 		it->second->set_view_id(cur_id);
+		cur_id++;
+	}
+	for (PVView* view : list_new_views) {
+		view->set_view_id(cur_id);
 		cur_id++;
 	}
 }
