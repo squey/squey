@@ -328,11 +328,6 @@ private:
 
 	struct observable_t
 	{
-		bool empty() const
-		{
-			return actors.empty() && observers.empty() && properties.empty();
-		}
-
 		actors_t  actors;
 		observers_t  observers;
 		properties_t properties;

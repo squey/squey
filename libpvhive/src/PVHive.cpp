@@ -22,10 +22,6 @@ void PVHive::PVHive::unregister_actor(PVActorBase& actor)
 
 	if (_observables.find(acc, actor._object)) {
 		acc->second.actors.erase(&actor);
-		if (acc->second.empty()) {
-			acc.release();
-			_observables.erase(actor._object);
-		}
 	}
 
 	actor.set_object(nullptr);
@@ -44,10 +40,6 @@ void PVHive::PVHive::unregister_observer(PVObserverBase& observer)
 
 	if (_observables.find(acc, observer._object)) {
 		acc->second.observers.erase(&observer);
-		if (acc->second.empty()) {
-			acc.release();
-			_observables.erase(observer._object);
-		}
 	}
 
 	observer._object = nullptr;
