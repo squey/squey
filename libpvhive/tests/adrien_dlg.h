@@ -101,12 +101,19 @@ public:
 
 		PVHive::PVHive &hive = PVHive::PVHive::get();
 		hive.register_observer(o, _myobj_observer);
-		hive.register_observer(o.get_prop(), _objprop_observer);
-		hive.register_observer(o.get_prop(), *_other_label);
+
+		auto prop_get = [] (MyObject const& o) -> const ObjectProperty&
+			{
+				return o.get_prop();
+			};
+
+		hive.register_observer(o, prop_get, _objprop_observer);
+		hive.register_observer(o, prop_get, *_other_label);
+
 		/* the next line can run without error only if the thread doing the
 		 * refresh() calls inherits from QObject
 		 */
-		//hive.register_observer(o.get_prop(), *_bar);
+		//hive.register_observer(o, prop_get, *_bar);
 
 		_objprop_observer.connect_refresh(this, "prop_changed");
 	}
