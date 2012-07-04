@@ -18,11 +18,13 @@ void PVHive::PVHive::unregister_actor(PVActorBase& actor)
 	// the actor must have a valid object
 	assert(actor._object != nullptr);
 
-	{
-		write_lock_t write_lock(_observables_lock);
-		auto entry = _observables.find(actor._object);
-		if (entry != _observables.end()) {
-			entry->second.actors.erase(&actor);
+	observables_t::accessor acc;
+
+	if (_observables.find(acc, actor._object)) {
+		acc->second.actors.erase(&actor);
+		if (acc->second.empty()) {
+			acc.release();
+			_observables.erase(actor._object);
 		}
 	}
 
@@ -38,10 +40,14 @@ void PVHive::PVHive::unregister_observer(PVObserverBase& observer)
 	// the observer must have a valid object
 	assert(observer._object != nullptr);
 
-	write_lock_t write_lock(_observables_lock);
-	auto entry = _observables.find(observer._object);
-	if (entry != _observables.end()) {
-		entry->second.observers.erase(&observer);
+	observables_t::accessor acc;
+
+	if (_observables.find(acc, observer._object)) {
+		acc->second.observers.erase(&observer);
+		if (acc->second.empty()) {
+			acc.release();
+			_observables.erase(observer._object);
+		}
 	}
 
 	observer._object = nullptr;
@@ -56,43 +62,38 @@ void PVHive::PVHive::unregister_object(void *object)
 	// the object must be a valid address
 	assert(object != nullptr);
 
-	// first, actors have to be detached from their objects
-	{
-		read_lock_t read_lock(_observables_lock);
-		auto entry = _observables.find(object);
-		if (entry != _observables.end()) {
-			for (auto it : entry->second.properties) {
-				auto res = _observables.find(it);
-				if (res != _observables.end()) {
-					for (auto pit : res->second.actors) {
-						pit->set_object(nullptr);
-					}
-				}
-			}
-			for (auto it : entry->second.actors) {
-				it->set_object(nullptr);
-			}
-		}
-	}
+	observables_t::accessor acc;
 
-	// finally, we release data related to object
-	write_lock_t write_lock(_observables_lock);
-	auto entry = _observables.find(object);
-	if (entry != _observables.end()) {
-		// notify properties observers
-		for (auto it : entry->second.properties) {
-			auto res = _observables.find(it);
-			if (res != _observables.end()) {
-				for (auto pit : res->second.observers) {
+	if (_observables.find(acc, object)) {
+
+		// unregistering properties
+		for (auto it : acc->second.properties) {
+			observables_t::accessor pacc;
+			if (_observables.find(pacc, it)) {
+				// actors...
+				for (auto pit : pacc->second.actors) {
+					pit->set_object(nullptr);
+				}
+
+				// and observers
+				for (auto pit : pacc->second.observers) {
 					pit->about_to_be_deleted();
 				}
-				_observables.erase(it);
 			}
 		}
-		// notify observers
-		for (auto it : entry->second.observers) {
+
+		// unregistering actors...
+		for (auto it : acc->second.actors) {
+			it->set_object(nullptr);
+		}
+
+		// and observers
+		for (auto it : acc->second.observers) {
 			it->about_to_be_deleted();
 		}
+
+		// finally, the entry of object is removed
+		acc.release();
 		_observables.erase(object);
 	}
 }
@@ -102,10 +103,10 @@ void PVHive::PVHive::unregister_object(void *object)
  *****************************************************************************/
 void PVHive::PVHive::do_refresh_observers(void *object)
 {
-	read_lock_t read_lock(_observables_lock);
-	auto entry = _observables.find(object);
-	if (entry != _observables.end()) {
-		for (auto it : entry->second.observers) {
+	observables_t::const_accessor acc;
+
+	if (_observables.find(acc, object)) {
+		for (auto it : acc->second.observers) {
 			it->refresh();
 		}
 	}

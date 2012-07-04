@@ -8,6 +8,8 @@
 
 #include <iostream>
 
+#include <boost/thread.hpp>
+
 #include <pvhive/PVActor.h>
 #include <pvhive/PVObserver.h>
 

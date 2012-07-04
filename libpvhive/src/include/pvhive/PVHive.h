@@ -2,12 +2,10 @@
 #ifndef LIBPVHIVE_PVHIVE_H
 #define LIBPVHIVE_PVHIVE_H
 
-#include <set>
-#include <unordered_map>
-
 #include <iostream>
+#include <set>
 
-#include <boost/thread.hpp>
+#include <tbb/concurrent_hash_map.h>
 
 #include <pvhive/PVObserver.h>
 #include <pvhive/PVActorBase.h>
@@ -76,10 +74,12 @@ public:
 		// an actor must be set for only one object
 		assert(actor.get_object() == nullptr);
 
-		actor.set_object((void*) &object);
+		observables_t::accessor acc;
 
-		write_lock_t write_lock(_observables_lock);
-		_observables[(void*) &object].actors.insert(&actor);
+		// create/get object's entry
+		_observables.insert(acc, (void*) &object);
+		acc->second.actors.insert(&actor);
+		actor.set_object((void*) &object);
 	}
 
 	/**
@@ -109,10 +109,12 @@ public:
 		// an observer must be set for only one object
 		assert(observer._object == nullptr);
 
-		observer._object = (void*) &object;
+		observables_t::accessor acc;
 
-		write_lock_t write_lock(_observables_lock);
-		_observables[(void*) &object].observers.insert(&observer);
+		// create/get object's entry
+		_observables.insert(acc, (void*) &object);
+		acc->second.observers.insert(&observer);
+		observer._object = (void*) &object;
 	}
 
 	/**
@@ -131,12 +133,19 @@ public:
 		assert(observer._object == nullptr);
 
 		auto &property = prop_get(object);
-		write_lock_t write_lock(_observables_lock);
-		// inserting observer
-		_observables[(void*) &property].observers.insert(&observer);
-		// inserting property
-		_observables[(void*) &object].properties.insert((void*) &property);
+
+		observables_t::accessor acc;
+
+		// adding observer
+		// create/get property's entry
+		_observables.insert(acc, (void*) &property);
+		acc->second.observers.insert(&observer);
 		observer._object = (void*) &property;
+
+		// adding property
+		// create/get object's entry
+		_observables.insert(acc, (void*) &object);
+		acc->second.properties.insert((void*) &property);
 	}
 
 	/**
@@ -264,18 +273,18 @@ private:
 
 	struct observable_t
 	{
+		bool empty() const
+		{
+			return actors.empty() && observers.empty() && properties.empty();
+		}
+
 		actors_t  actors;
 		observers_t  observers;
 		properties_t properties;
 	};
 
-	typedef std::unordered_map<void*, observable_t > observables_t;
+	typedef tbb::concurrent_hash_map<void*, observable_t > observables_t;
 	observables_t _observables;
-
-	// thread safety
-	typedef boost::unique_lock<boost::shared_mutex> write_lock_t;
-	typedef boost::shared_lock<boost::shared_mutex> read_lock_t;
-	boost::shared_mutex _observables_lock;
 };
 
 }
