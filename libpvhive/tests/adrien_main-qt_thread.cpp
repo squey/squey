@@ -93,9 +93,6 @@ int main(int argc, char** argv)
 
 	std::cout << "Main thread is " << boost::this_thread::get_id() << std::endl;
 
-	TestDlg* dlg = new TestDlg(o, NULL);
-	dlg->show();
-
 	PVHive::PVHive &hive = PVHive::PVHive::get();
 
 	hive.register_actor(o, actor);
@@ -104,6 +101,9 @@ int main(int argc, char** argv)
 
 	actor.call<decltype(&MyObject::set_i), &MyObject::set_i>(8);
 	actor.call<decltype(&MyObject::set_i2), &MyObject::set_i2>(9);
+
+	TestDlg* dlg = new TestDlg(o, NULL);
+	dlg->show();
 
 	MyThread mt(o, &app);
 	mt.start();
