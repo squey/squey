@@ -3,6 +3,9 @@
 #include <pvhive/PVActor.h>
 #include <pvhive/PVObserver.h>
 
+#include <boost/ref.hpp>
+#include <boost/thread.hpp>
+
 class MyObjectProperty
 {
 public:
@@ -75,6 +78,31 @@ public:
 	}
 };
 
+PVHIVE_CALL_OBJECT_BLOCK_BEGIN()
+
+template <>
+void PVHive::PVHive::call_object<MyObject, decltype(&MyObject::set_prop), &MyObject::set_prop,
+                                 boost::reference_wrapper<MyObjectProperty const> >(MyObject* o, boost::reference_wrapper<MyObjectProperty const> p)
+{
+	std::cout << "  PVHive::call_object for MyObject::set_prop" << std::endl;
+	std::cout << "    in thread " << boost::this_thread::get_id() << std::endl;
+	call_object_default<MyObject, decltype(&MyObject::set_prop), &MyObject::set_prop, MyObjectProperty const&>(o, p);
+	refresh_observers(&o->get_prop());
+}
+
+template <>
+void PVHive::PVHive::call_object<MyObject, decltype(&MyObject::set_prop), &MyObject::set_prop,
+                                 MyObjectProperty>(MyObject* o, MyObjectProperty p)
+{
+	std::cout << "  PVHive::call_object for MyObject::set_prop, non const& version" << std::endl;
+	std::cout << "    in thread " << boost::this_thread::get_id() << std::endl;
+	call_object_default<MyObject, decltype(&MyObject::set_prop), &MyObject::set_prop, MyObjectProperty>(o, p);
+	refresh_observers(&o->get_prop());
+}
+
+PVHIVE_CALL_OBJECT_BLOCK_END()
+
+
 int main()
 {
 	PVHive::PVHive &hive = PVHive::PVHive::get();
@@ -93,9 +121,9 @@ int main()
 	hive.register_actor(myobj, oactor);
 
 	// 1 acteur sur myobj.prop
-	PVHive::PVActor<MyObjectProperty> pactor;
+	PVHive::PVActor<MyObject> pactor;
 
-	hive.register_actor(myobj.get_prop(), pactor);
+	hive.register_actor(myobj, pactor);
 
 	// 1 observeur sur myobj
 	MyObjectObserver oobserver;
@@ -113,10 +141,10 @@ int main()
 	                       }, pobserver);
 
 	std::cout << "oactor.call(8)" << std::endl;
-	oactor.call<decltype(&MyObject::set_i), &MyObject::set_i>(8);
+	PVACTOR_CALL(oactor, &MyObject::set_i, 8);
 
 	std::cout << "pactor.call(42)" << std::endl;
-	pactor.call<decltype(&MyObjectProperty::set_value), &MyObjectProperty::set_value>(42);
+	PVACTOR_CALL(pactor, &MyObject::set_prop, boost::cref(MyObjectProperty(42)));
 
 	std::cout << "hive.unregister_actor(oactor)" << std::endl;
 	hive.unregister_actor(oactor);
