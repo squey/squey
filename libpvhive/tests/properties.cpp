@@ -77,9 +77,15 @@ public:
 
 int main()
 {
-	MyObject myobj(42);
-
 	PVHive::PVHive &hive = PVHive::PVHive::get();
+
+	MyObject myobj(42);
+	hive.register_object(myobj);
+	hive.register_object(myobj, [](MyObject const &myo) -> const MyObjectProperty &
+	                     {
+		                     return myo.get_prop();
+	                     });
+
 
 	// 1 acteur sur myobj
 	PVHive::PVActor<MyObject> oactor;

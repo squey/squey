@@ -67,6 +67,8 @@ void th_actor_func()
 	          << std::endl;
 	int count = 0;
 	e = new Entity(42);
+	PVHive::PVHive::get().register_object(*e);
+
 	EntityActor a;
 	PVHive::PVHive::get().register_actor(*e, a);
 

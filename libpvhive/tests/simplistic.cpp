@@ -83,10 +83,14 @@ int main(int argc, char **argv)
 	std::cout << "  hive " << &h1 << std::endl;
 
 	Obj1 *o1 = new Obj1;
+	PVHive::PVHive::get().register_object(*o1);
+
 	PVHive::PVActor<Obj1> a1o1;
 	PVHive::PVHive::get().register_actor(*o1, a1o1);
 
 	Obj2 *o2 = new Obj2;
+	PVHive::PVHive::get().register_object(*o2);
+
 	PVHive::PVActor<Obj2> a1o2;
 	PVHive::PVHive::get().register_actor(*o2, a1o2);
 

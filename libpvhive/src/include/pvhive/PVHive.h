@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <set>
+#include <exception>
 
 #include <tbb/concurrent_hash_map.h>
 
@@ -12,6 +13,21 @@
 
 namespace PVHive
 {
+
+class no_object : public std::exception
+{
+public:
+	no_object()
+	{}
+
+	virtual ~no_object() throw()
+	{}
+
+	virtual const char * what() const throw()
+	{
+		return "registering an actor for an unknown object";
+	}
+};
 
 template <class T>
 class PVActor;
@@ -63,9 +79,45 @@ public:
 
 public:
 	/**
+	 * Register an object
+	 *
+	 * @param object the new managed object
+	 */
+	template <class T>
+	void register_object(T& object)
+	{
+		observables_t::accessor acc;
+
+		_observables.insert(acc, (void*) &object);
+	}
+
+	/**
+	 * Register a member variable of an object
+	 *
+	 * @param object the parent object
+	 * @param prop_get: a function returning a reference on object's property
+	 *
+	 * @attention using a method as prop_get will not compile.
+	 */
+	template <class T, class F>
+	void register_object(T const& object, F const &prop_get)
+	{
+		auto &property = prop_get(object);
+
+		observables_t::accessor acc;
+
+		// adding property's entry
+		_observables.insert(acc, (void*) &property);
+
+		// create/get object's entry
+		_observables.insert(acc, (void*) &object);
+		acc->second.properties.insert((void*) &property);
+	}
+
+	/**
 	 * Register an actor for an obect
 	 *
-	 * @param p the managed object
+	 * @param object the managed object
 	 * @param actor the actor
 	 */
 	template <class T>
@@ -76,8 +128,11 @@ public:
 
 		observables_t::accessor acc;
 
+		if (_observables.find(acc, (void*) &object) == false) {
+			throw no_object();
+		}
+
 		// create/get object's entry
-		_observables.insert(acc, (void*) &object);
 		acc->second.actors.insert(&actor);
 		actor.set_object((void*) &object);
 	}
@@ -121,10 +176,10 @@ public:
 	 * Register an observer for a member variable of an object
 	 *
 	 * @param object the parent object
-	 * @prop_get: a function returning a reference on object's property
+	 * @param prop_get: a function returning a reference on object's property
 	 * @param observer the observer
 	 *
-	 * @attention using a method as pro_get will not compile.
+	 * @attention using a method as prop_get will not compile.
 	 */
 	template <class T, class F>
 	void register_observer(T const& object, F const &prop_get, PVObserverBase& observer)
@@ -149,6 +204,20 @@ public:
 	}
 
 	/**
+	 * Unregister an object
+	 *
+	 * @param object the object
+	 */
+	template <typename T>
+	void unregister_object(T const &object)
+	{
+		// if T is a pointer, its address is used, not its value
+		static_assert(!std::is_pointer<T>::value, "PVHive::PVHive::unregister_object<T>(T const &) does not accept pointer as parameter");
+
+		unregister_object((void*)&object);
+	}
+
+	/**
 	 * Unregister an actor an notify all dependent observers
 	 * that they must stop observing
 	 *
@@ -162,20 +231,6 @@ public:
 	 * @param observer the observer
 	 */
 	void unregister_observer(PVObserverBase& observer);
-
-	/**
-	 * Unregister an object
-	 *
-	 * @param object the object
-	 */
-	template <typename T>
-	void unregister_object(T const &object)
-	{
-		// if T is a pointer, its address is used, not its value
-		static_assert(!std::is_pointer<T>::value, "PVHive::PVHive::unregister_object<T>(T const &) does not accept pointer as parameter");
-
-		unregister_object((void*)&object);
-	}
 
 private:
 	/**

@@ -163,6 +163,8 @@ private slots:
 		_entity_list.insert(_entity_next, e);
 		_entity_lw->addItem("e" + QString::number(_entity_next));
 		++_entity_next;
+
+		PVHive::PVHive::get().register_object(*e);
 	}
 
 	void do_add_propertyentity()
@@ -173,11 +175,19 @@ private slots:
 		_entity_lw->addItem("e" + QString::number(_entity_next));
 		++_entity_next;
 
+		PVHive::PVHive::get().register_object(*e);
+
 		Entity *p = e->get_prop();
 		p->set_id(_entity_next);
 		_entity_list.insert(_entity_next, p);
 		_entity_lw->addItem("p" + QString::number(_entity_next));
 		++_entity_next;
+
+		PVHive::PVHive::get().register_object(*e,
+		                                      [](PropertyEntity const &pe) -> const Entity &
+		                                      {
+			                                      return *(pe.get_prop());
+		                                      });
 	}
 
 	void do_add_entity_from_thread()
@@ -189,11 +199,19 @@ private slots:
 		_entity_lw->addItem("e" + QString::number(_entity_next));
 		++_entity_next;
 
+		PVHive::PVHive::get().register_object(*e);
+
 		Entity *p = e->get_prop();
 		p->set_id(_entity_next);
 		_entity_list.insert(_entity_next, p);
 		_entity_lw->addItem("p" + QString::number(_entity_next));
 		++_entity_next;
+
+		PVHive::PVHive::get().register_object(*e,
+		                                      [](Entity const &te) -> const Entity &
+		                                      {
+			                                      return *(te.get_prop());
+		                                      });
 
 		connect(te, SIGNAL(finished()), this, SLOT(do_terminate_thread()));
 

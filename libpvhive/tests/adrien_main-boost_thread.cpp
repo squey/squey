@@ -95,6 +95,7 @@ int main(int argc, char** argv)
 
 	PVHive::PVHive &hive = PVHive::PVHive::get();
 
+	hive.register_object(o);
 	hive.register_actor(o, actor);
 	hive.register_observer(o, observer);
 	hive.register_observer(o, observer_callback);
