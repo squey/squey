@@ -96,12 +96,11 @@ public:
 	typedef T                        *pointer;
 	typedef                     void(*deleter)(pointer);
 
-	pv_shared_ptr() : pv_shared_ptr(nullptr)
-	{}
+	pv_shared_ptr()
+	{
+		_ref_count = new __impl::pv_ref_counter<type>(nullptr, nullptr);
+	}
 
-	/* MINOR BUG: this constructor is not delegate to pv_shared_ptr(p, d)
-	 * because of a bug in Debian's (or vanilla) gcc 4.6 (4.7 works well).
-	 */
 	explicit pv_shared_ptr(pointer p)
 	{
 		_ref_count = new __impl::pv_ref_counter<type>(p, nullptr);
