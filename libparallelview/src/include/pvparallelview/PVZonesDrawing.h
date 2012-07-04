@@ -78,7 +78,7 @@ public:
 			[&](PVZoneID zone)
 			{
 				// Get thread-local codes buffer
-				array_codes_t& arr_codes = _tls_computed_codes.local();
+				array_codes_t& arr_codes = this->_tls_computed_codes.local();
 				PVBCICode* codes = &arr_codes[0];
 
 				// Get the BCI codes
