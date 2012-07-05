@@ -5,8 +5,6 @@
 #include <pvhive/PVHive.h>
 #include <pvhive/PVActorBase.h>
 
-#include <pvkernel/core/PVSpinLock.h>
-
 namespace PVHive
 {
 
@@ -27,7 +25,6 @@ public:
 	template <typename F, F f, typename... P>
 	void call(P... params)
 	{
-		PVCore::pv_spin_lock_guard_t slg(_spinlock);
 		T *object = (T*)get_object();
 		if (object != nullptr) {
 			PVHive::get().call_object<T, F, f>(object, params...);

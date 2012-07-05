@@ -304,11 +304,17 @@ private:
 	template <typename T, typename F, F f, typename... P>
 	void call_object_default(T* object, P... params)
 	{
-		// object must be a valid address
-		assert(object != nullptr);
+		if (object == nullptr) {
+			return;
+		}
 
-		(object->*f)(params...);
-		do_refresh_observers((void*)object);
+		observables_t::accessor acc;
+
+		if (_observables.find(acc, (void*) object)) {
+			(object->*f)(params...);
+			acc.release();
+			do_refresh_observers((void*)object);
+		}
 	}
 
 	void do_refresh_observers(void *object);
