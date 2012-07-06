@@ -291,7 +291,6 @@ public:
 				std::cout << "            " << it2 << std::endl;
 			}
 		}
-
 	}
 
 private:
