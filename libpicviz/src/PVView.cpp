@@ -97,7 +97,8 @@ void Picviz::PVView::init_defaults()
  *****************************************************************************/
 void Picviz::PVView::init_from_plotted(PVPlotted* plotted, bool keep_layers)
 {
-	set_parent(plotted);
+	//set_parent_from_ptr(plotted);
+
 	_rushnraw_parent = &plotted->get_parent<PVSource>()->get_rushnraw();
 
 	// Init default axes combination from source

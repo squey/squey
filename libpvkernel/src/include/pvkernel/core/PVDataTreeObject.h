@@ -305,7 +305,7 @@ public:
 		so.list(get_children_description(), _children, QString(), (child_t*) NULL, descriptions);
 	};
 
-	virtual void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v)
+	virtual void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 	{
 		auto create_func = [&]{ return PVDataTreeAutoShared<child_t>(this->shared_from_this()); };
 		if (!so.list_read(create_func, get_children_description(), QString(), true, true)) {

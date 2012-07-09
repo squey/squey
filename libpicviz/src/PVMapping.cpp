@@ -44,7 +44,7 @@ Picviz::PVMapping::PVMapping(PVMapped* mapped):
 	}
 }
 
-/******************************************************************************
+/**************************************get_mapping****************************************
  *
  * Picviz::PVMapping::PVMapping
  *
@@ -83,7 +83,7 @@ void Picviz::PVMapping::add_column(PVMappingProperties const& props)
  *****************************************************************************/
 void Picviz::PVMapping::clear_trans_nraw()
 {
-	_mapped->clear_trans_nraw();
+	_mapped->get_parent()->clear_trans_nraw();
 }
 
 
@@ -107,7 +107,7 @@ Picviz::PVMappingFilter::p_type Picviz::PVMapping::get_filter_for_col(PVCol col)
  *****************************************************************************/
 PVRush::PVFormat_p Picviz::PVMapping::get_format() const
 {
-	return _mapped->get_parent<PVSource>()->get_rushnraw().format;
+	return _mapped->get_parent()->get_rushnraw().format;
 }
 
 
@@ -170,7 +170,7 @@ QString const& Picviz::PVMapping::get_mode_for_col(PVCol col) const
  *****************************************************************************/
 PVRush::PVNraw::nraw_table& Picviz::PVMapping::get_qtnraw()
 {
-	return _mapped->get_parent<PVSource>()->get_qtnraw();
+	return _mapped->get_parent()->get_qtnraw();
 }
 
 
@@ -182,7 +182,7 @@ PVRush::PVNraw::nraw_table& Picviz::PVMapping::get_qtnraw()
  *****************************************************************************/
 const PVRush::PVNraw::nraw_table& Picviz::PVMapping::get_qtnraw() const
 {
-	return _mapped->get_parent<PVSource>()->get_qtnraw();
+	return _mapped->get_parent()->get_qtnraw();
 }
 
 
@@ -193,7 +193,7 @@ const PVRush::PVNraw::nraw_table& Picviz::PVMapping::get_qtnraw() const
  *****************************************************************************/
 PVRush::PVNraw::nraw_trans_table const& Picviz::PVMapping::get_trans_nraw() const
 {
-	return _mapped->get_parent<PVSource>()->get_trans_nraw();
+	return _mapped->get_parent()->get_trans_nraw();
 }
 
 
@@ -322,6 +322,18 @@ void Picviz::PVMapping::set_default_args(PVRush::PVFormat const& format)
 			break;
 		}
 	}
+}
+
+
+/******************************************************************************
+ *
+ * Picviz::PVMapping::set_source
+ *
+ *****************************************************************************/
+void Picviz::PVMapping::set_source(PVSource* src)
+{
+	PVCol naxes = src->get_column_count();
+	_mandatory_filters_values.resize(naxes);
 }
 
 /******************************************************************************

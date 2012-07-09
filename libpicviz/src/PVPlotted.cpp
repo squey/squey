@@ -45,9 +45,8 @@ void PVPlotted::set_parent_from_ptr(PVMapped* mapped)
 {
 	data_tree_plotted_t::set_parent_from_ptr(mapped);
 
-	_plotting = PVPlotting_p(new PVPlotting(this));
-	if (_view) {
-		get_parent<PVSource>()->add_view(_view);
+	if (!_plotting) {
+		_plotting = PVPlotting_p(new PVPlotting(this));
 	}
 
 	// Set parent mapping for properties
@@ -534,7 +533,7 @@ void Picviz::PVPlotted::get_col_minmax(PVRow& min, PVRow& max, PVSelection const
 
 void Picviz::PVPlotted::process_from_mapped(PVMapped* mapped, bool keep_views_info)
 {
-	set_parent(mapped);
+	set_parent_from_ptr(mapped);
 
 	process_from_parent_mapped(keep_views_info);
 }
@@ -557,6 +556,7 @@ void Picviz::PVPlotted::process_from_parent_mapped(bool keep_views_info)
 	}
 	if (!_view) {
 		_view = PVView_p();
+		_view->set_parent(this);
 		_view->init_from_plotted(this, false);
 		get_parent<PVSource>()->add_view(_view);
 	}
@@ -585,22 +585,22 @@ void Picviz::PVPlotted::serialize_write(PVCore::PVSerializeObject& so)
 	data_tree_plotted_t::serialize_write(so);
 
 	so.object("plotting", _plotting, QString(), false, (PVPlotting*) NULL, false);
-	PVCore::PVSerializeObject_p view_so;
-	so.object("view", _view, QObject::tr("View"), false, (PVView*) NULL, true, true, &view_so);
-	_view->set_last_so(view_so);
 
 	so.list("expanded_sels", _expanded_sels, "Expanded selections", (ExpandedSelection*) NULL, QStringList(), true, true);
 }
 
 void Picviz::PVPlotted::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v)
 {
-	data_tree_plotted_t::serialize_read(so, v);
-
 	so.object("plotting", _plotting, QString(), false, (PVPlotting*) NULL, false);
-	PVCore::PVSerializeObject_p view_so;
-	so.object("view", _view, QObject::tr("View"), false, (PVView*) NULL, true, true, &view_so);
 
 	so.list("expanded_sels", _expanded_sels, "Expanded selections", (ExpandedSelection*) NULL, QStringList(), true, true);
+
+	data_tree_plotted_t::serialize_read(so, v);
+
+	_view = get_children<PVView>()[0];
+	PVSource* source = get_parent<PVSource>();
+	source->add_view(_view);
+	//source->select_view(_view);
 }
 
 }

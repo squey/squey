@@ -53,6 +53,7 @@ public:
 		}
 	   _args = args;
 	}
+
 	PVArgumentList const& get_default_args() const { return _def_args; }
 
 	PVArgumentList get_args_for_preset() const

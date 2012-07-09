@@ -244,7 +244,7 @@ void Picviz::PVMapped::to_csv()
  *****************************************************************************/
 PVRush::PVFormat_p Picviz::PVMapped::get_format() const
 {
-	return get_parent<PVSource>()->get_rushnraw().format;
+	return get_parent()->get_rushnraw().format;
 }
 
 /******************************************************************************
@@ -280,22 +280,22 @@ void Picviz::PVMapped::get_sub_col_minmax(mapped_sub_col_t& ret, float& min, flo
  *****************************************************************************/
 PVRush::PVNraw::nraw_table& Picviz::PVMapped::get_qtnraw()
 {
-	return _mapping->get_qtnraw();
+	return get_parent()->get_qtnraw();
 }
 
 const PVRush::PVNraw::nraw_table& Picviz::PVMapped::get_qtnraw() const
 {
-	return _mapping->get_qtnraw();
+	return get_parent()->get_qtnraw();
 }
 
 const PVRush::PVNraw::nraw_trans_table& Picviz::PVMapped::get_trans_nraw() const
 {
-	return _mapping->get_trans_nraw();
+	return get_parent()->get_trans_nraw();
 }
 
 void Picviz::PVMapped::clear_trans_nraw()
 {
-	_mapping->clear_trans_nraw();
+	get_parent()->clear_trans_nraw();
 }
 
 /******************************************************************************
@@ -325,7 +325,7 @@ void Picviz::PVMapped::add_column(PVMappingProperties const& props)
 
 void Picviz::PVMapped::process_from_source(PVSource* src, bool keep_views_info)
 {
-	set_parent(src);
+	_mapping->set_source(src);
 
 	process_from_parent_source(keep_views_info);
 }
@@ -423,9 +423,10 @@ void Picviz::PVMapped::serialize_write(PVCore::PVSerializeObject& so)
 
 void Picviz::PVMapped::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v)
 {
-	data_tree_mapped_t::serialize_read(so, v);
-
-	PVMapping* mapping = new PVMapping(this);
+	PVMapping* mapping = new PVMapping();
 	so.object(QString("mapping"), *mapping, QString(), false, (PVMapping*) NULL, false);
 	_mapping = PVMapping_p(mapping);
+
+	// It important to deserialize the children after the mapping otherwise PVPlottingProperties complains that there is no mapping!
+	data_tree_mapped_t::serialize_read(so, v);
 }

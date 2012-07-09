@@ -145,13 +145,6 @@ void Picviz::PVScene::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSe
 
 	data_tree_scene_t::serialize_read(so, v);
 
-	/*if (!so.has_repairable_errors()) {
-		// And finally add them !
-		for (auto child : get_children()) {
-			add_source(*child);
-		}
-	}*/
-
 	// Correlation, make this optional for compatibility with old project (so that we are still in version 1 :))
 	_ad2g_view.reset(new Picviz::PVAD2GView(this));
 	so.object("correlation", *_ad2g_view, QObject::tr("Correlation graph"), true);

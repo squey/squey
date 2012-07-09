@@ -72,7 +72,6 @@ protected:
 public:
 
 	/* Variables */
-	PVRoot*   root;
 	QString    name;
 	int active_axis;
 

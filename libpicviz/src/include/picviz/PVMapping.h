@@ -59,7 +59,11 @@ public:
 	bool is_uptodate() const;
 
 public:
+	void set_mapped(PVMapped* mapped) { _mapped = mapped; }
 	PVMapped* get_mapped() { return _mapped; }
+
+	void set_source(PVSource* src);
+
 	PVRush::PVFormat_p get_format() const;
 
 public:
