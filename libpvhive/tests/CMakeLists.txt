@@ -29,3 +29,8 @@ target_link_libraries(Tfunctional ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES})
 add_executable(Tinter-threads inter-threads.cpp)
 target_link_libraries(Tinter-threads ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES})
 
+QT4_WRAP_CPP(TEST_DIT_MOC_SRC data-in-thread_dlg.h OPTIONS ${QT4_WRAP_OPTIONS})
+
+add_executable(Tdata-in-thread data-in-thread.cpp ${TEST_DIT_MOC_SRC})
+target_link_libraries(Tdata-in-thread ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES})
+
