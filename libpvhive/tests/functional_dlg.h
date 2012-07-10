@@ -15,6 +15,8 @@
 #define POS_LIST 4
 #define POS_DEL (POS_LIST + 1)
 
+typedef PVHive::PVObserverSignal<Storage> StorageObs;
+
 /* BUG: add a propertyentity, a thread actor and a qobserver, delete the
  * propertyentity, click "ok" to close the observer. a deadlock occurs:
  * the thread emit a refresh to qobserver which lock on emit_refresh_signal
@@ -175,46 +177,71 @@ private slots:
 
 	void do_add_entity()
 	{
-		Entity *e = new Entity(_storage_next);
-
-		_storage_list.insert(_storage_next, e);
-		_storage_lw->addItem("e" + QString::number(_storage_next));
+		int eid = _storage_next;
 		++_storage_next;
 
+		Entity *e = new Entity(eid);
+
+		_storage_list.insert(eid, e);
+		_storage_lw->addItem("e" + QString::number(eid));
+
 		PVHive::PVHive::get().register_object(*e);
+
+		StorageObs *obs = new StorageObs(this);
+		PVHive::PVHive::get().register_observer(*e, *obs);
+		obs->connect_about_to_be_deleted(this, SLOT(remove_entity(PVHive::PVObserverBase*)));
+		_storage_obs.insert(eid, obs);
 	}
 
 	void do_add_propertyentity()
 	{
-		PropertyEntity *e = new PropertyEntity(_storage_next);
-
-		_storage_list.insert(_storage_next, e);
-		_storage_lw->addItem("e" + QString::number(_storage_next));
+		int eid = _storage_next;
 		++_storage_next;
+
+		PropertyEntity *e = new PropertyEntity(eid);
+
+		_storage_list.insert(eid, e);
+		_storage_lw->addItem("e" + QString::number(eid));
 
 		PVHive::PVHive::get().register_object(*e);
 
-		Property *p = e->get_prop();
-		_storage_list.insert(_storage_next, p);
-		_storage_lw->addItem("p" + QString::number(_storage_next));
+		StorageObs *obs = new StorageObs(this);
+		PVHive::PVHive::get().register_observer(*e, *obs);
+		obs->connect_about_to_be_deleted(this, SLOT(remove_entity(PVHive::PVObserverBase*)));
+		_storage_obs.insert(eid, obs);
+
+		int pid = _storage_next;
 		++_storage_next;
+
+		Property *p = e->get_prop();
+		_storage_list.insert(pid, p);
+		_storage_lw->addItem("p" + QString::number(pid));
 	}
 
 	void do_add_entity_from_thread()
 	{
-		ThreadEntity *te = new ThreadEntity(_storage_next);
+		int eid = _storage_next;
+		++_storage_next;
+
+		ThreadEntity *te = new ThreadEntity(eid);
 
 		Entity *e = te->get_ent();
-		_storage_list.insert(_storage_next, e);
-		_storage_lw->addItem("e" + QString::number(_storage_next));
-		++_storage_next;
+		_storage_list.insert(eid, e);
+		_storage_lw->addItem("e" + QString::number(eid));
 
 		PVHive::PVHive::get().register_object(*e);
 
-		Property *p = e->get_prop();
-		_storage_list.insert(_storage_next, p);
-		_storage_lw->addItem("p" + QString::number(_storage_next));
+		StorageObs *obs = new StorageObs(this);
+		PVHive::PVHive::get().register_observer(*e, *obs);
+		obs->connect_about_to_be_deleted(this, SLOT(remove_entity(PVHive::PVObserverBase*)));
+		_storage_obs.insert(eid, obs);
+
+		int pid = _storage_next;
 		++_storage_next;
+
+		Property *p = e->get_prop();
+		_storage_list.insert(pid, p);
+		_storage_lw->addItem("p" + QString::number(pid));
 
 		connect(te, SIGNAL(finished()), this, SLOT(do_terminate_thread()));
 
@@ -431,40 +458,14 @@ private slots:
 		}
 
 		QListWidgetItem *item = selected.at(0);
+
+		if (item->text().startsWith("e") == false) {
+			return;
+		}
+
 		int eid = item->text().mid(1).toInt();
-
-		Storage *s = _storage_list.value(eid);
-
-		if (s->is_entity() == false) {
-			return;
-		}
-
-		delete item;
-
-		auto res = _storage_list.find(eid);
-		if (res == _storage_list.end()) {
-			// the entity has already been unregistered
-			return;
-		}
-		Entity *e = static_cast<Entity*>(s);
-		std::cout << "start unregistering entity " << eid << std::endl;
-		PVHive::PVHive::get().unregister_object(*e);
-		std::cout << "end unregistering entity " << eid << std::endl;
-		_storage_list.remove(eid);
-
-		if(e->has_prop()) {
-			int pid = e->get_id() + 1;
-			_storage_list.remove(pid);
-			auto items = _storage_lw->findItems("p" + QString::number(pid),
-			                                   Qt::MatchExactly);
-			if (items.isEmpty() == false) {
-				delete items.at(0);
-			}
-		}
-
-		if (e->get_dynamic()) {
-			delete e;
-		}
+		StorageObs *s = _storage_obs.value(eid);
+		remove_entity(s);
 	}
 
 	void do_del_actor()
@@ -499,6 +500,44 @@ private slots:
 		o->terminate();
 	}
 
+private slots:
+	void remove_entity(PVHive::PVObserverBase *o)
+	{
+		StorageObs *obs = dynamic_cast<StorageObs*>(o);
+
+		const Entity *e = static_cast<const Entity*>(obs->get_object());
+		int eid = e->get_id();
+
+		if(e->has_prop()) {
+			int pid = e->get_id() + 1;
+			auto items = _storage_lw->findItems("p" + QString::number(pid),
+			                                   Qt::MatchExactly);
+			if (items.isEmpty() == false) {
+				delete items.at(0);
+			}
+
+			_storage_list.remove(pid);
+		}
+
+		auto items = _storage_lw->findItems("e" + QString::number(eid),
+		                                    Qt::MatchExactly);
+		if (items.isEmpty() == false) {
+			delete items.at(0);
+		}
+
+		_storage_list.remove(eid);
+
+		_storage_obs.remove(eid);
+
+		obs->deleteLater();
+
+		PVHive::PVHive::get().unregister_observer(*obs);
+
+		std::cout << "start unregistering entity " << eid << std::endl;
+		PVHive::PVHive::get().unregister_object(*e);
+		std::cout << "end unregistering entity " << eid << std::endl;
+	}
+
 private:
 	void add_observer(int id, Interactor *i, PVHive::PVObserverBase *o, int eid)
 	{
@@ -526,6 +565,8 @@ private:
 	int                   _storage_next;
 	QHash<int, Storage*>  _storage_list;
 	QListWidget          *_storage_lw;
+
+	QHash<int, StorageObs*> _storage_obs;
 
 	int                      _actor_next;
 	QHash<int, Interactor*>  _actor_list;
