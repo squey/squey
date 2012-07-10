@@ -799,8 +799,8 @@ public:
 		Interactor(id),
 		_os(this)
 	{
-		_os.connect_refresh(this, "do_refresh");
-		_os.connect_about_to_be_deleted(this, "do_about_to_be_deleted");
+		_os.connect_refresh(this, SLOT(do_refresh(PVHive::PVObserverBase*)));
+		_os.connect_about_to_be_deleted(this, SLOT(do_about_to_be_deleted(PVHive::PVObserverBase*)));
 	}
 
 	~EntityObserverSignal()
@@ -854,8 +854,8 @@ public:
 		Interactor(id),
 		_os(this)
 	{
-		_os.connect_refresh(this, "do_refresh");
-		_os.connect_about_to_be_deleted(this, "do_about_to_be_deleted");
+		_os.connect_refresh(this, SLOT(do_refresh(PVHive::PVObserverBase*)));
+		_os.connect_about_to_be_deleted(this, SLOT(do_about_to_be_deleted(PVHive::PVObserverBase*)));
 	}
 
 	~PropertyObserverSignal()
