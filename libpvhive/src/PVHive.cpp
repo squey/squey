@@ -72,6 +72,8 @@ void PVHive::PVHive::unregister_object(void *object)
 					pit->about_to_be_deleted();
 				}
 			}
+			pacc.release();
+			_observables.erase(it);
 		}
 
 		// unregistering actors...
