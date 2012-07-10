@@ -115,7 +115,7 @@ public:
 		 */
 		//hive.register_observer(o, prop_get, *_bar);
 
-		_objprop_observer.connect_refresh(this, "prop_changed");
+		_objprop_observer.connect_refresh(this, SLOT(prop_changed(PVHive::PVObserverBase*)));
 	}
 
 public slots:
