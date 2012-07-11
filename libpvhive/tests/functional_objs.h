@@ -25,8 +25,6 @@
 class Storage
 {
 public:
-	virtual bool is_entity() const = 0;
-
 	virtual QString get_name() const = 0;
 
 	virtual int get_id() const = 0;
@@ -68,11 +66,6 @@ public:
 		return _parent;
 	}
 
-	virtual bool is_entity() const
-	{
-		return false;
-	}
-
 	virtual QString get_name() const
 	{
 		return "property " + QString().sprintf("%p", this) + " - " + QString::number(_id);
@@ -96,7 +89,6 @@ public:
 	{
 		set_id(id);
 		set_parent(parent);
-		set_dynamic(true);
 	}
 
 	virtual ~Entity()
@@ -137,16 +129,6 @@ public:
 		_v = v;
 	}
 
-	void set_dynamic(bool d)
-	{
-		_dynamic = d;
-	}
-
-	bool get_dynamic() const
-	{
-		return _dynamic;
-	}
-
 	int get_value() const
 	{
 		return _v;
@@ -165,11 +147,6 @@ public:
 	virtual Property* get_prop()
 	{
 		return nullptr;
-	}
-
-	virtual bool is_entity() const
-	{
-		return true;
 	}
 
 private:
