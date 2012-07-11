@@ -1,6 +1,8 @@
 #ifndef TEST_ADRIEN_OBJS_H
 #define TEST_ADRIEN_OBJS_H
 
+#include <pvkernel/core/PVSharedPointer.h>
+
 class ObjectProperty
 {
 public:
@@ -27,5 +29,7 @@ private:
 	int _i;
 	ObjectProperty _prop;
 };
+
+typedef PVCore::pv_shared_ptr<MyObject> MyObject_p;
 
 #endif // TEST_ADRIEN_OBJS_H

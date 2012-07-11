@@ -1,6 +1,8 @@
 #ifndef BIG_TEST_OBJS_H
 #define BIG_TEST_OBJS_H
 
+#include <pvkernel/core/PVSharedPointer.h>
+
 #include <pvhive/PVActor.h>
 #include <pvhive/PVObserver.h>
 #include <pvhive/PVQObserver.h>
@@ -26,7 +28,11 @@ public:
 	virtual bool is_entity() const = 0;
 
 	virtual QString get_name() const = 0;
+
+	virtual int get_id() const = 0;
 };
+
+typedef PVCore::pv_shared_ptr<Storage> Storage_p;
 
 class Entity;
 
@@ -101,7 +107,7 @@ public:
 		_id = id;
 	}
 
-	int get_id() const
+	virtual int get_id() const
 	{
 		return _id;
 	}
@@ -219,17 +225,17 @@ class ThreadEntity : public QThread
 public:
 	ThreadEntity(int id, Entity *eparent = nullptr, QObject *qparent = nullptr) :
 		QThread(qparent),
-		_pe(id, eparent), _time(10)
+		_time(10)
 	{
-		_pe.set_dynamic(false);
+		_s = Storage_p(new PropertyEntity(id, eparent));
 	}
 
 	~ThreadEntity()
 	{}
 
-	Entity *get_ent() const
+	Storage_p get_ent() const
 	{
-		return const_cast<PropertyEntity*>(&_pe);
+		return _s;
 	}
 
 	int get_time() const
@@ -248,7 +254,7 @@ public:
 	}
 
 private:
-	PropertyEntity _pe;
+	Storage_p      _s;
 	int            _time;
 };
 
@@ -485,7 +491,7 @@ class EntityObserver : public QDialog, public Interactor, public PVHive::PVObser
 	Q_OBJECT
 
 public:
-	EntityObserver(int id, Storage *s, QWidget *parent) :
+	EntityObserver(int id, Storage_p &s, QWidget *parent) :
 		QDialog(parent),
 		Interactor(id)
 	{
@@ -537,7 +543,7 @@ class PropertyObserver : public QDialog, public Interactor, public PVHive::PVObs
 	Q_OBJECT
 
 public:
-	PropertyObserver(int id, Storage *e, QWidget *parent) :
+	PropertyObserver(int id, Storage_p &e, QWidget *parent) :
 		QDialog(parent),
 		Interactor(id)
 	{

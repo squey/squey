@@ -3,6 +3,8 @@
 
 #include <QApplication>
 
+#include <pvkernel/core/PVSharedPointer.h>
+
 #include <pvhive/PVHive.h>
 #include <pvhive/PVActor.h>
 #include <pvhive/PVObserver.h>
@@ -21,6 +23,8 @@ struct Obj1
 	}
 };
 
+typedef PVCore::pv_shared_ptr<Obj1> Obj1_p;
+
 struct Obj2
 {
 	~Obj2()
@@ -33,6 +37,8 @@ struct Obj2
 		std::cout << "  Obj2::print" << std::endl;
 	}
 };
+
+typedef PVCore::pv_shared_ptr<Obj2> Obj2_p;
 
 class Obj1Observer : public PVHive::PVObserver<Obj1>
 {
@@ -78,46 +84,51 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	std::cout << "scene creation" << std::endl;
+	std::cout << "# scene creation" << std::endl;
 
-	std::cout << "  hive " << &h1 << std::endl;
+	std::cout << "#   hive " << &h1 << std::endl;
 
-	Obj1 *o1 = new Obj1;
-	PVHive::PVHive::get().register_object(*o1);
+	Obj1_p o1 = Obj1_p(new Obj1);
+	PVHive::PVHive::get().register_object(o1);
 
 	PVHive::PVActor<Obj1> a1o1;
-	PVHive::PVHive::get().register_actor(*o1, a1o1);
+	PVHive::PVHive::get().register_actor(o1, a1o1);
 
-	Obj2 *o2 = new Obj2;
-	PVHive::PVHive::get().register_object(*o2);
+	Obj2_p o2 = Obj2_p(new Obj2);
+	PVHive::PVHive::get().register_object(o2);
 
 	PVHive::PVActor<Obj2> a1o2;
-	PVHive::PVHive::get().register_actor(*o2, a1o2);
+	PVHive::PVHive::get().register_actor(o2, a1o2);
 
 	Obj1Observer o1o1;
-	PVHive::PVHive::get().register_observer(*o1, o1o1);
+	PVHive::PVHive::get().register_observer(o1, o1o1);
 
 	Obj2Observer o1o2;
-	PVHive::PVHive::get().register_observer(*o2, o1o2);
+	PVHive::PVHive::get().register_observer(o2, o1o2);
 
 	Obj2Observer o2o2;
-	PVHive::PVHive::get().register_observer(*o2, o2o2);
+	PVHive::PVHive::get().register_observer(o2, o2o2);
 
-	std::cout << "a1o1 calls &Obj1::print" << std::endl;
+	std::cout << "# a1o1 calls &Obj1::print" << std::endl;
 	PVACTOR_CALL(a1o1, &Obj1::print);
-	std::cout << "a1o2 calls &Obj2::print" << std::endl;
+	std::cout << "# a1o2 calls &Obj2::print" << std::endl;
 	PVACTOR_CALL(a1o2, &Obj2::print);
 
-	std::cout << "unregister a1o1" << std::endl;
+	std::cout << "# unregister a1o1" << std::endl;
 	PVHive::PVHive::get().unregister_actor(a1o1);
 
-	std::cout << "unregister o1" << std::endl;
-	PVHive::PVHive::get().unregister_object(*o1);
+	std::cout << "# unregister o1 (and deletion)" << std::endl;
 
-	std::cout << "unregister o1o2" << std::endl;
+	std::cout << "- before unregister" << std::endl;
+	PVHive::PVHive::get().print();
+	o1.reset();
+	std::cout << "- after unregister" << std::endl;
+	PVHive::PVHive::get().print();
+
+	std::cout << "# unregister o1o2" << std::endl;
 	PVHive::PVHive::get().unregister_observer(o2o2);
 
-	std::cout << "end" << std::endl;
+	std::cout << "# end. obj2 should be deleted now" << std::endl;
 
 	return 0;
 }

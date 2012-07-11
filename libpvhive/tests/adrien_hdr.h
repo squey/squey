@@ -61,7 +61,7 @@ class MyThread : public QThread
 	Q_OBJECT
 
 public:
-	MyThread(MyObject &o, QObject *parent = 0) :
+	MyThread(MyObject_p &o, QObject *parent = 0) :
 		QThread(parent),
 		_o(o),
 		_c(0)
@@ -93,7 +93,7 @@ public slots:
 	}
 
 private:
-	MyObject &_o;
+	MyObject_p _o;
 	int _c;
 	MyObjActor _actor;
 	QTimer *_timer;

@@ -80,7 +80,7 @@ class TestDlg: public QDialog
 	Q_OBJECT
 
 public:
-	TestDlg(MyObject const& o, QWidget* parent):
+	TestDlg(MyObject_p& o, QWidget* parent):
 		QDialog(parent),
 		_myobj_observer(this),
 		_objprop_observer(this)

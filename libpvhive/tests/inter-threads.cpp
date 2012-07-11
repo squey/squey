@@ -1,6 +1,8 @@
 
 #include <boost/thread.hpp>
 
+#include <pvkernel/core/PVSharedPointer.h>
+
 #include <pvhive/PVHive.h>
 #include <pvhive/PVActor.h>
 
@@ -24,7 +26,9 @@ private:
 	int _i;
 };
 
-Entity *e = nullptr;
+typedef PVCore::pv_shared_ptr<Entity> Entity_p;
+
+Entity_p *shared_e = nullptr;
 
 static bool observer_must_run = true;
 
@@ -37,16 +41,11 @@ public:
 	{
 	}
 
-	void set_entity(Entity *e)
-	{
-		_e = e;
-	}
-
 	void refresh()
 	{
 		std::cout << "  ::refresh thread("
 		          << boost::this_thread::get_id()
-		          << ") i(" << e->get_i() << ")" << std::endl;
+		          << ") i(" << get_object()->get_i() << ")" << std::endl;
 	}
 
 	void about_to_be_deleted()
@@ -56,9 +55,6 @@ public:
 		          << boost::this_thread::get_id() << ")"
 		          << std::endl;
 	}
-
-private:
-	Entity *_e;
 };
 
 void th_actor_func()
@@ -66,11 +62,13 @@ void th_actor_func()
 	std::cout << "th_actor: init - " <<boost::this_thread::get_id()
 	          << std::endl;
 	int count = 0;
-	e = new Entity(42);
-	PVHive::PVHive::get().register_object(*e);
+	Entity_p e = Entity_p(new Entity(42));
+	shared_e = &e;
+
+	PVHive::PVHive::get().register_object(e);
 
 	EntityActor a;
-	PVHive::PVHive::get().register_actor(*e, a);
+	PVHive::PVHive::get().register_actor(e, a);
 
 	std::cout << "th_actor: pseudo sync" << std::endl;
 	sleep(1);
@@ -86,9 +84,6 @@ void th_actor_func()
 
 	std::cout << "th_actor: clean" << std::endl;
 	PVHive::PVHive::get().unregister_actor(a);
-	PVHive::PVHive::get().unregister_object(*e);
-	delete e;
-	e = nullptr;
 
 	std::cout << "th_actor: terminate" << std::endl;
 }
@@ -100,7 +95,7 @@ void th_long_observer_func()
 	std::cout << "th_long_observer_func: init - "
 	          << boost::this_thread::get_id()  << std::endl;
 	EntityObserver o;
-	PVHive::PVHive::get().register_observer(*e, o);
+	PVHive::PVHive::get().register_observer(*shared_e, o);
 
 	std::cout << "th_long_observer_func: run" << std::endl;
 	while (observer_must_run) {
@@ -123,7 +118,7 @@ void th_short_observer_func()
 	int count = 0;
 	EntityObserver o;
 
-	PVHive::PVHive::get().register_observer(*e, o);
+	PVHive::PVHive::get().register_observer(*shared_e, o);
 
 	std::cout << "th_short_observer_func: run" << std::endl;
 

@@ -8,6 +8,8 @@
 
 #include <tbb/concurrent_hash_map.h>
 
+#include <pvkernel/core/PVSharedPointer.h>
+
 #include <pvhive/PVObserver.h>
 #include <pvhive/PVActorBase.h>
 
@@ -31,6 +33,16 @@ public:
 
 template <class T>
 class PVActor;
+
+namespace __impl
+{
+
+// declaration of hive_deleter
+template <typename T>
+inline void hive_deleter(T *ptr);
+
+}
+
 
 /**
  * @class PVHive
@@ -84,11 +96,12 @@ public:
 	 * @param object the new managed object
 	 */
 	template <class T>
-	void register_object(T& object)
+	void register_object(PVCore::pv_shared_ptr<T>& object)
 	{
 		observables_t::accessor acc;
 
-		_observables.insert(acc, (void*) &object);
+		_observables.insert(acc, (void*) object.get());
+		object.set_deleter(&__impl::hive_deleter<T>);
 	}
 
 	/**
@@ -100,9 +113,9 @@ public:
 	 * @attention using a method as prop_get will not compile.
 	 */
 	template <class T, class F>
-	void register_object(T const& object, F const &prop_get)
+	void register_object(PVCore::pv_shared_ptr<T>& object, F const &prop_get)
 	{
-		auto &property = prop_get(object);
+		auto &property = prop_get(*object);
 
 		observables_t::accessor acc;
 
@@ -110,8 +123,9 @@ public:
 		_observables.insert(acc, (void*) &property);
 
 		// create/get object's entry
-		_observables.insert(acc, (void*) &object);
+		_observables.insert(acc, (void*) object.get());
 		acc->second.properties.insert((void*) &property);
+		object.set_deleter(&__impl::hive_deleter<T>);
 	}
 
 	/**
@@ -121,20 +135,20 @@ public:
 	 * @param actor the actor
 	 */
 	template <class T>
-	void register_actor(T& object, PVActorBase& actor)
+	void register_actor(PVCore::pv_shared_ptr<T>& object, PVActorBase& actor)
 	{
 		// an actor must be set for only one object
 		assert(actor.get_object() == nullptr);
 
 		observables_t::accessor acc;
 
-		if (_observables.find(acc, (void*) &object) == false) {
+		if (_observables.find(acc, (void*) object.get()) == false) {
 			throw no_object();
 		}
 
 		// create/get object's entry
 		acc->second.actors.insert(&actor);
-		actor.set_object((void*) &object);
+		actor.set_object((void*) object.get());
 	}
 
 	/**
@@ -144,7 +158,7 @@ public:
 	 * @return the actor
 	 */
 	template <class T>
-	PVActor<T>* register_actor(T& object)
+	PVActor<T>* register_actor(PVCore::pv_shared_ptr<T>& object)
 	{
 		PVActor<T>* actor = new PVActor<T>();
 		register_actor(object, *actor);
@@ -159,7 +173,7 @@ public:
 	 * @param observer the observer
 	 */
 	template <class T>
-	void register_observer(T const& object, PVObserverBase& observer)
+	void register_observer(PVCore::pv_shared_ptr<T>& object, PVObserverBase& observer)
 	{
 		// an observer must be set for only one object
 		assert(observer._object == nullptr);
@@ -167,9 +181,10 @@ public:
 		observables_t::accessor acc;
 
 		// create/get object's entry
-		_observables.insert(acc, (void*) &object);
+		_observables.insert(acc, (void*) object.get());
 		acc->second.observers.insert(&observer);
-		observer._object = (void*) &object;
+		observer._object = (void*) object.get();
+		object.set_deleter(&__impl::hive_deleter<T>);
 	}
 
 	/**
@@ -182,12 +197,12 @@ public:
 	 * @attention using a method as prop_get will not compile.
 	 */
 	template <class T, class F>
-	void register_observer(T const& object, F const &prop_get, PVObserverBase& observer)
+	void register_observer(PVCore::pv_shared_ptr<T>& object, F const &prop_get, PVObserverBase& observer)
 	{
 		// an observer must be set for only one object
 		assert(observer._object == nullptr);
 
-		auto &property = prop_get(object);
+		auto &property = prop_get(*object);
 
 		observables_t::accessor acc;
 
@@ -199,8 +214,9 @@ public:
 
 		// adding property
 		// create/get object's entry
-		_observables.insert(acc, (void*) &object);
+		_observables.insert(acc, (void*) object.get());
 		acc->second.properties.insert((void*) &property);
+		object.set_deleter(&__impl::hive_deleter<T>);
 	}
 
 	/**
@@ -209,13 +225,20 @@ public:
 	 * @param object the object
 	 */
 	template <typename T>
-	void unregister_object(T const &object)
+	void unregister_object(PVCore::pv_shared_ptr<T>& object)
 	{
 		// if T is a pointer, its address is used, not its value
 		static_assert(!std::is_pointer<T>::value, "PVHive::PVHive::unregister_object<T>(T const &) does not accept pointer as parameter");
 
-		unregister_object((void*)&object);
+		unregister_object((void*) object.get());
 	}
+
+	/**
+	 * Unregister an object
+	 *
+	 * @param object the object
+	 */
+	void unregister_object(void *object);
 
 	/**
 	 * Unregister an actor an notify all dependent observers
@@ -231,14 +254,6 @@ public:
 	 * @param observer the observer
 	 */
 	void unregister_observer(PVObserverBase& observer);
-
-private:
-	/**
-	 * Unregister an object
-	 *
-	 * @param object the object
-	 */
-	void unregister_object(void *object);
 
 public:
 	/**
@@ -312,7 +327,7 @@ private:
 		if (_observables.find(acc, (void*) object)) {
 			(object->*f)(params...);
 			acc.release();
-			do_refresh_observers((void*)object);
+			do_refresh_observers((void*) object);
 		}
 	}
 
@@ -341,6 +356,20 @@ private:
 	typedef tbb::concurrent_hash_map<void*, observable_t > observables_t;
 	observables_t _observables;
 };
+
+namespace __impl
+{
+
+// definition of hive_deleter
+template <typename T>
+inline void hive_deleter(T *ptr)
+{
+	std::cout << "calling deleter for type " << typeid(T).name() << std::endl;
+        PVHive::get().unregister_object(ptr);
+        delete ptr;
+}
+
+}
 
 }
 

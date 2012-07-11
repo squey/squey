@@ -63,7 +63,7 @@ void Hive::call_object<decltype(func(&MyObject::set_prop))>(MyObject* o, boost::
 }
 */
 
-void update_prop(PVHive::PVHive& cc, MyObject& o)
+void update_prop(PVHive::PVHive& cc, MyObject_p& o)
 {
 	MyObjActor actor;
 	cc.register_actor(o, actor);
@@ -80,7 +80,7 @@ void update_prop(PVHive::PVHive& cc, MyObject& o)
 
 int main(int argc, char** argv)
 {
-	MyObject o(4);
+	MyObject_p o = MyObject_p(new MyObject(4));
 	MyObjActor actor;
 	MyObjObserver observer;
 

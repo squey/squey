@@ -2,6 +2,8 @@
 #ifndef entity_h
 #define entity_h
 
+#include <pvkernel/core/PVSharedPointer.h>
+
 class Entity
 {
 public:
@@ -22,6 +24,8 @@ private:
 	int _i;
 };
 
-extern Entity *static_e;
+typedef PVCore::pv_shared_ptr<Entity> Entity_p;
+
+extern Entity_p *static_e;
 
 #endif // entity_h

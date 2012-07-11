@@ -1,10 +1,14 @@
 
+#include <pvkernel/core/PVSharedPointer.h>
+
 #include <pvhive/PVHive.h>
 #include <pvhive/PVActor.h>
 #include <pvhive/PVObserver.h>
 
 #include <boost/ref.hpp>
 #include <boost/thread.hpp>
+
+#include <stdlib.h>
 
 class MyObjectProperty
 {
@@ -40,6 +44,8 @@ private:
 	int _i;
 	MyObjectProperty _prop;
 };
+
+typedef PVCore::pv_shared_ptr<MyObject> MyObject_p;
 
 class MyObjectObserver : public PVHive::PVObserver<MyObjectProperty>
 {
@@ -103,11 +109,20 @@ void PVHive::PVHive::call_object<MyObject, decltype(&MyObject::set_prop), &MyObj
 PVHIVE_CALL_OBJECT_BLOCK_END()
 
 
+void hive_dump_content()
+{
+	std::cout << "# atexit: dumping hive content" << std::endl;
+	PVHive::PVHive::get().print();
+}
+
 int main()
 {
 	PVHive::PVHive &hive = PVHive::PVHive::get();
 
-	MyObject myobj(42);
+	atexit(hive_dump_content);
+
+	MyObject_p myobj = MyObject_p(new MyObject(42));
+
 	hive.register_object(myobj);
 	hive.register_object(myobj, [](MyObject const &myo) -> const MyObjectProperty &
 	                     {
@@ -127,33 +142,31 @@ int main()
 
 	// 1 observeur sur myobj
 	MyObjectObserver oobserver;
-	std::cout << "register observer " << &oobserver
-	          << " for myobj " << &myobj << std::endl;
+	std::cout << "# register observer " << &oobserver
+	          << "#  for myobj " << &myobj << std::endl;
 	hive.register_observer(myobj, oobserver);
 
 	// 2 observeur sur myobj.prop, 1 en lambda et un en methode
 	MyObjectPropertyObserver pobserver;
-	std::cout << "register observer " << &pobserver
-	          << " for myobj.get_prop() " << &(myobj.get_prop()) << std::endl;
+	std::cout << "# register observer " << &pobserver
+	          << "#  for myobj.get_prop() " << &(myobj->get_prop()) << std::endl;
 	hive.register_observer(myobj, [](MyObject const &myo) -> const MyObjectProperty &
 	                       {
 		                       return myo.get_prop();
 	                       }, pobserver);
 
-	std::cout << "oactor.call(8)" << std::endl;
+	std::cout << "# oactor.call(8)" << std::endl;
 	PVACTOR_CALL(oactor, &MyObject::set_i, 8);
 
-	std::cout << "pactor.call(42)" << std::endl;
+	std::cout << "# pactor.call(42)" << std::endl;
 	PVACTOR_CALL(pactor, &MyObject::set_prop, boost::cref(MyObjectProperty(42)));
 
-	std::cout << "hive.unregister_actor(oactor)" << std::endl;
-	hive.unregister_actor(oactor);
+	std::cout << "# hive.unregister_object(myobj)" << std::endl;
+	std::cout << "# end.";
+	std::cout << "# dumping hive.";
+	hive.print();
 
-	std::cout << "hive.unregister_actor(pactor)" << std::endl;
-	hive.unregister_actor(pactor);
-
-	std::cout << "hive.unregister_object(myobj)" << std::endl;
-	hive.unregister_object(myobj);
+	std::cout << "# all myobj's observer must be unregistered after this message." << std::endl;
 
 	return 0;
 }

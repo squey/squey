@@ -9,7 +9,7 @@
 #include "data-in-thread_obj.h"
 #include "data-in-thread_dlg.h"
 
-Entity *static_e = nullptr;
+Entity_p *static_e = nullptr;
 
 typedef PVHive::PVActor<Entity> EntityActor;
 
@@ -18,15 +18,15 @@ void th_actor_func()
 	std::cout << "th_actor: init - " << boost::this_thread::get_id()
 	          << std::endl;
 	int count = 0;
-	static_e = new Entity(42);
+	Entity_p e = Entity_p(new Entity(42));
 
-	Entity *e = static_e;
-	PVHive::PVHive::get().register_object(*e);
+	static_e = &e;
+	PVHive::PVHive::get().register_object(e);
 
 	PVHive::PVHive::get().print();
 
 	EntityActor a;
-	PVHive::PVHive::get().register_actor(*e, a);
+	PVHive::PVHive::get().register_actor(e, a);
 
 	std::cout << "th_actor: pseudo sync" << std::endl;
 	sleep(1);
@@ -42,9 +42,6 @@ void th_actor_func()
 
 	std::cout << "th_actor: clean" << std::endl;
 	PVHive::PVHive::get().unregister_actor(a);
-	PVHive::PVHive::get().unregister_object(*e);
-	delete e;
-	e = nullptr;
 
 	std::cout << "th_actor: terminate" << std::endl;
 }
