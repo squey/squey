@@ -34,3 +34,8 @@ QT4_WRAP_CPP(TEST_DIT_MOC_SRC data-in-thread_dlg.h OPTIONS ${QT4_WRAP_OPTIONS})
 add_executable(Tdata-in-thread data-in-thread.cpp ${TEST_DIT_MOC_SRC})
 target_link_libraries(Tdata-in-thread ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES})
 
+QT4_WRAP_CPP(TEST_MODAL_MOC_SRC modal_dlg.h OPTIONS ${QT4_WRAP_OPTIONS})
+
+add_executable(Tmodal modal.cpp ${TEST_MODAL_MOC_SRC})
+target_link_libraries(Tmodal ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES})
+
