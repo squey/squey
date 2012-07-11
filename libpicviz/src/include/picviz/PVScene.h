@@ -55,7 +55,6 @@ public:
 	~PVScene();
 
 public:
-	QString get_children_description() { return "Source(s)"; }
 	PVCore::PVSerializeArchiveOptions_p get_default_serialize_options();
 	void save_to_file(QString const& path, PVCore::PVSerializeArchiveOptions_p options = PVCore::PVSerializeArchiveOptions_p(), bool save_everything = false);
 	void load_from_file(QString const& path);
@@ -75,6 +74,9 @@ public:
 protected:
 	int32_t get_new_view_id() const;
 	void set_views_id();
+
+	virtual QString get_children_description() const { return "Source(s)"; }
+	virtual QString get_children_serialize_name() const { return "sources"; }
 
 	QList<PVRush::PVInputType_p> get_all_input_types() const;
 

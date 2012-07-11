@@ -71,8 +71,6 @@ public:
 	typedef std::vector< std::pair<PVCol,float> > plotted_sub_col_t;
 	typedef std::list<ExpandedSelection> list_expanded_selection_t;
 
-	QString get_children_description() { return "View(s)"; }
-
 public:
 	PVPlotted();
 
@@ -146,6 +144,8 @@ public:
 
 protected:
 	virtual void set_parent_from_ptr(PVMapped* mapped);
+	virtual QString get_children_description() const { return "View(s)"; }
+	virtual QString get_children_serialize_name() const { return "views"; }
 
 private:
 	PVPlotting_p _plotting;

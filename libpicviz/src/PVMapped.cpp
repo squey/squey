@@ -426,6 +426,7 @@ void Picviz::PVMapped::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVS
 	PVMapping* mapping = new PVMapping();
 	so.object(QString("mapping"), *mapping, QString(), false, (PVMapping*) NULL, false);
 	_mapping = PVMapping_p(mapping);
+	_mapping->set_mapped(this);
 
 	// It important to deserialize the children after the mapping otherwise PVPlottingProperties complains that there is no mapping!
 	data_tree_mapped_t::serialize_read(so, v);

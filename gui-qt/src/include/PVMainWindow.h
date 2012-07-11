@@ -151,17 +151,17 @@ public:
 	PVCore::PVDataTreeAutoShared<Picviz::PVRoot> root;
 
 	/* QGridLayout *filter_widgets_layout; */
-	void commit_selection_in_current_layer(Picviz::PVView_p view);
-	void commit_selection_to_new_layer(Picviz::PVView_p view);
-	void refresh_view(Picviz::PVView_p view);
-	void set_color(Picviz::PVView_p view);
+	void commit_selection_in_current_layer(Picviz::PVView_sp view);
+	void commit_selection_to_new_layer(Picviz::PVView_sp view);
+	void refresh_view(Picviz::PVView_sp view);
+	void set_color(Picviz::PVView_sp view);
 	PVSDK::PVMessenger* get_pvmessenger();
 
 	void import_type(PVRush::PVInputType_p in_t);
 	void import_type(PVRush::PVInputType_p in_t, PVRush::PVInputType::list_inputs const& inputs, PVRush::hash_formats& formats, PVRush::hash_format_creator& format_creator, QString const& choosenFormat, PVCore::PVArgumentList const& args_ext);
 	void load_files(std::vector<QString> const& files, QString format);
 	/* void import_type(); */
-	void update_statemachine_label(Picviz::PVView_p view);
+	void update_statemachine_label(Picviz::PVView_sp view);
 
 	void close_source(int index);
 	void close_source(PVTabSplitter* tab);
@@ -239,7 +239,7 @@ private:
 	bool is_project_untitled() { return _is_project_untitled; }
 	void set_project_modified(bool modified);
 	PVMainWindow* find_main_window(const QString& file);
-	void set_selection_from_layer(Picviz::PVView_p view, Picviz::PVLayer const& layer);
+	void set_selection_from_layer(Picviz::PVView_sp view, Picviz::PVLayer const& layer);
 	void display_inv_elts(PVTabSplitter* tab_src);
 	void close_all_views();
 
@@ -347,7 +347,8 @@ protected:
 	void keyPressEvent(QKeyEvent *event);
 	int update_check();
 	void treat_invalid_formats(QHash<QString, std::pair<QString,QString> > const& errors);
-	PVTabSplitter* get_tab_from_view(Picviz::PVView_p picviz_view);
+	PVTabSplitter* get_tab_from_view(Picviz::PVView_sp picviz_view);
+	PVTabSplitter* get_tab_from_view(Picviz::PVView const& picviz_view);
 	void show_start_page(bool visible);
 	void set_version_informations();
 
@@ -371,9 +372,9 @@ public:
 	 *  @param view
 	 *  @param refresh_states
 	 */
-	void update_pvglview(Picviz::PVView_p view, int refresh_states);
-	void ensure_glview_exists(Picviz::PVView_p view);
-	void destroy_pvgl_views(Picviz::PVView_p view);
+	void update_pvglview(Picviz::PVView_sp view, int refresh_states);
+	void ensure_glview_exists(Picviz::PVView_sp view);
+	void destroy_pvgl_views(Picviz::PVView_sp view);
 
 private:
 	tbb::task_scheduler_init init_parallel;

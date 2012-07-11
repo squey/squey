@@ -96,7 +96,7 @@ void PVInspector::PVMainWindow::axes_combination_editor_Slot()
 void PVInspector::PVMainWindow::axes_mode_Slot()
 {
 	PVLOG_INFO("%s\n", __FUNCTION__);
-	Picviz::PVView_p current_lib_view;
+	Picviz::PVView_sp current_lib_view;
 
 	if (!current_tab) {
 		return;
@@ -162,7 +162,7 @@ void PVInspector::PVMainWindow::change_of_current_view_Slot()
 void PVInspector::PVMainWindow::commit_selection_in_current_layer_Slot()
 {
 	/* We prepare a direct access to the current lib_view */
-	Picviz::PVView_p current_lib_view;
+	Picviz::PVView_sp current_lib_view;
 
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
 
@@ -183,7 +183,7 @@ void PVInspector::PVMainWindow::commit_selection_to_new_layer_Slot()
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
 	/* VARIABLES */
 	/* We prepare a direct access to the current lib_view */
-	Picviz::PVView_p current_lib_view;
+	Picviz::PVView_sp current_lib_view;
 
 	/* CODE */
 	if (pv_ListingsTabWidget->currentIndex() == -1) {
@@ -200,7 +200,7 @@ void PVInspector::PVMainWindow::commit_selection_to_new_layer_Slot()
  *****************************************************************************/
 void PVInspector::PVMainWindow::lines_display_unselected_listing_Slot()
 {
-	Picviz::PVView_p current_lib_view;
+	Picviz::PVView_sp current_lib_view;
 	Picviz::PVStateMachine *state_machine = NULL;
 
 	if (!current_tab) {
@@ -225,7 +225,7 @@ void PVInspector::PVMainWindow::lines_display_unselected_listing_Slot()
  *****************************************************************************/
 void PVInspector::PVMainWindow::lines_display_unselected_GLview_Slot()
 {
-	Picviz::PVView_p current_lib_view;
+	Picviz::PVView_sp current_lib_view;
 	Picviz::PVStateMachine *state_machine = NULL;
 
 	if (!current_tab) {
@@ -251,7 +251,7 @@ void PVInspector::PVMainWindow::lines_display_unselected_GLview_Slot()
  *****************************************************************************/
 void PVInspector::PVMainWindow::lines_display_zombies_Slot()
 {
-	Picviz::PVView_p current_lib_view;
+	Picviz::PVView_sp current_lib_view;
 	Picviz::PVStateMachine *state_machine = NULL;
 
 	if (!current_tab) {
@@ -279,7 +279,7 @@ void PVInspector::PVMainWindow::lines_display_zombies_Slot()
  *****************************************************************************/
 void PVInspector::PVMainWindow::lines_display_zombies_listing_Slot()
 {
-	Picviz::PVView_p current_lib_view;
+	Picviz::PVView_sp current_lib_view;
 	Picviz::PVStateMachine *state_machine = NULL;
 
 	if (!current_tab) {
@@ -300,7 +300,7 @@ void PVInspector::PVMainWindow::lines_display_zombies_listing_Slot()
  *****************************************************************************/
 void PVInspector::PVMainWindow::lines_display_zombies_GLview_Slot()
 {
-	Picviz::PVView_p current_lib_view;
+	Picviz::PVView_sp current_lib_view;
 	Picviz::PVStateMachine *state_machine = NULL;
 
 	if (!current_tab) {
@@ -320,8 +320,8 @@ void PVInspector::PVMainWindow::expand_selection_on_axis_Slot()
 	if (!current_tab) {
 		return;
 	}
-	Picviz::PVView_p cur_view_p = current_tab->get_lib_view();
-	PVExpandSelDlg* dlg = new PVExpandSelDlg(cur_view_p, this);
+	Picviz::PVView_sp cur_view_p = current_tab->get_lib_view();
+	PVExpandSelDlg* dlg = new PVExpandSelDlg(*cur_view_p, this);
 	Picviz::PVView &view = *cur_view_p;
 	if (dlg->exec() != QDialog::Accepted) {
 		return;
@@ -382,7 +382,7 @@ void PVInspector::PVMainWindow::export_selection_Slot()
 	QTextStream stream(&file);
 
 	// For now, save the NRAW !
-	Picviz::PVView_p view = current_tab->get_lib_view();
+	Picviz::PVView_sp view = current_tab->get_lib_view();
 	PVRush::PVNraw const& nraw = view->get_rushnraw_parent();
 	view->get_real_output_selection().write_selected_lines_nraw(stream, nraw, 0);
 
@@ -423,7 +423,7 @@ void PVInspector::PVMainWindow::filter_Slot(void)
 {
 	if (current_tab && current_tab->get_lib_view()) {
 		QObject *s = sender();
-		Picviz::PVView_p lib_view = current_tab->get_lib_view();
+		Picviz::PVView_sp lib_view = current_tab->get_lib_view();
 		QString filter_name = s->objectName();
 
 		Picviz::PVLayerFilter::p_type filter_org = LIB_CLASS(Picviz::PVLayerFilter)::get().get_class_by_name(filter_name);
@@ -442,7 +442,7 @@ void PVInspector::PVMainWindow::filter_Slot(void)
 void PVInspector::PVMainWindow::filter_reprocess_last_Slot()
 {
 	if (current_tab && current_tab->get_lib_view()) {
-		Picviz::PVView_p lib_view = current_tab->get_lib_view();
+		Picviz::PVView_sp lib_view = current_tab->get_lib_view();
 		if (!lib_view->is_last_filter_used_valid()) {
 			return;
 		}
@@ -824,7 +824,7 @@ void PVInspector::PVMainWindow::selection_all_Slot()
 		return;
 	}
 
-	Picviz::PVView_p lib_view = current_tab->get_lib_view();
+	Picviz::PVView_sp lib_view = current_tab->get_lib_view();
 	if (lib_view) {
 		lib_view->select_all_nonzb_lines();
 		// Set square area mode w/ volatile
@@ -846,7 +846,7 @@ void PVInspector::PVMainWindow::selection_none_Slot()
 		return;
 	}
 
-	Picviz::PVView_p lib_view = current_tab->get_lib_view();
+	Picviz::PVView_sp lib_view = current_tab->get_lib_view();
 	if (lib_view) {
 		lib_view->select_no_line();
 		update_pvglview(lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
@@ -867,7 +867,7 @@ void PVInspector::PVMainWindow::selection_inverse_Slot()
 		return;
 	}
 
-	Picviz::PVView_p lib_view = current_tab->get_lib_view();
+	Picviz::PVView_sp lib_view = current_tab->get_lib_view();
 	if (lib_view) {
 		lib_view->select_inv_lines();
 		update_pvglview(lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
@@ -1136,7 +1136,7 @@ void PVInspector::PVMainWindow::cur_format_changed_Slot()
 	if (!comp.need_extract() && (comp.different_mapping() || comp.different_plotting())) {
 		QMessageBox* box = new QMessageBox(QMessageBox::Question, tr("Format modified"), tr("The mapping and/or plotting properties of this format have been changed. Do you want to update the current view ?"), QMessageBox::Yes | QMessageBox::No, this);
 		if (box->exec() == QMessageBox::Yes) {
-			Picviz::PVView_p cur_view = cur_src->current_view();
+			Picviz::PVView_sp cur_view = cur_src->current_view();
 			Picviz::PVMapped* mapped = cur_view->get_parent<Picviz::PVMapped>();
 			Picviz::PVPlotted* plotted = cur_view->get_parent<Picviz::PVPlotted>();
 			mapped->get_mapping()->reset_from_format(new_format);
@@ -1187,7 +1187,7 @@ void PVInspector::PVMainWindow::axes_new_Slot()
 		return;
 	}
 	
-	Picviz::PVView_p view = current_tab->get_lib_view();
+	Picviz::PVView_sp view = current_tab->get_lib_view();
 	/*
 	std::vector<PVCore::PVUnicodeString> vec_str;
 	PVRow nrows = view->get_rushnraw_parent().get_number_rows();
@@ -1241,7 +1241,7 @@ void PVInspector::PVMainWindow::axes_new_Slot()
 void PVInspector::PVMainWindow::selection_set_from_current_layer_Slot()
 {
 	if (current_tab && current_tab->get_lib_view()) {
-		Picviz::PVView_p view(current_tab->get_lib_view());
+		Picviz::PVView_sp view(current_tab->get_lib_view());
 		set_selection_from_layer(view, view->get_current_layer());
 	}
 }
@@ -1249,7 +1249,7 @@ void PVInspector::PVMainWindow::selection_set_from_current_layer_Slot()
 void PVInspector::PVMainWindow::selection_set_from_layer_Slot()
 {
 	if (current_tab && current_tab->get_lib_view()) {
-		Picviz::PVView_p view(current_tab->get_lib_view());
+		Picviz::PVView_sp view(current_tab->get_lib_view());
 
 		PVCore::PVArgumentList args;
 		args[PVCore::PVArgumentKey("sel-layer", tr("Choose a layer"))].setValue<Picviz::PVLayer*>(&view->get_current_layer());

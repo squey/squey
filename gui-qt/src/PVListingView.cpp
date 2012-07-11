@@ -335,7 +335,7 @@ void PVInspector::PVListingView::process_ctxt_menu_copy()
 void PVInspector::PVListingView::process_ctxt_menu_set_color()
 {
 	/* We let the user select a color */
-	PVColorDialog* pv_ColorDialog = new PVColorDialog(_parent->get_lib_view(), this);
+	PVColorDialog* pv_ColorDialog = new PVColorDialog(*_parent->get_lib_view(), this);
 	connect(pv_ColorDialog, SIGNAL(colorSelected(const QColor&)), this, SLOT(set_color_selected(const QColor&)));
 
 	pv_ColorDialog->show();
@@ -356,7 +356,7 @@ void PVInspector::PVListingView::set_color_selected(const QColor& c)
 	}
 
 	QVector<PVRow> selected_rows_vector = get_selected_rows();
-	Picviz::PVView_p view = _parent->get_lib_view();
+	Picviz::PVView_sp view = _parent->get_lib_view();
 	Picviz::PVLayer& layer = view->get_current_layer();
 	Picviz::PVLinesProperties& lines_properties = layer.get_lines_properties();
 

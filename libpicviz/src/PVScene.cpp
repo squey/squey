@@ -149,27 +149,34 @@ QList<PVRush::PVInputType_p> Picviz::PVScene::get_all_input_types() const
 	return ret;
 }
 
-void Picviz::PVScene::serialize_read(PVCore::PVSerializeObject& /*so*/, PVCore::PVSerializeArchive::version_t /*v*/)
+void Picviz::PVScene::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v)
 {
-#if 0
 	// Get the list of input types
 	QStringList input_types;
 	so.list_attributes("types", input_types);
 
+	if (input_types.size() == 0) {
+		// No input types, thus no sources, thus nothing !
+		return;
+	}
+
+	// Temporary list of input descriptions
+	PVRush::PVInputType::list_inputs_desc tmp_inputs;
 	for (int i = 0; i < input_types.size(); i++) {
 		// Get the input type lib object
 		QString const& type_name = input_types.at(i);
 		PVRush::PVInputType_p int_lib = LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name(type_name);
 
 		// Get the inputs list object for that input type
-		std::pair<list_sources_t, PVRush::PVInputType::list_inputs>& type_srcs = _sources[*int_lib];
-		PVRush::PVInputType::list_inputs& inputs(type_srcs.second);
+		PVRush::PVInputType::list_inputs_desc inputs_for_type;
 		
 		// Get back the inputs
-		PVCore::PVSerializeObject_p so_inputs = int_lib->serialize_inputs(so, type_name, inputs);
+		PVCore::PVSerializeObject_p so_inputs = int_lib->serialize_inputs(so, type_name, inputs_for_type);
 
 		// Save the serialize object, so that PVSource objects can refere to them for their inputs
 		_so_inputs[*int_lib] = so_inputs;
+
+		tmp_inputs.append(inputs_for_type);
 	}
 
 	data_tree_scene_t::serialize_read(so, v);
@@ -177,7 +184,6 @@ void Picviz::PVScene::serialize_read(PVCore::PVSerializeObject& /*so*/, PVCore::
 	// Correlation, make this optional for compatibility with old project (so that we are still in version 1 :))
 	_ad2g_view.reset(new Picviz::PVAD2GView(this));
 	so.object("correlation", *_ad2g_view, QObject::tr("Correlation graph"), true);
-#endif
 }
 
 void Picviz::PVScene::serialize_write(PVCore::PVSerializeObject& so)
@@ -197,6 +203,7 @@ void Picviz::PVScene::serialize_write(PVCore::PVSerializeObject& so)
 		PVRush::PVInputType::list_inputs_desc inputs = get_inputs_desc(*in_t);
 		PVCore::PVSerializeObject_p so_inputs = in_t->serialize_inputs(so, in_t->registered_name(), inputs);
 		_so_inputs[*in_t] = so_inputs;
+		in_types_str.push_back(in_t->registered_name());
 	}
 
 	so.list_attributes("types", in_types_str);

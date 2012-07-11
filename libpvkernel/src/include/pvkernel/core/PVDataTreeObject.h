@@ -221,9 +221,6 @@ public:
 	 */
 	virtual ~PVDataTreeObject() {}
 
-	virtual QString get_serialize_description() { return QString(); }
-	virtual QString get_children_description() { return "Children"; }
-
 	/*! \brief Return an ancestor of a data tree object at the specified hierarchical level (as a class type).
 	 *  If no level is specified, the parent is returned.
 	 *  \return An ancestor.
@@ -307,14 +304,14 @@ public:
 		for (auto child : _children) {
 			descriptions << child->get_serialize_description();
 		}
-		so.list(get_children_description(), _children, QString(), (child_t*) NULL, descriptions);
+		so.list(get_children_serialize_name(), _children, get_children_description(), (child_t*) NULL, descriptions);
 	};
 
 	virtual void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 	{
 		boost::shared_ptr<real_type_t> me_p(static_cast<real_type_t*>(this)->shared_from_this());
 		auto create_func = [&]{ return PVDataTreeAutoShared<child_t>(me_p); };
-		if (!so.list_read(create_func, get_children_description(), QString(), true, true)) {
+		if (!so.list_read(create_func, get_children_serialize_name(), get_children_description(), true, true)) {
 			// No children born in here...
 			return;
 		}
@@ -378,6 +375,11 @@ protected:
 		_children.push_back(c);
 		child_added(*c);
 	}
+
+
+	virtual QString get_serialize_description() const { return QString(); }
+	virtual QString get_children_description() const { return "Children"; }
+	virtual QString get_children_serialize_name() const { return "children"; }
 
 protected:
 	// Events

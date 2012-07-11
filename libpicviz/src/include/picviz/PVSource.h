@@ -60,9 +60,6 @@ public:
 	~PVSource();
 
 public:
-
-	QString get_children_description() { return "Mapped(s)"; }
-
 	/* Functions */
 	PVCol get_column_count();
 
@@ -116,6 +113,8 @@ private:
 
 protected:
 	virtual void set_parent_from_ptr(PVScene* parent);
+	virtual QString get_children_description() const { return "Mapped(s)"; }
+	virtual QString get_children_serialize_name() const { return "mapped"; }
 
 	void add_view(PVView_sp view);
 	void set_views_id();

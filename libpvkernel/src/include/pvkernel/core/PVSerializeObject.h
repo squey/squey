@@ -464,7 +464,7 @@ PVSerializeObject::p_type PVSerializeObject::list_read(F const& func, QString co
 			// the creation of the PVSerializeObject_p. Indeed, when the exception of a "not found element" is thrown,
 			// we would have potentially created a useless object (that might have been added, for instance, to the datatree).
 			// If you want to store the children to a list, add the child to the list in the func function and return its address
-			V v = func();
+			V v(func());
 			call_serialize(v, new_obj, (def_t*) NULL);
 			idx++;
 		}
