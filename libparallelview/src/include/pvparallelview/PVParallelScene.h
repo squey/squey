@@ -65,20 +65,14 @@ private:
 		}
 	}
 
-	void mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+	bool sliders_moving() const
 	{
-		if (event->buttons() == Qt::RightButton) {
-			// Translate viewport
-			QScrollBar *hBar = view()->horizontalScrollBar();
-			hBar->setValue(hBar->value() + int(_translation_start_x - event->scenePos().x()));
+		for (PVAxisGraphicsItem* axis : _axes) {
+			if (axis->sliders_moving()) {
+				return true;
+			}
 		}
-		else
-		{
-			// trace square area
-			QPointF top_left(qMin(_selection_square_pos.x(), event->scenePos().x()), qMin(_selection_square_pos.y(), event->scenePos().y()));
-			QPointF bottom_right(qMax(_selection_square_pos.x(), event->scenePos().x()), qMax(_selection_square_pos.y(), event->scenePos().y()));
-			_selection_square->setRect(QRectF(top_left, bottom_right));
-		}
+		return false;
 	}
 
 	void mousePressEvent(QGraphicsSceneMouseEvent *event)
@@ -92,6 +86,24 @@ private:
 		{
 			_selection_square_pos = event->scenePos();
 		}
+		QGraphicsScene::mousePressEvent(event);
+	}
+
+	void mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+	{
+		if (event->buttons() == Qt::RightButton) {
+			// Translate viewport
+			QScrollBar *hBar = view()->horizontalScrollBar();
+			hBar->setValue(hBar->value() + int(_translation_start_x - event->scenePos().x()));
+		}
+		else if (!sliders_moving() && event->buttons() == Qt::LeftButton)
+		{
+			// trace square area
+			QPointF top_left(qMin(_selection_square_pos.x(), event->scenePos().x()), qMin(_selection_square_pos.y(), event->scenePos().y()));
+			QPointF bottom_right(qMax(_selection_square_pos.x(), event->scenePos().x()), qMax(_selection_square_pos.y(), event->scenePos().y()));
+			_selection_square->setRect(QRectF(top_left, bottom_right));
+		}
+		QGraphicsScene::mouseMoveEvent(event);
 	}
 
 	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
@@ -122,6 +134,7 @@ private:
 			);
 			update_zones_position();
 		}
+		QGraphicsScene::mouseReleaseEvent(event);
 	}
 
 	void wheelEvent(QGraphicsSceneWheelEvent* event);
@@ -187,7 +200,7 @@ private:
 			_rendering_job->cancel();
 			_rendering_future.waitForFinished();
 			tbb::tick_count end = tbb::tick_count::now();
-			PVLOG_INFO("(launch_job_future) Job ancellation done in %0.4f ms.\n", (end-start).seconds()*1000.0);
+			PVLOG_INFO("(launch_job_future) Job cancellation done in %0.4f ms.\n", (end-start).seconds()*1000.0);
 		}
 	}
 
