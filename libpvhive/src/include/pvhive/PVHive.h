@@ -43,7 +43,6 @@ inline void hive_deleter(T *ptr);
 
 }
 
-
 /**
  * @class PVHive
  *
@@ -77,6 +76,9 @@ inline void hive_deleter(T *ptr);
 
 class PVHive
 {
+	template<typename T>
+	friend void __impl::hive_deleter(T *ptr);
+
 public:
 	/**
 	 * @return a reference on the global PVHive
@@ -220,27 +222,6 @@ public:
 	}
 
 	/**
-	 * Unregister an object
-	 *
-	 * @param object the object
-	 */
-	template <typename T>
-	void unregister_object(PVCore::pv_shared_ptr<T>& object)
-	{
-		// if T is a pointer, its address is used, not its value
-		static_assert(!std::is_pointer<T>::value, "PVHive::PVHive::unregister_object<T>(T const &) does not accept pointer as parameter");
-
-		unregister_object((void*) object.get());
-	}
-
-	/**
-	 * Unregister an object
-	 *
-	 * @param object the object
-	 */
-	void unregister_object(void *object);
-
-	/**
 	 * Unregister an actor an notify all dependent observers
 	 * that they must stop observing
 	 *
@@ -310,6 +291,13 @@ public:
 
 private:
 	/**
+	 * Unregister an object
+	 *
+	 * @param object the object
+	 */
+	void unregister_object(void *object);
+
+	/**
 	 * Apply an action on a object and propagate the change event
 	 *
 	 * @param object the managed object
@@ -364,9 +352,8 @@ namespace __impl
 template <typename T>
 inline void hive_deleter(T *ptr)
 {
-	std::cout << "calling deleter for type " << typeid(T).name() << std::endl;
-        PVHive::get().unregister_object(ptr);
-        delete ptr;
+	PVHive::get().unregister_object((void*) ptr);
+	delete ptr;
 }
 
 }
