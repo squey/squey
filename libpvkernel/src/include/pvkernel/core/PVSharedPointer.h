@@ -5,6 +5,7 @@
 #include <pvkernel/core/PVSpinLock.h>
 
 #include <cstdint>
+#include <ostream>
 
 namespace PVCore
 {
