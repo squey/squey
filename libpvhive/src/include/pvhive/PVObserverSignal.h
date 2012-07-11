@@ -10,6 +10,19 @@
 namespace PVHive
 {
 
+/**
+ * @class PVObserverSignal
+ *
+ * A template class to specify observers which use Qt's signal/slot
+ * mechanism.
+ *
+ * To connect slot to the events, use the following methods (defined in
+ * PVRefreshSignal.h:
+ * - for "refresh" event:
+ *   void connect_refresh(QObject *receiver, const char *slot);
+ * - for "about_to_be_deleted" event:
+ *   void connect_about_to_be_deleted(QObject* receiver, const char *slot);
+ */
 template <class T>
 class PVObserverSignal : public __impl::PVRefreshSignal, public PVObserver<T>
 {

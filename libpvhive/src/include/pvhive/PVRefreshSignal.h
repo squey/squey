@@ -15,6 +15,27 @@ class PVObserverBase;
 namespace __impl
 {
 
+/**
+ * @class PVRefreshSignal
+ *
+ * Base (and non template) class to manage events using Qt's signal/slot
+ * mechanism.
+ *
+ * This class do not need subclassed to be used.
+
+ * "refresh" event can be asynchronous depending of the thread doing the action
+ * and the thread doing the callback.
+ *
+ * "about_to_be_deleted" event is necessarily synchronous to safeguard the
+ * access to the observed object until the callback returns.
+ *
+ * To make this last event synchronous, 2 different cases occur:
+ * 1/ sender and receiver are in the same thread, the slot invocation is
+ *    automatically synchronous
+ * 2/ sender and receiver are in different threads. the sender emit a special
+ *    signal to "move" the slot invocation in the right thread and a semaphore
+ *    is used to force synchronization.
+ */
 class PVRefreshSignal : public QObject
 {
 	Q_OBJECT
@@ -26,12 +47,24 @@ public:
 	{}
 
 public:
+	/**
+	 * Connect a Qt slot to the "refresh" event.
+	 *
+	 * @param receiver the receiving Qobject
+	 * @param slot the slot
+	 */
 	inline void connect_refresh(QObject *receiver, const char *slot)
 	{
 		connect(this, SIGNAL(refresh_signal(PVHive::PVObserverBase*)),
 		        receiver, slot);
 	}
 
+	/**
+	 * Connect a Qt slot to the "about_to_be_deleted" event.
+	 *
+	 * @param receiver the receiving Qobject
+	 * @param slot the slot
+	 */
 	inline void connect_about_to_be_deleted(QObject* receiver, const char *slot)
 	{
 		connect(this, SIGNAL(about_to_be_deleted_signal(PVHive::PVObserverBase*)),

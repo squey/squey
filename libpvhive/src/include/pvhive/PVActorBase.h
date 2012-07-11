@@ -3,8 +3,14 @@
 
 namespace PVHive
 {
+
 class PVHive;
 
+/**
+ * @class PVActorBase
+ *
+ * A non template class to use as a base in the PVHive.
+ */
 class PVActorBase
 {
 public:

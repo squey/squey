@@ -7,6 +7,18 @@
 namespace PVHive
 {
 
+/**
+ * @class PVObserverCallback
+ *
+ * A template class to specify observers using functions instead
+ * of methods.
+ *
+ * Used functions can be of any kind: lambda, static defined,
+ * std::function, boost::function, etc.
+ *
+ * All subclasses must implements PVObserverBase::refresh() and
+ * PVObserverBase::about_to_be_deleted().
+ */
 template <class T, class RefreshF, class DeleteF>
 class PVObserverCallback : public PVObserver<T>
 {
@@ -35,6 +47,10 @@ private:
 	DeleteF  _delete_cb;
 };
 
+/**
+ * Helper function a create a PVObserverCallback without dealing
+ * with the PVObserverCallback class itself.
+ */
 template <class T, class RefreshF, class DeleteF>
 PVObserverCallback<T, RefreshF, DeleteF>
 create_observer_callback(RefreshF const& r, DeleteF const& d)

@@ -16,6 +16,11 @@
 namespace PVHive
 {
 
+/**
+ * \addtogroup exceptions
+ * @{
+ * Thrown when trying to register an actor on an unregistered object.
+ */
 class no_object : public std::exception
 {
 public:
@@ -30,6 +35,8 @@ public:
 		return "registering an actor for an unknown object";
 	}
 };
+
+/// @}
 
 template <class T>
 class PVActor;
@@ -60,20 +67,20 @@ inline void hive_deleter(T *ptr);
  * - the actor which subscribe to notify updates when modifying a given object;
  * - the observer which subscribe to update notification for a given object.
  *
+ * To ease objects deletion, each registered object is a shared pointer whose
+ * deleter is set by the PVHive to automatically unregistered it.
+ *
+ * There are 2 kinds of notifications:
+ * - "refresh": when an object is modified;
+ * - "about_to_be_deleted" when an object is unregistered (ie. it will be deleted)
+ *   the object is still usable until this callback returns.
+ *
  * Note that:
  * - an actor can act on an object which have no observer (as no opened view
  *   for a data set);
  * - an observer can be registered for an object which have no actor (as no
  *   opened property editor for a property).
- *
- * @attention any specialization of template method ::call_object() *must* be
- * declared in the namespace PVHive (you can use the macros
- * PVHIVE_CALL_OBJECT_BLOCK_BEGIN() and PVHIVE_CALL_OBJECT_BLOCK_END()).
  */
-
-#define PVHIVE_CALL_OBJECT_BLOCK_BEGIN() namespace PVHive {
-#define PVHIVE_CALL_OBJECT_BLOCK_END() }
-
 class PVHive
 {
 	template<typename T>
@@ -135,6 +142,8 @@ public:
 	 *
 	 * @param object the managed object
 	 * @param actor the actor
+	 *
+	 * @throw no_object
 	 */
 	template <class T>
 	void register_actor(PVCore::pv_shared_ptr<T>& object, PVActorBase& actor)
@@ -158,6 +167,8 @@ public:
 	 *
 	 * @param object the observed object
 	 * @return the actor
+	 *
+	 * @throw no_object
 	 */
 	template <class T>
 	PVActor<T>* register_actor(PVCore::pv_shared_ptr<T>& object)
@@ -266,6 +277,9 @@ public:
 		do_refresh_observers((void*)object);
 	}
 
+	/**
+	 * Write on std::cout a structured view of PVHive content
+	 */
 	void print() const
 	{
 		std::cout << "PVHive - " << this << " - content:" << std::endl;
@@ -319,9 +333,15 @@ private:
 		}
 	}
 
+	/**
+	 * Propagate refresh event to all observers
+	 *
+	 * @param object the object which has been modified
+	 */
 	void do_refresh_observers(void *object);
 
 private:
+	// private to secure the singleton
 	PVHive() {}
 	~PVHive() {}
 	PVHive(const PVHive&) {}
@@ -344,6 +364,15 @@ private:
 	typedef tbb::concurrent_hash_map<void*, observable_t > observables_t;
 	observables_t _observables;
 };
+
+/**
+ * @attention any specialization of template method ::call_object() *must* be
+ * declared in the namespace PVHive (you can use the macros
+ * PVHIVE_CALL_OBJECT_BLOCK_BEGIN() and PVHIVE_CALL_OBJECT_BLOCK_END()).
+ */
+
+#define PVHIVE_CALL_OBJECT_BLOCK_BEGIN() namespace PVHive {
+#define PVHIVE_CALL_OBJECT_BLOCK_END() }
 
 namespace __impl
 {

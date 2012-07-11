@@ -10,6 +10,17 @@ namespace PVHive
 namespace __impl
 {
 
+/**
+ * @class PVQRefresh
+ *
+ * Base (and non template) class to manage events using Qt's signal/slot
+ * mechanism.
+ *
+ * This class has to be subclassed to be used.
+ *
+ * the slots to implement are do_refresh(PVHive::PVObserverBase *), and
+ * do_about_to_be_deleted(PVHive::PVObserverBase *).
+ */
 class PVQRefresh : public PVRefreshSignal
 {
 	Q_OBJECT

@@ -95,6 +95,7 @@ void PVHive::PVHive::unregister_object(void *object)
 /*****************************************************************************
  * PVHive::PVHive::do_refresh_observers()
  *****************************************************************************/
+
 void PVHive::PVHive::do_refresh_observers(void *object)
 {
 	observables_t::const_accessor acc;

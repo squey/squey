@@ -10,6 +10,15 @@
 namespace PVHive
 {
 
+/**
+ * @class PVObserverSignal
+ *
+ * A template class to specify observers which use Qt's signal/slot
+ * mechanism.
+ *
+ * the slots to implement are do_refresh(PVHive::PVObserverBase *), and
+ * do_about_to_be_deleted(PVHive::PVObserverBase *).
+ */
 template <class T>
 class PVQObserver : public __impl::PVQRefresh, public PVObserver<T>
 {
