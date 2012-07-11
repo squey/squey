@@ -77,7 +77,7 @@ int main(int argc, char** argv)
 		std::cerr << "No source was recreated !" << std::endl;
 		return 1;
 	}
-	src = srcs.at(0);
+	src = srcs.at(0)->shared_from_this();
 	
 	job = src->extract();
 	job->wait_end();

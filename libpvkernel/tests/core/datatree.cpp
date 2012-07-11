@@ -69,6 +69,9 @@ public:
 
 	int get_i() { return _i; }
 
+protected:
+	void child_added(B& b);
+
 private:
 	int _i;
 };
@@ -77,10 +80,12 @@ typedef typename PVCore::PVDataTreeObject<A, C> data_tree_b_t;
 class B : public data_tree_b_t
 {
 	friend class PVCore::PVDataTreeAutoShared<B>;
+	friend class A;
 
 protected:
 	B(int i = 0):
 		data_tree_b_t(),
+		_a_was_here(false),
 		_i(i)
    	{}
 
@@ -115,14 +120,24 @@ public:
 	int get_j() { return _j; }
 	void set_j(int j) { _j = j; }
 
+	inline bool a_was_here() const { return _a_was_here; }
+
 public:
 	void f() const { std::cout << "B i = " << _i << std::endl; }
 	inline int i() const { return _i; }
+
+protected:
+	bool _a_was_here;
 
 private:
 	int _i;
 	int _j;
 };
+
+void A::child_added(B& b)
+{
+	b._a_was_here = true;
+}
 
 typedef typename PVCore::PVDataTreeObject<B, D> data_tree_c_t;
 class C : public data_tree_c_t
@@ -245,6 +260,11 @@ bool standard_use_case()
 	B_p b3(a2);
 	C_p c(b1);
 	D_p d(c);
+
+	// Check "child_added"
+	my_assert(b1->a_was_here());
+	my_assert(b2->a_was_here());
+	my_assert(b3->a_was_here());
 
 	// Auto shared check
 	B_p b1_other = b1;

@@ -73,6 +73,8 @@ public:
 	// Implicit conversion to boost::shared_ptr<T>
 	inline operator boost::shared_ptr<T>&() { return *this; }
 	inline operator boost::shared_ptr<T> const&() const { return *this; }
+	inline PVDataTreeAutoShared& operator=(PVDataTreeAutoShared<T> const& o) { boost::shared_ptr<T>::operator=(static_cast<boost::shared_ptr<T> const&>(o)); return *this; }
+	inline PVDataTreeAutoShared& operator=(boost::shared_ptr<T> const& o) { boost::shared_ptr<T>::operator=(o); return *this; }
 };
 
 namespace PVTypeTraits {
@@ -109,12 +111,12 @@ struct dynamic_pointer_cast< PVDataTreeAutoShared<Y>,  PVDataTreeAutoShared<T> >
 
 /*! \brief Special class to represent the fact that a tree object is at the root of the hierarchy.
 */
-template <typename Tchild>
+template <typename Treal>
 struct PVDataTreeNoParent
 {
 	typedef PVDataTreeNoParent parent_t;
 	typedef boost::shared_ptr<PVDataTreeNoParent> pparent_t;
-	typedef Tchild child_t;
+	typedef Treal child_t;
 	typedef boost::shared_ptr<child_t> pchild_t;
 	typedef QList<pchild_t> children_t;
 
@@ -124,9 +126,8 @@ struct PVDataTreeNoParent
 		assert(false);
 		return nullptr;
 	}
-	pchild_t remove_child(Tchild&) { return pchild_t(); }
-
-	children_t _children;
+	pchild_t remove_child(child_t&) { return pchild_t(); }
+	void do_add_child(pchild_t const&) { }
 };
 
 template <class T>
@@ -154,6 +155,7 @@ public:
 	operator boost::shared_ptr<Y>&() { return boost::static_pointer_cast<Y>(*this); }
 	template <class Y>
 	operator boost::shared_ptr<Y> const&() const { return boost::static_pointer_cast<Y>(*this); }
+
 };
 
 /*! \brief Special class to represent the fact that a tree object is not meant to have any children.
@@ -265,11 +267,13 @@ public:
 		return GetChildrenImpl<child_t, T>::get_children(_children);
 	}
 
+	inline children_t const& get_children() const { return _children; }
+
 	/*! \brief Add a child to the data tree object.
 	 *  \param[in] child Child of the data tree object to add.
 	 *  This is basically a helper method doing a set_parent on the child.
 	 */
-	void add_child(pchild_t& child_p)
+	void add_child(pchild_t const& child_p)
 	{
 		real_type_t* me = static_cast<real_type_t*>(this);
 		child_p->set_parent(me);
@@ -281,11 +285,12 @@ public:
 	 */
 	pchild_t remove_child(child_t const& child)
 	{
-		pchild_t pchild;
+		boost::shared_ptr<child_t> pchild;
 		for (int i = 0; i < _children.size(); i++) {
 			if (&child == _children[i].get()) {
 				//child_about_to_be_removed(child);
 				pchild = _children[i];
+				child_about_to_be_removed(*pchild);
 				_children.erase(_children.begin()+i);
 				pchild->_parent = nullptr;
 				break;
@@ -307,7 +312,8 @@ public:
 
 	virtual void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 	{
-		auto create_func = [&]{ return PVDataTreeAutoShared<child_t>(this->shared_from_this()); };
+		boost::shared_ptr<real_type_t> me_p(static_cast<real_type_t*>(this)->shared_from_this());
+		auto create_func = [&]{ return PVDataTreeAutoShared<child_t>(me_p); };
 		if (!so.list_read(create_func, get_children_description(), QString(), true, true)) {
 			// No children born in here...
 			return;
@@ -355,7 +361,7 @@ protected:
 		if (_parent) {
 			me_p = _parent->remove_child(*me);
 			if (parent) {
-				parent->_children.push_back(me_p);
+				parent->do_add_child(me_p);
 				child_added = true;
 			}
 		}
@@ -363,12 +369,20 @@ protected:
 		_parent = parent;
 		if (old_parent == nullptr && parent && !child_added) {
 			me_p = boost::static_pointer_cast<real_type_t>(me->shared_from_this());
-			parent->_children.push_back(me_p);
+			parent->do_add_child(me_p);
 		}
 	}
 
-	//virtual void child_added(children_t& /*child*/) { }
-	//virtual void child_about_to_be_removed(children_t& /*child*/) { }
+	void do_add_child(pchild_t c)
+	{
+		_children.push_back(c);
+		child_added(*c);
+	}
+
+protected:
+	// Events
+	virtual void child_added(child_t& /*child*/) { }
+	virtual void child_about_to_be_removed(child_t& /*child*/) { }
 
 private:
 	/*! \brief Implementation of the PVDataTreeObject::get_parent() method.
@@ -445,6 +459,197 @@ private:
 	parent_t* _parent;
 	children_t _children;
 };
+
+#if 0
+// Specialcase when root item !
+template <typename Troot, typename Tchild>
+class PVDataTreeObject<PVDataTreeNoParent<Troot>, Tchild>: public boost::enable_shared_from_this<Troot>
+{
+public:
+	template<typename T1, typename T2> friend class PVDataTreeObject;
+
+public:
+	typedef Tchild child_t;
+	typedef PVDataTreeAutoShared<child_t> pchild_t;
+	typedef QList<pchild_t> children_t;
+	typedef PVDataTreeObject<PVDataTreeNoParent<Troot>, child_t> data_tree_t;
+	static constexpr bool has_parent = false;
+
+private:
+	typedef Troot real_type_t;
+
+public:
+	typedef PVDataTreeAutoShared<real_type_t> p_type;
+
+public:
+	/*! \brief Default constructor
+	 */
+	PVDataTreeObject():
+		boost::enable_shared_from_this<real_type_t>()
+	{
+	}
+
+	/*! \brief Delete the data tree object and all of it's underlying children hierarchy.
+	 */
+	virtual ~PVDataTreeObject() {}
+
+	virtual QString get_serialize_description() { return QString(); }
+	virtual QString get_children_description() { return "Children"; }
+
+	void* get_parent() const { return nullptr; }
+
+	template <typename... Tparams>
+	child_t* new_child(Tparams... params)
+	{
+		pchild_t ret(new child_t(params...));
+		add_child(ret);
+		return ret;
+	}
+
+	/*! \brief Return the children of a data tree object at the specified hierarchical level (as a class type).
+	 *  If no level is specified, the direct children are returned.
+	 *  \return The list of children.
+	 *  Note: Compile with '-std=c++0x' flag to support function template default parameter.
+	 */
+	template <typename T = child_t>
+	typename T::parent_t::children_t get_children()
+	{
+		return GetChildrenImpl<child_t, T>::get_children(_children);
+	}
+	template <typename T = child_t>
+	const typename T::parent_t::children_t get_children() const
+	{
+		return GetChildrenImpl<child_t, T>::get_children(_children);
+	}
+
+	inline children_t const& get_children() { return _children; }
+
+	/*! \brief Add a child to the data tree object.
+	 *  \param[in] child Child of the data tree object to add.
+	 *  This is basically a helper method doing a set_parent on the child.
+	 */
+	void add_child(pchild_t& child_p)
+	{
+		real_type_t* me = static_cast<real_type_t*>(this);
+		child_p->set_parent(me);
+	}
+
+	/*! \brief Remove a child of the data tree object.
+	 *  \param[in] child Child of the data tree object to remove.
+	 *  \return a shared_ptr to the removed child in order to postpone its destruction if wanted.
+	 */
+	pchild_t remove_child(child_t const& child)
+	{
+		pchild_t pchild;
+		for (int i = 0; i < _children.size(); i++) {
+			if (&child == _children[i].get()) {
+				//child_about_to_be_removed(child);
+				pchild = _children[i];
+				child_about_to_be_removed(*pchild);
+				_children.erase(_children.begin()+i);
+				pchild->_parent = nullptr;
+				break;
+			}
+		}
+
+		return pchild;
+	}
+	inline pchild_t remove_child(pchild_t const& child) { return remove_child(*child); }
+
+	virtual void serialize_write(PVCore::PVSerializeObject& so)
+	{
+		QStringList descriptions;
+		for (auto child : _children) {
+			descriptions << child->get_serialize_description();
+		}
+		so.list(get_children_description(), _children, QString(), (child_t*) NULL, descriptions);
+	};
+
+	virtual void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
+	{
+		auto create_func = [&]{ return PVDataTreeAutoShared<child_t>(this->shared_from_this()); };
+		if (!so.list_read(create_func, get_children_description(), QString(), true, true)) {
+			// No children born in here...
+			return;
+		}
+	}
+
+	/*! \brief Dump the data tree object and all of it's underlying children hierarchy.
+	 */
+	void dump(uint32_t spacing = 20)
+	{
+		real_type_t* me = static_cast<real_type_t*>(this);
+		std::cout << " |" << std::setfill('-') << std::setw(spacing) << typeid(real_type_t).name() << "(" << me << ")" << std::endl;
+		for (auto child: _children) {
+			child->dump(spacing + 10);
+		}
+	}
+
+	template <typename T = child_t>
+	void dump_children()
+	{
+		auto children = get_children<T>();
+		std::cout << "(";
+		for (int i = 0; i < children.size() ; i++) {
+			if(i != 0)
+				std::cout << ", ";
+			std::cout << children[i];
+		}
+		std::cout << ")" << std::endl;
+	}
+
+	void do_add_child(pchild_t c)
+	{
+		_children.push_back(c);
+		child_added(*c);
+	}
+
+protected:
+	// Events
+	virtual void child_added(child_t& /*child*/) { }
+	virtual void child_about_to_be_removed(child_t& /*child*/) { }
+
+private:
+	/*! \brief Implementation of the PVDataTreeObject::get_children() method.
+	 *	"function template partial specialization is not allowed":
+	 * 	we must use static methods inside a template class
+	 */
+	template <typename T, typename Tc, bool B = std::is_same<T, Tc>::value>
+	struct GetChildrenImpl;
+
+	/*! \brief Partial specialization for the case we have found the child class.
+	*/
+	template <typename T, typename Tc>
+	struct GetChildrenImpl<T, Tc, true>
+	{
+		static inline typename Tc::parent_t::children_t get_children(typename Tc::parent_t::children_t children)
+		{
+			return children;
+		}
+	};
+
+	/*! \brief Partial specialization for the case we haven't found the child class yet.
+	 * 	Recursively specialize this class with a child class of one level lower.
+	 */
+	template <typename T, typename Tc>
+	struct GetChildrenImpl<T, Tc, false>
+	{
+		static inline typename Tc::parent_t::children_t get_children(typename T::parent_t::children_t children)
+		{
+			typename T::children_t children_tmp;
+			for (auto child : children) {
+				for (auto c : child->get_children()) {
+					children_tmp.push_back(c);
+				}
+			}
+			return GetChildrenImpl<typename T::child_t, Tc>::get_children(std::move(children_tmp));
+		}
+	};
+
+private:
+	children_t _children;
+};
+#endif
 
 }
 

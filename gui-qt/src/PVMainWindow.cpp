@@ -719,7 +719,7 @@ void PVInspector::PVMainWindow::close_source(PVTabSplitter* tab)
 	for (it = views.begin(); it != views.end(); it++) {
 		destroy_pvgl_views(*it);
 	}*/
-	_scene->del_source(src.get());
+	_scene->remove_child(src);
 	for (auto view_p : src->get_children<Picviz::PVView>()){
 		//boost::shared_ptr<Picviz::PVView> view_p(view);
 		destroy_pvgl_views(view_p);
@@ -1214,7 +1214,8 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 		if (!load_source(import_source)) {
 			continue;
 		}
-		_scene->add_source(import_source);
+		import_source->set_parent(_scene);
+		//_scene->add_source(import_source);
 
 		one_extraction_successful = true;
 	}

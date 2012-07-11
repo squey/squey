@@ -22,6 +22,7 @@ public:
 	typedef boost::shared_ptr<PVInputType> p_type;
 	// List of inputs description
 	typedef QList<PVInputDescription_p> list_inputs;
+	typedef list_inputs list_inputs_desc;
 public:
 	virtual bool createWidget(hash_formats const& formats, hash_formats& new_formats, list_inputs &inputs, QString& format, PVCore::PVArgumentList& args_ext, QWidget* parent = NULL) const = 0;
 	virtual QString name() const = 0;

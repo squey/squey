@@ -49,11 +49,10 @@ class LibPicvizDecl PVSource: public data_tree_source_t
 	friend class PVCore::PVDataTreeAutoShared<PVSource>;
 public:
 	//typedef PVSource_p p_type;
-	typedef QList<PVView_sp> list_views_t;
 	typedef children_t list_mapped_t;
 
 protected:
-	PVSource(PVRush::PVInputType::list_inputs const& inputs, PVRush::PVSourceCreator_p sc, PVRush::PVFormat format);
+	PVSource(PVRush::PVInputType::list_inputs_desc const& inputs, PVRush::PVSourceCreator_p sc, PVRush::PVFormat format);
 	PVSource();
 	PVSource(const PVSource& org);
 
@@ -100,9 +99,6 @@ public:
 	QString get_name() const { return _src_plugin->supported_type_lib()->tab_name_of_inputs(_inputs); }
 	QString get_format_name() const { return _extractor.get_format().get_format_name(); }
 	QString get_window_name() const { return get_name() + QString(" / ") + get_format_name(); }
-
-	//list_views_t const& get_views() const { return _views; }
-	//list_mapped_t const& get_mappeds() const { return _mappeds; }
 
 	PVView_sp current_view() const { return _current_view; }
 	void select_view(PVView_sp view);

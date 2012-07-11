@@ -108,7 +108,7 @@ PVRush::PVControllerJob_p Picviz::PVSource::extract()
 PVRush::PVControllerJob_p Picviz::PVSource::extract_from_agg_nlines(chunk_index start, chunk_index nlines)
 {
 	// Set all views as non-consistent
-	list_views_t::iterator it_view;
+	decltype(get_children<PVView>())::iterator it_view;
 	for (auto view_p : get_children<PVView>()) {
 		view_p->set_consistent(false);
 	}
@@ -356,7 +356,7 @@ void Picviz::PVSource::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVS
 	so.object("format", format);
 	if (!so.has_repairable_errors()) {
 		set_format(format);
-		get_parent()->add_source(shared_from_this());
+		//get_parent()->add_source(shared_from_this());
 
 		// "Append" the files to the extractor
 		files_append_noextract();
