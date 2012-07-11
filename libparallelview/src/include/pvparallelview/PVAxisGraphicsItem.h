@@ -7,6 +7,7 @@
 #ifndef PVPARALLELVIEW_PVAXISGRAPHICSITEM_H
 #define PVPARALLELVIEW_PVAXISGRAPHICSITEM_H
 
+#include <iostream>
 #include <vector>
 #include <utility>
 
@@ -38,6 +39,8 @@ public:
 	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
 
 	void add_range_sliders(uint32_t y1, uint32_t y2);
+	bool sliders_moving() const;
+
 
 	QRect map_from_scene(QRectF rect) const
 	{

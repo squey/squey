@@ -9,8 +9,18 @@
 
 #include <QGraphicsItem>
 
+#include <pvparallelview/common.h>
+
+#define SLIDER_HALF_WIDTH 8
+#define SLIDER_WIDTH (2 * SLIDER_HALF_WIDTH + PVParallelView::AxisWidth)
+
 namespace PVParallelView
 {
+
+enum {
+	SliderHalfWidth = SLIDER_HALF_WIDTH,
+	SliderWidth = SLIDER_WIDTH
+};
 
 class PVAxisSlider : public QGraphicsItem
 {
@@ -19,17 +29,23 @@ public:
 	~PVAxisSlider();
 
 	QRectF boundingRect () const;
+	bool is_moving() const;
 
 	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
 
-private:
+protected:
 	void hoverEnterEvent(QGraphicsSceneHoverEvent * event);
 	void hoverMoveEvent(QGraphicsSceneHoverEvent * event);
 	void hoverLeaveEvent(QGraphicsSceneHoverEvent * event);
 
+	void mouseMoveEvent(QGraphicsSceneMouseEvent* event);
+	void mousePressEvent(QGraphicsSceneMouseEvent* event);
+	void mouseReleaseEvent(QGraphicsSceneMouseEvent* event);
+
 private:
 	int _offset_min, _offset_max;
 	int _offset;
+	bool _moving;
 };
 
 }

@@ -9,8 +9,6 @@
 #include <picviz/PVAxis.h>
 #include <pvparallelview/PVAxisGraphicsItem.h>
 
-// pour PVParallelView::AxisWidth
-
 #include <QPainter>
 #include <QGraphicsScene>
 
@@ -23,16 +21,21 @@
 PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem(Picviz::PVAxis *axis) :
 	_axis(axis)
 {
+	setHandlesChildEvents(false); // This is needed to let the children of the group handle their events.
 }
 
 /*****************************************************************************
  * PVParallelView::PVAxisGraphicsItem::boundingRect
  *****************************************************************************/
 
-QRectF PVParallelView::PVAxisGraphicsItem::boundingRect () const
+QRectF PVParallelView::PVAxisGraphicsItem::boundingRect() const
 {
-	QRectF bbox = QRectF(- PVParallelView::AxisWidth, - PVAW_CST,
-	                     PVParallelView::AxisWidth, IMAGE_HEIGHT + (2 * PVAW_CST));
+	QRectF bbox = QRectF(
+		-PVParallelView::AxisWidth*2,
+		-PVAW_CST,
+		PVParallelView::AxisWidth,
+		IMAGE_HEIGHT + (2 * PVAW_CST)
+	);
 
 	return bbox.united(QRectF(- PVParallelView::AxisWidth, 0, 50, -50));
 }
@@ -47,9 +50,13 @@ void PVParallelView::PVAxisGraphicsItem::paint(QPainter *painter,
 {
 	QPen pen = painter->pen();
 
-	painter->fillRect(0, - PVAW_CST,
-	                  PVParallelView::AxisWidth, IMAGE_HEIGHT + (2 * PVAW_CST),
-	                  _axis->get_color().toQColor());
+	painter->fillRect(
+		0,
+		-PVAW_CST,
+	    PVParallelView::AxisWidth,
+	    IMAGE_HEIGHT + (2 * PVAW_CST),
+	    _axis->get_color().toQColor()
+	);
 	painter->save();
 	painter->translate(- PVParallelView::AxisWidth, - PVAW_CST);
 	painter->rotate(-45.);
@@ -67,8 +74,8 @@ void PVParallelView::PVAxisGraphicsItem::add_range_sliders(uint32_t p1, uint32_t
 {
 	PVParallelView::PVAxisRangeSliders sliders;
 
-	sliders.first = new PVParallelView::PVAxisSlider(0, 1023, p1);
-	sliders.second = new PVParallelView::PVAxisSlider(0, 1023, p2);
+	sliders.first = new PVParallelView::PVAxisSlider(0, PVParallelView::ImageHeight, p1);
+	sliders.second = new PVParallelView::PVAxisSlider(0, PVParallelView::ImageHeight, p2);
 
 	sliders.first->setPos(pos());
 	sliders.second->setPos(pos());
@@ -77,4 +84,18 @@ void PVParallelView::PVAxisGraphicsItem::add_range_sliders(uint32_t p1, uint32_t
 	addToGroup(sliders.second);
 
 	_sliders.push_back(sliders);
+}
+
+/*****************************************************************************
+ * PVParallelView::PVAxisGraphicsItem::sliders_moving
+ *****************************************************************************/
+
+bool PVParallelView::PVAxisGraphicsItem::sliders_moving() const
+{
+	for (PVParallelView::PVAxisRangeSliders sliders : _sliders) {
+		if (sliders.first->is_moving() || sliders.second->is_moving()) {
+			return true;
+		}
+	}
+	return false;
 }

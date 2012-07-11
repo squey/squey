@@ -4,26 +4,24 @@
  * Copyright (C) Picviz Labs 2010-2012
  */
 
+#include <pvkernel/core/PVAlgorithms.h>
 #include <pvparallelview/PVAxisSlider.h>
-
-// pour PVParallelView::AxisWidth
-#include <pvparallelview/common.h>
 
 #include <QPainter>
 #include <QGraphicsScene>
+#include <QGraphicsSceneMouseEvent>
 
 #include <iostream>
-
-#define SLIDER_HALF_WIDTH 8
-#define SLIDER_WIDTH (2 * SLIDER_HALF_WIDTH + PVParallelView::AxisWidth)
 
 /*****************************************************************************
  * PVParallelView::PVAxisSlider::PVAxisSlider
  *****************************************************************************/
 
 PVParallelView::PVAxisSlider::PVAxisSlider(int omin, int omax, int o) :
-	_offset_min(omin), _offset_max(omax)
+	_offset_min(omin), _offset_max(omax), _moving(false)
 {
+	setAcceptHoverEvents(true); // This is needed to enable hover events
+
 	if(o < omin) {
 		_offset = omin;
 	} else if (o > omax) {
@@ -44,6 +42,12 @@ PVParallelView::PVAxisSlider::~PVAxisSlider()
 	if (s != 0) {
 		s->removeItem(this);
 	}
+}
+
+
+bool PVParallelView::PVAxisSlider::is_moving() const
+{
+	return _moving;
 }
 
 /*****************************************************************************
@@ -74,26 +78,58 @@ void PVParallelView::PVAxisSlider::paint(QPainter *painter,
  * PVParallelView::PVAxisSlider::hoverenterEvent
  *****************************************************************************/
 
-void PVParallelView::PVAxisSlider::hoverEnterEvent(QGraphicsSceneHoverEvent * event)
+void PVParallelView::PVAxisSlider::hoverEnterEvent(QGraphicsSceneHoverEvent* event)
 {
-	std::cout << "PVAxisSlider::hoverEnterEvent " << this << std::endl;
+	PVLOG_INFO("PVAxisSlider::hoverEnterEvent\n");
 }
 
 /*****************************************************************************
  * PVParallelView::PVAxisSlider::hoverMoveEvent
  *****************************************************************************/
 
-void PVParallelView::PVAxisSlider::hoverMoveEvent(QGraphicsSceneHoverEvent * event)
+void PVParallelView::PVAxisSlider::hoverMoveEvent(QGraphicsSceneHoverEvent* event)
 {
-	std::cout << "PVAxisSlider::hoverMoveEvent " << this << std::endl;
+	PVLOG_INFO("PVAxisSlider::hoverMoveEvent\n");
 }
 
 /*****************************************************************************
  * PVParallelView::PVAxisSlider::hoverLeaveEvent
  *****************************************************************************/
 
-void PVParallelView::PVAxisSlider::hoverLeaveEvent(QGraphicsSceneHoverEvent * event)
+void PVParallelView::PVAxisSlider::hoverLeaveEvent(QGraphicsSceneHoverEvent* event)
 {
-	std::cout << "PVAxisSlider::hoverLeaveEvent " << this << std::endl;
+	PVLOG_INFO("PVAxisSlider::hoverLeaveEvent\n");
 }
 
+/*****************************************************************************
+ * PVParallelView::PVAxisSlider::mousePressEvent
+ *****************************************************************************/
+
+void PVParallelView::PVAxisSlider::mousePressEvent(QGraphicsSceneMouseEvent* event)
+{
+	_moving = true;
+	event->accept();
+}
+
+/*****************************************************************************
+ * PVParallelView::PVAxisSlider::mouseReleaseEvent
+ *****************************************************************************/
+
+void PVParallelView::PVAxisSlider::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
+{
+	_moving = false;
+	event->accept();
+}
+
+/*****************************************************************************
+ * PVParallelView::PVAxisSlider::mouseMoveEvent
+ *****************************************************************************/
+
+void PVParallelView::PVAxisSlider::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
+{
+	if (event->buttons() == Qt::LeftButton) {
+		_offset = PVCore::clamp(event->pos().y(), (qreal) 0, (qreal) PVParallelView::ImageHeight-1);
+		group()->update();
+	}
+	event->accept();
+}
