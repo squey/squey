@@ -39,7 +39,7 @@ void PVHive::PVHive::unregister_observer(PVObserverBase& observer)
 	observables_t::accessor acc;
 
 	if (_observables.find(acc, observer._object)) {
-		acc->second.observers.erase(&observer);
+		acc->second.observers.remove(&observer);
 	}
 
 	observer._object = nullptr;
@@ -68,8 +68,9 @@ void PVHive::PVHive::unregister_object(void *object)
 				}
 
 				// and observers
-				for (auto pit : pacc->second.observers) {
-					pit->about_to_be_deleted();
+				for (auto pit = pacc->second.observers.rbegin();
+				     pit != pacc->second.observers.rend(); ++pit) {
+					(*pit)->about_to_be_deleted();
 				}
 			}
 			pacc.release();
@@ -82,8 +83,9 @@ void PVHive::PVHive::unregister_object(void *object)
 		}
 
 		// and observers
-		for (auto it : acc->second.observers) {
-			it->about_to_be_deleted();
+		for (auto it = acc->second.observers.rbegin();
+		     it != acc->second.observers.rend(); ++it) {
+			(*it)->about_to_be_deleted();
 		}
 
 		// finally, the entry of object is removed

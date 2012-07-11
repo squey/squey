@@ -4,6 +4,8 @@
 
 #include <iostream>
 #include <set>
+#include <list>
+#include <algorithm>
 #include <exception>
 
 #include <tbb/concurrent_hash_map.h>
@@ -195,9 +197,14 @@ public:
 
 		// create/get object's entry
 		_observables.insert(acc, (void*) object.get());
-		acc->second.observers.insert(&observer);
-		observer._object = (void*) object.get();
-		object.set_deleter(&__impl::hive_deleter<T>);
+
+		auto res = std::find(acc->second.observers.begin(),
+		                     acc->second.observers.end(), &observer);
+		if (res == acc->second.observers.end()) {
+			acc->second.observers.push_back(&observer);
+			observer._object = (void*) object.get();
+			object.set_deleter(&__impl::hive_deleter<T>);
+		}
 	}
 
 	/**
@@ -219,17 +226,22 @@ public:
 
 		observables_t::accessor acc;
 
-		// adding observer
 		// create/get property's entry
 		_observables.insert(acc, (void*) &property);
-		acc->second.observers.insert(&observer);
-		observer._object = (void*) &property;
 
-		// adding property
-		// create/get object's entry
-		_observables.insert(acc, (void*) object.get());
-		acc->second.properties.insert((void*) &property);
-		object.set_deleter(&__impl::hive_deleter<T>);
+		auto res = std::find(acc->second.observers.begin(),
+		                     acc->second.observers.end(), &observer);
+		if (res == acc->second.observers.end()) {
+			// adding observer
+			acc->second.observers.push_back(&observer);
+			observer._object = (void*) &property;
+
+			// adding property
+			// create/get object's entry
+			_observables.insert(acc, (void*) object.get());
+			acc->second.properties.insert((void*) &property);
+			object.set_deleter(&__impl::hive_deleter<T>);
+		}
 	}
 
 	/**
@@ -351,7 +363,7 @@ private:
 	static PVHive *_hive;
 
 	typedef std::set<PVActorBase*> actors_t;
-	typedef std::set<PVObserverBase*> observers_t;
+	typedef std::list<PVObserverBase*> observers_t;
 	typedef std::set<void*> properties_t;
 
 	struct observable_t
