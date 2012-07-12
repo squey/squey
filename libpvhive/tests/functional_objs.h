@@ -25,6 +25,9 @@
 class Storage
 {
 public:
+	virtual ~Storage()
+	{}
+
 	virtual QString get_name() const = 0;
 
 	virtual int get_id() const = 0;
