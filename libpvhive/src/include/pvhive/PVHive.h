@@ -87,6 +87,7 @@ class PVHive
 {
 	template<typename T>
 	friend void __impl::hive_deleter(T *ptr);
+	friend class PVActorBase;
 
 public:
 	/**
@@ -259,7 +260,7 @@ public:
 	 */
 	void unregister_observer(PVObserverBase& observer);
 
-public:
+protected:
 	/**
 	 * Generic call to apply an action on a object
 	 *

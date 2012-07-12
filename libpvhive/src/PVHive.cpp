@@ -73,8 +73,7 @@ void PVHive::PVHive::unregister_object(void *object)
 					(*pit)->about_to_be_deleted();
 				}
 			}
-			pacc.release();
-			_observables.erase(it);
+			_observables.erase(pacc);
 		}
 
 		// unregistering actors...
@@ -89,8 +88,7 @@ void PVHive::PVHive::unregister_object(void *object)
 		}
 
 		// finally, the entry of object is removed
-		acc.release();
-		_observables.erase(object);
+		_observables.erase(acc);
 	}
 }
 
