@@ -315,6 +315,27 @@ public:
 		}
 	}
 
+	/**
+	 * Returns memory usage
+	 */
+	size_t memory() const
+	{
+		size_t s = sizeof(_observables);
+
+		// memory used by observables_t's entries
+		s += _observables.size() * sizeof (observables_t::value_type);
+
+		// memory used by entires values
+		for (observables_t::const_iterator it = _observables.begin();
+		     it != _observables.end(); ++it) {
+			s += it->second.actors.size() * sizeof(actors_t::value_type);
+			s += it->second.observers.size() * sizeof(observers_t::value_type);
+			s += it->second.observers.size() * sizeof(properties_t::value_type);
+		}
+
+		return s;
+	}
+
 private:
 	/**
 	 * Unregister an object
@@ -368,7 +389,7 @@ private:
 
 	struct observable_t
 	{
-		actors_t  actors;
+		actors_t     actors;
 		observers_t  observers;
 		properties_t properties;
 	};
