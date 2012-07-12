@@ -145,12 +145,10 @@ public:
 	}
 
 	/**
-	 * Register an actor for an obect
+	 * Register an actor for an ob,ect
 	 *
 	 * @param object the managed object
 	 * @param actor the actor
-	 *
-	 * @throw no_object
 	 */
 	template <class T>
 	void register_actor(PVCore::pv_shared_ptr<T>& object, PVActorBase& actor)
@@ -160,13 +158,13 @@ public:
 
 		observables_t::accessor acc;
 
-		if (_observables.find(acc, (void*) object.get()) == false) {
-			throw no_object("registering an actor for an unknown object");
-		}
+		// create/get object's entry
+		_observables.insert(acc, (void*) object.get());
 
 		// create/get object's entry
 		acc->second.actors.insert(&actor);
 		actor.set_object((void*) object.get());
+		object.set_deleter(&__impl::hive_deleter<T>);
 	}
 
 	/**
@@ -174,8 +172,6 @@ public:
 	 *
 	 * @param object the observed object
 	 * @return the actor
-	 *
-	 * @throw no_object
 	 */
 	template <class T>
 	PVActor<T>* register_actor(PVCore::pv_shared_ptr<T>& object)
