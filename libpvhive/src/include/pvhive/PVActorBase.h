@@ -15,6 +15,7 @@ class PVActorBase
 {
 public:
 	friend class PVHive;
+
 public:
 	PVActorBase() : _object(nullptr)
 	{}
@@ -27,7 +28,6 @@ protected:
 		return _object;
 	}
 
-private:
 	void set_object(void *object)
 	{
 		_object = object;

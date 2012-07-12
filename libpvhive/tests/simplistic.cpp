@@ -45,12 +45,12 @@ class Obj1Observer : public PVHive::PVObserver<Obj1>
 public:
 	virtual void refresh()
 	{
-		std::cout << "  Obj1Observer::refresh for object " << _object << std::endl;
+		std::cout << "  Obj1Observer::refresh for object " << get_object() << std::endl;
 	}
 
 	virtual void about_to_be_deleted()
 	{
-		std::cout << "    Obj1Observer::about_to_be_deleted for object " << _object << std::endl;
+		std::cout << "    Obj1Observer::about_to_be_deleted for object " << get_object() << std::endl;
 	}
 
 private:
@@ -61,12 +61,12 @@ class Obj2Observer : public PVHive::PVObserver<Obj2>
 public:
 	virtual void refresh()
 	{
-		std::cout << "  Obj2Observer::refresh for object " << _object << std::endl;
+		std::cout << "  Obj2Observer::refresh for object " << get_object() << std::endl;
 	}
 
 	virtual void about_to_be_deleted()
 	{
-		std::cout << "    Obj2Observer::about_to_be_deleted for object " << _object << std::endl;
+		std::cout << "    Obj2Observer::about_to_be_deleted for object " << get_object() << std::endl;
 	}
 
 private:

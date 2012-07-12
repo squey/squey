@@ -35,6 +35,17 @@ protected:
 	virtual void about_to_be_deleted() = 0;
 
 protected:
+	void *get_object() const
+	{
+		return _object;
+	}
+
+	void set_object(void *object)
+	{
+		_object = object;
+	}
+
+private:
 	void* _object;
 };
 
@@ -59,7 +70,7 @@ public:
 	 */
 	T const* get_object() const
 	{
-		return const_cast<T*>((T*)_object);
+		return const_cast<T*>((T*)get_object());
 	}
 };
 

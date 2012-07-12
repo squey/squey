@@ -55,13 +55,13 @@ public:
 	void refresh()
 	{
 		std::cout << "  MyObjectObserver::refresh for object "
-		          << _object << std::endl;
+		          << get_object() << std::endl;
 	}
 
 	void about_to_be_deleted()
 	{
 		std::cout << "  MyObjectObserver::about_to_be_deleted for object "
-		          << _object << std::endl;
+		          << get_object() << std::endl;
 	}
 };
 
@@ -74,13 +74,13 @@ public:
 	void refresh()
 	{
 		std::cout << "  MyObjectPropertyObserver::refresh for object "
-		          << _object << std::endl;
+		          << get_object() << std::endl;
 	}
 
 	void about_to_be_deleted()
 	{
 		std::cout << "  MyObjectPropertyObserver::about_to_be_deleted for object "
-		          << _object << std::endl;
+		          << get_object() << std::endl;
 	}
 };
 

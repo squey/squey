@@ -90,6 +90,8 @@ class PVHive
 	template<typename T>
 	friend void __impl::hive_deleter(T *ptr);
 	friend class PVActorBase;
+	template<typename T>
+	friend class PVActor;
 
 public:
 	/**
@@ -194,7 +196,7 @@ public:
 	void register_observer(PVCore::pv_shared_ptr<T>& object, PVObserverBase& observer)
 	{
 		// an observer must be set for only one object
-		assert(observer._object == nullptr);
+		assert(observer.get_object() == nullptr);
 
 		observables_t::accessor acc;
 
@@ -205,7 +207,7 @@ public:
 		                     acc->second.observers.end(), &observer);
 		if (res == acc->second.observers.end()) {
 			acc->second.observers.push_back(&observer);
-			observer._object = (void*) object.get();
+			observer.set_object((void*) object.get());
 			object.set_deleter(&__impl::hive_deleter<T>);
 		}
 	}
@@ -223,7 +225,7 @@ public:
 	void register_observer(PVCore::pv_shared_ptr<T>& object, F const &prop_get, PVObserverBase& observer)
 	{
 		// an observer must be set for only one object
-		assert(observer._object == nullptr);
+		assert(observer.get_object() == nullptr);
 
 		auto &property = prop_get(*object);
 
@@ -237,7 +239,7 @@ public:
 		if (res == acc->second.observers.end()) {
 			// adding observer
 			acc->second.observers.push_back(&observer);
-			observer._object = (void*) &property;
+			observer.set_object((void*) &property);
 
 			// adding property
 			// create/get object's entry
@@ -247,6 +249,7 @@ public:
 		}
 	}
 
+public:
 	/**
 	 * Unregister an actor an notify all dependent observers
 	 * that they must stop observing
@@ -262,36 +265,7 @@ public:
 	 */
 	void unregister_observer(PVObserverBase& observer);
 
-protected:
-	/**
-	 * Generic call to apply an action on a object
-	 *
-	 * @param object the managed object
-	 * @param params the method parameters
-	 */
-	template <typename T, typename F, F f, typename... P>
-	void call_object(T* object, P... params)
-	{
-		// object must be a valid address
-		assert(object != nullptr);
-
-		call_object_default<T, F, f>(object, params...);
-	}
-
-	/**
-	 * Tell all observers of an object that a change has occurred
-	 *
-	 * @param object the observed object
-	 */
-	template <typename T>
-	void refresh_observers(T const* object)
-	{
-		// object must be a valid address
-		assert(object != nullptr);
-
-		do_refresh_observers((void*)object);
-	}
-
+public:
 	/**
 	 * Write on std::cout a structured view of PVHive content
 	 */
@@ -339,7 +313,36 @@ protected:
 		return s;
 	}
 
-private:
+protected:
+	/**
+	 * Generic call to apply an action on a object
+	 *
+	 * @param object the managed object
+	 * @param params the method parameters
+	 */
+	template <typename T, typename F, F f, typename... P>
+	void call_object(T* object, P... params)
+	{
+		// object must be a valid address
+		assert(object != nullptr);
+
+		call_object_default<T, F, f>(object, params...);
+	}
+
+	/**
+	 * Tell all observers of an object that a change has occurred
+	 *
+	 * @param object the observed object
+	 */
+	template <typename T>
+	void refresh_observers(T const* object)
+	{
+		// object must be a valid address
+		assert(object != nullptr);
+
+		do_refresh_observers((void*)object);
+	}
+
 	/**
 	 * Unregister an object
 	 *
@@ -347,6 +350,7 @@ private:
 	 */
 	void unregister_object(void *object);
 
+private:
 	/**
 	 * Apply an action on a object and propagate the change event
 	 *
