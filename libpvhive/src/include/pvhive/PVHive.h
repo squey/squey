@@ -26,7 +26,7 @@ namespace PVHive
 class no_object : public std::exception
 {
 public:
-	no_object()
+	no_object(const char* text) : _text(text)
 	{}
 
 	virtual ~no_object() throw()
@@ -34,8 +34,10 @@ public:
 
 	virtual const char * what() const throw()
 	{
-		return "registering an actor for an unknown object";
+		return _text;
 	}
+private:
+	const char *_text;
 };
 
 /// @}
@@ -157,7 +159,7 @@ public:
 		observables_t::accessor acc;
 
 		if (_observables.find(acc, (void*) object.get()) == false) {
-			throw no_object();
+			throw no_object("registering an actor for an unknown object");
 		}
 
 		// create/get object's entry

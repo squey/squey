@@ -26,6 +26,8 @@ public:
 	 * Invoke an actor's method on its object
 	 *
 	 * @param params a variadic for method parameters
+	 *
+	 * @throw no_object
 	 */
 	template <typename F, F f, typename... P>
 	void call(P... params)
@@ -33,6 +35,8 @@ public:
 		T *object = (T*)get_object();
 		if (object != nullptr) {
 			PVHive::get().call_object<T, F, f>(object, params...);
+		} else {
+			throw no_object("using an actor on a nullptr object");
 		}
 	}
 };
