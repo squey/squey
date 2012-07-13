@@ -7,6 +7,7 @@
 #include <pvkernel/core/PVLogger.h>
 #include <pvkernel/core/PVSharedPointer.h>
 
+#define MAX_COUNT 100000
 
 struct Obj1
 {
@@ -22,41 +23,43 @@ class Obj1Observer : public PVHive::PVObserver<Obj1>
 public:
 	virtual void refresh()
 	{
-		std::cout << "  Obj1Observer::refresh for object " << get_object() << std::endl;
 	}
 
 	virtual void about_to_be_deleted()
 	{
-		std::cout << "    Obj1Observer::about_to_be_deleted for object " << get_object() << std::endl;
 	}
 
 private:
 };
 
-void thread1(Obj1_p& obj, PVHive::PVActor<Obj1>& actor, boost::promise<bool>& res)
+void thread1(Obj1_p& obj, PVHive::PVActor<Obj1>& actor, uint32_t &nb_success, uint32_t &nb_exception)
 {
 	PVHive::PVHive::get().register_actor(obj, actor);
-	while(true) {
+	for(int i = 0; i < MAX_COUNT; i++) {
 		try {
+			boost::this_thread::sleep(boost::posix_time::microseconds(rand()%2));
 			PVACTOR_CALL(actor, &Obj1::test);
+			nb_success++;
 		}
 		catch(PVHive::no_object) {
-			res.set_value(true);
-			break;
+			PVHive::PVHive::get().register_actor(obj, actor);
+			nb_exception++;
 		}
 	}
 }
 
-bool thread2(Obj1_p& obj, PVHive::PVActor<Obj1>& actor, boost::promise<bool>& res)
+void thread2(PVHive::PVActor<Obj1>& actor, uint32_t &count)
 {
-	sleep(1);
-	PVHive::PVHive::get().unregister_actor(actor);
-	sleep(1);
-	res.set_value(false);
+	for(int i = 0 ; i < MAX_COUNT; i++) {
+		count += PVHive::PVHive::get().unregister_actor(actor);
+		boost::this_thread::sleep(boost::posix_time::microseconds(rand()%2));
+	}
 }
 
-int main(int argc, char** argv)
+int main()
 {
+	srand(time(NULL));
+
 	bool test1_monothread_no_object_exception_raised = false;
 	bool test2_multithread_no_object_exception_raised = false;
 
@@ -90,13 +93,18 @@ int main(int argc, char** argv)
 	Obj1_p obj = Obj1_p(new Obj1);
 	PVHive::PVActor<Obj1> actor;
 
-	boost::promise<bool> res;
-	boost::thread th1(boost::bind(thread1, boost::ref(obj), boost::ref(actor), boost::ref(res)));
-	boost::thread th2(boost::bind(thread2, boost::ref(obj), boost::ref(actor), boost::ref(res)));
+	uint32_t nb_sucess = 0;
+	uint32_t nb_exceptions = 0;
+	uint32_t nb_unregistered = 0;
+	boost::thread th1(boost::bind(thread1, boost::ref(obj), boost::ref(actor), boost::ref(nb_sucess), boost::ref(nb_exceptions)));
+	boost::thread th2(boost::bind(thread2, boost::ref(actor), boost::ref(nb_unregistered)));
 
-	test2_multithread_no_object_exception_raised = res.get_future().get();
+	th1.join();
+	th2.join();
 
-	PVLOG_INFO("no_object multithreaded exception passed: %d\n", test2_multithread_no_object_exception_raised);
+	test2_multithread_no_object_exception_raised = (nb_exceptions == nb_unregistered || nb_exceptions == nb_unregistered-1) && (nb_sucess + nb_exceptions == MAX_COUNT) ;
+
+	PVLOG_INFO("no_object multithreaded exception passed: %d (success:%d / exceptions:%d / total:%d, unregister:%d)\n", test2_multithread_no_object_exception_raised, nb_sucess, nb_exceptions, MAX_COUNT, nb_unregistered);
 	}
 
 	return !(test1_monothread_no_object_exception_raised && test2_multithread_no_object_exception_raised);
