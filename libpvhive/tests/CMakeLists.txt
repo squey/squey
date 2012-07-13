@@ -39,3 +39,10 @@ QT4_WRAP_CPP(TEST_MODAL_MOC_SRC modal_dlg.h OPTIONS ${QT4_WRAP_OPTIONS})
 add_executable(Tmodal modal.cpp ${TEST_MODAL_MOC_SRC})
 target_link_libraries(Tmodal ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES})
 
+include_directories(AFTER ${PICVIZ_INCLUDE_DIR})
+
+QT4_WRAP_CPP(TEST_AXESCOMB_MOC_SRC axes-comb_dlg.h OPTIONS ${QT4_WRAP_OPTIONS})
+
+add_executable(Taxes-comb axes-comb.cpp ${TEST_AXESCOMB_MOC_SRC})
+target_link_libraries(Taxes-comb ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES} ${PICVIZ_LIBRARIES})
+
