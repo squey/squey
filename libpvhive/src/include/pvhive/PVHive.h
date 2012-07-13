@@ -293,7 +293,7 @@ public:
 	 */
 	size_t memory() const
 	{
-		size_t s = sizeof(_observables);
+		size_t s = sizeof(observables_t);
 
 		// memory used by observables_t's entries
 		s += _observables.size() * sizeof (observables_t::value_type);
@@ -303,7 +303,7 @@ public:
 		     it != _observables.end(); ++it) {
 			s += it->second.actors.size() * sizeof(actors_t::value_type);
 			s += it->second.observers.size() * sizeof(observers_t::value_type);
-			s += it->second.observers.size() * sizeof(properties_t::value_type);
+			s += it->second.properties.size() * sizeof(properties_t::value_type);
 		}
 
 		return s;
