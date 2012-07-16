@@ -13,36 +13,38 @@ PVHive::PVHive *PVHive::PVHive::_hive = nullptr;
  * PVHive::PVHive::unregister_actor()
  *****************************************************************************/
 
-void PVHive::PVHive::unregister_actor(PVActorBase& actor)
+bool PVHive::PVHive::unregister_actor(PVActorBase& actor)
 {
-	// the actor must have a valid object
-	assert(actor._object != nullptr);
+	if(actor._object) {
+		observables_t::accessor acc;
 
-	observables_t::accessor acc;
+		if (_observables.find(acc, actor._object)) {
+			acc->second.actors.erase(&actor);
+		}
 
-	if (_observables.find(acc, actor._object)) {
-		acc->second.actors.erase(&actor);
+		actor.set_object(nullptr);
+		return true;
 	}
-
-	actor.set_object(nullptr);
+	return false;
 }
 
 /*****************************************************************************
  * PVHive::PVHive::unregister_observer()
  *****************************************************************************/
 
-void PVHive::PVHive::unregister_observer(PVObserverBase& observer)
+bool PVHive::PVHive::unregister_observer(PVObserverBase& observer)
 {
-	// the observer must have a valid object
-	assert(observer._object != nullptr);
+	if(observer._object) {
+		observables_t::accessor acc;
 
-	observables_t::accessor acc;
+		if (_observables.find(acc, observer._object)) {
+			acc->second.observers.remove(&observer);
+		}
 
-	if (_observables.find(acc, observer._object)) {
-		acc->second.observers.remove(&observer);
+		observer._object = nullptr;
+		return true;
 	}
-
-	observer._object = nullptr;
+	return false;
 }
 
 /*****************************************************************************

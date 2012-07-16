@@ -252,14 +252,14 @@ public:
 	 *
 	 * @param actor the actor
 	 */
-	void unregister_actor(PVActorBase& actor);
+	bool unregister_actor(PVActorBase& actor);
 
 	/**
 	 * Unregister an observer
 	 *
 	 * @param observer the observer
 	 */
-	void unregister_observer(PVObserverBase& observer);
+	bool unregister_observer(PVObserverBase& observer);
 
 public:
 	/**
