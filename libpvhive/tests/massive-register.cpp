@@ -83,7 +83,7 @@ int main(int argc, char **argv)
 		}
 	}
 	t2 = tbb::tick_count::now();
-	print_stat("object actors created", t1, t2, obj_act_num);
+	print_stat("object actors registered", t1, t2, obj_act_num);
 
 
 	PropertyAct *prop_actors = new PropertyAct [prop_act_num];
@@ -110,7 +110,7 @@ int main(int argc, char **argv)
 		}
 	}
 	t2 = tbb::tick_count::now();
-	print_stat("object actors created", t1, t2, prop_act_num);
+	print_stat("object actors registered", t1, t2, prop_act_num);
 
 
 
@@ -125,7 +125,7 @@ int main(int argc, char **argv)
 		}
 	}
 	t2 = tbb::tick_count::now();
-	print_stat("object observers created", t1, t2, obj_obs_num);
+	print_stat("object observers registered", t1, t2, obj_obs_num);
 
 
 
@@ -144,7 +144,7 @@ int main(int argc, char **argv)
 	}
 	}
 	t2 = tbb::tick_count::now();
-	print_stat("property observers created", t1, t2, prop_obs_num);
+	print_stat("property observers registered", t1, t2, prop_obs_num);
 
 
 	return 0;

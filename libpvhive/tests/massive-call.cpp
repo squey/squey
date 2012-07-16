@@ -34,45 +34,34 @@ int main(int argc, char **argv)
 	PVHive::PVHive &hive = PVHive::PVHive::get();
 
 
-	std::cout << "# creating objects" << std::endl;
-	t1 = tbb::tick_count::now();
+	std::cout << "# init" << std::endl;
+	std::cout << "#   creating objects" << std::endl;
 	hive.register_object(block);
 	for (int i = 0; i < prop_num; ++i) {
 		hive.register_object(block, std::bind(&get_prop, std::placeholders::_1, i));
 	}
-	t2 = tbb::tick_count::now();
-	print_stat("objects created", t1, t2, prop_num + 1);
 
-	std::cout << "# creating properties" << std::endl;
-	t1 = tbb::tick_count::now();
+	std::cout << "#   creating properties" << std::endl;
 	hive.register_object(block);
 	for (int i = 0; i < prop_num; ++i) {
 		hive.register_object(block, std::bind(&get_prop, std::placeholders::_1, i));
 	}
-	t2 = tbb::tick_count::now();
-	print_stat("properties created", t1, t2, prop_num + 1);
 
 
-	std::cout << "# creating observers" << std::endl;
-	t1 = tbb::tick_count::now();
+	std::cout << "#   creating observers" << std::endl;
 	for (int i = 0; i < prop_num; ++i) {
 		for (int j = 0; j < obs_num; ++j) {
 			hive.register_observer(block, std::bind(&get_prop, std::placeholders::_1, i),
 			                       observers[obs_num * i + j]);
 		}
 	}
-	t2 = tbb::tick_count::now();
-	print_stat("observers created", t1, t2, obs_count);
 
 
-	std::cout << "# creating actors" << std::endl;
-	t1 = tbb::tick_count::now();
+	std::cout << "#   creating actors" << std::endl;
 	for (int i = 0; i < actor_num; ++i) {
 		actors[i] = PropertyAct(rand() % prop_num);
 		hive.register_actor(block, actors[i]);
 	}
-	t2 = tbb::tick_count::now();
-	print_stat("actors created", t1, t2, actor_num);
 
 
 	int v, ov = -1;
