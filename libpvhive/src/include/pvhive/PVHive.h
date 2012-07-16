@@ -84,6 +84,13 @@ inline void hive_deleter(T *ptr);
  *   for a data set);
  * - an observer can be registered for an object which have no actor (as no
  *   opened property editor for a property).
+ *
+ * Experimental (and theorical) memory usage:
+ * - hive    : 568 octets
+ * - object  : 195 octets (120 octets)
+ * - property: 242 octets (128 octets)
+ * - observer: 32 octets (8 octets)
+ * - actor   : 48 octets (8 octets)
  */
 class PVHive
 {
@@ -298,7 +305,7 @@ public:
 		// memory used by observables_t's entries
 		s += _observables.size() * sizeof (observables_t::value_type);
 
-		// memory used by entires values
+		// memory used by entries values
 		for (observables_t::const_iterator it = _observables.begin();
 		     it != _observables.end(); ++it) {
 			s += it->second.actors.size() * sizeof(actors_t::value_type);
