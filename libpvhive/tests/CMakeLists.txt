@@ -42,10 +42,20 @@ target_link_libraries(Tmodal ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES})
 add_executable(Tmultithreads multithreads.cpp)
 target_link_libraries(Tmultithreads ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES})
 
+add_executable(Tmassive-mem massive-mem.cpp massive_common.cpp)
+target_link_libraries(Tmassive-mem ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES})
+
+add_executable(Tmassive-register massive-register.cpp massive_common.cpp)
+target_link_libraries(Tmassive-register ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES})
+
+add_executable(Tmassive-call massive-call.cpp massive_common.cpp)
+target_link_libraries(Tmassive-call ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES})
+
 include_directories(AFTER ${PICVIZ_INCLUDE_DIR})
 
 QT4_WRAP_CPP(TEST_AXESCOMB_MOC_SRC axes-comb_dlg.h OPTIONS ${QT4_WRAP_OPTIONS})
 
 add_executable(Taxes-comb axes-comb.cpp ${TEST_AXESCOMB_MOC_SRC})
 target_link_libraries(Taxes-comb ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES} ${PICVIZ_LIBRARIES})
+
 
