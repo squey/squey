@@ -70,7 +70,7 @@ int main(int argc, char** argv)
 	src->add_mapped(mapped);
 	scene->add_source(src);
 
-	TestDlg dlg(nullptr);
+	TestDlg dlg(plotted->get_view().get());
 	dlg.show();
 
 	app.exec();
