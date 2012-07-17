@@ -11,6 +11,7 @@
 #include <picviz/PVSource.h>
 #include <picviz/PVMapped.h>
 #include <picviz/PVPlotted.h>
+#include <pvkernel/core/PVSharedPointer.h>
 
 #include <QApplication>
 
@@ -70,7 +71,9 @@ int main(int argc, char** argv)
 	src->add_mapped(mapped);
 	scene->add_source(src);
 
-	TestDlg dlg(plotted->get_view().get());
+	typedef PVCore::pv_shared_ptr<Picviz::PVView> PVView_p;
+	PVView_p view_p = PVView_p(plotted->get_view().get());
+	TestDlg dlg(view_p);
 	dlg.show();
 
 	app.exec();

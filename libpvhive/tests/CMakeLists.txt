@@ -54,8 +54,9 @@ target_link_libraries(Tmassive-call ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES})
 include_directories(AFTER ${PICVIZ_INCLUDE_DIR})
 
 QT4_WRAP_CPP(TEST_AXESCOMB_MOC_SRC axes-comb_dlg.h OPTIONS ${QT4_WRAP_OPTIONS})
+QT4_WRAP_CPP(TEST_AXESCOMB_MOC_SRC axes-comb_model.h OPTIONS ${QT4_WRAP_OPTIONS})
 
-add_executable(Taxes-comb axes-comb.cpp ${TEST_AXESCOMB_MOC_SRC})
+add_executable(Taxes-comb axes-comb.cpp axes-comb_model.cpp ${TEST_AXESCOMB_MOC_SRC})
 target_link_libraries(Taxes-comb ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES} ${PICVIZ_LIBRARIES})
 
 
