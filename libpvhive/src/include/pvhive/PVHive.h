@@ -94,6 +94,21 @@ inline void hive_deleter(T *ptr);
  */
 class PVHive
 {
+private:
+	typedef std::set<PVActorBase*> actors_t;
+	typedef std::list<PVObserverBase*> observers_t;
+	typedef std::set<void*> properties_t;
+
+	struct observable_t
+	{
+		actors_t     actors;
+		observers_t  observers;
+		properties_t properties;
+	};
+
+	typedef tbb::concurrent_hash_map<void*, observable_t > observables_t;
+
+private:
 	template<typename T>
 	friend void __impl::hive_deleter(T *ptr);
 	friend class PVActorBase;
@@ -393,18 +408,6 @@ private:
 private:
 	static PVHive *_hive;
 
-	typedef std::set<PVActorBase*> actors_t;
-	typedef std::list<PVObserverBase*> observers_t;
-	typedef std::set<void*> properties_t;
-
-	struct observable_t
-	{
-		actors_t     actors;
-		observers_t  observers;
-		properties_t properties;
-	};
-
-	typedef tbb::concurrent_hash_map<void*, observable_t > observables_t;
 	observables_t _observables;
 };
 
