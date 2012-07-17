@@ -51,6 +51,11 @@ target_link_libraries(Tmassive-register ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES
 add_executable(Tmassive-call massive-call.cpp massive_common.cpp)
 target_link_libraries(Tmassive-call ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES})
 
+QT4_WRAP_CPP(TEST_MQ_MOC_SRC message-queue.h OPTIONS ${QT4_WRAP_OPTIONS})
+
+add_executable(Tmessage-queue message-queue.cpp ${TEST_MQ_MOC_SRC})
+target_link_libraries(Tmessage-queue ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES})
+
 include_directories(AFTER ${PICVIZ_INCLUDE_DIR})
 
 QT4_WRAP_CPP(TEST_AXESCOMB_MOC_SRC axes-comb_dlg.h OPTIONS ${QT4_WRAP_OPTIONS})

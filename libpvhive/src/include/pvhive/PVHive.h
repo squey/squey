@@ -94,6 +94,21 @@ inline void hive_deleter(T *ptr);
  */
 class PVHive
 {
+private:
+	typedef std::set<PVActorBase*> actors_t;
+	typedef std::list<PVObserverBase*> observers_t;
+	typedef std::set<void*> properties_t;
+
+	struct observable_t
+	{
+		actors_t     actors;
+		observers_t  observers;
+		properties_t properties;
+	};
+
+	typedef tbb::concurrent_hash_map<void*, observable_t > observables_t;
+
+private:
 	template<typename T>
 	friend void __impl::hive_deleter(T *ptr);
 	friend class PVActorBase;
@@ -206,13 +221,12 @@ public:
 		// create/get object's entry
 		_observables.insert(acc, (void*) object.get());
 
-		auto res = std::find(acc->second.observers.begin(),
-		                     acc->second.observers.end(), &observer);
-		if (res == acc->second.observers.end()) {
-			acc->second.observers.push_back(&observer);
-			observer.set_object((void*) object.get());
-			object.set_deleter(&__impl::hive_deleter<T>);
-		}
+		// observer must not be in _observables[&object].observers
+		assert(already_registered(acc->second.observers, observer) == false);
+
+		acc->second.observers.push_back(&observer);
+		observer.set_object((void*) object.get());
+		object.set_deleter(&__impl::hive_deleter<T>);
 	}
 
 	/**
@@ -237,19 +251,18 @@ public:
 		// create/get property's entry
 		_observables.insert(acc, (void*) &property);
 
-		auto res = std::find(acc->second.observers.begin(),
-		                     acc->second.observers.end(), &observer);
-		if (res == acc->second.observers.end()) {
-			// adding observer
-			acc->second.observers.push_back(&observer);
-			observer.set_object((void*) &property);
+		// observer must not be in _observables[&property].observers
+		assert(already_registered(acc->second.observers, observer) == false);
 
-			// adding property
-			// create/get object's entry
-			_observables.insert(acc, (void*) object.get());
-			acc->second.properties.insert((void*) &property);
-			object.set_deleter(&__impl::hive_deleter<T>);
-		}
+		// adding observer
+		acc->second.observers.push_back(&observer);
+		observer.set_object((void*) &property);
+
+		// adding property
+		// create/get object's entry
+		_observables.insert(acc, (void*) object.get());
+		acc->second.properties.insert((void*) &property);
+		object.set_deleter(&__impl::hive_deleter<T>);
 	}
 
 public:
@@ -391,20 +404,20 @@ private:
 	PVHive &operator=(const PVHive&) { return *this; }
 
 private:
+	/**
+	 * Tests if observer is already registered
+	 *
+	 * @param observers the container
+	 * @param observer the observer to find
+	 */
+	bool already_registered(const observers_t &observers, const PVObserverBase &observer) const
+	{
+		return (std::find(observers.begin(), observers.end(), &observer) != observers.end());
+	}
+
+private:
 	static PVHive *_hive;
 
-	typedef std::set<PVActorBase*> actors_t;
-	typedef std::list<PVObserverBase*> observers_t;
-	typedef std::set<void*> properties_t;
-
-	struct observable_t
-	{
-		actors_t     actors;
-		observers_t  observers;
-		properties_t properties;
-	};
-
-	typedef tbb::concurrent_hash_map<void*, observable_t > observables_t;
 	observables_t _observables;
 };
 
