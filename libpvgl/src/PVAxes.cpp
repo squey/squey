@@ -221,10 +221,8 @@ void PVGL::PVAxes::draw_names()
 	int MX = picviz_max (1, view->get_width());
 	int MY = picviz_max (1, view->get_height());
 
-	//const float inter_axes_length = (float) ((0.5 + (pow(1.2, (double)view->zoom_level_x)/(double)(view->xmax - view->xmin))) * (double)MX);
 	const float inter_axes_length = MX*(pow(1.2, view->zoom_level_x)/(view->xmax-view->xmin));
 	font_size = PVCore::clamp(11.0f + 10.0f*(inter_axes_length-30.0f)/50.0f,10.0f, 21.0f);
-	//font_size = picviz(22, picviz_max(10, int((MX / 500.0) * 12 * pow(1.2, view->zoom_level_x))));
 
 	for (int i = 0; i < nb_axes; i++) {
 		float gl_coord_x, gl_coord_y;
