@@ -81,6 +81,11 @@ public:
 
 int main(int argc, char** argv)
 {
+	if (argc != 2) {
+		std::cerr << "usage: " << argv[0] << " actor_step" << std::endl;
+		return 1;
+	}
+
 	srand(times(NULL));
 
 	MainApp app(argc, argv);
@@ -89,7 +94,7 @@ int main(int argc, char** argv)
 
 	Obj_p obj = Obj_p(new Obj());
 
-	ObjActor *actor = new ObjActor(10);
+	ObjActor *actor = new ObjActor(atoi(argv[1]));
 	PVHive::PVHive::get().register_actor(obj, *actor);
 
 	ObjObserver *observer = new ObjObserver(obj->get_message_channel());
