@@ -108,6 +108,7 @@ void Picviz::PVView::init_from_plotted(PVPlotted* parent, bool keep_layers)
 	else {
 		axes_combination = parent->get_source_parent()->get_axes_combination();
 	}
+	axes_combination.set_axis_name(0, axes_combination.get_axis(0).get_name()); // Hack to detach QVector
 
 	// Create layer filter arguments for that view
 	LIB_CLASS(Picviz::PVLayerFilter) &filters_layer = 	LIB_CLASS(Picviz::PVLayerFilter)::get();
@@ -269,7 +270,7 @@ QStringList Picviz::PVView::get_axes_names_list() const
  * Picviz::PVView::get_axis_name
  *
  *****************************************************************************/
-QString Picviz::PVView::get_axis_name(PVCol index) const
+const QString& Picviz::PVView::get_axis_name(PVCol index) const
 {
 	PVAxis const& axis = axes_combination.get_axis(index);
 	return axis.get_name();

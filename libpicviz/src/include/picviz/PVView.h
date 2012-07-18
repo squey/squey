@@ -126,7 +126,7 @@ public:
 	 * @return The name of that axis
 	 *
 	 */
-	QString get_axis_name(PVCol index) const;
+	const QString& get_axis_name(PVCol index) const;
 	QString get_axis_type(PVCol index) const;
 
 	void emit_user_modified_sel(QList<Picviz::PVView*>* changed_views = NULL);

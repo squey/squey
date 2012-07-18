@@ -51,7 +51,7 @@ void PVRush::PVAxisFormat::set_mapping(QString str)
 }
 
 
-void PVRush::PVAxisFormat::set_name(QString str)
+void PVRush::PVAxisFormat::set_name(const QString& str)
 {
 	name = str;
 }

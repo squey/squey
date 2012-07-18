@@ -13,27 +13,31 @@
 
 class AxesCombinationListModel;
 
-class ModelIndexObserver : public PVHive::PVObserver<Picviz::PVView>
+class PVAxisObserver : public PVHive::PVObserver<PVCol>
 {
 public:
-	ModelIndexObserver(const AxesCombinationListModel* parent, uint32_t row) : _parent(parent), _row(row) {}
+	PVAxisObserver(const AxesCombinationListModel* parent, uint32_t row) : _parent(parent), _row(row) {}
 
 	void refresh();
 
 	void about_to_be_deleted()
 	{
-		PVLOG_INFO("about_to_be_deleted\n");
+		PVLOG_INFO("AxisObserver::about_to_be_deleted\n");
 	}
+
+	inline const PVCol& row() { return _row; }
 
 private:
 	const AxesCombinationListModel* _parent;
-	uint32_t _row;
+	PVCol _row;
 };
 
 class AxesCombinationListModel : public QAbstractListModel
 {
 	Q_OBJECT;
-	friend class ModelIndexObserver;
+
+	friend class PVAxisObserver;
+
 public:
 	typedef PVCore::pv_shared_ptr<Picviz::PVView> PVView_p;
 
@@ -48,17 +52,16 @@ public:
 
 	QModelIndex index(int row, int column, const QModelIndex & parent = QModelIndex()) const
 	{
-		PVLOG_INFO("persistentIndexList().size()=%d\n", persistentIndexList().size());
-
 		QPersistentModelIndex idx_pst(getPersistentIndex(row));
 		if (!idx_pst.isValid()) {
-			ModelIndexObserver* observer = new ModelIndexObserver(this, row);
 
+			PVAxisObserver* observer = new PVAxisObserver(this, row);
 			PVHive::PVHive::get().register_observer(
 				_view_p,
-				//[&](Picviz::PVView const & view) { return view.get_axis_name(row); },
+				[&](Picviz::PVView const & view) -> const QString& { return view.get_axis_name(row); },
 				*observer
 			);
+
 			QPersistentModelIndex ret(createIndex(row, column, observer));
 			_pst_idx << ret;
 			return ret;

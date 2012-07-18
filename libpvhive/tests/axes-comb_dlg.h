@@ -79,15 +79,10 @@ private slots:
 
 	void rename()
 	{
-		PVLOG_INFO("rename\n");
 
-		auto actor = PVHive::PVHive::get().register_actor(_view_p);
-		PVACTOR_CALL(*actor, &Picviz::PVView::set_axis_name, rand() % _view_p->get_axes_count(), QString::number(rand() % 1000));
-		delete actor;
-
-		/*auto actor = PVHive::PVHive::get().register_actor(_model1_p);
-		PVACTOR_CALL(*actor, &AxesCombinationListModel::setData, _model1->index(0, 0), QVariant(QString::number(rand()%1000)), Qt::EditRole);
-		delete actor;*/
+		PVHive::PVActor<Picviz::PVView> actor;
+		PVHive::PVHive::get().register_actor(_view_p, actor);
+		PVACTOR_CALL(actor, &Picviz::PVView::set_axis_name, rand() % _view_p->get_axes_count(), boost::cref(QString::number(rand() % 1000)));
 	}
 
 private:

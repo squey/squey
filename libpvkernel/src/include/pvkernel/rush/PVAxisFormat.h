@@ -58,7 +58,7 @@ public:
 		QString get_color_str() const { return color.toQColor().name(); }
 		PVCore::PVColor const& get_color() const { return color; }
 		QString get_mapping() const { return mapping; }
-		QString get_name() const { return name; }
+		const QString& get_name() const { return name; }
 		QString get_plotting() const { return plotting; }
 		QString get_titlecolor_str() const { return titlecolor.toQColor().name(); }
 		PVCore::PVColor const& get_titlecolor() const { return titlecolor; }
@@ -74,7 +74,7 @@ public:
 		void set_color(QString str);
 		void set_color(PVCore::PVColor color_);
 		void set_mapping(QString str);
-		void set_name(QString str);
+		void set_name(const QString& str);
 		void set_plotting(QString str);
 		void set_titlecolor(QString str);
 		void set_titlecolor(PVCore::PVColor color_);
