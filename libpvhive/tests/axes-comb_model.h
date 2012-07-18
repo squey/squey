@@ -13,7 +13,7 @@
 
 class AxesCombinationListModel;
 
-class ModelIndexObserver : public PVHive::PVObserver<QModelIndex>
+class ModelIndexObserver : public PVHive::PVObserver<Picviz::PVView>
 {
 public:
 	ModelIndexObserver(const AxesCombinationListModel* parent, uint32_t row) : _parent(parent), _row(row) {}
@@ -26,8 +26,8 @@ public:
 	}
 
 private:
-	uint32_t _row;
 	const AxesCombinationListModel* _parent;
+	uint32_t _row;
 };
 
 class AxesCombinationListModel : public QAbstractListModel
@@ -50,7 +50,8 @@ public:
 	{
 		PVLOG_INFO("persistentIndexList().size()=%d\n", persistentIndexList().size());
 
-		if (!hasObserver(row)) {
+		QPersistentModelIndex idx_pst(getPersistentIndex(row));
+		if (!idx_pst.isValid()) {
 			ModelIndexObserver* observer = new ModelIndexObserver(this, row);
 
 			PVHive::PVHive::get().register_observer(
@@ -58,23 +59,21 @@ public:
 				//[&](Picviz::PVView const & view) { return view.get_axis_name(row); },
 				*observer
 			);
-			return createIndex(row, column, observer);
+			QPersistentModelIndex ret(createIndex(row, column, observer));
+			_pst_idx << ret;
+			return ret;
 		}
-		return createIndex(row, column, internalPointer(row));
+		return idx_pst;
 	}
 
-	void* internalPointer(int row) const {
-		for (QModelIndex idx : persistentIndexList()) {
+	QPersistentModelIndex getPersistentIndex(int row) const
+	{
+		for (QPersistentModelIndex const& idx : persistentIndexList()) {
 			if (idx.row() == row) {
-				return idx.internalPointer();
+				return idx;
 			}
 		}
-		return nullptr;
-	}
-
-	bool hasObserver(int row) const
-	{
-		return internalPointer(row);
+		return QPersistentModelIndex();
 	}
 
 	int rowCount(const QModelIndex &parent) const
@@ -171,6 +170,7 @@ public:
 
 private:
 	mutable PVView_p _view_p;
+	mutable QList<QPersistentModelIndex> _pst_idx;
 };
 
 #endif // __AXESCOMBMODEL__H_
