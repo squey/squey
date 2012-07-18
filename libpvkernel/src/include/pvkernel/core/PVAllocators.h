@@ -10,6 +10,10 @@
 #include <malloc.h>
 #include <sys/mman.h>
 
+#ifdef RH_USE_JEMALLOC
+#include <jemalloc/jemalloc.h>
+#endif
+
 namespace PVCore {
 
 /*! \brief Defines a C++ compliant allocator that can use pre-allocated memory (hack).
@@ -317,6 +321,136 @@ public:
 		p->~value_type();
 	}
 };
+
+template <class T>
+class PVReallocableCAllocator
+{
+public:
+	typedef T value_type;
+	typedef value_type* pointer;
+	typedef const value_type& const_reference;
+	typedef size_t size_type;
+
+
+	pointer allocate(size_type n)
+	{
+		pointer p = (pointer) malloc(n * sizeof(value_type));
+		if (p == NULL) {
+			throw std::bad_alloc();
+		}
+		return p;
+	}
+
+	pointer reallocate(pointer p, size_type /*on*/, size_type nn)
+	{
+		pointer np = (pointer) realloc(p, nn * sizeof(value_type));
+		if (np == NULL) {
+			throw std::bad_alloc();
+		}
+		return np;
+	}
+
+	void deallocate(pointer p, size_type /*n*/)
+	{
+		free(p);
+	}
+
+	size_type max_size() const throw()
+	{
+		// From TBB's scalable allocator
+		size_type absolutemax = static_cast<size_type>(-1) / sizeof (value_type);
+		return (absolutemax > 0 ? absolutemax : 1);
+	}
+
+	void construct(pointer p, const_reference val)
+	{
+		::new((void*) p) value_type(val);
+	}
+
+	void destroy(pointer p)
+	{
+		p->~value_type();
+	}
+};
+
+template <class T>
+class PVReallocableStdAllocator : public std::allocator<T>
+{
+public:
+	typedef T value_type;
+	typedef value_type* pointer;
+	typedef const value_type& const_reference;
+	typedef size_t size_type;
+
+	pointer reallocate(pointer p, size_type on, size_type nn)
+	{
+		pointer np = this->allocate(nn);
+		if (p != 0) {
+			memcpy(np, p, on * sizeof(value_type));
+			this->deallocate(p, on);
+		}
+		return np;
+	}
+};
+
+#ifdef RH_USE_JEMALLOC
+template <class T>
+class PVJEMallocAllocator
+{
+public:
+	typedef T value_type;
+	typedef value_type* pointer;
+	typedef const value_type& const_reference;
+	typedef size_t size_type;
+
+	pointer allocate(size_type n)
+	{
+		pointer p = (pointer) jemalloc(n * sizeof(value_type));
+		if (p == 0) {
+			throw std::bad_alloc();
+		}
+		return p;
+	}
+
+	pointer reallocate(pointer p, size_type /*on*/, size_type nn)
+	{
+		pointer np = (pointer) jerealloc(p, nn * sizeof(value_type));
+		if (np == 0) {
+			throw std::bad_alloc();
+		}
+
+		return np;
+	}
+
+	void deallocate(pointer p, size_type /*n*/)
+	{
+		jefree(p);
+	}
+
+	size_type max_size() const throw()
+	{
+		// From TBB's scalable allocator
+		size_type absolutemax = static_cast<size_type>(-1) / sizeof (value_type);
+		return (absolutemax > 0 ? absolutemax : 1);
+	}
+
+	void construct(pointer p, const_reference val)
+	{
+		::new((void*) p) value_type(val);
+	}
+
+	void destroy(pointer p)
+	{
+		p->~value_type();
+	}
+};
+#endif
+
+namespace PVMemory {
+
+void LibKernelDecl get_memory_usage(double& vm_usage, double& rss);
+
+}
 
 }
 

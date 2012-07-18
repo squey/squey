@@ -39,6 +39,7 @@ core/PVSplitter.cpp
 core/PVUtils.cpp
 core/PVUnicodeString.cpp
 core/PVVersion.cpp
+core/PVAllocators.cpp
 )
 
 if(PYTHONLIBS_FOUND)
