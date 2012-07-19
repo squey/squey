@@ -99,6 +99,11 @@ public:
     
     QMutex gl_call_locker;
 
+    // Proxy functions for PVHive
+	void remove_column(PVCol index) { axes_combination.remove_axis(index); }
+	bool move_axis_to_new_position(PVCol index_source, PVCol index_dest) { return axes_combination.move_axis_to_new_position(index_source, index_dest); }
+	void axis_append(const PVAxis &axis) { axes_combination.axis_append(axis); }
+
 	void init_from_plotted(PVPlotted* parent, bool keep_layers);
 
 	/* Functions */

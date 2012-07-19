@@ -19,6 +19,8 @@
 #include <pvhive/PVObserver.h>
 #include <pvhive/PVObserverCallback.h>
 
+#include <pvkernel/rush/PVAxisFormat.h>
+
 
 class TestDlg : public QDialog
 {
@@ -40,17 +42,21 @@ public:
 		QVBoxLayout *vlayout = new QVBoxLayout();
 		layout->addLayout(vlayout);
 
-		QPushButton *up = new QPushButton("up");
-		vlayout->addWidget(up);
-		connect(up, SIGNAL(clicked(bool)), this, SLOT(move_up(bool)));
+		QPushButton *add = new QPushButton("add");
+		vlayout->addWidget(add);
+		connect(add, SIGNAL(clicked(bool)), this, SLOT(add()));
 
-		QPushButton *down = new QPushButton("down");
-		vlayout->addWidget(down);
-		connect(down, SIGNAL(clicked(bool)), this, SLOT(move_down(bool)));
+		QPushButton *swap = new QPushButton("swap");
+		vlayout->addWidget(swap);
+		connect(swap, SIGNAL(clicked(bool)), this, SLOT(swap()));
 
 		QPushButton *rename = new QPushButton("rename");
 		vlayout->addWidget(rename);
 		connect(rename, SIGNAL(clicked(bool)), this, SLOT(rename()));
+
+		QPushButton *remove = new QPushButton("remove");
+		vlayout->addWidget(remove);
+		connect(remove, SIGNAL(clicked(bool)), this, SLOT(remove()));
 
 		// Create view with AxesCombinationListModel model
 		_list1 = new QListView();
@@ -69,20 +75,46 @@ public:
 	}
 
 private slots:
-	void move_up(bool)
+	void add()
 	{
-	}
-
-	void move_down(bool)
-	{
-	}
-
-	void rename()
-	{
+		PVRush::PVAxisFormat format = PVRush::PVAxisFormat();
+		Picviz::PVAxis axis(format);
+		axis.set_name(QString::number(rand() % 1000));
 
 		PVHive::PVActor<Picviz::PVView> actor;
 		PVHive::PVHive::get().register_actor(_view_p, actor);
-		PVACTOR_CALL(actor, &Picviz::PVView::set_axis_name, rand() % _view_p->get_axes_count(), boost::cref(QString::number(rand() % 1000)));
+		PVACTOR_CALL(actor, &Picviz::PVView::axis_append, axis);
+	}
+
+	void swap()
+	{
+		PVCol idx1 = rand() % _view_p->get_axes_count();
+		PVCol idx2 = rand() % _view_p->get_axes_count();
+
+		PVHive::PVActor<Picviz::PVView> actor;
+		PVHive::PVHive::get().register_actor(_view_p, actor);
+		PVACTOR_CALL(actor, &Picviz::PVView::move_axis_to_new_position, idx1, idx2);
+	}
+
+	void remove()
+	{
+		int idx = rand() % _view_p->get_axes_count();
+
+		PVHive::PVActor<Picviz::PVView> actor;
+		PVHive::PVHive::get().register_actor(_view_p, actor);
+		PVACTOR_CALL(actor, &Picviz::PVView::remove_column, idx);
+	}
+
+	void rename(int idx = -1, QString s = QString::number(rand() % 1000))
+	{
+		if (idx == -1)
+		{
+			idx = rand() % _view_p->get_axes_count();
+		}
+
+		PVHive::PVActor<Picviz::PVView> actor;
+		PVHive::PVHive::get().register_actor(_view_p, actor);
+		PVACTOR_CALL(actor, &Picviz::PVView::set_axis_name, idx, boost::cref(s));
 	}
 
 private:

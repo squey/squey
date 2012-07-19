@@ -2,7 +2,7 @@
 
 // For reference: PVACTOR_CALL(*actor, &Picviz::PVView::set_axis_name, rand() % _view_p->get_axes_count(), QString::number(rand() % 1000));
 
-PVHIVE_CALL_OBJECT_BLOCK_BEGIN()
+/*PVHIVE_CALL_OBJECT_BLOCK_BEGIN()
 
 template <>
 void PVHive::PVHive::call_object<Picviz::PVView, decltype(&Picviz::PVView::set_axis_name), &Picviz::PVView::set_axis_name>
@@ -16,11 +16,11 @@ void PVHive::PVHive::call_object<Picviz::PVView, decltype(&Picviz::PVView::set_a
 	//static_assert(false, "test"); Ok this is compiling
 }
 
-PVHIVE_CALL_OBJECT_BLOCK_END()
+PVHIVE_CALL_OBJECT_BLOCK_END()*/
 
-
-void PVAxisObserver::refresh()
+void PVViewObserver::refresh()
 {
-	emit const_cast<AxesCombinationListModel*>(_parent)->dataChanged(_parent->index(_row, 0), _parent->index(_row, 0));
-	PVLOG_INFO("PVAxisObserver::refresh %d\n", _row);
+	PVLOG_INFO("PVAxisCombinationObserver::refresh\n");
+	_model->reset();
 }
+

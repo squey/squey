@@ -13,30 +13,26 @@
 
 class AxesCombinationListModel;
 
-class PVAxisObserver : public PVHive::PVObserver<PVCol>
+class PVViewObserver : public PVHive::PVObserver<Picviz::PVView>
 {
 public:
-	PVAxisObserver(const AxesCombinationListModel* parent, uint32_t row) : _parent(parent), _row(row) {}
+	PVViewObserver(AxesCombinationListModel* model) : _model(model) {}
 
 	void refresh();
 
 	void about_to_be_deleted()
 	{
-		PVLOG_INFO("AxisObserver::about_to_be_deleted\n");
+		PVLOG_INFO("PVAxisCombinationObserver::about_to_be_deleted\n");
 	}
-
-	inline const PVCol& row() { return _row; }
-
 private:
-	const AxesCombinationListModel* _parent;
-	PVCol _row;
+	AxesCombinationListModel* _model;
 };
 
 class AxesCombinationListModel : public QAbstractListModel
 {
 	Q_OBJECT;
 
-	friend class PVAxisObserver;
+	friend class PVViewObserver;
 
 public:
 	typedef PVCore::pv_shared_ptr<Picviz::PVView> PVView_p;
@@ -45,38 +41,21 @@ public:
 		QAbstractListModel(parent),
 		_view_p(view_p)
 	{
-		for (int i = 0 ; i < rowCount() ; i++) {
+		/*for (int i = 0 ; i < rowCount() ; i++) {
 			insertRows(i, 1);
-		}
+		}*/
+
+		_observer = new PVViewObserver(this);
+		PVHive::PVHive::get().register_observer(
+			_view_p,
+			//[&](Picviz::PVView const & view) -> const QString& { return view.get_axis_name(row); },
+			*_observer
+		);
 	}
 
-	QModelIndex index(int row, int column, const QModelIndex & parent = QModelIndex()) const
+	~AxesCombinationListModel()
 	{
-		QPersistentModelIndex idx_pst(getPersistentIndex(row));
-		if (!idx_pst.isValid()) {
-
-			PVAxisObserver* observer = new PVAxisObserver(this, row);
-			PVHive::PVHive::get().register_observer(
-				_view_p,
-				[&](Picviz::PVView const & view) -> const QString& { return view.get_axis_name(row); },
-				*observer
-			);
-
-			QPersistentModelIndex ret(createIndex(row, column, observer));
-			_pst_idx << ret;
-			return ret;
-		}
-		return idx_pst;
-	}
-
-	QPersistentModelIndex getPersistentIndex(int row) const
-	{
-		for (QPersistentModelIndex const& idx : persistentIndexList()) {
-			if (idx.row() == row) {
-				return idx;
-			}
-		}
-		return QPersistentModelIndex();
+		delete _observer;
 	}
 
 	int rowCount(const QModelIndex &parent) const
@@ -98,7 +77,7 @@ public:
 		if (index.row() < 0 || index.row() >= rowCount())
 			return QVariant();
 
-		QString axis_name = _view_p->get_axes_names_list().at(index.row());
+		QString axis_name = _view_p->get_axis_name(index.row());
 		if (role == Qt::DisplayRole)
 			return QVariant(axis_name);
 
@@ -173,7 +152,7 @@ public:
 
 private:
 	mutable PVView_p _view_p;
-	mutable QList<QPersistentModelIndex> _pst_idx;
+	PVViewObserver* _observer;
 };
 
 #endif // __AXESCOMBMODEL__H_
