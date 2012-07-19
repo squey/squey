@@ -91,7 +91,7 @@ int main(int argc, char **argv)
 	for (int k = 0; k < obj_num; ++k) {
 		for (int j = 0; j < prop_num; ++j) {
 			for (int i = 0; i < act_per_prop; ++i) {
-				prop_actors[index] = PropertyAct(rand() % prop_num);
+				prop_actors[index] = PropertyAct(rand() % prop_num, 42);
 				++index;
 			}
 		}
@@ -110,7 +110,7 @@ int main(int argc, char **argv)
 		}
 	}
 	t2 = tbb::tick_count::now();
-	print_stat("object actors registered", t1, t2, prop_act_num);
+	print_stat("property actors registered", t1, t2, prop_act_num);
 
 
 
