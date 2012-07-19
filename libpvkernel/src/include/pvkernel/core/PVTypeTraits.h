@@ -115,7 +115,62 @@ struct bigger_than
 	static const bool value = sizeof(A)>sizeof(B);
 };
 
+template <typename T>
+struct add_pointer_const
+{
+	typedef typename boost::add_pointer<typename boost::add_const<T>::type>::type type;
+};
+
+template <typename T>
+struct add_reference_const
+{
+	typedef typename boost::add_reference<typename boost::add_const<T>::type>::type type;
+};
 }
+
+// Variadic informations
+
+namespace __impl {
+template <size_t N, typename T, typename... Tparams>
+struct variadic_param_count_helper
+{
+	constexpr static size_t count = variadic_param_count_helper<N+1, Tparams...>::count;
+};
+
+template <size_t N, typename T>
+struct variadic_param_count_helper<N, T>
+{
+	constexpr static size_t count = N+1;
+};
+
+template <size_t I, size_t N, typename T, typename... Tparams>
+struct variadic_n_helper
+{
+	typedef typename variadic_n_helper<I, N+1, Tparams...>::type type;
+};
+
+template <size_t I, typename T, typename... Tparams>
+struct variadic_n_helper<I, I, T, Tparams...>
+{
+	typedef T type;
+};
+}
+
+/*! \brief Get the number of elements of variadic template parameters
+ */
+template <typename... Tparams>
+struct variadic_param_count
+{
+	constexpr static size_t count = __impl::variadic_param_count_helper<0, Tparams...>::count;
+};
+
+/*! \brief Get the I'th type of variadic template parameters
+ */
+template <size_t I, typename... Tparams>
+struct variadic_n
+{
+	typedef typename __impl::variadic_n_helper<I, 0, Tparams...>::type type;
+};
 
 }
 
