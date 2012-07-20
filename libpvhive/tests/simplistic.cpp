@@ -36,6 +36,11 @@ struct Obj2
 	{
 		std::cout << "  Obj2::print" << std::endl;
 	}
+
+	void my_action(int param)
+	{
+		std::cout << "  Obj2::myaction with " << param << std::endl;
+	}
 };
 
 typedef PVCore::pv_shared_ptr<Obj2> Obj2_p;
@@ -70,6 +75,15 @@ public:
 	}
 
 private:
+};
+
+class FuncObserver: public PVHive::PVFuncObserver<Obj2, decltype(&Obj2::my_action), &Obj2::my_action>
+{
+protected:
+	virtual void update(arguments_type const& args) const
+	{
+		std::cout << "    FuncObserver on Obj2::my_action for object " << get_object() <<  "with param " << args.get_arg<0>() << std::endl;
+	}
 };
 
 int main(int argc, char **argv)
@@ -109,10 +123,15 @@ int main(int argc, char **argv)
 	Obj2Observer o2o2;
 	PVHive::PVHive::get().register_observer(o2, o2o2);
 
+	FuncObserver o2fo;
+	PVHive::PVHive::get().register_func_observer(o2, o2fo);
+
 	std::cout << "# a1o1 calls &Obj1::print" << std::endl;
 	PVACTOR_CALL(a1o1, &Obj1::print);
 	std::cout << "# a1o2 calls &Obj2::print" << std::endl;
 	PVACTOR_CALL(a1o2, &Obj2::print);
+	std::cout << "# a1o2 calls &Obj2::my_action" << std::endl;
+	PVACTOR_CALL(a1o2, &Obj2::my_action, 1);
 
 	std::cout << "# unregister a1o1" << std::endl;
 	PVHive::PVHive::get().unregister_actor(a1o1);

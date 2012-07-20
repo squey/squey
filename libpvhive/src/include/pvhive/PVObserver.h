@@ -3,24 +3,18 @@
 #define LIBPVHIVE_PVOBSERVER_H
 
 #include <cassert>
+#include <pvhive/PVObserverObjectBase.h>
 
 namespace PVHive
 {
 
 class PVHive;
 
-/**
- * @class PVObserverBase
- *
- * A non template class to use as a base in the PVHive.
- */
-class PVObserverBase
+class PVObserverBase: public PVObserverObjectBase
 {
-public:
 	friend class PVHive;
 
 public:
-	PVObserverBase() : _object(nullptr) {}
 	virtual ~PVObserverBase();
 
 protected:
@@ -34,19 +28,6 @@ protected:
 	 */
 	virtual void about_to_be_deleted() = 0;
 
-protected:
-	void *get_object() const
-	{
-		return _object;
-	}
-
-	void set_object(void *object)
-	{
-		_object = object;
-	}
-
-private:
-	void* _object;
 };
 
 /**

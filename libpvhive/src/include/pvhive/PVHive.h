@@ -7,12 +7,16 @@
 #include <list>
 #include <algorithm>
 #include <exception>
+#include <unordered_map>
 
 #include <tbb/concurrent_hash_map.h>
+
+#include <boost/tuple/tuple.hpp>
 
 #include <pvkernel/core/PVSharedPointer.h>
 
 #include <pvhive/PVObserver.h>
+#include <pvhive/PVFuncObserver.h>
 #include <pvhive/PVActorBase.h>
 
 namespace PVHive
@@ -97,13 +101,15 @@ class PVHive
 private:
 	typedef std::set<PVActorBase*> actors_t;
 	typedef std::list<PVObserverBase*> observers_t;
+	typedef std::unordered_multimap<void*, PVFuncObserverBase*> func_observers_t;
 	typedef std::set<void*> properties_t;
 
 	struct observable_t
 	{
-		actors_t     actors;
-		observers_t  observers;
-		properties_t properties;
+		actors_t          actors;
+		observers_t       observers;
+		func_observers_t  func_observers;
+		properties_t      properties;
 	};
 
 	typedef tbb::concurrent_hash_map<void*, observable_t > observables_t;
@@ -230,6 +236,36 @@ public:
 	}
 
 	/**
+	 * Register an observer for an object
+	 *
+	 * @param object the observed object
+	 * @param observer the observer
+	 */
+	template <class T, class F, F f>
+	void register_func_observer(PVCore::pv_shared_ptr<T>& object, PVFuncObserver<T, F, f>& observer)
+	{
+		// an observer must be set for only one object
+		assert(observer.get_object() == nullptr);
+
+		observables_t::accessor acc;
+
+		// create/get object's entry
+		_observables.insert(acc, (void*) object.get());
+
+#ifdef __GNUG__
+		// Disable warning for GCC for this line
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
+#endif
+		acc->second.func_observers.insert(std::make_pair((void*) f, &observer));
+#ifdef __GNUG__
+#pragma GCC diagnostic pop
+#endif
+		observer.set_object((void*) object.get());
+		object.set_deleter(&__impl::hive_deleter<T>);
+	}
+
+	/**
 	 * Register an observer for a member variable of an object
 	 *
 	 * @param object the parent object
@@ -280,6 +316,32 @@ public:
 	 * @param observer the observer
 	 */
 	bool unregister_observer(PVObserverBase& observer);
+
+	/**
+	 * Unregister a function observer
+	 *
+	 * @param observer the function observer
+	 */
+	bool unregister_func_observer(PVFuncObserverBase& observer, void* f)
+	{
+		if(observer._object) {
+			observables_t::accessor acc;
+
+			if (_observables.find(acc, observer._object)) {
+				func_observers_t& fobs(acc->second.func_observers);
+				func_observers_t::const_iterator it_fo, it_fo_e;
+			 	boost::tie(it_fo, it_fo_e) = fobs.equal_range(f);
+				func_observers_t::const_iterator it_to_del = std::find_if(it_fo, it_fo_e, [=,&observer](func_observers_t::value_type const& it) { return it.second == &observer; });
+				if (it_to_del != fobs.end()) {
+					fobs.erase(it_to_del);
+				}
+			}
+
+			observer._object = nullptr;
+			return true;
+		}
+		return false;
+	}
 
 public:
 	/**
@@ -351,12 +413,50 @@ protected:
 	 * @param object the observed object
 	 */
 	template <typename T>
-	void refresh_observers(T const* object)
+	inline void refresh_observers(T const* object)
 	{
 		// object must be a valid address
 		assert(object != nullptr);
 
 		do_refresh_observers((void*)object);
+	}
+
+	template <typename T, typename F, F f, typename... Params>
+	void refresh_func_observers(T const* object, Params const& ... params)
+	{
+		// object must be a valid address
+		assert(object != nullptr);
+
+		observables_t::const_accessor acc;
+		if (!_observables.find(acc, (void*) object)) {
+			return;
+		}
+		
+		// Type of func observer
+		typedef PVFuncObserver<T, F, f> cur_func_observer_t;
+
+		// Get the argument list type
+		typename cur_func_observer_t::arguments_type args;
+		args.set_args(params...);
+
+		// Get function observers
+		func_observers_t const& fobs(acc->second.func_observers);
+		func_observers_t::const_iterator it_fo,it_fo_e;
+#ifdef __GNUG__
+		// Disable warning for GCC for this line
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
+#endif
+		boost::tie(it_fo, it_fo_e) = fobs.equal_range((void*) f);
+#ifdef __GNUG__
+#pragma GCC diagnostic pop
+#endif
+		for (; it_fo != it_fo_e; it_fo++) {
+			const cur_func_observer_t* fo = dynamic_cast<cur_func_observer_t*>(it_fo->second);
+			assert(fo);
+			// Call its update function !
+			fo->update(args);
+		}
 	}
 
 	/**
@@ -374,7 +474,7 @@ private:
 	 * @param params the method parameters
 	 */
 	template <typename T, typename F, F f, typename... P>
-	void call_object_default(T* object, P... params)
+	void call_object_default(T* object, P const& ... params)
 	{
 		if (object == nullptr) {
 			return;
@@ -385,7 +485,8 @@ private:
 		if (_observables.find(acc, (void*) object)) {
 			(object->*f)(params...);
 			acc.release();
-			do_refresh_observers((void*) object);
+			refresh_observers(object);
+			refresh_func_observers<T, F, f>(object, params...);
 		}
 	}
 

@@ -20,10 +20,13 @@ void fsolo(int /*a*/)
 {
 }
 
-int main(int argc, char** argv)
+void fnoarg()
 {
-	typedef boost::remove_pointer<decltype(f)>::type ftype;
-	typedef PVCore::PVTypeTraits::function_traits<ftype> ftraits;
+}
+
+int main(int /*argc*/, char** /*argv*/)
+{
+	typedef PVCore::PVTypeTraits::function_traits<decltype(f)> ftraits;
 
 	std::cout << ftraits::arity << std::endl;
 	std::cout << typeid(ftraits::arguments_type::arg_type).name() << std::endl;
@@ -38,14 +41,17 @@ int main(int argc, char** argv)
 	args.set_args(1, 2, 4, 5);
 	std::cout << args.get_arg<0>() << " " << args.get_arg<1>() << " " << (int) args.get_arg<2>() << " " << args.get_arg<3>() << std::endl;
 
-	typedef boost::remove_pointer<decltype(f2)>::type ftype2;
-	typedef PVCore::PVTypeTraits::function_traits<ftype2> ftraits2;
+	typedef PVCore::PVTypeTraits::function_traits<decltype(f2)> ftraits2;
 
 	ftraits2::arguments_type args2;
 	int a = 2; short b = 4; const short d = 5;
 	args2.set_args(&a, &b, d, b);
 	std::cout << &a << " " << &b << std::endl;
 	std::cout << args2.get_arg<0>() << " " << args2.get_arg<1>() << " " << args2.get_arg<2>() << " " << args2.get_arg<3>() << std::endl;
+
+	typedef PVCore::PVTypeTraits::function_traits<decltype(fnoarg)> ftraits_noarg;
+	ftraits_noarg::arguments_type noargs;
+	noargs.set_args();
 
 	return 0;
 }

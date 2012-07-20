@@ -30,7 +30,7 @@ public:
 	 * @throw no_object
 	 */
 	template <typename F, F f, typename... P>
-	void call(P... params)
+	void call(P const& ... params)
 	{
 		T *object = (T*)get_object();
 		if (object != nullptr) {

@@ -1,6 +1,8 @@
 #ifndef PVCORE_PVFUNCTIONTRAITS_H
 #define PVCORE_PVFUNCTIONTRAITS_H
 
+#include <pvkernel/core/PVTypeTraits.h>
+
 namespace PVCore {
 
 namespace PVTypeTraits {
@@ -100,6 +102,12 @@ private:
 	arg_pointer_const_type _arg;
 };
 
+struct function_no_args_helper
+{
+	// For API compatibility
+	void set_args() { }
+};
+
 } // __impl
 
 template <typename... Tparams>
@@ -126,10 +134,28 @@ struct function_traits_helper<R (*)(Tparams...)>
 	{ };
 };
 
+template<typename R>
+struct function_traits_helper<R (*)()>
+{
+	typedef R result_type;
+	typedef function_no_args_helper arguments_type;
+	constexpr static size_t arity = 0;
+};
+
+template<typename R, typename... Tparams>
+struct function_traits_helper<R (Tparams...)>: public function_traits_helper<R (*)(Tparams...)>
+{ };
+
+template<typename T, typename R, typename... Tparams>
+struct function_traits_helper<R (T::*)(Tparams...)>: public function_traits_helper<R (*)(Tparams...)>
+{
+	typedef T class_type;
+};
+
 } // __impl
 
 template <typename F>
-struct function_traits: public __impl::function_traits_helper<typename boost::add_pointer<F>::type>
+struct function_traits: public __impl::function_traits_helper<F>
 { };
 
 } // PVTypeTraits
