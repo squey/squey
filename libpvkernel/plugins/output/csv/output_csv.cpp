@@ -1,4 +1,4 @@
-#include <pvkernel/core/General>
+#include <pvkernel/core/general.h>
 
 #include <QList>
 #include <QString>
