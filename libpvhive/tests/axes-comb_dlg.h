@@ -30,10 +30,11 @@ public:
 	typedef PVCore::pv_shared_ptr<Picviz::PVView> PVView_p;
 
 public:
-	TestDlg(PVView_p view_p, QWidget *parent = nullptr) :
+	TestDlg(PVView_p& view_p, QWidget *parent = nullptr) :
 		QDialog(parent),
 		_view_p(view_p)
 	{
+		std::cout << "TestDlg::TestDlg (" << boost::this_thread::get_id() << ")" << std::endl;
 		QHBoxLayout* layout = new QHBoxLayout();
 
 		_label = new QLabel("Test", this);
@@ -58,11 +59,15 @@ public:
 		vlayout->addWidget(remove);
 		connect(remove, SIGNAL(clicked(bool)), this, SLOT(remove()));
 
+		QPushButton *destroy = new QPushButton("destroy object");
+		vlayout->addWidget(destroy);
+		connect(destroy, SIGNAL(clicked(bool)), this, SLOT(destroy()));
+
 		// Create view with AxesCombinationListModel model
 		_list1 = new QListView();
 		_list2 = new QListView();
-		_model1 = new AxesCombinationListModel(_view_p);
-		_model2 = new AxesCombinationListModel(_view_p);
+		_model1 = new AxesCombinationListModel(_view_p, _list1);
+		_model2 = new AxesCombinationListModel(_view_p, _list2);
 		_list1->setModel(_model1);
 		_list2->setModel(_model2);
 
@@ -117,6 +122,11 @@ private slots:
 		PVACTOR_CALL(actor, &Picviz::PVView::set_axis_name, idx, boost::cref(s));
 	}
 
+	void destroy()
+	{
+		_view_p.reset();
+	}
+
 private:
 	AxesCombinationListModel* _model1;
 	AxesCombinationListModel* _model2;
@@ -124,7 +134,7 @@ private:
 	QListView* _list2;
 	QLabel *_label;
 
-	PVView_p _view_p;
+	PVView_p& _view_p;
 };
 
 #endif // AXES_COMB_H

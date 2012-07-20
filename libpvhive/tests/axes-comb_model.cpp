@@ -23,4 +23,3 @@ void PVViewObserver::refresh()
 	PVLOG_INFO("PVAxisCombinationObserver::refresh\n");
 	_model->reset();
 }
-

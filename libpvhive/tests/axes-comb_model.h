@@ -9,23 +9,31 @@
 
 #include <pvhive/PVHive.h>
 #include <pvhive/PVObserver.h>
+#include <pvhive/PVObserverSignal.h>
 #include <pvhive/PVObserverCallback.h>
+
+#include <QListView>
+
+#define SUBCLASSING_VERSION 0
 
 class AxesCombinationListModel;
 
 class PVViewObserver : public PVHive::PVObserver<Picviz::PVView>
 {
 public:
-	PVViewObserver(AxesCombinationListModel* model) : _model(model) {}
+	PVViewObserver(AxesCombinationListModel* model, QListView* list) : _model(model), _list(list) {}
 
 	void refresh();
 
 	void about_to_be_deleted()
 	{
-		PVLOG_INFO("PVAxisCombinationObserver::about_to_be_deleted\n");
+		std::cout << "PVViewObserver::about_to_be_deleted (" << boost::this_thread::get_id() << ")" << std::endl;
+		_list->setEnabled(false);
+		_list->reset();
 	}
 private:
 	AxesCombinationListModel* _model;
+	QListView* _list;
 };
 
 class AxesCombinationListModel : public QAbstractListModel
@@ -37,18 +45,22 @@ class AxesCombinationListModel : public QAbstractListModel
 public:
 	typedef PVCore::pv_shared_ptr<Picviz::PVView> PVView_p;
 
-	AxesCombinationListModel(PVView_p view_p, QObject* parent = 0) :
+	AxesCombinationListModel(PVView_p& view_p, QListView* list, QObject* parent = 0) :
 		QAbstractListModel(parent),
-		_view_p(view_p)
+		_view_p(view_p),
+		_list(list),
+		_view_deleted(false)
 	{
-		/*for (int i = 0 ; i < rowCount() ; i++) {
-			insertRows(i, 1);
-		}*/
 
-		_observer = new PVViewObserver(this);
+#if SUBCLASSING_VERSION
+		_observer = new PVViewObserver(this, _list); // subclassing version
+#else
+		_observer = new PVHive::PVObserverSignal<Picviz::PVView>(this); // signal version
+		_observer->connect_about_to_be_deleted(this, SLOT(about_to_be_deleted_slot(PVHive::PVObserverBase*)));
+		_observer->connect_refresh(this, SLOT(refresh_slot(PVHive::PVObserverBase*)));
+#endif
 		PVHive::PVHive::get().register_observer(
 			_view_p,
-			//[&](Picviz::PVView const & view) -> const QString& { return view.get_axis_name(row); },
 			*_observer
 		);
 	}
@@ -68,8 +80,10 @@ public:
 
 	int rowCount() const
 	{
-
-		return _view_p->get_axes_count();
+		if (!_view_deleted) { // This check is needed to avoid the model crashing when deleting the view.
+			return _view_p->get_axes_count();
+		}
+		return 0;
 	}
 
 	QVariant data(const QModelIndex &index, int role) const
@@ -150,9 +164,30 @@ public:
 		return true;
 	}*/
 
+private slots:
+	void about_to_be_deleted_slot(PVHive::PVObserverBase*)
+	{
+		std::cout << "AxesCombinationListModel::about_to_be_deleted (" << boost::this_thread::get_id() << ")" << std::endl;
+		_list->setEnabled(false);
+		_list->setModel(nullptr);
+		_view_deleted = true;
+	}
+
+	void refresh_slot(PVHive::PVObserverBase*)
+	{
+		PVLOG_INFO("AxesCombinationListModel::refresh\n");
+		reset();
+	}
 private:
-	mutable PVView_p _view_p;
-	PVViewObserver* _observer;
+	bool _view_deleted;
+	PVView_p& _view_p;
+	QListView* _list;
+
+#if SUBCLASSING_VERSION
+		PVViewObserver* _observer; // subclassing version
+#else
+		PVHive::PVObserverSignal<Picviz::PVView>* _observer; // signal version
+#endif
 };
 
 #endif // __AXESCOMBMODEL__H_

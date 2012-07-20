@@ -1,3 +1,4 @@
+#include <iostream>
 
 #include <pvkernel/rush/PVInputType.h>
 #include <pvkernel/rush/PVFileDescription.h>
@@ -18,6 +19,8 @@
 #include "test-env.h"
 
 #include "axes-comb_dlg.h"
+
+typedef PVCore::pv_shared_ptr<Picviz::PVView> PVView_p;
 
 Picviz::PVSource_p create_src(const QString &path_file, const QString &path_format)
 {
@@ -42,6 +45,31 @@ Picviz::PVSource_p create_src(const QString &path_file, const QString &path_form
         job->wait_end();
 
         return src;
+}
+
+void thread(PVView_p& view_p)
+{
+	std::cout << "thread (" << boost::this_thread::get_id() << ")" << std::endl;
+	std::cout << "Usage : <axis index> <axis name> | \"destroy\" + enter" << std::endl;
+
+	while(true) {
+		std::string cmd;
+		getline(std::cin, cmd);
+
+		if (QString(cmd.c_str()) == "destroy") {
+			view_p.reset();
+			break;
+		}
+		else {
+			int axis_index;
+			char axis_name[128];
+
+			sscanf(cmd.c_str(), "%d %s", &axis_index, &axis_name);
+			PVHive::PVActor<Picviz::PVView> actor;
+			PVHive::PVHive::get().register_actor(view_p, actor);
+			PVACTOR_CALL(actor, &Picviz::PVView::set_axis_name, axis_index, boost::cref(QString(axis_name)));
+		}
+	}
 }
 
 int main(int argc, char** argv)
@@ -71,12 +99,16 @@ int main(int argc, char** argv)
 	src->add_mapped(mapped);
 	scene->add_source(src);
 
-	typedef PVCore::pv_shared_ptr<Picviz::PVView> PVView_p;
 	PVView_p view_p = PVView_p(plotted->get_view().get());
+
+	boost::thread th(boost::bind(thread, boost::ref(view_p)));
+
 	TestDlg dlg(view_p);
 	dlg.show();
 
 	app.exec();
+
+	th.join();
 
 	return 0;
 }

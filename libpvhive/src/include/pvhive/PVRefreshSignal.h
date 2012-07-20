@@ -21,7 +21,7 @@ namespace __impl
  * Base (and non template) class to manage events using Qt's signal/slot
  * mechanism.
  *
- * This class do not need subclassed to be used.
+ * This class does not need to be subclassed to be used.
 
  * "refresh" event can be asynchronous depending of the thread doing the action
  * and the thread doing the callback.
