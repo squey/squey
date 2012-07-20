@@ -48,8 +48,11 @@ target_link_libraries(Tmassive-mem ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES})
 add_executable(Tmassive-register massive-register.cpp massive_common.cpp)
 target_link_libraries(Tmassive-register ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES})
 
-add_executable(Tmassive-call massive-call.cpp massive_common.cpp)
-target_link_libraries(Tmassive-call ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES})
+add_executable(Tmassive-call-obj massive-call-obj.cpp massive_common.cpp)
+target_link_libraries(Tmassive-call-obj ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES})
+
+add_executable(Tmassive-call-prop massive-call-prop.cpp massive_common.cpp)
+target_link_libraries(Tmassive-call-prop ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES})
 
 QT4_WRAP_CPP(TEST_MQ_MOC_SRC message-queue.h OPTIONS ${QT4_WRAP_OPTIONS})
 
