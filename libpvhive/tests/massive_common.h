@@ -63,20 +63,9 @@ public:
 		_array[i] = p;
 	}
 
-	void set_prop1(Property p)
-	{
-		_array[0] = p;
-	}
-
 	const Property& get_prop(int i) const
 	{
-		if (i < 0) {
-			throw std::out_of_range("bad range for property access");
-		} else if (i >= _count) {
-			throw std::out_of_range("bad range for property access");
-		} else {
-			return _array[i];
-		}
+		return _array[i];
 	}
 
 private:
@@ -95,31 +84,45 @@ typedef PVCore::pv_shared_ptr<Block> Block_p;
 class BlockAct : public PVHive::PVActor<Block>
 {
 public:
-	BlockAct()
+	BlockAct() : _value(0)
 	{}
 
-	void action()
+	BlockAct(int value) : _value(value)
+	{}
+
+	int get_value() const
 	{
-		PVACTOR_CALL(*this, &Block::set_value, rand());
+		return _value;
 	}
 
+	void action();
+private:
+	int _value;
 };
 
 class PropertyAct : public PVHive::PVActor<Block>
 {
 public:
-	PropertyAct() : _index(0)
+	PropertyAct() : _index(0), _value(0)
 	{}
 
-	PropertyAct(int i) : _index(i)
+	PropertyAct(int i, int v) : _index(i), _value(v)
 	{}
 
-	void action()
+	int get_value() const
 	{
-		PVACTOR_CALL(*this, &Block::set_prop, _index, Property(rand()));
+		return _value;
 	}
+
+	int get_index() const
+	{
+		return _index;
+	}
+
+	void action();
 private:
 	int _index;
+	int _value;
 };
 
 /*****************************************************************************
@@ -131,6 +134,11 @@ class BlockObs : public PVHive::PVObserver<Block>
 public:
 	BlockObs()
 	{}
+
+	int get_value() const
+	{
+		return _value;
+	}
 
 	void refresh()
 	{
@@ -152,6 +160,11 @@ class PropertyObs : public PVHive::PVObserver<Property>
 public:
 	PropertyObs() : _quit(false)
 	{}
+
+	int get_value() const
+	{
+		return _value;
+	}
 
 	void refresh()
 	{

@@ -39,3 +39,18 @@ void print_stat(const char *what, tbb::tick_count t1, tbb::tick_count t2, long n
 	          << " sec => ops per sec: " << num / dt << std::endl;
 
 }
+
+/*****************************************************************************
+ * ::action()
+ *****************************************************************************/
+
+void BlockAct::action()
+{
+	PVACTOR_CALL(*this, &Block::set_value, _value);
+}
+
+
+void PropertyAct::action()
+{
+	PVACTOR_CALL(*this, &Block::set_prop, _index, Property(_value));
+}
