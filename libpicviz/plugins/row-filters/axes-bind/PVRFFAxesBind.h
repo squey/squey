@@ -4,6 +4,7 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVArgument.h>
 #include <picviz/PVSelRowFilteringFunction.h>
+#include <picviz/PVSparseSelection.h>
 
 #include <boost/unordered_map.hpp>
 
@@ -15,6 +16,7 @@ class LibPicvizDecl PVRFFAxesBind: public PVSelRowFilteringFunction
 {
 private:
 	typedef boost::unordered_map<float,std::vector<PVRow> > hash_rows;
+	//typedef boost::unordered_map<float, Picviz::PVSparseSelection> hash_rows;
 public:
 	PVRFFAxesBind(PVCore::PVArgumentList const& l = PVRFFAxesBind::default_args());
 
@@ -24,7 +26,8 @@ public:
 	virtual QString get_human_name_with_args(const PVView& src_view, const PVView& dst_view) const;
 
 	void do_pre_process(PVView const& view_org, PVView const& view_dst);
-	void operator()(PVRow row_org, PVView const& view_org, PVView const& view_dst, PVSelection& sel_dst) const;
+	void operator()(PVRow row_org, PVView const& view_org, PVView const& view_dst, PVSparseSelection& sel_dst) const;
+	void process_or(PVRow row_org, PVView const& view_org, PVView const& view_dst, PVSelection& sel_dst) const;
 
 protected:
 	PVCore::PVArgumentKeyList get_arg_keys_for_org_view() const { return PVCore::PVArgumentKeyList() << "axis_org"; }

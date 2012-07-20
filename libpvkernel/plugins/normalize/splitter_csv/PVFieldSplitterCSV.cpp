@@ -14,12 +14,14 @@ void PVFilter::PVFieldSplitterCSV::set_args(PVCore::PVArgumentList const& args)
 {
 	FilterT::set_args(args);
 	_sep = args["sep"].toChar().toAscii();
+	_quote = args["quote"].toChar().toAscii();
 }
 
 DEFAULT_ARGS_FILTER(PVFilter::PVFieldSplitterCSV)
 {
 	PVCore::PVArgumentList args;
 	args["sep"] = QVariant(QChar(','));
+	args["quote"] = QVariant(QChar('"'));
 	return args;
 }
 
@@ -67,6 +69,7 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterCSV::one_to_many(PVCore:
 	if (csv_init(&inf._p, 0) != 0)
 		PVLOG_ERROR("Unable to initialize libcsv !\n");
 	csv_set_delim(&inf._p, _sep);
+	csv_set_quote(&inf._p, _quote);
 
 	// Convert to "C strings"
 	QString str_tmp;
@@ -98,7 +101,7 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterCSV::one_to_many(PVCore:
 
 bool PVFilter::PVFieldSplitterCSV::guess(list_guess_result_t& res, PVCore::PVField const& in_field)
 {
-	PVCore::PVArgumentList test_args;
+	PVCore::PVArgumentList test_args = get_default_args();
 	bool ok = false;
 
 	for (size_t i = 0; i < sizeof(g_delimiters)/sizeof(char); i++) {

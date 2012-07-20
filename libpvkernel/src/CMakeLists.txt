@@ -24,6 +24,7 @@ core/PVDirectory.cpp
 core/PVElement.cpp
 core/PVField.cpp
 core/PVFileSerialize.cpp
+core/PVHardwareConcurrency.cpp
 #core/PVListFloat2D.cpp
 core/PVLogger.cpp
 core/PVMatrix.cpp
@@ -69,6 +70,7 @@ include/pvkernel/core/PVArchive.h
 include/pvkernel/core/PVArgument.h
 include/pvkernel/core/PVAxisIndexType.h
 include/pvkernel/core/PVAxesIndexType.h
+include/pvkernel/core/PVBitCount.h
 include/pvkernel/core/PVColor.h
 include/pvkernel/core/PVClassLibrary.h
 include/pvkernel/core/PVDateTimeParser.h
@@ -357,7 +359,8 @@ add_library(pvkernel SHARED ${SRC_FILES} ${HEADER_FILES} ${MOC_SRC} ${MOC_HEADER
 
 set_target_properties(pvkernel PROPERTIES SOVERSION 1)
 
-set(PVKERNEL_LINK_LIBRARIES ${QT_LIBRARIES} ${ICU_LIBRARY} ${TBB_LIBRARIES} ${OpenMP_LIBRARIES} ${PYTHON_LIBRARY} ${Boost_LIBRARIES_PYTHON} ${ARCHIVE_LIBRARY} ${PCAP_LIBRARIES} ${WINSOCK_LIB} ${X11_LIBRARIES})
+set(PVKERNEL_LINK_LIBRARIES ${QT_LIBRARIES} ${ICU_LIBRARY} ${TBB_LIBRARIES} ${OpenMP_LIBRARIES} ${PYTHON_LIBRARY} ${Boost_LIBRARIES_PYTHON} ${ARCHIVE_LIBRARY} ${PCAP_LIBRARIES} ${WINSOCK_LIB} ${X11_LIBRARIES} ${HWLOC_LIBRARIES})
+
 #if(PYTHONLIBS_FOUND)
 #	set(PVKERNEL_LINK_LIBRARIES ${PVKERNEL_LINK_LIBRARIES} ${PYTHON_LIBRARY} ${Boost_LIBRARIES_PYTHON})
 #endif(PYTHONLIBS_FOUND)

@@ -1,3 +1,4 @@
+#include <pvkernel/core/PVClassLibrary.h>
 #include <picviz/PVCombiningFunctionView.h>
 #include <picviz/PVSelRowFilteringFunction.h>
 #include <picviz/PVTFViewRowFiltering.h>

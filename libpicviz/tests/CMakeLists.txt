@@ -4,7 +4,7 @@ add_definitions(${PICVIZ_DEFINITIONS})
 include_directories(AFTER ${PICVIZ_INCLUDE_DIRS})
 
 
-set(LINK_LIBRARIES ${PICVIZ_LIBRARY} ${PVKERNEL_LIBRARY} ${QT_LIBRARIES} ${TBB_LIBRARIES} ${ICU_LIBRARY})
+set(LINK_LIBRARIES ${PICVIZ_LIBRARY} ${PVKERNEL_LIBRARY} ${QT_LIBRARIES} ${TBB_LIBRARIES} ${ICU_LIBRARY} ${OpenMP_LIBRARIES})
 
 enable_testing()
 
@@ -48,6 +48,10 @@ target_link_libraries(Tpicviz_ad2gview ${LINK_LIBRARIES} ${TULIP_LIBRARY})
 
 add_executable(sel_red selection_red.cpp)
 target_link_libraries(sel_red ${LINK_LIBRARIES} ${TULIP_LIBRARY})
+
+# Sparse selection
+add_executable(Tpicviz_sparse_sel sparse_selection.cpp)
+target_link_libraries(Tpicviz_sparse_sel ${LINK_LIBRARIES})
 
 # Mapping plugin test
 #add_executable(Tpicviz_plugin_mapping plugin-mapping.cpp)

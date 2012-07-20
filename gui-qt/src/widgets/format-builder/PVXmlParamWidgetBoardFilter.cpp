@@ -47,7 +47,7 @@ void PVInspector::PVXmlParamWidgetBoardFilter::allocBoardFields() {
     typeOfFilter = new PVXmlParamComboBox("reverse");
     typeOfFilter->addItem("include");
     typeOfFilter->addItem("exclude");
-    typeOfFilter->select((node->attribute("reverse").toInt() == 1) ? "exclude":"include");
+    typeOfFilter->select((node->attribute("reverse") == "true") ? "exclude":"include");
     buttonNext = new QPushButton("Next");
     buttonNext->setShortcut(QKeySequence(Qt::Key_Return));
 }
@@ -150,7 +150,7 @@ void PVInspector::PVXmlParamWidgetBoardFilter::slotSetValues(){//called when we 
     node->setAttribute(QString("name"),name->text());
     node->setAttribute(QString("regexp"),exp->text());
     node->setAttribute(QString("validator"),validWidget->getVal().toString());
-    node->setAttribute(QString("reverse"),QString::number((typeOfFilter->val().toString() == "exclude")));
+    node->setAttribute(QString("reverse"),(typeOfFilter->val().toString() == "exclude") ? "true" : "false");
 
     emit signalRefreshView();
 }

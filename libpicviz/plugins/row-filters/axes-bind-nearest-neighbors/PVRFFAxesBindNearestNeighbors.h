@@ -24,7 +24,8 @@ public:
 	virtual QString get_human_name_with_args(const PVView& src_view, const PVView& dst_view) const;
 
 	void do_pre_process(PVView const& view_org, PVView const& view_dst);
-	void operator()(PVRow row_org, PVView const& view_org, PVView const& view_dst, PVSelection& sel_dst) const;
+	void operator()(PVRow row_org, PVView const& view_org, PVView const& view_dst, PVSparseSelection& sel_dst) const;
+	void process_or(PVRow row_org, PVView const& view_org, PVView const& view_dst, PVSelection& sel_dst) const;
 
 protected:
 	PVCore::PVArgumentKeyList get_arg_keys_for_org_view() const { return PVCore::PVArgumentKeyList() << "axis_org"; }
