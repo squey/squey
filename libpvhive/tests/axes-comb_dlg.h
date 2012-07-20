@@ -79,6 +79,11 @@ public:
 		resize(320, 640);
 	}
 
+	void closeEvent(QCloseEvent * e)
+	{
+		destroy();
+	}
+
 private slots:
 	void add()
 	{
@@ -104,6 +109,8 @@ private slots:
 	void remove()
 	{
 		int idx = rand() % _view_p->get_axes_count();
+
+		std::cout << "Removing axis #" << idx << std::endl;
 
 		PVHive::PVActor<Picviz::PVView> actor;
 		PVHive::PVHive::get().register_actor(_view_p, actor);

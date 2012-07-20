@@ -47,6 +47,23 @@ Picviz::PVSource_p create_src(const QString &path_file, const QString &path_form
         return src;
 }
 
+class PVViewObs : public PVHive::PVObserver<Picviz::PVView>
+{
+public:
+	PVViewObs(boost::thread & thread) : _thread(thread) {}
+
+	void refresh() {} // Note: does this function *really* need to be virtual pure?!
+
+	void about_to_be_deleted()
+	{
+		std::cout << "Killing boost::thread" << std::endl;
+		_thread.detach();
+	}
+private:
+	boost::thread & _thread;
+};
+
+
 void thread(PVView_p& view_p)
 {
 	std::cout << "thread (" << boost::this_thread::get_id() << ")" << std::endl;
@@ -103,12 +120,19 @@ int main(int argc, char** argv)
 
 	boost::thread th(boost::bind(thread, boost::ref(view_p)));
 
+	PVViewObs view_observer = PVViewObs(th);
+	PVHive::PVHive::get().register_observer(
+		view_p,
+		view_observer
+	);
+
 	TestDlg dlg(view_p);
+
+
 	dlg.show();
-
 	app.exec();
-
 	th.join();
 
 	return 0;
+	// Segfault because PVView_p has already been force-deleted...
 }
