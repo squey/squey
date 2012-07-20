@@ -399,7 +399,7 @@ protected:
 	 * @param params the method parameters
 	 */
 	template <typename T, typename F, F f, typename... P>
-	void call_object(T* object, P const& ... params)
+	void call_object(T* object, P... params)
 	{
 		// object must be a valid address
 		assert(object != nullptr);
