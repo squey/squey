@@ -3,11 +3,11 @@
 //! Copyright (C) Sébastien Tricaud 2011-2011
 //! Copyright (C) Philippe Saadé 2011-2011
 //! Copyright (C) Picviz Labs 2011
+
 #include <pvkernel/rush/PVXmlTreeNodeDom.h>
 #include <pvkernel/rush/PVFormat_types.h>
 
 #define dbg {qDebug()<<__FILE__<<":"<<__LINE__;}
-
 
 /******************************************************************************
  *
