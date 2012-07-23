@@ -10,6 +10,7 @@
 
 #include "PVFieldSplitterURL.h"
 #include <pvkernel/core/PVBufferSlice.h>
+#include <pvkernel/core/PVUnicodeString.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
 #include <pvkernel/rush/PVAxisTagsDec.h>
 
@@ -17,7 +18,13 @@
 
 #include <QUrl>
 
-const uint16_t empty_str = 0;
+static const uint16_t empty_str = 0;
+static const PVCore::PVUnicodeString g_str_http((const PVCore::PVUnicodeString::utf_char*) "h\0t\0t\0p\0", 4);
+static const PVCore::PVUnicodeString g_str_https((const PVCore::PVUnicodeString::utf_char*)"h\0t\0t\0p\0s\0", 5);
+static const PVCore::PVUnicodeString g_str_ftp((const PVCore::PVUnicodeString::utf_char*)"f\0t\0p\0", 3);
+static const PVCore::PVUnicodeString::utf_char g_port_80[] = {'8', '0'};
+static const PVCore::PVUnicodeString::utf_char g_port_443[] = {'4','4','3'};
+static const PVCore::PVUnicodeString::utf_char g_port_21[] = {'2', '1'};
 
 #define URL_NUMBER_FIELDS_CREATED 8
 
@@ -115,7 +122,38 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterURL::one_to_many(PVCore:
 	ret += set_field(_col_tld, pf, str_url, fh->furl.features.tld); 
 	ret += set_field(_col_url, pf, str_url, fh->furl.features.resource_path);
 	ret += set_field(_col_variable, pf, str_url, fh->furl.features.query_string); 
-	ret += set_field(_col_port, pf, str_url, fh->furl.features.port);
+	if (furl_features_exist(fh->furl.features.port)) {
+		ret += set_field(_col_port, pf, str_url, fh->furl.features.port);
+	}
+	else
+	if (_col_port >= 0) {
+		// Guess default port from protocol
+		PVCore::PVUnicodeString proto(str_url + fh->furl.features.scheme.pos, fh->furl.features.scheme.size);
+		const PVCore::PVUnicodeString::utf_char* str_port; size_t size_port;
+		if (proto.compareNoCase(g_str_http) == 0) {
+			str_port = g_port_80;
+			size_port = 2;
+		}
+		else
+		if (proto.compareNoCase(g_str_https) == 0) {
+			str_port = g_port_443;
+			size_port = 3;
+		}
+		else
+		if (proto.compareNoCase(g_str_ftp) == 0) {
+			str_port = g_port_21;
+			size_port = 2;
+		}
+		else {
+			return ret;
+		}
+
+		PVCore::PVField* fport = pf[_col_port];
+		fport->set_begin((char*) str_port);
+		fport->set_end((char*) (str_port + size_port));
+		fport->set_physical_end((char*) (str_port + size_port));
+		ret++;
+	}
 
 	return ret;
 }
