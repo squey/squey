@@ -1,3 +1,9 @@
+/**
+ * \file PVPipelineTask.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/rush/PVPipelineTask.h>
 #include <tbb/task.h>
 #include <tbb/pipeline.h>

@@ -1,3 +1,9 @@
+/**
+ * \file PVVersion.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVCORE_PVVERSION_FILE_H
 #define PVCORE_PVVERSION_FILE_H
 

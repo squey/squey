@@ -1,3 +1,9 @@
+/**
+ * \file PVController.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/rush/PVController.h>
 #include <tbb/task.h>
 #include <tbb/task_scheduler_init.h>

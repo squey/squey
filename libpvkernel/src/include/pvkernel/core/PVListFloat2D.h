@@ -1,9 +1,8 @@
-//! \file PVListFloat2D.h
-//! $Id: PVListFloat2D.h 3090 2011-06-09 04:59:46Z stricaud $
-//! Copyright (C) Sébastien Tricaud 2011-2011
-//! Copyright (C) Philippe Saadé 2011-2011
-//! Copyright (C) Picviz Labs 2011
-
+/**
+ * \file PVListFloat2D.h
+ *
+ * Copyright (C) Picviz Labs 2011-2012
+ */
 
 #ifndef PVCORE_PVLISTFLOAT2D_H
 #define PVCORE_PVLISTFLOAT2D_H

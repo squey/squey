@@ -1,3 +1,9 @@
+/**
+ * \file PVSelRowFilteringFunction_types.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PICVIZ_PVSELROWFILTERINGFUNCTION_TYPES_H
 #define PICVIZ_PVSELROWFILTERINGFUNCTION_TYPES_H
 

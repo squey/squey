@@ -1,3 +1,9 @@
+/**
+ * \file PVAD2GView.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PICVIZ_PVAD2GVIEW_H
 #define PICVIZ_PVAD2GVIEW_H
 

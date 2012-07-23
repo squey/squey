@@ -1,3 +1,8 @@
+/**
+ * \file test-env.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
 
 #ifdef WIN32
 #else

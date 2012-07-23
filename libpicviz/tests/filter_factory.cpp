@@ -1,3 +1,9 @@
+/**
+ * \file filter_factory.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <picviz/PVLayerFilter.h>
 #include <picviz/PVLayerFilterAxisGradient.h>
 

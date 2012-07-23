@@ -1,8 +1,8 @@
-//! \file PVRoot.h
-//! $Id: PVRoot.h 3068 2011-06-07 11:13:39Z aguinet $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVRoot.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #ifndef PICVIZ_PVROOT_H
 #define PICVIZ_PVROOT_H

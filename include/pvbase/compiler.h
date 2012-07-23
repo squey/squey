@@ -1,3 +1,9 @@
+/**
+ * \file compiler.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVBASE_COMPILER_H
 #define PVBASE_COMPILER_H
 

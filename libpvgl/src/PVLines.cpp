@@ -1,8 +1,8 @@
-//! \file PVLines.cpp
-//! $Id: PVLines.cpp 2977 2011-05-26 04:39:06Z dindinx $
-//! Copyright (C) SÃ©bastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saade 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVLines.cpp
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #include <sstream>
 #include <cmath>

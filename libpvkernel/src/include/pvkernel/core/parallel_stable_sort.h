@@ -1,3 +1,9 @@
+/**
+ * \file parallel_stable_sort.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef TBB_PARALLEL_STABLE_SORT
 #define TBB_PARALLEL_STABLE_SORT
 

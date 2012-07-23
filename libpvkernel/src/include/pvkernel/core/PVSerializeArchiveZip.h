@@ -1,3 +1,9 @@
+/**
+ * \file PVSerializeArchiveZip.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVCORE_PVSERIALIZEARCHIVEZIP_H
 #define PVCORE_PVSERIALIZEARCHIVEZIP_H
 

@@ -1,3 +1,9 @@
+/**
+ * \file PVAD2GEdgeEditor.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/core/PVClassLibrary.h>
 #include <picviz/PVCombiningFunctionView.h>
 #include <picviz/PVSelRowFilteringFunction.h>

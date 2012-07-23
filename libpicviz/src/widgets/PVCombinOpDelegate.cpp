@@ -1,3 +1,8 @@
+/**
+ * \file PVCombinOpDelegate.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
 
 #include <picviz/widgets/PVCombinOpDelegate.h>
 #include <pvkernel/core/PVBinaryOperation.h>

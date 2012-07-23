@@ -1,3 +1,9 @@
+/**
+ * \file AD2GWidget.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <QtGui>
 
 #include <picviz/PVAD2GView.h>

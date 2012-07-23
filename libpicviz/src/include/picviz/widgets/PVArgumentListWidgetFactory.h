@@ -1,3 +1,9 @@
+/**
+ * \file PVArgumentListWidgetFactory.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PICVIZ_PVARGUMENTLISTWIDGETFACTORY_H
 #define PICVIZ_PVARGUMENTLISTWIDGETFACTORY_H
 

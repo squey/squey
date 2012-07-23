@@ -1,4 +1,9 @@
 #
+# \file FindPICVIZ.cmake
+#
+# Copyright (C) Picviz Labs 2010-2012
+
+#
 # $Id$
 #
 #  PICVIZ_INCLUDE_DIRS - Where libpicviz headers are located.

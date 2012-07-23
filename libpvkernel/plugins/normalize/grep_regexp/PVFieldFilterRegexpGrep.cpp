@@ -1,8 +1,8 @@
-//! \file PVFieldFilterRegexpGrep.cpp
-//! $Id: PVFieldFilterRegexpGrep.cpp 3100 2011-06-10 08:19:40Z aguinet $
-//! Copyright (C) Sébastien Tricaud 2011-2011
-//! Copyright (C) Philippe Saadé 2011-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVFieldFilterRegexpGrep.cpp
+ *
+ * Copyright (C) Picviz Labs 2011-2012
+ */
 
 #include "PVFieldFilterRegexpGrep.h"
 

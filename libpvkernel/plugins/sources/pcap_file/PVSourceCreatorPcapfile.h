@@ -1,3 +1,9 @@
+/**
+ * \file PVSourceCreatorPcapfile.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PICVIZ_PVSOURCECREATORPCAPFILE_H
 #define PICVIZ_PVSOURCECREATORPCAPFILE_H
 

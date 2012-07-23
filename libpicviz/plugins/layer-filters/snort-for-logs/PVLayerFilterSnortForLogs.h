@@ -1,8 +1,8 @@
-//! \file PVLayerFilterSnortForLogs.h
-//! $Id$
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVLayerFilterSnortForLogs.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #ifndef PICVIZ_PVLAYERFILTERSNORTFORLOGS_H
 #define PICVIZ_PVLAYERFILTERSNORTFORLOGS_H

@@ -1,5 +1,8 @@
-//! \file PVAD2GView.cpp
-//! Copyright (C) Picviz Labs 2012
+/**
+ * \file PVAD2GView.cpp
+ *
+ * Copyright (C) Picviz Labs 2012-2012
+ */
 
 #include <pvkernel/core/PVSerializeObject.h>
 #include <pvkernel/core/PVSerializeArchive.h>

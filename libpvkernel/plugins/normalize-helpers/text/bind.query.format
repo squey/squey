@@ -1,4 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
+<!-- \file bind.query.format -->
+<!-- Copyright (C) Picviz Labs 2010-2012 -->
 <!DOCTYPE PVParamXml>
 <param version="1">
  <splitter selectionRegExp-2="(\S+)" selectionRegExp-3="(?: |)" selectionRegExp-4="(\d+\.\d+\.\d+\.\d+)" selectionRegExp-5="(\S+)" selectionRegExp-6="(A|A6|AAAA|CNAME|MX|NS|PTR|SOA|SPF|SRV|TXT|ANY)" validator="" expression="(\d+-\S+-\d+ \d+:\d+:\d+\.\d+) (\S+)(?: |)/(\d+\.\d+\.\d+\.\d+)/(\S+)/(A|A6|AAAA|CNAME|MX|NS|PTR|SOA|SPF|SRV|TXT|ANY)/(\S+)" type="regexp" regexp="(\d+-\S+-\d+ \d+:\d+:\d+\.\d+) (\S+)(?: |)/(\d+\.\d+\.\d+\.\d+)/(\S+)/(A|A6|AAAA|CNAME|MX|NS|PTR|SOA|SPF|SRV|TXT|ANY)/(\S+)" name="" selectionRegExp-1="(\d+-\S+-\d+ \d+:\d+:\d+\.\d+)">

@@ -1,3 +1,9 @@
+/**
+ * \file PVPipelineTask.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVPIPELINETASK_FILE_H
 #define PVPIPELINETASK_FILE_H
 

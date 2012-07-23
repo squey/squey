@@ -1,8 +1,8 @@
-//! \file PVLayerFilterEntropy.cpp
-//! $Id$
-//! Copyright (C) Sébastien Tricaud 2009-2012
-//! Copyright (C) Philippe Saadé 2009-2012
-//! Copyright (C) Picviz Labs 2011-2012
+/**
+ * \file PVLayerFilterEntropy.cpp
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #include "PVLayerFilterEntropy.h"
 

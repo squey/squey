@@ -1,3 +1,9 @@
+/**
+ * \file axis.vert
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #version 330
 
 in vec3 position;

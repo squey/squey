@@ -1,3 +1,9 @@
+/**
+ * \file PVSourceCreatorPcapfile.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include "PVSourceCreatorPcapfile.h"
 
 #include <pvkernel/rush/PVFileDescription.h>

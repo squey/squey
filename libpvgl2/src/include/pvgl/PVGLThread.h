@@ -1,9 +1,8 @@
-//! \file PVCom.h
-//! $Id: PVCom.h 3120 2011-06-14 05:16:22Z stricaud $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saade 2009-2011
-//! Copyright (C) Picviz Labs 2011
-
+/**
+ * \file PVGLThread.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #ifndef PVGL_THREAD_H
 #define PVGL_THREAD_H

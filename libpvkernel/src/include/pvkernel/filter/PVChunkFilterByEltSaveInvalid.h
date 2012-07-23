@@ -1,8 +1,8 @@
-//! \file PVChunkFilterByEltSaveInvalid.h
-//! $Id: PVChunkFilterByEltSaveInvalid.h 3129 2011-06-14 09:47:24Z aguinet $
-//! Copyright (C) Sébastien Tricaud 2011-2011
-//! Copyright (C) Philippe Saadé 2011-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVChunkFilterByEltSaveInvalid.h
+ *
+ * Copyright (C) Picviz Labs 2011-2012
+ */
 
 #ifndef PVFILTER_PVCHUNKFILTERBYELTSAVEINVALID_H
 #define PVFILTER_PVCHUNKFILTERBYELTSAVEINVALID_H

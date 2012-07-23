@@ -1,3 +1,9 @@
+/**
+ * \file visit_bits.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/core/PVBitVisitor.h>
 #include <iostream>
 

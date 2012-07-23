@@ -1,8 +1,8 @@
-//! \file PVListFloat2D.cpp
-//! $Id: PVListFloat2D.cpp 3090 2011-06-09 04:59:46Z stricaud $
-//! Copyright (C) Sébastien Tricaud 2011-2011
-//! Copyright (C) Philippe Saadé 2011-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVListFloat2D.cpp
+ *
+ * Copyright (C) Picviz Labs 2011-2012
+ */
 
 #include <pvkernel/core/PVListFloat2D.h>
 #include <stdlib.h>

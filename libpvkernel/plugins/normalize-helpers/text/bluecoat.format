@@ -1,4 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
+<!-- \file bluecoat.format -->
+<!-- Copyright (C) Picviz Labs 2010-2012 -->
 <!DOCTYPE PVParamXml>
 <param version="1">
  <splitter type="regexp" regexp="\&quot;\[(\d+/\w+/\d+:[\d:]+ [^\]]+)\]\&quot; ([^ ]+) (GET|POST|PUT|OPTIONS|DELETE|TRACE|HEAD|PROPFIND) (.*) [^ ]+ (\d+) (\d+) \d+ \d+ ([\w_]+) \d+ (\d+)">

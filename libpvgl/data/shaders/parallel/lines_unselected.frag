@@ -1,3 +1,9 @@
+/**
+ * \file lines_unselected.frag
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #version 330
 
 in vec4 color;

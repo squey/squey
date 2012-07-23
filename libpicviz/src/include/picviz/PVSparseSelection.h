@@ -1,3 +1,9 @@
+/**
+ * \file PVSparseSelection.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PICVIZ_PVSPARSESELECTION_H
 #define PICVIZ_PVSPARSESELECTION_H
 

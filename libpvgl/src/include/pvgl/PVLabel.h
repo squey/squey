@@ -1,8 +1,8 @@
-//! \file PVLabel.h
-//! $Id: PVLabel.h 2488 2011-04-24 17:40:43Z psaade $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saade 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVLabel.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #ifndef LIBPVGL_LABEL_H
 #define LIBPVGL_LABEL_H

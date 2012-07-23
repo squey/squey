@@ -1,8 +1,8 @@
-//! \file PVAxisPropertiesWidget.h
-//! $Id: PVAxisPropertiesWidget.h 3236 2011-07-04 12:40:17Z aguinet $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVAxisPropertiesWidget.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #ifndef PVAXISPROPERTIESWIDGET_H
 #define PVAXISPROPERTIESWIDGET_H

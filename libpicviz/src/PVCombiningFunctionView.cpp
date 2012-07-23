@@ -1,3 +1,9 @@
+/**
+ * \file PVCombiningFunctionView.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <picviz/PVCombiningFunctionView.h>
 #include <picviz/PVTFViewRowFiltering.h>
 #include <picviz/PVView.h>

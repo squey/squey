@@ -1,3 +1,9 @@
+/**
+ * \file PVMappingFilterStringLogAlpha.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include "PVMappingFilterStringDefault.h"
 #include <pvkernel/core/PVTBBMaxArray.h>
 #include <pvkernel/core/string.h>

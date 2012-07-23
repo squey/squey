@@ -1,3 +1,9 @@
+/**
+ * \file PVMappingFilterIPv4Default.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include "PVMappingFilterIPv4Default.h"
 #include <pvkernel/core/network.h>
 #include <pvkernel/core/dumbnet.h>

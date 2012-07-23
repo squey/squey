@@ -1,3 +1,9 @@
+/**
+ * \file PVPlottingFilterNoprocess.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVFILTER_PVPLOTTINGFILTERNOPROCESS_H
 #define PVFILTER_PVPLOTTINGFILTERNOPROCESS_H
 

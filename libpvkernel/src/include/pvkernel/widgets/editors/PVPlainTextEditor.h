@@ -1,3 +1,9 @@
+/**
+ * \file PVPlainTextEditor.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVCORE_PVPLAINTEXTEDITOR_H
 #define PVCORE_PVPLAINTEXTEDITOR_H
 

@@ -1,3 +1,9 @@
+/**
+ * \file export.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVKERNEL_EXPORT_H
 #define PVKERNEL_EXPORT_H
 

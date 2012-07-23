@@ -1,8 +1,8 @@
-//! \file PVScene.h
-//! $Id: PVScene.h 2875 2011-05-19 04:18:05Z aguinet $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVScene.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #ifndef PICVIZ_PVSCENE_H
 #define PICVIZ_PVSCENE_H

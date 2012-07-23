@@ -1,8 +1,8 @@
-//! \file PVMappingProperties.cpp
-//! $Id: PVMappingProperties.cpp 3062 2011-06-07 08:33:36Z aguinet $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVMappingProperties.cpp
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #include <picviz/PVMapping.h>
 #include <picviz/PVMappingProperties.h>

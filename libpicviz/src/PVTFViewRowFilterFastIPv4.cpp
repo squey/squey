@@ -1,3 +1,9 @@
+/**
+ * \file PVTFViewRowFilterFastIPv4.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <picviz/PVTFViewRowFilterFastIPv4.h>
 #include <picviz/PVSelRowFilteringFunction.h>
 #include <picviz/PVView.h>

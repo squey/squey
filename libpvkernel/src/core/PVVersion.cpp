@@ -1,3 +1,9 @@
+/**
+ * \file PVVersion.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/core/PVVersion.h>
 #include <pvkernel/core/stdint.h>
 

@@ -1,8 +1,8 @@
-//! \file PVScatter.cpp
-//! $Id: PVScatter.cpp 3081 2011-06-08 07:38:24Z aguinet $
-//! Copyright (C) SÃ©bastien Tricaud 2009, 2010
-//! Copyright (C) Philippe Saade 2009,2010
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVScatter.cpp
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #include <iostream>
 #include <string>

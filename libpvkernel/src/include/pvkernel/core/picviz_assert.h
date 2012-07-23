@@ -1,3 +1,9 @@
+/**
+ * \file picviz_assert.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVCORE_PICVIZASSERT_H
 #define PVCORE_PICVIZASSERT_H
 

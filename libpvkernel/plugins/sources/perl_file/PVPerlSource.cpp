@@ -1,3 +1,9 @@
+/**
+ * \file PVPerlSource.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include "PVPerlSource.h"
 #include <pvkernel/core/PVChunk.h>
 #include <pvkernel/core/PVElement.h>

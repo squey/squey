@@ -1,3 +1,9 @@
+/**
+ * \file PVBinaryOperation.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVCORE_PVBINARYOPERATION_H
 #define PVCORE_PVBINARYOPERATION_H
 

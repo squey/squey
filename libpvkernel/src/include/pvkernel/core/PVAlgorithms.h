@@ -1,3 +1,9 @@
+/**
+ * \file PVAlgorithms.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVCORE_PVALGORITHMS_H
 #define PVCORE_PVALGORITHMS_H
 

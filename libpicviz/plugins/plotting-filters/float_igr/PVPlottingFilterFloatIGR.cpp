@@ -1,3 +1,9 @@
+/**
+ * \file PVPlottingFilterFloatIGR.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include "PVPlottingFilterFloatIGR.h"
 #define RANGE 20.0f
 

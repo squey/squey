@@ -1,3 +1,9 @@
+/**
+ * \file PVDBPresets.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVDBPRESETS_H
 #define PVDBPRESETS_H
 

@@ -1,8 +1,8 @@
-//! \file PVConfig.h
-//! $Id: PVConfig.h 2456 2011-04-22 11:44:54Z dindinx $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saade 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVConfig.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #ifndef LIBPVGL_CONFIG_H
 #define LIBPVGL_CONFIG_H

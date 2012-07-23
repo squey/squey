@@ -1,3 +1,9 @@
+/**
+ * \file PVSerializeObject.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/core/PVSerializeObject.h>
 #include <pvkernel/core/PVSerializeArchive.h>
 

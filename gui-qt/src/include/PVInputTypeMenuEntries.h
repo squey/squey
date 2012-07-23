@@ -1,3 +1,9 @@
+/**
+ * \file PVInputTypeMenuEntries.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVINPUTTYPEMENUENTRIES_H
 #define PVINPUTTYPEMENUENTRIES_H
 

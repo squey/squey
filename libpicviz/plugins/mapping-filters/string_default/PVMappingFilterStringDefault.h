@@ -1,8 +1,8 @@
-//! \file PVMappingFilterIPv4Default.h
-//! $Id$
-//! Copyright (C) Sébastien Tricaud 2011-2012
-//! Copyright (C) Philippe Saadé 2011-2012
-//! Copyright (C) Picviz Labs 2012
+/**
+ * \file PVMappingFilterStringDefault.h
+ *
+ * Copyright (C) Picviz Labs 2011-2012
+ */
 
 #ifndef PVFILTER_PVMAPPINGFILTERSTRINGDEFAULT_H
 #define PVFILTER_PVMAPPINGFILTERSTRINGDEFAULT_H

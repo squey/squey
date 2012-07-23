@@ -1,3 +1,9 @@
+/**
+ * \file PVLayerFilterSelectionSearch.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PICVIZ_PVLAYERFILTERSELECTIONSEARCH_H
 #define PICVIZ_PVLAYERFILTERSELECTIONSEARCH_H
 

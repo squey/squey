@@ -1,3 +1,8 @@
+#
+# \file filters.txt
+#
+# Copyright (C) Picviz Labs 2010-2012
+
 object picviz_filter_t qui contient les filter_function possibles.
 
 Class filter rack

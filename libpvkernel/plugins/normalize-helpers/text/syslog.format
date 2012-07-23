@@ -1,4 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
+<!-- \file syslog.format -->
+<!-- Copyright (C) Picviz Labs 2010-2012 -->
 <!DOCTYPE PVParamXml>
 <param version="4">
  <splitter selectionRegExp-2="(\S+)" selectionRegExp-3="([a-zA-Z/]+)" selectionRegExp-4="(.*)" validator="" full-line="false" type="regexp" regexp="(\w+\s+\d+\s+\d+:\d+:\d+) (\S+) ([a-zA-Z/]+)\S*: (.*)" name="" saveValidator="false" selectionRegExp-1="(\w+\s+\d+\s+\d+:\d+:\d+)">

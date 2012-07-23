@@ -1,3 +1,8 @@
+#
+# \file CMakeLists.txt
+#
+# Copyright (C) Picviz Labs 2010-2012
+
 set(SOURCES_DIST_LIST
 source_text_file
 source_pcap_file

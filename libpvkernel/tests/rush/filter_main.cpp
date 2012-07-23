@@ -1,3 +1,9 @@
+/**
+ * \file filter_main.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #define SIMULATE_PIPELINE
 #include <pvkernel/filter/PVChunkFilterByElt.h>
 #include <pvkernel/rush/PVInputFile.h>

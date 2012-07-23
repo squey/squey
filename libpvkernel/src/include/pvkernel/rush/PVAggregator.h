@@ -1,8 +1,7 @@
-/*
- * $Id: PVAggregator.h 3206 2011-06-27 11:45:45Z aguinet $
- * Copyright (C) Sebastien Tricaud 2010-2011
- * Copyright (C) Philippe Saade 2010-2011
- * 
+/**
+ * \file PVAggregator.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
  */
 
 #ifndef PVRUSHAGGREGATOR_FILE_H

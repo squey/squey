@@ -1,3 +1,9 @@
+/**
+ * \file PVMapWidget.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #if 0
 #include <QWebView>
 

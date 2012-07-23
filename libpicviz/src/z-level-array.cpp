@@ -1,8 +1,8 @@
-//! \file z-level-array.cpp
-//! $Id: z-level-array.cpp 2556 2011-05-03 19:47:41Z psaade $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file z-level-array.cpp
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #include <stdio.h>
 #include <stdlib.h>

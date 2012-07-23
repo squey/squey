@@ -1,4 +1,9 @@
 #!/bin/bash
+
+# \file parallel_make
+#
+# Copyright (C) Picviz Labs 2010-2012
+
 # Waiting for a better dependency support in our CMake configuration files, here is a script that will "make -j" libraries in the good order...
 #
 # Based on the order of the "add_subdirectory" in the root CMakeList.txt

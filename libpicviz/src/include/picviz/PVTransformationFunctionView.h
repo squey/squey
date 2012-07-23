@@ -1,3 +1,9 @@
+/**
+ * \file PVTransformationFunctionView.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PICVIZ_PVTRANSFORMATIONFUNCTIONVIEW_H
 #define PICVIZ_PVTRANSFORMATIONFUNCTIONVIEW_H
 

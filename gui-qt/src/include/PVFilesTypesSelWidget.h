@@ -1,3 +1,9 @@
+/**
+ * \file PVFilesTypesSelWidget.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVFILESTYPESELWIDGET_H
 #define PVFILESTYPESELWIDGET_H
 

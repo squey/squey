@@ -1,1 +1,6 @@
+#
+# \file LICENSE.txt
+#
+# Copyright (C) Picviz Labs 2010-2012
+
 This software is the property of Picviz Labs. No right to redistribute without proper permissions from Picviz Labs.

@@ -1,8 +1,8 @@
-//! \file PVBox.h
-//! $Id: PVBox.h 2492 2011-04-25 05:41:54Z psaade $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saade 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVBox.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #ifndef LIBPVGL_BOX_H
 #define LIBPVGL_BOX_H

@@ -1,3 +1,9 @@
+/**
+ * \file PVSourceCreatorFactory.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/rush/PVSourceCreatorFactory.h>
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/rush/PVRawSourceBase.h>

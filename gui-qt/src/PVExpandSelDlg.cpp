@@ -1,3 +1,9 @@
+/**
+ * \file PVExpandSelDlg.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/core/hash_sharedptr.h>
 #include <PVExpandSelDlg.h>
 #include <QGridLayout>

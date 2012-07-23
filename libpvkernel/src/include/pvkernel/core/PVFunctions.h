@@ -1,3 +1,9 @@
+/**
+ * \file PVFunctions.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVCORE_PVFUNCTIONS_H
 #define PVCORE_PVFUNCTIONS_H
 

@@ -1,8 +1,8 @@
-//! \file index-array.h
-//! $Id: index-array.h 2548 2011-05-03 15:46:52Z psaade $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file index-array.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #ifndef _PICVIZ_INDEX_ARRAY_H_
 #define _PICVIZ_INDEX_ARRAY_H_

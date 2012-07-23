@@ -1,8 +1,8 @@
-//! \file PVAxisPropertiesWidget.cpp
-//! $Id: PVAxisPropertiesWidget.cpp 3236 2011-07-04 12:40:17Z aguinet $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVAxisPropertiesWidget.cpp
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #include <pvkernel/core/general.h>
 

@@ -1,3 +1,9 @@
+/**
+ * \file PVFieldsFilterWidget.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVFILTER_PVFIELDSFILTERWIDGET_H
 #define PVFILTER_PVFIELDSFILTERWIDGET_H
 

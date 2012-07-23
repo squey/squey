@@ -1,3 +1,9 @@
+/**
+ * \file PVUnicodeString.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVCORE_PVUNICODESTRING_H
 #define PVCORE_PVUNICODESTRING_H
 

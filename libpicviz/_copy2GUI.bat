@@ -1,3 +1,8 @@
+REM
+REM \file _copy2GUI.bat
+REM
+REM Copyright (C) Picviz Labs 2010-2012
+
 mkdir ..\picviz-gui\picvizNG_gui\parsers
 mkdir ..\picviz-gui\picvizNG_gui\normalize
 mkdir ..\picviz-gui\picvizNG_gui\functions

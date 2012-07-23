@@ -1,3 +1,9 @@
+/**
+ * \file file.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/rush/file.h>
 
 #include <stdio.h>

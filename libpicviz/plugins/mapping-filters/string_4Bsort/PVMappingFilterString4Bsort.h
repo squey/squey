@@ -1,8 +1,8 @@
-//! \file PVMappingFilterIPv44Bsort.h
-//! $Id: PVMappingFilterIPv44Bsort.h 2492 2011-04-25 05:41:54Z psaade $
-//! Copyright (C) Sébastien Tricaud 2011-2011
-//! Copyright (C) Philippe Saadé 2011-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVMappingFilterString4Bsort.h
+ *
+ * Copyright (C) Picviz Labs 2011-2012
+ */
 
 #ifndef PVFILTER_PVMAPPINGFILTERSTRING4BSORT_H
 #define PVFILTER_PVMAPPINGFILTERSTRING4BSORT_H

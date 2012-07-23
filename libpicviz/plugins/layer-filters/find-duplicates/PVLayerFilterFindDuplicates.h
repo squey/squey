@@ -1,3 +1,9 @@
+/**
+ * \file PVLayerFilterFindDuplicates.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PICVIZ_PVLAYERFILTERFindDuplicates_H
 #define PICVIZ_PVLAYERFILTERFindDuplicates_H
 

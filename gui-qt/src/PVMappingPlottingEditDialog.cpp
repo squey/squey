@@ -1,8 +1,8 @@
-//! \file PVMainPlottingEditDialog.cpp
-//! $Id: PVMainPlottingEditDialog.cpp 3251 2011-07-06 11:51:57Z psaade $
-//! Copyright (C) Sebastien Tricaud 2009-2012
-//! Copyright (C) Philippe Saade 2009-2012
-//! Copyright (C) Picviz Labs 2012
+/**
+ * \file PVMappingPlottingEditDialog.cpp
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #include <PVMappingPlottingEditDialog.h>
 #include <PVAxisTypeWidget.h>

@@ -1,3 +1,9 @@
+/**
+ * \file PVIntegerDefaultSortingFunc.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PICVIZ_PVINTEGERDEFAULTSORTINGFUNC_H
 #define PICVIZ_PVINTEGERDEFAULTSORTINGFUNC_H
 

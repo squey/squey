@@ -1,4 +1,9 @@
 #
+# \file CMakeLists.txt
+#
+# Copyright (C) Picviz Labs 2010-2012
+
+#
 # Axis computation
 #
 include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/libpicviz/src/include)

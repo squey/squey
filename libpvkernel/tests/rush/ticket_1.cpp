@@ -1,3 +1,9 @@
+/**
+ * \file ticket_1.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 /* Test case for ticket 1.
  * Here, we try to reproduce this bug by reading a lot of format consecutively, and checking if,
  * for the regexp, the correct one is choosen. This is due to th fact that thread-local objects are used

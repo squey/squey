@@ -1,3 +1,9 @@
+/**
+ * \file PVAD2GListEdgesWidget.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <picviz/widgets/PVAD2GEdgeEditor.h>
 #include <picviz/widgets/PVAD2GListEdgesWidget.h>
 #include <picviz/widgets/PVAD2GFunctionPropertiesWidget.h>

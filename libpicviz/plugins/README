@@ -1,3 +1,8 @@
+#
+# \file README
+#
+# Copyright (C) Picviz Labs 2010-2012
+
 The following environment variable can be used to override the default search dir:
 PICVIZ_PARSERS_DIR
 PICVIZ_NORMALIZE_DIR

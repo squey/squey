@@ -1,3 +1,9 @@
+/**
+ * \file PVUnicodeString.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/core/PVPython.h>
 #include <pvkernel/core/PVPythonClassDecl.h>
 #include <pvkernel/core/PVUnicodeString.h>

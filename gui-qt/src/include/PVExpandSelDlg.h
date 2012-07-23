@@ -1,3 +1,9 @@
+/**
+ * \file PVExpandSelDlg.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVEXPANDSELDLG_H
 #define PVEXPANDSELDLG_H
 

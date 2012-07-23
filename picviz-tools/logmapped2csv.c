@@ -1,3 +1,9 @@
+/**
+ * \file logmapped2csv.c
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <stdio.h>
 
 #include <picviz/general.h>

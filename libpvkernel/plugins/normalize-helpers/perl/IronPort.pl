@@ -1,4 +1,9 @@
 #!/usr/bin/perl
+
+# \file IronPort.pl
+#
+# Copyright (C) Picviz Labs 2010-2012
+
 # This script implements method useds by Picviz Inspector for the normalization process.
 # Please note that processing files this way might be slower than using native picviz normalization process.
 

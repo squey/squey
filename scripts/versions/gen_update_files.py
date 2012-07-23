@@ -1,4 +1,9 @@
 #!/usr/bin/env python
+
+# \file gen_update_files.py
+#
+# Copyright (C) Picviz Labs 2010-2012
+
 # Generate update files that will be downloaded by
 # the inspector in order to check for new versions
 #

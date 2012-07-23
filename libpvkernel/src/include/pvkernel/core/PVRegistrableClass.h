@@ -1,3 +1,9 @@
+/**
+ * \file PVRegistrableClass.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVCORE_PVREGISTRABLE_CLASS
 #define PVCORE_PVREGISTRABLE_CLASS
 

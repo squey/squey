@@ -1,3 +1,9 @@
+/**
+ * \file PVXmlParamParserData.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 /* 
  * File:   PVXmlParamParserData.h
  * Author: rpernaudat

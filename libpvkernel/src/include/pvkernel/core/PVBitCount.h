@@ -1,3 +1,9 @@
+/**
+ * \file PVBitCount.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVCORE_PVBITCOUNT_H
 #define PVCORE_PVBITCOUNT_H
 

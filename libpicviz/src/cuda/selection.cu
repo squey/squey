@@ -1,8 +1,7 @@
-/*
- * $Id: selection.cpp 2017 2011-02-28 19:10:49Z stricaud $
- * Copyright (C) Sebastien Tricaud 2010
- * Copyright (C) Philippe Saade 2010
- * 
+/**
+ * \file selection.cu
+ *
+ * Copyright (C) Picviz Labs 2010-2012
  */
 
 #include <stdio.h>

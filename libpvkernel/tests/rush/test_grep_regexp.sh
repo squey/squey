@@ -1,4 +1,9 @@
 #!/bin/bash
+
+# \file test_grep_regexp.sh
+#
+# Copyright (C) Picviz Labs 2010-2012
+
 #
 
 DIR="test-files/grep/regexp"

@@ -1,3 +1,9 @@
+/**
+ * \file console.c
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>

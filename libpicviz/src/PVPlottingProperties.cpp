@@ -1,8 +1,8 @@
-//! \file PVPlottingProperties.cpp
-//! $Id: PVPlottingProperties.cpp 3062 2011-06-07 08:33:36Z aguinet $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVPlottingProperties.cpp
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #include <picviz/PVPlottingProperties.h>
 #include <picviz/PVRoot.h>

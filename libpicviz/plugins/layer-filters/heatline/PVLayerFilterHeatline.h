@@ -1,8 +1,8 @@
-//! \file PVLayerFilterHeatline.h
-//! $Id: PVLayerFilterHeatline.h 2492 2011-04-25 05:41:54Z psaade $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVLayerFilterHeatline.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #ifndef PICVIZ_PVLAYERFILTERHeatline_H
 #define PICVIZ_PVLAYERFILTERHeatline_H

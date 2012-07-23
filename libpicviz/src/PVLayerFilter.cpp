@@ -1,9 +1,8 @@
-//! \file PVLayerFilter.cpp
-//! $Id: PVLayerFilter.cpp 3199 2011-06-24 07:14:57Z aguinet $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
-
+/**
+ * \file PVLayerFilter.cpp
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #include <picviz/PVLayerFilter.h>
 #include <picviz/PVLayer.h>

@@ -1,3 +1,9 @@
+/**
+ * \file hash_sharedptr.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef HASH_SHAREDPTR_H
 #define HASH_SHAREDPTR_H
 

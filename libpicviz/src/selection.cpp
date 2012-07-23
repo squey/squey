@@ -1,8 +1,8 @@
-//! \file selection.cpp
-//! $Id: selection.cpp 2544 2011-05-03 13:53:03Z psaade $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file selection.cpp
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #include <stdio.h>
 #include <stdlib.h>

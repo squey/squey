@@ -1,8 +1,8 @@
-//! \file PVExtractorWidget.h
-//! $Id: PVExtractorWidget.h 3187 2011-06-21 11:20:33Z aguinet $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVExtractorWidget.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #ifndef PVEXTRACTORWIDGET_H
 #define PVEXTRACTORWIDGET_H

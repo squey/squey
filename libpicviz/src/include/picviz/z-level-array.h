@@ -1,8 +1,8 @@
-//! \file z-level-array.h
-//! $Id: z-level-array.h 2554 2011-05-03 19:40:46Z psaade $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file z-level-array.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #ifndef _PICVIZ_Z_LEVEL_ARRAY_H_
 #define _PICVIZ_Z_LEVEL_ARRAY_H_

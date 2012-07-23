@@ -1,3 +1,9 @@
+/**
+ * \file PVAD2GFunctionPropertiesWidget.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <QLabel>
 #include <QGroupBox>
 #include <QVBoxLayout>

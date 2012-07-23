@@ -1,3 +1,9 @@
+/**
+ * \file PVAggregator.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/rush/PVAggregator.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
 
