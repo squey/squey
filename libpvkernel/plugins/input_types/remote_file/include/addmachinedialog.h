@@ -1,3 +1,9 @@
+/**
+ * \file addmachinedialog.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef ADDMACHINEDIALOG_H
 #define ADDMACHINEDIALOG_H
 

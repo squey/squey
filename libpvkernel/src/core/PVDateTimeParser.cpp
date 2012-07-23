@@ -1,3 +1,9 @@
+/**
+ * \file PVDateTimeParser.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/core/PVDateTimeParser.h>
 #include <QDate>
 

@@ -1,8 +1,8 @@
-//! PVFontManager.cpp
-//! $Id: PVFontManager.cpp 2986 2011-05-26 09:51:13Z dindinx $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saade 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVFontManager.cpp
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #include <pvgl/PVUtils.h>
 #include <pvgl/PVFonts.h>

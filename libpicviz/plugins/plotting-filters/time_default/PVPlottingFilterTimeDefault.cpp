@@ -1,3 +1,9 @@
+/**
+ * \file PVPlottingFilterTimeDefault.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include "PVPlottingFilterTimeDefault.h"
 #include <picviz/limits.h>
 

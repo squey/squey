@@ -1,8 +1,8 @@
-//! \file PVWidgetManager.cpp
-//! $Id: PVWidgetManager.cpp 2520 2011-04-30 12:26:48Z stricaud $
-//! Copyright (C) SÃ©bastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saade 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVWidgetManager.cpp
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #include <sstream>
 

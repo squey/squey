@@ -1,3 +1,9 @@
+/**
+ * \file PVAD2GFunctionPropertiesWidget.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVAD2GFUNCTIONPROPERTIES_WIDGET_H
 #define PVAD2GFUNCTIONPROPERTIES_WIDGET_H
 

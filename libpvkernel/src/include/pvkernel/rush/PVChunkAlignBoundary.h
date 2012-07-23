@@ -1,3 +1,9 @@
+/**
+ * \file PVChunkAlignBoundary.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVCHUNKALIGNBOUNDARY_FILE_H
 #define PVCHUNKALIGNBOUNDARY_FILE_H
 

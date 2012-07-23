@@ -1,3 +1,9 @@
+/**
+ * \file PVSerializeArchiveZip.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/core/PVArchive.h>
 #include <pvkernel/core/PVDirectory.h>
 #include <pvkernel/core/PVSerializeArchiveZip.h>

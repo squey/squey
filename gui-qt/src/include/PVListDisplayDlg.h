@@ -1,3 +1,9 @@
+/**
+ * \file PVListDisplayDlg.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVINSPECTOR_PVLISTDISPLAYDLG_H
 #define PVINSPECTOR_PVLISTDISPLAYDLG_H
 

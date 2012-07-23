@@ -1,8 +1,8 @@
-//! \file PVMainWindow.h
-//! $Id: PVMainWindow.h 3196 2011-06-23 16:24:50Z stricaud $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVMainWindow.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #ifndef PVMAINWINDOW_H
 #define PVMAINWINDOW_H

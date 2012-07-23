@@ -1,8 +1,8 @@
-//! \file layer.h
-//! $Id: layer.h 2541 2011-05-03 13:03:10Z psaade $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file layer.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #ifndef _PICVIZ_LAYER_H_
 #define _PICVIZ_LAYER_H_

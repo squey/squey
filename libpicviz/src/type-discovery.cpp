@@ -1,8 +1,8 @@
-//! \file type-discovery.cpp
-//! $Id: type-discovery.cpp 2934 2011-05-23 05:09:52Z psaade $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file type-discovery.cpp
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #if 0
 

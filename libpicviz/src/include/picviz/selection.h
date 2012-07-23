@@ -1,8 +1,8 @@
-//! \file selection.h
-//! $Id: selection.h 2544 2011-05-03 13:53:03Z psaade $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file selection.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #ifndef _PICVIZ_SELECTION_H_
 #define _PICVIZ_SELECTION_H_

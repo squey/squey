@@ -1,8 +1,8 @@
 # Locate Picviz include paths and libraries
 #
-# $Id$
-# Copyright (C) Sebastien Tricaud 2010-2011
-# Copyright (C) Philippe Saade 2010-2011
+# \file FindPicviz.cmake
+#
+# Copyright (C) Picviz Labs 2010-2012
 #
 # PICVIZ_FOUND        - If Picviz is found
 # PICVIZ_INCLUDE_DIRS - Where include/picviz is found

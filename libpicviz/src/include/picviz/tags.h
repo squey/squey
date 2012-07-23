@@ -1,8 +1,8 @@
-//! \file tags.h
-//! $Id: tags.h 2490 2011-04-25 02:07:58Z psaade $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file tags.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #ifndef _PICVIZ_TAGS_H_
 #define _PICVIZ_TAGS_H_

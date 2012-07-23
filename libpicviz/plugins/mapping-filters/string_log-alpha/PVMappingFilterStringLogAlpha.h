@@ -1,3 +1,9 @@
+/**
+ * \file PVMappingFilterStringLogAlpha.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVFILTER_PVMAPPINGFILTERSTRINGDEFAULT_H
 #define PVFILTER_PVMAPPINGFILTERSTRINGDEFAULT_H
 

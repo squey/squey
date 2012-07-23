@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- \file PVAxesCombinationWidgetSelRange.ui -->
+<!-- Copyright (C) Picviz Labs 2010-2012 -->
 <ui version="4.0">
  <class>PVAxesCombinationWidgetSelRange</class>
  <widget class="QDialog" name="PVAxesCombinationWidgetSelRange">

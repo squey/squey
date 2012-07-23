@@ -1,3 +1,9 @@
+/**
+ * \file picviz_bench.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef __BENCH_H
 #define __BENCH_H
 

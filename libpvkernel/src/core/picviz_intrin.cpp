@@ -1,3 +1,9 @@
+/**
+ * \file picviz_intrin.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/core/picviz_intrin.h>
 #include <pvkernel/core/sse4detector.h>
 

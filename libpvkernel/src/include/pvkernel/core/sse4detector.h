@@ -1,3 +1,9 @@
+/**
+ * \file sse4detector.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVCORE_SSE4DETECTOR_H
 #define PVCORE_SSE4DETECTOR_H
 

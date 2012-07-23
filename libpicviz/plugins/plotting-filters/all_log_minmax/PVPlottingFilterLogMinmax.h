@@ -1,3 +1,9 @@
+/**
+ * \file PVPlottingFilterLogMinmax.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVFILTER_PVPLOTTINGFILTERLOGMINMAX_H
 #define PVFILTER_PVPLOTTINGFILTERLOGMINMAX_H
 

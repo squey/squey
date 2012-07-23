@@ -1,3 +1,9 @@
+/**
+ * \file PVSQLTypeMap.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVSQLTYPEMAP_FILE_H
 #define PVSQLTYPEMAP_FILE_H
 

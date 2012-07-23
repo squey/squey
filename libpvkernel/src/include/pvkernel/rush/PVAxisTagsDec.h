@@ -1,3 +1,9 @@
+/**
+ * \file PVAxisTagsDec.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVAXIS_TAGS_DEC_FILE_H
 #define PVAXIS_TAGS_DEC_FILE_H
 

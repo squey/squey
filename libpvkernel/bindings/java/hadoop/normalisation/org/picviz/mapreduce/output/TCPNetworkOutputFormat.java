@@ -1,3 +1,9 @@
+/**
+ * \file TCPNetworkOutputFormat.java
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 package org.picviz.mapreduce.output;
 
 import java.io.BufferedOutputStream;

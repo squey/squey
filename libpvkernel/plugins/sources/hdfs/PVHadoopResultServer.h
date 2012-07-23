@@ -1,3 +1,9 @@
+/**
+ * \file PVHadoopResultServer.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVHADOOPRESULTSERVER_H
 #define PVHADOOPRESULTSERVER_H
 

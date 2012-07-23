@@ -1,7 +1,8 @@
-//! \file ClassLibrary.h
-//! Copyright (C) Sébastien Tricaud 2011-2011
-//! Copyright (C) Philippe Saadé 2011-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file export.h
+ *
+ * Copyright (C) Picviz Labs 2011-2012
+ */
 
 #ifndef SAD_EXPORT_H
 #define SAD_EXPORT_H

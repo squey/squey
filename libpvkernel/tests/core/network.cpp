@@ -1,3 +1,9 @@
+/**
+ * \file network.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/core/network.h>
 #include <stdio.h>
 

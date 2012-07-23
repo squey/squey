@@ -1,8 +1,8 @@
-//! \file PVVBox.h
-//! $Id: PVVBox.h 2439 2011-04-22 04:15:09Z dindinx $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saade 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVVBox.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #ifndef LIBPVGL_VBOX_H
 #define LIBPVGL_VBOX_H

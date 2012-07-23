@@ -1,3 +1,9 @@
+/**
+ * \file setenv.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef HADOOP_SETENV_H
 #define HADOOP_SETENV_H
 

@@ -1,8 +1,8 @@
-//! \file PVSource.h
-//! $Id: PVSource.h 3221 2011-06-30 11:45:19Z aguinet $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVSource.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #ifndef PICVIZ_PVSOURCE_H
 #define PICVIZ_PVSOURCE_H

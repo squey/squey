@@ -1,8 +1,8 @@
-//! \file PVIdleManager.h
-//! $Id: PVIdleManager.h 2975 2011-05-26 03:54:42Z aguinet $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saade 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVIdleManager.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #ifndef LIBPVGL_PVIDLE_MANAGER_H
 #define LIBPVGL_PVIDLE_MANAGER_H

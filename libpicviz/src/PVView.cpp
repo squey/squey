@@ -1,8 +1,8 @@
-//! \file PVView.cpp
-//! $Id: PVView.cpp 3251 2011-07-06 11:51:57Z rpernaudat $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVView.cpp
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #include <math.h>
 

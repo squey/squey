@@ -1,3 +1,9 @@
+/**
+ * \file PVCharsetDetect.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/rush/PVCharsetDetect.h>
 
 PVRush::PVCharsetDetect::PVCharsetDetect() :

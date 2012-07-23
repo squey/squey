@@ -1,3 +1,8 @@
+#
+# \file CMakeLists.txt
+#
+# Copyright (C) Picviz Labs 2010-2012
+
 # include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/libpicviz/src/include)
 
 # if(USE_PVGL2)

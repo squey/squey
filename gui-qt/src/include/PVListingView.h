@@ -1,8 +1,8 @@
-//! \file PVListingView.h
-//! $Id: PVListingView.h 3092 2011-06-09 06:43:23Z rpernaudat $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVListingView.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #ifndef PVLISTINGVIEW_H
 #define PVLISTINGVIEW_H

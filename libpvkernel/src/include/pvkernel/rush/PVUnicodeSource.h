@@ -1,3 +1,9 @@
+/**
+ * \file PVUnicodeSource.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVRUSH_PVUNICODESOURCE_FILE_H
 #define PVRUSH_PVUNICODESOURCE_FILE_H
 

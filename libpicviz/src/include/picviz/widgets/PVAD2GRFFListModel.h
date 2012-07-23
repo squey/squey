@@ -1,3 +1,9 @@
+/**
+ * \file PVAD2GRFFListModel.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef __PVAD2GRFFLISTMODEL_H
 #define __PVAD2GRFFLISTMODEL_H
 

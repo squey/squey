@@ -1,3 +1,9 @@
+/**
+ * \file PVSaveSceneDialog.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVSAVESCENEDIALOG_H
 #define PVSAVESCENEDIALOG_H
 

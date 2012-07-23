@@ -1,7 +1,8 @@
-//! \file Window.h
-//! $Id$
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saade 2009-2011
+/**
+ * \file Window.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #ifndef LIBPVGL_WTK_WINDOW_H
 #define LIBPVGL_WTK_WINDOW_H

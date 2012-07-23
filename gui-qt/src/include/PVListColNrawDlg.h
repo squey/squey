@@ -1,3 +1,9 @@
+/**
+ * \file PVListColNrawDlg.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVINSPECTOR_PVLISTCOLNRAWDLG_H
 #define PVINSPECTOR_PVLISTCOLNRAWDLG_H
 

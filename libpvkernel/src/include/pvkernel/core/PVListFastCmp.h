@@ -1,3 +1,9 @@
+/**
+ * \file PVListFastCmp.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVCORE_PVLISTFASTCMP_H
 #define PVCORE_PVLISTFASTCMP_H
 

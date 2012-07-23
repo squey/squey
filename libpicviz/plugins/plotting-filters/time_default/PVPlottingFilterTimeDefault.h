@@ -1,3 +1,9 @@
+/**
+ * \file PVPlottingFilterTimeDefault.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVFILTER_PVPLOTTINGFILTERTIMEDEFAULT_H
 #define PVFILTER_PVPLOTTINGFILTERTIMEDEFAULT_H
 

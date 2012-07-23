@@ -1,3 +1,9 @@
+/**
+ * \file PVAD2GInteractor.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <picviz/PVAD2GView.h>
 #include <picviz/widgets/PVAD2GInteractor.h>
 

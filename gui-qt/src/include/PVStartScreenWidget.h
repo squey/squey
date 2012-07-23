@@ -1,8 +1,8 @@
-//! \file PVStartScreenWidget.h
-//! $Id: PVStartScreenWidget.h 2496 2011-04-25 14:10:00Z psaade $
-//! Copyright (C) Sébastien Tricaud 2009-2012
-//! Copyright (C) Philippe Saadé 2009-2012
-//! Copyright (C) Picviz Labs 2012
+/**
+ * \file PVStartScreenWidget.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #ifndef PVSTARTSCREENWIDGET_H
 #define PVSTARTSCREENWIDGET_H

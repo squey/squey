@@ -1,3 +1,9 @@
+/**
+ * \file libcsv.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef LIBCSV_H__
 #define LIBCSV_H__
 #include <stdlib.h>

@@ -1,3 +1,9 @@
+/**
+ * \file PVPluginsLoad.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/rush/PVPluginsLoad.h>
 #include <pvkernel/core/PVClassLibrary.h>
 

@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# \file picviz-env.sh
+#
+# Copyright (C) Picviz Labs 2010-2012
+
 INSPECTOR_SOURCE_ROOT_DIR="/opt/picviz-inspector"
 export PATH=$PATH:$INSPECTOR_SOURCE_ROOT_DIR
 ISRD=$INSPECTOR_SOURCE_ROOT_DIR

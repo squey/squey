@@ -1,3 +1,9 @@
+/**
+ * \file PVAxisTypeWidget.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef WIDGETS_PVAXISTYPEWIDGET_H
 #define WIDGETS_PVAXISTYPEWIDGET_H
 

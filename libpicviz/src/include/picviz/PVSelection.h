@@ -1,8 +1,8 @@
-//! \file PVSelection.h
-//! $Id: PVSelection.h 3114 2011-06-14 03:22:15Z aguinet $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVSelection.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #ifndef PICVIZ_PVSELECTION_H
 #define PICVIZ_PVSELECTION_H

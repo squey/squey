@@ -1,3 +1,9 @@
+/**
+ * \file PVView_impl.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PICVIZ_PVVIEW_IMPL_H
 #define PICVIZ_PVVIEW_IMPL_H
 

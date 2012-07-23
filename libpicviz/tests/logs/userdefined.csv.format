@@ -1,4 +1,6 @@
 <format name="test">
+<!-- \file userdefined.csv.format -->
+<!-- Copyright (C) Picviz Labs 2010-2012 -->
 <axes>
 
 <axis>

@@ -1,8 +1,8 @@
-//! \file PVTabSplitter.cpp
-//! $Id: PVTabSplitter.cpp 3253 2011-07-07 07:37:17Z rpernaudat $
-//! Copyright (C) SÃ©bastien Tricaud 2009-2011
-//! Copyright (C) Philippe SaadÃ© 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVTabSplitter.cpp
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #include <QtGui>
 

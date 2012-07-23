@@ -1,3 +1,9 @@
+/**
+ * \file PVDBInfos.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvbase/general.h>
 #include "PVDBInfos.h"
 #include <QSqlError>

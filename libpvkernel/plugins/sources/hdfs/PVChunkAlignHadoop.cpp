@@ -1,3 +1,9 @@
+/**
+ * \file PVChunkAlignHadoop.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include "PVInputHadoopTaskResult.h"
 #include "PVChunkAlignHadoop.h"
 #include <arpa/inet.h>

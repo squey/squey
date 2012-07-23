@@ -1,3 +1,9 @@
+/**
+ * \file PVJob.java
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 package org.picviz.hadoop.job.norm;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;

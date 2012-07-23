@@ -1,3 +1,9 @@
+/**
+ * \file PVChunk.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/core/PVChunk.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
 

@@ -1,3 +1,9 @@
+/**
+ * \file logviewerwidget.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef LOGVIEWERWIDGET_H
 #define LOGVIEWERWIDGET_H
 

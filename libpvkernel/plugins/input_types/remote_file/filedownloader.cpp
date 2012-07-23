@@ -1,3 +1,9 @@
+/**
+ * \file filedownloader.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include "include/filedownloader.h"
 #include "include/logviewer_config.h"
 #include <curl/curl.h>

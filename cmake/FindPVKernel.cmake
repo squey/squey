@@ -1,8 +1,8 @@
 # Locate PVKernel include paths and libraries
 #
-# $Id$
-# Copyright (C) Sebastien Tricaud 2010-2011
-# Copyright (C) Philippe Saade 2010-2011
+# \file FindPVKernel.cmake
+#
+# Copyright (C) Picviz Labs 2010-2012
 #
 # PVKERNEL_FOUND        - If PVKernel is found
 # PVKERNEL_INCLUDE_DIRS - Where include/pvkernel is found

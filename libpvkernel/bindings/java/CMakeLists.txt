@@ -1,3 +1,8 @@
+#
+# \file CMakeLists.txt
+#
+# Copyright (C) Picviz Labs 2010-2012
+
 if (JAVA_FOUND)
 	if (JNI_FOUND)
 		add_subdirectory(jni)

@@ -1,3 +1,9 @@
+/**
+ * \file PVNrawOutput.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVNRAWOUTPUT_FILE_H
 #define PVNRAWOUTPUT_FILE_H
 

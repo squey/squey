@@ -1,3 +1,9 @@
+/**
+ * \file connectionsettings.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef CONNECTIONSETTINGS_H
 #define CONNECTIONSETTINGS_H
 

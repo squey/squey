@@ -1,8 +1,8 @@
-//! \file PVCore::PVFieldSplitterURL.cpp
-//! $Id: PVFieldSplitterURL.cpp 3090 2011-06-09 04:59:46Z stricaud $
-//! Copyright (C) Sébastien Tricaud 2011-2012
-//! Copyright (C) Philippe Saadé 2011-2012
-//! Copyright (C) Picviz Labs 2011-2012
+/**
+ * \file PVFieldSplitterURL.cpp
+ *
+ * Copyright (C) Picviz Labs 2011-2012
+ */
 
 // Handles urls like this:
 // lintranet.beijaflore.com:443

@@ -1,3 +1,9 @@
+/**
+ * \file PVCheckableComboBox.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVCHECKABLECOMBOBOX_H
 #define PVCHECKABLECOMBOBOX_H
 

@@ -1,3 +1,9 @@
+/**
+ * \file PVDefaultSortingFunc.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/core/PVUnicodeString.h>
 #include <pvkernel/core/PVEnumType.h>
 #include <picviz/PVDefaultSortingFunc.h>

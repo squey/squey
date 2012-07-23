@@ -1,3 +1,9 @@
+/**
+ * \file PVViewsListingView.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVVIEWSLISTINGVIEW_H
 #define PVVIEWSLISTINGVIEW_H
 

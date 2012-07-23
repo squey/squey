@@ -1,3 +1,9 @@
+/**
+ * \file PVTypeInfo.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVCORE_TYPEINFO_H
 #define PVCORE_TYPEINFO_H
 

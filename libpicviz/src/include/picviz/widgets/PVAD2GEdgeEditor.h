@@ -1,3 +1,9 @@
+/**
+ * \file PVAD2GEdgeEditor.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef __PVAD2GEDGEEDITOR_H__
 #define __PVAD2GEDGEEDITOR_H__
 

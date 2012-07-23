@@ -1,3 +1,9 @@
+/**
+ * \file PVViewRowsSpinBoxEditor.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVCORE_PVSPINBOXEDITOR_H
 #define PVCORE_PVSPINBOXEDITOR_H
 

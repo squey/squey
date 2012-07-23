@@ -1,3 +1,9 @@
+/**
+ * \file PVSortFilterProxyModel.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVAlgorithms.h>
 #include <pvkernel/core/PVParallels.h>

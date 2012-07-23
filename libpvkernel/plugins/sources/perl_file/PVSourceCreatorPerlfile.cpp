@@ -1,3 +1,9 @@
+/**
+ * \file PVSourceCreatorPerlfile.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include "PVSourceCreatorPerlfile.h"
 
 #include <pvkernel/rush/PVFileDescription.h>

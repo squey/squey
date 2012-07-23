@@ -1,7 +1,7 @@
-/*
- * $Id: PVNraw.h 3249 2011-07-05 11:14:53Z aguinet $
- * Copyright (C) Sebastien Tricaud 2010-2011
- * Copyright (C) Philippe Saade 2010-2011
+/**
+ * \file PVNraw.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
  */
 
 #ifndef PVRUSH_NRAW_H

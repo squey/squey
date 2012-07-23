@@ -1,3 +1,8 @@
+REM
+REM \file _copy_to.bat
+REM
+REM Copyright (C) Picviz Labs 2010-2012
+
 @echo off
 
 set ReleaseMode=Release

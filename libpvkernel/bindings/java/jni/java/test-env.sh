@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# \file test-env.sh
+#
+# Copyright (C) Picviz Labs 2010-2012
 
 echo "Setting testing environnement for PVRush JNI..."
 

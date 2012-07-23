@@ -1,3 +1,9 @@
+/**
+ * \file PVNrawPython.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVRUSH_PVPYTHONNRAW_H
 #define PVRUSH_PVPYTHONNRAW_H
 

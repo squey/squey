@@ -1,3 +1,9 @@
+/**
+ * \file PVCustomQtRoles.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVINSPECTOR_PVCUSTOMQTROLES_H
 #define PVINSPECTOR_PVCUSTOMQTROLES_H
 

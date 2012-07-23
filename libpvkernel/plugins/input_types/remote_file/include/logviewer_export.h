@@ -1,3 +1,9 @@
+/**
+ * \file logviewer_export.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef LOGVIEWERLIB_H
 #define LOGVIEWERLIB_H
 

@@ -1,3 +1,9 @@
+/**
+ * \file PVSizeHintListWidget.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVSIZEHINTLISTWIDGET_H__
 #define PVSIZEHINTLISTWIDGET_H__
 

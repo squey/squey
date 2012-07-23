@@ -1,8 +1,8 @@
-//! \file PVAxis.cpp
-//! $Id: PVAxis.cpp 2526 2011-05-02 12:21:26Z psaade $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVAxis.cpp
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #include <picviz/PVAxis.h>
 #include <picviz/PVMappingFilter.h>

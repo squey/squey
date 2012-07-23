@@ -1,17 +1,7 @@
-/*
- * This file is from the dumbnet library version 1.12.
- * License is in net/README.
+/**
+ * \file dumbnet.h
  *
- * Include paths have been modified to match picviz's
- * source code structure.
- *
- * Here is the original header:
- *
- * dnet.h
- *
- * Copyright (c) 2001 Dug Song <dugsong@monkey.org>
- *
- * $Id: dnet.h 529 2004-09-10 03:10:01Z dugsong $
+ * Copyright (C) Picviz Labs 2001-2012
  */
 
 #ifndef DNET_H

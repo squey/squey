@@ -1,3 +1,9 @@
+/**
+ * \file PVInputTypeRemoteFilename.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PICVIZ_PVINPUTTYPEREMOTEFILENAME_H
 #define PICVIZ_PVINPUTTYPEREMOTEFILENAME_H
 

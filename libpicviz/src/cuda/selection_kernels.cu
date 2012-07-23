@@ -1,3 +1,9 @@
+/**
+ * \file selection_kernels.cu
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include "selection_kernels.h"
 
 __global__ void picviz_selection_AB2C_or_k(uint32_t *da, uint32_t *db, uint32_t *dc)

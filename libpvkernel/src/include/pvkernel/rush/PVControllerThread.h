@@ -1,3 +1,9 @@
+/**
+ * \file PVControllerThread.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVRUSH_PVCONTROLLERTHREAD_FILE_H
 #define PVRUSH_PVCONTROLLERTHREAD_FILE_H
 

@@ -1,3 +1,9 @@
+/**
+ * \file PVPluginPresets.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVCORE_PVPLUGIN_PRESETS_H
 #define PVCORE_PVPLUGIN_PRESETS_H
 
