@@ -257,7 +257,7 @@ do
 	    # files not owned by Picviz Labs
 	    ;;
 
-	*CHANGELOG | scripts/versions/versions | libpicviz/doc/LICENSES.txt | COPYING.txt | doc/license-demo.txt | pvconfig.ini | *syslog | VERSION.txt | VERSION-NAME.txt )
+	*CHANGELOG | scripts/versions/versions | libpicviz/doc/LICENSES.txt | COPYING.txt | doc/license-demo.txt | pvconfig.ini | *syslog | VERSION.txt | VERSION-NAME.txt | CMakeCustomerSpecifics.txt | CMakePicvizDeveloperSpecifics.txt )
 	    # files which do not need any header
 	    ;;
 
