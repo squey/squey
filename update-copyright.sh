@@ -265,6 +265,10 @@ do
 	    # files whose format do not define any comment syntax
 	    ;;
 
+	libpicviz/src/include/picviz/PVBitset_gnu.h | libpvkernel/plugins/input_types/database/mysql_types.h )
+	    # files to ignore
+	    ;;
+
 	libpvkernel/tests/rush/test-logs/csv/tiny.csv.format )
 	    echo "# file $FILE"
 	    echo "  strange format"
