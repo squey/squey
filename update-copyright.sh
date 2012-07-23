@@ -2,8 +2,6 @@
 
 # \file update-headers.sh
 #
-# $Id$
-#
 # Copyright (C) Picviz Labs 2010-2012
 
 ##############################################################################
@@ -288,8 +286,6 @@ do
 /**
  * \file $FILENAME
  *
- * \$Id$
- *
  * Copyright (C) Picviz Labs ${YEAR_BEGIN}-$YEAR_CURRENT
  */
 
@@ -312,8 +308,6 @@ EOF
 	    cat > "$FILE" <<EOF
 #
 # \file $FILENAME
-#
-# \$Id$
 #
 # Copyright (C) Picviz Labs ${YEAR_BEGIN}-$YEAR_CURRENT
 
@@ -342,8 +336,6 @@ $SHEBANG
 
 # \file $FILENAME
 #
-# \$Id$
-#
 # Copyright (C) Picviz Labs ${YEAR_BEGIN}-$YEAR_CURRENT
 
 EOF
@@ -366,8 +358,6 @@ EOF
 	    cat > "$FILE" <<EOF
 REM
 REM \file $FILENAME
-REM
-REM \$Id$
 REM
 REM Copyright (C) Picviz Labs ${YEAR_BEGIN}-$YEAR_CURRENT
 
@@ -396,8 +386,6 @@ $INFO
 #
 # \file $FILENAME
 #
-# \$Id$
-#
 # Copyright (C) Picviz Labs ${YEAR_BEGIN}-$YEAR_CURRENT
 #
 EOF
@@ -419,7 +407,6 @@ EOF
 	    fi
 	    cat > "$FILE" <<EOF
 <!-- \file $FILENAME -->
-<!-- \$Id$ -->
 <!-- Copyright (C) Picviz Labs ${YEAR_BEGIN}-$YEAR_CURRENT -->
 EOF
 	    cat "$CONTENT" >> "$FILE"
@@ -444,7 +431,6 @@ EOF
 	    cat > "$FILE" <<EOF
 $INFO
 <!-- \file $FILENAME -->
-<!-- \$Id$ -->
 <!-- Copyright (C) Picviz Labs ${YEAR_BEGIN}-$YEAR_CURRENT -->
 EOF
 	    cat "$CONTENT" >> "$FILE"
