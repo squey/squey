@@ -18,6 +18,8 @@ namespace PVHive
  *
  * To connect slot to the events, use the following methods (defined in
  * PVRefreshSignal.h:
+ * - for "about_to_be_refreshed" event:
+ *   void connect_about_to_be_refreshed(QObject *receiver, const char *slot);
  * - for "refresh" event:
  *   void connect_refresh(QObject *receiver, const char *slot);
  * - for "about_to_be_deleted" event:
@@ -32,6 +34,11 @@ public:
 	{}
 
 protected:
+	virtual void about_to_be_refreshed()
+	{
+		emit_about_to_be_refreshed_signal(this);
+	}
+
 	virtual void refresh()
 	{
 		emit_refresh_signal(this);

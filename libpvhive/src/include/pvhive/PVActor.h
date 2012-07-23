@@ -1,6 +1,6 @@
 
-#ifndef LIVPVHIVE_PVACTOR_H
-#define LIVPVHIVE_PVACTOR_H
+#ifndef LIBPVHIVE_PVACTOR_H
+#define LIBPVHIVE_PVACTOR_H
 
 #include <pvhive/PVHive.h>
 #include <pvhive/PVActorBase.h>
@@ -47,4 +47,4 @@ public:
 
 }
 
-#endif // LIVPVHIVE_PVACTOR_H
+#endif // LIBPVHIVE_PVACTOR_H

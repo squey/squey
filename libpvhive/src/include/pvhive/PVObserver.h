@@ -19,14 +19,19 @@ public:
 
 protected:
 	/**
+	 * Action to do before the "refresh" event occurs.
+	 */
+	virtual void about_to_be_refreshed() {};
+
+	/**
 	 * Action to do when the "refresh" event occurs.
 	 */
-	virtual void refresh() = 0;
+	virtual void refresh() {};
 
 	/**
 	 * Action to do when the "about_to_be_deleted" event occurs.
 	 */
-	virtual void about_to_be_deleted() = 0;
+	virtual void about_to_be_deleted() {};
 
 };
 

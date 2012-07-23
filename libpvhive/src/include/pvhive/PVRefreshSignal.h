@@ -48,6 +48,18 @@ public:
 
 public:
 	/**
+	 * Connect a Qt slot to the "about_to_be_refreshed" event.
+	 *
+	 * @param receiver the receiving Qobject
+	 * @param slot the slot
+	 */
+	inline void connect_about_to_be_refreshed(QObject *receiver, const char *slot)
+	{
+		connect(this, SIGNAL(about_to_be_refreshed_signal(PVHive::PVObserverBase*)),
+		        receiver, slot);
+	}
+
+	/**
 	 * Connect a Qt slot to the "refresh" event.
 	 *
 	 * @param receiver the receiving Qobject
@@ -74,6 +86,11 @@ public:
 	}
 
 protected:
+	inline void emit_about_to_be_refreshed_signal(PVObserverBase* o)
+	{
+		emit about_to_be_refreshed_signal(o);
+	}
+
 	inline void emit_refresh_signal(PVObserverBase* o)
 	{
 		emit refresh_signal(o);
@@ -102,10 +119,12 @@ signals:
  * or not. See http://qt-project.org/doc/qt-4.8/moc.html
  */
 #ifdef Q_MOC_RUN
+	void about_to_be_refreshed_signal(PVHive::PVObserverBase *o);
 	void refresh_signal(PVHive::PVObserverBase *o);
 	void about_to_be_deleted_signal(PVHive::PVObserverBase *o);
 	void sync_about_to_be_deleted_signal(PVHive::PVObserverBase *o);
 #else
+	void about_to_be_refreshed_signal(PVObserverBase *o);
 	void refresh_signal(PVObserverBase *o);
 	void about_to_be_deleted_signal(PVObserverBase *o);
 	void sync_about_to_be_deleted_signal(PVObserverBase *o);

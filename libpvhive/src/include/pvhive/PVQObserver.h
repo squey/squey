@@ -28,6 +28,11 @@ public:
 	{}
 
 protected:
+	virtual void about_to_be_refreshed()
+	{
+		emit_about_to_be_refreshed_signal(this);
+	}
+
 	virtual void refresh()
 	{
 		emit_refresh_signal(this);

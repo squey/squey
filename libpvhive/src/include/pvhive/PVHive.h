@@ -408,7 +408,21 @@ protected:
 	}
 
 	/**
-	 * Tell all observers of an object that a change has occurred
+	 * Tell all observers of an object that a change is about to occure
+	 *
+	 * @param object the observed object
+	 */
+	template <typename T>
+	inline void about_to_refresh_observers(T const* object)
+	{
+		// object must be a valid address
+		assert(object != nullptr);
+
+		do_about_to_refresh_observers((void*)object);
+	}
+
+	/**
+	 * Tell all observers of an object that a change has occured
 	 *
 	 * @param object the observed object
 	 */
@@ -422,7 +436,19 @@ protected:
 	}
 
 	template <typename T, typename F, F f, typename... Params>
+	void about_to_refresh_func_observers(T const* object, Params const& ... params)
+	{
+		process_func_observers<true, T, F, f>(object, params...);
+	}
+
+	template <typename T, typename F, F f, typename... Params>
 	void refresh_func_observers(T const* object, Params const& ... params)
+	{
+		process_func_observers<false, T, F, f>(object, params...);
+	}
+
+	template <bool about, typename T, typename F, F f, typename... Params>
+	void process_func_observers(T const* object, Params const& ... params)
 	{
 		// object must be a valid address
 		assert(object != nullptr);
@@ -431,7 +457,7 @@ protected:
 		if (!_observables.find(acc, (void*) object)) {
 			return;
 		}
-		
+
 		// Type of func observer
 		typedef PVFuncObserver<T, F, f> cur_func_observer_t;
 
@@ -441,7 +467,7 @@ protected:
 
 		// Get function observers
 		func_observers_t const& fobs(acc->second.func_observers);
-		func_observers_t::const_iterator it_fo,it_fo_e;
+		func_observers_t::const_iterator it_fo, it_fo_e;
 #ifdef __GNUG__
 		// Disable warning for GCC for this line
 #pragma GCC diagnostic push
@@ -454,8 +480,14 @@ protected:
 		for (; it_fo != it_fo_e; it_fo++) {
 			const cur_func_observer_t* fo = dynamic_cast<cur_func_observer_t*>(it_fo->second);
 			assert(fo);
-			// Call its update function !
-			fo->update(args);
+
+			// Call its about_to_be_updated or update function !
+			if (about) {
+				fo->about_to_be_updated(args);
+			}
+			else {
+				fo->update(args);
+			}
 		}
 	}
 
@@ -483,12 +515,27 @@ private:
 		observables_t::accessor acc;
 
 		if (_observables.find(acc, (void*) object)) {
-			(object->*f)(params...);
 			acc.release();
+
+			// Pre-call events
+			about_to_refresh_observers(object);
+			about_to_refresh_func_observers<T, F, f>(object, params...);
+
+			// Object call
+			(object->*f)(params...);
+
+			// Post-call events
 			refresh_observers(object);
 			refresh_func_observers<T, F, f>(object, params...);
 		}
 	}
+
+	/**
+	 * Propagate about_to_be_refreshed event to all observers
+	 *
+	 * @param object the object which has been modified
+	 */
+	void do_about_to_refresh_observers(void *object);
 
 	/**
 	 * Propagate refresh event to all observers

@@ -662,11 +662,16 @@ class EntityObserverCB : public QObject, public Interactor
 
 public:
 	typedef std::function<void(const Entity *)> func_type;
-	typedef PVHive::PVObserverCallback<Entity, func_type, func_type> ocb_t;
+	typedef PVHive::PVObserverCallback<Entity, func_type, func_type, func_type> ocb_t;
 
 	EntityObserverCB(int id) :
 		Interactor(id)
 	{
+		auto func_about_to_be_ref =
+					std::bind([] (const Entity *e, EntityObserverCB *o)
+					          {
+					          },
+					          std::placeholders::_1, this);
 		auto func_ref =
 			std::bind([] (const Entity *e, EntityObserverCB *o)
 			          {
@@ -686,10 +691,11 @@ public:
 			          },
 			          std::placeholders::_1, this);
 
-		_ocb = PVHive::create_observer_callback<Entity,
-		                                        func_type,
-		                                        func_type>(func_ref,
-		                                                   func_atbd);
+		_ocb = PVHive::create_observer_callback<Entity, func_type, func_type, func_type>(
+			func_about_to_be_ref,
+			func_ref,
+		    func_atbd
+		);
 	}
 
 	~EntityObserverCB()
@@ -721,11 +727,18 @@ class PropertyObserverCB : public QObject, public Interactor
 
 public:
 	typedef std::function<void(const Property *)> func_type;
-	typedef PVHive::PVObserverCallback<Property, func_type, func_type> ocb_t;
+	typedef PVHive::PVObserverCallback<Property, func_type, func_type, func_type> ocb_t;
 
 	PropertyObserverCB(int id) :
 		Interactor(id)
 	{
+		auto func_about_to_be_ref =
+			std::bind([] (const Property *p, PropertyObserverCB *o)
+					  {
+						  std::cout << "property observercb " << o->get_id() << ": value: " << p->get_value() << std::endl;
+					  },
+					  std::placeholders::_1, this);
+
 		auto func_ref =
 			std::bind([] (const Property *p, PropertyObserverCB *o)
 			          {
@@ -745,10 +758,11 @@ public:
 			          },
 			          std::placeholders::_1, this);
 
-		_ocb = PVHive::create_observer_callback<Property,
-		                                        func_type,
-		                                        func_type>(func_ref,
-		                                                   func_atbd);
+		_ocb = PVHive::create_observer_callback<Property, func_type, func_type, func_type>(
+			func_about_to_be_ref,
+			func_ref,
+			func_atbd
+		);
 	}
 
 	~PropertyObserverCB()

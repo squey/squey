@@ -108,3 +108,14 @@ void PVHive::PVHive::do_refresh_observers(void *object)
 		}
 	}
 }
+
+void PVHive::PVHive::do_about_to_refresh_observers(void* object)
+{
+	observables_t::const_accessor acc;
+
+	if (_observables.find(acc, object)) {
+		for (auto it : acc->second.observers) {
+			it->about_to_be_refreshed();
+		}
+	}
+}

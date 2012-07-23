@@ -37,7 +37,9 @@ public:
 	remove_column_Observer(AxesCombinationListModel* model) : _model(model) {}
 
 protected:
+	virtual void about_to_be_updated(arguments_type const& args) const;
 	virtual void update(arguments_type const& args) const;
+
 
 private:
 	AxesCombinationListModel* _model;
@@ -50,6 +52,7 @@ public:
 
 protected:
 	virtual void update(arguments_type const& args) const;
+	virtual void about_to_be_updated(arguments_type const& args) const;
 
 private:
 	AxesCombinationListModel* _model;
@@ -201,26 +204,24 @@ public:
 		return false;
 	}
 
-	bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex())
+	bool beginInsertRow(int row)
 	{
-		if (count < 1 || row < 0 || row > rowCount())
-			return false;
-
-		beginInsertRows(QModelIndex(), row, row + count - 1);
-		endInsertRows();
-
-		return true;
+		beginInsertRows(QModelIndex(), row, row);
 	}
 
-	bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex())
+	bool endInsertRow()
 	{
-		if (count <= 0 || row < 0 || (row + count) > rowCount())
-			return false;
+		endInsertRows();
+	}
 
-		beginRemoveRows(QModelIndex(), row, row + count - 1);
+	void beginRemoveRow(int row)
+	{
+		beginRemoveRows(QModelIndex(), row, row);
+	}
+
+	void endRemoveRow()
+	{
 		endRemoveRows();
-
-		return true;
 	}
 
 private slots:

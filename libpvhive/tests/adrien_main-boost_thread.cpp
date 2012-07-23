@@ -85,6 +85,7 @@ int main(int argc, char** argv)
 	MyObjObserver observer;
 
 	auto observer_callback = PVHive::create_observer_callback<MyObject>(
+			[](MyObject const* o) { std::cout << "  Callback about_to_be_refreshed to i=" << o->get_i() << std::endl; },
 			[](MyObject const* o) { std::cout << "  Callback refresh to i=" << o->get_i() << std::endl; },
 			[](MyObject const* o) { std::cout << "  Callback delete for i=" << o->get_i() << std::endl; }
 		);
