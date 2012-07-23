@@ -1,6 +1,1 @@
-#
-# \file VERSION.txt
-#
-# Copyright (C) Picviz Labs 2010-2012
-
 2.6.0
