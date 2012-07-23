@@ -1,3 +1,8 @@
+/**
+ * \file PVRefreshSignal.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
 
 #ifndef LIBPVHIVE_PVREFRESHSIGNAL_H
 #define LIBPVHIVE_PVREFRESHSIGNAL_H

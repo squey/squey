@@ -1,3 +1,8 @@
+/**
+ * \file PVObserver.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
 
 #ifndef LIBPVHIVE_PVOBSERVER_H
 #define LIBPVHIVE_PVOBSERVER_H

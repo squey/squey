@@ -1,3 +1,9 @@
+/**
+ * \file test_adrien_objs.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef TEST_ADRIEN_OBJS_H
 #define TEST_ADRIEN_OBJS_H
 

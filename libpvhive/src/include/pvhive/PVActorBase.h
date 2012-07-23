@@ -1,3 +1,9 @@
+/**
+ * \file PVActorBase.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef LIVPVHIVE_PVACTORBASE_H
 #define LIVPVHIVE_PVACTORBASE_H
 

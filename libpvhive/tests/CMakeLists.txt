@@ -1,3 +1,7 @@
+#
+# \file CMakeLists.txt
+#
+# Copyright (C) Picviz Labs 2010-2012
 
 include_directories(AFTER ${PVHIVE_INCLUDE_DIR})
 
