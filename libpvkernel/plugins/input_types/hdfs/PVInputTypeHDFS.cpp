@@ -68,7 +68,7 @@ QString PVRush::PVInputTypeHDFS::tab_name_of_inputs(list_inputs const& in) const
 	return QString("TODO: tab name for hdfs");
 }
 
-bool PVRush::PVInputTypeHDFS::get_custom_formats(input_type in, hash_formats &formats) const
+bool PVRush::PVInputTypeHDFS::get_custom_formats(PVInputDescription_p in, hash_formats &formats) const
 {
 	// TODO: find custom format in the hdfs system
 	return false;

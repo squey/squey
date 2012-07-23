@@ -71,7 +71,7 @@ QWidget *PVInspector::PVLayerStackDelegate::createEditor(QWidget *parent, const 
  *****************************************************************************/
 bool PVInspector::PVLayerStackDelegate::editorEvent(QEvent *event, QAbstractItemModel * /*model*/, const QStyleOptionViewItem &/*option*/, const QModelIndex &index)
 {
-	Picviz::PVView_p      lib_view;
+	Picviz::PVView_sp     lib_view;
 	Picviz::PVStateMachine *state_machine;
 	int                   layer_count;
 	int                   lib_index;

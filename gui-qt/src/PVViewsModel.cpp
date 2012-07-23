@@ -13,8 +13,7 @@
 
 PVInspector::PVViewsModel::PVViewsModel(Picviz::PVSource const& src, QObject* parent):
 	QAbstractItemModel(parent),
-	_src(src),
-	_mappeds(src.get_mappeds())
+	_src(src)
 {
 }
 
@@ -37,10 +36,12 @@ QModelIndex PVInspector::PVViewsModel::index(int row, int column, const QModelIn
 	// Column is always 0 (see columnCount), but asserts it
 	assert(column == 0);
 
+	auto mappeds =  _src.get_children<Picviz::PVMapped>();
+
 	if (!parent.isValid()) {
 		// Root elements are mapped objects
-		assert(row < _mappeds.size());
-		Picviz::PVMapped_p mapped(_mappeds.at(row));
+		assert(row <mappeds.size());
+		Picviz::PVMapped_p mapped(mappeds.at(row));
 		PVIndexNode nt(mapped.get());
 		PVIndexNode* pnt = NULL;
 		QList<PVIndexNode*>::iterator it;
@@ -60,9 +61,9 @@ QModelIndex PVInspector::PVViewsModel::index(int row, int column, const QModelIn
 	PVIndexNode node_obj = get_object(parent);
 	assert(node_obj.is_mapped());
 	// Create an index for a plotted child object
-	Picviz::PVMapped::list_plotted_t const& children = node_obj.as_mapped()->get_plotteds();
-	assert(row < children.size());
-	PVIndexNode nt(children.at(row).get());
+	auto plotteds_p = node_obj.as_mapped()->get_children<Picviz::PVPlotted>();
+	assert(row < plotteds_p.size());
+	PVIndexNode nt(plotteds_p.at(row).get());
 	PVIndexNode* pnt = NULL;
 	QList<PVIndexNode*>::iterator it;
 	for (it = _nodes_todel.begin(); it != _nodes_todel.end(); it++) {
@@ -80,9 +81,11 @@ QModelIndex PVInspector::PVViewsModel::index(int row, int column, const QModelIn
 
 int PVInspector::PVViewsModel::rowCount(const QModelIndex &index) const
 {
+	auto mappeds = _src.get_children<Picviz::PVMapped>();
+
 	if (!index.isValid()) {
 		// Return number of mapped
-		return _mappeds.size();
+		return mappeds.size();
 	}
 	
 	PVIndexNode node_obj = get_object(index);
@@ -91,9 +94,9 @@ int PVInspector::PVViewsModel::rowCount(const QModelIndex &index) const
 		return 0;
 	}
 
-	assert(index.row() < _mappeds.size());
+	assert(index.row() < mappeds.size());
 	// Return the number of plotted children objects
-	return _mappeds.at(index.row())->get_plotteds().size();
+	return mappeds.at(index.row())->get_children<Picviz::PVPlotted>().size();
 }
 
 int PVInspector::PVViewsModel::columnCount(const QModelIndex& /*index*/) const
@@ -167,14 +170,16 @@ QModelIndex PVInspector::PVViewsModel::parent(const QModelIndex & index) const
 		return QModelIndex();
 	}
 
+	auto mappeds = _src.get_children<Picviz::PVMapped>();
+
 	Picviz::PVPlotted* plotted = node_obj.as_plotted();
-	Picviz::PVMapped* mapped = plotted->get_mapped_parent();
+	Picviz::PVMapped* mapped = plotted->get_parent<Picviz::PVMapped>();
 
 	Picviz::PVSource::list_mapped_t::const_iterator it;
 	bool found = false;
 	int idx = 0;
-	for (it = _mappeds.begin(); it != _mappeds.end(); it++) {
-		if (it->get() == mapped) {
+	for (auto mapped_p : mappeds) {
+		if (mapped_p.get() == mapped) {
 			found = true;
 			break;
 		}

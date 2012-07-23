@@ -26,7 +26,7 @@ namespace PVRush {
 
 class PVPythonSource: public PVRawSourceBase {
 public:
-	PVPythonSource(input_type input, size_t min_chunk_size, PVFilter::PVChunkFilter_f src_filter, const QString& python_file);
+	PVPythonSource(PVInputDescription_p input, size_t min_chunk_size, PVFilter::PVChunkFilter_f src_filter, const QString& python_file);
 	virtual ~PVPythonSource();
 public:
 	virtual QString human_name();

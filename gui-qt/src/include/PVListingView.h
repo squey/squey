@@ -10,7 +10,7 @@
 #include <QTableView>
 #include <QHeaderView>
 
-#include <picviz/PVView.h>
+#include <picviz/PVView_types.h>
 
 #include <PVListingModel.h>
 #include <PVLayerStackModel.h>
@@ -31,7 +31,7 @@ class PVListingView : public QTableView
 
 	PVMainWindow    *main_window; //<!
 	PVTabSplitter   *_parent;
-	Picviz::PVView_p lib_view;    //<!
+	Picviz::PVView_sp lib_view;    //<!
 
 public slots:
 	void slotDoubleClickOnVHead(int);

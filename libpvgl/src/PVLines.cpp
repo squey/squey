@@ -13,6 +13,7 @@
 #include <pvkernel/core/picviz_intrin.h>
 #include <picviz/PVLinesProperties.h>
 #include <picviz/PVView.h>
+#include <picviz/PVPlotted.h>
 #include <picviz/PVSelection.h>
 
 #include <pvgl/PVUtils.h>
@@ -314,7 +315,7 @@ void PVGL::PVLines::create_batches()
  * PVGL::PVLines::init
  *
  *****************************************************************************/
-void PVGL::PVLines::init(Picviz::PVView_p pv_view_)
+void PVGL::PVLines::init(Picviz::PVView_sp pv_view_)
 {
 	free_buffers();
 	
@@ -695,7 +696,7 @@ void PVGL::PVLines::fill_vbo_positions(unsigned int batch_index, GLuint start, G
 	else {
 		ncols = picviz_view->get_axes_count() - (NB_AXES_PER_BATCH - 1) * batch_index;
 	}    
-	fill_vbo_positions((float*) buffer, picviz_view->get_plotted_parent()->get_table_pointer(), plotted_col_size, start, start+count, &cols_comb[col_start], ncols);
+	fill_vbo_positions((float*) buffer, picviz_view->get_parent<Picviz::PVPlotted>()->get_table_pointer(), plotted_col_size, start, start+count, &cols_comb[col_start], ncols);
 
 	glUnmapBuffer(GL_ARRAY_BUFFER); PRINT_OPENGL_ERROR();
 }

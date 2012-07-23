@@ -83,7 +83,7 @@ protected:
 private:
 	PVRush::PVExtractor &_ext;
 	PVMainWindow    *main_window;        //!<
-	Picviz::PVView_p _view;
+	Picviz::PVView_sp _view;
 	PVTabSplitter* _inspector_tab;
 	int _slider_pressed_value;
 };

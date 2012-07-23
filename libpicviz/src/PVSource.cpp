@@ -20,13 +20,12 @@
 #include <pvkernel/rush/PVControllerJob.h>
 
 #include <picviz/general.h>
-#include <picviz/PVRoot.h>
 #include <picviz/PVScene.h>
 #include <picviz/PVSource.h>
 #include <picviz/PVView.h>
 
-Picviz::PVSource::PVSource(PVRush::PVInputType::list_inputs const& inputs, PVRush::PVSourceCreator_p sc, PVRush::PVFormat format)
-	: data_tree_source_t()
+Picviz::PVSource::PVSource(PVRush::PVInputType::list_inputs const& inputs, PVRush::PVSourceCreator_p sc, PVRush::PVFormat format):
+	data_tree_source_t()
 {
 	init();
 
@@ -38,22 +37,19 @@ Picviz::PVSource::PVSource(PVRush::PVInputType::list_inputs const& inputs, PVRus
 	_inputs = inputs;
 	_src_plugin = sc;
 	files_append_noextract();
-
-	set_parent(NULL);
 }
 
-Picviz::PVSource::PVSource() : data_tree_source_t()
+Picviz::PVSource::PVSource():
+	data_tree_source_t()
 {
 	init();
 }
 
 Picviz::PVSource::PVSource(const PVSource& org):
-	data_tree_source_t(org.tparent),
-	boost::enable_shared_from_this<PVSource>()
+	data_tree_source_t()
 {
+	set_parent(const_cast<PVScene*>(org.get_parent()));
 	init();
-	root = org.root;
-	tparent = org.tparent;
 }
 
 Picviz::PVSource::~PVSource()
@@ -81,16 +77,12 @@ void Picviz::PVSource::init()
 	_extractor.start_controller();
 }
 
-void Picviz::PVSource::set_parent(PVScene* parent)
+void Picviz::PVSource::set_parent_from_ptr(PVScene* parent)
 {
+	data_tree_source_t::set_parent_from_ptr(parent);
+
 	if (parent) {
-		tparent = parent;
-		root = parent->get_root();
 		parent->set_views_id();
-	}
-	else {
-		tparent = NULL;
-		root = NULL;
 	}
 }
 
@@ -105,9 +97,8 @@ void Picviz::PVSource::files_append_noextract()
 PVRush::PVControllerJob_p Picviz::PVSource::extract()
 {
 	// Set all views as non-consistent
-	list_views_t::iterator it_view;
-	for (it_view = _views.begin(); it_view != _views.end(); it_view++) {
-		(*it_view)->set_consistent(false);
+	for (auto view_p : get_children<PVView>()) {
+		view_p->set_consistent(false);
 	}
 
 	PVRush::PVControllerJob_p job = _extractor.process_from_agg_nlines_last_param();
@@ -117,9 +108,9 @@ PVRush::PVControllerJob_p Picviz::PVSource::extract()
 PVRush::PVControllerJob_p Picviz::PVSource::extract_from_agg_nlines(chunk_index start, chunk_index nlines)
 {
 	// Set all views as non-consistent
-	list_views_t::iterator it_view;
-	for (it_view = _views.begin(); it_view != _views.end(); it_view++) {
-		(*it_view)->set_consistent(false);
+	decltype(get_children<PVView>())::iterator it_view;
+	for (auto view_p : get_children<PVView>()) {
+		view_p->set_consistent(false);
 	}
 
 	PVRush::PVControllerJob_p job = _extractor.process_from_agg_nlines(start, nlines);
@@ -133,19 +124,23 @@ void Picviz::PVSource::wait_extract_end(PVRush::PVControllerJob_p job)
 	extract_finished();
 }
 
+void Picviz::PVSource::select_view(PVView_sp view)
+{
+	 assert(get_children<PVView>().contains(view));
+	 _current_view = view;
+}
+
 void Picviz::PVSource::extract_finished()
 {
-	 // Set all mapped children as invalid
-	list_mapped_t::iterator it;
-	for (it = _mappeds.begin(); it != _mappeds.end(); it++) {
-		(*it)->invalidate_all();
+	// Set all mapped children as invalid
+	for (auto mapped_p : get_children<PVMapped>()) {
+		mapped_p->invalidate_all();
 	}
 
 	// Reset all views and process the current one
-	list_views_t::iterator it_view;
-	for (it_view = _views.begin(); it_view != _views.end(); it_view++) {
-		(*it_view)->reset_layers();
-	}
+	/*for (auto view_p : get_children<PVView>()) {
+		view_p->reset_layers();
+	}*/
 }
 
 void Picviz::PVSource::set_format(PVRush::PVFormat const& format)
@@ -202,7 +197,7 @@ PVRow Picviz::PVSource::get_row_count()
 
 PVCol Picviz::PVSource::get_column_count()
 {
-	return nraw->get_number_cols();
+	return get_format().get_axes().size();
 }
 
 QString Picviz::PVSource::get_value(PVRow row, PVCol col) const
@@ -221,38 +216,35 @@ PVRush::PVInputType_p Picviz::PVSource::get_input_type() const
 	return _src_plugin->supported_type_lib();
 }
 
-void Picviz::PVSource::add_mapped(PVMapped_p mapped)
-{
-	_mappeds.push_back(mapped);
-}
-
 void Picviz::PVSource::create_default_view()
 {
-	PVMapped_p mapped(new PVMapped(PVMapping(this)));
-	add_mapped(mapped);
-	PVPlotted_p plotted(new PVPlotted(PVPlotting(mapped.get())));
-	mapped->add_plotted(plotted);
+	//new PVPlotted(new PVMapped(this));
+	PVMapped_p def_mapped;
+	def_mapped->set_parent(this);
+	def_mapped->process_from_parent_source(false);
+	PVPlotted_p def_plotted;
+	def_plotted->set_parent(def_mapped);
+	def_plotted->process_from_parent_mapped(false);
 }
 
 void Picviz::PVSource::process_from_source(bool keep_views_info)
 {
-	for (int i = 0; i < _mappeds.size(); i++) {
-		PVMapped_p mapped(_mappeds[i]);
-		mapped->process_from_source(this, keep_views_info);
+	for (auto mapped_p : get_children<PVMapped>()) {
+		mapped_p->process_from_source(this, keep_views_info);
 	}
 }
 
-void Picviz::PVSource::add_view(PVView_p view)
+void Picviz::PVSource::add_view(PVView_sp view)
 {
+	auto views_p = get_children<PVView>();
 	if (!_current_view) {
 		_current_view = view;
 	}
-	if (!_views.contains(view)) {
-		PVScene* scene = get_scene_parent();
+	if (!views_p.contains(view)) {
+		PVScene* scene = get_parent();
 		if (scene) {
 			view->set_view_id(scene->get_new_view_id());
 		}
-		_views.push_back(view);
 	}
 }
 
@@ -262,15 +254,15 @@ void Picviz::PVSource::add_column(PVAxis const& axis)
 	PVMappingProperties map_prop(axis, new_col_idx);
 
 	// Add that column to our children
-	foreach(PVMapped_p m, _mappeds) {
-		m->add_column(map_prop);
-		PVPlottingProperties plot_prop(m->get_mapping(), axis, new_col_idx);
-		foreach (PVPlotted_p p, m->_plotteds) {
-			p->add_column(plot_prop);
+	for (auto mapped : get_children<PVMapped>()) {
+		mapped->add_column(map_prop);
+		PVPlottingProperties plot_prop(*mapped->get_mapping(), axis, new_col_idx);
+		for (auto plotted : mapped->get_children<PVPlotted>()) {
+			plotted->add_column(plot_prop);
 		}
 	}
-	foreach (PVView_p view, _views) {
-		view->add_column(axis);
+	for (auto view_p : get_children<PVView>()) {
+		view_p->add_column(axis);
 	}
 
 	// Reprocess from source
@@ -279,9 +271,8 @@ void Picviz::PVSource::add_column(PVAxis const& axis)
 
 void Picviz::PVSource::set_views_consistent(bool cons)
 {
-	list_views_t::iterator it;
-	for (it = _views.begin(); it != _views.end(); it++) {
-		(*it)->set_consistent(cons);
+	for (auto view_p : get_children<PVView>()) {
+		view_p->set_consistent(cons);
 	}
 }
 
@@ -303,9 +294,11 @@ void Picviz::PVSource::set_invalid_elts_mode(bool restore_inv_elts)
 
 void Picviz::PVSource::serialize_write(PVCore::PVSerializeObject& so)
 {
+	data_tree_source_t::serialize_write(so);
+
 	PVRush::PVInputType_p in_t = get_input_type();
 	assert(in_t);
-	PVCore::PVSerializeObject_p so_inputs = tparent->get_so_inputs(*this);
+	PVCore::PVSerializeObject_p so_inputs = get_parent<PVScene>()->get_so_inputs(*this);
 	if (so_inputs) {
 		// The inputs have been serialized by our parents, so just make references to them
 		in_t->serialize_inputs_ref(so, "inputs", _inputs, so_inputs);
@@ -326,23 +319,9 @@ void Picviz::PVSource::serialize_write(PVCore::PVSerializeObject& so)
 
 	// Save the format
 	so.object("format", _extractor.get_format(), QObject::tr("Format"));
-
-	// Save the views
-	
-	// For now, all the views are called 'default'
-	QStringList descs;
-	for (int i = 0; i < _views.size(); i++) {
-		descs << "default";
-	}
-	QStringList mapped_names;
-	list_mapped_t::const_iterator it_mapped;
-	for (it_mapped = _mappeds.begin(); it_mapped != _mappeds.end(); it_mapped++) {
-		mapped_names << (*it_mapped)->get_name();
-	}
-	so.list("mapped", _mappeds, "Mappings", (PVMapped*) NULL, mapped_names, true, true);
 }
 
-void Picviz::PVSource::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
+void Picviz::PVSource::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v)
 {
 	QString src_name;
 	so.attribute("source-plugin", src_name);
@@ -354,7 +333,8 @@ void Picviz::PVSource::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVS
 	_src_plugin = sc_lib->clone<PVRush::PVSourceCreator>();
 
 	// Get the inputs
-	PVCore::PVSerializeObject_p so_inputs = tparent->get_so_inputs(*this);
+	assert(get_parent<PVScene>());
+	PVCore::PVSerializeObject_p so_inputs = get_parent<PVScene>()->get_so_inputs(*this);
 	if (so_inputs) {
 		// The inputs have been serialized by our parents, so just make references to them
 		get_input_type()->serialize_inputs_ref(so, "inputs", _inputs, so_inputs);
@@ -376,16 +356,11 @@ void Picviz::PVSource::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVS
 	so.object("format", format);
 	if (!so.has_repairable_errors()) {
 		set_format(format);
+		//get_parent()->add_source(shared_from_this());
 
 		// "Append" the files to the extractor
 		files_append_noextract();
-
-		// Load the mapped
-		so.list("mapped", _mappeds, "Mappings", (PVMapped*) NULL, QStringList(), true, true);
-
-		list_mapped_t::iterator it;
-		for (it = _mappeds.begin(); it != _mappeds.end(); it++) {
-			(*it)->get_mapping().set_default_args(format);
-		}
 	}
+
+	data_tree_source_t::serialize_read(so, v);
 }

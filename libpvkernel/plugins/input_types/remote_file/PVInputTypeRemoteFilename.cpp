@@ -23,7 +23,7 @@ PVRush::PVInputTypeRemoteFilename::PVInputTypeRemoteFilename() :
 {
 }
 
-bool PVRush::PVInputTypeRemoteFilename::createWidget(hash_formats const& formats, hash_formats& /*new_formats*/, list_inputs &inputs, QString& format, PVCore::PVArgumentList& args_ext, QWidget* parent) const
+bool PVRush::PVInputTypeRemoteFilename::createWidget(hash_formats const& formats, hash_formats& /*new_formats*/, list_inputs &inputs, QString& format, PVCore::PVArgumentList& /*args_ext*/, QWidget* parent) const
 {
 	QStringList formats_str = formats.keys();
 	formats_str.push_front(PICVIZ_AUTOMATIC_FORMAT_STR);
@@ -64,7 +64,7 @@ QString PVRush::PVInputTypeRemoteFilename::human_name_serialize() const
 	return tr("Remote files");
 }
 
-QString PVRush::PVInputTypeRemoteFilename::human_name_of_input(input_type in) const
+QString PVRush::PVInputTypeRemoteFilename::human_name_of_input(PVInputDescription_p in) const
 {
 	PVFileDescription* f = dynamic_cast<PVFileDescription*>(in.get());
 	assert(f);
@@ -105,7 +105,7 @@ QString PVRush::PVInputTypeRemoteFilename::menu_input_name() const
 	return QString("Import remote files...");
 }
 
-bool PVRush::PVInputTypeRemoteFilename::get_custom_formats(input_type /*in*/, hash_formats& /*formats*/) const
+bool PVRush::PVInputTypeRemoteFilename::get_custom_formats(PVInputDescription_p /*in*/, hash_formats& /*formats*/) const
 {
 	return false;
 }

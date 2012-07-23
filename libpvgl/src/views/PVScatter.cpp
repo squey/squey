@@ -16,6 +16,7 @@
 
 #include <picviz/PVLinesProperties.h>
 #include <picviz/PVView.h>
+#include <picviz/PVPlotted.h>
 
 // Filters
 #include <pvkernel/core/PVClassLibrary.h>
@@ -65,7 +66,7 @@ PVGL::PVScatter::PVScatter(int win_id, PVSDK::PVMessenger *message) : PVGL::PVDr
  * PVGL::PVScatter::init
  *
  *****************************************************************************/
-void PVGL::PVScatter::init(Picviz::PVView_p view)
+void PVGL::PVScatter::init(Picviz::PVView_sp view)
 {
 	size_t temp_row_count = view->get_row_count();
 	size_t max_number_of_lines_in_view = temp_row_count;//picviz_min(temp_row_count, size_t(PICVIZ_EVENTLINE_LINES_MAX));
@@ -620,7 +621,7 @@ void PVGL::PVScatter::update_arrays_positions(void)
 	glBindBuffer(GL_ARRAY_BUFFER, vbo_position); PRINT_OPENGL_ERROR();
 	mapped_positions_array = reinterpret_cast<vec2*>(glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY)); PRINT_OPENGL_ERROR();
 
-	plotted_array = picviz_view->get_plotted_parent()->get_table_pointer();
+	plotted_array = picviz_view->get_parent<Picviz::PVPlotted>()->get_table_pointer();
 	plotted_row_size = picviz_view->get_original_axes_count();
 
 	for (PVRow i = 0; i < picviz_view->get_row_count(); i++) {

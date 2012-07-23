@@ -123,7 +123,6 @@ private:
 template <class T>
 bool PVSerializeArchive::has_repairable_errors_of_type() const
 {
-	typedef typename PVTypeTraits::pointer<T>::type Tp;
 	list_errors_t::const_iterator it;
 	for (it = _repairable_errors.begin(); it != _repairable_errors.end(); it++) {
 		if ((*it)->exception_of_type<T>()) {
@@ -136,7 +135,6 @@ bool PVSerializeArchive::has_repairable_errors_of_type() const
 template <class T>
 PVSerializeArchive::list_errors_t PVSerializeArchive::get_repairable_errors_of_type() const
 {
-	typedef typename PVTypeTraits::pointer<T>::type Tp;
 	list_errors_t ret;
 	list_errors_t::const_iterator it;
 	for (it = _repairable_errors.begin(); it != _repairable_errors.end(); it++) {

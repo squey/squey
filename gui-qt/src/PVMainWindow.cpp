@@ -68,7 +68,9 @@ QFile *report_file;
  * PVInspector::PVMainWindow::PVMainWindow
  *
  *****************************************************************************/
-PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
+PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
+	QMainWindow(parent),
+	_scene(root, "root")
 {
 	PVLOG_DEBUG("%s: Creating object\n", __FUNCTION__);
 	
@@ -121,7 +123,6 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 	//We activate all available Windows
 	pv_ExportSelectionDialog = new PVExportSelectionDialog(this);
 	pv_ExportSelectionDialog->hide();
-	root = Picviz::PVRoot_p(new Picviz::PVRoot());
 	pv_FilterWidget = new PVFilterWidget(this);
 	pv_FilterWidget->hide();
 
@@ -237,9 +238,6 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent) : QMainWindow(parent)
 	// Load version informations
 	_last_known_cur_release = pvconfig.value(PVCONFIG_LAST_KNOWN_CUR_RELEASE, PICVIZ_VERSION_INVALID).toUInt();
 	_last_known_maj_release = pvconfig.value(PVCONFIG_LAST_KNOWN_MAJ_RELEASE, PICVIZ_VERSION_INVALID).toUInt();
-
-	// Default scene
-	_scene = Picviz::PVScene_p(new Picviz::PVScene(const_cast<char*>("default"), root.get())); // FIXME!
 
 	update_check();
 
@@ -435,7 +433,7 @@ void PVInspector::PVMainWindow::check_messages()
 				}
 			case PVSDK_MESSENGER_FUNCTION_REPORT_CHOOSE_FILENAME:
 						{
-							Picviz::PVView_p view = current_tab->get_lib_view();
+							Picviz::PVView_sp view = current_tab->get_lib_view();
 							PVRush::PVNraw const& nraw = view->get_rushnraw_parent();
 							PVRow nrows_counter = 0;
 							PVRow write_max = 20;
@@ -698,7 +696,7 @@ void PVInspector::PVMainWindow::close_scene()
 	if (_ad2g_mw) {
 		_ad2g_mw->deleteLater();
 	}
-	_scene.reset(new Picviz::PVScene("root", root.get()));
+	_scene = PVCore::PVDataTreeAutoShared<Picviz::PVScene>(root, "default");
 	_ad2g_mw = NULL;
 	set_project_modified(false);
 }
@@ -715,15 +713,18 @@ void PVInspector::PVMainWindow::close_source(PVTabSplitter* tab)
 	Picviz::PVSource_p src(tab->get_lib_src());
 
 	// Destroy all views
-	Picviz::PVSource::list_views_t const& views = src->get_views();
+	/*Picviz::PVSource::list_views_t const& views = src->get_views();
 	Picviz::PVSource::list_views_t::const_iterator it;
 	for (it = views.begin(); it != views.end(); it++) {
 		destroy_pvgl_views(*it);
+	}*/
+	_scene->remove_child(src);
+	for (auto view_p : src->get_children<Picviz::PVView>()){
+		//boost::shared_ptr<Picviz::PVView> view_p(view);
+		destroy_pvgl_views(view_p);
 	}
 
 	pv_ListingsTabWidget->remove_listing(tab);
-
-	_scene->del_source(src.get());
 }
 
 
@@ -733,7 +734,7 @@ void PVInspector::PVMainWindow::close_source(PVTabSplitter* tab)
  * PVInspector::PVMainWindow::commit_selection_in_current_layer
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::commit_selection_in_current_layer(Picviz::PVView_p picviz_view)
+void PVInspector::PVMainWindow::commit_selection_in_current_layer(Picviz::PVView_sp picviz_view)
 {
 	//Picviz::StateMachine *state_machine = NULL;
 
@@ -758,7 +759,7 @@ void PVInspector::PVMainWindow::commit_selection_in_current_layer(Picviz::PVView
  * PVInspector::PVMainWindow::commit_selection_to_new_layer
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::commit_selection_to_new_layer(Picviz::PVView_p picviz_view)
+void PVInspector::PVMainWindow::commit_selection_to_new_layer(Picviz::PVView_sp picviz_view)
 {
 	/* We also need an access to the state machine */
 	//Picviz::StateMachine *state_machine = NULL;
@@ -777,7 +778,7 @@ void PVInspector::PVMainWindow::commit_selection_to_new_layer(Picviz::PVView_p p
 	// picviz_lines_properties_A2B_copy_restricted_by_selection_and_nelts(picviz_view->output_layer.get_lines_properties(), new_layer->lines_properties, new_layer.get_selection(), picviz_view->row_count);
 	/* THEN we can do the updates */
 	/* We need to reprocess the layer stack */
-	new_layer.compute_min_max(*picviz_view->get_plotted_parent());
+	new_layer.compute_min_max(*picviz_view->get_parent<Picviz::PVPlotted>());
 	picviz_view->process_from_layer_stack();
 
 	refresh_view(picviz_view);
@@ -941,7 +942,7 @@ void PVInspector::PVMainWindow::create_pvgl_thread ()
  * PVInspector::PVMainWindow::destroy_pvgl_views
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::destroy_pvgl_views(Picviz::PVView_p view)
+void PVInspector::PVMainWindow::destroy_pvgl_views(Picviz::PVView_sp view)
 {
 	PVSDK::PVMessage message;
 
@@ -971,7 +972,7 @@ void PVInspector::PVMainWindow::display_icon_Slot()
  * PVInspector::PVMainWindow::ensure_glview_exists
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::ensure_glview_exists(Picviz::PVView_p view)
+void PVInspector::PVMainWindow::ensure_glview_exists(Picviz::PVView_sp view)
 {
 	PVSDK::PVMessage message;
 	message.function = PVSDK_MESSENGER_FUNCTION_ENSURE_VIEW;
@@ -1016,7 +1017,12 @@ bool PVInspector::PVMainWindow::eventFilter(QObject *watched_object, QEvent *eve
  * PVInspector::PVMainWindow::get_tab_from_view
  *
  *****************************************************************************/
-PVInspector::PVTabSplitter* PVInspector::PVMainWindow::get_tab_from_view(Picviz::PVView_p picviz_view)
+PVInspector::PVTabSplitter* PVInspector::PVMainWindow::get_tab_from_view(Picviz::PVView_sp picviz_view)
+{
+	return get_tab_from_view(*picviz_view);
+}
+
+PVInspector::PVTabSplitter* PVInspector::PVMainWindow::get_tab_from_view(Picviz::PVView const& picviz_view)
 {
 	// This returns the tab associated to a picviz view
 	for (int i = 0; i < pv_ListingsTabWidget->count();i++) {
@@ -1024,7 +1030,7 @@ PVInspector::PVTabSplitter* PVInspector::PVMainWindow::get_tab_from_view(Picviz:
 		if (!tab) {
 			PVLOG_ERROR("PVInspector::PVMainWindow::%s: Tab isn't tab!!!\n", __FUNCTION__);
 		} else {
-			if (tab->get_lib_view() == picviz_view) {
+			if (tab->get_lib_view().get() == &picviz_view) {
 				return tab;
 				/* We refresh the listing */
 			}
@@ -1096,7 +1102,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 	QHash<QString, std::pair<QString,QString> > formats_error; // Errors w/ some formats
 
 	map_files_types files_multi_formats;
-	QHash<QString,PVRush::input_type> hash_input_name;
+	QHash<QString,PVRush::PVInputDescription_p> hash_input_name;
 
 	bool file_type_found = false;
 
@@ -1201,7 +1207,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 
 		Picviz::PVSource_p import_source;
 		try {
-			import_source = Picviz::PVSource_p(new Picviz::PVSource(inputs, fc.second, cur_format));
+			import_source = Picviz::PVSource_p(_scene, inputs, fc.second, cur_format);
 			import_source->set_invalid_elts_mode(save_inv_elts);
 		}
 		catch (PVRush::PVFormatException const& e) {
@@ -1212,7 +1218,8 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 		if (!load_source(import_source)) {
 			continue;
 		}
-		_scene->add_source(import_source);
+		import_source->set_parent(_scene);
+		//_scene->add_source(import_source);
 
 		one_extraction_successful = true;
 	}
@@ -1266,7 +1273,7 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 	/* VARIABLES */
 	int column_index;
 	/* We prepare a direct access to the current lib_view */
-	Picviz::PVView_p current_lib_view;
+	Picviz::PVView_sp current_lib_view;
 	/* ... and the current_selected_layer */
 	Picviz::PVLayer *current_selected_layer = NULL;
 	/* We also need an access to the state machine */
@@ -1896,7 +1903,7 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
  *****************************************************************************/
 void PVInspector::PVMainWindow::lines_display_unselected_Slot()
 {
-	Picviz::PVView_p current_lib_view;
+	Picviz::PVView_sp current_lib_view;
 	Picviz::PVStateMachine *state_machine = NULL;
 
 	if (!current_tab) {
@@ -1927,7 +1934,7 @@ void PVInspector::PVMainWindow::lines_display_unselected_Slot()
  * PVInspector::PVMainWindow::list_displayed_picviz_views
  *
  *****************************************************************************/
-QList<Picviz::PVView_p> PVInspector::PVMainWindow::list_displayed_picviz_views()
+QList<Picviz::PVView_sp> PVInspector::PVMainWindow::list_displayed_picviz_views()
 {
 	return PVGL::PVMain::list_displayed_picviz_views();
 }
@@ -1997,15 +2004,8 @@ void PVInspector::PVMainWindow::load_files(std::vector<QString> const& files, QS
 bool PVInspector::PVMainWindow::load_scene()
 {
 	// Here, load the whole scene.
-	
-	// Process all sources with their view
-	Picviz::PVScene::list_sources_t srcs = _scene->get_all_sources();
-	Picviz::PVScene::list_sources_t::iterator it;
-	PVRush::PVControllerJob_p job_import;
-
-	for (it = srcs.begin(); it != srcs.end(); it++) {
-		Picviz::PVSource_p import_source = *it;
-		if (!load_source(import_source)) {
+	for (auto source_p : _scene->get_children<Picviz::PVSource>()) {
+		if (!load_source(source_p)) {
 			return false;
 		}
 	}
@@ -2082,9 +2082,8 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_p src)
 
 	// If no view is present, create a default one. Otherwise, process them by
 	// keeping the existing layers !
-	Picviz::PVView_p first_view;
 	bool success = true;
-	if (src->get_mappeds().size() == 0) {
+	if (src->get_children<Picviz::PVMapped>().size() == 0) {
 		if (!PVCore::PVProgressBox::progress(boost::bind<void>(&Picviz::PVSource::create_default_view, src.get()), tr("Processing..."), (QWidget*) this)) {
 			success = false;
 		}
@@ -2104,7 +2103,7 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_p src)
 	// If, even after having processed the pipeline from the source, we still don't have
 	// any views, create a default mapped/plotted/view.
 	// This can happen if mappeds have been saved but with no plotted !
-	if (src->get_views().size() == 0) {
+	if (src->get_children<Picviz::PVView>().size() == 0) {
 		if (!PVCore::PVProgressBox::progress(boost::bind(&Picviz::PVSource::create_default_view, src.get()), tr("Processing..."), (QWidget*) this)) {
 			message.function = PVSDK_MESSENGER_FUNCTION_DESTROY_TRANSIENT;
 			pvsdk_messenger->post_message_to_gl(message);
@@ -2112,10 +2111,11 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_p src)
 		}
 	}
 
-	first_view = src->get_views().at(0);
+	//auto first_view_p = src->get_children<Picviz::PVView>().at(0);
+	Picviz::PVView_sp first_view_p = src->current_view();
 	// Ask PVGL to create a GL-View from the previous transient view
 	message.function = PVSDK_MESSENGER_FUNCTION_CREATE_VIEW;
-	message.pv_view = first_view;
+	message.pv_view = first_view_p;
 	pvsdk_messenger->post_message_to_gl(message);
 
 	// Add the source's tab
@@ -2139,7 +2139,7 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_p src)
  * PVInspector::PVMainWindow::refresh_view()
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::refresh_view(Picviz::PVView_p picviz_view)
+void PVInspector::PVMainWindow::refresh_view(Picviz::PVView_sp picviz_view)
 {
 	PVTabSplitter* tab = get_tab_from_view(picviz_view);
 	if (!tab) {
@@ -2159,7 +2159,7 @@ void PVInspector::PVMainWindow::refresh_view(Picviz::PVView_p picviz_view)
  * PVInspector::PVMainWindow::set_color()
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::set_color(Picviz::PVView_p picviz_view)
+void PVInspector::PVMainWindow::set_color(Picviz::PVView_sp picviz_view)
 {
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
 
@@ -2170,7 +2170,7 @@ void PVInspector::PVMainWindow::set_color(Picviz::PVView_p picviz_view)
 	}
 
 	/* We let the user select a color */
-	PVColorDialog* pv_ColorDialog = new PVColorDialog(picviz_view, this);
+	PVColorDialog* pv_ColorDialog = new PVColorDialog(*picviz_view, this);
 	connect(pv_ColorDialog, SIGNAL(colorSelected(const QColor&)), this, SLOT(set_color_selected(const QColor&)));
 
 	pv_ColorDialog->show();
@@ -2198,7 +2198,7 @@ void PVInspector::PVMainWindow::set_color_selected(const QColor& color)
 		PVLOG_ERROR("(PVMainWindow::set_color_selected) this slot has been called from an object different from PVColorDialog !\n");
 		return;
 	}
-	Picviz::PVView_p picviz_view = dlg->get_lib_view();
+	Picviz::PVView& picviz_view = dlg->get_lib_view();
 
 	// Get the tab associated w/ this view
 	PVTabSplitter* tab = get_tab_from_view(picviz_view);
@@ -2224,13 +2224,13 @@ void PVInspector::PVMainWindow::set_color_selected(const QColor& color)
 		r = 2;
 	}
 	/* We paint the lines in the post_filter_layer */
-	picviz_view->set_color_on_post_filter_layer(r, g, b, a);
+	picviz_view.set_color_on_post_filter_layer(r, g, b, a);
 	//picviz_view->set_color_on_active_layer(r, g, b, a);
 	/* We process the view from the EventLine */
-	picviz_view->process_from_eventline();
+	picviz_view.process_from_eventline();
 
 	/* We refresh the view */
-	update_pvglview(picviz_view, PVSDK_MESSENGER_REFRESH_COLOR);
+	update_pvglview(picviz_view.shared_from_this(), PVSDK_MESSENGER_REFRESH_COLOR);
 	tab->refresh_listing_Slot();
 
 	// And we commit to the current layer (cf. ticket #38)
@@ -2247,7 +2247,7 @@ void PVInspector::PVMainWindow::set_color_selected(const QColor& color)
  * PVInspector::PVMainWindow::set_selection_from_layer
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::set_selection_from_layer(Picviz::PVView_p view, Picviz::PVLayer const& layer)
+void PVInspector::PVMainWindow::set_selection_from_layer(Picviz::PVView_sp view, Picviz::PVLayer const& layer)
 {
 	view->set_selection_from_layer(layer);
 	update_pvglview(view, PVSDK_MESSENGER_REFRESH_SELECTION);
@@ -2392,7 +2392,7 @@ int PVInspector::PVMainWindow::update_check()
  * PVInspector::PVMainWindow::update_pvglview
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::update_pvglview(Picviz::PVView_p view, int refresh_states)
+void PVInspector::PVMainWindow::update_pvglview(Picviz::PVView_sp view, int refresh_states)
 {
 	PVSDK::PVMessage message;
 
@@ -2409,7 +2409,7 @@ void PVInspector::PVMainWindow::update_pvglview(Picviz::PVView_p view, int refre
  * PVInspector::PVMainWindow::update_statemachine_label
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::update_statemachine_label(Picviz::PVView_p view)
+void PVInspector::PVMainWindow::update_statemachine_label(Picviz::PVView_sp view)
 {
 	statemachine_label->setText(view->state_machine->get_string());
 }
@@ -2426,7 +2426,10 @@ bool PVInspector::PVMainWindow::SceneMenuEventFilter::eventFilter(QObject* obj, 
 		bool is_enabled = false;
 		Picviz::PVScene* s = _parent->_scene.get();
 		if (s) {
-			uint32_t nb_sources = _parent->_scene->get_all_sources().count();
+			uint32_t nb_sources = _parent->_scene->get_children<Picviz::PVSource>().size();
+			PVLOG_INFO("s=0x%x\n", &(*s));
+			s->dump();
+			PVLOG_INFO("nb_sources=0x%x\n", nb_sources);
 			is_enabled = nb_sources >= 2;
 		}
 		_parent->correlation_scene_Action->setEnabled(is_enabled);

@@ -8,7 +8,7 @@
 #define PVCOLORDIALOG_H
 
 #include <QColorDialog>
-#include <picviz/PVView.h>
+#include <picviz/PVView_types.h>
 
 namespace PVInspector {
 class PVMainWindow;
@@ -24,13 +24,13 @@ public:
 	/**
 	 * Constructor
 	 */
-	PVColorDialog(Picviz::PVView_p picviz_view, QWidget* parent = 0);
+	PVColorDialog(Picviz::PVView& picviz_view, QWidget* parent = 0);
 
 public:
-	Picviz::PVView_p get_lib_view() { return _picviz_view; }
+	Picviz::PVView& get_lib_view() { return _picviz_view; }
 
 protected:
-	Picviz::PVView_p _picviz_view;
+	Picviz::PVView& _picviz_view;
 };
 }
 

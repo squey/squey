@@ -62,7 +62,6 @@ public:
 
 protected:
 	Picviz::PVSource const& _src;
-	Picviz::PVSource::list_mapped_t const& _mappeds;
 	mutable QList<PVIndexNode*> _nodes_todel;
 };
 

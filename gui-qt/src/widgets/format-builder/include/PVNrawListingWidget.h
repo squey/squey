@@ -33,7 +33,7 @@ public:
 	void connect_axes_name(QObject* receiver, const char* slot);
 	void connect_axes_type(QObject* receiver, const char* slot);
 	void get_ext_args(PVRow& start, PVRow& end);
-	void set_last_input(PVRush::PVInputType_p in_t = PVRush::PVInputType_p(), PVRush::input_type input = PVRush::input_type());
+	void set_last_input(PVRush::PVInputType_p in_t = PVRush::PVInputType_p(), PVRush::PVInputDescription_p input = PVRush::PVInputDescription_p());
 	void resize_columns_content();
 	void unselect_column();
 	void select_column(PVCol col);

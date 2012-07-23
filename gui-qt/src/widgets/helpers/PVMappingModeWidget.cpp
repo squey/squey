@@ -31,7 +31,7 @@ PVInspector::PVWidgetsHelpers::PVMappingModeWidget::PVMappingModeWidget(PVCol ax
 	QWidget(parent)
 {
 	init(params_btn);
-	populate_from_mapping(axis_id, view.get_mapped_parent()->get_mapping());
+	populate_from_mapping(axis_id, *view.get_parent<Picviz::PVMapped>()->get_mapping());
 }
 
 void PVInspector::PVWidgetsHelpers::PVMappingModeWidget::init(bool params_btn)

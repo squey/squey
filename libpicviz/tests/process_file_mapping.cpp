@@ -54,8 +54,9 @@ int main(int argc, char** argv)
 	}
 
 	// Create the PVSource object
-	Picviz::PVRoot_p root(new Picviz::PVRoot());
-	Picviz::PVSource_p src(new Picviz::PVSource(PVRush::PVInputType::list_inputs() << file, sc_file, format));
+	Picviz::PVRoot_p root;
+	Picviz::PVScene_p scene(root, "scene");
+	Picviz::PVSource_p src(scene, PVRush::PVInputType::list_inputs() << file, sc_file, format);
 	src->set_invalid_elts_mode(true);
 	PVRush::PVControllerJob_p job = src->extract();
 	job->wait_end();
@@ -66,7 +67,8 @@ int main(int argc, char** argv)
 	}
 
 	// Map the nraw
-	Picviz::PVMapped_p mapped(new Picviz::PVMapped(Picviz::PVMapping(src.get())));
+	Picviz::PVMapped_p mapped(src);
+	mapped->process_from_parent_source(false);
 
 	// Dump the mapped table to stdout in a CSV format
 	mapped->to_csv();

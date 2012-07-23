@@ -27,7 +27,6 @@
  *
  *****************************************************************************/
 Picviz::PVView::PVView():
-	boost::enable_shared_from_this<PVView>(),
 	pre_filter_layer("pre_filter_layer"),
 	post_filter_layer("post_filter_layer"),
 	layer_stack_output_layer("view_layer_stack_output_layer"),
@@ -37,6 +36,7 @@ Picviz::PVView::PVView():
 	init_defaults();
 }
 
+/*
 Picviz::PVView::PVView(PVPlotted* parent) :
 	pre_filter_layer("pre_filter_layer"),
 	post_filter_layer("post_filter_layer"),
@@ -44,12 +44,13 @@ Picviz::PVView::PVView(PVPlotted* parent) :
 	output_layer("output_layer"),
 	_view_id(-1)
 {
+	set_parent(parent);
+
 	init_defaults();
 	init_from_plotted(parent, false);
-}
+}*/
 
 Picviz::PVView::PVView(const PVView& /*org*/):
-	boost::enable_shared_from_this<PVView>(),
 	pre_filter_layer("pre_filter_layer"),
 	post_filter_layer("post_filter_layer"),
 	layer_stack_output_layer("view_layer_stack_output_layer"),
@@ -94,19 +95,19 @@ void Picviz::PVView::init_defaults()
  * Picviz::PVView::init_from_plotted
  *
  *****************************************************************************/
-void Picviz::PVView::init_from_plotted(PVPlotted* parent, bool keep_layers)
+void Picviz::PVView::init_from_plotted(PVPlotted* plotted, bool keep_layers)
 {
-	root = parent->get_root_parent();
-	plotted = parent;
-	_rushnraw_parent = &plotted->get_mapped_parent()->get_source_parent()->get_rushnraw();
-	_mapped_parent = plotted->get_mapped_parent();
+	//set_parent_from_ptr(plotted);
+
+	_rushnraw_parent = &plotted->get_parent<PVSource>()->get_rushnraw();
 
 	// Init default axes combination from source
+	PVSource* source = plotted->get_parent<PVSource>();
 	if (keep_layers) {
-		axes_combination.set_from_format(parent->get_source_parent()->get_format());
+		axes_combination.set_from_format(source->get_format());
 	}
 	else {
-		axes_combination = parent->get_source_parent()->get_axes_combination();
+		axes_combination = source->get_axes_combination();
 	}
 
 	// Create layer filter arguments for that view
@@ -119,7 +120,7 @@ void Picviz::PVView::init_from_plotted(PVPlotted* parent, bool keep_layers)
 		filters_args[it.key()] = it.value()->get_default_args_for_view(*this);
 	}
 
-	row_count = plotted->get_row_count();
+	row_count = get_parent<PVPlotted>()->get_row_count();
 	layer_stack.set_row_count(row_count);
 	eventline.set_row_count(row_count);
 	eventline.set_first_index(0);
@@ -132,7 +133,7 @@ void Picviz::PVView::init_from_plotted(PVPlotted* parent, bool keep_layers)
 		reset_layers();
 	}
 	else {
-		layer_stack.compute_min_maxs(*parent);
+		layer_stack.compute_min_maxs(*plotted);
 	}
 	select_all_nonzb_lines();
 	nu_selection.select_none();
@@ -237,11 +238,11 @@ void Picviz::PVView::debug()
  *
  * Picviz::PVView::expand_selection_on_axis
  *
- *****************************************************************************/
+ *************************************************************************data_tree_view_t****/
 void Picviz::PVView::expand_selection_on_axis(PVCol axis_id, QString const& mode)
 {
 	commit_volatile_in_floating_selection();
-	get_plotted_parent()->expand_selection_on_axis(floating_selection, axis_id, mode);
+	get_parent<PVPlotted>()->expand_selection_on_axis(floating_selection, axis_id, mode);
 }
 
 /******************************************************************************
@@ -305,7 +306,7 @@ PVCore::PVColor Picviz::PVView::get_color_in_output_layer(PVRow index)
  *****************************************************************************/
 PVCol Picviz::PVView::get_column_count()
 {
-	return plotted->get_column_count();
+	return get_parent<PVPlotted>()->get_column_count();
 }
 
 /******************************************************************************
@@ -518,21 +519,6 @@ Picviz::PVLayer &Picviz::PVView::get_output_layer()
 
 /******************************************************************************
  *
- * Picviz::PVView::get_plotted_parent
- *
- *****************************************************************************/
-Picviz::PVPlotted* Picviz::PVView::get_plotted_parent()
-{
-	return plotted;
-}
-
-const Picviz::PVPlotted* Picviz::PVView::get_plotted_parent() const
-{
-	return plotted;
-}
-
-/******************************************************************************
- *
  * Picviz::PVView::get_post_filter_layer
  *
  *****************************************************************************/
@@ -558,12 +544,12 @@ Picviz::PVLayer &Picviz::PVView::get_pre_filter_layer()
  *****************************************************************************/
 PVRush::PVNraw::nraw_table& Picviz::PVView::get_qtnraw_parent()
 {
-	return plotted->get_qtnraw();
+	return get_parent<PVPlotted>()->get_qtnraw();
 }
 
 const PVRush::PVNraw::nraw_table& Picviz::PVView::get_qtnraw_parent() const
 {
-	return plotted->get_qtnraw();
+	return get_parent<PVPlotted>()->get_qtnraw();
 }
 
 /******************************************************************************
@@ -583,52 +569,12 @@ Picviz::PVSelection const& Picviz::PVView::get_real_output_selection() const
 
 /******************************************************************************
  *
- * Picviz::PVView::get_root
- *
- *****************************************************************************/
-Picviz::PVRoot* Picviz::PVView::get_root()
-{
-	return plotted->get_root_parent();
-}
-
-/******************************************************************************
- *
  * Picviz::PVView::get_row_count
  *
  *****************************************************************************/
 PVRow Picviz::PVView::get_row_count() const
 {
-	return plotted->get_row_count();
-}
-
-/******************************************************************************
- *
- * Picviz::PVView::get_scene_parent
- *
- *****************************************************************************/
-Picviz::PVScene* Picviz::PVView::get_scene_parent()
-{
-	return get_source_parent()->get_scene_parent();
-}
-
-const Picviz::PVScene* Picviz::PVView::get_scene_parent() const
-{
-	return get_source_parent()->get_scene_parent();
-}
-
-/******************************************************************************
- *
- * Picviz::PVView::get_source_parent
- *
- *****************************************************************************/
-Picviz::PVSource* Picviz::PVView::get_source_parent()
-{
-	return plotted->get_source_parent();
-}
-
-const Picviz::PVSource* Picviz::PVView::get_source_parent() const
-{
-	return plotted->get_source_parent();
+	return get_parent<PVPlotted>()->get_row_count();
 }
 
 /******************************************************************************
@@ -939,11 +885,11 @@ void Picviz::PVView::selection_A2B_select_with_square_area(PVSelection &a, PVSel
 	axes_count = axes_combination.get_axes_count();
 
 	/* We need a fast reference to the array of floats in the plotted */
-	plotted_array = &(plotted->get_table().at(0));
+	plotted_array = &(get_parent<PVPlotted>()->get_table().at(0));
 	/* We set the plotted_column_count for further reference */
-	plotted_column_count = plotted->get_column_count();
+	plotted_column_count = get_parent<PVPlotted>()->get_column_count();
 	/* We set the row_count of that view, for later usage */
-	row_count = plotted->get_row_count();
+	row_count = get_parent<PVPlotted>()->get_row_count();
 	/* We reset the selection b */
 	b.select_none();
 
@@ -1345,7 +1291,7 @@ int Picviz::PVView::toggle_layer_stack_layer_n_visible_state(int n)
 
 PVRush::PVExtractor& Picviz::PVView::get_extractor()
 {
-	return plotted->get_mapped_parent()->get_source_parent()->get_extractor();
+	return get_parent<PVSource>()->get_extractor();
 }
 
 void Picviz::PVView::set_consistent(bool c)
@@ -1362,8 +1308,8 @@ bool Picviz::PVView::is_consistent() const
 void Picviz::PVView::recreate_mapping_plotting()
 {
 	// Source has been changed, recreate mapping and plotting
-	get_mapped_parent()->process_parent_source();
-	get_plotted_parent()->process_from_parent_mapped(true);
+	get_parent<PVMapped>()->process_parent_source();
+	get_parent<PVPlotted>()->process_from_parent_mapped(true);
 
 /*
 	// Save current axes combination
@@ -1404,12 +1350,12 @@ void Picviz::PVView::select_inv_lines()
 
 QString Picviz::PVView::get_name() const
 {
-	return QString("mapped/plotted: %1/%2").arg(get_mapped_parent()->get_name()).arg(get_plotted_parent()->get_name());
+	return QString("mapped/plotted: %1/%2").arg(get_parent<PVMapped>()->get_name()).arg(get_parent<PVPlotted>()->get_name());
 }
 
 QString Picviz::PVView::get_window_name() const
 {
-	QString ret = get_source_parent()->get_window_name() + " | ";
+	QString ret = get_parent<PVSource>()->get_window_name() + " | ";
 	ret += get_name();
 	return ret;
 }
@@ -1477,7 +1423,7 @@ Picviz::PVSortingFunc_p Picviz::PVView::get_sort_plugin_for_col(PVCol col) const
 
 void Picviz::PVView::emit_user_modified_sel(QList<Picviz::PVView*>* changed_views)
 {
-	PVScene* scene = get_scene_parent();
+	PVScene* scene = get_parent<PVScene>();
 	if (scene) {
 		scene->user_modified_sel(this, changed_views);
 	}
@@ -1486,12 +1432,16 @@ void Picviz::PVView::emit_user_modified_sel(QList<Picviz::PVView*>* changed_view
 // Load/save and serialization
 void Picviz::PVView::serialize_write(PVCore::PVSerializeObject& so)
 {
+	data_tree_view_t::serialize_write(so);
+
 	so.object("layer-stack", layer_stack, "Layers", true);
 	so.object("axes-combination", axes_combination, "Axes combination", true);
 }
 
-void Picviz::PVView::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
+void Picviz::PVView::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v)
 {
+	data_tree_view_t::serialize_read(so, v);
+
 	if (!so.object("layer-stack", layer_stack, "Layers", true)) {
 		// If no layer stack, reset all layers so that we have one :)
 		reset_layers();

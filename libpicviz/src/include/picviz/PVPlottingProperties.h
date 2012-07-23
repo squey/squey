@@ -30,6 +30,7 @@ class PVMapping;
 class LibPicvizDecl PVPlottingProperties {
 	friend class PVCore::PVSerializeObject;
 	friend class PVPlotting;
+	friend class PVPlotted;
 public:
 	PVPlottingProperties(PVMapping const& mapping, PVRush::PVFormat const& fmt, PVCol idx);
 	PVPlottingProperties(PVMapping const& mapping, PVRush::PVAxisFormat const& axis, PVCol idx);

@@ -48,8 +48,8 @@ add_executable(Tpicviz_sizes sizes.cpp)
 target_link_libraries(Tpicviz_sizes ${LINK_LIBRARIES})
 
 # PVAD2GView
-add_executable(Tpicviz_ad2gview ad2gview.cpp)
-target_link_libraries(Tpicviz_ad2gview ${LINK_LIBRARIES} ${TULIP_LIBRARY})
+#add_executable(Tpicviz_ad2gview ad2gview.cpp)
+#target_link_libraries(Tpicviz_ad2gview ${LINK_LIBRARIES} ${TULIP_LIBRARY})
 
 add_executable(sel_red selection_red.cpp)
 target_link_libraries(sel_red ${LINK_LIBRARIES} ${TULIP_LIBRARY})

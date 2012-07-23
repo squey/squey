@@ -62,7 +62,7 @@ void Picviz::PVLayerFilterSearchPlotOneToMany::operator()(PVLayer& in, PVLayer &
 
 	PVRow nb_lines = _view->get_qtnraw_parent().get_nrows();
 
-	const PVPlotted	*plotted = _view->get_plotted_parent();
+	const PVPlotted	*plotted = _view->get_parent<PVPlotted>();
 
 	QMap <float, QList<float> > plotted_groups;
 

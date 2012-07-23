@@ -35,7 +35,7 @@ PVInspector::PVTabSplitter::PVTabSplitter(PVMainWindow *mw, Picviz::PVSource_p l
 	_lib_src(lib_src)
 {
 	PVLOG_DEBUG("PVInspector::PVTabSplitter::%s\n", __FUNCTION__);
-	assert(lib_src->get_views().size() > 0);
+	assert(lib_src->get_children<Picviz::PVView>().size() > 0);
 	// Select the first view
 
 	main_window = mw;
@@ -154,20 +154,22 @@ PVInspector::PVTabSplitter::~PVTabSplitter()
  *****************************************************************************/
 void PVInspector::PVTabSplitter::create_new_mapped()
 {
-	Picviz::PVMapping new_mapping(get_lib_src().get());
+
+	Picviz::PVMapped_p mapped(get_lib_src());
+
+	Picviz::PVMapping* new_mapping = new Picviz::PVMapping(mapped.get());
 
 	// Create new default name
-	unsigned int nmapped = get_lib_src()->get_mappeds().size();
+	unsigned int nmapped = get_lib_src()->get_children<Picviz::PVMapped>().size();
 	QString new_name(tr("New mapping %1").arg(nmapped));
-	new_mapping.set_name(new_name);
+	new_mapping->set_name(new_name);
+	mapped->set_mapping(new_mapping);
 
-	PVMappingPlottingEditDialog* dlg = new PVMappingPlottingEditDialog(&new_mapping, NULL, this);
+	PVMappingPlottingEditDialog* dlg = new PVMappingPlottingEditDialog(new_mapping, NULL, this);
 	if (dlg->exec() == QDialog::Rejected) {
 		return;
 	}
 
-	Picviz::PVMapped_p new_mapped(new Picviz::PVMapped(new_mapping));
-	get_lib_src()->add_mapped(new_mapped);
 	_views_widget->force_refresh();
 }
 
@@ -191,20 +193,20 @@ void PVInspector::PVTabSplitter::toggle_listing_sort()
  *****************************************************************************/
 void PVInspector::PVTabSplitter::create_new_plotted(Picviz::PVMapped* mapped_parent)
 {
-	Picviz::PVPlotting new_plotting(mapped_parent);
+	Picviz::PVPlotted_p plotted(mapped_parent->shared_from_this());
+	Picviz::PVPlotting* new_plotting = new Picviz::PVPlotting(plotted.get());
 
 	// Create new default name
-	unsigned int nplotted = mapped_parent->get_plotteds().size();
+	unsigned int nplotted = mapped_parent->get_children<Picviz::PVPlotted>().size();
 	QString new_name(tr("New plotting %1").arg(nplotted));
-	new_plotting.set_name(new_name);
+	new_plotting->set_name(new_name);
+	plotted->set_plotting(new_plotting);
 
-	PVMappingPlottingEditDialog* dlg = new PVMappingPlottingEditDialog(NULL, &new_plotting, this);
+	PVMappingPlottingEditDialog* dlg = new PVMappingPlottingEditDialog(NULL, new_plotting, this);
 	if (dlg->exec() == QDialog::Rejected) {
 		return;
 	}
 
-	Picviz::PVPlotted_p new_plotted(new Picviz::PVPlotted(new_plotting));
-	mapped_parent->add_plotted(new_plotted);
 	_views_widget->force_refresh();
 }
 
@@ -218,7 +220,7 @@ void PVInspector::PVTabSplitter::create_new_plotted(Picviz::PVMapped* mapped_par
 void PVInspector::PVTabSplitter::edit_mapped(Picviz::PVMapped* mapped)
 {
 	PVMappingPlottingEditDialog* dlg;
-	dlg = new PVMappingPlottingEditDialog(&mapped->get_mapping(), NULL, this);
+	dlg = new PVMappingPlottingEditDialog(mapped->get_mapping(), NULL, this);
 	if (dlg->exec() == QDialog::Rejected) {
 		return;
 	}
@@ -236,7 +238,7 @@ void PVInspector::PVTabSplitter::edit_mapped(Picviz::PVMapped* mapped)
 void PVInspector::PVTabSplitter::edit_plotted(Picviz::PVPlotted* plotted)
 {
 	PVMappingPlottingEditDialog* dlg;
-	dlg = new PVMappingPlottingEditDialog(NULL, &plotted->get_plotting(), this);
+	dlg = new PVMappingPlottingEditDialog(NULL, plotted->get_plotting(), this);
 	if (dlg->exec() != QDialog::Accepted) {
 		return;
 	}
@@ -267,7 +269,7 @@ void PVInspector::PVTabSplitter::ensure_column_visible(PVCol col)
  * PVInspector::PVTabSplitter::get_axes_combination_editor
  *
  *****************************************************************************/
-PVInspector::PVAxesCombinationDialog* PVInspector::PVTabSplitter::get_axes_combination_editor(Picviz::PVView_p view)
+PVInspector::PVAxesCombinationDialog* PVInspector::PVTabSplitter::get_axes_combination_editor(Picviz::PVView_sp view)
 {
 	PVViewWidgets const& widgets = get_view_widgets(view);
 	return widgets.pv_axes_combination_editor;
@@ -280,7 +282,7 @@ PVInspector::PVAxesCombinationDialog* PVInspector::PVTabSplitter::get_axes_combi
  * PVInspector::PVTabSplitter::get_axes_properties_widget
  *
  *****************************************************************************/
-PVInspector::PVAxisPropertiesWidget* PVInspector::PVTabSplitter::get_axes_properties_widget(Picviz::PVView_p view)
+PVInspector::PVAxisPropertiesWidget* PVInspector::PVTabSplitter::get_axes_properties_widget(Picviz::PVView_sp view)
 {
 	PVViewWidgets const& widgets = get_view_widgets(view);
 	return widgets.pv_axes_properties;
@@ -295,7 +297,7 @@ PVInspector::PVAxisPropertiesWidget* PVInspector::PVTabSplitter::get_axes_proper
  *****************************************************************************/
 QString PVInspector::PVTabSplitter::get_current_view_name(Picviz::PVSource_p src)
 {
-	Picviz::PVView_p view = src->current_view();
+	Picviz::PVView_sp view = src->current_view();
 	if (view) {
 		return view->get_window_name();
 	}
@@ -324,9 +326,9 @@ int PVInspector::PVTabSplitter::get_screenshot_index()
  * PVInspector::PVTabSplitter::get_view_widgets
  *
  *****************************************************************************/
-PVInspector::PVTabSplitter::PVViewWidgets const& PVInspector::PVTabSplitter::get_view_widgets(Picviz::PVView_p view)
+PVInspector::PVTabSplitter::PVViewWidgets const& PVInspector::PVTabSplitter::get_view_widgets(Picviz::PVView_sp view)
 {
-	assert(view->get_source_parent() == _lib_src.get());
+	assert(view->get_parent<Picviz::PVSource>() == _lib_src.get());
 	if (!_view_widgets.contains(view.get())) {
 		PVViewWidgets widgets(view, this);
 		return *(_view_widgets.insert(view.get(), widgets));
@@ -376,10 +378,10 @@ bool PVInspector::PVTabSplitter::process_extraction_job(PVRush::PVControllerJob_
 	}
 
 	// Update libpicviz's views according to opened GL views (should be in the future PVSDK !!)
-	QList<Picviz::PVView_p> views = main_window->list_displayed_picviz_views();
+	QList<Picviz::PVView_sp> views = main_window->list_displayed_picviz_views();
 	for (int i = 0; i < views.size(); i++) {
-		Picviz::PVView_p cur_view = views.at(i);
-		if (cur_view->get_source_parent() != get_lib_src().get()) {
+		Picviz::PVView_sp cur_view = views.at(i);
+		if (cur_view->get_parent<Picviz::PVSource>() != get_lib_src().get()) {
 			continue;
 		}
 		if (ret) {
@@ -387,7 +389,7 @@ bool PVInspector::PVTabSplitter::process_extraction_job(PVRush::PVControllerJob_
 			// The user, by pressing cancel, expect to come back in 
 			PVCore::PVProgressBox* pbox = new PVCore::PVProgressBox(tr("Processing..."), this);
 			pbox->set_enable_cancel(false);
-			PVCore::PVProgressBox::progress(boost::bind(&Picviz::PVPlotted::process_from_parent_mapped, cur_view->get_plotted_parent(), false), pbox);
+			PVCore::PVProgressBox::progress(boost::bind(&Picviz::PVPlotted::process_from_parent_mapped, cur_view->get_parent<Picviz::PVPlotted>(), false), pbox);
 		}
 		cur_view->set_consistent(true);
 
@@ -419,12 +421,12 @@ bool PVInspector::PVTabSplitter::process_extraction_job(PVRush::PVControllerJob_
  *****************************************************************************/
 void PVInspector::PVTabSplitter::process_mapped_if_current(Picviz::PVMapped* mapped)
 {
-	Picviz::PVView_p cur_view = get_lib_view();
-	if (cur_view->get_mapped_parent() == mapped) {
+	Picviz::PVView_sp cur_view = get_lib_view();
+	if (cur_view->get_parent<Picviz::PVMapped>() == mapped) {
 		if (!PVCore::PVProgressBox::progress(boost::bind(&Picviz::PVMapped::process_parent_source, mapped), tr("Processing..."), (QWidget*) this)) {
 			return;
 		}
-		Picviz::PVPlotted* plotted_parent = cur_view->get_plotted_parent();
+		Picviz::PVPlotted* plotted_parent = cur_view->get_parent<Picviz::PVPlotted>();
 		if (!PVCore::PVProgressBox::progress(boost::bind(&Picviz::PVPlotted::process_from_parent_mapped, plotted_parent, true), tr("Processing..."), (QWidget*) this)) {
 			return;
 		}
@@ -497,7 +499,7 @@ void PVInspector::PVTabSplitter::refresh_layer_stack_view_Slot()
 void PVInspector::PVTabSplitter::refresh_listing_Slot()
 {
 	PVLOG_DEBUG("%s \n       %s %d\n",__FILE__,__FUNCTION__,__LINE__);
-	Picviz::PVView_p current_lib_view = get_lib_view();
+	Picviz::PVView_sp current_lib_view = get_lib_view();
 	if (pv_listing_view) {
 		current_lib_view->gl_call_locker.lock();
 		pv_listing_view->viewport()->update();
@@ -554,9 +556,9 @@ void PVInspector::PVTabSplitter::select_plotted(Picviz::PVPlotted* plotted)
  * PVInspector::PVTabSplitter::select_view
  *
  *****************************************************************************/
-void PVInspector::PVTabSplitter::select_view(Picviz::PVView_p view)
+void PVInspector::PVTabSplitter::select_view(Picviz::PVView_sp view)
 {
-	assert(view->get_source_parent() == _lib_src.get());
+	assert(view->get_parent<Picviz::PVSource>() == _lib_src.get());
 	_lib_src->select_view(view);
 
 	// Create view widgets if necessary
@@ -629,7 +631,7 @@ void PVInspector::PVTabSplitter::updateFilterMenuEnabling(){
 size_t PVInspector::PVTabSplitter::get_unique_indexes_for_current_listing(PVCol column, std::vector<int>& idxes)
 {
 	// TODO: optimise to use current sorting if relevant
-	Picviz::PVView_p current_lib_view = get_lib_view();
+	Picviz::PVView_sp current_lib_view = get_lib_view();
 	size_t ret = 0;
 	if (current_lib_view) {
 		QVector<int> const& pidxes = pv_listing_proxy_model->get_proxy_indexes();
@@ -661,7 +663,7 @@ void PVInspector::PVTabSplitter::show_unique_values(PVCol col)
  * PVInspector::PVTabSplitter::PVViewWidgets::PVViewWidgets
  *
  *****************************************************************************/
-PVInspector::PVTabSplitter::PVViewWidgets::PVViewWidgets(Picviz::PVView_p view, PVTabSplitter* tab)
+PVInspector::PVTabSplitter::PVViewWidgets::PVViewWidgets(Picviz::PVView_sp view, PVTabSplitter* tab)
 {
 	pv_axes_combination_editor = new PVAxesCombinationDialog(view, tab, tab->main_window);
 	pv_axes_properties = new PVAxisPropertiesWidget(view, tab, tab->main_window);

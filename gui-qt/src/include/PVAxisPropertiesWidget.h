@@ -40,13 +40,13 @@ private:
 	QDialogButtonBox *box_buttons;
 	PVTabSplitter    *tab;
 	PVMainWindow* main_window;
-	Picviz::PVView_p _view;
+	Picviz::PVView_sp _view;
 
 public:
 	/**
 	 * Constructor
 	 */
-	PVAxisPropertiesWidget(Picviz::PVView_p view, PVTabSplitter* tab_, PVMainWindow *mw);
+	PVAxisPropertiesWidget(Picviz::PVView_sp view, PVTabSplitter* tab_, PVMainWindow *mw);
 
 	/**
 	 * Destructor

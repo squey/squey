@@ -14,13 +14,13 @@
 
 #include <picviz/PVPlottingFilter.h>
 
-PVInspector::PVExpandSelDlg::PVExpandSelDlg(Picviz::PVView_p view, QWidget* parent):
+PVInspector::PVExpandSelDlg::PVExpandSelDlg(Picviz::PVView const& view, QWidget* parent):
 	QDialog(parent),
-	_view(*view)
+	_view(view)
 {
 	setWindowTitle(tr("Expand selection..."));
 
-	_axes_editor = new PVWidgets::PVAxesIndexEditor(*view, this);
+	_axes_editor = new PVWidgets::PVAxesIndexEditor(view, this);
 	PVCore::PVAxesIndexType axes;
 	axes.push_back(0);
 	_axes_editor->set_axes_index(axes);
