@@ -52,8 +52,6 @@ class PVViewObs : public PVHive::PVObserver<Picviz::PVView>
 public:
 	PVViewObs(boost::thread & thread) : _thread(thread) {}
 
-	void refresh() {} // Note: does this function *really* need to be virtual pure?!
-
 	void about_to_be_deleted()
 	{
 		std::cout << "Killing boost::thread" << std::endl;

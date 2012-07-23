@@ -52,6 +52,9 @@ void move_axis_to_new_position_Observer::update(arguments_type const& args) cons
 
 	PVLOG_INFO("move_axis_to_new_position_Observer::update %d <-> %d \n", old_index, new_index);
 
-	_model->removeRows(old_index, 1);
-	_model->insertRows(new_index, 1);
+	_model->beginRemoveRow(old_index);
+	_model->endRemoveRow();
+
+	_model->beginInsertRow(new_index);
+	_model->endInsertRow();
 }

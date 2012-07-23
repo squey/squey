@@ -435,18 +435,38 @@ protected:
 		do_refresh_observers((void*)object);
 	}
 
+	/**
+	 * Tell all observers of function that a change is about to occure
+	 *
+	 * @param object the observed object
+	 * @param params the function parameters
+	 */
 	template <typename T, typename F, F f, typename... Params>
 	void about_to_refresh_func_observers(T const* object, Params const& ... params)
 	{
 		process_func_observers<true, T, F, f>(object, params...);
 	}
 
+	/**
+	 * Tell all observers of function that a change has occured
+	 *
+	 * @param object the observed object
+	 * @param params the function parameters
+	 */
 	template <typename T, typename F, F f, typename... Params>
 	void refresh_func_observers(T const* object, Params const& ... params)
 	{
 		process_func_observers<false, T, F, f>(object, params...);
 	}
 
+	/**
+	 * Unregister an object
+	 *
+	 * @param object the object
+	 */
+	void unregister_object(void *object);
+
+private:
 	template <bool about, typename T, typename F, F f, typename... Params>
 	void process_func_observers(T const* object, Params const& ... params)
 	{
@@ -491,14 +511,6 @@ protected:
 		}
 	}
 
-	/**
-	 * Unregister an object
-	 *
-	 * @param object the object
-	 */
-	void unregister_object(void *object);
-
-private:
 	/**
 	 * Apply an action on a object and propagate the change event
 	 *
