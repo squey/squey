@@ -13,67 +13,13 @@
 #include <pvkernel/rush/PVRawSourceBase.h>
 #include <pvkernel/rush/PVAxisTagsDec.h>
 
+#include <furl/decode.h>
+
 #include <QUrl>
 
+const uint16_t empty_str = 0;
+
 #define URL_NUMBER_FIELDS_CREATED 8
-
-struct url_decode_buf {
-	PVCore::PVField *pf[URL_NUMBER_FIELDS_CREATED];
-	PVCore::PVField* field;
-	char* data;
-	size_t rem_len;
-	size_t nelts;
-};
-
-static void url_decode_add_field(url_decode_buf* buf, QString const& new_field, PVCol pos)
-{
-	if (pos == -1) {
-		return;
-	}
-	size_t bufsize = new_field.size() * sizeof(QChar);
-	PVCore::PVField *pf = buf->pf[pos];
-	if (bufsize > buf->rem_len) {
-		// This buffer is too short... Do not reallocate it, since it will invalidate
-		// previous pointers !!
-		// Allocate a new one for 'pf'.
-		pf->allocate_new(bufsize);
-		memcpy(pf->begin(), new_field.constData(), bufsize);
-	}
-	else {
-		memcpy(buf->data, new_field.constData(), bufsize);
-		pf->set_begin(buf->data);
-		pf->set_end(buf->data+bufsize);
-		pf->set_physical_end(buf->data+bufsize);
-		//PVCore::PVField f(*buf->parent, buf->data, buf->data+bufsize);
-
-		buf->data += bufsize;
-		buf->rem_len -= bufsize;
-		buf->nelts++;
-	}
-}
-
-bool split_ip_port(QString const& str, QString& ip, uint16_t& port)
-{
-	QStringList l = str.trimmed().split(QChar(':'), QString::KeepEmptyParts);
-	if (l.size() > 2) {
-		return false;
-	}
-
-	if (l.size() == 2) {
-		bool conv_ok = false;
-		port = l[1].toUShort(&conv_ok);
-		if (!conv_ok) {
-			return false;
-		}
-	}
-	else {
-		PVLOG_WARN("(PVFieldSplitterURL) unknown port for %s.\n", qPrintable(str));
-		return false;
-	}
-
-	ip = l[0];
-	return true;
-}
 
 /******************************************************************************
  *
@@ -116,6 +62,28 @@ void PVFilter::PVFieldSplitterURL::set_children_axes_tag(filter_child_axes_tag_t
 	}
 }
 
+static bool set_field(int pos, PVCore::PVField** fields, const uint16_t* str, furl_feature_t ff)
+{
+	if (pos == -1) {
+		return false;
+	}
+
+	PVCore::PVField* new_f = fields[pos];
+	if (furl_features_exist(ff)) {
+		const uint16_t* field_str = str + ff.pos;
+		new_f->set_begin((char*) field_str);
+		new_f->set_end((char*) (field_str + ff.size));
+		new_f->set_physical_end((char*) (field_str + ff.size));
+	}
+	else {
+		new_f->set_begin((char*) &empty_str);
+		new_f->set_end((char*) (&empty_str+1));
+		new_f->set_physical_end((char*) (&empty_str+1));
+	}
+
+	return true;
+}
+
 /******************************************************************************
  *
  * PVFilter::PVFieldSplitterURL::one_to_many
@@ -123,24 +91,39 @@ void PVFilter::PVFieldSplitterURL::set_children_axes_tag(filter_child_axes_tag_t
  *****************************************************************************/
 PVCore::list_fields::size_type PVFilter::PVFieldSplitterURL::one_to_many(PVCore::list_fields &l, PVCore::list_fields::iterator it_ins, PVCore::PVField &field)
 {
+	// furl handler
+	furl_handler_t* fh = &_furl_handler.local();
+	const uint16_t* str_url = (const uint16_t*) field.begin();
+	if (furl_decode(fh, str_url, field.size()/sizeof(uint16_t)) != 0) {
+		field.set_invalid();
+		return 0;
+	}
+
+	// Add the number of final fields and save their pointers
+	PVCore::PVField *pf[URL_NUMBER_FIELDS_CREATED];
+	PVCore::PVField ftmp(*field.elt_parent());
+	for (PVCol i = 0; i < _ncols; i++) {
+		PVCore::list_fields::iterator it_new = l.insert(it_ins, ftmp);
+		pf[i] = &(*it_new);
+	}
+
+	PVCore::list_fields::size_type ret = 0;
+	ret += set_field(_col_proto, pf, str_url, fh->furl.features.scheme); 
+	ret += set_field(_col_subdomain, pf, str_url, fh->furl.features.subdomain); 
+	ret += set_field(_col_domain, pf, str_url, fh->furl.features.domain); 
+	ret += set_field(_col_host, pf, str_url, fh->furl.features.host); 
+	ret += set_field(_col_tld, pf, str_url, fh->furl.features.tld); 
+	ret += set_field(_col_url, pf, str_url, fh->furl.features.resource_path);
+	ret += set_field(_col_variable, pf, str_url, fh->furl.features.query_string); 
+	ret += set_field(_col_port, pf, str_url, fh->furl.features.port);
+
+#if 0
 	QString qstr;
 	field.get_qstr(qstr);
 	QString qstr_copy(qstr.constData(), qstr.size());
 	QString none;		// usefull variable to put an empty string in fields
 
-	// URL decoder buffer
-	url_decode_buf buf;
-	buf.data = field.begin();
-	buf.rem_len = field.size();
-	buf.field = &field;
-	buf.nelts = 0;
 
-	// Add the number of final fields and save their pointers
-	PVCore::PVField ftmp(*field.elt_parent());
-	for (PVCol i = 0; i < _ncols; i++) {
-		PVCore::list_fields::iterator it_new = l.insert(it_ins, ftmp);
-		buf.pf[i] = &(*it_new);
-	}
 
 	// URL splitter
 	QUrl url(qstr, QUrl::TolerantMode);
@@ -289,7 +272,8 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterURL::one_to_many(PVCore:
 	url_decode_add_field(&buf, url_path, _col_url);
 	url_decode_add_field(&buf, qstr_copy, _col_variable);
 
-	return buf.nelts;
+#endif
+	return ret;
 }
 
 

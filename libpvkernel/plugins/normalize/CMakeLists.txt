@@ -38,8 +38,9 @@ add_library(normalize_filter_splitter_regexp SHARED splitter_regexp/PVFieldSplit
 target_link_libraries(normalize_filter_splitter_regexp ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES} ${Boost_LIBRARIES} ${ICU_LIBRARY})
 declare_library(normalize_filter_splitter_regexp)
 
+add_definitions(-DFURL_UTF16_CHAR)
 add_library(normalize_filter_splitter_url SHARED splitter_url/PVFieldSplitterURL.cpp splitter_url/PVFieldSplitterURL.h splitter_url/register.cpp)
-target_link_libraries(normalize_filter_splitter_url ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
+target_link_libraries(normalize_filter_splitter_url ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES} /usr/local/lib/libfurll.a)
 declare_library(normalize_filter_splitter_url)
 
 add_library(normalize_filter_splitter_pcap SHARED splitter_pcap/PVFieldSplitterPcapPacket.cpp splitter_pcap/PVFieldSplitterPcapPacket.h splitter_pcap/register.cpp)
