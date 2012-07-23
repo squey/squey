@@ -265,7 +265,7 @@ do
 	    # files whose format do not define any comment syntax
 	    ;;
 
-	libpicviz/src/include/picviz/PVBitset_gnu.h | libpvkernel/plugins/input_types/database/mysql_types.h )
+	libpicviz/src/include/picviz/PVBitset_gnu.h | libpvkernel/plugins/input_types/database/mysql_types.h | */uchardetect/* )
 	    # files to ignore
 	    ;;
 
@@ -274,7 +274,7 @@ do
 	    echo "  strange format"
 	    ;;
 
-	*.c | *.h | *.cpp | *.hpp | *.cxx | *.hxx | *.java | *.geom | *.vert | *.frag | *.cu | uchardetect/*.tab | include/pvbase/version.h.cmake | *.css )
+	*.c | *.h | *.cpp | *.hpp | *.cxx | *.hxx | *.java | *.geom | *.vert | *.frag | *.cu | include/pvbase/version.h.cmake | *.css )
 	    if test $HAS_HEADER -ne 0
 	    then
 		HEADER="$FILE.header"
