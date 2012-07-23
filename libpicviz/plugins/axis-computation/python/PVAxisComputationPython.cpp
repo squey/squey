@@ -1,3 +1,9 @@
+/**
+ * \file PVAxisComputationPython.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/core/PVPython.h>
 #include <pvkernel/rush/PVNrawPython.h>
 #include <pvkernel/rush/PVNraw.h>

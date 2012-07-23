@@ -1,3 +1,8 @@
+/**
+ * \file modal_obj.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
 
 #ifndef MODAL_OBJ_H
 #define MODAL_OBJ_H

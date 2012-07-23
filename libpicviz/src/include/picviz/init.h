@@ -1,8 +1,8 @@
-//! \file init.h
-//! $Id: init.h 2489 2011-04-25 01:53:05Z psaade $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file init.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 /*
  * $Id: init.h 2489 2011-04-25 01:53:05Z psaade $

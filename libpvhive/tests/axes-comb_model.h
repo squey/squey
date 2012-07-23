@@ -1,3 +1,9 @@
+/**
+ * \file axes-comb_model.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef __AXESCOMBMODEL__H_
 #define __AXESCOMBMODEL__H_
 

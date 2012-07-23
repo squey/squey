@@ -1,3 +1,8 @@
+/**
+ * \file shared_ptr.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
 
 #include <iostream>
 #include <cassert>

@@ -1,5 +1,9 @@
 #!/usr/bin/python3.2
 
+# \file pcap-http-request.py
+#
+# Copyright (C) Picviz Labs 2010-2012
+
 import dpkt
 
 ## Global vars

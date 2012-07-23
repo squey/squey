@@ -1,8 +1,8 @@
-//! \file PVSpinBoxType.h
-//! $Id: PVSpinBoxType.h 3199 2011-06-24 07:14:57Z aguinet $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVSpinBoxType.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #ifndef PVCORE_PVSPINBOXTYPE_H
 #define PVCORE_PVSPINBOXTYPE_H

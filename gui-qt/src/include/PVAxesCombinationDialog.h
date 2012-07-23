@@ -1,3 +1,9 @@
+/**
+ * \file PVAxesCombinationDialog.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVAXESCOMBINATIONDIALOG_H
 #define PVAXESCOMBINATIONDIALOG_H
 

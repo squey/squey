@@ -1,8 +1,8 @@
-//! \file general.h
-//! $Id$
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saade 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file general.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #ifndef LIBPVSDK_GENERAL_H
 #define LIBPVSDK_GENERAL_H

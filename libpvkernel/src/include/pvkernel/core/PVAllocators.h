@@ -1,3 +1,9 @@
+/**
+ * \file PVAllocators.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVCORE_PVALLOCATORS_H
 #define PVCORE_PVALLOCATORS_H
 

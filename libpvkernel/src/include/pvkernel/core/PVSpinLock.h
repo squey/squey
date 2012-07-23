@@ -1,3 +1,8 @@
+/**
+ * \file PVSpinLock.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
 
 #ifndef PVCORE_SPINLOCK_H
 #define PVCORE_SPINLOCK_H

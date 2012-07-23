@@ -1,3 +1,9 @@
+/**
+ * \file ip-mapping.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/core/network.h>
 #include <iostream>
 #include <stdlib.h>

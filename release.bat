@@ -1,3 +1,8 @@
+REM
+REM \file release.bat
+REM
+REM Copyright (C) Picviz Labs 2010-2012
+
 @echo off
 
 set argc=0

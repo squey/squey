@@ -1,8 +1,8 @@
-//! \file PVStartScreenWidget.cpp
-//! $Id: PVStartScreenWidget.cpp 3196 2011-06-23 16:24:50Z stricaud $
-//! Copyright (C) Sébastien Tricaud 2009-2012
-//! Copyright (C) Philippe Saadé 2009-2012
-//! Copyright (C) Picviz Labs 2012
+/**
+ * \file PVStartScreenWidget.cpp
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #include <QtGui>
 

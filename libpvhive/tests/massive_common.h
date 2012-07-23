@@ -1,3 +1,8 @@
+/**
+ * \file massive_common.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
 
 #ifndef MASSIVE_COMMON_H
 #define MASSIVE_COMMON_H

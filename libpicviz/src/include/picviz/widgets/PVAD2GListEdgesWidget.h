@@ -1,3 +1,9 @@
+/**
+ * \file PVAD2GListEdgesWidget.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PICVIZ_PVAD2GLISTEDGESWIDGET_H
 #define PICVIZ_PVAD2GLISTEDGESWIDGET_H
 

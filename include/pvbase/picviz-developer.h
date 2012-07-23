@@ -1,3 +1,9 @@
+/**
+ * \file picviz-developer.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVBASE_CUSTOMER_H
 #define PVBASE_CUSTOMER_H
 

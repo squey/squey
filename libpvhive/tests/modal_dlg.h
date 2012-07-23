@@ -1,3 +1,8 @@
+/**
+ * \file modal_dlg.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
 
 #ifndef MODAL_DLG_H
 #define MODAL_DLG_H

@@ -1,3 +1,9 @@
+/**
+ * \file axis_bg.frag
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #version 330
 
 uniform vec4 color = vec4 (130.0, 100.0, 25.0, 255.0) / 255.0;

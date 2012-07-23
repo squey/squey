@@ -1,3 +1,9 @@
+/**
+ * \file PVFileSerialize.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVRUSH_PVFILESERIALIZE_H
 #define PVRUSH_PVFILESERIALIZE_H
 

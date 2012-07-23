@@ -1,3 +1,9 @@
+/**
+ * \file PVCompList.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVCOMPLIST_H
 #define PVCOMPLIST_H
 

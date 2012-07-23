@@ -1,3 +1,9 @@
+/**
+ * \file setenv.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 // AG: this file is used to set the CLASSPATH for libhdfs to work.
 // It will look for the hadoop installation directory first in the config file,
 // and then in the $HADOOP_HOME environnement variable

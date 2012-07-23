@@ -1,3 +1,9 @@
+/**
+ * \file PVTimeFormatType.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVCORE_PVTIMEFORMATTYPE_H
 #define PVCORE_PVTIMEFORMATTYPE_H
 

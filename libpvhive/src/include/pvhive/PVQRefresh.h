@@ -1,3 +1,8 @@
+/**
+ * \file PVQRefresh.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
 
 #ifndef LIBPVHIVE_PVQREFRESH_H
 #define LIBPVHIVE_PVQREFRESH_H

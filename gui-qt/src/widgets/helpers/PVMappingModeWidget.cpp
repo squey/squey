@@ -1,3 +1,9 @@
+/**
+ * \file PVMappingModeWidget.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <picviz/PVMappingFilter.h>
 #include <picviz/PVView.h>
 

@@ -1,3 +1,9 @@
+/**
+ * \file pic.c
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <histedit.h> 
 #include <termcap.h>
 

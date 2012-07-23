@@ -1,3 +1,9 @@
+/**
+ * \file PVChunkTransformHadoop.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVCHUNKTRANSFORMHADOOP_FILE_H
 #define PVCHUNKTRANSFORMHADOOP_FILE_H
 

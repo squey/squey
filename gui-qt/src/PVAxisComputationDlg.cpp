@@ -1,3 +1,9 @@
+/**
+ * \file PVAxisComputationDlg.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/core/PVAxisIndexType.h>
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/widgets/PVArgumentListWidget.h>

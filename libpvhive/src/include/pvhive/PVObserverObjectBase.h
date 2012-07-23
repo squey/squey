@@ -1,3 +1,9 @@
+/**
+ * \file PVObserverObjectBase.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVHIVE_PVOBSERVERBASE_H
 #define PVHIVE_PVOBSERVERBASE_H
 

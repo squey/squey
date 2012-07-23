@@ -1,3 +1,8 @@
+#
+# \file CMakeLists.txt
+#
+# Copyright (C) Picviz Labs 2010-2012
+
 add_definitions(-DPICVIZ_INSPECTOR)
 
 option(USE_OWN_LIBCURL "We have problems with quite some distributions with libcurl. Use installed version in /opt/curl/" TRUE)

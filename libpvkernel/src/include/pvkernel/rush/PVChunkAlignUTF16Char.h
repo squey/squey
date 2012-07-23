@@ -1,3 +1,9 @@
+/**
+ * \file PVChunkAlignUTF16Char.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVCHUNKALIGNUTF16CHAR_FILE_H
 #define PVCHUNKALIGNUTF16CHAR_FILE_H
 

@@ -1,8 +1,8 @@
-//! \file PVXmlDomModel.h
-//! $Id$
-//! Copyright (C) Sébastien Tricaud 2011-2011
-//! Copyright (C) Philippe Saadé 2011-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVXmlDomModel.h
+ *
+ * Copyright (C) Picviz Labs 2011-2012
+ */
 
 #ifndef MONMODELE_H
 #define	MONMODELE_H

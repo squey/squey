@@ -1,3 +1,9 @@
+/**
+ * \file functional_objs.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef BIG_TEST_OBJS_H
 #define BIG_TEST_OBJS_H
 

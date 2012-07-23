@@ -1,9 +1,8 @@
-///! \file PVXmlRegValidatorHighLight.cpp
-//! $Id$
-//! Copyright (C) Sébastien Tricaud 2011-2011
-//! Copyright (C) Philippe Saadé 2011-2011
-//! Copyright (C) Picviz Labs 2011
-
+/**
+ * \file PVXmlRegValidatorHighLight.cpp
+ *
+ * Copyright (C) Picviz Labs 2011-2012
+ */
 
 #include <PVXmlRegValidatorHighLight.h>
 #include <PVXmlParamTextEdit.h>

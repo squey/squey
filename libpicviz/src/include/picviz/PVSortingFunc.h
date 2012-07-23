@@ -1,3 +1,9 @@
+/**
+ * \file PVSortingFunc.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PICVIZ_PVSORTINGFUNC_H
 #define PICVIZ_PVSORTINGFUNC_H
 

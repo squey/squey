@@ -1,4 +1,9 @@
 #!/usr/bin/python
+
+# \file gen.py
+#
+# Copyright (C) Picviz Labs 2010-2012
+
 #
 
 import sys,csv,os,random,struct,socket,string,math

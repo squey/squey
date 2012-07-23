@@ -1,8 +1,8 @@
-//! \file PVColorGradientDualSliderType.h
-//! $Id: PVColorGradientDualSliderType.h 3090 2011-06-09 04:59:46Z stricaud $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVColorGradientDualSliderType.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #ifndef PVCORE_PVCOLORGRADIENTDUALSLIDERTYPE_H
 #define PVCORE_PVCOLORGRADIENTDUALSLIDERTYPE_H

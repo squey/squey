@@ -1,3 +1,9 @@
+/**
+ * \file PVAD2GRFFListModel.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <picviz/widgets/PVAD2GRFFListModel.h>
 #include <picviz/PVSelRowFilteringFunction.h>
 

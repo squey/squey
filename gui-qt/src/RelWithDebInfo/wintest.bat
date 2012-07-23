@@ -1,3 +1,8 @@
+REM
+REM \file wintest.bat
+REM
+REM Copyright (C) Picviz Labs 2010-2012
+
 SET PICVIZ_NORMALIZE_HELPERS_DIR=..\..\..\libpicviz\plugins\normalize-helpers\
 SET PICVIZ_NORMALIZE_DIR=..\..\..\libpicviz\plugins\normalize\RelWithDebInfo\
 SET PICVIZ_FUNCTIONS_DIR=..\..\..\libpicviz\plugins\functions\RelWithDebInfo\

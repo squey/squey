@@ -1,3 +1,9 @@
+/**
+ * \file PVFieldSplitterCSV.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVFILTER_PVFIELDSPLITTERCSV_FILE_H
 #define PVFILTER_PVFIELDSPLITTERCSV_FILE_H
 

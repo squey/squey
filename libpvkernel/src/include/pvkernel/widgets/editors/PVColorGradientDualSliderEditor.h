@@ -1,8 +1,8 @@
-//! \file PVDualSlider.h
-//! $Id: PVDualSlider.h 2498 2011-04-25 14:27:23Z psaade $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVColorGradientDualSliderEditor.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #ifndef PVCOLORGRADIENTDUALSLIDEREDITOR_H
 #define PVCOLORGRADIENTDUALSLIDEREDITOR_H

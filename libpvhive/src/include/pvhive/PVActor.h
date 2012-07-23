@@ -1,3 +1,8 @@
+/**
+ * \file PVActor.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
 
 #ifndef LIBPVHIVE_PVACTOR_H
 #define LIBPVHIVE_PVACTOR_H

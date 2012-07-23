@@ -1,4 +1,9 @@
 #!/bin/bash
+
+# \file test_conv.sh
+#
+# Copyright (C) Picviz Labs 2010-2012
+
 # Test UTF16 conversion
 # Usage: ./test_conv.sh charset
 # The file libpvrush/tests/charset/$charset must exists. Diff output will

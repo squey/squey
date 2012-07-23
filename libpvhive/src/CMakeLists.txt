@@ -1,3 +1,7 @@
+#
+# \file CMakeLists.txt
+#
+# Copyright (C) Picviz Labs 2010-2012
 
 include_directories(AFTER ${ICU_INCLUDE})
 

@@ -1,3 +1,9 @@
+/**
+ * \file PVNrawListingWidget.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVNRAWLISTINGWIDGET_H
 #define PVNRAWLISTINGWIDGET_H
 

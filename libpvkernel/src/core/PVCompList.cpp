@@ -1,3 +1,9 @@
+/**
+ * \file PVCompList.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/core/PVCompList.h>
 #include <pvkernel/core/PVTimeFormatType.h>
 

@@ -1,3 +1,9 @@
+/**
+ * \file PVDataTreeObject.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVDATATREEOBJECT_H_
 #define PVDATATREEOBJECT_H_
 

@@ -1,8 +1,7 @@
-/*
- * $Id: export.h 3101 2011-06-10 08:57:30Z aguinet $
- * Copyright (C) Sebastien Tricaud 2010-2011
- * Copyright (C) Philippe Saade 2010-2011
- * 
+/**
+ * \file export.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
  */
 
 #ifndef PVBASE_EXPORT_H

@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# \file inspector.sh
+#
+# Copyright (C) Picviz Labs 2010-2012
+
 INSPECTOR_SOURCE_ROOT_DIR=.
 ISRD=$INSPECTOR_SOURCE_ROOT_DIR
 

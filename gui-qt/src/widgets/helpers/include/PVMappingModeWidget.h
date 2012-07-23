@@ -1,3 +1,9 @@
+/**
+ * \file PVMappingModeWidget.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef WIDGETS_PVMAPPINGMODEWIDGET_H
 #define WIDGETS_PVMAPPINGMODEWIDGET_H
 

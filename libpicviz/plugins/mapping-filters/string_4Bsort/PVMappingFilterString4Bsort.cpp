@@ -1,3 +1,9 @@
+/**
+ * \file PVMappingFilterString4Bsort.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include "PVMappingFilterString4Bsort.h"
 #include <pvkernel/core/PVTBBMaxArray.h>
 

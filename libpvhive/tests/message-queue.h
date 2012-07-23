@@ -1,3 +1,8 @@
+/**
+ * \file message-queue.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
 
 #ifndef MESSAGE_QUEUE_H
 #define MESSAGE_QUEUE_H

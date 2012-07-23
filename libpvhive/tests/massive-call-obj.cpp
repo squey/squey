@@ -1,3 +1,8 @@
+/**
+ * \file massive-call-obj.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
 
 #include <iostream>
 

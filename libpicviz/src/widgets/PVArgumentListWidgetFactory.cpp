@@ -1,3 +1,9 @@
+/**
+ * \file PVArgumentListWidgetFactory.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/widgets/PVArgumentListWidgetFactory.h>
 #include <picviz/widgets/PVArgumentListWidgetFactory.h>
 #include <picviz/widgets/PVViewArgumentEditorCreator.h>

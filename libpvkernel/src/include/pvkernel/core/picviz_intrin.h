@@ -1,3 +1,9 @@
+/**
+ * \file picviz_intrin.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVKERNEL_CORE_PICVIZ_INTRIN_H
 #define PVKERNEL_CORE_PICVIZ_INTRIN_H
 

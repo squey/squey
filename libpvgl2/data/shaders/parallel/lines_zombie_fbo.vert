@@ -1,3 +1,9 @@
+/**
+ * \file lines_zombie_fbo.vert
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #version 330
 
 uniform vec2 size = vec2(500.0, 500.0);

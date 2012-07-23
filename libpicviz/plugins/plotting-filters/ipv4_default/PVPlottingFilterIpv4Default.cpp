@@ -1,3 +1,9 @@
+/**
+ * \file PVPlottingFilterIpv4Default.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include "PVPlottingFilterIpv4Default.h"
 #include <picviz/limits.h>
 

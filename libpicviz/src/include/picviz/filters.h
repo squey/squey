@@ -1,8 +1,8 @@
-//! \file filters.h
-//! $Id: filters.h 2490 2011-04-25 02:07:58Z psaade $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file filters.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #ifndef _PICVIZ_FILTERS_H_
 #define _PICVIZ_FILTERS_H_

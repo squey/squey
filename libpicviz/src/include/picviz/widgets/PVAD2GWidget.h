@@ -1,3 +1,9 @@
+/**
+ * \file PVAD2GWidget.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PICVIZ_PVAD2BWIDGET_H
 #define PICVIZ_PVAD2GWIDGET_H
 

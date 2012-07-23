@@ -1,3 +1,9 @@
+/**
+ * \file PVFieldSplitterChunkMatch.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVFIELDSPLITTERCHUNKMATCH_H
 #define PVFIELDSPLITTERCHUNKMATCH_H
 

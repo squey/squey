@@ -1,3 +1,9 @@
+/**
+ * \file PVFunctionTraits.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVCORE_PVFUNCTIONTRAITS_H
 #define PVCORE_PVFUNCTIONTRAITS_H
 

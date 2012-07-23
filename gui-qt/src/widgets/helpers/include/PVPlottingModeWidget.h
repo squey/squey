@@ -1,3 +1,9 @@
+/**
+ * \file PVPlottingModeWidget.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef WIDGETS_PVPLOTTINGMODEWIDGET_H
 #define WIDGETS_PVPLOTTINGMODEWIDGET_H
 

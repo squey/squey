@@ -1,8 +1,8 @@
-//! \file PVLines.h
-//! $Id: PVLines.h 2936 2011-05-23 05:59:33Z aguinet $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saade 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVLines.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #ifndef LIBPVGL_LINES_H
 #define LIBPVGL_LINES_H

@@ -1,3 +1,9 @@
+/**
+ * \file PVRawSourceBase.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVRAWSOURCEBASE_FILE_H
 #define PVRAWSOURCEBASE_FILE_H
 

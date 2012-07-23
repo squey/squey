@@ -1,3 +1,9 @@
+/**
+ * \file axes-comb_model.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include "axes-comb_model.h"
 
 void PVViewObserver::refresh()

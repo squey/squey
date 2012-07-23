@@ -1,8 +1,8 @@
-//! \file PVMappingFilterStringSort.h
-//! $Id: PVMappingFilterStringSort.h 2492 2011-04-25 05:41:54Z psaade $
-//! Copyright (C) Sébastien Tricaud 2011-2011
-//! Copyright (C) Philippe Saadé 2011-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVMappingFilterStringSort.h
+ *
+ * Copyright (C) Picviz Labs 2011-2012
+ */
 
 #ifndef PVFILTER_PVMAPPINGFILTERSTRINGSORT_H
 #define PVFILTER_PVMAPPINGFILTERSTRINGSORT_H

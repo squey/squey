@@ -1,8 +1,8 @@
 # Locate PVHive include paths and libraries
 #
-# $Id$
-# Copyright (C) Sebastien Tricaud 2010-2011
-# Copyright (C) Philippe Saade 2010-2011
+# \file FindPVHive.cmake
+#
+# Copyright (C) Picviz Labs 2010-2012
 #
 # PVHIVE_FOUND        - If PVHive is found
 # PVHIVE_INCLUDE_DIRS - Where include/pvhive is found

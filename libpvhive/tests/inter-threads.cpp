@@ -1,3 +1,8 @@
+/**
+ * \file inter-threads.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
 
 #include <boost/thread.hpp>
 

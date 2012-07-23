@@ -1,3 +1,9 @@
+/**
+ * \file PVLayerFilterSelectionSearch.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include "PVLayerFilterSelectionSearch.h"
 #include <pvkernel/core/PVPlainTextType.h>
 #include <pvkernel/core/PVEnumType.h>

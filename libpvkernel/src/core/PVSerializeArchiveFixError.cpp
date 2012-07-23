@@ -1,3 +1,9 @@
+/**
+ * \file PVSerializeArchiveFixError.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/core/PVSerializeArchiveFixError.h>
 #include <pvkernel/core/PVSerializeObject.h>
 

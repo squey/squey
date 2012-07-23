@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+# \file api-obfuscate.py
+#
+# Copyright (C) Picviz Labs 2010-2012
+
 import os
 import re
 import hashlib

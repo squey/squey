@@ -1,8 +1,8 @@
 # Locate Pvgl include paths and libraries
 #
-# $Id$
-# Copyright (C) Sebastien Tricaud 2010-2011
-# Copyright (C) Philippe Saade 2010-2011
+# \file FindPVGL.cmake
+#
+# Copyright (C) Picviz Labs 2010-2012
 #
 # PVGL_FOUND        - If Pvgl is found
 # PVGL_INCLUDE_DIRS - Where include/pvgl is found

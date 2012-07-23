@@ -1,3 +1,8 @@
+/**
+ * \file functional_objs.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
 
 #include "functional_objs.h"
 

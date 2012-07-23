@@ -1,3 +1,9 @@
+/**
+ * \file ad2gview.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include "test-env.h"
 #include <picviz/PVView.h>
 #include <picviz/PVAD2GView.h>

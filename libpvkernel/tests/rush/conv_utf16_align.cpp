@@ -1,3 +1,9 @@
+/**
+ * \file conv_utf16_align.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #define SIMULATE_PIPELINE
 #include <pvkernel/filter/PVChunkFilter.h>
 #include <pvkernel/rush/PVInputFile.h>

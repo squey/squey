@@ -1,8 +1,8 @@
-//! \file general.h
-//! $Id: general.h 2980 2011-05-26 05:01:16Z stricaud $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file general.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 /* #ifdef CUSTOMER_RELEASE */
 //AUTO_CUSTOMER_RELEASE #include <picviz/api-obfuscate.h> 

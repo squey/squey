@@ -1,3 +1,9 @@
+/**
+ * \file PVSaveSceneDialog.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include "PVSaveSceneDialog.h"
 #include "PVSerializeOptionsWidget.h"
 

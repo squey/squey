@@ -1,3 +1,9 @@
+/**
+ * \file PVPlottingFilterLogMinmax.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include "PVPlottingFilterLogMinmax.h"
 #include <math.h>
 

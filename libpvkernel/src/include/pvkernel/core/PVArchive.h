@@ -1,3 +1,9 @@
+/**
+ * \file PVArchive.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVCORE_PVARCHIVE_H
 #define PVCORE_PVARCHIVE_H
 

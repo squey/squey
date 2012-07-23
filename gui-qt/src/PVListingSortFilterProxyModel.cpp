@@ -1,3 +1,9 @@
+/**
+ * \file PVListingSortFilterProxyModel.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/core/PVUnicodeString.h>
 #include <picviz/PVStateMachine.h>
 #include <picviz/PVView.h>

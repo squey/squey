@@ -1,8 +1,8 @@
-//! \file PVLayer.h
-//! $Id: PVLayer.h 3090 2011-06-09 04:59:46Z stricaud $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVLayer.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #ifndef PICVIZ_PVLAYER_H
 #define PICVIZ_PVLAYER_H

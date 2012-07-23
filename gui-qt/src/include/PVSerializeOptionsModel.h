@@ -1,3 +1,9 @@
+/**
+ * \file PVSerializeOptionsModel.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVSERIALIZEOPTIONSMODEL_H
 #define PVSERIALIZEOPTIONSMODEL_H
 

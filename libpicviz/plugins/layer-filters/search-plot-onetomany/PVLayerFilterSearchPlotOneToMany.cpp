@@ -1,8 +1,8 @@
-//! \file PVLayerFilterSearchPlotOneToMany.cpp
-//! $Id: PVLayerFilterSearch.cpp 2526 2011-05-02 12:21:26Z psaade $
-//! Copyright (C) Sébastien Tricaud 2009-2012
-//! Copyright (C) Philippe Saadé 2009-2012
-//! Copyright (C) Picviz Labs 2012
+/**
+ * \file PVLayerFilterSearchPlotOneToMany.cpp
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #include "PVLayerFilterSearchPlotOneToMany.h"
 #include <pvkernel/core/PVColor.h>

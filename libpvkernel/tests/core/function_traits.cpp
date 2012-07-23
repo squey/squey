@@ -1,3 +1,9 @@
+/**
+ * \file function_traits.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <iostream>
 #include <typeinfo>
 

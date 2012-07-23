@@ -1,3 +1,8 @@
+/**
+ * \file data-in-thread.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
 
 #include <pvhive/PVHive.h>
 #include <pvhive/PVActor.h>

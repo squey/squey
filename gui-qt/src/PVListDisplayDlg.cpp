@@ -1,3 +1,9 @@
+/**
+ * \file PVListDisplayDlg.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/rush/PVNraw.h>
 #include <picviz/PVView.h>
 

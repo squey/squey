@@ -1,3 +1,8 @@
+/**
+ * \file PVObserverSignal.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
 
 #ifndef LIBPVHIVE_PVOBSERVERSIGNAL_H
 #define LIBPVHIVE_PVOBSERVERSIGNAL_H

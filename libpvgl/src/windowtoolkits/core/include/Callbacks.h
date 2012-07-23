@@ -1,3 +1,9 @@
+/**
+ * \file Callbacks.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef LIBPVGL_WTK_CALLBACKS_H
 #define LIBPVGL_WTK_CALLBACKS_H
 

@@ -1,3 +1,8 @@
+REM
+REM \file inspector.bat
+REM
+REM Copyright (C) Picviz Labs 2010-2012
+
 @echo off
 
 :SET BUILD_MODE=Debug

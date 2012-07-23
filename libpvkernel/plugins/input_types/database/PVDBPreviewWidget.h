@@ -1,3 +1,9 @@
+/**
+ * \file PVDBPreviewWidget.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVDBPREVIEWWIDGET_FILE_H
 #define PVDBPREVIEWWIDGET_FILE_H
 

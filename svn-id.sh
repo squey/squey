@@ -1,4 +1,9 @@
 #!/bin/bash
+
+# \file svn-id.sh
+#
+# Copyright (C) Picviz Labs 2010-2012
+
 svn propset svn:keywords 'Id' libpvcore/src/*.cpp
 svn propset svn:keywords 'Id' libpvcore/src/include/pvcore/*.h
 

@@ -1,3 +1,9 @@
+/**
+ * \file PVInputFile.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/rush/PVInputFile.h>
 #include <fstream>
 #include <errno.h>

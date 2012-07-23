@@ -1,3 +1,9 @@
+/**
+ * \file PVSelRowFilteringFunction.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <picviz/PVSelRowFilteringFunction.h>
 #include <pvkernel/core/PVClassLibrary.h>
 

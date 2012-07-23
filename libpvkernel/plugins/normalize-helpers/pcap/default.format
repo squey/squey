@@ -1,4 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
+<!-- \file default.format -->
+<!-- Copyright (C) Picviz Labs 2010-2012 -->
 <!DOCTYPE PVParamXml>
 <param version="1">
  <splitter type="pcap" datalink="-1">

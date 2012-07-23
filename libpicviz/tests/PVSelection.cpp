@@ -1,3 +1,9 @@
+/**
+ * \file PVSelection.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <stdlib.h>
 #include <pvkernel/core/picviz_bench.h>
 

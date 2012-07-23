@@ -1,3 +1,9 @@
+/**
+ * \file PVListingSortFilterProxyModel.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVINSPECTOR_PVLISTINGFILTERPROXYMODEL_H
 #define PVINSPECTOR_PVLISTINGFILTERPROXYMODEL_H
 

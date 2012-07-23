@@ -1,3 +1,9 @@
+/**
+ * \file time-format.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/core/PVDateTimeParser.h>
 #include <pvkernel/core/stdint.h>
 

@@ -1,3 +1,9 @@
+/**
+ * \file export.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVFILTER_EXPORT_H
 #define PVFILTER_EXPORT_H
 

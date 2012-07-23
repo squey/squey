@@ -1,3 +1,9 @@
+/**
+ * \file PVRFFAxesBind.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PICVIZ_PVRFFAXESBIND_H
 #define PICVIZ_PVRFFAXESBIND_H
 

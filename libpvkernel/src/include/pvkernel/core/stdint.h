@@ -1,3 +1,9 @@
+/**
+ * \file stdint.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVCORE_STDINT_H
 #define PVCORE_STDINT_H
 

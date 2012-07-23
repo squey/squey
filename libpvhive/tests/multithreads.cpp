@@ -1,3 +1,9 @@
+/**
+ * \file multithreads.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <boost/thread.hpp>
 
 #include <pvhive/PVHive.h>

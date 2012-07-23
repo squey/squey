@@ -1,8 +1,8 @@
-//! \file PVChunkFilter.h
-//! $Id: PVChunkFilter.h 3090 2011-06-09 04:59:46Z stricaud $
-//! Copyright (C) Sébastien Tricaud 2011-2011
-//! Copyright (C) Philippe Saadé 2011-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVChunkFilter.h
+ *
+ * Copyright (C) Picviz Labs 2011-2012
+ */
 
 #ifndef PVFILTER_PVCHUNKFILTER_H
 #define PVFILTER_PVCHUNKFILTER_H

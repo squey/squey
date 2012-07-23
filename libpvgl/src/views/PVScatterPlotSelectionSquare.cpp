@@ -1,8 +1,8 @@
-//! \file PVScatterPlotSelectionSquare.cpp
-//! $Id: PVScatterPlotSelectionSquare.cpp 2875 2011-05-19 04:18:05Z aguinet $
-//! Copyright (C) SÃ©bastien Tricaud 2009, 2010
-//! Copyright (C) Philippe Saade 2009,2010
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVScatterPlotSelectionSquare.cpp
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #define GLEW_STATIC 1
 #include <GL/glew.h>

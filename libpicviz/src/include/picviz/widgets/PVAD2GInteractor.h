@@ -1,3 +1,9 @@
+/**
+ * \file PVAD2GInteractor.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef __PVAD2GINTERACTOR_H__
 #define __PVAD2GINTERACTOR_H__
 

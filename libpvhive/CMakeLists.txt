@@ -1,3 +1,8 @@
+#
+# \file CMakeLists.txt
+#
+# Copyright (C) Picviz Labs 2010-2012
+
 include(CTest)
 set(CTEST_PROJECT_NAME "PVHive")
 

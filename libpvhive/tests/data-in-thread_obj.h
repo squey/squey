@@ -1,3 +1,8 @@
+/**
+ * \file data-in-thread_obj.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
 
 #ifndef entity_h
 #define entity_h

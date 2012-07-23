@@ -1,3 +1,8 @@
+/**
+ * \file functional_dlg.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
 
 #ifndef BIG_TEST_DLG_H
 #define BIG_TEST_DLG_H

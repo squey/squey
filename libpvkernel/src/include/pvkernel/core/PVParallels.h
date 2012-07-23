@@ -1,3 +1,9 @@
+/**
+ * \file PVParallels.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVCORE_PVPARALLELS_H
 #define PVCORE_PVPARALLELS_H
 

@@ -1,3 +1,9 @@
+/**
+ * \file PVViewsModel.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include "PVViewsModel.h"
 #include <picviz/PVMapped.h>
 #include <picviz/PVPlotted.h>

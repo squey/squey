@@ -1,3 +1,9 @@
+/**
+ * \file PVTFViewRowFilterFastIPv4.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PICVIZ_PVTFVIEWROWFILTERFASTIPV4_H
 #define PICVIZ_PVTFVIEWROWFILTERFASTIPV4_H
 

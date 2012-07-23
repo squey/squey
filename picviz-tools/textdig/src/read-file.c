@@ -1,3 +1,9 @@
+/**
+ * \file read-file.c
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <picviz/general.h>
 #include <picviz/debug.h>
 

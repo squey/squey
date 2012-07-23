@@ -1,3 +1,9 @@
+/**
+ * \file PVReducer.java
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 package org.picviz.hadoop.job.norm;
 
 import java.io.IOException;

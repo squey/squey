@@ -1,3 +1,9 @@
+/**
+ * \file filedownloader.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef FILEDOWNLOADER_H
 #define FILEDOWNLOADER_H
 

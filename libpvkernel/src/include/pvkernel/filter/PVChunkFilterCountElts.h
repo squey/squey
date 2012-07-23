@@ -1,8 +1,8 @@
-//! \file PVChunkFilterCountElts.h
-//! $Id: PVChunkFilterCountElts.h 3187 2011-06-21 11:20:33Z aguinet $
-//! Copyright (C) Sébastien Tricaud 2011-2011
-//! Copyright (C) Philippe Saadé 2011-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVChunkFilterCountElts.h
+ *
+ * Copyright (C) Picviz Labs 2011-2012
+ */
 
 #ifndef PVFILTER_PVCHUNKFILTERCOUNTELTS_H
 #define PVFILTER_PVCHUNKFILTERCOUNTELTS_H

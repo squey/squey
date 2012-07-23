@@ -1,3 +1,8 @@
+/**
+ * \file axes-comb_dlg.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
 
 #ifndef AXES_COMB_H
 #define AXES_COMB_H

@@ -1,3 +1,8 @@
+/**
+ * \file PVSharedPointer.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
 
 #ifndef PVCORE_SHAREDPOINTER_H
 #define PVCORE_SHAREDPOINTER_H

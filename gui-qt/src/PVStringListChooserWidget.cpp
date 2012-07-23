@@ -1,7 +1,8 @@
-//! \file PVStringListChooser.cpp
-//! $Id: PVStringListChooserWidget.cpp 3168 2011-06-16 09:06:33Z aguinet $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
+/**
+ * \file PVStringListChooserWidget.cpp
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #include <QtGui>
 #include <QDialog>

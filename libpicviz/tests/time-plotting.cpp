@@ -1,3 +1,9 @@
+/**
+ * \file time-plotting.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/core/debug.h>
 #include <pvkernel/rush/pvnormalizer.h>
 

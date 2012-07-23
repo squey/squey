@@ -1,8 +1,7 @@
-/*
- * $Id$
- * Copyright (C) Sebastien Tricaud 2010-2011
- * Copyright (C) Philippe Saade 2010-2011
- * 
+/**
+ * \file basic-foreach.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
  */
 
 #ifndef _BASIC_FOREACH_H_

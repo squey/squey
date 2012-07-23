@@ -1,3 +1,9 @@
+/**
+ * \file PVComboBox.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef WIDGETS_PVCOMBOBOX_H
 #define WIDGETS_PVCOMBOBOX_H
 

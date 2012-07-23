@@ -1,3 +1,9 @@
+/**
+ * \file PVChunkTransformUTF16.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/rush/PVChunkTransformUTF16.h>
 #include <string>
 

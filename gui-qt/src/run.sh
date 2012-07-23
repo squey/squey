@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# \file run.sh
+#
+# Copyright (C) Picviz Labs 2010-2012
+
 LIBPICVIZPATH=../../libpicviz
 
 DEBUG_LEVEL_NORMAL="DEBUG"

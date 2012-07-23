@@ -1,8 +1,8 @@
-//! \file layer.cpp
-//! $Id: layer.cpp 2541 2011-05-03 13:03:10Z psaade $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file layer.cpp
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
