@@ -14,16 +14,16 @@ set(WIN_CURL_PATH "C:\\\\dev\\\\curl")
 set(WIN_ICU_PATH "c:\\\\dev\\\\icu-amd64\\\\bin64")
 set(WIN_BOOST_PATH "c:\\\\dev\\\\boost\\\\install-root\\\\lib")
 
-set(LINUX_QT4_PATH "/usr/lib")
+set(LINUX_QT4_PATH "/usr/lib/x86_64-linux-gnu")
 
 set(QTLIBS_MAJOR "4")
-set(QTLIBS_MINOR "7")
-set(QTLIBS_PATCH "4")
+set(QTLIBS_MINOR "8")
+set(QTLIBS_PATCH "2")
 set(QTWEBKIT_MAJOR "4")
 set(QTWEBKIT_MINOR "9")
 set(QTWEBKIT_PATCH "0")
 
-set(LINUX_TBB_PATH "/usr/lib")
+set(LINUX_TBB_PATH "/opt/tbb-latest/lib")
 set(TBB_MAJOR "2")
 
 set(LINUX_BOOST_PATH "/usr/lib")
@@ -31,6 +31,7 @@ set(BOOST_PYTHON_VER "3.2mu")
 set(BOOST_VER "1.48.0")
 
 set(LINUX_MISCLIB_PATH "/usr/lib")
+set(LINUX_MISCLIB_PATH_64 "/usr/lib/x86_64-linux-gnu")
 
 if(WIN32)
 	set(TBB_DIST_FILES
@@ -146,6 +147,7 @@ else(WIN32)
 		${LINUX_QT4_PATH}/libQtXml.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH} 
 		${LINUX_QT4_PATH}/libQtWebKit.so.${QTWEBKIT_MAJOR}  ${LINUX_QT4_PATH}/libQtWebKit.so.${QTWEBKIT_MAJOR}.${QTWEBKIT_MINOR}  
 		${LINUX_QT4_PATH}/libQtWebKit.so.${QTWEBKIT_MAJOR}.${QTWEBKIT_MINOR}.${QTWEBKIT_PATCH} 
+		${LINUX_QT4_PATH}/libQtCLucene.so.${QTLIBS_MAJOR} ${LINUX_QT4_PATH}/libQtCLucene.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR} ${LINUX_QT4_PATH}/libQtCLucene.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH}
 
 		DESTINATION .)
 
@@ -180,20 +182,22 @@ else(WIN32)
 
 
 	install(FILES ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libgomp.so.1 ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libgomp.so.1.0.0 DESTINATION .)
-	install(FILES ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libpcap.so.0.8 ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libpcap.so.1.2.1 DESTINATION .)
+	install(FILES ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libpcap.so.0.8 ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libpcap.so.1.3.0 DESTINATION .)
 	install(FILES ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libarchive.so.12 ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libarchive.so.12.0.4 DESTINATION .)
 	install(FILES ${LINUX_MISCLIB_PATH}/libglut.so.3 ${LINUX_MISCLIB_PATH}/libglut.so.3.9.0 DESTINATION .)
 	install(FILES ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libfreetype.so.6 ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libfreetype.so.6.8.1 DESTINATION .)
-	install(FILES ${LINUX_MISCLIB_PATH}/libicui18n.so.48 ${LINUX_MISCLIB_PATH}/libicui18n.so.48.1.1 ${LINUX_MISCLIB_PATH}/libicuuc.so.48 ${LINUX_MISCLIB_PATH}/libicuuc.so.48.1.1 ${LINUX_MISCLIB_PATH}/libicudata.so.48 ${LINUX_MISCLIB_PATH}/libicudata.so.48.1.1 DESTINATION .)
+	install(FILES ${LINUX_MISCLIB_PATH_64}/libicui18n.so.48 ${LINUX_MISCLIB_PATH_64}/libicui18n.so.48.1.1 ${LINUX_MISCLIB_PATH_64}/libicuuc.so.48 ${LINUX_MISCLIB_PATH_64}/libicuuc.so.48.1.1 ${LINUX_MISCLIB_PATH_64}/libicudata.so.48 ${LINUX_MISCLIB_PATH_64}/libicudata.so.48.1.1 DESTINATION .)
 	install(FILES ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libGLEW.so  ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libGLEW.so.1.6 ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libGLEW.so.1.6.0 DESTINATION .)
 	install(FILES ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libaudio.so.2  ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libaudio.so.2.4 DESTINATION .)
 	#install(FILES /opt/curl/lib/libcurl.so.4 /opt/curl/lib/libcurl.so.4.2.0 DESTINATION .)
 	install(FILES ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libssh2.so.1 ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libssh2.so.1.0.1 DESTINATION .)
-	install(FILES ${LINUX_MISCLIB_PATH}/libQtCLucene.so.${QTLIBS_MAJOR} ${LINUX_MISCLIB_PATH}/libQtCLucene.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR} ${LINUX_MISCLIB_PATH}/libQtCLucene.so.${QTLIBS_MAJOR}.${QTLIBS_MINOR}.${QTLIBS_PATCH} DESTINATION .)
-	install(FILES ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libstdc++.so.6 ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libstdc++.so.6.0.17 DESTINATION .)
+	install(FILES /usr/lib/gcc-snapshot/lib/libstdc++.so /usr/lib/gcc-snapshot/lib/libstdc++.so.6 /usr/lib/gcc-snapshot/lib/libstdc++.so.6.0.17 DESTINATION .)
 	install(FILES ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/liblzma.so.5  ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/liblzma.so.5.0.0 DESTINATION .)
 	install(FILES ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libcrypto.so  ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libcrypto.so.1.0.0 DESTINATION .)
 	install(FILES ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libssl.so  ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libssl.so.1.0.0 DESTINATION .)
 	install(FILES ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libffi.so.5  ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libffi.so.5.0.10 DESTINATION .)
 	install(FILES ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libnettle.so.4 ${LINUX_MISCLIB_PATH}/x86_64-linux-gnu/libnettle.so.4.3 DESTINATION .)
+	install(FILES ${LINUX_MISCLIB_PATH_64}/libhwloc.so ${LINUX_MISCLIB_PATH_64}/libhwloc.so.5 ${LINUX_MISCLIB_PATH_64}/libhwloc.so.5.0.1 DESTINATION .)
+	install(FILES /usr/local/lib/libgzstream.so /usr/local/lib/libftgl.so /usr/local/lib/libtulip-3.8.so /usr/local/lib/libtulip-ogdf-3.8.so /usr/local/lib/libtulip-ogl-3.8.so /usr/local/lib/libtulip-qt4-3.8.so DESTINATION .)
+	install(FILES ${LINUX_MISCLIB_PATH}/libnuma.so ${LINUX_MISCLIB_PATH}/libnuma.so.1 DESTINATION .)
 endif(WIN32)
