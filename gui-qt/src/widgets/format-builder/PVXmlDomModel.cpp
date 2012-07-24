@@ -852,14 +852,14 @@ void PVInspector::PVXmlDomModel::addUrlIn(const QModelIndex &index){
 	variable.setAttribute("titlecolor", PVFORMAT_AXIS_TITLECOLOR_DEFAULT);
 	variable.setAttribute("tag", PVAXIS_TAG_URL_VARIABLES);
 
-	fragment.setAttribute("", "Anchor");
+	fragment.setAttribute("name", "Anchor");
 	setEltMappingPlotting(fragment, "string", "default", "default");
 	fragment.setAttribute("key", "false");
 	fragment.setAttribute("color", PVFORMAT_AXIS_COLOR_DEFAULT);
 	fragment.setAttribute("titlecolor", PVFORMAT_AXIS_TITLECOLOR_DEFAULT);
 	fragment.setAttribute("tag", PVAXIS_TAG_URL_FRAGMENT);
 
-	credentials.setAttribute("", "Credentials");
+	credentials.setAttribute("name", "Credentials");
 	setEltMappingPlotting(credentials, "string", "default", "default");
 	credentials.setAttribute("key", "false");
 	credentials.setAttribute("color", PVFORMAT_AXIS_COLOR_DEFAULT);
