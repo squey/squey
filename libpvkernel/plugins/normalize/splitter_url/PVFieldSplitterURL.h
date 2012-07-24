@@ -35,6 +35,8 @@ private:
 	int _col_port;
 	int _col_url;
 	int _col_variable;
+	int _col_fragment;
+	int _col_credentials;
 	PVCol _ncols;
 
 	tbb::combinable<furl_handler_t> _furl_handler;

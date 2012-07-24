@@ -26,7 +26,7 @@ static const PVCore::PVUnicodeString::utf_char g_port_80[] = {'8', '0'};
 static const PVCore::PVUnicodeString::utf_char g_port_443[] = {'4','4','3'};
 static const PVCore::PVUnicodeString::utf_char g_port_21[] = {'2', '1'};
 
-#define URL_NUMBER_FIELDS_CREATED 8
+#define URL_NUMBER_FIELDS_CREATED 10
 
 /******************************************************************************
  *
@@ -47,7 +47,9 @@ PVFilter::PVFieldSplitterURL::PVFieldSplitterURL() :
 	_col_port = 5;
 	_col_url = 6;
 	_col_variable = 7;
-	_ncols = 8;
+	_col_fragment = 8;
+	_col_credentials = 9;
+	_ncols = 10;
 }
 
 void PVFilter::PVFieldSplitterURL::set_children_axes_tag(filter_child_axes_tag_t const& axes)
@@ -61,8 +63,10 @@ void PVFilter::PVFieldSplitterURL::set_children_axes_tag(filter_child_axes_tag_t
 	_col_port = axes.value(PVAXIS_TAG_PORT, -1);
 	_col_url = axes.value(PVAXIS_TAG_URL, -1);
 	_col_variable = axes.value(PVAXIS_TAG_URL_VARIABLES, -1);
+	_col_fragment = axes.value(PVAXIS_TAG_URL_FRAGMENT, -1);
+	_col_credentials = axes.value(PVAXIS_TAG_URL_CREDENTIALS, -1);
 	PVCol nmiss = (_col_proto == -1) + (_col_subdomain == -1) + (_col_host == -1) + (_col_domain == -1) + (_col_tld == -1) + (_col_port == -1) + \
-				(_col_url == -1) + (_col_variable == -1);
+				(_col_url == -1) + (_col_variable == -1) + (_col_fragment == -1) + (_col_credentials == -1);
 	_ncols = URL_NUMBER_FIELDS_CREATED-nmiss;
 	if (_ncols == 0) {
 		PVLOG_WARN("(PVFieldSplitterURL::set_children_axes_tag) warning: URL splitter set but no tags have been found !\n");
@@ -122,6 +126,8 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterURL::one_to_many(PVCore:
 	ret += set_field(_col_tld, pf, str_url, fh->furl.features.tld); 
 	ret += set_field(_col_url, pf, str_url, fh->furl.features.resource_path);
 	ret += set_field(_col_variable, pf, str_url, fh->furl.features.query_string); 
+	ret += set_field(_col_fragment, pf, str_url, fh->furl.features.fragment); 
+	ret += set_field(_col_credentials, pf, str_url, fh->furl.features.credential); 
 	if (furl_features_exist(fh->furl.features.port)) {
 		ret += set_field(_col_port, pf, str_url, fh->furl.features.port);
 	}
