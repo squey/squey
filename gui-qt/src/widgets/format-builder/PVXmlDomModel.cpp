@@ -3,6 +3,7 @@
 //! Copyright (C) Sébastien Tricaud 2011-2011
 //! Copyright (C) Philippe Saadé 2011-2011
 //! Copyright (C) Picviz Labs 2011
+
 #include <PVXmlDomModel.h>
 #include <pvkernel/filter/PVFieldsFilterParamWidget.h>
 #include <pvkernel/rush/PVFormatVersion.h>
@@ -11,7 +12,6 @@
 #include <QString>
 
 #define dbg()  {qDebug()<<__FILE__<<__LINE__;}
-
 
 /******************************************************************************
  *

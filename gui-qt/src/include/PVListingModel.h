@@ -3,6 +3,7 @@
 //! Copyright (C) Sébastien Tricaud 2009-2011
 //! Copyright (C) Philippe Saadé 2009-2011
 //! Copyright (C) Picviz Labs 2011
+
 #ifndef PVLISTINGMODEL_H
 #define PVLISTINGMODEL_H
 
