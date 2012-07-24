@@ -9,6 +9,7 @@
 
 #include <pvhive/PVHive.h>
 #include <pvhive/PVActorBase.h>
+#include <pvkernel/core/PVFunctionTraits.h>
 
 namespace PVHive
 {
@@ -24,6 +25,9 @@ class PVActor : public PVActorBase
 	friend class PVHive;
 
 public:
+	typedef T type;
+
+public:
 	PVActor()
 	{}
 
@@ -35,19 +39,20 @@ public:
 	 * @throw no_object
 	 */
 	template <typename F, F f, typename... P>
-	void call(P const& ... params)
+	typename PVCore::PVTypeTraits::function_traits<F>::result_type call(P const& ... params)
 	{
 		T *object = (T*)get_object();
 		if (object != nullptr) {
-			PVHive::get().call_object<T, F, f>(object, params...);
+			return PVHive::get().call_object<T, F, f>(object, params...);
 		} else {
 			throw no_object("using an actor on a nullptr object");
 		}
+		return typename PVCore::PVTypeTraits::function_traits<F>::result_type();
 	}
 };
 
 // Helper macro to hide the C++ decltype verbosity
-#define PVACTOR_CALL(Actor, Method, Param...)	  \
+#define PVACTOR_CALL(Actor, Method, Param...) \
 	(Actor).call<decltype(Method), Method>(Param)
 
 }
