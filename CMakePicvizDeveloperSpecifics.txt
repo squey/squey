@@ -1,8 +1,3 @@
-#
-# \file CMakePicvizDeveloperSpecifics.txt
-#
-# Copyright (C) Picviz Labs 2010-2012
-
 set(CUSTOMER_CAPABILITY_SAVE true)
 set(CUSTOMER_CAPABILITY_IMPORT_REMOTE true)
 set(CUSTOMER_CAPABILITY_IMPORT_DB true)
