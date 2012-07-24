@@ -1,3 +1,9 @@
+/**
+ * \file PVFieldSplitterCSVParamWidget.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include "PVFieldSplitterCSVParamWidget.h"
 #include "PVFieldSplitterCSV.h"
 #include <pvkernel/filter/PVFieldsFilter.h>

@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- \file PVAxesCombinationWidget.ui -->
+<!-- Copyright (C) Picviz Labs 2010-2012 -->
 <ui version="4.0">
  <class>PVAxesCombinationWidget</class>
  <widget class="QWidget" name="PVAxesCombinationWidget">

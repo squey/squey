@@ -1,3 +1,9 @@
+/**
+ * \file PVSourceCreator.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PICVIZ_PVSOURCECREATOR_H
 #define PICVIZ_PVSOURCECREATOR_H
 

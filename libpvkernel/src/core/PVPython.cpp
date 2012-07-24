@@ -1,3 +1,9 @@
+/**
+ * \file PVPython.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifdef ENABLE_PYTHON_SUPPORT
 
 #include <pvkernel/core/PVPython.h>

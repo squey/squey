@@ -1,3 +1,9 @@
+/**
+ * \file PVFormatVersion.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVFORMAT_VERSION_H
 #define PVFORMAT_VERSION_H
 

@@ -1,9 +1,8 @@
-//! \file PVLayerStack.cpp
-//! $Id: PVLayerStack.cpp 3090 2011-06-09 04:59:46Z stricaud $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
-
+/**
+ * \file PVLayerStack.cpp
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #include <pvkernel/core/PVSerializeArchiveZip.h>
 #include <picviz/PVLayer.h>

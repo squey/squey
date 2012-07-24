@@ -1,8 +1,8 @@
-//! \file types.h
-//! $Id: types.h 2387 2011-04-17 17:24:35Z stricaud $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saade 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file types.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #ifndef PVBASE_TYPES_H
 #define PVBASE_TYPES_H

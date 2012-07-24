@@ -1,3 +1,9 @@
+/**
+ * \file PVOutput.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVOUTPUT_FILE_H
 #define PVOUTPUT_FILE_H
 

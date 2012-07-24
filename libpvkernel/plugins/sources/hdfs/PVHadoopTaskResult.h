@@ -1,3 +1,9 @@
+/**
+ * \file PVHadoopTaskResult.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVHADOOPTASKRESULT_H
 #define PVHADOOPTASKRESULT_H
 

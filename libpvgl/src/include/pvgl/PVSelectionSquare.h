@@ -1,8 +1,8 @@
-//! \file PVSelectionSquare.h
-//! $Id: PVSelectionSquare.h 2875 2011-05-19 04:18:05Z aguinet $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saade 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVSelectionSquare.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #ifndef LIBPVGL_SELECTION_SQUARE_H
 #define LIBPVGL_SELECTION_SQUARE_H

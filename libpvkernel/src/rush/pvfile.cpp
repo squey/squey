@@ -1,8 +1,7 @@
-/*
- * $Id: pvfile.cpp 2976 2011-05-26 04:06:27Z dindinx $
- * Copyright (C) Sebastien Tricaud 2010-2011
- * Copyright (C) Philippe Saade 2010-2011
- * 
+/**
+ * \file pvfile.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
  */
 
 #include <QByteArray>

@@ -1,8 +1,8 @@
-//! \file PVImportFileDialog.cpp
-//! $Id: PVImportFileDialog.cpp 2714 2011-05-12 08:02:27Z aguinet $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVImportFileDialog.cpp
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #include <QtGui>
 

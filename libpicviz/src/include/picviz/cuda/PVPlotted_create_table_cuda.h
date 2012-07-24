@@ -1,9 +1,8 @@
-//! \file PVPlotted_create_table_cuda.h
-//! $Id: $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
-
+/**
+ * \file PVPlotted_create_table_cuda.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #ifndef PICVIZ_PVPLOTTED_CREATE_TABLE_CUDA_H
 #define PICVIZ_PVPLOTTED_CREATE_TABLE_CUDA_H

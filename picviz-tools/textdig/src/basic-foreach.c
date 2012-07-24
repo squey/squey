@@ -1,3 +1,9 @@
+/**
+ * \file basic-foreach.c
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

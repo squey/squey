@@ -1,5 +1,9 @@
 #!/usr/bin/python3.2
 
+# \file interface.py
+#
+# Copyright (C) Picviz Labs 2010-2012
+
 def picviz_open_file(path):
 	pass
 

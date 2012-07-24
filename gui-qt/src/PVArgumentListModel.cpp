@@ -1,8 +1,8 @@
-//! \file PVArgumentListModel.cpp
-//! $Id: PVArgumentListModel.cpp 3106 2011-06-11 14:00:20Z stricaud $
-//! Copyright (C) Sébastien Tricaud 2009-2012
-//! Copyright (C) Philippe Saadé 2009-2012
-//! Copyright (C) Picviz Labs 2012
+/**
+ * \file PVArgumentListModel.cpp
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #include <PVArgumentListModel.h>
 

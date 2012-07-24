@@ -1,8 +1,8 @@
-//! \file PVColor.h
-//! $Id: PVColor.h 2590 2011-05-07 15:43:12Z psaade $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVColor.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #ifndef PVCORE_PVCOLOR_H
 #define PVCORE_PVCOLOR_H

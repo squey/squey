@@ -1,3 +1,9 @@
+/**
+ * \file raster.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef OCL_RASTER_H
 #define OCL_RASTER_H
 

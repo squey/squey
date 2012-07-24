@@ -1,5 +1,9 @@
 #!/usr/bin/perl
 
+# \file syslog.pl
+#
+# Copyright (C) Picviz Labs 2010-2012
+
 my ($LOGFILE) = 0;
 
 sub picviz_open_file {

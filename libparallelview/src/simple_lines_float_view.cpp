@@ -1,3 +1,9 @@
+/**
+ * \file simple_lines_float_view.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvparallelview/simple_lines_float_view.h>
 #include <iostream>
 #include <tbb/tick_count.h>

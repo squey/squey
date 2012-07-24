@@ -1,3 +1,9 @@
+/**
+ * \file bz_compute_pipe.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <code_bz/bz_compute.h>
 #include <cassert>
 

@@ -1,3 +1,9 @@
+/**
+ * \file filter_factory.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/filter/PVFieldSplitterRegexp.h>
 #include <pvkernel/filter/PVFieldFilterGrep.h>
 #include <pvkernel/filter/PVFieldsFilter.h>

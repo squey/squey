@@ -1,3 +1,9 @@
+/**
+ * \file PVAxisSlider.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVPARALLELVIEW_PVAXISSLIDER_H
 #define PVPARALLELVIEW_PVAXISSLIDER_H
 

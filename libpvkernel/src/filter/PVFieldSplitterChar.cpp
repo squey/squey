@@ -1,8 +1,8 @@
-//! \file PVCore::PVFieldSplitterChar.cpp
-//! $Id: PVFieldSplitterChar.cpp 3090 2011-06-09 04:59:46Z stricaud $
-//! Copyright (C) Sébastien Tricaud 2011-2011
-//! Copyright (C) Philippe Saadé 2011-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVFieldSplitterChar.cpp
+ *
+ * Copyright (C) Picviz Labs 2011-2012
+ */
 
 #include <pvkernel/filter/PVFieldSplitterChar.h>
 #include <pvkernel/core/PVBufferSlice.h>

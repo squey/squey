@@ -1,3 +1,9 @@
+/**
+ * \file PVChunkAlignUTF16Char.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/rush/PVChunkAlignUTF16Char.h>
 #include <unicode/ustring.h>
 

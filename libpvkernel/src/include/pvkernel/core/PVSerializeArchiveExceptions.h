@@ -1,3 +1,9 @@
+/**
+ * \file PVSerializeArchiveExceptions.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVCORE_PVSERIALIZEARCHIVEEXCEPTIONS_H
 #define PVCORE_PVSERIALIZEARCHIVEEXCEPTIONS_H
 

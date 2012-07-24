@@ -1,3 +1,8 @@
+#
+# \file README.txt
+#
+# Copyright (C) Picviz Labs 2010-2012
+
 This is the source code for the Picviz Project. This project is built with various libraries. 
 The goal of this README is to explain what each library is to understand the project better.
 

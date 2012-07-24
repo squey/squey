@@ -1,8 +1,8 @@
-//! \file PVContainer.h
-//! $Id: PVContainer.h 2471 2011-04-23 09:18:16Z psaade $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saade 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVContainer.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #ifndef LIBPVGL_CONTAINER_H
 #define LIBPVGL_CONTAINER_H

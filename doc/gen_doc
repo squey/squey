@@ -1,4 +1,9 @@
 #!/bin/bash
+
+# \file gen_doc
+#
+# Copyright (C) Picviz Labs 2010-2012
+
 # Generate Qt assistant compatible documentation collection
 
 for l in libpvkernel libpicviz gui-qt

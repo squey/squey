@@ -1,3 +1,9 @@
+/**
+ * \file PVMappingFilterHostDefault.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include "PVMappingFilterHostDefault.h"
 #include <picviz/limits.h>
 #include <pvkernel/core/PVStringUtils.h>

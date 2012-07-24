@@ -1,3 +1,9 @@
+/**
+ * \file logviewer_config.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef LOGVIEWER_CONFIG_H
 #define LOGVIEWER_CONFIG_H
 

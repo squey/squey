@@ -1,8 +1,8 @@
-//! \file general.h
-//! $Id: general.h 2392 2011-04-18 04:35:18Z dindinx $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saade 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file general.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #ifndef LIBPVGL_GENERAL_H
 #define LIBPVGL_GENERAL_H

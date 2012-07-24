@@ -1,3 +1,9 @@
+/**
+ * \file filter_library.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include "test-env.h"
 #include <pvkernel/filter/PVFilterLibrary.h>
 #include <pvkernel/filter/PVPluginsLoad.h>

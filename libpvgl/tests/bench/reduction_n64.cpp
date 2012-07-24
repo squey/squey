@@ -1,3 +1,9 @@
+/**
+ * \file reduction_n64.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 // Goal: find out the performance of a serial reduction vs.
 // the size of the destination space !
 //

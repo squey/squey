@@ -1,3 +1,9 @@
+/**
+ * \file fileconnectiondialog.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef FILECONNECTIONDIALOG_H
 #define FILECONNECTIONDIALOG_H
 

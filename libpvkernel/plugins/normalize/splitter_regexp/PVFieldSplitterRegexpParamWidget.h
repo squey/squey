@@ -1,3 +1,9 @@
+/**
+ * \file PVFieldSplitterRegexpParamWidget.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVFIELDSPLITTERCSVPARAMWIDGET_H
 #define PVFIELDSPLITTERCSVPARAMWIDGET_H
 

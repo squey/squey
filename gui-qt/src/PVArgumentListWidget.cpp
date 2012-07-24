@@ -1,8 +1,8 @@
-//! \file PVArgumentListWidget.cpp
-//! $Id: PVArgumentListWidget.cpp 3206 2011-06-27 11:45:45Z aguinet $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVArgumentListWidget.cpp
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #include <QtCore>
 #include <QtGui>

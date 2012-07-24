@@ -1,8 +1,8 @@
-//! \file PVAxis.h
-//! $Id: PVAxis.h 2590 2011-05-07 15:43:12Z psaade $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVAxis.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #ifndef PICVIZ_PVAXIS_H
 #define PICVIZ_PVAXIS_H

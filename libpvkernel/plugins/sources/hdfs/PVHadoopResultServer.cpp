@@ -1,3 +1,9 @@
+/**
+ * \file PVHadoopResultServer.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include "PVHadoopResultServer.h"
 #include <boost/bind.hpp>
 #include <boost/thread/thread.hpp>

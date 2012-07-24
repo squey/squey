@@ -1,3 +1,9 @@
+/**
+ * \file PVPlottingFilterMinmax.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVFILTER_PVPLOTTINGFILTERMINMAX_H
 #define PVFILTER_PVPLOTTINGFILTERMINMAX_H
 

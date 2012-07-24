@@ -1,3 +1,9 @@
+/**
+ * \file cuda_cb.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef CUDA_CB
 #define CUDA_CB
 

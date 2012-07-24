@@ -1,3 +1,9 @@
+/**
+ * \file b_reduce.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef BCODEREDUCE_H
 #define BCODEREDUCE_H
 

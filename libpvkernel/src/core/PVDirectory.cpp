@@ -1,3 +1,9 @@
+/**
+ * \file PVDirectory.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/core/PVDirectory.h>
 #include <QDir>
 #include <QByteArray>

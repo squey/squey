@@ -1,3 +1,9 @@
+/**
+ * \file PVPlottingFilterIntegerPort.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVFILTER_PVPLOTTINGFILTERINTEGERPORT_H
 #define PVFILTER_PVPLOTTINGFILTERINTEGERPORT_H
 

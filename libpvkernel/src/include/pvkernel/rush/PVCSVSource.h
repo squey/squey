@@ -1,3 +1,9 @@
+/**
+ * \file PVCSVSource.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVRUSH_PVCSVSOURCE_FILE_H
 #define PVRUSH_PVCSVSOURCE_FILE_H
 

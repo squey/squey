@@ -1,3 +1,9 @@
+/**
+ * \file simple_lines_float_view.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef SLLINES_FLOAT_H
 #define SLLINES_FLOAT_H
 

@@ -1,8 +1,8 @@
-//! \file PVFieldSplitterUTF16Char.h
-//! $Id: PVFieldSplitterUTF16Char.h 3165 2011-06-16 05:05:39Z aguinet $
-//! Copyright (C) Sébastien Tricaud 2011-2011
-//! Copyright (C) Philippe Saadé 2011-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVFieldSplitterUTF16Char.h
+ *
+ * Copyright (C) Picviz Labs 2011-2012
+ */
 
 #ifndef PVFILTER_PVFIELDSPLITTERUTF16CHAR_H
 #define PVFILTER_PVFIELDSPLITTERUTF16CHAR_H

@@ -1,3 +1,9 @@
+/**
+ * \file PVMappingFilterTimeWeek.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include "PVMappingFilterTimeWeek.h"
 
 #include <unicode/ucal.h>

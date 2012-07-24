@@ -1,3 +1,9 @@
+/**
+ * \file PVPlottingFilterAllDivide.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include "PVPlottingFilterAllDivide.h"
 #include <picviz/limits.h>
 

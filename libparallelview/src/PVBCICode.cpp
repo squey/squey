@@ -1,3 +1,9 @@
+/**
+ * \file PVBCICode.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVBCICode.h>
 #include <pvparallelview/PVHSVColor.h>

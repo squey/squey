@@ -1,8 +1,8 @@
-//! \file PVLayerFilterSearch.cpp
-//! $Id: PVLayerFilterSearch.cpp 2526 2011-05-02 12:21:26Z psaade $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVLayerFilterSearch.cpp
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #include "PVLayerFilterSearch.h"
 #include <pvkernel/core/PVColor.h>

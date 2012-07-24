@@ -1,3 +1,9 @@
+/**
+ * \file PVDirectory.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVCORE_PVDIRECTORY_H
 #define PVCORE_PVDIRECTORY_H
 

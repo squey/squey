@@ -1,3 +1,9 @@
+/**
+ * \file lines_fbo_axis_mode.frag
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #version 330
 
 out vec4 frag_color;

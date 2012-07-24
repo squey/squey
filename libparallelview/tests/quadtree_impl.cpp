@@ -1,3 +1,8 @@
+/**
+ * \file quadtree_impl.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
 
 #include <iostream>
 #include <vector>

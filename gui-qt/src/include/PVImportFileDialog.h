@@ -1,8 +1,8 @@
-//! \file PVImportFileDialog.h
-//! $Id: PVImportFileDialog.h 2714 2011-05-12 08:02:27Z aguinet $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVImportFileDialog.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #ifndef PVIMPORTFILEDIALOG_H
 #define PVIMPORTFILEDIALOG_H

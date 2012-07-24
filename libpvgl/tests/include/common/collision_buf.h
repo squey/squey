@@ -1,3 +1,9 @@
+/**
+ * \file collision_buf.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef tests_collision_buffer_h
 #define tests_collision_buffer_h
 

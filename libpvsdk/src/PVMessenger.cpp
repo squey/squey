@@ -1,8 +1,8 @@
-//! \file PVMessenger.cpp
-//! $Id$
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saade 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVMessenger.cpp
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #include <pvsdk/PVMessenger.h>
 #include <pvsdk/general.h>

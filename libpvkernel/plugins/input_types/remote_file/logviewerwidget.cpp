@@ -1,3 +1,9 @@
+/**
+ * \file logviewerwidget.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include "include/logviewerwidget.h"
 #include "include/logviewerwidget_p.h"
 #include "include/fileconnectiondialog.h"

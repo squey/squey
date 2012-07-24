@@ -1,3 +1,9 @@
+/**
+ * \file PVAxisGraphicsItem.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVPARALLELVIEW_PVAXISGRAPHICSITEM_H
 #define PVPARALLELVIEW_PVAXISGRAPHICSITEM_H
 

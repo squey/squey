@@ -1,3 +1,9 @@
+/**
+ * \file PVFieldSplitterChunkMatch.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/filter/PVFieldSplitterChunkMatch.h>
 #include <pvkernel/rush/PVRawSourceBase.h>

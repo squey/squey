@@ -1,3 +1,9 @@
+/**
+ * \file tools.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef GLTEST_TOOLS_H
 #define GLTEST_TOOLS_H
 

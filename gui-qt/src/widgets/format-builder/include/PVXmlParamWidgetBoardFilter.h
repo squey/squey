@@ -1,8 +1,8 @@
-//! \file PVXmlParamWidgetBoardFilter.h
-//! $Id$
-//! Copyright (C) Sébastien Tricaud 2011-2011
-//! Copyright (C) Philippe Saadé 2011-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVXmlParamWidgetBoardFilter.h
+ *
+ * Copyright (C) Picviz Labs 2011-2012
+ */
 
 #ifndef PVXMLPARAMWIDGETBOARDFILTER_H
 #define	PVXMLPARAMWIDGETBOARDFILTER_H

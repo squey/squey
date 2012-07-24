@@ -1,3 +1,9 @@
+/**
+ * \file multiple_zones_cuda.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/cuda/common.h>
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVHSVColor.h>

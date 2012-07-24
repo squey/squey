@@ -1,3 +1,8 @@
+#
+# \file SIMILAR-PROJECTS.txt
+#
+# Copyright (C) Picviz Labs 2010-2012
+
 Microsoft LogParser
 http://www.microsoft.com/downloads/en/details.aspx?FamilyID=890cd06b-abf8-4c25-91b2-f8d975cf8c07&displaylang=en
 -> Example of use: http://searchsecurity.techtarget.com/tip/0,289483,sid14_gci1528307,00.html?track=sy260

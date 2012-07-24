@@ -1,3 +1,9 @@
+/**
+ * \file log2csv.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #define SIMULATE_PIPELINE
 #include <pvkernel/filter/PVPluginsLoad.h>
 #include <pvkernel/rush/PVPluginsLoad.h>

@@ -1,3 +1,9 @@
+/**
+ * \file PVChunkAlignUTF16Newline.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/rush/PVChunkAlignUTF16Newline.h>
 #include <pvkernel/core/PVField.h>
 

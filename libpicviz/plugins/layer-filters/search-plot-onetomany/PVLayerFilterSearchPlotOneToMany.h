@@ -1,8 +1,8 @@
-//! \file PVLayerFilterSearchPlotOneToMany.h
-//! $Id$
-//! Copyright (C) Sébastien Tricaud 2009-2012
-//! Copyright (C) Philippe Saadé 2009-2012
-//! Copyright (C) Picviz Labs 2012
+/**
+ * \file PVLayerFilterSearchPlotOneToMany.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #ifndef PICVIZ_PVLAYERFILTERSearchPlotOneToMany_H
 #define PICVIZ_PVLAYERFILTERSearchPlotOneToMany_H

@@ -1,8 +1,8 @@
-//! \file PVXmlParamTextEdit.h
-//! $Id$
-//! Copyright (C) Sébastien Tricaud 2011-2011
-//! Copyright (C) Philippe Saadé 2011-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVXmlParamTextEdit.h
+ *
+ * Copyright (C) Picviz Labs 2011-2012
+ */
 
 #ifndef PVXMLPARAMTEXTEDIT_H
 #define	PVXMLPARAMTEXTEDIT_H

@@ -1,3 +1,9 @@
+/**
+ * \file PVTests.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVRUSH_PVTESTS_H
 #define PVRUSH_PVTESTS_H
 

@@ -1,3 +1,9 @@
+/**
+ * \file register.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 // Register the plugin in PVFilterLibrary
 //
 

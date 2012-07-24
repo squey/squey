@@ -1,3 +1,9 @@
+/**
+ * \file points_reduce.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef CBREDUCE_H
 #define CBREDUCE_H
 

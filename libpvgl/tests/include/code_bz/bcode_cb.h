@@ -1,3 +1,9 @@
+/**
+ * \file bcode_cb.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef BCODECB_H
 #define BCODECB_H
 

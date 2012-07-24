@@ -1,3 +1,9 @@
+/**
+ * \file quadtree.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef QUADTREE_H
 #define QUADTREE_H
 

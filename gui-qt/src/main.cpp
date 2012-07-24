@@ -1,8 +1,8 @@
-//! \file main.cpp
-//! $Id: main.cpp 3191 2011-06-23 13:47:36Z stricaud $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file main.cpp
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 //! [0]
 #include <QApplication>

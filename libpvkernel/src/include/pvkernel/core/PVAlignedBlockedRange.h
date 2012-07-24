@@ -1,3 +1,9 @@
+/**
+ * \file PVAlignedBlockedRange.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef __PV_ALIGNED_BLOCKED_RANGE_H_
 #define __PV_ALIGNED_BLOCKED_RANGE_H_
 

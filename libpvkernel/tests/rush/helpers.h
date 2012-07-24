@@ -1,3 +1,9 @@
+/**
+ * \file helpers.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef HELPERS_VALID_FILE_H
 #define HELPERS_VALID_FILE_H
 

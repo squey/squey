@@ -1,9 +1,8 @@
-//! \file PVMainWindow.cpp
-//! $Id: PVMainWindow.cpp 3251 2011-07-06 11:51:57Z rpernaudat $
-//! Copyright (C) SÃ©bastien Tricaud 2009-2011
-//! Copyright (C) Philippe SaadÃ© 2009-2011
-//! Copyright (C) Picviz Labs 2011
-
+/**
+ * \file PVMainWindow.cpp
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #include <QtCore>
 #include <QtGui>

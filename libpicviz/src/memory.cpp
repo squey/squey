@@ -1,8 +1,8 @@
-//! \file memory.cpp
-//! $Id: memory.cpp 2520 2011-04-30 12:26:48Z stricaud $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file memory.cpp
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #include <stdlib.h>
 

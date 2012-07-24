@@ -1,3 +1,9 @@
+/**
+ * \file PVFieldSplitterRegexpParamWidget.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include "PVFieldSplitterRegexpParamWidget.h"
 #include "PVFieldSplitterRegexp.h"
 #include <pvkernel/filter/PVFieldsFilter.h>

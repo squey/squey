@@ -1,3 +1,9 @@
+/**
+ * \file vector.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef OWN_VECTOR_H
 #define OWN_VECTOR_H
 

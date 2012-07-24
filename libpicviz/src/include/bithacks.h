@@ -1,3 +1,9 @@
+/**
+ * \file bithacks.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 /* 
 ** bithacks.h - bit hacks macros. v1.0
 **

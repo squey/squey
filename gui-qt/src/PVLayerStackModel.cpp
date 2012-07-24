@@ -1,8 +1,8 @@
-//! \file PVLayerStackModel.cpp
-//! $Id: PVLayerStackModel.cpp 3091 2011-06-09 06:13:05Z stricaud $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVLayerStackModel.cpp
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #include <QtCore>
 #include <QtGui>

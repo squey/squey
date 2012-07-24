@@ -1,3 +1,9 @@
+/**
+ * \file PVChunkAlign.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/rush/PVChunkAlign.h>
 #include <pvkernel/core/PVChunk.h>
 #include <pvkernel/core/PVField.h>

@@ -1,3 +1,9 @@
+/**
+ * \file PVFileDescription.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVRUSH_PVFILEDESCRIPTION_H
 #define PVRUSH_PVFILEDESCRIPTION_H
 

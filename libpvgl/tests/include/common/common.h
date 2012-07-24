@@ -1,3 +1,9 @@
+/**
+ * \file common.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef tests_common_h
 #define tests_common_h
 

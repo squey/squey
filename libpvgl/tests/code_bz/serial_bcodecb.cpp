@@ -1,3 +1,9 @@
+/**
+ * \file serial_bcodecb.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <common/common.h>
 #include <code_bz/serial_bcodecb.h>
 #include <cassert>

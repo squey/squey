@@ -1,3 +1,9 @@
+/**
+ * \file PVZoneTreeBase.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVPARALLELVIEW_PVZONETREEBASE_H
 #define PVPARALLELVIEW_PVZONETREEBASE_H
 

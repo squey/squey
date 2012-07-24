@@ -1,3 +1,9 @@
+/**
+ * \file PVRenderingJob.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVPARALLELVIEW_PVRENDERINGJOB_H
 #define PVPARALLELVIEW_PVRENDERINGJOB_H
 

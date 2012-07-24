@@ -1,3 +1,9 @@
+/**
+ * \file PVZonesManager.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVPARALLELVIEW_PVZONESMANAGER_H
 #define PVPARALLELVIEW_PVZONESMANAGER_H
 

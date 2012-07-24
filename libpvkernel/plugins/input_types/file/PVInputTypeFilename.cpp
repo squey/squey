@@ -1,3 +1,9 @@
+/**
+ * \file PVInputTypeFilename.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include "PVInputTypeFilename.h"
 #include "PVImportFileDialog.h"
 

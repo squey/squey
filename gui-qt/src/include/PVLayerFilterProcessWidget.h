@@ -1,3 +1,9 @@
+/**
+ * \file PVLayerFilterProcessWidget.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVINSPECTOR_PVLAYERFILTERPROCESSWIDGET_H
 #define PVINSPECTOR_PVLAYERFILTERPROCESSWIDGET_H
 

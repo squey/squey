@@ -1,3 +1,9 @@
+/**
+ * \file PVDBQuery.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVDBQUERY_FILE_H
 #define PVDBQUERY_FILE_H
 

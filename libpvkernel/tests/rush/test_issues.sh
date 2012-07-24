@@ -1,4 +1,9 @@
 #!/bin/bash
+
+# \file test_issues.sh
+#
+# Copyright (C) Picviz Labs 2010-2012
+
 #
 
 DIR="test-files/had_issues"

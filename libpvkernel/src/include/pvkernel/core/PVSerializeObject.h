@@ -1,3 +1,9 @@
+/**
+ * \file PVSerializeObject.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVCORE_PVSERIALIZEOBJECT_H
 #define PVCORE_PVSERIALIZEOBJECT_H
 

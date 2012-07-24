@@ -1,3 +1,9 @@
+/**
+ * \file PVAxisComputation.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PICVIZ_PVAXISCOMPITATION_H
 #define PICVIZ_PVAXISCOMPITATION_H
 

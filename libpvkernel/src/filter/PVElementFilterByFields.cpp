@@ -1,8 +1,8 @@
-//! \file PVElementFilterByFields.cpp
-//! $Id: PVElementFilterByFields.cpp 3221 2011-06-30 11:45:19Z aguinet $
-//! Copyright (C) Sébastien Tricaud 2011-2011
-//! Copyright (C) Philippe Saadé 2011-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVElementFilterByFields.cpp
+ *
+ * Copyright (C) Picviz Labs 2011-2012
+ */
 
 #include <pvkernel/core/PVField.h>
 #include <pvkernel/filter/PVElementFilterByFields.h>

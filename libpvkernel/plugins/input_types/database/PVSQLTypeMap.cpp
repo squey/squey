@@ -1,3 +1,9 @@
+/**
+ * \file PVSQLTypeMap.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include "PVSQLTypeMap.h"
 #include "mysql_types.h"
 

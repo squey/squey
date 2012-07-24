@@ -1,8 +1,7 @@
-/*
- * $Id: pv_pcre_splitter.h 3090 2011-06-09 04:59:46Z stricaud $
- * Copyright (C) Sebastien Tricaud 2010-2011
- * Copyright (C) Philippe Saade 2010-2011
+/**
+ * \file pv_pcre_splitter.h
  *
+ * Copyright (C) Picviz Labs 2010-2012
  */
 
 #ifndef PVCORE_PV_PCRE_SPLITTER_H

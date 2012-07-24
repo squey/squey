@@ -1,3 +1,9 @@
+/**
+ * \file PVQuadTree.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PARALLELVIEW_PVQUADTREE_H
 #define PARALLELVIEW_PVQUADTREE_H
 

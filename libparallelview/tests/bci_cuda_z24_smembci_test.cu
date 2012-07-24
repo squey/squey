@@ -1,3 +1,9 @@
+/**
+ * \file bci_cuda_z24_smembci_test.cu
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/core/general.h>
 #include <pvkernel/cuda/common.h>
 #include <pvparallelview/common.h>

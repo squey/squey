@@ -1,3 +1,9 @@
+/**
+ * \file full_parallel_view.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <QtGui>
 #include <QGLWidget>
 #include <iostream>

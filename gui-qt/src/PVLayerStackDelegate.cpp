@@ -1,8 +1,8 @@
-//! \file PVLayerStackDelegate.cpp
-//! $Id: PVLayerStackDelegate.cpp 2973 2011-05-25 12:18:22Z aguinet $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVLayerStackDelegate.cpp
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #include <cmath>
 

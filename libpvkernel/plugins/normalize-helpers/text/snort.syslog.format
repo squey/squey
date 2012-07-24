@@ -1,4 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
+<!-- \file snort.syslog.format -->
+<!-- Copyright (C) Picviz Labs 2010-2012 -->
 <!DOCTYPE PVParamXml>
 <param version="1">
  <splitter validator="" expression="(\w+\s+\d+\s+\d+:\d+:\d+) (\S+) [a-zA-Z/]+\S*: \[.*\] (.*) \[Classification: (.*)\] \[Priority: (\d+)\]: \{(\S+)\} (\d+\.\d+\.\d+\.\d+)(?::\d+|) -> (\d+\.\d+\.\d+\.\d+)(?::\d+|)" type="regexp" regexp="(\w+\s+\d+\s+\d+:\d+:\d+) (\S+) [a-zA-Z/]+\S*: \[.*\] (.*) \[Classification: (.*)\] \[Priority: (\d+)\]: \{(\S+)\} (\d+\.\d+\.\d+\.\d+)(?::\d+|) -> (\d+\.\d+\.\d+\.\d+)(?::\d+|)" name="">

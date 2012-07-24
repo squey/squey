@@ -1,3 +1,9 @@
+/**
+ * \file PVInputTypeDatabase.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PICVIZ_PVINPUTTYPEDATABASE_H
 #define PICVIZ_PVINPUTTYPEDATABASE_H
 

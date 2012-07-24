@@ -1,3 +1,9 @@
+/**
+ * \file process_file_mapping.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/filter/PVPluginsLoad.h>
 #include <pvkernel/rush/PVInputType.h>
 #include <pvkernel/rush/PVPluginsLoad.h>

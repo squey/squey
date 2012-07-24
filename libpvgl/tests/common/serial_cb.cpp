@@ -1,3 +1,9 @@
+/**
+ * \file serial_cb.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <common/common.h>
 #include <common/serial_cb.h>
 

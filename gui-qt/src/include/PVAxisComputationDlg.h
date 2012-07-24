@@ -1,3 +1,9 @@
+/**
+ * \file PVAxisComputationDlg.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVINSPECTOR_PVAXISCOMPUTATION_H
 #define PVINSPECTOR_PVAXISCOMPUTATION_H
 

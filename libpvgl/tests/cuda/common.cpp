@@ -1,3 +1,9 @@
+/**
+ * \file common.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <cuda/common.h>
 #include <stdio.h>
 

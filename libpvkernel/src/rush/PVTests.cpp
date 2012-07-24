@@ -1,3 +1,9 @@
+/**
+ * \file PVTests.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/rush/PVTests.h>
 #include <pvkernel/rush/PVControllerJob.h>
 #include <pvkernel/rush/PVSourceCreator.h>

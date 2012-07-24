@@ -1,8 +1,8 @@
-//! \file PVScatter.h
-//! $Id: PVScatter.h 2875 2011-05-19 04:18:05Z aguinet $
-//! Copyright (C) SÃ©bastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saade 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVScatter.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #ifndef LIBPVGL_SCATTER_H
 #define LIBPVGL_SCATTER_H

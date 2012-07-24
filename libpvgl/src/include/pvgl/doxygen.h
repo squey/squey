@@ -1,3 +1,9 @@
+/**
+ * \file doxygen.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 /*! \mainpage PVKernel library
  *
  * The PVGL library handles all the OpenGL part of the application. 

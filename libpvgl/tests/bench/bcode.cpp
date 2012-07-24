@@ -1,3 +1,9 @@
+/**
+ * \file bcode.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 // Benchmarking and optimisations of the B-code computation
 //
 

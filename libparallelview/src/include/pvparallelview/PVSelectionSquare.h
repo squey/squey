@@ -1,3 +1,9 @@
+/**
+ * \file PVSelectionSquare.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVSELECTIONSQUARE_H_
 #define PVSELECTIONSQUARE_H_
 

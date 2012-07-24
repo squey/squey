@@ -1,3 +1,9 @@
+/**
+ * \file PVSourceCreatorTexthdfs.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PICVIZ_PVSOURCECREATORTEXTHDFS_H
 #define PICVIZ_PVSOURCECREATORTEXTHDFS_H
 

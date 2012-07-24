@@ -1,3 +1,9 @@
+/**
+ * \file count_bits.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <common/common.h>
 #include <common/bench.h>
 #include <iostream>

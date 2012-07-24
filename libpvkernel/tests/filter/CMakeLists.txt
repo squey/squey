@@ -1,3 +1,8 @@
+#
+# \file CMakeLists.txt
+#
+# Copyright (C) Picviz Labs 2010-2012
+
 include_directories(AFTER ${QT_QTCORE_INCLUDE_DIR})
 include_directories(AFTER ${QT_INCLUDE_DIR})
 

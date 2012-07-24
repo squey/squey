@@ -1,3 +1,9 @@
+/**
+ * \file PVPlottingFilter.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <picviz/PVPlottingFilter.h>
 #include <pvkernel/core/stdint.h>
 

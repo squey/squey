@@ -1,3 +1,9 @@
+/**
+ * \file PVZoomedZoneView.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVPARALLELVIEW_PVZOOMEDZONEVIEW_H
 #define PVPARALLELVIEW_PVZOOMEDZONEVIEW_H
 

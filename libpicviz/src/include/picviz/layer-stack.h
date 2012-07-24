@@ -1,8 +1,8 @@
-//! \file layer-stack.h
-//! $Id: layer-stack.h 2569 2011-05-04 06:15:53Z psaade $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file layer-stack.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #ifndef _PICVIZ_LAYER_STACK_H_
 #define _PICVIZ_LAYER_STACK_H_

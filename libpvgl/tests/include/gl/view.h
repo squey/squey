@@ -1,3 +1,9 @@
+/**
+ * \file view.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <QGLWidget>
 #include <common/common.h>
 #include <iostream>

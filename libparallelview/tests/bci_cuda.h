@@ -1,3 +1,9 @@
+/**
+ * \file bci_cuda.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef BCICUDA_H
 #define BCICUDA_H
 

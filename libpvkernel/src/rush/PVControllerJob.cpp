@@ -1,3 +1,9 @@
+/**
+ * \file PVControllerJob.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/rush/PVControllerJob.h>
 #include <pvkernel/rush/PVController.h>
 #include <pvkernel/core/PVChunk.h>

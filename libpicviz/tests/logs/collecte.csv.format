@@ -1,4 +1,6 @@
 <format name="Data Center Schneider Electrics">
+<!-- \file collecte.csv.format -->
+<!-- Copyright (C) Picviz Labs 2010-2012 -->
 <revision>1</revision>
 
 <locale>fr_FR</locale>

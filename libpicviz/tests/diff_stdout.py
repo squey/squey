@@ -1,4 +1,9 @@
 #!/usr/bin/env python
+
+# \file diff_stdout.py
+#
+# Copyright (C) Picviz Labs 2010-2012
+
 # Check the difference of the output between a saved one and the execution of a program (with its args)
 # Usage: ./diff_stdout.py file_ref file_output_diff prog [args... ]
 

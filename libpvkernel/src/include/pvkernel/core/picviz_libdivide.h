@@ -1,3 +1,9 @@
+/**
+ * \file picviz_libdivide.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PICVIZ_LIBDIVIDE_H
 #define PICVIZ_LIBDIVIDE_H
 

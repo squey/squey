@@ -1,3 +1,9 @@
+/**
+ * \file PVPODTree.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVCORE_PVPODTREE_H
 #define PVCORE_PVPODTREE_H
 

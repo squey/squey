@@ -1,3 +1,9 @@
+/**
+ * \file PVFullParallelView.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef __PVFULLPARALLELVIEW_H__
 #define __PVFULLPARALLELVIEW_H__
 

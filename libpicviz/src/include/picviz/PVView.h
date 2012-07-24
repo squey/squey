@@ -1,8 +1,8 @@
-//! \file PVView.h
-//! $Id: PVView.h 3221 2011-06-30 11:45:19Z aguinet $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVView.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #ifndef PICVIZ_PVVIEW_H
 #define PICVIZ_PVVIEW_H

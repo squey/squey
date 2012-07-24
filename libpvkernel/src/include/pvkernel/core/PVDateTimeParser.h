@@ -1,3 +1,9 @@
+/**
+ * \file PVDateTimeParser.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVCORE_PVDATETIMEPARSER_H
 #define PVCORE_PVDATETIMEPARSER_H
 

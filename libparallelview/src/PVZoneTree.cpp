@@ -1,3 +1,9 @@
+/**
+ * \file PVZoneTree.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/core/picviz_bench.h>
 #include <pvkernel/core/picviz_intrin.h>
 #include <pvkernel/core/PVAlignedBlockedRange.h>

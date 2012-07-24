@@ -1,3 +1,9 @@
+/**
+ * \file PVAxisTagHelp.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVAXISTAGHELP_FILE_H
 #define PVAXISTAGHELP_FILE_H
 

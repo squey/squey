@@ -1,3 +1,9 @@
+/**
+ * \file PVSource_types.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PICVIZ_PVSOURCE_TYPES_H
 #define PICVIZ_PVSOURCE_TYPES_H
 

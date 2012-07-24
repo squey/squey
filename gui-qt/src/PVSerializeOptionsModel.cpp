@@ -1,3 +1,9 @@
+/**
+ * \file PVSerializeOptionsModel.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include "PVSerializeOptionsModel.h"
 #include <pvkernel/core/PVSerializeArchiveOptions.h>
 

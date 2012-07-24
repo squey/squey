@@ -1,8 +1,8 @@
-//! \file PVAxesCombination.cpp
-//! $Id: PVAxesCombination.cpp 3024 2011-06-01 00:29:23Z stricaud $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVAxesCombination.cpp
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #include <assert.h>
 

@@ -1,3 +1,9 @@
+/**
+ * \file PVBCIBackendImage.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVPARALLELVIEW_PVBCIBACKENDIMAGE_H
 #define PVPARALLELVIEW_PVBCIBACKENDIMAGE_H
 

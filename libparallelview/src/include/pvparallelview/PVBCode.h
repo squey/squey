@@ -1,3 +1,9 @@
+/**
+ * \file PVBCode.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef BCODE_TYPES_H
 #define BCODE_TYPES_H
 

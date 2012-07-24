@@ -1,3 +1,8 @@
+#
+# \file CMakeLists.txt
+#
+# Copyright (C) Picviz Labs 2010-2012
+
 include_directories(AFTER ${PVKERNEL_INCLUDE_DIRS})
 
 add_executable(log2csv log2csv.cpp)

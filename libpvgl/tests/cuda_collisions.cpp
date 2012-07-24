@@ -1,3 +1,9 @@
+/**
+ * \file cuda_collisions.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <common/common.h>
 #include <common/bench.h>
 #include <code_bz/serial_bcodecb.h>

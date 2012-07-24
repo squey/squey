@@ -1,3 +1,9 @@
+/**
+ * \file chunks_csv.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #define SIMULATE_PIPELINE
 #include <pvkernel/filter/PVChunkFilter.h>
 #include <pvkernel/filter/PVChunkFilterSource.h>

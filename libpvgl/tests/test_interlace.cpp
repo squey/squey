@@ -1,3 +1,9 @@
+/**
+ * \file test_interlace.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <common/common.h>
 #include <common/bench.h>
 #include <gl/simple_lines_float_view.h>

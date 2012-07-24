@@ -1,3 +1,9 @@
+/**
+ * \file PVDBQuery.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include "PVDBInfos.h"
 #include "PVDBQuery.h"
 

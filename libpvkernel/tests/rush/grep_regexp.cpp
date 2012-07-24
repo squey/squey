@@ -1,3 +1,9 @@
+/**
+ * \file grep_regexp.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/filter/PVChunkFilter.h>
 #include <pvkernel/filter/PVChunkFilterByElt.h>

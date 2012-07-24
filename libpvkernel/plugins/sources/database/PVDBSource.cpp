@@ -1,3 +1,9 @@
+/**
+ * \file PVDBSource.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include "PVDBSource.h"
 #include <pvkernel/core/PVChunk.h>
 #include <pvkernel/core/PVElement.h>

@@ -1,3 +1,9 @@
+/**
+ * \file bench_extractor.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/rush/PVExtractor.h>
 #include <pvkernel/rush/PVInputFile.h>

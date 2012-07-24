@@ -1,3 +1,9 @@
+/**
+ * \file PVFormatVersion.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/rush/PVFormatVersion.h>
 #include <pvkernel/rush/PVFormat_types.h>
 

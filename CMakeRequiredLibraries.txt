@@ -1,4 +1,9 @@
 #
+# \file CMakeRequiredLibraries.txt
+#
+# Copyright (C) Picviz Labs 2010-2012
+
+#
 # QT is needed for both libpvgl and picviz-inspector
 #
 ADD_DEFINITIONS(-DQT_SHARED)

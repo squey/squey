@@ -1,3 +1,8 @@
+/**
+ * \file PVHardwareConcurrency.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
 
 #ifndef PVHARDWARECONCURRENCY_H_
 #define PVHARDWARECONCURRENCY_H_

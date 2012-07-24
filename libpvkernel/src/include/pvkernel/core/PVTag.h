@@ -1,3 +1,9 @@
+/**
+ * \file PVTag.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVCORE_PVTAG_FILE_H
 #define PVCORE_PVTAG_FILE_H
 

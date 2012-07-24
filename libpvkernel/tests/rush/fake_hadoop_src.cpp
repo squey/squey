@@ -1,3 +1,9 @@
+/**
+ * \file fake_hadoop_src.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <iostream>
 #include <sys/types.h>
 #include <sys/socket.h>

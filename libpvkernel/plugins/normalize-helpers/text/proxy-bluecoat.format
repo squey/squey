@@ -1,4 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
+<!-- \file proxy-bluecoat.format -->
+<!-- Copyright (C) Picviz Labs 2010-2012 -->
 <!DOCTYPE PVParamXml>
 <param version="1">
  <splitter selectionRegExp-7="(\d+)" selectionRegExp-8="(\d+)" selectionRegExp-9="(\d+)" name="" selectionRegExp-10="(.*)" regexp="(\d+\.\d+\.\d+\.\d+) (.*) \[(\d+\/\w+\/\d+:\d+:\d+:\d+ .*)\] (\S+) (.*) (HTTP\/\d+\.\d+) (\d+) (\d+) (\d+) \&quot;(.*)\&quot; (\S+) (\S+) (\d+) (\S+) (.*)" selectionRegExp-11="(\S+)" selectionRegExp-12="(\S+)" selectionRegExp-13="(\d+)" selectionRegExp-14="(\S+)" selectionRegExp-15="(.*)" saveValidator="false" expression="(\d+\.\d+\.\d+\.\d+) (.*) \[(\d+\/\w+\/\d+:\d+:\d+:\d+ .*)\] (\S+) (.*) (HTTP\/\d+\.\d+) (\d+) (\d+) (\d+) \&quot;(.*)\&quot; (\S+) (\S+) (\d+) (\S+) (.*)" validator="" selectionRegExp-1="(\d+\.\d+\.\d+\.\d+)" selectionRegExp-2="(.*)" type="regexp" selectionRegExp-3="(\d+\/\w+\/\d+:\d+:\d+:\d+ .*)" selectionRegExp-4="(\S+)" selectionRegExp-5="(.*)" selectionRegExp-6="(HTTP\/\d+\.\d+)">

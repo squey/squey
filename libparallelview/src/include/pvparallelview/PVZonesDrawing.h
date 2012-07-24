@@ -1,3 +1,9 @@
+/**
+ * \file PVZonesDrawing.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVPARALLELVIEW_PVZONESDRAWING_H
 #define PVPARALLELVIEW_PVZONESDRAWING_H
 

@@ -1,8 +1,8 @@
-//! \file index-array.cpp
-//! $Id: index-array.cpp 2548 2011-05-03 15:46:52Z psaade $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file index-array.cpp
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
