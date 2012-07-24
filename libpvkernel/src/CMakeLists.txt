@@ -181,8 +181,6 @@ rush/PVNrawChild.cpp
 rush/PVNrawOutput.cpp
 rush/PVNormalizer.cpp
 rush/PVXmlParamParser.cpp
-rush/pvsource.cpp
-rush/pvstream.cpp
 rush/PVChunkAlign.cpp
 rush/PVChunkAlignUTF16Char.cpp
 rush/PVChunkAlignUTF16Newline.cpp
