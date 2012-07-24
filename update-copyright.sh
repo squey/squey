@@ -65,14 +65,14 @@ generic_split_with_old_header()
 	LINE_NUM=`expr $LINE_NUM + 1`
 	if test -z "$FIND_COMMENT"
 	then
-	    (echo "$LINE" | egrep -q "$BLANK_RE") && continue
+	    (echo "$LINE" | sed -e 's/\r//' | egrep -q "$BLANK_RE") && continue
 	    FIND_COMMENT=1
 	elif test -z "$FIND_BLANK"
 	then
-	    (echo "$LINE" | egrep -q "$TEXT_RE") && continue
+	    (echo "$LINE" | sed -e 's/\r//' | egrep -q "$TEXT_RE") && continue
 	    FIND_BLANK=1
 	else
-	    (echo "$LINE" | egrep -q "$BLANK_RE") && continue
+	    (echo "$LINE" | sed -e 's/\r//' | egrep -q "$BLANK_RE") && continue
 	    break
 	fi
     done < "$LOCAL_FILE"
@@ -105,7 +105,7 @@ generic_split_with_no_header()
     while read LINE
     do
 	LINE_NUM=`expr $LINE_NUM + 1`
-	(echo "$LINE" | egrep -q "$BLANK_RE") && continue
+	(echo "$LINE" | sed -e 's/\r//' | egrep -q "$BLANK_RE") && continue
 	break
     done < "$1"
 
@@ -132,14 +132,14 @@ cmake_split_with_old_header()
 	LINE_NUM=`expr $LINE_NUM + 1`
 	if test -z "$FIND_COPYRIGHT"
 	then
-	    (echo "$LINE" | egrep -qvi "copyright") && continue
+	    (echo "$LINE" | sed -e 's/\r//' | egrep -qvi "copyright") && continue
 	    FIND_COPYRIGHT=1
 	elif test -z "$FIND_BLANK"
 	then
-	    (echo "$LINE" | egrep -qi "copyright") && continue
+	    (echo "$LINE" | sed -e 's/\r//' | egrep -qi "copyright") && continue
 	    FIND_BLANK=1
 	else
-	    (echo "$LINE" | egrep -q '^#[[:blank:]]*$') && continue
+	    (echo "$LINE" | sed -e 's/\r//' | egrep -q '^#[[:blank:]]*$') && continue
 	    break
 	fi
     done < "$LOCAL_FILE"
@@ -168,7 +168,7 @@ html_split_with_old_header()
     while read LINE
     do
 	LINE_NUM=`expr $LINE_NUM + 1`
-	(echo "$LINE" | egrep -q '^<!--') && continue
+	(echo "$LINE" | sed -e 's/\r//' | egrep -q '^<!--') && continue
 	break
     done < "$LOCAL_FILE"
 
@@ -222,7 +222,6 @@ egrep -v '\.(pv|pcap|log)("|)$' |
 egrep -v 'update-copyright.sh' |
 while read FILE
 do
-
     if test ! -s "$FILE"
     then
 	echo "# file $FILE"
