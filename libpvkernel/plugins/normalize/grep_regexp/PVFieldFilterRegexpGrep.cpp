@@ -27,7 +27,7 @@ DEFAULT_ARGS_FILTER(PVFilter::PVFieldFilterRegexpGrep)
 {
 	PVCore::PVArgumentList args;
 	args["regexp"] = QString("");
-	args["reverse"] = false;
+	args["reverse"] = PVCore::PVArgument(false);
 	return args;
 }
 
