@@ -40,7 +40,7 @@ has_picviz_copyright()
 #
 generic_split_with_old_header()
 {
-    test $# -lt 3 -o $# -gt 5 && echo "bad parameters generic_split_with_old_header" && exit 1
+    test $# -lt 3 -o $# -gt 5 && echo "bad parameters for generic_split_with_old_header" && exit 1
     # search for the first line of relevant code
     LOCAL_FILE="$1"
     LOCAL_HEADER="$2"
@@ -90,7 +90,7 @@ generic_split_with_old_header()
 #
 generic_split_with_no_header()
 {
-    test $# -lt 2 -o $# -gt 3 && echo "bad parameters generic_split_with_no_header" && exit 1
+    test $# -lt 2 -o $# -gt 3 && echo "bad parameters for generic_split_with_no_header" && exit 1
     # search for the first line of relevant code
     LOCAL_FILE="$1"
     LOCAL_CONTENT="$2"
@@ -118,7 +118,7 @@ generic_split_with_no_header()
 #
 cmake_split_with_old_header()
 {
-    test $# -lt 3 -o $# -gt 5 && echo "bad parameters cmake_split_with_old_header" && exit 1
+    test $# -lt 3 -o $# -gt 5 && echo "bad parameters for cmake_split_with_old_header" && exit 1
     # search for the first line of relevant code
     LOCAL_FILE="$1"
     LOCAL_HEADER="$2"
@@ -159,7 +159,7 @@ cmake_split_with_old_header()
 #
 html_split_with_old_header()
 {
-    test $# -lt 3 -o $# -gt 5 && echo "bad parameters html_split_with_old_header" && exit 1
+    test $# -lt 3 -o $# -gt 5 && echo "bad parameters for html_split_with_old_header" && exit 1
     # search for the first line of relevant code
     LOCAL_FILE="$1"
     LOCAL_HEADER="$2"
