@@ -60,7 +60,7 @@ void Picviz::PVRFFAxesBind::do_pre_process(PVView const& /*view_org*/, PVView co
 
 void Picviz::PVRFFAxesBind::operator()(PVRow row_org, PVView const& view_org, PVView const& /*view_dst*/, PVSparseSelection& sel_dst) const
 {
-	const PVMapped* m_org = view_org.get_mapped_parent();
+	const PVMapped* m_org = view_org.get_parent<PVMapped>();
 	float mf_org = m_org->get_value(row_org, _axis_org);
 
 	hash_rows const& dst_values(_dst_values);
@@ -80,7 +80,7 @@ void Picviz::PVRFFAxesBind::operator()(PVRow row_org, PVView const& view_org, PV
 
 void Picviz::PVRFFAxesBind::process_or(PVRow row_org, PVView const& view_org, PVView const& /*view_dst*/, PVSelection& sel_dst) const
 {
-	const PVMapped* m_org = view_org.get_mapped_parent();
+	const PVMapped* m_org = view_org.get_parent<PVMapped>();
 	float mf_org = m_org->get_value(row_org, _axis_org);
 
 	hash_rows const& dst_values(_dst_values);

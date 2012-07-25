@@ -61,7 +61,7 @@ void Picviz::PVRFFAxesBindNearestNeighbors::do_pre_process(PVView const& /*view_
 
 void Picviz::PVRFFAxesBindNearestNeighbors::operator()(PVRow row_org, PVView const& view_org, PVView const& /*view_dst*/, PVSparseSelection& sel_dst) const
 {
-	const PVMapped* m_org = view_org.get_mapped_parent();
+	const PVMapped* m_org = view_org.get_parent<PVMapped>();
 	float mf_org = m_org->get_value(row_org, _axis_org);
 
 	map_rows const& dst_values(_dst_values);
@@ -86,7 +86,7 @@ void Picviz::PVRFFAxesBindNearestNeighbors::operator()(PVRow row_org, PVView con
 
 void Picviz::PVRFFAxesBindNearestNeighbors::process_or(PVRow row_org, PVView const& view_org, PVView const& /*view_dst*/, PVSelection& sel_dst) const
 {
-	const PVMapped* m_org = view_org.get_mapped_parent();
+	const PVMapped* m_org = view_org.get_parent<PVMapped>();
 	float mf_org = m_org->get_value(row_org, _axis_org);
 
 	map_rows const& dst_values(_dst_values);

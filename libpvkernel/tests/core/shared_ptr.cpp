@@ -20,7 +20,7 @@ struct pouet
 	}
 };
 
-typedef struct PVCore::pv_shared_ptr<pouet> pouet_p;
+typedef struct PVCore::PVSharedPtr<pouet> pouet_p;
 
 template <typename T>
 void deleter(T *p)
@@ -69,7 +69,7 @@ int main()
 	p_p2.reset();
 
 	assert(p_p1.use_count() == 1);
-	assert(p_p2.use_count() == 0);
+	assert(p_p2.use_count() == 1);
 
 	std::cout << "    p_p1.use_count() -> " << p_p1.use_count() << std::endl;
 	std::cout << "    p_p2.use_count() -> " << p_p2.use_count() << std::endl;
@@ -88,7 +88,7 @@ int main()
 		p_p3.reset();
 
 		assert(p_p1.use_count() == 1);
-		assert(p_p3.use_count() == 0);
+		assert(p_p3.use_count() == 1);
 
 		std::cout << "    p_p1.use_count() -> " << p_p1.use_count() << std::endl;
 		std::cout << "    p_p3.use_count() -> " << p_p3.use_count() << std::endl;
@@ -115,13 +115,13 @@ int main()
 	std::cout << "test of operator->" << std::endl;
 
 	std::cout << "    p_1->print() -> '" << p_p1->print() << "'" << std::endl;
-	std::cout << "    p_2->print() -> '" << p_p2->print() << "'" << std::endl;
+	//std::cout << "    p_2->print() -> '" << p_p2->print() << "'" << std::endl;
 
 	std::cout << "##########################################" << std::endl;
 	std::cout << "test of operator*" << std::endl;
 
 	std::cout << "    (*p_1).print() -> '" << (*p_p1).print() << "'" << std::endl;
-	std::cout << "    (*p_2).print() -> '" << (*p_p2).print() << "'" << std::endl;
+	//std::cout << "    (*p_2).print() -> '" << (*p_p2).print() << "'" << std::endl;
 
 	std::cout << "##########################################" << std::endl;
 	std::cout << "test of operator bool" << std::endl;
@@ -202,7 +202,7 @@ int main()
 
 	p_p2 = pouet_p(p);
 	std::cout << "  p_p2 is set" << std::endl;
-	std::cout << "  p_p2.set_deleter(...)" << std::endl;
+	std::cout << "  p_p2.set_delete(...)" << std::endl;
 	p_p2.set_deleter(deleter<pouet>);
 	std::cout << "  p_p2.reset()" << std::endl;
 	p_p2.reset();
