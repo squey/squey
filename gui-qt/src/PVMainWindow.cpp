@@ -27,8 +27,6 @@
 #include <PVColorDialog.h>
 #include <PVStartScreenWidget.h>
 
-//#include <geo/GKMapView.h>
-
 #ifdef CUSTOMER_RELEASE
   #ifdef WIN32
     #include <winlicensesdk.h>

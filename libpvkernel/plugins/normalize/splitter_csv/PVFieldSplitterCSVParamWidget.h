@@ -35,6 +35,7 @@ private:
 	QLineEdit *child_number_edit;
 	QPalette child_number_org_palette;
 	PVWidgets::QKeySequenceWidget* separator_text;
+	PVWidgets::QKeySequenceWidget* quote_text;
 	//QLineEdit* separator_text;
 	QLabel* _recommands_label;
 	int id;
@@ -58,6 +59,7 @@ private:
 public slots:
 	//void updateSeparator(const QString &sep);
 	void updateSeparator(QKeySequence key);
+	void updateQuote(QKeySequence key);
 	void updateNChilds();
 	
 

@@ -1,3 +1,19 @@
+2.6.0 "Carlsberg" (24/07/2012)
+------------------------------
+
+New features:
+
+ * correlation between different sources
+
+Improvements:
+ * new parser for the URL splitter, giving two more fields: anchor and credentials
+ * better size handling for the font of the parallel view axes name.
+ * optimisations related to selections processing
+
+Bug fixes:
+ * URL splitter giving strange values for the 'port' and 'variable' fields
+ * Format builder creating invalid parameter for the "filter" plugin
+
 2.5.0 "Dean" (11/04/2012)
 ------------------------
 

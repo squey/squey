@@ -286,6 +286,7 @@ void PVInspector::PVMainWindow::menu_activate_is_file_opened(bool cond)
 	axes_Menu->setEnabled(cond);
 	filter_Menu->setEnabled(cond);
 	lines_Menu->setEnabled(cond);
+	scene_Menu->setEnabled(cond);
 	selection_Menu->setEnabled(cond);
 	tools_cur_format_Action->setEnabled(cond);
 	view_Menu->setEnabled(cond);

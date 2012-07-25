@@ -7,7 +7,6 @@
 #ifndef PVEXTRACTORWIDGET_H
 #define PVEXTRACTORWIDGET_H
 
-#include <QtCore>
 #include <QDialog>
 #include <QGridLayout>
 #include <QTreeWidget>
@@ -86,6 +85,7 @@ private:
 	Picviz::PVView_sp _view;
 	PVTabSplitter* _inspector_tab;
 	int _slider_pressed_value;
+	QLineEdit* _sources_number_lines;
 };
 
 }

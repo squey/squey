@@ -6,6 +6,7 @@
 
 #include <pvkernel/core/picviz_bench.h>
 #include "PVRFFAxesBindNearestNeighbors.h"
+#include <picviz/PVSparseSelection.h>
 #include <picviz/PVView.h>
 
 #include <pvkernel/core/PVAxisIndexType.h>
@@ -38,7 +39,7 @@ QString Picviz::PVRFFAxesBindNearestNeighbors::get_human_name_with_args(const PV
 {
 	QString dist;
 	dist.setNum(_distance, 'f', 2);
-	return get_human_name() + " (" + src_view.get_axis_name(_axis_org) + " -> " + dst_view.get_axis_name(_axis_dst) + " [" + dist +"])";
+	return get_human_name() + " (" + src_view.get_original_axis_name(_axis_org) + " -> " + dst_view.get_original_axis_name(_axis_dst) + " [" + dist +"])";
 }
 
 void Picviz::PVRFFAxesBindNearestNeighbors::do_pre_process(PVView const& /*view_org*/, PVView const& view_dst)
@@ -58,11 +59,9 @@ void Picviz::PVRFFAxesBindNearestNeighbors::do_pre_process(PVView const& /*view_
 	BENCH_END(b, "preprocess", 1, 1, 1, 1);
 }
 
-void Picviz::PVRFFAxesBindNearestNeighbors::operator()(PVRow row_org, PVView const& view_org, PVView const& /*view_dst*/, PVSelection& sel_dst) const
+void Picviz::PVRFFAxesBindNearestNeighbors::operator()(PVRow row_org, PVView const& view_org, PVView const& /*view_dst*/, PVSparseSelection& sel_dst) const
 {
-	uint32_t* sel_buf = sel_dst.get_buffer();
-
-	const PVMapped* m_org = view_org.get_parent<PVMapped>();
+	const PVMapped* m_org = view_org.get_mapped_parent();
 	float mf_org = m_org->get_value(row_org, _axis_org);
 
 	map_rows const& dst_values(_dst_values);
@@ -79,8 +78,32 @@ void Picviz::PVRFFAxesBindNearestNeighbors::operator()(PVRow row_org, PVView con
 		std::vector<PVRow> const& rows = it->second;
 		for (size_t i = 0; i < rows.size(); i++) {
 			const PVRow r = rows[i];
-#pragma omp atomic
-			sel_buf[r>>5] |= 1U<<(r&31);
+			//sel_buf[r>>5] |= 1U<<(r&31);
+			sel_dst.set(r);
+		}
+	}
+}
+
+void Picviz::PVRFFAxesBindNearestNeighbors::process_or(PVRow row_org, PVView const& view_org, PVView const& /*view_dst*/, PVSelection& sel_dst) const
+{
+	const PVMapped* m_org = view_org.get_mapped_parent();
+	float mf_org = m_org->get_value(row_org, _axis_org);
+
+	map_rows const& dst_values(_dst_values);
+
+	map_rows::const_iterator it_min = dst_values.lower_bound (mf_org - _distance);
+	map_rows::const_iterator it_max = dst_values.upper_bound (mf_org + _distance);
+
+	// rejecting out of bounds results
+	if (it_min == dst_values.end() || it_max == dst_values.begin()) {
+		return;
+	}
+
+	for (map_rows::const_iterator it = it_min; it != it_max; ++it) {
+		std::vector<PVRow> const& rows = it->second;
+		for (size_t i = 0; i < rows.size(); i++) {
+			const PVRow r = rows[i];
+			sel_dst.set_bit_fast(r);
 		}
 	}
 }

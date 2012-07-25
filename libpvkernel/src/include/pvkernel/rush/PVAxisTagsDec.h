@@ -65,6 +65,14 @@
 #define PVAXIS_TAG_URL_VARIABLES "url-variables"
 #define PVAXIS_TAG_URL_VARIABLES_DESC "Represents an HTTP URL's variables."
 
+// URL-fragment
+#define PVAXIS_TAG_URL_FRAGMENT "url-anchor"
+#define PVAXIS_TAG_URL_FRAGMENT_DESC "Represents an HTTP URL's anchor."
+
+// URL-credentials
+#define PVAXIS_TAG_URL_CREDENTIALS "url-credentials"
+#define PVAXIS_TAG_URL_CREDENTIALS_DESC "Represents an HTTP URL's credentials."
+
 // User agent
 #define PVAXIS_TAG_USER_AGENT "user-agent"
 #define PVAXIS_TAG_USER_AGENT_DESC "Represents a User Agent."

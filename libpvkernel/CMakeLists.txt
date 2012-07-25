@@ -15,6 +15,7 @@ include_directories(AFTER ${ARCHIVE_INCLUDE_DIRS})
 include_directories(AFTER ${PCAP_INCLUDE_DIRS})
 include_directories(AFTER ${X11_INCLUDE_DIR})
 include_directories(AFTER ${Boost_INCLUDE_DIR})
+include_directories(AFTER ${HWLOC_INCLUDE_DIRS})
 
 ##########################################
 # begin: SET VARIOUS PLUGINS DIRECTORIES #

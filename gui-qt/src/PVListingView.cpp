@@ -256,6 +256,9 @@ void PVInspector::PVListingView::wheelEvent(QWheelEvent* e)
 		int d = e->delta() / 12;
 		setColumnWidth(colIndex, columnWidth(colIndex) + d);
 	}
+	else {
+		QTableView::wheelEvent(e);
+	}
 }
 
 /******************************************************************************

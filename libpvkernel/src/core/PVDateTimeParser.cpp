@@ -284,9 +284,10 @@ bool PVCore::PVDateTimeParser::TimeFormatEpoch::to_datetime(UnicodeString const&
 	cal->setTimeZone(*TimeZone::getGMT());
 	QString tmp = QString::fromRawData(reinterpret_cast<const QChar *>(value.getBuffer()), value.length());
 	bool ok = false;
-	UDate date = tmp.toLongLong(&ok);
-	if (!ok)
+	UDate date = (UDate) (tmp.toDouble(&ok) * 1000.0);
+	if (!ok) {
 		return false;
+	}
 	err = U_ZERO_ERROR;
 	cal->setTime(date, err);
 

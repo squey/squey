@@ -48,6 +48,7 @@ PVInspector::PVExtractorWidget::PVExtractorWidget(PVTabSplitter* parent_tab) :
 	QVBoxLayout *main_layout    = new QVBoxLayout();
 	QHBoxLayout *buttons_layout = new QHBoxLayout();
 	QHBoxLayout *top_layout = new QHBoxLayout();
+	QVBoxLayout* left_layout = new QVBoxLayout();
 	QGridLayout *grid_layout = new QGridLayout();
 	QSpacerItem* spacer_v1 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 	QSpacerItem* spacer_v2 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
@@ -58,6 +59,8 @@ PVInspector::PVExtractorWidget::PVExtractorWidget(PVTabSplitter* parent_tab) :
 	_source_starts_filename = new QLabel();
 	_source_starts_directory = new QLabel();
 	_source_starts_line = new QLineEdit();
+	_sources_number_lines = new QLineEdit();
+	_sources_number_lines->setReadOnly(true);
 
 	// Set the grid layout
 	grid_layout->addWidget(new QLabel("Extract from:"),0,0);
@@ -75,9 +78,16 @@ PVInspector::PVExtractorWidget::PVExtractorWidget(PVTabSplitter* parent_tab) :
 	grid_layout->setColumnMinimumWidth(1, 10);
 	grid_layout->setVerticalSpacing(16);
 
+	// Set the left layout
+	left_layout->addWidget(_list_inputs);
+	QHBoxLayout* lines_layout = new QHBoxLayout();
+	lines_layout->addWidget(new QLabel("Total known number of lines:"));
+	lines_layout->addWidget(_sources_number_lines);
+	left_layout->addItem(lines_layout);
+
 	// Add the widgets to the layouts
 	main_layout->addItem(top_layout);	
-	  top_layout->addWidget(_list_inputs);
+	  top_layout->addItem(left_layout);
 	  top_layout->addItem(grid_layout);
 	main_layout->addItem(buttons_layout);	
 	  buttons_layout->addWidget(read_all);
@@ -146,6 +156,7 @@ void PVInspector::PVExtractorWidget::fill_source_list()
 	}
 	_list_inputs->insertTopLevelItems(0, items);
 	_slider_index->setMaximum(_total_nlines-1);
+	_sources_number_lines->setText(QString::number(_total_nlines));
 }
 
 void PVInspector::PVExtractorWidget::update_status_ext(PVCore::PVProgressBox* pbox, PVRush::PVControllerJob_p job)
@@ -226,9 +237,17 @@ void PVInspector::PVExtractorWidget::slider_released_Slot()
 void PVInspector::PVExtractorWidget::read_all_Slot()
 {
 	PVRush::PVControllerJob_p job = _ext.read_everything(0);
-	job->wait_end();
 
-	// Update the source list
+	PVCore::PVProgressBox *pbox = new PVCore::PVProgressBox(tr("Counting elements..."), this);
+	connect(job.get(), SIGNAL(job_done_signal()), pbox, SLOT(accept()));
+	if (!job->running() && (job->started())) {
+		fill_source_list();
+		return;
+	}
+	if (pbox->exec() != QDialog::Accepted) {
+		job->cancel();
+	}
+
 	fill_source_list();
 }
 

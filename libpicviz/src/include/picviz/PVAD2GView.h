@@ -19,6 +19,9 @@
 #include <set>
 #include <utility>
 
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
+
 // forward declaration of tlp::Graph and tlp::node
 namespace tlp {
 class Graph;

@@ -6,6 +6,8 @@
 
 #include <PVXmlDomModel.h>
 #include <pvkernel/filter/PVFieldsFilterParamWidget.h>
+#include <pvkernel/rush/PVAxisTagsDec.h>
+#include <pvkernel/rush/PVFormat_types.h>
 #include <pvkernel/rush/PVFormatVersion.h>
 #include <pvkernel/rush/PVXmlTreeNodeDom.h>
 
@@ -776,6 +778,8 @@ void PVInspector::PVXmlDomModel::addUrlIn(const QModelIndex &index){
 	QDomElement f6 = xmlFile.createElement("field");
 	QDomElement f7 = xmlFile.createElement("field");
 	QDomElement f8 = xmlFile.createElement("field");
+	QDomElement f9 = xmlFile.createElement("field");
+	QDomElement f10 = xmlFile.createElement("field");
 
 	//create axis
 	field->getDom().appendChild(newDom);
@@ -787,60 +791,80 @@ void PVInspector::PVXmlDomModel::addUrlIn(const QModelIndex &index){
 	QDomElement port = xmlFile.createElement("axis");
 	QDomElement url = xmlFile.createElement("axis");
 	QDomElement variable = xmlFile.createElement("axis");
+	QDomElement fragment = xmlFile.createElement("axis");
+	QDomElement credentials = xmlFile.createElement("axis");
 
 
 	//set all axis
 	protocol.setAttribute("name", "Protocol");
 	setEltMappingPlotting(protocol, "enum", "default", "default");
 	protocol.setAttribute("key", "false");
-	protocol.setAttribute("color", "#ffffff");
-	protocol.setAttribute("titlecolor", "#ffffff");
-	protocol.setAttribute("tag", "protocol");
+	protocol.setAttribute("color", PVFORMAT_AXIS_COLOR_DEFAULT);
+	protocol.setAttribute("titlecolor", PVFORMAT_AXIS_TITLECOLOR_DEFAULT);
+	protocol.setAttribute("tag", PVAXIS_TAG_PROTOCOL);
 
 	subdomain.setAttribute("name", "Subdomain");
 	setEltMappingPlotting(subdomain, "string", "default", "default");
 	subdomain.setAttribute("key", "false");
-	subdomain.setAttribute("color", "#ffffff");
-	subdomain.setAttribute("titlecolor", "#ffffff");
-	subdomain.setAttribute("tag", "subdomain");
+	subdomain.setAttribute("color", PVFORMAT_AXIS_COLOR_DEFAULT);
+	subdomain.setAttribute("titlecolor", PVFORMAT_AXIS_TITLECOLOR_DEFAULT);
+	subdomain.setAttribute("tag", PVAXIS_TAG_SUBDOMAIN);
 
 	host.setAttribute("name", "Host");
 	setEltMappingPlotting(host, "string", "default", "default");
 	host.setAttribute("key", "false");
-	host.setAttribute("color", "#ffffff");
-	host.setAttribute("titlecolor", "#ffffff");
-	host.setAttribute("tag", "host");
+	host.setAttribute("color", PVFORMAT_AXIS_COLOR_DEFAULT);
+	host.setAttribute("titlecolor", PVFORMAT_AXIS_TITLECOLOR_DEFAULT);
+	host.setAttribute("tag", PVAXIS_TAG_HOST);
 
 	domain.setAttribute("name", "Domain");
 	setEltMappingPlotting(domain, "host", "default", "default");
 	domain.setAttribute("key", "true");
-	domain.setAttribute("color", "#ffffff");
-	domain.setAttribute("titlecolor", "#ffffff");
-	domain.setAttribute("tag", "domain");
+	domain.setAttribute("color", PVFORMAT_AXIS_COLOR_DEFAULT);
+	domain.setAttribute("titlecolor", PVFORMAT_AXIS_TITLECOLOR_DEFAULT);
+	domain.setAttribute("tag", PVAXIS_TAG_DOMAIN);
+
 	tld.setAttribute("name", "TLD");
 	setEltMappingPlotting(tld, "enum", "default", "default");
 	tld.setAttribute("key", "false");
-	tld.setAttribute("color", "#ffffff");
-	tld.setAttribute("titlecolor", "#ffffff");
-	tld.setAttribute("tag", "tld");
+	tld.setAttribute("color", PVFORMAT_AXIS_COLOR_DEFAULT);
+	tld.setAttribute("titlecolor", PVFORMAT_AXIS_TITLECOLOR_DEFAULT);
+	tld.setAttribute("tag", PVAXIS_TAG_TLD);
+
 	port.setAttribute("name", "Port");
 	setEltMappingPlotting(port, "integer", "default", "port");
 	port.setAttribute("key", "false");
-	port.setAttribute("color", "#ffffff");
-	port.setAttribute("titlecolor", "#ffffff");
-	port.setAttribute("tag", "port");
+	port.setAttribute("color", PVFORMAT_AXIS_COLOR_DEFAULT);
+	port.setAttribute("titlecolor", PVFORMAT_AXIS_TITLECOLOR_DEFAULT);
+	port.setAttribute("tag", PVAXIS_TAG_PORT);
+
 	url.setAttribute("name", "URL");
 	setEltMappingPlotting(url, "string", "default", "default");
 	url.setAttribute("key", "false");
-	url.setAttribute("color", "#ffffff");
-	url.setAttribute("titlecolor", "#ffffff");
-	url.setAttribute("tag", "url");
+	url.setAttribute("color", PVFORMAT_AXIS_COLOR_DEFAULT);
+	url.setAttribute("titlecolor", PVFORMAT_AXIS_TITLECOLOR_DEFAULT);
+	url.setAttribute("tag", PVAXIS_TAG_URL);
+
 	variable.setAttribute("name", "Variable");
 	setEltMappingPlotting(variable, "string", "default", "default");
 	variable.setAttribute("key", "false");
-	variable.setAttribute("color", "#ffffff");
-	variable.setAttribute("titlecolor", "#ffffff");
-	variable.setAttribute("tag", "url-variables");
+	variable.setAttribute("color", PVFORMAT_AXIS_COLOR_DEFAULT);
+	variable.setAttribute("titlecolor", PVFORMAT_AXIS_TITLECOLOR_DEFAULT);
+	variable.setAttribute("tag", PVAXIS_TAG_URL_VARIABLES);
+
+	fragment.setAttribute("name", "Anchor");
+	setEltMappingPlotting(fragment, "string", "default", "default");
+	fragment.setAttribute("key", "false");
+	fragment.setAttribute("color", PVFORMAT_AXIS_COLOR_DEFAULT);
+	fragment.setAttribute("titlecolor", PVFORMAT_AXIS_TITLECOLOR_DEFAULT);
+	fragment.setAttribute("tag", PVAXIS_TAG_URL_FRAGMENT);
+
+	credentials.setAttribute("name", "Credentials");
+	setEltMappingPlotting(credentials, "string", "default", "default");
+	credentials.setAttribute("key", "false");
+	credentials.setAttribute("color", PVFORMAT_AXIS_COLOR_DEFAULT);
+	credentials.setAttribute("titlecolor", PVFORMAT_AXIS_TITLECOLOR_DEFAULT);
+	credentials.setAttribute("tag", PVAXIS_TAG_URL_CREDENTIALS);
 
 	//add all axis
 	f1.appendChild(protocol);
@@ -851,6 +875,8 @@ void PVInspector::PVXmlDomModel::addUrlIn(const QModelIndex &index){
 	f6.appendChild(port);
 	f7.appendChild(url);
 	f8.appendChild(variable);
+	f9.appendChild(fragment);
+	f10.appendChild(credentials);
 
 	//add all fields with axis associate
 	newDom.appendChild(f1);
@@ -861,6 +887,8 @@ void PVInspector::PVXmlDomModel::addUrlIn(const QModelIndex &index){
 	newDom.appendChild(f6);
 	newDom.appendChild(f7);
 	newDom.appendChild(f8);
+	newDom.appendChild(f9);
+	newDom.appendChild(f10);
 
 
 

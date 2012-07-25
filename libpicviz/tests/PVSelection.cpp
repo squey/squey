@@ -5,6 +5,7 @@
  */
 
 #include <stdlib.h>
+#include <pvkernel/core/picviz_assert.h>
 #include <pvkernel/core/picviz_bench.h>
 
 #include <picviz/PVSelection.h>
@@ -121,6 +122,74 @@ int main(void)
 	std::cout << "Last chunk : " << c.get_last_nonzero_chunk_index() << std::endl;
 
 	a.select_none();
+#define NLINES_TEST 1000000
+	for (int i = 0; i < NLINES_TEST; i++) {
+		a.set_bit_fast(rand()%(PICVIZ_LINES_MAX/4));
+	}   
+	std::vector<PVRow> ref,test;
+	ref.reserve(NLINES_TEST); test.reserve(NLINES_TEST);
+	BENCH_START(ref);
+	a.visit_selected_lines_serial([&](PVRow r) { ref.push_back(r); }); 
+	BENCH_END(ref, "visit ref", sizeof(uint32_t), PICVIZ_SELECTION_NUMBER_OF_CHUNKS, sizeof(PVRow), ref.size());
+	/*BENCH_START(ref2);
+	a.visit_selected_lines_serial2([&](PVRow r) { test.push_back(r); }); 
+	BENCH_END(ref2, "visit ref2", sizeof(uint32_t), PICVIZ_SELECTION_NUMBER_OF_CHUNKS, sizeof(PVRow), test.size());
+	bool success = (test == ref);
+	std::cout << "Same visit: " << success << std::endl;
+	test.clear();*/
+	BENCH_START(sse);
+	a.visit_selected_lines([&](PVRow r) { test.push_back(r); }); 
+	BENCH_END(sse, "visit sse", sizeof(uint32_t), PICVIZ_SELECTION_NUMBER_OF_CHUNKS, sizeof(PVRow), test.size());
+	bool success = (test == ref);
+	std::cout << "Same visit: " << success << std::endl;
+	test.clear();
+	/*BENCH_START(sse2);
+	a.visit_selected_lines2([&](PVRow r) { test.push_back(r); }); 
+	BENCH_END(sse2, "visit sse2", sizeof(uint32_t), PICVIZ_SELECTION_NUMBER_OF_CHUNKS, sizeof(PVRow), test.size());
+	success = (test == ref);
+	std::cout << "Same visit: " << success << std::endl;*/
+	/*if (!success) {
+		for (const PVRow r: ref) {
+			std::cout << r << " ";
+		}
+		std::cout << std::endl;
+		for (const PVRow r: test) {
+			std::cout << r << " ";
+		}
+		std::cout << std::endl;
+	}*/
+
+	a.select_none();
+	a.set_bit_fast(1);
+	ref.clear();
+	a.visit_selected_lines([&](const PVRow r) { ref.push_back(r); });
+	for (PVRow r: ref) { std::cout << r << " "; }
+	std::cout << std::endl;
+
+	ref.clear();
+	a.select_all();
+	a.visit_selected_lines([&](const PVRow r) { ref.push_back(r); }, 1);
+	for (PVRow r: ref) { std::cout << r << " "; }
+	std::cout << std::endl;
+
+	
+	ref.clear();
+	a.visit_selected_lines([&](const PVRow r) { ref.push_back(r); }, 2);
+	for (PVRow r: ref) { std::cout << r << " "; }
+	std::cout << std::endl;
+	ref.clear();
+	a.visit_selected_lines([&](const PVRow r) { ref.push_back(r); }, 69);
+	for (PVRow r: ref) { std::cout << r << " "; }
+	std::cout << std::endl;
+	ref.clear();
+	a.visit_selected_lines([&](const PVRow r) { ref.push_back(r); }, 115);
+	for (PVRow r: ref) { std::cout << r << " "; }
+	std::cout << std::endl;
+	ref.clear();
+	a.visit_selected_lines([&](const PVRow r) { ref.push_back(r); }, 1000000);
+	
+
+	a.select_none();
 	b.select_none();
 	a.set_line(34, true);
 	b.set_line(32*5+2, true);
@@ -137,6 +206,7 @@ int main(void)
 	std::cout << "Line 32*5+2 set, last nonzero chunk to 6 (5) = " << b.get_last_nonzero_chunk_index(0, 6) << std::endl;
 	std::cout << "Line 32*5+2 set, last nonzero chunk to 7 (5) = " << b.get_last_nonzero_chunk_index(0, 7) << std::endl;
 
+	/*
 	std::cout << "Checking only one line set in range [1024, 1088]" << std::endl;
 	for (int i = 0; i < (PICVIZ_SELECTION_CHUNK_SIZE * 2) + 1; ++i) {
 		PVRow r = 1024 + i;
@@ -147,9 +217,9 @@ int main(void)
 		if (res != expected) {
 			std::cout << "Test fails with line " << r
 			          << " set and last nonzero chunk to 64: returns "
-			          << res << " but " << expected << " expected";
+			          << res << " but " << expected << " expected" << std::endl;
 		}
-	}
+	}*/
 
 	/**********************************************************************
 	***********************************************************************

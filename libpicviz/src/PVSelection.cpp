@@ -7,8 +7,10 @@
 #include "bithacks.h"
 
 #include <pvkernel/core/picviz_intrin.h>
+#include <pvkernel/rush/PVNraw.h>
 
 #include <picviz/PVSelection.h>
+#include <picviz/PVSparseSelection.h>
 
 static inline uint32_t count_bits(size_t n, const uint32_t* data)
 {
@@ -169,7 +171,7 @@ Picviz::PVSelection& Picviz::PVSelection::operator=(const PVSelection &rhs)
 		return *this;
 	}
 
-	memcpy(_table, rhs._table, PICVIZ_SELECTION_NUMBER_OF_CHUNKS);
+	memcpy(_table, rhs._table, PICVIZ_SELECTION_NUMBER_OF_BYTES);
 
 	return *this;
 }
@@ -248,8 +250,21 @@ Picviz::PVSelection Picviz::PVSelection::operator|(const PVSelection &rhs) const
  *****************************************************************************/
 Picviz::PVSelection & Picviz::PVSelection::operator|=(const PVSelection &rhs)
 {
-	for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
-		_table[i] |= rhs._table[i];
+	if (&rhs != this) {
+		for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
+			_table[i] |= rhs._table[i];
+		}
+	}
+
+	return *this;
+}
+
+Picviz::PVSelection & Picviz::PVSelection::operator|=(const PVSparseSelection &rhs)
+{
+	PVSparseSelection::map_chunks_t const& chunks = rhs.get_chunks();
+	PVSparseSelection::map_chunks_t::const_iterator it;
+	for (it = chunks.begin(); it != chunks.end(); it++) {
+		_table[it->first] |= it->second;
 	}
 
 	return *this;
@@ -317,7 +332,7 @@ Picviz::PVSelection & Picviz::PVSelection::operator^=(const PVSelection &rhs)
 Picviz::PVSelection & Picviz::PVSelection::or_not(const PVSelection &rhs)
 {
 	for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
-		_table[i] |= ~rhs._table[i];
+		_table[i] |= ~(rhs._table[i]);
 	}
 
 	return *this;
@@ -331,7 +346,7 @@ Picviz::PVSelection & Picviz::PVSelection::or_not(const PVSelection &rhs)
 Picviz::PVSelection & Picviz::PVSelection::and_not(const PVSelection &rhs)
 {
 	for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
-		_table[i] &= ~rhs._table[i];
+		_table[i] &= ~(rhs._table[i]);
 	}
 
 	return *this;
@@ -345,7 +360,7 @@ Picviz::PVSelection & Picviz::PVSelection::and_not(const PVSelection &rhs)
 Picviz::PVSelection & Picviz::PVSelection::xor_not(const PVSelection &rhs)
 {
 	for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
-		_table[i] ^= ~rhs._table[i];
+		_table[i] ^= ~(rhs._table[i]);
 	}
 
 	return *this;
@@ -410,13 +425,13 @@ void Picviz::PVSelection::select_inverse()
  *****************************************************************************/
 void Picviz::PVSelection::set_line(PVRow line_index, bool bool_value)
 {
-	const PVRow pos = line_index / PICVIZ_SELECTION_CHUNK_SIZE;
-	const PVRow shift = line_index - (pos * PICVIZ_SELECTION_CHUNK_SIZE);
+	const PVRow pos = line_index_to_chunk(line_index);
+	const PVRow shift = line_index_to_chunk_bit(line_index);
 	
 	if ( bool_value )  {
-		B_SET(_table[pos], shift);
+		_table[pos] |= 1UL<<shift;
 	} else {
-		B_UNSET(_table[pos], shift);
+		_table[pos] &= ~(1UL<<shift);
 	}
 }
 
@@ -442,7 +457,7 @@ ssize_t Picviz::PVSelection::get_last_nonzero_chunk_index(ssize_t starting_chunk
 #ifdef __SSE4_1__
 	__m128i ones = _mm_set1_epi32(0xFFFFFFFF);
 	__m128i vec;
-	const ssize_t ending_chunk_aligned = (ssize_t)(((size_t)ending_chunk>>2)<<2);
+	const ssize_t ending_chunk_aligned = (ssize_t)(((size_t)ending_chunk>>1)<<1);
 	if (ending_chunk_aligned <= starting_chunk) {
 		for (ssize_t i = ending_chunk; i >= starting_chunk; i--) {
 			if (_table[i] != 0) {
@@ -456,7 +471,7 @@ ssize_t Picviz::PVSelection::get_last_nonzero_chunk_index(ssize_t starting_chunk
 				return i;
 			}
 		}
-		for (ssize_t i = ((ssize_t)ending_chunk_aligned)-4; i >= starting_chunk; i -= 4) {
+		for (ssize_t i = ((ssize_t)ending_chunk_aligned)-2; i >= starting_chunk; i -= 2) {
 			vec = _mm_load_si128((__m128i*) &_table[i]);
 			if (_mm_testz_si128(vec, ones) == 0) {
 				uint64_t DECLARE_ALIGN(16) final_sel[2];
@@ -464,9 +479,10 @@ ssize_t Picviz::PVSelection::get_last_nonzero_chunk_index(ssize_t starting_chunk
 				// If final_sel[0] == 0, it means that the chunk is in one of the last two 32 bits of vec.
 				// Otherwise, it is one of the two first.
 				uint8_t reg_pos = (final_sel[1] != 0);
-				uint32_t* preg_last2 = (uint32_t*) &final_sel[reg_pos];
-				uint8_t reg_pos_last2 = (preg_last2[1] != 0);
-				return i + (reg_pos<<1) + reg_pos_last2;
+				//uint32_t* preg_last2 = (uint32_t*) &final_sel[reg_pos];
+				//uint8_t reg_pos_last2 = (preg_last2[1] != 0);
+				//return i + (reg_pos<<1) + reg_pos_last2;
+				return i + (reg_pos<<1);
 			}
 		}
 	}

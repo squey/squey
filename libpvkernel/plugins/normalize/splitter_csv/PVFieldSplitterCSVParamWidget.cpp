@@ -74,20 +74,27 @@ QWidget* PVFilter::PVFieldSplitterCSVParamWidget::get_param_widget()
 	separator_label->setAlignment(Qt::AlignLeft);
 	gridLayout->addWidget(separator_label, 0, 0);
 	separator_text = new PVWidgets::QKeySequenceWidget();
-	separator_text->setKeySequence(QKeySequence("Space"));
 	separator_text->setClearButtonShow(PVWidgets::QKeySequenceWidget::NoShow);
 	separator_text->setKeySequence(QKeySequence((int) l["sep"].toChar().toAscii()));
 	separator_text->setMaxNumKey(1);
 
+	// Quote text
+	quote_text = new PVWidgets::QKeySequenceWidget();
+	quote_text->setClearButtonShow(PVWidgets::QKeySequenceWidget::NoShow);
+	quote_text->setKeySequence(QKeySequence((int) l["quote"].toChar().toAscii()));
+	quote_text->setMaxNumKey(1);
+
 	gridLayout->addWidget(separator_text, 0, 2);
+	gridLayout->addWidget(new QLabel("Quote character:"), 2, 0);
+	gridLayout->addWidget(quote_text, 2, 2);
 
 	//field number of col
 	QLabel* col_label = new QLabel(tr("Number of columns:"));
 	col_label->setAlignment(Qt::AlignLeft);
-	gridLayout->addWidget(col_label, 2, 0);
+	gridLayout->addWidget(col_label, 4, 0);
 	child_number_edit = new QLineEdit(QString::number(get_child_count()));
 	child_number_org_palette = child_number_edit->palette();
-	gridLayout->addWidget(child_number_edit, 2, 2);
+	gridLayout->addWidget(child_number_edit, 4, 2);
 	layout->addLayout(gridLayout);
 	_recommands_label = new QLabel();
 	layout->addWidget(_recommands_label);
@@ -100,6 +107,7 @@ QWidget* PVFilter::PVFieldSplitterCSVParamWidget::get_param_widget()
 
 	//connect(separator_text, SIGNAL(textChanged(const QString &)), this, SLOT(updateSeparator(const QString &)));
 	connect(separator_text, SIGNAL(keySequenceChanged(QKeySequence)), this, SLOT(updateSeparator(QKeySequence)));
+	connect(quote_text, SIGNAL(keySequenceChanged(QKeySequence)), this, SLOT(updateQuote(QKeySequence)));
 	connect(set_nchilds_btn, SIGNAL(clicked()), this, SLOT(updateNChilds()));
 
 	PVLOG_DEBUG("PVFilter::PVFieldSplitterCSVParamWidget::get_param_widget()     end\n");
@@ -124,14 +132,21 @@ QAction* PVFilter::PVFieldSplitterCSVParamWidget::get_action_menu()
 
 void PVFilter::PVFieldSplitterCSVParamWidget::updateSeparator(QKeySequence key)
 {
-	PVCore::PVArgumentList args;
-
-
+	PVCore::PVArgumentList args = get_filter()->get_args();
 	args["sep"] = QChar::fromAscii(PVWidgets::QKeySequenceWidget::get_ascii_from_sequence(key));
 	this->get_filter()->set_args(args);
 
 	update_recommanded_nfields();
+	emit args_changed_Signal();
+}
 
+void PVFilter::PVFieldSplitterCSVParamWidget::updateQuote(QKeySequence key)
+{
+	PVCore::PVArgumentList args = get_filter()->get_args();
+	args["quote"] = QChar::fromAscii(PVWidgets::QKeySequenceWidget::get_ascii_from_sequence(key));
+	this->get_filter()->set_args(args);
+
+	update_recommanded_nfields();
 	emit args_changed_Signal();
 }
 

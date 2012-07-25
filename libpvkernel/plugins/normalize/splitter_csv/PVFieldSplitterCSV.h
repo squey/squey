@@ -34,6 +34,7 @@ public:
 
 protected:
 	char _sep;
+	char _quote;
 
 private:
 	struct buf_infos {

@@ -51,7 +51,7 @@ public:
 
 	inline bool operator==(const PVListFastCmp& other) const
 	{
-		if (_cur_size >= MAX_DEPTH) {
+		if (_cur_size > MAX_DEPTH) {
 			return _hash == other._hash;
 		}
 
