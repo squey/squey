@@ -50,7 +50,7 @@ private:
 
 protected:
 	PVTabSplitter* _tab;
-	Picviz::PVView_p _view;
+	Picviz::PVView_sp _view;
 	Picviz::PVLayerFilter_p _filter_p;
 	PVWidgets::PVPresetsWidget* _presets_widget;
 	QSplitter* _splitter;

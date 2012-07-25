@@ -174,7 +174,7 @@ QString PVRush::PVInputTypeFilename::tab_name_of_inputs(list_inputs const& in) c
 	return tab_name;
 }
 
-bool PVRush::PVInputTypeFilename::get_custom_formats(input_type in, hash_formats &formats) const
+bool PVRush::PVInputTypeFilename::get_custom_formats(PVInputDescription_p in, hash_formats &formats) const
 {
 	// Two types of custom format: picviz.format exist in the directory of the file,
 	// or file + ".format" exists

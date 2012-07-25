@@ -1,5 +1,5 @@
 /**
- * \file adrien_main-boost_thread.cpp
+ * \file test_adrien_main-boost_thread.cpp
  *
  * Copyright (C) Picviz Labs 2010-2012
  */

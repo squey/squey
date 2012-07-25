@@ -18,7 +18,7 @@
 #include <QStringList>
 #include <QFileInfo>
 
-PVRush::PVSourceCreatorTextfile::source_p PVRush::PVSourceCreatorTextfile::create_discovery_source_from_input(input_type input, const PVFormat& /*format*/) const
+PVRush::PVSourceCreatorTextfile::source_p PVRush::PVSourceCreatorTextfile::create_discovery_source_from_input(PVInputDescription_p input, const PVFormat& /*format*/) const
 {
 	PVLOG_DEBUG("(text_file plugin) create source for %s\n", qPrintable(input->human_name()));
 	PVFileDescription* file = dynamic_cast<PVFileDescription*>(input.get());
@@ -45,7 +45,7 @@ QString PVRush::PVSourceCreatorTextfile::supported_type() const
 	return QString("file");
 }
 
-bool PVRush::PVSourceCreatorTextfile::pre_discovery(input_type input) const
+bool PVRush::PVSourceCreatorTextfile::pre_discovery(PVInputDescription_p input) const
 {
 	// AG: I don't know a magic method for being sure that a file is a text-file
 	// We'll let the TBB filters work for the moment...

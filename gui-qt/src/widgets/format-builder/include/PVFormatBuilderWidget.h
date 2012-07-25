@@ -145,7 +145,7 @@ protected:
 	bool is_dom_empty();
 
 protected:
-	PVRush::input_type _log_input;
+	PVRush::PVInputDescription_p _log_input;
 	PVRush::PVInputType_p _log_input_type;
 	PVRush::PVSourceCreator_p _log_sc;
 	PVRush::PVRawSourceBase_p _log_source;

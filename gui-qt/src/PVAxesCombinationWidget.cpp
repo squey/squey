@@ -7,6 +7,7 @@
 #include <PVAxesCombinationWidget.h>
 #include <picviz/PVAxesCombination.h>
 #include <picviz/PVView.h>
+#include <picviz/PVPlotted.h>
 
 #include <QDialogButtonBox>
 
@@ -308,7 +309,7 @@ void PVInspector::PVAxesCombinationWidget::set_selection_from_cols(QList<PVCol> 
 void PVInspector::PVAxesCombinationWidget::sel_singleton_Slot()
 {
 	assert(_view);
-	QList<PVCol> cols_rem = _view->get_plotted_parent()->get_singleton_columns_indexes();
+	QList<PVCol> cols_rem = _view->get_parent<Picviz::PVPlotted>()->get_singleton_columns_indexes();
 	set_selection_from_cols(cols_rem);
 }
 
@@ -325,23 +326,26 @@ void PVInspector::PVAxesCombinationWidget::sel_range_Slot()
 		return;
 	}
 
+	Picviz::PVPlotted* plotted = _view->get_parent<Picviz::PVPlotted>();
+	Picviz::PVMapped* mapped = _view->get_parent<Picviz::PVMapped>();
+
 	double rate = dlg->rate();
 	QList<PVCol> cols;
 	PVAxesCombinationWidgetSelRange::values_source_t src = dlg->get_source();
 	if (dlg->reversed()) {
 		if (src == PVAxesCombinationWidgetSelRange::plotted) {
-			cols = _view->get_plotted_parent()->get_columns_indexes_values_not_within_range(min, max, rate);
+			cols = plotted->get_columns_indexes_values_not_within_range(min, max, rate);
 		}
 		else {
-			cols = _view->get_mapped_parent()->get_columns_indexes_values_not_within_range(min, max, rate);
+			cols = mapped->get_columns_indexes_values_not_within_range(min, max, rate);
 		}
 	}
 	else {
 		if (src == PVAxesCombinationWidgetSelRange::plotted) {
-			cols = _view->get_plotted_parent()->get_columns_indexes_values_within_range(min, max, rate);
+			cols = plotted->get_columns_indexes_values_within_range(min, max, rate);
 		}
 		else {
-			cols = _view->get_mapped_parent()->get_columns_indexes_values_within_range(min, max, rate);
+			cols = mapped->get_columns_indexes_values_within_range(min, max, rate);
 		}
 	}
 	set_selection_from_cols(cols);

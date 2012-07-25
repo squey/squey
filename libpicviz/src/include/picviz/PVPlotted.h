@@ -18,6 +18,7 @@
 #include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/rush/PVNraw.h>
 #include <picviz/PVPtrObjects.h>
+#include <picviz/PVMapped.h>
 #include <boost/shared_ptr.hpp>
 #include <picviz/PVView_types.h>
 #include <picviz/PVPlotting.h>
@@ -38,7 +39,7 @@ class PVSource;
 /**
  * \class PVPlotted
  */
-typedef typename PVCore::PVDataTreeObject<PVPlotting, PVCore::PVDataTreeNoChildren<PVPlotted> > data_tree_plotted_t ;
+typedef typename PVCore::PVDataTreeObject<PVMapped, PVView> data_tree_plotted_t ;
 class LibPicvizDecl PVPlotted : public data_tree_plotted_t {
 	friend class PVCore::PVSerializeObject;
 	friend class PVMapped;
@@ -65,21 +66,27 @@ private:
 		}
 	};
 public:
-	typedef boost::shared_ptr<PVPlotted> p_type;
+	//typedef boost::shared_ptr<PVPlotted> p_type;
 	typedef std::vector<float> plotted_table_t;
 	typedef std::vector< std::pair<PVCol,float> > plotted_sub_col_t;
 	typedef std::list<ExpandedSelection> list_expanded_selection_t;
+
 public:
-	PVPlotted(PVPlotting const& plotting);
+	PVPlotted();
+
+public:
 	~PVPlotted();
+
+	void set_plotting(PVPlotting* plotting) { _plotting = PVPlotting_p(plotting); }
 
 protected:
 	// Serialization
-	PVPlotted();
-	void serialize(PVCore::PVSerializeObject &so, PVCore::PVSerializeArchive::version_t v);
+	void serialize_write(PVCore::PVSerializeObject& so);
+	void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/);
+	PVSERIALIZEOBJECT_SPLIT
 
 	// For PVMapped
-	inline void invalidate_column(PVCol j) { return _plotting.invalidate_column(j); }
+	inline void invalidate_column(PVCol j) { return _plotting->invalidate_column(j); }
 
 	// For PVSource
 	void add_column(PVPlottingProperties const& props);
@@ -95,8 +102,9 @@ public:
 	void process_from_mapped(PVMapped* mapped, bool keep_views_info);
 	void process_from_parent_mapped(bool keep_views_info);
 
-	void set_name(QString const& name) { _plotting.set_name(name); }
-	QString const& get_name() const { return _plotting.get_name(); }
+	void set_name(QString const& name) { _plotting->set_name(name); }
+	QString const& get_name() const { return _plotting->get_name(); }
+	PVPlotting* get_plotting() { return _plotting.get(); }
 
 public:
 	// Parents
@@ -106,16 +114,7 @@ public:
 	PVRush::PVNraw& get_rushnraw_parent();
 	const PVRush::PVNraw& get_rushnraw_parent() const;
 
-	PVRoot* get_root_parent() { return root; }
-	const PVRoot* get_root_parent() const { return root; }
-
-	PVMapped* get_mapped_parent() { return _mapped; }
-	const PVMapped* get_mapped_parent() const { return _mapped; }
-
 	const float* get_table_pointer() const { return &_table.at(0); }
-
-	PVPlotting& get_plotting() { return _plotting; }
-	const PVPlotting& get_plotting() const { return _plotting; }
 
 	bool is_uptodate() const;
 
@@ -127,13 +126,12 @@ public:
 	// Data access
 	PVRow get_row_count() const;
 	PVCol get_column_count() const;
-	PVSource* get_source_parent();
 	float get_value(PVRow row, PVCol col) const;
 	void get_sub_col_minmax(plotted_sub_col_t& ret, float& min, float& max, PVSelection const& sel, PVCol col) const;
 	void get_col_minmax(PVRow& min, PVRow& max, PVSelection const& sel, PVCol col) const;
 	inline plotted_table_t const& get_table() const { return _table; }
-	inline PVView_p get_view() { return _view; }
-	inline const PVView_p get_view() const { return _view; }
+	inline PVView_sp get_view() { return _view; }
+	inline const PVView_sp get_view() const { return _view; }
 	void expand_selection_on_axis(PVSelection const& sel, PVCol axis_id, QString const& mode, bool add = true);
 
 	// Plotted dump/load
@@ -144,16 +142,16 @@ public:
 	// Debug
 	void to_csv();
 
-private:
-	void set_plotting(PVPlotting const& plotting);
+protected:
+	virtual void set_parent_from_ptr(PVMapped* mapped);
+	virtual QString get_children_description() const { return "View(s)"; }
+	virtual QString get_children_serialize_name() const { return "views"; }
 
 private:
-	PVPlotting _plotting;
-	PVRoot* root;
-	PVMapped* _mapped;
+	PVPlotting_p _plotting;
 	plotted_table_t _table; /* Unidimensionnal. It must be contiguous in memory */
 	std::vector<float> _tmp_values;
-	PVView_p _view;
+	PVView_sp _view;
 	list_expanded_selection_t _expanded_sels;
 };
 

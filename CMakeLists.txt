@@ -26,7 +26,7 @@ include(FindPkgConfig)
 
 if (DEBUG_MODE)
 	if (NOT WIN32)
-		add_definitions(-gstabs+)
+		add_definitions(-g)
 	endif()
 else()
 	if(WIN32)
@@ -44,7 +44,7 @@ else()
 		#SET(LINKER_OPTIMIZE_FLAGS "-flto")
 		add_definitions(-DNDEBUG) # so that 'assert' will generate no code
 		if (CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
-			add_definitions(-gstabs+)
+			add_definitions(-g)
 		endif()
 	endif(WIN32)
 endif()
@@ -143,7 +143,6 @@ include_directories(AFTER "${picviz-inspector_SOURCE_DIR}/include")
 
 add_subdirectory(scripts)
 add_subdirectory(libpvkernel)
-add_subdirectory(libpvhive)
 
 # Helpers means various stuff we can use
 # such as binaries or libraries, that depends

@@ -1,5 +1,5 @@
 /**
- * \file adrien_hdr.h
+ * \file test_adrien_hdr.h
  *
  * Copyright (C) Picviz Labs 2010-2012
  */

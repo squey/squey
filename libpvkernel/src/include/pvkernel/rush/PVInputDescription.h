@@ -32,7 +32,6 @@ protected:
 };
 
 typedef PVInputDescription::p_type PVInputDescription_p;
-typedef PVInputDescription_p input_type;
 
 }
 

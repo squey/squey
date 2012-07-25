@@ -31,8 +31,8 @@ public:
 	virtual ~PVSourceCreator() {}
 public:
 	/* Used for Hadoop since we read directly the file using libhdfs */
-	virtual source_p create_source_from_input(input_type input, PVFormat& format) const { return create_discovery_source_from_input(input, format); }
-	virtual source_p create_discovery_source_from_input(input_type input, const PVFormat& format) const = 0;
+	virtual source_p create_source_from_input(PVInputDescription_p input, PVFormat& format) const { return create_discovery_source_from_input(input, format); }
+	virtual source_p create_discovery_source_from_input(PVInputDescription_p input, const PVFormat& format) const = 0;
 	virtual QString supported_type() const = 0;
 	PVInputType_p supported_type_lib()
 	{
@@ -47,7 +47,7 @@ public:
 	// "pre-discovery" is called before processing the source into the TBB filters created
 	// by its PVFormat objects. If this function returns false, this PVSourceCreator is automatically
 	// discared (for *all* its formats) for this input.
-	virtual bool pre_discovery(input_type input) const = 0;
+	virtual bool pre_discovery(PVInputDescription_p input) const = 0;
 };
 
 typedef PVSourceCreator::p_type PVSourceCreator_p;

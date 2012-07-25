@@ -10,7 +10,7 @@
 
 #include <pvkernel/filter/PVChunkFilter.h>
 
-PVRush::PVSourceCreatorDatabase::source_p PVRush::PVSourceCreatorDatabase::create_discovery_source_from_input(input_type input, const PVFormat& /*format*/) const
+PVRush::PVSourceCreatorDatabase::source_p PVRush::PVSourceCreatorDatabase::create_discovery_source_from_input(PVInputDescription_p input, const PVFormat& /*format*/) const
 {
 	PVFilter::PVChunkFilter* chk_flt = new PVFilter::PVChunkFilter();
 	PVDBQuery* query = dynamic_cast<PVDBQuery*>(input.get());
@@ -30,7 +30,7 @@ QString PVRush::PVSourceCreatorDatabase::supported_type() const
 	return QString("database");
 }
 
-bool PVRush::PVSourceCreatorDatabase::pre_discovery(input_type /*input*/) const
+bool PVRush::PVSourceCreatorDatabase::pre_discovery(PVInputDescription_p /*input*/) const
 {
 	// There is only one database source for now
 	return true;

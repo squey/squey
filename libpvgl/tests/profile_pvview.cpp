@@ -81,7 +81,7 @@ void thread_main(QList<Picviz::PVView_p> views)
 	}
 }
 
-Picviz::PVSource_p create_src(const QString &path_file, const QString &path_format)
+Picviz::PVSource_p create_src(Picviz::PVScene_p scene, const QString &path_file, const QString &path_format)
 {
 	// Input file
 	PVRush::PVInputDescription_p file(new PVRush::PVFileDescription(path_file));
@@ -90,15 +90,15 @@ Picviz::PVSource_p create_src(const QString &path_file, const QString &path_form
 	PVRush::PVFormat format("format", path_format);
 	if (!format.populate()) {
 		std::cerr << "Can't read format file " << qPrintable(path_format) << std::endl;
-		return Picviz::PVSource_p();
+		return Picviz::PVSource_p::invalid();
 	}
 
 	PVRush::PVSourceCreator_p sc_file;
 	if (!PVRush::PVTests::get_file_sc(file, format, sc_file)) {
-		return Picviz::PVSource_p();
+		return Picviz::PVSource_p::invalid();
 	}
 
-	Picviz::PVSource_p src(new Picviz::PVSource(PVRush::PVInputType::list_inputs() << file, sc_file, format));
+	Picviz::PVSource_p src(scene, PVRush::PVInputType::list_inputs() << file, sc_file, format);
 	src->get_extractor().get_agg().set_strict_mode(true);
 	PVRush::PVControllerJob_p job = src->extract_from_agg_nlines(0, 30000000);
 	job->wait_end();
@@ -116,9 +116,9 @@ int main(int argc, char** argv)
 	init_env();
 	QApplication app(argc, argv);
 	// Create the PVSource objects
-	Picviz::PVRoot_p root(new Picviz::PVRoot());
+	Picviz::PVRoot_p root;
 
-	Picviz::PVScene_p scene(new Picviz::PVScene("scene", root.get()));
+	Picviz::PVScene_p scene(root, "scene");
 	QList<Picviz::PVMapped_p> mappeds;
 	QList<Picviz::PVPlotted_p> plotteds;
 	QList<Picviz::PVView_p> views;
@@ -127,19 +127,19 @@ int main(int argc, char** argv)
 	PVLOG_INFO("loading file  : %s\n", argv[IFILE]);
 	PVLOG_INFO("        format: %s\n", argv[IFORMAT]);
 	PVLOG_INFO("step: %s - %d\n", __FILE__, __LINE__);
-	Picviz::PVSource_p src = create_src (argv[IFILE], argv[IFORMAT]);
+	Picviz::PVSource_p src = create_src(scene, argv[IFILE], argv[IFORMAT]);
 	PVLOG_INFO("step: %s - %d\n", __FILE__, __LINE__);
-	Picviz::PVMapped_p mapped(new Picviz::PVMapped(Picviz::PVMapping(src.get())));
+	Picviz::PVMapped_p mapped(src);
+	mapped->process_from_parent_source(false);
 	PVLOG_INFO("step: %s - %d\n", __FILE__, __LINE__);
-	Picviz::PVPlotted_p plotted(new Picviz::PVPlotted(Picviz::PVPlotting(mapped.get())));
+	Picviz::PVPlotted_p plotted(mapped);
+	plotted->process_from_parent_mapped(false);
 	//Picviz::PVPlotted_p plotted2(new Picviz::PVPlotted(Picviz::PVPlotting(mapped.get())));
 	PVLOG_INFO("step: %s - %d\n", __FILE__, __LINE__);
-	mapped->add_plotted(plotted);
 	//mapped->add_plotted(plotted2);
 	PVLOG_INFO("step: %s - %d\n", __FILE__, __LINE__);
-	src->add_mapped(mapped);
 	PVLOG_INFO("step: %s - %d\n", __FILE__, __LINE__);
-	scene->add_source(src);
+	scene->add_child(src);
 	PVLOG_INFO("step: %s - %d\n", __FILE__, __LINE__);
 	views << plotted->get_view();
 	PVLOG_INFO("step: %s - %d\n", __FILE__, __LINE__);

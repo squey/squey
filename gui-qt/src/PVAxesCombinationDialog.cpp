@@ -11,7 +11,7 @@
 
 #include <QVBoxLayout>
 
-PVInspector::PVAxesCombinationDialog::PVAxesCombinationDialog(Picviz::PVView_p view, PVTabSplitter* tab_, PVMainWindow* mw):
+PVInspector::PVAxesCombinationDialog::PVAxesCombinationDialog(Picviz::PVView_sp view, PVTabSplitter* tab_, PVMainWindow* mw):
 	QDialog(mw),
 	_view(view)
 {

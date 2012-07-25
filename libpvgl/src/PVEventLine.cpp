@@ -54,7 +54,7 @@ PVWidget(widget_manager), view(pvgl_view), pv_message(message)
  * PVGL::PVEventLine::set_view
  *
  *****************************************************************************/
-void PVGL::PVEventLine::set_view(Picviz::PVView_p picviz_view_)
+void PVGL::PVEventLine::set_view(Picviz::PVView_sp picviz_view_)
 {
 	PVLOG_DEBUG("PVGL::PVEventLine::%s\n", __FUNCTION__);
 

@@ -23,7 +23,7 @@ class PVExpandSelDlg: public QDialog
 {
 	Q_OBJECT
 public:
-	PVExpandSelDlg(Picviz::PVView_p view, QWidget* parent);
+	PVExpandSelDlg(Picviz::PVView const& view, QWidget* parent);
 
 public:
 	PVCore::PVAxesIndexType get_axes() const;

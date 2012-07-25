@@ -225,9 +225,9 @@ Picviz::PVAD2GView::PVAD2GView(Picviz::PVScene* scene) :
  *****************************************************************************/
 Picviz::PVAD2GView::~PVAD2GView()
 {
-	if (_graph) {
+	/*if (_graph) {
 		delete _graph;
-	}
+	}*/
 }
 
 /******************************************************************************
@@ -750,9 +750,9 @@ void Picviz::PVAD2GView::serialize_read(PVCore::PVSerializeObject& so, PVCore::P
 	so.buffer_path("graph", buf_file);
 
 	// And import it !
-	if (_graph) {
+	/*if (_graph) {
 		delete _graph;
-	}
+	}*/
 	std::string buf_file_cstr(qPrintable(buf_file));
 	_graph = tlp::loadGraph(buf_file_cstr);
 	if (!_graph) {
@@ -798,7 +798,7 @@ void Picviz::PVAD2GView::serialize_read(PVCore::PVSerializeObject& so, PVCore::P
 		}
 	}
 
-	_graph->delLocalProperty(TLP_STR_CORR_PROPERTY);
+	//_graph->delLocalProperty(TLP_STR_CORR_PROPERTY);
 
 	// Remove invalid nodes
 	/*foreach(node, nodes_to_del) {

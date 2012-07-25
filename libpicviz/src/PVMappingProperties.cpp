@@ -109,7 +109,10 @@ void Picviz::PVMappingProperties::serialize(PVCore::PVSerializeObject& so, PVCor
 		set_type(_type, _mode);
 	}
 	if (_mapping_filter) {
-		so.arguments("properties", _args, _mapping_filter->default_args());
+		so.arguments("properties", _args, _mapping_filter->get_default_args());
+		if (!so.is_writing()) {
+			_mapping_filter->set_args(_args);
+		}
 	}
 }
 

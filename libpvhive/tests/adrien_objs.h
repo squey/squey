@@ -1,5 +1,5 @@
 /**
- * \file adrien_objs.h
+ * \file test_adrien_objs.h
  *
  * Copyright (C) Picviz Labs 2010-2012
  */

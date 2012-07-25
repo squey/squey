@@ -39,7 +39,7 @@ static std::string convert_py_exception_to_string()
 	return ret;
 }
 
-PVRush::PVPythonSource::PVPythonSource(input_type input, size_t min_chunk_size, PVFilter::PVChunkFilter_f src_filter, const QString& python_file):
+PVRush::PVPythonSource::PVPythonSource(PVInputDescription_p input, size_t min_chunk_size, PVFilter::PVChunkFilter_f src_filter, const QString& python_file):
 	PVRawSourceBase(src_filter),
 	_python_file(python_file),
 	_min_chunk_size(min_chunk_size),

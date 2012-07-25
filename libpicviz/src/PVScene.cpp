@@ -4,6 +4,7 @@
  * Copyright (C) Picviz Labs 2009-2012
  */
 
+#include <pvkernel/core/hash_sharedptr.h>
 #include <pvkernel/core/PVSerializeArchiveOptions.h>
 #include <pvkernel/core/PVSerializeArchiveZip.h>
 #include <picviz/PVRoot.h>
@@ -18,9 +19,7 @@
  * Picviz::PVScene::PVScene
  *
  *****************************************************************************/
-Picviz::PVScene::PVScene(QString scene_name, PVRoot* parent):
-	data_tree_scene_t(parent),
-	_root(parent),
+Picviz::PVScene::PVScene(QString scene_name):
 	_name(scene_name),
 	_ad2g_view(new PVAD2GView(this))
 {
@@ -36,108 +35,40 @@ Picviz::PVScene::~PVScene()
 	PVLOG_INFO("In PVScene destructor\n");
 }
 
-void Picviz::PVScene::add_source(PVSource_p src)
-{
-	// For information, from PVScene.h:
-	// typedef std::map<PVRush::PVInputType, std::pair<list_sources_t, PVRush::PVInputType::list_inputs> > hash_type_sources_t;
-	// hash_type_sources_t _sources;
-	
-	src->set_parent(this);
-	std::pair<list_sources_t, PVRush::PVInputType::list_inputs>& type_srcs = _sources[*(src->get_input_type())];
-
-	PVRush::PVInputType::list_inputs& inputs(type_srcs.second);
-	list_sources_t& sources(type_srcs.first);
-
-	// Add sources' inputs to our `inputs' if they do not exist yet
-	PVRush::PVInputType::list_inputs src_inputs = src->get_inputs();
-	PVRush::PVInputType::list_inputs::const_iterator it;
-	for (it = src_inputs.begin(); it != src_inputs.end(); it++) {
-		if (!inputs.contains(*it)) {
-			inputs.push_back(*it);
-		}
-	}
-
-	// Add this source to the list of sources for this type
-	sources.push_back(src);
-
-	set_views_id();
-}
-
-Picviz::PVScene::list_sources_t Picviz::PVScene::get_all_sources() const
-{
-	list_sources_t ret;
-	hash_type_sources_t::const_iterator it;
-	for (it = _sources.begin(); it != _sources.end(); it++) {
-		std::pair<list_sources_t, PVRush::PVInputType::list_inputs> const& type_srcs = it->second;
-		ret.append(type_srcs.first);
-	}
-	return ret;
-}
-
-Picviz::PVScene::list_views_t Picviz::PVScene::get_all_views() const
-{
-	list_views_t ret;
-	list_sources_t sources = get_all_sources();
-	foreach (PVSource_p source, sources) {
-		PVSource::list_views_t const& views = source->get_views();
-		foreach (Picviz::PVView_p view, views) {
-			ret.append(view);
-		}
-	}
-
-	return ret;
-}
-
 Picviz::PVScene::list_sources_t Picviz::PVScene::get_sources(PVRush::PVInputType const& type) const
 {
-	hash_type_sources_t::const_iterator it = _sources.find(type);
-	if (it == _sources.end()) {
-		return list_sources_t();
-	}
-	std::pair<list_sources_t, PVRush::PVInputType::list_inputs> const& type_srcs = it->second;
-	return type_srcs.first;
-}
-
-bool Picviz::PVScene::del_source(const PVSource* src)
-{
-	// Remove underlying views from the AD2G graph
-	PVSource::list_views_t const& views = src->get_views();
-	foreach (Picviz::PVView_p view, views) {
-		_ad2g_view->del_view(view.get());
-	}
-	
-	// Remove this source's inputs if they are no longer used by other sources
-	std::pair<list_sources_t, PVRush::PVInputType::list_inputs>& type_srcs = _sources[*(src->get_input_type())];
-	list_sources_t& list_srcs(type_srcs.first);
-
-	list_sources_t::iterator it;
-	for (it = list_srcs.begin(); it != list_srcs.end(); it++) {
-		if (it->get() == src) {
-			list_srcs.erase(it);
-			set_views_id();
-			return true;
+	children_t const& sources = get_children();
+	list_sources_t ret;
+	for (PVSource_p const& src: sources) {
+		if (*src->get_input_type() == type) {
+			ret.push_back(src.get());
 		}
 	}
-
-	return false;
+	return ret;
 }
 
-Picviz::PVRoot* Picviz::PVScene::get_root()
+PVRush::PVInputType::list_inputs_desc Picviz::PVScene::get_inputs_desc(PVRush::PVInputType const& type) const
 {
-	return _root;
+	children_t const& sources = get_children();
+	QSet<PVRush::PVInputDescription_p> ret_set;
+	for (PVSource_p const& src: sources) {
+		if (*src->get_input_type() == type) {
+			ret_set.unite(src->get_inputs().toSet());
+		}
+	}
+	return ret_set.toList();
 }
 
 Picviz::PVView::id_t Picviz::PVScene::get_new_view_id() const
 {
-	return get_all_views().size();
+	return get_children<PVView>().size();
 }
 
 void Picviz::PVScene::set_views_id()
 {
-	list_views_t views = get_all_views();
 	std::multimap<PVView::id_t, PVView*> map_views;
-	foreach (PVView_p const& vp, views) {
-		map_views.insert(std::make_pair(vp->get_view_id(), vp.get()));
+	for (auto view : get_children<PVView>()) {
+		map_views.insert(std::make_pair(view->get_view_id(), view.get()));
 	}
 	PVView::id_t cur_id = 0;
 	std::multimap<PVView::id_t, PVView*>::iterator it;
@@ -153,43 +84,102 @@ void Picviz::PVScene::user_modified_sel(PVView* src_view, QList<Picviz::PVView*>
 	_ad2g_view->run(src_view, changed_views);
 }
 
-void Picviz::PVScene::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
+void Picviz::PVScene::child_added(PVSource& /*src*/)
+{
+	// For information, from PVScene.h:
+	// typedef std::map<PVRush::PVInputType, PVRush::PVInputType::list_inputs> hash_type_sources_t;
+	// hash_type_sources_t _sources;
+	
+#if 0
+	PVRush::PVInputType::list_inputs_desc& inputs(_sources[*(src.get_input_type())]);
+
+	// Add sources' inputs to our `inputs' if they do not exist yet
+	PVRush::PVInputType::list_inputs_desc src_inputs = src.get_inputs();
+	PVRush::PVInputType::list_inputs_desc::const_iterator it;
+	for (it = src_inputs.begin(); it != src_inputs.end(); it++) {
+		if (!inputs.contains(*it)) {
+			inputs.push_back(*it);
+		}
+	}
+#endif
+
+	set_views_id();
+}
+
+void Picviz::PVScene::child_about_to_be_removed(PVSource& src)
+{
+	// Remove underlying views from the AD2G graph
+	for (auto view : src.get_children<PVView>())
+	{
+		_ad2g_view->del_view(view.get());
+	}
+	
+#if 0
+	// Remove this source's inputs if they are no longer used by other sources
+	PVRush::PVInputType::list_inputs>& type_srcs = _sources[*(src->get_input_type())];
+	list_sources_t& list_srcs(type_srcs.first);
+
+	list_sources_t::iterator it;
+	for (it = list_srcs.begin(); it != list_srcs.end(); it++) {
+		if (it->get() == src) {
+			list_srcs.erase(it);
+			set_views_id();
+			return;
+		}
+	}
+#endif
+}
+
+QList<PVRush::PVInputType_p> Picviz::PVScene::get_all_input_types() const
+{
+	QList<PVRush::PVInputType_p> ret;
+	for (PVSource_p const& src: get_children()) {
+		PVRush::PVInputType_p in_type = src->get_input_type();
+		bool found = false;
+		for (PVRush::PVInputType_p const& known_in_t: ret) {
+			if (known_in_t->registered_id() == in_type->registered_id()) {
+				found = true;
+				break;
+			}
+		}
+		if (!found) {
+			ret.push_back(in_type);
+		}
+	}
+	return ret;
+}
+
+void Picviz::PVScene::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v)
 {
 	// Get the list of input types
 	QStringList input_types;
 	so.list_attributes("types", input_types);
 
+	if (input_types.size() == 0) {
+		// No input types, thus no sources, thus nothing !
+		return;
+	}
+
+	// Temporary list of input descriptions
+	PVRush::PVInputType::list_inputs_desc tmp_inputs;
 	for (int i = 0; i < input_types.size(); i++) {
 		// Get the input type lib object
 		QString const& type_name = input_types.at(i);
 		PVRush::PVInputType_p int_lib = LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name(type_name);
 
 		// Get the inputs list object for that input type
-		std::pair<list_sources_t, PVRush::PVInputType::list_inputs>& type_srcs = _sources[*int_lib];
-		PVRush::PVInputType::list_inputs& inputs(type_srcs.second);
+		PVRush::PVInputType::list_inputs_desc inputs_for_type;
 		
 		// Get back the inputs
-		PVCore::PVSerializeObject_p so_inputs = int_lib->serialize_inputs(so, type_name, inputs);
+		PVCore::PVSerializeObject_p so_inputs = int_lib->serialize_inputs(so, type_name, inputs_for_type);
 
 		// Save the serialize object, so that PVSource objects can refere to them for their inputs
 		_so_inputs[*int_lib] = so_inputs;
+
+		tmp_inputs.append(inputs_for_type);
 	}
 
-	// Get the sources
-	PVSource* src = new PVSource();
-	src->set_parent(this);
-	list_sources_t all_sources;
-	so.list("sources", all_sources, QObject::tr("Sources"), src);
-	src->set_parent(NULL);
-	PVLOG_INFO("(PVScene::serialize_read) get %d sources\n", all_sources.size());
-
-	if (!so.has_repairable_errors()) {
-		// And finally add them !
-		list_sources_t::iterator it;
-		for (it = all_sources.begin(); it != all_sources.end(); it++) {
-			add_source(*it);
-		}
-	}
+	data_tree_scene_t::serialize_read(so, v);
 
 	// Correlation, make this optional for compatibility with old project (so that we are still in version 1 :))
 	_ad2g_view.reset(new Picviz::PVAD2GView(this));
@@ -198,46 +188,27 @@ void Picviz::PVScene::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSe
 
 void Picviz::PVScene::serialize_write(PVCore::PVSerializeObject& so)
 {
-	// First serialize the sources.
-	// The tree will be like this:
+	// First serialize the input descriptions.
 	_so_inputs.clear();
-	list_sources_t all_sources;
-	hash_type_sources_t::iterator it_type;
-	QStringList input_types;
-	for (it_type = _sources.begin(); it_type != _sources.end(); it_type++) {
-		std::pair<list_sources_t, PVRush::PVInputType::list_inputs>& type_srcs = it_type->second;
-		PVRush::PVInputType::list_inputs& inputs(type_srcs.second);
-		list_sources_t const& sources(type_srcs.first);
+	QList<PVRush::PVInputType_p> in_types(get_all_input_types());
+	QStringList in_types_str;
+	for (PVRush::PVInputType_p const& in_t: in_types) {
+		list_sources_t sources = get_sources(*in_t);
 
 		// Safety check
-		if (inputs.size() == 0 || sources.size() == 0) {
+		if (sources.size() == 0) {
 			continue;
 		}
 
-		// Get the lib object for the input type
-		QString type_name = it_type->first.registered_name();
-		input_types << type_name;
-		PVRush::PVInputType_p int_lib = LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name(type_name);
-		assert(int_lib);
-
-		PVCore::PVSerializeObject_p so_inputs = int_lib->serialize_inputs(so, int_lib->registered_name(), inputs);
-		_so_inputs[it_type->first] = so_inputs;
-
-		// Add these sources to the global list
-		all_sources.append(sources);
+		PVRush::PVInputType::list_inputs_desc inputs = get_inputs_desc(*in_t);
+		PVCore::PVSerializeObject_p so_inputs = in_t->serialize_inputs(so, in_t->registered_name(), inputs);
+		_so_inputs[*in_t] = so_inputs;
+		in_types_str.push_back(in_t->registered_name());
 	}
 
-	so.list_attributes("types", input_types);
+	so.list_attributes("types", in_types_str);
 
-	// Then serialize the list of sources
-	
-	// Get the sources name
-	QStringList desc;
-	list_sources_t::const_iterator it_src;
-	for (it_src = all_sources.begin(); it_src != all_sources.end(); it_src++) {
-		desc << (*it_src)->get_name() + QString(" / ") + (*it_src)->get_format_name();
-	}
-	so.list(QString("sources"), all_sources, QObject::tr("Sources"), (PVSource*) NULL, desc);
+	data_tree_scene_t::serialize_write(so);
 
 	// Correlation (optional)
 	so.object("correlation", *_ad2g_view, QObject::tr("Correlation graph"), true);
@@ -253,6 +224,11 @@ PVCore::PVSerializeArchiveOptions_p Picviz::PVScene::get_default_serialize_optio
 	PVCore::PVSerializeArchiveOptions_p ar(new PVCore::PVSerializeArchiveOptions(PICVIZ_ARCHIVES_VERSION));
 	ar->get_root()->object("scene", *this, ARCHIVE_SCENE_DESC);
 	return ar;
+}
+
+void Picviz::PVScene::add_source(PVSource_p const& src)
+{
+	add_child(src);
 }
 
 void Picviz::PVScene::save_to_file(QString const& path, PVCore::PVSerializeArchiveOptions_p options, bool save_everything)

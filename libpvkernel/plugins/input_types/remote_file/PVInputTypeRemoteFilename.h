@@ -26,11 +26,11 @@ public:
 	QString name() const;
 	QString human_name() const;
 	QString human_name_serialize() const;
-	QString human_name_of_input(input_type in) const;
+	QString human_name_of_input(PVInputDescription_p in) const;
 	QString menu_input_name() const;
 	QString tab_name_of_inputs(list_inputs const& in) const;
 	QKeySequence menu_shortcut() const;
-	bool get_custom_formats(input_type in, hash_formats &formats) const;
+	bool get_custom_formats(PVInputDescription_p in, hash_formats &formats) const;
 
 protected:
 	mutable QHash<QString, QUrl> _hash_real_filenames;

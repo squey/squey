@@ -31,8 +31,7 @@ class PVMapped;
 /**
  * \class PVMapping
  */
-typedef typename PVCore::PVDataTreeObject<PVSource, PVMapped> data_tree_mapping_t;
-class LibPicvizDecl PVMapping : public data_tree_mapping_t
+class LibPicvizDecl PVMapping
 {
 	friend class PVMapped;
 	friend class PVCore::PVSerializeObject;
@@ -40,7 +39,7 @@ public:
 	typedef boost::shared_ptr<PVMapping> p_type;
 
 public:
-	PVMapping(PVSource* parent);
+	PVMapping(PVMapped* mapped);
 	~PVMapping();
 
 protected:
@@ -49,7 +48,7 @@ protected:
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 
 	// For PVMapped
-	void set_source(PVSource* src);
+	void set_parent(PVSource* src);
 	void set_uptodate_for_col(PVCol j);
 	void invalidate_all();
 	void validate_all();
@@ -60,11 +59,11 @@ public:
 	bool is_uptodate() const;
 
 public:
-	// Parents
-	PVSource* get_source_parent();
-	PVRoot* get_root_parent();
-	const PVSource* get_source_parent() const;
-	const PVRoot* get_root_parent() const;
+	void set_mapped(PVMapped* mapped) { _mapped = mapped; }
+	PVMapped* get_mapped() { return _mapped; }
+
+	void set_source(PVSource* src);
+
 	PVRush::PVFormat_p get_format() const;
 
 public:
@@ -100,10 +99,8 @@ protected:
 	QVector<mandatory_param_map> _mandatory_filters_values;
 	QList<PVMappingProperties> columns;
 
-	PVSource* source;
-	PVRoot* root;
-
 	QString _name;
+	PVMapped* _mapped;
 };
 
 typedef PVMapping::p_type PVMapping_p;

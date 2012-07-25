@@ -16,6 +16,7 @@
 #include <picviz/widgets/PVAD2GListEdgesWidget.h>
 #include <picviz/widgets/PVAD2GWidget.h>
 
+#include <picviz/PVSource.h>
 #include <picviz/PVView.h>
 #include <picviz/PVView_types.h>
 
@@ -180,8 +181,8 @@ PVWidgets::PVAD2GWidget::~PVAD2GWidget()
 void PVWidgets::PVAD2GWidget::add_view_Slot(QObject* mouse_event)
 {
 	QMouseEvent* event = (QMouseEvent*) mouse_event;
-	Picviz::PVView* view = _ad2g->get_scene()->get_all_views()[_table->currentRow()].get();
-	add_view(event->pos(), view);
+	auto view_p = _ad2g->get_scene()->get_children<Picviz::PVView>()[_table->currentRow()];
+	add_view(event->pos(), view_p.get());
 }
 
 
@@ -344,13 +345,13 @@ void PVWidgets::PVAD2GWidget::update_list_views()
 	tlp::StringProperty* label = _graph->getProperty<tlp::StringProperty>("viewLabel");
 	tlp::IntegerProperty* view_id_prop = _graph->getProperty<tlp::IntegerProperty>("view_id");
 
-	Picviz::PVScene::list_views_t all_views = _ad2g->get_scene()->get_all_views();
-	_table->setRowCount(all_views.count());
-	foreach (Picviz::PVView_p view, all_views) {
-		QTableWidgetItem* item = new QTableWidgetItem(view->get_source_parent()->get_name());
-		item->setToolTip(view->get_window_name());
-		item->setData(Qt::UserRole, qVariantFromValue((void*) view.get()));
-		_table->setItem(view->get_view_id(), 0, item);
+	auto all_views = _ad2g->get_scene()->get_children<Picviz::PVView>();
+	_table->setRowCount(all_views.size());
+	for (auto view_p : all_views) {
+		QTableWidgetItem* item = new QTableWidgetItem(view_p->get_parent<Picviz::PVSource>()->get_name());
+		item->setToolTip(view_p->get_window_name());
+		item->setData(Qt::UserRole, qVariantFromValue((void*) view_p.get()));
+		_table->setItem(view_p->get_view_id(), 0, item);
 	}
 
 	// Disable all the view present in the graph from the list of views
