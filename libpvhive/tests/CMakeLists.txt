@@ -71,4 +71,7 @@ QT4_WRAP_CPP(TEST_AXESCOMB_MOC_SRC axes-comb_model.h OPTIONS ${QT4_WRAP_OPTIONS}
 add_executable(Taxes-comb axes-comb.cpp axes-comb_model.cpp ${TEST_AXESCOMB_MOC_SRC})
 target_link_libraries(Taxes-comb ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES} ${PICVIZ_LIBRARIES})
 
+add_executable(Tcall_helper call_helper.cpp)
+target_link_libraries(Tcall_helper ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES} ${PICVIZ_LIBRARIES})
+
 

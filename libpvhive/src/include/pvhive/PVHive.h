@@ -19,6 +19,7 @@
 #include <boost/tuple/tuple.hpp>
 
 #include <pvkernel/core/PVSharedPointer.h>
+#include <pvkernel/core/PVFunctionTraits.h>
 
 #include <pvhive/PVObserver.h>
 #include <pvhive/PVFuncObserver.h>
@@ -60,6 +61,39 @@ namespace __impl
 // declaration of hive_deleter
 template <typename T>
 inline void hive_deleter(T *ptr);
+
+
+// definition of PVCallReturn
+template <typename T, typename F, F f, bool is_void = std::is_void<typename PVCore::PVTypeTraits::function_traits<F>::result_type>::value>
+class PVCallReturn;
+
+// Specialization for functions returning non-void
+template <typename T, typename F, F f>
+class PVCallReturn<T, F, f, false>
+{
+public:
+	typedef typename PVCore::PVTypeTraits::function_traits<F>::result_type result_type;
+
+public:
+	template<typename... P>
+	void call(T* object, P const& ... params) { _result = (object->*f)(params...); }
+	result_type result() const { return _result; }
+	result_type default_value() const { return result_type(); }
+
+private:
+	result_type _result;
+};
+
+// Specialization for functions returning void
+template <typename T, typename F, F f>
+class PVCallReturn<T, F, f, true>
+{
+public:
+	template<typename... P>
+	void call(T* object, P const& ... params) { (object->*f)(params...); }
+	void result() const {}
+	void default_value() const {}
+};
 
 }
 
@@ -404,12 +438,12 @@ protected:
 	 * @param params the method parameters
 	 */
 	template <typename T, typename F, F f, typename... P>
-	void call_object(T* object, P... params)
+	typename PVCore::PVTypeTraits::function_traits<F>::result_type call_object(T* object, P... params)
 	{
 		// object must be a valid address
 		assert(object != nullptr);
 
-		call_object_default<T, F, f>(object, params...);
+		return call_object_default<T, F, f>(object, params...);
 	}
 
 	/**
@@ -444,7 +478,7 @@ protected:
 	 * Tell all observers of function that a change is about to occure
 	 *
 	 * @param object the observed object
-	 * @param params the function parameters
+	 * @param params the f_hiveunction parameters
 	 */
 	template <typename T, typename F, F f, typename... Params>
 	void about_to_refresh_func_observers(T const* object, Params const& ... params)
@@ -523,28 +557,33 @@ private:
 	 * @param params the method parameters
 	 */
 	template <typename T, typename F, F f, typename... P>
-	void call_object_default(T* object, P const& ... params)
+	typename PVCore::PVTypeTraits::function_traits<F>::result_type call_object_default(T* object, P const& ... params)
 	{
-		if (object == nullptr) {
-			return;
+		__impl::PVCallReturn<T, F, f> caller;
+
+		if (object != nullptr) {
+
+			observables_t::accessor acc;
+
+			if (_observables.find(acc, (void*) object)) {
+				acc.release();
+
+				// Pre-call events
+				about_to_refresh_observers(object);
+				about_to_refresh_func_observers<T, F, f>(object, params...);
+
+				// Object call
+				caller.call(object, params...);
+
+				// Post-call events
+				refresh_observers(object);
+				refresh_func_observers<T, F, f>(object, params...);
+
+				return caller.result();
+			}
 		}
 
-		observables_t::accessor acc;
-
-		if (_observables.find(acc, (void*) object)) {
-			acc.release();
-
-			// Pre-call events
-			about_to_refresh_observers(object);
-			about_to_refresh_func_observers<T, F, f>(object, params...);
-
-			// Object call
-			(object->*f)(params...);
-
-			// Post-call events
-			refresh_observers(object);
-			refresh_func_observers<T, F, f>(object, params...);
-		}
+		return caller.default_value();
 	}
 
 	/**
