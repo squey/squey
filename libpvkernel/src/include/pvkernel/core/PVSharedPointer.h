@@ -13,6 +13,7 @@
 #include <cstdint>
 #include <ostream>
 #include <limits>
+#include <cassert>
 
 namespace PVCore
 {

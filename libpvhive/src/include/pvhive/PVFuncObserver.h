@@ -51,8 +51,8 @@ public:
 	}
 
 public:
-	virtual void about_to_be_updated(arguments_type const& args) const {};
-	virtual void update(arguments_type const& args) const {};
+	virtual void about_to_be_updated(arguments_type const& /*args*/) const { };
+	virtual void update(arguments_type const& /*args*/) const { };
 };
 
 

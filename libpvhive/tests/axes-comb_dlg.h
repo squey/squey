@@ -32,7 +32,7 @@ class TestDlg : public QDialog
 	Q_OBJECT
 
 public:
-	typedef PVCore::pv_shared_ptr<Picviz::PVView> PVView_p;
+	typedef PVCore::PVSharedPtr<Picviz::PVView> PVView_p;
 
 public:
 	TestDlg(PVView_p& view_p, QWidget *parent = nullptr) :

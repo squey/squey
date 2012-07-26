@@ -152,6 +152,8 @@ add_subdirectory(helpers)
 add_subdirectory(libpicviz)
 add_subdirectory(libpvsdk)
 
+add_subdirectory(libpvhive)
+
 if(USE_PVGL2)
   add_subdirectory(libpvgl2)
 else(USE_PVGL2)

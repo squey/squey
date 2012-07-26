@@ -26,7 +26,7 @@
 
 #include "axes-comb_dlg.h"
 
-typedef PVCore::pv_shared_ptr<Picviz::PVView> PVView_p;
+typedef PVCore::PVSharedPtr<Picviz::PVView> PVView_p;
 
 Picviz::PVSource_p create_src(const QString &path_file, const QString &path_format)
 {

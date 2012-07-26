@@ -179,7 +179,7 @@ public:
 	 * @param object the new managed object
 	 */
 	template <class T>
-	void register_object(PVCore::pv_shared_ptr<T>& object)
+	void register_object(PVCore::PVSharedPtr<T>& object)
 	{
 		observables_t::accessor acc;
 
@@ -196,7 +196,7 @@ public:
 	 * @attention using a method as prop_get will not compile.
 	 */
 	template <class T, class F>
-	void register_object(PVCore::pv_shared_ptr<T>& object, F const &prop_get)
+	void register_object(PVCore::PVSharedPtr<T>& object, F const &prop_get)
 	{
 		auto &property = prop_get(*object);
 
@@ -218,7 +218,7 @@ public:
 	 * @param actor the actor
 	 */
 	template <class T>
-	void register_actor(PVCore::pv_shared_ptr<T>& object, PVActorBase& actor)
+	void register_actor(PVCore::PVSharedPtr<T>& object, PVActorBase& actor)
 	{
 		// an actor must be set for only one object
 		assert(actor.get_object() == nullptr);
@@ -241,7 +241,7 @@ public:
 	 * @return the actor
 	 */
 	template <class T>
-	PVActor<T>* register_actor(PVCore::pv_shared_ptr<T>& object)
+	PVActor<T>* register_actor(PVCore::PVSharedPtr<T>& object)
 	{
 		PVActor<T>* actor = new PVActor<T>();
 		register_actor(object, *actor);
@@ -256,7 +256,7 @@ public:
 	 * @param observer the observer
 	 */
 	template <class T>
-	void register_observer(PVCore::pv_shared_ptr<T>& object, PVObserverBase& observer)
+	void register_observer(PVCore::PVSharedPtr<T>& object, PVObserverBase& observer)
 	{
 		// an observer must be set for only one object
 		assert(observer.get_object() == nullptr);
@@ -281,7 +281,7 @@ public:
 	 * @param observer the observer
 	 */
 	template <class T, class F, F f>
-	void register_func_observer(PVCore::pv_shared_ptr<T>& object, PVFuncObserver<T, F, f>& observer)
+	void register_func_observer(PVCore::PVSharedPtr<T>& object, PVFuncObserver<T, F, f>& observer)
 	{
 		// an observer must be set for only one object
 		assert(observer.get_object() == nullptr);
@@ -314,7 +314,7 @@ public:
 	 * @attention using a method as prop_get will not compile.
 	 */
 	template <class T, class F>
-	void register_observer(PVCore::pv_shared_ptr<T>& object, F const &prop_get, PVObserverBase& observer)
+	void register_observer(PVCore::PVSharedPtr<T>& object, F const &prop_get, PVObserverBase& observer)
 	{
 		// an observer must be set for only one object
 		assert(observer.get_object() == nullptr);

@@ -19,7 +19,7 @@ class PVCallHelper
 {
 public:
 	template<typename F, F f, typename T, typename... P>
-	static typename PVCore::PVTypeTraits::function_traits<F>::result_type call(PVCore::pv_shared_ptr<T>& object, P const& ... params)
+	static typename PVCore::PVTypeTraits::function_traits<F>::result_type call(PVCore::PVSharedPtr<T>& object, P const& ... params)
 	{
 		PVActor<T> actor;
 		PVHive::get().register_actor(object, actor);

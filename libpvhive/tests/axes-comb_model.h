@@ -104,7 +104,7 @@ class AxesCombinationListModel : public QAbstractListModel
 	friend class axis_append_Observer;
 
 public:
-	typedef PVCore::pv_shared_ptr<Picviz::PVView> PVView_p;
+	typedef PVCore::PVSharedPtr<Picviz::PVView> PVView_p;
 
 	AxesCombinationListModel(PVView_p& view_p, QListView* list, QObject* parent = 0) :
 		QAbstractListModel(parent),

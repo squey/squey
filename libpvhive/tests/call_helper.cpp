@@ -16,7 +16,7 @@ struct Test
 
 int main()
 {
-	typedef PVCore::pv_shared_ptr<Test> Test_p;
+	typedef PVCore::PVSharedPtr<Test> Test_p;
 	Test_p test_p = Test_p(new Test());
 
 	PVHive::PVActor<Test> actor;

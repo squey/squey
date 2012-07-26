@@ -36,6 +36,6 @@ private:
 	ObjectProperty _prop;
 };
 
-typedef PVCore::pv_shared_ptr<MyObject> MyObject_p;
+typedef PVCore::PVSharedPtr<MyObject> MyObject_p;
 
 #endif // TEST_ADRIEN_OBJS_H

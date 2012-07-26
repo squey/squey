@@ -8,7 +8,7 @@
 #
 # Based on the order of the "add_subdirectory" in the root CMakeList.txt
 
-LIBS_ORDER="libpvkernel libpicviz libpvsdk libpvgl gui-qt"
+LIBS_ORDER="libpvkernel libpicviz libpvsdk libpvhive libpvgl gui-qt"
 TESTS_ORDER="libpvkernel libpicviz"
 PLUGINS_ORDER="libpvkernel libpicviz"
 
