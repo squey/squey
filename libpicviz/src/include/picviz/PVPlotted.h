@@ -19,7 +19,6 @@
 #include <pvkernel/rush/PVNraw.h>
 #include <picviz/PVPtrObjects.h>
 #include <picviz/PVMapped.h>
-#include <boost/shared_ptr.hpp>
 #include <picviz/PVView_types.h>
 #include <picviz/PVPlotting.h>
 #include <picviz/PVSelection.h>
@@ -130,8 +129,8 @@ public:
 	void get_sub_col_minmax(plotted_sub_col_t& ret, float& min, float& max, PVSelection const& sel, PVCol col) const;
 	void get_col_minmax(PVRow& min, PVRow& max, PVSelection const& sel, PVCol col) const;
 	inline plotted_table_t const& get_table() const { return _table; }
-	inline PVView_sp get_view() { return _view; }
-	inline const PVView_sp get_view() const { return _view; }
+	inline PVView_p get_view() { return _view; }
+	inline const PVView_p get_view() const { return _view; }
 	void expand_selection_on_axis(PVSelection const& sel, PVCol axis_id, QString const& mode, bool add = true);
 
 	// Plotted dump/load
@@ -151,7 +150,7 @@ private:
 	PVPlotting_p _plotting;
 	plotted_table_t _table; /* Unidimensionnal. It must be contiguous in memory */
 	std::vector<float> _tmp_values;
-	PVView_sp _view;
+	PVView_p _view;
 	list_expanded_selection_t _expanded_sels;
 };
 

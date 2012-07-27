@@ -45,7 +45,7 @@ Picviz::PVSource_p create_src(const QString &path_file, const QString &path_form
                 return Picviz::PVSource_p();
         }
 
-        Picviz::PVSource_p src(new Picviz::PVSource(PVRush::PVInputType::list_inputs() << file, sc_file, format));
+        Picviz::PVSource_p src(PVRush::PVInputType::list_inputs() << file, sc_file, format);
         src->get_extractor().get_agg().set_strict_mode(true);
         PVRush::PVControllerJob_p job = src->extract_from_agg_nlines(0, 200000);
         job->wait_end();
@@ -103,24 +103,14 @@ int main(int argc, char** argv)
 	init_env();
 	QApplication app(argc, argv);
 
-	Picviz::PVRoot_p root(new Picviz::PVRoot());
-	Picviz::PVScene_p scene(new Picviz::PVScene("scene", root.get()));
-	QList<Picviz::PVMapped_p> mappeds;
-	QList<Picviz::PVPlotted_p> plotteds;
-	QList<Picviz::PVView_p> views;
-
 	PVLOG_INFO("loading file  : %s\n", argv[1]);
 	PVLOG_INFO("        format: %s\n", argv[2]);
 
 	Picviz::PVSource_p src = create_src (argv[1], argv[2]);
-	Picviz::PVMapped_p mapped(new Picviz::PVMapped(Picviz::PVMapping(src.get())));
-	Picviz::PVPlotted_p plotted(new Picviz::PVPlotted(Picviz::PVPlotting(mapped.get())));
+	Picviz::PVMapped_p mapped(src);
+	Picviz::PVPlotted_p plotted(mapped);
 
-	mapped->add_plotted(plotted);
-	src->add_mapped(mapped);
-	scene->add_source(src);
-
-	PVView_p view_p = PVView_p(plotted->get_view().get());
+	PVView_p view_p = PVView_p(plotted->get_view());
 
 	boost::thread th(boost::bind(thread, boost::ref(view_p)));
 

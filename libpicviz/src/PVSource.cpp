@@ -124,7 +124,7 @@ void Picviz::PVSource::wait_extract_end(PVRush::PVControllerJob_p job)
 	extract_finished();
 }
 
-void Picviz::PVSource::select_view(PVView_sp view)
+void Picviz::PVSource::select_view(PVView_p view)
 {
 	 assert(get_children<PVView>().contains(view));
 	 _current_view = view;
@@ -234,7 +234,7 @@ void Picviz::PVSource::process_from_source(bool keep_views_info)
 	}
 }
 
-void Picviz::PVSource::add_view(PVView_sp view)
+void Picviz::PVSource::add_view(PVView_p view)
 {
 	auto views_p = get_children<PVView>();
 	if (!_current_view) {

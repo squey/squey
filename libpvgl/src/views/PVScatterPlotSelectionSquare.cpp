@@ -19,7 +19,7 @@
  * PVGL::PVScatterPlotSelectionSquare::init
  *
  *****************************************************************************/
-void PVGL::PVScatterPlotSelectionSquare::init(Picviz::PVView_sp view)
+void PVGL::PVScatterPlotSelectionSquare::init(Picviz::PVView_p view)
 {
 	PVLOG_DEBUG("PVGL::PVScatterPlotSelectionSquare::%s\n", __FUNCTION__);
 

@@ -97,8 +97,8 @@ public:
 	QString get_format_name() const { return _extractor.get_format().get_format_name(); }
 	QString get_window_name() const { return get_name() + QString(" / ") + get_format_name(); }
 
-	PVView_sp current_view() const { return _current_view; }
-	void select_view(PVView_sp view);
+	PVView_p current_view() const { return _current_view; }
+	void select_view(PVView_p view);
 
 	PVRush::PVFormat& get_format() { return _extractor.get_format(); }
 	void set_format(PVRush::PVFormat const& format);
@@ -116,7 +116,7 @@ protected:
 	virtual QString get_children_description() const { return "Mapped(s)"; }
 	virtual QString get_children_serialize_name() const { return "mapped"; }
 
-	void add_view(PVView_sp view);
+	void add_view(PVView_p view);
 	void set_views_id();
 
 protected:
@@ -137,7 +137,7 @@ private:
 
 	PVRush::PVSourceCreator_p _src_plugin;
 	PVRush::PVNraw *nraw;
-	PVView_sp _current_view;
+	PVView_p _current_view;
 	bool _restore_inv_elts;
 	QStringList _inv_elts;
 

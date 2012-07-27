@@ -359,7 +359,7 @@ void PVInspector::PVListingView::set_color_selected(const QColor& c)
 	}
 
 	QVector<PVRow> selected_rows_vector = get_selected_rows();
-	Picviz::PVView_sp view = _parent->get_lib_view();
+	Picviz::PVView_p view = _parent->get_lib_view();
 	Picviz::PVLayer& layer = view->get_current_layer();
 	Picviz::PVLinesProperties& lines_properties = layer.get_lines_properties();
 

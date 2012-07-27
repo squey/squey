@@ -55,6 +55,18 @@ private:
 template <class T>
 class PVActor;
 
+template <typename T>
+struct hive_deleter
+{
+	void operator()(T *ptr)
+	{
+		std::cout << "HIVE DELETER" << std::endl;
+		//PVHive::get().unregister_object((void*) ptr);
+		delete ptr;
+	}
+};
+
+
 namespace __impl
 {
 
@@ -77,7 +89,7 @@ public:
 public:
 	template<typename... P>
 	void call(T* object, P const& ... params) { _result = (object->*f)(params...); }
-	result_type result() const { return _result; }
+	result_type result() const { return std::move(_result); }
 	result_type default_value() const { return result_type(); }
 
 private:

@@ -82,7 +82,7 @@ protected:
 private:
 	PVRush::PVExtractor &_ext;
 	PVMainWindow    *main_window;        //!<
-	Picviz::PVView_sp _view;
+	Picviz::PVView_p _view;
 	PVTabSplitter* _inspector_tab;
 	int _slider_pressed_value;
 	QLineEdit* _sources_number_lines;

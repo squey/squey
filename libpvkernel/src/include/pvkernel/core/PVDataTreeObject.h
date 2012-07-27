@@ -17,9 +17,8 @@
 
 #include <QList>
 
-#include <boost/enable_shared_from_this.hpp>
-#include <boost/shared_ptr.hpp>
-
+#include <pvkernel/core/PVSharedPointer.h>
+#include <pvkernel/core/PVEnableSharedFromThis.h>
 #include <pvkernel/core/PVTypeTraits.h>
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVSerializeArchiveZip.h>
@@ -30,7 +29,7 @@ namespace PVCore
 
 // Helper class
 template <class T>
-class PVDataTreeAutoShared: public boost::shared_ptr<T>
+class PVDataTreeAutoShared: public PVCore::PVSharedPtr<T>
 {
 	typedef typename T::parent_t parent_t;
 	typedef typename T::pparent_t pparent_t;
@@ -38,49 +37,49 @@ class PVDataTreeAutoShared: public boost::shared_ptr<T>
 public:
 	template <typename... Tparams>
 	PVDataTreeAutoShared(Tparams... params):
-		boost::shared_ptr<T>(new T(params...))
+		PVCore::PVSharedPtr<T>(new T(params...))
 	{ }
 
 	PVDataTreeAutoShared(auto_pparent_t const& parent):
-		boost::shared_ptr<T>(new T())
+		PVCore::PVSharedPtr<T>(new T())
 	{
 		this->get()->set_parent(parent);
 	}
 
 	PVDataTreeAutoShared(pparent_t const& parent):
-		boost::shared_ptr<T>(new T())
+		PVCore::PVSharedPtr<T>(new T())
 	{
 		this->get()->set_parent(parent);
 	}
 
 	template <typename... Tparams>
 	PVDataTreeAutoShared(pparent_t const& parent, Tparams... params):
-		boost::shared_ptr<T>(new T(params...))
+		PVCore::PVSharedPtr<T>(new T(params...))
 	{
 		this->get()->set_parent(parent);
 	}
 
 	template <typename... Tparams>
 	PVDataTreeAutoShared(auto_pparent_t const& parent, Tparams... params):
-		boost::shared_ptr<T>(new T(params...))
+		PVCore::PVSharedPtr<T>(new T(params...))
 	{
 		this->get()->set_parent(parent);
 	}
 
 public:
-	PVDataTreeAutoShared(boost::shared_ptr<T> const& o):
-		boost::shared_ptr<T>(o)
+	PVDataTreeAutoShared(PVCore::PVSharedPtr<T> const& o):
+		PVCore::PVSharedPtr<T>(o)
 	{ }
 
 public:
-	static PVDataTreeAutoShared<T> invalid() { return boost::shared_ptr<T>(); }
+	static PVDataTreeAutoShared<T> invalid() { return PVCore::PVSharedPtr<T>(); }
 
 public:
-	// Implicit conversion to boost::shared_ptr<T>
-	inline operator boost::shared_ptr<T>&() { return *this; }
-	inline operator boost::shared_ptr<T> const&() const { return *this; }
-	inline PVDataTreeAutoShared& operator=(PVDataTreeAutoShared<T> const& o) { boost::shared_ptr<T>::operator=(static_cast<boost::shared_ptr<T> const&>(o)); return *this; }
-	inline PVDataTreeAutoShared& operator=(boost::shared_ptr<T> const& o) { boost::shared_ptr<T>::operator=(o); return *this; }
+	// Implicit conversion to PVCore::PVSharedPtr<T>
+	inline operator PVCore::PVSharedPtr<T>&() { return *this; }
+	inline operator PVCore::PVSharedPtr<T> const&() const { return *this; }
+	inline PVDataTreeAutoShared& operator=(PVDataTreeAutoShared<T> const& o) { PVCore::PVSharedPtr<T>::operator=(static_cast<PVCore::PVSharedPtr<T> const&>(o)); return *this; }
+	inline PVDataTreeAutoShared& operator=(PVCore::PVSharedPtr<T> const& o) { PVCore::PVSharedPtr<T>::operator=(o); return *this; }
 };
 
 namespace PVTypeTraits {
@@ -110,7 +109,7 @@ struct dynamic_pointer_cast< PVDataTreeAutoShared<Y>,  PVDataTreeAutoShared<T> >
 {
 	typedef PVDataTreeAutoShared<T> org_pointer;
 	typedef PVDataTreeAutoShared<Y> result_pointer;
-	static result_pointer cast(org_pointer const& p) { return result_pointer(boost::dynamic_pointer_cast<Y>(p)); }
+	static result_pointer cast(org_pointer const& p) { return result_pointer(PVCore::dynamic_pointer_cast<Y>(p)); }
 };
 
 }
@@ -121,9 +120,9 @@ template <typename Treal>
 struct PVDataTreeNoParent
 {
 	typedef PVDataTreeNoParent parent_t;
-	typedef boost::shared_ptr<PVDataTreeNoParent> pparent_t;
+	typedef PVCore::PVSharedPtr<PVDataTreeNoParent> pparent_t;
 	typedef Treal child_t;
-	typedef boost::shared_ptr<child_t> pchild_t;
+	typedef PVCore::PVSharedPtr<child_t> pchild_t;
 	typedef QList<pchild_t> children_t;
 
 	inline PVDataTreeNoParent* get_parent()
@@ -137,10 +136,10 @@ struct PVDataTreeNoParent
 };
 
 template <class T>
-class PVDataTreeAutoShared<PVDataTreeNoParent<T> > : public boost::shared_ptr<PVDataTreeNoParent<T> >
+class PVDataTreeAutoShared<PVDataTreeNoParent<T> > : public PVCore::PVSharedPtr<PVDataTreeNoParent<T> >
 {
 	typedef PVDataTreeNoParent<T> obj_type;
-	typedef boost::shared_ptr<obj_type> p_type;
+	typedef PVCore::PVSharedPtr<obj_type> p_type;
 public:
 	template <typename... Tparams>
 	PVDataTreeAutoShared(Tparams... params):
@@ -153,14 +152,14 @@ public:
 	{ }
 
 public:
-	// Implicit conversion to boost::shared_ptr<T>
+	// Implicit conversion to PVCore::PVSharedPtr<T>
 	operator p_type&() { return *this; }
 	operator p_type const&() const { return *this; }
 
 	template <class Y>
-	operator boost::shared_ptr<Y>&() { return boost::static_pointer_cast<Y>(*this); }
+	operator PVCore::PVSharedPtr<Y>&() { return PVCore::static_pointer_cast<Y>(*this); }
 	template <class Y>
-	operator boost::shared_ptr<Y> const&() const { return boost::static_pointer_cast<Y>(*this); }
+	operator PVCore::PVSharedPtr<Y> const&() const { return PVCore::static_pointer_cast<Y>(*this); }
 
 };
 
@@ -173,7 +172,7 @@ struct PVDataTreeNoChildren
 	typedef PVDataTreeNoChildren child_t;
 	typedef PVDataTreeAutoShared<child_t> pchild_t;
 	typedef QList<pchild_t> children_t;
-	typedef boost::shared_ptr<parent_t> pparent_t;
+	typedef PVCore::PVSharedPtr<parent_t> pparent_t;
 
 	inline PVDataTreeNoChildren* get_children()
 	{
@@ -195,7 +194,7 @@ struct PVDataTreeNoChildren
  * This class is the base class for all objects of the data tree.
  */
 template <typename Tparent, typename Tchild>
-class PVDataTreeObject: public boost::enable_shared_from_this<typename Tparent::child_t >
+class PVDataTreeObject: public PVEnableSharedFromThis<typename Tparent::child_t >
 {
 public:
 	template<typename T1, typename T2> friend class PVDataTreeObject;
@@ -203,7 +202,7 @@ public:
 public:
 	typedef Tparent parent_t;
 	typedef Tchild child_t;
-	typedef boost::shared_ptr<parent_t> pparent_t;
+	typedef PVCore::PVSharedPtr<parent_t> pparent_t;
 	typedef PVDataTreeAutoShared<child_t> pchild_t;
 	typedef QList<pchild_t> children_t;
 	typedef PVDataTreeObject<parent_t, child_t> data_tree_t;
@@ -218,7 +217,7 @@ public:
 	/*! \brief Default constructor
 	 */
 	PVDataTreeObject():
-		boost::enable_shared_from_this<real_type_t>(),
+		PVEnableSharedFromThis<real_type_t>(),
 		_parent(nullptr)
 	{
 	}
@@ -288,7 +287,7 @@ public:
 	 */
 	pchild_t remove_child(child_t const& child)
 	{
-		boost::shared_ptr<child_t> pchild;
+		PVCore::PVSharedPtr<child_t> pchild;
 		for (int i = 0; i < _children.size(); i++) {
 			if (&child == _children[i].get()) {
 				//child_about_to_be_removed(child);
@@ -315,7 +314,7 @@ public:
 
 	virtual void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 	{
-		boost::shared_ptr<real_type_t> me_p(static_cast<real_type_t*>(this)->shared_from_this());
+		PVCore::PVSharedPtr<real_type_t> me_p(static_cast<real_type_t*>(this)->shared_from_this());
 		auto create_func = [&]{ return PVDataTreeAutoShared<child_t>(me_p); };
 		if (!so.list_read(create_func, get_children_serialize_name(), get_children_description(), true, true)) {
 			// No children born in here...
@@ -359,7 +358,7 @@ protected:
 		}
 
 		real_type_t* me = static_cast<real_type_t*>(this);
-		boost::shared_ptr<real_type_t> me_p;
+		PVCore::PVSharedPtr<real_type_t> me_p;
 		bool child_added = false;
 		if (_parent) {
 			me_p = _parent->remove_child(*me);
@@ -371,7 +370,7 @@ protected:
 		parent_t* old_parent = _parent;
 		_parent = parent;
 		if (old_parent == nullptr && parent && !child_added) {
-			me_p = boost::static_pointer_cast<real_type_t>(me->shared_from_this());
+			me_p = PVCore::static_pointer_cast<real_type_t>(me->shared_from_this()); // ??
 			parent->do_add_child(me_p);
 		}
 	}
@@ -471,7 +470,7 @@ private:
 #if 0
 // Specialcase when root item !
 template <typename Troot, typename Tchild>
-class PVDataTreeObject<PVDataTreeNoParent<Troot>, Tchild>: public boost::enable_shared_from_this<Troot>
+class PVDataTreeObject<PVDataTreeNoParent<Troot>, Tchild>: public PVSharedPtr::enable_shared_from_this<Troot>
 {
 public:
 	template<typename T1, typename T2> friend class PVDataTreeObject;
@@ -493,7 +492,7 @@ public:
 	/*! \brief Default constructor
 	 */
 	PVDataTreeObject():
-		boost::enable_shared_from_this<real_type_t>()
+		PVSharedPtr::enable_shared_from_this<real_type_t>()
 	{
 	}
 

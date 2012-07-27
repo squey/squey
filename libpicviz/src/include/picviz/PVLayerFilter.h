@@ -46,7 +46,7 @@ public:
 
 public:
 	void set_output(PVLayer* out);
-	void set_view(PVView_sp view);
+	void set_view(PVView_p view);
 	virtual PVCore::PVArgumentList get_default_args_for_view(PVView const& view);
 	hash_menu_function_t const& get_menu_entries() const;
 
@@ -83,7 +83,7 @@ protected:
 	void add_ctxt_menu_entry(QString menu_name, ctxt_menu_f f);
 
 protected:
-	PVView_sp _view;
+	PVView_p _view;
 
 private:
 	PVLayer *_out_p;

@@ -92,6 +92,10 @@ target_link_libraries(Tcore_datatree ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
 add_executable(Tcore_shared_ptr shared_ptr.cpp)
 target_link_libraries(Tcore_shared_ptr)
 
+# Weak Pointer
+add_executable(Tcore_weak_ptr weak_ptr.cpp)
+target_link_libraries(Tcore_weak_ptr)
+
 # Function traits
 add_executable(Tcore_function_traits function_traits.cpp)
 target_link_libraries(Tcore_function_traits ${PVKERNEL_LIBRARIES})

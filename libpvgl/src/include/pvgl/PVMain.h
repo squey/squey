@@ -129,7 +129,7 @@ struct LibGLDecl PVMain {
 	* @param name
 	* @param pv_view
 	*/
-	static void create_scatter(QString *name, Picviz::PVView_sp pv_view);
+	static void create_scatter(QString *name, Picviz::PVView_p pv_view);
 	
 	/**
 	*
@@ -142,7 +142,7 @@ struct LibGLDecl PVMain {
 	*/
 	static void stop();
 
-	static QList<Picviz::PVView_sp> list_displayed_picviz_views();
+	static QList<Picviz::PVView_p> list_displayed_picviz_views();
 
 	static void update_views_sel(QList<Picviz::PVView*> const& views);
 };

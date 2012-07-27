@@ -31,7 +31,7 @@ class PVListingView : public QTableView
 
 	PVMainWindow    *main_window; //<!
 	PVTabSplitter   *_parent;
-	Picviz::PVView_sp lib_view;    //<!
+	Picviz::PVView_p lib_view;    //<!
 
 public slots:
 	void slotDoubleClickOnVHead(int);

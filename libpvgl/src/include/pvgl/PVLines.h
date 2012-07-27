@@ -38,7 +38,7 @@ class LibGLDecl PVLines {
 		GLuint zombie_program;              //!< The shaders (V,G,F) program used for drawing the zombie lines for this batch.
 		GLuint vbo_pos_alloc_size; // hack
 	};
-	Picviz::PVView_sp picviz_view;          //!< A pointer to the Picviz::PVView related to the lines.
+	Picviz::PVView_p picviz_view;          //!< A pointer to the Picviz::PVView related to the lines.
 	PVView          *view;                 //!<
 	GLuint           vbo_color;            //!<
 	GLuint           vbo_zla;              //!<
@@ -148,7 +148,7 @@ public:
 	 *
 	 * @param pv_view_
 	 */
-	void init(Picviz::PVView_sp pv_view_);
+	void init(Picviz::PVView_p pv_view_);
 
 	/**
 	 *

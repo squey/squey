@@ -102,7 +102,7 @@ void PVGL::PVMap::free_buffers()
  * PVGL::PVMap::init
  *
  *****************************************************************************/
-void PVGL::PVMap::init(Picviz::PVView_sp pv_view_)
+void PVGL::PVMap::init(Picviz::PVView_p pv_view_)
 {
 	free_buffers();
 	std::vector<std::string> attributes;

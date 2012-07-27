@@ -22,7 +22,7 @@ class PVView;
  *
  */
 class LibGLDecl PVEventLine : public PVWidget {
-	Picviz::PVView_sp picviz_view;      //!< A pointer to the Picviz::PVView this eventline should represent.
+	Picviz::PVView_p picviz_view;      //!< A pointer to the Picviz::PVView this eventline should represent.
 	PVGL::PVView    *view;             //!<
 	PVSDK::PVMessenger *pv_message;
 
@@ -51,7 +51,7 @@ public:
 	/**
 	 * @param picviz_view
 	 */
-	void set_view(Picviz::PVView_sp picviz_view);
+	void set_view(Picviz::PVView_p picviz_view);
 
 	/**
 	 * Change the requested size of an event-line widget.

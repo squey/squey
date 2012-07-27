@@ -74,7 +74,7 @@ PVGL::PVAxes::~PVAxes()
  * PVGL::PVAxes::init
  *
  *****************************************************************************/
-void PVGL::PVAxes::init(Picviz::PVView_sp pv_view_)
+void PVGL::PVAxes::init(Picviz::PVView_p pv_view_)
 {
 	PVLOG_DEBUG("PVGL::PVAxes::%s\n", __FUNCTION__);
 

@@ -12,7 +12,7 @@
 namespace Picviz {
 
 class PVView;
-typedef boost::shared_ptr<PVView> PVView_sp;
+typedef PVCore::PVDataTreeAutoShared<PVView> PVView_p;
 
 }
 
