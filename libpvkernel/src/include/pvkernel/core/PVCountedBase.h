@@ -1,6 +1,8 @@
 #ifndef PVCOUNTEDBASE_H_
 #define PVCOUNTEDBASE_H_
 
+#include <boost/checked_delete.hpp>
+
 namespace PVCore
 {
 
@@ -17,7 +19,7 @@ public:
     PVCountedBase(deleter d = nullptr) : _deleter(d)
     {
     	_use_count = 1;
-    	_weak_count = 1;
+    	_weak_count = 0;
     }
 
     virtual ~PVCountedBase()
@@ -35,7 +37,7 @@ public:
 			(_deleter)(p);
 		}
 		else {
-			delete p;
+			boost::checked_delete(p);
 		}
     }
 
@@ -90,7 +92,7 @@ public:
 
 private:
 	PVCountedBase<T>(PVCountedBase<T> const & );
-	PVCountedBase<T> & operator= (PVCountedBase<T> const & );
+	PVCountedBase<T> & operator= (PVCountedBase<T> const &);
 
 	mutable tbb::atomic<long> _use_count;
 	mutable tbb::atomic<long> _weak_count;

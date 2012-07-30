@@ -18,6 +18,7 @@
 #include <picviz/PVSource.h>
 #include <picviz/PVMapped.h>
 #include <picviz/PVPlotted.h>
+#include <pvkernel/core/PVDataTreeObject.h>
 #include <pvkernel/core/PVSharedPointer.h>
 
 #include <QApplication>
@@ -110,7 +111,7 @@ int main(int argc, char** argv)
 	Picviz::PVMapped_p mapped(src);
 	Picviz::PVPlotted_p plotted(mapped);
 
-	PVView_p view_p = PVView_p(plotted->get_view());
+	PVCore::PVDataTreeAutoShared<Picviz::PVView> view_p = plotted->get_view();
 
 	boost::thread th(boost::bind(thread, boost::ref(view_p)));
 

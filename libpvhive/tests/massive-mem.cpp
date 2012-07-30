@@ -57,7 +57,7 @@ private:
 	int _i;
 };
 
-typedef PVCore::PVSharedptr<Block2> Block2_p;
+typedef PVCore::PVSharedPtr<Block2> Block2_p;
 
 /*****************************************************************************
  * main

@@ -39,7 +39,7 @@ public:
 	virtual int get_id() const = 0;
 };
 
-typedef PVCore::PVSharedptr<Storage> Storage_p;
+typedef PVCore::PVSharedPtr<Storage> Storage_p;
 
 class Entity;
 

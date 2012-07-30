@@ -229,7 +229,7 @@ namespace PVSDK {
 struct LibSDKDecl PVMessage
 {
 	PVSDKMessengerFunction  function;  //!< The type of the message (always a function) see #PVMessengerFunction.
-	Picviz::PVView_p pv_view;   //!< A pointer to the Picviz::PVView the message is about.
+	Picviz::PVView_sp pv_view;   //!< A pointer to the Picviz::PVView the message is about.
 
 	int    int_1;               //!< First integer parameter for the message, if needed.
 	int    int_2;               //!< Second integer parameter for the message, if needed.

@@ -79,7 +79,7 @@ private:
 	int       _value;
 };
 
-typedef PVCore::PVSharedptr<Block> Block_p;
+typedef PVCore::PVSharedPtr<Block> Block_p;
 
 
 /*****************************************************************************

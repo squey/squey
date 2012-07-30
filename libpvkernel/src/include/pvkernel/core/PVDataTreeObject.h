@@ -80,6 +80,7 @@ public:
 	inline operator PVCore::PVSharedPtr<T> const&() const { return *this; }
 	inline PVDataTreeAutoShared& operator=(PVDataTreeAutoShared<T> const& o) { PVCore::PVSharedPtr<T>::operator=(static_cast<PVCore::PVSharedPtr<T> const&>(o)); return *this; }
 	inline PVDataTreeAutoShared& operator=(PVCore::PVSharedPtr<T> const& o) { PVCore::PVSharedPtr<T>::operator=(o); return *this; }
+	inline PVDataTreeAutoShared& operator=(boost::shared_ptr<T> const& o) { boost::shared_ptr<T>::operator=(o); return *this; }
 };
 
 namespace PVTypeTraits {

@@ -315,7 +315,7 @@ void PVGL::PVLines::create_batches()
  * PVGL::PVLines::init
  *
  *****************************************************************************/
-void PVGL::PVLines::init(Picviz::PVView_p pv_view_)
+void PVGL::PVLines::init(Picviz::PVView_sp pv_view_)
 {
 	free_buffers();
 	

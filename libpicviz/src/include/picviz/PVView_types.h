@@ -7,12 +7,13 @@
 #ifndef PICVIZ_PVVIEW_TYPES_H
 #define PICVIZ_PVVIEW_TYPES_H
 
-#include <pvkernel/core/PVDataTreeObject.h>
+#include <pvkernel/core/PVSharedPointer.h>
 
 namespace Picviz {
 
 class PVView;
-typedef PVCore::PVDataTreeAutoShared<PVView> PVView_p;
+typedef PVCore::PVSharedPtr<PVView> PVView_sp;
+
 
 }
 

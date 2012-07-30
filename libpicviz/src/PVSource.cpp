@@ -124,9 +124,9 @@ void Picviz::PVSource::wait_extract_end(PVRush::PVControllerJob_p job)
 	extract_finished();
 }
 
-void Picviz::PVSource::select_view(PVView_p view)
+void Picviz::PVSource::select_view(PVView_sp view)
 {
-	 assert(get_children<PVView>().contains(view));
+	 // assert(get_children<PVView>().contains(view)); FIXME: FIX THIS!!
 	 _current_view = view;
 }
 
@@ -234,9 +234,10 @@ void Picviz::PVSource::process_from_source(bool keep_views_info)
 	}
 }
 
-void Picviz::PVSource::add_view(PVView_p view)
+void Picviz::PVSource::add_view(PVView_sp view)
 {
-	auto views_p = get_children<PVView>();
+	// FIXME: FIX THIS!!
+	/*auto views_p = get_children<PVView>();
 	if (!_current_view) {
 		_current_view = view;
 	}
@@ -245,7 +246,7 @@ void Picviz::PVSource::add_view(PVView_p view)
 		if (scene) {
 			view->set_view_id(scene->get_new_view_id());
 		}
-	}
+	}*/
 }
 
 void Picviz::PVSource::add_column(PVAxis const& axis)

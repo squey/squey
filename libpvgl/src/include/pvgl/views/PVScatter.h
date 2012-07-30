@@ -68,7 +68,7 @@ public:
 	/**
 	 *
 	 */
-	void init(Picviz::PVView_p view);
+	void init(Picviz::PVView_sp view);
 
 	//! \name drawing
 	//! \{

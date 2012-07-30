@@ -29,7 +29,7 @@ class PVLines;
  *
  */
 class LibGLDecl PVMap {
-	Picviz::PVView_p  picviz_view;    //!< The Picviz::PVView this PVMap is attached to
+	Picviz::PVView_sp  picviz_view;    //!< The Picviz::PVView this PVMap is attached to
 	PVView           *view;           //!< The PVView this PVMap is representing
 	PVWidgetManager  *widget_manager; //!< The PVWidgetManager that manages this PVMap
 	PVLines          *lines;          //!< The PVLines represented in this PVMap
@@ -119,7 +119,7 @@ public:
 	 *
 	 * @param picviz_view
 	 */
-	void init(Picviz::PVView_p picviz_view);
+	void init(Picviz::PVView_sp picviz_view);
 
 	/**
 	 *

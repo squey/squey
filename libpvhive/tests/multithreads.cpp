@@ -22,7 +22,7 @@ struct Obj1
 	}
 };
 
-typedef PVCore::PVSharedptr<Obj1> Obj1_p;
+typedef PVCore::PVSharedPtr<Obj1> Obj1_p;
 
 class Obj1Observer : public PVHive::PVObserver<Obj1>
 {

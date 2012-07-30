@@ -154,7 +154,7 @@ private:
 	std::thread            _thread;
 };
 
-typedef PVCore::PVSharedptr<Obj> Obj_p;
+typedef PVCore::PVSharedPtr<Obj> Obj_p;
 
 
 /*****************************************************************************

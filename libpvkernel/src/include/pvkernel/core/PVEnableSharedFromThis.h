@@ -54,11 +54,11 @@ public:
 public: // actually private, but avoids compiler template friendship issues
 
     // Note: invoked automatically by shared_ptr; do not call
-    template<class X, class Y> void _internal_accept_owner(PVSharedPtr<X> const* ppx, Y* py) const
+    template<class X, class Y> void _internal_accept_owner(PVSharedPtr<X> const* p) const
     {
         if(_weak_this.expired())
         {
-        	_weak_this = PVSharedPtr<T>(*ppx, py);
+        	_weak_this = PVSharedPtr<T>(*p);
         }
     }
 

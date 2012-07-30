@@ -107,7 +107,7 @@ PVGL::PVView::~PVView()
  * PVGL::PVView::init
  *
  *****************************************************************************/
-void PVGL::PVView::init(Picviz::PVView_p view)
+void PVGL::PVView::init(Picviz::PVView_sp view)
 {
 	PVLOG_DEBUG("PVGL::PVView::%s\n", __FUNCTION__);
 

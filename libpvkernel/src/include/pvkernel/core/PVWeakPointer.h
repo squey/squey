@@ -7,6 +7,7 @@
 #ifndef PVWEAKPOINTER_H_
 #define PVWEAKPOINTER_H_
 
+#include <pvkernel/core/PVSharedPointer.h>
 #include <pvkernel/core/PVCountedBase.h>
 
 namespace PVCore
@@ -15,11 +16,11 @@ namespace PVCore
 template <typename T>
 class PVSharedPtr;
 
-template <typename T>
-class PVSharedCounter;
-
 namespace __impl
 {
+
+template <typename T>
+class PVSharedCounter;
 
 template <typename T>
 class PVWeakCounter
@@ -38,12 +39,19 @@ public:
     {
     }
 
-    PVWeakCounter(PVWeakCounter<T> const & r) : _px(r.px), _counted_base(r._counted_base)
+    PVWeakCounter(PVWeakCounter<T> const & r) : _px(r._px), _counted_base(r._counted_base)
     {
         if(_counted_base != nullptr) {
         	_counted_base->weak_add_ref();
         }
     }
+
+    PVWeakCounter(PVSharedCounter<T>& r) : _px(r._px), _counted_base(r._counted_base)
+	{
+		if(_counted_base != nullptr) {
+			_counted_base->weak_add_ref();
+		}
+	}
 
     ~PVWeakCounter()
     {
@@ -139,12 +147,11 @@ public:
 	{
 	}
 
-	PVWeakPtr(PVWeakPtr const & r): _weak_count(r._weak_count)
+	PVWeakPtr(PVWeakPtr<T> & r): _weak_count(r._weak_count)
 	{
 	}
 
-	template<class Y>
-	PVWeakPtr(PVWeakPtr<Y> const & r) : _weak_count(r._weak_count)
+	PVWeakPtr(PVSharedPtr<T> & r): _weak_count(r._shared_count)
 	{
 	}
 
@@ -163,7 +170,7 @@ public:
 
     PVSharedPtr<T> lock() const
 	{
-		return PVSharedPtr<type>(*this);
+		return PVSharedPtr<T>(*this);
 	}
 
 	long use_count() const

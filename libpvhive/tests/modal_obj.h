@@ -33,7 +33,7 @@ private:
 	int _i;
 };
 
-typedef PVCore::PVSharedptr<Entity> Entity_p;
+typedef PVCore::PVSharedPtr<Entity> Entity_p;
 
 extern Entity_p *shared_e;
 

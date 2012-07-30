@@ -50,7 +50,7 @@ private:
 	MyObjectProperty _prop;
 };
 
-typedef PVCore::PVSharedptr<MyObject> MyObject_p;
+typedef PVCore::PVSharedPtr<MyObject> MyObject_p;
 
 class MyObjectObserver : public PVHive::PVObserver<MyObjectProperty>
 {
