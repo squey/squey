@@ -1,3 +1,11 @@
+2.6.1 (31/07/2012)
+------------------
+
+This minor release fixes:
+ * invalid characters displayed with empty fields given by the URL splitter
+ * various bug in the format builder (espacially within the regular expression helper)
+
+
 2.6.0 "Carlsberg" (24/07/2012)
 ------------------------------
 
