@@ -37,6 +37,7 @@ int main()
 	std::cout << "  p_p1 = new pouet..." << std::endl;
 	pouet_p p_p1(new pouet);
 
+	std::cout << "p_p1.use_count()" << p_p1.use_count() << std::endl;
 	assert(p_p1.use_count() == 1);
 	std::cout << "    p_p1.use_count() -> " << p_p1.use_count() << std::endl;
 

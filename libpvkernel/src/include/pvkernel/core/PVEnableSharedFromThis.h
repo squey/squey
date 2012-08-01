@@ -16,7 +16,9 @@ namespace PVCore
 template<class T>
 class PVEnableSharedFromThis
 {
-protected:
+	//template<typename X> friend class PVSharedPtr<X>::EnableSharedFromThis;
+
+public:
 
 	PVEnableSharedFromThis()
     {
@@ -54,17 +56,18 @@ public:
 public: // actually private, but avoids compiler template friendship issues
 
     // Note: invoked automatically by shared_ptr; do not call
-    template<class X, class Y> void _internal_accept_owner(PVSharedPtr<X> const* p) const
+    template<typename X, typename Y>
+    void _internal_accept_owner(PVSharedPtr<X>* sp, Y* p)
     {
         if(_weak_this.expired())
         {
-        	_weak_this = PVSharedPtr<T>(*p);
+        	_weak_this = PVSharedPtr<X>(*sp, p);
         }
     }
 
 private:
 
-    mutable PVWeakPtr<T> _weak_this;
+    PVWeakPtr<T> _weak_this;
 };
 
 }

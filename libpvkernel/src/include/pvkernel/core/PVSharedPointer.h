@@ -14,6 +14,7 @@
 #include <ostream>
 #include <limits>
 #include <cassert>
+#include <type_traits>
 
 #include <pvkernel/core/PVCountedBase.h>
 #include <pvkernel/core/PVEnableSharedFromThis.h>
@@ -123,7 +124,7 @@ template <typename T>
 class PVSharedPtr
 {
 public:
-	friend class PVWeakPtr<T>;
+	template<typename X> friend class PVWeakPtr;
 
 public:
 	typedef T                          type;
@@ -136,7 +137,7 @@ public:
 	{
 	}
 
-	explicit PVSharedPtr(pointer p) : _shared_count(p, nullptr)
+	PVSharedPtr(pointer p) : _shared_count(p, nullptr)
 	{
 		enable_shared_from_this(this, p);
 	}
@@ -146,16 +147,25 @@ public:
 		enable_shared_from_this(this, p);
 	}
 
-	PVSharedPtr(const PVSharedPtr<type> &r) : _shared_count(r._shared_count)
+	PVSharedPtr(const PVSharedPtr<T> &r) : _shared_count(r._shared_count)
 	{
 	}
 
-	PVSharedPtr(PVWeakPtr<T> const & r) // Create PVSharedPtr from PVWeakPtr
+	 // Create PVSharedPtr from PVWeakPtr
+	PVSharedPtr(PVWeakPtr<T> const & r) : _shared_count(r._weak_count)
 	{
-		if(!_shared_count.empty()) {
-			_shared_count = r._weak_count;
-			_shared_count.add_ref_copy();
-		}
+	}
+
+	template <typename Y>
+	explicit PVSharedPtr(PVSharedPtr<Y> const & r) : _shared_count(r._shared_count)
+	{
+	}
+
+	// for PVEnableSharedFromThis::_internal_accept_owner
+	template <typename Y, typename Z>
+	PVSharedPtr(PVSharedPtr<Y> const & r, Z* p): _shared_count(r._shared_count)
+	{
+		_shared_count.set((Y*)p);
 	}
 
 	template <class Y>
@@ -197,7 +207,6 @@ public:
 		PVSharedPtr<T>(p, d).swap(*this);
 	}
 
-
 	PVSharedPtr<T>& operator=(const PVSharedPtr<T> &rhs)
 	{
 		PVSharedPtr<T>(rhs).swap(*this);
@@ -224,19 +233,19 @@ public:
 
 	long use_count() const { return _shared_count.use_count(); }
 
-	inline void swap(PVSharedPtr<T>& other) { assert(*this != other); std::swap(_shared_count, other._shared_count); }
+	inline void swap(PVSharedPtr<T>& other) { assert(this != &other); std::swap(_shared_count, other._shared_count); }
 
 private:
-	template<class X, class Y, class Z>
-	inline void enable_shared_from_this(PVSharedPtr<X> const* ppx, Y const* py, PVEnableSharedFromThis<Z> const* pe)
+	template<class X, class Y>
+	inline void enable_shared_from_this(PVSharedPtr<X>* sp, PVCore::PVEnableSharedFromThis<Y>* const p)
 	{
-		if(pe != nullptr)
+		if(p != nullptr)
 		{
-			pe->_internal_accept_owner(ppx, const_cast<Y*>(py));
+			p->_internal_accept_owner(sp, (Y*)p);
 		}
 	}
 
-	inline void enable_shared_from_this( ... )
+	inline void enable_shared_from_this(...)
 	{
 	}
 

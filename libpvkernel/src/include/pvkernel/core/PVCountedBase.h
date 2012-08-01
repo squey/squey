@@ -19,7 +19,7 @@ public:
     PVCountedBase(deleter d = nullptr) : _deleter(d)
     {
     	_use_count = 1;
-    	_weak_count = 0;
+    	_weak_count = 1;
     }
 
     virtual ~PVCountedBase()
@@ -37,7 +37,8 @@ public:
 			(_deleter)(p);
 		}
 		else {
-			boost::checked_delete(p);
+			delete p;
+			//boost::checked_delete(p);
 		}
     }
 

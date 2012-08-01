@@ -60,9 +60,10 @@ public:
         }
     }
 
-    PVWeakCounter<T>& operator=(PVWeakCounter<T> const& r)
+    template <typename Y>
+    PVWeakCounter<T>& operator=(PVWeakCounter<Y> const& r)
     {
-    	PVCountedBase<T>* tmp = r._counted_base;
+    	PVCountedBase<Y>* tmp = r._counted_base;
 
         if(tmp != _counted_base)
         {
@@ -79,11 +80,12 @@ public:
         return *this;
     }
 
-    PVWeakCounter<T>& operator=(PVSharedCounter<T> const& r)
+    template <typename Y>
+    PVWeakCounter<T>& operator=(PVSharedCounter<Y> const& r)
 	{
-    	PVCountedBase<T>* tmp = r._counted_base;
+    	PVCountedBase<Y>* tmp = r._counted_base;
 
-		if(tmp != _counted_base)
+		if(tmp != (PVCountedBase<Y>*) _counted_base)
 		{
 			if(tmp != nullptr) {
 				tmp->weak_add_ref();
@@ -91,7 +93,7 @@ public:
 			if(_counted_base != nullptr) {
 				_counted_base->weak_release();
 			}
-			_counted_base = tmp;
+			_counted_base = (PVCountedBase<T>*) tmp;
 			_px = r._px;
 		}
 
@@ -123,7 +125,7 @@ public:
         return a._counted_base == b._counted_base;
     }
 
-private:
+public://private:
     pointer _px;
 	PVCountedBase<T>* _counted_base;
 };
@@ -135,7 +137,7 @@ template <typename T>
 class PVWeakPtr
 {
 public:
-	friend class PVSharedPtr<T>;
+	template<typename X> friend class PVSharedPtr;
 
 public:
 	typedef T type;
@@ -155,16 +157,17 @@ public:
 	{
 	}
 
-	PVWeakPtr& operator=(PVWeakPtr const & r)
+	template <typename Y>
+	PVWeakPtr& operator=(PVWeakPtr<Y> const & r)
 	{
 		_weak_count = r._weak_count;
 		return *this;
 	}
 
-	template<class Y>
-	PVWeakPtr & operator=(PVWeakPtr<Y> const & r)
+	template <typename Y>
+	PVWeakPtr& operator=(PVSharedPtr<Y> const & r)
 	{
-		_weak_count = r._weak_count;
+		_weak_count = r._shared_count;
 		return *this;
 	}
 
@@ -193,7 +196,7 @@ public:
 		_weak_count.swap(other._weak_count);
 	}
 
-private:
+public://private:
 	weak_counter_t _weak_count;
 };
 
