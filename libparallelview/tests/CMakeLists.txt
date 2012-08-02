@@ -25,6 +25,10 @@ target_link_libraries(full_parallel_view ${LINK_LIBRARIES})
 add_executable(zoomed_parallel_view zoomed_parallel_view.cpp)
 target_link_libraries(zoomed_parallel_view ${LINK_LIBRARIES})
 
+QT4_WRAP_CPP(TEST_ZPS_MOC_SRC zoomed_parallel_scene.h OPTIONS ${QT4_WRAP_OPTIONS})
+add_executable(zoomed_parallel_scene zoomed_parallel_scene.cpp ${TEST_ZPS_MOC_SRC})
+target_link_libraries(zoomed_parallel_scene ${LINK_LIBRARIES})
+
 add_executable(zoomed_zone_tree_render zoomed_zone_tree_render.cpp)
 target_link_libraries(zoomed_zone_tree_render ${LINK_LIBRARIES})
 
