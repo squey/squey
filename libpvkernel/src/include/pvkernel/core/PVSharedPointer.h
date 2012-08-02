@@ -35,6 +35,7 @@ template <typename T>
 class PVSharedCounter
 {
 	template<typename X> friend class PVWeakCounter;
+	template<typename X> friend class PVSharedCounter;
 
 public:
 	typedef T        type;
@@ -44,16 +45,22 @@ public:
 	PVSharedCounter(pointer p = nullptr) : _px(p)
 	{
 		_counted_base = new PVCountedBase<T>();
-		_counted_base->set_deleter();
 	}
 
 	PVSharedCounter(pointer p, deleter d) : _px(p)
 	{
 		_counted_base = new PVCountedBase<T>(d);
-		_counted_base->set_deleter(d);
 	}
 
 	PVSharedCounter(PVSharedCounter<T> const & r) : _px(r._px), _counted_base(r._counted_base)
+	{
+		if(_counted_base != nullptr ) {
+			_counted_base->add_ref_copy();
+		}
+	}
+
+	template <typename Y>
+	PVSharedCounter(PVSharedCounter<Y> const & r) : _px(r._px), _counted_base((PVCore::PVCountedBase<T>*) r._counted_base)
 	{
 		if(_counted_base != nullptr ) {
 			_counted_base->add_ref_copy();
@@ -125,6 +132,7 @@ class PVSharedPtr
 {
 public:
 	template<typename X> friend class PVWeakPtr;
+	template<typename X> friend class PVSharedPtr;
 
 public:
 	typedef T                          type;
@@ -142,6 +150,18 @@ public:
 		enable_shared_from_this(this, p);
 	}
 
+	template<class Y>
+	explicit PVSharedPtr(Y* p) : _shared_count(p, nullptr)
+	{
+		enable_shared_from_this(this, p);
+	}
+
+	/*template<class Y>
+	explicit PVSharedPtr(Y* p,  d) : _shared_count(p, d)
+	{
+		enable_shared_from_this(this, p);
+	}*/
+
 	PVSharedPtr(pointer p, deleter d) : _shared_count(p, d)
 	{
 		enable_shared_from_this(this, p);
@@ -157,8 +177,10 @@ public:
 	}
 
 	template <typename Y>
-	explicit PVSharedPtr(PVSharedPtr<Y> const & r) : _shared_count(r._shared_count)
+	explicit PVSharedPtr(PVSharedPtr<Y> const & r)
 	{
+		static_assert(std::is_convertible<Y, T>::value, "type Y is not derived from type T");
+		_shared_count = r._shared_count;
 	}
 
 	// for PVEnableSharedFromThis::_internal_accept_owner
@@ -197,13 +219,13 @@ public:
 
 	template<class Y> void reset(Y* p)
 	{
-		assert(p == nullptr);
+		assert(_shared_count.get() == nullptr || _shared_count.get() != p); // catch self-reset errors
 		PVSharedPtr<T>(p).swap(*this);
 	}
 
 	template<class Y, class D> void reset(Y * p, D d)
 	{
-		assert(p == nullptr);
+		assert(_shared_count.get() == nullptr || _shared_count.get() != p); // catch self-reset errors
 		PVSharedPtr<T>(p, d).swap(*this);
 	}
 

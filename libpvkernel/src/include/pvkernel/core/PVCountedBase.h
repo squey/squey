@@ -2,6 +2,7 @@
 #define PVCOUNTEDBASE_H_
 
 #include <boost/checked_delete.hpp>
+#include <typeinfo>
 
 namespace PVCore
 {
@@ -12,7 +13,7 @@ class PVCountedBase
 public:
 	typedef T type;
 	typedef T*  pointer;
-	typedef  void(*deleter)(pointer);
+	typedef void(*deleter)(pointer);
 
 public:
 
@@ -22,23 +23,22 @@ public:
     	_weak_count = 1;
     }
 
-    virtual ~PVCountedBase()
+    ~PVCountedBase()
     {
     }
 
-    virtual void destroy()
+    void destroy()
     {
         delete this;
     }
 
-    virtual void dispose(pointer p)
+    void dispose(pointer p)
     {
     	if (_deleter != nullptr) {
 			(_deleter)(p);
 		}
 		else {
-			delete p;
-			//boost::checked_delete(p);
+			boost::checked_delete(p);
 		}
     }
 
