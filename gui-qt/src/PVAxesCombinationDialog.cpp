@@ -1,3 +1,9 @@
+/**
+ * \file PVAxesCombinationDialog.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <PVAxesCombinationDialog.h>
 #include <PVAxesCombinationWidget.h>
 #include <PVMainWindow.h>

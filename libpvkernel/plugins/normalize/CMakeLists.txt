@@ -1,4 +1,9 @@
 #
+# \file CMakeLists.txt
+#
+# Copyright (C) Picviz Labs 2010-2012
+
+#
 # Input type plugins 
 #
 include_directories(AFTER ${PCAP_INCLUDE_DIRS})

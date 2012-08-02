@@ -1,3 +1,9 @@
+/**
+ * \file PVTextEditEditor.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVCORE_PVTEXTEDITEDITOR_H
 #define PVCORE_PVTEXTEDITEDITOR_H
 

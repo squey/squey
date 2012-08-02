@@ -1,3 +1,9 @@
+/**
+ * \file bench_mapping-time.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <picviz/PVMappingFilter.h>
 #include <picviz/PVRoot.h>
 #include <pvkernel/rush/PVFormat.h>

@@ -1,3 +1,9 @@
+/**
+ * \file quadtree-tmpl.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef QUADTREE_TMPL_H
 #define QUADTREE_TMPL_H
 

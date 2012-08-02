@@ -1,8 +1,7 @@
-/*
- * $Id$
- * Copyright (C) Sebastien Tricaud 2010-2011
- * Copyright (C) Philippe Saade 2010-2011
- * 
+/**
+ * \file general.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
  */
 
 #ifndef PVBASE_GENERAL_H

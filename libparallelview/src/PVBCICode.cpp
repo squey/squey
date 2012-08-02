@@ -1,3 +1,9 @@
+/**
+ * \file PVBCICode.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVBCICode.h>
 #include <pvparallelview/PVHSVColor.h>
@@ -23,7 +29,7 @@ void PVParallelView::PVBCICode::init_random_codes(PVBCICode* codes, size_t n)
 		//c.s.idx = rand();
 		c.s.idx = n-i;
 		//c.s.l = ((i/1024)*4)%1024;
-		//c.s.r = i&(MASK_INT_YCOORD);
+		//c.s.l = i&(MASK_INT_YCOORD);
 		//c.s.l = rand()&(MASK_INT_YCOORD);
 		//c.s.r = rand()&(MASK_INT_YCOORD);
 		//c.s.r = (c.s.l+10)&MASK_INT_YCOORD;

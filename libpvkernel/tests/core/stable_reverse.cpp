@@ -1,3 +1,9 @@
+/**
+ * \file stable_reverse.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/core/PVAlgorithms.h>
 #include <iostream>
 #include <utility>

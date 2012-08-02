@@ -1,3 +1,9 @@
+/**
+ * \file input_hadoop.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/rush/PVPluginsLoad.h>
 #include <pvkernel/filter/PVPluginsLoad.h>
 #include <pvkernel/core/PVClassLibrary.h>

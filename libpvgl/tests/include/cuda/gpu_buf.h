@@ -1,3 +1,9 @@
+/**
+ * \file gpu_buf.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef CUDA_GPUBUF_H
 #define CUDA_GPUBUF_H
 

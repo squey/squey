@@ -1,3 +1,8 @@
+#
+# \file CMakeOptions.txt
+#
+# Copyright (C) Picviz Labs 2010-2012
+
 if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/cmake-options/use_pvgl2)
   set(USE_PVGL2 true)
   message(STATUS "Use PVGL version: 2")

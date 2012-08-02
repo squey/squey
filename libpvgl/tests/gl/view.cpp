@@ -1,3 +1,9 @@
+/**
+ * \file view.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <gl/view.h>
 #include <iostream>
 #include <tbb/tick_count.h>

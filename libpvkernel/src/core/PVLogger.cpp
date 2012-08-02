@@ -1,7 +1,7 @@
-/*
- * $Id: PVLogger.cpp 3238 2011-07-05 03:52:17Z aguinet $
- * Copyright (C) Sebastien Tricaud 2010-2011
- * Copyright (C) Philippe Saade 2010-2011
+/**
+ * \file PVLogger.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
  */
 
 #include <QDateTime>

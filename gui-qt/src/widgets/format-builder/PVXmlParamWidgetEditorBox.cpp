@@ -1,11 +1,10 @@
-///! \file PVXmlParamWidgetEditorBox.cpp
-//! $Id$
-//! Copyright (C) Sébastien Tricaud 2011-2011
-//! Copyright (C) Philippe Saadé 2011-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVXmlParamWidgetEditorBox.cpp
+ *
+ * Copyright (C) Picviz Labs 2011-2012
+ */
+
 #include <PVXmlParamWidgetEditorBox.h>
-
-
 
 /******************************************************************************
  *

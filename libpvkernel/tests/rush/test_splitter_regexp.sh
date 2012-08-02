@@ -1,4 +1,9 @@
 #!/bin/bash
+
+# \file test_splitter_regexp.sh
+#
+# Copyright (C) Picviz Labs 2010-2012
+
 #
 
 DIR="test-files/splitters/regexp"

@@ -1,3 +1,9 @@
+/**
+ * \file archive_detect.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include "../plugins/input_types/file/extract.h"
 #include <iostream>
 

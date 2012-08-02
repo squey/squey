@@ -1,3 +1,8 @@
+#
+# \file CMakePackageDistribute.txt
+#
+# Copyright (C) Picviz Labs 2010-2012
+
 install(FILES "pvconfig.ini" DESTINATION .)
 install(FILES "gui-qt/src/resources/icon.png" DESTINATION .)
 install(FILES "gui-qt/src/resources/picviz-inspector.ico" DESTINATION .)

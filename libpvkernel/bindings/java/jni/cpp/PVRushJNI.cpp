@@ -1,3 +1,9 @@
+/**
+ * \file PVRushJNI.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 // AG: WARNING:
 // Before dealing with JNI and object references (and a headacke), please consider
 // reading http://java.sun.com/docs/books/jni/html/refs.html.

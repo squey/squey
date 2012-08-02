@@ -1,3 +1,9 @@
+/**
+ * \file addmachinedialog.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include "include/addmachinedialog.h"
 
 #include <QFormLayout>

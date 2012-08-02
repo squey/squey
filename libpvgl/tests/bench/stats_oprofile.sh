@@ -1,4 +1,9 @@
 #!/bin/bash
+
+# \file stats_oprofile.sh
+#
+# Copyright (C) Picviz Labs 2010-2012
+
 sudo opcontrol --deinit 2>&1 1>/dev/null
 sudo opcontrol --init 2>&1 1>/dev/null
 sudo opcontrol --start 2>&1 1>/dev/null

@@ -1,3 +1,9 @@
+/**
+ * \file PVInputHDFS.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVINPUTHDFS_FILE_H
 #define PVINPUTHDFS_FILE_H
 

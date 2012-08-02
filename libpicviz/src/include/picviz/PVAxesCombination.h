@@ -1,8 +1,8 @@
-//! \file PVAxesCombination.h
-//! $Id: PVAxesCombination.h 2973 2011-05-25 12:18:22Z aguinet $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVAxesCombination.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #ifndef PICVIZ_PVAXESCOMBINATION_H
 #define PICVIZ_PVAXESCOMBINATION_H

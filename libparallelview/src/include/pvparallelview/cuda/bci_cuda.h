@@ -1,3 +1,9 @@
+/**
+ * \file bci_cuda.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVPARALLELVIEW_BCICUDA_H
 #define PVPARALLELVIEW_BCICUDA_H
 

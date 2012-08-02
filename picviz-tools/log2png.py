@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+# \file log2png.py
+#
+# Copyright (C) Picviz Labs 2010-2012
+
 import sys
 
 from cpicviz.datatree import *

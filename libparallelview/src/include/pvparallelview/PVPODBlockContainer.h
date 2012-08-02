@@ -1,3 +1,9 @@
+/**
+ * \file PVPODBlockContainer.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef BLOCKCOINTAINER_H
 #define BLOCKCOINTAINER_H
 

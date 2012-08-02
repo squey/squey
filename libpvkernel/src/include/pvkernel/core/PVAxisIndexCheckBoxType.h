@@ -1,8 +1,8 @@
-//! \file PVAxisIndexCheckBoxType.h
-//! $Id$
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVAxisIndexCheckBoxType.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #ifndef PVCORE_PVAXISINDEXCHECKBOXTYPE_H
 #define PVCORE_PVAXISINDEXCHECKBOXTYPE_H

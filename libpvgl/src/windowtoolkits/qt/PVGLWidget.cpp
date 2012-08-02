@@ -1,3 +1,9 @@
+/**
+ * \file PVGLWidget.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifdef USE_WTK_QT
 
 #include "include/PVGLWidget.h"

@@ -1,3 +1,9 @@
+/**
+ * \file PVChunkTransformUTF16.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVCHUNKUTF16FILTER_FILE_H
 #define PVCHUNKUTF16FILTER_FILE_H
 

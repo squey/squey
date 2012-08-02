@@ -1,7 +1,8 @@
-//! \file LoadingFunction.cpp
-//! $Id$
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saade 2009-2011
+/**
+ * \file Init.cpp
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #ifdef USE_WTK_FREEGLUT3
 

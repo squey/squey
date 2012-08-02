@@ -1,3 +1,8 @@
+#
+# \file CMakeLists.txt
+#
+# Copyright (C) Picviz Labs 2010-2012
+
 if(CUDA_FOUND)
 	include_directories(AFTER ${CUDA_INCLUDE_DIRS})
 endif(CUDA_FOUND)
@@ -181,8 +186,6 @@ rush/PVNrawChild.cpp
 rush/PVNrawOutput.cpp
 rush/PVNormalizer.cpp
 rush/PVXmlParamParser.cpp
-rush/pvsource.cpp
-rush/pvstream.cpp
 rush/PVChunkAlign.cpp
 rush/PVChunkAlignUTF16Char.cpp
 rush/PVChunkAlignUTF16Newline.cpp

@@ -1,8 +1,8 @@
-//! \file PVSaveFileDialog.cpp
-//! $Id: PVSaveFileDialog.cpp 2496 2011-04-25 14:10:00Z psaade $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVSaveFileDialog.cpp
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #include <QtGui>
 

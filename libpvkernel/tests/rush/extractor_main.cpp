@@ -1,3 +1,9 @@
+/**
+ * \file extractor_main.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/rush/PVInputFile.h>
 #include <pvkernel/rush/PVChunkAlignUTF16Char.h>
 #include <pvkernel/rush/PVChunkTransformUTF16.h>

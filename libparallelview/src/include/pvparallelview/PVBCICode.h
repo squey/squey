@@ -1,3 +1,9 @@
+/**
+ * \file PVBCICode.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PARALLELVIEW_PVBCICODE_H
 #define PARALLELVIEW_PVBCICODE_H
 

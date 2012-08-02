@@ -1,3 +1,9 @@
+/**
+ * \file simple_lines_view.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef SLVIEW_H
 #define SLVIEW_H
 

@@ -1,3 +1,9 @@
+/**
+ * \file PVContainerZoneTree.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVPARALLELVIEW_PVCONTAINERZONETREE_H
 #define PVPARALLELVIEW_PVCONTAINERZONETREE_H
 

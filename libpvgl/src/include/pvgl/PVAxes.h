@@ -1,8 +1,8 @@
-//! \file PVAxes.h
-//! $Id: PVAxes.h 2875 2011-05-19 04:18:05Z aguinet $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saade 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVAxes.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #ifndef LIBPVGL_AXES_H
 #define LIBPVGL_AXES_H

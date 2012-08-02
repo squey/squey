@@ -1,3 +1,9 @@
+/**
+ * \file python_nraw.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/core/PVPython.h>
 #include <pvkernel/core/general.h>
 

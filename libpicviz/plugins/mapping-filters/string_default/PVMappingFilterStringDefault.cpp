@@ -1,8 +1,8 @@
-//! \file PVMappingFilterIPv4Default.cpp
-//! $Id$
-//! Copyright (C) Sébastien Tricaud 2011-2012
-//! Copyright (C) Philippe Saadé 2011-2012
-//! Copyright (C) Picviz Labs 2012
+/**
+ * \file PVMappingFilterStringDefault.cpp
+ *
+ * Copyright (C) Picviz Labs 2011-2012
+ */
 
 #include "PVMappingFilterStringDefault.h"
 #include <pvkernel/core/PVTBBMaxArray.h>

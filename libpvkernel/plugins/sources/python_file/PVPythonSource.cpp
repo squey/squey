@@ -1,3 +1,9 @@
+/**
+ * \file PVPythonSource.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include "PVPythonSource.h"
 #include <pvkernel/core/PVChunk.h>
 #include <pvkernel/core/PVElement.h>

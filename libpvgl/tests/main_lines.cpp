@@ -1,3 +1,9 @@
+/**
+ * \file main_lines.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <QMainWindow>
 #include <QApplication>
 #include <ctime>

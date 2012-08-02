@@ -1,3 +1,9 @@
+/**
+ * \file common.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVCUDA_COMMON_H
 #define PVCUDA_COMMON_H
 

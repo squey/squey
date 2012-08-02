@@ -1,3 +1,9 @@
+/**
+ * \file PVMappingFilterTime24h.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include "PVMappingFilterTime24h.h"
 
 #include <unicode/ucal.h>

@@ -1,3 +1,9 @@
+/**
+ * \file PVAxesCombinationWidget.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <PVAxesCombinationWidget.h>
 #include <picviz/PVAxesCombination.h>
 #include <picviz/PVView.h>

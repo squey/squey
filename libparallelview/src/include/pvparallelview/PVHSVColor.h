@@ -1,3 +1,9 @@
+/**
+ * \file PVHSVColor.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVPARALLELVIEW_HSVCOLOR_H
 #define PVPARALLELVIEW_HSVCOLOR_H
 

@@ -1,9 +1,8 @@
-//! \file PVZLevelArray.cpp
-//! $Id: PVZLevelArray.cpp 3090 2011-06-09 04:59:46Z stricaud $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
-
+/**
+ * \file PVZLevelArray.cpp
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #include <picviz/PVZLevelArray.h>
 

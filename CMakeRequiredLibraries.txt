@@ -1,4 +1,9 @@
 #
+# \file CMakeRequiredLibraries.txt
+#
+# Copyright (C) Picviz Labs 2010-2012
+
+#
 # QT is needed for both libpvgl and picviz-inspector
 #
 ADD_DEFINITIONS(-DQT_SHARED)
@@ -297,4 +302,4 @@ endif(NOT WIN32)
 find_package(HWLoc REQUIRED)
 if (HWLOC_FOUND)
   include_directories(${HWLOC_INCLUDE_DIRS})
-endif (BZIP2_FOUND)
+endif ()

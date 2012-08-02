@@ -1,3 +1,9 @@
+/**
+ * \file PVLinesView.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVPARALLELVIEW_PVLINESVIEW_H
 #define PVPARALLELVIEW_PVLINESVIEW_H
 

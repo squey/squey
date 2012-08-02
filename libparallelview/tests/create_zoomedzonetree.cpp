@@ -1,3 +1,9 @@
+/**
+ * \file create_zoomedzonetree.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/core/picviz_bench.h>
 #include <picviz/PVPlotted.h>
 #include <pvparallelview/PVBCICode.h>

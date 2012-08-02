@@ -1,3 +1,9 @@
+/**
+ * \file PVZoneProcessing.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVPARALLELVIW_PVZONEPROCESSING_H
 #define PVPARALLELVIW_PVZONEPROCESSING_H
 

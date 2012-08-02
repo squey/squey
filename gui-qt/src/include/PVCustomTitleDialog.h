@@ -1,3 +1,9 @@
+/**
+ * \file PVCustomTitleDialog.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVCUSTOMTITLEDIALOG_H
 #define PVCUSTOMTITLEDIALOG_H
 

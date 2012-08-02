@@ -1,8 +1,8 @@
-//! \file PVXmlTreeItemDelegate.h
-//! $Id$
-//! Copyright (C) Sébastien Tricaud 2011-2011
-//! Copyright (C) Philippe Saadé 2011-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVXmlTreeItemDelegate.h
+ *
+ * Copyright (C) Picviz Labs 2011-2012
+ */
 
 #ifndef MYITEMDELEGATE_H
 #define	MYITEMDELEGATE_H

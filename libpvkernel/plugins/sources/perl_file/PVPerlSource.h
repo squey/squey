@@ -1,3 +1,9 @@
+/**
+ * \file PVPerlSource.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVPERLSOURCE_FILE_H
 #define PVPERLSOURCE_FILE_H
 

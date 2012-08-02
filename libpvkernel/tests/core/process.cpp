@@ -1,3 +1,9 @@
+/**
+ * \file process.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pthread.h>
 
 #include <pvkernel/core/pvbuffer.h>

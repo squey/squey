@@ -1,3 +1,9 @@
+/**
+ * \file PVHSVColor.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvparallelview/PVHSVColor.h>
 
 PVParallelView::PVHSVColor* PVParallelView::PVHSVColor::init_colors(PVRow nb_colors)

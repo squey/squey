@@ -1,3 +1,9 @@
+/**
+ * \file show_codes_gl.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvparallelview/PVBCICode.h>
 #include <pvparallelview/simple_lines_int_view.h>
 

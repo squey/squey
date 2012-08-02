@@ -1,3 +1,9 @@
+/**
+ * \file PVAllocators.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/core/PVAllocators.h>
 #include <unistd.h>
 #include <ios>

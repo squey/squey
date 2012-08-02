@@ -1,3 +1,9 @@
+/**
+ * \file bccb.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef OCL_BCCB_H
 #define OCL_BCCB_H
 

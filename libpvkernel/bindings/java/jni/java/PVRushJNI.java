@@ -1,3 +1,9 @@
+/**
+ * \file PVRushJNI.java
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 package org.picviz.jni.PVRush;
 import java.io.FileOutputStream;
 import java.io.File;

@@ -1,8 +1,8 @@
-//! \file plugins.cpp
-//! $Id: plugins.cpp 3011 2011-05-30 11:24:42Z aguinet $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file plugins.cpp
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #include <stdio.h>
 #include <stdlib.h>

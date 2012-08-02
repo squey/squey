@@ -1,3 +1,9 @@
+/**
+ * \file PVZonesDrawing.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvparallelview/PVZonesDrawing.h>
 
 PVParallelView::PVZonesDrawing::PVZonesDrawing(PVZonesManager & zm, PVBCIDrawingBackend const& backend, PVHSVColor const& colors):

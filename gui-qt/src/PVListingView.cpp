@@ -1,8 +1,8 @@
-//! \file PVListingView.cpp
-//! $Id: PVListingView.cpp 3253 2011-07-07 07:37:17Z rpernaudat $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVListingView.cpp
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #include <QtGui>
 #include <QCursor>

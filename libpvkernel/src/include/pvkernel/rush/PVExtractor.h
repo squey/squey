@@ -1,3 +1,9 @@
+/**
+ * \file PVExtractor.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVRUSH_PVEXTRACTOR_FILE_H
 #define PVRUSH_PVEXTRACTOR_FILE_H
 

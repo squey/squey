@@ -1,3 +1,9 @@
+/**
+ * \file POSIX.java
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 // Use setenv/getenv from the libc to change current
 // process' environnement.
 // Inspired by http://quirkygba.blogspot.com/2009/11/setting-environment-variables-in-java.html

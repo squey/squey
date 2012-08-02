@@ -1,3 +1,9 @@
+/**
+ * \file PVInputPcap.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/rush/PVInputPcap.h>
 
 PVRush::PVInputPcap::PVInputPcap(pcap_t* pcap):

@@ -1,3 +1,8 @@
+#
+# \file CMakePackage.txt
+#
+# Copyright (C) Picviz Labs 2010-2012
+
 INCLUDE(InstallRequiredSystemLibraries)
 SET(CPACK_PACKAGE_NAME "picviz-inspector")
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Picviz Inspector from Picviz Labs")

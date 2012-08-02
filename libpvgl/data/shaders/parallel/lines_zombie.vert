@@ -1,3 +1,8 @@
+/**
+ * \file lines_zombie.vert
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
 
 in  vec4 color_v;
 out vec3 color_g;

@@ -1,4 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
+<!-- \file syslog.format -->
+<!-- Copyright (C) Picviz Labs 2010-2012 -->
 <!DOCTYPE PVParamXml>
 <param version="2">
   <field>

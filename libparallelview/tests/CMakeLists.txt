@@ -1,3 +1,8 @@
+#
+# \file CMakeLists.txt
+#
+# Copyright (C) Picviz Labs 2010-2012
+
 include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/libparallelview/src/include)
 add_definitions(${PICVIZ_DEFINITIONS})
 include_directories(AFTER ${PICVIZ_INCLUDE_DIRS})
@@ -19,6 +24,10 @@ target_link_libraries(full_parallel_view ${LINK_LIBRARIES})
 
 add_executable(zoomed_parallel_view zoomed_parallel_view.cpp)
 target_link_libraries(zoomed_parallel_view ${LINK_LIBRARIES})
+
+QT4_WRAP_CPP(TEST_ZPS_MOC_SRC zoomed_parallel_scene.h OPTIONS ${QT4_WRAP_OPTIONS})
+add_executable(zoomed_parallel_scene zoomed_parallel_scene.cpp ${TEST_ZPS_MOC_SRC})
+target_link_libraries(zoomed_parallel_scene ${LINK_LIBRARIES})
 
 add_executable(zoomed_zone_tree_render zoomed_zone_tree_render.cpp)
 target_link_libraries(zoomed_zone_tree_render ${LINK_LIBRARIES})
@@ -69,9 +78,9 @@ if (CUDA_FOUND)
 	add_executable(show_codes_cuda_tex show_codes_cuda_tex.cpp ${CUDA_KERNELS})
 	target_link_libraries(show_codes_cuda_tex ${LINK_LIBRARIES} ${CUDA_LIBRARIES})
 
-	#cuda_compile(CUDA_KERNELS bci_cuda_z24_atomic.cu)
-	#add_executable(show_codes_cuda24_atomic show_codes_cuda.cpp ${CUDA_KERNELS})
-	#target_link_libraries(show_codes_cuda24_atomic ${LINK_LIBRARIES} ${CUDA_LIBRARIES})
+	cuda_compile(CUDA_KERNELS bci_cuda_z24_atomic.cu)
+	add_executable(show_codes_cuda24_atomic show_codes_cuda.cpp ${CUDA_KERNELS})
+	target_link_libraries(show_codes_cuda24_atomic ${LINK_LIBRARIES} ${CUDA_LIBRARIES})
 
 	#cuda_compile(CUDA_KERNELS bci_cuda_z24_unroll_x.cu)
 	#add_executable(show_codes_cuda24_unroll_x show_codes_cuda.cpp ${CUDA_KERNELS})

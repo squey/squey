@@ -1,3 +1,9 @@
+/**
+ * \file PVParallelScene.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef __PVPARALLELSCENE_h__
 #define __PVPARALLELSCENE_h__
 

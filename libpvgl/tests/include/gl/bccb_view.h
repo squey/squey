@@ -1,3 +1,9 @@
+/**
+ * \file bccb_view.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef BCCBVIEW_H
 #define BCCBVIEW_H
 

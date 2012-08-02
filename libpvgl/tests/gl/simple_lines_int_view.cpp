@@ -1,3 +1,9 @@
+/**
+ * \file simple_lines_int_view.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/core/general.h>
 #include <gl/simple_lines_int_view.h>
 #include <iostream>

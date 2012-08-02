@@ -1,3 +1,9 @@
+/**
+ * \file pipe1_cpu_gpu.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 // B-code->reduction CPU->GPU pipeline
 //
 

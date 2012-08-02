@@ -1,3 +1,9 @@
+/**
+ * \file PVUtils.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <QString>
 
 #include <pvkernel/core/PVAxesIndexType.h>

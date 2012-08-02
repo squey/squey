@@ -1,3 +1,9 @@
+/**
+ * \file gpu_bccb.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef GPU_BCODE_COLLISION_H
 #define GPU_BCODE_COLLISION_H
 

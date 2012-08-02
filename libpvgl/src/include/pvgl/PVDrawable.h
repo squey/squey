@@ -1,8 +1,8 @@
-//! \file PVDrawable.h
-//! $Id: PVDrawable.h 2985 2011-05-26 09:01:11Z dindinx $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saade 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVDrawable.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #ifndef LIBPVGL_PVDRAWABLE_H
 #define LIBPVGL_PVDRAWABLE_H

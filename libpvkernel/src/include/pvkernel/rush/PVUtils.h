@@ -1,7 +1,7 @@
-/*
- * $Id$
- * Copyright (C) Sebastien Tricaud 2010-2011
- * Copyright (C) Philippe Saade 2010-2011
+/**
+ * \file PVUtils.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
  */
 
 #ifndef PVRUSH_PVUTILS_H

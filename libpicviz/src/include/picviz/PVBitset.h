@@ -1,3 +1,9 @@
+/**
+ * \file PVBitset.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PICVIZ_PVBITSET_FILE_H
 #define PICVIZ_PVBITSET_FILE_H
 

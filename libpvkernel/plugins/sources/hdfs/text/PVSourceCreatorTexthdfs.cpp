@@ -1,3 +1,9 @@
+/**
+ * \file PVSourceCreatorTexthdfs.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include "PVSourceCreatorTexthdfs.h"
 #include "../PVInputHDFS.h"
 #include "../PVHadoopResultSource.h"

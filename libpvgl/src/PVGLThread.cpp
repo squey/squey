@@ -1,8 +1,8 @@
-//! \file PVGLThread.cpp
-//! $Id$
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saade 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVGLThread.cpp
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #include <pvgl/general.h>
 #include <pvgl/PVGLThread.h>

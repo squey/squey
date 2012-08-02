@@ -1,3 +1,9 @@
+/**
+ * \file PVPythonSource.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVPYTHONSOURCE_FILE_H
 #define PVPYTHONSOURCE_FILE_H
 

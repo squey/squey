@@ -1,3 +1,9 @@
+/**
+ * \file version.h.cmake
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVVERSION_FILE_H
 #define PVVERSION_FILE_H
 

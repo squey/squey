@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# \file run-create_quadtree.sh
+#
+# Copyright (C) Picviz Labs 2010-2012
+
 LOG="log.$$"
 
 #printf "%-14s %12s %20s %20s\n" "Algorithm" "Count" "Time (ms)" "Memory (MiB)"

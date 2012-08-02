@@ -1,8 +1,8 @@
-//! \file WtkWindowsList.cpp
-//! Functions that hide the window to the pvgl code
-//! $Id$
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saade 2009-2011
+/**
+ * \file WtkWindowsList.cpp
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #include "include/WtkWindowsList.h"
 

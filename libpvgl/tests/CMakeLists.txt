@@ -1,3 +1,8 @@
+#
+# \file CMakeLists.txt
+#
+# Copyright (C) Picviz Labs 2010-2012
+
 include_directories(AFTER ${GLEW_INCLUDE_PATH})
 include_directories(AFTER ${OPENGL_INCLUDE_DIR})
 include_directories(AFTER ${FREETYPE_INCLUDE_DIRS})

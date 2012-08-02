@@ -1,3 +1,9 @@
+/**
+ * \file PVDatabaseParamsWidget.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVDATABASEPARAMSWIDGET_H
 #define PVDATABASEPARAMSWIDGET_H
 

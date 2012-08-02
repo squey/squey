@@ -1,3 +1,9 @@
+/**
+ * \file PVMappingFilterEnum10Default.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifdef WIN32
 #include <float.h> // for _logb()
 #endif

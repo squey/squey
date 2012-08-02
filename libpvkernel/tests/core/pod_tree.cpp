@@ -1,3 +1,9 @@
+/**
+ * \file pod_tree.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVPODTree.h>
 #include <pvkernel/core/picviz_bench.h>

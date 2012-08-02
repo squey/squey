@@ -1,8 +1,8 @@
-//! \file PVColorGradientDualSliderEditor.cpp
-//! $Id: PVColorGradientDualSliderEditor.cpp 2699 2011-05-12 03:58:48Z cdash $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVColorGradientDualSliderEditor.cpp
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #include <cmath>
 

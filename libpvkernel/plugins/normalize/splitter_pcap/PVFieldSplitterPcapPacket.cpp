@@ -1,3 +1,9 @@
+/**
+ * \file PVFieldSplitterPcapPacket.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include "PVFieldSplitterPcapPacket.h"
 #include <pvkernel/core/network.h>
 #include <pvkernel/rush/PVRawSource.h>

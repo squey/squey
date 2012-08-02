@@ -1,3 +1,9 @@
+/**
+ * \file point_buffer.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <common/common.h>
 #include <cstdlib>
 #include <ctime>

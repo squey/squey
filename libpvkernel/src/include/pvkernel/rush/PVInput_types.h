@@ -1,3 +1,9 @@
+/**
+ * \file PVInput_types.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVKERNEL_RUSH_PVINPUT_TYPES_H
 #define PVKERNEL_RUSH_PVINPUT_TYPES_H
 

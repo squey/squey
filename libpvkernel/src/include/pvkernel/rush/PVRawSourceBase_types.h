@@ -1,3 +1,9 @@
+/**
+ * \file PVRawSourceBase_types.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVKERNEL_RUSH_PVRAWSOURCEBASE_TYPES_H
 #define PVKERNEL_RUSH_PVRAWSOURCEBASE_TYPES_H
 

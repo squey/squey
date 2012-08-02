@@ -1,3 +1,9 @@
+/**
+ * \file PVPODStaticArray.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef __PVCORE_PVPODSTATICARRAY_H__
 #define __PVCORE_PVPODSTATICARRAY_H__
 

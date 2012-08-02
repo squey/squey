@@ -1,3 +1,9 @@
+/**
+ * \file doxygen.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 /*! \mainpage PVKernel library
  *
  * The PVKernel library handles all the transformation of data (binary, text, etc.) into a normalized table (called nraw). 

@@ -1,3 +1,9 @@
+/**
+ * \file PVZoneTreeNoAlloc.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVPARALLELVIEW_PVZONETREENOALLOC_H
 #define PVPARALLELVIEW_PVZONETREENOALLOC_H
 

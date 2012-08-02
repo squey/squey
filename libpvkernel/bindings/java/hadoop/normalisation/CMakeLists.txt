@@ -1,3 +1,8 @@
+#
+# \file CMakeLists.txt
+#
+# Copyright (C) Picviz Labs 2010-2012
+
 # This is necessary in order to use our classes between them !!
 set(CMAKE_JAVA_INCLUDE_PATH ${CMAKE_JAVA_INCLUDE_PATH} ../../jni/java/PVRushJNI.jar)
 

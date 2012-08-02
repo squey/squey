@@ -1,3 +1,9 @@
+/**
+ * \file PVZonesManager.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/core/PVHardwareConcurrency.h>
 #include <picviz/PVView.h>
 #include <pvparallelview/PVZonesManager.h>

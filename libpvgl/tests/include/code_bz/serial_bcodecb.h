@@ -1,3 +1,9 @@
+/**
+ * \file serial_bcodecb.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef SERIAL_BCODECB_H
 #define SERIAL_BCODECB_H
 

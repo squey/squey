@@ -1,8 +1,8 @@
-//! \file PVXmlTreeNodeDom.h
-//! $Id$
-//! Copyright (C) Sébastien Tricaud 2011-2011
-//! Copyright (C) Philippe Saadé 2011-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVXmlTreeNodeDom.h
+ *
+ * Copyright (C) Picviz Labs 2011-2012
+ */
 
 #ifndef NODEDOM_H
 #define	NODEDOM_H

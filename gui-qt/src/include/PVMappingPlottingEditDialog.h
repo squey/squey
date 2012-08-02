@@ -1,3 +1,9 @@
+/**
+ * \file PVMappingPlottingEditDialog.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVMAPPINGPLOTTINGEDITDIALOG_H
 #define PVMAPPINGPLOTTINGEDITDIALOG_H
 

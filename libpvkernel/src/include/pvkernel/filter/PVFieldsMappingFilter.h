@@ -1,8 +1,8 @@
-//! \file PVFieldsMappingFilter.h
-//! $Id: PVFieldsMappingFilter.h 3165 2011-06-16 05:05:39Z aguinet $
-//! Copyright (C) Sébastien Tricaud 2011-2011
-//! Copyright (C) Philippe Saadé 2011-2011
-//! Copyright (C) Picviz Labs 2011
+/**
+ * \file PVFieldsMappingFilter.h
+ *
+ * Copyright (C) Picviz Labs 2011-2012
+ */
 
 #ifndef PVFILTER_PVFIELDSMAPPINGFILTER_H
 #define PVFILTER_PVFIELDSMAPPINGFILTER_H

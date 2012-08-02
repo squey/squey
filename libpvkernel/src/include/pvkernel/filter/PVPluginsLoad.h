@@ -1,3 +1,9 @@
+/**
+ * \file PVPluginsLoad.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVFILTER_PVPLUGINS_H
 #define PVFILTER_PVPLUGINS_H
 

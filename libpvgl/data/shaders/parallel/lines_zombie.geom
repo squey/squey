@@ -1,4 +1,8 @@
-
+/**
+ * \file lines_zombie.geom
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
 
 precision highp float;
 

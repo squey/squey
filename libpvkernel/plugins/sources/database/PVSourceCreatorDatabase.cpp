@@ -1,3 +1,9 @@
+/**
+ * \file PVSourceCreatorDatabase.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include "PVSourceCreatorDatabase.h"
 #include "PVDBSource.h"
 #include "../../common/database/PVDBQuery.h"

@@ -1,3 +1,9 @@
+/**
+ * \file red_buckets.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <common/bench.h>
 #include <common/common.h>
 

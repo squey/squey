@@ -1,3 +1,9 @@
+/**
+ * \file show_codes_cuda_tex.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/cuda/common.h>
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVHSVColor.h>

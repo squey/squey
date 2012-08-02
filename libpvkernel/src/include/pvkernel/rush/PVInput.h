@@ -1,3 +1,9 @@
+/**
+ * \file PVInput.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVINPUT_FILE_H
 #define PVINPUT_FILE_H
 

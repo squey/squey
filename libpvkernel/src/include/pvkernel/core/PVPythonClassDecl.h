@@ -1,3 +1,9 @@
+/**
+ * \file PVPythonClassDecl.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVCORE_PVPYTHONCLASSREGISTER
 #define PVCORE_PVPYTHONCLASSREGISTER
 

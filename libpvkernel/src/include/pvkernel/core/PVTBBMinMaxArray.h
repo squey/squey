@@ -1,3 +1,9 @@
+/**
+ * \file PVTBBMinMaxArray.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVCORE_PVTBBMINMAXARRAY_H
 #define PVCORE_PVTBBMINMAXARRAY_H
 

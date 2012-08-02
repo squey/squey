@@ -1,3 +1,9 @@
+/**
+ * \file PVExpandSelDlg.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <PVExpandSelDlg.h>
 #include <QGridLayout>
 #include <QDialogButtonBox>

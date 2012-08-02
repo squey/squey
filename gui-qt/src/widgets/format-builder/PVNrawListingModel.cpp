@@ -1,3 +1,9 @@
+/**
+ * \file PVNrawListingModel.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <PVNrawListingModel.h>
 #include <pvkernel/rush/PVNraw.h>
 

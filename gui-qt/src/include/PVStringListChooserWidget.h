@@ -1,7 +1,8 @@
-//! \file PVStringListChooser.h
-//! $Id: PVStringListChooserWidget.h 3168 2011-06-16 09:06:33Z aguinet $
-//! Copyright (C) Sébastien Tricaud 2009-2011
-//! Copyright (C) Philippe Saadé 2009-2011
+/**
+ * \file PVStringListChooserWidget.h
+ *
+ * Copyright (C) Picviz Labs 2009-2012
+ */
 
 #include <QWidget>
 #include <QDialog>

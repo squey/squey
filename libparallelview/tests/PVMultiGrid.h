@@ -1,3 +1,9 @@
+/**
+ * \file PVMultiGrid.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PARALLELVIEW_PVMULTIGRID_H
 #define PARALLELVIEW_PVMULTIGRID_H
 

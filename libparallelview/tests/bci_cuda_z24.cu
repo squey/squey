@@ -1,3 +1,9 @@
+/**
+ * \file bci_cuda_z24.cu
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <pvkernel/core/general.h>
 #include <pvkernel/cuda/common.h>
 #include <pvparallelview/common.h>
@@ -97,7 +103,8 @@ __global__ void bcicode_raster_unroll2(uint2* bci_codes, unsigned int n, unsigne
 	}
 
 	// Do this division once and for all
-	const float alpha = (float)(width-band_x)/(float)width;
+	const float alpha0 = (float)(width-band_x)/(float)width;
+	const float alpha1 = (float)(width-(band_x+1))/(float)width;
 	const unsigned int y_start = threadIdx.y + blockIdx.y*blockDim.y;
 	const unsigned int size_grid = blockDim.y*gridDim.y;
 
@@ -185,7 +192,6 @@ __global__ void bcicode_raster_unroll2(uint2* bci_codes, unsigned int n, unsigne
 		}
 		__syncthreads();
 	}
-#endif
 	for (; idx_codes < n_end; idx_codes += size_grid2) {
 		uint2 code0 = bci_codes[idx_codes];
 		uint2 code1 = bci_codes[idx_codes+size_grid];
@@ -233,21 +239,31 @@ __global__ void bcicode_raster_unroll2(uint2* bci_codes, unsigned int n, unsigne
 			shared_img[idx_shared_img1] = color1 | code1.x;
 		}
 	}
+#endif
 	for (; idx_codes < n; idx_codes += size_grid) {
 		uint2 code0 = bci_codes[idx_codes];
 		code0.x >>= 8;
 		float l0 = (float) (code0.y & 0x3ff);
 		float r0 = (float) ((code0.y & 0xffc00)>>10);
-		int pixel_y0 = (int) (r0 + ((l0-r0)*alpha) + 0.5f);
-		unsigned int idx_shared_img0 = threadIdx.x + pixel_y0*blockDim.x;
-		unsigned int cur_shared_p = shared_img[idx_shared_img0];
-		if ((cur_shared_p & MASK_ZBUFFER) > code0.x) {
-			unsigned int color0 = (code0.y & 0xff00000)<<4;
-			shared_img[idx_shared_img0] = color0 | code0.x;
+		int pixel_y00 = (int) (r0 + ((l0-r0)*alpha0) + 0.5f);
+		int pixel_y01 = (int) (r0 + ((l0-r0)*alpha1) + 0.5f);
+		if (pixel_y00 > pixel_y01) {
+			const int tmp = pixel_y00;
+			pixel_y00 = pixel_y01;
+			pixel_y01 = tmp;
+		}
+
+		for (int pixel_y0 = pixel_y00; pixel_y0 <= pixel_y01; pixel_y0++) {
+			unsigned int idx_shared_img0 = threadIdx.x + pixel_y0*blockDim.x;
+			unsigned int cur_shared_p = shared_img[idx_shared_img0];
+			if ((cur_shared_p & MASK_ZBUFFER) > code0.x) {
+				unsigned int color0 = (code0.y & 0xff00000)<<4;
+				shared_img[idx_shared_img0] = color0 | code0.x;
+			}
 		}
 	}
-	
 	__syncthreads();
+	
 	// Final stage is to commit the shared image into the global image
 	for (int y = threadIdx.y; y < IMAGE_HEIGHT; y += blockDim.y) {
 		const unsigned int pixel_shared = shared_img[threadIdx.x + y*blockDim.x];

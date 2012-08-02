@@ -1,3 +1,9 @@
+/**
+ * \file bcode_cb.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <code_bz/bcode_cb.h>
 #include <code_bz/types.h>
 #include <cstdlib>

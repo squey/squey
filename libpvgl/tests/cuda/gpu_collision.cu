@@ -1,3 +1,9 @@
+/**
+ * \file gpu_collision.cu
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <common/common.h>
 #include <cuda/common.h>
 #include <cuda/gpu_collision.h>

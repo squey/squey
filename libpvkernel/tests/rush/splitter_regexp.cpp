@@ -1,3 +1,9 @@
+/**
+ * \file splitter_regexp.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #define SIMULATE_PIPELINE
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/filter/PVChunkFilter.h>

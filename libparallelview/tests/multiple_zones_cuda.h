@@ -1,3 +1,9 @@
+/**
+ * \file multiple_zones_cuda.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef MULTIPLE_ZONES_CUDA_H
 #define MULTIPLE_ZONES_CUDA_H
 

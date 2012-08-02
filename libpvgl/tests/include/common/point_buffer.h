@@ -1,3 +1,9 @@
+/**
+ * \file point_buffer.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef point_h
 #define point_h
 

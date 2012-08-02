@@ -1,3 +1,9 @@
+/**
+ * \file PVChunkAlignUTF16Newline.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVCHUNKALIGNUTF16NEWLINE_FILE_H
 #define PVCHUNKALIGNUTF16NEWLINE_FILE_H
 

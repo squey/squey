@@ -1,3 +1,9 @@
+/**
+ * \file main_tbb.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #include <core-tbb/points_reduce.h>
 #include <common/common.h>
 #include <common/serial_cb.h>

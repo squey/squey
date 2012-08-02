@@ -1,3 +1,8 @@
+/**
+ * \file PVQuadTree.cpp
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
 
 #include <pvparallelview/PVQuadTree.h>
 

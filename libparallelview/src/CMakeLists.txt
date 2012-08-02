@@ -1,3 +1,8 @@
+#
+# \file CMakeLists.txt
+#
+# Copyright (C) Picviz Labs 2010-2012
+
 include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/libparallelview/src/include)
 include_directories(AFTER ${OPENGL_INCLUDE_DIR})
 include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/libpicviz/src/include)

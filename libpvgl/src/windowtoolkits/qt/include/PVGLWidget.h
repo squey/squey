@@ -1,3 +1,9 @@
+/**
+ * \file PVGLWidget.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifdef USE_WTK_QT
 
 #ifndef PVGL_WTK_QT_WIDGET_H

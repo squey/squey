@@ -1,3 +1,9 @@
+/**
+ * \file PVZoomedTiler.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PVAPRALLELVIEW_PVZOOMEDTILER_H
 #define PVAPRALLELVIEW_PVZOOMEDTILER_H
 

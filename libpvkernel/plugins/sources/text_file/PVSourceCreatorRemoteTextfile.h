@@ -1,3 +1,9 @@
+/**
+ * \file PVSourceCreatorRemoteTextfile.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PICVIZ_PVSOURCECREATORREMOTETEXTFILE_H
 #define PICVIZ_PVSOURCECREATORTEMOTETEXTFILE_H
 

@@ -1,3 +1,9 @@
+/**
+ * \file PVInputTypeHDFS.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef PICVIZ_PVINPUTTYPEHDFS_H
 #define PICVIZ_PVINPUTTYPEHDFS_H
 

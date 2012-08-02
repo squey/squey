@@ -1,3 +1,9 @@
+/**
+ * \file simple_lines_int_view.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
 #ifndef SLLINES_INT_H
 #define SLLINES_INT_H
 
