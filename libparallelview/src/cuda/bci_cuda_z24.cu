@@ -261,7 +261,6 @@ __global__ void bcicode_raster_unroll2(uint2* bci_codes, unsigned int n, unsigne
 		code0.x >>= 8;
 		float l0 = (float) (code0.y & PVParallelView::constants<Bbits>::mask_int_ycoord);
 		float r0 = (float) ((code0.y >> Bbits) & PVParallelView::constants<Bbits>::mask_int_ycoord);
-		printf("%ul %x %u %0.1f %0.1f\n", Bbits, PVParallelView::constants<Bbits>::mask_int_ycoord, code0.y, l0, r0);
 		int pixel_y00 = (int) (r0 + ((l0-r0)*alpha0) + 0.5f);
 		int pixel_y01 = (int) (r0 + ((l0-r0)*alpha1) + 0.5f);
 		if (pixel_y00 > pixel_y01) {
