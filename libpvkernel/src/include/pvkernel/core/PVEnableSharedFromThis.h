@@ -16,8 +16,6 @@ namespace PVCore
 template<class T>
 class PVEnableSharedFromThis
 {
-	//template<typename X> friend class PVSharedPtr<X>::EnableSharedFromThis;
-
 public:
 
 	PVEnableSharedFromThis()
@@ -66,7 +64,6 @@ public: // actually private, but avoids compiler template friendship issues
     }
 
 private:
-
     PVWeakPtr<T> _weak_this;
 };
 

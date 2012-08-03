@@ -7,9 +7,6 @@
 #ifndef PVCORE_SHAREDPOINTER_H
 #define PVCORE_SHAREDPOINTER_H
 
-#include <pvkernel/core/PVSpinLock.h>
-#include <tbb/atomic.h>
-
 #include <cstdint>
 #include <ostream>
 #include <limits>
@@ -93,22 +90,15 @@ public:
 		return _counted_base->add_ref_copy();
 	}
 
-	inline pointer get() const { return _px; }
 	inline void set(pointer p) { _px = p; }
+	inline pointer get() const { return _px; }
+
+	inline void set_deleter(deleter d = nullptr) { _counted_base->set_deleter(d); }
+	inline deleter get_deleter() const { return _counted_base->get_deleter(); }
 
 	inline long use_count() const { return _counted_base->use_count(); }
 
 	inline bool empty() const { return _counted_base == nullptr; }
-
-	inline void set_deleter(deleter d = nullptr)
-	{
-		_counted_base->set_deleter(d);
-	}
-
-	inline deleter get_deleter() const
-	{
-		return _counted_base->get_deleter();
-	}
 
 private:
 	pointer _px;
@@ -156,12 +146,6 @@ public:
 		enable_shared_from_this(this, p);
 	}
 
-	/*template<class Y>
-	explicit PVSharedPtr(Y* p,  d) : _shared_count(p, d)
-	{
-		enable_shared_from_this(this, p);
-	}*/
-
 	PVSharedPtr(pointer p, deleter d) : _shared_count(p, d)
 	{
 		enable_shared_from_this(this, p);
@@ -171,16 +155,16 @@ public:
 	{
 	}
 
-	 // Create PVSharedPtr from PVWeakPtr
-	PVSharedPtr(PVWeakPtr<T> const & r) : _shared_count(r._weak_count)
-	{
-	}
-
 	template <typename Y>
 	explicit PVSharedPtr(PVSharedPtr<Y> const & r)
 	{
 		static_assert(std::is_convertible<Y, T>::value, "type Y is not derived from type T");
 		_shared_count = r._shared_count;
+	}
+
+	 // Create PVSharedPtr from PVWeakPtr
+	PVSharedPtr(PVWeakPtr<T> const & r) : _shared_count(r._weak_count)
+	{
 	}
 
 	// for PVEnableSharedFromThis::_internal_accept_owner

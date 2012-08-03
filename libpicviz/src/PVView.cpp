@@ -59,6 +59,12 @@ Picviz::PVView::PVView(const PVView& /*org*/):
 {
 	assert(false);
 }
+
+void Picviz::PVView::set_parent_from_ptr(PVPlotted* plotted)
+{
+	data_tree_view_t::set_parent_from_ptr(plotted);
+}
+
 /******************************************************************************
  *
  * Picviz::PVView::~PVView
@@ -97,7 +103,7 @@ void Picviz::PVView::init_defaults()
  *****************************************************************************/
 void Picviz::PVView::init_from_plotted(PVPlotted* plotted, bool keep_layers)
 {
-	//set_parent_from_ptr(plotted);
+	set_parent_from_ptr(plotted);
 
 	_rushnraw_parent = &plotted->get_parent<PVSource>()->get_rushnraw();
 

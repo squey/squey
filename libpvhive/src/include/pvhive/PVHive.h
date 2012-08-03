@@ -55,18 +55,6 @@ private:
 template <class T>
 class PVActor;
 
-template <typename T>
-struct hive_deleter
-{
-	void operator()(T *ptr)
-	{
-		std::cout << "HIVE DELETER" << std::endl;
-		//PVHive::get().unregister_object((void*) ptr);
-		delete ptr;
-	}
-};
-
-
 namespace __impl
 {
 

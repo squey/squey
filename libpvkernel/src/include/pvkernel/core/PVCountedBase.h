@@ -1,8 +1,16 @@
+/**
+ * \file PVCountedBase.h
+ *
+ * Copyright (C) Picviz Labs 2012
+ */
+
 #ifndef PVCOUNTEDBASE_H_
 #define PVCOUNTEDBASE_H_
 
-#include <boost/checked_delete.hpp>
 #include <typeinfo>
+#include <tbb/atomic.h>
+#include <boost/checked_delete.hpp>
+#include <pvkernel/core/PVSpinLock.h>
 
 namespace PVCore
 {
@@ -16,7 +24,6 @@ public:
 	typedef void(*deleter)(pointer);
 
 public:
-
     PVCountedBase(deleter d = nullptr) : _deleter(d)
     {
     	_use_count = 1;
@@ -38,6 +45,7 @@ public:
 			(_deleter)(p);
 		}
 		else {
+			//delete p; // TODO, FIXME
 			boost::checked_delete(p);
 		}
     }

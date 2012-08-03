@@ -554,14 +554,14 @@ void Picviz::PVPlotted::process_from_parent_mapped(bool keep_views_info)
 	else {
 		_expanded_sels.clear();
 	}
-	if (!_view) {
-		_view = PVView_sp();
-		_view->set_parent(this);
-		_view->init_from_plotted(this, false);
-		get_parent<PVSource>()->add_view(_view);
+	if (!get_view()) {
+		PVView_sp view = PVView_p();
+		view->set_parent(this);
+		view->init_from_plotted(this, false);
+		get_parent<PVSource>()->add_view(view);
 	}
 	else {
-		_view->init_from_plotted(this, keep_views_info);
+		get_view()->init_from_plotted(this, keep_views_info);
 	}
 }
 
@@ -596,10 +596,6 @@ void Picviz::PVPlotted::serialize_read(PVCore::PVSerializeObject& so, PVCore::PV
 	so.list("expanded_sels", _expanded_sels, "Expanded selections", (ExpandedSelection*) NULL, QStringList(), true, true);
 
 	data_tree_plotted_t::serialize_read(so, v);
-
-	//_view = get_children<PVView>()[0]; //!\\ FIXME: FIX THIS!!!
-	//PVSource* source = get_parent<PVSource>();
-	//source->add_view(_view);
 }
 
 }

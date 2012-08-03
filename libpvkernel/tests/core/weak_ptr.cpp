@@ -55,11 +55,9 @@ int main()
 	std::cout << "test1_wp1.use_count()=" << test1_wp1.use_count() << std::endl;
 	assert(test1_wp1.use_count() == 1);
 
-	// test1_p1->shared_from_this returns a PVSharedPtr with the proper pointer...
+	// test1_p1->shared_from_this returns a PVSharedPtr with the proper pointer and count
 	std::cout << "test1_p=" << test1_p1 << ", test1_p->shared_from_this().get()=" << test1_p1->shared_from_this().get() << std::endl;
 	assert(test1_p1->shared_from_this().get() == test1_p1);
-
-	// ...and the proper count
 	std::cout << "test_p1->shared_from_this().use_count()=" << test1_p1->shared_from_this().use_count() << std::endl;
 	assert(test1_p1->shared_from_this().use_count() == 2);
 
@@ -161,16 +159,15 @@ int main()
 	std::cout << "test1_sp5.get()=" << test1_sp5.get() << ", test2_p4)=" << test2_p4 << std::endl;
 	assert(test1_sp5.get() == test2_p4);
 
-	// Tests from non derived types (invalid)
+	// Tests from non derived types (invalid, will not compile)
 	//Test1_sp test1_sp6(create_Test3());
-
 	//Test3* test3_p2 = create_Test3();
 	//Test3_sp test3_sp2(test3_p2);
 	//Test1_sp test1_sp7(test3_sp2);
 
-	// Test if size of PVSharedPtr is not any greater than boost::shared_ptr
-	/*std::cout << "sizeof(PVCore::PVSharedPtr<Test1>)=" << sizeof(Test1_sp) << ", sizeof(boost::shared_ptr<Test1>)=" << sizeof(boost::shared_ptr<Test1>) << std::endl;
-	assert(sizeof(Test1_sp) == sizeof(boost::shared_ptr<Test1>));*/
+	// Test if PVSharedPtr size is not any greater than boost::shared_ptr
+	std::cout << "sizeof(PVCore::PVSharedPtr<Test1>)=" << sizeof(Test1_sp) << ", sizeof(boost::shared_ptr<Test1>)=" << sizeof(boost::shared_ptr<Test1>) << std::endl;
+	assert(sizeof(Test1_sp) == sizeof(boost::shared_ptr<Test1>));
 
 	return 0;
 }

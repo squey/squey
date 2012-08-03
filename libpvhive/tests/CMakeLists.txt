@@ -74,7 +74,4 @@ target_link_libraries(Taxes-comb ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES} ${PIC
 add_executable(Tcall_helper call_helper.cpp)
 target_link_libraries(Tcall_helper ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES} ${PICVIZ_LIBRARIES})
 
-add_executable(Tdeleter deleter.cpp)
-target_link_libraries(Tdeleter ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES} ${PICVIZ_LIBRARIES})
-
 

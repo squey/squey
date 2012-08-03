@@ -371,7 +371,7 @@ protected:
 		parent_t* old_parent = _parent;
 		_parent = parent;
 		if (old_parent == nullptr && parent && !child_added) {
-			me_p = PVCore::static_pointer_cast<real_type_t>(me->shared_from_this()); // ??
+			me_p = PVCore::static_pointer_cast<real_type_t>(me->shared_from_this());
 			parent->do_add_child(me_p);
 		}
 	}

@@ -126,7 +126,7 @@ void Picviz::PVSource::wait_extract_end(PVRush::PVControllerJob_p job)
 
 void Picviz::PVSource::select_view(PVView_sp view)
 {
-	 // assert(get_children<PVView>().contains(view)); FIXME: FIX THIS!!
+	 assert(get_children<PVView>().contains(view));
 	 _current_view = view;
 }
 
@@ -138,9 +138,9 @@ void Picviz::PVSource::extract_finished()
 	}
 
 	// Reset all views and process the current one
-	/*for (auto view_p : get_children<PVView>()) {
+	for (auto view_p : get_children<PVView>()) {
 		view_p->reset_layers();
-	}*/
+	}
 }
 
 void Picviz::PVSource::set_format(PVRush::PVFormat const& format)
@@ -218,7 +218,6 @@ PVRush::PVInputType_p Picviz::PVSource::get_input_type() const
 
 void Picviz::PVSource::create_default_view()
 {
-	//new PVPlotted(new PVMapped(this));
 	PVMapped_p def_mapped;
 	def_mapped->set_parent(this);
 	def_mapped->process_from_parent_source(false);
@@ -236,17 +235,16 @@ void Picviz::PVSource::process_from_source(bool keep_views_info)
 
 void Picviz::PVSource::add_view(PVView_sp view)
 {
-	// FIXME: FIX THIS!!
-	/*auto views_p = get_children<PVView>();
 	if (!_current_view) {
 		_current_view = view;
 	}
+	auto views_p = get_children<PVView>();
 	if (!views_p.contains(view)) {
 		PVScene* scene = get_parent();
 		if (scene) {
 			view->set_view_id(scene->get_new_view_id());
 		}
-	}*/
+	}
 }
 
 void Picviz::PVSource::add_column(PVAxis const& axis)
