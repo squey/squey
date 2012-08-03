@@ -30,6 +30,10 @@
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/variate_generator.hpp>
 
+#define BBITS 10
+
+typedef PVParallelView::PVZonesDrawing<BBITS> zones_drawing_t;
+
 void usage(const char* path)
 {
 	std::cerr << "Usage: " << path << " [plotted_file] [nrows] [ncols]" << std::endl;
@@ -135,10 +139,10 @@ int main(int argc, char** argv)
 	zm.set_zone_width(2, 256);
 	zm.set_zone_width(3, 256);
 
-	PVParallelView::PVBCIDrawingBackendCUDA backend_cuda;
-	PVParallelView::PVZonesDrawing &zones_drawing = *(new PVParallelView::PVZonesDrawing(zm, backend_cuda, *colors));
+	PVParallelView::PVBCIDrawingBackendCUDA<BBITS> backend_cuda;
+	zones_drawing_t &zones_drawing = *(new zones_drawing_t(zm, backend_cuda, *colors));
 
-	PVParallelView::PVBCIBackendImage_p dst_img1 = zones_drawing.create_image(1920);
+	zones_drawing_t::backend_image_p_t dst_img1 = zones_drawing.create_image(1920);
 
 #if 0
 	// zones_drawing.draw_zone<PVParallelView::PVZoneTree>(*dst_img1, zm.get_zone_absolute_pos(0), 0, &PVParallelView::PVZoneTree::browse_tree_bci);
@@ -181,7 +185,7 @@ int main(int argc, char** argv)
 
 	// std::cout << "drawing area [" << a << ", " << b << "]" << std::endl;
 
-	PVParallelView::PVBCIBackendImage_p dst_img2 = zones_drawing.create_image(1920);
+	zones_drawing_t::backend_image_p_t dst_img2 = zones_drawing.create_image(1920);
 
 	BENCH_START(col1);
 	PVParallelView::PVZoomedZoneTree const &zoomed_zone_tree = zm.get_zone_tree<PVParallelView::PVZoomedZoneTree>(0);

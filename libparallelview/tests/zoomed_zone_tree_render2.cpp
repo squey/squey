@@ -30,6 +30,10 @@
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/variate_generator.hpp>
 
+#define BBITS 10
+
+typedef PVParallelView::PVZonesDrawing<BBITS> zones_drawing_t;
+
 void usage(const char* path)
 {
 	std::cerr << "Usage: " << path << " [plotted_file] [nrows] [ncols]" << std::endl;
@@ -131,16 +135,16 @@ int main(int argc, char** argv)
 	zm.set_uint_plotted(norm_plotted, nrows, ncols);
 	zm.update_all();
 
-	PVParallelView::PVBCIDrawingBackendCUDA backend_cuda;
-	PVParallelView::PVZonesDrawing &zones_drawing = *(new PVParallelView::PVZonesDrawing(zm, backend_cuda, *colors));
+	PVParallelView::PVBCIDrawingBackendCUDA<BBITS> backend_cuda;
+	zones_drawing_t &zones_drawing = *(new zones_drawing_t(zm, backend_cuda, *colors));
 
-	PVParallelView::PVBCIBackendImage_p dst_img1 = zones_drawing.create_image(1920);
+	zones_drawing_t::backend_image_p_t dst_img1 = zones_drawing.create_image(1920);
 
 	uint32_t p = 0;
 	uint32_t z = 0;
 
 	for (int i = 0; i < 4; ++i) {
-		PVParallelView::PVBCIBackendImage_p dst_img = zones_drawing.create_image(512);
+		zones_drawing_t::backend_image_p_t dst_img = zones_drawing.create_image(512);
 		std::cout << "drawing area: " << p << " (" << z << ")" << std::endl;
 
 		BENCH_START(col);
