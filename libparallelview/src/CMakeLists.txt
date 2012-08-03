@@ -28,6 +28,7 @@ SET(SRC_FILES
 PVHSVColor.cpp
 PVTools.cpp
 PVZoomedZoneTree.cpp
+PVZoomedParallelScene.cpp
 PVLinesView.cpp
 PVParallelScene.cpp
 PVSelectionSquareGraphicsItem.cpp
@@ -65,6 +66,7 @@ include/pvparallelview/PVZoomedParallelScene.h
 include/pvparallelview/PVAxisGraphicsItem.h
 include/pvparallelview/PVAxisSlider.h
 include/pvparallelview/PVFullParallelView.h
+include/pvparallelview/PVParallelScene.h
 )
 
 SET(MOC_HEADERS
