@@ -165,6 +165,7 @@ public://protected:
 
 public:
 	PVZoneTree();
+	virtual ~PVZoneTree() { }
 
 public:
 	inline void process(PVZoneProcessing const& zp) { process_tbb_sse_treeb(zp); }

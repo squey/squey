@@ -105,7 +105,8 @@ __global__ void bcicode_raster_unroll2(uint2* bci_codes, unsigned int n, unsigne
 	}
 
 	// Do this division once and for all
-	const float alpha = (float)(width-band_x)/(float)width;
+	const float alpha0 = (float)(width-band_x)/(float)width;
+	const float alpha1 = (float)(width-(band_x+1))/(float)width;
 	const unsigned int y_start = threadIdx.y + blockIdx.y*blockDim.y;
 	const unsigned int size_grid = blockDim.y*gridDim.y;
 
@@ -193,7 +194,6 @@ __global__ void bcicode_raster_unroll2(uint2* bci_codes, unsigned int n, unsigne
 		}
 		__syncthreads();
 	}
-#endif
 	for (; idx_codes < n_end; idx_codes += size_grid2) {
 		uint2 code0 = bci_codes[idx_codes];
 		uint2 code1 = bci_codes[idx_codes+size_grid];
@@ -254,6 +254,36 @@ __global__ void bcicode_raster_unroll2(uint2* bci_codes, unsigned int n, unsigne
 			shared_img[idx_shared_img0] = color0 | code0.x;
 		}
 	}
+#endif
+	for (; idx_codes < n; idx_codes += size_grid) {
+		uint2 code0 = bci_codes[idx_codes];
+		code0.x >>= 8;
+		float l0 = (float) (code0.y & 0x3ff);
+		float r0 = (float) ((code0.y & 0xffc00)>>10);
+		int pixel_y00 = (int) (r0 + ((l0-r0)*alpha0) + 0.5f);
+		int pixel_y01 = (int) (r0 + ((l0-r0)*alpha1) + 0.5f);
+		if (pixel_y00 > pixel_y01) {
+			const int tmp = pixel_y00;
+			pixel_y00 = pixel_y01;
+			pixel_y01 = tmp;
+		}
+
+		unsigned int idx_shared_img0 = threadIdx.x + pixel_y00*blockDim.x;
+		unsigned int cur_shared_p = shared_img[idx_shared_img0];
+		if ((cur_shared_p & MASK_ZBUFFER) > code0.x) {
+			unsigned int color0 = (code0.y & 0xff00000)<<4;
+			shared_img[idx_shared_img0] = color0 | code0.x;
+		}
+
+		for (int pixel_y0 = pixel_y00+1; pixel_y0 < pixel_y01; pixel_y0++) {
+			idx_shared_img0 = threadIdx.x + pixel_y0*blockDim.x;
+			cur_shared_p = shared_img[idx_shared_img0];
+			if ((cur_shared_p & MASK_ZBUFFER) > code0.x) {
+				unsigned int color0 = (code0.y & 0xff00000)<<4;
+				shared_img[idx_shared_img0] = color0 | code0.x;
+			}
+		}
+	}
 	
 	band_x += img_x_start;
 	__syncthreads();
@@ -271,7 +301,7 @@ __global__ void bcicode_raster_unroll2(uint2* bci_codes, unsigned int n, unsigne
 	}
 }
 
-void show_codes_cuda(PVParallelView::PVBCICode* device_codes, uint32_t n, uint32_t width, uint32_t* device_img, uint32_t img_width, uint32_t x_start, cudaStream_t stream)
+void show_codes_cuda(PVParallelView::PVBCICode<>* device_codes, uint32_t n, uint32_t width, uint32_t* device_img, uint32_t img_width, uint32_t x_start, cudaStream_t stream)
 {
 	// Compute number of threads per block
 	int nthreads_x = (picviz_min(width, (SMEM_IMG_KB*1024)/(PVParallelView::ImageHeight*sizeof(img_zbuffer_t))));
@@ -302,6 +332,6 @@ void show_codes_cuda(PVParallelView::PVBCICode* device_codes, uint32_t n, uint32
 		picviz_verify_cuda(cudaEventSynchronize(end));
 		float time = 0;
 		picviz_verify_cuda(cudaEventElapsedTime(&time, start, end));
-		fprintf(stderr, "CUDA kernel time: %0.4f ms, BW: %0.4f MB/s\n", time, (double)(n*sizeof(PVBCICode))/(double)((time/1000.0)*1024.0*1024.0));
+		fprintf(stderr, "CUDA kernel time: %0.4f ms, BW: %0.4f MB/s\n", time, (double)(n*sizeof(PVBCICode<>))/(double)((time/1000.0)*1024.0*1024.0));
 	}
 }

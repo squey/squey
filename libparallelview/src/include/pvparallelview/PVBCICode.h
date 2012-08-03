@@ -10,30 +10,69 @@
 #include <stdint.h>
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVAllocators.h>
+#include <pvparallelview/common.h>
+#include <pvparallelview/PVHSVColor.h>
 #include <tbb/cache_aligned_allocator.h>
 
 namespace PVParallelView {
 
+template <size_t Bbits = NBITS_INDEX>
 struct PVBCICode
 {
+	//static_assert((Bbits >= 1) & (Bbits <= 11), "PVBCICode: Bbits must be between 1 and 11.");
+	typedef PVBCICode<Bbits> DECLARE_ALIGN(16) ap_t;
+
 	//typedef PVCore::PVAlignedAllocator<PVBCICode, 16> allocator;
 	typedef tbb::cache_aligned_allocator<PVBCICode> allocator;
 	union {
 		uint64_t int_v;
 		struct {
 			uint32_t idx;
-			uint32_t l: 10;
-			uint32_t r: 10;
+			uint32_t l: Bbits;
+			uint32_t r: Bbits;
 			uint32_t color: 8;
-			uint32_t __reserved: 4;
+			uint32_t __reserved: (32-2*Bbits-8);
 		} s;
 	};
-	static void init_random_codes(PVBCICode* codes, size_t n);
-	static PVBCICode* allocate_codes(size_t n);
-	static void free_codes(PVBCICode* codes);
-};
 
-typedef PVBCICode DECLARE_ALIGN(16) * PVBCICode_ap;
+	static void init_random_codes(PVBCICode* codes, size_t n)
+	{
+		for (size_t i = 0; i < n; i++) {
+			PVBCICode c;
+			c.int_v = 0;
+			//c.s.idx = rand();
+			c.s.idx = n-i;
+			//c.s.l = ((i/1024)*4)%1024;
+			//c.s.l = i&(MASK_INT_YCOORD);
+			c.s.l = rand()&(MASK_INT_YCOORD);
+			c.s.r = rand()&(MASK_INT_YCOORD);
+			//c.s.r = (c.s.l+10)&MASK_INT_YCOORD;
+			/*
+			   if (i < 1024) {
+			   c.s.l = MASK_INT_YCOORD/2;
+			   }
+			   else {
+			   c.s.l = MASK_INT_YCOORD/5;
+			   }*/
+			//c.s.r = i&(MASK_INT_YCOORD);
+			//c.s.color = rand()&((1<<9)-1);
+			c.s.color = i%((1<<HSV_COLOR_NBITS_ZONE)*6);
+			//c.s.color = 1;
+			codes[i] = c;
+		}
+	}
+
+	static PVBCICode* allocate_codes(size_t n)
+	{
+		PVBCICode* ret = PVBCICode::allocator().allocate(n);
+		return ret;
+	}
+
+	static void free_codes(PVBCICode* codes)
+	{
+		PVBCICode::allocator().deallocate(codes, 0);
+	}
+};
 
 }
 

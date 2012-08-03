@@ -252,7 +252,7 @@ public:
 		}
 	}
 
-	void extract_first_bci_from_y1(uint32_t y1_min, uint32_t y1_max, std::vector<PVParallelView::PVBCICode> &results) const
+	void extract_first_bci_from_y1(uint32_t y1_min, uint32_t y1_max, std::vector<PVParallelView::PVBCICode<NBITS_INDEX>> &results) const
 	{
 		if(_datas.is_null()) {
 			if(_y1_mid_value < y1_max) {
@@ -265,7 +265,7 @@ public:
 			}
 		} else if(_datas.size() != 0) {
 			entry e = _datas.at(0);
-			PVParallelView::PVBCICode code;
+			PVParallelView::PVBCICode<NBITS_INDEX> code;
 			code.s.idx = e.idx;
 			code.s.l = e.y1 >> 22;
 			code.s.r = e.y2 >> 22;
@@ -274,7 +274,7 @@ public:
 		}
 	}
 
-	void extract_first_bci_from_y1_and_selection(uint32_t y1_min, uint32_t y1_max, const Picviz::PVSelection &selection, std::vector<PVParallelView::PVBCICode> &results) const
+	void extract_first_bci_from_y1_and_selection(uint32_t y1_min, uint32_t y1_max, const Picviz::PVSelection &selection, std::vector<PVParallelView::PVBCICode<NBITS_INDEX>> &results) const
 	{
 		if(_datas.is_null()) {
 			if(_y1_mid_value < y1_max) {
@@ -289,7 +289,7 @@ public:
 			for(unsigned i = 0; i < _datas.size(); ++i) {
 				entry e = _datas.at(i);
 				if(selection.get_line(e.idx)) {
-					PVParallelView::PVBCICode code;
+					PVParallelView::PVBCICode<NBITS_INDEX> code;
 					code.s.idx = e.idx;
 					code.s.l = e.y1 >> 22;
 					code.s.r = e.y2 >> 22;
@@ -301,7 +301,7 @@ public:
 		}
 	}
 
-	void extract_first_bci_from_y2(uint32_t y2_min, uint32_t y2_max, std::vector<PVParallelView::PVBCICode> &results) const
+	void extract_first_bci_from_y2(uint32_t y2_min, uint32_t y2_max, std::vector<PVParallelView::PVBCICode<NBITS_INDEX>> &results) const
 	{
 		if(_datas.is_null()) {
 			if(_y2_mid_value < y2_max) {
@@ -314,7 +314,7 @@ public:
 			}
 		} else if(_datas.size() != 0) {
 			entry e = _datas.at(0);
-			PVParallelView::PVBCICode code;
+			PVParallelView::PVBCICode<NBITS_INDEX> code;
 			code.s.idx = e.idx;
 			code.s.l = e.y1 >> 22;
 			code.s.r = e.y2 >> 22;
@@ -323,7 +323,7 @@ public:
 		}
 	}
 
-	void extract_first_bci_from_y2_and_selection(uint32_t y1_min, uint32_t y1_max, const Picviz::PVSelection &selection, std::vector<PVParallelView::PVBCICode> &results) const
+	void extract_first_bci_from_y2_and_selection(uint32_t y1_min, uint32_t y1_max, const Picviz::PVSelection &selection, std::vector<PVParallelView::PVBCICode<NBITS_INDEX>> &results) const
 	{
 		if(_datas.is_null()) {
 			if(_y1_mid_value < y1_max) {
@@ -338,7 +338,7 @@ public:
 			for(unsigned i = 0; i < _datas.size(); ++i) {
 				entry e = _datas.at(i);
 				if(selection.get_line(e.idx)) {
-					PVParallelView::PVBCICode code;
+					PVParallelView::PVBCICode<NBITS_INDEX> code;
 					code.s.idx = e.idx;
 					code.s.l = e.y1 >> 22;
 					code.s.r = e.y2 >> 22;
@@ -350,7 +350,7 @@ public:
 		}
 	}
 
-	void extract_first_bci_from_y1y2(uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max, std::vector<PVParallelView::PVBCICode> &results) const
+	void extract_first_bci_from_y1y2(uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max, std::vector<PVParallelView::PVBCICode<NBITS_INDEX>> &results) const
 	{
 		if(_datas.is_null()) {
 			if(_y1_mid_value < y1_max) {
@@ -371,7 +371,7 @@ public:
 			}
 		} else if(_datas.size() != 0) {
 			entry e = _datas.at(0);
-			PVParallelView::PVBCICode code;
+			PVParallelView::PVBCICode<NBITS_INDEX> code;
 			code.s.idx = e.idx;
 			code.s.l = e.y1 >> 22;
 			code.s.r = e.y2 >> 22;
@@ -380,7 +380,7 @@ public:
 		}
 	}
 
-	void extract_first_bci_from_y1y2_and_selection(uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max, const Picviz::PVSelection &selection, std::vector<PVParallelView::PVBCICode> &results) const
+	void extract_first_bci_from_y1y2_and_selection(uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max, const Picviz::PVSelection &selection, std::vector<PVParallelView::PVBCICode<NBITS_INDEX>> &results) const
 	{
 		if(_datas.is_null()) {
 			if(_y1_mid_value < y1_max) {
@@ -403,7 +403,7 @@ public:
 			for(unsigned i = 0; i < _datas.size(); ++i) {
 				entry e = _datas.at(i);
 				if(selection.get_line(e.idx)) {
-					PVParallelView::PVBCICode code;
+					PVParallelView::PVBCICode<NBITS_INDEX> code;
 					code.s.idx = e.idx;
 					code.s.l = e.y1 >> 22;
 					code.s.r = e.y2 >> 22;
@@ -415,7 +415,7 @@ public:
 		}
 	}
 
-	void extract_first_bci_from_selection(const Picviz::PVSelection &selection, std::vector<PVParallelView::PVBCICode> &results) const
+	void extract_first_bci_from_selection(const Picviz::PVSelection &selection, std::vector<PVParallelView::PVBCICode<NBITS_INDEX>> &results) const
 	{
 		if(_datas.is_null()) {
 			_nodes[NE]->extract_first_bci_from_selection(selection, results);
@@ -426,7 +426,7 @@ public:
 			for(unsigned i = 0; i < _datas.size(); ++i) {
 				entry e = _datas.at(i);
 				if(selection.get_line(e.idx)) {
-					PVParallelView::PVBCICode code;
+					PVParallelView::PVBCICode<NBITS_INDEX> code;
 					code.s.idx = e.idx;
 					code.s.l = e.y1 >> 22;
 					code.s.r = e.y2 >> 22;

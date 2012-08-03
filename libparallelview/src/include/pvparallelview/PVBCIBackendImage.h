@@ -18,8 +18,10 @@
 
 namespace PVParallelView {
 
+template <size_t Bbits = NBITS_INDEX>
 class PVBCIBackendImage: boost::noncopyable
 {
+	constexpr static uint32_t image_height = ((uint32_t)1)<<Bbits;
 public:
 	typedef boost::shared_ptr<PVBCIBackendImage> p_type;
 
@@ -34,8 +36,9 @@ public:
 public:
 	virtual QImage qimage() const = 0;
 	inline uint32_t width() const { return _width; }
+	constexpr static uint32_t height() { return image_height; }
 	virtual bool set_width(uint32_t width) { _width = width; return true; }
-	inline size_t size_pixel() const { return _width*PVParallelView::ImageHeight; }
+	inline size_t size_pixel() const { return _width*height(); }
 
 public:
 	// TODO: implement this

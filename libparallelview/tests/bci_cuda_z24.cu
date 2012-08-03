@@ -253,14 +253,21 @@ __global__ void bcicode_raster_unroll2(uint2* bci_codes, unsigned int n, unsigne
 			pixel_y01 = tmp;
 		}
 
-		for (int pixel_y0 = pixel_y00; pixel_y0 <= pixel_y01; pixel_y0++) {
-			unsigned int idx_shared_img0 = threadIdx.x + pixel_y0*blockDim.x;
-			unsigned int cur_shared_p = shared_img[idx_shared_img0];
+		unsigned int idx_shared_img0 = threadIdx.x + (pixel_y00)*blockDim.x;
+		unsigned int cur_shared_p = shared_img[idx_shared_img0];
+		if ((cur_shared_p & MASK_ZBUFFER) > code0.x) {
+			unsigned int color0 = (code0.y & 0xff00000)<<4;
+			shared_img[idx_shared_img0] = color0 | code0.x;
+		}
+		for (int pixel_y0 = pixel_y00+1; pixel_y0 < pixel_y01; pixel_y0++) {
+			idx_shared_img0 = threadIdx.x + (pixel_y0)*blockDim.x;
+			cur_shared_p = shared_img[idx_shared_img0];
 			if ((cur_shared_p & MASK_ZBUFFER) > code0.x) {
 				unsigned int color0 = (code0.y & 0xff00000)<<4;
 				shared_img[idx_shared_img0] = color0 | code0.x;
 			}
 		}
+		__syncthreads();
 	}
 	__syncthreads();
 	

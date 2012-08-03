@@ -180,7 +180,7 @@ std::vector<entry> res1;
 Picviz::PVSelection *selection;
 PVQuadTree<Vector1<entry>, entry> *sqt1;
 PVQuadTree<Vector1<entry>, entry> *subtree;
-std::vector<PVParallelView::PVBCICode> codes;
+std::vector<PVParallelView::PVBCICode<NBITS_INDEX>> codes;
 
 // forward declarations
 void do_extract_first_y1_tests();

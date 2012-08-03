@@ -10,7 +10,7 @@
 #include <QGraphicsView>
 #include <QResizeEvent>
 
-#include <pvparallelview/PVZoomedTiler.h>
+//#include <pvparallelview/PVZoomedTiler.h>
 
 namespace PVParallelView {
 
@@ -22,6 +22,7 @@ private:
 
 	void resizeEvent(QResizeEvent* event)
 	{
+#if 0
 		// forcing update of the scene's sceneRect
 		((PVZoomedTiler*)scene())->update_scene_space();
 
@@ -31,6 +32,7 @@ private:
 
 		// and propagating the event (it is required)
 		QGraphicsView::resizeEvent(event);
+#endif
 	}
 
 };

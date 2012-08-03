@@ -153,7 +153,7 @@ int main(int argc, char** argv)
 			(zoomed_zone_tree, *dst_img, 0, 512,
 			 [&](PVParallelView::PVZoomedZoneTree const &zoomed_zone_tree,
 			     PVParallelView::PVHSVColor const* colors,
-			     PVParallelView::PVBCICode* codes)
+			     PVParallelView::PVBCICode<NBITS_INDEX>* codes)
 			 {
 				 size_t num = zoomed_zone_tree.browse_tree_bci_by_y1(p, z, colors, codes);
 				 std::cout << "ZZT-0: num of codes: " << num << std::endl;

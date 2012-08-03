@@ -25,12 +25,9 @@ add_definitions(${PICVIZ_DEFINITIONS})
 add_definitions(${OpenMP_CXX_FLAGS})
 
 SET(SRC_FILES
-PVBCICode.cpp
 PVHSVColor.cpp
 PVTools.cpp
 PVZoomedZoneTree.cpp
-PVZoomedTiler.cpp
-PVZonesDrawing.cpp
 PVLinesView.cpp
 PVParallelScene.cpp
 PVSelectionSquareGraphicsItem.cpp
@@ -46,7 +43,6 @@ PVQuadTree.cpp
 )
 
 set(CUDA_SRC_FILES
-PVBCIDrawingBackendCUDA.cpp
 )
 
 SET(HEADER_FILES
@@ -67,7 +63,7 @@ include/pvparallelview/PVZoneTreeNoAlloc.h
 include/pvparallelview/PVZoomedZoneTree.h
 include/pvparallelview/PVZoomedParallelView.h
 include/pvparallelview/PVZoomedZoneView.h
-include/pvparallelview/PVZoomedTiler.h
+#include/pvparallelview/PVZoomedTiler.h
 include/pvparallelview/PVAxisGraphicsItem.h
 include/pvparallelview/PVAxisSlider.h
 include/pvparallelview/PVFullParallelView.h
@@ -78,7 +74,7 @@ SET(MOC_HEADERS
 include/pvparallelview/PVRenderingJob.h
 include/pvparallelview/PVFullParallelView.h
 include/pvparallelview/PVParallelScene.h
-include/pvparallelview/PVZoomedTiler.h
+#include/pvparallelview/PVZoomedTiler.h
 include/pvparallelview/PVZoomedParallelView.h
 )
 

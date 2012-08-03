@@ -9,7 +9,7 @@
 
 int main()
 {
-	PVParallelView::PVBCICode code;
+	PVParallelView::PVBCICode<NBITS_INDEX> code;
 
 	code.int_v = 0;
 	code.s.idx = 0xFFFFFFFF;

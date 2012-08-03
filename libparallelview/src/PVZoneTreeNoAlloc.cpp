@@ -80,14 +80,14 @@ public:
 
 }
 
-size_t PVParallelView::PVZoneTreeNoAlloc::browse_tree_bci_by_sel(PVHSVColor* colors, PVBCICode* codes, Picviz::PVSelection const& sel)
+size_t PVParallelView::PVZoneTreeNoAlloc::browse_tree_bci_by_sel(PVHSVColor* colors, PVBCICode<NBITS_INDEX>* codes, Picviz::PVSelection const& sel)
 {
 	size_t idx_code = 0;
 	Picviz::PVSelection::const_pointer sel_buf = sel.get_buffer();
 	const size_t nthreads = PVCore::PVHardwareConcurrency::get_physical_core_number();
 #pragma omp parallel firstprivate(sel_buf) reduction(+:idx_code) num_threads(nthreads)
 	{
-		PVBCICode* th_codes = PVBCICode::allocate_codes(NBUCKETS);
+		PVBCICode<NBITS_INDEX>* th_codes = PVBCICode<NBITS_INDEX>::allocate_codes(NBUCKETS);
 #pragma omp for schedule(dynamic, 6)
 		for (uint64_t b = 0; b < NBUCKETS; b++) {
 			if (branch_valid(b)) {
@@ -108,7 +108,7 @@ size_t PVParallelView::PVZoneTreeNoAlloc::browse_tree_bci_by_sel(PVHSVColor* col
 					}
 				}
 				if (found) {
-					PVBCICode bci;
+					PVBCICode<NBITS_INDEX> bci;
 					bci.int_v = r | (b<<32);
 					bci.s.color = colors[r].h();
 					th_codes[idx_code] = bci;

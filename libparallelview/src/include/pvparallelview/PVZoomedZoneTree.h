@@ -20,12 +20,15 @@
 
 namespace PVParallelView {
 
+template <size_t Bbits>
 class PVBCICode;
+
 class PVHSVColor;
 
 class PVZoomedZoneTree
 {
 	typedef PVQuadTree<10000, 1000> pvquadtree;
+	constexpr static size_t bbits = 10;
 
 public:
 	PVZoomedZoneTree(uint32_t max_level = 8);
@@ -61,10 +64,10 @@ public:
 	void process_omp_from_zt(const PVZoneProcessing &zp, PVZoneTree &zt);
 
 	size_t browse_tree_bci_by_y1(uint32_t y_min, int zoom,
-	                             const PVHSVColor* colors, PVBCICode* codes) const;
+	                             const PVHSVColor* colors, PVBCICode<bbits>* codes) const;
 
 	size_t browse_tree_bci_by_y2(PVRow y_min, int zoom,
-	                             const PVHSVColor* colors, PVBCICode* codes) const;
+	                             const PVHSVColor* colors, PVBCICode<bbits>* codes) const;
 
 private:
 	inline uint32_t compute_index(const PVParallelView::PVQuadTreeEntry &e) const

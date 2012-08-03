@@ -16,7 +16,9 @@
 
 namespace PVParallelView {
 
+template <size_t Bbits>
 class PVBCICode;
+
 class PVHSVColor;
 
 class PVZoneTreeBase
@@ -26,6 +28,7 @@ protected:
 
 public:
 	PVZoneTreeBase();
+	virtual ~PVZoneTreeBase() { }
 
 public:
 	virtual void get_float_pts(pts_t& pts, Picviz::PVPlotted::plotted_table_t const& org_plotted, PVRow nrows, PVCol col_a, PVCol col_b) = 0;
@@ -42,14 +45,14 @@ public:
 	}
 
 
-	size_t browse_tree_bci(PVHSVColor const* colors, PVBCICode* codes) const;
-	size_t browse_tree_bci_sel(PVHSVColor const* colors, PVBCICode* codes) const;
+	size_t browse_tree_bci(PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const;
+	size_t browse_tree_bci_sel(PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const;
 
-	size_t browse_tree_bci_no_sse(PVHSVColor const* colors, PVBCICode* codes) const;
-	size_t browse_tree_bci_old(PVHSVColor const* colors, PVBCICode* codes) const;
+	size_t browse_tree_bci_no_sse(PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const;
+	size_t browse_tree_bci_old(PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const;
 
 private:
-	size_t browse_tree_bci_from_buffer(const PVRow* elts, PVHSVColor const* colors, PVBCICode* codes) const;
+	size_t browse_tree_bci_from_buffer(const PVRow* elts, PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const;
 
 public:
 	PVRow DECLARE_ALIGN(16) _first_elts[NBUCKETS];

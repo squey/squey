@@ -18,7 +18,7 @@
 #error NBUCKETS must be a multiple of 2
 #endif
 
-#define MASK_INT_YCOORD (((1UL)<<(NBITS_INDEX))-1)
+#define MASK_INT_YCOORD (((1UL)<<NBITS_INDEX)-1)
 
 #define IMAGE_HEIGHT (1024)
 #define IMAGE_WIDTH (2048)

@@ -38,6 +38,8 @@ void init_rand_plotted(Picviz::PVPlotted::plotted_table_t& p, PVRow nrows, PVCol
 	}
 }
 
+#define RENDERING_BITS 10
+
 int main(int argc, char** argv)
 {
 	if (argc < 2) {
@@ -80,8 +82,8 @@ int main(int argc, char** argv)
 	zm.set_uint_plotted(norm_plotted, nrows, ncols);
 	zm.update_all();
 
-	PVParallelView::PVBCIDrawingBackendCUDA backend_cuda;
-	PVParallelView::PVZonesDrawing &zones_drawing = *(new PVParallelView::PVZonesDrawing(zm, backend_cuda, *colors));
+	PVParallelView::PVBCIDrawingBackendCUDA<NBITS_INDEX> backend_cuda;
+	PVParallelView::PVZonesDrawing<NBITS_INDEX> &zones_drawing = *(new PVParallelView::PVZonesDrawing<NBITS_INDEX>(zm, backend_cuda, *colors));
 
 	PVParallelView::PVLinesView &lines_view = *(new PVParallelView::PVLinesView(zones_drawing, 20));
 

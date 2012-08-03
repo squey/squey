@@ -19,7 +19,7 @@ typedef PVParallelView::PVQuadTree<10000, 1000, 10000> pvquadtree;
 
 pvquadtree *qt = 0;
 PVParallelView::PVQuadTreeEntry *entries = 0;
-PVParallelView::PVBCICode* bci_codes = 0;
+PVParallelView::PVBCICode<NBITS_INDEX>* bci_codes = 0;
 
 #define MAX_VALUE ((1<<22) - 1)
 
@@ -59,7 +59,7 @@ int main(int argc, char **argv)
 	std::cout << "sizeof(node): " << sizeof(*qt) << std::endl;
 	std::cout << "memory used : " << qt->memory() << std::endl;
 
-	bci_codes = PVParallelView::PVBCICode::allocate_codes(4096);
+	bci_codes = PVParallelView::PVBCICode<NBITS_INDEX>::allocate_codes(4096);
 
 	for (unsigned i = 1; i < 9; ++i) {
 		std::cout << "extract BCI codes from y1 for zoom " << i << std::endl;

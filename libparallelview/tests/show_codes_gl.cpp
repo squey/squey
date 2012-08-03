@@ -12,7 +12,7 @@
 
 #include <iostream>
 
-void show_codes(PVParallelView::PVBCICode* codes, size_t n)
+void show_codes(PVParallelView::PVBCICode<NBITS_INDEX>* codes, size_t n)
 {
 	QMainWindow* mw = new QMainWindow();
 	mw->setWindowTitle("codes");
@@ -23,7 +23,7 @@ void show_codes(PVParallelView::PVBCICode* codes, size_t n)
 	std::vector<int32_t>& pts = *(new std::vector<int32_t>);
 	pts.reserve(n*4);
 	for (size_t i = 0; i < n; i++) {
-		PVParallelView::PVBCICode c = codes[i];
+		PVParallelView::PVBCICode<NBITS_INDEX> c = codes[i];
 		pts.push_back(0); pts.push_back(c.s.l);
 		pts.push_back(1); pts.push_back(c.s.r);
 	}
@@ -44,13 +44,13 @@ int main(int argc, char** argv)
 
 	size_t n = atoll(argv[1]);
 
-	PVParallelView::PVBCICode* codes = PVParallelView::PVBCICode::allocate_codes(n);
-	PVParallelView::PVBCICode::init_random_codes(codes, n);
+	PVParallelView::PVBCICode<NBITS_INDEX>* codes = PVParallelView::PVBCICode<NBITS_INDEX>::allocate_codes(n);
+	PVParallelView::PVBCICode<NBITS_INDEX>::init_random_codes(codes, n);
 
 	show_codes(codes, n);
 
 	int ret = app.exec();
 
-	PVParallelView::PVBCICode::free_codes(codes);
+	PVParallelView::PVBCICode<NBITS_INDEX>::free_codes(codes);
 	return ret;
 }

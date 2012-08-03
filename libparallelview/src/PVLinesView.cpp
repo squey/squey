@@ -7,7 +7,7 @@
 #include <pvparallelview/PVLinesView.h>
 #include <qtconcurrentrun.h>
 
-PVParallelView::PVLinesView::PVLinesView(PVZonesDrawing& zones_drawing, PVZoneID nb_zones, uint32_t zone_width /* = PVParallelView::ZoneMaxWidth */) :
+PVParallelView::PVLinesView::PVLinesView(PVZonesDrawing<bbits>& zones_drawing, PVZoneID nb_zones, uint32_t zone_width /* = PVParallelView::ZoneMaxWidth */) :
 	_zd(zones_drawing),
 	_first_zone(0),
 	_zone_max_width(zone_width),
