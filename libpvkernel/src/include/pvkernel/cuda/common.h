@@ -33,4 +33,11 @@ size_t get_shared_mem_size();
 
 }
 
+#ifdef __CUDACC__
+// nvcc does not support C++0x !
+#define CUDA_CONSTEXPR const
+#else
+#define CUDA_CONSTEXPR constexpr
+#endif
+
 #endif

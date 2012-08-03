@@ -100,4 +100,7 @@ if (CUDA_FOUND)
 
 	add_executable(lines_drawing lines_drawing.cpp)
 	target_link_libraries(lines_drawing ${LINK_LIBRARIES})
+
+	add_executable(show_codes_cuda_lib show_codes_cuda_lib.cpp)
+	target_link_libraries(show_codes_cuda_lib ${LINK_LIBRARIES})
 endif (CUDA_FOUND)

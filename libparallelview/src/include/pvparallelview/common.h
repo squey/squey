@@ -11,6 +11,8 @@
 #include <stdint.h>
 #include <QMetaType>
 
+#include <pvkernel/cuda/common.h>
+
 #define NBITS_INDEX 10
 #define NBUCKETS ((1UL<<(2*NBITS_INDEX)))
 
@@ -41,6 +43,13 @@ enum {
 	ZoneMinWidth = PARALLELVIEW_ZONE_MIN_WIDTH,
 	ZoneMaxWidth = PARALLELVIEW_ZONE_MAX_WIDTH,
 	ZoneDefaultWidth = PARALLELVIEW_ZONE_DEFAULT_WIDTH
+};
+
+template <size_t Bbits>
+struct constants
+{
+	CUDA_CONSTEXPR static uint32_t image_height = ((uint32_t)1)<<Bbits;
+	CUDA_CONSTEXPR static uint32_t mask_int_ycoord = (((uint32_t)1)<<Bbits)-1;
 };
 
 }

@@ -19,7 +19,10 @@ namespace PVParallelView {
 template <size_t Bbits = NBITS_INDEX>
 struct PVBCICode
 {
-	//static_assert((Bbits >= 1) & (Bbits <= 11), "PVBCICode: Bbits must be between 1 and 11.");
+#ifndef __CUDACC__
+	static_assert((Bbits >= 1) & (Bbits <= 11), "PVBCICode: Bbits must be between 1 and 11.");
+#endif
+
 	typedef PVBCICode<Bbits> DECLARE_ALIGN(16) ap_t;
 
 	//typedef PVCore::PVAlignedAllocator<PVBCICode, 16> allocator;
@@ -44,17 +47,16 @@ struct PVBCICode
 			c.s.idx = n-i;
 			//c.s.l = ((i/1024)*4)%1024;
 			//c.s.l = i&(MASK_INT_YCOORD);
-			c.s.l = rand()&(MASK_INT_YCOORD);
-			c.s.r = rand()&(MASK_INT_YCOORD);
-			//c.s.r = (c.s.l+10)&MASK_INT_YCOORD;
-			/*
-			   if (i < 1024) {
-			   c.s.l = MASK_INT_YCOORD/2;
-			   }
-			   else {
-			   c.s.l = MASK_INT_YCOORD/5;
-			   }*/
-			//c.s.r = i&(MASK_INT_YCOORD);
+			//c.s.l = rand()&constants<Bbits>::mask_int_ycoord;
+			//c.s.r = rand()&constants<Bbits>::mask_int_ycoord;
+			//c.s.r = (c.s.l+10)&constants<Bbits>::mask_int_ycoord;
+			if (i < 1024) {
+				c.s.l = constants<Bbits>::mask_int_ycoord;
+			}
+			else {
+				c.s.l = constants<Bbits>::mask_int_ycoord/5;
+			}
+			c.s.r = i&(constants<Bbits>::mask_int_ycoord);
 			//c.s.color = rand()&((1<<9)-1);
 			c.s.color = i%((1<<HSV_COLOR_NBITS_ZONE)*6);
 			//c.s.color = 1;

@@ -41,10 +41,12 @@ class PVZonesDrawing: boost::noncopyable
 
 public:
 	typedef PVBCIDrawingBackend<Bbits> bci_backend_t;
+	typedef typename bci_backend_t::backend_image_t backend_image_t;
+	typedef typename bci_backend_t::backend_image_p_t backend_image_p_t;
 	typedef typename bci_backend_t::bci_codes_t bci_codes_t;
 
 public:
-	PVZonesDrawing(PVZonesManager& zm, PVBCIDrawingBackend<Bbits> const& backend, PVHSVColor const& colors):
+	PVZonesDrawing(PVZonesManager& zm, bci_backend_t const& backend, PVHSVColor const& colors):
 		_zm(zm),
 		_draw_backend(&backend),
 		_colors(&colors)
@@ -62,7 +64,7 @@ public:
 	void draw(QImage& dst_img, Tree const& tree, Fbci const& f_bci);*/
 
 public:
-	inline void set_backend(PVBCIDrawingBackend<Bbits> const& backend) { _draw_backend = &backend; }
+	inline void set_backend(bci_backend_t const& backend) { _draw_backend = &backend; }
 
 public:
 	inline PVBCIBackendImage_p<Bbits> create_image(size_t width) const
@@ -153,7 +155,7 @@ public:
 	}
 
 	template <class Tree, class Fbci>
-	void draw_bci_lambda(Tree const &zone_tree, PVBCIBackendImage<Bbits>& dst_img, uint32_t x_start, size_t width, Fbci const& f_bci)
+	void draw_bci_lambda(Tree const &zone_tree, backend_image_t& dst_img, uint32_t x_start, size_t width, Fbci const& f_bci)
 	{
 		size_t ncodes = f_bci(zone_tree, _colors, _computed_codes);
 		draw_bci(dst_img, x_start, width, _computed_codes, ncodes);
@@ -175,14 +177,14 @@ public:
 	}
 
 private:
-	void draw_bci(PVBCIBackendImage<Bbits>& dst_img, uint32_t x_start, size_t width, PVBCICode<Bbits>* codes, size_t n)
+	void draw_bci(backend_image_t& dst_img, uint32_t x_start, size_t width, bci_codes_t* codes, size_t n)
 	{
 		_draw_backend->operator()(dst_img, x_start, width, codes, n);
 	}
 
 private:
 	PVZonesManager& _zm;
-	PVBCIDrawingBackend<Bbits> const* _draw_backend;
+	bci_backend_t const* _draw_backend;
 	PVHSVColor const* _colors;
 	PVBCICode<Bbits>* _computed_codes;
 	tls_codes_t _tls_computed_codes;

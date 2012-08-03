@@ -83,7 +83,7 @@ int main(int argc, char** argv)
 	zm.update_all();
 
 	PVParallelView::PVBCIDrawingBackendCUDA<NBITS_INDEX> backend_cuda;
-	PVParallelView::PVZonesDrawing<NBITS_INDEX> &zones_drawing = *(new PVParallelView::PVZonesDrawing<NBITS_INDEX>(zm, backend_cuda, *colors));
+	PVParallelView::PVLinesView::zones_drawing_t &zones_drawing = *(new PVParallelView::PVLinesView::zones_drawing_t(zm, backend_cuda, *colors));
 
 	PVParallelView::PVLinesView &lines_view = *(new PVParallelView::PVLinesView(zones_drawing, 20));
 

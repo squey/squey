@@ -96,7 +96,16 @@ struct cuda_kernel<10>
 {
 	static inline void launch(PVParallelView::PVBCICode<10>* device_codes, uint32_t n, uint32_t width, uint32_t* device_img, uint32_t img_width, uint32_t x_start, cudaStream_t stream = NULL)
 	{
-		show_codes_cuda(device_codes, n, width, device_img, img_width, x_start, stream);
+		show_codes_cuda10(device_codes, n, width, device_img, img_width, x_start, stream);
+	}
+};
+
+template <>
+struct cuda_kernel<11>
+{
+	static inline void launch(PVParallelView::PVBCICode<11>* device_codes, uint32_t n, uint32_t width, uint32_t* device_img, uint32_t img_width, uint32_t x_start, cudaStream_t stream = NULL)
+	{
+		show_codes_cuda11(device_codes, n, width, device_img, img_width, x_start, stream);
 	}
 };
 
