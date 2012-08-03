@@ -10,6 +10,7 @@
 #include <pvkernel/cuda/common.h>
 
 namespace PVParallelView {
+template <size_t Bbits>
 class PVBCICode;
 }
 
