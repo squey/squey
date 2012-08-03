@@ -30,7 +30,7 @@
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/variate_generator.hpp>
 
-typedef PVParallelView::PVZonesDrawing<11> zones_drawing_t;
+typedef PVParallelView::PVZonesDrawing<10> zones_drawing_t;
 
 void usage(const char* path)
 {
@@ -103,7 +103,7 @@ int main(int argc, char** argv)
 	zm.set_zone_width(1, 128);
 	zm.set_zone_width(2, 128);
 
-	PVParallelView::PVBCIDrawingBackendCUDA<11> backend_cuda;
+	PVParallelView::PVBCIDrawingBackendCUDA<10> backend_cuda;
 	zones_drawing_t &zones_drawing = *(new zones_drawing_t(zm, backend_cuda, *colors));
 
 	zones_drawing_t::backend_image_p_t dst_img = zones_drawing.create_image(1024);
