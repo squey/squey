@@ -15,40 +15,25 @@
 namespace PVCore
 {
 
-template <typename T>
 class PVCountedBase
 {
 public:
-	typedef T type;
-	typedef T*  pointer;
-	typedef void(*deleter)(pointer);
-
-public:
-    PVCountedBase(deleter d = nullptr) : _deleter(d)
+    PVCountedBase()
     {
     	_use_count = 1;
     	_weak_count = 1;
     }
 
-    ~PVCountedBase()
+    virtual ~PVCountedBase()
     {
     }
 
-    void destroy()
+     void destroy()
     {
         delete this;
     }
 
-    void dispose(pointer p)
-    {
-    	if (_deleter != nullptr) {
-			(_deleter)(p);
-		}
-		else {
-			//delete p; // TODO, FIXME
-			boost::checked_delete(p);
-		}
-    }
+    virtual void dispose() = 0;
 
     long add_ref_copy()
 	{
@@ -60,11 +45,11 @@ public:
 		return _use_count.fetch_and_increment() != 0;
 	}
 
-	void release(pointer p)
+	void release()
 	{
 		if(_use_count.fetch_and_decrement() == 1)
 		{
-			dispose(p);
+			dispose();
 			weak_release();
 		}
 	}
@@ -87,28 +72,75 @@ public:
     	return _use_count.fetch_and_add((long)0);
     }
 
-	inline void set_deleter(deleter d = nullptr)
-	{
-		pv_spin_lock_guard_t guard(_spin_lock);
-		_deleter = d;
-	}
+	virtual void* get() = 0;
+	virtual void set(void* p) = 0;
 
-	inline deleter get_deleter() const
-	{
-		pv_spin_lock_guard_t guard(_spin_lock);
-		return _deleter;
-	}
+	virtual void set_deleter(void* d = nullptr) = 0;
+	inline virtual void* get_deleter() const = 0;
 
 private:
-	PVCountedBase<T>(PVCountedBase<T> const & );
-	PVCountedBase<T> & operator= (PVCountedBase<T> const &);
+	PVCountedBase(PVCountedBase const & );
+	PVCountedBase & operator= (PVCountedBase const &);
 
 	mutable tbb::atomic<long> _use_count;
 	mutable tbb::atomic<long> _weak_count;
-
-	deleter _deleter;
-	mutable pv_spin_lock_t _spin_lock;
 };
+
+namespace __impl
+{
+	template <typename P, typename D>
+	class PVCountedBasePD : public PVCountedBase
+	{
+	public:
+		PVCountedBasePD(P p, D & d) : PVCountedBase(), _px(p), _deleter(d)
+		{
+		}
+
+		PVCountedBasePD(P p) : PVCountedBase(), _px(p), _deleter(nullptr)
+		{
+		}
+
+		virtual ~PVCountedBasePD()
+		{
+		}
+
+		virtual void dispose()
+		{
+			if (_deleter) {
+				_deleter(_px);
+			}
+			else {
+				boost::checked_delete(_px);
+			}
+		}
+
+		virtual void* get() { return _px; }
+		virtual void set(void* p) { _px = (P) p; }
+
+		virtual void set_deleter(void* d = nullptr)
+		{
+			pv_spin_lock_guard_t guard(_spin_lock);
+			_deleter = (D) d;
+		}
+
+		inline virtual void* get_deleter() const
+		{
+			pv_spin_lock_guard_t guard(_spin_lock);
+			return (void*) _deleter;
+		}
+
+	private:
+		P _px;
+		D _deleter;
+
+		mutable pv_spin_lock_t _spin_lock;
+
+		PVCountedBasePD(PVCountedBasePD const & );
+		PVCountedBasePD & operator= (PVCountedBasePD const & );
+
+		typedef PVCountedBasePD<P, D> this_type;
+	};
+}
 
 }
 

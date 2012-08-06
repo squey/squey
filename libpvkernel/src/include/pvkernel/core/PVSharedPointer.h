@@ -13,6 +13,7 @@
 #include <cassert>
 #include <type_traits>
 
+#include <pvkernel/core/PVCounters.h>
 #include <pvkernel/core/PVCountedBase.h>
 #include <pvkernel/core/PVEnableSharedFromThis.h>
 
@@ -27,88 +28,9 @@ class PVWeakPtr;
 
 namespace __impl
 {
-
-template <typename T>
-class PVSharedCounter
-{
-	template<typename X> friend class PVWeakCounter;
-	template<typename X> friend class PVSharedCounter;
-
-public:
-	typedef T        type;
-	typedef T*       pointer;
-	typedef void(*deleter)(pointer);
-
-	PVSharedCounter(pointer p = nullptr) : _px(p)
-	{
-		_counted_base = new PVCountedBase<T>();
-	}
-
-	PVSharedCounter(pointer p, deleter d) : _px(p)
-	{
-		_counted_base = new PVCountedBase<T>(d);
-	}
-
-	PVSharedCounter(PVSharedCounter<T> const & r) : _px(r._px), _counted_base(r._counted_base)
-	{
-		if(_counted_base != nullptr ) {
-			_counted_base->add_ref_copy();
-		}
-	}
-
-	template <typename Y>
-	PVSharedCounter(PVSharedCounter<Y> const & r) : _px(r._px), _counted_base((PVCore::PVCountedBase<T>*) r._counted_base)
-	{
-		if(_counted_base != nullptr ) {
-			_counted_base->add_ref_copy();
-		}
-	}
-
-	PVSharedCounter(PVWeakCounter<T> const & r) : _px(r._px), _counted_base(r._counted_base)
-	{
-		if(_counted_base != nullptr && !_counted_base->add_ref_lock()) {
-			_counted_base = nullptr;
-		}
-	}
-
-	~PVSharedCounter()
-	{
-		 if(_counted_base != nullptr) {
-			 _counted_base->release(_px);
-		 }
-	}
-
-	void swap(PVSharedCounter & r)
-	{
-		PVCountedBase<T>* tmp = r._counted_base;
-		r._counted_base = _counted_base;
-		_counted_base = tmp;
-	}
-
-	inline long add_ref_copy()
-	{
-		return _counted_base->add_ref_copy();
-	}
-
-	inline void set(pointer p) { _px = p; }
-	inline pointer get() const { return _px; }
-
-	inline void set_deleter(deleter d = nullptr) { _counted_base->set_deleter(d); }
-	inline deleter get_deleter() const { return _counted_base->get_deleter(); }
-
-	inline long use_count() const { return _counted_base->use_count(); }
-
-	inline bool empty() const { return _counted_base == nullptr; }
-
-private:
-	pointer _px;
-	PVCountedBase<T>* _counted_base;
-};
-
 struct static_cast_tag {};
 struct const_cast_tag {};
 struct dynamic_cast_tag {};
-
 }
 
 /**
@@ -125,23 +47,23 @@ public:
 	template<typename X> friend class PVSharedPtr;
 
 public:
-	typedef T                          type;
-	typedef __impl::PVSharedCounter<T> shared_counter_t;
-	typedef type*                      pointer;
+	typedef T type;
+	typedef PVSharedCounter shared_counter_t;
+	typedef type* pointer;
 	typedef void(*deleter)(pointer);
 
 
-	PVSharedPtr() : _shared_count(nullptr, nullptr)
+	PVSharedPtr() : _shared_count()
 	{
 	}
 
-	PVSharedPtr(pointer p) : _shared_count(p, nullptr)
+	PVSharedPtr(pointer p) : _shared_count(p)
 	{
 		enable_shared_from_this(this, p);
 	}
 
 	template<class Y>
-	explicit PVSharedPtr(Y* p) : _shared_count(p, nullptr)
+	explicit PVSharedPtr(Y* p) : _shared_count(p)
 	{
 		enable_shared_from_this(this, p);
 	}
@@ -203,13 +125,11 @@ public:
 
 	template<class Y> void reset(Y* p)
 	{
-		assert(_shared_count.get() == nullptr || _shared_count.get() != p); // catch self-reset errors
 		PVSharedPtr<T>(p).swap(*this);
 	}
 
 	template<class Y, class D> void reset(Y * p, D d)
 	{
-		assert(_shared_count.get() == nullptr || _shared_count.get() != p); // catch self-reset errors
 		PVSharedPtr<T>(p, d).swap(*this);
 	}
 
@@ -219,23 +139,23 @@ public:
 		return *this;
 	}
 
-	inline pointer get() const { return _shared_count.get(); }
+	inline pointer get() const { return (pointer) _shared_count.get(); }
 	inline operator bool() const { return (_shared_count.get() != nullptr); }
 
 	inline T& operator*() const
 	{
 		assert(_shared_count.get() != nullptr);
-		return *_shared_count.get();
+		return * (T*)_shared_count.get();
 	}
 
 	inline T* operator->() const
 	{
 		assert(_shared_count.get() != nullptr);
-		return _shared_count.get();
+		return (T*) _shared_count.get();
 	}
 
-	void set_deleter(deleter d)	{ _shared_count.set_deleter(d); }
-	deleter get_deleter() const	{ return _shared_count.get_deleter(); }
+	void set_deleter(deleter d)	{ _shared_count.set_deleter((void*)d); }
+	deleter get_deleter() const	{ return (deleter) _shared_count.get_deleter(); }
 
 	long use_count() const { return _shared_count.use_count(); }
 

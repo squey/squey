@@ -142,6 +142,6 @@ target_link_libraries(Trush_format_conv ${LINK_LIBRARIES})
 
 if(PYTHONLIBS_FOUND)
 	# Python NRAW
-	add_executable(Trush_python_nraw python_nraw.cpp)
-	target_link_libraries(Trush_python_nraw ${LINK_LIBRARIES} ${PYTHON_LIBRARY} ${Boost_LIBRARIES_PYTHON})
+	#	add_executable(Trush_python_nraw python_nraw.cpp)
+	#target_link_libraries(Trush_python_nraw ${LINK_LIBRARIES} ${PYTHON_LIBRARY} ${Boost_LIBRARIES_PYTHON})
 endif(PYTHONLIBS_FOUND)

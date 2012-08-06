@@ -48,10 +48,12 @@ int main()
 	Test1* test1_p2 = new Test1();
 	Test1* test1_p3 = new Test1();
 	Test1_sp test1_sp1(test1_p1);
-	test1_sp1.set_deleter(&deleter<Test1>);
+	//test1_sp1.set_deleter(&deleter<Test1>);
 	Test1_wp test1_wp1(test1_sp1);
 
 	// weak pointer does not increment the counter itself
+	std::cout << "test1_sp1.use_count()=" << test1_sp1.use_count() << std::endl;
+	assert(test1_sp1.use_count() == 1);
 	std::cout << "test1_wp1.use_count()=" << test1_wp1.use_count() << std::endl;
 	assert(test1_wp1.use_count() == 1);
 
@@ -164,10 +166,6 @@ int main()
 	//Test3* test3_p2 = create_Test3();
 	//Test3_sp test3_sp2(test3_p2);
 	//Test1_sp test1_sp7(test3_sp2);
-
-	// Test if PVSharedPtr size is not any greater than boost::shared_ptr
-	std::cout << "sizeof(PVCore::PVSharedPtr<Test1>)=" << sizeof(Test1_sp) << ", sizeof(boost::shared_ptr<Test1>)=" << sizeof(boost::shared_ptr<Test1>) << std::endl;
-	assert(sizeof(Test1_sp) == sizeof(boost::shared_ptr<Test1>));
 
 	return 0;
 }
