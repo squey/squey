@@ -324,7 +324,6 @@ static void show_codes_cuda(PVParallelView::PVBCICode<Bbits>* device_codes, uint
 	float time = 0;
 	picviz_verify_cuda(cudaEventElapsedTime(&time, start, end));
 	fprintf(stderr, "CUDA kernel time: %0.4f ms, BW: %0.4f MB/s\n", time, (double)(n*sizeof(PVBCICode<Bbits>))/(double)((time/1000.0)*1024.0*1024.0));
-	sleep(1);
 }
 
 void show_codes_cuda10(PVParallelView::PVBCICode<10>* device_codes, uint32_t n, uint32_t width, uint32_t* device_img, uint32_t img_width, uint32_t x_start, const float zoom_y, cudaStream_t stream)
