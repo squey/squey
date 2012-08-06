@@ -48,9 +48,9 @@ void usage(const char* path)
 
 /*****************************************************************************/
 
-#define BBITS 10
+#define RENDERING_BITS PARALLELVIEW_ZZT_BBITS
 
-typedef PVParallelView::PVZonesDrawing<BBITS> zones_drawing_t;
+typedef PVParallelView::PVZonesDrawing<RENDERING_BITS> zones_drawing_t;
 
 int main(int argc, char** argv)
 {
@@ -92,7 +92,7 @@ int main(int argc, char** argv)
 	zm.set_uint_plotted(norm_plotted, nrows, ncols);
 	zm.update_all();
 
-	PVParallelView::PVBCIDrawingBackendCUDA<BBITS> backend_cuda;
+	PVParallelView::PVBCIDrawingBackendCUDA<RENDERING_BITS> backend_cuda;
 	zones_drawing_t &zones_drawing = *(new zones_drawing_t(zm, backend_cuda, *colors));
 
 	QGraphicsView view;

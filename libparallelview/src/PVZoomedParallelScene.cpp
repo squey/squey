@@ -56,8 +56,6 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(QObject *parent,
 		}
 	}
 
-	_back_image = QImage(view()->width(), view()->height(), QImage::Format_ARGB32);
-
 	update_zoom();
 
 	// make sure all tiles are invalid
@@ -175,7 +173,7 @@ void PVParallelView::PVZoomedParallelScene::drawBackground(QPainter *painter,
 
 	// the tile set must be updated before any computation
 	for (int i = 0; i < tile_number; ++i) {
-		update_tile_position(i);
+		update_tile_geometry(i);
 	}
 	check_tiles_validity();
 
@@ -203,7 +201,7 @@ void PVParallelView::PVZoomedParallelScene::drawBackground(QPainter *painter,
 
 		for (int i = 0; i < tile_number; ++i) {
 			if (_right_tiles[i].number < tile_num) {
-				draw_tile(&image_painter,right_scene_rect, _right_tiles[i]);
+				draw_tile(&image_painter, right_scene_rect, _right_tiles[i]);
 				// raster_tile_with_hinting(_back_image, right_scene_rect, _right_tiles[i]);
 			}
 		}
@@ -281,10 +279,10 @@ void PVParallelView::PVZoomedParallelScene::raster_tile_with_hinting(QImage &ima
 }
 
 /*****************************************************************************
- * PVParallelView::PVZoomedParallelScene::update_tile_position
+ * PVParallelView::PVZoomedParallelScene::update_tile_geometry
  *****************************************************************************/
 
-void PVParallelView::PVZoomedParallelScene::update_tile_position(int tile_index)
+void PVParallelView::PVZoomedParallelScene::update_tile_geometry(int tile_index)
 {
 	/* some init
 	 */

@@ -70,16 +70,15 @@ public:
 	                             const PVHSVColor* colors, PVBCICode<bbits>* codes) const;
 
 private:
-	inline uint32_t compute_index(const PVParallelView::PVQuadTreeEntry &e) const
-	{
-		return  (((e.y2 >> (32-NBITS_INDEX)) & MASK_INT_YCOORD) << NBITS_INDEX) +
-			((e.y1 >> (32-NBITS_INDEX)) & MASK_INT_YCOORD);
-	}
-
 	inline uint32_t compute_index(uint32_t y1, uint32_t y2) const
 	{
 		return  (((y2 >> (32-NBITS_INDEX)) & MASK_INT_YCOORD) << NBITS_INDEX) +
 			((y1 >> (32-NBITS_INDEX)) & MASK_INT_YCOORD);
+	}
+
+	inline uint32_t compute_index(const PVParallelView::PVQuadTreeEntry &e) const
+	{
+		return compute_index(e.y1, e.y2);
 	}
 
 private:
