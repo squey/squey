@@ -11,7 +11,8 @@
 #include <QScrollBar>
 #include <QGraphicsSceneMouseEvent>
 
-#define SCENE_HEIGHT IMAGE_HEIGHT
+#define SCENE_SIDE 1024
+#define ZOOM_IMAGE_WIDTH 1024
 
 /*****************************************************************************
  * PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene
@@ -42,7 +43,7 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(QObject *parent,
 		_left_tiles = new zoomed_tile_t[tile_number];
 
 		for (int i = 0; i < tile_number; ++i) {
-			backend_image_p_t img = zones_drawing.create_image(IMAGE_HEIGHT);
+			backend_image_p_t img = zones_drawing.create_image(image_height);
 			_left_tiles[i].bimage = img;
 		}
 	}
@@ -51,7 +52,7 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(QObject *parent,
 		_right_tiles = new zoomed_tile_t[tile_number];
 
 		for (int i = 0; i < tile_number; ++i) {
-			backend_image_p_t img = zones_drawing.create_image(IMAGE_HEIGHT);
+			backend_image_p_t img = zones_drawing.create_image(image_height);
 			_right_tiles[i].bimage = img;
 		}
 	}
@@ -211,7 +212,6 @@ void PVParallelView::PVZoomedParallelScene::drawBackground(QPainter *painter,
 	painter->drawImage(QPoint(0,0), _back_image);
 	BENCH_END(drawBackground, "drawBackground", 1, 1, 1, 1);
 
-
 	// draw axis
 	QPen new_pen = QPen(Qt::white);
 	new_pen.setColor(QColor(0xFFFFFFFF));
@@ -238,17 +238,17 @@ void PVParallelView::PVZoomedParallelScene::draw_tile(QPainter *painter,
 
 	QRectF inter = scene_rect.intersected(tile.coord);
 
-	QRect screen_area = view()->mapFromScene(inter).boundingRect();
+	QRect view_area = view()->mapFromScene(inter).boundingRect();
 
 	// we need the sub-area of tile's image to draw
 	QRect tile_rel;
-	tile_rel.setLeft((int)(IMAGE_HEIGHT * (inter.x() - tile.coord.x()) / tile.coord.width()));
-	tile_rel.setTop((int)(IMAGE_HEIGHT * (inter.y() - tile.coord.y()) / tile.coord.height()));
+	tile_rel.setLeft((int)(ZOOM_IMAGE_WIDTH * (inter.x() - tile.coord.x()) / tile.coord.width()));
+	tile_rel.setTop((int)(image_height * (inter.y() - tile.coord.y()) / tile.coord.height()));
 
-	tile_rel.setWidth((int)(IMAGE_HEIGHT * (inter.width() / tile.coord.width())));
-	tile_rel.setHeight((int)(IMAGE_HEIGHT * (inter.height() / tile.coord.height())));
+	tile_rel.setWidth((int)(ZOOM_IMAGE_WIDTH * (inter.width() / tile.coord.width())));
+	tile_rel.setHeight((int)(image_height * (inter.height() / tile.coord.height())));
 
-	painter->drawImage(screen_area, tile.bimage->qimage(), tile_rel);
+	painter->drawImage(view_area, tile.bimage->qimage(), tile_rel);
 }
 
 /*****************************************************************************
@@ -265,15 +265,15 @@ void PVParallelView::PVZoomedParallelScene::raster_tile_with_hinting(QImage &ima
 
 	QRectF inter = scene_rect.intersected(tile.coord);
 
-	QRect screen_area = view()->mapFromScene(inter).boundingRect();
+	QRect view_area = view()->mapFromScene(inter).boundingRect();
 
 	// we need the sub-area of tile's image to draw
 	QRect tile_rel;
-	tile_rel.setLeft((int)(IMAGE_HEIGHT * (inter.x() - tile.coord.x()) / tile.coord.width()));
-	tile_rel.setTop((int)(IMAGE_HEIGHT * (inter.y() - tile.coord.y()) / tile.coord.height()));
+	tile_rel.setLeft((int)(ZOOM_IMAGE_WIDTH * (inter.x() - tile.coord.x()) / tile.coord.width()));
+	tile_rel.setTop((int)(image_height * (inter.y() - tile.coord.y()) / tile.coord.height()));
 
-	tile_rel.setWidth((int)(IMAGE_HEIGHT * (inter.width() / tile.coord.width())));
-	tile_rel.setHeight((int)(IMAGE_HEIGHT * (inter.height() / tile.coord.height())));
+	tile_rel.setWidth((int)(ZOOM_IMAGE_WIDTH * (inter.width() / tile.coord.width())));
+	tile_rel.setHeight((int)(image_height * (inter.height() / tile.coord.height())));
 
 	// TODO: replace the Code (tm) (c) :)
 }
@@ -288,7 +288,7 @@ void PVParallelView::PVZoomedParallelScene::update_tile_geometry(int tile_index)
 	 */
 	long tile_num = get_tile_num();
 	double tile_scale = 1. / (double)tile_num;
-	double tile_height = SCENE_HEIGHT / (double)tile_num;
+	double tile_height = SCENE_SIDE / (double)tile_num;
 
 	/* get the position of the upper tile (in tile's space). It is
 	 * deduced from the view's top in scene's space
@@ -307,7 +307,7 @@ void PVParallelView::PVZoomedParallelScene::update_tile_geometry(int tile_index)
 	int number = tile_upper_pos + tile_shift;
 	double new_y = (number) * tile_height;
 
-	QSizeF tile_size(IMAGE_HEIGHT * .5, IMAGE_HEIGHT * tile_scale);
+	QSizeF tile_size(ZOOM_IMAGE_WIDTH * .5, 1024 * tile_scale);
 
 	// reconfigure all tiles
 	if (_left_tiles) {
@@ -342,7 +342,7 @@ void PVParallelView::PVZoomedParallelScene::update_zoom()
 	_zoom_level = get_zoom_level();
 	int step = get_zoom_step();
 
-	setSceneRect(-SCENE_HEIGHT * 0.5, 0., SCENE_HEIGHT, SCENE_HEIGHT);
+	setSceneRect(-0.5 * SCENE_SIDE, 0., SCENE_SIDE, SCENE_SIDE);
 
 	// Phillipe's magic formula: 2^n × a^k
 	double s = pow(2, _zoom_level) * pow(root_step, step);
@@ -431,10 +431,14 @@ void PVParallelView::PVZoomedParallelScene::check_tiles_validity()
 void PVParallelView::PVZoomedParallelScene::render_tile(zoomed_tile_t &tile, bool is_left)
 {
 	long tile_num = get_tile_num();
-	double tile_height = SCENE_HEIGHT / (double)tile_num;
+	double tile_height = SCENE_SIDE / (double)tile_num;
 
-	// we render at _zoom_level+1
-	int level = _zoom_level + 1;
+	int level = _zoom_level;
+
+	if (image_height == 1024) {
+		// in that case, we render at _zoom_level+1
+		level += 1;
+	}
 
 	uint32_t y_min = ((long)tile.coord.top() / tile_height) * (1 << (32 - level));
 

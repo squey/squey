@@ -19,13 +19,14 @@ namespace PVParallelView
 
 class PVZoomedParallelScene : public QGraphicsScene
 {
-	constexpr static size_t bbits = NBITS_INDEX;
+	constexpr static size_t bbits = PARALLELVIEW_ZZT_BBITS;
 	constexpr static int zoom_steps = 5;
 	constexpr static double root_step = pow(2.0, 1.0 / zoom_steps);
 	constexpr static int tile_number = 3;
+	constexpr static uint32_t image_height = constants<bbits>::image_height;
 
 public:
-	typedef PVParallelView::PVZonesDrawing<bbits> zones_drawing_t;
+	typedef PVZonesDrawing<bbits> zones_drawing_t;
 	typedef typename zones_drawing_t::backend_image_p_t backend_image_p_t;
 
 private:
@@ -82,8 +83,12 @@ private:
 private:
 	int get_tile_num()
 	{
-		// the true formula is: 2 * (1 << _zoom_level);;
-		return 1 << (1 + _zoom_level);
+		if (bbits == 10) {
+			// the true formula is: 2 * (1 << _zoom_level);;
+			return 1 << (1 + _zoom_level);
+		} else {
+			return 1 << (_zoom_level);
+		}
 	}
 
 	int get_zoom_level()
