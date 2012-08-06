@@ -14,13 +14,15 @@ namespace PVCore
 {
 
 class PVWeakCounter;
+template <typename T>
+class PVSharedPointer;
 
 class PVSharedCounter
 {
 	friend class PVWeakCounter;
 
 public:
-	PVSharedCounter() : _counted_base(nullptr)
+	PVSharedCounter(): _counted_base(nullptr)
 	{
 	}
 
@@ -52,12 +54,11 @@ public:
 		 }
 	}
 
-	/*void swap(PVSharedCounter & r)
+	template <class T>
+	void init_null()
 	{
-		PVCountedBase* tmp = r._counted_base;
-		r._counted_base = _counted_base;
-		_counted_base = tmp;
-	}*/
+		_counted_base = new __impl::PVCountedBasePD<T*, void(*)(T*)>(nullptr);
+	}
 
 	inline long add_ref_copy()
 	{

@@ -53,8 +53,9 @@ public:
 	typedef void(*deleter)(pointer);
 
 
-	PVSharedPtr() : _shared_count()
+	PVSharedPtr()
 	{
+		_shared_count.init_null<T>();
 	}
 
 	PVSharedPtr(pointer p) : _shared_count(p)
