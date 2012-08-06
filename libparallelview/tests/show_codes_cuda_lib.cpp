@@ -54,7 +54,7 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	QApplication app(argc, argv);
+	//QApplication app(argc, argv);
 
 	size_t width = WIDTH;
 	if (argc >= 3) {
@@ -71,14 +71,14 @@ int main(int argc, char** argv)
 	PVParallelView::PVBCIDrawingBackendCUDA<BBITS> backend_cuda;
 	PVParallelView::PVBCIBackendImage_p<BBITS> dst_img = backend_cuda.create_image(width);
 
-	backend_cuda(*dst_img, 0, width, codes, n);
+	backend_cuda(*dst_img, 0, width, codes, n, 0.21f);
 
 	QImage img(dst_img->qimage());
 	write(4, img.constBits(), img.height() * img.width() * sizeof(uint32_t));
 
-	show_qimage("test", dst_img->qimage());
+	//show_qimage("test", dst_img->qimage());
 
-	app.exec();
+	//app.exec();
 
 	return 0;
 }

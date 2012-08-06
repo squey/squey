@@ -13,8 +13,8 @@
 
 #include <cassert>
 
-#define NTHREADS_BLOCK 768
-#define SMEM_IMG_KB (2*4)
+#define NTHREADS_BLOCK 512
+#define SMEM_IMG_KB (4*4)
 
 // From http://code.google.com/p/cudaraster/source/browse/trunk/src/cudaraster/cuda/Util.hpp?r=4
 // See ptx_isa_3.0.pdf in CUDA SDK documentation for more information on prmt.b32
@@ -27,7 +27,9 @@ __device__ __inline__ unsigned int prmt(unsigned int a, unsigned int b, unsigned
 
 using PVParallelView::PVBCICode;
 
-#define MASK_ZBUFFER 0x00FFFFFF
+//#define MASK_ZBUFFER 0x00FFFFFF
+#define MASK_ZBUFFER 0xFFFFFF00
+#define MASK_COLOR   0x000000FF
 
 #pragma pack(push)
 #pragma pack(4)
@@ -94,7 +96,7 @@ __device__ __noinline__ unsigned int hsv2rgb(unsigned int hsv)
 }
 
 template <size_t Bbits>
-__global__ void bcicode_raster_unroll2(uint2* bci_codes, unsigned int n, unsigned int width,  unsigned int* img_dst, unsigned int img_width, unsigned int img_x_start)
+__global__ void bcicode_raster_unroll2(uint2* bci_codes, unsigned int n, unsigned int width,  unsigned int* img_dst, unsigned int img_width, unsigned int img_x_start, const float zoom_y)
 {
 	// shared_size = blockDim.x*IMAGE_HEIGHT*sizeof(img_zbuffer_t)
 	__shared__ unsigned int shared_img[(SMEM_IMG_KB*1024)/sizeof(unsigned int)];
@@ -195,6 +197,7 @@ __global__ void bcicode_raster_unroll2(uint2* bci_codes, unsigned int n, unsigne
 		}
 		__syncthreads();
 	}
+#endif
 	for (; idx_codes < n_end; idx_codes += size_grid2) {
 		uint2 code0 = bci_codes[idx_codes];
 		uint2 code1 = bci_codes[idx_codes+size_grid];
@@ -216,75 +219,61 @@ __global__ void bcicode_raster_unroll2(uint2* bci_codes, unsigned int n, unsigne
 		// }
 
 		// 24-bit z-buffer
-		code0.x >>= 8; code1.x >>= 8;
+		code0.x &= MASK_ZBUFFER; code1.x &= MASK_ZBUFFER;
 
 		// Get l, r and color
-		const float l0 = (float) (code0.y & 0x3ff);
-		const float r0 = (float) ((code0.y & 0xffc00)>>10);
-		const float l1 = (float) (code1.y & 0x3ff);
-		const float r1 = (float) ((code1.y & 0xffc00)>>10);
+		const float l0 = (float) (code0.y & PVParallelView::constants<Bbits>::mask_int_ycoord);
+		const float r0 = (float) ((code0.y >> Bbits) & PVParallelView::constants<Bbits>::mask_int_ycoord);
+		const float l1 = (float) (code1.y & PVParallelView::constants<Bbits>::mask_int_ycoord);
+		const float r1 = (float) ((code1.y >> Bbits) & PVParallelView::constants<Bbits>::mask_int_ycoord);
 
 		// Compute the y coordinate for band_x
-		const int pixel_y0 = (int) (r0 + ((l0-r0)*alpha) + 0.5f);
-		const int pixel_y1 = (int) (r1 + ((l1-r1)*alpha) + 0.5f);
-		unsigned int idx_shared_img0 = threadIdx.x + pixel_y0*blockDim.x;
-		unsigned int idx_shared_img1 = threadIdx.x + pixel_y1*blockDim.x;
-		const unsigned int color0 = (code0.y & 0xff00000)<<4;
-		const unsigned int color1 = (code1.y & 0xff00000)<<4;
+		int pixel_y00 = (int) (((r0 + ((l0-r0)*alpha0)) * zoom_y) + 0.5f);
+		int pixel_y01 = (int) (((r0 + ((l0-r0)*alpha1)) * zoom_y) + 0.5f);
+		if (pixel_y00 > pixel_y01) {
+			const int tmp = pixel_y00;
+			pixel_y00 = pixel_y01;
+			pixel_y01 = tmp;
+		}
+		int pixel_y10 = (int) (((r1 + ((l1-r1)*alpha0)) * zoom_y) + 0.5f);
+		int pixel_y11 = (int) (((r1 + ((l1-r1)*alpha1)) * zoom_y) + 0.5f);
+		if (pixel_y10 > pixel_y11) {
+			const int tmp = pixel_y10;
+			pixel_y10 = pixel_y11;
+			pixel_y11 = tmp;
+		}
+		const unsigned int shared_v0 = ((code0.y >> 2*Bbits) & 0xff) | code0.x;
+		const unsigned int shared_v1 = ((code1.y >> 2*Bbits) & 0xff) | code1.x;
 
-		// Set shared_img
-		unsigned int cur_shared_p0 = shared_img[idx_shared_img0] & MASK_ZBUFFER;
-		if (cur_shared_p0 > code0.x) {
-			shared_img[idx_shared_img0] = color0 | code0.x;
+		atomicMin(&shared_img[threadIdx.x + pixel_y00*blockDim.x], shared_v0);
+		atomicMin(&shared_img[threadIdx.x + pixel_y10*blockDim.x], shared_v1);
+
+		for (int pixel_y0 = pixel_y00+1; pixel_y0 < pixel_y01; pixel_y0++) {
+			atomicMin(&shared_img[threadIdx.x + pixel_y0*blockDim.x], shared_v0);
 		}
-		unsigned int cur_shared_p1 = shared_img[idx_shared_img1] & MASK_ZBUFFER;
-		if (cur_shared_p1 > code1.x) {
-			shared_img[idx_shared_img1] = color1 | code1.x;
+		for (int pixel_y1 = pixel_y10+1; pixel_y1 < pixel_y11; pixel_y1++) {
+			atomicMin(&shared_img[threadIdx.x + pixel_y1*blockDim.x], shared_v1);
 		}
 	}
 	for (; idx_codes < n; idx_codes += size_grid) {
 		uint2 code0 = bci_codes[idx_codes];
-		code0.x >>= 8;
-		float l0 = (float) (code0.y & 0x3ff);
-		float r0 = (float) ((code0.y & 0xffc00)>>10);
-		int pixel_y0 = (int) (r0 + ((l0-r0)*alpha) + 0.5f);
-		unsigned int idx_shared_img0 = threadIdx.x + pixel_y0*blockDim.x;
-		unsigned int cur_shared_p = shared_img[idx_shared_img0];
-		if ((cur_shared_p & MASK_ZBUFFER) > code0.x) {
-			unsigned int color0 = (code0.y & 0xff00000)<<4;
-			shared_img[idx_shared_img0] = color0 | code0.x;
-		}
-	}
-#endif
-	for (; idx_codes < n; idx_codes += size_grid) {
-		uint2 code0 = bci_codes[idx_codes];
-		code0.x >>= 8;
-		float l0 = (float) (code0.y & PVParallelView::constants<Bbits>::mask_int_ycoord);
-		float r0 = (float) ((code0.y >> Bbits) & PVParallelView::constants<Bbits>::mask_int_ycoord);
-		int pixel_y00 = (int) (r0 + ((l0-r0)*alpha0) + 0.5f);
-		int pixel_y01 = (int) (r0 + ((l0-r0)*alpha1) + 0.5f);
+		code0.x &= MASK_ZBUFFER;
+		const float l0 = (float) (code0.y & PVParallelView::constants<Bbits>::mask_int_ycoord);
+		const float r0 = (float) ((code0.y >> Bbits) & PVParallelView::constants<Bbits>::mask_int_ycoord);
+		int pixel_y00 = (int) (((r0 + ((l0-r0)*alpha0)) * zoom_y) + 0.5f);
+		int pixel_y01 = (int) (((r0 + ((l0-r0)*alpha1)) * zoom_y) + 0.5f);
 		if (pixel_y00 > pixel_y01) {
 			const int tmp = pixel_y00;
 			pixel_y00 = pixel_y01;
 			pixel_y01 = tmp;
 		}
 
-		unsigned int idx_shared_img0 = threadIdx.x + pixel_y00*blockDim.x;
-		unsigned int cur_shared_p = shared_img[idx_shared_img0];
-		if ((cur_shared_p & MASK_ZBUFFER) > code0.x) {
-			unsigned int color0 = (code0.y & 0xff00000)<<4;
-			shared_img[idx_shared_img0] = color0 | code0.x;
-		}
-
+		const unsigned int color0 = (code0.y >> 2*Bbits) & 0xff;
+		const unsigned int shared_v = color0 | code0.x;
+		atomicMin(&shared_img[threadIdx.x + pixel_y00*blockDim.x], shared_v);
 		for (int pixel_y0 = pixel_y00+1; pixel_y0 < pixel_y01; pixel_y0++) {
-			idx_shared_img0 = threadIdx.x + pixel_y0*blockDim.x;
-			cur_shared_p = shared_img[idx_shared_img0];
-			if ((cur_shared_p & MASK_ZBUFFER) > code0.x) {
-				unsigned int color0 = (code0.y & 0xff00000)<<4;
-				shared_img[idx_shared_img0] = color0 | code0.x;
-			}
+			atomicMin(&shared_img[threadIdx.x + pixel_y0*blockDim.x], shared_v);
 		}
-		__syncthreads();
 	}
 	
 	band_x += img_x_start;
@@ -294,7 +283,7 @@ __global__ void bcicode_raster_unroll2(uint2* bci_codes, unsigned int n, unsigne
 		const unsigned int pixel_shared = shared_img[threadIdx.x + y*blockDim.x];
 		unsigned int pixel;
 		if (pixel_shared != 0xFFFFFFFF) {
-			pixel = hsv2rgb(pixel_shared>>24);
+			pixel = hsv2rgb(pixel_shared & MASK_COLOR);
 		}
 		else {
 			pixel = 0x00000000; // Transparent background
@@ -304,14 +293,15 @@ __global__ void bcicode_raster_unroll2(uint2* bci_codes, unsigned int n, unsigne
 }
 
 template <size_t Bbits>
-void show_codes_cuda(PVParallelView::PVBCICode<Bbits>* device_codes, uint32_t n, uint32_t width, uint32_t* device_img, uint32_t img_width, uint32_t x_start, cudaStream_t stream)
+static void show_codes_cuda(PVParallelView::PVBCICode<Bbits>* device_codes, uint32_t n, uint32_t width, uint32_t* device_img, uint32_t img_width, uint32_t x_start, const float zoom_y, cudaStream_t stream)
 {
+	assert((zoom_y > 0) && (zoom_y <= 1.0f));
 	// Compute number of threads per block
 	int nthreads_x = (picviz_min(width, (SMEM_IMG_KB*1024)/(PVParallelView::constants<Bbits>::image_height*sizeof(img_zbuffer_t))));
 	int nthreads_y = NTHREADS_BLOCK/nthreads_x;
 	assert(nthreads_x*nthreads_y <= NTHREADS_BLOCK);
 
-//	PVLOG_INFO("Number threads per block: %d x %d\n", nthreads_x, nthreads_y);
+	PVLOG_INFO("Number threads per block: %d x %d\n", nthreads_x, nthreads_y);
 	cudaEvent_t start,end;
 	picviz_verify_cuda(cudaEventCreate(&start));
 	picviz_verify_cuda(cudaEventCreate(&end));
@@ -321,30 +311,28 @@ void show_codes_cuda(PVParallelView::PVBCICode<Bbits>* device_codes, uint32_t n,
 	int nblocks = PVCuda::get_number_blocks();
 	int nblocks_x = (width+nthreads_x-1)/nthreads_x;
 	int nblocks_y = 1;
-	//PVLOG_INFO("Number of blocks: %d x %d\n", nblocks_x, nblocks_y);
+	PVLOG_INFO("Number of blocks: %d x %d\n", nblocks_x, nblocks_y);
 
 	//int shared_size = nthreads_x*IMAGE_HEIGHT*sizeof(img_zbuffer_t);
 
-	if (!stream) {
-		picviz_verify_cuda(cudaEventRecord(start, 0));
-	}
-	bcicode_raster_unroll2<Bbits><<<dim3(nblocks_x,nblocks_y),dim3(nthreads_x, nthreads_y), 0, stream>>>((uint2*) device_codes, n, width, device_img, img_width, x_start);
+	//picviz_verify_cuda(cudaFuncSetCacheConfig(bcicode_raster_unroll2<Bbits>, cudaFuncCachePreferL1));
+	picviz_verify_cuda(cudaEventRecord(start, stream));
+	bcicode_raster_unroll2<Bbits><<<dim3(nblocks_x,nblocks_y),dim3(nthreads_x, nthreads_y), 0, stream>>>((uint2*) device_codes, n, width, device_img, img_width, x_start, zoom_y);
 	picviz_verify_cuda_kernel();
-	if (!stream) {
-		picviz_verify_cuda(cudaEventRecord(end, 0));
-		picviz_verify_cuda(cudaEventSynchronize(end));
-		float time = 0;
-		picviz_verify_cuda(cudaEventElapsedTime(&time, start, end));
-		fprintf(stderr, "CUDA kernel time: %0.4f ms, BW: %0.4f MB/s\n", time, (double)(n*sizeof(PVBCICode<>))/(double)((time/1000.0)*1024.0*1024.0));
-	}
+	picviz_verify_cuda(cudaEventRecord(end, stream));
+	picviz_verify_cuda(cudaEventSynchronize(end));
+	float time = 0;
+	picviz_verify_cuda(cudaEventElapsedTime(&time, start, end));
+	fprintf(stderr, "CUDA kernel time: %0.4f ms, BW: %0.4f MB/s\n", time, (double)(n*sizeof(PVBCICode<Bbits>))/(double)((time/1000.0)*1024.0*1024.0));
+	sleep(1);
 }
 
-void show_codes_cuda10(PVParallelView::PVBCICode<10>* device_codes, uint32_t n, uint32_t width, uint32_t* device_img, uint32_t img_width, uint32_t x_start, cudaStream_t stream)
+void show_codes_cuda10(PVParallelView::PVBCICode<10>* device_codes, uint32_t n, uint32_t width, uint32_t* device_img, uint32_t img_width, uint32_t x_start, const float zoom_y, cudaStream_t stream)
 {
-	show_codes_cuda<10>(device_codes, n, width, device_img, img_width, x_start, stream);
+	show_codes_cuda<10>(device_codes, n, width, device_img, img_width, x_start, zoom_y, stream);
 }
 
-void show_codes_cuda11(PVParallelView::PVBCICode<11>* device_codes, uint32_t n, uint32_t width, uint32_t* device_img, uint32_t img_width, uint32_t x_start, cudaStream_t stream)
+void show_codes_cuda11(PVParallelView::PVBCICode<11>* device_codes, uint32_t n, uint32_t width, uint32_t* device_img, uint32_t img_width, uint32_t x_start, const float zoom_y, cudaStream_t stream)
 {
-	show_codes_cuda<11>(device_codes, n, width, device_img, img_width, x_start, stream);
+	show_codes_cuda<11>(device_codes, n, width, device_img, img_width, x_start, zoom_y, stream);
 }
