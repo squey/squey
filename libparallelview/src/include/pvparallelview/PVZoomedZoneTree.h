@@ -10,6 +10,8 @@
 #include <pvbase/types.h>
 #include <pvparallelview/common.h>
 #include <picviz/PVPlotted.h>
+
+#include <pvparallelview/common.h>
 #include <pvparallelview/PVQuadTree.h>
 #include <pvparallelview/PVZoneProcessing.h>
 #include <pvparallelview/PVZoneTree.h>
@@ -27,8 +29,8 @@ class PVHSVColor;
 
 class PVZoomedZoneTree
 {
-	typedef PVQuadTree<10000, 1000> pvquadtree;
-	constexpr static size_t bbits = 10;
+	constexpr static size_t bbits = PARALLELVIEW_ZZT_BBITS;
+	typedef PVQuadTree<10000, 1000, 0, bbits> pvquadtree;
 
 public:
 	PVZoomedZoneTree(uint32_t max_level = 8);
