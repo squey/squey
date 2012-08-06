@@ -46,7 +46,7 @@ public:
 
 public:
 	void set_output(PVLayer* out);
-	void set_view(PVView_sp view);
+	void set_view(PVView_sp const& view);
 	virtual PVCore::PVArgumentList get_default_args_for_view(PVView const& view);
 	hash_menu_function_t const& get_menu_entries() const;
 

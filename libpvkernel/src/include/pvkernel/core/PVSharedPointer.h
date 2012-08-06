@@ -53,9 +53,8 @@ public:
 	typedef void(*deleter)(pointer);
 
 
-	PVSharedPtr()
+	PVSharedPtr(): _shared_count()
 	{
-		_shared_count.init_null<T>();
 	}
 
 	PVSharedPtr(pointer p) : _shared_count(p)
@@ -140,7 +139,11 @@ public:
 		return *this;
 	}
 
-	inline pointer get() const { return (pointer) _shared_count.get(); }
+	inline pointer get() const
+	{
+		return (pointer) _shared_count.get();
+	}
+
 	inline operator bool() const { return (_shared_count.get() != nullptr); }
 
 	inline T& operator*() const
@@ -158,7 +161,10 @@ public:
 	void set_deleter(deleter d)	{ _shared_count.set_deleter((void*)d); }
 	deleter get_deleter() const	{ return (deleter) _shared_count.get_deleter(); }
 
-	long use_count() const { return _shared_count.use_count(); }
+	long use_count() const
+	{
+		return _shared_count.use_count();
+	}
 
 	inline void swap(PVSharedPtr<T>& other) { assert(this != &other); std::swap(_shared_count, other._shared_count); }
 

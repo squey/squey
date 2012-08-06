@@ -76,7 +76,7 @@ public:
 	virtual void set(void* p) = 0;
 
 	virtual void set_deleter(void* d = nullptr) = 0;
-	inline virtual void* get_deleter() const = 0;
+	virtual void* get_deleter() const = 0;
 
 private:
 	PVCountedBase(PVCountedBase const & );
@@ -123,7 +123,7 @@ namespace __impl
 			_deleter = (D) d;
 		}
 
-		inline virtual void* get_deleter() const
+		virtual void* get_deleter() const
 		{
 			pv_spin_lock_guard_t guard(_spin_lock);
 			return (void*) _deleter;

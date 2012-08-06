@@ -97,8 +97,8 @@ public:
 	QString get_format_name() const { return _extractor.get_format().get_format_name(); }
 	QString get_window_name() const { return get_name() + QString(" / ") + get_format_name(); }
 
-	PVView_sp current_view() const { return _current_view; }
-	void select_view(PVView_sp view);
+	PVView* current_view() const { return _current_view; }
+	void select_view(PVView& view);
 
 	PVRush::PVFormat& get_format() { return _extractor.get_format(); }
 	void set_format(PVRush::PVFormat const& format);
@@ -137,7 +137,7 @@ private:
 
 	PVRush::PVSourceCreator_p _src_plugin;
 	PVRush::PVNraw *nraw;
-	PVView_sp _current_view;
+	PVView* _current_view;
 	bool _restore_inv_elts;
 	QStringList _inv_elts;
 

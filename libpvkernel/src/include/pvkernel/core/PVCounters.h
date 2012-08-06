@@ -49,15 +49,9 @@ public:
 
 	~PVSharedCounter()
 	{
-		 if(_counted_base != nullptr) {
-			 _counted_base->release();
-		 }
-	}
-
-	template <class T>
-	void init_null()
-	{
-		_counted_base = new __impl::PVCountedBasePD<T*, void(*)(T*)>(nullptr);
+		if (_counted_base) {
+			_counted_base->release();
+		}
 	}
 
 	inline long add_ref_copy()
@@ -65,13 +59,29 @@ public:
 		return _counted_base->add_ref_copy();
 	}
 
-	inline void set(void* p) { _counted_base->set(p); }
-	inline void* get() const { return _counted_base->get(); }
+	inline void set(void* p) { assert(_counted_base); _counted_base->set(p); }
+	inline void* get() const
+	{
+		if (_counted_base) {
+			return _counted_base->get();
+		}
+		else {
+			return nullptr;
+		}
+	}
 
-	inline void set_deleter(void* d = nullptr) { _counted_base->set_deleter(d); }
-	inline void* get_deleter() const { return _counted_base->get_deleter(); }
+	inline void set_deleter(void* d = nullptr) { assert(_counted_base); _counted_base->set_deleter(d); }
+	inline void* get_deleter() const
+	{
+		if (_counted_base) {
+			return _counted_base->get_deleter();
+		}
+		else {
+			return nullptr;
+		}
+	}
 
-	inline long use_count() const { return _counted_base ? _counted_base->use_count() : 0; }
+	inline long use_count() const { return _counted_base ? _counted_base->use_count() : 1; }
 
 	inline bool empty() const { return _counted_base == nullptr; }
 

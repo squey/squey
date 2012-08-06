@@ -130,8 +130,8 @@ public:
 	void get_sub_col_minmax(plotted_sub_col_t& ret, float& min, float& max, PVSelection const& sel, PVCol col) const;
 	void get_col_minmax(PVRow& min, PVRow& max, PVSelection const& sel, PVCol col) const;
 	inline plotted_table_t const& get_table() const { return _table; }
-	inline PVView_sp get_view() { return get_parent<PVSource>()->current_view(); }
-	inline const PVView_sp get_view() const { return get_parent<PVSource>()->current_view(); }
+	inline PVView_sp current_view() { return get_parent<PVSource>()->current_view(); }
+	inline const PVView_sp current_view() const { return get_parent<PVSource>()->current_view(); }
 	void expand_selection_on_axis(PVSelection const& sel, PVCol axis_id, QString const& mode, bool add = true);
 
 	// Plotted dump/load
@@ -146,6 +146,7 @@ protected:
 	virtual void set_parent_from_ptr(PVMapped* mapped);
 	virtual QString get_children_description() const { return "View(s)"; }
 	virtual QString get_children_serialize_name() const { return "views"; }
+	virtual void child_added(PVView& child);
 
 private:
 	PVPlotting_p _plotting;

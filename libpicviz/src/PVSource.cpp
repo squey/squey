@@ -60,7 +60,7 @@ Picviz::PVSource::~PVSource()
 
 void Picviz::PVSource::init()
 {
-	_current_view.reset();
+	_current_view = NULL;
 	nraw = &(_extractor.get_nraw());
 	// Set extractor default values
 	_extractor.set_last_start(0);
@@ -124,10 +124,10 @@ void Picviz::PVSource::wait_extract_end(PVRush::PVControllerJob_p job)
 	extract_finished();
 }
 
-void Picviz::PVSource::select_view(PVView_sp view)
+void Picviz::PVSource::select_view(PVView& view)
 {
-	 assert(get_children<PVView>().contains(view));
-	 _current_view = view;
+	 assert(get_children<PVView>().contains(&view));
+	 _current_view = &view;
 }
 
 void Picviz::PVSource::extract_finished()

@@ -554,14 +554,13 @@ void Picviz::PVPlotted::process_from_parent_mapped(bool keep_views_info)
 	else {
 		_expanded_sels.clear();
 	}
-	if (!get_view()) {
+	if (!current_view()) {
 		PVView_sp view = PVView_p();
-		view->set_parent(this);
 		view->init_from_plotted(this, false);
 		get_parent<PVSource>()->add_view(view);
 	}
 	else {
-		get_view()->init_from_plotted(this, keep_views_info);
+		current_view()->init_from_plotted(this, keep_views_info);
 	}
 }
 
@@ -578,6 +577,13 @@ bool Picviz::PVPlotted::is_uptodate() const
 void Picviz::PVPlotted::add_column(PVPlottingProperties const& props)
 {
 	_plotting->add_column(props);
+}
+
+void Picviz::PVPlotted::child_added(PVView& child)
+{
+	if (!current_view()) {
+		get_parent<PVSource>()->select_view(child);
+	}
 }
 
 void Picviz::PVPlotted::serialize_write(PVCore::PVSerializeObject& so)

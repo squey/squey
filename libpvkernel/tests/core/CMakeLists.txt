@@ -112,4 +112,6 @@ target_link_libraries(Tcore_visit_bits ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES} ${O
 add_executable(Tcore_hardware_concurrency hardware_concurrency.cpp)
 target_link_libraries(Tcore_hardware_concurrency ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
 
-
+# Shared ptr forward
+add_executable(Tcore_shared_ptr_fwd shared_ptr_fwd.cpp)
+target_link_libraries(Tcore_shared_ptr ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES} ${OpenMP_LIBRARIES})
