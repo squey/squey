@@ -31,7 +31,7 @@
 #include <boost/random/variate_generator.hpp>
 
 #define WIDTH 1024
-#define BBITS 11
+#define BBITS 10
 
 typedef PVParallelView::PVZonesDrawing<BBITS> zones_drawing_t;
 
@@ -54,7 +54,7 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	QApplication app(argc, argv);
+	//QApplication app(argc, argv);
 
 	size_t width = WIDTH;
 	if (argc >= 3) {
@@ -76,9 +76,9 @@ int main(int argc, char** argv)
 	QImage img(dst_img->qimage());
 	write(4, img.constBits(), img.height() * img.width() * sizeof(uint32_t));
 
-	show_qimage("test", dst_img->qimage());
+	//show_qimage("test", dst_img->qimage());
 
-	app.exec();
+	//app.exec();
 
 	return 0;
 }

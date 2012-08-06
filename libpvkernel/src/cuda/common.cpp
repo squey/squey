@@ -7,7 +7,7 @@
 #include <pvkernel/cuda/common.h>
 #include <stdio.h>
 
-#define DEV_CUDA 1
+#define DEV_CUDA 0
 
 void PVCuda::init_cuda()
 {

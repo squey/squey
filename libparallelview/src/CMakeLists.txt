@@ -17,6 +17,7 @@ set(LINK_LIBRARIES ${PICVIZ_LIBRARY} ${QT_LIBRARIES} ${GLEW_LIBRARY} ${GLUT_glut
 # CUDA
 set(CUDA_PROPAGATE_HOST_FLAGS "OFF")
 set(CUDA_NVCC_FLAGS "-Xcompiler=-fPIC -gencode arch=compute_20,code=sm_20" "-Xptxas=-v")
+#set(CUDA_NVCC_FLAGS "-g -G -Xcompiler=-fPIC -gencode arch=compute_20,code=sm_20" "-Xptxas=-v")
 
 # Qt
 include(${QT_USE_FILE})
