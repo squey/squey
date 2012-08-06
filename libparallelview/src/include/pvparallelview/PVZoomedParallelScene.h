@@ -73,7 +73,7 @@ private:
 		return (QGraphicsView*) parent();
 	}
 
-	void update_tile_position(int tile_index);
+	void update_tile_geometry(int tile_index);
 	void update_zoom();
 	void invalidate_tiles();
 	void check_tiles_validity();
