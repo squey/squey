@@ -74,7 +74,7 @@ public:
 		friend class __impl::TBBSelRowsFilter;
 		friend class __impl::TBBReduceSelElts;
 
-		ProcessData(uint32_t ntasks = PVCore::PVHardwareConcurrency::get_physical_core_number()) : ntasks(ntasks)
+		ProcessData(uint32_t n = PVCore::PVHardwareConcurrency::get_physical_core_number()) : ntasks(n)
 		{
 			trees = new nbuckets_array_vector_t[ntasks];
 			first_elts = new nbuckets_array_t[ntasks];
@@ -166,10 +166,9 @@ public:
 
 public:
 	inline void process(PVZoneProcessing const& zp) { process_tbb_sse_treeb(zp); }
-	inline void process(PVZoneProcessing const& zp, ProcessData& pdata) { process_tbb_sse_treeb(zp, pdata); }
 	inline void filter_by_sel(Picviz::PVSelection const& sel) { filter_by_sel_tbb_treeb(sel); }
 
-	inline void filter_by_sel_new(PVZoneProcessing const& zp, const Picviz::PVSelection& sel, ProcessData& pdata) { filter_by_sel_tbb_treeb_new(zp, sel, pdata); }
+	inline void filter_by_sel_new(PVZoneProcessing const& zp, const Picviz::PVSelection& sel) { filter_by_sel_tbb_treeb_new(zp, sel); }
 
 	///
 	PVBranch* get_treeb() {return _treeb;}
@@ -177,13 +176,12 @@ public:
 
 public:
 	void process_omp_sse_treeb(PVZoneProcessing const& zp);
-	inline void process_tbb_sse_treeb(PVZoneProcessing const& zp) { process_tbb_sse_treeb(zp, _pdata); }
-	void process_tbb_sse_treeb(PVZoneProcessing const& zp, ProcessData& pdata);
+	void process_tbb_sse_treeb(PVZoneProcessing const& zp);
 	void process_tbb_sse_parallelize_on_branches(PVZoneProcessing const& zp);
 
 	void filter_by_sel_omp_treeb(Picviz::PVSelection const& sel);
 	void filter_by_sel_tbb_treeb(Picviz::PVSelection const& sel);
-	void filter_by_sel_tbb_treeb_new(PVZoneProcessing const& zp, const Picviz::PVSelection& sel, ProcessData& pdata);
+	void filter_by_sel_tbb_treeb_new(PVZoneProcessing const& zp, const Picviz::PVSelection& sel);
 
 private:
 	void get_float_pts(pts_t& pts, Picviz::PVPlotted::plotted_table_t const& org_plotted, PVRow nrows, PVCol col_a, PVCol col_b);
@@ -191,7 +189,6 @@ private:
 protected:
 	PVBranch _treeb[NBUCKETS];
 	PVRow* _tree_data;
-	ProcessData _pdata;
 };
 
 typedef PVZoneTree::p_type PVZoneTree_p;

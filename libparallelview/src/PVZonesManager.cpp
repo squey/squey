@@ -21,12 +21,11 @@ public:
 	void operator()(const tbb::blocked_range<PVZoneID>& r) const
 	{
 		PVParallelView::PVZonesManager* zm = _zm;
-		PVParallelView::PVZoneTree::ProcessData tls;
 		PVParallelView::PVZoneProcessing zp(zm->get_uint_plotted(), zm->get_number_rows());
 		for (PVZoneID z = r.begin(); z != r.end(); z++) {
 			zm->get_zone_cols(z, zp.col_a(), zp.col_b());
 			PVZoneTree& ztree = zm->_zones[z].ztree();
-			ztree.process(zp, tls);
+			ztree.process(zp);
 			PVZoomedZoneTree& zztree = zm->_zones[z].zoomed_ztree();
 			zztree.process(zp, ztree);
 		}
