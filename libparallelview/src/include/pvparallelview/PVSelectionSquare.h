@@ -59,10 +59,10 @@ public:
 			line.a = y2 - y1;
 			line.c = y1*width;
 
-			bool a = line(rect.topLeft().x(), rect.topLeft().y()) >= 0;
-			bool b = line(rect.topRight().x(), rect.topRight().y()) >=0;
-			bool c = line(rect.bottomLeft().x(), rect.bottomLeft().y()) >=0;
-			bool d = line(rect.bottomRight().x(), rect.bottomRight().y()) >=0;
+			const bool a = line(rect.topLeft().x(), rect.topLeft().y()) >= 0;
+			const bool b = line(rect.topRight().x(), rect.topRight().y()) >=0;
+			const bool c = line(rect.bottomLeft().x(), rect.bottomLeft().y()) >=0;
+			const bool d = line(rect.bottomRight().x(), rect.bottomRight().y()) >=0;
 
 			bool is_line_selected = (a | b | c | d) & (!(a & b & c & d));
 
