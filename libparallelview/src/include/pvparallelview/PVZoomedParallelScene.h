@@ -111,6 +111,7 @@ private:
 	QImage           _back_image;
 	zoomed_tile_t   *_left_tiles;
 	zoomed_tile_t   *_right_tiles;
+	bool             _force_render;
 };
 
 }
