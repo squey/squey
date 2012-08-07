@@ -18,6 +18,7 @@
 #include <pvparallelview/PVZoneTreeBase.h>
 #include <pvkernel/core/PVAlgorithms.h>
 #include <pvkernel/core/PVHardwareConcurrency.h>
+#include <pvkernel/core/picviz_bench.h>
 
 #include <boost/array.hpp>
 #include <boost/shared_ptr.hpp>
@@ -58,7 +59,7 @@ public:
 
 protected:
 	typedef std::vector<PVRow, tbb::scalable_allocator<PVRow> > vec_rows_t;
-	typedef PVCore::PVPODStaticArray<PVRow, NBUCKETS, PVROW_INVALID_VALUE> nbuckets_array_t;
+	typedef boost::array<PVRow, NBUCKETS> nbuckets_array_t;
 	typedef boost::array<vec_rows_t, NBUCKETS> nbuckets_array_vector_t;
 	typedef nbuckets_array_t pdata_array_t;
 	typedef nbuckets_array_vector_t pdata_tree_t;
@@ -77,13 +78,22 @@ public:
 
 		ProcessData(uint32_t n = PVCore::PVHardwareConcurrency::get_physical_core_number()) : ntasks(n)
 		{
-			PVLOG_INFO("###ProcessData###\n");
 			char* buf = tbb::scalable_allocator<char>().allocate(sizeof(pdata_tree_t)*ntasks+sizeof(pdata_array_t)*ntasks);
 			trees = (pdata_tree_t*) buf;
 			first_elts = (pdata_array_t*) (trees+ntasks);
 			for (uint32_t t = 0 ; t < ntasks; t++) {
 				new (&trees[t]) pdata_tree_t();
 				new (&first_elts[t]) pdata_array_t();
+			}
+		}
+
+		void clear()
+		{
+			for (uint32_t t = 0 ; t < ntasks; t++) {
+				memset(&first_elts[t], PVROW_INVALID_VALUE, sizeof(PVRow)*NBUCKETS);
+				for (uint32_t b = 0 ; b < NBUCKETS; b++) {
+					trees[t][b].clear();
+				}
 			}
 		}
 
