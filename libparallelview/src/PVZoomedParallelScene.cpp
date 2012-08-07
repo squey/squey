@@ -43,7 +43,7 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(QObject *parent,
 		_left_tiles = new zoomed_tile_t[tile_number];
 
 		for (int i = 0; i < tile_number; ++i) {
-			backend_image_p_t img = zones_drawing.create_image(image_height);
+			backend_image_p_t img = zones_drawing.create_image(ZOOM_IMAGE_WIDTH);
 			_left_tiles[i].bimage = img;
 		}
 	}
@@ -52,7 +52,7 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(QObject *parent,
 		_right_tiles = new zoomed_tile_t[tile_number];
 
 		for (int i = 0; i < tile_number; ++i) {
-			backend_image_p_t img = zones_drawing.create_image(image_height);
+			backend_image_p_t img = zones_drawing.create_image(ZOOM_IMAGE_WIDTH);
 			_right_tiles[i].bimage = img;
 		}
 	}

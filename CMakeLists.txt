@@ -43,7 +43,7 @@ else()
 		#SET(LINKER_OPTIMIZE_FLAGS "-flto")
 		add_definitions(-DNDEBUG) # so that 'assert' will generate no code
 		if (CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
-			add_definitions(-gstabs+)
+			add_definitions(-g)
 		endif()
 	endif(WIN32)
 endif()

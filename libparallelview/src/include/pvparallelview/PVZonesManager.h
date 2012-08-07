@@ -35,7 +35,7 @@ class PVZonesManager: boost::noncopyable
 	friend class PVParallelView::__impl::ZoneCreation;
 
 	typedef std::vector<PVZone> list_zones_t;
-	typedef tbb::enumerable_thread_specific<PVZoneTree::ProcessTLS> process_ztree_tls_t;
+	typedef tbb::enumerable_thread_specific<PVZoneTree::ProcessData> process_ztree_tls_t;
 
 public:
 	PVZonesManager();
