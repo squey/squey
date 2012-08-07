@@ -34,9 +34,15 @@ struct PVBCICode
 			uint32_t l: Bbits;
 			uint32_t r: Bbits;
 			uint32_t color: 8;
-			uint32_t __reserved: (32-2*Bbits-8);
+			uint32_t type: 2;
 		} s;
 	};
+
+	typedef enum {
+		DOWN = 0,
+		STRAIGHT = 1,
+		UP = 2
+	} _type_t;
 
 	static void init_random_codes(PVBCICode* codes, size_t n)
 	{
