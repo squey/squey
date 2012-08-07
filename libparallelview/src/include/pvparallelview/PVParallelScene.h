@@ -34,6 +34,15 @@ public:
 		_rendering_job->deleteLater();
 	}
 
+	/*void drawBackground(QPainter *painter, const QRectF & rect)
+	{
+		painter->fillRect(rect, QBrush(Qt::black));
+		painter->save();
+		painter->setPen(Qt::red);
+		painter->drawText(10, 0, "toto");
+		painter->restore();
+	}*/
+
 	inline PVLinesView* get_lines_view() { return _lines_view; }
 
 private:
@@ -119,7 +128,8 @@ private:
 			}
 
 			cancel_current_job();
-			_selection_square->compute_selection(zid, r, _sel);
+			uint32_t nb_select = _selection_square->compute_selection(zid, r, _sel);
+			view()->set_selected_line_number(nb_select);
 			launch_job_future([&](PVRenderingJob& rendering_job)
 				{
 					return _lines_view->update_sel_from_zone(view()->width(), zid, _sel, rendering_job);

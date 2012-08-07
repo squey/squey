@@ -59,6 +59,8 @@ PVParallelView::PVParallelScene::PVParallelScene(QObject* parent, PVParallelView
 	}
 
 	connect(_rendering_job, SIGNAL(zone_rendered(int)), this, SLOT(update_zone_pixmap(int)));
+
+	view()->set_total_line_number(_lines_view->get_zones_manager().get_number_rows());
 }
 
 void PVParallelView::PVParallelScene::wheelEvent(QGraphicsSceneWheelEvent* event)
