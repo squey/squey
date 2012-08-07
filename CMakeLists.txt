@@ -26,7 +26,7 @@ include(FindPkgConfig)
 
 if (DEBUG_MODE)
 	if (NOT WIN32)
-		add_definitions(-gstabs+ -march=native -Wno-unused-local-typedefs)
+		add_definitions(-g -march=native -Wno-unused-local-typedefs)
 	endif()
 else()
 	if(WIN32)
@@ -39,7 +39,7 @@ else()
 		# Intraprocedural optimisations
 		SET(LINKER_OPTIMIZE_FLAGS "/ltcg")
 	else(WIN32)
-		set(COMPILER_OPTIMIZE_FLAGS "-O3 -gstabs+ -march=native -flto=jobserver")
+		set(COMPILER_OPTIMIZE_FLAGS "-O3 -g -march=native -flto=jobserver")
 		#SET(LINKER_OPTIMIZE_FLAGS "-flto")
 		add_definitions(-DNDEBUG) # so that 'assert' will generate no code
 		if (CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
