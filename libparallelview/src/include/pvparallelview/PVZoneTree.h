@@ -25,6 +25,7 @@
 #include <boost/type_traits.hpp>
 
 #include <tbb/enumerable_thread_specific.h>
+#include <tbb/scalable_allocator.h>
 #include <tbb/task_scheduler_init.h>
 
 
@@ -76,23 +77,22 @@ public:
 
 		ProcessData(uint32_t n = PVCore::PVHardwareConcurrency::get_physical_core_number()) : ntasks(n)
 		{
-			trees = new nbuckets_array_vector_t[ntasks];
-			first_elts = new nbuckets_array_t[ntasks];
-			sel_elts = new nbuckets_array_t[ntasks];
+			char* buf = tbb::scalable_allocator<char>().allocate(sizeof(pdata_tree_t)+sizeof(pdata_array_t));
+			trees = (pdata_tree_t*) buf;
+			first_elts = (pdata_array_t*) (trees+1);
+			new (trees) pdata_tree_t();
+			new (first_elts) pdata_array_t();
 		}
 
 		// TODO: implement CLEAR methods
 
 		~ProcessData()
 		{
-			delete [] trees;
-			delete [] first_elts;
-			delete [] sel_elts;
+			tbb::scalable_allocator<char>().deallocate((char*) trees, sizeof(pdata_tree_t)+sizeof(pdata_array_t));
 		}
 
 		pdata_tree_t* trees;
 		pdata_array_t* first_elts;
-		pdata_array_t* sel_elts;
 		uint32_t ntasks;
 	};
 
@@ -167,7 +167,6 @@ public:
 public:
 	inline void process(PVZoneProcessing const& zp) { process_tbb_sse_treeb(zp); }
 	inline void filter_by_sel(Picviz::PVSelection const& sel) { filter_by_sel_tbb_treeb(sel); }
-
 	inline void filter_by_sel_new(PVZoneProcessing const& zp, const Picviz::PVSelection& sel) { filter_by_sel_tbb_treeb_new(zp, sel); }
 
 	///
