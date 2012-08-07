@@ -25,7 +25,8 @@ public:
 		for (PVZoneID z = r.begin(); z != r.end(); z++) {
 			zm->get_zone_cols(z, zp.col_a(), zp.col_b());
 			PVZoneTree& ztree = zm->_zones[z].ztree();
-			ztree.process(zp);
+			PVParallelView::PVZoneTree::ProcessData pdata;
+			ztree.process(zp, pdata);
 			PVZoomedZoneTree& zztree = zm->_zones[z].zoomed_ztree();
 			zztree.process(zp, ztree);
 		}

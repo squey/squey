@@ -275,19 +275,19 @@ private:
 	PVParallelView::PVZoneTree::PVTBBFilterSelParams const& _params;
 };*/
 
-class TBBReduceSelElts
+/*class TBBReduceSelElts
 {
 public:
 	TBBReduceSelElts (
-		PVParallelView::PVZoneTree* ztree, PVParallelView::PVZoneTree::ProcessData& pdata
+		PVParallelView::PVZoneTree* ztree, PVParallelView::PVZoneTree::SelectionElements& sel_elts
 	) :
 		_ztree(ztree),
-		_pdata(pdata)
+		_sel_elts(sel_elts)
 	{ }
 
 	TBBReduceSelElts(TBBReduceSelElts& x, tbb::split) :
 		_ztree(x._ztree),
-		_pdata(x._pdata)
+		_sel_elts(x._sel_elts)
 	{ }
 
 public:
@@ -296,15 +296,15 @@ public:
 		for (PVRow b = range.begin(); b != range.end(); ++b) {
 			//for (PVParallelView::PVZoneTree::tls_array_t::const_iterator sel_elts = _tls._tls_sel_elts.begin(); sel_elts != _tls._tls_sel_elts.end(); ++sel_elts) {
 			for (uint32_t task = 0 ; task < _pdata.ntasks ; task++) {
-				_ztree->_sel_elts[b] = picviz_min(_ztree->_sel_elts[b], _pdata.sel_elts[task][b]);
+				_ztree->_sel_elts[b] = picviz_min(_ztree->_sel_elts[b], sel_elts[task][b]);
 			}
 		}
 	}
 
 private:
 	PVParallelView::PVZoneTree* _ztree;
-	PVParallelView::PVZoneTree::ProcessData& _pdata;
-};
+	PVParallelView::PVZoneTree::SelectionElements& _sel_elts;
+};*/
 
 
 } }
@@ -379,9 +379,9 @@ PVParallelView::PVZoneTree::PVZoneTree():
 {
 }
 
-void PVParallelView::PVZoneTree::process_tbb_sse_treeb(PVZoneProcessing const& zp)
+void PVParallelView::PVZoneTree::process_tbb_sse_treeb(PVZoneProcessing const& zp, ProcessData& pdata)
 {
-	ProcessData pdata;
+
 	PVRow nrows = zp.nrows();
 
 	assert(nrows <= CUSTOMER_LINESNUMBER);

@@ -77,25 +77,25 @@ public:
 
 		ProcessData(uint32_t n = PVCore::PVHardwareConcurrency::get_physical_core_number()) : ntasks(n)
 		{
-			char* buf = tbb::scalable_allocator<char>().allocate(sizeof(pdata_tree_t)+sizeof(pdata_array_t));
+			PVLOG_INFO("###ProcessData###\n");
+			char* buf = tbb::scalable_allocator<char>().allocate(sizeof(pdata_tree_t)*ntasks+sizeof(pdata_array_t)*ntasks);
 			trees = (pdata_tree_t*) buf;
-			first_elts = (pdata_array_t*) (trees+1);
-			new (trees) pdata_tree_t();
-			new (first_elts) pdata_array_t();
+			first_elts = (pdata_array_t*) (trees+ntasks);
+			for (uint32_t t = 0 ; t < ntasks; t++) {
+				new (&trees[t]) pdata_tree_t();
+				new (&first_elts[t]) pdata_array_t();
+			}
 		}
-
-		// TODO: implement CLEAR methods
 
 		~ProcessData()
 		{
-			tbb::scalable_allocator<char>().deallocate((char*) trees, sizeof(pdata_tree_t)+sizeof(pdata_array_t));
+			tbb::scalable_allocator<char>().deallocate((char*) trees, sizeof(pdata_tree_t)*ntasks+sizeof(pdata_array_t)*ntasks);
 		}
 
 		pdata_tree_t* trees;
 		pdata_array_t* first_elts;
 		uint32_t ntasks;
 	};
-
 
 public://protected:
 	struct PVBranch
@@ -165,6 +165,7 @@ public:
 	virtual ~PVZoneTree() { }
 
 public:
+	inline void process(PVZoneProcessing const& zp, ProcessData& pdata) { process_tbb_sse_treeb(zp, pdata); }
 	inline void process(PVZoneProcessing const& zp) { process_tbb_sse_treeb(zp); }
 	inline void filter_by_sel(Picviz::PVSelection const& sel) { filter_by_sel_tbb_treeb(sel); }
 	inline void filter_by_sel_new(PVZoneProcessing const& zp, const Picviz::PVSelection& sel) { filter_by_sel_tbb_treeb_new(zp, sel); }
@@ -175,7 +176,8 @@ public:
 
 public:
 	void process_omp_sse_treeb(PVZoneProcessing const& zp);
-	void process_tbb_sse_treeb(PVZoneProcessing const& zp);
+	inline void process_tbb_sse_treeb(PVZoneProcessing const& zp) { ProcessData pdata; process_tbb_sse_treeb(zp, pdata); }
+	void process_tbb_sse_treeb(PVZoneProcessing const& zp, ProcessData& pdata);
 	void process_tbb_sse_parallelize_on_branches(PVZoneProcessing const& zp);
 
 	void filter_by_sel_omp_treeb(Picviz::PVSelection const& sel);
