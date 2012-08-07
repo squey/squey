@@ -384,6 +384,8 @@ void PVParallelView::PVZoneTree::process_tbb_sse_treeb(PVZoneProcessing const& z
 	ProcessData pdata;
 	PVRow nrows = zp.nrows();
 
+	assert(nrows <= CUSTOMER_LINESNUMBER);
+
 	// Reset intermediate trees and first elements. TODO: parallelize that
 	//tls_tree_t& tls_trees = tls._tls_trees;
 	//tls_array_t& tls_first_elts = tls._tls_first_elts;
@@ -438,6 +440,8 @@ void PVParallelView::PVZoneTree::process_tbb_sse_treeb(PVZoneProcessing const& z
 
 void PVParallelView::PVZoneTree::process_omp_sse_treeb(PVZoneProcessing const& zp)
 {
+	assert(zp.nrows() <= CUSTOMER_LINESNUMBER);
+
 	const uint32_t* pcol_a = zp.get_plotted_col_a();
 	const uint32_t* pcol_b = zp.get_plotted_col_b();
 	tbb::tick_count start, end;

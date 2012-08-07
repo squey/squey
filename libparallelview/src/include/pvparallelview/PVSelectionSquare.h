@@ -31,6 +31,7 @@ public:
 
 	void compute_selection(PVZoneID zid, QRect rect, Picviz::PVSelection& sel)
 	{
+
 		sel.select_none();
 		int32_t width = _zm.get_zone_width(zid);
 

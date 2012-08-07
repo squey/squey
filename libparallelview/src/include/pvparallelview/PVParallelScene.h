@@ -122,7 +122,6 @@ private:
 			_selection_square->compute_selection(zid, r, _sel);
 			launch_job_future([&](PVRenderingJob& rendering_job)
 				{
-
 					return _lines_view->update_sel_from_zone(view()->width(), zid, _sel, rendering_job);
 				}
 			);
