@@ -13,6 +13,7 @@
 
 #include <QGraphicsItem>
 
+#include <pvkernel/core/PVAlgorithms.h>
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVAxisSlider.h>
 
@@ -29,8 +30,11 @@ namespace PVParallelView
 
 typedef std::pair<PVAxisSlider*, PVAxisSlider*> PVAxisRangeSliders;
 
-class PVAxisGraphicsItem : public QGraphicsItemGroup
+class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
 {
+	Q_OBJECT
+
+	typedef std::vector<std::pair<PVRow, PVRow> > selection_ranges_t;
 public:
 	PVAxisGraphicsItem(Picviz::PVAxis *axis);
 
@@ -41,12 +45,30 @@ public:
 	void add_range_sliders(uint32_t y1, uint32_t y2);
 	bool sliders_moving() const;
 
-
 	QRect map_from_scene(QRectF rect) const
 	{
 		QPointF point = mapFromScene(rect.topLeft());
 		return QRect(point.x(), point.y(), rect.width(), rect.height());
 	}
+
+	selection_ranges_t get_selection_ranges()
+	{
+		selection_ranges_t ranges;
+
+		for (PVParallelView::PVAxisRangeSliders sliders : _sliders) {
+			PVRow min = PVCore::min(sliders.first->value(), sliders.second->value());
+			PVRow max = PVCore::max(sliders.first->value(), sliders.second->value());
+			ranges.push_back(std::make_pair(min, max));
+		}
+
+		return ranges;
+	}
+
+signals:
+	void axis_sliders_moved();
+
+protected slots:
+	void slider_moved() { emit axis_sliders_moved(); }
 
 private:
 	Picviz::PVAxis*                 _axis;

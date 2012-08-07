@@ -26,6 +26,7 @@ namespace PVParallelView {
 class PVParallelScene : public QGraphicsScene
 {
 	Q_OBJECT
+
 public:
 	PVParallelScene(QObject* parent, PVParallelView::PVLinesView* lines_view);
 
@@ -119,7 +120,7 @@ private:
 			// translate zones
 			translate_and_update_zones_position();
 		}
-		else
+		else if (!sliders_moving() && event->buttons() == Qt::LeftButton)
 		{
 			PVZoneID zid = _lines_view->get_zones_manager().get_zone_id(_selection_square->rect().x());
 			QRect r = map_to_axis(zid, _selection_square->rect());
@@ -186,6 +187,24 @@ private slots:
 		// Convert the image to a pixmap
 		_zones[img_id].setPixmap(QPixmap::fromImage(final_img_sel), QPixmap::fromImage(final_img_bg));
 		_zones[img_id].setPos(QPointF(_lines_view->get_zone_absolute_pos(zid), 0));
+	}
+
+
+	void update_selection()
+	{
+		PVLOG_INFO("update_selection\n");
+		for (PVAxisGraphicsItem* axis : _axes) {
+			axis->get_selection_ranges();
+		}
+
+		/*cancel_current_job();
+		launch_job_future([&](PVRenderingJob& rendering_job)
+			{
+
+				return _lines_view->update_sel_from_zone(view()->width(), zid, _sel, rendering_job);
+			}
+		);
+		update_zones_position();*/
 	}
 
 private:

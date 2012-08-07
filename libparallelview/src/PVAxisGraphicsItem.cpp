@@ -84,6 +84,10 @@ void PVParallelView::PVAxisGraphicsItem::add_range_sliders(uint32_t p1, uint32_t
 	addToGroup(sliders.second);
 
 	_sliders.push_back(sliders);
+
+	// Connection
+	connect(sliders.first, SIGNAL(slider_moved()), this, SLOT(slider_moved()));
+	connect(sliders.second, SIGNAL(slider_moved()), this, SLOT(slider_moved()));
 }
 
 /*****************************************************************************

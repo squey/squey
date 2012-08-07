@@ -65,6 +65,9 @@ target_link_libraries(masks ${LINK_LIBRARIES})
 add_executable(Tsort_test sort_test.cpp)
 target_link_libraries(Tsort_test ${LINK_LIBRARIES})
 
+add_executable(qgraphicsitem_events qgraphicsitem_events.cpp)
+target_link_libraries(qgraphicsitem_events ${LINK_LIBRARIES})
+
 if (CUDA_FOUND)
 	include_directories(AFTER ${CUDA_INCLUDE_DIRS})
 	cuda_compile(CUDA_KERNELS bci_cuda.cu)

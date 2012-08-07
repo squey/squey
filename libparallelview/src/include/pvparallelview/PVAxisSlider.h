@@ -22,11 +22,15 @@ enum {
 	SliderWidth = SLIDER_WIDTH
 };
 
-class PVAxisSlider : public QGraphicsItem
+class PVAxisSlider : public QObject, public QGraphicsItem
 {
+	Q_OBJECT
+
 public:
 	PVAxisSlider(int omin, int omax, int o);
 	~PVAxisSlider();
+
+	inline int value() { return _offset; }
 
 	QRectF boundingRect () const;
 	bool is_moving() const;
@@ -41,6 +45,9 @@ protected:
 	void mouseMoveEvent(QGraphicsSceneMouseEvent* event);
 	void mousePressEvent(QGraphicsSceneMouseEvent* event);
 	void mouseReleaseEvent(QGraphicsSceneMouseEvent* event);
+
+signals:
+	void slider_moved();
 
 private:
 	int _offset_min, _offset_max;

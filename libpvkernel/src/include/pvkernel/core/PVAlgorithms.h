@@ -124,6 +124,16 @@ template <typename T> T clamp(const T& value, const T& low, const T& high)
   return value < low ? low : (value > high ? high : value);
 }
 
+template <typename T> T min(const T& value1, const T& value2)
+{
+  return value1 < value2 ? value1 : value2;
+}
+
+template <typename T> T max(const T& value1, const T& value2)
+{
+  return value1 > value2 ? value1 : value2;
+}
+
 
 }
 
