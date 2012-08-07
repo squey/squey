@@ -48,7 +48,7 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(QObject *parent,
 		}
 	}
 
-	if (axis < zones_drawing.get_zones_manager().get_number_cols()) {
+	if (axis < zones_drawing.get_zones_manager().get_number_zones()) {
 		_right_tiles = new zoomed_tile_t[tile_number];
 
 		for (int i = 0; i < tile_number; ++i) {
