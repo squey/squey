@@ -24,7 +24,8 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(QObject *parent,
                                                              int zoom) :
 	QGraphicsScene(parent),
 	_zones_drawing(zones_drawing), _axis(axis), _wheel_value(0),
-	_left_tiles(nullptr), _right_tiles(nullptr)
+	_left_tiles(nullptr), _right_tiles(nullptr),
+	_force_render(true)
 {
 	setBackgroundBrush(Qt::black);
 	view()->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -58,10 +59,6 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(QObject *parent,
 	}
 
 	update_zoom();
-
-	// make sure all tiles are invalid
-	invalidate_tiles();
-	check_tiles_validity();
 }
 
 /*****************************************************************************
@@ -122,13 +119,11 @@ void PVParallelView::PVZoomedParallelScene::wheelEvent(QGraphicsSceneWheelEvent*
 			if (_wheel_value < 100) {
 				++_wheel_value;
 				update_zoom();
-				check_tiles_validity();
 			}
 		} else {
 			if (_wheel_value > 0) {
 				--_wheel_value;
 				update_zoom();
-				check_tiles_validity();
 			}
 		}
 	} else if (event->modifiers() == Qt::NoModifier) {
@@ -176,6 +171,12 @@ void PVParallelView::PVZoomedParallelScene::drawBackground(QPainter *painter,
 	for (int i = 0; i < tile_number; ++i) {
 		update_tile_geometry(i);
 	}
+
+	if (_force_render) {
+		invalidate_tiles();
+		_force_render = false;
+	}
+
 	check_tiles_validity();
 
 	BENCH_START(drawBackground);
@@ -376,7 +377,7 @@ void PVParallelView::PVZoomedParallelScene::update_zoom()
 	 */
 	if (_zoom_level != _old_zoom_level) {
 		_old_zoom_level = _zoom_level;
-		invalidate_tiles();
+		_force_render = true;
 	}
 }
 
