@@ -189,8 +189,8 @@ void PVParallelView::PVZoomedParallelScene2::drawBackground(QPainter *painter,
 	}
 
 	if (_right_image.get() != nullptr) {
-		_zones_drawing.draw_zoomed_zone(*_right_image, y_min, y_max, _zoom_level, _axis,
-		                                &PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1_range,
+		_zones_drawing.draw_zoomed_zone(*_right_image, y_min, _zoom_level, _axis,
+		                                &PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1,
 		                                alpha, beta);
 
 		int value = 1 + screen_center + PARALLELVIEW_AXIS_WIDTH / 2;
