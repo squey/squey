@@ -156,9 +156,9 @@ size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1(uint32_t y_min, i
 	                                                    0, UINT32_MAX);
 	size_t num = 0;
 
-	for (uint32_t j = t_min; j < t_max; ++j) {
-		for (uint32_t i = t_min; i < t_max; ++i) {
-			num += _trees[(j * 1024) + i].get_first_bci_from_y1(y_min, y_max, zoom, colors, codes + num);
+	for (uint32_t t1 = t_min; t1 < t_max; ++t1) {
+		for (uint32_t t2 = 0; t2 < 1024; ++t2) {
+			num += _trees[(t2 * 1024) + t1].get_first_bci_from_y1(y_min, y_max, zoom, colors, codes + num);
 		}
 	}
 
@@ -186,9 +186,9 @@ size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y2(uint32_t y_min, i
 	                                                    0, UINT32_MAX);
 	size_t num = 0;
 
-	for (uint32_t j = t_min; j < t_max; ++j) {
-		for (uint32_t i = t_min; i < t_max; ++i) {
-			num += _trees[(j * 1024) + i].get_first_bci_from_y2(y_min, y_max, zoom, colors, codes + num);
+	for (uint32_t t1 = 0; t1 < 1024; ++t1) {
+		for (uint32_t t2 = t_min; t2 < t_max; ++t2) {
+			num += _trees[(t2 * 1024) + t1].get_first_bci_from_y2(y_min, y_max, zoom, colors, codes + num);
 		}
 	}
 
