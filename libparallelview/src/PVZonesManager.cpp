@@ -81,12 +81,11 @@ void PVParallelView::PVZonesManager::update_all()
 		tbb::parallel_for(tbb::blocked_range<PVZoneID>(0, nzones, 8), zc);
 	}
 
-	/*
 	for (PVZoneID z = 0; z < nzones; z++) {
 		PVZoomedZoneTree& zztree = this->_zones[z].zoomed_ztree();
 		PVLOG_INFO("Generating zoom zone tree for zone %d...\n", z);
 		zztree.process(zp, this->_zones[z].ztree());
-	}*/
+	}
 	/*
 	tbb::task_scheduler_init init(atol(getenv("NUM_THREADS")));
 	PVParallelView::PVZoneTree::ProcessTLS tls;
