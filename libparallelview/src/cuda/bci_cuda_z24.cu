@@ -30,6 +30,7 @@ using PVParallelView::PVBCICode;
 //#define MASK_ZBUFFER 0x00FFFFFF
 #define MASK_ZBUFFER 0xFFFFFF00
 #define MASK_COLOR   0x000000FF
+#define BCI_MASK_TYPE ((1<<2)-1)
 
 #pragma pack(push)
 #pragma pack(4)
@@ -197,7 +198,6 @@ __global__ void bcicode_raster_unroll2(uint2* bci_codes, unsigned int n, unsigne
 		}
 		__syncthreads();
 	}
-#endif
 	for (; idx_codes < n_end; idx_codes += size_grid2) {
 		uint2 code0 = bci_codes[idx_codes];
 		uint2 code1 = bci_codes[idx_codes+size_grid];
@@ -255,13 +255,38 @@ __global__ void bcicode_raster_unroll2(uint2* bci_codes, unsigned int n, unsigne
 			atomicMin(&shared_img[threadIdx.x + pixel_y1*blockDim.x], shared_v1);
 		}
 	}
+#endif
 	for (; idx_codes < n; idx_codes += size_grid) {
 		uint2 code0 = bci_codes[idx_codes];
 		code0.x &= MASK_ZBUFFER;
 		const float l0 = (float) (code0.y & PVParallelView::constants<Bbits>::mask_int_ycoord);
-		const float r0 = (float) ((code0.y >> Bbits) & PVParallelView::constants<Bbits>::mask_int_ycoord);
-		int pixel_y00 = (int) (((r0 + ((l0-r0)*alpha0)) * zoom_y) + 0.5f);
-		int pixel_y01 = (int) (((r0 + ((l0-r0)*alpha1)) * zoom_y) + 0.5f);
+		const int r0i = (code0.y >> Bbits) & PVParallelView::constants<Bbits>::mask_int_ycoord;
+		const int type = (code0.y >> ((2*Bbits) + 8)) & BCI_MASK_TYPE;
+		int pixel_y00;
+		int pixel_y01;
+		if (type == PVBCICode<Bbits>::STRAIGHT) {
+			const float r0 = (float) r0i;
+			pixel_y00 = (int) (((r0 + ((l0-r0)*alpha0)) * zoom_y) + 0.5f);
+			pixel_y01 = (int) (((r0 + ((l0-r0)*alpha1)) * zoom_y) + 0.5f);
+		}
+		else {
+			// 'r0i' is x
+			if (band_x > r0i) {
+				// This is out of our drawing scope !
+				continue;
+			}
+			const float r0 = (float) r0i;
+			const int mask = (type-1)*PVParallelView::constants<Bbits>::mask_int_ycoord;
+			const float alpha_x = l0/r0;
+			pixel_y00 = mask ^ ((int) (l0-(alpha_x*(float)band_x)));
+			if (band_x == r0i) {
+				pixel_y01 = pixel_y00;
+			}
+			else {
+				pixel_y01 = mask ^ ((int) (l0-(alpha_x*(float)(band_x+1))));
+			}
+		}
+
 		if (pixel_y00 > pixel_y01) {
 			const int tmp = pixel_y00;
 			pixel_y00 = pixel_y01;
