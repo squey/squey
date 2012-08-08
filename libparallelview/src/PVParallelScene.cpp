@@ -75,8 +75,7 @@ void PVParallelView::PVParallelScene::wheelEvent(QGraphicsSceneWheelEvent* event
 		//}
 	}
 	//Global zoom
-	else
-	{
+	else if (event->modifiers() == Qt::NoModifier) {
 		cancel_current_job();
 
 		// Get the current zone where the mouse is
