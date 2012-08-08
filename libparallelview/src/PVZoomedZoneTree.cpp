@@ -147,7 +147,8 @@ void PVParallelView::PVZoomedZoneTree::process_omp_from_zt(const PVZoneProcessin
 
 size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1(uint32_t y_min, int zoom,
                                                                const PVHSVColor* colors,
-                                                               PVBCICode<bbits>* codes) const
+                                                               PVBCICode<bbits>* codes,
+                                                               const float beta) const
 {
 	uint32_t t_min = y_min >> (32 - NBITS_INDEX);
 	uint32_t t_max = PVCore::clamp<uint32_t>(t_min + (1024U >> zoom), 0U, 1024U);
@@ -161,12 +162,23 @@ size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1(uint32_t y_min, i
 		}
 	}
 
+#pragma omp parallel for num_threads(4) // usefull?
+	for(size_t i = 0; i < num; ++i) {
+		int l = (int)codes[i].s.l;
+		int r = (int)codes[i].s.r;
+		int d = (r - l) * beta;
+		codes[i].s.r = l + d;
+	}
+
+	std::cout << "::browse_tree_bci_by_y1 -> " << num << std::endl;
+
 	return num;
 }
 
 size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y2(uint32_t y_min, int zoom,
                                                                const PVHSVColor* colors,
-                                                               PVBCICode<bbits>* codes) const
+                                                               PVBCICode<bbits>* codes,
+                                                               const float beta) const
 {
 	uint32_t t_min = y_min >> (32 - NBITS_INDEX);
 	uint32_t t_max = PVCore::clamp<uint32_t>(t_min + (1024U >> zoom), 0U, 1024U);
@@ -179,6 +191,16 @@ size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y2(uint32_t y_min, i
 			num += _trees[(j * 1024) + i].get_first_bci_from_y2(y_min, y_max, zoom, colors, codes + num);
 		}
 	}
+
+#pragma omp parallel for num_threads(4) // usefull?
+	for(size_t i = 0; i < num; ++i) {
+		int l = (int)codes[i].s.l;
+		int r = (int)codes[i].s.r;
+		int d = (l - r) * beta;
+		codes[i].s.l = r + d;
+	}
+
+	std::cout << "::browse_tree_bci_by_y2 -> " << num << std::endl;
 
 	return num;
 }
