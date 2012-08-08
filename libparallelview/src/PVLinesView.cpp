@@ -59,6 +59,7 @@ QFuture<void> PVParallelView::PVLinesView::translate(int32_t view_x, uint32_t vi
 				PVLOG_INFO("(translate) render zone %u\n", z);
 				assert(z >= _first_zone);
 				update_zone_images_width(z);
+				PVLOG_INFO("z=%d in _zones_imgs[%d].bg\n", z, z-_first_zone);
 				_zd.draw_zone(*_zones_imgs[z-_first_zone].bg, 0, z, &PVParallelView::PVZoneTree::browse_tree_bci);
 			},
 			&job);
