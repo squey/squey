@@ -13,6 +13,10 @@
 
 #define ZZT_MAX_VALUE (1 << (32-NBITS_INDEX))
 
+/*****************************************************************************
+ * PVParallelView::PVZoomedZoneTree::PVZoomedZoneTree
+ *****************************************************************************/
+
 PVParallelView::PVZoomedZoneTree::PVZoomedZoneTree(uint32_t max_level)
 {
 	uint32_t idx = 0;
@@ -34,12 +38,20 @@ PVParallelView::PVZoomedZoneTree::PVZoomedZoneTree(uint32_t max_level)
 	}
 }
 
+/*****************************************************************************
+ * PVParallelView::PVZoomedZoneTree::~PVZoomedZoneTree
+ *****************************************************************************/
+
 PVParallelView::PVZoomedZoneTree::~PVZoomedZoneTree()
 {
 	if (_trees != 0) {
 		delete [] _trees;
 	}
 }
+
+/*****************************************************************************
+ * PVParallelView::PVZoomedZoneTree::process_seq
+ *****************************************************************************/
 
 void PVParallelView::PVZoomedZoneTree::process_seq(const PVParallelView::PVZoneProcessing &zp)
 {
@@ -51,6 +63,10 @@ void PVParallelView::PVZoomedZoneTree::process_seq(const PVParallelView::PVZoneP
 		_trees[compute_index(e)].insert(e);
 	}
 }
+
+/*****************************************************************************
+ * PVParallelView::PVZoomedZoneTree::process_seq_from_zt
+ *****************************************************************************/
 
 void PVParallelView::PVZoomedZoneTree::process_seq_from_zt(const PVZoneProcessing &zp,
                                                            PVZoneTree &zt)
@@ -69,6 +85,10 @@ void PVParallelView::PVZoomedZoneTree::process_seq_from_zt(const PVZoneProcessin
 		_trees[i].compact();
 	}
 }
+
+/*****************************************************************************
+ * PVParallelView::PVZoomedZoneTree::process_omp
+ *****************************************************************************/
 
 void PVParallelView::PVZoomedZoneTree::process_omp(const PVParallelView::PVZoneProcessing &zp)
 {
@@ -126,6 +146,10 @@ void PVParallelView::PVZoomedZoneTree::process_omp(const PVParallelView::PVZoneP
 	}
 }
 
+/*****************************************************************************
+ * PVParallelView::PVZoomedZoneTree::process_omp_from_zt
+ *****************************************************************************/
+
 void PVParallelView::PVZoomedZoneTree::process_omp_from_zt(const PVZoneProcessing &zp,
                                                            PVZoneTree &zt)
 {
@@ -144,6 +168,10 @@ void PVParallelView::PVZoomedZoneTree::process_omp_from_zt(const PVZoneProcessin
 		_trees[i].compact();
 	}
 }
+
+/*****************************************************************************
+ * PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1
+ *****************************************************************************/
 
 size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1(uint32_t y_min, int zoom,
                                                                const PVHSVColor* colors,
@@ -174,6 +202,10 @@ size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1(uint32_t y_min, i
 
 	return num;
 }
+
+/*****************************************************************************
+ * PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y2
+ *****************************************************************************/
 
 size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y2(uint32_t y_min, int zoom,
                                                                const PVHSVColor* colors,
