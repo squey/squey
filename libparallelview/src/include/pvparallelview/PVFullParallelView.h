@@ -11,6 +11,7 @@
 #include <QScrollBar>
 #include <QFuture>
 #include <QFontMetrics>
+#include <QLocale>
 
 #include <iostream>
 
@@ -36,8 +37,8 @@ public:
 
 	    QPainter painter(viewport());
 		painter.setPen(QColor(0x16, 0xe8, 0x2a));
-		QString count = QString("%1 / %2").arg(_selected_lines).arg(_total_lines);
-		painter.drawText(ImageWidth - QFontMetrics(painter.font()).width(count) - 140, 20, count);
+		QString count = QString("%L1 / %L2").arg(_selected_lines).arg(_total_lines);
+		painter.drawText(width() - QFontMetrics(painter.font()).width(count) - 20, 20, count);
 		painter.end();
 	}
 

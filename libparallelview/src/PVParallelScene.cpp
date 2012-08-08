@@ -54,6 +54,9 @@ PVParallelView::PVParallelScene::PVParallelScene(QObject* parent, PVParallelView
 void PVParallelView::PVParallelScene::wheelEvent(QGraphicsSceneWheelEvent* event)
 {
 	int zoom = event->delta() / 2;
+	if(zoom < 0) {
+		zoom = picviz_max(zoom, -PVParallelView::ZoneMinWidth);
+	}
 
 	const QPointF mouse_scene_pt = event->scenePos();
 	PVZoneID mouse_zid = _lines_view->get_zone_from_scene_pos(mouse_scene_pt.x());
@@ -82,6 +85,8 @@ void PVParallelView::PVParallelScene::wheelEvent(QGraphicsSceneWheelEvent* event
 		const PVZoneID zmouse = mouse_zid;
 		int32_t zone_x = map_to_axis(zmouse, mouse_scene_pt).x();
 		int32_t mouse_view_x = view()->mapFromScene(mouse_scene_pt).x();
+
+
 
 		_lines_view->set_all_zones_width([=](uint32_t width){ return width+zoom; });
 		update_zones_position();

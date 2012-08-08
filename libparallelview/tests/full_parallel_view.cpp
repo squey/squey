@@ -85,7 +85,7 @@ int main(int argc, char** argv)
 	PVParallelView::PVBCIDrawingBackendCUDA<NBITS_INDEX> backend_cuda;
 	PVParallelView::PVLinesView::zones_drawing_t &zones_drawing = *(new PVParallelView::PVLinesView::zones_drawing_t(zm, backend_cuda, *colors));
 
-	PVParallelView::PVLinesView &lines_view = *(new PVParallelView::PVLinesView(zones_drawing, 15));
+	PVParallelView::PVLinesView &lines_view = *(new PVParallelView::PVLinesView(zones_drawing, 30));
 
 	PVParallelView::PVFullParallelView view;
 	PVParallelView::PVParallelScene* scene = new PVParallelView::PVParallelScene(&view, &lines_view);
