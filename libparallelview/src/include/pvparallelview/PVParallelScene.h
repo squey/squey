@@ -34,15 +34,6 @@ public:
 		_rendering_job->deleteLater();
 	}
 
-	/*void drawBackground(QPainter *painter, const QRectF & rect)
-	{
-		painter->fillRect(rect, QBrush(Qt::black));
-		painter->save();
-		painter->setPen(Qt::red);
-		painter->drawText(10, 0, "toto");
-		painter->restore();
-	}*/
-
 	inline PVLinesView* get_lines_view() { return _lines_view; }
 
 	void first_render()
