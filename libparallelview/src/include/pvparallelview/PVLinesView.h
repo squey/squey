@@ -138,7 +138,7 @@ private:
 	{
 		int32_t view_x = _visible_view_x;
 		if (view_x < 0) {
-			// We start to be too far one the left...
+			// We start to be too far on the left...
 			uint32_t unused_width = (uint32_t) (-view_x);
 			if (unused_width >= view_width) {
 				unused_width = view_width;
@@ -221,6 +221,7 @@ private:
 		PVZoneID new_first_zone = get_first_zone_from_viewport(new_view_x, view_width);
 
 		PVZoneID pre_first_zone = _first_zone;
+
 		_first_zone = new_first_zone;
 		return pre_first_zone;
 	}
