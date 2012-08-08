@@ -39,9 +39,9 @@ struct PVBCICode
 	};
 
 	typedef enum {
-		DOWN = 0,
-		STRAIGHT = 1,
-		UP = 2
+		STRAIGHT = 0,
+		UP = 1,
+		DOWN = 2
 	} _type_t;
 
 	static void init_random_codes(PVBCICode* codes, size_t n)
@@ -57,7 +57,13 @@ struct PVBCICode
 			//c.s.r = rand()&constants<Bbits>::mask_int_ycoord;
 			//c.s.r = (c.s.l+10)&constants<Bbits>::mask_int_ycoord;
 			if (i < 1024) {
-				c.s.l = constants<Bbits>::mask_int_ycoord;
+				c.s.l = constants<Bbits>::mask_int_ycoord/2;
+				c.s.type = UP;
+			}
+			else 
+			if (i < 3072) {
+				c.s.l = constants<Bbits>::mask_int_ycoord/2;
+				c.s.type = DOWN;
 			}
 			else {
 				c.s.l = constants<Bbits>::mask_int_ycoord/5;
