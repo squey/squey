@@ -45,6 +45,31 @@ public:
 
 	inline PVLinesView* get_lines_view() { return _lines_view; }
 
+	void first_render()
+	{
+		// AG & JBL: FIXME: This must be called after the view has been shown.
+		// It seems like a magical QAbstractScrollbarArea stuff, investigation needed...
+		uint32_t view_x = view()->horizontalScrollBar()->value();
+		uint32_t view_width = view()->width();
+		_lines_view->render_all(view_x, view_width);
+
+		PVParallelView::PVLinesView::list_zone_images_t images = _lines_view->get_zones_images();
+
+		// Add visible zones
+		_zones.reserve(images.size());
+		for (PVZoneID z = 0; z < (PVZoneID) images.size() ; z++) {
+			ZoneImages zi;
+			zi.sel = addPixmap(QPixmap::fromImage(images[z].sel->qimage()));
+			zi.bg = addPixmap(QPixmap::fromImage(images[z].bg->qimage()));
+			zi.bg->setOpacity(0.25);
+			_zones.push_back(zi);
+			PVZoneID real_zone = z + _lines_view->get_first_drawn_zone();
+			if (real_zone < _lines_view->get_zones_manager().get_number_zones()) {
+				zi.setPos(QPointF(_lines_view->get_zone_absolute_pos(real_zone), 0));
+			}
+		}
+	}
+
 private:
 	PVParallelView::PVFullParallelView* view()
 	{
@@ -79,6 +104,7 @@ private:
 			_axes[z]->setPos(QPointF(pos - PVParallelView::AxisWidth, 0));
 		}
 	}
+
 
 	void mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 	{
