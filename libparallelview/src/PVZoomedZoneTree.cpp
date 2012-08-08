@@ -11,6 +11,9 @@
 #include <pvkernel/core/PVAlgorithms.h>
 #include <pvparallelview/PVZoomedZoneTree.h>
 
+#include <tbb/parallel_for.h>
+#include <tbb/task_scheduler_init.h>
+
 #define ZZT_MAX_VALUE (1 << (32-NBITS_INDEX))
 
 /*****************************************************************************
@@ -159,16 +162,18 @@ void PVParallelView::PVZoomedZoneTree::process_omp_from_zt(const PVZoneProcessin
 	const uint32_t* pcol_b = zp.get_plotted_col_b();
 	PVParallelView::PVZoneTree::PVBranch *treeb = zt.get_treeb();
 
-#pragma omp parallel for num_threads(4)
-	for(unsigned i = 0; i < NBUCKETS; ++i) {
-		for (unsigned j = 0; j < treeb[i].count; ++j) {
-			PVRow r = treeb[i].p[j];
+	const size_t nthreads = PVCore::PVHardwareConcurrency::get_physical_core_number();
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, 128), [&](tbb::blocked_range<size_t> const& range){
+		for (size_t i = range.begin(); i != range.end(); i++) {
+			for (size_t j = 0; j < treeb[i].count; ++j) {
+				const PVRow r = treeb[i].p[j];
 
-			PVParallelView::PVQuadTreeEntry e(pcol_a[r], pcol_b[r], r);
-			_trees[i].insert(e);
+				PVParallelView::PVQuadTreeEntry e(pcol_a[r], pcol_b[r], r);
+				this->_trees[i].insert(e);
+			}
+			this->_trees[i].compact();
 		}
-		_trees[i].compact();
-	}
+	});
 }
 
 /*****************************************************************************

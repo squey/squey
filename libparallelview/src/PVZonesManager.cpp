@@ -28,9 +28,8 @@ public:
 			pdata.clear();
 			zm->get_zone_cols(z, zp.col_a(), zp.col_b());
 			PVZoneTree& ztree = zm->_zones[z].ztree();
+			PVLOG_INFO("Generating zone tree for zone %d...\n", z);
 			ztree.process(zp, pdata);
-			//PVZoomedZoneTree& zztree = zm->_zones[z].zoomed_ztree();
-			//zztree.process(zp, ztree);
 		}
 	}
 
@@ -62,7 +61,7 @@ void PVParallelView::PVZonesManager::set_uint_plotted(Picviz::PVPlotted::uint_pl
 
 void PVParallelView::PVZonesManager::update_all()
 {
-	PVZoneID nzones = get_number_zones();
+	const PVZoneID nzones = get_number_zones();
 	PVLOG_INFO("(PVZonesManager::update_all) number of zones = %d\n", nzones);
 	assert(nzones >= 1);
 	_zones.clear();
@@ -71,14 +70,23 @@ void PVParallelView::PVZonesManager::update_all()
 		_zones.push_back(PVZone());
 	}
 	
+	const size_t nthreads = PVCore::PVHardwareConcurrency::get_physical_core_number();
+	tbb::task_scheduler_init init(nthreads);
+
 	PVZoneProcessing zp(get_uint_plotted(), get_number_rows());
 	{
 		__impl::ZoneCreation zc;
 		zc._zm = this;
-		const size_t nthreads = PVCore::PVHardwareConcurrency::get_physical_core_number();
-		tbb::task_scheduler_init init(nthreads);
+		//size_t grainsize = (nzones >= 8*nthreads) ? 8:1;
 		tbb::parallel_for(tbb::blocked_range<PVZoneID>(0, nzones, 8), zc);
 	}
+
+	/*
+	for (PVZoneID z = 0; z < nzones; z++) {
+		PVZoomedZoneTree& zztree = this->_zones[z].zoomed_ztree();
+		PVLOG_INFO("Generating zoom zone tree for zone %d...\n", z);
+		zztree.process(zp, this->_zones[z].ztree());
+	}*/
 	/*
 	tbb::task_scheduler_init init(atol(getenv("NUM_THREADS")));
 	PVParallelView::PVZoneTree::ProcessTLS tls;

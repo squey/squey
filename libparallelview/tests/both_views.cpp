@@ -17,11 +17,16 @@
 #include <pvparallelview/PVZonesDrawing.h>
 #include <pvparallelview/PVZonesManager.h>
 #include <pvparallelview/PVLinesView.h>
+#include <pvparallelview/PVZoomedParallelScene2.h>
 
 #include <pvparallelview/PVParallelScene.h>
 #include <pvparallelview/PVFullParallelView.h>
 
+#include "zoom_dlg.h"
+
 #include <QApplication>
+
+PVParallelView::PVLinesView::zones_drawing_t* g_zones_drawing;
 
 void usage(const char* path)
 {
@@ -85,18 +90,23 @@ int main(int argc, char** argv)
 	zm.update_all();
 
 	PVParallelView::PVBCIDrawingBackendCUDA<NBITS_INDEX> backend_cuda;
-	PVParallelView::PVLinesView::zones_drawing_t &zones_drawing = *(new PVParallelView::PVLinesView::zones_drawing_t(zm, backend_cuda, *colors));
+	g_zones_drawing = new PVParallelView::PVLinesView::zones_drawing_t(zm, backend_cuda, *colors);
 
-	PVParallelView::PVLinesView &lines_view = *(new PVParallelView::PVLinesView(zones_drawing, 30));
+	PVParallelView::PVLinesView &lines_view = *(new PVParallelView::PVLinesView(*g_zones_drawing, 15));
 
 	PVParallelView::PVFullParallelView view;
 	PVParallelView::PVParallelScene* scene = new PVParallelView::PVParallelScene(&view, &lines_view);
 	view.setViewport(new QWidget());
 	view.resize(1920, 1600);
 	view.setScene(scene);
-	//view.horizontalScrollBar()->setValue(0);
 	view.show();
 	scene->first_render();
+
+	PVParallelView::PVBCIDrawingBackendCUDA<PARALLELVIEW_ZZT_BBITS> backend_cuda_zoom;
+	PVParallelView::PVZonesDrawing<PARALLELVIEW_ZZT_BBITS>& zones_drawing_zoom = *(new PVParallelView::PVZonesDrawing<PARALLELVIEW_ZZT_BBITS>(zm, backend_cuda_zoom, *colors));
+
+	ZoomDlg* zdlg = new ZoomDlg(zones_drawing_zoom);
+	zdlg->show();
 
 	app.exec();
 
