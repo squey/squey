@@ -278,7 +278,7 @@ void PVParallelView::PVLinesView::update_sel_from_zone(uint32_t view_width, PVZo
 
 QFuture<void> PVParallelView::PVLinesView::update_sel_from_zone(uint32_t view_width, PVZoneID zid_sel, const Picviz::PVSelection& sel, PVRenderingJob& job)
 {
-	return QtConcurrent::run<>([&, view_width]{
+	return QtConcurrent::run<>([&, view_width, zid_sel]{
 		render_all_zones(view_width,
 			[&,view_width,zid_sel](PVZoneID z)
 			{

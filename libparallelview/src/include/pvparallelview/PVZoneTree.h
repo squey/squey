@@ -18,6 +18,7 @@
 #include <pvparallelview/PVZoneTreeBase.h>
 #include <pvkernel/core/PVAlgorithms.h>
 #include <pvkernel/core/PVHardwareConcurrency.h>
+#include <pvkernel/core/picviz_bench.h>
 
 #include <boost/array.hpp>
 #include <boost/shared_ptr.hpp>
@@ -25,6 +26,7 @@
 #include <boost/type_traits.hpp>
 
 #include <tbb/enumerable_thread_specific.h>
+#include <tbb/scalable_allocator.h>
 #include <tbb/task_scheduler_init.h>
 
 
@@ -57,7 +59,7 @@ public:
 
 protected:
 	typedef std::vector<PVRow, tbb::scalable_allocator<PVRow> > vec_rows_t;
-	typedef PVCore::PVPODStaticArray<PVRow, NBUCKETS, PVROW_INVALID_VALUE> nbuckets_array_t;
+	typedef boost::array<PVRow, NBUCKETS> nbuckets_array_t;
 	typedef boost::array<vec_rows_t, NBUCKETS> nbuckets_array_vector_t;
 	typedef nbuckets_array_t pdata_array_t;
 	typedef nbuckets_array_vector_t pdata_tree_t;
@@ -76,26 +78,34 @@ public:
 
 		ProcessData(uint32_t n = PVCore::PVHardwareConcurrency::get_physical_core_number()) : ntasks(n)
 		{
-			trees = new nbuckets_array_vector_t[ntasks];
-			first_elts = new nbuckets_array_t[ntasks];
-			sel_elts = new nbuckets_array_t[ntasks];
+			char* buf = tbb::scalable_allocator<char>().allocate(sizeof(pdata_tree_t)*ntasks+sizeof(pdata_array_t)*ntasks);
+			trees = (pdata_tree_t*) buf;
+			first_elts = (pdata_array_t*) (trees+ntasks);
+			for (uint32_t t = 0 ; t < ntasks; t++) {
+				new (&trees[t]) pdata_tree_t();
+				new (&first_elts[t]) pdata_array_t();
+			}
 		}
 
-		// TODO: implement CLEAR methods
+		void clear()
+		{
+			for (uint32_t t = 0 ; t < ntasks; t++) {
+				memset(&first_elts[t], PVROW_INVALID_VALUE, sizeof(PVRow)*NBUCKETS);
+				for (uint32_t b = 0 ; b < NBUCKETS; b++) {
+					trees[t][b].clear();
+				}
+			}
+		}
 
 		~ProcessData()
 		{
-			delete [] trees;
-			delete [] first_elts;
-			delete [] sel_elts;
+			tbb::scalable_allocator<char>().deallocate((char*) trees, sizeof(pdata_tree_t)*ntasks+sizeof(pdata_array_t)*ntasks);
 		}
 
 		pdata_tree_t* trees;
 		pdata_array_t* first_elts;
-		pdata_array_t* sel_elts;
 		uint32_t ntasks;
 	};
-
 
 public://protected:
 	struct PVBranch
@@ -165,9 +175,9 @@ public:
 	virtual ~PVZoneTree() { }
 
 public:
+	inline void process(PVZoneProcessing const& zp, ProcessData& pdata) { process_tbb_sse_treeb(zp, pdata); }
 	inline void process(PVZoneProcessing const& zp) { process_tbb_sse_treeb(zp); }
 	inline void filter_by_sel(Picviz::PVSelection const& sel) { filter_by_sel_tbb_treeb(sel); }
-
 	inline void filter_by_sel_new(PVZoneProcessing const& zp, const Picviz::PVSelection& sel) { filter_by_sel_tbb_treeb_new(zp, sel); }
 
 	///
@@ -176,7 +186,8 @@ public:
 
 public:
 	void process_omp_sse_treeb(PVZoneProcessing const& zp);
-	void process_tbb_sse_treeb(PVZoneProcessing const& zp);
+	inline void process_tbb_sse_treeb(PVZoneProcessing const& zp) { ProcessData pdata; process_tbb_sse_treeb(zp, pdata); }
+	void process_tbb_sse_treeb(PVZoneProcessing const& zp, ProcessData& pdata);
 	void process_tbb_sse_parallelize_on_branches(PVZoneProcessing const& zp);
 
 	void filter_by_sel_omp_treeb(Picviz::PVSelection const& sel);

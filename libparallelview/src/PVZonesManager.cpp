@@ -9,8 +9,9 @@
 #include <pvparallelview/PVZonesManager.h>
 #include <pvparallelview/PVZoneProcessing.h>
 
-#include <tbb/parallel_for.h>
 #include <tbb/blocked_range.h>
+#include <tbb/enumerable_thread_specific.h>
+#include <tbb/parallel_for.h>
 #include <tbb/task_scheduler_init.h>
 
 namespace PVParallelView { namespace __impl {
@@ -22,10 +23,12 @@ public:
 	{
 		PVParallelView::PVZonesManager* zm = _zm;
 		PVParallelView::PVZoneProcessing zp(zm->get_uint_plotted(), zm->get_number_rows());
+		PVParallelView::PVZoneTree::ProcessData &pdata = _tls_pdata.local();
 		for (PVZoneID z = r.begin(); z != r.end(); z++) {
+			pdata.clear();
 			zm->get_zone_cols(z, zp.col_a(), zp.col_b());
 			PVZoneTree& ztree = zm->_zones[z].ztree();
-			ztree.process(zp);
+			ztree.process(zp, pdata);
 			PVZoomedZoneTree& zztree = zm->_zones[z].zoomed_ztree();
 			zztree.process(zp, ztree);
 		}
@@ -33,6 +36,7 @@ public:
 
 public:
 	PVParallelView::PVZonesManager* _zm;
+	mutable tbb::enumerable_thread_specific<PVParallelView::PVZoneTree::ProcessData> _tls_pdata;
 };
 
 } }
@@ -103,10 +107,9 @@ void PVParallelView::PVZonesManager::filter_zone_by_sel(PVZoneID zid, const Picv
 {
 	assert(zid < (PVZoneID) _zones.size());
 
-	PVParallelView::PVZoneTree::ProcessData tls;
 	PVParallelView::PVZoneProcessing zp(get_uint_plotted(), get_number_rows(), zid, zid+1);
 
-	//_zones[zid].ztree().filter_by_sel_new(zp, sel, tls);
+	//_zones[zid].ztree().filter_by_sel_new(zp, sel);
 	_zones[zid].ztree().filter_by_sel(sel);
 }
 

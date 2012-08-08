@@ -12,6 +12,7 @@
 #include <pvparallelview/PVZoneTree.h>
 #include <pvparallelview/PVZonesManager.h>
 #include <pvparallelview/PVBCode.h>
+#include <pvkernel/core/picviz_bench.h>
 
 namespace PVParallelView
 {
@@ -29,8 +30,12 @@ class PVSelectionSquare
 public:
 	PVSelectionSquare(PVZonesManager& zm) : _zm(zm) {};
 
-	void compute_selection(PVZoneID zid, QRect rect, Picviz::PVSelection& sel)
+	uint32_t compute_selection(PVZoneID zid, QRect rect, Picviz::PVSelection& sel)
 	{
+		uint32_t nb_selected = 0;
+
+		BENCH_START(compute_selection);
+
 		sel.select_none();
 		int32_t width = _zm.get_zone_width(zid);
 
@@ -40,7 +45,7 @@ public:
 
 		if (rect.isNull()) {
 			memset(ztree._sel_elts, PVROW_INVALID_VALUE, NBUCKETS*sizeof(PVRow));
-			return;
+			return 0;
 		}
 
 		PVLineEqInt line;
@@ -68,6 +73,7 @@ public:
 
 			if (is_line_selected)
 			{
+				nb_selected += treeb[branch].count;
 				for (size_t i = 0; i < treeb[branch].count; i++) {
 					sel.set_bit_fast(treeb[branch].p[i]);
 				}
@@ -77,6 +83,9 @@ public:
 				ztree._sel_elts[branch] = PVROW_INVALID_VALUE;
 			}
 		}
+		BENCH_END(compute_selection, "compute_selection", 1, 1, 1, 1);
+
+		return nb_selected;
 	}
 
 	PVZonesManager& _zm;
