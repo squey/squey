@@ -532,12 +532,13 @@ void Picviz::PVPlotted::norm_int_plotted(plotted_table_t const& trans_plotted, u
 	PVRow nrows_aligned = ((nrows+3)/4)*4;
 	size_t dest_size = nrows_aligned*ncols;
 	res.reserve(dest_size);
+#pragma omp parallel for
 	for (PVCol c = 0; c < ncols; c++) {
 		for (PVRow r = 0; r < nrows; r++) {
-			res.push_back((uint32_t) ((double)trans_plotted[c*nrows+r] * (double)UINT_MAX));
+			res[c*nrows_aligned+r] = ((uint32_t) ((double)trans_plotted[c*nrows+r] * (double)UINT_MAX));
 		}
 		for (PVRow r = nrows; r < nrows_aligned; r++) {
-			res.push_back(0);
+			res[c*nrows_aligned+r] = 0;
 		}
 	}
 }
