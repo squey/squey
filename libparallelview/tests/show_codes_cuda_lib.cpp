@@ -31,7 +31,7 @@
 #include <boost/random/variate_generator.hpp>
 
 #define WIDTH 1024
-#define BBITS 11
+#define BBITS 10
 
 typedef PVParallelView::PVZonesDrawing<BBITS> zones_drawing_t;
 
@@ -71,7 +71,7 @@ int main(int argc, char** argv)
 	PVParallelView::PVBCIDrawingBackendCUDA<BBITS> backend_cuda;
 	PVParallelView::PVBCIBackendImage_p<BBITS> dst_img = backend_cuda.create_image(width);
 
-	backend_cuda(*dst_img, 0, width, codes, n, 0.21f);
+	backend_cuda(*dst_img, 0, width, codes, n);
 
 	QImage img(dst_img->qimage());
 	write(4, img.constBits(), img.height() * img.width() * sizeof(uint32_t));
