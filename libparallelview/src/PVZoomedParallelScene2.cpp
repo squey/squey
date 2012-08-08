@@ -137,6 +137,9 @@ void PVParallelView::PVZoomedParallelScene2::wheelEvent(QGraphicsSceneWheelEvent
  * PVParallelView::PVZoomedParallelScene2::drawBackgroun
  *****************************************************************************/
 
+/* TODO: add a mechanism to store BCI codes for a given area in scene to avoid
+ * extracting them from the quadree each time drawBackground is called.
+ */
 void PVParallelView::PVZoomedParallelScene2::drawBackground(QPainter *painter,
                                                             const QRectF &/*rect*/)
 {
@@ -186,8 +189,8 @@ void PVParallelView::PVZoomedParallelScene2::drawBackground(QPainter *painter,
 	}
 
 	if (_right_image.get() != nullptr) {
-		_zones_drawing.draw_zoomed_zone(*_right_image, y_min, _zoom_level, _axis,
-		                                &PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1,
+		_zones_drawing.draw_zoomed_zone(*_right_image, y_min, y_max, _zoom_level, _axis,
+		                                &PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1_range,
 		                                alpha, beta);
 
 		int value = 1 + screen_center + PARALLELVIEW_AXIS_WIDTH / 2;

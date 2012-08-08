@@ -7,6 +7,20 @@
 #include <pvparallelview/PVQuadTree.h>
 
 /*****************************************************************************
+ * PVParallelView::__impl::f_get_first
+ *****************************************************************************/
+
+size_t PVParallelView::__impl::f_get_first(const PVQuadTreeEntry &e,
+                                           uint32_t,
+                                           uint32_t, uint32_t,
+                                           const PVHSVColor *,
+                                           PVQuadTreeEntry *entries)
+{
+	*entries = e;
+	return 1;
+}
+
+/*****************************************************************************
  * PVParallelView::__impl::f_get_entry_sel
  *****************************************************************************/
 

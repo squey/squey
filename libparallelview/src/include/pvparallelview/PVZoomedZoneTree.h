@@ -30,6 +30,8 @@ class PVHSVColor;
 class PVZoomedZoneTree
 {
 	constexpr static size_t bbits = PARALLELVIEW_ZZT_BBITS;
+	constexpr static uint32_t mask_int_ycoord = (((uint32_t)1)<<bbits)-1;
+
 	typedef PVQuadTree<10000, 1000, 0, bbits> pvquadtree;
 
 public:
@@ -73,6 +75,10 @@ public:
 	                             const PVHSVColor* colors, PVBCICode<bbits>* codes,
 	                             const float beta = 1.0f) const;
 
+	size_t browse_tree_bci_by_y1_range(uint32_t y_min, uint32_t y_max, int zoom,
+	                                   const PVHSVColor* colors, PVBCICode<bbits>* codes,
+	                                   const float beta = 1.0f) const;
+
 private:
 	inline uint32_t compute_index(uint32_t y1, uint32_t y2) const
 	{
@@ -87,6 +93,7 @@ private:
 
 private:
 	pvquadtree *_trees;
+	PVQuadTreeEntry *_quad_entries;
 };
 
 typedef boost::shared_ptr<PVZoomedZoneTree> PVZoomedZoneTree_p;

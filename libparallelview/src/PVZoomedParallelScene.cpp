@@ -20,8 +20,8 @@
 
 PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(QObject *parent,
                                                              zones_drawing_t &zones_drawing,
-                                                             PVCol axis, uint32_t position,
-                                                             int zoom) :
+                                                             PVCol axis, uint32_t /*position*/,
+                                                             int /*zoom*/) :
 	QGraphicsScene(parent),
 	_zones_drawing(zones_drawing), _axis(axis), _wheel_value(0),
 	_left_tiles(nullptr), _right_tiles(nullptr),
@@ -266,7 +266,7 @@ void PVParallelView::PVZoomedParallelScene::raster_tile_with_hinting(QImage &ima
 
 	QRectF inter = scene_rect.intersected(tile.coord);
 
-	QRect view_area = view()->mapFromScene(inter).boundingRect();
+	// QRect view_area = view()->mapFromScene(inter).boundingRect();
 
 	// we need the sub-area of tile's image to draw
 	QRect tile_rel;

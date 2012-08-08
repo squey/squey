@@ -72,12 +72,18 @@ namespace __impl {
 		                               RESULT *);
 	};
 
+	size_t f_get_first(const PVQuadTreeEntry &e,
+	                   uint32_t y_start,
+	                   uint32_t shift, uint32_t mask,
+	                   const PVHSVColor *colors,
+	                   PVQuadTreeEntry *entries);
+
 	template <size_t Bbits>
 	size_t f_get_first_bci(const PVQuadTreeEntry &e,
 	                       uint32_t y_start,
 	                       uint32_t shift, uint32_t mask,
 	                       const PVHSVColor *colors,
-						   PVBCICode<Bbits> *code)
+	                       PVBCICode<Bbits> *code)
 	{
 		code->s.idx = e.idx;
 		code->s.l = ((e.y1 - y_start) >> shift) & mask;
@@ -211,6 +217,12 @@ public:
                         mem += _nodes[3].memory();
 		}
 		return mem;
+	}
+
+	inline size_t get_first_from_y1(uint32_t y1_min, uint32_t y1_max, uint32_t zoom, const PVHSVColor *colors, PVQuadTreeEntry *entries) const
+	{
+		const uint32_t shift = (32 - Bbits) - zoom;
+		return visit_y1<PVQuadTreeEntry, __impl::f_get_first>::f(*this, y1_min, y1_max, zoom, shift, mask_int_ycoord, colors, entries);
 	}
 
 	inline size_t get_first_bci_from_y1(uint32_t y1_min, uint32_t y1_max, uint32_t zoom, const PVHSVColor *colors, PVBCICode<Bbits> *codes) const
