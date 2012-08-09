@@ -16,14 +16,10 @@
 #include <pvkernel/core/PVAlgorithms.h>
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVAxisSlider.h>
+#include <picviz/PVAxis.h>
 
 // Used to draw the axis out of the image zone
 #define PVAW_CST 8
-
-namespace Picviz
-{
-class PVAxis;
-}
 
 namespace PVParallelView
 {
@@ -34,9 +30,11 @@ class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
 {
 	Q_OBJECT
 
-	typedef std::vector<std::pair<PVRow, PVRow> > selection_ranges_t;
 public:
-	PVAxisGraphicsItem(Picviz::PVAxis *axis);
+	typedef std::vector<std::pair<PVRow, PVRow> > selection_ranges_t;
+
+public:
+	PVAxisGraphicsItem(Picviz::PVAxis *axis, uint32_t axis_index);
 
 	QRectF boundingRect () const;
 
@@ -65,13 +63,14 @@ public:
 	}
 
 signals:
-	void axis_sliders_moved();
+	void axis_sliders_moved(uint32_t);
 
 protected slots:
-	void slider_moved() { emit axis_sliders_moved(); }
+	void slider_moved() { emit axis_sliders_moved(_axis_index); }
 
 private:
 	Picviz::PVAxis*                 _axis;
+	uint32_t						_axis_index;
 	QRectF                          _bbox;
 	std::vector<PVAxisRangeSliders> _sliders;
 };

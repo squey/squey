@@ -10,13 +10,14 @@
 PVParallelView::PVParallelScene::PVParallelScene(QObject* parent, PVParallelView::PVLinesView* lines_view) :
 	QGraphicsScene(parent),
 	_lines_view(lines_view),
-	_selection_square(new PVParallelView::PVSelectionSquareGraphicsItem(this))
+	_selection_square(new PVParallelView::PVSelectionSquareGraphicsItem(this)),
+	_selection_generator(_lines_view->get_zones_manager())
 {
 	_rendering_job = new PVRenderingJob(this);
 	setBackgroundBrush(Qt::black);
 
-	connect(view()->horizontalScrollBar(), SIGNAL(sliderPressed()), this, SLOT(slider_pressed_Slot()));
-	connect(view()->horizontalScrollBar(), SIGNAL(sliderReleased()), this, SLOT(slider_released_Slot()));
+	connect(view()->horizontalScrollBar(), SIGNAL(sliderPressed()), this, SLOT(scrollbar_pressed_Slot()));
+	connect(view()->horizontalScrollBar(), SIGNAL(sliderReleased()), this, SLOT(scrollbar_released_Slot()));
 
 	PVParallelView::PVLinesView::list_zone_images_t images = _lines_view->get_zones_images();
 
@@ -38,8 +39,8 @@ PVParallelView::PVParallelScene::PVParallelScene(QObject* parent, PVParallelView
 			pos += _lines_view->get_zones_manager().get_zone_width(z-1);
 		}
 
-		PVParallelView::PVAxisGraphicsItem* axisw = new PVParallelView::PVAxisGraphicsItem(axis);
-		connect(axisw, SIGNAL(axis_sliders_moved()), this, SLOT(update_selection()));
+		PVParallelView::PVAxisGraphicsItem* axisw = new PVParallelView::PVAxisGraphicsItem(axis, z);
+		connect(axisw, SIGNAL(axis_sliders_moved(uint32_t)), this, SLOT(update_selection(uint32_t)));
 		axisw->setPos(QPointF(pos - PVParallelView::AxisWidth, 0));
 		addItem(axisw);
 		_axes.push_back(axisw);
@@ -86,8 +87,6 @@ void PVParallelView::PVParallelScene::wheelEvent(QGraphicsSceneWheelEvent* event
 		const PVZoneID zmouse = mouse_zid;
 		int32_t zone_x = map_to_axis(zmouse, mouse_scene_pt).x();
 		int32_t mouse_view_x = view()->mapFromScene(mouse_scene_pt).x();
-
-
 
 		_lines_view->set_all_zones_width([=](uint32_t width){ return width+zoom; });
 		update_zones_position();

@@ -13,6 +13,7 @@
 
 #include <picviz/PVAxis.h>
 #include <pvparallelview/PVSelectionSquareGraphicsItem.h>
+#include <pvparallelview/PVSelectionGenerator.h>
 #include <pvparallelview/PVAxisGraphicsItem.h>
 #include <pvparallelview/PVFullParallelView.h>
 #include <pvparallelview/PVLinesView.h>
@@ -144,7 +145,7 @@ private:
 			// translate zones
 			translate_and_update_zones_position();
 		}
-		else {
+		else if (!sliders_moving()) {
 			PVZoneID zid = _lines_view->get_zones_manager().get_zone_id(_selection_square->rect().x());
 			QRect r = map_to_axis(zid, _selection_square->rect());
 
@@ -155,14 +156,13 @@ private:
 			}
 
 			cancel_current_job();
-			uint32_t nb_select = _selection_square->compute_selection(zid, r, _sel);
+			uint32_t nb_select = _selection_generator.compute_selection_from_rect(zid, r, _sel);
 			view()->set_selected_line_number(nb_select);
 			launch_job_future([&](PVRenderingJob& rendering_job)
 				{
 					return _lines_view->update_sel_from_zone(view()->width(), zid, _sel, rendering_job);
 				}
 			);
-			update_zones_position();
 		}
 		QGraphicsScene::mouseReleaseEvent(event);
 	}
@@ -213,21 +213,18 @@ private slots:
 	}
 
 
-	void update_selection()
+	void update_selection(uint32_t axis_id)
 	{
-		PVLOG_INFO("update_selection\n");
-		for (PVAxisGraphicsItem* axis : _axes) {
-			axis->get_selection_ranges();
-		}
+		_selection_square->clear_rect();
+		uint32_t nb_select = _selection_generator.compute_selection_from_sliders(axis_id, _axes[axis_id]->get_selection_ranges(), _sel);
+		view()->set_selected_line_number(nb_select);
 
-		/*cancel_current_job();
+		cancel_current_job();
 		launch_job_future([&](PVRenderingJob& rendering_job)
 			{
-
-				return _lines_view->update_sel_from_zone(view()->width(), zid, _sel, rendering_job);
+				return _lines_view->update_sel_from_zone(view()->width(), axis_id, _sel, rendering_job);
 			}
 		);
-		update_zones_position();*/
 	}
 
 private:
@@ -264,12 +261,12 @@ private:
 	QRect map_to_axis(PVZoneID zid, QRectF rect) const { return _axes[zid]->map_from_scene(rect); }
 
 private slots:
-	void slider_pressed_Slot()
+	void scrollbar_pressed_Slot()
 	{
 		_translation_start_x = (qreal) view()->horizontalScrollBar()->value();
 	}
 
-	void slider_released_Slot()
+	void scrollbar_released_Slot()
 	{
 		translate_and_update_zones_position();
 	}
@@ -304,7 +301,9 @@ private:
 	QFuture<void> _rendering_future;
 	QFuture<void> _sel_rendering_future;
     
-	PVParallelView::PVSelectionSquareGraphicsItem* _selection_square;
+	PVSelectionSquareGraphicsItem* _selection_square;
+	PVParallelView::PVSelectionGenerator _selection_generator;
+
     QPointF _selection_square_pos;
 
     Picviz::PVSelection _sel;

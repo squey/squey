@@ -18,8 +18,8 @@
  * PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem
  *****************************************************************************/
 
-PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem(Picviz::PVAxis *axis) :
-	_axis(axis)
+PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem(Picviz::PVAxis *axis, uint32_t axis_index) :
+	_axis(axis), _axis_index(axis_index)
 {
 	setHandlesChildEvents(false); // This is needed to let the children of the group handle their events.
 }

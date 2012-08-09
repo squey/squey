@@ -42,7 +42,7 @@ class TBBReduceSelElts;
 }
 
 class PVZoneProcessing;
-class PVSelectionSquare;
+class PVSelectionGenerator;
 
 class PVZoneTree: public PVZoneTreeBase
 {
@@ -52,7 +52,7 @@ class PVZoneTree: public PVZoneTreeBase
 	friend class __impl::TBBSelFilter;
 	friend class __impl::TBBSelRowsFilter;
 	friend class __impl::TBBReduceSelElts;
-	friend class PVSelectionSquare;
+	friend class PVSelectionGenerator;
 
 public:
 	typedef boost::shared_ptr<PVZoneTree> p_type;

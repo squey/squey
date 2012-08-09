@@ -12,8 +12,6 @@
 #include <QGraphicsScene>
 #include <QGraphicsRectItem>
 
-#include <pvparallelview/PVSelectionSquare.h>
-
 namespace PVParallelView
 {
 
@@ -24,17 +22,10 @@ class PVSelectionSquareGraphicsItem : public QGraphicsRectItem
 public:
 	PVSelectionSquareGraphicsItem(PVParallelScene* s);
 
-	uint32_t compute_selection(PVZoneID zid, QRect rect, Picviz::PVSelection& sel)
+	void clear_rect()
 	{
-		return _selection_square->compute_selection(zid, rect, sel);
+		setRect(QRect());
 	}
-
-	~PVSelectionSquareGraphicsItem()
-	{
-		delete _selection_square;
-	}
-
-	PVSelectionSquare* _selection_square;
 };
 
 }

@@ -1,16 +1,17 @@
 /**
- * \file PVSelectionSquare.h
+ * \file PVSelectionGenerator.h
  *
  * Copyright (C) Picviz Labs 2010-2012
  */
 
-#ifndef PVSELECTIONSQUARE_H_
-#define PVSELECTIONSQUARE_H_
+#ifndef PVSELECTIONGENERATOR_H_
+#define PVSELECTIONGENERATOR_H_
 
 #include <picviz/PVSelection.h>
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVZoneTree.h>
 #include <pvparallelview/PVZonesManager.h>
+#include <pvparallelview/PVAxisGraphicsItem.h>
 #include <pvparallelview/PVBCode.h>
 #include <pvkernel/core/picviz_bench.h>
 
@@ -25,16 +26,16 @@ struct PVLineEqInt
 	inline int operator()(int X, int Y) const { return a*X+b*Y+c; }
 };
 
-class PVSelectionSquare
+class PVSelectionGenerator
 {
 public:
-	PVSelectionSquare(PVZonesManager& zm) : _zm(zm) {};
+	PVSelectionGenerator(PVZonesManager& zm) : _zm(zm) {};
 
-	uint32_t compute_selection(PVZoneID zid, QRect rect, Picviz::PVSelection& sel)
+	uint32_t compute_selection_from_rect(PVZoneID zid, QRect rect, Picviz::PVSelection& sel)
 	{
 		uint32_t nb_selected = 0;
 
-		BENCH_START(compute_selection);
+		BENCH_START(compute_selection_from_rect);
 
 		sel.select_none();
 		int32_t width = _zm.get_zone_width(zid);
@@ -73,24 +74,70 @@ public:
 
 			if (is_line_selected)
 			{
-				nb_selected += treeb[branch].count;
+				ztree._sel_elts[branch] = r;
 				for (size_t i = 0; i < treeb[branch].count; i++) {
 					sel.set_bit_fast(treeb[branch].p[i]);
 				}
-				ztree._sel_elts[branch] = r;
+				nb_selected += treeb[branch].count;
 			}
 			else {
 				ztree._sel_elts[branch] = PVROW_INVALID_VALUE;
 			}
 		}
-		BENCH_END(compute_selection, "compute_selection", 1, 1, 1, 1);
+		BENCH_END(compute_selection_from_rect, "compute_selection", 1, 1, 1, 1);
 
 		return nb_selected;
 	}
 
+	uint32_t compute_selection_from_sliders(PVZoneID zid, const typename PVAxisGraphicsItem::selection_ranges_t& ranges, Picviz::PVSelection& sel)
+	{
+		uint32_t nb_selected = 0;
+
+		sel.select_none();
+
+		PVZoneTree& ztree = _zm.get_zone_tree<PVZoneTree>(zid);
+		PVZoneTree::PVBranch* treeb = ztree.get_treeb();
+
+		PVParallelView::PVBCode code_b;
+
+		for (uint32_t branch = 0 ; branch < NBUCKETS; branch++)
+		{
+			PVRow r =  ztree.get_first_elt_of_branch(branch);
+			if(r == PVROW_INVALID_VALUE) {
+				ztree._sel_elts[branch] = PVROW_INVALID_VALUE;
+				continue;
+			}
+
+			code_b.int_v = branch;
+			int32_t y1 = code_b.s.l;
+
+			bool is_line_selected = false;
+			for (auto range : ranges) {
+				if (y1 >= range.first && y1 <= range.second) {
+					is_line_selected = true;
+					break;
+				}
+			}
+
+			if(is_line_selected) {
+				ztree._sel_elts[branch] = r;
+				for (size_t i = 0; i < treeb[branch].count; i++) {
+					sel.set_bit_fast(treeb[branch].p[i]);
+				}
+				nb_selected += treeb[branch].count;
+			}
+			else {
+				ztree._sel_elts[branch] = PVROW_INVALID_VALUE;
+			}
+		}
+
+		return nb_selected;
+	}
+
+private:
 	PVZonesManager& _zm;
 };
 
 }
 
-#endif /* PVSELECTIONSQUARE_H_ */
+#endif /* PVSELECTIONGENERATOR_H_ */
