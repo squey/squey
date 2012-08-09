@@ -237,14 +237,14 @@ __global__ void bcicode_raster_unroll2(uint2* bci_codes, unsigned int n, unsigne
 	}
 }
 
-void show_codes_cuda(PVParallelView::PVBCICode* codes, uint32_t n, uint32_t width, uint32_t* img_dst/*[width][IMAGE_HEIGHT]*/)
+void show_codes_cuda(PVParallelView::PVBCICode<>* codes, uint32_t n, uint32_t width, uint32_t* img_dst/*[width][IMAGE_HEIGHT]*/)
 {
-	PVBCICode* device_codes;
+	PVBCICode<>* device_codes;
 	uint32_t* device_img;
-	picviz_verify(sizeof(PVBCICode) == sizeof(uint64_t));
+	picviz_verify(sizeof(PVBCICode<>) == sizeof(uint64_t));
 
-	picviz_verify_cuda(cudaMalloc(&device_codes, n*sizeof(PVBCICode)));
-	picviz_verify_cuda(cudaMemcpy(device_codes, codes, n*sizeof(PVBCICode), cudaMemcpyHostToDevice));
+	picviz_verify_cuda(cudaMalloc(&device_codes, n*sizeof(PVBCICode<>)));
+	picviz_verify_cuda(cudaMemcpy(device_codes, codes, n*sizeof(PVBCICode<>), cudaMemcpyHostToDevice));
 
 	size_t simg = width*IMAGE_HEIGHT*sizeof(uint32_t);
 	picviz_verify_cuda(cudaMalloc(&device_img, simg));
@@ -285,5 +285,5 @@ void show_codes_cuda(PVParallelView::PVBCICode* codes, uint32_t n, uint32_t widt
 	float time = 0;
 	picviz_verify_cuda(cudaEventElapsedTime(&time, start, end));
 
-	fprintf(stderr, "CUDA kernel time: %0.4f ms, BW: %0.4f MB/s\n", time, (double)(n*sizeof(PVBCICode))/(double)((time/1000.0)*1024.0*1024.0));
+	fprintf(stderr, "CUDA kernel time: %0.4f ms, BW: %0.4f MB/s\n", time, (double)(n*sizeof(PVBCICode<>))/(double)((time/1000.0)*1024.0*1024.0));
 }

@@ -21,12 +21,11 @@ public:
 	void operator()(const tbb::blocked_range<PVZoneID>& r) const
 	{
 		PVParallelView::PVZonesManager* zm = _zm;
-		PVParallelView::PVZoneTree::ProcessTLS tls;
 		PVParallelView::PVZoneProcessing zp(zm->get_uint_plotted(), zm->get_number_rows());
 		for (PVZoneID z = r.begin(); z != r.end(); z++) {
 			zm->get_zone_cols(z, zp.col_a(), zp.col_b());
 			PVZoneTree& ztree = zm->_zones[z].ztree();
-			ztree.process(zp, tls);
+			ztree.process(zp);
 			PVZoomedZoneTree& zztree = zm->_zones[z].zoomed_ztree();
 			zztree.process(zp, ztree);
 		}
@@ -104,11 +103,11 @@ void PVParallelView::PVZonesManager::filter_zone_by_sel(PVZoneID zid, const Picv
 {
 	assert(zid < (PVZoneID) _zones.size());
 
-	PVParallelView::PVZoneTree::ProcessTLS tls;
+	PVParallelView::PVZoneTree::ProcessData tls;
 	PVParallelView::PVZoneProcessing zp(get_uint_plotted(), get_number_rows(), zid, zid+1);
 
-	_zones[zid].ztree().filter_by_sel_new(zp, sel, tls);
-	//_zones[zid].ztree().filter_by_sel(sel);
+	//_zones[zid].ztree().filter_by_sel_new(zp, sel, tls);
+	_zones[zid].ztree().filter_by_sel(sel);
 }
 
 void PVParallelView::PVZonesManager::set_uint_plotted(Picviz::PVView const& view)

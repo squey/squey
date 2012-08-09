@@ -30,6 +30,10 @@
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/variate_generator.hpp>
 
+#define RENDERING_BITS PARALLELVIEW_ZZT_BBITS
+
+typedef PVParallelView::PVZonesDrawing<RENDERING_BITS> zones_drawing_t;
+
 void usage(const char* path)
 {
 	std::cerr << "Usage: " << path << " [plotted_file] [nrows] [ncols]" << std::endl;
@@ -135,10 +139,10 @@ int main(int argc, char** argv)
 	zm.set_zone_width(2, 256);
 	zm.set_zone_width(3, 256);
 
-	PVParallelView::PVBCIDrawingBackendCUDA backend_cuda;
-	PVParallelView::PVZonesDrawing &zones_drawing = *(new PVParallelView::PVZonesDrawing(zm, backend_cuda, *colors));
+	PVParallelView::PVBCIDrawingBackendCUDA<RENDERING_BITS> backend_cuda;
+	zones_drawing_t &zones_drawing = *(new zones_drawing_t(zm, backend_cuda, *colors));
 
-	PVParallelView::PVBCIBackendImage_p dst_img1 = zones_drawing.create_image(1920);
+	zones_drawing_t::backend_image_p_t dst_img1 = zones_drawing.create_image(1920);
 
 #if 0
 	// zones_drawing.draw_zone<PVParallelView::PVZoneTree>(*dst_img1, zm.get_zone_absolute_pos(0), 0, &PVParallelView::PVZoneTree::browse_tree_bci);
@@ -148,7 +152,7 @@ int main(int argc, char** argv)
 		(*dst_img1, zm.get_zone_absolute_pos(0), 0,
 		 [&](PVParallelView::PVZoneTree const& zone_tree,
 		     PVParallelView::PVHSVColor const* colors,
-		     PVParallelView::PVBCICode* codes)
+		     PVParallelView::PVBCICode<NBITS_INDEX>* codes)
 		 {
 			 size_t num = zone_tree.browse_tree_bci(colors, codes);
 			 std::cout << "ZT-0: num of codes: " << num << std::endl;
@@ -162,7 +166,7 @@ int main(int argc, char** argv)
 		(*dst_img1, zm.get_zone_absolute_pos(1), 1,
 		 [&](PVParallelView::PVZoneTree const& zone_tree,
 		     PVParallelView::PVHSVColor const* colors,
-		     PVParallelView::PVBCICode* codes)
+		     PVParallelView::PVBCICode<NBITS_INDEX>* codes)
 		 {
 			 size_t num = zone_tree.browse_tree_bci(colors, codes);
 			 std::cout << "ZT-1: num of codes: " << num << std::endl;
@@ -181,7 +185,7 @@ int main(int argc, char** argv)
 
 	// std::cout << "drawing area [" << a << ", " << b << "]" << std::endl;
 
-	PVParallelView::PVBCIBackendImage_p dst_img2 = zones_drawing.create_image(1920);
+	zones_drawing_t::backend_image_p_t dst_img2 = zones_drawing.create_image(1920);
 
 	BENCH_START(col1);
 	PVParallelView::PVZoomedZoneTree const &zoomed_zone_tree = zm.get_zone_tree<PVParallelView::PVZoomedZoneTree>(0);
@@ -189,7 +193,7 @@ int main(int argc, char** argv)
 		(zoomed_zone_tree, *dst_img2, zm.get_zone_absolute_pos(0), 256,
 		 [&](PVParallelView::PVZoomedZoneTree const &zoomed_zone_tree,
 		     PVParallelView::PVHSVColor const* colors,
-		     PVParallelView::PVBCICode* codes)
+		     PVParallelView::PVBCICode<RENDERING_BITS>* codes)
 		 {
 			 size_t num = zoomed_zone_tree.browse_tree_bci_by_y1(a, b, colors, codes);
 			 std::cout << "ZZT-0: num of codes: " << num << std::endl;
@@ -211,7 +215,7 @@ int main(int argc, char** argv)
 		(zoomed_zone_tree, *dst_img2, zm.get_zone_absolute_pos(1), 256,
 		 [&](PVParallelView::PVZoomedZoneTree const &zoomed_zone_tree,
 		     PVParallelView::PVHSVColor const* colors,
-		     PVParallelView::PVBCICode* codes)
+		     PVParallelView::PVBCICode<RENDERING_BITS>* codes)
 		 {
 			 size_t num = zoomed_zone_tree.browse_tree_bci_by_y1(a, b, colors, codes);
 			 std::cout << "ZZT-1: num of codes: " << num << std::endl;
@@ -232,7 +236,7 @@ int main(int argc, char** argv)
 		(zoomed_zone_tree, *dst_img2, zm.get_zone_absolute_pos(2), 256,
 		 [&](PVParallelView::PVZoomedZoneTree const &zoomed_zone_tree,
 		     PVParallelView::PVHSVColor const* colors,
-		     PVParallelView::PVBCICode* codes)
+		     PVParallelView::PVBCICode<RENDERING_BITS>* codes)
 		 {
 			 size_t num = zoomed_zone_tree.browse_tree_bci_by_y1(a, b, colors, codes);
 			 std::cout << "ZZT-1: num of codes: " << num << std::endl;
@@ -253,7 +257,7 @@ int main(int argc, char** argv)
 		(zoomed_zone_tree, *dst_img2, zm.get_zone_absolute_pos(3), 256,
 		 [&](PVParallelView::PVZoomedZoneTree const &zoomed_zone_tree,
 		     PVParallelView::PVHSVColor const* colors,
-		     PVParallelView::PVBCICode* codes)
+		     PVParallelView::PVBCICode<RENDERING_BITS>* codes)
 		 {
 			 size_t num = zoomed_zone_tree.browse_tree_bci_by_y1(a, b, colors, codes);
 			 std::cout << "ZZT-1: num of codes: " << num << std::endl;

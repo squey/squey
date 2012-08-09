@@ -21,15 +21,23 @@ class PVSelection;
 
 namespace PVParallelView {
 
+template <size_t Bbits>
 class PVZonesDrawing;
 
 class PVLinesView
 {
+	constexpr static size_t bbits = NBITS_INDEX;
+
+public:
+	typedef PVZonesDrawing<bbits> zones_drawing_t;
+	typedef typename zones_drawing_t::backend_image_p_t backend_image_p_t;
+
+private:
 	struct ZoneImages
 	{
 		ZoneImages() { }
 
-		ZoneImages(PVZonesDrawing const& zd, uint32_t zone_width)
+		ZoneImages(zones_drawing_t const& zd, uint32_t zone_width)
 		{
 			create_image(zd, zone_width);
 		}
@@ -40,21 +48,21 @@ class PVLinesView
 			bg->set_width(zone_width);
 		}
 
-		void create_image(PVZonesDrawing const& zd, uint32_t zone_width)
+		void create_image(zones_drawing_t const& zd, uint32_t zone_width)
 		{
 			sel = zd.create_image(zone_width);
 			bg = zd.create_image(zone_width);
 		}
 
-		PVBCIBackendImage_p sel;
-		PVBCIBackendImage_p bg;
+		backend_image_p_t sel;
+		backend_image_p_t bg;
 	};
 
 public:
 	typedef std::vector<ZoneImages> list_zone_images_t;
 
 public:
-	PVLinesView(PVZonesDrawing& zones_drawing, PVZoneID nb_drawable_zones, uint32_t zone_width = PVParallelView::ZoneMaxWidth);
+	PVLinesView(zones_drawing_t& zones_drawing, PVZoneID nb_drawable_zones, uint32_t zone_width = PVParallelView::ZoneMaxWidth);
 
 public:
 	void set_nb_drawable_zones(PVZoneID nb_zones);
@@ -92,7 +100,7 @@ public:
 	}
 	bool set_zone_width_and_render(PVZoneID z, uint32_t width);
 
-	inline const PVZonesDrawing& get_zones_drawing() const { return _zd; }
+	inline const zones_drawing_t& get_zones_drawing() const { return _zd; }
 	inline const PVZonesManager& get_zones_manager() const { return _zd.get_zones_manager(); }
 	inline PVZonesManager& get_zones_manager() { return _zd.get_zones_manager(); }
 	inline uint32_t get_zone_width(PVZoneID z) const { return _zd.get_zone_width(z); }
@@ -100,7 +108,7 @@ public:
 	const list_zone_images_t& get_zones_images() const { return _zones_imgs; }
 	list_zone_images_t& get_zones_images() { return _zones_imgs; }
 	inline PVZoneID get_first_drawn_zone() const { return _first_zone; }
-	inline PVZoneID get_last_drawn_zone() const { return picviz_min(_first_zone + _zones_imgs.size()-1, get_zones_manager().get_number_zones()-1); }
+	inline PVZoneID get_last_drawn_zone() const { return picviz_min((PVZoneID)(_first_zone + _zones_imgs.size()-1), (PVZoneID)get_zones_manager().get_number_zones()-1); }
 	bool is_zone_drawn(PVZoneID z) const { return (z >= get_first_drawn_zone() && z <= get_last_drawn_zone()); }
 	inline uint32_t get_zone_absolute_pos(PVZoneID z) const { return get_zones_manager().get_zone_absolute_pos(z); }
 
@@ -130,7 +138,7 @@ private:
 	{
 		int32_t view_x = _visible_view_x;
 		if (view_x < 0) {
-			// We start to be too far one the left...
+			// We start to be too far on the left...
 			uint32_t unused_width = (uint32_t) (-view_x);
 			if (unused_width >= view_width) {
 				unused_width = view_width;
@@ -213,6 +221,7 @@ private:
 		PVZoneID new_first_zone = get_first_zone_from_viewport(new_view_x, view_width);
 
 		PVZoneID pre_first_zone = _first_zone;
+
 		_first_zone = new_first_zone;
 		return pre_first_zone;
 	}
@@ -288,7 +297,7 @@ private:
 	void right_shift_images(PVZoneID s);
 
 private:
-	PVZonesDrawing& _zd;
+	zones_drawing_t& _zd;
 	PVZoneID _first_zone;
 	uint32_t _zone_max_width;
 	int32_t _visible_view_x;

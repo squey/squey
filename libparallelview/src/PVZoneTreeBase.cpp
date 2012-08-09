@@ -42,14 +42,14 @@ void PVParallelView::PVZoneTreeBase::display(QString const& name, Picviz::PVPlot
 	window->show();
 }
 
-size_t PVParallelView::PVZoneTreeBase::browse_tree_bci_no_sse(PVHSVColor const* colors, PVBCICode* codes) const
+size_t PVParallelView::PVZoneTreeBase::browse_tree_bci_no_sse(PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const
 {
 	size_t idx_code = 0;
 //#pragma omp parallel for reduction(+:idx_code) num_threads(4)
 	for (uint64_t b = 0; b < NBUCKETS; b++) {
 		if (branch_valid(b)) {
 			PVRow r = get_first_elt_of_branch(b);
-			PVBCICode bci;
+			PVBCICode<NBITS_INDEX> bci;
 			bci.int_v = r | (b<<32);
 			bci.s.color = colors[r].h();
 			codes[idx_code] = bci;
@@ -60,7 +60,7 @@ size_t PVParallelView::PVZoneTreeBase::browse_tree_bci_no_sse(PVHSVColor const* 
 	return idx_code;
 }
 
-size_t PVParallelView::PVZoneTreeBase::browse_tree_bci_old(PVHSVColor const* colors, PVBCICode* codes) const
+size_t PVParallelView::PVZoneTreeBase::browse_tree_bci_old(PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const
 {
 	size_t idx_code = 0;
 //#pragma omp parallel for reduction(+:idx_code) num_threads(4)
@@ -199,7 +199,7 @@ size_t PVParallelView::PVZoneTreeBase::browse_tree_bci_old(PVHSVColor const* col
 			uint64_t b0 = b + b2;
 			PVRow r0 = get_first_elt_of_branch(b0);
 
-			PVBCICode bci0;
+			PVBCICode<NBITS_INDEX> bci0;
 			bci0.int_v = r0 | (b0<<32);
 			bci0.s.color = colors[r0].h();
 			codes[idx_code] = bci0;
@@ -210,24 +210,24 @@ size_t PVParallelView::PVZoneTreeBase::browse_tree_bci_old(PVHSVColor const* col
 	return idx_code;
 }
 
-size_t PVParallelView::PVZoneTreeBase::browse_tree_bci(PVHSVColor const* colors, PVBCICode* codes) const
+size_t PVParallelView::PVZoneTreeBase::browse_tree_bci(PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const
 {
 	return browse_tree_bci_from_buffer(_first_elts, colors, codes);
 }
 
-size_t PVParallelView::PVZoneTreeBase::browse_tree_bci_sel(PVHSVColor const* colors, PVBCICode* codes) const
+size_t PVParallelView::PVZoneTreeBase::browse_tree_bci_sel(PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const
 {
 	return browse_tree_bci_from_buffer(_sel_elts, colors, codes);
 }
 
-size_t PVParallelView::PVZoneTreeBase::browse_tree_bci_from_buffer(const PVRow* elts, PVHSVColor const* colors, PVBCICode* codes) const
+size_t PVParallelView::PVZoneTreeBase::browse_tree_bci_from_buffer(const PVRow* elts, PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const
 {
 	size_t idx_code = 0;
 
 //	const size_t nthreads = atol(getenv("NUM_THREADS"));/*omp_get_max_threads()/2;*/
 //#pragma omp parallel num_threads(nthreads)
 //	{
-	//PVBCICode* th_codes = PVBCICode::allocate_codes(NBUCKETS);
+	//PVBCICode<NBITS_INDEX>* th_codes = PVBCICode::allocate_codes(NBUCKETS);
 //#pragma omp for reduction(+:idx_code) schedule(dynamic, 6)
 	for (uint64_t b = 0; b < NBUCKETS; b+=4) {
 
@@ -292,7 +292,7 @@ size_t PVParallelView::PVZoneTreeBase::browse_tree_bci_from_buffer(const PVRow* 
 				uint64_t b0 = b + i;
 				PVRow r = elts[b0];
 				if (r != PVROW_INVALID_VALUE){
-					PVBCICode bci;
+					PVBCICode<NBITS_INDEX> bci;
 					bci.int_v = r | (b0<<32);
 					bci.s.color = colors[r].h();
 					codes[idx_code] = bci;

@@ -7,7 +7,7 @@
 #include <pvparallelview/PVLinesView.h>
 #include <qtconcurrentrun.h>
 
-PVParallelView::PVLinesView::PVLinesView(PVZonesDrawing& zones_drawing, PVZoneID nb_zones, uint32_t zone_width /* = PVParallelView::ZoneMaxWidth */) :
+PVParallelView::PVLinesView::PVLinesView(PVZonesDrawing<bbits>& zones_drawing, PVZoneID nb_zones, uint32_t zone_width /* = PVParallelView::ZoneMaxWidth */) :
 	_zd(zones_drawing),
 	_first_zone(0),
 	_zone_max_width(zone_width),
@@ -59,6 +59,7 @@ QFuture<void> PVParallelView::PVLinesView::translate(int32_t view_x, uint32_t vi
 				PVLOG_INFO("(translate) render zone %u\n", z);
 				assert(z >= _first_zone);
 				update_zone_images_width(z);
+				PVLOG_INFO("z=%d in _zones_imgs[%d].bg\n", z, z-_first_zone);
 				_zd.draw_zone(*_zones_imgs[z-_first_zone].bg, 0, z, &PVParallelView::PVZoneTree::browse_tree_bci);
 			},
 			&job);
@@ -278,7 +279,7 @@ void PVParallelView::PVLinesView::update_sel_from_zone(uint32_t view_width, PVZo
 
 QFuture<void> PVParallelView::PVLinesView::update_sel_from_zone(uint32_t view_width, PVZoneID zid_sel, const Picviz::PVSelection& sel, PVRenderingJob& job)
 {
-	return QtConcurrent::run<>([&, view_width]{
+	return QtConcurrent::run<>([&, view_width, zid_sel]{
 		render_all_zones(view_width,
 			[&,view_width,zid_sel](PVZoneID z)
 			{

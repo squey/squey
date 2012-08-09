@@ -22,12 +22,15 @@ enable_testing()
 add_executable(full_parallel_view full_parallel_view.cpp)
 target_link_libraries(full_parallel_view ${LINK_LIBRARIES})
 
+QT4_WRAP_CPP(ZOOM_DLG_MOC zoom_dlg.h OPTIONS ${QT4_WRAP_OPTIONS})
+add_executable(both_views both_views.cpp ${ZOOM_DLG_MOC})
+target_link_libraries(both_views ${LINK_LIBRARIES})
+
 add_executable(zoomed_parallel_view zoomed_parallel_view.cpp)
 target_link_libraries(zoomed_parallel_view ${LINK_LIBRARIES})
 
-QT4_WRAP_CPP(TEST_ZPS_MOC_SRC zoomed_parallel_scene.h OPTIONS ${QT4_WRAP_OPTIONS})
-add_executable(zoomed_parallel_scene zoomed_parallel_scene.cpp ${TEST_ZPS_MOC_SRC})
-target_link_libraries(zoomed_parallel_scene ${LINK_LIBRARIES})
+add_executable(zoomed_parallel_view2 zoomed_parallel_view2.cpp)
+target_link_libraries(zoomed_parallel_view2 ${LINK_LIBRARIES})
 
 add_executable(zoomed_zone_tree_render zoomed_zone_tree_render.cpp)
 target_link_libraries(zoomed_zone_tree_render ${LINK_LIBRARIES})
@@ -62,8 +65,8 @@ target_link_libraries(show_codes_gl ${LINK_LIBRARIES})
 add_executable(masks masks.cpp)
 target_link_libraries(masks ${LINK_LIBRARIES})
 
-add_executable(Tsort_test sort_test.cpp)
-target_link_libraries(Tsort_test ${LINK_LIBRARIES})
+#add_executable(Tsort_test sort_test.cpp)
+#target_link_libraries(Tsort_test ${LINK_LIBRARIES})
 
 add_executable(qgraphicsitem_events qgraphicsitem_events.cpp)
 target_link_libraries(qgraphicsitem_events ${LINK_LIBRARIES})
@@ -103,4 +106,7 @@ if (CUDA_FOUND)
 
 	add_executable(lines_drawing lines_drawing.cpp)
 	target_link_libraries(lines_drawing ${LINK_LIBRARIES})
+
+	add_executable(show_codes_cuda_lib show_codes_cuda_lib.cpp)
+	target_link_libraries(show_codes_cuda_lib ${LINK_LIBRARIES})
 endif (CUDA_FOUND)

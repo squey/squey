@@ -30,7 +30,7 @@
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/variate_generator.hpp>
 
-void show_codes(QString const& title, PVParallelView::PVBCICode* codes, size_t n)
+void show_codes(QString const& title, PVParallelView::PVBCICode<NBITS_INDEX>* codes, size_t n)
 {
 	QMainWindow* mw = new QMainWindow();
 	mw->setWindowTitle(title);
@@ -45,7 +45,7 @@ void show_codes(QString const& title, PVParallelView::PVBCICode* codes, size_t n
 	PVRGB rgb;
 	rgb.int_v = 0;
 	for (size_t i = 0; i < n; i++) {
-		PVParallelView::PVBCICode c = codes[i];
+		PVParallelView::PVBCICode<NBITS_INDEX> c = codes[i];
 		c = codes[i];
 		pts.push_back(0); pts.push_back(c.s.l);
 		pts.push_back(1); pts.push_back(c.s.r);
@@ -106,8 +106,8 @@ void test(
 	PVRow nrows,
 	PVCol ncols,
 	PVParallelView::PVHSVColor* colors,
-	PVParallelView::PVBCICode* bci_codes,
-	PVParallelView::PVBCICode* bci_codes_ref
+	PVParallelView::PVBCICode<NBITS_INDEX>* bci_codes,
+	PVParallelView::PVBCICode<NBITS_INDEX>* bci_codes_ref
 )
 {
 	Picviz::PVPlotted::uint_plotted_table_t norm_plotted;
@@ -181,7 +181,7 @@ void test(
 
 		BENCH_START(bci);
 		size_t nb_codes = ztree->browse_tree_bci(colors, bci_codes);
-		BENCH_END(bci, "bci", sizeof(PVRow), NBUCKETS, sizeof(PVParallelView::PVBCICode), nb_codes);
+		BENCH_END(bci, "bci", sizeof(PVRow), NBUCKETS, sizeof(PVParallelView::PVBCICode<NBITS_INDEX>), nb_codes);
 		show_codes("serial", bci_codes, nb_codes);
 
 		{
@@ -256,8 +256,8 @@ int main(int argc, char** argv)
 		ncols = atol(argv[3]);
 
 		PVParallelView::PVHSVColor* colors = PVParallelView::PVHSVColor::init_colors(nrows);
-		PVParallelView::PVBCICode* bci_codes_ref = PVParallelView::PVBCICode::allocate_codes(NBUCKETS);
-		PVParallelView::PVBCICode* bci_codes = PVParallelView::PVBCICode::allocate_codes(NBUCKETS);
+		PVParallelView::PVBCICode<NBITS_INDEX>* bci_codes_ref = PVParallelView::PVBCICode<NBITS_INDEX>::allocate_codes(NBUCKETS);
+		PVParallelView::PVBCICode<NBITS_INDEX>* bci_codes = PVParallelView::PVBCICode<NBITS_INDEX>::allocate_codes(NBUCKETS);
 
 		std::cout << "== RANDOM DISTRIBUTED PLOTTED ==" << std::endl;
 		init_rand_plotted(plotted, nrows, ncols);
@@ -268,8 +268,8 @@ int main(int argc, char** argv)
 		test(plotted, nrows, ncols, colors, bci_codes, bci_codes_ref);
 
 		delete [] colors;
-		PVParallelView::PVBCICode::free_codes(bci_codes_ref);
-		PVParallelView::PVBCICode::free_codes(bci_codes);
+		PVParallelView::PVBCICode<NBITS_INDEX>::free_codes(bci_codes_ref);
+		PVParallelView::PVBCICode<NBITS_INDEX>::free_codes(bci_codes);
 
 	}
 	else

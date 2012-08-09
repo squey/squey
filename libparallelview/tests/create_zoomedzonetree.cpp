@@ -9,6 +9,7 @@
 #include <pvparallelview/PVBCICode.h>
 #include <pvparallelview/PVZoneProcessing.h>
 #include <pvparallelview/PVZoomedZoneTree.h>
+#include <pvparallelview/PVZonesDrawing.h>
 #include <pvparallelview/PVTools.h>
 #include <pvparallelview/PVHSVColor.h>
 #include <pvparallelview/simple_lines_int_view.h>
@@ -40,9 +41,14 @@ enum {
 	MODE_FILE
 };
 
+#define RENDERING_BITS PARALLELVIEW_ZZT_BBITS
+
+typedef PVParallelView::PVZonesDrawing<RENDERING_BITS> zones_drawing_t;
+typedef PVParallelView::PVBCICode<RENDERING_BITS> bcicode_t;
+
 int mode_value;
 
-void show_codes(QString const& title, PVParallelView::PVBCICode* codes, size_t n)
+void show_codes(QString const& title, bcicode_t* codes, size_t n)
 {
 	QMainWindow* mw = new QMainWindow();
 	mw->setWindowTitle(title);
@@ -57,7 +63,7 @@ void show_codes(QString const& title, PVParallelView::PVBCICode* codes, size_t n
 	PVRGB rgb;
 	rgb.int_v = 0;
 	for (size_t i = 0; i < n; i++) {
-		PVParallelView::PVBCICode c = codes[i];
+		bcicode_t c = codes[i];
 		c = codes[i];
 		pts.push_back(0); pts.push_back(c.s.l);
 		pts.push_back(1); pts.push_back(c.s.r);
@@ -147,8 +153,8 @@ void test(
 	PVRow nrows,
 	PVCol ncols,
 	PVParallelView::PVHSVColor* colors,
-	PVParallelView::PVBCICode* bci_codes,
-	PVParallelView::PVBCICode* bci_codes_ref
+	bcicode_t* bci_codes,
+	bcicode_t* bci_codes_ref
 )
 {
 	(void) bci_codes_ref;
@@ -243,8 +249,8 @@ int main(int argc, char** argv)
 
 		memprintf("real data size", nrows * sizeof(PVParallelView::PVQuadTreeEntry));
 		PVParallelView::PVHSVColor* colors = PVParallelView::PVHSVColor::init_colors(nrows);
-		PVParallelView::PVBCICode* bci_codes_ref = PVParallelView::PVBCICode::allocate_codes(NBUCKETS);
-		PVParallelView::PVBCICode* bci_codes = PVParallelView::PVBCICode::allocate_codes(NBUCKETS);
+		bcicode_t* bci_codes_ref = bcicode_t::allocate_codes(NBUCKETS);
+		bcicode_t* bci_codes = bcicode_t::allocate_codes(NBUCKETS);
 
 		std::cout << "== RANDOM DISTRIBUTED PLOTTED ==" << std::endl;
 		init_rand_plotted(plotted, nrows, ncols);
@@ -255,8 +261,8 @@ int main(int argc, char** argv)
 		test(plotted, nrows, ncols, colors, bci_codes, bci_codes_ref);
 
 		delete [] colors;
-		PVParallelView::PVBCICode::free_codes(bci_codes_ref);
-		PVParallelView::PVBCICode::free_codes(bci_codes);
+		bcicode_t::free_codes(bci_codes_ref);
+		bcicode_t::free_codes(bci_codes);
 	} else {
 		if (!Picviz::PVPlotted::load_buffer_from_file(plotted, ncols, true, QString(argv[1]))) {
 			std::cerr << "Unable to load plotted !" << std::endl;
@@ -267,8 +273,8 @@ int main(int argc, char** argv)
 
 		memprintf("real data size", nrows * sizeof(PVParallelView::PVQuadTreeEntry));
 		PVParallelView::PVHSVColor* colors = PVParallelView::PVHSVColor::init_colors(nrows);
-		PVParallelView::PVBCICode* bci_codes_ref = PVParallelView::PVBCICode::allocate_codes(NBUCKETS);
-		PVParallelView::PVBCICode* bci_codes = PVParallelView::PVBCICode::allocate_codes(NBUCKETS);
+		bcicode_t* bci_codes_ref = bcicode_t::allocate_codes(NBUCKETS);
+		bcicode_t* bci_codes = bcicode_t::allocate_codes(NBUCKETS);
 
 		std::cout << "== " << argv[1] << " ==" << std::endl;
 		test(plotted, nrows, ncols, colors, bci_codes, bci_codes_ref);

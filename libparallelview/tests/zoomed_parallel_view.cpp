@@ -1,49 +1,56 @@
 /**
- * \file zoomed_parallel_view.cpp
+ * \file zoomed_parallel_scene.cpp
  *
  * Copyright (C) Picviz Labs 2010-2012
  */
 
-#include <QtGui>
-#include <QGLWidget>
 #include <iostream>
 
-#include <pvparallelview/common.h>
 #include <pvkernel/core/picviz_bench.h>
+
+#include <picviz/PVAxis.h>
 #include <picviz/PVPlotted.h>
+
+#include <pvparallelview/common.h>
 #include <pvparallelview/PVBCICode.h>
 #include <pvparallelview/PVBCIBackendImage.h>
 #include <pvparallelview/PVBCIDrawingBackendCUDA.h>
 #include <pvparallelview/PVZonesDrawing.h>
 #include <pvparallelview/PVZonesManager.h>
 
-#include <pvparallelview/PVZoomedParallelView.h>
-#include <pvparallelview/PVZoomedTiler.h>
+#include <pvparallelview/PVZoomedParallelScene.h>
 
 #include <QApplication>
+#include <QGraphicsView>
 
-#include <pvparallelview/PVAxisGraphicsItem.h>
-#include <picviz/PVAxis.h>
-
-#define WIDTH 1920
-#define HEIGHT 1600
+/*****************************************************************************/
 
 #define CRAND() (127 + (random() & 0x7F))
 
-void usage(const char* path)
+void init_rand_plotted(Picviz::PVPlotted::plotted_table_t& p,
+                       PVRow nrows, PVCol ncols)
 {
-	std::cerr << "Usage: " << path << " [plotted_file] [nrows] [ncols]" << std::endl;
-}
-
-void init_rand_plotted(Picviz::PVPlotted::plotted_table_t& p, PVRow nrows, PVCol ncols)
-{
-	srand(time(NULL));
+	srand(0);
 	p.clear();
 	p.reserve(nrows*ncols);
 	for (PVRow i = 0; i < nrows*ncols; i++) {
 		p.push_back((float)((double)(rand())/(double)RAND_MAX));
 	}
 }
+
+/*****************************************************************************/
+
+void usage(const char* path)
+{
+	std::cerr << "Usage: " << path << " [plotted_file] [nrows] [ncols]"
+	          << std::endl;
+}
+
+/*****************************************************************************/
+
+#define RENDERING_BITS PARALLELVIEW_ZZT_BBITS
+
+typedef PVParallelView::PVZonesDrawing<RENDERING_BITS> zones_drawing_t;
 
 int main(int argc, char** argv)
 {
@@ -62,15 +69,13 @@ int main(int argc, char** argv)
 			usage(argv[0]);
 			return 1;
 		}
-		srand(time(NULL));
 		nrows = atol(argv[2]);
 		ncols = atol(argv[3]);
 
 		init_rand_plotted(plotted, nrows, ncols);
-	}
-	else
-	{
-		if (!Picviz::PVPlotted::load_buffer_from_file(plotted, ncols, true, QString(argv[1]))) {
+	} else {
+		if (!Picviz::PVPlotted::load_buffer_from_file(plotted, ncols,
+		                                              true, QString(argv[1]))) {
 			std::cerr << "Unable to load plotted !" << std::endl;
 			return 1;
 		}
@@ -87,13 +92,14 @@ int main(int argc, char** argv)
 	zm.set_uint_plotted(norm_plotted, nrows, ncols);
 	zm.update_all();
 
-	PVParallelView::PVBCIDrawingBackendCUDA backend_cuda;
-	PVParallelView::PVZonesDrawing &zones_drawing = *(new PVParallelView::PVZonesDrawing(zm, backend_cuda, *colors));
+	PVParallelView::PVBCIDrawingBackendCUDA<RENDERING_BITS> backend_cuda;
+	zones_drawing_t &zones_drawing = *(new zones_drawing_t(zm, backend_cuda, *colors));
 
-	PVParallelView::PVZoomedParallelView view;
+	QGraphicsView view;
 	view.setViewport(new QWidget());
-	//view.setScene(new PVParallelView::PVZoomedParallelView(&view, zones_drawing, 0, 0, 1));
-	view.setScene(new PVParallelView::PVZoomedTiler(&view, zones_drawing, /*zone*/ 1, /*pos*/ 0, /*zoom*/ 0));
+	view.setScene(new PVParallelView::PVZoomedParallelScene(&view, zones_drawing,
+	                                                        /*zone*/ 1, /*pos*/ 0,
+	                                                        /*zoom*/ 0));
 	view.resize(1024, 1024);
 	view.show();
 
@@ -102,5 +108,3 @@ int main(int argc, char** argv)
 
 	return 0;
 }
-
-

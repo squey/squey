@@ -281,12 +281,12 @@ uint32_t* init_cuda_image(uint32_t img_width, int device)
 	return device_img;
 }
 
-PVBCICode* init_cuda_codes(int device)
+PVBCICode<>* init_cuda_codes(int device)
 {
 	cudaSetDevice(device);
 	picviz_verify_cuda(cudaFuncSetCacheConfig(&bcicode_raster_unroll2, cudaFuncCachePreferL1));
-	PVBCICode* device_codes;
-	picviz_verify_cuda(cudaMalloc(&device_codes, NBUCKETS*sizeof(PVBCICode)));
+	PVBCICode<>* device_codes;
+	picviz_verify_cuda(cudaMalloc(&device_codes, NBUCKETS*sizeof(PVBCICode<>)));
 	return device_codes;
 }
 
@@ -302,7 +302,7 @@ void copy_img_cuda(uint32_t* host_img, uint32_t* device_img, uint32_t img_width)
 	picviz_verify_cuda(cudaMemcpy(host_img, device_img, simg, cudaMemcpyDeviceToHost));
 }
 
-void show_codes_cuda(PVParallelView::PVBCICode* device_codes, uint32_t n, uint32_t width, uint32_t* device_img, uint32_t img_width, uint32_t x_start, cudaStream_t stream)
+void show_codes_cuda(PVParallelView::PVBCICode<>* device_codes, uint32_t n, uint32_t width, uint32_t* device_img, uint32_t img_width, uint32_t x_start, cudaStream_t stream)
 {
 	// Compute number of threads per block
 	int nthreads_x = (picviz_min(width, (SMEM_IMG_KB*1024)/(PVParallelView::ImageHeight*sizeof(img_zbuffer_t))));
@@ -333,12 +333,12 @@ void show_codes_cuda(PVParallelView::PVBCICode* device_codes, uint32_t n, uint32
 		picviz_verify_cuda(cudaEventSynchronize(end));
 		float time = 0;
 		picviz_verify_cuda(cudaEventElapsedTime(&time, start, end));
-		fprintf(stderr, "CUDA kernel time: %0.4f ms, BW: %0.4f MB/s\n", time, (double)(n*sizeof(PVBCICode))/(double)((time/1000.0)*1024.0*1024.0));
+		fprintf(stderr, "CUDA kernel time: %0.4f ms, BW: %0.4f MB/s\n", time, (double)(n*sizeof(PVBCICode<>))/(double)((time/1000.0)*1024.0*1024.0));
 	}
 }
 
-void copy_codes_to_cuda(PVBCICode* device_codes, PVBCICode* host_codes, size_t n, cudaStream_t stream)
+void copy_codes_to_cuda(PVBCICode<>* device_codes, PVBCICode<>* host_codes, size_t n, cudaStream_t stream)
 {
 	assert(n < NBUCKETS);
-	picviz_verify_cuda(cudaMemcpyAsync(device_codes, host_codes, n*sizeof(PVBCICode), cudaMemcpyHostToDevice, stream));
+	picviz_verify_cuda(cudaMemcpyAsync(device_codes, host_codes, n*sizeof(PVBCICode<>), cudaMemcpyHostToDevice, stream));
 }

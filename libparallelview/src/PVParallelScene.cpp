@@ -18,24 +18,11 @@ PVParallelView::PVParallelScene::PVParallelScene(QObject* parent, PVParallelView
 	connect(view()->horizontalScrollBar(), SIGNAL(sliderPressed()), this, SLOT(slider_pressed_Slot()));
 	connect(view()->horizontalScrollBar(), SIGNAL(sliderReleased()), this, SLOT(slider_released_Slot()));
 
-	_lines_view->render_all_imgs(PVParallelView::ImageWidth);
 	PVParallelView::PVLinesView::list_zone_images_t images = _lines_view->get_zones_images();
 
-	// Add visible zones
-	int pos = 0;
-	_zones.reserve(images.size());
-	for (PVZoneID z = 0; z < (PVZoneID) images.size() ; z++) {
-		ZoneImages zi;
-		zi.sel = addPixmap(QPixmap::fromImage(images[z].sel->qimage()));
-		zi.bg = addPixmap(QPixmap::fromImage(images[z].bg->qimage()));
-		zi.bg->setOpacity(0.25);
-		_zones.push_back(zi);
-		if (z < _lines_view->get_zones_manager().get_number_zones()) {
-			zi.setPos(QPointF(_lines_view->get_zone_absolute_pos(z), 0));
-		}
-	}
 
 	// Add ALL axes
+	int pos = 0;
 	PVZoneID nzones = (PVZoneID) _lines_view->get_zones_manager().get_number_cols();
 	for (PVZoneID z = 0; z < nzones; z++) {
 		Picviz::PVAxis* axis = new Picviz::PVAxis();
@@ -59,12 +46,18 @@ PVParallelView::PVParallelScene::PVParallelScene(QObject* parent, PVParallelView
 		axisw->add_range_sliders(768, 1000);
 	}
 
+
 	connect(_rendering_job, SIGNAL(zone_rendered(int)), this, SLOT(update_zone_pixmap(int)));
+
+	view()->set_total_line_number(_lines_view->get_zones_manager().get_number_rows());
 }
 
 void PVParallelView::PVParallelScene::wheelEvent(QGraphicsSceneWheelEvent* event)
 {
 	int zoom = event->delta() / 2;
+	if(zoom < 0) {
+		zoom = picviz_max(zoom, -PVParallelView::ZoneMinWidth);
+	}
 
 	const QPointF mouse_scene_pt = event->scenePos();
 	PVZoneID mouse_zid = _lines_view->get_zone_from_scene_pos(mouse_scene_pt.x());
@@ -86,14 +79,15 @@ void PVParallelView::PVParallelScene::wheelEvent(QGraphicsSceneWheelEvent* event
 		//}
 	}
 	//Global zoom
-	else
-	{
+	else if (event->modifiers() == Qt::NoModifier) {
 		cancel_current_job();
 
 		// Get the current zone where the mouse is
 		const PVZoneID zmouse = mouse_zid;
 		int32_t zone_x = map_to_axis(zmouse, mouse_scene_pt).x();
 		int32_t mouse_view_x = view()->mapFromScene(mouse_scene_pt).x();
+
+
 
 		_lines_view->set_all_zones_width([=](uint32_t width){ return width+zoom; });
 		update_zones_position();

@@ -11,8 +11,11 @@
 
 namespace PVParallelView {
 
+template <size_t Bbits>
 class PVBCIBackendImage;
-typedef boost::shared_ptr<PVBCIBackendImage> PVBCIBackendImage_p;
+
+template <size_t Bbits>
+using PVBCIBackendImage_p = boost::shared_ptr<PVBCIBackendImage<Bbits> >;
 
 }
 

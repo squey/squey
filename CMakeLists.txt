@@ -26,7 +26,11 @@ include(FindPkgConfig)
 
 if (DEBUG_MODE)
 	if (NOT WIN32)
+<<<<<<< HEAD
 		add_definitions(-g -march=native)
+=======
+		add_definitions(-g -march=native -Wno-unused-local-typedefs)
+>>>>>>> 32eec72d441d1d3618886c42d7b478470b4003b9
 	endif()
 else()
 	if(WIN32)

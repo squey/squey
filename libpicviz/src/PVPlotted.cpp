@@ -218,38 +218,53 @@ bool Picviz::PVPlotted::load_buffer_from_file(plotted_table_t& buf, PVCol& ncols
 {
 	ncols = 0;
 
-	QFile f(file);
-	if (!f.open(QIODevice::ReadOnly)) {
-		PVLOG_ERROR("Error while opening %s for writing: %s.\n", qPrintable(file), qPrintable(f.errorString()));
+	FILE* f = fopen(qPrintable(file), "r");
+	if (!f) {
+		PVLOG_ERROR("Error while opening %s for writing: %s.\n", qPrintable(file), strerror(errno));
 		return false;
 	}
 
-	ssize_t size_buf = f.size()-sizeof(PVCol)-sizeof(bool);
+	static_assert(sizeof(off_t) == sizeof(uint64_t), "sizeof(off_t) != sizeof(uint64_t). Please define -D_FILE_OFFSET_BITS=64");
+
+	// Get file size
+	fseek(f, 0, SEEK_END);
+	const uint64_t fsize = ftello(f);
+	fseek(f, 0, SEEK_SET);
+
+	ssize_t size_buf = fsize-sizeof(PVCol)-sizeof(bool);
 	if (size_buf <= 0) {
+		fclose(f);
 		PVLOG_ERROR("File is too small to be valid !\n");
 		return false;
 	}
 
-	f.read((char*) &ncols, sizeof(PVCol));
+	if (fread((void*) &ncols, sizeof(PVCol), 1, f) != 1) {
+		PVLOG_ERROR("File is too small to be valid !\n");
+		fclose(f);
+		return false;
+	}
 	bool is_transposed = false;
-	if (f.read((char*) &is_transposed, sizeof(bool)) != sizeof(bool)) {
-		PVLOG_ERROR("Error while reading '%s': %s.\n", qPrintable(file), qPrintable(f.errorString()));
+	if (fread((char*) &is_transposed, sizeof(bool), 1, f) != 1) {
+		PVLOG_ERROR("Error while reading '%s': %s.\n", qPrintable(file), strerror(errno));
+		fclose(f);
 		return false;
 	}
 
 	bool must_transpose = (is_transposed != get_transposed_version);
 
-	ssize_t nfloats = size_buf/sizeof(float);
-	ssize_t size_read = nfloats*sizeof(float);
+	size_t nfloats = size_buf/sizeof(float);
+	size_t size_read = nfloats*sizeof(float);
 	buf.resize(nfloats);
+
+	PVLOG_INFO("(Picviz::load_buffer_from_file) number of cols: %d , nfloats: %u, nrows: %u\n", ncols, nfloats, nfloats/ncols);
 
 	float* dest_buf = &buf[0];
 	if (must_transpose) {
 		dest_buf = (float*) malloc(size_read);
 	}
 
-	if (f.read((char*) dest_buf, size_read) != size_read) {
-		PVLOG_ERROR("Error while reading '%s': %s.\n", qPrintable(file), qPrintable(f.errorString()));
+	if (fread((void*) dest_buf, sizeof(float), nfloats, f) != nfloats) {
+		PVLOG_ERROR("Error while reading '%s': %s.\n", qPrintable(file), strerror(errno));
 		return false;
 	}
 
@@ -258,7 +273,7 @@ bool Picviz::PVPlotted::load_buffer_from_file(plotted_table_t& buf, PVCol& ncols
 			PVCore::PVMatrix<float, PVRow, PVCol> final;
 			PVCore::PVMatrix<float, PVCol, PVRow> org;
 			org.set_raw_buffer(dest_buf, ncols, nfloats/ncols);
-			final.set_raw_buffer(&buf[0], nfloats/ncols, ncols);
+			
 			org.transpose_to(final);
 		}
 		else {
@@ -270,6 +285,8 @@ bool Picviz::PVPlotted::load_buffer_from_file(plotted_table_t& buf, PVCol& ncols
 		}
 		free(dest_buf);
 	}
+
+	fclose(f);
 
 	return true;
 }
@@ -515,12 +532,13 @@ void Picviz::PVPlotted::norm_int_plotted(plotted_table_t const& trans_plotted, u
 	PVRow nrows_aligned = ((nrows+3)/4)*4;
 	size_t dest_size = nrows_aligned*ncols;
 	res.reserve(dest_size);
+#pragma omp parallel for
 	for (PVCol c = 0; c < ncols; c++) {
 		for (PVRow r = 0; r < nrows; r++) {
-			res.push_back((uint32_t) ((double)trans_plotted[c*nrows+r] * (double)UINT_MAX));
+			res[c*nrows_aligned+r] = ((uint32_t) ((double)trans_plotted[c*nrows+r] * (double)UINT_MAX));
 		}
 		for (PVRow r = nrows; r < nrows_aligned; r++) {
-			res.push_back(0);
+			res[c*nrows_aligned+r] = 0;
 		}
 	}
 }

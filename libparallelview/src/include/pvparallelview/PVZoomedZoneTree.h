@@ -10,6 +10,8 @@
 #include <pvbase/types.h>
 #include <pvparallelview/common.h>
 #include <picviz/PVPlotted.h>
+
+#include <pvparallelview/common.h>
 #include <pvparallelview/PVQuadTree.h>
 #include <pvparallelview/PVZoneProcessing.h>
 #include <pvparallelview/PVZoneTree.h>
@@ -20,12 +22,17 @@
 
 namespace PVParallelView {
 
+template <size_t Bbits>
 class PVBCICode;
+
 class PVHSVColor;
 
 class PVZoomedZoneTree
 {
-	typedef PVQuadTree<10000, 1000> pvquadtree;
+	constexpr static size_t bbits = PARALLELVIEW_ZZT_BBITS;
+	constexpr static uint32_t mask_int_ycoord = (((uint32_t)1)<<bbits)-1;
+
+	typedef PVQuadTree<10000, 1000, 0, bbits> pvquadtree;
 
 public:
 	PVZoomedZoneTree(uint32_t max_level = 8);
@@ -61,26 +68,32 @@ public:
 	void process_omp_from_zt(const PVZoneProcessing &zp, PVZoneTree &zt);
 
 	size_t browse_tree_bci_by_y1(uint32_t y_min, int zoom,
-	                             const PVHSVColor* colors, PVBCICode* codes) const;
+	                             const PVHSVColor* colors, PVBCICode<bbits>* codes,
+	                             const float beta = 1.0f) const;
 
 	size_t browse_tree_bci_by_y2(PVRow y_min, int zoom,
-	                             const PVHSVColor* colors, PVBCICode* codes) const;
+	                             const PVHSVColor* colors, PVBCICode<bbits>* codes,
+	                             const float beta = 1.0f) const;
+
+	size_t browse_tree_bci_by_y1_range(uint32_t y_min, uint32_t y_max, int zoom,
+	                                   const PVHSVColor* colors, PVBCICode<bbits>* codes,
+	                                   const float beta = 1.0f) const;
 
 private:
-	inline uint32_t compute_index(const PVParallelView::PVQuadTreeEntry &e) const
-	{
-		return  (((e.y2 >> (32-NBITS_INDEX)) & MASK_INT_YCOORD) << NBITS_INDEX) +
-			((e.y1 >> (32-NBITS_INDEX)) & MASK_INT_YCOORD);
-	}
-
 	inline uint32_t compute_index(uint32_t y1, uint32_t y2) const
 	{
 		return  (((y2 >> (32-NBITS_INDEX)) & MASK_INT_YCOORD) << NBITS_INDEX) +
 			((y1 >> (32-NBITS_INDEX)) & MASK_INT_YCOORD);
 	}
 
+	inline uint32_t compute_index(const PVParallelView::PVQuadTreeEntry &e) const
+	{
+		return compute_index(e.y1, e.y2);
+	}
+
 private:
 	pvquadtree *_trees;
+	PVQuadTreeEntry *_quad_entries;
 };
 
 typedef boost::shared_ptr<PVZoomedZoneTree> PVZoomedZoneTree_p;

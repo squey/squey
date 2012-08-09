@@ -35,7 +35,7 @@ class PVZonesManager: boost::noncopyable
 	friend class PVParallelView::__impl::ZoneCreation;
 
 	typedef std::vector<PVZone> list_zones_t;
-	typedef tbb::enumerable_thread_specific<PVZoneTree::ProcessTLS> process_ztree_tls_t;
+	typedef tbb::enumerable_thread_specific<PVZoneTree::ProcessData> process_ztree_tls_t;
 
 public:
 	PVZonesManager();
@@ -93,10 +93,9 @@ public:
 	void set_uint_plotted(Picviz::PVView const& view);
 	inline PVZoneID get_number_zones() const { return _axes_comb.size()-1; }
 	inline PVCol get_number_cols() const { return _ncols; }
-
-protected:
 	inline PVRow get_number_rows() const { return _nrows; }
 
+protected:
 	inline void get_zone_cols(PVZoneID z, PVCol& a, PVCol& b)
 	{
 		assert(z < get_number_zones());

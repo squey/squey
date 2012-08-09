@@ -46,11 +46,11 @@ int main(int argc, char** argv)
 
 	size_t n = atoll(argv[1]);
 
-	PVParallelView::PVBCICode* host_codes = PVParallelView::PVBCICode::allocate_codes(n);
-	PVParallelView::PVBCICode::init_random_codes(host_codes, n);
+	PVParallelView::PVBCICode<NBITS_INDEX>* host_codes = PVParallelView::PVBCICode<NBITS_INDEX>::allocate_codes(n);
+	PVParallelView::PVBCICode<NBITS_INDEX>::init_random_codes(host_codes, n);
 
 	uint32_t* device_img = init_cuda_image(width);
-	PVParallelView::PVBCICode* device_codes[2];
+	PVParallelView::PVBCICode<NBITS_INDEX>* device_codes[2];
 	device_codes[0] = init_cuda_codes(0);
 	device_codes[1] = init_cuda_codes(1);
 
@@ -91,7 +91,7 @@ int main(int argc, char** argv)
 	//show_codes(codes, n);
 	//app.exec();
 
-	PVParallelView::PVBCICode::free_codes(host_codes);
+	PVParallelView::PVBCICode<NBITS_INDEX>::free_codes(host_codes);
 	free_cuda_buffer(device_img);
 	free_cuda_buffer(device_codes[0], 0);
 	free_cuda_buffer(device_codes[1], 1);

@@ -28,30 +28,49 @@
 
 namespace PVParallelView {
 
+template <size_t Bbits>
 class PVBCIDrawingBackend;
+
 class PVHSVColor;
 
-class PVZonesDrawing: public boost::noncopyable
+template <size_t Bbits = NBITS_INDEX>
+class PVZonesDrawing: boost::noncopyable
 {
-	typedef boost::array<PVBCICode, NBUCKETS> array_codes_t;
+	typedef boost::array<PVBCICode<Bbits>, NBUCKETS> array_codes_t;
 	typedef tbb::enumerable_thread_specific<array_codes_t> tls_codes_t;
 
 public:
-	PVZonesDrawing(PVZonesManager& zm, PVBCIDrawingBackend const& backend, PVHSVColor const& colors);
-	~PVZonesDrawing();
+	typedef PVBCIDrawingBackend<Bbits> bci_backend_t;
+	typedef typename bci_backend_t::backend_image_t backend_image_t;
+	typedef typename bci_backend_t::backend_image_p_t backend_image_p_t;
+	typedef typename bci_backend_t::bci_codes_t bci_codes_t;
+
+public:
+	PVZonesDrawing(PVZonesManager& zm, bci_backend_t const& backend, PVHSVColor const& colors):
+		_zm(zm),
+		_draw_backend(&backend),
+		_colors(&colors)
+	{
+		_computed_codes = PVBCICode<Bbits>::allocate_codes(NBUCKETS);
+	}
+
+	~PVZonesDrawing()
+	{
+		PVBCICode<Bbits>::free_codes(_computed_codes);
+	}
 
 /*public:
 	template <typename Tree, typename Fbci>
 	void draw(QImage& dst_img, Tree const& tree, Fbci const& f_bci);*/
 
 public:
-	inline void set_backend(PVBCIDrawingBackend const& backend) { _draw_backend = &backend; }
+	inline void set_backend(bci_backend_t const& backend) { _draw_backend = &backend; }
 
 public:
-	inline PVBCIBackendImage_p create_image(size_t width) const
+	inline PVBCIBackendImage_p<Bbits> create_image(size_t width) const
 	{
 		assert(_draw_backend);
-		PVBCIBackendImage_p ret = _draw_backend->create_image(width);
+		PVBCIBackendImage_p<Bbits> ret = _draw_backend->create_image(width);
 		ret->set_width(width);
 		return ret;
 	}
@@ -70,7 +89,7 @@ public:
 	inline QFuture<void> draw_zones_futur(BackendImageIterator dst_img_begin, PVZoneID zone_start, PVZoneID nzones, Fbci const& f_bci)
 	{
 		return draw_zones_futur_lambda(dst_img_begin, zone_start, nzones,
-			[&](PVZoneTree const& zone_tree, PVHSVColor const* colors, PVBCICode* codes)
+			[&](PVZoneTree const& zone_tree, PVHSVColor const* colors, PVBCICode<Bbits>* codes)
 			{
 				return (zone_tree.*f_bci)(colors, codes);
 			}
@@ -85,21 +104,21 @@ public:
 			{
 				// Get thread-local codes buffer
 				array_codes_t& arr_codes = this->_tls_computed_codes.local();
-				PVBCICode* codes = &arr_codes[0];
+				PVBCICode<Bbits>* codes = &arr_codes[0];
 
 				// Get the BCI codes
 				PVZoneTree const& zone_tree = _zm.get_zone_tree<PVZoneTree>(zone);
 				size_t ncodes = f_bci(zone_tree, _colors, codes);
 
 				// And draw them...
-				PVBCIBackendImage &dst_img = *(*(dst_img_begin + zone));
+				PVBCIBackendImage<Bbits> &dst_img = *(*(dst_img_begin + zone));
 				draw_bci(dst_img, 0, dst_img.width(), codes, ncodes);
 			}
 		);
 	}
 
 	template <class Fbci>
-	uint32_t draw_zones(PVBCIBackendImage& dst_img, uint32_t x_start, PVZoneID zone_start, PVZoneID nzones, Fbci const& f_bci)
+	uint32_t draw_zones(PVBCIBackendImage<Bbits>& dst_img, uint32_t x_start, PVZoneID zone_start, PVZoneID nzones, Fbci const& f_bci)
 	{
 		for (PVZoneID zone = zone_start; zone < nzones; zone++) {
 			assert(x_start + _zm.get_zone_width(zone) + AxisWidth <= dst_img.width());
@@ -110,11 +129,12 @@ public:
 	}
 
 	template <class Fbci>
-	inline void draw_zone(PVBCIBackendImage& dst_img, uint32_t x_start, PVZoneID zone, Fbci const& f_bci)
+	inline void draw_zone(PVBCIBackendImage<Bbits>& dst_img, uint32_t x_start, PVZoneID zone, Fbci const& f_bci)
 	{
+		PVLOG_INFO("DRAW_ZONE zone=%d\n", zone);
 		PVZoneTree const &zone_tree = _zm.get_zone_tree<PVZoneTree>(zone);
 		draw_bci_lambda<PVZoneTree>(zone_tree, dst_img, x_start, _zm.get_zone_width(zone),
-			[&](PVZoneTree const& zone_tree, PVHSVColor const* colors, PVBCICode* codes)
+			[&](PVZoneTree const& zone_tree, PVHSVColor const* colors, PVBCICode<Bbits>* codes)
 			{
 				return (zone_tree.*f_bci)(colors, codes);
 			}
@@ -122,24 +142,40 @@ public:
 	}
 
 	template <class Fbci>
-	inline void draw_zoomed_zone(PVBCIBackendImage &dst_img, uint32_t y_min, int zoom, PVZoneID zone, Fbci const &f_bci)
+	inline void draw_zoomed_zone(PVBCIBackendImage<Bbits> &dst_img, uint32_t y_min, int zoom, PVZoneID zone, Fbci const &f_bci, const float zoom_y = 1.0f, const float zoom_x = 1.0f)
 	{
 		PVZoomedZoneTree const &zoomed_zone_tree = _zm.get_zone_tree<PVZoomedZoneTree>(zone);
 		draw_bci_lambda<PVParallelView::PVZoomedZoneTree>
 			(zoomed_zone_tree, dst_img, 0, dst_img.width(),
 			 [&](PVParallelView::PVZoomedZoneTree const &zoomed_zone_tree,
 			     PVParallelView::PVHSVColor const* colors,
-			     PVParallelView::PVBCICode* codes)
+			     PVParallelView::PVBCICode<Bbits>* codes)
 			 {
-				 return (zoomed_zone_tree.*f_bci)(y_min, zoom, colors, codes);
-			 });
+				 return (zoomed_zone_tree.*f_bci)(y_min, zoom, colors, codes, zoom_x);
+			 }, zoom_y);
 	}
 
+
+	template <class Fbci>
+	inline void draw_zoomed_zone(PVBCIBackendImage<Bbits> &dst_img, uint32_t y_min, uint32_t y_max, int zoom, PVZoneID zone, Fbci const &f_bci, const float zoom_y = 1.0f, const float zoom_x = 1.0f)
+	{
+		PVZoomedZoneTree const &zoomed_zone_tree = _zm.get_zone_tree<PVZoomedZoneTree>(zone);
+		draw_bci_lambda<PVParallelView::PVZoomedZoneTree>
+			(zoomed_zone_tree, dst_img, 0, dst_img.width(),
+			 [&](PVParallelView::PVZoomedZoneTree const &zoomed_zone_tree,
+			     PVParallelView::PVHSVColor const* colors,
+			     PVParallelView::PVBCICode<Bbits>* codes)
+			 {
+				 return (zoomed_zone_tree.*f_bci)(y_min, y_max, zoom, colors, codes, zoom_x);
+			 }, zoom_y);
+	}
+
+
 	template <class Tree, class Fbci>
-	void draw_bci_lambda(Tree const &zone_tree, PVBCIBackendImage& dst_img, uint32_t x_start, size_t width, Fbci const& f_bci)
+	void draw_bci_lambda(Tree const &zone_tree, backend_image_t& dst_img, uint32_t x_start, size_t width, Fbci const& f_bci, const float zoom_y = 1.0f)
 	{
 		size_t ncodes = f_bci(zone_tree, _colors, _computed_codes);
-		draw_bci(dst_img, x_start, width, _computed_codes, ncodes);
+		draw_bci(dst_img, x_start, width, _computed_codes, ncodes, zoom_y);
 	}
 
 	inline uint32_t get_zone_width(PVZoneID z) const
@@ -158,13 +194,16 @@ public:
 	}
 
 private:
-	void draw_bci(PVBCIBackendImage& dst_img, uint32_t x_start, size_t width, PVBCICode* codes, size_t n);
+	void draw_bci(backend_image_t& dst_img, uint32_t x_start, size_t width, bci_codes_t* codes, size_t n, const float zoom_y = 1.0f)
+	{
+		_draw_backend->operator()(dst_img, x_start, width, codes, n, zoom_y);
+	}
 
 private:
 	PVZonesManager& _zm;
-	PVBCIDrawingBackend const* _draw_backend;
+	bci_backend_t const* _draw_backend;
 	PVHSVColor const* _colors;
-	PVBCICode* _computed_codes;
+	PVBCICode<Bbits>* _computed_codes;
 	tls_codes_t _tls_computed_codes;
 };
 
