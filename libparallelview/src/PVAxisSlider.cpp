@@ -80,6 +80,7 @@ void PVParallelView::PVAxisSlider::paint(QPainter *painter,
 
 void PVParallelView::PVAxisSlider::hoverEnterEvent(QGraphicsSceneHoverEvent* event)
 {
+	PVLOG_INFO("PVAxisSlider::hoverEnterEvent\n");
 }
 
 /*****************************************************************************
@@ -88,6 +89,7 @@ void PVParallelView::PVAxisSlider::hoverEnterEvent(QGraphicsSceneHoverEvent* eve
 
 void PVParallelView::PVAxisSlider::hoverMoveEvent(QGraphicsSceneHoverEvent* event)
 {
+	PVLOG_INFO("PVAxisSlider::hoverMoveEvent\n");
 }
 
 /*****************************************************************************
@@ -96,6 +98,7 @@ void PVParallelView::PVAxisSlider::hoverMoveEvent(QGraphicsSceneHoverEvent* even
 
 void PVParallelView::PVAxisSlider::hoverLeaveEvent(QGraphicsSceneHoverEvent* event)
 {
+	PVLOG_INFO("PVAxisSlider::hoverLeaveEvent\n");
 }
 
 /*****************************************************************************

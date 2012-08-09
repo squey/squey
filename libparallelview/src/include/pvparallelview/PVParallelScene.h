@@ -97,12 +97,7 @@ private:
 		}
 	}
 
-<<<<<<< HEAD
 	bool sliders_moving() const
-=======
-
-	void mouseMoveEvent(QGraphicsSceneMouseEvent *event)
->>>>>>> 32eec72d441d1d3618886c42d7b478470b4003b9
 	{
 		for (PVAxisGraphicsItem* axis : _axes) {
 			if (axis->sliders_moving()) {
@@ -145,13 +140,11 @@ private:
 
 	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 	{
-		if (event->button() == Qt::RightButton)
-		{
+		if (event->button() == Qt::RightButton) {
 			// translate zones
 			translate_and_update_zones_position();
 		}
-		else if (!sliders_moving() && event->buttons() == Qt::LeftButton)
-		{
+		else {
 			PVZoneID zid = _lines_view->get_zones_manager().get_zone_id(_selection_square->rect().x());
 			QRect r = map_to_axis(zid, _selection_square->rect());
 
