@@ -21,7 +21,6 @@ PVParallelView::PVParallelScene::PVParallelScene(QObject* parent, PVParallelView
 
 	PVParallelView::PVLinesView::list_zone_images_t images = _lines_view->get_zones_images();
 
-
 	// Add ALL axes
 	int pos = 0;
 	PVZoneID nzones = (PVZoneID) _lines_view->get_zones_manager().get_number_cols();
@@ -49,6 +48,8 @@ PVParallelView::PVParallelScene::PVParallelScene(QObject* parent, PVParallelView
 
 
 	connect(_rendering_job, SIGNAL(zone_rendered(int)), this, SLOT(update_zone_pixmap(int)));
+
+	connect(_selection_square, SIGNAL(commit_volatile_selection()), this, SLOT(commit_volatile_selection()));
 
 	view()->set_total_line_number(_lines_view->get_zones_manager().get_number_rows());
 }

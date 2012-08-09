@@ -134,7 +134,7 @@ private:
 			// trace square area
 			QPointF top_left(qMin(_selection_square_pos.x(), event->scenePos().x()), qMin(_selection_square_pos.y(), event->scenePos().y()));
 			QPointF bottom_right(qMax(_selection_square_pos.x(), event->scenePos().x()), qMax(_selection_square_pos.y(), event->scenePos().y()));
-			_selection_square->setRect(QRectF(top_left, bottom_right));
+			_selection_square->update_rect(QRectF(top_left, bottom_right));
 		}
 		QGraphicsScene::mouseMoveEvent(event);
 	}
@@ -151,18 +151,10 @@ private:
 
 			if (_selection_square_pos == event->scenePos()) {
 				// Remove selection
-				r = QRect(0, 0, 0, 0);
-				_selection_square->setRect(r);
+				_selection_square->clear_rect();
 			}
 
-			cancel_current_job();
-			uint32_t nb_select = _selection_generator.compute_selection_from_rect(zid, r, _sel);
-			view()->set_selected_line_number(nb_select);
-			launch_job_future([&](PVRenderingJob& rendering_job)
-				{
-					return _lines_view->update_sel_from_zone(view()->width(), zid, _sel, rendering_job);
-				}
-			);
+			commit_volatile_selection();
 		}
 		QGraphicsScene::mouseReleaseEvent(event);
 	}
@@ -269,6 +261,22 @@ private slots:
 	void scrollbar_released_Slot()
 	{
 		translate_and_update_zones_position();
+	}
+
+	void commit_volatile_selection()
+	{
+		_selection_square->finished();
+		PVZoneID zid = _lines_view->get_zones_manager().get_zone_id(_selection_square->rect().x());
+		QRect r = map_to_axis(zid, _selection_square->rect());
+
+		cancel_current_job();
+		uint32_t nb_select = _selection_generator.compute_selection_from_rect(zid, r, _sel);
+		view()->set_selected_line_number(nb_select);
+		launch_job_future([&](PVRenderingJob& rendering_job)
+			{
+				return _lines_view->update_sel_from_zone(view()->width(), zid, _sel, rendering_job);
+			}
+		);
 	}
 
 private:

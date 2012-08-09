@@ -7,9 +7,12 @@
 #include <pvparallelview/PVSelectionSquareGraphicsItem.h>
 #include <pvparallelview/PVParallelScene.h>
 
-PVParallelView::PVSelectionSquareGraphicsItem::PVSelectionSquareGraphicsItem(PVParallelScene* s)
+PVParallelView::PVSelectionSquareGraphicsItem::PVSelectionSquareGraphicsItem(PVParallelScene* s) :
+	_volatile_selection_timer(new QTimer(this))
 {
-	setPen(QPen(Qt::red, 2));
+	_volatile_selection_timer->setSingleShot(true);
+	connect(_volatile_selection_timer, SIGNAL(timeout()), this, SLOT(volatile_selection_timeout_Slot()));
+
 	setZValue(std::numeric_limits<qreal>::max());
 	if (s) {
 		s->addItem(this);

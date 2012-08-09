@@ -79,6 +79,7 @@ include/pvparallelview/PVFullParallelView.h
 include/pvparallelview/PVParallelScene.h
 include/pvparallelview/PVAxisSlider.h
 include/pvparallelview/PVAxisGraphicsItem.h
+include/pvparallelview/PVSelectionSquareGraphicsItem.h
 )
 
 QT4_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})
