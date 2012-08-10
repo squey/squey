@@ -218,7 +218,7 @@ bool PVInspector::PVLayerFilterProcessWidget::process()
 
 	Picviz::PVLayerFilter_p filter_p = _filter_p->clone<Picviz::PVLayerFilter>();
 	filter_p->set_args(*_args_widget->get_args());
-	filter_p->set_view(_view);
+	filter_p->set_view(_view->shared_from_this());
 	filter_p->set_output(&_view->post_filter_layer);
 
 	_view->pre_filter_layer.get_selection() &= _view->layer_stack.get_selected_layer().get_selection();

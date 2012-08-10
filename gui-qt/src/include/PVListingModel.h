@@ -59,7 +59,7 @@ private:
 	QBrush zombie_font_brush; //!<
 
 	Picviz::PVStateMachine *state_machine;
-	Picviz::PVView_sp lib_view;
+	Picviz::PVView* lib_view;
     
 
 protected:

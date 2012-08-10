@@ -141,7 +141,7 @@ int main(int argc, char** argv)
 	PVLOG_INFO("step: %s - %d\n", __FILE__, __LINE__);
 	scene->add_child(src);
 	PVLOG_INFO("step: %s - %d\n", __FILE__, __LINE__);
-	views << plotted->current_view();
+	views << plotted->current_view()->shared_from_this();
 	PVLOG_INFO("step: %s - %d\n", __FILE__, __LINE__);
 
 	PVGL::PVGLThread* th_pvgl = new PVGL::PVGLThread();

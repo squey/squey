@@ -151,10 +151,10 @@ public:
 	PVCore::PVDataTreeAutoShared<Picviz::PVRoot> root;
 
 	/* QGridLayout *filter_widgets_layout; */
-	void commit_selection_in_current_layer(Picviz::PVView_sp view);
-	void commit_selection_to_new_layer(Picviz::PVView_sp view);
-	void refresh_view(Picviz::PVView_sp view);
-	void set_color(Picviz::PVView_sp view);
+	void commit_selection_in_current_layer(Picviz::PVView* view);
+	void commit_selection_to_new_layer(Picviz::PVView* view);
+	void refresh_view(Picviz::PVView* view);
+	void set_color(Picviz::PVView* view);
 	PVSDK::PVMessenger* get_pvmessenger();
 
 	void import_type(PVRush::PVInputType_p in_t);
@@ -347,7 +347,7 @@ protected:
 	void keyPressEvent(QKeyEvent *event);
 	int update_check();
 	void treat_invalid_formats(QHash<QString, std::pair<QString,QString> > const& errors);
-	PVTabSplitter* get_tab_from_view(Picviz::PVView_sp picviz_view);
+	PVTabSplitter* get_tab_from_view(Picviz::PVView* picviz_view);
 	PVTabSplitter* get_tab_from_view(Picviz::PVView const& picviz_view);
 	void show_start_page(bool visible);
 	void set_version_informations();
@@ -372,9 +372,12 @@ public:
 	 *  @param view
 	 *  @param refresh_states
 	 */
-	void update_pvglview(Picviz::PVView_sp view, int refresh_states);
-	void ensure_glview_exists(Picviz::PVView_sp view);
-	void destroy_pvgl_views(Picviz::PVView_sp view);
+	void update_pvglview(Picviz::PVView_sp view, int refresh_states) { update_pvglview(view.get(), refresh_states); }
+	void update_pvglview(Picviz::PVView* view, int refresh_states);
+	void ensure_glview_exists(Picviz::PVView_sp view) { ensure_glview_exists(view.get()); }
+	void ensure_glview_exists(Picviz::PVView* view);
+	void destroy_pvgl_views(Picviz::PVView_sp view) { destroy_pvgl_views(view.get()); }
+	void destroy_pvgl_views(Picviz::PVView* view);
 
 private:
 	tbb::task_scheduler_init init_parallel;

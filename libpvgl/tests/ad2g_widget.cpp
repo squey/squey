@@ -127,7 +127,7 @@ int main(int argc, char** argv)
 		//Picviz::PVPlotted_p plotted2(new Picviz::PVPlotted(Picviz::PVPlotting(mapped.get())));
 		//mapped->add_plotted(plotted2);
 		scene->add_child(src);
-		views << plotted->current_view();
+		views << plotted->current_view()->shared_from_this();
 
 		// create the corresponding node
 		//g_ad2gv->add_view(plotted->get_view().get());

@@ -142,7 +142,7 @@ QVariant PVInspector::PVViewsModel::data(const QModelIndex &index, int role) con
 				return QVariant();
 			}
 			Picviz::PVPlotted* plotted = node_obj.as_plotted();
-			if (plotted->current_view().get() == _src.current_view()) {
+			if (plotted->current_view() == _src.current_view()) {
 				QFont font;
 				font.setBold(true);
 				return font;

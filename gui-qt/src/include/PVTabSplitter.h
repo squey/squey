@@ -46,7 +46,7 @@ private:
 	{
 		friend class PVTabSplitter;
 	public:
-		PVViewWidgets(Picviz::PVView_sp view, PVTabSplitter* tab);
+		PVViewWidgets(Picviz::PVView* view, PVTabSplitter* tab);
 		PVViewWidgets() { pv_axes_combination_editor = NULL; pv_axes_properties = NULL; }
 		~PVViewWidgets();
 	protected:
@@ -140,9 +140,9 @@ public:
 	 *
 	 * @return a pointer to the current Picviz::PVView attached to this PVMainSplitter
 	 */
-	Picviz::PVView_sp get_lib_view() const
+	Picviz::PVView* get_lib_view() const
 	{
-		Picviz::PVView_sp ret(_lib_src->current_view());
+		Picviz::PVView* ret(_lib_src->current_view());
 		assert(ret);
 		return ret;
 	}
@@ -167,9 +167,9 @@ public:
 	 */
 	PVExtractorWidget* get_extractor_widget() const {return _pv_extractor;}
 
-	PVAxesCombinationDialog* get_axes_combination_editor(Picviz::PVView_sp view);
+	PVAxesCombinationDialog* get_axes_combination_editor(Picviz::PVView* view);
 
-	PVAxisPropertiesWidget* get_axes_properties_widget(Picviz::PVView_sp view);
+	PVAxisPropertiesWidget* get_axes_properties_widget(Picviz::PVView* view);
 
 	QString get_current_view_name() { return get_current_view_name(get_lib_src()); };
 	static QString get_current_view_name(Picviz::PVSource_p src);
@@ -178,7 +178,7 @@ public:
 	QString get_src_name() { return _lib_src->get_name(); }
 	QString get_src_type() { return _lib_src->get_format_name(); }
 
-	PVViewWidgets const& get_view_widgets(Picviz::PVView_sp view);
+	PVViewWidgets const& get_view_widgets(Picviz::PVView* view);
 
 	/**
 	 *
@@ -198,7 +198,7 @@ public:
 	 */
 	void updateFilterMenuEnabling();
 
-	void select_view(Picviz::PVView_sp view);
+	void select_view(Picviz::PVView* view);
 
 
 	void create_new_mapped();

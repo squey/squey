@@ -111,7 +111,6 @@ void PVInspector::PVListingView::update_view_selection_from_listing_selection()
 	/* VARIABLES */
 	Picviz::PVStateMachine *state_machine;
 	QModelIndexList selected_items_list;
-	PVListingSortFilterProxyModel* myModel = get_listing_model();
 	int modifiers;
 	// Get current lib view for this source
 
@@ -359,7 +358,7 @@ void PVInspector::PVListingView::set_color_selected(const QColor& c)
 	}
 
 	QVector<PVRow> selected_rows_vector = get_selected_rows();
-	Picviz::PVView_sp view = _parent->get_lib_view();
+	Picviz::PVView* view = _parent->get_lib_view();
 	Picviz::PVLayer& layer = view->get_current_layer();
 	Picviz::PVLinesProperties& lines_properties = layer.get_lines_properties();
 

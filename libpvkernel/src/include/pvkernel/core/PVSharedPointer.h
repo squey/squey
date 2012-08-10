@@ -57,7 +57,7 @@ public:
 	{
 	}
 
-	PVSharedPtr(pointer p) : _shared_count(p)
+	explicit PVSharedPtr(pointer p) : _shared_count(p)
 	{
 		enable_shared_from_this(this, p);
 	}
@@ -68,7 +68,7 @@ public:
 		enable_shared_from_this(this, p);
 	}
 
-	PVSharedPtr(pointer p, deleter d) : _shared_count(p, d)
+	explicit PVSharedPtr(pointer p, deleter d) : _shared_count(p, d)
 	{
 		enable_shared_from_this(this, p);
 	}

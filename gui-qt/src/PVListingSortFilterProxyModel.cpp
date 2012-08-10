@@ -83,7 +83,7 @@ void PVInspector::PVListingSortFilterProxyModel::refresh_filter()
 
 void PVInspector::PVListingSortFilterProxyModel::reset_lib_view()
 {
-	_lib_view = _tab_parent->get_lib_view().get();
+	_lib_view = _tab_parent->get_lib_view();
 	assert(_lib_view);
 	_state_machine = _lib_view->state_machine;
 	invalidate_all();

@@ -31,7 +31,7 @@ Q_OBJECT
 	PVMainWindow         *main_window;     //!<
 	PVTabSplitter        *parent_widget;   //!<
 
-	Picviz::PVView_sp lib_view; //!<
+	Picviz::PVView* lib_view; //!<
 	Picviz::PVLayerStack *lib_layer_stack; //!<
 
 	QBrush select_brush;       //!<

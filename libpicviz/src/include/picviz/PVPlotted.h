@@ -130,8 +130,8 @@ public:
 	void get_sub_col_minmax(plotted_sub_col_t& ret, float& min, float& max, PVSelection const& sel, PVCol col) const;
 	void get_col_minmax(PVRow& min, PVRow& max, PVSelection const& sel, PVCol col) const;
 	inline plotted_table_t const& get_table() const { return _table; }
-	inline PVView_sp current_view() { return get_parent<PVSource>()->current_view(); }
-	inline const PVView_sp current_view() const { return get_parent<PVSource>()->current_view(); }
+	inline PVView* current_view() { return get_parent<PVSource>()->current_view(); }
+	inline const PVView* current_view() const { return get_parent<PVSource>()->current_view(); }
 	void expand_selection_on_axis(PVSelection const& sel, PVCol axis_id, QString const& mode, bool add = true);
 
 	// Plotted dump/load

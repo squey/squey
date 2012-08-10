@@ -373,7 +373,7 @@ void PVInspector::PVMainWindow::check_messages()
 	
 	PVSDK::PVMessage message;
 	if (pvsdk_messenger->get_message_for_qt(message)) {
-		PVTabSplitter* tab_view = get_tab_from_view(message.pv_view);
+		PVTabSplitter* tab_view = get_tab_from_view(message.pv_view.get());
 		if (!tab_view) {
 			PVLOG_INFO("(PVMainWindow::check_messages) no tab for message %d\n", message.function);
 		}
@@ -431,7 +431,7 @@ void PVInspector::PVMainWindow::check_messages()
 				}
 			case PVSDK_MESSENGER_FUNCTION_REPORT_CHOOSE_FILENAME:
 						{
-							Picviz::PVView_sp view = current_tab->get_lib_view();
+							Picviz::PVView* view = current_tab->get_lib_view();
 							PVRush::PVNraw const& nraw = view->get_rushnraw_parent();
 							PVRow nrows_counter = 0;
 							PVRow write_max = 20;
@@ -629,13 +629,13 @@ void PVInspector::PVMainWindow::check_messages()
 						}
 					break;
 			case PVSDK_MESSENGER_FUNCTION_COMMIT_SELECTION_IN_CURRENT_LAYER:
-					commit_selection_in_current_layer(message.pv_view);
+					commit_selection_in_current_layer(message.pv_view.get());
 					break;
 			case PVSDK_MESSENGER_FUNCTION_COMMIT_SELECTION_IN_NEW_LAYER:
-					commit_selection_to_new_layer(message.pv_view);
+					commit_selection_to_new_layer(message.pv_view.get());
 					break;
 			case PVSDK_MESSENGER_FUNCTION_SET_COLOR:
-					set_color(message.pv_view);
+					set_color(message.pv_view.get());
 					break;
 			default:
 					PVLOG_ERROR("%s: Unknow function in message: %d\n", __FUNCTION__, message.function);
@@ -732,7 +732,7 @@ void PVInspector::PVMainWindow::close_source(PVTabSplitter* tab)
  * PVInspector::PVMainWindow::commit_selection_in_current_layer
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::commit_selection_in_current_layer(Picviz::PVView_sp picviz_view)
+void PVInspector::PVMainWindow::commit_selection_in_current_layer(Picviz::PVView* picviz_view)
 {
 	//Picviz::StateMachine *state_machine = NULL;
 
@@ -757,7 +757,7 @@ void PVInspector::PVMainWindow::commit_selection_in_current_layer(Picviz::PVView
  * PVInspector::PVMainWindow::commit_selection_to_new_layer
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::commit_selection_to_new_layer(Picviz::PVView_sp picviz_view)
+void PVInspector::PVMainWindow::commit_selection_to_new_layer(Picviz::PVView* picviz_view)
 {
 	/* We also need an access to the state machine */
 	//Picviz::StateMachine *state_machine = NULL;
@@ -940,12 +940,12 @@ void PVInspector::PVMainWindow::create_pvgl_thread ()
  * PVInspector::PVMainWindow::destroy_pvgl_views
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::destroy_pvgl_views(Picviz::PVView_sp view)
+void PVInspector::PVMainWindow::destroy_pvgl_views(Picviz::PVView* view)
 {
 	PVSDK::PVMessage message;
 
 	message.function = PVSDK_MESSENGER_FUNCTION_DESTROY_VIEWS;
-	message.pv_view = view;
+	message.pv_view = view->shared_from_this();
 	pvsdk_messenger->post_message_to_gl(message);
 }
 
@@ -970,11 +970,11 @@ void PVInspector::PVMainWindow::display_icon_Slot()
  * PVInspector::PVMainWindow::ensure_glview_exists
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::ensure_glview_exists(Picviz::PVView_sp view)
+void PVInspector::PVMainWindow::ensure_glview_exists(Picviz::PVView* view)
 {
 	PVSDK::PVMessage message;
 	message.function = PVSDK_MESSENGER_FUNCTION_ENSURE_VIEW;
-	message.pv_view = view;
+	message.pv_view = view->shared_from_this();
 	message.pointer_1 = new QString(view->get_window_name());
 	pvsdk_messenger->post_message_to_gl(message);
 }
@@ -1015,7 +1015,7 @@ bool PVInspector::PVMainWindow::eventFilter(QObject *watched_object, QEvent *eve
  * PVInspector::PVMainWindow::get_tab_from_view
  *
  *****************************************************************************/
-PVInspector::PVTabSplitter* PVInspector::PVMainWindow::get_tab_from_view(Picviz::PVView_sp picviz_view)
+PVInspector::PVTabSplitter* PVInspector::PVMainWindow::get_tab_from_view(Picviz::PVView* picviz_view)
 {
 	return get_tab_from_view(*picviz_view);
 }
@@ -1028,7 +1028,7 @@ PVInspector::PVTabSplitter* PVInspector::PVMainWindow::get_tab_from_view(Picviz:
 		if (!tab) {
 			PVLOG_ERROR("PVInspector::PVMainWindow::%s: Tab isn't tab!!!\n", __FUNCTION__);
 		} else {
-			if (tab->get_lib_view().get() == &picviz_view) {
+			if (tab->get_lib_view() == &picviz_view) {
 				return tab;
 				/* We refresh the listing */
 			}
@@ -1271,7 +1271,7 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 	/* VARIABLES */
 	int column_index;
 	/* We prepare a direct access to the current lib_view */
-	Picviz::PVView_sp current_lib_view;
+	Picviz::PVView* current_lib_view;
 	/* ... and the current_selected_layer */
 	Picviz::PVLayer *current_selected_layer = NULL;
 	/* We also need an access to the state machine */
@@ -1737,7 +1737,7 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 									if (!filename->isEmpty()) {
 										PVSDK::PVMessage message;
 										message.function = PVSDK_MESSENGER_FUNCTION_TAKE_SCREENSHOT;
-										message.pv_view = current_lib_view;
+										message.pv_view = current_lib_view->shared_from_this();
 										message.int_1 = -1;
 										message.pointer_1 = filename;
 										pvsdk_messenger->post_message_to_gl(message);
@@ -1901,7 +1901,7 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
  *****************************************************************************/
 void PVInspector::PVMainWindow::lines_display_unselected_Slot()
 {
-	Picviz::PVView_sp current_lib_view;
+	Picviz::PVView* current_lib_view;
 	Picviz::PVStateMachine *state_machine = NULL;
 
 	if (!current_tab) {
@@ -2110,7 +2110,7 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_p src)
 	}
 
 	//auto first_view_p = src->get_children<Picviz::PVView>().at(0);
-	Picviz::PVView_sp first_view_p = src->current_view();
+	Picviz::PVView_sp first_view_p = src->current_view()->shared_from_this();
 	// Ask PVGL to create a GL-View from the previous transient view
 	message.function = PVSDK_MESSENGER_FUNCTION_CREATE_VIEW;
 	message.pv_view = first_view_p;
@@ -2137,7 +2137,7 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_p src)
  * PVInspector::PVMainWindow::refresh_view()
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::refresh_view(Picviz::PVView_sp picviz_view)
+void PVInspector::PVMainWindow::refresh_view(Picviz::PVView* picviz_view)
 {
 	PVTabSplitter* tab = get_tab_from_view(picviz_view);
 	if (!tab) {
@@ -2157,13 +2157,13 @@ void PVInspector::PVMainWindow::refresh_view(Picviz::PVView_sp picviz_view)
  * PVInspector::PVMainWindow::set_color()
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::set_color(Picviz::PVView_sp picviz_view)
+void PVInspector::PVMainWindow::set_color(Picviz::PVView* picviz_view)
 {
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
 
 	PVTabSplitter* tab = get_tab_from_view(picviz_view);
 	if (!tab) {
-		PVLOG_ERROR("(PVMainWindow::set_color) Unable to find a tab that goes w/ the view %x.\n", picviz_view.get());
+		PVLOG_ERROR("(PVMainWindow::set_color) Unable to find a tab that goes w/ the view %x.\n", picviz_view);
 		return;
 	}
 
@@ -2390,12 +2390,12 @@ int PVInspector::PVMainWindow::update_check()
  * PVInspector::PVMainWindow::update_pvglview
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::update_pvglview(Picviz::PVView_sp view, int refresh_states)
+void PVInspector::PVMainWindow::update_pvglview(Picviz::PVView* view, int refresh_states)
 {
 	PVSDK::PVMessage message;
 
 	message.function = PVSDK_MESSENGER_FUNCTION_REFRESH_VIEW;
-	message.pv_view = view;
+	message.pv_view = view->shared_from_this();
 	message.int_1 = refresh_states;
 	pvsdk_messenger->post_message_to_gl(message);
 }
