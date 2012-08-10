@@ -11,6 +11,7 @@
 
 #include <tbb/parallel_for.h>
 #include <tbb/blocked_range.h>
+#include <tbb/enumerable_thread_specific.h>
 #include <tbb/task_scheduler_init.h>
 
 namespace PVParallelView { namespace __impl {
@@ -22,17 +23,20 @@ public:
 	{
 		PVParallelView::PVZonesManager* zm = _zm;
 		PVParallelView::PVZoneProcessing zp(zm->get_uint_plotted(), zm->get_number_rows());
+		PVParallelView::PVZoneTree::ProcessData &pdata = _tls_pdata.local();
 		for (PVZoneID z = r.begin(); z != r.end(); z++) {
+			pdata.clear();
 			zm->get_zone_cols(z, zp.col_a(), zp.col_b());
 			PVZoneTree& ztree = zm->_zones[z].ztree();
-			ztree.process(zp);
-			PVZoomedZoneTree& zztree = zm->_zones[z].zoomed_ztree();
-			zztree.process(zp, ztree);
+			ztree.process(zp, pdata);
 		}
 	}
 
 public:
 	PVParallelView::PVZonesManager* _zm;
+
+private:
+    mutable tbb::enumerable_thread_specific<PVParallelView::PVZoneTree::ProcessData> _tls_pdata;
 };
 
 } }
@@ -74,7 +78,33 @@ void PVParallelView::PVZonesManager::update_all()
 		const size_t nthreads = PVCore::PVHardwareConcurrency::get_physical_core_number();
 		tbb::task_scheduler_init init(nthreads);
 		tbb::parallel_for(tbb::blocked_range<PVZoneID>(0, nzones, 8), zc);
+
+
+		BENCH_START(zztree);
+		// Create Zoomed Zone Tree (serial)
+#if 1
+		for (PVZoneID z = 0; z < nzones; z++) {
+			get_zone_cols(z, zp.col_a(), zp.col_b());
+			PVZoneTree& ztree = _zones[z].ztree();
+			PVZoomedZoneTree& zztree = _zones[z].zoomed_ztree();
+			zztree.process(zp, ztree);
+		}
+		BENCH_END(zztree, "ZZTREES PROCESS (SERIAL)", 1, 1, 1, 1);
+#else
+		// Create Zoomed Zone Tree (parallel)
+		tbb::parallel_for(tbb::blocked_range<size_t>(0, nzones, 1), [&](tbb::blocked_range<size_t> const& range) {
+			for (size_t z = range.begin(); z != range.end(); z++) {
+				get_zone_cols(z, zp.col_a(), zp.col_b());
+				PVZoneTree& ztree = _zones[z].ztree();
+				PVZoomedZoneTree& zztree = _zones[z].zoomed_ztree();
+				zztree.process(zp, ztree);
+			}
+		});
+		BENCH_END(zztree, "ZZTREES PROCESS (PARALLEL)", 1, 1, 1, 1);
+#endif
+
 	}
+
 	/*
 	tbb::task_scheduler_init init(atol(getenv("NUM_THREADS")));
 	PVParallelView::PVZoneTree::ProcessTLS tls;
