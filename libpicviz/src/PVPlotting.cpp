@@ -11,6 +11,9 @@
 #include <picviz/PVPlotted.h>
 #include <picviz/PVSource.h>
 
+// AG: FIXME: see PVLayer.cpp
+#include <picviz/PVView.h>
+
 #include <iostream>
 
 
@@ -20,8 +23,8 @@
  *
  *****************************************************************************/
 Picviz::PVPlotting::PVPlotting(PVPlotted* plotted):
-	_name("default"),
-	_plotted(plotted)
+	_plotted(plotted),
+	_name("default")
 {
 	PVRush::PVFormat_p format = _plotted->get_parent()->get_format();
 

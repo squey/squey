@@ -11,6 +11,9 @@
 
 #include <QFont>
 
+// AG: FIXME: cf. libpicviz/src/PVPlotted.cpp
+#include <picviz/PVView.h>
+
 PVInspector::PVViewsModel::PVViewsModel(Picviz::PVSource const& src, QObject* parent):
 	QAbstractItemModel(parent),
 	_src(src)
@@ -139,7 +142,7 @@ QVariant PVInspector::PVViewsModel::data(const QModelIndex &index, int role) con
 				return QVariant();
 			}
 			Picviz::PVPlotted* plotted = node_obj.as_plotted();
-			if (plotted->get_view() == _src.current_view()) {
+			if (plotted->current_view().get() == _src.current_view()) {
 				QFont font;
 				font.setBold(true);
 				return font;

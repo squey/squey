@@ -24,6 +24,9 @@
 #include <QCoreApplication>
 #include "test-env.h"
 
+// FIXME: see PVLayer.cpp
+#include <picviz/PVView.h>
+
 int main(int argc, char** argv)
 {
 	if (argc <= 2) {

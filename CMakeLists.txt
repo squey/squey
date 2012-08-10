@@ -41,7 +41,7 @@ else()
 	else(WIN32)
 		#set(COMPILER_OPTIMIZE_FLAGS "-O3 -march=native")
 		set(COMPILER_OPTIMIZE_FLAGS "-O3 -march=native -flto=jobserver")
-		SET(LINKER_OPTIMIZE_FLAGS "-flto")
+		#SET(LINKER_OPTIMIZE_FLAGS "-flto")
 		add_definitions(-DNDEBUG) # so that 'assert' will generate no code
 		if (CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
 			add_definitions(-g)

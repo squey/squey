@@ -111,7 +111,7 @@ int main(int argc, char** argv)
 	Picviz::PVMapped_p mapped(src);
 	Picviz::PVPlotted_p plotted(mapped);
 
-	PVCore::PVDataTreeAutoShared<Picviz::PVView> view_p = plotted->get_view();
+	PVCore::PVDataTreeAutoShared<Picviz::PVView> view_p(plotted->current_view());
 
 	boost::thread th(boost::bind(thread, boost::ref(view_p)));
 

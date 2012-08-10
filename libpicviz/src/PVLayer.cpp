@@ -8,6 +8,10 @@
 #include <picviz/PVLayer.h>
 #include <picviz/PVPlotted.h>
 
+// AG: FIXME: we don't have to incldue PVView here. There is a weird issue w/ forward
+// declaration and picviz's shared pointer
+#include <picviz/PVView.h>
+
 /******************************************************************************
  *
  * Picviz::PVLayer::PVLayer

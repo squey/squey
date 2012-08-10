@@ -210,12 +210,12 @@ public:
 		return false;
 	}
 
-	bool beginInsertRow(int row)
+	void beginInsertRow(int row)
 	{
 		beginInsertRows(QModelIndex(), row, row);
 	}
 
-	bool endInsertRow()
+	void endInsertRow()
 	{
 		endInsertRows();
 	}

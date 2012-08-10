@@ -137,10 +137,10 @@ int main(int argc, char** argv)
 		Picviz::PVPlotted_p plotted(mapped);
 		mapped->process_from_parent_source(false);
 		plotted->process_from_parent_mapped(false);
-		views << plotted->get_view();
+		views << plotted->current_view();
 
 		// create the corresponding node
-		g_ad2gv->add_view(plotted->get_view().get());
+		g_ad2gv->add_view(plotted->current_view().get());
 
 		// next!
 		argcount += 2;
