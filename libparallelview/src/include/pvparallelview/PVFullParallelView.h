@@ -19,7 +19,7 @@
 
 namespace PVParallelView {
 
-class PVParallelScene;
+class PVFullParallelScene;
 class PVRenderingJob;
 
 class PVFullParallelView : public QGraphicsView

@@ -1,0 +1,118 @@
+/**
+ * \file PVFullParallelScene.h
+ *
+ * Copyright (C) Picviz Labs 2010-2012
+ */
+
+#ifndef __PVFULLPARALLELSCENE_h__
+#define __PVFULLPARALLELSCENE_h__
+
+#include <QGraphicsScene>
+#include <QGraphicsSceneMouseEvent>
+#include <QGraphicsSceneWheelEvent>
+
+#include <picviz/PVAxis.h>
+#include <pvparallelview/PVSelectionSquareGraphicsItem.h>
+#include <pvparallelview/PVSelectionGenerator.h>
+#include <pvparallelview/PVAxisGraphicsItem.h>
+#include <pvparallelview/PVFullParallelView.h>
+#include <pvparallelview/PVLinesView.h>
+
+namespace PVParallelView {
+
+class PVFullParallelScene : public QGraphicsScene
+{
+	Q_OBJECT
+
+public:
+	PVFullParallelScene(QObject* parent, PVParallelView::PVLinesView* lines_view);
+	virtual ~PVFullParallelScene();
+
+	void first_render();
+
+private:
+	void update_zones_position(bool update_all = true);
+	void translate_and_update_zones_position();
+
+	void store_selection_square();
+	void update_selection_square();
+
+	void mousePressEvent(QGraphicsSceneMouseEvent* event);
+	void mouseMoveEvent(QGraphicsSceneMouseEvent* event);
+	void mouseReleaseEvent(QGraphicsSceneMouseEvent* event);
+	void wheelEvent(QGraphicsSceneWheelEvent* event);
+
+	template <class F>
+	void launch_job_future(F const& f)
+	{
+		// Launch our new job !
+		_rendering_job->reset();
+		_rendering_future = f(*_rendering_job);
+	}
+
+	void cancel_current_job();
+	void wait_end_current_job();
+
+	inline QPointF map_to_axis(PVZoneID zid, QPointF p) const { return _axes[zid]->mapFromScene(p); }
+	inline QPointF map_from_axis(PVZoneID zid, QPointF p) const { return _axes[zid]->mapToScene(p); }
+	QRect map_to_axis(PVZoneID zid, QRectF rect) const { return _axes[zid]->map_from_scene(rect); }
+
+	bool sliders_moving() const;
+
+	PVParallelView::PVFullParallelView* view() { return (PVParallelView::PVFullParallelView*) parent(); }
+
+private slots:
+	void update_zone_pixmap_Slot(int zid);
+	void update_selection_Slot(uint32_t axis_id);
+	void scrollbar_pressed_Slot();
+	void scrollbar_released_Slot();
+	void commit_volatile_selection_Slot();
+
+private:
+	struct ZoneImages
+	{
+		QGraphicsPixmapItem* sel;
+		QGraphicsPixmapItem* bg;
+
+		void setPos(QPointF point)
+		{
+			sel->setPos(point);
+			bg->setPos(point);
+		}
+
+		void setPixmap(QPixmap const& pixmap_sel, QPixmap const& pixmap_bg)
+		{
+			sel->setPixmap(pixmap_sel);
+			bg->setPixmap(pixmap_bg);
+		}
+	};
+
+	struct SelectionBarycenter
+	{
+		PVZoneID zid1;
+		PVZoneID zid2;
+		double factor1;
+		double factor2;
+	};
+
+private:
+    PVParallelView::PVLinesView* _lines_view;
+
+    QList<ZoneImages> _zones;
+    QList<PVParallelView::PVAxisGraphicsItem*> _axes;
+
+	PVRenderingJob* _rendering_job;
+	QFuture<void> _rendering_future;
+	QFuture<void> _sel_rendering_future;
+    
+	PVSelectionSquareGraphicsItem* _selection_square;
+	SelectionBarycenter _selection_barycenter;
+	PVParallelView::PVSelectionGenerator _selection_generator;
+	Picviz::PVSelection _sel;
+    QPointF _selection_square_pos;
+    qreal _translation_start_x;
+};
+
+}
+
+#endif // __PVFULLPARALLELSCENE_h__

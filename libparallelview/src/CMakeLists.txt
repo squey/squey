@@ -32,7 +32,7 @@ PVZoomedZoneTree.cpp
 PVZoomedParallelScene.cpp
 PVZoomedParallelScene2.cpp
 PVLinesView.cpp
-PVParallelScene.cpp
+PVFullParallelScene.cpp
 PVSelectionSquareGraphicsItem.cpp
 PVZonesManager.cpp
 PVZoneTree.cpp
@@ -70,13 +70,13 @@ include/pvparallelview/PVAxisGraphicsItem.h
 include/pvparallelview/PVAxisSlider.h
 include/pvparallelview/PVAxisGraphicsItem.h
 include/pvparallelview/PVFullParallelView.h
-include/pvparallelview/PVParallelScene.h
+include/pvparallelview/PVFullParallelScene.h
 )
 
 SET(MOC_HEADERS
 include/pvparallelview/PVRenderingJob.h
 include/pvparallelview/PVFullParallelView.h
-include/pvparallelview/PVParallelScene.h
+include/pvparallelview/PVFullParallelScene.h
 include/pvparallelview/PVAxisSlider.h
 include/pvparallelview/PVAxisGraphicsItem.h
 include/pvparallelview/PVSelectionSquareGraphicsItem.h

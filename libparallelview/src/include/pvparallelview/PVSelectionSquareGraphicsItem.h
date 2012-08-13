@@ -24,14 +24,14 @@
 namespace PVParallelView
 {
 
-class PVParallelScene;
+class PVFullParallelScene;
 
 class PVSelectionSquareGraphicsItem : public QObject, public QGraphicsRectItem
 {
 	Q_OBJECT;
 
 public:
-	PVSelectionSquareGraphicsItem(PVParallelScene* s);
+	PVSelectionSquareGraphicsItem(PVFullParallelScene* s);
 
 	void clear_rect()
 	{

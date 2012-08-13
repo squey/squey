@@ -19,7 +19,7 @@
 #include <pvparallelview/PVLinesView.h>
 #include <pvparallelview/PVZoomedParallelScene2.h>
 
-#include <pvparallelview/PVParallelScene.h>
+#include <pvparallelview/PVFullParallelScene.h>
 #include <pvparallelview/PVFullParallelView.h>
 
 #include "zoom_dlg.h"
@@ -95,7 +95,7 @@ int main(int argc, char** argv)
 	PVParallelView::PVLinesView &lines_view = *(new PVParallelView::PVLinesView(*g_zones_drawing, 15));
 
 	PVParallelView::PVFullParallelView view;
-	PVParallelView::PVParallelScene* scene = new PVParallelView::PVParallelScene(&view, &lines_view);
+	PVParallelView::PVFullParallelScene* scene = new PVParallelView::PVFullParallelScene(&view, &lines_view);
 	view.setViewport(new QWidget());
 	view.resize(1920, 1600);
 	view.setScene(scene);

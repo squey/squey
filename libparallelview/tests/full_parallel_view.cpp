@@ -18,7 +18,7 @@
 #include <pvparallelview/PVZonesManager.h>
 #include <pvparallelview/PVLinesView.h>
 
-#include <pvparallelview/PVParallelScene.h>
+#include <pvparallelview/PVFullParallelScene.h>
 #include <pvparallelview/PVFullParallelView.h>
 
 #include <QApplication>
@@ -90,7 +90,7 @@ int main(int argc, char** argv)
 	PVParallelView::PVLinesView &lines_view = *(new PVParallelView::PVLinesView(zones_drawing, 30));
 
 	PVParallelView::PVFullParallelView view;
-	PVParallelView::PVParallelScene* scene = new PVParallelView::PVParallelScene(&view, &lines_view);
+	PVParallelView::PVFullParallelScene* scene = new PVParallelView::PVFullParallelScene(&view, &lines_view);
 	view.setViewport(new QWidget());
 	view.resize(1920, 1600);
 	view.setScene(scene);

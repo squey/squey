@@ -5,9 +5,9 @@
  */
 
 #include <pvparallelview/PVSelectionSquareGraphicsItem.h>
-#include <pvparallelview/PVParallelScene.h>
+#include <pvparallelview/PVFullParallelScene.h>
 
-PVParallelView::PVSelectionSquareGraphicsItem::PVSelectionSquareGraphicsItem(PVParallelScene* s) :
+PVParallelView::PVSelectionSquareGraphicsItem::PVSelectionSquareGraphicsItem(PVFullParallelScene* s) :
 	_volatile_selection_timer(new QTimer(this))
 {
 	_volatile_selection_timer->setSingleShot(true);
