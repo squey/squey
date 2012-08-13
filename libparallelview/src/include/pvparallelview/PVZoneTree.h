@@ -178,7 +178,7 @@ public:
 	inline void process(PVZoneProcessing const& zp, ProcessData& pdata) { process_tbb_sse_treeb(zp, pdata); }
 	inline void process(PVZoneProcessing const& zp) { process_tbb_sse_treeb(zp); }
 	inline void filter_by_sel(Picviz::PVSelection const& sel) { filter_by_sel_tbb_treeb(sel); }
-	inline void filter_by_sel_new(PVZoneProcessing const& zp, const Picviz::PVSelection& sel) { filter_by_sel_tbb_treeb_new(zp, sel); }
+	//inline void filter_by_sel_new(PVZoneProcessing const& zp, const Picviz::PVSelection& sel) { filter_by_sel_tbb_treeb_new(zp, sel); }
 
 	///
 	PVBranch* get_treeb() {return _treeb;}
