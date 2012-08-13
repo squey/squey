@@ -14,6 +14,7 @@
 #include <utility>
 
 #include <pvkernel/core/general.h>
+#include <pvkernel/core/PVAllocators.h>
 #include <pvkernel/core/PVListFloat2D.h>
 #include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/rush/PVNraw.h>
@@ -68,6 +69,7 @@ private:
 public:
 	//typedef boost::shared_ptr<PVPlotted> p_type;
 	typedef std::vector<float> plotted_table_t;
+	typedef std::vector<uint32_t, PVCore::PVAlignedAllocator<uint32_t, 16> > uint_plotted_table_t;
 	typedef std::vector< std::pair<PVCol,float> > plotted_sub_col_t;
 	typedef std::list<ExpandedSelection> list_expanded_selection_t;
 
@@ -76,8 +78,6 @@ public:
 
 public:
 	~PVPlotted();
-
-	void set_plotting(PVPlotting* plotting) { _plotting = PVPlotting_p(plotting); }
 
 protected:
 	// Serialization
@@ -92,11 +92,7 @@ protected:
 	void add_column(PVPlottingProperties const& props);
 
 public:
-	#ifndef CUDA
 	int create_table();
-	#else //CUDA
-	int create_table_cuda();
-	#endif //CUDA
 	void process_expanded_selections();
 
 	void process_from_mapped(PVMapped* mapped, bool keep_views_info);
@@ -104,7 +100,10 @@ public:
 
 	void set_name(QString const& name) { _plotting->set_name(name); }
 	QString const& get_name() const { return _plotting->get_name(); }
-	PVPlotting* get_plotting() { return _plotting.get(); }
+
+	static void norm_int_plotted(plotted_table_t const& trans_plotted, uint_plotted_table_t& res, PVCol ncols);
+
+	void set_plotting(PVPlotting_p const& plotting) { _plotting = plotting; }
 
 public:
 	// Parents
@@ -116,6 +115,12 @@ public:
 
 	const float* get_table_pointer() const { return &_table.at(0); }
 
+	uint_plotted_table_t& get_uint_plotted() { return _uint_table; }
+	uint_plotted_table_t const& get_uint_plotted() const { return _uint_table; }
+
+	PVPlotting& get_plotting() { return *_plotting; }
+	const PVPlotting& get_plotting() const { return *_plotting; }
+
 	bool is_uptodate() const;
 
 	QList<PVCol> get_singleton_columns_indexes();
@@ -126,6 +131,12 @@ public:
 	// Data access
 	PVRow get_row_count() const;
 	PVCol get_column_count() const;
+	inline PVRow get_aligned_row_count() const
+	{
+		PVRow ret = get_row_count();
+		return ((ret+PVROW_VECTOR_ALIGNEMENT-1)/(PVROW_VECTOR_ALIGNEMENT))*PVROW_VECTOR_ALIGNEMENT;
+	}
+	PVSource* get_source_parent();
 	float get_value(PVRow row, PVCol col) const;
 	void get_sub_col_minmax(plotted_sub_col_t& ret, float& min, float& max, PVSelection const& sel, PVCol col) const;
 	void get_col_minmax(PVRow& min, PVRow& max, PVSelection const& sel, PVCol col) const;
@@ -136,7 +147,7 @@ public:
 
 	// Plotted dump/load
 	bool dump_buffer_to_file(QString const& file, bool write_as_transposed = false) const;
-	static bool load_buffer_from_file(plotted_table_t& buf, PVCol& ncols, bool get_transpsed_version, QString const& file);
+	static bool load_buffer_from_file(plotted_table_t& buf, PVCol& ncols, bool get_transposed_version, QString const& file);
 
 public:
 	// Debug
@@ -151,6 +162,7 @@ protected:
 private:
 	PVPlotting_p _plotting;
 	plotted_table_t _table; /* Unidimensionnal. It must be contiguous in memory */
+	uint_plotted_table_t _uint_table;
 	std::vector<float> _tmp_values;
 	list_expanded_selection_t _expanded_sels;
 };

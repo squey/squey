@@ -34,6 +34,38 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
+#if 0
+	init_env();
+	QCoreApplication app(argc, argv);
+	PVFilter::PVPluginsLoad::load_all_plugins();
+	PVRush::PVPluginsLoad::load_all_plugins();
+
+	// Input file
+	QString path_file(argv[1]);
+	PVRush::PVInputDescription_p file(new PVRush::PVFileDescription(path_file));
+
+	// Load the given format file
+	QString path_format(argv[2]);
+	PVRush::PVFormat format("format", path_format);
+	if (!format.populate()) {
+		std::cerr << "Can't read format file " << qPrintable(path_format) << std::endl;
+		return false;
+	}
+
+	// Get the source creator
+	QString file_path(argv[1]);
+	PVRush::PVSourceCreator_p sc_file;
+	if (!PVRush::PVTests::get_file_sc(file, format, sc_file)) {
+		return 1;
+	}
+
+	// Create the PVSource object
+	Picviz::PVRoot_p root(new Picviz::PVRoot());
+	Picviz::PVSource_p src(new Picviz::PVSource(PVRush::PVInputType::list_inputs() << file, sc_file, format));
+	PVRush::PVControllerJob_p job = src->extract_from_agg_nlines(0, 40000000);
+	job->wait_end();
+	PVLOG_INFO("Extracted %u lines...\n", src->get_row_count());
+#endif
 	init_env();
 	QCoreApplication app(argc, argv);
 	PVFilter::PVPluginsLoad::load_all_plugins();
@@ -64,6 +96,7 @@ int main(int argc, char** argv)
 	Picviz::PVSource_p src(scene, PVRush::PVInputType::list_inputs() << file, sc_file, format);
 	PVRush::PVControllerJob_p job = src->extract();
 	job->wait_end();
+	PVLOG_INFO("Extracted %u lines...\n", src->get_row_count());
 
 	// Map the nraw
 	Picviz::PVMapped_p mapped(src);

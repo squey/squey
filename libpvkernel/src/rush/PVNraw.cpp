@@ -33,11 +33,13 @@ void PVRush::PVNraw::reserve(PVRow row, PVCol col)
 	if (col == 0) {
 		col = 1;
 	}
+#if 0
 #ifndef WIN32
 	size_t max_alloc = (sysconf(_SC_AVPHYS_PAGES) * sysconf(_SC_PAGE_SIZE))/10;
 	if (max_alloc > 0 && row*col*sizeof(PVCore::PVUnicodeString) > max_alloc) {
 		row = max_alloc/(col*sizeof(PVCore::PVUnicodeString));
 	}
+#endif
 #endif
 	table.resize(row, col);
 }

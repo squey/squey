@@ -41,13 +41,13 @@ if(CMAKE_BUILD_TYPE MATCHES "Debug")
 	set(TBB_USE_DEBUG "1")
 endif()
 
-#find_package(CUDA)
+find_package(CUDA)
 if(CUDA_SDK_ROOT_DIR MATCHES "CUDA_SDK_ROOT_DIR-NOTFOUND")
-  set(CUDA_SDK_ROOT_DIR "/opt/cuda_sdk/")
+  set(CUDA_SDK_ROOT_DIR "/opt/cuda/")
 endif(CUDA_SDK_ROOT_DIR MATCHES "CUDA_SDK_ROOT_DIR-NOTFOUND")
 
 if(CUDA_FOUND)
-  add_definitions(-DCUDA)
+	add_definitions(-DCUDA)
 endif(CUDA_FOUND)
 
 #
@@ -71,7 +71,7 @@ else(WIN32)
 endif(WIN32)
 add_definitions(-DBOOST_PROGRAM_OPTIONS_DYN_LINK)
 set(Boost_ADDITIONAL_VERSIONS "1.48.0")
-find_package(Boost 1.48.0 REQUIRED COMPONENTS date_time system thread program_options)
+find_package(Boost 1.48.0 COMPONENTS date_time system thread program_options)
 set(Boost_LIBRARIES_SAVE ${Boost_LIBRARIES})
 
 if(USE_BOOST148_DEBIAN)
@@ -322,5 +322,5 @@ endif(WIN32)
 
 find_package(HWLoc REQUIRED)
 if (HWLOC_FOUND)
-	include_directories(${HWLOC_INCLUDE_DIRS})
-endif (HWLOC_FOUND)
+  include_directories(${HWLOC_INCLUDE_DIRS})
+endif ()

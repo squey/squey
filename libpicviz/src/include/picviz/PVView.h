@@ -138,7 +138,7 @@ public:
 	void emit_user_modified_sel(QList<Picviz::PVView*>* changed_views = NULL);
 
 	PVCore::PVColor get_color_in_output_layer(PVRow index);
-	PVCol get_column_count();
+	PVCol get_column_count() const;
 	float get_column_count_as_float();
 	PVSelection &get_floating_selection();
 	int get_layer_index(int index);
@@ -149,6 +149,8 @@ public:
 	QString get_layer_stack_layer_n_name(int n);
 	int get_layer_stack_layer_n_visible_state(int n);
 	PVLayer &get_layer_stack_output_layer();
+
+	PVAxesCombination const& get_axes_combination() const { return axes_combination; }
 
 	inline PVLayer const& get_current_layer() const { return layer_stack.get_selected_layer(); }
 	inline PVLayer& get_current_layer() { return layer_stack.get_selected_layer(); }

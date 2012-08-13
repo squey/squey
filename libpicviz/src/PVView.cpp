@@ -317,7 +317,7 @@ PVCore::PVColor Picviz::PVView::get_color_in_output_layer(PVRow index)
  * Picviz::PVView::get_column_count
  *
  *****************************************************************************/
-PVCol Picviz::PVView::get_column_count()
+PVCol Picviz::PVView::get_column_count() const
 {
 	return get_parent<PVPlotted>()->get_column_count();
 }

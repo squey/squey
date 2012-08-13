@@ -1,8 +1,3 @@
-#
-# \file CMakeLists.txt
-#
-# Copyright (C) Picviz Labs 2010-2012
-
 cmake_minimum_required(VERSION 2.8)
 
 project(picviz-inspector)
@@ -26,7 +21,7 @@ include(FindPkgConfig)
 
 if (DEBUG_MODE)
 	if (NOT WIN32)
-		add_definitions(-g)
+		add_definitions(-g -march=native -Wno-unused-local-typedefs)
 	endif()
 else()
 	if(WIN32)
@@ -39,8 +34,7 @@ else()
 		# Intraprocedural optimisations
 		SET(LINKER_OPTIMIZE_FLAGS "/ltcg")
 	else(WIN32)
-		#set(COMPILER_OPTIMIZE_FLAGS "-O3 -march=native")
-		set(COMPILER_OPTIMIZE_FLAGS "-O3 -march=native -flto=jobserver")
+		set(COMPILER_OPTIMIZE_FLAGS "-O3 -g -march=native -flto=jobserver")
 		#SET(LINKER_OPTIMIZE_FLAGS "-flto")
 		add_definitions(-DNDEBUG) # so that 'assert' will generate no code
 		if (CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
@@ -78,7 +72,7 @@ if(WIN32)
 else(WIN32)
 	add_definitions(-DUNIX)
 	add_definitions(-DLINUX=2)
-	add_definitions(-Wall -Wextra -pipe -std=c++0x -Wno-unused-local-typedefs)
+	add_definitions(-Wall -Wextra -pipe -std=c++0x)
 	#add_definitions(-include ${picviz-inspector_SOURCE_DIR}/precompiled-headers/qt.h)
 	#add_definitions(-Wall -Wextra -pipe -ggdb3 -msse4.1)
 
@@ -151,8 +145,8 @@ add_subdirectory(helpers)
 
 add_subdirectory(libpicviz)
 add_subdirectory(libpvsdk)
-
 add_subdirectory(libpvhive)
+add_subdirectory(libparallelview)
 
 if(USE_PVGL2)
   add_subdirectory(libpvgl2)

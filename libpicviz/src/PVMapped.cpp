@@ -67,60 +67,6 @@ void Picviz::PVMapped::create_table()
 	tbb::tick_count tstart = tbb::tick_count::now();
 	trans_table.reserve(nrows,ncols);
 
-#ifdef CUDA
-PVLOG_INFO("(pvmapped::create_table) begin cuda mapping\n");
-	{
-    
-	    //for all columns except the second
-	    for (PVCol j = 0; j < ncols; j++) {//for each col...
-		for (PVRow i = 0; i < nrows; ++i) {//for each rows
-		    
-		    if(j!=1&&j!=2&&j!=4&&j!=5){
-		    //if(j!=1){
-		      QStringList slist = qt_nraw.at(i);
-		      QString value = slist[j];
-		      float val = _mapping->get_position(j, value);
-		      table.setValue(val,i,j);
-		      ////trans_table.setValue(val, j, i);//seg fault
-		      ////run_mandatory_mapping(this->get_root(), i, j, value, val, is_first, userdata);
-		    }else{//if(j!=1&&j!=2&&j!=4&&j!=5)
-			//parallele making
-		    }//else : if(j!=1&&j!=2&&j!=4&&j!=5)
-		    
-		    is_first = 0;
-		}
-	    }
-	    
-	    //cuda call to process the second column
-	    ///FIXME for testing
-	    for(PVCol j = 0; j < ncols; j++){
-		if(j!=1&&j!=2&&j!=4&&j!=5){
-		//if(j!=1){
-		    //linear making
-		}else{//if(j!=1&&j!=2&&j!=4&&j!=5)
-		    //data transformed
-		    char *cuda_host_nraw = (char*)malloc(nrows*1000*sizeof(char));///FIXME memory leak
-		    
-		    PVLOG_INFO("START DATA TRANSFORM\n");
-		    
-		    for(uint i=0;i<nrows;i++){
-		      QStringList slist = qt_nraw.at(i);
-		      QString value = slist[j];		
-		      //data transform
-		      strcpy(&cuda_host_nraw[1000*i],value.toStdString().c_str());
-
-		    }
-		    //kenel call
-		    pvmapped_create_table_enum_default(j, cuda_host_nraw, nrows, &table);
-
-		}//else : if(j!=1&&j!=2&&j!=4&&j!=5)
-	      
-	    }
-	    
-	}
-	PVLOG_INFO("(pvmapped::create_table) end cuda mapping\n");
-#else
-
 	// This will use the trans_table of the nraw
 	
 	/*
@@ -211,7 +157,6 @@ PVLOG_INFO("(pvmapped::create_table) begin cuda mapping\n");
 		PVLOG_INFO("(PVPlotted::create_table) mapping canceled.\n");
 		throw e;
 	}
-#endif
 	
 	// Free the transposed NRAW
 	//clear_trans_nraw();
@@ -229,7 +174,7 @@ void Picviz::PVMapped::to_csv()
 	for (PVRow i = 0; i < (PVRow) trans_table.getWidth(); i++) {
 		for (PVCol j = 0; j < (PVCol) trans_table.getHeight(); j++) {
 			std::cout << trans_table.getValue(j,i);
-			if (j!=trans_table.getHeight()-1) {
+			if (j!=(PVCol)(trans_table.getHeight()-1)) {
 				std::cout << ",";
 			}
 		}

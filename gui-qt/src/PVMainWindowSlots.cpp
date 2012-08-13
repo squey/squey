@@ -1140,7 +1140,7 @@ void PVInspector::PVMainWindow::cur_format_changed_Slot()
 			Picviz::PVMapped* mapped = cur_view->get_parent<Picviz::PVMapped>();
 			Picviz::PVPlotted* plotted = cur_view->get_parent<Picviz::PVPlotted>();
 			mapped->get_mapping()->reset_from_format(new_format);
-			plotted->get_plotting()->reset_from_format(new_format);
+			plotted->get_plotting().reset_from_format(new_format);
 			if (comp.different_mapping()) {
 				src_tab->process_mapped_if_current(mapped);
 			}

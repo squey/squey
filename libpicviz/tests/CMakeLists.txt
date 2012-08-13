@@ -70,3 +70,6 @@ target_link_libraries(Tpicviz_forward_decl ${LINK_LIBRARIES})
 # IP mapping performance
 #add_executable(Tpicviz_ip_mapping ip-mapping.cpp)
 #target_link_libraries(Tpicviz_ip_mapping ${LINK_LIBRARIES})
+
+add_executable(Tpicviz_cat_plotted cat_plotted_file.cpp)
+target_link_libraries(Tpicviz_cat_plotted ${LINK_LIBRARIES})

@@ -29,24 +29,22 @@
 
 #define dbg { std::cout<<"*** CUDA TRACE ***  file "<<__FILE__<<"  line "<<__LINE__<<std::endl; }
 
-namespace Picviz {
-
-PVPlotted::PVPlotted()
+Picviz::PVPlotted::PVPlotted()
 {
 	//process_from_parent_mapped(false);
 }
 
-PVPlotted::~PVPlotted()
+Picviz::PVPlotted::~PVPlotted()
 {
 	PVLOG_INFO("In PVPlotted destructor\n");
 }
 
-void PVPlotted::set_parent_from_ptr(PVMapped* mapped)
+void Picviz::PVPlotted::set_parent_from_ptr(PVMapped* mapped)
 {
 	data_tree_plotted_t::set_parent_from_ptr(mapped);
 
 	if (!_plotting) {
-		_plotting = PVPlotting_p(new PVPlotting(this));
+		_plotting.reset(new PVPlotting(this));
 	}
 
 	// Set parent mapping for properties
@@ -56,12 +54,10 @@ void PVPlotted::set_parent_from_ptr(PVMapped* mapped)
 	}
 }
 
-#ifndef CUDA
-int PVPlotted::create_table()
+int Picviz::PVPlotted::create_table()
 {
-	PVCol mapped_col_count = get_parent()->get_column_count();
-
-	const PVRow nrows = (PVRow)get_parent()->get_row_count();
+	const PVCol mapped_col_count = get_column_count();
+	const PVRow nrows = get_row_count();
 
 	// That buffer will be about 3.8MB for 10 million lines, so we keep it
 	// to save some allocations.
@@ -69,6 +65,12 @@ int PVPlotted::create_table()
 	float* p_tmp_v = &_tmp_values[0];
 	
 	_table.resize(mapped_col_count * nrows);
+
+	// Futur and only plotted, transposed normalized unisnged integer.
+	// Align the number of lines on a mulitple of 4, in order to have 16-byte aligned starting adresses for each axis
+	
+	const PVRow nrows_aligned = get_aligned_row_count();
+	_uint_table.resize(mapped_col_count * nrows_aligned);
 	
 	tbb::tick_count tstart = tbb::tick_count::now();
 	
@@ -114,6 +116,8 @@ int PVPlotted::create_table()
 			for (int64_t i = 0; i < nrows_tmp; i++) {
 				float v = p_tmp_v[i];
 				_table[i*mapped_col_count+j] = v;
+				_uint_table[j*nrows_aligned + i] = (uint32_t) ((double)v * (double)UINT_MAX);
+
 #ifndef NDEBUG
 				// Check that every plotted value is between 0 and 1
 				if (v > 1 || v < 0) {
@@ -137,87 +141,6 @@ int PVPlotted::create_table()
 
 	return 0;
 }
-#else //CUDA
-/***************** CUDA *****************************************/
-int PVPlotted::create_table_cuda(){
-  
-  PVCol mapped_col_count = _mapped->get_column_count();
-  QMutex lock;
-  const PVRow nrows = (PVRow)_mapped->table.getHeight();
-  //float dataTmp[nrows][mapped_col_count];
-  
-  
-  //init table type of profile
-  /// TODO do it differently : create a method in PVPlottingPorperties or PVPlottingFunction to generate it
-  //for apache
-  /*PlottingParam *plottingType = new PlottingParam[9];
-  /// FIXME don't feed it hardly
-  plottingType[0].type = time_default;
-  plottingType[1].type = ipv4_default;
-  plottingType[2].type = ipv4_default;
-  plottingType[3].type = integer_minmax;
-  plottingType[3].data[0] = _mapped->mapping->dict_float[3]["ymin"];
-  plottingType[3].data[1] = _mapped->mapping->dict_float[3]["ymax"];
-  plottingType[4].type = integer_minmax;
-  plottingType[4].data[0] = _mapped->mapping->dict_float[4]["ymin"];
-  plottingType[4].data[1] = _mapped->mapping->dict_float[4]["ymax"];
-  plottingType[5].type = integer_default;
-  plottingType[6].type = enum_default;
-  plottingType[7].type = integer_port;
-  plottingType[8].type = integer_port;//for apache*/
-  
-  //for squid
-  PlottingParam *plottingType = new PlottingParam[9];
-  /// FIXME don't feed it hardly
-  plottingType[0].type = time_default;
-  plottingType[1].type = enum_default;
-  plottingType[2].type = enum_default;
-  plottingType[3].type = string_default;
-  plottingType[4].type = enum_default;
-  plottingType[5].type = enum_default;
-  plottingType[6].type = ipv4_default;
-  
-   
-  
-  //kernel caller
-  ///FIXME hard cast float* (don't use Qt class in cuda caller)
-  PVLOG_INFO("cuda call\n");
-  PVPlotted_create_table_cuda((int)nrows,(int)mapped_col_count, (float*)_mapped->table.getData(),(float*)&table[0], plottingType);  
-  PVLOG_INFO("cuda end\n");
-  
-  //to see first log
-  /*for(int i=0;i<9;i++){
-	std::cout<<"*** CUDA TRACE *** cuda val  "<<table[i]<<std::endl;
-  }
-  std::cout<<"*** CUDA TRACE ***    "<<std::endl;
-  for(int i=9;i<18;i++){
-	std::cout<<"*** CUDA TRACE *** cuda val  "<<table[i]<<std::endl;
-  }
-  std::cout<<"*** CUDA TRACE ***    "<<std::endl;*/
-
-  
-  
-  //old
-  /*PVLOG_INFO("linear call\n");
-	for (PVRow i = 0; i < nrows; i++) {
-		for (PVCol j = 0; j < mapped_col_count; j++) {
-			const float val = plotting->get_position(j, _mapped->table.getValue(i,j));
-			//lock.lock();
-			table[i*mapped_col_count+j] = val;
-			//to see first log
-			if(i*mapped_col_count+j<18){
-			  std::cout<<"*** CUDA TRACE *** no cuda val  "<<val<<" ? "<<table[i*mapped_col_count+j]<<std::endl;
-			}
-			//lock.unlock();
-		}
-	}
-	PVLOG_INFO("linear end\n");*/
-  
-  
-  return 0;
-}
-/***************** CUDA *****************************************/
-#endif//CUDA
 
 void Picviz::PVPlotted::process_expanded_selections()
 {
@@ -299,38 +222,53 @@ bool Picviz::PVPlotted::load_buffer_from_file(plotted_table_t& buf, PVCol& ncols
 {
 	ncols = 0;
 
-	QFile f(file);
-	if (!f.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
-		PVLOG_ERROR("Error while opening %s for writing: %s.\n", qPrintable(file), qPrintable(f.errorString()));
+	FILE* f = fopen(qPrintable(file), "r");
+	if (!f) {
+		PVLOG_ERROR("Error while opening %s for writing: %s.\n", qPrintable(file), strerror(errno));
 		return false;
 	}
 
-	ssize_t size_buf = f.size()-sizeof(PVCol)-sizeof(bool);
+	static_assert(sizeof(off_t) == sizeof(uint64_t), "sizeof(off_t) != sizeof(uint64_t). Please define -D_FILE_OFFSET_BITS=64");
+
+	// Get file size
+	fseek(f, 0, SEEK_END);
+	const uint64_t fsize = ftello(f);
+	fseek(f, 0, SEEK_SET);
+
+	ssize_t size_buf = fsize-sizeof(PVCol)-sizeof(bool);
 	if (size_buf <= 0) {
+		fclose(f);
 		PVLOG_ERROR("File is too small to be valid !\n");
 		return false;
 	}
 
-	f.read((char*) &ncols, sizeof(PVCol));
+	if (fread((void*) &ncols, sizeof(PVCol), 1, f) != 1) {
+		PVLOG_ERROR("File is too small to be valid !\n");
+		fclose(f);
+		return false;
+	}
 	bool is_transposed = false;
-	if (f.read((char*) &is_transposed, sizeof(bool)) != sizeof(bool)) {
-		PVLOG_ERROR("Error while reading '%s': %s.\n", qPrintable(file), qPrintable(f.errorString()));
+	if (fread((char*) &is_transposed, sizeof(bool), 1, f) != 1) {
+		PVLOG_ERROR("Error while reading '%s': %s.\n", qPrintable(file), strerror(errno));
+		fclose(f);
 		return false;
 	}
 
 	bool must_transpose = (is_transposed != get_transposed_version);
 
-	ssize_t nfloats = size_buf/sizeof(float);
-	ssize_t size_read = nfloats*sizeof(float);
+	size_t nfloats = size_buf/sizeof(float);
+	size_t size_read = nfloats*sizeof(float);
 	buf.resize(nfloats);
+
+	PVLOG_INFO("(Picviz::load_buffer_from_file) number of cols: %d , nfloats: %u, nrows: %u\n", ncols, nfloats, nfloats/ncols);
 
 	float* dest_buf = &buf[0];
 	if (must_transpose) {
 		dest_buf = (float*) malloc(size_read);
 	}
 
-	if (f.read((char*) dest_buf, size_read) != size_read) {
-		PVLOG_ERROR("Error while reading '%s': %s.\n", qPrintable(file), qPrintable(f.errorString()));
+	if (fread((void*) dest_buf, sizeof(float), nfloats, f) != nfloats) {
+		PVLOG_ERROR("Error while reading '%s': %s.\n", qPrintable(file), strerror(errno));
 		return false;
 	}
 
@@ -339,7 +277,7 @@ bool Picviz::PVPlotted::load_buffer_from_file(plotted_table_t& buf, PVCol& ncols
 			PVCore::PVMatrix<float, PVRow, PVCol> final;
 			PVCore::PVMatrix<float, PVCol, PVRow> org;
 			org.set_raw_buffer(dest_buf, ncols, nfloats/ncols);
-			final.set_raw_buffer(&buf[0], nfloats/ncols, ncols);
+			
 			org.transpose_to(final);
 		}
 		else {
@@ -352,35 +290,37 @@ bool Picviz::PVPlotted::load_buffer_from_file(plotted_table_t& buf, PVCol& ncols
 		free(dest_buf);
 	}
 
+	fclose(f);
+
 	return true;
 }
 
-PVRush::PVNraw::nraw_table& PVPlotted::get_qtnraw()
+PVRow Picviz::PVPlotted::get_row_count() const
 {
-	return _plotting->get_qtnraw();
+	return get_parent<PVMapped>()->get_row_count();
 }
 
-const PVRush::PVNraw::nraw_table& PVPlotted::get_qtnraw() const
+PVCol Picviz::PVPlotted::get_column_count() const
 {
-	return _plotting->get_qtnraw();
+	return get_parent<PVPlotted>()->get_column_count();
 }
 
-PVRow PVPlotted::get_row_count() const
+PVRush::PVNraw::nraw_table& Picviz::PVPlotted::get_qtnraw()
 {
-	return get_parent()->get_row_count();
+	return get_parent<PVSource>()->get_qtnraw();
 }
 
-PVCol PVPlotted::get_column_count() const
+const PVRush::PVNraw::nraw_table& Picviz::PVPlotted::get_qtnraw() const
 {
-	return get_parent()->get_column_count();
+	return get_parent<PVSource>()->get_qtnraw();
 }
 
-float PVPlotted::get_value(PVRow row, PVCol col) const
+float Picviz::PVPlotted::get_value(PVRow row, PVCol col) const
 {
 	return _table[row * get_column_count() + col];
 }
 
-void PVPlotted::to_csv()
+void Picviz::PVPlotted::to_csv()
 {
 	PVRow row_count;
 	PVCol col_count;
@@ -604,4 +544,20 @@ void Picviz::PVPlotted::serialize_read(PVCore::PVSerializeObject& so, PVCore::PV
 	data_tree_plotted_t::serialize_read(so, v);
 }
 
+void Picviz::PVPlotted::norm_int_plotted(plotted_table_t const& trans_plotted, uint_plotted_table_t& res, PVCol ncols)
+{
+	// Here, we make every row starting on a 16-byte boundary
+	PVRow nrows = trans_plotted.size()/ncols;
+	PVRow nrows_aligned = ((nrows+3)/4)*4;
+	size_t dest_size = nrows_aligned*ncols;
+	res.reserve(dest_size);
+#pragma omp parallel for
+	for (PVCol c = 0; c < ncols; c++) {
+		for (PVRow r = 0; r < nrows; r++) {
+			res[c*nrows_aligned+r] = ((uint32_t) ((double)trans_plotted[c*nrows+r] * (double)UINT_MAX));
+		}
+		for (PVRow r = nrows; r < nrows_aligned; r++) {
+			res[c*nrows_aligned+r] = 0;
+		}
+	}
 }

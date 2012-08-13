@@ -108,6 +108,10 @@ target_link_libraries(Tcore_bit_count ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES} ${Op
 add_executable(Tcore_visit_bits visit_bits.cpp)
 target_link_libraries(Tcore_visit_bits ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES} ${OpenMP_LIBRARIES})
 
+# POD tree
+add_executable(Tcore_podtree pod_tree.cpp)
+target_link_libraries(Tcore_podtree ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
+
 # Hardware concurrency
 add_executable(Tcore_hardware_concurrency hardware_concurrency.cpp)
 target_link_libraries(Tcore_hardware_concurrency ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})

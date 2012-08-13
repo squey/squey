@@ -194,7 +194,7 @@ void PVInspector::PVTabSplitter::toggle_listing_sort()
 void PVInspector::PVTabSplitter::create_new_plotted(Picviz::PVMapped* mapped_parent)
 {
 	Picviz::PVPlotted_p plotted(mapped_parent->shared_from_this());
-	Picviz::PVPlotting* new_plotting = new Picviz::PVPlotting(plotted.get());
+	Picviz::PVPlotting_p new_plotting(new Picviz::PVPlotting(plotted.get()));
 
 	// Create new default name
 	unsigned int nplotted = mapped_parent->get_children<Picviz::PVPlotted>().size();
@@ -202,7 +202,7 @@ void PVInspector::PVTabSplitter::create_new_plotted(Picviz::PVMapped* mapped_par
 	new_plotting->set_name(new_name);
 	plotted->set_plotting(new_plotting);
 
-	PVMappingPlottingEditDialog* dlg = new PVMappingPlottingEditDialog(NULL, new_plotting, this);
+	PVMappingPlottingEditDialog* dlg = new PVMappingPlottingEditDialog(NULL, new_plotting.get(), this);
 	if (dlg->exec() == QDialog::Rejected) {
 		return;
 	}
@@ -238,7 +238,7 @@ void PVInspector::PVTabSplitter::edit_mapped(Picviz::PVMapped* mapped)
 void PVInspector::PVTabSplitter::edit_plotted(Picviz::PVPlotted* plotted)
 {
 	PVMappingPlottingEditDialog* dlg;
-	dlg = new PVMappingPlottingEditDialog(NULL, plotted->get_plotting(), this);
+	dlg = new PVMappingPlottingEditDialog(NULL, &plotted->get_plotting(), this);
 	if (dlg->exec() != QDialog::Accepted) {
 		return;
 	}

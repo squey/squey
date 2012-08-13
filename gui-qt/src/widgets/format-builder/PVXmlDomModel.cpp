@@ -15,7 +15,6 @@
 
 #define dbg()  {qDebug()<<__FILE__<<__LINE__;}
 
-
 /******************************************************************************
  *
  * PVInspector::PVXmlDomModel::PVXmlDomModel

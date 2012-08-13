@@ -3,6 +3,12 @@
  *
  * Copyright (C) Picviz Labs 2010-2012
  */
+<<<<<<< HEAD:libpvkernel/src/widgets/editors/PVTextEditEditor.cpp
+=======
+
+#include <pvkernel/core/general.h>
+#include <picviz/PVView.h>
+>>>>>>> parallel2:gui-qt/src/widgets/editors/PVTextEditEditor.cpp
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/widgets/editors/PVTextEditEditor.h>

@@ -54,9 +54,9 @@ protected slots:
 	virtual void do_refresh(PVHive::PVObserverBase *o) {};
 	virtual void do_about_to_be_deleted(PVHive::PVObserverBase *o) {};
 #else
-	virtual void do_about_to_be_refreshed(PVObserverBase *o) {};
-	virtual void do_refresh(PVObserverBase *o) {};
-	virtual void do_about_to_be_deleted(PVObserverBase *o) {};
+	virtual void do_about_to_be_refreshed(PVObserverBase* /*o*/) {};
+	virtual void do_refresh(PVObserverBase* /*o*/) {};
+	virtual void do_about_to_be_deleted(PVObserverBase* /*o*/) {};
 #endif
 };
 
