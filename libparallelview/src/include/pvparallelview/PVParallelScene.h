@@ -69,20 +69,34 @@ private:
 		return (PVParallelView::PVFullParallelView*) parent();
 	}
 
+	void begin_update_selection_square(PVZoneID& z1, double& factor1, PVZoneID& z2, double& factor2)
+	{
+		uint32_t abs_left = _selection_square->rect().topLeft().x();
+		uint32_t abs_right = _selection_square->rect().bottomRight().x();
+		z1 = _lines_view->get_zone_from_scene_pos(abs_left);
+		uint32_t z1_width = _lines_view->get_zone_width(z1);
+		uint32_t alpha = map_to_axis(z1, QPointF(abs_left, 0)).x();
+		factor1 = (double) alpha / z1_width;
+		z2 = _lines_view->get_zone_from_scene_pos(abs_right);
+		uint32_t z2_width = _lines_view->get_zone_width(z2);
+		uint32_t beta = map_to_axis(z2, QPointF(abs_right, 0)).x();
+		factor2 = (double) beta / z2_width;
+	}
+
+	void end_update_selection_square(PVZoneID z1, double factor1, PVZoneID z2, double factor2)
+	{
+		uint32_t new_left = _lines_view->get_zones_manager().get_zone_absolute_pos(z1) + (double) _lines_view->get_zone_width(z1) * factor1;
+		uint32_t new_right = _lines_view->get_zones_manager().get_zone_absolute_pos(z2) + (double) _lines_view->get_zone_width(z2) * factor2;
+		uint32_t abs_top = _selection_square->rect().topLeft().y();
+		uint32_t abs_bottom = _selection_square->rect().bottomRight().y();
+
+		_selection_square->blockSignals(true);
+		_selection_square->setRect(QRectF(QPointF(new_left, abs_top), QPointF(new_right, abs_bottom)));
+		_selection_square->blockSignals(false);
+	}
+
 	void update_zones_position(bool update_all = true)
 	{
-		// Save selection square
-		uint32_t abs_right = _selection_square->rect().topLeft().x();
-		uint32_t abs_left = _selection_square->rect().bottomRight().x();
-		uint32_t z1 = _lines_view->get_zone_from_scene_pos(abs_right);
-		uint32_t z1_width = _lines_view->get_zone_width(z1);
-		int32_t alpha = map_to_axis(z1, QPointF(abs_left, 0)).x();
-		float factor1 = alpha / z1_width;
-		uint32_t z2 = _lines_view->get_zone_from_scene_pos(abs_left);
-		uint32_t z2_width = _lines_view->get_zone_width(z2);
-		int32_t beta = map_to_axis(z2, QPointF(abs_right, 0)).x();
-		float factor2 = beta / z2_width;
-
 		PVParallelView::PVLinesView::list_zone_images_t images = _lines_view->get_zones_images();
 		for (PVZoneID zid = _lines_view->get_first_drawn_zone(); zid <= _lines_view->get_last_drawn_zone(); zid++) {
 			update_zone_pixmap(zid);
@@ -108,18 +122,6 @@ private:
 
 			_axes[z]->setPos(QPointF(pos - PVParallelView::AxisWidth, 0));
 		}
-
-		// Restore selection square
-		uint32_t new_left = (float) _lines_view->get_zone_width(z1) * factor1;
-		uint32_t new_right = (float) _lines_view->get_zone_width(z2) * factor2;
-		uint32_t abs_top = _selection_square->rect().topLeft().y();
-		uint32_t abs_bottom = _selection_square->rect().bottomRight().y();
-
-		_selection_square->blockSignals(true);
-		_selection_square->update_rect(QRectF(QPointF(new_left, abs_top), QPointF(new_right, abs_bottom)));
-		_selection_square->blockSignals(false);
-
-		PVLOG_INFO("(%d, %d), (%d, %d)\n", new_left, abs_top, new_right, abs_bottom);
 	}
 
 	bool sliders_moving() const
@@ -171,9 +173,6 @@ private:
 			translate_and_update_zones_position();
 		}
 		else if (!sliders_moving()) {
-			PVZoneID zid = _lines_view->get_zones_manager().get_zone_id(_selection_square->rect().x());
-			QRect r = map_to_axis(zid, _selection_square->rect());
-
 			if (_selection_square_pos == event->scenePos()) {
 				// Remove selection
 				_selection_square->clear_rect();
