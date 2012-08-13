@@ -22,7 +22,7 @@ enum {
 	SliderWidth = SLIDER_WIDTH
 };
 
-class PVAxisSlider : public QObject, public QGraphicsItem
+class PVAxisSlider : public QGraphicsObject
 {
 	Q_OBJECT
 

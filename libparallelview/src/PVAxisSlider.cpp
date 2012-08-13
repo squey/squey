@@ -78,7 +78,7 @@ void PVParallelView::PVAxisSlider::paint(QPainter *painter,
  * PVParallelView::PVAxisSlider::hoverenterEvent
  *****************************************************************************/
 
-void PVParallelView::PVAxisSlider::hoverEnterEvent(QGraphicsSceneHoverEvent* event)
+void PVParallelView::PVAxisSlider::hoverEnterEvent(QGraphicsSceneHoverEvent* /*event*/)
 {
 	PVLOG_INFO("PVAxisSlider::hoverEnterEvent\n");
 }
@@ -87,7 +87,7 @@ void PVParallelView::PVAxisSlider::hoverEnterEvent(QGraphicsSceneHoverEvent* eve
  * PVParallelView::PVAxisSlider::hoverMoveEvent
  *****************************************************************************/
 
-void PVParallelView::PVAxisSlider::hoverMoveEvent(QGraphicsSceneHoverEvent* event)
+void PVParallelView::PVAxisSlider::hoverMoveEvent(QGraphicsSceneHoverEvent* /*event*/)
 {
 	PVLOG_INFO("PVAxisSlider::hoverMoveEvent\n");
 }
@@ -96,7 +96,7 @@ void PVParallelView::PVAxisSlider::hoverMoveEvent(QGraphicsSceneHoverEvent* even
  * PVParallelView::PVAxisSlider::hoverLeaveEvent
  *****************************************************************************/
 
-void PVParallelView::PVAxisSlider::hoverLeaveEvent(QGraphicsSceneHoverEvent* event)
+void PVParallelView::PVAxisSlider::hoverLeaveEvent(QGraphicsSceneHoverEvent* /*event*/)
 {
 	PVLOG_INFO("PVAxisSlider::hoverLeaveEvent\n");
 }
@@ -105,7 +105,7 @@ void PVParallelView::PVAxisSlider::hoverLeaveEvent(QGraphicsSceneHoverEvent* eve
  * PVParallelView::PVAxisSlider::mousePressEvent
  *****************************************************************************/
 
-void PVParallelView::PVAxisSlider::mousePressEvent(QGraphicsSceneMouseEvent* event)
+void PVParallelView::PVAxisSlider::mousePressEvent(QGraphicsSceneMouseEvent* /*event*/)
 {
 	_moving = true;
 	//event->accept();
@@ -115,7 +115,7 @@ void PVParallelView::PVAxisSlider::mousePressEvent(QGraphicsSceneMouseEvent* eve
  * PVParallelView::PVAxisSlider::mouseReleaseEvent
  *****************************************************************************/
 
-void PVParallelView::PVAxisSlider::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
+void PVParallelView::PVAxisSlider::mouseReleaseEvent(QGraphicsSceneMouseEvent* /*event*/)
 {
 	_moving = false;
 	emit slider_moved();
