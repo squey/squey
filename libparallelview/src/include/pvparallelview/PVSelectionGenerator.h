@@ -109,7 +109,7 @@ public:
 			}
 
 			code_b.int_v = branch;
-			int32_t y1 = code_b.s.l;
+			uint32_t y1 = code_b.s.l;
 
 			bool is_line_selected = false;
 			for (auto range : ranges) {

@@ -71,6 +71,18 @@ private:
 
 	void update_zones_position(bool update_all = true)
 	{
+		// Save selection square
+		uint32_t abs_right = _selection_square->rect().topLeft().x();
+		uint32_t abs_left = _selection_square->rect().bottomRight().x();
+		uint32_t z1 = _lines_view->get_zone_from_scene_pos(abs_right);
+		uint32_t z1_width = _lines_view->get_zone_width(z1);
+		int32_t alpha = map_to_axis(z1, QPointF(abs_left, 0)).x();
+		float factor1 = alpha / z1_width;
+		uint32_t z2 = _lines_view->get_zone_from_scene_pos(abs_left);
+		uint32_t z2_width = _lines_view->get_zone_width(z2);
+		int32_t beta = map_to_axis(z2, QPointF(abs_right, 0)).x();
+		float factor2 = beta / z2_width;
+
 		PVParallelView::PVLinesView::list_zone_images_t images = _lines_view->get_zones_images();
 		for (PVZoneID zid = _lines_view->get_first_drawn_zone(); zid <= _lines_view->get_last_drawn_zone(); zid++) {
 			update_zone_pixmap(zid);
@@ -96,6 +108,18 @@ private:
 
 			_axes[z]->setPos(QPointF(pos - PVParallelView::AxisWidth, 0));
 		}
+
+		// Restore selection square
+		uint32_t new_left = (float) _lines_view->get_zone_width(z1) * factor1;
+		uint32_t new_right = (float) _lines_view->get_zone_width(z2) * factor2;
+		uint32_t abs_top = _selection_square->rect().topLeft().y();
+		uint32_t abs_bottom = _selection_square->rect().bottomRight().y();
+
+		_selection_square->blockSignals(true);
+		_selection_square->update_rect(QRectF(QPointF(new_left, abs_top), QPointF(new_right, abs_bottom)));
+		_selection_square->blockSignals(false);
+
+		PVLOG_INFO("(%d, %d), (%d, %d)\n", new_left, abs_top, new_right, abs_bottom);
 	}
 
 	bool sliders_moving() const
@@ -134,12 +158,13 @@ private:
 			// trace square area
 			QPointF top_left(qMin(_selection_square_pos.x(), event->scenePos().x()), qMin(_selection_square_pos.y(), event->scenePos().y()));
 			QPointF bottom_right(qMax(_selection_square_pos.x(), event->scenePos().x()), qMax(_selection_square_pos.y(), event->scenePos().y()));
+
 			_selection_square->update_rect(QRectF(top_left, bottom_right));
 		}
 		QGraphicsScene::mouseMoveEvent(event);
 	}
 
-	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+	void mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 	{
 		if (event->button() == Qt::RightButton) {
 			// translate zones
