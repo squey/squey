@@ -14,6 +14,8 @@
 #include <QTimer>
 #include <QObject>
 
+#include <pvkernel/core/PVLogger.h>
+
 #define VOLATILE_SELECTION_TIMER_MSEC 300
 #define VOLATILE_COLOR QColor(255, 127, 36)
 #define COMMITED_COLOR QColor(255, 0, 0)
