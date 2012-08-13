@@ -101,4 +101,4 @@ target_link_libraries(run-gl ${COMMON_LIBS})
 add_executable(test_interlace test_interlace.cpp ${GL_SRC_FILES})
 target_link_libraries(test_interlace ${COMMON_LIBS} ${PICVIZ_LIBRARIES})
 
-add_subdirectory(bench)
+#add_subdirectory(bench)
