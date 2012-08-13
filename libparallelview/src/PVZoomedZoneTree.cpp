@@ -163,8 +163,10 @@ void PVParallelView::PVZoomedZoneTree::process_omp_from_zt(const PVZoneProcessin
 	PVParallelView::PVZoneTree::PVBranch *treeb = zt.get_treeb();
 
 	const size_t nthreads = PVCore::PVHardwareConcurrency::get_physical_core_number();
-	tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, 128), [&](tbb::blocked_range<size_t> const& range){
-		for (size_t i = range.begin(); i != range.end(); i++) {
+
+	BENCH_START(zztree);
+#if 0
+		for (size_t i = 0; i < NBUCKETS; i++) {
 			for (size_t j = 0; j < treeb[i].count; ++j) {
 				const PVRow r = treeb[i].p[j];
 
@@ -173,7 +175,23 @@ void PVParallelView::PVZoomedZoneTree::process_omp_from_zt(const PVZoneProcessin
 			}
 			this->_trees[i].compact();
 		}
-	});
+		BENCH_END(zztree, "ZZTREE CREATION (SERIAL)", 1, 1, 1, 1);
+#else
+		tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, 128), [&](tbb::blocked_range<size_t> const& range){
+			for (size_t i = range.begin(); i != range.end(); i++) {
+				for (size_t j = 0; j < treeb[i].count; ++j) {
+					const PVRow r = treeb[i].p[j];
+
+					PVParallelView::PVQuadTreeEntry e(pcol_a[r], pcol_b[r], r);
+					this->_trees[i].insert(e);
+				}
+				this->_trees[i].compact();
+			}
+		});
+		BENCH_END(zztree, "ZZTREE CREATION (PARALLEL)", 1, 1, 1, 1);
+#endif
+
+
 }
 
 /*****************************************************************************
