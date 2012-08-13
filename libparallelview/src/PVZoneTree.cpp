@@ -32,6 +32,8 @@
 
 #define GRAINSIZE 100
 
+using Picviz::PVSelection;
+
 namespace PVParallelView { namespace __impl {
 
 class TBBCreateTreeTask
@@ -213,14 +215,14 @@ public:
 		for (PVRow b = range.begin(); b != range.end(); ++b) {
 			PVRow res = PVROW_INVALID_VALUE;
 			if (_tree->branch_valid(b)) {
-				PVRow r = _tree->get_first_elt_of_branch(b);
-				if ((_sel_buf[r>>5]) & (1U<<(r&31))) {
+				const PVRow r = _tree->get_first_elt_of_branch(b);
+				if ((_sel_buf[PVSelection::line_index_to_chunk(r)]) & (1U<<(PVSelection::line_index_to_chunk_bit(r)))) {
 					res = r;
 				}
 				else {
 					for (size_t i=0; i< _tree->_treeb[b].count; i++) {
-						PVRow r = _tree->_treeb[b].p[i];
-						if ((_sel_buf[r>>5]) & (1U<<(r&31))) {
+						const PVRow r = _tree->_treeb[b].p[i];
+						if ((_sel_buf[PVSelection::line_index_to_chunk(r)]) & (1U<<(PVSelection::line_index_to_chunk_bit(r)))) {
 							res = r;
 							break;
 						}
@@ -598,15 +600,15 @@ void PVParallelView::PVZoneTree::filter_by_sel_omp_treeb(Picviz::PVSelection con
 #pragma omp parallel for schedule(dynamic, GRAINSIZE) firstprivate(sel_buf) num_threads(nthreads)
 	for (size_t b = 0; b < NBUCKETS; b++) {
 		if (branch_valid(b)) {
-			PVRow r = get_first_elt_of_branch(b);
+			const PVRow r = get_first_elt_of_branch(b);
 			bool found = false;
-			if ((sel_buf[r>>5]) & (1U<<(r&31))) {
+			if ((sel_buf[PVSelection::line_index_to_chunk(r)]) & (1U<<(PVSelection::line_index_to_chunk_bit(r)))) {
 				found = true;
 			}
 			else {
 				for (size_t i=0; i<_treeb[b].count; i++) {
-					PVRow r = _treeb[b].p[i];
-					if ((sel_buf[r>>5]) & (1U<<(r&31))) {
+					const PVRow r = _treeb[b].p[i];
+					if ((sel_buf[PVSelection::line_index_to_chunk(r)]) & (1U<<(PVSelection::line_index_to_chunk_bit(r)))) {
 						found = true;
 						break;
 					}
