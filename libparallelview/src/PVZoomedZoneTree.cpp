@@ -78,12 +78,11 @@ void PVParallelView::PVZoomedZoneTree::process_seq_from_zt(const PVZoneProcessin
 {
 	const uint32_t* pcol_a = zp.get_plotted_col_a();
 	const uint32_t* pcol_b = zp.get_plotted_col_b();
-	PVParallelView::PVZoneTree::PVBranch *treeb = zt.get_treeb();
 	PVRow r;
 
 	for(unsigned i = 0; i < NBUCKETS; ++i) {
-		for (unsigned j = 0; j < treeb[i].count; ++j) {
-			r = treeb[i].p[j];
+		for (unsigned j = 0; j < zt.get_branch_count(i); ++j) {
+			r = zt.get_branch_element(i, j);
 			PVParallelView::PVQuadTreeEntry e(pcol_a[r], pcol_b[r], r);
 			_trees[i].insert(e);
 		}
@@ -102,7 +101,7 @@ void PVParallelView::PVZoomedZoneTree::process_omp(const PVParallelView::PVZoneP
 	const PVRow nrows = zp.nrows();
 
 	uint32_t THREAD_ELE_COUNT = 64 / sizeof(PVQuadTreeEntry);
-	uint32_t nthreads = 4;
+	const size_t nthreads = PVCore::PVHardwareConcurrency::get_physical_core_number();
 	uint32_t STEP_ELE_COUNT = THREAD_ELE_COUNT * nthreads;
 	uint32_t nrows_omp = (nrows / STEP_ELE_COUNT) * STEP_ELE_COUNT;
 	uint32_t tree_count = (NBUCKETS) / nthreads;
@@ -160,9 +159,6 @@ void PVParallelView::PVZoomedZoneTree::process_omp_from_zt(const PVZoneProcessin
 {
 	const uint32_t* pcol_a = zp.get_plotted_col_a();
 	const uint32_t* pcol_b = zp.get_plotted_col_b();
-	PVParallelView::PVZoneTree::PVBranch *treeb = zt.get_treeb();
-
-	const size_t nthreads = PVCore::PVHardwareConcurrency::get_physical_core_number();
 
 	BENCH_START(zztree);
 #if 0
@@ -179,8 +175,8 @@ void PVParallelView::PVZoomedZoneTree::process_omp_from_zt(const PVZoneProcessin
 #else
 		tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, 128), [&](tbb::blocked_range<size_t> const& range){
 			for (size_t i = range.begin(); i != range.end(); i++) {
-				for (size_t j = 0; j < treeb[i].count; ++j) {
-					const PVRow r = treeb[i].p[j];
+				for (size_t j = 0; j < zt.get_branch_count(i); ++j) {
+					const PVRow r = zt.get_branch_element(i, j);
 
 					PVParallelView::PVQuadTreeEntry e(pcol_a[r], pcol_b[r], r);
 					this->_trees[i].insert(e);

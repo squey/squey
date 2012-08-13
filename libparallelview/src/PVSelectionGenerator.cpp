@@ -21,7 +21,6 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_rect(PVZon
 	int32_t width = _zm.get_zone_width(zid);
 
 	PVZoneTree& ztree = _zm.get_zone_tree<PVZoneTree>(zid);
-	PVZoneTree::PVBranch* treeb = ztree.get_treeb();
 	PVParallelView::PVBCode code_b;
 
 	if (rect.isNull()) {
@@ -55,10 +54,11 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_rect(PVZon
 		if (is_line_selected)
 		{
 			ztree._sel_elts[branch] = r;
-			for (size_t i = 0; i < treeb[branch].count; i++) {
-				sel.set_bit_fast(treeb[branch].p[i]);
+			uint32_t branch_count = ztree.get_branch_count(branch);
+			for (size_t i = 0; i < branch_count; i++) {
+				sel.set_bit_fast(ztree.get_branch_element(branch, i));
 			}
-			nb_selected += treeb[branch].count;
+			nb_selected += branch_count;
 		}
 		else {
 			ztree._sel_elts[branch] = PVROW_INVALID_VALUE;
@@ -80,7 +80,6 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_sliders(
 	sel.select_none();
 
 	PVZoneTree& ztree = _zm.get_zone_tree<PVZoneTree>(zid);
-	PVZoneTree::PVBranch* treeb = ztree.get_treeb();
 
 	PVParallelView::PVBCode code_b;
 
@@ -105,10 +104,11 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_sliders(
 
 		if(is_line_selected) {
 			ztree._sel_elts[branch] = r;
-			for (size_t i = 0; i < treeb[branch].count; i++) {
-				sel.set_bit_fast(treeb[branch].p[i]);
+			uint32_t branch_count = ztree.get_branch_count(branch);
+			for (size_t i = 0; i < ztree.get_branch_count(branch); i++) {
+				sel.set_bit_fast(ztree.get_branch_element(branch, i));
 			}
-			nb_selected += treeb[branch].count;
+			nb_selected += branch_count;
 		}
 		else {
 			ztree._sel_elts[branch] = PVROW_INVALID_VALUE;

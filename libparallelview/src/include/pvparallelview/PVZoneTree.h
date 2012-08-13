@@ -37,8 +37,6 @@ class TBBMergeTreesTask;
 class TBBCreateTreeTask;
 class TBBComputeAllocSizeAndFirstElts;
 class TBBSelFilter;
-class TBBSelRowsFilter;
-class TBBReduceSelElts;
 }
 
 class PVZoneProcessing;
@@ -50,8 +48,6 @@ class PVZoneTree: public PVZoneTreeBase
 	friend class __impl::TBBMergeTreesTask;
 	friend class __impl::TBBComputeAllocSizeAndFirstElts;
 	friend class __impl::TBBSelFilter;
-	friend class __impl::TBBSelRowsFilter;
-	friend class __impl::TBBReduceSelElts;
 	friend class PVSelectionGenerator;
 
 public:
@@ -73,8 +69,6 @@ public:
 		friend class __impl::TBBMergeTreesTask;
 		friend class __impl::TBBComputeAllocSizeAndFirstElts;
 		friend class __impl::TBBSelFilter;
-		friend class __impl::TBBSelRowsFilter;
-		friend class __impl::TBBReduceSelElts;
 
 		ProcessData(uint32_t n = PVCore::PVHardwareConcurrency::get_physical_core_number()) : ntasks(n)
 		{
@@ -107,7 +101,7 @@ public:
 		uint32_t ntasks;
 	};
 
-public://protected:
+protected:
 	struct PVBranch
 	{
 		PVRow* p;
@@ -121,6 +115,7 @@ public://protected:
 			PVRow begin;
 			PVRow end;
 		};
+
 	public:
 		PVTreeParams(PVZoneProcessing const& zp, PVZoneTree::ProcessData& pdata, uint32_t max_val):
 			_zp(zp), _pdata(pdata)
@@ -142,11 +137,12 @@ public://protected:
 		{
 			delete [] _ranges;
 		}
+
 	public:
-		//inline PVZoneTree& ztree() const { return _ztree; }
 		inline PVZoneProcessing const& zp() const { return _zp; }
 		inline ProcessData& pdata() const { return _pdata; }
 		inline const PVRange& range(uint32_t task_num) const { return _ranges[task_num]; }
+
 	private:
 		PVZoneProcessing const& _zp;
 		ProcessData& _pdata;
@@ -169,7 +165,6 @@ public://protected:
 			ProcessData& _pdata;
 		};
 
-
 public:
 	PVZoneTree();
 	virtual ~PVZoneTree() { }
@@ -178,11 +173,21 @@ public:
 	inline void process(PVZoneProcessing const& zp, ProcessData& pdata) { process_tbb_sse_treeb(zp, pdata); }
 	inline void process(PVZoneProcessing const& zp) { process_tbb_sse_treeb(zp); }
 	inline void filter_by_sel(Picviz::PVSelection const& sel) { filter_by_sel_tbb_treeb(sel); }
-	//inline void filter_by_sel_new(PVZoneProcessing const& zp, const Picviz::PVSelection& sel) { filter_by_sel_tbb_treeb_new(zp, sel); }
 
-	///
-	PVBranch* get_treeb() {return _treeb;}
-	///
+	inline uint32_t get_branch_count(uint32_t branch_id) const
+	{
+		return _treeb[branch_id].count;
+	}
+
+	inline uint32_t get_branch_element(uint32_t branch_id, uint32_t i) const
+	{
+		return _treeb[branch_id].p[i];
+	}
+
+	inline uint32_t set_branch_element(uint32_t branch_id, uint32_t i, uint32_t value)
+	{
+		return _treeb[branch_id].p[i] = value;
+	}
 
 public:
 	void process_omp_sse_treeb(PVZoneProcessing const& zp);
