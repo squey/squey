@@ -42,6 +42,7 @@ simple_lines_float_view.cpp
 simple_lines_int_view.cpp
 PVAxisGraphicsItem.cpp
 PVAxisSlider.cpp
+PVSelectionGenerator.cpp
 PVQuadTree.cpp
 )
 
