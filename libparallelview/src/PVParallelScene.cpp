@@ -68,9 +68,6 @@ void PVParallelView::PVParallelScene::wheelEvent(QGraphicsSceneWheelEvent* event
 		const PVZoneID zid = mouse_zid;
 		wait_end_current_job();
 		uint32_t z_width = _lines_view->get_zone_width(zid);
-		PVZoneID zid1, zid2;
-		double factor1, factor2;
-		begin_update_selection_square(zid1, factor1, zid2, factor2);
 		if (_lines_view->set_zone_width(zid, z_width+zoom)) {
 			update_zones_position(false);
 			launch_job_future([&](PVRenderingJob& rendering_job)
@@ -79,7 +76,7 @@ void PVParallelView::PVParallelScene::wheelEvent(QGraphicsSceneWheelEvent* event
 				}
 			);
 		}
-		end_update_selection_square(zid1, factor1, zid2, factor2);
+		update_zones_position();
 
 		//if (_lines_view->set_zone_width_and_render(zid, z_width + zoom)) {
 		//}
@@ -93,12 +90,8 @@ void PVParallelView::PVParallelScene::wheelEvent(QGraphicsSceneWheelEvent* event
 		int32_t zone_x = map_to_axis(zmouse, mouse_scene_pt).x();
 		int32_t mouse_view_x = view()->mapFromScene(mouse_scene_pt).x();
 
-		PVZoneID zid1, zid2;
-		double factor1, factor2;
-		begin_update_selection_square(zid1, factor1, zid2, factor2);
 		_lines_view->set_all_zones_width([=](uint32_t width){ return width+zoom; });
 		update_zones_position();
-		end_update_selection_square(zid1, factor1, zid2, factor2);
 
 		// Compute the new view x coordinate
 		//zone_x += zoom;

@@ -69,32 +69,6 @@ private:
 		return (PVParallelView::PVFullParallelView*) parent();
 	}
 
-	void begin_update_selection_square(PVZoneID& z1, double& factor1, PVZoneID& z2, double& factor2)
-	{
-		uint32_t abs_left = _selection_square->rect().topLeft().x();
-		uint32_t abs_right = _selection_square->rect().bottomRight().x();
-		z1 = _lines_view->get_zone_from_scene_pos(abs_left);
-		uint32_t z1_width = _lines_view->get_zone_width(z1);
-		uint32_t alpha = map_to_axis(z1, QPointF(abs_left, 0)).x();
-		factor1 = (double) alpha / z1_width;
-		z2 = _lines_view->get_zone_from_scene_pos(abs_right);
-		uint32_t z2_width = _lines_view->get_zone_width(z2);
-		uint32_t beta = map_to_axis(z2, QPointF(abs_right, 0)).x();
-		factor2 = (double) beta / z2_width;
-	}
-
-	void end_update_selection_square(PVZoneID z1, double factor1, PVZoneID z2, double factor2)
-	{
-		uint32_t new_left = _lines_view->get_zones_manager().get_zone_absolute_pos(z1) + (double) _lines_view->get_zone_width(z1) * factor1;
-		uint32_t new_right = _lines_view->get_zones_manager().get_zone_absolute_pos(z2) + (double) _lines_view->get_zone_width(z2) * factor2;
-		uint32_t abs_top = _selection_square->rect().topLeft().y();
-		uint32_t abs_bottom = _selection_square->rect().bottomRight().y();
-
-		_selection_square->blockSignals(true);
-		_selection_square->setRect(QRectF(QPointF(new_left, abs_top), QPointF(new_right, abs_bottom)));
-		_selection_square->blockSignals(false);
-	}
-
 	void update_zones_position(bool update_all = true)
 	{
 		PVParallelView::PVLinesView::list_zone_images_t images = _lines_view->get_zones_images();
@@ -122,6 +96,44 @@ private:
 
 			_axes[z]->setPos(QPointF(pos - PVParallelView::AxisWidth, 0));
 		}
+
+		update_selection_square();
+	}
+
+	void store_selection_square()
+	{
+		PVZoneID& zid1 = _selection_barycenter.zid1;
+		PVZoneID& zid2 = _selection_barycenter.zid2;
+		double& factor1 = _selection_barycenter.factor1;
+		double& factor2 = _selection_barycenter.factor2;
+
+		uint32_t abs_left = _selection_square->rect().topLeft().x();
+		uint32_t abs_right = _selection_square->rect().bottomRight().x();
+
+		zid1 = _lines_view->get_zone_from_scene_pos(abs_left);
+		uint32_t z1_width = _lines_view->get_zone_width(zid1);
+		uint32_t alpha = map_to_axis(zid1, QPointF(abs_left, 0)).x();
+		factor1 = (double) alpha / z1_width;
+
+		zid2 = _lines_view->get_zone_from_scene_pos(abs_right);
+		uint32_t z2_width = _lines_view->get_zone_width(zid2);
+		uint32_t beta = map_to_axis(zid2, QPointF(abs_right, 0)).x();
+		factor2 = (double) beta / z2_width;
+	}
+
+	void update_selection_square()
+	{
+		PVZoneID zid1 = _selection_barycenter.zid1;
+		PVZoneID zid2 = _selection_barycenter.zid2;
+		double factor1 = _selection_barycenter.factor1;
+		double factor2 = _selection_barycenter.factor2;
+
+		uint32_t new_left = _lines_view->get_zones_manager().get_zone_absolute_pos(zid1) + (double) _lines_view->get_zone_width(zid1) * factor1;
+		uint32_t new_right = _lines_view->get_zones_manager().get_zone_absolute_pos(zid2) + (double) _lines_view->get_zone_width(zid2) * factor2;
+		uint32_t abs_top = _selection_square->rect().topLeft().y();
+		uint32_t abs_bottom = _selection_square->rect().bottomRight().y();
+
+		_selection_square->setRect(QRectF(QPointF(new_left, abs_top), QPointF(new_right, abs_bottom)));
 	}
 
 	bool sliders_moving() const
@@ -177,9 +189,9 @@ private:
 				// Remove selection
 				_selection_square->clear_rect();
 			}
-
 			commit_volatile_selection();
 		}
+
 		QGraphicsScene::mouseReleaseEvent(event);
 	}
 
@@ -301,6 +313,8 @@ private slots:
 				return _lines_view->update_sel_from_zone(view()->width(), zid, _sel, rendering_job);
 			}
 		);
+
+		store_selection_square();
 	}
 
 private:
@@ -323,6 +337,14 @@ private:
 		}
 	};
 
+	struct SelectionBarycenter
+	{
+		PVZoneID zid1;
+		PVZoneID zid2;
+		double factor1;
+		double factor2;
+	};
+
     PVParallelView::PVLinesView* _lines_view;
     qreal _translation_start_x;
 
@@ -334,11 +356,14 @@ private:
 	QFuture<void> _sel_rendering_future;
     
 	PVSelectionSquareGraphicsItem* _selection_square;
+	SelectionBarycenter _selection_barycenter;
 	PVParallelView::PVSelectionGenerator _selection_generator;
 
     QPointF _selection_square_pos;
 
     Picviz::PVSelection _sel;
+
+
 };
 
 }
