@@ -25,6 +25,7 @@ class PVRenderingJob;
 class PVFullParallelView : public QGraphicsView
 {
 	Q_OBJECT
+
 public:
 	PVFullParallelView()
 	{

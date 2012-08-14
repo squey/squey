@@ -204,11 +204,6 @@ public:
 	{
 	}
 
-	TBBSelFilter(TBBSelFilter& x, tbb::split) :  _tree(x._tree), _sel_buf(x._sel_buf)
-	{}
-
-public:
-
 	void operator() (const tbb::blocked_range<size_t>& range) const
 	{
 		for (PVRow b = range.begin(); b != range.end(); ++b) {

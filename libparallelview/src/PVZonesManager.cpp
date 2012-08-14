@@ -41,8 +41,7 @@ private:
 
 } }
 
-PVParallelView::PVZonesManager::PVZonesManager():
-	_uint_plotted(NULL)
+PVParallelView::PVZonesManager::PVZonesManager()
 {
 }
 
@@ -81,8 +80,8 @@ void PVParallelView::PVZonesManager::update_all()
 
 
 		BENCH_START(zztree);
-		// Create Zoomed Zone Tree (serial)
 #if 1
+		// Create Zoomed Zone Tree (serial)
 		for (PVZoneID z = 0; z < nzones; z++) {
 			get_zone_cols(z, zp.col_a(), zp.col_b());
 			PVZoneTree& ztree = _zones[z].ztree();

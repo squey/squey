@@ -49,7 +49,6 @@ private:
 		_rendering_job->reset();
 		_rendering_future = f(*_rendering_job);
 	}
-
 	void cancel_current_job();
 	void wait_end_current_job();
 
