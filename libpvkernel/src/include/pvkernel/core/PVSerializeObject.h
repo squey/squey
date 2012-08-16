@@ -9,6 +9,7 @@
 
 #include <pvkernel/core/stdint.h>
 #include <pvkernel/core/PVArgument.h>
+#include <pvkernel/core/PVDataTreeAutoShared.h>
 #include <pvkernel/core/PVSerializeArchiveExceptions.h>
 #include <pvkernel/core/PVTypeTraits.h>
 #include <pvkernel/core/PVTypeInfo.h>
@@ -26,7 +27,6 @@ namespace PVCore {
 
 class PVSerializeArchive;
 class PVSerializeArchiveFixError;
-template <typename T> class PVDataTreeAutoShared;
 
 typedef boost::shared_ptr<PVSerializeArchive> PVSerializeArchive_p;
 
