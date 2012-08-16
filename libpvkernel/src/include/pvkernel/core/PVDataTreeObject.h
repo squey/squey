@@ -235,6 +235,7 @@ public:
 	template <typename Tancestor = parent_t>
 	inline Tancestor* get_parent()
 	{
+		static_assert(std::is_same<Tancestor, real_type_t>::value == false, "PVDataTreeObject::get_parent: one object is asking itself as a parent.");
 		return GetParentImpl<parent_t, Tancestor>::get_parent(_parent);
 	}
 	template <typename Tancestor = parent_t>
