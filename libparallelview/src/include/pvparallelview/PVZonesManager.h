@@ -105,9 +105,9 @@ protected:
 	inline Picviz::PVPlotted::uint_plotted_table_t const& get_uint_plotted() const { assert(_uint_plotted); return *_uint_plotted; }
 
 protected:
-	Picviz::PVPlotted::uint_plotted_table_t const* _uint_plotted;
-	PVRow _nrows;
-	PVCol _ncols;
+	Picviz::PVPlotted::uint_plotted_table_t const* _uint_plotted = NULL;
+	PVRow _nrows = 0;
+	PVCol _ncols = 0;
 	QVector<PVCol> _axes_comb;
 	list_zones_t _zones;
 	process_ztree_tls_t _tls_ztree;

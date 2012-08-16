@@ -227,10 +227,9 @@ void PVParallelView::PVFullParallelScene::wheelEvent(QGraphicsSceneWheelEvent* e
 		if (_lines_view->set_zone_width(zid, z_width+zoom)) {
 			update_zones_position(false);
 			launch_job_future([&](PVRenderingJob& rendering_job)
-				{
+			{
 				return _lines_view->render_zone_all_imgs(zid, rendering_job);
-				}
-			);
+			});
 		}
 		update_zones_position();
 	}
@@ -253,10 +252,9 @@ void PVParallelView::PVFullParallelScene::wheelEvent(QGraphicsSceneWheelEvent* e
 		view()->horizontalScrollBar()->setValue(view_x);
 
 		launch_job_future([&](PVRenderingJob& rendering_job)
-		  {
-		  return _lines_view->render_all(view_x, view()->width(), rendering_job);
-		  }
-		);
+		{
+			return _lines_view->render_all(view_x, view()->width(), rendering_job);
+		});
 	}
 	event->accept();
 }
@@ -350,8 +348,8 @@ void PVParallelView::PVFullParallelScene::commit_volatile_selection_Slot()
 	QRect r = map_to_axis(zid, _selection_square->rect());
 
 	cancel_current_job();
-	uint32_t nb_select = _selection_generator.compute_selection_from_rect(zid, r, _sel);
-	view()->set_selected_line_number(nb_select);
+	uint32_t nb_selected_lines = _selection_generator.compute_selection_from_rect(zid, r, _sel);
+	view()->set_selected_line_number(nb_selected_lines);
 	launch_job_future([&](PVRenderingJob& rendering_job)
 		{
 			return _lines_view->update_sel_from_zone(view()->width(), zid, _sel, rendering_job);
