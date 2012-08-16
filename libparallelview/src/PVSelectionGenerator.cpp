@@ -15,7 +15,6 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_rect(PVZon
 {
 	uint32_t nb_selected = 0;
 
-	BENCH_START(compute_selection_from_rect);
 
 	sel.select_none();
 	int32_t width = _zm.get_zone_width(zid);
@@ -28,8 +27,10 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_rect(PVZon
 		return 0;
 	}
 
+	BENCH_START(compute_selection_from_rect);
 	PVLineEqInt line;
 	line.b = -width;
+#pragma omp parallel for num_threads(12) reduction(+:nb_selected)
 	for (uint32_t branch = 0 ; branch < NBUCKETS; branch++)
 	{
 		PVRow r =  ztree.get_first_elt_of_branch(branch);
@@ -56,7 +57,10 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_rect(PVZon
 			ztree._sel_elts[branch] = r;
 			uint32_t branch_count = ztree.get_branch_count(branch);
 			for (size_t i = 0; i < branch_count; i++) {
-				sel.set_bit_fast(ztree.get_branch_element(branch, i));
+				const PVRow cur_r = ztree.get_branch_element(branch, i);
+#pragma omp atomic
+				//sel.set_bit_fast(cur_r);
+				sel.get_buffer()[Picviz::PVSelection::line_index_to_chunk(cur_r)] |= 1UL<<Picviz::PVSelection::line_index_to_chunk_bit(cur_r);
 			}
 			nb_selected += branch_count;
 		}
@@ -64,7 +68,7 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_rect(PVZon
 			ztree._sel_elts[branch] = PVROW_INVALID_VALUE;
 		}
 	}
-	BENCH_END(compute_selection_from_rect, "compute_selection", 1, 1, 1, 1);
+	BENCH_END(compute_selection_from_rect, "compute_selection", sizeof(PVRow), NBUCKETS, 1, 1);
 
 	return nb_selected;
 }
