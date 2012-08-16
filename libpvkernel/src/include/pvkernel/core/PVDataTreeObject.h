@@ -323,6 +323,8 @@ private:
 	parent_t* _parent;
 };
 
+}
+
 class PVDataTreeObjectBase
 {
 public:
@@ -332,8 +334,6 @@ public:
 	virtual QString get_serialize_description() { return QString(); }
 };
 
-}
-
 /*! \brief Data tree object base class.
  *
  * This class is the base class for all objects of the data tree.
@@ -342,14 +342,16 @@ template <typename Tparent, typename Tchild>
 class PVDataTreeObject: public PVEnableSharedFromThis<typename Tparent::child_t >,
                         public __impl::PVDataTreeObjectWithChildren<Tchild, typename Tparent::child_t>,
 						public __impl::PVDataTreeObjectWithParent<Tparent, typename Tparent::child_t>,
-						public __impl::PVDataTreeObjectBase
+						public PVDataTreeObjectBase
 {
 	typedef __impl::PVDataTreeObjectWithChildren<Tchild, typename Tparent::child_t> impl_children_t;
 	typedef __impl::PVDataTreeObjectWithParent<Tparent, typename Tparent::child_t>  impl_parent_t;
 
-public:
 	template<typename T1, typename T2> friend class PVDataTreeObject;
-	static constexpr bool has_parent = true;
+
+public:
+	static constexpr bool has_parent   = true;
+	static constexpr bool has_children = true;
 
 public:
 	typedef typename impl_children_t::child_t    child_t;
@@ -386,12 +388,16 @@ public:
 template <typename Troot, typename Tchild>
 class PVDataTreeObject<PVDataTreeNoParent<Troot>, Tchild>: public PVEnableSharedFromThis<Troot>,
                                                            public __impl::PVDataTreeObjectWithChildren<Tchild, Troot>,
-                                                           public __impl::PVDataTreeObjectBase
+                                                           public PVDataTreeObjectBase
 {
 	typedef __impl::PVDataTreeObjectWithChildren<Tchild, Troot> impl_children_t;
 	typedef __impl::PVDataTreeObjectWithChildren<Tchild, Troot> impl_base_t;
-public:
+	
 	template<typename T1, typename T2> friend class PVDataTreeObject;
+
+public:
+	static constexpr bool has_parent   = false;
+	static constexpr bool has_children = true;
 
 public:
 	typedef typename impl_children_t::child_t    child_t;
@@ -399,7 +405,6 @@ public:
 	typedef typename impl_children_t::children_t children_t;
 
 	typedef PVDataTreeObject<PVDataTreeNoParent<Troot>, child_t> data_tree_t;
-	static constexpr bool has_parent = false;
 
 private:
 	typedef Troot real_type_t;
@@ -425,16 +430,18 @@ public:
 template <typename Tparent, typename Treal>
 class PVDataTreeObject<Tparent, PVDataTreeNoChildren<Treal> >: public PVEnableSharedFromThis<Treal>,
                                                                public __impl::PVDataTreeObjectWithParent<Tparent, Treal>,
-                                                               public __impl::PVDataTreeObjectBase
+                                                               public PVDataTreeObjectBase
 {
 	typedef __impl::PVDataTreeObjectWithParent<Tparent, Treal> impl_parent_t;
 
-public:
 	template<typename T1, typename T2> friend class PVDataTreeObject;
 
 public:
+	static constexpr bool has_parent   = true;
+	static constexpr bool has_children = false;
+
+public:
 	typedef PVDataTreeObject<Tparent, PVDataTreeNoChildren<Treal> > data_tree_t;
-	static constexpr bool has_parent = true;
 
 private:
 	typedef Treal real_type_t;
