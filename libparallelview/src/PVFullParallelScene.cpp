@@ -20,9 +20,17 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(QObject* parent, PVPara
 
 	connect(view()->horizontalScrollBar(), SIGNAL(sliderPressed()), this, SLOT(scrollbar_pressed_Slot()));
 	connect(view()->horizontalScrollBar(), SIGNAL(sliderReleased()), this, SLOT(scrollbar_released_Slot()));
-	//connect(_rendering_job, SIGNAL(zone_rendered(int)), this, SLOT(update_zone_pixmap_Slot(int)));
-
 	connect(_selection_square, SIGNAL(commit_volatile_selection()), this, SLOT(commit_volatile_selection_Slot()));
+
+	PVHive::PVHive::get().register_func_observer(
+		_lines_view->get_zones_drawing(),
+		_draw_zone_observer
+	);
+
+	PVHive::PVHive::get().register_func_observer(
+		_lines_view->get_zones_drawing(),
+		_draw_zone_sel_observer
+	);
 
 	PVParallelView::PVLinesView::list_zone_images_t images = _lines_view->get_zones_images();
 
@@ -63,9 +71,6 @@ void PVParallelView::PVFullParallelScene::first_render()
 {
 	// AG & JBL: FIXME: This must be called after the view has been shown.
 	// It seems like a magical QAbstractScrollbarArea stuff, investigation needed...
-	uint32_t view_x = view()->horizontalScrollBar()->value();
-	uint32_t view_width = view()->width();
-	_lines_view->render_all(view_x, view_width);
 
 	PVParallelView::PVLinesView::list_zone_images_t images = _lines_view->get_zones_images();
 
@@ -82,6 +87,10 @@ void PVParallelView::PVFullParallelScene::first_render()
 			zi.setPos(QPointF(_lines_view->get_zone_absolute_pos(real_zone), 0));
 		}
 	}
+
+	uint32_t view_x = view()->horizontalScrollBar()->value();
+	uint32_t view_width = view()->width();
+	_lines_view->render_all(view_x, view_width);
 }
 
 void PVParallelView::PVFullParallelScene::update_zones_position(bool update_all /*= true*/)
@@ -261,7 +270,7 @@ void PVParallelView::PVFullParallelScene::wheelEvent(QGraphicsSceneWheelEvent* e
 	event->accept();
 }
 
-void PVParallelView::PVFullParallelScene::update_zone_pixmap_Slot(int zid)
+void PVParallelView::PVFullParallelScene::update_zone_pixmap_Slot(PVZoneID zid)
 {
 	if (!_lines_view->is_zone_drawn(zid)) {
 		return;
@@ -359,4 +368,16 @@ void PVParallelView::PVFullParallelScene::commit_volatile_selection_Slot()
 	);
 
 	store_selection_square();
+}
+
+void PVParallelView::draw_zone_Observer::update(const arguments_type& args) const
+{
+	PVZoneID zid = args.get_arg<2>();
+	_full_parallel_scene->update_zone_pixmap_Slot(zid);
+}
+
+void PVParallelView::draw_zone_sel_Observer::update(const arguments_type& args) const
+{
+	PVZoneID zid = args.get_arg<2>();
+	_full_parallel_scene->update_zone_pixmap_Slot(zid);
 }

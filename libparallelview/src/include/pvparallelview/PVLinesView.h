@@ -12,6 +12,7 @@
 #include <pvparallelview/PVRenderingJob.h>
 #include <pvparallelview/PVZonesDrawing.h>
 #include <pvkernel/core/PVAlgorithms.h>
+#include <pvhive/PVCallHelper.h>
 
 #include <QFuture>
 
@@ -101,7 +102,7 @@ public:
 	}
 	bool set_zone_width_and_render(PVZoneID z, uint32_t width);
 
-	//inline const zones_drawing_sp get_zones_drawing() const { return _zd; }
+	inline zones_drawing_sp& get_zones_drawing() { return _zd; }
 	inline const PVZonesManager& get_zones_manager() const { return _zd->get_zones_manager(); }
 	inline PVZonesManager& get_zones_manager() { return _zd->get_zones_manager(); }
 	inline uint32_t get_zone_width(PVZoneID z) const { return _zd->get_zone_width(z); }
@@ -304,6 +305,8 @@ private:
 	int32_t _visible_view_x;
 
 	list_zone_images_t _zones_imgs;
+	typedef PVHive::PVHiveFuncCaller<FUNC(PVLinesView::zones_drawing_t::draw_zone<decltype(&PVParallelView::PVZoneTree::browse_tree_bci_sel)>)> draw_zone_sel_caller_t;
+	typedef PVHive::PVHiveFuncCaller<FUNC(PVLinesView::zones_drawing_t::draw_zone<decltype(&PVParallelView::PVZoneTree::browse_tree_bci)>)> draw_zone_caller_t;
 };
 
 }

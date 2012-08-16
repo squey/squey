@@ -136,6 +136,9 @@ private slots:
 
 	void destroy()
 	{
+		// To destroy the view, we need to remove it from the DataTree first...
+		_view_p->get_parent()->remove_child(*_view_p.get());
+		// ... and then reset its last shared_ptr
 		_view_p.reset();
 	}
 
