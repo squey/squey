@@ -23,16 +23,32 @@
 
 namespace PVParallelView {
 
-class draw_zone_Observer: public PVHive::PVFuncObserver<typename PVLinesView::zones_drawing_t, FUNC(PVLinesView::zones_drawing_t::draw_zone<decltype(&PVParallelView::PVZoneTree::browse_tree_bci_sel)>)>
+class draw_zone_Observer: public PVHive::PVFuncObserver<typename PVLinesView::zones_drawing_t, FUNC(PVLinesView::zones_drawing_t::draw_zone<decltype(&PVParallelView::PVZoneTree::browse_tree_bci)>)>
 {
+public:
+	draw_zone_Observer(PVFullParallelScene* full_parallel_scene) : _full_parallel_scene(full_parallel_scene) {}
 protected:
-	virtual void update(arguments_type const& args) const { PVLOG_INFO("draw_zone_Observer::update\n"); }
+	virtual void update(arguments_type const& args) const;
+private:
+	PVFullParallelScene* _full_parallel_scene;
+};
+
+class draw_zone_sel_Observer: public PVHive::PVFuncObserver<typename PVLinesView::zones_drawing_t, FUNC(PVLinesView::zones_drawing_t::draw_zone<decltype(&PVParallelView::PVZoneTree::browse_tree_bci_sel)>)>
+{
+public:
+	draw_zone_sel_Observer(PVFullParallelScene* full_parallel_scene) : _full_parallel_scene(full_parallel_scene) {}
+protected:
+	virtual void update(arguments_type const& args) const;
+private:
+	PVFullParallelScene* _full_parallel_scene;
 };
 
 class PVFullParallelScene : public QGraphicsScene
 {
 	Q_OBJECT
 
+	friend class draw_zone_Observer;
+	friend class draw_zone_sel_Observer;
 public:
 	PVFullParallelScene(QObject* parent, PVParallelView::PVLinesView* lines_view);
 	virtual ~PVFullParallelScene();
@@ -119,6 +135,9 @@ private:
 	Picviz::PVSelection _sel;
     QPointF _selection_square_pos;
     qreal _translation_start_x;
+
+    draw_zone_Observer _draw_zone_observer = draw_zone_Observer(this);
+    draw_zone_sel_Observer _draw_zone_sel_observer = draw_zone_sel_Observer(this);
 };
 
 }

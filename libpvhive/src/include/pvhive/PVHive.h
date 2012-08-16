@@ -507,8 +507,8 @@ protected:
 	void unregister_object(void *object);
 
 private:
-	template <bool about, typename T, typename F, F f, typename... Params>
-	void process_func_observers(T const* object, Params && ... /*params*/)
+	template <bool about, typename T, typename F, F f, typename... P>
+	void process_func_observers(T const* object, P && ... params)
 	{
 		// object must be a valid address
 		assert(object != nullptr);
@@ -523,7 +523,7 @@ private:
 
 		// Get the argument list type
 		typename cur_func_observer_t::arguments_type args;
-		//args.set_args(std::forward<P>(params)...);
+		args.set_args(std::forward<P>(params)...);
 
 		// Get function observers
 		func_observers_t const& fobs(acc->second.func_observers);
