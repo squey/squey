@@ -40,8 +40,12 @@ public:
 	 * Constructor
 	 */
 	PVLinesProperties();
-
 	PVLinesProperties(const PVLinesProperties & rhs);
+	PVLinesProperties(PVLinesProperties&& rhs)
+	{
+		table = rhs.table;
+		rhs.table = NULL;
+	}
 
 	/**
 	 * Destructor

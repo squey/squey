@@ -791,17 +791,17 @@ void Picviz::PVView::process_selection()
 			break;
 
 		case Picviz::PVStateMachine::AREA_MODE_ADD_VOLATILE:
-			pre_filter_layer.get_selection() = floating_selection | volatile_selection;
+			pre_filter_layer.get_selection() = std::move(floating_selection | volatile_selection);
 //			floating_selection.AB2C_or(volatile_selection, pre_filter_layer->selection);
 			break;
 
 		case Picviz::PVStateMachine::AREA_MODE_SUBSTRACT_VOLATILE:
-			pre_filter_layer.get_selection() = floating_selection - volatile_selection ;
+			pre_filter_layer.get_selection() = std::move(floating_selection - volatile_selection);
 			//floating_selection.AB2C_substraction(volatile_selection, pre_filter_layer->selection);
 			break;
 
 		case Picviz::PVStateMachine::AREA_MODE_INTERSECT_VOLATILE:
-			pre_filter_layer.get_selection() = floating_selection & volatile_selection;
+			pre_filter_layer.get_selection() = std::move(floating_selection & volatile_selection);
 		//	floating_selection.AB2C_and(volatile_selection, pre_filter_layer->selection);
 			break;
 
