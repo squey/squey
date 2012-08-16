@@ -8,6 +8,7 @@
 
 #define CRAND() (127 + (random() & 0x7F))
 
+
 PVParallelView::PVFullParallelScene::PVFullParallelScene(QObject* parent, PVParallelView::PVLinesView* lines_view) :
 	QGraphicsScene(parent),
 	_lines_view(lines_view),
@@ -19,7 +20,8 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(QObject* parent, PVPara
 
 	connect(view()->horizontalScrollBar(), SIGNAL(sliderPressed()), this, SLOT(scrollbar_pressed_Slot()));
 	connect(view()->horizontalScrollBar(), SIGNAL(sliderReleased()), this, SLOT(scrollbar_released_Slot()));
-	connect(_rendering_job, SIGNAL(zone_rendered(int)), this, SLOT(update_zone_pixmap_Slot(int)));
+	//connect(_rendering_job, SIGNAL(zone_rendered(int)), this, SLOT(update_zone_pixmap_Slot(int)));
+
 	connect(_selection_square, SIGNAL(commit_volatile_selection()), this, SLOT(commit_volatile_selection_Slot()));
 
 	PVParallelView::PVLinesView::list_zone_images_t images = _lines_view->get_zones_images();

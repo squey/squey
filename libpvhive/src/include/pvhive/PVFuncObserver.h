@@ -29,7 +29,7 @@ protected:
  *
  * A template class to specify observers on a given type/class, filtered by a function of this class.
  *
- * All subclasses must implements PVObserverBase::update()
+ * All subclasses must implements PVObserverBase::update() and/or PVObserverBase::about_to_be_updated()
  * 
  */
 template <class T, class F, F f>

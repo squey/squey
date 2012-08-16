@@ -18,7 +18,16 @@
 #include <pvparallelview/PVFullParallelView.h>
 #include <pvparallelview/PVLinesView.h>
 
+#include <pvhive/PVCallHelper.h>
+#include <pvhive/PVFuncObserver.h>
+
 namespace PVParallelView {
+
+class draw_zone_Observer: public PVHive::PVFuncObserver<typename PVLinesView::zones_drawing_t, FUNC(PVLinesView::zones_drawing_t::draw_zone<decltype(&PVParallelView::PVZoneTree::browse_tree_bci_sel)>)>
+{
+protected:
+	virtual void update(arguments_type const& args) const { PVLOG_INFO("draw_zone_Observer::update\n"); }
+};
 
 class PVFullParallelScene : public QGraphicsScene
 {

@@ -22,7 +22,7 @@
 PVHIVE_CALL_OBJECT_BLOCK_BEGIN()
 
 template <>
-void PVHive::PVHive::call_object<MyObject, decltype(&MyObject::set_prop), &MyObject::set_prop, boost::reference_wrapper<ObjectProperty const> >(MyObject* o, boost::reference_wrapper<ObjectProperty const> p)
+void PVHive::PVHive::call_object<MyObject, decltype(&MyObject::set_prop), &MyObject::set_prop, ObjectProperty&>(MyObject* o, ObjectProperty& p)
 {
 	std::cout << "  PVHive::call_object for MyObject::set_prop" << std::endl;
 	std::cout << "    in thread " << boost::this_thread::get_id() << std::endl;
@@ -30,15 +30,7 @@ void PVHive::PVHive::call_object<MyObject, decltype(&MyObject::set_prop), &MyObj
 	refresh_observers(&o->get_prop());
 }
 
-template <>
-void PVHive::PVHive::call_object<MyObject, decltype(&MyObject::set_prop), &MyObject::set_prop, ObjectProperty>(MyObject* o, ObjectProperty p)
-{
-	std::cout << "  PVHive::call_object for MyObject::set_prop, non const& version" << std::endl;
-	std::cout << "    in thread " << boost::this_thread::get_id() << std::endl;
-	call_object_default<MyObject, decltype(&MyObject::set_prop), &MyObject::set_prop, ObjectProperty>(o, p);
-	refresh_observers(&o->get_prop());
-}
-
+/*
 template <>
 void PVHive::PVHive::call_object<MyObject, decltype(&MyObject::set_i), &MyObject::set_i, int>(MyObject* o, int i)
 {
@@ -53,7 +45,7 @@ void PVHive::PVHive::call_object<MyObject, decltype(&MyObject::set_i2), &MyObjec
 	std::cout << "  PVHive::call_object for MyObject::set_i2" << std::endl;
 	std::cout << "    in thread " << boost::this_thread::get_id() << std::endl;
 	call_object_default<MyObject, decltype(&MyObject::set_i2), &MyObject::set_i2, int>(o, i);
-}
+}*/
 
 PVHIVE_CALL_OBJECT_BLOCK_END()
 

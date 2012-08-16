@@ -21,6 +21,8 @@
 #include <pvparallelview/PVFullParallelScene.h>
 #include <pvparallelview/PVFullParallelView.h>
 
+#include <pvkernel/core/PVSharedPointer.h>
+
 #include <QApplication>
 
 void usage(const char* path)
@@ -85,10 +87,9 @@ int main(int argc, char** argv)
 	zm.update_all();
 
 	PVParallelView::PVBCIDrawingBackendCUDA<NBITS_INDEX> backend_cuda;
-	PVParallelView::PVLinesView::zones_drawing_t &zones_drawing = *(new PVParallelView::PVLinesView::zones_drawing_t(zm, backend_cuda, *colors));
+	PVParallelView::PVLinesView::zones_drawing_sp zones_drawing_sp(new PVParallelView::PVLinesView::zones_drawing_t(zm, backend_cuda, *colors));
 
-	PVParallelView::PVLinesView &lines_view = *(new PVParallelView::PVLinesView(zones_drawing, 30));
-
+	PVParallelView::PVLinesView &lines_view = *(new PVParallelView::PVLinesView(zones_drawing_sp, 30));
 	PVParallelView::PVFullParallelView view;
 	PVParallelView::PVFullParallelScene* scene = new PVParallelView::PVFullParallelScene(&view, &lines_view);
 	view.setViewport(new QWidget());

@@ -31,6 +31,7 @@ typedef PVCore::PVSharedPtr<Picviz::PVView> PVView_p;
 
 Picviz::PVSource_p create_src(const QString &path_file, const QString &path_format)
 {
+	Picviz::PVRoot_p root;
         // Input file
         PVRush::PVInputDescription_p file(new PVRush::PVFileDescription(path_file));
 
@@ -46,7 +47,8 @@ Picviz::PVSource_p create_src(const QString &path_file, const QString &path_form
                 return Picviz::PVSource_p();
         }
 
-        Picviz::PVSource_p src(PVRush::PVInputType::list_inputs() << file, sc_file, format);
+	Picviz::PVScene_p scene(root);
+        Picviz::PVSource_p src(scene, PVRush::PVInputType::list_inputs() << file, sc_file, format);
         src->get_extractor().get_agg().set_strict_mode(true);
         PVRush::PVControllerJob_p job = src->extract_from_agg_nlines(0, 200000);
         job->wait_end();
@@ -101,6 +103,8 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
+	PVCore::PVIntrinsics::init_cpuid();
+
 	init_env();
 	QApplication app(argc, argv);
 
@@ -111,7 +115,8 @@ int main(int argc, char** argv)
 	Picviz::PVMapped_p mapped(src);
 	Picviz::PVPlotted_p plotted(mapped);
 
-	PVCore::PVDataTreeAutoShared<Picviz::PVView> view_p(plotted->current_view()->shared_from_this());
+	Picviz::PVView_p view_p;
+	view_p->init_from_plotted(plotted.get(), false);
 
 	boost::thread th(boost::bind(thread, boost::ref(view_p)));
 

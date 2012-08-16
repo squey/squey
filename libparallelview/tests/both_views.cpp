@@ -90,9 +90,9 @@ int main(int argc, char** argv)
 	zm.update_all();
 
 	PVParallelView::PVBCIDrawingBackendCUDA<NBITS_INDEX> backend_cuda;
-	g_zones_drawing = new PVParallelView::PVLinesView::zones_drawing_t(zm, backend_cuda, *colors);
+	PVParallelView::PVLinesView::zones_drawing_sp zones_drawing_sp(new PVParallelView::PVLinesView::zones_drawing_t(zm, backend_cuda, *colors));
 
-	PVParallelView::PVLinesView &lines_view = *(new PVParallelView::PVLinesView(*g_zones_drawing, 15));
+	PVParallelView::PVLinesView &lines_view = *(new PVParallelView::PVLinesView(zones_drawing_sp, 15));
 
 	PVParallelView::PVFullParallelView view;
 	PVParallelView::PVFullParallelScene* scene = new PVParallelView::PVFullParallelScene(&view, &lines_view);
