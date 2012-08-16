@@ -145,6 +145,7 @@ void A::child_added(B& b)
 	b._a_was_here = true;
 }
 
+
 typedef typename PVCore::PVDataTreeObject<B, D> data_tree_c_t;
 class C : public data_tree_c_t
 {
@@ -242,6 +243,7 @@ private:
 	int _j;
 };
 
+
 typedef typename A::p_type A_p;
 typedef typename B::p_type B_p;
 typedef typename C::p_type C_p;
@@ -304,8 +306,6 @@ bool standard_use_case()
 	std::cout << std::endl;
 
 	bool parent_access = true;
-	parent_access &= my_assert(a1->get_parent() == nullptr);
-	parent_access &= my_assert(a2->get_parent() == nullptr);
 	parent_access &= my_assert(b1->get_parent() == a1.get());
 	parent_access &= my_assert(b2->get_parent() == a1.get());
 	parent_access &= my_assert(b3->get_parent() == a2.get());
@@ -333,7 +333,6 @@ bool standard_use_case()
 	children_access &= my_assert(b3->get_children().size() == 0);
 	auto c_children = c->get_children();
 	children_access &= my_assert(c_children.size() == 1 && c_children[0] == d);
-	children_access &= my_assert(d->get_children().size() == 0);
 	}
 	PVLOG_INFO("Children access passed: %d\n", children_access);
 
@@ -374,7 +373,6 @@ bool standard_use_case()
 	same_parent &= my_assert(b3->get_children().size() == 0);
 	auto c_children = c->get_children();
 	same_parent &= my_assert(c_children.size() == 1 && c_children[0] == d);
-	same_parent &= my_assert(d->get_children().size() == 0);
 	}
 
 	std::cout << "a1:" << std::endl;
@@ -399,7 +397,6 @@ bool standard_use_case()
 
 	{
 	// a1 <-> b2
-	changing_parent &= my_assert(a1->get_parent() == nullptr);
 	auto a1_children = a1->get_children();
 	changing_parent &= my_assert(a1_children.size() == 1);
 	changing_parent &= my_assert(a1_children[0] == b2);
@@ -407,7 +404,6 @@ bool standard_use_case()
 	changing_parent &= my_assert(b2->get_children().size() == 0);
 
 	// a2 <-> (b1, b3)
-	changing_parent &= my_assert(a2->get_parent() == nullptr);
 	auto a2_children = a2->get_children();
 	changing_parent &= my_assert(a2_children.size() == 2);
 	changing_parent &= my_assert(a2_children[0] == b3);
@@ -427,7 +423,6 @@ bool standard_use_case()
 	auto c_children = c->get_children();
 	changing_parent &= my_assert(c_children.size() == 1);
 	changing_parent &= my_assert(c_children[0] == d);
-	changing_parent &= my_assert(d->get_children().size() == 0);
 	}
 
 
@@ -447,7 +442,6 @@ bool standard_use_case()
 	bool changing_child = true;
 	{
 	// a1 <-> b2
-	changing_child &= my_assert(a1->get_parent() == nullptr);
 	auto a1_children = a1->get_children();
 	changing_child &= my_assert(a1_children.size() == 1 && a1_children[0] == b2);
 	changing_child &= my_assert(b2->get_parent() == a1.get());
@@ -481,7 +475,6 @@ bool standard_use_case()
 	bool create_with_parent_and_set_same_parent = true;
 	{
 		// a1 <-> b2
-		create_with_parent_and_set_same_parent &= my_assert(a1->get_parent() == nullptr);
 		auto a1_children = a1->get_children();
 		create_with_parent_and_set_same_parent &= my_assert(a1_children.size() == 1 && a1_children[0] == b2);
 
@@ -497,7 +490,6 @@ bool standard_use_case()
 		create_with_parent_and_set_same_parent &= my_assert(d->get_parent() == c.get());
 		auto c_children = c->get_children();
 		create_with_parent_and_set_same_parent &= my_assert(c_children.size() == 1 && c_children[0] == d);
-		create_with_parent_and_set_same_parent &= my_assert(d->get_children().size() == 0);
 	}
 
 	std::cout << "a1:" << std::endl;
@@ -515,7 +507,6 @@ bool standard_use_case()
 
 	bool removing_child = true;
 	{
-		removing_child &= my_assert(a1->get_parent() == nullptr);
 		removing_child &= my_assert(a1->get_children().size() == 0);
 	}
 
@@ -635,10 +626,8 @@ bool serialize_use_case()
 			hierarchical_serialization &= c_children.size() == 1;
 			if (hierarchical_serialization) {
 				auto d = c_children[0];
-				auto d_children = d->get_children();
 
 				// a1 <-> (b1, b2)
-				hierarchical_serialization &= my_assert(a1->get_parent() == nullptr);
 				hierarchical_serialization &= my_assert(a1_children.size() == 2 && a1_children[0] == b1 && a1_children[1] == b2);
 				hierarchical_serialization &= my_assert(b1->get_parent() == a1.get() && b2->get_parent() == a1.get());
 				hierarchical_serialization &= my_assert(b2_children.size() == 0);
@@ -651,7 +640,6 @@ bool serialize_use_case()
 				// c <-> d
 				hierarchical_serialization &= my_assert(d->get_parent() == c.get());
 				hierarchical_serialization &= my_assert(c_children.size() == 1 && c_children[0] == d);
-				hierarchical_serialization &= my_assert(d_children.size() == 0);
 
 				if (hierarchical_serialization) {
 
@@ -686,6 +674,7 @@ bool serialize_use_case()
  * Test case
  *
  *****************************************************************************/
+
 int main()
 {
 	return !(standard_use_case() && serialize_use_case());
