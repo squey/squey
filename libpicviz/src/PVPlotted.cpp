@@ -302,7 +302,7 @@ PVRow Picviz::PVPlotted::get_row_count() const
 
 PVCol Picviz::PVPlotted::get_column_count() const
 {
-	return get_parent<PVPlotted>()->get_column_count();
+	return get_parent<PVMapped>()->get_column_count();
 }
 
 PVRush::PVNraw::nraw_table& Picviz::PVPlotted::get_qtnraw()
