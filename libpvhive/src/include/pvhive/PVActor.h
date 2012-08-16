@@ -39,11 +39,11 @@ public:
 	 * @throw no_object
 	 */
 	template <typename F, F f, typename... P>
-	typename PVCore::PVTypeTraits::function_traits<F>::result_type call(P const& ... params)
+	typename PVCore::PVTypeTraits::function_traits<F>::result_type call(P && ... params)
 	{
 		T *object = (T*)get_object();
 		if (object != nullptr) {
-			return PVHive::get().call_object<T, F, f>(object, params...);
+			return PVHive::get().call_object<T, F, f>(object, std::forward<P>(params)...);
 		} else {
 			throw no_object("using an actor on a nullptr object");
 		}

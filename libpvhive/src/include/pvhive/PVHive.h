@@ -76,9 +76,9 @@ public:
 
 public:
 	template<typename... P>
-	void call(T* object, P const& ... params) { _result = (object->*f)(params...); }
-	result_type result() const { return std::move(_result); }
-	result_type default_value() const { return result_type(); }
+	inline void call(T* object, P && ... params) { _result = (object->*f)(std::forward<P>(params)...); }
+	inline result_type result() const { return std::move(_result); }
+	inline result_type default_value() const { return std::move(result_type()); }
 
 private:
 	result_type _result;
@@ -90,7 +90,7 @@ class PVCallReturn<T, F, f, true>
 {
 public:
 	template<typename... P>
-	void call(T* object, P const& ... params) { (object->*f)(params...); }
+	inline void call(T* object, P && ... params) { (object->*f)(std::forward<P>(params)...); }
 	void result() const {}
 	void default_value() const {}
 };
@@ -438,12 +438,13 @@ protected:
 	 * @param params the method parameters
 	 */
 	template <typename T, typename F, F f, typename... P>
-	typename PVCore::PVTypeTraits::function_traits<F>::result_type call_object(T* object, P... params)
+	typename PVCore::PVTypeTraits::function_traits<F>::result_type call_object(T* object, P && ... params)
 	{
+		std::cout << "call_object: " << __PRETTY_FUNCTION__ << std::endl;
 		// object must be a valid address
 		assert(object != nullptr);
 
-		return call_object_default<T, F, f>(object, params...);
+		return call_object_default<T, F, f>(object, std::forward<P>(params)...);
 	}
 
 	/**
@@ -480,10 +481,10 @@ protected:
 	 * @param object the observed object
 	 * @param params the f_hiveunction parameters
 	 */
-	template <typename T, typename F, F f, typename... Params>
-	void about_to_refresh_func_observers(T const* object, Params const& ... params)
+	template <typename T, typename F, F f, typename... P>
+	void about_to_refresh_func_observers(T const* object, P && ... params)
 	{
-		process_func_observers<true, T, F, f>(object, params...);
+		process_func_observers<true, T, F, f>(object, std::forward<P>(params)...);
 	}
 
 	/**
@@ -492,10 +493,10 @@ protected:
 	 * @param object the observed object
 	 * @param params the function parameters
 	 */
-	template <typename T, typename F, F f, typename... Params>
-	void refresh_func_observers(T const* object, Params const& ... params)
+	template <typename T, typename F, F f, typename... P>
+	void refresh_func_observers(T const* object, P && ... params)
 	{
-		process_func_observers<false, T, F, f>(object, params...);
+		process_func_observers<false, T, F, f>(object, std::forward<P>(params)...);
 	}
 
 	/**
@@ -507,7 +508,7 @@ protected:
 
 private:
 	template <bool about, typename T, typename F, F f, typename... Params>
-	void process_func_observers(T const* object, Params const& ... params)
+	void process_func_observers(T const* object, Params && ... /*params*/)
 	{
 		// object must be a valid address
 		assert(object != nullptr);
@@ -522,7 +523,7 @@ private:
 
 		// Get the argument list type
 		typename cur_func_observer_t::arguments_type args;
-		args.set_args(params...);
+		//args.set_args(std::forward<P>(params)...);
 
 		// Get function observers
 		func_observers_t const& fobs(acc->second.func_observers);
@@ -557,7 +558,7 @@ private:
 	 * @param params the method parameters
 	 */
 	template <typename T, typename F, F f, typename... P>
-	typename PVCore::PVTypeTraits::function_traits<F>::result_type call_object_default(T* object, P const& ... params)
+	typename PVCore::PVTypeTraits::function_traits<F>::result_type call_object_default(T* object, P && ... params)
 	{
 		__impl::PVCallReturn<T, F, f> caller;
 
@@ -570,14 +571,14 @@ private:
 
 				// Pre-call events
 				about_to_refresh_observers(object);
-				about_to_refresh_func_observers<T, F, f>(object, params...);
+				about_to_refresh_func_observers<T, F, f>(object, std::forward<P>(params)...);
 
 				// Object call
-				caller.call(object, params...);
+				caller.call(object, std::forward<P>(params)...);
 
 				// Post-call events
 				refresh_observers(object);
-				refresh_func_observers<T, F, f>(object, params...);
+				refresh_func_observers<T, F, f>(object, std::forward<P>(params)...);
 
 				return caller.result();
 			}

@@ -91,7 +91,7 @@ public:
 
 PVHIVE_CALL_OBJECT_BLOCK_BEGIN()
 
-template <>
+/*template <>
 void PVHive::PVHive::call_object<MyObject, decltype(&MyObject::set_prop), &MyObject::set_prop,
                                  boost::reference_wrapper<MyObjectProperty const> >(MyObject* o, boost::reference_wrapper<MyObjectProperty const> p)
 {
@@ -99,15 +99,14 @@ void PVHive::PVHive::call_object<MyObject, decltype(&MyObject::set_prop), &MyObj
 	std::cout << "    in thread " << boost::this_thread::get_id() << std::endl;
 	call_object_default<MyObject, decltype(&MyObject::set_prop), &MyObject::set_prop, MyObjectProperty const&>(o, p);
 	refresh_observers(&o->get_prop());
-}
+}*/
 
 template <>
-void PVHive::PVHive::call_object<MyObject, decltype(&MyObject::set_prop), &MyObject::set_prop,
-                                 MyObjectProperty>(MyObject* o, MyObjectProperty p)
+void PVHive::PVHive::call_object<MyObject, decltype(&MyObject::set_prop), &MyObject::set_prop>(MyObject* o, MyObjectProperty&& p)
 {
-	std::cout << "  PVHive::call_object for MyObject::set_prop, non const& version" << std::endl;
+	std::cout << "  PVHive::call_object for MyObject::set_prop" << std::endl;
 	std::cout << "    in thread " << boost::this_thread::get_id() << std::endl;
-	call_object_default<MyObject, decltype(&MyObject::set_prop), &MyObject::set_prop, MyObjectProperty>(o, p);
+	call_object_default<MyObject, decltype(&MyObject::set_prop), &MyObject::set_prop>(o, std::forward<MyObjectProperty>(p));
 	refresh_observers(&o->get_prop());
 }
 

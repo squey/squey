@@ -46,6 +46,12 @@ struct Obj2
 	{
 		std::cout << "  Obj2::myaction with " << param << std::endl;
 	}
+
+	void test_ref(int& i)
+	{
+		i += 1;
+		std::cout << "  Obj2::test_ref with i = " << i << " (" << &i << ")" << std::endl;
+	}
 };
 
 typedef PVCore::PVSharedPtr<Obj2> Obj2_p;
@@ -137,6 +143,9 @@ int main(int argc, char **argv)
 	PVACTOR_CALL(a1o2, &Obj2::print);
 	std::cout << "# a1o2 calls &Obj2::my_action" << std::endl;
 	PVACTOR_CALL(a1o2, &Obj2::my_action, 1);
+	int i = 4;
+	std::cout << "# a1o2 calls &Obj2::test_ref with &i=" << &i << std::endl;
+	PVACTOR_CALL(a1o2, &Obj2::test_ref, i);
 
 	std::cout << "# unregister a1o1" << std::endl;
 	PVHive::PVHive::get().unregister_actor(a1o1);

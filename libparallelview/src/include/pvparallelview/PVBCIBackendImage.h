@@ -19,7 +19,7 @@
 namespace PVParallelView {
 
 template <size_t Bbits = NBITS_INDEX>
-class PVBCIBackendImage: boost::noncopyable
+class PVBCIBackendImage : boost::noncopyable
 {
 	constexpr static uint32_t image_height = ((uint32_t)1)<<Bbits;
 public:

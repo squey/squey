@@ -22,38 +22,50 @@
 PVHIVE_CALL_OBJECT_BLOCK_BEGIN()
 
 template <>
-void PVHive::PVHive::call_object<MyObject, decltype(&MyObject::set_prop), &MyObject::set_prop, boost::reference_wrapper<ObjectProperty const> >(MyObject* o, boost::reference_wrapper<ObjectProperty const> p)
+void PVHive::PVHive::call_object<MyObject, decltype(&MyObject::set_prop), &MyObject::set_prop, ObjectProperty&>(MyObject* o, ObjectProperty& p)
 {
 	std::cout << "  PVHive::call_object for MyObject::set_prop" << std::endl;
 	std::cout << "    in thread " << boost::this_thread::get_id() << std::endl;
-	call_object_default<MyObject, decltype(&MyObject::set_prop), &MyObject::set_prop, ObjectProperty const&>(o, p);
+	std::cout << "ObjectProperty address: " << &p << std::endl;
+	call_object_default<MyObject, decltype(&MyObject::set_prop), &MyObject::set_prop>(o, std::forward<ObjectProperty>(p));
 	refresh_observers(&o->get_prop());
 }
 
 template <>
-void PVHive::PVHive::call_object<MyObject, decltype(&MyObject::set_prop), &MyObject::set_prop, ObjectProperty>(MyObject* o, ObjectProperty p)
+void PVHive::PVHive::call_object<MyObject, decltype(&MyObject::set_prop), &MyObject::set_prop, ObjectProperty const&>(MyObject* o, ObjectProperty const& p)
 {
-	std::cout << "  PVHive::call_object for MyObject::set_prop, non const& version" << std::endl;
+	std::cout << "  PVHive::call_object for MyObject::set_prop const" << std::endl;
 	std::cout << "    in thread " << boost::this_thread::get_id() << std::endl;
-	call_object_default<MyObject, decltype(&MyObject::set_prop), &MyObject::set_prop, ObjectProperty>(o, p);
+	std::cout << "ObjectProperty address: " << &p << std::endl;
+	call_object_default<MyObject, decltype(&MyObject::set_prop), &MyObject::set_prop>(o, std::forward<const ObjectProperty>(p));
 	refresh_observers(&o->get_prop());
 }
 
 template <>
-void PVHive::PVHive::call_object<MyObject, decltype(&MyObject::set_i), &MyObject::set_i, int>(MyObject* o, int i)
+void PVHive::PVHive::call_object<MyObject, decltype(&MyObject::set_prop), &MyObject::set_prop, boost::reference_wrapper<ObjectProperty const> const>(MyObject* o, boost::reference_wrapper<ObjectProperty const> const && p)
+{
+	std::cout << "  PVHive::call_object for MyObject::set_prop const" << std::endl;
+	std::cout << "    in thread " << boost::this_thread::get_id() << std::endl;
+	std::cout << "ObjectProperty address: " << &p << std::endl;
+	call_object_default<MyObject, decltype(&MyObject::set_prop), &MyObject::set_prop>(o, p);
+	refresh_observers(&o->get_prop());
+}
+
+/*
+void PVHive::PVHive::call_object<MyObject, decltype(&MyObject::set_i), &MyObject::set_i, int>(MyObject* o, int && i)
 {
 	std::cout << "  PVHive::call_object for MyObject::set_i" << std::endl;
 	std::cout << "    in thread " << boost::this_thread::get_id() << std::endl;
 	call_object_default<MyObject, decltype(&MyObject::set_i), &MyObject::set_i, int>(o, i);
 }
 
-template <>
-void PVHive::PVHive::call_object<MyObject, decltype(&MyObject::set_i2), &MyObject::set_i2, int>(MyObject* o, int i)
+template <typename P>
+void PVHive::PVHive::call_object<MyObject, decltype(&MyObject::set_i2), &MyObject::set_i2, P>(MyObject* o, P&& i)
 {
 	std::cout << "  PVHive::call_object for MyObject::set_i2" << std::endl;
 	std::cout << "    in thread " << boost::this_thread::get_id() << std::endl;
-	call_object_default<MyObject, decltype(&MyObject::set_i2), &MyObject::set_i2, int>(o, i);
-}
+	call_object_default<MyObject, decltype(&MyObject::set_i2), &MyObject::set_i2>(o, i);
+}*/
 
 PVHIVE_CALL_OBJECT_BLOCK_END()
 
@@ -79,6 +91,10 @@ void update_prop(PVHive::PVHive& cc, MyObject_p& o)
 	while(true) {
 		sleep(1);
 		std::cout << "Update prop to " << v << std::endl;
+		//ObjectProperty tmp(v);
+		//std::cout << "Before calling set_prop, ObjectProperty address: " << &tmp << std::endl;
+		//actor.call<decltype(&MyObject::set_prop), &MyObject::set_prop>(boost::reference_wrapper<ObjectProperty const>(tmp));
+		//static_assert(std::is_same<decltype(boost::cref(tmp)), boost::reference_wrapper<ObjectProperty const> const>::value, "test");
 		actor.call<decltype(&MyObject::set_prop), &MyObject::set_prop>(boost::cref(ObjectProperty(v)));
 		v++;
 	}
@@ -108,7 +124,7 @@ int main(int argc, char** argv)
 	hive.register_observer(o, observer_callback);
 
 	actor.call<decltype(&MyObject::set_i), &MyObject::set_i>(8);
-	actor.call<decltype(&MyObject::set_i2), &MyObject::set_i2>(9);
+	//actor.call<decltype(&MyObject::set_i2), &MyObject::set_i2>(9);
 
 	TestDlg* dlg = new TestDlg(o, NULL);
 	dlg->show();

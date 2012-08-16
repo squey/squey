@@ -28,7 +28,11 @@ public:
 	void set_i(int const& i) { _i = i; }
 	void set_i2(int const& i) { _i = i; }
 
-	void set_prop(ObjectProperty const& p) { _prop = p; }
+	void set_prop(ObjectProperty const& p)
+	{
+		std::cout << "set_prop with ObjectProperty: " << &p << " with i=" << p._v << std::endl;
+		_prop = p;
+	}
 	ObjectProperty const& get_prop() const { return _prop; }
 
 private:

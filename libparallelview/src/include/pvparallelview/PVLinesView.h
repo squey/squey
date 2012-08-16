@@ -30,6 +30,7 @@ class PVLinesView
 
 public:
 	typedef PVZonesDrawing<bbits> zones_drawing_t;
+	typedef PVCore::PVSharedPtr<zones_drawing_t> zones_drawing_sp;
 	typedef typename zones_drawing_t::backend_image_p_t backend_image_p_t;
 
 private:
@@ -37,7 +38,7 @@ private:
 	{
 		ZoneImages() { }
 
-		ZoneImages(zones_drawing_t const& zd, uint32_t zone_width)
+		ZoneImages(PVParallelView::PVLinesView::zones_drawing_sp zd, uint32_t zone_width)
 		{
 			create_image(zd, zone_width);
 		}
@@ -48,10 +49,10 @@ private:
 			bg->set_width(zone_width);
 		}
 
-		void create_image(zones_drawing_t const& zd, uint32_t zone_width)
+		void create_image(PVParallelView::PVLinesView::zones_drawing_sp zd, uint32_t zone_width)
 		{
-			sel = zd.create_image(zone_width);
-			bg = zd.create_image(zone_width);
+			sel = zd->create_image(zone_width);
+			bg = zd->create_image(zone_width);
 		}
 
 		backend_image_p_t sel;
@@ -62,7 +63,7 @@ public:
 	typedef std::vector<ZoneImages> list_zone_images_t;
 
 public:
-	PVLinesView(zones_drawing_t& zones_drawing, PVZoneID nb_drawable_zones, uint32_t zone_width = PVParallelView::ZoneMaxWidth);
+	PVLinesView(zones_drawing_sp zones_drawing, PVZoneID nb_drawable_zones, uint32_t zone_width = PVParallelView::ZoneMaxWidth);
 
 public:
 	void set_nb_drawable_zones(PVZoneID nb_zones);
@@ -100,10 +101,10 @@ public:
 	}
 	bool set_zone_width_and_render(PVZoneID z, uint32_t width);
 
-	inline const zones_drawing_t& get_zones_drawing() const { return _zd; }
-	inline const PVZonesManager& get_zones_manager() const { return _zd.get_zones_manager(); }
-	inline PVZonesManager& get_zones_manager() { return _zd.get_zones_manager(); }
-	inline uint32_t get_zone_width(PVZoneID z) const { return _zd.get_zone_width(z); }
+	//inline const zones_drawing_sp get_zones_drawing() const { return _zd; }
+	inline const PVZonesManager& get_zones_manager() const { return _zd->get_zones_manager(); }
+	inline PVZonesManager& get_zones_manager() { return _zd->get_zones_manager(); }
+	inline uint32_t get_zone_width(PVZoneID z) const { return _zd->get_zone_width(z); }
 
 	const list_zone_images_t& get_zones_images() const { return _zones_imgs; }
 	list_zone_images_t& get_zones_images() { return _zones_imgs; }
@@ -297,7 +298,7 @@ private:
 	void right_shift_images(PVZoneID s);
 
 private:
-	zones_drawing_t& _zd;
+	PVParallelView::PVLinesView::zones_drawing_sp _zd;
 	PVZoneID _first_zone;
 	uint32_t _zone_max_width;
 	int32_t _visible_view_x;

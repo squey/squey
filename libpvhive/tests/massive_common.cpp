@@ -14,10 +14,9 @@ PVHIVE_CALL_OBJECT_BLOCK_BEGIN()
 
 template <>
 void PVHive::PVHive::call_object<Block, decltype(&Block::set_prop), &Block::set_prop,
-                                 int, Property>(Block* b, int i, Property p)
+                                 int, Property>(Block* b, int&& i, Property&& p)
 {
-	call_object_default<Block, decltype(&Block::set_prop), &Block::set_prop,
-	                    int, Property>(b, i, p);
+	call_object_default<Block, decltype(&Block::set_prop), &Block::set_prop>(b, std::forward<int>(i), std::forward<Property>(p));
 	refresh_observers(&(b->get_prop(i)));
 }
 
