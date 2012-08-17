@@ -218,16 +218,12 @@ public:
 
 	virtual void serialize_write(PVCore::PVSerializeObject& so)
 	{
-		data_tree_d_t::serialize_write(so);
-
 		so.attribute("_i", _i);
 		so.attribute("_j", _j);
 	}
 
-	virtual void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v)
+	virtual void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 	{
-		data_tree_d_t::serialize_read(so, v);
-
 		so.attribute("_i", _i);
 		so.attribute("_j", _j);
 	}
@@ -572,12 +568,27 @@ bool standard_use_case()
 
 	PVLOG_INFO("Get null ancestor if parent is null: %d\n", null_parent_null_ancestor);
 
+	//////////////////////////////////////////
+	//  Test11 - Start from a PVDataTreeObjectBase and check its property
+	//////////////////////////////////////////
+
+	PVCore::PVDataTreeObjectBase* obase = static_cast<PVCore::PVDataTreeObjectBase*>(a1.get());
+	bool test11 = true;
+	test11 &= my_assert(dynamic_cast<PVCore::PVDataTreeObjectWithParentBase*>(obase) == nullptr);
+	test11 &= my_assert(dynamic_cast<PVCore::PVDataTreeObjectWithChildrenBase*>(obase) != nullptr);
+	obase = static_cast<PVCore::PVDataTreeObjectBase*>(b1.get());
+	test11 &= my_assert(dynamic_cast<PVCore::PVDataTreeObjectWithParentBase*>(obase) != nullptr);
+	test11 &= my_assert(dynamic_cast<PVCore::PVDataTreeObjectWithChildrenBase*>(obase) != nullptr);
+	obase = static_cast<PVCore::PVDataTreeObjectBase*>(d.get());
+	test11 &= my_assert(dynamic_cast<PVCore::PVDataTreeObjectWithParentBase*>(obase) != nullptr);
+	test11 &= my_assert(dynamic_cast<PVCore::PVDataTreeObjectWithChildrenBase*>(obase) == nullptr);
+
 	// Delete the remaining hierarchy
 	std::cout << std::endl << "=DELETING REMAINING TREES=" << std::endl;
 	a1.reset();
 	a2.reset();
 
-	return (parent_access && children_access && same_parent && changing_parent && changing_child && create_with_parent_and_set_same_parent && removing_child && removing_parent && null_parent_null_ancestor);
+	return (parent_access && children_access && same_parent && changing_parent && changing_child && create_with_parent_and_set_same_parent && removing_child && removing_parent && null_parent_null_ancestor && test11);
 }
 
 bool serialize_use_case()
