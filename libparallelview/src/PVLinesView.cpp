@@ -17,7 +17,7 @@ PVParallelView::PVLinesView::PVLinesView(zones_drawing_sp zones_drawing, PVZoneI
 	set_nb_drawable_zones(nb_zones);
 }
 
-void PVParallelView::PVLinesView::translate(int32_t view_x, uint32_t view_width)
+void PVParallelView::PVLinesView::translate(int32_t view_x, uint32_t view_width, const Picviz::PVSelection& sel)
 {
 	PVLOG_INFO("(translate) view_x: %d px\n", view_x);
 
@@ -35,11 +35,12 @@ void PVParallelView::PVLinesView::translate(int32_t view_x, uint32_t view_width)
 			assert(z >= _first_zone);
 			update_zone_images_width(z);
 			draw_zone_caller_t::call(_zd, *_zones_imgs[z-_first_zone].bg, 0, z, &PVParallelView::PVZoneTree::browse_tree_bci);
+			draw_zone_sel_caller_t::call(_zd, *_zones_imgs[z-_first_zone].sel, 0, z, &PVParallelView::PVZoneTree::browse_tree_bci_sel);
 		}
 	);
 }
 
-QFuture<void> PVParallelView::PVLinesView::translate(int32_t view_x, uint32_t view_width, PVRenderingJob& job)
+QFuture<void> PVParallelView::PVLinesView::translate(int32_t view_x, uint32_t view_width, const Picviz::PVSelection& sel, PVRenderingJob& job)
 {
 	PVLOG_INFO("(translate) view_x: %d px\n", view_x);
 
@@ -62,6 +63,8 @@ QFuture<void> PVParallelView::PVLinesView::translate(int32_t view_x, uint32_t vi
 				update_zone_images_width(z);
 				PVLOG_INFO("z=%d in _zones_imgs[%d].bg\n", z, z-_first_zone);
 				draw_zone_caller_t::call(_zd, *_zones_imgs[z-_first_zone].bg, 0, z, &PVParallelView::PVZoneTree::browse_tree_bci);
+				get_zones_manager().filter_zone_by_sel(z, sel);
+				draw_zone_sel_caller_t::call(_zd, *_zones_imgs[z-_first_zone].sel, 0, z, &PVParallelView::PVZoneTree::browse_tree_bci_sel);
 			},
 			&job);
 		}

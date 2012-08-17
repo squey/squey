@@ -169,7 +169,7 @@ void PVParallelView::PVFullParallelScene::translate_and_update_zones_position()
 	uint32_t view_width = view()->width();
 	launch_job_future([&, view_x, view_width](PVRenderingJob& rendering_job)
 		{
-			return _lines_view->translate(view_x, view_width, rendering_job);
+			return _lines_view->translate(view_x, view_width, _sel, rendering_job);
 		}
 	);
 }

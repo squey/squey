@@ -133,14 +133,13 @@ void PVParallelView::PVZonesManager::filter_zone_by_sel(PVZoneID zid, const Picv
 	assert(zid < (PVZoneID) _zones.size());
 
 	PVParallelView::PVZoneProcessing zp(get_uint_plotted(), get_number_rows(), zid, zid+1);
-
 	_zones[zid].ztree().filter_by_sel(sel);
 }
 
 void PVParallelView::PVZonesManager::invalidate_selection()
 {
 	for (PVZone& zone : _zones) {
-		zone.set_selection_valid(false);
+		zone.invalid_selection();
 	}
 }
 

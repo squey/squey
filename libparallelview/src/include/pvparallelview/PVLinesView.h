@@ -13,6 +13,7 @@
 #include <pvparallelview/PVZonesDrawing.h>
 #include <pvkernel/core/PVAlgorithms.h>
 #include <pvhive/PVCallHelper.h>
+#include <picviz/PVSelection.h>
 
 #include <QFuture>
 
@@ -71,8 +72,8 @@ public:
 	void set_zone_max_width(uint32_t w);
 
 public:
-	void translate(int32_t view_x, uint32_t view_width);
-	QFuture<void> translate(int32_t view_x, uint32_t view_width, PVRenderingJob& job);
+	void translate(int32_t view_x, uint32_t view_width, const Picviz::PVSelection& sel);
+	QFuture<void> translate(int32_t view_x, uint32_t view_width, const Picviz::PVSelection& sel, PVRenderingJob& job);
 
 	void render_all(int32_t view_x, uint32_t view_width);
 	QFuture<void> render_all(int32_t view_x, uint32_t view_width, PVRenderingJob& job);
