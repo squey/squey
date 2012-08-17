@@ -34,6 +34,9 @@ public:
 	PVZoomedZoneTree& zoomed_ztree() { return *_zoomed_ztree; }
 	PVZoomedZoneTree const& zoomed_ztree() const { return *_zoomed_ztree; }
 
+	bool is_selection_valid() const { return _ztree->is_selection_valid(); }
+	void set_selection_valid(bool validity = true) { _ztree->set_selection_valid(validity); }
+
 	template <class Tree>
 	Tree const& get_tree() const
 	{

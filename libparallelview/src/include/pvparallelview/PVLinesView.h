@@ -168,9 +168,6 @@ private:
 				return;
 			}
 			fzone(cur_z);
-			if (job) {
-				job->zone_finished(cur_z);
-			}
 			const uint32_t offset = get_zone_width(cur_z) + PVParallelView::AxisWidth;
 			cur_width += offset;
 			cur_z++;
@@ -188,9 +185,6 @@ private:
 					return;
 				}
 				fzone(left_invisible_zone);
-				if (job) {
-					job->zone_finished(left_invisible_zone);
-				}
 				zones_to_draw--;
 				if (zones_to_draw == 0) {
 					break;
@@ -202,9 +196,6 @@ private:
 					return;
 				}
 				fzone(right_invisible_zone);
-				if (job) {
-					job->zone_finished(right_invisible_zone);
-				}
 				right_invisible_zone++;
 				zones_to_draw--;
 				one_done = true;
@@ -261,9 +252,6 @@ private:
 					return;
 				}
 				fzone_draw(z);
-				if (job) {
-					job->zone_finished(z);
-				}
 			}
 		}
 		else {
@@ -286,9 +274,6 @@ private:
 					return;
 				}
 				fzone_draw(z);
-				if (job) {
-					job->zone_finished(z);
-				}
 			}
 		}
 	}

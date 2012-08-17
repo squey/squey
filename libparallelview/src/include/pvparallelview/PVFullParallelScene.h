@@ -26,21 +26,21 @@ namespace PVParallelView {
 class draw_zone_Observer: public PVHive::PVFuncObserver<typename PVLinesView::zones_drawing_t, FUNC(PVLinesView::zones_drawing_t::draw_zone<decltype(&PVParallelView::PVZoneTree::browse_tree_bci)>)>
 {
 public:
-	draw_zone_Observer(PVFullParallelScene* full_parallel_scene) : _full_parallel_scene(full_parallel_scene) {}
+	draw_zone_Observer(PVFullParallelScene* parent) : _parent(parent) {}
 protected:
 	virtual void update(arguments_type const& args) const;
 private:
-	PVFullParallelScene* _full_parallel_scene;
+	PVFullParallelScene* _parent;
 };
 
 class draw_zone_sel_Observer: public PVHive::PVFuncObserver<typename PVLinesView::zones_drawing_t, FUNC(PVLinesView::zones_drawing_t::draw_zone<decltype(&PVParallelView::PVZoneTree::browse_tree_bci_sel)>)>
 {
 public:
-	draw_zone_sel_Observer(PVFullParallelScene* full_parallel_scene) : _full_parallel_scene(full_parallel_scene) {}
+	draw_zone_sel_Observer(PVFullParallelScene* parent) : _parent(parent) {}
 protected:
 	virtual void update(arguments_type const& args) const;
 private:
-	PVFullParallelScene* _full_parallel_scene;
+	PVFullParallelScene* _parent;
 };
 
 class PVFullParallelScene : public QGraphicsScene

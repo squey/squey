@@ -83,6 +83,10 @@ public:
 		}
 	}
 
+	void invalidate_selection();
+	bool is_selection_valid(PVZoneID zid) const { return _zones[zid].is_selection_valid(); }
+	void set_selection_valid(PVZoneID zid, bool validity = true) { _zones[zid].set_selection_valid(validity); }
+
 	uint32_t get_zone_absolute_pos(PVZoneID z) const;
 	PVZoneID get_zone_id(int abs_pos) const;
 

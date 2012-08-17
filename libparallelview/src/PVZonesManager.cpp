@@ -132,11 +132,16 @@ void PVParallelView::PVZonesManager::filter_zone_by_sel(PVZoneID zid, const Picv
 {
 	assert(zid < (PVZoneID) _zones.size());
 
-	PVParallelView::PVZoneTree::ProcessData tls;
 	PVParallelView::PVZoneProcessing zp(get_uint_plotted(), get_number_rows(), zid, zid+1);
 
-	//_zones[zid].ztree().filter_by_sel_new(zp, sel, tls);
 	_zones[zid].ztree().filter_by_sel(sel);
+}
+
+void PVParallelView::PVZonesManager::invalidate_selection()
+{
+	for (PVZone& zone : _zones) {
+		zone.set_selection_valid(false);
+	}
 }
 
 void PVParallelView::PVZonesManager::set_uint_plotted(Picviz::PVView const& view)
