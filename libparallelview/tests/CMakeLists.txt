@@ -22,6 +22,9 @@ enable_testing()
 add_executable(full_parallel_view full_parallel_view.cpp)
 target_link_libraries(full_parallel_view ${LINK_LIBRARIES})
 
+add_executable(full_parallel_view_selections_sync full_parallel_view_selections_sync.cpp)
+target_link_libraries(full_parallel_view_selections_sync ${LINK_LIBRARIES})
+
 QT4_WRAP_CPP(ZOOM_DLG_MOC zoom_dlg.h OPTIONS ${QT4_WRAP_OPTIONS})
 add_executable(both_views both_views.cpp ${ZOOM_DLG_MOC})
 target_link_libraries(both_views ${LINK_LIBRARIES})

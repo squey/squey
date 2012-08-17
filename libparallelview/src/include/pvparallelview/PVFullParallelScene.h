@@ -21,6 +21,10 @@
 #include <pvhive/PVCallHelper.h>
 #include <pvhive/PVFuncObserver.h>
 
+#include <picviz/FakePVView.h>
+
+class PVView;
+
 namespace PVParallelView {
 
 class draw_zone_Observer: public PVHive::PVFuncObserver<typename PVLinesView::zones_drawing_t, FUNC(PVLinesView::zones_drawing_t::draw_zone<decltype(&PVParallelView::PVZoneTree::browse_tree_bci)>)>
@@ -43,14 +47,25 @@ private:
 	PVFullParallelScene* _parent;
 };
 
+class selection_changed_Observer: public PVHive::PVFuncObserver<typename Picviz::FakePVView, FUNC(Picviz::FakePVView::selection_changed)>
+{
+public:
+	selection_changed_Observer(PVFullParallelScene* parent) : _parent(parent) {}
+protected:
+	virtual void update(arguments_type const& args) const;
+private:
+	PVFullParallelScene* _parent;
+};
+
 class PVFullParallelScene : public QGraphicsScene
 {
 	Q_OBJECT
 
 	friend class draw_zone_Observer;
 	friend class draw_zone_sel_Observer;
+	friend class selection_changed_Observer;
 public:
-	PVFullParallelScene(QObject* parent, PVParallelView::PVLinesView* lines_view);
+	PVFullParallelScene(QObject* parent, PVParallelView::PVLinesView* lines_view, Picviz::FakePVView::shared_pointer v);
 	virtual ~PVFullParallelScene();
 
 	void first_render();
@@ -61,6 +76,8 @@ private:
 
 	void store_selection_square();
 	void update_selection_square();
+
+	void update_sel_from_zone(PVZoneID zid);
 
 	void mousePressEvent(QGraphicsSceneMouseEvent* event);
 	void mouseMoveEvent(QGraphicsSceneMouseEvent* event);
@@ -86,8 +103,8 @@ private:
 	PVParallelView::PVFullParallelView* view() { return (PVParallelView::PVFullParallelView*) parent(); }
 
 private slots:
-	void update_zone_pixmap_Slot(int zid);
-	void update_selection_Slot(uint32_t axis_id);
+	void update_zone_pixmap_Slot(PVZoneID zid);
+	void update_selection_from_sliders_Slot(PVZoneID zid);
 	void scrollbar_pressed_Slot();
 	void scrollbar_released_Slot();
 	void commit_volatile_selection_Slot();
@@ -129,15 +146,18 @@ private:
 	QFuture<void> _rendering_future;
 	QFuture<void> _sel_rendering_future;
     
+	Picviz::FakePVView::shared_pointer _view;
+
 	PVSelectionSquareGraphicsItem* _selection_square;
 	SelectionBarycenter _selection_barycenter;
 	PVParallelView::PVSelectionGenerator _selection_generator;
-	Picviz::PVSelection _sel;
+	Picviz::PVSelection& _sel;
     QPointF _selection_square_pos;
     qreal _translation_start_x;
 
     draw_zone_Observer _draw_zone_observer = draw_zone_Observer(this);
     draw_zone_sel_Observer _draw_zone_sel_observer = draw_zone_sel_Observer(this);
+    selection_changed_Observer _selection_changed_observer = selection_changed_Observer(this);
 };
 
 }

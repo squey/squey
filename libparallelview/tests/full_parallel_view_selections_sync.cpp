@@ -1,5 +1,5 @@
 /**
- * \file full_parallel_view.cpp
+ * \file full_parallel_view_selections_sync.cpp
  *
  * Copyright (C) Picviz Labs 2010-2012
  */
@@ -11,6 +11,7 @@
 #include <pvparallelview/common.h>
 #include <pvkernel/core/picviz_bench.h>
 #include <picviz/PVPlotted.h>
+#include <picviz/PVSelection.h>
 #include <pvparallelview/PVBCICode.h>
 #include <pvparallelview/PVBCIBackendImage.h>
 #include <pvparallelview/PVBCIDrawingBackendCUDA.h>
@@ -24,6 +25,8 @@
 #include <pvkernel/core/PVSharedPointer.h>
 
 #include <QApplication>
+
+#include <picviz/FakePVView.h>
 
 void usage(const char* path)
 {
@@ -86,21 +89,34 @@ int main(int argc, char** argv)
 	zm.set_uint_plotted(norm_plotted, nrows, ncols);
 	zm.update_all();
 
-
-
 	PVParallelView::PVBCIDrawingBackendCUDA<NBITS_INDEX> backend_cuda;
-	PVParallelView::PVLinesView::zones_drawing_sp zones_drawing_sp(new PVParallelView::PVLinesView::zones_drawing_t(zm, backend_cuda, *colors));
 
-	PVParallelView::PVLinesView &lines_view = *(new PVParallelView::PVLinesView(zones_drawing_sp, 30));
-	PVParallelView::PVFullParallelView view;
+	PVParallelView::PVLinesView::zones_drawing_sp zones_drawing_sp1(new PVParallelView::PVLinesView::zones_drawing_t(zm, backend_cuda, *colors));
+	PVParallelView::PVLinesView &lines_view1 = *(new PVParallelView::PVLinesView(zones_drawing_sp1, 30));
+
+	PVParallelView::PVLinesView::zones_drawing_sp zones_drawing_sp2(new PVParallelView::PVLinesView::zones_drawing_t(zm, backend_cuda, *colors));
+	PVParallelView::PVLinesView &lines_view2 = *(new PVParallelView::PVLinesView(zones_drawing_sp2, 30));
+
 	Picviz::FakePVView::shared_pointer fake_pvview_sp(new Picviz::FakePVView);
-	PVParallelView::PVFullParallelScene* scene = new PVParallelView::PVFullParallelScene(&view, &lines_view, fake_pvview_sp);
-	view.setViewport(new QWidget());
-	view.resize(1920, 1600);
-	view.setScene(scene);
-	//view.horizontalScrollBar()->setValue(0);
-	view.show();
-	scene->first_render();
+
+	// View #1
+	PVParallelView::PVFullParallelView view1;
+	PVParallelView::PVFullParallelScene* scene1 = new PVParallelView::PVFullParallelScene(&view1, &lines_view1, fake_pvview_sp);
+	view1.setViewport(new QWidget());
+	view1.resize(1920, 1600);
+	view1.setScene(scene1);
+	view1.show();
+
+	// View #2
+	PVParallelView::PVFullParallelView view2;
+	PVParallelView::PVFullParallelScene* scene2 = new PVParallelView::PVFullParallelScene(&view2, &lines_view2, fake_pvview_sp);
+	view2.setViewport(new QWidget());
+	view2.resize(1920, 1600);
+	view2.setScene(scene2);
+	view2.show();
+
+	scene1->first_render();
+	scene2->first_render();
 
 	app.exec();
 
