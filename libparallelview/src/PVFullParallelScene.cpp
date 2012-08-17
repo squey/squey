@@ -22,15 +22,17 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(QObject* parent, PVPara
 	connect(view()->horizontalScrollBar(), SIGNAL(sliderReleased()), this, SLOT(scrollbar_released_Slot()));
 	connect(_selection_square, SIGNAL(commit_volatile_selection()), this, SLOT(commit_volatile_selection_Slot()));
 
+	// Observers of PVZoneDrawing::draw_zone<browse_tree_bci> and PVZoneDrawing::draw_zone<browse_tree_bci_sel>
 	PVHive::PVHive::get().register_func_observer(
 		_lines_view->get_zones_drawing(),
 		_draw_zone_observer
 	);
-
 	PVHive::PVHive::get().register_func_observer(
 		_lines_view->get_zones_drawing(),
 		_draw_zone_sel_observer
 	);
+	// To recycle some zones when translating we get the virtual zone_rendered signal from PVLinesView::do_translate
+	connect(_rendering_job, SIGNAL(zone_rendered(int)), this, SLOT(update_zone_pixmap_Slot(int)));
 
 	PVParallelView::PVLinesView::list_zone_images_t images = _lines_view->get_zones_images();
 
@@ -167,7 +169,7 @@ void PVParallelView::PVFullParallelScene::translate_and_update_zones_position()
 	uint32_t view_width = view()->width();
 	launch_job_future([&, view_x, view_width](PVRenderingJob& rendering_job)
 		{
-			return _lines_view->translate(view_x, view_width, rendering_job);
+			return _lines_view->translate(view_x, view_width, _sel, rendering_job);
 		}
 	);
 }
@@ -373,11 +375,14 @@ void PVParallelView::PVFullParallelScene::commit_volatile_selection_Slot()
 void PVParallelView::draw_zone_Observer::update(const arguments_type& args) const
 {
 	PVZoneID zid = args.get_arg<2>();
-	_full_parallel_scene->update_zone_pixmap_Slot(zid);
+	_parent->update_zone_pixmap_Slot(zid);
 }
 
 void PVParallelView::draw_zone_sel_Observer::update(const arguments_type& args) const
 {
 	PVZoneID zid = args.get_arg<2>();
-	_full_parallel_scene->update_zone_pixmap_Slot(zid);
+	/*if (! _parent->_lines_view->get_zones_manager().is_selection_valid(zid)) {
+		_parent->_lines_view->get_zones_manager().set_selection_valid(zid, true);
+	}*/
+	_parent->update_zone_pixmap_Slot(zid);
 }

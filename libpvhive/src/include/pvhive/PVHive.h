@@ -440,7 +440,8 @@ protected:
 	template <typename T, typename F, F f, typename... P>
 	typename PVCore::PVTypeTraits::function_traits<F>::result_type call_object(T* object, P && ... params)
 	{
-		std::cout << "call_object: " << __PRETTY_FUNCTION__ << std::endl;
+		//std::cout << "call_object: " << __PRETTY_FUNCTION__ << std::endl;
+
 		// object must be a valid address
 		assert(object != nullptr);
 

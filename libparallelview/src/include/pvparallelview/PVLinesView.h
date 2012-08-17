@@ -13,6 +13,7 @@
 #include <pvparallelview/PVZonesDrawing.h>
 #include <pvkernel/core/PVAlgorithms.h>
 #include <pvhive/PVCallHelper.h>
+#include <picviz/PVSelection.h>
 
 #include <QFuture>
 
@@ -71,8 +72,8 @@ public:
 	void set_zone_max_width(uint32_t w);
 
 public:
-	void translate(int32_t view_x, uint32_t view_width);
-	QFuture<void> translate(int32_t view_x, uint32_t view_width, PVRenderingJob& job);
+	void translate(int32_t view_x, uint32_t view_width, const Picviz::PVSelection& sel);
+	QFuture<void> translate(int32_t view_x, uint32_t view_width, const Picviz::PVSelection& sel, PVRenderingJob& job);
 
 	void render_all(int32_t view_x, uint32_t view_width);
 	QFuture<void> render_all(int32_t view_x, uint32_t view_width, PVRenderingJob& job);
@@ -168,9 +169,6 @@ private:
 				return;
 			}
 			fzone(cur_z);
-			if (job) {
-				job->zone_finished(cur_z);
-			}
 			const uint32_t offset = get_zone_width(cur_z) + PVParallelView::AxisWidth;
 			cur_width += offset;
 			cur_z++;
@@ -188,9 +186,6 @@ private:
 					return;
 				}
 				fzone(left_invisible_zone);
-				if (job) {
-					job->zone_finished(left_invisible_zone);
-				}
 				zones_to_draw--;
 				if (zones_to_draw == 0) {
 					break;
@@ -202,9 +197,6 @@ private:
 					return;
 				}
 				fzone(right_invisible_zone);
-				if (job) {
-					job->zone_finished(right_invisible_zone);
-				}
 				right_invisible_zone++;
 				zones_to_draw--;
 				one_done = true;
@@ -261,9 +253,6 @@ private:
 					return;
 				}
 				fzone_draw(z);
-				if (job) {
-					job->zone_finished(z);
-				}
 			}
 		}
 		else {
@@ -286,9 +275,6 @@ private:
 					return;
 				}
 				fzone_draw(z);
-				if (job) {
-					job->zone_finished(z);
-				}
 			}
 		}
 	}

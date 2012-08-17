@@ -83,6 +83,8 @@ public:
 		}
 	}
 
+	void invalidate_selection();
+
 	uint32_t get_zone_absolute_pos(PVZoneID z) const;
 	PVZoneID get_zone_id(int abs_pos) const;
 
