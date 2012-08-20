@@ -1,0 +1,33 @@
+#
+# \file CMakeLists.txt
+#
+# Copyright (C) Picviz Labs 2010-2012
+
+set(LIBGUIQT_SRC_FILES
+PVHiveDataTreeModel.cpp
+PVRootTreeModel.cpp
+PVRootTreeView.cpp
+)
+
+SET(LIBGUIQT_MOC_HEADERS
+include/pvguiqt/PVHiveDataTreeModel.h
+)
+
+set(LIBGUIQT_HEADER_FILES
+)
+
+set(SRC_FILES ${LIBGUIQT_SRC_FILES})
+set(HEADER_FILES ${LIBGUIQT_HEADER_FILES})
+set(MOC_HEADERS ${LIBGUIQT_MOC_HEADERS})
+qt4_wrap_cpp(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})
+
+add_library(pvguiqt SHARED ${SRC_FILES} ${HEADER_FILES} ${MOC_SRC} ${MOC_HEADERS})
+
+set_target_properties(pvguiqt PROPERTIES SOVERSION 1)
+
+set(PVGUIQT_LINK_LIBRARIES ${QT_LIBRARIES} ${TBB_LIBRARIES} ${PVKERNEL_LIBRARIES} ${PICVIZ_LIBRARIES} ${PVHIVE_LIBRARIES} ${OpenMP_LIBRARIES})
+
+target_link_libraries(pvguiqt ${PVHIVE_LINK_LIBRARIES})
+
+INSTALL(TARGETS pvguiqt LIBRARY DESTINATION .
+                        RUNTIME DESTINATION .)

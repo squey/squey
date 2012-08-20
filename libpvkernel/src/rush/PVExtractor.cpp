@@ -214,7 +214,7 @@ void PVRush::PVExtractor::dump_nraw()
 //	}
 
 	PVLOG_INFO("Nraw:\n");
-	for (int i = 0; i < picviz_min(10,_nraw.get_number_rows()); i++) {
+	for (size_t i = 0; i < picviz_min(10,_nraw.get_number_rows()); i++) {
 		PVLOG_INFO("Line %d: ", i);
 		for (int j = 0; j < _nraw.get_number_cols(); j++) {
 			std::cerr << qPrintable(_nraw.at(i,j)) << ",";

@@ -71,6 +71,8 @@ public:
 	inline bool is_empty() const { return get_children().size() == 0; }
 	void add_source(PVSource_p const& src);
 
+	virtual QString get_serialize_description() const { return "Scene"; }
+
 protected:
 	int32_t get_new_view_id() const;
 	void set_views_id();

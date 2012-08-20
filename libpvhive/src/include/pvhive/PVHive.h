@@ -265,7 +265,7 @@ public:
 		observables_t::accessor acc;
 
 		// create/get object's entry
-		void* registered_object = PVCore::PVTypeTraits::get_starting_address(object.get());
+		void* registered_object = (void*) PVCore::PVTypeTraits::get_starting_address(object.get());
 		_observables.insert(acc, registered_object);
 
 		// observer must not be in _observables[&object].observers
@@ -611,6 +611,12 @@ private:
 
 	observables_t _observables;
 };
+
+// Helper function
+inline PVHive& get()
+{
+	return PVHive::get();
+}
 
 /**
  * @attention any specialization of template method ::call_object() *must* be

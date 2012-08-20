@@ -84,6 +84,7 @@ public:
 	{
 		static_assert(std::is_convertible<Y*, T*>::value, "type Y is not derived from type T");
 		_shared_count = r._shared_count;
+		_shared_count.add_ref_copy();
 		// AG: this is vry important, as _px might be != r._px ! (polymorphic objects)
 		_px = static_cast<pointer>(r._px);
 	}

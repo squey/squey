@@ -68,7 +68,7 @@ int main(int argc, char** argv)
 
 	// Map the nraw
 	Picviz::PVMapped_p mapped(src);
-	mapped->process_from_parent_source(false);
+	mapped->process_from_parent_source();
 
 	// Dump the mapped table to stdout in a CSV format
 	mapped->to_csv();

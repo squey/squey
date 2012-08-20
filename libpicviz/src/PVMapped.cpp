@@ -268,24 +268,17 @@ void Picviz::PVMapped::add_column(PVMappingProperties const& props)
 	_mapping->add_column(props);
 }
 
-void Picviz::PVMapped::process_from_source(PVSource* src, bool keep_views_info)
-{
-	_mapping->set_source(src);
-
-	process_from_parent_source(keep_views_info);
-}
-
 void Picviz::PVMapped::process_parent_source()
 {
 	create_table();
 }
 
-void Picviz::PVMapped::process_from_parent_source(bool keep_views_info)
+void Picviz::PVMapped::process_from_parent_source()
 {
 	process_parent_source();
 	// Process plotting children
 	for (auto plotted_p : get_children<PVPlotted>()) {
-		plotted_p->process_from_mapped(this, keep_views_info);
+		plotted_p->process_from_parent_mapped();
 	}
 }
 

@@ -55,13 +55,15 @@ class LibPicvizDecl PVView: public data_tree_view_t
 	friend class PVScene;
 	friend class PVCore::PVDataTreeAutoShared<PVView>;
 public:
-	//typedef PVView_p p_type;
 	typedef QHash<QString,PVCore::PVArgumentList> map_filter_arguments;
 	typedef int32_t id_t;
+	
 protected:
 	PVView();
+
 public:
 	virtual ~PVView();
+
 protected:
 	PVView(const PVView& org);
 
@@ -105,7 +107,9 @@ public:
 	bool move_axis_to_new_position(PVCol index_source, PVCol index_dest) { return axes_combination.move_axis_to_new_position(index_source, index_dest); }
 	void axis_append(const PVAxis &axis) { axes_combination.axis_append(axis); }
 
-	void init_from_plotted(PVPlotted* parent, bool keep_layers);
+	//void init_from_plotted(PVPlotted* parent, bool keep_layers);
+
+	virtual QString get_serialize_description() const { return "View: " + get_name(); }
 
 	/* Functions */
 	PVCol get_axes_count();
@@ -250,6 +254,9 @@ public:
 	void process_from_filter();
 	void process_from_layer_stack();
 	void process_from_selection();
+
+	void process_parent_plotted();
+	void reset_view();
 
 /******************************************************************************
 ******************************************************************************

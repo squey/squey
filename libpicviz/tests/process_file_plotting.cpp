@@ -100,11 +100,11 @@ int main(int argc, char** argv)
 
 	// Map the nraw
 	Picviz::PVMapped_p mapped(src);
-	mapped->process_from_parent_source(false);
+	mapped->process_from_parent_source();
 
 	// And plot the mapped values
 	Picviz::PVPlotted_p plotted(mapped);
-	plotted->process_from_parent_mapped(false);
+	plotted->process_from_parent_mapped();
 
 	bool raw_dump = false;
 	bool raw_dump_transp = false;

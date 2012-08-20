@@ -16,6 +16,8 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include <picviz/PVRoot_types.h>
+
 // Plugins prefix
 #define LAYER_FILTER_PREFIX "layer_filter"
 #define MAPPING_FILTER_PREFIX "mapping_filter"
@@ -36,6 +38,8 @@ public:
 public:
 	PVRoot();
 	~PVRoot();
+
+	virtual QString get_serialize_description() const { return "Root"; }
 
 private:
 	// Plugins loading
