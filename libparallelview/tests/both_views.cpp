@@ -95,7 +95,8 @@ int main(int argc, char** argv)
 	PVParallelView::PVLinesView &lines_view = *(new PVParallelView::PVLinesView(zones_drawing_sp, 15));
 
 	PVParallelView::PVFullParallelView view;
-	PVParallelView::PVFullParallelScene* scene = new PVParallelView::PVFullParallelScene(&view, &lines_view);
+	Picviz::FakePVView::shared_pointer fake_pvview_sp(new Picviz::FakePVView);
+	PVParallelView::PVFullParallelScene* scene = new PVParallelView::PVFullParallelScene(&view, &lines_view, fake_pvview_sp);
 	view.setViewport(new QWidget());
 	view.resize(1920, 1600);
 	view.setScene(scene);
