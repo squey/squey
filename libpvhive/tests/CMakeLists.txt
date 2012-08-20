@@ -74,4 +74,7 @@ target_link_libraries(Taxes-comb ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES} ${PIC
 add_executable(Tcall_helper call_helper.cpp)
 target_link_libraries(Tcall_helper ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES} ${PICVIZ_LIBRARIES})
 
+QT4_WRAP_CPP(TEST_FUNC_OBSERVER_THREAD_MOC_SRC func_observer_thread.h OPTIONS ${QT4_WRAP_OPTIONS})
+add_executable(Tcore_func_observer_thread func_observer_thread.cpp ${TEST_FUNC_OBSERVER_THREAD_MOC_SRC})
+target_link_libraries(Tcore_func_observer_thread ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES} ${PICVIZ_LIBRARIES})
 

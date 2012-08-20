@@ -22,8 +22,8 @@ public:
 	friend class PVHive;
 
 public:
-	PVObserverObjectBase() : _object(nullptr) {}
-	virtual ~PVObserverObjectBase() { };
+	PVObserverObjectBase() : _object(nullptr), _registered_object(nullptr) {}
+	virtual ~PVObserverObjectBase() {}
 
 protected:
 	void *get_object() const
