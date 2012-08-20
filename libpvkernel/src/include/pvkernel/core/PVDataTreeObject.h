@@ -73,6 +73,9 @@ public:
 class PVDataTreeObjectBase
 {
 public:
+	typedef PVCore::PVSharedPtr<PVDataTreeObjectBase> base_p_type;
+	typedef PVCore::PVSharedPtr<PVDataTreeObjectBase const> const_base_p_type;
+public:
 	virtual ~PVDataTreeObjectBase() { }
 
 public:
@@ -81,6 +84,24 @@ public:
 
 	PVDataTreeObjectWithChildrenBase const* cast_with_children() const { return dynamic_cast<PVDataTreeObjectWithChildrenBase const*>(this); }
 	PVDataTreeObjectWithChildrenBase*       cast_with_children()       { return dynamic_cast<PVDataTreeObjectWithChildrenBase*>(this); }
+
+public:
+	virtual base_p_type base_shared_from_this() = 0;
+	virtual const_base_p_type base_shared_from_this() const = 0;
+
+public:
+	template <class F>
+	void depth_first_list(F const& f)
+	{
+		PVDataTreeObjectWithChildrenBase* obj_children = cast_with_children();
+		if (!obj_children) {
+			return;
+		}
+		for (PVDataTreeObjectBase* c : obj_children->get_children_base()) {
+			f(c);
+			c->depth_first_list(f);
+		}
+	}
 
 public:
 	virtual QString get_serialize_description() const { return QString(); }
@@ -316,7 +337,7 @@ public:
 	inline const Tancestor* get_parent()  const
 	{
 		static_assert(std::is_same<Tancestor, real_type_t>::value == false, "PVDataTreeObject::get_parent: one object is asking itself as a parent.");
-		return GetParentImpl<parent_t, Tancestor>::get_parent(get_real_parent());
+		return GetParentImpl<parent_t const, Tancestor const>::get_parent(get_real_parent());
 	}
 
 	inline void set_parent(pparent_t const& parent) { set_parent_from_ptr(parent.get()); }
@@ -379,7 +400,7 @@ private:
 		static inline Tancestor* get_parent(T* parent)
 		{
 			if (parent != nullptr) {
-				return GetParentImpl<typename T::parent_t, Tancestor>::get_parent(parent->get_parent());
+				return GetParentImpl<typename PVCore::PVTypeTraits::const_fwd<typename T::parent_t, T>::type, Tancestor>::get_parent(parent->get_parent());
 			}
 
 			return nullptr;
@@ -389,7 +410,7 @@ private:
 	/*! \brief Get parent as a parent_t object
 	 */
 	parent_t* get_real_parent() { return static_cast<parent_t*>(get_parent_base()); }
-	parent_t* get_real_parent() const { return static_cast<parent_t*>(get_parent_base()); }
+	parent_t const* get_real_parent() const { return static_cast<parent_t const*>(get_parent_base()); }
 };
 
 }
@@ -442,6 +463,18 @@ public:
 	/*! \brief Delete the data tree object and all of it's underlying children hierarchy.
 	 */
 	virtual ~PVDataTreeObject() {}
+
+public:
+	virtual base_p_type base_shared_from_this()
+	{
+		PVCore::PVSharedPtr<real_type_t> p(static_cast<real_type_t*>(this)->shared_from_this());
+		return std::move(base_p_type(p));
+	}
+	virtual const_base_p_type base_shared_from_this() const
+	{
+		PVCore::PVSharedPtr<real_type_t const> p(static_cast<real_type_t const*>(this)->shared_from_this());
+		return std::move(const_base_p_type(p));
+	}
 };
 
 // Special case when root item !
@@ -471,6 +504,18 @@ private:
 
 public:
 	typedef PVDataTreeAutoShared<real_type_t> p_type;
+
+public:
+	virtual base_p_type base_shared_from_this()
+	{
+		PVCore::PVSharedPtr<real_type_t> p(static_cast<real_type_t*>(this)->shared_from_this());
+		return std::move(base_p_type(p));
+	}
+	virtual const_base_p_type base_shared_from_this() const
+	{
+		PVCore::PVSharedPtr<real_type_t const> p(static_cast<real_type_t const*>(this)->shared_from_this());
+		return std::move(const_base_p_type(p));
+	}
 
 public:
 	/*! \brief Default constructor
@@ -521,6 +566,18 @@ public:
 	/*! \brief Delete the data tree object and all of it's underlying children hierarchy.
 	 */
 	virtual ~PVDataTreeObject() {}
+
+public:
+	virtual base_p_type base_shared_from_this()
+	{
+		PVCore::PVSharedPtr<real_type_t> p(static_cast<real_type_t*>(this)->shared_from_this());
+		return std::move(base_p_type(p));
+	}
+	virtual const_base_p_type base_shared_from_this() const
+	{
+		PVCore::PVSharedPtr<real_type_t const> p(static_cast<real_type_t const*>(this)->shared_from_this());
+		return std::move(const_base_p_type(p));
+	}
 
 public:
 	virtual void serialize(PVCore::PVSerializeObject& /*so*/, PVCore::PVSerializeArchive::version_t /*v*/) { }

@@ -688,5 +688,9 @@ bool serialize_use_case()
 
 int main()
 {
+	A_p a;
+	PVCore::PVDataTreeObjectBase* abase = static_cast<PVCore::PVDataTreeObjectBase*>(a.get());
+	std::cout << a.get() << " " << abase << std::endl;
+
 	return !(standard_use_case() && serialize_use_case());
 }

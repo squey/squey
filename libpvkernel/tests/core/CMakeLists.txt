@@ -100,6 +100,10 @@ target_link_libraries(Tcore_weak_ptr)
 add_executable(Tcore_function_traits function_traits.cpp)
 target_link_libraries(Tcore_function_traits ${PVKERNEL_LIBRARIES})
 
+# Const forward
+add_executable(Tcore_const_fwd const_fwd.cpp)
+target_link_libraries(Tcore_const_fwd ${PVKERNEL_LIBRARIES})
+
 # Bit count
 add_executable(Tcore_bit_count bit_count.cpp)
 target_link_libraries(Tcore_bit_count ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES} ${OpenMP_LIBRARIES})

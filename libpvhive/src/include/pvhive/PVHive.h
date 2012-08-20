@@ -183,7 +183,7 @@ public:
 	{
 		observables_t::accessor acc;
 
-		_observables.insert(acc, (void*) object.get());
+		_observables.insert(acc, PVCore::PVTypeTraits::get_starting_address(object.get()));
 		object.set_deleter(&__impl::hive_deleter<T>);
 	}
 
@@ -206,7 +206,7 @@ public:
 		_observables.insert(acc, (void*) &property);
 
 		// create/get object's entry
-		_observables.insert(acc, (void*) object.get());
+		_observables.insert(acc, PVCore::PVTypeTraits::get_starting_address(object.get()));
 		acc->second.properties.insert((void*) &property);
 		object.set_deleter(&__impl::hive_deleter<T>);
 	}
@@ -226,11 +226,12 @@ public:
 		observables_t::accessor acc;
 
 		// create/get object's entry
-		_observables.insert(acc, (void*) object.get());
+		void* registered_object = PVCore::PVTypeTraits::get_starting_address(object.get());
+		_observables.insert(acc, registered_object);
 
 		// create/get object's entry
 		acc->second.actors.insert(&actor);
-		actor.set_object((void*) object.get());
+		actor.set_object((void*) object.get(), registered_object);
 		object.set_deleter(&__impl::hive_deleter<T>);
 	}
 
@@ -264,13 +265,14 @@ public:
 		observables_t::accessor acc;
 
 		// create/get object's entry
-		_observables.insert(acc, (void*) object.get());
+		void* registered_object = PVCore::PVTypeTraits::get_starting_address(object.get());
+		_observables.insert(acc, registered_object);
 
 		// observer must not be in _observables[&object].observers
 		assert(already_registered(acc->second.observers, observer) == false);
 
 		acc->second.observers.push_back(&observer);
-		observer.set_object((void*) object.get());
+		observer.set_object((void*) object.get(), registered_object);
 		object.set_deleter(&__impl::hive_deleter<T>);
 	}
 
@@ -289,7 +291,8 @@ public:
 		observables_t::accessor acc;
 
 		// create/get object's entry
-		_observables.insert(acc, (void*) object.get());
+		void* registered_object = PVCore::PVTypeTraits::get_starting_address(object.get());
+		_observables.insert(acc, registered_object);
 
 #ifdef __GNUG__
 		// Disable warning for GCC for this line
@@ -300,7 +303,7 @@ public:
 #ifdef __GNUG__
 #pragma GCC diagnostic pop
 #endif
-		observer.set_object((void*) object.get());
+		observer.set_object((void*) object.get(), registered_object);
 		object.set_deleter(&__impl::hive_deleter<T>);
 	}
 
@@ -324,19 +327,20 @@ public:
 		observables_t::accessor acc;
 
 		// create/get property's entry
-		_observables.insert(acc, (void*) &property);
+		void* registered_object = (void*) PVCore::PVTypeTraits::get_starting_address(&property);
+		_observables.insert(acc, registered_object);
 
 		// observer must not be in _observables[&property].observers
 		assert(already_registered(acc->second.observers, observer) == false);
 
 		// adding observer
 		acc->second.observers.push_back(&observer);
-		observer.set_object((void*) &property);
+		observer.set_object((void*) &property, registered_object);
 
 		// adding property
 		// create/get object's entry
-		_observables.insert(acc, (void*) object.get());
-		acc->second.properties.insert((void*) &property);
+		_observables.insert(acc, PVCore::PVTypeTraits::get_starting_address(object.get()));
+		acc->second.properties.insert(registered_object);
 		object.set_deleter(&__impl::hive_deleter<T>);
 	}
 
@@ -361,26 +365,7 @@ public:
 	 *
 	 * @param observer the function observer
 	 */
-	bool unregister_func_observer(PVFuncObserverBase& observer, void* f)
-	{
-		if(observer._object) {
-			observables_t::accessor acc;
-
-			if (_observables.find(acc, observer._object)) {
-				func_observers_t& fobs(acc->second.func_observers);
-				func_observers_t::const_iterator it_fo, it_fo_e;
-			 	boost::tie(it_fo, it_fo_e) = fobs.equal_range(f);
-				func_observers_t::const_iterator it_to_del = std::find_if(it_fo, it_fo_e, [=,&observer](func_observers_t::value_type const& it) { return it.second == &observer; });
-				if (it_to_del != fobs.end()) {
-					fobs.erase(it_to_del);
-				}
-			}
-
-			observer._object = nullptr;
-			return true;
-		}
-		return false;
-	}
+	bool unregister_func_observer(PVFuncObserverBase& observer, void* f);
 
 public:
 	/**
@@ -643,7 +628,7 @@ namespace __impl
 template <typename T>
 inline void hive_deleter(T *ptr)
 {
-	PVHive::get().unregister_object((void*) ptr);
+	PVHive::get().unregister_object(PVCore::PVTypeTraits::get_starting_address(ptr));
 	delete ptr;
 }
 

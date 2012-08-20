@@ -64,7 +64,7 @@ public: // actually private, but avoids compiler template friendship issues
     }
 
 private:
-    PVWeakPtr<T> _weak_this;
+    mutable PVWeakPtr<T> _weak_this;
 };
 
 }

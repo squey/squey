@@ -23,11 +23,11 @@ bool PVHive::PVHive::unregister_actor(PVActorBase& actor)
 	if(actor._object) {
 		observables_t::accessor acc;
 
-		if (_observables.find(acc, actor._object)) {
+		if (_observables.find(acc, actor._registered_object)) {
 			acc->second.actors.erase(&actor);
 		}
 
-		actor.set_object(nullptr);
+		actor.set_object(nullptr, nullptr);
 		return true;
 	}
 	return false;
@@ -42,7 +42,7 @@ bool PVHive::PVHive::unregister_observer(PVObserverBase& observer)
 	if(observer._object) {
 		observables_t::accessor acc;
 
-		if (_observables.find(acc, observer._object)) {
+		if (_observables.find(acc, observer._registered_object)) {
 			acc->second.observers.remove(&observer);
 		}
 
@@ -71,7 +71,7 @@ void PVHive::PVHive::unregister_object(void *object)
 			if (_observables.find(pacc, it)) {
 				// actors...
 				for (auto pit : pacc->second.actors) {
-					pit->set_object(nullptr);
+					pit->set_object(nullptr, nullptr);
 				}
 
 				// and observers
@@ -85,7 +85,7 @@ void PVHive::PVHive::unregister_object(void *object)
 
 		// unregistering actors...
 		for (auto it : acc->second.actors) {
-			it->set_object(nullptr);
+			it->set_object(nullptr, nullptr);
 		}
 
 		// and observers
@@ -97,6 +97,28 @@ void PVHive::PVHive::unregister_object(void *object)
 		// finally, the entry of object is removed
 		_observables.erase(acc);
 	}
+}
+
+bool PVHive::PVHive::unregister_func_observer(PVFuncObserverBase& observer, void* f)
+{
+	if(observer._object) {
+		observables_t::accessor acc;
+
+		if (_observables.find(acc, observer._registered_object)) {
+			func_observers_t& fobs(acc->second.func_observers);
+			func_observers_t::const_iterator it_fo, it_fo_e;
+			boost::tie(it_fo, it_fo_e) = fobs.equal_range(f);
+			func_observers_t::const_iterator it_to_del = std::find_if(it_fo, it_fo_e, [=,&observer](func_observers_t::value_type const& it) { return it.second == &observer; });
+			if (it_to_del != fobs.end()) {
+				fobs.erase(it_to_del);
+			}
+		}
+
+		observer._object = nullptr;
+		observer._registered_object = nullptr;
+		return true;
+	}
+	return false;
 }
 
 /*****************************************************************************

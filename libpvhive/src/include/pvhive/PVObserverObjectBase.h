@@ -31,13 +31,15 @@ protected:
 		return _object;
 	}
 
-	void set_object(void *object)
+	void set_object(void *object, void* registered_object)
 	{
 		_object = object;
+		_registered_object = registered_object;
 	}
 
 protected:
 	void* _object;
+	void* _registered_object;
 };
 
 }

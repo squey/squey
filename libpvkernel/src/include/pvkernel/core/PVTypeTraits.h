@@ -9,6 +9,7 @@
 
 #include <boost/shared_ptr.hpp>
 #include <boost/type_traits.hpp>
+#include <type_traits>
 
 namespace PVCore {
 
@@ -132,6 +133,35 @@ struct add_reference_const
 {
 	typedef typename boost::add_reference<typename boost::add_const<T>::type>::type type;
 };
+
+// Const forwarder
+// Make a type const iif another type is const
+template <class T, class Tref>
+struct const_fwd
+{
+	typedef T type;
+};
+
+template <class T, class Tref>
+struct const_fwd<T, const Tref>
+{
+	typedef typename std::add_const<T>::type type;
+};
+
+
+// Polymorhpic object helpers
+template <typename T, typename std::enable_if<std::is_polymorphic<T>::value == true, int>::type = 0>
+inline typename const_fwd<void, T>::type* get_starting_address(T* obj)
+{
+	return dynamic_cast<typename const_fwd<void, T>::type*>(obj);
+}
+
+template <typename T, typename std::enable_if<std::is_polymorphic<T>::value == false, int>::type = 0>
+inline typename const_fwd<void, T>::type* get_starting_address(T* obj)
+{
+	return reinterpret_cast<typename const_fwd<void, T>::type*>(obj);
+}
+
 }
 
 // Variadic informations

@@ -80,12 +80,13 @@ public:
 	template <typename Y>
 	explicit PVSharedPtr(PVSharedPtr<Y> const & r)
 	{
-		static_assert(std::is_convertible<Y, T>::value, "type Y is not derived from type T");
+		static_assert(std::is_convertible<Y*, T*>::value, "type Y is not derived from type T");
 		_shared_count = r._shared_count;
 	}
 
 	 // Create PVSharedPtr from PVWeakPtr
-	PVSharedPtr(PVWeakPtr<T> const & r) : _shared_count(r._weak_count)
+	template <class Y>
+	PVSharedPtr(PVWeakPtr<Y> const & r) : _shared_count(r._weak_count)
 	{
 	}
 

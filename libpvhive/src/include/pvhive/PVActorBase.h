@@ -29,18 +29,25 @@ public:
 	virtual ~PVActorBase();
 
 protected:
-	void *get_object() const
+	void* get_object() const
 	{
 		return _object;
 	}
 
-	void set_object(void *object)
+	void* get_registered_object() const
+	{
+		return _registered_object;
+	}
+
+	void set_object(void *object, void* registered_object)
 	{
 		_object = object;
+		_registered_object = registered_object;
 	}
 
 private:
 	void *_object;
+	void *_registered_object;
 };
 
 }
