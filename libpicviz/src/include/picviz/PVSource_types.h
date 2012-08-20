@@ -13,6 +13,7 @@ namespace Picviz {
 
 class PVSource;
 typedef PVCore::PVDataTreeAutoShared<PVSource> PVSource_p;
+typedef PVCore::PVSharedPtr<PVSource> PVSource_sp;
 }
 
 

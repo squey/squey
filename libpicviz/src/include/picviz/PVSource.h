@@ -91,7 +91,7 @@ public:
 
 	PVRush::PVInputType::list_inputs const& get_inputs() const { return _inputs; }
 
-	void process_from_source(bool keep_view_infos);
+	void process_from_source();
 
 	QString get_name() const { return _src_plugin->supported_type_lib()->tab_name_of_inputs(_inputs); }
 	QString get_format_name() const { return _extractor.get_format().get_format_name(); }
@@ -106,6 +106,8 @@ public:
 	void set_invalid_elts_mode(bool restore_inv_elts);
 
 	void add_column(PVAxisComputation_f f_axis, Picviz::PVAxis const& axis);
+
+	virtual QString get_serialize_description() const { return "Source: " + get_name(); }
 
 private:
 	void add_column(Picviz::PVAxis const& axis);

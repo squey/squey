@@ -92,11 +92,10 @@ protected:
 	void add_column(PVPlottingProperties const& props);
 
 public:
-	int create_table();
 	void process_expanded_selections();
 
-	void process_from_mapped(PVMapped* mapped, bool keep_views_info);
-	void process_from_parent_mapped(bool keep_views_info);
+	void process_parent_mapped();
+	void process_from_parent_mapped();
 
 	void set_name(QString const& name) { _plotting->set_name(name); }
 	QString const& get_name() const { return _plotting->get_name(); }
@@ -104,6 +103,8 @@ public:
 	static void norm_int_plotted(plotted_table_t const& trans_plotted, uint_plotted_table_t& res, PVCol ncols);
 
 	void set_plotting(PVPlotting_p const& plotting) { _plotting = plotting; }
+
+	virtual QString get_serialize_description() const { return "Plotting: " + get_name(); }
 
 public:
 	// Parents
@@ -158,6 +159,8 @@ protected:
 	virtual QString get_children_description() const { return "View(s)"; }
 	virtual QString get_children_serialize_name() const { return "views"; }
 	virtual void child_added(PVView& child);
+
+	int create_table();
 
 private:
 	PVPlotting_p _plotting;

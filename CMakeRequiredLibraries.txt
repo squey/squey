@@ -242,6 +242,7 @@ find_package(PVKernel REQUIRED)
 find_package(PVHive REQUIRED)
 find_package(Picviz REQUIRED)
 find_package(PVSDK REQUIRED)
+find_package(PVGUIQT REQUIRED)
 
 if(USE_PVGL2)
 	find_package(PVGL2 REQUIRED)

@@ -218,18 +218,16 @@ PVRush::PVInputType_p Picviz::PVSource::get_input_type() const
 
 void Picviz::PVSource::create_default_view()
 {
-	PVMapped_p def_mapped;
-	def_mapped->set_parent(this);
-	def_mapped->process_from_parent_source(false);
-	PVPlotted_p def_plotted;
-	def_plotted->set_parent(def_mapped);
-	def_plotted->process_from_parent_mapped(false);
+	PVMapped_p def_mapped(shared_from_this());
+	PVPlotted_p def_plotted(def_mapped);
+	PVView_p def_view(def_plotted);
+	process_from_source();
 }
 
-void Picviz::PVSource::process_from_source(bool keep_views_info)
+void Picviz::PVSource::process_from_source()
 {
 	for (auto mapped_p : get_children<PVMapped>()) {
-		mapped_p->process_from_source(this, keep_views_info);
+		mapped_p->process_from_parent_source();
 	}
 }
 
@@ -265,7 +263,7 @@ void Picviz::PVSource::add_column(PVAxis const& axis)
 	}
 
 	// Reprocess from source
-	process_from_source(true);
+	process_from_source();
 }
 
 void Picviz::PVSource::set_views_consistent(bool cons)

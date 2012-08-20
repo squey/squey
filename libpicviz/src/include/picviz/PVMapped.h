@@ -60,9 +60,7 @@ public:
 	
 public:
 	void process_parent_source();
-
-	void process_from_source(PVSource* src, bool keep_views_info);
-	void process_from_parent_source(bool keep_views_info);
+	void process_from_parent_source();
 
 	inline bool is_uptodate() const { return _mapping->is_uptodate(); };
 
@@ -73,6 +71,8 @@ public:
 
 	QList<PVCol> get_columns_indexes_values_within_range(float min, float max, double rate = 1.0);
 	QList<PVCol> get_columns_indexes_values_not_within_range(float min, float max, double rate = 1.0);
+
+	virtual QString get_serialize_description() const { return "Mapping: " + get_name(); }
 
 public:
 	// Data access

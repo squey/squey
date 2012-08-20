@@ -63,6 +63,53 @@ Picviz::PVView::PVView(const PVView& /*org*/):
 void Picviz::PVView::set_parent_from_ptr(PVPlotted* plotted)
 {
 	data_tree_view_t::set_parent_from_ptr(plotted);
+	reset_view();
+}
+
+void Picviz::PVView::process_parent_plotted()
+{
+	Picviz::PVPlotted* plotted = get_parent();
+	_rushnraw_parent = &get_parent<PVSource>()->get_rushnraw();
+
+	// Init default axes combination from source
+	PVSource* source = plotted->get_parent<PVSource>();
+	axes_combination.set_from_format(source->get_format());
+	axes_combination.set_axis_name(0, axes_combination.get_axis(0).get_name()); // Hack to detach QVector
+
+	// Create layer filter arguments for that view
+	LIB_CLASS(Picviz::PVLayerFilter) &filters_layer = 	LIB_CLASS(Picviz::PVLayerFilter)::get();
+	LIB_CLASS(Picviz::PVLayerFilter)::list_classes const& lf = filters_layer.get_list();
+	
+	LIB_CLASS(Picviz::PVLayerFilter)::list_classes::const_iterator it;
+
+	for (it = lf.begin(); it != lf.end(); it++) {
+		filters_args[it.key()] = it.value()->get_default_args_for_view(*this);
+	}
+
+	row_count = get_parent<PVPlotted>()->get_row_count();
+	layer_stack.set_row_count(row_count);
+	eventline.set_row_count(row_count);
+	eventline.set_first_index(0);
+	eventline.set_current_index(row_count);
+	eventline.set_last_index(row_count);
+	z_level_array.set_row_count(row_count);
+
+	// First process
+	select_all_nonzb_lines();
+	nu_selection.select_none();
+
+	process_from_layer_stack();
+
+	_is_consistent = true;
+}
+
+void Picviz::PVView::reset_view()
+{
+	reset_layers();
+
+	PVSource* source = get_parent<PVSource>();
+	axes_combination = source->get_axes_combination();
+	axes_combination.set_axis_name(0, axes_combination.get_axis(0).get_name()); // Hack to detach QVector
 }
 
 /******************************************************************************
@@ -94,60 +141,6 @@ void Picviz::PVView::init_defaults()
 	default_zombie_line_properties.r() = (unsigned char)0;
 	default_zombie_line_properties.g() = (unsigned char)0;
 	default_zombie_line_properties.b() = (unsigned char)0;
-}
-
-/******************************************************************************
- *
- * Picviz::PVView::init_from_plotted
- *
- *****************************************************************************/
-void Picviz::PVView::init_from_plotted(PVPlotted* plotted, bool keep_layers)
-{
-	set_parent_from_ptr(plotted);
-
-	_rushnraw_parent = &plotted->get_parent<PVSource>()->get_rushnraw();
-
-	// Init default axes combination from source
-	PVSource* source = plotted->get_parent<PVSource>();
-	if (keep_layers) {
-		axes_combination.set_from_format(source->get_format());
-	}
-	else {
-		axes_combination = source->get_axes_combination();
-	}
-	axes_combination.set_axis_name(0, axes_combination.get_axis(0).get_name()); // Hack to detach QVector
-
-	// Create layer filter arguments for that view
-	LIB_CLASS(Picviz::PVLayerFilter) &filters_layer = 	LIB_CLASS(Picviz::PVLayerFilter)::get();
-	LIB_CLASS(Picviz::PVLayerFilter)::list_classes const& lf = filters_layer.get_list();
-	
-	LIB_CLASS(Picviz::PVLayerFilter)::list_classes::const_iterator it;
-
-	for (it = lf.begin(); it != lf.end(); it++) {
-		filters_args[it.key()] = it.value()->get_default_args_for_view(*this);
-	}
-
-	row_count = get_parent<PVPlotted>()->get_row_count();
-	layer_stack.set_row_count(row_count);
-	eventline.set_row_count(row_count);
-	eventline.set_first_index(0);
-	eventline.set_current_index(row_count);
-	eventline.set_last_index(row_count);
-	z_level_array.set_row_count(row_count);
-
-	// First process
-	if (!keep_layers) {
-		reset_layers();
-	}
-	else {
-		layer_stack.compute_min_maxs(*plotted);
-	}
-	select_all_nonzb_lines();
-	nu_selection.select_none();
-
-	process_from_layer_stack();
-
-	_is_consistent = true;
 }
 
 /******************************************************************************
@@ -1322,7 +1315,7 @@ void Picviz::PVView::recreate_mapping_plotting()
 {
 	// Source has been changed, recreate mapping and plotting
 	get_parent<PVMapped>()->process_parent_source();
-	get_parent<PVPlotted>()->process_from_parent_mapped(true);
+	get_parent<PVPlotted>()->process_from_parent_mapped();
 
 /*
 	// Save current axes combination
@@ -1449,7 +1442,7 @@ void Picviz::PVView::serialize_write(PVCore::PVSerializeObject& so)
 	so.object("axes-combination", axes_combination, "Axes combination", true);
 }
 
-void Picviz::PVView::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v)
+void Picviz::PVView::serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 {
 	if (!so.object("layer-stack", layer_stack, "Layers", true)) {
 		// If no layer stack, reset all layers so that we have one :)

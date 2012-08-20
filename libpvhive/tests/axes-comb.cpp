@@ -115,8 +115,7 @@ int main(int argc, char** argv)
 	Picviz::PVMapped_p mapped(src);
 	Picviz::PVPlotted_p plotted(mapped);
 
-	Picviz::PVView_p view_p;
-	view_p->init_from_plotted(plotted.get(), false);
+	Picviz::PVView_p view_p(plotted);
 
 	boost::thread th(boost::bind(thread, boost::ref(view_p)));
 

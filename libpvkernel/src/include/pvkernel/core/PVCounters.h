@@ -56,6 +56,7 @@ public:
 
 	inline long add_ref_copy()
 	{
+		assert(_counted_base);
 		return _counted_base->add_ref_copy();
 	}
 

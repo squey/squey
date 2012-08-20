@@ -573,7 +573,10 @@ bool standard_use_case()
 	//////////////////////////////////////////
 
 	PVCore::PVDataTreeObjectBase* obase = static_cast<PVCore::PVDataTreeObjectBase*>(a1.get());
+	PVCore::PVDataTreeObjectBase::base_p_type obase_p = obase->base_shared_from_this();
+	PVLOG_INFO("a1=%p obase=%p obase_get=%p\n", a1.get(), obase, obase_p.get());
 	bool test11 = true;
+	test11 &= my_assert(obase_p.get() == obase);
 	test11 &= my_assert(dynamic_cast<PVCore::PVDataTreeObjectWithParentBase*>(obase) == nullptr);
 	test11 &= my_assert(dynamic_cast<PVCore::PVDataTreeObjectWithChildrenBase*>(obase) != nullptr);
 	obase = static_cast<PVCore::PVDataTreeObjectBase*>(b1.get());
@@ -583,12 +586,22 @@ bool standard_use_case()
 	test11 &= my_assert(dynamic_cast<PVCore::PVDataTreeObjectWithParentBase*>(obase) != nullptr);
 	test11 &= my_assert(dynamic_cast<PVCore::PVDataTreeObjectWithChildrenBase*>(obase) == nullptr);
 
+	//////////////////////////////////////////
+	//  Test11 - Start from a PVDataTreeObjectBase and check that casting works
+	//////////////////////////////////////////
+	// obase is 'd' here
+	bool test12 = true;
+	std::cout << "Base object pointer = " << obase << std::endl;
+	std::cout << "Starting address of final object = " << PVCore::PVTypeTraits::get_starting_address(obase) << std::endl;
+	std::cout << "Final object (D) pointer is = " << d.get() << std::endl;
+	test12 &= my_assert(PVCore::PVTypeTraits::get_starting_address(obase) == d.get());
+
 	// Delete the remaining hierarchy
 	std::cout << std::endl << "=DELETING REMAINING TREES=" << std::endl;
 	a1.reset();
 	a2.reset();
 
-	return (parent_access && children_access && same_parent && changing_parent && changing_child && create_with_parent_and_set_same_parent && removing_child && removing_parent && null_parent_null_ancestor && test11);
+	return (parent_access && children_access && same_parent && changing_parent && changing_child && create_with_parent_and_set_same_parent && removing_child && removing_parent && null_parent_null_ancestor && test11 && test12);
 }
 
 bool serialize_use_case()
@@ -688,9 +701,5 @@ bool serialize_use_case()
 
 int main()
 {
-	A_p a;
-	PVCore::PVDataTreeObjectBase* abase = static_cast<PVCore::PVDataTreeObjectBase*>(a.get());
-	std::cout << a.get() << " " << abase << std::endl;
-
 	return !(standard_use_case() && serialize_use_case());
 }

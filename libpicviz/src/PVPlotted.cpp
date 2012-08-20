@@ -471,14 +471,12 @@ void Picviz::PVPlotted::get_col_minmax(PVRow& min, PVRow& max, PVSelection const
 	}
 }
 
-void Picviz::PVPlotted::process_from_mapped(PVMapped* mapped, bool keep_views_info)
+void Picviz::PVPlotted::process_parent_mapped()
 {
-	set_parent_from_ptr(mapped);
-
-	process_from_parent_mapped(keep_views_info);
+	create_table();
 }
 
-void Picviz::PVPlotted::process_from_parent_mapped(bool keep_views_info)
+void Picviz::PVPlotted::process_from_parent_mapped()
 {
 	// Check parent consistency
 	auto mapped = get_parent();
@@ -487,21 +485,17 @@ void Picviz::PVPlotted::process_from_parent_mapped(bool keep_views_info)
 		mapped->process_parent_source();
 	}
 
-	create_table();
-	if (keep_views_info) {
-		process_expanded_selections();
+	process_parent_mapped();
+	process_expanded_selections();
+	
+	PVView_sp cur_view;
+	if (get_children_count() == 0) {
+		cur_view = PVView_p(shared_from_this());
 	}
 	else {
-		_expanded_sels.clear();
+		cur_view = current_view()->shared_from_this();
 	}
-	if (!current_view()) {
-		PVView_sp view = PVView_p();
-		view->init_from_plotted(this, false);
-		get_parent<PVSource>()->add_view(view);
-	}
-	else {
-		current_view()->init_from_plotted(this, keep_views_info);
-	}
+	cur_view->process_parent_plotted();
 }
 
 bool Picviz::PVPlotted::is_uptodate() const
@@ -521,9 +515,7 @@ void Picviz::PVPlotted::add_column(PVPlottingProperties const& props)
 
 void Picviz::PVPlotted::child_added(PVView& child)
 {
-	if (!current_view()) {
-		get_parent<PVSource>()->select_view(child);
-	}
+	get_parent<PVSource>()->add_view(child.shared_from_this());
 }
 
 void Picviz::PVPlotted::serialize_write(PVCore::PVSerializeObject& so)

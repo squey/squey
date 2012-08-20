@@ -53,27 +53,29 @@ public:
 	typedef void(*deleter)(pointer);
 
 
-	PVSharedPtr(): _shared_count()
+	PVSharedPtr(): _shared_count(), _px(nullptr)
 	{
 	}
 
-	explicit PVSharedPtr(pointer p) : _shared_count(p)
+	explicit PVSharedPtr(pointer p) : _shared_count(p), _px(p)
 	{
 		enable_shared_from_this(this, p);
 	}
 
 	template<class Y>
-	explicit PVSharedPtr(Y* p) : _shared_count(p)
+	explicit PVSharedPtr(Y* p):
+		_shared_count(p),
+		_px(static_cast<pointer>(p))
 	{
 		enable_shared_from_this(this, p);
 	}
 
-	explicit PVSharedPtr(pointer p, deleter d) : _shared_count(p, d)
+	explicit PVSharedPtr(pointer p, deleter d) : _shared_count(p, d), _px(p)
 	{
 		enable_shared_from_this(this, p);
 	}
 
-	PVSharedPtr(const PVSharedPtr<T> &r) : _shared_count(r._shared_count)
+	PVSharedPtr(const PVSharedPtr<T> &r) : _shared_count(r._shared_count), _px(r._px)
 	{
 	}
 
@@ -82,11 +84,16 @@ public:
 	{
 		static_assert(std::is_convertible<Y*, T*>::value, "type Y is not derived from type T");
 		_shared_count = r._shared_count;
+		_shared_count.add_ref_copy();
+		// AG: this is vry important, as _px might be != r._px ! (polymorphic objects)
+		_px = static_cast<pointer>(r._px);
 	}
 
 	 // Create PVSharedPtr from PVWeakPtr
 	template <class Y>
-	PVSharedPtr(PVWeakPtr<Y> const & r) : _shared_count(r._weak_count)
+	PVSharedPtr(PVWeakPtr<Y> const & r):
+		_shared_count(r._weak_count),
+		_px(static_cast<pointer>(r._px))
 	{
 	}
 
@@ -94,27 +101,27 @@ public:
 	template <typename Y, typename Z>
 	PVSharedPtr(PVSharedPtr<Y> const & r, Z* p): _shared_count(r._shared_count)
 	{
-		_shared_count.set((Y*)p);
+		_px = static_cast<pointer>(p);
 	}
 
 	template <class Y>
-	PVSharedPtr(PVSharedPtr<Y> const & r, __impl::static_cast_tag) : _shared_count(r._shared_count)
+	PVSharedPtr(PVSharedPtr<Y> const & r, __impl::static_cast_tag):
+		_shared_count(r._shared_count)
 	{
-		_shared_count.set(static_cast<T*>(_shared_count.get()));
+		_px = static_cast<pointer>(r.get());
 	}
 
 	template<class Y>
 	PVSharedPtr(PVSharedPtr<Y> const & r, __impl::const_cast_tag) : _shared_count(r._shared_count)
 	{
-		_shared_count.set(const_cast<T*>(_shared_count.get()));
+		_px = const_cast<pointer>(r.get());
 	}
 
 	template<class Y>
 	PVSharedPtr(PVSharedPtr<Y> const & r, __impl::dynamic_cast_tag) : _shared_count(r._shared_count)
 	{
-		_shared_count.set(dynamic_cast<T*>(get()));
-		if(get() == nullptr)
-		{
+		_px = dynamic_cast<pointer>(r.get());
+		if(_px == nullptr) {
 			_shared_count = shared_counter_t();
 		}
 	}
@@ -142,7 +149,7 @@ public:
 
 	inline pointer get() const
 	{
-		return (pointer) _shared_count.get();
+		return _px;
 	}
 
 	inline operator bool() const { return (_shared_count.get() != nullptr); }
@@ -150,13 +157,15 @@ public:
 	inline T& operator*() const
 	{
 		assert(_shared_count.get() != nullptr);
-		return * (T*)_shared_count.get();
+		assert(_px != nullptr);
+		return *_px;
 	}
 
 	inline T* operator->() const
 	{
 		assert(_shared_count.get() != nullptr);
-		return (T*) _shared_count.get();
+		assert(_px != nullptr);
+		return _px;
 	}
 
 	void set_deleter(deleter d)	{ _shared_count.set_deleter((void*)d); }
@@ -167,7 +176,12 @@ public:
 		return _shared_count.use_count();
 	}
 
-	inline void swap(PVSharedPtr<T>& other) { assert(this != &other); std::swap(_shared_count, other._shared_count); }
+	inline void swap(PVSharedPtr<T>& other)
+	{
+		assert(this != &other);
+		std::swap(_shared_count, other._shared_count);
+		std::swap(_px, other._px);
+	}
 
 private:
 	template<class X, class Y>
@@ -185,6 +199,7 @@ private:
 
 private:
 	shared_counter_t _shared_count;
+	pointer _px;
 };
 
 template <class T, class U>

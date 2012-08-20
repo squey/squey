@@ -442,6 +442,8 @@ public:
 	typedef typename impl_parent_t::parent_t  parent_t;
 	typedef typename impl_parent_t::pparent_t pparent_t;
 
+	typedef typename parent_t::root_t root_t;
+
 	typedef PVDataTreeObject<parent_t, child_t> data_tree_t;
 
 private:
@@ -504,6 +506,7 @@ private:
 
 public:
 	typedef PVDataTreeAutoShared<real_type_t> p_type;
+	typedef real_type_t root_t;
 
 public:
 	virtual base_p_type base_shared_from_this()
@@ -553,6 +556,8 @@ private:
 
 public:
 	typedef PVDataTreeAutoShared<real_type_t> p_type;
+	typedef Tparent parent_t;
+	typedef typename parent_t::root_t root_t;
 
 public:
 	/*! \brief Default constructor
@@ -588,7 +593,8 @@ public:
 	void dump(uint32_t spacing = 20)
 	{
 		real_type_t* me = static_cast<real_type_t*>(this);
-		std::cout << " |" << std::setfill('-') << std::setw(spacing) << typeid(real_type_t).name() << "(" << me << ")" << std::endl;
+		PVDataTreeObjectBase* base = static_cast<PVDataTreeObjectBase*>(this);
+		std::cout << " |" << std::setfill('-') << std::setw(spacing) << typeid(real_type_t).name() << "(" << me << ", base: " << base << ")" << std::endl;
 	}
 };
 
