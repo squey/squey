@@ -27,7 +27,7 @@ class PVView;
 
 namespace PVParallelView {
 
-class draw_zone_Observer: public PVHive::PVFuncObserver<typename PVLinesView::zones_drawing_t, FUNC(PVLinesView::zones_drawing_t::draw_zone<decltype(&PVParallelView::PVZoneTree::browse_tree_bci)>)>
+class draw_zone_Observer: public PVHive::PVFuncObserverSignal<typename PVLinesView::zones_drawing_t, FUNC(PVLinesView::zones_drawing_t::draw_zone<decltype(&PVParallelView::PVZoneTree::browse_tree_bci)>)>
 {
 public:
 	draw_zone_Observer(PVFullParallelScene* parent) : _parent(parent) {}
@@ -37,7 +37,7 @@ private:
 	PVFullParallelScene* _parent;
 };
 
-class draw_zone_sel_Observer: public PVHive::PVFuncObserver<typename PVLinesView::zones_drawing_t, FUNC(PVLinesView::zones_drawing_t::draw_zone<decltype(&PVParallelView::PVZoneTree::browse_tree_bci_sel)>)>
+class draw_zone_sel_Observer: public PVHive::PVFuncObserverSignal<typename PVLinesView::zones_drawing_t, FUNC(PVLinesView::zones_drawing_t::draw_zone<decltype(&PVParallelView::PVZoneTree::browse_tree_bci_sel)>)>
 {
 public:
 	draw_zone_sel_Observer(PVFullParallelScene* parent) : _parent(parent) {}
@@ -47,7 +47,7 @@ private:
 	PVFullParallelScene* _parent;
 };
 
-class selection_changed_Observer: public PVHive::PVFuncObserver<typename Picviz::FakePVView, FUNC(Picviz::FakePVView::selection_changed)>
+class selection_changed_Observer: public PVHive::PVFuncObserverSignal<typename Picviz::FakePVView, FUNC(Picviz::FakePVView::selection_changed)>
 {
 public:
 	selection_changed_Observer(PVFullParallelScene* parent) : _parent(parent) {}
@@ -155,9 +155,9 @@ private:
     QPointF _selection_square_pos;
     qreal _translation_start_x;
 
-    draw_zone_Observer _draw_zone_observer = draw_zone_Observer(this);
-    draw_zone_sel_Observer _draw_zone_sel_observer = draw_zone_sel_Observer(this);
-    selection_changed_Observer _selection_changed_observer = selection_changed_Observer(this);
+    draw_zone_Observer* _draw_zone_observer;
+    draw_zone_sel_Observer* _draw_zone_sel_observer;
+    selection_changed_Observer* _selection_changed_observer;
 };
 
 }
