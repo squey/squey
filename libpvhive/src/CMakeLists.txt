@@ -10,11 +10,13 @@ PVHive.cpp
 PVActorBase.cpp
 PVObserver.cpp
 PVRefreshSignal.cpp
+PVFuncObserver.cpp
 )
 
 SET(PVHIVE_MOC_HEADERS
 include/pvhive/PVRefreshSignal.h
 include/pvhive/PVQRefresh.h
+include/pvhive/PVFuncObserver.h
 )
 
 set(PVHIVE_HEADER_FILES

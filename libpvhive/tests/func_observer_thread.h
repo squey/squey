@@ -32,7 +32,7 @@ private:
 
 class TestDlg;
 
-class set_counter_Observer: public PVHive::PVFuncObserver<Test, FUNC(Test::set_counter)>
+class set_counter_Observer: public PVHive::PVFuncObserverSignal<Test, FUNC(Test::set_counter)>
 {
 public:
 	set_counter_Observer(TestDlg* parent) : _parent(parent) {}
@@ -48,7 +48,8 @@ class TestDlg: public QDialog
 
 public:
 	TestDlg(QWidget* parent, Test::shared_pointer& test_sp) :
-		QDialog(parent)
+		QDialog(parent),
+		_set_counter_observer(new set_counter_Observer(this))
 	{
 		_label = new QLabel(tr("N/A"), this);
 		_progress_bar = new QProgressBar();
@@ -63,8 +64,13 @@ public:
 		// Test::set_counter function observer
 		PVHive::PVHive::get().register_func_observer(
 			test_sp,
-			_set_counter
+			*_set_counter_observer
 		);
+	}
+
+	virtual ~TestDlg()
+	{
+		delete _set_counter_observer;
 	}
 
 public:
@@ -77,7 +83,7 @@ public:
 private:
 	QLabel* _label;
 	QProgressBar* _progress_bar;
-	set_counter_Observer _set_counter = set_counter_Observer(this);
+	set_counter_Observer* _set_counter_observer;
 };
 
 #endif // __FUNC_OBSERVER_THREAD_H__
