@@ -28,15 +28,15 @@ public:
     typedef type* pointer;
 
 public:
-	PVWeakPtr(): _weak_count()
+	PVWeakPtr(): _weak_count(), _px(nullptr)
 	{
 	}
 
-	PVWeakPtr(PVWeakPtr<T> & r): _weak_count(r._weak_count)
+	PVWeakPtr(PVWeakPtr<T> & r): _weak_count(r._weak_count), _px(r._px)
 	{
 	}
 
-	PVWeakPtr(PVSharedPtr<T> & r): _weak_count(r._shared_count)
+	PVWeakPtr(PVSharedPtr<T> & r): _weak_count(r._shared_count), _px(r._px)
 	{
 	}
 
@@ -44,6 +44,7 @@ public:
 	PVWeakPtr& operator=(PVWeakPtr<Y> const & r)
 	{
 		_weak_count = r._weak_count;
+		_px = static_cast<Y*>(r._px);
 		return *this;
 	}
 
@@ -51,6 +52,7 @@ public:
 	PVWeakPtr& operator=(PVSharedPtr<Y> const & r)
 	{
 		_weak_count = r._shared_count;
+		_px = static_cast<Y*>(r._px);
 		return *this;
 	}
 
@@ -82,6 +84,7 @@ public:
 
 private:
 	weak_counter_t _weak_count;
+	pointer _px;
 };
 
 }
