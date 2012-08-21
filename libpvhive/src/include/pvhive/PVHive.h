@@ -282,33 +282,8 @@ public:
 	 * @param object the observed object
 	 * @param observer the observer
 	 */
-	template <class T, class F, F f>
-	void register_func_observer(PVCore::PVSharedPtr<T>& object, PVFuncObserver<T, F, f>& observer)
-	{
-		// an observer must be set for only one object
-		assert(observer.get_object() == nullptr);
-
-		observables_t::accessor acc;
-
-		// create/get object's entry
-		void* registered_object = PVCore::PVTypeTraits::get_starting_address(object.get());
-		_observables.insert(acc, registered_object);
-
-#ifdef __GNUG__
-		// Disable warning for GCC for this line
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wpmf-conversions"
-#endif
-		acc->second.func_observers.insert(std::make_pair((void*) f, &observer));
-#ifdef __GNUG__
-#pragma GCC diagnostic pop
-#endif
-		observer.set_object((void*) object.get(), registered_object);
-		object.set_deleter(&__impl::hive_deleter<T>);
-	}
-
-	template <class T, class F, F f>
-	void register_func_observer(PVCore::PVSharedPtr<T>& object, PVFuncObserverSignal<T, F, f>& observer)
+	template <class B, class T, class F, F f>
+	void register_func_observer(PVCore::PVSharedPtr<T>& object, PVFuncObserverTemplatedBase<B, T, F, f>& observer)
 	{
 		// an observer must be set for only one object
 		assert(observer.get_object() == nullptr);
@@ -549,9 +524,12 @@ private:
 			const PVFuncObserverBase* fo = dynamic_cast<PVFuncObserverBase*>(it_fo->second);
 			assert(fo);
 
-			// Call its about_to_be_updated or update function !
+			// Set the arguments for each observer since because of PVFuncObservelSignal being
+			// potentially asychroneous, ownership of the arguments must be handled by them.
 			arguments_type* args = new arguments_type();
 			args->set_args(std::forward<P>(params)...);
+
+			// Call its about_to_be_updated or update function !
 			if (about) {
 				fo->do_about_to_be_updated((void*) args);
 			}

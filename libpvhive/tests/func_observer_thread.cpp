@@ -47,10 +47,10 @@ void set_counter_Observer::update(arguments_type const& args) const
 	uint32_t counter = args.get_arg<0>();
 
 	if (_parent->thread() == QThread::currentThread()) {
-		std::cout << "inc_Observer::update = " << counter << " QT THREAD :-)" << std::endl;
+		std::cout << "set_counter_Observer::update = " << counter << " QT THREAD :-)" << std::endl;
 		_parent->update_counter(counter);
 	}
 	else {
-		std::cout << "inc_Observer::update = " << counter << " BOOST THREAD :-(" << std::endl;
+		std::cout << "set_counter_Observer::update = " << counter << " BOOST THREAD :-(" << std::endl;
 	}
 }

@@ -21,14 +21,17 @@ class PVFuncObserverBase: public PVObserverObjectBase
 {
 public:
 	virtual ~PVFuncObserverBase();
-	void do_about_to_be_updated(const void* args) const { do_about_to_be_updated_split(args); }
-	void do_update(const void* args) const { do_update_split(args); }
 
-	virtual void do_about_to_be_updated_split(const void* args) const { about_to_be_updated(args); }
-	virtual void do_update_split(const void* args) const { update(args); }
+	void do_about_to_be_updated(const void* args) const { do_about_to_be_updated_impl(args); }
+	void do_update(const void* args) const { do_update_impl(args); }
 
-	virtual void about_to_be_updated(const void* /*args*/) const  {}
-	virtual void update(const void* /*args*/) const {}
+protected:
+	virtual void do_about_to_be_updated_impl(const void* args) const { about_to_be_updated(args); }
+	virtual void do_update_impl(const void* args) const { update(args); }
+
+public:
+	virtual void about_to_be_updated(const void*) const {}
+	virtual void update(const void*) const {}
 
 protected:
 	void* _f;
@@ -39,23 +42,27 @@ protected:
 namespace __impl
 {
 
-class PVFuncObserverQtBase: public QObject, public PVHive::PVFuncObserverBase
+// Qt signals/slots model doesn't support template classes, that's why we need a non-template base class for using signals/slots to access the Qt thread.
+// Plus, Qt is confused by PVHive being a namespace and a class, so the implementation of PVFuncObservelSignalBase is directly put in __impl.
+
+class PVFuncObserverSignalBase: public QObject, public PVHive::PVFuncObserverBase
 {
 	Q_OBJECT;
 
 public:
-	PVFuncObserverQtBase();
-	virtual ~PVFuncObserverQtBase() {};
+	PVFuncObserverSignalBase();
+	virtual ~PVFuncObserverSignalBase() {};
 
 protected:
-	virtual void do_about_to_be_updated_split(const void*) const;
-	virtual void do_update_split(const void*) const;
+	virtual void do_about_to_be_updated_impl(const void*) const;
+	virtual void do_update_impl(const void*) const;
 
+public:
 	virtual void about_to_be_updated(const void*) const  {}
 	virtual void update(const void*) const {}
 
-	virtual void about_to_be_updated_cast(const void*) const {}; // =0;
-	virtual void update_cast(const void*) const {}; // =0;
+	virtual void call_about_to_be_updated_with_casted_args(const void*) const = 0;
+	virtual void call_update_with_casted_args(const void*) const = 0;
 
 private slots:
 	void about_to_be_refreshed_slot(const void*) const;
@@ -70,72 +77,61 @@ signals:
 
 namespace PVHive {
 
+template <class B, class T, class F, F f>
+class PVFuncObserverTemplatedBase : public B
+{
+	friend class PVHive;
+
+public:
+	typedef B observer_type;
+	typedef F f_type;
+	constexpr static f_type bound_function = f;
+	typedef PVCore::PVTypeTraits::function_traits<f_type> f_traits;
+	typedef typename f_traits::arguments_type arguments_type;
+
+protected:
+	virtual void call_about_to_be_updated_with_casted_args(const void* args) const
+	{
+		arguments_type* casted_args = (arguments_type*) args;
+		about_to_be_updated(*(casted_args));
+		delete casted_args;
+	}
+	virtual void call_update_with_casted_args(const void* args) const
+	{
+		arguments_type* casted_args = (arguments_type*) args;
+		update(*(casted_args));
+		delete casted_args;
+	}
+
+public:
+	virtual void about_to_be_updated(const arguments_type&) const {}
+	virtual void update(const arguments_type&) const {}
+};
+
 /**
  * @class PVFuncObserver
  *
  * A template class to specify observers on a given type/class, filtered by a function of this class.
  *
  * All subclasses must implements PVObserverBase::update() and/or PVObserverBase::about_to_be_updated()
- * 
+ *
  */
 template <class T, class F, F f>
-class PVFuncObserver : public PVFuncObserverBase
+class PVFuncObserver : public PVFuncObserverTemplatedBase<PVFuncObserverBase, T, F, f>
 {
-public:
-	typedef F f_type;
-	constexpr static f_type bound_function = f;
-	typedef PVCore::PVTypeTraits::function_traits<f_type> f_traits;
-	typedef typename f_traits::arguments_type arguments_type;
-
-	virtual void about_to_be_updated_cast(const void* args) const { about_to_be_updated( *((arguments_type*) args)); }
-	virtual void update_cast(const void* args) const
-	{
-		arguments_type* real_args = (arguments_type*) args;
-		update(*(real_args));
-		delete real_args;
-	}
-
-	virtual void about_to_be_updated(const arguments_type& /*args*/) const {}
-	virtual void update(const arguments_type& /*args*/) const {}
-
-public:
-	friend class PVHive;
-
-public:
-	PVFuncObserver()
-	{
-		_f = (void*) f;
-	}
 };
 
+/**
+ * @class PVFuncObserverSignal
+ *
+ * A Qt compliant version of PVFuncObserver.
+ *
+ * All subclasses must implements PVObserverBase::update() and/or PVObserverBase::about_to_be_updated()
+ *
+ */
 template <class T, class F, F f>
-class PVFuncObserverSignal : public __impl::PVFuncObserverQtBase
+class PVFuncObserverSignal : public PVFuncObserverTemplatedBase<__impl::PVFuncObserverSignalBase, T, F, f>
 {
-public:
-	typedef F f_type;
-	constexpr static f_type bound_function = f;
-	typedef PVCore::PVTypeTraits::function_traits<f_type> f_traits;
-	typedef typename f_traits::arguments_type arguments_type;
-
-	virtual void about_to_be_updated_cast(const void* args) const { about_to_be_updated( *((arguments_type*) args)); }
-	virtual void update_cast(const void* args) const
-	{
-		arguments_type* real_args = (arguments_type*) args;
-		update(*(real_args));
-		delete real_args;
-	}
-
-	virtual void about_to_be_updated(const arguments_type& /*args*/) const {}
-	virtual void update(const arguments_type& /*args*/) const {}
-
-public:
-	friend class PVHive;
-
-public:
-	PVFuncObserverSignal()
-	{
-		_f = (void*) f;
-	}
 };
 
 }
