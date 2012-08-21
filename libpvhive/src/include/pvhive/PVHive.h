@@ -95,21 +95,6 @@ public:
 	void default_value() const {}
 };
 
-template <typename T>
-class ArgumentsCreator
-{
-public:
-	T* create_args(bool dyn)
-	{
-		if (dyn) {
-			return new T();
-		}
-		return &_args;
-	}
-private:
-	T _args;
-};
-
 }
 
 /**
@@ -534,21 +519,35 @@ private:
 #ifdef __GNUG__
 #pragma GCC diagnostic pop
 #endif
-		for (; it_fo != it_fo_e; it_fo++) {
-			const PVFuncObserverBase* fo = dynamic_cast<PVFuncObserverBase*>(it_fo->second);
-			assert(fo);
 
-			// Set the function arguments
-			__impl::ArgumentsCreator<arguments_type> args_creator;
-			arguments_type* args = args_creator.create_args(fo->signal());
-			args->set_args(std::forward<P>(params)...);
+		// Set the function arguments
+		arguments_type args;
+		args.set_args(std::forward<P>(params)...);
+
+		for (; it_fo != it_fo_e; it_fo++) {
+			const PVFuncObserverBase* fo;
+			const PVFuncObserverSignal<T, F, f>* fosignal = dynamic_cast<const PVFuncObserverSignal<T, F, f>*>(it_fo->second);
+			const arguments_type* obs_args;
+			if (fosignal) {
+				obs_args = new arguments_type(args);
+				fo = static_cast<const PVFuncObserverBase*>(fosignal);
+			}
+			else {
+				obs_args = &args;
+#ifdef DEBUG
+				fo = dynamic_cast<const PVFuncObserverBase*>(it_fo->second);
+				assert(fo);
+#else
+				fo = static_cast<const PVFuncObserverBase*>(it_fo->second);
+#endif
+			}
 
 			// Call its about_to_be_updated or update function !
 			if (about) {
-				fo->do_about_to_be_updated((void*) args);
+				fo->do_about_to_be_updated((const void*) obs_args);
 			}
 			else {
-				fo->do_update((void*) args);
+				fo->do_update((const void*) obs_args);
 			}
 		}
 	}

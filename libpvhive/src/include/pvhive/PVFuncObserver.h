@@ -25,8 +25,6 @@ public:
 	void do_about_to_be_updated(const void* args) const { do_about_to_be_updated_impl(args); }
 	void do_update(const void* args) const { do_update_impl(args); }
 
-	virtual bool signal() const = 0;
-
 protected:
 	virtual void do_about_to_be_updated_impl(const void* args) const { call_about_to_be_updated_with_casted_args(args); }
 	virtual void do_update_impl(const void* args) const { call_update_with_casted_args(args); }
@@ -102,9 +100,6 @@ class PVFuncObserver : public PVFuncObserverTemplatedBase<PVFuncObserverBase, T,
 public:
 	typedef typename PVCore::PVTypeTraits::function_traits<F>::arguments_type arguments_type;
 
-public:
-	virtual bool signal() const { return false; }
-
 private:
 	virtual void call_about_to_be_updated_with_casted_args(const void* args) const
 	{
@@ -131,9 +126,6 @@ class PVFuncObserverSignal : public PVFuncObserverTemplatedBase<__impl::PVFuncOb
 {
 public:
 	typedef typename PVCore::PVTypeTraits::function_traits<F>::arguments_type arguments_type;
-
-public:
-	virtual bool signal() const { return true; }
 
 private:
 	virtual void call_about_to_be_updated_with_casted_args(const void* args) const

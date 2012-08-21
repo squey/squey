@@ -18,6 +18,7 @@
 
 void boost_thread(Test::shared_pointer test_sp)
 {
+	// TODO: Exit the thread properly on dialog close.
 	uint32_t counter;
 	do {
 		counter = test_sp->get_counter();
