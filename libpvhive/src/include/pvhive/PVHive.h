@@ -115,7 +115,7 @@ public:
  * - the observer which subscribe to update notification for a given object.
  *
  * To ease objects deletion, each registered object is a shared pointer whose
- * deleter is set by the PVHive to automatically unregistered it.
+ * deleter is set by PVHive to automatically unregistere it.
  *
  * There are 2 kinds of notifications:
  * - "refresh": when an object is modified;
@@ -282,33 +282,8 @@ public:
 	 * @param object the observed object
 	 * @param observer the observer
 	 */
-	template <class T, class F, F f>
-	void register_func_observer(PVCore::PVSharedPtr<T>& object, PVFuncObserver<T, F, f>& observer)
-	{
-		// an observer must be set for only one object
-		assert(observer.get_object() == nullptr);
-
-		observables_t::accessor acc;
-
-		// create/get object's entry
-		void* registered_object = PVCore::PVTypeTraits::get_starting_address(object.get());
-		_observables.insert(acc, registered_object);
-
-#ifdef __GNUG__
-		// Disable warning for GCC for this line
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wpmf-conversions"
-#endif
-		acc->second.func_observers.insert(std::make_pair((void*) f, &observer));
-#ifdef __GNUG__
-#pragma GCC diagnostic pop
-#endif
-		observer.set_object((void*) object.get(), registered_object);
-		object.set_deleter(&__impl::hive_deleter<T>);
-	}
-
-	template <class T, class F, F f>
-	void register_func_observer(PVCore::PVSharedPtr<T>& object, PVFuncObserverSignal<T, F, f>& observer)
+	template <class B, class T, class F, F f>
+	void register_func_observer(PVCore::PVSharedPtr<T>& object, PVFuncObserverTemplatedBase<B, T, F, f>& observer)
 	{
 		// an observer must be set for only one object
 		assert(observer.get_object() == nullptr);
@@ -530,8 +505,7 @@ private:
 		}
 
 		// Type of func observer
-		typedef PVFuncObserver<T, F, f> cur_func_observer_t;
-		typedef typename cur_func_observer_t::arguments_type arguments_type;
+		typedef typename PVCore::PVTypeTraits::function_traits<F>::arguments_type arguments_type;
 
 		// Get function observers
 		func_observers_t const& fobs(acc->second.func_observers);
@@ -545,18 +519,35 @@ private:
 #ifdef __GNUG__
 #pragma GCC diagnostic pop
 #endif
-		for (; it_fo != it_fo_e; it_fo++) {
-			const PVFuncObserverBase* fo = dynamic_cast<PVFuncObserverBase*>(it_fo->second);
-			assert(fo);
 
-			// Call its about_to_be_updated or update function !
-			arguments_type* args = new arguments_type();
-			args->set_args(std::forward<P>(params)...);
-			if (about) {
-				fo->do_about_to_be_updated((void*) args);
+		// Set the function arguments
+		arguments_type args;
+		args.set_args(std::forward<P>(params)...);
+
+		for (; it_fo != it_fo_e; it_fo++) {
+			const PVFuncObserverBase* fo;
+			const PVFuncObserverSignal<T, F, f>* fosignal = dynamic_cast<const PVFuncObserverSignal<T, F, f>*>(it_fo->second);
+			const arguments_type* obs_args;
+			if (fosignal) {
+				obs_args = new arguments_type(args);
+				fo = static_cast<const PVFuncObserverBase*>(fosignal);
 			}
 			else {
-				fo->do_update((void*) args);
+				obs_args = &args;
+#ifdef DEBUG
+				fo = dynamic_cast<const PVFuncObserverBase*>(it_fo->second);
+				assert(fo);
+#else
+				fo = static_cast<const PVFuncObserverBase*>(it_fo->second);
+#endif
+			}
+
+			// Call its about_to_be_updated or update function !
+			if (about) {
+				fo->do_about_to_be_updated((const void*) obs_args);
+			}
+			else {
+				fo->do_update((const void*) obs_args);
 			}
 		}
 	}
