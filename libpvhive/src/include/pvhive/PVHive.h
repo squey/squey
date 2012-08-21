@@ -415,7 +415,48 @@ public:
 		return s;
 	}
 
+private:
+	template <typename F, F f, typename T, typename... P>
+	struct call_impl
+	{
+		static inline typename PVCore::PVTypeTraits::function_traits<F>::result_type call(PVHive* h, T* o, P && ... params)
+		{   
+			return h->call_object<T, F, f>(o, std::forward<P>(params)...);
+		}   
+	};
+
 protected:
+	template <typename T, typename F, F f, typename... P>
+	inline typename PVCore::PVTypeTraits::function_traits<F>::result_type call_object_interface(T* object, P && ... params)
+	{
+		// object must be a valid address
+		assert(object != nullptr);
+
+		return call_impl<F, f, T, P...>::call(this, object, std::forward<P>(params)...);
+	}
+
+private:
+	template <typename F, F f, typename T, typename... P>
+	struct call_impl<F, f, T, P & ...>
+	{
+		template <class F0> 
+		struct _call;
+
+		template <class R, class... Pref>
+		struct _call<R (T::*) (Pref...)>
+		{   
+			static inline R do_call(PVHive* h, T* o, P & ... params)
+			{   
+				return h->call_object<T, F, f>(o, PVCore::PVTypeTraits::forward_with_const<P, Pref>(params)...);
+			}   
+		};
+
+		static inline typename PVCore::PVTypeTraits::function_traits<F>::result_type call(PVHive* h, T* o, P & ... params)
+		{   
+			return _call<F>::do_call(h, o, params...);
+		}   
+	};
+
 	/**
 	 * Generic call to apply an action on a object
 	 *
@@ -432,6 +473,8 @@ protected:
 
 		return call_object_default<T, F, f>(object, std::forward<P>(params)...);
 	}
+
+protected:
 
 	/**
 	 * Tell all observers of an object that a change is about to occure
