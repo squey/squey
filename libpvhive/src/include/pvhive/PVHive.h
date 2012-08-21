@@ -95,6 +95,21 @@ public:
 	void default_value() const {}
 };
 
+template <typename T>
+class ArgumentsCreator
+{
+public:
+	T* create_args(bool dyn)
+	{
+		if (dyn) {
+			return new T();
+		}
+		return &_args;
+	}
+private:
+	T _args;
+};
+
 }
 
 /**
@@ -115,7 +130,7 @@ public:
  * - the observer which subscribe to update notification for a given object.
  *
  * To ease objects deletion, each registered object is a shared pointer whose
- * deleter is set by the PVHive to automatically unregistered it.
+ * deleter is set by PVHive to automatically unregistere it.
  *
  * There are 2 kinds of notifications:
  * - "refresh": when an object is modified;
@@ -505,8 +520,7 @@ private:
 		}
 
 		// Type of func observer
-		typedef PVFuncObserver<T, F, f> cur_func_observer_t;
-		typedef typename cur_func_observer_t::arguments_type arguments_type;
+		typedef typename PVCore::PVTypeTraits::function_traits<F>::arguments_type arguments_type;
 
 		// Get function observers
 		func_observers_t const& fobs(acc->second.func_observers);
@@ -524,9 +538,9 @@ private:
 			const PVFuncObserverBase* fo = dynamic_cast<PVFuncObserverBase*>(it_fo->second);
 			assert(fo);
 
-			// Set the arguments for each observer since because of PVFuncObservelSignal being
-			// potentially asychroneous, ownership of the arguments must be handled by them.
-			arguments_type* args = new arguments_type();
+			// Set the function arguments
+			__impl::ArgumentsCreator<arguments_type> args_creator;
+			arguments_type* args = args_creator.create_args(fo->signal());
 			args->set_args(std::forward<P>(params)...);
 
 			// Call its about_to_be_updated or update function !

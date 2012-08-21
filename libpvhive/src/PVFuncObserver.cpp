@@ -14,6 +14,7 @@ __impl::PVFuncObserverSignalBase::PVFuncObserverSignalBase()
 
 void __impl::PVFuncObserverSignalBase::do_about_to_be_updated_impl(const void* args) const
 {
+
 	emit about_to_be_refreshed_signal(args);
 }
 
