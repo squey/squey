@@ -278,12 +278,12 @@ __global__ void bcicode_raster_unroll2(uint2* bci_codes, unsigned int n, unsigne
 			const float r0 = (float) r0i;
 			const int mask = (type-1)*PVParallelView::constants<Bbits>::mask_int_ycoord;
 			const float alpha_x = l0/r0;
-			pixel_y00 = mask ^ ((int) (l0-(alpha_x*(float)band_x)));
+			pixel_y00 = mask ^ ((int) ((l0-(alpha_x*(float)band_x))*zoom_y+0.5f));
 			if (band_x == r0i) {
 				pixel_y01 = pixel_y00;
 			}
 			else {
-				pixel_y01 = mask ^ ((int) (l0-(alpha_x*(float)(band_x+1))));
+				pixel_y01 = mask ^ ((int) (((l0-(alpha_x*(float)(band_x+1))))*zoom_y + 0.5f));
 			}
 		}
 
