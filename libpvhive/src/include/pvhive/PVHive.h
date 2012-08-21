@@ -533,10 +533,6 @@ private:
 		typedef PVFuncObserver<T, F, f> cur_func_observer_t;
 		typedef typename cur_func_observer_t::arguments_type arguments_type;
 
-		// Get the argument list type
-		arguments_type* args = new arguments_type();
-		args->set_args(std::forward<P>(params)...);
-
 		// Get function observers
 		func_observers_t const& fobs(acc->second.func_observers);
 		func_observers_t::const_iterator it_fo, it_fo_e;
@@ -554,7 +550,8 @@ private:
 			assert(fo);
 
 			// Call its about_to_be_updated or update function !
-
+			arguments_type* args = new arguments_type();
+			args->set_args(std::forward<P>(params)...);
 			if (about) {
 				fo->do_about_to_be_updated((void*) args);
 			}

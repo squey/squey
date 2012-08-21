@@ -14,7 +14,10 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(QObject* parent, PVPara
 	_view(v),
 	_selection_square(new PVParallelView::PVSelectionSquareGraphicsItem(this)),
 	_selection_generator(_lines_view->get_zones_manager()),
-	_sel(v->sel)
+	_sel(v->sel),
+	 _draw_zone_observer(new draw_zone_Observer(this)),
+	 _draw_zone_sel_observer(new draw_zone_sel_Observer(this)),
+	 _selection_changed_observer(new selection_changed_Observer(this))
 {
 	_rendering_job = new PVRenderingJob(this);
 	setBackgroundBrush(Qt::black);
@@ -26,18 +29,18 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(QObject* parent, PVPara
 	// Observers of PVZoneDrawing::draw_zone<browse_tree_bci> and PVZoneDrawing::draw_zone<browse_tree_bci_sel>
 	PVHive::PVHive::get().register_func_observer(
 		_lines_view->get_zones_drawing(),
-		_draw_zone_observer
+		*_draw_zone_observer
 	);
 	PVHive::PVHive::get().register_func_observer(
 		_lines_view->get_zones_drawing(),
-		_draw_zone_sel_observer
+		*_draw_zone_sel_observer
 	);
 	// To recycle some zones when translating we get the virtual zone_rendered signal from PVLinesView::do_translate
 	connect(_rendering_job, SIGNAL(zone_rendered(int)), this, SLOT(update_zone_pixmap_Slot(int)));
 
 	PVHive::PVHive::get().register_func_observer(
 		_view,
-		_selection_changed_observer
+		*_selection_changed_observer
 	);
 
 	PVParallelView::PVLinesView::list_zone_images_t images = _lines_view->get_zones_images();
@@ -72,6 +75,10 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(QObject* parent, PVPara
 
 PVParallelView::PVFullParallelScene::~PVFullParallelScene()
 {
+	delete _draw_zone_observer;
+    delete _draw_zone_sel_observer;
+    delete _selection_changed_observer;
+
 	_rendering_job->deleteLater();
 }
 
