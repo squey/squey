@@ -270,21 +270,32 @@ __global__ void bcicode_raster_unroll2(uint2* bci_codes, unsigned int n, unsigne
 			pixel_y01 = (int) (((r0 + ((l0-r0)*alpha1)) * zoom_y) + 0.5f);
 		}
 		else {
+			// TODO: optimise this !!
 			// 'r0i' is x
 			if (band_x > r0i) {
 				// This is out of our drawing scope !
 				continue;
 			}
 			const float r0 = (float) r0i;
-			const int mask = 1+2*(1-type);
-			//const int mask = (type-1)*PVParallelView::constants<Bbits>::mask_int_ycoord;
-			const float alpha_x = l0/r0;
-			pixel_y00 = (type-1)*((double)PVParallelView::constants<Bbits>::mask_int_ycoord*zoom_y) + mask*((l0-(alpha_x*(float)band_x))*zoom_y) + 0.5f;
-			if (band_x == r0i) {
-				pixel_y01 = pixel_y00;
+			if (type == PVBCICode<Bbits>::UP) {
+				const float alpha_x = l0/r0;
+				pixel_y00 = (int) (((l0-(alpha_x*(float)band_x))*zoom_y) + 0.5f);
+				if (band_x == r0i) {
+					pixel_y01 = pixel_y00;
+				}
+				else {
+					pixel_y01 = (int) (((l0-(alpha_x*(float)(band_x+1)))*zoom_y) + 0.5f);
+				}
 			}
 			else {
-				pixel_y01 = (type-1)*((double)PVParallelView::constants<Bbits>::mask_int_ycoord*zoom_y) + mask*((l0-(alpha_x*(float)(band_x+1)))*zoom_y) + 0.5f;
+				const float alpha_x = ((float)PVParallelView::constants<Bbits>::mask_int_ycoord-l0)/r0;
+				pixel_y00 = (int) (((l0+(alpha_x*(float)band_x))*zoom_y) + 0.5f);
+				if (band_x == r0i) {
+					pixel_y01 = pixel_y00;
+				}
+				else {
+					pixel_y01 = (int) (((l0+(alpha_x*(float)(band_x+1)))*zoom_y) + 0.5f);
+				}
 			}
 		}
 
