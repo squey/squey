@@ -7,6 +7,7 @@
 #ifndef PVCORE_PVTYPETRAITS_H
 #define PVCORE_PVTYPETRAITS_H
 
+#include <boost/call_traits.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/type_traits.hpp>
 #include <type_traits>
@@ -148,6 +149,23 @@ struct const_fwd<T, const Tref>
 	typedef typename std::add_const<T>::type type;
 };
 
+template <class T, class Tref>
+struct const_fwd<T, const Tref&>
+{
+	typedef typename std::add_const<T>::type type;
+};
+
+template <class T, class Tref>
+struct const_fwd<T&, const Tref>
+{
+	typedef typename std::add_const<T>::type& type;
+};
+
+template <class T, class Tref>
+struct const_fwd<T&, const Tref&>
+{
+	typedef typename std::add_const<T>::type& type;
+};
 
 // Polymorhpic object helpers
 template <typename T, typename std::enable_if<std::is_polymorphic<T>::value == true, int>::type = 0>
@@ -160,6 +178,22 @@ template <typename T, typename std::enable_if<std::is_polymorphic<T>::value == f
 inline typename const_fwd<void, T>::type* get_starting_address(T* obj)
 {
 	return reinterpret_cast<typename const_fwd<void, T>::type*>(obj);
+}
+
+template <class T, class Tref>
+typename const_fwd<T, typename std::remove_reference<typename boost::call_traits<Tref>::param_type>::type>::type&& forward_with_const(typename std::remove_reference<T>::type& t)
+{
+	typedef typename std::remove_reference<typename boost::call_traits<Tref>::param_type>::type ref_type;
+	std::cout << std::is_const<ref_type>::value << std::endl;
+	return std::forward<typename const_fwd<T, ref_type>::type>(t);
+}
+
+template <class T, class Tref>
+typename const_fwd<T, typename std::remove_reference<typename boost::call_traits<Tref>::param_type>::type>::type&& forward_with_const(typename std::remove_reference<T>::type&& t)
+{
+	typedef typename std::remove_reference<typename boost::call_traits<Tref>::param_type>::type ref_type;
+	std::cout << std::is_const<ref_type>::value << std::endl;
+	return std::forward<typename const_fwd<T, ref_type>::type>(t);
 }
 
 }
@@ -207,6 +241,7 @@ struct variadic_n
 {
 	typedef typename __impl::variadic_n_helper<I, 0, Tparams...>::type type;
 };
+
 
 }
 
