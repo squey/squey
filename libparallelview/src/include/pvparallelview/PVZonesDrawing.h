@@ -156,7 +156,7 @@ public:
 
 
 	template <class Fbci>
-	inline void draw_zoomed_zone(PVBCIBackendImage<Bbits> &dst_img, uint32_t y_min, uint32_t y_max, int zoom, PVZoneID zone, Fbci const &f_bci, const float zoom_y = 1.0f, const float zoom_x = 1.0f)
+	inline void draw_zoomed_zone(PVBCIBackendImage<Bbits> &dst_img, uint32_t y_min, uint32_t y_max, int zoom, PVZoneID zone, Fbci const &f_bci, const float zoom_y = 1.0f, const float zoom_x = 1.0f, bool reverse = false)
 	{
 		PVZoomedZoneTree const &zoomed_zone_tree = _zm.get_zone_tree<PVZoomedZoneTree>(zone);
 		draw_bci_lambda<PVParallelView::PVZoomedZoneTree>
@@ -166,15 +166,15 @@ public:
 			     PVParallelView::PVBCICode<Bbits>* codes)
 			 {
 				 return (zoomed_zone_tree.*f_bci)(y_min, y_max, zoom, colors, codes, zoom_x);
-			 }, zoom_y);
+			 }, zoom_y, reverse);
 	}
 
 
 	template <class Tree, class Fbci>
-	void draw_bci_lambda(Tree const &zone_tree, backend_image_t& dst_img, uint32_t x_start, size_t width, Fbci const& f_bci, const float zoom_y = 1.0f)
+	void draw_bci_lambda(Tree const &zone_tree, backend_image_t& dst_img, uint32_t x_start, size_t width, Fbci const& f_bci, const float zoom_y = 1.0f, bool reverse = false)
 	{
 		size_t ncodes = f_bci(zone_tree, _colors, _computed_codes);
-		draw_bci(dst_img, x_start, width, _computed_codes, ncodes, zoom_y);
+		draw_bci(dst_img, x_start, width, _computed_codes, ncodes, zoom_y, reverse);
 	}
 
 	inline uint32_t get_zone_width(PVZoneID z) const
@@ -193,7 +193,7 @@ public:
 	}
 
 private:
-	void draw_bci(backend_image_t& dst_img, uint32_t x_start, size_t width, bci_codes_t* codes, size_t n, const float zoom_y = 1.0f)
+	void draw_bci(backend_image_t& dst_img, uint32_t x_start, size_t width, bci_codes_t* codes, size_t n, const float zoom_y = 1.0f, bool reverse = false)
 	{
 		_draw_backend->operator()(dst_img, x_start, width, codes, n, zoom_y);
 	}
