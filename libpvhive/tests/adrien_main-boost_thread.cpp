@@ -9,6 +9,7 @@
 
 #include <pvhive/PVHive.h>
 #include <pvhive/PVActor.h>
+#include <pvhive/PVCallHelper.h>
 #include <pvhive/PVObserverCallback.h>
 
 #include "adrien_objs.h"
@@ -22,43 +23,24 @@
 PVHIVE_CALL_OBJECT_BLOCK_BEGIN()
 
 template <>
-void PVHive::PVHive::call_object<MyObject, decltype(&MyObject::set_prop), &MyObject::set_prop, ObjectProperty&>(MyObject* o, ObjectProperty& p)
+void PVHive::PVHive::call_object<FUNC(MyObject::set_prop)>(MyObject* o, PVCore::PVTypeTraits::function_traits<decltype(&MyObject::set_prop)>::arguments_type const& args)
 {
-	std::cout << "  PVHive::call_object for MyObject::set_prop" << std::endl;
+	std::cout << "  PVHive::call_object for MyObject::set_prop &&" << std::endl;
 	std::cout << "    in thread " << boost::this_thread::get_id() << std::endl;
-	std::cout << "ObjectProperty address: " << &p << std::endl;
-	call_object_default<MyObject, decltype(&MyObject::set_prop), &MyObject::set_prop>(o, std::forward<ObjectProperty>(p));
+	std::cout << "ObjectProperty address: " << &args.get_arg<0>() << std::endl;
+	call_object_default<MyObject, decltype(&MyObject::set_prop), &MyObject::set_prop>(o, args);
 	refresh_observers(&o->get_prop());
 }
 
 template <>
-void PVHive::PVHive::call_object<MyObject, decltype(&MyObject::set_prop), &MyObject::set_prop, ObjectProperty const&>(MyObject* o, ObjectProperty const& p)
+void PVHive::PVHive::call_object<FUNC(MyObject::set_i)>(MyObject* o, PVCore::PVTypeTraits::function_traits<decltype(&MyObject::set_i)>::arguments_type const& args)
 {
-	std::cout << "  PVHive::call_object for MyObject::set_prop const" << std::endl;
+	std::cout << "  PVHive::call_object for MyObject::set_i &&" << std::endl;
 	std::cout << "    in thread " << boost::this_thread::get_id() << std::endl;
-	std::cout << "ObjectProperty address: " << &p << std::endl;
-	call_object_default<MyObject, decltype(&MyObject::set_prop), &MyObject::set_prop>(o, std::forward<const ObjectProperty>(p));
-	refresh_observers(&o->get_prop());
-}
-
-template <>
-void PVHive::PVHive::call_object<MyObject, decltype(&MyObject::set_prop), &MyObject::set_prop, boost::reference_wrapper<ObjectProperty const> const>(MyObject* o, boost::reference_wrapper<ObjectProperty const> const && p)
-{
-	std::cout << "  PVHive::call_object for MyObject::set_prop const" << std::endl;
-	std::cout << "    in thread " << boost::this_thread::get_id() << std::endl;
-	std::cout << "ObjectProperty address: " << &p << std::endl;
-	call_object_default<MyObject, decltype(&MyObject::set_prop), &MyObject::set_prop>(o, p);
-	refresh_observers(&o->get_prop());
+	call_object_default<MyObject, decltype(&MyObject::set_i), &MyObject::set_i>(o, args);
 }
 
 /*
-void PVHive::PVHive::call_object<MyObject, decltype(&MyObject::set_i), &MyObject::set_i, int>(MyObject* o, int && i)
-{
-	std::cout << "  PVHive::call_object for MyObject::set_i" << std::endl;
-	std::cout << "    in thread " << boost::this_thread::get_id() << std::endl;
-	call_object_default<MyObject, decltype(&MyObject::set_i), &MyObject::set_i, int>(o, i);
-}
-
 template <typename P>
 void PVHive::PVHive::call_object<MyObject, decltype(&MyObject::set_i2), &MyObject::set_i2, P>(MyObject* o, P&& i)
 {
@@ -95,7 +77,9 @@ void update_prop(PVHive::PVHive& cc, MyObject_p& o)
 		//std::cout << "Before calling set_prop, ObjectProperty address: " << &tmp << std::endl;
 		//actor.call<decltype(&MyObject::set_prop), &MyObject::set_prop>(boost::reference_wrapper<ObjectProperty const>(tmp));
 		//static_assert(std::is_same<decltype(boost::cref(tmp)), boost::reference_wrapper<ObjectProperty const> const>::value, "test");
-		actor.call<decltype(&MyObject::set_prop), &MyObject::set_prop>(boost::cref(ObjectProperty(v)));
+		//actor.call<decltype(&MyObject::set_prop), &MyObject::set_prop>(boost::cref(ObjectProperty(v)));
+		ObjectProperty op(v);
+		actor.call<decltype(&MyObject::set_prop), &MyObject::set_prop>(op);
 		v++;
 	}
 }
@@ -124,6 +108,8 @@ int main(int argc, char** argv)
 	hive.register_observer(o, observer_callback);
 
 	actor.call<decltype(&MyObject::set_i), &MyObject::set_i>(8);
+	int i = 4;
+	actor.call<decltype(&MyObject::set_i), &MyObject::set_i>(i);
 	//actor.call<decltype(&MyObject::set_i2), &MyObject::set_i2>(9);
 
 	TestDlg* dlg = new TestDlg(o, NULL);

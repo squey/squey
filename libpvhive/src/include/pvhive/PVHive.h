@@ -169,7 +169,7 @@ public:
 		if (_hive == nullptr) {
 			_hive = new PVHive;
 		}
-              return *_hive;
+		return *_hive;
 	}
 
 public:
@@ -415,63 +415,37 @@ public:
 		return s;
 	}
 
-private:
-	template <typename F, F f, typename T, typename... P>
-	struct call_impl
-	{
-		static inline typename PVCore::PVTypeTraits::function_traits<F>::result_type call(PVHive* h, T* o, P && ... params)
-		{   
-			return h->call_object<T, F, f>(o, std::forward<P>(params)...);
-		}   
-	};
-
 protected:
 	template <typename T, typename F, F f, typename... P>
 	inline typename PVCore::PVTypeTraits::function_traits<F>::result_type call_object_interface(T* object, P && ... params)
 	{
+		typedef PVCore::PVTypeTraits::function_traits<F> ftraits;
 		// object must be a valid address
 		assert(object != nullptr);
+		typename ftraits::arguments_type args;
+		args.set_args(params...);
 
-		return call_impl<F, f, T, P...>::call(this, object, std::forward<P>(params)...);
+		// This method can be specialized easily for a given function !
+		call_object<F, f>(object, args);
 	}
 
 private:
-	template <typename F, F f, typename T, typename... P>
-	struct call_impl<F, f, T, P & ...>
-	{
-		template <class F0> 
-		struct _call;
-
-		template <class R, class... Pref>
-		struct _call<R (T::*) (Pref...)>
-		{   
-			static inline R do_call(PVHive* h, T* o, P & ... params)
-			{   
-				return h->call_object<T, F, f>(o, PVCore::PVTypeTraits::forward_with_const<P, Pref>(params)...);
-			}   
-		};
-
-		static inline typename PVCore::PVTypeTraits::function_traits<F>::result_type call(PVHive* h, T* o, P & ... params)
-		{   
-			return _call<F>::do_call(h, o, params...);
-		}   
-	};
-
 	/**
 	 * Generic call to apply an action on a object
 	 *
 	 * @param object the managed object
 	 * @param params the method parameters
 	 */
-	template <typename T, typename F, F f, typename... P>
-	typename PVCore::PVTypeTraits::function_traits<F>::result_type call_object(T* object, P && ... params)
+	template <typename F, F f>
+	typename PVCore::PVTypeTraits::function_traits<F>::result_type call_object(typename PVCore::PVTypeTraits::function_traits<F>::class_type* object, typename PVCore::PVTypeTraits::function_traits<F>::arguments_type const& args)
 	{
+		typedef PVCore::PVTypeTraits::function_traits<F> ftraits;
+		typedef typename ftraits::class_type class_type;
 		//std::cout << "call_object: " << __PRETTY_FUNCTION__ << std::endl;
 
 		// object must be a valid address
 		assert(object != nullptr);
-
-		return call_object_default<T, F, f>(object, std::forward<P>(params)...);
+		return call_object_default<class_type, F, f>(object, args);
 	}
 
 protected:
@@ -601,6 +575,19 @@ private:
 	 * @param object the managed object
 	 * @param params the method parameters
 	 */
+	template <typename T, typename F, F f>
+	inline typename PVCore::PVTypeTraits::function_traits<F>::result_type call_object_default(T* object, typename PVCore::PVTypeTraits::function_traits<F>::arguments_type const& args)
+	{
+		// Unpack arguments
+		return do_call_object_default<T, F, f>(object, args, typename PVCore::PVTypeTraits::gen_seq_n<(int)PVCore::PVTypeTraits::function_traits<F>::arity>::type());
+	}
+
+	template <typename T, typename F, F f, int... S>
+	inline typename PVCore::PVTypeTraits::function_traits<F>::result_type do_call_object_default(T* object, typename PVCore::PVTypeTraits::function_traits<F>::arguments_type const& args, PVCore::PVTypeTraits::seq_n<S...>)
+	{
+		return call_object_default<T, F, f>(object, args.template get_arg<S>()...);
+	}
+
 	template <typename T, typename F, F f, typename... P>
 	typename PVCore::PVTypeTraits::function_traits<F>::result_type call_object_default(T* object, P && ... params)
 	{

@@ -4,6 +4,7 @@
  * Copyright (C) Picviz Labs 2010-2012
  */
 
+#include <pvhive/PVCallHelper.h>
 #include "massive_common.h"
 
 /*****************************************************************************
@@ -13,11 +14,10 @@
 PVHIVE_CALL_OBJECT_BLOCK_BEGIN()
 
 template <>
-void PVHive::PVHive::call_object<Block, decltype(&Block::set_prop), &Block::set_prop,
-                                 int, Property>(Block* b, int&& i, Property&& p)
+void PVHive::PVHive::call_object<FUNC(Block::set_prop)>(Block* b, PVCore::PVTypeTraits::function_traits<decltype(&Block::set_prop)>::arguments_type const& args)
 {
-	call_object_default<Block, decltype(&Block::set_prop), &Block::set_prop>(b, std::forward<int>(i), std::forward<Property>(p));
-	refresh_observers(&(b->get_prop(i)));
+	call_object_default<Block, FUNC(Block::set_prop)>(b, args);
+	refresh_observers(&(b->get_prop(args.get_arg<0>())));
 }
 
 PVHIVE_CALL_OBJECT_BLOCK_END()

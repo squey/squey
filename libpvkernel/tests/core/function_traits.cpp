@@ -30,6 +30,11 @@ void fnoarg()
 {
 }
 
+struct A
+{
+	size_t f(size_t i) const { return i*_i; }
+	size_t _i;
+};
 int main(int /*argc*/, char** /*argv*/)
 {
 	typedef PVCore::PVTypeTraits::function_traits<decltype(f)> ftraits;
@@ -58,6 +63,15 @@ int main(int /*argc*/, char** /*argv*/)
 	typedef PVCore::PVTypeTraits::function_traits<decltype(fnoarg)> ftraits_noarg;
 	ftraits_noarg::arguments_type noargs;
 	noargs.set_args();
+
+	{
+		A a;
+		a._i = 4;
+		typedef PVCore::PVTypeTraits::function_traits<decltype(&A::f)> ftraits_af;
+		ftraits_af::arguments_type args_af;
+		args_af.set_args(6);
+		std::cout << "Should print 24: " << ftraits_af::call<&A::f>(a, args_af) << std::endl;
+	}
 
 	return 0;
 }

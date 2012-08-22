@@ -9,6 +9,7 @@
 
 #include <pvhive/PVHive.h>
 #include <pvhive/PVActor.h>
+#include <pvhive/PVCallHelper.h>
 #include <pvhive/PVObserverCallback.h>
 
 #include "adrien_objs.h"
@@ -22,11 +23,11 @@
 PVHIVE_CALL_OBJECT_BLOCK_BEGIN()
 
 template <>
-void PVHive::PVHive::call_object<MyObject, decltype(&MyObject::set_prop), &MyObject::set_prop, ObjectProperty&>(MyObject* o, ObjectProperty& p)
+void PVHive::PVHive::call_object<FUNC(MyObject::set_prop)>(MyObject* o, PVCore::PVTypeTraits::function_traits<decltype(&MyObject::set_prop)>::arguments_type const& args)
 {
 	std::cout << "  PVHive::call_object for MyObject::set_prop" << std::endl;
 	std::cout << "    in thread " << boost::this_thread::get_id() << std::endl;
-	call_object_default<MyObject, decltype(&MyObject::set_prop), &MyObject::set_prop, ObjectProperty const&>(o, p);
+	call_object_default<MyObject, decltype(&MyObject::set_prop), &MyObject::set_prop>(o, args);
 	refresh_observers(&o->get_prop());
 }
 
