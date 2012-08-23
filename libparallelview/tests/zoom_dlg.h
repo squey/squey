@@ -2,7 +2,7 @@
 #define ZOOMDLG_H
 
 #include <pvparallelview/PVZonesDrawing.h>
-#include <pvparallelview/PVZoomedParallelScene2.h>
+#include <pvparallelview/PVZoomedParallelScene.h>
 
 #include <QDialog>
 #include <QLineEdit>
@@ -31,8 +31,8 @@ protected slots:
 		PVZoneID zid = _zedit->text().toUInt();
 		QGraphicsView* view = new QGraphicsView();
 		view->setViewport(new QWidget());
-		view->setScene(new PVParallelView::PVZoomedParallelScene2(view, _zd,
-																 zid));
+		view->setScene(new PVParallelView::PVZoomedParallelScene(view, _zd,
+		                                                         zid));
 		view->resize(1024, 1024);
 		view->show();
 	}
