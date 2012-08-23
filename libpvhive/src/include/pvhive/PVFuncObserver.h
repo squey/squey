@@ -80,10 +80,7 @@ public:
 	constexpr static f_type bound_function = f;
 	typedef PVCore::PVTypeTraits::function_traits<f_type> f_traits;
 	typedef typename f_traits::arguments_type arguments_type;
-
-public:
-	virtual void about_to_be_updated(const arguments_type&) const {}
-	virtual void update(const arguments_type&) const {}
+	typedef typename f_traits::arguments_type arguments_deep_copy_type;
 };
 
 /**
@@ -111,6 +108,10 @@ private:
 		arguments_type* casted_args = (arguments_type*) args;
 		this->update(*(casted_args));
 	}
+
+public:
+	virtual void about_to_be_updated(const arguments_type&) const {}
+	virtual void update(const arguments_type&) const {}
 };
 
 /**
@@ -125,21 +126,25 @@ template <class T, class F, F f>
 class PVFuncObserverSignal : public PVFuncObserverTemplatedBase<__impl::PVFuncObserverSignalBase, T, F, f>
 {
 public:
-	typedef typename PVCore::PVTypeTraits::function_traits<F>::arguments_type arguments_type;
+	typedef typename PVCore::PVTypeTraits::function_traits<F>::arguments_deep_copy_type arguments_deep_copy_type;
 
 private:
 	virtual void call_about_to_be_updated_with_casted_args(const void* args) const
 	{
-		arguments_type* casted_args = (arguments_type*) args;
+		arguments_deep_copy_type* casted_args = (arguments_deep_copy_type*) args;
 		this->about_to_be_updated(*(casted_args));
 		delete casted_args;
 	}
 	virtual void call_update_with_casted_args(const void* args) const
 	{
-		arguments_type* casted_args = (arguments_type*) args;
+		arguments_deep_copy_type* casted_args = (arguments_deep_copy_type*) args;
 		this->update(*(casted_args));
 		delete casted_args;
 	}
+
+public:
+	virtual void about_to_be_updated(const arguments_deep_copy_type&) const {}
+	virtual void update(const arguments_deep_copy_type&) const {}
 };
 
 }

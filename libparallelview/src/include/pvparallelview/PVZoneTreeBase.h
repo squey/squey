@@ -44,8 +44,6 @@ public:
 		return _first_elts[branch_id] != PVROW_INVALID_VALUE;
 	}
 
-	inline void invalid_selection() { _is_selection_valid = false; }
-
 	size_t browse_tree_bci(PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const;
 	size_t browse_tree_bci_sel(PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const;
 
@@ -58,9 +56,6 @@ private:
 public:
 	PVRow DECLARE_ALIGN(16) _first_elts[NBUCKETS];
 	PVRow DECLARE_ALIGN(16) _sel_elts[NBUCKETS];
-
-protected:
-	bool _is_selection_valid = false;
 };
 
 }

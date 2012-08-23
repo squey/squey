@@ -23,6 +23,8 @@
 
 #include <pvkernel/core/PVSharedPointer.h>
 
+#include <pvparallelview/PVLibView.h>
+
 #include <QApplication>
 
 void usage(const char* path)
@@ -86,21 +88,17 @@ int main(int argc, char** argv)
 	zm.set_uint_plotted(norm_plotted, nrows, ncols);
 	zm.update_all();
 
-
-
 	PVParallelView::PVBCIDrawingBackendCUDA<NBITS_INDEX> backend_cuda;
-	PVParallelView::PVLinesView::zones_drawing_sp zones_drawing_sp(new PVParallelView::PVLinesView::zones_drawing_t(zm, backend_cuda, *colors));
+	Picviz::FakePVView::shared_pointer fake_pvview_sp(new Picviz::FakePVView());
 
-	PVParallelView::PVLinesView &lines_view = *(new PVParallelView::PVLinesView(zones_drawing_sp, 30));
-	PVParallelView::PVFullParallelView view;
-	Picviz::FakePVView::shared_pointer fake_pvview_sp(new Picviz::FakePVView);
-	PVParallelView::PVFullParallelScene* scene = new PVParallelView::PVFullParallelScene(&view, &lines_view, fake_pvview_sp);
-	view.setViewport(new QWidget());
-	view.resize(1920, 1600);
-	view.setScene(scene);
-	//view.horizontalScrollBar()->setValue(0);
-	view.show();
-	scene->first_render();
+	PVParallelView::PVLibView lib_view(fake_pvview_sp);
+
+	/// TODO: Find a better way to pass the plotted to the zones manager
+	lib_view.get_zones_manager().set_uint_plotted(norm_plotted, nrows, ncols);
+	lib_view.get_zones_manager().update_all();
+	///
+
+	lib_view.create_view(backend_cuda);
 
 	app.exec();
 

@@ -7,6 +7,8 @@
 #ifndef PVPARALLELVIEW_PVZONESMANAGER_H
 #define PVPARALLELVIEW_PVZONESMANAGER_H
 
+#include <QObject>
+
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVAlgorithms.h>
 
@@ -15,6 +17,7 @@
 
 #include <pvparallelview/PVZone.h>
 #include <pvparallelview/PVZoneTree.h>
+#include <pvparallelview/PVRenderingJob.h>
 
 #include <boost/utility.hpp>
 
@@ -30,8 +33,10 @@ namespace __impl {
 class ZoneCreation;
 }
 
-class PVZonesManager: boost::noncopyable
+class PVZonesManager: public QObject, boost::noncopyable
 {
+	Q_OBJECT;
+
 	friend class PVParallelView::__impl::ZoneCreation;
 
 	typedef std::vector<PVZone> list_zones_t;
@@ -88,7 +93,7 @@ public:
 	uint32_t get_zone_absolute_pos(PVZoneID z) const;
 	PVZoneID get_zone_id(int abs_pos) const;
 
-	void filter_zone_by_sel(PVZoneID zid, const Picviz::PVSelection& sel);
+	bool filter_zone_by_sel(PVZoneID zid, const Picviz::PVSelection& sel);
 
 public:
 	void set_uint_plotted(Picviz::PVPlotted::uint_plotted_table_t const& plotted, PVRow nrows, PVCol ncols);
@@ -105,6 +110,9 @@ protected:
 		b = _axes_comb[z+1];
 	}
 	inline Picviz::PVPlotted::uint_plotted_table_t const& get_uint_plotted() const { assert(_uint_plotted); return *_uint_plotted; }
+
+signals:
+	void filter_by_sel_finished(int zid);
 
 protected:
 	Picviz::PVPlotted::uint_plotted_table_t const* _uint_plotted = NULL;

@@ -77,8 +77,6 @@ int main(int argc, char** argv)
 		nrows = plotted.size()/ncols;
 	}
 
-	PVParallelView::PVHSVColor* colors = PVParallelView::PVHSVColor::init_colors(nrows);
-
 	Picviz::PVPlotted::uint_plotted_table_t norm_plotted;
 	BENCH_START(norm);
 	Picviz::PVPlotted::norm_int_plotted(plotted, norm_plotted, ncols);
@@ -90,20 +88,13 @@ int main(int argc, char** argv)
 	zm.update_all();
 
 	PVParallelView::PVBCIDrawingBackendCUDA<NBITS_INDEX> backend_cuda;
-	PVParallelView::PVLinesView::zones_drawing_sp zones_drawing_sp(new PVParallelView::PVLinesView::zones_drawing_t(zm, backend_cuda, *colors));
+	Picviz::FakePVView::shared_pointer fake_pvview_sp(new Picviz::FakePVView());
 
-	PVParallelView::PVLinesView &lines_view = *(new PVParallelView::PVLinesView(zones_drawing_sp, 15));
-
-	PVParallelView::PVFullParallelView view;
-	Picviz::FakePVView::shared_pointer fake_pvview_sp(new Picviz::FakePVView);
-	PVParallelView::PVFullParallelScene* scene = new PVParallelView::PVFullParallelScene(&view, &lines_view, fake_pvview_sp);
-	view.setViewport(new QWidget());
-	view.resize(1920, 1600);
-	view.setScene(scene);
-	view.show();
-	scene->first_render();
+	PVParallelView::PVFullParallelScene* scene = new PVParallelView::PVFullParallelScene(fake_pvview_sp, zm, backend_cuda);
 
 	PVParallelView::PVBCIDrawingBackendCUDA<PARALLELVIEW_ZZT_BBITS> backend_cuda_zoom;
+
+	PVParallelView::PVHSVColor* colors = PVParallelView::PVHSVColor::init_colors(nrows);
 	PVParallelView::PVZonesDrawing<PARALLELVIEW_ZZT_BBITS>& zones_drawing_zoom = *(new PVParallelView::PVZonesDrawing<PARALLELVIEW_ZZT_BBITS>(zm, backend_cuda_zoom, *colors));
 
 	ZoomDlg* zdlg = new ZoomDlg(zones_drawing_zoom);

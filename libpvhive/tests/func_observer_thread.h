@@ -19,10 +19,10 @@
 #include <pvhive/PVCallHelper.h>
 #include <pvhive/PVFuncObserver.h>
 
-struct Test
+struct MyClass
 {
 public:
-	typedef PVCore::PVSharedPtr<Test> shared_pointer;
+	typedef PVCore::PVSharedPtr<MyClass> shared_pointer;
 public:
 	uint32_t get_counter() { return _counter; }
 	void set_counter(uint32_t counter) { _counter = counter; }
@@ -32,12 +32,12 @@ private:
 
 class TestDlg;
 
-class set_counter_Observer: public PVHive::PVFuncObserverSignal<Test, FUNC(Test::set_counter)>
+class set_counter_Observer: public PVHive::PVFuncObserverSignal<MyClass, FUNC(MyClass::set_counter)>
 {
 public:
 	set_counter_Observer(TestDlg* parent) : _parent(parent) {}
 protected:
-	virtual void update(arguments_type const& args) const;
+	virtual void update(arguments_deep_copy_type const& args) const;
 private:
 	TestDlg* _parent;
 };
@@ -47,7 +47,7 @@ class TestDlg: public QDialog
 	Q_OBJECT
 
 public:
-	TestDlg(QWidget* parent, Test::shared_pointer& test_sp) :
+	TestDlg(QWidget* parent, MyClass::shared_pointer& test_sp) :
 		QDialog(parent),
 		_set_counter_observer(new set_counter_Observer(this))
 	{

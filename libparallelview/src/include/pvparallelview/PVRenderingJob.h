@@ -20,6 +20,7 @@ class PVLinesView;
 class PVRenderingJob: public QObject
 {
 	friend class PVLinesView;
+	friend class PVZonesManager;
 
 	Q_OBJECT
 

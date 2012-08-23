@@ -521,9 +521,6 @@ private:
 			return;
 		}
 
-		// Type of func observer
-		typedef typename PVCore::PVTypeTraits::function_traits<F>::arguments_type arguments_type;
-
 		// Get function observers
 		func_observers_t const& fobs(acc->second.func_observers);
 		func_observers_t::const_iterator it_fo, it_fo_e;
@@ -537,34 +534,36 @@ private:
 #pragma GCC diagnostic pop
 #endif
 
-		// Set the function arguments
-		arguments_type args;
-		args.set_args(std::forward<P>(params)...);
-
 		for (; it_fo != it_fo_e; it_fo++) {
 			const PVFuncObserverBase* fo;
-			const PVFuncObserverSignal<T, F, f>* fosignal = dynamic_cast<const PVFuncObserverSignal<T, F, f>*>(it_fo->second);
-			const arguments_type* obs_args;
-			if (fosignal) {
-				obs_args = new arguments_type(args);
-				fo = static_cast<const PVFuncObserverBase*>(fosignal);
-			}
-			else {
-				obs_args = &args;
-#ifdef DEBUG
-				fo = dynamic_cast<const PVFuncObserverBase*>(it_fo->second);
-				assert(fo);
-#else
-				fo = static_cast<const PVFuncObserverBase*>(it_fo->second);
-#endif
-			}
+			const PVFuncObserverSignal<T, F, f>* fo_signal = dynamic_cast<const PVFuncObserverSignal<T, F, f>*>(it_fo->second);
 
-			// Call its about_to_be_updated or update function !
-			if (about) {
-				fo->do_about_to_be_updated((const void*) obs_args);
+			fo = static_cast<const PVFuncObserverBase*>(fo_signal);
+
+			if (fo_signal) {
+				typedef typename PVCore::PVTypeTraits::function_traits<F>::arguments_deep_copy_type arguments_deep_copy_type;
+
+				arguments_deep_copy_type* args = new arguments_deep_copy_type(std::forward<P>(params)...);
+
+				if (about) {
+					fo->do_about_to_be_updated((const void*) args);
+				}
+				else {
+					fo->do_update((const void*) args);
+				}
 			}
 			else {
-				fo->do_update((const void*) obs_args);
+				typedef typename PVCore::PVTypeTraits::function_traits<F>::arguments_type arguments_type;
+
+				arguments_type args;
+				args.set_args(std::forward<P>(params)...);
+
+				if (about) {
+					fo->do_about_to_be_updated((const void*) &args);
+				}
+				else {
+					fo->do_update((const void*) &args);
+				}
 			}
 		}
 	}

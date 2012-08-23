@@ -21,27 +21,16 @@ namespace PVParallelView {
 
 class PVFullParallelScene;
 class PVRenderingJob;
+class PVFullParallelScene;
 
 class PVFullParallelView : public QGraphicsView
 {
 	Q_OBJECT
 
 public:
-	PVFullParallelView()
-	{
-		setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
-	}
+	PVFullParallelView(PVFullParallelScene* scene);
 
-	void paintEvent(QPaintEvent *event)
-	{
-	    QGraphicsView::paintEvent(event);
-
-	    QPainter painter(viewport());
-		painter.setPen(QColor(0x16, 0xe8, 0x2a));
-		QString count = QString("%L1 / %L2").arg(_selected_lines).arg(_total_lines);
-		painter.drawText(width() - QFontMetrics(painter.font()).width(count) - 20, 20, count);
-		painter.end();
-	}
+	void paintEvent(QPaintEvent *event);
 
 	void set_total_line_number(uint32_t total_lines) { _total_lines = total_lines; }
 	void set_selected_line_number(uint32_t selected_lines) { _selected_lines = selected_lines; }

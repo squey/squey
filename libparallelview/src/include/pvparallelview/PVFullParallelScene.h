@@ -23,8 +23,6 @@
 
 #include <picviz/FakePVView.h>
 
-class PVView;
-
 namespace PVParallelView {
 
 class draw_zone_Observer: public PVHive::PVFuncObserverSignal<typename PVLinesView::zones_drawing_t, FUNC(PVLinesView::zones_drawing_t::draw_zone<decltype(&PVParallelView::PVZoneTree::browse_tree_bci)>)>
@@ -32,7 +30,7 @@ class draw_zone_Observer: public PVHive::PVFuncObserverSignal<typename PVLinesVi
 public:
 	draw_zone_Observer(PVFullParallelScene* parent) : _parent(parent) {}
 protected:
-	virtual void update(arguments_type const& args) const;
+	virtual void update(arguments_deep_copy_type const& args) const;
 private:
 	PVFullParallelScene* _parent;
 };
@@ -42,17 +40,7 @@ class draw_zone_sel_Observer: public PVHive::PVFuncObserverSignal<typename PVLin
 public:
 	draw_zone_sel_Observer(PVFullParallelScene* parent) : _parent(parent) {}
 protected:
-	virtual void update(arguments_type const& args) const;
-private:
-	PVFullParallelScene* _parent;
-};
-
-class selection_changed_Observer: public PVHive::PVFuncObserverSignal<typename Picviz::FakePVView, FUNC(Picviz::FakePVView::selection_changed)>
-{
-public:
-	selection_changed_Observer(PVFullParallelScene* parent) : _parent(parent) {}
-protected:
-	virtual void update(arguments_type const& args) const;
+	virtual void update(arguments_deep_copy_type const& args) const;
 private:
 	PVFullParallelScene* _parent;
 };
@@ -63,12 +51,13 @@ class PVFullParallelScene : public QGraphicsScene
 
 	friend class draw_zone_Observer;
 	friend class draw_zone_sel_Observer;
-	friend class selection_changed_Observer;
+	friend class process_selection_Observer;
 public:
-	PVFullParallelScene(QObject* parent, PVParallelView::PVLinesView* lines_view, Picviz::FakePVView::shared_pointer v);
+	PVFullParallelScene(Picviz::FakePVView::shared_pointer view_sp, PVParallelView::PVZonesManager& zm, PVParallelView::PVLinesView::zones_drawing_t::bci_backend_t& bci_backend);
 	virtual ~PVFullParallelScene();
 
 	void first_render();
+	void update_sel_from_zone();
 
 private:
 	void update_zones_position(bool update_all = true);
@@ -76,8 +65,6 @@ private:
 
 	void store_selection_square();
 	void update_selection_square();
-
-	void update_sel_from_zone(PVZoneID zid);
 
 	void mousePressEvent(QGraphicsSceneMouseEvent* event);
 	void mouseMoveEvent(QGraphicsSceneMouseEvent* event);
@@ -100,14 +87,19 @@ private:
 
 	bool sliders_moving() const;
 
-	PVParallelView::PVFullParallelView* view() { return (PVParallelView::PVFullParallelView*) parent(); }
+	void process_selection();
+
+	void connect_draw_zone();
+	void connect_draw_zone_sel();
 
 private slots:
-	void update_zone_pixmap_Slot(PVZoneID zid);
+	void update_zone_pixmap_Slot(int zid);
 	void update_selection_from_sliders_Slot(PVZoneID zid);
 	void scrollbar_pressed_Slot();
 	void scrollbar_released_Slot();
 	void commit_volatile_selection_Slot();
+	void draw_zone_sel_Slot(int zid);
+	void draw_zone_Slot(int zid);
 
 private:
 	struct ZoneImages
@@ -137,7 +129,7 @@ private:
 	};
 
 private:
-    PVParallelView::PVLinesView* _lines_view;
+    PVParallelView::PVLinesView _lines_view;
 
     QList<ZoneImages> _zones;
     QList<PVParallelView::PVAxisGraphicsItem*> _axes;
@@ -146,18 +138,18 @@ private:
 	QFuture<void> _rendering_future;
 	QFuture<void> _sel_rendering_future;
     
-	Picviz::FakePVView::shared_pointer _view;
+	Picviz::FakePVView::shared_pointer _view_sp;
+	PVFullParallelView* _parallel_view;
 
 	PVSelectionSquareGraphicsItem* _selection_square;
 	SelectionBarycenter _selection_barycenter;
 	PVParallelView::PVSelectionGenerator _selection_generator;
 	Picviz::PVSelection& _sel;
     QPointF _selection_square_pos;
-    qreal _translation_start_x;
+    qreal _translation_start_x = 0.0;
 
     draw_zone_Observer* _draw_zone_observer;
     draw_zone_sel_Observer* _draw_zone_sel_observer;
-    selection_changed_Observer* _selection_changed_observer;
 };
 
 }

@@ -7,6 +7,8 @@
 #ifndef PVPARALLELVIEW_PVZONE_H
 #define PVPARALLELVIEW_PVZONE_H
 
+#include <tbb/atomic.h>
+
 #include <pvkernel/core/PVTypeTraits.h>
 
 #include <pvparallelview/PVZoneTree.h>
@@ -34,7 +36,22 @@ public:
 	PVZoomedZoneTree& zoomed_ztree() { return *_zoomed_ztree; }
 	PVZoomedZoneTree const& zoomed_ztree() const { return *_zoomed_ztree; }
 
-	void invalid_selection() { _ztree->invalid_selection(); }
+	void invalid_selection() { _zone_state = INVALID; }
+
+	bool filter_by_sel(const Picviz::PVSelection& sel)
+	{
+		if (_zone_state.compare_and_swap(INVALID, BEING_PROCESSED) == INVALID) {
+			_ztree->filter_by_sel(sel);
+			_zone_state = UP_TO_DATE;
+			return true;
+		}
+		else if (_zone_state == BEING_PROCESSED) {
+			return false;
+		}
+		else {
+			return true;
+		}
+	}
 
 	template <class Tree>
 	Tree const& get_tree() const
@@ -51,9 +68,17 @@ public:
 	}
 
 private:
+	enum zone_state_t {
+		UP_TO_DATE,
+		BEING_PROCESSED,
+		INVALID
+	};
+private:
 	PVZoneTree_p _ztree;
 	PVZoomedZoneTree_p _zoomed_ztree;
 	uint32_t _width;
+	tbb::atomic<zone_state_t> _zone_state;
+
 };
 
 template <>

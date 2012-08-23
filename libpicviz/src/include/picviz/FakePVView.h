@@ -18,9 +18,10 @@ struct FakePVView
 {
 	typedef PVCore::PVSharedPtr<FakePVView> shared_pointer;
 
-	void selection_changed() {} ;
+	void process_selection() {} ;
+	PVSelection& get_view_selection() { return _sel; }
 
-	PVSelection sel;
+	PVSelection _sel;
 };
 
 }

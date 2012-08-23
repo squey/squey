@@ -16,13 +16,13 @@
 
 #include "func_observer_thread.h"
 
-void boost_thread(Test::shared_pointer test_sp)
+void boost_thread(MyClass::shared_pointer test_sp)
 {
 	// TODO: Exit the thread properly on dialog close.
 	uint32_t counter;
 	do {
 		counter = test_sp->get_counter();
-		PVHive::call<FUNC(Test::set_counter)>(test_sp, counter+1);
+		PVHive::call<FUNC(MyClass::set_counter)>(test_sp, counter+1);
 		sleep(1);
 	} while (counter < 99);
 }
@@ -31,7 +31,7 @@ int main(int argc, char** argv)
 {
 	QApplication app(argc, argv);
 
-	Test::shared_pointer test_sp(new Test);
+	MyClass::shared_pointer test_sp(new MyClass);
 
 	TestDlg test_dlg(nullptr, test_sp);
 	test_dlg.show();
@@ -43,9 +43,9 @@ int main(int argc, char** argv)
 	return 0;
 }
 
-void set_counter_Observer::update(arguments_type const& args) const
+void set_counter_Observer::update(arguments_deep_copy_type const& args) const
 {
-	uint32_t counter = args.get_arg<0>();
+	uint32_t counter = std::get<0>(args);
 
 	if (_parent->thread() == QThread::currentThread()) {
 		std::cout << "set_counter_Observer::update = " << counter << " QT THREAD :-)" << std::endl;

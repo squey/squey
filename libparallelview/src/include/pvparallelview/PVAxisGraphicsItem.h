@@ -63,14 +63,14 @@ public:
 	}
 
 signals:
-	void axis_sliders_moved(uint32_t);
+	void axis_sliders_moved(PVZoneID);
 
 protected slots:
 	void slider_moved() { emit axis_sliders_moved(_axis_index); }
 
 private:
 	Picviz::PVAxis*                 _axis;
-	uint32_t						_axis_index;
+	PVZoneID						_axis_index;
 	QRectF                          _bbox;
 	std::vector<PVAxisRangeSliders> _sliders;
 };

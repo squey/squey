@@ -499,13 +499,10 @@ void PVParallelView::PVZoneTree::filter_by_sel_omp_treeb(Picviz::PVSelection con
 void PVParallelView::PVZoneTree::filter_by_sel_tbb_treeb(Picviz::PVSelection const& sel)
 {
 	// returns a zone tree with only the selected lines
-	if (! _is_selection_valid) {
-		Picviz::PVSelection::const_pointer sel_buf = sel.get_buffer();
-		BENCH_START(subtree);
-		tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, GRAINSIZE), __impl::TBBSelFilter(this, sel_buf), tbb::simple_partitioner());
-		BENCH_END(subtree, "filter_by_sel_tbb_treeb", 1, 1, sizeof(PVRow), NBUCKETS);
-		_is_selection_valid = true;
-	}
+	Picviz::PVSelection::const_pointer sel_buf = sel.get_buffer();
+	BENCH_START(subtree);
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, GRAINSIZE), __impl::TBBSelFilter(this, sel_buf), tbb::simple_partitioner());
+	BENCH_END(subtree, "filter_by_sel_tbb_treeb", 1, 1, sizeof(PVRow), NBUCKETS);
 }
 
 void PVParallelView::PVZoneTree::get_float_pts(pts_t& pts, Picviz::PVPlotted::plotted_table_t const& org_plotted, PVRow nrows, PVCol col_a, PVCol col_b)
