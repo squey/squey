@@ -86,7 +86,6 @@ namespace PVParallelView
 		PVCol             _axis;
 		int               _wheel_value;
 		int               _zoom_level;
-		QImage            _back_image;
 		backend_image_p_t _left_image;
 		backend_image_p_t _right_image;
 	};

@@ -18,6 +18,16 @@
  * extracting them from the quadree each time drawBackground is called.
  *
  * TODO: remove the limitation of 512 for the backend_image's width
+ *
+ * TODO: configure scene's view from the PVAxis
+ *
+ * TODO: add selection stuff
+ *
+ * TODO: parallelize zoom rendering
+ *
+ * TODO: make postponed and cancelable zoom rendering
+ *
+ * TODO: 
  */
 
 /*****************************************************************************
@@ -39,8 +49,8 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(QWidget *parent,
 	view()->setTransformationAnchor(QGraphicsView::AnchorViewCenter);
 	view()->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
 
-	// view()->setMaximumWidth(1024);
-	// view()->setMaximumHeight(1024);
+	//view()->setMaximumWidth(1024);
+	view()->setMaximumHeight(1024);
 
 	_wheel_value = 0;
 
@@ -144,9 +154,6 @@ void PVParallelView::PVZoomedParallelScene::drawBackground(QPainter *painter,
 	QRect screen_rect = view()->viewport()->rect();
 	int screen_center = screen_rect.width() / 2;
 
-	_back_image = QImage(screen_rect.size(), QImage::Format_ARGB32);
-	_back_image.fill(Qt::black);
-
 	QRectF screen_rect_s = view()->mapToScene(screen_rect).boundingRect();
 	QRectF view_rect = sceneRect().intersected(screen_rect_s);
 
@@ -162,10 +169,14 @@ void PVParallelView::PVZoomedParallelScene::drawBackground(QPainter *painter,
 	uint64_t y_max = PVCore::clamp<uint64_t>(y_min + screen_rect.height() * pixel_height,
 	                                         0ULL, y_lim);
 
-	// we need a painter to draw in _back_image
-	QPainter image_painter(&_back_image);
-
 	int gap_y = (screen_rect_s.top() < 0)?round(-screen_rect_s.top()):0;
+
+	// we had to save the painter's state to restore it later
+	// the scene transformation matrix is unneeded
+	QTransform t = painter->transform();
+	painter->resetTransform();
+
+	painter->fillRect(screen_rect, Qt::black);
 
 	if (_left_image.get() != nullptr) {
 		BENCH_START(render);
@@ -176,8 +187,8 @@ void PVParallelView::PVZoomedParallelScene::drawBackground(QPainter *painter,
 		BENCH_END(render, "render left tile", 1, 1, 1, 1);
 		int gap_x = - PARALLELVIEW_AXIS_WIDTH / 2;
 
-		image_painter.drawImage(QPoint(screen_center - gap_x - image_width, gap_y),
-		                        _left_image->qimage());
+		painter->drawImage(QPoint(screen_center - gap_x - image_width, gap_y),
+		                   _left_image->qimage());
 	}
 
 	if (_right_image.get() != nullptr) {
@@ -190,18 +201,12 @@ void PVParallelView::PVZoomedParallelScene::drawBackground(QPainter *painter,
 
 		int value = 1 + screen_center + PARALLELVIEW_AXIS_WIDTH / 2;
 
-		image_painter.drawImage(QPoint(value, gap_y),
-		                        _right_image->qimage());
+		painter->drawImage(QPoint(value, gap_y),
+		                   _right_image->qimage());
 	}
 
-	// we had to save the painter's state to restore it later
-	// the scene transformation matrix is unneeded
-	QTransform t = painter->transform();
-	painter->resetTransform();
 	// the pen has to be saved too
 	QPen old_pen = painter->pen();
-
-	painter->drawImage(QPoint(0,0), _back_image);
 
 	// draw axis
 	QPen new_pen = QPen(Qt::white);
