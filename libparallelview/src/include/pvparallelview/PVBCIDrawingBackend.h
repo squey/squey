@@ -28,7 +28,7 @@ public:
 
 public:
 	virtual backend_image_p_t create_image(size_t img_width) const = 0;
-	virtual void operator()(backend_image_t& dst_img, size_t x_start, size_t width, bci_codes_t* codes, size_t n, const float zoom_y = 1.0f) const = 0;
+	virtual void operator()(backend_image_t& dst_img, size_t x_start, size_t width, bci_codes_t* codes, size_t n, const float zoom_y = 1.0f, bool reverse = false) const = 0;
 
 protected:
 	template <class PixelType>

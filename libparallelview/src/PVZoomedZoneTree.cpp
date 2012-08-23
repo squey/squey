@@ -40,6 +40,7 @@ PVParallelView::PVZoomedZoneTree::PVZoomedZoneTree(uint32_t max_level)
 		y2_min += ZZT_MAX_VALUE;
 	}
 
+	// TODO: find an appropriate size
 	_quad_entries = new PVParallelView::PVQuadTreeEntry [NBUCKETS];
 }
 
@@ -194,113 +195,164 @@ void PVParallelView::PVZoomedZoneTree::process_omp_from_zt(const PVZoneProcessin
  * PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1
  *****************************************************************************/
 
-size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1(uint32_t y_min, int zoom,
+size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1(uint64_t y_min,
+                                                               uint64_t y_max,
+                                                               uint64_t y_lim,
+                                                               int zoom,
+                                                               uint32_t width,
                                                                const PVHSVColor* colors,
                                                                PVBCICode<bbits>* codes,
                                                                const float beta) const
 {
-	uint32_t t_min = y_min >> (32 - NBITS_INDEX);
-	uint32_t t_max = PVCore::clamp<uint32_t>(t_min + (1024U >> zoom), 0U, 1024U);
-	uint32_t y_max = (uint32_t) PVCore::clamp<uint64_t>(y_min + ((uint64_t)UINT32_MAX >> zoom),
-	                                                    0, UINT32_MAX);
 	size_t num = 0;
+	size_t bci_idx = 0;
+	uint32_t shift = (32 - bbits) - zoom;
+	uint32_t t1_min = y_min >> (32 - NBITS_INDEX);
+	uint32_t t1_max = (uint32_t)PVCore::clamp<uint64_t>(1 + (y_max >> (32 - NBITS_INDEX)),
+	                                                    0U, 1024U);
 
-	for (uint32_t t1 = t_min; t1 < t_max; ++t1) {
+	for (uint32_t t1 = t1_min; t1 < t1_max; ++t1) {
 		for (uint32_t t2 = 0; t2 < 1024; ++t2) {
-			num += _trees[(t2 * 1024) + t1].get_first_bci_from_y1(y_min, y_max, zoom, colors, codes + num);
+			/* lines extraction
+			 */
+			num = _trees[(t2 * 1024) + t1].get_first_from_y1(y_min, y_max, zoom,
+			                                                 colors, _quad_entries);
+
+			/* conversion into BCI codes
+			 */
+			for (size_t e_idx = 0; e_idx < num; ++e_idx) {
+				PVBCICode<bbits> bci;
+				PVParallelView::PVQuadTreeEntry &e = _quad_entries[e_idx];
+
+				bci.s.idx = e.idx;
+				bci.s.color = colors[e.idx].h();
+				bci.s.l = ((e.y1 - y_min) >> shift) & mask_int_ycoord;
+
+				int64_t d = (int64_t)e.y2 - (int64_t)e.y1;
+				uint32_t y2p = (uint32_t)((int64_t)e.y1 + d * beta);
+
+				if (y2p >= y_lim) {
+					bci.s.type = PVParallelView::PVBCICode<bbits>::DOWN;
+					bci.s.r = (double)width * ((double)(y_lim - e.y1) / (double)(y2p - e.y1));
+				} else if (y2p <= y_min) {
+					bci.s.type = PVParallelView::PVBCICode<bbits>::UP;
+					bci.s.r = (double)width * ((double)(e.y1 - y_min) / (double)(e.y1 - y2p));
+				} else {
+					bci.s.type = PVParallelView::PVBCICode<bbits>::STRAIGHT;
+					bci.s.r = ((y2p - y_min) >> shift) & mask_int_ycoord;
+				}
+
+				/* zoom make some entries having the same BCI codes. It is also useless
+				 * to render all of them.
+				 */
+				if (bci_idx == 0) {
+					// first entry, insert it!
+					codes[bci_idx] = bci;
+					++bci_idx;
+				} else if ((codes[bci_idx-1].s.l != bci.s.l)
+				           ||
+				           (codes[bci_idx-1].s.r != bci.s.r)
+				           ||
+				           (codes[bci_idx-1].s.type != bci.s.type)) {
+					// the BCI code is a new one, insert it!
+					codes[bci_idx] = bci;
+					++bci_idx;
+				} else {
+					// same BCI code
+					if (bci.s.idx < codes[bci_idx-1].s.idx) {
+						// we want the entry with the lowest index
+						codes[bci_idx-1] = bci;
+					}
+				}
+
+			}
 		}
 	}
 
-#pragma omp parallel for num_threads(4) // usefull?
-	for(size_t i = 0; i < num; ++i) {
-		int l = (int)codes[i].s.l;
-		int r = (int)codes[i].s.r;
-		int d = (r - l) * beta;
-		codes[i].s.r = l + d;
-	}
+	std::cout << "::browse_tree_bci_by_y1 -> " << bci_idx << std::endl;
 
-	std::cout << "::browse_tree_bci_by_y1 -> " << num << std::endl;
-
-	return num;
+	return bci_idx;
 }
 
 /*****************************************************************************
  * PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y2
  *****************************************************************************/
 
-size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y2(uint32_t y_min, int zoom,
+size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y2(uint64_t y_min,
+                                                               uint64_t y_max,
+                                                               uint64_t y_lim,
+                                                               int zoom,
+                                                               uint32_t width,
                                                                const PVHSVColor* colors,
                                                                PVBCICode<bbits>* codes,
                                                                const float beta) const
 {
-	uint32_t t_min = y_min >> (32 - NBITS_INDEX);
-	uint32_t t_max = PVCore::clamp<uint32_t>(t_min + (1024U >> zoom), 0U, 1024U);
-	uint32_t y_max = (uint32_t) PVCore::clamp<uint64_t>(y_min + ((uint64_t)UINT32_MAX >> zoom),
-	                                                    0, UINT32_MAX);
 	size_t num = 0;
-
-	for (uint32_t t1 = 0; t1 < 1024; ++t1) {
-		for (uint32_t t2 = t_min; t2 < t_max; ++t2) {
-			num += _trees[(t2 * 1024) + t1].get_first_bci_from_y2(y_min, y_max, zoom, colors, codes + num);
-		}
-	}
-
-#pragma omp parallel for num_threads(4) // usefull?
-	for(size_t i = 0; i < num; ++i) {
-		int l = (int)codes[i].s.l;
-		int r = (int)codes[i].s.r;
-		int d = (l - r) * beta;
-		codes[i].s.l = r + d;
-	}
-
-	std::cout << "::browse_tree_bci_by_y2 -> " << num << std::endl;
-
-	return num;
-}
-
-/*****************************************************************************
- * PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1_range
- *****************************************************************************/
-
-size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1_range(uint32_t y_min,
-                                                                     uint32_t y_max,
-                                                                     int zoom,
-                                                                     const PVHSVColor* colors,
-                                                                     PVBCICode<bbits>* codes,
-                                                                     const float beta) const
-{
-	uint32_t t1_min = y_min >> (32 - NBITS_INDEX);
-	uint32_t t1_max = PVCore::clamp<uint32_t>(t1_min + (1024U >> zoom), 0U, 1024U);
-	size_t num = 0, old_num;
+	size_t bci_idx = 0;
 	uint32_t shift = (32 - bbits) - zoom;
+	uint32_t t2_min = y_min >> (32 - NBITS_INDEX);
+	uint32_t t2_max = (uint32_t)PVCore::clamp<uint64_t>(1 + (y_max >> (32 - NBITS_INDEX)),
+	                                                    0U, 1024U);
 
-	for (uint32_t t1 = t1_min; t1 < t1_max; ++t1) {
-		uint32_t t2_min = (uint32_t)PVCore::clamp<double>(t1 - ((t1 - t1_min) / (double)beta),
-		                                                  0., 1024.);
-		uint32_t t2_max = (uint32_t)PVCore::clamp<double>(t1 + ((t1_max - t1) / (double)beta),
-		                                                  0., 1024.);
-		// std::cout << "t1 -> t2_m{in,ax}: "
-		//           << t1 << " "
-		//           << t2_min << " " << t2_max << std::endl;
+	for (uint32_t t2 = t2_min; t2 < t2_max; ++t2) {
+		for (uint32_t t1 = 0; t1 < 1024; ++t1) {
+			/* lines extraction
+			 */
+			num = _trees[(t2 * 1024) + t1].get_first_from_y2(y_min, y_max, zoom,
+			                                                 colors, _quad_entries);
 
-		for (uint32_t t2 = t2_min; t2 < t2_max; ++t2) {
-			old_num = num;
-			// TODO: "translate" BCI codes
-			num += _trees[(t2 * 1024) + t1].get_first_from_y1(y_min, y_max, zoom,
-			                                                  colors, _quad_entries + old_num);
+			/* conversion into BCI codes
+			 */
+			for (size_t e_idx = 0; e_idx < num; ++e_idx) {
+				PVBCICode<bbits> bci;
+				PVParallelView::PVQuadTreeEntry &e = _quad_entries[e_idx];
 
-			for(size_t i = old_num; i < num; ++i) {
-				PVParallelView::PVQuadTreeEntry &e = _quad_entries[i];
-				codes[i].s.l = ((e.y1 - y_min) >> shift) & mask_int_ycoord;
-				codes[i].s.color = colors[e.idx].h();
+				bci.s.idx = e.idx;
+				bci.s.color = colors[e.idx].h();
+				bci.s.l = ((e.y2 - y_min) >> shift) & mask_int_ycoord;
 
-				int64_t r = e.y1 + (e.y2 - e.y1) * beta;
-				codes[i].s.r = ((r - y_min) >> shift) & mask_int_ycoord;
+				int64_t d = (int64_t)e.y1 - (int64_t)e.y2;
+				uint32_t y1p = (uint32_t)((int64_t)e.y2 + d * beta);
+
+				if (y1p >= y_lim) {
+					bci.s.type = PVParallelView::PVBCICode<bbits>::DOWN;
+					bci.s.r = (double)width * ((double)(y_lim - e.y2) / (double)(y1p - e.y2));
+				} else if (y1p <= y_min) {
+					bci.s.type = PVParallelView::PVBCICode<bbits>::UP;
+					bci.s.r = (double)width * ((double)(e.y2 - y_min) / (double)(e.y2 - y1p));
+				} else {
+					bci.s.type = PVParallelView::PVBCICode<bbits>::STRAIGHT;
+					bci.s.r = ((y1p - y_min) >> shift) & mask_int_ycoord;
+				}
+
+				/* zoom make some entries having the same BCI codes. It is also useless
+				 * to render all of them.
+				 */
+				if (bci_idx == 0) {
+					// first entry, insert it!
+					codes[bci_idx] = bci;
+					++bci_idx;
+				} else if ((codes[bci_idx-1].s.l != bci.s.l)
+				           ||
+				           (codes[bci_idx-1].s.r != bci.s.r)
+				           ||
+				           (codes[bci_idx-1].s.type != bci.s.type)) {
+					// the BCI code is a new one, insert it!
+					codes[bci_idx] = bci;
+					++bci_idx;
+				} else {
+					// same BCI code
+					if (bci.s.idx < codes[bci_idx-1].s.idx) {
+						// we want the entry with the lowest index
+						codes[bci_idx-1] = bci;
+					}
+				}
+
 			}
 		}
 	}
 
-	std::cout << "::browse_tree_bci_by_y1_range -> " << num << std::endl;
+	std::cout << "::browse_tree_bci_by_y2 -> " << bci_idx << std::endl;
 
-	return num;
+	return bci_idx;
 }

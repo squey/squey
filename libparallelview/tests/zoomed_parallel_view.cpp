@@ -17,7 +17,6 @@
 #include <pvparallelview/PVBCIDrawingBackendCUDA.h>
 #include <pvparallelview/PVZonesDrawing.h>
 #include <pvparallelview/PVZonesManager.h>
-
 #include <pvparallelview/PVZoomedParallelScene.h>
 
 #include <QApplication>
@@ -27,15 +26,26 @@
 
 #define CRAND() (127 + (random() & 0x7F))
 
+//#define CONE
+
 void init_rand_plotted(Picviz::PVPlotted::plotted_table_t& p,
                        PVRow nrows, PVCol ncols)
 {
 	srand(0);
 	p.clear();
 	p.reserve(nrows*ncols);
+#ifdef CONE
+	for (PVRow i = 0; i < nrows; i++) {
+		p.push_back(0.8f + 0.2f * (i / (float)nrows));
+	}
+	for (PVRow i = 0; i < nrows; i++) {
+		p.push_back(0.9);
+	}
+#else
 	for (PVRow i = 0; i < nrows*ncols; i++) {
 		p.push_back((float)((double)(rand())/(double)RAND_MAX));
 	}
+#endif
 }
 
 /*****************************************************************************/
@@ -51,6 +61,7 @@ void usage(const char* path)
 #define RENDERING_BITS PARALLELVIEW_ZZT_BBITS
 
 typedef PVParallelView::PVZonesDrawing<RENDERING_BITS> zones_drawing_t;
+
 
 int main(int argc, char** argv)
 {
@@ -71,6 +82,11 @@ int main(int argc, char** argv)
 		}
 		nrows = atol(argv[2]);
 		ncols = atol(argv[3]);
+
+#ifdef CONE
+	nrows = 16;
+	ncols = 2;
+#endif
 
 		init_rand_plotted(plotted, nrows, ncols);
 	} else {
@@ -98,8 +114,7 @@ int main(int argc, char** argv)
 	QGraphicsView view;
 	view.setViewport(new QWidget());
 	view.setScene(new PVParallelView::PVZoomedParallelScene(&view, zones_drawing,
-	                                                        /*zone*/ 1, /*pos*/ 0,
-	                                                        /*zoom*/ 0));
+	                                                        /*axis*/ 1));
 	view.resize(1024, 1024);
 	view.show();
 

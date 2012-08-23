@@ -94,8 +94,10 @@ struct cuda_kernel;
 template <>
 struct cuda_kernel<10>
 {
-	static inline void launch(PVParallelView::PVBCICode<10>* device_codes, uint32_t n, uint32_t width, uint32_t* device_img, uint32_t img_width, uint32_t x_start, const float zoom_y, cudaStream_t stream = NULL)
+	static inline void launch(PVParallelView::PVBCICode<10>* device_codes, uint32_t n, uint32_t width, uint32_t* device_img, uint32_t img_width, uint32_t x_start, const float zoom_y, cudaStream_t stream = NULL, bool reverse = false)
 	{
+		assert(reverse == false);
+		(void)reverse; // remove warning "unused parameter"
 		show_codes_cuda10(device_codes, n, width, device_img, img_width, x_start, zoom_y, stream);
 	}
 };
@@ -103,9 +105,14 @@ struct cuda_kernel<10>
 template <>
 struct cuda_kernel<11>
 {
-	static inline void launch(PVParallelView::PVBCICode<11>* device_codes, uint32_t n, uint32_t width, uint32_t* device_img, uint32_t img_width, uint32_t x_start, const float zoom_y, cudaStream_t stream = NULL)
+	static inline void launch(PVParallelView::PVBCICode<11>* device_codes, uint32_t n, uint32_t width, uint32_t* device_img, uint32_t img_width, uint32_t x_start, const float zoom_y, cudaStream_t stream = NULL, bool reverse = false)
 	{
-		show_codes_cuda11(device_codes, n, width, device_img, img_width, x_start, zoom_y, stream);
+		if (reverse) {
+			show_codes_cuda11_reverse(device_codes, n, width, device_img, img_width, x_start, zoom_y, stream);
+		}
+		else {
+			show_codes_cuda11(device_codes, n, width, device_img, img_width, x_start, zoom_y, stream);
+		}
 	}
 };
 
@@ -140,7 +147,7 @@ public:
 		return PVBCIBackendImage_p<Bbits>(new backend_image_t(img_width));
 	}
 
-	void operator()(PVBCIBackendImage<Bbits>& dst_img, size_t x_start, size_t width, PVBCICode<Bbits>* codes, size_t n, const float zoom_y = 1.0f) const
+	void operator()(PVBCIBackendImage<Bbits>& dst_img, size_t x_start, size_t width, PVBCICode<Bbits>* codes, size_t n, const float zoom_y = 1.0f, bool reverse = false) const
 	{
 		backend_image_t* dst_img_cuda = dynamic_cast<backend_image_t*>(&dst_img);
 		assert(dst_img_cuda != NULL);
@@ -153,7 +160,7 @@ public:
 #pragma omp critical
 		{
 			picviz_verify_cuda(cudaMemcpyAsync(_device_codes, codes, n*sizeof(codes), cudaMemcpyHostToDevice, _main_stream));
-			__impl::cuda_kernel<Bbits>::launch(_device_codes, n, width, dst_img_cuda->device_img(), dst_img_cuda->width(), x_start, zoom_y, _main_stream);
+			__impl::cuda_kernel<Bbits>::launch(_device_codes, n, width, dst_img_cuda->device_img(), dst_img_cuda->width(), x_start, zoom_y, _main_stream, reverse);
 			dst_img_cuda->copy_device_to_host(_main_stream);
 			cudaEventRecord(end, _main_stream);
 		}

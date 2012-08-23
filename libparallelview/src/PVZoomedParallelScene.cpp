@@ -4,87 +4,66 @@
  * Copyright (C) Picviz Labs 2010-2012
  */
 
-#include <pvkernel/core/picviz_bench.h>
-
 #include <pvparallelview/PVZoomedParallelScene.h>
 
-#include <QScrollBar>
-#include <QGraphicsSceneMouseEvent>
+#include <pvkernel/core/PVAlgorithms.h>
 
-#define SCENE_SIDE 1024
-#define ZOOM_IMAGE_WIDTH 1024
+#include <QScrollBar>
+
+/**
+ * TODO: keep ratio between the width of the 2 zones in full parallel view
+ *       => stores the scale for each beta (for the left one and the right one)
+ *
+ * TODO: add a mechanism to store BCI codes for a given area in scene to avoid
+ * extracting them from the quadree each time drawBackground is called.
+ *
+ * TODO: remove the limitation of 512 for the backend_image's width
+ *
+ * TODO: configure scene's view from the PVAxis
+ *
+ * TODO: add selection stuff
+ *
+ * TODO: parallelize zoom rendering
+ *
+ * TODO: make postponed and cancelable zoom rendering
+ *
+ * TODO: 
+ */
 
 /*****************************************************************************
  * PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene
  *****************************************************************************/
 
-PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(QObject *parent,
+PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(QWidget *parent,
                                                              zones_drawing_t &zones_drawing,
-                                                             PVCol axis, uint32_t /*position*/,
-                                                             int /*zoom*/) :
+                                                             PVCol axis) :
 	QGraphicsScene(parent),
-	_zones_drawing(zones_drawing), _axis(axis), _wheel_value(0),
-	_left_tiles(nullptr), _right_tiles(nullptr),
-	_force_render(true)
+	_zones_drawing(zones_drawing), _axis(axis)
 {
 	setBackgroundBrush(Qt::black);
+
 	view()->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	view()->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 	view()->setResizeAnchor(QGraphicsView::AnchorViewCenter);
-	view()->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+	//view()->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+	view()->setTransformationAnchor(QGraphicsView::AnchorViewCenter);
 	view()->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
 
-	// TODO: use/init position, zoom, _old_zoom_level
-	//view()->verticalScrollBar()->setValue(position);
+	//view()->setMaximumWidth(1024);
+	view()->setMaximumHeight(1024);
 
 	_wheel_value = 0;
-	_old_zoom_level = get_zoom_level();
 
-	if(axis > 0) {
-		_left_tiles = new zoomed_tile_t[tile_number];
+	setSceneRect(-512, 0, 1024, 1024);
 
-		for (int i = 0; i < tile_number; ++i) {
-			backend_image_p_t img = zones_drawing.create_image(ZOOM_IMAGE_WIDTH);
-			_left_tiles[i].bimage = img;
-		}
+	update_zoom();
+
+	if (axis > 0) {
+		_left_image = zones_drawing.create_image(image_width);
 	}
 
 	if (axis < zones_drawing.get_zones_manager().get_number_zones()) {
-		_right_tiles = new zoomed_tile_t[tile_number];
-
-		for (int i = 0; i < tile_number; ++i) {
-			backend_image_p_t img = zones_drawing.create_image(ZOOM_IMAGE_WIDTH);
-			_right_tiles[i].bimage = img;
-		}
-	}
-
-	update_zoom();
-}
-
-/*****************************************************************************
- * PVParallelView::PVZoomedParallelScene::~PVZoomedParallelScene
- *****************************************************************************/
-
-PVParallelView::PVZoomedParallelScene::~PVZoomedParallelScene()
-{
-	if (_left_tiles) {
-		delete [] _left_tiles;
-	}
-	if (_right_tiles) {
-		delete [] _right_tiles;
-	}
-}
-
-/*****************************************************************************
- * PVParallelView::PVZoomedParallelScene::mouseMoveEvent
- *****************************************************************************/
-
-void PVParallelView::PVZoomedParallelScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
-{
-	if (event->buttons() == Qt::RightButton) {
-		QScrollBar *sb = view()->verticalScrollBar();
-		long offset = (long)(_translation_start_y - event->scenePos().y());
-		sb->setValue(sb->value() + offset);
+		_right_image = zones_drawing.create_image(image_width);
 	}
 }
 
@@ -92,11 +71,9 @@ void PVParallelView::PVZoomedParallelScene::mouseMoveEvent(QGraphicsSceneMouseEv
  * PVParallelView::PVZoomedParallelScene::mousePressEvent
  *****************************************************************************/
 
-void PVParallelView::PVZoomedParallelScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
+void PVParallelView::PVZoomedParallelScene::mousePressEvent(QGraphicsSceneMouseEvent */*event*/)
 {
-	if (event->button() == Qt::RightButton) {
-		_translation_start_y = event->scenePos().y();
-	}
+	// kill default behaviour of QGraphicsScene
 }
 
 /*****************************************************************************
@@ -105,7 +82,16 @@ void PVParallelView::PVZoomedParallelScene::mousePressEvent(QGraphicsSceneMouseE
 
 void PVParallelView::PVZoomedParallelScene::mouseReleaseEvent(QGraphicsSceneMouseEvent */*event*/)
 {
-	// do nothing to avoid the behaviour of QGraphicsScene::mouseReleaseEvent()
+	// kill default behaviour of QGraphicsScene
+}
+
+/*****************************************************************************
+ * PVParallelView::PVZoomedParallelScene::mouseMoveEvent
+ *****************************************************************************/
+
+void PVParallelView::PVZoomedParallelScene::mouseMoveEvent(QGraphicsSceneMouseEvent */*event*/)
+{
+	// kill default behaviour of QGraphicsScene
 }
 
 /*****************************************************************************
@@ -115,8 +101,9 @@ void PVParallelView::PVZoomedParallelScene::mouseReleaseEvent(QGraphicsSceneMous
 void PVParallelView::PVZoomedParallelScene::wheelEvent(QGraphicsSceneWheelEvent* event)
 {
 	if (event->modifiers() == Qt::ControlModifier) {
+		// zoom
 		if (event->delta() > 0) {
-			if (_wheel_value < 100) {
+			if (_wheel_value < max_wheel_value) {
 				++_wheel_value;
 				update_zoom();
 			}
@@ -126,8 +113,22 @@ void PVParallelView::PVZoomedParallelScene::wheelEvent(QGraphicsSceneWheelEvent*
 				update_zoom();
 			}
 		}
+	} else if (event->modifiers() == Qt::ShiftModifier) {
+		// precise panning
+		QScrollBar *sb = view()->verticalScrollBar();
+		if (event->delta() > 0) {
+			int v = sb->value();
+			if (v > sb->minimum()) {
+				sb->setValue(v - 1);
+			}
+		} else {
+			int v = sb->value();
+			if (v < sb->maximum()) {
+				sb->setValue(v + 1);
+			}
+		}
 	} else if (event->modifiers() == Qt::NoModifier) {
-		// default vertical translation
+		// default panning
 		QScrollBar *sb = view()->verticalScrollBar();
 		if (event->delta() > 0) {
 			sb->triggerAction(QAbstractSlider::SliderSingleStepSub);
@@ -139,317 +140,83 @@ void PVParallelView::PVZoomedParallelScene::wheelEvent(QGraphicsSceneWheelEvent*
 	event->accept();
 }
 
+
 /*****************************************************************************
  * PVParallelView::PVZoomedParallelScene::drawBackground
  *****************************************************************************/
 
-/* TODO: try to have a working one with QGraphicsView::ViewportUpdateMode ==
- *       QGraphicsView::MinimalViewportUpdate (which is the default value).
- *       I (RH) changed for QGraphicsView::FullViewportUpdate because with
- *       fast panning, the background was badly updated. A 1920x1280 view
- *       needs ~40 ms to update in the worst case (which is no so bad)
- */
 void PVParallelView::PVZoomedParallelScene::drawBackground(QPainter *painter,
                                                            const QRectF &/*rect*/)
 {
-	QRect view_rect = view()->viewport()->rect();
-	int view_center = view_rect.width() / 2;
-	long tile_num = get_tile_num();
+	double alpha = bbits_alpha_scale * pow(root_step, get_zoom_step());
+	double beta = 1. / get_scale_factor();
 
-	_back_image = QImage(view_rect.size(), QImage::Format_ARGB32);
-	_back_image.fill(Qt::black);
+	QRect screen_rect = view()->viewport()->rect();
+	int screen_center = screen_rect.width() / 2;
 
-	// we need to save the painter's state
-	QPen old_pen = painter->pen();
+	QRectF screen_rect_s = view()->mapToScene(screen_rect).boundingRect();
+	QRectF view_rect = sceneRect().intersected(screen_rect_s);
+
+	double pixel_height = (1UL << (32 - NBITS_INDEX)) / get_scale_factor();
+
+	// the screen's upper limit in plotted coordinates system
+	uint64_t y_min = view_rect.top() * (UINT32_MAX >> NBITS_INDEX);
+	// the backend_image's lower limit in plotted coordinates system
+	uint64_t y_lim = PVCore::clamp<uint64_t>(y_min + (1 << bbits) * alpha * pixel_height,
+	                                         0ULL, 1ULL << 32);
+	// the screen's lower limit in plotted coordinates system
+	// y_max can not be greater than y_lim
+	uint64_t y_max = PVCore::clamp<uint64_t>(y_min + screen_rect.height() * pixel_height,
+	                                         0ULL, y_lim);
+
+	int gap_y = (screen_rect_s.top() < 0)?round(-screen_rect_s.top()):0;
+
+	// we had to save the painter's state to restore it later
+	// the scene transformation matrix is unneeded
 	QTransform t = painter->transform();
 	painter->resetTransform();
 
-	// and use our own painter for the QImage
-	QPainter image_painter(&_back_image);
+	painter->fillRect(screen_rect, Qt::black);
 
-	// the tile set must be updated before any computation
-	for (int i = 0; i < tile_number; ++i) {
-		update_tile_geometry(i);
+	if (_left_image.get() != nullptr) {
+		BENCH_START(render);
+		_zones_drawing.draw_zoomed_zone(*_left_image, y_min, y_max, y_lim,
+		                                _zoom_level, _axis - 1,
+		                                &PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y2,
+		                                alpha, beta, true);
+		BENCH_END(render, "render left tile", 1, 1, 1, 1);
+		int gap_x = - PARALLELVIEW_AXIS_WIDTH / 2;
+
+		painter->drawImage(QPoint(screen_center - gap_x - image_width, gap_y),
+		                   _left_image->qimage());
 	}
 
-	if (_force_render) {
-		invalidate_tiles();
-		_force_render = false;
+	if (_right_image.get() != nullptr) {
+		BENCH_START(render);
+		_zones_drawing.draw_zoomed_zone(*_right_image, y_min, y_max, y_lim,
+		                                _zoom_level, _axis,
+		                                &PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1,
+		                                alpha, beta, false);
+		BENCH_END(render, "render right tile", 1, 1, 1, 1);
+
+		int value = 1 + screen_center + PARALLELVIEW_AXIS_WIDTH / 2;
+
+		painter->drawImage(QPoint(value, gap_y),
+		                   _right_image->qimage());
 	}
 
-	check_tiles_validity();
-
-	BENCH_START(drawBackground);
-	if (_left_tiles) {
-		int decal = view_center - PARALLELVIEW_AXIS_WIDTH / 2;
-		QRect left_rect(0, 0,
-		                decal, view_rect.height());
-		QRectF left_scene_rect = view()->mapToScene(left_rect).boundingRect();
-
-		for (int i = 0; i < tile_number; ++i) {
-			if (_left_tiles[i].number < tile_num) {
-				draw_tile(&image_painter, left_scene_rect, _left_tiles[i]);
-				// raster_tile_with_hinting(_back_image, left_scene_rect, _left_tiles[i]);
-			}
-		}
-	}
-
-	if (_right_tiles) {
-		// view center + line width + half axis width
-		int decal = view_center + 1 + PARALLELVIEW_AXIS_WIDTH / 2;
-		QRect right_rect(decal, 0,
-		                view_rect.width() - decal, view_rect.height());
-		QRectF right_scene_rect = view()->mapToScene(right_rect).boundingRect();
-
-		for (int i = 0; i < tile_number; ++i) {
-			if (_right_tiles[i].number < tile_num) {
-				draw_tile(&image_painter, right_scene_rect, _right_tiles[i]);
-				// raster_tile_with_hinting(_back_image, right_scene_rect, _right_tiles[i]);
-			}
-		}
-	}
-
-	// blit to screen
-	painter->drawImage(QPoint(0,0), _back_image);
-	BENCH_END(drawBackground, "drawBackground", 1, 1, 1, 1);
+	// the pen has to be saved too
+	QPen old_pen = painter->pen();
 
 	// draw axis
 	QPen new_pen = QPen(Qt::white);
 	new_pen.setColor(QColor(0xFFFFFFFF));
 	new_pen.setWidth(PARALLELVIEW_AXIS_WIDTH);
 	painter->setPen(new_pen);
-	painter->drawLine(view_center, 0, view_center, view_rect.height());
+	painter->drawLine(screen_center, 0, screen_center, screen_rect.height());
 
 	// get back the painter's original state
 	painter->setTransform(t);
 	painter->setPen(old_pen);
 }
 
-/*****************************************************************************
- * PVParallelView::PVZoomedParallelScene::draw_tile
- *****************************************************************************/
-
-void PVParallelView::PVZoomedParallelScene::draw_tile(QPainter *painter,
-                                                      const QRectF &scene_rect,
-                                                      const zoomed_tile_t &tile)
-{
-	if(scene_rect.intersects(tile.coord) == false) {
-		return;
-	}
-
-	QRectF inter = scene_rect.intersected(tile.coord);
-
-	QRect view_area = view()->mapFromScene(inter).boundingRect();
-
-	// we need the sub-area of tile's image to draw
-	QRect tile_rel;
-	tile_rel.setLeft((int)(ZOOM_IMAGE_WIDTH * (inter.x() - tile.coord.x()) / tile.coord.width()));
-	tile_rel.setTop((int)(image_height * (inter.y() - tile.coord.y()) / tile.coord.height()));
-
-	tile_rel.setWidth((int)(ZOOM_IMAGE_WIDTH * (inter.width() / tile.coord.width())));
-	tile_rel.setHeight((int)(image_height * (inter.height() / tile.coord.height())));
-
-	painter->drawImage(view_area, tile.bimage->qimage(), tile_rel);
-}
-
-/*****************************************************************************
- * PVParallelView::PVZoomedParallelScene::raster_tile_with_hinting
- *****************************************************************************/
-
-void PVParallelView::PVZoomedParallelScene::raster_tile_with_hinting(QImage &image,
-                                                                     const QRectF &scene_rect,
-                                                                     const zoomed_tile_t &tile)
-{
-	if(scene_rect.intersects(tile.coord) == false) {
-		return;
-	}
-
-	QRectF inter = scene_rect.intersected(tile.coord);
-
-	// QRect view_area = view()->mapFromScene(inter).boundingRect();
-
-	// we need the sub-area of tile's image to draw
-	QRect tile_rel;
-	tile_rel.setLeft((int)(ZOOM_IMAGE_WIDTH * (inter.x() - tile.coord.x()) / tile.coord.width()));
-	tile_rel.setTop((int)(image_height * (inter.y() - tile.coord.y()) / tile.coord.height()));
-
-	tile_rel.setWidth((int)(ZOOM_IMAGE_WIDTH * (inter.width() / tile.coord.width())));
-	tile_rel.setHeight((int)(image_height * (inter.height() / tile.coord.height())));
-
-	// TODO: replace the Code (tm) (c) :)
-}
-
-/*****************************************************************************
- * PVParallelView::PVZoomedParallelScene::update_tile_geometry
- *****************************************************************************/
-
-void PVParallelView::PVZoomedParallelScene::update_tile_geometry(int tile_index)
-{
-	/* some init
-	 */
-	long tile_num = get_tile_num();
-	double tile_scale = 1. / (double)tile_num;
-	double tile_height = SCENE_SIDE / (double)tile_num;
-
-	/* get the position of the upper tile (in tile's space). It is
-	 * deduced from the view's top in scene's space
-	 */
-	long tile_upper_pos = (long)(view()->mapToScene(0, 0).y() / tile_height);
-
-	/* if the processed tile has a lower index that the upper one, it
-	 * must be shifted downward
-	 */
-	long tile_shift = tile_index - (tile_upper_pos % tile_number);
-	if (tile_shift < 0) {
-		tile_shift += tile_number;
-	}
-
-	double old_y;
-	int number = tile_upper_pos + tile_shift;
-	double new_y = (number) * tile_height;
-
-	QSizeF tile_size(ZOOM_IMAGE_WIDTH * .5, 1024 * tile_scale);
-
-	// reconfigure all tiles
-	if (_left_tiles) {
-		zoomed_tile_t &tile = _left_tiles[tile_index];
-		old_y = tile.coord.y();
-
-		tile.coord.setTopLeft(QPointF(-512, new_y));
-		tile.coord.setSize(tile_size);
-		tile.number = number;
-
-		tile.valid = (old_y == new_y);
-	}
-
-	if (_right_tiles) {
-		zoomed_tile_t &tile = _right_tiles[tile_index];
-		old_y = tile.coord.y();
-
-		tile.coord.setTopLeft(QPointF(0, new_y));
-		tile.coord.setSize(tile_size);
-		tile.number = number;
-
-		tile.valid = (old_y == new_y);
-	}
-}
-
-/*****************************************************************************
- * PVParallelView::PVZoomedParallelScene::update_zoom
- *****************************************************************************/
-
-void PVParallelView::PVZoomedParallelScene::update_zoom()
-{
-	_zoom_level = get_zoom_level();
-	int step = get_zoom_step();
-
-	setSceneRect(-0.5 * SCENE_SIDE, 0., SCENE_SIDE, SCENE_SIDE);
-
-	// Phillipe's magic formula: 2^n × a^k
-	double s = pow(2, _zoom_level) * pow(root_step, step);
-
-	view()->resetTransform();
-	view()->scale(s, s);
-
-	qreal ncy = view()->mapToScene(view()->viewport()->rect()).boundingRect().center().y();
-	view()->centerOn(0., ncy);
-
-	/* tiles must be against the axis line, they also must be shifted of
-	 * pixel's width (in scene coordinates system) or 2 pixels width (in
-	 * case of the right tiles)
-	 */
-	QRect screen_pixel_size(0, 0, 1, 0);
-	QRectF scene_pixel_size = view()->mapToScene(screen_pixel_size).boundingRect();
-
-	if (_left_tiles) {
-		for (int i = 0; i < tile_number; ++i) {
-			_left_tiles[i].coord.adjust(-scene_pixel_size.width(), 0, 0, 0);
-		}
-	}
-	if (_right_tiles) {
-		for (int i = 0; i < tile_number; ++i) {
-			_left_tiles[i].coord.adjust(2 * scene_pixel_size.width(), 0, 0, 0);
-		}
-	}
-
-	/* finally, if the zoom level has changed, all tiles must be
-	 * invalidated to be recalculted
-	 */
-	if (_zoom_level != _old_zoom_level) {
-		_old_zoom_level = _zoom_level;
-		_force_render = true;
-	}
-}
-
-/*****************************************************************************
- * PVParallelView::PVZoomedParallelScene::invalidate_tiles
- *****************************************************************************/
-
-void PVParallelView::PVZoomedParallelScene::invalidate_tiles()
-{
-	if (_left_tiles) {
-		for (int i = 0; i < tile_number; ++i) {
-			_left_tiles[i].valid = false;
-		}
-	}
-
-	if (_right_tiles) {
-		for (int i = 0; i < tile_number; ++i) {
-			_right_tiles[i].valid = false;
-		}
-	}
-}
-
-/*****************************************************************************
- * PVParallelView::PVZoomedParallelScene::check_tiles_validity
- *****************************************************************************/
-
-void PVParallelView::PVZoomedParallelScene::check_tiles_validity()
-{
-	if (_left_tiles) {
-		for (int i = 0; i < tile_number; ++i) {
-			zoomed_tile_t &tile = _left_tiles[i];
-			if (tile.valid == false) {
-				render_tile(tile, true);
-			}
-		}
-	}
-
-	if (_right_tiles) {
-		for (int i = 0; i < tile_number; ++i) {
-			zoomed_tile_t &tile = _right_tiles[i];
-			if (tile.valid == false) {
-				render_tile(tile, false);
-			}
-		}
-	}
-}
-
-/*****************************************************************************
- * PVParallelView::PVZoomedParallelScene::render_tile
- *****************************************************************************/
-
-void PVParallelView::PVZoomedParallelScene::render_tile(zoomed_tile_t &tile, bool is_left)
-{
-	long tile_num = get_tile_num();
-	double tile_height = SCENE_SIDE / (double)tile_num;
-
-	int level = _zoom_level;
-
-	if (image_height == 1024) {
-		// in that case, we render at _zoom_level+1
-		level += 1;
-	}
-
-	uint32_t y_min = ((long)tile.coord.top() / tile_height) * (1 << (32 - level));
-
-	BENCH_START(render);
-	if (is_left) {
-		_zones_drawing.draw_zoomed_zone(*tile.bimage, y_min, level, _axis - 1,
-		                                &PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y2);
-	} else {
-		_zones_drawing.draw_zoomed_zone(*tile.bimage, y_min, level, _axis,
-		                                &PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1);
-	}
-	BENCH_END(render, "render tile", 1, 1, 1, 1);
-}

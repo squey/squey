@@ -12,6 +12,8 @@
 #include <boost/type_traits.hpp>
 #include <type_traits>
 
+#include <iostream>
+
 namespace PVCore {
 
 namespace PVTypeTraits {
