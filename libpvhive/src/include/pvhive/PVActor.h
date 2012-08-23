@@ -43,7 +43,7 @@ public:
 	{
 		T *object = (T*)get_object();
 		if (object != nullptr) {
-			return PVHive::get().call_object<T, F, f>(object, std::forward<P>(params)...);
+			return PVHive::get().call_object_interface<T, F, f>(object, std::forward<P>(params)...);
 		} else {
 			throw no_object("using an actor on a nullptr object");
 		}

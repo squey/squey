@@ -674,7 +674,7 @@ public:
 		Interactor(id)
 	{
 		auto func_about_to_be_ref =
-					std::bind([] (const Entity *e, EntityObserverCB *o)
+					std::bind([] (const Entity* /*e*/, EntityObserverCB* /*o*/)
 					          {
 					          },
 					          std::placeholders::_1, this);

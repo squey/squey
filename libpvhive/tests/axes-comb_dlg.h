@@ -84,7 +84,7 @@ public:
 		resize(320, 640);
 	}
 
-	void closeEvent(QCloseEvent * e)
+	void closeEvent(QCloseEvent * /*e*/)
 	{
 		destroy();
 	}

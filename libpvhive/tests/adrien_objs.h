@@ -25,7 +25,7 @@ public:
 
 public:
 	int const& get_i() const { return _i; };
-	void set_i(int const& i) { _i = i; }
+	void set_i(int i) { _i = i; }
 	void set_i2(int const& i) { _i = i; }
 
 	void set_prop(ObjectProperty const& p)

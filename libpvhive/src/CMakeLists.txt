@@ -13,6 +13,8 @@ PVRefreshSignal.cpp
 PVFuncObserver.cpp
 )
 
+file(GLOB_RECURSE PVHIVE_WAXES_FILES waxes *.cpp)
+
 SET(PVHIVE_MOC_HEADERS
 include/pvhive/PVRefreshSignal.h
 include/pvhive/PVQRefresh.h
@@ -30,7 +32,7 @@ include/pvhive/PVQObserver.h
 include/pvhive/PVQRefresh.h
 )
 
-set(SRC_FILES ${PVHIVE_SRC_FILES})
+set(SRC_FILES ${PVHIVE_SRC_FILES} ${PVHIVE_WAXES_FILES})
 set(HEADER_FILES ${PVHIVE_HEADER_FILES})
 set(MOC_HEADERS ${PVHIVE_MOC_HEADERS})
 qt4_wrap_cpp(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})

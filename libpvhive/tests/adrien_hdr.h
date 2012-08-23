@@ -93,7 +93,7 @@ public slots:
 	void update_prop()
 	{
 		std::cout << "Update prop to " << _c << std::endl;
-		_actor.call<decltype(&MyObject::set_prop), &MyObject::set_prop>(boost::cref(ObjectProperty(_c)));
+		_actor.call<decltype(&MyObject::set_prop), &MyObject::set_prop>(ObjectProperty(_c));
 		++_c;
 	}
 

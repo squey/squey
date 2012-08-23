@@ -121,6 +121,18 @@ struct function_args_list: public __impl::function_args_list_helper<0, Tparams..
 {
 };
 
+template<int ...>
+struct seq_n { };
+
+template<int N, int ...S>
+struct gen_seq_n: gen_seq_n<N-1, N-1, S...> { };
+
+template<int ...S>
+struct gen_seq_n<0, S...>
+{
+	typedef seq_n<S...> type;
+};
+
 // Function traits
 
 namespace __impl {
@@ -134,6 +146,7 @@ struct function_traits_helper<R (*)(Tparams...)>
 	typedef R result_type;
 	typedef function_args_list<Tparams...> arguments_type;
 	constexpr static size_t arity = variadic_param_count<Tparams...>::count; 
+	typedef R(*pointer_type)(Tparams...);
 
 	template <size_t I>
 	struct type_of_arg: public variadic_n<I, Tparams...>
@@ -146,6 +159,7 @@ struct function_traits_helper<R (*)()>
 	typedef R result_type;
 	typedef function_no_args_helper arguments_type;
 	constexpr static size_t arity = 0;
+	typedef R(*pointer_type)();
 };
 
 template<typename R, typename... Tparams>
@@ -156,7 +170,46 @@ template<typename T, typename R, typename... Tparams>
 struct function_traits_helper<R (T::*)(Tparams...)>: public function_traits_helper<R (*)(Tparams...)>
 {
 	typedef T class_type;
+	typedef R (T::*pointer_type)(Tparams...);
+	typedef typename function_traits_helper<R (*)(Tparams...)>::arguments_type arguments_type;
+	constexpr static bool is_const = false;
+
+	template <pointer_type f>
+	inline static R call(T& obj, arguments_type const& args)
+	{
+		return std::move(do_call<f>(obj, args, typename gen_seq_n<sizeof...(Tparams)>::type()));
+	}
+
+private:
+	template <pointer_type f, int... S>
+	inline static R do_call(T& obj, arguments_type const& args, seq_n<S...>)
+	{
+		return (obj.*f)(args.template get_arg<S>()...);
+	}
 };
+
+template<typename T, typename R, typename... Tparams>
+struct function_traits_helper<R (T::*)(Tparams...) const>: public function_traits_helper<R (*)(Tparams...)>
+{
+	typedef T class_type;
+	typedef R (T::*pointer_type)(Tparams...) const;
+	typedef typename function_traits_helper<R (*)(Tparams...)>::arguments_type arguments_type;
+	constexpr static bool is_const = true;
+
+	template <pointer_type f>
+	inline static R call(T const& obj, arguments_type const& args)
+	{
+		return std::move(do_call<f>(obj, args, typename gen_seq_n<sizeof...(Tparams)>::type()));
+	}
+
+private:
+	template <pointer_type f, int... S>
+	inline static R do_call(T const& obj, arguments_type const& args, seq_n<S...>)
+	{
+		return (obj.*f)(args.template get_arg<S>()...);
+	}
+};
+
 
 } // __impl
 
