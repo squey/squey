@@ -67,17 +67,15 @@ public:
 
 	void process_omp_from_zt(const PVZoneProcessing &zp, PVZoneTree &zt);
 
-	size_t browse_tree_bci_by_y1(uint32_t y_min, int zoom,
+	size_t browse_tree_bci_by_y1(uint64_t y_min, uint64_t y_max, uint64_t y_lim, int zoom,
+	                             uint32_t width,
 	                             const PVHSVColor* colors, PVBCICode<bbits>* codes,
 	                             const float beta = 1.0f) const;
 
-	size_t browse_tree_bci_by_y2(PVRow y_min, int zoom,
+	size_t browse_tree_bci_by_y2(uint64_t y_min, uint64_t y_max, uint64_t y_lim, int zoom,
+	                             uint32_t width,
 	                             const PVHSVColor* colors, PVBCICode<bbits>* codes,
 	                             const float beta = 1.0f) const;
-
-	size_t browse_tree_bci_by_y1_range(uint32_t y_min, uint32_t y_max, int zoom,
-	                                   const PVHSVColor* colors, PVBCICode<bbits>* codes,
-	                                   const float beta = 1.0f) const;
 
 private:
 	inline uint32_t compute_index(uint32_t y1, uint32_t y2) const

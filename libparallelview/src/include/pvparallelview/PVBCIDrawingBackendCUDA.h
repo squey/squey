@@ -97,6 +97,7 @@ struct cuda_kernel<10>
 	static inline void launch(PVParallelView::PVBCICode<10>* device_codes, uint32_t n, uint32_t width, uint32_t* device_img, uint32_t img_width, uint32_t x_start, const float zoom_y, cudaStream_t stream = NULL, bool reverse = false)
 	{
 		assert(reverse == false);
+		(void)reverse; // remove warning "unused parameter"
 		show_codes_cuda10(device_codes, n, width, device_img, img_width, x_start, zoom_y, stream);
 	}
 };

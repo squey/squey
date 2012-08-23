@@ -17,7 +17,7 @@
 #include <pvparallelview/PVZonesDrawing.h>
 #include <pvparallelview/PVZonesManager.h>
 #include <pvparallelview/PVLinesView.h>
-#include <pvparallelview/PVZoomedParallelScene2.h>
+#include <pvparallelview/PVZoomedParallelScene.h>
 
 #include <pvparallelview/PVFullParallelScene.h>
 #include <pvparallelview/PVFullParallelView.h>

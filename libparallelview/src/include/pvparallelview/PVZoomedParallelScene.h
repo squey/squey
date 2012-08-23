@@ -7,112 +7,89 @@
 #ifndef PVPARALLELVIEW_PVZOOMEDPARALLELSCENE_H
 #define PVPARALLELVIEW_PVZOOMEDPARALLELSCENE_H
 
-#include <pvbase/types.h>
-
-#include <QGraphicsView>
-
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVZonesDrawing.h>
+
+#include <QGraphicsView>
+#include <QGraphicsSceneMouseEvent>
+#include <QGraphicsSceneWheelEvent>
+
+#include <QDialog>
+#include <QPaintEvent>
 
 namespace PVParallelView
 {
 
-class PVZoomedParallelScene : public QGraphicsScene
-{
-	constexpr static size_t bbits = PARALLELVIEW_ZZT_BBITS;
-	constexpr static int zoom_steps = 5;
-	constexpr static double root_step = pow(2.0, 1.0 / zoom_steps);
-	constexpr static int tile_number = 3;
-	constexpr static uint32_t image_height = constants<bbits>::image_height;
-
-public:
-	typedef PVZonesDrawing<bbits> zones_drawing_t;
-	typedef typename zones_drawing_t::backend_image_p_t backend_image_p_t;
-
-private:
-	struct zoomed_tile_t
+	class PVZoomedParallelScene : public QGraphicsScene
 	{
-		backend_image_p_t bimage;
-		QRectF            coord;
-		int               number;
-		bool              valid;
-	};
+		constexpr static size_t bbits = PARALLELVIEW_ZZT_BBITS;
+		constexpr static uint32_t image_width = 512;
+		constexpr static uint32_t image_height = PVParallelView::constants<bbits>::image_height;
+		constexpr static double bbits_alpha_scale = 1. / (1. + (bbits - 10));
+		constexpr static int zoom_steps = 5;
+		constexpr static double root_step = pow(2.0, 1.0 / zoom_steps);
+		constexpr static int max_wheel_value = 20 * zoom_steps;
 
-public:
-	/**
-	 * CTOR
-	 * @param parent the parent QObject
-	 * @param zones_drawing the zone drawing object
-	 * @param axis the axis we zoom on
-	 * @param position
-	 */
-	PVZoomedParallelScene(QObject *parent,
-	                      zones_drawing_t &zones_drawing,
-	                      PVCol axis, uint32_t position, int zoom);
+	public:
+		typedef PVParallelView::PVZonesDrawing<bbits> zones_drawing_t;
+		typedef typename zones_drawing_t::backend_image_p_t backend_image_p_t;
 
-	~PVZoomedParallelScene();
+	public:
+		PVZoomedParallelScene(QWidget *parent,
+		                      zones_drawing_t &zones_drawing,
+		                      PVCol axis);
 
-	void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
-	void mousePressEvent(QGraphicsSceneMouseEvent *event);
-	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
-	void wheelEvent(QGraphicsSceneWheelEvent* event);
+		void mousePressEvent(QGraphicsSceneMouseEvent *event);
+		void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+		void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
 
-	virtual void drawBackground(QPainter *painter, const QRectF &rect);
+		void wheelEvent(QGraphicsSceneWheelEvent* event);
 
-private:
-	void draw_tile(QPainter *painter,
-	               const QRectF &scene_rect,
-	               const zoomed_tile_t &tile);
+		virtual void drawBackground(QPainter *painter, const QRectF &rect);
 
-	void raster_tile_with_hinting(QImage &image,
-	                              const QRectF &scene_rect,
-	                              const zoomed_tile_t &tile);
+	private:
+		void update_zoom()
+		{
+			_zoom_level = get_zoom_level();
+			double s = get_scale_factor();
 
-private:
-	inline QGraphicsView* view()
-	{
-		return (QGraphicsView*) parent();
-	}
-
-	void update_tile_geometry(int tile_index);
-	void update_zoom();
-	void invalidate_tiles();
-	void check_tiles_validity();
-	void render_tile(zoomed_tile_t &tile, bool is_left);
-
-private:
-	int get_tile_num()
-	{
-		if (bbits == 10) {
-			// the true formula is: 2 * (1 << _zoom_level);;
-			return 1 << (1 + _zoom_level);
-		} else {
-			return 1 << (_zoom_level);
+			view()->resetTransform();
+			view()->scale(s, s);
+			qreal ncy = view()->mapToScene(view()->viewport()->rect()).boundingRect().center().y();
+			view()->centerOn(0., ncy);
 		}
-	}
 
-	int get_zoom_level()
-	{
-		return _wheel_value / zoom_steps;
-	}
+	private:
+		inline QGraphicsView* view()
+		{
+			return (QGraphicsView*) parent();
+		}
 
-	int get_zoom_step()
-	{
-		return _wheel_value % zoom_steps;
-	}
+		int get_zoom_level()
+		{
+			return _wheel_value / zoom_steps;
+		}
 
-private:
-	zones_drawing_t &_zones_drawing;
-	PVCol            _axis;
-	qreal            _translation_start_y;
-	int              _wheel_value;
-	int              _zoom_level;
-	int              _old_zoom_level;
-	QImage           _back_image;
-	zoomed_tile_t   *_left_tiles;
-	zoomed_tile_t   *_right_tiles;
-	bool             _force_render;
-};
+		int get_zoom_step()
+		{
+			return _wheel_value % zoom_steps;
+		}
+
+		double get_scale_factor()
+		{
+			// Phillipe's magic formula: 2^n × a^k
+			return pow(2, _zoom_level) * pow(root_step, get_zoom_step());
+		}
+
+	private:
+		zones_drawing_t  &_zones_drawing;
+		PVCol             _axis;
+		int               _wheel_value;
+		int               _zoom_level;
+		QImage            _back_image;
+		backend_image_p_t _left_image;
+		backend_image_p_t _right_image;
+	};
 
 }
 
