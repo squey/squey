@@ -18,6 +18,7 @@
 #include <pvparallelview/PVZonesDrawing.h>
 #include <pvparallelview/PVZonesManager.h>
 #include <pvparallelview/PVZoomedParallelScene.h>
+#include <pvparallelview/PVZoomedParallelView.h>
 
 #include <QApplication>
 #include <QGraphicsView>
@@ -111,7 +112,7 @@ int main(int argc, char** argv)
 	PVParallelView::PVBCIDrawingBackendCUDA<RENDERING_BITS> backend_cuda;
 	zones_drawing_t &zones_drawing = *(new zones_drawing_t(zm, backend_cuda, *colors));
 
-	QGraphicsView view;
+	PVParallelView::PVZoomedParallelView view;
 	view.setViewport(new QWidget());
 	view.setScene(new PVParallelView::PVZoomedParallelScene(&view, zones_drawing,
 	                                                        /*axis*/ 1));
