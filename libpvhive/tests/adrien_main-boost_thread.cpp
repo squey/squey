@@ -11,6 +11,7 @@
 #include <pvhive/PVActor.h>
 #include <pvhive/PVCallHelper.h>
 #include <pvhive/PVObserverCallback.h>
+#include <pvhive/PVWax.h>
 
 #include "adrien_objs.h"
 #include "adrien_dlg.h"
@@ -22,8 +23,7 @@
 
 PVHIVE_CALL_OBJECT_BLOCK_BEGIN()
 
-template <>
-void PVHive::PVHive::call_object<FUNC(MyObject::set_prop)>(MyObject* o, PVCore::PVTypeTraits::function_traits<decltype(&MyObject::set_prop)>::arguments_type const& args)
+IMPL_WAX(MyObject::set_prop, o, args)
 {
 	std::cout << "  PVHive::call_object for MyObject::set_prop &&" << std::endl;
 	std::cout << "    in thread " << boost::this_thread::get_id() << std::endl;
@@ -32,8 +32,7 @@ void PVHive::PVHive::call_object<FUNC(MyObject::set_prop)>(MyObject* o, PVCore::
 	refresh_observers(&o->get_prop());
 }
 
-template <>
-void PVHive::PVHive::call_object<FUNC(MyObject::set_i)>(MyObject* o, PVCore::PVTypeTraits::function_traits<decltype(&MyObject::set_i)>::arguments_type const& args)
+IMPL_WAX(MyObject::set_i, o, args)
 {
 	std::cout << "  PVHive::call_object for MyObject::set_i &&" << std::endl;
 	std::cout << "    in thread " << boost::this_thread::get_id() << std::endl;

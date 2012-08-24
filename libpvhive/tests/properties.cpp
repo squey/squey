@@ -10,6 +10,7 @@
 #include <pvhive/PVCallHelper.h>
 #include <pvhive/PVHive.h>
 #include <pvhive/PVObserver.h>
+#include <pvhive/PVWax.h>
 
 #include <boost/ref.hpp>
 #include <boost/thread.hpp>
@@ -102,8 +103,7 @@ void PVHive::PVHive::call_object<MyObject, decltype(&MyObject::set_prop), &MyObj
 	refresh_observers(&o->get_prop());
 }*/
 
-template <>
-void PVHive::PVHive::call_object<FUNC(MyObject::set_prop)>(MyObject* o, PVCore::PVTypeTraits::function_traits<decltype(&MyObject::set_prop)>::arguments_type const& args)
+IMPL_WAX(MyObject::set_prop, o, args)
 {
 	std::cout << "  PVHive::call_object for MyObject::set_prop" << std::endl;
 	std::cout << "    in thread " << boost::this_thread::get_id() << std::endl;

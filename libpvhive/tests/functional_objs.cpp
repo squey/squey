@@ -5,13 +5,13 @@
  */
 
 #include <pvhive/PVCallHelper.h>
+#include <pvhive/PVWax.h>
 #include "functional_objs.h"
 
 
 PVHIVE_CALL_OBJECT_BLOCK_BEGIN()
 
-template <>
-void PVHive::PVHive::call_object<FUNC(PropertyEntity::set_prop)>(PropertyEntity* e, PVCore::PVTypeTraits::function_traits<decltype(&PropertyEntity::set_prop)>::arguments_type const& args)
+IMPL_WAX(PropertyEntity::set_prop, e, args)
 {
 	std::cout << "CALL ::set_prop on PE " << e->get_prop() << std::endl;
 

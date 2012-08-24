@@ -6,7 +6,7 @@
 include_directories(AFTER ${PVKERNEL_INCLUDE_DIR})
 include_directories(AFTER ${PVHIVE_INCLUDE_DIR})
 
-set(COMMON_LIBRARIES ${PVHIVE_LIBRARIES} ${TBB_LIBRARIES} ${BOOST_LIBRARIES} ${Boost_LIBRARIES_PYTHON} ${PYTHON_LIBRARY})
+set(COMMON_LIBRARIES ${PVHIVE_LIBRARIES} ${PICVIZ_LIBRARIES} ${TBB_LIBRARIES} ${BOOST_LIBRARIES} ${Boost_LIBRARIES_PYTHON} ${PYTHON_LIBRARY})
 
 add_executable(Tsimplistic simplistic.cpp)
 target_link_libraries(Tsimplistic ${COMMON_LIBRARIES})
@@ -64,12 +64,6 @@ add_executable(Tmessage-queue message-queue.cpp ${TEST_MQ_MOC_SRC})
 target_link_libraries(Tmessage-queue ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES})
 
 include_directories(AFTER ${PICVIZ_INCLUDE_DIR})
-
-QT4_WRAP_CPP(TEST_AXESCOMB_MOC_SRC axes-comb_dlg.h OPTIONS ${QT4_WRAP_OPTIONS})
-QT4_WRAP_CPP(TEST_AXESCOMB_MOC_SRC axes-comb_model.h OPTIONS ${QT4_WRAP_OPTIONS})
-
-add_executable(Taxes-comb axes-comb.cpp axes-comb_model.cpp ${TEST_AXESCOMB_MOC_SRC})
-target_link_libraries(Taxes-comb ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES} ${PICVIZ_LIBRARIES})
 
 add_executable(Tcall_helper call_helper.cpp)
 target_link_libraries(Tcall_helper ${COMMON_LIBRARIES} ${PVKERNEL_LIBRARIES} ${PICVIZ_LIBRARIES})

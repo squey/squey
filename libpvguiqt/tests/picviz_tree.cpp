@@ -53,10 +53,17 @@ int main(int argc, char** argv)
 	PVGuiQt::PVRootTreeView* view = new PVGuiQt::PVRootTreeView(model);
 	//view->setModel(model);
 
+	PVGuiQt::PVRootTreeModel* model2 = new PVGuiQt::PVRootTreeModel(*src);
+	PVGuiQt::PVRootTreeView* view2 = new PVGuiQt::PVRootTreeView(model2);
+
 	QMainWindow* mw = new QMainWindow();
 	mw->setCentralWidget(view);
 
+	QMainWindow* mw2 = new QMainWindow();
+	mw2->setCentralWidget(view2);
+
 	mw->show();
+	mw2->show();
 
 	return app.exec();
 }

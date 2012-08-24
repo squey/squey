@@ -9,6 +9,7 @@
 
 #include <pvhive/PVCallHelper.h>
 #include <pvhive/PVHive.h>
+#include <pvhive/waxes/waxes.h>
 
 #include <pvguiqt/PVRootTreeModel.h>
 #include <pvguiqt/PVRootTreeView.h>

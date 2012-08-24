@@ -5,6 +5,7 @@
  */
 
 #include <pvhive/PVCallHelper.h>
+#include <pvhive/PVWax.h>
 #include "massive_common.h"
 
 /*****************************************************************************
@@ -13,8 +14,7 @@
 
 PVHIVE_CALL_OBJECT_BLOCK_BEGIN()
 
-template <>
-void PVHive::PVHive::call_object<FUNC(Block::set_prop)>(Block* b, PVCore::PVTypeTraits::function_traits<decltype(&Block::set_prop)>::arguments_type const& args)
+IMPL_WAX(Block::set_prop, b, args)
 {
 	call_object_default<Block, FUNC(Block::set_prop)>(b, args);
 	refresh_observers(&(b->get_prop(args.get_arg<0>())));
