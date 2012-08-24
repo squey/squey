@@ -49,6 +49,8 @@ public:
 		}
 		return typename PVCore::PVTypeTraits::function_traits<F>::result_type();
 	}
+
+	T const* get_const_object() const { return static_cast<T*>(get_object()); }
 };
 
 // Helper macro to hide the C++ decltype verbosity
