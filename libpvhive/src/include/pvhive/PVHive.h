@@ -426,7 +426,7 @@ protected:
 		args.set_args(params...);
 
 		// This method can be specialized easily for a given function !
-		call_object<F, f>(object, args);
+		return call_object<F, f>(object, args);
 	}
 
 private:

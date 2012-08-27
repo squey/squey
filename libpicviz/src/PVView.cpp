@@ -250,7 +250,7 @@ void Picviz::PVView::expand_selection_on_axis(PVCol axis_id, QString const& mode
  * Picviz::PVView::get_axes_count
  *
  *****************************************************************************/
-PVCol Picviz::PVView::get_axes_count()
+PVCol Picviz::PVView::get_axes_count() const
 {
 	return axes_combination.get_axes_count();
 }

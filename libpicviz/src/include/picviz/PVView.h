@@ -112,7 +112,7 @@ public:
 	virtual QString get_serialize_description() const { return "View: " + get_name(); }
 
 	/* Functions */
-	PVCol get_axes_count();
+	PVCol get_axes_count() const;
 
 	template <class T>
 	QList<PVCol> get_original_axes_index_with_tag(T const& tag) const
