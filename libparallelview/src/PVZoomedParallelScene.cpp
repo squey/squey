@@ -46,14 +46,11 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(QWidget *parent,
 	view()->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	view()->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 	view()->setResizeAnchor(QGraphicsView::AnchorViewCenter);
-	// RH: AnchorUnderMouse goes weird when the cursor moves, so DON'T use
-	// this mode
-	// view()->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
-	view()->setTransformationAnchor(QGraphicsView::AnchorViewCenter);
+	view()->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
 	view()->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
 
 	//view()->setMaximumWidth(1024);
-	view()->setMaximumHeight(1024);
+	//view()->setMaximumHeight(1024);
 
 	_wheel_value = 0;
 
@@ -199,7 +196,7 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 	double beta = 1. / get_scale_factor();
 
 	QRect screen_rect = view()->viewport()->rect();
-	int screen_center = screen_rect.width() / 2;
+	int screen_center = screen_rect.center().x();
 
 	QRectF screen_rect_s = view()->mapToScene(screen_rect).boundingRect();
 	QRectF view_rect = sceneRect().intersected(screen_rect_s);
