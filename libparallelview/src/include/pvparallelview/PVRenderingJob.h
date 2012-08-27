@@ -16,11 +16,13 @@
 namespace PVParallelView {
 
 class PVLinesView;
+class PVZoomedParallelScene;
 
 class PVRenderingJob: public QObject
 {
 	friend class PVLinesView;
 	friend class PVZonesManager;
+	friend class PVZoomedParallelScene;
 
 	Q_OBJECT
 

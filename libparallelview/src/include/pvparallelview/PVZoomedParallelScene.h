@@ -9,6 +9,7 @@
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVZonesDrawing.h>
+#include <pvparallelview/PVRenderingJob.h>
 
 #include <QGraphicsView>
 #include <QGraphicsSceneMouseEvent>
@@ -20,6 +21,7 @@
 
 namespace PVParallelView
 {
+
 class PVZoomedParallelScene : public QGraphicsScene
 {
 Q_OBJECT
@@ -80,16 +82,26 @@ private:
 
 private slots:
 	void scrollbar_changed_Slot(int value);
+	void zone_rendered_Slot(int z);
 
 private:
-	zones_drawing_t  &_zones_drawing;
-	PVCol             _axis;
-	int               _wheel_value;
-	int               _zoom_level;
-	QImage            _back_image;
-	int               _old_sb_pos;
-	backend_image_p_t _left_image;
-	backend_image_p_t _right_image;
+	struct zone_desc
+	{
+		QRect             area;
+		QPoint            pos;
+		backend_image_p_t image;
+	};
+
+	zones_drawing_t &_zones_drawing;
+	PVCol            _axis;
+	int              _wheel_value;
+	int              _zoom_level;
+	QImage           _back_image;
+	int              _old_sb_pos;
+	zone_desc        _left_zone;
+	zone_desc        _right_zone;
+	PVRenderingJob  *_rendering_job;
+	QFuture<void>    _rendering_future;
 };
 
 }
