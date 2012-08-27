@@ -288,6 +288,7 @@ void PVParallelView::PVZoomedParallelScene::update_zoom(bool in)
 		                      QImage::Format_ARGB32);
 		image.fill(Qt::black);
 		QPainter painter(&image);
+		painter.setRenderHint(QPainter::SmoothPixmapTransform);
 
 		double image_scale = 1. - 1. / zoom_steps;
 		if (in) {
