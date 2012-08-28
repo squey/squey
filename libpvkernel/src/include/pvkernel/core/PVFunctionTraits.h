@@ -144,7 +144,8 @@ template<typename R, typename... Tparams>
 struct function_traits_helper<R (*)(Tparams...)>
 {
 	typedef R result_type;
-	typedef function_args_list<Tparams...> arguments_type;
+	//typedef function_args_list<Tparams...> arguments_type;
+	typedef std::tuple<Tparams...> arguments_type;
 	constexpr static size_t arity = variadic_param_count<Tparams...>::count; 
 	typedef R(*pointer_type)(Tparams...);
 	typedef std::tuple<Tparams...> arguments_deep_copy_type;
