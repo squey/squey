@@ -90,18 +90,19 @@ private:
 		QRect             area;
 		QPoint            pos;
 		backend_image_p_t image;
+		QImage            back_image;
 	};
 
 	zones_drawing_t &_zones_drawing;
 	PVCol            _axis;
 	int              _wheel_value;
 	int              _zoom_level;
-	QImage           _back_image;
 	int              _old_sb_pos;
 	zone_desc        _left_zone;
 	zone_desc        _right_zone;
 	PVRenderingJob  *_rendering_job;
 	QFuture<void>    _rendering_future;
+	bool             _skip_update_zoom;
 };
 
 }

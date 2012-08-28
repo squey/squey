@@ -440,7 +440,6 @@ void PVParallelView::PVZoomedParallelScene::scrollbar_changed_Slot(int value)
 			painter.drawImage(QPoint(0, _old_sb_pos - value),
 			                  back_image);
 
-
 			back_image = image;
 		}
 
