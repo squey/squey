@@ -65,12 +65,6 @@ void PVHive::PVHive::unregister_object(void *object)
 
 	if (_observables.find(acc, object)) {
 
-		// and observers
-		for (auto it = acc->second.observers.rbegin();
-		     it != acc->second.observers.rend(); ++it) {
-			(*it)->about_to_be_deleted();
-		}
-
 		// unregistering properties
 		for (auto it : acc->second.properties) {
 			observables_t::accessor pacc;
@@ -94,6 +88,11 @@ void PVHive::PVHive::unregister_object(void *object)
 			it->set_object(nullptr, nullptr);
 		}
 
+		// and observers
+		for (auto it = acc->second.observers.rbegin();
+		     it != acc->second.observers.rend(); ++it) {
+			(*it)->about_to_be_deleted();
+		}
 
 		// finally, the entry of object is removed
 		_observables.erase(acc);
