@@ -93,7 +93,7 @@ class FuncObserver: public PVHive::PVFuncObserver<Obj2, decltype(&Obj2::my_actio
 protected:
 	virtual void update(arguments_type const& args) const
 	{
-		std::cout << "    FuncObserver on Obj2::my_action for object " << get_object() <<  "with param " << args.get_arg<0>() << std::endl;
+		std::cout << "    FuncObserver on Obj2::my_action for object " << get_object() <<  "with param " << std::get<0>(args) << std::endl;
 	}
 };
 

@@ -17,7 +17,7 @@ PVHIVE_CALL_OBJECT_BLOCK_BEGIN()
 IMPL_WAX(Block::set_prop, b, args)
 {
 	call_object_default<Block, FUNC(Block::set_prop)>(b, args);
-	refresh_observers(&(b->get_prop(args.get_arg<0>())));
+	refresh_observers(&(b->get_prop(std::get<0>(args))));
 }
 
 PVHIVE_CALL_OBJECT_BLOCK_END()
