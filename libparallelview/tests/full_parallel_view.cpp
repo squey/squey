@@ -76,7 +76,7 @@ int main(int argc, char** argv)
 		nrows = plotted.size()/ncols;
 	}
 
-	PVParallelView::PVHSVColor* colors = PVParallelView::PVHSVColor::init_colors(nrows);
+	PVCore::PVHSVColor* colors = PVCore::PVHSVColor::init_colors(nrows);
 
 	Picviz::PVPlotted::uint_plotted_table_t norm_plotted;
 	BENCH_START(norm);

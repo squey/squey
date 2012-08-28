@@ -10,8 +10,8 @@
 #include <stdint.h>
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVAllocators.h>
+#include <pvkernel/core/PVHSVColor.h>
 #include <pvparallelview/common.h>
-#include <pvparallelview/PVHSVColor.h>
 #include <tbb/cache_aligned_allocator.h>
 
 namespace PVParallelView {

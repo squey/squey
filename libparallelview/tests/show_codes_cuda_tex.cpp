@@ -6,7 +6,7 @@
 
 #include <pvkernel/cuda/common.h>
 #include <pvparallelview/common.h>
-#include <pvparallelview/PVHSVColor.h>
+#include <pvkernel/core/PVHSVColor.h>
 #include <pvparallelview/PVBCICode.h>
 
 #define USE_GL_WITH_CUDA
@@ -41,7 +41,7 @@ void init_codes(LBView* v, PVParallelView::PVBCICode<NBITS_INDEX>* codes, size_t
 		pts.push_back(0); pts.push_back(c.s.l);
 		pts.push_back(1); pts.push_back(c.s.r);
 
-		PVParallelView::PVHSVColor hsv(c.s.color);
+		PVCore::PVHSVColor hsv(c.s.color);
 		hsv.to_rgb((uint8_t*) &rgb);
 		colors.push_back(rgb);
 	}

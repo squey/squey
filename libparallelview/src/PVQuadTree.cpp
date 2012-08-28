@@ -13,7 +13,7 @@
 size_t PVParallelView::__impl::f_get_first(const PVQuadTreeEntry &e,
                                            uint32_t,
                                            uint32_t, uint32_t,
-                                           const PVHSVColor *,
+                                           const PVCore::PVHSVColor *,
                                            PVQuadTreeEntry *entries)
 {
 	*entries = e;
@@ -26,7 +26,7 @@ size_t PVParallelView::__impl::f_get_first(const PVQuadTreeEntry &e,
 
 void PVParallelView::__impl::f_get_entry_sel(const pvquadtree_entries_t &entries,
                                              const Picviz::PVSelection &selection,
-                                             const PVHSVColor* /*colors*/,
+                                             const PVCore::PVHSVColor* /*colors*/,
                                              pvquadtree_entries_t &result)
 {
 	for(unsigned i = 0; i < entries.size(); ++i) {

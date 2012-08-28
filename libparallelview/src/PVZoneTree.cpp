@@ -7,6 +7,7 @@
 #include <pvkernel/core/picviz_intrin.h>
 #include <pvkernel/core/PVAlignedBlockedRange.h>
 #include <pvkernel/core/PVPODTree.h>
+#include <pvkernel/core/PVHSVColor.h>
 
 #include <picviz/PVSelection.h>
 #include <picviz/PVPlotted.h>
@@ -14,7 +15,6 @@
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVBCode.h>
 #include <pvparallelview/PVBCICode.h>
-#include <pvparallelview/PVHSVColor.h>
 #include <pvparallelview/PVZoneProcessing.h>
 #include <pvparallelview/PVZoneTree.h>
 

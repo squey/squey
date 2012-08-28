@@ -167,6 +167,7 @@ public:
 	void A2B_copy_zombie_on_restricted_by_selection_and_nelts(PVLinesProperties &b,  PVSelection const& selection, PVRow nelts);
 	void reset_to_default_color();
 	void selection_set_rgba(PVSelection const& selection, PVRow nelts, unsigned char r, unsigned char g, unsigned char b, unsigned char a);
+	void set_random(const PVRow n);
 
 	void debug();
 

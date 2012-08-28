@@ -62,7 +62,7 @@ protected:
 	PVView();
 
 public:
-	virtual ~PVView();
+	~PVView();
 
 protected:
 	PVView(const PVView& org);
@@ -75,7 +75,6 @@ public:
 
 	/* Variables */
 	QString    name;
-	int active_axis;
 
 	/*! \brief PVView's specific axes combination
 	 *  It is originaly copied from the parent's PVSource, and then become specific
@@ -96,7 +95,7 @@ public:
 	PVEventline eventline;
 	PVZLevelArray z_level_array;
 	PVSquareArea square_area;
-	Picviz::PVStateMachine *state_machine;
+	PVStateMachine *state_machine;
 	PVSelection volatile_selection;
 	int last_extractor_batch_size;
     
@@ -141,7 +140,7 @@ public:
 
 	void emit_user_modified_sel(QList<Picviz::PVView*>* changed_views = NULL);
 
-	PVCore::PVColor get_color_in_output_layer(PVRow index);
+	PVCore::PVColor const& get_color_in_output_layer(PVRow index) const;
 	PVCol get_column_count() const;
 	float get_column_count_as_float();
 	PVSelection &get_floating_selection();
@@ -153,6 +152,10 @@ public:
 	QString get_layer_stack_layer_n_name(int n);
 	int get_layer_stack_layer_n_visible_state(int n);
 	PVLayer &get_layer_stack_output_layer();
+
+	PVCol get_active_axis() const { assert(_active_axis < get_column_count()); return _active_axis; }
+	PVStateMachine& get_state_machine() { return *state_machine; }
+	PVStateMachine const& get_state_machine() const { return *state_machine; }
 
 	PVAxesCombination const& get_axes_combination() const { return axes_combination; }
 
@@ -407,6 +410,7 @@ protected:
 	PVRush::PVNraw* _rushnraw_parent;
 	boost::weak_ptr<PVCore::PVSerializeObject> _last_so;
 	id_t _view_id;
+	PVCol _active_axis;
 };
 
 typedef PVView::p_type PVView_p;

@@ -9,7 +9,7 @@
 #include <pvparallelview/PVBCICode.h>
 #include <pvparallelview/PVBCIBackendImage.h>
 #include <pvparallelview/PVBCIDrawingBackendCUDA.h>
-#include <pvparallelview/PVHSVColor.h>
+#include <pvkernel/core/PVHSVColor.h>
 #include <pvparallelview/PVLinesView.h>
 #include <pvparallelview/PVTools.h>
 #include <pvparallelview/PVZonesDrawing.h>
@@ -123,7 +123,7 @@ int main(int argc, char** argv)
 		nrows = plotted.size()/ncols;
 	}
 
-	PVParallelView::PVHSVColor* colors = PVParallelView::PVHSVColor::init_colors(nrows);
+	PVCore::PVHSVColor* colors = PVCore::PVHSVColor::init_colors(nrows);
 
 	for(int i = 0; i < nrows; ++i) {
 		colors[i] = (i*20) % 192;

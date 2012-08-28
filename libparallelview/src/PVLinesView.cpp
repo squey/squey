@@ -9,7 +9,7 @@
 #include <pvparallelview/PVLinesView.h>
 
 PVParallelView::PVLinesView::PVLinesView(PVParallelView::PVZonesManager& zm, PVParallelView::PVLinesView::zones_drawing_t::bci_backend_t& bci_backend, PVZoneID nb_zones /*= 30*/, uint32_t zone_width /* = PVParallelView::ZoneMaxWidth */) :
-	_zd(new zones_drawing_t(zm, bci_backend, *PVParallelView::PVHSVColor::init_colors(zm.get_number_rows()))),
+	_zd(new zones_drawing_t(zm, bci_backend, *PVCore::PVHSVColor::init_colors(zm.get_number_rows()))),
 	_first_zone(0),
 	_zone_max_width(zone_width),
 	_visible_view_x(0)

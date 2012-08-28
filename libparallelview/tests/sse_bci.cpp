@@ -13,14 +13,14 @@ using namespace std;
 #include <pvkernel/core/general.h>
 #include <pvbase/types.h>
 
-#include <pvparallelview/PVHSVColor.h>
+#include <pvkernel/core/PVHSVColor.h>
 #include <pvparallelview/PVBCICode.h>
 
 
 #define NBITS_INDEX 10
 #define NBUCKET 4
 
-/*void sse_bci(unsigned int* bcodes, unsigned int* indexes, PVParallelView::PVHSVColor* colors, PVParallelView::PVBCICode<NBITS_INDEX>* bci_codes)
+/*void sse_bci(unsigned int* bcodes, unsigned int* indexes, PVCore::PVHSVColor* colors, PVParallelView::PVBCICode<NBITS_INDEX>* bci_codes)
 {
 	__m128i sse_lr;
 	sse_lr = _mm_insert_epi32(sse_lr, bcodes[0], 0);
@@ -80,7 +80,7 @@ using namespace std;
 	//}
 }*/
 
-void sse_bci(unsigned int* bcodes, unsigned int* indexes, PVParallelView::PVHSVColor* colors, PVParallelView::PVBCICode<NBITS_INDEX>* bci_codes)
+void sse_bci(unsigned int* bcodes, unsigned int* indexes, PVCore::PVHSVColor* colors, PVParallelView::PVBCICode<NBITS_INDEX>* bci_codes)
 {
 	size_t idx_code = 0;
 	int sse_ndx = 0;
@@ -150,7 +150,7 @@ void sse_bci(unsigned int* bcodes, unsigned int* indexes, PVParallelView::PVHSVC
 	}
 }
 
-void serial_bci(unsigned int* bcodes, unsigned int* indexes, PVParallelView::PVHSVColor* colors, PVParallelView::PVBCICode<NBITS_INDEX>* bci_codes)
+void serial_bci(unsigned int* bcodes, unsigned int* indexes, PVCore::PVHSVColor* colors, PVParallelView::PVBCICode<NBITS_INDEX>* bci_codes)
 {
 	for (int i=0; i<NBUCKET; i++)
 	{
@@ -215,7 +215,7 @@ int main(void) {
 	std::cout << "---" << endl;
 	///
 
-	PVParallelView::PVHSVColor* colors = PVParallelView::PVHSVColor::init_colors(NBUCKET);
+	PVCore::PVHSVColor* colors = PVCore::PVHSVColor::init_colors(NBUCKET);
 	PVParallelView::PVBCICode<NBITS_INDEX>* bci_codes_serial = PVParallelView::PVBCICode<NBITS_INDEX>::allocate_codes(NBUCKET);
 	PVParallelView::PVBCICode<NBITS_INDEX>* bci_codes_sse = PVParallelView::PVBCICode<NBITS_INDEX>::allocate_codes(NBUCKET);
 

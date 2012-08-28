@@ -43,3 +43,8 @@ Picviz::PVSource_sp get_src_from_file(Picviz::PVRoot_sp root, QString const& fil
 	Picviz::PVScene_p scene(root);
 	return get_src_from_file(Picviz::PVScene_sp(scene), file, format);
 }
+
+void init_random_colors(Picviz::PVView& view)
+{
+	view.get_output_layer().get_lines_properties().set_random(view.get_row_count());
+}

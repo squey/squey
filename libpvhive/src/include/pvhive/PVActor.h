@@ -7,9 +7,10 @@
 #ifndef LIBPVHIVE_PVACTOR_H
 #define LIBPVHIVE_PVACTOR_H
 
+#include <pvkernel/core/PVFunctionTraits.h>
+
 #include <pvhive/PVHive.h>
 #include <pvhive/PVActorBase.h>
-#include <pvkernel/core/PVFunctionTraits.h>
 
 namespace PVHive
 {

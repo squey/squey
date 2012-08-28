@@ -4,12 +4,16 @@
 # Copyright (C) Picviz Labs 2010-2012
 
 set(LIBGUIQT_SRC_FILES
+PVAxesCombinationModel.cpp
+PVListingModel.cpp
 PVHiveDataTreeModel.cpp
 PVRootTreeModel.cpp
 PVRootTreeView.cpp
 )
 
 SET(LIBGUIQT_MOC_HEADERS
+include/pvguiqt/PVAxesCombinationModel.h
+include/pvguiqt/PVListingModel.h
 include/pvguiqt/PVHiveDataTreeModel.h
 )
 

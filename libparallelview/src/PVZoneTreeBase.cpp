@@ -42,7 +42,7 @@ void PVParallelView::PVZoneTreeBase::display(QString const& name, Picviz::PVPlot
 	window->show();
 }
 
-size_t PVParallelView::PVZoneTreeBase::browse_tree_bci_no_sse(PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const
+size_t PVParallelView::PVZoneTreeBase::browse_tree_bci_no_sse(PVCore::PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const
 {
 	size_t idx_code = 0;
 //#pragma omp parallel for reduction(+:idx_code) num_threads(4)
@@ -60,7 +60,7 @@ size_t PVParallelView::PVZoneTreeBase::browse_tree_bci_no_sse(PVHSVColor const* 
 	return idx_code;
 }
 
-size_t PVParallelView::PVZoneTreeBase::browse_tree_bci_old(PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const
+size_t PVParallelView::PVZoneTreeBase::browse_tree_bci_old(PVCore::PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const
 {
 	size_t idx_code = 0;
 //#pragma omp parallel for reduction(+:idx_code) num_threads(4)
@@ -210,17 +210,17 @@ size_t PVParallelView::PVZoneTreeBase::browse_tree_bci_old(PVHSVColor const* col
 	return idx_code;
 }
 
-size_t PVParallelView::PVZoneTreeBase::browse_tree_bci(PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const
+size_t PVParallelView::PVZoneTreeBase::browse_tree_bci(PVCore::PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const
 {
 	return browse_tree_bci_from_buffer(_first_elts, colors, codes);
 }
 
-size_t PVParallelView::PVZoneTreeBase::browse_tree_bci_sel(PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const
+size_t PVParallelView::PVZoneTreeBase::browse_tree_bci_sel(PVCore::PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const
 {
 	return browse_tree_bci_from_buffer(_sel_elts, colors, codes);
 }
 
-size_t PVParallelView::PVZoneTreeBase::browse_tree_bci_from_buffer(const PVRow* elts, PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const
+size_t PVParallelView::PVZoneTreeBase::browse_tree_bci_from_buffer(const PVRow* elts, PVCore::PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const
 {
 	size_t idx_code = 0;
 

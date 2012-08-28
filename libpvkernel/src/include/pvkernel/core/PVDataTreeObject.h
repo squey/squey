@@ -172,7 +172,7 @@ public:
 				pchild = _children[i];
 				child_about_to_be_removed(*pchild);
 				_children.erase(_children.begin()+i);
-				pchild->_parent = nullptr;
+				//pchild->_parent = nullptr;
 				break;
 			}
 		}
@@ -189,7 +189,7 @@ public:
 		for (int i = 0; i < children.size() ; i++) {
 			if(i != 0)
 				std::cout << ", ";
-			std::cout << children[i];
+			std::cout << children[i] << " (" << children[i].use_count() << ")" << std::endl;
 		}
 		std::cout << ")" << std::endl;
 	}
@@ -342,6 +342,12 @@ public:
 
 	inline void set_parent(pparent_t const& parent) { set_parent_from_ptr(parent.get()); }
 	inline void set_parent(parent_t* parent) { set_parent_from_ptr(parent); }
+
+	void remove_from_tree()
+	{
+		real_type_t* me = static_cast<real_type_t*>(this);
+		get_real_parent()->remove_child(*me);
+	}
 
 protected:
 	/*! \brief Set the parent of a data tree object.

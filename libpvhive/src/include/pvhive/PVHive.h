@@ -535,10 +535,8 @@ private:
 #endif
 
 		for (; it_fo != it_fo_e; it_fo++) {
-			const PVFuncObserverBase* fo;
-			const PVFuncObserverSignal<T, F, f>* fo_signal = dynamic_cast<const PVFuncObserverSignal<T, F, f>*>(it_fo->second);
-
-			fo = static_cast<const PVFuncObserverBase*>(fo_signal);
+			const PVFuncObserverBase* fo = static_cast<const PVFuncObserverBase*>(it_fo->second);
+			const PVFuncObserverSignal<T, F, f>* fo_signal = dynamic_cast<const PVFuncObserverSignal<T, F, f>*>(fo);
 
 			if (fo_signal) {
 				typedef typename PVCore::PVTypeTraits::function_traits<F>::arguments_deep_copy_type arguments_deep_copy_type;

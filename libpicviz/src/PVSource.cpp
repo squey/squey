@@ -54,7 +54,7 @@ Picviz::PVSource::PVSource(const PVSource& org):
 
 Picviz::PVSource::~PVSource()
 {
-	PVLOG_DEBUG("In PVSource destructor\n");
+	PVLOG_INFO("In PVSource destructor\n");
 	_extractor.force_stop_controller();
 }
 
@@ -190,12 +190,12 @@ const PVRush::PVNraw::nraw_table& Picviz::PVSource::get_qtnraw() const
 	return nraw->get_table();
 }
 
-PVRow Picviz::PVSource::get_row_count()
+PVRow Picviz::PVSource::get_row_count() const
 {
 	return nraw->get_number_rows();
 }
 
-PVCol Picviz::PVSource::get_column_count()
+PVCol Picviz::PVSource::get_column_count() const
 {
 	return get_format().get_axes().size();
 }

@@ -10,7 +10,7 @@
 #include <pvkernel/core/picviz_bench.h>
 
 #include <pvparallelview/PVQuadTree.h>
-#include <pvparallelview/PVHSVColor.h>
+#include <pvkernel/core/PVHSVColor.h>
 
 unsigned count;
 unsigned depth;
@@ -38,7 +38,7 @@ int main(int argc, char **argv)
 	depth = (unsigned)atoi(argv[1]);
 	count = (unsigned)atoi(argv[2]);
 
-	PVParallelView::PVHSVColor* colors = PVParallelView::PVHSVColor::init_colors(count);
+	PVCore::PVHSVColor* colors = PVCore::PVHSVColor::init_colors(count);
 
 	entries = new PVParallelView::PVQuadTreeEntry [count];
 	for(unsigned i = 0; i < count; ++i) {

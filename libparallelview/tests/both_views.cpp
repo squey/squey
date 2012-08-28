@@ -94,7 +94,7 @@ int main(int argc, char** argv)
 
 	PVParallelView::PVBCIDrawingBackendCUDA<PARALLELVIEW_ZZT_BBITS> backend_cuda_zoom;
 
-	PVParallelView::PVHSVColor* colors = PVParallelView::PVHSVColor::init_colors(nrows);
+	PVCore::PVHSVColor* colors = PVCore::PVHSVColor::init_colors(nrows);
 	PVParallelView::PVZonesDrawing<PARALLELVIEW_ZZT_BBITS>& zones_drawing_zoom = *(new PVParallelView::PVZonesDrawing<PARALLELVIEW_ZZT_BBITS>(zm, backend_cuda_zoom, *colors));
 
 	ZoomDlg* zdlg = new ZoomDlg(zones_drawing_zoom);

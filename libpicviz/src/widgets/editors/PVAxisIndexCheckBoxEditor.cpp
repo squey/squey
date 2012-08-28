@@ -55,7 +55,7 @@ PVWidgets::PVAxisIndexCheckBoxEditor::~PVAxisIndexCheckBoxEditor()
  * PVWidgets::PVAxisIndexCheckBoxEditor::set_axis_index
  *
  *****************************************************************************/
-void PVWidgets::PVAxisIndexCheckBoxEditor::set_axis_index(PVCore::PVAxisIndexCheckBoxType axis_index)
+void PVWidgets::PVAxisIndexCheckBoxEditor::set_axis_index(PVCore::PVAxisIndexCheckBoxType /*axis_index*/)
 {
 	PVLOG_INFO("WE SET THE INDEX OF OUR CHECKBOX FROM THE EDITOR!\n");
 

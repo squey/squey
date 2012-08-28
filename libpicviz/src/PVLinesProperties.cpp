@@ -8,6 +8,7 @@
 
 #include <picviz/PVLinesProperties.h>
 
+#include <stdlib.h>     // for rand()
 #include <string.h>		// for memset()
 
 // Picviz::PVLineProperties::PVLineProperties(unsigned char default_color)
@@ -300,6 +301,13 @@ void Picviz::PVLinesProperties::selection_set_rgba(PVSelection const& selection,
 		if (selection.get_line(row)) {
 			line_set_rgba(row, r, g, b, a);
 		}
+	}
+}
+
+void Picviz::PVLinesProperties::set_random(const PVRow n)
+{
+	for (PVRow i = 0; i < n; i++) {
+		line_set_rgba(i, rand() & 0xFF, rand() & 0xFF, rand() & 0xFF, 0);
 	}
 }
 

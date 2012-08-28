@@ -11,7 +11,7 @@
 #include <pvparallelview/PVZoomedZoneTree.h>
 #include <pvparallelview/PVZonesDrawing.h>
 #include <pvparallelview/PVTools.h>
-#include <pvparallelview/PVHSVColor.h>
+#include <pvkernel/core/PVHSVColor.h>
 #include <pvparallelview/simple_lines_int_view.h>
 
 #include <iostream>
@@ -68,7 +68,7 @@ void show_codes(QString const& title, bcicode_t* codes, size_t n)
 		pts.push_back(0); pts.push_back(c.s.l);
 		pts.push_back(1); pts.push_back(c.s.r);
 
-		PVParallelView::PVHSVColor hsv(c.s.color);
+		PVCore::PVHSVColor hsv(c.s.color);
 		hsv.to_rgb((uint8_t*) &rgb);
 		colors.push_back(rgb);
 	}
@@ -152,7 +152,7 @@ void test(
 	Picviz::PVPlotted::plotted_table_t& plotted,
 	PVRow nrows,
 	PVCol ncols,
-	PVParallelView::PVHSVColor* colors,
+	PVCore::PVHSVColor* colors,
 	bcicode_t* bci_codes,
 	bcicode_t* bci_codes_ref
 )
@@ -252,7 +252,7 @@ int main(int argc, char** argv)
 		ncols = atol(argv[3]);
 
 		memprintf("real data size", nrows * sizeof(PVParallelView::PVQuadTreeEntry));
-		PVParallelView::PVHSVColor* colors = PVParallelView::PVHSVColor::init_colors(nrows);
+		PVCore::PVHSVColor* colors = PVCore::PVHSVColor::init_colors(nrows);
 		bcicode_t* bci_codes_ref = bcicode_t::allocate_codes(NBUCKETS);
 		bcicode_t* bci_codes = bcicode_t::allocate_codes(NBUCKETS);
 
@@ -276,7 +276,7 @@ int main(int argc, char** argv)
 		std::cout << "Plotted loaded" << std::endl;
 
 		memprintf("real data size", nrows * sizeof(PVParallelView::PVQuadTreeEntry));
-		PVParallelView::PVHSVColor* colors = PVParallelView::PVHSVColor::init_colors(nrows);
+		PVCore::PVHSVColor* colors = PVCore::PVHSVColor::init_colors(nrows);
 		bcicode_t* bci_codes_ref = bcicode_t::allocate_codes(NBUCKETS);
 		bcicode_t* bci_codes = bcicode_t::allocate_codes(NBUCKETS);
 

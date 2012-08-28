@@ -6,7 +6,7 @@
 
 #include <pvkernel/cuda/common.h>
 #include <pvparallelview/common.h>
-#include <pvparallelview/PVHSVColor.h>
+#include <pvkernel/core/PVHSVColor.h>
 #include <pvparallelview/PVBCICode.h>
 #include "bci_cuda.h"
 #include <pvparallelview/simple_lines_int_view.h>
@@ -37,7 +37,7 @@ void show_codes(PVParallelView::PVBCICode<NBITS_INDEX>* codes, size_t n)
 		pts.push_back(0); pts.push_back(c.s.l);
 		pts.push_back(1); pts.push_back(c.s.r);
 
-		PVParallelView::PVHSVColor hsv(c.s.color);
+		PVCore::PVHSVColor hsv(c.s.color);
 		hsv.to_rgb((uint8_t*) &rgb);
 		colors.push_back(rgb);
 	}

@@ -8,7 +8,7 @@
 #include <pvkernel/cuda/common.h>
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVBCICode.h>
-#include <pvparallelview/PVHSVColor.h>
+#include <pvkernel/core/PVHSVColor.h>
 #include "bci_cuda.h"
 
 #define NTHREADS_BLOCK 1024
@@ -199,7 +199,7 @@ void show_codes_cuda(PVParallelView::PVBCICode<>* codes, uint32_t n, uint32_t wi
 			unsigned int pixel = img_dst[y*width + x]>>24;
 			if (pixel != 0xFF) {
 				uint8_t* rgb = (uint8_t*) &pixel;
-				PVParallelView::PVHSVColor c(pixel);
+				PVCore::PVHSVColor c(pixel);
 				c.to_rgb(rgb);
 				rgb[3] = 0xFF;
 			}

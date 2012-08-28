@@ -200,7 +200,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1(uint64_t y_min,
                                                                uint64_t y_lim,
                                                                int zoom,
                                                                uint32_t width,
-                                                               const PVHSVColor* colors,
+                                                               const PVCore::PVHSVColor* colors,
                                                                PVBCICode<bbits>* codes,
                                                                const float beta) const
 {
@@ -283,7 +283,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y2(uint64_t y_min,
                                                                uint64_t y_lim,
                                                                int zoom,
                                                                uint32_t width,
-                                                               const PVHSVColor* colors,
+                                                               const PVCore::PVHSVColor* colors,
                                                                PVBCICode<bbits>* codes,
                                                                const float beta) const
 {

@@ -26,12 +26,14 @@
 
 #include <cassert>
 
+namespace PVCore {
+class PVHSVColor;
+}
+
 namespace PVParallelView {
 
 template <size_t Bbits>
 class PVBCIDrawingBackend;
-
-class PVHSVColor;
 
 template <size_t Bbits = NBITS_INDEX>
 class PVZonesDrawing: boost::noncopyable
@@ -46,7 +48,7 @@ public:
 	typedef typename bci_backend_t::bci_codes_t bci_codes_t;
 
 public:
-	PVZonesDrawing(PVZonesManager& zm, bci_backend_t const& backend, PVHSVColor const& colors):
+	PVZonesDrawing(PVZonesManager& zm, bci_backend_t const& backend, PVCore::PVHSVColor const& colors):
 		_zm(zm),
 		_draw_backend(&backend),
 		_colors(&colors)
@@ -89,7 +91,7 @@ public:
 	inline QFuture<void> draw_zones_futur(BackendImageIterator dst_img_begin, PVZoneID zone_start, PVZoneID nzones, Fbci const& f_bci)
 	{
 		return draw_zones_futur_lambda(dst_img_begin, zone_start, nzones,
-			[&](PVZoneTree const& zone_tree, PVHSVColor const* colors, PVBCICode<Bbits>* codes)
+			[&](PVZoneTree const& zone_tree, PVCore::PVHSVColor const* colors, PVBCICode<Bbits>* codes)
 			{
 				return (zone_tree.*f_bci)(colors, codes);
 			}
@@ -133,7 +135,7 @@ public:
 	{
 		PVZoneTree const &zone_tree = _zm.get_zone_tree<PVZoneTree>(zone);
 		draw_bci_lambda<PVZoneTree>(zone_tree, dst_img, x_start, _zm.get_zone_width(zone),
-			[&](PVZoneTree const& zone_tree, PVHSVColor const* colors, PVBCICode<Bbits>* codes)
+			[&](PVZoneTree const& zone_tree, PVCore::PVHSVColor const* colors, PVBCICode<Bbits>* codes)
 			{
 				return (zone_tree.*f_bci)(colors, codes);
 			}
@@ -148,7 +150,7 @@ public:
 		draw_bci_lambda<PVParallelView::PVZoomedZoneTree>
 			(zoomed_zone_tree, dst_img, 0, dst_img.width(),
 			 [&](PVParallelView::PVZoomedZoneTree const &zoomed_zone_tree,
-			     PVParallelView::PVHSVColor const* colors,
+			     PVCore::PVHSVColor const* colors,
 			     PVParallelView::PVBCICode<Bbits>* codes)
 			 {
 				 return (zoomed_zone_tree.*f_bci)(y_min, y_max, y_lim, zoom,
@@ -189,7 +191,7 @@ private:
 private:
 	PVZonesManager& _zm;
 	bci_backend_t const* _draw_backend;
-	PVHSVColor const* _colors;
+	PVCore::PVHSVColor const* _colors;
 	PVBCICode<Bbits>* _computed_codes;
 	tls_codes_t _tls_computed_codes;
 };

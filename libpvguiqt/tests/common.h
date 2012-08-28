@@ -9,5 +9,6 @@
 
 Picviz::PVSource_sp get_src_from_file(Picviz::PVScene_sp scene, QString const& file, QString const& format);
 Picviz::PVSource_sp get_src_from_file(Picviz::PVRoot_sp root, QString const& file, QString const& format);
+void init_random_colors(Picviz::PVView& view);
 
 #endif

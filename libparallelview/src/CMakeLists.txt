@@ -26,7 +26,6 @@ add_definitions(${PICVIZ_DEFINITIONS})
 add_definitions(${OpenMP_CXX_FLAGS})
 
 SET(SRC_FILES
-PVHSVColor.cpp
 PVTools.cpp
 PVZoomedZoneTree.cpp
 PVZoomedParallelScene.cpp
@@ -55,7 +54,6 @@ include/pvparallelview/common.h
 include/pvparallelview/PVBCICode.h
 include/pvparallelview/PVBCode.h
 include/pvparallelview/PVContainerZoneTree.h
-include/pvparallelview/PVHSVColor.h
 include/pvparallelview/PVLinesView.h
 include/pvparallelview/PVPODBlockContainer.h
 include/pvparallelview/PVQuadTree.h

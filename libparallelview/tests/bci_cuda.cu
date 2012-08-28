@@ -8,7 +8,7 @@
 #include <pvkernel/cuda/common.h>
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVBCICode.h>
-#include <pvparallelview/PVHSVColor.h>
+#include <pvkernel/core/PVHSVColor.h>
 #include "bci_cuda.h"
 
 #define NTHREADS_BLOCK 1024

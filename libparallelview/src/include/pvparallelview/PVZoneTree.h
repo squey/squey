@@ -8,17 +8,18 @@
 #define PVPARALLELVIEW_PVZONETREE_H
 
 #include <pvkernel/core/general.h>
-#include <picviz/PVSelection.h>
-#include <picviz/PVPlotted.h>
-#include <pvparallelview/PVHSVColor.h>
-#include <pvparallelview/PVZoneProcessing.h>
-
-#include <pvkernel/core/PVPODStaticArray.h>
-#include <pvparallelview/common.h>
-#include <pvparallelview/PVZoneTreeBase.h>
+#include <pvkernel/core/picviz_bench.h>
 #include <pvkernel/core/PVAlgorithms.h>
 #include <pvkernel/core/PVHardwareConcurrency.h>
-#include <pvkernel/core/picviz_bench.h>
+#include <pvkernel/core/PVPODStaticArray.h>
+#include <pvkernel/core/PVHSVColor.h>
+
+#include <picviz/PVSelection.h>
+#include <picviz/PVPlotted.h>
+
+#include <pvparallelview/common.h>
+#include <pvparallelview/PVZoneProcessing.h>
+#include <pvparallelview/PVZoneTreeBase.h>
 
 #include <boost/array.hpp>
 #include <boost/shared_ptr.hpp>

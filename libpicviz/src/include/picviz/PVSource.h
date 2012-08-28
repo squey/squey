@@ -61,7 +61,7 @@ public:
 
 public:
 	/* Functions */
-	PVCol get_column_count();
+	PVCol get_column_count() const;
 
 	PVRush::PVNraw::nraw_table& get_qtnraw();
 	const PVRush::PVNraw::nraw_table& get_qtnraw() const;
@@ -73,7 +73,9 @@ public:
 	void clear_trans_nraw();
 
 	QString get_value(PVRow row, PVCol col) const;
-	PVRow get_row_count();
+	inline PVCore::PVUnicodeString const& get_data_unistr_raw(PVRow row, PVCol column) const { return nraw->at_unistr(row, column); }
+
+	PVRow get_row_count() const;
 
 	PVRush::PVExtractor& get_extractor();
 	PVRush::PVControllerJob_p extract();
@@ -102,6 +104,7 @@ public:
 	void select_view(PVView& view);
 
 	PVRush::PVFormat& get_format() { return _extractor.get_format(); }
+	PVRush::PVFormat const& get_format() const { return _extractor.get_format(); }
 	void set_format(PVRush::PVFormat const& format);
 
 	void set_invalid_elts_mode(bool restore_inv_elts);

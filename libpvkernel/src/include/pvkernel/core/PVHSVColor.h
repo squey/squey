@@ -4,8 +4,8 @@
  * Copyright (C) Picviz Labs 2010-2012
  */
 
-#ifndef PVPARALLELVIEW_HSVCOLOR_H
-#define PVPARALLELVIEW_HSVCOLOR_H
+#ifndef PVCORE_HSVCOLOR_H
+#define PVCORE_HSVCOLOR_H
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/stdint.h>
@@ -16,7 +16,7 @@
 #define HSV_COLOR_NBITS_ZONE 5
 #define HSV_COLOR_MASK_ZONE 31
 
-namespace PVParallelView {
+namespace PVCore {
 
 class PVHSVColor
 {
@@ -34,6 +34,9 @@ public:
 public:
 	void to_rgb(T& r, T& g, T& b) const;
 	void to_rgb(T* rgb) const;
+
+	void toQColor(QColor& qc) const;
+	QColor toQColor() const;
 
 private:
 	T _h;

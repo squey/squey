@@ -19,7 +19,7 @@
 
 #include <pvkernel/core/picviz_bench.h>
 
-#include <pvparallelview/PVHSVColor.h>
+#include <pvkernel/core/PVHSVColor.h>
 #include <pvparallelview/PVBCICode.h>
 #include <picviz/PVSelection.h>
 

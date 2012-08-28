@@ -5,12 +5,12 @@
  */
 
 #include <pvkernel/core/PVHardwareConcurrency.h>
+#include <pvkernel/core/PVHSVColor.h>
 #include <pvkernel/core/picviz_bench.h>
 #include <pvkernel/core/picviz_intrin.h>
 
 #include <pvparallelview/PVBCode.h>
 #include <pvparallelview/PVBCICode.h>
-#include <pvparallelview/PVHSVColor.h>
 #include <pvparallelview/PVZoneTreeNoAlloc.h>
 #include <pvparallelview/PVZoneProcessing.h>
 #include <pvparallelview/simple_lines_float_view.h>
@@ -80,7 +80,7 @@ public:
 
 }
 
-size_t PVParallelView::PVZoneTreeNoAlloc::browse_tree_bci_by_sel(PVHSVColor* colors, PVBCICode<NBITS_INDEX>* codes, Picviz::PVSelection const& sel)
+size_t PVParallelView::PVZoneTreeNoAlloc::browse_tree_bci_by_sel(PVCore::PVHSVColor* colors, PVBCICode<NBITS_INDEX>* codes, Picviz::PVSelection const& sel)
 {
 	size_t idx_code = 0;
 	Picviz::PVSelection::const_pointer sel_buf = sel.get_buffer();

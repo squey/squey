@@ -11,7 +11,7 @@
 #include <pvparallelview/PVZoneTree.h>
 #include <pvparallelview/PVZoneTreeNoAlloc.h>
 #include <pvparallelview/PVTools.h>
-#include <pvparallelview/PVHSVColor.h>
+#include <pvkernel/core/PVHSVColor.h>
 #include <pvparallelview/simple_lines_int_view.h>
 
 #include <iostream>
@@ -50,7 +50,7 @@ void show_codes(QString const& title, PVParallelView::PVBCICode<NBITS_INDEX>* co
 		pts.push_back(0); pts.push_back(c.s.l);
 		pts.push_back(1); pts.push_back(c.s.r);
 
-		PVParallelView::PVHSVColor hsv(c.s.color);
+		PVCore::PVHSVColor hsv(c.s.color);
 		hsv.to_rgb((uint8_t*) &rgb);
 		colors.push_back(rgb);
 	}
@@ -105,7 +105,7 @@ void test(
 	Picviz::PVPlotted::plotted_table_t& plotted,
 	PVRow nrows,
 	PVCol ncols,
-	PVParallelView::PVHSVColor* colors,
+	PVCore::PVHSVColor* colors,
 	PVParallelView::PVBCICode<NBITS_INDEX>* bci_codes,
 	PVParallelView::PVBCICode<NBITS_INDEX>* bci_codes_ref
 )
@@ -254,7 +254,7 @@ int main(int argc, char** argv)
 		nrows = atol(argv[2]);
 		ncols = atol(argv[3]);
 
-		PVParallelView::PVHSVColor* colors = PVParallelView::PVHSVColor::init_colors(nrows);
+		PVCore::PVHSVColor* colors = PVCore::PVHSVColor::init_colors(nrows);
 		PVParallelView::PVBCICode<NBITS_INDEX>* bci_codes_ref = PVParallelView::PVBCICode<NBITS_INDEX>::allocate_codes(NBUCKETS);
 		PVParallelView::PVBCICode<NBITS_INDEX>* bci_codes = PVParallelView::PVBCICode<NBITS_INDEX>::allocate_codes(NBUCKETS);
 

@@ -35,7 +35,7 @@ public:
 	void filter_by_sel_omp(Picviz::PVSelection const& sel);
 	void filter_by_sel_tbb(Picviz::PVSelection const& sel);
 
-	size_t browse_tree_bci_by_sel(PVHSVColor* colors, PVBCICode<NBITS_INDEX>* codes, Picviz::PVSelection const& sel);
+	size_t browse_tree_bci_by_sel(PVCore::PVHSVColor* colors, PVBCICode<NBITS_INDEX>* codes, Picviz::PVSelection const& sel);
 
 private:
 	void get_float_pts(pts_t& pts, Picviz::PVPlotted::plotted_table_t const& org_plotted, PVRow nrows, PVCol col_a, PVCol col_b);

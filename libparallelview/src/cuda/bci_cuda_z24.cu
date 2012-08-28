@@ -5,10 +5,12 @@
  */
 
 #include <pvkernel/core/general.h>
+#include <pvkernel/core/PVHSVColor.h>
+
 #include <pvkernel/cuda/common.h>
+
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVBCICode.h>
-#include <pvparallelview/PVHSVColor.h>
 #include <pvparallelview/cuda/bci_cuda.h>
 
 #include <cassert>

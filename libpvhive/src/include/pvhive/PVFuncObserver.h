@@ -123,7 +123,7 @@ public:
  *
  */
 template <class T, class F, F f>
-class PVFuncObserverSignal : public PVFuncObserverTemplatedBase<__impl::PVFuncObserverSignalBase, T, F, f>
+class PVFuncObserverSignal : public PVFuncObserverTemplatedBase< ::__impl::PVFuncObserverSignalBase, T, F, f>
 {
 public:
 	typedef typename PVCore::PVTypeTraits::function_traits<F>::arguments_deep_copy_type arguments_deep_copy_type;

@@ -6,7 +6,7 @@
 
 #include <pvkernel/cuda/common.h>
 #include <pvparallelview/common.h>
-#include <pvparallelview/PVHSVColor.h>
+#include <pvkernel/core/PVHSVColor.h>
 #include <pvparallelview/PVBCICode.h>
 #include "multiple_zones_cuda.h"
 #include <pvparallelview/simple_lines_int_view.h>

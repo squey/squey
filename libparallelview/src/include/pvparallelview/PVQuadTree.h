@@ -9,12 +9,13 @@
 
 #include <pvbase/types.h>
 
+#include <pvkernel/core/PVHSVColor.h>
+
 #include <picviz/PVSelection.h>
 #include <picviz/PVVector.h>
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVBCICode.h>
-#include <pvparallelview/PVHSVColor.h>
 
 #include <pvkernel/core/PVAllocators.h>
 
@@ -59,7 +60,7 @@ namespace __impl {
 		typedef size_t(*function_type)(const PVQuadTreeEntry &,
 		                               uint32_t y_start,
 		                               uint32_t, uint32_t,
-		                               const PVHSVColor *,
+		                               const PVCore::PVHSVColor *,
 		                               RESULT *);
 	};
 
@@ -68,21 +69,21 @@ namespace __impl {
 	{
 		typedef size_t(*function_type)(const pvquadtree_entries_t &,
 		                               const Picviz::PVSelection &,
-		                               const PVHSVColor *,
+		                               const PVCore::PVHSVColor *,
 		                               RESULT *);
 	};
 
 	size_t f_get_first(const PVQuadTreeEntry &e,
 	                   uint32_t y_start,
 	                   uint32_t shift, uint32_t mask,
-	                   const PVHSVColor *colors,
+	                   const PVCore::PVHSVColor *colors,
 	                   PVQuadTreeEntry *entries);
 
 	template <size_t Bbits>
 	size_t f_get_first_bci(const PVQuadTreeEntry &e,
 	                       uint32_t y_start,
 	                       uint32_t shift, uint32_t mask,
-	                       const PVHSVColor *colors,
+	                       const PVCore::PVHSVColor *colors,
 	                       PVBCICode<Bbits> *code)
 	{
 		code->s.idx = e.idx;
@@ -95,7 +96,7 @@ namespace __impl {
 	template <size_t Bbits>
 	size_t f_get_first_bci_sel(const pvquadtree_entries_t &entries,
 	                           const Picviz::PVSelection &selection,
-	                           const PVHSVColor *colors,
+	                           const PVCore::PVHSVColor *colors,
 	                           PVBCICode<Bbits> *code)
 	{
 		for(unsigned i = 0; i < entries.size(); ++i) {
@@ -113,14 +114,14 @@ namespace __impl {
 
 	void f_get_entry_sel(const pvquadtree_entries_t &entries,
 	                     const Picviz::PVSelection &selection,
-	                     const PVHSVColor *colors,
+	                     const PVCore::PVHSVColor *colors,
 	                     pvquadtree_entries_t &result);
 
 #if 0
 	template <size_t Bbits>
 	void f_get_bci_sel(const pvquadtree_entries_t &entries,
 	                   const Picviz::PVSelection &selection,
-	                   const PVHSVColor *colors,
+	                   const PVCore::PVHSVColor *colors,
 	                   pvquadtree_bcicodes_t &result)
 	{
 		for(unsigned i = 0; i < entries.size(); ++i) {
@@ -219,52 +220,52 @@ public:
 		return mem;
 	}
 
-	inline size_t get_first_from_y1(uint64_t y1_min, uint64_t y1_max, uint32_t zoom, const PVHSVColor *colors, PVQuadTreeEntry *entries) const
+	inline size_t get_first_from_y1(uint64_t y1_min, uint64_t y1_max, uint32_t zoom, const PVCore::PVHSVColor *colors, PVQuadTreeEntry *entries) const
 	{
 		const uint32_t shift = (32 - Bbits) - zoom;
 		return visit_y1<PVQuadTreeEntry, __impl::f_get_first>::f(*this, y1_min, y1_max, zoom, shift, mask_int_ycoord, colors, entries);
 	}
 
-	inline size_t get_first_from_y2(uint64_t y1_min, uint64_t y1_max, uint32_t zoom, const PVHSVColor *colors, PVQuadTreeEntry *entries) const
+	inline size_t get_first_from_y2(uint64_t y1_min, uint64_t y1_max, uint32_t zoom, const PVCore::PVHSVColor *colors, PVQuadTreeEntry *entries) const
 	{
 		const uint32_t shift = (32 - Bbits) - zoom;
 		return visit_y2<PVQuadTreeEntry, __impl::f_get_first>::f(*this, y1_min, y1_max, zoom, shift, mask_int_ycoord, colors, entries);
 	}
 
-	inline size_t get_first_bci_from_y1(uint64_t y1_min, uint64_t y1_max, uint32_t zoom, const PVHSVColor *colors, PVBCICode<Bbits> *codes) const
+	inline size_t get_first_bci_from_y1(uint64_t y1_min, uint64_t y1_max, uint32_t zoom, const PVCore::PVHSVColor *colors, PVBCICode<Bbits> *codes) const
 	{
 		const uint32_t shift = (32 - Bbits) - zoom;
 		return visit_y1<PVBCICode<Bbits>, __impl::f_get_first_bci<Bbits>>::f(*this, y1_min, y1_max, zoom, shift, mask_int_ycoord, colors, codes);
 	}
 
-	inline size_t get_first_bci_from_y2(uint64_t y2_min, uint64_t y2_max, uint32_t zoom, const PVHSVColor *colors, PVBCICode<Bbits> *codes) const
+	inline size_t get_first_bci_from_y2(uint64_t y2_min, uint64_t y2_max, uint32_t zoom, const PVCore::PVHSVColor *colors, PVBCICode<Bbits> *codes) const
 	{
 		const uint32_t shift = (32 - Bbits) - zoom;
 		return visit_y2<PVBCICode<Bbits>, __impl::f_get_first_bci<Bbits>>::f(*this, y2_min, y2_max, zoom, shift, mask_int_ycoord, colors, codes);
 	}
 
-	inline size_t get_first_bci_from_y1y2(uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max, uint32_t zoom, const PVHSVColor *colors, PVBCICode<Bbits> *codes) const
+	inline size_t get_first_bci_from_y1y2(uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max, uint32_t zoom, const PVCore::PVHSVColor *colors, PVBCICode<Bbits> *codes) const
 	{
 		const uint32_t shift = (32 - Bbits) - zoom;
 		return visit_y1y2<PVBCICode<Bbits>, __impl::f_get_first_bci<Bbits>>::f(*this, y1_min, y1_max, y2_min, y2_max, zoom, shift, mask_int_ycoord, colors, codes);
 	}
 
-	inline size_t get_first_bci_from_selection(const Picviz::PVSelection &selection, const PVHSVColor *colors, PVBCICode<Bbits> *codes) const
+	inline size_t get_first_bci_from_selection(const Picviz::PVSelection &selection, const PVCore::PVHSVColor *colors, PVBCICode<Bbits> *codes) const
 	{
 		return visit_sel<PVBCICode<Bbits>, __impl::f_get_first_bci_sel<Bbits>>::f(*this, selection, colors, codes);
 	}
 
-	inline size_t get_first_bci_from_y1_and_selection(uint32_t y1_min, uint32_t y1_max, const Picviz::PVSelection &selection, const PVHSVColor *colors, PVBCICode<Bbits> *codes) const
+	inline size_t get_first_bci_from_y1_and_selection(uint32_t y1_min, uint32_t y1_max, const Picviz::PVSelection &selection, const PVCore::PVHSVColor *colors, PVBCICode<Bbits> *codes) const
 	{
 		return visit_y1_sel<PVBCICode<Bbits>, __impl::f_get_first_bci_sel>::f(*this, y1_min, y1_max, selection, colors, codes);
 	}
 
-	inline size_t get_first_bci_from_y2_and_selection(uint32_t y2_min, uint32_t y2_max, const Picviz::PVSelection &selection, const PVHSVColor *colors, PVBCICode<Bbits> *codes) const
+	inline size_t get_first_bci_from_y2_and_selection(uint32_t y2_min, uint32_t y2_max, const Picviz::PVSelection &selection, const PVCore::PVHSVColor *colors, PVBCICode<Bbits> *codes) const
 	{
 		return visit_y2_sel<PVBCICode<Bbits>, __impl::f_get_first_bci_sel>::f(*this, y2_min, y2_max, selection, colors, codes);
 	}
 
-	inline size_t get_first_bci_from_y1y2_and_selection(uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max, const Picviz::PVSelection &selection, const PVHSVColor *colors, PVBCICode<Bbits> * codes) const
+	inline size_t get_first_bci_from_y1y2_and_selection(uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max, const Picviz::PVSelection &selection, const PVCore::PVHSVColor *colors, PVBCICode<Bbits> * codes) const
 	{
 		return visit_y1y2_sel<PVBCICode<Bbits>, __impl::f_get_first_bci_sel>::f(*this, y1_min, y1_max, y2_min, y2_max, selection, colors, codes);
 	}
@@ -350,7 +351,7 @@ private:
 	template <typename RESULT, typename __impl::f_traverse_dim<RESULT>::function_type F>
 	struct visit_y1
 	{
-		static size_t f(PVQuadTree const& obj, uint64_t y1_min, uint64_t y1_max, uint32_t zoom, uint32_t shift, uint32_t mask, const PVHSVColor *colors, RESULT *codes)
+		static size_t f(PVQuadTree const& obj, uint64_t y1_min, uint64_t y1_max, uint32_t zoom, uint32_t shift, uint32_t mask, const PVCore::PVHSVColor *colors, RESULT *codes)
 		{
 			if (zoom == 0) {
 				if (obj._nodes != 0) {
@@ -427,7 +428,7 @@ private:
 	template <typename RESULT, typename __impl::f_traverse_dim<RESULT>::function_type F>
 	struct visit_y2
 	{
-		static size_t f(PVQuadTree const& obj, uint64_t y2_min, uint64_t y2_max, uint32_t zoom, uint32_t shift, uint32_t mask, const PVHSVColor *colors, RESULT *codes)
+		static size_t f(PVQuadTree const& obj, uint64_t y2_min, uint64_t y2_max, uint32_t zoom, uint32_t shift, uint32_t mask, const PVCore::PVHSVColor *colors, RESULT *codes)
 		{
 			if (zoom == 0) {
 				if (obj._nodes != 0) {
@@ -505,7 +506,7 @@ private:
 	template <typename RESULT, typename __impl::f_traverse_dim<RESULT>::function_type F>
 	struct visit_y1y2
 	{
-		static size_t f(PVQuadTree const& obj, uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max, uint32_t zoom, uint32_t shift, uint32_t mask, const PVHSVColor *colors, RESULT *codes)
+		static size_t f(PVQuadTree const& obj, uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max, uint32_t zoom, uint32_t shift, uint32_t mask, const PVCore::PVHSVColor *colors, RESULT *codes)
 		{
 			if (zoom == 0) {
 				if (obj._nodes != 0) {
@@ -586,7 +587,7 @@ private:
 	template <typename RESULT, typename __impl::f_traverse_sel<RESULT>::function_type F>
 	struct visit_sel
 	{
-		static size_t f(PVQuadTree const& obj, const Picviz::PVSelection &selection, const PVHSVColor *colors, RESULT *codes)
+		static size_t f(PVQuadTree const& obj, const Picviz::PVSelection &selection, const PVCore::PVHSVColor *colors, RESULT *codes)
 		{
 			if(obj._nodes != 0) {
 				size_t num;
@@ -604,7 +605,7 @@ private:
 	template <typename RESULT, typename __impl::f_traverse_sel<RESULT>::function_type F>
 	struct visit_y1_sel
 	{
-		static size_t f(PVQuadTree const& obj, uint32_t y1_min, uint32_t y1_max, const Picviz::PVSelection &selection, const PVHSVColor *colors, RESULT *codes)
+		static size_t f(PVQuadTree const& obj, uint32_t y1_min, uint32_t y1_max, const Picviz::PVSelection &selection, const PVCore::PVHSVColor *colors, RESULT *codes)
 		{
 			if (obj._nodes != 0) {
 				size_t num = 0;
@@ -626,7 +627,7 @@ private:
 	template <typename RESULT, typename __impl::f_traverse_sel<RESULT>::function_type F>
 	struct visit_y2_sel
 	{
-		static size_t f(PVQuadTree const& obj, uint32_t y2_min, uint32_t y2_max, const Picviz::PVSelection &selection, const PVHSVColor *colors, RESULT *codes)
+		static size_t f(PVQuadTree const& obj, uint32_t y2_min, uint32_t y2_max, const Picviz::PVSelection &selection, const PVCore::PVHSVColor *colors, RESULT *codes)
 		{
 			if (obj._nodes != 0) {
 				size_t num = 0;
@@ -648,7 +649,7 @@ private:
 	template <typename RESULT, typename __impl::f_traverse_sel<RESULT>::function_type F>
 	struct visit_y1y2_sel
 	{
-		static size_t f(PVQuadTree const& obj, uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max, const Picviz::PVSelection &selection, const PVHSVColor *colors, RESULT *codes)
+		static size_t f(PVQuadTree const& obj, uint32_t y1_min, uint32_t y1_max, uint32_t y2_min, uint32_t y2_max, const Picviz::PVSelection &selection, const PVCore::PVHSVColor *colors, RESULT *codes)
 		{
 			if (obj._nodes != 0) {
 				size_t num = 0;

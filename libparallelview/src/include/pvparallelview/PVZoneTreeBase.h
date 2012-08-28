@@ -14,12 +14,15 @@
 
 #include <vector>
 
+namespace PVCore {
+class PVHSVColor;
+}
+
 namespace PVParallelView {
 
 template <size_t Bbits>
 class PVBCICode;
 
-class PVHSVColor;
 
 class PVZoneTreeBase
 {
@@ -44,14 +47,14 @@ public:
 		return _first_elts[branch_id] != PVROW_INVALID_VALUE;
 	}
 
-	size_t browse_tree_bci(PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const;
-	size_t browse_tree_bci_sel(PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const;
+	size_t browse_tree_bci(PVCore::PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const;
+	size_t browse_tree_bci_sel(PVCore::PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const;
 
-	size_t browse_tree_bci_no_sse(PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const;
-	size_t browse_tree_bci_old(PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const;
+	size_t browse_tree_bci_no_sse(PVCore::PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const;
+	size_t browse_tree_bci_old(PVCore::PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const;
 
 private:
-	size_t browse_tree_bci_from_buffer(const PVRow* elts, PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const;
+	size_t browse_tree_bci_from_buffer(const PVRow* elts, PVCore::PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const;
 
 public:
 	PVRow DECLARE_ALIGN(16) _first_elts[NBUCKETS];

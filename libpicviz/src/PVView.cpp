@@ -131,7 +131,7 @@ Picviz::PVView::~PVView()
 void Picviz::PVView::init_defaults()
 {
 	_is_consistent = false;
-	active_axis = 0;
+	_active_axis = 0;
 	_rushnraw_parent = NULL;
 
 	last_extractor_batch_size = pvconfig.value("pvkernel/rush/extract_next", PVEXTRACT_NUMBER_LINES_NEXT_DEFAULT).toInt();
@@ -300,7 +300,7 @@ QString Picviz::PVView::get_original_axis_type(PVCol axis_id) const
  * Picviz::PVView::get_color_in_output_layer
  *
  *****************************************************************************/
-PVCore::PVColor Picviz::PVView::get_color_in_output_layer(PVRow index)
+PVCore::PVColor const& Picviz::PVView::get_color_in_output_layer(PVRow index) const
 {
 	return output_layer.get_lines_properties().get_line_properties(index);
 }
@@ -604,9 +604,9 @@ int Picviz::PVView::move_active_axis_closest_to_position(float x)
 	PVCol new_index = get_active_axis_closest_to_position(x);
 
 	/* We move the axis if there is a movement */
-	if ( new_index != active_axis ) {
-		axes_combination.move_axis_to_new_position(active_axis, new_index);
-		active_axis = new_index;
+	if ( new_index != _active_axis ) {
+		axes_combination.move_axis_to_new_position(_active_axis, new_index);
+		_active_axis = new_index;
 
 		return 1;
 	} else {
@@ -1122,15 +1122,15 @@ void Picviz::PVView::set_active_axis_closest_to_position(float x)
 	closest_int = (int)floor(x + 0.5);
 	if ( closest_int < 0 ) {
 		/* We set the leftmost AXIS as active */
-		active_axis = 0;
+		_active_axis = 0;
 	} else {
 		axes_count = axes_combination.get_axes_count();
 		if ( closest_int >= axes_count ) {
 			/* We set the rightmost AXIS as active */
-			active_axis = axes_count - 1;
+			_active_axis = axes_count - 1;
 		} else {
 			/* we can safely set the active AXIS to the closest_int */
-			active_axis = closest_int;
+			_active_axis = closest_int;
 		}
 	}
 }

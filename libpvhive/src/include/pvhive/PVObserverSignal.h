@@ -34,8 +34,9 @@ template <class T>
 class PVObserverSignal : public __impl::PVRefreshSignal, public PVObserver<T>
 {
 public:
-	PVObserverSignal(QObject* parent) :
-		__impl::PVRefreshSignal(parent)
+	PVObserverSignal(QObject* parent = NULL) :
+		__impl::PVRefreshSignal(parent),
+		PVObserver<T>()
 	{}
 
 protected:

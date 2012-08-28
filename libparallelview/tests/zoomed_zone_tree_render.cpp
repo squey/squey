@@ -9,8 +9,8 @@
 #include <pvparallelview/PVBCICode.h>
 #include <pvparallelview/PVBCIBackendImage.h>
 #include <pvparallelview/PVBCIDrawingBackendCUDA.h>
-#include <pvparallelview/PVHSVColor.h>
-#include <pvparallelview/PVHSVColor.h>
+#include <pvkernel/core/PVHSVColor.h>
+#include <pvkernel/core/PVHSVColor.h>
 #include <pvparallelview/PVLinesView.h>
 #include <pvparallelview/PVTools.h>
 #include <pvparallelview/PVZonesDrawing.h>
@@ -123,7 +123,7 @@ int main(int argc, char** argv)
 		nrows = plotted.size()/ncols;
 	}
 
-	PVParallelView::PVHSVColor* colors = PVParallelView::PVHSVColor::init_colors(nrows);
+	PVCore::PVHSVColor* colors = PVCore::PVHSVColor::init_colors(nrows);
 
 	for(int i = 0; i < nrows; ++i) {
 		colors[i] = (i*20) % 192;
@@ -157,7 +157,7 @@ int main(int argc, char** argv)
 	zones_drawing.draw_bci_lambda<PVParallelView::PVZoomedZoneTree>
 		(zoomed_zone_tree, *dst_img2, zm.get_zone_absolute_pos(0), 256,
 		 [&](PVParallelView::PVZoomedZoneTree const &zoomed_zone_tree,
-		     PVParallelView::PVHSVColor const* colors,
+		     PVCore::PVHSVColor const* colors,
 		     PVParallelView::PVBCICode<RENDERING_BITS>* codes)
 		 {
 			 size_t num = zoomed_zone_tree.browse_tree_bci_by_y1(a, a2, a2, b,
@@ -182,7 +182,7 @@ int main(int argc, char** argv)
 	zones_drawing.draw_bci_lambda<PVParallelView::PVZoomedZoneTree>
 		(zoomed_zone_tree, *dst_img2, zm.get_zone_absolute_pos(1), 256,
 		 [&](PVParallelView::PVZoomedZoneTree const &zoomed_zone_tree,
-		     PVParallelView::PVHSVColor const* colors,
+		     PVCore::PVHSVColor const* colors,
 		     PVParallelView::PVBCICode<RENDERING_BITS>* codes)
 		 {
 			 size_t num = zoomed_zone_tree.browse_tree_bci_by_y1(a, a2, a2, b,
@@ -206,7 +206,7 @@ int main(int argc, char** argv)
 	zones_drawing.draw_bci_lambda<PVParallelView::PVZoomedZoneTree>
 		(zoomed_zone_tree, *dst_img2, zm.get_zone_absolute_pos(2), 256,
 		 [&](PVParallelView::PVZoomedZoneTree const &zoomed_zone_tree,
-		     PVParallelView::PVHSVColor const* colors,
+		     PVCore::PVHSVColor const* colors,
 		     PVParallelView::PVBCICode<RENDERING_BITS>* codes)
 		 {
 			 size_t num = zoomed_zone_tree.browse_tree_bci_by_y1(a, a2, a2, b,
@@ -230,7 +230,7 @@ int main(int argc, char** argv)
 	zones_drawing.draw_bci_lambda<PVParallelView::PVZoomedZoneTree>
 		(zoomed_zone_tree, *dst_img2, zm.get_zone_absolute_pos(3), 256,
 		 [&](PVParallelView::PVZoomedZoneTree const &zoomed_zone_tree,
-		     PVParallelView::PVHSVColor const* colors,
+		     PVCore::PVHSVColor const* colors,
 		     PVParallelView::PVBCICode<RENDERING_BITS>* codes)
 		 {
 			 size_t num = zoomed_zone_tree.browse_tree_bci_by_y1(a, a2, a2, b,

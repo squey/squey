@@ -4,9 +4,12 @@
  * Copyright (C) Picviz Labs 2010-2012
  */
 
-#include <pvparallelview/PVHSVColor.h>
+#include <pvkernel/core/PVHSVColor.h>
 
-PVParallelView::PVHSVColor* PVParallelView::PVHSVColor::init_colors(PVRow nb_colors)
+#include <QColor>
+#include <QRgb>
+
+PVCore::PVHSVColor* PVCore::PVHSVColor::init_colors(PVRow nb_colors)
 {
 	PVHSVColor* colors = new PVHSVColor[nb_colors];
 #pragma omp parallel for
@@ -36,7 +39,7 @@ static unsigned char plus1mod3(unsigned char i)
 
 }
 
-void PVParallelView::PVHSVColor::to_rgb(uint8_t& r, uint8_t& g, uint8_t& b) const
+void PVCore::PVHSVColor::to_rgb(uint8_t& r, uint8_t& g, uint8_t& b) const
 {
 	uint8_t rgb[3];
 	to_rgb(rgb);
@@ -45,7 +48,7 @@ void PVParallelView::PVHSVColor::to_rgb(uint8_t& r, uint8_t& g, uint8_t& b) cons
 	b = rgb[2];
 }
 
-void PVParallelView::PVHSVColor::to_rgb(uint8_t* rgb) const
+void PVCore::PVHSVColor::to_rgb(uint8_t* rgb) const
 {
 	/*uint8_t zone = _h>>HSV_COLOR_NBITS_ZONE;
 	uint8_t pos = (zone%3);
@@ -60,4 +63,18 @@ void PVParallelView::PVHSVColor::to_rgb(uint8_t* rgb) const
 	rgb[pos] = (uint8_t)(((_h&HSV_COLOR_MASK_ZONE)*255)>>HSV_COLOR_NBITS_ZONE) ^ mask;
 	rgb[pos2] = mask;
 	rgb[plus1mod3(pos2)] = 0xFF ^ mask;
+}
+
+void PVCore::PVHSVColor::toQColor(QColor& qc) const
+{
+	QRgb rgb;
+	to_rgb((uint8_t*) &rgb);
+	qc.setRgb(rgb);
+}
+
+QColor PVCore::PVHSVColor::toQColor() const
+{
+	QColor ret;
+	toQColor(ret);
+	return std::move(ret);
 }

@@ -34,7 +34,7 @@ core/PVElement.cpp
 core/PVField.cpp
 core/PVFileSerialize.cpp
 core/PVHardwareConcurrency.cpp
-#core/PVListFloat2D.cpp
+core/PVHSVColor.cpp
 core/PVLogger.cpp
 core/PVMatrix.cpp
 core/PVPCRESplitter.cpp
@@ -92,8 +92,8 @@ include/pvkernel/core/PVBufferSlice.h
 include/pvkernel/core/PVChunk.h
 include/pvkernel/core/PVElement.h
 include/pvkernel/core/PVField.h
+include/pvkernel/core/PVHSVColor.h
 include/pvkernel/core/PVListFastCmp.h
-include/pvkernel/core/PVListFloat2D.h
 include/pvkernel/core/PVLogger.h
 include/pvkernel/core/PVMeanValue.h
 include/pvkernel/core/PVPlainTextType.h
