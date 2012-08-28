@@ -22,7 +22,7 @@
  *
  * TODO: configure scene's view from the PVAxis
  *
- * TODO: add selection stuff
+ * TODO: finalize selection stuff
  *
  * TODO: do we limit the view size or not? If not, it remove the limitation on
  *       images width
@@ -50,6 +50,10 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(QWidget *parent,
 
 	//view()->setMaximumWidth(1024);
 	//view()->setMaximumHeight(1024);
+
+	_selection_rect = new PVParallelView::PVSelectionSquareGraphicsItem(this);
+	connect(_selection_rect, SIGNAL(commit_volatile_selection()),
+	        this, SLOT(commit_volatile_selection_Slot()));
 
 	_wheel_value = 0;
 
@@ -82,27 +86,43 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(QWidget *parent,
  * PVParallelView::PVZoomedParallelScene::mousePressEvent
  *****************************************************************************/
 
-void PVParallelView::PVZoomedParallelScene::mousePressEvent(QGraphicsSceneMouseEvent */*event*/)
+void PVParallelView::PVZoomedParallelScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-	// kill default behaviour of QGraphicsScene
+	if (event->button() == Qt::LeftButton) {
+		_selection_rect_pos = event->scenePos();
+	}
 }
 
 /*****************************************************************************
  * PVParallelView::PVZoomedParallelScene::mouseReleaseEvent
  *****************************************************************************/
 
-void PVParallelView::PVZoomedParallelScene::mouseReleaseEvent(QGraphicsSceneMouseEvent */*event*/)
+void PVParallelView::PVZoomedParallelScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-	// kill default behaviour of QGraphicsScene
+	if (event->button() == Qt::LeftButton) {
+		if (_selection_rect_pos == event->scenePos()) {
+			// Remove selection
+			_selection_rect->clear_rect();
+		}
+		commit_volatile_selection_Slot();
+	}
 }
 
 /*****************************************************************************
  * PVParallelView::PVZoomedParallelScene::mouseMoveEvent
  *****************************************************************************/
 
-void PVParallelView::PVZoomedParallelScene::mouseMoveEvent(QGraphicsSceneMouseEvent */*event*/)
+void PVParallelView::PVZoomedParallelScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-	// kill default behaviour of QGraphicsScene
+	if (event->buttons() == Qt::LeftButton) {
+		// trace square area
+		QPointF top_left(qMin(_selection_rect_pos.x(), event->scenePos().x()),
+		                 qMin(_selection_rect_pos.y(), event->scenePos().y()));
+		QPointF bottom_right(qMax(_selection_rect_pos.x(), event->scenePos().x()),
+		                     qMax(_selection_rect_pos.y(), event->scenePos().y()));
+
+		_selection_rect->update_rect(QRectF(top_left, bottom_right));
+	}
 }
 
 /*****************************************************************************
@@ -405,7 +425,6 @@ void PVParallelView::PVZoomedParallelScene::update_zoom(bool in)
 
 	QMatrix mat;
 	mat.scale(s, s);
-
 	view()->setMatrix(mat);
 
 	/* make sure the scene is always horizontally centered. And because
@@ -499,4 +518,13 @@ void PVParallelView::PVZoomedParallelScene::zone_rendered_Slot(int /*z*/)
 	}
 
 	update();
+}
+
+/*****************************************************************************
+ * PVParallelView::PVZoomedParallelScene::commit_volatile_selection_Slot
+ *****************************************************************************/
+
+void PVParallelView::PVZoomedParallelScene::commit_volatile_selection_Slot()
+{
+	_selection_rect->finished();
 }

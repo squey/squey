@@ -10,6 +10,7 @@
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVZonesDrawing.h>
 #include <pvparallelview/PVRenderingJob.h>
+#include <pvparallelview/PVSelectionSquareGraphicsItem.h>
 
 #include <QGraphicsView>
 #include <QGraphicsSceneMouseEvent>
@@ -85,6 +86,7 @@ private slots:
 	void scrollbar_changed_Slot(int value);
 	void scrollbar_timeout_Slot();
 	void zone_rendered_Slot(int z);
+	void commit_volatile_selection_Slot();
 
 private:
 	struct zone_desc
@@ -106,6 +108,9 @@ private:
 	QFuture<void>    _rendering_future;
 	bool             _skip_update_zoom;
 	QTimer           _scroll_timer;
+
+	QPointF                        _selection_rect_pos;
+	PVSelectionSquareGraphicsItem *_selection_rect;
 };
 
 }
