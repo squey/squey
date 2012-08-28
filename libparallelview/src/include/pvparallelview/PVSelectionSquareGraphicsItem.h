@@ -67,7 +67,7 @@ private:
 	{
 		// Change volatile selection color
 		QPen cur_pen = pen();
-		cur_pen.setColor(COMMITED_COLOR);
+		cur_pen.setColor(VOLATILE_COLOR);
 		setPen(cur_pen);
 
 		// Reset volatile selection timer interval
