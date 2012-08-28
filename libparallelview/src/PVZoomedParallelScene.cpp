@@ -24,9 +24,6 @@
  *
  * TODO: add selection stuff
  *
- * TODO: add a deferred rendering stage for the scrollbar to avoid flickering.
- *       a timer to wait for a moment of inactivity?
- *
  * TODO: do we limit the view size or not?
  */
 
@@ -71,6 +68,11 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(QWidget *parent,
 	if (axis < zones_drawing.get_zones_manager().get_number_zones()) {
 		_right_zone.image = zones_drawing.create_image(image_width);
 	}
+
+	_scroll_timer.setInterval(50);
+	_scroll_timer.setSingleShot(true);
+	connect(&_scroll_timer, SIGNAL(timeout()),
+	        this, SLOT(scrollbar_timeout_Slot()));
 
 	update_zoom();
 }
@@ -443,10 +445,28 @@ void PVParallelView::PVZoomedParallelScene::scrollbar_changed_Slot(int value)
 			back_image = image;
 		}
 
-		update_display();
+		/* the full update is deferred only when the scrollbar is
+		 * actived by the user; otherwise the update is done immediatly
+		 * to avoid the impression that the refresh is slow.
+		 */
+		if (view()->verticalScrollBar()->isSliderDown()) {
+			_scroll_timer.stop();
+			_scroll_timer.start();
+		} else {
+			update_display();
+		}
 	}
 
 	_old_sb_pos = value;
+}
+
+/*****************************************************************************
+ * PVParallelView::PVZoomedParallelScene::scrollbar_timeout_Slot
+ *****************************************************************************/
+
+void PVParallelView::PVZoomedParallelScene::scrollbar_timeout_Slot()
+{
+	update_display();
 }
 
 /*****************************************************************************

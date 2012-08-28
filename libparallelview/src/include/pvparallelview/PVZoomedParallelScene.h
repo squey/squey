@@ -18,6 +18,7 @@
 #include <QObject>
 #include <QDialog>
 #include <QPaintEvent>
+#include <QTimer>
 
 namespace PVParallelView
 {
@@ -82,6 +83,7 @@ private:
 
 private slots:
 	void scrollbar_changed_Slot(int value);
+	void scrollbar_timeout_Slot();
 	void zone_rendered_Slot(int z);
 
 private:
@@ -103,6 +105,7 @@ private:
 	PVRenderingJob  *_rendering_job;
 	QFuture<void>    _rendering_future;
 	bool             _skip_update_zoom;
+	QTimer           _scroll_timer;
 };
 
 }
