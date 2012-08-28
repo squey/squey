@@ -422,8 +422,7 @@ protected:
 		typedef PVCore::PVTypeTraits::function_traits<F> ftraits;
 		// object must be a valid address
 		assert(object != nullptr);
-		typename ftraits::arguments_type args;
-		args.set_args(params...);
+		typename ftraits::arguments_type args(std::forward<P>(params)...);
 
 		// This method can be specialized easily for a given function !
 		return call_object<F, f>(object, args);
@@ -553,8 +552,7 @@ private:
 			else {
 				typedef typename PVCore::PVTypeTraits::function_traits<F>::arguments_type arguments_type;
 
-				arguments_type args;
-				args.set_args(std::forward<P>(params)...);
+				arguments_type args(params...);
 
 				if (about) {
 					fo->do_about_to_be_updated((const void*) &args);
@@ -582,7 +580,7 @@ private:
 	template <typename T, typename F, F f, int... S>
 	inline typename PVCore::PVTypeTraits::function_traits<F>::result_type do_call_object_default(T* object, typename PVCore::PVTypeTraits::function_traits<F>::arguments_type const& args, PVCore::PVTypeTraits::seq_n<S...>)
 	{
-		return call_object_default<T, F, f>(object, args.template get_arg<S>()...);
+		return call_object_default<T, F, f>(object, std::get<S>(args)...);
 	}
 
 	template <typename T, typename F, F f, typename... P>

@@ -21,7 +21,7 @@ namespace PVHive
  * A template class to specify actor on a given type/class.
  */
 template <class T>
-class PVActor : public PVActorBase
+class PVActor: public PVActorBase
 {
 	friend class PVHive;
 
@@ -50,8 +50,6 @@ public:
 		}
 		return typename PVCore::PVTypeTraits::function_traits<F>::result_type();
 	}
-
-	T const* get_const_object() const { return static_cast<T*>(get_object()); }
 };
 
 // Helper macro to hide the C++ decltype verbosity
