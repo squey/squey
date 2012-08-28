@@ -44,8 +44,11 @@ public:
 		handle_volatile_selection();
 	}
 
-	void finished() {
-		setPen(QPen(COMMITED_COLOR, PEN_WIDTH));
+	void finished()
+	{
+		QPen cur_pen = pen();
+		cur_pen.setColor(COMMITED_COLOR);
+		setPen(cur_pen);
 		_volatile_selection_timer->stop();
 	}
 
@@ -63,7 +66,9 @@ private:
 	void handle_volatile_selection()
 	{
 		// Change volatile selection color
-		setPen(QPen(VOLATILE_COLOR, PEN_WIDTH));
+		QPen cur_pen = pen();
+		cur_pen.setColor(COMMITED_COLOR);
+		setPen(cur_pen);
 
 		// Reset volatile selection timer interval
 		_volatile_selection_timer->start(VOLATILE_SELECTION_TIMER_MSEC);
