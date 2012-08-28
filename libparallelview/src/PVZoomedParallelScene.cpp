@@ -24,7 +24,8 @@
  *
  * TODO: add selection stuff
  *
- * TODO: do we limit the view size or not?
+ * TODO: do we limit the view size or not? If not, it remove the limitation on
+ *       images width
  */
 
 /*****************************************************************************
