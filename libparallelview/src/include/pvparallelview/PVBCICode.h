@@ -59,19 +59,21 @@ struct PVBCICode
 			if (i < 1024) {
 				c.s.l = constants<Bbits>::mask_int_ycoord/2;
 				c.s.type = UP;
+				c.s.color = HSV_COLOR_WHITE;
 			}
 			else 
 			if (i < 3072) {
 				c.s.l = constants<Bbits>::mask_int_ycoord/2;
 				c.s.type = DOWN;
+				c.s.color = HSV_COLOR_BLACK;
 			}
 			else {
 				c.s.l = constants<Bbits>::mask_int_ycoord/5;
+				c.s.color = i%((1<<HSV_COLOR_NBITS_ZONE)*6);
 			}
 			c.s.r = i&(constants<Bbits>::mask_int_ycoord);
 			//c.s.color = rand()&((1<<9)-1);
-			c.s.color = i%((1<<HSV_COLOR_NBITS_ZONE)*6);
-			//c.s.color = 1;
+			//c.s.color = i%((1<<HSV_COLOR_NBITS_ZONE)*6);
 			codes[i] = c;
 		}
 	}

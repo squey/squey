@@ -14,7 +14,7 @@ namespace Picviz { namespace __impl {
 template <class Tint>
 struct PVViewSortAsc
 {
-	PVViewSortAsc(PVRush::PVNraw* nraw_, PVCol col, Picviz::PVSortingFunc_fless f_): 
+	PVViewSortAsc(PVRush::PVNraw const* nraw_, PVCol col, Picviz::PVSortingFunc_fless f_): 
 		nraw(nraw_), column(col), f(f_)
 	{ }
 	bool operator()(Tint idx1, Tint idx2) const
@@ -24,7 +24,7 @@ struct PVViewSortAsc
 		return f(s1, s2);
 	}
 private:
-	PVRush::PVNraw* nraw;
+	PVRush::PVNraw const* nraw;
 	PVCol column;
 	Picviz::PVSortingFunc_fless f;
 };
@@ -32,7 +32,7 @@ private:
 template <class Tint>
 struct PVViewSortDesc
 {
-	PVViewSortDesc(PVRush::PVNraw* nraw_, PVCol col, Picviz::PVSortingFunc_fless f_): 
+	PVViewSortDesc(PVRush::PVNraw const* nraw_, PVCol col, Picviz::PVSortingFunc_fless f_): 
 		nraw(nraw_), column(col), f(f_)
 	{ }
 	bool operator()(Tint idx1, Tint idx2) const
@@ -42,7 +42,7 @@ struct PVViewSortDesc
 		return f(s2, s1);
 	}
 private:
-	PVRush::PVNraw* nraw;
+	PVRush::PVNraw const* nraw;
 	PVCol column;
 	Picviz::PVSortingFunc_fless f;
 };
@@ -50,7 +50,7 @@ private:
 template <class Tint>
 struct PVViewStableSortAsc
 {
-	PVViewStableSortAsc(PVRush::PVNraw* nraw_, PVCol col, Picviz::PVSortingFunc_f f_): 
+	PVViewStableSortAsc(PVRush::PVNraw const* nraw_, PVCol col, Picviz::PVSortingFunc_f f_): 
 		nraw(nraw_), column(col), f(f_)
 	{ }
 	bool operator()(Tint idx1, Tint idx2) const
@@ -64,7 +64,7 @@ struct PVViewStableSortAsc
 		return ret < 0;
 	}
 private:
-	PVRush::PVNraw* nraw;
+	PVRush::PVNraw const* nraw;
 	PVCol column;
 	Picviz::PVSortingFunc_f f;
 };
@@ -72,7 +72,7 @@ private:
 template <class Tint>
 struct PVViewStableSortDesc
 {
-	PVViewStableSortDesc(PVRush::PVNraw* nraw_, PVCol col, Picviz::PVSortingFunc_f f_): 
+	PVViewStableSortDesc(PVRush::PVNraw const* nraw_, PVCol col, Picviz::PVSortingFunc_f f_): 
 		nraw(nraw_), column(col), f(f_)
 	{ }
 	bool operator()(Tint idx1, Tint idx2) const
@@ -86,7 +86,7 @@ struct PVViewStableSortDesc
 		return ret > 0;
 	}
 private:
-	PVRush::PVNraw* nraw;
+	PVRush::PVNraw const* nraw;
 	PVCol column;
 	Picviz::PVSortingFunc_f f;
 };
@@ -94,7 +94,7 @@ private:
 template <class Tint>
 struct PVViewCompEquals
 {
-	PVViewCompEquals(PVRush::PVNraw* nraw_, PVCol col, Picviz::PVSortingFunc_fequals f_equals): 
+	PVViewCompEquals(PVRush::PVNraw const* nraw_, PVCol col, Picviz::PVSortingFunc_fequals f_equals): 
 		nraw(nraw_), column(col), f(f_equals)
 	{ }
 	bool operator()(Tint idx1, Tint idx2) const
@@ -104,13 +104,13 @@ struct PVViewCompEquals
 		return f(s1, s2);
 	}
 private:
-	PVRush::PVNraw* nraw;
+	PVRush::PVNraw const* nraw;
 	PVCol column;
 	Picviz::PVSortingFunc_fequals f;
 };
 
 template <class L>
-void stable_sort_indexes_f(PVRush::PVNraw* nraw, PVCol col, Picviz::PVSortingFunc_f f, Qt::SortOrder order, L& idxes)
+void stable_sort_indexes_f(PVRush::PVNraw const* nraw, PVCol col, Picviz::PVSortingFunc_f f, Qt::SortOrder order, L& idxes)
 {
 	typedef typename L::value_type Tint;
 	if (order == Qt::AscendingOrder) {
@@ -124,7 +124,7 @@ void stable_sort_indexes_f(PVRush::PVNraw* nraw, PVCol col, Picviz::PVSortingFun
 }
 
 template <class L>
-void sort_indexes_f(PVRush::PVNraw* nraw, PVCol col, Picviz::PVSortingFunc_fless f, Qt::SortOrder order, L& idxes)
+void sort_indexes_f(PVRush::PVNraw const* nraw, PVCol col, Picviz::PVSortingFunc_fless f, Qt::SortOrder order, L& idxes)
 {
 	typedef typename L::value_type Tint;
 	if (order == Qt::AscendingOrder) {
@@ -138,14 +138,14 @@ void sort_indexes_f(PVRush::PVNraw* nraw, PVCol col, Picviz::PVSortingFunc_fless
 }
 
 template <class L>
-void unique_indexes_copy_f(PVRush::PVNraw* nraw, PVCol col, Picviz::PVSortingFunc_fequals f_equals, L const& idxes_in, L& idxes_out)
+void unique_indexes_copy_f(PVRush::PVNraw const* nraw, PVCol col, Picviz::PVSortingFunc_fequals f_equals, L const& idxes_in, L& idxes_out)
 {
 	PVViewCompEquals<typename L::value_type> e(nraw, col, f_equals);
 	std::unique_copy(idxes_in.begin(), idxes_in.end(), idxes_out.begin(), e);
 }
 
 template <class L>
-typename L::iterator unique_indexes_f(PVRush::PVNraw* nraw, PVCol col, Picviz::PVSortingFunc_fequals f_equals, L& idxes_in)
+typename L::iterator unique_indexes_f(PVRush::PVNraw const* nraw, PVCol col, Picviz::PVSortingFunc_fequals f_equals, L& idxes_in)
 {
 	PVViewCompEquals<typename L::value_type> e(nraw, col, f_equals);
 	return std::unique(idxes_in.begin(), idxes_in.end(), e);

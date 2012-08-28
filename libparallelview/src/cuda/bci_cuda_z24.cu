@@ -78,8 +78,11 @@ __device__ __noinline__ unsigned int hsv2rgb(unsigned int hsv)
 	// v[(pos+1)%3] = 0 ^ mask
 	// v[(pos+2)%3] = 255 ^ mask
 	
-	if (hsv == 0xFF) {
+	if (hsv == HSV_COLOR_WHITE) {
 		return 0xFFFFFFFF; // Special value for white
+	}
+	if (hsv == HSV_COLOR_BLACK) {
+		return 0xFF000000; // Special value for black
 	}
 
 	unsigned char zone = (unsigned char) (hsv>>HSV_COLOR_NBITS_ZONE);

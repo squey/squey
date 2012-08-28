@@ -39,6 +39,7 @@ int main(int /*argc*/, char** /*argv*/)
 {
 	typedef PVCore::PVTypeTraits::function_traits<decltype(f)> ftraits;
 
+	/*
 	std::cout << ftraits::arity << std::endl;
 	std::cout << typeid(ftraits::arguments_type::arg_type).name() << std::endl;
 	std::cout << typeid(ftraits::arguments_type::next_arg_type::arg_type).name() << std::endl;
@@ -50,7 +51,7 @@ int main(int /*argc*/, char** /*argv*/)
 
 	ftraits::arguments_type args;
 	args.set_args(1, 2, 4, 5);
-	std::cout << args.get_arg<0>() << " " << args.get_arg<1>() << " " << (int) args.get_arg<2>() << " " << args.get_arg<3>() << std::endl;
+	std::cout << std::get<0>(args) << " " << std::get<1>(args) << " " << (int) std::get<2>(args) << " " << std::get<3>(args) << std::endl;
 
 	typedef PVCore::PVTypeTraits::function_traits<decltype(f2)> ftraits2;
 
@@ -58,7 +59,7 @@ int main(int /*argc*/, char** /*argv*/)
 	int a = 2; short b = 4; const short d = 5;
 	args2.set_args(&a, &b, d, b);
 	std::cout << &a << " " << &b << std::endl;
-	std::cout << args2.get_arg<0>() << " " << args2.get_arg<1>() << " " << args2.get_arg<2>() << " " << args2.get_arg<3>() << std::endl;
+	std::cout << std::get<0>(args2) << " " << std::get<1>(args2) << " " << std::get<2>(args2) << " " << std::get<3>(args2) << std::endl;
 
 	typedef PVCore::PVTypeTraits::function_traits<decltype(fnoarg)> ftraits_noarg;
 	ftraits_noarg::arguments_type noargs;
@@ -68,10 +69,10 @@ int main(int /*argc*/, char** /*argv*/)
 		A a;
 		a._i = 4;
 		typedef PVCore::PVTypeTraits::function_traits<decltype(&A::f)> ftraits_af;
-		ftraits_af::arguments_type args_af;
-		args_af.set_args(6);
+		ftraits_af::arguments_type args_af(6);
 		std::cout << "Should print 24: " << ftraits_af::call<&A::f>(a, args_af) << std::endl;
 	}
+	*/
 
 	return 0;
 }

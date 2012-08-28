@@ -92,7 +92,7 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex &index, int role) const
 			} else {
 				const PVRow r = index.row();
 				if (lib_view().get_line_state_in_output_layer(r)) {
-					const PVCore::PVColor color = lib_view().get_color_in_output_layer(r);
+					const PVCore::PVHSVColor color = lib_view().get_color_in_output_layer(r);
 					return QBrush(color.toQColor());
 				} else {
 					return unselect_brush;

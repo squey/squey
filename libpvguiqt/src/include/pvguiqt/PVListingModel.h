@@ -106,7 +106,7 @@ private slots:
 	void view_about_to_be_deleted(PVHive::PVObserverBase* o);
 
 private:
-	inline Picviz::PVView const& lib_view() const { return *_actor.get_const_object(); }
+	inline Picviz::PVView const& lib_view() const { return *_obs.get_object(); }
 
 private:
 	PVHive::PVActor<Picviz::PVView> _actor;

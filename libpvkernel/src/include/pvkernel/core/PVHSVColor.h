@@ -16,11 +16,17 @@
 #define HSV_COLOR_NBITS_ZONE 5
 #define HSV_COLOR_MASK_ZONE 31
 
+// Special colors
+#define HSV_COLOR_WHITE 255
+#define HSV_COLOR_BLACK 254
+
 namespace PVCore {
 
 class PVHSVColor
 {
 	typedef uint8_t T;
+public:
+	typedef T h_type;
 public:
 	// Unitialized, and this is wanted !
 	PVHSVColor() { }

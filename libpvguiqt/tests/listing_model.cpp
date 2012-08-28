@@ -7,6 +7,7 @@
 #include <picviz/PVView.h>
 
 #include <pvguiqt/PVListingModel.h>
+#include <pvguiqt/PVListingSortFilterProxyModel.h>
 
 #include <QApplication>
 #include <QMainWindow>
@@ -38,9 +39,11 @@ int main(int argc, char** argv)
 
 	Picviz::PVView_sp view = src->current_view()->shared_from_this();
 	PVGuiQt::PVListingModel* model = new PVGuiQt::PVListingModel(view);
+	PVGuiQt::PVListingSortFilterProxyModel* proxy_model = new PVGuiQt::PVListingSortFilterProxyModel(view);
+	proxy_model->setSourceModel(model);
 
 	QTableView* qt_view = new QTableView();
-	qt_view->setModel(model);
+	qt_view->setModel(proxy_model);
 
 	QMainWindow* mw = new QMainWindow();
 	mw->setCentralWidget(qt_view);

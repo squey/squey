@@ -35,7 +35,8 @@ class TestDlg : public QDialog
 
 public:
 	TestDlg(Picviz::PVView_sp& view_p, QWidget *parent = nullptr) :
-		QDialog(parent)
+		QDialog(parent),
+		_lib_view(*view_p.get())
 	{
 		std::cout << "TestDlg::TestDlg (" << boost::this_thread::get_id() << ")" << std::endl;
 		QHBoxLayout* layout = new QHBoxLayout();
@@ -128,10 +129,10 @@ private slots:
 
 	void destroy()
 	{
-		((Picviz::PVView*) _actor.get_const_object())->remove_from_tree();
+		((Picviz::PVView*) &_lib_view)->remove_from_tree();
 	}
 
-	Picviz::PVView const& picviz_view() const { return *_actor.get_const_object(); }
+	Picviz::PVView const& picviz_view() const { return _lib_view; }
 
 private:
 	PVGuiQt::PVAxesCombinationModel* _model1;
@@ -141,6 +142,7 @@ private:
 	QLabel *_label;
 
 	PVHive::PVActor<Picviz::PVView> _actor;
+	Picviz::PVView const& _lib_view;
 };
 
 #endif // AXES_COMB_H

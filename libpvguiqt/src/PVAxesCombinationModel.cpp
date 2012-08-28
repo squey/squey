@@ -16,7 +16,7 @@
 
 void PVGuiQt::__impl::remove_column_Observer::about_to_be_updated(const arguments_type& args) const
 {
-	int axis_index = args.get_arg<0>();
+	int axis_index = std::get<0>(args);
 
 	PVLOG_INFO("remove_column_Observer::about_to_be_updated %d\n", axis_index);
 
@@ -47,7 +47,7 @@ void PVGuiQt::__impl::axis_append_Observer::update(const arguments_type& /*args*
 
 void PVGuiQt::__impl::set_axis_name_Observer::update(arguments_type const& args) const
 {
-	int axis_index = args.get_arg<0>();
+	int axis_index = std::get<0>(args);
 
 	PVLOG_INFO("set_axis_name_Observer::update %d\n", axis_index);
 
@@ -56,8 +56,8 @@ void PVGuiQt::__impl::set_axis_name_Observer::update(arguments_type const& args)
 
 void PVGuiQt::__impl::move_axis_to_new_position_Observer::update(arguments_type const& args) const
 {
-	int old_index = args.get_arg<0>();
-	int new_index = args.get_arg<1>();
+	int old_index = std::get<0>(args);
+	int new_index = std::get<1>(args);
 
 	PVLOG_INFO("move_axis_to_new_position_Observer::update %d <-> %d \n", old_index, new_index);
 

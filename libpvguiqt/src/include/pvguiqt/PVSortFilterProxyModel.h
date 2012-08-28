@@ -4,8 +4,8 @@
  * Copyright (C) Picviz Labs 2010-2012
  */
 
-#ifndef PVINSPECTOR_PVFILTERPROXYMODEL_H
-#define PVINSPECTOR_PVFILTERPROXYMODEL_H
+#ifndef PVGUIQT_PVFILTERPROXYMODEL_H
+#define PVGUIQT_PVFILTERPROXYMODEL_H
 
 #include <QAbstractProxyModel>
 #include <QModelIndex>
@@ -13,7 +13,7 @@
 
 #include <boost/date_time/time_duration.hpp>
 
-namespace PVInspector {
+namespace PVGuiQt {
 
 namespace __impl {
 class PVSortProxyAsc;

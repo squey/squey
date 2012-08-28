@@ -84,7 +84,6 @@ include/PVSaveSceneDialog.h
 include/PVSerializeOptionsModel.h
 include/PVSerializeOptionsWidget.h
 include/PVSimpleStringListModel.h
-include/PVSortFilterProxyModel.h
 include/PVStartScreenWidget.h
 include/PVStringListChooserWidget.h
 include/PVTabSplitter.h
@@ -168,7 +167,6 @@ PVSaveFileDialog.cpp
 PVSaveSceneDialog.cpp
 PVSerializeOptionsModel.cpp
 PVSerializeOptionsWidget.cpp
-PVSortFilterProxyModel.cpp
 PVStartScreenWidget.cpp
 PVStringListChooserWidget.cpp
 PVTabSplitter.cpp

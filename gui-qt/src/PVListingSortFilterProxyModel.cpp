@@ -5,12 +5,11 @@
  */
 
 #include <pvkernel/core/PVUnicodeString.h>
-#include <picviz/PVStateMachine.h>
+
 #include <picviz/PVView.h>
 
-#include <PVListingSortFilterProxyModel.h>
-#include <PVCustomQtRoles.h>
-#include <PVTabSplitter.h>
+#include <pvguiqt/PVListingSortFilterProxyModel.h>
+#include <pvguiqt/PVCustomQtRoles.h>
 
 
 PVInspector::PVListingSortFilterProxyModel::PVListingSortFilterProxyModel(PVTabSplitter* tab_parent, QObject* parent):
@@ -85,6 +84,5 @@ void PVInspector::PVListingSortFilterProxyModel::reset_lib_view()
 {
 	_lib_view = _tab_parent->get_lib_view();
 	assert(_lib_view);
-	_state_machine = _lib_view->state_machine;
 	invalidate_all();
 }

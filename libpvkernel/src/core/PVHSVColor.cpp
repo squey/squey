@@ -55,6 +55,20 @@ void PVCore::PVHSVColor::to_rgb(uint8_t* rgb) const
 	pos = pos ^ !(pos&2);
 	uint8_t mask = (zone & 1)*0xFF;*/
 
+	if (_h == HSV_COLOR_WHITE) {
+		rgb[0] = 0xFF;
+		rgb[1] = 0xFF;
+		rgb[2] = 0xFF;
+		return;
+	}
+
+	if (_h == HSV_COLOR_BLACK) {
+		rgb[0] = 0;
+		rgb[1] = 0;
+		rgb[2] = 0;
+		return;
+	}
+
     unsigned char zone = (unsigned char) (_h>>HSV_COLOR_NBITS_ZONE);
     unsigned char pos = zone2pos(zone);
     unsigned char mask = (zone & 1)*0xFF;

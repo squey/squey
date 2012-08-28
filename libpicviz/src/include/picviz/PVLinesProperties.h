@@ -11,11 +11,11 @@
 
 #include <picviz/general.h>
 
-#include <pvkernel/core/PVColor.h>
+#include <pvkernel/core/PVHSVColor.h>
 #include <pvkernel/core/PVSerializeArchive.h>
 #include <picviz/PVSelection.h>
 
-#define PICVIZ_LINESPROPS_CHUNK_SIZE sizeof(PVCore::PVColor)
+#define PICVIZ_LINESPROPS_CHUNK_SIZE sizeof(PVCore::PVHSVColor)
 #define PICVIZ_LINESPROPS_NUMBER_OF_CHUNKS PICVIZ_LINES_MAX
 #define PICVIZ_LINESPROPS_NUMBER_OF_BYTES  PICVIZ_LINESPROPS_NUMBER_OF_CHUNKS * PICVIZ_LINESPROPS_CHUNK_SIZE
 
@@ -28,13 +28,12 @@ class LibPicvizDecl PVLinesProperties {
 	friend class PVCore::PVSerializeObject;
 
 public:
-	typedef std::allocator<PVCore::PVColor> color_allocator_type;
+	typedef std::allocator<PVCore::PVHSVColor> color_allocator_type;
+	typedef PVCore::PVHSVColor::h_type h_type;
 private:
 	static color_allocator_type _color_allocator;
 
 public:
-	PVRow last_index; /*<! FIXME: Do we really need this?  */
-	PVCore::PVColor *table;
 
 	/**
 	 * Constructor
@@ -43,8 +42,8 @@ public:
 	PVLinesProperties(const PVLinesProperties & rhs);
 	PVLinesProperties(PVLinesProperties&& rhs)
 	{
-		table = rhs.table;
-		rhs.table = NULL;
+		_table = rhs._table;
+		rhs._table = NULL;
 	}
 
 	/**
@@ -53,126 +52,31 @@ public:
 	~PVLinesProperties();
 
 	/**
-	 * Gets the PVColor of a given line
+	 * Gets the PVHSVColor of a given line
 	 *
-	 * @param line The index of the line (its row number)
+	 * @param r The index of the line (its row number)
 	 */
-	PVCore::PVColor& get_line_properties(PVRow line);
-	const PVCore::PVColor& get_line_properties(PVRow line) const;
+	inline PVCore::PVHSVColor& get_line_properties(const PVRow r) { return _table[r]; }
+	inline const PVCore::PVHSVColor get_line_properties(const PVRow r) const { return _table[r]; }
 
-	/**
-	 * Gets the A value of the color of the specified line
-	 *
-	 * @param line The index of the line (its row number)
-	 */
-	unsigned char line_get_a(PVRow line);
-	
-	/**
-	 * Gets the B value of the color of the specified line
-	 *
-	 * @param line The index of the line (its row number)
-	 */
-	unsigned char line_get_b(PVRow line);
-
-	/**
-	 * Gets the G value of the color of the specified line
-	 *
-	 * @param line The index of the line (its row number)
-	 */
-	unsigned char line_get_g(PVRow line);
-
-	/**
-	 * Gets the R value of the color of the specified line
-	 *
-	 * @param line The index of the line (its row number)
-	 */
-	unsigned char line_get_r(PVRow line);
-
-	/**
-	 * Sets the A value of the color of the specified line
-	 *
-	 * @param line The index of the line (its row number)
-	 * @param a    The A value that should be set
-	 */
-	void line_set_a(PVRow line, unsigned char a);
-	
-	/**
-	 * Sets the B value of the color of the specified line
-	 *
-	 * @param line The index of the line (its row number)
-	 * @param b    The B value that should be set
-	 */
-	void line_set_b(PVRow line, unsigned char b);
-
-	/**
-	 * Sets the G value of the color of the specified line
-	 *
-	 * @param line The index of the line (its row number)
-	 * @param g    The G value that should be set
-	 */
-	void line_set_g(PVRow line, unsigned char g);
-
-	/**
-	 * Sets the R value of the color of the specified line
-	 *
-	 * @param line The index of the line (its row number)
-	 * @param r    The R value that should be set
-	 */
-	void line_set_r(PVRow line, unsigned char r);
-
-	/**
-	 * Sets the R,G,B values of the color of the specified line
-	 *
-	 * @param line The index of the line (its row number)
-	 * @param r    The R value that should be set
-	 * @param g    The G value that should be set
-	 * @param b    The B value that should be set
-	 */
-	void line_set_rgb(PVRow line, unsigned char r, unsigned char g, unsigned char b);
-
-	/**
-	 * Sets the R,G,B,A values of the color of the specified line
-	 *
-	 * @param line The index of the line (its row number)
-	 * @param r    The R value that should be set
-	 * @param g    The G value that should be set
-	 * @param b    The B value that should be set
-	 * @param a    The A value that should be set
-	 */
-	void line_set_rgba(PVRow line, unsigned char r, unsigned char g, unsigned char b, unsigned char a);
-
-	/**
-	 * Sets the R,G,B values of the specified line from a PVCore::PVColor
-	 *
-	 * @param line  The index of the line (its row number)
-	 * @param color The PVCore::PVColor used to set R,G,B
-	 */
-	void line_set_rgb_from_color(PVRow line, PVCore::PVColor color);
-
-	/**
-	 * Sets the R,G,B,A values of the specified line from a PVCore::PVColor
-	 *
-	 * @param line  The index of the line (its row number)
-	 * @param color The PVCore::PVColor used to set R,G,B,A
-	 */
-	void line_set_rgba_from_color(PVRow line, const PVCore::PVColor &color);
+	inline void line_set_color(const PVRow r, const PVCore::PVHSVColor h) { get_line_properties(r) = h; }
 
 	PVLinesProperties & operator=(const PVLinesProperties & rhs);
 
-	void A2A_set_to_line_properties_restricted_by_selection_and_nelts(PVCore::PVColor color, PVSelection const& selection, PVRow nelts);
+	void A2A_set_to_line_properties_restricted_by_selection_and_nelts(PVCore::PVHSVColor color, PVSelection const& selection, PVRow nelts);
 
-	/* void picviz_lines_properties_A2B_copy(picviz_lines_properties_t *b); */ //* It is replaced by =
 	void A2B_copy_restricted_by_selection_and_nelts(PVLinesProperties &b, PVSelection const& selection, PVRow nelts);
 	void A2B_copy_zombie_off_restricted_by_selection_and_nelts(PVLinesProperties &b,  PVSelection const& selection, PVRow nelts);
 	void A2B_copy_zombie_on_restricted_by_selection_and_nelts(PVLinesProperties &b,  PVSelection const& selection, PVRow nelts);
 	void reset_to_default_color();
-	void selection_set_rgba(PVSelection const& selection, PVRow nelts, unsigned char r, unsigned char g, unsigned char b, unsigned char a);
+	void selection_set_color(PVSelection const& selection, const PVRow nelts, const PVCore::PVHSVColor c);
 	void set_random(const PVRow n);
-
-	void debug();
 
 protected:
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
+
+private:
+	PVCore::PVHSVColor* _table;
 };
 
 }

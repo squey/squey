@@ -138,9 +138,7 @@ void Picviz::PVView::init_defaults()
 
 	state_machine = new Picviz::PVStateMachine();
 
-	default_zombie_line_properties.r() = (unsigned char)0;
-	default_zombie_line_properties.g() = (unsigned char)0;
-	default_zombie_line_properties.b() = (unsigned char)0;
+	default_zombie_line_properties.h() = HSV_COLOR_BLACK;
 }
 
 /******************************************************************************
@@ -300,7 +298,7 @@ QString Picviz::PVView::get_original_axis_type(PVCol axis_id) const
  * Picviz::PVView::get_color_in_output_layer
  *
  *****************************************************************************/
-PVCore::PVColor const& Picviz::PVView::get_color_in_output_layer(PVRow index) const
+const PVCore::PVHSVColor Picviz::PVView::get_color_in_output_layer(PVRow index) const
 {
 	return output_layer.get_lines_properties().get_line_properties(index);
 }
@@ -643,48 +641,43 @@ PVCol Picviz::PVView::get_active_axis_closest_to_position(float x)
  *****************************************************************************/
 void Picviz::PVView::process_eventline()
 {
-	PVRow i;
-	PVRow i_max = row_count;
-	float f_imax = (float) i_max;
-
 	/* We compute the real_output_selection */
 	eventline.selection_A2B_filter(post_filter_layer.get_selection(), real_output_selection);
 
 	/* We refresh the nu_selection */
 	nu_selection = ~layer_stack_output_layer.get_selection();
-	//layer_stack_output_layer->selection.A2B_inverse(nu_selection);
 	
 	nu_selection |= real_output_selection;
-//	nu_selection.AB2A_or(real_output_selection);
 
 	PVLinesProperties& out_lps = output_layer.get_lines_properties();
 	PVLinesProperties const& post_lps = post_filter_layer.get_lines_properties();
 	/* We are now able to process the lines_properties */
-	for ( i=0; i<i_max; i++) {
+	for (PVRow i = 0; i < row_count; i++) {
 		/* We check if the line is selected at the end of the process */
-		PVCore::PVColor& out_lp = out_lps.get_line_properties(i);
-		PVCore::PVColor const& post_lp = post_lps.get_line_properties(i);
+		PVCore::PVHSVColor& out_lp = out_lps.get_line_properties(i);
+		PVCore::PVHSVColor const& post_lp = post_lps.get_line_properties(i);
 		if (real_output_selection.get_line(i)) {
 			/* It is selected, so we copy it's line properties */
 			out_lps.get_line_properties(i) = post_lp;
 			/* ... and set it's z_level */
-			z_level_array.get_value(i) = layer_stack.get_lia().get_value(i) + (f_imax-(float)i)/f_imax;
+			//z_level_array.get_value(i) = layer_stack.get_lia().get_value(i) + (f_imax-(float)i)/f_imax;
 			//z_level_array.get_value(i) = layer_stack.get_lia().get_value(i) + ((float)i)/f_imax;
 		} else {
 			/* It is not selected in the end, so we check if it was available in the beginning */
 			if (layer_stack_output_layer.get_selection().get_line(i)) {
 				/* The line was available, but is unselected */
-				out_lp.r() = post_lp.r()/2;
+				/*out_lp.r() = post_lp.r()/2;
 			  	out_lp.g() = post_lp.g()/2;
-			  	out_lp.b() = post_lp.b()/2;
+			  	out_lp.b() = post_lp.b()/2;*/
+				out_lp = post_lp;
 				/* We set it's z_level */
-				z_level_array.get_value(i) = (f_imax-(float)i)/f_imax - 1.0f;
+				//z_level_array.get_value(i) = (f_imax-(float)i)/f_imax - 1.0f;
 				//z_level_array.get_value(i) = (float)i/f_imax - 1.0f;
 			} else {
 				/* The line is a zombie line */
 				out_lp = default_zombie_line_properties;
 				/* We set it's z_level */
-				z_level_array.get_value(i) = (f_imax-(float)i)/f_imax - 2.0f;
+				//z_level_array.get_value(i) = (f_imax-(float)i)/f_imax - 2.0f;
 				//z_level_array.get_value(i) = (float)i/f_imax - 2.0f;
 			}
 		}
@@ -1152,15 +1145,12 @@ void Picviz::PVView::set_axis_name(PVCol index, const QString &name_)
  * Picviz::PVView::set_color_on_active_layer
  *
  *****************************************************************************/
-void Picviz::PVView::set_color_on_active_layer(unsigned char r, unsigned char g, unsigned char b, unsigned char a)
+void Picviz::PVView::set_color_on_active_layer(const PVCore::PVHSVColor c)
 {
 	/* VARIABLES */
-// TOCHECK:	PVLayer &active_layer = layer_stack.layer_get_by_index(0);
 	PVLayer &active_layer = layer_stack.get_layer_n(0);
 
-	// picviz_lines_properties_selection_set_rgba(active_layer->lines_properties, floating_selection, row_count, r, g, b, a);
-	active_layer.get_lines_properties().selection_set_rgba(floating_selection, row_count, r, g, b, a);
-// TOCHECK:	active_layer->lines_properties->selection_set_rgba(floating_selection, row_count, r, g, b, a);
+	active_layer.get_lines_properties().selection_set_color(floating_selection, row_count, c);
 }
 
 /******************************************************************************
@@ -1168,9 +1158,9 @@ void Picviz::PVView::set_color_on_active_layer(unsigned char r, unsigned char g,
  * Picviz::PVView::set_color_on_post_filter_layer
  *
  *****************************************************************************/
-void Picviz::PVView::set_color_on_post_filter_layer(unsigned char r, unsigned char g, unsigned char b, unsigned char a)
+void Picviz::PVView::set_color_on_post_filter_layer(const PVCore::PVHSVColor c)
 {
-	post_filter_layer.get_lines_properties().selection_set_rgba(post_filter_layer.get_selection(), row_count, r, g, b, a);
+	post_filter_layer.get_lines_properties().selection_set_color(post_filter_layer.get_selection(), row_count, c);
 }
 
 /******************************************************************************

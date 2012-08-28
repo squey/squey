@@ -15,7 +15,7 @@
 
 #include <pvkernel/core/general.h>
 
-#include <pvkernel/core/PVColor.h>
+#include <pvkernel/core/PVHSVColor.h>
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/core/PVSerializeArchiveOptions_types.h>
@@ -82,7 +82,7 @@ public:
 	 */
 	PVAxesCombination axes_combination;
 
-	PVCore::PVColor default_zombie_line_properties;
+	PVCore::PVHSVColor default_zombie_line_properties;
 	PVSelection floating_selection;
 	PVLayer pre_filter_layer;
 	PVLayer post_filter_layer;
@@ -140,7 +140,7 @@ public:
 
 	void emit_user_modified_sel(QList<Picviz::PVView*>* changed_views = NULL);
 
-	PVCore::PVColor const& get_color_in_output_layer(PVRow index) const;
+	const PVCore::PVHSVColor get_color_in_output_layer(PVRow index) const;
 	PVCol get_column_count() const;
 	float get_column_count_as_float();
 	PVSelection &get_floating_selection();
@@ -210,8 +210,8 @@ public:
 	void set_active_axis_closest_to_position(float x);
 	void set_axis_name(PVCol index, const QString &name_);
 	
-	void set_color_on_active_layer(unsigned char r, unsigned char g, unsigned char b, unsigned char a);
-	void set_color_on_post_filter_layer(unsigned char r, unsigned char g, unsigned char b, unsigned char a);
+	void set_color_on_active_layer(const PVCore::PVHSVColor c);
+	void set_color_on_post_filter_layer(const PVCore::PVHSVColor c);
 
 	int set_layer_stack_layer_n_name(int n, char *new_name);
 
@@ -313,7 +313,7 @@ public:
 
 	// L must be a vector of integers
 	template <class L>
-	void sort_indexes(PVCol column, Qt::SortOrder order, L& idxes)
+	void sort_indexes(PVCol column, Qt::SortOrder order, L& idxes) const
 	{
 		PVSortingFunc_p sp = get_sort_plugin_for_col(column);
 		__impl::stable_sort_indexes_f(&get_rushnraw_parent(), column, sp->f(), order, idxes);
@@ -321,14 +321,14 @@ public:
 
 	// L must be a vector of integers
 	template <class L>
-	void unique_indexes_copy(PVCol column, L const& idxes_in, L& idxes_out)
+	void unique_indexes_copy(PVCol column, L const& idxes_in, L& idxes_out) const
 	{
 		PVSortingFunc_p sp = get_sort_plugin_for_col(column);
 		__impl::unique_indexes_copy_f<L>(&get_rushnraw_parent(), column, sp->f_equals(), idxes_in, idxes_out);
 	}
 
 	template <class L>
-	size_t sort_unique_indexes(PVCol column, L& idxes)
+	size_t sort_unique_indexes(PVCol column, L& idxes) const
 	{
 		PVSortingFunc_p sp = get_sort_plugin_for_col(column);
 		__impl::sort_indexes_f(&get_rushnraw_parent(), column, sp->f_less(), Qt::AscendingOrder, idxes);
@@ -338,17 +338,17 @@ public:
 
 	// Helper functions for sorting
 	template <class L>
-	inline void sort_indexes_with_axes_combination(PVCol column, Qt::SortOrder order, L& idxes)
+	inline void sort_indexes_with_axes_combination(PVCol column, Qt::SortOrder order, L& idxes) const
 	{
 		sort_indexes<L>(axes_combination.get_axis_column_index(column), order, idxes);
 	}
 	template <class L>
-	inline void unique_indexes_copy_with_axes_combination(PVCol column, L const& idxes_in, L& idxes_out)
+	inline void unique_indexes_copy_with_axes_combination(PVCol column, L const& idxes_in, L& idxes_out) const
 	{
 		unique_indexes_copy<L>(axes_combination.get_axis_column_index(column), idxes_in, idxes_out);
 	}
 	template <class L>
-	inline size_t sort_unique_indexes_with_axes_combination(PVCol column, L& idxes)
+	inline size_t sort_unique_indexes_with_axes_combination(PVCol column, L& idxes) const
 	{
 		return sort_unique_indexes<L>(axes_combination.get_axis_column_index(column), idxes);
 	}

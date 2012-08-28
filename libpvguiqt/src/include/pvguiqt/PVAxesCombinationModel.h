@@ -111,7 +111,7 @@ private slots:
 	void refresh_slot(PVHive::PVObserverBase*);
 	
 private:
-	inline Picviz::PVView const& picviz_view() const { return *_actor.get_const_object(); }
+	inline Picviz::PVView const& picviz_view() const { return *_view_observer.get_object(); }
 
 private:
 	PVHive::PVActor<Picviz::PVView> _actor;

@@ -9,8 +9,8 @@
 #include <pvkernel/core/PVParallels.h>
 #include <pvkernel/core/PVProgressBox.h>
 
-#include <PVSortFilterProxyModel.h>
-#include <PVSortFilterProxyModel_impl.h>
+#include <pvguiqt/PVSortFilterProxyModel.h>
+#include <pvguiqt/PVSortFilterProxyModel_impl.h>
 
 #include <algorithm>
 #include <assert.h>
@@ -19,7 +19,7 @@
 
 #include <boost/bind.hpp>
 
-PVInspector::PVSortFilterProxyModel::PVSortFilterProxyModel(QObject* parent):
+PVGuiQt::PVSortFilterProxyModel::PVSortFilterProxyModel(QObject* parent):
 	QAbstractProxyModel(parent)
 {
 	_sort_idx = -1;
@@ -27,7 +27,7 @@ PVInspector::PVSortFilterProxyModel::PVSortFilterProxyModel(QObject* parent):
 	_sort_time = -1.0;
 }
 
-void PVInspector::PVSortFilterProxyModel::init_default_sort()
+void PVGuiQt::PVSortFilterProxyModel::init_default_sort()
 {
 	int row_count = sourceModel()->rowCount();
 	_vec_sort_m2s.clear();
@@ -38,13 +38,13 @@ void PVInspector::PVSortFilterProxyModel::init_default_sort()
 	_sort_idx = -1;
 }
 
-void PVInspector::PVSortFilterProxyModel::reset_to_default_ordering()
+void PVGuiQt::PVSortFilterProxyModel::reset_to_default_ordering()
 {
 	init_default_sort();
 	do_filter();
 }
 
-void PVInspector::PVSortFilterProxyModel::reset_to_default_ordering_or_reverse()
+void PVGuiQt::PVSortFilterProxyModel::reset_to_default_ordering_or_reverse()
 {
 	if (_sort_idx == -1) {
 		// Special case where a std::reverse is really wanted !
@@ -59,7 +59,7 @@ void PVInspector::PVSortFilterProxyModel::reset_to_default_ordering_or_reverse()
 	}
 }
 
-bool PVInspector::PVSortFilterProxyModel::__reverse_sort_order()
+bool PVGuiQt::PVSortFilterProxyModel::__reverse_sort_order()
 {
 	// We have to be invariant about this varaible, which may be modified by __do_sort.
 	int sort_idx = _sort_idx;
@@ -81,14 +81,14 @@ bool PVInspector::PVSortFilterProxyModel::__reverse_sort_order()
 	return true;
 }
 
-void PVInspector::PVSortFilterProxyModel::reverse_sort_order()
+void PVGuiQt::PVSortFilterProxyModel::reverse_sort_order()
 {
 	// In-place reverse of our first cache
 	bool changed = false;
 	QWidget* parent_ = dynamic_cast<QWidget*>(QObject::parent());
 	PVCore::PVProgressBox* box = new PVCore::PVProgressBox(tr("Reverse sorting order..."), parent_);
 	box->set_enable_cancel(false);
-	PVCore::PVProgressBox::progress(boost::bind(&PVInspector::PVSortFilterProxyModel::__reverse_sort_order, this), box, changed);
+	PVCore::PVProgressBox::progress(boost::bind(&PVGuiQt::PVSortFilterProxyModel::__reverse_sort_order, this), box, changed);
 	if (changed) {
 		// If the sorting order has changed, reprocess the filter
 		do_filter();
@@ -96,7 +96,7 @@ void PVInspector::PVSortFilterProxyModel::reverse_sort_order()
 	_cur_order = (Qt::SortOrder) !_cur_order;
 }
 
-void PVInspector::PVSortFilterProxyModel::do_filter()
+void PVGuiQt::PVSortFilterProxyModel::do_filter()
 {
 	vec_indexes_t tmp;
 	filter_source_indexes(_vec_sort_m2s, tmp);
@@ -112,7 +112,7 @@ void PVInspector::PVSortFilterProxyModel::do_filter()
 	}
 }
 
-void PVInspector::PVSortFilterProxyModel::sort_indexes(int column, Qt::SortOrder order, vec_indexes_t& vec_idxes)
+void PVGuiQt::PVSortFilterProxyModel::sort_indexes(int column, Qt::SortOrder order, vec_indexes_t& vec_idxes)
 {
 	if (order == Qt::AscendingOrder) {
 		__impl::PVSortProxyAsc s(this, column);
@@ -124,7 +124,7 @@ void PVInspector::PVSortFilterProxyModel::sort_indexes(int column, Qt::SortOrder
 	}
 }
 
-void PVInspector::PVSortFilterProxyModel::__do_sort(int column, Qt::SortOrder order)
+void PVGuiQt::PVSortFilterProxyModel::__do_sort(int column, Qt::SortOrder order)
 {
 	tbb::tick_count start = tbb::tick_count::now();
 	init_default_sort();
@@ -134,18 +134,18 @@ void PVInspector::PVSortFilterProxyModel::__do_sort(int column, Qt::SortOrder or
 	_sort_time =(end-start).seconds();
 }
 
-void PVInspector::PVSortFilterProxyModel::do_sort(int column, Qt::SortOrder order)
+void PVGuiQt::PVSortFilterProxyModel::do_sort(int column, Qt::SortOrder order)
 {
 	assert(column >= 0 && column < sourceModel()->columnCount());
 	QWidget* parent_ = dynamic_cast<QWidget*>(QObject::parent());
 	PVCore::PVProgressBox* box = new PVCore::PVProgressBox(tr("Sorting..."), parent_);
 	box->set_enable_cancel(false);
-	PVCore::PVProgressBox::progress(boost::bind(&PVInspector::PVSortFilterProxyModel::__do_sort, this, column, order), box);
+	PVCore::PVProgressBox::progress(boost::bind(&PVGuiQt::PVSortFilterProxyModel::__do_sort, this, column, order), box);
 	_sort_idx = column;
 	_cur_order = order;
 }
 
-void PVInspector::PVSortFilterProxyModel::sort(int column, Qt::SortOrder order)
+void PVGuiQt::PVSortFilterProxyModel::sort(int column, Qt::SortOrder order)
 {
 	if (column == -1) {
 		init_default_sort();
@@ -164,7 +164,7 @@ void PVInspector::PVSortFilterProxyModel::sort(int column, Qt::SortOrder order)
 	do_filter();
 }
 
-void PVInspector::PVSortFilterProxyModel::reprocess_source()
+void PVGuiQt::PVSortFilterProxyModel::reprocess_source()
 {
 	if (_dyn_sort && _sort_idx >= 0 && _sort_idx < sourceModel()->columnCount()) {
 		if (sourceModel()->rowCount() != _vec_sort_m2s.size()) {
@@ -182,7 +182,7 @@ void PVInspector::PVSortFilterProxyModel::reprocess_source()
 	do_filter();
 }
 
-void PVInspector::PVSortFilterProxyModel::invalidate_sort()
+void PVGuiQt::PVSortFilterProxyModel::invalidate_sort()
 {
 	// Force a sort if suitable
 	if (_sort_idx >= 0 && _sort_idx < sourceModel()->columnCount()) {
@@ -191,13 +191,13 @@ void PVInspector::PVSortFilterProxyModel::invalidate_sort()
 	}
 }
 
-void PVInspector::PVSortFilterProxyModel::invalidate_filter()
+void PVGuiQt::PVSortFilterProxyModel::invalidate_filter()
 {
 	// Force a computation of the filter
 	do_filter();
 }
 
-void PVInspector::PVSortFilterProxyModel::invalidate_all()
+void PVGuiQt::PVSortFilterProxyModel::invalidate_all()
 {
 	// Force a sort if suitable
 	if (sourceModel() != NULL && sourceModel()->rowCount() != _vec_sort_m2s.size()) {
@@ -213,7 +213,7 @@ void PVInspector::PVSortFilterProxyModel::invalidate_all()
 	do_filter();
 }
 
-QModelIndex PVInspector::PVSortFilterProxyModel::mapFromSource(QModelIndex const& src_idx) const
+QModelIndex PVGuiQt::PVSortFilterProxyModel::mapFromSource(QModelIndex const& src_idx) const
 {
 	// source to proxy
 	if (!src_idx.isValid()) {
@@ -233,7 +233,7 @@ QModelIndex PVInspector::PVSortFilterProxyModel::mapFromSource(QModelIndex const
 	return QModelIndex();
 }
 
-QModelIndex PVInspector::PVSortFilterProxyModel::mapToSource(QModelIndex const& src_idx) const
+QModelIndex PVGuiQt::PVSortFilterProxyModel::mapToSource(QModelIndex const& src_idx) const
 {
 	// proxy to source
 	if (!src_idx.isValid()) {
@@ -254,7 +254,7 @@ QModelIndex PVInspector::PVSortFilterProxyModel::mapToSource(QModelIndex const& 
 	return sourceModel()->index(_vec_filtered_m2s.at(src_idx.row()), src_idx.column(), QModelIndex());
 }
 
-void PVInspector::PVSortFilterProxyModel::filter_source_indexes(vec_indexes_t const& src_idxes_in, vec_indexes_t& src_idxes_out)
+void PVGuiQt::PVSortFilterProxyModel::filter_source_indexes(vec_indexes_t const& src_idxes_in, vec_indexes_t& src_idxes_out)
 {
 	vec_indexes_t::const_iterator it;
 	src_idxes_out.clear();
@@ -267,7 +267,7 @@ void PVInspector::PVSortFilterProxyModel::filter_source_indexes(vec_indexes_t co
 	}
 }
 
-void PVInspector::PVSortFilterProxyModel::setSourceModel(QAbstractItemModel* model)
+void PVGuiQt::PVSortFilterProxyModel::setSourceModel(QAbstractItemModel* model)
 {
 	beginResetModel();
 
@@ -291,7 +291,7 @@ void PVInspector::PVSortFilterProxyModel::setSourceModel(QAbstractItemModel* mod
 	endResetModel();
 }
 
-int PVInspector::PVSortFilterProxyModel::rowCount(const QModelIndex& parent) const
+int PVGuiQt::PVSortFilterProxyModel::rowCount(const QModelIndex& parent) const
 {
 	if (parent.isValid()) {
 		return 0;
@@ -300,12 +300,12 @@ int PVInspector::PVSortFilterProxyModel::rowCount(const QModelIndex& parent) con
 	return _vec_filtered_m2s.size();
 }
 
-int PVInspector::PVSortFilterProxyModel::columnCount(const QModelIndex& parent) const
+int PVGuiQt::PVSortFilterProxyModel::columnCount(const QModelIndex& parent) const
 {
 	return sourceModel()->columnCount(parent);
 }
 
-QModelIndex PVInspector::PVSortFilterProxyModel::index(int row, int col, const QModelIndex& parent) const
+QModelIndex PVGuiQt::PVSortFilterProxyModel::index(int row, int col, const QModelIndex& parent) const
 {
 	if (parent.isValid()) {
 		return QModelIndex();
@@ -314,28 +314,28 @@ QModelIndex PVInspector::PVSortFilterProxyModel::index(int row, int col, const Q
 	return createIndex(row, col);
 }
 
-QModelIndex PVInspector::PVSortFilterProxyModel::parent(const QModelIndex& /*idx*/) const
+QModelIndex PVGuiQt::PVSortFilterProxyModel::parent(const QModelIndex& /*idx*/) const
 {
 	return QModelIndex();
 }
 
-void PVInspector::PVSortFilterProxyModel::src_layout_about_changed()
+void PVGuiQt::PVSortFilterProxyModel::src_layout_about_changed()
 {
 	emit layoutAboutToBeChanged();
 }
 
-void PVInspector::PVSortFilterProxyModel::src_layout_changed()
+void PVGuiQt::PVSortFilterProxyModel::src_layout_changed()
 {
 	reprocess_source();
 	emit layoutChanged();
 }
 
-void PVInspector::PVSortFilterProxyModel::src_model_about_reset()
+void PVGuiQt::PVSortFilterProxyModel::src_model_about_reset()
 {
 	beginResetModel();
 }
 
-void PVInspector::PVSortFilterProxyModel::src_model_reset()
+void PVGuiQt::PVSortFilterProxyModel::src_model_reset()
 {
 	reprocess_source();
 	endResetModel();
