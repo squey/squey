@@ -24,7 +24,8 @@
  *
  * TODO: add selection stuff
  *
- * TODO: 
+ * TODO: do we limit the view size or not? If not, it remove the limitation on
+ *       images width
  */
 
 /*****************************************************************************
@@ -36,7 +37,8 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(QWidget *parent,
                                                              PVCol axis) :
 	QGraphicsScene(parent),
 	_zones_drawing(zones_drawing), _axis(axis),
-	_old_sb_pos(-1)
+	_old_sb_pos(-1),
+	_skip_update_zoom(true)
 {
 	setBackgroundBrush(Qt::black);
 
@@ -53,8 +55,6 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(QWidget *parent,
 
 	setSceneRect(-512, 0, 1024, 1024);
 
-	update_zoom();
-
 	connect(view()->verticalScrollBar(), SIGNAL(valueChanged(int)),
 	        this, SLOT(scrollbar_changed_Slot(int)));
 
@@ -69,6 +69,13 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(QWidget *parent,
 	if (axis < zones_drawing.get_zones_manager().get_number_zones()) {
 		_right_zone.image = zones_drawing.create_image(image_width);
 	}
+
+	_scroll_timer.setInterval(50);
+	_scroll_timer.setSingleShot(true);
+	connect(&_scroll_timer, SIGNAL(timeout()),
+	        this, SLOT(scrollbar_timeout_Slot()));
+
+	update_zoom();
 }
 
 /*****************************************************************************
@@ -132,7 +139,7 @@ void PVParallelView::PVZoomedParallelScene::wheelEvent(QGraphicsSceneWheelEvent*
 			}
 		}
 	} else if (event->modifiers() == Qt::NoModifier) {
-		// default panning
+		// panning
 		QScrollBar *sb = view()->verticalScrollBar();
 		if (event->delta() > 0) {
 			sb->triggerAction(QAbstractSlider::SliderSingleStepSub);
@@ -160,9 +167,15 @@ void PVParallelView::PVZoomedParallelScene::drawBackground(QPainter *painter,
 	QTransform t = painter->transform();
 	painter->resetTransform();
 
-	// draw the full image
-	if (_back_image.isNull() == false) {
-		painter->drawImage(QPoint(0,0), _back_image);
+	// draw the zones
+	if (_left_zone.image.get() != nullptr) {
+		painter->fillRect(_left_zone.area, Qt::black);
+		painter->drawImage(_left_zone.pos, _left_zone.back_image);
+	}
+
+	if (_right_zone.image.get() != nullptr) {
+		painter->fillRect(_right_zone.area, Qt::black);
+		painter->drawImage(_right_zone.pos, _right_zone.back_image);
 	}
 
 	// the pen has to be saved too
@@ -185,8 +198,8 @@ void PVParallelView::PVZoomedParallelScene::drawBackground(QPainter *painter,
 
 void PVParallelView::PVZoomedParallelScene::update_display()
 {
-	if (_back_image.isNull()) {
-		// unneeded to render when the view has no size
+	if (_skip_update_zoom) {
+		_skip_update_zoom = false;
 		return;
 	}
 
@@ -271,7 +284,7 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 				_right_zone.pos = QPoint(value, gap_y);
 			}
 
-			// the zone id is useless
+			// the zone id is unused
 			_rendering_job->zone_finished(0);
 		});
 }
@@ -285,18 +298,42 @@ void PVParallelView::PVZoomedParallelScene::resize_display(const QSize &s)
 	QImage image = QImage(s, QImage::Format_ARGB32);
 	image.fill(Qt::black);
 
-	if (_back_image.isNull() == false) {
-		QPainter painter(&image);
+	if (_left_zone.image.get() != nullptr) {
+		QImage &back_image = _left_zone.back_image;
+		QImage image = QImage(image_width, s.height(), QImage::Format_ARGB32);
+		image.fill(Qt::black);
 
-		int old_half_width = _back_image.width() / 2;
-		int new_half_width = s.width() / 2;
+		if (_left_zone.back_image.isNull() == false) {
+			QPainter painter(&image);
 
-		// RH: is it better to center vertically the old image?
-		painter.drawImage(QPoint(new_half_width - old_half_width, 0),
-		                  _back_image);
+			int old_half_width = back_image.width();
+			int new_half_width = s.width() / 2;
+
+			painter.drawImage(QPoint(new_half_width - old_half_width, 0),
+			                  back_image);
+		}
+
+		back_image = image;
 	}
 
-	_back_image = image;
+	if (_right_zone.image.get() != nullptr) {
+		QImage &back_image = _right_zone.back_image;
+		QImage image = QImage(image_width, s.height(), QImage::Format_ARGB32);
+		image.fill(Qt::black);
+
+		if (_right_zone.back_image.isNull() == false) {
+			QPainter painter(&image);
+
+			int old_half_width = back_image.width();
+			int new_half_width = s.width() / 2;
+
+			painter.drawImage(QPoint(new_half_width - old_half_width, 0),
+			                  back_image);
+		}
+
+		back_image = image;
+	}
+
 	update_display();
 }
 
@@ -306,32 +343,59 @@ void PVParallelView::PVZoomedParallelScene::resize_display(const QSize &s)
 
 void PVParallelView::PVZoomedParallelScene::update_zoom(bool in)
 {
-	if (_back_image.isNull() == false) {
-		QImage image = QImage(_back_image.width(), _back_image.height(),
-		                      QImage::Format_ARGB32);
-		image.fill(Qt::black);
-		QPainter painter(&image);
-		painter.setRenderHint(QPainter::SmoothPixmapTransform);
-
+	if (_skip_update_zoom == false) {
 		double image_scale = 1. - 1. / zoom_steps;
 		if (in) {
 			image_scale = 1. / image_scale;
 		}
 
-		QPoint view_center = view()->viewport()->rect().center();
+		qreal dy = view()->viewport()->rect().center().y();
 
-		painter.translate(view_center);
-		painter.scale(image_scale, image_scale);
-		painter.translate(-view_center);
-		painter.drawImage(QPoint(0, 0), _back_image);
+		if (_left_zone.image.get() != nullptr) {
+			QImage &back_image = _left_zone.back_image;
 
-		_back_image = image;
+			QImage image = QImage(back_image.width(), back_image.height(),
+			                      QImage::Format_ARGB32);
+			image.fill(Qt::black);
+
+			QPainter painter(&image);
+			painter.setRenderHint(QPainter::SmoothPixmapTransform);
+
+			QPoint v(image_width, dy);
+
+			painter.translate(v);
+			painter.scale(image_scale, image_scale);
+			painter.translate(-v);
+			painter.drawImage(QPoint(0, 0), back_image);
+
+			back_image = image;
+		}
+
+		if (_right_zone.image.get() != nullptr) {
+			QImage &back_image = _right_zone.back_image;
+
+			QImage image = QImage(back_image.width(), back_image.height(),
+			                      QImage::Format_ARGB32);
+			image.fill(Qt::black);
+
+			QPainter painter(&image);
+			painter.setRenderHint(QPainter::SmoothPixmapTransform);
+
+			QPoint v(0, dy);
+
+			painter.translate(v);
+			painter.scale(image_scale, image_scale);
+			painter.translate(-v);
+			painter.drawImage(QPoint(0, 0), back_image);
+
+			back_image = image;
+		}
 	}
 
 	/* make the next ::scrollbar_changed_Slot() call have no
-	 * effect on _back_image. Changing the view's transformation
-	 * matrix affect the scrollbar which will emit a valueChanged
-	 * event; it will also cause a unwanted clipping effect while
+	 * effect on all back_images. Changing the view's transformation
+	 * matrix updates the scrollbar which will emit a valueChanged
+	 * event; it will also cause a unwanted cout-out effect while
 	 * zooming in.
 	 */
 	_old_sb_pos = -1;
@@ -354,19 +418,56 @@ void PVParallelView::PVZoomedParallelScene::update_zoom(bool in)
 void PVParallelView::PVZoomedParallelScene::scrollbar_changed_Slot(int value)
 {
 	if (_old_sb_pos >= 0) {
-		QImage image = QImage(_back_image.width(), _back_image.height(),
-		                      QImage::Format_ARGB32);
-		image.fill(Qt::black);
-		QPainter painter(&image);
+		if (_left_zone.image.get() != nullptr) {
+			QImage &back_image = _left_zone.back_image;
 
-		painter.drawImage(QPoint(0, _old_sb_pos - value),
-		                  _back_image);
+			QImage image = QImage(back_image.width(), back_image.height(),
+			                      QImage::Format_ARGB32);
+			image.fill(Qt::black);
 
-		_back_image = image;
-		update_display();
+			QPainter painter(&image);
+			painter.drawImage(QPoint(0, _old_sb_pos - value),
+			                  back_image);
+
+			back_image = image;
+		}
+
+		if (_right_zone.image.get() != nullptr) {
+			QImage &back_image = _right_zone.back_image;
+
+			QImage image = QImage(back_image.width(), back_image.height(),
+			                      QImage::Format_ARGB32);
+			image.fill(Qt::black);
+
+			QPainter painter(&image);
+			painter.drawImage(QPoint(0, _old_sb_pos - value),
+			                  back_image);
+
+			back_image = image;
+		}
+
+		/* the full update is deferred only when the scrollbar is
+		 * actived by the user; otherwise the update is done immediatly
+		 * to avoid the impression that the refresh is slow.
+		 */
+		if (view()->verticalScrollBar()->isSliderDown()) {
+			_scroll_timer.stop();
+			_scroll_timer.start();
+		} else {
+			update_display();
+		}
 	}
 
 	_old_sb_pos = value;
+}
+
+/*****************************************************************************
+ * PVParallelView::PVZoomedParallelScene::scrollbar_timeout_Slot
+ *****************************************************************************/
+
+void PVParallelView::PVZoomedParallelScene::scrollbar_timeout_Slot()
+{
+	update_display();
 }
 
 /*****************************************************************************
@@ -375,16 +476,18 @@ void PVParallelView::PVZoomedParallelScene::scrollbar_changed_Slot(int value)
 
 void PVParallelView::PVZoomedParallelScene::zone_rendered_Slot(int /*z*/)
 {
-	QPainter painter(&_back_image);
-
 	if (_left_zone.image.get() != nullptr) {
-		painter.fillRect(_left_zone.area, Qt::black);
-		painter.drawImage(_left_zone.pos, _left_zone.image->qimage());
+		QImage &image = _left_zone.back_image;
+		image.fill(Qt::black);
+		QPainter painter(&image);
+		painter.drawImage(0, 0, _left_zone.image->qimage());
 	}
 
 	if (_right_zone.image.get() != nullptr) {
-		painter.fillRect(_right_zone.area, Qt::black);
-		painter.drawImage(_right_zone.pos, _right_zone.image->qimage());
+		QImage &image = _right_zone.back_image;
+		image.fill(Qt::black);
+		QPainter painter(&image);
+		painter.drawImage(0, 0, _right_zone.image->qimage());
 	}
 
 	update();

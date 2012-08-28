@@ -31,7 +31,7 @@ class PVSelectionSquareGraphicsItem : public QObject, public QGraphicsRectItem
 	Q_OBJECT;
 
 public:
-	PVSelectionSquareGraphicsItem(PVFullParallelScene* s);
+	PVSelectionSquareGraphicsItem(QGraphicsScene* s);
 
 	void clear_rect()
 	{
