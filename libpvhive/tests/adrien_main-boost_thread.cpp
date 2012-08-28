@@ -27,7 +27,7 @@ IMPL_WAX(MyObject::set_prop, o, args)
 {
 	std::cout << "  PVHive::call_object for MyObject::set_prop &&" << std::endl;
 	std::cout << "    in thread " << boost::this_thread::get_id() << std::endl;
-	std::cout << "ObjectProperty address: " << &args.get_arg<0>() << std::endl;
+	std::cout << "ObjectProperty address: " << &std::get<0>(args) << std::endl;
 	call_object_default<MyObject, decltype(&MyObject::set_prop), &MyObject::set_prop>(o, args);
 	refresh_observers(&o->get_prop());
 }
