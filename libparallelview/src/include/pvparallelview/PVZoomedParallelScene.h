@@ -94,6 +94,7 @@ private:
 		QRect             area;
 		QPoint            pos;
 		backend_image_p_t image;
+		backend_image_p_t sel_image;
 		QImage            back_image;
 	};
 

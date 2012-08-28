@@ -68,10 +68,12 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(QWidget *parent,
 
 	if (axis > 0) {
 		_left_zone.image = zones_drawing.create_image(image_width);
+		_left_zone.sel_image = zones_drawing.create_image(image_width);
 	}
 
 	if (axis < zones_drawing.get_zones_manager().get_number_zones()) {
 		_right_zone.image = zones_drawing.create_image(image_width);
+		_right_zone.sel_image = zones_drawing.create_image(image_width);
 	}
 
 	_scroll_timer.setInterval(50);
@@ -272,6 +274,20 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 					return;
 				}
 
+#if 0
+				BENCH_START(sel_render);
+				_zones_drawing.draw_zoomed_zone(*(_left_zone.sel_image), y_min, y_max, y_lim,
+				                                _selection,
+				                                _zoom_level, _axis - 1,
+				                                &PVZoomedZoneTree::browse_tree_bci_sel_by_y2,
+				                                alpha, beta, true);
+				BENCH_END(sel_render, "render selection of left tile", 1, 1, 1, 1);
+
+				if (_rendering_job->should_cancel()) {
+					return;
+				}
+#endif
+
 				int gap_x = PARALLELVIEW_AXIS_WIDTH / 2;
 
 				_left_zone.area = QRect(0, 0,
@@ -295,6 +311,20 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 				if (_rendering_job->should_cancel()) {
 					return;
 				}
+
+#if 0
+				BENCH_START(sel_render);
+				_zones_drawing.draw_zoomed_zone(*(_right_zone.sel_image), y_min, y_max, y_lim,
+				                                _selection,
+				                                _zoom_level, _axis - 1,
+				                                &PVZoomedZoneTree::browse_tree_bci_sel_by_y1,
+				                                alpha, beta, true);
+				BENCH_END(sel_render, "render selection of right tile", 1, 1, 1, 1);
+
+				if (_rendering_job->should_cancel()) {
+					return;
+				}
+#endif
 
 				int value = 1 + screen_center + PARALLELVIEW_AXIS_WIDTH / 2;
 
@@ -507,14 +537,20 @@ void PVParallelView::PVZoomedParallelScene::zone_rendered_Slot(int /*z*/)
 		QImage &image = _left_zone.back_image;
 		image.fill(Qt::black);
 		QPainter painter(&image);
+		painter.setOpacity(0.25);
 		painter.drawImage(0, 0, _left_zone.image->qimage());
+		painter.setOpacity(1.0);
+		painter.drawImage(0, 0, _left_zone.sel_image->qimage());
 	}
 
 	if (_right_zone.image.get() != nullptr) {
 		QImage &image = _right_zone.back_image;
 		image.fill(Qt::black);
 		QPainter painter(&image);
+		painter.setOpacity(0.25);
 		painter.drawImage(0, 0, _right_zone.image->qimage());
+		painter.setOpacity(1.0);
+		painter.drawImage(0, 0, _right_zone.sel_image->qimage());
 	}
 
 	update();
