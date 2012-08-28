@@ -408,6 +408,14 @@ void PVParallelView::PVZoomedParallelScene::update_zoom(bool in)
 
 	view()->setMatrix(mat);
 
+	/* make sure the scene is always horizontally centered. And because
+	 * of the selection rectangle, the scene's bounding box can change;
+	 * so that its center could not be 0...
+	 */
+	QScrollBar *sb = view()->horizontalScrollBar();
+	int64_t mid = ((int64_t)sb->maximum() + sb->minimum()) / 2;
+	sb->setValue(mid);
+
 	update_display();
 }
 
