@@ -42,7 +42,7 @@ public:
 	typedef typename zones_drawing_t::backend_image_p_t backend_image_p_t;
 
 public:
-	PVZoomedParallelScene(PVParallelView::PVZoomedParallelView *view,
+	PVZoomedParallelScene(PVParallelView::PVZoomedParallelView *zpview,
 	                      zones_drawing_t &zones_drawing,
 	                      PVCol axis);
 
@@ -93,7 +93,7 @@ private:
 		QImage            back_image;
 	};
 
-	PVZoomedParallelView         *_view;
+	PVZoomedParallelView         *_zpview;
 	zones_drawing_t              &_zones_drawing;
 	PVCol                         _axis;
 	int                           _wheel_value;

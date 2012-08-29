@@ -32,25 +32,25 @@
  * PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene
  *****************************************************************************/
 
-PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZoomedParallelView *view,
+PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZoomedParallelView *zpview,
                                                              zones_drawing_t &zones_drawing,
                                                              PVCol axis) :
-	QGraphicsScene(view),
-	_view(view),
+	QGraphicsScene(zpview),
+	_zpview(zpview),
 	_zones_drawing(zones_drawing), _axis(axis),
 	_old_sb_pos(-1),
 	_skip_update_zoom(true)
 {
 	setBackgroundBrush(Qt::black);
 
-	_view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-	_view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-	_view->setResizeAnchor(QGraphicsView::AnchorViewCenter);
-	_view->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
-	_view->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
+	_zpview->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	_zpview->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+	_zpview->setResizeAnchor(QGraphicsView::AnchorViewCenter);
+	_zpview->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+	_zpview->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
 
-	//_view->setMaximumWidth(1024);
-	//_view->setMaximumHeight(1024);
+	//_zpview->setMaximumWidth(1024);
+	//_zpview->setMaximumHeight(1024);
 
 	_selection_rect = new PVParallelView::PVSelectionSquareGraphicsItem(this);
 	connect(_selection_rect, SIGNAL(commit_volatile_selection()),
@@ -60,7 +60,7 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 
 	setSceneRect(-512, 0, 1024, 1024);
 
-	connect(_view->verticalScrollBar(), SIGNAL(valueChanged(int)),
+	connect(_zpview->verticalScrollBar(), SIGNAL(valueChanged(int)),
 	        this, SLOT(scrollbar_changed_Slot(int)));
 
 	_rendering_job = new PVRenderingJob(this);
@@ -149,7 +149,7 @@ void PVParallelView::PVZoomedParallelScene::wheelEvent(QGraphicsSceneWheelEvent*
 		}
 	} else if (event->modifiers() == Qt::ShiftModifier) {
 		// precise panning
-		QScrollBar *sb = _view->verticalScrollBar();
+		QScrollBar *sb = _zpview->verticalScrollBar();
 		if (event->delta() > 0) {
 			int v = sb->value();
 			if (v > sb->minimum()) {
@@ -163,7 +163,7 @@ void PVParallelView::PVZoomedParallelScene::wheelEvent(QGraphicsSceneWheelEvent*
 		}
 	} else if (event->modifiers() == Qt::NoModifier) {
 		// panning
-		QScrollBar *sb = _view->verticalScrollBar();
+		QScrollBar *sb = _zpview->verticalScrollBar();
 		if (event->delta() > 0) {
 			sb->triggerAction(QAbstractSlider::SliderSingleStepSub);
 		} else {
@@ -182,7 +182,7 @@ void PVParallelView::PVZoomedParallelScene::wheelEvent(QGraphicsSceneWheelEvent*
 void PVParallelView::PVZoomedParallelScene::drawBackground(QPainter *painter,
                                                            const QRectF &/*rect*/)
 {
-	QRect screen_rect = _view->viewport()->rect();
+	QRect screen_rect = _zpview->viewport()->rect();
 	int screen_center = screen_rect.center().x();
 
 	// save the painter's state to restore it later because the scene
@@ -229,10 +229,10 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 	double alpha = bbits_alpha_scale * pow(root_step, get_zoom_step());
 	double beta = 1. / get_scale_factor();
 
-	QRect screen_rect = _view->viewport()->rect();
+	QRect screen_rect = _zpview->viewport()->rect();
 	int screen_center = screen_rect.center().x();
 
-	QRectF screen_rect_s = _view->mapToScene(screen_rect).boundingRect();
+	QRectF screen_rect_s = _zpview->mapToScene(screen_rect).boundingRect();
 	QRectF view_rect = sceneRect().intersected(screen_rect_s);
 
 	double pixel_height = (1UL << (32 - NBITS_INDEX)) / get_scale_factor();
@@ -400,7 +400,7 @@ void PVParallelView::PVZoomedParallelScene::update_zoom(bool in)
 			image_scale = 1. / image_scale;
 		}
 
-		qreal dy = _view->viewport()->rect().center().y();
+		qreal dy = _zpview->viewport()->rect().center().y();
 
 		if (_left_zone.image.get() != nullptr) {
 			QImage &back_image = _left_zone.back_image;
@@ -456,13 +456,13 @@ void PVParallelView::PVZoomedParallelScene::update_zoom(bool in)
 
 	QMatrix mat;
 	mat.scale(s, s);
-	_view->setMatrix(mat);
+	_zpview->setMatrix(mat);
 
 	/* make sure the scene is always horizontally centered. And because
 	 * of the selection rectangle, the scene's bounding box can change;
 	 * so that its center could not be 0...
 	 */
-	QScrollBar *sb = _view->horizontalScrollBar();
+	QScrollBar *sb = _zpview->horizontalScrollBar();
 	int64_t mid = ((int64_t)sb->maximum() + sb->minimum()) / 2;
 	sb->setValue(mid);
 
@@ -508,7 +508,7 @@ void PVParallelView::PVZoomedParallelScene::scrollbar_changed_Slot(int value)
 		 * actived by the user; otherwise the update is done immediatly
 		 * to avoid the impression that the refresh is slow.
 		 */
-		if (_view->verticalScrollBar()->isSliderDown()) {
+		if (_zpview->verticalScrollBar()->isSliderDown()) {
 			_scroll_timer.stop();
 			_scroll_timer.start();
 		} else {
