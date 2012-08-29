@@ -29,17 +29,30 @@
  */
 
 /*****************************************************************************
+ * PVParallelView::PVZoomedParallelScene::selection_Observer::update
+ *****************************************************************************/
+
+void PVParallelView::PVZoomedParallelScene::selection_Observer::update(const arguments_deep_copy_type&) const
+{
+	PVLOG_INFO("PVParallelView::selection_Observer::update\n");
+	_parent->update_display();
+}
+
+/*****************************************************************************
  * PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene
  *****************************************************************************/
 
 PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZoomedParallelView *zpview,
+                                                             Picviz::FakePVView::shared_pointer pvview_p,
                                                              zones_drawing_t &zones_drawing,
                                                              PVCol axis) :
 	QGraphicsScene(zpview),
 	_zpview(zpview),
+	_pvview_p(pvview_p),
 	_zones_drawing(zones_drawing), _axis(axis),
 	_old_sb_pos(-1),
-	_skip_update_zoom(true)
+	_skip_update_zoom(true),
+	_selection(pvview_p->get_view_selection())
 {
 	setBackgroundBrush(Qt::black);
 
@@ -55,6 +68,10 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 	_selection_rect = new PVParallelView::PVSelectionSquareGraphicsItem(this);
 	connect(_selection_rect, SIGNAL(commit_volatile_selection()),
 	        this, SLOT(commit_volatile_selection_Slot()));
+
+	_selection_obs = new selection_Observer(this);
+	PVHive::PVHive::get().register_func_observer(_pvview_p,
+	                                             *_selection_obs);
 
 	_wheel_value = 0;
 
@@ -263,6 +280,8 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 				return;
 			}
 
+			BENCH_START(full_render);
+
 			if (_left_zone.image.get() != nullptr) {
 				BENCH_START(render);
 				_zones_drawing.draw_zoomed_zone(*(_left_zone.image), y_min, y_max, y_lim,
@@ -275,19 +294,17 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 					return;
 				}
 
-#if 0
 				BENCH_START(sel_render);
-				_zones_drawing.draw_zoomed_zone(*(_left_zone.sel_image), y_min, y_max, y_lim,
-				                                _selection,
-				                                _zoom_level, _axis - 1,
-				                                &PVZoomedZoneTree::browse_bci_sel_by_y2,
-				                                alpha, beta, true);
+				_zones_drawing.draw_zoomed_zone_sel(*(_left_zone.sel_image),
+				                                    y_min, y_max, y_lim, _selection,
+				                                    _zoom_level, _axis - 1,
+				                                    &PVZoomedZoneTree::browse_bci_sel_by_y2,
+				                                    alpha, beta, true);
 				BENCH_END(sel_render, "render selection of left tile", 1, 1, 1, 1);
 
 				if (_rendering_job->should_cancel()) {
 					return;
 				}
-#endif
 
 				int gap_x = PARALLELVIEW_AXIS_WIDTH / 2;
 
@@ -313,19 +330,17 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 					return;
 				}
 
-#if 0
 				BENCH_START(sel_render);
-				_zones_drawing.draw_zoomed_zone(*(_right_zone.sel_image), y_min, y_max, y_lim,
-				                                _selection,
-				                                _zoom_level, _axis - 1,
-				                                &PVZoomedZoneTree::browse_bci_sel_by_y1,
-				                                alpha, beta, true);
+				_zones_drawing.draw_zoomed_zone_sel(*(_right_zone.sel_image),
+				                                    y_min, y_max, y_lim, _selection,
+				                                    _zoom_level, _axis,
+				                                    &PVZoomedZoneTree::browse_bci_sel_by_y1,
+				                                    alpha, beta, false);
 				BENCH_END(sel_render, "render selection of right tile", 1, 1, 1, 1);
 
 				if (_rendering_job->should_cancel()) {
 					return;
 				}
-#endif
 
 				int value = 1 + screen_center + PARALLELVIEW_AXIS_WIDTH / 2;
 
@@ -334,6 +349,8 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 				                         screen_rect.height());
 				_right_zone.pos = QPoint(value, gap_y);
 			}
+
+			BENCH_END(full_render, "full render of view", 1, 1, 1, 1);
 
 			// the zone id is unused
 			_rendering_job->zone_finished(0);

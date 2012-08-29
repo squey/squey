@@ -112,12 +112,16 @@ int main(int argc, char** argv)
 	PVParallelView::PVBCIDrawingBackendCUDA<RENDERING_BITS> backend_cuda;
 	zones_drawing_t &zones_drawing = *(new zones_drawing_t(zm, backend_cuda, *colors));
 
-	PVParallelView::PVZoomedParallelView view;
-	view.setViewport(new QWidget());
-	view.setScene(new PVParallelView::PVZoomedParallelScene(&view, zones_drawing,
-	                                                        /*axis*/ 1));
-	view.resize(1024, 1024);
-	view.show();
+	Picviz::FakePVView_p pvview_p(new Picviz::FakePVView());
+
+	PVParallelView::PVZoomedParallelView zpview;
+	zpview.setViewport(new QWidget());
+	zpview.setScene(new PVParallelView::PVZoomedParallelScene(&zpview,
+	                                                          pvview_p,
+	                                                          zones_drawing,
+	                                                          /*axis*/ 1));
+	zpview.resize(1024, 1024);
+	zpview.show();
 
 	app.exec();
 

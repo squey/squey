@@ -13,6 +13,11 @@
 #include <pvparallelview/PVRenderingJob.h>
 #include <pvparallelview/PVSelectionSquareGraphicsItem.h>
 
+#include <picviz/FakePVView.h>
+
+#include <pvhive/PVCallHelper.h>
+#include <pvhive/PVFuncObserver.h>
+
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsSceneWheelEvent>
 
@@ -37,12 +42,27 @@ private:
 	constexpr static double root_step = pow(2.0, 1.0 / zoom_steps);
 	constexpr static int max_wheel_value = 21 * zoom_steps;
 
+	class selection_Observer :
+		public PVHive::PVFuncObserverSignal<typename Picviz::FakePVView,
+		                                    FUNC(Picviz::FakePVView::process_selection)>
+	{
+	public:
+		selection_Observer(PVZoomedParallelScene* parent) : _parent(parent) {}
+
+	protected:
+		virtual void update(arguments_deep_copy_type const& args) const;
+
+	private:
+		PVZoomedParallelScene* _parent;
+	};
+
 public:
 	typedef PVParallelView::PVZonesDrawing<bbits> zones_drawing_t;
 	typedef typename zones_drawing_t::backend_image_p_t backend_image_p_t;
 
 public:
 	PVZoomedParallelScene(PVParallelView::PVZoomedParallelView *zpview,
+	                      Picviz::FakePVView_p pvview_p,
 	                      zones_drawing_t &zones_drawing,
 	                      PVCol axis);
 
@@ -94,6 +114,7 @@ private:
 	};
 
 	PVZoomedParallelView         *_zpview;
+	Picviz::FakePVView_p          _pvview_p;
 	zones_drawing_t              &_zones_drawing;
 	PVCol                         _axis;
 	int                           _wheel_value;
@@ -107,6 +128,8 @@ private:
 	QTimer                        _scroll_timer;
 	QPointF                        _selection_rect_pos;
 	PVSelectionSquareGraphicsItem *_selection_rect;
+	Picviz::PVSelection          &_selection;
+	selection_Observer            *_selection_obs;
 };
 
 }

@@ -106,7 +106,7 @@ int main(int argc, char** argv)
 	PVParallelView::PVBCIDrawingBackendCUDA<PARALLELVIEW_ZZT_BBITS> backend_cuda_zoom;
 	PVParallelView::PVZonesDrawing<PARALLELVIEW_ZZT_BBITS>& zones_drawing_zoom = *(new PVParallelView::PVZonesDrawing<PARALLELVIEW_ZZT_BBITS>(zm, backend_cuda_zoom, *colors));
 
-	ZoomDlg* zdlg = new ZoomDlg(zones_drawing_zoom);
+	ZoomDlg* zdlg = new ZoomDlg(zones_drawing_zoom, fake_pvview_sp);
 	zdlg->show();
 
 	app.exec();
