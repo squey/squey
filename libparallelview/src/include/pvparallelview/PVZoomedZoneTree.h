@@ -18,6 +18,8 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include <functional>
+
 #include <tbb/tick_count.h>
 
 namespace PVCore {
@@ -35,6 +37,7 @@ class PVZoomedZoneTree
 	constexpr static uint32_t mask_int_ycoord = (((uint32_t)1)<<bbits)-1;
 
 	typedef PVQuadTree<10000, 1000, 0, bbits> pvquadtree;
+	typedef std::function<size_t(const pvquadtree &tree)> extract_entry_f;
 
 public:
 	PVZoomedZoneTree(uint32_t max_level = 8);
@@ -69,17 +72,88 @@ public:
 
 	void process_omp_from_zt(const PVZoneProcessing &zp, PVZoneTree &zt);
 
+	inline size_t browse_bci_by_y1(uint64_t y_min, uint64_t y_max, uint64_t y_lim,
+	                               int zoom, uint32_t width,
+	                               const PVCore::PVHSVColor* colors,
+	                               PVBCICode<bbits>* codes,
+	                               const float beta = 1.0f) const
+	{
+		return browse_tree_bci_by_y1(y_min, y_max, y_lim, zoom, width,
+		                             [&](const pvquadtree &tree) -> size_t
+		                             {
+			                             return tree.get_first_from_y1(y_min, y_max,
+			                                                           zoom,
+			                                                           this->_quad_entries);
+		                             },
+		                             colors, codes, beta);
+	}
+
+	inline size_t browse_bci_by_y2(uint64_t y_min, uint64_t y_max, uint64_t y_lim,
+	                               int zoom, uint32_t width,
+	                               const PVCore::PVHSVColor* colors,
+	                               PVBCICode<bbits>* codes,
+	                               const float beta = 1.0f) const
+	{
+		return browse_tree_bci_by_y2(y_min, y_max, y_lim, zoom, width,
+		                             [&](const pvquadtree &tree) -> size_t
+		                             {
+			                             return tree.get_first_from_y2(y_min, y_max,
+			                                                           zoom,
+			                                                           this->_quad_entries);
+		                             },
+		                             colors, codes, beta);
+	}
+
+
+	inline size_t browse_bci_sel_by_y1(uint64_t y_min, uint64_t y_max, uint64_t y_lim,
+	                                   const Picviz::PVSelection &selection,
+	                                   int zoom, uint32_t width,
+	                                   const PVCore::PVHSVColor* colors,
+	                                   PVBCICode<bbits>* codes,
+	                                   const float beta = 1.0f) const
+	{
+		return browse_tree_bci_by_y1(y_min, y_max, y_lim, zoom, width,
+		                             [&](const pvquadtree &tree) -> size_t
+		                             {
+			                             return tree.get_first_sel_from_y1(y_min, y_max,
+			                                                               selection,
+			                                                               zoom,
+			                                                               this->_quad_entries);
+		                             },
+		                             colors, codes, beta);
+	}
+
+	inline size_t browse_bci_sel_by_y2(uint64_t y_min, uint64_t y_max, uint64_t y_lim,
+	                                   const Picviz::PVSelection &selection,
+	                                   int zoom, uint32_t width,
+	                                   const PVCore::PVHSVColor* colors,
+	                                   PVBCICode<bbits>* codes,
+	                                   const float beta = 1.0f) const
+	{
+		return browse_tree_bci_by_y2(y_min, y_max, y_lim, zoom, width,
+		                             [&](const pvquadtree &tree) -> size_t
+		                             {
+			                             return tree.get_first_sel_from_y2(y_min, y_max,
+			                                                               selection,
+			                                                               zoom,
+			                                                               this->_quad_entries);
+		                             },
+		                             colors, codes, beta);
+	}
+
+private:
 	size_t browse_tree_bci_by_y1(uint64_t y_min, uint64_t y_max, uint64_t y_lim, int zoom,
 	                             uint32_t width,
+	                             const extract_entry_f &extract_entry,
 	                             const PVCore::PVHSVColor* colors, PVBCICode<bbits>* codes,
 	                             const float beta = 1.0f) const;
 
 	size_t browse_tree_bci_by_y2(uint64_t y_min, uint64_t y_max, uint64_t y_lim, int zoom,
 	                             uint32_t width,
+	                             const extract_entry_f &extract_entry,
 	                             const PVCore::PVHSVColor* colors, PVBCICode<bbits>* codes,
 	                             const float beta = 1.0f) const;
 
-private:
 	inline uint32_t compute_index(uint32_t y1, uint32_t y2) const
 	{
 		return  (((y2 >> (32-NBITS_INDEX)) & MASK_INT_YCOORD) << NBITS_INDEX) +

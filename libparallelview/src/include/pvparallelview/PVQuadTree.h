@@ -19,6 +19,9 @@
 
 #include <pvkernel/core/PVAllocators.h>
 
+/* TODO: remove all useless code!
+ */
+
 namespace PVParallelView {
 
 #define SW 0
@@ -144,6 +147,8 @@ class PVQuadTree
 {
 	constexpr static uint32_t mask_int_ycoord = (((uint32_t)1)<<Bbits)-1;
 
+	typedef std::function<bool(const PVQuadTreeEntry &entry)> test_entry_f;
+
 public:
 	PVQuadTree(uint32_t y1_min_value, uint32_t y1_max_value, uint32_t y2_min_value, uint32_t y2_max_value, int max_level)
 	{
@@ -220,17 +225,59 @@ public:
 		return mem;
 	}
 
-	inline size_t get_first_from_y1(uint64_t y1_min, uint64_t y1_max, uint32_t zoom, const PVCore::PVHSVColor *colors, PVQuadTreeEntry *entries) const
+	inline size_t get_first_from_y1(uint64_t y1_min, uint64_t y1_max, uint32_t zoom,
+	                                PVQuadTreeEntry *result) const
 	{
-		const uint32_t shift = (32 - Bbits) - zoom;
-		return visit_y1<PVQuadTreeEntry, __impl::f_get_first>::f(*this, y1_min, y1_max, zoom, shift, mask_int_ycoord, colors, entries);
+		return visit_y1_v2::f(*this, y1_min, y1_max, zoom,
+		                      [&](const PVQuadTreeEntry &e) -> bool
+		                      {
+			                      return (e.y1 >= y1_min) && (e.y1 < y1_max);
+		                      },
+		                      result);
 	}
 
-	inline size_t get_first_from_y2(uint64_t y1_min, uint64_t y1_max, uint32_t zoom, const PVCore::PVHSVColor *colors, PVQuadTreeEntry *entries) const
+
+	inline size_t get_first_from_y2(uint64_t y2_min, uint64_t y2_max, uint32_t zoom,
+	                                PVQuadTreeEntry *result) const
 	{
-		const uint32_t shift = (32 - Bbits) - zoom;
-		return visit_y2<PVQuadTreeEntry, __impl::f_get_first>::f(*this, y1_min, y1_max, zoom, shift, mask_int_ycoord, colors, entries);
+		return visit_y2_v2::f(*this, y2_min, y2_max, zoom,
+		                      [&](const PVQuadTreeEntry &e) -> bool
+		                      {
+			                      return (e.y2 >= y2_min) && (e.y2 < y2_max);
+		                      },
+		                      result);
 	}
+
+
+	inline size_t get_first_sel_from_y1(uint64_t y1_min, uint64_t y1_max,
+	                                    const Picviz::PVSelection &selection,
+	                                    uint32_t zoom,
+	                                    PVQuadTreeEntry *result) const
+	{
+		return visit_y1_v2::f(*this, y1_min, y1_max, zoom,
+		                      [&](const PVQuadTreeEntry &e) -> bool
+		                      {
+			                      return (e.y1 >= y1_min) && (e.y1 < y1_max)
+				                      && selection.get_line(e.idx);
+		                      },
+		                      result);
+	}
+
+
+	inline size_t get_first_sel_from_y2(uint64_t y2_min, uint64_t y2_max,
+	                                    const Picviz::PVSelection &selection,
+	                                    uint32_t zoom,
+	                                    PVQuadTreeEntry *result) const
+	{
+		return visit_y2_v2::f(*this, y2_min, y2_max, zoom,
+		                      [&](const PVQuadTreeEntry &e) -> bool
+		                      {
+			                      return (e.y2 >= y2_min) && (e.y2 < y2_max)
+				                      && selection.get_line(e.idx);
+		                      },
+		                      result);
+	}
+
 
 	inline size_t get_first_bci_from_y1(uint64_t y1_min, uint64_t y1_max, uint32_t zoom, const PVCore::PVHSVColor *colors, PVBCICode<Bbits> *codes) const
 	{
@@ -388,7 +435,6 @@ private:
 					// we have to extract the 'zoom' first relevant elements from _datas
 					// NOTE: the elements should be uniformly distributed, isn't it?
 					size_t i = 0, n = 0;
-
 					while ((n < zoom) && (i < obj._datas.size())) {
 						const PVQuadTreeEntry &e = obj._datas.at(i);
 						if ((e.y1 >= y1_min) && (e.y1 < y1_max)) {
@@ -419,6 +465,86 @@ private:
 						if (e.idx <= result.idx) {
 							result = e;
 						}
+					}
+				}
+			}
+		}
+	};
+
+	struct visit_y1_v2
+	{
+		static size_t f(PVQuadTree const& obj,
+		                const uint64_t &y1_min, const uint64_t &y1_max, const uint32_t zoom,
+		                const test_entry_f &test_f, PVQuadTreeEntry *result)
+		{
+			if (zoom == 0) {
+				if (obj._nodes != 0) {
+					// we must get the better first elements from children
+					PVQuadTreeEntry e;
+					e.idx = UINT_MAX;
+					f2(obj, y1_min, y1_max, test_f, e);
+					if (e.idx != UINT_MAX) {
+						// it has been found
+						*result = e;
+						return 1;
+					}
+				} else {
+					// get the first relevant element
+					for (size_t i = 0; i < obj._datas.size(); ++i) {
+						const PVQuadTreeEntry &e = obj._datas.at(i);
+						if (test_f(e)) {
+							*result = e;
+							return 1;
+						}
+					}
+				}
+				return 0;
+			} else {
+				size_t num = 0;
+				if (obj._nodes != 0) {
+					if (obj._y1_mid_value < y1_max) {
+						num += f(obj._nodes[NE], y1_min, y1_max, zoom - 1, test_f, result + num);
+						num += f(obj._nodes[SE], y1_min, y1_max, zoom - 1, test_f, result + num);
+					}
+					if (y1_min < obj._y1_mid_value) {
+						num += f(obj._nodes[NW], y1_min, y1_max, zoom - 1, test_f, result + num);
+						num += f(obj._nodes[SW], y1_min, y1_max, zoom - 1, test_f, result + num);
+					}
+				} else {
+					// we have to extract the 'zoom' first relevant elements from _datas
+					// NOTE: the elements should be uniformly distributed, isn't it?
+					size_t i = 0, n = 0;
+					while ((n < zoom) && (i < obj._datas.size())) {
+						const PVQuadTreeEntry &e = obj._datas.at(i);
+						if (test_f(e)) {
+							result[num] = e;
+							++num;
+							++n;
+						}
+						++i;
+					}
+				}
+				return num;
+			}
+		}
+		static void f2(PVQuadTree const& obj,
+		               const uint64_t &y1_min, const uint64_t &y1_max,
+		               const test_entry_f &test_f, PVQuadTreeEntry &result)
+		{
+			if (obj._nodes != 0) {
+				if (obj._y1_mid_value < y1_max) {
+					f2(obj._nodes[NE], y1_min, y1_max, test_f, result);
+					f2(obj._nodes[SE], y1_min, y1_max, test_f, result);
+				}
+				if (y1_min < obj._y1_mid_value) {
+					f2(obj._nodes[NW], y1_min, y1_max, test_f, result);
+					f2(obj._nodes[SW], y1_min, y1_max, test_f, result);
+				}
+			} else {
+				for (size_t i = 0; i < obj._datas.size(); ++i) {
+					const PVQuadTreeEntry &e = obj._datas.at(i);
+					if (test_f(e) && (e.idx <= result.idx)) {
+						result = e;
 					}
 				}
 			}
@@ -465,7 +591,6 @@ private:
 					// we have to extract the 'zoom' first relevant elements from _datas
 					// NOTE: the elements should be uniformly distributed, isn't it?
 					size_t i = 0, n = 0;
-
 					while ((n < zoom) && (i < obj._datas.size())) {
 						const PVQuadTreeEntry &e = obj._datas.at(i);
 						if ((e.y2 >= y2_min) && (e.y2 < y2_max)) {
@@ -478,7 +603,6 @@ private:
 				return num;
 			}
 		}
-
 		static void f2(PVQuadTree const& obj, uint64_t y2_min, uint64_t y2_max, PVQuadTreeEntry &result)
 		{
 			if (obj._nodes != 0) {
@@ -497,6 +621,86 @@ private:
 						if (e.idx <= result.idx) {
 							result = e;
 						}
+					}
+				}
+			}
+		}
+	};
+
+	struct visit_y2_v2
+	{
+		static size_t f(PVQuadTree const& obj,
+		                const uint64_t &y2_min, const uint64_t &y2_max, const uint32_t zoom,
+		                const test_entry_f &test_f, PVQuadTreeEntry *result)
+		{
+			if (zoom == 0) {
+				if (obj._nodes != 0) {
+					// we must get the better first elements from children
+					PVQuadTreeEntry e;
+					e.idx = UINT_MAX;
+					f2(obj, y2_min, y2_max, test_f, e);
+					if (e.idx != UINT_MAX) {
+						// it has been found
+						*result = e;
+						return 1;
+					}
+				} else {
+					// get the first relevant element
+					for (size_t i = 0; i < obj._datas.size(); ++i) {
+						const PVQuadTreeEntry &e = obj._datas.at(i);
+						if (test_f(e)) {
+							*result = e;
+							return 1;
+						}
+					}
+				}
+				return 0;
+			} else {
+				size_t num = 0;
+				if (obj._nodes != 0) {
+					if (obj._y2_mid_value < y2_max) {
+						num += f(obj._nodes[NE], y2_min, y2_max, zoom - 1, test_f, result + num);
+						num += f(obj._nodes[NW], y2_min, y2_max, zoom - 1, test_f, result + num);
+					}
+					if (y2_min < obj._y2_mid_value) {
+						num += f(obj._nodes[SE], y2_min, y2_max, zoom - 1, test_f, result + num);
+						num += f(obj._nodes[SW], y2_min, y2_max, zoom - 1, test_f, result + num);
+					}
+				} else {
+					// we have to extract the 'zoom' first relevant elements from _datas
+					// NOTE: the elements should be uniformly distributed, isn't it?
+					size_t i = 0, n = 0;
+					while ((n < zoom) && (i < obj._datas.size())) {
+						const PVQuadTreeEntry &e = obj._datas.at(i);
+						if (test_f(e)) {
+							result[num] = e;
+							++num;
+							++n;
+						}
+						++i;
+					}
+				}
+				return num;
+			}
+		}
+		static void f2(PVQuadTree const& obj,
+		               const uint64_t &y2_min, const uint64_t &y2_max,
+		               const test_entry_f &test_f, PVQuadTreeEntry &result)
+		{
+			if (obj._nodes != 0) {
+				if (obj._y2_mid_value < y2_max) {
+					f2(obj._nodes[NE], y2_min, y2_max, test_f, result);
+					f2(obj._nodes[NW], y2_min, y2_max, test_f, result);
+				}
+				if (y2_min < obj._y2_mid_value) {
+					f2(obj._nodes[SE], y2_min, y2_max, test_f, result);
+					f2(obj._nodes[SW], y2_min, y2_max, test_f, result);
+				}
+			} else {
+				for (size_t i = 0; i < obj._datas.size(); ++i) {
+					const PVQuadTreeEntry &e = obj._datas.at(i);
+					if (test_f(e) && (e.idx <= result.idx)) {
+						result = e;
 					}
 				}
 			}

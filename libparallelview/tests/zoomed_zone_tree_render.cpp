@@ -160,9 +160,9 @@ int main(int argc, char** argv)
 		     PVCore::PVHSVColor const* colors,
 		     PVParallelView::PVBCICode<RENDERING_BITS>* codes)
 		 {
-			 size_t num = zoomed_zone_tree.browse_tree_bci_by_y1(a, a2, a2, b,
-			                                                     256,
-			                                                     colors, codes);
+			 size_t num = zoomed_zone_tree.browse_bci_by_y1(a, a2, a2, b,
+			                                                256,
+			                                                colors, codes);
 			 std::cout << "ZZT-0: num of codes: " << num << std::endl;
 			 // for (unsigned i = 0; i < num; ++i) {
 			 // 	 printf("%u %u %u %u\n", codes[i].s.l, codes[i].s.r, codes[i].s.idx, codes[i].s.color);
@@ -185,9 +185,9 @@ int main(int argc, char** argv)
 		     PVCore::PVHSVColor const* colors,
 		     PVParallelView::PVBCICode<RENDERING_BITS>* codes)
 		 {
-			 size_t num = zoomed_zone_tree.browse_tree_bci_by_y1(a, a2, a2, b,
-			                                                     256,
-			                                                     colors, codes);
+			 size_t num = zoomed_zone_tree.browse_bci_by_y1(a, a2, a2, b,
+			                                                256,
+			                                                colors, codes);
 			 std::cout << "ZZT-1: num of codes: " << num << std::endl;
 			 // for (unsigned i = 0; i < num; ++i) {
 			 // 	 printf("%u %u %u %u\n", codes[i].s.l, codes[i].s.r, codes[i].s.idx, codes[i].s.color);
@@ -209,9 +209,9 @@ int main(int argc, char** argv)
 		     PVCore::PVHSVColor const* colors,
 		     PVParallelView::PVBCICode<RENDERING_BITS>* codes)
 		 {
-			 size_t num = zoomed_zone_tree.browse_tree_bci_by_y1(a, a2, a2, b,
-			                                                     256,
-			                                                     colors, codes);
+			 size_t num = zoomed_zone_tree.browse_bci_by_y1(a, a2, a2, b,
+			                                                256,
+			                                                colors, codes);
 			 std::cout << "ZZT-1: num of codes: " << num << std::endl;
 			 // for (unsigned i = 0; i < num; ++i) {
 			 // 	 printf("%u %u %u %u\n", codes[i].s.l, codes[i].s.r, codes[i].s.idx, codes[i].s.color);
@@ -233,9 +233,9 @@ int main(int argc, char** argv)
 		     PVCore::PVHSVColor const* colors,
 		     PVParallelView::PVBCICode<RENDERING_BITS>* codes)
 		 {
-			 size_t num = zoomed_zone_tree.browse_tree_bci_by_y1(a, a2, a2, b,
-			                                                     256,
-			                                                     colors, codes);
+			 size_t num = zoomed_zone_tree.browse_bci_by_y1(a, a2, a2, b,
+			                                                256,
+			                                                colors, codes);
 			 std::cout << "ZZT-1: num of codes: " << num << std::endl;
 			 // for (unsigned i = 0; i < num; ++i) {
 			 // 	 printf("%u %u %u %u\n", codes[i].s.l, codes[i].s.r, codes[i].s.idx, codes[i].s.color);

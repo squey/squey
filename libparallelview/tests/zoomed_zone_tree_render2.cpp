@@ -151,7 +151,7 @@ int main(int argc, char** argv)
 		BENCH_START(col);
 		zones_drawing.draw_zoomed_zone(*dst_img, p, v1, z, 0,
 		                               512,
-		                               &PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1);
+		                               &PVParallelView::PVZoomedZoneTree::browse_bci_by_y1);
 		BENCH_END(col, "render col", 1, 1, 1, 1);
 		show_qimage("test - zoomed zone tree" + QString::number(i), dst_img->qimage());
 		++z;

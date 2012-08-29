@@ -198,9 +198,9 @@ void test(
 			uint64_t v0 = 0;
 			uint64_t v1 = 1ULL << 32;
 			BENCH_START(browse);
-			nb_codes = zzt->browse_tree_bci_by_y1(v0, v1, v1, 0,
-			                                      1024,
-			                                      colors, bci_codes);
+			nb_codes = zzt->browse_bci_by_y1(v0, v1, v1, 0,
+			                                 1024,
+			                                 colors, bci_codes);
 			BENCH_END_TRANSFORM(browse, "ZZT::browse_tree_bci_by_y1", 1, 1);
 			std::cout << "browse found " << nb_codes << " element(s)" << std::endl;
 		}

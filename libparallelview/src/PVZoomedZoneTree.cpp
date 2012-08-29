@@ -200,6 +200,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1(uint64_t y_min,
                                                                uint64_t y_lim,
                                                                int zoom,
                                                                uint32_t width,
+                                                               const extract_entry_f &extract_entry,
                                                                const PVCore::PVHSVColor* colors,
                                                                PVBCICode<bbits>* codes,
                                                                const float beta) const
@@ -215,8 +216,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1(uint64_t y_min,
 		for (uint32_t t2 = 0; t2 < 1024; ++t2) {
 			/* lines extraction
 			 */
-			num = _trees[(t2 * 1024) + t1].get_first_from_y1(y_min, y_max, zoom,
-			                                                 colors, _quad_entries);
+			num = extract_entry(_trees[(t2 * 1024) + t1]);
 
 			/* conversion into BCI codes
 			 */
@@ -283,6 +283,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y2(uint64_t y_min,
                                                                uint64_t y_lim,
                                                                int zoom,
                                                                uint32_t width,
+                                                               const extract_entry_f &extract_entry,
                                                                const PVCore::PVHSVColor* colors,
                                                                PVBCICode<bbits>* codes,
                                                                const float beta) const
@@ -298,8 +299,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y2(uint64_t y_min,
 		for (uint32_t t1 = 0; t1 < 1024; ++t1) {
 			/* lines extraction
 			 */
-			num = _trees[(t2 * 1024) + t1].get_first_from_y2(y_min, y_max, zoom,
-			                                                 colors, _quad_entries);
+			num = extract_entry(_trees[(t2 * 1024) + t1]);
 
 			/* conversion into BCI codes
 			 */
