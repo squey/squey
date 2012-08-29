@@ -28,6 +28,10 @@
  *       images width
  */
 
+#define ZOOM_MODIFIER     Qt::ControlModifier
+#define PAN_MODIFIER      Qt::NoModifier
+#define SLOW_PAN_MODIFIER Qt::ShiftModifier
+
 /*****************************************************************************
  * PVParallelView::PVZoomedParallelScene::selection_Observer::update
  *****************************************************************************/
@@ -151,7 +155,7 @@ void PVParallelView::PVZoomedParallelScene::mouseMoveEvent(QGraphicsSceneMouseEv
 
 void PVParallelView::PVZoomedParallelScene::wheelEvent(QGraphicsSceneWheelEvent* event)
 {
-	if (event->modifiers() == Qt::ControlModifier) {
+	if (event->modifiers() == ZOOM_MODIFIER) {
 		// zoom
 		if (event->delta() > 0) {
 			if (_wheel_value < max_wheel_value) {
@@ -164,7 +168,7 @@ void PVParallelView::PVZoomedParallelScene::wheelEvent(QGraphicsSceneWheelEvent*
 				update_zoom(false);
 			}
 		}
-	} else if (event->modifiers() == Qt::ShiftModifier) {
+	} else if (event->modifiers() == SLOW_PAN_MODIFIER) {
 		// precise panning
 		QScrollBar *sb = _zpview->verticalScrollBar();
 		if (event->delta() > 0) {
@@ -178,7 +182,7 @@ void PVParallelView::PVZoomedParallelScene::wheelEvent(QGraphicsSceneWheelEvent*
 				sb->setValue(v + 1);
 			}
 		}
-	} else if (event->modifiers() == Qt::NoModifier) {
+	} else if (event->modifiers() == PAN_MODIFIER) {
 		// panning
 		QScrollBar *sb = _zpview->verticalScrollBar();
 		if (event->delta() > 0) {
