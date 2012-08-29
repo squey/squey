@@ -3,6 +3,7 @@
 
 #include <pvparallelview/PVZonesDrawing.h>
 #include <pvparallelview/PVZoomedParallelScene.h>
+#include <pvparallelview/PVZoomedParallelView.h>
 
 #include <QDialog>
 #include <QLineEdit>
@@ -29,7 +30,7 @@ protected slots:
 	void create_zv()
 	{
 		PVZoneID zid = _zedit->text().toUInt();
-		QGraphicsView* view = new QGraphicsView();
+		PVParallelView::PVZoomedParallelView *view = new PVParallelView::PVZoomedParallelView();
 		view->setViewport(new QWidget());
 		view->setScene(new PVParallelView::PVZoomedParallelScene(view, _zd,
 		                                                         zid));
