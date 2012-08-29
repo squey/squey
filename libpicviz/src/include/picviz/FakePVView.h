@@ -24,6 +24,8 @@ struct FakePVView
 	PVSelection _sel;
 };
 
+typedef PVCore::PVSharedPtr<FakePVView> FakePVView_p;
+
 }
 
 #endif /* FAKEPVVIEW_H_ */
