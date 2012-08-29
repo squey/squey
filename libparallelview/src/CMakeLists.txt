@@ -29,6 +29,7 @@ SET(SRC_FILES
 PVTools.cpp
 PVZoomedZoneTree.cpp
 PVZoomedParallelScene.cpp
+PVZoomedParallelView.cpp
 PVLinesView.cpp
 PVFullParallelScene.cpp
 PVFullParallelView.cpp

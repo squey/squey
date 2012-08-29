@@ -8,11 +8,11 @@
 #define PVPARALLELVIEW_PVZOOMEDPARALLELSCENE_H
 
 #include <pvparallelview/common.h>
+#include <pvparallelview/PVZoomedParallelView.h>
 #include <pvparallelview/PVZonesDrawing.h>
 #include <pvparallelview/PVRenderingJob.h>
 #include <pvparallelview/PVSelectionSquareGraphicsItem.h>
 
-#include <QGraphicsView>
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsSceneWheelEvent>
 
@@ -42,7 +42,7 @@ public:
 	typedef typename zones_drawing_t::backend_image_p_t backend_image_p_t;
 
 public:
-	PVZoomedParallelScene(QWidget *parent,
+	PVZoomedParallelScene(PVParallelView::PVZoomedParallelView *view,
 	                      zones_drawing_t &zones_drawing,
 	                      PVCol axis);
 
@@ -61,11 +61,6 @@ private:
 	void update_zoom(bool in = true);
 
 private:
-	inline QGraphicsView* view()
-	{
-		return (QGraphicsView*) parent();
-	}
-
 	int get_zoom_level()
 	{
 		return _wheel_value / zoom_steps;
@@ -98,18 +93,18 @@ private:
 		QImage            back_image;
 	};
 
-	zones_drawing_t &_zones_drawing;
-	PVCol            _axis;
-	int              _wheel_value;
-	int              _zoom_level;
-	int              _old_sb_pos;
-	zone_desc        _left_zone;
-	zone_desc        _right_zone;
-	PVRenderingJob  *_rendering_job;
-	QFuture<void>    _rendering_future;
-	bool             _skip_update_zoom;
-	QTimer           _scroll_timer;
-
+	PVZoomedParallelView         *_view;
+	zones_drawing_t              &_zones_drawing;
+	PVCol                         _axis;
+	int                           _wheel_value;
+	int                           _zoom_level;
+	int                           _old_sb_pos;
+	zone_desc                     _left_zone;
+	zone_desc                     _right_zone;
+	PVRenderingJob               *_rendering_job;
+	QFuture<void>                 _rendering_future;
+	bool                          _skip_update_zoom;
+	QTimer                        _scroll_timer;
 	QPointF                        _selection_rect_pos;
 	PVSelectionSquareGraphicsItem *_selection_rect;
 };
