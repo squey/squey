@@ -20,12 +20,21 @@ void PVParallelView::PVLibView::process_selection_Observer::update(arguments_dee
 	for (PVFullParallelScene& view : _parent->_parallel_views) {
 		group.run([&]{view.update_sel_from_zone();});
 	}
+
+	for (PVZoomedParallelScene& zps : _parent->_zoomed_parallel_scenes) {
+		group.run([&]
+		          {
+			          zps.update_display();
+		          });
+	}
 	group.wait();
 }
 
-PVParallelView::PVLibView::PVLibView(Picviz::FakePVView::shared_pointer& view_sp) :
+PVParallelView::PVLibView::PVLibView(Picviz::FakePVView::shared_pointer& view_sp,
+                                     PVCore::PVHSVColor *colors) :
 	_process_selection_observer(new process_selection_Observer(this)),
-	_view_sp(view_sp)
+	_view_sp(view_sp),
+	_colors(colors)
 {
 	PVHive::PVHive::get().register_func_observer(
 		view_sp,

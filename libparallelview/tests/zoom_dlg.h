@@ -4,8 +4,7 @@
 #include <pvparallelview/PVZonesDrawing.h>
 #include <pvparallelview/PVZoomedParallelScene.h>
 #include <pvparallelview/PVZoomedParallelView.h>
-
-#include <picviz/FakePVView.h>
+#include <pvparallelview/PVLibView.h>
 
 #include <QDialog>
 #include <QLineEdit>
@@ -14,15 +13,18 @@
 
 class ZoomDlg: public QDialog
 {
+	Q_OBJECT
+
 public:
-	ZoomDlg(PVParallelView::PVZonesDrawing<PARALLELVIEW_ZZT_BBITS>& zd,
-	        Picviz::FakePVView_p pvview_p,
-	        QWidget* parent = NULL):
-		_zd(zd),
-		_pvview_p(pvview_p)
+	ZoomDlg(PVParallelView::PVLibView &lv,
+	        PVParallelView::PVZonesDrawing<PARALLELVIEW_ZZT_BBITS>& zd,
+	        QWidget* parent = nullptr) :
+		QDialog(parent),
+		_lv(lv),
+		_zd(zd)
 	{
 		_zedit = new QLineEdit();
-		QPushButton* btn = new QPushButton(tr("Show zommed axis"));
+		QPushButton* btn = new QPushButton(tr("Show zoomed axis"));
 		QVBoxLayout* l = new QVBoxLayout();
 		l->addWidget(_zedit);
 		l->addWidget(btn);
@@ -34,22 +36,22 @@ public:
 protected slots:
 	void create_zv()
 	{
-		PVZoneID zid = _zedit->text().toUInt();
-		PVParallelView::PVZoomedParallelView *zpview = new PVParallelView::PVZoomedParallelView();
-		zpview->setViewport(new QWidget());
-		zpview->setScene(new PVParallelView::PVZoomedParallelScene(zpview,
-		                                                           _pvview_p,
-		                                                           _zd,
-		                                                           zid));
-		zpview->resize(1024, 1024);
-		zpview->show();
+		PVCol zid = _zedit->text().toInt();
+		PVParallelView::PVZoomedParallelView *zpv = new PVParallelView::PVZoomedParallelView();
+
+		std::cout << "ZoomDlg: zpv: " << zpv << std::endl;
+		zpv->setViewport(new QWidget());
+
+		_lv.create_zoomed_scene<PVParallelView::PVBCIDrawingBackendCUDA<PARALLELVIEW_ZZT_BBITS> >(zpv, zid);
+
+		zpv->resize(1024, 1024);
+		zpv->show();
 	}
 
 private:
-	QLineEdit* _zedit;
+	PVParallelView::PVLibView                              &_lv;
 	PVParallelView::PVZonesDrawing<PARALLELVIEW_ZZT_BBITS> &_zd;
-	Picviz::FakePVView_p                                   &_pvview_p;
-	Q_OBJECT
+	QLineEdit                                              *_zedit;
 };
 
 #endif
