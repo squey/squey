@@ -15,9 +15,6 @@
 
 #include <picviz/FakePVView.h>
 
-#include <pvhive/PVCallHelper.h>
-#include <pvhive/PVFuncObserver.h>
-
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsSceneWheelEvent>
 
@@ -41,20 +38,6 @@ private:
 	constexpr static int zoom_steps = 5;
 	constexpr static double root_step = pow(2.0, 1.0 / zoom_steps);
 	constexpr static int max_wheel_value = 21 * zoom_steps;
-
-	class selection_Observer :
-		public PVHive::PVFuncObserverSignal<typename Picviz::FakePVView,
-		                                    FUNC(Picviz::FakePVView::process_selection)>
-	{
-	public:
-		selection_Observer(PVZoomedParallelScene* parent) : _parent(parent) {}
-
-	protected:
-		virtual void update(arguments_deep_copy_type const& args) const;
-
-	private:
-		PVZoomedParallelScene* _parent;
-	};
 
 public:
 	typedef PVParallelView::PVZonesDrawing<bbits> zones_drawing_t;
@@ -130,7 +113,6 @@ private:
 	QPointF                        _selection_rect_pos;
 	PVSelectionSquareGraphicsItem *_selection_rect;
 	Picviz::PVSelection          &_selection;
-	selection_Observer            *_selection_obs;
 };
 
 }

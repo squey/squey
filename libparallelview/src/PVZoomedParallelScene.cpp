@@ -33,33 +33,22 @@
 #define SLOW_PAN_MODIFIER Qt::ShiftModifier
 
 /*****************************************************************************
- * PVParallelView::PVZoomedParallelScene::selection_Observer::update
- *****************************************************************************/
-
-void PVParallelView::PVZoomedParallelScene::selection_Observer::update(const arguments_deep_copy_type&) const
-{
-	PVLOG_INFO("PVParallelView::selection_Observer::update\n");
-	_parent->update_display();
-}
-
-/*****************************************************************************
  * PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene
  *****************************************************************************/
 
 PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZoomedParallelView *zpview,
-                                                             Picviz::FakePVView::shared_pointer pvview_p,
+                                                             Picviz::FakePVView_p pvview_p,
                                                              zones_drawing_t &zones_drawing,
                                                              PVCol axis) :
 	QGraphicsScene(zpview),
 	_zpview(zpview),
 	_pvview_p(pvview_p),
-	_zones_drawing(zones_drawing), _axis(axis),
+	_zones_drawing(zones_drawing),
+	_axis(axis),
 	_old_sb_pos(-1),
 	_skip_update_zoom(true),
 	_selection(pvview_p->get_view_selection())
 {
-	setBackgroundBrush(Qt::black);
-
 	_zpview->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	_zpview->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 	_zpview->setResizeAnchor(QGraphicsView::AnchorViewCenter);
@@ -72,10 +61,6 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 	_selection_rect = new PVParallelView::PVSelectionSquareGraphicsItem(this);
 	connect(_selection_rect, SIGNAL(commit_volatile_selection()),
 	        this, SLOT(commit_volatile_selection_Slot()));
-
-	_selection_obs = new selection_Observer(this);
-	PVHive::PVHive::get().register_func_observer(_pvview_p,
-	                                             *_selection_obs);
 
 	_wheel_value = 0;
 
@@ -225,6 +210,7 @@ void PVParallelView::PVZoomedParallelScene::drawBackground(QPainter *painter,
 	QTransform t = painter->transform();
 	painter->resetTransform();
 
+	painter->fillRect(screen_rect, Qt::black);
 	// draw the zones
 	if (_left_zone.image.get() != nullptr) {
 		painter->fillRect(_left_zone.area, Qt::black);

@@ -4,8 +4,8 @@
  * Copyright (C) Picviz Labs 2010-2012
  */
 
-#ifndef PVLIBVIEW_H_
-#define PVLIBVIEW_H_
+#ifndef PVPARALLELVIEW_PVLIBVIEW_H
+#define PVPARALLELVIEW_PVLIBVIEW_H
 
 #include <picviz/FakePVView.h>
 
@@ -13,7 +13,10 @@
 #include <pvhive/PVCallHelper.h>
 
 #include <pvparallelview/PVFullParallelScene.h>
+#include <pvparallelview/PVZoomedParallelScene.h>
 #include <pvparallelview/PVZonesManager.h>
+
+#include <pvparallelview/PVBCIDrawingBackendCUDA.h>
 
 namespace PVParallelView
 {
@@ -25,10 +28,11 @@ class PVLibView
 {
 private:
 	typedef std::list<PVFullParallelScene> views_list_t;
+	typedef std::list<PVZoomedParallelScene> zoomed_scene_list_t;
 	friend class process_selection_Observer;
 
 public:
-	PVLibView(Picviz::FakePVView::shared_pointer& view_sp);
+	PVLibView(Picviz::FakePVView::shared_pointer& view_sp, PVCore::PVHSVColor *colors);
 	~PVLibView();
 
 public:
@@ -36,6 +40,20 @@ public:
 	{
 		_parallel_views.emplace_back(_view_sp, _zones_manager, bci_backend);
 		_parallel_views.back().first_render();
+	}
+
+	template <typename Backend>
+	void create_zoomed_scene(PVParallelView::PVZoomedParallelView *zpv,
+	                         PVParallelView::PVZoomedParallelScene::zones_drawing_t &zd,
+	                         PVCol axis)
+	{
+		Backend &zoom_backend = *(new Backend);
+		PVParallelView::PVZoomedParallelScene::zones_drawing_t &zzd =
+			*(new PVParallelView::PVZoomedParallelScene::zones_drawing_t(_zones_manager,
+			                                                             zoom_backend,
+			                                                             *_colors));
+		_zoomed_parallel_scenes.emplace_back(zpv, _view_sp, zzd, axis);
+		zpv->setScene(&_zoomed_parallel_scenes.back());
 	}
 
 	PVZonesManager& get_zones_manager() { return _zones_manager; }
@@ -52,12 +70,14 @@ private:
 	};
 
 private:
-	PVZonesManager _zones_manager;
-	process_selection_Observer* _process_selection_observer;
-	views_list_t _parallel_views;
-	Picviz::FakePVView::shared_pointer& _view_sp;
+	PVZonesManager                      _zones_manager;
+	process_selection_Observer         *_process_selection_observer;
+	views_list_t                        _parallel_views;
+	zoomed_scene_list_t                 _zoomed_parallel_scenes;
+	Picviz::FakePVView::shared_pointer &_view_sp;
+	PVCore::PVHSVColor                 *_colors;
 };
 
 }
 
-#endif /* PVLIBVIEW_H_ */
+#endif /* PVPARALLELVIEW_PVLIBVIEW_H */

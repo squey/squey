@@ -94,7 +94,7 @@ int main(int argc, char** argv)
 	PVParallelView::PVBCIDrawingBackendCUDA<NBITS_INDEX> backend_cuda;
 	Picviz::FakePVView::shared_pointer fake_pvview_sp(new Picviz::FakePVView());
 
-	PVParallelView::PVLibView lib_view(fake_pvview_sp);
+	PVParallelView::PVLibView lib_view(fake_pvview_sp, colors);
 
 	/// TODO: Find a better way to pass the plotted to the zones manager
 	lib_view.get_zones_manager().set_uint_plotted(norm_plotted, nrows, ncols);
@@ -106,7 +106,7 @@ int main(int argc, char** argv)
 	PVParallelView::PVBCIDrawingBackendCUDA<PARALLELVIEW_ZZT_BBITS> backend_cuda_zoom;
 	PVParallelView::PVZonesDrawing<PARALLELVIEW_ZZT_BBITS>& zones_drawing_zoom = *(new PVParallelView::PVZonesDrawing<PARALLELVIEW_ZZT_BBITS>(zm, backend_cuda_zoom, *colors));
 
-	ZoomDlg* zdlg = new ZoomDlg(zones_drawing_zoom, fake_pvview_sp);
+	ZoomDlg* zdlg = new ZoomDlg(lib_view, zones_drawing_zoom);
 	zdlg->show();
 
 	app.exec();
