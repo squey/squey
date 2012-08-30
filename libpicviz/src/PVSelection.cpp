@@ -7,51 +7,11 @@
 #include "bithacks.h"
 
 #include <pvkernel/core/picviz_intrin.h>
+#include <pvkernel/core/PVBitCount.h>
 #include <pvkernel/rush/PVNraw.h>
 
 #include <picviz/PVSelection.h>
 #include <picviz/PVSparseSelection.h>
-
-static inline uint32_t count_bits(size_t n, const uint32_t* data)
-{
-	uint32_t ret = 0;
-	for (size_t i = 0; i < n; i++) {
-		uint32_t v = data[i];
-		COUNT_BITS_UINT32(v,ret);
-	}
-	return ret;
-}
-
-// a and b are positions in bits and are inclusive (which means that b-a+1 bits are checked)
-// No boundary checks are done, so be carefull !!
-static uint32_t count_bits_between(size_t a, size_t b, const uint32_t* data)
-{
-	size_t a_byte = a >> 5; // = a/32
-	size_t b_byte = b >> 5;
-
-	const size_t tmp = (1 << 5) - 1; // Used for modulus operations (%32)
-
-	if (a_byte == b_byte) {
-		uint8_t shift_left = a & tmp;
-		uint32_t v = data[a_byte] << shift_left;
-		v >>= shift_left + (32U - (b & tmp) - 1);
-		uint32_t ret = 0;
-		COUNT_BITS_UINT32(v,ret);
-		return ret;
-	}
-
-	// Hard part is done here
-	uint32_t ret = count_bits(b_byte - a_byte - 1, data + a_byte + 1);
-
-	// Finish it
-	uint32_t v = data[a_byte] << (a & tmp); // a & tmp = a%32
-	COUNT_BITS_UINT32(v,ret);
-
-	v = data[b_byte] >> (32U - (b & tmp) - 1);
-	COUNT_BITS_UINT32(v,ret);
-
-	return ret;
-}
 
 /******************************************************************************
  *
@@ -92,7 +52,7 @@ Picviz::PVSelection::PVSelection(PVSelection const& o)
  *****************************************************************************/
 int Picviz::PVSelection::get_number_of_selected_lines_in_range(PVRow a, PVRow b) const
 {
-	
+#if 0	
 	PVRow line_index;
 	int count = 0; 
 
@@ -103,9 +63,10 @@ int Picviz::PVSelection::get_number_of_selected_lines_in_range(PVRow a, PVRow b)
 	}
 
 	return count;
+#endif
+	assert(b > a);
 	
-
-	// return count_bits_between(a, b-1, &_table[0]);
+	return PVCore::PVBitCount::bit_count_between(a, b-1, &_table[0]);
 }
 
 std::vector<PVRow> Picviz::PVSelection::get_rows_table()

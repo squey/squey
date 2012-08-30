@@ -93,6 +93,36 @@ int main(void)
 
 	selection = new Picviz::PVSelection();
 	selection->select_all();
+	count = selection->get_number_of_selected_lines_in_range(0, 1);
+	std::cout << "count should be 1: " << count << std::endl;
+	if (count != 1) {
+		return 1;
+	}
+	count = selection->get_number_of_selected_lines_in_range(0, 2);
+	std::cout << "count should be 2: " << count << std::endl;
+	if (count != 2) {
+		return 1;
+	}
+	count = selection->get_number_of_selected_lines_in_range(10, 15);
+	std::cout << "count should be 5: " << count << std::endl;
+	if (count != 5) {
+		return 1;
+	}
+	count = selection->get_number_of_selected_lines_in_range(0, 64);
+	std::cout << "count should be 64: " << count << std::endl;
+	if (count != 64) {
+		return 1;
+	}
+	count = selection->get_number_of_selected_lines_in_range(0, 65);
+	std::cout << "count should be 65: " << count << std::endl;
+	if (count != 65) {
+		return 1;
+	}
+	count = selection->get_number_of_selected_lines_in_range(5, 65);
+	std::cout << "count should be 60: " << count << std::endl;
+	if (count != 60) {
+		return 1;
+	}
 	count = selection->get_number_of_selected_lines_in_range(0, last_index);
 	std::cout << "is " << PICVIZ_LINES_MAX << " = to " << count << " ?\n\n";
 	if (count != PICVIZ_LINES_MAX) {

@@ -8,18 +8,15 @@
 #define PVLISTINGVIEW_H
 
 #include <QTableView>
-#include <QHeaderView>
+
+#include <pvhive/PVActor.h>
+#include <pvhive/PVObserverSignal.h>
 
 #include <picviz/PVView_types.h>
 
-#include <PVListingModel.h>
-#include <PVLayerStackModel.h>
+namespace PVGuiQt {
 
-
-namespace PVInspector {
-class PVMainWindow;
-class PVTabSplitter;
-class PVLayerFilterProcessWidget;
+//class PVLayerFilterProcessWidget;
 class PVListingSortFilterProxyModel;
 
 /**
@@ -29,49 +26,8 @@ class PVListingView : public QTableView
 {
 	Q_OBJECT
 
-	PVMainWindow    *main_window; //<!
-	PVTabSplitter   *_parent;
-	Picviz::PVView* lib_view;    //<!
-
-public slots:
-	void slotDoubleClickOnVHead(int);
-
-// FIXME!			void update_row_count_in_all_dynamic_listing_model_Slot();
-			/* void update_to_current_selection_Slot();*/
-
-/*			void refresh_listing_Slot();
-			void refresh_listing_with_horizontal_header_Slot();
-      void selection_changed_Slot();
-			void update_pv_listing_model_Slot();*/
-
 public:
-// Removed (=> PVTabSplitter) PVLayerStackModel *pv_layer_stack_model; // FIXME: should be private
-
-	/**
-	 * Constructor.
-	 *
-	 * @param mw
-	 * @param lib_view
-	 * @param parent
-	 */
-	PVListingView(PVMainWindow *mw, PVTabSplitter *parent);
-
-	/**
-	 *
-	 * @return
-	 */
-//	picviz_view_t *get_lib_view()const{return lib_view;}
-
-	/**
-	 *
-	 * @return
-	 */
-//	int get_screenshot_index();
-
-	/**
-	 *
-	 */
-//	void increment_screenshot_index();
+	PVListingView(Picviz::PVView_sp& view, QObject* parent = NULL);
 
 	void refresh_listing_filter();
 	void keyEnterPressed();
@@ -101,6 +57,7 @@ private:
 	void update_view_selection_from_listing_selection();
 
 private slots:
+	void slotDoubleClickOnVHead(int);
 	void show_ctxt_menu(const QPoint& pos);
 	void show_hhead_ctxt_menu(const QPoint& pos);
 	void set_color_selected(const QColor& color);
@@ -115,9 +72,16 @@ private:
 	PVCol _ctxt_col;
 	QString _ctxt_v;
 	PVCore::PVArgumentList _ctxt_args;
-	PVLayerFilterProcessWidget* _ctxt_process;
+	//PVLayerFilterProcessWidget* _ctxt_process;
 	QAction* _act_copy;
 	QAction* _act_set_color;
+
+private:
+	// Observers
+	PVHive::PVObserverSignal<Picviz::PVView> _obs;
+
+	// Actor
+	PVHive::PVActor<Picviz::PVView> _actor;
 };
 
 }

@@ -4,40 +4,32 @@
  * Copyright (C) Picviz Labs 2009-2012
  */
 
-#include <QtGui>
+
+#include <pvkernel/core/general.h>
+#include <pvkernel/core/PVClassLibrary.h>
+
+#include <picviz/PVLayerFilter.h>
+#include <picviz/PVView.h>
+
+#include <pvguiqt/PVListingView.h>
+#include <pvguiqt/PVListingModel.h>
+#include <pvguiqt/PVListingSortFilterProxyModel.h>
+
 #include <QCursor>
 #include <QSizePolicy>
 
-#include <pvkernel/core/general.h>
-#include <picviz/PVStateMachine.h>
-#include <picviz/PVView.h>
-
-#include <PVMainWindow.h>
-#include <PVTabSplitter.h>
-
-#include <PVColorDialog.h>
-#include <PVListingView.h>
-#include <PVListingModel.h>
-#include <PVListingSortFilterProxyModel.h>
-#include <PVLayerFilterProcessWidget.h>
-
-#include <pvkernel/core/PVClassLibrary.h>
-#include <picviz/PVLayerFilter.h>
-
 /******************************************************************************
  *
- * PVInspector::PVListingView::PVListingView
+ * PVGuiQt::PVListingView::PVListingView
  *
  *****************************************************************************/
-PVInspector::PVListingView::PVListingView(PVMainWindow *mw, PVTabSplitter *parent):
-	QTableView(parent),
-	main_window(mw),
-	_parent(parent)
-{	
-	PVLOG_DEBUG("PVInspector::PVListingView::%s\n", __FUNCTION__);
+PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QObject* parent)
+	QTableView(parent)
+{
+	PVHive::get().register_actor(view, _actor);
+	PVHive::get().register_observer(view, _obs);
 
-	lib_view = parent->get_lib_view();
-	_ctxt_process = NULL;
+	//_ctxt_process = NULL;
 	
 	// SIZE STUFF
 	setMinimumSize(60,40);
@@ -103,22 +95,20 @@ PVInspector::PVListingView::PVListingView(PVMainWindow *mw, PVTabSplitter *paren
 
 /******************************************************************************
  *
- * PVInspector::PVListingView::update_view_selection_from_listing_selection
+ * PVGuiQt::PVListingView::update_view_selection_from_listing_selection
  *
  *****************************************************************************/
-void PVInspector::PVListingView::update_view_selection_from_listing_selection()
+void PVGuiQt::PVListingView::update_view_selection_from_listing_selection()
 {
+#if 0
 	/* VARIABLES */
 	Picviz::PVStateMachine *state_machine;
 	QModelIndexList selected_items_list;
 	int modifiers;
 	// Get current lib view for this source
 
-	/* CODE */
-	state_machine = lib_view->state_machine;
-
 	/* Commit the previous volatile selection */
-	lib_view->commit_volatile_in_floating_selection();
+	_actor.call<FUNC(Picviz::PVView::commit_volatile_in_floating_selection)>();
 
 	/* Modify the state of the state machine according to the modifiers */
 	modifiers = (unsigned int) QApplication::keyboardModifiers();
@@ -127,19 +117,19 @@ void PVInspector::PVListingView::update_view_selection_from_listing_selection()
 	/* Can't use a switch case here as Qt::ShiftModifier and Qt::ControlModifier aren't really
 	 * constants */
 	if (modifiers == (Qt::ShiftModifier | Qt::ControlModifier)) {
-		state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_INTERSECT_VOLATILE);
+		_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_INTERSECT_VOLATILE);
 	}
 	else
 	if (modifiers == Qt::ControlModifier) {	
-		state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SUBSTRACT_VOLATILE);
+		_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_SUBSTRACT_VOLATILE);
 	}
 	else
 	if (modifiers == Qt::ShiftModifier) {
-		state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_ADD_VOLATILE);
+		_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_ADD_VOLATILE);
 	}
 	else {
-		state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
-		lib_view->floating_selection.select_none();
+		_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
+		_actor.call<FUNC(Picviz::PVView::get_floating_selection)>().select_none();
 	}
 
 	/* We define the volatile_selection using selection in the listing */
@@ -150,23 +140,16 @@ void PVInspector::PVListingView::update_view_selection_from_listing_selection()
 	}
 
 	/* We reprocess the view from the selection */
-	lib_view->process_from_selection();
-	/* We refresh the PVGLView */
-	main_window->update_pvglview(lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
-	/* We refresh the listing */
-	main_window->current_tab->refresh_listing_with_horizontal_header_Slot();
-	main_window->current_tab->update_pv_listing_model_Slot();
-	main_window->current_tab->refresh_layer_stack_view_Slot();
-
-	main_window->statusBar()->clearMessage();
+	_actor.call<FUNC(Picviz::PVView::process_from_selection)>();
+#endif
 }
 
 /******************************************************************************
  *
- * PVInspector::PVListingView::mouseDoubleClickEvent
+ * PVGuiQt::PVListingView::mouseDoubleClickEvent
  *
  *****************************************************************************/
-void PVInspector::PVListingView::mouseDoubleClickEvent(QMouseEvent* event)
+void PVGuiQt::PVListingView::mouseDoubleClickEvent(QMouseEvent* event)
 {
 	// Here is the reference:
 	// * if a double click is made on a line, then this line is selected in the table view *and* in the lib view
@@ -180,10 +163,10 @@ void PVInspector::PVListingView::mouseDoubleClickEvent(QMouseEvent* event)
 
 /******************************************************************************
  *
- * PVInspector::PVListingView::getSelectedRows
+ * PVGuiQt::PVListingView::getSelectedRows
  *
  *****************************************************************************/
-QVector<PVRow> PVInspector::PVListingView::get_selected_rows()
+QVector<PVRow> PVGuiQt::PVListingView::get_selected_rows()
 {
 	QModelIndexList selected_rows_list = selectionModel()->selectedRows(0);
 	int selected_rows_count = selected_rows_list.count();
@@ -202,10 +185,10 @@ QVector<PVRow> PVInspector::PVListingView::get_selected_rows()
 
 /******************************************************************************
  *
- * PVInspector::PVListingView::selectionChanged
+ * PVGuiQt::PVListingView::selectionChanged
  *
  *****************************************************************************/
-void PVInspector::PVListingView::selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
+void PVGuiQt::PVListingView::selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
 {
 	bool has_sel = selected.indexes().size() > 0;
 	QStatusBar* sb = main_window->statusBar();
@@ -220,10 +203,10 @@ void PVInspector::PVListingView::selectionChanged(const QItemSelection &selected
 
 /******************************************************************************
  *
- * PVInspector::PVListingView::slotDoubleClickOnVHead
+ * PVGuiQt::PVListingView::slotDoubleClickOnVHead
  *
  *****************************************************************************/
-void PVInspector::PVListingView::slotDoubleClickOnVHead(int /*idHeader*/)
+void PVGuiQt::PVListingView::slotDoubleClickOnVHead(int /*idHeader*/)
 {
 	// The double click automatically select the line, so just call our global
 	// selection function.
@@ -232,10 +215,10 @@ void PVInspector::PVListingView::slotDoubleClickOnVHead(int /*idHeader*/)
 
 /******************************************************************************
  *
- * PVInspector::PVListingView::keyEnterPressed
+ * PVGuiQt::PVListingView::keyEnterPressed
  *
  *****************************************************************************/
-void PVInspector::PVListingView::keyEnterPressed()
+void PVGuiQt::PVListingView::keyEnterPressed()
 {
 	if (selectedIndexes().size() > 0) {
 		update_view_selection_from_listing_selection();
@@ -244,10 +227,10 @@ void PVInspector::PVListingView::keyEnterPressed()
 
 /******************************************************************************
  *
- * PVInspector::PVListingView::wheelEvent
+ * PVGuiQt::PVListingView::wheelEvent
  *
  *****************************************************************************/
-void PVInspector::PVListingView::wheelEvent(QWheelEvent* e)
+void PVGuiQt::PVListingView::wheelEvent(QWheelEvent* e)
 {
 	if (e->modifiers() == Qt::ControlModifier)
 	{
@@ -262,10 +245,10 @@ void PVInspector::PVListingView::wheelEvent(QWheelEvent* e)
 
 /******************************************************************************
  *
- * PVInspector::PVListingView::show_ctxt_menu
+ * PVGuiQt::PVListingView::show_ctxt_menu
  *
  *****************************************************************************/
-void PVInspector::PVListingView::show_ctxt_menu(const QPoint& pos)
+void PVGuiQt::PVListingView::show_ctxt_menu(const QPoint& pos)
 {
 	if (!_show_ctxt_menu) {
 		return;
@@ -283,7 +266,6 @@ void PVInspector::PVListingView::show_ctxt_menu(const QPoint& pos)
 	PVCol col = lib_view->get_real_axis_index(idx_click.column());
 
 	// Get the real row index
-	//PVRow row = get_listing_model()->getRealRowIndex(idx_click.row());
 	PVRow row = get_listing_model()->mapToSource(idx_click).row();
 
 	// Set these informations in our object, so that they will be retrieved by the slot connected
@@ -308,7 +290,7 @@ void PVInspector::PVListingView::show_ctxt_menu(const QPoint& pos)
 	}
 }
 
-void PVInspector::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
+void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 {
 	int col = horizontalHeader()->logicalIndexAt(pos);
 	QAction* sel = _hhead_ctxt_menu->exec(QCursor::pos());
@@ -319,10 +301,10 @@ void PVInspector::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 
 /******************************************************************************
  *
- * PVInspector::PVListingView::process_ctxt_menu_copy
+ * PVGuiQt::PVListingView::process_ctxt_menu_copy
  *
  *****************************************************************************/
-void PVInspector::PVListingView::process_ctxt_menu_copy()
+void PVGuiQt::PVListingView::process_ctxt_menu_copy()
 {
 	// The value to copy is in _ctxt_v
 	QClipboard* cb = QApplication::clipboard();
@@ -331,10 +313,10 @@ void PVInspector::PVListingView::process_ctxt_menu_copy()
 
 /******************************************************************************
  *
- * PVInspector::PVListingView::process_ctxt_menu_set_color
+ * PVGuiQt::PVListingView::process_ctxt_menu_set_color
  *
  *****************************************************************************/
-void PVInspector::PVListingView::process_ctxt_menu_set_color()
+void PVGuiQt::PVListingView::process_ctxt_menu_set_color()
 {
 	/* We let the user select a color */
 	PVColorDialog* pv_ColorDialog = new PVColorDialog(*_parent->get_lib_view(), this);
@@ -348,10 +330,10 @@ void PVInspector::PVListingView::process_ctxt_menu_set_color()
 
 /******************************************************************************
  *
- * PVInspector::PVListingView::set_color_selected
+ * PVGuiQt::PVListingView::set_color_selected
  *
  *****************************************************************************/
-void PVInspector::PVListingView::set_color_selected(const QColor& c)
+void PVGuiQt::PVListingView::set_color_selected(const QColor& c)
 {
 	if (!c.isValid()) {
 		return;
@@ -374,10 +356,10 @@ void PVInspector::PVListingView::set_color_selected(const QColor& c)
 
 /******************************************************************************
  *
- * PVInspector::PVListingView::process_ctxt_menu_action
+ * PVGuiQt::PVListingView::process_ctxt_menu_action
  *
  *****************************************************************************/
-void PVInspector::PVListingView::process_ctxt_menu_action(QAction* act)
+void PVGuiQt::PVListingView::process_ctxt_menu_action(QAction* act)
 {
 	assert(act);
 	// Get the filter associated with that menu entry
@@ -402,41 +384,41 @@ void PVInspector::PVListingView::process_ctxt_menu_action(QAction* act)
 
 	// Show the layout filter widget
 	Picviz::PVLayerFilter_p fclone = lib_filter->clone<Picviz::PVLayerFilter>();
-	if (_ctxt_process) {
+	/*if (_ctxt_process) {
 		_ctxt_process->deleteLater();
-	}
+	}*/
 
 	// Creating the PVLayerFilterProcessWidget will save the current args for this filter.
 	// Then we can change them !
-	_ctxt_process = new PVLayerFilterProcessWidget(main_window->current_tab, args, fclone);
+	/*_ctxt_process = new PVLayerFilterProcessWidget(main_window->current_tab, args, fclone);
 	_ctxt_process->change_args(_ctxt_args);
-	_ctxt_process->show();
+	_ctxt_process->show();*/
 }
 
 /******************************************************************************
  *
- * PVInspector::PVListingView::update_view
+ * PVGuiQt::PVListingView::update_view
  *
  *****************************************************************************/
-void PVInspector::PVListingView::update_view()
+void PVGuiQt::PVListingView::update_view()
 {
 	lib_view = _parent->get_lib_view();
 	resizeColumnToContents(2);
 }
 
-PVInspector::PVListingSortFilterProxyModel* PVInspector::PVListingView::get_listing_model()
+PVGuiQt::PVListingSortFilterProxyModel* PVGuiQt::PVListingView::get_listing_model()
 {
 	PVListingSortFilterProxyModel* proxy_model = dynamic_cast<PVListingSortFilterProxyModel*>(model());
 	assert(proxy_model);
 	return proxy_model;
 }
 
-void PVInspector::PVListingView::refresh_listing_filter()
+void PVGuiQt::PVListingView::refresh_listing_filter()
 {
 	get_listing_model()->refresh_filter();
 }
 
-void PVInspector::PVListingView::selectAll()
+void PVGuiQt::PVListingView::selectAll()
 {
 	// AG: this function is called by QTableView when the corner button is pushed.
 	// That behaviour can't be changed (it is hardcoded in Qt, see qtableview.cpp:632).
@@ -454,7 +436,7 @@ void PVInspector::PVListingView::selectAll()
 	}
 }
 
-void PVInspector::PVListingView::corner_button_clicked()
+void PVGuiQt::PVListingView::corner_button_clicked()
 {
 	// Reset to default ordering
 	get_listing_model()->reset_to_default_ordering_or_reverse();

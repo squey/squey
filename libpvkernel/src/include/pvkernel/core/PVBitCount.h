@@ -32,6 +32,12 @@ inline size_t bit_count(uint64_t v)
 }
 #endif
 
+size_t bit_count(size_t n, const uint64_t* data);
+
+// a and b are positions in bits and are inclusive (which means that b-a+1 bits are checked)
+// No boundary checks are done, so be carefull !!
+size_t bit_count_between(size_t a, size_t b, const uint64_t* data);
+
 }
 
 }
