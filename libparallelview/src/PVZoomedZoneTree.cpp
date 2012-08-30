@@ -17,7 +17,7 @@
 #define ZZT_MAX_VALUE (1 << (32-NBITS_INDEX))
 
 /*
- * BUG: zooming in on a lines cone show less lines that it should be
+ * TODO: is _quad_entries correct sized?
  *
  * BUG: there is an overflow with squid.plotted: select the line on the bottom
  *      of zone 2, in the zoom on axis 1, the selected line go up instead of
@@ -47,7 +47,6 @@ PVParallelView::PVZoomedZoneTree::PVZoomedZoneTree(uint32_t max_level)
 		y2_min += ZZT_MAX_VALUE;
 	}
 
-	// TODO: find an appropriate size
 	_quad_entries = new PVParallelView::PVQuadTreeEntry [NBUCKETS];
 }
 
