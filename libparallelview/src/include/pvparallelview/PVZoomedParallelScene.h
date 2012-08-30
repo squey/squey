@@ -118,6 +118,7 @@ private:
 	zones_drawing_t              &_zones_drawing;
 	PVCol                         _axis;
 	int                           _wheel_value;
+	int                           _pan_reference_y;
 	int                           _zoom_level;
 	int                           _old_sb_pos;
 	zone_desc                     _left_zone;

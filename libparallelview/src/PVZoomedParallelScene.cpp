@@ -28,8 +28,8 @@
  *       images width
  */
 
-#define ZOOM_MODIFIER     Qt::ControlModifier
-#define PAN_MODIFIER      Qt::NoModifier
+#define ZOOM_MODIFIER     Qt::NoModifier
+#define PAN_MODIFIER      Qt::ControlModifier
 #define SLOW_PAN_MODIFIER Qt::ShiftModifier
 
 /*****************************************************************************
@@ -114,7 +114,11 @@ void PVParallelView::PVZoomedParallelScene::mousePressEvent(QGraphicsSceneMouseE
 {
 	if (event->button() == Qt::LeftButton) {
 		_selection_rect_pos = event->scenePos();
+	} else if (event->button() == Qt::RightButton) {
+		_pan_reference_y = event->screenPos().y();
 	}
+
+	event->accept();
 }
 
 /*****************************************************************************
@@ -130,6 +134,8 @@ void PVParallelView::PVZoomedParallelScene::mouseReleaseEvent(QGraphicsSceneMous
 		}
 		commit_volatile_selection_Slot();
 	}
+
+	event->accept();
 }
 
 /*****************************************************************************
@@ -146,7 +152,15 @@ void PVParallelView::PVZoomedParallelScene::mouseMoveEvent(QGraphicsSceneMouseEv
 		                     qMax(_selection_rect_pos.y(), event->scenePos().y()));
 
 		_selection_rect->update_rect(QRectF(top_left, bottom_right));
+	} else if (event->buttons() == Qt::RightButton) {
+		QScrollBar *sb = _zpview->verticalScrollBar();
+		int delta = _pan_reference_y - event->screenPos().y();
+		_pan_reference_y = event->screenPos().y();
+		int v = sb->value();
+		sb->setValue(v + delta);
 	}
+
+	event->accept();
 }
 
 /*****************************************************************************
