@@ -236,17 +236,17 @@ size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1(uint64_t y_min,
 				bci.s.l = ((e.y1 - y_min) >> shift) & mask_int_ycoord;
 
 				int64_t d = (int64_t)e.y2 - (int64_t)e.y1;
-				uint32_t y2p = (uint32_t)((int64_t)e.y1 + d * beta);
+				double y2p = (double)e.y1 + d * beta;
 
 				if (y2p >= y_lim) {
 					bci.s.type = PVParallelView::PVBCICode<bbits>::DOWN;
-					bci.s.r = (double)width * ((double)(y_lim - e.y1) / (double)(y2p - e.y1));
+					bci.s.r = ((double)width * (double)(y_lim - e.y1)) / (double)(y2p - e.y1);
 				} else if (y2p <= y_min) {
 					bci.s.type = PVParallelView::PVBCICode<bbits>::UP;
-					bci.s.r = (double)width * ((double)(e.y1 - y_min) / (double)(e.y1 - y2p));
+					bci.s.r = ((double)width * (double)(e.y1 - y_min)) / (double)(e.y1 - y2p);
 				} else {
 					bci.s.type = PVParallelView::PVBCICode<bbits>::STRAIGHT;
-					bci.s.r = ((y2p - y_min) >> shift) & mask_int_ycoord;
+					bci.s.r = (((uint32_t)(y2p - y_min)) >> shift) & mask_int_ycoord;
 				}
 
 				/* zoom make some entries having the same BCI codes. It is also useless
@@ -271,7 +271,6 @@ size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1(uint64_t y_min,
 						codes[bci_idx-1] = bci;
 					}
 				}
-
 			}
 		}
 	}
@@ -319,17 +318,17 @@ size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y2(uint64_t y_min,
 				bci.s.l = ((e.y2 - y_min) >> shift) & mask_int_ycoord;
 
 				int64_t d = (int64_t)e.y1 - (int64_t)e.y2;
-				uint32_t y1p = (uint32_t)((int64_t)e.y2 + d * beta);
+				double y1p = (double)e.y2 + d * beta;
 
 				if (y1p >= y_lim) {
 					bci.s.type = PVParallelView::PVBCICode<bbits>::DOWN;
-					bci.s.r = (double)width * ((double)(y_lim - e.y2) / (double)(y1p - e.y2));
+					bci.s.r = ((double)width * (double)(y_lim - e.y2)) / (double)(y1p - e.y2);
 				} else if (y1p <= y_min) {
 					bci.s.type = PVParallelView::PVBCICode<bbits>::UP;
-					bci.s.r = (double)width * ((double)(e.y2 - y_min) / (double)(e.y2 - y1p));
+					bci.s.r = ((double)width * (double)(e.y2 - y_min)) / (double)(e.y2 - y1p);
 				} else {
 					bci.s.type = PVParallelView::PVBCICode<bbits>::STRAIGHT;
-					bci.s.r = ((y1p - y_min) >> shift) & mask_int_ycoord;
+					bci.s.r = (((uint32_t)(y1p - y_min)) >> shift) & mask_int_ycoord;
 				}
 
 				/* zoom make some entries having the same BCI codes. It is also useless
@@ -354,7 +353,6 @@ size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y2(uint64_t y_min,
 						codes[bci_idx-1] = bci;
 					}
 				}
-
 			}
 		}
 	}
