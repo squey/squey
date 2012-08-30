@@ -42,7 +42,7 @@ protected slots:
 		std::cout << "ZoomDlg: zpv: " << zpv << std::endl;
 		zpv->setViewport(new QWidget());
 
-		_lv.create_zoomed_scene<PVParallelView::PVBCIDrawingBackendCUDA<PARALLELVIEW_ZZT_BBITS> >(zpv, _zd, zid);
+		_lv.create_zoomed_scene<PVParallelView::PVBCIDrawingBackendCUDA<PARALLELVIEW_ZZT_BBITS> >(zpv, zid);
 
 		zpv->resize(1024, 1024);
 		zpv->show();

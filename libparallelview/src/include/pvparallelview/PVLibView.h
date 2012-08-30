@@ -44,7 +44,6 @@ public:
 
 	template <typename Backend>
 	void create_zoomed_scene(PVParallelView::PVZoomedParallelView *zpv,
-	                         PVParallelView::PVZoomedParallelScene::zones_drawing_t &zd,
 	                         PVCol axis)
 	{
 		Backend &zoom_backend = *(new Backend);
