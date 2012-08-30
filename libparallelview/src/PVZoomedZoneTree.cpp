@@ -16,6 +16,13 @@
 
 #define ZZT_MAX_VALUE (1 << (32-NBITS_INDEX))
 
+/*
+ * BUG: zooming in on a lines cone show less lines that it should be
+ *
+ * BUG: there is an overflow with squid.plotted: select the line on the bottom
+ *      of zone 2, in the zoom on axis 1, the selected line go up instead of
+ *      going down.
+ */
 /*****************************************************************************
  * PVParallelView::PVZoomedZoneTree::PVZoomedZoneTree
  *****************************************************************************/
