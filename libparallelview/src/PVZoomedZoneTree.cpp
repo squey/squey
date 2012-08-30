@@ -18,10 +18,6 @@
 
 /*
  * TODO: is _quad_entries correct sized?
- *
- * BUG: there is an overflow with squid.plotted: select the line on the bottom
- *      of zone 2, in the zoom on axis 1, the selected line go up instead of
- *      going down.
  */
 /*****************************************************************************
  * PVParallelView::PVZoomedZoneTree::PVZoomedZoneTree
