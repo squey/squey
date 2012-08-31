@@ -49,13 +49,29 @@ public:
 	                      zones_drawing_t &zones_drawing,
 	                      PVCol axis);
 
+	~PVZoomedParallelScene();
+
 	void mousePressEvent(QGraphicsSceneMouseEvent *event);
 	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
 	void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
 
 	void wheelEvent(QGraphicsSceneWheelEvent* event);
 
+	void invalidate_selection();
+
 	virtual void drawBackground(QPainter *painter, const QRectF &rect);
+
+	inline void update_all()
+	{
+		_render_type = RENDER_ALL;
+		update_display();
+	}
+
+	inline void update_sel()
+	{
+		_render_type = RENDER_SEL;
+		update_display();
+	}
 
 	void update_display();
 	void resize_display(const QSize &s);
@@ -84,35 +100,55 @@ private slots:
 	void scrollbar_changed_Slot(int value);
 	void scrollbar_timeout_Slot();
 	void zone_rendered_Slot(int z);
+	void filter_by_sel_finished_Slot(int zid, bool changed);
 	void commit_volatile_selection_Slot();
 
 private:
-	struct zone_desc
+	typedef enum {
+		RENDER_ALL,
+		RENDER_SEL
+	} render_t;
+
+	struct zone_desc_t
 	{
-		QRect             area;
-		QPoint            pos;
-		backend_image_p_t image;
-		backend_image_p_t sel_image;
-		QImage            back_image;
+		bool              created;    // if the zone is effective or not
+		QRect             area;       // the zone's area in the screen
+		QPoint            pos;        // the zone's position in the screen
+		backend_image_p_t bg_image;   // the image for unselected/zomby lines
+		backend_image_p_t sel_image;  // the image for selected lines
+		QImage            back_image; // the back buffer for debased rendering
 	};
 
-	PVZoomedParallelView         *_zpview;
-	Picviz::FakePVView_p          _pvview_p;
-	zones_drawing_t              &_zones_drawing;
-	PVCol                         _axis;
-	int                           _wheel_value;
-	int                           _pan_reference_y;
-	int                           _zoom_level;
-	int                           _old_sb_pos;
-	zone_desc                     _left_zone;
-	zone_desc                     _right_zone;
-	PVRenderingJob               *_rendering_job;
-	QFuture<void>                 _rendering_future;
-	bool                          _skip_update_zoom;
-	QTimer                        _scroll_timer;
+	PVZoomedParallelView          *_zpview;
+	Picviz::FakePVView_p           _pvview_p;
+	zones_drawing_t               &_zones_drawing;
+	Picviz::PVSelection           &_selection;
+	PVCol                          _axis;
+
+	// about mouse
+	int                            _wheel_value;
+	int                            _pan_reference_y;
+	int                            _zoom_level;
+	int                            _old_sb_pos;
+
+	// about zones rendering/display
+	zone_desc_t                    _left_zone;
+	zone_desc_t                    _right_zone;
+
+	// about rendering
+	PVRenderingJob                *_rendering_job;
+	QFuture<void>                  _rendering_future;
+	bool                           _skip_update_zoom;
+	QTimer                         _scroll_timer;
+
+	// about selection in the zoom view
 	QPointF                        _selection_rect_pos;
 	PVSelectionSquareGraphicsItem *_selection_rect;
-	Picviz::PVSelection          &_selection;
+
+	// about rendering invalidation
+	render_t                       _render_type;
+	int                            _rendering_zone_number;
+	int                            _rendered_zone_count;
 };
 
 }

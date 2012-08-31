@@ -22,7 +22,7 @@ class PVZone
 public:
 	PVZone():
 		_ztree(new PVZoneTree()),
-		_zoomed_ztree(new PVZoomedZoneTree()),
+		_zoomed_ztree(new PVZoomedZoneTree(_ztree->get_sel_elts())),
 		_width(PVParallelView::ZoneDefaultWidth)
 	{ }
 

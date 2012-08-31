@@ -23,7 +23,9 @@
  * PVParallelView::PVZoomedZoneTree::PVZoomedZoneTree
  *****************************************************************************/
 
-PVParallelView::PVZoomedZoneTree::PVZoomedZoneTree(uint32_t max_level)
+PVParallelView::PVZoomedZoneTree::PVZoomedZoneTree(const PVRow *sel_elts,
+                                                   uint32_t max_level) :
+	_sel_elts(sel_elts)
 {
 	uint32_t idx = 0;
 	uint32_t y1_min;
@@ -205,7 +207,8 @@ size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1(uint64_t y_min,
                                                                const extract_entry_f &extract_entry,
                                                                const PVCore::PVHSVColor* colors,
                                                                PVBCICode<bbits>* codes,
-                                                               const float beta) const
+                                                               const float beta,
+                                                               const bool use_sel) const
 {
 	size_t num = 0;
 	size_t bci_idx = 0;
@@ -216,9 +219,19 @@ size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1(uint64_t y_min,
 
 	for (uint32_t t1 = t1_min; t1 < t1_max; ++t1) {
 		for (uint32_t t2 = 0; t2 < 1024; ++t2) {
+			PVRow tree_idx = (t2 * 1024) + t1;
+
+			if (use_sel && (_sel_elts[tree_idx] == PVROW_INVALID_VALUE)) {
+				/* when searching for entries using the selection, if there is no
+				 * drawn selected line for the corresponding ZoneTree, it is useless
+				 * to search for a selected line in the quadtree
+				 */
+				continue;
+			}
+
 			/* lines extraction
 			 */
-			num = extract_entry(_trees[(t2 * 1024) + t1]);
+			num = extract_entry(_trees[tree_idx]);
 
 			/* conversion into BCI codes
 			 */
@@ -287,7 +300,8 @@ size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y2(uint64_t y_min,
                                                                const extract_entry_f &extract_entry,
                                                                const PVCore::PVHSVColor* colors,
                                                                PVBCICode<bbits>* codes,
-                                                               const float beta) const
+                                                               const float beta,
+                                                               const bool use_sel) const
 {
 	size_t num = 0;
 	size_t bci_idx = 0;
@@ -298,9 +312,19 @@ size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y2(uint64_t y_min,
 
 	for (uint32_t t2 = t2_min; t2 < t2_max; ++t2) {
 		for (uint32_t t1 = 0; t1 < 1024; ++t1) {
+			PVRow tree_idx = (t2 * 1024) + t1;
+
+			if (use_sel && (_sel_elts[tree_idx] == PVROW_INVALID_VALUE)) {
+				/* when searching for entries using the selection, if there is no
+				 * drawn selected line for the corresponding ZoneTree, it is useless
+				 * to search for a selected line in the quadtree
+				 */
+				continue;
+			}
+
 			/* lines extraction
 			 */
-			num = extract_entry(_trees[(t2 * 1024) + t1]);
+			    num = extract_entry(_trees[tree_idx]);
 
 			/* conversion into BCI codes
 			 */

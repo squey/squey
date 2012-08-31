@@ -40,7 +40,7 @@ class PVZoomedZoneTree
 	typedef std::function<size_t(const pvquadtree &tree)> extract_entry_f;
 
 public:
-	PVZoomedZoneTree(uint32_t max_level = 8);
+	PVZoomedZoneTree(const PVRow *sel_elts, uint32_t max_level = 8);
 
 	~PVZoomedZoneTree();
 
@@ -120,7 +120,7 @@ public:
 			                                                               zoom,
 			                                                               this->_quad_entries);
 		                             },
-		                             colors, codes, beta);
+		                             colors, codes, beta, true);
 	}
 
 	inline size_t browse_bci_sel_by_y2(uint64_t y_min, uint64_t y_max, uint64_t y_lim,
@@ -138,7 +138,7 @@ public:
 			                                                               zoom,
 			                                                               this->_quad_entries);
 		                             },
-		                             colors, codes, beta);
+		                             colors, codes, beta, true);
 	}
 
 private:
@@ -146,13 +146,15 @@ private:
 	                             uint32_t width,
 	                             const extract_entry_f &extract_entry,
 	                             const PVCore::PVHSVColor* colors, PVBCICode<bbits>* codes,
-	                             const float beta = 1.0f) const;
+	                             const float beta = 1.0f,
+	                             const bool use_sel = false) const;
 
 	size_t browse_tree_bci_by_y2(uint64_t y_min, uint64_t y_max, uint64_t y_lim, int zoom,
 	                             uint32_t width,
 	                             const extract_entry_f &extract_entry,
 	                             const PVCore::PVHSVColor* colors, PVBCICode<bbits>* codes,
-	                             const float beta = 1.0f) const;
+	                             const float beta = 1.0f,
+	                             const bool use_sel = false) const;
 
 	inline uint32_t compute_index(uint32_t y1, uint32_t y2) const
 	{
@@ -166,7 +168,8 @@ private:
 	}
 
 private:
-	pvquadtree *_trees;
+	pvquadtree      *_trees;
+	const PVRow     *_sel_elts;
 	PVQuadTreeEntry *_quad_entries;
 };
 

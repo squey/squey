@@ -47,6 +47,11 @@ public:
 		return _first_elts[branch_id] != PVROW_INVALID_VALUE;
 	}
 
+	inline const PVRow *get_sel_elts() const
+	{
+		return _sel_elts;
+	}
+
 	size_t browse_tree_bci(PVCore::PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const;
 	size_t browse_tree_bci_sel(PVCore::PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const;
 
