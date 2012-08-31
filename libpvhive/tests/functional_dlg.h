@@ -573,11 +573,11 @@ private:
 		} else {
 			PVHive::PVHive::get().register_observer
 				(s,
-				 [](Storage const &s) -> Property const & {
-					const PropertyEntity *pe = static_cast<const PropertyEntity *>(&s);
-					const Property *pp = pe->get_prop();
+				 [](Storage& s) -> Property* {
+					PropertyEntity *pe = static_cast<PropertyEntity *>(&s);
+					Property *pp = pe->get_prop();
 					std::cout << "reg obs for obj " << pp << std::endl;
-					return *pp;
+					return pp;
 				}, *o);
 		}
 	}

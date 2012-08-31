@@ -26,9 +26,9 @@ PVHIVE_CALL_OBJECT_BLOCK_END()
  * property accessor
  *****************************************************************************/
 
-const Property& get_prop(const Block& b, int i)
+Property* get_prop(Block& b, int i)
 {
-	return b.get_prop(i);
+	return &b.get_prop(i);
 }
 
 /*****************************************************************************

@@ -108,9 +108,9 @@ public:
 		PVHive::PVHive &hive = PVHive::PVHive::get();
 		hive.register_observer(o, _myobj_observer);
 
-		auto prop_get = [] (MyObject const& o) -> const ObjectProperty&
+		auto prop_get = [] (MyObject& o) -> ObjectProperty*
 			{
-				return o.get_prop();
+				return &o.get_prop();
 			};
 
 		hive.register_observer(o, prop_get, _objprop_observer);

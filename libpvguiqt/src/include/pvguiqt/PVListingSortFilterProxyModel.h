@@ -9,18 +9,40 @@
 
 #include <picviz/PVDefaultSortingFunc.h>
 #include <picviz/PVSortingFunc.h>
-#include <picviz/PVView_types.h>
+#include <picviz/PVView.h>
+
+#include <pvhive/PVCallHelper.h>
+#include <pvhive/PVObserverSignal.h>
 
 #include <pvguiqt/PVSortFilterProxyModel.h>
 
 namespace PVGuiQt {
 
+namespace __impl {
+
+class PVSelFuncObserver: public PVHive::PVFuncObserverSignal<Picviz::PVView, FUNC(Picviz::PVView::process_from_selection)>
+{
+	Q_OBJECT
+
+public:
+	void about_to_be_updated(const arguments_deep_copy_type&) const override { emit about_to_refresh_sel(); }
+	void update(const arguments_deep_copy_type&) const override { emit refresh_sel(); }
+
+signals:
+	void about_to_refresh_sel() const;
+	void refresh_sel() const;
+};
+
+}
+
 class PVListingSortFilterProxyModel: public PVSortFilterProxyModel
 {
+	Q_OBJECT
+
 public:
 	PVListingSortFilterProxyModel(Picviz::PVView_sp& lib_view, QObject* parent = NULL);
 
-public:
+public slots:
 	void refresh_filter();
 
 protected:
@@ -35,10 +57,12 @@ private:
 	mutable Picviz::PVSortingFunc_fequals _equals_f;
 	Picviz::PVView const& _lib_view;
 
+	// Observers
+	//__impl::PVSelFuncObserver _obs_sel;
+	PVHive::PVObserverSignal<Picviz::PVLayer> _obs_output_layer;
+
 	// Temporary
 	Picviz::PVDefaultSortingFunc _def_sort;
-
-	Q_OBJECT
 };
 
 }

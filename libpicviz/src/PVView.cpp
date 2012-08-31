@@ -348,19 +348,9 @@ PVCore::PVUnicodeString const& Picviz::PVView::get_data_unistr(PVRow row, PVCol 
  * Picviz::PVView::get_real_axis_index
  *
  *****************************************************************************/
-PVCol Picviz::PVView::get_real_axis_index(PVCol col)
+PVCol Picviz::PVView::get_real_axis_index(PVCol col) const
 {
 	return axes_combination.get_axis_column_index(col);
-}
-
-/******************************************************************************
- *
- * Picviz::PVView::get_floating_selection
- *
- *****************************************************************************/
-Picviz::PVSelection &Picviz::PVView::get_floating_selection()
-{
-	return floating_selection;
 }
 
 /******************************************************************************

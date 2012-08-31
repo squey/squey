@@ -8,6 +8,7 @@
 
 #include <pvguiqt/PVListingModel.h>
 #include <pvguiqt/PVListingSortFilterProxyModel.h>
+#include <pvguiqt/PVListingView.h>
 
 #include <QApplication>
 #include <QMainWindow>
@@ -42,7 +43,7 @@ int main(int argc, char** argv)
 	PVGuiQt::PVListingSortFilterProxyModel* proxy_model = new PVGuiQt::PVListingSortFilterProxyModel(view);
 	proxy_model->setSourceModel(model);
 
-	QTableView* qt_view = new QTableView();
+	PVGuiQt::PVListingView* qt_view = new PVGuiQt::PVListingView(view);
 	qt_view->setModel(proxy_model);
 
 	QMainWindow* mw = new QMainWindow();

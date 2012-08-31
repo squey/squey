@@ -9,6 +9,9 @@
 
 #include <QTableView>
 
+#include <pvkernel/core/general.h>
+#include <pvkernel/core/PVArgument.h>
+
 #include <pvhive/PVActor.h>
 #include <pvhive/PVObserverSignal.h>
 
@@ -27,13 +30,10 @@ class PVListingView : public QTableView
 	Q_OBJECT
 
 public:
-	PVListingView(Picviz::PVView_sp& view, QObject* parent = NULL);
+	PVListingView(Picviz::PVView_sp& view, QWidget* parent = NULL);
 
 	void refresh_listing_filter();
-	void keyEnterPressed();
 	void wheelEvent(QWheelEvent* e);
-
-	void update_view();
 
 	PVListingSortFilterProxyModel* get_listing_model();
 
@@ -43,6 +43,7 @@ public slots:
 
 protected:
 	void mouseDoubleClickEvent(QMouseEvent* event);
+	void keyPressEvent(QKeyEvent* event) override;
 
 private:
 	QVector<PVRow> get_selected_rows();
@@ -55,6 +56,8 @@ private:
 
 private:
 	void update_view_selection_from_listing_selection();
+	Picviz::PVView const& lib_view() const { return *_obs.get_object(); }
+	Picviz::PVView& lib_view() { return *_obs.get_object(); }
 
 private slots:
 	void slotDoubleClickOnVHead(int);
