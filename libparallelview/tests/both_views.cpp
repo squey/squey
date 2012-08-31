@@ -109,11 +109,6 @@ int main(int argc, char** argv)
 	zm.set_uint_plotted(norm_plotted, nrows, ncols);
 	zm.update_all();
 
-	/// TODO: Find a better way to pass the plotted to the zones manager
-	zm.set_uint_plotted(norm_plotted, nrows, ncols);
-	zm.update_all();
-	///
-
 	lib_view.create_view(backend_cuda);
 
 	PVParallelView::PVBCIDrawingBackendCUDA<PARALLELVIEW_ZZT_BBITS> backend_cuda_zoom;
