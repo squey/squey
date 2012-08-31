@@ -99,19 +99,19 @@ int main(int argc, char** argv)
 	Picviz::PVPlotted::norm_int_plotted(plotted, norm_plotted, ncols);
 	BENCH_END_TRANSFORM(norm, "integer normalisation", sizeof(float), nrows*ncols);
 
-	// Zone Manager
-	PVParallelView::PVZonesManager &zm = *(new PVParallelView::PVZonesManager());
-	zm.set_uint_plotted(norm_plotted, nrows, ncols);
-	zm.update_all();
-
 	PVParallelView::PVBCIDrawingBackendCUDA<NBITS_INDEX> backend_cuda;
 	Picviz::FakePVView::shared_pointer fake_pvview_sp(new Picviz::FakePVView());
 
 	PVParallelView::PVLibView lib_view(fake_pvview_sp, colors);
 
+	// Zone Manager
+	PVParallelView::PVZonesManager &zm = lib_view.get_zones_manager();
+	zm.set_uint_plotted(norm_plotted, nrows, ncols);
+	zm.update_all();
+
 	/// TODO: Find a better way to pass the plotted to the zones manager
-	lib_view.get_zones_manager().set_uint_plotted(norm_plotted, nrows, ncols);
-	lib_view.get_zones_manager().update_all();
+	zm.set_uint_plotted(norm_plotted, nrows, ncols);
+	zm.update_all();
 	///
 
 	lib_view.create_view(backend_cuda);
