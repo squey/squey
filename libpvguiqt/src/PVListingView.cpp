@@ -155,7 +155,7 @@ void PVGuiQt::PVListingView::update_view_selection_from_listing_selection()
 	}
 
 	/* We reprocess the view from the selection */
-	_actor.call<FUNC(Picviz::PVView::process_from_selection)>(4);
+	_actor.call<FUNC(Picviz::PVView::process_from_selection)>();
 }
 
 /******************************************************************************
@@ -243,6 +243,12 @@ void PVGuiQt::PVListingView::keyPressEvent(QKeyEvent* event)
 				update_view_selection_from_listing_selection();
 			}
 			break;
+		case 'a':
+		case 'A':
+			_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
+			lib_view().get_floating_selection().select_none();
+			lib_view().get_volatile_selection().select_all();
+
 		default:
 			QTableView::keyPressEvent(event);
 	}
