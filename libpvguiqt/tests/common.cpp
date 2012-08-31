@@ -46,5 +46,6 @@ Picviz::PVSource_sp get_src_from_file(Picviz::PVRoot_sp root, QString const& fil
 
 void init_random_colors(Picviz::PVView& view)
 {
-	view.get_output_layer().get_lines_properties().set_random(view.get_row_count());
+	view.get_layer_stack().get_layer_n(0).get_lines_properties().set_random(view.get_row_count());
+	view.process_from_layer_stack();
 }
