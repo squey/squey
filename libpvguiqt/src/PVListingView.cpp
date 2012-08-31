@@ -11,23 +11,36 @@
 #include <picviz/PVLayerFilter.h>
 #include <picviz/PVView.h>
 
+#include <pvhive/PVActor.h>
+#include <pvhive/PVCallHelper.h>
+#include <pvhive/waxes/waxes.h>
+
 #include <pvguiqt/PVListingView.h>
 #include <pvguiqt/PVListingModel.h>
 #include <pvguiqt/PVListingSortFilterProxyModel.h>
 
+#include <QAbstractButton>
+#include <QApplication>
+#include <QClipboard>
 #include <QCursor>
+#include <QKeyEvent>
+#include <QHeaderView>
+#include <QScrollBar>
 #include <QSizePolicy>
+#include <QStatusBar>
+#include <QMenu>
+#include <QWheelEvent>
 
 /******************************************************************************
  *
  * PVGuiQt::PVListingView::PVListingView
  *
  *****************************************************************************/
-PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QObject* parent)
+PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QWidget* parent):
 	QTableView(parent)
 {
-	PVHive::get().register_actor(view, _actor);
 	PVHive::get().register_observer(view, _obs);
+	PVHive::get().register_actor(view, _actor);
 
 	//_ctxt_process = NULL;
 	
@@ -46,9 +59,12 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QObject* parent)
 	verticalScrollBar()->setObjectName("verticalScrollBar_of_PVListingView");
 	
 	// FOCUS POLICY
-	setFocusPolicy(Qt::NoFocus);
+	setFocusPolicy(Qt::StrongFocus);
 	setSelectionMode(QAbstractItemView::ExtendedSelection);
 	setSelectionBehavior(QAbstractItemView::SelectRows);
+
+	// Sorting
+	setSortingEnabled(true);
 	
 	// Custom context menu.
 	// It is created based on what layer filter plugins tell us.
@@ -100,9 +116,7 @@ PVGuiQt::PVListingView::PVListingView(Picviz::PVView_sp& view, QObject* parent)
  *****************************************************************************/
 void PVGuiQt::PVListingView::update_view_selection_from_listing_selection()
 {
-#if 0
 	/* VARIABLES */
-	Picviz::PVStateMachine *state_machine;
 	QModelIndexList selected_items_list;
 	int modifiers;
 	// Get current lib view for this source
@@ -129,19 +143,19 @@ void PVGuiQt::PVListingView::update_view_selection_from_listing_selection()
 	}
 	else {
 		_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
-		_actor.call<FUNC(Picviz::PVView::get_floating_selection)>().select_none();
+		lib_view().get_floating_selection().select_none();
 	}
 
 	/* We define the volatile_selection using selection in the listing */
-	lib_view->volatile_selection.select_none();
+	Picviz::PVSelection& vsel = lib_view().get_volatile_selection();
+	vsel.select_none();
 	QVector<PVRow> selected_rows_vector = get_selected_rows();
 	foreach (PVRow line, selected_rows_vector) {
-		lib_view->volatile_selection.set_line(line, 1);
+		vsel.set_bit_fast(line);
 	}
 
 	/* We reprocess the view from the selection */
-	_actor.call<FUNC(Picviz::PVView::process_from_selection)>();
-#endif
+	_actor.call<FUNC(Picviz::PVView::process_from_selection)>(4);
 }
 
 /******************************************************************************
@@ -190,6 +204,7 @@ QVector<PVRow> PVGuiQt::PVListingView::get_selected_rows()
  *****************************************************************************/
 void PVGuiQt::PVListingView::selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
 {
+#if 0
 	bool has_sel = selected.indexes().size() > 0;
 	QStatusBar* sb = main_window->statusBar();
 	if (has_sel) {
@@ -199,6 +214,7 @@ void PVGuiQt::PVListingView::selectionChanged(const QItemSelection &selected, co
 		sb->clearMessage();
 	}
 	QTableView::selectionChanged(selected, deselected);
+#endif
 }
 
 /******************************************************************************
@@ -218,10 +234,17 @@ void PVGuiQt::PVListingView::slotDoubleClickOnVHead(int /*idHeader*/)
  * PVGuiQt::PVListingView::keyEnterPressed
  *
  *****************************************************************************/
-void PVGuiQt::PVListingView::keyEnterPressed()
+void PVGuiQt::PVListingView::keyPressEvent(QKeyEvent* event)
 {
-	if (selectedIndexes().size() > 0) {
-		update_view_selection_from_listing_selection();
+	switch (event->key()) {
+		case Qt::Key_Return:
+		case Qt::Key_Enter:
+			if (selectedIndexes().size() > 0) {
+				update_view_selection_from_listing_selection();
+			}
+			break;
+		default:
+			QTableView::keyPressEvent(event);
 	}
 }
 
@@ -263,7 +286,7 @@ void PVGuiQt::PVListingView::show_ctxt_menu(const QPoint& pos)
 	QString v = idx_click.data().toString();
 
 	// Get the real axis index
-	PVCol col = lib_view->get_real_axis_index(idx_click.column());
+	PVCol col = lib_view().get_real_axis_index(idx_click.column());
 
 	// Get the real row index
 	PVRow row = get_listing_model()->mapToSource(idx_click).row();
@@ -292,11 +315,13 @@ void PVGuiQt::PVListingView::show_ctxt_menu(const QPoint& pos)
 
 void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 {
+#if 0
 	int col = horizontalHeader()->logicalIndexAt(pos);
 	QAction* sel = _hhead_ctxt_menu->exec(QCursor::pos());
 	if (sel == _action_col_unique) {
 		_parent->show_unique_values(col);
 	}
+#endif
 }
 
 /******************************************************************************
@@ -318,6 +343,7 @@ void PVGuiQt::PVListingView::process_ctxt_menu_copy()
  *****************************************************************************/
 void PVGuiQt::PVListingView::process_ctxt_menu_set_color()
 {
+#if 0
 	/* We let the user select a color */
 	PVColorDialog* pv_ColorDialog = new PVColorDialog(*_parent->get_lib_view(), this);
 	connect(pv_ColorDialog, SIGNAL(colorSelected(const QColor&)), this, SLOT(set_color_selected(const QColor&)));
@@ -326,6 +352,7 @@ void PVGuiQt::PVListingView::process_ctxt_menu_set_color()
 	pv_ColorDialog->setFocus(Qt::PopupFocusReason);
 	pv_ColorDialog->raise();
 	pv_ColorDialog->activateWindow();
+#endif
 }
 
 /******************************************************************************
@@ -335,12 +362,12 @@ void PVGuiQt::PVListingView::process_ctxt_menu_set_color()
  *****************************************************************************/
 void PVGuiQt::PVListingView::set_color_selected(const QColor& c)
 {
+#if 0
 	if (!c.isValid()) {
 		return;
 	}
 
 	QVector<PVRow> selected_rows_vector = get_selected_rows();
-	Picviz::PVView* view = _parent->get_lib_view();
 	Picviz::PVLayer& layer = view->get_current_layer();
 	Picviz::PVLinesProperties& lines_properties = layer.get_lines_properties();
 
@@ -350,8 +377,7 @@ void PVGuiQt::PVListingView::set_color_selected(const QColor& c)
 
 	// Reprocess pipeline + refresh view
 	view->process_from_layer_stack();
-	main_window->update_pvglview(view, PVSDK_MESSENGER_REFRESH_COLOR);
-	_parent->refresh_listing_Slot();
+#endif
 }
 
 /******************************************************************************
@@ -379,12 +405,12 @@ void PVGuiQt::PVListingView::process_ctxt_menu_action(QAction* act)
 	Picviz::PVLayerFilter::ctxt_menu_f args_f = entries[act_name];
 
 	// Get the arguments
-	PVCore::PVArgumentList &args = lib_view->get_last_args_filter(filter_name);
+	/*PVCore::PVArgumentList &args = lib_view().get_last_args_filter(filter_name);
 	_ctxt_args = args_f(_ctxt_row, _ctxt_col, _ctxt_v);
 
 	// Show the layout filter widget
 	Picviz::PVLayerFilter_p fclone = lib_filter->clone<Picviz::PVLayerFilter>();
-	/*if (_ctxt_process) {
+	if (_ctxt_process) {
 		_ctxt_process->deleteLater();
 	}*/
 
@@ -393,17 +419,6 @@ void PVGuiQt::PVListingView::process_ctxt_menu_action(QAction* act)
 	/*_ctxt_process = new PVLayerFilterProcessWidget(main_window->current_tab, args, fclone);
 	_ctxt_process->change_args(_ctxt_args);
 	_ctxt_process->show();*/
-}
-
-/******************************************************************************
- *
- * PVGuiQt::PVListingView::update_view
- *
- *****************************************************************************/
-void PVGuiQt::PVListingView::update_view()
-{
-	lib_view = _parent->get_lib_view();
-	resizeColumnToContents(2);
 }
 
 PVGuiQt::PVListingSortFilterProxyModel* PVGuiQt::PVListingView::get_listing_model()
