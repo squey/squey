@@ -25,7 +25,7 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(Picviz::FakePVView::sha
 	connect(_parallel_view->horizontalScrollBar(), SIGNAL(sliderPressed()), this, SLOT(scrollbar_pressed_Slot()));
 	connect(_parallel_view->horizontalScrollBar(), SIGNAL(sliderReleased()), this, SLOT(scrollbar_released_Slot()));
 	connect(_selection_square, SIGNAL(commit_volatile_selection()), this, SLOT(commit_volatile_selection_Slot()));
-	connect(&_lines_view.get_zones_manager(), SIGNAL(filter_by_sel_finished(int)), this, SLOT(draw_zone_Slot(int)));
+	connect(&_lines_view.get_zones_manager(), SIGNAL(filter_by_sel_finished(int, bool)), this, SLOT(draw_zone_Slot(int, bool)));
 
 	// Observers of PVZoneDrawing::draw_zone<browse_tree_bci> and PVZoneDrawing::draw_zone<browse_tree_bci_sel>
 	PVHive::PVHive::get().register_func_observer(
@@ -106,13 +106,13 @@ void PVParallelView::PVFullParallelScene::first_render()
 void PVParallelView::PVFullParallelScene::connect_draw_zone()
 {
 	disconnect(&_lines_view.get_zones_manager(), 0, this, 0);
-	connect(&_lines_view.get_zones_manager(), SIGNAL(filter_by_sel_finished(int)), this, SLOT(draw_zone_Slot(int)));
+	connect(&_lines_view.get_zones_manager(), SIGNAL(filter_by_sel_finished(int, bool)), this, SLOT(draw_zone_Slot(int, bool)));
 }
 
 void PVParallelView::PVFullParallelScene::connect_draw_zone_sel()
 {
 	disconnect(&_lines_view.get_zones_manager(), 0, this, 0);
-	connect(&_lines_view.get_zones_manager(), SIGNAL(filter_by_sel_finished(int)), this, SLOT(draw_zone_sel_Slot(int)));
+	connect(&_lines_view.get_zones_manager(), SIGNAL(filter_by_sel_finished(int, bool)), this, SLOT(draw_zone_sel_Slot(int, bool)));
 }
 
 void PVParallelView::PVFullParallelScene::update_sel_from_zone()
@@ -402,13 +402,13 @@ void PVParallelView::PVFullParallelScene::scrollbar_released_Slot()
 	translate_and_update_zones_position();
 }
 
-void PVParallelView::PVFullParallelScene::draw_zone_Slot(int zid)
+void PVParallelView::PVFullParallelScene::draw_zone_Slot(int zid, bool /*changed*/)
 {
 	PVLOG_INFO("draw_zone_Slot %d\n", zid);
 	_lines_view.draw_zone(zid);
 }
 
-void PVParallelView::PVFullParallelScene::draw_zone_sel_Slot(int zid)
+void PVParallelView::PVFullParallelScene::draw_zone_sel_Slot(int zid, bool /*changed*/)
 {
 	_lines_view.draw_zone_sel(zid);
 }

@@ -38,17 +38,20 @@ public:
 
 	void invalid_selection() { _zone_state = INVALID; }
 
-	bool filter_by_sel(const Picviz::PVSelection& sel)
+	bool filter_by_sel(const Picviz::PVSelection& sel, const PVRow nrows, bool& changed)
 	{
 		if (_zone_state.compare_and_swap(INVALID, BEING_PROCESSED) == INVALID) {
-			_ztree->filter_by_sel(sel);
+			_ztree->filter_by_sel(sel, nrows);
 			_zone_state = UP_TO_DATE;
+			changed = true;
 			return true;
 		}
 		else if (_zone_state == BEING_PROCESSED) {
+			changed = false;
 			return false;
 		}
 		else {
+			changed = false;
 			return true;
 		}
 	}

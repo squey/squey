@@ -112,7 +112,7 @@ protected:
 	inline Picviz::PVPlotted::uint_plotted_table_t const& get_uint_plotted() const { assert(_uint_plotted); return *_uint_plotted; }
 
 signals:
-	void filter_by_sel_finished(int zid);
+	void filter_by_sel_finished(int zid, bool changed);
 
 protected:
 	Picviz::PVPlotted::uint_plotted_table_t const* _uint_plotted = NULL;
