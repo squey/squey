@@ -30,7 +30,7 @@
 
 #include <omp.h>
 
-#define GRAINSIZE 100
+#define GRAINSIZE 128
 
 using Picviz::PVSelection;
 
@@ -203,7 +203,7 @@ public:
 		_sel_buf(sel_buf)
 	{
 	}
-
+	
 	void operator() (const tbb::blocked_range<size_t>& range) const
 	{
 		for (PVRow b = range.begin(); b != range.end(); ++b) {
@@ -230,6 +230,68 @@ public:
 private:
 	mutable PVParallelView::PVZoneTree* _tree;
 	Picviz::PVSelection::const_pointer _sel_buf;
+};
+
+class TBBSelFilterMaxCount {
+public:
+	TBBSelFilterMaxCount (
+		PVParallelView::PVZoneTree* tree,
+		const Picviz::PVSelection::const_pointer sel_buf,
+		tbb::atomic<ssize_t>& nelts,
+		tbb::task_group_context& ctxt
+	) :
+		_tree(tree),
+		_sel_buf(sel_buf),
+		_nelts(&nelts),
+		_ctxt(&ctxt)
+	{
+	}
+	
+	void operator() (const tbb::blocked_range<size_t>& range) const
+	{
+		const ssize_t cur_remaing = (ssize_t) *_nelts;
+		ssize_t nelts_found = 0;
+		const Picviz::PVSelection::const_pointer sel_buf = _sel_buf;
+		if (cur_remaing == 0) {
+			return;
+		}
+
+		for (PVRow b = range.begin(); b != range.end(); b++) {
+			PVRow res = PVROW_INVALID_VALUE;
+			if (_tree->branch_valid(b)) {
+				const PVRow r = _tree->get_first_elt_of_branch(b);
+				if ((sel_buf[PVSelection::line_index_to_chunk(r)]) & (1UL<<(PVSelection::line_index_to_chunk_bit(r)))) {
+					res = r;
+					nelts_found++;
+				}
+				else {
+					for (size_t i=0; i< _tree->_treeb[b].count; i++) {
+						const PVRow r = _tree->_treeb[b].p[i];
+						if ((sel_buf[PVSelection::line_index_to_chunk(r)]) & (1UL<<(PVSelection::line_index_to_chunk_bit(r)))) {
+							res = r;
+							nelts_found++;
+							break;
+						}
+					}
+				}
+			}
+			_tree->_sel_elts[b] = res;
+			if (nelts_found >= *_nelts) {
+				break;
+			}
+		}
+		if ((nelts_found > 0) &&
+		    (_nelts->fetch_and_add(-nelts_found) <= nelts_found)) {
+			PVLOG_INFO("TBBSelFilterMaxCount: all elts found. cancelling...\n");
+			_ctxt->cancel_group_execution();
+		}
+	}
+
+private:
+	mutable PVParallelView::PVZoneTree* _tree;
+	Picviz::PVSelection::const_pointer _sel_buf;
+	mutable tbb::atomic<ssize_t>* _nelts;
+	mutable tbb::task_group_context* _ctxt;
 };
 
 } }
@@ -496,13 +558,26 @@ void PVParallelView::PVZoneTree::filter_by_sel_omp_treeb(Picviz::PVSelection con
 	BENCH_END(subtree, "filter_by_sel_omp_treeb", 1, 1, sizeof(PVRow), NBUCKETS);
 }
 
-void PVParallelView::PVZoneTree::filter_by_sel_tbb_treeb(Picviz::PVSelection const& sel)
+void PVParallelView::PVZoneTree::filter_by_sel_tbb_treeb(Picviz::PVSelection const& sel, const PVRow nrows)
 {
 	// returns a zone tree with only the selected lines
 	Picviz::PVSelection::const_pointer sel_buf = sel.get_buffer();
+	tbb::atomic<ssize_t> nelts_sel;
+	BENCH_START(subtree2);
+	nelts_sel = (ssize_t) sel.get_number_of_selected_lines_in_range(0, nrows);
+	static_assert(NBUCKETS%4 == 0, "NBUCKETS isn't a multiple of 4");
+	const __m128i sse_invalid = _mm_set1_epi32(PVROW_INVALID_VALUE);
+	for (size_t b = 0; b < NBUCKETS; b += 4) {
+		_mm_stream_si128((__m128i*) &_sel_elts[b], sse_invalid);
+	}
+	tbb::task_group_context context;
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, GRAINSIZE), __impl::TBBSelFilterMaxCount(this, sel_buf, nelts_sel, context), tbb::simple_partitioner(), context);
+	BENCH_END(subtree2, "filter_by_sel_tbb_treeb_maxcount", 1, 1, sizeof(PVRow), NBUCKETS);
+
+	/*
 	BENCH_START(subtree);
 	tbb::parallel_for(tbb::blocked_range<size_t>(0, NBUCKETS, GRAINSIZE), __impl::TBBSelFilter(this, sel_buf), tbb::simple_partitioner());
-	BENCH_END(subtree, "filter_by_sel_tbb_treeb", 1, 1, sizeof(PVRow), NBUCKETS);
+	BENCH_END(subtree, "filter_by_sel_tbb_treeb", 1, 1, sizeof(PVRow), NBUCKETS);*/
 }
 
 void PVParallelView::PVZoneTree::get_float_pts(pts_t& pts, Picviz::PVPlotted::plotted_table_t const& org_plotted, PVRow nrows, PVCol col_a, PVCol col_b)

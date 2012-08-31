@@ -38,6 +38,7 @@ class TBBMergeTreesTask;
 class TBBCreateTreeTask;
 class TBBComputeAllocSizeAndFirstElts;
 class TBBSelFilter;
+class TBBSelFilterMaxCount; 
 }
 
 class PVZoneProcessing;
@@ -49,6 +50,7 @@ class PVZoneTree: public PVZoneTreeBase
 	friend class __impl::TBBMergeTreesTask;
 	friend class __impl::TBBComputeAllocSizeAndFirstElts;
 	friend class __impl::TBBSelFilter;
+	friend class __impl::TBBSelFilterMaxCount;
 	friend class PVSelectionGenerator;
 
 public:
@@ -173,7 +175,7 @@ public:
 public:
 	inline void process(PVZoneProcessing const& zp, ProcessData& pdata) { process_tbb_sse_treeb(zp, pdata); }
 	inline void process(PVZoneProcessing const& zp) { process_tbb_sse_treeb(zp); }
-	inline void filter_by_sel(Picviz::PVSelection const& sel) { filter_by_sel_tbb_treeb(sel); }
+	inline void filter_by_sel(Picviz::PVSelection const& sel, const PVRow nrows) { filter_by_sel_tbb_treeb(sel, nrows); }
 
 	inline uint32_t get_branch_count(uint32_t branch_id) const
 	{
@@ -197,7 +199,7 @@ public:
 	void process_tbb_sse_parallelize_on_branches(PVZoneProcessing const& zp);
 
 	void filter_by_sel_omp_treeb(Picviz::PVSelection const& sel);
-	void filter_by_sel_tbb_treeb(Picviz::PVSelection const& sel);
+	void filter_by_sel_tbb_treeb(Picviz::PVSelection const& sel, const PVRow nrows);
 	void filter_by_sel_tbb_treeb_new(PVZoneProcessing const& zp, const Picviz::PVSelection& sel);
 
 private:

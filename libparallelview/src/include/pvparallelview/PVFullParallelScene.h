@@ -98,8 +98,8 @@ private slots:
 	void scrollbar_pressed_Slot();
 	void scrollbar_released_Slot();
 	void commit_volatile_selection_Slot();
-	void draw_zone_sel_Slot(int zid);
-	void draw_zone_Slot(int zid);
+	void draw_zone_sel_Slot(int zid, bool changed);
+	void draw_zone_Slot(int zid, bool changed);
 
 private:
 	struct ZoneImages

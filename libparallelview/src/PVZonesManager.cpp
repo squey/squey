@@ -85,8 +85,8 @@ void PVParallelView::PVZonesManager::update_all()
 		for (PVZoneID z = 0; z < nzones; z++) {
 			get_zone_cols(z, zp.col_a(), zp.col_b());
 			PVZoneTree& ztree = _zones[z].ztree();
-			PVZoomedZoneTree& zztree = _zones[z].zoomed_ztree();
-			zztree.process(zp, ztree);
+			//PVZoomedZoneTree& zztree = _zones[z].zoomed_ztree();
+			//zztree.process(zp, ztree);
 		}
 		BENCH_END(zztree, "ZZTREES PROCESS (SERIAL)", 1, 1, 1, 1);
 #else
@@ -133,10 +133,11 @@ bool PVParallelView::PVZonesManager::filter_zone_by_sel(PVZoneID zid, const Picv
 	assert(zid < (PVZoneID) _zones.size());
 
 	PVParallelView::PVZoneProcessing zp(get_uint_plotted(), get_number_rows(), zid, zid+1);
-	bool valid = _zones[zid].filter_by_sel(sel);
+	bool changed = false;
+	bool valid = _zones[zid].filter_by_sel(sel, _nrows, changed);
 
 	if (valid) {
-		emit filter_by_sel_finished(zid);
+		emit filter_by_sel_finished(zid, changed);
 	}
 
 	return valid;
