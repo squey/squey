@@ -84,9 +84,9 @@ int main(int argc, char** argv)
 	BENCH_END_TRANSFORM(norm, "integer normalisation", sizeof(float), nrows*ncols);
 
 	// Zone Manager
-	PVParallelView::PVZonesManager &zm = *(new PVParallelView::PVZonesManager());
+	/*PVParallelView::PVZonesManager &zm = *(new PVParallelView::PVZonesManager());
 	zm.set_uint_plotted(norm_plotted, nrows, ncols);
-	zm.update_all();
+	zm.update_all();*/
 
 	PVParallelView::PVBCIDrawingBackendCUDA<NBITS_INDEX> backend_cuda;
 	Picviz::FakePVView::shared_pointer fake_pvview_sp(new Picviz::FakePVView());

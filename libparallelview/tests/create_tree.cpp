@@ -172,6 +172,7 @@ void test(
 		}
 		PVLOG_INFO("sorted=%d\n", sorted);
 
+		/*
 		{
 		BENCH_START(sse);
 		ztree->process_tbb_sse_treeb(zp);
@@ -187,18 +188,19 @@ void test(
 		BENCH_START(sse);
 		ztree->process_omp_sse_treeb(zp);
 		BENCH_END_TRANSFORM(sse, "process_omp_sse_treeb", 1, 1);
-		}
+		}*/
 
+		/*
 		{
 		Picviz::PVSelection sel;
 		sel.select_none();
 		ztree->filter_by_sel_omp_treeb(sel);
-		}
+		}*/
 
 		{
 		Picviz::PVSelection sel;
 		sel.select_none();
-		ztree->filter_by_sel_tbb_treeb(sel);
+		ztree->filter_by_sel_tbb_treeb(sel, nrows);
 		}
 
 		delete ztree;
