@@ -46,6 +46,7 @@ public:
 
 	void set_prop(MyObjectProperty const& p) { _prop = p; }
 	MyObjectProperty const& get_prop() const { return _prop; }
+	MyObjectProperty& get_prop() { return _prop; }
 
 private:
 	int _i;
@@ -129,9 +130,9 @@ int main()
 	MyObject_p myobj = MyObject_p(new MyObject(42));
 
 	hive.register_object(myobj);
-	hive.register_object(myobj, [](MyObject const &myo) -> const MyObjectProperty &
+	hive.register_object(myobj, [](MyObject& myo) -> MyObjectProperty*
 	                     {
-		                     return myo.get_prop();
+		                     return &myo.get_prop();
 	                     });
 
 
@@ -155,9 +156,9 @@ int main()
 	MyObjectPropertyObserver pobserver;
 	std::cout << "# register observer " << &pobserver
 	          << "#  for myobj.get_prop() " << &(myobj->get_prop()) << std::endl;
-	hive.register_observer(myobj, [](MyObject const &myo) -> const MyObjectProperty &
+	hive.register_observer(myobj, [](MyObject& myo) -> MyObjectProperty*
 	                       {
-		                       return myo.get_prop();
+		                       return &myo.get_prop();
 	                       }, pobserver);
 
 	std::cout << "# oactor.call(8)" << std::endl;

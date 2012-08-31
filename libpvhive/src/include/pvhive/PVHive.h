@@ -198,16 +198,16 @@ public:
 	template <class T, class F>
 	void register_object(PVCore::PVSharedPtr<T>& object, F const &prop_get)
 	{
-		auto &property = prop_get(*object);
+		auto* property = prop_get(*object);
 
 		observables_t::accessor acc;
 
 		// adding property's entry
-		_observables.insert(acc, (void*) &property);
+		_observables.insert(acc, PVCore::PVTypeTraits::get_starting_address(property));
 
 		// create/get object's entry
 		_observables.insert(acc, PVCore::PVTypeTraits::get_starting_address(object.get()));
-		acc->second.properties.insert((void*) &property);
+		acc->second.properties.insert(property);
 		object.set_deleter(&__impl::hive_deleter<T>);
 	}
 
@@ -322,12 +322,12 @@ public:
 		// an observer must be set for only one object
 		assert(observer.get_object() == nullptr);
 
-		auto &property = prop_get(*object);
+		auto* property = prop_get(*object);
 
 		observables_t::accessor acc;
 
 		// create/get property's entry
-		void* registered_object = (void*) PVCore::PVTypeTraits::get_starting_address(&property);
+		void* registered_object = (void*) PVCore::PVTypeTraits::get_starting_address(property);
 		_observables.insert(acc, registered_object);
 
 		// observer must not be in _observables[&property].observers
@@ -335,7 +335,7 @@ public:
 
 		// adding observer
 		acc->second.observers.push_back(&observer);
-		observer.set_object((void*) &property, registered_object);
+		observer.set_object((void*) property, registered_object);
 
 		// adding property
 		// create/get object's entry

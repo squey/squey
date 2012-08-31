@@ -61,7 +61,14 @@ public:
 	 */
 	T const* get_object() const
 	{
+		assert(PVObserverBase::get_object());
 		return const_cast<T*>(reinterpret_cast<T*>(PVObserverBase::get_object()));
+	}
+
+	T* get_object()
+	{
+		assert(PVObserverBase::get_object());
+		return reinterpret_cast<T*>(PVObserverBase::get_object());
 	}
 };
 

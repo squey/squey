@@ -34,6 +34,7 @@ public:
 		_prop = p;
 	}
 	ObjectProperty const& get_prop() const { return _prop; }
+	ObjectProperty& get_prop() { return _prop; }
 
 private:
 	int _i;

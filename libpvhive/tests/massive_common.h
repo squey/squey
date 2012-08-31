@@ -73,6 +73,11 @@ public:
 		return _array[i];
 	}
 
+	Property& get_prop(int i)
+	{
+		return _array[i];
+	}
+
 private:
 	Property *_array;
 	int       _count;
@@ -190,7 +195,7 @@ private:
  * property accessor
  *****************************************************************************/
 
-const Property& get_prop(const Block& b, int i);
+Property* get_prop(Block& b, int i);
 
 
 /*****************************************************************************
