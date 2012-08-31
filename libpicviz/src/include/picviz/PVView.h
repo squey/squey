@@ -101,6 +101,9 @@ public:
     
     QMutex gl_call_locker;
 
+	inline PVSelection& get_floating_selection() { return floating_selection; }
+	inline PVSelection& get_volatile_selection() { return volatile_selection; }
+
     // Proxy functions for PVHive
 	void remove_column(PVCol index) { axes_combination.remove_axis(index); }
 	bool move_axis_to_new_position(PVCol index_source, PVCol index_dest) { return axes_combination.move_axis_to_new_position(index_source, index_dest); }
@@ -143,7 +146,6 @@ public:
 	const PVCore::PVHSVColor get_color_in_output_layer(PVRow index) const;
 	PVCol get_column_count() const;
 	float get_column_count_as_float();
-	PVSelection &get_floating_selection();
 	int get_layer_index(int index);
 	float get_layer_index_as_float(int index);
 	PVLayerStack &get_layer_stack();
@@ -184,7 +186,8 @@ public:
 	QString get_original_axis_type(PVCol axis_id) const;
 	inline PVCol get_original_axis_index(PVCol view_idx) const { return axes_combination.get_axis_column_index(view_idx); }
 
-	PVLayer &get_output_layer();
+	PVLayer& get_output_layer();
+	PVLayer const& get_output_layer() const { return output_layer; }
 
 	PVRush::PVExtractor& get_extractor();
 
@@ -378,7 +381,11 @@ public:
 
 	void recreate_mapping_plotting();
 
-	PVCol get_real_axis_index(PVCol col);
+	PVCol get_real_axis_index(PVCol col) const;
+
+public:
+	// State machine
+	inline void set_square_area_mode(PVStateMachine::SquareAreaModes mode) { state_machine->set_square_area_mode(mode); }
 
 protected:
 	void set_parent_from_ptr(PVPlotted* plotted);
