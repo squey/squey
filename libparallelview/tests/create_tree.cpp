@@ -14,6 +14,8 @@
 #include <pvkernel/core/PVHSVColor.h>
 #include <pvparallelview/simple_lines_int_view.h>
 
+#include <pvbase/general.h>
+
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
@@ -252,6 +254,12 @@ int main(int argc, char** argv)
 		}
 		srand(time(NULL));
 		nrows = atol(argv[2]);
+
+		if (nrows > PICVIZ_LINES_MAX) {
+			std::cerr << "nrows is too big (max is " << PICVIZ_LINES_MAX << ")" << std::endl;
+			return 1;
+		}
+
 		ncols = atol(argv[3]);
 
 		PVCore::PVHSVColor* colors = PVCore::PVHSVColor::init_colors(nrows);
@@ -278,6 +286,11 @@ int main(int argc, char** argv)
 			return 1;
 		}
 		nrows = plotted.size()/ncols;
+
+		if (nrows > PICVIZ_LINES_MAX) {
+			std::cerr << "nrows is too big (max is " << PICVIZ_LINES_MAX << ")" << std::endl;
+			return 1;
+		}
 	}
 	//PVLOG_INFO("Plotted loaded with %u rows and %u columns.\n", nrows, ncols);
 

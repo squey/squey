@@ -23,6 +23,8 @@
 #include <pvparallelview/PVBCICode.h>
 #include <picviz/PVSelection.h>
 
+#include <pvbase/general.h>
+
 // gros hack pour que les quadtree connaissent la structure entry
 
 #pragma pack(push)
@@ -202,6 +204,12 @@ int main(int argc, char **argv)
 	}
 
 	count = (unsigned)atoi(argv[1]);
+
+	if (count > PICVIZ_LINES_MAX) {
+		std::cerr << "count is too big (max is " << PICVIZ_LINES_MAX << ")" << std::endl;
+		return 1;
+	}
+
 	what = atoi(argv[2]);
 
 	if(what >= TEST_LAST) {

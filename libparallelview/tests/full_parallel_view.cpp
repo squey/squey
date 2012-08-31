@@ -25,6 +25,8 @@
 
 #include <pvparallelview/PVLibView.h>
 
+#include <pvbase/general.h>
+
 #include <QApplication>
 
 void usage(const char* path)
@@ -63,6 +65,12 @@ int main(int argc, char** argv)
 		}
 		srand(time(NULL));
 		nrows = atol(argv[2]);
+
+		if (nrows > PICVIZ_LINES_MAX) {
+			std::cerr << "nrows is too big (max is " << PICVIZ_LINES_MAX << ")" << std::endl;
+			return 1;
+		}
+
 		ncols = atol(argv[3]);
 
 		init_rand_plotted(plotted, nrows, ncols);
@@ -74,6 +82,11 @@ int main(int argc, char** argv)
 			return 1;
 		}
 		nrows = plotted.size()/ncols;
+
+		if (nrows > PICVIZ_LINES_MAX) {
+			std::cerr << "nrows is too big (max is " << PICVIZ_LINES_MAX << ")" << std::endl;
+			return 1;
+		}
 	}
 
 	PVCore::PVHSVColor* colors = PVCore::PVHSVColor::init_colors(nrows);

@@ -19,6 +19,8 @@
 
 #include <pvkernel/core/picviz_bench.h>
 
+#include <pvbase/general.h>
+
 // gros hack pour que les quadtree connaissent la structure entry
 
 #pragma pack(push)
@@ -90,6 +92,11 @@ int main(int argc, char **argv)
 	}
 
 	int count = atoi(argv[1]);
+
+	if (count > PICVIZ_LINES_MAX) {
+		std::cerr << "count is too big (max is " << PICVIZ_LINES_MAX << ")" << std::endl;
+		return 1;
+	}
 
 	std::vector<int> tests;
 

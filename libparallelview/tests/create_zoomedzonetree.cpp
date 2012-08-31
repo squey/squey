@@ -14,6 +14,8 @@
 #include <pvkernel/core/PVHSVColor.h>
 #include <pvparallelview/simple_lines_int_view.h>
 
+#include <pvbase/general.h>
+
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
@@ -249,6 +251,12 @@ int main(int argc, char** argv)
 		//srand(time(NULL));
 		srand(0);
 		nrows = atol(argv[2]);
+
+		if (nrows > PICVIZ_LINES_MAX) {
+			std::cerr << "nrows is too big (max is " << PICVIZ_LINES_MAX << ")" << std::endl;
+			return 1;
+		}
+
 		ncols = atol(argv[3]);
 
 		memprintf("real data size", nrows * sizeof(PVParallelView::PVQuadTreeEntry));
@@ -273,6 +281,12 @@ int main(int argc, char** argv)
 			return 1;
 		}
 		nrows = plotted.size()/ncols;
+
+		if (nrows > PICVIZ_LINES_MAX) {
+			std::cerr << "nrows is too big (max is " << PICVIZ_LINES_MAX << ")" << std::endl;
+			return 1;
+		}
+
 		std::cout << "Plotted loaded" << std::endl;
 
 		memprintf("real data size", nrows * sizeof(PVParallelView::PVQuadTreeEntry));
