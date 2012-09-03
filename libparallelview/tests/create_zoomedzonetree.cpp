@@ -167,7 +167,7 @@ void test(
 	Picviz::PVPlotted::norm_int_plotted(plotted, norm_plotted, ncols);
 
 	{
-		PVParallelView::PVZoomedZoneTree* zzt = new PVParallelView::PVZoomedZoneTree(8);
+		PVParallelView::PVZoomedZoneTree* zzt = new PVParallelView::PVZoomedZoneTree(nullptr, 8);
 		PVParallelView::PVZoneProcessing zp(norm_plotted, nrows, 0, 1);
 		PVParallelView::PVZoneTree *zt = 0;
 

@@ -54,6 +54,7 @@ void PVParallelView::PVLibView::process_selection_Observer::update(arguments_dee
 	}
 /*
 	for (PVZoomedParallelScene& zps : _parent->_zoomed_parallel_scenes) {
-		view.update_new_selection(*task_root);
+		//view.update_new_selection(*task_root);
+		zps.invalidate_selection();
 	}*/
 }
