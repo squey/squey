@@ -16,9 +16,6 @@
 
 #define ZZT_MAX_VALUE (1 << (32-NBITS_INDEX))
 
-/*
- * TODO: is _quad_entries correct sized?
- */
 /*****************************************************************************
  * PVParallelView::PVZoomedZoneTree::PVZoomedZoneTree
  *****************************************************************************/
@@ -44,8 +41,6 @@ PVParallelView::PVZoomedZoneTree::PVZoomedZoneTree(const PVRow *sel_elts,
 		}
 		y2_min += ZZT_MAX_VALUE;
 	}
-
-	_quad_entries = new PVParallelView::PVQuadTreeEntry [NBUCKETS];
 }
 
 /*****************************************************************************
@@ -199,7 +194,8 @@ void PVParallelView::PVZoomedZoneTree::process_omp_from_zt(const PVZoneProcessin
  * PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1
  *****************************************************************************/
 
-size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1(uint64_t y_min,
+size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1(context_t &ctx,
+                                                               uint64_t y_min,
                                                                uint64_t y_max,
                                                                uint64_t y_lim,
                                                                int zoom,
@@ -216,6 +212,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1(uint64_t y_min,
 	uint32_t t1_min = y_min >> (32 - NBITS_INDEX);
 	uint32_t t1_max = (uint32_t)PVCore::clamp<uint64_t>(1 + (y_max >> (32 - NBITS_INDEX)),
 	                                                    0U, 1024U);
+	PVQuadTreeEntry *quadtree_entries = ctx.get_quadtree_entries();
 
 	for (uint32_t t1 = t1_min; t1 < t1_max; ++t1) {
 		for (uint32_t t2 = 0; t2 < 1024; ++t2) {
@@ -237,7 +234,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1(uint64_t y_min,
 			 */
 			for (size_t e_idx = 0; e_idx < num; ++e_idx) {
 				PVBCICode<bbits> bci;
-				PVParallelView::PVQuadTreeEntry &e = _quad_entries[e_idx];
+				PVParallelView::PVQuadTreeEntry &e = quadtree_entries[e_idx];
 
 				bci.s.idx = e.idx;
 				bci.s.color = colors[e.idx].h();
@@ -292,7 +289,8 @@ size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1(uint64_t y_min,
  * PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y2
  *****************************************************************************/
 
-size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y2(uint64_t y_min,
+size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y2(context_t &ctx,
+                                                               uint64_t y_min,
                                                                uint64_t y_max,
                                                                uint64_t y_lim,
                                                                int zoom,
@@ -309,6 +307,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y2(uint64_t y_min,
 	uint32_t t2_min = y_min >> (32 - NBITS_INDEX);
 	uint32_t t2_max = (uint32_t)PVCore::clamp<uint64_t>(1 + (y_max >> (32 - NBITS_INDEX)),
 	                                                    0U, 1024U);
+	PVQuadTreeEntry *quadtree_entries = ctx.get_quadtree_entries();
 
 	for (uint32_t t2 = t2_min; t2 < t2_max; ++t2) {
 		for (uint32_t t1 = 0; t1 < 1024; ++t1) {
@@ -330,7 +329,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y2(uint64_t y_min,
 			 */
 			for (size_t e_idx = 0; e_idx < num; ++e_idx) {
 				PVBCICode<bbits> bci;
-				PVParallelView::PVQuadTreeEntry &e = _quad_entries[e_idx];
+				PVParallelView::PVQuadTreeEntry &e = quadtree_entries[e_idx];
 
 				bci.s.idx = e.idx;
 				bci.s.color = colors[e.idx].h();

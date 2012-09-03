@@ -170,6 +170,7 @@ void test(
 		PVParallelView::PVZoomedZoneTree* zzt = new PVParallelView::PVZoomedZoneTree(nullptr, 8);
 		PVParallelView::PVZoneProcessing zp(norm_plotted, nrows, 0, 1);
 		PVParallelView::PVZoneTree *zt = 0;
+		PVParallelView::PVZoomedZoneTree::context_t zzt_ctx;
 
 		if ((mode_value == MODE_SEQ_ZT) || (mode_value == MODE_OMP_ZT)) {
 			zt = new PVParallelView::PVZoneTree();
@@ -200,7 +201,8 @@ void test(
 			uint64_t v0 = 0;
 			uint64_t v1 = 1ULL << 32;
 			BENCH_START(browse);
-			nb_codes = zzt->browse_bci_by_y1(v0, v1, v1, 0,
+			nb_codes = zzt->browse_bci_by_y1(zzt_ctx,
+			                                 v0, v1, v1, 0,
 			                                 1024,
 			                                 colors, bci_codes);
 			BENCH_END_TRANSFORM(browse, "ZZT::browse_tree_bci_by_y1", 1, 1);

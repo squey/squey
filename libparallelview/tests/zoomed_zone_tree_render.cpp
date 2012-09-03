@@ -158,6 +158,7 @@ int main(int argc, char** argv)
 
 	zones_drawing_t::backend_image_p_t dst_img1 = zones_drawing.create_image(1920);
 
+	PVParallelView::PVZoomedZoneTree::context_t zzt_ctx;
 	uint64_t a = 0;
 	uint64_t a2 = 1ULL << 32;
 	uint32_t b = 0;
@@ -174,7 +175,8 @@ int main(int argc, char** argv)
 		     PVCore::PVHSVColor const* colors,
 		     PVParallelView::PVBCICode<RENDERING_BITS>* codes)
 		 {
-			 size_t num = zoomed_zone_tree.browse_bci_by_y1(a, a2, a2, b,
+			 size_t num = zoomed_zone_tree.browse_bci_by_y1(zzt_ctx,
+			                                                a, a2, a2, b,
 			                                                256,
 			                                                colors, codes);
 			 std::cout << "ZZT-0: num of codes: " << num << std::endl;
@@ -199,7 +201,8 @@ int main(int argc, char** argv)
 		     PVCore::PVHSVColor const* colors,
 		     PVParallelView::PVBCICode<RENDERING_BITS>* codes)
 		 {
-			 size_t num = zoomed_zone_tree.browse_bci_by_y1(a, a2, a2, b,
+			 size_t num = zoomed_zone_tree.browse_bci_by_y1(zzt_ctx,
+			                                                a, a2, a2, b,
 			                                                256,
 			                                                colors, codes);
 			 std::cout << "ZZT-1: num of codes: " << num << std::endl;
@@ -223,7 +226,8 @@ int main(int argc, char** argv)
 		     PVCore::PVHSVColor const* colors,
 		     PVParallelView::PVBCICode<RENDERING_BITS>* codes)
 		 {
-			 size_t num = zoomed_zone_tree.browse_bci_by_y1(a, a2, a2, b,
+			 size_t num = zoomed_zone_tree.browse_bci_by_y1(zzt_ctx,
+			                                                a, a2, a2, b,
 			                                                256,
 			                                                colors, codes);
 			 std::cout << "ZZT-1: num of codes: " << num << std::endl;
@@ -247,7 +251,8 @@ int main(int argc, char** argv)
 		     PVCore::PVHSVColor const* colors,
 		     PVParallelView::PVBCICode<RENDERING_BITS>* codes)
 		 {
-			 size_t num = zoomed_zone_tree.browse_bci_by_y1(a, a2, a2, b,
+			 size_t num = zoomed_zone_tree.browse_bci_by_y1(zzt_ctx,
+			                                                a, a2, a2, b,
 			                                                256,
 			                                                colors, codes);
 			 std::cout << "ZZT-1: num of codes: " << num << std::endl;
