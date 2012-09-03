@@ -49,12 +49,12 @@ void PVParallelView::PVLibView::process_selection_Observer::update(arguments_dee
 	_parent->_zones_manager.invalidate_selection();
 
 	task_root->set_ref_count(1);
-	for (PVFullParallelScene& view : _parent->_parallel_views) {
+
+	for (PVFullParallelScene& view: _parent->_parallel_views) {
 		view.update_new_selection(task_root);
 	}
-/*
-	for (PVZoomedParallelScene& zps : _parent->_zoomed_parallel_scenes) {
-		//view.update_new_selection(*task_root);
-		zps.invalidate_selection();
-	}*/
+
+	for (PVZoomedParallelScene& view: _parent->_zoomed_parallel_scenes) {
+		view.update_new_selection(task_root);
+	}
 }

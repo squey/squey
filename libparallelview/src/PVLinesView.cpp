@@ -210,7 +210,7 @@ void PVParallelView::PVLinesView::update_sel_tree(uint32_t view_width, const Pic
 			root->increment_ref_count();
 			tbb::task& child_task = *new (root->allocate_child()) PVTaskFilterSel(this->get_zones_manager(), z, sel);
 			// TODO: add priority
-			root->spawn(child_task);
+			root->enqueue(child_task);
 		}
 	);
 }

@@ -4,6 +4,7 @@
  * Copyright (C) Picviz Labs 2010-2012
  */
 
+#include <pvparallelview/PVTaskFilterSel.h>
 #include <pvparallelview/PVZoomedParallelScene.h>
 
 #include <pvkernel/core/PVAlgorithms.h>
@@ -239,6 +240,26 @@ void PVParallelView::PVZoomedParallelScene::invalidate_selection()
 	 */
 	_rendered_zone_count = 0;
 	_rendering_job->cancel();
+}
+
+/*****************************************************************************
+ * PVParallelView::PVZoomedParallelScene::update_new_selection
+ *****************************************************************************/
+void PVParallelView::PVZoomedParallelScene::update_new_selection(tbb::task* root)
+{
+	invalidate_selection();
+
+	if (_left_zone.created) {
+		root->increment_ref_count();
+		tbb::task& child_task = *new (root->allocate_child()) PVTaskFilterSel(get_zones_manager(), _axis-1, _selection);
+		root->enqueue(child_task, tbb::priority_high);
+	}
+
+	if (_right_zone.created) {
+		root->increment_ref_count();
+		tbb::task& child_task = *new (root->allocate_child()) PVTaskFilterSel(get_zones_manager(), _axis, _selection);
+		root->enqueue(child_task, tbb::priority_high);
+	}
 }
 
 /*****************************************************************************

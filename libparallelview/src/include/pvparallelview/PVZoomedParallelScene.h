@@ -60,6 +60,7 @@ public:
 
 	void wheelEvent(QGraphicsSceneWheelEvent* event);
 
+	void update_new_selection(tbb::task* root);
 	void invalidate_selection();
 
 	virtual void drawBackground(QPainter *painter, const QRectF &rect);
@@ -98,6 +99,8 @@ private:
 		// Phillipe's magic formula: 2^n × a^k
 		return pow(2, _zoom_level) * pow(root_step, get_zoom_step());
 	}
+
+	PVZonesManager& get_zones_manager() { return _zones_drawing.get_zones_manager(); }
 
 private slots:
 	void scrollbar_changed_Slot(int value);
