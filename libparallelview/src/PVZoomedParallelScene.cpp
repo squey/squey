@@ -332,16 +332,18 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 
 			BENCH_START(full_render);
 
-			if (_left_zone.created && (_render_type == RENDER_ALL)) {
-				BENCH_START(render);
-				_zones_drawing.draw_zoomed_zone(*(_left_zone.bg_image), y_min, y_max, y_lim,
-				                                _zoom_level, _axis - 1,
-				                                &PVZoomedZoneTree::browse_bci_by_y2,
-				                                alpha, beta, true);
-				BENCH_END(render, "render left tile", 1, 1, 1, 1);
+			if (_left_zone.created) {
+				if (_render_type == RENDER_ALL) {
+					BENCH_START(render);
+					_zones_drawing.draw_zoomed_zone(*(_left_zone.bg_image), y_min, y_max, y_lim,
+					                                _zoom_level, _axis - 1,
+					                                &PVZoomedZoneTree::browse_bci_by_y2,
+					                                alpha, beta, true);
+					BENCH_END(render, "render left tile", 1, 1, 1, 1);
 
-				if (_rendering_job->should_cancel()) {
-					return;
+					if (_rendering_job->should_cancel()) {
+						return;
+					}
 				}
 
 				BENCH_START(sel_render);
@@ -364,16 +366,18 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 				}
 			}
 
-			if (_right_zone.created && (_render_type == RENDER_ALL)) {
-				BENCH_START(render);
-				_zones_drawing.draw_zoomed_zone(*(_right_zone.bg_image), y_min, y_max, y_lim,
-				                                _zoom_level, _axis,
-				                                &PVZoomedZoneTree::browse_bci_by_y1,
-				                                alpha, beta, false);
-				BENCH_END(render, "render right tile", 1, 1, 1, 1);
+			if (_right_zone.created) {
+				if (_render_type == RENDER_ALL) {
+					BENCH_START(render);
+					_zones_drawing.draw_zoomed_zone(*(_right_zone.bg_image), y_min, y_max, y_lim,
+					                                _zoom_level, _axis,
+					                                &PVZoomedZoneTree::browse_bci_by_y1,
+					                                alpha, beta, false);
+					BENCH_END(render, "render right tile", 1, 1, 1, 1);
 
-				if (_rendering_job->should_cancel()) {
-					return;
+					if (_rendering_job->should_cancel()) {
+						return;
+					}
 				}
 
 				BENCH_START(sel_render);
