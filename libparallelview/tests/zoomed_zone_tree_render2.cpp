@@ -153,6 +153,8 @@ int main(int argc, char** argv)
 
 	zones_drawing_t::backend_image_p_t dst_img1 = zones_drawing.create_image(1920);
 
+	PVParallelView::PVZoomedZoneTree::context_t zzt_ctx;
+
 	uint64_t p = 0;
 	uint64_t v1 = 1ULL << 32;
 	uint32_t z = 0;
@@ -162,7 +164,8 @@ int main(int argc, char** argv)
 		std::cout << "drawing area: " << p << " (" << z << ")" << std::endl;
 
 		BENCH_START(col);
-		zones_drawing.draw_zoomed_zone(*dst_img, p, v1, z, 0,
+		zones_drawing.draw_zoomed_zone(zzt_ctx,
+		                               *dst_img, p, v1, z, 0,
 		                               512,
 		                               &PVParallelView::PVZoomedZoneTree::browse_bci_by_y1);
 		BENCH_END(col, "render col", 1, 1, 1, 1);

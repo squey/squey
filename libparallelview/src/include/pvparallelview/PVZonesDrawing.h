@@ -46,6 +46,7 @@ public:
 	typedef typename bci_backend_t::backend_image_t backend_image_t;
 	typedef typename bci_backend_t::backend_image_p_t backend_image_p_t;
 	typedef typename bci_backend_t::bci_codes_t bci_codes_t;
+	typedef PVZoomedZoneTree::context_t zzt_context_t;
 
 public:
 	PVZonesDrawing(PVZonesManager& zm, bci_backend_t const& backend, PVCore::PVHSVColor const& colors):
@@ -144,7 +145,7 @@ public:
 
 
 	template <class Fbci>
-	inline void draw_zoomed_zone(PVBCIBackendImage<Bbits> &dst_img, uint64_t y_min, uint64_t y_max, uint64_t y_lim, int zoom, PVZoneID zone, Fbci const &f_bci, const float zoom_y = 1.0f, const float zoom_x = 1.0f, bool reverse = false)
+	inline void draw_zoomed_zone(zzt_context_t &ctx, PVBCIBackendImage<Bbits> &dst_img, uint64_t y_min, uint64_t y_max, uint64_t y_lim, int zoom, PVZoneID zone, Fbci const &f_bci, const float zoom_y = 1.0f, const float zoom_x = 1.0f, bool reverse = false)
 	{
 		PVZoomedZoneTree const &zoomed_zone_tree = _zm.get_zone_tree<PVZoomedZoneTree>(zone);
 		draw_bci_lambda<PVParallelView::PVZoomedZoneTree>
@@ -153,14 +154,14 @@ public:
 			     PVCore::PVHSVColor const* colors,
 			     PVParallelView::PVBCICode<Bbits>* codes)
 			 {
-				 return (zoomed_zone_tree.*f_bci)(y_min, y_max, y_lim, zoom,
+				 return (zoomed_zone_tree.*f_bci)(ctx, y_min, y_max, y_lim, zoom,
 				                                  dst_img.width(), colors,
 				                                  codes, zoom_x);
 			 }, zoom_y, reverse);
 	}
 
 	template <class Fbci>
-	inline void draw_zoomed_zone_sel(PVBCIBackendImage<Bbits> &dst_img, uint64_t y_min, uint64_t y_max, uint64_t y_lim, Picviz::PVSelection &selection, int zoom, PVZoneID zone, Fbci const &f_bci, const float zoom_y = 1.0f, const float zoom_x = 1.0f, bool reverse = false)
+	inline void draw_zoomed_zone_sel(zzt_context_t &ctx, PVBCIBackendImage<Bbits> &dst_img, uint64_t y_min, uint64_t y_max, uint64_t y_lim, Picviz::PVSelection &selection, int zoom, PVZoneID zone, Fbci const &f_bci, const float zoom_y = 1.0f, const float zoom_x = 1.0f, bool reverse = false)
 	{
 		PVZoomedZoneTree const &zoomed_zone_tree = _zm.get_zone_tree<PVZoomedZoneTree>(zone);
 		draw_bci_lambda<PVParallelView::PVZoomedZoneTree>
@@ -169,7 +170,7 @@ public:
 			     PVCore::PVHSVColor const* colors,
 			     PVParallelView::PVBCICode<Bbits>* codes)
 			 {
-				 return (zoomed_zone_tree.*f_bci)(y_min, y_max, y_lim, selection,
+				 return (zoomed_zone_tree.*f_bci)(ctx, y_min, y_max, y_lim, selection,
 				                                  zoom, dst_img.width(), colors,
 				                                  codes, zoom_x);
 			 }, zoom_y, reverse);

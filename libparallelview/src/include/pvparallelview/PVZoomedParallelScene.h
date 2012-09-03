@@ -39,6 +39,9 @@ private:
 	constexpr static double root_step = pow(2.0, 1.0 / zoom_steps);
 	constexpr static int max_wheel_value = 21 * zoom_steps;
 
+private:
+	typedef PVParallelView::PVZoomedZoneTree::context_t zzt_context_t;
+
 public:
 	typedef PVParallelView::PVZonesDrawing<bbits> zones_drawing_t;
 	typedef typename zones_drawing_t::backend_image_p_t backend_image_p_t;
@@ -117,6 +120,7 @@ private:
 		backend_image_p_t bg_image;   // the image for unselected/zomby lines
 		backend_image_p_t sel_image;  // the image for selected lines
 		QImage            back_image; // the back buffer for debased rendering
+		zzt_context_t     context;    // the extraction context for ZZT
 	};
 
 	PVZoomedParallelView          *_zpview;
