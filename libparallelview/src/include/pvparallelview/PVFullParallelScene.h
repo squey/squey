@@ -23,6 +23,12 @@
 
 #include <picviz/FakePVView.h>
 
+#include <tbb/task_group.h>
+
+namespace tbb {
+class task;
+}
+
 namespace PVParallelView {
 
 class draw_zone_Observer: public PVHive::PVFuncObserverSignal<typename PVLinesView::zones_drawing_t, FUNC(PVLinesView::zones_drawing_t::draw_zone<decltype(&PVParallelView::PVZoneTree::browse_tree_bci)>)>
@@ -57,11 +63,12 @@ public:
 	virtual ~PVFullParallelScene();
 
 	void first_render();
-	void update_sel_from_zone();
+	void update_new_selection(tbb::task* root);
 
 private:
 	void update_zones_position(bool update_all = true);
 	void translate_and_update_zones_position();
+
 
 	void store_selection_square();
 	void update_selection_square();
@@ -150,6 +157,9 @@ private:
 
     draw_zone_Observer* _draw_zone_observer;
     draw_zone_sel_Observer* _draw_zone_sel_observer;
+
+	tbb::task_group _render_tasks_sel;
+	tbb::task_group _render_tasks_bg;
 };
 
 }

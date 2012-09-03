@@ -133,13 +133,16 @@ public:
 	template <class Fbci>
 	inline void draw_zone(PVBCIBackendImage<Bbits>& dst_img, uint32_t x_start, PVZoneID zone, Fbci const& f_bci)
 	{
-		PVZoneTree const &zone_tree = _zm.get_zone_tree<PVZoneTree>(zone);
-		draw_bci_lambda<PVZoneTree>(zone_tree, dst_img, x_start, _zm.get_zone_width(zone),
-			[&](PVZoneTree const& zone_tree, PVCore::PVHSVColor const* colors, PVBCICode<Bbits>* codes)
-			{
-				return (zone_tree.*f_bci)(colors, codes);
-			}
-	   );
+#pragma omp critical
+		{
+			PVZoneTree const &zone_tree = _zm.get_zone_tree<PVZoneTree>(zone);
+			draw_bci_lambda<PVZoneTree>(zone_tree, dst_img, x_start, _zm.get_zone_width(zone),
+				[&](PVZoneTree const& zone_tree, PVCore::PVHSVColor const* colors, PVBCICode<Bbits>* codes)
+				{
+					return (zone_tree.*f_bci)(colors, codes);
+				}
+		   );
+		}
 	}
 
 

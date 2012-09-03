@@ -19,6 +19,10 @@
 
 #include <QFuture>
 
+namespace tbb {
+class task;
+}
+
 namespace Picviz {
 class PVSelection;
 }
@@ -84,7 +88,7 @@ public:
 
 	QFuture<void> render_sel(uint32_t view_width, PVRenderingJob& job);
 
-	QFuture<void> update_sel_from_zone(uint32_t view_width, PVZoneID zid_sel, const Picviz::PVSelection& sel, PVRenderingJob& job);
+	void update_sel_tree(uint32_t view_width, const Picviz::PVSelection& sel, tbb::task* root);
 
 	QFuture<void> render_zone_all_imgs(PVZoneID z, const Picviz::PVSelection& sel, PVRenderingJob& job);
 

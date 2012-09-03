@@ -18,6 +18,8 @@
 
 #include <pvparallelview/PVBCIDrawingBackendCUDA.h>
 
+#include <tbb/task.h>
+
 namespace PVParallelView
 {
 
@@ -57,6 +59,10 @@ public:
 
 	PVZonesManager& get_zones_manager() { return _zones_manager; }
 
+protected:
+	tbb::task* task_root() { return _task_root; }
+	tbb::task_group_context& task_group_context() { return _tasks_ctxt; }
+
 private:
 	class process_selection_Observer: public PVHive::PVFuncObserverSignal<Picviz::FakePVView, FUNC(Picviz::FakePVView::process_selection)>
 	{
@@ -75,6 +81,9 @@ private:
 	zoomed_scene_list_t                 _zoomed_parallel_scenes;
 	Picviz::FakePVView::shared_pointer &_view_sp;
 	PVCore::PVHSVColor                 *_colors;
+	tbb::task                          *_task_root;
+	tbb::task_group_context             _tasks_ctxt;
+
 };
 
 }

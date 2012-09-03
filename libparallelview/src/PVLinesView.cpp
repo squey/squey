@@ -7,6 +7,7 @@
 #include <qtconcurrentrun.h>
 
 #include <pvparallelview/PVLinesView.h>
+#include <pvparallelview/PVTaskFilterSel.h>
 
 PVParallelView::PVLinesView::PVLinesView(PVParallelView::PVZonesManager& zm, PVParallelView::PVLinesView::zones_drawing_t::bci_backend_t& bci_backend, PVZoneID nb_zones /*= 30*/, uint32_t zone_width /* = PVParallelView::ZoneMaxWidth */) :
 	_zd(new zones_drawing_t(zm, bci_backend, *PVCore::PVHSVColor::init_colors(zm.get_number_rows()))),
@@ -200,24 +201,16 @@ QFuture<void> PVParallelView::PVLinesView::render_all(int32_t view_x, uint32_t v
 	return render_all_imgs(view_width, sel, job);
 }
 
-QFuture<void> PVParallelView::PVLinesView::update_sel_from_zone(uint32_t view_width, PVZoneID zid_sel, const Picviz::PVSelection& sel, PVRenderingJob& job)
+void PVParallelView::PVLinesView::update_sel_tree(uint32_t view_width, const Picviz::PVSelection& sel, tbb::task* root)
 {
-	// Flag the selection as invalid (_sel_elts from all PVZoneTree are flagged as invalid)
-	get_zones_manager().invalidate_selection();
-
-	return QtConcurrent::run<>([&, view_width, zid_sel] {
-		render_all_zones(view_width,
-			[&, view_width, zid_sel](PVZoneID z)
-			{
-				PVLOG_INFO("(render_sel) render zone %u\n", z);
-				assert(is_zone_drawn(z));
-				update_zone_images_width(z);
-				if (zid_sel != z) {
-					get_zones_manager().filter_zone_by_sel(z, sel);
-				}
-			},
-			&job
-		);
+	render_all_zones(view_width,
+		[&](PVZoneID z)
+		{
+			assert(is_zone_drawn(z));
+			root->increment_ref_count();
+			tbb::task& child_task = *new (root->allocate_child()) PVTaskFilterSel(this->get_zones_manager(), z, sel);
+			// TODO: add priority
+			root->spawn(child_task);
 		}
 	);
 }
@@ -231,7 +224,8 @@ void PVParallelView::PVLinesView::draw_zone(PVZoneID z)
 
 void PVParallelView::PVLinesView::draw_zone_sel(PVZoneID z)
 {
-	draw_zone_sel_caller_t::call(_zd, *_zones_imgs[z-_first_zone].sel, 0, z, &PVParallelView::PVZoneTree::browse_tree_bci_sel);
+	//draw_zone_sel_caller_t::call(_zd, *_zones_imgs[z-_first_zone].sel, 0, z, &PVParallelView::PVZoneTree::browse_tree_bci_sel);
+	_zd->draw_zone(*_zones_imgs[z-_first_zone].sel, 0, z, &PVParallelView::PVZoneTree::browse_tree_bci_sel);
 }
 
 void PVParallelView::PVLinesView::render_all_zones(uint32_t view_width, std::function<void(PVZoneID)> fzone, PVRenderingJob* job /*= NULL*/)

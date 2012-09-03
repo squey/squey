@@ -154,19 +154,18 @@ public:
 		assert(x_start + width <= (size_t) dst_img_cuda->width());
 
 		// Wait for that point in the stream
-		cudaEvent_t end;
-		cudaEventCreate(&end, 0);
 
-#pragma omp critical
+//#pragma omp critical
 		{
+			cudaEvent_t end;
+			cudaEventCreate(&end, 0);
 			picviz_verify_cuda(cudaMemcpyAsync(_device_codes, codes, n*sizeof(codes), cudaMemcpyHostToDevice, _main_stream));
 			__impl::cuda_kernel<Bbits>::launch(_device_codes, n, width, dst_img_cuda->device_img(), dst_img_cuda->width(), x_start, zoom_y, _main_stream, reverse);
 			dst_img_cuda->copy_device_to_host(_main_stream);
 			cudaEventRecord(end, _main_stream);
+			cudaEventSynchronize(end);
+			cudaEventDestroy(end);
 		}
-
-		cudaEventSynchronize(end);
-		cudaEventDestroy(end);
 	}
 
 private:

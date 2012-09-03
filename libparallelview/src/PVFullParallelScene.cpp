@@ -6,6 +6,8 @@
 
 #include <pvparallelview/PVFullParallelScene.h>
 
+#include <tbb/task.h>
+
 #define CRAND() (127 + (random() & 0x7F))
 
 PVParallelView::PVFullParallelScene::PVFullParallelScene(Picviz::FakePVView::shared_pointer view_sp, PVParallelView::PVZonesManager& zm, PVParallelView::PVLinesView::zones_drawing_t::bci_backend_t& bci_backend) :
@@ -115,18 +117,6 @@ void PVParallelView::PVFullParallelScene::connect_draw_zone_sel()
 	connect(&_lines_view.get_zones_manager(), SIGNAL(filter_by_sel_finished(int, bool)), this, SLOT(draw_zone_sel_Slot(int, bool)));
 }
 
-void PVParallelView::PVFullParallelScene::update_sel_from_zone()
-{
-	connect_draw_zone_sel();
-	PVZoneID zid = _lines_view.get_first_drawn_zone();
-	cancel_current_job();
-	launch_job_future([&](PVRenderingJob& rendering_job)
-		{
-			return _lines_view.update_sel_from_zone(_parallel_view->width(), zid, _sel, rendering_job);
-		}
-	);
-}
-
 void PVParallelView::PVFullParallelScene::update_zones_position(bool update_all /*= true*/)
 {
 	PVParallelView::PVLinesView::list_zone_images_t images = _lines_view.get_zones_images();
@@ -196,6 +186,7 @@ void PVParallelView::PVFullParallelScene::update_selection_square()
 
 void PVParallelView::PVFullParallelScene::translate_and_update_zones_position()
 {
+#if 0
 	cancel_current_job();
 	uint32_t view_x = _parallel_view->horizontalScrollBar()->value();
 	uint32_t view_width = _parallel_view->width();
@@ -204,6 +195,7 @@ void PVParallelView::PVFullParallelScene::translate_and_update_zones_position()
 			return _lines_view.translate(view_x, view_width, _sel, rendering_job);
 		}
 	);
+#endif
 }
 
 void PVParallelView::PVFullParallelScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
@@ -264,6 +256,7 @@ void PVParallelView::PVFullParallelScene::wheelEvent(QGraphicsSceneWheelEvent* e
 		zoom = picviz_max(zoom, -PVParallelView::ZoneMinWidth);
 	}
 
+#if 0
 	const QPointF mouse_scene_pt = event->scenePos();
 	PVZoneID mouse_zid = _lines_view.get_zone_from_scene_pos(mouse_scene_pt.x());
 	// Local zoom
@@ -303,14 +296,19 @@ void PVParallelView::PVFullParallelScene::wheelEvent(QGraphicsSceneWheelEvent* e
 			return _lines_view.render_all(view_x, _parallel_view->width(), _sel, rendering_job);
 		});
 	}
+#endif
 	event->accept();
 }
 
 void PVParallelView::PVFullParallelScene::update_zone_pixmap_Slot(int zid)
 {
+	PVLOG_INFO("PVParallelView::PVFullParallelScene::update_zone_pixmap_Slot: this=%p, zid: %d\n", this, zid);
 	if (!_lines_view.is_zone_drawn(zid) /*|| zid >= _zones.size()*/) {
 		return;
 	}
+	const bool update_sel = !_render_tasks_sel.is_canceling();
+	const bool update_bg = !_render_tasks_sel.is_canceling();
+
 	PVParallelView::PVLinesView::list_zone_images_t& images = _lines_view.get_zones_images();
 	const PVZoneID img_id = zid-_lines_view.get_first_drawn_zone();
 
@@ -330,7 +328,12 @@ void PVParallelView::PVFullParallelScene::update_zone_pixmap_Slot(int zid)
 	}
 
 	// Convert the image to a pixmap
-	_zones[img_id].setPixmap(QPixmap::fromImage(final_img_sel), QPixmap::fromImage(final_img_bg));
+	if (update_sel) {
+		_zones[img_id].sel->setPixmap(QPixmap::fromImage(final_img_sel));
+	}
+	if (update_bg) {
+		_zones[img_id].bg->setPixmap(QPixmap::fromImage(final_img_bg));
+	}
 	_zones[img_id].setPos(QPointF(_lines_view.get_zone_absolute_pos(zid), 0));
 }
 
@@ -402,15 +405,41 @@ void PVParallelView::PVFullParallelScene::scrollbar_released_Slot()
 	translate_and_update_zones_position();
 }
 
-void PVParallelView::PVFullParallelScene::draw_zone_Slot(int zid, bool /*changed*/)
+void PVParallelView::PVFullParallelScene::update_new_selection(tbb::task* root)
 {
-	PVLOG_INFO("draw_zone_Slot %d\n", zid);
-	_lines_view.draw_zone(zid);
+	// Ask for current selection rendering to be cancelled
+	_render_tasks_sel.cancel();
+
+	connect_draw_zone_sel();
+	const uint32_t view_width = _parallel_view->width();
+	_lines_view.update_sel_tree(view_width, _view_sp->get_view_selection(), root);
 }
 
-void PVParallelView::PVFullParallelScene::draw_zone_sel_Slot(int zid, bool /*changed*/)
+void PVParallelView::PVFullParallelScene::draw_zone_Slot(int zid, bool /*changed*/)
 {
-	_lines_view.draw_zone_sel(zid);
+	//PVLOG_INFO("draw_zone_Slot %d\n", zid);
+	//_lines_view.draw_zone(zid);
+}
+
+void PVParallelView::PVFullParallelScene::draw_zone_sel_Slot(int zid, bool changed)
+{
+	if (!_lines_view.is_zone_drawn(zid)) {
+		return;
+	}
+
+	PVLOG_INFO("PVFullParallelScene::draw_zone_sel_Slot: zid=%d, changed=%d\n", zid, changed);
+
+	// If current rendering selection task group needs to be canceled, wait for its end
+	if (_render_tasks_sel.is_canceling()) {
+		_render_tasks_sel.wait();
+	}
+
+	_render_tasks_sel.run([&, zid]
+		{
+			this->_lines_view.draw_zone_sel(zid);
+			this->_rendering_job->zone_finished(zid);
+		}
+	);
 }
 
 void PVParallelView::draw_zone_Observer::update(const arguments_deep_copy_type& args) const

@@ -40,17 +40,22 @@ public:
 
 	bool filter_by_sel(const Picviz::PVSelection& sel, const PVRow nrows, bool& changed)
 	{
-		if (_zone_state.compare_and_swap(INVALID, BEING_PROCESSED) == INVALID) {
+		const zone_state_t cur_state = _zone_state.compare_and_swap(BEING_PROCESSED, INVALID);
+		if (cur_state == INVALID) {
+			PVLOG_INFO("filter_by_sel: zone=%p, state invalid\n", this);
 			_ztree->filter_by_sel(sel, nrows);
 			_zone_state = UP_TO_DATE;
 			changed = true;
 			return true;
 		}
-		else if (_zone_state == BEING_PROCESSED) {
+		else
+		if (cur_state == BEING_PROCESSED) {
+			PVLOG_INFO("filter_by_sel: zone=%p, state being processed\n", this);
 			changed = false;
 			return false;
 		}
 		else {
+			PVLOG_INFO("filter_by_sel: zone=%p, state done\n", this);
 			changed = false;
 			return true;
 		}
