@@ -14,9 +14,11 @@
 class BaseBufferPolicy
 {
 public:
-	void CreateFolder(std::string folder)
+	void CreateFolder(std::string const& folder)
 	{
 		_folder = folder;
+
+		DeleteFolder();
 
 		system((std::string("mkdir ") + _folder + " 2> /dev/null").c_str());
 
@@ -41,14 +43,19 @@ struct BufferedPolicy : public BaseBufferPolicy
 {
 	typedef FILE* file_t;
 
-	file_t Open(std::string filename)
+	file_t Open(std::string const& filename)
 	{
 		return fopen(filename.c_str(), "w");
 	}
 
-	void Write(std::string content, file_t file)
+	void Write(std::string const& content, file_t file)
 	{
 		fwrite(content.c_str(), content.length() , 1, file);
+	}
+
+	void Flush(file_t file)
+	{
+		fflush(file);
 	}
 
 	void Close(file_t file)
@@ -61,14 +68,18 @@ struct UnbufferedPolicy : public BaseBufferPolicy
 {
 	typedef int file_t;
 
-	file_t Open(std::string filename)
+	file_t Open(std::string const& filename)
 	{
 		return open(filename.c_str(), O_WRONLY | O_CREAT);
 	}
 
-	void Write(std::string content, file_t file)
+	void Write(std::string const& content, file_t file)
 	{
 		write(file, content.c_str(), content.length());
+	}
+
+	void Flush(file_t file)
+	{
 	}
 
 	void Close(file_t file)
@@ -77,11 +88,28 @@ struct UnbufferedPolicy : public BaseBufferPolicy
 	}
 };
 
+struct RawPolicy : public UnbufferedPolicy
+{
+	file_t Open(std::string const& filename)
+	{
+		return open(filename.c_str(), O_WRONLY | O_CREAT | O_DIRECT);
+	}
+};
+
+struct RawBufferedPolicy : public BufferedPolicy
+{
+	file_t Open(std::string const& filename)
+	{
+		int fd = open(filename.c_str(), O_WRONLY | O_CREAT | O_DIRECT);
+		return fdopen(fd, "w");
+	}
+};
+
 template <typename BufferPolicy>
 class Writer : public BufferPolicy
 {
 public:
-	Writer(std::string folder)
+	Writer(std::string const& folder)
 	{
 		this->CreateFolder(folder);
 
@@ -90,9 +118,16 @@ public:
 		}
 	}
 
-	void write(std::string content, int file_num)
+	void write(std::string const& content, int file_num)
 	{
 		this->Write(content, _files[file_num]);
+	}
+
+	void flush_all()
+	{
+		for (int i = 0 ; i < NUM_COLS ; i++) {
+			this->Flush(_files[i]);
+		}
 	}
 
 	~Writer()
@@ -110,11 +145,13 @@ private:
 
 int main()
 {
-	std::string folder("/mnt/raid0_ext2/raid_test/");
-	std::string buffer = "0, 1, 2, 3, 4, 5, 6, 7, 8, 9";
+	const std::string folder("/mnt/raid0_ext2/raid_test/");
+	const std::string buffer = "0, 1, 2, 3, 4, 5, 6, 7, 8, 9";
 
-	Writer<BufferedPolicy> writer(folder);
-	// Writer<UnbufferedPolicy> writer(folder);
+	//Writer<BufferedPolicy> writer(folder);
+	//Writer<UnbufferedPolicy> writer(folder);
+	//Writer<RawPolicy> writer(folder);
+	Writer<RawBufferedPolicy> writer(folder);
 
 	BENCH_START(w);
 
@@ -123,6 +160,7 @@ int main()
 			writer.write(buffer, i);
 		}
 	}
+	writer.flush_all();
 
 	BENCH_END(w, "sequential writes", 1, 1, buffer.length(), NUM_COLS*NUM_ROWS);
 }
