@@ -6,15 +6,19 @@
 
 #include <pvkernel/core/picviz_bench.h>
 
-#define NUM_COLS 10 // Files
-#define NUM_ROWS 50000000
+#define NUM_ROWS 500000000
 
 // sync ; sudo sh -c 'echo 3 > /proc/sys/vm/drop_caches'
 
 class BaseBufferPolicy
 {
 public:
-	void CreateFolder(std::string const& folder)
+	BaseBufferPolicy(uint32_t num_cols)
+	{
+		_filenames = new std::string[num_cols];
+	}
+
+	void CreateFolder(std::string const& folder, uint32_t num_cols)
 	{
 		_folder = folder;
 
@@ -22,7 +26,7 @@ public:
 
 		system((std::string("mkdir ") + _folder + " 2> /dev/null").c_str());
 
-		for (int i = 0 ; i < NUM_COLS ; i++) {
+		for (uint32_t i = 0 ; i < num_cols ; i++) {
 			std::stringstream st;
 			st << _folder << "file_" << i;
 			_filenames[i] = st.str();
@@ -33,8 +37,13 @@ public:
 	{
 		system((std::string("rm -rf ") + _folder).c_str());
 	}
+
+	~BaseBufferPolicy()
+	{
+		delete [] _filenames;
+	}
 protected:
-	std::string _filenames[NUM_COLS];
+	std::string* _filenames = nullptr;
 private:
 	std::string _folder;
 };
@@ -42,6 +51,8 @@ private:
 struct BufferedPolicy : public BaseBufferPolicy
 {
 	typedef FILE* file_t;
+
+	BufferedPolicy(uint32_t num_cols) : BaseBufferPolicy(num_cols) {}
 
 	file_t Open(std::string const& filename)
 	{
@@ -68,6 +79,8 @@ struct UnbufferedPolicy : public BaseBufferPolicy
 {
 	typedef int file_t;
 
+	UnbufferedPolicy(uint32_t num_cols) : BaseBufferPolicy(num_cols) {}
+
 	file_t Open(std::string const& filename)
 	{
 		return open(filename.c_str(), O_WRONLY | O_CREAT);
@@ -78,7 +91,7 @@ struct UnbufferedPolicy : public BaseBufferPolicy
 		write(file, content.c_str(), content.length());
 	}
 
-	void Flush(file_t file)
+	void Flush(file_t)
 	{
 	}
 
@@ -90,6 +103,8 @@ struct UnbufferedPolicy : public BaseBufferPolicy
 
 struct RawPolicy : public UnbufferedPolicy
 {
+	RawPolicy(uint32_t num_cols) : UnbufferedPolicy(num_cols) {}
+
 	file_t Open(std::string const& filename)
 	{
 		return open(filename.c_str(), O_WRONLY | O_CREAT | O_DIRECT);
@@ -98,6 +113,8 @@ struct RawPolicy : public UnbufferedPolicy
 
 struct RawBufferedPolicy : public BufferedPolicy
 {
+	RawBufferedPolicy(uint32_t num_cols) : BufferedPolicy(num_cols) {}
+
 	file_t Open(std::string const& filename)
 	{
 		int fd = open(filename.c_str(), O_WRONLY | O_CREAT | O_DIRECT);
@@ -109,60 +126,94 @@ template <typename BufferPolicy>
 class Writer : public BufferPolicy
 {
 public:
-	Writer(std::string const& folder)
+	Writer(std::string const& folder, uint32_t num_cols) : BufferPolicy(num_cols), _num_cols(num_cols)
 	{
-		this->CreateFolder(folder);
+		_files = new typename BufferPolicy::file_t[num_cols];
 
-		for (int i = 0 ; i < NUM_COLS ; i++) {
+		this->CreateFolder(folder, _num_cols);
+
+		for (int i = 0 ; i < _num_cols ; i++) {
 			_files[i] = this->Open(this->_filenames[i]);
 		}
 	}
 
-	void write(std::string const& content, int file_num)
+	void write_cols(std::string const& content)
+	{
+		for (int i = 0 ; i < _num_cols ; i++) {
+			this->Write(content, _files[i]);
+		}
+	}
+
+	/*void write(std::string const& content, int file_num)
 	{
 		this->Write(content, _files[file_num]);
-	}
+	}*/
 
 	void flush_all()
 	{
-		for (int i = 0 ; i < NUM_COLS ; i++) {
+		for (int i = 0 ; i < _num_cols ; i++) {
 			this->Flush(_files[i]);
 		}
 	}
 
+	inline uint32_t get_num_cols() { return _num_cols; }
+
 	~Writer()
 	{
-		for (int i = 0 ; i < NUM_COLS ; i++) {
+		for (int i = 0 ; i < _num_cols ; i++) {
 			this->Close(_files[i]);
 		}
 
 		this->DeleteFolder();
+
+		delete [] _files;
 	}
 private:
-	typename BufferPolicy::file_t _files[NUM_COLS];
+	uint32_t _num_cols;
+	typename BufferPolicy::file_t* _files = nullptr;
 };
 
 
-int main()
+const std::string folder("/mnt/raid0_ext2/raid_test/");
+static const std::string buffer = "0, 1, 2, 3, 4, 5, 6, 7, 8, 9";
+
+template <typename Writer>
+void do_write(Writer& writer)
 {
-	const std::string folder("/mnt/raid0_ext2/raid_test/");
-	const std::string buffer = "0, 1, 2, 3, 4, 5, 6, 7, 8, 9";
-
-	//Writer<BufferedPolicy> writer(folder);
-	//Writer<UnbufferedPolicy> writer(folder);
-	//Writer<RawPolicy> writer(folder);
-	Writer<RawBufferedPolicy> writer(folder);
-
 	BENCH_START(w);
 
-	for (int j = 0 ; j < NUM_ROWS ; j++) {
-		for (int i = 0 ; i < NUM_COLS ; i++) {
-			writer.write(buffer, i);
-		}
+	uint32_t num_cols = writer.get_num_cols();
+	uint32_t num_rows = NUM_ROWS / num_cols;
+	for (uint32_t j = 0 ; j < num_rows; j++) {
+		writer.write_cols(buffer);
 	}
 	writer.flush_all();
 
-	BENCH_END(w, "sequential writes", 1, 1, buffer.length(), NUM_COLS*NUM_ROWS);
+	std::stringstream st;
+	st << "sequential writes (" << typeid(writer).name() << ") [num_cols=" << num_cols << "]";
+	BENCH_END(w, st.str().c_str(), 1, 1, buffer.length(), num_cols*num_rows);
+}
+
+int main()
+{
+	for (uint32_t num_cols : {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048})
+	{
+		{
+		Writer<BufferedPolicy> writer_buffered(folder, num_cols);
+		do_write(writer_buffered);
+		}
+
+		{
+		Writer<UnbufferedPolicy> writer_unbuffered(folder, num_cols);
+		do_write(writer_unbuffered);
+		}
+
+		{
+		Writer<RawPolicy> writer_raw(folder, num_cols);
+		do_write(writer_raw);
+		}
+		std::cout << "---" << std::endl;
+	}
 }
 
 
