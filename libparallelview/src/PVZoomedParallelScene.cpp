@@ -36,8 +36,6 @@
  *
  * TODO: _{left,right}_zone must become pointer (to remove the "created" field).
  *
- * TODO: replace the image.fill(Qt::black) with a image.fill(Qt::transparent)
- *
  * TODO: make private methods which have to be private
  */
 
@@ -530,7 +528,7 @@ void PVParallelView::PVZoomedParallelScene::zone_rendered_Slot(int /*z*/)
 	QPainter painter(&image);
 
 	if (_left_zone.created) {
-		image.fill(Qt::black);
+		image.fill(Qt::transparent);
 
 		painter.setOpacity(0.25);
 		painter.drawImage(0, 0, _left_zone.bg_image->qimage());
@@ -545,7 +543,7 @@ void PVParallelView::PVZoomedParallelScene::zone_rendered_Slot(int /*z*/)
 	}
 
 	if (_right_zone.created) {
-		image.fill(Qt::black);
+		image.fill(Qt::transparent);
 
 		painter.setOpacity(0.25);
 		painter.drawImage(0, 0, _right_zone.bg_image->qimage());
