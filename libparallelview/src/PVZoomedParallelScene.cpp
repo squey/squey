@@ -383,7 +383,7 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 			if (_right_zone.created) {
 				if (_render_type == RENDER_ALL) {
 					BENCH_START(render);
-					_zones_drawing.draw_zoomed_zone(_left_zone.context,
+					_zones_drawing.draw_zoomed_zone(_right_zone.context,
 				                                    *(_right_zone.bg_image), y_min, y_max, y_lim,
 					                                zoom_level, _axis,
 					                                &PVZoomedZoneTree::browse_bci_by_y1,
@@ -396,7 +396,7 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 				}
 
 				BENCH_START(sel_render);
-				_zones_drawing.draw_zoomed_zone_sel(_left_zone.context,
+				_zones_drawing.draw_zoomed_zone_sel(_right_zone.context,
 				                                    *(_right_zone.sel_image),
 				                                    y_min, y_max, y_lim, _selection,
 				                                    zoom_level, _axis,
