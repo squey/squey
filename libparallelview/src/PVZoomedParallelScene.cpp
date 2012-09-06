@@ -30,8 +30,6 @@
  *
  * TODO: do we limit the view size or not? If not, it remove the limitation on
  *       images width
- *
- * TODO: make private methods which have to be private
  */
 
 #define ZOOM_MODIFIER     Qt::NoModifier
@@ -296,6 +294,15 @@ void PVParallelView::PVZoomedParallelScene::drawBackground(QPainter *painter,
 }
 
 /*****************************************************************************
+ * PVParallelView::PVZoomedParallelScene::resize_display
+ *****************************************************************************/
+
+void PVParallelView::PVZoomedParallelScene::resize_display()
+{
+	update_zoom();
+}
+
+/*****************************************************************************
  * PVParallelView::PVZoomedParallelScene::update_display
  *****************************************************************************/
 
@@ -416,15 +423,6 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 			// the zone id is unused
 			_rendering_job->zone_finished(0);
 		});
-}
-
-/*****************************************************************************
- * PVParallelView::PVZoomedParallelScene::resize_display
- *****************************************************************************/
-
-void PVParallelView::PVZoomedParallelScene::resize_display()
-{
-	update_zoom();
 }
 
 /*****************************************************************************

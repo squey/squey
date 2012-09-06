@@ -62,11 +62,14 @@ public:
 
 	void wheelEvent(QGraphicsSceneWheelEvent* event);
 
-	void update_new_selection(tbb::task* root);
 	void invalidate_selection();
+	void update_new_selection(tbb::task* root);
 
 	virtual void drawBackground(QPainter *painter, const QRectF &rect);
 
+	void resize_display();
+
+private:
 	inline void update_all()
 	{
 		_render_type = RENDER_ALL;
@@ -80,9 +83,7 @@ public:
 	}
 
 	void update_display();
-	void resize_display();
 
-private:
 	void update_zoom();
 
 private:
