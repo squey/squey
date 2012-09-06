@@ -20,6 +20,9 @@
 #include <pvkernel/core/PVAllocators.h>
 
 /* TODO: remove all useless code!
+ *
+ * TODO: when searching N entries in a list, it's not the N
+ *       first found but they have to be searched in N bands.
  */
 
 namespace PVParallelView {
