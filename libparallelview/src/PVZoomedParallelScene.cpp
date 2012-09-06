@@ -38,8 +38,6 @@
  *
  * TODO: replace the image.fill(Qt::black) with a image.fill(Qt::transparent)
  *
- * TODO: remove _zoom_level and compute it each time it is needed
- *
  * TODO: make private methods which have to be private
  */
 
@@ -345,6 +343,8 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 		{
 			using namespace PVParallelView;
 
+			int zoom_level = get_zoom_level();
+
 			for(int i = 0; i < 20; ++i) {
 				usleep(50000);
 				if (_rendering_job->should_cancel()) {
@@ -363,7 +363,7 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 					BENCH_START(render);
 					_zones_drawing.draw_zoomed_zone(_left_zone.context,
 					                                *(_left_zone.bg_image), y_min, y_max, y_lim,
-					                                _zoom_level, _axis - 1,
+					                                zoom_level, _axis - 1,
 					                                &PVZoomedZoneTree::browse_bci_by_y2,
 					                                alpha, beta, true);
 					BENCH_END(render, "render left tile", 1, 1, 1, 1);
@@ -377,7 +377,7 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 				_zones_drawing.draw_zoomed_zone_sel(_left_zone.context,
 				                                    *(_left_zone.sel_image),
 				                                    y_min, y_max, y_lim, _selection,
-				                                    _zoom_level, _axis - 1,
+				                                    zoom_level, _axis - 1,
 				                                    &PVZoomedZoneTree::browse_bci_sel_by_y2,
 				                                    alpha, beta, true);
 				BENCH_END(sel_render, "render selection of left tile", 1, 1, 1, 1);
@@ -397,7 +397,7 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 					BENCH_START(render);
 					_zones_drawing.draw_zoomed_zone(_left_zone.context,
 				                                    *(_right_zone.bg_image), y_min, y_max, y_lim,
-					                                _zoom_level, _axis,
+					                                zoom_level, _axis,
 					                                &PVZoomedZoneTree::browse_bci_by_y1,
 					                                alpha, beta, false);
 					BENCH_END(render, "render right tile", 1, 1, 1, 1);
@@ -411,7 +411,7 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 				_zones_drawing.draw_zoomed_zone_sel(_left_zone.context,
 				                                    *(_right_zone.sel_image),
 				                                    y_min, y_max, y_lim, _selection,
-				                                    _zoom_level, _axis,
+				                                    zoom_level, _axis,
 				                                    &PVZoomedZoneTree::browse_bci_sel_by_y1,
 				                                    alpha, beta, false);
 				BENCH_END(sel_render, "render selection of right tile", 1, 1, 1, 1);
@@ -456,7 +456,6 @@ void PVParallelView::PVZoomedParallelScene::update_zoom()
 	 */
 	_skip_scrollbar_changed = true;
 
-	_zoom_level = get_zoom_level();
 	double scale_factor = get_scale_factor();
 
 	QMatrix mat;

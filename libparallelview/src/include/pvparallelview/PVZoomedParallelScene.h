@@ -99,7 +99,7 @@ private:
 	double get_scale_factor()
 	{
 		// Phillipe's magic formula: 2^n × a^k
-		return pow(2, _zoom_level) * pow(root_step, get_zoom_step());
+		return pow(2, get_zoom_level()) * pow(root_step, get_zoom_step());
 	}
 
 	PVZonesManager& get_zones_manager() { return _zones_drawing.get_zones_manager(); }
@@ -138,7 +138,6 @@ private:
 	// about mouse
 	int                            _wheel_value;
 	int                            _pan_reference_y;
-	int                            _zoom_level;
 
 	// about zones rendering/display
 	zone_desc_t                    _left_zone;
