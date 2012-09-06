@@ -16,9 +16,6 @@
  * TODO: keep ratio between the width of the 2 zones in full parallel view
  *       => stores the scale for each beta (for the left one and the right one)
  *
- * TODO: add a mechanism to store BCI codes for a given area in scene to avoid
- * extracting them from the quadree each time drawBackground is called.
- *
  * TODO: remove the limitation of 512 for the backend_image's width
  *
  * TODO: configure scene's view from the PVAxis
