@@ -16,8 +16,6 @@
  * TODO: keep ratio between the width of the 2 zones in full parallel view
  *       => stores the scale for each beta (for the left one and the right one)
  *
- * TODO: remove the limitation of 512 for the backend_image's width
- *
  * TODO: configure scene's view from the PVAxis
  *
  * TODO: finalize selection stuff
@@ -25,9 +23,6 @@
  * TODO: calls to zone_drawing must be moved into tbb:task
  *
  * TODO: use _last_selection_square_screen_pos like in FullParallelScene
- *
- * TODO: do we limit the view size or not? If not, it remove the limitation on
- *       images width
  */
 
 /* NOTE: when zooming, the smallest backend_image's height is 1024 (2048 / 2).
