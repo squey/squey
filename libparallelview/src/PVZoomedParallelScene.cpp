@@ -31,8 +31,6 @@
  * TODO: do we limit the view size or not? If not, it remove the limitation on
  *       images width
  *
- * TODO: _{left,right}_zone must become pointer (to remove the "created" field).
- *
  * TODO: make private methods which have to be private
  */
 
@@ -54,6 +52,8 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 	_zones_drawing(zones_drawing),
 	_selection(pvview_p->get_view_selection()),
 	_axis(axis),
+	_left_zone(nullptr),
+	_right_zone(nullptr),
 	_rendering_zone_number(0),
 	_rendered_zone_count(0)
 {
@@ -81,26 +81,23 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 	connect(_rendering_job, SIGNAL(zone_rendered(int)),
 	        this, SLOT(zone_rendered_Slot(int)));
 
-	_left_zone.created = false;
-	_right_zone.created = false;
-
 	// needed pixmap to create QGraphicsPixmapItem
 	QPixmap dummy_pixmap;
 
 	if (axis > 0) {
-		_left_zone.bg_image = zones_drawing.create_image(image_width);
-		_left_zone.sel_image = zones_drawing.create_image(image_width);
-		_left_zone.item = addPixmap(dummy_pixmap);
-		_left_zone.created = true;
+		_left_zone = new zone_desc_t;
+		_left_zone->bg_image = zones_drawing.create_image(image_width);
+		_left_zone->sel_image = zones_drawing.create_image(image_width);
+		_left_zone->item = addPixmap(dummy_pixmap);
 
 		++_rendering_zone_number;
 	}
 
 	if (axis < zones_drawing.get_zones_manager().get_number_zones()) {
-		_right_zone.bg_image = zones_drawing.create_image(image_width);
-		_right_zone.sel_image = zones_drawing.create_image(image_width);
-		_right_zone.item = addPixmap(dummy_pixmap);
-		_right_zone.created = true;
+		_right_zone = new zone_desc_t;
+		_right_zone->bg_image = zones_drawing.create_image(image_width);
+		_right_zone->sel_image = zones_drawing.create_image(image_width);
+		_right_zone->item = addPixmap(dummy_pixmap);
 
 		++_rendering_zone_number;
 	}
@@ -255,13 +252,13 @@ void PVParallelView::PVZoomedParallelScene::update_new_selection(tbb::task* root
 {
 	invalidate_selection();
 
-	if (_left_zone.created) {
+	if (_left_zone) {
 		root->increment_ref_count();
 		tbb::task& child_task = *new (root->allocate_child()) PVTaskFilterSel(get_zones_manager(), _axis-1, _selection);
 		root->enqueue(child_task, tbb::priority_high);
 	}
 
-	if (_right_zone.created) {
+	if (_right_zone) {
 		root->increment_ref_count();
 		tbb::task& child_task = *new (root->allocate_child()) PVTaskFilterSel(get_zones_manager(), _axis, _selection);
 		root->enqueue(child_task, tbb::priority_high);
@@ -346,11 +343,11 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 
 			BENCH_START(full_render);
 
-			if (_left_zone.created) {
+			if (_left_zone) {
 				if (_render_type == RENDER_ALL) {
 					BENCH_START(render);
-					_zones_drawing.draw_zoomed_zone(_left_zone.context,
-					                                *(_left_zone.bg_image), y_min, y_max, y_lim,
+					_zones_drawing.draw_zoomed_zone(_left_zone->context,
+					                                *(_left_zone->bg_image), y_min, y_max, y_lim,
 					                                zoom_level, _axis - 1,
 					                                &PVZoomedZoneTree::browse_bci_by_y2,
 					                                alpha, beta, true);
@@ -362,8 +359,8 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 				}
 
 				BENCH_START(sel_render);
-				_zones_drawing.draw_zoomed_zone_sel(_left_zone.context,
-				                                    *(_left_zone.sel_image),
+				_zones_drawing.draw_zoomed_zone_sel(_left_zone->context,
+				                                    *(_left_zone->sel_image),
 				                                    y_min, y_max, y_lim, _selection,
 				                                    zoom_level, _axis - 1,
 				                                    &PVZoomedZoneTree::browse_bci_sel_by_y2,
@@ -372,19 +369,19 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 
 				QPoint npos(screen_center - image_width, gap_y);
 
-				_left_zone.next_pos = _zpview->mapToScene(npos) + QPointF((- axis_half_width) * beta, 0);
-				_left_zone.next_beta = beta;
+				_left_zone->next_pos = _zpview->mapToScene(npos) + QPointF((- axis_half_width) * beta, 0);
+				_left_zone->next_beta = beta;
 
 				if (_rendering_job->should_cancel()) {
 					return;
 				}
 			}
 
-			if (_right_zone.created) {
+			if (_right_zone) {
 				if (_render_type == RENDER_ALL) {
 					BENCH_START(render);
-					_zones_drawing.draw_zoomed_zone(_right_zone.context,
-				                                    *(_right_zone.bg_image), y_min, y_max, y_lim,
+					_zones_drawing.draw_zoomed_zone(_right_zone->context,
+				                                    *(_right_zone->bg_image), y_min, y_max, y_lim,
 					                                zoom_level, _axis,
 					                                &PVZoomedZoneTree::browse_bci_by_y1,
 					                                alpha, beta, false);
@@ -396,8 +393,8 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 				}
 
 				BENCH_START(sel_render);
-				_zones_drawing.draw_zoomed_zone_sel(_right_zone.context,
-				                                    *(_right_zone.sel_image),
+				_zones_drawing.draw_zoomed_zone_sel(_right_zone->context,
+				                                    *(_right_zone->sel_image),
 				                                    y_min, y_max, y_lim, _selection,
 				                                    zoom_level, _axis,
 				                                    &PVZoomedZoneTree::browse_bci_sel_by_y1,
@@ -406,8 +403,8 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 
 				QPoint npos(screen_center, gap_y);
 
-				_right_zone.next_pos = _zpview->mapToScene(npos) + QPointF((axis_half_width + 1) * beta, 0);
-				_right_zone.next_beta = beta;
+				_right_zone->next_pos = _zpview->mapToScene(npos) + QPointF((axis_half_width + 1) * beta, 0);
+				_right_zone->next_beta = beta;
 
 				if (_rendering_job->should_cancel()) {
 					return;
@@ -460,15 +457,15 @@ void PVParallelView::PVZoomedParallelScene::update_zoom()
 
 	/* now, it's time to tell each QGraphicsPixmapItem where it must be.
 	 */
-	if (_left_zone.created) {
-		QPointF p = _left_zone.item->pos();
+	if (_left_zone) {
+		QPointF p = _left_zone->item->pos();
 		double screen_left_x = _zpview->viewport()->rect().center().x();
 
 		/* the image's size depends on its last computed scale and the
 		 * current scale factor (it's obvious to prove but I have no
 		 * time to:)
 		 */
-		screen_left_x -= image_width * _left_zone.cur_beta * scale_factor;
+		screen_left_x -= image_width * _left_zone->cur_beta * scale_factor;
 		screen_left_x -= axis_half_width;
 
 		/* mapToScene use int, so, to avoid artefacts (due to the cast
@@ -478,15 +475,15 @@ void PVParallelView::PVZoomedParallelScene::update_zoom()
 
 		QPointF np = _zpview->mapToScene(QPoint(screen_left_x, 0));
 
-		_left_zone.item->setPos(QPointF(np.x(), p.y()));
+		_left_zone->item->setPos(QPointF(np.x(), p.y()));
 	}
 
-	if (_right_zone.created) {
-		QPointF p = _right_zone.item->pos();
+	if (_right_zone) {
+		QPointF p = _right_zone->item->pos();
 		int screen_right_x = _zpview->viewport()->rect().center().x() + axis_half_width + 1;
 		QPointF np = _zpview->mapToScene(QPoint(screen_right_x, 0));
 
-		_right_zone.item->setPos(QPointF(np.x(), p.y()));
+		_right_zone->item->setPos(QPointF(np.x(), p.y()));
 	}
 
 	update_all();
@@ -524,34 +521,34 @@ void PVParallelView::PVZoomedParallelScene::zone_rendered_Slot(int /*z*/)
 	QImage image(image_width, image_height, QImage::Format_ARGB32);
 	QPainter painter(&image);
 
-	if (_left_zone.created) {
+	if (_left_zone) {
 		image.fill(Qt::transparent);
 
 		painter.setOpacity(0.25);
-		painter.drawImage(0, 0, _left_zone.bg_image->qimage());
+		painter.drawImage(0, 0, _left_zone->bg_image->qimage());
 		painter.setOpacity(1.0);
-		painter.drawImage(0, 0, _left_zone.sel_image->qimage());
+		painter.drawImage(0, 0, _left_zone->sel_image->qimage());
 
-		_left_zone.cur_beta = _left_zone.next_beta;
+		_left_zone->cur_beta = _left_zone->next_beta;
 
-		_left_zone.item->setPos(_left_zone.next_pos);
-		_left_zone.item->setScale(_left_zone.cur_beta);
-		_left_zone.item->setPixmap(QPixmap::fromImage(image));
+		_left_zone->item->setPos(_left_zone->next_pos);
+		_left_zone->item->setScale(_left_zone->cur_beta);
+		_left_zone->item->setPixmap(QPixmap::fromImage(image));
 	}
 
-	if (_right_zone.created) {
+	if (_right_zone) {
 		image.fill(Qt::transparent);
 
 		painter.setOpacity(0.25);
-		painter.drawImage(0, 0, _right_zone.bg_image->qimage());
+		painter.drawImage(0, 0, _right_zone->bg_image->qimage());
 		painter.setOpacity(1.0);
-		painter.drawImage(0, 0, _right_zone.sel_image->qimage());
+		painter.drawImage(0, 0, _right_zone->sel_image->qimage());
 
-		_right_zone.cur_beta = _right_zone.next_beta;
+		_right_zone->cur_beta = _right_zone->next_beta;
 
-		_right_zone.item->setPos(_right_zone.next_pos);
-		_right_zone.item->setScale(_right_zone.cur_beta);
-		_right_zone.item->setPixmap(QPixmap::fromImage(image));
+		_right_zone->item->setPos(_right_zone->next_pos);
+		_right_zone->item->setScale(_right_zone->cur_beta);
+		_right_zone->item->setPixmap(QPixmap::fromImage(image));
 	}
 
 	update();
@@ -565,7 +562,7 @@ void
 PVParallelView::PVZoomedParallelScene::filter_by_sel_finished_Slot(int zid,
                                                                    bool changed)
 {
-	if ((zid == _axis) && changed && _right_zone.created) {
+	if ((zid == _axis) && changed && _right_zone) {
 		++_rendered_zone_count;
 		if (_rendered_zone_count == _rendering_zone_number) {
 			/* if all zone to render have been rendered,
@@ -573,7 +570,7 @@ PVParallelView::PVZoomedParallelScene::filter_by_sel_finished_Slot(int zid,
 			 */
 			update_sel();
 		}
-	} else if ((zid == (_axis - 1)) && changed && _left_zone.created) {
+	} else if ((zid == (_axis - 1)) && changed && _left_zone) {
 		++_rendered_zone_count;
 		if (_rendered_zone_count == _rendering_zone_number) {
 			/* if all zone to render have been rendered,

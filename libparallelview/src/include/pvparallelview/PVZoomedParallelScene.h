@@ -119,7 +119,6 @@ private:
 
 	struct zone_desc_t
 	{
-		bool                 created;    // if the zone is effective or not
 		backend_image_p_t    bg_image;   // the image for unselected/zomby lines
 		backend_image_p_t    sel_image;  // the image for selected lines
 		zzt_context_t        context;    // the extraction context for ZZT
@@ -140,8 +139,8 @@ private:
 	int                            _pan_reference_y;
 
 	// about zones rendering/display
-	zone_desc_t                    _left_zone;
-	zone_desc_t                    _right_zone;
+	zone_desc_t                   *_left_zone;
+	zone_desc_t                   *_right_zone;
 
 	// about rendering
 	PVRenderingJob                *_rendering_job;
