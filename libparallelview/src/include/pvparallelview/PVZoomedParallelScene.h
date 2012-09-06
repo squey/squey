@@ -15,6 +15,7 @@
 
 #include <picviz/FakePVView.h>
 
+#include <QGraphicsPixmapItem>
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsSceneWheelEvent>
 
@@ -38,6 +39,7 @@ private:
 	constexpr static int zoom_steps = 5;
 	constexpr static double root_step = pow(2.0, 1.0 / zoom_steps);
 	constexpr static int max_wheel_value = 21 * zoom_steps;
+	constexpr static int axis_half_width = PARALLELVIEW_AXIS_WIDTH / 2;
 
 private:
 	typedef PVParallelView::PVZoomedZoneTree::context_t zzt_context_t;
@@ -78,10 +80,10 @@ public:
 	}
 
 	void update_display();
-	void resize_display(const QSize &s);
+	void resize_display();
 
 private:
-	void update_zoom(bool in = true);
+	void update_zoom();
 
 private:
 	int get_zoom_level()
@@ -117,13 +119,14 @@ private:
 
 	struct zone_desc_t
 	{
-		bool              created;    // if the zone is effective or not
-		QRect             area;       // the zone's area in the screen
-		QPoint            pos;        // the zone's position in the screen
-		backend_image_p_t bg_image;   // the image for unselected/zomby lines
-		backend_image_p_t sel_image;  // the image for selected lines
-		QImage            back_image; // the back buffer for debased rendering
-		zzt_context_t     context;    // the extraction context for ZZT
+		bool                 created;    // if the zone is effective or not
+		backend_image_p_t    bg_image;   // the image for unselected/zomby lines
+		backend_image_p_t    sel_image;  // the image for selected lines
+		zzt_context_t        context;    // the extraction context for ZZT
+		QGraphicsPixmapItem *item;       // the scene's element
+		QPointF              next_pos;   // the item position of the next rendering
+		qreal                next_beta;  // the item scale of the next rendering
+		qreal                cur_beta;   // the item scale of the last rendering
 	};
 
 	PVZoomedParallelView          *_zpview;
@@ -136,7 +139,6 @@ private:
 	int                            _wheel_value;
 	int                            _pan_reference_y;
 	int                            _zoom_level;
-	int                            _old_sb_pos;
 
 	// about zones rendering/display
 	zone_desc_t                    _left_zone;
@@ -145,7 +147,7 @@ private:
 	// about rendering
 	PVRenderingJob                *_rendering_job;
 	QFuture<void>                  _rendering_future;
-	bool                           _skip_update_zoom;
+	bool                           _skip_scrollbar_changed;
 	QTimer                         _scroll_timer;
 
 	// about selection in the zoom view
