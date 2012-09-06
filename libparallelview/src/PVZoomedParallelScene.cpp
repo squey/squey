@@ -29,7 +29,7 @@
  *
  * TODO: use _last_selection_square_screen_pos like in FullParallelScene
  *
- * TODO: check for a greater value for max_wheel_value
+ * TODO: search for a greater value for max_wheel_value
  *
  * TODO: do we limit the view size or not? If not, it remove the limitation on
  *       images width
@@ -344,13 +344,6 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 			using namespace PVParallelView;
 
 			int zoom_level = get_zoom_level();
-
-			for(int i = 0; i < 20; ++i) {
-				usleep(50000);
-				if (_rendering_job->should_cancel()) {
-					return;
-				}
-			}
 
 			if (_rendering_job->should_cancel()) {
 				return;
