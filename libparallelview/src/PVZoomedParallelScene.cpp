@@ -21,8 +21,6 @@
  * TODO: finalize selection stuff
  *
  * TODO: calls to zone_drawing must be moved into tbb:task
- *
- * TODO: use _last_selection_square_screen_pos like in FullParallelScene
  */
 
 /* NOTE: when zooming, the smallest backend_image's height is 1024 (2048 / 2).
