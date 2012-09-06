@@ -34,7 +34,7 @@ Q_OBJECT
 private:
 	constexpr static size_t bbits = PARALLELVIEW_ZZT_BBITS;
 	constexpr static uint32_t image_width = 512;
-	constexpr static uint32_t image_height = PVParallelView::constants<bbits>::image_height;
+	constexpr static uint32_t image_height = 1024;
 	constexpr static double bbits_alpha_scale = 1. / (1. + (bbits - 10));
 	constexpr static int zoom_steps = 5;
 	constexpr static double root_step = pow(2.0, 1.0 / zoom_steps);

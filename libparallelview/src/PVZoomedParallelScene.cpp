@@ -32,6 +32,16 @@
  *       images width
  */
 
+/* NOTE: when zooming, the smallest backend_image's height is 1024 (2048 / 2).
+ *       So with a view's greater than 1024, there will be an empty space at
+ *       the view's bottom. So the view's height must be limited to 1024. And
+ *       limiting its width to 1024 is not so weird.
+ *       The QGraphicsPixmapItems height has to be limited to 1024 too: the
+ *       restriction for BCI codes is only on the zoomed axis, not on their
+ *       neighbours. The QGraphicsPixmapItems could also contains a trapezoid
+ *       containing lines, which is ugly. Having a height of 1024 remove this
+ *       problem.
+ */
 #define ZOOM_MODIFIER     Qt::NoModifier
 #define PAN_MODIFIER      Qt::ControlModifier
 #define SLOW_PAN_MODIFIER Qt::ShiftModifier
@@ -61,8 +71,8 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 	_zpview->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
 	_zpview->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
 
-	//_zpview->setMaximumWidth(1024);
-	//_zpview->setMaximumHeight(1024);
+	_zpview->setMaximumWidth(1024);
+	_zpview->setMaximumHeight(1024);
 
 	_selection_rect = new PVParallelView::PVSelectionSquareGraphicsItem(this);
 	connect(_selection_rect, SIGNAL(commit_volatile_selection()),
