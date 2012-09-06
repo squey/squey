@@ -26,8 +26,6 @@
  *
  * TODO: use _last_selection_square_screen_pos like in FullParallelScene
  *
- * TODO: search for a greater value for max_wheel_value
- *
  * TODO: do we limit the view size or not? If not, it remove the limitation on
  *       images width
  */
