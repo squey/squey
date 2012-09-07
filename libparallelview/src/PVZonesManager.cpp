@@ -85,8 +85,8 @@ void PVParallelView::PVZonesManager::update_all()
 		for (PVZoneID z = 0; z < nzones; z++) {
 			get_zone_cols(z, zp.col_a(), zp.col_b());
 			PVZoneTree& ztree = _zones[z].ztree();
-			//PVZoomedZoneTree& zztree = _zones[z].zoomed_ztree();
-			//zztree.process(zp, ztree);
+			PVZoomedZoneTree& zztree = _zones[z].zoomed_ztree();
+			zztree.process(zp, ztree);
 		}
 		BENCH_END(zztree, "ZZTREES PROCESS (SERIAL)", 1, 1, 1, 1);
 #else
