@@ -326,6 +326,10 @@ public:
 	{
 		p->~value_type();
 	}
+
+	// C++11 compatibility
+	bool operator==(const PVAlignedAllocator&) const { return true; }
+	bool operator!=(const PVAlignedAllocator&) const { return false; }
 };
 
 template <class T>
