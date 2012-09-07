@@ -82,6 +82,7 @@ private:
 		update_display();
 	}
 
+	// must not be called directly, use ::update_all() or ::update_sel()
 	void update_display();
 
 	void update_zoom();
@@ -125,8 +126,6 @@ private:
 		zzt_context_t        context;    // the extraction context for ZZT
 		QGraphicsPixmapItem *item;       // the scene's element
 		QPointF              next_pos;   // the item position of the next rendering
-		qreal                next_beta;  // the item scale of the next rendering
-		qreal                cur_beta;   // the item scale of the last rendering
 	};
 
 	PVZoomedParallelView          *_zpview;
@@ -142,11 +141,12 @@ private:
 	// about zones rendering/display
 	zone_desc_t                   *_left_zone;
 	zone_desc_t                   *_right_zone;
+	qreal                          _next_beta;
+	qreal                          _current_beta;
 
 	// about rendering
 	PVRenderingJob                *_rendering_job;
 	QFuture<void>                  _rendering_future;
-	bool                           _skip_scrollbar_changed;
 	QTimer                         _scroll_timer;
 
 	// about selection in the zoom view

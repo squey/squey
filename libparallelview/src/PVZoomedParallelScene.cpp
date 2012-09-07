@@ -330,7 +330,22 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 	uint64_t y_max = PVCore::clamp<uint64_t>(y_min + screen_rect.height() * pixel_height,
 	                                         0ULL, y_lim);
 
+	_next_beta = beta;
+
 	int gap_y = (screen_rect_s.top() < 0)?round(-screen_rect_s.top()):0;
+
+	if (_left_zone) {
+		QPoint npos(screen_center - image_width - axis_half_width, gap_y);
+
+		_left_zone->next_pos = _zpview->mapToScene(npos);
+	}
+
+	if (_right_zone) {
+		QPoint npos(screen_center + axis_half_width + 1, gap_y);
+
+		_right_zone->next_pos = _zpview->mapToScene(npos);
+	}
+
 
 	if (_rendering_future.isRunning()) {
 		_rendered_zone_count = 0;
@@ -338,12 +353,21 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 		_rendering_future.waitForFinished();
 	}
 	_rendering_job->reset();
-	_rendering_future = QtConcurrent::run<>([&, y_min, y_max, y_lim, alpha, beta,
-	                                         gap_y, screen_rect, screen_center]
+	_rendering_future = QtConcurrent::run<>([&, y_min, y_max, y_lim, alpha, beta]
 		{
 			using namespace PVParallelView;
 
 			int zoom_level = get_zoom_level();
+
+#if 0
+			// a second to slow the rendering
+			for(int i = 0; i < 20; ++i) {
+				usleep(50000);
+				if (_rendering_job->should_cancel()) {
+					return;
+				}
+			}
+#endif
 
 			if (_rendering_job->should_cancel()) {
 				return;
@@ -375,11 +399,6 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 				                                    alpha, beta, true);
 				BENCH_END(sel_render, "render selection of left tile", 1, 1, 1, 1);
 
-				QPoint npos(screen_center - image_width, gap_y);
-
-				_left_zone->next_pos = _zpview->mapToScene(npos) + QPointF((- axis_half_width) * beta, 0);
-				_left_zone->next_beta = beta;
-
 				if (_rendering_job->should_cancel()) {
 					return;
 				}
@@ -409,11 +428,6 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 				                                    alpha, beta, false);
 				BENCH_END(sel_render, "render selection of right tile", 1, 1, 1, 1);
 
-				QPoint npos(screen_center, gap_y);
-
-				_right_zone->next_pos = _zpview->mapToScene(npos) + QPointF((axis_half_width + 1) * beta, 0);
-				_right_zone->next_beta = beta;
-
 				if (_rendering_job->should_cancel()) {
 					return;
 				}
@@ -432,14 +446,6 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 
 void PVParallelView::PVZoomedParallelScene::update_zoom()
 {
-	/* make the next ::scrollbar_changed_Slot() call have no
-	 * effect on all back_images. Changing the view's transformation
-	 * matrix updates the scrollbar which will emit a valueChanged
-	 * event; it will also cause a unwanted cout-out effect while
-	 * zooming in.
-	 */
-	_skip_scrollbar_changed = true;
-
 	double scale_factor = get_scale_factor();
 
 	QMatrix mat;
@@ -460,11 +466,11 @@ void PVParallelView::PVZoomedParallelScene::update_zoom()
 		QPointF p = _left_zone->item->pos();
 		double screen_left_x = _zpview->viewport()->rect().center().x();
 
-		/* the image's size depends on its last computed scale and the
-		 * current scale factor (it's obvious to prove but I have no
-		 * time to:)
+		/* the image's size depends on its last computed beta factor
+		 * and the current scale factor (it's obvious to prove but I
+		 * have no time to:)
 		 */
-		screen_left_x -= image_width * _left_zone->cur_beta * scale_factor;
+		screen_left_x -= image_width * _current_beta * scale_factor;
 		screen_left_x -= axis_half_width;
 
 		/* mapToScene use int, so, to avoid artefacts (due to the cast
@@ -485,7 +491,7 @@ void PVParallelView::PVZoomedParallelScene::update_zoom()
 		_right_zone->item->setPos(QPointF(np.x(), p.y()));
 	}
 
-	update_all();
+	scrollbar_changed_Slot(0);
 }
 
 /*****************************************************************************
@@ -494,12 +500,8 @@ void PVParallelView::PVZoomedParallelScene::update_zoom()
 
 void PVParallelView::PVZoomedParallelScene::scrollbar_changed_Slot(int /*value*/)
 {
-	if (_skip_scrollbar_changed == false) {
-		_scroll_timer.stop();
-		_scroll_timer.start();
-	}
-
-	_skip_scrollbar_changed = false;
+	_scroll_timer.stop();
+	_scroll_timer.start();
 }
 
 /*****************************************************************************
@@ -520,6 +522,8 @@ void PVParallelView::PVZoomedParallelScene::zone_rendered_Slot(int /*z*/)
 	QImage image(image_width, image_height, QImage::Format_ARGB32);
 	QPainter painter(&image);
 
+	_current_beta = _next_beta;
+
 	if (_left_zone) {
 		image.fill(Qt::transparent);
 
@@ -528,10 +532,8 @@ void PVParallelView::PVZoomedParallelScene::zone_rendered_Slot(int /*z*/)
 		painter.setOpacity(1.0);
 		painter.drawImage(0, 0, _left_zone->sel_image->qimage());
 
-		_left_zone->cur_beta = _left_zone->next_beta;
-
 		_left_zone->item->setPos(_left_zone->next_pos);
-		_left_zone->item->setScale(_left_zone->cur_beta);
+		_left_zone->item->setScale(_current_beta);
 		_left_zone->item->setPixmap(QPixmap::fromImage(image));
 	}
 
@@ -543,10 +545,8 @@ void PVParallelView::PVZoomedParallelScene::zone_rendered_Slot(int /*z*/)
 		painter.setOpacity(1.0);
 		painter.drawImage(0, 0, _right_zone->sel_image->qimage());
 
-		_right_zone->cur_beta = _right_zone->next_beta;
-
 		_right_zone->item->setPos(_right_zone->next_pos);
-		_right_zone->item->setScale(_right_zone->cur_beta);
+		_right_zone->item->setScale(_current_beta);
 		_right_zone->item->setPixmap(QPixmap::fromImage(image));
 	}
 
