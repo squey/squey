@@ -422,7 +422,8 @@ protected:
 		typedef PVCore::PVTypeTraits::function_traits<F> ftraits;
 		// object must be a valid address
 		assert(object != nullptr);
-		typename ftraits::arguments_type args(std::forward<P>(params)...);
+		typename ftraits::arguments_type args;
+		args.set_args(std::forward<P>(params)...);
 
 		// This method can be specialized easily for a given function !
 		return call_object<F, f>(object, args);
@@ -540,7 +541,8 @@ private:
 			if (fo_signal) {
 				typedef typename PVCore::PVTypeTraits::function_traits<F>::arguments_deep_copy_type arguments_deep_copy_type;
 
-				arguments_deep_copy_type* args = new arguments_deep_copy_type(std::forward<P>(params)...);
+				arguments_deep_copy_type* args = new arguments_deep_copy_type;
+				args->set_args(params...);
 
 				if (about) {
 					fo->do_about_to_be_updated((const void*) args);
@@ -552,7 +554,8 @@ private:
 			else {
 				typedef typename PVCore::PVTypeTraits::function_traits<F>::arguments_type arguments_type;
 
-				arguments_type args(params...);
+				arguments_type args;
+				args.set_args(params...);
 
 				if (about) {
 					fo->do_about_to_be_updated((const void*) &args);

@@ -40,7 +40,7 @@ public:
 public:
 	void create_view(PVParallelView::PVLinesView::zones_drawing_t::bci_backend_t& bci_backend)
 	{
-		_parallel_views.emplace_back(_view_sp, _zones_manager, bci_backend);
+		_parallel_views.emplace_back(_view_sp, _zones_manager, bci_backend, task_root());
 		_parallel_views.back().first_render();
 	}
 

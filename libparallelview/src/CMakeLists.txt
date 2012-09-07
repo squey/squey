@@ -26,6 +26,8 @@ add_definitions(${PICVIZ_DEFINITIONS})
 add_definitions(${OpenMP_CXX_FLAGS})
 
 SET(SRC_FILES
+PVBCIBuffers.cpp
+PVBCIDrawingEngineCuda.cpp
 PVTools.cpp
 PVZoomedZoneTree.cpp
 PVZoomedParallelScene.cpp
@@ -52,6 +54,7 @@ set(CUDA_SRC_FILES
 
 SET(HEADER_FILES
 include/pvparallelview/common.h
+include/pvparallelview/PVBCIBuffers.h
 include/pvparallelview/PVBCICode.h
 include/pvparallelview/PVBCode.h
 include/pvparallelview/PVContainerZoneTree.h
@@ -90,7 +93,7 @@ QT4_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})
 if (CUDA_FOUND)
 	cuda_compile(CUDA_KERNELS cuda/bci_cuda_z24.cu)
 	set(SRC_FILES ${SRC_FILES} ${CUDA_SRC_FILES} ${CUDA_KERNELS})
-	set(LINK_LIBRARIES ${LINK_LIBRARIES} ${CUDA_LIBRARIES})
+	set(LINK_LIBRARIES ${LINK_LIBRARIES} ${CUDA_LIBRARIES} /opt/cuda/lib64/libnpp.so)
 endif (CUDA_FOUND)
 
 add_library(pvparallelview SHARED ${SRC_FILES} ${HEADER_FILES} ${MOC_SRC})

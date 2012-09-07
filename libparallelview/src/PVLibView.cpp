@@ -51,7 +51,7 @@ void PVParallelView::PVLibView::process_selection_Observer::update(arguments_dee
 	task_root->set_ref_count(1);
 
 	for (PVFullParallelScene& view: _parent->_parallel_views) {
-		view.update_new_selection(task_root);
+		view.update_new_selection();
 	}
 
 	for (PVZoomedParallelScene& view: _parent->_zoomed_parallel_scenes) {

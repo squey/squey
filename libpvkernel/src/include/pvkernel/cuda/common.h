@@ -11,6 +11,8 @@
 #include <cuda_runtime.h>
 #include <cuda_gl_interop.h>
 
+#include <functional>
+
 #define picviz_verify_cuda(e) __picviz_verify_cuda(e, __FILE__, __LINE__)
 #define __picviz_verify_cuda(e, F, L)\
 		if ((e) != cudaSuccess) {\
@@ -27,9 +29,14 @@
 namespace PVCuda {
 
 void init_cuda();
+void init_cuda_thread();
 void init_gl_cuda();
 int get_number_blocks();
 size_t get_shared_mem_size();
+size_t get_number_of_devices();
+#ifndef __CUDACC__
+void visit_usable_cuda_devices(std::function<void(int)> const& f);
+#endif
 
 }
 
