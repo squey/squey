@@ -38,7 +38,7 @@ private:
 	constexpr static double bbits_alpha_scale = 1. / (1. + (bbits - 10));
 	constexpr static int zoom_steps = 5;
 	constexpr static double root_step = pow(2.0, 1.0 / zoom_steps);
-	constexpr static int max_wheel_value = 21 * zoom_steps + (zoom_steps - 1);
+	constexpr static int max_wheel_value = 21 * zoom_steps;
 	constexpr static int axis_half_width = PARALLELVIEW_AXIS_WIDTH / 2;
 
 private:
