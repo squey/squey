@@ -470,13 +470,17 @@ void PVParallelView::PVZoomedParallelScene::update_zoom()
 		 * and the current scale factor (it's obvious to prove but I
 		 * have no time to:)
 		 */
-		screen_left_x -= image_width * _current_beta * scale_factor;
+		screen_left_x -= image_width * (_current_beta * scale_factor);
 		screen_left_x -= axis_half_width;
 
-		/* mapToScene use int, so, to avoid artefacts (due to the cast
-		 * from double to int (a floor), a rounded value is needed.
+		/* mapToScene use ints, so, to avoid artefacts (due to the cast
+		 * from double to int (a floor)), a rounded value is needed.
 		 */
-		screen_left_x -= 0.5;
+		if (screen_left_x < 0) {
+			screen_left_x -= 0.5;
+		} else {
+			screen_left_x += 0.5;
+		}
 
 		QPointF np = _zpview->mapToScene(QPoint(screen_left_x, 0));
 
@@ -486,6 +490,19 @@ void PVParallelView::PVZoomedParallelScene::update_zoom()
 	if (_right_zone) {
 		QPointF p = _right_zone->item->pos();
 		int screen_right_x = _zpview->viewport()->rect().center().x() + axis_half_width + 1;
+
+		/* mapToScene use ints, so, to avoid artefacts (due to the cast
+		 * from double to int (a floor)), a rounded value is needed.
+		 *
+		 * RH: I am not sure about doing like left zone but I notice
+		 *     less artefacts
+		 */
+		if (screen_right_x < 0) {
+			screen_right_x -= 0.5;
+		} else {
+			screen_right_x += 0.5;
+		}
+
 		QPointF np = _zpview->mapToScene(QPoint(screen_right_x, 0));
 
 		_right_zone->item->setPos(QPointF(np.x(), p.y()));
