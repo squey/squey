@@ -48,6 +48,9 @@ public:
 	typedef PVParallelView::PVZonesDrawing<bbits> zones_drawing_t;
 	typedef typename zones_drawing_t::backend_image_p_t backend_image_p_t;
 
+private:
+	typedef typename zones_drawing_t::render_group_t render_group_t;
+
 public:
 	PVZoomedParallelScene(PVParallelView::PVZoomedParallelView *zpview,
 	                      Picviz::FakePVView_p pvview_p,
@@ -157,6 +160,9 @@ private:
 	render_t                       _render_type;
 	int                            _rendering_zone_number;
 	int                            _rendered_zone_count;
+
+	// Rendering gorup
+	render_group_t                 _render_grp;
 };
 
 }

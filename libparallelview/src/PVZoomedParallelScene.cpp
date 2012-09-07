@@ -111,6 +111,8 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 	_scroll_timer.setSingleShot(true);
 	connect(&_scroll_timer, SIGNAL(timeout()),
 	        this, SLOT(scrollbar_timeout_Slot()));
+
+	_render_grp = _zones_drawing.new_render_group();
 }
 
 /*****************************************************************************
@@ -125,6 +127,8 @@ PVParallelView::PVZoomedParallelScene::~PVZoomedParallelScene()
 	_rendering_job->cancel();
 	_rendering_future.waitForFinished();
 	_rendering_job->deleteLater();
+
+	_zones_drawing.remove_render_group(_render_grp);
 }
 
 /*****************************************************************************
@@ -384,7 +388,7 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 					                                *(_left_zone->bg_image), y_min, y_max, y_lim,
 					                                zoom_level, _axis - 1,
 					                                &PVZoomedZoneTree::browse_bci_by_y2,
-					                                alpha, beta, true);
+					                                alpha, beta, true, _render_grp);
 					BENCH_END(render, "render left tile", 1, 1, 1, 1);
 
 					if (_rendering_job->should_cancel()) {
@@ -398,7 +402,7 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 				                                    y_min, y_max, y_lim, _selection,
 				                                    zoom_level, _axis - 1,
 				                                    &PVZoomedZoneTree::browse_bci_sel_by_y2,
-				                                    alpha, beta, true);
+				                                    alpha, beta, true, _render_grp);
 				BENCH_END(sel_render, "render selection of left tile", 1, 1, 1, 1);
 
 				if (_rendering_job->should_cancel()) {
@@ -413,7 +417,7 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 				                                    *(_right_zone->bg_image), y_min, y_max, y_lim,
 					                                zoom_level, _axis,
 					                                &PVZoomedZoneTree::browse_bci_by_y1,
-					                                alpha, beta, false);
+					                                alpha, beta, false, _render_grp);
 					BENCH_END(render, "render right tile", 1, 1, 1, 1);
 
 					if (_rendering_job->should_cancel()) {
@@ -427,7 +431,7 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 				                                    y_min, y_max, y_lim, _selection,
 				                                    zoom_level, _axis,
 				                                    &PVZoomedZoneTree::browse_bci_sel_by_y1,
-				                                    alpha, beta, false);
+				                                    alpha, beta, false, _render_grp);
 				BENCH_END(sel_render, "render selection of right tile", 1, 1, 1, 1);
 
 				if (_rendering_job->should_cancel()) {
