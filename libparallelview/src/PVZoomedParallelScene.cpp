@@ -13,8 +13,9 @@
 #include <QtCore>
 
 /**
- * TODO: keep ratio between the width of the 2 zones in full parallel view
+ * IDEA: keep ratio between the width of the 2 zones in full parallel view
  *       => stores the scale for each beta (for the left one and the right one)
+ * RH: AG said this feature is not still planned (TODO -> IDEA)
  *
  * TODO: configure scene's view from the PVAxis
  *
@@ -33,6 +34,7 @@
  *       containing lines, which is ugly. Having a height of 1024 remove this
  *       problem.
  */
+
 #define ZOOM_MODIFIER     Qt::NoModifier
 #define PAN_MODIFIER      Qt::ControlModifier
 #define SLOW_PAN_MODIFIER Qt::ShiftModifier
