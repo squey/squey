@@ -341,12 +341,16 @@ template <size_t Bbits, bool reverse>
 static void show_codes_cuda(PVParallelView::PVBCICode<Bbits>* device_codes, uint32_t n, uint32_t width, uint32_t* device_img, uint32_t img_width, uint32_t x_start, const float zoom_y, cudaStream_t stream)
 {
 	assert((zoom_y > 0) && (zoom_y <= 1.0f));
+	// Happens for selection !
+	if (n == 0) {
+		return;
+	}
 	// Compute number of threads per block
 	int nthreads_x = (picviz_min(width, (SMEM_IMG_KB*1024)/(PVParallelView::constants<Bbits>::image_height*sizeof(img_zbuffer_t))));
 	int nthreads_y = NTHREADS_BLOCK/nthreads_x;
 	assert(nthreads_x*nthreads_y <= NTHREADS_BLOCK);
 
-	PVLOG_INFO("Number threads per block: %d x %d\n", nthreads_x, nthreads_y);
+	//PVLOG_INFO("Number threads per block: %d x %d\n", nthreads_x, nthreads_y);
 	cudaEvent_t start,end;
 	picviz_verify_cuda(cudaEventCreate(&start));
 	picviz_verify_cuda(cudaEventCreate(&end));
@@ -356,7 +360,7 @@ static void show_codes_cuda(PVParallelView::PVBCICode<Bbits>* device_codes, uint
 	int nblocks = PVCuda::get_number_blocks();
 	int nblocks_x = (width+nthreads_x-1)/nthreads_x;
 	int nblocks_y = 1;
-	PVLOG_INFO("Number of blocks: %d x %d\n", nblocks_x, nblocks_y);
+	//PVLOG_INFO("Number of blocks: %d x %d\n", nblocks_x, nblocks_y);
 
 	//int shared_size = nthreads_x*IMAGE_HEIGHT*sizeof(img_zbuffer_t);
 
@@ -368,7 +372,7 @@ static void show_codes_cuda(PVParallelView::PVBCICode<Bbits>* device_codes, uint
 	picviz_verify_cuda(cudaEventSynchronize(end));
 	float time = 0;
 	picviz_verify_cuda(cudaEventElapsedTime(&time, start, end));
-	fprintf(stderr, "CUDA kernel time: %0.4f ms, BW: %0.4f MB/s\n", time, (double)(n*sizeof(PVBCICode<Bbits>))/(double)((time/1000.0)*1024.0*1024.0));
+	//fprintf(stderr, "CUDA kernel time: %0.4f ms, BW: %0.4f MB/s\n", time, (double)(n*sizeof(PVBCICode<Bbits>))/(double)((time/1000.0)*1024.0*1024.0));
 }
 
 void show_codes_cuda10(PVParallelView::PVBCICode<10>* device_codes, uint32_t n, uint32_t width, uint32_t* device_img, uint32_t img_width, uint32_t x_start, const float zoom_y, cudaStream_t stream)

@@ -15,6 +15,7 @@
 
 #include <picviz/FakePVView.h>
 
+#include <QGraphicsPixmapItem>
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsSceneWheelEvent>
 
@@ -33,11 +34,12 @@ Q_OBJECT
 private:
 	constexpr static size_t bbits = PARALLELVIEW_ZZT_BBITS;
 	constexpr static uint32_t image_width = 512;
-	constexpr static uint32_t image_height = PVParallelView::constants<bbits>::image_height;
+	constexpr static uint32_t image_height = 1024;
 	constexpr static double bbits_alpha_scale = 1. / (1. + (bbits - 10));
 	constexpr static int zoom_steps = 5;
 	constexpr static double root_step = pow(2.0, 1.0 / zoom_steps);
 	constexpr static int max_wheel_value = 21 * zoom_steps;
+	constexpr static int axis_half_width = PARALLELVIEW_AXIS_WIDTH / 2;
 
 private:
 	typedef PVParallelView::PVZoomedZoneTree::context_t zzt_context_t;
@@ -45,6 +47,9 @@ private:
 public:
 	typedef PVParallelView::PVZonesDrawing<bbits> zones_drawing_t;
 	typedef typename zones_drawing_t::backend_image_p_t backend_image_p_t;
+
+private:
+	typedef typename zones_drawing_t::render_group_t render_group_t;
 
 public:
 	PVZoomedParallelScene(PVParallelView::PVZoomedParallelView *zpview,
@@ -60,11 +65,14 @@ public:
 
 	void wheelEvent(QGraphicsSceneWheelEvent* event);
 
-	void update_new_selection(tbb::task* root);
 	void invalidate_selection();
+	void update_new_selection(tbb::task* root);
 
 	virtual void drawBackground(QPainter *painter, const QRectF &rect);
 
+	void resize_display();
+
+private:
 	inline void update_all()
 	{
 		_render_type = RENDER_ALL;
@@ -77,11 +85,10 @@ public:
 		update_display();
 	}
 
+	// must not be called directly, use ::update_all() or ::update_sel()
 	void update_display();
-	void resize_display(const QSize &s);
 
-private:
-	void update_zoom(bool in = true);
+	void update_zoom();
 
 private:
 	int get_zoom_level()
@@ -97,7 +104,7 @@ private:
 	double get_scale_factor()
 	{
 		// Phillipe's magic formula: 2^n × a^k
-		return pow(2, _zoom_level) * pow(root_step, get_zoom_step());
+		return pow(2, get_zoom_level()) * pow(root_step, get_zoom_step());
 	}
 
 	PVZonesManager& get_zones_manager() { return _zones_drawing.get_zones_manager(); }
@@ -117,13 +124,11 @@ private:
 
 	struct zone_desc_t
 	{
-		bool              created;    // if the zone is effective or not
-		QRect             area;       // the zone's area in the screen
-		QPoint            pos;        // the zone's position in the screen
-		backend_image_p_t bg_image;   // the image for unselected/zomby lines
-		backend_image_p_t sel_image;  // the image for selected lines
-		QImage            back_image; // the back buffer for debased rendering
-		zzt_context_t     context;    // the extraction context for ZZT
+		backend_image_p_t    bg_image;   // the image for unselected/zomby lines
+		backend_image_p_t    sel_image;  // the image for selected lines
+		zzt_context_t        context;    // the extraction context for ZZT
+		QGraphicsPixmapItem *item;       // the scene's element
+		QPointF              next_pos;   // the item position of the next rendering
 	};
 
 	PVZoomedParallelView          *_zpview;
@@ -135,17 +140,16 @@ private:
 	// about mouse
 	int                            _wheel_value;
 	int                            _pan_reference_y;
-	int                            _zoom_level;
-	int                            _old_sb_pos;
 
 	// about zones rendering/display
-	zone_desc_t                    _left_zone;
-	zone_desc_t                    _right_zone;
+	zone_desc_t                   *_left_zone;
+	zone_desc_t                   *_right_zone;
+	qreal                          _next_beta;
+	qreal                          _current_beta;
 
 	// about rendering
 	PVRenderingJob                *_rendering_job;
 	QFuture<void>                  _rendering_future;
-	bool                           _skip_update_zoom;
 	QTimer                         _scroll_timer;
 
 	// about selection in the zoom view
@@ -156,6 +160,9 @@ private:
 	render_t                       _render_type;
 	int                            _rendering_zone_number;
 	int                            _rendered_zone_count;
+
+	// Rendering gorup
+	render_group_t                 _render_grp;
 };
 
 }

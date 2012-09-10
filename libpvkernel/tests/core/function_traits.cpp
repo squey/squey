@@ -10,6 +10,7 @@
 #include <pvkernel/core/PVTypeTraits.h>
 #include <pvkernel/core/PVFunctionTraits.h>
 
+#include <boost/thread.hpp>
 #include <boost/type_traits.hpp>
 
 void f(int a, short b, char c, uint64_t d)
@@ -33,13 +34,13 @@ void fnoarg()
 struct A
 {
 	size_t f(size_t i) const { return i*_i; }
+	void add(size_t& i) { i++; }
 	size_t _i;
 };
 int main(int /*argc*/, char** /*argv*/)
 {
 	typedef PVCore::PVTypeTraits::function_traits<decltype(f)> ftraits;
 
-	/*
 	std::cout << ftraits::arity << std::endl;
 	std::cout << typeid(ftraits::arguments_type::arg_type).name() << std::endl;
 	std::cout << typeid(ftraits::arguments_type::next_arg_type::arg_type).name() << std::endl;
@@ -49,8 +50,13 @@ int main(int /*argc*/, char** /*argv*/)
 
 	std::cout << sizeof(ftraits::arguments_type) << std::endl;
 
-	ftraits::arguments_type args;
-	args.set_args(1, 2, 4, 5);
+	ftraits::arguments_deep_copy_type args;
+	boost::thread th([=,&args] {
+			ftraits::arguments_type my_args;
+			my_args.set_args(1, 2, 4, 5);
+			args = my_args;
+			});
+	th.join();
 	std::cout << std::get<0>(args) << " " << std::get<1>(args) << " " << (int) std::get<2>(args) << " " << std::get<3>(args) << std::endl;
 
 	typedef PVCore::PVTypeTraits::function_traits<decltype(f2)> ftraits2;
@@ -69,10 +75,21 @@ int main(int /*argc*/, char** /*argv*/)
 		A a;
 		a._i = 4;
 		typedef PVCore::PVTypeTraits::function_traits<decltype(&A::f)> ftraits_af;
-		ftraits_af::arguments_type args_af(6);
+		ftraits_af::arguments_type args_af;
+		args_af.set_args(6);
 		std::cout << "Should print 24: " << ftraits_af::call<&A::f>(a, args_af) << std::endl;
 	}
-	*/
+
+	{
+		A a;
+		size_t i = 4;
+		typedef PVCore::PVTypeTraits::function_traits<decltype(&A::add)> ftraits_aadd;
+		ftraits_aadd::arguments_deep_copy_type args;
+		args.set_args(i);
+		ftraits_aadd::call<&A::add>(a, args);
+		std::cout << "Should print 5: " << i << std::endl;
+
+	}
 
 	return 0;
 }

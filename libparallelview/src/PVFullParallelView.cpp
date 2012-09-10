@@ -7,6 +7,8 @@
 #include <pvparallelview/PVFullParallelView.h>
 #include <pvparallelview/PVFullParallelScene.h>
 
+#include <QGLWidget>
+
 
 PVParallelView::PVFullParallelView::PVFullParallelView(PVFullParallelScene* scene)
 {

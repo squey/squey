@@ -21,6 +21,7 @@
 
 namespace tbb {
 class task;
+class task_group;
 }
 
 namespace Picviz {
@@ -40,6 +41,8 @@ public:
 	typedef PVZonesDrawing<bbits> zones_drawing_t;
 	typedef PVCore::PVSharedPtr<zones_drawing_t> zones_drawing_sp;
 	typedef typename zones_drawing_t::backend_image_p_t backend_image_p_t;
+	typedef typename zones_drawing_t::render_group_t render_group_t;
+	typedef typename zones_drawing_t::bci_backend_t bci_backend_t;
 
 private:
 	struct ZoneImages
@@ -78,19 +81,28 @@ public:
 	void set_zone_max_width(uint32_t w);
 
 public:
-	QFuture<void> translate(int32_t view_x, uint32_t view_width, const Picviz::PVSelection& sel, PVRenderingJob& job);
-
-	QFuture<void> render_all(int32_t view_x, uint32_t view_width, const Picviz::PVSelection& sel, PVRenderingJob& job);
-
-	QFuture<void> render_all_imgs(uint32_t view_width, const Picviz::PVSelection& sel, PVRenderingJob& job);
-
-	void render_bg(uint32_t view_width);
-
-	QFuture<void> render_sel(uint32_t view_width, PVRenderingJob& job);
+	void render_all_imgs_bg(uint32_t view_width, tbb::task_group& grp_bg, PVRenderingJob* job);
 
 	void update_sel_tree(uint32_t view_width, const Picviz::PVSelection& sel, tbb::task* root);
 
-	QFuture<void> render_zone_all_imgs(PVZoneID z, const Picviz::PVSelection& sel, PVRenderingJob& job);
+	void render_zone_all_imgs(PVZoneID z, const Picviz::PVSelection& sel, tbb::task_group& grp_bg, tbb::task* root_sel, PVRenderingJob* job);
+	void render_all_zones_all_imgs(int32_t view_x, uint32_t view_width, const Picviz::PVSelection& sel, tbb::task_group& grp_bg, tbb::task* root_sel, PVRenderingJob* job_bg);
+
+	void render_zone_bg(PVZoneID z, PVRenderingJob* job);
+	void render_zone_sel(PVZoneID z, PVRenderingJob* job);
+
+	void translate(int32_t view_x, uint32_t view_width, const Picviz::PVSelection& sel, tbb::task* root_sel, tbb::task_group& grp_bg, PVRenderingJob* job);
+
+	void cancel_sel_rendering()
+	{
+		get_zones_drawing()->cancel_group(_render_grp_sel);
+	}
+
+	void cancel_all_rendering()
+	{
+		cancel_sel_rendering();
+		get_zones_drawing()->cancel_group(_render_grp_bg);
+	}
 
 	inline PVZoneID get_zone_from_scene_pos(int32_t x) const { return get_zones_manager().get_zone_id(x); }
 
@@ -118,19 +130,9 @@ public:
 	template <class F>
 	inline void set_all_zones_width(F const& f) { get_zones_manager().set_zones_width(f); }
 
-	void draw_zone(PVZoneID z);
-	void draw_zone_sel(PVZoneID z);
-
-	/*template <class F>
-	bool set_all_zones_width_and_render(int32_t visible_view_x, uint32_t width, F const& f)
-	{
-		//width = PVCore::clamp(width, (uint32_t) PVParallelView::ZoneMinWidth, (uint32_t) PVParallelView::ZoneMaxWidth);
-		get_zones_manager().set_zones_width(f);
-		render_all(visible_view_x, width);
-		return true;
-	}*/
-
 private:
+	void filter_zone_by_sel_in_task(PVZoneID const z, Picviz::PVSelection const& sel, tbb::task* root);
+
 	PVZoneID get_image_index_of_zone(PVZoneID z) const;
 
 	inline void update_zone_images_width(PVZoneID z)
@@ -139,7 +141,7 @@ private:
 		_zones_imgs[z-get_first_drawn_zone()].set_width(get_zone_width(z));
 	}
 	
-	void render_all_zones(uint32_t view_width, std::function<void(PVZoneID)> fzone, PVRenderingJob* job = NULL);
+	void visit_all_zones_to_render(uint32_t view_width, std::function<void(PVZoneID)> fzone, PVRenderingJob* job = NULL);
 
 	PVZoneID set_new_view(int32_t new_view_x, uint32_t view_width)
 	{
@@ -168,8 +170,9 @@ private:
 	int32_t _visible_view_x;
 
 	list_zone_images_t _zones_imgs;
-	typedef PVHive::PVHiveFuncCaller<FUNC(PVLinesView::zones_drawing_t::draw_zone<decltype(&PVParallelView::PVZoneTree::browse_tree_bci_sel)>)> draw_zone_sel_caller_t;
-	typedef PVHive::PVHiveFuncCaller<FUNC(PVLinesView::zones_drawing_t::draw_zone<decltype(&PVParallelView::PVZoneTree::browse_tree_bci)>)> draw_zone_caller_t;
+
+	render_group_t _render_grp_sel;
+	render_group_t _render_grp_bg;
 };
 
 }

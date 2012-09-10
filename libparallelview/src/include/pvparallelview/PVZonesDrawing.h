@@ -9,6 +9,7 @@
 
 #include <pvkernel/core/general.h>
 #include <pvparallelview/common.h>
+#include <pvparallelview/PVBCIBuffers.h>
 #include <pvparallelview/PVBCICode.h>
 #include <pvparallelview/PVBCIDrawingBackend.h>
 #include <pvparallelview/PVBCIBackendImage_types.h>
@@ -25,6 +26,8 @@
 #include <qtconcurrentmap.h>
 
 #include <cassert>
+#include <functional>
+
 
 namespace PVCore {
 class PVHSVColor;
@@ -35,8 +38,18 @@ namespace PVParallelView {
 template <size_t Bbits>
 class PVBCIDrawingBackend;
 
+namespace __impl {
+
+struct PVZonesDrawingBase
+{
+	// BCI buffers are shared among all instances of PVZonesDrawing
+	static PVBCIBuffers<BCI_BUFFERS_COUNT> _computed_codes;
+};
+
+}
+
 template <size_t Bbits = NBITS_INDEX>
-class PVZonesDrawing: boost::noncopyable
+class PVZonesDrawing: boost::noncopyable, public __impl::PVZonesDrawingBase
 {
 	typedef boost::array<PVBCICode<Bbits>, NBUCKETS> array_codes_t;
 	typedef tbb::enumerable_thread_specific<array_codes_t> tls_codes_t;
@@ -46,21 +59,18 @@ public:
 	typedef typename bci_backend_t::backend_image_t backend_image_t;
 	typedef typename bci_backend_t::backend_image_p_t backend_image_p_t;
 	typedef typename bci_backend_t::bci_codes_t bci_codes_t;
+	typedef typename bci_backend_t::render_group_t render_group_t;
 	typedef PVZoomedZoneTree::context_t zzt_context_t;
 
 public:
-	PVZonesDrawing(PVZonesManager& zm, bci_backend_t const& backend, PVCore::PVHSVColor const& colors):
+	PVZonesDrawing(PVZonesManager& zm, bci_backend_t& backend, PVCore::PVHSVColor const& colors):
 		_zm(zm),
 		_draw_backend(&backend),
 		_colors(&colors)
-	{
-		_computed_codes = PVBCICode<Bbits>::allocate_codes(NBUCKETS);
-	}
+	{ }
 
 	~PVZonesDrawing()
-	{
-		PVBCICode<Bbits>::free_codes(_computed_codes);
-	}
+	{ }
 
 /*public:
 	template <typename Tree, typename Fbci>
@@ -105,9 +115,8 @@ public:
 		return QtConcurrent::map(boost::counting_iterator<PVZoneID>(zone_start), boost::counting_iterator<PVZoneID>(nzones),
 			[&](PVZoneID zone)
 			{
-				// Get thread-local codes buffer
-				array_codes_t& arr_codes = this->_tls_computed_codes.local();
-				PVBCICode<Bbits>* codes = &arr_codes[0];
+				// Get free BCI buffer
+				PVBCICode<Bbits>* codes = _computed_codes.get_available_buffer<Bbits>();
 
 				// Get the BCI codes
 				PVZoneTree const& zone_tree = _zm.get_zone_tree<PVZoneTree>(zone);
@@ -116,6 +125,8 @@ public:
 				// And draw them...
 				PVBCIBackendImage<Bbits> &dst_img = *(*(dst_img_begin + zone));
 				draw_bci(dst_img, 0, dst_img.width(), codes, ncodes);
+
+				_computed_codes.return_buffer<Bbits>(codes);
 			}
 		);
 	}
@@ -132,23 +143,25 @@ public:
 	}
 
 	template <class Fbci>
-	inline void draw_zone(PVBCIBackendImage<Bbits>& dst_img, uint32_t x_start, PVZoneID zone, Fbci const& f_bci)
+	inline void draw_zone(PVBCIBackendImage<Bbits>& dst_img, uint32_t x_start, PVZoneID zone, Fbci const& f_bci, std::function<void()> const& cleaning_func = std::function<void()>(), std::function<void()> const& drawing_done = std::function<void()>(), render_group_t const rgrp = -1)
 	{
-#pragma omp critical
-		{
-			PVZoneTree const &zone_tree = _zm.get_zone_tree<PVZoneTree>(zone);
-			draw_bci_lambda<PVZoneTree>(zone_tree, dst_img, x_start, _zm.get_zone_width(zone),
+		PVZoneTree const &zone_tree = _zm.get_zone_tree<PVZoneTree>(zone);
+		draw_bci_lambda<PVZoneTree>(zone_tree, dst_img, x_start, _zm.get_zone_width(zone),
 				[&](PVZoneTree const& zone_tree, PVCore::PVHSVColor const* colors, PVBCICode<Bbits>* codes)
 				{
 					return (zone_tree.*f_bci)(colors, codes);
-				}
-		   );
-		}
+				},
+				1.0f,
+				false,
+				cleaning_func,
+				drawing_done,
+				rgrp
+			);
 	}
 
 
 	template <class Fbci>
-	inline void draw_zoomed_zone(zzt_context_t &ctx, PVBCIBackendImage<Bbits> &dst_img, uint64_t y_min, uint64_t y_max, uint64_t y_lim, int zoom, PVZoneID zone, Fbci const &f_bci, const float zoom_y = 1.0f, const float zoom_x = 1.0f, bool reverse = false)
+	inline void draw_zoomed_zone(zzt_context_t &ctx, PVBCIBackendImage<Bbits> &dst_img, uint64_t y_min, uint64_t y_max, uint64_t y_lim, int zoom, PVZoneID zone, Fbci const &f_bci, const float zoom_y = 1.0f, const float zoom_x = 1.0f, bool reverse = false, render_group_t const rgrp = -1)
 	{
 		PVZoomedZoneTree const &zoomed_zone_tree = _zm.get_zone_tree<PVZoomedZoneTree>(zone);
 		draw_bci_lambda<PVParallelView::PVZoomedZoneTree>
@@ -160,11 +173,11 @@ public:
 				 return (zoomed_zone_tree.*f_bci)(ctx, y_min, y_max, y_lim, zoom,
 				                                  dst_img.width(), colors,
 				                                  codes, zoom_x);
-			 }, zoom_y, reverse);
+			 }, zoom_y, reverse, []{}, []{}, rgrp);
 	}
 
 	template <class Fbci>
-	inline void draw_zoomed_zone_sel(zzt_context_t &ctx, PVBCIBackendImage<Bbits> &dst_img, uint64_t y_min, uint64_t y_max, uint64_t y_lim, Picviz::PVSelection &selection, int zoom, PVZoneID zone, Fbci const &f_bci, const float zoom_y = 1.0f, const float zoom_x = 1.0f, bool reverse = false)
+	inline void draw_zoomed_zone_sel(zzt_context_t &ctx, PVBCIBackendImage<Bbits> &dst_img, uint64_t y_min, uint64_t y_max, uint64_t y_lim, Picviz::PVSelection &selection, int zoom, PVZoneID zone, Fbci const &f_bci, const float zoom_y = 1.0f, const float zoom_x = 1.0f, bool reverse = false, render_group_t const rgrp = -1)
 	{
 		PVZoomedZoneTree const &zoomed_zone_tree = _zm.get_zone_tree<PVZoomedZoneTree>(zone);
 		draw_bci_lambda<PVParallelView::PVZoomedZoneTree>
@@ -176,15 +189,28 @@ public:
 				 return (zoomed_zone_tree.*f_bci)(ctx, y_min, y_max, y_lim, selection,
 				                                  zoom, dst_img.width(), colors,
 				                                  codes, zoom_x);
-			 }, zoom_y, reverse);
+			 }, zoom_y, reverse, []{}, []{}, rgrp);
 	}
 
 
 	template <class Tree, class Fbci>
-	void draw_bci_lambda(Tree const &zone_tree, backend_image_t& dst_img, uint32_t x_start, size_t width, Fbci const& f_bci, const float zoom_y = 1.0f, bool reverse = false)
+	void draw_bci_lambda(Tree const &zone_tree, backend_image_t& dst_img, uint32_t x_start, size_t width, Fbci const& f_bci, const float zoom_y = 1.0f, bool reverse = false, std::function<void()> cleaning_func = std::function<void()>(), std::function<void()> drawing_done = std::function<void()>(), render_group_t const rgrp = -1)
 	{
-		size_t ncodes = f_bci(zone_tree, _colors, _computed_codes);
-		draw_bci(dst_img, x_start, width, _computed_codes, ncodes, zoom_y, reverse);
+		// Get a free BCI buffers
+		PVBCICode<Bbits>* bci_buf = _computed_codes.get_available_buffer<Bbits>();
+		size_t ncodes = f_bci(zone_tree, _colors, bci_buf);
+		draw_bci(dst_img, x_start, width, bci_buf, ncodes, zoom_y, reverse,
+				[=]
+				{
+					cleaning_func();
+					PVZonesDrawingBase::_computed_codes.return_buffer<Bbits>(bci_buf);
+				},
+				[=]
+				{
+					drawing_done();
+				},
+				rgrp);
+
 	}
 
 	inline uint32_t get_zone_width(PVZoneID z) const
@@ -202,18 +228,32 @@ public:
 		return _zm;
 	}
 
-private:
-	void draw_bci(backend_image_t& dst_img, uint32_t x_start, size_t width, bci_codes_t* codes, size_t n, const float zoom_y = 1.0f, bool reverse = false)
+	inline render_group_t new_render_group()
 	{
-		_draw_backend->operator()(dst_img, x_start, width, codes, n, zoom_y, reverse);
+		return _draw_backend->new_render_group();
+	}
+
+	inline void remove_render_group(render_group_t const g)
+	{
+		_draw_backend->remove_render_group(g);
+	}
+
+	inline void cancel_group(render_group_t const g)
+	{
+		_draw_backend->cancel_group(g);
+	}
+
+private:
+	void draw_bci(backend_image_t& dst_img, uint32_t x_start, size_t width, bci_codes_t* codes, size_t n, const float zoom_y = 1.0f, bool reverse = false,
+	              std::function<void()> const& cleaning_func = std::function<void()>(), std::function<void()> const& drawing_done = std::function<void()>(), render_group_t const rgrp = -1)
+	{
+		_draw_backend->operator()(dst_img, x_start, width, codes, n, zoom_y, reverse, cleaning_func, drawing_done, rgrp);
 	}
 
 private:
 	PVZonesManager& _zm;
-	bci_backend_t const* _draw_backend;
+	bci_backend_t* _draw_backend;
 	PVCore::PVHSVColor const* _colors;
-	PVBCICode<Bbits>* _computed_codes;
-	tls_codes_t _tls_computed_codes;
 };
 
 }

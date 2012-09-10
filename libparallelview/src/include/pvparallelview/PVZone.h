@@ -22,12 +22,17 @@ class PVZone
 public:
 	PVZone():
 		_ztree(new PVZoneTree()),
-		_zoomed_ztree(new PVZoomedZoneTree(_ztree->get_sel_elts())),
-		_width(PVParallelView::ZoneDefaultWidth)
-	{ }
+		_zoomed_ztree(new PVZoomedZoneTree(_ztree->get_sel_elts()))
+	{
+		_width = PVParallelView::ZoneDefaultWidth;
+	}
 
 public:
-	inline void set_width(uint32_t width) { assert(width <= PVParallelView::ZoneMaxWidth); _width = width; }
+	inline void set_width(uint32_t width)
+	{
+		assert(width <= PVParallelView::ZoneMaxWidth);
+		_width = width;
+	}
 	uint32_t width() const { return _width; }
 
 	PVZoneTree& ztree() { return *_ztree; }
@@ -42,7 +47,6 @@ public:
 	{
 		const zone_state_t cur_state = _zone_state.compare_and_swap(BEING_PROCESSED, INVALID);
 		if (cur_state == INVALID) {
-			PVLOG_INFO("filter_by_sel: zone=%p, state invalid\n", this);
 			_ztree->filter_by_sel(sel, nrows);
 			_zone_state = UP_TO_DATE;
 			changed = true;
@@ -50,12 +54,10 @@ public:
 		}
 		else
 		if (cur_state == BEING_PROCESSED) {
-			PVLOG_INFO("filter_by_sel: zone=%p, state being processed\n", this);
 			changed = false;
 			return false;
 		}
 		else {
-			PVLOG_INFO("filter_by_sel: zone=%p, state done\n", this);
 			changed = false;
 			return true;
 		}
@@ -84,7 +86,7 @@ private:
 private:
 	PVZoneTree_p _ztree;
 	PVZoomedZoneTree_p _zoomed_ztree;
-	uint32_t _width;
+	tbb::atomic<uint32_t> _width;
 	tbb::atomic<zone_state_t> _zone_state;
 
 };

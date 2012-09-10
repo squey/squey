@@ -24,6 +24,7 @@ struct PVBCICode
 #endif
 
 	typedef PVBCICode<Bbits> DECLARE_ALIGN(16) ap_t;
+	typedef uint64_t int_type;
 
 	//typedef PVCore::PVAlignedAllocator<PVBCICode, 16> allocator;
 	typedef tbb::cache_aligned_allocator<PVBCICode> allocator;

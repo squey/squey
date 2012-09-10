@@ -25,31 +25,13 @@
 
 #include <tbb/task_group.h>
 
+#include <QFuture>
+
 namespace tbb {
 class task;
 }
 
 namespace PVParallelView {
-
-class draw_zone_Observer: public PVHive::PVFuncObserverSignal<typename PVLinesView::zones_drawing_t, FUNC(PVLinesView::zones_drawing_t::draw_zone<decltype(&PVParallelView::PVZoneTree::browse_tree_bci)>)>
-{
-public:
-	draw_zone_Observer(PVFullParallelScene* parent) : _parent(parent) {}
-protected:
-	virtual void update(arguments_deep_copy_type const& args) const;
-private:
-	PVFullParallelScene* _parent;
-};
-
-class draw_zone_sel_Observer: public PVHive::PVFuncObserverSignal<typename PVLinesView::zones_drawing_t, FUNC(PVLinesView::zones_drawing_t::draw_zone<decltype(&PVParallelView::PVZoneTree::browse_tree_bci_sel)>)>
-{
-public:
-	draw_zone_sel_Observer(PVFullParallelScene* parent) : _parent(parent) {}
-protected:
-	virtual void update(arguments_deep_copy_type const& args) const;
-private:
-	PVFullParallelScene* _parent;
-};
 
 class PVFullParallelScene : public QGraphicsScene
 {
@@ -59,11 +41,11 @@ class PVFullParallelScene : public QGraphicsScene
 	friend class draw_zone_sel_Observer;
 	friend class process_selection_Observer;
 public:
-	PVFullParallelScene(Picviz::FakePVView::shared_pointer view_sp, PVParallelView::PVZonesManager& zm, PVParallelView::PVLinesView::zones_drawing_t::bci_backend_t& bci_backend);
+	PVFullParallelScene(Picviz::FakePVView::shared_pointer view_sp, PVParallelView::PVZonesManager& zm, PVParallelView::PVLinesView::zones_drawing_t::bci_backend_t& bci_backend, tbb::task* root_sel);
 	virtual ~PVFullParallelScene();
 
 	void first_render();
-	void update_new_selection(tbb::task* root);
+	void update_new_selection();
 
 private:
 	void update_zones_position(bool update_all = true);
@@ -73,18 +55,12 @@ private:
 	void store_selection_square();
 	void update_selection_square();
 
-	void mousePressEvent(QGraphicsSceneMouseEvent* event);
-	void mouseMoveEvent(QGraphicsSceneMouseEvent* event);
-	void mouseReleaseEvent(QGraphicsSceneMouseEvent* event);
-	void wheelEvent(QGraphicsSceneWheelEvent* event);
+	void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
+	void mouseMoveEvent(QGraphicsSceneMouseEvent* event) override;
+	void mouseReleaseEvent(QGraphicsSceneMouseEvent* event) override;
+	void wheelEvent(QGraphicsSceneWheelEvent* event) override;
+	void keyPressEvent(QKeyEvent* event) override;
 
-	template <class F>
-	void launch_job_future(F const& f)
-	{
-		// Launch our new job !
-		_rendering_job->reset();
-		_rendering_future = f(*_rendering_job);
-	}
 	void cancel_current_job();
 	void wait_end_current_job();
 
@@ -96,23 +72,30 @@ private:
 
 	void process_selection();
 
-	void connect_draw_zone();
 	void connect_draw_zone_sel();
+	void connect_rendering_job();
 
 private slots:
-	void update_zone_pixmap_Slot(int zid);
+	void update_zone_pixmap_bg(int zid);
+	void update_zone_pixmap_sel(int zid);
+	void update_zone_pixmap_bgsel(int zid);
+	void scale_zone_images(PVZoneID zid);
+
 	void update_selection_from_sliders_Slot(PVZoneID zid);
 	void scrollbar_pressed_Slot();
 	void scrollbar_released_Slot();
 	void commit_volatile_selection_Slot();
 	void draw_zone_sel_Slot(int zid, bool changed);
-	void draw_zone_Slot(int zid, bool changed);
+	void try_to_launch_zoom_job();
 
 private:
 	struct ZoneImages
 	{
 		QGraphicsPixmapItem* sel;
 		QGraphicsPixmapItem* bg;
+
+		PVLinesView::backend_image_p_t img_tmp_sel;
+		PVLinesView::backend_image_p_t img_tmp_bg;
 
 		void setPos(QPointF point)
 		{
@@ -129,6 +112,9 @@ private:
 
 	struct SelectionBarycenter
 	{
+		SelectionBarycenter():
+			zid1(PVZONEID_INVALID), zid2(PVZONEID_INVALID)
+		{ }
 		PVZoneID zid1;
 		PVZoneID zid2;
 		double factor1;
@@ -138,10 +124,13 @@ private:
 private:
     PVParallelView::PVLinesView _lines_view;
 
-    QList<ZoneImages> _zones;
+	std::vector<ZoneImages> _zones;
     QList<PVParallelView::PVAxisGraphicsItem*> _axes;
 
-	PVRenderingJob* _rendering_job;
+	PVRenderingJob* _rendering_job_sel;
+	PVRenderingJob* _rendering_job_bg;
+	PVRenderingJob* _rendering_job_all;
+
 	QFuture<void> _rendering_future;
 	QFuture<void> _sel_rendering_future;
     
@@ -155,11 +144,13 @@ private:
     QPointF _selection_square_pos;
     qreal _translation_start_x = 0.0;
 
-    draw_zone_Observer* _draw_zone_observer;
-    draw_zone_sel_Observer* _draw_zone_sel_observer;
-
 	tbb::task_group _render_tasks_sel;
 	tbb::task_group _render_tasks_bg;
+
+	tbb::task* _root_sel;
+
+	QTimer* _heavy_job_timer;
+	QFuture<void> _task_waiter;
 };
 
 }

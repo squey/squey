@@ -41,8 +41,7 @@ public:
 	inline size_t size_pixel() const { return _width*height(); }
 
 public:
-	// TODO: implement this
-	void strech(QImage& /*dst*/, uint32_t /*width*/) { }
+	virtual void resize_width(PVBCIBackendImage<Bbits>& dst, const uint32_t width) const = 0;
 
 private:
 	uint32_t _width;
