@@ -21,6 +21,8 @@
 #include <functional>
 
 #include <tbb/tick_count.h>
+#include <tbb/parallel_for.h>
+#include <tbb/blocked_range2d.h>
 
 namespace PVCore {
 class PVHSVColor;
@@ -38,10 +40,57 @@ class PVZoomedZoneTree
 
 	typedef PVQuadTree<10000, 1000, 0, bbits> pvquadtree;
 	typedef std::function<size_t(const pvquadtree &tree)> extract_entry_f;
+	typedef std::function<size_t(const pvquadtree &tree, PVQuadTreeEntry *entries)> extract_entry2_f;
+	typedef PVBCICode<bbits> pv_bci_code_t;
 
 public:
+	class zzt_tls
+	{
+	public:
+		zzt_tls()
+		{
+			// TODO: is _quadtree_entries correct sized?
+			_quadtree_entries = new PVQuadTreeEntry [NBUCKETS];
+			_bci_codes = new pv_bci_code_t [NBUCKETS];
+			_index = 0;
+		}
+
+		~zzt_tls()
+		{
+			delete [] _quadtree_entries;
+			delete [] _bci_codes;
+		}
+
+		PVQuadTreeEntry *get_quadtree_entries() const
+		{
+			return _quadtree_entries;
+		}
+
+		pv_bci_code_t *get_bci_codes() const
+		{
+			return _bci_codes;
+		}
+
+		size_t get_index() const
+		{
+			return _index;
+		}
+
+		void set_index(const size_t index)
+		{
+			_index = index;
+		}
+
+	private:
+		PVQuadTreeEntry *_quadtree_entries;
+		pv_bci_code_t   *_bci_codes;
+		size_t           _index;
+	};
+
 	class context_t {
 	public:
+		typedef tbb::enumerable_thread_specific<zzt_tls> tls_set_t;
+
 		context_t()
 		{
 			// TODO: is _quadtree_entries correct sized?
@@ -57,9 +106,16 @@ public:
 		{
 			return _quadtree_entries;
 		}
+
+		tls_set_t &get_tls() const
+		{
+			return _tls;
+		}
 	private:
-		PVQuadTreeEntry *_quadtree_entries;
+		PVQuadTreeEntry   *_quadtree_entries;
+		mutable tls_set_t  _tls;
 	};
+
 public:
 	PVZoomedZoneTree(const PVRow *sel_elts, uint32_t max_level = 8);
 
@@ -97,7 +153,7 @@ public:
 	                               uint64_t y_min, uint64_t y_max, uint64_t y_lim,
 	                               int zoom, uint32_t width,
 	                               const PVCore::PVHSVColor* colors,
-	                               PVBCICode<bbits>* codes,
+	                               pv_bci_code_t* codes,
 	                               const float beta = 1.0f) const
 	{
 		return browse_tree_bci_by_y1(ctx, y_min, y_max, y_lim, zoom, width,
@@ -113,8 +169,8 @@ public:
 	inline size_t browse_bci_by_y2(context_t &ctx,
 	                               uint64_t y_min, uint64_t y_max, uint64_t y_lim,
 	                               int zoom, uint32_t width,
-	                               const PVCore::PVHSVColor* colors,
-	                               PVBCICode<bbits>* codes,
+	                               const PVCore::PVHSVColor *colors,
+	                               pv_bci_code_t *codes,
 	                               const float beta = 1.0f) const
 	{
 		return browse_tree_bci_by_y2(ctx, y_min, y_max, y_lim, zoom, width,
@@ -132,8 +188,8 @@ public:
 	                                   uint64_t y_min, uint64_t y_max, uint64_t y_lim,
 	                                   const Picviz::PVSelection &selection,
 	                                   int zoom, uint32_t width,
-	                                   const PVCore::PVHSVColor* colors,
-	                                   PVBCICode<bbits>* codes,
+	                                   const PVCore::PVHSVColor *colors,
+	                                   pv_bci_code_t *codes,
 	                                   const float beta = 1.0f) const
 	{
 		return browse_tree_bci_by_y1(ctx, y_min, y_max, y_lim, zoom, width,
@@ -151,8 +207,8 @@ public:
 	                                   uint64_t y_min, uint64_t y_max, uint64_t y_lim,
 	                                   const Picviz::PVSelection &selection,
 	                                   int zoom, uint32_t width,
-	                                   const PVCore::PVHSVColor* colors,
-	                                   PVBCICode<bbits>* codes,
+	                                   const PVCore::PVHSVColor *colors,
+	                                   pv_bci_code_t *codes,
 	                                   const float beta = 1.0f) const
 	{
 		return browse_tree_bci_by_y2(ctx, y_min, y_max, y_lim, zoom, width,
@@ -166,12 +222,41 @@ public:
 		                             colors, codes, beta, true);
 	}
 
+
+
+
+
+
+
+
+	inline size_t browse_bci_by_y1_tbb(context_t &ctx,
+	                                   uint64_t y_min, uint64_t y_max, uint64_t y_lim,
+	                                   int zoom, uint32_t width,
+	                                   const PVCore::PVHSVColor *colors,
+	                                   pv_bci_code_t *codes,
+	                                   const float beta = 1.0f) const
+	{
+		return browse_tree_bci_by_y1_tbb(ctx, y_min, y_max, y_lim, zoom, width,
+		                                 [&](const pvquadtree &tree,
+		                                     PVQuadTreeEntry* entries) -> size_t
+		                                 {
+			                                 return tree.get_first_from_y1(y_min, y_max,
+			                                                               zoom, entries);
+		                                 },
+		                                 colors, codes, beta);
+	}
+
+
+
+
+
+
 private:
 	size_t browse_tree_bci_by_y1(context_t &ctx,
 	                             uint64_t y_min, uint64_t y_max, uint64_t y_lim, int zoom,
 	                             uint32_t width,
 	                             const extract_entry_f &extract_entry,
-	                             const PVCore::PVHSVColor* colors, PVBCICode<bbits>* codes,
+	                             const PVCore::PVHSVColor *colors, pv_bci_code_t *codes,
 	                             const float beta = 1.0f,
 	                             const bool use_sel = false) const;
 
@@ -179,9 +264,17 @@ private:
 	                             uint64_t y_min, uint64_t y_max, uint64_t y_lim, int zoom,
 	                             uint32_t width,
 	                             const extract_entry_f &extract_entry,
-	                             const PVCore::PVHSVColor* colors, PVBCICode<bbits>* codes,
+	                             const PVCore::PVHSVColor *colors, pv_bci_code_t *codes,
 	                             const float beta = 1.0f,
 	                             const bool use_sel = false) const;
+
+	size_t browse_tree_bci_by_y1_tbb(context_t &ctx,
+	                                 uint64_t y_min, uint64_t y_max, uint64_t y_lim, int zoom,
+	                                 uint32_t width,
+	                                 const extract_entry2_f &extract_entry,
+	                                 const PVCore::PVHSVColor *colors, pv_bci_code_t *codes,
+	                                 const float beta = 1.0f,
+	                                 const bool use_sel = false) const;
 
 	inline uint32_t compute_index(uint32_t y1, uint32_t y2) const
 	{
