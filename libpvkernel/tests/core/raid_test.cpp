@@ -11,7 +11,7 @@
 constexpr uint64_t DEFAULT_CONTENT_SIZE = 1024*1024*1024/2;
 constexpr uint64_t DEFAULT_WRITE_CHUNK_SIZE = 8*1024*1024;
 constexpr uint64_t DEFAULT_READ_CHUNK_SIZE = 32*1024*1024;
-constexpr uint64_t BUF_SIZE = 32*1024*1024;
+constexpr uint64_t BUF_SIZE = 256*1024*1024;
 constexpr uint64_t BUF_ALIGN = 512;
 
 
@@ -42,12 +42,17 @@ struct BufferedPolicy
 
 	file_t Open(std::string const& filename)
 	{
-		return fopen(filename.c_str(), "w");
+		return fopen(filename.c_str(), "rw");
 	}
 
 	inline bool Write(const char* content, uint64_t buf_size, file_t file)
 	{
 		return fwrite(content, buf_size, 1, file) > 0;
+	}
+
+	inline int64_t Read(file_t file, void* content, uint64_t buf_size)
+	{
+		return fread(content, 1, buf_size, file);
 	}
 
 	void Flush(file_t file)
@@ -76,7 +81,12 @@ struct UnbufferedPolicy
 
 	inline bool Write(const char* content, uint64_t buf_size, file_t file)
 	{
-		return write(file, content, buf_size) != -1;
+		int64_t r = write(file, content, buf_size);
+		if (r == -1) {
+			std::cout << "errno=" << errno << std::endl;
+			std::cout << strerror(errno) << std::endl;
+		}
+		return r;
 	}
 
 	inline int64_t Read(file_t file, void* buffer,  uint64_t buf_size)
@@ -116,7 +126,7 @@ struct RawBufferedPolicy : public BufferedPolicy
 	file_t Open(std::string const& filename)
 	{
 		int fd = open(filename.c_str(), O_RDWR | O_CREAT | O_DIRECT);
-		return fdopen(fd, "w");
+		return fdopen(fd, "rw");
 	}
 };
 
@@ -126,7 +136,7 @@ class CustomBufferedPolicy : public BufferedPolicy
 public:
 	file_t Open(std::string const& filename)
 	{
-		file_t f = fopen(filename.c_str(), "w");
+		file_t f = fopen(filename.c_str(), "rw");
 
 		char* buffer = new char[8192];
 		setbuf(f, buffer);
@@ -215,7 +225,7 @@ public:
 			write_cols(buffer, chunk_size);
 		}
 		flush_all();
-		BENCH_END(w, st.str().c_str(), 1, 1, chunk_size, (uint64_t) _num_cols*num_chunks); //!\\ Ensure result fit on uint64_t
+		BENCH_END(w, st.str().c_str(), 1, 1, chunk_size, (uint64_t) _num_cols*num_chunks); //!\\ Ensure result fits on uint64_t
 	}
 
 	void flush_all()
@@ -255,8 +265,8 @@ void write_test(std::string const& folder)
 	char* buffer = PVCore::PVAlignedAllocator<char, BUF_ALIGN>().allocate(BUF_SIZE);
 	memset(buffer, '$', sizeof(char)*BUF_SIZE);
 
-	for (uint64_t num_cols : {/*1, 2, 32,*/ 512/*, 1024, 4096, 8192*/}) {
-		for (uint64_t chunk_size : {/*4*1024, 16*1024, */32*1024, 64*1024, 128*1024, 256*1024, 512*1024, 1*1024*1024, 2*1024*1024, 4*1024*1024, 16*1024*1024, 32*1024*1024,64*1024*1024, 128*1024*1024}) {
+	for (uint64_t num_cols : {/*1, 2, 32, */512/*, 1024, 4096, 8192, 16384*/}) {
+		for (uint64_t chunk_size : {/*4*1024, 16*1024, 32*1024, 64*1024, 128*1024, 256*1024, 512*1024, 1*1024*1024, 2*1024*1024, 8*1024*1024, 16*1024*1024, 32*1024*1024, 64*1024*1024, 128*1024*1024, */ 256*1024*1024}) {
 			uint64_t num_chunks = std::max(DEFAULT_CONTENT_SIZE/chunk_size/num_cols, (uint64_t)2);
 
 			/*{
@@ -365,8 +375,8 @@ public:
 
 void read_test(std::string const& path)
 {
-	Reader<RawPolicy> raw_reader;
-	uint64_t nb_occur = raw_reader.Search(path, DEFAULT_READ_CHUNK_SIZE, std::string("motherfucker"));
+	Reader<RawPolicy> reader;
+	uint64_t nb_occur = reader.Search(path, DEFAULT_READ_CHUNK_SIZE, std::string("motherfucker"));
 }
 
 void usage(const char* app_name)
@@ -383,7 +393,7 @@ int main(int argc, const char* argv[])
 
 	const std::string folder(argv[1]);
 
-	//write_test(folder);
+	write_test(folder);
 
-	read_test(folder);
+	//read_test(folder);
 }
