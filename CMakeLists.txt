@@ -9,7 +9,7 @@ if(USE_PVGL2)
 endif(USE_PVGL2)
 
 set(PICVIZ_SINGLE_TREE_BUILD true)
-set(CMAKE_VERBOSE_MAKEFILE ON)
+set(CMAKE_VERBOSE_MAKEFILE OFF)
 
 include(CTest)
 
@@ -21,7 +21,7 @@ include(FindPkgConfig)
 
 if (DEBUG_MODE)
 	if (NOT WIN32)
-		add_definitions(-ggdb3)
+		add_definitions(-g)
 	endif()
 else()
 	if(WIN32)
@@ -34,8 +34,8 @@ else()
 		# Intraprocedural optimisations
 		SET(LINKER_OPTIMIZE_FLAGS "/ltcg")
 	else(WIN32)
-		set(COMPILER_OPTIMIZE_FLAGS "-O3 -ggdb3 -march=native -flto=jobserver")
-		SET(LINKER_OPTIMIZE_FLAGS "-flto")
+		set(COMPILER_OPTIMIZE_FLAGS "-O3 -g -march=native")
+		#SET(LINKER_OPTIMIZE_FLAGS "-flto")
 		add_definitions(-DNDEBUG) # so that 'assert' will generate no code
 		if (CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
 			add_definitions(-ggdb3)

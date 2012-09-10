@@ -96,8 +96,8 @@ target_link_libraries(Trush_ticket_28 ${LINK_LIBRARIES})
 add_test(TestTicket28 ./Trush_ticket_28)
 
 # Benchmark for the whole extractor
-add_executable(Trush_bench bench_extractor.cpp)
-target_link_libraries(Trush_bench ${LINK_LIBRARIES})
+#add_executable(Trush_bench bench_extractor.cpp)
+#target_link_libraries(Trush_bench ${LINK_LIBRARIES})
 #add_test(TestBench Trush_bench)
 
 # Memory footprint benchmark
