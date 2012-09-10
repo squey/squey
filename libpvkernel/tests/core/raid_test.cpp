@@ -4,64 +4,50 @@
 
 #include <fcntl.h>
 
+#include <boost/tokenizer.hpp>
+
 #include <pvkernel/core/picviz_bench.h>
 
-#define NUM_ROWS 500000000
+constexpr uint64_t DEFAULT_CONTENT_SIZE = 1024*1024*1024/2;
+constexpr uint64_t DEFAULT_WRITE_CHUNK_SIZE = 8*1024*1024;
+constexpr uint64_t DEFAULT_READ_CHUNK_SIZE = 32*1024*1024;
+constexpr uint64_t BUF_SIZE = 32*1024*1024;
+constexpr uint64_t BUF_ALIGN = 512;
 
+
+// Wiping system disk cache:
 // sync ; sudo sh -c 'echo 3 > /proc/sys/vm/drop_caches'
 
-class BaseBufferPolicy
-{
-public:
-	BaseBufferPolicy(uint32_t num_cols)
-	{
-		_filenames = new std::string[num_cols];
-	}
+// Changing opened files limit per process (valid only for the current shell)
+// $sudo su
+// #ulimit -n <max_opened_files_limit>
 
-	void CreateFolder(std::string const& folder, uint32_t num_cols)
-	{
-		_folder = folder;
+// Generate 4.2G dictionary of words
+// cat /usr/share/hunspell/en_US.dic |cut -d'/' -f1 > ./words
+// for i in `seq 13`; do cat words >> words_big && cat words >> words_big && mv words_big words; done
 
-		DeleteFolder();
+typedef std::basic_string<char, std::char_traits<char>, PVCore::PVAlignedAllocator<char, BUF_ALIGN>> aligned_string_t;
 
-		system((std::string("mkdir ") + _folder + " 2> /dev/null").c_str());
 
-		for (uint32_t i = 0 ; i < num_cols ; i++) {
-			std::stringstream st;
-			st << _folder << "file_" << i;
-			_filenames[i] = st.str();
-		}
-	}
+/*
+ *
+ * Policy classes
+ *
+ *
+ */
 
-	void DeleteFolder()
-	{
-		system((std::string("rm -rf ") + _folder).c_str());
-	}
-
-	~BaseBufferPolicy()
-	{
-		delete [] _filenames;
-	}
-protected:
-	std::string* _filenames = nullptr;
-private:
-	std::string _folder;
-};
-
-struct BufferedPolicy : public BaseBufferPolicy
+struct BufferedPolicy
 {
 	typedef FILE* file_t;
-
-	BufferedPolicy(uint32_t num_cols) : BaseBufferPolicy(num_cols) {}
 
 	file_t Open(std::string const& filename)
 	{
 		return fopen(filename.c_str(), "w");
 	}
 
-	void Write(std::string const& content, file_t file)
+	inline bool Write(const char* content, uint64_t buf_size, file_t file)
 	{
-		fwrite(content.c_str(), content.length() , 1, file);
+		return fwrite(content, buf_size, 1, file) > 0;
 	}
 
 	void Flush(file_t file)
@@ -75,20 +61,31 @@ struct BufferedPolicy : public BaseBufferPolicy
 	}
 };
 
-struct UnbufferedPolicy : public BaseBufferPolicy
+struct UnbufferedPolicy
 {
 	typedef int file_t;
 
-	UnbufferedPolicy(uint32_t num_cols) : BaseBufferPolicy(num_cols) {}
-
 	file_t Open(std::string const& filename)
 	{
-		return open(filename.c_str(), O_WRONLY | O_CREAT);
+		file_t f = open(filename.c_str(), O_RDWR | O_CREAT);
+		if (f == -1) {
+			std::cout << strerror(errno) << std::endl;
+		}
+		return f;
 	}
 
-	void Write(std::string const& content, file_t file)
+	inline bool Write(const char* content, uint64_t buf_size, file_t file)
 	{
-		write(file, content.c_str(), content.length());
+		return write(file, content, buf_size) != -1;
+	}
+
+	inline int64_t Read(file_t file, void* buffer,  uint64_t buf_size)
+	{
+		int64_t r = read(file, buffer, buf_size);
+		if (r == -1) {
+			std::cout << strerror(errno) << std::endl;
+		}
+		return r;
 	}
 
 	void Flush(file_t)
@@ -103,32 +100,66 @@ struct UnbufferedPolicy : public BaseBufferPolicy
 
 struct RawPolicy : public UnbufferedPolicy
 {
-	RawPolicy(uint32_t num_cols) : UnbufferedPolicy(num_cols) {}
 
 	file_t Open(std::string const& filename)
 	{
-		return open(filename.c_str(), O_WRONLY | O_CREAT | O_DIRECT);
+		file_t f = open(filename.c_str(), O_RDWR | O_CREAT | O_DIRECT);
+		if (f == -1) {
+			std::cout << strerror(errno) << std::endl;
+		}
+		return f;
 	}
 };
 
 struct RawBufferedPolicy : public BufferedPolicy
 {
-	RawBufferedPolicy(uint32_t num_cols) : BufferedPolicy(num_cols) {}
-
 	file_t Open(std::string const& filename)
 	{
-		int fd = open(filename.c_str(), O_WRONLY | O_CREAT | O_DIRECT);
+		int fd = open(filename.c_str(), O_RDWR | O_CREAT | O_DIRECT);
 		return fdopen(fd, "w");
 	}
 };
+
+
+class CustomBufferedPolicy : public BufferedPolicy
+{
+public:
+	file_t Open(std::string const& filename)
+	{
+		file_t f = fopen(filename.c_str(), "w");
+
+		char* buffer = new char[8192];
+		setbuf(f, buffer);
+		_buffers.push_back(buffer);
+
+		return f;
+	}
+
+	~CustomBufferedPolicy()
+	{
+		for (auto buffer : _buffers) {
+			delete [] buffer;
+		}
+	}
+private:
+	std::vector<char*> _buffers;
+};
+
+/*
+ *
+ * Writer class
+ *
+ *
+ */
 
 template <typename BufferPolicy>
 class Writer : public BufferPolicy
 {
 public:
-	Writer(std::string const& folder, uint32_t num_cols) : BufferPolicy(num_cols), _num_cols(num_cols)
+	Writer(std::string const& folder, uint64_t num_cols) : _num_cols(num_cols)
 	{
 		_files = new typename BufferPolicy::file_t[num_cols];
+		_filenames = new std::string[num_cols];
 
 		this->CreateFolder(folder, _num_cols);
 
@@ -137,17 +168,55 @@ public:
 		}
 	}
 
-	void write_cols(std::string const& content)
+	void CreateFolder(std::string const& folder, uint64_t num_cols)
 	{
-		for (int i = 0 ; i < _num_cols ; i++) {
-			this->Write(content, _files[i]);
+		_folder = folder;
+
+		DeleteFolder();
+
+		system((std::string("mkdir ") + _folder + " 2> /dev/null").c_str());
+
+		for (uint64_t i = 0 ; i < num_cols ; i++) {
+			std::stringstream st;
+			st << _folder << "/file_" << i;
+			_filenames[i] = st.str().c_str();
 		}
 	}
 
-	/*void write(std::string const& content, int file_num)
+	void DeleteFolder()
 	{
-		this->Write(content, _files[file_num]);
-	}*/
+		system((std::string("rm -rf ") + _folder).c_str());
+	}
+
+	inline void write_cols(const char* content, uint64_t buf_size)
+	{
+		bool res = true;
+		for (int i = 0 ; i < _num_cols ; i++) {
+			res &= this->Write(content, buf_size, _files[i]);
+		}
+		if (!res) {
+			std::cout << "write failed" << std::endl;
+		}
+		flush_all();
+	}
+
+	inline void write_cols(aligned_string_t const& content)
+	{
+		write_cols(content.c_str(), content.length());
+	}
+
+	inline void write(const char* buffer, uint64_t chunk_size, uint64_t num_chunks)
+	{
+		std::stringstream st;
+		st << "sequential writes (" << typeid(this).name() << ") [chunk_size=" << chunk_size << " num_chunks=" <<  num_chunks << " num_cols=" << _num_cols << "]";
+
+		BENCH_START(w);
+		for (uint64_t j = 0 ; j < num_chunks; j++) {
+			write_cols(buffer, chunk_size);
+		}
+		flush_all();
+		BENCH_END(w, st.str().c_str(), 1, 1, chunk_size, (uint64_t) _num_cols*num_chunks); //!\\ Ensure result fit on uint64_t
+	}
 
 	void flush_all()
 	{
@@ -155,8 +224,6 @@ public:
 			this->Flush(_files[i]);
 		}
 	}
-
-	inline uint32_t get_num_cols() { return _num_cols; }
 
 	~Writer()
 	{
@@ -166,106 +233,157 @@ public:
 
 		this->DeleteFolder();
 
+		delete [] _filenames;
 		delete [] _files;
 	}
 private:
-	uint32_t _num_cols;
+	std::string* _filenames = nullptr;
+	std::string _folder;
+	uint64_t _num_cols;
 	typename BufferPolicy::file_t* _files = nullptr;
 };
 
+/*
+ *
+ * Writer test
+ *
+ *
+ */
 
-const std::string folder("/mnt/raid0_ext2/raid_test/");
-static const std::string buffer = "0, 1, 2, 3, 4, 5, 6, 7, 8, 9";
-
-template <typename Writer>
-void do_write(Writer& writer)
+void write_test(std::string const& folder)
 {
-	BENCH_START(w);
+	char* buffer = PVCore::PVAlignedAllocator<char, BUF_ALIGN>().allocate(BUF_SIZE);
+	memset(buffer, '$', sizeof(char)*BUF_SIZE);
 
-	uint32_t num_cols = writer.get_num_cols();
-	uint32_t num_rows = NUM_ROWS / num_cols;
-	for (uint32_t j = 0 ; j < num_rows; j++) {
-		writer.write_cols(buffer);
+	for (uint64_t num_cols : {/*1, 2, 32,*/ 512/*, 1024, 4096, 8192*/}) {
+		for (uint64_t chunk_size : {/*4*1024, 16*1024, */32*1024, 64*1024, 128*1024, 256*1024, 512*1024, 1*1024*1024, 2*1024*1024, 4*1024*1024, 16*1024*1024, 32*1024*1024,64*1024*1024, 128*1024*1024}) {
+			uint64_t num_chunks = std::max(DEFAULT_CONTENT_SIZE/chunk_size/num_cols, (uint64_t)2);
+
+			/*{
+			Writer<BufferedPolicy> writer_buffered(folder, num_cols);
+			writer_buffered.write(buffer, chunk_size, num_chunks);
+			}
+
+			{
+			Writer<UnbufferedPolicy> writer_unbuffered(folder, num_cols);
+			writer_unbuffered.write(buffer, chunk_size, num_chunks);
+			}*/
+
+			{
+			Writer<RawPolicy> writer_raw(folder, num_cols);
+			writer_raw.write(buffer, chunk_size, num_chunks);
+			}
+		}
 	}
-	writer.flush_all();
 
-	std::stringstream st;
-	st << "sequential writes (" << typeid(writer).name() << ") [num_cols=" << num_cols << "]";
-	BENCH_END(w, st.str().c_str(), 1, 1, buffer.length(), num_cols*num_rows);
+	PVCore::PVAlignedAllocator<char, BUF_ALIGN>().deallocate(buffer, BUF_SIZE);
 }
 
-int main()
+/*
+ *
+ * Reader class
+ *
+ *
+ */
+
+template <typename BufferPolicy>
+class Reader : public BufferPolicy
 {
-	for (uint32_t num_cols : {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048})
+public:
+	typedef typename BufferPolicy::file_t file_t;
+
+public:
+	inline uint64_t Search(const std::string& filename, uint64_t chunk_size, std::string const& content_to_find)
 	{
-		{
-		Writer<BufferedPolicy> writer_buffered(folder, num_cols);
-		do_write(writer_buffered);
-		}
+		char* const buffer = PVCore::PVAlignedAllocator<char, BUF_ALIGN>().allocate(chunk_size*2);
 
-		{
-		Writer<UnbufferedPolicy> writer_unbuffered(folder, num_cols);
-		do_write(writer_unbuffered);
-		}
+		file_t file = this->Open(filename);
 
+		std::stringstream st;
+		st << "sequential read (" << typeid(this).name() << ") [chunk_size=" << chunk_size << "]";
+		BENCH_START(r);
+
+		uint64_t total_read_size = 0;
+		uint64_t nb_occur = 0;
+		uint64_t read_size = 0;
+
+		bool last_chunk = false;
+		do
 		{
-		Writer<RawPolicy> writer_raw(folder, num_cols);
-		do_write(writer_raw);
-		}
-		std::cout << "---" << std::endl;
+			char* buffer_ptr = buffer;
+			read_size = this->Read(file, buffer+BUF_ALIGN, chunk_size-BUF_ALIGN);
+			last_chunk = read_size < (chunk_size-BUF_ALIGN);
+
+			while (true) {
+				char* endl = (char*) memchr(buffer_ptr, '\n', chunk_size);
+
+				if (endl == nullptr) {
+
+					// Copy partial last line to new buffer in an aligned fashion
+					// Warning: does not work if partial_line_length > BUF_ALIGN
+					if (!last_chunk) {
+						uint64_t partial_line_length = buffer+chunk_size-buffer_ptr;
+
+						memcpy(buffer+BUF_ALIGN-partial_line_length-1, buffer_ptr, partial_line_length);
+						buffer_ptr = buffer + BUF_ALIGN-partial_line_length-1;
+					}
+					else {
+						buffer_ptr = buffer;
+					}
+					break;
+				}
+
+				int64_t line_length = (&endl[0] - &buffer_ptr[0]);
+				buffer_ptr[line_length] = '\0';
+
+				nb_occur += (memcmp(buffer_ptr, content_to_find.c_str(), content_to_find.length()) == 0);
+
+				buffer_ptr += (line_length+1);
+			}
+
+			total_read_size += read_size;
+
+		} while(!last_chunk);
+
+		std::cout << "total_read_size=" << total_read_size << std::endl;
+		std::cout << "nb_occur=" << nb_occur << std::endl;
+
+		BENCH_END(r, st.str().c_str(), sizeof(char), total_read_size, 1, 1);
+
+		PVCore::PVAlignedAllocator<char, BUF_ALIGN>().deallocate(buffer, chunk_size*2);
+
+		return nb_occur;
 	}
+};
+
+/*
+ *
+ * Reader test
+ *
+ *
+ */
+
+void read_test(std::string const& path)
+{
+	Reader<RawPolicy> raw_reader;
+	uint64_t nb_occur = raw_reader.Search(path, DEFAULT_READ_CHUNK_SIZE, std::string("motherfucker"));
 }
 
-
-/*int main()
+void usage(const char* app_name)
 {
+	std::cerr << "Usage: " << app_name << " [folder_path]" << std::endl;
+}
 
-#ifdef BUFFER
-	FILE* files[NUM_COLS];
-#else
-	int files[NUM_COLS];
-#endif
-
-	std::string folder("/mnt/raid0_ext2/raid_test/");
-	//std::string folder("/tmp/noraid_test/");
-
-	system((std::string("mkdir ") + folder + " 2> /dev/null").c_str());
-
-	for (int i = 0 ; i < NUM_COLS ; i++) {
-		std::stringstream st;
-		st << folder << "file_" << i;
-
-#ifdef BUFFER
-		files[i] = fopen(st.str().c_str(), "w");
-#else
-		files[i] = open(st.str().c_str(), O_WRONLY | O_CREAT);
-#endif
+int main(int argc, const char* argv[])
+{
+	if (argc < 2) {
+		usage(argv[0]);
+		return 1;
 	}
 
-	std::string buffer = "0, 1, 2, 3, 4, 5, 6, 7, 8, 9";
+	const std::string folder(argv[1]);
 
-	BENCH_START(w);
+	//write_test(folder);
 
-	for (int j = 0 ; j < NUM_ROWS ; j++) {
-		for (int i = 0 ; i < NUM_COLS ; i++) {
-#ifdef BUFFER
-			fwrite(buffer.c_str(), buffer.length() , 1, files[i]);
-#else
-			write(files[i], buffer.c_str(), buffer.length());
-#endif
-		}
-	}
-
-	for (int i = 0 ; i < NUM_COLS ; i++) {
-#ifdef BUFFER
-		fclose(files[i]);
-#else
-		close(files[i]);
-#endif
-
-	}
-
-	BENCH_END(w, "sequential writes", 1, 1, buffer.length(), NUM_COLS*NUM_ROWS);
-
-	system((std::string("rm -rf ") + folder).c_str());
-}*/
+	read_test(folder);
+}
