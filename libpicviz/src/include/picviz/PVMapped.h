@@ -13,6 +13,7 @@
 #include <QHash>
 #include <QVector>
 
+#include <pvkernel/core/PVDecimalStorage.h>
 #include <pvkernel/core/PVDataTreeObject.h>
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVListFloat2D.h>
@@ -44,8 +45,8 @@ class LibPicvizDecl PVMapped : public data_tree_mapped_t {
 	friend class PVCore::PVSerializeObject;
 	friend class PVCore::PVDataTreeAutoShared<PVMapped>;
 public:
-	//typedef boost::shared_ptr<PVMapped> p_type;
-	typedef std::vector< std::pair<PVCol,float> > mapped_sub_col_t;
+	typedef PVCore::PVDecimalStorage<32> decimal_type;
+	typedef std::vector< std::pair<PVCol,decimal_type> > mapped_sub_col_t;
 	typedef children_t list_plotted_t;
 
 protected:
@@ -69,8 +70,8 @@ public:
 	void set_name(QString const& name) { _mapping->set_name(name); }
 	QString const& get_name() const { return _mapping->get_name(); }
 
-	QList<PVCol> get_columns_indexes_values_within_range(float min, float max, double rate = 1.0);
-	QList<PVCol> get_columns_indexes_values_not_within_range(float min, float max, double rate = 1.0);
+	QList<PVCol> get_columns_indexes_values_within_range(decimal_type min, decimal_type max, double rate = 1.0);
+	QList<PVCol> get_columns_indexes_values_not_within_range(decimal_type min, decimal_type max, double rate = 1.0);
 
 	virtual QString get_serialize_description() const { return "Mapping: " + get_name(); }
 
@@ -78,11 +79,11 @@ public:
 	// Data access
 	PVRow get_row_count() const;
 	PVCol get_column_count() const;
-	void get_sub_col_minmax(mapped_sub_col_t& ret, float& min, float& max, PVSelection const& sel, PVCol col) const;
+	void get_sub_col_minmax(mapped_sub_col_t& ret, decimal_type& min, decimal_type& max, PVSelection const& sel, PVCol col) const;
 
-	inline float get_value(PVRow row, PVCol col) const { return trans_table.getValue(col, row); }
+	inline decimal_type get_value(PVRow row, PVCol col) const { return trans_table.getValue(col, row); }
 
-	inline float* get_column_pointer(PVCol col) { return trans_table.getRowData(col); }
+	inline decimal_type* get_column_pointer(PVCol col) { return trans_table.getRowData(col); }
 
 public:
 	// Debugging functions
