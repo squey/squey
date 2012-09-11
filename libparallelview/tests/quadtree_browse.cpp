@@ -74,20 +74,9 @@ void init_rand_plotted(Picviz::PVPlotted::plotted_table_t& p, PVRow nrows, PVCol
 #endif
 }
 
-void show_qimage(QString const& title, QImage const& img)
+bool bci_cmp(const bcicode_t &a, const bcicode_t &b)
 {
-	// QPainter p(img);
-	// p.drawLine(QPoint(0, 0), QPoint(0, 512));
-	// p.end();
-
-	QDialog* dlg = new QDialog();
-	dlg->setWindowTitle(title);
-	QVBoxLayout* layout = new QVBoxLayout();
-	QLabel* limg = new QLabel();
-	limg->setPixmap(QPixmap::fromImage(img));
-	layout->addWidget(limg);
-	dlg->setLayout(layout);
-	dlg->show();
+	return a.s.idx < b.s.idx;
 }
 
 int main(int argc, char** argv)
@@ -169,21 +158,36 @@ int main(int argc, char** argv)
 	                                      colors, bcicodes_tbb);
 	BENCH_END(allocate_run, "allocate_run", 1, 1, 1, 1);
 
-	// the perf run
+	// the parallel perf run
 	BENCH_START(browse_tbb);
-	zoomed_zone_tree.browse_bci_by_y1_tbb(zzt_ctx,
-	                                      y_min, y_max, y_max,
-	                                      zoom, 512,
-	                                      colors, bcicodes_tbb);
+	size_t num_tbb = zoomed_zone_tree.browse_bci_by_y1_tbb(zzt_ctx,
+	                                                       y_min, y_max, y_max,
+	                                                       zoom, 512,
+	                                                       colors, bcicodes_tbb);
 	BENCH_END(browse_tbb, "TBB browse", 1, 1, 1, 1);
 
-	// the perf for sequential search
+	// the sequential perf run (to compare to)
 	BENCH_START(browse_seq);
-	zoomed_zone_tree.browse_bci_by_y1(zzt_ctx,
-	                                  y_min, y_max, y_max,
-	                                  zoom, 512,
-	                                  colors, bcicodes_seq);
+	size_t num_seq = zoomed_zone_tree.browse_bci_by_y1_seq(zzt_ctx,
+	                                                       y_min, y_max, y_max,
+	                                                       zoom, 512,
+	                                                       colors, bcicodes_seq);
 	BENCH_END(browse_seq, "SEQ browse", 1, 1, 1, 1);
+
+	std::sort(bcicodes_tbb, bcicodes_tbb + num_tbb, bci_cmp);
+	std::sort(bcicodes_seq, bcicodes_seq + num_seq, bci_cmp);
+
+	size_t num = 0;
+
+	if (num_seq != num_tbb) {
+		std::cout << "seq & tbb do not return the same count; using smallest value" << std::endl;
+		num = std::min(num_tbb, num_seq);
+	} else {
+		num = num_seq;
+	}
+
+	std::cout << "memcmp: " << memcmp(bcicodes_seq, bcicodes_tbb,
+	                                  sizeof(bcicode_t) * num) << std::endl;
 
 	return 0;
 }
