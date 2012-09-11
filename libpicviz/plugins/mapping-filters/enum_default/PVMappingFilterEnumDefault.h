@@ -42,23 +42,23 @@ private:
 	template <class HashType>
 	decimal_storage_type* process(PVRush::PVNraw::const_trans_nraw_table_line const& values)
 	{
-		qlonglong position = 0;
+		uint32_t position = 0;
 		HashType enum_hash;
 		if (_grp_value && _grp_value->isValid()) {
 			PVLOG_DEBUG("(mapping-enum) using previous values for enumeration\n");
 			enum_hash = _grp_value->value<HashType>();
 		}
-		uint64_t poscount = 0;
+		uint32_t poscount = 0;
 
 		for (size_t i = 0; i < values.size(); i++) {
 			uint32_t retval;
 			typename HashType::iterator it_v = enum_hash.find(values[i]);
 			if (it_v != enum_hash.end()) {
-				position = it_v.value().toLongLong();
+				position = it_v.value().toUInt();
 				retval = _enum_position_factorize(position);
 			} else {
 				poscount++;
-				enum_hash[values[i]] = QVariant((qlonglong)poscount);
+				enum_hash[values[i]] = QVariant(poscount);
 				retval = _enum_position_factorize(poscount);
 			}
 			_dest[i].storage_as_uint() = retval;
@@ -72,7 +72,7 @@ private:
 	}
 
 private:
-	static uint32_t _enum_position_factorize(qlonglong enumber);
+	static uint32_t _enum_position_factorize(uint32_t v);
 
 protected:
 	bool _case_sensitive;
