@@ -21,7 +21,7 @@
  *
  * TODO: finalize selection stuff
  *
- * TODO: calls to zone_drawing must be moved into tbb:task
+ * TODO: make 0 be at the bottom of the view, not at the top
  */
 
 /* NOTE: when zooming, the smallest backend_image's height is 1024 (2048 / 2).
