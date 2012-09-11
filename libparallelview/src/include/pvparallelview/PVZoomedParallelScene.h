@@ -65,6 +65,8 @@ public:
 
 	void wheelEvent(QGraphicsSceneWheelEvent* event);
 
+	void keyPressEvent(QKeyEvent *event);
+
 	void invalidate_selection();
 	void update_new_selection(tbb::task* root);
 

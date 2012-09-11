@@ -235,6 +235,18 @@ void PVParallelView::PVZoomedParallelScene::wheelEvent(QGraphicsSceneWheelEvent*
 }
 
 /*****************************************************************************
+ * PVParallelView::PVZoomedParallelScene::keyPressEvent
+ *****************************************************************************/
+
+void PVParallelView::PVZoomedParallelScene::keyPressEvent(QKeyEvent *event)
+{
+	if (event->key() == Qt::Key_Space) {
+		PVLOG_INFO("PVZoomedParallelScene: forcing full redraw\n");
+		update_all();
+	}
+}
+
+/*****************************************************************************
  * PVParallelView::PVZoomedParallelScene::invalidate_selection
  *****************************************************************************/
 
