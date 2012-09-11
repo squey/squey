@@ -24,6 +24,8 @@
 #include <tbb/parallel_for.h>
 #include <tbb/blocked_range2d.h>
 
+#define BROWSE_TBB
+
 namespace PVCore {
 class PVHSVColor;
 }
@@ -143,8 +145,6 @@ public:
 	void process_omp(const PVZoneProcessing &zp);
 
 	void process_omp_from_zt(const PVZoneProcessing &zp, PVZoneTree &zt);
-
-#define BROWSE_TBB
 
 	inline size_t browse_bci_by_y1(context_t &ctx,
 	                               uint64_t y_min, uint64_t y_max, uint64_t y_lim,
