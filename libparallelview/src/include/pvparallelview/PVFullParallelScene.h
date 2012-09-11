@@ -64,25 +64,9 @@ private:
 	void cancel_current_job();
 	void wait_end_current_job();
 
-	inline QPointF map_to_axis(PVZoneID zid, QPointF p) const
-	{
-		QPointF ret = _axes[zid]->mapFromScene(p);
-		ret.ry() = 1023.0-ret.ry();
-		return ret;
-	}
-	inline QPointF map_from_axis(PVZoneID zid, QPointF p) const
-	{
-		QPointF ret = _axes[zid]->mapToScene(p);
-		ret.ry() = 1023.0-ret.ry();
-		return ret;
-	}
-	QRect map_to_axis(PVZoneID zid, QRectF rect) const
-	{
-		QRect ret = _axes[zid]->map_from_scene(rect);
-		ret.setTop(1023-ret.top());
-		ret.setBottom(1023-ret.bottom());
-		return ret;
-	}
+	inline QPointF map_to_axis(PVZoneID zid, QPointF p) const { return _axes[zid]->mapFromScene(p); }
+	inline QPointF map_from_axis(PVZoneID zid, QPointF p) const { return _axes[zid]->mapToScene(p); }
+	QRect map_to_axis(PVZoneID zid, QRectF rect) const { return _axes[zid]->map_from_scene(rect); }
 
 	bool sliders_moving() const;
 

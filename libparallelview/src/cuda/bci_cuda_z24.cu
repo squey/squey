@@ -333,7 +333,7 @@ __global__ void bcicode_raster_unroll2(uint2* bci_codes, unsigned int n, unsigne
 		else {
 			pixel = 0x00000000; // Transparent background
 		}
-		img_dst[band_x + ((~y) & PVParallelView::constants<Bbits>::mask_int_ycoord)*img_width] = pixel;
+		img_dst[band_x + y*img_width] = pixel;
 	}
 }
 
