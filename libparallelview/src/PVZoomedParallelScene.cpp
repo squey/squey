@@ -381,7 +381,7 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 			int zoom_level = get_zoom_level();
 
 			std::atomic_int needed_rendering_count(0);
-			int needed_rendering_number = 0;
+			std::atomic_int needed_rendering_number(0);
 			QSemaphore sem(0);
 
 #if 0
@@ -469,7 +469,7 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 
 			sem.acquire(needed_rendering_number);
 
-			BENCH_END(full_render, "FULL render", 1, 1, 1, 1);
+			BENCH_END(full_render, "ALL rendering", 1, 1, 1, 1);
 
 			if (_rendering_job->should_cancel()) {
 				return;
