@@ -22,8 +22,6 @@
 #include <pvkernel/core/PVProgressBox.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
 
-#include <pvsdk/PVMessenger.h>
-
 #include <boost/thread.hpp>
 
 /******************************************************************************

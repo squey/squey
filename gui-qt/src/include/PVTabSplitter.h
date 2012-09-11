@@ -20,18 +20,20 @@
 
 #include <vector>
 
+namespace PVGuiQt {
+class PVListingModel;
+class PVListingSortFilterProxyModel;
+class PVListingView;
+}
+
 namespace PVInspector {
 
 typedef std::vector<int> MatchingTable_t;
 
 class PVAxisPropertiesWidget;
 class PVMainWindow;
-class PVListingModel;
-class PVListingView;
 class PVAxesCombinationDialog;
 class PVExtractorWidget;
-class PVViewsListingWidget;
-class PVListingSortFilterProxyModel;
 class PVListDisplayDlg;
 
 /**
@@ -64,16 +66,14 @@ public:
 	PVMainWindow     *main_window;   //!< The parent PVMainWindow of this PVTabSplitter
 	Picviz::PVSource_p _lib_src;    //!< The Picviz::PVSource object this tab is bound to
 
-	PVListingView *pv_listing_view; //!< The PVListingView attached with our main application
+	PVGuiQt::PVListingView *pv_listing_view; //!< The PVListingView attached with our main application
 
-	PVListingModel *pv_listing_model; //!< The listing model
-	PVListingSortFilterProxyModel* pv_listing_proxy_model;
+	PVGuiQt::PVListingModel *pv_listing_model; //!< The listing model
+	PVGuiQt::PVListingSortFilterProxyModel* pv_listing_proxy_model;
 
 	PVLayerStackModel  *pv_layer_stack_model;
 	PVLayerStackWidget *pv_layer_stack_widget;
 
-	PVViewsListingWidget* _views_widget;
-	
 	PVListDisplayDlg* _inv_elts_dlg;
 
 	PVExtractorWidget *_pv_extractor; //!< The extractor widget of this view
@@ -130,8 +130,8 @@ public:
 	 */
 	PVLayerStackWidget *get_layer_stack_widget()const{return pv_layer_stack_widget;}
 
-	PVListingSortFilterProxyModel* get_listing_proxy_model() { return pv_listing_proxy_model; }
-	PVListingView* get_listing_view() { return pv_listing_view; }
+	PVGuiQt::PVListingSortFilterProxyModel* get_listing_proxy_model() { return pv_listing_proxy_model; }
+	PVGuiQt::PVListingView* get_listing_view() { return pv_listing_view; }
 
 
 	PVListDisplayDlg* get_source_invalid_elts_dlg() { return _inv_elts_dlg; };

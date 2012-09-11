@@ -74,6 +74,7 @@ void PVInspector::PVMainWindow::axes_editor_Slot()
 
 void PVInspector::PVMainWindow::axes_combination_editor_Slot()
 {
+#if 0
 	if (!current_tab) {
 		return;
 	}
@@ -86,6 +87,7 @@ void PVInspector::PVMainWindow::axes_combination_editor_Slot()
 	dlg->save_current_combination();
 	dlg->update_used_axes();
 	dlg->show();
+#endif
 }
 
 /******************************************************************************
@@ -126,10 +128,10 @@ void PVInspector::PVMainWindow::axes_display_edges_Slot()
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
 
 	// FIXME!!! Why is this broadcasted to every PVGL::PVView for every Picviz::PVView? Shouldn't it be reserved to the _current_ Picviz::PVView ?
-	PVSDK::PVMessage message;
+	/*PVSDK::PVMessage message;
 
 	message.function = PVSDK_MESSENGER_FUNCTION_TOGGLE_DISPLAY_EDGES;
-	pvsdk_messenger->post_message_to_gl(message);
+	pvsdk_messenger->post_message_to_gl(message);*/
 }
 
 /******************************************************************************
@@ -241,7 +243,7 @@ void PVInspector::PVMainWindow::lines_display_unselected_GLview_Slot()
 	state_machine->toggle_gl_unselected_visibility();
 	/* We refresh the view */
 	current_lib_view->process_visibility();
-	update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
+	//update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
 }
 
 /******************************************************************************
@@ -266,7 +268,7 @@ void PVInspector::PVMainWindow::lines_display_zombies_Slot()
 	// state_machine->set_listing_zombie_visibility(state_machine->are_zombie_visible());
 	/* We refresh the view */
 	current_lib_view->process_visibility();
-	update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
+	//update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
 	/* We refresh the listing */
 	current_tab->update_pv_listing_model_Slot();
 
@@ -312,7 +314,7 @@ void PVInspector::PVMainWindow::lines_display_zombies_GLview_Slot()
 	state_machine->toggle_gl_zombie_visibility();
 	/* We refresh the view */
 	current_lib_view->process_visibility();
-	update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
+	//update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
 }
 
 void PVInspector::PVMainWindow::expand_selection_on_axis_Slot()
@@ -335,7 +337,7 @@ void PVInspector::PVMainWindow::expand_selection_on_axis_Slot()
 	}
 
 	if (axes.size() > 0) {
-		update_pvglview(cur_view_p, PVSDK_MESSENGER_REFRESH_POSITIONS);
+		//update_pvglview(cur_view_p, PVSDK_MESSENGER_REFRESH_POSITIONS);
 	}
 }
 
@@ -828,7 +830,7 @@ void PVInspector::PVMainWindow::selection_all_Slot()
 	if (lib_view) {
 		lib_view->select_all_nonzb_lines();
 		// Set square area mode w/ volatile
-		update_pvglview(lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
+		//update_pvglview(lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
 		current_tab->refresh_listing_Slot();
 		current_tab->updateFilterMenuEnabling();
 	}
@@ -849,7 +851,7 @@ void PVInspector::PVMainWindow::selection_none_Slot()
 	Picviz::PVView* lib_view = current_tab->get_lib_view();
 	if (lib_view) {
 		lib_view->select_no_line();
-		update_pvglview(lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
+		//update_pvglview(lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
 		current_tab->refresh_listing_Slot();
 		current_tab->updateFilterMenuEnabling();
 	}
@@ -870,7 +872,7 @@ void PVInspector::PVMainWindow::selection_inverse_Slot()
 	Picviz::PVView* lib_view = current_tab->get_lib_view();
 	if (lib_view) {
 		lib_view->select_inv_lines();
-		update_pvglview(lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
+		//update_pvglview(lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
 		current_tab->refresh_listing_Slot();
 		current_tab->updateFilterMenuEnabling();
 	}
@@ -1010,50 +1012,17 @@ void PVInspector::PVMainWindow::update_reply_finished_Slot(QNetworkReply *reply)
 void PVInspector::PVMainWindow::view_new_scatter_Slot()
 {
 	PVLOG_INFO("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
-
-	// Ask the PVGL to create a GL-View of the currently selected view.
-	if (current_tab && current_tab->get_lib_view()) {
-		PVSDK::PVMessage message;
-
-		message.function = PVSDK_MESSENGER_FUNCTION_CREATE_SCATTER_VIEW;
-		message.pv_view = current_tab->get_lib_view()->shared_from_this();
-		message.pointer_1 = new QString(current_tab->get_current_view_name());
-		pvsdk_messenger->post_message_to_gl(message);
-	}
 }
 
 void PVInspector::PVMainWindow::view_new_parallel_Slot()
 {
 	PVLOG_INFO("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
 
-	// Ask the PVGL to create a GL-View of the currently selected view. 
-	if (current_tab && current_tab->get_lib_view()) {
-		PVSDK::PVMessage message;
-
-		message.function = PVSDK_MESSENGER_FUNCTION_PLEASE_WAIT;
-		message.pointer_1 = new QString(current_tab->get_current_view_name());
-		pvsdk_messenger->post_message_to_gl(message);
-
-		message.function = PVSDK_MESSENGER_FUNCTION_CREATE_VIEW;
-		message.pv_view = current_tab->get_lib_view()->shared_from_this();
-		message.pointer_1 = new QString(current_tab->get_current_view_name());
-		pvsdk_messenger->post_message_to_gl(message);
-	}
 }
 
 void PVInspector::PVMainWindow::view_screenshot_qt_Slot()
 {
-	// Get a QImage of the current view
-	if (current_tab && current_tab->get_lib_view()) {
-		PVSDK::PVMessage message;
-		message.pv_view = current_tab->get_lib_view()->shared_from_this(); // Get current view
-		message.function = PVSDK_MESSENGER_FUNCTION_TAKE_SCREENSHOT;
-		message.int_1 = -1;
-		message.int_2 = false;
-		QImage* image = new QImage();
-		message.pointer_1 = image;
-		pvsdk_messenger->post_message_to_gl(message);
-	}
+
 }
 
 /******************************************************************************
@@ -1150,11 +1119,6 @@ void PVInspector::PVMainWindow::cur_format_changed_Slot()
 			cur_src->set_format(new_format);
 		}
 	}
-}
-
-PVSDK::PVMessenger* PVInspector::PVMainWindow::get_pvmessenger()
-{
-	return pvsdk_messenger;
 }
 
 /******************************************************************************

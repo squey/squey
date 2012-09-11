@@ -315,6 +315,7 @@ void PVInspector::PVAxesCombinationWidget::sel_singleton_Slot()
 
 void PVInspector::PVAxesCombinationWidget::sel_range_Slot()
 {
+#if 0
 	assert(_view);
 	PVAxesCombinationWidgetSelRange* dlg = new PVAxesCombinationWidgetSelRange((QWidget*) this);
 	if (dlg->exec() != QDialog::Accepted) {
@@ -349,6 +350,7 @@ void PVInspector::PVAxesCombinationWidget::sel_range_Slot()
 		}
 	}
 	set_selection_from_cols(cols);
+#endif
 }
 
 // PVAxesCombinationWidgetSelRange implementation
