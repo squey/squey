@@ -30,7 +30,7 @@ public:
 	PVAxisSlider(int omin, int omax, int o);
 	~PVAxisSlider();
 
-	inline int value() { return _offset; }
+	inline int value() { return 1023-_offset; }
 
 	QRectF boundingRect () const;
 	bool is_moving() const;

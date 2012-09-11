@@ -14,7 +14,7 @@ PVCore::PVHSVColor* PVCore::PVHSVColor::init_colors(PVRow nb_colors)
 	PVHSVColor* colors = new PVHSVColor[nb_colors];
 #pragma omp parallel for
 	for (PVRow i=0; i<nb_colors; i++){
-		colors[i].h() = (i/4096)%((1<<HSV_COLOR_NBITS_ZONE)*6);
+		colors[i].h() = (i)%((1<<HSV_COLOR_NBITS_ZONE)*6);
 	}
 	return colors;
 }
