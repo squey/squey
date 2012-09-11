@@ -195,16 +195,11 @@ void PVInspector::PVLayerFilterProcessWidget::save_Slot()
 	_view->pre_filter_layer.get_selection() = _view->post_filter_layer.get_selection();
 	_view->process_from_filter();
 
-	// We select lines
-	// _view->output_layer.get_lines_properties().A2B_copy_restricted_by_selection_and_nelts(current_selected_layer.get_lines_properties(), _view->real_output_selection, _view->row_count);
-	/* We need to process the view from the layer_stack */
-	// _view->process_from_layer_stack();
 	/* We refresh the PVView_p */
-	_tab->get_main_window()->update_pvglview(_view, PVSDK_MESSENGER_REFRESH_SELECTION|PVSDK_MESSENGER_REFRESH_COLOR);
-	_tab->refresh_listing_Slot();
+	// FIXME: hive
 
 	// FIXME: I think this refreshes the listing too. We shall remove the refresh listing slot then
-	_tab->get_main_window()->refresh_view(_view);
+	//_tab->get_main_window()->refresh_view(_view);
 
 	// Save last used filter
 	_view->set_last_used_filter(_filter_p->registered_name());
@@ -252,8 +247,9 @@ bool PVInspector::PVLayerFilterProcessWidget::process()
 
 	// We reprocess the pipeline from the eventline stage
 	_view->process_from_eventline();
-	_tab->get_main_window()->update_pvglview(_view, PVSDK_MESSENGER_REFRESH_SELECTION|PVSDK_MESSENGER_REFRESH_COLOR);
-	_tab->refresh_listing_Slot();
+	// FIXME: hive !
+	//_tab->get_main_window()->//update_pvglview(_view, PVSDK_MESSENGER_REFRESH_SELECTION|PVSDK_MESSENGER_REFRESH_COLOR);
+	//_tab->refresh_listing_Slot();
 	_has_apply = true;
 	_args_widget->clear_args_state();
 
@@ -283,8 +279,9 @@ void PVInspector::PVLayerFilterProcessWidget::cancel_Slot()
 
 	// Update everything
 	_view->process_from_layer_stack();
-	_tab->get_main_window()->update_pvglview(_view, PVSDK_MESSENGER_REFRESH_SELECTION|PVSDK_MESSENGER_REFRESH_COLOR);
-	_tab->refresh_listing_Slot();
+	// FIXME: Hive!
+	//_tab->get_main_window()->//update_pvglview(_view, PVSDK_MESSENGER_REFRESH_SELECTION|PVSDK_MESSENGER_REFRESH_COLOR);
+	//_tab->refresh_listing_Slot();
 
 	reject();
 }

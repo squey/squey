@@ -50,8 +50,8 @@ add_definitions(${PVGL_FLAGS})
 SET(MOC_HEADERS
 include/PVAxisComputationDlg.h
 include/PVAxisPropertiesWidget.h
-include/PVAxesCombinationWidget.h
-include/PVAxesCombinationDialog.h
+#include/PVAxesCombinationWidget.h
+#include/PVAxesCombinationDialog.h
 include/PVCustomStyle.h
 include/PVCustomTitleDialog.h
 include/PVExtractorWidget.h
@@ -71,9 +71,9 @@ include/PVLayerStackView.h
 include/PVLayerStackWidget.h
 include/PVListColNrawDlg.h
 include/PVListDisplayDlg.h
-include/PVListingModel.h
+#include/PVListingModel.h
 include/PVListingsTabWidget.h
-include/PVListingSortFilterProxyModel.h
+#include/PVListingSortFilterProxyModel.h
 include/PVMainWindow.h
 include/PVMappingPlottingEditDialog.h
 include/PVMapWidget.h
@@ -86,8 +86,8 @@ include/PVSimpleStringListModel.h
 include/PVStartScreenWidget.h
 include/PVStringListChooserWidget.h
 include/PVTabSplitter.h
-include/PVViewsListingView.h
-include/PVViewsListingWidget.h
+#include/PVViewsListingView.h
+#include/PVViewsiListingWidget.h
 include/PVViewsModel.h
 
 widgets/PVCheckableComboBox.h
@@ -131,8 +131,8 @@ SET(SRC_FILES
 main.cpp
 PVAxisComputationDlg.cpp
 PVAxisPropertiesWidget.cpp
-PVAxesCombinationWidget.cpp
-PVAxesCombinationDialog.cpp
+#PVAxesCombinationWidget.cpp
+#PVAxesCombinationDialog.cpp
 PVCustomStyle.cpp
 PVCustomTitleDialog.cpp
 PVFilesTypesSelWidget.cpp
@@ -151,9 +151,9 @@ PVLayerStackView.cpp
 PVLayerStackWidget.cpp
 PVListColNrawDlg.cpp
 PVListDisplayDlg.cpp
-PVListingModel.cpp
+#PVListingModel.cpp
 PVListingsTabWidget.cpp
-PVListingSortFilterProxyModel.cpp
+#PVListingSortFilterProxyModel.cpp
 PVMainWindow.cpp
 PVMainWindowMenusActions.cpp
 PVMainWindowSlots.cpp
@@ -168,8 +168,8 @@ PVSerializeOptionsWidget.cpp
 PVStartScreenWidget.cpp
 PVStringListChooserWidget.cpp
 PVTabSplitter.cpp
-PVViewsListingView.cpp
-PVViewsListingWidget.cpp
+#PVViewsListingView.cpp
+#PVViewsListingWidget.cpp
 PVViewsModel.cpp
 
 widgets/PVCheckableComboBox.cpp
@@ -249,7 +249,7 @@ if(SET_PROTECT)
 endif()
 
 set_property(TARGET picviz-inspector APPEND PROPERTY LINK_FLAGS ${GALVEZ_LDFLAGS})
-target_link_libraries(picviz-inspector ${QT_LIBRARIES} ${PVGUIQT_LIBRARY} ${PVHIVE_LIBRARY} ${PVSDK_LIBRARY} ${PICVIZ_LIBRARY} ${PVKERNEL_LIBRARY} ${PVGL_LIBRARY} ${WIN32_EXTRA_LIBS} ${TBB_LIBRARIES} ${Boost_LIBRARIES_PYTHON} ${PYTHON_LIBRARY} ${ICU_LIBRARY} ${GALVEZ_LIBS} ${OpenMP_LIBRARIES})
+target_link_libraries(picviz-inspector ${QT_LIBRARIES} ${PVGUIQT_LIBRARY} ${PVHIVE_LIBRARY} ${PICVIZ_LIBRARY} ${PVKERNEL_LIBRARY} ${WIN32_EXTRA_LIBS} ${TBB_LIBRARIES} ${Boost_LIBRARIES_PYTHON} ${PYTHON_LIBRARY} ${ICU_LIBRARY} ${GALVEZ_LIBS} ${OpenMP_LIBRARIES})
 
 INSTALL(TARGETS picviz-inspector DESTINATION .)
 

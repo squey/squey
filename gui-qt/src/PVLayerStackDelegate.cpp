@@ -106,7 +106,8 @@ bool PVInspector::PVLayerStackDelegate::editorEvent(QEvent *event, QAbstractItem
 				/* now we reprocess from the selection */
 				lib_view->process_from_selection();
 				// We refresh the PVGLView
-				main_window->update_pvglview(lib_view, PVSDK_MESSENGER_REFRESH_Z|PVSDK_MESSENGER_REFRESH_COLOR|PVSDK_MESSENGER_REFRESH_ZOMBIES|PVSDK_MESSENGER_REFRESH_SELECTION);
+				// FIXME: Hive!
+				//main_window->update_pvglview(lib_view, PVSDK_MESSENGER_REFRESH_Z|PVSDK_MESSENGER_REFRESH_COLOR|PVSDK_MESSENGER_REFRESH_ZOMBIES|PVSDK_MESSENGER_REFRESH_SELECTION);
 				/* We must update all dynamic listing model... */
 				//temp->current_pv_view->update_row_count_in_all_dynamic_listing_model_Slot();
 				// FIXME: we should send ... well we should do something, probably!
@@ -128,7 +129,8 @@ bool PVInspector::PVLayerStackDelegate::editorEvent(QEvent *event, QAbstractItem
 		case 2:
 			if (event->type() == QEvent::MouseButtonPress) {
 				lib_view->set_layer_stack_selected_layer_index(lib_index);
-				main_window->update_pvglview(layer_stack_view->get_parent()->get_parent_tab()->get_lib_view(), PVSDK_MESSENGER_REFRESH_SELECTED_LAYER);
+				// FIXME: Hive!
+				//main_window->update_pvglview(layer_stack_view->get_parent()->get_parent_tab()->get_lib_view(), PVSDK_MESSENGER_REFRESH_SELECTED_LAYER);
 				/* We force a refresh of the layer_stack because of weird hover artifacts */
 				main_window->current_tab->get_layer_stack_model()->emit_layoutChanged();
 				return false;

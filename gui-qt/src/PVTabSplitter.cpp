@@ -8,20 +8,24 @@
 
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVProgressBox.h>
+
+#include <picviz/PVPlotted.h>
 #include <picviz/PVView.h>
 
 #include <PVAxisPropertiesWidget.h>
 #include <PVListDisplayDlg.h>
 #include <PVMainWindow.h>
 #include <PVSimpleStringListModel.h>
-#include <PVListingView.h>
 #include <PVExtractorWidget.h>
 #include <PVAxesCombinationDialog.h>
-#include <PVListingSortFilterProxyModel.h>
 #include <PVListColNrawDlg.h>
 #include <PVMappingPlottingEditDialog.h>
-#include <PVViewsListingWidget.h>
-#include <PVViewsModel.h>
+
+#include <pvguiqt/PVListingModel.h>
+#include <pvguiqt/PVListingSortFilterProxyModel.h>
+#include <pvguiqt/PVListingView.h>
+#include <pvguiqt/PVRootTreeModel.h>
+#include <pvguiqt/PVRootTreeView.h>
 
 #include <PVTabSplitter.h>
 
@@ -53,10 +57,10 @@ PVInspector::PVTabSplitter::PVTabSplitter(PVMainWindow *mw, Picviz::PVSource_p l
 	pv_layer_stack_widget = NULL; // Note that this value can be requested during the creating of the PVLayerStackWidget!
 
 	// PVLISTINGVIEW
-	// We prepare the listing part and add it to the PVTabSplitter
-	pv_listing_model = new PVListingModel(main_window, this);
-	pv_listing_proxy_model = new PVListingSortFilterProxyModel(this, this);
-	pv_listing_view = new PVListingView(main_window, this);
+	Picviz::PVView_sp cur_view = lib_src->current_view()->shared_from_this();
+	pv_listing_model = new PVGuiQt::PVListingModel(cur_view, this);
+	pv_listing_proxy_model = new PVGuiQt::PVListingSortFilterProxyModel(cur_view, this);
+	pv_listing_view = new PVGuiQt::PVListingView(cur_view, this);
 	pv_listing_proxy_model->setSourceModel(pv_listing_model);
 	pv_listing_view->setModel(pv_listing_proxy_model);
 	pv_listing_view->sortByColumn(-1, Qt::AscendingOrder);
@@ -82,6 +86,7 @@ PVInspector::PVTabSplitter::PVTabSplitter(PVMainWindow *mw, Picviz::PVSource_p l
 	pv_layer_stack_widget = new PVLayerStackWidget(main_window, pv_layer_stack_model, this);
 	right_layout->addWidget(pv_layer_stack_widget);
 	
+	/*
 	// We prepare the PVViewsListingWidget and add it to the layout
 	_views_widget = new PVViewsListingWidget(this);
 	right_layout->addWidget(_views_widget);
@@ -101,7 +106,7 @@ PVInspector::PVTabSplitter::PVTabSplitter(PVMainWindow *mw, Picviz::PVSource_p l
 	right_widget->setLayout(right_layout);
 	
 	// Now we can add the RIGHT_WIDGET to our PVTabSplitter
-	addWidget(right_widget);
+	addWidget(right_widget);*/
 	
 	// INITIAL SIZES
 	// We now set the initial size of the components of that PVTabSplitter (mostly the right_widget...)
@@ -117,8 +122,8 @@ PVInspector::PVTabSplitter::PVTabSplitter(PVMainWindow *mw, Picviz::PVSource_p l
 	// Update notifications
 	connect(pv_layer_stack_model, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)), this, SLOT(source_changed_Slot()));
 	connect(pv_layer_stack_model, SIGNAL(layoutChanged()), this, SLOT(source_changed_Slot()));
-	connect(_views_widget->get_model(), SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)), this, SLOT(source_changed_Slot()));
-	connect(_views_widget->get_model(), SIGNAL(layoutChanged()), this, SLOT(source_changed_Slot()));
+	//connect(_views_widget->get_model(), SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)), this, SLOT(source_changed_Slot()));
+	//connect(_views_widget->get_model(), SIGNAL(layoutChanged()), this, SLOT(source_changed_Slot()));
 
 }
 
@@ -170,7 +175,7 @@ void PVInspector::PVTabSplitter::create_new_mapped()
 		return;
 	}
 
-	_views_widget->force_refresh();
+	//_views_widget->force_refresh();
 }
 
 void PVInspector::PVTabSplitter::toggle_listing_sort()
@@ -207,7 +212,7 @@ void PVInspector::PVTabSplitter::create_new_plotted(Picviz::PVMapped* mapped_par
 		return;
 	}
 
-	_views_widget->force_refresh();
+	//_views_widget->force_refresh();
 }
 
 
@@ -377,6 +382,7 @@ bool PVInspector::PVTabSplitter::process_extraction_job(PVRush::PVControllerJob_
 		}
 	}
 
+#if 0
 	// Update libpicviz's views according to opened GL views (should be in the future PVSDK !!)
 	QList<Picviz::PVView_sp> views = main_window->list_displayed_picviz_views();
 	for (int i = 0; i < views.size(); i++) {
@@ -389,25 +395,27 @@ bool PVInspector::PVTabSplitter::process_extraction_job(PVRush::PVControllerJob_
 			// The user, by pressing cancel, expect to come back in 
 			PVCore::PVProgressBox* pbox = new PVCore::PVProgressBox(tr("Processing..."), this);
 			pbox->set_enable_cancel(false);
-			PVCore::PVProgressBox::progress(boost::bind(&Picviz::PVPlotted::process_from_parent_mapped, cur_view->get_parent<Picviz::PVPlotted>(), false), pbox);
+			PVCore::PVProgressBox::progress(boost::bind(&Picviz::PVPlotted::process_from_parent_mapped, cur_view->get_parent<Picviz::PVPlotted>()), pbox);
 		}
 		cur_view->set_consistent(true);
 
 		// Send a message to PVGL
-		PVSDK::PVMessage message;
+		/*PVSDK::PVMessage message;
 		message.function = PVSDK_MESSENGER_FUNCTION_REINIT_PVVIEW;
 		message.pv_view = cur_view;
-		main_window->get_pvmessenger()->post_message_to_gl(message);
+		main_window->get_pvmessenger()->post_message_to_gl(message);*/
 	}
 
 	if (ret) {
 		PVLOG_INFO("extractor: the normalization job took %0.4f seconds.\n", job->duration().seconds());
+		/*
 		emit_source_changed();
 		refresh_layer_stack_view_Slot();
 		refresh_listing_Slot();
 		pv_listing_model->reset_lib_view();
-		pv_listing_proxy_model->reset_lib_view();
+		pv_listing_proxy_model->reset_lib_view();*/
 	}
+#endif
 
 	return ret;
 }
@@ -427,12 +435,12 @@ void PVInspector::PVTabSplitter::process_mapped_if_current(Picviz::PVMapped* map
 			return;
 		}
 		Picviz::PVPlotted* plotted_parent = cur_view->get_parent<Picviz::PVPlotted>();
-		if (!PVCore::PVProgressBox::progress(boost::bind(&Picviz::PVPlotted::process_from_parent_mapped, plotted_parent, true), tr("Processing..."), (QWidget*) this)) {
+		if (!PVCore::PVProgressBox::progress(boost::bind(&Picviz::PVPlotted::process_from_parent_mapped, plotted_parent), tr("Processing..."), (QWidget*) this)) {
 			return;
 		}
 	}
 
-	main_window->update_pvglview(cur_view, PVSDK_MESSENGER_REFRESH_POSITIONS);
+	//main_window->update_pvglview(cur_view, PVSDK_MESSENGER_REFRESH_POSITIONS);
 }
 
 
@@ -447,10 +455,10 @@ void PVInspector::PVTabSplitter::process_plotted_if_current(Picviz::PVPlotted* p
 	// If a plotted was selected and that it is the current view...
 	if (get_lib_view() == plotted->current_view() && !plotted->is_uptodate()) {
 		// If something has changed, reprocess it
-		if (!PVCore::PVProgressBox::progress(boost::bind(&Picviz::PVPlotted::process_from_parent_mapped, plotted, true), tr("Processing..."), (QWidget*) this)) {
+		if (!PVCore::PVProgressBox::progress(boost::bind(&Picviz::PVPlotted::process_from_parent_mapped, plotted), tr("Processing..."), (QWidget*) this)) {
 			return;
 		}
-		main_window->update_pvglview(plotted->current_view(), PVSDK_MESSENGER_REFRESH_POSITIONS);
+		//main_window->update_pvglview(plotted->current_view(), PVSDK_MESSENGER_REFRESH_POSITIONS);
 	}
 }
 
@@ -463,6 +471,7 @@ void PVInspector::PVTabSplitter::process_plotted_if_current(Picviz::PVPlotted* p
  *****************************************************************************/
 void PVInspector::PVTabSplitter::refresh_axes_combination_Slot()
 {
+#if 0
 	// TODO: do this only for the good view
 	QHash<Picviz::PVView const*, PVViewWidgets>::const_iterator it;
 	for (it = _view_widgets.begin(); it != _view_widgets.end(); it++) {
@@ -471,6 +480,7 @@ void PVInspector::PVTabSplitter::refresh_axes_combination_Slot()
 			pv_axes_combination_editor->update_used_axes();
 		}
 	}
+#endif
 }
 
 
@@ -498,10 +508,10 @@ void PVInspector::PVTabSplitter::refresh_layer_stack_view_Slot()
  *****************************************************************************/
 void PVInspector::PVTabSplitter::refresh_listing_Slot()
 {
+#if 0
 	PVLOG_DEBUG("%s \n       %s %d\n",__FILE__,__FUNCTION__,__LINE__);
 	Picviz::PVView* current_lib_view = get_lib_view();
 	if (pv_listing_view) {
-		current_lib_view->gl_call_locker.lock();
 		pv_listing_view->viewport()->update();
 		pv_listing_view->verticalHeader()->viewport()->update();
 		//pv_listing_view->get_listing_model()->reset_model();
@@ -510,9 +520,9 @@ void PVInspector::PVTabSplitter::refresh_listing_Slot()
 //		static_cast<PVListingModel*>(pv_listing_view->model())->initMatchingTable();
 //                static_cast<PVListingModel*>(pv_listing_view->model())->initLocalMatchingTable();
 //		static_cast<PVListingModel*>(pv_listing_view->model())->emitLayoutChanged();
-		current_lib_view->gl_call_locker.unlock();
 		main_window->update_statemachine_label(current_lib_view->shared_from_this());
 	}
+#endif
 }
 
 
@@ -540,13 +550,13 @@ void PVInspector::PVTabSplitter::refresh_listing_with_horizontal_header_Slot()
 void PVInspector::PVTabSplitter::select_plotted(Picviz::PVPlotted* plotted)
 {
 	if (!plotted->is_uptodate()) {
-		if (!PVCore::PVProgressBox::progress(boost::bind(&Picviz::PVPlotted::process_from_parent_mapped, plotted, true), tr("Processing..."), (QWidget*) this)) {
+		if (!PVCore::PVProgressBox::progress(boost::bind(&Picviz::PVPlotted::process_from_parent_mapped, plotted), tr("Processing..."), (QWidget*) this)) {
 			return;
 		}
-		main_window->update_pvglview(plotted->current_view(), PVSDK_MESSENGER_REFRESH_POSITIONS);
+		//main_window->update_pvglview(plotted->current_view(), PVSDK_MESSENGER_REFRESH_POSITIONS);
 	}
 	select_view(plotted->current_view());
-	main_window->ensure_glview_exists(plotted->current_view());
+	//main_window->ensure_glview_exists(plotted->current_view());
 }
 
 
@@ -571,9 +581,9 @@ void PVInspector::PVTabSplitter::select_view(Picviz::PVView* view)
 	pv_layer_stack_model->update_layer_stack();
 
 	// And the listing
-	pv_listing_model->reset_lib_view();
-	pv_listing_proxy_model->reset_lib_view();
-	pv_listing_view->update_view();
+	//pv_listing_model->reset_lib_view();
+	//pv_listing_proxy_model->reset_lib_view();
+	//pv_listing_view->update_view();
 }
 
 
@@ -665,7 +675,7 @@ void PVInspector::PVTabSplitter::show_unique_values(PVCol col)
  *****************************************************************************/
 PVInspector::PVTabSplitter::PVViewWidgets::PVViewWidgets(Picviz::PVView* view, PVTabSplitter* tab)
 {
-	pv_axes_combination_editor = new PVAxesCombinationDialog(view->shared_from_this(), tab, tab->main_window);
+	//pv_axes_combination_editor = new PVAxesCombinationDialog(view->shared_from_this(), tab, tab->main_window);
 	pv_axes_properties = new PVAxisPropertiesWidget(view->shared_from_this(), tab, tab->main_window);
 }
 

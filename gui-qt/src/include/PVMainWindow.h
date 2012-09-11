@@ -16,6 +16,7 @@
 #include <QNetworkReply>
 #include <QSet>
 
+#include <pvkernel/core/PVArgument.h>
 #include <pvkernel/rush/PVInput.h>
 #include <pvkernel/rush/PVSourceCreator.h>
 #include <pvkernel/rush/PVSourceCreatorFactory.h>
@@ -28,12 +29,6 @@
 #include <picviz/PVView.h>
 #include <picviz/PVLayerFilter.h>
 #include <picviz/PVSelection.h>
-#include <pvkernel/core/PVArgument.h>
-
-#include <pvsdk/PVMessenger.h>
-
-#include <pvgl/general.h>
-#include <pvgl/PVGLThread.h>
 
 #include <PVAxisPropertiesWidget.h>
 #include <PVDualSlider.h>
@@ -117,33 +112,21 @@ private:
 public:
 	PVMainWindow(QWidget *parent = 0);
 
-// XXX		picviz_datatreerootitem_t *datatree;
-
 	PVAxisPropertiesWidget *pv_AxisProperties;
-	//PVColorDialog *pv_ColorDialog;
-
 	PVFilterWidget *pv_FilterWidget;
 
 	PVExportSelectionDialog *pv_ExportSelectionDialog;
 
-//		PVMapWidget *pv_MapWidget;
 	PVOpenFileDialog    *pv_OpenFileDialog;
-	/* LogViewerWidget     *pv_RemoteLog; */
 	PVSaveFileDialog    *pv_SaveFileDialog;
 	PVTabSplitter       *current_tab;
 	PVListingsTabWidget *pv_ListingsTabWidget;
-
-
-	QMainWindow *RemoteLogDialog;
 
 	QMenuBar *menubar;
 	QMenu *filter_Menu;
 	QLabel *statemachine_label;
 
 	char *last_sendername;
-	Picviz::PVLayerFilter *filter;
-
-
 	bool report_started;
 	int report_image_index;
 	QString *report_filename;
@@ -153,9 +136,7 @@ public:
 	/* QGridLayout *filter_widgets_layout; */
 	void commit_selection_in_current_layer(Picviz::PVView* view);
 	void commit_selection_to_new_layer(Picviz::PVView* view);
-	void refresh_view(Picviz::PVView* view);
 	void set_color(Picviz::PVView* view);
-	PVSDK::PVMessenger* get_pvmessenger();
 
 	void import_type(PVRush::PVInputType_p in_t);
 	void import_type(PVRush::PVInputType_p in_t, PVRush::PVInputType::list_inputs const& inputs, PVRush::hash_formats& formats, PVRush::hash_format_creator& format_creator, QString const& choosenFormat, PVCore::PVArgumentList const& args_ext);
@@ -166,8 +147,6 @@ public:
 	void close_source(int index);
 	void close_source(PVTabSplitter* tab);
 	void close_scene();
-
-	static QList<Picviz::PVView_sp> list_displayed_picviz_views();
 
 public slots:
 	void about_Slot();
@@ -216,7 +195,6 @@ public slots:
 	void view_display_inv_elts_Slot();
 	void view_screenshot_qt_Slot();
 	void show_correlation_Slot();
-	void check_messages();	/* SLOT? NOT SLOT? */
 	void update_reply_finished_Slot(QNetworkReply *reply);
 	void whats_this_Slot();
 	// Called by input_type plugins to edit a format.
@@ -343,7 +321,6 @@ private:
 	QPushButton *pv_ImportFileButton;
 
 protected:
-	bool eventFilter(QObject *watched_object, QEvent *event);
 	void keyPressEvent(QKeyEvent *event);
 	int update_check();
 	void treat_invalid_formats(QHash<QString, std::pair<QString,QString> > const& errors);
@@ -359,25 +336,6 @@ signals:
 	void commit_to_new_layer_Signal();
 	void selection_changed_Signal();
 	void zombie_mode_changed_Signal();
-
-	// Communication with PVGL.
-private:
-	PVGL::PVGLThread *pvgl_thread;
-	PVSDK::PVMessenger  *pvsdk_messenger;
-	QTimer     *timer;
-
-	void create_pvgl_thread();
-public:
-	/**
-	 *  @param view
-	 *  @param refresh_states
-	 */
-	void update_pvglview(Picviz::PVView_sp view, int refresh_states) { update_pvglview(view.get(), refresh_states); }
-	void update_pvglview(Picviz::PVView* view, int refresh_states);
-	void ensure_glview_exists(Picviz::PVView_sp view) { ensure_glview_exists(view.get()); }
-	void ensure_glview_exists(Picviz::PVView* view);
-	void destroy_pvgl_views(Picviz::PVView_sp view) { destroy_pvgl_views(view.get()); }
-	void destroy_pvgl_views(Picviz::PVView* view);
 
 private:
 	tbb::task_scheduler_init init_parallel;
