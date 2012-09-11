@@ -8,7 +8,7 @@
 
 #include <unicode/ucal.h>
 
-float Picviz::PVMappingFilterTimeWeek::cal_to_float(Calendar* cal, bool &success)
+int32_t Picviz::PVMappingFilterTimeWeek::cal_to_int(Calendar* cal, bool &success)
 {
 	UErrorCode err = U_ZERO_ERROR;
 	int32_t sec = cal->get(UCAL_SECOND, err);
@@ -19,7 +19,7 @@ float Picviz::PVMappingFilterTimeWeek::cal_to_float(Calendar* cal, bool &success
 	success = U_SUCCESS(err);
 
 	if (success) {
-		return (float) (sec +  (min * 60) + (hour * 60 * 60) + day*24*3600);
+		return (sec +  (min * 60) + (hour * 60 * 60) + day*24*3600);
 	}
 	return 0;
 }

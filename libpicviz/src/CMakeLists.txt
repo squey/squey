@@ -5,7 +5,7 @@
 
 include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/libpicviz/src/include)
 
-add_definitions(${PICVIZ_DEFINITIONS} -ftree-vectorizer-verbose=2)
+add_definitions(${PICVIZ_DEFINITIONS})
 include_directories(AFTER ${PICVIZ_INCLUDE_DIRS})
 include_directories(AFTER ${TULIP_INCLUDE_DIR})
 

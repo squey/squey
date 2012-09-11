@@ -9,16 +9,18 @@
 
 #include <omp.h>
 
-float* Picviz::PVPlottingFilterTimeDefault::operator()(float* values)
+uint32_t* Picviz::PVPlottingFilterTimeDefault::operator()(mapped_decimal_storage_type const* values)
 {
 	assert(values);
 	assert(_dest);
 	assert(_mandatory_params);
 
-	int64_t size = _dest_size;
-	if (!_mapping_mode.compare("default")) {
-		float ymin, ymax;
 
+	uint32_t const* vint = &values->storage_as_uint();
+
+	ssize_t size = _dest_size;
+	uint64_t ymin,ymax;
+	if (!_mapping_mode.compare("default")) {
 		Picviz::mandatory_param_map::const_iterator it_min = _mandatory_params->find(Picviz::mandatory_ymin);
 		Picviz::mandatory_param_map::const_iterator it_max = _mandatory_params->find(Picviz::mandatory_ymax);
 		if (it_min == _mandatory_params->end() || it_max == _mandatory_params->end()) {
@@ -26,43 +28,39 @@ float* Picviz::PVPlottingFilterTimeDefault::operator()(float* values)
 			memcpy(_dest, values, size*sizeof(float));
 			return _dest;
 		}
-		ymin = (*it_min).second.second;
-		ymax = (*it_max).second.second;
+		const uint64_t ymin = (*it_min).second.second.storage_as_uint();
+		const uint64_t ymax = (*it_max).second.second.storage_as_uint();
 
 		if (ymin == ymax) {
 			for (int64_t i = 0; i < size; i++) {
-				_dest[i] = 0.5;
+				_dest[i] = UINT_MAX>>1;
 			}
 			return _dest;
 		}
-
-#pragma omp parallel for
-		for (int64_t i = 0; i < size; i++) {
-			_dest[i] = (values[i] - ymin) / (ymax - ymin);
-		}
-
-		return _dest;
-	}
-
-	float factor = 1.0;
-	if (_mapping_mode.compare("24h") == 0) {
-		factor = PICVIZ_TIME_24H_MAX;
-	}
-	else
-	if (_mapping_mode.compare("week") == 0) {
-		factor = PICVIZ_TIME_WEEK_MAX;
-	}
-	else
-	if (_mapping_mode.compare("month") == 0) {
-		factor = PICVIZ_TIME_MONTH_MAX;
 	}
 	else {
-		PVLOG_ERROR("(mapping: time-default) unknown time mapping mode '%s' !\n", qPrintable(_mapping_mode));
+		ymin = 0;
+		if (_mapping_mode.compare("24h") == 0) {
+			ymax = PICVIZ_TIME_24H_MAX;
+		}
+		else
+		if (_mapping_mode.compare("week") == 0) {
+			ymax = PICVIZ_TIME_WEEK_MAX;
+		}
+		else
+		if (_mapping_mode.compare("month") == 0) {
+			ymax = PICVIZ_TIME_MONTH_MAX;
+		}
+		else {
+			PVLOG_ERROR("(mapping: time-default) unknown time mapping mode '%s' !\n", qPrintable(_mapping_mode));
+			ymax = UINT_MAX;
+		}
 	}
 
+	const uint64_t ydiff = ymax-ymin;
 #pragma omp parallel for
 	for (int64_t i = 0; i < size; i++) {
-		_dest[i] = values[i] / factor;
+		_dest[i] = (uint32_t) (((uint64_t)(vint[i] - ymin)*(uint64_t)UINT_MAX)/ydiff);
 	}
 
 	return _dest;

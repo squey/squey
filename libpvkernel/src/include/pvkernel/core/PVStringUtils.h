@@ -14,15 +14,17 @@
  */
 #define STRING_MAX_YVAL 16105
 
+#include <QChar>
+
 namespace PVCore {
 
 class PVStringUtils {
 public:
-	static inline uint64_t compute_str_factor(QString const& str, bool case_sensitive = true)
+	static inline uint64_t compute_str_factor(PVCore::PVUnicodeString const& str, bool case_sensitive = true)
 	{
 		// Using QString::toUtf8 and not QString::toLocal8Bit(), so that the "factor" variable
 		// isn't system-locale dependant.
-		QByteArray value_as_qba;
+		/*QByteArray value_as_qba;
 		if (case_sensitive) {
 			value_as_qba = str.toUtf8();
 		}
@@ -30,8 +32,9 @@ public:
 			value_as_qba = str.toLower().toUtf8();
 		}
 
-		const char* value_as_char_p = value_as_qba.data();
-		int size = value_as_qba.size();
+		const char* value_as_char_p = value_as_qba.data();*/
+		const uint16_t* u16_buf = (const uint16_t*) str.buffer();
+		size_t size = str.size();
 
 		// AG: this is now historical, but still interesting !
 		// This is a reduction. Do this with a for loop, so that we have more chance that the compiler
@@ -57,12 +60,20 @@ public:
 		//
 		// So we define factor as an uint64_t, and convert it back to float after the reduction
 
+		// With 128 the maximum ascii character value, the string must be greater than
+		// (2**64-1)/128 characters (which is about 130 "tera-characters") before factor overflows...
+		// I think we're pretty safe here !
 		uint64_t factor_int = 0;
-		for (int i = 0; i < size; i++) {
-			// With 128 the maximum ascii character value, the string must be greater than
-			// (2**64-1)/128 characters (which is about 130 "tera-characters") before factor overflows...
-			// I think we're pretty safe here !
-			factor_int += value_as_char_p[i];
+		if (case_sensitive) {
+			for (size_t i = 0; i < size; i++) {
+				factor_int += u16_buf[i];
+			}
+		}
+		else {
+			// TODO: hand-made vectorisation!
+			for (size_t i = 0; i < size; i++) {
+				factor_int += QChar::toLower(u16_buf[i]);
+			}
 		}
 
 		return factor_int;

@@ -15,8 +15,8 @@ namespace Picviz {
 class PVPlottingFilterNoprocess: public PVPlottingFilter
 {
 public:
-	float operator()(float value);
-	QString get_human_name() const { return QString("Default"); }
+	uint32_t* operator()(mapped_decimal_storage_type const* values) override;
+	QString get_human_name() const override { return QString("Default"); }
 
 	CLASS_FILTER(PVPlottingFilterNoprocess)
 };

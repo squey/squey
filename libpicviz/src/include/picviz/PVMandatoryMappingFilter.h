@@ -13,14 +13,16 @@
 #include <pvkernel/filter/PVFilterFunction.h>
 #include <pvkernel/rush/PVNraw.h>
 
+#include <picviz/PVMapped_types.h>
+
 //#include <tbb/concurrent_unordered_map.h>
 #include <map>
 #include <utility>
 
 namespace Picviz {
 
-typedef std::pair<const PVRush::PVNraw::const_trans_nraw_table_line*, float*> mandatory_param_list_values;
-typedef std::pair<QString, float> mandatory_param_value;
+typedef std::pair<const PVRush::PVNraw::const_trans_nraw_table_line*, mapped_decimal_storage_type*> mandatory_param_list_values;
+typedef std::pair<QString, mapped_decimal_storage_type> mandatory_param_value;
 
 // This defines the different parameters that a mandatory mapping
 // filter can set for an axis
@@ -38,6 +40,7 @@ class LibPicvizDecl PVMandatoryMappingFilter: public PVFilter::PVFilterFunctionB
 public:
 	typedef boost::shared_ptr<PVMandatoryMappingFilter> p_type;
 	typedef PVMandatoryMappingFilter FilterT;
+	typedef Picviz::mapped_decimal_storage_type decimal_storage_type;
 
 public:
 	PVMandatoryMappingFilter();
@@ -49,8 +52,10 @@ public:
 	virtual void init_from_first(mandatory_param_value const& value);
 
 	void set_dest_params(mandatory_param_map& params);
+	void set_decimal_type(PVCore::DecimalType decimal_type) { _decimal_type = decimal_type; }
 protected:
 	mandatory_param_map* _mandatory_params;
+	PVCore::DecimalType _decimal_type;
 };
 
 typedef PVMandatoryMappingFilter::func_type PVMandatoryMappingFilter_f;

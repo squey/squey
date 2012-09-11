@@ -13,6 +13,7 @@
 #include <QHash>
 #include <QVector>
 
+#include <pvkernel/core/PVDecimalStorage.h>
 #include <pvkernel/core/PVDataTreeObject.h>
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVListFloat2D.h>
@@ -21,6 +22,7 @@
 #include <pvkernel/rush/PVNraw.h>
 
 #include <picviz/PVPtrObjects.h>
+#include <picviz/PVMapped_types.h>
 #include <picviz/PVMapping.h>
 #include <picviz/PVSource.h>
 #ifdef CUDA
@@ -44,9 +46,10 @@ class LibPicvizDecl PVMapped : public data_tree_mapped_t {
 	friend class PVCore::PVSerializeObject;
 	friend class PVCore::PVDataTreeAutoShared<PVMapped>;
 public:
-	//typedef boost::shared_ptr<PVMapped> p_type;
-	typedef std::vector< std::pair<PVCol,float> > mapped_sub_col_t;
+	typedef Picviz::mapped_decimal_storage_type decimal_storage_type;
+	typedef std::vector< std::pair<PVRow, decimal_storage_type> > mapped_sub_col_t;
 	typedef children_t list_plotted_t;
+	typedef PVCore::PVMatrix<decimal_storage_type, PVCol, PVRow> mapped_table_t;
 
 protected:
 	PVMapped();
@@ -69,20 +72,23 @@ public:
 	void set_name(QString const& name) { _mapping->set_name(name); }
 	QString const& get_name() const { return _mapping->get_name(); }
 
-	QList<PVCol> get_columns_indexes_values_within_range(float min, float max, double rate = 1.0);
-	QList<PVCol> get_columns_indexes_values_not_within_range(float min, float max, double rate = 1.0);
+	QList<PVCol> get_columns_indexes_values_within_range(decimal_storage_type const min, decimal_storage_type const max, double rate = 1.0);
+	QList<PVCol> get_columns_indexes_values_not_within_range(decimal_storage_type const min, decimal_storage_type const max, double rate = 1.0);
 
 	virtual QString get_serialize_description() const { return "Mapping: " + get_name(); }
+
+	inline PVCore::DecimalType get_decimal_type_of_col(PVCol const j) const { return _mapping->get_decimal_type_of_col(j); }
 
 public:
 	// Data access
 	PVRow get_row_count() const;
 	PVCol get_column_count() const;
-	void get_sub_col_minmax(mapped_sub_col_t& ret, float& min, float& max, PVSelection const& sel, PVCol col) const;
+	void get_sub_col_minmax(mapped_sub_col_t& ret, decimal_storage_type& min, decimal_storage_type& max, PVSelection const& sel, PVCol col) const;
 
-	inline float get_value(PVRow row, PVCol col) const { return trans_table.getValue(col, row); }
+	inline decimal_storage_type get_value(PVRow row, PVCol col) const { return _trans_table.at(col, row); }
 
-	inline float* get_column_pointer(PVCol col) { return trans_table.getRowData(col); }
+	inline decimal_storage_type* get_column_pointer(PVCol col) { return _trans_table.get_row_ptr(col); }
+	inline decimal_storage_type const* get_column_pointer(PVCol col) const { return _trans_table.get_row_ptr(col); }
 
 public:
 	// Debugging functions
@@ -102,7 +108,6 @@ protected:
 	virtual QString get_children_description() const { return "Plotted(s)"; }
 	virtual QString get_children_serialize_name() const { return "plotted"; }
 
-
 protected:
 	void serialize_write(PVCore::PVSerializeObject& so);
 	void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
@@ -113,7 +118,7 @@ private:
 	void create_table();
 
 protected:
-	PVCore::PVListFloat2D trans_table;
+	mapped_table_t _trans_table;
 	PVMapping_p _mapping;
 };
 

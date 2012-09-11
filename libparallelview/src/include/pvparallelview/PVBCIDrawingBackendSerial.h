@@ -115,9 +115,13 @@ public:
 			PVLOG_INFO("Cancel group %d with %d jobs..\n", g, jobs.size());
 			drawing_job job;
 			while (!jobs.empty()) {
-				jobs.try_pop(job);
-				// Call cleaning func
-				job.get_cleaning_func()();
+				if (jobs.try_pop(job)) {
+					// Call cleaning func
+					std::function<void()> cfunc = job.get_cleaning_func();
+					if (cfunc) {
+						cfunc();
+					}
+				}
 			}
 		}
 	}

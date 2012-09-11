@@ -202,13 +202,12 @@ public:
 		draw_bci(dst_img, x_start, width, bci_buf, ncodes, zoom_y, reverse,
 				[=]
 				{
-					cleaning_func();
+					if (cleaning_func) {
+						cleaning_func();
+					}
 					PVZonesDrawingBase::_computed_codes.return_buffer<Bbits>(bci_buf);
 				},
-				[=]
-				{
-					drawing_done();
-				},
+				drawing_done,
 				rgrp);
 
 	}

@@ -8,15 +8,26 @@
 #include <pvkernel/core/network.h>
 #include <pvkernel/core/dumbnet.h>
 
-float Picviz::PVMappingFilterIPv4Default::operator()(QString const& value)
+Picviz::PVMappingFilter::decimal_storage_type* Picviz::PVMappingFilterIPv4Default::operator()(PVRush::PVNraw::const_trans_nraw_table_line const& values)
 {
-	uint32_t intval = 0;
-	if (!PVCore::Network::ipv4_aton(value, intval)) {
-		//PVLOG_ERROR("ipv4_mapping: IPv4 address %s has an invalid format. Returns 0\n", qPrintable(value));
-		return 0;
+	assert(_dest);
+	assert(values.size() >= _dest_size);
+
+	const ssize_t size = values.size();
+	
+#pragma omp parallel
+	{
+		QString stmp;
+#pragma omp parallel for
+		for (ssize_t i = 0; i < size; i++) {
+			values[i].get_qstr(stmp);
+			uint32_t res = 0;
+			PVCore::Network::ipv4_aton(stmp, res);
+			_dest[i].storage_as_uint() = res;
+		}
 	}
 
-	return (float)intval;
+	return _dest;
 }
 
 IMPL_FILTER_NOPARAM(Picviz::PVMappingFilterIPv4Default)
