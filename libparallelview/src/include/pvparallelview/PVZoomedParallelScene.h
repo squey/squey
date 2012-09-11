@@ -151,6 +151,7 @@ private:
 	PVRenderingJob                *_rendering_job;
 	QFuture<void>                  _rendering_future;
 	QTimer                         _scroll_timer;
+	render_group_t                 _render_group;
 
 	// about selection in the zoom view
 	QPointF                        _selection_rect_pos;
@@ -158,11 +159,8 @@ private:
 
 	// about rendering invalidation
 	render_t                       _render_type;
-	int                            _rendering_zone_number;
-	int                            _rendered_zone_count;
-
-	// Rendering gorup
-	render_group_t                 _render_grp;
+	int                            _renderable_zone_number;
+	int                            _updated_selection_count;
 };
 
 }
