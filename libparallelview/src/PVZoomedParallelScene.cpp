@@ -369,16 +369,8 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 			int zoom_level = get_zoom_level();
 
 			std::atomic_int needed_rendering_count(0);
-			int needed_rendering_number;
-
-			if (_render_type == RENDER_ALL) {
-				needed_rendering_number = _renderable_zone_number * 2;
-			} else {
-				needed_rendering_number = _renderable_zone_number;
-			}
-
-			QSemaphore sem(needed_rendering_number);
-			sem.acquire(needed_rendering_number);
+			int needed_rendering_number = 0;
+			QSemaphore sem(0);
 
 #if 0
 			// a second to slow the rendering
@@ -390,7 +382,8 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 			BENCH_START(full_render);
 
 			if (_left_zone) {
-				if (_render_type == RENDER_ALL) {
+				if (_render_type == RENDER_ALL && !_rendering_job->should_cancel()) {
+					++needed_rendering_number;
 					BENCH_START(render);
 					_zones_drawing.draw_zoomed_zone(_left_zone->context,
 					                                *(_left_zone->bg_image), y_min, y_max, y_lim,
@@ -406,24 +399,28 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 					BENCH_END(render, "LEFT background", 1, 1, 1, 1);
 				}
 
-				BENCH_START(sel_render);
-				_zones_drawing.draw_zoomed_zone_sel(_left_zone->context,
-				                                    *(_left_zone->sel_image),
-				                                    y_min, y_max, y_lim, _selection,
-				                                    zoom_level, _axis - 1,
-				                                    &PVZoomedZoneTree::browse_bci_sel_by_y2,
-				                                    alpha, beta, true,
-				                                    [&] {
-					                                    sem.release(1);
-				                                    },
-				                                    [&] {
-					                                    ++needed_rendering_count;
-				                                    }, _render_group);
-				BENCH_END(sel_render, "LEFT selection", 1, 1, 1, 1);
+				if (!_rendering_job->should_cancel()) {
+					++needed_rendering_number;
+					BENCH_START(sel_render);
+					_zones_drawing.draw_zoomed_zone_sel(_left_zone->context,
+					                                    *(_left_zone->sel_image),
+					                                    y_min, y_max, y_lim, _selection,
+					                                    zoom_level, _axis - 1,
+					                                    &PVZoomedZoneTree::browse_bci_sel_by_y2,
+					                                    alpha, beta, true,
+					                                    [&] {
+						                                    sem.release(1);
+					                                    },
+					                                    [&] {
+						                                    ++needed_rendering_count;
+					                                    }, _render_group);
+					BENCH_END(sel_render, "LEFT selection", 1, 1, 1, 1);
+				}
 			}
 
 			if (_right_zone) {
-				if (_render_type == RENDER_ALL) {
+				if (_render_type == RENDER_ALL && !_rendering_job->should_cancel()) {
+					++needed_rendering_number;
 					BENCH_START(render);
 					_zones_drawing.draw_zoomed_zone(_right_zone->context,
 				                                    *(_right_zone->bg_image), y_min, y_max, y_lim,
@@ -439,20 +436,23 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 					BENCH_END(render, "RIGHT background", 1, 1, 1, 1);
 				}
 
-				BENCH_START(sel_render);
-				_zones_drawing.draw_zoomed_zone_sel(_right_zone->context,
-				                                    *(_right_zone->sel_image),
-				                                    y_min, y_max, y_lim, _selection,
-				                                    zoom_level, _axis,
-				                                    &PVZoomedZoneTree::browse_bci_sel_by_y1,
-				                                    alpha, beta, false,
-					                                [&] {
-						                                sem.release(1);
-					                                },
-					                                [&] {
-						                                ++needed_rendering_count;
-				                                    }, _render_group);
-				BENCH_END(sel_render, "RIGHT selection", 1, 1, 1, 1);
+				if (!_rendering_job->should_cancel()) {
+					++needed_rendering_number;
+					BENCH_START(sel_render);
+					_zones_drawing.draw_zoomed_zone_sel(_right_zone->context,
+					                                    *(_right_zone->sel_image),
+					                                    y_min, y_max, y_lim, _selection,
+					                                    zoom_level, _axis,
+					                                    &PVZoomedZoneTree::browse_bci_sel_by_y1,
+					                                    alpha, beta, false,
+					                                    [&] {
+						                                    sem.release(1);
+					                                    },
+					                                    [&] {
+						                                    ++needed_rendering_count;
+					                                    }, _render_group);
+					BENCH_END(sel_render, "RIGHT selection", 1, 1, 1, 1);
+				}
 			}
 
 			sem.acquire(needed_rendering_number);
