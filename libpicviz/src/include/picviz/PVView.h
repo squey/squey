@@ -98,8 +98,6 @@ public:
 	PVStateMachine *state_machine;
 	PVSelection volatile_selection;
 	int last_extractor_batch_size;
-    
-    QMutex gl_call_locker;
 
 	inline PVSelection& get_floating_selection() { return floating_selection; }
 	inline PVSelection& get_volatile_selection() { return volatile_selection; }

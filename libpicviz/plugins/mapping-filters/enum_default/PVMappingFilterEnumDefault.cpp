@@ -31,35 +31,25 @@ void Picviz::PVMappingFilterEnumDefault::set_args(PVCore::PVArgumentList const& 
 	_case_sensitive = !args["convert-lowercase"].toBool();
 }
 
-float Picviz::PVMappingFilterEnumDefault::_enum_position_factorize(qlonglong enumber)
+uint32_t Picviz::PVMappingFilterEnumDefault::_enum_position_factorize(uint32_t v)
 {
-	float res = 0;
-#ifdef WIN32
-	int N = _logb(enumber);
-#else
-	int N = ilogb(enumber);
-#endif
+	// From http://graphics.stanford.edu/~seander/bithacks.html#ReverseByteWith64BitsDiv
+	
+	// swap odd and even bits
+	v = ((v >> 1) & 0x55555555) | ((v & 0x55555555) << 1);
+	// swap consecutive pairs
+	v = ((v >> 2) & 0x33333333) | ((v & 0x33333333) << 2);
+	// swap nibbles ... 
+	v = ((v >> 4) & 0x0F0F0F0F) | ((v & 0x0F0F0F0F) << 4);
+	// swap bytes
+	v = ((v >> 8) & 0x00FF00FF) | ((v & 0x00FF00FF) << 8);
+	// swap 2-byte long pairs
+	v = ( v >> 16             ) | ( v               << 16);
 
-	int i;
-	int x = enumber;
-
-	if ( ! enumber) return -1;
-	
-	for (i = 0; i != N+1; i++) {
-		if (x%2 == 0) {
-			res = 2 * res;
-		} else {
-			res = 1+2*res;
-		}
-		x = x >> 1;
-	}
-	
-	res = res / (float)pow((float)2, (int)N+1);
-	
-	return res;
+	return v;
 }
 
-float* Picviz::PVMappingFilterEnumDefault::operator()(PVRush::PVNraw::const_trans_nraw_table_line const& values)
+Picviz::PVMappingFilter::decimal_storage_type* Picviz::PVMappingFilterEnumDefault::operator()(PVRush::PVNraw::const_trans_nraw_table_line const& values)
 {
 	if (_case_sensitive) {
 		return process<hash_values>(values);

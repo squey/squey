@@ -8,15 +8,16 @@
 #include <pvkernel/core/stdint.h>
 
 Picviz::PVPlottingFilter::PVPlottingFilter() :
-	PVFilter::PVFilterFunctionBase<float*, float*>(),
-	PVCore::PVRegistrableClass<Picviz::PVPlottingFilter>()
+	PVFilter::PVFilterFunctionBase<uint32_t*, mapped_decimal_storage_type const*>(),
+	PVCore::PVRegistrableClass<Picviz::PVPlottingFilter>(),
+	_decimal_type(PVCore::FloatType)
 {
 	_dest = NULL;
 	_dest_size = 0;
 	_mandatory_params = NULL;
 }
 
-float* Picviz::PVPlottingFilter::operator()(float* values)
+uint32_t* Picviz::PVPlottingFilter::operator()(mapped_decimal_storage_type const* values)
 {
 	assert(values);
 	assert(_dest);
@@ -31,7 +32,7 @@ float* Picviz::PVPlottingFilter::operator()(float* values)
 	return _dest;
 }
 
-float Picviz::PVPlottingFilter::operator()(float /*value*/)
+uint32_t Picviz::PVPlottingFilter::operator()(mapped_decimal_storage_type const /*value*/)
 {
 	PVLOG_WARN("In default plotting filter: returns 0 !\n");
 	return 0;
@@ -42,7 +43,7 @@ void Picviz::PVPlottingFilter::set_mapping_mode(QString const& mode)
 	_mapping_mode = mode;
 }
 
-void Picviz::PVPlottingFilter::set_dest_array(PVRow size, float* array)
+void Picviz::PVPlottingFilter::set_dest_array(PVRow size, uint32_t* array)
 {
 	assert(array);
 	_dest_size = size;
@@ -100,4 +101,44 @@ QString Picviz::PVPlottingFilter::mode_from_registered_name(QString const& rn)
 QString Picviz::PVPlottingFilter::get_human_name() const
 {
 	return mode_from_registered_name(registered_name());
+}
+
+void Picviz::PVPlottingFilter::copy_mapped_to_plotted(mapped_decimal_storage_type const* value)
+{
+	switch (_decimal_type)
+	{
+		case PVCore::UnsignedIntegerType:
+		{
+			// Direct copy. Vectorized by GCC
+			uint32_t const* const vint = &value->storage_as_uint();
+			for (size_t i = 0; i < _dest_size; i++) {
+				_dest[i] = vint[i];
+			}
+			break;
+		}
+		case PVCore::IntegerType:
+		{
+			// Change signed integer so that -2**31 is zero.
+			// TODO: check that GCC vectorize this!
+			uint32_t const* const vint = &value->storage_as_uint();
+			for (size_t i = 0; i < _dest_size; i++) {
+				const uint32_t v = vint[i];
+				_dest[i] = ((~v) & 0x80000000) | (v & 0x7FFFFFFF);
+			}
+			break;
+		}
+		case PVCore::FloatType:
+		{
+			// Pretty basic for now, and not really interesting..
+			float const* const vfloat = &value->storage_as_float();
+			// That should also be vectorized!
+			for (size_t i = 0; i < _dest_size; i++) {
+				_dest[i] = (uint32_t) vfloat[i];
+			}
+			break;
+		}
+		default:
+			assert(false);
+			break;
+	}
 }

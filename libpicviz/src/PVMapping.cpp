@@ -98,7 +98,11 @@ Picviz::PVMappingFilter::p_type Picviz::PVMapping::get_filter_for_col(PVCol col)
 	return columns.at(col).get_mapping_filter();
 }
 
-
+PVCore::DecimalType Picviz::PVMapping::get_decimal_type_of_col(PVCol const j) const
+{
+	assert(j < columns.size());
+	return columns[j].get_mapping_filter()->get_decimal_type();
+}
 
 /******************************************************************************
  *

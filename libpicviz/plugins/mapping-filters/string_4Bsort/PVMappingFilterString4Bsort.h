@@ -18,12 +18,11 @@ namespace Picviz {
 class PVMappingFilterString4Bsort: public PVMappingFilter
 {
 public:
-	float* operator()(PVRush::PVNraw::const_trans_nraw_table_line const& values);
+	decimal_storage_type* operator()(PVRush::PVNraw::const_trans_nraw_table_line const& values);
 	QString get_human_name() const { return QString("Pseudo-sort on the first 4 bytes"); }
+	PVCore::DecimalType get_decimal_type() const override { return PVCore::UnsignedIntegerType; }
 
 protected:
-	static float compute_str_factor(QString const& str);
-
 	CLASS_FILTER(PVMappingFilterString4Bsort)
 };
 

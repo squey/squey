@@ -61,11 +61,11 @@ void Picviz::PVMapped::create_table()
 {
 	PVRush::PVNraw::nraw_table& qt_nraw = get_qtnraw();
 
-	const PVRow nrows = (PVRow)qt_nraw.get_nrows();
+	const PVRow nrows = (PVRow) qt_nraw.get_nrows();
 	const PVCol ncols = (PVCol) qt_nraw.get_ncols();
 	
 	tbb::tick_count tstart = tbb::tick_count::now();
-	trans_table.reserve(nrows,ncols);
+	_trans_table.reserve(ncols, nrows);
 
 	// This will use the trans_table of the nraw
 	
@@ -120,7 +120,7 @@ void Picviz::PVMapped::create_table()
 			}
 
 			// Let's make our mapping
-			mapping_filter->set_dest_array(nrows, trans_table.getRowData(j));
+			mapping_filter->set_dest_array(nrows, get_column_pointer(j));
 			//mapping_filter->set_axis(j, *get_format());
 			// Get the group specific value if relevant
 			QString group_key = _mapping->get_group_key_for_col(j);
@@ -139,7 +139,8 @@ void Picviz::PVMapped::create_table()
 			boost::this_thread::interruption_point();
 			for (it_pmf = mand_mapping_filters.begin(); it_pmf != mand_mapping_filters.end(); it_pmf++) {
 				(*it_pmf)->set_dest_params(params_map);
-				(*it_pmf)->operator()(Picviz::mandatory_param_list_values(&fields, trans_table.getRowData(j)));
+				(*it_pmf)->set_decimal_type(mapping_filter->get_decimal_type());
+				(*it_pmf)->operator()(Picviz::mandatory_param_list_values(&fields, get_column_pointer(j)));
 			}
 			tmap_end = tbb::tick_count::now();
 
@@ -167,18 +168,29 @@ void Picviz::PVMapped::create_table()
  * Picviz::PVMapped::to_csv
  *
  *****************************************************************************/
+namespace Picviz { namespace __impl {
+struct to_csv_value_holder
+{
+	template <typename T>
+	static void call(Picviz::PVMapped::mapped_table_t const& trans_table, PVRow const i, PVCol const j)
+	{
+		std::cout << trans_table.at(j,i).storage_cast<T>();
+	}
+};
+} }
+
 void Picviz::PVMapped::to_csv()
 {
 	// WARNING: this is all but efficient. Uses this for testing and
 	// debugging purpose only !
-	for (PVRow i = 0; i < (PVRow) trans_table.getWidth(); i++) {
-		for (PVCol j = 0; j < (PVCol) trans_table.getHeight(); j++) {
-			std::cout << trans_table.getValue(j,i);
-			if (j!=(PVCol)(trans_table.getHeight()-1)) {
+	for (PVRow i = 0; i < _trans_table.get_width(); i++) {
+		for (PVCol j = 0; j < _trans_table.get_height(); j++) {
+			decimal_storage_type::call_from_type<__impl::to_csv_value_holder>(get_decimal_type_of_col(j), _trans_table, i, j);
+			if (j != (_trans_table.get_height()-1)) {
 				std::cout << ",";
 			}
 		}
-			std::cout << "\n";
+		std::cout << "\n";
 	}
 }
 
@@ -197,25 +209,41 @@ PVRush::PVFormat_p Picviz::PVMapped::get_format() const
  * Picviz::PVMapped::get_sub_col_minmax
  *
  *****************************************************************************/
-void Picviz::PVMapped::get_sub_col_minmax(mapped_sub_col_t& ret, float& min, float& max, PVSelection const& sel, PVCol col) const
+namespace Picviz { namespace __impl {
+struct get_sub_col_minmax_holder
 {
-	min = FLT_MAX;
-	max = 0;
+	template <typename T>
+	static void call(Picviz::PVMapped::mapped_sub_col_t& ret, Picviz::PVMapped::decimal_storage_type& min, Picviz::PVMapped::decimal_storage_type& max, Picviz::PVSelection const& sel, PVCol const col, Picviz::PVMapped::mapped_table_t const& trans_table)
+	{
+		min.set_max<T>();
+		max.set_min<T>();
+
+		const Picviz::PVMapped::decimal_storage_type* mapped_values = trans_table.get_row_ptr(col);
+		T& max_cast = max.storage_cast<T>();
+		T& min_cast = min.storage_cast<T>();
+		sel.visit_selected_lines([&](PVRow const i){
+			const Picviz::PVMapped::decimal_storage_type v = mapped_values[i];
+			const T v_cast = v.storage_cast<T>();
+			if (v_cast > max_cast) {
+				max_cast = v_cast;
+			}
+			if (v_cast < min_cast) {
+				min_cast = v_cast;
+			}
+			ret.push_back(Picviz::PVMapped::mapped_sub_col_t::value_type(i, v));
+		},
+		trans_table.get_width());
+	}
+};
+} }
+
+void Picviz::PVMapped::get_sub_col_minmax(mapped_sub_col_t& ret, decimal_storage_type& min, decimal_storage_type& max, PVSelection const& sel, PVCol const col) const
+{
+	PVCore::DecimalType const type_col = get_decimal_type_of_col(col);
 	PVRow size = get_qtnraw().get_nrows();
 	ret.reserve(sel.get_number_of_selected_lines_in_range(0, size-1));
-	const float* mapped_values = trans_table.getRowData(col);
-	for (PVRow i = 0; i < size; i++) {
-		if (sel.get_line(i)) {
-			const float v = mapped_values[i];
-			if (v > max) {
-			   max = v;
-			}
-	 		if (v < min) {
-				min = v;
-			}		
-			ret.push_back(mapped_sub_col_t::value_type(i, v));
-		}
-	}
+
+	decimal_storage_type::call_from_type<__impl::get_sub_col_minmax_holder>(type_col, ret, min, max, sel, col, _trans_table);
 }
 
 /******************************************************************************
@@ -250,7 +278,7 @@ void Picviz::PVMapped::clear_trans_nraw()
  *****************************************************************************/
 PVRow Picviz::PVMapped::get_row_count() const
 {
-	return trans_table.getWidth();
+	return _trans_table.get_width();
 }
 
 /******************************************************************************
@@ -260,7 +288,7 @@ PVRow Picviz::PVMapped::get_row_count() const
  *****************************************************************************/
 PVCol Picviz::PVMapped::get_column_count() const
 {
-	return trans_table.getHeight();
+	return _trans_table.get_height();
 }
 
 void Picviz::PVMapped::add_column(PVMappingProperties const& props)
@@ -294,12 +322,13 @@ void Picviz::PVMapped::invalidate_all()
 	_mapping->invalidate_all();
 }
 
-QList<PVCol> Picviz::PVMapped::get_columns_indexes_values_within_range(float min, float max, double rate)
+QList<PVCol> Picviz::PVMapped::get_columns_indexes_values_within_range(decimal_storage_type const min, decimal_storage_type const max, double rate)
 {
 	const PVRow nrows = get_row_count();
 	const PVCol ncols = get_column_count();
 	QList<PVCol> cols_ret;
 
+#if 0
 	if (min > max) {
 		return cols_ret;
 	}
@@ -319,15 +348,18 @@ QList<PVCol> Picviz::PVMapped::get_columns_indexes_values_within_range(float min
 			cols_ret << j;
 		}
 	}
+#endif
 
 	return cols_ret;
 }
 
-QList<PVCol> Picviz::PVMapped::get_columns_indexes_values_not_within_range(float min, float max, double rate)
+QList<PVCol> Picviz::PVMapped::get_columns_indexes_values_not_within_range(decimal_storage_type const min, decimal_storage_type const max, double rate)
 {
 	const PVRow nrows = get_row_count();
 	const PVCol ncols = get_column_count();
 	QList<PVCol> cols_ret;
+
+#if 0
 
 	if (min > max) {
 		return cols_ret;
@@ -348,6 +380,7 @@ QList<PVCol> Picviz::PVMapped::get_columns_indexes_values_not_within_range(float
 			cols_ret << j;
 		}
 	}
+#endif
 
 	return cols_ret;
 }

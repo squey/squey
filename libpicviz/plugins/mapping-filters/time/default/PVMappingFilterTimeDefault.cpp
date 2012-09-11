@@ -39,7 +39,7 @@ DEFAULT_ARGS_FILTER(Picviz::PVMappingFilterTimeDefault)
 	return args;
 }
 
-float* Picviz::PVMappingFilterTimeDefault::operator()(PVRush::PVNraw::const_trans_nraw_table_line const& values)
+Picviz::PVMappingFilter::decimal_storage_type* Picviz::PVMappingFilterTimeDefault::operator()(PVRush::PVNraw::const_trans_nraw_table_line const& values)
 {
 	assert(_dest);
 	assert(values.size() >= _dest_size);
@@ -77,7 +77,7 @@ float* Picviz::PVMappingFilterTimeDefault::operator()(PVRush::PVNraw::const_tran
 		PVCore::PVDateTimeParser &dtpars = *(dtparsers[thread_num]);
 		PVCore::PVUnicodeString const v(values[i]);
 		if (v.size() == 0) {
-			_dest[i] = 0;
+			_dest[i].storage_as_int() = 0;
 			continue;
 		}
 		bool ret = dtpars.mapping_time_to_cal(v, cal);
@@ -88,12 +88,12 @@ float* Picviz::PVMappingFilterTimeDefault::operator()(PVRush::PVNraw::const_tran
 				PVLOG_WARN("(time-mapping) unable to map time string %s. Returns 0 !\n", qPrintable(v));
 			}
 			*/
-			_dest[i] = 0;
+			_dest[i].storage_as_int() = 0;
 			continue;
 		}
 
 		bool success;
-		_dest[i] = cal_to_float(cal, success);
+		_dest[i].storage_as_int() = cal_to_int(cal, success);
 		if (!success) {
 			/*
 #pragma omp critical
@@ -101,7 +101,7 @@ float* Picviz::PVMappingFilterTimeDefault::operator()(PVRush::PVNraw::const_tran
 				PVLOG_WARN("(time-mapping) unable to map time string %s: one field is missing. Returns 0 !\n", qPrintable(v));
 			}
 			*/
-			_dest[i] = 0;
+			_dest[i].storage_as_int() = 0;
 			continue;
 		}
 	}
@@ -119,10 +119,10 @@ float* Picviz::PVMappingFilterTimeDefault::operator()(PVRush::PVNraw::const_tran
 	return _dest;
 }
 
-float Picviz::PVMappingFilterTimeDefault::cal_to_float(Calendar* cal, bool& success)
+int32_t Picviz::PVMappingFilterTimeDefault::cal_to_int(Calendar* cal, bool& success)
 {
 	UErrorCode err = U_ZERO_ERROR;
-	float ret = cal->getTime(err);
+	int32_t ret = (int32_t) cal->getTime(err);
 	success = U_SUCCESS(err);
 	return ret;
 }

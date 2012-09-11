@@ -16,9 +16,9 @@ namespace Picviz {
 class PVMappingFilterTime24h: public PVMappingFilterTimeDefault
 {
 public:
-	QString get_human_name() const { return QString("24 hours"); }
+	QString get_human_name() const override { return QString("24 hours"); }
 protected:
-	float cal_to_float(Calendar* cal, bool& success); 
+	int32_t cal_to_int(Calendar* cal, bool& success) override;
 
 	CLASS_REGISTRABLE(PVMappingFilterTime24h)
 };

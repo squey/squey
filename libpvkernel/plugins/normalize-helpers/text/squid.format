@@ -12,13 +12,13 @@
     </axis>
    </field>
    <field>
-    <axis titlecolor="#ffffff" tag="key" time-format="" group="" type="enum" name="Response Code" color="#ffffff" time-sample="">
+    <axis titlecolor="#ffffff" tag="key" time-format="" group="" type="integer" name="Response Code" color="#ffffff" time-sample="">
      <mapping mode="default"/>
      <plotting mode="default"/>
     </axis>
    </field>
    <field>
-    <axis titlecolor="#ffffff" time-format="" group="" type="enum" name="Request" color="#ffffff">
+    <axis titlecolor="#ffffff" time-format="" group="" type="string" name="Request" color="#ffffff">
      <mapping mode="default"/>
      <plotting mode="default"/>
     </axis>
@@ -50,13 +50,13 @@
     </axis>
    </field>
    <field>
-    <axis titlecolor="#ffffff" tag="key" time-format="" group="" type="enum" name="User" color="#ffffff" time-sample="">
+    <axis titlecolor="#ffffff" tag="key" time-format="" group="" type="string" name="User" color="#ffffff" time-sample="">
      <mapping mode="default"/>
      <plotting mode="default"/>
     </axis>
    </field>
    <field>
-    <axis titlecolor="#ffffff" tag="" time-format="" group="" type="enum" name="Method" color="#ffffff" time-sample="">
+    <axis titlecolor="#ffffff" tag="" time-format="" group="" type="string" name="Method" color="#ffffff" time-sample="">
      <mapping mode="default"/>
      <plotting mode="default"/>
     </axis>
