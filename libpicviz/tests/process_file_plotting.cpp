@@ -4,6 +4,7 @@
  * Copyright (C) Picviz Labs 2010-2012
  */
 
+#include <pvkernel/core/picviz_intrin.h>
 #include <pvkernel/filter/PVPluginsLoad.h>
 #include <pvkernel/rush/PVInputType.h>
 #include <pvkernel/rush/PVPluginsLoad.h>
@@ -67,6 +68,7 @@ int main(int argc, char** argv)
 	PVLOG_INFO("Extracted %u lines...\n", src->get_row_count());
 #endif
 	init_env();
+	PVCore::PVIntrinsics::init_cpuid();
 	QCoreApplication app(argc, argv);
 	PVFilter::PVPluginsLoad::load_all_plugins();
 	PVRush::PVPluginsLoad::load_all_plugins();

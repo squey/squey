@@ -32,7 +32,7 @@ DEFAULT_ARGS_FILTER(Picviz::PVMappingFilterStringSort)
 	return args;
 }
 
-float* Picviz::PVMappingFilterStringSort::operator()(PVRush::PVNraw::const_trans_nraw_table_line const& values)
+Picviz::PVMappingFilter::decimal_storage_type* Picviz::PVMappingFilterStringSort::operator()(PVRush::PVNraw::const_trans_nraw_table_line const& values)
 {
 	assert(_dest);
 	assert(values.size() >= _dest_size);
@@ -44,16 +44,17 @@ float* Picviz::PVMappingFilterStringSort::operator()(PVRush::PVNraw::const_trans
 	// Pre-conversion and save the original index
 	vec_conv_sort_t v_local;
 	v_local.reserve(values.size());
+	QString stmp;
 	for (size_t i = 0; i < values.size(); i++) {
-		v_local.push_back(str_local_index(values[i].get_qstr().toLocal8Bit(),i));
+		v_local.push_back(str_local_index(values[i].get_qstr(stmp).toLocal8Bit(),i));
 	}
 
 	tbb::parallel_sort(v_local.begin(), v_local.end(), compLocal);
 
 	QByteArray prev;
-	uint64_t cur_index = 0;
-	uint64_t size = v_local.size();
-	for (size_t i = 0; i < v_local.size(); i++) {
+	uint32_t cur_index = 0;
+	const size_t size = v_local.size();
+	for (size_t i = 0; i < size; i++) {
 		str_local_index const& v = v_local[i];
 		QByteArray const& str_local = v.first;
 		uint64_t org_index = v.second;
@@ -61,7 +62,7 @@ float* Picviz::PVMappingFilterStringSort::operator()(PVRush::PVNraw::const_trans
 			cur_index++;
 			prev = str_local;
 		}
-		_dest[org_index] = (float)cur_index/(float)size;
+		_dest[org_index].storage_as_uint() = cur_index;
 	}
 
 	return _dest;

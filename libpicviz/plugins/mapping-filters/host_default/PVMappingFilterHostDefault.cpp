@@ -47,39 +47,49 @@ void Picviz::PVMappingFilterHostDefault::set_args(PVCore::PVArgumentList const& 
 	_case_sensitive = !args["convert-lowercase"].toBool();
 }
 
-float* Picviz::PVMappingFilterHostDefault::operator()(PVRush::PVNraw::const_trans_nraw_table_line const& values)
+Picviz::PVMappingFilter::decimal_storage_type* Picviz::PVMappingFilterHostDefault::operator()(PVRush::PVNraw::const_trans_nraw_table_line const& values)
 {
 	assert(_dest);
 	assert(values.size() >= _dest_size);
 
 	int64_t ssize = values.size();
-	//vec_conv_sort_t v_local;
-	//v_local.reserve(ssize);
-	float max_str = STRING_MAX_YVAL;
+	uint32_t max_str = 0;
+	uint32_t min_str = UINT_MAX;
 	list_indexes str_idxes;
 	str_idxes.reserve(ssize);
+	QString v;
 	for (int64_t i = 0; i < ssize; i++) {
-		QString v = values[i].get_qstr();
+		values[i].get_qstr(v);
 		uint32_t ipv4_v;
 		if (PVCore::Network::ipv4_aton(v, ipv4_v)) {
 			// IPv4 are mapped from 0 to 0.5
-			_dest[i] = (float) (((double)ipv4_v/(double)(PICVIZ_IPV4_MAXVAL))/((double)2.0));
+			_dest[i].storage_as_uint() = ipv4_v>>1;
 		}
 		else {
-			float res = PVCore::PVStringUtils::compute_str_factor(values[i].get_qstr(), _case_sensitive); 
+			uint32_t res = PVCore::PVStringUtils::compute_str_factor(values[i], _case_sensitive); 
 			if (res > max_str) {
 				max_str = res;
 			}
-			_dest[i] = res;
+			if (res < min_str) {
+				min_str = res;
+			}
+			_dest[i].storage_as_uint() = res;
 			str_idxes.push_back(i);
-			//v_local.push_back(str_local_index(v.toLocal8Bit(),i));
 		}
 	}
 
 	list_indexes::const_iterator it;
-	max_str *= 2.0;
-	for (it = str_idxes.begin(); it != str_idxes.end(); it++) {
-		_dest[*it] = _dest[*it]/max_str + 0.5;
+	const uint64_t diff = max_str-min_str;
+	if (diff == 0) {
+		for (it = str_idxes.begin(); it != str_idxes.end(); it++) {
+			_dest[*it].storage_as_uint() = 0x80000000UL;
+		}
+	}
+	else {
+		for (it = str_idxes.begin(); it != str_idxes.end(); it++) {
+			uint32_t& dest_v = _dest[*it].storage_as_uint();
+			dest_v = ((uint32_t) (((uint64_t)(dest_v-min_str) * (uint64_t)((UINT_MAX)>>1))/diff)) | 0x80000000UL;
+		}
 	}
 
 #if 0 // Too slow for now, need improvements

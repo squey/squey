@@ -18,4 +18,5 @@ LibCPPExport void register_class()
 	REGISTER_CLASS("enum_default", Picviz::PVPlottingFilterNoprocess);
 	REGISTER_CLASS("host_default", Picviz::PVPlottingFilterNoprocess);
 	REGISTER_CLASS("user-defined_default", Picviz::PVPlottingFilterNoprocess);
+	REGISTER_CLASS("ipv4_default", Picviz::PVPlottingFilterNoprocess);
 }

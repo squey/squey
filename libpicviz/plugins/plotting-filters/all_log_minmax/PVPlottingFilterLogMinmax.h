@@ -18,17 +18,17 @@ public:
 	PVPlottingFilterLogMinmax(PVCore::PVArgumentList const& args = PVPlottingFilterLogMinmax::default_args());
 
 public:
-	float* operator()(float* value);
-	void init_expand(float min, float max);
-	float expand_plotted(float value) const;
-	QString get_human_name() const { return QString("Logarithmic min/max"); }
+	uint32_t* operator()(mapped_decimal_storage_type const* value) override;
+	void init_expand(uint32_t min, uint32_t max) override;
+	uint32_t expand_plotted(uint32_t value) const override;
+	QString get_human_name() const override { return QString("Logarithmic min/max"); }
 	bool can_expand() const { return true; }
 
 private:
-	float _expand_min;
-	float _expand_max;
-	float _expand_diff;
-	float _offset;
+	double _expand_min;
+	double _expand_max;
+	double _expand_diff;
+	uint32_t _offset;
 
 	CLASS_FILTER(PVPlottingFilterLogMinmax)
 };

@@ -4,7 +4,7 @@
 # Copyright (C) Picviz Labs 2010-2012
 
 include_directories(AFTER ${ICU_INCLUDE})
-add_definitions(-ftree-vectorizer-verbose=2)
+add_definitions(-ftree-vectorizer-verbose=4)
 
 # if(WIN32)
 # 	set(PVCORE_LIBRARY pvcore)
@@ -127,3 +127,7 @@ target_link_libraries(Tcore_shared_ptr_fwd ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES}
 # Raid0
 add_executable(Tcore_raid_test raid_test.cpp)
 target_link_libraries(Tcore_raid_test ${PVKERNEL_LIBRARIES})
+
+# Decimal storage
+add_executable(Tcore_decimal_storage decimal_storage.cpp)
+target_link_libraries(Tcore_decimal_storage ${PVKERNEL_LIBRARIES})

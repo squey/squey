@@ -59,23 +59,13 @@ int Picviz::PVPlotted::create_table()
 	const PVCol mapped_col_count = get_column_count();
 	const PVRow nrows = get_row_count();
 
-	// That buffer will be about 3.8MB for 10 million lines, so we keep it
-	// to save some allocations.
-	_tmp_values.reserve(nrows);
-	float* p_tmp_v = &_tmp_values[0];
-	
-	_table.resize(mapped_col_count * nrows);
-
-	// Futur and only plotted, transposed normalized unisnged integer.
+	// Transposed normalized unisnged integer.
 	// Align the number of lines on a mulitple of 4, in order to have 16-byte aligned starting adresses for each axis
 	
 	const PVRow nrows_aligned = get_aligned_row_count();
 	_uint_table.resize(mapped_col_count * nrows_aligned);
 	
 	tbb::tick_count tstart = tbb::tick_count::now();
-	
-	// We will use the trans_table of PVMapped and write "in live" in
-	// the "table" of PVPlotted
 	
 	// Create our own plugins from the library
 	std::vector<PVPlottingFilter::p_type> plotting_filters;
@@ -102,30 +92,16 @@ int Picviz::PVPlotted::create_table()
 
 			plotting_filter->set_mapping_mode(get_parent()->get_mapping()->get_mode_for_col(j));
 			plotting_filter->set_mandatory_params(get_parent()->get_mapping()->get_mandatory_params_for_col(j));
-			plotting_filter->set_dest_array(nrows, p_tmp_v);
+			plotting_filter->set_dest_array(nrows, get_column_pointer(j));
+			plotting_filter->set_decimal_type(get_parent()->get_decimal_type_of_col(j));
 			boost::this_thread::interruption_point();
 			tbb::tick_count plstart = tbb::tick_count::now();
-			plotting_filter->operator()(get_parent()->trans_table.getRowData(j));
+			plotting_filter->operator()(get_parent()->get_column_pointer(j));
 			tbb::tick_count plend = tbb::tick_count::now();
-			int64_t nrows_tmp = nrows;
 
 			PVLOG_INFO("(PVPlotted::create_table) parallel plotting for axis %d took %0.4f seconds, plugin was %s.\n", j, (plend-plstart).seconds(), qPrintable(plotting_filter->registered_name()));
 
 			boost::this_thread::interruption_point();
-//#pragma omp parallel for
-			for (int64_t i = 0; i < nrows_tmp; i++) {
-				float v = p_tmp_v[i];
-				_table[i*mapped_col_count+j] = v;
-				_uint_table[j*nrows_aligned + i] = (uint32_t) ((double)v * (double)UINT_MAX);
-
-#ifndef NDEBUG
-				// Check that every plotted value is between 0 and 1
-				if (v > 1 || v < 0) {
-					PVLOG_WARN("Plotting value for row/col %d/%d is %0.4f !\n", i,j,v);
-				}
-#endif
-			}
-
 			_plotting->set_uptodate_for_col(j);
 		}
 		PVLOG_INFO("(PVPlotted::create_table) end parallel plotting\n");
@@ -155,6 +131,7 @@ void Picviz::PVPlotted::expand_selection_on_axis(PVSelection const& sel, PVCol a
 	// Recompute a part of the plotted by expanding a selection through the whole axis
 	//
 	
+#if 0
 	// Get axis type
 	QString plugin = _plotting->get_properties_for_col(axis_id).get_type() + "_" + mode;
 	PVPlottingFilter::p_type filter = LIB_CLASS(PVPlottingFilter)::get().get_class_by_name(plugin);
@@ -179,6 +156,7 @@ void Picviz::PVPlotted::expand_selection_on_axis(PVSelection const& sel, PVCol a
 	if (add) {
 		_expanded_sels.push_back(ExpandedSelection(axis_id, sel, mode));
 	}
+#endif
 }
 
 bool Picviz::PVPlotted::dump_buffer_to_file(QString const& file, bool write_as_transposed) const
@@ -199,21 +177,104 @@ bool Picviz::PVPlotted::dump_buffer_to_file(QString const& file, bool write_as_t
 	f.write((const char*) &ncols, sizeof(ncols));
 	f.write((const char*) &write_as_transposed, sizeof(bool));
 
-	const float* buf_to_write = &_table[0];
-	PVCore::PVMatrix<float, PVCol, PVRow> transp_plotted;
-	if (write_as_transposed) {
-		PVCore::PVMatrix<float, PVRow, PVCol> matrix_plotted;
-		matrix_plotted.set_raw_buffer((float*) buf_to_write, get_row_count(), get_column_count());
-		matrix_plotted.transpose_to(transp_plotted);
-		buf_to_write = transp_plotted.get_row_ptr(0);
+	const uint32_t* buf_to_write = get_column_pointer(0);
+	PVCore::PVMatrix<uint32_t, PVRow, PVCol> plotted;
+	if (!write_as_transposed) {
+		PVCore::PVMatrix<uint32_t, PVCol, PVRow> matrix_plotted;
+		matrix_plotted.set_raw_buffer((uint32_t*) buf_to_write, get_column_count(), get_aligned_row_count());
+		matrix_plotted.transpose_to(plotted);
+		buf_to_write = plotted.get_row_ptr(0);
 	}
 	
-	ssize_t sbuf = _table.size()*sizeof(float);
-	if (f.write((const char*) buf_to_write, sbuf) != sbuf) {
-		PVLOG_ERROR("Error while writing '%s': %s.\n", qPrintable(file), qPrintable(f.errorString()));
-		return false;
+	const ssize_t sbuf_col = get_row_count()*sizeof(uint32_t);
+	for (PVCol j = 0; j < get_column_count(); j++) {
+		if (f.write((const char*) get_column_pointer(j), sbuf_col) != sbuf_col) {
+			PVLOG_ERROR("Error while writing '%s': %s.\n", qPrintable(file), qPrintable(f.errorString()));
+			return false;
+		}
 	}
 	f.close();
+
+	return true;
+}
+
+bool Picviz::PVPlotted::load_buffer_from_file(uint_plotted_table_t& buf, PVRow& nrows, PVCol& ncols, bool get_transposed_version, QString const& file)
+{
+	ncols = 0;
+
+	FILE* f = fopen(qPrintable(file), "r");
+	if (!f) {
+		PVLOG_ERROR("Error while opening %s for writing: %s.\n", qPrintable(file), strerror(errno));
+		return false;
+	}
+
+	static_assert(sizeof(off_t) == sizeof(uint64_t), "sizeof(off_t) != sizeof(uint64_t). Please define -D_FILE_OFFSET_BITS=64");
+
+	// Get file size
+	fseek(f, 0, SEEK_END);
+	const uint64_t fsize = ftello(f);
+	fseek(f, 0, SEEK_SET);
+
+	ssize_t size_buf = fsize-sizeof(PVCol)-sizeof(bool);
+	if (size_buf <= 0) {
+		fclose(f);
+		PVLOG_ERROR("File is too small to be valid !\n");
+		return false;
+	}
+
+	if (fread((void*) &ncols, sizeof(PVCol), 1, f) != 1) {
+		PVLOG_ERROR("File is too small to be valid !\n");
+		fclose(f);
+		return false;
+	}
+	bool is_transposed = false;
+	if (fread((char*) &is_transposed, sizeof(bool), 1, f) != 1) {
+		PVLOG_ERROR("Error while reading '%s': %s.\n", qPrintable(file), strerror(errno));
+		fclose(f);
+		return false;
+	}
+
+	bool must_transpose = (is_transposed != get_transposed_version);
+
+	const size_t nuints = size_buf/sizeof(uint32_t);
+	nrows = nuints/ncols;
+	const size_t nrows_aligned = ((nrows+PVROW_VECTOR_ALIGNEMENT-1)/(PVROW_VECTOR_ALIGNEMENT))*PVROW_VECTOR_ALIGNEMENT;
+	const size_t size_read_col = nrows*sizeof(uint32_t);
+	buf.resize(nrows_aligned*ncols);
+
+	PVLOG_INFO("(Picviz::load_buffer_from_file) number of cols: %d , nuint: %u, nrows: %u\n", ncols, nuints, nuints/ncols);
+
+	uint32_t* dest_buf = &buf[0];
+	if (must_transpose) {
+		dest_buf = (uint32_t*) malloc(nrows_aligned*ncols*sizeof(uint32_t));
+	}
+
+	for (PVCol j = 0; j < ncols; j++) {
+		if (fread((void*) &dest_buf[j*nrows_aligned], sizeof(uint32_t), nrows, f) != nrows) {
+			PVLOG_ERROR("Error while reading '%s': %s.\n", qPrintable(file), strerror(errno));
+			return false;
+		}
+	}
+
+	if (must_transpose) {
+		if (is_transposed) {
+			PVCore::PVMatrix<uint32_t, PVCol, PVRow> final;
+			PVCore::PVMatrix<uint32_t, PVRow, PVCol> org;
+			org.set_raw_buffer(dest_buf, nrows, ncols);
+			
+			org.transpose_to(final);
+		}
+		else {
+			PVCore::PVMatrix<uint32_t, PVCol, PVRow> org;
+			PVCore::PVMatrix<uint32_t, PVRow, PVCol> final;
+			org.set_raw_buffer(dest_buf, nrows_aligned, ncols);
+			final.set_raw_buffer(&buf[0], ncols, nrows_aligned);
+			org.transpose_to(final);
+		}
+		free(dest_buf);
+	}
+
+	fclose(f);
 
 	return true;
 }
@@ -315,11 +376,6 @@ const PVRush::PVNraw::nraw_table& Picviz::PVPlotted::get_qtnraw() const
 	return get_parent<PVSource>()->get_qtnraw();
 }
 
-float Picviz::PVPlotted::get_value(PVRow row, PVCol col) const
-{
-	return _table[row * get_column_count() + col];
-}
-
 void Picviz::PVPlotted::to_csv()
 {
 	PVRow row_count;
@@ -351,14 +407,11 @@ QList<PVCol> Picviz::PVPlotted::get_singleton_columns_indexes()
 	}
 
 	for (PVCol j = 0; j < ncols; j++) {
-		//const float* values = trans_table.getRowData(j);
-		//const float ref_v = values[0];
-		// Well, that's completely cache non-optimised, as we're reading the table in the wrong side.
-		// But, with 2GB a table of 50 columnsx10 million lines, can we afford to keep the transposed version ?
-		const float ref_v = _table[j];
+		const uint32_t* cplotted = get_column_pointer(j);
+		const uint32_t ref_v = cplotted[0];
 		bool all_same = true;
 		for (PVRow i = 1; i < nrows; i++) {
-			if (_table[ncols*i+j] != ref_v) {
+			if (cplotted[i] != ref_v) {
 				all_same = false;
 				break;
 			}
@@ -371,7 +424,7 @@ QList<PVCol> Picviz::PVPlotted::get_singleton_columns_indexes()
 	return cols_ret;
 }
 
-QList<PVCol> Picviz::PVPlotted::get_columns_indexes_values_within_range(float min, float max, double rate)
+QList<PVCol> Picviz::PVPlotted::get_columns_indexes_values_within_range(uint32_t min, uint32_t max, double rate)
 {
 	const PVRow nrows = get_row_count();
 	const PVCol ncols = get_column_count();
@@ -384,10 +437,9 @@ QList<PVCol> Picviz::PVPlotted::get_columns_indexes_values_within_range(float mi
 	double nrows_d = (double) nrows;
 	for (PVCol j = 0; j < ncols; j++) {
 		PVRow nmatch = 0;
-		//const float* values = trans_table.getRowData(j);
+		const uint32_t* cplotted = get_column_pointer(j);
 		for (PVRow i = 0; i < nrows; i++) {
-			//const float v = values[i];
-			const float v = _table[ncols*i+j];
+			const uint32_t v = cplotted[i];
 			if (v >= min && v <= max) {
 				nmatch++;
 			}
@@ -400,7 +452,7 @@ QList<PVCol> Picviz::PVPlotted::get_columns_indexes_values_within_range(float mi
 	return cols_ret;
 }
 
-QList<PVCol> Picviz::PVPlotted::get_columns_indexes_values_not_within_range(float min, float max, double rate)
+QList<PVCol> Picviz::PVPlotted::get_columns_indexes_values_not_within_range(uint32_t const min, uint32_t const max, double rate)
 {
 	const PVRow nrows = get_row_count();
 	const PVCol ncols = get_column_count();
@@ -413,10 +465,9 @@ QList<PVCol> Picviz::PVPlotted::get_columns_indexes_values_not_within_range(floa
 	double nrows_d = (double) nrows;
 	for (PVCol j = 0; j < ncols; j++) {
 		PVRow nmatch = 0;
-		//const float* values = trans_table.getRowData(j);
+		const uint32_t* cplotted = get_column_pointer(j);
 		for (PVRow i = 0; i < nrows; i++) {
-			//const float v = values[i];
-			const float v = _table[ncols*i+j];
+			const uint32_t v = cplotted[i];
 			if (v < min || v > max) {
 				nmatch++;
 			}
@@ -429,6 +480,7 @@ QList<PVCol> Picviz::PVPlotted::get_columns_indexes_values_not_within_range(floa
 	return cols_ret;
 }
 
+#if 0
 void Picviz::PVPlotted::get_sub_col_minmax(plotted_sub_col_t& ret, float& min, float& max, PVSelection const& sel, PVCol col) const
 {
 	min = FLT_MAX;
@@ -448,27 +500,27 @@ void Picviz::PVPlotted::get_sub_col_minmax(plotted_sub_col_t& ret, float& min, f
 		}
 	}
 }
+#endif
 
 void Picviz::PVPlotted::get_col_minmax(PVRow& min, PVRow& max, PVSelection const& sel, PVCol col) const
 {
-	float vmin,vmax;
-	vmin = FLT_MAX;
+	uint32_t vmin,vmax;
+	vmin = UINT_MAX;
 	vmax = 0;
 	min = 0;
 	max = 0;
-	for (PVRow i = 0; i < get_qtnraw().get_nrows(); i++) {
-		if (sel.get_line(i)) {
-			float v = get_value(i, col);
-			if (v > vmax) {
-				vmax = v;
-				max = i;
-			}
-			if (v < vmin) {
-				vmin = v;
-				min = i;
-			}		
+	const PVRow nrows = get_qtnraw().get_nrows();
+	sel.visit_selected_lines([&](PVRow i) {
+		const uint32_t v = this->get_value(i, col);
+		if (v > vmax) {
+			vmax = v;
+			max = i;
 		}
-	}
+		if (v < vmin) {
+			vmin = v;
+			min = i;
+		}
+	}, nrows);
 }
 
 void Picviz::PVPlotted::process_parent_mapped()

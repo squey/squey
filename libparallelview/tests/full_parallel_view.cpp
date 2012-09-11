@@ -55,8 +55,9 @@ int main(int argc, char** argv)
 
 	QApplication app(argc, argv);
 
-	PVCol ncols, nrows;
-	Picviz::PVPlotted::plotted_table_t plotted;
+	PVCol ncols;
+	PVRow nrows;
+	Picviz::PVPlotted::uint_plotted_table_t norm_plotted;
 	QString fplotted(argv[1]);
 	if (fplotted == "0") {
 		if (argc < 4) {
@@ -73,15 +74,14 @@ int main(int argc, char** argv)
 
 		ncols = atol(argv[3]);
 
-		init_rand_plotted(plotted, nrows, ncols);
+		//init_rand_plotted(plotted, nrows, ncols);
 	}
 	else
 	{
-		if (!Picviz::PVPlotted::load_buffer_from_file(plotted, ncols, true, QString(argv[1]))) {
+		if (!Picviz::PVPlotted::load_buffer_from_file(norm_plotted, nrows, ncols, true, QString(argv[1]))) {
 			std::cerr << "Unable to load plotted !" << std::endl;
 			return 1;
 		}
-		nrows = plotted.size()/ncols;
 
 		if (nrows > PICVIZ_LINES_MAX) {
 			std::cerr << "nrows is too big (max is " << PICVIZ_LINES_MAX << ")" << std::endl;
@@ -91,10 +91,10 @@ int main(int argc, char** argv)
 
 	PVCore::PVHSVColor* colors = PVCore::PVHSVColor::init_colors(nrows);
 
-	Picviz::PVPlotted::uint_plotted_table_t norm_plotted;
-	BENCH_START(norm);
-	Picviz::PVPlotted::norm_int_plotted(plotted, norm_plotted, ncols);
-	BENCH_END_TRANSFORM(norm, "integer normalisation", sizeof(float), nrows*ncols);
+	//Picviz::PVPlotted::uint_plotted_table_t norm_plotted;
+	//BENCH_START(norm);
+	//Picviz::PVPlotted::norm_int_plotted(plotted, norm_plotted, ncols);
+	//BENCH_END_TRANSFORM(norm, "integer normalisation", sizeof(float), nrows*ncols);
 
 	// Zone Manager
 	/*PVParallelView::PVZonesManager &zm = *(new PVParallelView::PVZonesManager());

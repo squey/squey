@@ -31,9 +31,9 @@ void Picviz::PVMappingFilterEnumDefault::set_args(PVCore::PVArgumentList const& 
 	_case_sensitive = !args["convert-lowercase"].toBool();
 }
 
-float Picviz::PVMappingFilterEnumDefault::_enum_position_factorize(qlonglong enumber)
+uint32_t Picviz::PVMappingFilterEnumDefault::_enum_position_factorize(qlonglong enumber)
 {
-	float res = 0;
+	uint32_t res = 0;
 #ifdef WIN32
 	int N = _logb(enumber);
 #else
@@ -46,7 +46,7 @@ float Picviz::PVMappingFilterEnumDefault::_enum_position_factorize(qlonglong enu
 	if ( ! enumber) return -1;
 	
 	for (i = 0; i != N+1; i++) {
-		if (x%2 == 0) {
+		if ((x&1) == 0) {
 			res = 2 * res;
 		} else {
 			res = 1+2*res;
@@ -54,12 +54,10 @@ float Picviz::PVMappingFilterEnumDefault::_enum_position_factorize(qlonglong enu
 		x = x >> 1;
 	}
 	
-	res = res / (float)pow((float)2, (int)N+1);
-	
-	return res;
+	return res >> (N+1);
 }
 
-float* Picviz::PVMappingFilterEnumDefault::operator()(PVRush::PVNraw::const_trans_nraw_table_line const& values)
+Picviz::PVMappingFilter::decimal_storage_type* Picviz::PVMappingFilterEnumDefault::operator()(PVRush::PVNraw::const_trans_nraw_table_line const& values)
 {
 	if (_case_sensitive) {
 		return process<hash_values>(values);
