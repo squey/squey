@@ -154,17 +154,17 @@ public:
 	                               const float beta = 1.0f) const
 	{
 #ifdef BROWSE_TBB
-		return browse_tree_bci_by_y1_tbb(ctx, y_min, y_max, y_lim, zoom, width,
+		return browse_trees_bci_by_y1_tbb(ctx, y_min, y_max, y_lim, zoom, width,
 #else
-		return browse_tree_bci_by_y1(ctx, y_min, y_max, y_lim, zoom, width,
+		return browse_trees_bci_by_y1_seq(ctx, y_min, y_max, y_lim, zoom, width,
 #endif
-		                             [&](const pvquadtree &tree,
-		                                 PVQuadTreeEntry* entries) -> size_t
-		                             {
-			                             return tree.get_first_from_y1(y_min, y_max,
-			                                                           zoom, entries);
-		                             },
-		                             colors, codes, beta);
+		                                  [&](const pvquadtree &tree,
+		                                      PVQuadTreeEntry* entries) -> size_t
+		                                  {
+			                                  return tree.get_first_from_y1(y_min, y_max,
+			                                                                zoom, entries);
+		                                  },
+		                                  colors, codes, beta);
 	}
 
 	inline size_t browse_bci_by_y2(context_t &ctx,
@@ -175,19 +175,18 @@ public:
 	                               const float beta = 1.0f) const
 	{
 #ifdef BROWSE_TBB
-		return browse_tree_bci_by_y2_tbb(ctx, y_min, y_max, y_lim, zoom, width,
+		return browse_trees_bci_by_y2_tbb(ctx, y_min, y_max, y_lim, zoom, width,
 #else
-		return browse_tree_bci_by_y2(ctx, y_min, y_max, y_lim, zoom, width,
+		return browse_trees_bci_by_y2_seq(ctx, y_min, y_max, y_lim, zoom, width,
 #endif
-		                             [&](const pvquadtree &tree,
-		                                 PVQuadTreeEntry* entries) -> size_t
-		                             {
-			                             return tree.get_first_from_y2(y_min, y_max,
-			                                                           zoom, entries);
-		                             },
-		                             colors, codes, beta);
+		                                  [&](const pvquadtree &tree,
+		                                      PVQuadTreeEntry* entries) -> size_t
+		                                  {
+			                                  return tree.get_first_from_y2(y_min, y_max,
+			                                                                zoom, entries);
+		                                  },
+		                                  colors, codes, beta);
 	}
-
 
 	inline size_t browse_bci_sel_by_y1(context_t &ctx,
 	                                   uint64_t y_min, uint64_t y_max, uint64_t y_lim,
@@ -198,18 +197,18 @@ public:
 	                                   const float beta = 1.0f) const
 	{
 #ifdef BROWSE_TBB
-		return browse_tree_bci_by_y1_tbb(ctx, y_min, y_max, y_lim, zoom, width,
+		return browse_trees_bci_by_y1_tbb(ctx, y_min, y_max, y_lim, zoom, width,
 #else
-		return browse_tree_bci_by_y1(ctx, y_min, y_max, y_lim, zoom, width,
+		return browse_trees_bci_by_y1_seq(ctx, y_min, y_max, y_lim, zoom, width,
 #endif
-		                             [&](const pvquadtree &tree,
-		                                 PVQuadTreeEntry* entries) -> size_t
-		                             {
-			                             return tree.get_first_sel_from_y1(y_min, y_max,
-			                                                               selection,
-			                                                               zoom, entries);
-		                             },
-		                             colors, codes, beta, true);
+		                                  [&](const pvquadtree &tree,
+		                                      PVQuadTreeEntry* entries) -> size_t
+		                                  {
+			                                  return tree.get_first_sel_from_y1(y_min, y_max,
+			                                                                    selection,
+			                                                                    zoom, entries);
+		                                  },
+		                                  colors, codes, beta, true);
 	}
 
 	inline size_t browse_bci_sel_by_y2(context_t &ctx,
@@ -221,22 +220,19 @@ public:
 	                                   const float beta = 1.0f) const
 	{
 #ifdef BROWSE_TBB
-		return browse_tree_bci_by_y2_tbb(ctx, y_min, y_max, y_lim, zoom, width,
+		return browse_trees_bci_by_y2_tbb(ctx, y_min, y_max, y_lim, zoom, width,
 #else
-		return browse_tree_bci_by_y2(ctx, y_min, y_max, y_lim, zoom, width,
+		return browse_trees_bci_by_y2_seq(ctx, y_min, y_max, y_lim, zoom, width,
 #endif
-		                             [&](const pvquadtree &tree,
-		                                 PVQuadTreeEntry* entries) -> size_t
-		                             {
-			                             return tree.get_first_sel_from_y2(y_min, y_max,
-			                                                               selection,
-			                                                               zoom, entries);
-		                             },
-		                             colors, codes, beta, true);
+		                                  [&](const pvquadtree &tree,
+		                                      PVQuadTreeEntry* entries) -> size_t
+		                                  {
+			                                  return tree.get_first_sel_from_y2(y_min, y_max,
+			                                                                    selection,
+			                                                                    zoom, entries);
+		                                  },
+		                                  colors, codes, beta, true);
 	}
-
-
-
 
 	// needed for test program quadtree_browse
 	inline size_t browse_bci_by_y1_seq(context_t &ctx,
@@ -246,14 +242,14 @@ public:
 	                                   pv_bci_code_t *codes,
 	                                   const float beta = 1.0f) const
 	{
-		return browse_tree_bci_by_y1(ctx, y_min, y_max, y_lim, zoom, width,
-		                             [&](const pvquadtree &tree,
-		                                 PVQuadTreeEntry* entries) -> size_t
-		                             {
-			                             return tree.get_first_from_y1(y_min, y_max,
-			                                                           zoom, entries);
-		                             },
-		                             colors, codes, beta);
+		return browse_trees_bci_by_y1_seq(ctx, y_min, y_max, y_lim, zoom, width,
+		                                  [&](const pvquadtree &tree,
+		                                      PVQuadTreeEntry* entries) -> size_t
+		                                  {
+			                                  return tree.get_first_from_y1(y_min, y_max,
+			                                                                zoom, entries);
+		                                  },
+		                                  colors, codes, beta);
 	}
 
 	inline size_t browse_bci_by_y1_tbb(context_t &ctx,
@@ -263,48 +259,82 @@ public:
 	                                   pv_bci_code_t *codes,
 	                                   const float beta = 1.0f) const
 	{
-		return browse_tree_bci_by_y1_tbb(ctx, y_min, y_max, y_lim, zoom, width,
-		                                 [&](const pvquadtree &tree,
-		                                     PVQuadTreeEntry* entries) -> size_t
-		                                 {
-			                                 return tree.get_first_from_y1(y_min, y_max,
-			                                                               zoom, entries);
-		                                 },
-		                                 colors, codes, beta);
+		return browse_trees_bci_by_y1_tbb(ctx, y_min, y_max, y_lim, zoom, width,
+		                                  [&](const pvquadtree &tree,
+		                                      PVQuadTreeEntry* entries) -> size_t
+		                                  {
+			                                  return tree.get_first_from_y1(y_min, y_max,
+			                                                                zoom, entries);
+		                                  },
+		                                  colors, codes, beta);
+	}
+
+	inline size_t browse_bci_by_y2_seq(context_t &ctx,
+	                                   uint64_t y_min, uint64_t y_max, uint64_t y_lim,
+	                                   int zoom, uint32_t width,
+	                                   const PVCore::PVHSVColor *colors,
+	                                   pv_bci_code_t *codes,
+	                                   const float beta = 1.0f) const
+	{
+		return browse_trees_bci_by_y2_seq(ctx, y_min, y_max, y_lim, zoom, width,
+		                                  [&](const pvquadtree &tree,
+		                                      PVQuadTreeEntry* entries) -> size_t
+		                                  {
+			                                  return tree.get_first_from_y2(y_min, y_max,
+			                                                                zoom, entries);
+		                                  },
+		                                  colors, codes, beta);
+	}
+
+	inline size_t browse_bci_by_y2_tbb(context_t &ctx,
+	                                   uint64_t y_min, uint64_t y_max, uint64_t y_lim,
+	                                   int zoom, uint32_t width,
+	                                   const PVCore::PVHSVColor *colors,
+	                                   pv_bci_code_t *codes,
+	                                   const float beta = 1.0f) const
+	{
+		return browse_trees_bci_by_y2_tbb(ctx, y_min, y_max, y_lim, zoom, width,
+		                                  [&](const pvquadtree &tree,
+		                                      PVQuadTreeEntry* entries) -> size_t
+		                                  {
+			                                  return tree.get_first_from_y2(y_min, y_max,
+			                                                                zoom, entries);
+		                                  },
+		                                  colors, codes, beta);
 	}
 
 private:
-	size_t browse_tree_bci_by_y1(context_t &ctx,
-	                             uint64_t y_min, uint64_t y_max, uint64_t y_lim, int zoom,
-	                             uint32_t width,
-	                             const extract_entry_f &extract_entry,
-	                             const PVCore::PVHSVColor *colors, pv_bci_code_t *codes,
-	                             const float beta = 1.0f,
-	                             const bool use_sel = false) const;
+	size_t browse_trees_bci_by_y1_seq(context_t &ctx,
+	                                  uint64_t y_min, uint64_t y_max, uint64_t y_lim, int zoom,
+	                                  uint32_t width,
+	                                  const extract_entry_f &extract_entry,
+	                                  const PVCore::PVHSVColor *colors, pv_bci_code_t *codes,
+	                                  const float beta = 1.0f,
+	                                  const bool use_sel = false) const;
 
-	size_t browse_tree_bci_by_y2(context_t &ctx,
-	                             uint64_t y_min, uint64_t y_max, uint64_t y_lim, int zoom,
-	                             uint32_t width,
-	                             const extract_entry_f &extract_entry,
-	                             const PVCore::PVHSVColor *colors, pv_bci_code_t *codes,
-	                             const float beta = 1.0f,
-	                             const bool use_sel = false) const;
+	size_t browse_trees_bci_by_y2_seq(context_t &ctx,
+	                                  uint64_t y_min, uint64_t y_max, uint64_t y_lim, int zoom,
+	                                  uint32_t width,
+	                                  const extract_entry_f &extract_entry,
+	                                  const PVCore::PVHSVColor *colors, pv_bci_code_t *codes,
+	                                  const float beta = 1.0f,
+	                                  const bool use_sel = false) const;
 
-	size_t browse_tree_bci_by_y1_tbb(context_t &ctx,
-	                                 uint64_t y_min, uint64_t y_max, uint64_t y_lim, int zoom,
-	                                 uint32_t width,
-	                                 const extract_entry_f &extract_entry,
-	                                 const PVCore::PVHSVColor *colors, pv_bci_code_t *codes,
-	                                 const float beta = 1.0f,
-	                                 const bool use_sel = false) const;
+	size_t browse_trees_bci_by_y1_tbb(context_t &ctx,
+	                                  uint64_t y_min, uint64_t y_max, uint64_t y_lim, int zoom,
+	                                  uint32_t width,
+	                                  const extract_entry_f &extract_entry,
+	                                  const PVCore::PVHSVColor *colors, pv_bci_code_t *codes,
+	                                  const float beta = 1.0f,
+	                                  const bool use_sel = false) const;
 
-	size_t browse_tree_bci_by_y2_tbb(context_t &ctx,
-	                                 uint64_t y_min, uint64_t y_max, uint64_t y_lim, int zoom,
-	                                 uint32_t width,
-	                                 const extract_entry_f &extract_entry,
-	                                 const PVCore::PVHSVColor *colors, pv_bci_code_t *codes,
-	                                 const float beta = 1.0f,
-	                                 const bool use_sel = false) const;
+	size_t browse_trees_bci_by_y2_tbb(context_t &ctx,
+	                                  uint64_t y_min, uint64_t y_max, uint64_t y_lim, int zoom,
+	                                  uint32_t width,
+	                                  const extract_entry_f &extract_entry,
+	                                  const PVCore::PVHSVColor *colors, pv_bci_code_t *codes,
+	                                  const float beta = 1.0f,
+	                                  const bool use_sel = false) const;
 
 	inline uint32_t compute_index(uint32_t y1, uint32_t y2) const
 	{
