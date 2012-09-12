@@ -58,7 +58,7 @@ public:
 	typedef QHash<QString,PVCore::PVArgumentList> map_filter_arguments;
 	typedef int32_t id_t;
 	
-protected:
+public:
 	PVView();
 
 public:
@@ -161,6 +161,8 @@ public:
 
 	inline PVLayer const& get_current_layer() const { return layer_stack.get_selected_layer(); }
 	inline PVLayer& get_current_layer() { return layer_stack.get_selected_layer(); }
+
+	inline PVCore::PVHSVColor const* get_output_layer_color_buffer() const { return output_layer.get_lines_properties().get_buffer(); }
 	
 	bool get_line_state_in_layer_stack_output_layer(PVRow index);
 	bool get_line_state_in_layer_stack_output_layer(PVRow index) const;

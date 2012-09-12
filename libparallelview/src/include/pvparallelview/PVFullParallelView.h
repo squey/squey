@@ -28,7 +28,7 @@ class PVFullParallelView : public QGraphicsView
 	Q_OBJECT
 
 public:
-	PVFullParallelView(PVFullParallelScene* scene);
+	PVFullParallelView(QWidget* parent = NULL);
 
 	void paintEvent(QPaintEvent *event);
 

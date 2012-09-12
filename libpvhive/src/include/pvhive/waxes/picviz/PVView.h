@@ -1,5 +1,5 @@
-#ifndef PVHIVE_WAXES_PICVIZ_PVVIEW
-#define PVHIVE_WAXES_PICVIZ_PVVIEW
+#ifndef PVHIVE_WAXES_PICVIZ_PVVIEW_H
+#define PVHIVE_WAXES_PICVIZ_PVVIEW_H
 
 #include <pvhive/PVWax.h>
 #include <picviz/PVView.h>

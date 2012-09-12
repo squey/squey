@@ -56,6 +56,7 @@ public:
 	 *
 	 * @param r The index of the line (its row number)
 	 */
+	inline PVCore::PVHSVColor const* get_buffer() const { return &_table[0]; }
 	inline PVCore::PVHSVColor& get_line_properties(const PVRow r) { return _table[r]; }
 	inline const PVCore::PVHSVColor get_line_properties(const PVRow r) const { return _table[r]; }
 

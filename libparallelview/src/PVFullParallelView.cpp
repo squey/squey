@@ -10,9 +10,9 @@
 #include <QGLWidget>
 
 
-PVParallelView::PVFullParallelView::PVFullParallelView(PVFullParallelScene* scene)
+PVParallelView::PVFullParallelView::PVFullParallelView(QWidget* parent):
+	QGraphicsView(parent)
 {
-	setScene(scene);
 	setViewport(new QWidget());
 	resize(1920, 1600);
 	setViewportUpdateMode(QGraphicsView::FullViewportUpdate);

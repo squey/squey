@@ -35,7 +35,7 @@ class PVZonesDrawing;
 
 class PVLinesView
 {
-	constexpr static size_t bbits = NBITS_INDEX;
+	constexpr static size_t bbits = PARALLELVIEW_ZT_BBITS;
 
 public:
 	typedef PVZonesDrawing<bbits> zones_drawing_t;

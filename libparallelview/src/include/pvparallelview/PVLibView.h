@@ -7,16 +7,14 @@
 #ifndef PVPARALLELVIEW_PVLIBVIEW_H
 #define PVPARALLELVIEW_PVLIBVIEW_H
 
-#include <picviz/FakePVView.h>
+#include <picviz/PVView_types.h>
 
-#include <pvhive/PVFuncObserver.h>
+#include <pvhive/PVObserverSignal.h>
 #include <pvhive/PVCallHelper.h>
 
 #include <pvparallelview/PVFullParallelScene.h>
 #include <pvparallelview/PVZoomedParallelScene.h>
 #include <pvparallelview/PVZonesManager.h>
-
-#include <pvparallelview/PVBCIDrawingBackendCUDA.h>
 
 #include <tbb/task.h>
 
@@ -34,55 +32,35 @@ private:
 	friend class process_selection_Observer;
 
 public:
-	PVLibView(Picviz::FakePVView::shared_pointer& view_sp, PVCore::PVHSVColor *colors);
+	PVLibView(Picviz::PVView_sp& view_sp);
+	// For testing purpose
+	PVLibView(Picviz::PVView_sp& view_sp, Picviz::PVPlotted::uint_plotted_table_t const& plotted, PVRow nrows, PVCol ncols);
 	~PVLibView();
 
 public:
-	void create_view(PVParallelView::PVLinesView::zones_drawing_t::bci_backend_t& bci_backend)
-	{
-		_parallel_views.emplace_back(_view_sp, _zones_manager, bci_backend, task_root());
-		_parallel_views.back().first_render();
-	}
-
-	template <typename Backend>
-	void create_zoomed_scene(PVParallelView::PVZoomedParallelView *zpv,
-	                         PVCol axis)
-	{
-		Backend &zoom_backend = *(new Backend);
-		PVParallelView::PVZoomedParallelScene::zones_drawing_t &zzd =
-			*(new PVParallelView::PVZoomedParallelScene::zones_drawing_t(_zones_manager,
-			                                                             zoom_backend,
-			                                                             *_colors));
-		_zoomed_parallel_scenes.emplace_back(zpv, _view_sp, zzd, axis);
-		zpv->setScene(&_zoomed_parallel_scenes.back());
-	}
-
+	PVFullParallelView* create_view(QWidget* parent = NULL);
+	PVZoomedParallelView* create_zoomed_view(PVCol const axis, QWidget* parent = NULL);
 	PVZonesManager& get_zones_manager() { return _zones_manager; }
 
+protected slots:
+	void selection_updated();
+	void view_about_to_be_deleted();
+
 protected:
+	void common_init_view(Picviz::PVView_sp& view_sp);
+	Picviz::PVView* lib_view() { return _obs_view->get_object(); }
 	tbb::task* task_root() { return _task_root; }
 	tbb::task_group_context& task_group_context() { return _tasks_ctxt; }
 
 private:
-	class process_selection_Observer: public PVHive::PVFuncObserverSignal<Picviz::FakePVView, FUNC(Picviz::FakePVView::process_selection)>
-	{
-		public:
-			process_selection_Observer(PVLibView* parent) : _parent(parent) {}
-		protected:
-			virtual void update(arguments_deep_copy_type const& args) const;
-		private:
-			PVLibView* _parent;
-	};
-
-private:
-	PVZonesManager                      _zones_manager;
-	process_selection_Observer         *_process_selection_observer;
-	views_list_t                        _parallel_views;
-	zoomed_scene_list_t                 _zoomed_parallel_scenes;
-	Picviz::FakePVView::shared_pointer &_view_sp;
-	PVCore::PVHSVColor                 *_colors;
-	tbb::task                          *_task_root;
-	tbb::task_group_context             _tasks_ctxt;
+	PVZonesManager                            _zones_manager;
+	PVHive::PVObserver_p<Picviz::PVLayer>     _obs_output_layer;
+	PVHive::PVObserver_p<Picviz::PVView>      _obs_view;
+	views_list_t                              _parallel_scenes;
+	zoomed_scene_list_t                       _zoomed_parallel_scenes;
+	PVCore::PVHSVColor                 const* _colors;
+	tbb::task                                *_task_root;
+	tbb::task_group_context                   _tasks_ctxt;
 
 };
 

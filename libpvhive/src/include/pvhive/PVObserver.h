@@ -9,6 +9,7 @@
 
 #include <cassert>
 #include <pvhive/PVObserverObjectBase.h>
+#include <boost/shared_ptr.hpp>
 
 namespace PVHive
 {
@@ -71,6 +72,9 @@ public:
 		return reinterpret_cast<T*>(PVObserverBase::get_object());
 	}
 };
+
+template <typename T>
+using PVObserver_p = boost::shared_ptr<PVObserver<T> >;
 
 }
 

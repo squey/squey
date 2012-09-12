@@ -8,12 +8,16 @@
 #include <QGLWidget>
 #include <iostream>
 
-#include <pvparallelview/common.h>
 #include <pvkernel/core/picviz_bench.h>
+
 #include <picviz/PVPlotted.h>
+#include <picviz/PVView.h>
+
+#include <pvparallelview/common.h>
 #include <pvparallelview/PVBCICode.h>
 #include <pvparallelview/PVBCIBackendImage.h>
 #include <pvparallelview/PVBCIDrawingBackendCUDA.h>
+#include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVZonesDrawing.h>
 #include <pvparallelview/PVZonesManager.h>
 #include <pvparallelview/PVLinesView.h>
@@ -57,6 +61,7 @@ int main(int argc, char** argv)
 
 	PVCol ncols;
 	PVRow nrows;
+
 	Picviz::PVPlotted::uint_plotted_table_t norm_plotted;
 	QString fplotted(argv[1]);
 	if (fplotted == "0") {
@@ -108,27 +113,19 @@ int main(int argc, char** argv)
 		}
 	}
 
-	PVCore::PVHSVColor* colors = PVCore::PVHSVColor::init_colors(nrows);
+	//PVCore::PVHSVColor* colors = PVCore::PVHSVColor::init_colors(nrows);
 
-	// Zone Manager
-	/*PVParallelView::PVZonesManager &zm = *(new PVParallelView::PVZonesManager());
-	zm.set_uint_plotted(norm_plotted, nrows, ncols);
-	zm.update_all();*/
+	Picviz::PVView_sp fake_view(new Picviz::PVView());
+	fake_view->reset_layers();
 
-	PVParallelView::PVBCIDrawingBackendCUDA<NBITS_INDEX> backend_cuda;
-	Picviz::FakePVView::shared_pointer fake_pvview_sp(new Picviz::FakePVView());
-
-	PVParallelView::PVLibView lib_view(fake_pvview_sp, colors);
-
-	/// TODO: Find a better way to pass the plotted to the zones manager
-	lib_view.get_zones_manager().set_uint_plotted(norm_plotted, nrows, ncols);
-	lib_view.get_zones_manager().update_all();
-	///
-
-	lib_view.create_view(backend_cuda);
+	PVParallelView::common::init<PVParallelView::PVBCIDrawingBackendCUDA>();
+	PVParallelView::PVLibView* plib_view = PVParallelView::common::get_lib_view(*fake_view, norm_plotted, nrows, ncols);
+	plib_view->get_zones_manager().update_all();
+	plib_view->create_view();
 
 	app.exec();
 
+	PVParallelView::common::release();
 
 	return 0;
 }

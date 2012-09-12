@@ -28,6 +28,7 @@ add_definitions(${OpenMP_CXX_FLAGS})
 SET(SRC_FILES
 PVBCIBuffers.cpp
 PVBCIDrawingEngineCuda.cpp
+PVParallelView.cpp
 PVTools.cpp
 PVZoomedZoneTree.cpp
 PVZoomedParallelScene.cpp
@@ -59,6 +60,7 @@ include/pvparallelview/PVBCICode.h
 include/pvparallelview/PVBCode.h
 include/pvparallelview/PVContainerZoneTree.h
 include/pvparallelview/PVLinesView.h
+include/pvparallelview/PVParallelView.h
 include/pvparallelview/PVPODBlockContainer.h
 include/pvparallelview/PVQuadTree.h
 include/pvparallelview/PVTools.h

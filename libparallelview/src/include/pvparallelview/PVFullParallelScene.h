@@ -12,16 +12,17 @@
 #include <QGraphicsSceneWheelEvent>
 
 #include <picviz/PVAxis.h>
+#include <picviz/PVView_types.h>
+
 #include <pvparallelview/PVSelectionSquareGraphicsItem.h>
 #include <pvparallelview/PVSelectionGenerator.h>
 #include <pvparallelview/PVAxisGraphicsItem.h>
 #include <pvparallelview/PVFullParallelView.h>
 #include <pvparallelview/PVLinesView.h>
 
+#include <pvhive/PVActor.h>
 #include <pvhive/PVCallHelper.h>
 #include <pvhive/PVFuncObserver.h>
-
-#include <picviz/FakePVView.h>
 
 #include <tbb/task_group.h>
 
@@ -41,7 +42,7 @@ class PVFullParallelScene : public QGraphicsScene
 	friend class draw_zone_sel_Observer;
 	friend class process_selection_Observer;
 public:
-	PVFullParallelScene(Picviz::FakePVView::shared_pointer view_sp, PVParallelView::PVZonesManager& zm, PVParallelView::PVLinesView::zones_drawing_t::bci_backend_t& bci_backend, tbb::task* root_sel);
+	PVFullParallelScene(PVFullParallelView* parallel_view, Picviz::PVView_sp& view_sp, PVParallelView::PVZonesManager& zm, PVParallelView::PVLinesView::zones_drawing_t::bci_backend_t& bci_backend, tbb::task* root_sel);
 	virtual ~PVFullParallelScene();
 
 	void first_render();
@@ -74,6 +75,9 @@ private:
 
 	void connect_draw_zone_sel();
 	void connect_rendering_job();
+
+	Picviz::PVView& lib_view() { return _lib_view; }
+	Picviz::PVView const& lib_view() const { return _lib_view; }
 
 private slots:
 	void update_zone_pixmap_bg(int zid);
@@ -134,13 +138,14 @@ private:
 	QFuture<void> _rendering_future;
 	QFuture<void> _sel_rendering_future;
     
-	Picviz::FakePVView::shared_pointer _view_sp;
+	PVHive::PVActor<Picviz::PVView> _view_actor;
+	Picviz::PVView& _lib_view;
+
 	PVFullParallelView* _parallel_view;
 
 	PVSelectionSquareGraphicsItem* _selection_square;
 	SelectionBarycenter _selection_barycenter;
 	PVParallelView::PVSelectionGenerator _selection_generator;
-	Picviz::PVSelection& _sel;
     QPointF _selection_square_pos;
     qreal _translation_start_x = 0.0;
 

@@ -170,6 +170,8 @@ private:
 };
 
 typedef PVPlotted::p_type PVPlotted_p;
+typedef PVCore::PVSharedPtr<PVPlotted> PVPlotted_sp;
+
 }
 
 #endif	/* PICVIZ_PVPLOTTED_H */

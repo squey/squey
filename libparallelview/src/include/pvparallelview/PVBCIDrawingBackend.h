@@ -33,6 +33,9 @@ public:
 	typedef uint32_t render_group_t;
 
 public:
+	virtual ~PVBCIDrawingBackend() { }
+
+public:
 	virtual backend_image_p_t create_image(size_t img_width) const = 0;
 	virtual void operator()(backend_image_t& dst_img, size_t x_start, size_t width, bci_codes_t* codes, size_t n, const float zoom_y = 1.0f, bool reverse = false, func_cleaning_t cleaning_func = func_cleaning_t(), func_drawing_done_t drawing_done = func_drawing_done_t(), render_group_t const rgrp = -1) const = 0;
 
