@@ -342,9 +342,8 @@ static void show_codes_cuda(PVParallelView::PVBCICode<Bbits>* device_codes, uint
 {
 	assert((zoom_y > 0) && (zoom_y <= 1.0f));
 	// Happens for selection !
-	if (n == 0) {
-		return;
-	}
+	//if (n == 0) {
+	//}
 	// Compute number of threads per block
 	int nthreads_x = (picviz_min(width, (SMEM_IMG_KB*1024)/(PVParallelView::constants<Bbits>::image_height*sizeof(img_zbuffer_t))));
 	int nthreads_y = NTHREADS_BLOCK/nthreads_x;

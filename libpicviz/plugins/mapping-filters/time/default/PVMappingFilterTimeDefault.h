@@ -20,10 +20,11 @@ public:
 	PVMappingFilterTimeDefault(PVCore::PVArgumentList const& args = PVMappingFilterTimeDefault::default_args());
 
 public:
-	float* operator()(PVRush::PVNraw::const_trans_nraw_table_line const& values);
+	decimal_storage_type* operator()(PVRush::PVNraw::const_trans_nraw_table_line const& values);
 	QString get_human_name() const { return QString("Default"); }
+	PVCore::DecimalType get_decimal_type() const override { return PVCore::UnsignedIntegerType; }
 protected:
-	virtual float cal_to_float(Calendar* cal, bool& success);
+	virtual int32_t cal_to_int(Calendar* cal, bool& success);
 
 	CLASS_FILTER(PVMappingFilterTimeDefault)
 };

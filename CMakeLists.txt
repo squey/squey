@@ -149,11 +149,6 @@ add_subdirectory(libpvhive)
 add_subdirectory(libparallelview)
 add_subdirectory(libpvguiqt)
 
-if(USE_PVGL2)
-  add_subdirectory(libpvgl2)
-else(USE_PVGL2)
-  add_subdirectory(libpvgl)
-endif(USE_PVGL2)
 add_subdirectory(gui-qt)
 
 

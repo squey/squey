@@ -161,7 +161,7 @@ public:
 
 
 	template <class Fbci>
-	inline void draw_zoomed_zone(zzt_context_t &ctx, PVBCIBackendImage<Bbits> &dst_img, uint64_t y_min, uint64_t y_max, uint64_t y_lim, int zoom, PVZoneID zone, Fbci const &f_bci, const float zoom_y = 1.0f, const float zoom_x = 1.0f, bool reverse = false, render_group_t const rgrp = -1)
+	inline void draw_zoomed_zone(zzt_context_t &ctx, PVBCIBackendImage<Bbits> &dst_img, uint64_t y_min, uint64_t y_max, uint64_t y_lim, int zoom, PVZoneID zone, Fbci const &f_bci, const float zoom_y = 1.0f, const float zoom_x = 1.0f, bool reverse = false, std::function<void()> cleaning_func = std::function<void()>(), std::function<void()> drawing_done = std::function<void()>(), render_group_t const rgrp = -1)
 	{
 		PVZoomedZoneTree const &zoomed_zone_tree = _zm.get_zone_tree<PVZoomedZoneTree>(zone);
 		draw_bci_lambda<PVParallelView::PVZoomedZoneTree>
@@ -173,11 +173,11 @@ public:
 				 return (zoomed_zone_tree.*f_bci)(ctx, y_min, y_max, y_lim, zoom,
 				                                  dst_img.width(), colors,
 				                                  codes, zoom_x);
-			 }, zoom_y, reverse, []{}, []{}, rgrp);
+			 }, zoom_y, reverse, cleaning_func, drawing_done, rgrp);
 	}
 
 	template <class Fbci>
-	inline void draw_zoomed_zone_sel(zzt_context_t &ctx, PVBCIBackendImage<Bbits> &dst_img, uint64_t y_min, uint64_t y_max, uint64_t y_lim, Picviz::PVSelection &selection, int zoom, PVZoneID zone, Fbci const &f_bci, const float zoom_y = 1.0f, const float zoom_x = 1.0f, bool reverse = false, render_group_t const rgrp = -1)
+	inline void draw_zoomed_zone_sel(zzt_context_t &ctx, PVBCIBackendImage<Bbits> &dst_img, uint64_t y_min, uint64_t y_max, uint64_t y_lim, Picviz::PVSelection &selection, int zoom, PVZoneID zone, Fbci const &f_bci, const float zoom_y = 1.0f, const float zoom_x = 1.0f, bool reverse = false, std::function<void()> cleaning_func = std::function<void()>(), std::function<void()> drawing_done = std::function<void()>(), render_group_t const rgrp = -1)
 	{
 		PVZoomedZoneTree const &zoomed_zone_tree = _zm.get_zone_tree<PVZoomedZoneTree>(zone);
 		draw_bci_lambda<PVParallelView::PVZoomedZoneTree>
@@ -189,7 +189,7 @@ public:
 				 return (zoomed_zone_tree.*f_bci)(ctx, y_min, y_max, y_lim, selection,
 				                                  zoom, dst_img.width(), colors,
 				                                  codes, zoom_x);
-			 }, zoom_y, reverse, []{}, []{}, rgrp);
+			 }, zoom_y, reverse, cleaning_func, drawing_done, rgrp);
 	}
 
 
@@ -202,13 +202,12 @@ public:
 		draw_bci(dst_img, x_start, width, bci_buf, ncodes, zoom_y, reverse,
 				[=]
 				{
-					cleaning_func();
+					if (cleaning_func) {
+						cleaning_func();
+					}
 					PVZonesDrawingBase::_computed_codes.return_buffer<Bbits>(bci_buf);
 				},
-				[=]
-				{
-					drawing_done();
-				},
+				drawing_done,
 				rgrp);
 
 	}

@@ -17,6 +17,7 @@
 
 #include <pvkernel/core/general.h>
 #include <picviz/PVView_types.h>
+
 #include <pvhive/PVObserverSignal.h>
 
 #include <QAbstractTableModel>

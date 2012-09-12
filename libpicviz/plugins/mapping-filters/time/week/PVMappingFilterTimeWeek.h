@@ -16,8 +16,8 @@ namespace Picviz {
 class PVMappingFilterTimeWeek: public PVMappingFilterTimeDefault
 {
 protected:
-	float cal_to_float(Calendar* cal, bool& success); 
-	QString get_human_name() const { return QString("Week"); }
+	int32_t cal_to_int(Calendar* cal, bool& success) override;
+	QString get_human_name() const override { return QString("Week"); }
 
 	CLASS_REGISTRABLE(PVMappingFilterTimeWeek)
 };

@@ -53,6 +53,9 @@ target_link_libraries(create_zoomedzonetree ${LINK_LIBRARIES})
 add_executable(extract_quadtree extract_quadtree.cpp)
 target_link_libraries(extract_quadtree ${LINK_LIBRARIES})
 
+add_executable(quadtree_browse quadtree_browse.cpp)
+target_link_libraries(quadtree_browse ${LINK_LIBRARIES})
+
 add_executable(Tquadtree_impl quadtree_impl.cpp)
 target_link_libraries(Tquadtree_impl ${LINK_LIBRARIES})
 

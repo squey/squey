@@ -844,6 +844,7 @@ void Picviz::PVView::process_visibility()
  *****************************************************************************/
 void Picviz::PVView::selection_A2B_select_with_square_area(PVSelection &a, PVSelection &b)
 {
+#if 0
 	int line_index;
 
 	int axes_count;
@@ -1088,6 +1089,7 @@ end_loop:;
 			}
 			break;
 	}
+#endif
 }
 
 /******************************************************************************

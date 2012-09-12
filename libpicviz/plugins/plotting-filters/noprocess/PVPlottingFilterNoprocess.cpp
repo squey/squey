@@ -7,9 +7,13 @@
 #include "PVPlottingFilterNoprocess.h"
 
 
-float Picviz::PVPlottingFilterNoprocess::operator()(float value)
+uint32_t* Picviz::PVPlottingFilterNoprocess::operator()(mapped_decimal_storage_type const* values)
 {
-	return value;
+	assert(values);
+	assert(_dest);
+
+	copy_mapped_to_plotted(values);
+	return _dest;
 }
 
 IMPL_FILTER_NOPARAM(Picviz::PVPlottingFilterNoprocess)

@@ -267,11 +267,11 @@ public:
 		picviz_verify_cuda(cudaEventSynchronize(end));
 		picviz_verify_cuda(cudaEventDestroy(end));
 
-		if (cleaning_func) {
-			cleaning_func();
-		}
 		if (drawing_done) {
 			drawing_done();
+		}
+		if (cleaning_func) {
+			cleaning_func();
 		}
 	}
 

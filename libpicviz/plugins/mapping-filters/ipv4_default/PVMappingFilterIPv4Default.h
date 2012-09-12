@@ -15,8 +15,9 @@ namespace Picviz {
 class PVMappingFilterIPv4Default: public PVMappingFilter
 {
 public:
-	float operator()(QString const& str);
+	decimal_storage_type* operator()(PVRush::PVNraw::const_trans_nraw_table_line const& values) override;
 	QString get_human_name() const { return QString("Default"); }
+	PVCore::DecimalType get_decimal_type() const override { return PVCore::UnsignedIntegerType; }
 
 	CLASS_FILTER(PVMappingFilterIPv4Default)
 };

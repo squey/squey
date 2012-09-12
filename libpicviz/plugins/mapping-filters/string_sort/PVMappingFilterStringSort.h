@@ -19,8 +19,9 @@ class PVMappingFilterStringSort: public PVMappingFilter
 public:
 	PVMappingFilterStringSort(PVCore::PVArgumentList const& args = PVMappingFilterStringSort::default_args());
 public:
-	float* operator()(PVRush::PVNraw::const_trans_nraw_table_line const& values);
-	QString get_human_name() const { return QString("Sort"); }
+	decimal_storage_type* operator()(PVRush::PVNraw::const_trans_nraw_table_line const& values) override;
+	QString get_human_name() const override { return QString("Sort"); }
+	PVCore::DecimalType get_decimal_type() const override { return PVCore::UnsignedIntegerType; }
 	
 	CLASS_FILTER(PVMappingFilterStringSort)
 };

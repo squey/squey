@@ -15,8 +15,8 @@ namespace Picviz {
 class PVPlottingFilterTimeDefault: public PVPlottingFilter
 {
 public:
-	float* operator()(float* value);
-	QString get_human_name() const { return QString("Default (depends on mapping)"); }
+	uint32_t* operator()(mapped_decimal_storage_type const* value) override;
+	QString get_human_name() const override { return QString("Default (depends on mapping)"); }
 
 	CLASS_FILTER(PVPlottingFilterTimeDefault)
 };
