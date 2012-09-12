@@ -106,9 +106,9 @@ int main(int argc, char** argv)
 
 		ncols = atol(argv[3]);
 
-		if (ncols < 3) {
-			std::cout << "ncols must be at greater or equal to 3, using 3" << std::endl;
-			ncols = 3;
+		if (ncols < 2) {
+			std::cout << "ncols must be greater or equal to 2, using 2" << std::endl;
+			ncols = 2;
 		}
 
 		init_rand_plotted(plotted, nrows, ncols);
@@ -150,44 +150,89 @@ int main(int argc, char** argv)
 
 	PVParallelView::PVZoomedZoneTree const &zoomed_zone_tree = zm.get_zone_tree<PVParallelView::PVZoomedZoneTree>(0);
 
-	// a run to allocate what has to be
-	BENCH_START(allocate_run);
-	zoomed_zone_tree.browse_bci_by_y1_tbb(zzt_ctx,
-	                                      y_min, y_max, y_max,
-	                                      zoom, 512,
-	                                      colors, bcicodes_tbb);
-	BENCH_END(allocate_run, "allocate_run", 1, 1, 1, 1);
+	{
+		// a run to allocate what has to be
+		BENCH_START(allocate_run);
+		zoomed_zone_tree.browse_bci_by_y1_tbb(zzt_ctx,
+		                                      y_min, y_max, y_max,
+		                                      zoom, 512,
+		                                      colors, bcicodes_tbb);
+		BENCH_END(allocate_run, "allocate_run", 1, 1, 1, 1);
 
-	// the parallel perf run
-	BENCH_START(browse_tbb);
-	size_t num_tbb = zoomed_zone_tree.browse_bci_by_y1_tbb(zzt_ctx,
-	                                                       y_min, y_max, y_max,
-	                                                       zoom, 512,
-	                                                       colors, bcicodes_tbb);
-	BENCH_END(browse_tbb, "TBB browse", 1, 1, 1, 1);
+		// the parallel perf run
+		BENCH_START(browse_tbb);
+		size_t num_tbb = zoomed_zone_tree.browse_bci_by_y1_tbb(zzt_ctx,
+		                                                       y_min, y_max, y_max,
+		                                                       zoom, 512,
+		                                                       colors, bcicodes_tbb);
+		BENCH_END(browse_tbb, "TBB browse", 1, 1, 1, 1);
 
-	// the sequential perf run (to compare to)
-	BENCH_START(browse_seq);
-	size_t num_seq = zoomed_zone_tree.browse_bci_by_y1_seq(zzt_ctx,
-	                                                       y_min, y_max, y_max,
-	                                                       zoom, 512,
-	                                                       colors, bcicodes_seq);
-	BENCH_END(browse_seq, "SEQ browse", 1, 1, 1, 1);
+		// the sequential perf run (to compare to)
+		BENCH_START(browse_seq);
+		size_t num_seq = zoomed_zone_tree.browse_bci_by_y1_seq(zzt_ctx,
+		                                                       y_min, y_max, y_max,
+		                                                       zoom, 512,
+		                                                       colors, bcicodes_seq);
+		BENCH_END(browse_seq, "SEQ browse", 1, 1, 1, 1);
 
-	std::sort(bcicodes_tbb, bcicodes_tbb + num_tbb, bci_cmp);
-	std::sort(bcicodes_seq, bcicodes_seq + num_seq, bci_cmp);
+		std::sort(bcicodes_tbb, bcicodes_tbb + num_tbb, bci_cmp);
+		std::sort(bcicodes_seq, bcicodes_seq + num_seq, bci_cmp);
 
-	size_t num = 0;
+		size_t num = 0;
 
-	if (num_seq != num_tbb) {
-		std::cout << "seq & tbb do not return the same count; using smallest value" << std::endl;
-		num = std::min(num_tbb, num_seq);
-	} else {
-		num = num_seq;
+		if (num_seq != num_tbb) {
+			std::cout << "Y1: seq & tbb do not return the same count; using smallest value"
+			          << std::endl;
+			num = std::min(num_tbb, num_seq);
+		} else {
+			num = num_seq;
+		}
+
+		std::cout << "Y1: memcmp: " << memcmp(bcicodes_seq, bcicodes_tbb,
+		                                      sizeof(bcicode_t) * num) << std::endl;
 	}
 
-	std::cout << "memcmp: " << memcmp(bcicodes_seq, bcicodes_tbb,
-	                                  sizeof(bcicode_t) * num) << std::endl;
+	{
+		// a run to allocate what has to be
+		BENCH_START(allocate_run);
+		zoomed_zone_tree.browse_bci_by_y2_tbb(zzt_ctx,
+		                                      y_min, y_max, y_max,
+		                                      zoom, 512,
+		                                      colors, bcicodes_tbb);
+		BENCH_END(allocate_run, "allocate_run", 1, 1, 1, 1);
+
+		// the parallel perf run
+		BENCH_START(browse_tbb);
+		size_t num_tbb = zoomed_zone_tree.browse_bci_by_y2_tbb(zzt_ctx,
+		                                                       y_min, y_max, y_max,
+		                                                       zoom, 512,
+		                                                       colors, bcicodes_tbb);
+		BENCH_END(browse_tbb, "TBB browse", 1, 1, 1, 1);
+
+		// the sequential perf run (to compare to)
+		BENCH_START(browse_seq);
+		size_t num_seq = zoomed_zone_tree.browse_bci_by_y2_seq(zzt_ctx,
+		                                                       y_min, y_max, y_max,
+		                                                       zoom, 512,
+		                                                       colors, bcicodes_seq);
+		BENCH_END(browse_seq, "SEQ browse", 1, 1, 1, 1);
+
+		std::sort(bcicodes_tbb, bcicodes_tbb + num_tbb, bci_cmp);
+		std::sort(bcicodes_seq, bcicodes_seq + num_seq, bci_cmp);
+
+		size_t num = 0;
+
+		if (num_seq != num_tbb) {
+			std::cout << "Y2: seq & tbb do not return the same count; using smallest value"
+			          << std::endl;
+			num = std::min(num_tbb, num_seq);
+		} else {
+			num = num_seq;
+		}
+
+		std::cout << "Y2: memcmp: " << memcmp(bcicodes_seq, bcicodes_tbb,
+		                                      sizeof(bcicode_t) * num) << std::endl;
+	}
 
 	return 0;
 }

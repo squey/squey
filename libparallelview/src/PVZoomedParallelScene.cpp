@@ -21,7 +21,7 @@
  *
  * TODO: finalize selection stuff
  *
- * TODO: calls to zone_drawing must be moved into tbb:task
+ * TODO: make 0 be at the bottom of the view, not at the top
  */
 
 /* NOTE: when zooming, the smallest backend_image's height is 1024 (2048 / 2).
@@ -394,7 +394,7 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 			BENCH_START(full_render);
 
 			if (_left_zone) {
-				if (_render_type == RENDER_ALL && !_rendering_job->should_cancel()) {
+				if ((_render_type == RENDER_ALL) && !_rendering_job->should_cancel()) {
 					++needed_rendering_number;
 					BENCH_START(render);
 					_zones_drawing.draw_zoomed_zone(_left_zone->context,
@@ -431,7 +431,7 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 			}
 
 			if (_right_zone) {
-				if (_render_type == RENDER_ALL && !_rendering_job->should_cancel()) {
+				if ((_render_type == RENDER_ALL) && !_rendering_job->should_cancel()) {
 					++needed_rendering_number;
 					BENCH_START(render);
 					_zones_drawing.draw_zoomed_zone(_right_zone->context,

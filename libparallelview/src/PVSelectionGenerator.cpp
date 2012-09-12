@@ -82,39 +82,74 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_sliders(
 
 	sel.select_none();
 
-	PVZoneTree& ztree = _zm.get_zone_tree<PVZoneTree>(zid);
-
 	PVParallelView::PVBCode code_b;
 
-	for (uint32_t branch = 0 ; branch < NBUCKETS; branch++)
-	{
-		PVRow r =  ztree.get_first_elt_of_branch(branch);
-		if(r == PVROW_INVALID_VALUE) {
-			ztree._sel_elts[branch] = PVROW_INVALID_VALUE;
-			continue;
-		}
+	if (zid < _zm.get_number_zones()) {
+		PVZoneTree& ztree = _zm.get_zone_tree<PVZoneTree>(zid);
 
-		code_b.int_v = branch;
-		uint32_t y1 = code_b.s.l;
+		for (uint32_t branch = 0 ; branch < NBUCKETS; branch++)	{
+			PVRow r =  ztree.get_first_elt_of_branch(branch);
+			if(r == PVROW_INVALID_VALUE) {
+				ztree._sel_elts[branch] = PVROW_INVALID_VALUE;
+				continue;
+			}
 
-		bool is_line_selected = false;
-		for (auto range : ranges) {
-			if (y1 >= range.first && y1 <= range.second) {
-				is_line_selected = true;
-				break;
+			code_b.int_v = branch;
+			uint32_t y1 = code_b.s.l;
+
+			bool is_line_selected = false;
+			for (auto range : ranges) {
+				if (y1 >= range.first && y1 <= range.second) {
+					is_line_selected = true;
+					break;
+				}
+			}
+
+			if(is_line_selected) {
+				ztree._sel_elts[branch] = r;
+				uint32_t branch_count = ztree.get_branch_count(branch);
+				for (size_t i = 0; i < ztree.get_branch_count(branch); i++) {
+					sel.set_bit_fast(ztree.get_branch_element(branch, i));
+				}
+				nb_selected += branch_count;
+			}
+			else {
+				ztree._sel_elts[branch] = PVROW_INVALID_VALUE;
 			}
 		}
+	} else {
+		// for the last zid, we must process bci.s.r in the last zone tree
+		PVZoneTree& ztree = _zm.get_zone_tree<PVZoneTree>(zid - 1);
 
-		if(is_line_selected) {
-			ztree._sel_elts[branch] = r;
-			uint32_t branch_count = ztree.get_branch_count(branch);
-			for (size_t i = 0; i < ztree.get_branch_count(branch); i++) {
-				sel.set_bit_fast(ztree.get_branch_element(branch, i));
+		for (uint32_t branch = 0 ; branch < NBUCKETS; branch++)	{
+			PVRow r =  ztree.get_first_elt_of_branch(branch);
+			if(r == PVROW_INVALID_VALUE) {
+				ztree._sel_elts[branch] = PVROW_INVALID_VALUE;
+				continue;
 			}
-			nb_selected += branch_count;
-		}
-		else {
-			ztree._sel_elts[branch] = PVROW_INVALID_VALUE;
+
+			code_b.int_v = branch;
+			uint32_t y1 = code_b.s.r;
+
+			bool is_line_selected = false;
+			for (auto range : ranges) {
+				if (y1 >= range.first && y1 <= range.second) {
+					is_line_selected = true;
+					break;
+				}
+			}
+
+			if(is_line_selected) {
+				ztree._sel_elts[branch] = r;
+				uint32_t branch_count = ztree.get_branch_count(branch);
+				for (size_t i = 0; i < ztree.get_branch_count(branch); i++) {
+					sel.set_bit_fast(ztree.get_branch_element(branch, i));
+				}
+				nb_selected += branch_count;
+			}
+			else {
+				ztree._sel_elts[branch] = PVROW_INVALID_VALUE;
+			}
 		}
 	}
 
