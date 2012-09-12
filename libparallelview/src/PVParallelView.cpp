@@ -1,5 +1,6 @@
 #include <picviz/PVView.h>
 #include <pvparallelview/PVBCIDrawingBackend.h>
+#include <pvparallelview/PVBCIDrawingBackendCUDA.h>
 #include <pvparallelview/PVLibView.h>
 #include <pvparallelview/PVParallelView.h>
 
@@ -68,3 +69,7 @@ PVParallelView::PVLibView* PVParallelView::__impl::PVParallelView::get_lib_view(
 	return new_view;
 }
 
+void PVParallelView::common::init_cuda()
+{
+	init<PVBCIDrawingBackendCUDA>();
+}

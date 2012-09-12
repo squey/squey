@@ -12,6 +12,8 @@
 #include <picviz/widgets/PVAD2GWidget.h>
 #include <picviz/PVPlotting.h>
 #include <picviz/PVMapping.h>
+#include <pvparallelview/PVParallelView.h>
+#include <pvparallelview/PVLibView.h>
 
 #include <PVMainWindow.h>
 #include <PVExpandSelDlg.h>
@@ -1017,7 +1019,8 @@ void PVInspector::PVMainWindow::view_new_scatter_Slot()
 void PVInspector::PVMainWindow::view_new_parallel_Slot()
 {
 	PVLOG_INFO("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
-
+	PVParallelView::common::get_lib_view(*get_current_lib_view())->get_zones_manager().update_all();
+	PVParallelView::common::get_lib_view(*get_current_lib_view())->create_view();
 }
 
 void PVInspector::PVMainWindow::view_screenshot_qt_Slot()

@@ -60,6 +60,8 @@ namespace common {
 	template <template <size_t> class Backend>
 		inline void init() { PVParallelView::__impl::PVParallelView::get()->init_backends<Backend>(); }
 
+	void init_cuda();
+
 	inline PVLibView* get_lib_view(Picviz::PVView& view) { return PVParallelView::__impl::PVParallelView::get()->get_lib_view(view); }
 	inline PVLibView* get_lib_view(Picviz::PVView& view, Picviz::PVPlotted::uint_plotted_table_t const& plotted, PVRow nrows, PVCol ncols) { return PVParallelView::__impl::PVParallelView::get()->get_lib_view(view, plotted, nrows, ncols); }
 	inline void release() { PVParallelView::__impl::PVParallelView::release(); }

@@ -15,6 +15,7 @@ include_directories(AFTER ${PVKERNEL_INCLUDE_DIRS})
 include_directories(AFTER ${PICVIZ_INCLUDE_DIRS})
 include_directories(AFTER ${PVHIVE_INCLUDE_DIRS})
 include_directories(AFTER ${PVGUIQT_INCLUDE_DIRS})
+include_directories(AFTER ${picviz-inspector_SOURCE_DIR}/libparallelview/src/include)
 include_directories(AFTER ${ICU_INCLUDE})
 
 #######################################
