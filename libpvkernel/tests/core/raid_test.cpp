@@ -11,7 +11,7 @@
 constexpr uint64_t DEFAULT_CONTENT_SIZE = 1024*1024*1024/2;
 constexpr uint64_t DEFAULT_WRITE_CHUNK_SIZE = 8*1024*1024;
 constexpr uint64_t DEFAULT_READ_CHUNK_SIZE = 32*1024*1024;
-constexpr uint64_t BUF_SIZE = 32*1024*1024;
+constexpr uint64_t BUF_SIZE = 256*1024*1024;
 constexpr uint64_t BUF_ALIGN = 512;
 
 
@@ -42,12 +42,22 @@ struct BufferedPolicy
 
 	file_t Open(std::string const& filename)
 	{
-		return fopen(filename.c_str(), "w");
+		return fopen(filename.c_str(), "rw");
 	}
 
 	inline bool Write(const char* content, uint64_t buf_size, file_t file)
 	{
 		return fwrite(content, buf_size, 1, file) > 0;
+	}
+
+	inline int64_t Read(file_t file, void* content, uint64_t buf_size)
+	{
+		return fread(content, 1, buf_size, file);
+	}
+
+	inline int64_t Seek(file_t file, int64_t offset)
+	{
+		return fseek(file, offset, SEEK_CUR);
 	}
 
 	void Flush(file_t file)
@@ -76,12 +86,26 @@ struct UnbufferedPolicy
 
 	inline bool Write(const char* content, uint64_t buf_size, file_t file)
 	{
-		return write(file, content, buf_size) != -1;
+		int64_t r = write(file, content, buf_size);
+		if (r == -1) {
+			std::cout << "errno=" << errno << std::endl;
+			std::cout << strerror(errno) << std::endl;
+		}
+		return r;
 	}
 
 	inline int64_t Read(file_t file, void* buffer,  uint64_t buf_size)
 	{
 		int64_t r = read(file, buffer, buf_size);
+		if (r == -1) {
+			std::cout << strerror(errno) << std::endl;
+		}
+		return r;
+	}
+
+	inline int64_t Seek(file_t file, int64_t offset)
+	{
+		int64_t r = lseek(file, offset, SEEK_CUR);
 		if (r == -1) {
 			std::cout << strerror(errno) << std::endl;
 		}
@@ -116,7 +140,7 @@ struct RawBufferedPolicy : public BufferedPolicy
 	file_t Open(std::string const& filename)
 	{
 		int fd = open(filename.c_str(), O_RDWR | O_CREAT | O_DIRECT);
-		return fdopen(fd, "w");
+		return fdopen(fd, "rw");
 	}
 };
 
@@ -126,7 +150,7 @@ class CustomBufferedPolicy : public BufferedPolicy
 public:
 	file_t Open(std::string const& filename)
 	{
-		file_t f = fopen(filename.c_str(), "w");
+		file_t f = fopen(filename.c_str(), "rw");
 
 		char* buffer = new char[8192];
 		setbuf(f, buffer);
@@ -215,7 +239,7 @@ public:
 			write_cols(buffer, chunk_size);
 		}
 		flush_all();
-		BENCH_END(w, st.str().c_str(), 1, 1, chunk_size, (uint64_t) _num_cols*num_chunks); //!\\ Ensure result fit on uint64_t
+		BENCH_END(w, st.str().c_str(), 1, 1, chunk_size, (uint64_t) _num_cols*num_chunks); //!\\ Ensure result fits on uint64_t
 	}
 
 	void flush_all()
@@ -255,8 +279,8 @@ void write_test(std::string const& folder)
 	char* buffer = PVCore::PVAlignedAllocator<char, BUF_ALIGN>().allocate(BUF_SIZE);
 	memset(buffer, '$', sizeof(char)*BUF_SIZE);
 
-	for (uint64_t num_cols : {/*1, 2, 32,*/ 512/*, 1024, 4096, 8192*/}) {
-		for (uint64_t chunk_size : {/*4*1024, 16*1024, */32*1024, 64*1024, 128*1024, 256*1024, 512*1024, 1*1024*1024, 2*1024*1024, 4*1024*1024, 16*1024*1024, 32*1024*1024,64*1024*1024, 128*1024*1024}) {
+	for (uint64_t num_cols : {1, 2, 32, 128, 256, 512, 4096, 8192, 16384}) {
+		for (uint64_t chunk_size : {4*1024, 16*1024, 32*1024, 64*1024, 128*1024, 256*1024, 512*1024, 1*1024*1024, 2*1024*1024, 8*1024*1024, 16*1024*1024, 32*1024*1024, 64*1024*1024, 128*1024*1024, 256*1024*1024}) {
 			uint64_t num_chunks = std::max(DEFAULT_CONTENT_SIZE/chunk_size/num_cols, (uint64_t)2);
 
 			/*{
@@ -293,44 +317,53 @@ public:
 	typedef typename BufferPolicy::file_t file_t;
 
 public:
-	inline uint64_t Search(const std::string& filename, uint64_t chunk_size, std::string const& content_to_find)
+	uint64_t Search(const std::string& filename, uint64_t num_cols, uint64_t chunk_size, std::string const& content_to_find)
 	{
 		char* const buffer = PVCore::PVAlignedAllocator<char, BUF_ALIGN>().allocate(chunk_size*2);
 
 		file_t file = this->Open(filename);
 
 		std::stringstream st;
-		st << "sequential read (" << typeid(this).name() << ") [chunk_size=" << chunk_size << "]";
+		st << "sequential read (" << typeid(this).name() << ") [num_cols=" << num_cols << " chunk_size=" << chunk_size << "]";
 		BENCH_START(r);
 
 		uint64_t total_read_size = 0;
 		uint64_t nb_occur = 0;
 		uint64_t read_size = 0;
+		uint64_t end_of_file_pos = 0;
 
+		char* buffer_ptr = buffer+BUF_ALIGN;
 		bool last_chunk = false;
 		do
 		{
-			char* buffer_ptr = buffer;
+
 			read_size = this->Read(file, buffer+BUF_ALIGN, chunk_size-BUF_ALIGN);
 			last_chunk = read_size < (chunk_size-BUF_ALIGN);
 
 			while (true) {
-				char* endl = (char*) memchr(buffer_ptr, '\n', chunk_size);
 
-				if (endl == nullptr) {
+				char* endl = nullptr;
+				if (last_chunk) {
+					endl = (char*) memchr(buffer_ptr, '\n', chunk_size);
 
-					// Copy partial last line to new buffer in an aligned fashion
-					// Warning: does not work if partial_line_length > BUF_ALIGN
-					if (!last_chunk) {
+					if (endl == nullptr || buffer_ptr >= buffer+BUF_ALIGN+read_size) {
+						buffer_ptr = buffer;
+
+						break;
+					}
+				}
+				else {
+					endl = (char*) memchr(buffer_ptr, '\n', chunk_size);
+
+					if (endl == nullptr) {
 						uint64_t partial_line_length = buffer+chunk_size-buffer_ptr;
 
-						memcpy(buffer+BUF_ALIGN-partial_line_length-1, buffer_ptr, partial_line_length);
-						buffer_ptr = buffer + BUF_ALIGN-partial_line_length-1;
+						char* dst = buffer+BUF_ALIGN-partial_line_length;
+						memcpy(dst, buffer_ptr, partial_line_length);
+						buffer_ptr = dst;
+
+						break;
 					}
-					else {
-						buffer_ptr = buffer;
-					}
-					break;
 				}
 
 				int64_t line_length = (&endl[0] - &buffer_ptr[0]);
@@ -342,6 +375,11 @@ public:
 			}
 
 			total_read_size += read_size;
+
+			// Skip other columns if any:
+			if (num_cols > 1) {
+				this->Seek(file, (num_cols-1)*chunk_size);
+			}
 
 		} while(!last_chunk);
 
@@ -365,8 +403,12 @@ public:
 
 void read_test(std::string const& path)
 {
-	Reader<RawPolicy> raw_reader;
-	uint64_t nb_occur = raw_reader.Search(path, DEFAULT_READ_CHUNK_SIZE, std::string("motherfucker"));
+	Reader<RawPolicy> reader;
+	for (uint64_t num_cols : {1, 2, 4, 8, 16 , 32, 128, 256, 512, 1024, 4096, 8192, 16384}) {
+		for (uint64_t chunk_size : {16*1024, 32*1024, 64*1024, 128*1024, 256*1024, 512*1024, 1*1024*1024, 2*1024*1024, 8*1024*1024, 16*1024*1024, 32*1024*1024, 64*1024*1024, 128*1024*1024, 256*1024*1024}) {
+			uint64_t nb_occur = reader.Search(path, num_cols, chunk_size, std::string("motherfucker"));
+		}
+	}
 }
 
 void usage(const char* app_name)
@@ -383,7 +425,7 @@ int main(int argc, const char* argv[])
 
 	const std::string folder(argv[1]);
 
-	//write_test(folder);
+	write_test(folder);
 
 	read_test(folder);
 }
