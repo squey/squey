@@ -193,20 +193,20 @@ void PVParallelView::PVZoomedZoneTree::process_omp_from_zt(const PVZoneProcessin
 }
 
 /*****************************************************************************
- * PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1
+ * PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1
  *****************************************************************************/
 
-size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1(context_t &ctx,
-                                                               uint64_t y_min,
-                                                               uint64_t y_max,
-                                                               uint64_t y_lim,
-                                                               int zoom,
-                                                               uint32_t width,
-                                                               const extract_entry_f &extract_entry,
-                                                               const PVCore::PVHSVColor *colors,
-                                                               pv_bci_code_t *codes,
-                                                               const float beta,
-                                                               const bool use_sel) const
+size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_seq(context_t &ctx,
+                                                                    uint64_t y_min,
+                                                                    uint64_t y_max,
+                                                                    uint64_t y_lim,
+                                                                    int zoom,
+                                                                    uint32_t width,
+                                                                    const extract_entry_f &extract_entry,
+                                                                    const PVCore::PVHSVColor *colors,
+                                                                    pv_bci_code_t *codes,
+                                                                    const float beta,
+                                                                    const bool use_sel) const
 {
 	size_t num = 0;
 	size_t bci_idx = 0;
@@ -282,26 +282,26 @@ size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1(context_t &ctx,
 		}
 	}
 
-	std::cout << "::browse_tree_bci_by_y1 -> " << bci_idx << std::endl;
+	std::cout << "::browse_trees_bci_by_y1 -> " << bci_idx << std::endl;
 
 	return bci_idx;
 }
 
 /*****************************************************************************
- * PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y2
+ * PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2
  *****************************************************************************/
 
-size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y2(context_t &ctx,
-                                                               uint64_t y_min,
-                                                               uint64_t y_max,
-                                                               uint64_t y_lim,
-                                                               int zoom,
-                                                               uint32_t width,
-                                                               const extract_entry_f &extract_entry,
-                                                               const PVCore::PVHSVColor *colors,
-                                                               pv_bci_code_t *codes,
-                                                               const float beta,
-                                                               const bool use_sel) const
+size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_seq(context_t &ctx,
+                                                                    uint64_t y_min,
+                                                                    uint64_t y_max,
+                                                                    uint64_t y_lim,
+                                                                    int zoom,
+                                                                    uint32_t width,
+                                                                    const extract_entry_f &extract_entry,
+                                                                    const PVCore::PVHSVColor *colors,
+                                                                    pv_bci_code_t *codes,
+                                                                    const float beta,
+                                                                    const bool use_sel) const
 {
 	size_t num = 0;
 	size_t bci_idx = 0;
@@ -377,26 +377,26 @@ size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y2(context_t &ctx,
 		}
 	}
 
-	std::cout << "::browse_tree_bci_by_y2 -> " << bci_idx << std::endl;
+	std::cout << "::browse_trees_bci_by_y2 -> " << bci_idx << std::endl;
 
 	return bci_idx;
 }
 
 /*****************************************************************************
- * PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1_tbb
+ * PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_tbb
  *****************************************************************************/
 
-size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1_tbb(context_t &ctx,
-                                                                   uint64_t y_min,
-                                                                   uint64_t y_max,
-                                                                   uint64_t y_lim,
-                                                                   int zoom,
-                                                                   uint32_t width,
-                                                                   const extract_entry_f &extract_entry,
-                                                                   const PVCore::PVHSVColor *colors,
-                                                                   pv_bci_code_t *codes,
-                                                                   const float beta,
-                                                                   const bool use_sel) const
+size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y1_tbb(context_t &ctx,
+                                                                    uint64_t y_min,
+                                                                    uint64_t y_max,
+                                                                    uint64_t y_lim,
+                                                                    int zoom,
+                                                                    uint32_t width,
+                                                                    const extract_entry_f &extract_entry,
+                                                                    const PVCore::PVHSVColor *colors,
+                                                                    pv_bci_code_t *codes,
+                                                                    const float beta,
+                                                                    const bool use_sel) const
 {
 	uint32_t shift = (32 - bbits) - zoom;
 	uint32_t t1_min = y_min >> (32 - NBITS_INDEX);
@@ -493,26 +493,26 @@ size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y1_tbb(context_t &ct
 		it->set_index(0);
 	}
 
-	std::cout << "::browse_tree_bci_by_y1_tbb -> " << bci_idx << std::endl;
+	std::cout << "::browse_trees_bci_by_y1_tbb -> " << bci_idx << std::endl;
 
 	return bci_idx;
 }
 
 /*****************************************************************************
- * PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y2_tbb
+ * PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_tbb
  *****************************************************************************/
 
-size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y2_tbb(context_t &ctx,
-                                                                   uint64_t y_min,
-                                                                   uint64_t y_max,
-                                                                   uint64_t y_lim,
-                                                                   int zoom,
-                                                                   uint32_t width,
-                                                                   const extract_entry_f &extract_entry,
-                                                                   const PVCore::PVHSVColor *colors,
-                                                                   pv_bci_code_t *codes,
-                                                                   const float beta,
-                                                                   const bool use_sel) const
+size_t PVParallelView::PVZoomedZoneTree::browse_trees_bci_by_y2_tbb(context_t &ctx,
+                                                                    uint64_t y_min,
+                                                                    uint64_t y_max,
+                                                                    uint64_t y_lim,
+                                                                    int zoom,
+                                                                    uint32_t width,
+                                                                    const extract_entry_f &extract_entry,
+                                                                    const PVCore::PVHSVColor *colors,
+                                                                    pv_bci_code_t *codes,
+                                                                    const float beta,
+                                                                    const bool use_sel) const
 {
 	uint32_t shift = (32 - bbits) - zoom;
 	uint32_t t2_min = y_min >> (32 - NBITS_INDEX);
@@ -609,7 +609,7 @@ size_t PVParallelView::PVZoomedZoneTree::browse_tree_bci_by_y2_tbb(context_t &ct
 		it->set_index(0);
 	}
 
-	std::cout << "::browse_tree_bci_by_y2_tbb -> " << bci_idx << std::endl;
+	std::cout << "::browse_trees_bci_by_y2_tbb -> " << bci_idx << std::endl;
 
 	return bci_idx;
 }
