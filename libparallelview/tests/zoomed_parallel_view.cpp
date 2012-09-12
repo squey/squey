@@ -10,11 +10,14 @@
 
 #include <picviz/PVAxis.h>
 #include <picviz/PVPlotted.h>
+#include <picviz/PVView.h>
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVBCICode.h>
 #include <pvparallelview/PVBCIBackendImage.h>
 #include <pvparallelview/PVBCIDrawingBackendCUDA.h>
+#include <pvparallelview/PVLibView.h>
+#include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVZonesDrawing.h>
 #include <pvparallelview/PVZonesManager.h>
 #include <pvparallelview/PVZoomedParallelScene.h>
@@ -112,32 +115,23 @@ int main(int argc, char** argv)
 		}
 	}
 
-	PVCore::PVHSVColor* colors = PVCore::PVHSVColor::init_colors(nrows);
-
 	Picviz::PVPlotted::uint_plotted_table_t norm_plotted;
 	Picviz::PVPlotted::norm_int_plotted(plotted, norm_plotted, ncols);
 
-	// Zone Manager
-	PVParallelView::PVZonesManager &zm = *(new PVParallelView::PVZonesManager());
-	zm.set_uint_plotted(norm_plotted, nrows, ncols);
-	zm.update_all();
+	Picviz::PVView_sp fake_view(new Picviz::PVView());
+	fake_view->reset_layers();
 
-	PVParallelView::PVBCIDrawingBackendCUDA<RENDERING_BITS> backend_cuda;
-	zones_drawing_t &zones_drawing = *(new zones_drawing_t(zm, backend_cuda, *colors));
+	PVParallelView::common::init<PVParallelView::PVBCIDrawingBackendCUDA>();
+	PVParallelView::PVLibView* plib_view = PVParallelView::common::get_lib_view(*fake_view, norm_plotted, nrows, ncols);
+	plib_view->get_zones_manager().update_all();
 
-	Picviz::FakePVView_p pvview_p(new Picviz::FakePVView());
-
-	PVParallelView::PVZoomedParallelView zpview;
-	zpview.setViewport(new QWidget());
-	zpview.setScene(new PVParallelView::PVZoomedParallelScene(&zpview,
-	                                                          pvview_p,
-	                                                          zones_drawing,
-	                                                          /*axis*/ 1));
-	zpview.resize(1024, 1024);
-	zpview.show();
+	PVParallelView::PVZoomedParallelView* zpview = plib_view->create_zoomed_view(1);
+	zpview->resize(1024, 1024);
+	zpview->show();
 
 	app.exec();
 
+	PVParallelView::common::release();
 
 	return 0;
 }

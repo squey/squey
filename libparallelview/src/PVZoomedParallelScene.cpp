@@ -44,14 +44,13 @@
  *****************************************************************************/
 
 PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZoomedParallelView *zpview,
-                                                             Picviz::FakePVView_p pvview_p,
+                                                             Picviz::PVView_sp& pvview_p,
                                                              zones_drawing_t &zones_drawing,
                                                              PVCol axis) :
 	QGraphicsScene(zpview),
 	_zpview(zpview),
-	_pvview_p(pvview_p),
+	_pvview(*pvview_p),
 	_zones_drawing(zones_drawing),
-	_selection(pvview_p->get_view_selection()),
 	_axis(axis),
 	_left_zone(nullptr),
 	_right_zone(nullptr),
@@ -271,13 +270,13 @@ void PVParallelView::PVZoomedParallelScene::update_new_selection(tbb::task* root
 
 	if (_left_zone) {
 		root->increment_ref_count();
-		tbb::task& child_task = *new (root->allocate_child()) PVTaskFilterSel(get_zones_manager(), _axis-1, _selection);
+		tbb::task& child_task = *new (root->allocate_child()) PVTaskFilterSel(get_zones_manager(), _axis-1, volatile_selection());
 		root->enqueue(child_task, tbb::priority_high);
 	}
 
 	if (_right_zone) {
 		root->increment_ref_count();
-		tbb::task& child_task = *new (root->allocate_child()) PVTaskFilterSel(get_zones_manager(), _axis, _selection);
+		tbb::task& child_task = *new (root->allocate_child()) PVTaskFilterSel(get_zones_manager(), _axis, volatile_selection());
 		root->enqueue(child_task, tbb::priority_high);
 	}
 }
@@ -416,7 +415,7 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 					BENCH_START(sel_render);
 					_zones_drawing.draw_zoomed_zone_sel(_left_zone->context,
 					                                    *(_left_zone->sel_image),
-					                                    y_min, y_max, y_lim, _selection,
+					                                    y_min, y_max, y_lim, volatile_selection(),
 					                                    zoom_level, _axis - 1,
 					                                    &PVZoomedZoneTree::browse_bci_sel_by_y2,
 					                                    alpha, beta, true,
@@ -453,7 +452,7 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 					BENCH_START(sel_render);
 					_zones_drawing.draw_zoomed_zone_sel(_right_zone->context,
 					                                    *(_right_zone->sel_image),
-					                                    y_min, y_max, y_lim, _selection,
+					                                    y_min, y_max, y_lim, volatile_selection(),
 					                                    zoom_level, _axis,
 					                                    &PVZoomedZoneTree::browse_bci_sel_by_y1,
 					                                    alpha, beta, false,

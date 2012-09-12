@@ -19,9 +19,9 @@
 
 #define CRAND() (127 + (random() & 0x7F))
 
-PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* parallel_view, Picviz::PVView_sp& view_sp, PVParallelView::PVZonesManager& zm, PVParallelView::PVLinesView::zones_drawing_t::bci_backend_t& bci_backend, tbb::task* root_sel):
+PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* parallel_view, Picviz::PVView_sp& view_sp, PVLinesView::zones_drawing_t& zd, tbb::task* root_sel):
 	QGraphicsScene(),
-	_lines_view(zm, bci_backend),
+	_lines_view(zd),
 	_lib_view(*view_sp),
 	_parallel_view(parallel_view),
 	_selection_square(new PVParallelView::PVSelectionSquareGraphicsItem(this)),

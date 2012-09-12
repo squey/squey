@@ -62,6 +62,8 @@ private:
 	tbb::task                                *_task_root;
 	tbb::task_group_context                   _tasks_ctxt;
 
+	PVZonesDrawing<PARALLELVIEW_ZT_BBITS>     _zd_zt;
+	PVZonesDrawing<PARALLELVIEW_ZZT_BBITS>    _zd_zzt;
 };
 
 }

@@ -7,13 +7,13 @@
 #ifndef PVPARALLELVIEW_PVZOOMEDPARALLELSCENE_H
 #define PVPARALLELVIEW_PVZOOMEDPARALLELSCENE_H
 
+#include <picviz/PVView.h>
+
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVZoomedParallelView.h>
 #include <pvparallelview/PVZonesDrawing.h>
 #include <pvparallelview/PVRenderingJob.h>
 #include <pvparallelview/PVSelectionSquareGraphicsItem.h>
-
-#include <picviz/FakePVView.h>
 
 #include <QGraphicsPixmapItem>
 #include <QGraphicsSceneMouseEvent>
@@ -53,7 +53,7 @@ private:
 
 public:
 	PVZoomedParallelScene(PVParallelView::PVZoomedParallelView *zpview,
-	                      Picviz::FakePVView_p pvview_p,
+	                      Picviz::PVView_sp& pvview,
 	                      zones_drawing_t &zones_drawing,
 	                      PVCol axis);
 
@@ -111,6 +111,8 @@ private:
 
 	PVZonesManager& get_zones_manager() { return _zones_drawing.get_zones_manager(); }
 
+	inline Picviz::PVSelection& volatile_selection() { return _pvview.get_volatile_selection(); }
+
 private slots:
 	void scrollbar_changed_Slot(int value);
 	void scrollbar_timeout_Slot();
@@ -134,9 +136,8 @@ private:
 	};
 
 	PVZoomedParallelView          *_zpview;
-	Picviz::FakePVView_p           _pvview_p;
+	Picviz::PVView&                _pvview;
 	zones_drawing_t               &_zones_drawing;
-	Picviz::PVSelection           &_selection;
 	PVCol                          _axis;
 
 	// about mouse

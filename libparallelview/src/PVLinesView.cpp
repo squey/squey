@@ -12,16 +12,16 @@
 #include <tbb/task.h>
 #include <tbb/task_group.h>
 
-PVParallelView::PVLinesView::PVLinesView(PVParallelView::PVZonesManager& zm, PVParallelView::PVLinesView::zones_drawing_t::bci_backend_t& bci_backend, PVZoneID nb_zones /*= 30*/, uint32_t zone_width /* = PVParallelView::ZoneMaxWidth */) :
-	_zd(new zones_drawing_t(zm, bci_backend, *PVCore::PVHSVColor::init_colors(zm.get_number_rows()))),
+PVParallelView::PVLinesView::PVLinesView(zones_drawing_t& zd, PVZoneID nb_zones /*= 30*/, uint32_t zone_width /* = PVParallelView::ZoneMaxWidth */) :
+	_zd(&zd),
 	_first_zone(0),
 	_zone_max_width(zone_width),
 	_visible_view_x(0)
 {
 	set_nb_drawable_zones(nb_zones);
 
-	_render_grp_sel = bci_backend.new_render_group();
-	_render_grp_bg = bci_backend.new_render_group();
+	_render_grp_sel = zd.new_render_group();
+	_render_grp_bg = zd.new_render_group();
 
 	PVLOG_INFO("render_grp_sel: %lu\n", _render_grp_sel);
 	PVLOG_INFO("render_grp_bg: %lu\n", _render_grp_bg);
