@@ -10,6 +10,12 @@ PVParallelView::__impl::PVParallelView::PVParallelView():
 	_backend_full(nullptr),
 	_backend_zoom(nullptr)
 {
+	const float win_r = pvconfig.value("pvgl/window_r", 0.2f).toFloat();
+	const float win_g = pvconfig.value("pvgl/window_g", 0.2f).toFloat();
+	const float win_b = pvconfig.value("pvgl/window_b", 0.2f).toFloat();
+	const float win_a = pvconfig.value("pvgl/window_a", 1.0f).toFloat();
+
+	_color_view_bg.setRgbF(win_r, win_g, win_b, win_a);
 }
 
 PVParallelView::__impl::PVParallelView::~PVParallelView()

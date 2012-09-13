@@ -10,6 +10,7 @@
 #include <pvhive/PVCallHelper.h>
 #include <pvhive/waxes/waxes.h>
 
+#include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVFullParallelScene.h>
 
 #include <tbb/task.h>
@@ -34,7 +35,7 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* par
 	_rendering_job_bg  = new PVRenderingJob(this);
 	_rendering_job_all = new PVRenderingJob(this);
 
-	setBackgroundBrush(Qt::black);
+	setBackgroundBrush(QBrush(common::color_view_bg()));
 
 	connect(_parallel_view->horizontalScrollBar(), SIGNAL(sliderPressed()), this, SLOT(scrollbar_pressed_Slot()));
 	connect(_parallel_view->horizontalScrollBar(), SIGNAL(sliderReleased()), this, SLOT(scrollbar_released_Slot()));
@@ -103,6 +104,8 @@ void PVParallelView::PVFullParallelScene::first_render()
 			zi.sel = addPixmap(QPixmap());
 			zi.bg = addPixmap(QPixmap());
 			zi.bg->setOpacity(0.25);
+			zi.bg->setZValue(0.0f);
+			zi.sel->setZValue(1.0f);
 			zi.img_tmp_sel = _lines_view.get_zones_drawing()->create_image(PVParallelView::ZoneMaxWidth);
 			zi.img_tmp_bg  = _lines_view.get_zones_drawing()->create_image(PVParallelView::ZoneMaxWidth);
 			_zones.push_back(zi);

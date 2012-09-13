@@ -54,7 +54,7 @@ protected:
 
 private:
 	PVZonesManager                            _zones_manager;
-	PVHive::PVObserver_p<Picviz::PVLayer>     _obs_output_layer;
+	PVHive::PVObserver_p<Picviz::PVLayer>     _obs_sel_layer;
 	PVHive::PVObserver_p<Picviz::PVView>      _obs_view;
 	views_list_t                              _parallel_scenes;
 	zoomed_scene_list_t                       _zoomed_parallel_scenes;

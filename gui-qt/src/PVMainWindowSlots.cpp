@@ -184,16 +184,11 @@ void PVInspector::PVMainWindow::commit_selection_in_current_layer_Slot()
  *****************************************************************************/
 void PVInspector::PVMainWindow::commit_selection_to_new_layer_Slot()
 {
-	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
-	/* VARIABLES */
-	/* We prepare a direct access to the current lib_view */
-	Picviz::PVView* current_lib_view;
-
-	/* CODE */
-	if (pv_ListingsTabWidget->currentIndex() == -1) {
+	if (!current_tab) {
 		return;
 	}
-	current_lib_view = current_tab->get_lib_view();
+
+	Picviz::PVView* current_lib_view = current_tab->get_lib_view();
 	commit_selection_to_new_layer(current_lib_view);
 }
 

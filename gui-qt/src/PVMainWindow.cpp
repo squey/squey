@@ -5,6 +5,7 @@
  */
 
 #include <QApplication>
+#include <QDesktopWidget>
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QFile>
@@ -14,6 +15,8 @@
 #include <QLine>
 #include <QMenuBar>
 #include <QMessageBox>
+#include <QSplashScreen>
+#include <QStatusBar>
 #include <QVBoxLayout>
 
 #include <PVMainWindow.h>
@@ -47,6 +50,9 @@
 #include <picviz/PVPlotting.h>
 #include <picviz/PVStateMachine.h>
 #include <picviz/PVSource.h>
+
+#include <pvhive/PVActor.h>
+#include <pvhive/waxes/waxes.h>
 
 #include <PVFormatBuilderWidget.h>
 
@@ -451,25 +457,21 @@ void PVInspector::PVMainWindow::commit_selection_in_current_layer(Picviz::PVView
  *****************************************************************************/
 void PVInspector::PVMainWindow::commit_selection_to_new_layer(Picviz::PVView* picviz_view)
 {
-	/* We also need an access to the state machine */
-	//Picviz::StateMachine *state_machine = NULL;
+	// Register an actor to the hive
+	Picviz::PVView_sp view_sp = picviz_view->shared_from_this();
+	PVHive::PVActor<Picviz::PVView> actor;
+	PVHive::get().register_actor(view_sp, actor);
 
-	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
-
-	//state_machine = picviz_view->state_machine;
-
-	/* We FIRST do what has to be done in the Lib */
-	/* We create a new layer */
-	picviz_view->layer_stack.append_new_layer();
+	actor.call<FUNC(Picviz::PVView::add_new_layer)>();
 	Picviz::PVLayer &new_layer = picviz_view->layer_stack.get_selected_layer();
 	/* We set it's selection to the final selection */
 	picviz_view->set_selection_with_final_selection(new_layer.get_selection());
 	picviz_view->output_layer.get_lines_properties().A2B_copy_restricted_by_selection_and_nelts(new_layer.get_lines_properties(), new_layer.get_selection(), picviz_view->row_count);
-	// picviz_lines_properties_A2B_copy_restricted_by_selection_and_nelts(picviz_view->output_layer.get_lines_properties(), new_layer->lines_properties, new_layer.get_selection(), picviz_view->row_count);
-	/* THEN we can do the updates */
+	
 	/* We need to reprocess the layer stack */
 	new_layer.compute_min_max(*picviz_view->get_parent<Picviz::PVPlotted>());
-	picviz_view->process_from_layer_stack();
+
+	actor.call<FUNC(Picviz::PVView::process_from_layer_stack)>();
 }
 
 
