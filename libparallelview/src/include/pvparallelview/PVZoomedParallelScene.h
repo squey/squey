@@ -10,6 +10,7 @@
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVZoomedParallelView.h>
 #include <pvparallelview/PVZonesDrawing.h>
+#include <pvparallelview/PVSlidersManager.h>
 #include <pvparallelview/PVRenderingJob.h>
 #include <pvparallelview/PVSelectionSquareGraphicsItem.h>
 
@@ -52,8 +53,9 @@ private:
 	typedef typename zones_drawing_t::render_group_t render_group_t;
 
 public:
-	PVZoomedParallelScene(PVParallelView::PVZoomedParallelView *zpview,
+	PVZoomedParallelScene(PVZoomedParallelView *zpview,
 	                      Picviz::FakePVView_p pvview_p,
+	                      PVSlidersManager_p sliders_manager_p,
 	                      zones_drawing_t &zones_drawing,
 	                      PVCol axis);
 
@@ -135,6 +137,7 @@ private:
 
 	PVZoomedParallelView          *_zpview;
 	Picviz::FakePVView_p           _pvview_p;
+	PVSlidersManager_p             _sliders_manager_p;
 	zones_drawing_t               &_zones_drawing;
 	Picviz::PVSelection           &_selection;
 	PVCol                          _axis;

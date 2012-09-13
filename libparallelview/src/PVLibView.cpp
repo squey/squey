@@ -25,6 +25,8 @@ PVParallelView::PVLibView::PVLibView(Picviz::FakePVView::shared_pointer& view_sp
 		view_sp,
 		*_process_selection_observer
 	);
+
+	_sliders_manager_p = PVParallelView::PVSlidersManager_p(new PVSlidersManager);
 }
 
 PVParallelView::PVLibView::~PVLibView()

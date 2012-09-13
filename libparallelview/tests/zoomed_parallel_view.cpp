@@ -127,10 +127,14 @@ int main(int argc, char** argv)
 
 	Picviz::FakePVView_p pvview_p(new Picviz::FakePVView());
 
+	PVParallelView::PVSlidersManager_p sm_p =
+		PVParallelView::PVSlidersManager_p(new PVParallelView::PVSlidersManager);
+
 	PVParallelView::PVZoomedParallelView zpview;
 	zpview.setViewport(new QWidget());
 	zpview.setScene(new PVParallelView::PVZoomedParallelScene(&zpview,
 	                                                          pvview_p,
+	                                                          sm_p,
 	                                                          zones_drawing,
 	                                                          /*axis*/ 1));
 	zpview.resize(1024, 1024);

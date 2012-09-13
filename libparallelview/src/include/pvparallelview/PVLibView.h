@@ -15,6 +15,7 @@
 #include <pvparallelview/PVFullParallelScene.h>
 #include <pvparallelview/PVZoomedParallelScene.h>
 #include <pvparallelview/PVZonesManager.h>
+#include <pvparallelview/PVSlidersManager.h>
 
 #include <pvparallelview/PVBCIDrawingBackendCUDA.h>
 
@@ -53,7 +54,7 @@ public:
 			*(new PVParallelView::PVZoomedParallelScene::zones_drawing_t(_zones_manager,
 			                                                             zoom_backend,
 			                                                             *_colors));
-		_zoomed_parallel_scenes.emplace_back(zpv, _view_sp, zzd, axis);
+		_zoomed_parallel_scenes.emplace_back(zpv, _view_sp, _sliders_manager_p, zzd, axis);
 		zpv->setScene(&_zoomed_parallel_scenes.back());
 	}
 
@@ -76,6 +77,7 @@ private:
 
 private:
 	PVZonesManager                      _zones_manager;
+	PVSlidersManager_p                  _sliders_manager_p;
 	process_selection_Observer         *_process_selection_observer;
 	views_list_t                        _parallel_views;
 	zoomed_scene_list_t                 _zoomed_parallel_scenes;

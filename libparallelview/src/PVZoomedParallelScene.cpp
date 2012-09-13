@@ -45,11 +45,13 @@
 
 PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZoomedParallelView *zpview,
                                                              Picviz::FakePVView_p pvview_p,
+                                                             PVParallelView::PVSlidersManager_p sliders_manager_p,
                                                              zones_drawing_t &zones_drawing,
                                                              PVCol axis) :
 	QGraphicsScene(zpview),
 	_zpview(zpview),
 	_pvview_p(pvview_p),
+	_sliders_manager_p(sliders_manager_p),
 	_zones_drawing(zones_drawing),
 	_selection(pvview_p->get_view_selection()),
 	_axis(axis),
