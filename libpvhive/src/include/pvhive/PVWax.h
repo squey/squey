@@ -15,7 +15,7 @@
 
 #define IMPL_WAX(Method, obj, args) \
 	template <> \
-	void PVHive::call_object<decltype(&Method), &Method>(typename PVCore::PVTypeTraits::function_traits<decltype(&Method)>::class_type* obj, typename PVCore::PVTypeTraits::function_traits<decltype(&Method)>::arguments_type const& args)
+	typename PVCore::PVTypeTraits::function_traits<decltype(&Method)>::result_type PVHive::call_object<decltype(&Method), &Method>(typename PVCore::PVTypeTraits::function_traits<decltype(&Method)>::class_type* obj, typename PVCore::PVTypeTraits::function_traits<decltype(&Method)>::arguments_type const& args)
 
 #define DECLARE_WAX(Method) \
 	PVHIVE_CALL_OBJECT_BLOCK_BEGIN()\

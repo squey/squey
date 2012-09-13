@@ -19,7 +19,7 @@
 #include <iostream>
 
 PVParallelView::PVLibView::PVLibView(Picviz::PVView_sp& view_sp):
-	_colors(view_sp->get_output_layer_color_buffer()),
+	_colors(view_sp->post_filter_layer.get_lines_properties().get_buffer()),
 	_zd_zt(_zones_manager, common::backend_full(), *_colors),
 	_zd_zzt(_zones_manager, common::backend_zoom(), *_colors)
 {

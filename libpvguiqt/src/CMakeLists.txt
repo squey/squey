@@ -6,6 +6,10 @@
 set(LIBGUIQT_SRC_FILES
 PVAxesCombinationModel.cpp
 PVHiveDataTreeModel.cpp
+PVLayerStackDelegate.cpp
+PVLayerStackModel.cpp
+PVLayerStackView.cpp
+PVLayerStackWidget.cpp
 PVListingModel.cpp
 PVListingSortFilterProxyModel.cpp
 PVListingView.cpp
@@ -16,6 +20,10 @@ PVSortFilterProxyModel.cpp
 
 SET(LIBGUIQT_MOC_HEADERS
 include/pvguiqt/PVAxesCombinationModel.h
+include/pvguiqt/PVLayerStackDelegate.h
+include/pvguiqt/PVLayerStackModel.h
+include/pvguiqt/PVLayerStackView.h
+include/pvguiqt/PVLayerStackWidget.h
 include/pvguiqt/PVListingModel.h
 include/pvguiqt/PVListingSortFilterProxyModel.h
 include/pvguiqt/PVListingView.h
