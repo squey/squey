@@ -1,7 +1,6 @@
 
 #include <pvparallelview/PVSlidersManager.h>
 
-
 /*****************************************************************************
  * PVParallelView::PVSlidersManager::PVSlidersManager
  *****************************************************************************/

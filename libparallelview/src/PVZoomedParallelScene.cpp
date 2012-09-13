@@ -55,6 +55,7 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 	_zones_drawing(zones_drawing),
 	_selection(pvview_p->get_view_selection()),
 	_axis(axis),
+	_zsn_obs(this),
 	_left_zone(nullptr),
 	_right_zone(nullptr),
 	_renderable_zone_number(0),
@@ -115,6 +116,8 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 	        this, SLOT(scrollbar_timeout_Slot()));
 
 	_render_group = _zones_drawing.new_render_group();
+
+	PVHive::PVHive::get().register_func_observer(_sliders_manager_p, _zsn_obs);
 }
 
 /*****************************************************************************

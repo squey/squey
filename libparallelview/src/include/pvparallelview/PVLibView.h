@@ -41,7 +41,8 @@ public:
 public:
 	void create_view(PVParallelView::PVLinesView::zones_drawing_t::bci_backend_t& bci_backend)
 	{
-		_parallel_views.emplace_back(_view_sp, _zones_manager, bci_backend, task_root());
+		_parallel_views.emplace_back(_view_sp, _zones_manager, _sliders_manager_p,
+		                             bci_backend, task_root());
 		_parallel_views.back().first_render();
 	}
 
@@ -49,13 +50,18 @@ public:
 	void create_zoomed_scene(PVParallelView::PVZoomedParallelView *zpv,
 	                         PVCol axis)
 	{
+		using namespace PVParallelView;
 		Backend &zoom_backend = *(new Backend);
-		PVParallelView::PVZoomedParallelScene::zones_drawing_t &zzd =
-			*(new PVParallelView::PVZoomedParallelScene::zones_drawing_t(_zones_manager,
-			                                                             zoom_backend,
-			                                                             *_colors));
+		PVZoomedParallelScene::zones_drawing_t &zzd =
+			*(new PVZoomedParallelScene::zones_drawing_t(_zones_manager,
+			                                             zoom_backend,
+			                                             *_colors));
 		_zoomed_parallel_scenes.emplace_back(zpv, _view_sp, _sliders_manager_p, zzd, axis);
-		zpv->setScene(&_zoomed_parallel_scenes.back());
+		PVZoomedParallelScene *zps = &_zoomed_parallel_scenes.back();
+		zpv->setScene(zps);
+		printf("&&&&& new PVZoomedParallelScene: %p\n", zps);
+		PVHive::call<FUNC(PVSlidersManager::new_zoom_sliders)>(_sliders_manager_p,
+		                                                       axis, zps, 0, 1024);
 	}
 
 	PVZonesManager& get_zones_manager() { return _zones_manager; }

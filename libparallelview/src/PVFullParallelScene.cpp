@@ -13,7 +13,7 @@
 
 #define CRAND() (127 + (random() & 0x7F))
 
-PVParallelView::PVFullParallelScene::PVFullParallelScene(Picviz::FakePVView::shared_pointer view_sp, PVParallelView::PVZonesManager& zm, PVParallelView::PVLinesView::zones_drawing_t::bci_backend_t& bci_backend, tbb::task* root_sel) :
+PVParallelView::PVFullParallelScene::PVFullParallelScene(Picviz::FakePVView::shared_pointer view_sp, PVParallelView::PVZonesManager& zm, PVParallelView::PVSlidersManager_p sm_p, PVParallelView::PVLinesView::zones_drawing_t::bci_backend_t& bci_backend, tbb::task* root_sel) :
 	QGraphicsScene(),
 	_lines_view(zm, bci_backend),
 	_view_sp(view_sp),
@@ -54,7 +54,7 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(Picviz::FakePVView::sha
 			pos += _lines_view.get_zones_manager().get_zone_width(z-1);
 		}
 
-		PVParallelView::PVAxisGraphicsItem* axisw = new PVParallelView::PVAxisGraphicsItem(axis, z);
+		PVParallelView::PVAxisGraphicsItem* axisw = new PVParallelView::PVAxisGraphicsItem(sm_p, axis, z);
 		connect(axisw, SIGNAL(axis_sliders_moved(PVZoneID)), this, SLOT(update_selection_from_sliders_Slot(PVZoneID)));
 		axisw->setPos(QPointF(pos - PVParallelView::AxisWidth, 0));
 		addItem(axisw);
