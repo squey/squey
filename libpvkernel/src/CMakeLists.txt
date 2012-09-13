@@ -187,6 +187,7 @@ rush/pvdecoder.cpp
 rush/PVFileRawSource.cpp
 rush/PVFormat.cpp
 rush/PVNraw.cpp
+rush/PVNrawDiskBackend.cpp
 rush/PVNrawChild.cpp
 rush/PVNrawOutput.cpp
 rush/PVNormalizer.cpp
@@ -279,6 +280,7 @@ include/pvkernel/rush/PVInput.h
 include/pvkernel/rush/PVInputFile.h
 include/pvkernel/rush/PVInputPcap.h
 include/pvkernel/rush/PVNraw.h
+include/pvkernel/rush/PVNrawDiskBackend.h
 include/pvkernel/rush/PVNrawChild.h
 include/pvkernel/rush/PVNrawOutput.h
 include/pvkernel/rush/PVOutputFile.h
