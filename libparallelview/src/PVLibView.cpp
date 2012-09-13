@@ -61,13 +61,15 @@ void PVParallelView::PVLibView::common_init_view(Picviz::PVView_sp& view_sp)
 
 	PVHive::get().register_observer(view_sp, [&](Picviz::PVView& view) { return &view.get_output_layer(); }, *_obs_output_layer);
 	PVHive::get().register_observer(view_sp, *_obs_view);
+
+	_sliders_manager_p = PVParallelView::PVSlidersManager_p(new PVSlidersManager);
 }
 
 PVParallelView::PVFullParallelView* PVParallelView::PVLibView::create_view(QWidget* parent)
 {
 	PVParallelView::PVFullParallelView* view = new PVParallelView::PVFullParallelView(parent);
 	Picviz::PVView_sp vsp = lib_view()->shared_from_this();
-	_parallel_scenes.emplace_back(view, vsp, _zd_zt, task_root());
+	_parallel_scenes.emplace_back(view, vsp, _sliders_manager_p, _zd_zt, task_root());
 	PVFullParallelScene& scene = _parallel_scenes.back();
 	view->setScene(&scene);
 	scene.first_render();
@@ -78,8 +80,11 @@ PVParallelView::PVZoomedParallelView* PVParallelView::PVLibView::create_zoomed_v
 {
 	PVParallelView::PVZoomedParallelView* view = new PVParallelView::PVZoomedParallelView(parent);
 	Picviz::PVView_sp view_sp = lib_view()->shared_from_this();
-	_zoomed_parallel_scenes.emplace_back(view, view_sp, _zd_zzt, axis);
+	_zoomed_parallel_scenes.emplace_back(view, view_sp, _sliders_manager_p, _zd_zzt, axis);
 	view->setScene(&_zoomed_parallel_scenes.back());
+
+	PVHive::call<FUNC(PVSlidersManager::new_zoom_sliders)>(_sliders_manager_p, axis, &_zoomed_parallel_scenes.back(), 0, 1024);
+
 	return view;
 }
 void PVParallelView::PVLibView::view_about_to_be_deleted()

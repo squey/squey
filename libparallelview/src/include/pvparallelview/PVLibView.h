@@ -15,6 +15,7 @@
 #include <pvparallelview/PVFullParallelScene.h>
 #include <pvparallelview/PVZoomedParallelScene.h>
 #include <pvparallelview/PVZonesManager.h>
+#include <pvparallelview/PVSlidersManager.h>
 
 #include <tbb/task.h>
 
@@ -54,6 +55,7 @@ protected:
 
 private:
 	PVZonesManager                            _zones_manager;
+	PVSlidersManager_p                        _sliders_manager_p;
 	PVHive::PVObserver_p<Picviz::PVLayer>     _obs_output_layer;
 	PVHive::PVObserver_p<Picviz::PVView>      _obs_view;
 	views_list_t                              _parallel_scenes;

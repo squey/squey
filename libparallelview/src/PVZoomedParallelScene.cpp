@@ -45,13 +45,16 @@
 
 PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZoomedParallelView *zpview,
                                                              Picviz::PVView_sp& pvview_p,
+                                                             PVParallelView::PVSlidersManager_p sliders_manager_p,
                                                              zones_drawing_t &zones_drawing,
                                                              PVCol axis) :
 	QGraphicsScene(zpview),
 	_zpview(zpview),
 	_pvview(*pvview_p),
 	_zones_drawing(zones_drawing),
+	_sliders_manager_p(sliders_manager_p),
 	_axis(axis),
+	_zsn_obs(this),
 	_left_zone(nullptr),
 	_right_zone(nullptr),
 	_renderable_zone_number(0),
@@ -112,6 +115,8 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 	        this, SLOT(scrollbar_timeout_Slot()));
 
 	_render_group = _zones_drawing.new_render_group();
+
+	PVHive::PVHive::get().register_func_observer(_sliders_manager_p, _zsn_obs);
 }
 
 /*****************************************************************************

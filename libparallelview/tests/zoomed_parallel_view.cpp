@@ -125,6 +125,10 @@ int main(int argc, char** argv)
 	PVParallelView::PVLibView* plib_view = PVParallelView::common::get_lib_view(*fake_view, norm_plotted, nrows, ncols);
 	plib_view->get_zones_manager().update_all();
 
+	PVParallelView::PVSlidersManager_p sm_p =
+		PVParallelView::PVSlidersManager_p(new PVParallelView::PVSlidersManager);
+
+
 	PVParallelView::PVZoomedParallelView* zpview = plib_view->create_zoomed_view(1);
 	zpview->resize(1024, 1024);
 	zpview->show();

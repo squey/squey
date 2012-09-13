@@ -18,11 +18,20 @@
  * PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem
  *****************************************************************************/
 
-PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem(Picviz::PVAxis *axis, uint32_t axis_index) :
+PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem(PVParallelView::PVSlidersManager_p sm_p,
+                                                       Picviz::PVAxis *axis, uint32_t axis_index) :
+	_sliders_manager_p(sm_p),
+	_zsn_obs(this),
 	_axis(axis), _axis_index(axis_index)
 {
-	setHandlesChildEvents(false); // This is needed to let the children of the group handle their events.
+	// This is needed to let the children of the group handle their events.
+	setHandlesChildEvents(false);
+
+	// the sliders must be over all other QGraphicsItems
 	setZValue(1.e42);
+
+	PVHive::PVHive::get().register_func_observer(_sliders_manager_p, _zsn_obs);
+
 }
 
 /*****************************************************************************

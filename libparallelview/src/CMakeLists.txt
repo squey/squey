@@ -48,6 +48,7 @@ PVAxisSlider.cpp
 PVSelectionGenerator.cpp
 PVQuadTree.cpp
 PVLibView.cpp
+PVSlidersManager.cpp
 )
 
 set(CUDA_SRC_FILES
@@ -72,6 +73,7 @@ include/pvparallelview/PVZoneTreeNoAlloc.h
 include/pvparallelview/PVZoomedZoneTree.h
 include/pvparallelview/PVZoomedParallelScene.h
 include/pvparallelview/PVZoomedParallelView.h
+include/pvparallelview/PVSlidersManager.h
 include/pvparallelview/PVAxisGraphicsItem.h
 include/pvparallelview/PVAxisSlider.h
 include/pvparallelview/PVAxisGraphicsItem.h

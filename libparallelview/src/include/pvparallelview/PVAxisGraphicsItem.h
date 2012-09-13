@@ -14,9 +14,16 @@
 #include <QGraphicsItem>
 
 #include <pvkernel/core/PVAlgorithms.h>
+
+#include <picviz/PVAxis.h>
+
+#include <pvhive/PVHive.h>
+#include <pvhive/PVFuncObserver.h>
+#include <pvhive/PVCallHelper.h>
+
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVAxisSlider.h>
-#include <picviz/PVAxis.h>
+#include <pvparallelview/PVSlidersManager.h>
 
 // Used to draw the axis out of the image zone
 #define PVAW_CST 8
@@ -30,11 +37,14 @@ class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
 {
 	Q_OBJECT
 
+private:
+	friend class zoom_sliders_new_obs;
+
 public:
 	typedef std::vector<std::pair<PVRow, PVRow> > selection_ranges_t;
 
 public:
-	PVAxisGraphicsItem(Picviz::PVAxis *axis, uint32_t axis_index);
+	PVAxisGraphicsItem(PVSlidersManager_p sm_p, Picviz::PVAxis *axis, uint32_t axis_index);
 
 	QRectF boundingRect () const;
 
@@ -69,8 +79,37 @@ protected slots:
 	void slider_moved() { emit axis_sliders_moved(_axis_index); }
 
 private:
+	class zoom_sliders_new_obs :
+		public PVHive::PVFuncObserverSignal<PVSlidersManager,
+		                                    FUNC(PVSlidersManager::new_zoom_sliders)>
+	{
+	public:
+		zoom_sliders_new_obs(PVAxisGraphicsItem *parent) : _parent(parent)
+		{}
+
+		void update(arguments_deep_copy_type const& args) const
+		{
+			PVCol axis = std::get<0>(args);
+
+			if (axis == _parent->_axis_index) {
+				PVSlidersManager::id_t id = std::get<1>(args);
+				uint32_t y_min = std::get<2>(args);
+				uint32_t y_max = std::get<3>(args);
+				printf("##### PVAxisGraphicsItem::zoom_sliders_new_obs: add new zoom sliders: %d %p %u %u\n",
+				       axis, id, y_min, y_max);
+				_parent->add_range_sliders(y_min, y_max);
+			}
+		}
+
+	private:
+		PVAxisGraphicsItem *_parent;
+	};
+
+private:
+	PVSlidersManager_p              _sliders_manager_p;
+	zoom_sliders_new_obs            _zsn_obs;
 	Picviz::PVAxis*                 _axis;
-	PVZoneID						_axis_index;
+	PVZoneID			_axis_index;
 	QRectF                          _bbox;
 	std::vector<PVAxisRangeSliders> _sliders;
 };
