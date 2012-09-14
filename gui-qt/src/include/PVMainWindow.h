@@ -15,6 +15,7 @@
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QSet>
+#include <QStackedWidget>
 
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/rush/PVInput.h>

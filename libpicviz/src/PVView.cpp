@@ -167,11 +167,19 @@ void Picviz::PVView::reset_layers()
  * Picviz::PVView::add_new_layer
  *
  *****************************************************************************/
-int Picviz::PVView::add_new_layer()
+void Picviz::PVView::add_new_layer()
 {
 	layer_stack.append_new_layer();
+}
 
-	return 0;
+void Picviz::PVView::delete_selected_layer()
+{
+	layer_stack.delete_selected_layer();
+}
+
+void Picviz::PVView::delete_layer_n(int idx)
+{
+	layer_stack.append_new_layer();
 }
 
 /******************************************************************************
@@ -388,9 +396,9 @@ Picviz::PVLayerStack &Picviz::PVView::get_layer_stack()
  * Picviz::PVView::get_layer_stack_layer_n_locked_state
  *
  *****************************************************************************/
-int Picviz::PVView::get_layer_stack_layer_n_locked_state(int n)
+int Picviz::PVView::get_layer_stack_layer_n_locked_state(int n) const
 {
-	PVLayer &layer = layer_stack.get_layer_n(n);
+	PVLayer const& layer = layer_stack.get_layer_n(n);
 	return layer.get_locked();
 }
 
@@ -399,9 +407,9 @@ int Picviz::PVView::get_layer_stack_layer_n_locked_state(int n)
  * Picviz::PVView::get_layer_stack_layer_n_name
  *
  *****************************************************************************/
-QString Picviz::PVView::get_layer_stack_layer_n_name(int n)
+QString Picviz::PVView::get_layer_stack_layer_n_name(int n) const
 {
-	PVLayer &layer = layer_stack.get_layer_n(n);
+	PVLayer const& layer = layer_stack.get_layer_n(n);
 	return layer.get_name();
 }
 
@@ -410,9 +418,9 @@ QString Picviz::PVView::get_layer_stack_layer_n_name(int n)
  * Picviz::PVView::get_layer_stack_layer_n_visible_state
  *
  *****************************************************************************/
-int Picviz::PVView::get_layer_stack_layer_n_visible_state(int n)
+int Picviz::PVView::get_layer_stack_layer_n_visible_state(int n) const
 {
-	PVLayer &layer = layer_stack.get_layer_n(n);
+	PVLayer const& layer = layer_stack.get_layer_n(n);
 	return layer.get_visible();
 }
 
@@ -1171,10 +1179,10 @@ void Picviz::PVView::set_floating_selection(PVSelection &selection)
  * Picviz::PVView::set_layer_stack_layer_n_name
  *
  *****************************************************************************/
-int Picviz::PVView::set_layer_stack_layer_n_name(int n, char *new_name)
+int Picviz::PVView::set_layer_stack_layer_n_name(int n, QString const& name)
 {
 	PVLayer &layer = layer_stack.get_layer_n(n);
-	layer.set_name(new_name);
+	layer.set_name(name);
 	return 0;
 }
 

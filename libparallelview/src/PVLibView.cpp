@@ -19,7 +19,7 @@
 #include <iostream>
 
 PVParallelView::PVLibView::PVLibView(Picviz::PVView_sp& view_sp):
-	_colors(view_sp->get_output_layer_color_buffer()),
+	_colors(view_sp->output_layer.get_lines_properties().get_buffer()),
 	_zd_zt(_zones_manager, common::backend_full(), *_colors),
 	_zd_zzt(_zones_manager, common::backend_zoom(), *_colors)
 {
@@ -47,7 +47,7 @@ void PVParallelView::PVLibView::common_init_view(Picviz::PVView_sp& view_sp)
 	_task_root = new (tbb::task::allocate_root(_tasks_ctxt)) tbb::empty_task;
 	_task_root->set_ref_count(1);
 
-	_obs_output_layer = PVHive::create_observer_callback_heap<Picviz::PVLayer>(
+	_obs_sel_layer = PVHive::create_observer_callback_heap<Picviz::PVLayer>(
 	    [&](Picviz::PVLayer const*) { },
 		[&](Picviz::PVLayer const*) { this->selection_updated(); },
 		[&](Picviz::PVLayer const*) { }
@@ -59,7 +59,7 @@ void PVParallelView::PVLibView::common_init_view(Picviz::PVView_sp& view_sp)
 		[&](Picviz::PVView const*) { this->view_about_to_be_deleted(); }
 	);
 
-	PVHive::get().register_observer(view_sp, [&](Picviz::PVView& view) { return &view.get_output_layer(); }, *_obs_output_layer);
+	PVHive::get().register_observer(view_sp, [&](Picviz::PVView& view) { return &view.get_pre_filter_layer(); }, *_obs_sel_layer);
 	PVHive::get().register_observer(view_sp, *_obs_view);
 
 	_sliders_manager_p = PVParallelView::PVSlidersManager_p(new PVSlidersManager);

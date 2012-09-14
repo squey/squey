@@ -127,7 +127,11 @@ Picviz::PVLinesProperties & Picviz::PVLinesProperties::operator=(const PVLinesPr
  *****************************************************************************/
 void Picviz::PVLinesProperties::reset_to_default_color()
 {
-	memset(&_table[0], 0xFF, PICVIZ_LINESPROPS_NUMBER_OF_BYTES);
+	//memset(&_table[0], 0xFF, PICVIZ_LINESPROPS_NUMBER_OF_BYTES);
+	constexpr size_t color_max = ((1<<HSV_COLOR_NBITS_ZONE)*6);
+	for (size_t i = 0; i < PICVIZ_LINESPROPS_NUMBER_OF_CHUNKS; i++) {
+		_table[i] = i%color_max;
+	}
 }
 
 /******************************************************************************
@@ -147,6 +151,14 @@ void Picviz::PVLinesProperties::set_random(const PVRow n)
 {
 	for (PVRow i = 0; i < n; i++) {
 		line_set_color(i, PVCore::PVHSVColor(rand() % ((1<<HSV_COLOR_NBITS_ZONE)*6)));
+	}
+}
+
+void Picviz::PVLinesProperties::set_linear(const PVRow n)
+{
+onstexpr size_t color_max = ((1<<HSV_COLOR_NBITS_ZONE)*6)-1;
+	for (PVRow i = 0; i < n; i++) {
+		line_set_color(i, PVCore::PVHSVColor((uint8_t)(((double)(i*color_max)/(double)n)*color_max)));
 	}
 }
 

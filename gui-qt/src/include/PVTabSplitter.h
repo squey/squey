@@ -14,13 +14,11 @@
 #include <picviz/PVSource.h>
 #include <picviz/PVView.h>
 
-#include <PVLayerStackModel.h>
-#include <PVLayerStackWidget.h>
-
-
 #include <vector>
 
 namespace PVGuiQt {
+class PVLayerStackWidget;
+
 class PVListingModel;
 class PVListingSortFilterProxyModel;
 class PVListingView;
@@ -71,8 +69,7 @@ public:
 	PVGuiQt::PVListingModel *pv_listing_model; //!< The listing model
 	PVGuiQt::PVListingSortFilterProxyModel* pv_listing_proxy_model;
 
-	PVLayerStackModel  *pv_layer_stack_model;
-	PVLayerStackWidget *pv_layer_stack_widget;
+	PVGuiQt::PVLayerStackWidget *pv_layer_stack_widget;
 
 	PVListDisplayDlg* _inv_elts_dlg;
 
@@ -120,15 +117,9 @@ public:
 
 	/**
 	 *
-	 * @return a pointer to the PVLayerStackModel attached to this PVMainSplitter
-	 */
-	PVLayerStackModel  *get_layer_stack_model()const{return pv_layer_stack_model;}
-
-	/**
-	 *
 	 * @return a pointer to the PVLayerStackWidget attached to this PVMainSplitter
 	 */
-	PVLayerStackWidget *get_layer_stack_widget()const{return pv_layer_stack_widget;}
+	PVGuiQt::PVLayerStackWidget *get_layer_stack_widget() const { return pv_layer_stack_widget; }
 
 	PVGuiQt::PVListingSortFilterProxyModel* get_listing_proxy_model() { return pv_listing_proxy_model; }
 	PVGuiQt::PVListingView* get_listing_view() { return pv_listing_view; }

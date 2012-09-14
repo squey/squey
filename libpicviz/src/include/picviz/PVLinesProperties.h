@@ -72,6 +72,7 @@ public:
 	void reset_to_default_color();
 	void selection_set_color(PVSelection const& selection, const PVRow nelts, const PVCore::PVHSVColor c);
 	void set_random(const PVRow n);
+	void set_linear(const PVRow n);
 
 protected:
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);

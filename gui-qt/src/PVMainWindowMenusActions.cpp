@@ -7,6 +7,9 @@
 #include <PVMainWindow.h>
 #include <PVInputTypeMenuEntries.h>
 
+#include <QAction>
+#include <QMenuBar>
+
 /******************************************************************************
  *
  * PVInspector::PVMainWindow::create_actions

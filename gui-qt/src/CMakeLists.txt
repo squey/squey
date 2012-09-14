@@ -64,11 +64,6 @@ include/PVFilterWidget.h
 include/PVInputTypeMenuEntries.h
 include/PVInvestigationWizard.h
 include/PVLayerFilterProcessWidget.h
-include/PVLayerStackDelegate.h
-include/PVLayerStackEventFilter.h
-include/PVLayerStackModel.h
-include/PVLayerStackView.h
-include/PVLayerStackWidget.h
 include/PVListColNrawDlg.h
 include/PVListDisplayDlg.h
 #include/PVListingModel.h
@@ -144,11 +139,6 @@ PVExportSelectionDialog.cpp
 PVFilterWidget.cpp
 PVInvestigationWizard.cpp
 PVLayerFilterProcessWidget.cpp
-PVLayerStackDelegate.cpp
-PVLayerStackEventFilter.cpp
-PVLayerStackModel.cpp
-PVLayerStackView.cpp
-PVLayerStackWidget.cpp
 PVListColNrawDlg.cpp
 PVListDisplayDlg.cpp
 #PVListingModel.cpp
