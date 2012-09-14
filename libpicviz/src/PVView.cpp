@@ -1148,9 +1148,9 @@ void Picviz::PVView::set_axis_name(PVCol index, const QString &name_)
 void Picviz::PVView::set_color_on_active_layer(const PVCore::PVHSVColor c)
 {
 	/* VARIABLES */
-	PVLayer &active_layer = layer_stack.get_layer_n(0);
+	PVLayer &active_layer = layer_stack.get_selected_layer();
 
-	active_layer.get_lines_properties().selection_set_color(floating_selection, row_count, c);
+	active_layer.get_lines_properties().selection_set_color(get_real_output_selection(), row_count, c);
 }
 
 /******************************************************************************

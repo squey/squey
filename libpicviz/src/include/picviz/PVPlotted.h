@@ -139,7 +139,7 @@ public:
 	inline uint32_t* get_column_pointer(PVCol const j) { return &_uint_table[j*get_aligned_row_count()]; }
 	inline uint32_t get_value(PVRow const i, PVCol const j) const { return get_column_pointer(j)[i]; }
 
-	//void get_sub_col_minmax(plotted_sub_col_t& ret, uint32_t& min, uint32_t& max, PVSelection const& sel, PVCol col) const;
+	void get_sub_col_minmax(plotted_sub_col_t& ret, uint32_t& min, uint32_t& max, PVSelection const& sel, PVCol col) const;
 	void get_col_minmax(PVRow& min, PVRow& max, PVSelection const& sel, PVCol col) const;
 
 	inline PVView* current_view() { return get_parent<PVSource>()->current_view(); }

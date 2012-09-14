@@ -24,7 +24,6 @@
 #include <PVListDisplayDlg.h>
 #include <PVStringListChooserWidget.h>
 #include <PVInputTypeMenuEntries.h>
-#include <PVColorDialog.h>
 #include <PVStartScreenWidget.h>
 
 #ifdef CUSTOMER_RELEASE
@@ -43,6 +42,8 @@
 
 #include <pvkernel/rush/PVFileDescription.h>
 
+#include <pvkernel/widgets/PVColorDialog.h>
+
 #include <picviz/general.h>
 #include <picviz/arguments.h>
 #include <picviz/PVSelection.h>
@@ -52,6 +53,7 @@
 #include <picviz/PVSource.h>
 
 #include <pvhive/PVActor.h>
+#include <pvhive/PVCallHelper.h>
 #include <pvhive/waxes/waxes.h>
 
 #include <PVFormatBuilderWidget.h>
@@ -443,11 +445,10 @@ void PVInspector::PVMainWindow::commit_selection_in_current_layer(Picviz::PVView
 	Picviz::PVLayer &current_selected_layer = picviz_view->layer_stack.get_selected_layer();
 	/* We fill it's lines_properties */
 	picviz_view->output_layer.get_lines_properties().A2B_copy_restricted_by_selection_and_nelts(current_selected_layer.get_lines_properties(), picviz_view->real_output_selection, picviz_view->row_count);
-	/* We need to process the view from the layer_stack */
-	picviz_view->process_from_layer_stack();
 
-	// TODO: Hive!
-	//refresh_view(picviz_view);
+	/* We need to process the view from the layer_stack */
+	Picviz::PVView_sp view_sp = picviz_view->shared_from_this();
+	PVHive::PVCallHelper::call<FUNC(Picviz::PVView::process_from_layer_stack)>(view_sp);
 }
 
 /******************************************************************************
@@ -1689,20 +1690,21 @@ void PVInspector::PVMainWindow::set_color(Picviz::PVView* picviz_view)
 {
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
 
-	PVTabSplitter* tab = get_tab_from_view(picviz_view);
-	if (!tab) {
-		PVLOG_ERROR("(PVMainWindow::set_color) Unable to find a tab that goes w/ the view %x.\n", picviz_view);
+	/* We let the user select a color */
+	PVWidgets::PVColorDialog* pv_ColorDialog = new PVWidgets::PVColorDialog(this);
+	if (pv_ColorDialog->exec() != QDialog::Accepted) {
 		return;
 	}
+	PVCore::PVHSVColor color = pv_ColorDialog->color();
 
-	/* We let the user select a color */
-	PVColorDialog* pv_ColorDialog = new PVColorDialog(*picviz_view, this);
-	connect(pv_ColorDialog, SIGNAL(colorSelected(const QColor&)), this, SLOT(set_color_selected(const QColor&)));
+	PVHive::PVActor<Picviz::PVView> actor;
+	Picviz::PVView_sp view_sp = picviz_view->shared_from_this();
+	PVHive::get().register_actor(view_sp, actor);
 
-	pv_ColorDialog->show();
-	pv_ColorDialog->setFocus(Qt::PopupFocusReason);
-	pv_ColorDialog->raise();
-	pv_ColorDialog->activateWindow();
+	//actor.call<FUNC(Picviz::PVView::set_color_on_post_filter_layer)>(color);
+	actor.call<FUNC(Picviz::PVView::set_color_on_active_layer)>(color);
+	actor.call<FUNC(Picviz::PVView::process_from_layer_stack)>();
+	//commit_selection_in_current_layer(picviz_view);
 }
 
 
@@ -1712,18 +1714,9 @@ void PVInspector::PVMainWindow::set_color(Picviz::PVView* picviz_view)
  * PVInspector::PVMainWindow::set_color_selected
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::set_color_selected(const QColor& color)
+void PVInspector::PVMainWindow::set_color_selected(QColor const& color)
 {
-	if (!color.isValid()) {
-		return;
-	}
-
-	// Get the view associated w/ this color dialog
-	PVColorDialog* dlg = dynamic_cast<PVColorDialog*>(sender());
-	if (!dlg) {
-		PVLOG_ERROR("(PVMainWindow::set_color_selected) this slot has been called from an object different from PVColorDialog !\n");
-		return;
-	}
+#if 0
 	Picviz::PVView& picviz_view = dlg->get_lib_view();
 
 	// Get the tab associated w/ this view
@@ -1761,6 +1754,7 @@ void PVInspector::PVMainWindow::set_color_selected(const QColor& color)
 
 	// And tell that the project has been modified
 	set_project_modified(true);
+#endif
 }
 
 

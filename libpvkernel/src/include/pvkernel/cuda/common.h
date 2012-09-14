@@ -13,6 +13,8 @@
 
 #include <functional>
 
+#include <pvkernel/cuda/constexpr.h>
+
 #define picviz_verify_cuda(e) __picviz_verify_cuda(e, __FILE__, __LINE__)
 #define __picviz_verify_cuda(e, F, L)\
 		if ((e) != cudaSuccess) {\
@@ -39,12 +41,5 @@ void visit_usable_cuda_devices(std::function<void(int)> const& f);
 #endif
 
 }
-
-#ifdef __CUDACC__
-// nvcc does not support C++0x !
-#define CUDA_CONSTEXPR const
-#else
-#define CUDA_CONSTEXPR constexpr
-#endif
 
 #endif
