@@ -107,16 +107,16 @@ void test(
 	Picviz::PVPlotted::plotted_table_t& plotted,
 	PVRow nrows,
 	PVCol ncols,
-	PVCore::PVHSVColor* colors,
-	PVParallelView::PVBCICode<NBITS_INDEX>* bci_codes,
-	PVParallelView::PVBCICode<NBITS_INDEX>* bci_codes_ref
+	PVCore::PVHSVColor* /*colors*/,
+	PVParallelView::PVBCICode<NBITS_INDEX>* /*bci_codes*/,
+	PVParallelView::PVBCICode<NBITS_INDEX>* /*bci_codes_ref*/
 )
 {
 	Picviz::PVPlotted::uint_plotted_table_t norm_plotted;
 	//PVLOG_INFO("Normalizing to 32-bit unsigned integers...\n");
 	Picviz::PVPlotted::norm_int_plotted(plotted, norm_plotted, ncols);
 	//PVLOG_INFO("Done !\n");
-	
+
 	/*
 	{
 		typedef std::vector<PVRow, tbb::scalable_allocator<PVRow> > vector;
@@ -152,7 +152,7 @@ void test(
 		PVParallelView::PVZoneTree* ztree = new PVParallelView::PVZoneTree();
 		//ztree->set_trans_plotted(norm_plotted, nrows, ncols);
 		PVParallelView::PVZoneProcessing zp(norm_plotted, nrows, 0, 1);
-		
+
 		{
 		BENCH_START(sse);
 		ztree->process_tbb_sse_treeb(zp);
@@ -160,10 +160,10 @@ void test(
 		}
 
 		bool sorted = true;
-		for (size_t b = 0; b < NBUCKETS; b++) {
+		for (uint32_t b = 0; b < NBUCKETS; b++) {
 			sorted = true;
-			int last_value = 0;
-			for (int i = 0; i < ztree->get_branch_count(b); i++) {
+			uint32_t last_value = 0;
+			for (size_t i = 0; i < ztree->get_branch_count(b); i++) {
 				sorted &= ztree->get_branch_element(b, i) >= last_value;
 				last_value = ztree->get_branch_element(b, i);
 				//PVLOG_INFO("treeb[%d]=%d sorted=%d\n", b, treeb[b].p[i], sorted);

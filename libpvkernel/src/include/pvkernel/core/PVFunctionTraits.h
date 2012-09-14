@@ -270,8 +270,9 @@ struct function_traits_helper<R (T::*)(Tparams...)>: public function_traits_help
 {
 	typedef T class_type;
 	typedef R (T::*pointer_type)(Tparams...);
-	typedef typename function_traits_helper<R (*)(Tparams...)>::arguments_type arguments_type;
+	//typedef typename function_traits_helper<R (*)(Tparams...)>::arguments_type arguments_type;
 	typedef typename function_traits_helper<R (*)(Tparams...)>::arguments_deep_copy_type arguments_deep_copy_type;
+	typedef arguments_deep_copy_type arguments_type;
 	constexpr static bool is_const = false;
 
 	template <pointer_type f, template <class Y> class argument_storage, typename R_ = R, typename std::enable_if<std::is_same<R_, void>::value == false, int>::type = 0>
@@ -299,8 +300,9 @@ struct function_traits_helper<R (T::*)(Tparams...) const>: public function_trait
 {
 	typedef T class_type;
 	typedef R (T::*pointer_type)(Tparams...) const;
-	typedef typename function_traits_helper<R (*)(Tparams...)>::arguments_type arguments_type;
+	//typedef typename function_traits_helper<R (*)(Tparams...)>::arguments_type arguments_type;
 	typedef typename function_traits_helper<R (*)(Tparams...)>::arguments_deep_copy_type arguments_deep_copy_type;
+	typedef arguments_deep_copy_type arguments_type;
 	constexpr static bool is_const = true;
 	
 	template <pointer_type f, template <class Y> class argument_storage>
