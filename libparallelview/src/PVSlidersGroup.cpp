@@ -33,6 +33,18 @@ PVParallelView::PVSlidersGroup::PVSlidersGroup(PVSlidersManager_p sm_p,
 void PVParallelView::PVSlidersGroup::add_zoom_sliders(uint32_t y_min,
                                                       uint32_t y_max)
 {
+	PVParallelView::PVAxisRangeSliders sliders;
+
+	sliders.first = new PVParallelView::PVAxisSlider(0, PVParallelView::ImageHeight, y_min);
+	sliders.second = new PVParallelView::PVAxisSlider(0, PVParallelView::ImageHeight, y_max);
+
+	addToGroup(sliders.first);
+	addToGroup(sliders.second);
+
+	sliders.first->setPos(pos());
+	sliders.second->setPos(pos());
+
+	_all_sliders.push_back(sliders);
 }
 
 /*****************************************************************************
@@ -105,7 +117,6 @@ void PVParallelView::PVSlidersGroup::zoom_sliders_new_obs::update(arguments_deep
 		PVSlidersManager::id_t id = std::get<1>(args);
 		uint32_t y_min = std::get<2>(args);
 		uint32_t y_max = std::get<3>(args);
-		printf("##### PVSlidersGroup::zoom_sliders_new_obs: add new zoom sliders: %d %p %u %u\n",
-		       axis, id, y_min, y_max);
+		_parent->add_zoom_sliders(y_min, y_max);
 	}
 }
