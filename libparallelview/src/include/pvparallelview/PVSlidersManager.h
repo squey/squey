@@ -16,14 +16,14 @@ class PVSlidersManager
 public:
 	typedef void* id_t;
 
-	struct zoom_geometry_t
+	struct interval_geometry_t
 	{
 		uint32_t y_min;
 		uint32_t y_max;
 	};
 
 	typedef std::function<void(const PVCol, const id_t,
-	                           const zoom_geometry_t &)> zoom_functor_t;
+	                           const interval_geometry_t &)> zoom_functor_t;
 
 public:
 	PVSlidersManager();
@@ -76,11 +76,11 @@ public:
 	void iterate_zoom_sliders(const zoom_functor_t &functor) const;
 
 private:
-	typedef std::map<id_t, zoom_geometry_t> zoom_geometry_list_t;
-	typedef std::map<PVCol, zoom_geometry_list_t> zoom_geometry_set_t;
+	typedef std::map<id_t, interval_geometry_t> interval_geometry_list_t;
+	typedef std::map<PVCol, interval_geometry_list_t> interval_geometry_set_t;
 
 private:
-	zoom_geometry_set_t _zoom_geometries;
+	interval_geometry_set_t _zoom_geometries;
 };
 
 typedef PVCore::PVSharedPtr<PVSlidersManager> PVSlidersManager_p;
