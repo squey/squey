@@ -333,14 +333,14 @@ public:
 	typedef typename BufferPolicy::file_t file_t;
 
 public:
-	uint64_t Search(const std::string& filename, uint64_t num_cols, uint64_t chunk_size, std::string const& content_to_find)
+	uint64_t Search(const std::string& filename, uint64_t col_idx, uint64_t chunk_size, std::string const& content_to_find)
 	{
 		char* const buffer = PVCore::PVAlignedAllocator<char, BUF_ALIGN_>().allocate(chunk_size*2);
 
 		file_t file = this->Open(filename);
 
 		std::stringstream st;
-		st << "sequential read (" << typeid(this).name() << ") [num_cols=" << num_cols << " chunk_size=" << chunk_size << "]";
+		st << "sequential read (" << typeid(this).name() << ") [num_cols=" << col_idx << " chunk_size=" << chunk_size << "]";
 		BENCH_START(r);
 
 		uint64_t total_read_size = 0;
@@ -392,8 +392,8 @@ public:
 			total_read_size += read_size;
 
 			// Skip other columns if any:
-			if (num_cols > 1) {
-				this->Seek(file, (num_cols-1)*chunk_size);
+			if (col_idx > 1) {
+				this->Seek(file, (col_idx-1)*chunk_size);
 			}
 
 		} while(!last_chunk);
@@ -428,7 +428,7 @@ void read_test(std::string const& path)
 
 void write_nraw_disk_backend()
 {
-	uint64_t num_cols = 256;
+	uint64_t num_cols = 1;
 	std::vector<uint64_t> shuffled_sequence;
 	shuffled_sequence.reserve(num_cols);
 	for (uint64_t i = 0; i < num_cols; i++) {
@@ -439,19 +439,25 @@ void write_nraw_disk_backend()
 	std::string folder("/mnt/raid0_xfs/nraw_test");
 	PVRush::PVNRawDiskBackend<> nraw_backend(folder, num_cols);
 
-	std::string field("123456789A");
+	std::string field("123456789");
 
 	BENCH_START(w);
-	uint64_t NB_FIELDS = 1000000000;
+	uint64_t NB_FIELDS = 100000;
 	uint64_t nb_fields_per_column = NB_FIELDS / num_cols;
+	uint64_t write_size = 0;
 	for (uint64_t i = 0 ; i < nb_fields_per_column; i++) {
-		//for (uint64_t col = 0; col < num_cols; col++) {
+		//std::stringstream st;
+		//st << i << " ";
 		for (uint64_t col : shuffled_sequence) {
-			nraw_backend.add(col, field.c_str(), field.length());
+			//write_size += nraw_backend.add(col, st.str().c_str(), st.str().length());
+			write_size += nraw_backend.add(col, field.c_str(), field.length());
 		}
 	}
 	nraw_backend.flush();
-	BENCH_END(w, "nraw write test", sizeof(char)*field.length(), nb_fields_per_column*num_cols, 1, 1);
+
+	std::cout << nraw_backend.at(1234, 0) << std::endl;
+
+	BENCH_END(w, "nraw write test", sizeof(char), write_size, 1, 1);
 }
 
 void usage(const char* app_name)
