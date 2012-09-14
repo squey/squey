@@ -12,7 +12,8 @@
 #include <QPainter>
 #include <QGraphicsScene>
 
-
+// Used to draw the axis out of the image zone
+#define PVAW_CST 8
 
 /*****************************************************************************
  * PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem
@@ -21,7 +22,6 @@
 PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem(PVParallelView::PVSlidersManager_p sm_p,
                                                        Picviz::PVAxis *axis, uint32_t axis_index) :
 	_sliders_manager_p(sm_p),
-	_zsn_obs(this),
 	_axis(axis), _axis_index(axis_index)
 {
 	// This is needed to let the children of the group handle their events.
@@ -30,8 +30,10 @@ PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem(PVParallelView::PVSliders
 	// the sliders must be over all other QGraphicsItems
 	setZValue(1.e42);
 
-	PVHive::PVHive::get().register_func_observer(_sliders_manager_p, _zsn_obs);
+	_sliders_group = new PVParallelView::PVSlidersGroup(sm_p, axis_index,
+	                                                    this);
 
+	addToGroup(_sliders_group);
 }
 
 /*****************************************************************************
@@ -74,42 +76,4 @@ void PVParallelView::PVAxisGraphicsItem::paint(QPainter *painter,
 	painter->drawText(10, 0, _axis->get_name());
 	painter->setPen(pen);
 	painter->restore();
-}
-
-/*****************************************************************************
- * PVParallelView::PVAxisGraphicsItem::add_range_sliders
- *****************************************************************************/
-
-void PVParallelView::PVAxisGraphicsItem::add_range_sliders(uint32_t p1, uint32_t p2)
-{
-	PVParallelView::PVAxisRangeSliders sliders;
-
-	sliders.first = new PVParallelView::PVAxisSlider(0, PVParallelView::ImageHeight, p1);
-	sliders.second = new PVParallelView::PVAxisSlider(0, PVParallelView::ImageHeight, p2);
-
-	sliders.first->setPos(pos());
-	sliders.second->setPos(pos());
-
-	addToGroup(sliders.first);
-	addToGroup(sliders.second);
-
-	_sliders.push_back(sliders);
-
-	// Connection
-	connect(sliders.first, SIGNAL(slider_moved()), this, SLOT(slider_moved()));
-	connect(sliders.second, SIGNAL(slider_moved()), this, SLOT(slider_moved()));
-}
-
-/*****************************************************************************
- * PVParallelView::PVAxisGraphicsItem::sliders_moving
- *****************************************************************************/
-
-bool PVParallelView::PVAxisGraphicsItem::sliders_moving() const
-{
-	for (PVParallelView::PVAxisRangeSliders sliders : _sliders) {
-		if (sliders.first->is_moving() || sliders.second->is_moving()) {
-			return true;
-		}
-	}
-	return false;
 }
