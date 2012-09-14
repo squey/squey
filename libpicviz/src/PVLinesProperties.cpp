@@ -150,6 +150,14 @@ void Picviz::PVLinesProperties::set_random(const PVRow n)
 	}
 }
 
+void Picviz::PVLinesProperties::set_linear(const PVRow n)
+{
+	constexpr static size_t color_max = ((1<<HSV_COLOR_NBITS_ZONE)*6)-1;
+	for (PVRow i = 0; i < n; i++) {
+		line_set_color(i, PVCore::PVHSVColor((uint8_t)(((double)(i*color_max)/(double)n)*color_max)));
+	}
+}
+
 void Picviz::PVLinesProperties::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 {
 	so.buffer("lp_data", &_table[0], PICVIZ_LINESPROPS_NUMBER_OF_BYTES);

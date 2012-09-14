@@ -12,6 +12,8 @@
 #include <picviz/widgets/PVAD2GWidget.h>
 #include <picviz/PVPlotting.h>
 #include <picviz/PVMapping.h>
+#include <pvparallelview/PVParallelView.h>
+#include <pvparallelview/PVLibView.h>
 
 #include <PVMainWindow.h>
 #include <PVExpandSelDlg.h>
@@ -182,16 +184,11 @@ void PVInspector::PVMainWindow::commit_selection_in_current_layer_Slot()
  *****************************************************************************/
 void PVInspector::PVMainWindow::commit_selection_to_new_layer_Slot()
 {
-	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
-	/* VARIABLES */
-	/* We prepare a direct access to the current lib_view */
-	Picviz::PVView* current_lib_view;
-
-	/* CODE */
-	if (pv_ListingsTabWidget->currentIndex() == -1) {
+	if (!current_tab) {
 		return;
 	}
-	current_lib_view = current_tab->get_lib_view();
+
+	Picviz::PVView* current_lib_view = current_tab->get_lib_view();
 	commit_selection_to_new_layer(current_lib_view);
 }
 
@@ -1017,7 +1014,8 @@ void PVInspector::PVMainWindow::view_new_scatter_Slot()
 void PVInspector::PVMainWindow::view_new_parallel_Slot()
 {
 	PVLOG_INFO("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
-
+	PVParallelView::common::get_lib_view(*get_current_lib_view())->get_zones_manager().update_all();
+	PVParallelView::common::get_lib_view(*get_current_lib_view())->create_view();
 }
 
 void PVInspector::PVMainWindow::view_screenshot_qt_Slot()

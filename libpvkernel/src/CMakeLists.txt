@@ -345,6 +345,8 @@ include/pvkernel/widgets/PVPresetsWidget.h
 include/pvkernel/widgets/PVArgumentListModel.h
 include/pvkernel/widgets/PVArgumentListWidget.h
 include/pvkernel/widgets/PVArgumentListWidgetFactory.h
+include/pvkernel/widgets/PVColorDialog.h
+include/pvkernel/widgets/PVColorPicker.h
 include/pvkernel/widgets/PVDataTreeModel.h
 
 include/pvkernel/widgets/editors/PVColorGradientDualSliderEditor.h
@@ -363,6 +365,8 @@ widgets/presetswidget/PVPresetsWidget.cpp
 widgets/PVArgumentListModel.cpp
 widgets/PVArgumentListWidget.cpp
 widgets/PVArgumentListWidgetFactory.cpp
+widgets/PVColorDialog.cpp
+widgets/PVColorPicker.cpp
 widgets/PVDataTreeModel.cpp
 
 widgets/editors/PVColorGradientDualSliderEditor.cpp
@@ -372,6 +376,10 @@ widgets/editors/PVRegexpEditor.cpp
 widgets/editors/PVTimeFormatEditor.cpp
 )
 
+SET(UI_FILES
+widgets/PVColorDialog.ui
+)
+
 if(PYTHONLIBS_FOUND)
 	include_directories(BEFORE ${PYTHON_INCLUDE_DIRS})
 endif(PYTHONLIBS_FOUND)
@@ -379,9 +387,11 @@ endif(PYTHONLIBS_FOUND)
 set(SRC_FILES ${CORE_SRC_FILES} ${CUDA_SRC_FILES} ${FILTER_SRC_FILES} ${RUSH_SRC_FILES} ${WIDGETS_SRC_FILES})
 set(HEADER_FILES ${CORE_HEADER_FILES} ${CUDA_HEADER_FILES} ${FILTER_HEADER_FILES} ${RUSH_HEADER_FILES} ${WIDGETS_HEADER_FILES})
 set(MOC_HEADERS ${CORE_MOC_HEADERS} ${FILTER_MOC_HEADERS} ${RUSH_MOC_HEADERS} ${WIDGETS_MOC_HEADERS})
-qt4_wrap_cpp(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})
 
-add_library(pvkernel SHARED ${SRC_FILES} ${HEADER_FILES} ${MOC_SRC} ${MOC_HEADERS})
+QT4_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})
+QT4_WRAP_UI(UI_SRC ${UI_FILES})
+
+add_library(pvkernel SHARED ${SRC_FILES} ${HEADER_FILES} ${MOC_SRC} ${MOC_HEADERS} ${UI_FILES})
 
 set_target_properties(pvkernel PROPERTIES SOVERSION 1)
 

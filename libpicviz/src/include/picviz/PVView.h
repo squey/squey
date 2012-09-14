@@ -148,9 +148,9 @@ public:
 	float get_layer_index_as_float(int index);
 	PVLayerStack &get_layer_stack();
 	inline PVLayerStack const& get_layer_stack() const { return layer_stack; };
-	int get_layer_stack_layer_n_locked_state(int n);
-	QString get_layer_stack_layer_n_name(int n);
-	int get_layer_stack_layer_n_visible_state(int n);
+	int get_layer_stack_layer_n_locked_state(int n) const;;
+	QString get_layer_stack_layer_n_name(int n) const;
+	int get_layer_stack_layer_n_visible_state(int n) const;
 	PVLayer &get_layer_stack_output_layer();
 
 	PVCol get_active_axis() const { assert(_active_axis < get_column_count()); return _active_axis; }
@@ -216,7 +216,7 @@ public:
 	void set_color_on_active_layer(const PVCore::PVHSVColor c);
 	void set_color_on_post_filter_layer(const PVCore::PVHSVColor c);
 
-	int set_layer_stack_layer_n_name(int n, char *new_name);
+	int set_layer_stack_layer_n_name(int n, QString const& name);
 
 	void set_layer_stack_selected_layer_index(int index);
 
@@ -245,21 +245,23 @@ public:
 ******************************************************************************
 *****************************************************************************/
 
-	int add_new_layer();
+	void add_new_layer();
+	void delete_layer_n(int idx);
+	void delete_selected_layer();
 	void commit_to_new_layer();
 
 	void load_post_to_pre();
+
+	void process_from_eventline();
+	void process_from_filter();
+	void process_from_layer_stack();
+	void process_from_selection();
 
 	void process_eventline();
 	void process_filter();
 	void process_layer_stack();
 	void process_selection();
 	void process_visibility();
-
-	void process_from_eventline();
-	void process_from_filter();
-	void process_from_layer_stack();
-	void process_from_selection();
 
 	void process_parent_plotted();
 	void reset_view();

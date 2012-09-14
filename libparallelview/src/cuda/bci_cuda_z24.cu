@@ -311,6 +311,9 @@ __global__ void bcicode_raster_unroll2(uint2* bci_codes, unsigned int n, unsigne
 		}
 
 		const unsigned int color0 = (code0.y >> 2*Bbits) & 0xff;
+		if (color0 == HSV_COLOR_BLACK) { // Used for zombie lines, so their index is the highest possible (behind everyone)
+			code0.x = MASK_ZBUFFER;
+		}
 		const unsigned int shared_v = color0 | code0.x;
 		atomicMin(&shared_img[threadIdx.x + pixel_y00*blockDim.x], shared_v);
 		for (int pixel_y0 = pixel_y00+1; pixel_y0 < pixel_y01; pixel_y0++) {

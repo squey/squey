@@ -15,6 +15,7 @@
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QSet>
+#include <QStackedWidget>
 
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/rush/PVInput.h>
@@ -31,7 +32,6 @@
 #include <picviz/PVSelection.h>
 
 #include <PVAxisPropertiesWidget.h>
-#include <PVDualSlider.h>
 #include <PVExportSelectionDialog.h>
 #include <PVFilterWidget.h>
 //#include <PVMapWidget.h>
@@ -220,6 +220,7 @@ private:
 	void set_selection_from_layer(Picviz::PVView_sp view, Picviz::PVLayer const& layer);
 	void display_inv_elts(PVTabSplitter* tab_src);
 	void close_all_views();
+	Picviz::PVView* get_current_lib_view() const { return current_tab->get_lib_view(); };
 
 private slots:
 	void project_modified_Slot();

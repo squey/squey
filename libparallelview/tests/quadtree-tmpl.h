@@ -93,7 +93,7 @@ public:
 		_y2_mid_value = (_y2_min_value + _y2_max_value) / 2;
 	}
 
-	~PVQuadTreeTmpl()
+	virtual ~PVQuadTreeTmpl()
 	{
 	}
 

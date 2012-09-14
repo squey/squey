@@ -10,6 +10,8 @@
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/stdint.h>
 
+#include <pvkernel/cuda/constexpr.h>
+
 //#define HSV_COLOR_NBITS_ZONE 6
 //#define HSV_COLOR_MASK_ZONE 63
 
@@ -27,6 +29,8 @@ class PVHSVColor
 	typedef uint8_t T;
 public:
 	typedef T h_type;
+	static CUDA_CONSTEXPR uint8_t color_max = (1<<HSV_COLOR_NBITS_ZONE)*6;
+
 public:
 	// Unitialized, and this is wanted !
 	PVHSVColor() { }

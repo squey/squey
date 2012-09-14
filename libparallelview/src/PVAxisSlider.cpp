@@ -70,8 +70,13 @@ void PVParallelView::PVAxisSlider::paint(QPainter *painter,
 {
 	painter->fillRect(- SLIDER_HALF_WIDTH, _offset - 1,
 	                  SLIDER_WIDTH,  PVParallelView::AxisWidth,
-	                  Qt::SolidPattern);
+	                  Qt::black);
 
+	QPen old_pen = painter->pen();
+	painter->setPen(Qt::white);
+	painter->drawRect(- SLIDER_HALF_WIDTH, _offset - 1,
+	                  SLIDER_WIDTH,  PVParallelView::AxisWidth);
+	painter->setPen(old_pen);
 }
 
 /*****************************************************************************

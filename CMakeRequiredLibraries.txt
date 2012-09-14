@@ -240,6 +240,7 @@ endif(WIN32)
 # same package in the different sub directories.
 find_package(PVKernel REQUIRED)
 find_package(PVHive REQUIRED)
+find_package(PVParallelView REQUIRED)
 find_package(Picviz REQUIRED)
 find_package(PVSDK REQUIRED)
 find_package(PVGUIQT REQUIRED)

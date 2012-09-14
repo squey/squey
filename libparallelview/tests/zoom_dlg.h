@@ -17,11 +17,9 @@ class ZoomDlg: public QDialog
 
 public:
 	ZoomDlg(PVParallelView::PVLibView &lv,
-	        PVParallelView::PVZonesDrawing<PARALLELVIEW_ZZT_BBITS>& zd,
 	        QWidget* parent = nullptr) :
 		QDialog(parent),
-		_lv(lv),
-		_zd(zd)
+		_lv(lv)
 	{
 		_zedit = new QLineEdit();
 		QPushButton* btn = new QPushButton(tr("Show zoomed axis"));
@@ -37,12 +35,9 @@ protected slots:
 	void create_zv()
 	{
 		PVCol zid = _zedit->text().toInt();
-		PVParallelView::PVZoomedParallelView *zpv = new PVParallelView::PVZoomedParallelView();
 
+		PVParallelView::PVZoomedParallelView *zpv = _lv.create_zoomed_view(zid);
 		std::cout << "ZoomDlg: zpv: " << zpv << std::endl;
-		zpv->setViewport(new QWidget());
-
-		_lv.create_zoomed_scene<PVParallelView::PVBCIDrawingBackendCUDA<PARALLELVIEW_ZZT_BBITS> >(zpv, zid);
 
 		zpv->resize(1024, 1024);
 		zpv->show();
@@ -50,7 +45,6 @@ protected slots:
 
 private:
 	PVParallelView::PVLibView                              &_lv;
-	PVParallelView::PVZonesDrawing<PARALLELVIEW_ZZT_BBITS> &_zd;
 	QLineEdit                                              *_zedit;
 };
 

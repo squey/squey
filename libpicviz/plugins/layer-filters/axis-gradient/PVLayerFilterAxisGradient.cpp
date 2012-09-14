@@ -45,31 +45,24 @@ void Picviz::PVLayerFilterAxisGradient::operator()(PVLayer& in, PVLayer &out)
 {	
 	int axis_id;
 
-	PVCore::PVColor color;
-	QColor qcolor;	
+	PVCore::PVHSVColor color;
 
 	//const PVSource* source = _view.get_source_parent();
 	const PVPlotted* plotted = _view->get_parent<PVPlotted>();
 	axis_id = _args[ARG_NAME_AXIS].value<PVCore::PVAxisIndexType>().get_original_index();
 
-	PVPlotted::plotted_sub_col_t values_sel;
-	float max_plotted,min_plotted;
-	plotted->get_sub_col_minmax(values_sel, min_plotted, max_plotted, in.get_selection(), axis_id);
-	PVPlotted::plotted_sub_col_t::const_iterator it;
-	for (it = values_sel.begin(); it != values_sel.end(); it++) {
-		if (should_cancel()) {
-			if (&in != &out) {
-				out = in;
-			}
-			return;
-		}
-		float plotted_value = it->second;
-		PVRow line = it->first;
+	uint32_t max_plotted,min_plotted;
+	plotted->get_col_minmax(min_plotted, max_plotted, in.get_selection(), axis_id);
+	const double diff = max_plotted-min_plotted;
+	in.get_selection().visit_selected_lines([&](PVRow const r)
+		{
+			const uint32_t plotted_value = (double) plotted->get_value(r, axis_id);
 
-		qcolor.setHsvF((max_plotted-plotted_value)/(max_plotted-min_plotted) / 3.0f, 1.0f, 1.0f);
-		color.fromQColor(qcolor);
-		out.get_lines_properties().line_set_rgb_from_color(line, color);
-	}
+			PVCore::PVHSVColor color;
+			color = ((double)(max_plotted-plotted_value)/diff)*(double)PVCore::PVHSVColor::color_max;
+			out.get_lines_properties().line_set_color(r, color);
+		},
+		_view->get_row_count());
 }
 
 QList<PVCore::PVArgumentKey> Picviz::PVLayerFilterAxisGradient::get_args_keys_for_preset() const

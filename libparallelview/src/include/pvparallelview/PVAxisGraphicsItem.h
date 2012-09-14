@@ -14,34 +14,44 @@
 #include <QGraphicsItem>
 
 #include <pvkernel/core/PVAlgorithms.h>
-#include <pvparallelview/common.h>
-#include <pvparallelview/PVAxisSlider.h>
+
 #include <picviz/PVAxis.h>
 
-// Used to draw the axis out of the image zone
-#define PVAW_CST 8
+#include <pvhive/PVHive.h>
+#include <pvhive/PVFuncObserver.h>
+#include <pvhive/PVCallHelper.h>
+
+#include <pvparallelview/common.h>
+#include <pvparallelview/PVAxisSlider.h>
+#include <pvparallelview/PVSlidersManager.h>
+#include <pvparallelview/PVSlidersGroup.h>
 
 namespace PVParallelView
 {
 
-typedef std::pair<PVAxisSlider*, PVAxisSlider*> PVAxisRangeSliders;
-
 class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
 {
-	Q_OBJECT
+	friend class zoom_sliders_new_obs;
 
 public:
-	typedef std::vector<std::pair<PVRow, PVRow> > selection_ranges_t;
+	typedef PVSlidersGroup::selection_ranges_t selection_ranges_t;
 
 public:
-	PVAxisGraphicsItem(Picviz::PVAxis *axis, uint32_t axis_index);
+	PVAxisGraphicsItem(PVSlidersManager_p sm_p, Picviz::PVAxis *axis, uint32_t axis_index);
 
 	QRectF boundingRect () const;
 
 	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
 
-	void add_range_sliders(uint32_t y1, uint32_t y2);
-	bool sliders_moving() const;
+	PVSlidersGroup *get_sliders_group()
+	{
+		return _sliders_group;
+	}
+
+	const PVSlidersGroup *get_sliders_group() const
+	{
+		return _sliders_group;
+	}
 
 	QRect map_from_scene(QRectF rect) const
 	{
@@ -49,30 +59,17 @@ public:
 		return QRect(point.x(), point.y(), rect.width(), rect.height());
 	}
 
-	selection_ranges_t get_selection_ranges()
+	selection_ranges_t get_selection_ranges() const
 	{
-		selection_ranges_t ranges;
-
-		for (PVParallelView::PVAxisRangeSliders sliders : _sliders) {
-			PVRow min = PVCore::min(sliders.first->value(), sliders.second->value());
-			PVRow max = PVCore::max(sliders.first->value(), sliders.second->value());
-			ranges.push_back(std::make_pair(min, max));
-		}
-
-		return ranges;
+		return _sliders_group->get_selection_ranges();
 	}
 
-signals:
-	void axis_sliders_moved(PVZoneID);
-
-protected slots:
-	void slider_moved() { emit axis_sliders_moved(_axis_index); }
-
 private:
+	PVSlidersGroup                 *_sliders_group;
+	PVSlidersManager_p              _sliders_manager_p;
 	Picviz::PVAxis*                 _axis;
-	PVZoneID						_axis_index;
+	PVZoneID			_axis_index;
 	QRectF                          _bbox;
-	std::vector<PVAxisRangeSliders> _sliders;
 };
 
 }

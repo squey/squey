@@ -48,6 +48,8 @@ PVAxisSlider.cpp
 PVSelectionGenerator.cpp
 PVQuadTree.cpp
 PVLibView.cpp
+PVSlidersManager.cpp
+PVSlidersGroup.cpp
 )
 
 set(CUDA_SRC_FILES
@@ -72,11 +74,13 @@ include/pvparallelview/PVZoneTreeNoAlloc.h
 include/pvparallelview/PVZoomedZoneTree.h
 include/pvparallelview/PVZoomedParallelScene.h
 include/pvparallelview/PVZoomedParallelView.h
+include/pvparallelview/PVSlidersManager.h
 include/pvparallelview/PVAxisGraphicsItem.h
 include/pvparallelview/PVAxisSlider.h
 include/pvparallelview/PVAxisGraphicsItem.h
 include/pvparallelview/PVFullParallelView.h
 include/pvparallelview/PVFullParallelScene.h
+include/pvparallelview/PVSlidersGroup.h
 )
 
 SET(MOC_HEADERS
@@ -84,10 +88,10 @@ include/pvparallelview/PVRenderingJob.h
 include/pvparallelview/PVFullParallelView.h
 include/pvparallelview/PVFullParallelScene.h
 include/pvparallelview/PVAxisSlider.h
-include/pvparallelview/PVAxisGraphicsItem.h
 include/pvparallelview/PVSelectionSquareGraphicsItem.h
 include/pvparallelview/PVZonesManager.h
 include/pvparallelview/PVZoomedParallelScene.h
+include/pvparallelview/PVSlidersGroup.h
 )
 
 QT4_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})

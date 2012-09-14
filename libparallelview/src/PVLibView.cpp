@@ -19,14 +19,18 @@
 #include <iostream>
 
 PVParallelView::PVLibView::PVLibView(Picviz::PVView_sp& view_sp):
-	_colors(view_sp->get_output_layer_color_buffer())
+	_colors(view_sp->output_layer.get_lines_properties().get_buffer()),
+	_zd_zt(_zones_manager, common::backend_full(), *_colors),
+	_zd_zzt(_zones_manager, common::backend_zoom(), *_colors)
 {
 	common_init_view(view_sp);
 	_zones_manager.set_uint_plotted(*view_sp);
 }
 
 PVParallelView::PVLibView::PVLibView(Picviz::PVView_sp& view_sp, Picviz::PVPlotted::uint_plotted_table_t const& plotted, PVRow nrows, PVCol ncols):
-	_colors(view_sp->get_output_layer_color_buffer())
+	_colors(view_sp->get_output_layer_color_buffer()),
+	_zd_zt(_zones_manager, common::backend_full(), *_colors),
+	_zd_zzt(_zones_manager, common::backend_zoom(), *_colors)
 {
 	common_init_view(view_sp);
 	_zones_manager.set_uint_plotted(plotted, nrows, ncols);
@@ -43,7 +47,7 @@ void PVParallelView::PVLibView::common_init_view(Picviz::PVView_sp& view_sp)
 	_task_root = new (tbb::task::allocate_root(_tasks_ctxt)) tbb::empty_task;
 	_task_root->set_ref_count(1);
 
-	_obs_output_layer = PVHive::create_observer_callback_heap<Picviz::PVLayer>(
+	_obs_sel_layer = PVHive::create_observer_callback_heap<Picviz::PVLayer>(
 	    [&](Picviz::PVLayer const*) { },
 		[&](Picviz::PVLayer const*) { this->selection_updated(); },
 		[&](Picviz::PVLayer const*) { }
@@ -55,15 +59,17 @@ void PVParallelView::PVLibView::common_init_view(Picviz::PVView_sp& view_sp)
 		[&](Picviz::PVView const*) { this->view_about_to_be_deleted(); }
 	);
 
-	PVHive::get().register_observer(view_sp, [&](Picviz::PVView& view) { return &view.get_output_layer(); }, *_obs_output_layer);
+	PVHive::get().register_observer(view_sp, [&](Picviz::PVView& view) { return &view.get_pre_filter_layer(); }, *_obs_sel_layer);
 	PVHive::get().register_observer(view_sp, *_obs_view);
+
+	_sliders_manager_p = PVParallelView::PVSlidersManager_p(new PVSlidersManager);
 }
 
 PVParallelView::PVFullParallelView* PVParallelView::PVLibView::create_view(QWidget* parent)
 {
 	PVParallelView::PVFullParallelView* view = new PVParallelView::PVFullParallelView(parent);
 	Picviz::PVView_sp vsp = lib_view()->shared_from_this();
-	_parallel_scenes.emplace_back(view, vsp, _zones_manager, common::backend_full(), task_root());
+	_parallel_scenes.emplace_back(view, vsp, _sliders_manager_p, _zd_zt, task_root());
 	PVFullParallelScene& scene = _parallel_scenes.back();
 	view->setScene(&scene);
 	scene.first_render();
@@ -73,13 +79,12 @@ PVParallelView::PVFullParallelView* PVParallelView::PVLibView::create_view(QWidg
 PVParallelView::PVZoomedParallelView* PVParallelView::PVLibView::create_zoomed_view(PVCol const axis, QWidget* parent)
 {
 	PVParallelView::PVZoomedParallelView* view = new PVParallelView::PVZoomedParallelView(parent);
-	/*PVParallelView::PVZoomedParallelScene::zones_drawing_t &zzd =
-		*(new PVParallelView::PVZoomedParallelScene::zones_drawing_t(_zones_manager,
-																	 common::backend_zoom(),
-																	 *_colors));
 	Picviz::PVView_sp view_sp = lib_view()->shared_from_this();
-	_zoomed_parallel_scenes.emplace_back(view, view_sp, zzd, axis);
-	view->setScene(&_zoomed_parallel_scenes.back());*/
+	_zoomed_parallel_scenes.emplace_back(view, view_sp, _sliders_manager_p, _zd_zzt, axis);
+	view->setScene(&_zoomed_parallel_scenes.back());
+
+	PVHive::call<FUNC(PVSlidersManager::new_zoom_sliders)>(_sliders_manager_p, axis, &_zoomed_parallel_scenes.back(), 0, 1024);
+
 	return view;
 }
 void PVParallelView::PVLibView::view_about_to_be_deleted()

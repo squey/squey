@@ -15,6 +15,7 @@
 #include <pvparallelview/PVBCICode.h>
 #include <pvparallelview/PVBCIBackendImage.h>
 #include <pvparallelview/PVBCIDrawingBackendCUDA.h>
+#include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVZonesDrawing.h>
 #include <pvparallelview/PVZonesManager.h>
 #include <pvparallelview/PVLinesView.h>
@@ -29,24 +30,7 @@
 
 #include <QApplication>
 
-#include <picviz/FakePVView.h>
-
-void usage(const char* path)
-{
-	std::cerr << "Usage: " << path << " [plotted_file] [nrows] [ncols]" << std::endl;
-}
-
-void init_rand_plotted(Picviz::PVPlotted::plotted_table_t& p, PVRow nrows, PVCol ncols)
-{
-	srand(time(NULL));
-	p.clear();
-	p.reserve(nrows*ncols);
-	for (PVRow i = 0; i < nrows*ncols; i++) {
-		p.push_back((float)((double)(rand())/(double)RAND_MAX));
-	}
-}
-
-#define RENDERING_BITS 10
+#include "common.h"
 
 int main(int argc, char** argv)
 {
@@ -57,60 +41,18 @@ int main(int argc, char** argv)
 
 	QApplication app(argc, argv);
 
-	PVCol ncols, nrows;
-	Picviz::PVPlotted::plotted_table_t plotted;
-	QString fplotted(argv[1]);
-	if (fplotted == "0") {
-		if (argc < 4) {
-			usage(argv[0]);
-			return 1;
-		}
-		srand(time(NULL));
-		nrows = atol(argv[2]);
+	PVParallelView::common::init<PVParallelView::PVBCIDrawingBackendCUDA>();
 
-		if (nrows > PICVIZ_LINES_MAX) {
-			std::cerr << "nrows is too big (max is " << PICVIZ_LINES_MAX << ")" << std::endl;
-			return 1;
-		}
-
-		ncols = atol(argv[3]);
-
-		init_rand_plotted(plotted, nrows, ncols);
+	PVParallelView::PVLibView* plib_view = create_lib_view_from_args(argc, argv);
+	if (plib_view == NULL) {
+		return 1;
 	}
-	else
-	{
-		if (!Picviz::PVPlotted::load_buffer_from_file(plotted, ncols, true, QString(argv[1]))) {
-			std::cerr << "Unable to load plotted !" << std::endl;
-			return 1;
-		}
-		nrows = plotted.size()/ncols;
-
-		if (nrows > PICVIZ_LINES_MAX) {
-			std::cerr << "nrows is too big (max is " << PICVIZ_LINES_MAX << ")" << std::endl;
-			return 1;
-		}
-	}
-
-	Picviz::PVPlotted::uint_plotted_table_t norm_plotted;
-	BENCH_START(norm);
-	Picviz::PVPlotted::norm_int_plotted(plotted, norm_plotted, ncols);
-	BENCH_END_TRANSFORM(norm, "integer normalisation", sizeof(float), nrows*ncols);
-
-	PVParallelView::PVBCIDrawingBackendCUDA<NBITS_INDEX> backend_cuda;
-	Picviz::FakePVView::shared_pointer fake_pvview_sp(new Picviz::FakePVView());
-
-	PVParallelView::PVLibView lib_view(fake_pvview_sp, nullptr);
-
-	/// TODO: Find a better way to pass the plotted to the zones manager
-	lib_view.get_zones_manager().set_uint_plotted(norm_plotted, nrows, ncols);
-	lib_view.get_zones_manager().update_all();
-	///
-
-	lib_view.create_view(backend_cuda);
-	lib_view.create_view(backend_cuda);
+	plib_view->create_view();
+	plib_view->create_view();
 
 	app.exec();
 
+	PVParallelView::common::release();
 
 	return 0;
 }

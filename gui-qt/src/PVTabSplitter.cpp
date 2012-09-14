@@ -4,8 +4,6 @@
  * Copyright (C) Picviz Labs 2009-2012
  */
 
-#include <QtGui>
-
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVProgressBox.h>
 
@@ -21,6 +19,7 @@
 #include <PVListColNrawDlg.h>
 #include <PVMappingPlottingEditDialog.h>
 
+#include <pvguiqt/PVLayerStackWidget.h>
 #include <pvguiqt/PVListingModel.h>
 #include <pvguiqt/PVListingSortFilterProxyModel.h>
 #include <pvguiqt/PVListingView.h>
@@ -28,6 +27,10 @@
 #include <pvguiqt/PVRootTreeView.h>
 
 #include <PVTabSplitter.h>
+
+#include <QScrollBar>
+#include <QMessageBox>
+#include <QVBoxLayout>
 
 /******************************************************************************
  *
@@ -53,9 +56,6 @@ PVInspector::PVTabSplitter::PVTabSplitter(PVMainWindow *mw, Picviz::PVSource_p l
 	// FOCUS POLICY
 	setFocusPolicy(Qt::StrongFocus);
 	
-	// We initialize our pointer to NULL
-	pv_layer_stack_widget = NULL; // Note that this value can be requested during the creating of the PVLayerStackWidget!
-
 	// PVLISTINGVIEW
 	Picviz::PVView_sp cur_view = lib_src->current_view()->shared_from_this();
 	pv_listing_model = new PVGuiQt::PVListingModel(cur_view, this);
@@ -82,14 +82,12 @@ PVInspector::PVTabSplitter::PVTabSplitter(PVMainWindow *mw, Picviz::PVSource_p l
 	right_layout->setContentsMargins(8,8,8,8);
 	
 	// We prepare the PVLayerStackWidget and add it to the layout
-	pv_layer_stack_model = new PVLayerStackModel(main_window, this);
-	pv_layer_stack_widget = new PVLayerStackWidget(main_window, pv_layer_stack_model, this);
+	pv_layer_stack_widget = new PVGuiQt::PVLayerStackWidget(cur_view);
 	right_layout->addWidget(pv_layer_stack_widget);
 	
-	/*
 	// We prepare the PVViewsListingWidget and add it to the layout
-	_views_widget = new PVViewsListingWidget(this);
-	right_layout->addWidget(_views_widget);
+	//_views_widget = new PVViewsListingWidget(this);
+	//right_layout->addWidget(_views_widget);
 
 	// RIGHT_WIDGET
 	// Now we really create the right part QWidget and stuff it.
@@ -106,7 +104,7 @@ PVInspector::PVTabSplitter::PVTabSplitter(PVMainWindow *mw, Picviz::PVSource_p l
 	right_widget->setLayout(right_layout);
 	
 	// Now we can add the RIGHT_WIDGET to our PVTabSplitter
-	addWidget(right_widget);*/
+	addWidget(right_widget);
 	
 	// INITIAL SIZES
 	// We now set the initial size of the components of that PVTabSplitter (mostly the right_widget...)
@@ -120,8 +118,8 @@ PVInspector::PVTabSplitter::PVTabSplitter(PVMainWindow *mw, Picviz::PVSource_p l
 	screenshot_index = 0;
 
 	// Update notifications
-	connect(pv_layer_stack_model, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)), this, SLOT(source_changed_Slot()));
-	connect(pv_layer_stack_model, SIGNAL(layoutChanged()), this, SLOT(source_changed_Slot()));
+	//connect(pv_layer_stack_model, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)), this, SLOT(source_changed_Slot()));
+	//connect(pv_layer_stack_model, SIGNAL(layoutChanged()), this, SLOT(source_changed_Slot()));
 	//connect(_views_widget->get_model(), SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)), this, SLOT(source_changed_Slot()));
 	//connect(_views_widget->get_model(), SIGNAL(layoutChanged()), this, SLOT(source_changed_Slot()));
 
@@ -493,10 +491,6 @@ void PVInspector::PVTabSplitter::refresh_axes_combination_Slot()
 void PVInspector::PVTabSplitter::refresh_layer_stack_view_Slot()
 {
 	PVLOG_DEBUG("PVInspector::PVTabSplitter::refresh_layer_stack_view_Slot()\n");
-	/* this doesn't work !!! */
-	//pv_layer_stack_widget->pv_layer_stack_view->viewport()->update();
-
-	pv_layer_stack_model->emit_layoutChanged();
 }
 
 
@@ -568,22 +562,12 @@ void PVInspector::PVTabSplitter::select_plotted(Picviz::PVPlotted* plotted)
  *****************************************************************************/
 void PVInspector::PVTabSplitter::select_view(Picviz::PVView* view)
 {
+	// TODO: hive !
 	assert(view->get_parent<Picviz::PVSource>() == _lib_src.get());
 	_lib_src->select_view(*view);
 
 	// Create view widgets if necessary
 	get_view_widgets(view);
-
-	sortMatchingTable.clear();
-	sortMatchingTable_invert.clear();
-
-	// Update the layer stack
-	pv_layer_stack_model->update_layer_stack();
-
-	// And the listing
-	//pv_listing_model->reset_lib_view();
-	//pv_listing_proxy_model->reset_lib_view();
-	//pv_listing_view->update_view();
 }
 
 

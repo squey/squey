@@ -4,37 +4,31 @@
  * Copyright (C) Picviz Labs 2009-2012
  */
 
-#include <QtGui>
+#include <QAction>
+#include <QToolBar>
+#include <QVBoxLayout>
 
-#include <pvkernel/core/general.h>
-#include <picviz/PVView.h>
-
-#include <PVMainWindow.h>
-#include <PVTabSplitter.h>
-
-#include <PVLayerStackWidget.h>
+#include <pvguiqt/PVLayerStackDelegate.h>
+#include <pvguiqt/PVLayerStackModel.h>
+#include <pvguiqt/PVLayerStackView.h>
+#include <pvguiqt/PVLayerStackWidget.h>
 
 /******************************************************************************
  *
- * PVInspector::PVLayerStackWidget::PVLayerStackWidget
+ * PVGuiQt::PVLayerStackWidget::PVLayerStackWidget
  *
  *****************************************************************************/
-PVInspector::PVLayerStackWidget::PVLayerStackWidget(PVMainWindow *mw, PVLayerStackModel * model, PVTabSplitter *parent) : QWidget(parent)
+PVGuiQt::PVLayerStackWidget::PVLayerStackWidget(Picviz::PVView_sp& lib_view, QWidget* parent):
+	QWidget(parent)
 {
 	QVBoxLayout *main_layout;
 	QToolBar    *layer_stack_toolbar;
-
-	PVLOG_DEBUG("PVInspector::PVLayerStackWidget::%s\n", __FUNCTION__);
-
-	main_window = mw;
-	parent_tab = parent;
 
 	// SIZE STUFF
 	// WARNING: nothing should be set here.
 
 	// OBJECTNAME STUFF
 	setObjectName("PVLayerStackWidget");
-	
 	
 	// LAYOUT STUFF
 	// We need a Layout for that Widget
@@ -43,9 +37,12 @@ PVInspector::PVLayerStackWidget::PVLayerStackWidget(PVMainWindow *mw, PVLayerSta
 	main_layout->setContentsMargins(0,0,0,0);
 	
 	// PVLAYERSTACKVIEW
-	pv_layer_stack_view = NULL; // Note that this value can be requested during the creation of the PVLayerStackView
-	pv_layer_stack_view = new PVLayerStackView(main_window, model, this);
-	pv_layer_stack_view->setVisible(true);
+	PVLayerStackModel* model = new PVLayerStackModel(lib_view);
+	PVLayerStackDelegate* delegate = new PVLayerStackDelegate(*lib_view);
+	_layer_stack_view = new PVLayerStackView();
+	_layer_stack_view->setItemDelegate(delegate);
+	_layer_stack_view->setModel(model);
+	_layer_stack_view->resizeColumnsToContents();
 
 	// TOOLBAR
 	// We create the ToolBar of the PVLayerStackWidget
@@ -58,7 +55,7 @@ PVInspector::PVLayerStackWidget::PVLayerStackWidget(PVMainWindow *mw, PVLayerSta
 	create_actions(layer_stack_toolbar);
 
 	// Now we can add our Widgets to the Layout
-	main_layout->addWidget(pv_layer_stack_view);
+	main_layout->addWidget(_layer_stack_view);
 	main_layout->addWidget(layer_stack_toolbar);
 
 	setLayout(main_layout);
@@ -66,18 +63,17 @@ PVInspector::PVLayerStackWidget::PVLayerStackWidget(PVMainWindow *mw, PVLayerSta
 
 /******************************************************************************
  *
- * PVInspector::PVLayerStackWidget::create_actions()
+ * PVGuiQt::PVLayerStackWidget::create_actions()
  *
  *****************************************************************************/
-void PVInspector::PVLayerStackWidget::create_actions(QToolBar *toolbar)
+void PVGuiQt::PVLayerStackWidget::create_actions(QToolBar *toolbar)
 {
 	QAction *delete_layer_Action;
 	QAction *duplicate_layer_Action;
 	QAction *move_down_Action;
 	QAction *move_up_Action;
 	QAction *new_layer_Action;
-	PVLOG_DEBUG("PVInspector::PVLayerStackWidget::%s\n", __FUNCTION__);
-
+	PVLOG_DEBUG("PVGuiQt::PVLayerStackWidget::%s\n", __FUNCTION__);
 	
 	// The new_layer Action
 	new_layer_Action = new QAction(tr("New Layer"), this);
@@ -85,7 +81,7 @@ void PVInspector::PVLayerStackWidget::create_actions(QToolBar *toolbar)
 	new_layer_Action->setStatusTip(tr("Create a new layer."));
 	new_layer_Action->setWhatsThis(tr("Use this to create a new layer."));
 	toolbar->addAction(new_layer_Action);
-	connect(new_layer_Action, SIGNAL(triggered()), this, SLOT(new_layer_Slot()));
+	connect(new_layer_Action, SIGNAL(triggered()), this, SLOT(new_layer()));
 
 	// The move_up Action
 	move_up_Action = new QAction(tr("Move up"), this);
@@ -94,7 +90,7 @@ void PVInspector::PVLayerStackWidget::create_actions(QToolBar *toolbar)
 	move_up_Action->setToolTip(tr("Move selected layer up."));
 	move_up_Action->setWhatsThis(tr("Use this to move the selected layer up."));
 	toolbar->addAction(move_up_Action);
-	connect(move_up_Action, SIGNAL(triggered()), this, SLOT(move_up_Slot()));
+	connect(move_up_Action, SIGNAL(triggered()), this, SLOT(move_up()));
 
 	// The move_down Action
 	move_down_Action = new QAction(tr("Move down"), this);
@@ -103,7 +99,7 @@ void PVInspector::PVLayerStackWidget::create_actions(QToolBar *toolbar)
 	move_down_Action->setToolTip(tr("Move selected layer down."));
 	move_down_Action->setWhatsThis(tr("Use this to move the selected layer down."));
 	toolbar->addAction(move_down_Action);
-	connect(move_down_Action, SIGNAL(triggered()), this, SLOT(move_down_Slot()));
+	connect(move_down_Action, SIGNAL(triggered()), this, SLOT(move_down()));
 
 	// The duplicate_layer Action
 	duplicate_layer_Action = new QAction(tr("Duplicate layer"), this);
@@ -112,7 +108,7 @@ void PVInspector::PVLayerStackWidget::create_actions(QToolBar *toolbar)
 	duplicate_layer_Action->setToolTip(tr("Duplicate selected layer."));
 	duplicate_layer_Action->setWhatsThis(tr("Use this to duplicate the selected layer."));
 	toolbar->addAction(duplicate_layer_Action);
-	connect(duplicate_layer_Action, SIGNAL(triggered()), this, SLOT(duplicate_layer_Slot()));
+	connect(duplicate_layer_Action, SIGNAL(triggered()), this, SLOT(duplicate_layer()));
 
 	// The delete_layer Action
 	delete_layer_Action = new QAction(tr("Delete layer"), this);
@@ -121,79 +117,70 @@ void PVInspector::PVLayerStackWidget::create_actions(QToolBar *toolbar)
 	delete_layer_Action->setToolTip(tr("Delete layer."));
 	delete_layer_Action->setWhatsThis(tr("Use this to delete the selected."));
 	toolbar->addAction(delete_layer_Action);
-	connect(delete_layer_Action, SIGNAL(triggered()), this, SLOT(delete_layer_Slot()));
+	connect(delete_layer_Action, SIGNAL(triggered()), this, SLOT(delete_layer()));
 }
 
 /******************************************************************************
  *
- * PVInspector::PVLayerStackWidget::delete_layer_Slot
+ * PVGuiQt::PVLayerStackWidget::delete_layer
  *
  *****************************************************************************/
-void PVInspector::PVLayerStackWidget::delete_layer_Slot()
+void PVGuiQt::PVLayerStackWidget::delete_layer()
 {
-	PVLayerStackModel *layer_stack_model = parent_tab->get_layer_stack_model();
-
-	layer_stack_model->get_layer_stack_lib().delete_selected_layer();
-	refresh();
+	ls_model()->delete_selected_layer();
 }
 
 /******************************************************************************
  *
- * PVInspector::PVLayerStackWidget::duplicate_layer_Slot
+ * PVGuiQt::PVLayerStackWidget::duplicate_layer
  *
  *****************************************************************************/
-void PVInspector::PVLayerStackWidget::duplicate_layer_Slot()
+void PVGuiQt::PVLayerStackWidget::duplicate_layer()
 {
 
 }
 
 /******************************************************************************
  *
- * PVInspector::PVLayerStackWidget::move_down_Slot
+ * PVGuiQt::PVLayerStackWidget::move_down
  *
  *****************************************************************************/
-void PVInspector::PVLayerStackWidget::move_down_Slot()
+void PVGuiQt::PVLayerStackWidget::move_down()
 {
+#if 0
 	PVLayerStackModel *layer_stack_model = parent_tab->get_layer_stack_model();
 
 	layer_stack_model->get_layer_stack_lib().move_selected_layer_down();
 	refresh();
+#endif
 }
 
 /******************************************************************************
  *
- * PVInspector::PVLayerStackWidget::move_up_Slot
+ * PVGuiQt::PVLayerStackWidget::move_up
  *
  *****************************************************************************/
-void PVInspector::PVLayerStackWidget::move_up_Slot()
+void PVGuiQt::PVLayerStackWidget::move_up()
 {
+#if 0
 	PVLayerStackModel *layer_stack_model = parent_tab->get_layer_stack_model();
 
 	layer_stack_model->get_layer_stack_lib().move_selected_layer_up();
 	refresh();
+#endif
 }
 
 /******************************************************************************
  *
- * PVInspector::PVLayerStackWidget::new_layer_Slot
+ * PVGuiQt::PVLayerStackWidget::new_layer
  *
  *****************************************************************************/
-void PVInspector::PVLayerStackWidget::new_layer_Slot()
+void PVGuiQt::PVLayerStackWidget::new_layer()
 {
-	PVLayerStackModel *layer_stack_model = parent_tab->get_layer_stack_model();
-
-	layer_stack_model->get_layer_stack_lib().append_new_layer();
-	refresh();
+	ls_model()->add_new_layer();
 }
 
-/******************************************************************************
- *
- * PVInspector::PVLayerStackWidget::refresh
- *
- *****************************************************************************/
-void PVInspector::PVLayerStackWidget::refresh()
+PVGuiQt::PVLayerStackModel* PVGuiQt::PVLayerStackWidget::ls_model()
 {
-	parent_tab->get_lib_view()->process_from_layer_stack();
-	parent_tab->refresh_layer_stack_view_Slot();
-	//main_window->update_pvglview(parent_tab->get_lib_view(), PVSDK_MESSENGER_REFRESH_Z|PVSDK_MESSENGER_REFRESH_COLOR|PVSDK_MESSENGER_REFRESH_ZOMBIES|PVSDK_MESSENGER_REFRESH_SELECTION|PVSDK_MESSENGER_REFRESH_SELECTED_LAYER);
+	return _layer_stack_view->ls_model();
 }

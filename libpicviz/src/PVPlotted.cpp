@@ -480,27 +480,25 @@ QList<PVCol> Picviz::PVPlotted::get_columns_indexes_values_not_within_range(uint
 	return cols_ret;
 }
 
-#if 0
-void Picviz::PVPlotted::get_sub_col_minmax(plotted_sub_col_t& ret, float& min, float& max, PVSelection const& sel, PVCol col) const
+void Picviz::PVPlotted::get_sub_col_minmax(plotted_sub_col_t& ret, uint32_t& min, uint32_t& max, PVSelection const& sel, PVCol col) const
 {
-	min = FLT_MAX;
+	min = UINT_MAX;
 	max = 0;
-	PVRow size = get_qtnraw().get_nrows();
-	ret.reserve(sel.get_number_of_selected_lines_in_range(0, size-1));
-	for (PVRow i = 0; i < size; i++) {
-		if (sel.get_line(i)) {
-			float v = get_value(i, col);
+	const PVRow size = get_row_count();
+	ret.reserve(sel.get_number_of_selected_lines_in_range(0, size));
+	sel.visit_selected_lines([&](PVRow const r)
+		{
+			const uint32_t v = this->get_value(r, col);
 			if (v > max) {
 			   max = v;
 			}
-	 		if (v < min) {
+			if (v < min) {
 				min = v;
 			}		
-			ret.push_back(plotted_sub_col_t::value_type(i, v));
-		}
-	}
+			ret.push_back(plotted_sub_col_t::value_type(r, v));
+		},
+		size);
 }
-#endif
 
 void Picviz::PVPlotted::get_col_minmax(PVRow& min, PVRow& max, PVSelection const& sel, PVCol col) const
 {

@@ -11,8 +11,6 @@
 #include <stdint.h>
 #include <QMetaType>
 
-#include <pvkernel/cuda/common.h>
-
 #define NBITS_INDEX 10
 #define NBUCKETS ((1UL<<(2*NBITS_INDEX)))
 
@@ -47,6 +45,14 @@ enum {
 	ZoneMaxWidth = PARALLELVIEW_ZONE_MAX_WIDTH,
 	ZoneDefaultWidth = PARALLELVIEW_ZONE_DEFAULT_WIDTH
 };
+
+
+#ifdef __CUDACC__
+// nvcc does not support C++0x !
+#define CUDA_CONSTEXPR const
+#else
+#define CUDA_CONSTEXPR constexpr
+#endif
 
 template <size_t Bbits>
 struct constants

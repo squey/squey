@@ -19,6 +19,7 @@
 #include <pvparallelview/PVAxisGraphicsItem.h>
 #include <pvparallelview/PVFullParallelView.h>
 #include <pvparallelview/PVLinesView.h>
+#include <pvparallelview/PVSlidersManager.h>
 
 #include <pvhive/PVActor.h>
 #include <pvhive/PVCallHelper.h>
@@ -42,7 +43,7 @@ class PVFullParallelScene : public QGraphicsScene
 	friend class draw_zone_sel_Observer;
 	friend class process_selection_Observer;
 public:
-	PVFullParallelScene(PVFullParallelView* parallel_view, Picviz::PVView_sp& view_sp, PVParallelView::PVZonesManager& zm, PVParallelView::PVLinesView::zones_drawing_t::bci_backend_t& bci_backend, tbb::task* root_sel);
+	PVFullParallelScene(PVFullParallelView* parallel_view, Picviz::PVView_sp& view_sp, PVParallelView::PVSlidersManager_p sm_p, PVLinesView::zones_drawing_t& zd, tbb::task* root_sel);
 	virtual ~PVFullParallelScene();
 
 	void first_render();

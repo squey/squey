@@ -39,7 +39,6 @@ class PVLinesView
 
 public:
 	typedef PVZonesDrawing<bbits> zones_drawing_t;
-	typedef PVCore::PVSharedPtr<zones_drawing_t> zones_drawing_sp;
 	typedef typename zones_drawing_t::backend_image_p_t backend_image_p_t;
 	typedef typename zones_drawing_t::render_group_t render_group_t;
 	typedef typename zones_drawing_t::bci_backend_t bci_backend_t;
@@ -49,7 +48,7 @@ private:
 	{
 		ZoneImages() { }
 
-		ZoneImages(PVParallelView::PVLinesView::zones_drawing_sp zd, uint32_t zone_width)
+		ZoneImages(PVParallelView::PVLinesView::zones_drawing_t* zd, uint32_t zone_width)
 		{
 			create_image(zd, zone_width);
 		}
@@ -60,7 +59,7 @@ private:
 			bg->set_width(zone_width);
 		}
 
-		void create_image(PVParallelView::PVLinesView::zones_drawing_sp zd, uint32_t zone_width)
+		void create_image(PVParallelView::PVLinesView::zones_drawing_t* zd, uint32_t zone_width)
 		{
 			sel = zd->create_image(zone_width);
 			bg = zd->create_image(zone_width);
@@ -74,7 +73,7 @@ public:
 	typedef std::vector<ZoneImages> list_zone_images_t;
 
 public:
-	PVLinesView(PVParallelView::PVZonesManager& zm, PVParallelView::PVLinesView::zones_drawing_t::bci_backend_t& bci_backend, PVZoneID nb_drawable_zones = 30, uint32_t zone_width = PVParallelView::ZoneMaxWidth);
+	PVLinesView(zones_drawing_t& zd, PVZoneID nb_drawable_zones = 30, uint32_t zone_width = PVParallelView::ZoneMaxWidth);
 
 public:
 	void set_nb_drawable_zones(PVZoneID nb_zones);
@@ -115,7 +114,7 @@ public:
 	}
 	//bool set_zone_width_and_render(PVZoneID z, uint32_t width);
 
-	inline zones_drawing_sp& get_zones_drawing() { return _zd; }
+	inline zones_drawing_t* get_zones_drawing() { return _zd; }
 	inline const PVZonesManager& get_zones_manager() const { return _zd->get_zones_manager(); }
 	inline PVZonesManager& get_zones_manager() { return _zd->get_zones_manager(); }
 	inline uint32_t get_zone_width(PVZoneID z) const { return _zd->get_zone_width(z); }
@@ -164,7 +163,7 @@ private:
 	void right_shift_images(PVZoneID s);
 
 private:
-	PVParallelView::PVLinesView::zones_drawing_sp _zd;
+	zones_drawing_t* _zd;
 	PVZoneID _first_zone;
 	uint32_t _zone_max_width;
 	int32_t _visible_view_x;

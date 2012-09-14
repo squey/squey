@@ -7,13 +7,18 @@
 #ifndef PVPARALLELVIEW_PVZOOMEDPARALLELSCENE_H
 #define PVPARALLELVIEW_PVZOOMEDPARALLELSCENE_H
 
+#include <picviz/PVView.h>
+
+#include <pvhive/PVHive.h>
+#include <pvhive/PVFuncObserver.h>
+#include <pvhive/PVCallHelper.h>
+
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVZoomedParallelView.h>
 #include <pvparallelview/PVZonesDrawing.h>
+#include <pvparallelview/PVSlidersManager.h>
 #include <pvparallelview/PVRenderingJob.h>
 #include <pvparallelview/PVSelectionSquareGraphicsItem.h>
-
-#include <picviz/FakePVView.h>
 
 #include <QGraphicsPixmapItem>
 #include <QGraphicsSceneMouseEvent>
@@ -30,6 +35,9 @@ namespace PVParallelView
 class PVZoomedParallelScene : public QGraphicsScene
 {
 Q_OBJECT
+
+private:
+	friend class zoom_sliders_new_obs;
 
 private:
 	constexpr static size_t bbits = PARALLELVIEW_ZZT_BBITS;
@@ -53,7 +61,8 @@ private:
 
 public:
 	PVZoomedParallelScene(PVParallelView::PVZoomedParallelView *zpview,
-	                      Picviz::FakePVView_p pvview_p,
+	                      Picviz::PVView_sp& pvview,
+	                      PVSlidersManager_p sliders_manager_p,
 	                      zones_drawing_t &zones_drawing,
 	                      PVCol axis);
 
@@ -111,6 +120,8 @@ private:
 
 	PVZonesManager& get_zones_manager() { return _zones_drawing.get_zones_manager(); }
 
+	inline Picviz::PVSelection& volatile_selection() { return _pvview.get_volatile_selection(); }
+
 private slots:
 	void scrollbar_changed_Slot(int value);
 	void scrollbar_timeout_Slot();
@@ -133,11 +144,45 @@ private:
 		QPointF              next_pos;   // the item position of the next rendering
 	};
 
+	class zoom_sliders_new_obs :
+		public PVHive::PVFuncObserverSignal<PVSlidersManager,
+		                                    FUNC(PVSlidersManager::new_zoom_sliders)>
+	{
+	public:
+		zoom_sliders_new_obs(PVZoomedParallelScene *parent) : _parent(parent)
+		{}
+
+		void update(arguments_deep_copy_type const& args) const
+		{
+			PVCol axis = std::get<0>(args);
+
+			if (axis == _parent->_axis) {
+				PVSlidersManager::id_t id = std::get<1>(args);
+
+				if (id != _parent) {
+					uint32_t y_min = std::get<2>(args);
+					uint32_t y_max = std::get<3>(args);
+					printf("##### add new zoom sliders: %d %p %u %u\n",
+					       axis, id, y_min, y_max);
+					// TODO: add sliders in _parent
+				} else {
+					// ignore my own add
+				}
+			}
+		}
+
+	private:
+		PVZoomedParallelScene *_parent;
+	};
+
+private:
+
 	PVZoomedParallelView          *_zpview;
-	Picviz::FakePVView_p           _pvview_p;
+	Picviz::PVView&                _pvview;
+	PVSlidersManager_p             _sliders_manager_p;
 	zones_drawing_t               &_zones_drawing;
-	Picviz::PVSelection           &_selection;
 	PVCol                          _axis;
+	zoom_sliders_new_obs           _zsn_obs;
 
 	// about mouse
 	int                            _wheel_value;

@@ -27,6 +27,8 @@
 #include <pvkernel/core/picviz_intrin.h>
 #include <pvkernel/core/segfault_handler.h>
 
+#include <pvparallelview/PVParallelView.h>
+
 #include <boost/program_options.hpp>
 
 #define JULY_5 1309856400
@@ -169,7 +171,11 @@ int main(int argc, char *argv[])
 		pv_main_window.load_files(files, format);
 	}
 
+	PVParallelView::common::init_cuda();
+
 	int ret = app.exec();
+
+	PVParallelView::common::release();
 
 	return ret;
 }
