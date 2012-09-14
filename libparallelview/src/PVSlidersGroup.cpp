@@ -47,11 +47,11 @@ void PVParallelView::PVSlidersGroup::add_selection_sliders(uint32_t y_min,
 	sliders.first = new PVParallelView::PVAxisSlider(0, PVParallelView::ImageHeight, y_min);
 	sliders.second = new PVParallelView::PVAxisSlider(0, PVParallelView::ImageHeight, y_max);
 
-	sliders.first->setPos(pos());
-	sliders.second->setPos(pos());
-
 	addToGroup(sliders.first);
 	addToGroup(sliders.second);
+
+	sliders.first->setPos(pos());
+	sliders.second->setPos(pos());
 
 	_all_sliders.push_back(sliders);
 	_selection_sliders.push_back(sliders);

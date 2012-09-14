@@ -64,10 +64,10 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* par
 
 		PVParallelView::PVAxisGraphicsItem* axisw = new PVParallelView::PVAxisGraphicsItem(sm_p, axis, z);
 		connect(axisw->get_sliders_group(), SIGNAL(axis_sliders_moved(PVZoneID)), this, SLOT(update_selection_from_sliders_Slot(PVZoneID)));
-		axisw->get_sliders_group()->add_selection_sliders(768, 1000);
 		axisw->setPos(QPointF(pos - PVParallelView::AxisWidth, 0));
 		addItem(axisw);
 		_axes.push_back(axisw);
+		axisw->get_sliders_group()->add_selection_sliders(768, 1000);
 	}
 
 	_parallel_view->set_total_line_number(_lines_view.get_zones_manager().get_number_rows());
