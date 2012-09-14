@@ -37,10 +37,10 @@ public:
 	selection_ranges_t get_selection_ranges() const;
 
 signals:
-	void axis_sliders_moved(PVZoneID);
+	void selection_sliders_moved(PVZoneID);
 
 protected slots:
-	void slider_moved() { emit axis_sliders_moved(_axis_index); }
+	void selection_slider_moved() { emit selection_sliders_moved(_axis_index); }
 
 private:
 	class zoom_sliders_new_obs :

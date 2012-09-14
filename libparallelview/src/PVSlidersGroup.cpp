@@ -57,8 +57,8 @@ void PVParallelView::PVSlidersGroup::add_selection_sliders(uint32_t y_min,
 	_selection_sliders.push_back(sliders);
 
 	// Connection
-	connect(sliders.first, SIGNAL(slider_moved()), this, SLOT(slider_moved()));
-	connect(sliders.second, SIGNAL(slider_moved()), this, SLOT(slider_moved()));
+	connect(sliders.first, SIGNAL(slider_moved()), this, SLOT(selection_slider_moved()));
+	connect(sliders.second, SIGNAL(slider_moved()), this, SLOT(selection_slider_moved()));
 }
 
 /*****************************************************************************
