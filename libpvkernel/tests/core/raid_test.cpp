@@ -200,14 +200,14 @@ public:
 		_files = new typename BufferPolicy::file_t[num_cols];
 		_filenames = new std::string[num_cols];
 
-		this->CreateFolder(folder, _num_cols);
+		this->CreateFolder(folder);
 
 		for (int i = 0 ; i < _num_cols ; i++) {
 			_files[i] = this->Open(this->_filenames[i]);
 		}
 	}
 
-	void CreateFolder(std::string const& folder, uint64_t num_cols)
+	void CreateFolder(std::string const& folder)
 	{
 		_folder = folder;
 
@@ -271,7 +271,7 @@ public:
 			this->Close(_files[i]);
 		}
 
-		this->DeleteFolder();
+		//this->DeleteFolder();
 
 		delete [] _filenames;
 		delete [] _files;
@@ -421,14 +421,14 @@ void read_test(std::string const& path)
 	Reader<RawPolicy> reader;
 	for (uint64_t num_cols : {1, 2, 4, 8, 16 , 32, 128, 256, 512, 1024, 4096, 8192, 16384}) {
 		for (uint64_t chunk_size : {16*1024, 32*1024, 64*1024, 128*1024, 256*1024, 512*1024, 1*1024*1024, 2*1024*1024, 8*1024*1024, 16*1024*1024, 32*1024*1024, 64*1024*1024, 128*1024*1024, 256*1024*1024}) {
-			uint64_t nb_occur = reader.Search(path, num_cols, chunk_size, std::string("motherfucker"));
+			/*uint64_t nb_occur =*/ reader.Search(path, num_cols, chunk_size, std::string("motherfucker"));
 		}
 	}
 }
 
 void write_nraw_disk_backend()
 {
-	uint64_t num_cols = 1;
+	uint64_t num_cols = 3;
 	std::vector<uint64_t> shuffled_sequence;
 	shuffled_sequence.reserve(num_cols);
 	for (uint64_t i = 0; i < num_cols; i++) {
@@ -441,23 +441,24 @@ void write_nraw_disk_backend()
 
 	std::string field("123456789");
 
-	BENCH_START(w);
-	uint64_t NB_FIELDS = 100000;
+	//BENCH_START(w);
+	uint64_t NB_FIELDS = 90000;
 	uint64_t nb_fields_per_column = NB_FIELDS / num_cols;
 	uint64_t write_size = 0;
 	for (uint64_t i = 0 ; i < nb_fields_per_column; i++) {
-		//std::stringstream st;
-		//st << i << " ";
+		std::stringstream st;
+		st << i << " ";
 		for (uint64_t col : shuffled_sequence) {
-			//write_size += nraw_backend.add(col, st.str().c_str(), st.str().length());
-			write_size += nraw_backend.add(col, field.c_str(), field.length());
+			write_size += nraw_backend.add(col, st.str().c_str(), st.str().length());
 		}
 	}
 	nraw_backend.flush();
 
-	std::cout << nraw_backend.at(1234, 0) << std::endl;
+	std::cout << "value=" << nraw_backend.at(7001, 0) << std::endl;
+	std::cout << "value=" << nraw_backend.at(7002, 0) << std::endl;
+	std::cout << "value=" << nraw_backend.next(0) << std::endl;
 
-	BENCH_END(w, "nraw write test", sizeof(char), write_size, 1, 1);
+	//BENCH_END(w, "nraw write test", sizeof(char), write_size, 1, 1);
 }
 
 void usage(const char* app_name)

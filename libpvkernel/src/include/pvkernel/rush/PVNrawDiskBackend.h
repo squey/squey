@@ -7,16 +7,20 @@
 #ifndef PVNRAWDISKBACKEND_H_
 #define PVNRAWDISKBACKEND_H_
 
+#include <fcntl.h>
+#include <sys/stat.h>
+
 #include <sstream>
 #include <string>
-#include <fcntl.h>
 
 #include <pvkernel/core/PVAllocators.h>
 #include <pvkernel/core/PVMatrix.h>
 
 constexpr uint64_t BUF_ALIGN = 512;
-constexpr uint64_t READ_BUFFER_SIZE = 256*1024;
+constexpr uint64_t READ_BUFFER_SIZE = 1024 + BUF_ALIGN;
 constexpr uint64_t FIELDS_PER_INDEX = 8192;
+constexpr uint64_t NB_CACHE_BUFFERS = 3;
+constexpr uint64_t INVALID = UINT64_MAX;
 
 namespace PVRush {
 
@@ -33,7 +37,10 @@ struct UnbufferedFilePolicy
 
 	bool Open(std::string const& filename, file_t* file)
 	{
-		*file = open(filename.c_str(), O_RDWR | O_CREAT);
+		*file = open(filename.c_str(), O_RDWR | O_CREAT, 0640);
+		if (fchmod(*file, 0640) == -1) {
+			std::cout << "fchmod: " << strerror(errno) << std::endl;
+		}
 		return *file != -1;
 	}
 
@@ -49,8 +56,11 @@ struct UnbufferedFilePolicy
 
 	inline int64_t ReadAt(file_t file, uint64_t offset, void* buffer, uint64_t buf_size)
 	{
-		lseek(file, 0, SEEK_SET);
-		return read(file, buffer, buf_size);
+		int64_t r = lseek(file, offset, SEEK_SET);
+		if (r == -1) {
+			std::cout << "lseek: " << strerror(errno) << std::endl;
+		}
+		return Read(file, buffer, buf_size);
 	}
 
 	inline int64_t Seek(file_t file, int64_t offset)
@@ -95,7 +105,7 @@ struct BufferedFilePolicy
 
 	inline int64_t ReadAt(file_t file, uint64_t offset, void* buffer, uint64_t buf_size)
 	{
-		fseek(file, 0, SEEK_SET);
+		fseek(file, offset, SEEK_SET);
 		return fread(buffer, 1, buf_size, file);
 	}
 
@@ -141,13 +151,15 @@ class PVNRawDiskBackend : public FilePolicy
 {
 public:
 	typedef typename FilePolicy::file_t file_t;
-	typedef PVCore::PVMatrix<uint64_t, PVCol, PVRow> index_table_t;
+	typedef std::pair<uint64_t, uint64_t> offset_fields_t;
+	typedef PVCore::PVMatrix<offset_fields_t, PVRow, PVCol> index_table_t;
+	typedef PVNRawDiskBackend<FilePolicy> this_type;
 
 public:
 	PVNRawDiskBackend(std::string const& nraw_folder, uint64_t num_cols) :
 		_nraw_folder(nraw_folder),
 		_num_cols(num_cols),
-		_indexes(10, num_cols)
+		_cache_pool(*this)
 	{
 		_columns.reserve(_num_cols);
 		for (int col = 0 ; col < _num_cols ; col++) {
@@ -164,69 +176,70 @@ public:
 
 			// Create buffer
 			uint64_t buffer_size = _buffers_size_pattern[0];
-			column.buffer = PVCore::PVAlignedAllocator<char, BUF_ALIGN>().allocate(buffer_size);
-			column.buffer_ptr = column.buffer;
-			column.buffer_end_ptr = column.buffer + buffer_size;
-			column.field_length = 9; // Or any value grater than 0 to specify a fixed field length;
+			column.buffer_write = PVCore::PVAlignedAllocator<char, BUF_ALIGN>().allocate(buffer_size);
+			column.buffer_write_ptr = column.buffer_write;
+			column.buffer_write_end_ptr = column.buffer_write + buffer_size;
+			column.field_length = 0; // Or any value grater than 0 to specify a fixed field length;
 		}
-
-		_read_buffer = PVCore::PVAlignedAllocator<char, BUF_ALIGN>().allocate(READ_BUFFER_SIZE);
 	}
 
 	uint64_t add(PVCol col_idx, const char* field, uint64_t field_size)
 	{
 		PVColumn& column = get_col(col_idx);
+		field_size += column.end_char();
 		uint64_t field_part2_size = 0;
 		char* field_part2 = nullptr;
 		uint64_t write_size = 0;
 
 		// Index field
-		if (++column.fields_ignored == FIELDS_PER_INDEX) {
-			uint64_t field_offset_in_file = this->Tell(column.file) + (column.buffer_ptr - column.buffer);
+		if(column.fields_ignored_size + field_size > READ_BUFFER_SIZE) {
+			uint64_t field_offset_in_file = this->Tell(column.file) + (column.buffer_write_ptr - column.buffer_write);
 			_indexes.resize(++column.fields_indexed+1, _num_cols);
-			_indexes.set_value(column.fields_indexed, col_idx, field_offset_in_file);
-			std::cout << "_indexes[" << col_idx << "][" << column.fields_indexed-1 << "]=" << field_offset_in_file << std::endl;
-			column.fields_ignored = 0;
+			_indexes.set_value(column.fields_indexed/*-1*/, col_idx, std::make_pair(field_offset_in_file, column.fields_nb));
+			column.fields_ignored_size = 0;
 		}
+		else {
+			column.fields_ignored_size += field_size;
+		}
+		column.fields_nb++;
 
 		// Fill the buffer with complete field
-		field_size += column.end_char();
-		if (column.buffer_ptr + field_size <= column.buffer_end_ptr) {
-			memcpy(column.buffer_ptr, field, field_size);
-			column.buffer_ptr += field_size;
+		if (column.buffer_write_ptr + field_size <= column.buffer_write_end_ptr) {
+			memcpy(column.buffer_write_ptr, field, field_size);
+			column.buffer_write_ptr += field_size;
 		}
-		// Fill the buffer with splitted field
+		// Fill the buffer_write with splitted field
 		else {
-			uint64_t field_part1_size = column.buffer_end_ptr - column.buffer_ptr;
-			memcpy(column.buffer_ptr, field, field_part1_size);
+			uint64_t field_part1_size = column.buffer_write_end_ptr - column.buffer_write_ptr;
+			memcpy(column.buffer_write_ptr, field, field_part1_size);
 			field_part2 = (char *)(field + field_part1_size);
 			field_part2_size = field_size - field_part1_size;
-			column.buffer_ptr += field_part1_size;
+			column.buffer_write_ptr += field_part1_size;
 		}
 
-		// Write buffer to disk
-		if (column.buffer_ptr == column.buffer_end_ptr) {
-			write_size = this->Write(column.buffer, _buffers_size_pattern[column.buffers_size_idx], column.file);
+		// Write buffer_write to disk
+		if (column.buffer_write_ptr == column.buffer_write_end_ptr) {
+			write_size = this->Write(column.buffer_write, _buffers_size_pattern[column.buffers_write_size_idx], column.file);
 			if(write_size <= 0) {
 				PVLOG_ERROR("PVNRawDiskBackend: Error writing column %d to disk (%s)\n", col_idx, strerror(errno));
 				return 0;
 			}
 
-			uint64_t buffer_max_size = _buffers_size_pattern[column.buffers_size_idx];
+			uint64_t buffer_max_size = _buffers_size_pattern[column.buffers_write_size_idx];
 
-			// Reallocate a bigger buffer and copy the end of splitted field
-			if (column.buffers_size_idx < _max_size_idx) {
-				uint64_t new_buffer_max_size = _buffers_size_pattern[++column.buffers_size_idx];
-				PVCore::PVAlignedAllocator<char, BUF_ALIGN>().deallocate(column.buffer, buffer_max_size);
-				column.buffer = PVCore::PVAlignedAllocator<char, BUF_ALIGN>().allocate(new_buffer_max_size);
-				column.buffer_end_ptr = column.buffer + new_buffer_max_size;
+			// Reallocate a bigger buffer_write and copy the end of splitted field
+			if (column.buffers_write_size_idx < _max_size_idx) {
+				uint64_t new_buffer_max_size = _buffers_size_pattern[++column.buffers_write_size_idx];
+				PVCore::PVAlignedAllocator<char, BUF_ALIGN>().deallocate(column.buffer_write, buffer_max_size);
+				column.buffer_write = PVCore::PVAlignedAllocator<char, BUF_ALIGN>().allocate(new_buffer_max_size);
+				column.buffer_write_end_ptr = column.buffer_write + new_buffer_max_size;
 
-				memcpy(column.buffer, field_part2, field_part2_size);
-				column.buffer_ptr = column.buffer + field_part2_size;
+				memcpy(column.buffer_write, field_part2, field_part2_size);
+				column.buffer_write_ptr = column.buffer_write + field_part2_size;
 			}
-			// Recycle previously allocated buffer
+			// Recycle previously allocated buffer_write
 			else {
-				column.buffer_ptr = column.buffer;
+				column.buffer_write_ptr = column.buffer_write;
 			}
 		}
 
@@ -250,32 +263,19 @@ public:
 	char* at(PVRow field, PVCol col)
 	{
 		PVColumn& column = get_col(col);
+		column.last_accessed_field = field;
 
-		// Load buffer
-		uint64_t field_index = field / FIELDS_PER_INDEX;
-		uint64_t disk_offset = _indexes.at(field_index, col);
-		this->ReadAt(column.file, disk_offset, _read_buffer, READ_BUFFER_SIZE);
+		uint64_t nb_fields_left = _cache_pool.get_cache(field, col);
 
-		// Extract field
-		char* buffer_ptr = _read_buffer;
-		uint64_t num_field_in_index = field_index * FIELDS_PER_INDEX;
-		if (column.field_length > 0) {
-			return buffer_ptr + ((field -num_field_in_index) * column.field_length);
-		}
-		else {
-			char* end_field_ptr = nullptr;
-			uint64_t size_to_read = READ_BUFFER_SIZE;
-			for (num_field_in_index; num_field_in_index < field; num_field_in_index++) {
-				end_field_ptr = (char*) memchr(buffer_ptr, '\0', size_to_read);
-				uint64_t field_length = (end_field_ptr - buffer_ptr);
-				size_to_read -= field_length;
-				buffer_ptr += (field_length+1);
-			}
-		}
-
-		return buffer_ptr;
+		return next(col, nb_fields_left, column.buffer_read);
 	}
-	
+
+	inline char* next(uint64_t col)
+	{
+		PVColumn& column = get_col(col);
+		return next(col, 1, column.buffer_read_ptr);
+	}
+
 	uint64_t search_in_column(uint64_t col_idx, std::string const& field)
 	{
 		PVColumn& column = get_col(col_idx);
@@ -334,10 +334,39 @@ public:
 		for (uint64_t col_idx = 0 ; col_idx < _num_cols; col_idx++) {
 			PVColumn& column = get_col(col_idx);
 			this->Close(column.file);
-			PVCore::PVAlignedAllocator<char, BUF_ALIGN>().deallocate(column.buffer, _buffers_size_pattern[column.buffers_size_idx]);
+			PVCore::PVAlignedAllocator<char, BUF_ALIGN>().deallocate(column.buffer_write, _buffers_size_pattern[column.buffers_write_size_idx]);
 		}
-		PVCore::PVAlignedAllocator<char, BUF_ALIGN>().deallocate(_read_buffer, READ_BUFFER_SIZE);
 	}
+
+private:
+	inline char* next(uint64_t col, uint64_t nb_fields, char* buffer)
+	{
+		PVColumn& column = get_col(col);
+
+		// Extract proper field from buffer
+		char* buffer_ptr = buffer;
+		if (column.field_length > 0) {
+			buffer_ptr += ((column.last_accessed_field - nb_fields) * column.field_length);
+		}
+		else {
+			char* end_field_ptr = nullptr;
+			uint64_t size_to_read = READ_BUFFER_SIZE;
+			for (uint64_t i = 0; i < nb_fields; i++) {
+				end_field_ptr = (char*) memchr(buffer_ptr, '\0', size_to_read);
+				if (end_field_ptr == nullptr) {
+					buffer_ptr = nullptr;
+					break;
+				}
+				uint64_t field_length = (end_field_ptr - buffer_ptr);
+				size_to_read -= field_length;
+				buffer_ptr += (field_length+1);
+			}
+		}
+
+		column.buffer_read_ptr = buffer_ptr;
+		return buffer_ptr;
+	}
+
 
 private:
 	struct PVColumn
@@ -348,14 +377,137 @@ private:
 	public:
 		file_t file = 0;
 
-		char* buffer = nullptr;
-		char* buffer_ptr = nullptr;
-		char* buffer_end_ptr = nullptr;
-		uint64_t buffers_size_idx = 0;
+		char* buffer_write = nullptr;
+		char* buffer_write_ptr = nullptr;
+		char* buffer_write_end_ptr = nullptr;
+		uint64_t buffers_write_size_idx = 0;
 
 		uint64_t field_length = 0;
-		uint64_t fields_ignored = 0;
+		uint64_t fields_nb = 0;
+		uint64_t fields_ignored_size = 0;
 		uint64_t fields_indexed = 0;
+
+		uint64_t last_accessed_field = 0;
+		char* buffer_read = nullptr;
+		char* buffer_read_ptr = nullptr;
+	};
+
+	template <typename T>
+	class PVCachePool
+	{
+	public:
+
+		PVCachePool(PVRush::PVNRawDiskBackend<T>& parent) : _parent(parent)
+		{
+			for (uint64_t cache_idx = 0; cache_idx < NB_CACHE_BUFFERS; cache_idx++) {
+				_caches[cache_idx].buffer = PVCore::PVAlignedAllocator<char, BUF_ALIGN>().allocate(READ_BUFFER_SIZE);
+			}
+		}
+
+		uint64_t get_cache(uint64_t field, uint64_t col)
+		{
+			bool cache_miss = true;
+			uint64_t cache_idx = 0;
+
+			// Is there a cache for this column?
+			for (; cache_idx < NB_CACHE_BUFFERS && _caches[cache_idx].column != col; cache_idx++) {}
+
+			// Yes
+			if (cache_idx < NB_CACHE_BUFFERS) {
+				PVReadCache& cache = _caches[cache_idx];
+				cache_miss = (field < cache.first_field || field > cache.last_field);
+			}
+			// No: find LRU cache
+			else {
+				tbb::tick_count older_timestamp = tbb::tick_count::now();
+				for (uint64_t i = 0; i < NB_CACHE_BUFFERS; i++) {
+					PVReadCache& cache = _caches[i];
+					tbb::tick_count::interval_t interval = cache.timestamp - older_timestamp;
+					if (interval.seconds() < 0) {
+						older_timestamp = cache.timestamp;
+						cache_idx = i;
+					}
+				}
+				 _caches[cache_idx].column = col;
+			}
+
+			PVReadCache& cache = _caches[cache_idx];
+			PVColumn& column = _parent.get_col(col);
+
+			// Fetch data from disk
+			char* buffer_ptr = cache.buffer;
+			if (cache_miss) {
+				uint64_t field_index = get_index(col, field);
+				uint64_t disk_offset = _parent._indexes.at(field_index, col).first;
+				uint64_t aligned_disk_offset = (disk_offset / BUF_ALIGN) * BUF_ALIGN;
+				int64_t read_size = _parent.ReadAt(column.file, aligned_disk_offset, cache.buffer, READ_BUFFER_SIZE);
+				if(read_size <= 0) {
+					PVLOG_ERROR("PVNRawDiskBackend: Error reading column %d [offset=%d] from disk (%s)\n", col, aligned_disk_offset, strerror(errno));
+					return 0;
+				}
+				column.buffer_read = cache.buffer;
+				buffer_ptr += (disk_offset - aligned_disk_offset);
+				cache.first_field = _parent._indexes.at(field_index, col).second;
+				cache.last_field = _parent._indexes.at(field_index+1, col).second;
+				column.buffer_read = buffer_ptr;
+			}
+
+			// Update cache timestamp
+			cache.timestamp = tbb::tick_count::now();
+
+			column.buffer_read_ptr = buffer_ptr;
+
+			return field - cache.first_field;
+		}
+
+		~PVCachePool()
+		{
+			for (uint64_t cache_idx = 0; cache_idx < NB_CACHE_BUFFERS; cache_idx++) {
+				PVCore::PVAlignedAllocator<char, BUF_ALIGN>().deallocate(_caches[cache_idx].buffer, READ_BUFFER_SIZE);
+			}
+		}
+
+	private:
+		uint64_t inline get_index(uint64_t col, uint64_t field)
+		{
+			index_table_t& indexes = _parent._indexes;
+			uint64_t first = 0;
+			uint64_t index = 0;
+			uint64_t last = indexes.get_height()-1;
+
+			if (field >= indexes.at(last, col).second) return last;
+
+			while (first <= last) {
+				int index = (first + last) / 2;
+
+				if (field >= indexes.at(index, col).second) {
+					if (field < indexes.at(index+1, col).second) {
+						return index;
+					}
+					first = index + 1;
+				}
+				else if (field < indexes.at(index, col).second) {
+					last = index - 1;
+				}
+			}
+
+			return index;
+		}
+
+	private:
+		struct PVReadCache
+		{
+			char* buffer = nullptr;
+			char* buffer_ptr = nullptr;
+			uint64_t column = INVALID;
+			tbb::tick_count timestamp = tbb::tick_count::now();
+			uint64_t first_field = INVALID;
+			uint64_t last_field = INVALID;
+		};
+
+	private:
+		PVReadCache _caches[NB_CACHE_BUFFERS];
+		PVRush::PVNRawDiskBackend<T>& _parent;
 	};
 
 private:
@@ -368,9 +520,9 @@ private:
 	std::vector<PVColumn> _columns;
 	index_table_t _indexes;
 
-	char* _read_buffer = nullptr;
+	PVCachePool<FilePolicy> _cache_pool;
 
-	uint64_t _buffers_size_pattern[8] = { // too bad we need to specify array size...
+	uint64_t _buffers_size_pattern[8] = { // too bad we need to specify the size of the array...
 		128*1024,
 		256*1024,
 		512*1024,
