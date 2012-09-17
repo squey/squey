@@ -8,6 +8,7 @@
 #include <pvkernel/core/PVAlgorithms.h>
 #include <pvkernel/core/PVParallels.h>
 #include <pvkernel/core/PVProgressBox.h>
+#include <pvkernel/core/picviz_bench.h>
 
 #include <pvguiqt/PVSortFilterProxyModel.h>
 #include <pvguiqt/PVSortFilterProxyModel_impl.h>
@@ -29,6 +30,7 @@ PVGuiQt::PVSortFilterProxyModel::PVSortFilterProxyModel(QObject* parent):
 
 void PVGuiQt::PVSortFilterProxyModel::init_default_sort()
 {
+	BENCH_START(b);
 	int row_count = sourceModel()->rowCount();
 	_vec_sort_m2s.clear();
 	_vec_sort_m2s.reserve(row_count);
@@ -36,6 +38,7 @@ void PVGuiQt::PVSortFilterProxyModel::init_default_sort()
 		_vec_sort_m2s.push_back(i);
 	}
 	_sort_idx = -1;
+	BENCH_END(b, "PVSortFilterProxyModel::init_default_sort", 1, 1, row_count, sizeof(int));
 }
 
 void PVGuiQt::PVSortFilterProxyModel::reset_to_default_ordering()
@@ -98,6 +101,7 @@ void PVGuiQt::PVSortFilterProxyModel::reverse_sort_order()
 
 void PVGuiQt::PVSortFilterProxyModel::do_filter()
 {
+	BENCH_START(b);
 	vec_indexes_t tmp;
 	filter_source_indexes(_vec_sort_m2s, tmp);
 	if (tmp.size() == _vec_filtered_m2s.size()) {
@@ -110,6 +114,7 @@ void PVGuiQt::PVSortFilterProxyModel::do_filter()
 		_vec_filtered_m2s = tmp;
 		endResetModel();
 	}
+	BENCH_END(b, "PVSortFilterProxyModel::do_filter", 1, 1, 1, 1);
 }
 
 void PVGuiQt::PVSortFilterProxyModel::sort_indexes(int column, Qt::SortOrder order, vec_indexes_t& vec_idxes)

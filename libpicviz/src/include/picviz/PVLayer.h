@@ -70,8 +70,6 @@ public:
 	inline list_row_indexes_t get_mins() const { return _row_mins; }
 	inline list_row_indexes_t const& get_maxs() const { return _row_maxs; }
 
-	PVLayer & operator=(const PVLayer & rhs);
-	
 	void reset_to_empty_and_default_color();
 	void reset_to_full_and_default_color();
 

@@ -155,7 +155,7 @@ void PVGuiQt::PVListingView::update_view_selection_from_listing_selection()
 	}
 
 	/* We reprocess the view from the selection */
-	_actor.call<FUNC(Picviz::PVView::process_from_selection)>();
+	_actor.call<FUNC(Picviz::PVView::process_real_output_selection)>();
 }
 
 /******************************************************************************

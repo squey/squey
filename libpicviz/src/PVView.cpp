@@ -92,7 +92,6 @@ void Picviz::PVView::process_parent_plotted()
 	eventline.set_first_index(0);
 	eventline.set_current_index(row_count);
 	eventline.set_last_index(row_count);
-	z_level_array.set_row_count(row_count);
 
 	// First process
 	select_all_nonzb_lines();
@@ -269,6 +268,11 @@ PVCol Picviz::PVView::get_axes_count() const
 QStringList Picviz::PVView::get_axes_names_list() const
 {
 	return axes_combination.get_axes_names_list();
+}
+
+Picviz::PVAxis const& Picviz::PVView::get_axis(PVCol index) const
+{
+	return axes_combination.get_axis(index);
 }
 
 /******************************************************************************
@@ -643,7 +647,7 @@ void Picviz::PVView::process_eventline()
 	eventline.selection_A2B_filter(post_filter_layer.get_selection(), real_output_selection);
 
 	/* We refresh the nu_selection */
-	nu_selection = ~layer_stack_output_layer.get_selection();
+	nu_selection = std::move(~layer_stack_output_layer.get_selection());
 	
 	nu_selection |= real_output_selection;
 
@@ -657,26 +661,14 @@ void Picviz::PVView::process_eventline()
 		if (real_output_selection.get_line(i)) {
 			/* It is selected, so we copy it's line properties */
 			out_lps.get_line_properties(i) = post_lp;
-			/* ... and set it's z_level */
-			//z_level_array.get_value(i) = layer_stack.get_lia().get_value(i) + (f_imax-(float)i)/f_imax;
-			//z_level_array.get_value(i) = layer_stack.get_lia().get_value(i) + ((float)i)/f_imax;
 		} else {
 			/* It is not selected in the end, so we check if it was available in the beginning */
 			if (layer_stack_output_layer.get_selection().get_line(i)) {
 				/* The line was available, but is unselected */
-				/*out_lp.r() = post_lp.r()/2;
-			  	out_lp.g() = post_lp.g()/2;
-			  	out_lp.b() = post_lp.b()/2;*/
 				out_lp = post_lp;
-				/* We set it's z_level */
-				//z_level_array.get_value(i) = (f_imax-(float)i)/f_imax - 1.0f;
-				//z_level_array.get_value(i) = (float)i/f_imax - 1.0f;
 			} else {
 				/* The line is a zombie line */
 				out_lp = default_zombie_line_properties;
-				/* We set it's z_level */
-				//z_level_array.get_value(i) = (f_imax-(float)i)/f_imax - 2.0f;
-				//z_level_array.get_value(i) = (float)i/f_imax - 2.0f;
 			}
 		}
 	}
@@ -750,6 +742,12 @@ void Picviz::PVView::process_from_selection()
 	process_visibility();
 }
 
+void Picviz::PVView::process_real_output_selection()
+{
+	// AG: TODO: should be optimised to only create real_output_selection
+	process_from_selection();
+}
+
 /******************************************************************************
  *
  * Picviz::PVView::process_layer_stack
@@ -780,8 +778,9 @@ void Picviz::PVView::process_selection()
 			break;
 
 		case Picviz::PVStateMachine::AREA_MODE_SUBSTRACT_VOLATILE:
-			pre_filter_layer.get_selection() = std::move(floating_selection - volatile_selection);
-			//floating_selection.AB2C_substraction(volatile_selection, pre_filter_layer->selection);
+			// This is an optimized version of:
+			// pre_filter_layer.get_selection() = floating_selection, volatile_selection
+			pre_filter_layer.get_selection().AB_sub(floating_selection, volatile_selection);
 			break;
 
 		case Picviz::PVStateMachine::AREA_MODE_INTERSECT_VOLATILE:
@@ -840,7 +839,7 @@ void Picviz::PVView::process_visibility()
 		/* Now we need to know if the ZOMBIE are visible */
 		if (state_machine->are_listing_zombie_visible()) {
 			/* ZOMBIE are visible */
-			output_layer.get_selection() |= ~layer_stack_output_layer.get_selection();
+			output_layer.get_selection().or_not(layer_stack_output_layer.get_selection());
 		}
 	}
 }

@@ -18,10 +18,9 @@ Picviz::PVLinesProperties::color_allocator_type Picviz::PVLinesProperties::_colo
  * Picviz::PVLinesProperties::PVLinesProperties
  *
  *****************************************************************************/
-Picviz::PVLinesProperties::PVLinesProperties()
+Picviz::PVLinesProperties::PVLinesProperties():
+	_table(nullptr)
 {
-	_table = _color_allocator.allocate(PICVIZ_LINESPROPS_NUMBER_OF_CHUNKS);
-	reset_to_default_color();
 }
 
 /******************************************************************************
@@ -31,8 +30,13 @@ Picviz::PVLinesProperties::PVLinesProperties()
  *****************************************************************************/
 Picviz::PVLinesProperties::PVLinesProperties(const PVLinesProperties & rhs)
 {
-	_table = _color_allocator.allocate(PICVIZ_LINESPROPS_NUMBER_OF_CHUNKS);
-	std::copy(rhs._table, rhs._table + PICVIZ_LINESPROPS_NUMBER_OF_CHUNKS, _table);
+	if (rhs._table) {
+		allocate_table();
+		memcpy(_table, rhs._table, PICVIZ_LINESPROPS_NUMBER_OF_BYTES);
+	}
+	else {
+		_table = NULL;
+	}
 }
 
 /******************************************************************************
@@ -42,7 +46,7 @@ Picviz::PVLinesProperties::PVLinesProperties(const PVLinesProperties & rhs)
  *****************************************************************************/
 Picviz::PVLinesProperties::~PVLinesProperties()
 {
-	if(_table != 0) {
+	if (_table) {
 		_color_allocator.deallocate(_table, PICVIZ_LINESPROPS_NUMBER_OF_CHUNKS);
 	}
 }
@@ -54,6 +58,10 @@ Picviz::PVLinesProperties::~PVLinesProperties()
  *****************************************************************************/
 void Picviz::PVLinesProperties::A2A_set_to_line_properties_restricted_by_selection_and_nelts(PVCore::PVHSVColor line_properties,  PVSelection const& selection, PVRow nelts)
 {
+	if (!_table) {
+		reset_to_default_color();
+	}
+
 	selection.visit_selected_lines([&](const PVRow r) {
 			this->_table[r] = line_properties;
 		}, nelts);
@@ -66,6 +74,14 @@ void Picviz::PVLinesProperties::A2A_set_to_line_properties_restricted_by_selecti
  *****************************************************************************/
 void Picviz::PVLinesProperties::A2B_copy_restricted_by_selection_and_nelts(Picviz::PVLinesProperties &b,  PVSelection const& selection, PVRow nelts)
 {
+	if (!_table) {
+		return;
+	}
+
+	if (!b._table) {
+		b.reset_to_default_color();
+	}
+
 	selection.visit_selected_lines([&](const PVRow r) {
 			b._table[r] = this->_table[r];
 		}, nelts);
@@ -115,7 +131,17 @@ Picviz::PVLinesProperties & Picviz::PVLinesProperties::operator=(const PVLinesPr
 		return *this;
 	}
 
-	std::copy(rhs._table, rhs._table + PICVIZ_LINESPROPS_NUMBER_OF_CHUNKS, _table);
+	if (!rhs._table) {
+		if (_table) {
+			reset_to_default_color();
+		}
+	}
+	else {
+		if (!_table) {
+			allocate_table();
+		}
+		memcpy(_table, rhs._table, PICVIZ_LINESPROPS_NUMBER_OF_BYTES);
+	}
 
 	return *this;
 }
@@ -127,6 +153,9 @@ Picviz::PVLinesProperties & Picviz::PVLinesProperties::operator=(const PVLinesPr
  *****************************************************************************/
 void Picviz::PVLinesProperties::reset_to_default_color()
 {
+	if (!_table) {
+		allocate_table();
+	}
 	memset(&_table[0], 0xFF, PICVIZ_LINESPROPS_NUMBER_OF_BYTES);
 }
 
@@ -137,6 +166,9 @@ void Picviz::PVLinesProperties::reset_to_default_color()
  *****************************************************************************/
 void Picviz::PVLinesProperties::selection_set_color(PVSelection const& selection, const PVRow nelts, const PVCore::PVHSVColor c)
 {
+	if (!_table) {
+		reset_to_default_color();
+	}
 	selection.visit_selected_lines([&](const PVRow r) {
 		this->line_set_color(r, c);
 	},
@@ -145,6 +177,9 @@ void Picviz::PVLinesProperties::selection_set_color(PVSelection const& selection
 
 void Picviz::PVLinesProperties::set_random(const PVRow n)
 {
+	if (!_table) {
+		allocate_table();
+	}
 	for (PVRow i = 0; i < n; i++) {
 		line_set_color(i, PVCore::PVHSVColor(rand() % ((1<<HSV_COLOR_NBITS_ZONE)*6)));
 	}
@@ -152,6 +187,9 @@ void Picviz::PVLinesProperties::set_random(const PVRow n)
 
 void Picviz::PVLinesProperties::set_linear(const PVRow n)
 {
+	if (!_table) {
+		allocate_table();
+	}
 	constexpr static size_t color_max = ((1<<HSV_COLOR_NBITS_ZONE)*6)-1;
 	for (PVRow i = 0; i < n; i++) {
 		line_set_color(i, PVCore::PVHSVColor((uint8_t)(((double)(i*color_max)/(double)n)*color_max)));

@@ -8,6 +8,7 @@
 
 #include <pvkernel/core/picviz_intrin.h>
 #include <pvkernel/core/PVBitCount.h>
+#include <pvkernel/core/PVHardwareConcurrency.h>
 #include <pvkernel/rush/PVNraw.h>
 
 #include <picviz/PVSelection.h>
@@ -18,10 +19,9 @@
  * Picviz::PVSelection::PVSelection()
  *
  *****************************************************************************/
-Picviz::PVSelection::PVSelection()
+Picviz::PVSelection::PVSelection():
+	_table(nullptr)
 {
-	allocate_table();
-	select_none();
 }
 
 /******************************************************************************
@@ -52,6 +52,9 @@ Picviz::PVSelection::PVSelection(PVSelection const& o)
  *****************************************************************************/
 int Picviz::PVSelection::get_number_of_selected_lines_in_range(PVRow a, PVRow b) const
 {
+	if (!_table) {
+		return 0;
+	}
 #if 0	
 	PVRow line_index;
 	int count = 0; 
@@ -71,6 +74,10 @@ int Picviz::PVSelection::get_number_of_selected_lines_in_range(PVRow a, PVRow b)
 
 std::vector<PVRow> Picviz::PVSelection::get_rows_table()
 {
+	if (!_table) {
+		return std::vector<PVRow>();
+	}
+
 	std::vector<PVRow> r_table;
 	r_table.reserve(PICVIZ_LINES_MAX);
 
@@ -92,6 +99,9 @@ std::vector<PVRow> Picviz::PVSelection::get_rows_table()
  *****************************************************************************/
 bool Picviz::PVSelection::is_empty() const
 {
+	if (!_table) {
+		return true;
+	}
 #ifdef __SSE4_1__
 	const __m128i ones = _mm_set1_epi32(0xFFFFFFFF);
 	__m128i vec;
@@ -132,7 +142,17 @@ Picviz::PVSelection& Picviz::PVSelection::operator=(const PVSelection &rhs)
 		return *this;
 	}
 
-	memcpy(_table, rhs._table, PICVIZ_SELECTION_NUMBER_OF_BYTES);
+	if (rhs._table) {
+		if (!_table) {
+			allocate_table();
+		}
+		copy_from(rhs);
+	}
+	else {
+		if (_table) {
+			memset(_table, 0x00, PICVIZ_SELECTION_NUMBER_OF_BYTES);
+		}
+	}
 
 	return *this;
 }
@@ -157,6 +177,12 @@ Picviz::PVSelection Picviz::PVSelection::operator&(const PVSelection &rhs) const
  *****************************************************************************/
 Picviz::PVSelection & Picviz::PVSelection::operator&=(const PVSelection &rhs)
 {
+	if (!_table) {
+		allocate_table();
+		select_none();
+		return *this;
+	}
+
 	for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
 		_table[i] &= rhs._table[i];
 	}
@@ -166,6 +192,12 @@ Picviz::PVSelection & Picviz::PVSelection::operator&=(const PVSelection &rhs)
 
 Picviz::PVSelection& Picviz::PVSelection::and_optimized(const PVSelection& rhs)
 {
+	if (!_table) {
+		allocate_table();
+		select_none();
+		return *this;
+	}
+
 	const ssize_t last_chunk = get_max_last_nonzero_chunk_index(rhs);
 	if (last_chunk >= 0) {
 		for (PVRow i = 0; i < (PVRow) last_chunk; i++) {
@@ -184,6 +216,7 @@ Picviz::PVSelection& Picviz::PVSelection::and_optimized(const PVSelection& rhs)
 Picviz::PVSelection Picviz::PVSelection::operator~() const
 {
 	PVSelection result;
+	result.allocate_table();
 	for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
 		result._table[i] = ~_table[i];
 	}
@@ -198,7 +231,7 @@ Picviz::PVSelection Picviz::PVSelection::operator~() const
  *****************************************************************************/
 Picviz::PVSelection Picviz::PVSelection::operator|(const PVSelection &rhs) const
 {
-	PVSelection result = *this;
+	PVSelection result(*this);
 	result |= rhs;
 
 	return result;
@@ -210,11 +243,20 @@ Picviz::PVSelection Picviz::PVSelection::operator|(const PVSelection &rhs) const
  *
  *****************************************************************************/
 Picviz::PVSelection & Picviz::PVSelection::operator|=(const PVSelection &rhs)
-{
-	if (&rhs != this) {
-		for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
-			_table[i] |= rhs._table[i];
-		}
+{ 
+	if ((&rhs == this) || (rhs._table == NULL)) {
+		return *this;
+	}
+
+	if (!_table) {
+		allocate_table();
+		copy_from(rhs);
+		return *this;
+	}
+
+
+	for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
+		_table[i] |= rhs._table[i];
 	}
 
 	return *this;
@@ -222,6 +264,10 @@ Picviz::PVSelection & Picviz::PVSelection::operator|=(const PVSelection &rhs)
 
 Picviz::PVSelection & Picviz::PVSelection::operator|=(const PVSparseSelection &rhs)
 {
+	if (!_table) {
+		allocate_table();
+	}
+
 	PVSparseSelection::map_chunks_t const& chunks = rhs.get_chunks();
 	PVSparseSelection::map_chunks_t::const_iterator it;
 	for (it = chunks.begin(); it != chunks.end(); it++) {
@@ -251,11 +297,44 @@ Picviz::PVSelection Picviz::PVSelection::operator-(const PVSelection &rhs) const
  *****************************************************************************/
 Picviz::PVSelection & Picviz::PVSelection::operator-=(const PVSelection &rhs)
 {
+	if ((&rhs == this) || (rhs._table == NULL)) {
+		return *this;
+	}
+
+	if (!_table) {
+		allocate_table();
+		select_none();
+		return *this;
+	}
+
 	for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
 		_table[i] &= ~rhs._table[i];
 	}
 
 	return *this;
+}
+
+void Picviz::PVSelection::AB_sub(PVSelection const& a, PVSelection const& b)
+{
+	static size_t nthreads = PVCore::PVHardwareConcurrency::get_physical_core_number();
+
+	if (!_table) {
+		allocate_table();
+	}
+
+	if (!a._table) {
+		select_none();
+		return;
+	}
+
+	if (!b._table) {
+		select_all();
+	}
+
+#pragma omp parallel for num_threads(nthreads)
+	for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
+		_table[i] = a._table[i] & (~b._table[i]);
+	}
 }
 
 /******************************************************************************
@@ -278,6 +357,16 @@ Picviz::PVSelection Picviz::PVSelection::operator^(const PVSelection &rhs) const
  *****************************************************************************/
 Picviz::PVSelection & Picviz::PVSelection::operator^=(const PVSelection &rhs)
 {
+	if ((&rhs == this) || (rhs._table == NULL)) {
+		return *this;
+	}
+
+	if (!_table) {
+		allocate_table();
+		copy_from(rhs);
+		return *this;
+	}
+
 	for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
 		_table[i] ^= rhs._table[i];
 	}
@@ -292,6 +381,23 @@ Picviz::PVSelection & Picviz::PVSelection::operator^=(const PVSelection &rhs)
  *****************************************************************************/
 Picviz::PVSelection & Picviz::PVSelection::or_not(const PVSelection &rhs)
 {
+	if ((&rhs == this)) {
+		return *this;
+	}
+
+	if (!rhs._table) {
+		select_all();
+		return *this;
+	}
+
+	if (!_table) {
+		allocate_table();
+		for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
+			_table[i] = ~(rhs._table[i]);
+		}
+		return *this;
+	}
+
 	for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
 		_table[i] |= ~(rhs._table[i]);
 	}
@@ -306,6 +412,16 @@ Picviz::PVSelection & Picviz::PVSelection::or_not(const PVSelection &rhs)
  *****************************************************************************/
 Picviz::PVSelection & Picviz::PVSelection::and_not(const PVSelection &rhs)
 {
+	if ((&rhs == this) || (rhs._table == NULL)) {
+		return *this;
+	}
+
+	if (!_table) {
+		allocate_table();
+		select_none();
+		return *this;
+	}
+
 	for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
 		_table[i] &= ~(rhs._table[i]);
 	}
@@ -320,6 +436,23 @@ Picviz::PVSelection & Picviz::PVSelection::and_not(const PVSelection &rhs)
  *****************************************************************************/
 Picviz::PVSelection & Picviz::PVSelection::xor_not(const PVSelection &rhs)
 {
+	if (&rhs == this) {
+		return *this;
+	}
+
+	if (!rhs._table) {
+		select_all();
+		return *this;
+	}
+
+	if (!_table) {
+		allocate_table();
+		for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
+			_table[i] = ~(rhs._table[i]);
+		}
+		return *this;
+	}
+
 	for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
 		_table[i] ^= ~(rhs._table[i]);
 	}
@@ -334,6 +467,9 @@ Picviz::PVSelection & Picviz::PVSelection::xor_not(const PVSelection &rhs)
  *****************************************************************************/
 void Picviz::PVSelection::select_all()
 {
+	if (!_table) {
+		allocate_table();
+	}
 	memset(_table, 0xFF, PICVIZ_SELECTION_NUMBER_OF_BYTES);
 }
 
@@ -344,6 +480,9 @@ void Picviz::PVSelection::select_all()
  *****************************************************************************/
 void Picviz::PVSelection::select_even()
 {
+	if (!_table) {
+		allocate_table();
+	}
 	memset(_table, 0xAA, PICVIZ_SELECTION_NUMBER_OF_BYTES);
 }
 
@@ -354,6 +493,9 @@ void Picviz::PVSelection::select_even()
  *****************************************************************************/
 void Picviz::PVSelection::select_none()
 {
+	if (!_table) {
+		allocate_table();
+	}
 	memset(_table, 0x00, PICVIZ_SELECTION_NUMBER_OF_BYTES);
 }
 
@@ -364,6 +506,9 @@ void Picviz::PVSelection::select_none()
  *****************************************************************************/
 void Picviz::PVSelection::select_odd()
 {
+	if (!_table) {
+		allocate_table();
+	}
 	memset(_table, 0x55, PICVIZ_SELECTION_NUMBER_OF_BYTES);
 }
 
@@ -374,6 +519,12 @@ void Picviz::PVSelection::select_odd()
  *****************************************************************************/
 void Picviz::PVSelection::select_inverse()
 {
+	if (!_table) {
+		allocate_table();
+		select_all();
+		return;
+	}
+
 	for (PVRow i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i++) {
 		_table[i] = ~_table[i];
 	}
@@ -386,6 +537,11 @@ void Picviz::PVSelection::select_inverse()
  *****************************************************************************/
 void Picviz::PVSelection::set_line(PVRow line_index, bool bool_value)
 {
+	if (!_table) {
+		allocate_table();
+		select_none();
+	}
+
 	const PVRow pos = line_index_to_chunk(line_index);
 	const PVRow shift = line_index_to_chunk_bit(line_index);
 	
@@ -412,7 +568,7 @@ void Picviz::PVSelection::set_line_select_only(PVRow line_index, bool bool_value
 
 ssize_t Picviz::PVSelection::get_last_nonzero_chunk_index(ssize_t starting_chunk, ssize_t ending_chunk) const
 {
-	if (starting_chunk < 0 || ending_chunk < 0) {
+	if (!_table || (starting_chunk < 0 || ending_chunk < 0)) {
 		return -1;
 	}
 #ifdef __SSE4_1__
@@ -461,6 +617,9 @@ ssize_t Picviz::PVSelection::get_last_nonzero_chunk_index(ssize_t starting_chunk
 
 void Picviz::PVSelection::write_selected_lines_nraw(QTextStream& stream, PVRush::PVNraw const& nraw, PVRow write_max)
 {
+	if (!_table) {
+		return;
+	}
 	PVRow nrows = nraw.get_number_rows();
 	assert(nrows > 0);
 #ifndef NDEBUG
@@ -485,6 +644,16 @@ void Picviz::PVSelection::write_selected_lines_nraw(QTextStream& stream, PVRush:
 
 Picviz::PVSelection& Picviz::PVSelection::or_optimized(const PVSelection& rhs)
 {
+	if ((&rhs == this) || (!rhs._table)) {
+		return *this;
+	}
+
+	if (!_table) {
+		allocate_table();
+		copy_from(rhs);
+		return *this;
+	}
+
 	const ssize_t last_chunk = rhs.get_last_nonzero_chunk_index();
 	if (last_chunk >= 0) {
 		// TODO: GCC vectorize this, but we could try to
@@ -500,12 +669,18 @@ Picviz::PVSelection& Picviz::PVSelection::or_optimized(const PVSelection& rhs)
 
 ssize_t Picviz::PVSelection::get_min_last_nonzero_chunk_index(PVSelection const& other) const
 {
+	if (!_table) {
+		return -1;
+	}
 	const ssize_t last_chunk = other.get_last_nonzero_chunk_index();
 	return get_last_nonzero_chunk_index(0, last_chunk);
 }
 
 ssize_t Picviz::PVSelection::get_max_last_nonzero_chunk_index(PVSelection const& other) const
 {
+	if (!_table) {
+		return -1;
+	}
 	const ssize_t last_chunk = other.get_last_nonzero_chunk_index();
 	return get_last_nonzero_chunk_index(last_chunk, PICVIZ_SELECTION_NUMBER_OF_CHUNKS-1);
 }

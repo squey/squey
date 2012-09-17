@@ -73,3 +73,6 @@ target_link_libraries(Tpicviz_forward_decl ${LINK_LIBRARIES})
 
 add_executable(Tpicviz_cat_plotted cat_plotted_file.cpp)
 target_link_libraries(Tpicviz_cat_plotted ${LINK_LIBRARIES})
+
+add_executable(Tpicviz_process picviz-process.cpp)
+target_link_libraries(Tpicviz_process ${LINK_LIBRARIES})

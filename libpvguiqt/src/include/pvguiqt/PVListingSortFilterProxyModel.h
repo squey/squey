@@ -60,6 +60,7 @@ private:
 	// Observers
 	//__impl::PVSelFuncObserver _obs_sel;
 	PVHive::PVObserverSignal<Picviz::PVLayer> _obs_output_layer;
+	PVHive::PVObserverSignal<Picviz::PVSelection> _obs_sel;
 
 	// Temporary
 	Picviz::PVDefaultSortingFunc _def_sort;

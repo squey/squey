@@ -1014,7 +1014,6 @@ void PVInspector::PVMainWindow::view_new_scatter_Slot()
 void PVInspector::PVMainWindow::view_new_parallel_Slot()
 {
 	PVLOG_INFO("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
-	PVParallelView::common::get_lib_view(*get_current_lib_view())->get_zones_manager().update_all();
 	PVParallelView::common::get_lib_view(*get_current_lib_view())->create_view();
 }
 

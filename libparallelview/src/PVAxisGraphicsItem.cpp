@@ -20,9 +20,9 @@
  *****************************************************************************/
 
 PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem(PVParallelView::PVSlidersManager_p sm_p,
-                                                       Picviz::PVAxis *axis, uint32_t axis_index) :
+                                                       Picviz::PVAxis const& axis, uint32_t axis_index) :
 	_sliders_manager_p(sm_p),
-	_axis(axis), _axis_index(axis_index)
+	_axis(&axis), _axis_index(axis_index)
 {
 	// This is needed to let the children of the group handle their events.
 	setHandlesChildEvents(false);

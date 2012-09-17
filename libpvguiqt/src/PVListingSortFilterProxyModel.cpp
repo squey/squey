@@ -18,7 +18,9 @@ PVGuiQt::PVListingSortFilterProxyModel::PVListingSortFilterProxyModel(Picviz::PV
 	invalidate_all();
 
 	_obs_output_layer.connect_refresh(this, SLOT(refresh_filter()));
+	_obs_sel.connect_refresh(this, SLOT(refresh_filter()));
 	PVHive::get().register_observer(lib_view, [=](Picviz::PVView& view) { return &view.get_output_layer(); }, _obs_output_layer);
+	PVHive::get().register_observer(lib_view, [=](Picviz::PVView& view) { return &view.get_real_output_selection(); }, _obs_sel);
 }
 
 bool PVGuiQt::PVListingSortFilterProxyModel::less_than(const QModelIndex &left, const QModelIndex &right) const
