@@ -4,15 +4,15 @@
 
 #include <fcntl.h>
 
-#include <boost/tokenizer.hpp>
-
 #include <pvkernel/core/picviz_bench.h>
+
+#include <pvkernel/rush/PVNrawDiskBackend.h>
 
 constexpr uint64_t DEFAULT_CONTENT_SIZE = 1024*1024*1024/2;
 constexpr uint64_t DEFAULT_WRITE_CHUNK_SIZE = 8*1024*1024;
 constexpr uint64_t DEFAULT_READ_CHUNK_SIZE = 32*1024*1024;
 constexpr uint64_t BUF_SIZE = 256*1024*1024;
-constexpr uint64_t BUF_ALIGN = 512;
+constexpr uint64_t BUF_ALIGN_ = 512;
 
 
 // Wiping system disk cache:
@@ -26,7 +26,7 @@ constexpr uint64_t BUF_ALIGN = 512;
 // cat /usr/share/hunspell/en_US.dic |cut -d'/' -f1 > ./words
 // for i in `seq 13`; do cat words >> words_big && cat words >> words_big && mv words_big words; done
 
-typedef std::basic_string<char, std::char_traits<char>, PVCore::PVAlignedAllocator<char, BUF_ALIGN>> aligned_string_t;
+typedef std::basic_string<char, std::char_traits<char>, PVCore::PVAlignedAllocator<char, BUF_ALIGN_>> aligned_string_t;
 
 
 /*
@@ -169,6 +169,21 @@ private:
 	std::vector<char*> _buffers;
 };
 
+class ShuffledSequence
+{
+public:
+	ShuffledSequence(uint64_t num_cols)
+	{
+		_shuffled_sequence.reserve(num_cols);
+		for (uint64_t i = 0; i < num_cols; i++) {
+			_shuffled_sequence.push_back(i);
+		}
+		std::random_shuffle(_shuffled_sequence.begin(), _shuffled_sequence.end());
+	}
+protected:
+	std::vector<uint64_t> _shuffled_sequence;
+};
+
 /*
  *
  * Writer class
@@ -177,22 +192,22 @@ private:
  */
 
 template <typename BufferPolicy>
-class Writer : public BufferPolicy
+class Writer : public BufferPolicy, public ShuffledSequence
 {
 public:
-	Writer(std::string const& folder, uint64_t num_cols) : _num_cols(num_cols)
+	Writer(std::string const& folder, uint64_t num_cols) : ShuffledSequence(num_cols), _num_cols(num_cols)
 	{
 		_files = new typename BufferPolicy::file_t[num_cols];
 		_filenames = new std::string[num_cols];
 
-		this->CreateFolder(folder, _num_cols);
+		this->CreateFolder(folder);
 
 		for (int i = 0 ; i < _num_cols ; i++) {
 			_files[i] = this->Open(this->_filenames[i]);
 		}
 	}
 
-	void CreateFolder(std::string const& folder, uint64_t num_cols)
+	void CreateFolder(std::string const& folder)
 	{
 		_folder = folder;
 
@@ -200,7 +215,7 @@ public:
 
 		system((std::string("mkdir ") + _folder + " 2> /dev/null").c_str());
 
-		for (uint64_t i = 0 ; i < num_cols ; i++) {
+		for (int i = 0 ; i < _num_cols ; i++) {
 			std::stringstream st;
 			st << _folder << "/file_" << i;
 			_filenames[i] = st.str().c_str();
@@ -215,7 +230,8 @@ public:
 	inline void write_cols(const char* content, uint64_t buf_size)
 	{
 		bool res = true;
-		for (int i = 0 ; i < _num_cols ; i++) {
+		for (uint64_t i : _shuffled_sequence) {
+		//for (int i = 0 ; i < _num_cols ; i++) {
 			res &= this->Write(content, buf_size, _files[i]);
 		}
 		if (!res) {
@@ -255,7 +271,7 @@ public:
 			this->Close(_files[i]);
 		}
 
-		this->DeleteFolder();
+		//this->DeleteFolder();
 
 		delete [] _filenames;
 		delete [] _files;
@@ -276,11 +292,11 @@ private:
 
 void write_test(std::string const& folder)
 {
-	char* buffer = PVCore::PVAlignedAllocator<char, BUF_ALIGN>().allocate(BUF_SIZE);
+	char* buffer = PVCore::PVAlignedAllocator<char, BUF_ALIGN_>().allocate(BUF_SIZE);
 	memset(buffer, '$', sizeof(char)*BUF_SIZE);
 
-	for (uint64_t num_cols : {1, 2, 32, 128, 256, 512, 4096, 8192, 16384}) {
-		for (uint64_t chunk_size : {4*1024, 16*1024, 32*1024, 64*1024, 128*1024, 256*1024, 512*1024, 1*1024*1024, 2*1024*1024, 8*1024*1024, 16*1024*1024, 32*1024*1024, 64*1024*1024, 128*1024*1024, 256*1024*1024}) {
+	for (uint64_t num_cols : {/*1, 2, 32, 128, */256/*, 512, 4096, 8192, 16384*/}) {
+		for (uint64_t chunk_size : {/*4*1024, 16*1024, 32*1024, 64*1024,*/ 128*1024, 256*1024, 512*1024, 1*1024*1024, 2*1024*1024, 8*1024*1024, 16*1024*1024, 32*1024*1024, 64*1024*1024, 128*1024*1024, 256*1024*1024}) {
 			uint64_t num_chunks = std::max(DEFAULT_CONTENT_SIZE/chunk_size/num_cols, (uint64_t)2);
 
 			/*{
@@ -300,7 +316,7 @@ void write_test(std::string const& folder)
 		}
 	}
 
-	PVCore::PVAlignedAllocator<char, BUF_ALIGN>().deallocate(buffer, BUF_SIZE);
+	PVCore::PVAlignedAllocator<char, BUF_ALIGN_>().deallocate(buffer, BUF_SIZE);
 }
 
 /*
@@ -317,28 +333,27 @@ public:
 	typedef typename BufferPolicy::file_t file_t;
 
 public:
-	uint64_t Search(const std::string& filename, uint64_t num_cols, uint64_t chunk_size, std::string const& content_to_find)
+	uint64_t Search(const std::string& filename, uint64_t col_idx, uint64_t chunk_size, std::string const& content_to_find)
 	{
-		char* const buffer = PVCore::PVAlignedAllocator<char, BUF_ALIGN>().allocate(chunk_size*2);
+		char* const buffer = PVCore::PVAlignedAllocator<char, BUF_ALIGN_>().allocate(chunk_size*2);
 
 		file_t file = this->Open(filename);
 
 		std::stringstream st;
-		st << "sequential read (" << typeid(this).name() << ") [num_cols=" << num_cols << " chunk_size=" << chunk_size << "]";
+		st << "sequential read (" << typeid(this).name() << ") [num_cols=" << col_idx << " chunk_size=" << chunk_size << "]";
 		BENCH_START(r);
 
 		uint64_t total_read_size = 0;
 		uint64_t nb_occur = 0;
 		uint64_t read_size = 0;
-		uint64_t end_of_file_pos = 0;
 
-		char* buffer_ptr = buffer+BUF_ALIGN;
+		char* buffer_ptr = buffer+BUF_ALIGN_;
 		bool last_chunk = false;
 		do
 		{
 
-			read_size = this->Read(file, buffer+BUF_ALIGN, chunk_size-BUF_ALIGN);
-			last_chunk = read_size < (chunk_size-BUF_ALIGN);
+			read_size = this->Read(file, buffer+BUF_ALIGN_, chunk_size-BUF_ALIGN_);
+			last_chunk = read_size < (chunk_size-BUF_ALIGN_);
 
 			while (true) {
 
@@ -346,7 +361,7 @@ public:
 				if (last_chunk) {
 					endl = (char*) memchr(buffer_ptr, '\n', chunk_size);
 
-					if (endl == nullptr || buffer_ptr >= buffer+BUF_ALIGN+read_size) {
+					if (endl == nullptr || buffer_ptr >= buffer+BUF_ALIGN_+read_size) {
 						buffer_ptr = buffer;
 
 						break;
@@ -358,7 +373,7 @@ public:
 					if (endl == nullptr) {
 						uint64_t partial_line_length = buffer+chunk_size-buffer_ptr;
 
-						char* dst = buffer+BUF_ALIGN-partial_line_length;
+						char* dst = buffer+BUF_ALIGN_-partial_line_length;
 						memcpy(dst, buffer_ptr, partial_line_length);
 						buffer_ptr = dst;
 
@@ -377,8 +392,8 @@ public:
 			total_read_size += read_size;
 
 			// Skip other columns if any:
-			if (num_cols > 1) {
-				this->Seek(file, (num_cols-1)*chunk_size);
+			if (col_idx > 1) {
+				this->Seek(file, (col_idx-1)*chunk_size);
 			}
 
 		} while(!last_chunk);
@@ -388,7 +403,7 @@ public:
 
 		BENCH_END(r, st.str().c_str(), sizeof(char), total_read_size, 1, 1);
 
-		PVCore::PVAlignedAllocator<char, BUF_ALIGN>().deallocate(buffer, chunk_size*2);
+		PVCore::PVAlignedAllocator<char, BUF_ALIGN_>().deallocate(buffer, chunk_size*2);
 
 		return nb_occur;
 	}
@@ -406,9 +421,44 @@ void read_test(std::string const& path)
 	Reader<RawPolicy> reader;
 	for (uint64_t num_cols : {1, 2, 4, 8, 16 , 32, 128, 256, 512, 1024, 4096, 8192, 16384}) {
 		for (uint64_t chunk_size : {16*1024, 32*1024, 64*1024, 128*1024, 256*1024, 512*1024, 1*1024*1024, 2*1024*1024, 8*1024*1024, 16*1024*1024, 32*1024*1024, 64*1024*1024, 128*1024*1024, 256*1024*1024}) {
-			uint64_t nb_occur = reader.Search(path, num_cols, chunk_size, std::string("motherfucker"));
+			/*uint64_t nb_occur =*/ reader.Search(path, num_cols, chunk_size, std::string("motherfucker"));
 		}
 	}
+}
+
+void write_nraw_disk_backend()
+{
+	uint64_t num_cols = 3;
+	std::vector<uint64_t> shuffled_sequence;
+	shuffled_sequence.reserve(num_cols);
+	for (uint64_t i = 0; i < num_cols; i++) {
+		shuffled_sequence.push_back(i);
+	}
+	std::random_shuffle(shuffled_sequence.begin(), shuffled_sequence.end());
+
+	std::string folder("/mnt/raid0_xfs/nraw_test");
+	PVRush::PVNRawDiskBackend<> nraw_backend(folder, num_cols);
+
+	std::string field("123456789");
+
+	//BENCH_START(w);
+	uint64_t NB_FIELDS = 90000;
+	uint64_t nb_fields_per_column = NB_FIELDS / num_cols;
+	uint64_t write_size = 0;
+	for (uint64_t i = 0 ; i < nb_fields_per_column; i++) {
+		std::stringstream st;
+		st << i << " ";
+		for (uint64_t col : shuffled_sequence) {
+			write_size += nraw_backend.add(col, st.str().c_str(), st.str().length());
+		}
+	}
+	nraw_backend.flush();
+
+	std::cout << "value=" << nraw_backend.at(7001, 0) << std::endl;
+	std::cout << "value=" << nraw_backend.at(7002, 0) << std::endl;
+	std::cout << "value=" << nraw_backend.next(0) << std::endl;
+
+	//BENCH_END(w, "nraw write test", sizeof(char), write_size, 1, 1);
 }
 
 void usage(const char* app_name)
@@ -425,7 +475,9 @@ int main(int argc, const char* argv[])
 
 	const std::string folder(argv[1]);
 
-	write_test(folder);
+	//write_test(folder);
 
-	read_test(folder);
+	//read_test(folder);
+
+	write_nraw_disk_backend();
 }
