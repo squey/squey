@@ -428,37 +428,63 @@ void read_test(std::string const& path)
 
 void write_nraw_disk_backend()
 {
-	uint64_t num_cols = 3;
-	std::vector<uint64_t> shuffled_sequence;
-	shuffled_sequence.reserve(num_cols);
+	uint64_t num_cols = 256;
+	std::vector<uint64_t> shuffled_col_sequence;
+	shuffled_col_sequence.reserve(num_cols);
 	for (uint64_t i = 0; i < num_cols; i++) {
-		shuffled_sequence.push_back(i);
+		shuffled_col_sequence.push_back(i);
 	}
-	std::random_shuffle(shuffled_sequence.begin(), shuffled_sequence.end());
+	std::random_shuffle(shuffled_col_sequence.begin(), shuffled_col_sequence.end());
 
 	std::string folder("/mnt/raid0_xfs/nraw_test");
 	PVRush::PVNRawDiskBackend<> nraw_backend(folder, num_cols);
 
 	std::string field("123456789");
 
-	//BENCH_START(w);
-	uint64_t NB_FIELDS = 90000;
+	uint64_t NB_FIELDS = 90000000;
 	uint64_t nb_fields_per_column = NB_FIELDS / num_cols;
+#if 0
 	uint64_t write_size = 0;
+	BENCH_START(t);
 	for (uint64_t i = 0 ; i < nb_fields_per_column; i++) {
-		std::stringstream st;
-		st << i << " ";
-		for (uint64_t col : shuffled_sequence) {
-			write_size += nraw_backend.add(col, st.str().c_str(), st.str().length());
+		//std::stringstream st;
+		//st << i << " ";
+		for (uint64_t col : shuffled_col_sequence) {
+			//write_size += nraw_backend.add(col, st.str().c_str(), st.str().length());
+			write_size += nraw_backend.add(col, field.c_str(),field.length());
 		}
 	}
 	nraw_backend.flush();
+	BENCH_END(t, "nraw write test", sizeof(char), write_size, 1, 1);
+	nraw_backend.store_index_to_disk();
+#else
+	nraw_backend.load_index_from_disk(nb_fields_per_column, num_cols);
+	uint64_t test = 0;
+	nb_fields_per_column -= 100;
+	std::vector<uint64_t> shuffled_field_sequence;
+	shuffled_col_sequence.reserve(nb_fields_per_column);
+	for (uint64_t i = 0; i < nb_fields_per_column; i++) {
+		shuffled_field_sequence.push_back(i);
+	}
+	std::random_shuffle(shuffled_field_sequence.begin(), shuffled_field_sequence.end());
+	std::cout << "nb_fields_per_column=" << nb_fields_per_column << std::endl;
+	BENCH_START(t);
+	for (uint64_t field : shuffled_field_sequence) {
+		//for (uint64_t col : shuffled_sequence) {
+			uint64_t col = 0;
+			test += (uint64_t) nraw_backend.at(field, col);
+			//std::cout << "field=" << field << std::endl;
+		//}
+	}
+	BENCH_END(t, "nraw read test", sizeof(char)*field.length(), nb_fields_per_column, 1, 1);
+	std::cout << test << std::endl;
+#endif
 
-	std::cout << "value=" << nraw_backend.at(7001, 0) << std::endl;
+	/*td::cout << "value=" << nraw_backend.at(7001, 0) << std::endl;
 	std::cout << "value=" << nraw_backend.at(7002, 0) << std::endl;
-	std::cout << "value=" << nraw_backend.next(0) << std::endl;
+	std::cout << "value=" << nraw_backend.next(0) << std::endl;*/
 
-	//BENCH_END(w, "nraw write test", sizeof(char), write_size, 1, 1);
+
 }
 
 void usage(const char* app_name)

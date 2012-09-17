@@ -13,6 +13,8 @@
 #include <sstream>
 #include <string>
 
+#include <tbb/tick_count.h>
+
 #include <pvkernel/core/PVAllocators.h>
 #include <pvkernel/core/PVMatrix.h>
 
@@ -31,16 +33,17 @@ namespace PVRush {
  *
  */
 
-struct UnbufferedFilePolicy
+struct RawFilePolicy
 {
 	typedef int file_t;
 
-	bool Open(std::string const& filename, file_t* file)
+	bool Open(std::string const& filename, file_t* file, bool direct=true)
 	{
-		*file = open(filename.c_str(), O_RDWR | O_CREAT, 0640);
-		if (fchmod(*file, 0640) == -1) {
-			std::cout << "fchmod: " << strerror(errno) << std::endl;
+		int64_t flags = O_RDWR | O_CREAT;
+		if (direct) {
+			flags |= O_DIRECT;
 		}
+		*file = open(filename.c_str(), flags, 0640);
 		return *file != -1;
 	}
 
@@ -58,7 +61,7 @@ struct UnbufferedFilePolicy
 	{
 		int64_t r = lseek(file, offset, SEEK_SET);
 		if (r == -1) {
-			std::cout << "lseek: " << strerror(errno) << std::endl;
+			std::cout << "lseek [offset=" << offset << "]: " << strerror(errno) << std::endl;
 		}
 		return Read(file, buffer, buf_size);
 	}
@@ -130,15 +133,6 @@ struct BufferedFilePolicy
 	}
 };
 
-struct RawFilePolicy : public UnbufferedFilePolicy
-{
-	bool Open(std::string const& filename, file_t* file)
-	{
-		*file = open(filename.c_str(), O_RDWR | O_CREAT | O_DIRECT);
-		return *file != -1;
-	}
-};
-
 /*
  *
  * Field policy classes
@@ -192,7 +186,7 @@ public:
 		uint64_t write_size = 0;
 
 		// Index field
-		if(column.fields_ignored_size + field_size > READ_BUFFER_SIZE) {
+		if (column.fields_ignored_size + field_size > READ_BUFFER_SIZE) {
 			uint64_t field_offset_in_file = this->Tell(column.file) + (column.buffer_write_ptr - column.buffer_write);
 			_indexes.resize(++column.fields_indexed+1, _num_cols);
 			_indexes.set_value(column.fields_indexed/*-1*/, col_idx, std::make_pair(field_offset_in_file, column.fields_nb));
@@ -326,6 +320,40 @@ public:
 		PVCore::PVAlignedAllocator<char, BUF_ALIGN>().deallocate(buffer, chunk_size);
 
 		return nb_occur;
+	}
+
+	void store_index_to_disk()
+	{
+		char* data = (char*) _indexes.get_data();
+		file_t file;
+		std::stringstream filename;
+		filename << _nraw_folder << "/nraw.idx";
+		this->Open(filename.str(), &file, false);
+		uint64_t size = _indexes.get_ncols()*_indexes.get_nrows()*sizeof(offset_fields_t);
+		int64_t write_size = this->Write(data, size, file);
+		if(write_size <= 0) {
+			PVLOG_ERROR("PVNRawDiskBackend: Error writing index to disk [size=%d] (%s)\n", size, strerror(errno));
+			return;
+		}
+		this->Close(file);
+		std::cout << "nrows=" << _indexes.get_nrows() << " ncols=" << _indexes.get_ncols() << std::endl;
+	}
+
+	void load_index_from_disk(uint64_t nrows, uint64_t ncols)
+	{
+		std::stringstream filename;
+		filename << _nraw_folder << "/nraw.idx";
+		file_t file;
+		this->Open(filename.str(), &file, false);
+		uint64_t size = nrows*ncols*sizeof(offset_fields_t);
+		_indexes.resize(nrows, ncols);
+		char* data = (char*) _indexes.get_data();
+		int64_t read_size = this->Read(file, data, size);
+		if(read_size <= 0) {
+			PVLOG_ERROR("PVNRawDiskBackend: Error reading index from disk (%s)\n", strerror(errno));
+			return;
+		}
+		this->Close(file);
 	}
 
 	~PVNRawDiskBackend()
