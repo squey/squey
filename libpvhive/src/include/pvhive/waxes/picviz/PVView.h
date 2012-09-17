@@ -16,6 +16,7 @@ DECLARE_WAX(Picviz::PVView::process_from_selection)
 DECLARE_WAX(Picviz::PVView::process_from_layer_stack)
 DECLARE_WAX(Picviz::PVView::process_from_filter)
 DECLARE_WAX(Picviz::PVView::process_from_eventline)
+DECLARE_WAX(Picviz::PVView::process_real_output_selection)
 
 // Layer stack waxes
 //

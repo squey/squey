@@ -105,6 +105,9 @@ public:
 	 */
 	inline bool get_line (PVRow line_index) const
 	{
+		if (!_table) {
+			return false;
+		}
 		const PVRow pos = line_index_to_chunk(line_index);
 		const PVRow shift = line_index_to_chunk_bit(line_index);
 
@@ -223,6 +226,8 @@ public:
 	 * @return A reference to the resulting PVSelection
 	 */
 	PVSelection & operator-=(const PVSelection &rhs);
+
+	void AB_sub(PVSelection const& a, PVSelection const& b);
 
 	/**
 	 * This is the binary outplaced 'XOR' operation on two selections
@@ -381,7 +386,7 @@ public:
 	template <class F>
 	void visit_selected_lines(F const& f, const PVRow nrows = PICVIZ_SELECTION_NUMBER_OF_ROWS) const
 	{
-		if (nrows <= 0) {
+		if (!_table || (nrows <= 0)) {
 			return;
 		}
 #ifdef __SSE4_1__
@@ -411,7 +416,7 @@ public:
 	template <class F>
 	void visit_selected_lines_tbb(F const& f, const PVRow nrows = PICVIZ_SELECTION_NUMBER_OF_ROWS) const
 	{
-		if (nrows <= 0) {
+		if (!_table || (nrows <= 0)) {
 			return;
 		}
 #ifdef __SSE4_1__
@@ -483,7 +488,7 @@ public:
 	template <class F>
 	void visit_selected_lines_serial(F const& f, const PVRow nrows = PICVIZ_SELECTION_NUMBER_OF_ROWS) const
 	{
-		if (nrows <= 0) {
+		if (!_table || (nrows <= 0)) {
 			return;
 		}
 		const ssize_t last_chunk = get_last_nonzero_chunk_index(0, line_index_to_chunk(nrows - 1));
@@ -503,8 +508,26 @@ private:
 	inline void free_table() { allocator().deallocate(_table, PICVIZ_SELECTION_NUMBER_OF_CHUNKS); }
 	inline void allocate_and_copy_from(PVSelection const& o)
 	{
-		allocate_table();
-		memcpy(_table, o._table, PICVIZ_SELECTION_NUMBER_OF_BYTES);
+		if (o._table) {
+			allocate_table();
+			copy_from(o);
+		}
+		else {
+			_table = NULL;
+		}
+	}
+
+	inline void copy_from(PVSelection const& o)
+	{
+		assert(_table);
+		assert(o._table);
+		static_assert(PICVIZ_SELECTION_NUMBER_OF_CHUNKS % 2 == 0, "PICVIZ_SELECTION_NUMBER_OF_CHUNKS must be a multiple of 2.");
+		__m128i sse_c;
+		for (size_t i = 0; i < PICVIZ_SELECTION_NUMBER_OF_CHUNKS; i += 2) {
+			sse_c = _mm_load_si128((__m128i const*) &o._table[i]);
+			_mm_store_si128((__m128i*) &_table[i], sse_c);
+		}
+		//memcpy(_table, o._table, PICVIZ_SELECTION_NUMBER_OF_BYTES);
 	}
 
 protected:

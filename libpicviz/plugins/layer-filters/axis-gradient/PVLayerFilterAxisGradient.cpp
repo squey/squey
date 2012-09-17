@@ -51,8 +51,11 @@ void Picviz::PVLayerFilterAxisGradient::operator()(PVLayer& in, PVLayer &out)
 	const PVPlotted* plotted = _view->get_parent<PVPlotted>();
 	axis_id = _args[ARG_NAME_AXIS].value<PVCore::PVAxisIndexType>().get_original_index();
 
-	uint32_t max_plotted,min_plotted;
-	plotted->get_col_minmax(min_plotted, max_plotted, in.get_selection(), axis_id);
+	PVRow r_max,r_min;
+	plotted->get_col_minmax(r_min, r_max, in.get_selection(), axis_id);
+	const uint32_t min_plotted = plotted->get_value(r_min, axis_id);
+	const uint32_t max_plotted = plotted->get_value(r_max, axis_id);
+	PVLOG_INFO("PVLayerFilterAxisGradient: min/max = %u/%u\n", min_plotted, max_plotted);
 	const double diff = max_plotted-min_plotted;
 	in.get_selection().visit_selected_lines([&](PVRow const r)
 		{

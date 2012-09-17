@@ -197,17 +197,12 @@ void Picviz::PVLayerStack::process(PVLayer &output_layer, PVRow row_count)
 	PVSelection temp_selection;
 	/* We store locally the layer-stack->layer_count and prepare a counter */
 	int i;
-	/* ... and the number of rows in the parent view */
-	int view_number_of_rows;
 
 	/******************************
 	* Initializations
 	******************************/
 	/* It's time to erase the output_layer ! */
 	output_layer.reset_to_empty_and_default_color();
-
-	// /* We get the number of rows/events in the parent view */
-	view_number_of_rows = row_count;
 
 	/******************************
 	* Main computation
@@ -224,17 +219,18 @@ void Picviz::PVLayerStack::process(PVLayer &output_layer, PVRow row_count)
 				/* we compute the selection of lines present
 				*  in the layer being processed but not yet
 				*  in the output layer */
-				temp_selection = layer_being_processed->get_selection() - output_layer.get_selection();
-				//layer_being_processed->selection.AB2C_substraction(output_layer->selection, temp_selection);
+
+				// The line below is an optimized version of:
+				// temp_selection = layer_being_processed->get_selection() - output_layer.get_selection
+				temp_selection.AB_sub(layer_being_processed->get_selection(), output_layer.get_selection());
+
 				/* and we already update the selection in
 				*  the output_layer */
-				output_layer.get_selection() |= layer_being_processed->get_selection();
-				//output_layer->selection.AB2A_or(layer_being_processed->selection);
+				output_layer.get_selection().or_optimized(layer_being_processed->get_selection());
 
 				/* We copy in the output_layer the only new
 				*  lines properties */
-				// picviz_lines_properties_A2B_copy_restricted_by_selection_and_nelts(layer_being_processed->lines_properties, output_layer->lines_properties, temp_selection, view_number_of_rows);
-				layer_being_processed->get_lines_properties().A2B_copy_restricted_by_selection_and_nelts(output_layer.get_lines_properties(), temp_selection, (PVCol)view_number_of_rows);
+				layer_being_processed->get_lines_properties().A2B_copy_restricted_by_selection_and_nelts(output_layer.get_lines_properties(), temp_selection, row_count);
 			}
 		}
 	}

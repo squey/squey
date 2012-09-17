@@ -56,13 +56,19 @@ public:
 	 *
 	 * @param r The index of the line (its row number)
 	 */
-	inline PVCore::PVHSVColor const* get_buffer() const { return &_table[0]; }
-	inline PVCore::PVHSVColor& get_line_properties(const PVRow r) { return _table[r]; }
-	inline const PVCore::PVHSVColor get_line_properties(const PVRow r) const { return _table[r]; }
+	inline PVCore::PVHSVColor const* get_buffer() const { assert(_table); return _table; }
+	inline PVCore::PVHSVColor& get_line_properties(const PVRow r) { assert(_table); return _table[r]; }
+	inline const PVCore::PVHSVColor get_line_properties(const PVRow r) const { assert(_table); return _table[r]; }
 
 	inline void line_set_color(const PVRow r, const PVCore::PVHSVColor h) { get_line_properties(r) = h; }
 
 	PVLinesProperties & operator=(const PVLinesProperties & rhs);
+	PVLinesProperties & operator=(PVLinesProperties && rhs)
+	{
+		_table = rhs._table;
+		rhs._table = NULL;
+		return *this;
+	}
 
 	void A2A_set_to_line_properties_restricted_by_selection_and_nelts(PVCore::PVHSVColor color, PVSelection const& selection, PVRow nelts);
 
@@ -74,6 +80,12 @@ public:
 	void set_random(const PVRow n);
 	void set_linear(const PVRow n);
 
+private:
+	inline void allocate_table()
+	{
+		assert(!_table);
+		_table = _color_allocator.allocate(PICVIZ_LINESPROPS_NUMBER_OF_CHUNKS);
+	}
 protected:
 	void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 

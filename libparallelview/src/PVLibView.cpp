@@ -25,6 +25,7 @@ PVParallelView::PVLibView::PVLibView(Picviz::PVView_sp& view_sp):
 {
 	common_init_view(view_sp);
 	_zones_manager.set_uint_plotted(*view_sp);
+	common_init_zm();
 }
 
 PVParallelView::PVLibView::PVLibView(Picviz::PVView_sp& view_sp, Picviz::PVPlotted::uint_plotted_table_t const& plotted, PVRow nrows, PVCol ncols):
@@ -34,6 +35,7 @@ PVParallelView::PVLibView::PVLibView(Picviz::PVView_sp& view_sp, Picviz::PVPlott
 {
 	common_init_view(view_sp);
 	_zones_manager.set_uint_plotted(plotted, nrows, ncols);
+	common_init_zm();
 }
 
 PVParallelView::PVLibView::~PVLibView()
@@ -47,9 +49,15 @@ void PVParallelView::PVLibView::common_init_view(Picviz::PVView_sp& view_sp)
 	_task_root = new (tbb::task::allocate_root(_tasks_ctxt)) tbb::empty_task;
 	_task_root->set_ref_count(1);
 
-	_obs_sel_layer = PVHive::create_observer_callback_heap<Picviz::PVLayer>(
+	_obs_sel = PVHive::create_observer_callback_heap<Picviz::PVSelection>(
+	    [&](Picviz::PVSelection const*) { },
+		[&](Picviz::PVSelection const*) { this->selection_updated(); },
+		[&](Picviz::PVSelection const*) { }
+	);
+
+	_obs_output_layer = PVHive::create_observer_callback_heap<Picviz::PVLayer>(
 	    [&](Picviz::PVLayer const*) { },
-		[&](Picviz::PVLayer const*) { this->selection_updated(); },
+		[&](Picviz::PVLayer const*) { this->output_layer_updated(); },
 		[&](Picviz::PVLayer const*) { }
 	);
 
@@ -59,10 +67,16 @@ void PVParallelView::PVLibView::common_init_view(Picviz::PVView_sp& view_sp)
 		[&](Picviz::PVView const*) { this->view_about_to_be_deleted(); }
 	);
 
-	PVHive::get().register_observer(view_sp, [&](Picviz::PVView& view) { return &view.get_pre_filter_layer(); }, *_obs_sel_layer);
+	PVHive::get().register_observer(view_sp, [&](Picviz::PVView& view) { return &view.get_real_output_selection(); }, *_obs_sel);
+	PVHive::get().register_observer(view_sp, [&](Picviz::PVView& view) { return &view.get_output_layer(); }, *_obs_output_layer);
 	PVHive::get().register_observer(view_sp, *_obs_view);
 
 	_sliders_manager_p = PVParallelView::PVSlidersManager_p(new PVSlidersManager);
+}
+
+void PVParallelView::PVLibView::common_init_zm()
+{
+	_zones_manager.update_all();
 }
 
 PVParallelView::PVFullParallelView* PVParallelView::PVLibView::create_view(QWidget* parent)
@@ -120,5 +134,12 @@ void PVParallelView::PVLibView::selection_updated()
 
 	for (PVZoomedParallelScene& view: _zoomed_parallel_scenes) {
 		view.update_new_selection(task_root());
+	}
+}
+
+void PVParallelView::PVLibView::output_layer_updated()
+{
+	for (PVFullParallelScene& view: _parallel_scenes) {
+		view.update_all();
 	}
 }

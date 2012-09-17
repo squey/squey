@@ -33,3 +33,7 @@ target_link_libraries(Tqt_layerstack ${COMMON_LIBRARIES})
 # Picviz layer-stack widget 
 add_executable(Tqt_layerstack_widget layerstack-widget.cpp common.cpp)
 target_link_libraries(Tqt_layerstack_widget ${COMMON_LIBRARIES})
+
+# Huge model
+add_executable(Tqt_huge-model huge-model.cpp)
+target_link_libraries(Tqt_huge-model ${COMMON_LIBRARIES})

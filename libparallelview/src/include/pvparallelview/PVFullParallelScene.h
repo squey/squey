@@ -48,6 +48,7 @@ public:
 
 	void first_render();
 	void update_new_selection();
+	void update_all();
 
 private:
 	void update_zones_position(bool update_all = true);

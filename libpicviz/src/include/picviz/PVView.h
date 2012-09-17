@@ -93,7 +93,6 @@ public:
 	PVSelection nu_selection;
 	PVSelection real_output_selection;
 	PVEventline eventline;
-	PVZLevelArray z_level_array;
 	PVSquareArea square_area;
 	PVStateMachine *state_machine;
 	PVSelection volatile_selection;
@@ -138,6 +137,7 @@ public:
 	 */
 	const QString& get_axis_name(PVCol index) const;
 	QString get_axis_type(PVCol index) const;
+	PVAxis const& get_axis(PVCol const comb_index) const;
 
 	void emit_user_modified_sel(QList<Picviz::PVView*>* changed_views = NULL);
 
@@ -256,6 +256,7 @@ public:
 	void process_from_filter();
 	void process_from_layer_stack();
 	void process_from_selection();
+	void process_real_output_selection();
 
 	void process_eventline();
 	void process_filter();

@@ -40,25 +40,6 @@ Picviz::PVLayer::PVLayer(const QString & name_, const PVSelection & sel_, const 
 	visible = true;
 }
 
-
-/******************************************************************************
- *
- * Picviz::PVLayer::operator=
- *
- *****************************************************************************/
-Picviz::PVLayer & Picviz::PVLayer::operator=(const PVLayer & rhs)
-{
-	// We check for self assignment
-	if (this == &rhs) {
-		return *this;
-	}
-
-	lines_properties = rhs.get_lines_properties();
-	selection = rhs.get_selection();
-
-	return *this;
-}
-
 /******************************************************************************
  *
  * Picviz::PVLayer::A2B_copy_restricted_by_selection_and_nelts

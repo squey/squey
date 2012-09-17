@@ -66,6 +66,12 @@ IMPL_WAX(Picviz::PVView::process_from_eventline, view, args)
 	refresh_observers(&view->get_output_layer());
 }
 
+IMPL_WAX(Picviz::PVView::process_real_output_selection, view, args)
+{
+	call_object_default<Picviz::PVView, FUNC(Picviz::PVView::process_real_output_selection)>(view, args);
+	refresh_observers(&view->get_real_output_selection());
+}
+
 // Layer stack waxes
 //
 

@@ -50,10 +50,7 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* par
 	int pos = 0;
 	PVZoneID nzones = (PVZoneID) _lines_view.get_zones_manager().get_number_cols();
 	for (PVZoneID z = 0; z < nzones; z++) {
-		Picviz::PVAxis* axis = new Picviz::PVAxis();
-		axis->set_name(QString("axis ") + QString::number(z));
-		axis->set_color(PVCore::PVColor::fromRgba(CRAND(), CRAND(), CRAND(), 0));
-		axis->set_titlecolor(PVCore::PVColor::fromRgba(CRAND(), CRAND(), CRAND(), 0));
+		Picviz::PVAxis const& axis = lib_view().get_axis(z);
 
 		if (z < nzones-1) {
 			pos = _lines_view.get_zones_manager().get_zone_absolute_pos(z);
@@ -74,7 +71,6 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* par
 	_parallel_view->set_total_line_number(_lines_view.get_zones_manager().get_number_rows());
 
 	_heavy_job_timer = new QTimer(this);
-	_heavy_job_timer->setInterval(500);
 	_heavy_job_timer->setSingleShot(true);
 }
 
@@ -350,7 +346,7 @@ void PVParallelView::PVFullParallelScene::wheelEvent(QGraphicsSceneWheelEvent* e
 					_render_tasks_sel.wait();
 					_render_tasks_bg.wait();
 					_heavy_job_timer->stop();
-					_heavy_job_timer->start();
+					_heavy_job_timer->start(500);
 				});
 		}
 	}
@@ -459,7 +455,7 @@ void PVParallelView::PVFullParallelScene::process_selection()
 {
 	_view_actor.call<FUNC(Picviz::PVView::set_square_area_mode)>(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
 	lib_view().get_floating_selection().select_none();
-        _view_actor.call<FUNC(Picviz::PVView::process_from_selection)>();
+	_view_actor.call<FUNC(Picviz::PVView::process_real_output_selection)>();
 }
 
 void PVParallelView::PVFullParallelScene::cancel_current_job()
@@ -518,6 +514,33 @@ void PVParallelView::PVFullParallelScene::update_new_selection()
 	const uint32_t view_width = _parallel_view->width();
 	PVLOG_INFO("Selection with %lu lines\n", lib_view().get_real_output_selection().get_number_of_selected_lines_in_range(0, _lines_view.get_zones_manager().get_number_rows()));
 	_lines_view.update_sel_tree(view_width, lib_view().get_real_output_selection(), _root_sel);
+}
+
+void PVParallelView::PVFullParallelScene::update_all()
+{
+	disconnect(_heavy_job_timer, NULL, this, NULL);
+	disconnect(&_lines_view.get_zones_manager(), 0, this, 0);
+	disconnect(_rendering_job_sel, NULL, this, NULL);
+	disconnect(_rendering_job_bg, NULL, this, NULL);
+
+	_rendering_job_sel->cancel();
+	_rendering_job_bg->cancel();
+	_lines_view.cancel_all_rendering();
+
+	_render_tasks_sel.cancel();
+	_render_tasks_bg.cancel();
+
+	connect(_heavy_job_timer, SIGNAL(timeout()), this, SLOT(try_to_launch_zoom_job()));
+
+	if (!_task_waiter.isRunning()) {
+		_task_waiter = QtConcurrent::run([&]
+				{
+				_render_tasks_sel.wait();
+				_render_tasks_bg.wait();
+				_heavy_job_timer->stop();
+				_heavy_job_timer->start(0);
+				});
+	}
 }
 
 void PVParallelView::PVFullParallelScene::draw_zone_sel_Slot(int zid, bool changed)

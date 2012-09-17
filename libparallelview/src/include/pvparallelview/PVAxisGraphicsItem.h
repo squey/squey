@@ -37,7 +37,7 @@ public:
 	typedef PVSlidersGroup::selection_ranges_t selection_ranges_t;
 
 public:
-	PVAxisGraphicsItem(PVSlidersManager_p sm_p, Picviz::PVAxis *axis, uint32_t axis_index);
+	PVAxisGraphicsItem(PVSlidersManager_p sm_p, Picviz::PVAxis const& axis, uint32_t axis_index);
 
 	QRectF boundingRect () const;
 
@@ -67,8 +67,8 @@ public:
 private:
 	PVSlidersGroup                 *_sliders_group;
 	PVSlidersManager_p              _sliders_manager_p;
-	Picviz::PVAxis*                 _axis;
-	PVZoneID			_axis_index;
+	Picviz::PVAxis const*           _axis;
+	PVZoneID			            _axis_index;
 	QRectF                          _bbox;
 };
 
