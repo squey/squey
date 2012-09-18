@@ -30,6 +30,7 @@ public:
 	PVAxisSlider(int omin, int omax, int o);
 	~PVAxisSlider();
 
+	inline void set_value(int v) { _offset = v; }
 	inline int value() { return _offset; }
 
 	QRectF boundingRect () const;

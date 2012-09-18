@@ -9,6 +9,10 @@
 #include <map>
 
 /* TODO: test if FuncObserver work with inline functions
+ *
+ * IDEA: allow to highlight a distant slider?
+ *
+ * IDEA: allow to hide/show a distant slider?
  */
 
 namespace PVParallelView
