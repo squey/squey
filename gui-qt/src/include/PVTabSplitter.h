@@ -22,6 +22,8 @@ class PVLayerStackWidget;
 class PVListingModel;
 class PVListingSortFilterProxyModel;
 class PVListingView;
+class PVRootTreeModel;
+class PVRootTreeView;
 }
 
 namespace PVInspector {
@@ -70,6 +72,9 @@ public:
 	PVGuiQt::PVListingSortFilterProxyModel* pv_listing_proxy_model;
 
 	PVGuiQt::PVLayerStackWidget *pv_layer_stack_widget;
+
+	PVGuiQt::PVRootTreeView*  _data_tree_view;
+	PVGuiQt::PVRootTreeModel* _data_tree_model;
 
 	PVListDisplayDlg* _inv_elts_dlg;
 

@@ -85,19 +85,17 @@ PVInspector::PVTabSplitter::PVTabSplitter(PVMainWindow *mw, Picviz::PVSource_p l
 	pv_layer_stack_widget = new PVGuiQt::PVLayerStackWidget(cur_view);
 	right_layout->addWidget(pv_layer_stack_widget);
 	
-	// We prepare the PVViewsListingWidget and add it to the layout
-	//_views_widget = new PVViewsListingWidget(this);
-	//right_layout->addWidget(_views_widget);
+	_data_tree_model = new PVGuiQt::PVRootTreeModel(*lib_src);
+	_data_tree_view = new PVGuiQt::PVRootTreeView(_data_tree_model);
+	
+	right_layout->addWidget(_data_tree_view);
 
 	// RIGHT_WIDGET
 	// Now we really create the right part QWidget and stuff it.
 	QWidget* right_widget = new QWidget();
-	// SIZE STUFF
 	right_widget->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
 	right_widget->setMinimumSize(QSize(100, 0));
-	// OBJECTNAME STUFF
 	right_widget->setObjectName("right_widget_of_PVTabSplitter");
-	// FOCUS POLICY
 	right_widget->setFocusPolicy(Qt::StrongFocus);
 	
 	// We put the right_layout in the RIGHT_WIDGET

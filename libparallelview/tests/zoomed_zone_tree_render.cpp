@@ -148,10 +148,6 @@ int main(int argc, char** argv)
 	PVParallelView::PVZonesManager &zm = *(new PVParallelView::PVZonesManager());
 	zm.set_uint_plotted(norm_plotted, nrows, ncols);
 	zm.update_all();
-	zm.set_zone_width(0, 256);
-	zm.set_zone_width(1, 256);
-	zm.set_zone_width(2, 256);
-	zm.set_zone_width(3, 256);
 
 	PVParallelView::PVBCIDrawingBackendCUDA<RENDERING_BITS> backend_cuda;
 	zones_drawing_t &zones_drawing = *(new zones_drawing_t(zm, backend_cuda, *colors));
@@ -170,7 +166,7 @@ int main(int argc, char** argv)
 	BENCH_START(col1);
 	PVParallelView::PVZoomedZoneTree const &zoomed_zone_tree = zm.get_zone_tree<PVParallelView::PVZoomedZoneTree>(0);
 	zones_drawing.draw_bci_lambda<PVParallelView::PVZoomedZoneTree>
-		(zoomed_zone_tree, *dst_img2, zm.get_zone_absolute_pos(0), 256,
+		(zoomed_zone_tree, *dst_img2, 0, 256,
 		 [&](PVParallelView::PVZoomedZoneTree const &zoomed_zone_tree,
 		     PVCore::PVHSVColor const* colors,
 		     PVParallelView::PVBCICode<RENDERING_BITS>* codes)
@@ -196,7 +192,7 @@ int main(int argc, char** argv)
 
 	BENCH_START(col2);
 	zones_drawing.draw_bci_lambda<PVParallelView::PVZoomedZoneTree>
-		(zoomed_zone_tree, *dst_img2, zm.get_zone_absolute_pos(1), 256,
+		(zoomed_zone_tree, *dst_img2, 1*256+3, 256,
 		 [&](PVParallelView::PVZoomedZoneTree const &zoomed_zone_tree,
 		     PVCore::PVHSVColor const* colors,
 		     PVParallelView::PVBCICode<RENDERING_BITS>* codes)
@@ -221,7 +217,7 @@ int main(int argc, char** argv)
 
 	BENCH_START(col3);
 	zones_drawing.draw_bci_lambda<PVParallelView::PVZoomedZoneTree>
-		(zoomed_zone_tree, *dst_img2, zm.get_zone_absolute_pos(2), 256,
+		(zoomed_zone_tree, *dst_img2, 2*256+3, 256,
 		 [&](PVParallelView::PVZoomedZoneTree const &zoomed_zone_tree,
 		     PVCore::PVHSVColor const* colors,
 		     PVParallelView::PVBCICode<RENDERING_BITS>* codes)
@@ -246,7 +242,7 @@ int main(int argc, char** argv)
 
 	BENCH_START(col4);
 	zones_drawing.draw_bci_lambda<PVParallelView::PVZoomedZoneTree>
-		(zoomed_zone_tree, *dst_img2, zm.get_zone_absolute_pos(3), 256,
+		(zoomed_zone_tree, *dst_img2, 3*256+3, 256,
 		 [&](PVParallelView::PVZoomedZoneTree const &zoomed_zone_tree,
 		     PVCore::PVHSVColor const* colors,
 		     PVParallelView::PVBCICode<RENDERING_BITS>* codes)

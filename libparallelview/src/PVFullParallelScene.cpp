@@ -27,7 +27,7 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* par
 	_lib_view(*view_sp),
 	_parallel_view(parallel_view),
 	_selection_square(new PVParallelView::PVSelectionSquareGraphicsItem(this)),
-	_selection_generator(_lines_view.get_zones_manager()),
+	_selection_generator(_lines_view),
 	_root_sel(root_sel)
 {
 	PVHive::get().register_actor(view_sp, _view_actor);
@@ -53,11 +53,11 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* par
 		Picviz::PVAxis const& axis = lib_view().get_axis(z);
 
 		if (z < nzones-1) {
-			pos = _lines_view.get_zones_manager().get_zone_absolute_pos(z);
+			pos = _lines_view.get_zone_absolute_pos(z);
 		}
 		else {
 			// Special case for last axis
-			pos += _lines_view.get_zones_manager().get_zone_width(z-1);
+			pos += _lines_view.get_zone_width(z-1);
 		}
 
 		PVParallelView::PVAxisGraphicsItem* axisw = new PVParallelView::PVAxisGraphicsItem(sm_p, axis, z);
@@ -146,11 +146,11 @@ void PVParallelView::PVFullParallelScene::update_zones_position(bool update_all 
 	}
 	for (; z < nzones; z++) {
 		if (z < nzones-1) {
-			pos = _lines_view.get_zones_manager().get_zone_absolute_pos(z);
+			pos = _lines_view.get_zone_absolute_pos(z);
 		}
 		else {
 			// Special case for last axis
-			pos += _lines_view.get_zones_manager().get_zone_width(z-1);
+			pos += _lines_view.get_zone_width(z-1);
 		};
 
 		_axes[z]->setPos(QPointF(pos - PVParallelView::AxisWidth, 0));
@@ -190,8 +190,8 @@ void PVParallelView::PVFullParallelScene::update_selection_square()
 	double factor1 = _selection_barycenter.factor1;
 	double factor2 = _selection_barycenter.factor2;
 
-	uint32_t new_left = _lines_view.get_zones_manager().get_zone_absolute_pos(zid1) + (double) _lines_view.get_zone_width(zid1) * factor1;
-	uint32_t new_right = _lines_view.get_zones_manager().get_zone_absolute_pos(zid2) + (double) _lines_view.get_zone_width(zid2) * factor2;
+	uint32_t new_left = _lines_view.get_zone_absolute_pos(zid1) + (double) _lines_view.get_zone_width(zid1) * factor1;
+	uint32_t new_right = _lines_view.get_zone_absolute_pos(zid2) + (double) _lines_view.get_zone_width(zid2) * factor2;
 	uint32_t abs_top = _selection_square->rect().topLeft().y();
 	uint32_t abs_bottom = _selection_square->rect().bottomRight().y();
 
@@ -431,7 +431,7 @@ void PVParallelView::PVFullParallelScene::update_zone_pixmap_bgsel(int zid)
 void PVParallelView::PVFullParallelScene::commit_volatile_selection_Slot()
 {
 	_selection_square->finished();
-	PVZoneID zid = _lines_view.get_zones_manager().get_zone_id(_selection_square->rect().x());
+	PVZoneID zid = _lines_view.get_zone_from_scene_pos(_selection_square->rect().x());
 	QRect r = map_to_axis(zid, _selection_square->rect());
 
 	uint32_t nb_selected_lines = _selection_generator.compute_selection_from_rect(zid, r, lib_view().get_volatile_selection());

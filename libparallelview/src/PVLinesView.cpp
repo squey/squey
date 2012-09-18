@@ -25,6 +25,11 @@ PVParallelView::PVLinesView::PVLinesView(zones_drawing_t& zd, PVZoneID nb_zones 
 
 	PVLOG_INFO("render_grp_sel: %lu\n", _render_grp_sel);
 	PVLOG_INFO("render_grp_bg: %lu\n", _render_grp_bg);
+
+	_zones_width.reserve(get_zones_manager().get_number_zones());
+	for (PVZoneID z = 0; z < get_zones_manager().get_number_zones(); z++) {
+		_zones_width.emplace_back(PVParallelView::ZoneDefaultWidth);
+	}
 }
 
 void PVParallelView::PVLinesView::translate(int32_t view_x, uint32_t view_width, const Picviz::PVSelection& sel, tbb::task* root_sel, tbb::task_group& grp_bg, PVRenderingJob* job)
@@ -146,7 +151,7 @@ void PVParallelView::PVLinesView::render_zone_bg(PVZoneID z, PVRenderingJob* job
 	if (_zones_imgs[z-_first_zone].bg->width() != get_zone_width(z)) {
 		return;
 	}
-	_zd->draw_zone(*_zones_imgs[z-_first_zone].bg, 0, z, &PVParallelView::PVZoneTree::browse_tree_bci, []{}, [=](){ job->zone_finished(z); }, _render_grp_bg);
+	_zd->draw_zone(*_zones_imgs[z-_first_zone].bg, 0, z, get_zone_width(z), &PVParallelView::PVZoneTree::browse_tree_bci, []{}, [=](){ job->zone_finished(z); }, _render_grp_bg);
 }
 
 void PVParallelView::PVLinesView::render_zone_sel(PVZoneID z, PVRenderingJob* job)
@@ -155,7 +160,7 @@ void PVParallelView::PVLinesView::render_zone_sel(PVZoneID z, PVRenderingJob* jo
 	if (_zones_imgs[z-_first_zone].sel->width() != get_zone_width(z)) {
 		return;
 	}
-	_zd->draw_zone(*_zones_imgs[z-_first_zone].sel, 0, z, &PVParallelView::PVZoneTree::browse_tree_bci_sel, []{}, [=](){ job->zone_finished(z); }, _render_grp_sel);
+	_zd->draw_zone(*_zones_imgs[z-_first_zone].sel, 0, z, get_zone_width(z), &PVParallelView::PVZoneTree::browse_tree_bci_sel, []{}, [=](){ job->zone_finished(z); }, _render_grp_sel);
 }
 
 void PVParallelView::PVLinesView::visit_all_zones_to_render(uint32_t view_width, std::function<void(PVZoneID)> fzone, PVRenderingJob* job /*= NULL*/)
@@ -334,3 +339,29 @@ PVZoneID PVParallelView::PVLinesView::get_first_zone_from_viewport(int32_t view_
 
 	return ret;
  }
+
+uint32_t PVParallelView::PVLinesView::get_zone_absolute_pos(PVZoneID zone) const
+{
+	assert(zone < (PVZoneID) _zones_width.size());
+	uint32_t pos = 0;
+	for (PVZoneID z = 0; z < zone; z++) {
+		pos += _zones_width[z] + PVParallelView::AxisWidth;
+	}
+	return pos;
+}
+
+PVZoneID PVParallelView::PVLinesView::get_zone_from_scene_pos(int abs_pos) const
+{
+	PVZoneID zid = 0;
+	ssize_t pos = 0;
+	for (; zid < (PVZoneID) (_zones_width.size()-1) ; zid++)
+	{
+		pos += _zones_width[zid] + PVParallelView::AxisWidth;
+		if (pos > abs_pos) {
+			break;
+		}
+	}
+
+	assert(zid < (PVZoneID) _zones_width.size());
+	return zid;
+}
