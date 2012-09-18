@@ -107,6 +107,7 @@ public:
 	void axis_append(const PVAxis &axis) { axes_combination.axis_append(axis); }
 
 	//void init_from_plotted(PVPlotted* parent, bool keep_layers);
+	void set_fake_axes_comb(PVCol const ncols);
 
 	virtual QString get_serialize_description() const { return "View: " + get_name(); }
 
@@ -158,6 +159,8 @@ public:
 	PVStateMachine const& get_state_machine() const { return *state_machine; }
 
 	PVAxesCombination const& get_axes_combination() const { return axes_combination; }
+	PVAxesCombination& get_axes_combination() { return axes_combination; }
+	void set_axes_combination_list_id(QVector<PVCol> const& l);
 
 	inline PVLayer const& get_current_layer() const { return layer_stack.get_selected_layer(); }
 	inline PVLayer& get_current_layer() { return layer_stack.get_selected_layer(); }

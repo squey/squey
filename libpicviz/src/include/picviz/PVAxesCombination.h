@@ -293,6 +293,7 @@ public:
 	list_axes_t const& get_original_axes_list() const { return original_axes_list; }
 	
 	QVector<PVCol> const& get_axes_index_list() const { return columns_indexes_list; }
+	void set_axes_index_list(QVector<PVCol> const& l) { columns_indexes_list = l; }
 
 protected:
 	void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);

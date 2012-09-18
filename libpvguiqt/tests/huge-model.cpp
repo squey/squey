@@ -7,8 +7,8 @@
 #include <QMainWindow>
 #include <QHeaderView>
 
-#define NROWS 8192 // OK w/ 71580000, not w/ 71590000
-#define NCOLS 16
+#define NROWS 1000000000 // OK w/ 71580000, not w/ 71590000
+#define NCOLS 4
 
 class MyModel: public QAbstractTableModel
 {
@@ -18,11 +18,11 @@ public:
 	QVariant data(QModelIndex const& idx, int role) const override
 	{
 		if (role == Qt::DisplayRole) {
-			PVLOG_INFO("data w/ idx %d/%d\n", idx.row(), idx.column());
+			//PVLOG_INFO("data w/ idx %d/%d\n", idx.row(), idx.column());
 			return QVariant(QString::number(idx.row()));
 		}
 		else {
-			PVLOG_INFO("data w/ idx %d/%d and role %d\n", idx.row(), idx.column(), role);
+			//PVLOG_INFO("data w/ idx %d/%d and role %d\n", idx.row(), idx.column(), role);
 		}
 		return QVariant();
 	}
@@ -38,8 +38,6 @@ int main(int argc, char** argv)
 	table->horizontalHeader()->setStretchLastSection(false);
 	table->verticalHeader()->setResizeMode(QHeaderView::Fixed);
 	table->verticalHeader()->setStretchLastSection(false);*/
-	table->horizontalHeader()->hide();
-	table->verticalHeader()->hide();
 	table->setWordWrap(false);
 	table->setModel(model);
 

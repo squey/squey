@@ -111,6 +111,16 @@ void Picviz::PVView::reset_view()
 	axes_combination.set_axis_name(0, axes_combination.get_axis(0).get_name()); // Hack to detach QVector
 }
 
+void Picviz::PVView::set_fake_axes_comb(PVCol const ncols)
+{
+	axes_combination.clear();
+	for (PVCol c = 0; c < ncols; c++) {
+		PVAxis axis;
+		axis.set_name(QString("axis ") + QString::number(c));
+		axes_combination.axis_append(axis);
+	}
+}
+
 /******************************************************************************
  *
  * Picviz::PVView::~PVView
@@ -1422,6 +1432,11 @@ void Picviz::PVView::emit_user_modified_sel(QList<Picviz::PVView*>* changed_view
 	if (scene) {
 		scene->user_modified_sel(this, changed_views);
 	}
+}
+
+void Picviz::PVView::set_axes_combination_list_id(QVector<PVCol> const& l)
+{
+	get_axes_combination().set_axes_index_list(l);
 }
 
 // Load/save and serialization
