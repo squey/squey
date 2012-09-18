@@ -429,3 +429,58 @@ QScrollBar#verticalScrollBar_of_PVListingView::up-arrow {
 
 
 
+/****************************
+ * PVStartScreenWidget
+ ***************************/
+
+#PVStartScreenWidget QWidget {
+	background-color: white;
+	border-radius: 4px;
+	
+	padding: 15px 15px 15px 15px;
+	
+}
+
+#format_widget_of_PVStartScreenWidget {
+	background-color: white;
+}
+
+
+#PVStartScreenWidget QWidget QLabel {
+	font-family: "Jura";
+	font-size: 22px;
+	font-weight: DemiBold;
+
+	padding: 0 0 0 0;
+	
+}
+
+#PVStartScreenWidget QPushButton {
+	background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+				stop:0 #969696,
+				stop:1 #787878);
+	color: white;
+
+	border-radius: 4px;
+	
+/* 	text-align: left; */
+	font-family: "Arial";
+	font-size: 13px;
+	font-weight: bold;
+	
+	padding: 10px 4px 10px 4px;
+
+}
+
+#PVStartScreenWidget QPushButton:checked {
+	background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+				stop:0 #515151,
+				stop:1 #202020);
+}
+
+
+#PVStartScreenWidget QPushButton:checked {
+	background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+				stop:0 #ff00ff,
+				stop:1 #202020);
+}
