@@ -57,8 +57,8 @@ QRectF PVParallelView::PVAxisGraphicsItem::boundingRect() const
  *****************************************************************************/
 
 void PVParallelView::PVAxisGraphicsItem::paint(QPainter *painter,
-                                               const QStyleOptionGraphicsItem */*option*/,
-                                               QWidget */*widget*/)
+                                               const QStyleOptionGraphicsItem *option,
+                                               QWidget *widget)
 {
 	QPen pen = painter->pen();
 
@@ -76,4 +76,6 @@ void PVParallelView::PVAxisGraphicsItem::paint(QPainter *painter,
 	painter->drawText(10, 0, _axis->get_name());
 	painter->setPen(pen);
 	painter->restore();
+
+	QGraphicsItemGroup::paint(painter, option, widget);
 }
