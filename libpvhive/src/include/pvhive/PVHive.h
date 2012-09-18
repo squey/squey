@@ -11,6 +11,7 @@
 #include <set>
 #include <list>
 #include <algorithm>
+#include <iterator>
 #include <exception>
 #include <unordered_map>
 
@@ -534,8 +535,27 @@ private:
 #pragma GCC diagnostic pop
 #endif
 
-		for (; it_fo != it_fo_e; it_fo++) {
-			const PVFuncObserverBase* fo = static_cast<const PVFuncObserverBase*>(it_fo->second);
+		/* RH & AG: to prevent a deadlock when the observers call
+		 * PVHive::register_xxxx, the list is duplicated to release
+		 * the accessor before calling observers. But it is not safe!
+		 *
+		 * TODO: find a solution to remove the deadlock *and*
+		 * garanty data consistency while iterating
+		 */
+		std::vector<func_observers_t::mapped_type> func_obs(std::distance(it_fo, it_fo_e));
+		size_t len = 0;
+		// std::copy does not work when containers iterators differ
+		while (it_fo != it_fo_e) {
+			func_obs[len] = it_fo->second;
+			++it_fo;
+			++len;
+		}
+		acc.release();
+
+
+
+		for (size_t i = 0; i < len; ++i) {
+			const PVFuncObserverBase* fo = static_cast<const PVFuncObserverBase*>(func_obs[i]);
 			const PVFuncObserverSignal<T, F, f>* fo_signal = dynamic_cast<const PVFuncObserverSignal<T, F, f>*>(fo);
 
 			if (fo_signal) {
@@ -593,9 +613,13 @@ private:
 
 		if (object != nullptr) {
 
-			observables_t::accessor acc;
+			observables_t::const_accessor acc;
 
 			if (_observables.find(acc, (void*) object)) {
+				/* TODO: be sure releasing acc is safe
+				 * RH: I think we may have the same problem than in
+				 * ::process_func_observers
+				 */
 				acc.release();
 
 				// Pre-call events
