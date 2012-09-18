@@ -428,7 +428,7 @@ void read_test(std::string const& path)
 
 void write_nraw_disk_backend()
 {
-	uint64_t num_cols = 256;
+	uint64_t num_cols = 1;
 	std::vector<uint64_t> shuffled_col_sequence;
 	shuffled_col_sequence.reserve(num_cols);
 	for (uint64_t i = 0; i < num_cols; i++) {
@@ -441,43 +441,70 @@ void write_nraw_disk_backend()
 
 	std::string field("123456789");
 
-	uint64_t NB_FIELDS = 90000000;
+	uint64_t NB_FIELDS = 160000000;
 	uint64_t nb_fields_per_column = NB_FIELDS / num_cols;
 #if 0
 	uint64_t write_size = 0;
 	BENCH_START(t);
 	for (uint64_t i = 0 ; i < nb_fields_per_column; i++) {
-		//std::stringstream st;
-		//st << i << " ";
+		std::stringstream st;
+		st << i << " ";
 		for (uint64_t col : shuffled_col_sequence) {
-			//write_size += nraw_backend.add(col, st.str().c_str(), st.str().length());
-			write_size += nraw_backend.add(col, field.c_str(),field.length());
+			write_size += nraw_backend.add(col, st.str().c_str(), st.str().length());
+			//write_size += nraw_backend.add(col, field.c_str(),field.length()); // Note: Generating strings takes a loooot of time!
 		}
 	}
 	nraw_backend.flush();
 	BENCH_END(t, "nraw write test", sizeof(char), write_size, 1, 1);
 	nraw_backend.store_index_to_disk();
+
+	std::cout << "nraw_backend.at(0, 0)=" << (char*)(nraw_backend.at(0, 0)) << std::endl;
 #else
-	nraw_backend.load_index_from_disk(nb_fields_per_column, num_cols);
+	nraw_backend.load_index_from_disk(1571, num_cols);
+
+
+	std::cout << "nraw_backend.at(145025, 0)=" << nraw_backend.at(145025, 0) << std::endl;
+
 	uint64_t test = 0;
-	nb_fields_per_column -= 100;
+	nb_fields_per_column -= 16*100000;
+
+	std::cout << "nb_fields_per_column=" << nb_fields_per_column << std::endl;
+	uint64_t col = 0;
+
+	tbb::tick_count t1 = tbb::tick_count::now();
+	BENCH_START(t);
+	nraw_backend.at(0, col);
+	for (uint64_t field = 0; field <  nb_fields_per_column-1 ; field++) {
+		char* res = nraw_backend.next(col);
+		//std::cout << "field=" << res << std::endl;
+		if(res == nullptr) {
+			res = nraw_backend.at(field, col);
+			//std::cout << "field=" << res << std::endl;
+		}
+	}
+	tbb::tick_count t2 = tbb::tick_count::now();
+	std::cout << "latency (linear)=" << ((t2-t1).seconds()*1000*1000)/nb_fields_per_column << " μ sec" << std::endl;
+
 	std::vector<uint64_t> shuffled_field_sequence;
 	shuffled_col_sequence.reserve(nb_fields_per_column);
 	for (uint64_t i = 0; i < nb_fields_per_column; i++) {
 		shuffled_field_sequence.push_back(i);
 	}
 	std::random_shuffle(shuffled_field_sequence.begin(), shuffled_field_sequence.end());
-	std::cout << "nb_fields_per_column=" << nb_fields_per_column << std::endl;
-	BENCH_START(t);
+	tbb::tick_count t3 = tbb::tick_count::now();
+	uint64_t MAX_FIELDS = 1000;
+	uint64_t max_fields = MAX_FIELDS;
 	for (uint64_t field : shuffled_field_sequence) {
 		//for (uint64_t col : shuffled_sequence) {
-			uint64_t col = 0;
-			test += (uint64_t) nraw_backend.at(field, col);
+			nraw_backend.at(field, col);
+			if (max_fields-- == 0) {
+				break;
+			}
 			//std::cout << "field=" << field << std::endl;
 		//}
 	}
-	BENCH_END(t, "nraw read test", sizeof(char)*field.length(), nb_fields_per_column, 1, 1);
-	std::cout << test << std::endl;
+	tbb::tick_count t4 = tbb::tick_count::now();
+	std::cout << "latency (random)=" << ((t4-t3).seconds()*1000)/MAX_FIELDS << " milli sec" << std::endl;
 #endif
 
 	/*td::cout << "value=" << nraw_backend.at(7001, 0) << std::endl;
