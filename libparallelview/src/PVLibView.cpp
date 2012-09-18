@@ -97,8 +97,6 @@ PVParallelView::PVZoomedParallelView* PVParallelView::PVLibView::create_zoomed_v
 	_zoomed_parallel_scenes.emplace_back(view, view_sp, _sliders_manager_p, _zd_zzt, axis);
 	view->setScene(&_zoomed_parallel_scenes.back());
 
-	PVHive::call<FUNC(PVSlidersManager::new_zoom_sliders)>(_sliders_manager_p, axis, &_zoomed_parallel_scenes.back(), 0, 1024);
-
 	return view;
 }
 void PVParallelView::PVLibView::view_about_to_be_deleted()

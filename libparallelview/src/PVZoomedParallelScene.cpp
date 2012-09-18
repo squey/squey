@@ -51,10 +51,9 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 	QGraphicsScene(zpview),
 	_zpview(zpview),
 	_pvview(*pvview_p),
-	_zones_drawing(zones_drawing),
 	_sliders_manager_p(sliders_manager_p),
+	_zones_drawing(zones_drawing),
 	_axis(axis),
-	_zsn_obs(this),
 	_left_zone(nullptr),
 	_right_zone(nullptr),
 	_renderable_zone_number(0),
@@ -66,8 +65,8 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 	_zpview->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
 	_zpview->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
 
-	_zpview->setMaximumWidth(1024);
-	_zpview->setMaximumHeight(1024);
+	// _zpview->setMaximumWidth(1024);
+	// _zpview->setMaximumHeight(1024);
 
 	_selection_rect = new PVParallelView::PVSelectionSquareGraphicsItem(this);
 	connect(_selection_rect, SIGNAL(commit_volatile_selection()),
@@ -116,7 +115,14 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 
 	_render_group = _zones_drawing.new_render_group();
 
-	PVHive::PVHive::get().register_func_observer(_sliders_manager_p, _zsn_obs);
+	_sliders_group = new PVParallelView::PVSlidersGroup(sliders_manager_p, axis);
+	_sliders_group->setPos(0., 0.);
+	_sliders_group->add_zoom_sliders(0, 1024);
+
+	// the sliders must be over all other QGraphicsItems
+	_sliders_group->setZValue(1.e42);
+
+	addItem(_sliders_group);
 }
 
 /*****************************************************************************
@@ -133,6 +139,9 @@ PVParallelView::PVZoomedParallelScene::~PVZoomedParallelScene()
 	_rendering_job->deleteLater();
 
 	_zones_drawing.remove_render_group(_render_group);
+
+	PVHive::call<FUNC(PVSlidersManager::del_zoom_sliders)>(_sliders_manager_p,
+	                                                       _axis, this);
 }
 
 /*****************************************************************************
@@ -141,13 +150,14 @@ PVParallelView::PVZoomedParallelScene::~PVZoomedParallelScene()
 
 void PVParallelView::PVZoomedParallelScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-	if (event->button() == Qt::LeftButton) {
-		_selection_rect_pos = event->scenePos();
-	} else if (event->button() == Qt::RightButton) {
+	if (event->button() == Qt::RightButton) {
 		_pan_reference_y = event->screenPos().y();
+	} else if (!_sliders_group->sliders_moving() && (event->button() == Qt::LeftButton)) {
+		_selection_rect_pos = event->scenePos();
 	}
 
-	event->accept();
+	// do item's hover stuff
+	QGraphicsScene::mousePressEvent(event);
 }
 
 /*****************************************************************************
@@ -156,7 +166,7 @@ void PVParallelView::PVZoomedParallelScene::mousePressEvent(QGraphicsSceneMouseE
 
 void PVParallelView::PVZoomedParallelScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-	if (event->button() == Qt::LeftButton) {
+	if (!_sliders_group->sliders_moving() && (event->button() == Qt::LeftButton)) {
 		if (_selection_rect_pos == event->scenePos()) {
 			// Remove selection
 			_selection_rect->clear_rect();
@@ -164,7 +174,8 @@ void PVParallelView::PVZoomedParallelScene::mouseReleaseEvent(QGraphicsSceneMous
 		commit_volatile_selection_Slot();
 	}
 
-	event->accept();
+	// do item's hover stuff
+	QGraphicsScene::mouseReleaseEvent(event);
 }
 
 /*****************************************************************************
@@ -173,7 +184,13 @@ void PVParallelView::PVZoomedParallelScene::mouseReleaseEvent(QGraphicsSceneMous
 
 void PVParallelView::PVZoomedParallelScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-	if (event->buttons() == Qt::LeftButton) {
+	if (event->buttons() == Qt::RightButton) {
+		QScrollBar *sb = _zpview->verticalScrollBar();
+		int delta = _pan_reference_y - event->screenPos().y();
+		_pan_reference_y = event->screenPos().y();
+		int v = sb->value();
+		sb->setValue(v + delta);
+	} else if (!_sliders_group->sliders_moving() && (event->buttons() == Qt::LeftButton)) {
 		// trace square area
 		QPointF top_left(qMin(_selection_rect_pos.x(), event->scenePos().x()),
 		                 qMin(_selection_rect_pos.y(), event->scenePos().y()));
@@ -181,15 +198,10 @@ void PVParallelView::PVZoomedParallelScene::mouseMoveEvent(QGraphicsSceneMouseEv
 		                     qMax(_selection_rect_pos.y(), event->scenePos().y()));
 
 		_selection_rect->update_rect(QRectF(top_left, bottom_right));
-	} else if (event->buttons() == Qt::RightButton) {
-		QScrollBar *sb = _zpview->verticalScrollBar();
-		int delta = _pan_reference_y - event->screenPos().y();
-		_pan_reference_y = event->screenPos().y();
-		int v = sb->value();
-		sb->setValue(v + delta);
 	}
 
-	event->accept();
+	// do item's hover stuff
+	QGraphicsScene::mouseMoveEvent(event);
 }
 
 /*****************************************************************************
