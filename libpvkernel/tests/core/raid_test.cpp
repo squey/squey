@@ -426,7 +426,7 @@ void read_test(std::string const& path)
 	}
 }
 
-void write_nraw_disk_backend()
+void write_nraw_disk_backend(std::string const& folder)
 {
 	uint64_t num_cols = 1;
 	std::vector<uint64_t> shuffled_col_sequence;
@@ -436,14 +436,14 @@ void write_nraw_disk_backend()
 	}
 	std::random_shuffle(shuffled_col_sequence.begin(), shuffled_col_sequence.end());
 
-	std::string folder("/mnt/raid0_xfs/nraw_test");
 	PVRush::PVNRawDiskBackend<> nraw_backend(folder, num_cols);
 
 	std::string field("123456789");
 
-	uint64_t NB_FIELDS = 160000000;
+	uint64_t NB_FIELDS = 16000000;
 	uint64_t nb_fields_per_column = NB_FIELDS / num_cols;
-#if 0
+
+#if 1
 	uint64_t write_size = 0;
 	BENCH_START(t);
 	for (uint64_t i = 0 ; i < nb_fields_per_column; i++) {
@@ -456,23 +456,17 @@ void write_nraw_disk_backend()
 	}
 	nraw_backend.flush();
 	BENCH_END(t, "nraw write test", sizeof(char), write_size, 1, 1);
-	nraw_backend.store_index_to_disk();
 
-	std::cout << "nraw_backend.at(0, 0)=" << (char*)(nraw_backend.at(0, 0)) << std::endl;
 #else
-	nraw_backend.load_index_from_disk(1571, num_cols);
+	nraw_backend.load_index_from_disk();
+	nraw_backend.print_indexes();
 
-
-	std::cout << "nraw_backend.at(145025, 0)=" << nraw_backend.at(145025, 0) << std::endl;
-
-	uint64_t test = 0;
-	nb_fields_per_column -= 16*100000;
+	std::cout << "nraw_backend.at(145080, 0)=" << nraw_backend.at(145080, 0) << std::endl;
 
 	std::cout << "nb_fields_per_column=" << nb_fields_per_column << std::endl;
 	uint64_t col = 0;
 
 	tbb::tick_count t1 = tbb::tick_count::now();
-	BENCH_START(t);
 	nraw_backend.at(0, col);
 	for (uint64_t field = 0; field <  nb_fields_per_column-1 ; field++) {
 		char* res = nraw_backend.next(col);
@@ -505,6 +499,8 @@ void write_nraw_disk_backend()
 	}
 	tbb::tick_count t4 = tbb::tick_count::now();
 	std::cout << "latency (random)=" << ((t4-t3).seconds()*1000)/MAX_FIELDS << " milli sec" << std::endl;
+
+	nraw_backend.print_stats();
 #endif
 
 	/*td::cout << "value=" << nraw_backend.at(7001, 0) << std::endl;
@@ -516,7 +512,7 @@ void write_nraw_disk_backend()
 
 void usage(const char* app_name)
 {
-	std::cerr << "Usage: " << app_name << " [folder_path]" << std::endl;
+	std::cerr << "Usage: " << app_name << " [path_to_existing_nraw_folder]" << std::endl;
 }
 
 int main(int argc, const char* argv[])
@@ -532,5 +528,5 @@ int main(int argc, const char* argv[])
 
 	//read_test(folder);
 
-	write_nraw_disk_backend();
+	write_nraw_disk_backend(folder);
 }
