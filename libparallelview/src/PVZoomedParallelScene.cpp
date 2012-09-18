@@ -364,6 +364,11 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 	uint64_t y_max = PVCore::clamp<uint64_t>(y_min + screen_rect.height() * pixel_height,
 	                                         0ULL, y_lim);
 
+	PVHive::call<FUNC(PVSlidersManager::update_zoom_sliders)>(_sliders_manager_p,
+	                                                          _axis, _sliders_group,
+	                                                          y_min >> (32 - NBITS_INDEX),
+	                                                          y_max >> (32 - NBITS_INDEX));
+
 	_next_beta = beta;
 
 	int gap_y = (screen_rect_s.top() < 0)?round(-screen_rect_s.top()):0;

@@ -73,11 +73,9 @@ void PVParallelView::PVSelectionAxisSliders::selection_sliders_update_obs::updat
 	PVSlidersManager::id_t id = std::get<1>(args);
 
 	if ((axis == _parent->_axis) && (id == _parent->_id)) {
-		uint32_t y_min = std::get<2>(args);
-		uint32_t y_max = std::get<3>(args);
+		_parent->_sl_min->set_value(std::get<2>(args));
+		_parent->_sl_max->set_value(std::get<3>(args));
 
-		_parent->_sl_min->set_value(y_min);
-		_parent->_sl_max->set_value(y_max);
 		emit _parent->sliders_moved();
 	}
 }

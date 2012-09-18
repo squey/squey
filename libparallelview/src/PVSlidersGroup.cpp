@@ -147,6 +147,7 @@ void PVParallelView::PVSlidersGroup::add_new_zoom_sliders(PVCol axis,
 	sliders->setPos(0, 0);
 
 	_all_sliders.push_back(sliders);
+	_registered_ids.insert(id);
 }
 
 /*****************************************************************************
@@ -163,14 +164,8 @@ void PVParallelView::PVSlidersGroup::add_new_selection_sliders(PVParallelView::P
 		sliders = new PVParallelView::PVSelectionAxisSliders(this);
 	}
 
-	std::cout << "#### add new selection for axis: " << axis
-	          << " id: " << id
-	          << " min: " << y_min
-	          << " max: " << y_max << std::endl;
-
 	if (id == nullptr) {
 		id = sliders;
-		std::cout << "     and id: " << sliders << std::endl;
 	}
 
 	sliders->initialize(_sliders_manager_p, axis, id, y_min, y_max);
@@ -196,6 +191,7 @@ void PVParallelView::PVSlidersGroup::zoom_sliders_new_obs::update(arguments_deep
 
 	if (axis == _parent->_axis_index) {
 		PVSlidersManager::id_t id = std::get<1>(args);
+
 		if (id != _parent) {
 			uint32_t y_min = std::get<2>(args);
 			uint32_t y_max = std::get<3>(args);

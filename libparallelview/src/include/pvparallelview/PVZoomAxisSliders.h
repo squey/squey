@@ -50,7 +50,14 @@ namespace PVParallelView
 		void sliders_moved();
 
 	private slots:
-		void do_sliders_moved() { emit sliders_moved(); }
+		void do_sliders_moved()
+		{
+			emit sliders_moved();
+			PVHive::call<FUNC(PVSlidersManager::update_zoom_sliders)>(_sliders_manager_p,
+			                                                          _axis, _id,
+			                                                          _sl_min->value(),
+			                                                          _sl_max->value());
+ }
 
 	private:
 		class zoom_sliders_del_obs :
@@ -82,8 +89,9 @@ namespace PVParallelView
 		};
 
 	private:
-		zoom_sliders_del_obs     _ssd_obs;
-		zoom_sliders_update_obs  _ssu_obs;
+		PVSlidersManager_p       _sliders_manager_p;
+		zoom_sliders_del_obs     _zsd_obs;
+		zoom_sliders_update_obs  _zsu_obs;
 		PVAxisSlider            *_sl_min;
 		PVAxisSlider            *_sl_max;
 		PVCol                    _axis;
