@@ -7,9 +7,11 @@
 #ifndef PVPARALLELVIEW_PVAXISSLIDER_H
 #define PVPARALLELVIEW_PVAXISSLIDER_H
 
-#include <QGraphicsItem>
+#include <pvkernel/core/PVAlgorithms.h>
 
 #include <pvparallelview/common.h>
+
+#include <QGraphicsItem>
 
 #define SLIDER_HALF_WIDTH 8
 #define SLIDER_WIDTH (2 * SLIDER_HALF_WIDTH + PVParallelView::AxisWidth)
@@ -30,7 +32,12 @@ public:
 	PVAxisSlider(int omin, int omax, int o);
 	~PVAxisSlider();
 
-	inline void set_value(int v) { _offset = v; }
+	inline void set_value(int v)
+	{
+		_offset = PVCore::clamp(v, _offset_min, _offset_max);
+		setPos(0., _offset);
+	}
+
 	inline int value() { return _offset; }
 
 	QRectF boundingRect () const;

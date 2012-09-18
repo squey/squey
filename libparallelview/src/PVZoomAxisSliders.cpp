@@ -9,8 +9,8 @@
 
 PVParallelView::PVZoomAxisSliders::PVZoomAxisSliders(QGraphicsItem *parent) :
 	PVAbstractAxisSliders(parent),
-	_ssd_obs(this),
-	_ssu_obs(this)
+	_zsd_obs(this),
+	_zsu_obs(this)
 {
 	setHandlesChildEvents(false);
 }
@@ -24,6 +24,7 @@ void PVParallelView::PVZoomAxisSliders::initialize(PVParallelView::PVSlidersMana
                                                    PVCol axis, id_t id,
                                                    uint32_t y_min, uint32_t y_max)
 {
+	_sliders_manager_p = sm_p;
 	_axis = axis;
 	_id = id;
 
@@ -33,17 +34,18 @@ void PVParallelView::PVZoomAxisSliders::initialize(PVParallelView::PVSlidersMana
 	addToGroup(_sl_min);
 	addToGroup(_sl_max);
 
-	_sl_min->setPos(0, 0);
-	_sl_max->setPos(0, 0);
+	// set positions in their parent, not in the QGraphicsScene
+	_sl_min->setPos(0, y_min);
+	_sl_max->setPos(0, y_max);
 
 	connect(_sl_min, SIGNAL(slider_moved()), this, SLOT(do_sliders_moved()));
 	connect(_sl_max, SIGNAL(slider_moved()), this, SLOT(do_sliders_moved()));
 
 	PVHive::PVHive::get().register_func_observer(sm_p,
-	                                             _ssd_obs);
+	                                             _zsd_obs);
 
 	PVHive::PVHive::get().register_func_observer(sm_p,
-	                                             _ssu_obs);
+	                                             _zsu_obs);
 }
 
 /*****************************************************************************
@@ -71,6 +73,9 @@ void PVParallelView::PVZoomAxisSliders::zoom_sliders_update_obs::update(argument
 	PVSlidersManager::id_t id = std::get<1>(args);
 
 	if ((axis == _parent->_axis) && (id == _parent->_id)) {
-		_parent->do_sliders_moved();
+		_parent->_sl_min->set_value(std::get<2>(args));
+		_parent->_sl_max->set_value(std::get<3>(args));
+
+		emit _parent->sliders_moved();
 	}
 }
