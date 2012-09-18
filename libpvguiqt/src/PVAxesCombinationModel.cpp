@@ -93,6 +93,7 @@ PVGuiQt::PVAxesCombinationModel::PVAxesCombinationModel(Picviz::PVView_sp& view_
 			_set_axis_name_observer
 		);
 
+	/*
 	// PVView::remove_column function observer
 	PVHive::get().register_func_observer(
 			view_p,
@@ -110,6 +111,10 @@ PVGuiQt::PVAxesCombinationModel::PVAxesCombinationModel(Picviz::PVView_sp& view_
 			view_p,
 			_move_axis_to_new_position_observer
 		);
+	*/
+
+	_obs_axes_comb.connect_refresh(this, SLOT(refresh_slot(PVHive::PVObserverBase*)));
+	PVHive::get().register_observer(view_p, [=](Picviz::PVView& v) { return &v.get_axes_combination().get_axes_index_list(); }, _obs_axes_comb);
 
 	// Register view actor
 	PVHive::get().register_actor(view_p, _actor);

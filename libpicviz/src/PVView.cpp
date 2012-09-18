@@ -1434,9 +1434,9 @@ void Picviz::PVView::emit_user_modified_sel(QList<Picviz::PVView*>* changed_view
 	}
 }
 
-void Picviz::PVView::set_axes_combination_list_id(QVector<PVCol> const& l)
+void Picviz::PVView::set_axes_combination_list_id(PVAxesCombination::columns_indexes_t const& idxes, PVAxesCombination::list_axes_t const& axes)
 {
-	get_axes_combination().set_axes_index_list(l);
+	get_axes_combination().set_axes_index_list(idxes, axes);
 }
 
 // Load/save and serialization

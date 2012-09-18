@@ -76,6 +76,12 @@ public:
 		        receiver, slot);
 	}
 
+	inline void disconnect_refresh(QObject *receiver, const char *slot)
+	{
+		disconnect(this, SIGNAL(refresh_signal(PVHive::PVObserverBase*)),
+		        receiver, slot);
+	}
+
 	/**
 	 * Connect a Qt slot to the "about_to_be_deleted" event.
 	 *

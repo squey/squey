@@ -12,11 +12,11 @@
 #include <QList>
 
 #include <picviz/PVAxesCombination.h>
-#include "../ui_PVAxesCombinationWidget.h"
-#include "../ui_PVAxesCombinationWidgetSelRange.h"
+#include "../../ui_PVAxesCombinationWidget.h"
+#include "../../ui_PVAxesCombinationWidgetSelRange.h"
 #include <picviz/PVView_types.h>
 
-namespace PVInspector {
+namespace PVGuiQt {
 
 class PVAxesCombinationWidget: public QWidget, Ui::PVAxesCombinationWidget
 {
@@ -39,7 +39,7 @@ private:
 	};
 
 public:
-	PVAxesCombinationWidget(Picviz::PVAxesCombination& axes_combination, QWidget* parent = 0, Picviz::PVView* view = NULL);
+	PVAxesCombinationWidget(Picviz::PVAxesCombination& axes_combination, Picviz::PVView* view = NULL, QWidget* parent = 0);
 
 public:
 	void save_current_combination();

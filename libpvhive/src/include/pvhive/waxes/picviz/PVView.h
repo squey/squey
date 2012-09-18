@@ -31,4 +31,12 @@ DECLARE_WAX(Picviz::PVView::set_layer_stack_layer_n_name)
 DECLARE_WAX(Picviz::PVView::toggle_layer_stack_layer_n_locked_state)
 DECLARE_WAX(Picviz::PVView::toggle_layer_stack_layer_n_visible_state)
 
+// Axes combination waxes
+//
+
+DECLARE_WAX(Picviz::PVView::set_axes_combination_list_id)
+DECLARE_WAX(Picviz::PVView::move_axis_to_new_position)
+DECLARE_WAX(Picviz::PVView::remove_column)
+DECLARE_WAX(Picviz::PVView::axis_append)
+
 #endif
