@@ -34,6 +34,7 @@ PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem(PVParallelView::PVSliders
 	                                                    this);
 
 	addToGroup(_sliders_group);
+	_sliders_group->setPos(PARALLELVIEW_AXIS_WIDTH / 2, 0.);
 }
 
 /*****************************************************************************
