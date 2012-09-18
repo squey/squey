@@ -184,7 +184,7 @@ public:
 	inline id_t get_display_view_id() const { return _view_id+1; }
 
 
-	int get_original_axes_count();
+	PVCol get_original_axes_count() const;
 	QString get_original_axis_name(PVCol axis_id) const;
 	QString get_original_axis_type(PVCol axis_id) const;
 	inline PVCol get_original_axis_index(PVCol view_idx) const { return axes_combination.get_axis_column_index(view_idx); }

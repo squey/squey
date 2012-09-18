@@ -24,17 +24,9 @@ public:
 		_ztree(new PVZoneTree()),
 		_zoomed_ztree(new PVZoomedZoneTree(_ztree->get_sel_elts()))
 	{
-		_width = PVParallelView::ZoneDefaultWidth;
 	}
 
 public:
-	inline void set_width(uint32_t width)
-	{
-		assert(width <= PVParallelView::ZoneMaxWidth);
-		_width = width;
-	}
-	uint32_t width() const { return _width; }
-
 	PVZoneTree& ztree() { return *_ztree; }
 	PVZoneTree const& ztree() const { return *_ztree; }
 
@@ -86,7 +78,6 @@ private:
 private:
 	PVZoneTree_p _ztree;
 	PVZoomedZoneTree_p _zoomed_ztree;
-	tbb::atomic<uint32_t> _width;
 	tbb::atomic<zone_state_t> _zone_state;
 
 };

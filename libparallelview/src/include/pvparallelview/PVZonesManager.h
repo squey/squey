@@ -69,29 +69,7 @@ public:
 		return _zones[z].get_tree<Tree>();
 	}
 
-	inline uint32_t get_zone_width(PVZoneID z) const
-	{
-		assert(z < get_number_zones());
-		return _zones[z].width();
-	}
-
-	void set_zone_width(PVZoneID zid, uint32_t width)
-	{
-		_zones[zid].set_width(PVCore::clamp(width, (uint32_t) PVParallelView::ZoneMinWidth, (uint32_t) PVParallelView::ZoneMaxWidth));
-	}
-
-	template <class F>
-	void set_zones_width(F const& f)
-	{
-		for (PVZoneID zid = 0; zid < (PVZoneID) _zones.size(); zid++) {
-			set_zone_width(zid, f(get_zone_width(zid)));
-		}
-	}
-
 	void invalidate_selection();
-
-	uint32_t get_zone_absolute_pos(PVZoneID z) const;
-	PVZoneID get_zone_id(int abs_pos) const;
 
 	bool filter_zone_by_sel(PVZoneID zid, const Picviz::PVSelection& sel);
 

@@ -103,13 +103,14 @@ public:
 		get_zones_drawing()->cancel_group(_render_grp_bg);
 	}
 
-	inline PVZoneID get_zone_from_scene_pos(int32_t x) const { return get_zones_manager().get_zone_id(x); }
+	PVZoneID get_zone_from_scene_pos(int32_t x) const;
 
 	inline bool set_zone_width(PVZoneID z, uint32_t width)
 	{
+		assert(z < (PVZoneID) _zones_width.size());
 		// Returns true if width was actual changed
 		uint32_t old_width = get_zone_width(z);
-		get_zones_manager().set_zone_width(z, width);
+		_zones_width[z] = PVCore::clamp(width, (uint32_t) PVParallelView::ZoneMinWidth, (uint32_t) PVParallelView::ZoneMaxWidth);
 		return get_zone_width(z) != old_width;
 	}
 	//bool set_zone_width_and_render(PVZoneID z, uint32_t width);
@@ -117,17 +118,22 @@ public:
 	inline zones_drawing_t* get_zones_drawing() { return _zd; }
 	inline const PVZonesManager& get_zones_manager() const { return _zd->get_zones_manager(); }
 	inline PVZonesManager& get_zones_manager() { return _zd->get_zones_manager(); }
-	inline uint32_t get_zone_width(PVZoneID z) const { return _zd->get_zone_width(z); }
+	inline uint32_t get_zone_width(PVZoneID z) const { assert(z < (PVZoneID) _zones_width.size()); return _zones_width[z]; }
 
 	const list_zone_images_t& get_zones_images() const { return _zones_imgs; }
 	list_zone_images_t& get_zones_images() { return _zones_imgs; }
 	inline PVZoneID get_first_drawn_zone() const { return _first_zone; }
 	inline PVZoneID get_last_drawn_zone() const { return picviz_min((PVZoneID)(_first_zone + _zones_imgs.size()-1), (PVZoneID)get_zones_manager().get_number_zones()-1); }
 	bool is_zone_drawn(PVZoneID z) const { return (z >= get_first_drawn_zone() && z <= get_last_drawn_zone()); }
-	inline uint32_t get_zone_absolute_pos(PVZoneID z) const { return get_zones_manager().get_zone_absolute_pos(z); }
+	uint32_t get_zone_absolute_pos(PVZoneID z) const;
 
 	template <class F>
-	inline void set_all_zones_width(F const& f) { get_zones_manager().set_zones_width(f); }
+	inline void set_all_zones_width(F const& f)
+	{
+		for (PVZoneID zid = 0; zid < (PVZoneID) _zones_width.size(); zid++) {
+			set_zone_width(zid, f(get_zone_width(zid)));
+		}
+	}
 
 private:
 	void filter_zone_by_sel_in_task(PVZoneID const z, Picviz::PVSelection const& sel, tbb::task* root);
@@ -167,6 +173,8 @@ private:
 	PVZoneID _first_zone;
 	uint32_t _zone_max_width;
 	int32_t _visible_view_x;
+
+	std::vector<uint32_t> _zones_width;
 
 	list_zone_images_t _zones_imgs;
 

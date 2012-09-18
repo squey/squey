@@ -16,9 +16,9 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_rect(PVZon
 	uint32_t nb_selected = 0;
 
 	sel.select_none();
-	int32_t width = _zm.get_zone_width(zid);
+	int32_t width = _lines_view.get_zone_width(zid);
 
-	PVZoneTree& ztree = _zm.get_zone_tree<PVZoneTree>(zid);
+	PVZoneTree& ztree = get_zones_manager().get_zone_tree<PVZoneTree>(zid);
 	PVParallelView::PVBCode code_b;
 
 	if (rect.isNull()) {
@@ -84,8 +84,8 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_sliders(
 
 	PVParallelView::PVBCode code_b;
 
-	if (zid < _zm.get_number_zones()) {
-		PVZoneTree& ztree = _zm.get_zone_tree<PVZoneTree>(zid);
+	if (zid < get_zones_manager().get_number_zones()) {
+		PVZoneTree& ztree = get_zones_manager().get_zone_tree<PVZoneTree>(zid);
 
 		for (uint32_t branch = 0 ; branch < NBUCKETS; branch++)	{
 			PVRow r =  ztree.get_first_elt_of_branch(branch);
@@ -119,7 +119,7 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_sliders(
 		}
 	} else {
 		// for the last zid, we must process bci.s.r in the last zone tree
-		PVZoneTree& ztree = _zm.get_zone_tree<PVZoneTree>(zid - 1);
+		PVZoneTree& ztree = get_zones_manager().get_zone_tree<PVZoneTree>(zid - 1);
 
 		for (uint32_t branch = 0 ; branch < NBUCKETS; branch++)	{
 			PVRow r =  ztree.get_first_elt_of_branch(branch);

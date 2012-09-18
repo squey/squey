@@ -9,6 +9,7 @@
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVAxisGraphicsItem.h>
+#include <pvparallelview/PVLinesView.h>
 
 namespace Picviz
 {
@@ -30,13 +31,18 @@ struct PVLineEqInt
 class PVSelectionGenerator
 {
 public:
-	PVSelectionGenerator(PVZonesManager& zm) : _zm(zm) {};
+	PVSelectionGenerator(PVLinesView& lines_view):
+		_lines_view(lines_view)
+	{ }
 
 	uint32_t compute_selection_from_rect(PVZoneID zid, QRect rect, Picviz::PVSelection& sel);
 	uint32_t compute_selection_from_sliders(PVZoneID zid, const typename PVAxisGraphicsItem::selection_ranges_t& ranges, Picviz::PVSelection& sel);
 
 private:
-	PVZonesManager& _zm;
+	inline PVZonesManager& get_zones_manager() { return _lines_view.get_zones_manager(); }
+	inline PVZonesManager const& get_zones_manager() const { return _lines_view.get_zones_manager(); }
+private:
+	PVLinesView& _lines_view;
 };
 
 }

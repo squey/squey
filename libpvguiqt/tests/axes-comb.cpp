@@ -6,6 +6,8 @@
 
 #include <iostream>
 
+#include <pvkernel/core/PVDataTreeObject.h>
+#include <pvkernel/core/PVSharedPointer.h>
 #include <pvkernel/rush/PVInputType.h>
 #include <pvkernel/rush/PVFileDescription.h>
 #include <pvkernel/rush/PVTests.h>
@@ -19,10 +21,12 @@
 #include <picviz/PVSource.h>
 #include <picviz/PVMapped.h>
 #include <picviz/PVPlotted.h>
-#include <pvkernel/core/PVDataTreeObject.h>
-#include <pvkernel/core/PVSharedPointer.h>
+
+#include <pvguiqt/PVAxesListModel.h>
 
 #include <QApplication>
+#include <QListView>
+#include <QMainWindow>
 
 #include "test-env.h"
 
@@ -93,7 +97,7 @@ void thread(Picviz::PVView* view_p)
 			int axis_index;
 			char axis_name[128];
 
-			sscanf(cmd.c_str(), "%d %s", &axis_index, &axis_name);
+			sscanf(cmd.c_str(), "%d %s", &axis_index, (char*) &axis_name);
 			PVACTOR_CALL(actor, &Picviz::PVView::set_axis_name, axis_index, boost::cref(QString(axis_name)));
 		}
 	}
@@ -130,7 +134,15 @@ int main(int argc, char** argv)
 	TestDlg *dlg = new TestDlg(view_p);
 	dlg->show();
 
+	PVGuiQt::PVAxesListModel* model = new PVGuiQt::PVAxesListModel(view_p);
+	QListView* view = new QListView();
+	view->setModel(model);
+	QMainWindow* mw = new QMainWindow();
+	mw->setCentralWidget(view);
+	mw->show();
+
 	view_p.reset();
+
 
 	app.exec();
 	th.join();

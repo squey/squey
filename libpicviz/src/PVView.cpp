@@ -518,7 +518,7 @@ int Picviz::PVView::get_number_of_selected_lines()
  * Picviz::PVView::get_original_axes_count
  *
  *****************************************************************************/
-int Picviz::PVView::get_original_axes_count()
+PVCol Picviz::PVView::get_original_axes_count() const
 {
 	return axes_combination.get_original_axes_count();
 }

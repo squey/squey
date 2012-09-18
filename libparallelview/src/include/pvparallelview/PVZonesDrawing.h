@@ -89,6 +89,7 @@ public:
 	}
 
 public:
+#if 0
 	template <class Fbci, class BackendImageIterator>
 	void draw_zones(BackendImageIterator dst_img_begin, PVZoneID zone_start, PVZoneID nzones, Fbci const& f_bci)
 	{
@@ -135,18 +136,19 @@ public:
 	uint32_t draw_zones(PVBCIBackendImage<Bbits>& dst_img, uint32_t x_start, PVZoneID zone_start, PVZoneID nzones, Fbci const& f_bci)
 	{
 		for (PVZoneID zone = zone_start; zone < nzones; zone++) {
-			assert(x_start + _zm.get_zone_width(zone) + AxisWidth <= dst_img.width());
+			//assert(x_start + _zm.get_zone_width(zone) + AxisWidth <= dst_img.width());
 			draw_zone<Fbci>(dst_img, x_start, zone, f_bci);
 			x_start += _zm.get_zone_width(zone) + AxisWidth;
 		}
 		return x_start;
 	}
+#endif
 
 	template <class Fbci>
-	inline void draw_zone(PVBCIBackendImage<Bbits>& dst_img, uint32_t x_start, PVZoneID zone, Fbci const& f_bci, std::function<void()> const& cleaning_func = std::function<void()>(), std::function<void()> const& drawing_done = std::function<void()>(), render_group_t const rgrp = -1)
+	inline void draw_zone(PVBCIBackendImage<Bbits>& dst_img, uint32_t x_start, PVZoneID zone, uint32_t zone_width, Fbci const& f_bci, std::function<void()> const& cleaning_func = std::function<void()>(), std::function<void()> const& drawing_done = std::function<void()>(), render_group_t const rgrp = -1)
 	{
 		PVZoneTree const &zone_tree = _zm.get_zone_tree<PVZoneTree>(zone);
-		draw_bci_lambda<PVZoneTree>(zone_tree, dst_img, x_start, _zm.get_zone_width(zone),
+		draw_bci_lambda<PVZoneTree>(zone_tree, dst_img, x_start, zone_width,
 				[&](PVZoneTree const& zone_tree, PVCore::PVHSVColor const* colors, PVBCICode<Bbits>* codes)
 				{
 					return (zone_tree.*f_bci)(colors, codes);
@@ -210,11 +212,6 @@ public:
 				drawing_done,
 				rgrp);
 
-	}
-
-	inline uint32_t get_zone_width(PVZoneID z) const
-	{
-		return _zm.get_zone_width(z);
 	}
 
 	inline const PVZonesManager&  get_zones_manager() const

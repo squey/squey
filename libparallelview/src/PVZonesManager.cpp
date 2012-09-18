@@ -154,29 +154,3 @@ void PVParallelView::PVZonesManager::set_uint_plotted(Picviz::PVView const& view
 {
 	set_uint_plotted(view.get_parent<Picviz::PVPlotted>()->get_uint_plotted(), view.get_row_count(), view.get_column_count());
 }
-
-uint32_t PVParallelView::PVZonesManager::get_zone_absolute_pos(PVZoneID zone) const
-{
-	assert(zone < (PVZoneID) _zones.size());
-	uint32_t pos = 0;
-	for (PVZoneID z = 0; z < zone; z++) {
-		pos += _zones[z].width() + PVParallelView::AxisWidth;
-	}
-	return pos;
-}
-
-PVZoneID PVParallelView::PVZonesManager::get_zone_id(int abs_pos) const
-{
-	PVZoneID zid = 0;
-	ssize_t pos = 0;
-	for (; zid < (PVZoneID) (_zones.size()-1) ; zid++)
-	{
-		pos += _zones[zid].width() + PVParallelView::AxisWidth;
-		if (pos > abs_pos) {
-			break;
-		}
-	}
-
-	assert(zid < (PVZoneID) _zones.size());
-	return zid;
-}
