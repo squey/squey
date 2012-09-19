@@ -35,6 +35,7 @@ public:
 
 public:
 	PVSlidersGroup(PVSlidersManager_p sm_p, PVCol axis_index, QGraphicsItem *parent = nullptr);
+	~PVSlidersGroup();
 
 	QRectF boundingRect() const
 	{

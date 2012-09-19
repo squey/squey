@@ -65,6 +65,11 @@ PVParallelView::PVSlidersGroup::PVSlidersGroup(PVSlidersManager_p sm_p,
 	                                             _ssd_obs);
 }
 
+PVParallelView::PVSlidersGroup::~PVSlidersGroup()
+{
+	PVLOG_INFO("In PVSlidersGroup destruction.\n");
+}
+
 /*****************************************************************************
  * PVParallelView::PVSlidersGroup::add_zoom_sliders
  *****************************************************************************/

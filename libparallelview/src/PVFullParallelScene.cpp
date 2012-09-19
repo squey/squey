@@ -578,7 +578,13 @@ void PVParallelView::PVFullParallelScene::update_number_of_zones()
 		it_end = _axes.end();
 		it_start = _axes.end() + nb_new_z;
 		for (it = it_start; it != it_end; it++) {
-			(*it)->deleteLater();
+			// AG: this is really important to do this to force the
+			// deletion of this PVAxisGraphicsItem object. Indeed,
+			// removeItem will remove this object from the list of children
+			// of the scene, and gives us the ownship of the object. Thus,
+			// we are free to delete it afterwards.
+			removeItem(*it);
+			delete *it;
 		}
 		_axes.erase(it_start, it_end);
 	}
