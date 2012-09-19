@@ -68,8 +68,10 @@ void PVParallelView::PVSlidersManager::del_selection_sliders(const PVCol axis,
 void PVParallelView::PVSlidersManager::update_zoom_sliders(const PVCol axis,
                                                            const id_t id,
                                                            const uint32_t y_min,
-                                                           const uint32_t y_max)
+                                                           const uint32_t y_max,
+                                                           const ZoomSliderChange)
 {
+	// the last parameter is useless for the manager
 	update_interval_sliders(_zoom_geometries, axis, id, y_min, y_max);
 }
 

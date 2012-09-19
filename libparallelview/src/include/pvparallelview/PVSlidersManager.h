@@ -21,6 +21,13 @@ namespace PVParallelView
 class PVSlidersManager
 {
 public:
+	typedef enum {
+		ZoomSliderNone   = 0,
+		ZoomSliderTop    = 1,
+		ZoomSliderBottom = 2,
+		ZoomSliderBoth   = 3 // 1 + 2
+	} ZoomSliderChange;
+
 	typedef void* id_t;
 
 	struct interval_geometry_t
@@ -75,7 +82,8 @@ public:
 	void update_selection_sliders(const PVCol axis, const id_t id,
 	                              const uint32_t y_min, const uint32_t y_max);
 	void update_zoom_sliders(const PVCol axis, const id_t id,
-	                         const uint32_t y_min, const uint32_t y_max);
+	                         const uint32_t y_min, const uint32_t y_max,
+	                         const ZoomSliderChange change);
 
 	/**
 	 * Function to iterate on all interval sliders
