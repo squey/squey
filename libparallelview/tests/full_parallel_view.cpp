@@ -9,6 +9,7 @@
 #include <iostream>
 
 #include <pvkernel/core/picviz_bench.h>
+#include <pvkernel/core/PVSharedPointer.h>
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVBCICode.h>
@@ -22,7 +23,7 @@
 #include <pvparallelview/PVFullParallelScene.h>
 #include <pvparallelview/PVFullParallelView.h>
 
-#include <pvkernel/core/PVSharedPointer.h>
+#include <pvguiqt/PVAxesCombinationDialog.h>
 
 #include <pvparallelview/PVLibView.h>
 
@@ -50,6 +51,12 @@ int main(int argc, char** argv)
 		return 1;
 	}
 	plib_view->create_view();
+
+	{
+		Picviz::PVView_sp view_sp = plib_view->lib_view()->shared_from_this();
+		PVGuiQt::PVAxesCombinationDialog* axes_dlg = new PVGuiQt::PVAxesCombinationDialog(view_sp);
+		axes_dlg->show();
+	}
 
 	app.exec();
 

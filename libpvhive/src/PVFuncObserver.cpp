@@ -6,7 +6,8 @@
 
 #include <pvhive/PVFuncObserver.h>
 
-__impl::PVFuncObserverSignalBase::PVFuncObserverSignalBase()
+__impl::PVFuncObserverSignalBase::PVFuncObserverSignalBase(void* f):
+	PVHive::PVFuncObserverBase(f)
 {
 	connect(this, SIGNAL(about_to_be_refreshed_signal(const void*)), this, SLOT(about_to_be_refreshed_slot(const void*)));
 	connect(this, SIGNAL(refresh_signal(const void*)), this, SLOT(refresh_slot(const void*)));

@@ -15,10 +15,10 @@
 #include <PVMainWindow.h>
 #include <PVSimpleStringListModel.h>
 #include <PVExtractorWidget.h>
-#include <PVAxesCombinationDialog.h>
 #include <PVListColNrawDlg.h>
 #include <PVMappingPlottingEditDialog.h>
 
+#include <pvguiqt/PVAxesCombinationDialog.h>
 #include <pvguiqt/PVLayerStackWidget.h>
 #include <pvguiqt/PVListingModel.h>
 #include <pvguiqt/PVListingSortFilterProxyModel.h>
@@ -270,7 +270,7 @@ void PVInspector::PVTabSplitter::ensure_column_visible(PVCol col)
  * PVInspector::PVTabSplitter::get_axes_combination_editor
  *
  *****************************************************************************/
-PVInspector::PVAxesCombinationDialog* PVInspector::PVTabSplitter::get_axes_combination_editor(Picviz::PVView* view)
+PVGuiQt::PVAxesCombinationDialog* PVInspector::PVTabSplitter::get_axes_combination_editor(Picviz::PVView* view)
 {
 	PVViewWidgets const& widgets = get_view_widgets(view);
 	return widgets.pv_axes_combination_editor;
@@ -458,82 +458,6 @@ void PVInspector::PVTabSplitter::process_plotted_if_current(Picviz::PVPlotted* p
 	}
 }
 
-
-
-/******************************************************************************
- *
- * PVInspector::PVTabSplitter::refresh_axes_combination_Slot
- *
- *****************************************************************************/
-void PVInspector::PVTabSplitter::refresh_axes_combination_Slot()
-{
-#if 0
-	// TODO: do this only for the good view
-	QHash<Picviz::PVView const*, PVViewWidgets>::const_iterator it;
-	for (it = _view_widgets.begin(); it != _view_widgets.end(); it++) {
-		PVAxesCombinationDialog* pv_axes_combination_editor = it.value().pv_axes_combination_editor; 
-		if (pv_axes_combination_editor->isVisible()) {
-			pv_axes_combination_editor->update_used_axes();
-		}
-	}
-#endif
-}
-
-
-
-/******************************************************************************
- *
- * PVInspector::PVTabSplitter::refresh_layer_stack_view_Slot
- *
- *****************************************************************************/
-void PVInspector::PVTabSplitter::refresh_layer_stack_view_Slot()
-{
-	PVLOG_DEBUG("PVInspector::PVTabSplitter::refresh_layer_stack_view_Slot()\n");
-}
-
-
-
-/******************************************************************************
- *
- * PVInspector::PVTabSplitter::refresh_listing_Slot
- *
- *****************************************************************************/
-void PVInspector::PVTabSplitter::refresh_listing_Slot()
-{
-#if 0
-	PVLOG_DEBUG("%s \n       %s %d\n",__FILE__,__FUNCTION__,__LINE__);
-	Picviz::PVView* current_lib_view = get_lib_view();
-	if (pv_listing_view) {
-		pv_listing_view->viewport()->update();
-		pv_listing_view->verticalHeader()->viewport()->update();
-		//pv_listing_view->get_listing_model()->reset_model();
-		pv_listing_view->refresh_listing_filter();
-		//update the size of the corresponding table.
-//		static_cast<PVListingModel*>(pv_listing_view->model())->initMatchingTable();
-//                static_cast<PVListingModel*>(pv_listing_view->model())->initLocalMatchingTable();
-//		static_cast<PVListingModel*>(pv_listing_view->model())->emitLayoutChanged();
-		main_window->update_statemachine_label(current_lib_view->shared_from_this());
-	}
-#endif
-}
-
-
-
-/******************************************************************************
- *
- * PVInspector::PVTabSplitter::refresh_listing_with_horizontal_header_Slot
- *
- *****************************************************************************/
-void PVInspector::PVTabSplitter::refresh_listing_with_horizontal_header_Slot()
-{	//PVLOG_INFO("%s \n       %s %d\n",__FILE__,__FUNCTION__,__LINE__);
-	if (pv_listing_view) {
-		pv_listing_view->horizontalHeader()->viewport()->update();
-		pv_listing_view->viewport()->update();
-	}
-}
-
-
-
 /******************************************************************************
  *
  * PVInspector::PVTabSplitter::select_plotted
@@ -567,48 +491,6 @@ void PVInspector::PVTabSplitter::select_view(Picviz::PVView* view)
 	// Create view widgets if necessary
 	get_view_widgets(view);
 }
-
-
-
-/******************************************************************************
- *
- * PVInspector::PVTabSplitter::selection_changed_Slot
- *
- *****************************************************************************/
-void PVInspector::PVTabSplitter::selection_changed_Slot()
-{	
-	//PVLOG_INFO("%s \n       %s %d\n",__FILE__,__FUNCTION__,__LINE__);
-        
-	refresh_listing_Slot();
-}
-
-
-
-/******************************************************************************
- *
- * PVInspector::PVTabSplitter::source_changed_Slot
- *
- *****************************************************************************/
-void PVInspector::PVTabSplitter::source_changed_Slot()
-{
-	emit source_changed();
-}
-
-
-
-/******************************************************************************
- *
- * PVInspector::PVTabSplitter::update_pv_listing_model_Slot
- *
- *****************************************************************************/
-void PVInspector::PVTabSplitter::update_pv_listing_model_Slot()
-{
-	PVLOG_DEBUG("%s \n       %s \n",__FILE__,__FUNCTION__);
-	refresh_listing_Slot();
-	updateFilterMenuEnabling();
-}
-
-
 
 /******************************************************************************
  *
@@ -657,8 +539,9 @@ void PVInspector::PVTabSplitter::show_unique_values(PVCol col)
  *****************************************************************************/
 PVInspector::PVTabSplitter::PVViewWidgets::PVViewWidgets(Picviz::PVView* view, PVTabSplitter* tab)
 {
-	//pv_axes_combination_editor = new PVAxesCombinationDialog(view->shared_from_this(), tab, tab->main_window);
-	pv_axes_properties = new PVAxisPropertiesWidget(view->shared_from_this(), tab, tab->main_window);
+	Picviz::PVView_sp view_sp = view->shared_from_this();
+	pv_axes_combination_editor = new PVGuiQt::PVAxesCombinationDialog(view_sp, tab);
+	pv_axes_properties = new PVAxisPropertiesWidget(view_sp, tab, tab->main_window);
 }
 
 /******************************************************************************

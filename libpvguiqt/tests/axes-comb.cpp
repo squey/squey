@@ -22,6 +22,7 @@
 #include <picviz/PVMapped.h>
 #include <picviz/PVPlotted.h>
 
+#include <pvguiqt/PVAxesCombinationDialog.h>
 #include <pvguiqt/PVAxesListModel.h>
 
 #include <QApplication>
@@ -140,6 +141,9 @@ int main(int argc, char** argv)
 	QMainWindow* mw = new QMainWindow();
 	mw->setCentralWidget(view);
 	mw->show();
+
+	PVGuiQt::PVAxesCombinationDialog* axes_dlg = new PVGuiQt::PVAxesCombinationDialog(view_p);
+	axes_dlg->show();
 
 	view_p.reset();
 

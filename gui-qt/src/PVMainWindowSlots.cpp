@@ -8,12 +8,16 @@
 #include <pvkernel/core/PVSerializeArchiveZip.h>
 #include <pvkernel/core/PVSerializeArchiveFixError.h>
 #include <pvkernel/core/PVVersion.h>
+
 #include <picviz/PVAxisComputation.h>
 #include <picviz/widgets/PVAD2GWidget.h>
 #include <picviz/PVPlotting.h>
 #include <picviz/PVMapping.h>
+
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVLibView.h>
+
+#include <pvguiqt/PVAxesCombinationDialog.h>
 
 #include <PVMainWindow.h>
 #include <PVExpandSelDlg.h>
@@ -21,7 +25,6 @@
 #include <picviz/widgets/PVArgumentListWidgetFactory.h>
 #include <PVFormatBuilderWidget.h>
 #include <PVLayerFilterProcessWidget.h>
-#include <PVAxesCombinationDialog.h>
 #include <PVExtractorWidget.h>
 #include <PVSaveSceneDialog.h>
 #include <PVAxisComputationDlg.h>
@@ -76,20 +79,16 @@ void PVInspector::PVMainWindow::axes_editor_Slot()
 
 void PVInspector::PVMainWindow::axes_combination_editor_Slot()
 {
-#if 0
 	if (!current_tab) {
 		return;
 	}
 
-	PVAxesCombinationDialog* dlg = current_tab->get_axes_combination_editor(current_tab->get_lib_view());
+	PVGuiQt::PVAxesCombinationDialog* dlg = current_tab->get_axes_combination_editor(current_tab->get_lib_view());
 	if (dlg->isVisible()) {
 		return;
 	}
 
-	dlg->save_current_combination();
-	dlg->update_used_axes();
 	dlg->show();
-#endif
 }
 
 /******************************************************************************
@@ -214,7 +213,8 @@ void PVInspector::PVMainWindow::lines_display_unselected_listing_Slot()
 
 	state_machine->toggle_listing_unselected_visibility();
 	/* We refresh the listing */
-	current_tab->update_pv_listing_model_Slot();
+	// TODO: hive!
+	//current_tab->update_pv_listing_model_Slot();
 }
 
 /******************************************************************************
@@ -267,7 +267,8 @@ void PVInspector::PVMainWindow::lines_display_zombies_Slot()
 	current_lib_view->process_visibility();
 	//update_pvglview(current_lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
 	/* We refresh the listing */
-	current_tab->update_pv_listing_model_Slot();
+	// TODO: hive!
+	//current_tab->update_pv_listing_model_Slot();
 
 }
 
@@ -288,8 +289,9 @@ void PVInspector::PVMainWindow::lines_display_zombies_listing_Slot()
 	state_machine = current_lib_view->state_machine;
 
 	state_machine->toggle_listing_zombie_visibility();
+	// TODO: Hive!
 	/* We refresh the listing */
-	current_tab->update_pv_listing_model_Slot();
+	//current_tab->update_pv_listing_model_Slot();
 }
 
 /******************************************************************************
@@ -828,7 +830,7 @@ void PVInspector::PVMainWindow::selection_all_Slot()
 		lib_view->select_all_nonzb_lines();
 		// Set square area mode w/ volatile
 		//update_pvglview(lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
-		current_tab->refresh_listing_Slot();
+		//current_tab->refresh_listing_Slot();
 		current_tab->updateFilterMenuEnabling();
 	}
 }
@@ -849,7 +851,7 @@ void PVInspector::PVMainWindow::selection_none_Slot()
 	if (lib_view) {
 		lib_view->select_no_line();
 		//update_pvglview(lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
-		current_tab->refresh_listing_Slot();
+		//current_tab->refresh_listing_Slot();
 		current_tab->updateFilterMenuEnabling();
 	}
 }
@@ -870,7 +872,7 @@ void PVInspector::PVMainWindow::selection_inverse_Slot()
 	if (lib_view) {
 		lib_view->select_inv_lines();
 		//update_pvglview(lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
-		current_tab->refresh_listing_Slot();
+		//current_tab->refresh_listing_Slot();
 		current_tab->updateFilterMenuEnabling();
 	}
 }

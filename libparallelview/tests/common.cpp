@@ -91,7 +91,6 @@ PVParallelView::PVLibView* create_lib_view_from_args(int argc, char** argv)
 	g_fake_view->set_fake_axes_comb(ncols);
 
 	PVParallelView::PVLibView* plib_view = PVParallelView::common::get_lib_view(*g_fake_view, norm_plotted, nrows, ncols);
-	plib_view->get_zones_manager().update_all();
 
 	return plib_view;
 }

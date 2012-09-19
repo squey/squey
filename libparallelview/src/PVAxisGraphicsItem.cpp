@@ -7,6 +7,7 @@
 #include <iostream>
 
 #include <picviz/PVAxis.h>
+#include <picviz/PVView.h>
 #include <pvparallelview/PVAxisGraphicsItem.h>
 
 #include <QPainter>
@@ -20,9 +21,10 @@
  *****************************************************************************/
 
 PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem(PVParallelView::PVSlidersManager_p sm_p,
-                                                       Picviz::PVAxis const& axis, uint32_t axis_index) :
+                                                       Picviz::PVView const& view, uint32_t axis_index):
 	_sliders_manager_p(sm_p),
-	_axis(&axis), _axis_index(axis_index)
+	_axis_index(axis_index),
+	_lib_view(view)
 {
 	// This is needed to let the children of the group handle their events.
 	setHandlesChildEvents(false);
@@ -30,11 +32,14 @@ PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem(PVParallelView::PVSliders
 	// the sliders must be over all other QGraphicsItems
 	setZValue(1.e42);
 
-	_sliders_group = new PVParallelView::PVSlidersGroup(sm_p, axis_index,
-	                                                    this);
+	_sliders_group = new PVSlidersGroup(sm_p, axis_index, this);
 
-	addToGroup(_sliders_group);
-	_sliders_group->setPos(PARALLELVIEW_AXIS_WIDTH / 2, 0.);
+	addToGroup(get_sliders_group());
+	get_sliders_group()->setPos(PARALLELVIEW_AXIS_WIDTH / 2, 0.);
+}
+
+PVParallelView::PVAxisGraphicsItem::~PVAxisGraphicsItem()
+{
 }
 
 /*****************************************************************************
@@ -68,15 +73,20 @@ void PVParallelView::PVAxisGraphicsItem::paint(QPainter *painter,
 		-PVAW_CST,
 	    PVParallelView::AxisWidth,
 	    IMAGE_HEIGHT + (2 * PVAW_CST),
-	    _axis->get_color().toQColor()
+	    lib_axis()->get_color().toQColor()
 	);
 	painter->save();
 	painter->translate(- PVParallelView::AxisWidth, - PVAW_CST);
 	painter->rotate(-45.);
-	painter->setPen(_axis->get_titlecolor().toQColor());
-	painter->drawText(10, 0, _axis->get_name());
+	painter->setPen(lib_axis()->get_titlecolor().toQColor());
+	painter->drawText(10, 0, lib_axis()->get_name());
 	painter->setPen(pen);
 	painter->restore();
 
 	QGraphicsItemGroup::paint(painter, option, widget);
+}
+
+Picviz::PVAxis const* PVParallelView::PVAxisGraphicsItem::lib_axis() const
+{
+	return &_lib_view.get_axis(_axis_index);
 }

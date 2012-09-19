@@ -16,6 +16,7 @@
 #include <QFontDatabase>
 
 #include <pvkernel/core/general.h>
+#include <picviz/PVAxesCombination.h>
 #include <picviz/PVView_types.h>
 
 #include <pvhive/PVObserverSignal.h>
@@ -105,6 +106,7 @@ public:
 
 private slots:
 	void view_about_to_be_deleted(PVHive::PVObserverBase* o);
+	void axes_comb_changed();
 
 private:
 	inline Picviz::PVView const& lib_view() const { return *_obs.get_object(); }
@@ -112,6 +114,7 @@ private:
 private:
 	PVHive::PVActor<Picviz::PVView> _actor;
 	PVHive::PVObserverSignal<Picviz::PVView> _obs;
+	PVHive::PVObserverSignal<Picviz::PVAxesCombination::columns_indexes_t> _obs_axes_comb;
 	bool _view_valid;
 };
 

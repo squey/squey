@@ -132,4 +132,32 @@ IMPL_WAX(Picviz::PVView::toggle_layer_stack_layer_n_visible_state, view, args)
 	return std::move(ret);
 }
 
+// Axes combination waxes
+//
+
+IMPL_WAX(Picviz::PVView::set_axes_combination_list_id, view, args)
+{
+	call_object_default<Picviz::PVView, FUNC(Picviz::PVView::set_axes_combination_list_id)>(view, args);
+	refresh_observers(&view->get_axes_combination().get_axes_index_list());
+}
+
+IMPL_WAX(Picviz::PVView::move_axis_to_new_position, view, args)
+{
+	auto ret = call_object_default<Picviz::PVView, FUNC(Picviz::PVView::move_axis_to_new_position)>(view, args);
+	refresh_observers(&view->get_axes_combination().get_axes_index_list());
+	return std::move(ret);
+}
+
+IMPL_WAX(Picviz::PVView::remove_column, view, args)
+{
+	call_object_default<Picviz::PVView, FUNC(Picviz::PVView::remove_column)>(view, args);
+	refresh_observers(&view->get_axes_combination().get_axes_index_list());
+}
+
+IMPL_WAX(Picviz::PVView::axis_append, view, args)
+{
+	call_object_default<Picviz::PVView, FUNC(Picviz::PVView::axis_append)>(view, args);
+	refresh_observers(&view->get_axes_combination().get_axes_index_list());
+}
+
 PVHIVE_CALL_OBJECT_BLOCK_END()

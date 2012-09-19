@@ -4,14 +4,14 @@
  * Copyright (C) Picviz Labs 2010-2012
  */
 
-#include <PVAxesCombinationWidget.h>
 #include <picviz/PVAxesCombination.h>
 #include <picviz/PVView.h>
 #include <picviz/PVPlotted.h>
+#include <pvguiqt/PVAxesCombinationWidget.h>
 
 #include <QDialogButtonBox>
 
-PVInspector::PVAxesCombinationWidget::PVAxesCombinationWidget(Picviz::PVAxesCombination& axes_combination, QWidget* parent, Picviz::PVView* view):
+PVGuiQt::PVAxesCombinationWidget::PVAxesCombinationWidget(Picviz::PVAxesCombination& axes_combination, Picviz::PVView* view, QWidget* parent):
 	QWidget(parent),
 	_axes_combination(axes_combination),
 	_view(view)
@@ -39,7 +39,7 @@ PVInspector::PVAxesCombinationWidget::PVAxesCombinationWidget(Picviz::PVAxesComb
 	_btn_sel_range->hide();
 }
 
-void PVInspector::PVAxesCombinationWidget::axis_add_Slot()
+void PVGuiQt::PVAxesCombinationWidget::axis_add_Slot()
 {
 	if (!is_original_axis_selected()) {
 		return;
@@ -57,7 +57,7 @@ void PVInspector::PVAxesCombinationWidget::axis_add_Slot()
 	emit axes_combination_changed();
 }
 
-void PVInspector::PVAxesCombinationWidget::axis_up_Slot()
+void PVGuiQt::PVAxesCombinationWidget::axis_up_Slot()
 {
 	if (!is_used_axis_selected()) {
 		return;
@@ -82,7 +82,7 @@ void PVInspector::PVAxesCombinationWidget::axis_up_Slot()
 	emit axes_combination_changed();
 }
 
-void PVInspector::PVAxesCombinationWidget::axis_down_Slot()
+void PVGuiQt::PVAxesCombinationWidget::axis_down_Slot()
 {
 	if (!is_used_axis_selected()) {
 		return;
@@ -107,7 +107,7 @@ void PVInspector::PVAxesCombinationWidget::axis_down_Slot()
 	emit axes_combination_changed();
 }
 
-void PVInspector::PVAxesCombinationWidget::axis_move_Slot()
+void PVGuiQt::PVAxesCombinationWidget::axis_move_Slot()
 {
 	if (!is_used_axis_selected()) {
 		return;
@@ -129,7 +129,7 @@ void PVInspector::PVAxesCombinationWidget::axis_move_Slot()
 	emit axes_combination_changed();
 }
 
-void PVInspector::PVAxesCombinationWidget::axis_remove_Slot()
+void PVGuiQt::PVAxesCombinationWidget::axis_remove_Slot()
 {
 	if (!is_used_axis_selected()) {
 		return;
@@ -149,7 +149,7 @@ void PVInspector::PVAxesCombinationWidget::axis_remove_Slot()
 	emit axes_combination_changed();
 }
 
-void PVInspector::PVAxesCombinationWidget::reset_comb_Slot()
+void PVGuiQt::PVAxesCombinationWidget::reset_comb_Slot()
 {
 	PVCol nold_axes = _axes_combination.get_axes_count();
 	_axes_combination.reset_to_default();
@@ -162,17 +162,17 @@ void PVInspector::PVAxesCombinationWidget::reset_comb_Slot()
 	emit axes_combination_changed();
 }
 
-PVCol PVInspector::PVAxesCombinationWidget::get_original_axis_selected()
+PVCol PVGuiQt::PVAxesCombinationWidget::get_original_axis_selected()
 {
 	return _list_org->currentRow();
 }
 
-QString PVInspector::PVAxesCombinationWidget::get_original_axis_selected_name()
+QString PVGuiQt::PVAxesCombinationWidget::get_original_axis_selected_name()
 {
 	return _list_org->currentItem()->text();
 }
 
-QVector<PVCol> PVInspector::PVAxesCombinationWidget::get_list_selection(QListWidget* widget)
+QVector<PVCol> PVGuiQt::PVAxesCombinationWidget::get_list_selection(QListWidget* widget)
 {
 	QVector<PVCol> ret;
 	QModelIndexList list = widget->selectionModel()->selectedIndexes();
@@ -183,52 +183,52 @@ QVector<PVCol> PVInspector::PVAxesCombinationWidget::get_list_selection(QListWid
 	return ret;
 }
 
-QVector<PVCol> PVInspector::PVAxesCombinationWidget::get_used_axes_selected()
+QVector<PVCol> PVGuiQt::PVAxesCombinationWidget::get_used_axes_selected()
 {
 	return get_list_selection(_list_used);
 }
 
-void PVInspector::PVAxesCombinationWidget::update_orig_axes()
+void PVGuiQt::PVAxesCombinationWidget::update_orig_axes()
 {
 	_list_org->clear();
 	_list_org->addItems(_axes_combination.get_original_axes_names_list());
 }
 
-void PVInspector::PVAxesCombinationWidget::update_used_axes()
+void PVGuiQt::PVAxesCombinationWidget::update_used_axes()
 {
 	_list_used->clear();
 	_list_used->addItems(_axes_combination.get_axes_names_list());
 }
 
-void PVInspector::PVAxesCombinationWidget::update_all()
+void PVGuiQt::PVAxesCombinationWidget::update_all()
 {
 	update_orig_axes();
 	update_used_axes();
 }
 
-void PVInspector::PVAxesCombinationWidget::sort_Slot()
+void PVGuiQt::PVAxesCombinationWidget::sort_Slot()
 {
 	_axes_combination.sort_by_name(true);
 	update_used_axes();
 	emit axes_combination_changed();
 }
 
-bool PVInspector::PVAxesCombinationWidget::is_used_axis_selected()
+bool PVGuiQt::PVAxesCombinationWidget::is_used_axis_selected()
 {
 	return _list_used->selectedItems().size() > 0;
 }
 
-bool PVInspector::PVAxesCombinationWidget::is_original_axis_selected()
+bool PVGuiQt::PVAxesCombinationWidget::is_original_axis_selected()
 {
 	return _list_org->selectedItems().size() > 0;
 }
 
-void PVInspector::PVAxesCombinationWidget::save_current_combination()
+void PVGuiQt::PVAxesCombinationWidget::save_current_combination()
 {
 	_saved_combination = _axes_combination;
 }
 
-void PVInspector::PVAxesCombinationWidget::restore_saved_combination()
+void PVGuiQt::PVAxesCombinationWidget::restore_saved_combination()
 {
 	bool count_changed = (_axes_combination.get_axes_count() != _saved_combination.get_axes_count());
 	_axes_combination = _saved_combination;
@@ -239,7 +239,7 @@ void PVInspector::PVAxesCombinationWidget::restore_saved_combination()
 }
 
 // PVMoveToDlg implementation
-PVInspector::PVAxesCombinationWidget::PVMoveToDlg::PVMoveToDlg(PVAxesCombinationWidget* parent):
+PVGuiQt::PVAxesCombinationWidget::PVMoveToDlg::PVMoveToDlg(PVAxesCombinationWidget* parent):
 	QDialog(parent),
 	_parent(parent)
 {
@@ -267,7 +267,7 @@ PVInspector::PVAxesCombinationWidget::PVMoveToDlg::PVMoveToDlg(PVAxesCombination
 	setLayout(main_layout);
 }
 
-PVCol PVInspector::PVAxesCombinationWidget::PVMoveToDlg::get_dest_col(PVCol org)
+PVCol PVGuiQt::PVAxesCombinationWidget::PVMoveToDlg::get_dest_col(PVCol org)
 {
 	bool after = _after_combo->currentIndex() == 1;
 	PVCol pos = _axes_combo->currentIndex();
@@ -282,7 +282,7 @@ PVCol PVInspector::PVAxesCombinationWidget::PVMoveToDlg::get_dest_col(PVCol org)
 	return pos;
 }
 
-void PVInspector::PVAxesCombinationWidget::PVMoveToDlg::update_axes()
+void PVGuiQt::PVAxesCombinationWidget::PVMoveToDlg::update_axes()
 {
 	QString _old_sel = _axes_combo->currentText();
 	_axes_combo->clear();
@@ -293,7 +293,7 @@ void PVInspector::PVAxesCombinationWidget::PVMoveToDlg::update_axes()
 	}
 }
 
-void PVInspector::PVAxesCombinationWidget::set_selection_from_cols(QList<PVCol> const& cols)
+void PVGuiQt::PVAxesCombinationWidget::set_selection_from_cols(QList<PVCol> const& cols)
 {
 	QItemSelection new_sel;
 	foreach(PVCol c, cols) {
@@ -306,14 +306,14 @@ void PVInspector::PVAxesCombinationWidget::set_selection_from_cols(QList<PVCol> 
 	_list_used->selectionModel()->select(new_sel, QItemSelectionModel::ClearAndSelect);
 }
 
-void PVInspector::PVAxesCombinationWidget::sel_singleton_Slot()
+void PVGuiQt::PVAxesCombinationWidget::sel_singleton_Slot()
 {
 	assert(_view);
 	QList<PVCol> cols_rem = _view->get_parent<Picviz::PVPlotted>()->get_singleton_columns_indexes();
 	set_selection_from_cols(cols_rem);
 }
 
-void PVInspector::PVAxesCombinationWidget::sel_range_Slot()
+void PVGuiQt::PVAxesCombinationWidget::sel_range_Slot()
 {
 #if 0
 	assert(_view);
@@ -354,13 +354,13 @@ void PVInspector::PVAxesCombinationWidget::sel_range_Slot()
 }
 
 // PVAxesCombinationWidgetSelRange implementation
-PVInspector::PVAxesCombinationWidgetSelRange::PVAxesCombinationWidgetSelRange(QWidget* parent):
+PVGuiQt::PVAxesCombinationWidgetSelRange::PVAxesCombinationWidgetSelRange(QWidget* parent):
 	QDialog(parent)
 {
 	setupUi(this);
 }
 
-bool PVInspector::PVAxesCombinationWidgetSelRange::get_range(float& min, float& max)
+bool PVGuiQt::PVAxesCombinationWidgetSelRange::get_range(float& min, float& max)
 {
 	bool ret = true;
 	min = _edit_min->text().toFloat(&ret);
@@ -371,12 +371,12 @@ bool PVInspector::PVAxesCombinationWidgetSelRange::get_range(float& min, float& 
 	return ret;
 }
 
-bool PVInspector::PVAxesCombinationWidgetSelRange::reversed()
+bool PVGuiQt::PVAxesCombinationWidgetSelRange::reversed()
 {
 	return _combo_reverse->currentIndex() == 1;
 }
 
-double PVInspector::PVAxesCombinationWidgetSelRange::rate()
+double PVGuiQt::PVAxesCombinationWidgetSelRange::rate()
 {
 	double rate = _edit_rate->text().toDouble()/100.0;
 	if (rate == 0.0) {
@@ -385,7 +385,7 @@ double PVInspector::PVAxesCombinationWidgetSelRange::rate()
 	return rate;
 }
 
-PVInspector::PVAxesCombinationWidgetSelRange::values_source_t PVInspector::PVAxesCombinationWidgetSelRange::get_source()
+PVGuiQt::PVAxesCombinationWidgetSelRange::values_source_t PVGuiQt::PVAxesCombinationWidgetSelRange::get_source()
 {
 	return (_combo_values_src->currentIndex() == 0) ? plotted : mapped;
 }
