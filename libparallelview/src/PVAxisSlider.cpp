@@ -127,7 +127,8 @@ void PVParallelView::PVAxisSlider::mouseReleaseEvent(QGraphicsSceneMouseEvent* /
 void PVParallelView::PVAxisSlider::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
 	if (event->buttons() == Qt::LeftButton) {
-		set_value(event->scenePos().y());
+		// +0.5 to have a rounded value
+		set_value(event->scenePos().y() + 0.5);
 
 		group()->update();
 	}
