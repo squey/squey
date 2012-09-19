@@ -436,7 +436,7 @@ void write_nraw_disk_backend(std::string const& folder)
 	}
 	std::random_shuffle(shuffled_col_sequence.begin(), shuffled_col_sequence.end());
 
-	PVRush::PVNRawDiskBackend<> nraw_backend(folder, num_cols);
+	PVRush::PVNRawDiskBackend<> nraw_backend(folder.c_str(), num_cols);
 
 	std::string field("123456789");
 
