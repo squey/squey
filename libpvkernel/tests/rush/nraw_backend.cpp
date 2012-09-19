@@ -39,7 +39,7 @@ int main(int argc, char** argv)
 		}
 		const char* bread = backend.at(i, 0, sret);
 		printf("sret/theorical: %lu/%lu\n", sret, get_buf_size(i));
-		//ASSERT_VALID(sret == get_buf_size(i));
+		ASSERT_VALID(sret == get_buf_size(i));
 		printf("%lu: ", i);
 		fwrite(bread, 1, sret, stdout);
 		printf("\n");
