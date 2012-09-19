@@ -17,11 +17,14 @@
 #include <vector>
 
 namespace PVGuiQt {
+class PVAxesCombinationDialog;
+
 class PVLayerStackWidget;
 
 class PVListingModel;
 class PVListingSortFilterProxyModel;
 class PVListingView;
+
 class PVRootTreeModel;
 class PVRootTreeView;
 }
@@ -32,7 +35,6 @@ typedef std::vector<int> MatchingTable_t;
 
 class PVAxisPropertiesWidget;
 class PVMainWindow;
-class PVAxesCombinationDialog;
 class PVExtractorWidget;
 class PVListDisplayDlg;
 
@@ -54,7 +56,7 @@ private:
 	protected:
 		void delete_widgets();
 	public:
-		PVAxesCombinationDialog *pv_axes_combination_editor;
+		PVGuiQt::PVAxesCombinationDialog *pv_axes_combination_editor;
 		PVAxisPropertiesWidget  *pv_axes_properties;
 	};
 
@@ -83,30 +85,6 @@ public:
 	int screenshot_index;
 
 	QHash<Picviz::PVView const*, PVViewWidgets> _view_widgets;
-
-public slots:
-	// FIXME!			void update_row_count_in_all_dynamic_listing_model_Slot();
-	/* void update_to_current_selection_Slot();*/
-
-	/**
-	 * The Slot that will refresh the content of the PVListingView
-	 */
-	void refresh_listing_Slot();
-
-	/**
-	 * The Slot that will refresh the PVListingView with it's horizontal header
-	 */
-	void refresh_listing_with_horizontal_header_Slot();
-
-	/**
-	 *
-	 */
-	void selection_changed_Slot();
-
-	/**
-	 *
-	 */
-	void update_pv_listing_model_Slot();
 
 public:
 	/**
@@ -163,7 +141,7 @@ public:
 	 */
 	PVExtractorWidget* get_extractor_widget() const {return _pv_extractor;}
 
-	PVAxesCombinationDialog* get_axes_combination_editor(Picviz::PVView* view);
+	PVGuiQt::PVAxesCombinationDialog* get_axes_combination_editor(Picviz::PVView* view);
 
 	PVAxisPropertiesWidget* get_axes_properties_widget(Picviz::PVView* view);
 
@@ -214,12 +192,6 @@ public:
 	bool process_extraction_job(PVRush::PVControllerJob_p job);
 
 public slots:
-	/**
-	 * The Slot that will refresh the PVLayerStackWidget
-	 */
-	void refresh_layer_stack_view_Slot(); // From PVLayerStackWindow
-	void refresh_axes_combination_Slot();
-	void source_changed_Slot();
 	void show_unique_values(PVCol col);
 
 signals:

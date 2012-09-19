@@ -8,7 +8,7 @@
 #
 # Based on the order of the "add_subdirectory" in the root CMakeList.txt
 
-LIBS_ORDER="libpvkernel libpicviz libpvsdk libpvhive libparallelview libpvguiqt gui-qt"
+LIBS_ORDER="libpvkernel libpicviz libpvsdk libpvhive libpvguiqt libparallelview gui-qt"
 
 # compile sources
 for l in $LIBS_ORDER; do

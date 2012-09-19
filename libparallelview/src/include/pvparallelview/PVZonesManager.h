@@ -76,6 +76,7 @@ public:
 public:
 	void set_uint_plotted(Picviz::PVPlotted::uint_plotted_table_t const& plotted, PVRow nrows, PVCol ncols);
 	void set_uint_plotted(Picviz::PVView const& view);
+	void lazy_init_from_view(Picviz::PVView const& view);
 	inline PVZoneID get_number_zones() const { return _axes_comb.size()-1; }
 	inline PVCol get_number_cols() const { return _ncols; }
 	inline PVRow get_number_rows() const { return _nrows; }

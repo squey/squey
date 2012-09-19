@@ -12,13 +12,13 @@
 #include <tbb/task.h>
 #include <tbb/task_group.h>
 
-PVParallelView::PVLinesView::PVLinesView(zones_drawing_t& zd, PVZoneID nb_zones /*= 30*/, uint32_t zone_width /* = PVParallelView::ZoneMaxWidth */) :
+PVParallelView::PVLinesView::PVLinesView(zones_drawing_t& zd, uint32_t zone_width /* = PVParallelView::ZoneMaxWidth */) :
 	_zd(&zd),
 	_first_zone(0),
 	_zone_max_width(zone_width),
 	_visible_view_x(0)
 {
-	set_nb_drawable_zones(nb_zones);
+	set_nb_drawable_zones(get_zones_manager().get_number_zones());
 
 	_render_grp_sel = zd.new_render_group();
 	_render_grp_bg = zd.new_render_group();
@@ -95,8 +95,10 @@ PVZoneID PVParallelView::PVLinesView::get_image_index_of_zone(PVZoneID z) const
 
 void PVParallelView::PVLinesView::set_nb_drawable_zones(PVZoneID nb_zones)
 {
+	nb_zones = picviz_min(nb_zones, MaxDrawnZones);
 	PVZoneID old_nzones = _zones_imgs.size();
 	if (nb_zones == old_nzones || nb_zones <= 0) {
+		// Le changement, c'est toujours pas maintenant.
 		return;
 	}
 
@@ -364,4 +366,15 @@ PVZoneID PVParallelView::PVLinesView::get_zone_from_scene_pos(int abs_pos) const
 
 	assert(zid < (PVZoneID) _zones_width.size());
 	return zid;
+}
+
+int PVParallelView::PVLinesView::update_number_of_zones(int view_x, uint32_t view_width)
+{
+	PVCol old_zones_count = (PVCol) _zones_width.size();
+	PVCol new_zones_count = get_zones_manager().get_number_zones();
+	set_nb_drawable_zones(new_zones_count);
+	_zones_width.resize(new_zones_count, PVParallelView::ZoneDefaultWidth);
+	// Update first zone
+	set_new_view(view_x, view_width);
+	return (int)new_zones_count-(int)old_zones_count;
 }

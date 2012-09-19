@@ -50,8 +50,10 @@ public:
 	void update_new_selection();
 	void update_all();
 
+	void update_number_of_zones();
+
 private:
-	void update_zones_position(bool update_all = true);
+	void update_zones_position(bool update_all = true, bool scale = true);
 	void translate_and_update_zones_position();
 
 
@@ -81,6 +83,9 @@ private:
 	Picviz::PVView& lib_view() { return _lib_view; }
 	Picviz::PVView const& lib_view() const { return _lib_view; }
 
+	void add_zone_image();
+	void add_axis(PVZoneID const z);
+
 private slots:
 	void update_zone_pixmap_bg(int zid);
 	void update_zone_pixmap_sel(int zid);
@@ -93,6 +98,11 @@ private slots:
 	void commit_volatile_selection_Slot();
 	void draw_zone_sel_Slot(int zid, bool changed);
 	void try_to_launch_zoom_job();
+	void clear_selection_square()
+	{
+		_selection_barycenter.clear();
+		_selection_square->clear_rect();
+	}
 
 private:
 	struct ZoneImages
@@ -102,6 +112,10 @@ private:
 
 		PVLinesView::backend_image_p_t img_tmp_sel;
 		PVLinesView::backend_image_p_t img_tmp_bg;
+
+		ZoneImages()
+		{
+		}
 
 		void setPos(QPointF point)
 		{
@@ -114,17 +128,45 @@ private:
 			sel->setPixmap(pixmap_sel);
 			bg->setPixmap(pixmap_bg);
 		}
+
+		void hide()
+		{
+			sel->hide();
+			bg->hide();
+		}
+
+		void show()
+		{
+			sel->show();
+			bg->show();
+		}
+
+		void remove(QGraphicsScene* scene)
+		{
+			scene->removeItem(sel);
+			scene->removeItem(bg);
+		}
 	};
 
 	struct SelectionBarycenter
 	{
-		SelectionBarycenter():
-			zid1(PVZONEID_INVALID), zid2(PVZONEID_INVALID)
-		{ }
+		SelectionBarycenter()
+		{
+			clear();
+		}
+
 		PVZoneID zid1;
 		PVZoneID zid2;
 		double factor1;
 		double factor2;
+
+		void clear()
+		{
+			zid1 = PVZONEID_INVALID;
+			zid2 = PVZONEID_INVALID;
+			factor1 = 0.0;
+			factor2 = 0.0;
+		}
 	};
 
 private:
@@ -158,6 +200,8 @@ private:
 
 	QTimer* _heavy_job_timer;
 	QFuture<void> _task_waiter;
+
+	PVSlidersManager_p _sm_p;
 };
 
 }

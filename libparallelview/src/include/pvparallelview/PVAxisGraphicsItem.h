@@ -37,7 +37,7 @@ public:
 	typedef PVSlidersGroup::selection_ranges_t selection_ranges_t;
 
 public:
-	PVAxisGraphicsItem(PVSlidersManager_p sm_p, Picviz::PVAxis const& axis, uint32_t axis_index);
+	PVAxisGraphicsItem(PVSlidersManager_p sm_p, Picviz::PVView const& view, uint32_t axis_index);
 
 	QRectF boundingRect () const;
 
@@ -45,12 +45,12 @@ public:
 
 	PVSlidersGroup *get_sliders_group()
 	{
-		return _sliders_group;
+		return &_sliders_group;
 	}
 
 	const PVSlidersGroup *get_sliders_group() const
 	{
-		return _sliders_group;
+		return &_sliders_group;
 	}
 
 	QRect map_from_scene(QRectF rect) const
@@ -61,15 +61,18 @@ public:
 
 	selection_ranges_t get_selection_ranges() const
 	{
-		return _sliders_group->get_selection_ranges();
+		return _sliders_group.get_selection_ranges();
 	}
 
 private:
-	PVSlidersGroup                 *_sliders_group;
+	Picviz::PVAxis const* lib_axis() const;
+
+private:
 	PVSlidersManager_p              _sliders_manager_p;
-	Picviz::PVAxis const*           _axis;
 	PVZoneID			            _axis_index;
 	QRectF                          _bbox;
+	Picviz::PVView const&           _lib_view;
+	PVSlidersGroup                  _sliders_group;
 };
 
 }

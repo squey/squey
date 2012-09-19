@@ -24,7 +24,7 @@ PVParallelView::PVLibView::PVLibView(Picviz::PVView_sp& view_sp):
 	_zd_zzt(_zones_manager, common::backend_zoom(), *_colors)
 {
 	common_init_view(view_sp);
-	_zones_manager.set_uint_plotted(*view_sp);
+	_zones_manager.lazy_init_from_view(*view_sp);
 	common_init_zm();
 }
 
@@ -61,14 +61,21 @@ void PVParallelView::PVLibView::common_init_view(Picviz::PVView_sp& view_sp)
 		[&](Picviz::PVLayer const*) { }
 	);
 
+	_obs_axes_comb = PVHive::create_observer_callback_heap<Picviz::PVAxesCombination::columns_indexes_t>(
+	    [&](Picviz::PVAxesCombination::columns_indexes_t const*) { },
+		[&](Picviz::PVAxesCombination::columns_indexes_t const*) { this->axes_comb_updated(); },
+		[&](Picviz::PVAxesCombination::columns_indexes_t const*) { }
+	);
+
 	_obs_view = PVHive::create_observer_callback_heap<Picviz::PVView>(
 	    [&](Picviz::PVView const*) { },
 		[&](Picviz::PVView const*) { },
 		[&](Picviz::PVView const*) { this->view_about_to_be_deleted(); }
 	);
 
-	PVHive::get().register_observer(view_sp, [&](Picviz::PVView& view) { return &view.get_real_output_selection(); }, *_obs_sel);
-	PVHive::get().register_observer(view_sp, [&](Picviz::PVView& view) { return &view.get_output_layer(); }, *_obs_output_layer);
+	PVHive::get().register_observer(view_sp, [=](Picviz::PVView& view) { return &view.get_real_output_selection(); }, *_obs_sel);
+	PVHive::get().register_observer(view_sp, [=](Picviz::PVView& view) { return &view.get_output_layer(); }, *_obs_output_layer);
+	PVHive::get().register_observer(view_sp, [=](Picviz::PVView& view) { return &view.get_axes_combination().get_axes_index_list(); }, *_obs_axes_comb);
 	PVHive::get().register_observer(view_sp, *_obs_view);
 
 	_sliders_manager_p = PVParallelView::PVSlidersManager_p(new PVSlidersManager);
@@ -139,5 +146,13 @@ void PVParallelView::PVLibView::output_layer_updated()
 {
 	for (PVFullParallelScene& view: _parallel_scenes) {
 		view.update_all();
+	}
+}
+
+void PVParallelView::PVLibView::axes_comb_updated()
+{
+	get_zones_manager().update_from_axes_comb(*lib_view());
+	for (PVFullParallelScene& view: _parallel_scenes) {
+		view.update_number_of_zones();
 	}
 }

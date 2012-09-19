@@ -7,6 +7,7 @@
 #ifndef PVPARALLELVIEW_PVLIBVIEW_H
 #define PVPARALLELVIEW_PVLIBVIEW_H
 
+#include <picviz/PVAxesCombination.h>
 #include <picviz/PVView_types.h>
 
 #include <pvhive/PVObserverSignal.h>
@@ -42,16 +43,17 @@ public:
 	PVFullParallelView* create_view(QWidget* parent = NULL);
 	PVZoomedParallelView* create_zoomed_view(PVCol const axis, QWidget* parent = NULL);
 	PVZonesManager& get_zones_manager() { return _zones_manager; }
+	Picviz::PVView* lib_view() { return _obs_view->get_object(); }
 
-protected slots:
+protected:
 	void selection_updated();
 	void output_layer_updated();
 	void view_about_to_be_deleted();
+	void axes_comb_updated();
 
 protected:
 	void common_init_view(Picviz::PVView_sp& view_sp);
 	void common_init_zm();
-	Picviz::PVView* lib_view() { return _obs_view->get_object(); }
 	tbb::task* task_root() { return _task_root; }
 	tbb::task_group_context& task_group_context() { return _tasks_ctxt; }
 
@@ -61,6 +63,7 @@ private:
 	PVHive::PVObserver_p<Picviz::PVLayer>     _obs_output_layer;
 	PVHive::PVObserver_p<Picviz::PVSelection> _obs_sel;
 	PVHive::PVObserver_p<Picviz::PVView>      _obs_view;
+	PVHive::PVObserver_p<Picviz::PVAxesCombination::columns_indexes_t> _obs_axes_comb;
 	views_list_t                              _parallel_scenes;
 	zoomed_scene_list_t                       _zoomed_parallel_scenes;
 	PVCore::PVHSVColor                 const* _colors;
