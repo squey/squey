@@ -7,9 +7,10 @@
 #ifndef PVSTARTSCREENWIDGET_H
 #define PVSTARTSCREENWIDGET_H
 
-#include <QAction>
-#include <QWidget>
 
+#include <QWidget>
+#include <QStringList>
+#include <QVBoxLayout>
 
 namespace PVInspector {
 class PVMainWindow;
@@ -21,24 +22,18 @@ class PVStartScreenWidget : public QWidget
 {
 	Q_OBJECT
 
-		PVMainWindow     *main_window;            //!<
-
 	public:
-		/**
-		 * Constructor.
-		 */
-		PVStartScreenWidget(PVMainWindow *mw, PVMainWindow *parent);
+		PVStartScreenWidget(PVMainWindow* parent);
+		void update_recent_projects();
 
-		/**
-		 *
-		 * @return
-		 */
+	private:
+		PVMainWindow* _mw;
 
-	public slots:
-//		void show_hide_layer_stack_Slot(bool visible);
+		QVBoxLayout* _recent_projects_layout;
 
-	public:
-		//void refresh();
+		QWidget* format_widget;
+		QWidget* import_widget;
+		QWidget* project_widget;
 };
 }
 

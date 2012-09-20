@@ -218,7 +218,7 @@ QWidget#pv_centralStartWidget_of_PVMainWindow {
 }
 
 /* This is temporary! */
-QWidget#pv_centralStartWidget_of_PVMainWindow QPushButton {
+/*QWidget#pv_centralStartWidget_of_PVMainWindow QPushButton {
 	background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
 				stop:0 #585858,
 				stop:0.5 #3d3d3d,
@@ -233,7 +233,7 @@ QWidget#pv_centralStartWidget_of_PVMainWindow QPushButton {
 	font-weight: bold;
 	
 	padding: 7px 0px 7px 0px;
-}
+}*/
 
 
 
@@ -280,7 +280,7 @@ QDialog#PVLayerFilterProcessWidget {
 QDialog#PVLayerFilterProcessWidget QSplitter::handle {
 	background-image: url(':/horizontal_handle');
 	background-position: center center;
-	background-repeat: no-repeat;
+	background-repeat: no-repeat;->
 }
 */
 
@@ -433,54 +433,48 @@ QScrollBar#verticalScrollBar_of_PVListingView::up-arrow {
  * PVStartScreenWidget
  ***************************/
 
+QLabel#PVStartScreenWidget_header {
+	font-family: "Jura";
+	font-size: 27px;
+	font-weight: normal;
+	padding: 0 0 0 0;
+}
+
+QLabel#PVStartScreenWidget_text {
+	padding: 0 0 0 0;
+	font-weight: bold;
+}
+
 #PVStartScreenWidget QWidget {
 	background-color: white;
 	border-radius: 4px;
-	
-	padding: 15px 15px 15px 15px;
-	
 }
 
-#format_widget_of_PVStartScreenWidget {
-	background-color: white;
-}
-
-
-#PVStartScreenWidget QWidget QLabel {
-	font-family: "Jura";
-	font-size: 22px;
-	font-weight: DemiBold;
-
+#RecentProjectItem QLabel {
 	padding: 0 0 0 0;
-	
 }
 
 #PVStartScreenWidget QPushButton {
-	background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-				stop:0 #969696,
-				stop:1 #787878);
+	/*background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+				stop:0 #787878,
+				stop:1 #808080$);*/
+	background-color: qradialgradient(cx: 0.3, cy: -0.4,
+		fx: 0.3, fy: -0.4,
+		radius: 1.35, stop: 0 #909090, stop: 1 #707070);
+
 	color: white;
 
 	border-radius: 4px;
 	
-/* 	text-align: left; */
 	font-family: "Arial";
 	font-size: 13px;
 	font-weight: bold;
 	
 	padding: 10px 4px 10px 4px;
-
 }
 
-#PVStartScreenWidget QPushButton:checked {
+#PVStartScreenWidget QPushButton:hover {
 	background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
 				stop:0 #515151,
-				stop:1 #202020);
-}
-
-
-#PVStartScreenWidget QPushButton:checked {
-	background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-				stop:0 #ff00ff,
 				stop:1 #202020);
 }

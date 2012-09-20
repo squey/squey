@@ -752,6 +752,7 @@ bool PVInspector::PVMainWindow::save_project(QString const& file, PVCore::PVSeri
 	}
 
 	set_current_project_filename(file);
+	add_to_recent_projects(file);
 
 	return true;
 #else

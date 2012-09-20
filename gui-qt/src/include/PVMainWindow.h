@@ -40,6 +40,8 @@
 #include <PVListingsTabWidget.h>
 #include <PVFilesTypesSelWidget.h>
 
+#include <PVStartScreenWidget.h>
+
 //#include <>
 
 /* #include <logviewer/logviewerwidget.h> */
@@ -148,6 +150,8 @@ public:
 	void close_source(PVTabSplitter* tab);
 	void close_scene();
 
+	const QStringList get_recent_projects_list();
+
 public slots:
 	void about_Slot();
 	void axes_editor_Slot();
@@ -221,6 +225,7 @@ private:
 	void display_inv_elts(PVTabSplitter* tab_src);
 	void close_all_views();
 	Picviz::PVView* get_current_lib_view() const { return current_tab->get_lib_view(); };
+	void add_to_recent_projects(const QString &fileName);
 
 private slots:
 	void project_modified_Slot();
@@ -317,9 +322,11 @@ private:
 	QLabel *pv_labelWelcomeIcon;
 	QPixmap  *pv_welcomeIcon;
 	QLabel* pv_lastCurVersion; 
-	QLabel* pv_lastMajVersion; 
+	QLabel* pv_lastMajVersion;
 
-	QPushButton *pv_ImportFileButton;
+	PVStartScreenWidget* _start_screen_widget;
+	QSettings _recents_settings;
+	int64_t _max_recent_items = 5;
 
 protected:
 	void keyPressEvent(QKeyEvent *event);

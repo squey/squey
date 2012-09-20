@@ -81,6 +81,9 @@
 	<!-- START SCREEN -->
 	<file alias="start-logo">resources/trafik/elements-interface/logo-picviz-intro.png</file>
 	<file alias="import-icon-white">resources/trafik/elements-interface/icone-import-blanc.png</file>
+	<file alias="new-icon-white">resources/trafik/elements-interface/icone-nouveau-blanc.png</file>
+	<file alias="open-icon-white">resources/trafik/elements-interface/icone-ouvrirdossier-blanc.png</file>
+	<file alias="edit-icon-white">resources/trafik/elements-interface/icone-editer-blanc.png</file>
 
 
 	<!-- QSCROLLBAR ICONS -->
