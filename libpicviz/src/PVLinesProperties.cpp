@@ -28,14 +28,12 @@ Picviz::PVLinesProperties::PVLinesProperties():
  * Picviz::PVLinesProperties::PVLinesProperties
  *
  *****************************************************************************/
-Picviz::PVLinesProperties::PVLinesProperties(const PVLinesProperties & rhs)
+Picviz::PVLinesProperties::PVLinesProperties(const PVLinesProperties & rhs):
+	_table(nullptr)
 {
 	if (rhs._table) {
 		allocate_table();
 		memcpy(_table, rhs._table, PICVIZ_LINESPROPS_NUMBER_OF_BYTES);
-	}
-	else {
-		_table = NULL;
 	}
 }
 

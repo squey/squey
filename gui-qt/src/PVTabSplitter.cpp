@@ -10,6 +10,9 @@
 #include <picviz/PVPlotted.h>
 #include <picviz/PVView.h>
 
+#include <pvhive/PVHive.h>
+#include <pvhive/waxes/waxes.h>
+
 #include <PVAxisPropertiesWidget.h>
 #include <PVListDisplayDlg.h>
 #include <PVMainWindow.h>
@@ -37,15 +40,17 @@
  * PVInspector::PVTabSplitter::PVTabSplitter
  *
  *****************************************************************************/
-PVInspector::PVTabSplitter::PVTabSplitter(PVMainWindow *mw, Picviz::PVSource_p lib_src, QWidget *parent) :
-	QSplitter(parent),
-	_lib_src(lib_src)
+PVInspector::PVTabSplitter::PVTabSplitter(Picviz::PVSource& lib_src, QWidget *parent) :
+	QSplitter(parent)
 {
-	PVLOG_DEBUG("PVInspector::PVTabSplitter::%s\n", __FUNCTION__);
-	assert(lib_src->get_children<Picviz::PVView>().size() > 0);
-	// Select the first view
+	// Observer on this PVSource
+	_obs_src.connect_about_to_be_deleted(this, SLOT(source_about_to_be_deleted()));
+	{
+		Picviz::PVSource_sp src = lib_src.shared_from_this();
+		PVHive::get().register_observer(src, _obs_src);
+	}
 
-	main_window = mw;
+	assert(get_lib_src()->get_children<Picviz::PVView>().size() > 0);
 
 	// SIZE STUFF
 	// Nothing here !
@@ -57,7 +62,7 @@ PVInspector::PVTabSplitter::PVTabSplitter(PVMainWindow *mw, Picviz::PVSource_p l
 	setFocusPolicy(Qt::StrongFocus);
 	
 	// PVLISTINGVIEW
-	Picviz::PVView_sp cur_view = lib_src->current_view()->shared_from_this();
+	Picviz::PVView_sp cur_view = get_lib_src()->current_view()->shared_from_this();
 	pv_listing_model = new PVGuiQt::PVListingModel(cur_view, this);
 	pv_listing_proxy_model = new PVGuiQt::PVListingSortFilterProxyModel(cur_view, this);
 	pv_listing_view = new PVGuiQt::PVListingView(cur_view, this);
@@ -68,7 +73,7 @@ PVInspector::PVTabSplitter::PVTabSplitter(PVMainWindow *mw, Picviz::PVSource_p l
 	addWidget(pv_listing_view);
 
 	// Invalid elements widget
-	PVSimpleStringListModel<QStringList>* inv_elts_model = new PVSimpleStringListModel<QStringList>(lib_src->get_invalid_elts());
+	PVSimpleStringListModel<QStringList>* inv_elts_model = new PVSimpleStringListModel<QStringList>(get_lib_src()->get_invalid_elts());
 	PVListDisplayDlg* inv_dlg = new PVListDisplayDlg(inv_elts_model, this);
 	inv_dlg->setWindowTitle(tr("Invalid elements"));
 	inv_dlg->set_description(tr("There were invalid elements during the extraction:"));
@@ -85,7 +90,7 @@ PVInspector::PVTabSplitter::PVTabSplitter(PVMainWindow *mw, Picviz::PVSource_p l
 	pv_layer_stack_widget = new PVGuiQt::PVLayerStackWidget(cur_view);
 	right_layout->addWidget(pv_layer_stack_widget);
 	
-	_data_tree_model = new PVGuiQt::PVRootTreeModel(*lib_src);
+	_data_tree_model = new PVGuiQt::PVRootTreeModel(lib_src);
 	_data_tree_view = new PVGuiQt::PVRootTreeView(_data_tree_model);
 	
 	right_layout->addWidget(_data_tree_view);
@@ -115,6 +120,8 @@ PVInspector::PVTabSplitter::PVTabSplitter(PVMainWindow *mw, Picviz::PVSource_p l
 
 	screenshot_index = 0;
 
+	
+
 	// Update notifications
 	//connect(pv_layer_stack_model, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)), this, SLOT(source_changed_Slot()));
 	//connect(pv_layer_stack_model, SIGNAL(layoutChanged()), this, SLOT(source_changed_Slot()));
@@ -134,8 +141,8 @@ PVInspector::PVTabSplitter::~PVTabSplitter()
 {
 	PVLOG_INFO("In PVTabSplitter destructor\n");
 	_pv_extractor->deleteLater();
-//	pv_listing_view->deleteLater();
-//	pv_listing_model->deleteLater();
+	pv_listing_view->deleteLater();
+	pv_listing_model->deleteLater();
 //	pv_listing_no_unselected_model->deleteLater();
 //	pv_listing_no_zombie_model->deleteLater();
 //	pv_listing_no_zombie_no_unselected_model->deleteLater();
@@ -155,8 +162,7 @@ PVInspector::PVTabSplitter::~PVTabSplitter()
  *****************************************************************************/
 void PVInspector::PVTabSplitter::create_new_mapped()
 {
-
-	Picviz::PVMapped_p mapped(get_lib_src());
+	Picviz::PVMapped_p mapped(get_lib_src()->shared_from_this());
 
 	Picviz::PVMapping* new_mapping = new Picviz::PVMapping(mapped.get());
 
@@ -296,7 +302,7 @@ PVInspector::PVAxisPropertiesWidget* PVInspector::PVTabSplitter::get_axes_proper
  * PVInspector::PVTabSplitter::get_current_view_name
  *
  *****************************************************************************/
-QString PVInspector::PVTabSplitter::get_current_view_name(Picviz::PVSource_p src)
+QString PVInspector::PVTabSplitter::get_current_view_name(Picviz::PVSource* src)
 {
 	Picviz::PVView* view = src->current_view();
 	if (view) {
@@ -329,7 +335,7 @@ int PVInspector::PVTabSplitter::get_screenshot_index()
  *****************************************************************************/
 PVInspector::PVTabSplitter::PVViewWidgets const& PVInspector::PVTabSplitter::get_view_widgets(Picviz::PVView* view)
 {
-	assert(view->get_parent<Picviz::PVSource>() == _lib_src.get());
+	assert(view->get_parent<Picviz::PVSource>() == get_lib_src());
 	if (!_view_widgets.contains(view)) {
 		PVViewWidgets widgets(view, this);
 		return *(_view_widgets.insert(view, widgets));
@@ -485,8 +491,8 @@ void PVInspector::PVTabSplitter::select_plotted(Picviz::PVPlotted* plotted)
 void PVInspector::PVTabSplitter::select_view(Picviz::PVView* view)
 {
 	// TODO: hive !
-	assert(view->get_parent<Picviz::PVSource>() == _lib_src.get());
-	_lib_src->select_view(*view);
+	assert(view->get_parent<Picviz::PVSource>() == get_lib_src());
+	get_lib_src()->select_view(*view);
 
 	// Create view widgets if necessary
 	get_view_widgets(view);
@@ -541,7 +547,7 @@ PVInspector::PVTabSplitter::PVViewWidgets::PVViewWidgets(Picviz::PVView* view, P
 {
 	Picviz::PVView_sp view_sp = view->shared_from_this();
 	pv_axes_combination_editor = new PVGuiQt::PVAxesCombinationDialog(view_sp, tab);
-	pv_axes_properties = new PVAxisPropertiesWidget(view_sp, tab, tab->main_window);
+	//pv_axes_properties = new PVAxisPropertiesWidget(view_sp, tab, tab->main_window);
 }
 
 /******************************************************************************
@@ -563,5 +569,11 @@ PVInspector::PVTabSplitter::PVViewWidgets::~PVViewWidgets()
 void PVInspector::PVTabSplitter::PVViewWidgets::delete_widgets()
 {
 	pv_axes_combination_editor->deleteLater();
-	pv_axes_properties->deleteLater();
+	//pv_axes_properties->deleteLater();
+}
+
+void PVInspector::PVTabSplitter::source_about_to_be_deleted()
+{
+	hide();
+	deleteLater();
 }

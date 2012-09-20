@@ -30,7 +30,6 @@ class PVProgressBox;
 
 namespace PVInspector {
 
-class PVMainWindow;
 class PVTabSplitter;
 
 /**
@@ -81,7 +80,6 @@ protected:
 
 private:
 	PVRush::PVExtractor &_ext;
-	PVMainWindow    *main_window;        //!<
 	Picviz::PVView* _view;
 	PVTabSplitter* _inspector_tab;
 	int _slider_pressed_value;

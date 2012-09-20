@@ -1,5 +1,6 @@
 #include <pvkernel/core/PVDecimalStorage.h>
 #include <iostream>
+#include <type_traits>
 
 typedef PVCore::PVDecimalStorage<32> decimal_t;
 
@@ -29,6 +30,9 @@ struct holder
 int main(int argc, char** argv)
 {
 	PVCore::PVDecimalStorage<32> s;
+
+	std::cout << "is_pod = " << std::is_pod<PVCore::PVDecimalStorage<32>>::value << std::endl;
+
 	s.storage_as_int() = -4;
 
 	std::cout << s.storage_cast<int>() << std::endl;

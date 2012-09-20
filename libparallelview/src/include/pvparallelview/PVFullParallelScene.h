@@ -52,6 +52,10 @@ public:
 
 	void update_number_of_zones();
 
+	void about_to_be_deleted();
+
+	PVFullParallelView* graphics_view() { return _parallel_view; }
+
 private:
 	void update_zones_position(bool update_all = true, bool scale = true);
 	void translate_and_update_zones_position();
@@ -82,6 +86,7 @@ private:
 
 	Picviz::PVView& lib_view() { return _lib_view; }
 	Picviz::PVView const& lib_view() const { return _lib_view; }
+
 
 	void add_zone_image();
 	void add_axis(PVZoneID const z);

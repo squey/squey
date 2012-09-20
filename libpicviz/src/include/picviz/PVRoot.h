@@ -52,7 +52,7 @@ private:
 
 };
 
-typedef PVRoot::p_type PVRoot_p;
+typedef PVRoot::p_type  PVRoot_p;
 
 }
 

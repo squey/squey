@@ -169,7 +169,7 @@ private:
 	list_expanded_selection_t _expanded_sels;
 };
 
-typedef PVPlotted::p_type PVPlotted_p;
+typedef PVPlotted::p_type  PVPlotted_p;
 typedef PVCore::PVSharedPtr<PVPlotted> PVPlotted_sp;
 
 }

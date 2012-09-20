@@ -28,6 +28,8 @@ PVParallelView::__impl::PVParallelView::~PVParallelView()
 		delete _backend_zoom;
 	}
 
+	tbb::mutex::scoped_lock lock(_mutex);
+
 	map_lib_views::iterator it;
 	for (it = _lib_views.begin(); it != _lib_views.end(); it++) {
 		delete it->second;
@@ -51,6 +53,8 @@ void PVParallelView::__impl::PVParallelView::release()
 
 PVParallelView::PVLibView* PVParallelView::__impl::PVParallelView::get_lib_view(Picviz::PVView& view)
 {
+	tbb::mutex::scoped_lock lock(_mutex);
+
 	map_lib_views::iterator it = _lib_views.find(&view);
 	if (it != _lib_views.end()) {
 		return it->second;
@@ -64,6 +68,8 @@ PVParallelView::PVLibView* PVParallelView::__impl::PVParallelView::get_lib_view(
 
 PVParallelView::PVLibView* PVParallelView::__impl::PVParallelView::get_lib_view(Picviz::PVView& view, Picviz::PVPlotted::uint_plotted_table_t const& plotted, PVRow nrows, PVCol ncols)
 {
+	tbb::mutex::scoped_lock lock(_mutex);
+
 	map_lib_views::iterator it = _lib_views.find(&view);
 	if (it != _lib_views.end()) {
 		return it->second;
@@ -73,6 +79,17 @@ PVParallelView::PVLibView* PVParallelView::__impl::PVParallelView::get_lib_view(
 	PVLibView* new_view = new PVLibView(view_sp, plotted, nrows, ncols);
 	_lib_views.insert(std::make_pair(&view, new_view));
 	return new_view;
+}
+
+void PVParallelView::__impl::PVParallelView::remove_lib_view(Picviz::PVView& view)
+{
+	tbb::mutex::scoped_lock lock(_mutex);
+
+	map_lib_views::iterator it = _lib_views.find(&view);
+	if (it != _lib_views.end()) {
+		delete it->second;
+		_lib_views.erase(it);
+	}
 }
 
 void PVParallelView::common::init_cuda()

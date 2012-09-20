@@ -61,7 +61,6 @@ protected:
 	QPushButton* _help_btn;
 	QPushButton* _preview_btn;
 	QPushButton* _apply_btn;
-	Picviz::PVLayer _pre_filter_layer_org;
 	PVCore::PVArgumentList _args_org;
 	PVWidgets::PVArgumentListWidget* _args_widget;
 	QHBoxLayout* _btn_layout;

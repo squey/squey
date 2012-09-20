@@ -26,7 +26,6 @@ PVInspector::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(PVTabSplitte
 	_presets_widget(NULL),
 	_splitter(NULL),
 	_help_btn(NULL),
-	_pre_filter_layer_org(_view->pre_filter_layer),
 	_args_org(args),
 	_has_apply(false)
 {
