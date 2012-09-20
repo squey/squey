@@ -29,7 +29,7 @@ PVParallelView::PVSlidersGroup::PVSlidersGroup(PVSlidersManager_p sm_p,
 
 	_sliders_manager_p->iterate_zoom_sliders([&](const PVZoneID axis_idx,
 	                                             const id_t id,
-	                                             const interval_geometry_t &geom)
+	                                             const range_geometry_t &geom)
 	                                         {
 		                                         if (axis_idx != axis_index) {
 			                                         return;
@@ -42,7 +42,7 @@ PVParallelView::PVSlidersGroup::PVSlidersGroup(PVSlidersManager_p sm_p,
 
 	_sliders_manager_p->iterate_selection_sliders([&](const PVZoneID axis_idx,
 	                                                  const id_t id,
-	                                                  const interval_geometry_t &geom)
+	                                                  const range_geometry_t &geom)
 	                                         {
 		                                         if (axis_idx != axis_index) {
 			                                         return;

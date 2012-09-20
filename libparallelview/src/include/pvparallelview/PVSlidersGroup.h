@@ -28,7 +28,7 @@ class PVSlidersGroup : public QObject, public QGraphicsItemGroup
 
 private:
 	typedef PVSlidersManager::id_t id_t;
-	typedef PVSlidersManager::interval_geometry_t interval_geometry_t;
+	typedef PVSlidersManager::range_geometry_t range_geometry_t;
 
 public:
 	typedef std::vector<std::pair<PVRow, PVRow> > selection_ranges_t;
