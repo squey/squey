@@ -6,6 +6,7 @@
 
 #include <pvparallelview/PVTaskFilterSel.h>
 #include <pvparallelview/PVZoomedParallelScene.h>
+#include <pvparallelview/PVParallelView.h>
 
 #include <pvkernel/core/PVAlgorithms.h>
 
@@ -319,10 +320,11 @@ void PVParallelView::PVZoomedParallelScene::drawBackground(QPainter *painter,
 	// the pen has to be saved too
 	QPen old_pen = painter->pen();
 
-	painter->fillRect(screen_rect, Qt::black);
+	// TODO: get background color
+	painter->fillRect(screen_rect, common::color_view_bg());
 
 	// draw axis
-	QPen new_pen = QPen(Qt::white);
+	QPen new_pen = QPen(_pvview.get_axis(_axis_index).get_color().toQColor());
 	new_pen.setWidth(PARALLELVIEW_AXIS_WIDTH);
 	painter->setPen(new_pen);
 	painter->drawLine(screen_center, 0, screen_center, screen_rect.height());
