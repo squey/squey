@@ -32,14 +32,14 @@ public:
 
 	typedef void* id_t;
 
-	struct interval_geometry_t
+	struct range_geometry_t
 	{
 		uint32_t y_min;
 		uint32_t y_max;
 	};
 
 	typedef std::function<void(const PVZoneID, const id_t,
-	                           const interval_geometry_t &)> interval_functor_t;
+	                           const range_geometry_t &)> range_functor_t;
 
 public:
 	PVSlidersManager();
@@ -50,76 +50,76 @@ public:
 public:
 	/**
 	 * Function to observe (in PVHive way) to be notified when a new
-	 * interval slider is added
+	 * range sliders pair is added
 	 *
 	 * @param axis the axis the slider is associated with
 	 * @param id the id the slider is associated with
 	 * @param y_min the low position of the sliders
 	 * @param y_max the high position of the sliders
 	 */
-	void new_selection_sliders(const PVZoneID axis, const id_t id,
+	void new_selection_sliders(const PVZoneID axis_index, const id_t id,
 	                           const uint32_t y_min, const uint32_t y_max);
-	void new_zoom_sliders(const PVZoneID axis, const id_t id,
+	void new_zoom_sliders(const PVZoneID axis_index, const id_t id,
 	                      const uint32_t y_min, const uint32_t y_max);
 
 	/**
 	 * Function to observe (in PVHive way) to be notified when a new
-	 * interval slider is deleted
+	 * range sliders pair is deleted
 	 *
 	 * @param axis the axis the slider is associated with
 	 * @param id the id the slider is associated with
 	 */
-	void del_selection_sliders(const PVZoneID axis, const id_t id);
-	void del_zoom_sliders(const PVZoneID axis, const id_t id);
+	void del_selection_sliders(const PVZoneID axis_index, const id_t id);
+	void del_zoom_sliders(const PVZoneID axis_index, const id_t id);
 
 	/**
 	 * Function to observe (in PVHive way) to be notified when a
-	 * interval slider is changed
+	 * range sliders pair is changed
 	 *
 	 * @param axis the axis the slider is associated with
 	 * @param id the id the slider is associated with
 	 * @param y_min the low position of the sliders
 	 * @param y_max the high position of the sliders
 	 */
-	void update_selection_sliders(const PVZoneID axis, const id_t id,
+	void update_selection_sliders(const PVZoneID axis_index, const id_t id,
 	                              const uint32_t y_min, const uint32_t y_max);
-	void update_zoom_sliders(const PVZoneID axis, const id_t id,
+	void update_zoom_sliders(const PVZoneID axis_index, const id_t id,
 	                         const uint32_t y_min, const uint32_t y_max,
 	                         const ZoomSliderChange change);
 
 	/**
-	 * Function to iterate on all interval sliders
+	 * Function to iterate on all range sliders
 	 *
-	 * @param functor the function called on each interval sliders
+	 * @param functor the function called on each range sliders pair
 	 *
 	 * This method has to be used when creating a new graphical view
-	 * to initialize it with each existing interval sliders
+	 * to initialize it with each existing range sliders
 	 */
-	void iterate_selection_sliders(const interval_functor_t &functor) const;
-	void iterate_zoom_sliders(const interval_functor_t &functor) const;
+	void iterate_selection_sliders(const range_functor_t &functor) const;
+	void iterate_zoom_sliders(const range_functor_t &functor) const;
 
 private:
-	typedef std::map<id_t, interval_geometry_t> interval_geometry_list_t;
-	typedef std::map<PVZoneID, interval_geometry_list_t> interval_geometry_set_t;
+	typedef std::map<id_t, range_geometry_t> range_geometry_list_t;
+	typedef std::map<PVZoneID, range_geometry_list_t> range_geometry_set_t;
 
 private:
-	void new_interval_sliders(interval_geometry_set_t &interval,
-	                          const PVZoneID axis, const id_t id,
+	void new_range_sliders(range_geometry_set_t &range,
+	                          const PVZoneID axis_index, const id_t id,
 	                          const uint32_t y_min, const uint32_t y_max);
 
-	void del_interval_sliders(interval_geometry_set_t &interval,
-	                          const PVZoneID axis, const id_t id);
+	void del_range_sliders(range_geometry_set_t &range,
+	                          const PVZoneID axis_index, const id_t id);
 
-	void update_interval_sliders(interval_geometry_set_t &interval,
-	                             const PVZoneID axis, const id_t id,
+	void update_range_sliders(range_geometry_set_t &range,
+	                             const PVZoneID axis_index, const id_t id,
 	                             const uint32_t y_min, const uint32_t y_max);
 
-	void iterate_interval_sliders(const interval_geometry_set_t &interval,
-	                              const interval_functor_t &functor) const;
+	void iterate_range_sliders(const range_geometry_set_t &range,
+	                              const range_functor_t &functor) const;
 
 private:
-	interval_geometry_set_t _zoom_geometries;
-	interval_geometry_set_t _selection_geometries;
+	range_geometry_set_t _zoom_geometries;
+	range_geometry_set_t _selection_geometries;
 };
 
 typedef PVCore::PVSharedPtr<PVSlidersManager> PVSlidersManager_p;
