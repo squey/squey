@@ -38,7 +38,7 @@ class PVZoomedParallelScene : public QGraphicsScene
 Q_OBJECT
 
 private:
-	friend class zoom_sliders_new_obs;
+	friend class zoom_sliders_update_obs;
 
 private:
 	constexpr static size_t bbits = PARALLELVIEW_ZZT_BBITS;
@@ -119,6 +119,12 @@ private:
 		return pow(2, get_zoom_level()) * pow(root_step, get_zoom_step());
 	}
 
+	inline double retrieve_wheel_value_from_alpha(const double &a)
+	{
+		// non simplified formula is: log2(1/a) / log2(root_steps)
+		return -zoom_steps * log2(a);
+	}
+
 	PVZonesManager& get_zones_manager() { return _zones_drawing.get_zones_manager(); }
 
 	inline Picviz::PVSelection& volatile_selection() { return _pvview.get_volatile_selection(); }
@@ -129,6 +135,21 @@ private slots:
 	void zone_rendered_Slot(int z);
 	void filter_by_sel_finished_Slot(int zid, bool changed);
 	void commit_volatile_selection_Slot();
+
+private:
+	class zoom_sliders_update_obs :
+		public PVHive::PVFuncObserver<PVSlidersManager,
+		                              FUNC(PVSlidersManager::update_zoom_sliders)>
+		{
+		public:
+			zoom_sliders_update_obs(PVZoomedParallelScene *parent = nullptr) : _parent(parent)
+			{}
+
+			void update(arguments_deep_copy_type const& args) const;
+
+		private:
+			PVZoomedParallelScene *_parent;
+		};
 
 private:
 	typedef enum {
@@ -151,6 +172,7 @@ private:
 	Picviz::PVView&                _pvview;
 	PVSlidersManager_p             _sliders_manager_p;
 	PVSlidersGroup                *_sliders_group;
+	zoom_sliders_update_obs        _zsu_obs;
 	zones_drawing_t               &_zones_drawing;
 	PVCol                          _axis;
 
