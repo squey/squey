@@ -66,8 +66,8 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 	_zpview->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
 	_zpview->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
 
-	// _zpview->setMaximumWidth(1024);
-	// _zpview->setMaximumHeight(1024);
+	_zpview->setMaximumWidth(1024);
+	_zpview->setMaximumHeight(1024);
 
 	_selection_rect = new PVParallelView::PVSelectionSquareGraphicsItem(this);
 	connect(_selection_rect, SIGNAL(commit_volatile_selection()),

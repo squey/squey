@@ -42,13 +42,15 @@ private:
 
 private:
 	constexpr static size_t bbits = PARALLELVIEW_ZZT_BBITS;
+	constexpr static double bbits_alpha_scale = 1. / (1. + (bbits - 10));
+
+	constexpr static int axis_half_width = PARALLELVIEW_AXIS_WIDTH / 2;
 	constexpr static uint32_t image_width = 512;
 	constexpr static uint32_t image_height = 1024;
-	constexpr static double bbits_alpha_scale = 1. / (1. + (bbits - 10));
+
 	constexpr static int zoom_steps = 5;
 	constexpr static double root_step = pow(2.0, 1.0 / zoom_steps);
 	constexpr static int max_wheel_value = 21 * zoom_steps;
-	constexpr static int axis_half_width = PARALLELVIEW_AXIS_WIDTH / 2;
 
 private:
 	typedef PVParallelView::PVZoomedZoneTree::context_t zzt_context_t;
@@ -103,17 +105,17 @@ private:
 	void update_zoom();
 
 private:
-	int get_zoom_level()
+	inline int get_zoom_level()
 	{
 		return _wheel_value / zoom_steps;
 	}
 
-	int get_zoom_step()
+	inline int get_zoom_step()
 	{
 		return _wheel_value % zoom_steps;
 	}
 
-	double get_scale_factor()
+	inline double get_scale_factor()
 	{
 		// Phillipe's magic formula: 2^n × a^k
 		return pow(2, get_zoom_level()) * pow(root_step, get_zoom_step());
