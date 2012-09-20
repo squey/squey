@@ -47,14 +47,14 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
                                                              Picviz::PVView_sp& pvview_p,
                                                              PVParallelView::PVSlidersManager_p sliders_manager_p,
                                                              zones_drawing_t &zones_drawing,
-                                                             PVCol axis) :
+                                                             PVZoneID axis) :
 	QGraphicsScene(zpview),
 	_zpview(zpview),
 	_pvview(*pvview_p),
 	_sliders_manager_p(sliders_manager_p),
 	_zsu_obs(this),
 	_zones_drawing(zones_drawing),
-	_axis(axis),
+	_axis_index(axis),
 	_left_zone(nullptr),
 	_right_zone(nullptr),
 	_renderable_zone_number(0),
@@ -145,7 +145,7 @@ PVParallelView::PVZoomedParallelScene::~PVZoomedParallelScene()
 	_zones_drawing.remove_render_group(_render_group);
 
 	PVHive::call<FUNC(PVSlidersManager::del_zoom_sliders)>(_sliders_manager_p,
-	                                                       _axis, this);
+	                                                       _axis_index, this);
 }
 
 /*****************************************************************************
@@ -291,13 +291,13 @@ void PVParallelView::PVZoomedParallelScene::update_new_selection(tbb::task* root
 
 	if (_left_zone) {
 		root->increment_ref_count();
-		tbb::task& child_task = *new (root->allocate_child()) PVTaskFilterSel(get_zones_manager(), _axis-1, volatile_selection());
+		tbb::task& child_task = *new (root->allocate_child()) PVTaskFilterSel(get_zones_manager(), _axis_index-1, volatile_selection());
 		root->enqueue(child_task, tbb::priority_high);
 	}
 
 	if (_right_zone) {
 		root->increment_ref_count();
-		tbb::task& child_task = *new (root->allocate_child()) PVTaskFilterSel(get_zones_manager(), _axis, volatile_selection());
+		tbb::task& child_task = *new (root->allocate_child()) PVTaskFilterSel(get_zones_manager(), _axis_index, volatile_selection());
 		root->enqueue(child_task, tbb::priority_high);
 	}
 }
@@ -369,7 +369,7 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 	                                         0ULL, y_lim);
 
 	PVHive::call<FUNC(PVSlidersManager::update_zoom_sliders)>(_sliders_manager_p,
-	                                                          _axis, _sliders_group,
+	                                                          _axis_index, _sliders_group,
 	                                                          y_min >> (32 - NBITS_INDEX),
 	                                                          y_max >> (32 - NBITS_INDEX),
 	                                                          PVParallelView::PVSlidersManager::ZoomSliderNone);
@@ -425,7 +425,7 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 					BENCH_START(render);
 					_zones_drawing.draw_zoomed_zone(_left_zone->context,
 					                                *(_left_zone->bg_image), y_min, y_max, y_lim,
-					                                zoom_level, _axis - 1,
+					                                zoom_level, _axis_index - 1,
 					                                &PVZoomedZoneTree::browse_bci_by_y2,
 					                                alpha, beta, true,
 					                                [&] {
@@ -443,7 +443,7 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 					_zones_drawing.draw_zoomed_zone_sel(_left_zone->context,
 					                                    *(_left_zone->sel_image),
 					                                    y_min, y_max, y_lim, volatile_selection(),
-					                                    zoom_level, _axis - 1,
+					                                    zoom_level, _axis_index - 1,
 					                                    &PVZoomedZoneTree::browse_bci_sel_by_y2,
 					                                    alpha, beta, true,
 					                                    [&] {
@@ -462,7 +462,7 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 					BENCH_START(render);
 					_zones_drawing.draw_zoomed_zone(_right_zone->context,
 				                                    *(_right_zone->bg_image), y_min, y_max, y_lim,
-					                                zoom_level, _axis,
+					                                zoom_level, _axis_index,
 					                                &PVZoomedZoneTree::browse_bci_by_y1,
 					                                alpha, beta, false,
 					                                [&] {
@@ -480,7 +480,7 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 					_zones_drawing.draw_zoomed_zone_sel(_right_zone->context,
 					                                    *(_right_zone->sel_image),
 					                                    y_min, y_max, y_lim, volatile_selection(),
-					                                    zoom_level, _axis,
+					                                    zoom_level, _axis_index,
 					                                    &PVZoomedZoneTree::browse_bci_sel_by_y1,
 					                                    alpha, beta, false,
 					                                    [&] {
@@ -646,7 +646,7 @@ void
 PVParallelView::PVZoomedParallelScene::filter_by_sel_finished_Slot(int zid,
                                                                    bool changed)
 {
-	if ((zid == _axis) && changed && _right_zone) {
+	if ((zid == _axis_index) && changed && _right_zone) {
 		++_updated_selection_count;
 		if (_updated_selection_count == _renderable_zone_number) {
 			/* if all zone to render in full view have been rendered,
@@ -654,7 +654,7 @@ PVParallelView::PVZoomedParallelScene::filter_by_sel_finished_Slot(int zid,
 			 */
 			update_sel();
 		}
-	} else if ((zid == (_axis - 1)) && changed && _left_zone) {
+	} else if ((zid == (_axis_index - 1)) && changed && _left_zone) {
 		++_updated_selection_count;
 		if (_updated_selection_count == _renderable_zone_number) {
 			/* if all zone to render in full view have been rendered,
@@ -680,7 +680,7 @@ void PVParallelView::PVZoomedParallelScene::commit_volatile_selection_Slot()
 
 void PVParallelView::PVZoomedParallelScene::zoom_sliders_update_obs::update(arguments_deep_copy_type const& args) const
 {
-	PVCol axis = std::get<0>(args);
+	PVZoneID axis_index = std::get<0>(args);
 	PVSlidersManager::id_t id = std::get<1>(args);
 	PVParallelView::PVSlidersManager::ZoomSliderChange change = std::get<4>(args);
 
@@ -688,7 +688,7 @@ void PVParallelView::PVZoomedParallelScene::zoom_sliders_update_obs::update(argu
 		return;
 	}
 
-	if ((axis == _parent->_axis) && (id == _parent->_sliders_group)) {
+	if ((axis_index == _parent->_axis_index) && (id == _parent->_sliders_group)) {
 		double sld_min = std::get<2>(args);
 		double sld_max = std::get<3>(args);
 		double sld_dist = sld_max - sld_min;

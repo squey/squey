@@ -11,7 +11,7 @@
  *****************************************************************************/
 
 PVParallelView::PVSlidersGroup::PVSlidersGroup(PVSlidersManager_p sm_p,
-                                               PVCol axis_index,
+                                               PVZoneID axis_index,
                                                QGraphicsItem *parent) :
 	QGraphicsItemGroup(parent),
 	_sliders_manager_p(sm_p),
@@ -27,29 +27,29 @@ PVParallelView::PVSlidersGroup::PVSlidersGroup(PVSlidersManager_p sm_p,
 	//     behaviour... so I keep setHandlesChildEvents()
 	setHandlesChildEvents(false);
 
-	_sliders_manager_p->iterate_zoom_sliders([&](const PVCol axis,
+	_sliders_manager_p->iterate_zoom_sliders([&](const PVZoneID axis_idx,
 	                                             const id_t id,
 	                                             const interval_geometry_t &geom)
 	                                         {
-		                                         if (axis != axis_index) {
+		                                         if (axis_idx != axis_index) {
 			                                         return;
 		                                         }
 
-		                                         add_new_zoom_sliders(axis, id,
+		                                         add_new_zoom_sliders(axis_idx, id,
 		                                                              geom.y_min,
 		                                                              geom.y_max);
 	                                         });
 
-	_sliders_manager_p->iterate_selection_sliders([&](const PVCol axis,
+	_sliders_manager_p->iterate_selection_sliders([&](const PVZoneID axis_idx,
 	                                                  const id_t id,
 	                                                  const interval_geometry_t &geom)
 	                                         {
-		                                         if (axis != axis_index) {
+		                                         if (axis_idx != axis_index) {
 			                                         return;
 		                                         }
 
 		                                         add_new_selection_sliders(nullptr,
-		                                                                   axis, id,
+		                                                                   axis_idx, id,
 		                                                                   geom.y_min,
 		                                                                   geom.y_max);
 	                                         });
@@ -133,7 +133,7 @@ bool PVParallelView::PVSlidersGroup::sliders_moving() const
  * PVParallelView::PVSlidersGroup::new_zoom_sliders
  *****************************************************************************/
 
-void PVParallelView::PVSlidersGroup::add_new_zoom_sliders(PVCol axis,
+void PVParallelView::PVSlidersGroup::add_new_zoom_sliders(PVZoneID axis,
                                                           id_t id,
                                                           uint32_t y_min,
                                                           uint32_t y_max)
@@ -160,7 +160,7 @@ void PVParallelView::PVSlidersGroup::add_new_zoom_sliders(PVCol axis,
  *****************************************************************************/
 
 void PVParallelView::PVSlidersGroup::add_new_selection_sliders(PVParallelView::PVSelectionAxisSliders* sliders,
-                                                               PVCol axis,
+                                                               PVZoneID axis,
                                                                id_t id,
                                                                uint32_t y_min,
                                                                uint32_t y_max)
@@ -192,15 +192,15 @@ void PVParallelView::PVSlidersGroup::add_new_selection_sliders(PVParallelView::P
 
 void PVParallelView::PVSlidersGroup::zoom_sliders_new_obs::update(arguments_deep_copy_type const& args) const
 {
-	PVCol axis = std::get<0>(args);
+	PVZoneID axis_index = std::get<0>(args);
 
-	if (axis == _parent->_axis_index) {
+	if (axis_index == _parent->_axis_index) {
 		PVSlidersManager::id_t id = std::get<1>(args);
 
 		if (id != _parent) {
 			uint32_t y_min = std::get<2>(args);
 			uint32_t y_max = std::get<3>(args);
-			_parent->add_new_zoom_sliders(axis, id, y_min, y_max);
+			_parent->add_new_zoom_sliders(axis_index, id, y_min, y_max);
 		}
 	}
 }
@@ -211,15 +211,15 @@ void PVParallelView::PVSlidersGroup::zoom_sliders_new_obs::update(arguments_deep
 
 void PVParallelView::PVSlidersGroup::selection_sliders_new_obs::update(arguments_deep_copy_type const& args) const
 {
-	PVCol axis = std::get<0>(args);
+	PVZoneID axis_index = std::get<0>(args);
 
-	if (axis == _parent->_axis_index) {
+	if (axis_index == _parent->_axis_index) {
 		PVSlidersManager::id_t id = std::get<1>(args);
 
 		if (_parent->_registered_ids.find(id) == _parent->_registered_ids.end()) {
 			uint32_t y_min = std::get<2>(args);
 			uint32_t y_max = std::get<3>(args);
-			_parent->add_new_selection_sliders(nullptr, axis, id,
+			_parent->add_new_selection_sliders(nullptr, axis_index, id,
 			                                   y_min, y_max);
 		}
 	}
@@ -231,9 +231,9 @@ void PVParallelView::PVSlidersGroup::selection_sliders_new_obs::update(arguments
 
 void PVParallelView::PVSlidersGroup::zoom_sliders_del_obs::update(arguments_deep_copy_type const& args) const
 {
-	PVCol axis = std::get<0>(args);
+	PVZoneID axis_index = std::get<0>(args);
 
-	if (axis == _parent->_axis_index) {
+	if (axis_index == _parent->_axis_index) {
 		PVSlidersManager::id_t id = std::get<1>(args);
 
 		if (_parent->_registered_ids.find(id) != _parent->_registered_ids.end()) {
@@ -248,9 +248,9 @@ void PVParallelView::PVSlidersGroup::zoom_sliders_del_obs::update(arguments_deep
 
 void PVParallelView::PVSlidersGroup::selection_sliders_del_obs::update(arguments_deep_copy_type const& args) const
 {
-	PVCol axis = std::get<0>(args);
+	PVZoneID axis_index = std::get<0>(args);
 
-	if (axis == _parent->_axis_index) {
+	if (axis_index == _parent->_axis_index) {
 		PVSlidersManager::id_t id = std::get<1>(args);
 
 		if (_parent->_registered_ids.find(id) != _parent->_registered_ids.end()) {

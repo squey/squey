@@ -67,7 +67,7 @@ public:
 	                      Picviz::PVView_sp& pvview,
 	                      PVSlidersManager_p sliders_manager_p,
 	                      zones_drawing_t &zones_drawing,
-	                      PVCol axis);
+	                      PVZoneID axis_index);
 
 	~PVZoomedParallelScene();
 
@@ -176,7 +176,7 @@ private:
 	PVSlidersGroup                *_sliders_group;
 	zoom_sliders_update_obs        _zsu_obs;
 	zones_drawing_t               &_zones_drawing;
-	PVCol                          _axis;
+	PVZoneID                       _axis_index;
 
 	// about mouse
 	int                            _wheel_value;

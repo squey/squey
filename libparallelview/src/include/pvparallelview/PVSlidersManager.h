@@ -6,6 +6,8 @@
 
 #include <pvkernel/core/PVSharedPointer.h>
 
+#include <pvparallelview/common.h>
+
 #include <map>
 
 /* TODO: test if FuncObserver work with inline functions
@@ -36,7 +38,7 @@ public:
 		uint32_t y_max;
 	};
 
-	typedef std::function<void(const PVCol, const id_t,
+	typedef std::function<void(const PVZoneID, const id_t,
 	                           const interval_geometry_t &)> interval_functor_t;
 
 public:
@@ -55,9 +57,9 @@ public:
 	 * @param y_min the low position of the sliders
 	 * @param y_max the high position of the sliders
 	 */
-	void new_selection_sliders(const PVCol axis, const id_t id,
+	void new_selection_sliders(const PVZoneID axis, const id_t id,
 	                           const uint32_t y_min, const uint32_t y_max);
-	void new_zoom_sliders(const PVCol axis, const id_t id,
+	void new_zoom_sliders(const PVZoneID axis, const id_t id,
 	                      const uint32_t y_min, const uint32_t y_max);
 
 	/**
@@ -67,8 +69,8 @@ public:
 	 * @param axis the axis the slider is associated with
 	 * @param id the id the slider is associated with
 	 */
-	void del_selection_sliders(const PVCol axis, const id_t id);
-	void del_zoom_sliders(const PVCol axis, const id_t id);
+	void del_selection_sliders(const PVZoneID axis, const id_t id);
+	void del_zoom_sliders(const PVZoneID axis, const id_t id);
 
 	/**
 	 * Function to observe (in PVHive way) to be notified when a
@@ -79,9 +81,9 @@ public:
 	 * @param y_min the low position of the sliders
 	 * @param y_max the high position of the sliders
 	 */
-	void update_selection_sliders(const PVCol axis, const id_t id,
+	void update_selection_sliders(const PVZoneID axis, const id_t id,
 	                              const uint32_t y_min, const uint32_t y_max);
-	void update_zoom_sliders(const PVCol axis, const id_t id,
+	void update_zoom_sliders(const PVZoneID axis, const id_t id,
 	                         const uint32_t y_min, const uint32_t y_max,
 	                         const ZoomSliderChange change);
 
@@ -98,18 +100,18 @@ public:
 
 private:
 	typedef std::map<id_t, interval_geometry_t> interval_geometry_list_t;
-	typedef std::map<PVCol, interval_geometry_list_t> interval_geometry_set_t;
+	typedef std::map<PVZoneID, interval_geometry_list_t> interval_geometry_set_t;
 
 private:
 	void new_interval_sliders(interval_geometry_set_t &interval,
-	                          const PVCol axis, const id_t id,
+	                          const PVZoneID axis, const id_t id,
 	                          const uint32_t y_min, const uint32_t y_max);
 
 	void del_interval_sliders(interval_geometry_set_t &interval,
-	                          const PVCol axis, const id_t id);
+	                          const PVZoneID axis, const id_t id);
 
 	void update_interval_sliders(interval_geometry_set_t &interval,
-	                             const PVCol axis, const id_t id,
+	                             const PVZoneID axis, const id_t id,
 	                             const uint32_t y_min, const uint32_t y_max);
 
 	void iterate_interval_sliders(const interval_geometry_set_t &interval,
