@@ -217,7 +217,7 @@ public:
 
 		// Index field
 		if (column.fields_ignored_size + written_field_size > READ_BUFFER_SIZE) {
-			uint64_t field_offset_in_file = this->Tell(column.file) + (column.buffer_write_ptr - column.buffer_write);
+			uint64_t field_offset_in_file = this->Tell(column.file) + (column.buffer_write_ptr - column.buffer_write) ;
 
 			// Resize indexes matrix if needed
 			if (column.fields_indexed == _indexes.get_nrows()) {
@@ -234,14 +234,11 @@ public:
 			offset_field.field = column.fields_nb;
 			_indexes.set_value(column.fields_indexed, col_idx, offset_field);
 			column.fields_ignored_size = 0;
-
 			column.fields_indexed++;
 		}
-		else {
-			column.fields_ignored_size += written_field_size;
-		}
-		column.fields_nb++;
+		column.fields_ignored_size += written_field_size;
 		_indexes_nrows = std::max(column.fields_indexed, _indexes_nrows);
+		column.fields_nb++;
 
 		// Fill the buffer with complete field
 		if (column.buffer_write_ptr + written_field_size <= column.buffer_write_end_ptr) {
