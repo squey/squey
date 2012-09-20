@@ -115,8 +115,8 @@ void PVParallelView::PVAxisSlider::mousePressEvent(QGraphicsSceneMouseEvent* /*e
 
 void PVParallelView::PVAxisSlider::mouseReleaseEvent(QGraphicsSceneMouseEvent* /*event*/)
 {
-	_moving = false;
 	emit slider_moved();
+	_moving = false;
 	//event->accept();
 }
 

@@ -53,10 +53,22 @@ private slots:
 	void do_sliders_moved()
 	{
 		emit sliders_moved();
+
+		int change = PVParallelView::PVSlidersManager::ZoomSliderNone;
+
+		if (_sl_min->is_moving()) {
+			change |= PVParallelView::PVSlidersManager::ZoomSliderTop;
+		}
+
+		if (_sl_max->is_moving()) {
+			change |= PVParallelView::PVSlidersManager::ZoomSliderBottom;
+		}
+
 		PVHive::call<FUNC(PVSlidersManager::update_zoom_sliders)>(_sliders_manager_p,
 		                                                          _axis, _id,
 		                                                          _sl_min->value(),
-		                                                          _sl_max->value());
+		                                                          _sl_max->value(),
+		                                                          (PVParallelView::PVSlidersManager::ZoomSliderChange)change);
 	}
 
 private:
