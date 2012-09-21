@@ -28,10 +28,11 @@ class LibPicvizDecl PVAxesCombination {
 	friend class PVCore::PVSerializeObject;
 public:
 	typedef QVector<PVAxis> list_axes_t;
+	typedef QVector<PVCol>  columns_indexes_t;
 private:
 	QVector<float>  abscissae_list;       //!< Axes positions, such as [0.0, 1.29, 2.5, 4.76]
 	list_axes_t     axes_list;            //!< Contains all the used axes
-	QVector<PVCol>  columns_indexes_list; //!< Contains the indices of the axes to place, such as [0,1,3,0]
+	columns_indexes_t  columns_indexes_list; //!< Contains the indices of the axes to place, such as [0,1,3,0]
 	list_axes_t     original_axes_list;   //!< All the axes, left as how they were upon loading the format.
 	bool _is_consistent;                  //!< Whether this object is consistent
 public:
@@ -291,9 +292,15 @@ public:
 	QString to_string() const;
 
 	list_axes_t const& get_original_axes_list() const { return original_axes_list; }
+	list_axes_t const& get_axes_list() const { return axes_list; }
 	
 	QVector<PVCol> const& get_axes_index_list() const { return columns_indexes_list; }
-	void set_axes_index_list(QVector<PVCol> const& l) { columns_indexes_list = l; }
+	void set_axes_index_list(columns_indexes_t const& idxes, list_axes_t const& axes)
+	{
+		assert(idxes.size() == axes.size());
+		columns_indexes_list = idxes;
+		axes_list = axes;
+	}
 
 protected:
 	void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);

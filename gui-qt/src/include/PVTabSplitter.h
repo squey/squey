@@ -14,14 +14,19 @@
 #include <picviz/PVSource.h>
 #include <picviz/PVView.h>
 
+#include <pvhive/PVObserverSignal.h>
+
 #include <vector>
 
 namespace PVGuiQt {
+class PVAxesCombinationDialog;
+
 class PVLayerStackWidget;
 
 class PVListingModel;
 class PVListingSortFilterProxyModel;
 class PVListingView;
+
 class PVRootTreeModel;
 class PVRootTreeView;
 }
@@ -32,7 +37,6 @@ typedef std::vector<int> MatchingTable_t;
 
 class PVAxisPropertiesWidget;
 class PVMainWindow;
-class PVAxesCombinationDialog;
 class PVExtractorWidget;
 class PVListDisplayDlg;
 
@@ -54,59 +58,13 @@ private:
 	protected:
 		void delete_widgets();
 	public:
-		PVAxesCombinationDialog *pv_axes_combination_editor;
+		PVGuiQt::PVAxesCombinationDialog *pv_axes_combination_editor;
 		PVAxisPropertiesWidget  *pv_axes_properties;
 	};
 
 	friend class PVViewWidgets;
 
 public:
-	MatchingTable_t sortMatchingTable; //!<the table sort, modify this array to order the values. sortMatchingTable[0] is the position of the line 0 after sort.
-	MatchingTable_t sortMatchingTable_invert; //!<sortMatchingTable_invert[E] (E: a line in sorted table) return the real position in the nraw 
-	PVMainWindow     *main_window;   //!< The parent PVMainWindow of this PVTabSplitter
-	Picviz::PVSource_p _lib_src;    //!< The Picviz::PVSource object this tab is bound to
-
-	PVGuiQt::PVListingView *pv_listing_view; //!< The PVListingView attached with our main application
-
-	PVGuiQt::PVListingModel *pv_listing_model; //!< The listing model
-	PVGuiQt::PVListingSortFilterProxyModel* pv_listing_proxy_model;
-
-	PVGuiQt::PVLayerStackWidget *pv_layer_stack_widget;
-
-	PVGuiQt::PVRootTreeView*  _data_tree_view;
-	PVGuiQt::PVRootTreeModel* _data_tree_model;
-
-	PVListDisplayDlg* _inv_elts_dlg;
-
-	PVExtractorWidget *_pv_extractor; //!< The extractor widget of this view
-
-	int screenshot_index;
-
-	QHash<Picviz::PVView const*, PVViewWidgets> _view_widgets;
-
-public slots:
-	// FIXME!			void update_row_count_in_all_dynamic_listing_model_Slot();
-	/* void update_to_current_selection_Slot();*/
-
-	/**
-	 * The Slot that will refresh the content of the PVListingView
-	 */
-	void refresh_listing_Slot();
-
-	/**
-	 * The Slot that will refresh the PVListingView with it's horizontal header
-	 */
-	void refresh_listing_with_horizontal_header_Slot();
-
-	/**
-	 *
-	 */
-	void selection_changed_Slot();
-
-	/**
-	 *
-	 */
-	void update_pv_listing_model_Slot();
 
 public:
 	/**
@@ -116,7 +74,7 @@ public:
 	 * @param lib_view
 	 * @param parent
 	 */
-	PVTabSplitter(PVMainWindow *mw, Picviz::PVSource_p lib_src, QWidget *parent);
+	PVTabSplitter(Picviz::PVSource& lib_src, QWidget *parent);
 
 	virtual ~PVTabSplitter();
 
@@ -136,9 +94,9 @@ public:
 	 *
 	 * @return a pointer to the current Picviz::PVView attached to this PVMainSplitter
 	 */
-	Picviz::PVView* get_lib_view() const
+	Picviz::PVView* get_lib_view()
 	{
-		Picviz::PVView* ret(_lib_src->current_view());
+		Picviz::PVView* ret(get_lib_src()->current_view());
 		assert(ret);
 		return ret;
 	}
@@ -147,13 +105,7 @@ public:
 	 *
 	 * @return a pointer to the bound Picviz::PVSource
 	 */
-	Picviz::PVSource_p get_lib_src() const { return _lib_src; }
-
-	/**
-	 *
-	 * @return a pointer to the Picviz::PVMainWindow attached to this PVMainSplitter
-	 */
-	PVMainWindow* get_main_window() const { return main_window; }
+	Picviz::PVSource* get_lib_src() { return _obs_src.get_object(); }
 
 	void ensure_column_visible(PVCol col);
 
@@ -163,16 +115,16 @@ public:
 	 */
 	PVExtractorWidget* get_extractor_widget() const {return _pv_extractor;}
 
-	PVAxesCombinationDialog* get_axes_combination_editor(Picviz::PVView* view);
+	PVGuiQt::PVAxesCombinationDialog* get_axes_combination_editor(Picviz::PVView* view);
 
 	PVAxisPropertiesWidget* get_axes_properties_widget(Picviz::PVView* view);
 
 	QString get_current_view_name() { return get_current_view_name(get_lib_src()); };
-	static QString get_current_view_name(Picviz::PVSource_p src);
-	QString get_tab_name() { return get_tab_name(_lib_src); }
-	static QString get_tab_name(Picviz::PVSource_p src) { return src->get_window_name(); }
-	QString get_src_name() { return _lib_src->get_name(); }
-	QString get_src_type() { return _lib_src->get_format_name(); }
+	static QString get_current_view_name(Picviz::PVSource* src);
+	QString get_tab_name() { return get_tab_name(get_lib_src()); }
+	static QString get_tab_name(Picviz::PVSource* src) { return src->get_window_name(); }
+	QString get_src_name() { return get_lib_src()->get_name(); }
+	QString get_src_type() { return get_lib_src()->get_format_name(); }
 
 	PVViewWidgets const& get_view_widgets(Picviz::PVView* view);
 
@@ -181,8 +133,6 @@ public:
 	 * @return the index of the next screenshot
 	 */
 	int get_screenshot_index();
-
-	MatchingTable_t *getSortMatchingTable(){return &sortMatchingTable;}
 
 	/**
 	 * Increments the index of the next screenshot
@@ -214,13 +164,10 @@ public:
 	bool process_extraction_job(PVRush::PVControllerJob_p job);
 
 public slots:
-	/**
-	 * The Slot that will refresh the PVLayerStackWidget
-	 */
-	void refresh_layer_stack_view_Slot(); // From PVLayerStackWindow
-	void refresh_axes_combination_Slot();
-	void source_changed_Slot();
 	void show_unique_values(PVCol col);
+
+private slots:
+	void source_about_to_be_deleted();
 
 signals:
 	/**
@@ -233,8 +180,28 @@ signals:
 	 */
 	void source_changed();
 
-public:
+private:
+	PVGuiQt::PVListingView *pv_listing_view; //!< The PVListingView attached with our main application
+
+	PVGuiQt::PVListingModel *pv_listing_model; //!< The listing model
+	PVGuiQt::PVListingSortFilterProxyModel* pv_listing_proxy_model;
+
+	PVGuiQt::PVLayerStackWidget *pv_layer_stack_widget;
+
+	PVGuiQt::PVRootTreeView*  _data_tree_view;
+	PVGuiQt::PVRootTreeModel* _data_tree_model;
+
+	PVListDisplayDlg* _inv_elts_dlg;
+
+	PVExtractorWidget *_pv_extractor; //!< The extractor widget of this view
+
+	int screenshot_index;
+
+	QHash<Picviz::PVView const*, PVViewWidgets> _view_widgets;
+
+	PVHive::PVObserverSignal<Picviz::PVSource> _obs_src;
 };
+
 }
 
 #endif

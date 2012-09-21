@@ -4,7 +4,6 @@
  * Copyright (C) Picviz Labs 2010-2012
  */
 
-#include <pvkernel/core/PVAlgorithms.h>
 #include <pvparallelview/PVAxisSlider.h>
 
 #include <QPainter>
@@ -22,13 +21,9 @@ PVParallelView::PVAxisSlider::PVAxisSlider(int omin, int omax, int o) :
 {
 	setAcceptHoverEvents(true); // This is needed to enable hover events
 
-	if(o < omin) {
-		_offset = omin;
-	} else if (o > omax) {
-		_offset = omax;
-	} else {
-		_offset = o;
-	}
+	setFlag(QGraphicsItem::ItemIgnoresTransformations, true);
+
+	set_value(o);
 }
 
 /*****************************************************************************
@@ -54,10 +49,10 @@ bool PVParallelView::PVAxisSlider::is_moving() const
  * PVParallelView::PVAxisSlider::boundingRect
  *****************************************************************************/
 
-QRectF PVParallelView::PVAxisSlider::boundingRect () const
+QRectF PVParallelView::PVAxisSlider::boundingRect() const
 {
-	return QRectF(- SLIDER_HALF_WIDTH, _offset - 1,
-	              SLIDER_WIDTH, PVParallelView::AxisWidth);
+	return QRectF(QPointF(- SLIDER_HALF_WIDTH, 0),
+	              QPointF(SLIDER_HALF_WIDTH, PVParallelView::AxisWidth));
 }
 
 /*****************************************************************************
@@ -68,14 +63,12 @@ void PVParallelView::PVAxisSlider::paint(QPainter *painter,
                                          const QStyleOptionGraphicsItem */*option*/,
                                          QWidget */*widget*/)
 {
-	painter->fillRect(- SLIDER_HALF_WIDTH, _offset - 1,
-	                  SLIDER_WIDTH,  PVParallelView::AxisWidth,
+	painter->fillRect(boundingRect(),
 	                  Qt::black);
 
 	QPen old_pen = painter->pen();
 	painter->setPen(Qt::white);
-	painter->drawRect(- SLIDER_HALF_WIDTH, _offset - 1,
-	                  SLIDER_WIDTH,  PVParallelView::AxisWidth);
+	painter->drawRect(boundingRect());
 	painter->setPen(old_pen);
 }
 
@@ -122,8 +115,8 @@ void PVParallelView::PVAxisSlider::mousePressEvent(QGraphicsSceneMouseEvent* /*e
 
 void PVParallelView::PVAxisSlider::mouseReleaseEvent(QGraphicsSceneMouseEvent* /*event*/)
 {
-	_moving = false;
 	emit slider_moved();
+	_moving = false;
 	//event->accept();
 }
 
@@ -134,7 +127,9 @@ void PVParallelView::PVAxisSlider::mouseReleaseEvent(QGraphicsSceneMouseEvent* /
 void PVParallelView::PVAxisSlider::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
 	if (event->buttons() == Qt::LeftButton) {
-		_offset = PVCore::clamp(event->pos().y(), (qreal) 0, (qreal) PVParallelView::ImageHeight-1);
+		// +0.5 to have a rounded value
+		set_value(event->scenePos().y() + 0.5);
+
 		group()->update();
 	}
 	event->accept();

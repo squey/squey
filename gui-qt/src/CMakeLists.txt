@@ -200,8 +200,6 @@ picviz-inspector_resource.qrc
 
 SET(UI_FILES
 PVAxisComputationDlg.ui
-PVAxesCombinationWidget.ui
-PVAxesCombinationWidgetSelRange.ui
 widgets/format-builder/PVAxisTagHelp.ui
 ui/PVViewCorrelationWidget.ui
 PVListDisplayDlg.ui

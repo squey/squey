@@ -9,8 +9,8 @@
 
 #include "common.h"
 
-Picviz::PVView_sp g_fake_view;
-Picviz::PVPlotted::uint_plotted_table_t g_norm_plotted;
+static Picviz::PVView_sp g_fake_view;
+static Picviz::PVPlotted::uint_plotted_table_t g_norm_plotted;
 
 
 static void init_rand_plotted(Picviz::PVPlotted::plotted_table_t& p, PVRow nrows, PVCol ncols)
@@ -28,6 +28,7 @@ void usage(const char* path)
 	std::cerr << "Usage: " << path << " [plotted_file] [nrows] [ncols]" << std::endl;
 }
 
+Picviz::PVView_sp& get_view_sp() { return g_fake_view; }
 
 PVParallelView::PVLibView* create_lib_view_from_args(int argc, char** argv)
 {
@@ -91,7 +92,6 @@ PVParallelView::PVLibView* create_lib_view_from_args(int argc, char** argv)
 	g_fake_view->set_fake_axes_comb(ncols);
 
 	PVParallelView::PVLibView* plib_view = PVParallelView::common::get_lib_view(*g_fake_view, norm_plotted, nrows, ncols);
-	plib_view->get_zones_manager().update_all();
 
 	return plib_view;
 }

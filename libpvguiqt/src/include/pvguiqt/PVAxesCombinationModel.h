@@ -123,6 +123,7 @@ private:
 	__impl::remove_column_Observer _remove_column_observer;
 	__impl::axis_append_Observer _axis_append_observer;
 	__impl::move_axis_to_new_position_Observer _move_axis_to_new_position_observer;
+	PVHive::PVObserverSignal<Picviz::PVAxesCombination::columns_indexes_t> _obs_axes_comb;
 };
 
 }

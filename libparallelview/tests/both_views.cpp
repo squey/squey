@@ -23,6 +23,8 @@
 #include <pvparallelview/PVFullParallelScene.h>
 #include <pvparallelview/PVFullParallelView.h>
 
+#include <pvguiqt/PVAxesCombinationDialog.h>
+
 #include <pvparallelview/PVLibView.h>
 
 #include <pvbase/general.h>
@@ -46,10 +48,17 @@ int main(int argc, char** argv)
 	if (plib_view == NULL) {
 		return 1;
 	}
-	plib_view->create_view();
+	PVParallelView::PVFullParallelView* fpv = plib_view->create_view();
+	fpv->show();
 
 	ZoomDlg* zdlg = new ZoomDlg(*plib_view);
 	zdlg->show();
+
+	{
+		Picviz::PVView_sp view_sp = plib_view->lib_view()->shared_from_this();
+		PVGuiQt::PVAxesCombinationDialog* axes_dlg = new PVGuiQt::PVAxesCombinationDialog(view_sp);
+		axes_dlg->show();
+	}
 
 	app.exec();
 

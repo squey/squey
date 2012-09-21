@@ -29,7 +29,9 @@ Picviz::PVPlotting::PVPlotting(PVPlotted* plotted):
 	PVRush::PVFormat_p format = _plotted->get_parent()->get_format();
 
 	for (int i=0; i < format->get_axes().size(); i++) {
-		PVPlottingProperties plotting_axis(*_plotted->get_parent()->get_mapping(), *format, i);
+		Picviz::PVMapping* mapping = _plotted->get_parent()->get_mapping();
+		assert(mapping);
+		PVPlottingProperties plotting_axis(*mapping, *format, i);
 		_columns << plotting_axis;
 		PVLOG_HEAVYDEBUG("%s: Add a column\n", __FUNCTION__);
 	}
@@ -186,6 +188,13 @@ void Picviz::PVPlotting::serialize(PVCore::PVSerializeObject &so, PVCore::PVSeri
 {
 	so.list("properties", _columns);
 	so.attribute("name", _name);
+	if (!so.is_writing()) {
+		Picviz::PVMapping* mapping = _plotted->get_parent()->get_mapping();
+		assert(mapping);
+		for (PVPlottingProperties& p: _columns) {
+			p.set_mapping(*mapping);
+		}
+	}
 }
 
 

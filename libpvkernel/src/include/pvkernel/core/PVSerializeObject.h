@@ -225,6 +225,12 @@ public:
 	 */
 	bool buffer_path(QString const& name, QString& path);
 
+	/*! \brief Checks whether a buffer exists or not when reading an archive
+	 *  \param[in] name Name of the buffer. This will be used for the underlying filename.
+	 *  \return true if the buffer exists, false otherwise (or if the archive is being written)
+	 */
+	bool buffer_exists(QString const& name);
+
 	/*! \brief Include an existing file, given its path.
 	 *  \param[in] name Name of this file. This will be used as the underlying destination filename.
 	 *  \param[in,out] path Path to the file. When reading the archive, this is set to the extracted file path.

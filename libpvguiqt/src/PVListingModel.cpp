@@ -45,8 +45,10 @@ PVGuiQt::PVListingModel::PVListingModel(Picviz::PVView_sp& view, QObject* parent
 
 	PVHive::get().register_actor(view, _actor);
 	PVHive::get().register_observer(view, _obs);
+	PVHive::get().register_observer(view, [=](Picviz::PVView& v) { return &v.get_axes_combination().get_axes_index_list(); }, _obs_axes_comb);
 
 	_obs.connect_about_to_be_deleted(this, SLOT(view_about_to_be_deleted(PVHive::PVObserverBase*)));
+	_obs_axes_comb.connect_refresh(this, SLOT(axes_comb_changed()));
 }
 
 
@@ -62,7 +64,7 @@ int PVGuiQt::PVListingModel::columnCount(const QModelIndex &) const
 		return 0;
 	}
 
-	return lib_view().get_parent<Picviz::PVSource>()->get_column_count();
+	return lib_view().get_column_count();
 }
 
 /******************************************************************************
@@ -74,9 +76,10 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex &index, int role) const
 {
 	assert(_view_valid);
 
+	const PVCol org_col = lib_view().get_original_axis_index(index.column());
 	switch (role) {
 		case (Qt::DisplayRole):
-			return lib_view().get_parent<Picviz::PVSource>()->get_value(index.row(), index.column());
+			return lib_view().get_parent<Picviz::PVSource>()->get_value(index.row(), org_col);
 
 		case (Qt::TextAlignmentRole):
 			return (Qt::AlignLeft + Qt::AlignVCenter);
@@ -142,7 +145,7 @@ QVariant PVGuiQt::PVListingModel::headerData(int section, Qt::Orientation orient
 	switch (role) {
 		case (Qt::DisplayRole):
 			if (orientation == Qt::Horizontal) {
-				QString axis_name(lib_view().get_original_axis_name(section));
+				QString axis_name(lib_view().get_axis_name(section));
 				return QVariant(axis_name);
 			} else {
 				if (section < 0) {
@@ -194,4 +197,9 @@ void PVGuiQt::PVListingModel::view_about_to_be_deleted(PVHive::PVObserverBase* /
 	beginResetModel();
 	_view_valid = false;
 	endResetModel();
+}
+
+void PVGuiQt::PVListingModel::axes_comb_changed()
+{
+	reset();
 }

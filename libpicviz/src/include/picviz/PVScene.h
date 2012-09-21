@@ -110,7 +110,8 @@ private:
 	PVCore::PVSerializeArchive_p _original_archive;
 };
 
-typedef PVScene::p_type PVScene_p;
+typedef PVScene::p_type  PVScene_p;
+typedef PVScene::wp_type PVScene_wp;
 
 }
 

@@ -21,146 +21,148 @@ PVParallelView::PVSlidersManager::~PVSlidersManager()
  * PVParallelView::PVSlidersManager::new_zoom_sliders
  *****************************************************************************/
 
-void PVParallelView::PVSlidersManager::new_zoom_sliders(const PVCol axis,
+void PVParallelView::PVSlidersManager::new_zoom_sliders(const PVZoneID axis_index,
                                                         const id_t id,
                                                         const uint32_t y_min,
                                                         const uint32_t y_max)
 {
-	new_interval_sliders(_zoom_geometries, axis, id, y_min, y_max);
+	new_range_sliders(_zoom_geometries, axis_index, id, y_min, y_max);
 }
 
 /*****************************************************************************
  * PVParallelView::PVSlidersManager::new_selection_sliders
  *****************************************************************************/
 
-void PVParallelView::PVSlidersManager::new_selection_sliders(const PVCol axis,
+void PVParallelView::PVSlidersManager::new_selection_sliders(const PVZoneID axis_index,
                                                              const id_t id,
                                                              const uint32_t y_min,
                                                              const uint32_t y_max)
 {
-	new_interval_sliders(_selection_geometries, axis, id, y_min, y_max);
+	new_range_sliders(_selection_geometries, axis_index, id, y_min, y_max);
 }
 
 /*****************************************************************************
  * PVParallelView::PVSlidersManager::del_zoom_sliders
  *****************************************************************************/
 
-void PVParallelView::PVSlidersManager::del_zoom_sliders(const PVCol axis,
+void PVParallelView::PVSlidersManager::del_zoom_sliders(const PVZoneID axis_index,
                                                         const id_t id)
 {
-	del_interval_sliders(_zoom_geometries, axis, id);
+	del_range_sliders(_zoom_geometries, axis_index, id);
 }
 
 /*****************************************************************************
  * PVParallelView::PVSlidersManager::del_selection_sliders
  *****************************************************************************/
 
-void PVParallelView::PVSlidersManager::del_selection_sliders(const PVCol axis,
+void PVParallelView::PVSlidersManager::del_selection_sliders(const PVZoneID axis_index,
                                                              const id_t id)
 {
-	del_interval_sliders(_selection_geometries, axis, id);
+	del_range_sliders(_selection_geometries, axis_index, id);
 }
 
 /*****************************************************************************
  * PVParallelView::PVSlidersManager::update_zoom_sliders
  *****************************************************************************/
 
-void PVParallelView::PVSlidersManager::update_zoom_sliders(const PVCol axis,
+void PVParallelView::PVSlidersManager::update_zoom_sliders(const PVZoneID axis_index,
                                                            const id_t id,
                                                            const uint32_t y_min,
-                                                           const uint32_t y_max)
+                                                           const uint32_t y_max,
+                                                           const ZoomSliderChange)
 {
-	update_interval_sliders(_zoom_geometries, axis, id, y_min, y_max);
+	// the last parameter is useless for the manager
+	update_range_sliders(_zoom_geometries, axis_index, id, y_min, y_max);
 }
 
 /*****************************************************************************
  * PVParallelView::PVSlidersManager::update_selection_sliders
  *****************************************************************************/
 
-void PVParallelView::PVSlidersManager::update_selection_sliders(const PVCol axis,
+void PVParallelView::PVSlidersManager::update_selection_sliders(const PVZoneID axis_index,
                                                                 const id_t id,
                                                                 const uint32_t y_min,
                                                                 const uint32_t y_max)
 {
-	update_interval_sliders(_selection_geometries, axis, id, y_min, y_max);
+	update_range_sliders(_selection_geometries, axis_index, id, y_min, y_max);
 }
 
 /*****************************************************************************
  * PVParallelView::PVSlidersManager::iterate_zoom_sliders
  *****************************************************************************/
 
-void PVParallelView::PVSlidersManager::iterate_zoom_sliders(const interval_functor_t &functor) const
+void PVParallelView::PVSlidersManager::iterate_zoom_sliders(const range_functor_t &functor) const
 {
-	iterate_interval_sliders(_zoom_geometries, functor);
+	iterate_range_sliders(_zoom_geometries, functor);
 }
 
 /*****************************************************************************
  * PVParallelView::PVSlidersManager::iterate_selection_sliders
  *****************************************************************************/
 
-void PVParallelView::PVSlidersManager::iterate_selection_sliders(const interval_functor_t &functor) const
+void PVParallelView::PVSlidersManager::iterate_selection_sliders(const range_functor_t &functor) const
 {
-	iterate_interval_sliders(_selection_geometries, functor);
+	iterate_range_sliders(_selection_geometries, functor);
 }
 
 /*****************************************************************************
- * PVParallelView::PVSlidersManager::new_interval_sliders
+ * PVParallelView::PVSlidersManager::new_range_sliders
  *****************************************************************************/
 
-void PVParallelView::PVSlidersManager::new_interval_sliders(interval_geometry_set_t &interval,
-                                                            const PVCol axis,
-                                                            const id_t id,
-                                                            const uint32_t y_min,
-                                                            const uint32_t y_max)
+void PVParallelView::PVSlidersManager::new_range_sliders(range_geometry_set_t &range,
+                                                         const PVZoneID axis_index,
+                                                         const id_t id,
+                                                         const uint32_t y_min,
+                                                         const uint32_t y_max)
 {
-	update_interval_sliders(interval, axis, id, y_min, y_max);
+	update_range_sliders(range, axis_index, id, y_min, y_max);
 }
 
 /*****************************************************************************
- * PVParallelView::PVSlidersManager::del_interval_sliders
+ * PVParallelView::PVSlidersManager::del_range_sliders
  *****************************************************************************/
 
-void PVParallelView::PVSlidersManager::del_interval_sliders(interval_geometry_set_t &interval,
-                                                            const PVCol axis,
-                                                            const id_t id)
+void PVParallelView::PVSlidersManager::del_range_sliders(range_geometry_set_t &range,
+                                                         const PVZoneID axis_index,
+                                                         const id_t id)
 {
-	interval_geometry_set_t::iterator ai = interval.find(axis);
-	if (ai != interval.end()) {
-		interval_geometry_list_t::const_iterator ii = ai->second.find(id);
+	range_geometry_set_t::iterator ai = range.find(axis_index);
+	if (ai != range.end()) {
+		range_geometry_list_t::const_iterator ii = ai->second.find(id);
 		if (ii != ai->second.end()) {
 			ai->second.erase(ii);
 		}
 		if (ai->second.empty()) {
-			interval.erase(ai);
+			range.erase(ai);
 		}
 	}
 }
 
 /*****************************************************************************
- * PVParallelView::PVSlidersManager::update_interval_sliders
+ * PVParallelView::PVSlidersManager::update_range_sliders
  *****************************************************************************/
 
-void PVParallelView::PVSlidersManager::update_interval_sliders(interval_geometry_set_t &interval,
-                                                               const PVCol axis,
-                                                               const id_t id,
-                                                               const uint32_t y_min,
-                                                               const uint32_t y_max)
+void PVParallelView::PVSlidersManager::update_range_sliders(range_geometry_set_t &range,
+                                                            const PVZoneID axis_index,
+                                                            const id_t id,
+                                                            const uint32_t y_min,
+                                                            const uint32_t y_max)
 {
-	interval_geometry_t &geom = interval[axis][id];
+	range_geometry_t &geom = range[axis_index][id];
 	geom.y_min = y_min;
 	geom.y_max = y_max;
 }
 
 /*****************************************************************************
- * PVParallelView::PVSlidersManager::iterate_interval_sliders
+ * PVParallelView::PVSlidersManager::iterate_range_sliders
  *****************************************************************************/
 
-void PVParallelView::PVSlidersManager::iterate_interval_sliders(const interval_geometry_set_t &interval,
-                                                                const interval_functor_t &functor) const
+void PVParallelView::PVSlidersManager::iterate_range_sliders(const range_geometry_set_t &range,
+                                                             const range_functor_t &functor) const
 {
-	for(interval_geometry_set_t::const_iterator it = interval.begin();
-	    it != interval.end(); ++it) {
-		for(interval_geometry_list_t::const_iterator ait = it->second.begin();
+	for(range_geometry_set_t::const_iterator it = range.begin();
+	    it != range.end(); ++it) {
+		for(range_geometry_list_t::const_iterator ait = it->second.begin();
 		    ait != it->second.end(); ++ait) {
 			functor(it->first, ait->first, ait->second);
 		}

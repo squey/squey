@@ -122,7 +122,8 @@ protected:
 	PVMapping_p _mapping;
 };
 
-typedef PVMapped::p_type PVMapped_p;
+typedef PVMapped::p_type  PVMapped_p;
+typedef PVMapped::wp_type PVMapped_wp;
 
 }
 

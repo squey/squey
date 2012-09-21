@@ -33,7 +33,6 @@ PVInspector::PVExtractorWidget::PVExtractorWidget(PVTabSplitter* parent_tab) :
 	QDialog((QWidget*)parent_tab),
 	_ext(parent_tab->get_lib_view()->get_extractor())
 {
-	main_window = parent_tab->get_main_window();
 	_view = parent_tab->get_lib_view();
 	_inspector_tab = parent_tab;
 	_batch_size = _view->last_extractor_batch_size;

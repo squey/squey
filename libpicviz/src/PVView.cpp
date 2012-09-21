@@ -332,7 +332,7 @@ const PVCore::PVHSVColor Picviz::PVView::get_color_in_output_layer(PVRow index) 
  *****************************************************************************/
 PVCol Picviz::PVView::get_column_count() const
 {
-	return get_parent<PVPlotted>()->get_column_count();
+	return get_axes_combination().get_axes_count();
 }
 
 /******************************************************************************
@@ -1434,9 +1434,9 @@ void Picviz::PVView::emit_user_modified_sel(QList<Picviz::PVView*>* changed_view
 	}
 }
 
-void Picviz::PVView::set_axes_combination_list_id(QVector<PVCol> const& l)
+void Picviz::PVView::set_axes_combination_list_id(PVAxesCombination::columns_indexes_t const& idxes, PVAxesCombination::list_axes_t const& axes)
 {
-	get_axes_combination().set_axes_index_list(l);
+	get_axes_combination().set_axes_index_list(idxes, axes);
 }
 
 // Load/save and serialization

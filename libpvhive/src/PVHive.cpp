@@ -77,6 +77,10 @@ void PVHive::PVHive::unregister_object(void *object)
 				// and observers
 				for (auto pit = pacc->second.observers.rbegin();
 				     pit != pacc->second.observers.rend(); ++pit) {
+					(*pit)->object_about_to_be_unregistered();
+				}
+				for (auto pit = pacc->second.observers.rbegin();
+				     pit != pacc->second.observers.rend(); ++pit) {
 					(*pit)->about_to_be_deleted();
 				}
 			}
@@ -89,6 +93,10 @@ void PVHive::PVHive::unregister_object(void *object)
 		}
 
 		// and observers
+		for (auto it = acc->second.observers.rbegin();
+		     it != acc->second.observers.rend(); ++it) {
+			(*it)->object_about_to_be_unregistered();
+		}
 		for (auto it = acc->second.observers.rbegin();
 		     it != acc->second.observers.rend(); ++it) {
 			(*it)->about_to_be_deleted();

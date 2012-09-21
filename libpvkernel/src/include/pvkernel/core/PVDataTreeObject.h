@@ -457,6 +457,7 @@ private:
 
 public:
 	typedef PVDataTreeAutoShared<real_type_t> p_type;
+	typedef PVCore::PVWeakPtr<real_type_t>   wp_type;
 
 public:
 	/*! \brief Default constructor
@@ -512,6 +513,7 @@ private:
 
 public:
 	typedef PVDataTreeAutoShared<real_type_t> p_type;
+	typedef PVCore::PVWeakPtr<real_type_t>   wp_type;
 	typedef real_type_t root_t;
 
 public:
@@ -562,6 +564,7 @@ private:
 
 public:
 	typedef PVDataTreeAutoShared<real_type_t> p_type;
+	typedef PVCore::PVWeakPtr<real_type_t>   wp_type;
 	typedef Tparent parent_t;
 	typedef typename parent_t::root_t root_t;
 

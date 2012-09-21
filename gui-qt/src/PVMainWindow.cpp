@@ -408,16 +408,8 @@ void PVInspector::PVMainWindow::close_scene()
  *****************************************************************************/
 void PVInspector::PVMainWindow::close_source(PVTabSplitter* tab)
 {
-	Picviz::PVSource_p src(tab->get_lib_src());
-
-	// Destroy all views
-	/*Picviz::PVSource::list_views_t const& views = src->get_views();
-	Picviz::PVSource::list_views_t::const_iterator it;
-	for (it = views.begin(); it != views.end(); it++) {
-		destroy_pvgl_views(*it);
-	}*/
-	_scene->remove_child(src);
-	//pv_ListingsTabWidget->remove_listing(tab);
+	Picviz::PVSource* src = tab->get_lib_src();
+	_scene->remove_child(*src);
 }
 
 
@@ -1696,7 +1688,7 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_p src)
 	pvsdk_messenger->post_message_to_gl(message);*/
 
 	// Add the source's tab
-	current_tab = new PVTabSplitter(this, src, pv_ListingsTabWidget);
+	current_tab = new PVTabSplitter(*src, pv_ListingsTabWidget);
 	connect(current_tab,SIGNAL(selection_changed_signal(bool)),this,SLOT(enable_menu_filter_Slot(bool)));
 	connect(current_tab, SIGNAL(source_changed()), this, SLOT(project_modified_Slot()));
 	int new_tab_index = pv_ListingsTabWidget->addTab(current_tab, current_tab->get_tab_name());

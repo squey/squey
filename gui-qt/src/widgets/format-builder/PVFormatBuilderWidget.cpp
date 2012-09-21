@@ -6,7 +6,6 @@
 
 #include <QSplitter>
 
-#include <PVAxesCombinationWidget.h>
 #include <PVFormatBuilderWidget.h>
 #include <PVXmlTreeItemDelegate.h>
 #include <PVXmlParamWidget.h>
@@ -17,6 +16,8 @@
 #include <pvkernel/rush/PVSourceCreatorFactory.h>
 #include <pvkernel/rush/PVInput.h>
 #include <pvkernel/filter/PVFieldSplitterChunkMatch.h>
+
+#include <pvguiqt/PVAxesCombinationWidget.h>
 
 #define FORMAT_BUILDER_TITLE (QObject::tr("Format builder"))
 /******************************************************************************
@@ -132,8 +133,8 @@ void PVInspector::PVFormatBuilderWidget::init(QWidget* parent)
 	vb_widget->setLayout(vb);
 	_main_tab->addTab(vb_widget, tr("Filters"));
 
-	//_axes_comb_widget = new PVAxesCombinationWidget(myTreeModel->get_axes_combination());
-	//_main_tab->addTab(_axes_comb_widget, tr("Axes combination"));
+	_axes_comb_widget = new PVGuiQt::PVAxesCombinationWidget(myTreeModel->get_axes_combination());
+	_main_tab->addTab(_axes_comb_widget, tr("Axes combination"));
 
 	main_splitter->addWidget(_main_tab);
 

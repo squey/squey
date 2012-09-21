@@ -20,6 +20,9 @@ class PVHive;
 class PVFuncObserverBase: public PVObserverObjectBase
 {
 public:
+	PVFuncObserverBase(void* f):
+		_f(f)
+	{ }
 	virtual ~PVFuncObserverBase();
 
 	void do_about_to_be_updated(const void* args) const { do_about_to_be_updated_impl(args); }
@@ -49,7 +52,7 @@ class PVFuncObserverSignalBase: public QObject, public PVHive::PVFuncObserverBas
 	Q_OBJECT;
 
 public:
-	PVFuncObserverSignalBase();
+	PVFuncObserverSignalBase(void* f);
 	virtual ~PVFuncObserverSignalBase() {};
 
 protected:
@@ -81,6 +84,11 @@ public:
 	typedef PVCore::PVTypeTraits::function_traits<f_type> f_traits;
 	typedef typename f_traits::arguments_type arguments_type;
 	typedef typename f_traits::arguments_type arguments_deep_copy_type;
+
+public:
+	PVFuncObserverTemplatedBase():
+		B((void*)(bound_function))
+	{ }
 };
 
 /**
@@ -96,6 +104,11 @@ class PVFuncObserver : public PVFuncObserverTemplatedBase<PVFuncObserverBase, T,
 {
 public:
 	typedef typename PVCore::PVTypeTraits::function_traits<F>::arguments_type arguments_type;
+
+public:
+	PVFuncObserver():
+		PVFuncObserverTemplatedBase<PVFuncObserverBase, T, F, f>()
+	{ }
 
 private:
 	virtual void call_about_to_be_updated_with_casted_args(const void* args) const
@@ -127,6 +140,11 @@ class PVFuncObserverSignal : public PVFuncObserverTemplatedBase< ::__impl::PVFun
 {
 public:
 	typedef typename PVCore::PVTypeTraits::function_traits<F>::arguments_deep_copy_type arguments_deep_copy_type;
+
+public:
+	PVFuncObserverSignal():
+		PVFuncObserverTemplatedBase< ::__impl::PVFuncObserverSignalBase, T, F, f>()
+	{ }
 
 private:
 	virtual void call_about_to_be_updated_with_casted_args(const void* args) const

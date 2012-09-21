@@ -71,6 +71,11 @@ public:
 		return _weak_count.use_count() == 0;
 	}
 
+	inline void set_deleter(typename PVSharedPtr<T>::deleter d)
+	{
+		lock().set_deleter(d);
+	}
+
 	void reset()
 	{
 		PVWeakPtr<T>().swap(*this);

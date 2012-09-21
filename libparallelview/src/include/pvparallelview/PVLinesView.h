@@ -73,11 +73,14 @@ public:
 	typedef std::vector<ZoneImages> list_zone_images_t;
 
 public:
-	PVLinesView(zones_drawing_t& zd, PVZoneID nb_drawable_zones = 30, uint32_t zone_width = PVParallelView::ZoneMaxWidth);
+	PVLinesView(zones_drawing_t& zd, uint32_t zone_width = PVParallelView::ZoneMaxWidth);
 
 public:
 	void set_nb_drawable_zones(PVZoneID nb_zones);
+	PVZoneID get_nb_drawable_zones() const { return _zones_imgs.size(); }
 	void set_zone_max_width(uint32_t w);
+
+	int update_number_of_zones(int view_x, uint32_t view_width);
 
 public:
 	void render_all_imgs_bg(uint32_t view_width, tbb::task_group& grp_bg, PVRenderingJob* job);

@@ -14,9 +14,14 @@ PVParallelView::PVFullParallelView::PVFullParallelView(QWidget* parent):
 	QGraphicsView(parent)
 {
 	setViewport(new QWidget());
-	resize(1920, 1600);
+	resize(800, 600);
 	setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
-	show();
+	//show();
+}
+
+PVParallelView::PVFullParallelView::~PVFullParallelView()
+{
+	PVLOG_INFO("In PVFullParallelView destructor\n");
 }
 
 void PVParallelView::PVFullParallelView::paintEvent(QPaintEvent *event)

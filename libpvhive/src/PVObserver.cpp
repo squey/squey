@@ -10,14 +10,14 @@
 
 PVHive::PVObserverBase::~PVObserverBase()
 {
-	if (_object != nullptr) {
+	if (_object != nullptr && !is_object_about_to_be_unregistered()) {
 		PVHive::get().unregister_observer(*this);
 	}
 }
 
 PVHive::PVFuncObserverBase::~PVFuncObserverBase()
 {
-	if (_object != nullptr) {
+	if (_object != nullptr && !is_object_about_to_be_unregistered()) {
 		PVHive::get().unregister_func_observer(*this, _f);
 	}
 }

@@ -47,6 +47,15 @@ size_t PVCore::PVSerializeObject::buffer(QString const& name, void* buf, size_t 
 	return _parent_ar->buffer(*this, name, buf, n);
 }
 
+bool PVCore::PVSerializeObject::buffer_exists(QString const& name)
+{
+	QString path;
+	if (!buffer_path(name, path)) {
+		return false;
+	}
+	return (QFile(path).exists());
+}
+
 bool PVCore::PVSerializeObject::buffer_path(QString const& name, QString& path)
 {
 	if (is_writing()) {
