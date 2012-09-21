@@ -132,6 +132,11 @@ PVInspector::PVStartScreenWidget::PVStartScreenWidget(PVMainWindow* parent) : QW
 		format_widget_layout->addWidget(format_used_widget_line);
 		format_widget_layout->addWidget(format_text_used_label);
 
+		QVBoxLayout* recent_used_formats_layout = new QVBoxLayout();
+		format_widget_layout->addLayout(recent_used_formats_layout);
+		/*_recent_lists[PVMainWindow::ERecentItemsCategory::USED_FORMATS].layout = recent_used_formats_layout;
+		_recent_lists[PVMainWindow::ERecentItemsCategory::USED_FORMATS].slot = "";*/
+
 		// edited
 		QFrame* format_edited_widget_line = new QFrame(format_widget);
 		format_edited_widget_line->setFrameShape(QFrame::HLine);
@@ -139,14 +144,18 @@ PVInspector::PVStartScreenWidget::PVStartScreenWidget(PVMainWindow* parent) : QW
 		format_text_edited_label->setObjectName("PVStartScreenWidget_text");
 		format_widget_layout->addWidget(format_edited_widget_line);
 		format_widget_layout->addWidget(format_text_edited_label);
+		QVBoxLayout* recent_edited_formats_layout = new QVBoxLayout();
+		PVRecentList edited_formats_list(recent_edited_formats_layout, SLOT(edit_format_Slot(const QString &)));
+		_recent_lists[PVMainWindow::ERecentItemsCategory::EDITED_FORMATS] = edited_formats_list;
+		format_widget_layout->addLayout(recent_edited_formats_layout);
 
-		// detected
-		QFrame* format_detected_widget_line = new QFrame(format_widget);
-		format_detected_widget_line->setFrameShape(QFrame::HLine);
-		QLabel *format_text_detected_label = new QLabel("Recent detected formats:", format_widget);
-		format_text_detected_label->setObjectName("PVStartScreenWidget_text");
-		format_widget_layout->addWidget(format_detected_widget_line);
-		format_widget_layout->addWidget(format_text_detected_label);
+		// supported
+		QFrame* format_supported_widget_line = new QFrame(format_widget);
+		format_supported_widget_line->setFrameShape(QFrame::HLine);
+		QLabel *format_text_supported_label = new QLabel("Supported formats:", format_widget);
+		format_text_supported_label->setObjectName("PVStartScreenWidget_text");
+		format_widget_layout->addWidget(format_supported_widget_line);
+		format_widget_layout->addWidget(format_text_supported_label);
 
 	// projects (text and line)
 	QFrame* project_widget_line = new QFrame(import_widget);
@@ -155,8 +164,10 @@ PVInspector::PVStartScreenWidget::PVStartScreenWidget(PVMainWindow* parent) : QW
 	QLabel *project_text_label = new QLabel("Recent projects:", project_widget);
 	project_text_label->setObjectName("PVStartScreenWidget_text");
 	project_widget_layout->addWidget(project_text_label);
-	_recent_projects_layout = new QVBoxLayout();
-	project_widget_layout->addLayout(_recent_projects_layout);
+	QVBoxLayout* recent_projects_layout = new QVBoxLayout();
+	project_widget_layout->addLayout(recent_projects_layout);
+	PVRecentList project_list(recent_projects_layout, SLOT(load_project(const QString &)));
+	_recent_lists[PVMainWindow::ERecentItemsCategory::PROJECTS] = project_list;
 
 	// Imports (text and line)
 	QFrame* import_widget_line = new QFrame(project_widget);
@@ -165,6 +176,9 @@ PVInspector::PVStartScreenWidget::PVStartScreenWidget(PVMainWindow* parent) : QW
 	import_text_label->setObjectName("PVStartScreenWidget_text");
 	import_widget_layout->addWidget(import_widget_line);
 	import_widget_layout->addWidget(import_text_label);
+	QVBoxLayout* recent_imports_layout = new QVBoxLayout();
+	import_widget_layout->addLayout(recent_imports_layout);
+	//_recent_layouts[PVMainWindow::ERecentItemsCategory::SOURCES] = recent_imports_layout;
 	
 	// Final Stretch as Spacer ...
 	format_widget_layout->addStretch(1);
@@ -177,15 +191,25 @@ PVInspector::PVStartScreenWidget::PVStartScreenWidget(PVMainWindow* parent) : QW
 	connect(import_file_button, SIGNAL(clicked(bool)), _mw, SLOT(import_type_default_Slot()));
 	//connect(import_from_database_button, SIGNAL(clicked(bool)), _mw, SLOT(project_load_Slot()));
 	connect(create_new_format_button, SIGNAL(clicked(bool)), _mw, SLOT(new_format_Slot()));
+	connect(edit_format_button, SIGNAL(clicked(bool)), _mw, SLOT(open_format_Slot()));
 
-	update_recent_projects();
+	update_all_recent_items();
 }
 
-void PVInspector::PVStartScreenWidget::update_recent_projects()
+void PVInspector::PVStartScreenWidget::update_all_recent_items()
+{
+	/*for (int category = (int) PVMainWindow::ERecentItemsCategory::FIRST ; category < (int) PVMainWindow::ERecentItemsCategory::LAST; category++) {
+		update_recent_items((PVMainWindow::ERecentItemsCategory) category);
+	}*/
+	update_recent_items(PVMainWindow::ERecentItemsCategory::PROJECTS);
+	update_recent_items(PVMainWindow::ERecentItemsCategory::EDITED_FORMATS);
+}
+
+void PVInspector::PVStartScreenWidget::update_recent_items(PVMainWindow::ERecentItemsCategory category)
 {
 	// Clear layout
 	QLayoutItem* item = nullptr;
-	while ((item = _recent_projects_layout->takeAt(0)) != nullptr) {
+	while ((item = _recent_lists[category].layout->takeAt(0)) != nullptr) {
 		delete item->widget();
 		delete item;
 	}
@@ -195,28 +219,29 @@ void PVInspector::PVStartScreenWidget::update_recent_projects()
 	widget->setObjectName("RecentProjectItem");
 	QVBoxLayout* widget_layout = new QVBoxLayout();
 	widget->setLayout(widget_layout);
-	_recent_projects_layout->addWidget(widget);
+	_recent_lists[category].layout->addWidget(widget);
 
 	// Add recent items
-	for (QString project_filename : _mw->get_recent_projects_list()) {
+	for (QString url : _mw->get_recent_items_list(category)) {
 
 		// Icon
-		QFileInfo finfo(project_filename);
+		QFileInfo finfo(url);
 		QFileIconProvider ficon;
 		QIcon icon = ficon.icon(finfo);
 		QLabel* project_icon = new QLabel();
 		project_icon->setPixmap(icon.pixmap(20, 20));
 
 		// Label
-		QLabel* project_label = new QLabel();
-		project_label->setTextFormat(Qt::RichText);
-		project_label->setText(QString("<a href=\"%1\">%2</a>").arg(project_filename).arg(project_filename));
-		connect(project_label, SIGNAL(linkActivated(const QString &)), _mw, SLOT(load_project(const QString &)));
+		QLabel* label = new QLabel();
+		label->setTextFormat(Qt::RichText);
+		label->setText(QString("<a href=\"%1\">%2</a>").arg(url).arg(url));
+
+		connect(label, SIGNAL(linkActivated(const QString &)), _mw, _recent_lists[category].slot);
 
 		// Layout
 		QHBoxLayout* layout = new QHBoxLayout();
 		layout->addWidget(project_icon);
-		layout->addWidget(project_label);
+		layout->addWidget(label);
 		layout->addStretch();
 		widget_layout->addLayout(layout);
 	}

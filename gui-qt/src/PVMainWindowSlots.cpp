@@ -273,7 +273,7 @@ void PVInspector::PVMainWindow::lines_display_zombies_Slot()
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::lines_display_zombies_listing_Slot()
+ * PVInspector::PVMainWindow::lines_display_zombies_listing_Sloupdate_recent_projectst()
  *
  *****************************************************************************/
 void PVInspector::PVMainWindow::lines_display_zombies_listing_Slot()
@@ -559,7 +559,7 @@ void PVInspector::PVMainWindow::project_load_Slot()
 	if (is_project_untitled() && _scene->is_empty() && !isWindowModified()) {
 		load_project(file);
 	}
-	else {
+	else {update_recent_projects
 		PVMainWindow* other = new PVMainWindow();
 		if (!other->load_project(file)) {
 			other->deleteLater();
@@ -752,7 +752,7 @@ bool PVInspector::PVMainWindow::save_project(QString const& file, PVCore::PVSeri
 	}
 
 	set_current_project_filename(file);
-	add_to_recent_projects(file);
+	add_to_recent_items_list(file, ERecentItemsCategory::PROJECTS);
 
 	return true;
 #else
@@ -1066,6 +1066,24 @@ void PVInspector::PVMainWindow::cur_format_Slot()
 	connect(editorWidget, SIGNAL(rejected()), this, SLOT(cur_format_changed_Slot()));
 	editorWidget->openFormat(format.get_full_path());
     editorWidget->show();
+}
+
+void PVInspector::PVMainWindow::edit_format_Slot(const QString& format)
+{
+    PVFormatBuilderWidget *editorWidget = new PVFormatBuilderWidget(current_tab);
+	editorWidget->openFormat(format);
+    editorWidget->show();
+}
+
+void PVInspector::PVMainWindow::open_format_Slot()
+{
+    PVFormatBuilderWidget *editorWidget = new PVFormatBuilderWidget(this);
+    QString url = editorWidget->slotOpen();
+
+    if (!url.isEmpty()) {
+        editorWidget->show();
+    	add_to_recent_items_list(url, ERecentItemsCategory::EDITED_FORMATS);
+    }
 }
 
 void PVInspector::PVMainWindow::cur_format_changed_Slot()

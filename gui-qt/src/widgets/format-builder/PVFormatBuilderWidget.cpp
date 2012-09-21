@@ -456,11 +456,13 @@ void PVInspector::PVFormatBuilderWidget::slotNewWindow()
  * PVInspector::PVFormatBuilderWidget::slotOpen
  *
  *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::slotOpen() {
+QString PVInspector::PVFormatBuilderWidget::slotOpen() {
     QFileDialog fd;
     //open file chooser
     QString urlFile = fd.getOpenFileName(0, QString("Select the file."), PVRush::normalize_get_helpers_plugins_dirs(QString("text")).first());
 	openFormat(urlFile);
+
+	return urlFile;
 }
 
 

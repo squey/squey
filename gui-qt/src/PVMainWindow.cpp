@@ -25,6 +25,8 @@
 #include <PVStringListChooserWidget.h>
 #include <PVInputTypeMenuEntries.h>
 
+#include <PVStartScreenWidget.h>
+
 #ifdef CUSTOMER_RELEASE
   #ifdef WIN32
     #include <winlicensesdk.h>
@@ -1967,9 +1969,9 @@ bool PVInspector::PVMainWindow::SceneMenuEventFilter::eventFilter(QObject* obj, 
  * PVInspector::PVMainWindow::setCurrentFile
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::add_to_recent_projects(const QString &project_path)
+void PVInspector::PVMainWindow::add_to_recent_items_list(const QString &project_path, ERecentItemsCategory category)
 {
-	QString recent_projects_key = "recent_projects";
+	QString recent_projects_key = _recents_items_keys[category];
     QStringList files = _recents_settings.value(recent_projects_key).toStringList();
     files.removeAll(project_path);
     files.prepend(project_path);
@@ -1978,10 +1980,10 @@ void PVInspector::PVMainWindow::add_to_recent_projects(const QString &project_pa
 
     _recents_settings.setValue(recent_projects_key, files);
 
-    _start_screen_widget->update_recent_projects();
+    _start_screen_widget->update_recent_items(category);
 }
 
-const QStringList PVInspector::PVMainWindow::get_recent_projects_list()
+const QStringList PVInspector::PVMainWindow::get_recent_items_list(ERecentItemsCategory category)
 {
-	return _recents_settings.value("recent_projects").toStringList();
+	return _recents_settings.value(_recents_items_keys[category]).toStringList();
 }
