@@ -72,10 +72,20 @@ void PVParallelView::PVZoomAxisSliders::zoom_sliders_update_obs::update(argument
 	PVCol axis = std::get<0>(args);
 	PVSlidersManager::id_t id = std::get<1>(args);
 
-	if ((axis == _parent->_axis) && (id == _parent->_id)) {
-		_parent->_sl_min->set_value(std::get<2>(args));
-		_parent->_sl_max->set_value(std::get<3>(args));
+	// std::get<4>(args) (aka change) must not be used
 
-		emit _parent->sliders_moved();
+	if ((axis == _parent->_axis) && (id == _parent->_id)) {
+		int y_min = std::get<2>(args);
+		int y_max = std::get<3>(args);
+		if (y_max < y_min) {
+			int tmp = y_max;
+			y_max = y_min;
+			y_min = tmp;
+		}
+
+		_parent->_sl_min->set_range(0, y_max);
+		_parent->_sl_min->set_value(y_min);
+		_parent->_sl_max->set_range(y_min, 1024);
+		_parent->_sl_max->set_value(y_max);
 	}
 }

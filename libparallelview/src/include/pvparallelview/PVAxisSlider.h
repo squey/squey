@@ -40,6 +40,12 @@ public:
 
 	inline int value() { return _offset; }
 
+	void set_range(int omin, int omax)
+	{
+		_offset_min = omin;
+		_offset_max = omax;
+	}
+
 	QRectF boundingRect () const;
 	bool is_moving() const;
 

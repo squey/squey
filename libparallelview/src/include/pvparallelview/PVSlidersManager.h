@@ -23,8 +23,8 @@ class PVSlidersManager
 public:
 	typedef enum {
 		ZoomSliderNone   = 0,
-		ZoomSliderTop    = 1,
-		ZoomSliderBottom = 2,
+		ZoomSliderMin    = 1,
+		ZoomSliderMax    = 2,
 		ZoomSliderBoth   = 3 // 1 + 2
 	} ZoomSliderChange;
 

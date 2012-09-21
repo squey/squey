@@ -38,17 +38,19 @@ class PVZoomedParallelScene : public QGraphicsScene
 Q_OBJECT
 
 private:
-	friend class zoom_sliders_new_obs;
+	friend class zoom_sliders_update_obs;
 
 private:
 	constexpr static size_t bbits = PARALLELVIEW_ZZT_BBITS;
+	constexpr static double bbits_alpha_scale = 1. / (1. + (bbits - 10));
+
+	constexpr static int axis_half_width = PARALLELVIEW_AXIS_WIDTH / 2;
 	constexpr static uint32_t image_width = 512;
 	constexpr static uint32_t image_height = 1024;
-	constexpr static double bbits_alpha_scale = 1. / (1. + (bbits - 10));
+
 	constexpr static int zoom_steps = 5;
 	constexpr static double root_step = pow(2.0, 1.0 / zoom_steps);
 	constexpr static int max_wheel_value = 21 * zoom_steps;
-	constexpr static int axis_half_width = PARALLELVIEW_AXIS_WIDTH / 2;
 
 private:
 	typedef PVParallelView::PVZoomedZoneTree::context_t zzt_context_t;
@@ -103,20 +105,26 @@ private:
 	void update_zoom();
 
 private:
-	int get_zoom_level()
+	inline int get_zoom_level()
 	{
 		return _wheel_value / zoom_steps;
 	}
 
-	int get_zoom_step()
+	inline int get_zoom_step()
 	{
 		return _wheel_value % zoom_steps;
 	}
 
-	double get_scale_factor()
+	inline double get_scale_factor()
 	{
 		// Phillipe's magic formula: 2^n × a^k
 		return pow(2, get_zoom_level()) * pow(root_step, get_zoom_step());
+	}
+
+	inline double retrieve_wheel_value_from_alpha(const double &a)
+	{
+		// non simplified formula is: log2(1/a) / log2(root_steps)
+		return -zoom_steps * log2(a);
 	}
 
 	PVZonesManager& get_zones_manager() { return _zones_drawing.get_zones_manager(); }
@@ -129,6 +137,21 @@ private slots:
 	void zone_rendered_Slot(int z);
 	void filter_by_sel_finished_Slot(int zid, bool changed);
 	void commit_volatile_selection_Slot();
+
+private:
+	class zoom_sliders_update_obs :
+		public PVHive::PVFuncObserver<PVSlidersManager,
+		                              FUNC(PVSlidersManager::update_zoom_sliders)>
+		{
+		public:
+			zoom_sliders_update_obs(PVZoomedParallelScene *parent = nullptr) : _parent(parent)
+			{}
+
+			void update(arguments_deep_copy_type const& args) const;
+
+		private:
+			PVZoomedParallelScene *_parent;
+		};
 
 private:
 	typedef enum {
@@ -151,6 +174,7 @@ private:
 	Picviz::PVView&                _pvview;
 	PVSlidersManager_p             _sliders_manager_p;
 	PVSlidersGroup                *_sliders_group;
+	zoom_sliders_update_obs        _zsu_obs;
 	zones_drawing_t               &_zones_drawing;
 	PVCol                          _axis;
 

@@ -52,6 +52,7 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 	_zpview(zpview),
 	_pvview(*pvview_p),
 	_sliders_manager_p(sliders_manager_p),
+	_zsu_obs(this),
 	_zones_drawing(zones_drawing),
 	_axis(axis),
 	_left_zone(nullptr),
@@ -65,8 +66,8 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 	_zpview->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
 	_zpview->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
 
-	// _zpview->setMaximumWidth(1024);
-	// _zpview->setMaximumHeight(1024);
+	_zpview->setMaximumWidth(1024);
+	_zpview->setMaximumHeight(1024);
 
 	_selection_rect = new PVParallelView::PVSelectionSquareGraphicsItem(this);
 	connect(_selection_rect, SIGNAL(commit_volatile_selection()),
@@ -123,6 +124,9 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 	_sliders_group->setZValue(1.e42);
 
 	addItem(_sliders_group);
+
+	PVHive::PVHive::get().register_func_observer(sliders_manager_p,
+	                                             _zsu_obs);
 }
 
 /*****************************************************************************
@@ -367,7 +371,8 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 	PVHive::call<FUNC(PVSlidersManager::update_zoom_sliders)>(_sliders_manager_p,
 	                                                          _axis, _sliders_group,
 	                                                          y_min >> (32 - NBITS_INDEX),
-	                                                          y_max >> (32 - NBITS_INDEX));
+	                                                          y_max >> (32 - NBITS_INDEX),
+	                                                          PVParallelView::PVSlidersManager::ZoomSliderNone);
 
 	_next_beta = beta;
 
@@ -667,4 +672,47 @@ PVParallelView::PVZoomedParallelScene::filter_by_sel_finished_Slot(int zid,
 void PVParallelView::PVZoomedParallelScene::commit_volatile_selection_Slot()
 {
 	_selection_rect->finished();
+}
+
+/*****************************************************************************
+ * PVParallelView::PVZoomedParallelScene::zoom_sliders_update_obs::update
+ *****************************************************************************/
+
+void PVParallelView::PVZoomedParallelScene::zoom_sliders_update_obs::update(arguments_deep_copy_type const& args) const
+{
+	PVCol axis = std::get<0>(args);
+	PVSlidersManager::id_t id = std::get<1>(args);
+	PVParallelView::PVSlidersManager::ZoomSliderChange change = std::get<4>(args);
+
+	if (change == PVParallelView::PVSlidersManager::ZoomSliderNone) {
+		return;
+	}
+
+	if ((axis == _parent->_axis) && (id == _parent->_sliders_group)) {
+		double sld_min = std::get<2>(args);
+		double sld_max = std::get<3>(args);
+		double sld_dist = sld_max - sld_min;
+
+		// computing the nearest range matching the discrete zoom rules
+		double y_dist = round(pow(2.0, (round(zoom_steps * log2(sld_dist)) / (double)zoom_steps)));
+
+		double screen_height = _parent->_zpview->viewport()->rect().height();
+		double wanted_alpha = PVCore::clamp<double>(y_dist / screen_height, 0., 1.);
+		_parent->_wheel_value = (int)round(_parent->retrieve_wheel_value_from_alpha(wanted_alpha));
+
+		if (change == PVParallelView::PVSlidersManager::ZoomSliderMin) {
+			sld_max = round(PVCore::clamp<double>(sld_min + y_dist,
+			                                      0., image_height));
+		} else if (change == PVParallelView::PVSlidersManager::ZoomSliderMax) {
+			sld_min = round(PVCore::clamp<double>(sld_max - y_dist,
+			                                      0., image_height));
+		} else {
+			PVLOG_WARN("did you expect to move the 2 zoom sliders at the same time?\n");
+			return;
+		}
+
+		_parent->_zpview->centerOn(0., 0.5 * (sld_min + sld_max));
+
+		_parent->update_zoom();
+	}
 }
