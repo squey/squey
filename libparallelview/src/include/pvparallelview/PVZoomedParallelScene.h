@@ -8,6 +8,7 @@
 #define PVPARALLELVIEW_PVZOOMEDPARALLELSCENE_H
 
 #include <picviz/PVView.h>
+#include <picviz/PVAxesCombination.h>
 
 #include <pvhive/PVHive.h>
 #include <pvhive/PVFuncObserver.h>
@@ -67,7 +68,7 @@ public:
 	                      Picviz::PVView_sp& pvview,
 	                      PVSlidersManager_p sliders_manager_p,
 	                      zones_drawing_t &zones_drawing,
-	                      PVZoneID axis_index);
+	                      PVCol axis_index);
 
 	~PVZoomedParallelScene();
 
@@ -179,6 +180,7 @@ private:
 		QPointF              next_pos;   // the item position of the next rendering
 	};
 
+	typedef Picviz::PVAxesCombination::axes_comb_id_t axes_comb_id_t;
 private:
 
 	PVZoomedParallelView          *_zpview;
@@ -188,6 +190,7 @@ private:
 	zoom_sliders_update_obs        _zsu_obs;
 	zones_drawing_t               &_zones_drawing;
 	PVZoneID                       _axis_index;
+	axes_comb_id_t                 _axes_comb_id;
 
 	// about mouse
 	int                            _wheel_value;

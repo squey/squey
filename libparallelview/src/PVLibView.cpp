@@ -165,10 +165,19 @@ void PVParallelView::PVLibView::axes_comb_updated()
 		view.set_enabled(false);
 	}
 
+	for (PVZoomedParallelScene& view: _zoomed_parallel_scenes) {
+		view.set_enabled(false);
+	}
+
 	get_zones_manager().update_from_axes_comb(*lib_view());
 
 	for (PVFullParallelScene& view: _parallel_scenes) {
 		view.set_enabled(true);
 		view.update_number_of_zones();
+	}
+
+	for (PVZoomedParallelScene& view: _zoomed_parallel_scenes) {
+		view.set_enabled(true);
+		view.update_zones();
 	}
 }

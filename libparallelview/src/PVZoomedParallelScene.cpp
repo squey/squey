@@ -48,7 +48,7 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
                                                              Picviz::PVView_sp& pvview_p,
                                                              PVParallelView::PVSlidersManager_p sliders_manager_p,
                                                              zones_drawing_t &zones_drawing,
-                                                             PVZoneID axis) :
+                                                             PVCol axis) :
 	QGraphicsScene(zpview),
 	_zpview(zpview),
 	_pvview(*pvview_p),
@@ -68,6 +68,8 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 
 	_zpview->setMaximumWidth(1024);
 	_zpview->setMaximumHeight(1024);
+
+	_axes_comb_id = _pvview.get_axes_combination().get_axes_comb_id(axis);
 
 	_selection_rect = new PVParallelView::PVSelectionSquareGraphicsItem(this);
 	connect(_selection_rect, SIGNAL(commit_volatile_selection()),
@@ -290,10 +292,20 @@ void PVParallelView::PVZoomedParallelScene::update_new_selection(tbb::task* root
 
 void PVParallelView::PVZoomedParallelScene::update_zones()
 {
-	if (_axis_index > _zones_drawing.get_zones_manager().get_number_zones()) {
-		// FIXME: suicide time \o/
-		return;
+	PVCol axis = _pvview.get_axes_combination().get_index_by_id(_axes_comb_id);
+
+	if (axis == PVCOL_INVALID_VALUE) {
+
+		if (_axis_index > _zones_drawing.get_zones_manager().get_number_zones()) {
+			// FIXME: suicide time \o/
+			return;
+		}
+
+		_axes_comb_id = _pvview.get_axes_combination().get_axes_comb_id(_axis_index);
+	} else {
+		_axis_index = axis;
 	}
+
 
 	// needed pixmap to create QGraphicsPixmapItem
 	QPixmap dummy_pixmap;
