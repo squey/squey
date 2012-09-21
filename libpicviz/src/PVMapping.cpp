@@ -304,6 +304,7 @@ void Picviz::PVMapping::serialize(PVCore::PVSerializeObject& so, PVCore::PVSeria
 	so.attribute("name", _name);
 	if (!so.is_writing()) {
 		_mandatory_filters_values.clear();
+		_mandatory_filters_values.resize(columns.size());
 	}
 }
 
