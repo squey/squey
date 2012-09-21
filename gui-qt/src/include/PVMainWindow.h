@@ -107,18 +107,6 @@ private:
 		PVMainWindow* _parent;
 	};
 
-public:
-	enum ERecentItemsCategory {
-		FIRST = 0,
-
-		PROJECTS = FIRST,
-		SOURCES,
-		USED_FORMATS,
-		EDITED_FORMATS,
-
-		LAST
-	};
-
 private:
 	QDialog *about_dialog;
 
@@ -160,8 +148,6 @@ public:
 	void close_source(int index);
 	void close_source(PVTabSplitter* tab);
 	void close_scene();
-
-	const QStringList get_recent_items_list(ERecentItemsCategory category);
 
 public slots:
 	void about_Slot();
@@ -238,7 +224,6 @@ private:
 	void display_inv_elts(PVTabSplitter* tab_src);
 	void close_all_views();
 	Picviz::PVView* get_current_lib_view() const { return current_tab->get_lib_view(); };
-	void add_to_recent_items_list(const QString &fileName, ERecentItemsCategory category);
 
 private slots:
 	void project_modified_Slot();
@@ -338,10 +323,6 @@ private:
 	QLabel* pv_lastMajVersion;
 
 	PVStartScreenWidget* _start_screen_widget;
-
-	QSettings _recents_settings;
-	int64_t _max_recent_items = 5;
-	QStringList _recents_items_keys = { "recent_projects", "recent_sources", "used_formats", "edited_formats" };
 
 protected:
 	void keyPressEvent(QKeyEvent *event);

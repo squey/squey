@@ -18,6 +18,7 @@
 #include <pvparallelview/PVLibView.h>
 
 #include <pvguiqt/PVAxesCombinationDialog.h>
+#include <pvguiqt/PVRecentItemsManager.h>
 
 #include <PVMainWindow.h>
 #include <PVExpandSelDlg.h>
@@ -663,6 +664,8 @@ bool PVInspector::PVMainWindow::load_project(QString const& file)
 	if (project_has_been_fixed) {
 		set_project_modified(true);
 	}
+
+	PVGuiQt::PVRecentItemsManager::get().add(file, PVGuiQt::PVRecentItemsManager::Category::PROJECTS);
 #endif
 
 	return true;
@@ -754,7 +757,7 @@ bool PVInspector::PVMainWindow::save_project(QString const& file, PVCore::PVSeri
 	}
 
 	set_current_project_filename(file);
-	add_to_recent_items_list(file, ERecentItemsCategory::PROJECTS);
+	PVGuiQt::PVRecentItemsManager::get().add(file, PVGuiQt::PVRecentItemsManager::Category::PROJECTS);
 
 	return true;
 #else
@@ -1017,9 +1020,9 @@ void PVInspector::PVMainWindow::view_new_scatter_Slot()
 void PVInspector::PVMainWindow::view_new_parallel_Slot()
 {
 	PVLOG_INFO("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
-	QDialog* dlg = new QDialog(this);
-	PVParallelView::common::get_lib_view(*get_current_lib_view())->create_view(dlg);
-	dlg->show();
+	PVParallelView::PVFullParallelView* view = PVParallelView::common::get_lib_view(*get_current_lib_view())->create_view();
+	view->resize( QApplication::desktop()->size());
+	view->show();
 }
 
 void PVInspector::PVMainWindow::view_screenshot_qt_Slot()
@@ -1086,7 +1089,7 @@ void PVInspector::PVMainWindow::open_format_Slot()
 
     if (!url.isEmpty()) {
         editorWidget->show();
-    	add_to_recent_items_list(url, ERecentItemsCategory::EDITED_FORMATS);
+    	PVGuiQt::PVRecentItemsManager::get().add(url, PVGuiQt::PVRecentItemsManager::Category::EDITED_FORMATS);
     }
 }
 

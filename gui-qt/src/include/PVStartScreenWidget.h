@@ -11,9 +11,10 @@
 #include <QStringList>
 #include <QVBoxLayout>
 
-#include <PVMainWindow.h>
+#include <pvguiqt/PVRecentItemsManager.h>
 
 namespace PVInspector {
+class PVMainWindow;
 
 /**
  *  \class PVStartScreenWidget
@@ -24,13 +25,13 @@ class PVStartScreenWidget : public QWidget
 
 	public:
 		PVStartScreenWidget(PVMainWindow* parent);
-		void update_recent_items(PVMainWindow::ERecentItemsCategory category);
-		void update_all_recent_items();
+		void refresh_all_recent_items();
+
+	public slots:
+		void refresh_recent_items(int category);
 
 	private:
 		PVMainWindow* _mw;
-
-		//QVBoxLayout* _recent_layouts[4];
 
 		QWidget* format_widget;
 		QWidget* import_widget;
@@ -42,7 +43,7 @@ class PVStartScreenWidget : public QWidget
 			const char* slot;
 		};
 
-		PVRecentList _recent_lists[4];
+		PVRecentList _recent_lists[PVGuiQt::PVRecentItemsManager::Category::LAST];
 };
 }
 

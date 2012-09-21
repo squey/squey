@@ -131,11 +131,10 @@ PVInspector::PVStartScreenWidget::PVStartScreenWidget(PVMainWindow* parent) : QW
 		format_text_used_label->setObjectName("PVStartScreenWidget_text");
 		format_widget_layout->addWidget(format_used_widget_line);
 		format_widget_layout->addWidget(format_text_used_label);
-
 		QVBoxLayout* recent_used_formats_layout = new QVBoxLayout();
+		PVRecentList used_formats_list(recent_used_formats_layout, SLOT(edit_format_Slot(const QString &)));
+		_recent_lists[PVGuiQt::PVRecentItemsManager::Category::USED_FORMATS] = used_formats_list;
 		format_widget_layout->addLayout(recent_used_formats_layout);
-		/*_recent_lists[PVMainWindow::ERecentItemsCategory::USED_FORMATS].layout = recent_used_formats_layout;
-		_recent_lists[PVMainWindow::ERecentItemsCategory::USED_FORMATS].slot = "";*/
 
 		// edited
 		QFrame* format_edited_widget_line = new QFrame(format_widget);
@@ -146,7 +145,7 @@ PVInspector::PVStartScreenWidget::PVStartScreenWidget(PVMainWindow* parent) : QW
 		format_widget_layout->addWidget(format_text_edited_label);
 		QVBoxLayout* recent_edited_formats_layout = new QVBoxLayout();
 		PVRecentList edited_formats_list(recent_edited_formats_layout, SLOT(edit_format_Slot(const QString &)));
-		_recent_lists[PVMainWindow::ERecentItemsCategory::EDITED_FORMATS] = edited_formats_list;
+		_recent_lists[PVGuiQt::PVRecentItemsManager::Category::EDITED_FORMATS] = edited_formats_list;
 		format_widget_layout->addLayout(recent_edited_formats_layout);
 
 		// supported
@@ -156,6 +155,12 @@ PVInspector::PVStartScreenWidget::PVStartScreenWidget(PVMainWindow* parent) : QW
 		format_text_supported_label->setObjectName("PVStartScreenWidget_text");
 		format_widget_layout->addWidget(format_supported_widget_line);
 		format_widget_layout->addWidget(format_text_supported_label);
+
+		QVBoxLayout* supported_formats_layout = new QVBoxLayout();
+		format_widget_layout->addLayout(supported_formats_layout);
+		PVRecentList supported_formats_list(supported_formats_layout, SLOT(edit_format_Slot(const QString &)));
+		_recent_lists[PVGuiQt::PVRecentItemsManager::Category::SUPPORTED_FORMATS] = supported_formats_list;
+
 
 	// projects (text and line)
 	QFrame* project_widget_line = new QFrame(import_widget);
@@ -167,7 +172,7 @@ PVInspector::PVStartScreenWidget::PVStartScreenWidget(PVMainWindow* parent) : QW
 	QVBoxLayout* recent_projects_layout = new QVBoxLayout();
 	project_widget_layout->addLayout(recent_projects_layout);
 	PVRecentList project_list(recent_projects_layout, SLOT(load_project(const QString &)));
-	_recent_lists[PVMainWindow::ERecentItemsCategory::PROJECTS] = project_list;
+	_recent_lists[PVGuiQt::PVRecentItemsManager::Category::PROJECTS] = project_list;
 
 	// Imports (text and line)
 	QFrame* import_widget_line = new QFrame(project_widget);
@@ -178,8 +183,11 @@ PVInspector::PVStartScreenWidget::PVStartScreenWidget(PVMainWindow* parent) : QW
 	import_widget_layout->addWidget(import_text_label);
 	QVBoxLayout* recent_imports_layout = new QVBoxLayout();
 	import_widget_layout->addLayout(recent_imports_layout);
-	//_recent_layouts[PVMainWindow::ERecentItemsCategory::SOURCES] = recent_imports_layout;
-	
+	QVBoxLayout* recent_sources_layout = new QVBoxLayout();
+	import_widget_layout->addLayout(recent_sources_layout);
+	PVRecentList sources_list(recent_sources_layout, SLOT(import_type_default_Slot()));
+	_recent_lists[PVGuiQt::PVRecentItemsManager::Category::SOURCES] = sources_list;
+
 	// Final Stretch as Spacer ...
 	format_widget_layout->addStretch(1);
 	import_widget_layout->addStretch(1);
@@ -189,40 +197,45 @@ PVInspector::PVStartScreenWidget::PVStartScreenWidget(PVMainWindow* parent) : QW
 	connect(create_new_project_button, SIGNAL(clicked(bool)), _mw, SLOT(project_new_Slot()));
 	connect(open_project_button, SIGNAL(clicked(bool)), _mw, SLOT(project_load_Slot()));
 	connect(import_file_button, SIGNAL(clicked(bool)), _mw, SLOT(import_type_default_Slot()));
-	//connect(import_from_database_button, SIGNAL(clicked(bool)), _mw, SLOT(project_load_Slot()));
 	connect(create_new_format_button, SIGNAL(clicked(bool)), _mw, SLOT(new_format_Slot()));
 	connect(edit_format_button, SIGNAL(clicked(bool)), _mw, SLOT(open_format_Slot()));
 
-	update_all_recent_items();
+	connect(&PVGuiQt::PVRecentItemsManager::get(), SIGNAL(recent_items_updated(int)), this, SLOT(refresh_recent_items(int)));
+
+	refresh_all_recent_items();
 }
 
-void PVInspector::PVStartScreenWidget::update_all_recent_items()
+void PVInspector::PVStartScreenWidget::refresh_all_recent_items()
 {
-	/*for (int category = (int) PVMainWindow::ERecentItemsCategory::FIRST ; category < (int) PVMainWindow::ERecentItemsCategory::LAST; category++) {
-		update_recent_items((PVMainWindow::ERecentItemsCategory) category);
-	}*/
-	update_recent_items(PVMainWindow::ERecentItemsCategory::PROJECTS);
-	update_recent_items(PVMainWindow::ERecentItemsCategory::EDITED_FORMATS);
+	for (int category = (int) PVGuiQt::PVRecentItemsManager::Category::FIRST ; category < (int) PVGuiQt::PVRecentItemsManager::Category::LAST; category++) {
+		refresh_recent_items(category);
+	}
 }
 
-void PVInspector::PVStartScreenWidget::update_recent_items(PVMainWindow::ERecentItemsCategory category)
+void PVInspector::PVStartScreenWidget::refresh_recent_items(int cat)
 {
+	// Qt doesn't like custom types, here's why we are using an int for this slot...
+	PVGuiQt::PVRecentItemsManager::Category category = (PVGuiQt::PVRecentItemsManager::Category) cat;
+
 	// Clear layout
 	QLayoutItem* item = nullptr;
-	while ((item = _recent_lists[category].layout->takeAt(0)) != nullptr) {
+	QVBoxLayout* recent_item_layout = _recent_lists[category].layout;
+	if (recent_item_layout == nullptr) return;
+	while ((item = recent_item_layout->takeAt(0)) != nullptr) {
 		delete item->widget();
 		delete item;
 	}
 
 	// CSS Widget
 	QWidget* widget = new QWidget();
-	widget->setObjectName("RecentProjectItem");
+	widget->setObjectName(PVGuiQt::PVRecentItemsManager::get().get_key(category) + "_of_PVStartScreenWidget");
 	QVBoxLayout* widget_layout = new QVBoxLayout();
 	widget->setLayout(widget_layout);
+	//widget->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 	_recent_lists[category].layout->addWidget(widget);
 
 	// Add recent items
-	for (QString url : _mw->get_recent_items_list(category)) {
+	for (QString url : PVGuiQt::PVRecentItemsManager::get().get_list(category)) {
 
 		// Icon
 		QFileInfo finfo(url);

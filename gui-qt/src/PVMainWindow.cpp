@@ -26,6 +26,7 @@
 #include <PVInputTypeMenuEntries.h>
 
 #include <PVStartScreenWidget.h>
+#include <pvguiqt/PVRecentItemsManager.h>
 
 #ifdef CUSTOMER_RELEASE
   #ifdef WIN32
@@ -68,7 +69,6 @@ QFile *report_file;
  *****************************************************************************/
 PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	QMainWindow(parent),
-	_recents_settings("recents.ini", QSettings::IniFormat),
 	_scene(root, "root")
 {
 	PVLOG_DEBUG("%s: Creating object\n", __FUNCTION__);
@@ -410,6 +410,10 @@ void PVInspector::PVMainWindow::close_source(PVTabSplitter* tab)
 {
 	Picviz::PVSource* src = tab->get_lib_src();
 	_scene->remove_child(*src);
+
+	if (_scene->get_children_count() == 0) {
+		show_start_page(true);
+	}
 }
 
 
@@ -684,7 +688,6 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 }
 
 
-
 /******************************************************************************
  *
  * PVInspector::PVMainWindow::import_type
@@ -872,24 +875,24 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 #ifndef NDEBUG
 	switch (event->key()) {
 
-			case Qt::Key_Dollar:
-			{
-				/*if (pv_ListingsTabWidget->currentIndex() == -1) {
-					break;
-				}*/
-				PVLOG_INFO("Reloading CSS\n");
+		case Qt::Key_Dollar:
+		{
+			/*if (pv_ListingsTabWidget->currentIndex() == -1) {
+				break;
+			}*/
+			PVLOG_INFO("Reloading CSS\n");
 
-				QFile css_file("gui-qt/src/resources/gui.css");
-				css_file.open(QFile::ReadOnly);
+			QFile css_file("gui-qt/src/resources/gui.css");
+			if (css_file.open(QFile::ReadOnly)) {
 				QTextStream css_stream(&css_file);
 				QString css_string(css_stream.readAll());
 				css_file.close();
 
-				// PhS
 				setStyleSheet(css_string);
 				setStyle(QApplication::style());
-				break;
 			}
+			break;
+		}
 	}
 #endif
 
@@ -1698,6 +1701,7 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_p src)
 		display_inv_elts(current_tab);
 	}
 
+	PVGuiQt::PVRecentItemsManager::get().add(src->get_format().get_full_path(), PVGuiQt::PVRecentItemsManager::Category::USED_FORMATS);
 	return true;
 }
 
@@ -1954,28 +1958,4 @@ bool PVInspector::PVMainWindow::SceneMenuEventFilter::eventFilter(QObject* obj, 
 		return true;
 	}
 	return QObject::eventFilter(obj, event);
-}
-
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::setCurrentFile
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::add_to_recent_items_list(const QString &project_path, ERecentItemsCategory category)
-{
-	QString recent_projects_key = _recents_items_keys[category];
-    QStringList files = _recents_settings.value(recent_projects_key).toStringList();
-    files.removeAll(project_path);
-    files.prepend(project_path);
-
-    for (; files.size() > _max_recent_items; files.removeLast()) {}
-
-    _recents_settings.setValue(recent_projects_key, files);
-
-    _start_screen_widget->update_recent_items(category);
-}
-
-const QStringList PVInspector::PVMainWindow::get_recent_items_list(ERecentItemsCategory category)
-{
-	return _recents_settings.value(_recents_items_keys[category]).toStringList();
 }
