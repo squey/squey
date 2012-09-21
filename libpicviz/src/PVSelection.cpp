@@ -687,5 +687,20 @@ ssize_t Picviz::PVSelection::get_max_last_nonzero_chunk_index(PVSelection const&
 
 void Picviz::PVSelection::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 {
-	so.buffer("selection_data", _table, PICVIZ_SELECTION_NUMBER_OF_BYTES);
+	if (so.is_writing() && _table) {
+		so.buffer("selection_data", _table, PICVIZ_SELECTION_NUMBER_OF_BYTES);
+	}
+	else {
+		if (so.buffer_exists("selection_data")) {
+			if (!_table) {
+				allocate_table();
+			}
+			so.buffer("selection_data", &_table[0], PICVIZ_SELECTION_NUMBER_OF_BYTES);
+		}
+		else {
+			if (_table) {
+				select_none();
+			}
+		}
+	}
 }
