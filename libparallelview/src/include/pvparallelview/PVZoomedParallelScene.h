@@ -81,12 +81,23 @@ public:
 
 	void invalidate_selection();
 	void update_new_selection(tbb::task* root);
+	void update_zones();
+
+	void set_enabled(bool value)
+	{
+		if (value == false) {
+			cancel_current_job();
+		}
+		_zpview->setEnabled(value);
+	}
 
 	virtual void drawBackground(QPainter *painter, const QRectF &rect);
 
 	void resize_display();
 
 private:
+	void cancel_current_job();
+
 	inline void update_all()
 	{
 		_render_type = RENDER_ALL;

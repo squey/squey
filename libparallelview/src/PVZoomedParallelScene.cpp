@@ -58,7 +58,6 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 	_axis_index(axis),
 	_left_zone(nullptr),
 	_right_zone(nullptr),
-	_renderable_zone_number(0),
 	_updated_selection_count(0)
 {
 	_zpview->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -85,26 +84,7 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 	connect(_rendering_job, SIGNAL(zone_rendered(int)),
 	        this, SLOT(zone_rendered_Slot(int)));
 
-	// needed pixmap to create QGraphicsPixmapItem
-	QPixmap dummy_pixmap;
-
-	if (axis > 0) {
-		_left_zone = new zone_desc_t;
-		_left_zone->bg_image = zones_drawing.create_image(image_width);
-		_left_zone->sel_image = zones_drawing.create_image(image_width);
-		_left_zone->item = addPixmap(dummy_pixmap);
-
-		++_renderable_zone_number;
-	}
-
-	if (axis < zones_drawing.get_zones_manager().get_number_zones()) {
-		_right_zone = new zone_desc_t;
-		_right_zone->bg_image = zones_drawing.create_image(image_width);
-		_right_zone->sel_image = zones_drawing.create_image(image_width);
-		_right_zone->item = addPixmap(dummy_pixmap);
-
-		++_renderable_zone_number;
-	}
+	update_zones();
 
 	PVParallelView::PVZonesManager &zm = zones_drawing.get_zones_manager();
 	connect(&zm, SIGNAL(filter_by_sel_finished(int, bool)),
@@ -286,6 +266,7 @@ void PVParallelView::PVZoomedParallelScene::invalidate_selection()
 /*****************************************************************************
  * PVParallelView::PVZoomedParallelScene::update_new_selection
  *****************************************************************************/
+
 void PVParallelView::PVZoomedParallelScene::update_new_selection(tbb::task* root)
 {
 	invalidate_selection();
@@ -300,6 +281,59 @@ void PVParallelView::PVZoomedParallelScene::update_new_selection(tbb::task* root
 		root->increment_ref_count();
 		tbb::task& child_task = *new (root->allocate_child()) PVTaskFilterSel(get_zones_manager(), _axis_index, volatile_selection());
 		root->enqueue(child_task, tbb::priority_high);
+	}
+}
+
+/*****************************************************************************
+ * PVParallelView::PVZoomedParallelScene::update_zones
+ *****************************************************************************/
+
+void PVParallelView::PVZoomedParallelScene::update_zones()
+{
+	if (_axis_index > _zones_drawing.get_zones_manager().get_number_zones()) {
+		// FIXME: suicide time \o/
+		return;
+	}
+
+	// needed pixmap to create QGraphicsPixmapItem
+	QPixmap dummy_pixmap;
+
+	if (_left_zone) {
+		removeItem(_left_zone->item);
+		delete _left_zone->item;
+		delete _left_zone;
+		_left_zone = nullptr;
+	}
+
+	if (_right_zone) {
+		removeItem(_right_zone->item);
+		delete _right_zone->item;
+		delete _right_zone;
+		_right_zone = nullptr;
+	}
+
+	_renderable_zone_number = 0;
+
+	if (_axis_index > 0) {
+		_left_zone = new zone_desc_t;
+		_left_zone->bg_image = _zones_drawing.create_image(image_width);
+		_left_zone->sel_image = _zones_drawing.create_image(image_width);
+		_left_zone->item = addPixmap(dummy_pixmap);
+
+		++_renderable_zone_number;
+	}
+
+	if (_axis_index < _zones_drawing.get_zones_manager().get_number_zones()) {
+		_right_zone = new zone_desc_t;
+		_right_zone->bg_image = _zones_drawing.create_image(image_width);
+		_right_zone->sel_image = _zones_drawing.create_image(image_width);
+		_right_zone->item = addPixmap(dummy_pixmap);
+
+		++_renderable_zone_number;
+	}
+
+	if (_zpview->isVisible()) {
+		update_all();
 	}
 }
 
@@ -341,6 +375,19 @@ void PVParallelView::PVZoomedParallelScene::drawBackground(QPainter *painter,
 void PVParallelView::PVZoomedParallelScene::resize_display()
 {
 	update_zoom();
+}
+
+/*****************************************************************************
+ * PVParallelView::PVZoomedParallelScene::cancel_current_job
+ *****************************************************************************/
+
+void PVParallelView::PVZoomedParallelScene::cancel_current_job()
+{
+	if (_rendering_future.isRunning()) {
+		_zones_drawing.cancel_group(_render_group);
+		_rendering_job->cancel();
+		_rendering_future.waitForFinished();
+	}
 }
 
 /*****************************************************************************
@@ -392,12 +439,7 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 		_right_zone->next_pos = _zpview->mapToScene(npos);
 	}
 
-
-	if (_rendering_future.isRunning()) {
-		_zones_drawing.cancel_group(_render_group);
-		_rendering_job->cancel();
-		_rendering_future.waitForFinished();
-	}
+	cancel_current_job();
 
 	_updated_selection_count = 0;
 
