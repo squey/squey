@@ -37,15 +37,14 @@ protected slots:
 		PVCol zid = _zedit->text().toInt();
 
 		PVParallelView::PVZoomedParallelView *zpv = _lv.create_zoomed_view(zid);
-		std::cout << "ZoomDlg: zpv: " << zpv << std::endl;
 
 		zpv->resize(1024, 1024);
 		zpv->show();
 	}
 
 private:
-	PVParallelView::PVLibView                              &_lv;
-	QLineEdit                                              *_zedit;
+	PVParallelView::PVLibView &_lv;
+	QLineEdit                 *_zedit;
 };
 
 #endif

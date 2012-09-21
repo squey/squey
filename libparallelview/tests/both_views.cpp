@@ -48,7 +48,8 @@ int main(int argc, char** argv)
 	if (plib_view == NULL) {
 		return 1;
 	}
-	plib_view->create_view();
+	PVParallelView::PVFullParallelView* fpv = plib_view->create_view();
+	fpv->show();
 
 	ZoomDlg* zdlg = new ZoomDlg(*plib_view);
 	zdlg->show();
