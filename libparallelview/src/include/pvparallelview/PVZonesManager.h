@@ -88,8 +88,8 @@ protected:
 	inline void get_zone_cols(PVZoneID z, PVCol& a, PVCol& b)
 	{
 		assert(z < get_number_zones());
-		a = _axes_comb[z];
-		b = _axes_comb[z+1];
+		a = _axes_comb[z].get_axis();
+		b = _axes_comb[z+1].get_axis();
 	}
 	inline Picviz::PVPlotted::uint_plotted_table_t const& get_uint_plotted() const { assert(_uint_plotted); return *_uint_plotted; }
 

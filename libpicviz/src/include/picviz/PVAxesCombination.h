@@ -30,8 +30,6 @@ class LibPicvizDecl PVAxesCombination {
 public:
 	struct axes_comb_id_t
 	{
-		typedef qulonglong value_type;
-
 		axes_comb_id_t()
 		{
 			data.raw = 0;
@@ -39,8 +37,8 @@ public:
 
 		axes_comb_id_t(PVCol ai, uint32_t ci)
 		{
-			data.info.axis_index = ai;
-			data.info.child_id = ci;
+			data.info.axis = ai;
+			data.info.copy_id = ci;
 		}
 
 		axes_comb_id_t(const QVariant &v)
@@ -48,9 +46,9 @@ public:
 			data.raw = v.toULongLong();
 		}
 
-		operator value_type() const
+		operator QVariant() const
 		{
-			return (qulonglong)data.raw;
+			return QVariant::fromValue((qulonglong)data.raw);
 		}
 
 		bool operator ==(const axes_comb_id_t &e) const
@@ -60,34 +58,29 @@ public:
 
 		PVCol get_axis() const
 		{
-			return data.info.axis_index;
+			return data.info.axis;
 		}
 
 		void set_axis(PVCol v)
 		{
-			data.info.axis_index = v;
+			data.info.axis = v;
 		}
 
 		PVCol get_id() const
 		{
-			return data.info.child_id;
+			return data.info.copy_id;
 		}
 
 		void set_id(uint32_t v)
 		{
-			data.info.child_id = v;
-		}
-
-		value_type get_raw() const
-		{
-			return data.raw;
+			data.info.copy_id = v;
 		}
 
 		union {
 			struct
 			{
-				uint32_t child_id;
-				PVCol    axis_index;
+				uint32_t copy_id;
+				PVCol    axis;
 			} info;
 			uint64_t raw;
 		} data;
