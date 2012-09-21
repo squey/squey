@@ -46,7 +46,7 @@ public:
 	PVZonesManager();
 
 public:
-	typedef Picviz::PVAxesCombination::axes_comb_entry_t axes_comb_entry_t;
+	typedef Picviz::PVAxesCombination::axes_comb_id_t    axes_comb_id_t;
 	typedef Picviz::PVAxesCombination::columns_indexes_t columns_indexes_t;
 
 	void update_all();

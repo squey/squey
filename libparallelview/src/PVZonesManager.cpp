@@ -55,7 +55,7 @@ void PVParallelView::PVZonesManager::set_uint_plotted(Picviz::PVPlotted::uint_pl
 	_axes_comb.clear();
 	_axes_comb.reserve(ncols);
 	for (PVCol c = 0; c < ncols; c++) {
-		_axes_comb.push_back(axes_comb_entry_t(c, 0));
+		_axes_comb.push_back(axes_comb_id_t(c, 0));
 	}
 }
 

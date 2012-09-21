@@ -28,22 +28,22 @@ namespace Picviz {
 class LibPicvizDecl PVAxesCombination {
 	friend class PVCore::PVSerializeObject;
 public:
-	struct axes_comb_entry_t
+	struct axes_comb_id_t
 	{
 		typedef qulonglong value_type;
 
-		axes_comb_entry_t()
+		axes_comb_id_t()
 		{
 			data.raw = 0;
 		}
 
-		axes_comb_entry_t(PVCol ai, uint32_t ci)
+		axes_comb_id_t(PVCol ai, uint32_t ci)
 		{
 			data.info.axis_index = ai;
 			data.info.child_id = ci;
 		}
 
-		axes_comb_entry_t(const QVariant &v)
+		axes_comb_id_t(const QVariant &v)
 		{
 			data.raw = v.toULongLong();
 		}
@@ -53,7 +53,7 @@ public:
 			return (qulonglong)data.raw;
 		}
 
-		bool operator ==(const axes_comb_entry_t &e) const
+		bool operator ==(const axes_comb_id_t &e) const
 		{
 			return data.raw == e.data.raw;
 		}
@@ -93,8 +93,8 @@ public:
 		} data;
 	} ;
 
-	typedef QVector<PVAxis>             list_axes_t;
-	typedef QVector<axes_comb_entry_t>  columns_indexes_t;
+	typedef QVector<PVAxis>          list_axes_t;
+	typedef QVector<axes_comb_id_t>  columns_indexes_t;
 
 private:
 	QVector<float>    abscissae_list;       //!< Axes positions, such as [0.0, 1.29, 2.5, 4.76]
@@ -370,7 +370,7 @@ public:
 	/**
 	 * @brief Get the "id" of the i-th entry
 	 */
-	inline axes_comb_entry_t get_axes_comb_entry(PVCol i) const
+	inline axes_comb_id_t get_axes_comb_entry(PVCol i) const
 	{
 		assert (i < columns_indexes_list.size());
 		return columns_indexes_list[i];
@@ -379,7 +379,7 @@ public:
 	/**
 	 * @brief Get the index of e
 	 */
-	PVCol get_index_by_id(const axes_comb_entry_t &e) const;
+	PVCol get_index_by_id(const axes_comb_id_t &e) const;
 
 	QString to_string() const;
 
@@ -464,6 +464,6 @@ bool PVAxesCombination::remove_axes(L const& list_idx)
 
 }
 
-Q_DECLARE_METATYPE(Picviz::PVAxesCombination::axes_comb_entry_t)
+Q_DECLARE_METATYPE(Picviz::PVAxesCombination::axes_comb_id_t)
 
 #endif	/* PICVIZ_PVAXESCOMBINATION_H */

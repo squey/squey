@@ -44,7 +44,7 @@ void Picviz::PVAxesCombination::axis_append(const PVAxis &axis)
 void Picviz::PVAxesCombination::axis_append(PVCol org_axis_id)
 {
 	assert(org_axis_id < original_axes_list.size());
-	columns_indexes_list.push_back(axes_comb_entry_t(org_axis_id, 0));
+	columns_indexes_list.push_back(axes_comb_id_t(org_axis_id, 0));
 	axes_list.push_back(original_axes_list.at(org_axis_id));
 	float absciss = 0.0f;
 	if (abscissae_list.size() > 0) {
@@ -432,13 +432,13 @@ void Picviz::PVAxesCombination::set_from_format(PVRush::PVFormat &format)
 	}
 	else {
 		for (PVCol index : format.get_axes_comb()) {
-			axes_comb.push_back(axes_comb_entry_t(index, get_first_free_child_id(index)));
+			axes_comb.push_back(axes_comb_id_t(index, get_first_free_child_id(index)));
 
 		}
 		if (axes_comb.size() == 0) {
 			axes_comb.reserve(axes.size());
 			for (PVCol i = 0; i < axes.size(); i++) {
-				axes_comb.push_back(axes_comb_entry_t(i, 0));
+				axes_comb.push_back(axes_comb_id_t(i, 0));
 			}
 		}
 	}
@@ -500,7 +500,7 @@ uint32_t Picviz::PVAxesCombination::get_first_free_child_id(PVCol index)
 	size_t i, size = columns_indexes_list.size();
 
 	while(true) {
-		axes_comb_entry_t ci(index, id);
+		axes_comb_id_t ci(index, id);
 
 		for (i = 0; i < size; ++i) {
 			if (columns_indexes_list[i] == ci) {
@@ -519,7 +519,7 @@ uint32_t Picviz::PVAxesCombination::get_first_free_child_id(PVCol index)
  * Picviz::PVAxesCombination::get_index_by_id
  *
  *****************************************************************************/
-PVCol Picviz::PVAxesCombination::get_index_by_id(const axes_comb_entry_t &e) const
+PVCol Picviz::PVAxesCombination::get_index_by_id(const axes_comb_id_t &e) const
 {
 	for (int i = 0; i < columns_indexes_list.size(); ++i) {
 		if (columns_indexes_list[i] == e) {
