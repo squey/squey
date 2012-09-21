@@ -52,6 +52,14 @@ public:
 
 	void update_number_of_zones();
 
+	void set_enabled(bool value)
+	{
+		if (value == false) {
+			cancel_current_job();
+		}
+		_parallel_view->setEnabled(value);
+	}
+
 private:
 	void update_zones_position(bool update_all = true, bool scale = true);
 	void translate_and_update_zones_position();
