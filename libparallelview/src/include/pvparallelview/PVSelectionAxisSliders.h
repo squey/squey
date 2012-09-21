@@ -33,7 +33,7 @@ public:
 	PVSelectionAxisSliders(QGraphicsItem *parent);
 
 	void initialize(PVSlidersManager_p sm_p,
-	                PVCol axis, id_t id,
+	                PVZoneID axis_index, id_t id,
 	                uint32_t y_min, uint32_t y_max);
 
 	interval_t get_range() const
@@ -58,7 +58,7 @@ private slots:
 	{
 		emit sliders_moved();
 		PVHive::call<FUNC(PVSlidersManager::update_selection_sliders)>(_sliders_manager_p,
-		                                                               _axis, _id,
+		                                                               _axis_index, _id,
 		                                                               _sl_min->value(),
 		                                                               _sl_max->value());
 	}
@@ -98,7 +98,7 @@ private:
 	selection_sliders_update_obs  _ssu_obs;
 	PVAxisSlider                 *_sl_min;
 	PVAxisSlider                 *_sl_max;
-	PVCol                         _axis;
+	PVZoneID                      _axis_index;
 	id_t                          _id;
 };
 

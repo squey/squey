@@ -28,13 +28,13 @@ class PVSlidersGroup : public QObject, public QGraphicsItemGroup
 
 private:
 	typedef PVSlidersManager::id_t id_t;
-	typedef PVSlidersManager::interval_geometry_t interval_geometry_t;
+	typedef PVSlidersManager::range_geometry_t range_geometry_t;
 
 public:
 	typedef std::vector<std::pair<PVRow, PVRow> > selection_ranges_t;
 
 public:
-	PVSlidersGroup(PVSlidersManager_p sm_p, PVCol axis_index, QGraphicsItem *parent = nullptr);
+	PVSlidersGroup(PVSlidersManager_p sm_p, PVZoneID axis_index, QGraphicsItem *parent = nullptr);
 	~PVSlidersGroup();
 
 	QRectF boundingRect() const
@@ -64,10 +64,10 @@ private:
 	 * If sliders is nullptr, it is created.
 	 * If id is 0, it is deduced from sliders.
 	 */
-	void add_new_zoom_sliders(PVCol axis, id_t id,
+	void add_new_zoom_sliders(PVZoneID axis, id_t id,
 	                          uint32_t y_min, uint32_t y_max);
 	void add_new_selection_sliders(PVSelectionAxisSliders* sliders,
-	                               PVCol axis, id_t id,
+	                               PVZoneID axis, id_t id,
 	                               uint32_t y_min, uint32_t y_max);
 
 private:
@@ -138,7 +138,7 @@ private:
 	selection_sliders_new_obs _ssn_obs;
 	zoom_sliders_del_obs      _zsd_obs;
 	selection_sliders_del_obs _ssd_obs;
-	PVCol                     _axis_index;
+	PVZoneID                  _axis_index;
 
 	aas_set_t                 _all_sliders;
 	sas_set_t                 _selection_sliders;

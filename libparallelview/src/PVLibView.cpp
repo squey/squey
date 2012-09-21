@@ -155,8 +155,20 @@ void PVParallelView::PVLibView::output_layer_updated()
 
 void PVParallelView::PVLibView::axes_comb_updated()
 {
-	get_zones_manager().update_from_axes_comb(*lib_view());
+	/* while the zones update, views must *not* access to them;
+	 * views have also to be disabled (jobs must be cancelled
+	 * and the widgets must be disabled in the Qt's way).
+	 */
+	// FIXME: the running selection update must be stopped too.
+
 	for (PVFullParallelScene& view: _parallel_scenes) {
+		view.set_enabled(false);
+	}
+
+	get_zones_manager().update_from_axes_comb(*lib_view());
+
+	for (PVFullParallelScene& view: _parallel_scenes) {
+		view.set_enabled(true);
 		view.update_number_of_zones();
 	}
 }
