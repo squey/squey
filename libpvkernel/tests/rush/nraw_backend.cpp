@@ -9,7 +9,7 @@
 
 #define MIN_SIZE 1
 #define MAX_SIZE 256
-#define N 1000000
+#define N 4096000
 #define LATENCY_N 100000
 
 size_t get_buf_size(size_t i)
@@ -73,15 +73,18 @@ int main(int argc, char** argv)
 
 	PVLOG_INFO("Writing NRAW...\n");
 	char buf[MAX_SIZE];
+	size_t stotal = 0;
 	for (size_t i = 0; i < N; i++) {
 		//const size_t sbuf = (rand()%(MAX_SIZE-MIN_SIZE+1))+MIN_SIZE;
 		const size_t sbuf = get_buf_size(i);
+		stotal += sbuf;
 		memset(buf, 'a' + i%26, sbuf);
 		backend.add(0, buf, sbuf);
 		backend.add(1, buf, sbuf);
 	}
 	backend.flush();
 
+#if 0
 	size_t sret;
 	PVLOG_INFO("Checking values with at()...\n");
 	BENCH_START(at);
@@ -92,10 +95,33 @@ int main(int argc, char** argv)
 		fwrite(bread, 1, sret, stdout);
 		printf("\n");*/
 		ASSERT_VALID(sret == get_buf_size(i));
-		backend.at(i, 1, sret);
-		ASSERT_VALID(sret == get_buf_size(i));
 	}
-	BENCH_END(at, "at", 1, 1, 1, 1);
+	BENCH_END(at, "at", sizeof(char), stotal, 1, 1);
+#endif
+
+	PVLOG_INFO("Checking values with visit_column()...\n");
+	BENCH_START(visit);
+	ASSERT_VALID(backend.visit_column2(0, [=](size_t r, const char* buf, size_t n)
+			{
+				//ASSERT_VALID(n == get_buf_size(r));
+			}));
+	BENCH_END(visit, "visit", sizeof(char), stotal, 1, 1);
+
+	PVLOG_INFO("Checking values with visit_column()...\n");
+	BENCH_START(visit2);
+	ASSERT_VALID(backend.visit_column2(0, [=](size_t r, const char* buf, size_t n)
+			{
+				//ASSERT_VALID(n == get_buf_size(r));
+			}));
+	BENCH_END(visit2, "visit", sizeof(char), stotal, 1, 1);
+
+	PVLOG_INFO("Checking values with visit_column()...\n");
+	BENCH_START(visit4);
+	ASSERT_VALID(backend.visit_column2(0, [=](size_t r, const char* buf, size_t n)
+			{
+				//ASSERT_VALID(n == get_buf_size(r));
+			}));
+	BENCH_END(visit4, "visit", sizeof(char), stotal, 1, 1);
 
 	return 0;
 }
