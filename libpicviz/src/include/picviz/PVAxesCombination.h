@@ -370,7 +370,7 @@ public:
 	/**
 	 * @brief Get the "id" of the i-th entry
 	 */
-	inline axes_comb_id_t get_axes_comb_entry(PVCol i) const
+	inline axes_comb_id_t get_axes_comb_id(PVCol i) const
 	{
 		assert (i < columns_indexes_list.size());
 		return columns_indexes_list[i];
