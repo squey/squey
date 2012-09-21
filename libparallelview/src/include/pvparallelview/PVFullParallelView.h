@@ -29,7 +29,9 @@ class PVFullParallelView : public QGraphicsView
 
 public:
 	PVFullParallelView(QWidget* parent = NULL);
+	~PVFullParallelView();
 
+public:
 	void paintEvent(QPaintEvent *event);
 
 	void set_total_line_number(uint32_t total_lines) { _total_lines = total_lines; }

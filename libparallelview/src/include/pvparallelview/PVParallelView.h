@@ -6,6 +6,8 @@
 
 #include <pvparallelview/PVBCIDrawingBackend.h>
 
+#include <tbb/mutex.h>
+
 namespace PVParallelView {
 
 typedef PVBCIDrawingBackend<PARALLELVIEW_ZT_BBITS>  backend_full_t;
@@ -39,6 +41,8 @@ public:
 	PVLibView* get_lib_view(Picviz::PVView& view);
 	PVLibView* get_lib_view(Picviz::PVView& view, Picviz::PVPlotted::uint_plotted_table_t const& plotted, PVRow nrows, PVCol ncols);
 
+	void remove_lib_view(Picviz::PVView& view);
+
 	backend_full_t& backend_full() const { assert(_backend_full); return *_backend_full; }
 	backend_zoom_t& backend_zoom() const { assert(_backend_zoom); return *_backend_zoom; }
 
@@ -49,6 +53,7 @@ private:
 	backend_zoom_t* _backend_zoom;
 
 	map_lib_views _lib_views;
+	tbb::mutex _mutex;
 
 	QColor _color_view_bg;
 
@@ -66,6 +71,7 @@ namespace common {
 
 	void init_cuda();
 
+	inline void remove_lib_view(Picviz::PVView& view) { PVParallelView::__impl::PVParallelView::get()->remove_lib_view(view); }
 	inline PVLibView* get_lib_view(Picviz::PVView& view) { return PVParallelView::__impl::PVParallelView::get()->get_lib_view(view); }
 	inline PVLibView* get_lib_view(Picviz::PVView& view, Picviz::PVPlotted::uint_plotted_table_t const& plotted, PVRow nrows, PVCol ncols) { return PVParallelView::__impl::PVParallelView::get()->get_lib_view(view, plotted, nrows, ncols); }
 	inline void release() { PVParallelView::__impl::PVParallelView::release(); }

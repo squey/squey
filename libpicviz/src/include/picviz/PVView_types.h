@@ -8,11 +8,13 @@
 #define PICVIZ_PVVIEW_TYPES_H
 
 #include <pvkernel/core/PVSharedPointer.h>
+#include <pvkernel/core/PVWeakPointer.h>
 
 namespace Picviz {
 
 class PVView;
 typedef PVCore::PVSharedPtr<PVView> PVView_sp;
+typedef PVCore::PVWeakPtr<PVView>   PVView_wp;
 
 
 }

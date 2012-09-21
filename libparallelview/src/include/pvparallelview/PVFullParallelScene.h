@@ -52,6 +52,10 @@ public:
 
 	void update_number_of_zones();
 
+	void about_to_be_deleted();
+
+	PVFullParallelView* graphics_view() { return _parallel_view; }
+
 	void set_enabled(bool value)
 	{
 		if (value == false) {

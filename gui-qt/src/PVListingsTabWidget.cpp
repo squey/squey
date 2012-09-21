@@ -85,10 +85,7 @@ void PVInspector::PVListingsTabWidget::show_hide_views_tab_widget_Slot(bool visi
  *****************************************************************************/
 void PVInspector::PVListingsTabWidget::tabCloseRequested_Slot(int index)
 {
-	PVTabSplitter* tab = (PVTabSplitter*) widget(index);
+	PVTabSplitter* tab = dynamic_cast<PVTabSplitter*>(widget(index));
 	assert(tab);
 	main_window->close_source(tab);
 }
-
-
-

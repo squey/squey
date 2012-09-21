@@ -61,6 +61,7 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* par
 
 PVParallelView::PVFullParallelScene::~PVFullParallelScene()
 {
+	PVLOG_INFO("In PVFullParallelScene destructor\n");
 	_rendering_job_sel->deleteLater();
 	_rendering_job_bg->deleteLater();
 }
@@ -612,4 +613,18 @@ void PVParallelView::PVFullParallelScene::add_axis(PVZoneID const z)
 	addItem(axisw);
 	_axes.push_back(axisw);
 	axisw->get_sliders_group()->add_selection_sliders(768, 1000);
+}
+
+void PVParallelView::PVFullParallelScene::about_to_be_deleted()
+{
+	// Cancel everything!
+	_lines_view.cancel_all_rendering();
+	_rendering_job_sel->cancel();
+	_rendering_job_bg->cancel();
+
+	_render_tasks_sel.cancel();
+	_render_tasks_bg.cancel();
+	_render_tasks_sel.wait();
+	_render_tasks_bg.wait();
+	_lines_view.cancel_all_rendering();
 }

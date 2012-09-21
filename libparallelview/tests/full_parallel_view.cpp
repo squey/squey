@@ -50,13 +50,21 @@ int main(int argc, char** argv)
 	if (plib_view == NULL) {
 		return 1;
 	}
-	plib_view->create_view();
+	plib_view->create_view()->show();
 
 	{
 		Picviz::PVView_sp view_sp = plib_view->lib_view()->shared_from_this();
 		PVGuiQt::PVAxesCombinationDialog* axes_dlg = new PVGuiQt::PVAxesCombinationDialog(view_sp);
 		axes_dlg->show();
 	}
+
+	boost::thread th(
+		[&]
+		{
+			std::cout << "Press enter to delete the view." << std::endl;
+			while (getchar() != '\n');
+			get_view_sp().reset();
+		});
 
 	app.exec();
 

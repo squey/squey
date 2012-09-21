@@ -1016,7 +1016,9 @@ void PVInspector::PVMainWindow::view_new_scatter_Slot()
 void PVInspector::PVMainWindow::view_new_parallel_Slot()
 {
 	PVLOG_INFO("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
-	PVParallelView::common::get_lib_view(*get_current_lib_view())->create_view();
+	QDialog* dlg = new QDialog(this);
+	PVParallelView::common::get_lib_view(*get_current_lib_view())->create_view(dlg);
+	dlg->show();
 }
 
 void PVInspector::PVMainWindow::view_screenshot_qt_Slot()
@@ -1053,7 +1055,7 @@ void PVInspector::PVMainWindow::new_format_Slot() {
  *****************************************************************************/
 void PVInspector::PVMainWindow::cur_format_Slot()
 {
-	Picviz::PVSource_p cur_src = current_tab->get_lib_src();
+	Picviz::PVSource const* cur_src = current_tab->get_lib_src();
 	if (!current_tab || !cur_src) {
 		return;
 	}
@@ -1075,7 +1077,7 @@ void PVInspector::PVMainWindow::cur_format_changed_Slot()
 	assert(editor);
 	PVTabSplitter* src_tab = dynamic_cast<PVTabSplitter*>(editor->parent());
 	assert(src_tab);
-	Picviz::PVSource_p cur_src = src_tab->get_lib_src();
+	Picviz::PVSource const* cur_src = src_tab->get_lib_src();
 
 	PVRush::PVFormat old_format = cur_src->get_format();
 	PVRush::PVFormat new_format(old_format.get_format_name(), old_format.get_full_path());
@@ -1099,7 +1101,6 @@ void PVInspector::PVMainWindow::cur_format_changed_Slot()
 			return;
 		}
 	}
-#endif
 
 	if (!comp.need_extract() && (comp.different_mapping() || comp.different_plotting())) {
 		QMessageBox* box = new QMessageBox(QMessageBox::Question, tr("Format modified"), tr("The mapping and/or plotting properties of this format have been changed. Do you want to update the current view ?"), QMessageBox::Yes | QMessageBox::No, this);
@@ -1118,6 +1119,7 @@ void PVInspector::PVMainWindow::cur_format_changed_Slot()
 			cur_src->set_format(new_format);
 		}
 	}
+#endif
 }
 
 /******************************************************************************

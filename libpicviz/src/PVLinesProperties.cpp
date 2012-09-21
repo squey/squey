@@ -28,14 +28,12 @@ Picviz::PVLinesProperties::PVLinesProperties():
  * Picviz::PVLinesProperties::PVLinesProperties
  *
  *****************************************************************************/
-Picviz::PVLinesProperties::PVLinesProperties(const PVLinesProperties & rhs)
+Picviz::PVLinesProperties::PVLinesProperties(const PVLinesProperties & rhs):
+	_table(nullptr)
 {
 	if (rhs._table) {
 		allocate_table();
 		memcpy(_table, rhs._table, PICVIZ_LINESPROPS_NUMBER_OF_BYTES);
-	}
-	else {
-		_table = NULL;
 	}
 }
 
@@ -198,5 +196,20 @@ void Picviz::PVLinesProperties::set_linear(const PVRow n)
 
 void Picviz::PVLinesProperties::serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t /*v*/)
 {
-	so.buffer("lp_data", &_table[0], PICVIZ_LINESPROPS_NUMBER_OF_BYTES);
+	if (so.is_writing() && _table) {
+		so.buffer("lp_data", &_table[0], PICVIZ_LINESPROPS_NUMBER_OF_BYTES);
+	}
+	else {
+		if (so.buffer_exists("lp_data")) {
+			if (!_table) {
+				allocate_table();
+			}
+			so.buffer("lp_data", &_table[0], PICVIZ_LINESPROPS_NUMBER_OF_BYTES);
+		}
+		else {
+			if (_table) {
+				reset_to_default_color();
+			}
+		}
+	}
 }

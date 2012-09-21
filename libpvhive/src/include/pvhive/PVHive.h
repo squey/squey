@@ -26,6 +26,8 @@
 #include <pvhive/PVFuncObserver.h>
 #include <pvhive/PVActorBase.h>
 
+#include <tbb/recursive_mutex.h>
+
 namespace PVHive
 {
 
@@ -138,6 +140,11 @@ public:
  */
 class PVHive
 {
+	struct tbb_hash_ptr
+	{
+		static inline size_t hash(const void* a) { return (size_t)a; }
+		static inline bool equal(const void* a, const void* b) { return a == b; }
+	};
 private:
 	typedef std::set<PVActorBase*> actors_t;
 	typedef std::list<PVObserverBase*> observers_t;
@@ -152,7 +159,7 @@ private:
 		properties_t      properties;
 	};
 
-	typedef tbb::concurrent_hash_map<void*, observable_t > observables_t;
+	typedef tbb::concurrent_hash_map<void*, observable_t, tbb_hash_ptr> observables_t;
 
 private:
 	template<typename T>
@@ -517,7 +524,7 @@ private:
 		// object must be a valid address
 		assert(object != nullptr);
 
-		observables_t::const_accessor acc;
+		observables_t::accessor acc;
 		if (!_observables.find(acc, (void*) object)) {
 			return;
 		}
@@ -550,9 +557,6 @@ private:
 			++it_fo;
 			++len;
 		}
-		acc.release();
-
-
 
 		for (size_t i = 0; i < len; ++i) {
 			const PVFuncObserverBase* fo = static_cast<const PVFuncObserverBase*>(func_obs[i]);
@@ -585,6 +589,8 @@ private:
 				}
 			}
 		}
+
+		acc.release();
 	}
 
 	/**
