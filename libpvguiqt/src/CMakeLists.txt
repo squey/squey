@@ -19,6 +19,7 @@ PVListingView.cpp
 PVRootTreeModel.cpp
 PVRootTreeView.cpp
 PVSortFilterProxyModel.cpp
+PVRecentItemsManager.cpp
 )
 
 SET(LIBGUIQT_MOC_HEADERS
@@ -35,6 +36,7 @@ include/pvguiqt/PVListingSortFilterProxyModel.h
 include/pvguiqt/PVListingView.h
 include/pvguiqt/PVHiveDataTreeModel.h
 include/pvguiqt/PVSortFilterProxyModel.h
+include/pvguiqt/PVRecentItemsManager.h
 )
 
 SET(UI_FILES
