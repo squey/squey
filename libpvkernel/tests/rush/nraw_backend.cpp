@@ -1,5 +1,6 @@
 #include <pvkernel/core/picviz_assert.h>
 #include <pvkernel/rush/PVNrawDiskBackend.h>
+#include <pvkernel/core/picviz_bench.h>
 
 #include <iostream>
 #include <sstream>
@@ -8,7 +9,7 @@
 
 #define MIN_SIZE 1
 #define MAX_SIZE 256
-#define N 2100000
+#define N 1000000
 #define LATENCY_N 100000
 
 size_t get_buf_size(size_t i)
@@ -24,8 +25,9 @@ int main(int argc, char** argv)
 	}
 
 	const char* nraw_path = argv[1];
-	PVRush::PVNRawDiskBackend<> backend(nraw_path, 1);
+	PVRush::PVNRawDiskBackend<> backend(nraw_path, 2);
 
+#if 0
 	std::vector<std::string> vec;
 	vec.reserve(N);
 	for (int i = 0 ; i < N; i++) {
@@ -66,33 +68,34 @@ int main(int argc, char** argv)
 	std::cout << "test passed: " << std::boolalpha << test_passed << std::endl;
 	backend.print_stats();
 
-	/*
-		const char* nraw_path = argv[1];
-		PVRush::PVNRawDiskBackend<> backend(nraw_path, 5);
+	backend.clear();
+#endif
 
-		char buf[MAX_SIZE];
-		for (size_t i = 0; i < N; i++) {
-				//const size_t sbuf = (rand()%(MAX_SIZE-MIN_SIZE+1))+MIN_SIZE;
-				const size_t sbuf = get_buf_size(i);
-				memset(buf, 'a', sbuf);
-				backend.add(0, buf, sbuf);
-		}
-		backend.flush();
-		backend.print_indexes();
+	PVLOG_INFO("Writing NRAW...\n");
+	char buf[MAX_SIZE];
+	for (size_t i = 0; i < N; i++) {
+		//const size_t sbuf = (rand()%(MAX_SIZE-MIN_SIZE+1))+MIN_SIZE;
+		const size_t sbuf = get_buf_size(i);
+		memset(buf, 'a' + i%26, sbuf);
+		backend.add(0, buf, sbuf);
+		backend.add(1, buf, sbuf);
+	}
+	backend.flush();
 
-		for (size_t i = 0; i < N; i++) {
-				size_t sret;
-				if (i == 8143) {
-						printf("hi\n");
-				}
-				const char* bread = backend.at(i, 0, sret);
-				printf("sret/theorical: %lu/%lu\n", sret, get_buf_size(i));
-				ASSERT_VALID(sret == get_buf_size(i));
-				printf("%lu: ", i);
-				fwrite(bread, 1, sret, stdout);
-				printf("\n");
-		}
-	*/
+	size_t sret;
+	PVLOG_INFO("Checking values with at()...\n");
+	BENCH_START(at);
+	for (size_t i = 0; i < N; i++) {
+		backend.at(i, 0, sret);
+		/*printf("sret/theorical: %lu/%lu\n", sret, get_buf_size(i));
+		printf("%lu: ", i);
+		fwrite(bread, 1, sret, stdout);
+		printf("\n");*/
+		ASSERT_VALID(sret == get_buf_size(i));
+		backend.at(i, 1, sret);
+		ASSERT_VALID(sret == get_buf_size(i));
+	}
+	BENCH_END(at, "at", 1, 1, 1, 1);
 
-	return !test_passed;
+	return 0;
 }
