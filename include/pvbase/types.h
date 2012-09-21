@@ -13,6 +13,8 @@ typedef qint32 PVCol;
 typedef quint32 PVRow;
 
 #define PVROW_INVALID_VALUE 0xFFFFFFFF
+#define PVCOL_INVALID_VALUE ((PVCol)-1)
+
 #define PVROW_VECTOR_ALIGNEMENT (128/(sizeof(PVRow)*8)) // Define necessary alignement of pointers of PVRows for vectorisation usage
 
 #define _U_ __attribute__((unused))

@@ -55,7 +55,7 @@ void PVParallelView::PVZonesManager::set_uint_plotted(Picviz::PVPlotted::uint_pl
 	_axes_comb.clear();
 	_axes_comb.reserve(ncols);
 	for (PVCol c = 0; c < ncols; c++) {
-		_axes_comb.push_back(c);
+		_axes_comb.push_back(axes_comb_entry_t(c, 0));
 	}
 }
 
@@ -69,7 +69,7 @@ void PVParallelView::PVZonesManager::update_all()
 	for (PVZoneID z = 0; z < nzones; z++) {
 		_zones.push_back(PVZone());
 	}
-	
+
 	PVZoneProcessing zp(get_uint_plotted(), get_number_rows());
 	{
 		__impl::ZoneCreation zc;
@@ -116,7 +116,7 @@ void PVParallelView::PVZonesManager::update_all()
 	}*/
 }
 
-void PVParallelView::PVZonesManager::update_from_axes_comb(QVector<PVCol> const& ac)
+void PVParallelView::PVZonesManager::update_from_axes_comb(columns_indexes_t const& ac)
 {
 	// TODO: optimise this to update only the concerned zones !
 	_axes_comb = ac;

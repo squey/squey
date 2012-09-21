@@ -7,6 +7,7 @@
 #ifndef PICVIZ_PVAXESCOMBINATION_H
 #define PICVIZ_PVAXESCOMBINATION_H
 
+#include <QMetaType>
 #include <QStringList>
 #include <QVector>
 
@@ -27,14 +28,80 @@ namespace Picviz {
 class LibPicvizDecl PVAxesCombination {
 	friend class PVCore::PVSerializeObject;
 public:
-	typedef QVector<PVAxis> list_axes_t;
-	typedef QVector<PVCol>  columns_indexes_t;
+	struct axes_comb_entry_t
+	{
+		typedef qulonglong value_type;
+
+		axes_comb_entry_t()
+		{
+			data.raw = 0;
+		}
+
+		axes_comb_entry_t(PVCol ai, uint32_t ci)
+		{
+			data.info.axis_index = ai;
+			data.info.child_id = ci;
+		}
+
+		axes_comb_entry_t(const QVariant &v)
+		{
+			data.raw = v.toULongLong();
+		}
+
+		operator value_type() const
+		{
+			return (qulonglong)data.raw;
+		}
+
+		bool operator ==(const axes_comb_entry_t &e) const
+		{
+			return data.raw == e.data.raw;
+		}
+
+		PVCol get_axis() const
+		{
+			return data.info.axis_index;
+		}
+
+		void set_axis(PVCol v)
+		{
+			data.info.axis_index = v;
+		}
+
+		PVCol get_id() const
+		{
+			return data.info.child_id;
+		}
+
+		void set_id(uint32_t v)
+		{
+			data.info.child_id = v;
+		}
+
+		value_type get_raw() const
+		{
+			return data.raw;
+		}
+
+		union {
+			struct
+			{
+				uint32_t child_id;
+				PVCol    axis_index;
+			} info;
+			uint64_t raw;
+		} data;
+	} ;
+
+	typedef QVector<PVAxis>             list_axes_t;
+	typedef QVector<axes_comb_entry_t>  columns_indexes_t;
+
 private:
-	QVector<float>  abscissae_list;       //!< Axes positions, such as [0.0, 1.29, 2.5, 4.76]
-	list_axes_t     axes_list;            //!< Contains all the used axes
-	columns_indexes_t  columns_indexes_list; //!< Contains the indices of the axes to place, such as [0,1,3,0]
-	list_axes_t     original_axes_list;   //!< All the axes, left as how they were upon loading the format.
-	bool _is_consistent;                  //!< Whether this object is consistent
+	QVector<float>    abscissae_list;       //!< Axes positions, such as [0.0, 1.29, 2.5, 4.76]
+	list_axes_t       axes_list;            //!< Contains all the used axes
+	columns_indexes_t columns_indexes_list; //!< Contains the indices of the axes to place, such as [0,1,3,0]
+	list_axes_t       original_axes_list;   //!< All the axes, left as how they were upon loading the format.
+	bool              _is_consistent;                  //!< Whether this object is consistent
 public:
 	PVAxesCombination();
 
@@ -118,7 +185,10 @@ public:
 	* @note If the index is out of range, the column index of the last axis is returned.
 	*/
 	PVCol get_axis_column_index(PVCol index) const;
-	inline const PVCol* get_axis_column_index_buffer() const { return &columns_indexes_list.at(0); }
+	// inline const PVCol* get_axis_column_index_buffer() const
+	// {
+	// 	return &columns_indexes_list.at(0);
+	// }
 
 	/**
 	* Get the original axis index from its name.
@@ -147,7 +217,10 @@ public:
 	*
 	* @note This function is the same as #get_axis_column_index but doesn't do any range index checking, and thus is much faster.
 	*/
-	PVCol get_axis_column_index_fast(PVCol index) const { return columns_indexes_list[index]; }
+	PVCol get_axis_column_index_fast(PVCol index) const
+	{
+		return columns_indexes_list[index].get_axis();
+	}
 
 	/**
 	* Get the current column index of an original axis.
@@ -289,12 +362,31 @@ public:
 	 */
 	void set_original_axes(PVRush::list_axes_t const& axes);
 
+	/**
+	 * @brief Find the first available child_id for an axis
+	 */
+	uint32_t get_first_free_child_id(PVCol index);
+
+	/**
+	 * @brief Get the "id" of the i-th entry
+	 */
+	inline axes_comb_entry_t get_axes_comb_entry(PVCol i) const
+	{
+		assert (i < columns_indexes_list.size());
+		return columns_indexes_list[i];
+	}
+
+	/**
+	 * @brief Get the index of e
+	 */
+	PVCol get_index_by_id(const axes_comb_entry_t &e) const;
+
 	QString to_string() const;
 
 	list_axes_t const& get_original_axes_list() const { return original_axes_list; }
 	list_axes_t const& get_axes_list() const { return axes_list; }
-	
-	QVector<PVCol> const& get_axes_index_list() const { return columns_indexes_list; }
+
+	columns_indexes_t const& get_axes_index_list() const { return columns_indexes_list; }
 	void set_axes_index_list(columns_indexes_t const& idxes, list_axes_t const& axes)
 	{
 		assert(idxes.size() == axes.size());
@@ -355,7 +447,7 @@ template <class L>
 bool PVAxesCombination::remove_axes(L const& list_idx)
 {
 	QVector<PVAxis> tmp_axes;
-	QVector<PVCol> tmp_col_indexes;
+	columns_indexes_t tmp_col_indexes;
 	PVCol new_size = axes_list.size() - list_idx.size();
 	tmp_axes.reserve(new_size);
 	tmp_col_indexes.reserve(new_size);
@@ -371,5 +463,7 @@ bool PVAxesCombination::remove_axes(L const& list_idx)
 }
 
 }
+
+Q_DECLARE_METATYPE(Picviz::PVAxesCombination::axes_comb_entry_t)
 
 #endif	/* PICVIZ_PVAXESCOMBINATION_H */

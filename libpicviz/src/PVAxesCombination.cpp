@@ -44,7 +44,7 @@ void Picviz::PVAxesCombination::axis_append(const PVAxis &axis)
 void Picviz::PVAxesCombination::axis_append(PVCol org_axis_id)
 {
 	assert(org_axis_id < original_axes_list.size());
-	columns_indexes_list.push_back(org_axis_id);
+	columns_indexes_list.push_back(axes_comb_entry_t(org_axis_id, 0));
 	axes_list.push_back(original_axes_list.at(org_axis_id));
 	float absciss = 0.0f;
 	if (abscissae_list.size() > 0) {
@@ -129,10 +129,10 @@ PVCol Picviz::PVAxesCombination::get_axis_column_index(PVCol index) const
 	/* We check that the given axis' index is not out of range */
 	if (index >= axes_list.size()) {
 		PVLOG_ERROR("%s: Index out of range in %d >= %d\n", __FUNCTION__, index, axes_list.size());
-		return columns_indexes_list.last();
+		return columns_indexes_list.last().get_axis();
 	}
 
-	return columns_indexes_list[index];
+	return columns_indexes_list[index].get_axis();
 }
 
 /******************************************************************************
@@ -147,12 +147,12 @@ PVCol Picviz::PVAxesCombination::get_combined_axis_column_index(PVCol index) con
 	/* We check that the given axis' index is not out of range */
 	if (index >= original_axes_list.size()) {
 		PVLOG_ERROR("%s: Index out of range in %d >= %d\n", __FUNCTION__, index, original_axes_list.size());
-		return columns_indexes_list.last();
+		return columns_indexes_list.last().get_axis();
 	}
 
 	
 	for (PVCol i = 0; i < columns_indexes_list.size(); i++) {
-		if (columns_indexes_list[i] == index) {
+		if (columns_indexes_list[i].get_axis() == index) {
 			return i;
 		}
 	}
@@ -176,9 +176,8 @@ QList<PVCol> Picviz::PVAxesCombination::get_combined_axes_columns_indexes(PVCol 
 		return cols_ret;
 	}
 
-	
 	for (PVCol i = 0; i < columns_indexes_list.size(); i++) {
-		if (columns_indexes_list[i] == index) {
+		if (columns_indexes_list[i].get_axis() == index) {
 			cols_ret << i;
 		}
 	}
@@ -220,15 +219,14 @@ QStringList Picviz::PVAxesCombination::get_original_axes_names_list()
 bool Picviz::PVAxesCombination::decrease_axis_column_index(PVCol index)
 {
 	/* We check that the given axis' index is not out of range */
-	if (index >= axes_list.size()) {
-		PVLOG_ERROR("%s: Index out of range in %d >= %d\n", __FUNCTION__, index, axes_list.size());
-		return true;
-	}
+	assert(index < axes_list.size());
 
 	/* If the actual column_index of that axis is not too low, we decrease it */
-	if (columns_indexes_list[index] > 0) {
-		columns_indexes_list[index] -= 1;
-		axes_list[index] = original_axes_list[columns_indexes_list[index]];
+	if (columns_indexes_list[index].get_axis() > 0) {
+		PVCol axis_index = columns_indexes_list[index].get_axis() - 1;
+		columns_indexes_list[index].set_axis(axis_index);
+		columns_indexes_list[index].set_id(get_first_free_child_id(axis_index));
+		axes_list[index] = original_axes_list[axis_index];
 	}
 	return false;
 }
@@ -240,15 +238,14 @@ bool Picviz::PVAxesCombination::decrease_axis_column_index(PVCol index)
  *****************************************************************************/
 bool Picviz::PVAxesCombination::increase_axis_column_index(PVCol index)
 {
-	if (index >= axes_list.size()) {
-		PVLOG_ERROR("%s: Index out of range in %d >= %d\n", __FUNCTION__, index, axes_list.size());
-		return true;
-	}
+	assert(index < axes_list.size());
 
 	/* If the actual column_index of that axis is not too high, we increase it */
-	if (columns_indexes_list[index] < original_axes_list.size() - 1) {
-		columns_indexes_list[index] += 1;
-		axes_list[index] = original_axes_list[columns_indexes_list[index]];
+	if (columns_indexes_list[index].get_axis() < original_axes_list.size() - 1) {
+		PVCol axis_index = columns_indexes_list[index].get_axis() + 1;
+		columns_indexes_list[index].set_axis(axis_index);
+		columns_indexes_list[index].set_id(get_first_free_child_id(axis_index));
+		axes_list[index] = original_axes_list[axis_index];
 	}
 
 	return false;
@@ -266,7 +263,7 @@ bool Picviz::PVAxesCombination::is_default() const
 	}
 
 	for (PVCol i = 0; i < columns_indexes_list.size(); i++) {
-		if (columns_indexes_list[i] != i) {
+		if (columns_indexes_list[i].get_axis() != i) {
 			return false;
 		}
 	}
@@ -427,18 +424,21 @@ void Picviz::PVAxesCombination::set_from_format(PVRush::PVFormat &format)
 	PVRush::list_axes_t const& axes = format.get_axes();
 	PVRush::list_axes_t::const_iterator it;
 
-	QVector<PVCol> axes_comb;
+	columns_indexes_t axes_comb;
 	if (columns_indexes_list.size() > 0) {
 		if (axes_comb.size() == 0) {
 			axes_comb = columns_indexes_list;
 		}
 	}
 	else {
-		axes_comb = QVector<PVCol>::fromStdVector(format.get_axes_comb());
+		for (PVCol index : format.get_axes_comb()) {
+			axes_comb.push_back(axes_comb_entry_t(index, get_first_free_child_id(index)));
+
+		}
 		if (axes_comb.size() == 0) {
 			axes_comb.reserve(axes.size());
 			for (PVCol i = 0; i < axes.size(); i++) {
-				axes_comb.push_back(i);
+				axes_comb.push_back(axes_comb_entry_t(i, 0));
 			}
 		}
 	}
@@ -451,9 +451,9 @@ void Picviz::PVAxesCombination::set_from_format(PVRush::PVFormat &format)
 		}
 
 		columns_indexes_list.clear();
-		QVector<PVCol>::iterator it_comb;
+		columns_indexes_t::iterator it_comb;
 		for (it_comb = axes_comb.begin(); it_comb != axes_comb.end(); it_comb++) {
-			PVCol col = *it_comb;
+			PVCol col = it_comb->get_axis();
 			if (col < original_axes_list.size()) {
 				axis_append(col);
 			}
@@ -461,6 +461,11 @@ void Picviz::PVAxesCombination::set_from_format(PVRush::PVFormat &format)
 	}
 }
 
+/******************************************************************************
+ *
+ * Picviz::PVAxesCombination::set_original_axes
+ *
+ *****************************************************************************/
 void Picviz::PVAxesCombination::set_original_axes(PVRush::list_axes_t const& axes)
 {
 	QVector<PVAxis> old_axes_list = axes_list;
@@ -482,6 +487,47 @@ void Picviz::PVAxesCombination::set_original_axes(PVRush::list_axes_t const& axe
 			axis_append(id_org);
 		}
 	}
+}
+
+/******************************************************************************
+ *
+ * Picviz::PVAxesCombination::get_first_child_id
+ *
+ *****************************************************************************/
+uint32_t Picviz::PVAxesCombination::get_first_free_child_id(PVCol index)
+{
+	uint32_t id = 0;
+	size_t i, size = columns_indexes_list.size();
+
+	while(true) {
+		axes_comb_entry_t ci(index, id);
+
+		for (i = 0; i < size; ++i) {
+			if (columns_indexes_list[i] == ci) {
+				break;
+			}
+		}
+		if (i == size) {
+			return id;
+		}
+		++id;
+	}
+}
+
+/******************************************************************************
+ *
+ * Picviz::PVAxesCombination::get_index_by_id
+ *
+ *****************************************************************************/
+PVCol Picviz::PVAxesCombination::get_index_by_id(const axes_comb_entry_t &e) const
+{
+	for (int i = 0; i < columns_indexes_list.size(); ++i) {
+		if (columns_indexes_list[i] == e) {
+			return i;
+		}
+	}
+
+	return PVCOL_INVALID_VALUE;
 }
 
 static bool comp_sort(std::pair<QStringRef, PVCol> const& o1, std::pair<QStringRef, PVCol> const& o2)
@@ -530,9 +576,9 @@ QString Picviz::PVAxesCombination::to_string() const
 
 	QString ret;
 	for (int i = 0; i < columns_indexes_list.size()-1; i++) {
-		ret += QString::number(columns_indexes_list[i]) + ",";
+		ret += QString::number(columns_indexes_list[i].get_axis()) + ",";
 	}
-	ret += QString::number(columns_indexes_list[columns_indexes_list.size()-1]);
+	ret += QString::number(columns_indexes_list[columns_indexes_list.size()-1].get_axis());
 	PVLOG_DEBUG("(Picviz::PVAxesCombination::to_string) string: %s\n", qPrintable(ret));
 	return ret;
 }

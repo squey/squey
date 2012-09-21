@@ -46,9 +46,12 @@ public:
 	PVZonesManager();
 
 public:
+	typedef Picviz::PVAxesCombination::axes_comb_entry_t axes_comb_entry_t;
+	typedef Picviz::PVAxesCombination::columns_indexes_t columns_indexes_t;
+
 	void update_all();
 	void reset_axes_comb();
-	void update_from_axes_comb(QVector<PVCol> const& ac);
+	void update_from_axes_comb(columns_indexes_t const& ac);
 	void update_from_axes_comb(Picviz::PVView const& view);
 	void update_zone(PVZoneID zone);
 	void reverse_zone(PVZoneID zone);
@@ -97,7 +100,7 @@ protected:
 	Picviz::PVPlotted::uint_plotted_table_t const* _uint_plotted = NULL;
 	PVRow _nrows = 0;
 	PVCol _ncols = 0;
-	QVector<PVCol> _axes_comb;
+	columns_indexes_t _axes_comb;
 	list_zones_t _zones;
 	process_ztree_tls_t _tls_ztree;
 	//list_zones_tree_t _quad_trees;
