@@ -97,7 +97,7 @@ private:
 	PVFormat_p format;
 	PVRow _real_nrows;
 
-	mutable PVNrawDiskBackend<> _backend;
+	mutable PVNrawDiskBackend _backend;
 	UConverter* _ucnv;
 
 	char* _tmp_conv_buf;

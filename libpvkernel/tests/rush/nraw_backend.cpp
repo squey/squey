@@ -25,7 +25,7 @@ int main(int argc, char** argv)
 	}
 
 	const char* nraw_path = argv[1];
-	PVRush::PVNrawDiskBackend<> backend;
+	PVRush::PVNrawDiskBackend backend;
 	backend.init(nraw_path, 2);
 
 #if 0
