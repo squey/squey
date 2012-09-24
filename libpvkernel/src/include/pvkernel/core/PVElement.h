@@ -84,7 +84,6 @@ public:
 protected:
 	// Set by the parent PVChunk
 	void set_chunk_index(size_t i) { _chunk_index = i; }
-	void give_ownerhsip_realloc_buffers(PVRush::PVNraw& nraw);
 	void init_fields(void* fields_buf, size_t size_buf);
 private:
 	void init(PVChunk* parent);

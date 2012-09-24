@@ -25,7 +25,8 @@ int main(int argc, char** argv)
 	}
 
 	const char* nraw_path = argv[1];
-	PVRush::PVNRawDiskBackend<> backend(nraw_path, 2);
+	PVRush::PVNrawDiskBackend<> backend;
+	backend.init(nraw_path, 2);
 
 #if 0
 	std::vector<std::string> vec;
@@ -101,25 +102,25 @@ int main(int argc, char** argv)
 
 	PVLOG_INFO("Checking values with visit_column()...\n");
 	BENCH_START(visit);
-	ASSERT_VALID(backend.visit_column2(0, [=](size_t r, const char* buf, size_t n)
+	ASSERT_VALID(backend.visit_column_tbb(0, [=](size_t r, const char*, size_t n)
 			{
-				//ASSERT_VALID(n == get_buf_size(r));
+				ASSERT_VALID(n == get_buf_size(r));
 			}));
 	BENCH_END(visit, "visit", sizeof(char), stotal, 1, 1);
 
 	PVLOG_INFO("Checking values with visit_column()...\n");
 	BENCH_START(visit2);
-	ASSERT_VALID(backend.visit_column2(0, [=](size_t r, const char* buf, size_t n)
+	ASSERT_VALID(backend.visit_column_tbb(0, [=](size_t r, const char*, size_t n)
 			{
-				//ASSERT_VALID(n == get_buf_size(r));
+				ASSERT_VALID(n == get_buf_size(r));
 			}));
 	BENCH_END(visit2, "visit", sizeof(char), stotal, 1, 1);
 
 	PVLOG_INFO("Checking values with visit_column()...\n");
 	BENCH_START(visit4);
-	ASSERT_VALID(backend.visit_column2(0, [=](size_t r, const char* buf, size_t n)
+	ASSERT_VALID(backend.visit_column_tbb(0, [=](size_t r, const char*, size_t n)
 			{
-				//ASSERT_VALID(n == get_buf_size(r));
+				ASSERT_VALID(n == get_buf_size(r));
 			}));
 	BENCH_END(visit4, "visit", sizeof(char), stotal, 1, 1);
 

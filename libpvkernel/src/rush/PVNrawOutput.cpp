@@ -18,38 +18,15 @@ PVRush::PVNrawOutput::PVNrawOutput(PVRush::PVNraw &nraw_dest) :
 
 void PVRush::PVNrawOutput::operator()(PVCore::PVChunk* out)
 {
-	// Write all elements of the chunk in the final nraw
-	PVCore::list_elts& elts = out->elements();	
-	PVCore::list_elts::iterator it_elt;
+	if (_nraw_dest.add_chunk_utf16(*out)) {
+		// Save the chunk corresponding index
+		_pvrow_chunk_idx[_nraw_cur_index] = out->agg_index();
 
-	//std::list<QString, tbb::tbb_allocator<QString> > sl;
-	for (it_elt = elts.begin(); it_elt != elts.end(); it_elt++) {
-		PVCore::PVElement& e = *(*it_elt);
-		if (!e.valid())
-			continue;
-		PVCore::list_fields const& fields = e.c_fields();
-		if (fields.size() == 0)
-			continue;
-
-		if (!_nraw_dest.add_row(e, *out)) {
-			// Discard the chunk
-			out->free();
-			return;
-		}
+		_nraw_cur_index++;
 	}
-	
-	// Save the chunk corresponding index
-	_pvrow_chunk_idx[_nraw_cur_index] = out->agg_index();
 
-	_nraw_cur_index++;
-
-	_nraw_dest.push_chunk_todelete(out);
-
-	// Give the ownership of reallocated buffers to the NRAW
-	out->give_ownerhsip_realloc_buffers(_nraw_dest);
-
-	// Clear the structures used by the chunk
-	out->free_structs();
+	// Clear this chunk !
+	out->free();
 }
 
 PVRush::PVNrawOutput::map_pvrow const& PVRush::PVNrawOutput::get_pvrow_index_map() const

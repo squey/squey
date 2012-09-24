@@ -80,7 +80,7 @@ int main(int argc, char** argv)
 		PVLOG_INFO("Extraction finished. Press a key to remove the NRAW\n");
 		//getchar();
 
-		dump_nraw_csv(ext.get_nraw());
+		//dump_nraw_csv(ext.get_nraw());
 
 	}
 	PVLOG_INFO("Press a key to exit.\n");
