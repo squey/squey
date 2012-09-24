@@ -18,7 +18,8 @@
 #include <pvparallelview/PVLibView.h>
 
 #include <pvguiqt/PVAxesCombinationDialog.h>
-#include <pvguiqt/PVRecentItemsManager.h>
+#include <pvkernel/core/PVRecentItemsManager.h>
+#include <pvguiqt/PVLogoScene.h>
 
 #include <PVMainWindow.h>
 #include <PVExpandSelDlg.h>
@@ -35,12 +36,24 @@
  * PVInspector::PVMainWindow::about_Slot()
  *
  *****************************************************************************/
+
+class GraphicsView : public QGraphicsView
+{
+protected:
+    void resizeEvent(QResizeEvent *event) {
+        if (scene())
+            scene()->setSceneRect(QRect(QPoint(0, 0), event->size()));
+        QGraphicsView::resizeEvent(event);
+    }
+};
+
 void PVInspector::PVMainWindow::about_Slot()
 {
 	if (!about_dialog) {
 		about_dialog = new QDialog;
 
 		QGridLayout *main_layout = new QGridLayout;
+		main_layout->setHorizontalSpacing(0);
 
 		QLabel *logo = new QLabel;
 #ifdef CUDA
@@ -48,13 +61,22 @@ void PVInspector::PVMainWindow::about_Slot()
 #else
 		QString content = "Picviz Inspector v." + QString(PICVIZ_CURRENT_VERSION_STR) + " \"" + QString(PICVIZ_VERSION_NAME) + "\"\n(c) 2010-2011 Picviz Labs SAS\ncontact@picviz.com\nhttp://www.picviz.com\n\nQT version " + QString(QT_VERSION_STR);
 #endif
+
+		QGraphicsView* view3D = new GraphicsView();
+		view3D->setStyleSheet("QGraphicsView { background-color: white; color: white; border-style: none; }");
+		view3D->setViewport(new QGLWidget(QGLFormat(QGL::SampleBuffers)));
+		view3D->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
+		view3D->setScene(new PVGuiQt::PVLogoScene());
+		view3D->setCursor(Qt::OpenHandCursor);
+
 		QLabel *text = new QLabel(content);
 		QPushButton *ok = new QPushButton("OK");
 
-		logo->setPixmap(QPixmap(":/logo.png"));
+		logo->setPixmap(QPixmap(":/logo_text.png"));
 
-		main_layout->addWidget(logo, 0, 0);
-		main_layout->addWidget(text, 0, 1);
+		main_layout->addWidget(view3D, 0, 0);
+		main_layout->addWidget(logo, 0, 1);
+		main_layout->addWidget(text, 0, 2);
 		main_layout->addWidget(ok, 2, 1);
 
 		about_dialog->setLayout(main_layout);
@@ -665,7 +687,7 @@ bool PVInspector::PVMainWindow::load_project(QString const& file)
 		set_project_modified(true);
 	}
 
-	PVGuiQt::PVRecentItemsManager::get().add(file, PVGuiQt::PVRecentItemsManager::Category::PROJECTS);
+	PVHive::call<FUNC(PVCore::PVRecentItemsManager::add)>(PVCore::PVRecentItemsManager::get(), file, PVCore::PVRecentItemsManager::Category::PROJECTS);
 #endif
 
 	return true;
@@ -757,7 +779,8 @@ bool PVInspector::PVMainWindow::save_project(QString const& file, PVCore::PVSeri
 	}
 
 	set_current_project_filename(file);
-	PVGuiQt::PVRecentItemsManager::get().add(file, PVGuiQt::PVRecentItemsManager::Category::PROJECTS);
+
+	PVHive::call<FUNC(PVCore::PVRecentItemsManager::add)>(PVCore::PVRecentItemsManager::get(), file, PVCore::PVRecentItemsManager::Category::PROJECTS);
 
 	return true;
 #else
@@ -1089,7 +1112,7 @@ void PVInspector::PVMainWindow::open_format_Slot()
 
     if (!url.isEmpty()) {
         editorWidget->show();
-    	PVGuiQt::PVRecentItemsManager::get().add(url, PVGuiQt::PVRecentItemsManager::Category::EDITED_FORMATS);
+        PVHive::call<FUNC(PVCore::PVRecentItemsManager::add)>(PVCore::PVRecentItemsManager::get(), url, PVCore::PVRecentItemsManager::Category::EDITED_FORMATS);
     }
 }
 

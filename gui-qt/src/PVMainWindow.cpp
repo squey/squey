@@ -26,7 +26,7 @@
 #include <PVInputTypeMenuEntries.h>
 
 #include <PVStartScreenWidget.h>
-#include <pvguiqt/PVRecentItemsManager.h>
+#include <pvkernel/core/PVRecentItemsManager.h>
 
 #ifdef CUSTOMER_RELEASE
   #ifdef WIN32
@@ -1701,7 +1701,7 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_p src)
 		display_inv_elts(current_tab);
 	}
 
-	PVGuiQt::PVRecentItemsManager::get().add(src->get_format().get_full_path(), PVGuiQt::PVRecentItemsManager::Category::USED_FORMATS);
+	PVHive::call<FUNC(PVCore::PVRecentItemsManager::add)>(PVCore::PVRecentItemsManager::get(), src->get_format().get_full_path(), PVCore::PVRecentItemsManager::Category::USED_FORMATS);
 	return true;
 }
 

@@ -11,12 +11,16 @@
 #include <QSettings>
 #include <QStringList>
 
-namespace PVGuiQt
+#include <pvkernel/core/PVSharedPointer.h>
+
+
+namespace PVCore
 {
 
-class PVRecentItemsManager : public QObject
+class PVRecentItemsManager
 {
-	Q_OBJECT
+public:
+	typedef PVCore::PVSharedPtr<PVRecentItemsManager> PVRecentItemsManager_p;
 
 public:
 	enum Category {
@@ -31,26 +35,24 @@ public:
 		LAST
 	};
 
-	static PVRecentItemsManager &get()
+	static PVRecentItemsManager_p& get()
 	{
-		if (_recent_items_manager == nullptr) {
-			_recent_items_manager = new PVRecentItemsManager();
+		if (_recent_items_manager_p.get() == nullptr) {
+			_recent_items_manager_p = PVRecentItemsManager_p(new PVRecentItemsManager());
 		}
-		return *_recent_items_manager;
+		return _recent_items_manager_p;
 	}
 
-	void add(const QString &project_path, Category category)
+	void add(const QString& item_path, Category category)
 	{
-		QString recent_projects_key = _recents_items_keys[category];
-	    QStringList files = _recents_settings.value(recent_projects_key).toStringList();
-	    files.removeAll(project_path);
-	    files.prepend(project_path);
+		QString recent_items_key = _recents_items_keys[category];
+	    QStringList files = _recents_settings.value(recent_items_key).toStringList();
+	    files.removeAll(item_path);
+	    files.prepend(item_path);
 
 	    for (; files.size() > _max_recent_items; files.removeLast()) {}
 
-	    _recents_settings.setValue(recent_projects_key, files);
-
-	    emit recent_items_updated((int) category);
+	    _recents_settings.setValue(recent_items_key, files);
 	}
 
 	const QStringList get_list(Category category)
@@ -68,8 +70,10 @@ public:
 		return _recents_items_keys[category];
 	}
 
-signals:
-	void recent_items_updated(int category);
+	QSettings& get_qsettings() { return _recents_settings; }
+
+/*signals:
+	void recent_items_updated(int category);*/
 
 private:
 	const QStringList get_supported_formats_paths()
@@ -98,12 +102,12 @@ private:
 
 private:
 	PVRecentItemsManager() : _recents_settings("recents.ini", QSettings::IniFormat) {}
-	~PVRecentItemsManager() {}
 	PVRecentItemsManager(const PVRecentItemsManager&);
 	PVRecentItemsManager &operator=(const PVRecentItemsManager&);
 
 private:
-	static PVRecentItemsManager* _recent_items_manager;
+	static PVRecentItemsManager_p _recent_items_manager_p;
+	//static PVRecentItemsManager* _recent_items_manager;
 
 	QSettings _recents_settings;
 	const int64_t _max_recent_items = 5;

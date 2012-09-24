@@ -11,10 +11,24 @@
 #include <QStringList>
 #include <QVBoxLayout>
 
-#include <pvguiqt/PVRecentItemsManager.h>
+#include <pvhive/PVCallHelper.h>
+#include <pvhive/PVObserverSignal.h>
+
+#include <pvkernel/core/PVRecentItemsManager.h>
 
 namespace PVInspector {
 class PVMainWindow;
+class PVStartScreenWidget;
+
+class PVAddRecentItemFuncObserver: public PVHive::PVFuncObserverSignal<PVCore::PVRecentItemsManager, FUNC(PVCore::PVRecentItemsManager::add)>
+{
+public:
+	PVAddRecentItemFuncObserver(PVStartScreenWidget* parent) : _parent(parent) {}
+public:
+	void update(const arguments_deep_copy_type& args) const;
+private:
+	PVStartScreenWidget* _parent;
+};
 
 /**
  *  \class PVStartScreenWidget
@@ -27,7 +41,6 @@ class PVStartScreenWidget : public QWidget
 		PVStartScreenWidget(PVMainWindow* parent);
 		void refresh_all_recent_items();
 
-	public slots:
 		void refresh_recent_items(int category);
 
 	private:
@@ -43,7 +56,9 @@ class PVStartScreenWidget : public QWidget
 			const char* slot;
 		};
 
-		PVRecentList _recent_lists[PVGuiQt::PVRecentItemsManager::Category::LAST];
+		PVRecentList _recent_lists[PVCore::PVRecentItemsManager::Category::LAST];
+
+		PVAddRecentItemFuncObserver _recent_items_add_obs;
 };
 }
 

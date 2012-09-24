@@ -43,6 +43,10 @@ public:
 	QString last_error_serv();
 	
 protected:
+	virtual void save_to_qsettings();
+	virtual void load_from_qsettings();
+
+protected:
 	void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 	void serialize_write(PVCore::PVSerializeObject& so);
 

@@ -10,6 +10,8 @@
 #include <pvkernel/core/PVFileSerialize.h>
 #include <pvkernel/rush/PVInputDescription.h>
 
+#include <pvkernel/core/PVRecentItemsManager.h>
+
 namespace PVRush {
 
 class PVFileDescription: public PVInputDescription
@@ -43,6 +45,25 @@ protected:
 	{
 		QDir dir;
 		_path = dir.absoluteFilePath(path);
+	}
+
+protected:
+	virtual void save_to_qsettings()
+	{
+		QSettings& settings = PVCore::PVRecentItemsManager::get()->get_qsettings();
+
+		settings.beginGroup(human_name());
+		settings.setValue("path", path());
+		settings.endGroup();
+	}
+
+	virtual void load_from_qsettings()
+	{
+		QSettings& settings = PVCore::PVRecentItemsManager::get()->get_qsettings();
+
+		settings.beginGroup(human_name());
+		_path = settings.value("path").toString();
+		settings.endGroup();
 	}
 
 protected:

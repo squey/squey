@@ -29,6 +29,9 @@ public:
 
 protected:
 	virtual void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v) = 0;
+
+	virtual void save_to_qsettings() = 0;
+	virtual void load_from_qsettings() = 0;
 };
 
 typedef PVInputDescription::p_type PVInputDescription_p;

@@ -5,6 +5,7 @@
 	<file alias="background-window.png">resources/background-window.png</file>
         <file alias="window-icon.png">resources/inspector.png</file>
         <file alias="logo.png">resources/logo.png</file>
+        <file alias="logo_text.png">resources/logo_text.png</file>
         <file>resources/filelink-32.png</file>
         <file>resources/standardbutton-open-32.png</file>
         <file alias="save">resources/standardbutton-save-32.png</file>
@@ -84,7 +85,9 @@
 	<file alias="new-icon-white">resources/trafik/elements-interface/icone-nouveau-blanc.png</file>
 	<file alias="open-icon-white">resources/trafik/elements-interface/icone-ouvrirdossier-blanc.png</file>
 	<file alias="edit-icon-white">resources/trafik/elements-interface/icone-editer-blanc.png</file>
-
+	
+	<!-- ABOUT BOX -->
+	<file alias="logo3d">resources/logo.obj</file>
 
 	<!-- QSCROLLBAR ICONS -->
 	<file alias="horizontal-scrollbar-handle">resources/trafik/elements-interface/ascenceur-horizontal-barre-defilement.png</file>

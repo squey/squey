@@ -51,6 +51,7 @@ core/PVUtils.cpp
 core/PVUnicodeString.cpp
 core/PVVersion.cpp
 core/PVAllocators.cpp
+core/PVRecentItemsManager.cpp
 )
 
 if(PYTHONLIBS_FOUND)
@@ -114,6 +115,7 @@ include/pvkernel/core/PVTypeInfo.h
 include/pvkernel/core/PVUtils.h
 include/pvkernel/core/PVUnicodeString.h
 include/pvkernel/core/PVVersion.h
+include/pvkernel/core/PVRecentItemsManager.h
 )
 
 if(PYTHONLIBS_FOUND)

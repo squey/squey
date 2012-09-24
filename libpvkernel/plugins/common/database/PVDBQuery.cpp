@@ -7,6 +7,8 @@
 #include "PVDBInfos.h"
 #include "PVDBQuery.h"
 
+#include <pvkernel/core/PVRecentItemsManager.h>
+
 PVRush::PVDBQuery::PVDBQuery()
 {
 }
@@ -64,4 +66,38 @@ void PVRush::PVDBQuery::serialize_read(PVCore::PVSerializeObject& so, PVCore::PV
 	PVDBInfos infos;
 	so.object("server", infos);
 	_infos.reset(new PVDBServ(infos));
+}
+
+void PVRush::PVDBQuery::save_to_qsettings()
+{
+	QSettings& settings = PVCore::PVRecentItemsManager::get()->get_qsettings();
+
+	settings.beginGroup(human_name());
+
+	settings.setValue("type", _infos->get_type());
+	settings.setValue("host", _infos->get_host());
+	settings.setValue("username", _infos->get_username());
+	settings.setValue("password", _infos->get_password());
+	settings.setValue("options", _infos->get_options());
+	settings.setValue("dbname", _infos->get_dbname());
+	settings.setValue("port", _infos->get_port());
+
+	settings.endGroup();
+}
+
+void PVRush::PVDBQuery::load_from_qsettings()
+{
+	QSettings& settings = PVCore::PVRecentItemsManager::get()->get_qsettings();
+
+	settings.beginGroup(human_name());
+
+	_infos->set_type(settings.value("type").toString());
+	_infos->set_host(settings.value("host").toString());
+	_infos->set_username(settings.value("username").toString());
+	_infos->set_password(settings.value("password").toString());
+	_infos->set_options(settings.value("options").toString());
+	_infos->set_dbname(settings.value("dbname").toString());
+	_infos->set_port(settings.value("port").toInt());
+
+	settings.endGroup();
 }
