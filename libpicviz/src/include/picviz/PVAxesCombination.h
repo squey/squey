@@ -56,6 +56,11 @@ public:
 			return data.raw == e.data.raw;
 		}
 
+		bool operator <(const axes_comb_id_t &e) const
+		{
+			return data.raw < e.data.raw;
+		}
+
 		bool operator !=(const axes_comb_id_t &e) const
 		{
 			return data.raw != e.data.raw;
