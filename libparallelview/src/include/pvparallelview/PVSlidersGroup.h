@@ -39,6 +39,11 @@ public:
 
 	void recreate_sliders();
 
+	void set_axe_id(const axe_id_t &axe_id)
+	{
+		_axe_id = axe_id;
+	}
+
 	const axe_id_t &get_axe_id() const
 	{
 		return _axe_id;

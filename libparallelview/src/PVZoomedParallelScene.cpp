@@ -301,14 +301,14 @@ void PVParallelView::PVZoomedParallelScene::update_zones()
 			 */
 			// FIXME: suicide time \o/
 			return;
-		} else {
-			/* the axis does not exist anymore, the one with the
-			 * same index is used instead
-			 */
-			_sliders_group->recreate_sliders();
 		}
 
+		/* the axis does not exist anymore, the one with the
+		 * same index is used instead
+		 */
 		_axe_id = _pvview.get_axes_combination().get_axes_comb_id(_axis_index);
+		_sliders_group->set_axe_id(_axe_id);
+		_sliders_group->recreate_sliders();
 	} else {
 		/* the axes has only been moved, nothing special to do.
 		 */
