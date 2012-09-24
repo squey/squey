@@ -31,8 +31,6 @@ namespace PVParallelView
 
 class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
 {
-	friend class zoom_sliders_new_obs;
-
 public:
 	typedef PVSlidersGroup::selection_ranges_t selection_ranges_t;
 	typedef PVSlidersManager::axe_id_t         axe_id_t;
