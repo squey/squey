@@ -13,8 +13,7 @@
 #include <pvparallelview/PVZoomAxisSliders.h>
 #include <pvparallelview/PVSelectionAxisSliders.h>
 
-#include <vector>
-#include <set>
+#include <unordered_set>
 
 #include <QObject>
 #include <QGraphicsItemGroup>
@@ -128,9 +127,9 @@ private:
 	};
 
 private:
-	typedef std::vector<PVAbstractAxisSliders*>  aas_set_t;
-	typedef std::vector<PVSelectionAxisSliders*> sas_set_t;
-	typedef std::set<id_t>                       id_set_t;
+	typedef std::unordered_set<PVAbstractAxisSliders*>  aas_set_t;
+	typedef std::unordered_set<PVSelectionAxisSliders*> sas_set_t;
+	typedef std::unordered_set<id_t>                    id_set_t;
 
 private:
 	PVSlidersManager_p        _sliders_manager_p;

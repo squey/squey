@@ -151,7 +151,7 @@ void PVParallelView::PVSlidersGroup::add_new_zoom_sliders(PVZoneID axis,
 
 	sliders->setPos(0, 0);
 
-	_all_sliders.push_back(sliders);
+	_all_sliders.insert(sliders);
 	_registered_ids.insert(id);
 }
 
@@ -181,8 +181,8 @@ void PVParallelView::PVSlidersGroup::add_new_selection_sliders(PVParallelView::P
 
 	connect(sliders, SIGNAL(sliders_moved()), this, SLOT(selection_slider_moved()));
 
-	_all_sliders.push_back(sliders);
-	_selection_sliders.push_back(sliders);
+	_all_sliders.insert(sliders);
+	_selection_sliders.insert(sliders);
 	_registered_ids.insert(id);
 }
 
@@ -238,6 +238,7 @@ void PVParallelView::PVSlidersGroup::zoom_sliders_del_obs::update(arguments_deep
 
 		if (_parent->_registered_ids.find(id) != _parent->_registered_ids.end()) {
 			_parent->_registered_ids.erase(id);
+			_parent->_all_sliders.erase((PVParallelView::PVAbstractAxisSliders*)id);
 		}
 	}
 }
@@ -255,6 +256,8 @@ void PVParallelView::PVSlidersGroup::selection_sliders_del_obs::update(arguments
 
 		if (_parent->_registered_ids.find(id) != _parent->_registered_ids.end()) {
 			_parent->_registered_ids.erase(id);
+			_parent->_selection_sliders.erase((PVParallelView::PVSelectionAxisSliders*)id);
+			_parent->_all_sliders.erase((PVParallelView::PVAbstractAxisSliders*)id);
 		}
 	}
 }
