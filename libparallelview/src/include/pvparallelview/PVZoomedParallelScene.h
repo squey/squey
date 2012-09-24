@@ -151,16 +151,16 @@ private:
 	class zoom_sliders_update_obs :
 		public PVHive::PVFuncObserver<PVSlidersManager,
 		                              FUNC(PVSlidersManager::update_zoom_sliders)>
-		{
-		public:
-			zoom_sliders_update_obs(PVZoomedParallelScene *parent = nullptr) : _parent(parent)
-			{}
+	{
+	public:
+		zoom_sliders_update_obs(PVZoomedParallelScene *parent = nullptr) : _parent(parent)
+		{}
 
-			void update(arguments_deep_copy_type const& args) const;
+		void update(arguments_deep_copy_type const& args) const;
 
-		private:
-			PVZoomedParallelScene *_parent;
-		};
+	private:
+		PVZoomedParallelScene *_parent;
+	};
 
 private:
 	typedef typename zones_drawing_t::render_group_t render_group_t;
