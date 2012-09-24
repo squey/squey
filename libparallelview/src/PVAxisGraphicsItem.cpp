@@ -21,9 +21,9 @@
  *****************************************************************************/
 
 PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem(PVParallelView::PVSlidersManager_p sm_p,
-                                                       Picviz::PVView const& view, uint32_t axis_index):
+                                                       Picviz::PVView const& view, const axe_id_t &axe_id) :
 	_sliders_manager_p(sm_p),
-	_axis_index(axis_index),
+	_axe_id(axe_id),
 	_lib_view(view)
 {
 	// This is needed to let the children of the group handle their events.
@@ -32,7 +32,7 @@ PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem(PVParallelView::PVSliders
 	// the sliders must be over all other QGraphicsItems
 	setZValue(1.e42);
 
-	_sliders_group = new PVSlidersGroup(sm_p, axis_index, this);
+	_sliders_group = new PVSlidersGroup(sm_p, axe_id, this);
 
 	addToGroup(get_sliders_group());
 	get_sliders_group()->setPos(PARALLELVIEW_AXIS_WIDTH / 2, 0.);
@@ -88,5 +88,5 @@ void PVParallelView::PVAxisGraphicsItem::paint(QPainter *painter,
 
 Picviz::PVAxis const* PVParallelView::PVAxisGraphicsItem::lib_axis() const
 {
-	return &_lib_view.get_axis(_axis_index);
+	return &_lib_view.get_axis_by_id(_axe_id);
 }

@@ -60,12 +60,9 @@ public:
 	typedef PVParallelView::PVZonesDrawing<bbits> zones_drawing_t;
 	typedef typename zones_drawing_t::backend_image_p_t backend_image_p_t;
 
-private:
-	typedef typename zones_drawing_t::render_group_t render_group_t;
-
 public:
 	PVZoomedParallelScene(PVParallelView::PVZoomedParallelView *zpview,
-	                      Picviz::PVView_sp& pvview,
+	                      Picviz::PVView_sp& pvview_sp,
 	                      PVSlidersManager_p sliders_manager_p,
 	                      zones_drawing_t &zones_drawing,
 	                      PVCol axis_index);
@@ -166,6 +163,10 @@ private:
 		};
 
 private:
+	typedef typename zones_drawing_t::render_group_t render_group_t;
+	typedef PVParallelView::PVSlidersManager::axe_id_t axe_id_t;
+
+private:
 	typedef enum {
 		RENDER_ALL,
 		RENDER_SEL
@@ -180,7 +181,6 @@ private:
 		QPointF              next_pos;   // the item position of the next rendering
 	};
 
-	typedef Picviz::PVAxesCombination::axes_comb_id_t axes_comb_id_t;
 private:
 
 	PVZoomedParallelView          *_zpview;
@@ -189,8 +189,8 @@ private:
 	PVSlidersGroup                *_sliders_group;
 	zoom_sliders_update_obs        _zsu_obs;
 	zones_drawing_t               &_zones_drawing;
-	PVZoneID                       _axis_index;
-	axes_comb_id_t                 _axes_comb_id;
+	PVCol                          _axis_index;
+	axe_id_t                       _axe_id;
 
 	// about mouse
 	int                            _wheel_value;

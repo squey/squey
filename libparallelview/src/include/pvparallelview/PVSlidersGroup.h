@@ -30,22 +30,18 @@ private:
 	typedef PVSlidersManager::range_geometry_t range_geometry_t;
 
 public:
+	typedef PVSlidersManager::axe_id_t axe_id_t;
 	typedef std::vector<std::pair<PVRow, PVRow> > selection_ranges_t;
 
 public:
-	PVSlidersGroup(PVSlidersManager_p sm_p, PVZoneID axis_index, QGraphicsItem *parent = nullptr);
+	PVSlidersGroup(PVSlidersManager_p sm_p, const axe_id_t &axe_id, QGraphicsItem *parent = nullptr);
 	~PVSlidersGroup();
 
 	void recreate_sliders();
 
-	void set_axis_index(PVZoneID index)
+	const axe_id_t &get_axe_id() const
 	{
-		_axis_index = index;
-	}
-
-	PVZoneID get_axis_index() const
-	{
-		return _axis_index;
+		return _axe_id;
 	}
 
 	QRectF boundingRect() const
@@ -63,10 +59,10 @@ public:
 	selection_ranges_t get_selection_ranges() const;
 
 signals:
-	void selection_sliders_moved(PVZoneID);
+	void selection_sliders_moved(const axe_id_t axe_id);
 
 protected slots:
-	void selection_slider_moved() { emit selection_sliders_moved(_axis_index); }
+	void selection_slider_moved() { emit selection_sliders_moved(get_axe_id()); }
 
 private:
 	/**
@@ -147,7 +143,7 @@ private:
 	selection_sliders_new_obs _ssn_obs;
 	zoom_sliders_del_obs      _zsd_obs;
 	selection_sliders_del_obs _ssd_obs;
-	PVZoneID                  _axis_index;
+	axe_id_t                  _axe_id;
 
 	aas_set_t                 _all_sliders;
 	sas_set_t                 _selection_sliders;

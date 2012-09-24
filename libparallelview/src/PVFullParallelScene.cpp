@@ -428,8 +428,9 @@ void PVParallelView::PVFullParallelScene::commit_volatile_selection_Slot()
 	process_selection();
 }
 
-void PVParallelView::PVFullParallelScene::update_selection_from_sliders_Slot(PVZoneID zid)
+void PVParallelView::PVFullParallelScene::update_selection_from_sliders_Slot(axe_id_t axe_id)
 {
+	PVZoneID zid = _lib_view.get_axes_combination().get_index_by_id(axe_id);
 	_selection_square->clear_rect();
 	uint32_t nb_select = _selection_generator.compute_selection_from_sliders(zid, _axes[zid]->get_selection_ranges(), lib_view().get_volatile_selection());
 	_parallel_view->set_selected_line_number(nb_select);
@@ -608,8 +609,9 @@ void PVParallelView::PVFullParallelScene::add_zone_image()
 
 void PVParallelView::PVFullParallelScene::add_axis(PVZoneID const z)
 {
-	PVParallelView::PVAxisGraphicsItem* axisw = new PVParallelView::PVAxisGraphicsItem(_sm_p, lib_view(), z);
-	connect(axisw->get_sliders_group(), SIGNAL(selection_sliders_moved(PVZoneID)), this, SLOT(update_selection_from_sliders_Slot(PVZoneID)));
+	PVParallelView::PVAxisGraphicsItem* axisw = new PVParallelView::PVAxisGraphicsItem(_sm_p, lib_view(), _lib_view.get_axes_combination().get_axes_comb_id(z));
+	connect(axisw->get_sliders_group(), SIGNAL(selection_sliders_moved(axe_id_t)),
+	        this, SLOT(update_selection_from_sliders_Slot(axe_id_t)));
 	addItem(axisw);
 	_axes.push_back(axisw);
 	axisw->get_sliders_group()->add_selection_sliders(768, 1000);

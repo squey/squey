@@ -20,10 +20,11 @@ class PVZoomAxisSliders : public PVAbstractAxisSliders
 	Q_OBJECT
 
 private:
+	typedef PVSlidersManager::axe_id_t axe_id_t;
 	typedef PVSlidersManager::id_t id_t;
 
 public:
-	typedef std::pair<PVRow, PVRow> interval_t;
+	typedef std::pair<PVRow, PVRow> range_t;
 
 public:
 	PVZoomAxisSliders(QGraphicsItem *parent,
@@ -32,7 +33,7 @@ public:
 	void initialize(PVSlidersManager_p sm_p, id_t id,
 	                uint32_t y_min, uint32_t y_max);
 
-	interval_t get_range() const
+	range_t get_range() const
 	{
 		PVRow v_min = _sl_min->value();
 		PVRow v_max = _sl_max->value();

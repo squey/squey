@@ -68,7 +68,7 @@ void PVParallelView::PVZoomAxisSliders::do_sliders_moved()
 	}
 
 	PVHive::call<FUNC(PVSlidersManager::update_zoom_sliders)>(_sliders_manager_p,
-	                                                          _group->get_axis_index(), _id,
+	                                                          _group->get_axe_id(), _id,
 	                                                          _sl_min->value(),
 	                                                          _sl_max->value(),
 	                                                          (PVParallelView::PVSlidersManager::ZoomSliderChange)change);
@@ -80,10 +80,10 @@ void PVParallelView::PVZoomAxisSliders::do_sliders_moved()
 
 void PVParallelView::PVZoomAxisSliders::zoom_sliders_del_obs::update(arguments_deep_copy_type const& args) const
 {
-	PVZoneID axis_index = std::get<0>(args);
+	const axe_id_t &axe_id = std::get<0>(args);
 	PVSlidersManager::id_t id = std::get<1>(args);
 
-	if ((axis_index == _parent->_group->get_axis_index()) && (id == _parent->_id)) {
+	if ((axe_id == _parent->_group->get_axe_id()) && (id == _parent->_id)) {
 		_parent->group()->removeFromGroup(_parent);
 		_parent->scene()->removeItem(_parent);
 	}
@@ -95,12 +95,12 @@ void PVParallelView::PVZoomAxisSliders::zoom_sliders_del_obs::update(arguments_d
 
 void PVParallelView::PVZoomAxisSliders::zoom_sliders_update_obs::update(arguments_deep_copy_type const& args) const
 {
-	PVZoneID axis_index = std::get<0>(args);
+	const axe_id_t &axe_id = std::get<0>(args);
 	PVSlidersManager::id_t id = std::get<1>(args);
 
 	// std::get<4>(args) (aka change) must not be used
 
-	if ((axis_index == _parent->_group->get_axis_index()) && (id == _parent->_id)) {
+	if ((axe_id == _parent->_group->get_axe_id()) && (id == _parent->_id)) {
 		int y_min = std::get<2>(args);
 		int y_max = std::get<3>(args);
 		if (y_max < y_min) {

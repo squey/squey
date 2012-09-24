@@ -45,17 +45,17 @@
  *****************************************************************************/
 
 PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZoomedParallelView *zpview,
-                                                             Picviz::PVView_sp& pvview_p,
+                                                             Picviz::PVView_sp& pvview_sp,
                                                              PVParallelView::PVSlidersManager_p sliders_manager_p,
                                                              zones_drawing_t &zones_drawing,
-                                                             PVCol axis) :
+                                                             PVCol axis_index) :
 	QGraphicsScene(zpview),
 	_zpview(zpview),
-	_pvview(*pvview_p),
+	_pvview(*pvview_sp),
 	_sliders_manager_p(sliders_manager_p),
 	_zsu_obs(this),
 	_zones_drawing(zones_drawing),
-	_axis_index(axis),
+	_axis_index(axis_index),
 	_left_zone(nullptr),
 	_right_zone(nullptr),
 	_updated_selection_count(0)
@@ -69,7 +69,7 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 	_zpview->setMaximumWidth(1024);
 	_zpview->setMaximumHeight(1024);
 
-	_axes_comb_id = _pvview.get_axes_combination().get_axes_comb_id(axis);
+	_axe_id = _pvview.get_axes_combination().get_axes_comb_id(axis_index);
 
 	_selection_rect = new PVParallelView::PVSelectionSquareGraphicsItem(this);
 	connect(_selection_rect, SIGNAL(commit_volatile_selection()),
@@ -86,7 +86,7 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 	connect(_rendering_job, SIGNAL(zone_rendered(int)),
 	        this, SLOT(zone_rendered_Slot(int)));
 
-	_sliders_group = new PVParallelView::PVSlidersGroup(sliders_manager_p, axis);
+	_sliders_group = new PVParallelView::PVSlidersGroup(sliders_manager_p, _axe_id);
 	_sliders_group->setPos(0., 0.);
 	_sliders_group->add_zoom_sliders(0, 1024);
 
@@ -128,7 +128,7 @@ PVParallelView::PVZoomedParallelScene::~PVZoomedParallelScene()
 	_zones_drawing.remove_render_group(_render_group);
 
 	PVHive::call<FUNC(PVSlidersManager::del_zoom_sliders)>(_sliders_manager_p,
-	                                                       _axis_index, this);
+	                                                       _axe_id, this);
 }
 
 /*****************************************************************************
@@ -292,7 +292,7 @@ void PVParallelView::PVZoomedParallelScene::update_new_selection(tbb::task* root
 
 void PVParallelView::PVZoomedParallelScene::update_zones()
 {
-	PVCol axis = _pvview.get_axes_combination().get_index_by_id(_axes_comb_id);
+	PVCol axis = _pvview.get_axes_combination().get_index_by_id(_axe_id);
 
 	if (axis == PVCOL_INVALID_VALUE) {
 		if (_axis_index > _zones_drawing.get_zones_manager().get_number_zones()) {
@@ -308,21 +308,11 @@ void PVParallelView::PVZoomedParallelScene::update_zones()
 			_sliders_group->recreate_sliders();
 		}
 
-		_axes_comb_id = _pvview.get_axes_combination().get_axes_comb_id(_axis_index);
+		_axe_id = _pvview.get_axes_combination().get_axes_comb_id(_axis_index);
 	} else {
-		/* the axes has only been moved, the zoom sliders must be
-		 * moved to the new axis (and removed from the old one)
+		/* the axes has only been moved, nothing special to do.
 		 */
-		PVHive::call<FUNC(PVSlidersManager::del_zoom_sliders)>(_sliders_manager_p,
-		                                                       _axis_index,
-		                                                       _sliders_group);
 		_axis_index = axis;
-		_sliders_group->set_axis_index(axis);
-		PVHive::call<FUNC(PVSlidersManager::new_zoom_sliders)>(_sliders_manager_p,
-		                                                       axis,
-		                                                       _sliders_group,
-		                                                       _last_y_min,
-		                                                       _last_y_max);
 	}
 
 
@@ -449,7 +439,7 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 	                                         0ULL, y_lim);
 
 	PVHive::call<FUNC(PVSlidersManager::update_zoom_sliders)>(_sliders_manager_p,
-	                                                          _axis_index, _sliders_group,
+	                                                          _axe_id, _sliders_group,
 	                                                          y_min >> (32 - NBITS_INDEX),
 	                                                          y_max >> (32 - NBITS_INDEX),
 	                                                          PVParallelView::PVSlidersManager::ZoomSliderNone);
@@ -757,7 +747,7 @@ void PVParallelView::PVZoomedParallelScene::commit_volatile_selection_Slot()
 
 void PVParallelView::PVZoomedParallelScene::zoom_sliders_update_obs::update(arguments_deep_copy_type const& args) const
 {
-	PVZoneID axis_index = std::get<0>(args);
+	const axe_id_t &axe_id = std::get<0>(args);
 	PVSlidersManager::id_t id = std::get<1>(args);
 	PVParallelView::PVSlidersManager::ZoomSliderChange change = std::get<4>(args);
 
@@ -765,7 +755,7 @@ void PVParallelView::PVZoomedParallelScene::zoom_sliders_update_obs::update(argu
 		return;
 	}
 
-	if ((axis_index == _parent->_axis_index) && (id == _parent->_sliders_group)) {
+	if ((axe_id == _parent->_axe_id) && (id == _parent->_sliders_group)) {
 		double sld_min = std::get<2>(args);
 		double sld_max = std::get<3>(args);
 		double sld_dist = sld_max - sld_min;

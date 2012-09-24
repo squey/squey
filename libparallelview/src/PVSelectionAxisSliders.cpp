@@ -56,7 +56,7 @@ void PVParallelView::PVSelectionAxisSliders::do_sliders_moved()
 {
 	emit sliders_moved();
 	PVHive::call<FUNC(PVSlidersManager::update_selection_sliders)>(_sliders_manager_p,
-	                                                               _group->get_axis_index(),
+	                                                               _group->get_axe_id(),
 	                                                               _id,
 	                                                               _sl_min->value(),
 	                                                               _sl_max->value());
@@ -68,10 +68,10 @@ void PVParallelView::PVSelectionAxisSliders::do_sliders_moved()
 
 void PVParallelView::PVSelectionAxisSliders::selection_sliders_del_obs::update(arguments_deep_copy_type const& args) const
 {
-	PVZoneID axis_index = std::get<0>(args);
+	const axe_id_t &axe_id = std::get<0>(args);
 	PVSlidersManager::id_t id = std::get<1>(args);
 
-	if ((axis_index == _parent->_group->get_axis_index()) && (id == _parent->_id)) {
+	if ((axe_id == _parent->_group->get_axe_id()) && (id == _parent->_id)) {
 		_parent->group()->removeFromGroup(_parent);
 		_parent->scene()->removeItem(_parent);
 	}
@@ -83,10 +83,10 @@ void PVParallelView::PVSelectionAxisSliders::selection_sliders_del_obs::update(a
 
 void PVParallelView::PVSelectionAxisSliders::selection_sliders_update_obs::update(arguments_deep_copy_type const& args) const
 {
-	PVZoneID axis_index = std::get<0>(args);
+	const axe_id_t &axe_id = std::get<0>(args);
 	PVSlidersManager::id_t id = std::get<1>(args);
 
-	if ((axis_index == _parent->_group->get_axis_index()) && (id == _parent->_id)) {
+	if ((axe_id == _parent->_group->get_axe_id()) && (id == _parent->_id)) {
 		_parent->_sl_min->set_value(std::get<2>(args));
 		_parent->_sl_max->set_value(std::get<3>(args));
 

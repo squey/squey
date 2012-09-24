@@ -42,6 +42,10 @@ class PVFullParallelScene : public QGraphicsScene
 	friend class draw_zone_Observer;
 	friend class draw_zone_sel_Observer;
 	friend class process_selection_Observer;
+
+public:
+	typedef PVSlidersManager::axe_id_t axe_id_t;
+
 public:
 	PVFullParallelScene(PVFullParallelView* parallel_view, Picviz::PVView_sp& view_sp, PVParallelView::PVSlidersManager_p sm_p, PVLinesView::zones_drawing_t& zd, tbb::task* root_sel);
 	virtual ~PVFullParallelScene();
@@ -104,7 +108,7 @@ private slots:
 	void update_zone_pixmap_bgsel(int zid);
 	void scale_zone_images(PVZoneID zid);
 
-	void update_selection_from_sliders_Slot(PVZoneID zid);
+	void update_selection_from_sliders_Slot(axe_id_t axe_id);
 	void scrollbar_pressed_Slot();
 	void scrollbar_released_Slot();
 	void commit_volatile_selection_Slot();

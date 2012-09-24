@@ -35,9 +35,10 @@ class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
 
 public:
 	typedef PVSlidersGroup::selection_ranges_t selection_ranges_t;
+	typedef PVSlidersManager::axe_id_t         axe_id_t;
 
 public:
-	PVAxisGraphicsItem(PVSlidersManager_p sm_p, Picviz::PVView const& view, uint32_t axis_index);
+	PVAxisGraphicsItem(PVSlidersManager_p sm_p, Picviz::PVView const& view, const axe_id_t &axe_id);
 	~PVAxisGraphicsItem();
 
 	QRectF boundingRect () const;
@@ -70,7 +71,7 @@ private:
 
 private:
 	PVSlidersManager_p              _sliders_manager_p;
-	PVZoneID			            _axis_index;
+	axe_id_t                        _axe_id;
 	QRectF                          _bbox;
 	Picviz::PVView const&           _lib_view;
 	PVSlidersGroup                 *_sliders_group;
