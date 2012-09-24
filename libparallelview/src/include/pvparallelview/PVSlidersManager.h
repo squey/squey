@@ -101,6 +101,16 @@ public:
 	void iterate_selection_sliders(const range_functor_t &functor) const;
 	void iterate_zoom_sliders(const range_functor_t &functor) const;
 
+public:
+	/**
+	 * Function to observe (in PVHive way) to be notified when a
+	 * sliders group is deleted
+	 *
+	 * @param axis the axis the slider is associated with
+	 * @param id the id the slider is associated with
+	 */
+	void del_sliders_group(const axe_id_t &axe_id, const id_t id);
+
 private:
 	typedef std::map<id_t, range_geometry_t> range_geometry_list_t;
 	typedef std::map<axe_id_t, range_geometry_list_t> range_geometry_set_t;

@@ -106,6 +106,15 @@ void PVParallelView::PVSlidersManager::iterate_selection_sliders(const range_fun
 }
 
 /*****************************************************************************
+ * PVParallelView::PVSlidersManager::del_sliders_group
+ *****************************************************************************/
+
+void PVParallelView::PVSlidersManager::del_sliders_group(const axe_id_t &,
+                                                         const id_t)
+{
+}
+
+/*****************************************************************************
  * PVParallelView::PVSlidersManager::new_range_sliders
  *****************************************************************************/
 
