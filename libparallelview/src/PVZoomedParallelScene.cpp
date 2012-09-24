@@ -86,7 +86,19 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 	connect(_rendering_job, SIGNAL(zone_rendered(int)),
 	        this, SLOT(zone_rendered_Slot(int)));
 
+	_sliders_group = new PVParallelView::PVSlidersGroup(sliders_manager_p, axis);
+	_sliders_group->setPos(0., 0.);
+	_sliders_group->add_zoom_sliders(0, 1024);
+
+	// the sliders must be over all other QGraphicsItems
+	_sliders_group->setZValue(1.e42);
+
+	addItem(_sliders_group);
+
 	update_zones();
+
+	PVHive::PVHive::get().register_func_observer(sliders_manager_p,
+	                                             _zsu_obs);
 
 	PVParallelView::PVZonesManager &zm = zones_drawing.get_zones_manager();
 	connect(&zm, SIGNAL(filter_by_sel_finished(int, bool)),
@@ -98,18 +110,6 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 	        this, SLOT(scrollbar_timeout_Slot()));
 
 	_render_group = _zones_drawing.new_render_group();
-
-	_sliders_group = new PVParallelView::PVSlidersGroup(sliders_manager_p, axis);
-	_sliders_group->setPos(0., 0.);
-	_sliders_group->add_zoom_sliders(0, 1024);
-
-	// the sliders must be over all other QGraphicsItems
-	_sliders_group->setZValue(1.e42);
-
-	addItem(_sliders_group);
-
-	PVHive::PVHive::get().register_func_observer(sliders_manager_p,
-	                                             _zsu_obs);
 }
 
 /*****************************************************************************
@@ -305,6 +305,7 @@ void PVParallelView::PVZoomedParallelScene::update_zones()
 			/* the axis does not exist anymore, the one with the
 			 * same index is used instead
 			 */
+			_sliders_group->recreate_sliders();
 		}
 
 		_axes_comb_id = _pvview.get_axes_combination().get_axes_comb_id(_axis_index);
@@ -316,6 +317,7 @@ void PVParallelView::PVZoomedParallelScene::update_zones()
 		                                                       _axis_index,
 		                                                       _sliders_group);
 		_axis_index = axis;
+		_sliders_group->set_axis_index(axis);
 		PVHive::call<FUNC(PVSlidersManager::new_zoom_sliders)>(_sliders_manager_p,
 		                                                       axis,
 		                                                       _sliders_group,

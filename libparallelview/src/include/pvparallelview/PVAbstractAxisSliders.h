@@ -11,15 +11,20 @@
 namespace PVParallelView
 {
 
+class PVSlidersGroup;
+
 class PVAbstractAxisSliders : public QObject, public QGraphicsItemGroup
 {
 public:
-	PVAbstractAxisSliders(QGraphicsItem *parent) : QObject(nullptr), QGraphicsItemGroup(parent)
+	PVAbstractAxisSliders(QGraphicsItem *parent, PVSlidersGroup *group) :
+		QObject(nullptr), QGraphicsItemGroup(parent),
+		_group(group)
 	{}
 
 	virtual bool is_moving() const = 0;
 
-private:
+protected:
+	PVSlidersGroup *_group;
 };
 
 }

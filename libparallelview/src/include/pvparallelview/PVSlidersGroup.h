@@ -36,6 +36,18 @@ public:
 	PVSlidersGroup(PVSlidersManager_p sm_p, PVZoneID axis_index, QGraphicsItem *parent = nullptr);
 	~PVSlidersGroup();
 
+	void recreate_sliders();
+
+	void set_axis_index(PVZoneID index)
+	{
+		_axis_index = index;
+	}
+
+	PVZoneID get_axis_index() const
+	{
+		return _axis_index;
+	}
+
 	QRectF boundingRect() const
 	{
 		// TODO: the width depend of the children's width
@@ -63,11 +75,9 @@ private:
 	 * If sliders is nullptr, it is created.
 	 * If id is 0, it is deduced from sliders.
 	 */
-	void add_new_zoom_sliders(PVZoneID axis, id_t id,
-	                          uint32_t y_min, uint32_t y_max);
+	void add_new_zoom_sliders(id_t id, uint32_t y_min, uint32_t y_max);
 	void add_new_selection_sliders(PVSelectionAxisSliders* sliders,
-	                               PVZoneID axis, id_t id,
-	                               uint32_t y_min, uint32_t y_max);
+	                               id_t id, uint32_t y_min, uint32_t y_max);
 
 private:
 	class zoom_sliders_new_obs :

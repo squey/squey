@@ -1,5 +1,6 @@
 
 #include <pvparallelview/PVZoomAxisSliders.h>
+#include <pvparallelview/PVSlidersGroup.h>
 
 #include <QGraphicsScene>
 
@@ -7,8 +8,9 @@
  * PVParallelView::PVZoomAxisSliders::PVZoomAxisSliders
  *****************************************************************************/
 
-PVParallelView::PVZoomAxisSliders::PVZoomAxisSliders(QGraphicsItem *parent) :
-	PVAbstractAxisSliders(parent),
+PVParallelView::PVZoomAxisSliders::PVZoomAxisSliders(QGraphicsItem *parent,
+                                                     PVSlidersGroup *group) :
+	PVAbstractAxisSliders(parent, group),
 	_zsd_obs(this),
 	_zsu_obs(this)
 {
@@ -21,11 +23,10 @@ PVParallelView::PVZoomAxisSliders::PVZoomAxisSliders(QGraphicsItem *parent) :
  *****************************************************************************/
 
 void PVParallelView::PVZoomAxisSliders::initialize(PVParallelView::PVSlidersManager_p sm_p,
-                                                   PVZoneID axis_index, id_t id,
+                                                   id_t id,
                                                    uint32_t y_min, uint32_t y_max)
 {
 	_sliders_manager_p = sm_p;
-	_axis_index = axis_index;
 	_id = id;
 
 	_sl_min = new PVAxisSlider(0, 1024, y_min);
@@ -49,6 +50,31 @@ void PVParallelView::PVZoomAxisSliders::initialize(PVParallelView::PVSlidersMana
 }
 
 /*****************************************************************************
+ * PVParallelView::PVZoomAxisSliders::do_sliders_moved
+ *****************************************************************************/
+
+void PVParallelView::PVZoomAxisSliders::do_sliders_moved()
+{
+	emit sliders_moved();
+
+	int change = PVParallelView::PVSlidersManager::ZoomSliderNone;
+
+	if (_sl_min->is_moving()) {
+		change = PVParallelView::PVSlidersManager::ZoomSliderMin;
+	}
+
+	if (_sl_max->is_moving()) {
+		change |= PVParallelView::PVSlidersManager::ZoomSliderMax;
+	}
+
+	PVHive::call<FUNC(PVSlidersManager::update_zoom_sliders)>(_sliders_manager_p,
+	                                                          _group->get_axis_index(), _id,
+	                                                          _sl_min->value(),
+	                                                          _sl_max->value(),
+	                                                          (PVParallelView::PVSlidersManager::ZoomSliderChange)change);
+}
+
+/*****************************************************************************
  * PVParallelView::PVZoomAxisSliders::zoom_sliders_del_obs::update
  *****************************************************************************/
 
@@ -57,7 +83,7 @@ void PVParallelView::PVZoomAxisSliders::zoom_sliders_del_obs::update(arguments_d
 	PVZoneID axis_index = std::get<0>(args);
 	PVSlidersManager::id_t id = std::get<1>(args);
 
-	if ((axis_index == _parent->_axis_index) && (id == _parent->_id)) {
+	if ((axis_index == _parent->_group->get_axis_index()) && (id == _parent->_id)) {
 		_parent->group()->removeFromGroup(_parent);
 		_parent->scene()->removeItem(_parent);
 	}
@@ -74,7 +100,7 @@ void PVParallelView::PVZoomAxisSliders::zoom_sliders_update_obs::update(argument
 
 	// std::get<4>(args) (aka change) must not be used
 
-	if ((axis_index == _parent->_axis_index) && (id == _parent->_id)) {
+	if ((axis_index == _parent->_group->get_axis_index()) && (id == _parent->_id)) {
 		int y_min = std::get<2>(args);
 		int y_max = std::get<3>(args);
 		if (y_max < y_min) {
