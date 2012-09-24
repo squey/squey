@@ -285,6 +285,11 @@ Picviz::PVAxis const& Picviz::PVView::get_axis(PVCol index) const
 	return axes_combination.get_axis(index);
 }
 
+Picviz::PVAxis const& Picviz::PVView::get_axis_by_id(axe_id_t const axe_id) const
+{
+	return axes_combination.get_axis(axes_combination.get_index_by_id(axe_id));
+}
+
 /******************************************************************************
  *
  * Picviz::PVView::get_axis_name
