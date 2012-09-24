@@ -295,15 +295,32 @@ void PVParallelView::PVZoomedParallelScene::update_zones()
 	PVCol axis = _pvview.get_axes_combination().get_index_by_id(_axes_comb_id);
 
 	if (axis == PVCOL_INVALID_VALUE) {
-
 		if (_axis_index > _zones_drawing.get_zones_manager().get_number_zones()) {
+			/* a candidate can not be found to replace the old
+			 * axis; the zoom view must be closed.
+			 */
 			// FIXME: suicide time \o/
 			return;
+		} else {
+			/* the axis does not exist anymore, the one with the
+			 * same index is used instead
+			 */
 		}
 
 		_axes_comb_id = _pvview.get_axes_combination().get_axes_comb_id(_axis_index);
 	} else {
+		/* the axes has only been moved, the zoom sliders must be
+		 * moved to the new axis (and removed from the old one)
+		 */
+		PVHive::call<FUNC(PVSlidersManager::del_zoom_sliders)>(_sliders_manager_p,
+		                                                       _axis_index,
+		                                                       _sliders_group);
 		_axis_index = axis;
+		PVHive::call<FUNC(PVSlidersManager::new_zoom_sliders)>(_sliders_manager_p,
+		                                                       axis,
+		                                                       _sliders_group,
+		                                                       _last_y_min,
+		                                                       _last_y_max);
 	}
 
 
@@ -434,6 +451,8 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 	                                                          y_min >> (32 - NBITS_INDEX),
 	                                                          y_max >> (32 - NBITS_INDEX),
 	                                                          PVParallelView::PVSlidersManager::ZoomSliderNone);
+	_last_y_min = y_min;
+	_last_y_max = y_max;
 
 	_next_beta = beta;
 

@@ -201,6 +201,8 @@ private:
 	zone_desc_t                   *_right_zone;
 	qreal                          _next_beta;
 	qreal                          _current_beta;
+	uint32_t                       _last_y_min;
+	uint32_t                       _last_y_max;
 
 	// about rendering
 	PVRenderingJob                *_rendering_job;
