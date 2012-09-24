@@ -172,8 +172,9 @@ protected:
 	void allocate_fields_buffer(PVRow nelts, PVCol nfields)
 	{
 		//_p_chunk_fields = ::malloc(sizeof(__node_list_field)*nfields*nelts);
-		_fields_size = sizeof(__node_list_field)*nfields*nelts;
-		_p_chunk_fields = mmap(NULL, _fields_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+		const size_t fields_size = sizeof(__node_list_field)*nfields*nelts;
+		//_p_chunk_fields = mmap(NULL, _fields_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+		_p_chunk_fields = tbb::scalable_allocator<char>().allocate(fields_size);
 		//PVLOG_INFO("PVField %p allocate %u\n", _p_chunk_fields, sizeof(__node_list_field)*nfields*nelts);
 	}
 
@@ -182,7 +183,8 @@ protected:
 		if (_p_chunk_fields) {
 			//::free(_p_chunk_fields);
 			//PVLOG_INFO("PVField %p deallocate %u\n", _p_chunk_fields, _fields_size);
-			munmap(_p_chunk_fields, _fields_size);
+			//munmap(_p_chunk_fields, _fields_size);
+			tbb::scalable_allocator<char>().deallocate((char*) _p_chunk_fields, 0);
 			_p_chunk_fields = NULL;
 		}
 	}
@@ -208,7 +210,7 @@ protected:
 
 	// Buffer containing the fields for this chunk
 	void* _p_chunk_fields;
-	size_t _fields_size;
+	//size_t _fields_size;
 };
 
 
