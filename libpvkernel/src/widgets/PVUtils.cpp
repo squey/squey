@@ -12,26 +12,27 @@
 
 QString PVWidgets::PVUtils::shorten_path(const QString& s, const QFont& font, uint64_t nb_px)
 {
+	uint64_t str_width = QFontMetrics(font).width(s);
+	if (str_width < nb_px) return s;
+
 	QString str(s);
 
 	const QString separator(PICVIZ_PATH_SEPARATOR_CHAR);
-	const QString eclipsis("...");
+	const QString elipsis("...");
 
-	bool shortened = false;
 	QStringList list = str.split(separator);
 	uint64_t separator_count = list.length()-1;
+	str_width += QFontMetrics(font).width(elipsis);
 
-	for (; (uint64_t) QFontMetrics(font).width(str) > nb_px && separator_count > 2; separator_count--)
+	uint64_t index;
+	for (; str_width > nb_px && separator_count > 2; separator_count--)
 	{
-		list.removeAt((separator_count+1)/2);
-
-		str = list.join(separator) += eclipsis;
-		shortened = true;
+		index = (separator_count+1)/2;
+		str_width -= QFontMetrics(font).width(list.at(index));
+		list.removeAt(index);
 	}
-	if (shortened) {
-		list.insert(separator_count, eclipsis);
-		str = list.join(separator);
-	}
+	list.insert(index, elipsis);
+	str = list.join(separator);
 
 	return str;
 }

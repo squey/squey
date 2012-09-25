@@ -30,6 +30,9 @@ public:
 	PVDBQuery(PVDBServ_p db, QString const& query);
 	~PVDBQuery();
 
+public:
+	virtual bool operator==(const PVInputDescription& other) const;
+
 	void set_query(QString const& query) { _query = query; }
 	QString const& get_query() const { return _query; }
 

@@ -34,6 +34,12 @@ public:
 	operator QString const& () const { return _path; }
 
 public:
+	virtual bool operator==(const PVInputDescription& other) const
+	{
+		return _path == ((PVFileDescription&)other)._path;
+	}
+
+public:
 	// For historical reason
 	QString toString() const { return _path; }
 

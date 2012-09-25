@@ -40,6 +40,9 @@ public:
 	{
 	}
 
+	bool operator==(const PVSourceDescription& other) const;
+	bool operator!=(const PVSourceDescription& other) const { return !operator==(other); }
+
 	void set_inputs(const PVRush::PVInputType::list_inputs inputs) { _inputs = inputs; }
 	void set_source_creator(PVRush::PVSourceCreator_p source_creator_p) { _source_creator_p = source_creator_p; }
 	void set_format(PVRush::PVFormat format) { _format = format; }

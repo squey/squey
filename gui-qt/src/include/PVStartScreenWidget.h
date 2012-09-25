@@ -11,6 +11,7 @@
 #include <QStringList>
 #include <QVBoxLayout>
 #include <QListWidgetItem>
+#include <QListWidget>
 
 #include <pvhive/PVCallHelper.h>
 #include <pvhive/PVObserverSignal.h>
@@ -70,7 +71,7 @@ class PVStartScreenWidget : public QWidget
 		QWidget* import_widget;
 		QWidget* project_widget;
 
-		QVBoxLayout* _recent_layouts[PVCore::PVRecentItemsManager::Category::LAST];
+		QListWidget* _recent_list_widgets[PVCore::PVRecentItemsManager::Category::LAST];
 
 		PVAddRecentItemFuncObserver _recent_items_add_obs;
 		PVAddSourceRecentItemFuncObserver _recent_items_add_source_obs;

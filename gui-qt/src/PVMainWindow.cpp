@@ -829,10 +829,10 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 		return;
 	}
 
-	/*menu_activate_is_file_opened(true);
+	menu_activate_is_file_opened(true);
 	show_start_page(false);
 	pv_ListingsTabWidget->setVisible(true);
-	set_project_modified(true);*/
+	set_project_modified(true);
 }
 
 
@@ -1703,7 +1703,6 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_p src)
 
 	PVHive::call<FUNC(PVCore::PVRecentItemsManager::add)>(PVCore::PVRecentItemsManager::get(), src->get_format().get_full_path(), PVCore::PVRecentItemsManager::Category::USED_FORMATS);
 
-	// PluginCreator, input_list, format
 	PVHive::call<FUNC(PVCore::PVRecentItemsManager::add_source)>(PVCore::PVRecentItemsManager::get(), src->get_source_creator(), src->get_inputs(), src->get_format());
 
 	menu_activate_is_file_opened(true);

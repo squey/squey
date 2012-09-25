@@ -28,6 +28,17 @@ PVRush::PVDBQuery::~PVDBQuery()
 {
 }
 
+bool PVRush::PVDBQuery::operator==(const PVInputDescription& other) const
+{
+	PVDBQuery& other_query = (PVDBQuery&) other;
+	return _infos->get_type() == other_query._infos->get_type() &&
+		   _infos->get_host() == other_query._infos->get_host() &&
+		   _infos->get_username() == other_query._infos->get_username() &&
+		   _infos->get_password() == other_query._infos->get_password() &&
+		   _infos->get_options() == other_query._infos->get_options() &&
+		   _infos->get_dbname() == other_query._infos->get_dbname() &&
+		   _infos->get_port() == other_query._infos->get_port();
+}
 
 QSqlQuery PVRush::PVDBQuery::to_query(chunk_index start, chunk_index nelts) const
 {

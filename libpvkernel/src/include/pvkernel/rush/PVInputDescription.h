@@ -25,6 +25,10 @@ public:
 	virtual ~PVInputDescription() { }
 
 public:
+	virtual bool operator==(const PVInputDescription& other) const = 0;
+	bool operator!=(const PVInputDescription& other) const { return ! operator==(other); }
+
+public:
 	virtual QString human_name() const = 0;
 
 public:
