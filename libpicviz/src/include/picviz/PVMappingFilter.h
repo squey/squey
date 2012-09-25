@@ -37,7 +37,7 @@ class PVFormat;
 
 namespace Picviz {
 
-class PVLibPicvizDecl PVMappingFilter: public PVFilter::PVFilterFunctionBase<float*, PVRush::PVNraw::nraw_table_line const&>, public PVCore::PVRegistrableClass<PVMappingFilter>
+class PVLibPicvizDecl PVMappingFilter: public PVFilter::PVFilterFunctionBase<Picviz::mapped_decimal_storage_type, PVCore::PVField const&>, public PVCore::PVRegistrableClass<PVMappingFilter>
 {
 public:
 	typedef Picviz::mapped_decimal_storage_type decimal_storage_type;
@@ -47,17 +47,24 @@ public:
 public:
 	PVMappingFilter();
 public:
+	// Two interfaces: one that compute the mapped values from a PVCore::PVChunk, and one
+	// that does it from an already existing nraw.
+	virtual decimal_storage_type operator()(PVCore::PVField const& field) = 0;
+	virtual decimal_storage_type* operator()(PVCol const col, PVRush::PVNraw const& nraw) = 0;
+
+	/*
 	// Here we provide a default implementation which call operator()(QString const&) over an OpenMP-parallelised
 	// for loop over values
 	virtual decimal_storage_type* operator()(PVRush::PVNraw::const_trans_nraw_table_line const& values);
-
 	virtual decimal_storage_type operator()(QString const& value);
-	virtual void init_from_first(QString const& value);
+	*/
+
+	virtual void init();
 
 	void set_dest_array(PVRow size, decimal_storage_type *ptr);
-	//void set_axis(Picviz::PVAxis const& axis);
-
 	void set_group_value(PVCore::PVArgument& group) { _grp_value = &group; }
+
+	virtual bool is_pure() const { return false; }
 
 	virtual QString get_human_name() const;
 

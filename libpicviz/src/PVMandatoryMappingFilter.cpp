@@ -13,28 +13,9 @@ Picviz::PVMandatoryMappingFilter::PVMandatoryMappingFilter()
 	_mandatory_params = NULL;
 }
 
-int Picviz::PVMandatoryMappingFilter::operator()(mandatory_param_list_values const& values)
+int Picviz::PVMandatoryMappingFilter::operator()(mandatory_param_list_values const& /*values*/)
 {
-	const PVRush::PVNraw::const_trans_nraw_table_line* str_nraw = values.first;
-	mapped_decimal_storage_type* mapped_values = values.second;
-
-	QString stmp;
-	init_from_first(mandatory_param_value(str_nraw->at(0).get_qstr(stmp), mapped_values[0]));
-	for (PVRow i = 0; i < str_nraw->size(); i++) {
-		operator()(mandatory_param_value(str_nraw->at(i).get_qstr(stmp), mapped_values[i]));
-	}
-
 	return 0;
-}
-
-int Picviz::PVMandatoryMappingFilter::operator()(mandatory_param_value const& /*value*/)
-{
-	PVLOG_WARN("In default mandatory mapping filter, nothing is done !\n");
-	return 0;
-}
-
-void Picviz::PVMandatoryMappingFilter::init_from_first(mandatory_param_value const& /*value*/)
-{
 }
 
 void Picviz::PVMandatoryMappingFilter::set_dest_params(mandatory_param_map& params)

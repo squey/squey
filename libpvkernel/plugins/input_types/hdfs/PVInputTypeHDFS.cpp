@@ -4,6 +4,7 @@
  * Copyright (C) Picviz Labs 2010-2012
  */
 
+#include "PVImportHDFSDlg.h"
 #include "PVInputTypeHDFS.h"
 #include "setenv.h"
 
@@ -17,11 +18,18 @@ PVRush::PVInputTypeHDFS::PVInputTypeHDFS():
 	}
 }
 
-bool PVRush::PVInputTypeHDFS::createWidget(hash_formats const& /*formats*/, hash_formats& /*new_formats*/, list_inputs &inputs, QString& format, PVCore::PVArgumentList& args_ext, QWidget* parent) const
+bool PVRush::PVInputTypeHDFS::createWidget(hash_formats const& formats, hash_formats& /*new_formats*/, list_inputs &inputs, QString& format, PVCore::PVArgumentList& args_ext, QWidget* parent) const
 {
 	// TODO: ask for a namenode, list the files of that namenode and chose one or more files !
-	
-	PVInputHDFSServer_p serv(new PVInputHDFSServer("namenode.hadoop.cluster.picviz", 8020, "hadoop"));
+	QStringList formats_name = formats.keys();
+	formats_name.prepend(QString(PICVIZ_AUTOMATIC_FORMAT_STR));
+
+	PVImportHDFSDlg* dlg = new PVImportHDFSDlg(formats_name, parent);
+	if (dlg->exec() != QDialog::Accepted) {
+		return false;
+	}
+
+	PVInputHDFSServer_p serv(new PVInputHDFSServer(dlg->namenode(), dlg->port(), dlg->user()));
 	/*
 	if (!serv->connect()) {
 		QMessageBox err(QMessageBox::Critical, QObject::tr("HDFS server error"), QObject::tr("Unable to connection to HDFS server %1").arg(serv->get_human_name()), QMessageBox::Ok, parent);
@@ -29,10 +37,10 @@ bool PVRush::PVInputTypeHDFS::createWidget(hash_formats const& /*formats*/, hash
 		return false;
 	}
 	*/
-	PVInputDescription_p f(new PVInputHDFSFile(serv, "/data/squid.log.1B"));
+	PVInputDescription_p f(new PVInputHDFSFile(serv, dlg->path()));
 	inputs.push_back(f);
 
-	format = QString(PICVIZ_AUTOMATIC_FORMAT_STR);
+	format = dlg->format_name();
 
 	return inputs.size() > 0;
 }

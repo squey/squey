@@ -17,7 +17,8 @@
 PVRush::PVControllerJob::PVControllerJob(job_action a, int priority) :
 	_elt_valid_filter(true, _all_elts),
 	_elt_invalid_filter(false, _inv_elts),
-	_f_nelts(&_job_done)
+	_f_nelts(&_job_done),
+	_agg_tbb(nullptr)
 {
 	_a = a;
 	_priority = priority;
@@ -39,6 +40,9 @@ PVRush::PVControllerJob::~PVControllerJob()
 		_job_finished_run = true;
 	}
 	_job_finished.notify_all(); 
+	if (_agg_tbb) {
+		delete _agg_tbb;
+	}
 }
 
 void PVRush::PVControllerJob::set_params(chunk_index begin, chunk_index end, chunk_index n_elts, stop_cdtion sc, PVAggregator &agg, PVFilter::PVChunkFilter_f filter, PVOutput& out_filter, size_t nchunks, bool dump_inv_elts, bool dump_all_elts)
@@ -70,8 +74,11 @@ tbb::filter_t<void,void> PVRush::PVControllerJob::create_tbb_filter()
 	assert(_filter);
 	assert(_out_filter);
 
-	PVAggregatorTBB *agg_tbb = new PVAggregatorTBB(*_agg);
-	tbb::filter_t<void,PVCore::PVChunk*> input_filter(tbb::filter::serial_in_order, *agg_tbb);
+	if (_agg_tbb) {
+		delete _agg_tbb;
+	}
+	_agg_tbb = new PVAggregatorTBB(*_agg);
+	tbb::filter_t<void,PVCore::PVChunk*> input_filter(tbb::filter::serial_in_order, *_agg_tbb);
 
 	// The source transform filter takes care of source-specific filterings
 	tbb::filter_t<PVCore::PVChunk*, PVCore::PVChunk*> source_transform_filter(tbb::filter::parallel, _source_filter.f());

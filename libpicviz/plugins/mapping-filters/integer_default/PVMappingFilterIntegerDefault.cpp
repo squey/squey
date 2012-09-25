@@ -7,7 +7,7 @@
 #include "PVMappingFilterIntegerDefault.h"
 
 Picviz::PVMappingFilterIntegerDefault::PVMappingFilterIntegerDefault(PVCore::PVArgumentList const& args):
-	PVMappingFilter(),
+	PVPureMappingFilter<integer_mapping>(),
 	_signed(true) // This will be changed by set_args anyway
 {
 	INIT_FILTER(PVMappingFilterIntegerDefault, args);
@@ -26,45 +26,74 @@ void Picviz::PVMappingFilterIntegerDefault::set_args(PVCore::PVArgumentList cons
 	_signed = args["signed"].toBool();
 }
 
-Picviz::PVMappingFilter::decimal_storage_type* Picviz::PVMappingFilterIntegerDefault::operator()(PVRush::PVNraw::const_trans_nraw_table_line const& values)
-{
-	assert(_dest);
-	assert(values.size() >= _dest_size);
-
-	const ssize_t size = values.size();
-	const bool is_signed = _signed;
-	
-	if (is_signed) {
-#pragma omp parallel
-		{
-			QString stmp;
-			// Looks like this can be fine optimised with hand made SSE/AVX optimisation
-#pragma omp parallel for
-			for (ssize_t i = 0; i < size; i++) {
-				values[i].get_qstr(stmp);
-				_dest[i].storage_as_int() = stmp.toInt();
-			}
-		}
-	}
-	else {
-#pragma omp parallel
-		{
-			QString stmp;
-			// Looks like this can be fine optimised with hand made SSE/AVX optimisation
-#pragma omp parallel for
-			for (ssize_t i = 0; i < size; i++) {
-				values[i].get_qstr(stmp);
-				_dest[i].storage_as_uint() = stmp.toUInt();
-			}
-		}
-	}
-
-	return _dest;
-}
-
 PVCore::DecimalType Picviz::PVMappingFilterIntegerDefault::get_decimal_type() const
 {
 	return (_signed) ? PVCore::IntegerType : PVCore::UnsignedIntegerType;
+}
+
+Picviz::PVMappingFilter::decimal_storage_type Picviz::integer_mapping::process_utf8(const char* buf, const size_t size, PVMappingFilter*)
+{
+	ssize_t i = 0;
+	Picviz::PVMappingFilter::decimal_storage_type ret_ds;
+	ret_ds.storage_as_uint() = 0;
+	while (isspace(buf[i]) && i < (ssize_t) size) {
+		i++;
+	}
+
+	ssize_t start = i;
+	uint32_t pow10 = 1;
+	for (i = size-1; i >= start; i--) {
+		const char c = buf[i];
+		if (isspace(c)) {
+			continue;
+		}
+		if (c >= '0' && c <= '9') {
+			ret_ds.storage_as_uint() += pow10*(c-'0');
+			pow10 *= 10;
+		}
+		else {
+			break;
+		}
+	}
+
+	return ret_ds;
+}
+
+Picviz::PVMappingFilter::decimal_storage_type Picviz::integer_mapping::process_utf16(const uint16_t* buf, size_t size, PVMappingFilter*)
+{
+	ssize_t i = 0;
+	Picviz::PVMappingFilter::decimal_storage_type ret_ds;
+	ret_ds.storage_as_uint() = 0;
+	for (; i < (ssize_t) size; i++) {
+		const uint16_t c = buf[i];
+		if ((c & 0xFF00) != 0) {
+			return ret_ds;
+		}
+		if (!isspace((char)c)) {
+			break;
+		}
+	}
+
+	ssize_t start = i;
+	uint32_t pow10 = 1;
+	for (i = size-1; i >= start; i--) {
+		const uint16_t c = buf[i];
+		if ((c & 0xFF00) != 0) {
+			return ret_ds;
+		}
+		if (isspace(c)) {
+			continue;
+		}
+		if (c >= '0' && c <= '9') {
+			ret_ds.storage_as_uint() += pow10*(c-'0');
+			pow10 *= 10;
+		}
+		else {
+			break;
+		}
+	}
+
+	return ret_ds;
 }
 
 IMPL_FILTER_NOPARAM(Picviz::PVMappingFilterIntegerDefault)

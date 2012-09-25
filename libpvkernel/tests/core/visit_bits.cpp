@@ -8,6 +8,7 @@
 #include <pvkernel/core/picviz_bench.h>
 #include <pvkernel/core/PVBitCount.h>
 #include <pvkernel/core/PVBitVisitor.h>
+#include <pvkernel/core/PVByteVisitor.h>
 #include <iostream>
 
 #define COUNT_BITS_UINT64(ret,v)\
@@ -58,6 +59,21 @@ int main()
 	uint32_t ret2 = PVCore::PVBitCount::bit_count(SIZE_BUF, buf);
 	BENCH_END(lib, "lib", sizeof(uint64_t), SIZE_BUF, sizeof(uint32_t), 1);
 
+	v = (0xFFULL<<(2*8)) | (0xFFULL<<(4*8)) | (0xFFULL<<(5*8)) | (0xFFULL<<(7*8));
+	PVCore::PVByteVisitor::visit_bytes(v, [=](size_t b) { std::cout << b << std::endl; });
+
+	std::cout << std::endl;
+
+	v = 0xFFULL;
+	PVCore::PVByteVisitor::visit_bytes(v, [=](size_t b) { std::cout << b << std::endl; });
+
+	std::cout << std::endl;
+	v = 0xFFFFFFFFFFFFFFFFULL;
+	PVCore::PVByteVisitor::visit_bytes(v, [=](size_t b) { std::cout << b << std::endl; });
+
+	std::cout << std::endl;
+	__m128i v_sse = _mm_set1_epi32(0x00FF0000);
+	PVCore::PVByteVisitor::visit_bytes(v_sse, [=](size_t b) { std::cout << b << std::endl; });
 
 	printf("%u %u %u\n", ret0, ret1, ret2);
 

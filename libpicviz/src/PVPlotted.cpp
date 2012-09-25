@@ -366,16 +366,6 @@ PVCol Picviz::PVPlotted::get_column_count() const
 	return get_parent<PVMapped>()->get_column_count();
 }
 
-PVRush::PVNraw::nraw_table& Picviz::PVPlotted::get_qtnraw()
-{
-	return get_parent<PVSource>()->get_qtnraw();
-}
-
-const PVRush::PVNraw::nraw_table& Picviz::PVPlotted::get_qtnraw() const
-{
-	return get_parent<PVSource>()->get_qtnraw();
-}
-
 void Picviz::PVPlotted::to_csv()
 {
 	PVRow row_count;
@@ -507,7 +497,7 @@ void Picviz::PVPlotted::get_col_minmax(PVRow& min, PVRow& max, PVSelection const
 	vmax = 0;
 	min = 0;
 	max = 0;
-	const PVRow nrows = get_qtnraw().get_nrows();
+	const PVRow nrows = get_row_count();
 	sel.visit_selected_lines([&](PVRow i) {
 		const uint32_t v = this->get_value(i, col);
 		if (v > vmax) {

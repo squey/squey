@@ -140,6 +140,10 @@ add_test(TestParser Trush_parser)
 add_executable(Trush_format_conv format_conv.cpp)
 target_link_libraries(Trush_format_conv ${LINK_LIBRARIES})
 
+# NRAW backend
+add_executable(Trush_nraw_backend nraw_backend.cpp)
+target_link_libraries(Trush_nraw_backend ${LINK_LIBRARIES})
+
 if(PYTHONLIBS_FOUND)
 	# Python NRAW
 	#	add_executable(Trush_python_nraw python_nraw.cpp)

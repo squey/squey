@@ -49,6 +49,7 @@ core/PVSerializeObject.cpp
 core/PVSplitter.cpp
 core/PVUtils.cpp
 core/PVUnicodeString.cpp
+core/PVUnicodeString16.cpp
 core/PVVersion.cpp
 core/PVAllocators.cpp
 )
@@ -250,7 +251,7 @@ rush/uchardetect/nsUTF8Prober.cpp
 if(PYTHONLIBS_FOUND)
 	set(RUSH_SRC_FILES
 	${RUSH_SRC_FILES}
-	rush/PVNrawPython.cpp
+	#rush/PVNrawPython.cpp
 )
 
 set(RUSH_HEADER_FILES

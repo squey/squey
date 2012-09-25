@@ -30,7 +30,7 @@ namespace PVRush {
 
 namespace PVCore {
 
-typedef std::list< PVElement*, tbb::tbb_allocator<PVElement*> > list_elts;
+typedef std::list< PVElement*, tbb::scalable_allocator<PVElement*> > list_elts;
 //typedef std::list<PVElement*> list_elts;
 
 // Describe chunk interface with no allocator template
@@ -152,15 +152,48 @@ public:
 		return new_elt;
 	}
 
-	void give_ownerhsip_realloc_buffers(PVRush::PVNraw& nraw)
+	PVRush::PVRawSourceBase* source() const { return _source; };
+
+	// Only visit one column
+	template <typename F>
+	void visit_column(const PVCol c, F const& f) const
 	{
-		list_elts::iterator it;
-		for (it = _elts.begin(); it != _elts.end(); it++) {
-			(*it)->give_ownerhsip_realloc_buffers(nraw);
+		PVRow r = 0;
+		for (PVElement* elt: c_elements()) {
+			if (!elt->valid()) {
+				continue;
+			}
+			assert(c < elt->c_fields().size());
+			PVCol cur_c = 0;
+			for (PVField const& field: elt->fields()) {
+				if (cur_c == c) {
+					f(r, field);
+					break;
+				}
+				cur_c++;
+			}
+			r++;
 		}
 	}
 
-	PVRush::PVRawSourceBase* source() const { return _source; };
+	// Column cache-aware visitor
+	// TODO: at most eight field stream per line!
+	template <typename F>
+	void visit_by_column(F const& f) const
+	{
+		PVRow r = 0;
+		for (PVElement* elt: c_elements()) {
+			if (!elt->valid()) {
+				continue;
+			}
+			PVCol c = 0;
+			for (PVField const& field: elt->fields()) {
+				f(r, c, field);
+				c++;
+			}
+			r++;
+		}
+	}
 
 public:
 	void set_elements_index()
@@ -180,8 +213,9 @@ protected:
 	void allocate_fields_buffer(PVRow nelts, PVCol nfields)
 	{
 		//_p_chunk_fields = ::malloc(sizeof(__node_list_field)*nfields*nelts);
-		_fields_size = sizeof(__node_list_field)*nfields*nelts;
-		_p_chunk_fields = mmap(NULL, _fields_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+		const size_t fields_size = sizeof(__node_list_field)*nfields*nelts;
+		//_p_chunk_fields = mmap(NULL, _fields_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+		_p_chunk_fields = tbb::scalable_allocator<char>().allocate(fields_size);
 		//PVLOG_INFO("PVField %p allocate %u\n", _p_chunk_fields, sizeof(__node_list_field)*nfields*nelts);
 	}
 
@@ -190,7 +224,8 @@ protected:
 		if (_p_chunk_fields) {
 			//::free(_p_chunk_fields);
 			//PVLOG_INFO("PVField %p deallocate %u\n", _p_chunk_fields, _fields_size);
-			munmap(_p_chunk_fields, _fields_size);
+			//munmap(_p_chunk_fields, _fields_size);
+			tbb::scalable_allocator<char>().deallocate((char*) _p_chunk_fields, 0);
 			_p_chunk_fields = NULL;
 		}
 	}
@@ -216,12 +251,12 @@ protected:
 
 	// Buffer containing the fields for this chunk
 	void* _p_chunk_fields;
-	size_t _fields_size;
+	//size_t _fields_size;
 };
 
 
-template < template <class T> class Allocator = PVCore::PVMMapAllocator >
-//template < template <class T> class Allocator = tbb::tbb_allocator >
+//template < template <class T> class Allocator = PVCore::PVMMapAllocator >
+template < template <class T> class Allocator = tbb::scalable_allocator >
 //template < template <class T> class Allocator = std::allocator >
 
 class PVChunkMem : public PVChunk {

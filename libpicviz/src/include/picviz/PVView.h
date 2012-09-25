@@ -291,8 +291,8 @@ public:
 	 * @return a string containing wanted data
 	 *
 	 */
-	QString get_data(PVRow row, PVCol column);
-	PVCore::PVUnicodeString const& get_data_unistr(PVRow row, PVCol column);
+	QString get_data(PVRow row, PVCol column) const;
+	PVCore::PVUnicodeString get_data_unistr(PVRow row, PVCol column) const;
 
 	/**
 	 * Gets the data directly from nraw, without #PVAxesCombination
@@ -303,8 +303,8 @@ public:
 	 * @return a string containing wanted data
 	 *
 	 */
-	QString get_data_raw(PVRow row, PVCol column) const { return get_qtnraw_parent().at(row, column).get_qstr(); }
-	inline PVCore::PVUnicodeString const& get_data_unistr_raw(PVRow row, PVCol column) const { return get_rushnraw_parent().at_unistr(row, column); }
+	QString get_data_raw(PVRow row, PVCol column) const { return get_rushnraw_parent().at(row, column); }
+	inline PVCore::PVUnicodeString get_data_unistr_raw(PVRow row, PVCol column) const { return get_rushnraw_parent().at_unistr(row, column); }
 
 
 	void selection_A2B_select_with_square_area(PVSelection &a, PVSelection &b);
@@ -376,9 +376,6 @@ public:
 ******************************************************************************
 *****************************************************************************/
 	
-	PVRush::PVNraw::nraw_table& get_qtnraw_parent();
-	const PVRush::PVNraw::nraw_table& get_qtnraw_parent() const;
-
 	PVRush::PVNraw& get_rushnraw_parent() { assert(_rushnraw_parent); return *_rushnraw_parent; };
 	PVRush::PVNraw const& get_rushnraw_parent() const { assert(_rushnraw_parent); return *_rushnraw_parent; };
 

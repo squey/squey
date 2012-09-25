@@ -4,8 +4,8 @@
  * Copyright (C) Picviz Labs 2010-2012
  */
 
-#ifndef PVCORE_PVUNICODESTRING_H
-#define PVCORE_PVUNICODESTRING_H
+#ifndef PVCORE_PVUNICODESTRING16_H
+#define PVCORE_PVUNICODESTRING16_H
 
 #include <pvbase/export.h>
 #include <pvkernel/core/PVPythonClassDecl.h>
@@ -13,8 +13,8 @@
 namespace PVCore {
 
 class PVBufferSlice;
-class PVUnicodeString;
-class PVUnicodeStringHashNoCase;
+class PVUnicodeString16;
+class PVUnicodeString16HashNoCase;
 
 }
 
@@ -22,7 +22,7 @@ class PVUnicodeStringHashNoCase;
 #include <pvkernel/core/PVBufferSlice.h>
 
 namespace PVCore {
-/*! \brief Defines a read-only UTF8 string object.
+/*! \brief Defines a read-only UTF16 string object.
  *  Design for performance, and does not use any explicit or implicit sharing as opposed to
  *  QString objects.
  *
@@ -33,31 +33,31 @@ namespace PVCore {
  */
 #pragma pack(push)
 #pragma pack(4)
-class LibKernelDecl PVUnicodeString
+class LibKernelDecl PVUnicodeString16
 {
 public:
-	typedef uint8_t utf_char;
+	typedef uint16_t utf_char;
 public:
 	// Inline constructors
-	PVUnicodeString(PVBufferSlice const& buf)
+	PVUnicodeString16(PVBufferSlice const& buf)
 	{
 		set_from_slice(buf);
 	}
 
-	PVUnicodeString()
+	PVUnicodeString16()
 	{
 		_buf = NULL;
 		_len = 0;
 	}
 
 	/*
-	PVUnicodeString(PVUnicodeString const& other)
+	PVUnicodeString16(PVUnicodeString16 const& other)
 	{
 		_buf = other._buf;
 		_len = other._len;
 	}*/
 
-	PVUnicodeString(const utf_char* buf, size_t len):
+	PVUnicodeString16(const utf_char* buf, size_t len):
 		_buf(buf),
 		_len(len)
 	{
@@ -78,12 +78,12 @@ public:
 
 	// == Comparaisons ==
 	// By default, memory-based comparaison are made
-	bool operator==(const PVUnicodeString& o) const;
-	bool operator!=(const PVUnicodeString& o) const;
-	bool operator<(const PVUnicodeString& o) const;
-	int compare(const PVUnicodeString& o) const;
+	bool operator==(const PVUnicodeString16& o) const;
+	bool operator!=(const PVUnicodeString16& o) const;
+	bool operator<(const PVUnicodeString16& o) const;
+	int compare(const PVUnicodeString16& o) const;
 	int compare(const char* str) const;
-	int compareNoCase(const PVUnicodeString& o) const;
+	int compareNoCase(const PVUnicodeString16& o) const;
 
 	// == Data access ==
 	inline const utf_char* buffer() const { return _buf; }
@@ -91,16 +91,22 @@ public:
 	inline uint32_t len() const { return _len; };
 	inline QString get_qstr() const
 	{
-		return QString::fromUtf8((const char*) _buf, _len);
+		/*
+		if (_qstr.isNull()) {
+			_qstr.setRawData((QChar*) _buf, _len);
+		}
+		return _qstr;
+		*/
+		return QString::fromRawData((QChar*) _buf, _len);
 	}
 	inline QString get_qstr_copy() const
 	{
-		return get_qstr();
+		// This will make a deep copy!
+		return QString((const QChar*) _buf, _len);
 	}
 	inline QString& get_qstr(QString& s) const
 	{
-		// We can't get away from that QString's allocation... :/
-		s = QString::fromUtf8((const char*) _buf, _len);
+		s.setRawData((QChar*) _buf, _len);
 		return s;
 	}
 
@@ -111,7 +117,7 @@ public:
 		_len = buf.size()/sizeof(utf_char);
 	}
 	/*
-	PVUnicodeString& operator=(const PVUnicodeString& other) 
+	PVUnicodeString16& operator=(const PVUnicodeString16& other) 
 	{
 		_buf = other._buf;
 		_len = other._len;
@@ -129,15 +135,15 @@ private:
 };
 #pragma pack(pop)
 
-class PVUnicodeStringHashNoCase
+class PVUnicodeString16HashNoCase
 {
 public:
-	PVUnicodeStringHashNoCase(PVUnicodeString const& str): _str(str) { }
+	PVUnicodeString16HashNoCase(PVUnicodeString16 const& str): _str(str) { }
 public:
-	inline PVUnicodeString const& str() const { return _str; }
-	inline bool operator==(const PVUnicodeStringHashNoCase& o) const { return _str.compareNoCase(o.str()) == 0; }
+	inline PVUnicodeString16 const& str() const { return _str; }
+	inline bool operator==(const PVUnicodeString16HashNoCase& o) const { return _str.compareNoCase(o.str()) == 0; }
 private:
-	PVUnicodeString const& _str;
+	PVUnicodeString16 const& _str;
 };
 
 }

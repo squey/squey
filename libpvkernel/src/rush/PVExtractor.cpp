@@ -77,12 +77,12 @@ PVRush::PVNraw& PVRush::PVExtractor::get_nraw()
 
 PVRush::PVFormat& PVRush::PVExtractor::get_format()
 {
-	return *_nraw.format;
+	return *_nraw.get_format();
 }
 
 const PVRush::PVFormat& PVRush::PVExtractor::get_format() const
 {
-	return *_nraw.format;
+	return *_nraw.get_format();
 }
 
 chunk_index PVRush::PVExtractor::pvrow_to_agg_index(PVRow start, bool& found)
@@ -126,7 +126,7 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_pvrow(PVRow start, P
 	}
 
 	// Check whether lines from "start" to "end" already exists
-	if (end < _nraw.get_table().get_nrows()) {
+	if (end < _nraw.get_number_rows()) {
 		if (force_process) {
 			// Ok, we got them, but we want them to be reprocessed. Let's do this !
 			return process_from_agg_nlines(idx_start, end-start + 1);
@@ -254,7 +254,6 @@ void PVRush::PVExtractor::restore_nraw()
 {
 	if (_saved_nraw_valid) {
 		PVNraw::swap(_nraw, _saved_nraw);
-		_saved_nraw.free_trans_nraw();
 		_saved_nraw_valid = false;
 	}
 }
@@ -262,7 +261,6 @@ void PVRush::PVExtractor::restore_nraw()
 void PVRush::PVExtractor::clear_saved_nraw()
 {
 	if (_saved_nraw_valid) {
-		_saved_nraw.free_trans_nraw();
 		_saved_nraw_valid = false;
 	}
 }
@@ -270,7 +268,7 @@ void PVRush::PVExtractor::clear_saved_nraw()
 void PVRush::PVExtractor::set_format(PVFormat const& format)
 {
 	PVFormat* nraw_format = new PVFormat(format);
-	_nraw.format.reset(nraw_format);
+	_nraw.get_format().reset(nraw_format);
 }
 
 void PVRush::PVExtractor::force_number_axes(PVCol naxes)
@@ -280,8 +278,8 @@ void PVRush::PVExtractor::force_number_axes(PVCol naxes)
 
 PVCol PVRush::PVExtractor::get_number_axes()
 {
-	if (_nraw.format) {
-		return _nraw.format->get_axes().size();
+	if (_nraw.get_format()) {
+		return _nraw.get_format()->get_axes().size();
 	}
 	
 	// The number of axes is unknown, the NRAW will be resized

@@ -192,6 +192,7 @@ __global__ void bcicode_raster_unroll2(uint2* bci_codes, unsigned int n, unsigne
 		}
 		__syncthreads();
 	}
+#endif
 	for (; idx_codes < n_end; idx_codes += size_grid2) {
 		uint2 code0 = bci_codes[idx_codes];
 		uint2 code1 = bci_codes[idx_codes+size_grid];
@@ -239,7 +240,6 @@ __global__ void bcicode_raster_unroll2(uint2* bci_codes, unsigned int n, unsigne
 			shared_img[idx_shared_img1] = color1 | code1.x;
 		}
 	}
-#endif
 	for (; idx_codes < n; idx_codes += size_grid) {
 		uint2 code0 = bci_codes[idx_codes];
 		code0.x >>= 8;

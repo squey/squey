@@ -68,8 +68,6 @@ include/picviz/PVScene.h
 include/picviz/PVSelection.h
 include/picviz/PVSelectionFilter.h
 include/picviz/PVSelectionFilterScatterPlotSelectionSquare.h
-include/picviz/PVSortQVectorQStringList.h
-include/picviz/PVSortQVectorQStringListThread.h
 include/picviz/PVDefaultSortingFunc.h
 include/picviz/PVSortingFunc.h
 include/picviz/PVSource.h
@@ -142,8 +140,6 @@ PVSelectionFilterScatterPlotSelectionSquare.cpp
 PVSelRowFilteringFunction.cpp
 PVSparseSelection.cpp
 PVSquareArea.cpp
-PVSortQVectorQStringList.cpp
-PVSortQVectorQStringListThread.cpp
 PVDefaultSortingFunc.cpp
 PVSortingFunc.cpp
 PVSource.cpp
@@ -200,8 +196,6 @@ widgets/editors/PVViewRowsSpinBoxEditor.cpp
 )
 
 set(MOC_HEADERS
-include/picviz/PVSortQVectorQStringList.h
-include/picviz/PVSortQVectorQStringListThread.h
 )
 QT4_WRAP_CPP(MOC_SRC ${MOC_HEADERS} ${WIDGETS_MOC_HEADERS} OPTIONS ${QT4_WRAP_OPTIONS})
 

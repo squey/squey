@@ -7,7 +7,7 @@
 #ifndef PVCORE_PVDATETIMEPARSER_H
 #define PVCORE_PVDATETIMEPARSER_H
 
-#include <pvkernel/core/PVUnicodeString.h>
+#include <pvkernel/core/PVUnicodeString16.h>
 
 #include <unicode/smpdtfmt.h>
 #include <unicode/locid.h>
@@ -39,7 +39,7 @@ public:
 	{
 		return mapping_time_to_cal(icuFromQStringAlias(value), cal);
 	}
-	inline bool mapping_time_to_cal(PVCore::PVUnicodeString const& src, Calendar* cal)
+	inline bool mapping_time_to_cal(PVCore::PVUnicodeString16 const& src, Calendar* cal)
 	{
 		return mapping_time_to_cal(UnicodeString(false, (const UChar *)(src.buffer()), src.size()), cal);
 	}

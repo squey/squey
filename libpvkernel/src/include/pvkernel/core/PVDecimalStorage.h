@@ -158,7 +158,8 @@ public:
 template <>
 class PVDecimalStorage<64>: public __impl::PVDecimalStorageBase<64>
 {
-	typedef typename __impl::PVDecimalStorageBase<64>::storage_type storage_type;
+	typedef __impl::PVDecimalStorageBase<64> base_type;
+	typedef typename base_type::storage_type storage_type;
 	static_assert(sizeof(double) == sizeof(storage_type), "double isn't stored on 64 bits !");
 
 public:
@@ -169,13 +170,13 @@ public:
 	typename std::enable_if<std::is_same<T, double>::value == true,  T>::type& storage_cast() { return storage_as_float(); };
 
 	template <typename T>
-	typename std::enable_if<std::is_same<T, double>::value == false, T>::type& storage_cast() { return storage_as_float(); };
+	typename std::enable_if<std::is_same<T, double>::value == false, T>::type& storage_cast() { return base_type::template storage_cast<T>(); }
 
 	template <typename T>
 	typename std::enable_if<std::is_same<T, double>::value == true,  T>::type const& storage_cast() const { return storage_as_float(); };
 
 	template <typename T>
-	typename std::enable_if<std::is_same<T, double>::value == false, T>::type const& storage_cast() const { return storage_as_float(); };
+	typename std::enable_if<std::is_same<T, double>::value == false, T>::type const& storage_cast() const { return base_type::template storage_cast<T>(); }
 };
 
 }

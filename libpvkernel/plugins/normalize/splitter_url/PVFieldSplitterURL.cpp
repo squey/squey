@@ -10,7 +10,7 @@
 
 #include "PVFieldSplitterURL.h"
 #include <pvkernel/core/PVBufferSlice.h>
-#include <pvkernel/core/PVUnicodeString.h>
+#include <pvkernel/core/PVUnicodeString16.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
 #include <pvkernel/rush/PVAxisTagsDec.h>
 
@@ -19,12 +19,12 @@
 #include <QUrl>
 
 static const uint16_t empty_str = 0;
-static const PVCore::PVUnicodeString g_str_http((const PVCore::PVUnicodeString::utf_char*) "h\0t\0t\0p\0", 4);
-static const PVCore::PVUnicodeString g_str_https((const PVCore::PVUnicodeString::utf_char*)"h\0t\0t\0p\0s\0", 5);
-static const PVCore::PVUnicodeString g_str_ftp((const PVCore::PVUnicodeString::utf_char*)"f\0t\0p\0", 3);
-static const PVCore::PVUnicodeString::utf_char g_port_80[] = {'8', '0'};
-static const PVCore::PVUnicodeString::utf_char g_port_443[] = {'4','4','3'};
-static const PVCore::PVUnicodeString::utf_char g_port_21[] = {'2', '1'};
+static const PVCore::PVUnicodeString16 g_str_http((const PVCore::PVUnicodeString16::utf_char*) "h\0t\0t\0p\0", 4);
+static const PVCore::PVUnicodeString16 g_str_https((const PVCore::PVUnicodeString16::utf_char*)"h\0t\0t\0p\0s\0", 5);
+static const PVCore::PVUnicodeString16 g_str_ftp((const PVCore::PVUnicodeString16::utf_char*)"f\0t\0p\0", 3);
+static const PVCore::PVUnicodeString16::utf_char g_port_80[] = {'8', '0'};
+static const PVCore::PVUnicodeString16::utf_char g_port_443[] = {'4','4','3'};
+static const PVCore::PVUnicodeString16::utf_char g_port_21[] = {'2', '1'};
 
 #define URL_NUMBER_FIELDS_CREATED 10
 
@@ -134,8 +134,8 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterURL::one_to_many(PVCore:
 	else
 	if (_col_port >= 0) {
 		// Guess default port from protocol
-		PVCore::PVUnicodeString proto(str_url + fh->furl.features.scheme.pos, fh->furl.features.scheme.size);
-		const PVCore::PVUnicodeString::utf_char* str_port; size_t size_port;
+		PVCore::PVUnicodeString16 proto(str_url + fh->furl.features.scheme.pos, fh->furl.features.scheme.size);
+		const PVCore::PVUnicodeString16::utf_char* str_port; size_t size_port;
 		if (proto.compareNoCase(g_str_http) == 0) {
 			str_port = g_port_80;
 			size_port = 2;

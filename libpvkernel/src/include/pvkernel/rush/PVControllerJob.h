@@ -91,6 +91,9 @@ public:
 	chunk_index nb_elts_max() const;
 	virtual void wait_end(); // wait the end of this job
 	tbb::tick_count::interval_t duration() const;
+	size_t total_bytes_processed() const { return _agg_tbb->total_bytes(); }
+	// In MB/s
+	double mean_bw() const { return ((double)(total_bytes_processed())/(1024.0*1024.0))/duration().seconds(); }
 
 public:
 	QStringList& get_all_elts() { return _all_elts; }
@@ -155,6 +158,8 @@ private:
 	tbb::tick_count _tc_end;
 	PVController* _ctrl_parent;
 	chunk_index _max_n_elts;
+	
+	PVAggregatorTBB* _agg_tbb;
 
 signals:
 	void job_done_signal();

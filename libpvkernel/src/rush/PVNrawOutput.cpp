@@ -8,7 +8,7 @@
 #include <pvkernel/core/PVChunk.h>
 #include <pvkernel/core/PVField.h>
 
-#include <tbb/tbb_allocator.h>
+#include <tbb/parallel_invoke.h>
 
 PVRush::PVNrawOutput::PVNrawOutput(PVRush::PVNraw &nraw_dest) :
 	_nraw_dest(nraw_dest)
@@ -18,38 +18,32 @@ PVRush::PVNrawOutput::PVNrawOutput(PVRush::PVNraw &nraw_dest) :
 
 void PVRush::PVNrawOutput::operator()(PVCore::PVChunk* out)
 {
-	// Write all elements of the chunk in the final nraw
-	PVCore::list_elts& elts = out->elements();	
-	PVCore::list_elts::iterator it_elt;
-
-	//std::list<QString, tbb::tbb_allocator<QString> > sl;
-	for (it_elt = elts.begin(); it_elt != elts.end(); it_elt++) {
-		PVCore::PVElement& e = *(*it_elt);
-		if (!e.valid())
-			continue;
-		PVCore::list_fields const& fields = e.c_fields();
-		if (fields.size() == 0)
-			continue;
-
-		if (!_nraw_dest.add_row(e, *out)) {
-			// Discard the chunk
-			out->free();
-			return;
-		}
+	bool ret_add;
+	if (_chunk_funcs.size() > 0) {
+		const size_t cur_number_rows = _nraw_dest.get_number_rows();
+		tbb::parallel_invoke(
+			[&] {
+				for (chunk_function_type const& f: this->_chunk_funcs) {
+					f(out, cur_number_rows);
+				}
+			},
+			[&] {
+				ret_add = this->_nraw_dest.add_chunk_utf16(*out);
+			});
 	}
-	
-	// Save the chunk corresponding index
-	_pvrow_chunk_idx[_nraw_cur_index] = out->agg_index();
+	else {
+		ret_add = _nraw_dest.add_chunk_utf16(*out);
+	}
 
-	_nraw_cur_index++;
+	if (ret_add) {
+		// Save the chunk corresponding index
+		_pvrow_chunk_idx[_nraw_cur_index] = out->agg_index();
 
-	_nraw_dest.push_chunk_todelete(out);
+		_nraw_cur_index++;
+	}
 
-	// Give the ownership of reallocated buffers to the NRAW
-	out->give_ownerhsip_realloc_buffers(_nraw_dest);
-
-	// Clear the structures used by the chunk
-	out->free_structs();
+	// Clear this chunk !
+	out->free();
 }
 
 PVRush::PVNrawOutput::map_pvrow const& PVRush::PVNrawOutput::get_pvrow_index_map() const

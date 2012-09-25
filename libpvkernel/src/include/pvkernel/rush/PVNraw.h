@@ -21,177 +21,105 @@
 #include <pvkernel/core/PVUnicodeString.h>
 
 #include <pvkernel/rush/PVFormat.h>
-#include <pvkernel/rush/PVNrawChild.h>
+#include <pvkernel/rush/PVNrawDiskBackend.h>
 
 #include <tbb/tbb_allocator.h>
 #include <tbb/tick_count.h>
 
+extern "C" {
+#include <unicode/ucsdet.h>
+#include <unicode/ucnv.h>
+}
+
+
 namespace PVRush {
 
-	class LibKernelDecl PVNraw {
-	public:
-//		typedef std::vector<QString, tbb::scalable_allocator<QString> > nraw_table_line;
-//		typedef std::vector<nraw_table_line, tbb::scalable_allocator<nraw_table_line> > nraw_table;
-//		typedef std::vector<nraw_table_line, tbb::scalable_allocator<nraw_table_line> > nraw_trans_table;
-		typedef PVCore::PVMatrix<PVCore::PVUnicodeString, PVRow, PVCol, PVCore::PVMatrixAllocatorMmap > nraw_table;
-		typedef nraw_table::line nraw_table_line;
-		typedef nraw_table::const_line const_nraw_table_line;
-		typedef nraw_table::transposed_type nraw_trans_table;
+class LibKernelDecl PVNraw
+{
+	PVNraw& operator=(const PVNraw&) = delete;
+	PVNraw(const PVNraw&) = delete;
 
-		typedef nraw_table::column trans_nraw_table_line;
-		typedef nraw_table::const_column const_trans_nraw_table_line;
+public:
+	PVNraw();
+	~PVNraw();
 
-		typedef trans_nraw_table_line nraw_table_axis;
-		typedef const_trans_nraw_table_line const_nraw_table_axis;
-	private:
-		typedef std::list<PVCore::PVChunk*, tbb::tbb_allocator<PVCore::PVChunk*> > list_chunks_t;
-	public:
-		PVNraw();
-		~PVNraw();
+	void reserve(PVRow const nrows, PVCol const ncols);
+	void clear();
 
-		void reserve(PVRow row, PVCol col);
-		bool create_trans_nraw();
-		void free_trans_nraw();
-		void clear();
+	// Move an nraw data to another PVNraw object. No copy and allocations occurs.
+	static void swap(PVNraw &dst, PVNraw& src);
 
-		// Move an nraw data to another PVNraw object. No copy and allocations occurs.
-		static void swap(PVNraw &dst, PVNraw& src);
+	inline PVRow get_number_rows() const { return _real_nrows; }
+	inline PVCol get_number_cols() const { return _backend.get_number_cols(); }
 
-		inline trans_nraw_table_line get_col(PVCol col) { return table.get_col(col); }
-		inline const_trans_nraw_table_line get_col(PVCol col) const { return table.get_col(col); }
+	QString get_value(PVRow row, PVCol col) const;
+	PVCore::PVUnicodeString at_unistr(PVRow row, PVCol col) const
+	{
+		size_t size;
+		const char* buf = _backend.at(row, col, size);
+		return PVCore::PVUnicodeString((PVCore::PVUnicodeString::utf_char*) buf, size);
+	}
+	inline QString at(PVRow row, PVCol col) const { return get_value(row, col); }
 
-		inline nraw_table& get_table() { return table; }
-		inline nraw_table const& get_table() const { return table; }
+	bool add_chunk_utf16(PVCore::PVChunk const& chunk);
 
-		inline nraw_trans_table& get_trans_table() { return trans_table; }
-		inline nraw_trans_table const& get_trans_table() const { return trans_table; }
+	template <class Iterator>
+	bool add_column(Iterator begin, Iterator end)
+	{
+		return false;
+	}
 
-		inline PVRow get_number_rows() const { return table.get_nrows(); }
-		inline PVCol get_number_cols() const { return table.get_ncols(); }
-
-		PVFormat_p format;
-
-		inline QString at(PVRow row, PVCol col) const { return get_value(row, col); }
-
-		inline QString get_value(PVRow row, PVCol col) const
-		{
-			assert(row < table.get_nrows());
-			assert(col < table.get_ncols());
-			return table.at(row,col).get_qstr();
+	inline QString get_axis_name(PVCol format_axis_id) const
+	{
+		if(format_axis_id < format->get_axes().size()) {
+			return format->get_axes().at(format_axis_id).get_name();
 		}
+		return QString("");
+	}
 
-		inline PVCore::PVUnicodeString const& at_unistr(PVRow row, PVCol col) const
-		{
-			assert(row < table.get_nrows());
-			assert(col < table.get_ncols());
-			return table.at(row,col);
+	void resize_nrows(PVRow const nrows)
+	{
+		if (nrows < _real_nrows) {
+			_real_nrows = nrows;
 		}
+	}
 
-		inline void set_value(PVRow row, PVCol col, PVCore::PVUnicodeString const& str)
-		{
-			table.set_value(row, col, str);
-		}
+	template <typename F>
+	inline bool visit_column_tbb(PVCol const c, F const& f) const
+	{
+		return _backend.visit_column_tbb(c, f);
+	}
 
-		inline bool add_row(PVCore::PVElement& elt, PVCore::PVChunk const& parent)
-		{
-			if (_real_nrows >= table.get_nrows()) {
-				// Reallocation is necessary
-				PVLOG_DEBUG("(PVNraw::add_row) reallocation of the NRAW table (element %d asked,  table size is %d).\n", _real_nrows, table.get_nrows());
-				table.resize_nrows(_real_nrows + parent.c_elements().size(), PVCore::PVUnicodeString());
-				PVLOG_DEBUG("(PVNraw::add_row) resizing done !\n");
-				return true;
-			}
-			PVCore::list_fields& lf = elt.fields();
-			if (table.get_ncols() < (PVCol) lf.size()) {
-				PVLOG_WARN("(PVNraw::add_row) NRAW table has %d fields, and %d are requested.\n", table.get_ncols(), lf.size());
-				if (_real_nrows == 0) {
-					PVLOG_DEBUG("(PVNraw::add_row) that's the first element of the NRAW, resizing...\n");
-					table.resize(table.get_nrows(), lf.size());
-					PVLOG_DEBUG("(PVNraw::add_row) resizing done !\n");
-				}
-				else {
-					PVLOG_WARN("(PVNraw::add_row) that's not the first element of the NRAW, this element is invalid ! Discard it...\n");
-					return false;
-				}
-			}
-			PVCore::PVUnicodeString* pfields = table.get_row_ptr(_real_nrows);
-			PVCore::list_fields::iterator it;
-			PVCol j = 0;
-			for (it = lf.begin(); it != lf.end(); it++) {
-				pfields[j].set_from_slice(*it);
-				j++;
-			}
+	template <typename F>
+	inline bool visit_column(PVCol const c, F const& f) const
+	{
+		return _backend.visit_column2(c, f);
+	}
 
-			_real_nrows++;
-			return true;
-		}
+	QString nraw_line_to_csv(PVRow idx) const;
+	QStringList nraw_line_to_qstringlist(PVRow idx) const;
 
-		template <class Iterator>
-		bool add_column(Iterator begin, Iterator end)
-		{
-			PVCol idx_new_col = get_number_cols();
-			tbb::tick_count tstart = tbb::tick_count::now();
-			if (!table.resize_ncols(get_number_cols() + 1)) {
-				return false;
-			}
-			tbb::tick_count tend = tbb::tick_count::now();
-			PVLOG_INFO("add_column: resize_ncols took %0.4fs.\n", (tend-tstart).seconds());
+	void fit_to_content();
 
-			Iterator it;
-			PVRow i = 0;
-			for (it = begin; it != end; it++) {
-				table.set_value(i, idx_new_col, *it);
-				i++;
-			}
+	void dump_csv();
 
-			return true;
-		}
+	PVFormat_p& get_format() { return format; }
+	PVFormat_p const& get_format() const { return format; }
 
-		inline QString get_axis_name(PVCol format_axis_id) const
-		{
-			if(format_axis_id < format->get_axes().size()) {
-                return format->get_axes().at(format_axis_id).get_name();
-            }
-            return QString("");
-		}
+private:
+	void clear_table();
+	void reserve_tmp_buf(size_t n);
 
-		QString nraw_line_to_csv(PVRow idx) const;
-		QStringList nraw_line_to_qstringlist(PVRow idx) const;
+private:
+	PVFormat_p format;
+	PVRow _real_nrows;
 
-		void fit_to_content();
+	mutable PVNrawDiskBackend _backend;
+	UConverter* _ucnv;
 
-		bool resize_nrows(PVRow row)
-		{
-			return table.resize_nrows(row);
-		}
-
-		void dump_csv();
-
-		inline void push_chunk_todelete(PVCore::PVChunk* chunk) { _chunks_todel->push_back(chunk); }
-
-		// AG: should be protected w/ friends and everything...
-		void take_realloc_buffers(PVCore::buf_list_t& list);
-
-	private:
-		void allocate_buf(size_t nchars);
-		void delete_buffers();
-		void clear_table();
-
-	private:
-		PVNraw(const PVNraw& /*nraw*/) {}
-		PVNraw& operator=(PVNraw const& /*nraw*/) { return *this; }
-
-	private:
-		QVector<PVNrawChild> children;
-		PVRow _real_nrows;
-		list_chunks_t* _chunks_todel;
-
-		nraw_table table;
-		nraw_trans_table trans_table;
-
-		// Reallocated buffers from PVElement objects
-		PVCore::buf_list_t* _reallocated_buffers; // buf_list_t defined in PVBufferSlice.h
-	};
+	char* _tmp_conv_buf;
+	size_t _tmp_conv_buf_size;
+};
 
 }
 

@@ -14,7 +14,7 @@
 
 
 Picviz::PVMappingFilterStringDefault::PVMappingFilterStringDefault(PVCore::PVArgumentList const& args):
-	PVMappingFilter(),
+	PVPureMappingFilter<string_mapping>(),
 	_case_sensitive(true) // This will be changed by set_args anyway
 {
 	INIT_FILTER(PVMappingFilterStringDefault, args);
@@ -33,22 +33,18 @@ void Picviz::PVMappingFilterStringDefault::set_args(PVCore::PVArgumentList const
 	_case_sensitive = !args["convert-lowercase"].toBool();
 }
 
-Picviz::PVMappingFilter::decimal_storage_type* Picviz::PVMappingFilterStringDefault::operator()(PVRush::PVNraw::const_trans_nraw_table_line const& values)
+Picviz::PVMappingFilter::decimal_storage_type Picviz::string_mapping::process_utf16(const uint16_t* buf, size_t size, PVMappingFilter* m)
 {
-	assert(_dest);
-	assert(values.size() >= _dest_size);
+	Picviz::PVMappingFilter::decimal_storage_type ret_ds;
+	ret_ds.storage_as_uint() = (uint32_t) PVCore::PVStringUtils::compute_str_factor16(buf, size, static_cast<PVMappingFilterStringDefault*>(m)->case_sensitive());
+	return ret_ds;
+}
 
-	// First compute all the "string factors"
-	
-	const ssize_t size = values.size();
-	const bool case_sensitive = _case_sensitive;
-	// Looks like this can be fine optimised with hand made SSE/AVX optimisation
-#pragma omp parallel for
-	for (ssize_t i = 0; i < size; i++) {
-		_dest[i].storage_as_uint() = (uint32_t) PVCore::PVStringUtils::compute_str_factor(values[i], case_sensitive);
-	}
-
-	return _dest;
+Picviz::PVMappingFilter::decimal_storage_type Picviz::string_mapping::process_utf8(const char* buf, size_t size, PVMappingFilter* m)
+{
+	Picviz::PVMappingFilter::decimal_storage_type ret_ds;
+	ret_ds.storage_as_uint() = (uint32_t) PVCore::PVStringUtils::compute_str_factor(PVCore::PVUnicodeString((PVCore::PVUnicodeString::utf_char*) buf, size), static_cast<PVMappingFilterStringDefault*>(m)->case_sensitive());
+	return ret_ds;
 }
 
 IMPL_FILTER(Picviz::PVMappingFilterStringDefault)

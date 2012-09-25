@@ -103,21 +103,6 @@ PVRush::PVFormat_p Picviz::PVPlotting::get_format() const
 
 /******************************************************************************
  *
- * Picviz::PVPlotting::get_qtnraw
- *
- *****************************************************************************/
-PVRush::PVNraw::nraw_table& Picviz::PVPlotting::get_qtnraw()
-{
-	return _plotted->get_parent()->get_qtnraw();
-}
-
-const PVRush::PVNraw::nraw_table& Picviz::PVPlotting::get_qtnraw() const
-{
-	return _plotted->get_parent()->get_qtnraw();
-}
-
-/******************************************************************************
- *
  * Picviz::PVPlotting::invalidate_column
  *
  *****************************************************************************/

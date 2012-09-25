@@ -61,12 +61,6 @@ public:
 	// Parents
 	
 	/**
-	 * Gets the NRAW
-	 */
-	PVRush::PVNraw::nraw_table& get_qtnraw();
-	const PVRush::PVNraw::nraw_table& get_qtnraw() const;
-
-	/**
 	 * Gets the associated format
 	 */
 	PVRush::PVFormat_p get_format() const;
