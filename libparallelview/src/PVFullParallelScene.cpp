@@ -7,9 +7,12 @@
 #include <picviz/PVStateMachine.h>
 #include <picviz/PVView.h>
 
+#include <picviz/widgets/editors/PVAxisIndexEditor.h>
+
 #include <pvhive/PVCallHelper.h>
 #include <pvhive/waxes/waxes.h>
 
+#include <pvparallelview/PVLibView.h>
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVFullParallelScene.h>
 #include <pvparallelview/PVSlidersGroup.h>
@@ -18,6 +21,11 @@
 
 #include <QtCore>
 #include <QKeyEvent>
+
+#include <QDialog>
+#include <QLayout>
+#include <QLabel>
+#include <QDialogButtonBox>
 
 #define CRAND() (127 + (random() & 0x7F))
 
@@ -647,4 +655,52 @@ void PVParallelView::PVFullParallelScene::about_to_be_deleted()
 	_render_tasks_sel.wait();
 	_render_tasks_bg.wait();
 	_lines_view.cancel_all_rendering();
+}
+
+void PVParallelView::PVFullParallelScene::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
+{
+	if (event->scenePos().y() > 0) {
+		QGraphicsScene::contextMenuEvent(event);
+		return;
+	}
+
+	QDialog *dlg = new QDialog();
+	dlg->setModal(true);
+
+	QLayout *layout = new QVBoxLayout();
+	dlg->setLayout(layout);
+
+	QLabel *label = new QLabel("Open a zoomed view on axis:");
+	layout->addWidget(label);
+
+	PVWidgets::PVAxisIndexEditor *axes = new PVWidgets::PVAxisIndexEditor(_lib_view, dlg);
+	axes->set_axis_index(0);
+	layout->addWidget(axes);
+
+	QDialogButtonBox *dbb = new QDialogButtonBox(QDialogButtonBox::Open | QDialogButtonBox::Cancel);
+
+	QObject::connect(dbb, SIGNAL(accepted()), dlg, SLOT(accept()));
+	QObject::connect(dbb, SIGNAL(rejected()), dlg, SLOT(reject()));
+
+	layout->addWidget(dbb);
+
+	if (dlg->exec() == QDialog::Accepted) {
+		QDialog *view_dlg = new QDialog();
+
+		view_dlg->setMaximumWidth(1024);
+		view_dlg->setMaximumHeight(1024);
+		view_dlg->setAttribute(Qt::WA_DeleteOnClose, true);
+
+		QLayout *view_layout = new QVBoxLayout(view_dlg);
+		view_layout->setContentsMargins(0, 0, 0, 0);
+		view_dlg->setLayout(view_layout);
+
+		int axis_index = axes->get_axis_index().get_original_index();
+		QWidget *view = common::get_lib_view(_lib_view)->create_zoomed_view(axis_index);
+
+		view_layout->addWidget(view);
+		view_dlg->show();
+	}
+
+	dlg->deleteLater();
 }
