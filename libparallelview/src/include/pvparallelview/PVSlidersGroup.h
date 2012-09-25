@@ -8,10 +8,9 @@
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVSlidersManager.h>
-#include <pvparallelview/PVAxisSlider.h>
 #include <pvparallelview/PVAbstractAxisSliders.h>
-#include <pvparallelview/PVZoomAxisSliders.h>
 #include <pvparallelview/PVSelectionAxisSliders.h>
+#include <pvparallelview/PVZoomAxisSliders.h>
 
 #include <unordered_set>
 

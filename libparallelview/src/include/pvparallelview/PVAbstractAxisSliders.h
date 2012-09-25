@@ -2,11 +2,11 @@
 #ifndef PVPARALLELVIEW_PVABSTRACTAXISSLIDERS_H
 #define PVPARALLELVIEW_PVABSTRACTAXISSLIDERS_H
 
+#include <pvparallelview/PVSlidersManager.h>
+
 #include <QObject>
 #include <QGraphicsItemGroup>
-#include <QPainter>
-
-#include <iostream>
+#include <QGraphicsSimpleTextItem>
 
 namespace PVParallelView
 {
@@ -15,16 +15,21 @@ class PVSlidersGroup;
 
 class PVAbstractAxisSliders : public QObject, public QGraphicsItemGroup
 {
+Q_OBJECT
+
 public:
-	PVAbstractAxisSliders(QGraphicsItem *parent, PVSlidersGroup *group) :
-		QObject(nullptr), QGraphicsItemGroup(parent),
-		_group(group)
-	{}
+	PVAbstractAxisSliders(QGraphicsItem *parent, PVSlidersManager_p sm_p,
+	                      PVSlidersGroup *group, const char *text);
 
 	virtual bool is_moving() const = 0;
 
+signals:
+	void sliders_moved();
+
 protected:
-	PVSlidersGroup *_group;
+	PVSlidersManager_p       _sliders_manager_p;
+	PVSlidersGroup          *_group;
+	QGraphicsSimpleTextItem *_text;
 };
 
 }

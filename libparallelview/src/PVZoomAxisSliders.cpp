@@ -1,6 +1,7 @@
 
 #include <pvparallelview/PVZoomAxisSliders.h>
 #include <pvparallelview/PVSlidersGroup.h>
+#include <pvparallelview/PVZoomAxisSlider.h>
 
 #include <QGraphicsScene>
 
@@ -9,28 +10,26 @@
  *****************************************************************************/
 
 PVParallelView::PVZoomAxisSliders::PVZoomAxisSliders(QGraphicsItem *parent,
+                                                     PVSlidersManager_p sm_p,
                                                      PVSlidersGroup *group) :
-	PVAbstractAxisSliders(parent, group),
+	PVAbstractRangeAxisSliders(parent, sm_p, group, "zoom"),
 	_zsd_obs(this),
 	_zsu_obs(this)
 {
-	setHandlesChildEvents(false);
 }
-
 
 /*****************************************************************************
  * PVParallelView::PVZoomAxisSliders::initialize
  *****************************************************************************/
 
-void PVParallelView::PVZoomAxisSliders::initialize(PVParallelView::PVSlidersManager_p sm_p,
-                                                   id_t id,
-                                                   uint32_t y_min, uint32_t y_max)
+void PVParallelView::PVZoomAxisSliders::initialize(id_t id,
+                                                   uint32_t y_min,
+                                                   uint32_t y_max)
 {
-	_sliders_manager_p = sm_p;
 	_id = id;
 
-	_sl_min = new PVAxisSlider(0, 1024, y_min, PVParallelView::PVAxisSliderType::Min);
-	_sl_max = new PVAxisSlider(0, 1024, y_max, PVParallelView::PVAxisSliderType::Max);
+	_sl_min = new PVZoomAxisSlider(0, 1024, y_min, PVAxisSliderOrientation::Min);
+	_sl_max = new PVZoomAxisSlider(0, 1024, y_max, PVAxisSliderOrientation::Max);
 
 	addToGroup(_sl_min);
 	addToGroup(_sl_max);
@@ -42,44 +41,11 @@ void PVParallelView::PVZoomAxisSliders::initialize(PVParallelView::PVSlidersMana
 	connect(_sl_min, SIGNAL(slider_moved()), this, SLOT(do_sliders_moved()));
 	connect(_sl_max, SIGNAL(slider_moved()), this, SLOT(do_sliders_moved()));
 
-	_text = new QGraphicsSimpleTextItem("    Zoom");
-	addToGroup(_text);
-	_text->setFlag(QGraphicsItem::ItemIgnoresTransformations, true);
-	_text->setBrush(Qt::white);
-	_text->hide();
-
-	PVHive::PVHive::get().register_func_observer(sm_p,
+	PVHive::PVHive::get().register_func_observer(_sliders_manager_p,
 	                                             _zsd_obs);
 
-	PVHive::PVHive::get().register_func_observer(sm_p,
+	PVHive::PVHive::get().register_func_observer(_sliders_manager_p,
 	                                             _zsu_obs);
-}
-
-/*****************************************************************************
- * PVParallelView::PVZoomAxisSliders::paint
- *****************************************************************************/
-
-void PVParallelView::PVZoomAxisSliders::paint(QPainter *painter,
-                                              const QStyleOptionGraphicsItem */*option*/,
-                                              QWidget */*widget*/)
-{
-	if (is_moving()) {
-		painter->save();
-
-		painter->setCompositionMode(QPainter::RasterOp_SourceXorDestination);
-
-		QPen new_pen(Qt::white);
-		new_pen.setWidth(0);
-		painter->setPen(new_pen);
-		painter->drawLine(0, _sl_min->value(), 0, _sl_max->value());
-
-		_text->setPos(0, _sl_min->value());
-		_text->show();
-
-		painter->restore();
-	} else {
-		_text->hide();
-	}
 }
 
 /*****************************************************************************

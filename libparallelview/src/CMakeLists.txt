@@ -44,13 +44,17 @@ PVZoneTreeNoAlloc.cpp
 simple_lines_float_view.cpp
 simple_lines_int_view.cpp
 PVAxisGraphicsItem.cpp
-PVAxisSlider.cpp
 PVSelectionGenerator.cpp
 PVQuadTree.cpp
 PVLibView.cpp
 PVSlidersManager.cpp
 PVSlidersGroup.cpp
+PVAbstractAxisSlider.cpp
+PVAbstractAxisSliders.cpp
+PVAbstractRangeAxisSliders.cpp
+PVSelectionAxisSlider.cpp
 PVSelectionAxisSliders.cpp
+PVZoomAxisSlider.cpp
 PVZoomAxisSliders.cpp
 )
 
@@ -78,11 +82,14 @@ include/pvparallelview/PVZoomedParallelScene.h
 include/pvparallelview/PVZoomedParallelView.h
 include/pvparallelview/PVSlidersManager.h
 include/pvparallelview/PVAxisGraphicsItem.h
-include/pvparallelview/PVAxisSlider.h
 include/pvparallelview/PVFullParallelView.h
 include/pvparallelview/PVFullParallelScene.h
 include/pvparallelview/PVSlidersGroup.h
+include/pvparallelview/PVAbstractAxisSlider.h
+include/pvparallelview/PVAbstractAxisSliders.h
+include/pvparallelview/PVSelectionAxisSlider.h
 include/pvparallelview/PVSelectionAxisSliders.h
+include/pvparallelview/PVZoomAxisSlider.h
 include/pvparallelview/PVZoomAxisSliders.h
 )
 
@@ -90,11 +97,12 @@ SET(MOC_HEADERS
 include/pvparallelview/PVRenderingJob.h
 include/pvparallelview/PVFullParallelView.h
 include/pvparallelview/PVFullParallelScene.h
-include/pvparallelview/PVAxisSlider.h
 include/pvparallelview/PVSelectionSquareGraphicsItem.h
 include/pvparallelview/PVZonesManager.h
 include/pvparallelview/PVZoomedParallelScene.h
 include/pvparallelview/PVSlidersGroup.h
+include/pvparallelview/PVAbstractAxisSlider.h
+include/pvparallelview/PVAbstractAxisSliders.h
 include/pvparallelview/PVSelectionAxisSliders.h
 include/pvparallelview/PVZoomAxisSliders.h
 )

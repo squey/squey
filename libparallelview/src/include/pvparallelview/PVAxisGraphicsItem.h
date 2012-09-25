@@ -22,7 +22,6 @@
 #include <pvhive/PVCallHelper.h>
 
 #include <pvparallelview/common.h>
-#include <pvparallelview/PVAxisSlider.h>
 #include <pvparallelview/PVSlidersManager.h>
 #include <pvparallelview/PVSlidersGroup.h>
 

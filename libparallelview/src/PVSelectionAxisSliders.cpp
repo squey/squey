@@ -1,6 +1,7 @@
 
 #include <pvparallelview/PVSelectionAxisSliders.h>
 #include <pvparallelview/PVSlidersGroup.h>
+#include <pvparallelview/PVSelectionAxisSlider.h>
 
 #include <QGraphicsScene>
 
@@ -9,27 +10,28 @@
  *****************************************************************************/
 
 PVParallelView::PVSelectionAxisSliders::PVSelectionAxisSliders(QGraphicsItem *parent,
+                                                               PVSlidersManager_p sm_p,
                                                                PVSlidersGroup *group) :
-	PVAbstractAxisSliders(parent, group),
+	PVAbstractRangeAxisSliders(parent, sm_p, group, "range selection"),
 	_ssd_obs(this),
 	_ssu_obs(this)
 {
-	setHandlesChildEvents(false);
+	PVLOG_INFO("creating selection sliders with %p\n", _sliders_manager_p.get());
 }
 
 /*****************************************************************************
  * PVParallelView::PVSelectionAxisSliders::initialize
  *****************************************************************************/
 
-void PVParallelView::PVSelectionAxisSliders::initialize(PVParallelView::PVSlidersManager_p sm_p,
-                                                        id_t id,
+void PVParallelView::PVSelectionAxisSliders::initialize(id_t id,
                                                         uint32_t y_min, uint32_t y_max)
 {
-	_sliders_manager_p = sm_p;
 	_id = id;
 
-	_sl_min = new PVAxisSlider(0, 1024, y_min, PVParallelView::PVAxisSliderType::Min);
-	_sl_max = new PVAxisSlider(0, 1024, y_max, PVParallelView::PVAxisSliderType::Max);
+	_sl_min = new PVSelectionAxisSlider(0, 1024, y_min,
+	                                    PVAxisSliderOrientation::Min);
+	_sl_max = new PVSelectionAxisSlider(0, 1024, y_max,
+	                                    PVAxisSliderOrientation::Max);
 
 	addToGroup(_sl_min);
 	addToGroup(_sl_max);
@@ -41,44 +43,11 @@ void PVParallelView::PVSelectionAxisSliders::initialize(PVParallelView::PVSlider
 	connect(_sl_min, SIGNAL(slider_moved()), this, SLOT(do_sliders_moved()));
 	connect(_sl_max, SIGNAL(slider_moved()), this, SLOT(do_sliders_moved()));
 
-	_text = new QGraphicsSimpleTextItem("    Range Selection");
-	addToGroup(_text);
-	_text->setFlag(QGraphicsItem::ItemIgnoresTransformations, true);
-	_text->setBrush(Qt::white);
-	_text->hide();
-
-	PVHive::PVHive::get().register_func_observer(sm_p,
+	PVHive::PVHive::get().register_func_observer(_sliders_manager_p,
 	                                             _ssd_obs);
 
-	PVHive::PVHive::get().register_func_observer(sm_p,
+	PVHive::PVHive::get().register_func_observer(_sliders_manager_p,
 	                                             _ssu_obs);
-}
-
-/*****************************************************************************
- * PVParallelView::PVSelectionAxisSliders::paint
- *****************************************************************************/
-
-void PVParallelView::PVSelectionAxisSliders::paint(QPainter *painter,
-                                              const QStyleOptionGraphicsItem */*option*/,
-                                              QWidget */*widget*/)
-{
-	if (is_moving()) {
-		painter->save();
-
-		painter->setCompositionMode(QPainter::RasterOp_SourceXorDestination);
-
-		QPen new_pen(Qt::white);
-		new_pen.setWidth(0);
-		painter->setPen(new_pen);
-		painter->drawLine(0, _sl_min->value(), 0, _sl_max->value());
-
-		_text->setPos(0, _sl_min->value());
-		_text->show();
-
-		painter->restore();
-	} else {
-		_text->hide();
-	}
 }
 
 /*****************************************************************************

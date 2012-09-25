@@ -8,16 +8,14 @@
 #include <pvhive/PVFuncObserver.h>
 #include <pvhive/PVCallHelper.h>
 
-#include <pvparallelview/PVAbstractAxisSliders.h>
-#include <pvparallelview/PVAxisSlider.h>
-#include <pvparallelview/PVSlidersManager.h>
-
-#include <QGraphicsSimpleTextItem>
+#include <pvparallelview/PVAbstractRangeAxisSliders.h>
 
 namespace PVParallelView
 {
 
-class PVZoomAxisSliders : public PVAbstractAxisSliders
+class PVSlidersGroup;
+
+class PVZoomAxisSliders : public PVAbstractRangeAxisSliders
 {
 	Q_OBJECT
 
@@ -30,30 +28,10 @@ public:
 
 public:
 	PVZoomAxisSliders(QGraphicsItem *parent,
+	                  PVSlidersManager_p sm_p,
 	                  PVSlidersGroup *group);
 
-	void initialize(PVSlidersManager_p sm_p, id_t id,
-	                uint32_t y_min, uint32_t y_max);
-
-	virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
-	                   QWidget *widget = 0);
-
-	range_t get_range() const
-	{
-		PVRow v_min = _sl_min->value();
-		PVRow v_max = _sl_max->value();
-
-		return std::make_pair(PVCore::min(v_min, v_max),
-		                      PVCore::max(v_min, v_max));
-	}
-
-	virtual bool is_moving() const
-	{
-		return (_sl_min->is_moving() || _sl_max->is_moving());
-	}
-
-signals:
-	void sliders_moved();
+	void initialize(id_t id, uint32_t y_min, uint32_t y_max);
 
 private slots:
 	void do_sliders_moved();
@@ -88,12 +66,8 @@ private:
 	};
 
 private:
-	PVSlidersManager_p       _sliders_manager_p;
 	zoom_sliders_del_obs     _zsd_obs;
 	zoom_sliders_update_obs  _zsu_obs;
-	PVAxisSlider            *_sl_min;
-	PVAxisSlider            *_sl_max;
-	QGraphicsSimpleTextItem *_text;
 	id_t                     _id;
 };
 

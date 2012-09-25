@@ -2,7 +2,6 @@
 #include <pvkernel/core/PVAlgorithms.h>
 
 #include <pvparallelview/PVSlidersGroup.h>
-#include <pvparallelview/PVAxisSlider.h>
 
 #include <QGraphicsScene>
 
@@ -101,7 +100,8 @@ void PVParallelView::PVSlidersGroup::add_selection_sliders(uint32_t y_min,
                                                            uint32_t y_max)
 {
 	PVParallelView::PVSelectionAxisSliders *sliders =
-		new PVParallelView::PVSelectionAxisSliders(this, this);
+		new PVParallelView::PVSelectionAxisSliders(this, _sliders_manager_p,
+		                                           this);
 	add_new_selection_sliders(sliders, sliders, y_min, y_max);
 
 	PVHive::call<FUNC(PVSlidersManager::new_selection_sliders)>(_sliders_manager_p,
@@ -149,13 +149,14 @@ void PVParallelView::PVSlidersGroup::add_new_zoom_sliders(id_t id,
                                                           uint32_t y_max)
 {
 	PVParallelView::PVZoomAxisSliders* sliders =
-		new PVParallelView::PVZoomAxisSliders(this, this);
+		new PVParallelView::PVZoomAxisSliders(this, _sliders_manager_p,
+		                                      this);
 
 	if (id == nullptr) {
 		id = this;
 	}
 
-	sliders->initialize(_sliders_manager_p, id, y_min, y_max);
+	sliders->initialize(id, y_min, y_max);
 
 	addToGroup(sliders);
 
@@ -175,14 +176,15 @@ void PVParallelView::PVSlidersGroup::add_new_selection_sliders(PVParallelView::P
                                                                uint32_t y_max)
 {
 	if (sliders == nullptr) {
-		sliders = new PVParallelView::PVSelectionAxisSliders(this, this);
+		sliders = new PVParallelView::PVSelectionAxisSliders(this, _sliders_manager_p,
+		                                                     this);
 	}
 
 	if (id == nullptr) {
 		id = sliders;
 	}
 
-	sliders->initialize(_sliders_manager_p, id, y_min, y_max);
+	sliders->initialize(id, y_min, y_max);
 
 	addToGroup(sliders);
 
