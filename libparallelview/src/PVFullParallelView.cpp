@@ -22,6 +22,9 @@ PVParallelView::PVFullParallelView::PVFullParallelView(QWidget* parent):
 PVParallelView::PVFullParallelView::~PVFullParallelView()
 {
 	PVLOG_INFO("In PVFullParallelView destructor\n");
+	if (scene()) {
+		scene()->deleteLater();
+	}
 }
 
 void PVParallelView::PVFullParallelView::paintEvent(QPaintEvent *event)

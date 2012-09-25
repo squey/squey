@@ -18,6 +18,8 @@
 #include <pvparallelview/PVZonesManager.h>
 #include <pvparallelview/PVSlidersManager.h>
 
+#include <QObject>
+
 #include <tbb/task.h>
 
 namespace PVParallelView
@@ -26,11 +28,13 @@ namespace PVParallelView
 class PVZonesManager;
 class PVFuncObserverSignal;
 
-class PVLibView
+class PVLibView : public QObject
 {
+Q_OBJECT
+
 private:
-	typedef std::list<PVFullParallelScene> views_list_t;
-	typedef std::list<PVZoomedParallelScene> zoomed_scene_list_t;
+	typedef std::list<PVFullParallelScene*> views_list_t;
+	typedef std::list<PVZoomedParallelScene*> zoomed_scene_list_t;
 	friend class process_selection_Observer;
 
 public:
@@ -56,6 +60,10 @@ protected:
 	void common_init_zm();
 	tbb::task* task_root() { return _task_root; }
 	tbb::task_group_context& task_group_context() { return _tasks_ctxt; }
+
+private slots:
+	void view_destroyed(QObject *);
+	void zoomed_view_destroyed(QObject *);
 
 private:
 	PVZonesManager                            _zones_manager;

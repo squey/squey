@@ -17,9 +17,9 @@ class PVZoomedParallelScene;
 class PVZoomedParallelView : public QGraphicsView
 {
 public:
-	PVZoomedParallelView(QWidget *parent = nullptr) :
-		QGraphicsView(parent)
-	{}
+	PVZoomedParallelView(QWidget *parent = nullptr);
+
+	~PVZoomedParallelView();
 
 	void resizeEvent(QResizeEvent *event);
 };

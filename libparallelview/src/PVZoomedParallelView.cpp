@@ -2,6 +2,31 @@
 #include <pvparallelview/PVZoomedParallelView.h>
 #include <pvparallelview/PVZoomedParallelScene.h>
 
+/*****************************************************************************
+ * PVParallelView::PVZoomedParallelView::PVZoomedParallelView
+ *****************************************************************************/
+
+PVParallelView::PVZoomedParallelView::PVZoomedParallelView(QWidget *parent) :
+	QGraphicsView(parent)
+{
+}
+
+
+/*****************************************************************************
+ * PVParallelView::PVZoomedParallelView::~PVZoomedParallelView
+ *****************************************************************************/
+
+PVParallelView::PVZoomedParallelView::~PVZoomedParallelView()
+{
+	if (scene()) {
+		scene()->deleteLater();
+	}
+}
+
+/*****************************************************************************
+ * PVParallelView::PVZoomedParallelView::resizeEvent
+ *****************************************************************************/
+
 void PVParallelView::PVZoomedParallelView::resizeEvent(QResizeEvent *event)
 {
 	QGraphicsView::resizeEvent(event);

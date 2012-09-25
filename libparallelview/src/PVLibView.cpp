@@ -41,13 +41,13 @@ PVParallelView::PVLibView::PVLibView(Picviz::PVView_sp& view_sp, Picviz::PVPlott
 PVParallelView::PVLibView::~PVLibView()
 {
 	PVLOG_INFO("In PVLibView destructor\n");
-	for (PVFullParallelScene& view: _parallel_scenes) {
-		view.about_to_be_deleted();
-		view.graphics_view()->deleteLater();
+	for (PVFullParallelScene* view: _parallel_scenes) {
+		view->about_to_be_deleted();
+		view->graphics_view()->deleteLater();
 	}
 
-	for (PVZoomedParallelScene& view: _zoomed_parallel_scenes) {
-		view.deleteLater();
+	for (PVZoomedParallelScene* view: _zoomed_parallel_scenes) {
+		view->deleteLater();
 	}
 
 	_task_root->destroy(*_task_root);
@@ -100,10 +100,13 @@ PVParallelView::PVFullParallelView* PVParallelView::PVLibView::create_view(QWidg
 {
 	PVParallelView::PVFullParallelView* view = new PVParallelView::PVFullParallelView(parent);
 	Picviz::PVView_sp vsp = lib_view()->shared_from_this();
-	_parallel_scenes.emplace_back(view, vsp, _sliders_manager_p, _zd_zt, task_root());
-	PVFullParallelScene& scene = _parallel_scenes.back();
-	view->setScene(&scene);
-	scene.first_render();
+
+	PVParallelView::PVFullParallelScene *scene = new PVParallelView::PVFullParallelScene(view, vsp, _sliders_manager_p, _zd_zt, task_root());
+	_parallel_scenes.push_back(scene);
+	view->setScene(scene);
+	scene->first_render();
+	connect(scene, SIGNAL(destroyed(QObject *)), this, SLOT(view_destroyed(QObject *)));
+
 	return view;
 }
 
@@ -111,8 +114,10 @@ PVParallelView::PVZoomedParallelView* PVParallelView::PVLibView::create_zoomed_v
 {
 	PVParallelView::PVZoomedParallelView* view = new PVParallelView::PVZoomedParallelView(parent);
 	Picviz::PVView_sp view_sp = lib_view()->shared_from_this();
-	_zoomed_parallel_scenes.emplace_back(view, view_sp, _sliders_manager_p, _zd_zzt, axis);
-	view->setScene(&_zoomed_parallel_scenes.back());
+	PVParallelView::PVZoomedParallelScene *scene = new PVParallelView::PVZoomedParallelScene(view, view_sp, _sliders_manager_p, _zd_zzt, axis);
+	_zoomed_parallel_scenes.push_back(scene);
+	view->setScene(scene);
+	connect(scene, SIGNAL(destroyed(QObject *)), this, SLOT(zoomed_view_destroyed(QObject *)));
 
 	return view;
 }
@@ -137,19 +142,19 @@ void PVParallelView::PVLibView::selection_updated()
 
 	task_root()->set_ref_count(1);
 
-	for (PVFullParallelScene& view: _parallel_scenes) {
-		view.update_new_selection();
+	for (PVFullParallelScene* view: _parallel_scenes) {
+		view->update_new_selection();
 	}
 
-	for (PVZoomedParallelScene& view: _zoomed_parallel_scenes) {
-		view.update_new_selection(task_root());
+	for (PVZoomedParallelScene* view: _zoomed_parallel_scenes) {
+		view->update_new_selection(task_root());
 	}
 }
 
 void PVParallelView::PVLibView::output_layer_updated()
 {
-	for (PVFullParallelScene& view: _parallel_scenes) {
-		view.update_all();
+	for (PVFullParallelScene* view: _parallel_scenes) {
+		view->update_all();
 	}
 }
 
@@ -161,25 +166,35 @@ void PVParallelView::PVLibView::axes_comb_updated()
 	 */
 	// FIXME: the running selection update must be stopped too.
 
-	for (PVFullParallelScene& view: _parallel_scenes) {
-		view.set_enabled(false);
+	for (PVFullParallelScene* view: _parallel_scenes) {
+		view->set_enabled(false);
 	}
 
-	for (PVZoomedParallelScene& view: _zoomed_parallel_scenes) {
-		view.set_enabled(false);
+	for (PVZoomedParallelScene* view: _zoomed_parallel_scenes) {
+		view->set_enabled(false);
 	}
 
 	get_zones_manager().update_from_axes_comb(*lib_view());
 
-	for (PVFullParallelScene& view: _parallel_scenes) {
-		view.set_enabled(true);
-		view.update_number_of_zones();
+	for (PVFullParallelScene* view: _parallel_scenes) {
+		view->set_enabled(true);
+		view->update_number_of_zones();
 	}
 
-	for (PVZoomedParallelScene& view: _zoomed_parallel_scenes) {
-		view.set_enabled(true);
+	for (PVZoomedParallelScene* view: _zoomed_parallel_scenes) {
+		view->set_enabled(true);
 		// FIXME: if ::update_zones return false, the view
 		// can be deleted.
-		view.update_zones();
+		view->update_zones();
 	}
+}
+
+void PVParallelView::PVLibView::view_destroyed(QObject *obj)
+{
+	_parallel_scenes.remove((PVFullParallelScene*)obj);
+}
+
+void PVParallelView::PVLibView::zoomed_view_destroyed(QObject *obj)
+{
+	_zoomed_parallel_scenes.remove((PVZoomedParallelScene*)obj);
 }
