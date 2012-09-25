@@ -1017,7 +1017,14 @@ void PVInspector::PVMainWindow::view_new_parallel_Slot()
 {
 	PVLOG_INFO("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
 	QDialog* dlg = new QDialog(this);
-	PVParallelView::common::get_lib_view(*get_current_lib_view())->create_view(dlg);
+	dlg->setAttribute(Qt::WA_DeleteOnClose, true);
+
+	QLayout *layout = new QVBoxLayout(this);
+	layout->setContentsMargins(0, 0, 0, 0);
+	dlg->setLayout(layout);
+	QWidget *view = PVParallelView::common::get_lib_view(*get_current_lib_view())->create_view(dlg);
+	layout->addWidget(view);
+
 	dlg->show();
 }
 
