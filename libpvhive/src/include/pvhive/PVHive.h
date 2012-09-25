@@ -558,6 +558,8 @@ private:
 			++len;
 		}
 
+		acc.release();
+
 		for (size_t i = 0; i < len; ++i) {
 			const PVFuncObserverBase* fo = static_cast<const PVFuncObserverBase*>(func_obs[i]);
 			const PVFuncObserverSignal<T, F, f>* fo_signal = dynamic_cast<const PVFuncObserverSignal<T, F, f>*>(fo);
@@ -589,8 +591,6 @@ private:
 				}
 			}
 		}
-
-		acc.release();
 	}
 
 	/**
