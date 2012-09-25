@@ -79,7 +79,7 @@ public:
 
 	void invalidate_selection();
 	void update_new_selection(tbb::task* root);
-	void update_zones();
+	bool update_zones();
 
 	void set_enabled(bool value)
 	{

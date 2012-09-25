@@ -178,6 +178,8 @@ void PVParallelView::PVLibView::axes_comb_updated()
 
 	for (PVZoomedParallelScene& view: _zoomed_parallel_scenes) {
 		view.set_enabled(true);
+		// FIXME: if ::update_zones return false, the view
+		// can be deleted.
 		view.update_zones();
 	}
 }

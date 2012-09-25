@@ -290,7 +290,7 @@ void PVParallelView::PVZoomedParallelScene::update_new_selection(tbb::task* root
  * PVParallelView::PVZoomedParallelScene::update_zones
  *****************************************************************************/
 
-void PVParallelView::PVZoomedParallelScene::update_zones()
+bool PVParallelView::PVZoomedParallelScene::update_zones()
 {
 	PVCol axis = _pvview.get_axes_combination().get_index_by_id(_axe_id);
 
@@ -299,8 +299,7 @@ void PVParallelView::PVZoomedParallelScene::update_zones()
 			/* a candidate can not be found to replace the old
 			 * axis; the zoom view must be closed.
 			 */
-			// FIXME: suicide time \o/
-			return;
+			return false;
 		}
 
 		/* the axis does not exist anymore, the one with the
@@ -314,7 +313,6 @@ void PVParallelView::PVZoomedParallelScene::update_zones()
 		 */
 		_axis_index = axis;
 	}
-
 
 	// needed pixmap to create QGraphicsPixmapItem
 	QPixmap dummy_pixmap;
@@ -356,6 +354,8 @@ void PVParallelView::PVZoomedParallelScene::update_zones()
 	if (_zpview->isVisible()) {
 		update_all();
 	}
+
+	return true;
 }
 
 /*****************************************************************************
