@@ -640,7 +640,7 @@ void PVParallelView::PVFullParallelScene::add_axis(PVZoneID const z, int index)
 	} else {
 		_axes[index] = axisw;
 	}
-	axisw->get_sliders_group()->add_selection_sliders(768, 1000);
+	//axisw->get_sliders_group()->add_selection_sliders(768, 1000);
 }
 
 void PVParallelView::PVFullParallelScene::about_to_be_deleted()
