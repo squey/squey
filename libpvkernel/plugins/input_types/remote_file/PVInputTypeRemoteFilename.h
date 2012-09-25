@@ -13,6 +13,8 @@
 #include "../file/PVInputTypeFilename.h"
 
 #include <QString>
+#include <QIcon>
+#include <QCursor>
 
 namespace PVRush {
 
@@ -31,6 +33,9 @@ public:
 	QString tab_name_of_inputs(list_inputs const& in) const;
 	QKeySequence menu_shortcut() const;
 	bool get_custom_formats(PVInputDescription_p in, hash_formats &formats) const;
+
+	QIcon icon() const { return QIcon(":/import-icon-white"); }
+	QCursor cursor() const { return QCursor(Qt::PointingHandCursor); }
 
 protected:
 	mutable QHash<QString, QUrl> _hash_real_filenames;

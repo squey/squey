@@ -18,6 +18,8 @@
 #include <QKeySequence>
 #include <QObject>
 #include <QDomDocument>
+#include <QIcon>
+#include <QCursor>
 
 namespace PVRush {
 
@@ -42,6 +44,9 @@ public:
 	virtual bool get_custom_formats(PVInputDescription_p in, hash_formats &formats) const = 0;
 	virtual PVCore::PVSerializeObject_p serialize_inputs(PVCore::PVSerializeObject& obj, QString const& name, list_inputs& inputs) const = 0;
 	virtual void serialize_inputs_ref(PVCore::PVSerializeObject& obj, QString const& name, list_inputs& inputs, PVCore::PVSerializeObject_p so_ref) const = 0;
+
+	virtual QIcon icon() const { return QIcon(); }
+	virtual QCursor cursor() const { return QCursor(); }
 
 	virtual void save_input_to_qsettings(const PVInputDescription& input_descr, QSettings& settings) = 0;
 	virtual PVInputDescription_p load_input_from_qsettings(const QSettings& settings) = 0;
