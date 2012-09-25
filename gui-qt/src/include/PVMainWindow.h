@@ -191,6 +191,7 @@ public slots:
 	void set_color_Slot();
 	void textedit_text_changed_Slot();
 	void view_new_parallel_Slot();
+	void view_new_zoomed_parallel_Slot();
 	void view_new_scatter_Slot();
 	void view_display_inv_elts_Slot();
 	void view_screenshot_qt_Slot();
@@ -302,11 +303,12 @@ private:
 	QAction *undo_history_Action;
 	QAction *view_Action;
 	QAction *view_new_parallel_Action;
+	QAction *view_new_zoomed_parallel_Action;
 	QAction *view_new_scatter_Action;
 	QAction *view_display_inv_elts_Action;
 	QAction *view_screenshot_qt;
 	QAction *whats_this_Action;
-	
+
 	QSpacerItem* pv_mainSpacerTop;
 	QSpacerItem* pv_mainSpacerBottom;
 	QWidget *pv_centralStartWidget;
@@ -316,8 +318,8 @@ private:
 	QVBoxLayout *pv_startLayout;
 	QLabel *pv_labelWelcomeIcon;
 	QPixmap  *pv_welcomeIcon;
-	QLabel* pv_lastCurVersion; 
-	QLabel* pv_lastMajVersion; 
+	QLabel* pv_lastCurVersion;
+	QLabel* pv_lastMajVersion;
 
 	QPushButton *pv_ImportFileButton;
 

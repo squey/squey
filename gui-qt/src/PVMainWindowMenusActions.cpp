@@ -116,6 +116,7 @@ void PVInspector::PVMainWindow::create_actions()
 	 * For the "View" menu entry
 	 ************************/
 	view_new_parallel_Action = new QAction(tr("New &parallel view"), this);
+	view_new_zoomed_parallel_Action = new QAction(tr("New &zoomed parallel view"), this);
 	view_new_scatter_Action = new QAction(tr("New scatter &view"), this);
 	view_display_inv_elts_Action = new QAction(tr("&Display invalid elements..."), this);
 #ifndef NDEBUG
@@ -230,6 +231,7 @@ void PVInspector::PVMainWindow::create_menus()
 	
 	view_Menu = menubar->addMenu(tr("&View"));
 	view_Menu->addAction(view_new_parallel_Action);
+	view_Menu->addAction(view_new_zoomed_parallel_Action);
 	view_Menu->addAction(view_new_scatter_Action);
 	view_Menu->addSeparator();
 	view_Menu->addAction(view_display_inv_elts_Action);
@@ -316,6 +318,7 @@ void PVInspector::PVMainWindow::connect_actions()
 	connect(quit_Action, SIGNAL(triggered()), this, SLOT(quit_Slot()));
 
 	connect(view_new_parallel_Action, SIGNAL(triggered()), this, SLOT(view_new_parallel_Slot()));
+	connect(view_new_zoomed_parallel_Action, SIGNAL(triggered()), this, SLOT(view_new_zoomed_parallel_Slot()));
 	connect(view_new_scatter_Action, SIGNAL(triggered()), this, SLOT(view_new_scatter_Slot()));
 	connect(view_display_inv_elts_Action, SIGNAL(triggered()), this, SLOT(view_display_inv_elts_Slot()));
 #ifndef NDEBUG

@@ -14,6 +14,8 @@
 #include <picviz/PVPlotting.h>
 #include <picviz/PVMapping.h>
 
+#include <picviz/widgets/editors/PVAxisIndexEditor.h>
+
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVLibView.h>
 
@@ -1026,6 +1028,52 @@ void PVInspector::PVMainWindow::view_new_parallel_Slot()
 	layout->addWidget(view);
 
 	dlg->show();
+}
+
+void PVInspector::PVMainWindow::view_new_zoomed_parallel_Slot()
+{
+	PVLOG_INFO("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
+
+	QDialog *dlg = new QDialog(this);
+	dlg->setModal(true);
+
+	QLayout *layout = new QVBoxLayout();
+	dlg->setLayout(layout);
+
+	QLabel *label = new QLabel("Open a zoomed view on axis:");
+	layout->addWidget(label);
+
+	PVWidgets::PVAxisIndexEditor *axes = new PVWidgets::PVAxisIndexEditor(*get_current_lib_view(), dlg);
+	axes->set_axis_index(0);
+	layout->addWidget(axes);
+
+	QDialogButtonBox *dbb = new QDialogButtonBox(QDialogButtonBox::Open | QDialogButtonBox::Cancel);
+
+	QObject::connect(dbb, SIGNAL(accepted()), dlg, SLOT(accept()));
+	QObject::connect(dbb, SIGNAL(rejected()), dlg, SLOT(reject()));
+
+	layout->addWidget(dbb);
+
+	if (dlg->exec() == QDialog::Accepted) {
+		QDialog *view_dlg = new QDialog();
+
+		view_dlg->setMaximumWidth(1024);
+		view_dlg->setMaximumHeight(1024);
+		view_dlg->setAttribute(Qt::WA_DeleteOnClose, true);
+
+		QLayout *view_layout = new QVBoxLayout(view_dlg);
+		view_layout->setContentsMargins(0, 0, 0, 0);
+		view_dlg->setLayout(view_layout);
+
+		int axis_index = axes->get_axis_index().get_original_index();
+		QWidget *view = PVParallelView::common::get_lib_view(*get_current_lib_view())->create_zoomed_view(axis_index);
+
+		view_layout->addWidget(view);
+		view_dlg->show();
+	}
+
+	dlg->deleteLater();
+
 }
 
 void PVInspector::PVMainWindow::view_screenshot_qt_Slot()
