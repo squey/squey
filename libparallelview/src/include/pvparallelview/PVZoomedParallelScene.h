@@ -40,6 +40,7 @@ Q_OBJECT
 
 private:
 	friend class zoom_sliders_update_obs;
+	friend class zoom_sliders_del_obs;
 
 private:
 	constexpr static size_t bbits = PARALLELVIEW_ZZT_BBITS;
@@ -162,6 +163,20 @@ private:
 		PVZoomedParallelScene *_parent;
 	};
 
+	class zoom_sliders_del_obs :
+		public PVHive::PVFuncObserver<PVSlidersManager,
+		                              FUNC(PVSlidersManager::del_zoom_sliders)>
+	{
+	public:
+		zoom_sliders_del_obs(PVZoomedParallelScene *parent = nullptr) : _parent(parent)
+		{}
+
+		void update(arguments_deep_copy_type const& args) const;
+
+	private:
+		PVZoomedParallelScene *_parent;
+	};
+
 private:
 	typedef typename zones_drawing_t::render_group_t render_group_t;
 	typedef PVParallelView::PVSlidersManager::axe_id_t axe_id_t;
@@ -188,6 +203,7 @@ private:
 	PVSlidersManager_p             _sliders_manager_p;
 	PVSlidersGroup                *_sliders_group;
 	zoom_sliders_update_obs        _zsu_obs;
+	zoom_sliders_del_obs           _zsd_obs;
 	zones_drawing_t               &_zones_drawing;
 	PVCol                          _axis_index;
 	axe_id_t                       _axe_id;

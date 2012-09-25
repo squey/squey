@@ -54,6 +54,7 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 	_pvview(*pvview_sp),
 	_sliders_manager_p(sliders_manager_p),
 	_zsu_obs(this),
+	_zsd_obs(this),
 	_zones_drawing(zones_drawing),
 	_axis_index(axis_index),
 	_left_zone(nullptr),
@@ -781,5 +782,22 @@ void PVParallelView::PVZoomedParallelScene::zoom_sliders_update_obs::update(argu
 		_parent->_zpview->centerOn(0., 0.5 * (sld_min + sld_max));
 
 		_parent->update_zoom();
+	}
+}
+
+
+/*****************************************************************************
+ * PVParallelView::PVZoomedParallelScene::zoom_sliders_del_obs::update
+ *****************************************************************************/
+
+void PVParallelView::PVZoomedParallelScene::zoom_sliders_del_obs::update(arguments_deep_copy_type const& args) const
+{
+	const axe_id_t &axe_id = std::get<0>(args);
+	PVSlidersManager::id_t id = std::get<1>(args);
+
+	if ((axe_id == _parent->_axe_id) && (id == _parent->_sliders_group)) {
+		//FIXME: the scene (and above) must be deleted
+		PVLOG_INFO("the PVZoomedParallelScene for axis %d must be deleted\n",
+		           _parent->_axis_index);
 	}
 }
