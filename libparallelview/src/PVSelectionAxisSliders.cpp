@@ -41,11 +41,44 @@ void PVParallelView::PVSelectionAxisSliders::initialize(PVParallelView::PVSlider
 	connect(_sl_min, SIGNAL(slider_moved()), this, SLOT(do_sliders_moved()));
 	connect(_sl_max, SIGNAL(slider_moved()), this, SLOT(do_sliders_moved()));
 
+	_text = new QGraphicsSimpleTextItem("    Range Selection");
+	addToGroup(_text);
+	_text->setFlag(QGraphicsItem::ItemIgnoresTransformations, true);
+	_text->setBrush(Qt::white);
+	_text->hide();
+
 	PVHive::PVHive::get().register_func_observer(sm_p,
 	                                             _ssd_obs);
 
 	PVHive::PVHive::get().register_func_observer(sm_p,
 	                                             _ssu_obs);
+}
+
+/*****************************************************************************
+ * PVParallelView::PVSelectionAxisSliders::paint
+ *****************************************************************************/
+
+void PVParallelView::PVSelectionAxisSliders::paint(QPainter *painter,
+                                              const QStyleOptionGraphicsItem */*option*/,
+                                              QWidget */*widget*/)
+{
+	if (is_moving()) {
+		painter->save();
+
+		painter->setCompositionMode(QPainter::RasterOp_SourceXorDestination);
+
+		QPen new_pen(Qt::white);
+		new_pen.setWidth(0);
+		painter->setPen(new_pen);
+		painter->drawLine(0, _sl_min->value(), 0, _sl_max->value());
+
+		_text->setPos(0, _sl_min->value());
+		_text->show();
+
+		painter->restore();
+	} else {
+		_text->hide();
+	}
 }
 
 /*****************************************************************************
