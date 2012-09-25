@@ -23,7 +23,7 @@ public:
 		_was_serialized(false)
 	{ set_path(path); }
 
-protected:
+public:
 	PVFileDescription():
 		_was_serialized(false)
 	{ };
@@ -40,30 +40,22 @@ public:
 	QString human_name() const { return _path; }
 	QString path() const { return _path; }
 
+public:
+	virtual void save_to_qsettings(QSettings& settings) const
+	{
+		settings.setValue("path", path());
+	}
+
+	virtual void load_from_qsettings(const QSettings& settings)
+	{
+		_path = settings.value("path").toString();
+	}
+
 protected:
 	void set_path(QString const& path)
 	{
 		QDir dir;
 		_path = dir.absoluteFilePath(path);
-	}
-
-protected:
-	virtual void save_to_qsettings()
-	{
-		QSettings& settings = PVCore::PVRecentItemsManager::get()->get_qsettings();
-
-		settings.beginGroup(human_name());
-		settings.setValue("path", path());
-		settings.endGroup();
-	}
-
-	virtual void load_from_qsettings()
-	{
-		QSettings& settings = PVCore::PVRecentItemsManager::get()->get_qsettings();
-
-		settings.beginGroup(human_name());
-		_path = settings.value("path").toString();
-		settings.endGroup();
 	}
 
 protected:

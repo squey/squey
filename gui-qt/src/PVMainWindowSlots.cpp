@@ -70,13 +70,14 @@ void PVInspector::PVMainWindow::about_Slot()
 		view3D->setCursor(Qt::OpenHandCursor);
 
 		QLabel *text = new QLabel(content);
+		text->setAlignment(Qt::AlignCenter);
 		QPushButton *ok = new QPushButton("OK");
 
 		logo->setPixmap(QPixmap(":/logo_text.png"));
 
 		main_layout->addWidget(view3D, 0, 0);
 		main_layout->addWidget(logo, 0, 1);
-		main_layout->addWidget(text, 0, 2);
+		main_layout->addWidget(text, 1, 0);
 		main_layout->addWidget(ok, 2, 1);
 
 		about_dialog->setLayout(main_layout);

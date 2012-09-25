@@ -26,6 +26,7 @@
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVInputType.h>
 #include <pvkernel/rush/PVSourceCreator.h>
+#include <pvkernel/rush/PVSourceDescription.h>
 
 #include <picviz/PVAxisComputation.h>
 #include <picviz/PVScene.h>
@@ -95,6 +96,7 @@ public:
 
 	void process_from_source();
 
+	PVRush::PVSourceCreator_p get_source_creator() const { return _src_plugin; }
 	QString get_name() const { return _src_plugin->supported_type_lib()->tab_name_of_inputs(_inputs); }
 	QString get_format_name() const { return _extractor.get_format().get_format_name(); }
 	QString get_window_name() const { return get_name() + QString(" / ") + get_format_name(); }
@@ -112,6 +114,31 @@ public:
 	void add_column(PVAxisComputation_f f_axis, Picviz::PVAxis const& axis);
 
 	virtual QString get_serialize_description() const { return "Source: " + get_name(); }
+
+	static PVSource_p create_source_from_description(PVScene_p scene_p, const PVRush::PVSourceDescription& descr)
+	{
+		PVSource_p src_p(
+			scene_p,
+			descr.get_inputs(),
+			descr.get_source_creator(),
+			descr.get_format()
+		);
+
+		return src_p;
+	}
+
+	PVRush::PVSourceDescription::shared_pointer create_description()
+	{
+		PVRush::PVSourceDescription::shared_pointer descr_p(
+			new PVRush::PVSourceDescription(
+				get_inputs(),
+				get_source_creator(),
+				get_format()
+			)
+		);
+
+		return descr_p;
+	}
 
 private:
 	void add_column(Picviz::PVAxis const& axis);

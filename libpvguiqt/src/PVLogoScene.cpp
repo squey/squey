@@ -39,8 +39,8 @@ PVGuiQt::PVLogoScene::PVLogoScene()
     , m_modelColor(0x78, 0x1b, 0x7d)
     , m_model(0)
     , m_lastTime(0)
-    , m_distance(1.0f)
-    , m_angularMomentum(0, 40, 0)
+    , m_distance(1.15f)
+    , m_angularMomentum(0, 100, 0)
 {
 
 #ifndef QT_NO_CONCURRENT
@@ -48,7 +48,7 @@ PVGuiQt::PVLogoScene::PVLogoScene()
 #endif
     m_lightItem = new QGraphicsRectItem();
     m_lightItem->setPen(Qt::NoPen);
-    m_lightItem->setPos(200, 200);
+    m_lightItem->setPos(0, 0);
     m_lightItem->setVisible(false);
     addItem(m_lightItem);
 
@@ -80,7 +80,7 @@ void PVGuiQt::PVLogoScene::drawBackground(QPainter *painter, const QRectF &)
         glPushMatrix();
         glLoadIdentity();
 
-        const float pos[] = { m_lightItem->x() - width() / 2, height() / 2 - m_lightItem->y(), 512, 0 };
+        const float pos[] = { (m_lightItem->x() - width() / 2), (height() / 2 - m_lightItem->y()), 512, 0 };
         glLightfv(GL_LIGHT0, GL_POSITION, pos);
         glColor4f(m_modelColor.redF(), m_modelColor.greenF(), m_modelColor.blueF(), 1.0f);
 

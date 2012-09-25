@@ -220,6 +220,7 @@ rush/PVTests.cpp
 rush/PVUtils.cpp
 rush/PVXmlTreeNodeDom.cpp
 rush/PVRawSourceBase.cpp
+rush/PVSourceDescription.cpp
 
 #uchardetect, from Mozilla's nsUniversalDetector
 rush/uchardetect/CharDistribution.cpp
@@ -299,6 +300,7 @@ include/pvkernel/rush/PVTests.h
 include/pvkernel/rush/PVUtils.h
 include/pvkernel/rush/PVXmlParamParser.h
 include/pvkernel/rush/PVXmlParamParserData.h
+include/pvkernel/rush/PVSourceDescription.h
 
 #uchardetect, from Mozilla's nsUniversalDetector
 include/pvkernel/rush/uchardetect/CharDistribution.h
@@ -376,6 +378,7 @@ widgets/editors/PVEnumEditor.cpp
 widgets/editors/PVPlainTextEditor.cpp
 widgets/editors/PVRegexpEditor.cpp
 widgets/editors/PVTimeFormatEditor.cpp
+widgets/PVUtils.cpp
 )
 
 SET(UI_FILES

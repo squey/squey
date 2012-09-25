@@ -68,12 +68,8 @@ void PVRush::PVDBQuery::serialize_read(PVCore::PVSerializeObject& so, PVCore::PV
 	_infos.reset(new PVDBServ(infos));
 }
 
-void PVRush::PVDBQuery::save_to_qsettings()
+void PVRush::PVDBQuery::save_to_qsettings(QSettings& settings) const
 {
-	QSettings& settings = PVCore::PVRecentItemsManager::get()->get_qsettings();
-
-	settings.beginGroup(human_name());
-
 	settings.setValue("type", _infos->get_type());
 	settings.setValue("host", _infos->get_host());
 	settings.setValue("username", _infos->get_username());
@@ -81,16 +77,10 @@ void PVRush::PVDBQuery::save_to_qsettings()
 	settings.setValue("options", _infos->get_options());
 	settings.setValue("dbname", _infos->get_dbname());
 	settings.setValue("port", _infos->get_port());
-
-	settings.endGroup();
 }
 
-void PVRush::PVDBQuery::load_from_qsettings()
+void PVRush::PVDBQuery::load_from_qsettings(const QSettings& settings)
 {
-	QSettings& settings = PVCore::PVRecentItemsManager::get()->get_qsettings();
-
-	settings.beginGroup(human_name());
-
 	_infos->set_type(settings.value("type").toString());
 	_infos->set_host(settings.value("host").toString());
 	_infos->set_username(settings.value("username").toString());
@@ -98,6 +88,4 @@ void PVRush::PVDBQuery::load_from_qsettings()
 	_infos->set_options(settings.value("options").toString());
 	_infos->set_dbname(settings.value("dbname").toString());
 	_infos->set_port(settings.value("port").toInt());
-
-	settings.endGroup();
 }

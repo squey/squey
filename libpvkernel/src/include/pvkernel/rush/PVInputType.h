@@ -43,6 +43,9 @@ public:
 	virtual PVCore::PVSerializeObject_p serialize_inputs(PVCore::PVSerializeObject& obj, QString const& name, list_inputs& inputs) const = 0;
 	virtual void serialize_inputs_ref(PVCore::PVSerializeObject& obj, QString const& name, list_inputs& inputs, PVCore::PVSerializeObject_p so_ref) const = 0;
 
+	virtual void save_input_to_qsettings(const PVInputDescription& input_descr, QSettings& settings) = 0;
+	virtual PVInputDescription_p load_input_from_qsettings(const QSettings& settings) = 0;
+
 public:
 	QStringList human_name_of_inputs(list_inputs const& in) const
 	{
@@ -91,6 +94,19 @@ public:
 	virtual void serialize_inputs_ref(PVCore::PVSerializeObject& obj, QString const& name, list_inputs& inputs, PVCore::PVSerializeObject_p so_ref) const
 	{
 		obj.list_ref(name, inputs, so_ref);
+	}
+
+	virtual void save_input_to_qsettings(const PVInputDescription& input_descr, QSettings& settings)
+	{
+		input_descr.save_to_qsettings(settings);
+	}
+
+	virtual PVInputDescription_p load_input_from_qsettings(const QSettings& settings)
+	{
+		PVInputDescription_p input_descr_p(new T());
+		input_descr_p->load_from_qsettings(settings);
+
+		return input_descr_p;
 	}
 };
 

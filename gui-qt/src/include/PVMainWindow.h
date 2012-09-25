@@ -69,6 +69,8 @@ class PVMainWindow : public QMainWindow
 {
 	Q_OBJECT
 
+	friend class PVStartScreenWidget;
+
 private:
 	struct PVFormatDetectCtxt
 	{

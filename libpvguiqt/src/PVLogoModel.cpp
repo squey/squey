@@ -84,6 +84,9 @@ PVGuiQt::PVLogoModel::PVLogoModel(const QString &filePath)
 
 void PVGuiQt::PVLogoModel::render(bool wireframe, bool normals) const
 {
+	glRotated(-90, 1, 0, 1);
+	glRotated(-45, 0, 1, 0);
+	glScalef(1.0f, 0.3f, 1.0f);
     glEnable(GL_DEPTH_TEST);
     glEnableClientState(GL_VERTEX_ARRAY);
     if (wireframe) {

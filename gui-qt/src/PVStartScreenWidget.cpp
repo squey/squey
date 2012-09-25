@@ -14,12 +14,25 @@
 #include <QFileInfo>
 #include <QFileIconProvider>
 #include <QIcon>
+#include <QListWidget>
+#include <QScrollBar>
+#include <QFontMetrics>
 
 #include <PVStartScreenWidget.h>
+
+#include <picviz/PVSource.h>
+#include <pvkernel/rush/PVSourceDescription.h>
+#include <pvkernel/rush/PVFormat.h>
+#include <pvkernel/widgets/PVUtils.h>
 
 void PVInspector::PVAddRecentItemFuncObserver::update(const arguments_deep_copy_type& args) const
 {
 	_parent->refresh_recent_items(std::get<1>(args));
+}
+
+void PVInspector::PVAddSourceRecentItemFuncObserver::update(const arguments_deep_copy_type&) const
+{
+	_parent->refresh_recent_items(PVCore::PVRecentItemsManager::Category::SOURCES);
 }
 
 /******************************************************************************
@@ -27,7 +40,11 @@ void PVInspector::PVAddRecentItemFuncObserver::update(const arguments_deep_copy_
  * PVInspector::PVStartScreenWidget::PVStartScreenWidget
  *
  *****************************************************************************/
-PVInspector::PVStartScreenWidget::PVStartScreenWidget(PVMainWindow* parent) : QWidget(parent), _mw(parent), _recent_items_add_obs(this)
+PVInspector::PVStartScreenWidget::PVStartScreenWidget(PVMainWindow* parent) :
+	QWidget(parent),
+	_mw(parent),
+	_recent_items_add_obs(this),
+	_recent_items_add_source_obs(this)
 {
 	PVLOG_DEBUG("PVInspector::PVStartScreenWidget::%s\n", __FUNCTION__);
 
@@ -137,8 +154,7 @@ PVInspector::PVStartScreenWidget::PVStartScreenWidget(PVMainWindow* parent) : QW
 		format_widget_layout->addWidget(format_used_widget_line);
 		format_widget_layout->addWidget(format_text_used_label);
 		QVBoxLayout* recent_used_formats_layout = new QVBoxLayout();
-		PVRecentList used_formats_list(recent_used_formats_layout, SLOT(edit_format_Slot(const QString &)));
-		_recent_lists[PVCore::PVRecentItemsManager::Category::USED_FORMATS] = used_formats_list;
+		_recent_layouts[PVCore::PVRecentItemsManager::Category::USED_FORMATS] = recent_used_formats_layout;
 		format_widget_layout->addLayout(recent_used_formats_layout);
 
 		// edited
@@ -149,8 +165,7 @@ PVInspector::PVStartScreenWidget::PVStartScreenWidget(PVMainWindow* parent) : QW
 		format_widget_layout->addWidget(format_edited_widget_line);
 		format_widget_layout->addWidget(format_text_edited_label);
 		QVBoxLayout* recent_edited_formats_layout = new QVBoxLayout();
-		PVRecentList edited_formats_list(recent_edited_formats_layout, SLOT(edit_format_Slot(const QString &)));
-		_recent_lists[PVCore::PVRecentItemsManager::Category::EDITED_FORMATS] = edited_formats_list;
+		_recent_layouts[PVCore::PVRecentItemsManager::Category::EDITED_FORMATS] = recent_edited_formats_layout;
 		format_widget_layout->addLayout(recent_edited_formats_layout);
 
 		// supported
@@ -163,8 +178,7 @@ PVInspector::PVStartScreenWidget::PVStartScreenWidget(PVMainWindow* parent) : QW
 
 		QVBoxLayout* supported_formats_layout = new QVBoxLayout();
 		format_widget_layout->addLayout(supported_formats_layout);
-		PVRecentList supported_formats_list(supported_formats_layout, SLOT(edit_format_Slot(const QString &)));
-		_recent_lists[PVCore::PVRecentItemsManager::Category::SUPPORTED_FORMATS] = supported_formats_list;
+		_recent_layouts[PVCore::PVRecentItemsManager::Category::SUPPORTED_FORMATS] = supported_formats_layout;
 
 
 	// projects (text and line)
@@ -176,8 +190,7 @@ PVInspector::PVStartScreenWidget::PVStartScreenWidget(PVMainWindow* parent) : QW
 	project_widget_layout->addWidget(project_text_label);
 	QVBoxLayout* recent_projects_layout = new QVBoxLayout();
 	project_widget_layout->addLayout(recent_projects_layout);
-	PVRecentList project_list(recent_projects_layout, SLOT(load_project(const QString &)));
-	_recent_lists[PVCore::PVRecentItemsManager::Category::PROJECTS] = project_list;
+	_recent_layouts[PVCore::PVRecentItemsManager::Category::PROJECTS] = recent_projects_layout;
 
 	// Imports (text and line)
 	QFrame* import_widget_line = new QFrame(project_widget);
@@ -190,8 +203,7 @@ PVInspector::PVStartScreenWidget::PVStartScreenWidget(PVMainWindow* parent) : QW
 	import_widget_layout->addLayout(recent_imports_layout);
 	QVBoxLayout* recent_sources_layout = new QVBoxLayout();
 	import_widget_layout->addLayout(recent_sources_layout);
-	PVRecentList sources_list(recent_sources_layout, SLOT(import_type_default_Slot()));
-	_recent_lists[PVCore::PVRecentItemsManager::Category::SOURCES] = sources_list;
+	_recent_layouts[PVCore::PVRecentItemsManager::Category::SOURCES] = recent_sources_layout;
 
 	// Final Stretch as Spacer ...
 	format_widget_layout->addStretch(1);
@@ -206,6 +218,7 @@ PVInspector::PVStartScreenWidget::PVStartScreenWidget(PVMainWindow* parent) : QW
 	connect(edit_format_button, SIGNAL(clicked(bool)), _mw, SLOT(open_format_Slot()));
 
 	PVHive::get().register_func_observer(PVCore::PVRecentItemsManager::get(), _recent_items_add_obs);
+	PVHive::get().register_func_observer(PVCore::PVRecentItemsManager::get(), _recent_items_add_source_obs);
 
 	refresh_all_recent_items();
 }
@@ -224,7 +237,7 @@ void PVInspector::PVStartScreenWidget::refresh_recent_items(int cat)
 
 	// Clear layout
 	QLayoutItem* item = nullptr;
-	QVBoxLayout* recent_item_layout = _recent_lists[category].layout;
+	QVBoxLayout* recent_item_layout = _recent_layouts[category];
 	if (recent_item_layout == nullptr) return;
 	while ((item = recent_item_layout->takeAt(0)) != nullptr) {
 		delete item->widget();
@@ -236,31 +249,111 @@ void PVInspector::PVStartScreenWidget::refresh_recent_items(int cat)
 	widget->setObjectName(PVCore::PVRecentItemsManager::get()->get_key(category) + "_of_PVStartScreenWidget");
 	QVBoxLayout* widget_layout = new QVBoxLayout();
 	widget->setLayout(widget_layout);
-	//widget->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-	_recent_lists[category].layout->addWidget(widget);
+	_recent_layouts[category]->addWidget(widget);
 
-	// Add recent items
-	for (QString url : PVCore::PVRecentItemsManager::get()->get_list(category)) {
+	QListWidget* list = new QListWidget();
+	list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	list->verticalScrollBar()->setObjectName("verticalScrollBar_of_PVListingView");
+
+	connect(list, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(dispatch_action(QListWidgetItem*)));
+
+	for (QVariant var : PVCore::PVRecentItemsManager::get()->get_list(category)) {
+		// item + data
+		QListWidgetItem* item = new QListWidgetItem(list);
+		item->setData(Qt::UserRole, var);
+		item->setData(Qt::UserRole+1, cat);
+		QString formated_string = get_string_from_variant(category, var);
 
 		// Icon
-		QFileInfo finfo(url);
+		QFileInfo finfo(formated_string);
 		QFileIconProvider ficon;
 		QIcon icon = ficon.icon(finfo);
-		QLabel* project_icon = new QLabel();
-		project_icon->setPixmap(icon.pixmap(20, 20));
+		item->setIcon(icon);
 
-		// Label
-		QLabel* label = new QLabel();
-		label->setTextFormat(Qt::RichText);
-		label->setText(QString("<a href=\"%1\">%2</a>").arg(url).arg(url));
+		// Text
+		item->setText(PVWidgets::PVUtils::shorten_path(formated_string, list->font(), 275));
+		item->setToolTip(formated_string);
+	}
 
-		connect(label, SIGNAL(linkActivated(const QString &)), _mw, _recent_lists[category].slot);
+	widget_layout->addWidget(list);
+}
 
-		// Layout
-		QHBoxLayout* layout = new QHBoxLayout();
-		layout->addWidget(project_icon);
-		layout->addWidget(label);
-		layout->addStretch();
-		widget_layout->addLayout(layout);
+QString PVInspector::PVStartScreenWidget::get_string_from_variant(PVCore::PVRecentItemsManager::Category category, const QVariant& var)
+{
+	switch (category)
+	{
+		case PVCore::PVRecentItemsManager::Category::PROJECTS:
+		case PVCore::PVRecentItemsManager::Category::USED_FORMATS:
+		case PVCore::PVRecentItemsManager::Category::EDITED_FORMATS:
+		{
+			return var.toString();
+		}
+		case PVCore::PVRecentItemsManager::Category::SOURCES:
+		{
+			return get_string_from_source_description(var);
+		}
+		case PVCore::PVRecentItemsManager::Category::SUPPORTED_FORMATS:
+		{
+			return get_string_from_format(var);
+		}
+		default:
+		{
+			break;
+		}
+	}
+}
+
+QString PVInspector::PVStartScreenWidget::get_string_from_format(const QVariant& var)
+{
+	PVRush::PVFormat format = var.value<PVRush::PVFormat>();
+
+	return QString("%1 (%2)").arg(format.get_format_name()).arg(format.get_full_path());
+}
+
+QString PVInspector::PVStartScreenWidget::get_string_from_source_description(const QVariant& var)
+{
+	PVRush::PVSourceDescription src_desc = var.value<PVRush::PVSourceDescription>();
+
+	QStringList inputs_string;
+	for (auto input : src_desc.get_inputs()) {
+		inputs_string << input->human_name();
+	}
+	return inputs_string.join(", ");
+}
+
+void PVInspector::PVStartScreenWidget::dispatch_action(QListWidgetItem* item)
+{
+	QVariant var = item->data(Qt::UserRole);
+	PVCore::PVRecentItemsManager::Category category = (PVCore::PVRecentItemsManager::Category) item->data(Qt::UserRole+1).toInt();
+
+	switch (category)
+	{
+		case PVCore::PVRecentItemsManager::Category::PROJECTS:
+		{
+			_mw->load_project(var.toString());
+			break;
+		}
+		case PVCore::PVRecentItemsManager::Category::SOURCES:
+		{
+			PVRush::PVSourceDescription src_desc = var.value<PVRush::PVSourceDescription>();
+			Picviz::PVSource_p src_p = Picviz::PVSource::create_source_from_description(_mw->_scene, src_desc);
+			_mw->load_source(src_p);
+			break;
+		}
+		case PVCore::PVRecentItemsManager::Category::EDITED_FORMATS:
+		case PVCore::PVRecentItemsManager::Category::USED_FORMATS:
+		{
+			_mw->edit_format_Slot(var.toString());
+			break;
+		}
+		case PVCore::PVRecentItemsManager::Category::SUPPORTED_FORMATS:
+		{
+			_mw->edit_format_Slot(var.value<PVRush::PVFormat>().get_full_path());
+			break;
+		}
+		default:
+		{
+			break;
+		}
 	}
 }
