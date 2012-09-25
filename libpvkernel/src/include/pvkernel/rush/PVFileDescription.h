@@ -10,6 +10,8 @@
 #include <pvkernel/core/PVFileSerialize.h>
 #include <pvkernel/rush/PVInputDescription.h>
 
+#include <pvkernel/core/PVRecentItemsManager.h>
+
 namespace PVRush {
 
 class PVFileDescription: public PVInputDescription
@@ -21,7 +23,7 @@ public:
 		_was_serialized(false)
 	{ set_path(path); }
 
-protected:
+public:
 	PVFileDescription():
 		_was_serialized(false)
 	{ };
@@ -32,11 +34,28 @@ public:
 	operator QString const& () const { return _path; }
 
 public:
+	virtual bool operator==(const PVInputDescription& other) const
+	{
+		return _path == ((PVFileDescription&)other)._path;
+	}
+
+public:
 	// For historical reason
 	QString toString() const { return _path; }
 
 	QString human_name() const { return _path; }
 	QString path() const { return _path; }
+
+public:
+	virtual void save_to_qsettings(QSettings& settings) const
+	{
+		settings.setValue("path", path());
+	}
+
+	virtual void load_from_qsettings(const QSettings& settings)
+	{
+		_path = settings.value("path").toString();
+	}
 
 protected:
 	void set_path(QString const& path)

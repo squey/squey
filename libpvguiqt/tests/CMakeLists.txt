@@ -37,3 +37,7 @@ target_link_libraries(Tqt_layerstack_widget ${COMMON_LIBRARIES})
 # Huge model
 add_executable(Tqt_huge-model huge-model.cpp)
 target_link_libraries(Tqt_huge-model ${COMMON_LIBRARIES})
+
+# Confusing Qt Stylesheets
+add_executable(Tqt_css css.cpp)
+target_link_libraries(Tqt_css ${COMMON_LIBRARIES})

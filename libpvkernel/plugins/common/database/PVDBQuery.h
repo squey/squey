@@ -30,6 +30,9 @@ public:
 	PVDBQuery(PVDBServ_p db, QString const& query);
 	~PVDBQuery();
 
+public:
+	virtual bool operator==(const PVInputDescription& other) const;
+
 	void set_query(QString const& query) { _query = query; }
 	QString const& get_query() const { return _query; }
 
@@ -42,6 +45,10 @@ public:
 	bool connect_serv();
 	QString last_error_serv();
 	
+public:
+	virtual void save_to_qsettings(QSettings& settings) const;
+	virtual void load_from_qsettings(const QSettings& settings);
+
 protected:
 	void serialize_read(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v);
 	void serialize_write(PVCore::PVSerializeObject& so);

@@ -25,7 +25,15 @@ public:
 	virtual ~PVInputDescription() { }
 
 public:
+	virtual bool operator==(const PVInputDescription& other) const = 0;
+	bool operator!=(const PVInputDescription& other) const { return ! operator==(other); }
+
+public:
 	virtual QString human_name() const = 0;
+
+public:
+	virtual void save_to_qsettings(QSettings& settings) const = 0;
+	virtual void load_from_qsettings(const QSettings& settings) = 0;
 
 protected:
 	virtual void serialize(PVCore::PVSerializeObject& so, PVCore::PVSerializeArchive::version_t v) = 0;

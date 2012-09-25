@@ -3,6 +3,8 @@
 #
 # Copyright (C) Picviz Labs 2010-2012
 
+include_directories(${QT_QTOPENGL_INCLUDE_DIR})
+
 set(LIBGUIQT_SRC_FILES
 PVAxesCombinationDialog.cpp
 PVAxesCombinationModel.cpp
@@ -19,6 +21,8 @@ PVListingView.cpp
 PVRootTreeModel.cpp
 PVRootTreeView.cpp
 PVSortFilterProxyModel.cpp
+PVLogoModel.cpp
+PVLogoScene.cpp
 )
 
 SET(LIBGUIQT_MOC_HEADERS
@@ -35,6 +39,7 @@ include/pvguiqt/PVListingSortFilterProxyModel.h
 include/pvguiqt/PVListingView.h
 include/pvguiqt/PVHiveDataTreeModel.h
 include/pvguiqt/PVSortFilterProxyModel.h
+include/pvguiqt/PVLogoScene.h
 )
 
 SET(UI_FILES
@@ -59,7 +64,7 @@ add_library(pvguiqt SHARED ${SRC_FILES} ${HEADER_FILES} ${MOC_SRC} ${MOC_HEADERS
 
 set_target_properties(pvguiqt PROPERTIES SOVERSION 1)
 
-set(PVGUIQT_LINK_LIBRARIES ${QT_LIBRARIES} ${TBB_LIBRARIES} ${PVKERNEL_LIBRARIES} ${PICVIZ_LIBRARIES} ${PVHIVE_LIBRARIES} ${OpenMP_LIBRARIES})
+set(PVGUIQT_LINK_LIBRARIES ${QT_LIBRARIES} ${OPENGL_LIBRARIES} ${TBB_LIBRARIES} ${PVKERNEL_LIBRARIES} ${PICVIZ_LIBRARIES} ${PVHIVE_LIBRARIES} ${OpenMP_LIBRARIES})
 
 target_link_libraries(pvguiqt ${PVHIVE_LINK_LIBRARIES})
 

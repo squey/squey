@@ -18,6 +18,11 @@
 #include <pvkernel/filter/PVFieldSplitterChunkMatch.h>
 
 #include <pvguiqt/PVAxesCombinationWidget.h>
+#include <pvkernel/core/PVRecentItemsManager.h>
+
+#include <pvhive/PVHive.h>
+#include <pvhive/PVFuncObserver.h>
+#include <pvhive/PVCallHelper.h>
 
 #define FORMAT_BUILDER_TITLE (QObject::tr("Format builder"))
 /******************************************************************************
@@ -457,11 +462,13 @@ void PVInspector::PVFormatBuilderWidget::slotNewWindow()
  * PVInspector::PVFormatBuilderWidget::slotOpen
  *
  *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::slotOpen() {
+QString PVInspector::PVFormatBuilderWidget::slotOpen() {
     QFileDialog fd;
     //open file chooser
     QString urlFile = fd.getOpenFileName(0, QString("Select the file."), PVRush::normalize_get_helpers_plugins_dirs(QString("text")).first());
 	openFormat(urlFile);
+
+	return urlFile;
 }
 
 
@@ -475,6 +482,7 @@ bool PVInspector::PVFormatBuilderWidget::save() {
 
 	bool save_xml = myTreeModel->saveXml(_cur_file);
 	if (save_xml) {
+		PVHive::call<FUNC(PVCore::PVRecentItemsManager::add)>(PVCore::PVRecentItemsManager::get(), _cur_file, PVCore::PVRecentItemsManager::Category::EDITED_FORMATS);
 		return true;
 	}
 
@@ -507,6 +515,7 @@ bool PVInspector::PVFormatBuilderWidget::saveAs() {
 		if (myTreeModel->saveXml(urlFile)) {
 			_cur_file = urlFile;
 			setWindowTitleForFile(urlFile);
+			PVHive::call<FUNC(PVCore::PVRecentItemsManager::add)>(PVCore::PVRecentItemsManager::get(), urlFile, PVCore::PVRecentItemsManager::Category::EDITED_FORMATS);
 			return true;
 		}
 	}

@@ -60,6 +60,7 @@ class PVSerializeArchive;
 namespace PVInspector {
 
 class PVMainWindow;
+class PVStartScreenWidget;
 
 /**
  * \class PVMainWindow
@@ -67,6 +68,8 @@ class PVMainWindow;
 class PVMainWindow : public QMainWindow
 {
 	Q_OBJECT
+
+	friend class PVStartScreenWidget;
 
 private:
 	struct PVFormatDetectCtxt
@@ -167,6 +170,8 @@ public slots:
 	void filter_Slot();
 	void new_format_Slot();
 	void cur_format_Slot();
+	void edit_format_Slot(const QString& format);
+	void open_format_Slot();
 	void filter_reprocess_last_Slot();
 	void import_type_default_Slot();
 	void import_type_Slot();
@@ -321,7 +326,7 @@ private:
 	QLabel* pv_lastCurVersion;
 	QLabel* pv_lastMajVersion;
 
-	QPushButton *pv_ImportFileButton;
+	PVStartScreenWidget* _start_screen_widget;
 
 protected:
 	void keyPressEvent(QKeyEvent *event);

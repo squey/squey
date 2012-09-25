@@ -178,7 +178,7 @@ public slots:
 	void slotMoveDown();
 	void slotNeedApply();
 	void slotNewWindow();
-	void slotOpen();
+	QString slotOpen();
 	void slotOpenLog();
 	void slotSave();
 	void slotSaveAs();

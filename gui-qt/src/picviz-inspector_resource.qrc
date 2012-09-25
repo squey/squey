@@ -5,6 +5,7 @@
 	<file alias="background-window.png">resources/background-window.png</file>
         <file alias="window-icon.png">resources/inspector.png</file>
         <file alias="logo.png">resources/logo.png</file>
+        <file alias="logo_text.png">resources/logo_text.png</file>
         <file>resources/filelink-32.png</file>
         <file>resources/standardbutton-open-32.png</file>
         <file alias="save">resources/standardbutton-save-32.png</file>
@@ -61,7 +62,10 @@
 
 
 	<!-- FONTS -->
+	<!-- WARNING : alias must have .ttf extension here not used in the CSS file -->
 	<file alias="Convergence-Regular.ttf">resources/fonts/Convergence-Regular.ttf</file>
+	<file alias="OSP-DIN.ttf">resources/fonts/OSP-foundry_DIN/OSP-DIN.ttf</file>
+	<file alias="Jura-DemiBold.ttf">resources/fonts/Jura/Jura-DemiBold.ttf</file>
 
 	<!-- HANDLES -->
 	<file alias="vertical_handle">resources/gui-elements/pv_vertical_handle_01.png</file>
@@ -78,7 +82,12 @@
 	<!-- START SCREEN -->
 	<file alias="start-logo">resources/trafik/elements-interface/logo-picviz-intro.png</file>
 	<file alias="import-icon-white">resources/trafik/elements-interface/icone-import-blanc.png</file>
-
+	<file alias="new-icon-white">resources/trafik/elements-interface/icone-nouveau-blanc.png</file>
+	<file alias="open-icon-white">resources/trafik/elements-interface/icone-ouvrirdossier-blanc.png</file>
+	<file alias="edit-icon-white">resources/trafik/elements-interface/icone-editer-blanc.png</file>
+	
+	<!-- ABOUT BOX -->
+	<file alias="logo3d">resources/logo.obj</file>
 
 	<!-- QSCROLLBAR ICONS -->
 	<file alias="horizontal-scrollbar-handle">resources/trafik/elements-interface/ascenceur-horizontal-barre-defilement.png</file>

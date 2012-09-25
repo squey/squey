@@ -24,7 +24,9 @@
 #include <PVListDisplayDlg.h>
 #include <PVStringListChooserWidget.h>
 #include <PVInputTypeMenuEntries.h>
+
 #include <PVStartScreenWidget.h>
+#include <pvkernel/core/PVRecentItemsManager.h>
 
 #ifdef CUSTOMER_RELEASE
   #ifdef WIN32
@@ -94,8 +96,7 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	//setWindowFlags(Qt::FramelessWindowHint);
 
 	// FIXME
-	PVStartScreenWidget *testt = new PVStartScreenWidget (this, this);
-	testt->show();
+	_start_screen_widget = new PVStartScreenWidget(this);
 	
 	// FONT stuff
 	QFontDatabase pv_font_database;
@@ -146,11 +147,7 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	pv_labelWelcomeIcon->setPixmap(*pv_welcomeIcon);
 	pv_labelWelcomeIcon->resize(pv_welcomeIcon->width(), pv_welcomeIcon->height());
 
-	pv_ImportFileButton = new QPushButton("Import files...");
-	pv_ImportFileButton->setIcon(QIcon(":/import-icon-white"));
-
 	
-	connect(pv_ImportFileButton, SIGNAL(clicked()), this, SLOT(import_type_default_Slot()));
 	connect(pv_ListingsTabWidget, SIGNAL(is_empty()), this, SLOT(display_icon_Slot()) );
 
 	pv_mainLayout->addWidget(pv_ListingsTabWidget);
@@ -160,12 +157,9 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	QVBoxLayout* centerLayout = new QVBoxLayout();
 	centerLayout->setAlignment(Qt::AlignHCenter);
 	centerLayout->addWidget(pv_labelWelcomeIcon);
-	centerLayout->addWidget(pv_ImportFileButton);
 	pv_startLayout->addLayout(centerLayout);
 	pv_startLayout->addItem(new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding));
-	
-	// FIXME
-	pv_startLayout->addWidget(testt);
+	pv_startLayout->addWidget(_start_screen_widget);
 
 	QGridLayout* versionLayout = new QGridLayout();
 	QLabel* label = new QLabel(tr("Current version") + QString(" :"));
@@ -220,7 +214,7 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget *parent):
 	statemachine_label = new QLabel("");
 	statusBar()->insertPermanentWidget(0, statemachine_label);
 
-	splash.finish(pv_ImportFileButton);
+	splash.finish(_start_screen_widget);
 
 	// Center the main window
 	QRect r = geometry();
@@ -416,6 +410,10 @@ void PVInspector::PVMainWindow::close_source(PVTabSplitter* tab)
 {
 	Picviz::PVSource* src = tab->get_lib_src();
 	_scene->remove_child(*src);
+
+	if (_scene->get_children_count() == 0) {
+		show_start_page(true);
+	}
 }
 
 
@@ -690,7 +688,6 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 }
 
 
-
 /******************************************************************************
  *
  * PVInspector::PVMainWindow::import_type
@@ -728,7 +725,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t, PVRush::
 	
 	if (!file_type_found) {
 		QString msg = "<p>The sources cannot be opened: automatic format detection reported <strong>no valid format</strong>.</p>";
-		msg += "<p>Please note that automatic format detection is only appplied on a small subset of the provided sources.</p>";
+		msg += "<p>Please note that automatic format detection is only applied on a small subset of the provided sources.</p>";
 		msg += "<p><strong>Trick:</strong> if you know the format of these sources, and if it contains one or more filters that invalidate a lot of elements, you should avoid automatic format detection and select this format by hand in the import sources dialog.</p>";
 		QMessageBox::warning(this, "Cannot import sources", msg);
 		return;
@@ -874,6 +871,31 @@ void PVInspector::PVMainWindow::import_type_Slot()
  *****************************************************************************/
 void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 {
+
+#ifndef NDEBUG
+	switch (event->key()) {
+
+		case Qt::Key_Dollar:
+		{
+			/*if (pv_ListingsTabWidget->currentIndex() == -1) {
+				break;
+			}*/
+			PVLOG_INFO("Reloading CSS\n");
+
+			QFile css_file("gui-qt/src/resources/gui.css");
+			if (css_file.open(QFile::ReadOnly)) {
+				QTextStream css_stream(&css_file);
+				QString css_string(css_stream.readAll());
+				css_file.close();
+
+				setStyleSheet(css_string);
+				setStyle(QApplication::style());
+			}
+			break;
+		}
+	}
+#endif
+
 #if 0
 	/* VARIABLES */
 	int column_index;
@@ -889,6 +911,12 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 	QPixmap screenshot_pixmap;
 	QString screenshot_filename;
 	
+	// FIXME!  This is so UGLY !!!
+	QFile css_file("/donnees/GIT/OLD/picviz-inspector/gui-qt/src/resources/gui.css");
+	css_file.open(QFile::ReadOnly);
+	QTextStream css_stream(&css_file);
+	QString css_string(css_stream.readAll());
+	css_file.close();
 	
 
 
@@ -994,6 +1022,10 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent *event)
 			if (pv_ListingsTabWidget->currentIndex() == -1) {
 				break;
 			}
+
+			// PhS
+			setStyleSheet(css_string);
+			setStyle(QApplication::style());
 
 			QFile css_file("/donnees/GIT/OLD/picviz-inspector/gui-qt/src/resources/gui.css");
 			css_file.open(QFile::ReadOnly);
@@ -1673,6 +1705,14 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_p src)
 		display_inv_elts(current_tab);
 	}
 
+	PVHive::call<FUNC(PVCore::PVRecentItemsManager::add)>(PVCore::PVRecentItemsManager::get(), src->get_format().get_full_path(), PVCore::PVRecentItemsManager::Category::USED_FORMATS);
+
+	PVHive::call<FUNC(PVCore::PVRecentItemsManager::add_source)>(PVCore::PVRecentItemsManager::get(), src->get_source_creator(), src->get_inputs(), src->get_format());
+
+	menu_activate_is_file_opened(true);
+	show_start_page(false);
+	pv_ListingsTabWidget->setVisible(true);
+	set_project_modified(true);
 	return true;
 }
 

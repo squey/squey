@@ -1,0 +1,28 @@
+/**
+ * \file css.css
+ *
+ * Copyright (C) Picviz Labs 2012
+ */
+
+#CSSMainWidget QLabel {
+	color: red;
+	background-color: grey;
+	font-weight: bold;
+}
+
+#CSSWidget1 QLabel {
+	color: white;
+}
+
+#CSSWidget2 QLabel {
+	color: blue;
+	font-weight: normal;
+}
+
+#CSSWidget3 QLabel {
+	color: green;
+}
+
+QLabel#CSSClassLabel {
+	color: purple;
+}
