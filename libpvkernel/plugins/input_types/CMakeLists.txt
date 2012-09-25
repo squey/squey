@@ -52,7 +52,11 @@ target_link_libraries(input_type_database ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES})
 #
 if(HDFS_FOUND)
 	include_directories(AFTER ${HDFS_INCLUDE_DIRS})
-	add_library(input_type_hdfs SHARED hdfs/PVInputTypeHDFS.cpp ../common/hdfs/PVInputHDFSFile.cpp ../common/hdfs/PVInputHDFSServer.cpp hdfs/setenv.cpp hdfs/register.cpp)
+	SET(HDFS_UI hdfs/PVImportHDFSDlg.ui)
+	SET(HDFS_MOC_HEADERS hdfs/PVImportHDFSDlg.h)
+	QT4_WRAP_CPP(HDFS_MOC_SRCS ${HDFS_MOC_HEADERS})
+	QT4_WRAP_UI(HDFS_UI_SRCS ${HDFS_UI})
+	add_library(input_type_hdfs SHARED hdfs/PVImportHDFSDlg.cpp hdfs/PVInputTypeHDFS.cpp ../common/hdfs/PVInputHDFSFile.cpp ../common/hdfs/PVInputHDFSServer.cpp hdfs/setenv.cpp hdfs/register.cpp ${HDFS_MOC_SRCS} ${HDFS_UI_SRCS})
 	target_link_libraries(input_type_hdfs ${PVKERNEL_LIBRARIES} ${QT_LIBRARIES} ${HDFS_LIBRARIES})
 endif(HDFS_FOUND)
 
