@@ -1321,7 +1321,6 @@ void Picviz::PVView::select_all_nonzb_lines()
 {
 	state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
 	volatile_selection.select_all();
-	process_from_selection();
 }
 
 void Picviz::PVView::select_no_line()
@@ -1329,7 +1328,6 @@ void Picviz::PVView::select_no_line()
 	// Set square area mode w/ volatile
 	state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
 	volatile_selection.select_none();
-	process_from_selection();
 }
 
 void Picviz::PVView::select_inv_lines()
@@ -1339,7 +1337,6 @@ void Picviz::PVView::select_inv_lines()
 	// Set square area mode w/ volatile
 	state_machine->set_square_area_mode(Picviz::PVStateMachine::AREA_MODE_SET_WITH_VOLATILE);
 	volatile_selection = ~floating_selection;
-	process_from_selection();
 }
 
 QString Picviz::PVView::get_name() const

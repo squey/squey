@@ -24,6 +24,9 @@
 #include <pvkernel/core/PVRecentItemsManager.h>
 #include <pvguiqt/PVLogoScene.h>
 
+#include <pvhive/waxes/waxes.h>
+#include <pvhive/PVHive.h>
+
 #include <PVMainWindow.h>
 #include <PVExpandSelDlg.h>
 #include <pvkernel/widgets/PVArgumentListWidget.h>
@@ -859,7 +862,7 @@ void PVInspector::PVMainWindow::selection_all_Slot()
 	Picviz::PVView_sp lib_view(current_tab->get_lib_view()->shared_from_this());
 	if (lib_view) {
 		lib_view->select_all_nonzb_lines();
-		PVHive::PVCallHelper::call<Picviz::PVView::process_from_selection>(lib_view);
+		PVHive::PVCallHelper::call<FUNC(Picviz::PVView::process_real_output_selection)>(lib_view);
 	}
 }
 
@@ -875,10 +878,10 @@ void PVInspector::PVMainWindow::selection_none_Slot()
 		return;
 	}
 
-	Picviz::PVView* lib_view = current_tab->get_lib_view();
+	Picviz::PVView_sp lib_view(current_tab->get_lib_view()->shared_from_this());
 	if (lib_view) {
 		lib_view->select_no_line();
-		PVHive::PVCallHelper::call<Picviz::PVView::process_from_selection>(lib_view);
+		PVHive::PVCallHelper::call<FUNC(Picviz::PVView::process_real_output_selection)>(lib_view);
 	}
 }
 
@@ -894,10 +897,10 @@ void PVInspector::PVMainWindow::selection_inverse_Slot()
 		return;
 	}
 
-	Picviz::PVView* lib_view = current_tab->get_lib_view();
+	Picviz::PVView_sp lib_view(current_tab->get_lib_view()->shared_from_this());
 	if (lib_view) {
 		lib_view->select_inv_lines();
-		PVHive::PVCallHelper::call<Picviz::PVView::process_from_selection>(lib_view);
+		PVHive::PVCallHelper::call<FUNC(Picviz::PVView::process_real_output_selection)>(lib_view);
 	}
 }
 
