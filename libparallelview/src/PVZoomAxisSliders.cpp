@@ -29,8 +29,8 @@ void PVParallelView::PVZoomAxisSliders::initialize(PVParallelView::PVSlidersMana
 	_sliders_manager_p = sm_p;
 	_id = id;
 
-	_sl_min = new PVAxisSlider(0, 1024, y_min);
-	_sl_max = new PVAxisSlider(0, 1024, y_max);
+	_sl_min = new PVAxisSlider(0, 1024, y_min, PVParallelView::PVAxisSliderType::Min);
+	_sl_max = new PVAxisSlider(0, 1024, y_max, PVParallelView::PVAxisSliderType::Max);
 
 	addToGroup(_sl_min);
 	addToGroup(_sl_max);

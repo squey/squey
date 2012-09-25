@@ -16,8 +16,9 @@
  * PVParallelView::PVAxisSlider::PVAxisSlider
  *****************************************************************************/
 
-PVParallelView::PVAxisSlider::PVAxisSlider(int omin, int omax, int o) :
-	_offset_min(omin), _offset_max(omax), _moving(false)
+PVParallelView::PVAxisSlider::PVAxisSlider(int omin, int omax, int o,
+                                           PVAxisSliderType type) :
+	_offset_min(omin), _offset_max(omax), _type(type), _moving(false)
 {
 	setAcceptHoverEvents(true); // This is needed to enable hover events
 
@@ -51,8 +52,13 @@ bool PVParallelView::PVAxisSlider::is_moving() const
 
 QRectF PVParallelView::PVAxisSlider::boundingRect() const
 {
-	return QRectF(QPointF(- SLIDER_HALF_WIDTH, 0),
-	              QPointF(SLIDER_HALF_WIDTH, PVParallelView::AxisWidth));
+	if (_type == Min) {
+		return QRectF(QPointF(- SLIDER_HALF_WIDTH, 0),
+		              QPointF(SLIDER_HALF_WIDTH, -4));
+	} else {
+		return QRectF(QPointF(- SLIDER_HALF_WIDTH, 0),
+		              QPointF(SLIDER_HALF_WIDTH, 4));
+	}
 }
 
 /*****************************************************************************

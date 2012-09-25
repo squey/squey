@@ -28,8 +28,8 @@ void PVParallelView::PVSelectionAxisSliders::initialize(PVParallelView::PVSlider
 	_sliders_manager_p = sm_p;
 	_id = id;
 
-	_sl_min = new PVAxisSlider(0, 1024, y_min);
-	_sl_max = new PVAxisSlider(0, 1024, y_max);
+	_sl_min = new PVAxisSlider(0, 1024, y_min, PVParallelView::PVAxisSliderType::Min);
+	_sl_max = new PVAxisSlider(0, 1024, y_max, PVParallelView::PVAxisSliderType::Max);
 
 	addToGroup(_sl_min);
 	addToGroup(_sl_max);
@@ -120,8 +120,16 @@ void PVParallelView::PVSelectionAxisSliders::selection_sliders_update_obs::updat
 	PVSlidersManager::id_t id = std::get<1>(args);
 
 	if ((axe_id == _parent->_group->get_axe_id()) && (id == _parent->_id)) {
-		_parent->_sl_min->set_value(std::get<2>(args));
-		_parent->_sl_max->set_value(std::get<3>(args));
+		int y_min = std::get<2>(args);
+		int y_max = std::get<3>(args);
+		if (y_max < y_min) {
+			int tmp = y_max;
+			y_max = y_min;
+			y_min = tmp;
+		}
+
+		_parent->_sl_min->set_value(y_min);
+		_parent->_sl_max->set_value(y_max);
 
 		emit _parent->sliders_moved();
 	}

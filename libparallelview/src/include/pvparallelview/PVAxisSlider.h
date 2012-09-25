@@ -13,7 +13,7 @@
 
 #include <QGraphicsItem>
 
-#define SLIDER_HALF_WIDTH 8
+#define SLIDER_HALF_WIDTH 10
 #define SLIDER_WIDTH (2 * SLIDER_HALF_WIDTH + PVParallelView::AxisWidth)
 
 namespace PVParallelView
@@ -24,12 +24,17 @@ enum {
 	SliderWidth = SLIDER_WIDTH
 };
 
+enum PVAxisSliderType {
+	Min,
+	Max
+};
+
 class PVAxisSlider : public QGraphicsObject
 {
 	Q_OBJECT
 
 public:
-	PVAxisSlider(int omin, int omax, int o);
+	PVAxisSlider(int omin, int omax, int o, PVAxisSliderType type = Min);
 	~PVAxisSlider();
 
 	inline void set_value(int v)
@@ -64,9 +69,11 @@ signals:
 	void slider_moved();
 
 private:
-	int _offset_min, _offset_max;
-	int _offset;
-	bool _moving;
+	int              _offset_min;
+	int              _offset_max;
+	int              _offset;
+	PVAxisSliderType _type;
+	bool             _moving;
 };
 
 }
