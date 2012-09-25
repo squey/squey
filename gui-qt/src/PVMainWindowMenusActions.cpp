@@ -44,6 +44,7 @@ void PVInspector::PVMainWindow::create_actions()
 	// The extractorFile Action
 	extractor_file_Action = new QAction(tr("&Extractor..."), this);
 	extractor_file_Action->setToolTip(tr("Launch the Picviz Extractor"));
+	extractor_file_Action->setEnabled(false);
 
 	export_file_Action = new QAction(tr("&Export"), this);
 
@@ -283,7 +284,7 @@ void PVInspector::PVMainWindow::create_actions_import_types(QMenu* menu)
  *****************************************************************************/
 void PVInspector::PVMainWindow::menu_activate_is_file_opened(bool cond)
 {
-	extractor_file_Action->setEnabled(cond);
+	extractor_file_Action->setEnabled(false);
 	export_selection_Action->setEnabled(cond);
 
 	axes_Menu->setEnabled(cond);
