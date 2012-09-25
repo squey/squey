@@ -16,6 +16,10 @@
 #include <picviz/PVStateMachine.h>
 #include <picviz/widgets/PVArgumentListWidgetFactory.h>
 
+#include <pvhive/waxes/waxes.h>
+#include <pvhive/PVHive.h>
+#include <pvhive/PVCallHelper.h>
+
 #include <PVMainWindow.h>
 
 PVInspector::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(PVTabSplitter* tab, PVCore::PVArgumentList& args, Picviz::PVLayerFilter_p filter_p) :
@@ -192,13 +196,8 @@ void PVInspector::PVLayerFilterProcessWidget::save_Slot()
 	_view->process_selection();
 	// we use the selection of post filter layer
 	_view->pre_filter_layer.get_selection() = _view->post_filter_layer.get_selection();
-	_view->process_from_filter();
-
-	/* We refresh the PVView_p */
-	// FIXME: hive
-
-	// FIXME: I think this refreshes the listing too. We shall remove the refresh listing slot then
-	//_tab->get_main_window()->refresh_view(_view);
+	Picviz::PVView_sp view_p(_view->shared_from_this());
+	PVHive::PVCallHelper::call<FUNC(Picviz::PVView::process_from_filter)>(view_p);
 
 	// Save last used filter
 	_view->set_last_used_filter(_filter_p->registered_name());
