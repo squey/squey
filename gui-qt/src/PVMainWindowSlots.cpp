@@ -5,6 +5,7 @@
  */
 
 #include <pvkernel/core/PVAxesIndexType.h>
+#include <pvkernel/core/PVProgressBox.h>
 #include <pvkernel/core/PVSerializeArchiveZip.h>
 #include <pvkernel/core/PVSerializeArchiveFixError.h>
 #include <pvkernel/core/PVVersion.h>
@@ -1024,7 +1025,14 @@ void PVInspector::PVMainWindow::view_new_parallel_Slot()
 	QLayout *layout = new QVBoxLayout(this);
 	layout->setContentsMargins(0, 0, 0, 0);
 	dlg->setLayout(layout);
-	QWidget *view = PVParallelView::common::get_lib_view(*get_current_lib_view())->create_view(dlg);
+	PVParallelView::PVLibView* parallel_lib_view;
+
+	// Progress box!
+	PVCore::PVProgressBox* pbox_lib = new PVCore::PVProgressBox("Creating new view...", (QWidget*) this);
+	pbox_lib->set_enable_cancel(false);
+	PVCore::PVProgressBox::progress<PVParallelView::PVLibView*>(boost::bind(&PVParallelView::common::get_lib_view, boost::ref(*get_current_lib_view())), pbox_lib, parallel_lib_view);
+
+	QWidget *view = parallel_lib_view->create_view(dlg);
 	layout->addWidget(view);
 
 	dlg->show();
@@ -1066,7 +1074,15 @@ void PVInspector::PVMainWindow::view_new_zoomed_parallel_Slot()
 		view_dlg->setLayout(view_layout);
 
 		int axis_index = axes->get_axis_index().get_original_index();
-		QWidget *view = PVParallelView::common::get_lib_view(*get_current_lib_view())->create_zoomed_view(axis_index);
+
+		PVParallelView::PVLibView* parallel_lib_view;
+
+		// Progress box!
+		PVCore::PVProgressBox* pbox_lib = new PVCore::PVProgressBox("Creating new view...", (QWidget*) this);
+		pbox_lib->set_enable_cancel(false);
+		PVCore::PVProgressBox::progress<PVParallelView::PVLibView*>(boost::bind(&PVParallelView::common::get_lib_view, boost::ref(*get_current_lib_view())), pbox_lib, parallel_lib_view);
+
+		QWidget *view = parallel_lib_view->create_zoomed_view(axis_index);
 
 		view_layout->addWidget(view);
 		view_dlg->show();
