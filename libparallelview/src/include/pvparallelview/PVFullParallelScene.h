@@ -100,7 +100,7 @@ private:
 	Picviz::PVView const& lib_view() const { return _lib_view; }
 
 	void add_zone_image();
-	void add_axis(PVZoneID const z);
+	void add_axis(PVZoneID const z, int index = -1);
 
 private slots:
 	void update_zone_pixmap_bg(int zid);
@@ -186,10 +186,13 @@ private:
 	};
 
 private:
-    PVParallelView::PVLinesView _lines_view;
+	typedef std::vector<PVParallelView::PVAxisGraphicsItem*> axes_list_t;
+
+private:
+	PVParallelView::PVLinesView _lines_view;
 
 	std::vector<ZoneImages> _zones;
-    QList<PVParallelView::PVAxisGraphicsItem*> _axes;
+	axes_list_t             _axes;
 
 	PVRenderingJob* _rendering_job_sel;
 	PVRenderingJob* _rendering_job_bg;
@@ -197,7 +200,7 @@ private:
 
 	QFuture<void> _rendering_future;
 	QFuture<void> _sel_rendering_future;
-    
+
 	PVHive::PVActor<Picviz::PVView> _view_actor;
 	Picviz::PVView& _lib_view;
 
@@ -206,8 +209,8 @@ private:
 	PVSelectionSquareGraphicsItem* _selection_square;
 	SelectionBarycenter _selection_barycenter;
 	PVParallelView::PVSelectionGenerator _selection_generator;
-    QPointF _selection_square_pos;
-    qreal _translation_start_x = 0.0;
+	QPointF _selection_square_pos;
+	qreal _translation_start_x = 0.0;
 
 	tbb::task_group _render_tasks_sel;
 	tbb::task_group _render_tasks_bg;

@@ -90,7 +90,7 @@ void PVParallelView::PVFullParallelScene::first_render()
 
 	uint32_t view_x = _parallel_view->horizontalScrollBar()->value();
 	uint32_t view_width = _parallel_view->width();
-	
+
 	connect_draw_zone_sel();
 	_lines_view.render_all_zones_all_imgs(view_x, view_width, lib_view().get_volatile_selection(), _render_tasks_bg, _root_sel, _rendering_job_bg);
 }
@@ -551,7 +551,7 @@ void PVParallelView::PVFullParallelScene::update_number_of_zones()
 {
 	const uint32_t view_x = _parallel_view->horizontalScrollBar()->value();
 	const uint32_t view_width = _parallel_view->width();
-	const int nb_new_z = _lines_view.update_number_of_zones(view_x, view_width);
+	_lines_view.update_number_of_zones(view_x, view_width);
 	PVZoneID const nb_zones = _lines_view.get_zones_manager().get_number_zones();
 	PVZoneID nb_zones_drawable = _lines_view.get_nb_drawable_zones();
 	if ((PVZoneID) _zones.size() != nb_zones_drawable) {
@@ -568,28 +568,42 @@ void PVParallelView::PVFullParallelScene::update_number_of_zones()
 			}
 		}
 	}
-	if (nb_new_z > 0) {
-		assert(nb_zones >= nb_new_z);
-		for (PVZoneID z = nb_zones-nb_new_z; z < nb_zones; z++) {
-			add_axis(z);
-		}
-	}
-	else
-	if (nb_new_z < 0) {
-		typename decltype(_axes)::iterator it_start,it_end,it;
-		it_end = _axes.end();
-		it_start = _axes.end() + nb_new_z;
-		for (it = it_start; it != it_end; it++) {
+
+	axes_list_t new_axes;
+
+	// there are nb_zones+1 axes
+	new_axes.resize(nb_zones + 1, nullptr);
+
+	/* to create the new axes list, already used axes are got back and
+	 * moved to their new position in an array initialized to nullptr.
+	 * Missing axes are deleted. Remainding nullptr entries in the new axes
+	 * list are for new axes which are created.
+	 */
+	for (size_t i = 0; i < _axes.size(); ++i) {
+		PVCol index = _lib_view.get_axes_combination().get_index_by_id(_axes[i]->get_axe_id());
+		if (index == PVCOL_INVALID_VALUE) {
 			// AG: this is really important to do this to force the
 			// deletion of this PVAxisGraphicsItem object. Indeed,
 			// removeItem will remove this object from the list of children
 			// of the scene, and gives us the ownship of the object. Thus,
 			// we are free to delete it afterwards.
-			removeItem(*it);
-			delete *it;
+			removeItem(_axes[i]);
+			delete _axes[i];
+		} else {
+			new_axes[index] = _axes[i];
 		}
-		_axes.erase(it_start, it_end);
+
+		_axes[i] = nullptr;
 	}
+
+	_axes = new_axes;
+
+	for (size_t i = 0; i < _axes.size(); ++i) {
+		if (_axes[i] == nullptr) {
+			add_axis(i, i);
+		}
+	}
+
 	update_zones_position(true, false);
 	update_all();
 }
@@ -607,13 +621,17 @@ void PVParallelView::PVFullParallelScene::add_zone_image()
 	_zones.push_back(zi);
 }
 
-void PVParallelView::PVFullParallelScene::add_axis(PVZoneID const z)
+void PVParallelView::PVFullParallelScene::add_axis(PVZoneID const z, int index)
 {
 	PVParallelView::PVAxisGraphicsItem* axisw = new PVParallelView::PVAxisGraphicsItem(_sm_p, lib_view(), _lib_view.get_axes_combination().get_axes_comb_id(z));
 	connect(axisw->get_sliders_group(), SIGNAL(selection_sliders_moved(axe_id_t)),
 	        this, SLOT(update_selection_from_sliders_Slot(axe_id_t)));
 	addItem(axisw);
-	_axes.push_back(axisw);
+	if (index < 0) {
+		_axes.push_back(axisw);
+	} else {
+		_axes[index] = axisw;
+	}
 	axisw->get_sliders_group()->add_selection_sliders(768, 1000);
 }
 

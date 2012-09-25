@@ -53,6 +53,11 @@ public:
 		return _sliders_group;
 	}
 
+	const axe_id_t get_axe_id() const
+	{
+		return _axe_id;
+	}
+
 	QRect map_from_scene(QRectF rect) const
 	{
 		QPointF point = mapFromScene(rect.topLeft());
