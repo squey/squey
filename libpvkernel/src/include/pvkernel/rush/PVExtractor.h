@@ -162,6 +162,10 @@ public:
 	void dump_nraw();
 	void debug();
 
+public:
+	inline PVNrawOutput::list_chunk_functions& chunk_functions() { return _out_nraw.chunk_functions(); }
+	inline PVNrawOutput::list_chunk_functions const& chunk_functions() const { return _out_nraw.chunk_functions(); }
+
 private:
 	void set_sources_number_fields();
 	

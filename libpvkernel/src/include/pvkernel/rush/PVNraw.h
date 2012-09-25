@@ -53,7 +53,12 @@ public:
 	inline PVCol get_number_cols() const { return _backend.get_number_cols(); }
 
 	QString get_value(PVRow row, PVCol col) const;
-	//void PVCore::PVUnicodeString const& at_unistr(PVRow row, PVCol col) const
+	PVCore::PVUnicodeString at_unistr(PVRow row, PVCol col) const
+	{
+		size_t size;
+		const char* buf = _backend.at(row, col, size);
+		return PVCore::PVUnicodeString((PVCore::PVUnicodeString::utf_char*) buf, size);
+	}
 	inline QString at(PVRow row, PVCol col) const { return get_value(row, col); }
 
 	bool add_chunk_utf16(PVCore::PVChunk const& chunk);
@@ -77,6 +82,18 @@ public:
 		if (nrows < _real_nrows) {
 			_real_nrows = nrows;
 		}
+	}
+
+	template <typename F>
+	inline bool visit_column_tbb(PVCol const c, F const& f) const
+	{
+		return _backend.visit_column_tbb(c, f);
+	}
+
+	template <typename F>
+	inline bool visit_column(PVCol const c, F const& f) const
+	{
+		return _backend.visit_column2(c, f);
 	}
 
 	QString nraw_line_to_csv(PVRow idx) const;

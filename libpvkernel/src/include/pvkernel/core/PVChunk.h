@@ -30,7 +30,7 @@ namespace PVRush {
 
 namespace PVCore {
 
-typedef std::list< PVElement*, tbb::tbb_allocator<PVElement*> > list_elts;
+typedef std::list< PVElement*, tbb::scalable_allocator<PVElement*> > list_elts;
 //typedef std::list<PVElement*> list_elts;
 
 // Describe chunk interface with no allocator template
@@ -154,6 +154,47 @@ public:
 
 	PVRush::PVRawSourceBase* source() const { return _source; };
 
+	// Only visit one column
+	template <typename F>
+	void visit_column(const PVCol c, F const& f) const
+	{
+		PVRow r = 0;
+		for (PVElement* elt: c_elements()) {
+			if (!elt->valid()) {
+				continue;
+			}
+			assert(c < elt->c_fields().size());
+			PVCol cur_c = 0;
+			for (PVField const& field: elt->fields()) {
+				if (cur_c == c) {
+					f(r, field);
+					break;
+				}
+				cur_c++;
+			}
+			r++;
+		}
+	}
+
+	// Column cache-aware visitor
+	// TODO: at most eight field stream per line!
+	template <typename F>
+	void visit_by_column(F const& f) const
+	{
+		PVRow r = 0;
+		for (PVElement* elt: c_elements()) {
+			if (!elt->valid()) {
+				continue;
+			}
+			PVCol c = 0;
+			for (PVField const& field: elt->fields()) {
+				f(r, c, field);
+				c++;
+			}
+			r++;
+		}
+	}
+
 public:
 	void set_elements_index()
 	{
@@ -214,8 +255,8 @@ protected:
 };
 
 
-template < template <class T> class Allocator = PVCore::PVMMapAllocator >
-//template < template <class T> class Allocator = tbb::tbb_allocator >
+//template < template <class T> class Allocator = PVCore::PVMMapAllocator >
+template < template <class T> class Allocator = tbb::scalable_allocator >
 //template < template <class T> class Allocator = std::allocator >
 
 class PVChunkMem : public PVChunk {

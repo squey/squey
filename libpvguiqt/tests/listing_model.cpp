@@ -61,6 +61,7 @@ int main(int argc, char** argv)
 			view.reset();
 		}
 	);
+	src->get_rushnraw().at(26718, 0);
 
 	int ret = app.exec();
 	key_thread.join();

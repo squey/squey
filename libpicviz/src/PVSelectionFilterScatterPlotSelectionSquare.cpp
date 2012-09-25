@@ -60,7 +60,7 @@ void Picviz::PVSelectionFilterScatterPlotSelectionSquare::operator()(PVSelection
 	x2_min = _args["x2_min"].toFloat();
 	x2_max = _args["x2_max"].toFloat();
 
-	nb_lines = _view->get_qtnraw_parent().get_nrows();
+	nb_lines = _view->get_row_count();
 // 
 	for (counter = 0; counter < nb_lines; counter++) {
 // 		if (_view->get_line_state_in_pre_filter_layer(counter)) {

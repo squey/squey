@@ -131,3 +131,7 @@ target_link_libraries(Tcore_raid_test ${PVKERNEL_LIBRARIES})
 # Decimal storage
 add_executable(Tcore_decimal_storage decimal_storage.cpp)
 target_link_libraries(Tcore_decimal_storage ${PVKERNEL_LIBRARIES})
+
+# Huge POD vector
+add_executable(Tcore_huge_vector huge_vector.cpp)
+target_link_libraries(Tcore_huge_vector ${PVKERNEL_LIBRARIES})

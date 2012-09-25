@@ -33,7 +33,7 @@ Picviz::PVSource_sp get_src_from_file(Picviz::PVScene_sp scene, QString const& p
 	Picviz::PVSource_p src(scene, PVRush::PVInputType::list_inputs() << file, sc_file, format);
 	src->get_extractor().get_agg().set_strict_mode(true);
 	PVRush::PVControllerJob_p job = src->extract_from_agg_nlines(0, 200000);
-	job->wait_end();
+	src->wait_extract_end(job);
 
 	return src;
 }

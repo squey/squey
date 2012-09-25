@@ -8,7 +8,7 @@
 #include <pvkernel/core/PVField.h>
 #include <pvkernel/core/PVChunk.h>
 
-tbb::tbb_allocator<PVCore::PVElement> PVCore::PVElement::_alloc;
+tbb::scalable_allocator<PVCore::PVElement> PVCore::PVElement::_alloc;
 //std::allocator<PVCore::PVElement> PVCore::PVElement::_alloc;
 
 PVCore::PVElement::PVElement(PVChunk* parent) :

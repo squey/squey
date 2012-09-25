@@ -6,25 +6,21 @@
 
 #include "PVMappingFilterFloatDefault.h"
 
-
-Picviz::PVMappingFilter::decimal_storage_type* Picviz::PVMappingFilterFloatDefault::operator()(PVRush::PVNraw::const_trans_nraw_table_line const& values)
+Picviz::PVMappingFilter::decimal_storage_type Picviz::float_mapping::process_utf8(const char* buf, size_t size, PVMappingFilter*)
 {
-	assert(_dest);
-	assert(values.size() >= _dest_size);
+	Picviz::PVMappingFilter::decimal_storage_type ret_ds;
+	assert(buf[size] == '\0');
+	ret_ds.storage_as_float() = strtof(buf, NULL);
+	return ret_ds;
+}
 
-	const ssize_t size = values.size();
-	
-#pragma omp parallel
-	{
-		QString stmp;
-#pragma omp parallel for
-		for (ssize_t i = 0; i < size; i++) {
-			values[i].get_qstr(stmp);
-			_dest[i].storage_as_float() = stmp.toFloat();
-		}
-	}
-
-	return _dest;
+Picviz::PVMappingFilter::decimal_storage_type Picviz::float_mapping::process_utf16(const uint16_t* buf, size_t size, PVMappingFilter* m)
+{
+	QString& qstr = static_cast<Picviz::PVMappingFilterFloatDefault*>(m)->th_qs().local();
+	qstr.setRawData((QChar const*) buf, size);
+	Picviz::PVMappingFilter::decimal_storage_type ret_ds;
+	ret_ds.storage_as_float() = qstr.toFloat();
+	return ret_ds;
 }
 
 IMPL_FILTER_NOPARAM(Picviz::PVMappingFilterFloatDefault)

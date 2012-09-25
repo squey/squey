@@ -75,7 +75,7 @@ int main(int argc, char** argv)
 
 		PVLOG_INFO("Asking 20 million lines...\n");
 		// Ask for 1 million lines
-		PVRush::PVControllerJob_p job = ext.process_from_agg_nlines(0, 5000000);
+		PVRush::PVControllerJob_p job = ext.process_from_agg_nlines(0, 20000000);
 		job->wait_end();
 		PVLOG_INFO("Extraction finished. Press a key to remove the NRAW\n");
 		//getchar();

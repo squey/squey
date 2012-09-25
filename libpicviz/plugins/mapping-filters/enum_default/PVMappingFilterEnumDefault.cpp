@@ -49,14 +49,33 @@ uint32_t Picviz::PVMappingFilterEnumDefault::_enum_position_factorize(uint32_t v
 	return v;
 }
 
-Picviz::PVMappingFilter::decimal_storage_type* Picviz::PVMappingFilterEnumDefault::operator()(PVRush::PVNraw::const_trans_nraw_table_line const& values)
+void Picviz::PVMappingFilterEnumDefault::init()
+{
+	_poscount = 0;
+	_hash16_v.clear();
+	_hash16_nocase_v.clear();
+}
+
+Picviz::PVMappingFilter::decimal_storage_type* Picviz::PVMappingFilterEnumDefault::operator()(PVCol const c, PVRush::PVNraw const& nraw)
 {
 	if (_case_sensitive) {
-		return process<hash_values>(values);
+		return process_nraw<hash_values>(c, nraw);
+	}
+
+	return process_nraw<hash_nocase_values>(c, nraw);
+}
+
+Picviz::PVMappingFilter::decimal_storage_type Picviz::PVMappingFilterEnumDefault::operator()(PVCore::PVField const& field)
+{
+	PVCore::PVUnicodeString16 uni_str(field);
+	Picviz::PVMappingFilter::decimal_storage_type ret_ds;
+	if (_case_sensitive) {
+		ret_ds.storage_as_uint() = process<hash16_values>(uni_str, _hash16_v, _poscount);
 	}
 	else {
-		return process<hash_nocase_values>(values);
+		ret_ds.storage_as_uint() = process<hash16_nocase_values>(uni_str, _hash16_nocase_v, _poscount);
 	}
+	return ret_ds;
 }
 
 IMPL_FILTER(Picviz::PVMappingFilterEnumDefault)

@@ -106,10 +106,6 @@ public:
 	virtual QString get_serialize_description() const { return "Plotting: " + get_name(); }
 
 public:
-	// Parents
-	PVRush::PVNraw::nraw_table& get_qtnraw();
-	const PVRush::PVNraw::nraw_table& get_qtnraw() const;
-
 	PVRush::PVNraw& get_rushnraw_parent();
 	const PVRush::PVNraw& get_rushnraw_parent() const;
 

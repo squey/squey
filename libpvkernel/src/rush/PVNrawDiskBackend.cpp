@@ -177,7 +177,7 @@ void PVRush::PVNrawDiskBackend::flush()
 			}
 		}
 		PVCore::PVAlignedAllocator<char, BUF_ALIGN>().deallocate(column.buffer_write, _write_buffers_size_pattern[column.buffers_write_size_idx]);
-		column.reset();
+		//column.reset();
 	}
 
 	store_index_to_disk();
@@ -313,7 +313,6 @@ void PVRush::PVNrawDiskBackend::clear()
 
 void PVRush::PVNrawDiskBackend::print_stats()
 {
-	PVLOG_INFO("read: %d msec\n", this->_read_interval.seconds()*1000);
 	PVLOG_INFO("search: %d msec\n", this->_search_interval.seconds()*1000);
 	PVLOG_INFO("resize: %d msec\n", this->_matrix_resize_interval.seconds()*1000);
 }
@@ -344,6 +343,7 @@ char* PVRush::PVNrawDiskBackend::next(uint64_t col, uint64_t nb_fields, char* bu
 	else {
 		char* end_field_ptr = nullptr;
 		uint64_t size_to_read = READ_BUFFER_SIZE - (buffer - column.buffer_read_ptr);
+		// TODO: vectorize this!
 		for (uint64_t i = 0; i < nb_fields; i++) {
 			end_field_ptr = (char*) memchr(buffer_ptr, '\0', size_to_read);
 			assert(end_field_ptr && ((uintptr_t)end_field_ptr - (uintptr_t)column.buffer_read < (size_t)READ_BUFFER_SIZE));
@@ -394,6 +394,7 @@ uint64_t PVRush::PVNrawDiskBackend::PVCachePool::get_cache(uint64_t field, uint6
 
 	// Yes
 	if (cache_idx < NB_CACHE_BUFFERS) {
+		PVLOG_INFO("Found cache for col %llu\n", col);
 		PVReadCache& cache = _caches[cache_idx];
 		cache_miss = (field < cache.first_field || field > cache.last_field);
 	}
@@ -433,6 +434,8 @@ uint64_t PVRush::PVNrawDiskBackend::PVCachePool::get_cache(uint64_t field, uint6
 		cache.last_field = _parent._indexes.at(field_index+1, col).field-1;
 		column.buffer_read = buffer_ptr;
 	}
+
+	PVLOG_INFO("PVNrawDiskBackend::get_cache: row/col: %llu/%llu, cache miss: %d\n", field, col, cache_miss);
 
 	// Update cache timestamp
 	cache.timestamp = tbb::tick_count::now();
@@ -474,11 +477,12 @@ int64_t PVRush::PVNrawDiskBackend::PVCachePool::get_index(uint64_t col, uint64_t
 	  }
 	  }
 	  }*/
-	if (_parent._indexes_nrows == 0) {
+	const size_t findexed = _parent.get_col(col).fields_indexed;
+	if (findexed == 0) {
 		return -1;
 	}
 
-	for (int64_t index = _parent._indexes_nrows-1; index >= 0; index--) {
+	for (int64_t index = findexed-1; index >= 0; index--) {
 		if (indexes.at(index, col).field <= field) {
 			return index;
 		}

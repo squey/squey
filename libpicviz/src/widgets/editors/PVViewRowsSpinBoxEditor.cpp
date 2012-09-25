@@ -37,7 +37,7 @@ PVWidgets::PVViewRowsSpinBoxEditor::~PVViewRowsSpinBoxEditor()
  *****************************************************************************/
 void PVWidgets::PVViewRowsSpinBoxEditor::set_spin(PVCore::PVSpinBoxType s)
 {
-	setRange(1, _view.get_qtnraw_parent().get_nrows());
+	setRange(1, _view.get_row_count());
 	setValue(s.get_value());
 }
 

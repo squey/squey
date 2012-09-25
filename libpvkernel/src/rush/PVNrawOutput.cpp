@@ -8,7 +8,7 @@
 #include <pvkernel/core/PVChunk.h>
 #include <pvkernel/core/PVField.h>
 
-#include <tbb/tbb_allocator.h>
+#include <tbb/parallel_invoke.h>
 
 PVRush::PVNrawOutput::PVNrawOutput(PVRush::PVNraw &nraw_dest) :
 	_nraw_dest(nraw_dest)
@@ -18,7 +18,23 @@ PVRush::PVNrawOutput::PVNrawOutput(PVRush::PVNraw &nraw_dest) :
 
 void PVRush::PVNrawOutput::operator()(PVCore::PVChunk* out)
 {
-	if (_nraw_dest.add_chunk_utf16(*out)) {
+	bool ret_add;
+	if (_chunk_funcs.size() > 0) {
+		tbb::parallel_invoke(
+			[&] {
+				for (chunk_function_type const& f: this->_chunk_funcs) {
+					f(out, _nraw_dest.get_number_rows());
+				}
+			},
+			[&] {
+				ret_add = this->_nraw_dest.add_chunk_utf16(*out);
+			});
+	}
+	else {
+		ret_add = _nraw_dest.add_chunk_utf16(*out);
+	}
+
+	if (ret_add) {
 		// Save the chunk corresponding index
 		_pvrow_chunk_idx[_nraw_cur_index] = out->agg_index();
 

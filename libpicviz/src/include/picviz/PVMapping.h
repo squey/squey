@@ -67,13 +67,6 @@ public:
 	PVRush::PVFormat_p get_format() const;
 
 public:
-	// NRAW
-	PVRush::PVNraw::nraw_table& get_qtnraw();
-	PVRush::PVNraw::nraw_trans_table const& get_trans_nraw() const;
-	void clear_trans_nraw();
-	const PVRush::PVNraw::nraw_table& get_qtnraw() const;
-
-public:
 	// Column properties
 	PVMappingFilter::p_type get_filter_for_col(PVCol col);
 	QString const& get_type_for_col(PVCol col) const;

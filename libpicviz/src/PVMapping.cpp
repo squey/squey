@@ -36,9 +36,9 @@ Picviz::PVMapping::PVMapping(PVMapped* mapped):
 	_mandatory_filters_values.resize(naxes);
 
 	PVLOG_DEBUG("In PVMapping::PVMapping(), debug PVFormat\n");
-	source->get_rushnraw().format->debug();
+	source->get_rushnraw().get_format()->debug();
 	for (PVCol i = 0; i < naxes; i++) {
-		PVMappingProperties mapping_axis(*source->get_rushnraw().format, i);
+		PVMappingProperties mapping_axis(*source->get_rushnraw().get_format(), i);
 		add_column(mapping_axis);
 		PVLOG_HEAVYDEBUG("%s: Add a column\n", __FUNCTION__);
 	}
@@ -75,19 +75,6 @@ void Picviz::PVMapping::add_column(PVMappingProperties const& props)
 }
 
 
-
-/******************************************************************************
- *
- * Picviz::PVMapping::clear_trans_nraw
- *
- *****************************************************************************/
-void Picviz::PVMapping::clear_trans_nraw()
-{
-	_mapped->get_parent()->clear_trans_nraw();
-}
-
-
-
 /******************************************************************************
  *
  * Picviz::PVMapping::get_filter_for_col
@@ -111,7 +98,7 @@ PVCore::DecimalType Picviz::PVMapping::get_decimal_type_of_col(PVCol const j) co
  *****************************************************************************/
 PVRush::PVFormat_p Picviz::PVMapping::get_format() const
 {
-	return _mapped->get_parent()->get_rushnraw().format;
+	return _mapped->get_parent()->get_rushnraw().get_format();
 }
 
 
@@ -164,43 +151,6 @@ QString const& Picviz::PVMapping::get_mode_for_col(PVCol col) const
 	assert(col < columns.size());
 	return get_properties_for_col(col).get_mode();
 }
-
-
-
-/******************************************************************************
- *
- * Picviz::PVMapping::get_qtnraw
- *
- *****************************************************************************/
-PVRush::PVNraw::nraw_table& Picviz::PVMapping::get_qtnraw()
-{
-	return _mapped->get_parent()->get_qtnraw();
-}
-
-
-
-/******************************************************************************
- *
- * Picviz::PVMapping::get_qtnraw
- *
- *****************************************************************************/
-const PVRush::PVNraw::nraw_table& Picviz::PVMapping::get_qtnraw() const
-{
-	return _mapped->get_parent()->get_qtnraw();
-}
-
-
-/******************************************************************************
- *
- * Picviz::PVMapping::get_trans_nraw
- *
- *****************************************************************************/
-PVRush::PVNraw::nraw_trans_table const& Picviz::PVMapping::get_trans_nraw() const
-{
-	return _mapped->get_parent()->get_trans_nraw();
-}
-
-
 
 /******************************************************************************
  *

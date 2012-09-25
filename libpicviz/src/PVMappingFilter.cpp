@@ -15,33 +15,7 @@ Picviz::PVMappingFilter::PVMappingFilter()
 	_grp_value = NULL;
 }
 
-Picviz::PVMappingFilter::decimal_storage_type* Picviz::PVMappingFilter::operator()(PVRush::PVNraw::const_trans_nraw_table_line const& values)
-{
-	assert(_dest);
-	assert(values.size() >= _dest_size);
-
-	init_from_first(values[0].get_qstr());
-#pragma omp parallel
-	{
-		QString stmp;
-#pragma omp parallel for
-		for (int64_t i = 0; i < _dest_size; i++) {
-			_dest[i] = operator()(values[i].get_qstr(stmp));
-		}
-	}
-
-	return _dest;
-}
-
-Picviz::PVMappingFilter::decimal_storage_type Picviz::PVMappingFilter::operator()(QString const& /*value*/)
-{
-	PVLOG_WARN("In default mapping filter: does nothing !\n");
-	decimal_storage_type ret;
-	ret.set_min<uint32_t>();
-	return ret;
-}
-
-void Picviz::PVMappingFilter::init_from_first(QString const& /*value*/)
+void Picviz::PVMappingFilter::init()
 {
 }
 

@@ -101,6 +101,8 @@ PVRush::PVControllerJob_p Picviz::PVSource::extract()
 		view_p->set_consistent(false);
 	}
 
+	set_mapping_function_in_extractor();
+
 	PVRush::PVControllerJob_p job = _extractor.process_from_agg_nlines_last_param();
 	return job;
 }
@@ -113,8 +115,22 @@ PVRush::PVControllerJob_p Picviz::PVSource::extract_from_agg_nlines(chunk_index 
 		view_p->set_consistent(false);
 	}
 
+	set_mapping_function_in_extractor();
+
 	PVRush::PVControllerJob_p job = _extractor.process_from_agg_nlines(start, nlines);
 	return job;
+}
+
+void Picviz::PVSource::set_mapping_function_in_extractor()
+{
+	PVRush::PVNrawOutput::list_chunk_functions& funcs = _extractor.chunk_functions();
+	funcs.clear();
+
+	children_t const& mappeds = get_children();
+	for (auto m: mappeds) {
+		funcs.emplace_back(boost::bind<void>(&PVMapped::process_rush_pipeline_chunk, m.get(), _1, _2));
+		m->init_process_from_rush_pipeline();
+	}
 }
 
 void Picviz::PVSource::wait_extract_end(PVRush::PVControllerJob_p job)
@@ -132,9 +148,9 @@ void Picviz::PVSource::select_view(PVView& view)
 
 void Picviz::PVSource::extract_finished()
 {
-	// Set all mapped children as invalid
+	// Finish mapping process. That will set all mapping as valid!
 	for (auto mapped_p : get_children<PVMapped>()) {
-		mapped_p->invalidate_all();
+		mapped_p->finish_process_from_rush_pipeline();
 	}
 
 	// Reset all views and process the current one
@@ -160,11 +176,6 @@ void Picviz::PVSource::set_format(PVRush::PVFormat const& format)
 	_extractor.set_chunk_filter(chk_flt);
 }
 
-PVRush::PVNraw::nraw_table& Picviz::PVSource::get_qtnraw()
-{
-	return nraw->get_table();
-}
-
 PVRush::PVNraw& Picviz::PVSource::get_rushnraw()
 {
 	return *nraw;
@@ -173,21 +184,6 @@ PVRush::PVNraw& Picviz::PVSource::get_rushnraw()
 const PVRush::PVNraw& Picviz::PVSource::get_rushnraw() const
 {
 	return *nraw;
-}
-
-PVRush::PVNraw::nraw_trans_table const& Picviz::PVSource::get_trans_nraw() const
-{
-	return nraw->get_trans_table();
-}
-
-void Picviz::PVSource::clear_trans_nraw()
-{
-	nraw->free_trans_nraw();
-}
-
-const PVRush::PVNraw::nraw_table& Picviz::PVSource::get_qtnraw() const
-{
-	return nraw->get_table();
 }
 
 PVRow Picviz::PVSource::get_row_count() const

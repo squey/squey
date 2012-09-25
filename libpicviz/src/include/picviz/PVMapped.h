@@ -13,10 +13,10 @@
 #include <QHash>
 #include <QVector>
 
+#include <pvkernel/core/general.h>
 #include <pvkernel/core/PVDecimalStorage.h>
 #include <pvkernel/core/PVDataTreeObject.h>
-#include <pvkernel/core/general.h>
-#include <pvkernel/core/PVListFloat2D.h>
+#include <pvkernel/core/PVHugePODVector.h>
 
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVNraw.h>
@@ -49,7 +49,9 @@ public:
 	typedef Picviz::mapped_decimal_storage_type decimal_storage_type;
 	typedef std::vector< std::pair<PVRow, decimal_storage_type> > mapped_sub_col_t;
 	typedef children_t list_plotted_t;
-	typedef PVCore::PVMatrix<decimal_storage_type, PVCol, PVRow> mapped_table_t;
+	//typedef PVCore::PVMatrix<decimal_storage_type, PVCol, PVRow> mapped_table_t;
+	typedef PVCore::PVHugePODVector<decimal_storage_type, 16> mapped_row_t;
+	typedef std::vector<mapped_row_t> mapped_table_t;
 
 protected:
 	PVMapped();
@@ -59,6 +61,7 @@ public:
 
 	// For PVSource
 	void invalidate_all();
+	void validate_all();
 	void add_column(PVMappingProperties const& props);
 	
 public:
@@ -79,28 +82,30 @@ public:
 
 	inline PVCore::DecimalType get_decimal_type_of_col(PVCol const j) const { return _mapping->get_decimal_type_of_col(j); }
 
+protected:
+	// This is accessed by PVSource !
+	void init_process_from_rush_pipeline();
+	void finish_process_from_rush_pipeline();
+	void process_rush_pipeline_chunk(PVCore::PVChunk const* chunk, PVRow const cur_r);
+
 public:
 	// Data access
 	PVRow get_row_count() const;
 	PVCol get_column_count() const;
 	void get_sub_col_minmax(mapped_sub_col_t& ret, decimal_storage_type& min, decimal_storage_type& max, PVSelection const& sel, PVCol col) const;
 
-	inline decimal_storage_type get_value(PVRow row, PVCol col) const { return _trans_table.at(col, row); }
+	inline decimal_storage_type get_value(PVRow row, PVCol col) const { return _trans_table[col][row]; }
 
-	inline decimal_storage_type* get_column_pointer(PVCol col) { return _trans_table.get_row_ptr(col); }
-	inline decimal_storage_type const* get_column_pointer(PVCol col) const { return _trans_table.get_row_ptr(col); }
+	inline decimal_storage_type* get_column_pointer(PVCol col) { return &_trans_table[col][0]; }
+	inline decimal_storage_type const* get_column_pointer(PVCol col) const { return &_trans_table[col][0]; }
+
+	inline mapped_table_t const& get_table() const { return _trans_table; }
 
 public:
 	// Debugging functions
 	void to_csv();
 
 public:
-	// NRAW
-	PVRush::PVNraw::nraw_table& get_qtnraw();
-	const PVRush::PVNraw::nraw_table& get_qtnraw() const;
-	const PVRush::PVNraw::nraw_trans_table& get_trans_nraw() const;
-	void clear_trans_nraw();
-	
 	PVRush::PVFormat_p get_format() const;
 
 protected:
@@ -116,10 +121,16 @@ protected:
 private:
 	void invalidate_plotted_children_column(PVCol j);
 	void create_table();
+	void allocate_table(PVRow const nrows, PVCol const ncols);
+	void reallocate_table(PVRow const nrows);
 
 protected:
 	mapped_table_t _trans_table;
 	PVMapping_p _mapping;
+	std::vector<PVMappingFilter::p_type> _mapping_filters_rush;
+	// This is a hash whose key is "group_type", that contains the PVArgument
+	// passed through all mapping filters that have the same group and type
+	QHash<QString, PVCore::PVArgument> _grp_values_rush;
 };
 
 typedef PVMapped::p_type PVMapped_p;

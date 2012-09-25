@@ -97,7 +97,7 @@ int main(int argc, char** argv)
 	Picviz::PVScene_p scene(root, "scene");
 	Picviz::PVSource_p src(scene, PVRush::PVInputType::list_inputs() << file, sc_file, format);
 	PVRush::PVControllerJob_p job = src->extract();
-	job->wait_end();
+	src->wait_extract_end(job);
 	PVLOG_INFO("Extracted %u lines...\n", src->get_row_count());
 
 	// Map the nraw

@@ -17,7 +17,6 @@
 #include <picviz/PVMapping.h>
 #include <picviz/PVPlotted.h>
 #include <picviz/PVPlotting.h>
-#include <picviz/PVSortQVectorQStringList.h>
 
 #include <tbb/tick_count.h>
 
@@ -352,14 +351,14 @@ float Picviz::PVView::get_column_count_as_float()
  * Picviz::PVView::get_data
  *
  *****************************************************************************/
-QString Picviz::PVView::get_data(PVRow row, PVCol column)
+QString Picviz::PVView::get_data(PVRow row, PVCol column) const
 {
 	PVCol real_index = axes_combination.get_axis_column_index_fast(column);
 
-	return get_qtnraw_parent().at(row, real_index).get_qstr();
+	return get_rushnraw_parent().at(row, real_index);
 }
 
-PVCore::PVUnicodeString const& Picviz::PVView::get_data_unistr(PVRow row, PVCol column)
+PVCore::PVUnicodeString Picviz::PVView::get_data_unistr(PVRow row, PVCol column) const
 {
 	PVCol real_index = axes_combination.get_axis_column_index_fast(column);
 	return get_rushnraw_parent().at_unistr(row, real_index);
@@ -551,21 +550,6 @@ Picviz::PVLayer &Picviz::PVView::get_post_filter_layer()
 Picviz::PVLayer &Picviz::PVView::get_pre_filter_layer()
 {
 	return pre_filter_layer;
-}
-
-/******************************************************************************
- *
- * Picviz::PVView::get_qtnraw_parent
- *
- *****************************************************************************/
-PVRush::PVNraw::nraw_table& Picviz::PVView::get_qtnraw_parent()
-{
-	return get_parent<PVPlotted>()->get_qtnraw();
-}
-
-const PVRush::PVNraw::nraw_table& Picviz::PVView::get_qtnraw_parent() const
-{
-	return get_parent<PVPlotted>()->get_qtnraw();
 }
 
 /******************************************************************************

@@ -63,17 +63,11 @@ public:
 	/* Functions */
 	PVCol get_column_count() const;
 
-	PVRush::PVNraw::nraw_table& get_qtnraw();
-	const PVRush::PVNraw::nraw_table& get_qtnraw() const;
-
 	PVRush::PVNraw& get_rushnraw();
 	const PVRush::PVNraw& get_rushnraw() const;
 
-	const PVRush::PVNraw::nraw_trans_table& get_trans_nraw() const;
-	void clear_trans_nraw();
-
 	QString get_value(PVRow row, PVCol col) const;
-	inline PVCore::PVUnicodeString const& get_data_unistr_raw(PVRow row, PVCol column) const { return nraw->at_unistr(row, column); }
+	inline PVCore::PVUnicodeString get_data_unistr_raw(PVRow row, PVCol column) const { return nraw->at_unistr(row, column); }
 
 	PVRow get_row_count() const;
 
@@ -116,6 +110,7 @@ public:
 private:
 	void add_column(Picviz::PVAxis const& axis);
 	void set_views_consistent(bool cons);
+	void set_mapping_function_in_extractor();
 
 protected:
 	virtual void set_parent_from_ptr(PVScene* parent);

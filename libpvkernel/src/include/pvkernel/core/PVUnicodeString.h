@@ -18,17 +18,11 @@ class PVUnicodeStringHashNoCase;
 
 }
 
-#ifdef QHASH_H
-//#warning libpvkernel/core/PVUnicodeString.h must be included before QHash if you want to use it as a QHash key.
-#endif
-LibKernelDecl unsigned int qHash(PVCore::PVUnicodeString const& str);
-LibKernelDecl unsigned int qHash(PVCore::PVUnicodeStringHashNoCase const& str);
-
 #include <pvkernel/core/general.h>
 #include <pvkernel/core/PVBufferSlice.h>
 
 namespace PVCore {
-/*! \brief Defines a read-only UTF16 string object.
+/*! \brief Defines a read-only UTF8 string object.
  *  Design for performance, and does not use any explicit or implicit sharing as opposed to
  *  QString objects.
  *
@@ -42,7 +36,7 @@ namespace PVCore {
 class LibKernelDecl PVUnicodeString
 {
 public:
-	typedef uint16_t utf_char;
+	typedef uint8_t utf_char;
 public:
 	// Inline constructors
 	PVUnicodeString(PVBufferSlice const& buf)
@@ -97,17 +91,12 @@ public:
 	inline uint32_t len() const { return _len; };
 	inline QString get_qstr() const
 	{
-		/*
-		if (_qstr.isNull()) {
-			_qstr.setRawData((QChar*) _buf, _len);
-		}
-		return _qstr;
-		*/
-		return QString::fromRawData((QChar*) _buf, _len);
+		return QString::fromUtf8((const char*) _buf, _len);
 	}
 	inline QString& get_qstr(QString& s) const
 	{
-		s.setRawData((QChar*) _buf, _len);
+		// We can't get away from that QString's allocation... :/
+		s = QString::fromUtf8((const char*) _buf, _len);
 		return s;
 	}
 

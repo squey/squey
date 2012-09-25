@@ -35,7 +35,7 @@ struct RawFilePolicy
 {
 	typedef int file_t;
 
-	bool Open(std::string const& filename, file_t* file, bool direct = true, bool trunc = false)
+	static bool Open(std::string const& filename, file_t* file, bool direct = true, bool trunc = false)
 	{
 		int64_t flags = O_RDWR | O_CREAT;
 		if (direct) {
@@ -48,28 +48,24 @@ struct RawFilePolicy
 		return *file != -1;
 	}
 
-	inline int64_t Write(const void* content, uint64_t buf_size, file_t file)
+	static inline int64_t Write(const void* content, uint64_t buf_size, file_t file)
 	{
 		return write(file, content, buf_size);
 	}
 
-	inline int64_t Read(file_t file, void* buffer,  uint64_t buf_size)
+	static inline int64_t Read(file_t file, void* buffer,  uint64_t buf_size)
 	{
-		tbb::tick_count t1 = tbb::tick_count::now();
 		int64_t r = read(file, buffer, buf_size);
-		tbb::tick_count t2 = tbb::tick_count::now();
-		_read_interval += (t2-t1);
-
 		return r;
 	}
 
-	inline int64_t ReadAt(file_t file, uint64_t offset, void* buffer, uint64_t buf_size)
+	static inline int64_t ReadAt(file_t file, uint64_t offset, void* buffer, uint64_t buf_size)
 	{
 		lseek(file, offset, SEEK_SET);
 		return Read(file, buffer, buf_size);
 	}
 
-	inline int64_t Seek(file_t file, int64_t offset)
+	static inline int64_t Seek(file_t file, int64_t offset)
 	{
 		off_t ret;
 		if ((ret = lseek(file, offset, SEEK_SET)) == (off_t)-1) {
@@ -79,12 +75,12 @@ struct RawFilePolicy
 		return ret;
 	}
 
-	inline int64_t Tell(file_t file)
+	static inline int64_t Tell(file_t file)
 	{
 		return lseek(file, 0, SEEK_CUR);
 	}
 
-	inline uint64_t Size(file_t file)
+	static inline uint64_t Size(file_t file)
 	{
 		int64_t pos = Tell(file);
 		uint64_t size = lseek(file, 0, SEEK_END);
@@ -92,82 +88,75 @@ struct RawFilePolicy
 		return size;
 	}
 
-	void Flush(file_t)
+	static void Flush(file_t)
 	{
 	}
 
-	void Close(file_t file)
+	static void Close(file_t file)
 	{
 		close(file);
 	}
 
-	void Truncate(file_t& file, off_t l)
+	static void Truncate(file_t& file, off_t l)
 	{
 		ftruncate(file, l);
 	}
-
-	tbb::tick_count::interval_t _read_interval;
 };
 
 struct BufferedFilePolicy
 {
 	typedef FILE* file_t;
 
-	bool Open(std::string const& filename, file_t* file)
+	static bool Open(std::string const& filename, file_t* file)
 	{
 		*file = fopen(filename.c_str(), "rw");
 		return *file != nullptr;
 	}
 
-	inline int64_t Write(const void* content, uint64_t buf_size, file_t file)
+	static inline int64_t Write(const void* content, uint64_t buf_size, file_t file)
 	{
 		return fwrite(content, buf_size, 1, file);
 	}
 
-	inline int64_t Read(file_t file, void* buffer, uint64_t buf_size)
+	static inline int64_t Read(file_t file, void* buffer, uint64_t buf_size)
 	{
-		tbb::tick_count t1 = tbb::tick_count::now();
 		int64_t r = fread(buffer, 1, buf_size, file);
-		tbb::tick_count t2 = tbb::tick_count::now();
-		_read_interval += (t2-t1);
 		return r;
 	}
 
-	inline int64_t ReadAt(file_t file, uint64_t offset, void* buffer, uint64_t buf_size)
+	static inline int64_t ReadAt(file_t file, uint64_t offset, void* buffer, uint64_t buf_size)
 	{
 		fseek(file, offset, SEEK_SET);
 		return Read(file, buffer, buf_size);
 	}
 
-	inline int64_t Seek(file_t file, int64_t offset)
+	static inline int64_t Seek(file_t file, int64_t offset)
 	{
 		return fseek(file, offset, SEEK_CUR);
 	}
 
-	inline int64_t Tell(file_t file)
+	static inline int64_t Tell(file_t file)
 	{
 		return ftell(file);
 	}
 
-	void Flush(file_t file)
+	static void Flush(file_t file)
 	{
 		fflush(file);
 	}
 
-	void Close(file_t file)
+	static void Close(file_t file)
 	{
 		fclose(file);
 	}
-
-	tbb::tick_count::interval_t _read_interval;
 };
 
 class PVNrawDiskBackend: private RawFilePolicy
 {
 	static constexpr uint64_t BUF_ALIGN = 512;
-	static constexpr uint64_t READ_BUFFER_SIZE = 2*1024*1024;
-	static constexpr uint64_t NB_CACHE_BUFFERS = 3;
-	static constexpr uint64_t INVALID = UINT64_MAX;
+	static constexpr uint64_t READ_BUFFER_SIZE = 256*1024;
+	static constexpr uint64_t NB_CACHE_BUFFERS = 10;
+	static constexpr uint64_t INVALID = std::numeric_limits<uint64_t>::max();
 	static constexpr size_t   SERIAL_READ_BUFFER_SIZE = 2*1024*1024;
 
 private:
@@ -316,7 +305,7 @@ public:
 		size_t prev_off = 0;
 		size_t cur_field = 0;
 		typename index_table_t::column index_col = _indexes.get_col(col_idx);
-		for (size_t i = 0; i < _indexes_nrows; i++) {
+		for (size_t i = 0; i < column.fields_indexed; i++) {
 			offset_fields_t const& off_field = index_col.at(i);
 			const size_t off = off_field.offset;
 			const size_t end_field = off_field.field;
@@ -360,7 +349,7 @@ public:
 			tbb::make_filter<void, typename tbb_chunks_t::chunk_t*>(tbb::filter::serial_in_order,
 				[&](tbb::flow_control& fc) -> typename tbb_chunks_t::chunk_t*
 				{
-					if (cur_idx >= _indexes_nrows) {
+					if (cur_idx >= column.fields_indexed) {
 						fc.stop();
 						return nullptr;
 					}
@@ -392,7 +381,7 @@ public:
 					this->visit_column_process_chunk_sse(c->start_field, c->end_field-1, &c->buf[0], c->size_data, f);
 #else
 					const size_t processed_size = this->visit_column_process_chunk_sse(c->start_field, c->end_field-1, &c->buf[0], c->size_data, f);
-					assert(!((processed_size != c->size_data) || (c->start_field != c->end_field)));
+					//assert(!((processed_size != c->size_data) || (c->start_field != c->end_field)));
 #endif
 					return c;
 				}) &

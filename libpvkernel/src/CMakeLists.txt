@@ -49,6 +49,7 @@ core/PVSerializeObject.cpp
 core/PVSplitter.cpp
 core/PVUtils.cpp
 core/PVUnicodeString.cpp
+core/PVUnicodeString16.cpp
 core/PVVersion.cpp
 core/PVAllocators.cpp
 )

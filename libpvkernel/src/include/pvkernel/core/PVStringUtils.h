@@ -20,7 +20,7 @@ namespace PVCore {
 
 class PVStringUtils {
 public:
-	static inline uint64_t compute_str_factor(PVCore::PVUnicodeString const& str, bool case_sensitive = true)
+	static inline uint64_t compute_str_factor16(uint16_t const* str, size_t size, bool case_sensitive = true)
 	{
 		// Using QString::toUtf8 and not QString::toLocal8Bit(), so that the "factor" variable
 		// isn't system-locale dependant.
@@ -33,8 +33,7 @@ public:
 		}
 
 		const char* value_as_char_p = value_as_qba.data();*/
-		const uint16_t* u16_buf = (const uint16_t*) str.buffer();
-		size_t size = str.size();
+		const uint16_t* u16_buf = str;
 
 		// AG: this is now historical, but still interesting !
 		// This is a reduction. Do this with a for loop, so that we have more chance that the compiler
@@ -74,6 +73,19 @@ public:
 			for (size_t i = 0; i < size; i++) {
 				factor_int += QChar::toLower(u16_buf[i]);
 			}
+		}
+
+		return factor_int;
+	};
+
+	static inline uint64_t compute_str_factor(PVCore::PVUnicodeString const& str, bool /*case_sensitive*/)
+	{
+		const uint8_t* u8_buf = (const uint8_t*) str.buffer();
+		size_t size = str.size();
+
+		uint64_t factor_int = 0;
+		for (size_t i = 0; i < size; i++) {
+			factor_int += u8_buf[i];
 		}
 
 		return factor_int;

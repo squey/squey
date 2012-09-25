@@ -8,17 +8,24 @@
 #define PVFILTER_PVMAPPINGFILTERINTEGER_H
 
 #include <pvkernel/core/general.h>
-#include <picviz/PVMappingFilter.h>
+#include <picviz/PVPureMappingFilter.h>
 
 namespace Picviz {
 
-class PVMappingFilterIntegerDefault: public PVMappingFilter
+class PVMappingFilterIntegerDefault;
+
+struct integer_mapping
+{
+	static Picviz::PVMappingFilter::decimal_storage_type process_utf8(const char* buf, size_t size, PVMappingFilter* m);
+	static Picviz::PVMappingFilter::decimal_storage_type process_utf16(uint16_t const* buf, size_t size, PVMappingFilter* m);
+};
+
+class PVMappingFilterIntegerDefault: public PVPureMappingFilter<integer_mapping>
 {
 public:
 	PVMappingFilterIntegerDefault(PVCore::PVArgumentList const& args = PVMappingFilterIntegerDefault::default_args());
 
 public:
-	decimal_storage_type* operator()(PVRush::PVNraw::const_trans_nraw_table_line const& values) override;
 	QString get_human_name() const override { return QString("default"); }
 	PVCore::DecimalType get_decimal_type() const override;
 	void set_args(PVCore::PVArgumentList const& args) override;
