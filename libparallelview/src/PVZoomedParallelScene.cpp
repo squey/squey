@@ -101,6 +101,9 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 	PVHive::PVHive::get().register_func_observer(sliders_manager_p,
 	                                             _zsu_obs);
 
+	PVHive::PVHive::get().register_func_observer(sliders_manager_p,
+	                                             _zsd_obs);
+
 	PVParallelView::PVZonesManager &zm = zones_drawing.get_zones_manager();
 	connect(&zm, SIGNAL(filter_by_sel_finished(int, bool)),
 	        this, SLOT(filter_by_sel_finished_Slot(int, bool)));
@@ -119,6 +122,7 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 
 PVParallelView::PVZoomedParallelScene::~PVZoomedParallelScene()
 {
+	PVLOG_INFO("PVZoomedParallelScene::~PVZoomedParallelScene()\n");
 	delete _selection_rect;
 
 	_updated_selection_count = 0;
@@ -129,7 +133,7 @@ PVParallelView::PVZoomedParallelScene::~PVZoomedParallelScene()
 	_zones_drawing.remove_render_group(_render_group);
 
 	PVHive::call<FUNC(PVSlidersManager::del_zoom_sliders)>(_sliders_manager_p,
-	                                                       _axe_id, this);
+	                                                       _axe_id, _sliders_group);
 }
 
 /*****************************************************************************
