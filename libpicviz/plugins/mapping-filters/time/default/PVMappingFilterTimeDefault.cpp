@@ -26,7 +26,7 @@
 // #pragma omp threadprivate(dtpars)
 
 Picviz::PVMappingFilterTimeDefault::PVMappingFilterTimeDefault(PVCore::PVArgumentList const& args):
-	PVMappingFilter()
+	PVPureMappingFilter<time_mapping>()
 {
 	INIT_FILTER(PVMappingFilterTimeDefault, args);
 }
@@ -39,84 +39,66 @@ DEFAULT_ARGS_FILTER(Picviz::PVMappingFilterTimeDefault)
 	return args;
 }
 
-Picviz::PVMappingFilter::decimal_storage_type* Picviz::PVMappingFilterTimeDefault::operator()(PVRush::PVNraw::const_trans_nraw_table_line const& values)
+Picviz::tls_parser::tls_parser():
+	_cal(nullptr)
 {
-	assert(_dest);
-	assert(values.size() >= _dest_size);
+}
 
-	//PVCore::PVDateTimeParser dtpars(_format->time_format[_cur_col+1]);
-	//UErrorCode err = U_ZERO_ERROR;
-	//Calendar* cal = Calendar::createInstance(err);
-	// Create calender and parsers objects that will be used by our threads
-	const int max_threads = omp_get_max_threads();
-	Calendar* cals[max_threads];
-	PVCore::PVDateTimeParser *dtparsers[max_threads];
-
-	// Get space on the stack for PVDateTimeParser objects
-	char* buf_parsers = (char*) alloca(sizeof(PVCore::PVDateTimeParser)*max_threads);
-
-	tbb::tick_count start_alloc = tbb::tick_count::now();
-	QStringList time_format(_args["time-format"].value<PVCore::PVTimeFormatType>());
-	for (int i = 0; i < max_threads; i++) {
-		UErrorCode err = U_ZERO_ERROR;
-		cals[i] = Calendar::createInstance(err);
-		//dtparsers[i] = new PVCore::PVDateTimeParser(_format->time_format[_cur_col+1]);
-		PVCore::PVDateTimeParser *pstack = (PVCore::PVDateTimeParser*) &buf_parsers[i*sizeof(PVCore::PVDateTimeParser)];
-		new (pstack) PVCore::PVDateTimeParser(time_format);
-		dtparsers[i] = pstack;
+Picviz::tls_parser::~tls_parser()
+{
+	if (_cal) {
+		delete _cal;
+		delete _parser;
 	}
-	tbb::tick_count end_alloc = tbb::tick_count::now();
-	PVLOG_DEBUG("(PVMappingFilterTimeDefault::operator()) object creations took %0.4fs.\n", (end_alloc-start_alloc).seconds());
+}
 
-	int64_t size = _dest_size;
-	// TODO: compare TBB and OpenMP here !!
-#pragma omp parallel for
-	for (int64_t i = 0; i < size; i++) {
-		int thread_num = omp_get_thread_num();
-		Calendar* cal = cals[thread_num];
-		PVCore::PVDateTimeParser &dtpars = *(dtparsers[thread_num]);
-		PVCore::PVUnicodeString const v(values[i]);
-		if (v.size() == 0) {
-			_dest[i].storage_as_int() = 0;
-			continue;
-		}
-		bool ret = dtpars.mapping_time_to_cal(v, cal);
-		if (!ret) {
-			/*
-#pragma omp critical
-			{
-				PVLOG_WARN("(time-mapping) unable to map time string %s. Returns 0 !\n", qPrintable(v));
-			}
-			*/
-			_dest[i].storage_as_int() = 0;
-			continue;
-		}
+void Picviz::tls_parser::init(QStringList const& time_format)
+{
+	if (_cal) {
+		return;
+	}
+	UErrorCode err = U_ZERO_ERROR;
+	_cal = Calendar::createInstance(err);
+	_parser = new PVCore::PVDateTimeParser(time_format);
+}
 
-		bool success;
-		_dest[i].storage_as_int() = cal_to_int(cal, success);
-		if (!success) {
-			/*
-#pragma omp critical
-			{
-				PVLOG_WARN("(time-mapping) unable to map time string %s: one field is missing. Returns 0 !\n", qPrintable(v));
-			}
-			*/
-			_dest[i].storage_as_int() = 0;
-			continue;
-		}
+void Picviz::PVMappingFilterTimeDefault::init()
+{
+	_time_format = _args["time-format"].value<PVCore::PVTimeFormatType>();
+}
+
+Picviz::PVMappingFilter::decimal_storage_type Picviz::time_mapping::process_utf8(const char* buf, size_t size, PVMappingFilter* m)
+{
+	QString stmp(QString::fromUtf8(buf, size));
+	return process_utf16((const uint16_t*) stmp.constData(), stmp.size(), m);
+}
+
+Picviz::PVMappingFilter::decimal_storage_type Picviz::time_mapping::process_utf16(uint16_t const* buf, size_t size, PVMappingFilter* m)
+{
+	Picviz::PVMappingFilter::decimal_storage_type ret_ds;
+	tls_parser& parser = static_cast<PVMappingFilterTimeDefault*>(m)->tls_parsers().local();
+	parser.init(static_cast<PVMappingFilterTimeDefault*>(m)->time_format());
+	Calendar* cal = parser.cal();
+	PVCore::PVDateTimeParser &dtpars = parser.parser();
+	PVCore::PVUnicodeString16 const v(buf, size);
+	if (v.size() == 0) {
+		ret_ds.storage_as_int() = 0;
+		return ret_ds;
+	}
+	bool ret = dtpars.mapping_time_to_cal(v, cal);
+	if (!ret) {
+		ret_ds.storage_as_int() = 0;
+		return ret_ds;
 	}
 
-	start_alloc = tbb::tick_count::now();
-	// Frees the calendar objects
-	for (int i = 0; i < max_threads; i++) {
-		delete cals[i];
-		//delete dtparsers[i];
+	bool success;
+	ret_ds.storage_as_int() = static_cast<PVMappingFilterTimeDefault*>(m)->cal_to_int(cal, success);
+	if (!success) {
+		ret_ds.storage_as_int() = 0;
+		return ret_ds;
 	}
 
-	end_alloc = tbb::tick_count::now();
-	PVLOG_DEBUG("(PVMappingFilterTimeDefault::operator()) object destruction took %0.4fs.\n", (end_alloc-start_alloc).seconds());
-
-	return _dest;
+	return ret_ds;
 }
 
 int32_t Picviz::PVMappingFilterTimeDefault::cal_to_int(Calendar* cal, bool& success)

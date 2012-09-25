@@ -9,57 +9,142 @@
 #include <QString>
 #include <stdlib.h>
 
-static inline long _atol(const char* str, bool* success)
+static uint32_t powui(uint32_t base, uint32_t n)
 {
-	char* endptr;
-	long ret = strtol(str, &endptr, 10);
-	*success = (endptr == (str + strlen(str)));
+	uint32_t ret = 1;
+	for (uint32_t i = 0; i < n; i++) {
+		ret *= base;
+	}   
 	return ret;
 }
 
 bool PVCore::Network::ipv4_aton(QString const& ip, uint32_t& ip_n)
 {
-	int count = 2;
+	return ipv4_a16ton((const uint16_t*) ip.constData(), ip.size(), ip_n);
+}
 
-	if (ip.isEmpty()) {
+bool PVCore::Network::ipv4_a16ton(const uint16_t* str, size_t n, uint32_t& ret)
+{
+	if ((n > 15) || (n == 0)) {
 		return false;
-	}
+	}   
 
-	QByteArray value_ba = ip.toLatin1();
-	char* buffer = (char*) value_ba.constData();
-	char* buffer_org = buffer;
-	bool success = false;
-
-	buffer = strchr(buffer, '.');
-	if (!buffer || buffer-buffer_org >= 4) {
-		return false;
+	// TODO: vectorize this
+	uint32_t ndots = 0;
+	uint32_t nip = 0;
+	int32_t cur_d = 2;
+	size_t i = 0;
+	while ((i < n) && isspace(str[i] & 0x00FF)) {
+		i++;
 	}
-	*buffer = 0;
-	ip_n = ((uint32_t) _atol(buffer_org, &success)) << 24;
-	if (!success) {
-		return false;
-	}
-	buffer++;
-	char* buffer_prev = buffer;
-	while(count > 0) {
-		buffer = strchr(buffer_prev, '.');
-		if (!buffer) {
+	char prev_c = 0;
+	ret = 0;
+	for (; i < n; i++) {
+		const uint16_t c16 = str[i];
+		if (c16 > 128) {
 			return false;
 		}
-		if (buffer-buffer_prev >= 4) {
+		const char c = (char) (c16 & 0x00FF);
+		if (c == '.') {
+			if (prev_c == '.') {
+				return false;
+			}   
+			ndots++;
+			nip /= powui(10, cur_d+1);
+			if (nip > 255 || ndots > 3) {
+				return false;
+			}   
+			ret |= nip << ((4-ndots)*8);
+			nip = 0;
+			cur_d = 2;
+		}   
+		else {
+			if ((c < '0') || (c > '9')) {
+				if (prev_c == '.') {
+					return false;
+				}   
+				break;
+			}   
+			if (cur_d < 0) {
+				return false;
+			}   
+			nip += ((uint32_t)((c-'0')))*powui(10, cur_d);
+			cur_d--;
+		}   
+		prev_c = c;
+	}   
+	nip /= powui(10, cur_d+1);
+	if (nip > 255) {
+		return false;
+	}   
+	ret |= nip;
+	// Check trailing characters
+	for (; i < n; i++) {
+		if (!isspace(str[i] & 0x00FF)) {
 			return false;
-		}
-		*buffer = 0;
-		ip_n |= ((uint32_t)_atol(buffer_prev, &success)) << count*8;
-		if (!success) {
-			return false;
-		}
-		buffer_prev = buffer+1;
-		count--;
-	}
-	ip_n |= (uint32_t) _atol(buffer_prev, &success);
+		}   
+	}   
+	return ndots == 3;
+}
 
-	return success;
+bool PVCore::Network::ipv4_aton(const char* str, size_t n, uint32_t& ret)
+{
+	if ((n > 15) || (n == 0)) {
+		return false;
+	}   
+
+	// TODO: vectorize this
+	uint32_t ndots = 0;
+	uint32_t nip = 0;
+	int32_t cur_d = 2;
+	size_t i = 0;
+	while ((i < n) && isspace(str[i])) {
+		i++;
+	}   
+	char prev_c = 0;
+	ret = 0;
+	for (; i < n; i++) {
+		const char c = str[i];
+		if (c == '.') {
+			if (prev_c == '.') {
+				return false;
+			}   
+			ndots++;
+			nip /= powui(10, cur_d+1);
+			if (nip > 255 || ndots > 3) {
+				return false;
+			}   
+			ret |= nip << ((4-ndots)*8);
+			nip = 0;
+			cur_d = 2;
+		}   
+		else {
+			if ((c < '0') || (c > '9')) {
+				if (prev_c == '.') {
+					return false;
+				}   
+				break;
+			}   
+			if (cur_d < 0) {
+				return false;
+			}   
+			nip += ((uint32_t)((c-'0')))*powui(10, cur_d);
+			cur_d--;
+		}   
+		prev_c = c;
+	}   
+	nip /= powui(10, cur_d+1);
+	if (nip > 255) {
+		return false;
+	}   
+	ret |= nip;
+	// Check trailing characters
+	for (; i < n; i++) {
+		if (!isspace(str[i])) {
+			return false;
+		}   
+	}   
+	return ndots == 3;
 }
 
 char* PVCore::Network::ipv4_ntoa(const ip_addr_t addr)

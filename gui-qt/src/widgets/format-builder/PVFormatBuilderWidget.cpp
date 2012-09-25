@@ -912,6 +912,7 @@ void PVInspector::PVFormatBuilderWidget::set_axes_name_selected_row_Slot(int row
 		PVLOG_WARN("(PVFormatBuilderWidget::set_axes_name_selected_row_Slot) row index '%d' does not exist in the current NRAW (size '%d').\n", row, nraw.get_number_rows());
 		return;
 	}
+	/*
 	QStringList names;
 	PVRush::PVNraw::const_nraw_table_line line = nraw.get_table().get_row(row);
 	for (PVCol j = 0; j < line.size(); j++) {
@@ -920,7 +921,7 @@ void PVInspector::PVFormatBuilderWidget::set_axes_name_selected_row_Slot(int row
 		QString deep_copy((const QChar*) v.constData(), v.size());
 		names << deep_copy;
 	}
-	myTreeModel->setAxesNames(names);
+	myTreeModel->setAxesNames(names);*/
 }
 
 void PVInspector::PVFormatBuilderWidget::set_axes_type_selected_row_Slot(int row)

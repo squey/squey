@@ -145,7 +145,7 @@ void Picviz::PVMapped::process_rush_pipeline_chunk(PVCore::PVChunk const* chunk,
 		{
 			assert(c < (PVCol) _mapping_filters_rush.size());
 			PVMappingFilter::p_type& mapping_filter = _mapping_filters_rush[c];
-			this->_trans_table[c].at(r) = mapping_filter->operator()(field);
+			this->_trans_table[c].at(r+cur_r) = mapping_filter->operator()(field);
 		});
 }
 

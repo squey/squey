@@ -4,11 +4,13 @@
  * Copyright (C) Picviz Labs 2010-2012
  */
 
+#include <pvkernel/core/PVDirectory.h>
 #include <pvkernel/rush/PVNraw.h>
 #include <unistd.h>
 #include <tbb/tick_count.h>
 #include <iostream>
 #include <stdio.h>
+#include <stdlib.h>
 
 #define DEFAULT_LINE_SIZE 100
 #define MAX_SIZE_RESERVE (size_t(1024*1024*1024u)) // 1GB
@@ -30,7 +32,13 @@ PVRush::PVNraw::~PVNraw()
 
 void PVRush::PVNraw::reserve(PVRow const /*nrows*/, PVCol const ncols)
 {
-	_backend.init("/srv/data-r0/nraw", ncols);
+	// Generate random path
+	QString def_tmp_path = QDir::tempPath() + "/picviz";
+	QDir::temp().mkdir("picviz");
+	QString nraw_dir_base = pvconfig.value("pvkernel/nraw_tmp", def_tmp_path).toString() + "/nraw-XXXXXX";
+	QByteArray nstr = nraw_dir_base.toLocal8Bit();
+	mkdtemp(nstr.data());
+	_backend.init(nstr.constData(), ncols);
 }
 
 void PVRush::PVNraw::clear()
@@ -39,6 +47,7 @@ void PVRush::PVNraw::clear()
 		tbb::scalable_allocator<char>().deallocate(_tmp_conv_buf, _tmp_conv_buf_size);
 	}
 	_real_nrows = 0;
+	_backend.clear_and_remove();
 }
 
 void PVRush::PVNraw::swap(PVNraw &dst, PVNraw& src)

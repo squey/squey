@@ -29,10 +29,10 @@ class PVMappingFilterEnumDefault: public PVMappingFilter
 {
 	// AG: this needs to be public for Q_DECLARE_METATYPE
 public:
-	typedef QHash<PVCore::PVUnicodeString, QVariant> hash_values;
-	typedef QHash<PVCore::PVUnicodeStringHashNoCase, QVariant> hash_nocase_values;
-	typedef QHash<PVCore::PVUnicodeString16, QVariant> hash16_values;
-	typedef QHash<PVCore::PVUnicodeString16HashNoCase, QVariant> hash16_nocase_values;
+	typedef QHash<QString, QVariant> hash_values;
+	//typedef QHash<PVCore::PVUnicodeStringHashNoCase, QVariant> hash_nocase_values;
+	//typedef QHash<PVCore::PVUnicodeString16, QVariant> hash16_values;
+	//typedef QHash<PVCore::PVUnicodeString16HashNoCase, QVariant> hash16_nocase_values;
 
 public:
 	PVMappingFilterEnumDefault(PVCore::PVArgumentList const& args = PVMappingFilterEnumDefault::default_args());
@@ -69,17 +69,18 @@ private:
 		return _dest;
 	}
 
-	template <class HashType>
-	uint32_t process(typename HashType::key_type const& uni_str, HashType& enum_hash, uint32_t& poscount)
+	template <class HashType, class UniStr>
+	uint32_t process(UniStr const& uni_str, HashType& enum_hash, uint32_t& poscount)
 	{
 		uint32_t retval;
-		typename HashType::iterator it_v = enum_hash.find(uni_str);
+		QString scopy(uni_str.get_qstr_copy());
+		typename HashType::iterator it_v = enum_hash.find(scopy);
 		if (it_v != enum_hash.end()) {
 			const uint32_t position = it_v.value().toUInt();
 			retval = _enum_position_factorize(position);
 		} else {
 			poscount++;
-			enum_hash[uni_str] = QVariant(poscount);
+			enum_hash[scopy] = QVariant(poscount);
 			retval = _enum_position_factorize(poscount);
 		}
 		return retval;
@@ -90,8 +91,8 @@ private:
 
 protected:
 	bool _case_sensitive;
-	hash16_values _hash16_v;
-	hash16_nocase_values _hash16_nocase_v;
+	hash_values _hash16_v;
+	//hash16_nocase_values _hash16_nocase_v;
 	uint32_t _poscount;
 
 	CLASS_FILTER(PVMappingFilterEnumDefault)
@@ -101,6 +102,6 @@ protected:
 
 // WARNING : This declaration MUST BE outside namespace's scope
 Q_DECLARE_METATYPE(Picviz::PVMappingFilterEnumDefault::hash_values)
-Q_DECLARE_METATYPE(Picviz::PVMappingFilterEnumDefault::hash_nocase_values)
+//Q_DECLARE_METATYPE(Picviz::PVMappingFilterEnumDefault::hash_nocase_values)
 
 #endif

@@ -14,7 +14,8 @@
 
 size_t get_buf_size(size_t i)
 {
-	return (i%(MAX_SIZE-MIN_SIZE+1))+MIN_SIZE;
+	//return (i%(MAX_SIZE-MIN_SIZE+1))+MIN_SIZE;
+	return 10;
 }
 
 int main(int argc, char** argv)
@@ -80,8 +81,11 @@ int main(int argc, char** argv)
 		const size_t sbuf = get_buf_size(i);
 		stotal += sbuf;
 		memset(buf, 'a' + i%26, sbuf);
+		if (i == 3038487) {
+			printf("hello\n");
+		}
 		backend.add(0, buf, sbuf);
-		backend.add(1, buf, sbuf);
+		//backend.add(1, buf, sbuf);
 	}
 	backend.flush();
 
@@ -102,27 +106,19 @@ int main(int argc, char** argv)
 
 	PVLOG_INFO("Checking values with visit_column()...\n");
 	BENCH_START(visit);
-	ASSERT_VALID(backend.visit_column_tbb(0, [=](size_t r, const char*, size_t n)
+	ASSERT_VALID(backend.visit_column2(0, [=](size_t r, const char*, size_t n)
 			{
 				ASSERT_VALID(n == get_buf_size(r));
 			}));
 	BENCH_END(visit, "visit", sizeof(char), stotal, 1, 1);
 
-	PVLOG_INFO("Checking values with visit_column()...\n");
+	PVLOG_INFO("Checking values with visit_column_tbb()...\n");
 	BENCH_START(visit2);
 	ASSERT_VALID(backend.visit_column_tbb(0, [=](size_t r, const char*, size_t n)
 			{
 				ASSERT_VALID(n == get_buf_size(r));
 			}));
 	BENCH_END(visit2, "visit", sizeof(char), stotal, 1, 1);
-
-	PVLOG_INFO("Checking values with visit_column()...\n");
-	BENCH_START(visit4);
-	ASSERT_VALID(backend.visit_column_tbb(0, [=](size_t r, const char*, size_t n)
-			{
-				ASSERT_VALID(n == get_buf_size(r));
-			}));
-	BENCH_END(visit4, "visit", sizeof(char), stotal, 1, 1);
 
 	return 0;
 }

@@ -20,10 +20,11 @@ void PVRush::PVNrawOutput::operator()(PVCore::PVChunk* out)
 {
 	bool ret_add;
 	if (_chunk_funcs.size() > 0) {
+		const size_t cur_number_rows = _nraw_dest.get_number_rows();
 		tbb::parallel_invoke(
 			[&] {
 				for (chunk_function_type const& f: this->_chunk_funcs) {
-					f(out, _nraw_dest.get_number_rows());
+					f(out, cur_number_rows);
 				}
 			},
 			[&] {

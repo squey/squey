@@ -1592,6 +1592,10 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_p src)
 	message.pointer_1 = new QString(PVTabSplitter::get_current_view_name(src));
 	pvsdk_messenger->post_message_to_gl(message);*/
 
+	if (src->get_children<Picviz::PVMapped>().size() == 0) {
+		Picviz::PVMapped_p default_mapped(src);
+	}
+
 	// Extract the source
 	PVRush::PVControllerJob_p job_import;
 	try {
@@ -1631,7 +1635,7 @@ bool PVInspector::PVMainWindow::load_source(Picviz::PVSource_p src)
 	// If no view is present, create a default one. Otherwise, process them by
 	// keeping the existing layers !
 	bool success = true;
-	if (src->get_children<Picviz::PVMapped>().size() == 0) {
+	if (src->get_children<Picviz::PVView>().size() == 0) {
 		if (!PVCore::PVProgressBox::progress(boost::bind<void>(&Picviz::PVSource::create_default_view, src.get()), tr("Processing..."), (QWidget*) this)) {
 			success = false;
 		}

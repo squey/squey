@@ -4,6 +4,7 @@
  * Copyright (C) Picviz Labs 2012
  */
 
+#include <pvkernel/core/PVDirectory.h>
 #include <pvkernel/rush/PVNrawDiskBackend.h>
 
 static const std::string INDEX_FILENAME = std::string("nraw.idx");
@@ -39,6 +40,11 @@ PVRush::PVNrawDiskBackend::~PVNrawDiskBackend()
 	if (_serial_read_buffer) {
 		PVCore::PVAlignedAllocator<char, BUF_ALIGN>().deallocate(_serial_read_buffer, SERIAL_READ_BUFFER_SIZE);
 	}
+	close_files();
+}
+
+void PVRush::PVNrawDiskBackend::close_files()
+{
 	// Close files
 	for (uint64_t col_idx = 0 ; col_idx < get_number_cols(); col_idx++) {
 		PVColumn& column = get_col(col_idx);
@@ -73,6 +79,13 @@ void PVRush::PVNrawDiskBackend::init(const char* nraw_folder, const uint64_t num
 	_next_indexes_nrows += _index_fields_size_pattern[++_fields_size_idx];
 
 	_serial_read_buffer = PVCore::PVAlignedAllocator<char, BUF_ALIGN>().allocate(SERIAL_READ_BUFFER_SIZE);
+}
+
+void PVRush::PVNrawDiskBackend::clear_and_remove()
+{
+	clear();
+	close_files();
+	PVCore::PVDirectory::remove_rec(QString::fromLocal8Bit(_nraw_folder.c_str()));
 }
 
 uint64_t PVRush::PVNrawDiskBackend::add(PVCol col_idx, const char* field, const uint64_t field_size)
@@ -113,7 +126,7 @@ uint64_t PVRush::PVNrawDiskBackend::add(PVCol col_idx, const char* field, const 
 	if (column.buffer_write_ptr + written_field_size <= column.buffer_write_end_ptr) {
 		memcpy(column.buffer_write_ptr, field, field_size);
 		column.buffer_write_ptr[field_size] = 0;
-		column.buffer_write_ptr += field_size+1;
+		column.buffer_write_ptr += written_field_size;
 		assert(column.buffer_write_ptr <= column.buffer_write_end_ptr);
 	}
 	// Fill the buffer_write with splitted field
@@ -122,7 +135,7 @@ uint64_t PVRush::PVNrawDiskBackend::add(PVCol col_idx, const char* field, const 
 		uint64_t field_part1_size = column.buffer_write_end_ptr - column.buffer_write_ptr;
 		memcpy(column.buffer_write_ptr, field, field_part1_size);
 		field_part2 = (char *)(field + field_part1_size);
-		field_part2_size = field_size - field_part1_size;
+		field_part2_size = written_field_size - field_part1_size;
 		column.buffer_write_ptr += field_part1_size;
 		assert(column.buffer_write_ptr == column.buffer_write_end_ptr);
 	}
@@ -151,9 +164,9 @@ uint64_t PVRush::PVNrawDiskBackend::add(PVCol col_idx, const char* field, const 
 		}
 
 		if (field_part2_size > 0) {
-			memcpy(column.buffer_write, field_part2, field_part2_size);
-			column.buffer_write[field_part2_size] = 0;
-			column.buffer_write_ptr = column.buffer_write + field_part2_size + 1;
+			memcpy(column.buffer_write, field_part2, field_part2_size-1); // '-1' because there is no trailing '\0' in field_part2
+			column.buffer_write[field_part2_size-1] = 0;
+			column.buffer_write_ptr = column.buffer_write + field_part2_size;
 			assert(column.buffer_write_ptr <= column.buffer_write_end_ptr);
 		}
 	}
@@ -294,7 +307,6 @@ void PVRush::PVNrawDiskBackend::load_index_from_disk()
 
 void PVRush::PVNrawDiskBackend::clear()
 {
-	_indexes.clear();
 	unlink(get_disk_index_file().c_str());
 	for (uint64_t c = 0 ; c < get_number_cols() ; c++) {
 		PVColumn& nraw_c = _columns[c];
@@ -304,8 +316,8 @@ void PVRush::PVNrawDiskBackend::clear()
 		nraw_c.field_length = 0; // Or any value grater than 0 to specify a fixed field length;
 	}
 
-	_next_indexes_nrows = _index_fields_size_pattern[0];
-	_indexes.resize_nrows(_next_indexes_nrows);
+	//_next_indexes_nrows = _index_fields_size_pattern[0];
+	//_indexes.resize_nrows(_next_indexes_nrows);
 	_fields_size_idx = 0;
 	_next_indexes_nrows += _index_fields_size_pattern[++_fields_size_idx];
 	_nrows = 0;
@@ -394,7 +406,6 @@ uint64_t PVRush::PVNrawDiskBackend::PVCachePool::get_cache(uint64_t field, uint6
 
 	// Yes
 	if (cache_idx < NB_CACHE_BUFFERS) {
-		PVLOG_INFO("Found cache for col %llu\n", col);
 		PVReadCache& cache = _caches[cache_idx];
 		cache_miss = (field < cache.first_field || field > cache.last_field);
 	}
@@ -434,8 +445,6 @@ uint64_t PVRush::PVNrawDiskBackend::PVCachePool::get_cache(uint64_t field, uint6
 		cache.last_field = _parent._indexes.at(field_index+1, col).field-1;
 		column.buffer_read = buffer_ptr;
 	}
-
-	PVLOG_INFO("PVNrawDiskBackend::get_cache: row/col: %llu/%llu, cache miss: %d\n", field, col, cache_miss);
 
 	// Update cache timestamp
 	cache.timestamp = tbb::tick_count::now();

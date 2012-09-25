@@ -402,7 +402,7 @@ public:
 			sse_sel = _mm_load_si128((__m128i*) &_table[i]);
 			PVCore::PVBitVisitor::visit_bits(sse_sel, f, chunk_to_line_index(i));
 		}
-		for (; i < last_chunk; i++) {
+		for (; i < (size_t) last_chunk; i++) {
 			const uint64_t sel_buf = _table[i];
 			PVCore::PVBitVisitor::visit_bits(sel_buf, f, chunk_to_line_index(i));
 		}

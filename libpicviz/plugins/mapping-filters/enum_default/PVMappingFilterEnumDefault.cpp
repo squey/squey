@@ -53,28 +53,18 @@ void Picviz::PVMappingFilterEnumDefault::init()
 {
 	_poscount = 0;
 	_hash16_v.clear();
-	_hash16_nocase_v.clear();
 }
 
 Picviz::PVMappingFilter::decimal_storage_type* Picviz::PVMappingFilterEnumDefault::operator()(PVCol const c, PVRush::PVNraw const& nraw)
 {
-	if (_case_sensitive) {
-		return process_nraw<hash_values>(c, nraw);
-	}
-
-	return process_nraw<hash_nocase_values>(c, nraw);
+	return process_nraw<hash_values>(c, nraw);
 }
 
 Picviz::PVMappingFilter::decimal_storage_type Picviz::PVMappingFilterEnumDefault::operator()(PVCore::PVField const& field)
 {
 	PVCore::PVUnicodeString16 uni_str(field);
 	Picviz::PVMappingFilter::decimal_storage_type ret_ds;
-	if (_case_sensitive) {
-		ret_ds.storage_as_uint() = process<hash16_values>(uni_str, _hash16_v, _poscount);
-	}
-	else {
-		ret_ds.storage_as_uint() = process<hash16_nocase_values>(uni_str, _hash16_nocase_v, _poscount);
-	}
+	ret_ds.storage_as_uint() = process<hash_values>(uni_str, _hash16_v, _poscount);
 	return ret_ds;
 }
 

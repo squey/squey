@@ -214,10 +214,14 @@ PVRush::PVInputType_p Picviz::PVSource::get_input_type() const
 
 void Picviz::PVSource::create_default_view()
 {
-	PVMapped_p def_mapped(shared_from_this());
-	PVPlotted_p def_plotted(def_mapped);
-	PVView_p def_view(def_plotted);
-	process_from_source();
+	if (get_children_count() == 0) {
+		PVMapped_p def_mapped(shared_from_this());
+	}
+	for (PVMapped_p& m: get_children()) {
+		PVPlotted_p def_plotted(m);
+		PVView_p def_view(def_plotted);
+		process_from_source();
+	}
 }
 
 void Picviz::PVSource::process_from_source()

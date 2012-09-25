@@ -227,6 +227,7 @@ public:
 	void init(const char* nraw_folder, const uint64_t num_cols);
 	void set_direct_mode(bool direct = true);
 	void clear();
+	void clear_and_remove();
 
 	void store_index_to_disk();
 	void load_index_from_disk();
@@ -381,7 +382,7 @@ public:
 					this->visit_column_process_chunk_sse(c->start_field, c->end_field-1, &c->buf[0], c->size_data, f);
 #else
 					const size_t processed_size = this->visit_column_process_chunk_sse(c->start_field, c->end_field-1, &c->buf[0], c->size_data, f);
-					//assert(!((processed_size != c->size_data) || (c->start_field != c->end_field)));
+					assert(!((processed_size != c->size_data) || (c->start_field != c->end_field)));
 #endif
 					return c;
 				}) &
@@ -407,6 +408,7 @@ private:
 	std::string get_disk_column_file(uint64_t col) const;
  
 	char* next(uint64_t col, uint64_t nb_fields, char* buffer, size_t& size_ret);
+	void close_files();
 
 private:
 	template <typename F>
@@ -436,11 +438,22 @@ private:
 		// field_end is inclusive. field_start will be set to the field following the last *full* field that has been read. It will always be <= field_end.
 		// returns the number of bytes *processed*, *including* the '\0' byte of the last processed field
 		
+		/*
+		size_t fields_found_ref = 0;
+		{
+			for (size_t i = 0; i < size_buf; i++) {
+				if (buf[i] == 0) {
+					fields_found_ref++;
+				}
+			}
+		}
+		size_t found_field = 0;
+		const size_t fields_asked = (field_end-field_start+1);*/
 		size_t idx_start_field = 0;
 		size_t i;
 		const size_t size_buf_sse = (size_buf>>4)<<4;
 		const __m128i sse_zero = _mm_setzero_si128();
-		const __m128i sse_ff = _mm_set1_epi32(0xffffffff);
+		const __m128i sse_ff = _mm_set1_epi32(0xFFFFFFFF);
 		for (i = 0; i < size_buf_sse; i += 16) {
 			const __m128i sse_buf = _mm_load_si128((const __m128i*)&buf[i]);
 			const __m128i sse_cmp = _mm_cmpeq_epi8(sse_buf, sse_zero);
@@ -448,6 +461,7 @@ private:
 				PVCore::PVByteVisitor::visit_bytes(sse_cmp,
 					[&](size_t b)
 					{
+						//found_field++;
 						f(field_start, &buf[idx_start_field], b-idx_start_field);
 						idx_start_field = b+1;
 						field_start++;
@@ -455,6 +469,7 @@ private:
 					i
 				);
 				if (field_start > field_end) {
+					//PVLOG_INFO("visit_column_process_chunk_sse: ask %llu fields, %llu found, %llu ref-found\n", (field_end-field_start+1), found_field, fields_found_ref);
 					return idx_start_field;
 				}
 #if 0
@@ -485,6 +500,7 @@ private:
 		}
 		for (; i < size_buf; i++) {
 			if (buf[i] == '\0') {
+				//found_field++;
 				f(field_start, &buf[idx_start_field], i-idx_start_field);
 				idx_start_field = i+1;
 				field_start++;
@@ -493,6 +509,8 @@ private:
 				}
 			}
 		}
+
+		//PVLOG_INFO("visit_column_process_chunk_sse: ask %llu fields, %llu found, %llu ref-found\n", fields_asked, found_field, fields_found_ref);
 		return idx_start_field;
 	}
 

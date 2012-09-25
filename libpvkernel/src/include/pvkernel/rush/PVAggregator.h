@@ -218,17 +218,26 @@ protected:
 class LibKernelDecl PVAggregatorTBB {
 public:
 	PVAggregatorTBB(PVAggregator &ref) :
-		_ref(ref)
+		_ref(ref),
+		_total_bytes(0)
 	{
 	}
 
+public:
 	inline PVCore::PVChunk* operator()(tbb::flow_control &fc) const
 	{
-		return _ref(fc);
+		PVCore::PVChunk* ret = _ref(fc);
+		if (ret) {
+			_total_bytes += ret->size();
+		}
+		return ret;
 	}
+
+	inline size_t total_bytes() const { return _total_bytes; }
 
 protected:
 	PVAggregator &_ref;
+	mutable size_t _total_bytes;
 };
 
 typedef PVAggregator::p_type PVAggregator_p;

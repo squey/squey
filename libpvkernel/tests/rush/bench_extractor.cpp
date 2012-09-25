@@ -248,6 +248,7 @@ int main(int argc, char** argv)
 	PVFilter::PVFieldsBaseFilter_p fre_in = regexp_lib_p->clone<PVFilter::PVFieldsBaseFilter>();
 	PVCore::PVArgumentList args;
 	args["regexp"] = PVCore::PVArgument(QString("(.*) (.*)"));
+	args["full-line"] = false;
 	fre_in->set_args(args);
 	PVFilter::PVElementFilterByFields felt(fre_in->f());
 	PVFilter::PVChunkFilterByElt fchunk(felt.f());
@@ -269,7 +270,6 @@ int main(int argc, char** argv)
 		dur = bench_utf16_align(lfiles, chk_flt_null.f(), chunk_size, NLINES, nchunks);
 		print_perf(dur, total_read);
 
-#if 0
 		// Field creation
 		printf("Parallel field creation (2)");
 		PVFieldCreator filter_fc(2);
@@ -284,7 +284,6 @@ int main(int argc, char** argv)
 			dur = bench_utf16_align(lfiles, fchunk2.f(), chunk_size, NLINES, nchunks);
 			print_perf(dur, total_read);
 		}
-#endif
 
 		// Parallel URL splitter only
 
@@ -313,6 +312,7 @@ int main(int argc, char** argv)
 	printf("Parallel squid regexp splitter only");
 	//args["regexp"] = PVCore::PVArgument(QString("(\\d+.\\d+.\\d+.\\d+) \\- \\S+ \\[(\\d+\\/\\w+\\/\\d+:\\d+:\\d+:\\d+).*\\] \\\"(\\w+) (.*) (\\S+)\\\" (\\d+) (.*)"));
 	args["regexp"] = PVCore::PVArgument(QString("([0-9]+)[0-9.]*\\s+[0-9]+\\s+[0-9]+\\s+[A-Z/_-]+([0-9]+)\\s+[0-9]+\\s+(GET|POST|PUT|OPTIONS)\\s+(\\S+)\\s+(\\S+)\\s+([^/]+)/(\\d+.\\d+.\\d+.\\d+)"));
+	args["full-line"] = true;
 	fre_in->set_args(args);
 	dur = bench_utf16_align(lfiles, fchunk.f(), chunk_size, NLINES, nchunks);
 	print_perf(dur, total_read);

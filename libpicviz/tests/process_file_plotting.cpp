@@ -96,12 +96,12 @@ int main(int argc, char** argv)
 	Picviz::PVRoot_p root;
 	Picviz::PVScene_p scene(root, "scene");
 	Picviz::PVSource_p src(scene, PVRush::PVInputType::list_inputs() << file, sc_file, format);
+	Picviz::PVMapped_p mapped(src);
 	PVRush::PVControllerJob_p job = src->extract();
 	src->wait_extract_end(job);
 	PVLOG_INFO("Extracted %u lines...\n", src->get_row_count());
 
 	// Map the nraw
-	Picviz::PVMapped_p mapped(src);
 	mapped->process_from_parent_source();
 
 	// And plot the mapped values
