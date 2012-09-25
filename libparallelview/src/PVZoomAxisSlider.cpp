@@ -4,8 +4,8 @@
 
 #include <QPainter>
 
-#define SLIDER_HALF_WIDTH 10
-#define SLIDER_WIDTH (2 * SLIDER_HALF_WIDTH + PVParallelView::AxisWidth)
+#define ZOOM_LINE_WIDTH 12
+#define ZOOM_ARROW_SIDE 6.0
 
 /*****************************************************************************
  * PVParallelView::PVZoomAxisSlider::boundingRect
@@ -14,11 +14,11 @@
 QRectF PVParallelView::PVZoomAxisSlider::boundingRect() const
 {
 	if (_orientation == Min) {
-		return QRectF(QPointF(- SLIDER_HALF_WIDTH, 0),
-		              QPointF(SLIDER_HALF_WIDTH, -4));
+		return QRectF(QPointF(-ZOOM_ARROW_SIDE, 0),
+		              QPointF(ZOOM_ARROW_SIDE, ZOOM_ARROW_SIDE));
 	} else {
-		return QRectF(QPointF(- SLIDER_HALF_WIDTH, 0),
-		              QPointF(SLIDER_HALF_WIDTH, 4));
+		return QRectF(QPointF(-ZOOM_ARROW_SIDE, 0),
+		              QPointF(ZOOM_ARROW_SIDE, -ZOOM_ARROW_SIDE));
 	}
 }
 
@@ -30,11 +30,30 @@ void PVParallelView::PVZoomAxisSlider::paint(QPainter *painter,
                                              const QStyleOptionGraphicsItem *,
                                              QWidget *)
 {
-	painter->fillRect(boundingRect(),
-	                  Qt::black);
+	static const QPointF min_points[3] = {
+		QPointF(             0.0,             0.0),
+		QPointF(-ZOOM_ARROW_SIDE, ZOOM_ARROW_SIDE),
+		QPointF( ZOOM_ARROW_SIDE, ZOOM_ARROW_SIDE),
+	};
 
-	QPen old_pen = painter->pen();
+	static const QPointF max_points[3] = {
+		QPointF(             0.0,              0.0),
+		QPointF(-ZOOM_ARROW_SIDE, -ZOOM_ARROW_SIDE),
+		QPointF( ZOOM_ARROW_SIDE, -ZOOM_ARROW_SIDE),
+	};
+
+	painter->save();
+
+	painter->setBrush(QBrush(Qt::black,Qt::SolidPattern));
 	painter->setPen(Qt::white);
-	painter->drawRect(boundingRect());
-	painter->setPen(old_pen);
+
+	if (_orientation == Min) {
+		painter->drawPolygon(min_points, 3);
+	} else {
+		painter->drawPolygon(max_points, 3);
+	}
+	painter->drawLine(QPointF(-ZOOM_LINE_WIDTH, 0),
+	                  QPointF(ZOOM_LINE_WIDTH, 0));
+
+	painter->restore();
 }
