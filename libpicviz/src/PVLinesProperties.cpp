@@ -28,7 +28,8 @@ Picviz::PVLinesProperties::PVLinesProperties():
  * Picviz::PVLinesProperties::PVLinesProperties
  *
  *****************************************************************************/
-Picviz::PVLinesProperties::PVLinesProperties(const PVLinesProperties & rhs)
+Picviz::PVLinesProperties::PVLinesProperties(const PVLinesProperties & rhs):
+	_table(nullptr)
 {
 	if (rhs._table) {
 		allocate_table();
