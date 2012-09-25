@@ -856,13 +856,10 @@ void PVInspector::PVMainWindow::selection_all_Slot()
 		return;
 	}
 
-	Picviz::PVView* lib_view = current_tab->get_lib_view();
+	Picviz::PVView_sp lib_view(current_tab->get_lib_view()->shared_from_this());
 	if (lib_view) {
 		lib_view->select_all_nonzb_lines();
-		// Set square area mode w/ volatile
-		//update_pvglview(lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
-		//current_tab->refresh_listing_Slot();
-		current_tab->updateFilterMenuEnabling();
+		PVHive::PVCallHelper::call<Picviz::PVView::process_from_selection>(lib_view);
 	}
 }
 
@@ -881,9 +878,7 @@ void PVInspector::PVMainWindow::selection_none_Slot()
 	Picviz::PVView* lib_view = current_tab->get_lib_view();
 	if (lib_view) {
 		lib_view->select_no_line();
-		//update_pvglview(lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
-		//current_tab->refresh_listing_Slot();
-		current_tab->updateFilterMenuEnabling();
+		PVHive::PVCallHelper::call<Picviz::PVView::process_from_selection>(lib_view);
 	}
 }
 
@@ -902,9 +897,7 @@ void PVInspector::PVMainWindow::selection_inverse_Slot()
 	Picviz::PVView* lib_view = current_tab->get_lib_view();
 	if (lib_view) {
 		lib_view->select_inv_lines();
-		//update_pvglview(lib_view, PVSDK_MESSENGER_REFRESH_SELECTION);
-		//current_tab->refresh_listing_Slot();
-		current_tab->updateFilterMenuEnabling();
+		PVHive::PVCallHelper::call<Picviz::PVView::process_from_selection>(lib_view);
 	}
 }
 

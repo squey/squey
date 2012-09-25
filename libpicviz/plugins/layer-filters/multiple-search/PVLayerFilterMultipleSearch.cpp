@@ -10,6 +10,8 @@
 #include <pvkernel/core/PVAxisIndexType.h>
 #include <picviz/PVView.h>
 
+#include <tbb/enumerable_thread_specific.h>
+
 #define ARG_NAME_EXPS "exps"
 #define ARG_DESC_EXPS "Expressions"
 #define ARG_NAME_AXIS "axis"
@@ -91,62 +93,59 @@ void Picviz::PVLayerFilterMultipleSearch::operator()(PVLayer& in, PVLayer &out)
 		}
 	}
 
-	PVRow nb_lines = _view->get_qtnraw_parent().get_nrows();
+	PVRush::PVNraw const& nraw = _view->get_rushnraw_parent();
 
-	PVRush::PVNraw::nraw_table const& nraw = _view->get_qtnraw_parent();
-	
-	for (PVRow r = 0; r < nb_lines; r++) {
-		if (should_cancel()) {
-			if (&in != &out) {
-				out = in;
-			}
-			return;
-		}
+	tbb::enumerable_thread_specific<PVSelection> tls_sel;
 
-		if (_view->get_line_state_in_pre_filter_layer(r)) {
-			PVRush::PVNraw::const_nraw_table_line nraw_r = nraw.get_row(r);
-			bool sel = false;
-			if (is_rx) {
-				for (size_t i = 0; i < rxs.size(); i++) {
-					QRegExp& rx = rxs[i];
-					QString str(nraw_r[axis_id].get_qstr());
-					if (exact_match) {
-						if (rx.exactMatch(str)) {
+	nraw.visit_column_tbb(axis_id, [&](PVRow const r, const char* buf, size_t n)
+		{
+			if (this->_view->get_line_state_in_pre_filter_layer(r)) {
+				QString str(QString::fromUtf8(buf, n));
+				bool sel = false;
+				if (is_rx) {
+					for (size_t i = 0; i < rxs.size(); i++) {
+						QRegExp& rx = rxs[i];
+						if (exact_match) {
+							if (rx.exactMatch(str)) {
+								sel = true;
+								break;
+							}
+						}
+						else
+						if (rx.indexIn(str) != -1) {
 							sel = true;
 							break;
 						}
 					}
-					else
-					if (rx.indexIn(str) != -1) {
-						sel = true;
-						break;
-					}
 				}
-			}
-			else {
-				QString str = nraw_r[axis_id].get_qstr();
-				for (int i = 0; i < exps.size(); i++) {
-					QString const& exp = exps.at(i);
-					if (exp.isEmpty()) {
-					   continue;
-					}
-					if (exact_match) {
-						if (str.compare(exp, (Qt::CaseSensitivity) case_match) == 0) {
+				else {
+					for (int i = 0; i < exps.size(); i++) {
+						QString const& exp = exps.at(i);
+						if (exp.isEmpty()) {
+						   continue;
+						}
+						if (exact_match) {
+							if (str.compare(exp, (Qt::CaseSensitivity) case_match) == 0) {
+								sel = true;
+								break;
+							}
+						}
+						else
+						if (str.contains(exp, (Qt::CaseSensitivity) case_match)) {
 							sel = true;
 							break;
 						}
 					}
-					else
-					if (str.contains(exp, (Qt::CaseSensitivity) case_match)) {
-						sel = true;
-						break;
-					}
 				}
-			}
 
-			sel = !(sel ^ include);
-			out.get_selection().set_line(r, sel);
-		}
+				sel = !(sel ^ include);
+				tls_sel.local().set_line(r, sel);
+			}
+		});
+
+	typename decltype(tls_sel)::const_iterator it_tls;
+	for (it_tls = tls_sel.begin(); it_tls != tls_sel.end(); it_tls++) {
+		out.get_selection().or_optimized(*it_tls);
 	}
 }
 
