@@ -16,6 +16,7 @@
 #include <QIcon>
 #include <QScrollBar>
 #include <QFontMetrics>
+#include <QHBoxLayout>
 
 #include <PVStartScreenWidget.h>
 
@@ -154,7 +155,6 @@ PVInspector::PVStartScreenWidget::PVStartScreenWidget(PVMainWindow* parent) :
 		recent_used_formats_list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 		recent_used_formats_list->verticalScrollBar()->setObjectName("verticalScrollBar_of_PVListingView");
 		_recent_list_widgets[PVCore::PVRecentItemsManager::Category::USED_FORMATS] = recent_used_formats_list;
-		connect(recent_used_formats_list, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(dispatch_action(QListWidgetItem*)));
 
 		// edited
 		QFrame* format_edited_widget_line = new QFrame(format_widget);
@@ -170,7 +170,6 @@ PVInspector::PVStartScreenWidget::PVStartScreenWidget(PVMainWindow* parent) :
 		recent_edited_formats_list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 		recent_edited_formats_list->verticalScrollBar()->setObjectName("verticalScrollBar_of_PVListingView");
 		_recent_list_widgets[PVCore::PVRecentItemsManager::Category::EDITED_FORMATS] = recent_edited_formats_list;
-		connect(recent_edited_formats_list, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(dispatch_action(QListWidgetItem*)));
 
 		// supported
 		QFrame* format_supported_widget_line = new QFrame(format_widget);
@@ -187,7 +186,6 @@ PVInspector::PVStartScreenWidget::PVStartScreenWidget(PVMainWindow* parent) :
 		supported_formats_list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 		supported_formats_list->verticalScrollBar()->setObjectName("verticalScrollBar_of_PVListingView");
 		_recent_list_widgets[PVCore::PVRecentItemsManager::Category::SUPPORTED_FORMATS] = supported_formats_list;
-		connect(supported_formats_list, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(dispatch_action(QListWidgetItem*)));
 
 
 	// projects (text and line)
@@ -204,7 +202,6 @@ PVInspector::PVStartScreenWidget::PVStartScreenWidget(PVMainWindow* parent) :
 	recent_projects_list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	recent_projects_list->verticalScrollBar()->setObjectName("verticalScrollBar_of_PVListingView");
 	_recent_list_widgets[PVCore::PVRecentItemsManager::Category::PROJECTS] = recent_projects_list;
-	connect(recent_projects_list, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(dispatch_action(QListWidgetItem*)));
 
 	// Imports (text and line)
 	QFrame* import_widget_line = new QFrame(project_widget);
@@ -222,7 +219,6 @@ PVInspector::PVStartScreenWidget::PVStartScreenWidget(PVMainWindow* parent) :
 	import_list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	import_list->verticalScrollBar()->setObjectName("verticalScrollBar_of_PVListingView");
 	_recent_list_widgets[PVCore::PVRecentItemsManager::Category::SOURCES] = import_list;
-	connect(import_list, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(dispatch_action(QListWidgetItem*)));
 
 	// Final Stretch as Spacer ...
 	format_widget_layout->addStretch(1);
@@ -256,6 +252,7 @@ void PVInspector::PVStartScreenWidget::refresh_recent_items(int cat)
 	QListWidget* list = _recent_list_widgets[category];
 	list->clear();
 
+	uint64_t index = 0 ;
 	for (QVariant var : PVCore::PVRecentItemsManager::get()->get_list(category)) {
 		// item + data
 		QListWidgetItem* item = new QListWidgetItem(list);
@@ -263,15 +260,32 @@ void PVInspector::PVStartScreenWidget::refresh_recent_items(int cat)
 		item->setData(Qt::UserRole+1, cat);
 		QString formated_string = get_string_from_variant(category, var);
 
+		QWidget* widget = new QWidget();
+		QHBoxLayout* layout = new QHBoxLayout();
+		layout->setAlignment(Qt::AlignLeft);
+		widget->setLayout(layout);
+
 		// Icon
 		QFileInfo finfo(formated_string);
 		QFileIconProvider ficon;
 		QIcon icon = ficon.icon(finfo);
-		item->setIcon(icon);
+		QLabel* icon_label = new QLabel();
+		icon_label->setPixmap(icon.pixmap(15, 15));
+		layout->addWidget(icon_label);
 
 		// Text
-		item->setText(PVWidgets::PVUtils::shorten_path(formated_string, list->font(), 330));
-		item->setToolTip(formated_string);
+		QLabel* text_label = new QLabel();
+		text_label->setTextFormat(Qt::RichText);
+		QString shortened = PVWidgets::PVUtils::shorten_path(formated_string, list->font(), 330);
+		text_label->setText(QString("<a href=\"%1;%2\">" + shortened + "</a>").arg(cat).arg(index));
+		text_label->setToolTip(formated_string);
+		connect(text_label, SIGNAL(linkActivated(const QString &)), this, SLOT(dispatch_action(const QString &)));
+		layout->addWidget(text_label);
+
+		item->setSizeHint(QSize(widget->sizeHint().width(), widget->sizeHint().height()-7)); // Do not forget this!
+		list->setItemWidget(item, widget);
+
+		index++;
 	}
 }
 
@@ -318,10 +332,15 @@ QString PVInspector::PVStartScreenWidget::get_string_from_source_description(con
 	return inputs_string.join(", ");
 }
 
-void PVInspector::PVStartScreenWidget::dispatch_action(QListWidgetItem* item)
+void PVInspector::PVStartScreenWidget::dispatch_action(const QString& id)
 {
+	// This is kind of a hack but it saves the use of a QAbstractListModel/QListView...
+	QStringList ids = id.split(";");
+	PVCore::PVRecentItemsManager::Category category = (PVCore::PVRecentItemsManager::Category) ids[0].toUInt();
+	uint64_t item_index = ids[1].toUInt();
+	QListWidgetItem* item = _recent_list_widgets[category]->item(item_index);
+
 	QVariant var = item->data(Qt::UserRole);
-	PVCore::PVRecentItemsManager::Category category = (PVCore::PVRecentItemsManager::Category) item->data(Qt::UserRole+1).toInt();
 
 	switch (category)
 	{

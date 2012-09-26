@@ -57,7 +57,7 @@ class PVStartScreenWidget : public QWidget
 		void refresh_recent_items(int category);
 
 	public slots:
-		void dispatch_action(QListWidgetItem* item);
+		void dispatch_action(const QString& id);
 
 	private:
 		QString get_string_from_variant(PVCore::PVRecentItemsManager::Category category, const QVariant& var);
