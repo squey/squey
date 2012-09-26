@@ -8,7 +8,9 @@
 
 #include <picviz/PVAxis.h>
 #include <picviz/PVView.h>
+
 #include <pvparallelview/PVAxisGraphicsItem.h>
+#include <pvparallelview/PVAxisLabel.h>
 
 #include <QPainter>
 #include <QGraphicsScene>
@@ -37,7 +39,7 @@ PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem(PVParallelView::PVSliders
 	addToGroup(get_sliders_group());
 	get_sliders_group()->setPos(PARALLELVIEW_AXIS_WIDTH / 2, 0.);
 
-	_label = new QGraphicsSimpleTextItem();
+	_label = new PVAxisLabel(view, _sliders_group);
 	addToGroup(_label);
 	_label->rotate(-45.);
 	_label->setPos(0, - 2 * PVAW_CST);
@@ -82,13 +84,6 @@ void PVParallelView::PVAxisGraphicsItem::paint(QPainter *painter,
 	    IMAGE_HEIGHT + (2 * PVAW_CST),
 	    lib_axis()->get_color().toQColor()
 	);
-	painter->save();
-	painter->translate(- PVParallelView::AxisWidth, - PVAW_CST);
-	painter->rotate(-45.);
-	painter->setPen(lib_axis()->get_titlecolor().toQColor());
-	//painter->drawText(10, 0, lib_axis()->get_name());
-	painter->setPen(pen);
-	painter->restore();
 
 	QGraphicsItemGroup::paint(painter, option, widget);
 }
@@ -99,8 +94,9 @@ void PVParallelView::PVAxisGraphicsItem::paint(QPainter *painter,
 
 void PVParallelView::PVAxisGraphicsItem::update_axis_info()
 {
-	_label->setText(lib_axis()->get_name());
-	_label->setBrush(lib_axis()->get_titlecolor().toQColor());
+	_label->set_text(lib_axis()->get_name());
+	_label->set_color(lib_axis()->get_titlecolor().toQColor());
+	_label->set_axis_index(_lib_view.get_axes_combination().get_index_by_id(_axe_id));
 }
 
 /*****************************************************************************

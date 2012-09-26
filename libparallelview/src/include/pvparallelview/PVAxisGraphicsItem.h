@@ -30,6 +30,8 @@ class QGraphicsSimpleTextItem;
 namespace PVParallelView
 {
 
+class PVAxisLabel;
+
 class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
 {
 public:
@@ -81,7 +83,7 @@ private:
 	QRectF                          _bbox;
 	Picviz::PVView const&           _lib_view;
 	PVSlidersGroup                 *_sliders_group;
-	QGraphicsSimpleTextItem        *_label;
+	PVAxisLabel                    *_label;
 };
 
 }

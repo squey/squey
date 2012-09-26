@@ -70,6 +70,7 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* par
 PVParallelView::PVFullParallelScene::~PVFullParallelScene()
 {
 	PVLOG_INFO("In PVFullParallelScene destructor\n");
+	PVLOG_INFO("%p\n", this);
 	_rendering_job_sel->deleteLater();
 	_rendering_job_bg->deleteLater();
 }
@@ -201,15 +202,21 @@ void PVParallelView::PVFullParallelScene::translate_and_update_zones_position()
 
 void PVParallelView::PVFullParallelScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
+	QGraphicsScene::mousePressEvent(event);
+
+	if (event->isAccepted()) {
+		// a QGraphicsItem has already done something (usually a contextMenuEvent)
+		return;
+	}
+
 	if (event->button() == Qt::RightButton) {
 		// Store view position to compute translation
 		_translation_start_x = event->scenePos().x();
-	}
-	else {
+		event->accept();
+	} else if (event->button() == Qt::LeftButton) {
 		_selection_square_pos = event->scenePos();
+		event->accept();
 	}
-
-	QGraphicsScene::mousePressEvent(event);
 }
 
 void PVParallelView::PVFullParallelScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
@@ -656,52 +663,4 @@ void PVParallelView::PVFullParallelScene::about_to_be_deleted()
 	_render_tasks_sel.wait();
 	_render_tasks_bg.wait();
 	_lines_view.cancel_all_rendering();
-}
-
-void PVParallelView::PVFullParallelScene::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
-{
-	if (event->scenePos().y() > 0) {
-		QGraphicsScene::contextMenuEvent(event);
-		return;
-	}
-
-	QDialog *dlg = new QDialog();
-	dlg->setModal(true);
-
-	QLayout *layout = new QVBoxLayout();
-	dlg->setLayout(layout);
-
-	QLabel *label = new QLabel("Open a zoomed view on axis:");
-	layout->addWidget(label);
-
-	PVWidgets::PVAxisIndexEditor *axes = new PVWidgets::PVAxisIndexEditor(_lib_view, dlg);
-	axes->set_axis_index(0);
-	layout->addWidget(axes);
-
-	QDialogButtonBox *dbb = new QDialogButtonBox(QDialogButtonBox::Open | QDialogButtonBox::Cancel);
-
-	QObject::connect(dbb, SIGNAL(accepted()), dlg, SLOT(accept()));
-	QObject::connect(dbb, SIGNAL(rejected()), dlg, SLOT(reject()));
-
-	layout->addWidget(dbb);
-
-	if (dlg->exec() == QDialog::Accepted) {
-		QDialog *view_dlg = new QDialog();
-
-		view_dlg->setMaximumWidth(1024);
-		view_dlg->setMaximumHeight(1024);
-		view_dlg->setAttribute(Qt::WA_DeleteOnClose, true);
-
-		QLayout *view_layout = new QVBoxLayout(view_dlg);
-		view_layout->setContentsMargins(0, 0, 0, 0);
-		view_dlg->setLayout(view_layout);
-
-		int axis_index = axes->get_axis_index().get_original_index();
-		QWidget *view = common::get_lib_view(_lib_view)->create_zoomed_view(axis_index);
-
-		view_layout->addWidget(view);
-		view_dlg->show();
-	}
-
-	dlg->deleteLater();
 }
