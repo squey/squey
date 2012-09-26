@@ -25,6 +25,8 @@
 #include <pvparallelview/PVSlidersManager.h>
 #include <pvparallelview/PVSlidersGroup.h>
 
+class QGraphicsSimpleTextItem;
+
 namespace PVParallelView
 {
 
@@ -41,6 +43,8 @@ public:
 	QRectF boundingRect () const;
 
 	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
+
+	void update_axis_info();
 
 	PVSlidersGroup *get_sliders_group()
 	{
@@ -77,6 +81,7 @@ private:
 	QRectF                          _bbox;
 	Picviz::PVView const&           _lib_view;
 	PVSlidersGroup                 *_sliders_group;
+	QGraphicsSimpleTextItem        *_label;
 };
 
 }

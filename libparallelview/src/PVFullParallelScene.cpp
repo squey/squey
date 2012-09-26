@@ -599,6 +599,7 @@ void PVParallelView::PVFullParallelScene::update_number_of_zones()
 			delete _axes[i];
 		} else {
 			new_axes[index] = _axes[i];
+			new_axes[index]->update_axis_info();
 		}
 
 		_axes[i] = nullptr;

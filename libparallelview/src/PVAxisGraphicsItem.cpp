@@ -36,6 +36,13 @@ PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem(PVParallelView::PVSliders
 
 	addToGroup(get_sliders_group());
 	get_sliders_group()->setPos(PARALLELVIEW_AXIS_WIDTH / 2, 0.);
+
+	_label = new QGraphicsSimpleTextItem();
+	addToGroup(_label);
+	_label->rotate(-45.);
+	_label->setPos(0, - 2 * PVAW_CST);
+
+	update_axis_info();
 }
 
 PVParallelView::PVAxisGraphicsItem::~PVAxisGraphicsItem()
@@ -79,12 +86,26 @@ void PVParallelView::PVAxisGraphicsItem::paint(QPainter *painter,
 	painter->translate(- PVParallelView::AxisWidth, - PVAW_CST);
 	painter->rotate(-45.);
 	painter->setPen(lib_axis()->get_titlecolor().toQColor());
-	painter->drawText(10, 0, lib_axis()->get_name());
+	//painter->drawText(10, 0, lib_axis()->get_name());
 	painter->setPen(pen);
 	painter->restore();
 
 	QGraphicsItemGroup::paint(painter, option, widget);
 }
+
+/*****************************************************************************
+ * PVParallelView::PVAxisGraphicsItem::update_axis_info
+ *****************************************************************************/
+
+void PVParallelView::PVAxisGraphicsItem::update_axis_info()
+{
+	_label->setText(lib_axis()->get_name());
+	_label->setBrush(lib_axis()->get_titlecolor().toQColor());
+}
+
+/*****************************************************************************
+ * PVParallelView::PVAxisGraphicsItem::lib_axis
+ *****************************************************************************/
 
 Picviz::PVAxis const* PVParallelView::PVAxisGraphicsItem::lib_axis() const
 {
