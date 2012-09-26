@@ -23,6 +23,7 @@
 #include <pvkernel/rush/PVSourceDescription.h>
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/widgets/PVUtils.h>
+#include <PVInputTypeMenuEntries.h>
 
 void PVInspector::PVAddRecentItemFuncObserver::update(const arguments_deep_copy_type& args) const
 {
@@ -119,14 +120,6 @@ PVInspector::PVStartScreenWidget::PVStartScreenWidget(PVMainWindow* parent) :
 	edit_format_button->setIcon(QIcon(":/edit-icon-white"));
 	edit_format_button->setCursor(Qt::PointingHandCursor);
 
-	QPushButton *import_file_button = new QPushButton("Import files");
-	import_file_button->setIcon(QIcon(":/new-icon-white"));
-	import_file_button->setCursor(Qt::PointingHandCursor);
-
-	QPushButton *import_from_database_button = new QPushButton("Import from database");
-	import_from_database_button->setIcon(QIcon(":/open-icon-white"));
-	import_from_database_button->setCursor(Qt::PointingHandCursor);
-
 	QPushButton *create_new_project_button = new QPushButton("Create a new project");
 	create_new_project_button->setIcon(QIcon(":/new-icon-white"));
 	create_new_project_button->setCursor(Qt::PointingHandCursor);
@@ -138,8 +131,10 @@ PVInspector::PVStartScreenWidget::PVStartScreenWidget(PVMainWindow* parent) :
 	// adding these buttons to their parent widgets...
 	format_widget_layout->addWidget(create_new_format_button);
 	format_widget_layout->addWidget(edit_format_button);
-	import_widget_layout->addWidget(import_file_button);
-	import_widget_layout->addWidget(import_from_database_button);
+
+	// Import buttons
+	PVInspector::PVInputTypeMenuEntries::add_inputs_to_layout(import_widget_layout, _mw, SLOT(import_type_Slot()));
+
 	project_widget_layout->addWidget(create_new_project_button);
 	project_widget_layout->addWidget(open_project_button);
 
@@ -237,7 +232,6 @@ PVInspector::PVStartScreenWidget::PVStartScreenWidget(PVMainWindow* parent) :
 	// Connections
 	connect(create_new_project_button, SIGNAL(clicked(bool)), _mw, SLOT(project_new_Slot()));
 	connect(open_project_button, SIGNAL(clicked(bool)), _mw, SLOT(project_load_Slot()));
-	connect(import_file_button, SIGNAL(clicked(bool)), _mw, SLOT(import_type_default_Slot()));
 	connect(create_new_format_button, SIGNAL(clicked(bool)), _mw, SLOT(new_format_Slot()));
 	connect(edit_format_button, SIGNAL(clicked(bool)), _mw, SLOT(open_format_Slot()));
 
