@@ -80,12 +80,14 @@ if (CUDA_FOUND)
 	add_executable(show_codes_cuda show_codes_cuda.cpp ${CUDA_KERNELS})
 	target_link_libraries(show_codes_cuda ${LINK_LIBRARIES} ${CUDA_LIBRARIES})
 
-	cuda_compile(CUDA_KERNELS bci_cuda_z24.cu)
-	add_executable(show_codes_cuda24 show_codes_cuda.cpp ${CUDA_KERNELS})
-	target_link_libraries(show_codes_cuda24 ${LINK_LIBRARIES} ${CUDA_LIBRARIES})
+# does not compile
+#	cuda_compile(CUDA_KERNELS bci_cuda_z24.cu)
+#	add_executable(show_codes_cuda24 show_codes_cuda.cpp ${CUDA_KERNELS})
+#	target_link_libraries(show_codes_cuda24 ${LINK_LIBRARIES} ${CUDA_LIBRARIES})
 
-	add_executable(show_codes_cuda_tex show_codes_cuda_tex.cpp ${CUDA_KERNELS})
-	target_link_libraries(show_codes_cuda_tex ${LINK_LIBRARIES} ${CUDA_LIBRARIES})
+# does not compile
+#	add_executable(show_codes_cuda_tex show_codes_cuda_tex.cpp ${CUDA_KERNELS})
+#	target_link_libraries(show_codes_cuda_tex ${LINK_LIBRARIES} ${CUDA_LIBRARIES})
 
 	cuda_compile(CUDA_KERNELS bci_cuda_z24_atomic.cu)
 	add_executable(show_codes_cuda24_atomic show_codes_cuda.cpp ${CUDA_KERNELS})
