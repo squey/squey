@@ -46,29 +46,41 @@ int main(int argc, char** argv)
 
 	PVParallelView::common::init<PVParallelView::PVBCIDrawingBackendCUDA>();
 
+	QDialog *dlg = new QDialog();
+	dlg->setAttribute(Qt::WA_DeleteOnClose, true);
+
+	QLayout *layout = new QVBoxLayout(dlg);
+	layout->setContentsMargins(0, 0, 0, 0);
+	dlg->setLayout(layout);
+
 	PVParallelView::PVLibView* plib_view = create_lib_view_from_args(argc, argv);
 	if (plib_view == NULL) {
 		return 1;
 	}
-	plib_view->create_view()->show();
+
+	QWidget *view = plib_view->create_view();
+	layout->addWidget(view);
+	dlg->show();
 
 	{
 		Picviz::PVView_sp view_sp = plib_view->lib_view()->shared_from_this();
-		PVGuiQt::PVAxesCombinationDialog* axes_dlg = new PVGuiQt::PVAxesCombinationDialog(view_sp);
-		axes_dlg->show();
-	}
 
-	boost::thread th(
-		[&]
-		{
-			std::cout << "Press enter to delete the view." << std::endl;
-			while (getchar() != '\n');
-			get_view_sp().reset();
-		});
+		dlg = new QDialog();
+		dlg->setAttribute(Qt::WA_DeleteOnClose, true);
+
+		layout = new QVBoxLayout(dlg);
+		layout->setContentsMargins(0, 0, 0, 0);
+		dlg->setLayout(layout);
+
+		QWidget *axes = new PVGuiQt::PVAxesCombinationDialog(view_sp);
+		layout->addWidget(axes);
+		dlg->show();
+	}
 
 	app.exec();
 
-	PVParallelView::common::release();
+	// RH: a deadlock in PVLogger
+	// PVParallelView::common::release();
 
 	return 0;
 }
