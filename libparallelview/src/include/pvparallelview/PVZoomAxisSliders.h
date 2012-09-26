@@ -33,8 +33,8 @@ public:
 
 	void initialize(id_t id, uint32_t y_min, uint32_t y_max);
 
-protected:
-	virtual void do_remove_from_axis();
+public slots:
+	virtual void remove_from_axis();
 
 private slots:
 	void do_sliders_moved();

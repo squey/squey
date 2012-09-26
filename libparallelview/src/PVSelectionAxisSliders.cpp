@@ -54,10 +54,10 @@ void PVParallelView::PVSelectionAxisSliders::initialize(id_t id,
 }
 
 /*****************************************************************************
- * PVParallelView::PVSelectionAxisSliders::do_remove_from_axis
+ * PVParallelView::PVSelectionAxisSliders::remove_from_axis
  *****************************************************************************/
 
-void PVParallelView::PVSelectionAxisSliders::do_remove_from_axis()
+void PVParallelView::PVSelectionAxisSliders::remove_from_axis()
 {
 	PVHive::call<FUNC(PVSlidersManager::del_selection_sliders)>(_sliders_manager_p,
 	                                                            _group->get_axe_id(),

@@ -54,10 +54,10 @@ void PVParallelView::PVZoomAxisSliders::initialize(id_t id,
 }
 
 /*****************************************************************************
- * PVParallelView::PVZoomAxisSliders::do_remove_from_axis
+ * PVParallelView::PVZoomAxisSliders::remove_from_axis
  *****************************************************************************/
 
-void PVParallelView::PVZoomAxisSliders::do_remove_from_axis()
+void PVParallelView::PVZoomAxisSliders::remove_from_axis()
 {
 	PVHive::call<FUNC(PVSlidersManager::del_zoom_sliders)>(_sliders_manager_p,
 	                                                       _group->get_axe_id(),
