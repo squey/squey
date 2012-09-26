@@ -7,8 +7,6 @@
 #ifndef PVFILTER_PVMAPPINGFILTERENUMDEFAULT_H
 #define PVFILTER_PVMAPPINGFILTERENUMDEFAULT_H
 
-#include <pvbase/qhashes.h>
-
 #include <pvkernel/core/PVUnicodeString.h>
 #include <pvkernel/core/PVUnicodeString16.h>
 #include <pvkernel/core/general.h>
