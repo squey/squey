@@ -23,8 +23,17 @@ public:
 
 	virtual bool is_moving() const = 0;
 
+public slots:
+	void remove_from_axis()
+	{
+		do_remove_from_axis();
+	}
+
 signals:
 	void sliders_moved();
+
+protected:
+	virtual void do_remove_from_axis() = 0;
 
 protected:
 	PVSlidersManager_p       _sliders_manager_p;

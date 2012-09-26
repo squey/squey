@@ -19,10 +19,10 @@ void PVParallelView::PVAxisLabel::contextMenuEvent(QGraphicsSceneContextMenuEven
 {
 	QMenu menu;
 
-	QAction *azv = menu.addAction("New zoomed parallel view");
+	QAction *azv = menu.addAction("New zoomed view");
 	connect(azv, SIGNAL(triggered()), this, SLOT(new_zoomed_parallel_view()));
 
-	QAction *ars = menu.addAction("New range selection");
+	QAction *ars = menu.addAction("New selection cursors");
 	connect(ars, SIGNAL(triggered()), this, SLOT(new_selection_sliders()));
 
 	if (menu.exec(event->screenPos()) != nullptr) {

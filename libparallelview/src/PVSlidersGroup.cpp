@@ -66,7 +66,6 @@ PVParallelView::PVSlidersGroup::PVSlidersGroup(PVSlidersManager_p sm_p,
 
 PVParallelView::PVSlidersGroup::~PVSlidersGroup()
 {
-	PVLOG_INFO("In PVSlidersGroup destruction.\n");
 }
 
 /*****************************************************************************

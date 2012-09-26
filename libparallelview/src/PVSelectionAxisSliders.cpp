@@ -33,6 +33,9 @@ void PVParallelView::PVSelectionAxisSliders::initialize(id_t id,
 	_sl_max = new PVSelectionAxisSlider(0, 1024, y_max,
 	                                    PVAxisSliderOrientation::Max);
 
+	_sl_min->set_owner(this);
+	_sl_max->set_owner(this);
+
 	addToGroup(_sl_min);
 	addToGroup(_sl_max);
 
@@ -48,6 +51,17 @@ void PVParallelView::PVSelectionAxisSliders::initialize(id_t id,
 
 	PVHive::PVHive::get().register_func_observer(_sliders_manager_p,
 	                                             _ssu_obs);
+}
+
+/*****************************************************************************
+ * PVParallelView::PVSelectionAxisSliders::do_remove_from_axis
+ *****************************************************************************/
+
+void PVParallelView::PVSelectionAxisSliders::do_remove_from_axis()
+{
+	PVHive::call<FUNC(PVSlidersManager::del_selection_sliders)>(_sliders_manager_p,
+	                                                            _group->get_axe_id(),
+	                                                            _id);
 }
 
 /*****************************************************************************
