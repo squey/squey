@@ -191,10 +191,22 @@ void PVParallelView::PVLibView::axes_comb_updated()
 
 void PVParallelView::PVLibView::view_destroyed(QObject *obj)
 {
-	_parallel_scenes.remove((PVFullParallelScene*)obj);
+	scene_list_t::iterator it = std::find(_parallel_scenes.begin(),
+	                                      _parallel_scenes.end(),
+	                                      (PVFullParallelScene*)obj);
+
+	if (it != _parallel_scenes.end()) {
+		_parallel_scenes.erase(it);
+	}
 }
 
 void PVParallelView::PVLibView::zoomed_view_destroyed(QObject *obj)
 {
-	_zoomed_parallel_scenes.remove((PVZoomedParallelScene*)obj);
+	zoomed_scene_list_t::iterator it = std::find(_zoomed_parallel_scenes.begin(),
+	                                             _zoomed_parallel_scenes.end(),
+	                                             (PVZoomedParallelScene*)obj);
+
+	if (it != _zoomed_parallel_scenes.end()) {
+		_zoomed_parallel_scenes.erase(it);
+	}
 }
