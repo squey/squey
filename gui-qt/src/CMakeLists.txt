@@ -67,7 +67,7 @@ include/PVLayerFilterProcessWidget.h
 include/PVListColNrawDlg.h
 include/PVListDisplayDlg.h
 #include/PVListingModel.h
-include/PVListingsTabWidget.h
+include/PVWorkspacesTabWidget.h
 #include/PVListingSortFilterProxyModel.h
 include/PVMainWindow.h
 include/PVMappingPlottingEditDialog.h
@@ -142,7 +142,7 @@ PVLayerFilterProcessWidget.cpp
 PVListColNrawDlg.cpp
 PVListDisplayDlg.cpp
 #PVListingModel.cpp
-PVListingsTabWidget.cpp
+PVWorkspacesTabWidget.cpp
 #PVListingSortFilterProxyModel.cpp
 PVMainWindow.cpp
 PVMainWindowMenusActions.cpp

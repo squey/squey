@@ -174,13 +174,13 @@ void PVInspector::PVMainWindow::change_of_current_view_Slot()
 {
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
 	/* we set current_tab to it's new value */
-	current_tab = dynamic_cast<PVTabSplitter*>(pv_ListingsTabWidget->currentWidget());
+	current_tab = dynamic_cast<PVTabSplitter*>(pv_WorkspacesTabWidget->currentWidget());
 	if(current_tab!=0){
 		connect(current_tab,SIGNAL(selection_changed_signal(bool)),this,SLOT(enable_menu_filter_Slot(bool)));
 		current_tab->updateFilterMenuEnabling();
 	}
 	if (!current_tab) {
-		// PVLOG_ERROR("PVInspector::PVMainWindow::%s We have a strange beast in the tab widget: %p!\n", __FUNCTION__, pv_ListingsTabWidget->currentWidget());
+		// PVLOG_ERROR("PVInspector::PVMainWindow::%s We have a strange beast in the tab widget: %p!\n", __FUNCTION__, pv_WorkspacesTabWidget->currentWidget());
 		menu_activate_is_file_opened(false);
 	}
 	/* we emit a broadcast signal to spread the news ! */
@@ -199,7 +199,7 @@ void PVInspector::PVMainWindow::commit_selection_in_current_layer_Slot()
 
 	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
 
-	if (pv_ListingsTabWidget->currentIndex() == -1) {
+	if (pv_WorkspacesTabWidget->currentIndex() == -1) {
 		return;
 	}
 	current_lib_view = current_tab->get_lib_view();
@@ -237,7 +237,7 @@ void PVInspector::PVMainWindow::lines_display_unselected_listing_Slot()
 	current_lib_view = current_tab->get_lib_view();
 	state_machine = current_lib_view->state_machine;
 
-	if (pv_ListingsTabWidget->currentIndex() == -1) {
+	if (pv_WorkspacesTabWidget->currentIndex() == -1) {
 		return;
 	}
 
@@ -263,7 +263,7 @@ void PVInspector::PVMainWindow::lines_display_unselected_GLview_Slot()
 	current_lib_view = current_tab->get_lib_view();
 	state_machine = current_lib_view->state_machine;
 
-	if (pv_ListingsTabWidget->currentIndex() == -1) {
+	if (pv_WorkspacesTabWidget->currentIndex() == -1) {
 		return;
 	}
 
@@ -687,7 +687,7 @@ bool PVInspector::PVMainWindow::load_project(QString const& file)
 
 	menu_activate_is_file_opened(true);
 	show_start_page(false);
-	pv_ListingsTabWidget->setVisible(true);
+	pv_WorkspacesTabWidget->setVisible(true);
 
 	set_current_project_filename(file);
 	if (project_has_been_fixed) {
@@ -1040,7 +1040,7 @@ void PVInspector::PVMainWindow::view_new_scatter_Slot()
 	PVLOG_INFO("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
 }
 
-void PVInspector::PVMainWindow::view_new_parallel_Slot()
+/*void PVInspector::PVMainWindow::view_new_parallel_Slot()
 {
 	PVLOG_INFO("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
 	QDialog* dlg = new QDialog(this);
@@ -1060,6 +1060,31 @@ void PVInspector::PVMainWindow::view_new_parallel_Slot()
 	layout->addWidget(view);
 
 	dlg->show();
+}*/
+
+void PVInspector::PVMainWindow::view_new_parallel_Slot()
+{
+	PVLOG_INFO("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
+	//QDialog* dlg = new QDialog(this);
+	//->setAttribute(Qt::WA_DeleteOnClose, true);
+
+	//QLayout *layout = new QVBoxLayout(this);
+	//layout->setContentsMargins(0, 0, 0, 0);
+	//dlg->setLayout(layout);
+	PVParallelView::PVLibView* parallel_lib_view;
+
+	// Progress box!
+	PVCore::PVProgressBox* pbox_lib = new PVCore::PVProgressBox("Creating new view...", (QWidget*) this);
+	pbox_lib->set_enable_cancel(false);
+	PVCore::PVProgressBox::progress<PVParallelView::PVLibView*>(boost::bind(&PVParallelView::common::get_lib_view, boost::ref(*get_current_lib_view())), pbox_lib, parallel_lib_view);
+
+	QWidget *view = parallel_lib_view->create_view();
+
+	_current_workspace->add_view_display(view, "Parallel view");
+
+	//layout->addWidget(view);
+
+	//dlg->show();
 }
 
 void PVInspector::PVMainWindow::view_new_zoomed_parallel_Slot()

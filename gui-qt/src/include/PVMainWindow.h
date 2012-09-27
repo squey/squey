@@ -37,8 +37,10 @@
 //#include <PVMapWidget.h>
 #include <PVOpenFileDialog.h>
 #include <PVSaveFileDialog.h>
-#include <PVListingsTabWidget.h>
+#include <PVWorkspacesTabWidget.h>
 #include <PVFilesTypesSelWidget.h>
+
+#include <pvguiqt/PVWorkspace.h>
 
 //#include <>
 
@@ -123,7 +125,8 @@ public:
 	PVOpenFileDialog    *pv_OpenFileDialog;
 	PVSaveFileDialog    *pv_SaveFileDialog;
 	PVTabSplitter       *current_tab;
-	PVListingsTabWidget *pv_ListingsTabWidget;
+	PVGuiQt::PVWorkspace* _current_workspace;
+	PVWorkspacesTabWidget *pv_WorkspacesTabWidget;
 
 	QMenuBar *menubar;
 	QMenu *filter_Menu;
@@ -226,7 +229,7 @@ private:
 	void set_selection_from_layer(Picviz::PVView_sp view, Picviz::PVLayer const& layer);
 	void display_inv_elts(PVTabSplitter* tab_src);
 	void close_all_views();
-	Picviz::PVView* get_current_lib_view() const { return current_tab->get_lib_view(); };
+	Picviz::PVView* get_current_lib_view() const { assert(current_tab); return current_tab->get_lib_view(); };
 
 private slots:
 	void project_modified_Slot();

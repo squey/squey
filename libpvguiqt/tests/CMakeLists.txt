@@ -41,3 +41,7 @@ target_link_libraries(Tqt_huge-model ${COMMON_LIBRARIES})
 # Confusing Qt Stylesheets
 add_executable(Tqt_css css.cpp)
 target_link_libraries(Tqt_css ${COMMON_LIBRARIES})
+
+# Workspaces
+add_executable(Tqt_workspaces workspaces.cpp)
+target_link_libraries(Tqt_workspaces ${COMMON_LIBRARIES})

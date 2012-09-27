@@ -23,6 +23,7 @@ PVRootTreeView.cpp
 PVSortFilterProxyModel.cpp
 PVLogoModel.cpp
 PVLogoScene.cpp
+PVWorkspace.cpp
 )
 
 SET(LIBGUIQT_MOC_HEADERS
