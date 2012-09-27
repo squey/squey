@@ -7,6 +7,7 @@
 #include <pvparallelview/PVTaskFilterSel.h>
 #include <pvparallelview/PVZoomedParallelScene.h>
 #include <pvparallelview/PVParallelView.h>
+#include <pvparallelview/PVLibView.h>
 
 #include <pvkernel/core/PVAlgorithms.h>
 
@@ -129,6 +130,8 @@ PVParallelView::PVZoomedParallelScene::~PVZoomedParallelScene()
 	_rendering_job->deleteLater();
 
 	_zones_drawing.remove_render_group(_render_group);
+
+	common::get_lib_view(_pvview)->remove_zoomed_view(this);
 
 	if (_pending_deletion == false) {
 		_pending_deletion = true;

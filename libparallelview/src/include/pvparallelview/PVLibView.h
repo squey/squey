@@ -28,10 +28,8 @@ namespace PVParallelView
 class PVZonesManager;
 class PVFuncObserverSignal;
 
-class PVLibView : public QObject
+class PVLibView
 {
-Q_OBJECT
-
 private:
 	typedef std::list<PVFullParallelScene*> scene_list_t;
 	typedef std::list<PVZoomedParallelScene*> zoomed_scene_list_t;
@@ -49,6 +47,9 @@ public:
 	PVZonesManager& get_zones_manager() { return _zones_manager; }
 	Picviz::PVView* lib_view() { return _obs_view->get_object(); }
 
+	void remove_view(PVFullParallelScene *scene);
+	void remove_zoomed_view(PVZoomedParallelScene *scene);
+
 protected:
 	void selection_updated();
 	void output_layer_updated();
@@ -60,10 +61,6 @@ protected:
 	void common_init_zm();
 	tbb::task* task_root() { return _task_root; }
 	tbb::task_group_context& task_group_context() { return _tasks_ctxt; }
-
-private slots:
-	void view_destroyed(QObject *);
-	void zoomed_view_destroyed(QObject *);
 
 private:
 	PVZonesManager                            _zones_manager;

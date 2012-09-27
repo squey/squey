@@ -96,7 +96,6 @@ include/pvparallelview/PVZoomAxisSliders.h
 )
 
 SET(MOC_HEADERS
-include/pvparallelview/PVLibView.h
 include/pvparallelview/PVRenderingJob.h
 include/pvparallelview/PVFullParallelView.h
 include/pvparallelview/PVFullParallelScene.h

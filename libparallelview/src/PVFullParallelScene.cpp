@@ -73,6 +73,7 @@ PVParallelView::PVFullParallelScene::~PVFullParallelScene()
 	PVLOG_INFO("%p\n", this);
 	_rendering_job_sel->deleteLater();
 	_rendering_job_bg->deleteLater();
+	common::get_lib_view(_lib_view)->remove_view(this);
 }
 
 void PVParallelView::PVFullParallelScene::connect_rendering_job()
