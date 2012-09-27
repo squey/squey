@@ -41,6 +41,7 @@ core/PVMatrix.cpp
 core/PVPCRESplitter.cpp
 core/PVProgressBox.cpp
 core/PVPluginPresets.cpp
+core/PVSelBitField.cpp
 core/PVSerializeArchive.cpp
 core/PVSerializeArchiveFixError.cpp
 core/PVSerializeArchiveOptions.cpp
