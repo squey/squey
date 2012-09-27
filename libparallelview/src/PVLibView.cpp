@@ -105,7 +105,6 @@ PVParallelView::PVFullParallelView* PVParallelView::PVLibView::create_view(QWidg
 	_parallel_scenes.push_back(scene);
 	view->setScene(scene);
 	scene->first_render();
-	connect(scene, SIGNAL(destroyed(QObject *)), this, SLOT(view_destroyed(QObject *)));
 
 	return view;
 }
@@ -117,7 +116,6 @@ PVParallelView::PVZoomedParallelView* PVParallelView::PVLibView::create_zoomed_v
 	PVParallelView::PVZoomedParallelScene *scene = new PVParallelView::PVZoomedParallelScene(view, view_sp, _sliders_manager_p, _zd_zzt, axis);
 	_zoomed_parallel_scenes.push_back(scene);
 	view->setScene(scene);
-	connect(scene, SIGNAL(destroyed(QObject *)), this, SLOT(zoomed_view_destroyed(QObject *)));
 
 	return view;
 }
@@ -189,22 +187,22 @@ void PVParallelView::PVLibView::axes_comb_updated()
 	}
 }
 
-void PVParallelView::PVLibView::view_destroyed(QObject *obj)
+void PVParallelView::PVLibView::remove_view(PVFullParallelScene *scene)
 {
 	scene_list_t::iterator it = std::find(_parallel_scenes.begin(),
 	                                      _parallel_scenes.end(),
-	                                      (PVFullParallelScene*)obj);
+	                                      scene);
 
 	if (it != _parallel_scenes.end()) {
 		_parallel_scenes.erase(it);
 	}
 }
 
-void PVParallelView::PVLibView::zoomed_view_destroyed(QObject *obj)
+void PVParallelView::PVLibView::remove_zoomed_view(PVZoomedParallelScene *scene)
 {
 	zoomed_scene_list_t::iterator it = std::find(_zoomed_parallel_scenes.begin(),
 	                                             _zoomed_parallel_scenes.end(),
-	                                             (PVZoomedParallelScene*)obj);
+	                                             scene);
 
 	if (it != _zoomed_parallel_scenes.end()) {
 		_zoomed_parallel_scenes.erase(it);
