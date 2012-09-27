@@ -32,7 +32,7 @@ public:
 		ZoomSliderBoth   = 3 // 1 + 2
 	} ZoomSliderChange;
 
-	typedef Picviz::PVAxesCombination::axes_comb_id_t axe_id_t;
+	typedef Picviz::PVAxesCombination::axes_comb_id_t axis_id_t;
 	typedef void*                                     id_t;
 
 	struct range_geometry_t
@@ -41,7 +41,7 @@ public:
 		uint32_t y_max;
 	};
 
-	typedef std::function<void(const axe_id_t, const id_t,
+	typedef std::function<void(const axis_id_t, const id_t,
 	                           const range_geometry_t &)> range_functor_t;
 
 public:
@@ -60,9 +60,9 @@ public:
 	 * @param y_min the low position of the sliders
 	 * @param y_max the high position of the sliders
 	 */
-	void new_selection_sliders(const axe_id_t &axe_id, const id_t id,
+	void new_selection_sliders(const axis_id_t &axis_id, const id_t id,
 	                           const uint32_t y_min, const uint32_t y_max);
-	void new_zoom_sliders(const axe_id_t &axe_id, const id_t id,
+	void new_zoom_sliders(const axis_id_t &axis_id, const id_t id,
 	                      const uint32_t y_min, const uint32_t y_max);
 
 	/**
@@ -72,8 +72,8 @@ public:
 	 * @param axis the axis the slider is associated with
 	 * @param id the id the slider is associated with
 	 */
-	void del_selection_sliders(const axe_id_t &axe_id, const id_t id);
-	void del_zoom_sliders(const axe_id_t &axe_id, const id_t id);
+	void del_selection_sliders(const axis_id_t &axis_id, const id_t id);
+	void del_zoom_sliders(const axis_id_t &axis_id, const id_t id);
 
 	/**
 	 * Function to observe (in PVHive way) to be notified when a
@@ -84,9 +84,9 @@ public:
 	 * @param y_min the low position of the sliders
 	 * @param y_max the high position of the sliders
 	 */
-	void update_selection_sliders(const axe_id_t &axe_id, const id_t id,
+	void update_selection_sliders(const axis_id_t &axis_id, const id_t id,
 	                              const uint32_t y_min, const uint32_t y_max);
-	void update_zoom_sliders(const axe_id_t &axe_id, const id_t id,
+	void update_zoom_sliders(const axis_id_t &axis_id, const id_t id,
 	                         const uint32_t y_min, const uint32_t y_max,
 	                         const ZoomSliderChange change);
 
@@ -103,18 +103,18 @@ public:
 
 private:
 	typedef std::map<id_t, range_geometry_t> range_geometry_list_t;
-	typedef std::map<axe_id_t, range_geometry_list_t> range_geometry_set_t;
+	typedef std::map<axis_id_t, range_geometry_list_t> range_geometry_set_t;
 
 private:
 	void new_range_sliders(range_geometry_set_t &range,
-	                          const axe_id_t &axe_id, const id_t id,
+	                          const axis_id_t &axis_id, const id_t id,
 	                          const uint32_t y_min, const uint32_t y_max);
 
 	void del_range_sliders(range_geometry_set_t &range,
-	                          const axe_id_t &axe_id, const id_t id);
+	                          const axis_id_t &axis_id, const id_t id);
 
 	void update_range_sliders(range_geometry_set_t &range,
-	                             const axe_id_t &axe_id, const id_t id,
+	                             const axis_id_t &axis_id, const id_t id,
 	                             const uint32_t y_min, const uint32_t y_max);
 
 	void iterate_range_sliders(const range_geometry_set_t &range,

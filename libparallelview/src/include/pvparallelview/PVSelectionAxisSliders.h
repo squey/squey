@@ -24,7 +24,7 @@ class PVSelectionAxisSliders : public PVAbstractRangeAxisSliders
 Q_OBJECT
 
 private:
-	typedef PVSlidersManager::axe_id_t axe_id_t;
+	typedef PVSlidersManager::axis_id_t axis_id_t;
 	typedef PVSlidersManager::id_t id_t;
 
 public:
