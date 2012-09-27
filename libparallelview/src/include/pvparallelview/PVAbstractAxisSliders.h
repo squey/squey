@@ -23,6 +23,9 @@ public:
 
 	virtual bool is_moving() const = 0;
 
+public slots:
+	virtual void remove_from_axis() = 0;
+
 signals:
 	void sliders_moved();
 

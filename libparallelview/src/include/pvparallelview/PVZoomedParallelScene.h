@@ -208,6 +208,9 @@ private:
 	PVCol                          _axis_index;
 	axe_id_t                       _axe_id;
 
+	// this flag helps not killing twice through the hive and the destructor
+	bool                           _pending_deletion;
+
 	// about mouse
 	int                            _wheel_value;
 	int                            _pan_reference_y;

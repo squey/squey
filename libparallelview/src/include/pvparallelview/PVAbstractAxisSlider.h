@@ -6,12 +6,15 @@
 
 #include <QObject>
 #include <QGraphicsItem>
+#include <QGraphicsSceneContextMenuEvent>
 
 /* TODO: move from int to uint32_t to use QPointF instead of QPoint to  move precisely
  *       any sliders in zoomed view
  */
 namespace PVParallelView
 {
+
+class PVAbstractAxisSliders;
 
 enum PVAxisSliderOrientation {
 	Min,
@@ -45,6 +48,11 @@ public:
 		_offset_max = omax;
 	}
 
+	void set_owner(PVAbstractAxisSliders *owner)
+	{
+		_owner = owner;
+	}
+
 	bool is_moving() const
 	{
 		return _moving;
@@ -59,13 +67,15 @@ signals:
 	void slider_moved();
 
 protected:
-	void hoverEnterEvent(QGraphicsSceneHoverEvent * event);
-	void hoverMoveEvent(QGraphicsSceneHoverEvent * event);
-	void hoverLeaveEvent(QGraphicsSceneHoverEvent * event);
+	virtual void hoverEnterEvent(QGraphicsSceneHoverEvent * event);
+	virtual void hoverMoveEvent(QGraphicsSceneHoverEvent * event);
+	virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent * event);
 
-	void mouseMoveEvent(QGraphicsSceneMouseEvent* event);
-	void mousePressEvent(QGraphicsSceneMouseEvent* event);
-	void mouseReleaseEvent(QGraphicsSceneMouseEvent* event);
+	virtual void mouseMoveEvent(QGraphicsSceneMouseEvent* event);
+	virtual void mousePressEvent(QGraphicsSceneMouseEvent* event);
+	virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent* event);
+
+	virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
 
 protected:
 	int                     _offset_min;
@@ -73,6 +83,7 @@ protected:
 	int                     _offset;
 	PVAxisSliderOrientation _orientation;
 	bool                    _moving;
+	PVAbstractAxisSliders  *_owner;
 };
 
 }

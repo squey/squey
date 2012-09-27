@@ -28,8 +28,13 @@ void PVParallelView::PVZoomAxisSliders::initialize(id_t id,
 {
 	_id = id;
 
-	_sl_min = new PVZoomAxisSlider(0, 1024, y_min, PVAxisSliderOrientation::Min);
-	_sl_max = new PVZoomAxisSlider(0, 1024, y_max, PVAxisSliderOrientation::Max);
+	_sl_min = new PVZoomAxisSlider(0, 1024, y_min,
+	                               PVAxisSliderOrientation::Min);
+	_sl_max = new PVZoomAxisSlider(0, 1024, y_max,
+	                               PVAxisSliderOrientation::Max);
+
+	_sl_min->set_owner(this);
+	_sl_max->set_owner(this);
 
 	addToGroup(_sl_min);
 	addToGroup(_sl_max);
@@ -46,6 +51,17 @@ void PVParallelView::PVZoomAxisSliders::initialize(id_t id,
 
 	PVHive::PVHive::get().register_func_observer(_sliders_manager_p,
 	                                             _zsu_obs);
+}
+
+/*****************************************************************************
+ * PVParallelView::PVZoomAxisSliders::remove_from_axis
+ *****************************************************************************/
+
+void PVParallelView::PVZoomAxisSliders::remove_from_axis()
+{
+	PVHive::call<FUNC(PVSlidersManager::del_zoom_sliders)>(_sliders_manager_p,
+	                                                       _group->get_axe_id(),
+	                                                       _id);
 }
 
 /*****************************************************************************

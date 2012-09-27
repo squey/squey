@@ -33,7 +33,7 @@ class PVLibView : public QObject
 Q_OBJECT
 
 private:
-	typedef std::list<PVFullParallelScene*> views_list_t;
+	typedef std::list<PVFullParallelScene*> scene_list_t;
 	typedef std::list<PVZoomedParallelScene*> zoomed_scene_list_t;
 	friend class process_selection_Observer;
 
@@ -72,7 +72,7 @@ private:
 	PVHive::PVObserver_p<Picviz::PVSelection> _obs_sel;
 	PVHive::PVObserver_p<Picviz::PVView>      _obs_view;
 	PVHive::PVObserver_p<Picviz::PVAxesCombination::columns_indexes_t> _obs_axes_comb;
-	views_list_t                              _parallel_scenes;
+	scene_list_t                              _parallel_scenes;
 	zoomed_scene_list_t                       _zoomed_parallel_scenes;
 	PVCore::PVHSVColor                 const* _colors;
 	tbb::task                                *_task_root;

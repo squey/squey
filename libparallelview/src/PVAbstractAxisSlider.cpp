@@ -2,10 +2,12 @@
 #include <pvkernel/core/PVLogger.h>
 
 #include <pvparallelview/PVAbstractAxisSlider.h>
+#include <pvparallelview/PVAbstractAxisSliders.h>
 
 #include <QPainter>
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
+#include <QMenu>
 
 /*****************************************************************************
  * PVParallelView::PVAbstractAxisSlider::PVAbstractAxisSlider
@@ -67,21 +69,25 @@ void PVParallelView::PVAbstractAxisSlider::hoverLeaveEvent(QGraphicsSceneHoverEv
  * PVParallelView::PVAbstractAxisSlider::mousePressEvent
  *****************************************************************************/
 
-void PVParallelView::PVAbstractAxisSlider::mousePressEvent(QGraphicsSceneMouseEvent* /*event*/)
+void PVParallelView::PVAbstractAxisSlider::mousePressEvent(QGraphicsSceneMouseEvent* event)
 {
-	_moving = true;
-	//event->accept();
+	if (event->button() == Qt::LeftButton) {
+		_moving = true;
+		event->accept();
+	}
 }
 
 /*****************************************************************************
  * PVParallelView::PVAbstractAxisSlider::mouseReleaseEvent
  *****************************************************************************/
 
-void PVParallelView::PVAbstractAxisSlider::mouseReleaseEvent(QGraphicsSceneMouseEvent* /*event*/)
+void PVParallelView::PVAbstractAxisSlider::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 {
-	emit slider_moved();
-	_moving = false;
-	//event->accept();
+	if (event->button() == Qt::LeftButton) {
+		emit slider_moved();
+		_moving = false;
+		event->accept();
+	}
 }
 
 /*****************************************************************************
@@ -95,6 +101,23 @@ void PVParallelView::PVAbstractAxisSlider::mouseMoveEvent(QGraphicsSceneMouseEve
 		set_value(event->scenePos().y() + 0.5);
 
 		group()->update();
+		event->accept();
 	}
-	event->accept();
+}
+
+
+/*****************************************************************************
+ * PVParallelView::PVAbstractAxisSlider::contextMenuEvent
+ *****************************************************************************/
+
+void PVParallelView::PVAbstractAxisSlider::contextMenuEvent(QGraphicsSceneContextMenuEvent* event)
+{
+	QMenu menu;
+
+	QAction *rem = menu.addAction("Remove cursors");
+	connect(rem, SIGNAL(triggered()), _owner, SLOT(remove_from_axis()));
+
+	if (menu.exec(event->screenPos()) != nullptr) {
+		event->accept();
+	}
 }

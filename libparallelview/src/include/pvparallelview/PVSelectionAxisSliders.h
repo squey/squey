@@ -42,6 +42,9 @@ public:
 		return _id;
 	}
 
+public slots:
+	virtual void remove_from_axis();
+
 private slots:
 	void do_sliders_moved();
 

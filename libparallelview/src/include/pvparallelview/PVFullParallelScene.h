@@ -185,9 +185,6 @@ private:
 		}
 	};
 
-protected:
-	void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
-
 private:
 	typedef std::vector<PVParallelView::PVAxisGraphicsItem*> axes_list_t;
 

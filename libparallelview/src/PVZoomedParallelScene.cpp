@@ -57,6 +57,7 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 	_zsd_obs(this),
 	_zones_drawing(zones_drawing),
 	_axis_index(axis_index),
+	_pending_deletion(false),
 	_left_zone(nullptr),
 	_right_zone(nullptr),
 	_updated_selection_count(0)
@@ -122,18 +123,18 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 
 PVParallelView::PVZoomedParallelScene::~PVZoomedParallelScene()
 {
-	PVLOG_INFO("PVZoomedParallelScene::~PVZoomedParallelScene()\n");
 	delete _selection_rect;
 
 	_updated_selection_count = 0;
-	_rendering_job->cancel();
-	_rendering_future.waitForFinished();
 	_rendering_job->deleteLater();
 
 	_zones_drawing.remove_render_group(_render_group);
 
-	PVHive::call<FUNC(PVSlidersManager::del_zoom_sliders)>(_sliders_manager_p,
-	                                                       _axe_id, _sliders_group);
+	if (_pending_deletion == false) {
+		_pending_deletion = true;
+		PVHive::call<FUNC(PVSlidersManager::del_zoom_sliders)>(_sliders_manager_p,
+		                                                       _axe_id, _sliders_group);
+	}
 }
 
 /*****************************************************************************
@@ -800,8 +801,9 @@ void PVParallelView::PVZoomedParallelScene::zoom_sliders_del_obs::update(argumen
 	PVSlidersManager::id_t id = std::get<1>(args);
 
 	if ((axe_id == _parent->_axe_id) && (id == _parent->_sliders_group)) {
-		//FIXME: the scene (and above) must be deleted
-		PVLOG_INFO("the PVZoomedParallelScene for axis %d must be deleted\n",
-		           _parent->_axis_index);
+		if (_parent->_pending_deletion == false) {
+			_parent->_pending_deletion = true;
+			_parent->_zpview->parentWidget()->close();
+		}
 	}
 }

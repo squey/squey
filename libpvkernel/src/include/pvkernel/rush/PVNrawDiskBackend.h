@@ -239,7 +239,7 @@ public:
 	{
 		PVColumn& column = get_col(col);
 		uint64_t nb_fields_left = _cache_pool.get_cache(field, col);
-		return next(col, nb_fields_left, column.buffer_read, size_ret);
+		return next(col, nb_fields_left, column.buffer_read_ptr, size_ret);
 	}
 
 	size_t get_number_cols() const { return _columns.size(); }
@@ -535,6 +535,9 @@ private:
 
 			buffer_read = nullptr;
 			buffer_read_ptr = nullptr;
+
+			cache_index = INVALID;
+			last_read_field = INVALID;
 		}
 	public:
 		file_t file = 0;
@@ -552,6 +555,9 @@ private:
 
 		char* buffer_read;
 		char* buffer_read_ptr;
+
+		uint64_t cache_index;
+		uint64_t last_read_field;
 	};
 
 	class PVCachePool: private file_policy_t

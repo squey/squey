@@ -399,13 +399,14 @@ PVRush::PVNrawDiskBackend::PVCachePool::PVCachePool(PVRush::PVNrawDiskBackend& p
 uint64_t PVRush::PVNrawDiskBackend::PVCachePool::get_cache(uint64_t field, uint64_t col)
 {
 	bool cache_miss = true;
-	uint64_t cache_idx = 0;
+
+	PVColumn& column = _parent.get_col(col);
+	uint64_t cache_idx = column.cache_index;
 
 	// Is there a cache for this column?
-	for (; cache_idx < NB_CACHE_BUFFERS && _caches[cache_idx].column != col; cache_idx++) {}
 
 	// Yes
-	if (cache_idx < NB_CACHE_BUFFERS) {
+	if (cache_idx != INVALID) {
 		PVReadCache& cache = _caches[cache_idx];
 		cache_miss = (field < cache.first_field || field > cache.last_field);
 	}
@@ -420,15 +421,20 @@ uint64_t PVRush::PVNrawDiskBackend::PVCachePool::get_cache(uint64_t field, uint6
 				cache_idx = i;
 			}
 		}
+		if (_caches[cache_idx].column != INVALID) {
+			_parent.get_col(_caches[cache_idx].column).cache_index = INVALID;  // Tell the column that we are stealing its cache...
+		}
+
+		column.cache_index = cache_idx;
 		_caches[cache_idx].column = col;
 	}
 
 	PVReadCache& cache = _caches[cache_idx];
-	PVColumn& column = _parent.get_col(col);
 
 	// Fetch data from disk
-	char* buffer_ptr = cache.buffer;
+	uint64_t nb_fields_left = 0;
 	if (cache_miss) {
+		char* buffer_ptr = cache.buffer;
 		int64_t field_index = get_index(col, field);
 		uint64_t disk_offset = field_index == -1 ? 0 : _parent._indexes.at(field_index, col).offset;
 		uint64_t aligned_disk_offset = disk_offset;
@@ -443,15 +449,25 @@ uint64_t PVRush::PVNrawDiskBackend::PVCachePool::get_cache(uint64_t field, uint6
 		}
 		cache.first_field = field_index == -1 ? 0 :_parent._indexes.at(field_index, col).field;
 		cache.last_field = _parent._indexes.at(field_index+1, col).field-1;
+		nb_fields_left = field - cache.first_field;
 		column.buffer_read = buffer_ptr;
+		column.buffer_read_ptr = buffer_ptr;
+	}
+	else {
+		if (field > column.last_read_field) {
+			nb_fields_left = field - column.last_read_field;
+		}
+		else {
+			nb_fields_left = field - cache.first_field;
+			column.buffer_read_ptr = column.buffer_read;
+		}
 	}
 
 	// Update cache timestamp
 	cache.timestamp = tbb::tick_count::now();
+	column.last_read_field = field;
 
-	column.buffer_read_ptr = buffer_ptr;
-
-	return field - cache.first_field;
+	return nb_fields_left;
 }
 
 PVRush::PVNrawDiskBackend::PVCachePool::~PVCachePool()

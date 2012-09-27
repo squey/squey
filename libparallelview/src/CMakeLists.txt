@@ -43,6 +43,7 @@ PVZoneTreeBase.cpp
 PVZoneTreeNoAlloc.cpp
 simple_lines_float_view.cpp
 simple_lines_int_view.cpp
+PVAxisLabel.cpp
 PVAxisGraphicsItem.cpp
 PVSelectionGenerator.cpp
 PVQuadTree.cpp
@@ -81,6 +82,7 @@ include/pvparallelview/PVZoomedZoneTree.h
 include/pvparallelview/PVZoomedParallelScene.h
 include/pvparallelview/PVZoomedParallelView.h
 include/pvparallelview/PVSlidersManager.h
+include/pvparallelview/PVAxisLabel.h
 include/pvparallelview/PVAxisGraphicsItem.h
 include/pvparallelview/PVFullParallelView.h
 include/pvparallelview/PVFullParallelScene.h
@@ -102,6 +104,7 @@ include/pvparallelview/PVSelectionSquareGraphicsItem.h
 include/pvparallelview/PVZonesManager.h
 include/pvparallelview/PVZoomedParallelScene.h
 include/pvparallelview/PVSlidersGroup.h
+include/pvparallelview/PVAxisLabel.h
 include/pvparallelview/PVAbstractAxisSlider.h
 include/pvparallelview/PVAbstractAxisSliders.h
 include/pvparallelview/PVSelectionAxisSliders.h
