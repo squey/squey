@@ -50,21 +50,26 @@ void PVCore::PVRecentItemsManager::add_source(PVRush::PVSourceCreator_p source_c
 
 const PVCore::PVRecentItemsManager::variant_list_t PVCore::PVRecentItemsManager::get_list(Category category)
 {
+	PVCore::PVRecentItemsManager::variant_list_t result;
+
 	switch (category)
 	{
 		case Category::SUPPORTED_FORMATS:
 		{
-			return supported_format_list();
+			result = supported_format_list();
+			break;
 		}
 		case Category::SOURCES:
 		{
-			return sources_description_list();
+			result = sources_description_list();
+			break;
 		}
 		case Category::PROJECTS:
 		case Category::USED_FORMATS:
 		case Category::EDITED_FORMATS:
 		{
-			return items_list(category);
+			result = items_list(category);
+			break;
 		}
 		default:
 		{
@@ -72,6 +77,7 @@ const PVCore::PVRecentItemsManager::variant_list_t PVCore::PVRecentItemsManager:
 			break;
 		}
 	}
+	return result;
 }
 
 const PVCore::PVRecentItemsManager::variant_list_t PVCore::PVRecentItemsManager::items_list(Category category) const
