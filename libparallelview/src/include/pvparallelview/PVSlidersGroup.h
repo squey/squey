@@ -29,23 +29,23 @@ private:
 	typedef PVSlidersManager::range_geometry_t range_geometry_t;
 
 public:
-	typedef PVSlidersManager::axe_id_t axe_id_t;
+	typedef PVSlidersManager::axis_id_t axis_id_t;
 	typedef std::vector<std::pair<PVRow, PVRow> > selection_ranges_t;
 
 public:
-	PVSlidersGroup(PVSlidersManager_p sm_p, const axe_id_t &axe_id, QGraphicsItem *parent = nullptr);
+	PVSlidersGroup(PVSlidersManager_p sm_p, const axis_id_t &axis_id, QGraphicsItem *parent = nullptr);
 	~PVSlidersGroup();
 
 	void recreate_sliders();
 
-	void set_axe_id(const axe_id_t &axe_id)
+	void set_axis_id(const axis_id_t &axis_id)
 	{
-		_axe_id = axe_id;
+		_axis_id = axis_id;
 	}
 
-	const axe_id_t &get_axe_id() const
+	const axis_id_t &get_axis_id() const
 	{
-		return _axe_id;
+		return _axis_id;
 	}
 
 	QRectF boundingRect() const
@@ -63,10 +63,10 @@ public:
 	selection_ranges_t get_selection_ranges() const;
 
 signals:
-	void selection_sliders_moved(const axe_id_t axe_id);
+	void selection_sliders_moved(const axis_id_t axis_id);
 
 protected slots:
-	void selection_slider_moved() { emit selection_sliders_moved(get_axe_id()); }
+	void selection_slider_moved() { emit selection_sliders_moved(get_axis_id()); }
 
 private:
 	/**
@@ -147,7 +147,7 @@ private:
 	selection_sliders_new_obs _ssn_obs;
 	zoom_sliders_del_obs      _zsd_obs;
 	selection_sliders_del_obs _ssd_obs;
-	axe_id_t                  _axe_id;
+	axis_id_t                 _axis_id;
 
 	aas_set_t                 _all_sliders;
 	sas_set_t                 _selection_sliders;

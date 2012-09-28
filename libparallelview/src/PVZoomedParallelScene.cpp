@@ -72,7 +72,7 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 	_zpview->setMaximumWidth(1024);
 	_zpview->setMaximumHeight(1024);
 
-	_axe_id = _pvview.get_axes_combination().get_axes_comb_id(axis_index);
+	_axis_id = _pvview.get_axes_combination().get_axes_comb_id(axis_index);
 
 	_selection_rect = new PVParallelView::PVSelectionSquareGraphicsItem(this);
 	connect(_selection_rect, SIGNAL(commit_volatile_selection()),
@@ -89,7 +89,7 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(PVParallelView::PVZ
 	connect(_rendering_job, SIGNAL(zone_rendered(int)),
 	        this, SLOT(zone_rendered_Slot(int)));
 
-	_sliders_group = new PVParallelView::PVSlidersGroup(sliders_manager_p, _axe_id);
+	_sliders_group = new PVParallelView::PVSlidersGroup(sliders_manager_p, _axis_id);
 	_sliders_group->setPos(0., 0.);
 	_sliders_group->add_zoom_sliders(0, 1024);
 
@@ -136,7 +136,7 @@ PVParallelView::PVZoomedParallelScene::~PVZoomedParallelScene()
 	if (_pending_deletion == false) {
 		_pending_deletion = true;
 		PVHive::call<FUNC(PVSlidersManager::del_zoom_sliders)>(_sliders_manager_p,
-		                                                       _axe_id, _sliders_group);
+		                                                       _axis_id, _sliders_group);
 	}
 }
 
@@ -301,7 +301,7 @@ void PVParallelView::PVZoomedParallelScene::update_new_selection(tbb::task* root
 
 bool PVParallelView::PVZoomedParallelScene::update_zones()
 {
-	PVCol axis = _pvview.get_axes_combination().get_index_by_id(_axe_id);
+	PVCol axis = _pvview.get_axes_combination().get_index_by_id(_axis_id);
 
 	if (axis == PVCOL_INVALID_VALUE) {
 		if (_axis_index > _zones_drawing.get_zones_manager().get_number_zones()) {
@@ -314,8 +314,8 @@ bool PVParallelView::PVZoomedParallelScene::update_zones()
 		/* the axis does not exist anymore, the one with the
 		 * same index is used instead
 		 */
-		_axe_id = _pvview.get_axes_combination().get_axes_comb_id(_axis_index);
-		_sliders_group->set_axe_id(_axe_id);
+		_axis_id = _pvview.get_axes_combination().get_axes_comb_id(_axis_index);
+		_sliders_group->set_axis_id(_axis_id);
 		_sliders_group->recreate_sliders();
 	} else {
 		/* the axes has only been moved, nothing special to do.
@@ -448,7 +448,7 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 	                                         0ULL, y_lim);
 
 	PVHive::call<FUNC(PVSlidersManager::update_zoom_sliders)>(_sliders_manager_p,
-	                                                          _axe_id, _sliders_group,
+	                                                          _axis_id, _sliders_group,
 	                                                          y_min >> (32 - NBITS_INDEX),
 	                                                          y_max >> (32 - NBITS_INDEX),
 	                                                          PVParallelView::PVSlidersManager::ZoomSliderNone);
@@ -756,7 +756,7 @@ void PVParallelView::PVZoomedParallelScene::commit_volatile_selection_Slot()
 
 void PVParallelView::PVZoomedParallelScene::zoom_sliders_update_obs::update(arguments_deep_copy_type const& args) const
 {
-	const axe_id_t &axe_id = std::get<0>(args);
+	const axis_id_t &axis_id = std::get<0>(args);
 	PVSlidersManager::id_t id = std::get<1>(args);
 	PVParallelView::PVSlidersManager::ZoomSliderChange change = std::get<4>(args);
 
@@ -764,7 +764,7 @@ void PVParallelView::PVZoomedParallelScene::zoom_sliders_update_obs::update(argu
 		return;
 	}
 
-	if ((axe_id == _parent->_axe_id) && (id == _parent->_sliders_group)) {
+	if ((axis_id == _parent->_axis_id) && (id == _parent->_sliders_group)) {
 		double sld_min = std::get<2>(args);
 		double sld_max = std::get<3>(args);
 		double sld_dist = sld_max - sld_min;
@@ -800,10 +800,10 @@ void PVParallelView::PVZoomedParallelScene::zoom_sliders_update_obs::update(argu
 
 void PVParallelView::PVZoomedParallelScene::zoom_sliders_del_obs::update(arguments_deep_copy_type const& args) const
 {
-	const axe_id_t &axe_id = std::get<0>(args);
+	const axis_id_t &axis_id = std::get<0>(args);
 	PVSlidersManager::id_t id = std::get<1>(args);
 
-	if ((axe_id == _parent->_axe_id) && (id == _parent->_sliders_group)) {
+	if ((axis_id == _parent->_axis_id) && (id == _parent->_sliders_group)) {
 		if (_parent->_pending_deletion == false) {
 			_parent->_pending_deletion = true;
 			_parent->_zpview->parentWidget()->close();

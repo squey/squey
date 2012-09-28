@@ -444,9 +444,9 @@ void PVParallelView::PVFullParallelScene::commit_volatile_selection_Slot()
 	process_selection();
 }
 
-void PVParallelView::PVFullParallelScene::update_selection_from_sliders_Slot(axe_id_t axe_id)
+void PVParallelView::PVFullParallelScene::update_selection_from_sliders_Slot(axis_id_t axis_id)
 {
-	PVZoneID zid = _lib_view.get_axes_combination().get_index_by_id(axe_id);
+	PVZoneID zid = _lib_view.get_axes_combination().get_index_by_id(axis_id);
 	_selection_square->clear_rect();
 	uint32_t nb_select = _selection_generator.compute_selection_from_sliders(zid, _axes[zid]->get_selection_ranges(), lib_view().get_volatile_selection());
 	_parallel_view->set_selected_line_number(nb_select);
@@ -596,7 +596,7 @@ void PVParallelView::PVFullParallelScene::update_number_of_zones()
 	 * list are for new axes which are created.
 	 */
 	for (size_t i = 0; i < _axes.size(); ++i) {
-		PVCol index = _lib_view.get_axes_combination().get_index_by_id(_axes[i]->get_axe_id());
+		PVCol index = _lib_view.get_axes_combination().get_index_by_id(_axes[i]->get_axis_id());
 		if (index == PVCOL_INVALID_VALUE) {
 			// AG: this is really important to do this to force the
 			// deletion of this PVAxisGraphicsItem object. Indeed,
@@ -641,8 +641,8 @@ void PVParallelView::PVFullParallelScene::add_zone_image()
 void PVParallelView::PVFullParallelScene::add_axis(PVZoneID const z, int index)
 {
 	PVParallelView::PVAxisGraphicsItem* axisw = new PVParallelView::PVAxisGraphicsItem(_sm_p, lib_view(), _lib_view.get_axes_combination().get_axes_comb_id(z));
-	connect(axisw->get_sliders_group(), SIGNAL(selection_sliders_moved(axe_id_t)),
-	        this, SLOT(update_selection_from_sliders_Slot(axe_id_t)));
+	connect(axisw->get_sliders_group(), SIGNAL(selection_sliders_moved(axis_id_t)),
+	        this, SLOT(update_selection_from_sliders_Slot(axis_id_t)));
 	addItem(axisw);
 	if (index < 0) {
 		_axes.push_back(axisw);
