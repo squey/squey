@@ -327,7 +327,7 @@ QString PVInspector::PVStartScreenWidget::get_string_from_source_description(con
 
 	QStringList inputs_string;
 	for (auto input : src_desc.get_inputs()) {
-		inputs_string << input->human_name();
+		inputs_string << input->human_name() + " [" + src_desc.get_format().get_format_name() +"]";
 	}
 	return inputs_string.join(", ");
 }
