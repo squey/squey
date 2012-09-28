@@ -24,7 +24,6 @@
 #include <pvparallelview/PVFullParallelView.h>
 
 //#include <pvguiqt/PVAxesCombinationDialog.h>
-
 #include <pvparallelview/PVLibView.h>
 
 #include <pvbase/general.h>
