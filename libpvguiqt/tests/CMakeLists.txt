@@ -7,7 +7,7 @@ include_directories(AFTER ${PVKERNEL_INCLUDE_DIR})
 include_directories(AFTER ${PVHIVE_INCLUDE_DIR})
 include_directories(AFTER ${PVGUIQT_INCLUDE_DIR})
 
-set(COMMON_LIBRARIES ${PVGUIQT_LIBRARIES} ${PVHIVE_LIBRARIES} ${PVKERNEL_LIBRARIES} ${PICVIZ_LIBRARIES} ${TBB_LIBRARIES} ${BOOST_LIBRARIES} ${Boost_LIBRARIES_PYTHON} ${PYTHON_LIBRARY} ${OpenMP_LIBRARIES})
+set(COMMON_LIBRARIES ${PVPARALLELVIEW_LIBRARIES} ${PVGUIQT_LIBRARIES} ${PVHIVE_LIBRARIES} ${PVKERNEL_LIBRARIES} ${PICVIZ_LIBRARIES} ${TBB_LIBRARIES} ${BOOST_LIBRARIES} ${Boost_LIBRARIES_PYTHON} ${PYTHON_LIBRARY} ${OpenMP_LIBRARIES})
 
 # Datatree model
 add_executable(Tqt_datatree datatree-model.cpp)
@@ -42,6 +42,10 @@ target_link_libraries(Tqt_huge-model ${COMMON_LIBRARIES})
 add_executable(Tqt_css css.cpp)
 target_link_libraries(Tqt_css ${COMMON_LIBRARIES})
 
-# Workspaces
-add_executable(Tqt_workspaces workspaces.cpp)
-target_link_libraries(Tqt_workspaces ${COMMON_LIBRARIES})
+if (CUDA_FOUND)
+	# Workspaces
+	set(LINK_LIBRARIES ${LINK_LIBRARIES} ${CUDA_LIBRARIES} /opt/cuda/lib64/libnpp.so)
+	include_directories(AFTER ${CUDA_INCLUDE_DIRS})
+	add_executable(Tqt_workspaces workspaces.cpp common.cpp)
+	target_link_libraries(Tqt_workspaces ${COMMON_LIBRARIES} ${CUDA_LIBRARIES} ${LINK_LIBRARIES})
+endif(CUDA_FOUND)

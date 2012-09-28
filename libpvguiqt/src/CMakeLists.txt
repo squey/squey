@@ -23,6 +23,7 @@ PVRootTreeView.cpp
 PVSortFilterProxyModel.cpp
 PVLogoModel.cpp
 PVLogoScene.cpp
+PVWorkspacesTabWidget.cpp
 PVWorkspace.cpp
 )
 
@@ -41,6 +42,7 @@ include/pvguiqt/PVListingView.h
 include/pvguiqt/PVHiveDataTreeModel.h
 include/pvguiqt/PVSortFilterProxyModel.h
 include/pvguiqt/PVLogoScene.h
+include/pvguiqt/PVWorkspacesTabWidget.h
 include/pvguiqt/PVWorkspace.h
 )
 
@@ -66,9 +68,10 @@ add_library(pvguiqt SHARED ${SRC_FILES} ${HEADER_FILES} ${MOC_SRC} ${MOC_HEADERS
 
 set_target_properties(pvguiqt PROPERTIES SOVERSION 1)
 
-set(PVGUIQT_LINK_LIBRARIES ${QT_LIBRARIES} ${OPENGL_LIBRARIES} ${TBB_LIBRARIES} ${PVKERNEL_LIBRARIES} ${PICVIZ_LIBRARIES} ${PVHIVE_LIBRARIES} ${OpenMP_LIBRARIES})
+MESSAGE(INFO  ${PVPARALLELVIEW_LIBRARIES})
+set(PVGUIQT_LINK_LIBRARIES ${PVPARALLELVIEW_LIBRARIES} ${QT_LIBRARIES} ${OPENGL_LIBRARIES} ${TBB_LIBRARIES} ${PVKERNEL_LIBRARIES} ${PICVIZ_LIBRARIES} ${PVHIVE_LIBRARIES} ${OpenMP_LIBRARIES})
 
-target_link_libraries(pvguiqt ${PVHIVE_LINK_LIBRARIES})
+target_link_libraries(pvguiqt ${PVGUIQT_LINK_LIBRARIES})
 
 INSTALL(TARGETS pvguiqt LIBRARY DESTINATION .
                         RUNTIME DESTINATION .)

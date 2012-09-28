@@ -23,7 +23,7 @@
 #include <pvparallelview/PVFullParallelScene.h>
 #include <pvparallelview/PVFullParallelView.h>
 
-#include <pvguiqt/PVAxesCombinationDialog.h>
+//#include <pvguiqt/PVAxesCombinationDialog.h>
 
 #include <pvparallelview/PVLibView.h>
 
@@ -72,8 +72,8 @@ int main(int argc, char** argv)
 		layout->setContentsMargins(0, 0, 0, 0);
 		dlg->setLayout(layout);
 
-		QWidget *axes = new PVGuiQt::PVAxesCombinationDialog(view_sp);
-		layout->addWidget(axes);
+		/*QWidget *axes = new PVGuiQt::PVAxesCombinationDialog(view_sp);
+		layout->addWidget(axes);*/
 		dlg->show();
 	}
 
