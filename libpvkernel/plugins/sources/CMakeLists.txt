@@ -45,8 +45,8 @@ endif(PYTHONLIBS_FOUND)
 
 
 if(HDFS_FOUND)
-	add_library(source_text_hdfs SHARED hdfs/text/PVSourceCreatorTexthdfs.cpp hdfs/text/PVSourceCreatorTexthdfs.h ../common/hdfs/PVInputHDFSFile.cpp ../common/hdfs/PVInputHDFSServer.cpp hdfs/PVInputHDFS.cpp hdfs/PVChunkAlignHadoop.cpp  hdfs/PVHadoopResultServer.cpp  hdfs/PVHadoopTaskResult.cpp  hdfs/PVInputHDFS.cpp hdfs/text/register.cpp)
-	target_link_libraries(source_text_hdfs ${PVKERNEL_LIBRARIES} ${HDFS_LIBRARIES})
+	#add_library(source_text_hdfs SHARED hdfs/text/PVSourceCreatorTexthdfs.cpp hdfs/text/PVSourceCreatorTexthdfs.h ../common/hdfs/PVInputHDFSFile.cpp ../common/hdfs/PVInputHDFSServer.cpp hdfs/PVInputHDFS.cpp hdfs/PVChunkAlignHadoop.cpp  hdfs/PVHadoopResultServer.cpp  hdfs/PVHadoopTaskResult.cpp  hdfs/PVInputHDFS.cpp hdfs/text/register.cpp)
+	#target_link_libraries(source_text_hdfs ${PVKERNEL_LIBRARIES} ${HDFS_LIBRARIES})
 endif(HDFS_FOUND)
 
 INSTALL(TARGETS ${SOURCES_DIST_LIST} LIBRARY DESTINATION sources
