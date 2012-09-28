@@ -41,6 +41,7 @@ include/pvguiqt/PVListingView.h
 include/pvguiqt/PVHiveDataTreeModel.h
 include/pvguiqt/PVSortFilterProxyModel.h
 include/pvguiqt/PVLogoScene.h
+include/pvguiqt/PVWorkspace.h
 )
 
 SET(UI_FILES
