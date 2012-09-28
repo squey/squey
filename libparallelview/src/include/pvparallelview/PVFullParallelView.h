@@ -33,6 +33,7 @@ public:
 
 public:
 	void paintEvent(QPaintEvent *event);
+	void resizeEvent(QResizeEvent *event);
 
 	void set_total_line_number(uint32_t total_lines) { _total_lines = total_lines; }
 	void set_selected_line_number(uint32_t selected_lines) { _selected_lines = selected_lines; }
